@@ -37,6 +37,7 @@ from pathlib import Path
 from . import state as st
 
 OK, FAIL, UNCHECKED, USAGE, CRASH = 0, 1, 2, 3, 4
+_RUNS = 0     # commands run in this process: only the first one runs fresh
 TOOL_KINDS = ("drill", "end_mill", "collet_nose", "laser_cone", "needle")
 SLUG = re.compile(r"^[A-Za-z0-9_][A-Za-z0-9_-]{0,63}$")
 
@@ -424,25 +425,55 @@ def cmd_approve(a) -> Result:
                   f"approved {len(done)}", [str(pdir / d) for d in done])
 
 
+def _where(git: dict | None) -> str:
+    if not git:
+        return "no git repo"
+    if not git.get("commit"):
+        return "git repo with no commits"
+    return f"commit {git['commit'][:10]}" + (" + uncommitted changes" if git.get("dirty") else "")
+
+
+def cmd_verify(a) -> Result:
+    """Rebuild from source in a fresh process, run every gate, write verify.json."""
+    pdir = _project(a.slug)
+    from . import verify
+    views = tuple(v.strip() for v in a.views.split(",") if v.strip()) or ("iso",)
+    mode = (("warm-fork" if os.environ.get("CAD_WARM_CHILD") == "1" else "cold")
+            if a._fresh else "reused")
+    rec = verify.run(a.slug, fresh=a._fresh, mode=mode, views=views)
+    code = {"PASS": OK, "FAIL": FAIL}.get(rec["verdict"], UNCHECKED)
+    where = _where(rec["git"])
+    lines = [f"{a.slug}  {rec['verdict']}  at {where} · {rec['design_files']} design files · "
+             f"{mode} process · {rec['seconds']} s"]
+    lines += _rows_text(rec["rows"], a.all)
+    lines += [f"  note: {n}" for n in rec["notes"]]
+    shown = rec["rows"] if a.all else [r for r in rec["rows"] if r["state"] != "PASS"]
+    data = {**{k: v for k, v in rec.items() if k != "rows"}, "rows": shown}
+    return Result(code, data, "\n".join(lines), f"{rec['verdict']} at {where}",
+                  [str(pdir / "verify.json")])
+
+
 def cmd_done(a) -> Result:
-    from .runner import done_check
+    """The gate: the last verdict must be PASS and must still describe the files."""
     _project(a.slug)
-    try:
-        d = done_check(a.slug)
-    except FileNotFoundError:
-        msg = "no checks.json yet: run `cad check` first"
-        return Result(UNCHECKED, {"ok": False, "failures": [msg]}, msg, "never checked")
-    if d["ok"]:
+    from . import verify
+    s = verify.status(a.slug)
+    stale = [r for r in s["reasons"] if not r.startswith("the verdict was")]
+    if s["done"]:
         code = OK
-    elif (d.get("by_state") or {}).get("FAIL") or any(
-            "did not build" in f or f.startswith("no parts") for f in d["failures"]):
+    elif s["verdict"] == "FAIL" and not stale:
         code = FAIL
     else:
         code = UNCHECKED
-    lines = [f"{a.slug}  {'DONE' if d['ok'] else 'NOT DONE'}  (checked {d.get('checked_utc')})"]
-    lines += [f"  {f}" for f in d["failures"]]
-    return Result(code, {"project": a.slug, **d}, "\n".join(lines),
-                  "done" if d["ok"] else f"{len(d['failures'])} open")
+    if s["done"]:
+        head = f"{a.slug}  DONE  verified {s['verified_utc']} at {_where(verify.git_info(st.project_dir(a.slug)))}"
+    else:
+        head = f"{a.slug}  NOT DONE"
+    lines = [head] + [f"  {r}" for r in s["reasons"]]
+    lines += [f"  {r['state']:9} {r['rule']:24} {r['subject']:20} {r['measured']}"
+              for r in s.get("failing", [])[:10]]
+    return Result(code, s, "\n".join(lines),
+                  "done" if s["done"] else f"not done: {len(s['reasons'])} reasons")
 
 
 def cmd_cutlist(a) -> Result:
@@ -612,7 +643,14 @@ def build_parser() -> argparse.ArgumentParser:
     sp.add_argument("--part")
     sp.add_argument("--view")
 
-    sp = add("done", cmd_done, "the gate: exit 0 only if nothing is FAIL or UNCHECKED")
+    sp = add("verify", cmd_verify, "the verifier: rebuild from source in a fresh process, "
+             "run every gate, record the verdict with hashes and git commit")
+    sp.add_argument("slug")
+    sp.add_argument("--views", default="iso", help="views to render and gate, comma separated")
+    sp.add_argument("--all", action="store_true", help="show passing rows too")
+
+    sp = add("done", cmd_done, "the gate: exit 0 only if the last verify passed, still "
+             "matches the files, ran fresh, and (in a repo) verified committed work")
     sp.add_argument("slug")
 
     sp = add("cutlist", cmd_cutlist, "stock to order and cut, roughly priced")
@@ -711,6 +749,13 @@ def main(argv: list[str] | None = None) -> int:
     if not getattr(a, "func", None):
         (parser if not a.cmd else parser._subparsers._group_actions[0].choices[a.cmd]).print_help(sys.stderr)
         return USAGE
+
+    # Fresh means nothing ran here before this command: no earlier command and no
+    # gate code loaded. A warm-worker fork and a new interpreter both qualify; a
+    # long-lived process calling main() again (tests, the MCP server) does not.
+    global _RUNS
+    a._fresh = _RUNS == 0 and "cad_agent.runner" not in sys.modules
+    _RUNS += 1
 
     t0 = time.perf_counter()
     try:

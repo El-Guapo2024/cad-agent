@@ -70,6 +70,15 @@ def test_an_edited_part_is_seen_on_the_next_call(warm):
     assert json.loads(p.stdout)["data"]["bbox_mm"][2] == 7.0
 
 
+def test_verify_through_the_worker_runs_fresh(warm):
+    cad, _ = warm
+    p = cad("--json", "verify", "demo")
+    assert p.returncode in (0, 1, 2), p.stderr
+    assert json.loads(p.stdout)["data"]["process"] == {"fresh": True, "mode": "warm-fork"}
+    d = cad("--json", "done", "demo")
+    assert (d.returncode == 0) == json.loads(d.stdout)["data"]["done"]
+
+
 def test_status_counts_what_it_served(warm):
     cad, _ = warm
     p = cad("warm", "status")

@@ -25,6 +25,7 @@ from cad_agent.parts import CLEARANCE_HOLE
 MATERIAL = "petg"
 PROCESS = "fdm"
 MIN_FEATURE_MM = 1.2
+EXPECT_FEATURES = 2
 
 PARAMS = {"width": 40.0, "depth": 20.0, "thickness": 4.0, "screw": "M3"}
 
@@ -206,13 +207,18 @@ def test_check_exit_code_is_the_verdict_and_approval_settles_drift(demo, capsys)
     assert drift and all(r["state"] == "PASS" for r in drift)
     assert code == cli._verdict(r["state"] for r in data["rows"])
 
+    # This process already ran commands, so its verify cannot count as fresh.
+    code, data = run(capsys, "verify", "demo")
+    assert code == cli.UNCHECKED and data["process"] == {"fresh": False, "mode": "reused"}
     code, data = run(capsys, "done", "demo")
-    assert (code == cli.OK) == data["ok"]
+    assert code == cli.UNCHECKED and data["done"] is False
+    assert "the verdict came from a process that was not fresh" in data["reasons"]
 
 
-def test_done_before_any_check_is_unchecked(demo, capsys):
+def test_done_before_any_verify_is_unchecked(demo, capsys):
     code, data = run(capsys, "done", "demo")
-    assert code == cli.UNCHECKED and data["ok"] is False
+    assert code == cli.UNCHECKED and data["done"] is False
+    assert data["reasons"] == ["never verified: run `cad verify`"]
 
 
 # ─── Bought parts ────────────────────────────────────────────────────────────

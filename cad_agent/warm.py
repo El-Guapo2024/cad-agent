@@ -100,6 +100,7 @@ def _child(req: dict, fds: list[int]) -> None:
         sys.stdout = os.fdopen(1, "w", closefd=False)
         sys.stderr = os.fdopen(2, "w", closefd=False)
         sys.argv = ["cad", *req["argv"]]
+        os.environ["CAD_WARM_CHILD"] = "1"     # lets `cad verify` record how it ran
         from cad_agent import cli              # fresh from disk in every child
         code = cli.main(list(req["argv"]))
     except SystemExit as e:
