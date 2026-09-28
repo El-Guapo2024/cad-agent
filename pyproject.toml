@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools>=68.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "cad-agent"
+version = "0.1.0"
+description = "Agent-driven mechanical CAD: parametric parts, deterministic gates, headless render"
+requires-python = ">=3.12"
+dependencies = [
+    "build123d>=0.9",   # OCCT B-rep kernel, STEP in/out, assemblies
+    "numpy>=1.26",      # the fallback z-buffer rasteriser
+    "mcp>=1.0",         # MCP server (FastMCP on 1.x, MCPServer on 2.x)
+]
+
+[project.optional-dependencies]
+# macOS has no EGL, so there is no headless OpenGL. Metal is the supported
+# route and PyObjC reaches it. Without this the numpy rasteriser still works.
+metal = ["pyobjc-framework-Metal>=10.0"]
+dev = ["pytest"]
+
+[project.scripts]
+cad = "cad_agent.warm:main"            # the CLI agents drive, via the warm worker; bin/cad runs it without installing
+cad-agent = "cad_agent.__main__:main"  # the MCP server, until the CLI replaces it
+
+[tool.setuptools.packages.find]
+include = ["cad_agent*"]

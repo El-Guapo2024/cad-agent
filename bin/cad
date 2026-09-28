@@ -1,0 +1,15 @@
+#!/bin/sh
+# cad: run the cad-agent CLI with this checkout's own environment, from anywhere.
+# Goes through the warm worker (cad_agent/warm.py) so the CAD kernel is imported
+# once, not per call; CAD_WARM=0 runs cold. Follows symlinks, so linking this
+# file onto your PATH works.
+self="$0"
+while [ -L "$self" ]; do
+  link="$(readlink "$self")"
+  case "$link" in
+    /*) self="$link" ;;
+    *) self="$(dirname "$self")/$link" ;;
+  esac
+done
+here="$(cd "$(dirname "$self")/.." && pwd -P)"
+exec "$here/.venv/bin/python" -m cad_agent.warm "$@"

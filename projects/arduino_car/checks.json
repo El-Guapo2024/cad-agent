@@ -1,0 +1,1006 @@
+{
+  "project": "arduino_car",
+  "parts": {
+    "caster": {
+      "state": "BUILT",
+      "doc": "Ball caster at the nose: a printed socket holding a loose steel ball.",
+      "params": {
+        "ball_dia": 16.0,
+        "ball_gap": 0.6,
+        "body_dia": 28.0,
+        "drop": 42.3,
+        "flange_t": 4.0,
+        "pcd": 26.0,
+        "hole_dia": 3.4,
+        "lip": 2.0
+      },
+      "material": "petg",
+      "process": "fdm",
+      "build_s": 0.068,
+      "bbox_mm": [
+        40.0,
+        40.0,
+        46.3
+      ],
+      "volume_cm3": 28.583,
+      "mass_g": 36.3
+    },
+    "chassis": {
+      "state": "BUILT",
+      "doc": "Chassis plate: the one part everything else bolts to.",
+      "params": {
+        "length": 170.0,
+        "width": 82.0,
+        "thickness": 3.0,
+        "corner_r": 10.0,
+        "arduino_x": 44.0,
+        "arduino_hole_dia": 3.4,
+        "motor_x": -6.0,
+        "motor_spacing": 51.0,
+        "motor_slot_len": 8.0,
+        "motor_slot_dia": 3.4,
+        "caster_x": -70.0,
+        "caster_pcd": 26.0,
+        "caster_hole_dia": 3.4,
+        "battery_bay_l": 56.0,
+        "battery_bay_w": 34.0,
+        "wire_slot_w": 5.0,
+        "wire_slot_l": 26.0,
+        "wire_slot_y": 34.0
+      },
+      "material": "acrylic",
+      "process": "laser_cut",
+      "build_s": 0.368,
+      "bbox_mm": [
+        170.0,
+        82.0,
+        3.0
+      ],
+      "volume_cm3": 34.417,
+      "mass_g": 40.61
+    },
+    "motor_bracket": {
+      "state": "BUILT",
+      "doc": "L-bracket clamping a TT gearmotor to the underside of the chassis.",
+      "params": {
+        "base_l": 40.0,
+        "base_w": 22.0,
+        "wall": 3.0,
+        "upright_h": 26.0,
+        "chassis_hole_dia": 3.4,
+        "chassis_hole_pitch": 28.0,
+        "motor_slot_len": 6.0,
+        "motor_slot_dia": 3.4,
+        "motor_hole_pitch": 17.0,
+        "rib": 8.0
+      },
+      "material": "petg",
+      "process": "fdm",
+      "build_s": 0.137,
+      "bbox_mm": [
+        40.0,
+        22.0,
+        26.0
+      ],
+      "volume_cm3": 4.197,
+      "mass_g": 5.33
+    },
+    "wheel": {
+      "state": "BUILT",
+      "doc": "Drive wheel pressed onto the TT motor's D-shaft.",
+      "params": {
+        "dia": 65.0,
+        "width": 24.0,
+        "rim_wall": 3.5,
+        "groove_depth": 2.5,
+        "groove_width": 6.0,
+        "hub_dia": 16.0,
+        "hub_len": 14.0,
+        "bore_dia": 5.6,
+        "bore_flat": 0.5,
+        "spokes": 6,
+        "spoke_w": 5.0,
+        "web": 3.0
+      },
+      "material": "petg",
+      "process": "fdm",
+      "build_s": 0.178,
+      "bbox_mm": [
+        24.0,
+        65.0,
+        65.0
+      ],
+      "volume_cm3": 17.94,
+      "mass_g": 22.78
+    }
+  },
+  "renders": [
+    {
+      "part": "caster",
+      "view": "iso",
+      "path": "out/caster_iso.png",
+      "triangles": 3265
+    },
+    {
+      "part": "chassis",
+      "view": "iso",
+      "path": "out/chassis_iso.png",
+      "triangles": 2824
+    },
+    {
+      "part": "motor_bracket",
+      "view": "iso",
+      "path": "out/motor_bracket_iso.png",
+      "triangles": 770
+    },
+    {
+      "part": "wheel",
+      "view": "iso",
+      "path": "out/wheel_iso.png",
+      "triangles": 1468
+    },
+    {
+      "part": "assembly",
+      "view": "iso",
+      "path": "out/assembly_iso.png",
+      "triangles": 15855
+    }
+  ],
+  "rows": [
+    {
+      "subject": "caster",
+      "rule": "envelope",
+      "state": "PASS",
+      "measured": "40.0 x 40.0 x 46.3 mm",
+      "limit": "250 x 210 x 210 mm",
+      "source": "0.4 mm nozzle, 2 perimeters; bed size assumption",
+      "check": "geometry",
+      "artifacts": []
+    },
+    {
+      "subject": "caster",
+      "rule": "min wall",
+      "state": "PASS",
+      "measured": "2.0174 mm at the 1st percentile (min 0.1469, median 27.9673, 3000 rays)",
+      "limit": "0.8 mm",
+      "source": "ray cast through the solid; p01 gates, since a grazing ray at an edge can return near zero",
+      "check": "geometry",
+      "artifacts": []
+    },
+    {
+      "subject": "caster",
+      "rule": "web",
+      "state": "N/A",
+      "measured": "not a flat part (thinnest/longest = 0.86)",
+      "limit": "1.2 mm",
+      "source": "the in-plane rule applies below a ratio of 0.25",
+      "check": "geometry",
+      "artifacts": []
+    },
+    {
+      "subject": "caster",
+      "rule": "volume",
+      "state": "PASS",
+      "measured": "28.58 cm^3",
+      "limit": "n/a",
+      "source": "computed",
+      "check": "geometry",
+      "artifacts": []
+    },
+    {
+      "subject": "caster",
+      "rule": "silhouette/iso",
+      "state": "PASS",
+      "measured": "33.35% of the frame",
+      "limit": "at least 0.5%",
+      "source": "non-background pixels; near zero means nothing was drawn",
+      "check": "visual",
+      "artifacts": [
+        "/Users/juanantonioluera/ws/cad-agent/projects/arduino_car/out/_check_caster_iso.png"
+      ]
+    },
+    {
+      "subject": "caster",
+      "rule": "drift/iso",
+      "state": "PASS",
+      "measured": "0.000% of pixels differ",
+      "limit": "0.2% at a channel tolerance of 24",
+      "source": "compared against the approved image; a deliberate change is re-approved, an accidental one is caught",
+      "check": "visual",
+      "artifacts": [
+        "/Users/juanantonioluera/ws/cad-agent/projects/arduino_car/out/_check_caster_iso.png",
+        "/Users/juanantonioluera/ws/cad-agent/projects/arduino_car/baseline/caster_iso.png"
+      ]
+    },
+    {
+      "subject": "caster",
+      "rule": "extent/iso",
+      "state": "PASS",
+      "measured": "drawn extent moved 0 px",
+      "limit": "1 px",
+      "source": "separates a change of shape from a change of position or scale in the frame",
+      "check": "visual",
+      "artifacts": []
+    },
+    {
+      "subject": "chassis",
+      "rule": "envelope",
+      "state": "PASS",
+      "measured": "170.0 x 82.0 x 3.0 mm",
+      "limit": "600 x 400 x 25 mm",
+      "source": "CO2 on 3 mm acrylic, typical kerf",
+      "check": "geometry",
+      "artifacts": []
+    },
+    {
+      "subject": "chassis",
+      "rule": "min wall",
+      "state": "PASS",
+      "measured": "2.9998 mm at the 1st percentile (min 2.9998, median 2.9998, 3000 rays)",
+      "limit": "1.5 mm",
+      "source": "ray cast through the solid; p01 gates, since a grazing ray at an edge can return near zero",
+      "check": "geometry",
+      "artifacts": []
+    },
+    {
+      "subject": "chassis",
+      "rule": "web",
+      "state": "PASS",
+      "measured": "4.1076 mm between outer edge and cutout at (-80.9, -9.2), at (-82.95, -9.19)",
+      "limit": "1.5 mm",
+      "source": "closest approach over 120 boundary pairs",
+      "check": "geometry",
+      "artifacts": []
+    },
+    {
+      "subject": "chassis",
+      "rule": "feature count",
+      "state": "PASS",
+      "measured": "15 cutouts",
+      "limit": "15 expected",
+      "source": "a count that drops means one cutout has swallowed another or broken out through an edge",
+      "check": "geometry",
+      "artifacts": []
+    },
+    {
+      "subject": "chassis",
+      "rule": "volume",
+      "state": "PASS",
+      "measured": "34.42 cm^3",
+      "limit": "n/a",
+      "source": "computed",
+      "check": "geometry",
+      "artifacts": []
+    },
+    {
+      "subject": "chassis",
+      "rule": "silhouette/iso",
+      "state": "PASS",
+      "measured": "25.85% of the frame",
+      "limit": "at least 0.5%",
+      "source": "non-background pixels; near zero means nothing was drawn",
+      "check": "visual",
+      "artifacts": [
+        "/Users/juanantonioluera/ws/cad-agent/projects/arduino_car/out/_check_chassis_iso.png"
+      ]
+    },
+    {
+      "subject": "chassis",
+      "rule": "drift/iso",
+      "state": "PASS",
+      "measured": "0.000% of pixels differ",
+      "limit": "0.2% at a channel tolerance of 24",
+      "source": "compared against the approved image; a deliberate change is re-approved, an accidental one is caught",
+      "check": "visual",
+      "artifacts": [
+        "/Users/juanantonioluera/ws/cad-agent/projects/arduino_car/out/_check_chassis_iso.png",
+        "/Users/juanantonioluera/ws/cad-agent/projects/arduino_car/baseline/chassis_iso.png"
+      ]
+    },
+    {
+      "subject": "chassis",
+      "rule": "extent/iso",
+      "state": "PASS",
+      "measured": "drawn extent moved 0 px",
+      "limit": "1 px",
+      "source": "separates a change of shape from a change of position or scale in the frame",
+      "check": "visual",
+      "artifacts": []
+    },
+    {
+      "subject": "motor_bracket",
+      "rule": "envelope",
+      "state": "PASS",
+      "measured": "40.0 x 22.0 x 26.0 mm",
+      "limit": "250 x 210 x 210 mm",
+      "source": "0.4 mm nozzle, 2 perimeters; bed size assumption",
+      "check": "geometry",
+      "artifacts": []
+    },
+    {
+      "subject": "motor_bracket",
+      "rule": "min wall",
+      "state": "PASS",
+      "measured": "2.9999 mm at the 1st percentile (min 2.9999, median 2.9999, 3000 rays)",
+      "limit": "0.8 mm",
+      "source": "ray cast through the solid; p01 gates, since a grazing ray at an edge can return near zero",
+      "check": "geometry",
+      "artifacts": []
+    },
+    {
+      "subject": "motor_bracket",
+      "rule": "web",
+      "state": "N/A",
+      "measured": "not a flat part (thinnest/longest = 0.55)",
+      "limit": "1.2 mm",
+      "source": "the in-plane rule applies below a ratio of 0.25",
+      "check": "geometry",
+      "artifacts": []
+    },
+    {
+      "subject": "motor_bracket",
+      "rule": "volume",
+      "state": "PASS",
+      "measured": "4.20 cm^3",
+      "limit": "n/a",
+      "source": "computed",
+      "check": "geometry",
+      "artifacts": []
+    },
+    {
+      "subject": "motor_bracket",
+      "rule": "silhouette/iso",
+      "state": "PASS",
+      "measured": "29.03% of the frame",
+      "limit": "at least 0.5%",
+      "source": "non-background pixels; near zero means nothing was drawn",
+      "check": "visual",
+      "artifacts": [
+        "/Users/juanantonioluera/ws/cad-agent/projects/arduino_car/out/_check_motor_bracket_iso.png"
+      ]
+    },
+    {
+      "subject": "motor_bracket",
+      "rule": "drift/iso",
+      "state": "PASS",
+      "measured": "0.000% of pixels differ",
+      "limit": "0.2% at a channel tolerance of 24",
+      "source": "compared against the approved image; a deliberate change is re-approved, an accidental one is caught",
+      "check": "visual",
+      "artifacts": [
+        "/Users/juanantonioluera/ws/cad-agent/projects/arduino_car/out/_check_motor_bracket_iso.png",
+        "/Users/juanantonioluera/ws/cad-agent/projects/arduino_car/baseline/motor_bracket_iso.png"
+      ]
+    },
+    {
+      "subject": "motor_bracket",
+      "rule": "extent/iso",
+      "state": "PASS",
+      "measured": "drawn extent moved 0 px",
+      "limit": "1 px",
+      "source": "separates a change of shape from a change of position or scale in the frame",
+      "check": "visual",
+      "artifacts": []
+    },
+    {
+      "subject": "wheel",
+      "rule": "envelope",
+      "state": "PASS",
+      "measured": "24.0 x 65.0 x 65.0 mm",
+      "limit": "250 x 210 x 210 mm",
+      "source": "0.4 mm nozzle, 2 perimeters; bed size assumption",
+      "check": "geometry",
+      "artifacts": []
+    },
+    {
+      "subject": "wheel",
+      "rule": "min wall",
+      "state": "PASS",
+      "measured": "0.9968 mm at the 1st percentile (min 0.9652, median 3.4956, 3000 rays)",
+      "limit": "0.8 mm",
+      "source": "ray cast through the solid; p01 gates, since a grazing ray at an edge can return near zero",
+      "check": "geometry",
+      "artifacts": []
+    },
+    {
+      "subject": "wheel",
+      "rule": "web",
+      "state": "N/A",
+      "measured": "not a flat part (thinnest/longest = 0.37)",
+      "limit": "1.2 mm",
+      "source": "the in-plane rule applies below a ratio of 0.25",
+      "check": "geometry",
+      "artifacts": []
+    },
+    {
+      "subject": "wheel",
+      "rule": "volume",
+      "state": "PASS",
+      "measured": "17.94 cm^3",
+      "limit": "n/a",
+      "source": "computed",
+      "check": "geometry",
+      "artifacts": []
+    },
+    {
+      "subject": "wheel",
+      "rule": "silhouette/iso",
+      "state": "PASS",
+      "measured": "41.56% of the frame",
+      "limit": "at least 0.5%",
+      "source": "non-background pixels; near zero means nothing was drawn",
+      "check": "visual",
+      "artifacts": [
+        "/Users/juanantonioluera/ws/cad-agent/projects/arduino_car/out/_check_wheel_iso.png"
+      ]
+    },
+    {
+      "subject": "wheel",
+      "rule": "drift/iso",
+      "state": "PASS",
+      "measured": "0.000% of pixels differ",
+      "limit": "0.2% at a channel tolerance of 24",
+      "source": "compared against the approved image; a deliberate change is re-approved, an accidental one is caught",
+      "check": "visual",
+      "artifacts": [
+        "/Users/juanantonioluera/ws/cad-agent/projects/arduino_car/out/_check_wheel_iso.png",
+        "/Users/juanantonioluera/ws/cad-agent/projects/arduino_car/baseline/wheel_iso.png"
+      ]
+    },
+    {
+      "subject": "wheel",
+      "rule": "extent/iso",
+      "state": "PASS",
+      "measured": "drawn extent moved 0 px",
+      "limit": "1 px",
+      "source": "separates a change of shape from a change of position or scale in the frame",
+      "check": "visual",
+      "artifacts": []
+    },
+    {
+      "subject": "arduino vs bracket_left",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 9.000 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "arduino vs bracket_right",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 9.000 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "arduino vs caster",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 51.139 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "arduino vs caster_ball",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 78.396 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "arduino vs chassis",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 6.000 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "arduino vs motor_left",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 12.500 mm",
+      "limit": "3.00 mm",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "arduino vs motor_right",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 12.500 mm",
+      "limit": "3.00 mm",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "arduino vs wheel_left",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 17.330 mm",
+      "limit": "5.00 mm",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "arduino vs wheel_right",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 17.330 mm",
+      "limit": "5.00 mm",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "bracket_left vs bracket_right",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 29.000 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "bracket_left vs caster",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 30.142 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "bracket_left vs caster_ball",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 44.060 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "bracket_left vs chassis",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "in contact (allowed)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "bracket_left vs motor_left",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 0.500 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "bracket_left vs motor_right",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 21.722 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "bracket_left vs wheel_left",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 7.512 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "bracket_left vs wheel_right",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 58.502 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "bracket_right vs caster",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 30.142 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "bracket_right vs caster_ball",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 44.060 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "bracket_right vs chassis",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "in contact (allowed)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "bracket_right vs motor_left",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 21.722 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "bracket_right vs motor_right",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 0.500 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "bracket_right vs wheel_left",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 58.502 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "bracket_right vs wheel_right",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 7.512 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "caster vs caster_ball",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 0.300 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "caster vs chassis",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "in contact (allowed)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "caster vs motor_left",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 39.470 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "caster vs motor_right",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 39.470 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "caster vs wheel_left",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 34.853 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "caster vs wheel_right",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 34.853 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "caster_ball vs chassis",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 32.000 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "caster_ball vs motor_left",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 53.303 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "caster_ball vs motor_right",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 53.303 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "caster_ball vs wheel_left",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 48.869 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "caster_ball vs wheel_right",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 48.869 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "chassis vs motor_left",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 3.500 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "chassis vs motor_right",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 3.500 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "chassis vs wheel_left",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 3.000 mm",
+      "limit": "2.00 mm",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "chassis vs wheel_right",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 3.000 mm",
+      "limit": "2.00 mm",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "motor_left vs motor_right",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 14.000 mm",
+      "limit": "5.00 mm",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "motor_left vs wheel_left",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 0.050 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "motor_left vs wheel_right",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 51.812 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "motor_right vs wheel_left",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 51.812 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "motor_right vs wheel_right",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 0.050 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "wheel_left vs wheel_right",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 88.000 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "assembly",
+      "rule": "travel",
+      "state": "N/A",
+      "measured": "no AXES declared, so nothing moves",
+      "limit": "n/a",
+      "source": "a static assembly is fully judged by the fit rule; declare AXES in assembly.py for a machine",
+      "check": "sweep",
+      "artifacts": []
+    },
+    {
+      "subject": "assembly",
+      "rule": "footprint",
+      "state": "PASS",
+      "measured": "104.5 \u00d7 136.0 mm across 3 bodies at z = -49.50 (caster_ball, wheel_left, wheel_right)",
+      "limit": "at least 5 mm in both axes",
+      "source": "union of the contact patches at the lowest plane; a span near zero in either axis is a line or point contact and will tip. Does not test the centre of mass.",
+      "check": "stance",
+      "artifacts": []
+    },
+    {
+      "subject": "assembly",
+      "rule": "ground plane",
+      "state": "PASS",
+      "measured": "3 bodies on the plane, 7 above it, none below",
+      "limit": "nothing below the lowest contact",
+      "source": "the lowest plane is taken as the ground, so nothing can be below it by construction; this row records the split",
+      "check": "stance",
+      "artifacts": []
+    },
+    {
+      "subject": "arduino_uno",
+      "rule": "source",
+      "state": "UNCHECKED",
+      "measured": "declared unconfirmed: Arduino UNO R3 User Manual, SKU A000066, section 5.4 Board Outline & Mounting Holes, page 12 (modified 07/09/2026), read from the drawing at 420 dpi. Outline dimensions are NOT on that page.",
+      "limit": "measured on the real part",
+      "source": "confirm with callipers on arrival, then set VERIFIED",
+      "check": "provenance",
+      "artifacts": []
+    },
+    {
+      "subject": "caster_ball",
+      "rule": "source",
+      "state": "PASS",
+      "measured": "standard bearing ball, nominal diameter is the specification",
+      "limit": "recorded and confirmed",
+      "source": "MEASURED route",
+      "check": "provenance",
+      "artifacts": []
+    },
+    {
+      "subject": "tt_motor",
+      "rule": "source",
+      "state": "UNCHECKED",
+      "measured": "declared unconfirmed: class-typical TT gearmotor envelope; no vendor drawing found, vendor pages blocked during the 2026-09-13 survey",
+      "limit": "measured on the real part",
+      "source": "confirm with callipers on arrival, then set VERIFIED",
+      "check": "provenance",
+      "artifacts": []
+    }
+  ],
+  "summary": {
+    "parts_built": 4,
+    "parts_failed": 0,
+    "checks_run": 13,
+    "rows": 80,
+    "by_state": {
+      "PASS": 74,
+      "N/A": 4,
+      "UNCHECKED": 2
+    },
+    "by_check": {
+      "geometry": {
+        "PASS": 14,
+        "N/A": 3
+      },
+      "visual": {
+        "PASS": 12
+      },
+      "fit": {
+        "PASS": 45
+      },
+      "sweep": {
+        "N/A": 1
+      },
+      "stance": {
+        "PASS": 2
+      },
+      "provenance": {
+        "UNCHECKED": 2,
+        "PASS": 1
+      }
+    },
+    "ok": false
+  },
+  "written_utc": "2026-09-20T17:44:59Z"
+}
