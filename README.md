@@ -1,15 +1,23 @@
 # cad-agent
 
 Agent-driven mechanical CAD. Parametric parts in Python, deterministic gates,
-headless renders. The mechanical sibling of the hardware agent in
-`~/ws/freight_flow_ai/hardware`.
+headless renders, and an independent verifier. A harness: agents drive it from
+the shell, and a design is done only when `cad verify` says so.
 
 ```
-.venv/bin/python -m cad_agent --version     # version, tool count, render backend
-.venv/bin/python -m pytest tests -q         # 84 tests
+bin/cad --help                                   # every command, and the exit codes
+bin/cad --projects <dir> check <slug>            # run every gate
+bin/cad --projects <dir> verify <slug>           # rebuild fresh, record the verdict with git
+bin/cad --projects <dir> done <slug>             # the gate: exit 0 only if that verdict still stands
+.venv/bin/python -m pytest tests -q              # 159 tests
 ```
 
-Registered with Claude Code as the `cad` MCP server (18 tools).
+Projects live wherever you keep them: `--projects DIR` or `CAD_PROJECTS`, or
+`projects/` here by default. The first call starts a warm worker that imports
+the CAD kernel once (20–35 s), then each command takes about a second;
+`CAD_WARM=0` runs cold. The v2 plan, the research map behind it, and what is
+built are in PLAN_V2.md. The MCP server (`python -m cad_agent`, 22 tools) still
+works until the CLI replaces it.
 
 ## Why build123d and not a GUI CAD
 

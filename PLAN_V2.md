@@ -1,6 +1,8 @@
 # cad-agent v2: CLI-first, with a verifier
 
-*2026-09-28. Plan, not started. v1 (PLAN.md, README.md) is built and green: 22 MCP tools, 129 tests, Metal renders, gates for geometry, fit, motion, tooling, visual, provenance.*
+*Written 2026-09-28. Steps 1 (CLI) and 2 (verifier) are done. v1 (PLAN.md, README.md) had 22 MCP tools, 129 tests, Metal renders, and gates for geometry, fit, motion, tooling, visual and provenance.*
+
+*Split 2026-09-28: cad-agent is its own repo (`~/ws/cad-agent`, GitHub El-Guapo2024/cad-agent). The Desk Fab Line is one project that uses it (`CAD_PROJECTS=~/ws/desk-fab-line/hardware/mech`). Its two CAD projects are snapshotted in `tests/fixtures` as the harness's regression designs. Focus: finish the harness; the fab line waits.*
 
 ## Goal
 
@@ -104,6 +106,17 @@ Each requirement becomes a PASS / FAIL / UNCHECKED row with the measured value, 
     - Downloads land in `inspiration/`, never in a design.
     - Most are non-commercial licences, so ideas only, per the earlier rule (clean-room our own parts).
   - The MCP registry has no connector for any of these (checked 2026-09-28), so this is CLI.
+- **Onshape bridge: dropped 2026-09-28.** The rule was "only if free". Onshape's free plan makes every document public, is for non-commercial use only, and has no API access. The API needs Professional, at $2,500 per user per year (onshape.com/en/pricing). Kept below for reference. Free stand-ins: OCP CAD Viewer for viewing, measuring and sections; FreeCAD for hand-modeled parts (export STEP, register with a source); git and the shared review page for collaboration.
+
+  The original idea: Onshape is the human side, for viewing, measuring, commenting and hand modeling in a browser or on a phone. Our code and verifier stay the source of truth. There's no connector in Claude's registry (checked), but Onshape has a full REST API, so this is CLI:
+  - `cad onshape push <slug>` exports STEP and uploads it as a new Onshape version named after the git commit and the verdict (for example "8055012 · PASS"). Git stays the history, and Onshape versions mirror it.
+  - **Small changes** go in as Onshape comments. The agent reads them through the API, edits the Python, verifies and pushes again, so the result stays parametric and verified.
+  - **Parts easier to model by hand** are modeled in Onshape. `cad onshape pull` brings them back as STEP, with the Onshape version as their source (like bought parts), and they go through the same fit checks. The verifier sees when that version changes.
+  - **What doesn't work:** editing a code-built part's geometry in Onshape and flowing it back into the Python. Imported STEP has no feature tree, so those edits would fork from the code.
+  - **Costs:**
+    - Free Onshape documents are public, so private designs need a paid plan.
+    - Onshape meters API calls per plan.
+    - You create the API keys in its developer portal and keep them yourself.
 - **Parts library** shared across projects: vendor STEPs with sources for MGN12, NEMA17/NEMA8, 2020/2040, GT2, fasteners, inserts, 858D, galvo head, cameras, pump. Today each project imports its own.
 - **Sub-assemblies**: frame, gantry, head, dock, laser and enclosure, each placed into one machine assembly.
 - **New rules**:
@@ -125,7 +138,13 @@ The CLI is the engine and the app drives it. No MCP.
 | **PostToolUse hook** on edits to `parts/*.py` or `assembly.py` | Runs `cad check <slug> --part <p> --json` and hands Claude only the failing rows, so gate feedback arrives on every save without being asked for. |
 | **Stop hook** | Runs `cad verify` on any project whose sources changed since the last verify (the hash check keeps this fast). A FAIL or UNCHECKED blocks the stop and feeds back the verdict, so the agent can't declare done over a red verifier. A counter caps the retries: after that, the session may end, but only with the failure stated. |
 | **Reviewer subagent** (`.claude/agents/cad-reviewer.md`) | Read-only: Read, `cad render`, `cad verify`. Looks at renders and `verify.json` and lists what no rule covers. It can't edit and can't pass anything. |
-| **Live 3D view in the app** | `cad serve <slug>` runs a small local three.js page that loads the GLB export and reloads on every rebuild. A `.claude/launch.json` entry lets the app's Browser pane open it, so you watch the part change while Claude works. **Prototype working (2026-09-28):** `viewer/export_glb.py <slug>` plus `viewer/index.html`, served by the `cad-viewer` entry in `~/ws/.claude/launch.json`. It shows assembly_cell and desk_fab_line in the pane and reloads within ~1.5 s of a re-export. Claude screenshots the same pane. |
+| **Live 3D view in the app** | `cad serve <slug>` runs a small local three.js page that loads the GLB export and reloads on every rebuild. A `.claude/launch.json` entry lets the app's Browser pane open it, so you watch the part change while Claude works. **Prototype working (2026-09-28):** `viewer/export_glb.py <slug>` plus `viewer/index.html`, served by the `cad-viewer` entry in `~/ws/.claude/launch.json`. It shows assembly_cell and desk_fab_line in the pane and reloads within ~1.5 s of a re-export. Claude screenshots the same pane. **Parts must move, like in Onshape (your requirement, 2026-09-28).** OCP CAD Viewer (`ocp-viewer` 1.1.3, Apache-2.0) was checked. It inspects well (tree, measuring, sections, explode), but it can't drag parts or drive joints, so the workbench keeps its own three.js viewer and adds:
+  - click to select a part
+  - a move and rotate handle with snapping (three.js TransformControls, MIT)
+  - one slider per axis declared in `assembly.py`, moving the bodies within their travel, like Onshape's mate animation
+  - explode and section views
+
+  A move counts only once it's saved. "Save placement" writes `placements.toml` (part → position and rotation), `assembly.py` reads it, git shows exactly what moved, and `cad verify` checks the new layout. The pane stops the server when it's closed, so `cad serve` must restart it. |
 | **Workbench** (grows out of the live view) | One local page in the Browser pane with four panels:<br>• **Parts:** every project and part with its gate status.<br>• **3D view:** live.<br>• **Verifier:** `verify.json` rows, measured value vs limit.<br>• **Activity:** a live feed of every `cad` command the agent ran, with its result and the renders it looked at, fed by the log below.<br>It's read-only, except the "approve render" button, which is your step. Wrapped tools (slicer, FEA) log to the same feed. |
 | **Activity log** | Every `cad` command appends one JSON line to `projects/<slug>/.cad/log.jsonl`: time, command, arguments, exit code, short summary, files written. |
 | **Review page** | `cad page <slug>` writes one HTML page (renders, gate table, BOM, unverified items) that can be published as an artifact for approval. |
@@ -159,6 +178,14 @@ What "built around git" means:
 - **Shared review page.** `cad page` is published as an artifact the others can open. They comment on it, and "approve render" records who approved and when. Approval stays a human step, and now it has a name on it.
 - **claude-share for sessions,** already set up with Seb, so each person sees how the other's agent got to a design.
 - Everyone runs the same plugin locally, and the workbench stays per person.
+
+**Online, free first** (asked 2026-09-28). Going online doesn't mean leaving git:
+- **Repo:** a private GitHub repo, free.
+- **Verifier:** GitHub Actions runs `cad verify` on every push and pull request, on Linux with the numpy renderer, within the free monthly minutes.
+- **Review:** each verified commit publishes a private review page (renders, verdict, a 3D view with three-cad-viewer from a CDN) as a Claude artifact link. Collaborators open and comment there.
+- **Cost:** zero servers, $0.
+
+A fully hosted service (web workbench plus an agent running server-side) costs money: a server, sandboxing for agent-written Python (part modules are code), and API tokens. It only makes sense once there's a product.
 
 ## Build order
 

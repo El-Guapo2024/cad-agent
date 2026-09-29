@@ -1,11 +1,13 @@
 """Tests over the desk_fab_line project: the state layer, runner and gate.
 
-They run against a copy of the project in a temporary directory. check_all
-rewrites checks.json, which the desk-fab-line repo tracks, so running them
-against the project itself left the repo dirty after every test run.
+The project is a fixture: a snapshot of the Desk Fab Line's hot plate dock,
+the harness's first real design, kept in tests/fixtures so cad-agent is tested
+without depending on the repo that owns the live design. Each run works on a
+temporary copy, because check_all writes checks.json and out/.
 """
 import json
 import shutil
+from pathlib import Path
 
 import pytest
 
@@ -14,6 +16,7 @@ from cad_agent.cutlist import cutlist
 from cad_agent.runner import check_all, done_check
 
 SLUG = "desk_fab_line"
+FIXTURES = Path(__file__).resolve().parent / "fixtures"
 
 
 @pytest.fixture(scope="module", autouse=True)
@@ -22,7 +25,7 @@ def project(tmp_path_factory):
 
     checks.json and out/ are not copied: they are what check_all writes.
     """
-    src = st.project_dir(SLUG)
+    src = FIXTURES / SLUG
     root = tmp_path_factory.mktemp("projects")
     dst = root / SLUG
     for sub in ("parts", "bought", "baseline", "research"):

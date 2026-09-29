@@ -7,12 +7,28 @@ for every candidate that clears it, the objective saturates, every feasible
 candidate ties, and `max` returns whichever grid point it saw first. A coin
 toss, reported as an optimum, with a plausible number on it.
 """
+import shutil
+from pathlib import Path
+
 import pytest
 
+from cad_agent import state as st
 from cad_agent.solve import (Eval, Margin, evaluate, feasible_span,
                              responsive_rules, solve, sweep)
 
 SLUG, PART = "assembly_cell", "x_carriage"
+FIXTURES = Path(__file__).resolve().parent / "fixtures"
+
+
+@pytest.fixture(scope="module", autouse=True)
+def project(tmp_path_factory):
+    """The gantry cell fixture, copied so part_check's renders land in a temp dir."""
+    root = tmp_path_factory.mktemp("projects")
+    shutil.copytree(FIXTURES / SLUG, root / SLUG,
+                    ignore=shutil.ignore_patterns("__pycache__"))
+    with pytest.MonkeyPatch.context() as mp:
+        mp.setattr(st, "ROOT", root)
+        yield root / SLUG
 
 
 def _m(rule, measured, limit=1.5):

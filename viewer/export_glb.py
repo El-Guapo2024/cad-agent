@@ -4,9 +4,10 @@ The viewer polls model.json and reloads the model whenever the stamp changes,
 so re-running this after an edit is all it takes to see the new geometry in
 the app's Browser pane. Prototype of `cad serve`; see PLAN_V2.md.
 
-    .venv/bin/python viewer/export_glb.py assembly_cell
+    CAD_PROJECTS=<projects dir> .venv/bin/python viewer/export_glb.py <slug>
 """
 import json
+import os
 import sys
 import time
 import zlib
@@ -14,6 +15,7 @@ from pathlib import Path
 
 from build123d import Color, Compound, export_gltf
 
+from cad_agent import state as st
 from cad_agent.state import load_assembly
 
 HERE = Path(__file__).resolve().parent
@@ -31,6 +33,8 @@ def colour(name: str) -> Color:
 
 
 def main(slug: str) -> None:
+    if os.environ.get("CAD_PROJECTS"):          # same override as the cad CLI
+        st.ROOT = Path(os.environ["CAD_PROJECTS"]).expanduser().resolve()
     solids, *_ = load_assembly(slug)
     if not solids:
         sys.exit(f"{slug}: no assembly.py")
