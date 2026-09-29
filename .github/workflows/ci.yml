@@ -1,0 +1,66 @@
+# The harness checks itself here on every push and pull request: the test
+# suite, then `cad verify` on the regression designs in tests/fixtures, the
+# same verifier a project's own CI would run. Linux has no Metal, so renders
+# use the numpy rasteriser, which a test holds to the Metal output within edge
+# noise; that is what lets baselines approved on a Mac gate here.
+#
+# FAIL, a bad invocation or a crash turn the run red. UNCHECKED is a warning:
+# the hot plate fixture has an honest open item (its mica heater's dimensions
+# are unconfirmed), and the verifier is right to say so.
+name: ci
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  harness:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: pip
+          cache-dependency-path: pyproject.toml
+
+      - name: Install
+        run: |
+          python -m venv .venv
+          .venv/bin/pip install -e ".[dev]"
+
+      - name: Tests
+        env:
+          CAD_RENDER_BACKEND: numpy
+        run: .venv/bin/python -m pytest -q tests
+
+      - name: Verify the regression designs
+        env:
+          CAD_WARM: "0"
+          CAD_RENDER_BACKEND: numpy
+        run: |
+          red=0
+          for dir in tests/fixtures/*/; do
+            slug=$(basename "$dir")
+            echo "::group::cad verify $slug"
+            bin/cad --projects tests/fixtures verify "$slug"
+            code=$?
+            bin/cad --projects tests/fixtures done "$slug" || true
+            echo "::endgroup::"
+            case $code in
+              0) echo "$slug: PASS" ;;
+              2) echo "::warning title=$slug UNCHECKED::$slug has open items; see the cad done output" ;;
+              *) echo "::error title=$slug::cad verify exited $code"; red=1 ;;
+            esac
+          done
+          exit $red
+
+      - name: Keep the verdicts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: verdicts
+          path: tests/fixtures/*/verify.json
+          if-no-files-found: ignore

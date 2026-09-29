@@ -16,6 +16,14 @@ projects/*/out/
 projects/.cad/
 projects/*/.cad/
 
+# The live viewer's current export, and what a CI verify writes into fixtures
+viewer/model.glb
+viewer/model.json
+tests/fixtures/*/out/
+tests/fixtures/*/.cad/
+tests/fixtures/*/checks.json
+tests/fixtures/*/verify.json
+
 # NOT ignored, deliberately:
 #   projects/*/parts/*.py       the design itself
 #   projects/*/assembly.py      how it goes together
