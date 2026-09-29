@@ -10,6 +10,8 @@ requires-python = ">=3.12"
 dependencies = [
     "build123d>=0.9",   # OCCT B-rep kernel, STEP in/out, assemblies
     "numpy>=1.26",      # the fallback z-buffer rasteriser
+    "trimesh>=4.0",     # ray-cast wall thickness over the tessellated solid
+    "rtree>=1.0",       # the spatial index trimesh's ray queries need
     "mcp>=1.0",         # MCP server (FastMCP on 1.x, MCPServer on 2.x)
 ]
 
