@@ -69,16 +69,40 @@ def test_stop_hook_lets_a_second_stop_through(env):
     assert hook(STOP, {"stop_hook_active": True}, env) is None
 
 
-def test_stop_hook_blocks_on_a_changed_project_that_is_not_verified(env, project):
+def git(d, *args):
+    subprocess.run(["git", "-C", str(d), "-c", "user.name=t", "-c", "user.email=t@t", *args],
+                   check=True, capture_output=True)
+
+
+def test_stop_hook_blocks_on_a_project_this_session_edited(env, project):
     root, rig = project
-    out = hook(STOP, {}, env, CAD_PROJECTS=str(root))
+    part = rig / "parts" / "plate.py"
+    hook(EDIT, dict(edit(part), session_id="sess-1"), env)       # the edit hook records it
+    out = hook(STOP, {"session_id": "sess-1"}, env)               # no CAD_PROJECTS needed
     assert out["decision"] == "block"
     assert "rig" in out["reason"] and "never verified" in out["reason"]
+    assert hook(STOP, {"session_id": "another-session"}, env) is None
 
 
-def test_stop_hook_leaves_old_untouched_projects_alone(env, project):
+def test_stop_hook_blocks_on_uncommitted_design_changes(env, project):
     root, rig = project
-    old = time.time() - 3 * 24 * 3600
+    git(rig, "init", "-q")
+    git(rig, "add", "-A")
+    git(rig, "commit", "-q", "-m", "design")
+    part = rig / "parts" / "plate.py"
+    part.write_text(part.read_text().replace('"thickness": 4.0', '"thickness": 5.0'))
+    out = hook(STOP, {}, env, CAD_PROJECTS=str(root))
+    assert out["decision"] == "block" and "uncommitted" in out["reason"]
+
+
+def test_stop_hook_leaves_untouched_projects_alone(env, project):
+    """Never verified, but committed and not edited this session: not this session's business.
+    A fresh clone makes every file look new, so file times must not decide this."""
+    root, rig = project
+    git(rig, "init", "-q")
+    git(rig, "add", "-A")
+    git(rig, "commit", "-q", "-m", "design")
+    now = time.time()
     for p in rig.rglob("*"):
-        os.utime(p, (old, old))
+        os.utime(p, (now, now))                                   # brand-new file times
     assert hook(STOP, {}, env, CAD_PROJECTS=str(root)) is None

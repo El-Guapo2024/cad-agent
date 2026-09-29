@@ -10,9 +10,15 @@ going on".
 
 Drift, extent and visual rows are left out: they wait on a human approving a
 render, which is nothing to fix mid-edit. `cad verify` still gates them.
-Standard library only; the CLI does the work.
+
+It also records the project as touched in this session (by the session_id
+every hook receives), which is how the stop hook knows what this session
+changed without guessing from file times. Standard library only; the CLI does
+the work.
 """
 import json
+import os
+import re
 import subprocess
 import sys
 from pathlib import Path
@@ -21,6 +27,13 @@ REPO = Path(__file__).resolve().parents[2]
 CAD = REPO / "bin" / "cad"
 SKIP = ("drift/", "extent/", "visual/")
 MAX_LINES = 12
+
+
+def touched_file(session_id: str) -> Path:
+    """Where this session's touched projects are listed (shared with the stop hook)."""
+    d = Path(os.environ.get("CAD_WARM_DIR") or Path.home() / ".cache" / "cad-agent")
+    d.mkdir(parents=True, exist_ok=True)
+    return d / f"touched-{re.sub(r'[^A-Za-z0-9_-]', '_', session_id)}.tsv"
 
 
 def target(path: Path):
@@ -47,6 +60,12 @@ def main() -> int:
     if hit is None:
         return 0
     root, slug, part = hit
+    if event.get("session_id"):
+        try:
+            with touched_file(event["session_id"]).open("a") as f:
+                f.write(f"{root}\t{slug}\n")
+        except OSError:
+            pass                                   # bookkeeping must never block an edit
     argv = [str(CAD), "--json", "--projects", str(root), "check", slug]
     if part:
         argv += ["--part", part]

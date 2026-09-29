@@ -177,8 +177,11 @@ def status(slug: str) -> dict:
     pdir = st.project_dir(slug)
     path = pdir / "verify.json"
     if not path.exists():
-        return {"project": slug, "done": False, "verdict": None,
-                "reasons": ["never verified: run `cad verify`"]}
+        reasons = ["never verified: run `cad verify`"]
+        git = git_info(pdir)
+        if git and git.get("dirty"):
+            reasons.append("the design has uncommitted changes")
+        return {"project": slug, "done": False, "verdict": None, "reasons": reasons}
     rec = json.loads(path.read_text())
     reasons = []
     current, _ = source_hash(pdir)

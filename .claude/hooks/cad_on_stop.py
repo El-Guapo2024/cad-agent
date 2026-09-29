@@ -1,13 +1,18 @@
 #!/usr/bin/env python3
 """Stop hook: a session can't end quietly over a changed cad project that isn't verified.
 
-When Claude is about to stop, this asks `cad done` about every cad project it
-can see: the repo's projects/ and CAD_PROJECTS. A project counts as touched if
-its design has uncommitted changes, its last verdict no longer matches the
-files, or it has never been verified but its design files changed in the last
-12 hours. If a touched project is not done, this prints
-{"decision": "block", "reason": ...}. Claude then either verifies it (commit,
-`cad verify`, `cad done`) or tells the user plainly that it isn't verified.
+When Claude is about to stop, this asks `cad done` about the projects this
+session could have changed. A project counts as touched if any of these holds:
+
+- the edit hook recorded it for this session (by session_id)
+- its design has uncommitted changes
+- its last verdict no longer matches its files
+
+If a touched project is not done, this prints {"decision": "block", "reason": ...}.
+Claude then either verifies it (commit, `cad verify`, `cad done`) or tells the
+user plainly that it isn't verified. Old projects nobody touched are left
+alone, even if they were never verified; file times are never used to guess,
+because a fresh clone makes every file look new.
 
 It blocks once. When Claude stops again right after, stop_hook_active is true
 and the stop goes through: the point is that "not done" gets said, not a loop.
@@ -16,17 +21,15 @@ project. Standard library only; the CLI does the work.
 """
 import json
 import os
+import re
 import subprocess
 import sys
-import time
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[2]
 CAD = REPO / "bin" / "cad"
-RECENT_S = 12 * 3600
-TOUCHED = ("the design changed since it was verified", "the design has uncommitted changes",
+CHANGED = ("the design changed since it was verified", "the design has uncommitted changes",
            "it verified uncommitted changes")
-DESIGN = ("parts", "bought", "baseline")
 
 
 def cad(*argv):
@@ -39,12 +42,15 @@ def cad(*argv):
         return {}
 
 
-def recently_edited(project: Path) -> bool:
-    files = [project / "assembly.py", project / "spec.toml"]
-    for d in DESIGN:
-        files += [p for p in (project / d).glob("*") if p.is_file()]
-    newest = max((p.stat().st_mtime for p in files if p.exists()), default=0)
-    return time.time() - newest < RECENT_S
+def touched_this_session(session_id: str) -> set[tuple[str, str]]:
+    if not session_id:
+        return set()
+    d = Path(os.environ.get("CAD_WARM_DIR") or Path.home() / ".cache" / "cad-agent")
+    f = d / f"touched-{re.sub(r'[^A-Za-z0-9_-]', '_', session_id)}.tsv"
+    try:
+        return {tuple(line.split("\t", 1)) for line in f.read_text().splitlines() if "\t" in line}
+    except OSError:
+        return set()
 
 
 def main() -> int:
@@ -54,19 +60,20 @@ def main() -> int:
         event = {}
     if event.get("stop_hook_active"):
         return 0
-    roots = [REPO / "projects"]
+    touched = touched_this_session(event.get("session_id", ""))
+    roots = {str((REPO / "projects").resolve())}
     if os.environ.get("CAD_PROJECTS"):
-        roots.append(Path(os.environ["CAD_PROJECTS"]).expanduser())
+        roots.add(str(Path(os.environ["CAD_PROJECTS"]).expanduser().resolve()))
+    roots |= {root for root, _ in touched}
+
     open_items = []
-    for root in (r.resolve() for r in roots if r.is_dir()):
-        for slug in cad("--projects", str(root), "ls").get("projects", []):
-            s = cad("--projects", str(root), "done", slug)
+    for root in sorted(r for r in roots if Path(r).is_dir()):
+        for slug in cad("--projects", root, "ls").get("projects", []):
+            s = cad("--projects", root, "done", slug)
             if not s or s.get("done"):
                 continue
             reasons = s.get("reasons", [])
-            touched = any(r.startswith(TOUCHED) for r in reasons) or (
-                s.get("verdict") is None and recently_edited(root / slug))
-            if touched:
+            if (root, slug) in touched or any(r.startswith(CHANGED) for r in reasons):
                 open_items.append(f"  {slug} ({root}): " + "; ".join(reasons))
     if not open_items:
         return 0
