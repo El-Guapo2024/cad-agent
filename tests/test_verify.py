@@ -12,6 +12,16 @@ from cad_agent import cli, verify
 from cad_agent import state as st
 from test_cli import ASSEMBLY, BLOCK, PLATE, run
 
+# The plate spans z -2..2 and the block z 15..25: a 13 mm gap, 40 x 20 x 27 overall.
+SPEC = '''[envelope]
+max_mm = [50, 30, 30]
+
+[[clearance]]
+a = "plate"
+b = "block"
+min_mm = 10
+'''
+
 
 @pytest.fixture()
 def demo(tmp_path, monkeypatch):
@@ -21,6 +31,7 @@ def demo(tmp_path, monkeypatch):
     (d / "parts" / "plate.py").write_text(PLATE)
     (d / "parts" / "block.py").write_text(BLOCK)
     (d / "assembly.py").write_text(ASSEMBLY)
+    (d / "spec.toml").write_text(SPEC)            # without one, nothing can PASS
     from cad_agent.runner import approve_views, check_all
     check_all("demo")
     approve_views("demo")          # baselines exist, so the visual gate can pass

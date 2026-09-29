@@ -31,7 +31,8 @@ def project(tmp_path_factory):
     for sub in ("parts", "bought", "baseline", "research"):
         shutil.copytree(src / sub, dst / sub,
                         ignore=shutil.ignore_patterns("__pycache__"))
-    shutil.copy2(src / "assembly.py", dst / "assembly.py")
+    for name in ("assembly.py", "spec.toml"):
+        shutil.copy2(src / name, dst / name)
     with pytest.MonkeyPatch.context() as mp:
         mp.setattr(st, "ROOT", root)
         yield dst

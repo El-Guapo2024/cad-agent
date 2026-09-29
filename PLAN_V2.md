@@ -199,7 +199,11 @@ Each step ends with the tests green.
    - `verify.json` records the verdict plus the design-file hash, a hash of cad-agent's own code, the git commit and tree, uncommitted design changes, and whether the process was fresh.
    - `cad done` accepts only a PASS whose hashes still match the disk, from a fresh process, and on committed work. It reads files only, so it answers in half a second.
    - 9 new tests; 159 passing. First real run: assembly_cell PASS at commit 8055012.
-3. `spec.toml`, starting with envelope, keep-out, clearance and interface.
+3. `spec.toml`, starting with envelope, keep-out, clearance and interface. **Done 2026-09-28** (`cad_agent/spec.py`, registered as the `spec` gate, so `check` and `verify` both run it):
+   - Requirement types: `[envelope]`, `[[clearance]]`, `[[keepout]]` (any tool envelope, such as the laser cone), `[[mass]]` (a budget over part modules), and `[[interface]]` (holes in one body that point into another must be coaxial within tolerance, and sized for the fastener: clearance over tap, insert or clearance).
+   - It fails closed: no spec, an unparseable spec, an unknown section, a missing field or an unknown body are all UNCHECKED.
+   - Both fixtures now carry a spec. On the real gantry, the interface rule confirmed the syringe clamp's four M3 insert bores sit exactly on the carriage's clearance holes (0.000 mm offset). The moving head is 237 g against a 400 g budget.
+   - 17 new tests; 176 passing. CI is green on GitHub.
 4. Claude Code wiring: the `/cad` skill, the check and verify hooks, the reviewer agent, the `cad` allowlist. Then retire MCP: delete the project-scoped `cad` entry in `~/.claude.json` (ask first), then `mcp_app.py`.
 5. The workbench (`cad serve` + launch config: parts, live 3D, verifier, activity feed, approve button) and the review page (`cad page`).
 6. Machine scale: parts library, sub-assemblies, the heat, mass and deflection rules, shop outputs.

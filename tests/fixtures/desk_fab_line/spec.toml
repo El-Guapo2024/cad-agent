@@ -1,0 +1,14 @@
+# The hot plate dock's brief as acceptance tests. `cad verify` checks every entry.
+
+[envelope]                  # the dock sits inside box B's floor
+max_mm = [320, 150, 80]
+
+[[clearance]]               # 20 mm of still air between a 250 C plate and the frame
+a = "hot_plate"
+b = "floor_rail_front"
+min_mm = 20.0
+
+[[clearance]]
+a = "hot_plate"
+b = "floor_rail_back"
+min_mm = 20.0

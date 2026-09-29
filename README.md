@@ -9,8 +9,14 @@ bin/cad --help                                   # every command, and the exit c
 bin/cad --projects <dir> check <slug>            # run every gate
 bin/cad --projects <dir> verify <slug>           # rebuild fresh, record the verdict with git
 bin/cad --projects <dir> done <slug>             # the gate: exit 0 only if that verdict still stands
-.venv/bin/python -m pytest tests -q              # 159 tests
+.venv/bin/python -m pytest tests -q              # 176 tests
 ```
+
+Each project states what it must do in `spec.toml` (envelope, clearances, tool
+keep-outs, mass budgets, bolt holes that must line up), and the `spec` gate
+checks every entry. A project without one is UNCHECKED. See
+`cad_agent/spec.py` for the format and `tests/fixtures/*/spec.toml` for real
+examples.
 
 Projects live wherever you keep them: `--projects DIR` or `CAD_PROJECTS`, or
 `projects/` here by default. The first call starts a warm worker that imports

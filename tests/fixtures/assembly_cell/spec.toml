@@ -1,0 +1,23 @@
+# The assembly cell's brief as acceptance tests. `cad verify` checks every entry.
+
+[envelope]                  # the cell has to fit its bay on the bench
+max_mm = [560, 450, 200]
+
+[[clearance]]               # the carriage must never reach the end plates
+a = "x_carriage"
+b = "gantry_end_left"
+min_mm = 3.0
+
+[[clearance]]
+a = "x_carriage"
+b = "gantry_end_right"
+min_mm = 3.0
+
+[[interface]]               # the syringe clamp bolts to the carriage: M3 into inserts
+a = "syringe_clamp"
+b = "x_carriage"
+fastener = "M3"
+
+[[mass]]                    # what the X axis has to throw around
+parts = { x_carriage = 1, syringe_clamp = 1 }
+max_g = 400

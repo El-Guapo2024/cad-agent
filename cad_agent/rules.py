@@ -251,3 +251,12 @@ def reach(ctx):
                          "this is kinematic reach, not whether the head can "
                          "physically get there without hitting something — "
                          "that is the sweep rule")
+
+
+@register(scope="assembly", name="spec", order=60)
+def spec(ctx):
+    """The project's spec.toml, the brief as acceptance tests: envelope,
+    clearances, tool keep-outs, mass budgets and bolt holes that must line up.
+    A project with no spec is UNCHECKED: nothing states what it must do."""
+    from .spec import check_spec
+    yield from check_spec(ctx.slug, ctx.parts or {})
