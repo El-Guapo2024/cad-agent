@@ -1,5 +1,11 @@
-"""Tests over the desk_fab_line project: the state layer, runner and gate."""
+"""Tests over the desk_fab_line project: the state layer, runner and gate.
+
+They run against a copy of the project in a temporary directory. check_all
+rewrites checks.json, which the desk-fab-line repo tracks, so running them
+against the project itself left the repo dirty after every test run.
+"""
 import json
+import shutil
 
 import pytest
 
@@ -8,6 +14,34 @@ from cad_agent.cutlist import cutlist
 from cad_agent.runner import check_all, done_check
 
 SLUG = "desk_fab_line"
+
+
+@pytest.fixture(scope="module", autouse=True)
+def project(tmp_path_factory):
+    """A copy of the design, with state.ROOT pointed at it for the whole module.
+
+    checks.json and out/ are not copied: they are what check_all writes.
+    """
+    src = st.project_dir(SLUG)
+    root = tmp_path_factory.mktemp("projects")
+    dst = root / SLUG
+    for sub in ("parts", "bought", "baseline", "research"):
+        shutil.copytree(src / sub, dst / sub,
+                        ignore=shutil.ignore_patterns("__pycache__"))
+    shutil.copy2(src / "assembly.py", dst / "assembly.py")
+    with pytest.MonkeyPatch.context() as mp:
+        mp.setattr(st, "ROOT", root)
+        yield dst
+
+
+@pytest.fixture(scope="module")
+def checked(project):
+    """One check_all over the copy, shared by every test that reads checks.json.
+
+    A run takes seconds, which is why this and the copy are module-scoped
+    rather than per test like the throwaway projects in test_cli.py.
+    """
+    return check_all(SLUG, render_views=("iso",))
 
 
 def test_project_is_discoverable():
@@ -54,8 +88,8 @@ def _rows(payload, check=None, rule=None, subject=None):
     return out
 
 
-def test_check_all_writes_checks_json():
-    payload = check_all(SLUG, render_views=("iso",))
+def test_check_all_writes_checks_json(checked):
+    payload = checked
     assert payload["summary"]["parts_failed"] == 0
     assert payload["rows"], "a run with parts must produce rows"
     on_disk = json.loads((st.project_dir(SLUG) / "checks.json").read_text())
@@ -63,7 +97,7 @@ def test_check_all_writes_checks_json():
     assert on_disk["written_utc"]
 
 
-def test_every_row_is_attributed_to_a_check():
+def test_every_row_is_attributed_to_a_check(checked):
     payload = st.read_checks(SLUG)
     for r in payload["rows"]:
         assert r["check"], r
@@ -71,13 +105,13 @@ def test_every_row_is_attributed_to_a_check():
         assert r["source"] or r["state"] == "PASS", r
 
 
-def test_all_four_check_families_ran():
+def test_all_four_check_families_ran(checked):
     payload = st.read_checks(SLUG)
     ran = {r["check"] for r in payload["rows"]}
     assert {"geometry", "fit", "stance", "provenance", "visual"} <= ran
 
 
-def test_thermal_gap_is_gated_not_assumed():
+def test_thermal_gap_is_gated_not_assumed(checked):
     payload = st.read_checks(SLUG)
     rows = _rows(payload, check="fit",
                  subject="floor_rail_front vs hot_plate")
@@ -85,14 +119,14 @@ def test_thermal_gap_is_gated_not_assumed():
     assert "20.00 mm" in rows[0]["limit"]
 
 
-def test_geometry_and_fit_are_green():
+def test_geometry_and_fit_are_green(checked):
     payload = st.read_checks(SLUG)
     for check in ("geometry", "fit", "stance"):
         bad = [r for r in _rows(payload, check=check) if r["state"] == "FAIL"]
         assert not bad, bad
 
 
-def test_done_check_holds_the_project_open_on_unverified_geometry():
+def test_done_check_holds_the_project_open_on_unverified_geometry(checked):
     """The mica heater's dimensions came from no published drawing.
 
     Asserts both halves: the gate fails, and it fails for that reason alone.
@@ -105,14 +139,14 @@ def test_done_check_holds_the_project_open_on_unverified_geometry():
     assert any("mica_heater" in f for f in result["failures"])
 
 
-def test_bought_parts_are_checked_for_provenance():
+def test_bought_parts_are_checked_for_provenance(checked):
     payload = st.read_checks(SLUG)
     rows = _rows(payload, check="provenance")
     assert any(r["subject"] == "mica_heater" and r["state"] == "UNCHECKED"
                for r in rows)
 
 
-def test_done_check_fails_on_unchecked(monkeypatch):
+def test_done_check_fails_on_unchecked(checked, monkeypatch):
     """Silence must not read as a pass."""
     payload = dict(st.read_checks(SLUG))
     payload["rows"] = [{
