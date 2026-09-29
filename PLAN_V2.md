@@ -204,7 +204,14 @@ Each step ends with the tests green.
    - It fails closed: no spec, an unparseable spec, an unknown section, a missing field or an unknown body are all UNCHECKED.
    - Both fixtures now carry a spec. On the real gantry, the interface rule confirmed the syringe clamp's four M3 insert bores sit exactly on the carriage's clearance holes (0.000 mm offset). The moving head is 237 g against a 400 g budget.
    - 17 new tests; 176 passing. CI is green on GitHub.
-4. Claude Code wiring: the `/cad` skill, the check and verify hooks, the reviewer agent, the `cad` allowlist. Then retire MCP: delete the project-scoped `cad` entry in `~/.claude.json` (ask first), then `mcp_app.py`.
+4. Claude Code wiring: the `/cad` skill, the check and verify hooks, the reviewer agent, the `cad` allowlist. Then retire MCP: delete the project-scoped `cad` entry in `~/.claude.json` (ask first), then `mcp_app.py`. **Wiring done 2026-09-28** (in `.claude/`; it loads in sessions started in this repo):
+   - `skills/cad/SKILL.md`: the design contract, rewritten around the CLI.
+   - `hooks/cad_on_edit.py` (PostToolUse): after an edit to a part, assembly or spec, runs `cad check` and feeds back what fails. Approval-dependent drift rows are left out.
+   - `hooks/cad_on_stop.py` (Stop): blocks once if a touched project isn't `cad done`, then lets a second stop through.
+   - `agents/cad-reviewer.md`: a read-only second opinion.
+   - `settings.json`: allows `bin/cad`.
+   - 5 hook tests; 181 passing.
+   - **Not yet:** retiring MCP, which waits on your OK.
 5. The workbench (`cad serve` + launch config: parts, live 3D, verifier, activity feed, approve button) and the review page (`cad page`).
 6. Machine scale: parts library, sub-assemblies, the heat, mass and deflection rules, shop outputs.
 7. The eval set and its scores.

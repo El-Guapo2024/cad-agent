@@ -9,8 +9,15 @@ bin/cad --help                                   # every command, and the exit c
 bin/cad --projects <dir> check <slug>            # run every gate
 bin/cad --projects <dir> verify <slug>           # rebuild fresh, record the verdict with git
 bin/cad --projects <dir> done <slug>             # the gate: exit 0 only if that verdict still stands
-.venv/bin/python -m pytest tests -q              # 176 tests
+.venv/bin/python -m pytest tests -q              # 181 tests
 ```
+
+Open a Claude Code session in this repo and it loads the harness from `.claude/`:
+- the `/cad` skill, with the design loop
+- a hook that runs `cad check` after every edit to a design file and feeds back what fails
+- a stop hook that won't let a changed project go unverified without saying so
+- the read-only `cad-reviewer` agent
+- permission to run `bin/cad`
 
 Each project states what it must do in `spec.toml` (envelope, clearances, tool
 keep-outs, mass budgets, bolt holes that must line up), and the `spec` gate
