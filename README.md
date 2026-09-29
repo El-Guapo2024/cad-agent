@@ -29,8 +29,8 @@ Projects live wherever you keep them: `--projects DIR` or `CAD_PROJECTS`, or
 `projects/` here by default. The first call starts a warm worker that imports
 the CAD kernel once (20–35 s), then each command takes about a second;
 `CAD_WARM=0` runs cold. The v2 plan, the research map behind it, and what is
-built are in PLAN_V2.md. The MCP server (`python -m cad_agent`, 22 tools) still
-works until the CLI replaces it.
+built are in PLAN_V2.md. The MCP server it replaced was retired on 2026-09-28;
+`python -m cad_agent` now runs the same CLI, cold.
 
 ## Why build123d and not a GUI CAD
 
@@ -73,15 +73,18 @@ cad_agent/
   checks/visual.py  render drift against approved baselines, with diff images
   cutlist.py    stock derived from each part's CUTLIST, roughly priced
   export.py     STEP for a shop, STL for a printer
-  mcp_app.py    the cad MCP server
-  skills/       mech-design.md, the run contract
+  cli.py        the cad CLI: every command, --json, exit codes, activity log
+  warm.py       the warm worker: kernel imported once, a fresh fork per command
+  verify.py     the verifier: fresh rebuild, source and engine hashes, git, cad done
+  spec.py       spec.toml, the brief as acceptance tests
+.claude/        the /cad skill, the check and stop hooks, the cad-reviewer agent
 projects/<slug>/
   mech_profile.md  parts/*.py  assembly.py  bought/*.step  out/  checks.json
 ```
 
 ## Render backend
 
-Two backends, chosen automatically. `--version` and `reference_tables()` both
+Two backends, chosen automatically. `cad --version` and `cad tables` both
 name the one in use.
 
 **Metal, the default.** macOS has no EGL, so the usual headless OpenGL path
@@ -143,7 +146,7 @@ def web_rule(ctx):
 
 Scope decides what the runner hands you: `part` once per part with the built
 solid, `assembly` once with every positioned solid and the clearance table,
-`project` once with the whole directory. `checks_list()` prints what is
+`project` once with the whole directory. `cad rules` prints what is
 registered.
 
 Four states, and only four. `UNCHECKED` is not a pass — it means a rule could

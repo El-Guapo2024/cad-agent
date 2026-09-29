@@ -1,6 +1,6 @@
 # cad-agent v2: CLI-first, with a verifier
 
-*Written 2026-09-28. Steps 1 (CLI) and 2 (verifier) are done. v1 (PLAN.md, README.md) had 22 MCP tools, 129 tests, Metal renders, and gates for geometry, fit, motion, tooling, visual and provenance.*
+*Written 2026-09-28. Steps 1–4 are done: the CLI, the verifier, spec.toml, and the Claude Code wiring, with MCP retired. v1 (PLAN.md, README.md) had 22 MCP tools, 129 tests, Metal renders, and gates for geometry, fit, motion, tooling, visual and provenance.*
 
 *Split 2026-09-28: cad-agent is its own repo (`~/ws/cad-agent`, GitHub El-Guapo2024/cad-agent). The Desk Fab Line is one project that uses it (`CAD_PROJECTS=~/ws/desk-fab-line/hardware/mech`). Its two CAD projects are snapshotted in `tests/fixtures` as the harness's regression designs. Focus: finish the harness; the fab line waits.*
 
@@ -211,7 +211,7 @@ Each step ends with the tests green.
    - `agents/cad-reviewer.md`: a read-only second opinion.
    - `settings.json`: allows `bin/cad`.
    - 5 hook tests; 181 passing.
-   - **Not yet:** retiring MCP, which waits on your OK.
+   - MCP retired 2026-09-28 (your OK): the `cad` entry is gone from `~/.claude.json` (`claude mcp remove cad -s local`), `mcp_app.py` and the old `skills/mech-design.md` are deleted, the `mcp` dependency is dropped, and `python -m cad_agent` now runs the CLI.
 5. The workbench (`cad serve` + launch config: parts, live 3D, verifier, activity feed, approve button) and the review page (`cad page`).
 6. Machine scale: parts library, sub-assemblies, the heat, mass and deflection rules, shop outputs.
 7. The eval set and its scores.

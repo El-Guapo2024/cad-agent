@@ -1,7 +1,7 @@
 """cad: the command line for cad-agent.
 
-Every MCP tool has a subcommand here that calls the same functions, so an
-agent drives the whole loop from a shell, and nothing sits in its context
+Every tool the retired MCP server offered has a subcommand here, calling the
+same functions, so an agent drives the whole loop from a shell, and nothing sits in its context
 until it asks for `cad --help`. Output is a short report by default; `--json`
 prints one JSON object on stdout instead. Errors go to stderr.
 
@@ -752,7 +752,7 @@ def main(argv: list[str] | None = None) -> int:
 
     # Fresh means nothing ran here before this command: no earlier command and no
     # gate code loaded. A warm-worker fork and a new interpreter both qualify; a
-    # long-lived process calling main() again (tests, the MCP server) does not.
+    # long-lived process calling main() again (the test suite) does not.
     global _RUNS
     a._fresh = _RUNS == 0 and "cad_agent.runner" not in sys.modules
     _RUNS += 1

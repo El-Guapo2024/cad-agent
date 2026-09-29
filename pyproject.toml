@@ -12,7 +12,6 @@ dependencies = [
     "numpy>=1.26",      # the fallback z-buffer rasteriser
     "trimesh>=4.0",     # ray-cast wall thickness over the tessellated solid
     "rtree>=1.0",       # the spatial index trimesh's ray queries need
-    "mcp>=1.0",         # MCP server (FastMCP on 1.x, MCPServer on 2.x)
 ]
 
 [project.optional-dependencies]
@@ -23,7 +22,6 @@ dev = ["pytest"]
 
 [project.scripts]
 cad = "cad_agent.warm:main"            # the CLI agents drive, via the warm worker; bin/cad runs it without installing
-cad-agent = "cad_agent.__main__:main"  # the MCP server, until the CLI replaces it
 
 [tool.setuptools.packages.find]
 include = ["cad_agent*"]
