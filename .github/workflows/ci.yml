@@ -45,8 +45,8 @@ jobs:
           for dir in tests/fixtures/*/; do
             slug=$(basename "$dir")
             echo "::group::cad verify $slug"
-            bin/cad --projects tests/fixtures verify "$slug"
-            code=$?
+            # GitHub runs steps with bash -e: capture the verdict without letting it end the step
+            bin/cad --projects tests/fixtures verify "$slug" && code=0 || code=$?
             bin/cad --projects tests/fixtures done "$slug" || true
             echo "::endgroup::"
             case $code in
