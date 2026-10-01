@@ -2,14 +2,14 @@
 
 Goal: the workbench UI in `ui/` looks and behaves like FreeCAD main 3160daf1e2b6, over the `cad` CLI that the agent shares. FreeCAD's code and icons may be copied (LGPL). `ui/PARITY.md` is the record of what's done.
 
-## State (main @ 5102c39)
+## State (main, 2026-10-01)
 - All menus, toolbars, keys, panels and navigation styles that apply here are done (see PARITY.md).
-- Latest work: 3D view gestures (touch pinch/pan/twist, Safari twist, Option+scroll roll, double-click deferral), and Preferences > Display > Colors (background gradients, tree edit colour).
+- Latest work: Preferences > Display > Light Sources (lights.ts: FreeCAD's camera-following three-point rig), editable selection/preselection colours on the Selection page, and Preferences > Display > UI (tree view and overlay options). Fixed a load-time "Viewer.render() must be called" error (resize handlers before the first render).
 
 ## Next, in order
-1. Preferences > Display > Light Sources (`src/Gui/PreferencePages/DlgSettingsLightSources.ui/.cpp` at 3160daf1e2b6), wired to the viewer's lights.
-2. Make the selection and preselection colours editable (Selection page; today they're fixed in `ui/src/theme.ts` VIEW).
-3. Preferences > Display > UI: the tree options that apply.
+1. The remaining Preferences pages registered in resource.cpp that apply: General > Document (DlgSettingsDocumentImp), Display > Advanced (DlgSettingsAdvanced), Python > Python console / Editor (DlgSettingsPythonConsole, DlgSettingsEditor) for the console here. Port what applies, show the rest disabled with an n/a tooltip.
+2. Expression Editor name completion (parameter names while typing).
+3. Pick radius on the Selection page (needs a screen-space pick tolerance over three-cad-viewer's ray cast).
 
 ## How to check
 - `cd ui && npx tsc -b --noEmit && npm run build` (the build goes to `cad_agent/workbench/next/`; commit it).

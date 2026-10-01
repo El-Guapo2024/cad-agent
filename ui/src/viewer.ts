@@ -534,6 +534,7 @@ export class CadView {
     this.redraw()
   }
   private scaleMarker() {
+    if (!this.rendered) return // the viewer's camera getter throws until the first render
     const cam = this.viewer.camera?.getCamera?.(), c = this.viewer.renderer?.domElement as HTMLCanvasElement | undefined
     if (this.marker && cam && c?.clientHeight) this.marker.scale.setScalar(getState().rotationCenter.size * this.worldPerPixel(cam, c.clientHeight))
   }
@@ -1540,6 +1541,7 @@ export class CadView {
     this.scalePlacementIndicators()
   }
   private scalePlacementIndicators() {
+    if (!this.rendered) return
     const cam = this.viewer.camera?.getCamera?.(), c = this.viewer.renderer?.domElement as HTMLCanvasElement | undefined
     if (!cam || !c || !c.clientHeight) return // hidden (another tab in front): sized when it shows
     for (const g of this.placementHelpers) g.scale.setScalar(40 * this.worldPerPixel(cam, c.clientHeight))
