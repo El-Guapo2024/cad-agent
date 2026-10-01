@@ -756,6 +756,14 @@ input[type=range]:disabled::-webkit-slider-runnable-track { background: var(--da
 .bg-modes { display: flex; flex-wrap: wrap; align-items: center; gap: 0 12px; }
 .bg-grid { display: grid; grid-template-columns: auto auto auto 1fr; align-items: center; gap: 4px 8px; margin-top: 4px; }
 .bg-grid .tcheck { margin: 0; }
+.light-grid { display: grid; grid-template-columns: auto minmax(60px, 1fr) minmax(60px, 1fr) auto auto; align-items: center; gap: 4px 6px; }
+.pct-box { display: inline-flex; align-items: center; gap: 2px; }
+.pct-box input { width: 48px; }
+.light-preview { display: flex; gap: 2px; height: 220px; }
+.light-view { flex: 1; min-width: 0; border: 1px solid var(--border); }
+.light-view canvas { display: block; }
+.light-zoom { display: flex; flex-direction: column; justify-content: center; gap: 2px; }
+.light-zoom .qbtn { padding: 2px; height: auto; min-width: 0; }
 .pref-grid { display: grid; grid-template-columns: auto auto; justify-content: start; justify-items: start; align-items: center; gap: 4px 8px; }
 .pref-content .color-btn.disabled, .pref-content span.disabled { opacity: 0.5; }
 .tfield-col { display: flex; flex-direction: column; gap: 2px; }

@@ -15,10 +15,14 @@ import { PrefsPage } from './panels'
 import { VIEW } from './theme'
 import { BACKGROUND_DEFAULTS, type BackgroundMode, type BackgroundPrefs } from './background'
 import { cls } from './panels'
+import * as THREE from 'three'
+import { QuantityBox, ANGLE } from './qsb'
+import { gradientMesh } from './background'
+import { LIGHT_DEFAULTS, LightRig, azimuthElevationToDirection, directionToAzimuthElevation, type Light, type LightPrefs } from './lights'
 
 const GROUPS: [string, string, string[]][] = [
   ['General', 'preferences-general', ['General', 'Selection', 'Notification Area', 'Report View']],
-  ['Display', 'preferences-display', ['3D View', 'Navigation', 'Colors', 'Transform snap']],
+  ['Display', 'preferences-display', ['3D View', 'Light Sources', 'Navigation', 'Colors', 'Transform snap']],
   ['Python', 'preferences-python', ['Macro']],
 ]
 const hex = (n: number) => '#' + n.toString(16).padStart(6, '0')
@@ -97,12 +101,108 @@ function ColorsPage() {
     </div>
   )
 }
+/** DlgSettingsLightSources::configureViewer: a sphere (radius 3, SoComplexity 1) in createMaterial's
+ *  material, seen through an orthographic camera along (0, 1, 0.3), twice as high as viewAll,
+ *  lit by the view's own lights and over its background; zoomIn/zoomOut step a 14th of that. */
+function LightPreview({ lights }: { lights: LightPrefs }) {
+  const host = useRef<HTMLDivElement>(null)
+  const ref = useRef<{ render(p: LightPrefs): void; zoom(d: number): void } | null>(null)
+  const bg = useStore((s) => s.background)
+  useEffect(() => {
+    const el = host.current
+    if (!el || el.closest('.pref-index')) return // not in the search index's off-screen copy
+    let renderer: THREE.WebGLRenderer
+    try { renderer = new THREE.WebGLRenderer({ antialias: true }) } catch { return } // no WebGL: no preview
+    const scene = new THREE.Scene()
+    renderer.setClearColor(bg.color, 1)
+    if (bg.mode !== 'simple') scene.add(gradientMesh(bg))
+    // createMaterial: diffuse #d2d2ff, specular #cccccc, shininess 0.9 (× 128, Coin's GL exponent).
+    const sphere = new THREE.Mesh(new THREE.SphereGeometry(3, 64, 48), new THREE.MeshPhongMaterial({ color: 0xd2d2ff, specular: 0xcccccc, shininess: 0.9 * 128 }))
+    scene.add(sphere)
+    const rig = new LightRig(scene, lights)
+    let height = 6 * 2 // viewAll fits the sphere's diameter; configureViewer doubles it
+    const zoomStep = height / 14
+    const cam = new THREE.OrthographicCamera()
+    const dir = new THREE.Vector3(0, 1, 0.3).normalize() // defaultViewDirection
+    cam.quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, -1), dir)
+    cam.position.copy(dir).multiplyScalar(-20)
+    const draw = () => {
+      const w = el.clientWidth, h = el.clientHeight
+      if (!w || !h) return
+      renderer.setPixelRatio(window.devicePixelRatio)
+      renderer.setSize(w, h)
+      const a = w / h
+      Object.assign(cam, { left: (-height / 2) * a, right: (height / 2) * a, top: height / 2, bottom: -height / 2, near: 0.1, far: 40 })
+      cam.updateProjectionMatrix(); cam.updateMatrixWorld()
+      rig.follow(cam)
+      renderer.render(scene, cam)
+    }
+    el.appendChild(renderer.domElement)
+    ref.current = { render: (p) => { rig.apply(p); draw() }, zoom: (d) => { height = Math.max(zoomStep, height + d * zoomStep); draw() } }
+    const ro = new ResizeObserver(draw)
+    ro.observe(el)
+    return () => { ro.disconnect(); rig.dispose(); sphere.geometry.dispose(); renderer.dispose(); renderer.domElement.remove(); ref.current = null }
+  }, [bg]) // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => { ref.current?.render(lights) }, [lights])
+  return (
+    <div className="light-preview">
+      <div ref={host} className="light-view" />
+      <div className="light-zoom">
+        <button className="qbtn" title="Pushes in" onClick={() => ref.current?.zoom(-1)}><img src="./freecad-icons/zoom-in.svg" width={32} height={32} alt="" /></button>
+        <button className="qbtn" title="Pulls out" onClick={() => ref.current?.zoom(1)}><img src="./freecad-icons/zoom-out.svg" width={32} height={32} alt="" /></button>
+      </div>
+    </div>)
+}
+/** DlgSettingsLightSources.ui: Light Sources (a row per light: enable, horizontal and vertical
+ *  angle, colour, intensity; then the ambient light's colour and intensity) over Preview. The
+ *  angles are the light's direction as azimuth/elevation (loadSettings/saveSettings convert). */
+function LightSourcesPage() {
+  const lights = useStore((s) => s.lights)
+  const set = (patch: Partial<LightPrefs>) => { const v = { ...getState().lights, ...patch }; saved.set('lights', v); setState({ lights: v }) }
+  // The boxes keep what was typed; the stored direction is derived from it (round trips would drift).
+  const [angles, setAngles] = useState(() => ({ head: directionToAzimuthElevation(lights.head.dir), back: directionToAzimuthElevation(lights.back.dir), fill: directionToAzimuthElevation(lights.fill.dir) }))
+  const pct = (v: number, f: (v: number) => void) => (
+    <span className="pct-box"><input type="number" className="qsb" min={0} max={100} value={v} onChange={(e) => f(Math.min(100, Math.max(0, Math.round(Number(e.target.value)))))} />%</span>)
+  const row = (k: 'head' | 'back' | 'fill', label: string) => {
+    const l = lights[k], [az, el] = angles[k]
+    const upd = (p: Partial<Light>) => set({ [k]: { ...l, ...p } })
+    const angle = (i: 0 | 1) => (v: number) => {
+      const a: [number, number] = i ? [az, v] : [v, el]
+      setAngles((x) => ({ ...x, [k]: a }))
+      upd({ dir: azimuthElevationToDirection(...a) })
+    }
+    return (<>
+      <label className="tcheck"><input type="checkbox" checked={l.on} onChange={(e) => upd({ on: e.target.checked })} />{label}</label>
+      <QuantityBox value={az} dims={ANGLE} onChange={angle(0)} />
+      <QuantityBox value={el} dims={ANGLE} onChange={angle(1)} />
+      <ColorButton value={l.color} set={(color) => upd({ color })} />
+      {pct(l.intensity, (intensity) => upd({ intensity }))}
+    </>)
+  }
+  return (
+    <div className="pref-content">
+      <fieldset className="tgroup"><legend>Light Sources</legend>
+        <div className="light-grid">
+          <span /><span>Horizontal angle</span><span>Vertical angle</span><span>Color</span><span>Intensity</span>
+          {row('head', 'Main light')}
+          {row('back', 'Backlight')}
+          {row('fill', 'Fill light')}
+          <span>Ambient light</span><span /><span />
+          <ColorButton value={lights.ambient.color} set={(color) => set({ ambient: { ...lights.ambient, color } })} />
+          {pct(lights.ambient.intensity, (intensity) => set({ ambient: { ...lights.ambient, intensity } }))}
+        </div>
+      </fieldset>
+      <fieldset className="tgroup"><legend>Preview</legend><LightPreview lights={lights} /></fieldset>
+    </div>
+  )
+}
 /** What each page's settings go back to (Reset Page / Group / All): the store's own defaults. */
 const DEFAULTS: Record<string, Record<string, unknown>> = {
   General: { units: { schema: 0, decimals: 2, denominator: 8 }, toolbarIconSize: 24, recentFilesSize: 4 },
   Selection: { tree: { syncView: true, syncSelection: true, preSelection: true, recordSelection: true } },
   'Notification Area': { notifyPrefs: NOTIFY_DEFAULTS },
   '3D View': { corner: { show: true, size: 10 }, axes: false, axisColors: AXIS_COLOR_DEFAULTS, showFPS: false },
+  'Light Sources': { lights: LIGHT_DEFAULTS },
   Navigation: { nav: 'cad', animate: true, cube: true, navPrefs: NAV_DEFAULTS, homeView: 'Trimetric', newDocCameraScale: 100,
     naviCube: NAVICUBE_DEFAULTS, cubePos: CORNER_POS[1], rotationCenter: { size: 5, color: '#ff0000', alpha: 0.2 }, disableTouchTilt: true },
   Colors: { background: BACKGROUND_DEFAULTS, treeEditColor: '#00abff' },
@@ -157,12 +257,12 @@ function ReportViewPage() {
     </div>
   )
 }
-const page = (name: string): ReactNode => (name === 'Selection' ? <SelectionPage /> : name === 'Report View' ? <ReportViewPage /> : name === 'Colors' ? <ColorsPage /> : <PrefsPage page={name} />)
+const page = (name: string): ReactNode => (name === 'Selection' ? <SelectionPage /> : name === 'Report View' ? <ReportViewPage /> : name === 'Colors' ? <ColorsPage /> : name === 'Light Sources' ? <LightSourcesPage /> : <PrefsPage page={name} />)
 
 /** What Cancel puts back: the app's own saved settings and the store fields the pages edit. */
 const PREF_KEYS = ['nav', 'animate', 'cube', 'navPrefs', 'homeView', 'newDocCameraScale', 'units', 'corner', 'axes', 'axisColors',
   'showFPS', 'naviCube', 'cubePos', 'rotationCenter', 'disableTouchTilt', 'recordGuiCommands', 'guiAsComment', 'notifyPrefs', 'tree',
-  'background', 'treeEditColor'] as const
+  'background', 'treeEditColor', 'lights'] as const
 function snapshot() {
   const s = getState() as unknown as Record<string, unknown>
   const saved: Record<string, string | null> = {}

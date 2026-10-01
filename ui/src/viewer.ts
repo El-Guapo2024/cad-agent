@@ -28,9 +28,11 @@ import type { Scene, Vec3 } from './api'
 import { getState, saved, setState, subscribe, viewOf, type Clip, type Corner, type CubeOffset, type CubePlace, type CubePos, type DrawStyle, type HomeView, type NaviCubePrefs, type NavStyle, type ViewProps } from './store'
 import { VIEW } from './theme'
 import { gradientMesh, type BackgroundPrefs } from './background'
+import { LightRig, type LightPrefs } from './lights'
 
 const RENDER = {
-  ambientIntensity: 1.0, directIntensity: 1.1, metalness: 0.3, roughness: 0.65,
+  // The viewer's own two lights are off: LightRig is FreeCAD's (Preferences > Light Sources).
+  ambientIntensity: 0, directIntensity: 0, metalness: 0.3, roughness: 0.65,
   edgeColor: VIEW.line, defaultOpacity: 0.5, normalLen: 0,
 }
 
@@ -404,6 +406,7 @@ export class CadView {
     this.viewer.render(decodeInstancedFormat(sc.viewer as any), RENDER, { up: 'Z', ...ORBIT, ortho: getState().ortho, ...(cam ?? {}) })
     this.rendered = true
     this.applyBackground(getState().background)
+    this.applyLights(getState().lights)
     this.index(sc)
     // The viewer settles its own size a frame or two after render; fit after it.
     this.fit()
@@ -544,6 +547,19 @@ export class CadView {
     return box.isEmpty() ? null : box
   }
 
+  private lightRig: LightRig | null = null
+  private lightsApplied: LightPrefs | null = null
+  /** View3DSettings' light sources on a (new) scene; they follow the camera at every render. */
+  private applyLights(p: LightPrefs) {
+    const scene = this.viewer.scene as THREE.Scene | undefined
+    if (!scene) return
+    if (this.lightRig && this.lightRig.head.parent !== scene) { this.lightRig.dispose(); this.lightRig = null }
+    if (!this.lightRig) {
+      const rig = this.lightRig = new LightRig(scene, p)
+      scene.onBeforeRender = (_r, _s, camera) => rig.follow(camera)
+    } else this.lightRig.apply(p)
+    this.lightsApplied = p
+  }
   private bgMesh: THREE.Mesh | null = null
   /** View3DSettings' background: a simple colour clears the view; a gradient is
    *  SoFCBackgroundGradient's mesh, drawn first in the scene. */
@@ -1830,6 +1846,7 @@ export class CadView {
     if (s.showFPS !== this.applied.showFPS) { this.setShowFPS(s.showFPS); dirty = true }
     if (s.corner !== this.applied.corner) dirty = true
     if (s.background !== this.applied.background) { this.applyBackground(s.background); dirty = true }
+    if (s.lights !== this.lightsApplied) { this.applyLights(s.lights); dirty = true }
     // Preferences > Navigation Cube: a new size, corner, colour or font rebuilds the cube.
     if (s.naviCube !== this.applied.naviCube) {
       this.naviRotateToNearest = s.naviCube.toNearest
