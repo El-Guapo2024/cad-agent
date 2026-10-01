@@ -10,6 +10,7 @@ import { setState } from './store'
 import { MessageBoxHost } from './msgbox'
 import { PreferencesDialog, applyReportColors } from './prefs'
 import { exportCommand, printView } from './filemenu'
+import { executeMacroDirect } from './macro'
 // Registers cmdreg.ts's command registry into commands.ts/actions.ts (onCommandRegistry/
 // onCommandList, the same callback pattern as commands.ts's own onGuiEvent); no named import
 // needed here, just the module's side effect, so this file is the one place that loads it.
@@ -100,6 +101,7 @@ function useKeys() {
       if (mod && !e.shiftKey && k === 'n') { e.preventDefault(); openTask('newDocument', ''); return }
       if (mod && !e.shiftKey && k === 'o') { e.preventDefault(); openTask('openDocument', ''); return }
       if (mod && !e.shiftKey && k === 'p') { e.preventDefault(); if (getState().slug) printView(); return }
+      if (mod && !e.shiftKey && e.key === 'F6') { e.preventDefault(); recordAndRun('Std_DlgMacroExecuteDirect', executeMacroDirect); return }
       if (mod && k === 's') { e.preventDefault(); return }
       if (mod && e.shiftKey && k === 'r') { e.preventDefault(); recordAndRun('Std_Refresh', runCheck); return } // Tree.cpp's "Recompute object"
       if (mod && (k === '=' || k === '+')) { e.preventDefault(); recordAndRun('Std_ViewZoomIn', zoomIn); return }

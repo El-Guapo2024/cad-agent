@@ -27,6 +27,7 @@ import { toUnicodeSuperscript } from './superscript'
 import type { Scene, Vec3 } from './api'
 import { getState, saved, setState, subscribe, viewOf, type Clip, type Corner, type CubeOffset, type CubePlace, type CubePos, type DrawStyle, type HomeView, type NaviCubePrefs, type NavStyle, type ViewProps } from './store'
 import { VIEW } from './theme'
+import { gradientMesh, type BackgroundPrefs } from './background'
 
 const RENDER = {
   ambientIntensity: 1.0, directIntensity: 1.1, metalness: 0.3, roughness: 0.65,
@@ -141,9 +142,9 @@ type Applied = {
   selected: string[] | null; preselected: string | null; hidden: string[] | null; style: DrawStyle | null; cube: boolean
   view: Record<string, Partial<ViewProps>> | null; selBoxes: boolean | null; axes: boolean | null; showFPS: boolean | null
   clip: Clip | null | undefined; preSub: string | null | undefined; subSel: string[] | null; nav: NavStyle | null; navPrefs: NavPrefs | null
-  corner: Corner | null; naviCube: NaviCubePrefs | null
+  corner: Corner | null; naviCube: NaviCubePrefs | null; background: BackgroundPrefs | null
 }
-const UNAPPLIED = { selected: null, preselected: null, hidden: null, style: null, view: null, selBoxes: null, axes: null, showFPS: null, clip: undefined, preSub: undefined, subSel: null, nav: null, navPrefs: null, corner: null, naviCube: null }
+const UNAPPLIED = { selected: null, preselected: null, hidden: null, style: null, view: null, selBoxes: null, axes: null, showFPS: null, clip: undefined, preSub: undefined, subSel: null, nav: null, navPrefs: null, corner: null, naviCube: null, background: null }
 
 const R2 = Math.SQRT1_2
 /** FreeCAD's standard view rotations (src/Gui/Camera.cpp; x, y, z, w). */
@@ -402,7 +403,7 @@ export class CadView {
     if (this.rendered) this.viewer.clear()
     this.viewer.render(decodeInstancedFormat(sc.viewer as any), RENDER, { up: 'Z', ...ORBIT, ortho: getState().ortho, ...(cam ?? {}) })
     this.rendered = true
-    try { this.viewer.renderer.setClearColor(VIEW.background, 1) } catch { /* keep the viewer's own */ }
+    this.applyBackground(getState().background)
     this.index(sc)
     // The viewer settles its own size a frame or two after render; fit after it.
     this.fit()
@@ -541,6 +542,20 @@ export class CadView {
     const box = new THREE.Box3(), hidden = getState().hidden
     for (const [name, list] of this.meshes) if (!hidden.includes(name)) list.forEach((m) => box.expandByObject(m))
     return box.isEmpty() ? null : box
+  }
+
+  private bgMesh: THREE.Mesh | null = null
+  /** View3DSettings' background: a simple colour clears the view; a gradient is
+   *  SoFCBackgroundGradient's mesh, drawn first in the scene. */
+  private applyBackground(b: BackgroundPrefs) {
+    if (this.bgMesh) {
+      this.bgMesh.removeFromParent()
+      this.bgMesh.geometry.dispose()
+      ;(this.bgMesh.material as THREE.Material).dispose()
+      this.bgMesh = null
+    }
+    try { this.viewer.renderer.setClearColor(b.color, 1) } catch { /* keep the viewer's own */ }
+    if (b.mode !== 'simple' && this.viewer.scene) { this.bgMesh = gradientMesh(b); this.viewer.scene.add(this.bgMesh) }
   }
 
   /** FreeCAD's Transform (Std_TransformManip) with its SoTransformDragger: arrows and rings
@@ -1133,8 +1148,10 @@ export class CadView {
       if (cam.isOrthographicCamera) { const half = (cam.top - cam.bottom) / 2, mid = (cam.left + cam.right) / 2; cam.left = mid - half * (w / h); cam.right = mid + half * (w / h) }
       else cam.aspect = w / h
       cam.updateProjectionMatrix()
-      const bg = background === 'White' ? 0xffffff : background === 'Black' ? 0x000000 : VIEW.background
+      // "Current" keeps the view's background, a gradient included; the others replace it.
+      const bg = background === 'White' ? 0xffffff : background === 'Black' ? 0x000000 : getState().background.color
       r.setClearColor(bg, background === 'Transparent' ? 0 : 1)
+      if (this.bgMesh) this.bgMesh.visible = background === 'Current'
       r.clear(true, true, true) // three-cad-viewer draws with autoClear off
       r.render(this.viewer.scene, cam)
       return canvas.toDataURL(type, 0.95)
@@ -1142,6 +1159,7 @@ export class CadView {
       Object.assign(cam, saved)
       cam.updateProjectionMatrix()
       r.setClearColor(clear, alpha)
+      if (this.bgMesh) this.bgMesh.visible = true
       r.setPixelRatio(ratio)
       r.setSize(size.x, size.y, false)
       this.gizmo = gizmo
@@ -1811,6 +1829,7 @@ export class CadView {
     if (s.axes !== this.applied.axes) { try { this.viewer.setAxes(s.axes) } catch { /* no axes yet */ } dirty = true }
     if (s.showFPS !== this.applied.showFPS) { this.setShowFPS(s.showFPS); dirty = true }
     if (s.corner !== this.applied.corner) dirty = true
+    if (s.background !== this.applied.background) { this.applyBackground(s.background); dirty = true }
     // Preferences > Navigation Cube: a new size, corner, colour or font rebuilds the cube.
     if (s.naviCube !== this.applied.naviCube) {
       this.naviRotateToNearest = s.naviCube.toNearest
@@ -1824,7 +1843,7 @@ export class CadView {
       dirty = true
     }
     this.applied = { selected: s.selected, preselected: s.preselected, hidden: s.hidden, style: s.drawStyle, cube: s.cube,
-      view: s.view, selBoxes: s.selBoxes, axes: s.axes, showFPS: s.showFPS, clip: s.clip, preSub: s.preSub, subSel: s.subSel, nav: s.nav, navPrefs: s.navPrefs, corner: s.corner, naviCube: s.naviCube }
+      view: s.view, selBoxes: s.selBoxes, axes: s.axes, showFPS: s.showFPS, clip: s.clip, preSub: s.preSub, subSel: s.subSel, nav: s.nav, navPrefs: s.navPrefs, corner: s.corner, naviCube: s.naviCube, background: s.background }
     if (dirty) this.redraw()
   }
 

@@ -45,6 +45,11 @@ async function runMacroToConsole(name: string) {
 /** The Macro menu (Workbench.cpp's "&Macro"): Std_DlgMacroRecord (toggling label/icon exactly as
  *  its activated() does), Std_DlgMacroExecute, Std_RecentMacros, Std_DlgMacroExecuteDirect and
  *  Std_MacroAttachDebugger (present but disabled: no debugger here). */
+/** Std_DlgMacroExecuteDirect: runs the macro open in the Edit task, if any (isActive: an editor view). */
+export function executeMacroDirect() {
+  const task = getState().task
+  if (task?.kind === 'macroEdit') void runMacroToConsole(task.body)
+}
 export function macroEntries(): Entry[] {
   const recording = getState().recordingMacro
   const task = getState().task
@@ -58,9 +63,8 @@ export function macroEntries(): Entry[] {
     { label: 'Recent Macros', sub: recent.map((n): Entry => ({ label: n, onSelect: () => runMacroToConsole(n) })) }, // empty, as RecentMacrosAction's, when there are none
     'sep',
     // Std_DlgMacroExecuteDirect (Ctrl+F6): FreeCAD runs whatever the active editor view holds;
-    // here, whatever macro is open in the Edit task. Shown for parity; not bound to a key (that
-    // dispatcher is in App.tsx, outside this change's files — see macro-ui.md).
-    { label: 'Execute Macro', kbd: '⌘F6', icon: 'macro-run', disabled: !editing, onSelect: () => editing && runMacroToConsole(editing) },
+    // here, whatever macro is open in the Edit task.
+    { label: 'Execute Macro', kbd: '⌘F6', icon: 'macro-run', disabled: !editing, onSelect: executeMacroDirect },
     { label: 'Attach to Remote Debugger', disabled: true },
   ]
 }

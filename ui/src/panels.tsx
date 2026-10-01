@@ -181,6 +181,10 @@ function ModelTree() {
   }, [selected, treeOpts.syncSelection])
   const [menu, setMenu] = useState<{ x: number; y: number } | null>(null)
   const states = useMemo(() => statesByBody(checks?.rows, scene?.bodies ?? []), [checks, scene])
+  // The object in edit (Gui::Document::getInEdit): the default edit (its parameters) or Transform.
+  // TreeWidget paints it in Colors' "Object being edited" colour.
+  const task = useStore((s) => s.task), editColor = useStore((s) => s.treeEditColor)
+  const editing = task && (task.kind === 'params' || task.kind === 'transform') ? task.body : null
 
   // Tree.cpp ctor 750-752 + TreeParams.py 97-110: HideColumn/HideInternalNames both default to
   // true, so the Description and Internal name columns (and the header itself) start hidden.
@@ -268,6 +272,7 @@ function ModelTree() {
           b.placement ? 'moved by hand' : null, st && st !== 'PASS' ? st : null].filter(Boolean).join(' · ')
         return (
           <div key={b.name} data-name={b.name} className={cls('trow', selected.includes(b.name) && 'sel', pre === b.name && 'pre', off && 'hid')}
+            style={editing === b.name && !selected.includes(b.name) && pre !== b.name ? { background: editColor } : undefined}
             onClick={(e) => { cancelPreselectTimer(); if (e.shiftKey) selectRange(b.name); else select(b.name, e.metaKey || e.ctrlKey) }} onDoubleClick={() => editDefault(b.name)}
             onMouseEnter={() => onEnter(b.name)}
             onContextMenu={(e) => { e.preventDefault(); if (!getState().selected.includes(b.name)) select(b.name); setMenu({ x: e.clientX, y: e.clientY }) }}>
@@ -1232,8 +1237,8 @@ export function PrefsPage({ page }: { page: string }) {
           <label className="tfield"><span>Maximum frame rate</span><input readOnly value="No limit" disabled /></label>
         </fieldset>
         <fieldset className="tgroup tg"><legend>Camera Type</legend>
-          <label className="tcheck" title="Objects will appear in a perspective projection"><input type="radio" name="camtype" checked={!ortho} onChange={() => setOrtho(false)} /> Perspective rendering</label>
-          <label className="tcheck" title="Objects will be in orthographic projection"><input type="radio" name="camtype" checked={ortho} onChange={() => setOrtho(true)} /> Orthographic rendering</label>
+          <label className="tcheck" title="Objects will appear in a perspective projection"><input type="radio" checked={!ortho} onChange={() => setOrtho(false)} /> Perspective rendering</label>
+          <label className="tcheck" title="Objects will be in orthographic projection"><input type="radio" checked={ortho} onChange={() => setOrtho(true)} /> Orthographic rendering</label>
         </fieldset>
       </div>}
       {page === 'Transform snap' && <div className="pref-content">

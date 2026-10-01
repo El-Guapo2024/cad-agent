@@ -751,6 +751,13 @@ input[type=range]:disabled::-webkit-slider-runnable-track { background: var(--da
 .color-btn { position: relative; }
 .color-btn input[type="color"] { position: absolute; inset: 0; opacity: 0; cursor: default; }
 .color-chip { display: inline-block; width: 24px; height: 12px; border: 1px solid #555; }
+/* Preferences > Display > Colors (DlgSettingsViewColor.ui): the radios in a row with the simple
+   colour after them; the gradient's grid (Switch, labels, colours, Middle color). */
+.bg-modes { display: flex; flex-wrap: wrap; align-items: center; gap: 0 12px; }
+.bg-grid { display: grid; grid-template-columns: auto auto auto 1fr; align-items: center; gap: 4px 8px; margin-top: 4px; }
+.bg-grid .tcheck { margin: 0; }
+.pref-grid { display: grid; grid-template-columns: auto auto; justify-content: start; justify-items: start; align-items: center; gap: 4px 8px; }
+.pref-content .color-btn.disabled, .pref-content span.disabled { opacity: 0.5; }
 .tfield-col { display: flex; flex-direction: column; gap: 2px; }
 
 /* A dock group showing one panel looks like that QDockWidget's title bar (FreeCAD 1.x: Model on

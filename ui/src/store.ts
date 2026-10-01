@@ -4,6 +4,7 @@ import { useSyncExternalStore } from 'react'
 import type { Checks, LogEntry, Project, Scene, Status } from './api'
 import { NAV_DEFAULTS, type NavPrefs, type NavStyleId } from './nav'
 import { unitPrefs } from './quantity'
+import { BACKGROUND_DEFAULTS, type BackgroundPrefs } from './background'
 
 /** The report view's message types (Base::LogStyle): Message, Log, Warning, Error, Critical. */
 export type Level = 'msg' | 'log' | 'warn' | 'err' | 'critical'
@@ -210,6 +211,9 @@ export type State = {
   cubeOffset: CubeOffset
   rotationCenter: RotationCenterPrefs
   disableTouchTilt: boolean
+  /** Preferences > Display > Colors: the 3D view's background, and the tree's colour for the object being edited. */
+  background: BackgroundPrefs
+  treeEditColor: string
   units: Units
   editMode: EditMode
   /** The Selection view's "Picked object list": everything under the cursor at the last pick. */
@@ -267,7 +271,7 @@ let state: State = {
   reportShow: { msg: true, log: true, warn: true, err: true, critical: true, ...saved.get<Partial<Record<Level, boolean>>>('reportShow', {}) },
   reportTimecode: saved.get('report.timecode', true), reportCleared: 0,
   clip: null, viewSize: null, consoleLines: [], consoleDraft: '', animate: saved.get('animate', true), nav: saved.get<NavStyle>('nav', 'cad'),
-  navPrefs: { ...NAV_DEFAULTS, ...saved.get<Partial<NavPrefs>>('navPrefs', {}) }, homeView: saved.get<HomeView>('homeView', 'Trimetric'), newDocCameraScale: saved.get('newDocCameraScale', 100), corner: saved.get<Corner>('corner', { show: true, size: 10 }), axisColors: { ...AXIS_COLOR_DEFAULTS, ...saved.get<Partial<AxisColors>>('axisColors', {}) }, showFPS: saved.get('showFPS', false), naviCube: { ...NAVICUBE_DEFAULTS, ...saved.get<Partial<NaviCubePrefs>>('naviCube', {}) }, cubePlace: (['top-left', 'top-right', 'bottom-left', 'bottom-right'] as const)[saved.get<Partial<NaviCubePrefs>>('naviCube', {}).corner ?? 1], cubePos: saved.get<CubePos>('cubePos', CORNER_POS[saved.get<Partial<NaviCubePrefs>>('naviCube', {}).corner ?? 1]), cubeOffset: { left: 10, right: 10, top: 10, bottom: 22 }, rotationCenter: saved.get<RotationCenterPrefs>('rotationCenter', { size: 5, color: '#ff0000', alpha: 0.2 }), disableTouchTilt: saved.get('disableTouchTilt', true), units: saved.get<Units>('units', { schema: 0, decimals: 2, denominator: 8 }), editMode: saved.get<EditMode>('editMode', 'default'), pickList: false, picked: [], treeShowHidden: false,
+  navPrefs: { ...NAV_DEFAULTS, ...saved.get<Partial<NavPrefs>>('navPrefs', {}) }, homeView: saved.get<HomeView>('homeView', 'Trimetric'), newDocCameraScale: saved.get('newDocCameraScale', 100), corner: saved.get<Corner>('corner', { show: true, size: 10 }), axisColors: { ...AXIS_COLOR_DEFAULTS, ...saved.get<Partial<AxisColors>>('axisColors', {}) }, showFPS: saved.get('showFPS', false), naviCube: { ...NAVICUBE_DEFAULTS, ...saved.get<Partial<NaviCubePrefs>>('naviCube', {}) }, cubePlace: (['top-left', 'top-right', 'bottom-left', 'bottom-right'] as const)[saved.get<Partial<NaviCubePrefs>>('naviCube', {}).corner ?? 1], cubePos: saved.get<CubePos>('cubePos', CORNER_POS[saved.get<Partial<NaviCubePrefs>>('naviCube', {}).corner ?? 1]), cubeOffset: { left: 10, right: 10, top: 10, bottom: 22 }, rotationCenter: saved.get<RotationCenterPrefs>('rotationCenter', { size: 5, color: '#ff0000', alpha: 0.2 }), disableTouchTilt: saved.get('disableTouchTilt', true), background: { ...BACKGROUND_DEFAULTS, ...saved.get<Partial<BackgroundPrefs>>('background', {}) }, treeEditColor: saved.get('treeEditColor', '#00abff'), units: saved.get<Units>('units', { schema: 0, decimals: 2, denominator: 8 }), editMode: saved.get<EditMode>('editMode', 'default'), pickList: false, picked: [], treeShowHidden: false,
   toolbars: saved.get('toolbars', {}), toolbarLock: saved.get('toolbarLock', false), statusBar: saved.get('statusBar', true),
   tree: { syncView: true, syncSelection: true, preSelection: true, recordSelection: true, ...saved.get('tree', {}) }, selHistory: { back: [], forward: [] }, toolbarIconSize: saved.get('toolbarIconSize', 24), prefsOpen: false, cameraNode: null, selFilter: null, gateMsg: null, frozenViews: [], treeCollapsed: false,
   cameraPreset: null,

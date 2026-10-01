@@ -13,10 +13,12 @@ import { setTreeOption } from './actions'
 import { setUnits } from './commands'
 import { PrefsPage } from './panels'
 import { VIEW } from './theme'
+import { BACKGROUND_DEFAULTS, type BackgroundMode, type BackgroundPrefs } from './background'
+import { cls } from './panels'
 
 const GROUPS: [string, string, string[]][] = [
   ['General', 'preferences-general', ['General', 'Selection', 'Notification Area', 'Report View']],
-  ['Display', 'preferences-display', ['3D View', 'Navigation', 'Transform snap']],
+  ['Display', 'preferences-display', ['3D View', 'Navigation', 'Colors', 'Transform snap']],
   ['Python', 'preferences-python', ['Macro']],
 ]
 const hex = (n: number) => '#' + n.toString(16).padStart(6, '0')
@@ -43,6 +45,58 @@ function SelectionPage() {
     </div>
   )
 }
+/** A PrefColorButton: the colour, a native picker over it; disabled with no setter. */
+function ColorButton({ value, set, tip }: { value: string; set?: (v: string) => void; tip?: string }) {
+  return (
+    <label className={cls('qbtn color-btn', !set && 'disabled')} title={tip}><span className="color-chip" style={{ background: value }} />
+      <input type="color" value={value} disabled={!set} onChange={(e) => set?.(e.target.value)} /></label>)
+}
+/** DlgSettingsViewColor.ui: Background Color, Tree View, Color Bar. The radios swap the simple
+ *  colour for the gradient's (setGradientColorVisibility), the labels follow the gradient's kind,
+ *  Switch swaps the first and last colours, Middle color enables the middle one. */
+function ColorsPage() {
+  const bg = useStore((s) => s.background), editColor = useStore((s) => s.treeEditColor)
+  const set = (v: Partial<BackgroundPrefs>) => { const background = { ...getState().background, ...v }; saved.set('background', background); setState({ background }) }
+  const gradient = bg.mode !== 'simple'
+  const [l1, l2, l3] = bg.mode === 'radial' ? ['Central', 'Midway', 'End'] : ['Top', 'Middle', 'Bottom']
+  const radio = (label: string, mode: BackgroundMode, tip: string) => (
+    <label className="tcheck" title={tip}><input type="radio" checked={bg.mode === mode} onChange={() => set({ mode })} />{label}</label>)
+  const na = (what: string) => `n/a: ${what}`
+  return (
+    <div className="pref-content">
+      <fieldset className="tgroup" title="Background color for the model view"><legend>Background Color</legend>
+        <div className="bg-modes">
+          {radio('Simple color', 'simple', 'Background will have the selected color')}
+          {radio('Linear gradient', 'linear', 'Background will have the selected color gradient')}
+          {radio('Radial gradient', 'radial', 'Background will have the selected color gradient')}
+          {!gradient && <ColorButton value={bg.color} set={(color) => set({ color })} tip="Background will have the selected color" />}
+        </div>
+        {gradient && (
+          <div className="bg-grid">
+            <span /><span>{l1}</span><ColorButton value={bg.top} set={(top) => set({ top })} /><span />
+            <button className="qbtn" title="Switches the colors of the gradient" onClick={() => set({ top: bg.bottom, bottom: bg.top })}>Switch</button>
+            <span className={cls(!bg.useMid && 'disabled')}>{l2}</span><ColorButton value={bg.mid} set={bg.useMid ? (mid) => set({ mid }) : undefined} />
+            <label className="tcheck" title="Color gradient will get the selected color as middle color"><input type="checkbox" checked={bg.useMid} onChange={(e) => set({ useMid: e.target.checked })} />Middle color</label>
+            <span /><span>{l3}</span><ColorButton value={bg.bottom} set={(bottom) => set({ bottom })} /><span />
+          </div>)}
+      </fieldset>
+      <fieldset className="tgroup"><legend>Tree View</legend>
+        <div className="pref-grid">
+          <span>Object being edited</span>
+          <ColorButton value={editColor} set={(v) => { saved.set('treeEditColor', v); setState({ treeEditColor: v }) }} tip="Background color for objects in the tree view that are currently edited" />
+          <span className="disabled">Active container object</span>
+          <ColorButton value="#5bb413" tip={na('no active containers (a part or a body) here')} />
+        </div>
+      </fieldset>
+      <fieldset className="tgroup"><legend>Color Bar</legend>
+        <div className="pref-grid">
+          <span className="disabled">Label text color</span><ColorButton value="#212529" tip={na('no colour bars here (Mesh and FEM results)')} />
+          <span className="disabled">Label text size</span><input type="number" className="qsb" value={13} disabled title={na('no colour bars here (Mesh and FEM results)')} />
+        </div>
+      </fieldset>
+    </div>
+  )
+}
 /** What each page's settings go back to (Reset Page / Group / All): the store's own defaults. */
 const DEFAULTS: Record<string, Record<string, unknown>> = {
   General: { units: { schema: 0, decimals: 2, denominator: 8 }, toolbarIconSize: 24, recentFilesSize: 4 },
@@ -51,6 +105,7 @@ const DEFAULTS: Record<string, Record<string, unknown>> = {
   '3D View': { corner: { show: true, size: 10 }, axes: false, axisColors: AXIS_COLOR_DEFAULTS, showFPS: false },
   Navigation: { nav: 'cad', animate: true, cube: true, navPrefs: NAV_DEFAULTS, homeView: 'Trimetric', newDocCameraScale: 100,
     naviCube: NAVICUBE_DEFAULTS, cubePos: CORNER_POS[1], rotationCenter: { size: 5, color: '#ff0000', alpha: 0.2 }, disableTouchTilt: true },
+  Colors: { background: BACKGROUND_DEFAULTS, treeEditColor: '#00abff' },
   'Transform snap': { snap: { mm: 1, deg: 5 } },
   Macro: { recordGuiCommands: true, guiAsComment: true },
   'Report View': { reportShow: { msg: true, log: true, warn: true, err: true, critical: true }, 'report.showOn': {}, 'report.timecode': true, reportTimecode: true, 'report.colors': {} },
@@ -102,11 +157,12 @@ function ReportViewPage() {
     </div>
   )
 }
-const page = (name: string): ReactNode => (name === 'Selection' ? <SelectionPage /> : name === 'Report View' ? <ReportViewPage /> : <PrefsPage page={name} />)
+const page = (name: string): ReactNode => (name === 'Selection' ? <SelectionPage /> : name === 'Report View' ? <ReportViewPage /> : name === 'Colors' ? <ColorsPage /> : <PrefsPage page={name} />)
 
 /** What Cancel puts back: the app's own saved settings and the store fields the pages edit. */
 const PREF_KEYS = ['nav', 'animate', 'cube', 'navPrefs', 'homeView', 'newDocCameraScale', 'units', 'corner', 'axes', 'axisColors',
-  'showFPS', 'naviCube', 'cubePos', 'rotationCenter', 'disableTouchTilt', 'recordGuiCommands', 'guiAsComment', 'notifyPrefs', 'tree'] as const
+  'showFPS', 'naviCube', 'cubePos', 'rotationCenter', 'disableTouchTilt', 'recordGuiCommands', 'guiAsComment', 'notifyPrefs', 'tree',
+  'background', 'treeEditColor'] as const
 function snapshot() {
   const s = getState() as unknown as Record<string, unknown>
   const saved: Record<string, string | null> = {}
