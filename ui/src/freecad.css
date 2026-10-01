@@ -756,6 +756,8 @@ input[type=range]:disabled::-webkit-slider-runnable-track { background: var(--da
 .bg-modes { display: flex; flex-wrap: wrap; align-items: center; gap: 0 12px; }
 .bg-grid { display: grid; grid-template-columns: auto auto auto 1fr; align-items: center; gap: 4px 8px; margin-top: 4px; }
 .bg-grid .tcheck { margin: 0; }
+.sel-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.pick-radius { width: 120px; }
 .light-grid { display: grid; grid-template-columns: auto minmax(60px, 1fr) minmax(60px, 1fr) auto auto; align-items: center; gap: 4px 6px; }
 .pct-box { display: inline-flex; align-items: center; gap: 2px; }
 .pct-box input { width: 48px; }

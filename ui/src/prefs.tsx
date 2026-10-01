@@ -5,14 +5,13 @@
 // Settings take effect as they change; Cancel puts back what was there when the dialog opened
 // (or at the last Apply), which is what FreeCAD's deferred apply amounts to.
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
-import { AXIS_COLOR_DEFAULTS, CORNER_POS, NAVICUBE_DEFAULTS, NOTIFY_DEFAULTS, getState, saved, setState, useStore } from './store'
+import { AXIS_COLOR_DEFAULTS, CORNER_POS, NAVICUBE_DEFAULTS, NOTIFY_DEFAULTS, SEL_DEFAULTS, type SelPrefs, getState, saved, setState, useStore } from './store'
 import { NAV_DEFAULTS } from './nav'
 import { ContextMenu, type Entry } from './chrome'
 import { messageBox } from './msgbox'
 import { setTreeOption } from './actions'
 import { setUnits } from './commands'
 import { PrefsPage } from './panels'
-import { VIEW } from './theme'
 import { BACKGROUND_DEFAULTS, type BackgroundMode, type BackgroundPrefs } from './background'
 import { cls } from './panels'
 import * as THREE from 'three'
@@ -25,19 +24,22 @@ const GROUPS: [string, string, string[]][] = [
   ['Display', 'preferences-display', ['3D View', 'Light Sources', 'Navigation', 'Colors', 'Transform snap']],
   ['Python', 'preferences-python', ['Macro']],
 ]
-const hex = (n: number) => '#' + n.toString(16).padStart(6, '0')
 
-/** DlgSettingsSelection.ui: Viewport Selection Behavior and Tree Selection Behavior. */
+/** DlgSettingsSelection.ui: Viewport Selection Behavior (each enable with its colour beside it,
+ *  the pick radius) and Tree Selection Behavior. */
 function SelectionPage() {
-  const tree = useStore((s) => s.tree)
+  const tree = useStore((s) => s.tree), sp = useStore((s) => s.selPrefs)
+  const setSel = (patch: Partial<SelPrefs>) => { const selPrefs = { ...getState().selPrefs, ...patch }; saved.set('selPrefs', selPrefs); setState({ selPrefs }) }
   const check = (label: string, on: boolean, f?: (v: boolean) => void, tip?: string) => (
     <label className="tcheck" title={tip}><input type="checkbox" checked={on} disabled={!f} onChange={(e) => f?.(e.target.checked)} />{label}</label>)
   return (
     <div className="pref-content">
       <fieldset className="tgroup"><legend>Viewport Selection Behavior</legend>
-        <div className="tfield"><span className="color-chip" style={{ background: hex(VIEW.select) }} />{check('Enable selection', true, undefined, 'Enable selection, highlighted with specified color')}</div>
-        <label className="tfield"><span>Radius</span><input type="number" className="qsb" value={5} disabled title="Area for selecting elements in the 3D view. Larger value eases the selection of small elements but can make the selection less precise." /></label>
-        <div className="tfield"><span className="color-chip" style={{ background: hex(VIEW.preselect) }} />{check('Enable preselection', true, undefined, 'Enable preselection, highlighted with specified color')}</div>
+        <div className="sel-row">{check('Enable selection', sp.enable, (enable) => setSel({ enable }), 'Enable selection, highlighted with specified color')}
+          <ColorButton value={sp.color} set={(color) => setSel({ color })} tip="The color used for highlighting selected objects in the 3D view" /></div>
+        <label className="sel-row"><span className="disabled">Radius</span><input className="qsb pick-radius" value="5.0 px" readOnly disabled title="n/a: picking here is three-cad-viewer's ray cast, which has no pick radius" /></label>
+        <div className="sel-row">{check('Enable preselection', sp.enablePre, (enablePre) => setSel({ enablePre }), 'Enable preselection, highlighted with specified color')}
+          <ColorButton value={sp.preColor} set={(preColor) => setSel({ preColor })} tip="The color used for highlighting preselected objects in the 3D view" /></div>
         {check('Preselect the object in the 3D view when hovering the cursor over the tree item', tree.preSelection, (v) => setTreeOption('preSelection', v))}
       </fieldset>
       <fieldset className="tgroup"><legend>Tree Selection Behavior</legend>
@@ -199,7 +201,7 @@ function LightSourcesPage() {
 /** What each page's settings go back to (Reset Page / Group / All): the store's own defaults. */
 const DEFAULTS: Record<string, Record<string, unknown>> = {
   General: { units: { schema: 0, decimals: 2, denominator: 8 }, toolbarIconSize: 24, recentFilesSize: 4 },
-  Selection: { tree: { syncView: true, syncSelection: true, preSelection: true, recordSelection: true } },
+  Selection: { selPrefs: SEL_DEFAULTS, tree: { syncView: true, syncSelection: true, preSelection: true, recordSelection: true } },
   'Notification Area': { notifyPrefs: NOTIFY_DEFAULTS },
   '3D View': { corner: { show: true, size: 10 }, axes: false, axisColors: AXIS_COLOR_DEFAULTS, showFPS: false },
   'Light Sources': { lights: LIGHT_DEFAULTS },
@@ -262,7 +264,7 @@ const page = (name: string): ReactNode => (name === 'Selection' ? <SelectionPage
 /** What Cancel puts back: the app's own saved settings and the store fields the pages edit. */
 const PREF_KEYS = ['nav', 'animate', 'cube', 'navPrefs', 'homeView', 'newDocCameraScale', 'units', 'corner', 'axes', 'axisColors',
   'showFPS', 'naviCube', 'cubePos', 'rotationCenter', 'disableTouchTilt', 'recordGuiCommands', 'guiAsComment', 'notifyPrefs', 'tree',
-  'background', 'treeEditColor', 'lights'] as const
+  'background', 'treeEditColor', 'lights', 'selPrefs'] as const
 function snapshot() {
   const s = getState() as unknown as Record<string, unknown>
   const saved: Record<string, string | null> = {}

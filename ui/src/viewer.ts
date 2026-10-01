@@ -25,7 +25,7 @@ function labelSprite(text: string, color: string): THREE.Sprite {
 
 import { toUnicodeSuperscript } from './superscript'
 import type { Scene, Vec3 } from './api'
-import { getState, saved, setState, subscribe, viewOf, type Clip, type Corner, type CubeOffset, type CubePlace, type CubePos, type DrawStyle, type HomeView, type NaviCubePrefs, type NavStyle, type ViewProps } from './store'
+import { getState, saved, setState, subscribe, viewOf, type Clip, type Corner, type CubeOffset, type CubePlace, type CubePos, type DrawStyle, type HomeView, type NaviCubePrefs, type NavStyle, type ViewProps, type SelPrefs } from './store'
 import { VIEW } from './theme'
 import { gradientMesh, type BackgroundPrefs } from './background'
 import { LightRig, type LightPrefs } from './lights'
@@ -147,6 +147,12 @@ type Applied = {
   corner: Corner | null; naviCube: NaviCubePrefs | null; background: BackgroundPrefs | null
 }
 const UNAPPLIED = { selected: null, preselected: null, hidden: null, style: null, view: null, selBoxes: null, axes: null, showFPS: null, clip: undefined, preSub: undefined, subSel: null, nav: null, navPrefs: null, corner: null, naviCube: null, background: null }
+
+/** Preferences > Selection: SelectionColor / HighlightColor, or none while EnableSelection /
+ *  EnablePreselection is off (View3DSettings' SoFCEnableSelectionAction / SoFCEnablePreselectionAction
+ *  stop the highlighting). */
+const selColor = () => { const p = getState().selPrefs; return p.enable ? new THREE.Color(p.color).getHex() : null }
+const preColor = () => { const p = getState().selPrefs; return p.enablePre ? new THREE.Color(p.preColor).getHex() : null }
 
 const R2 = Math.SQRT1_2
 /** FreeCAD's standard view rotations (src/Gui/Camera.cpp; x, y, z, w). */
@@ -549,6 +555,7 @@ export class CadView {
 
   private lightRig: LightRig | null = null
   private lightsApplied: LightPrefs | null = null
+  private selPrefsApplied: SelPrefs | null = null
   /** View3DSettings' light sources on a (new) scene; they follow the camera at every render. */
   private applyLights(p: LightPrefs) {
     const scene = this.viewer.scene as THREE.Scene | undefined
@@ -1546,7 +1553,8 @@ export class CadView {
       if (s.hidden.includes(n)) continue
       const vp = viewOf(s, n), sel = selected.includes(n), pre = !sel && n === preselected
       const boxed = selBoxes || vp.selectionStyle === 'BoundBox'
-      const color = sel && boxed ? VIEW.select : pre && boxed ? VIEW.preselect : vp.boundingBox ? BBOX_COLOR : null
+      const sc = selColor(), pc = preColor()
+      const color = sel && boxed && sc !== null ? sc : pre && boxed && pc !== null ? pc : vp.boundingBox ? BBOX_COLOR : null
       if (color === null) continue
       const box = new THREE.Box3()
       ;(this.meshes.get(n) ?? []).forEach((m) => box.expandByObject(m))
@@ -1768,8 +1776,9 @@ export class CadView {
       this.viewer.scene.add(o)
       this.overlays.push(o)
     }
-    subs.forEach((r) => add(r, VIEW.select))
-    if (pre && !subs.includes(pre)) add(pre, VIEW.preselect)
+    const sc = selColor(), pc = preColor()
+    if (sc !== null) subs.forEach((r) => add(r, sc))
+    if (pre && pc !== null && !subs.includes(pre)) add(pre, pc)
   }
 
   /** Std_AlignToSelection: look straight at a selected planar face. */
@@ -1818,6 +1827,8 @@ export class CadView {
     if (!this.rendered) return
     const s = getState()
     let dirty = false
+    // New selection colours: redraw the highlights, boxes and sub-elements below.
+    if (s.selPrefs !== this.selPrefsApplied) { this.selPrefsApplied = s.selPrefs; this.applied = { ...this.applied, selected: null, subSel: null } }
     if (s.hidden !== this.applied.hidden || s.drawStyle !== this.applied.style || s.view !== this.applied.view) { this.applyHidden(s.hidden, s.drawStyle); dirty = true }
     if (s.cube !== this.applied.cube) {
       if (s.cube) this.attachGizmo()
@@ -1873,7 +1884,7 @@ export class CadView {
     for (const [name, list] of this.meshes) {
       const vp = viewOf(s, name)
       const boxed = vp.selectionStyle === 'BoundBox'
-      const c = !boxed && selected.includes(name) ? VIEW.select : !boxed && name === pre ? VIEW.preselect : null
+      const c = !boxed && selected.includes(name) ? selColor() : !boxed && name === pre ? preColor() : null
       const whole = s.selected.includes(name) && !s.subSel.some((r) => r.startsWith(name + '.'))
       const element = s.subSel.some((r) => r.startsWith(name + '.'))
       const top = vp.onTop === 'Enabled' ? whole || element : vp.onTop === 'Object' ? whole : vp.onTop === 'Element' ? element : false
