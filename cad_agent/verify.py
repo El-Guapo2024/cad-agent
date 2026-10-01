@@ -34,7 +34,8 @@ from pathlib import Path
 from . import state as st
 
 PKG = Path(__file__).resolve().parent
-DESIGN = ("parts/*.py", "assembly.py", "spec.toml", "bought/*", "baseline/*.png")
+DESIGN = ("parts/*.py", "assembly.py", "spec.toml", "placements.toml", "bought/*",
+          "baseline/*.png")
 OUTPUTS = ("checks.json", "verify.json")      # written by runs, never inputs
 
 

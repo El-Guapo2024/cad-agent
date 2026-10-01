@@ -24,9 +24,13 @@ another directory.
 from __future__ import annotations
 
 import argparse
+import contextlib
+import difflib
+import io
 import json
 import os
 import re
+import shlex
 import sys
 import time
 import traceback
@@ -34,7 +38,13 @@ from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
 
+from . import gui_client
+from . import macro
 from . import state as st
+from . import gui
+from .gui import COMMAND_NAME_RE, FREECAD_PROP_NAMES, VIEW_CAMERA, VIEW_PROJECTION
+from .placements import PlacementError
+from .undo import UndoError
 
 OK, FAIL, UNCHECKED, USAGE, CRASH = 0, 1, 2, 3, 4
 _RUNS = 0     # commands run in this process: only the first one runs fresh
@@ -55,6 +65,11 @@ class UsageError(Exception):
 
 class BuildFailed(Exception):
     """A part module raised: the design failed, not the tool."""
+
+
+class WorkbenchDown(Exception):
+    """`cad gui` found no running workbench to answer for a project: UNCHECKED,
+    not a usage error — the command was fine, the workbench just is not up."""
 
 
 @dataclass
@@ -101,6 +116,15 @@ def _part(slug: str, name: str) -> Path:
         have = ", ".join(st.part_names(slug)) or "none"
         raise UsageError(f"no part {name!r} in {slug} (parts: {have})")
     return path
+
+
+def _actor(a) -> str:
+    """Who to journal a change under: `--actor` when the caller passed it
+    (the workbench server adds it to every command it runs; see undo.record's
+    docstring), else undo.actor()'s own CAD_ACTOR-env fallback (default
+    "agent")."""
+    from . import undo as un
+    return a.actor or un.actor()
 
 
 def _overrides(a) -> dict:
@@ -169,6 +193,12 @@ def _rows_text(rows, show_all: bool) -> list[str]:
 def cmd_init(a) -> Result:
     if not SLUG.fullmatch(a.slug):
         raise UsageError(f"project name {a.slug!r}: letters, digits, - and _ only")
+    try:
+        existing = st.project_dir(a.slug)
+    except FileNotFoundError:
+        pass
+    else:
+        raise UsageError(f"project {a.slug!r} already exists at {existing}")
     d = st.project_dir(a.slug, create=True)
     prof = d / "mech_profile.md"
     wrote = []
@@ -290,7 +320,7 @@ def cmd_measure(a) -> Result:
     if not a.posed:
         _part(a.slug, a.a)
         _part(a.slug, a.b)
-    from .geom import intersection_volume, min_distance
+    from .geom import closest_points, intersection_volume
     if a.posed:
         asm = _assembly(a.slug)
         missing = [n for n in (a.a, a.b) if n not in asm]
@@ -309,10 +339,41 @@ def cmd_measure(a) -> Result:
         return Result(FAIL, data,
                       f"{a.a} vs {a.b} ({where}): INTERFERENCE, overlap {overlap:.4f} mm^3",
                       f"interfere {overlap:.3f} mm^3")
-    gap = min_distance(sa, sb)
-    data.update(interferes=False, overlap_mm3=0.0, min_distance_mm=round(gap, 4))
+    gap, pa, pb = closest_points(sa, sb)
+    data.update(interferes=False, overlap_mm3=0.0, min_distance_mm=round(gap, 4),
+                points=[list(pa), list(pb)])
     return Result(OK, data, f"{a.a} vs {a.b} ({where}): clear, minimum distance {gap:.4f} mm",
                   f"clear {gap:.3f} mm")
+
+
+def cmd_mass(a) -> Result:
+    """FreeCAD's Mass Properties for bodies as the scene shows them."""
+    _project(a.slug)
+    from .geom import DENSITY, mass_properties
+    from .scene import placed_solids
+    shown, materials = placed_solids(a.slug)
+    names = a.bodies or sorted(shown)
+    missing = [n for n in names if n not in shown]
+    if missing:
+        raise UsageError(f"not in {a.slug}: {', '.join(missing)} (bodies: {', '.join(sorted(shown))})")
+    items, per, defaulted = [], [], []
+    for n in names:
+        mat = (materials.get(n) or "").strip().lower()
+        # FreeCAD uses 1e-6 kg/mm^3 (water) when an object has no density.
+        density = DENSITY[mat] * 1e-6 if mat in DENSITY else 1e-6
+        if mat not in DENSITY:
+            defaulted.append(n)
+        items.append((shown[n], density))
+        one = mass_properties([(shown[n], density)])
+        per.append({"body": n, "material": materials.get(n), "density_kg_mm3": density,
+                    "volume_mm3": one.get("volume_mm3"), "mass_kg": one.get("mass_kg")})
+    data = {"project": a.slug, "bodies": per, "default_density": defaulted, **mass_properties(items)}
+    msg = (f"{len(names)} bod{'y' if len(names) == 1 else 'ies'}: volume {data['volume_mm3']:.3f} mm^3, "
+           f"mass {data['mass_kg'] * 1000:.3f} g, centre of gravity "
+           f"({', '.join(f'{c:.3f}' for c in data['cog'])}) mm")
+    if defaulted:
+        msg += f"; no density for {', '.join(defaulted)}, used 1 g/cm^3 as FreeCAD does"
+    return Result(OK, data, msg, f"{data['mass_kg'] * 1000:.2f} g")
 
 
 TABLE_ALIASES = {"holes": "clearance_hole_mm", "taps": "tap_drill_mm",
@@ -509,10 +570,22 @@ def cmd_bought_info(a) -> Result:
 
 
 def cmd_bought_add_step(a) -> Result:
-    from .bought import bought_info, register_step
-    _project(a.slug)
+    from .bought import bought_dir, bought_info, register_step
+    pdir = _project(a.slug)
+    src = Path(a.step_path).expanduser()
+    dest = bought_dir(a.slug) / f"{a.name}{src.suffix.lower()}"
+    sidecar = dest.with_suffix(".json")
+    before = [dest.read_text() if dest.exists() else None,
+             sidecar.read_text() if sidecar.exists() else None]
     path = _bought_call(register_step, a.slug, a.name, a.step_path, a.source, a.vendor)
     info = _bought_call(bought_info, a.slug, a.name)
+    from . import undo as un
+    cmd = shlex.join(["cad", "bought", "add-step", a.slug, a.name, a.step_path, "--source", a.source]
+                     + (["--vendor", a.vendor] if a.vendor else []))
+    un.record(pdir, "Add Bought Part", cmd,
+              [{"path": dest.relative_to(pdir).as_posix(), "before": before[0], "after": dest.read_text()},
+               {"path": sidecar.relative_to(pdir).as_posix(), "before": before[1],
+                "after": sidecar.read_text()}], by=_actor(a))
     return Result(OK, info, f"registered {a.name} from {path}\n"
                   + json.dumps(info, indent=1, default=str),
                   f"added {a.name} (STEP)", [str(path)])
@@ -520,7 +593,7 @@ def cmd_bought_add_step(a) -> Result:
 
 def cmd_bought_add_measured(a) -> Result:
     from .bought import bought_info, register_measured
-    _project(a.slug)
+    pdir = _project(a.slug)
     holes = []
     for h in a.hole or []:
         try:
@@ -533,6 +606,17 @@ def cmd_bought_add_measured(a) -> Result:
                         source=a.source, vendor=a.vendor, holes=holes or None,
                         hole_dia=a.hole_dia)
     info = _bought_call(bought_info, a.slug, a.name)
+    from . import undo as un
+    cmd_parts = ["cad", "bought", "add-measured", a.slug, a.name,
+                "--size", str(length), str(width), str(height), "--source", a.source]
+    if a.vendor:
+        cmd_parts += ["--vendor", a.vendor]
+    cmd_parts += [f"--hole={x:g},{y:g}" for x, y in holes]
+    if holes:
+        cmd_parts += ["--hole-dia", str(a.hole_dia)]
+    un.record(pdir, "Add Bought Part", shlex.join(cmd_parts),
+              [{"path": Path(path).relative_to(pdir).as_posix(), "before": None,
+                "after": Path(path).read_text()}], by=_actor(a))
     text = (f"wrote {Path(path).name}\n  envelope {info['bbox_mm']} mm · UNVERIFIED\n"
             f"  source {info['source']}\n"
             "  the provenance gate reports UNCHECKED until `cad bought verify` records a measurement")
@@ -547,6 +631,78 @@ def cmd_bought_verify(a) -> Result:
                   f"  source {info['source']}", f"verified {a.name}")
 
 
+# ─── Macros: FreeCAD's macro recorder, for this CLI ──────────────────────────
+# A macro is a text file of `cad` commands (macro.py owns the file format and
+# the shared replay loop); see macro.py's module docstring for the contract.
+
+_EXIT_LABEL = {OK: "OK", FAIL: "FAIL", UNCHECKED: "UNCHECKED", USAGE: "USAGE", CRASH: "CRASH"}
+
+
+def _macro_call(fn, *a, **kw):
+    try:
+        return fn(*a, **kw)
+    except (ValueError, FileNotFoundError, FileExistsError) as e:
+        raise UsageError(str(e).strip("'\"")) from e
+
+
+def cmd_macro_ls(a) -> Result:
+    rows = macro.list_macros()
+    lines = [f"  {r['name']:24} {r['lines']:4} lines  {r['modified']}" for r in rows]
+    return Result(OK, {"dir": str(macro.macro_dir()), "macros": rows},
+                  "\n".join(lines) or "no macros yet", f"{len(rows)} macros")
+
+
+def cmd_macro_show(a) -> Result:
+    text = _macro_call(macro.read_macro, a.name)
+    return Result(OK, {"name": a.name, "text": text}, text,
+                  f"{a.name}: {len(text.splitlines())} lines")
+
+
+def cmd_macro_rm(a) -> Result:
+    path = _macro_call(macro.delete_macro, a.name)
+    return Result(OK, {"name": a.name, "deleted": True}, f"deleted {path}", f"deleted {a.name}")
+
+
+def cmd_macro_save(a) -> Result:
+    if a.file == "-":
+        text = sys.stdin.read()
+    else:
+        src = Path(a.file).expanduser()
+        if not src.is_file():
+            raise UsageError(f"no file {a.file!r}")
+        text = src.read_text()
+    path = _macro_call(macro.save_macro, a.name, text)
+    return Result(OK, {"name": a.name, "path": str(path)}, f"saved {path}",
+                  f"saved {a.name}", [str(path)])
+
+
+def _macro_exec_line(argv: list[str]) -> dict:
+    """One macro line, replayed by re-entering `main` exactly as if it had been
+    typed: a `cad gui ...` line falls through to `cmd_gui_*`, so it reaches the
+    running workbench through `gui_client` like any other `cad gui` command
+    (WorkbenchDown -> exit 2, UNCHECKED, if none is up — the line is skipped
+    in effect and the macro carries on, the same as any other UNCHECKED line)."""
+    buf = io.StringIO()
+    with contextlib.redirect_stdout(buf):
+        code = main(["--json", "--with-text", *argv])
+    out = [ln for ln in buf.getvalue().splitlines() if ln.startswith("{")]
+    payload = json.loads(out[-1]) if out else {}
+    return {"exit": code, "text": payload.get("text", "")}
+
+
+def cmd_macro_run(a) -> Result:
+    text = _macro_call(macro.read_macro, a.name)
+    result = macro.run_lines(text.splitlines(), _macro_exec_line)
+    verdict = _EXIT_LABEL.get(result["exit"], result["exit"])
+    lines = [f"{a.name}: {len(result['ran'])} line(s) run, exit {verdict}"]
+    for i, r in enumerate(result["ran"]):
+        note = r["text"].strip().splitlines()[0] if r["text"].strip() else ""
+        tag = _EXIT_LABEL.get(r["exit"], r["exit"])
+        lines.append(f"  [{i}] {r['line']}  {tag}" + (f"  -- {note}" if note else ""))
+    return Result(result["exit"], {"name": a.name, **result}, "\n".join(lines),
+                  f"{a.name}: {len(result['ran'])} ran, exit {verdict}")
+
+
 # ─── Parser ──────────────────────────────────────────────────────────────────
 
 class _Parser(argparse.ArgumentParser):
@@ -555,6 +711,545 @@ class _Parser(argparse.ArgumentParser):
     def error(self, message):
         self.print_usage(sys.stderr)
         self.exit(USAGE, f"{self.prog}: error: {message}\n")
+
+
+# ─── Workbench ───────────────────────────────────────────────────────────────
+
+def _triple(text: str, flag: str) -> tuple[float, float, float]:
+    try:
+        vals = tuple(float(x) for x in text.split(","))
+    except ValueError:
+        vals = ()
+    if len(vals) != 3:
+        raise UsageError(f"{flag} takes X,Y,Z in mm or degrees, got {text!r} "
+                         f"(write {flag}=-5,0,0 when the first value is negative)")
+    return vals
+
+
+def cmd_scene(a) -> Result:
+    _project(a.slug)
+    from .placements import PlacementError
+    from .scene import write_scene
+    try:
+        path, sc = write_scene(a.slug, a.tolerance)
+    except (PlacementError, UsageError):
+        raise
+    except Exception as e:
+        raise BuildFailed(f"{a.slug} did not build: {type(e).__name__}: {e}") from e
+    tris = sc["triangles"]
+    size = path.stat().st_size
+    data = {"project": a.slug, "path": str(path), "bytes": size, "triangles": tris,
+            "bodies": [b["name"] for b in sc["bodies"]], "assembly": sc["assembly"],
+            "axes": [x["name"] for x in sc["axes"]], "source_hash": sc["source_hash"],
+            "unknown_placements": sc["unknown_placements"]}
+    text = (f"{a.slug}: {len(sc['bodies'])} bodies, {tris} triangles -> {path} "
+            f"({size / 1024:.0f} KB)")
+    return Result(OK, data, text, f"scene: {len(sc['bodies'])} bodies", [str(path)])
+
+
+def cmd_place(a) -> Result:
+    pdir = _project(a.slug)
+    from . import placements as pl
+    from .checks.fit import check_fit
+    from .geom import bbox
+    from .motion import _bbox_gap
+    try:
+        base, clearance, allow, _ = st.load_assembly(a.slug, placed=False)
+    except Exception as e:
+        raise BuildFailed(f"{a.slug} assembly did not build: {type(e).__name__}: {e}") from e
+    if base is None:
+        raise UsageError(f"{a.slug} has no assembly.py, so there is nothing to place parts in")
+    if a.body not in base:
+        raise UsageError(f"no body {a.body!r} in {a.slug}'s assembly (bodies: {', '.join(sorted(base))})")
+    placed = pl.load(pdir)
+    moves = [x for x in (a.move, a.turn, a.about, a.by) if x is not None]
+    if a.reset:
+        if moves:
+            raise UsageError("--reset puts the part back where assembly.py puts it; it takes no other option")
+        placed.pop(a.body, None)
+        entry = None
+    else:
+        if not moves:
+            raise UsageError("say how to move it: --move, --by, --turn, --about, or --reset")
+        entry = dict(placed.get(a.body) or {})
+        if not entry:
+            lo, hi = bbox(base[a.body])
+            entry = {"move": (0.0, 0.0, 0.0), "turn": (0.0, 0.0, 0.0),
+                     "about": tuple(round((lo[i] + hi[i]) / 2, 4) for i in range(3))}
+        if a.move is not None:
+            entry["move"] = _triple(a.move, "--move")
+        if a.turn is not None:
+            entry["turn"] = _triple(a.turn, "--turn")
+        if a.about is not None:
+            entry["about"] = _triple(a.about, "--about")
+        if a.by is not None:
+            d = _triple(a.by, "--by")
+            entry["move"] = tuple(entry["move"][i] + d[i] for i in range(3))
+        if pl.is_identity(entry):
+            placed.pop(a.body, None)          # back where the code puts it
+            entry = None
+        else:
+            placed[a.body] = entry
+    toml_path = pdir / pl.FILE
+    before_text = toml_path.read_text() if toml_path.exists() else None
+    path = pl.save(pdir, placed)
+    after_text = toml_path.read_text() if toml_path.exists() else None
+    from . import undo as un
+    cmd_parts = ["cad", "place", a.slug, a.body]
+    if a.reset:
+        cmd_parts.append("--reset")
+    else:
+        if a.move is not None:
+            cmd_parts.append(f"--move={a.move}")
+        if a.by is not None:
+            cmd_parts.append(f"--by={a.by}")
+        if a.turn is not None:
+            cmd_parts.append(f"--turn={a.turn}")
+        if a.about is not None:
+            cmd_parts.append(f"--about={a.about}")
+    un.record(pdir, "Placement", shlex.join(cmd_parts),
+              [{"path": pl.FILE, "before": before_text, "after": after_text}], by=_actor(a))
+
+    # What the move did: the fit gate's own rules, the moved body against each
+    # other body. Boxes far apart are settled without the exact query.
+    parts = pl.apply(base, placed)
+    req = {tuple(sorted(k.split("|"))) if isinstance(k, str) else tuple(sorted(k)): float(v)
+           for k, v in clearance.items()}
+    rows = []
+    for other in sorted(parts):
+        if other == a.body:
+            continue
+        need = req.get(tuple(sorted((a.body, other))), 0.0)
+        gap = _bbox_gap(parts[a.body], parts[other])
+        if gap > need + 1.0:
+            pair = " vs ".join(sorted((a.body, other)))
+            rows.append({"pair": pair, "state": "PASS", "check": "clearance",
+                         "detail": f"clear: boxes {gap:.1f} mm apart",
+                         "measured_mm": round(gap, 4), "required_mm": need})
+            continue
+        rows += check_fit({a.body: parts[a.body], other: parts[other]}, clearance,
+                          allow_contact=allow)
+    fails = [r for r in rows if r["state"] == "FAIL"]
+    where = ("back where assembly.py puts it" if entry is None else
+             f"move {list(entry['move'])} mm, turn {list(entry['turn'])} deg")
+    lines = [f"{a.slug}/{a.body}: {where}"]
+    lines += [f"  FAIL  {r['pair']}: {r['detail']}" for r in fails] or ["  clear of every other body"]
+    data = {"project": a.slug, "body": a.body, "placement": entry, "file": str(path),
+            "rows": rows, "fails": len(fails)}
+    return Result(FAIL if fails else OK, data, "\n".join(lines),
+                  f"placed {a.body}: {len(fails)} failing" if fails else f"placed {a.body}: clear",
+                  [str(path)] if path.exists() else [])
+
+
+def cmd_set(a) -> Result:
+    path = _part(a.slug, a.part)
+    from . import params as pm
+    from .geom import mass_g
+    changes = _pairs(a.values, "cad set")
+    if not changes:
+        raise UsageError("say what to change: cad set <slug> <part> key=value ...")
+    try:
+        current = pm.read(path)
+    except SyntaxError as e:
+        raise BuildFailed(f"{a.part} does not parse: {e}") from e
+    names = ", ".join(current) or "none"
+    for key in changes:
+        if key not in current:
+            raise UsageError(f"{a.part} has no parameter {key!r} (params: {names})")
+        if not current[key]["editable"]:
+            raise UsageError(f"{a.part}.{key} is computed in the file ({current[key]['value']}); "
+                             "edit the Python instead")
+    try:
+        new = {k: pm.coerce(k, current[k]["value"], v) for k, v in changes.items()}
+    except pm.ParamError as e:
+        raise UsageError(str(e)) from None
+    # Build with the new values first: a value that breaks the part is not written.
+    solid, meta = _build(a.slug, a.part, new)
+    before = {k: current[k]["value"] for k in new}
+    pdir = _project(a.slug)
+    before_text = path.read_text()
+    try:
+        pm.write(path, new)
+    except pm.ParamError as e:
+        raise UsageError(str(e)) from None
+    from . import undo as un
+    un.record(pdir, "Edit Parameters", shlex.join(["cad", "set", a.slug, a.part, *a.values]),
+              [{"path": path.relative_to(pdir).as_posix(), "before": before_text,
+                "after": path.read_text()}], by=_actor(a))
+    from .runner import part_check
+    r = part_check(a.slug, a.part, {})
+    code = _verdict(x["state"] for x in r["rows"])
+    try:
+        mass = round(mass_g(solid, meta["material"]), 2) if meta.get("material") else None
+    except KeyError:
+        mass = None
+    moved = ", ".join(f"{k} {before[k]!r} -> {new[k]!r}" for k in new)
+    d = r["bbox_mm"]
+    lines = [f"{a.slug}/{a.part}: {moved}",
+             f"  bbox {d[0]} x {d[1]} x {d[2]} mm" + (f" · {mass} g" if mass is not None else "")]
+    lines += _rows_text(r["rows"], False)
+    data = {"project": a.slug, "part": a.part, "changed": {k: [before[k], new[k]] for k in new},
+            "bbox_mm": d, "mass_g": mass, "failing": r["failing"], "file": str(path)}
+    return Result(code, data, "\n".join(lines), f"set {a.part}: {moved}", [str(path)])
+
+
+# ─── Undo/redo: one journal shared by the UI and the agent ─────────────────
+# `cad set`, `cad place` and `cad bought add-*` each call undo.record() right
+# after they write their files (see those commands above). A macro is not a
+# transaction of its own: replaying one just re-runs those same commands
+# (macro._macro_exec_line re-enters `main`), so each line that changes
+# something journals its own entry exactly as if it had been typed by hand —
+# nothing macro-specific lives here.
+
+def _undo_followup(slug: str, entry: dict) -> str | None:
+    """The cheap re-check the original command itself would run, repeated
+    after undo/redo rewrites an entry's files (e.g. a set's part gates).
+    Anything heavier (`cad check`, a render) is left for the next `cad
+    check`; the workbench's own file watcher picks up the rewritten file
+    either way. Best-effort: any failure here is swallowed, since the files
+    themselves were already written and verified by `undo.perform`."""
+    try:
+        if entry["name"] == "Edit Parameters" and len(entry["files"]) == 1:
+            part = Path(entry["files"][0]["path"]).stem
+            from .runner import part_check
+            r = part_check(slug, part, {})
+            code = _verdict(x["state"] for x in r["rows"])
+            label = "OK" if code == OK else ("FAIL" if code == FAIL else "UNCHECKED")
+            return f"part gates for {part}: {label}"
+        if entry["name"] == "Placement":
+            f = next((f for f in entry["files"] if f["path"] == "placements.toml"), None)
+            if f is None:
+                return None
+            import tomllib
+
+            def parse(text):
+                try:
+                    return tomllib.loads(text) if text else {}
+                except tomllib.TOMLDecodeError:
+                    return {}
+            b, af = parse(f["before"]), parse(f["after"])
+            bodies = sorted(n for n in set(b) | set(af) if b.get(n) != af.get(n))
+            if not bodies:
+                return None
+            pdir = _project(slug)
+            base, clearance, allow, _ = st.load_assembly(slug, placed=False)
+            if base is None:
+                return None
+            from . import placements as pl
+            from .checks.fit import check_fit
+            parts = pl.apply(base, pl.load(pdir))
+            rows = check_fit(parts, clearance, allow_contact=allow)
+            touching = [r for r in rows if any(b in r["pair"].split(" vs ") for b in bodies)]
+            fails = sum(1 for r in touching if r["state"] == "FAIL")
+            return (f"fit check for {', '.join(bodies)}: {fails} failing" if fails
+                    else f"fit check for {', '.join(bodies)}: clear")
+    except Exception:
+        return None
+    return None
+
+
+def _undo_redo(a, direction: str) -> Result:
+    pdir = _project(a.slug)
+    if a.steps < 1:
+        raise UsageError("--steps must be at least 1")
+    from . import undo as un
+    before = un.load(pdir)
+    if not before["undo" if direction == "undo" else "redo"]:
+        raise UsageError(f"nothing to {direction} in {a.slug}")
+    result = un.perform(pdir, direction, steps=a.steps)
+    applied = result["applied"]
+    if not applied:
+        raise UndoError(result["blocked"]["reason"])
+    touched = sorted({f["path"] for e in applied for f in e["files"]})
+    follow_up = _undo_followup(a.slug, applied[-1])
+    after = un.load(pdir)
+    lines = [f"{a.slug}: {direction} {len(applied)} step(s)"]
+    lines += [f"  {e['name']} ({e['by']}, {e['t']})" for e in applied]
+    lines += [f"  wrote {p}" for p in touched]
+    if result["blocked"]:
+        lines.append(f"  stopped: {result['blocked']['reason']}")
+    if follow_up:
+        lines.append(f"  {follow_up}")
+    data = {"project": a.slug, "direction": direction,
+            "applied": [{"id": e["id"], "name": e["name"], "by": e["by"], "t": e["t"]} for e in applied],
+            "files": touched, "blocked": (result["blocked"] or {}).get("reason"),
+            "remaining": {"undo": len(after["undo"]), "redo": len(after["redo"])},
+            "follow_up": follow_up}
+    summary = f"{direction}: {len(applied)} step(s)" + (" (stopped early)" if result["blocked"] else "")
+    return Result(OK, data, "\n".join(lines), summary, [str(pdir / p) for p in touched])
+
+
+def cmd_undo(a) -> Result:
+    return _undo_redo(a, "undo")
+
+
+def cmd_redo(a) -> Result:
+    return _undo_redo(a, "redo")
+
+
+def cmd_history(a) -> Result:
+    pdir = _project(a.slug)
+    from . import undo as un
+    data = un.load(pdir)
+
+    def rows(stack):
+        return [{"id": e["id"], "name": e["name"], "by": e["by"], "t": e["t"]}
+                for e in reversed(stack)]
+    out = {"project": a.slug, "undo": rows(data["undo"]), "redo": rows(data["redo"])}
+    lines = [a.slug, "  undo (newest first):"]
+    lines += [f"    {r['t']}  {r['by']:5} {r['name']}" for r in out["undo"]] or ["    (none)"]
+    lines.append("  redo (newest first):")
+    lines += [f"    {r['t']}  {r['by']:5} {r['name']}" for r in out["redo"]] or ["    (none)"]
+    return Result(OK, out, "\n".join(lines), f"{len(out['undo'])} undo, {len(out['redo'])} redo")
+
+
+# ─── Workbench GUI: the shared selection, visibility and view ───────────────
+# FreeCADGui's job (Gui.Selection, Visibility, SendMsgToActiveView) as HTTP
+# calls to a running `cad serve`, so an agent in a shell and a person at the
+# UI can point at the same model. See cad_agent/gui.py and gui_client.py.
+
+_SUBELEM = re.compile(r"^(Face|Edge|Vertex)[1-9]\d*$")
+
+
+def _gui_body_names(slug: str) -> set[str]:
+    from .scene import placed_solids
+    shown, _ = placed_solids(slug)
+    return set(shown)
+
+
+def _check_gui_names(slug: str, names: list[str], allow_sub: bool = False) -> None:
+    """Unknown name -> usage error naming the real bodies, the same way a bad
+    --part or --body does elsewhere in this file."""
+    valid = _gui_body_names(slug)
+    bad = []
+    for n in names:
+        base, dot, sub = n.partition(".")
+        ok = (base in valid and _SUBELEM.fullmatch(sub)) if (dot and allow_sub) else n in valid
+        if not ok:
+            bad.append(n)
+    if bad:
+        raise UsageError(f"not in {slug}: {', '.join(bad)} "
+                         f"(bodies: {', '.join(sorted(valid)) or 'none'})")
+
+
+def _check_gui_command(slug: str, name: str, published) -> None:
+    """`cad gui run`'s own guard: if the UI has told us what it can run (GET
+    /api/gui's `commands`), an unknown name is a usage error naming close
+    matches, the same spirit as `_check_gui_names`. No list published yet
+    (the UI hasn't started, or doesn't offer this) -> nothing to check against,
+    so the command is sent through regardless; the workbench decides."""
+    known = {c["name"] for c in published or []}
+    if not known or name in known:
+        return
+    close = difflib.get_close_matches(name, sorted(known), n=3)
+    raise UsageError(f"not a published command in {slug}: {name!r} "
+                     + (f"(close matches: {', '.join(close)})" if close
+                        else f"(commands: {', '.join(sorted(known))})"))
+
+
+def _gui_url(slug: str) -> str:
+    try:
+        return gui_client.find_server(st.ROOT, slug)
+    except gui_client.NoWorkbench as e:
+        raise WorkbenchDown(str(e)) from None
+
+
+def _gui_send(fn, *a):
+    try:
+        return fn(*a)
+    except gui_client.NoWorkbench as e:
+        raise WorkbenchDown(str(e)) from None
+    except gui_client.GuiRequestError as e:
+        raise UsageError(str(e)) from None
+
+
+def _fmt_gui_state(data: dict) -> str:
+    v = data.get("view") or {}
+    lines = [f"  connected     {data['connected']}",
+             f"  selected      {', '.join(data['selected']) or '(none)'}",
+             f"  preselected   {data['preselected'] or '(none)'}",
+             f"  hidden        {', '.join(data['hidden']) or '(none)'}",
+             f"  unselectable  {', '.join(data['unselectable']) or '(none)'}",
+             f"  task          {data['task'] or '(none)'}",
+             f"  view          camera={v.get('camera')} projection={v.get('projection')}"]
+    if data.get("camera_node"):   # what the person sees, ready for `cad gui view PROJECT '<node>'`
+        lines.append("  camera node   " + " ".join(data["camera_node"].split()))
+    if data.get("view_props"):
+        lines.append("  view props")
+        for body in sorted(data["view_props"]):
+            props = data["view_props"][body]
+            lines.append(f"    {body}: " + gui.fmt_props(props))
+    return "\n".join(lines)
+
+
+def cmd_gui_state(a) -> Result:
+    _project(a.slug)
+    url = _gui_url(a.slug)
+    data = _gui_send(gui_client.get_state, url, a.slug)
+    return Result(OK, data, f"{a.slug}\n" + _fmt_gui_state(data), f"connected={data['connected']}")
+
+
+def cmd_gui_select(a) -> Result:
+    _project(a.slug)
+    _check_gui_names(a.slug, a.names, allow_sub=True)
+    url = _gui_url(a.slug)
+    r = _gui_send(gui_client.do, url, a.slug, "select", a.names)
+    return Result(OK, r, f"{a.slug}: selected {', '.join(a.names)} ({r['clients']} client(s) watching)",
+                  f"selected {len(a.names)}")
+
+
+def cmd_gui_clear(a) -> Result:
+    _project(a.slug)
+    url = _gui_url(a.slug)
+    r = _gui_send(gui_client.do, url, a.slug, "clear", [])
+    return Result(OK, r, f"{a.slug}: cleared the selection ({r['clients']} client(s) watching)", "cleared")
+
+
+def cmd_gui_show(a) -> Result:
+    _project(a.slug)
+    _check_gui_names(a.slug, a.names, allow_sub=False)
+    url = _gui_url(a.slug)
+    r = _gui_send(gui_client.do, url, a.slug, "show", a.names)
+    return Result(OK, r, f"{a.slug}: shown {', '.join(a.names)} ({r['clients']} client(s) watching)",
+                  f"shown {len(a.names)}")
+
+
+def cmd_gui_hide(a) -> Result:
+    _project(a.slug)
+    _check_gui_names(a.slug, a.names, allow_sub=False)
+    url = _gui_url(a.slug)
+    r = _gui_send(gui_client.do, url, a.slug, "hide", a.names)
+    return Result(OK, r, f"{a.slug}: hidden {', '.join(a.names)} ({r['clients']} client(s) watching)",
+                  f"hidden {len(a.names)}")
+
+
+def cmd_gui_view(a) -> Result:
+    _project(a.slug)
+    from .gui import camera_projection
+    if a.direction not in (*VIEW_CAMERA, *VIEW_PROJECTION) and not camera_projection(a.direction):
+        raise UsageError(f"unknown view {a.direction!r} (one of: "
+                         f"{', '.join((*VIEW_CAMERA, *VIEW_PROJECTION))}, or an Inventor camera node "
+                         f"as Std_ViewIvIssueCamPos prints it)")
+    url = _gui_url(a.slug)
+    r = _gui_send(gui_client.do, url, a.slug, "view", [a.direction])
+    what = "camera" if camera_projection(a.direction) else a.direction
+    return Result(OK, r, f"{a.slug}: view {what} ({r['clients']} client(s) watching)", f"view {what}")
+
+
+def cmd_gui_fit(a) -> Result:
+    _project(a.slug)
+    args = ["selection"] if a.selection else []
+    url = _gui_url(a.slug)
+    r = _gui_send(gui_client.do, url, a.slug, "fit", args)
+    what = "the selection" if a.selection else "everything"
+    return Result(OK, r, f"{a.slug}: fit {what} ({r['clients']} client(s) watching)", f"fit {what}")
+
+
+def cmd_gui_say(a) -> Result:
+    _project(a.slug)
+    text = " ".join(a.text)
+    url = _gui_url(a.slug)
+    r = _gui_send(gui_client.do, url, a.slug, "say", [text])
+    return Result(OK, r, f"{a.slug}: said {text!r} ({r['clients']} client(s) watching)", "said")
+
+
+def cmd_gui_set(a) -> Result:
+    _project(a.slug)
+    _check_gui_names(a.slug, [a.body], allow_sub=False)
+    try:
+        props = gui.parse_prop_args(a.values)
+    except gui.GuiError as e:
+        raise UsageError(str(e)) from None
+    url = _gui_url(a.slug)
+    r = _gui_send(gui_client.do, url, a.slug, "set", [a.body], props)
+    moved = gui.fmt_props(props)
+    return Result(OK, r, f"{a.slug}/{a.body}: {moved} ({r['clients']} client(s) watching)", f"set {a.body}")
+
+
+def cmd_gui_run(a) -> Result:
+    _project(a.slug)
+    name = a.command
+    if not COMMAND_NAME_RE.fullmatch(name):
+        raise UsageError("a command name is letters, digits and underscore only "
+                         f"(Std_…, CADAgent_…), got {name!r}")
+    url = _gui_url(a.slug)
+    data = _gui_send(gui_client.get_state, url, a.slug)
+    _check_gui_command(a.slug, name, data.get("commands"))
+    r = _gui_send(gui_client.do, url, a.slug, "run", [name, *a.args])
+    extra = (" " + " ".join(a.args)) if a.args else ""
+    return Result(OK, r, f"{a.slug}: ran {name}{extra} ({r['clients']} client(s) watching)",
+                  f"ran {name}")
+
+
+def cmd_gui_commands(a) -> Result:
+    _project(a.slug)
+    url = _gui_url(a.slug)
+    data = _gui_send(gui_client.get_state, url, a.slug)
+    rows = data.get("commands") or []
+    lines = [f"  {r['name']:24} {r['label']:24} {'enabled' if r['enabled'] else 'disabled'}" for r in rows]
+    return Result(OK, {"project": a.slug, "commands": rows},
+                  "\n".join(lines) or "no commands published yet", f"{len(rows)} commands")
+
+
+def cmd_page(a) -> Result:
+    _project(a.slug)
+    from .page import build_page
+    try:
+        out, data = build_page(a.slug, Path(a.out).expanduser().resolve() if a.out else None)
+    except Exception as e:
+        raise BuildFailed(f"{a.slug} page did not build: {type(e).__name__}: {e}") from e
+    files = sorted(str(p.relative_to(out)) for p in out.rglob("*") if p.is_file())
+    st_ = data["status"]
+    verdict = "DONE" if st_.get("done") else (st_.get("verdict") or "not verified")
+    text = (f"{a.slug}: review page in {out} ({len(files)} files, verdict {verdict}).\n"
+            "Publish index.html as an artifact with the other files next to it.")
+    return Result(OK, {"project": a.slug, "path": str(out), "index": str(out / "index.html"),
+                       "files": files, "verdict": verdict, "title": data["title"]},
+                  text, f"page: {len(files)} files", [str(out / "index.html")])
+
+
+def cmd_service(a) -> Result:
+    from . import service
+    try:
+        if a.action == "install":
+            roots = [Path(r).expanduser().resolve() for r in a.roots]
+            missing = [str(r) for r in roots if not r.is_dir()]
+            if missing:
+                raise UsageError(f"not a folder: {', '.join(missing)}")
+            s = service.install(roots, a.port)
+        elif a.action == "uninstall":
+            s = service.uninstall()
+            return Result(OK, s, "workbench service removed" if s["removed"]
+                          else "no workbench service was installed", "service removed")
+        else:
+            s = service.status()
+    except RuntimeError as e:
+        raise UsageError(str(e)) from None
+    up = s["answering"]
+    if up:
+        text = f"workbench service up at {s['url']} (pid {s['pid']}); it starts at login"
+    elif s["installed"]:
+        text = f"workbench service installed but not answering at {s['url']}; see {s['log']}"
+    else:
+        text = "no workbench service installed (`cad service install [DIR ...]`)"
+    return Result(OK if up else UNCHECKED, s, text, "service up" if up else "service down")
+
+
+def cmd_serve(a) -> Result:
+    from .serve import run
+    # --port, else $PORT (what the app's Browser pane assigns), else 8733
+    port = a.port
+    if port is None:
+        raw = os.environ.get("PORT", "").strip()
+        if raw and not raw.isdigit():
+            raise UsageError(f"PORT must be a port number, got {raw!r}")
+        port = int(raw) if raw else 8733
+    try:
+        run([st.ROOT, *[Path(r).expanduser().resolve() for r in a.roots]],
+            host=a.host, port=port, keep_warm=a.keep_warm)
+    except RuntimeError as e:
+        raise UsageError(str(e)) from None
+    return Result(OK, {}, "workbench stopped", "workbench stopped")
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -571,6 +1266,13 @@ def build_parser() -> argparse.ArgumentParser:
                    help="print one JSON object on stdout")
     p.add_argument("--projects", metavar="DIR",
                    help="projects directory (default: CAD_PROJECTS, else cad-agent/projects)")
+    # The workbench console: --json plus the text a terminal would show.
+    p.add_argument("--with-text", action="store_true", default=False, help=argparse.SUPPRESS)
+    # The undo journal's by="ui"/"agent": the workbench server passes this on
+    # every command it runs, rather than an env var (see undo.record's
+    # docstring for why an env var set in the server's own process does not
+    # reach a warm-worker fork).
+    p.add_argument("--actor", choices=("ui", "agent"), default=None, help=argparse.SUPPRESS)
     p.add_argument("--version", action="store_true", help="print version and render backend")
     sub = p.add_subparsers(dest="cmd", metavar="<command>", parser_class=_Parser)
 
@@ -620,6 +1322,11 @@ def build_parser() -> argparse.ArgumentParser:
     sp.add_argument("--posed", action="store_true",
                     help="use the bodies as placed by assembly.py, not each part at its origin")
 
+    sp = add("mass", cmd_mass, "mass, volume, area, centre of gravity and inertia of bodies "
+             "as placed (FreeCAD's Mass Properties)")
+    sp.add_argument("slug")
+    sp.add_argument("bodies", nargs="*", help="bodies to include (default: all)")
+
     sp = add("tables", cmd_tables, "hole sizes, tap drills, insert bores, extrusions, densities")
     sp.add_argument("section", nargs="?", help=", ".join(TABLE_ALIASES))
 
@@ -655,6 +1362,130 @@ def build_parser() -> argparse.ArgumentParser:
 
     sp = add("cutlist", cmd_cutlist, "stock to order and cut, roughly priced")
     sp.add_argument("slug")
+
+    sp = add("scene", cmd_scene, "tessellate the assembly for the workbench: "
+             "out/scene.json with faces, edges, moves and axes")
+    sp.add_argument("slug")
+    sp.add_argument("--tolerance", type=float, default=None,
+                    help="force one Deviation (FreeCAD's tessellation percent-of-size) on every "
+                         "body, overriding out/gui.json's per-body view_props; default: each "
+                         "body's own Deviation/AngularDeflection, FreeCAD's 0.2 / 28.65 deg when "
+                         "a body has neither set")
+
+    sp = add("place", cmd_place, "move a body by hand (placements.toml) and report what it "
+             "now hits (exit 1 if a fit rule fails)")
+    sp.add_argument("slug")
+    sp.add_argument("body")
+    sp.add_argument("--move", metavar="X,Y,Z", help="offset from where assembly.py puts it, mm")
+    sp.add_argument("--by", metavar="DX,DY,DZ", help="add to the current offset, mm")
+    sp.add_argument("--turn", metavar="RX,RY,RZ", help="rotation, degrees, applied X then Y then Z")
+    sp.add_argument("--about", metavar="X,Y,Z", help="pivot for --turn (default: the body's centre)")
+    sp.add_argument("--reset", action="store_true", help="put it back where assembly.py puts it")
+
+    sp = add("serve", cmd_serve, "the workbench: a local page with the live 3D view, "
+             "draggable parts, checks and the activity feed")
+    sp.add_argument("roots", nargs="*", metavar="DIR", help="more projects directories to show")
+    sp.add_argument("--port", type=int, default=None, help="default: $PORT, else 8733")
+    sp.add_argument("--host", default="127.0.0.1")
+    sp.add_argument("--keep-warm", action="store_true",
+                    help="keep the CAD kernel loaded while serving (the login service uses this)")
+
+    sp = add("set", cmd_set, "change a part's PARAMS in its file (checked first: a value that "
+             "breaks the part is not written), then run its part gates")
+    sp.add_argument("slug")
+    sp.add_argument("part")
+    sp.add_argument("values", nargs="+", metavar="KEY=VALUE")
+
+    sp = add("undo", cmd_undo, "undo the last journaled change (cad set, cad place, or a "
+             "bought add): refuses if the file was edited by hand since")
+    sp.add_argument("slug")
+    sp.add_argument("--steps", type=int, default=1, help="undo this many steps at once")
+
+    sp = add("redo", cmd_redo, "redo the last change `cad undo` took back")
+    sp.add_argument("slug")
+    sp.add_argument("--steps", type=int, default=1, help="redo this many steps at once")
+
+    sp = add("history", cmd_history, "the undo and redo stacks: what changed, who made the "
+             "change (ui or agent), and when")
+    sp.add_argument("slug")
+
+    sp = add("page", cmd_page, "write a review page to share: the model to turn, cut and "
+             "measure, every gate, parts and renders (publish it as an artifact)")
+    sp.add_argument("slug")
+    sp.add_argument("--out", metavar="DIR", help="folder to write (default: <project>/out/page)")
+
+    gp = add("gui", None, "the workbench's selection, visibility and view: read them, "
+             "or point at things for the person at the UI (talks to a running `cad serve`)")
+    gsub = gp.add_subparsers(dest="gui_cmd", metavar="<action>", parser_class=_Parser)
+
+    sp = add("state", cmd_gui_state, "the workbench's shared state for one project: "
+             "selection, hidden bodies, view props, camera", parent=gsub)
+    sp.add_argument("slug", metavar="PROJECT")
+    sp.set_defaults(cmd_name="gui state")
+
+    sp = add("select", cmd_gui_select, "point the UI at one or more bodies, replacing the "
+             "selection (names: a body, or body.Face3 / body.Edge2 / body.Vertex1)", parent=gsub)
+    sp.add_argument("slug", metavar="PROJECT")
+    sp.add_argument("names", nargs="+", metavar="NAME")
+    sp.set_defaults(cmd_name="gui select")
+
+    sp = add("clear", cmd_gui_clear, "clear the UI's selection", parent=gsub)
+    sp.add_argument("slug", metavar="PROJECT")
+    sp.set_defaults(cmd_name="gui clear")
+
+    sp = add("show", cmd_gui_show, "make one or more bodies visible in the UI", parent=gsub)
+    sp.add_argument("slug", metavar="PROJECT")
+    sp.add_argument("names", nargs="+", metavar="NAME")
+    sp.set_defaults(cmd_name="gui show")
+
+    sp = add("hide", cmd_gui_hide, "hide one or more bodies in the UI", parent=gsub)
+    sp.add_argument("slug", metavar="PROJECT")
+    sp.add_argument("names", nargs="+", metavar="NAME")
+    sp.set_defaults(cmd_name="gui hide")
+
+    sp = add("view", cmd_gui_view, "set the UI's camera direction or projection", parent=gsub)
+    sp.add_argument("slug", metavar="PROJECT")
+    sp.add_argument("direction", metavar="DIR",
+                    help=", ".join((*VIEW_CAMERA, *VIEW_PROJECTION))
+                    + ', or a camera: "OrthographicCamera { position X Y Z orientation X Y Z A ... }"')
+    sp.set_defaults(cmd_name="gui view")
+
+    sp = add("fit", cmd_gui_fit, "fit the UI's camera to the assembly, or to the selection",
+             parent=gsub)
+    sp.add_argument("slug", metavar="PROJECT")
+    sp.add_argument("--selection", action="store_true", help="fit the current selection, "
+                    "not the whole assembly")
+    sp.set_defaults(cmd_name="gui fit")
+
+    sp = add("say", cmd_gui_say, "show a message in the UI's Report view", parent=gsub)
+    sp.add_argument("slug", metavar="PROJECT")
+    sp.add_argument("text", nargs="+", metavar="TEXT")
+    sp.set_defaults(cmd_name="gui say")
+
+    sp = add("set", cmd_gui_set, "set one body's view properties (FreeCAD ViewObject names: "
+             + ", ".join(FREECAD_PROP_NAMES) + ")", parent=gsub)
+    sp.add_argument("slug", metavar="PROJECT")
+    sp.add_argument("body", metavar="BODY")
+    sp.add_argument("values", nargs="+", metavar="PROP=VALUE")
+    sp.set_defaults(cmd_name="gui set")
+
+    sp = add("run", cmd_gui_run, "run one of the workbench's commands by its FreeCAD name, "
+             "as Gui.runCommand does", parent=gsub)
+    sp.add_argument("slug", metavar="PROJECT")
+    sp.add_argument("command", metavar="COMMAND", help="e.g. Std_ViewFitAll, CADAgent_Something")
+    sp.add_argument("args", nargs="*", metavar="ARG", help="passed through as-is")
+    sp.set_defaults(cmd_name="gui run")
+
+    sp = add("commands", cmd_gui_commands, "the commands the workbench has published for "
+             "`cad gui run` (name, label, enabled)", parent=gsub)
+    sp.add_argument("slug", metavar="PROJECT")
+    sp.set_defaults(cmd_name="gui commands")
+
+    sp = add("service", cmd_service, "run the workbench at login (macOS launchd), so it is "
+             "always up with the kernel warm: install, uninstall or status")
+    sp.add_argument("action", choices=("install", "uninstall", "status"))
+    sp.add_argument("roots", nargs="*", metavar="DIR", help="projects directories to show")
+    sp.add_argument("--port", type=int, default=8733)
 
     bp = add("bought", None, "bought parts: vendor STEP or measured, always with a source")
     bsub = bp.add_subparsers(dest="bought_cmd", metavar="<action>", parser_class=_Parser)
@@ -694,24 +1525,49 @@ def build_parser() -> argparse.ArgumentParser:
     sp.add_argument("name")
     sp.add_argument("--note", required=True, help="what was measured, and how")
     sp.set_defaults(cmd_name="bought verify")
+
+    mp = add("macro", None, "record and replay a sequence of cad commands "
+             "(FreeCAD's macros, for this CLI)")
+    msub = mp.add_subparsers(dest="macro_cmd", metavar="<action>", parser_class=_Parser)
+
+    sp = add("ls", cmd_macro_ls, "list saved macros: name, line count, last modified",
+             parent=msub)
+    sp.set_defaults(cmd_name="macro ls")
+
+    sp = add("show", cmd_macro_show, "print one macro's text", parent=msub)
+    sp.add_argument("name")
+    sp.set_defaults(cmd_name="macro show")
+
+    sp = add("run", cmd_macro_run, "replay a macro's lines in order (`cad gui` lines reach a "
+             "running `cad serve` the normal way; UNCHECKED and skipped in effect if none is "
+             "up); stops at the first line that is a usage error or a crash", parent=msub)
+    sp.add_argument("name")
+    sp.set_defaults(cmd_name="macro run")
+
+    sp = add("rm", cmd_macro_rm, "delete a saved macro", parent=msub)
+    sp.add_argument("name")
+    sp.set_defaults(cmd_name="macro rm")
+
+    sp = add("save", cmd_macro_save, "save a macro from a file, or stdin with -", parent=msub)
+    sp.add_argument("name")
+    sp.add_argument("file", metavar="FILE|-")
+    sp.set_defaults(cmd_name="macro save")
     return p
 
 
 # ─── Running ─────────────────────────────────────────────────────────────────
 
-def _log(a, argv, res: Result, ms: int) -> None:
-    """Append one line to the activity log. Never changes a verdict."""
+def log_activity(pdir: Path, cmd: str, argv: list, code: int, summary: str,
+                 files: list | None = None, ms: int = 0) -> None:
+    """Append one line to a project's (or the root's) activity log: what ran,
+    how it ended, what it wrote. Used by every `cad` command (via `_log`
+    below) and by the workbench for UI/agent actions that are not `cad`
+    subcommands themselves (the gui.* entries POST /api/gui/do writes)."""
     entry = {"t": datetime.now(timezone.utc).isoformat(timespec="seconds"),
-             "cmd": getattr(a, "cmd_name", None), "argv": argv, "exit": res.code,
-             "summary": res.summary, "files": res.files, "ms": ms}
+             "cmd": cmd, "argv": argv, "exit": code, "summary": summary,
+             "files": files or [], "ms": ms}
     try:
-        base = st.ROOT
-        if getattr(a, "slug", None):
-            try:
-                base = st.project_dir(a.slug)
-            except FileNotFoundError:
-                pass
-        d = base / ".cad"
+        d = Path(pdir) / ".cad"
         d.mkdir(parents=True, exist_ok=True)
         with (d / "log.jsonl").open("a") as f:
             f.write(json.dumps(entry, default=str) + "\n")
@@ -719,10 +1575,42 @@ def _log(a, argv, res: Result, ms: int) -> None:
         pass
 
 
+def _strip_internal_flags(argv: list[str]) -> list[str]:
+    """Flags the workbench server (or a nested `main()` call) adds that are
+    not part of what a person or agent typed: --with-text (no value) and
+    --actor <ui|agent> (one). Dropped before the activity log ever sees them."""
+    out, skip = [], False
+    for x in argv:
+        if skip:
+            skip = False
+            continue
+        if x == "--with-text":
+            continue
+        if x == "--actor":
+            skip = True
+            continue
+        out.append(x)
+    return out
+
+
+def _log(a, argv, res: Result, ms: int) -> None:
+    """Append one line to the activity log. Never changes a verdict."""
+    base = st.ROOT
+    if getattr(a, "slug", None):
+        try:
+            base = st.project_dir(a.slug)
+        except FileNotFoundError:
+            pass
+    log_activity(base, getattr(a, "cmd_name", None), _strip_internal_flags(argv),
+                 res.code, res.summary, res.files, ms)
+
+
 def _emit(a, res: Result) -> None:
     if getattr(a, "json", False):
-        print(json.dumps({"cmd": getattr(a, "cmd_name", None), "exit": res.code,
-                          "data": res.data}, default=str))
+        out = {"cmd": getattr(a, "cmd_name", None), "exit": res.code, "data": res.data}
+        if getattr(a, "with_text", False):
+            out["text"] = res.text
+        print(json.dumps(out, default=str))
         if res.code in (USAGE, CRASH):
             print(res.text, file=sys.stderr)
     else:
@@ -764,6 +1652,12 @@ def main(argv: list[str] | None = None) -> int:
         res = Result(USAGE, {"error": str(e)}, f"cad {a.cmd_name}: {e}", str(e))
     except BuildFailed as e:
         res = Result(FAIL, {"error": str(e)}, str(e), str(e))
+    except PlacementError as e:
+        res = Result(FAIL, {"error": str(e)}, str(e), str(e))
+    except UndoError as e:
+        res = Result(FAIL, {"error": str(e)}, str(e), str(e))
+    except WorkbenchDown as e:
+        res = Result(UNCHECKED, {"error": str(e)}, str(e), str(e))
     except Exception as e:
         res = Result(CRASH, {"error": f"{type(e).__name__}: {e}"},
                      "cad crashed, this is a cad-agent bug:\n" + traceback.format_exc(),

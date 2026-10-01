@@ -33,6 +33,7 @@ def warm(tmp_path_factory):
     def cad(*argv):
         return subprocess.run([str(REPO / "bin" / "cad"), *argv], capture_output=True,
                               text=True, env=env, timeout=300)
+    cad.env = env
 
     started = cad("warm", "start")
     assert started.returncode == 0, started.stderr
@@ -83,3 +84,19 @@ def test_status_counts_what_it_served(warm):
     cad, _ = warm
     p = cad("warm", "status")
     assert p.returncode == 0 and "commands served" in p.stdout
+
+
+def test_a_long_lived_caller_runs_commands_without_launching_a_client(warm, monkeypatch):
+    # The workbench server talks to the socket itself: same output and exit
+    # codes as bin/cad, with no Python process started per command.
+    from cad_agent import warm as w
+    cad, root = warm
+    monkeypatch.setenv("CAD_WARM_DIR", cad.env["CAD_WARM_DIR"])
+    code, out, err = w.run_captured(["--projects", str(root), "--json", "ls", "demo"])
+    assert code == 0, err
+    assert json.loads(out)["data"]["parts"] == ["block", "plate"]
+    code, out, _ = w.run_captured(["--projects", str(root), "--json", "measure", "demo",
+                                   "plate", "block"])
+    assert code == 1 and json.loads(out)["data"]["interferes"] is True
+    reply = w.ping()                            # the keep-alive the login service sends
+    assert reply and reply["exit"] == 0 and reply["pid"]

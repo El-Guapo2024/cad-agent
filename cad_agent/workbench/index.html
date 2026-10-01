@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>cad workbench</title>
+<link rel="stylesheet" href="vendor/three-cad-viewer.css">
+<link rel="stylesheet" href="app.css">
+<script type="importmap">
+{ "imports": {
+    "three": "./vendor/three.module.min.js",
+    "three-cad-viewer": "./vendor/three-cad-viewer.esm.min.js" } }
+</script>
+</head>
+<body>
+<header id="top">
+  <div class="brand"><span class="logo"></span><span class="brand-text">workbench</span></div>
+  <select id="project" title="Project"></select>
+  <span id="verdict" class="pill na">…</span>
+  <div class="sep"></div>
+  <div class="seg" id="tools" title="Drag the selected part: double-click a part to select it">
+    <button data-tool="move">Move</button>
+    <button data-tool="rotate">Rotate</button>
+  </div>
+  <button class="tog" id="snap" title="Snap moves to steps">Snap</button>
+  <span id="snapctl"><input type="number" id="snapmm" min="0.1" step="0.5" value="1" title="mm"> mm
+    <input type="number" id="snapdeg" min="1" step="1" value="15" title="degrees"> °</span>
+  <button class="icon-btn" id="undo" title="Undo move (⌘Z)">↶</button>
+  <button class="icon-btn" id="redo" title="Redo move (⇧⌘Z)">↷</button>
+  <div class="spacer"></div>
+  <span id="busy"></span>
+  <span id="live" title="Live updates"></span>
+  <button class="icon-btn" id="toggle-right" title="Inspector panel">◧</button>
+</header>
+<main id="main">
+  <section id="viewport">
+    <div id="canvas"></div>
+    <div id="banner" hidden></div>
+    <div id="overlay" hidden><div class="spinner"></div><div id="overlay-text"></div></div>
+    <div id="hud" hidden></div>
+    <div id="toasts"></div>
+  </section>
+  <aside id="right" class="panel">
+    <nav class="tabs">
+      <button data-tab="inspect" class="on">Inspect</button>
+      <button data-tab="checks">Checks <span class="count" id="checkcount"></span></button>
+      <button data-tab="activity">Activity <span class="dot" id="actdot" hidden></span></button>
+    </nav>
+    <div class="tab on" id="tab-inspect"></div>
+    <div class="tab" id="tab-checks"></div>
+    <div class="tab" id="tab-activity"></div>
+  </aside>
+</main>
+<div id="lightbox" hidden><img alt=""></div>
+<script type="module" src="app.js"></script>
+</body>
+</html>

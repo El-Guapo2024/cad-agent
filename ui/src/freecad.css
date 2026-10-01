@@ -1,0 +1,805 @@
+/* SPDX-License-Identifier: LGPL-2.1-or-later
+   The "FreeCAD Light" look of FreeCAD main (nightly) at 3160daf1e2b6, 2026-09-29, ported from FreeCAD's
+   src/Gui/Stylesheets/FreeCAD.qss and src/Gui/Stylesheets/parameters/FreeCAD Light.yaml.
+   Token names follow the yaml; darken/lighten are taken as HSL lightness steps. */
+:root {
+  --primary: #f0f0f0;           /* PrimaryColor */
+  --darken1: #e6e6e6;           /* PrimaryColorDarken1 (4) */
+  --darken2: #dcdcdc;           /* PrimaryColorDarken2 (8) */
+  --darken3: #d7d7d7;           /* PrimaryColorDarken3 (10) */
+  --darken4: #bdbdbd;           /* PrimaryColorDarken4 (20) */
+  --lighten1: #f5f5f5;          /* PrimaryColorLighten1 (2) */
+  --lighten2: #f8f8f8;          /* PrimaryColorLighten2 (3) */
+  --lighten3: #fafafa;          /* PrimaryColorLighten3 (4) */
+  --hover-bg: #ffffff;          /* GeneralBackgroundHoverColor (Lighten5) */
+  --text: #000000;              /* TextForegroundColor */
+  --text-disabled: #8a8a8a;     /* TextDisabledColor (approximate) */
+  --border: var(--darken4);     /* GeneralBorderColor */
+  --header-bg: var(--darken2);  /* GeneralHeaderBackgroundColor */
+  --menu-bg: var(--lighten1);   /* MenuBackgroundColor */
+  --field-bg: var(--lighten3);  /* TextEditFieldBackgroundColor */
+  --tab-inactive: var(--darken2); /* InActiveTabBackgroundColor */
+  --tab-active: #f7f7f7;        /* ActiveTabBackgroundColor = the 3D view background */
+  --accent: #00abff;            /* ThemeAccentColor1 (FreeCAD Light.cfg) */
+  --accent-bg: #60c7f9;         /* AccentBackgroundColor: blend(primary, accent, 60) */
+  --accent-hover: #b3e6ff;      /* AccentHoverColor: blend(hover, accent, 30) */
+  --radius: 3px;                /* InputFieldBorderRadius */
+  --btn-top: var(--lighten3);   /* ButtonTopBackgroundColor */
+  --btn-bottom: var(--darken1); /* ButtonBottomBackgroundColor */
+  --url: #0061a7;               /* TextUrlColor */
+  --r-msg: #000000; --r-log: #0000ff; --r-warn: #ffaa00; --r-err: #ff0000; /* report view defaults */
+  font: 13px/1.35 -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Ubuntu, sans-serif;
+  color: var(--text);
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+html, body, #root { height: 100%; margin: 0; }
+body { background: var(--primary); overflow: hidden; }
+button, select, input { font: inherit; color: inherit; }
+.ico { display: inline-block; flex: none; vertical-align: middle; }
+.app { display: flex; flex-direction: column; height: 100%; }
+
+/* ── menu bar (QMenuBar, QMenu) ── */
+.menubar { display: flex; background: var(--primary); padding: 1px 2px; user-select: none; }
+.mb-trigger { all: unset; padding: 2px 8px 3px; cursor: default; }
+.mb-trigger[data-state="open"], .mb-trigger[data-highlighted] { background: var(--accent-bg); }
+.mb-content { background: var(--menu-bg); border: 1px solid var(--border); padding: 2px 0; min-width: 230px;
+  box-shadow: 2px 3px 8px rgba(0, 0, 0, .2); z-index: 1000; font-size: 13px; }
+.mb-item { display: flex; align-items: center; gap: 6px; padding: 4px 23px 4px 5px; cursor: default; outline: none; }
+.mb-item[data-highlighted], .mb-item[data-state="open"] { background: var(--accent-bg); }
+.mb-item[data-disabled] { color: var(--text-disabled); }
+.mb-item[data-disabled] .ico { opacity: .4; }
+.mb-ico { width: 18px; display: inline-flex; justify-content: center; }
+.mb-check { font-weight: 700; }
+.mb-kbd { margin-left: auto; padding-left: 28px; color: #444; }
+.mb-sep { height: 1px; background: var(--border); margin: 3px 1px; }
+.ctx { position: fixed; z-index: 1001; }
+.ctx-item { position: relative; }
+.ctx-item.bold { font-weight: 600; }
+.ctx-item:hover:not([data-disabled]), .ctx-item.hl:not([data-disabled]) { background: var(--accent-bg); }
+.ctx-item[data-disabled] { color: var(--text-disabled); }
+.ctx-item[data-disabled] .ico { opacity: .4; }
+.ctx-sub { position: absolute; left: 100%; top: -3px; }
+.tb-drop { width: 16px; padding: 2px 0; gap: 0; }
+.tb-caret { font-size: 9px; color: #444; margin-left: 1px; }
+
+/* ── toolbar (QToolBar, QToolButton) ── */
+/* QToolBar:horizontal (FreeCAD.qss): padding-top/left 3px; ToolBarManager's ToolbarIconSize 24 gives
+   32x31 buttons (measured in the real FreeCAD), so 39px rows. */
+.toolbar { display: flex; align-items: center; gap: 0; padding: 3px 0 3px 3px; background: var(--primary);
+  border-top: 1px solid var(--darken2); border-bottom: 1px solid var(--darken2); flex-wrap: wrap; }
+.tb-sep { width: 1px; height: 21px; background: var(--border); margin: 0 5px; }
+.tb-btn { width: 32px; height: 31px; display: inline-flex; align-items: center; justify-content: center; padding: 2px;
+  border: 1px solid transparent; border-radius: var(--radius); background: transparent; }
+.tb-btn:hover { border-color: var(--border); background: linear-gradient(var(--btn-top), var(--btn-bottom)); }
+.tb-btn:active, .tb-btn.on { border-color: #9a9a9a; background: #d4d4d4; }
+.tb-btn:disabled { pointer-events: none; }
+.tb-btn:disabled .ico { opacity: .3; filter: grayscale(1); }
+.wb { display: inline-flex; align-items: center; gap: 4px; padding-left: 2px; }
+.wb select, .qselect { height: 24px; border: 1px solid var(--border); border-radius: var(--radius); padding: 0 4px;
+  background: linear-gradient(var(--btn-top), var(--btn-bottom)); }
+
+/* ── docks (dockview, styled as QDockWidget + QTabBar) ── */
+.dock { flex: 1; min-height: 0; position: relative; }
+.dock .dockview-theme-light {
+  --dv-group-view-background-color: var(--primary);
+  --dv-tabs-and-actions-container-background-color: var(--primary);
+  --dv-tabs-and-actions-container-height: 25px;
+  --dv-tabs-and-actions-container-font-size: 13px;
+  --dv-activegroup-visiblepanel-tab-background-color: var(--tab-active);
+  --dv-activegroup-hiddenpanel-tab-background-color: var(--tab-inactive);
+  --dv-inactivegroup-visiblepanel-tab-background-color: var(--tab-active);
+  --dv-inactivegroup-hiddenpanel-tab-background-color: var(--tab-inactive);
+  --dv-activegroup-visiblepanel-tab-color: #000;
+  --dv-activegroup-hiddenpanel-tab-color: #000;
+  --dv-inactivegroup-visiblepanel-tab-color: #000;
+  --dv-inactivegroup-hiddenpanel-tab-color: #000;
+  --dv-tab-divider-color: transparent;
+  --dv-separator-border: var(--darken2);
+  --dv-paneview-header-border-color: var(--border);
+  --dv-sash-color: transparent;
+  --dv-active-sash-color: var(--accent);
+  --dv-drag-over-background-color: rgba(0, 171, 255, .25);
+  --dv-drag-over-border-color: var(--accent);
+  background: var(--primary);
+}
+.dock .dv-tab { border: 1px solid var(--border); border-bottom: none; border-radius: 3px 3px 0 0; margin-right: -1px;
+  padding: 0 10px; min-width: 5px; }
+.dock .dv-tab.dv-active-tab { font-weight: bold; }
+.dock .dv-tab.dv-inactive-tab:hover { background: var(--hover-bg); }
+.dock .dv-tabs-and-actions-container { border-bottom: 1px solid var(--border); padding: 2px 2px 0; box-sizing: border-box; }
+.dock .dv-default-tab-action, .dock .dv-tabs-overflow-dropdown-root { display: none !important; }
+.dock .dv-content-container { border: 1px solid var(--border); border-top: none; }
+
+/* ── 3D view ── */
+.view3d { position: relative; width: 100%; height: 100%; background: #f7f7f7; overflow: hidden; }
+.view3d-host { position: absolute; inset: 0; }
+.view-overlay { position: absolute; inset: 0; display: grid; place-items: center; color: #555; pointer-events: none;
+  padding: 24px; text-align: center; }
+.view-banner { position: absolute; left: 8px; right: 130px; top: 8px; padding: 4px 8px; background: #fff3cd;
+  border: 1px solid #e0c060; border-radius: var(--radius); font-size: 12px; }
+
+/* ── model tree (QTreeView) ── */
+.split { display: flex; flex-direction: column; height: 100%; }
+.split-a { min-height: 60px; overflow: hidden; display: flex; flex-direction: column; }
+.split-b { flex: 1; min-height: 60px; overflow: hidden; display: flex; flex-direction: column; }
+.split-h { height: 5px; flex: none; cursor: row-resize; background: var(--primary); border-top: 1px solid var(--darken2);
+  border-bottom: 1px solid var(--darken2); }
+.split-h:hover { background: var(--accent-hover); }
+.tree { flex: 1; overflow: auto; background: #fff; user-select: none; }
+.thead, .phead { display: grid; grid-template-columns: 1fr 1fr; position: sticky; top: 0; z-index: 1;
+  background: var(--header-bg); border-bottom: 1px solid var(--border); }
+.thead span, .phead span { padding: 2px 6px; border-right: 1px solid var(--border); white-space: nowrap; overflow: hidden; }
+.trow { position: relative; display: grid; grid-template-columns: 1fr 1fr; align-items: center; height: 18px; cursor: default; }
+.trow:hover { background: var(--accent-hover); }
+.trow.pre { background: var(--accent-hover); }
+.trow.sel { background: var(--accent-bg); }
+.tlab { display: flex; align-items: center; gap: 3px; min-width: 0; padding-left: 2px; }
+.tname, .tdesc { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tdesc { padding: 0 6px; color: #555; }
+.tdesc.fail { color: #c00000; }
+.trow.hid .tname { color: #8a8a8a; }
+.trow.hid .ticon > .ico:first-child { opacity: .45; }
+.tindent { width: 14px; flex: none; }
+.ticon { position: relative; display: inline-flex; width: 16px; height: 16px; flex: none; }
+.tov { position: absolute; right: -3px; bottom: -3px; }
+.teye { flex: none; display: inline-flex; margin-right: 2px; line-height: 0; cursor: default; } /* + the label's 3px gap = FreeCAD's 5px */
+.twisty { width: 12px; height: 12px; flex: none; display: inline-block; position: relative; cursor: default; }
+.twisty::before { content: ""; position: absolute; left: 3px; top: 2px; border: 4px solid transparent; border-left: 5px solid #666; }
+.twisty.open::before { left: 2px; top: 4px; border: 4px solid transparent; border-top: 5px solid #666; }
+
+/* ── property view (PropertyEditor) ── */
+.props { display: flex; flex-direction: column; height: 100%; background: #fff; }
+.pgrid { flex: 1; overflow: auto; }
+.pgroup { display: flex; align-items: center; gap: 2px; padding: 0 4px; height: 20px; box-sizing: border-box; background: var(--header-bg);
+  border-bottom: 1px solid var(--border); font-weight: bold; user-select: none; }
+.prow { display: grid; grid-template-columns: 45% 55%; min-height: 20px; box-sizing: border-box; border-bottom: 1px solid #ececec; }
+.prow:nth-of-type(even) { background: var(--primary); } /* GeneralAlternateBackgroundColor */
+.prow > span { display: flex; align-items: center; gap: 2px; padding: 0 6px; overflow: hidden; white-space: nowrap;
+  text-overflow: ellipsis; }
+.pk { border-right: 1px solid #ececec; }
+.prow.ro .pv { color: #555; }
+.pv.edit { cursor: text; }
+.pv input, .pv select { width: 100%; height: 19px; border: 1px solid var(--accent); border-radius: 0; padding: 0 3px; background: #fff; }
+.pv select { border-color: var(--border); }
+.ptabs { display: flex; gap: 0; padding: 0 2px 2px; background: var(--primary); border-top: 1px solid var(--border); }
+.ptabs button { border: 1px solid var(--border); border-top: none; border-radius: 0 0 3px 3px; background: var(--tab-inactive);
+  padding: 2px 12px; margin-right: -1px; }
+.ptabs button.on { background: var(--tab-active); font-weight: bold; }
+.swatch-row { display: inline-flex; align-items: center; gap: 6px; }
+.swatch { width: 22px; height: 12px; border: 1px solid #777; }
+
+/* ── task panel (TaskView) ── */
+.tasks { height: 100%; overflow: auto; padding: 6px; background: var(--primary); }
+.tbuttons { display: flex; flex-wrap: wrap; gap: 6px; justify-content: flex-end; margin-bottom: 6px; }
+.qbtn { display: inline-flex; align-items: center; gap: 4px; min-width: 72px; justify-content: center; height: 24px; padding: 0 10px;
+  border: 1px solid var(--border); border-radius: var(--radius); background: linear-gradient(var(--btn-top), var(--btn-bottom)); }
+.qbtn:hover { border-color: #8a8a8a; }
+.qbtn:active { background: linear-gradient(#e0e0e0, #d4d4d4); }
+.qbtn.default { border-color: #7fb6e8; background: linear-gradient(#f6f9fd, #dfeaf5); }
+.qbtn:disabled { color: var(--text-disabled); pointer-events: none; }
+.tbox { background: var(--lighten2); border: 1px solid #cfcfcf; border-radius: var(--radius); margin-bottom: 8px; }
+.tbox-head { display: flex; align-items: center; gap: 6px; padding: 5px 8px; font-weight: bold; border-bottom: 1px solid #dadada;
+  background: linear-gradient(#fdfdfd, #ececec); user-select: none; }
+.tbox-head span:nth-child(2) { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tbox-body { padding: 8px; }
+.tform { display: grid; gap: 4px; }
+.tfield { display: grid; grid-template-columns: minmax(56px, 40%) minmax(0, 1fr) auto; align-items: center; gap: 6px; }
+.tfield > span:first-child { overflow-wrap: anywhere; }
+.tfield input, .tfield select { height: 22px; border: 1px solid var(--border); border-radius: var(--radius); padding: 0 4px;
+  background: var(--field-bg); min-width: 0; }
+.tfield input:focus { outline: none; border-color: var(--accent); }
+.tfield input.bad { border-color: #d00; background: #fff0f0; }
+.tvec { margin-bottom: 8px; }
+.tvec-label { display: block; font-weight: 600; margin-bottom: 3px; }
+.tvec .tfield { grid-template-columns: 40px 1fr; margin-bottom: 2px; }
+.tvec .tfield.long { grid-template-columns: minmax(90px, 45%) 1fr; }
+.tvec > select { margin-bottom: 4px; }
+.unit { color: #555; }
+.tseg { display: flex; gap: 4px; margin-bottom: 8px; }
+.qbtn.on { background: linear-gradient(#dcdcdc, #cfcfcf); border-color: #8a8a8a; font-weight: 600; }
+.tsummary { margin: 8px 0 0; padding: 4px 6px; background: #fff; border: 1px solid #ddd; border-radius: var(--radius); }
+.tsummary.dirty { border-color: var(--accent); }
+.hint { color: #444; margin: 8px 0 0; }
+.hint code { font-size: 12px; }
+
+/* ── report view, console, checks ── */
+.report, .console { height: 100%; overflow: auto; background: #fff; padding: 2px 4px; white-space: pre-wrap; user-select: text; }
+.report { font-size: 12.5px; }
+.rl.msg { color: var(--r-msg); } .rl.log { color: var(--r-log); } .rl.warn { color: var(--r-warn); } .rl.err { color: var(--r-err); } .rl.critical { color: var(--r-msg); }
+.console { font: 12px/1.4 ui-monospace, Menlo, Consolas, monospace; }
+.cprompt { color: #888; }
+.cout { color: #707070; padding-left: 28px; }
+.cout.err { color: var(--r-err); } .cout.warn { color: #b07000; }
+.ccursor { display: inline-block; width: 7px; height: 13px; background: #333; vertical-align: -2px; animation: blink 1s steps(1) infinite; }
+@keyframes blink { 50% { opacity: 0; } }
+.checks { height: 100%; overflow: auto; background: #fff; }
+.chead { position: sticky; top: 0; display: flex; align-items: center; gap: 10px; padding: 3px 6px; background: var(--primary);
+  border-bottom: 1px solid var(--border); }
+.chead .spacer { flex: 1; }
+.verdict { font-weight: 700; padding: 1px 8px; border-radius: 10px; border: 1px solid; font-size: 12px; }
+.verdict.pass, .verdict.done { color: #1e7b1e; border-color: #8fca8f; background: #eaf7ea; }
+.verdict.fail { color: #b00000; border-color: #e9a0a0; background: #fdeaea; }
+.verdict.unchecked, .verdict.not, .verdict.none { color: #8a5a00; border-color: #e7c982; background: #fff6e0; }
+.ctable { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+.ctable th { text-align: left; background: var(--header-bg); border-bottom: 1px solid var(--border); padding: 2px 6px; font-weight: normal;
+  position: sticky; top: 31px; }
+.ctable td { padding: 2px 6px; border-bottom: 1px solid #eee; white-space: nowrap; }
+.ctable.wrap td { white-space: normal; overflow-wrap: anywhere; }
+.ctable tr:hover td { background: var(--accent-hover); }
+.ctable .st-fail td:first-child { color: #c00000; font-weight: 600; }
+.ctable .st-unchecked td:first-child { color: #8a5a00; }
+
+/* ── status bar (QStatusBar) ── */
+.statusbar { display: flex; align-items: center; gap: 2px; height: 23px; padding: 0 4px; background: var(--primary);
+  border-top: 1px solid var(--darken2); font-size: 12px; white-space: nowrap; user-select: none; }
+.sb-msg { flex: 1; overflow: hidden; text-overflow: ellipsis; padding-left: 2px; }
+.sb-item { padding: 0 8px; border-left: 1px solid var(--darken2); cursor: default; }
+.sb-item.fail { color: #c00000; }
+.sb-item.open { color: #8a5a00; }
+.sb-item.verdict { border: none; }
+.sb-item.live { color: #aaa; }
+.sb-item.live.on { color: #2a9d2a; }
+.sb-item.live.off { color: #d00000; }
+
+/* three-cad-viewer: keep only the canvas; our panels replace its chrome */
+.view3d-host .tcv_cad_toolbar, .view3d-host .tcv_cad_navigation, .view3d-host .tcv_shape_filter, .view3d-host .tcv_status_line { display: none !important; }
+
+/* NaviCube buttons (arrows, rolls, backside, home, menu) around the cube */
+.navi-box { position: absolute; pointer-events: none; z-index: 5; }
+.navi { position: absolute; width: 16px; height: 16px; padding: 0; border: 0; background: transparent; color: #7d8793;
+  font-size: 11px; line-height: 16px; text-align: center; cursor: default; pointer-events: auto; border-radius: 3px; }
+.navi:hover { color: #000; background: rgba(10, 200, 255, .35); }
+.navi.n { top: 0; left: 68px; } .navi.s { top: 143px; left: 68px; }
+.navi.w { top: 68px; left: 0; } .navi.e { top: 68px; left: 136px; }
+.navi.rl { top: 4px; left: 6px; } .navi.rr { top: 4px; left: 132px; }
+.navi.home { top: 126px; left: 6px; } .navi.back { top: 126px; left: 132px; }
+.navi.menu { top: 146px; left: 132px; }
+/* Box selection rubber band */
+.box-select { position: absolute; inset: 0; cursor: crosshair; z-index: 20; }
+.box-band { position: absolute; display: none; border: 1px dashed #00abff; background: rgba(0, 171, 255, .12); }
+.nav-band { pointer-events: none; z-index: 20; }
+/* Tree search, measure result */
+.tsearch { display: block; width: 100%; height: 22px; border: 1px solid var(--accent); padding: 0 6px; outline: none; }
+.tsummary.bad { border-color: #d00; color: #b00000; }
+/* Clipping task, console input */
+.clip-row { display: grid; grid-template-columns: 96px 1fr 64px 56px; align-items: center; gap: 6px; margin-bottom: 6px; }
+.clip-row input[type=range] { width: 100%; }
+.clip-num { width: 64px; height: 22px; border: 1px solid var(--border); border-radius: var(--radius); padding: 0 3px; }
+.cinput { display: flex; align-items: center; }
+.cinput input { flex: 1; border: 0; outline: none; background: transparent; font: inherit; padding: 0; }
+.tcheck { display: flex; align-items: center; gap: 6px; margin: 4px 0; }
+.sb-nav { cursor: pointer; }
+.sb-nav:hover { background: var(--accent-hover); }
+.sb-dim { cursor: pointer; }
+.sb-dim:hover { background: var(--accent-hover); }
+.tcheck { display: flex; align-items: center; gap: 6px; margin: 4px 0; }
+.tlabel { display: block; margin: 8px 0 2px; font-weight: 600; }
+.sb-nav { cursor: pointer; }
+.sb-nav:hover { background: var(--accent-hover); }
+/* Mass properties (TaskMassProperties) */
+.mass-row { display: flex; flex-wrap: wrap; gap: 4px 12px; padding: 2px 0; }
+.mass-l { min-width: 120px; color: var(--text); }
+.mass-h { margin-top: 6px; font-weight: 600; }
+.mass-v { font-variant-numeric: tabular-nums; }
+.mass-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 2px 8px; font-variant-numeric: tabular-nums; padding: 2px 0; }
+.hint.err { color: #d11; }
+/* Units converter (DlgUnitsCalculator) */
+.units-line { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.units-line input { min-width: 0; }
+.units-in { flex: 2 1 120px; } .units-unit { flex: 1 1 50px; } .units-out { flex: 2 1 120px; background: var(--bg-alt, #f4f4f4); }
+.units-history { width: 100%; min-height: 70px; margin-top: 6px; resize: vertical; font: inherit; }
+/* Selection view (SelectionView.cpp) */
+.sv { display: flex; flex-direction: column; height: 100%; padding: 4px; gap: 4px; background: var(--bg); }
+.sv-head { display: flex; gap: 4px; align-items: center; }
+.sv-search { flex: 1; min-width: 0; }
+.sv-clear { border: 0; background: none; cursor: pointer; font-size: 14px; line-height: 1; }
+.sv-count { min-width: 18px; text-align: right; color: var(--text-disabled); }
+.sv-list { flex: 1; overflow: auto; border: 1px solid var(--border, #ccc); background: #fff; min-height: 40px; }
+.sv-picked { flex: 0 1 30%; }
+.sv-item { padding: 1px 4px; white-space: nowrap; cursor: default; }
+.sv-item:hover { background: var(--accent-bg); }
+.sv-item.sel { font-weight: 600; }
+.pcolor { width: 22px; height: 14px; padding: 0; border: 1px solid #888; margin-right: 4px; vertical-align: middle; }
+.pnum { width: 70px; }
+.align-pt { display: flex; align-items: center; gap: 6px; padding: 1px 0; font-variant-numeric: tabular-nums; }
+.align-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+/* Std_DockOverlay: transparent overlay panels (opaque again under the mouse), and mouse bypass */
+.dock.ovl-transparent .dv-resize-container:not(:hover), .dv-resize-container.ovl-transparent-one:not(:hover) { background: transparent !important; box-shadow: none !important; }
+.dock.ovl-transparent .dv-resize-container:not(:hover) *:not(input):not(select):not(textarea):not(button),
+.dv-resize-container.ovl-transparent-one:not(:hover) *:not(input):not(select):not(textarea):not(button) { background-color: transparent !important; }
+.dock.ovl-bypass .dv-resize-container { pointer-events: none; }
+/* Std_DockOverlay auto hide/show, hover reveal and the overlay title bar (OverlayWidgets.cpp, OverlayParams.py) */
+/* OverlayTabWidget::startShow/startHide (OverlayWidgets.cpp 572-623): animation duration and
+   curve are OverlayParams defaults (DockOverlayAnimationDuration 200ms, DockOverlayAnimationCurve
+   7 = QEasingCurve::InOutCubic; cubic-bezier below is the closest standard CSS easing to it). */
+.dock .dv-resize-container.ovl-auto {
+  transition: transform .2s cubic-bezier(.645, .045, .355, 1);
+}
+/* OverlayProxyWidget::getRect (OverlayWidgets.cpp 276-320): collapsed, the panel slides out to
+   the edge bordering the 3D view, leaving only a hint strip. The translated-but-present box is
+   naturally clipped by the viewport (no extra pointer-events/z-index rules needed), and it stays
+   hoverable across DockOverlayHintTriggerSize (16px) even though the painted strip (::after,
+   DockOverlayHintSize 8px) is narrower, same as the real OverlayProxyWidget vs. its hit test. */
+.dock .dv-resize-container.ovl-auto.ovl-collapsed[data-ovl-side="left"] { transform: translateX(calc(-100% + 16px)); }
+.dock .dv-resize-container.ovl-auto.ovl-collapsed[data-ovl-side="bottom"] { transform: translateY(calc(100% - 16px)); }
+/* Hide the real content while collapsed (OverlayTabWidget::setState's State::Hint, 1224-1246,
+   hides the title bar and splitter too; DockOverlayHintTabBar defaults off) instead of letting a
+   16px sliver of real tree rows/buttons peek out. */
+.dock .dv-resize-container.ovl-auto.ovl-collapsed > * { visibility: hidden; }
+.dock .dv-resize-container.ovl-auto.ovl-collapsed::after {
+  content: ''; position: absolute; background: rgba(50, 50, 50, .4); transition: background .15s;
+}
+.dock .dv-resize-container.ovl-auto.ovl-collapsed[data-ovl-side="left"]::after { top: 0; bottom: 0; right: 0; width: 8px; }
+.dock .dv-resize-container.ovl-auto.ovl-collapsed[data-ovl-side="bottom"]::after { left: 0; right: 0; top: 0; height: 8px; }
+.dock .dv-resize-container.ovl-auto.ovl-collapsed:hover::after { background: rgba(50, 50, 50, .7); }
+
+/* OverlayManager::createTitleBar (OverlayManager.cpp 1052-1078): the overlay panel's own title
+   bar buttons (Transparent, auto mode, Overlay, Toggle-to-edge), rendered by chrome.tsx's
+   OverlayTitleActions via DockviewReact's rightHeaderActionsComponent. Sized for
+   --dv-tabs-and-actions-container-height: 25px (freecad.css:85). */
+.ovl-titlebtns { display: flex; align-items: center; gap: 1px; padding: 0 2px; }
+.ovl-tbtn { width: 20px; height: 20px; display: inline-flex; align-items: center; justify-content: center;
+  padding: 0; border: 1px solid transparent; border-radius: var(--radius); background: transparent; }
+.ovl-tbtn:hover { border-color: var(--border); background: linear-gradient(var(--btn-top), var(--btn-bottom)); }
+.ovl-tbtn.on { border-color: #9a9a9a; background: #d4d4d4; }
+/* OverlayTabWidget::rotateAutoHideIcon (OverlayWidgets.cpp 2161-2180): left as drawn, bottom
+   rotated -90deg (this UI never overlays a right or top panel, so those cases aren't ported). */
+.ovl-rot { transform: rotate(-90deg); }
+.sb-quick { color: var(--text); font-variant-numeric: tabular-nums; }
+/* Measure/App/Preferences: DefaultTextColor black on DefaultTextBackgroundColor (60, 240, 0), DefaultFontSize 18. */
+.measure-label { position: absolute; transform: translate(-50%, -130%); background: rgb(60, 240, 0); color: #000; border-radius: 2px; padding: 1px 6px; font-size: 18px; white-space: nowrap; pointer-events: none; z-index: 5; }
+.tform-row { display: flex; gap: 6px; align-items: center; }
+.console:not(.wrap) .cl { white-space: pre; } .console.wrap .cl { white-space: pre-wrap; word-break: break-word; }
+
+/* Gui::QuantitySpinBox: the text, the step arrows, and why the text is wrong (QToolTip). */
+.qsb { position: relative; display: flex; align-items: stretch; }
+.qsb input { flex: 1; min-width: 0; height: 22px; border: 1px solid var(--border); border-radius: var(--radius) 0 0 var(--radius); padding: 0 4px; font: inherit; background: var(--field-bg); color: inherit; }
+.qsb input:focus { outline: none; border-color: var(--accent); }
+.qsb input.bad { border-color: #d00; background: #fff0f0; }
+.qsb-btns { display: flex; flex-direction: column; width: 15px; }
+.qsb-btn { flex: 1; padding: 0; margin: 0; border: 1px solid var(--border); border-left: 0; background: linear-gradient(var(--btn-top), var(--btn-bottom)); color: #333; font-size: 8px; line-height: 1; cursor: default; }
+.qsb-btn:first-child { border-radius: 0 var(--radius) 0 0; border-bottom: 0; }
+.qsb-btn:last-child { border-radius: 0 0 var(--radius) 0; }
+.qsb-btn:hover:not(:disabled) { background: var(--accent-hover); }
+.qsb-btn:active:not(:disabled) { background: var(--accent); color: #fff; }
+.qsb-btn:disabled { color: #bbb; }
+.qsb.off input { color: #999; }
+.qsb-tip { position: absolute; left: 0; top: 100%; margin-top: 2px; z-index: 50; padding: 2px 6px; background: #ffffdc; border: 1px solid #767676; color: #000; font-size: 11px; white-space: nowrap; pointer-events: none; }
+
+/* QMessageBox */
+.msgbox-back { position: fixed; inset: 0; z-index: 1000; background: rgba(0, 0, 0, 0.12); display: flex; align-items: center; justify-content: center; }
+.msgbox { min-width: 320px; max-width: 520px; background: var(--primary); border: 1px solid #8a8a8a; border-radius: 6px; box-shadow: 0 8px 28px rgba(0, 0, 0, 0.25); overflow: hidden; }
+.msgbox-title { padding: 5px 10px; background: var(--header-bg); border-bottom: 1px solid var(--border); font-weight: 600; text-align: center; }
+.msgbox-body { display: flex; gap: 14px; align-items: flex-start; padding: 16px 16px 10px; }
+.msgbox-icon { flex: none; }
+.msgbox-text { white-space: pre-wrap; padding-top: 6px; }
+.msgbox-buttons { display: flex; justify-content: flex-end; gap: 8px; padding: 8px 12px 12px; }
+.taskview { height: 100%; }
+.qsb-row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px; min-width: 0; }
+
+/* DlgExpressionInput */
+.expr-back { position: fixed; inset: 0; z-index: 900; }
+.expr-dlg { position: fixed; width: 320px; padding: 9px; background: var(--primary); border: 1px solid #8a8a8a; border-radius: 4px; box-shadow: 0 6px 20px rgba(0, 0, 0, 0.22); }
+.expr-text { width: 100%; min-height: 80px; resize: vertical; border: 1px solid var(--border); border-radius: var(--radius); padding: 4px; font: 12px/1.4 ui-monospace, Menlo, monospace; background: var(--field-bg); }
+.expr-text:focus { outline: none; border-color: var(--accent); }
+.expr-result { display: flex; gap: 8px; margin: 6px 0; min-height: 18px; }
+.expr-result > span:first-child { font-weight: 600; }
+.expr-msg { word-break: break-word; }
+.expr-msg.bad { color: #ff0000; }
+.expr-buttons { display: flex; justify-content: flex-end; gap: 8px; }
+/* The property editor's QuantitySpinBox: frameless in the row, as FreeCAD's delegate makes it. */
+.pedit { display: block; }
+.pedit .qsb input { height: 19px; border: 1px solid var(--accent); border-radius: 0; padding: 0 3px; background: #fff; }
+.pedit .qsb-btn { border-color: var(--accent); }
+.pedit .qsb-btn:first-child, .pedit .qsb-btn:last-child { border-radius: 0; }
+
+/* QGroupBox (FreeCAD.qss: a 1 px frame, the title on its top edge). */
+.tgroup { border: 1px solid var(--border); border-radius: 3px; margin: 8px 0 6px; padding: 4px 6px 6px; min-width: 0; }
+.tgroup > legend { padding: 0 3px; margin-left: 4px; font-weight: 600; }
+.tgroup .tfield { margin-bottom: 3px; }
+.tsub { font-weight: 700; margin: 8px 0 3px; }
+/* A reference: its read-only line edit above its Pick Reference button (referencePickerWidget). */
+.tref { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.tref input { height: 22px; border: 1px solid var(--border); border-radius: var(--radius); padding: 0 4px; background: var(--field-bg); color: #555; min-width: 0; }
+/* A row of controls that wraps rather than overlaps when the panel is narrow. */
+.hbox { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 12px; margin: 3px 0; min-width: 0; }
+.hbox .qbtn.grow { flex: 1 1 auto; min-width: 0; }
+.qbtn.ibtn { min-width: 0; width: 28px; padding: 0; }
+.tframe { border: 1px solid var(--border); border-radius: 3px; padding: 4px 6px; margin: 4px 0; background: var(--lighten1, rgba(255, 255, 255, 0.4)); }
+.tframe.tline { padding: 0; height: 0; margin: 6px 0; border-width: 1px 0 0; border-radius: 0; background: none; }
+/* Match | Align in two columns, one when there's no room (frameMoveOptions' grid). */
+.tgrid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(95px, 1fr)); gap: 2px 12px; }
+.tgrid2 .tcheck { margin: 2px 0; }
+
+/* A group box laid out as QGridLayout: labels in one column, fields in the next, lined up
+   across rows; anything else spans the row. Long labels wrap before the fields shrink. */
+.tgroup.tg { display: grid; grid-template-columns: fit-content(45%) minmax(0, 1fr); gap: 3px 6px; align-items: center; }
+.tgroup.tg > .tfield { display: contents; }
+.tgroup.tg > .tfield > span:first-child { overflow-wrap: anywhere; }
+.tgroup.tg > .tfield.top > span:first-child { align-self: start; padding-top: 3px; }
+.tgroup.tg > :not(.tfield):not(legend) { grid-column: 1 / -1; }
+.tgroup.tg > .tfield > .qbtn { justify-self: start; }
+.tstack { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+/* Translation | Center side by side when there's room (Placement.ui row 0), else stacked. */
+.tcols { display: grid; grid-template-columns: repeat(auto-fit, minmax(165px, 1fr)); gap: 0 8px; }
+.hbox.spread { justify-content: space-between; }
+/* Never shrink a quantity field below its number and unit. */
+.qsb { min-width: 84px; }
+/* A checkable QGroupBox: its check box in the title. */
+.tgroup > legend .tcheck { margin: 0; font-weight: 600; }
+/* A label, a field that takes the room, a button: one line when it fits, else the button wraps. */
+.hbox.fill { gap: 4px 6px; }
+.hbox.fill > .qsb { flex: 1 1 84px; }
+/* Three fields in a row (Clipping's Direction), wrapping when narrow. */
+.tgrid3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(84px, 1fr)); gap: 3px 4px; }
+.qbtn.ratio { min-width: 0; padding: 0 8px; }
+.pv.pbool { display: flex; align-items: center; } .pv.pbool input { width: auto; height: auto; margin: 0 2px; }
+.tree:focus { outline: none; }
+.prow:focus { outline: none; background: var(--accent-hover); }
+/* A checkable group's contents: a bare fieldset that disables them all when the box is off. */
+.tgroup.tg > .tg-body { display: contents; }
+.tg-body { border: 0; margin: 0; padding: 0; min-width: 0; }
+.tg-body:disabled { color: var(--text-disabled); }
+.tgroup.tg > .tg-body > .tfield { display: contents; }
+.tgroup.tg > .tg-body > .tfield > span:first-child { overflow-wrap: anywhere; }
+.tgroup.tg > .tg-body > :not(.tfield) { grid-column: 1 / -1; }
+.qsuffix { display: flex; align-items: center; gap: 4px; min-width: 0; }
+.qsuffix > input { flex: 1 1 auto; min-width: 0; }
+
+/* ── tree columns and the property view splitter (Tree.cpp, PropertyEditor.cpp) ── */
+/* Tree.cpp ctor, TreeParams.py HideColumn/HideInternalNames: the Description and Internal name
+   columns, shown from the tree's "Tree Settings" menu; --tree-cols is set on .tree to match. */
+.tree .thead, .tree .trow { grid-template-columns: var(--tree-cols, 1fr); }
+/* PropertyEditor.cpp: no header (setHeaderHidden(true)); the Property/Value boundary is dragged
+   on any row and FirstColumnSize, set as --pk-w on .pgrid, persists. */
+.pgrid .prow { grid-template-columns: var(--pk-w, 45%) 1fr; }
+/* CAD Agent workbench: the Render task's preview */
+.agent-render-img { max-width: 100%; display: block; margin-top: 6px; border: 1px solid var(--border); border-radius: var(--radius); }
+/* Macro editor (DlgMacroExecute > Edit) */
+.macro-editor {
+  width: 100%;
+  min-height: 260px;
+  margin-top: 4px;
+  resize: vertical;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 12.5px;
+  line-height: 1.4;
+  white-space: pre;
+  overflow-wrap: normal;
+  overflow-x: auto;
+}
+/* Undo/Redo toolbar split buttons (Action.cpp UndoAction/RedoAction: MenuButtonPopup) */
+.tb-split { display: inline-flex; gap: 0; }
+
+/* Tools menu dialogs (tools.tsx): Edit Parameters table, Dependency Graph, What's This? */
+.p3 .prow, .p3 .phead { grid-template-columns: 34% 22% 44%; }
+.depgraph-scroll { max-height: 280px; overflow: auto; border: 1px solid var(--border); background: #fff; border-radius: var(--radius); }
+.depgraph-svg rect { fill: var(--lighten2); stroke: var(--darken4); }
+.depgraph-svg text { fill: var(--text); font: 11px inherit; }
+.depgraph-svg line, .depgraph-svg marker path { stroke: var(--text); fill: var(--text); stroke-opacity: 0.55; }
+.whats-this-cursor, .whats-this-cursor * { cursor: help !important; }
+.whats-this-box { position: fixed; z-index: 10000; max-width: 240px; background: #ffffe1; border: 1px solid #000;
+  border-radius: 2px; padding: 4px 6px; font-size: 12px; line-height: 1.35; color: #000; box-shadow: 1px 2px 6px rgba(0, 0, 0, .3); }
+/* QToolTip (FreeCAD.qss): the theme's tooltips, drawn by src/tooltip.ts */
+.fc-tooltip { position: fixed; top: 0; left: 0; z-index: 10000; box-sizing: border-box; max-width: 420px;
+  background-color: var(--primary); border: 1.5px solid var(--border); border-radius: 5px; padding: 0 2px;
+  font: inherit; font-weight: bolder; color: var(--text); white-space: pre-line; line-height: 1.4;
+  pointer-events: none; user-select: none; }
+/* QStatusBar QToolTip: a thinner border, no padding, slightly see-through */
+.fc-tooltip--statusbar { border: 1px solid var(--border); padding: 0; opacity: 0.902; }
+
+/* ── FreeCAD.qss widget rules (FreeCAD Light), checked against the stylesheet at 3160daf1e2b6 ── */
+/* QMenuBar: MenuBackgroundColor; QMenu::separator: GroupboxBorderColor; QToolBar's edge stops: GeneralBorderColor */
+.menubar { background: var(--menu-bg); }
+.mb-sep { background: #c5c5c5; }
+.toolbar { border-top-color: var(--border); border-bottom-color: var(--border); }
+/* QPushButton / QToolButton: hover is solid GeneralBackgroundHoverColor; a pressed push button gets a
+   GeneralBorderHoverColor (black) border over its idle gradient; a pressed tool button is inset on
+   PrimaryColorDarken2; a checked one uses ToolButtonCheckedBackground / Border */
+.qbtn:hover:not(:disabled), .tb-btn:hover { background: var(--hover-bg); }
+.qbtn:active:not(:disabled) { background: linear-gradient(var(--btn-top), var(--btn-bottom)); border-color: #000; }
+.tb-btn:active { background: var(--darken2); border: 1px inset var(--border); }
+.tb-btn.on { background: #d9d9d9; border-color: #979797; }
+/* QCheckBox / QRadioButton ::indicator: 12 px, CheckBoxBackgroundColor, GeneralBorderColor, the
+   images_classic marks; hover turns the border black; disabled fills GeneralDisabledBackgroundColor */
+input[type=checkbox], input[type=radio] { appearance: none; -webkit-appearance: none; flex: none; width: 12px; height: 12px;
+  margin: 2px 4px 0 0; padding: 0; vertical-align: middle; background: var(--field-bg) center / 10px 10px no-repeat;
+  border: 1px solid var(--border); border-radius: var(--radius); }
+input[type=radio] { border-width: 1.1px; border-radius: 6.55px; }
+input[type=checkbox]:not(:disabled):hover, input[type=checkbox]:focus-visible { border-color: #000; outline: none; }
+input[type=radio]:not(:disabled):hover { border-color: #000; }
+input[type=radio]:not(:checked):not(:disabled):hover { background-color: var(--hover-bg); }
+input[type=checkbox]:checked { background-image: url(/freecad-icons/qss-check-mark-black.svg); }
+input[type=checkbox]:indeterminate { background-image: url(/freecad-icons/qss-indeterminate-mark-black.svg); }
+input[type=radio]:checked { background-image: url(/freecad-icons/qss-radio-mark-black.svg); }
+input[type=checkbox]:disabled, input[type=radio]:disabled { background-color: var(--darken3); }
+input[type=checkbox]:checked:disabled { background-image: url(/freecad-icons/qss-check-mark-lightgray.svg); }
+/* QAbstractSpinBox: one AccentColor ring round the field and its buttons; buttons hover white, no
+   pressed colour, disabled GeneralDisabledBackgroundColor */
+.qsb:focus-within input, .qsb:focus-within .qsb-btn { border-color: var(--accent); }
+.qsb-btn:hover:not(:disabled) { background: var(--hover-bg); }
+.qsb-btn:active:not(:disabled) { background: var(--hover-bg); color: inherit; }
+.qsb-btn:disabled { background: var(--darken3); }
+/* QComboBox: hover GeneralBackgroundHoverColor, focus AccentColor border */
+.wb select:hover, .qselect:hover { background: var(--hover-bg); }
+.wb select:focus, .qselect:focus { outline: none; border-color: var(--accent); }
+/* QHeaderView::section: the button gradient, 4 px padding, a border on every side of each section */
+.thead, .phead { background: linear-gradient(var(--btn-top), var(--btn-bottom)); border-bottom: none; }
+.thead span, .phead span { padding: 4px; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+.thead span:first-child, .phead span:first-child { border-left: 1px solid var(--border); }
+/* QSint::ActionGroup (task boxes): GeneralBorderColor frames, the button gradient header,
+   DialogBackgroundColor content */
+.tbox { background: var(--lighten3); border-color: var(--border); }
+.tbox-head { border-bottom-color: var(--border); background: linear-gradient(var(--btn-top), var(--btn-bottom)); }
+/* QStatusBar and its items: no borders */
+.statusbar { border-top: none; }
+.sb-item { border-left: none; }
+/* QGroupBox: GroupboxBackgroundColor, GroupboxBorderColor, 5 px radius */
+.tgroup { background: var(--lighten2); border-color: #c5c5c5; border-radius: 5px; }
+/* QTreeView: indentation 12 */
+.tindent { width: 22px; }
+/* QScrollBar: a GeneralBorderColor-framed ScrollbarBackgroundColor track, the button gradient on
+   the handle and the 12 px line buttons, white on hover; images_classic arrows, black on hover */
+::-webkit-scrollbar { width: 14px; height: 14px; }
+::-webkit-scrollbar-track:vertical { background: var(--darken3); border-left: 1px solid var(--border); border-right: 1px solid var(--border); }
+::-webkit-scrollbar-track:horizontal { background: var(--darken3); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+::-webkit-scrollbar-thumb:vertical { min-height: 20px; background: linear-gradient(to right, var(--btn-top), var(--btn-bottom));
+  border: 1px solid var(--border); }
+::-webkit-scrollbar-thumb:horizontal { min-width: 20px; background: linear-gradient(var(--btn-top), var(--btn-bottom));
+  border: 1px solid var(--border); }
+::-webkit-scrollbar-thumb:hover { background: var(--hover-bg); }
+::-webkit-scrollbar-button:single-button { display: block; border: 1px solid var(--border); background-repeat: no-repeat;
+  background-position: center; background-size: 8px 8px; }
+::-webkit-scrollbar-button:single-button:vertical { height: 14px; background-color: var(--btn-bottom); }
+::-webkit-scrollbar-button:single-button:horizontal { width: 14px; background-color: var(--btn-bottom); }
+::-webkit-scrollbar-button:single-button:vertical:decrement { background-image: url(/freecad-icons/qss-arrow-up-lightgray.svg); }
+::-webkit-scrollbar-button:single-button:vertical:increment { background-image: url(/freecad-icons/qss-arrow-down-lightgray.svg); }
+::-webkit-scrollbar-button:single-button:horizontal:decrement { background-image: url(/freecad-icons/qss-arrow-left-lightgray.svg); }
+::-webkit-scrollbar-button:single-button:horizontal:increment { background-image: url(/freecad-icons/qss-arrow-right-lightgray.svg); }
+::-webkit-scrollbar-button:single-button:hover { background-color: var(--hover-bg); }
+::-webkit-scrollbar-button:single-button:vertical:decrement:hover { background-image: url(/freecad-icons/qss-arrow-up-black.svg); }
+::-webkit-scrollbar-button:single-button:vertical:increment:hover { background-image: url(/freecad-icons/qss-arrow-down-black.svg); }
+::-webkit-scrollbar-button:single-button:horizontal:decrement:hover { background-image: url(/freecad-icons/qss-arrow-left-black.svg); }
+::-webkit-scrollbar-button:single-button:horizontal:increment:hover { background-image: url(/freecad-icons/qss-arrow-right-black.svg); }
+::-webkit-scrollbar-corner { background: var(--primary); }
+/* QSlider (horizontal): a 4 px PrimaryColor groove framed in GeneralBorderColor, AccentColor left of
+   the handle (--fill, set by qslider.ts), an AccentColor handle that turns white on hover */
+input[type=range] { -webkit-appearance: none; appearance: none; height: 16px; background: transparent; }
+input[type=range]::-webkit-slider-runnable-track { height: 6px; border: 1px solid var(--border); border-radius: 3px;
+  background: linear-gradient(to right, var(--accent) 0 var(--fill, 0%), var(--primary) var(--fill, 0%) 100%); }
+input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 12px; height: 10px; margin-top: -3px;
+  border-radius: 6px; background: var(--accent); border: 1px solid var(--border); }
+input[type=range]::-webkit-slider-thumb:hover { background: var(--hover-bg); border-color: var(--hover-bg); }
+input[type=range]:focus { outline: none; }
+input[type=range]:focus::-webkit-slider-thumb { background: var(--accent); border-color: var(--accent); }
+input[type=range]:disabled::-webkit-slider-runnable-track { background: var(--darken3); }
+/* The status bar's Bottom Panel Toggle: an auto-raised, checkable QToolButton with a 16 px icon */
+.sb-btn { display: inline-flex; align-items: center; justify-content: center; width: 20px; height: 20px; margin: 0 2px; padding: 0;
+  border: 1px solid transparent; border-radius: var(--radius); background: transparent; }
+.sb-btn:hover { background: var(--hover-bg); border-color: var(--border); }
+.sb-btn.on { background: #d9d9d9; border-color: #979797; }
+
+/* QComboBox and its popup (combo.tsx), painted as FreeCAD.qss does */
+/* QComboBox popup (src/combo.tsx replaces every native <select> in src/*.tsx with it) — append
+ * this file's rules to freecad.css (not edited directly, per the task's instructions).
+ *
+ * The closed box keeps using the existing .qselect / .wb select / .pv select / .tfield select
+ * rules already in freecad.css (combo.tsx's root element carries the same classes) — EXCEPT that
+ * element is now a <button>, not a <select>, so the two ancestor-tag-qualified rules
+ * (`.pv select`, `.tfield select`) no longer match it. The rules below re-scope those two off a
+ * class instead (`.qselect-pv`, `.qselect-field`, added to className at the .pv/.tfield call
+ * sites) rather than editing the existing `select`-tag rules, which can be deleted as dead code
+ * whenever this gets merged in. `.wb select, .qselect` already has identical declarations on both
+ * sides of that comma, so the plain `.qselect` base below needs no `.wb`-scoped equivalent.
+ *
+ * Both new classes are single-class selectors (same specificity as `.qselect` itself), appended
+ * after it — so they win the box's base look, but still lose to the existing `.qselect:hover` /
+ * `.qselect:focus` rules (one class + one pseudo-class, i.e. more specific), which is what we
+ * want: hover/focus keep working under either variant exactly as they do for the plain box today.
+ * Deliberately not touching `border` here for the same reason (the existing `.qselect:focus` rule
+ * only sets `border-color`; leaving border alone in these two lets focus's accent border keep
+ * winning, instead of a same-specificity, later-in-the-cascade rule silently overriding it back).
+ */
+.qselect-pv { width: 100%; height: 19px; border-radius: 0; padding: 0 18px 0 3px; background: #fff; } /* .pv select, minus border (see above) */
+.qselect-field { height: 22px; padding: 0 18px 0 4px; background: var(--field-bg); min-width: 0; } /* .tfield select, minus border */
+
+/* Base box: a <button> doesn't reset to the blank slate a <select> does, and needs room on the
+ * right for the new drop-down arrow below (QComboBox's own `padding-right: 18px`, the comment on
+ * that rule says "for the check-mark that says which item is active" — here, for the arrow). */
+.qselect { appearance: none; -webkit-appearance: none; display: inline-flex; align-items: center; position: relative;
+  min-width: 0; text-align: left; font: inherit; color: inherit; cursor: default; padding-right: 18px; }
+.qselect:disabled { background: var(--darken3); color: var(--text-disabled); cursor: default; } /* QComboBox:disabled */
+.combo-label { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* QComboBox::down-arrow: lightgray, turning @StylesheetIconsColor (black) on :on/:hover/:focus. */
+.combo-arrow { position: absolute; right: 4px; top: 50%; width: 10px; height: 10px; transform: translateY(-50%);
+  background: url(/freecad-icons/qss-arrow-down-lightgray.svg) center / 10px 10px no-repeat; pointer-events: none; }
+.qselect:hover .combo-arrow, .qselect:focus .combo-arrow, .qselect[aria-expanded="true"] .combo-arrow {
+  background-image: url(/freecad-icons/qss-arrow-down-black.svg); }
+.qselect:disabled .combo-arrow { opacity: .5; }
+
+/* QComboBox QAbstractItemView / ::item: TextEditFieldBackgroundColor rows, no frame of its own
+ * (QAbstractItemView { border-style: none }) — the 1px frame below is this popup's container,
+ * same idea as .mb-content's. maxVisibleItems is 10: max-height caps it there and it scrolls (the
+ * existing global ::-webkit-scrollbar rules already skin that scrollbar, nothing extra needed). */
+.combo-popup { position: fixed; z-index: 1001; max-height: 202px; overflow-y: auto; min-width: 0; max-width: min(480px, 90vw);
+  background: var(--field-bg); border: 1px solid var(--border); box-shadow: 2px 3px 8px rgba(0, 0, 0, .2); font: inherit; }
+.combo-group { padding: 3px 6px; font-weight: 600; background: var(--header-bg); user-select: none; } /* <optgroup label> */
+.combo-item { display: flex; align-items: center; min-height: 20px; padding: 2px 6px; white-space: nowrap;
+  overflow: hidden; text-overflow: ellipsis; cursor: default; user-select: none; }
+.combo-item.current { background: var(--primary); } /* QComboBox::item:checked — the current value */
+.combo-item.active { background: var(--hover-bg); } /* QComboBox::item:selected / QAbstractItemView:selected —
+  the keyboard-highlighted or hovered row; comes after .current so hovering the current item still shows the
+  hover color, same as real QComboBox popups (the two can overlap: current AND highlighted at once) */
+.combo-item.disabled { color: var(--text-disabled); pointer-events: none; } /* greyed out, skipped by nav/clicks */
+/* InputHintWidget: hints 10 px apart; each key a generateKeyIcon keycap — a 2 px rounded (2 px)
+   outline in the text colour round a bold 10 pt symbol, 16 px tall, at least as wide */
+.sb-hints { display: inline-flex; align-items: center; gap: 10px; padding: 0 8px; }
+.sb-hint { display: inline-flex; align-items: center; gap: 3px; white-space: nowrap; }
+.sb-key { display: inline-flex; align-items: center; justify-content: center; box-sizing: border-box; min-width: 16px; height: 16px;
+  padding: 0 4px; border: 2px solid currentColor; border-radius: 2px; font: bold 10pt sans-serif; line-height: 1; }
+/* QProgressBar (FreeCAD.qss): PrimaryColor, GeneralBorderColor, InputFieldBorderRadius; an AccentColor
+   chunk — sweeping, as Qt draws a busy indicator */
+.sb-progress { display: inline-block; position: relative; overflow: hidden; vertical-align: middle; width: 120px; height: 14px;
+  margin-left: 10px; background: var(--primary); border: 1px solid var(--border); border-radius: var(--radius); }
+.sb-progress > span { position: absolute; top: 0; bottom: 0; width: 30%; background: var(--accent); border-radius: var(--radius);
+  animation: sb-busy 1.2s linear infinite; }
+@keyframes sb-busy { from { left: -30%; } to { left: 100%; } }
+
+/* NotificationArea (notifications.tsx): the status bar tray, its list and the pop-up balloons */
+/* Notification Area (src/notifications.tsx), porting src/Gui/NotificationArea.cpp's status bar
+ * button + dropdown list and src/Gui/NotificationBox.cpp's non-intrusive pop-up balloon.
+ * Append this into freecad.css (e.g. near .ctx/.mb-content, the other document.body-portaled
+ * overlays) — not included there directly, per the task's instructions. Uses freecad.css's
+ * existing tokens (--menu-bg/--border/--header-bg/--darken1/--accent-hover/--text-disabled/
+ * --r-warn, see its :root) so it tracks the FreeCAD Light theme automatically; there is no dark
+ * theme in this port to also style.
+ */
+
+/* ── status bar button (QPushButton, .sb-btn base already in freecad.css) ── */
+.notify-btn { position: relative; }
+.notify-badge {
+  position: absolute; top: -3px; right: -3px; min-width: 14px; height: 14px; padding: 0 3px;
+  border-radius: 7px; background: #d00000; color: #fff; font-size: 9px; line-height: 14px;
+  text-align: center; font-weight: 600; pointer-events: none;
+}
+
+/* ── dropdown list (NotificationsAction::createWidget's QTreeWidget: Type/Notifier/Message) ── */
+.notify-list {
+  position: fixed; z-index: 1001; display: flex; flex-direction: column;
+  background: var(--menu-bg); border: 1px solid var(--border); border-radius: var(--radius);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, .25); overflow: hidden;
+}
+.notify-head, .notify-row { display: grid; grid-template-columns: 22px 110px 1fr; gap: 6px; align-items: start; padding: 3px 6px; }
+.notify-head { font-weight: 600; font-size: 12px; border-bottom: 1px solid var(--border); background: var(--header-bg); }
+.notify-body { overflow: auto; }
+.notify-row { cursor: default; border-bottom: 1px solid var(--darken1); }
+.notify-row.unread { font-weight: 600; }
+.notify-row.sel, .notify-row:hover { background: var(--accent-hover); }
+.notify-row .notify-notifier, .notify-row .notify-text { overflow-wrap: anywhere; }
+.notify-empty { padding: 10px; color: var(--text-disabled); text-align: center; }
+
+/* ── non-intrusive pop-up balloon (NotificationBox::showText) ── */
+.notify-balloon {
+  position: fixed; z-index: 1001; border: 1px solid var(--border); border-radius: var(--radius);
+  background: var(--menu-bg); box-shadow: 0 2px 10px rgba(0, 0, 0, .3); padding: 4px 8px; cursor: pointer;
+}
+.notify-balloon table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.notify-balloon th { text-align: left; padding: 0 15px 2px 0; font-weight: 600; }
+.notify-balloon td { padding: 2px 15px 2px 0; vertical-align: top; white-space: normal; }
+.notify-balloon-overflow td { color: var(--r-warn); }
+
+/* QToolBar::handle:horizontal (FreeCAD.qss): an 8px grip at the start of each toolbar, the
+   black icon on hover; none while Std_ToggleToolBarLock has the toolbars locked. */
+.tb-grip { flex: none; width: 8px; height: 31px; margin-right: 2px; background: url(/freecad-icons/qss-hmovetoolbar-lightgray.svg) center / 8px auto no-repeat; }
+.tb-grip:hover { background-image: url(/freecad-icons/qss-hmovetoolbar-black.svg); }
+.toolbar.locked .tb-grip { display: none; }
+
+/* Start page (Mod/Start/Gui): StartView's scroll area, the New File row of NewFileButtons
+   (48px icon, bold heading, 180px description, margins of half a line: 8/8/16/8), and the
+   FileCardView of 128px thumbnails (margin 11, FileCardSpacing 15), then the footer. */
+.start { display: flex; flex-direction: column; height: 100%; background: var(--primary); }
+.start-scroll { flex: 1; overflow: auto; padding: 9px; }
+.start h1 { font-size: 26px; font-weight: 700; margin: 8px 0 12px; }
+.start h2 { font-size: 20px; font-weight: 700; margin: 14px 0 8px; }
+.start-new { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 15px; }
+.qbtn.start-newbtn { height: auto; min-height: 62px; padding: 8px 16px 8px 8px; gap: 8px; justify-content: flex-start; text-align: left; }
+.start-newbtn > span { display: flex; flex-direction: column; }
+.start-desc { width: 180px; }
+.start-files { display: flex; flex-wrap: wrap; align-content: flex-start; gap: 15px; padding: 15px; min-height: 228px; border: 1px solid var(--border); background: var(--lighten1); margin-bottom: 15px; }
+.qbtn.start-card { width: 150px; height: auto; padding: 11px; flex-direction: column; align-items: flex-start; gap: 0; text-align: left; }
+.start-thumb { width: 128px; height: 128px; display: flex; align-items: center; justify-content: center; margin-bottom: 11px; }
+.start-thumb img { max-width: 128px; max-height: 128px; }
+.start-name { max-width: 128px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-bottom: 2px; }
+.start-footer { display: flex; align-items: center; justify-content: space-between; padding: 6px 9px; }
+.qcheck-row { display: inline-flex; align-items: center; gap: 6px; }
+.start-first p { margin: 0 0 14px; }
+.start-first-row { display: flex; gap: 40px; flex-wrap: wrap; }
+.start-first-row label { display: inline-flex; align-items: center; gap: 12px; font-size: 18px; }
+.start-theme { display: flex; gap: 12px; margin-bottom: 18px; }
+.start-theme-card { display: inline-block; padding: 70px 40px 8px; border: 1px solid var(--border); background: var(--hover-bg); }
+.start-theme-card.sel { border-color: var(--accent); }
+
+/* The status bar as MainWindow lays it out at FreeCAD Light (measured in the real FreeCAD):
+   34px tall, 6px between widgets; the bottom-panel toggle a 25px tool button (checked look
+   when the panels show), the notification, navigation and dimension widgets flat push buttons
+   29/29/23px tall whose QPushButton::menu-indicator sits bottom right (bottom: 4px), then the
+   12px QSizeGrip. */
+.statusbar { height: 34px; gap: 6px; }
+.sb-btn { width: 25px; height: 25px; }
+.sb-ind { display: inline-flex; align-items: center; gap: 4px; height: 29px; padding: 0 14px 0 6px; position: relative;
+  border: 1px solid transparent; border-radius: var(--radius); background: transparent; white-space: pre; color: var(--text); }
+.sb-ind:hover { border-color: var(--border); background: var(--hover-bg); }
+.sb-ind.sb-dim { height: 23px; min-width: 96px; justify-content: flex-start; }
+.sb-menu-ind { position: absolute; right: 3px; bottom: 4px; width: 7px; height: 4px;
+  background: url(/freecad-icons/qss-arrow-down-black.svg) center / 7px 4px no-repeat; }
+.notify-count { min-width: 8px; }
+.sb-grip { flex: none; align-self: flex-end; width: 12px; height: 12px; margin-left: -2px;
+  background: radial-gradient(circle, var(--darken4) 1px, transparent 1.3px) 0 0 / 4px 4px;
+  clip-path: polygon(100% 0, 100% 100%, 0 100%); }
+
+/* Gui::TreeWidget, measured in the real FreeCAD: 18px rows (QStyledItemDelegate: max(icon 16,
+   font) + 2), children 22px further in, the eye 5px before the object's icon; with the
+   description column hidden (HideColumn), column 0 is as wide as its widest item, so the
+   selection and hover bars end there, not at the panel's edge. The active document is bold. */
+.tree.onecol { display: grid; grid-template-columns: max-content; align-content: start; }
+.tree.onecol > .trow { min-width: 0; padding-right: 6px; }
+.trow.doc .tname { font-weight: 700; }
+
+/* DlgDisplayProperties' colour buttons: a push button with the colour as a chip in the middle. */
+.color-btn { position: relative; }
+.color-btn input[type="color"] { position: absolute; inset: 0; opacity: 0; cursor: default; }
+.color-chip { display: inline-block; width: 24px; height: 12px; border: 1px solid #555; }
+.tfield-col { display: flex; flex-direction: column; gap: 2px; }
+
+/* A dock group showing one panel looks like that QDockWidget's title bar (FreeCAD 1.x: Model on
+   its own until a task opens the Tasks dock beside it): the title centred over the panel. */
+.dv-groupview-header-top .dv-single-tab .dv-scrollable, .dv-groupview-header-top .dv-single-tab .dv-tabs-container { flex: 1; }
+.dv-groupview-header-top .dv-single-tab .dv-tab { flex: 1; justify-content: center; background: var(--primary) !important; }
+.dv-groupview-header-top .dv-single-tab .dv-scrollable { flex: 1 1 auto; min-width: 0; }
+.dv-groupview-header-top .dv-single-tab .dv-default-tab-content { flex: 1; text-align: center; }
+/* QTabBar::close-button (FreeCAD.qss) on the document tabs: close-lightgray, red on hover. */
+.dv-groupview-header-bottom .dv-default-tab-action { background: url(/freecad-icons/qss-close-lightgray.svg) center / 10px no-repeat; }
+.dv-groupview-header-bottom .dv-default-tab-action:hover { background-image: url(/freecad-icons/qss-close-red.svg); }
+.dv-groupview-header-bottom .dv-default-tab-action svg { visibility: hidden; }
+.tb-break { flex-basis: 100%; height: 0; }
+
+/* Tabified docks (QMainWindow): the current dock's title bar on top, the tabs at the bottom. */
+.dv-groupview-header-bottom:not(.mdi)[data-dock-title]:not([data-dock-title=""])::before {
+  content: attr(data-dock-title); display: block; flex: none; height: 22px; line-height: 22px; text-align: center;
+  background: var(--primary); border-bottom: 1px solid var(--darken2); order: 99; /* the group is column-reverse */ }
+
+/* DlgPreferences.ui: 900x900 (min 600x500), a 180-240px sidebar (QTreeView, 24px group icons) with
+   Reset under it, the header label and the 200px search box over the stacked pages, then the
+   OK / Apply / Cancel button box. */
+.pref-dlg { display: flex; flex-direction: column; width: min(900px, 92vw); height: min(900px, 90vh); min-width: min(600px, 92vw); min-height: min(500px, 90vh);
+  background: var(--primary); border: 1px solid var(--border); border-radius: 6px; box-shadow: 0 8px 30px rgba(0,0,0,.35); overflow: hidden; position: relative; }
+.pref-body { flex: 1; display: flex; min-height: 0; gap: 6px; padding: 8px; }
+.pref-side { flex: none; width: 200px; display: flex; flex-direction: column; gap: 6px; }
+.pref-tree { flex: 1; overflow: auto; background: #fff; border: 1px solid var(--border); padding: 2px 0; }
+.pref-group { display: flex; align-items: center; gap: 6px; padding: 3px 6px; font-weight: 600; }
+.pref-item { padding: 2px 6px 2px 36px; cursor: default; }
+.pref-item:hover { background: var(--accent-hover); }
+.pref-item.sel { background: var(--accent-bg); }
+.pref-main { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+.pref-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 2px 4px 8px; }
+.pref-header { font-size: 18px; font-weight: 700; }
+.pref-search { position: relative; }
+.pref-search input { width: 200px; height: 24px; box-sizing: border-box; border: 1px solid var(--border); border-radius: var(--radius); padding: 0 6px; background: var(--field-bg); }
+.pref-hits { position: absolute; right: 0; top: 26px; z-index: 5; width: 320px; max-height: 300px; overflow: auto; background: #fff; border: 1px solid var(--border); box-shadow: 0 4px 12px rgba(0,0,0,.2); }
+.pref-hit { display: flex; flex-direction: column; padding: 4px 8px; cursor: default; }
+.pref-hit b { font-size: 12px; }
+.pref-hit:hover { background: var(--accent-hover); }
+.pref-page { flex: 1; overflow: auto; padding: 0 4px; }
+.pref-content { display: flex; flex-direction: column; gap: 8px; }
+.pref-buttons { display: flex; justify-content: flex-end; gap: 6px; padding: 8px; border-top: 1px solid var(--darken2); }
+.pref-index { position: absolute; width: 1px; height: 1px; overflow: hidden; opacity: 0; pointer-events: none; left: -9999px; }
+.pref-packs { width: 100%; border-collapse: collapse; background: #fff; border: 1px solid var(--border); }
+.pref-packs th { background: var(--header-bg); font-weight: normal; text-align: left; padding: 2px 6px; border-bottom: 1px solid var(--border); }
+.pref-packs td { padding: 2px 6px; }
+.pref-path { width: 100%; box-sizing: border-box; height: 24px; border: 1px solid var(--border); border-radius: var(--radius); padding: 0 6px; background: var(--field-bg); }
+/* ...and the title bar's buttons (Toggle overlay, float, close) sit at its right, not by the tabs. */
+.dv-groupview-header-bottom:not(.mdi) { position: relative; }
+.dv-groupview-header-bottom:not(.mdi)[data-dock-title]:not([data-dock-title=""]) .dv-right-actions-container {
+  position: absolute; top: 0; right: 2px; height: 22px; display: flex; align-items: center; z-index: 2; }

@@ -17,8 +17,6 @@ projects/.cad/
 projects/*/.cad/
 
 # The live viewer's current export, and what a CI verify writes into fixtures
-viewer/model.glb
-viewer/model.json
 tests/fixtures/*/out/
 tests/fixtures/*/.cad/
 tests/fixtures/*/checks.json
@@ -32,3 +30,7 @@ tests/fixtures/*/verify.json
 #                               against without them, and they are ~10 KB each
 #   projects/*/bought/          vendor geometry and its provenance sidecars
 #   projects/*/checks.json      the record a report is rendered from
+ui/node_modules/
+
+# TypeScript's incremental build cache for ui/ (tsc -b).
+*.tsbuildinfo

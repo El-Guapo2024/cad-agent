@@ -9,8 +9,61 @@ bin/cad --help                                   # every command, and the exit c
 bin/cad --projects <dir> check <slug>            # run every gate
 bin/cad --projects <dir> verify <slug>           # rebuild fresh, record the verdict with git
 bin/cad --projects <dir> done <slug>             # the gate: exit 0 only if that verdict still stands
-.venv/bin/python -m pytest tests -q              # 181 tests
+bin/cad serve [DIR ...]                          # the workbench: live 3D, drag parts, checks, activity
+.venv/bin/python -m pytest tests -q              # 201 tests
 ```
+
+## The workbench
+
+`bin/cad serve` opens a local page at http://127.0.0.1:8733 (or `--port`, or
+`$PORT`), and the Claude app's Browser pane opens it too: the `workbench` entry
+in `.claude/launch.json` lets the app pick a free port. It
+is a client of the CLI: every scene, move, check and approval runs as a `cad`
+command, so it shows up in the activity log next to what the agent ran. A click
+never starts a process: the server sends each command to the warm worker's
+socket itself, and the worker forks it.
+
+**Always on (optional).** `bin/cad service install [DIR ...]` makes the workbench
+a macOS login service (launchd). It stays up at http://127.0.0.1:8733 with the
+kernel loaded, so opening it launches nothing and never waits on the 8–30 s
+kernel import. The cost is about 400 MB held all the time. Point the app at it
+with a launch entry that has only `"url"` and `"port"`, so the app attaches
+instead of starting a server. `bin/cad service status` says whether it's up,
+and `bin/cad service uninstall` removes it.
+
+The 3D view is [three-cad-viewer](https://github.com/bernhard-42/three-cad-viewer)
+(MIT, the viewer inside OCP CAD Viewer), fed by
+[ocp-tessellate](https://pypi.org/project/ocp-tessellate/). The parts tree,
+clipping with filled cuts, explode, measuring, views, zebra and studio
+rendering all come from it. The workbench adds only what it lacks:
+
+- **Live.** Edit a part (you or the agent) and the view rebuilds in a few
+  seconds, keeping the camera and what you hid.
+- **Move parts like Onshape.** Double-click a part to select it, turn on Move
+  or Rotate, and drag the handle. It snaps to 1 mm and 15° by default. You can
+  also type offsets, or undo with ⌘Z. Each move is written to
+  `placements.toml`, and `cad place` answers right away with what the part now
+  hits. A full `cad check` then runs in the background.
+- **Edit dimensions.** The selected part's `PARAMS` show as fields. Change one
+  and press Enter: `cad set` checks that the part still builds with the new
+  value, writes that one literal into the part file (comments and layout
+  stay, so git shows a one-number diff), and runs the part's gates. ⌘Z undoes
+  it. Shape changes (a new hole, a fillet) are the agent's job in the Python.
+- **Checks and activity.** Every gate row, the verdict and why `cad done`
+  refuses, and a live feed of every `cad` command with its renders. Approving
+  a render is a button, and it's your click.
+
+Not carried over from the first version: the per-axis motion sliders.
+three-cad-viewer has animation tracks for that, not wired up yet.
+
+**Share a review.** `bin/cad page <slug>` writes a snapshot folder: a title block
+with the verdict and commit, the model to turn, cut and measure, every gate row,
+parts, and renders. Publish it as a private artifact and send the link. The
+reader needs nothing installed, and nothing they do writes back to the design.
+
+`placements.toml` is a design input. Every gate and `cad verify` see it, and git
+shows exactly what moved. Fold settled moves into `assembly.py`
+(`cad place <slug> <body> --reset` removes an entry).
 
 Open a Claude Code session in this repo and it loads the harness from `.claude/`:
 - the `/cad` skill, with the design loop
@@ -31,6 +84,75 @@ the CAD kernel once (20–35 s), then each command takes about a second;
 `CAD_WARM=0` runs cold. The v2 plan, the research map behind it, and what is
 built are in PLAN_V2.md. The MCP server it replaced was retired on 2026-09-28;
 `python -m cad_agent` now runs the same CLI, cold.
+
+### The FreeCAD-style UI (in progress)
+
+`cad serve` also hosts a React version of the workbench at `/next/`
+(http://localhost:8733/next/), laid out and styled after FreeCAD's development version (main, the code behind its weekly builds):
+- the model tree and the property editor (Data/View tabs) on the left
+- a Tasks tab for edits, with OK/Cancel
+- the 3D view in the middle, with its navigation cube
+- the report view, checks and console underneath, and a status bar
+
+It behaves like FreeCAD too: hovering preselects, a click selects, the keys
+0-6 pick standard views, V F fits all, Space toggles visibility and ⌘Z undoes.
+Double-clicking a part opens its parameters. The console echoes every `cad`
+command, the agent's and the UI's alike, and runs any `cad` command typed into
+it, printing what a terminal would. The CAD Agent workbench (the default) puts
+check, verify, done, cut list, tables, tool envelopes, bought parts, renders,
+approvals and rules in its own menu and toolbar.
+
+### Working together: a person in the UI, an agent in a terminal
+
+Both drive the same project through the same CLI. Model changes (`cad set`,
+`cad place`) land in the files, the workbench watches them, and the UI updates;
+the person's edits in the UI run the same commands and show up in the activity
+log. What only the UI has (the selection, what is hidden, colours, the camera)
+is shared through `cad gui`, FreeCADGui's job:
+
+    cad gui state PROJECT                    # what the person has selected, hidden, open
+    cad gui select PROJECT post bracket.Face3
+    cad gui hide PROJECT beam                # show / hide / clear likewise
+    cad gui set PROJECT bracket ShapeColor=#ff0000 Transparency=50   # FreeCAD ViewObject names
+    cad gui view PROJECT iso                 # front … iso, home, ortho, persp; `cad gui fit PROJECT`
+    cad gui view PROJECT 'OrthographicCamera { position … orientation … height … }'   # an exact camera
+    cad gui say PROJECT "look at the hinge"  # a line in the person's Report view
+    cad gui commands PROJECT                 # the workbench's commands by FreeCAD name, and which are enabled
+    cad gui run PROJECT Std_Placement        # run one, as Gui.runCommand does (opens the task for the person)
+
+`cad gui state` also shows the camera the person is looking through, as
+FreeCAD's View > Issue Camera Position prints it, so either side can save a
+viewpoint and bring it back with `cad gui view`. `ShowPlacement=true` draws an
+object's placement as an axis cross; `cad gui run PROJECT Part_EdgeSelection`
+(or Vertex/Face, `Part_RemoveSelectionGate`) limits what the person can pick.
+
+Visibility, colours and selectability persist in `out/gui.json` (FreeCAD keeps
+them in GuiDocument.xml); `out/` is outside the verifier's source hash.
+
+Undo is shared too, like a FreeCAD document's: every `cad set`, `cad place` and
+bought-part change is journaled with who made it (`ui` or `agent`), Edit > Undo
+in the UI and `cad undo PROJECT` in a terminal step back through the same list
+(20 steps), and `cad history PROJECT` shows it. Undo refuses when a file was
+edited by hand since.
+
+Macros are FreeCAD's, written in `cad` commands: Macro > Record Macro in the UI
+records what the person does (model changes as `cad set`/`cad place` lines,
+view and selection as `# cad gui …` comments unless Preferences > Macro says
+otherwise) into `~/.cad-agent/macros/NAME.cad`. An agent reads one with `cad
+macro show NAME` and replays it with `cad macro run NAME`; `cad macro save NAME
+FILE` writes one for the person to run from Macro > Macros. `cad
+gui` finds the running workbench that serves the project (each `cad serve`
+registers itself in `~/.cad-agent/serve/`; `CAD_SERVE_URL` overrides) and exits
+2 when none is running.
+
+The source is in `ui/` (Vite, React, TypeScript, dockview, three-cad-viewer).
+The build lands in `cad_agent/workbench/next/`, so running it needs no Node:
+
+    cd ui && npm install && npm run build   # after changing ui/src
+    npm run dev                              # live-reloading dev server on :5173, API proxied to :8733
+
+Its colours and layout are ported from FreeCAD (LGPL-2.1-or-later; those files
+say so), and its icons are FreeCAD's for now (`ui/public/freecad-icons/README.md`).
 
 ## Why build123d and not a GUI CAD
 
@@ -77,7 +199,14 @@ cad_agent/
   warm.py       the warm worker: kernel imported once, a fresh fork per command
   verify.py     the verifier: fresh rebuild, source and engine hashes, git, cad done
   spec.py       spec.toml, the brief as acceptance tests
-.claude/        the /cad skill, the check and stop hooks, the cad-reviewer agent
+  placements.py placements.toml: parts moved by hand, applied under every gate
+  scene.py      out/scene.json: ocp-tessellate data for the viewer, plus moves, axes, masses
+  serve.py      cad serve: the workbench server, live events, CLI-backed actions
+  service.py    cad service: the workbench as a macOS login service, kernel kept warm
+  page.py       cad page: a review snapshot to publish as an artifact
+  workbench/    the pages on three-cad-viewer: workbench (index.html, app.js),
+                review page (page.html, page.js), its stylesheet (vendor/)
+.claude/        the /cad skill, the check and stop hooks, the cad-reviewer agent, launch.json
 projects/<slug>/
   mech_profile.md  parts/*.py  assembly.py  bought/*.step  out/  checks.json
 ```
@@ -164,6 +293,9 @@ Shipped checks:
 | `visual` | part | silhouette coverage, drift from the approved render, drawn extent |
 | `fit` | assembly | interference and clearance, every pair |
 | `stance` | assembly | footprint area at the contact plane |
+| `sweep`, `reach` | assembly | each declared axis swept through its travel; the tool point covers the work span |
+| `placements` | assembly | which bodies were moved by hand; an entry for a missing body is UNCHECKED |
+| `spec` | assembly | every requirement in spec.toml |
 | `provenance` | project | whether each bought part records, and confirms, its source |
 
 ## Visual regression

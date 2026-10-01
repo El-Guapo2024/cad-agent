@@ -41,8 +41,28 @@ IDLE_S = 30 * 60
 START_TIMEOUT_S = 240
 PKG = Path(__file__).resolve().parent
 PRELOAD = ("numpy", "build123d")
-ENV_PASS = ("CAD_PROJECTS", "CAD_RENDER_BACKEND", "COLUMNS", "NO_COLOR", "TERM")
+ENV_PASS = ("CAD_PROJECTS", "CAD_RENDER_BACKEND", "COLUMNS", "NO_COLOR", "TERM",
+            "CAD_ACTOR")  # undo.actor()'s fallback for CAD_WARM=0; the
+                          # workbench server passes cli.py's --actor flag
+                          # instead (a warm-worker fork inherits the
+                          # long-lived daemon's own environment, not a
+                          # client's, so an env var set here would only take
+                          # effect after the next time the daemon restarts)
 COLD = {(), ("-h",), ("--help",)}           # nothing to import: answer without a worker
+NO_KERNEL = {"serve", "service"}   # kernel-free: never hold a worker fork
+
+
+def _command(argv: list[str]) -> str | None:
+    """The subcommand, skipping the global flags that may come before it."""
+    i = 0
+    while i < len(argv):
+        if argv[i] == "--projects":
+            i += 2
+        elif argv[i] == "--json" or argv[i].startswith("--projects="):
+            i += 1
+        else:
+            return argv[i]
+    return None
 
 
 def _dir() -> Path:
@@ -190,7 +210,9 @@ def serve(path: Path) -> None:
                 except (OSError, ValueError):
                     conn.close()
                     continue
-                if req.get("control") == "status":
+                if req.get("control") in ("status", "ping"):
+                    if req["control"] == "ping":       # keep-alive from a long-lived client
+                        last = time.time()
                     _reply(conn, {"exit": 0, "pid": os.getpid(), "up_s": int(time.time() - started),
                                   "served": served, "running": len(running),
                                   "preload_s": preload_s, "socket": str(path)})
@@ -296,6 +318,71 @@ def _cold(argv: list[str]) -> int:
     return cli.main(argv)
 
 
+# ─── For long-lived callers ──────────────────────────────────────────────────
+# The workbench server runs many commands. Starting a Python client for each
+# one costs a process launch per click, so it talks to the socket itself.
+
+def run_captured(argv: list[str], cwd: str | None = None,
+                 timeout: float = 900) -> tuple[int, str, str] | None:
+    """One command in a worker fork, output captured: (exit, stdout, stderr).
+    None when no worker can be started (the caller runs it cold instead)."""
+    conn = _connect_or_start(sock_path(), quiet=True)
+    if conn is None:
+        return None
+    out_r, out_w = os.pipe()
+    err_r, err_w = os.pipe()
+    null = os.open(os.devnull, os.O_RDONLY)
+    header = {"argv": list(argv), "cwd": cwd or os.getcwd(),
+              "env": {k: os.environ[k] for k in ENV_PASS if k in os.environ}}
+    try:
+        socket.send_fds(conn, [json.dumps(header).encode()], [null, out_w, err_w])
+    except OSError:
+        for fd in (out_r, err_r):
+            os.close(fd)
+        conn.close()
+        return None
+    finally:
+        for fd in (null, out_w, err_w):
+            os.close(fd)
+    chunks: dict[int, list[bytes]] = {out_r: [], err_r: []}
+    pending = [out_r, err_r]
+    deadline = time.time() + timeout
+    while pending and time.time() < deadline:   # drain both, or a full pipe stalls the child
+        ready, _, _ = select.select(pending, [], [], min(1.0, max(0.0, deadline - time.time())))
+        for fd in ready:
+            data = os.read(fd, 65536)
+            if data:
+                chunks[fd].append(data)
+            else:
+                pending.remove(fd)
+                os.close(fd)
+    out = b"".join(chunks[out_r]).decode(errors="replace")
+    err = b"".join(chunks[err_r]).decode(errors="replace")
+    if pending:                                 # timed out: hanging up stops the child
+        for fd in pending:
+            os.close(fd)
+        conn.close()
+        return 4, out, err + f"\ncad: timed out after {timeout:.0f} s"
+    conn.settimeout(30)
+    try:
+        reply = _read_reply(conn)
+    except OSError:
+        reply = {}
+    return int(reply.get("exit", 4)), out, err
+
+
+def ping() -> dict | None:
+    """Start the worker if it is not running, and reset its idle clock."""
+    conn = _connect_or_start(sock_path(), quiet=True)
+    if conn is None:
+        return None
+    try:
+        conn.sendall(json.dumps({"control": "ping"}).encode())
+        return _read_reply(conn)
+    except OSError:
+        return None
+
+
 def _control(args: list[str]) -> int:
     action = args[0] if args else "status"
     path = sock_path()
@@ -332,7 +419,8 @@ def main(argv: list[str] | None = None) -> int:
         os._exit(0)                            # skip tearing down the kernel: seconds, for nothing
     if argv[:1] == ["warm"]:
         return _control(argv[1:])
-    if os.environ.get("CAD_WARM", "1") == "0" or tuple(argv) in COLD:
+    if (os.environ.get("CAD_WARM", "1") == "0" or tuple(argv) in COLD
+            or _command(argv) in NO_KERNEL):
         return _cold(argv)
     conn = _connect_or_start(sock_path())
     if conn is None:

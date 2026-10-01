@@ -85,3 +85,61 @@ def mass_g(a, material: str) -> float:
     if key not in DENSITY:
         raise KeyError(f"unknown material {material!r}; known: {sorted(DENSITY)}")
     return volume(a) / 1000.0 * DENSITY[key]
+
+
+def mass_properties(items) -> dict:
+    """FreeCAD's Mass Properties (Measure/App/MassPropertiesResult.cpp) for solids
+    with densities in kg/mm^3: volume and surface area, mass, centres of gravity and
+    volume, the inertia matrix at the centre of gravity, and its principal moments
+    and axes. Units are FreeCAD's: mm, kg, kg*mm^2."""
+    from OCP.GProp import GProp_PrincipalProps
+    mass_p, surf_p, vol_p = GProp_GProps(), GProp_GProps(), GProp_GProps()
+    total_volume, any_shape = 0.0, False
+    for shape, density in items:
+        v, s = GProp_GProps(), GProp_GProps()
+        BRepGProp.VolumeProperties_s(_w(shape), v)
+        vol_p.Add(v)
+        BRepGProp.SurfaceProperties_s(_w(shape), s)
+        total_volume += v.Mass()
+        mass_p.Add(v, density)
+        surf_p.Add(s)
+        any_shape = True
+    if not any_shape:
+        return {}
+    mass = mass_p.Mass()
+    cog, cov = mass_p.CentreOfMass(), vol_p.CentreOfMass()
+    m = mass_p.MatrixOfInertia()
+    inertia = [[m.Value(r, c) for c in (1, 2, 3)] for r in (1, 2, 3)]
+    pr = mass_p.PrincipalProperties()
+
+    def unit(v):
+        n = (v[0] ** 2 + v[1] ** 2 + v[2] ** 2) ** 0.5 or 1.0
+        return [v[0] / n, v[1] / n, v[2] / n]
+
+    def cross(a, b):
+        return [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]]
+
+    if pr.HasSymmetryPoint():
+        a1, a2, a3 = [1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]
+    elif pr.HasSymmetryAxis():
+        f = pr.FirstAxisOfInertia()
+        a3 = unit([f.X(), f.Y(), f.Z()])
+        ref = [0.0, 1.0, 0.0] if abs(a3[2]) > 0.9 else [0.0, 0.0, 1.0]
+        a1 = unit(cross(ref, a3))
+        a2 = unit(cross(a3, a1))
+    else:
+        f, g = pr.FirstAxisOfInertia(), pr.SecondAxisOfInertia()
+        a3, a1 = unit([f.X(), f.Y(), f.Z()]), unit([g.X(), g.Y(), g.Z()])
+        a2 = cross(a3, a1)
+
+    def moment(u):
+        return sum(u[r] * sum(inertia[r][c] * u[c] for c in range(3)) for r in range(3))
+
+    return {
+        "volume_mm3": total_volume, "mass_kg": mass, "surface_area_mm2": surf_p.Mass(),
+        "density_kg_mm3": mass / total_volume if total_volume > 0 else None,
+        "cog": [cog.X(), cog.Y(), cog.Z()], "cov": [cov.X(), cov.Y(), cov.Z()],
+        "inertia_kg_mm2": inertia,
+        "principal_moments": [moment(a1), moment(a2), moment(a3)],
+        "principal_axes": [a1, a2, a3],
+    }

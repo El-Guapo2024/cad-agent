@@ -9,7 +9,6 @@ projects/<slug>/
   checks.json          the only source of numbers for the report
 """
 from __future__ import annotations
-import importlib.util
 import json
 import time
 from pathlib import Path
@@ -36,9 +35,15 @@ def list_projects() -> list[str]:
 
 
 def _load_module(path: Path):
-    spec = importlib.util.spec_from_file_location(f"_cad_{path.stem}", path)
-    mod = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(mod)
+    """Run a design file from its source, every time. Never from __pycache__:
+    bytecode is reused when the file's mtime (whole seconds) and size match,
+    so a rewrite within the same second that keeps the length (thickness
+    6.0 -> 8.0, from `cad set` or an agent's edit and an immediate check)
+    would run the old numbers."""
+    import types
+    mod = types.ModuleType(f"_cad_{path.stem}")
+    mod.__file__ = str(path)
+    exec(compile(path.read_bytes(), str(path), "exec"), mod.__dict__)
     return mod
 
 
@@ -75,17 +80,24 @@ def bought_solid(slug: str, name: str):
     return load_bought(slug, name)
 
 
-def load_assembly(slug: str):
+def load_assembly(slug: str, placed: bool = True):
     """Returns (parts, clearance, allow_contact, axes) or (None, {}, set(), {}).
 
     `axes` is the declared motion of the machine, empty for a static assembly.
+    Parts moved by hand (placements.toml) are applied unless `placed` is False,
+    which the workbench uses to show the move separately from the code's pose.
     """
     from .motion import load_axes
-    path = project_dir(slug) / "assembly.py"
+    from . import placements
+    pdir = project_dir(slug)
+    path = pdir / "assembly.py"
     if not path.exists():
         return None, {}, set(), {}
     mod = _load_module(path)
-    return (mod.parts(), dict(getattr(mod, "CLEARANCE", {})),
+    parts = mod.parts()
+    if placed:
+        parts = placements.apply(parts, placements.load(pdir))
+    return (parts, dict(getattr(mod, "CLEARANCE", {})),
             set(getattr(mod, "ALLOW_CONTACT", set())), load_axes(mod))
 
 

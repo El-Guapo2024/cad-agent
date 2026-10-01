@@ -12,6 +12,7 @@ dependencies = [
     "numpy>=1.26",      # the fallback z-buffer rasteriser
     "trimesh>=4.0",     # ray-cast wall thickness over the tessellated solid
     "rtree>=1.0",       # the spatial index trimesh's ray queries need
+    "ocp-tessellate>=3.5",  # the workbench's scene, in three-cad-viewer's format
 ]
 
 [project.optional-dependencies]
@@ -25,3 +26,6 @@ cad = "cad_agent.warm:main"            # the CLI agents drive, via the warm work
 
 [tool.setuptools.packages.find]
 include = ["cad_agent*"]
+
+[tool.setuptools.package-data]
+cad_agent = ["workbench/*", "workbench/vendor/*", "workbench/next/*", "workbench/next/assets/*", "workbench/next/freecad-icons/*"]

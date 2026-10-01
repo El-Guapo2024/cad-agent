@@ -260,3 +260,30 @@ def spec(ctx):
     A project with no spec is UNCHECKED: nothing states what it must do."""
     from .spec import check_spec
     yield from check_spec(ctx.slug, ctx.parts or {})
+
+
+@register(scope="assembly", name="placements", order=15)
+def placements_rule(ctx):
+    """Parts moved by hand in placements.toml (the workbench, or `cad place`),
+    listed so a verdict says which bodies sit where the code did not put them.
+    An entry for a body the assembly no longer returns is UNCHECKED: someone
+    meant to move a part that is not there."""
+    from . import placements
+    from .state import project_dir
+    placed = placements.load(project_dir(ctx.slug))
+    if not placed:
+        yield Row(subject=ctx.slug, rule="moved", state="N/A",
+                  measured="nothing moved by hand", limit="n/a",
+                  source=placements.FILE)
+        return
+    for name, p in sorted(placed.items()):
+        if name not in (ctx.parts or {}):
+            yield Row(subject=name, rule="moved", state="UNCHECKED",
+                      measured=f"{placements.FILE} moves {name!r}, which assembly.py does not return",
+                      limit="every entry names a body",
+                      source="fold the move into assembly.py or delete the entry")
+            continue
+        yield Row(subject=name, rule="moved", state="PASS",
+                  measured=f"moved by hand: move {list(p['move'])} mm, turn {list(p['turn'])} deg "
+                           f"about {list(p['about'])}",
+                  limit="n/a", source=f"{placements.FILE}; fit and spec judge the result")

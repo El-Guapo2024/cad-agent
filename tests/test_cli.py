@@ -122,6 +122,11 @@ def test_init_refuses_a_path_as_a_name(demo, capsys):
     assert code == cli.USAGE and "letters, digits" in data["error"]
 
 
+def test_init_refuses_an_already_existing_project(demo, capsys):
+    code, data = run(capsys, "init", "demo")
+    assert code == cli.USAGE and "already exists" in data["error"]
+
+
 # ─── Parts ───────────────────────────────────────────────────────────────────
 
 def test_build_measures_and_takes_overrides(demo, capsys):
@@ -170,6 +175,16 @@ def test_measure_exit_code_says_whether_parts_interfere(demo, capsys):
     assert code == cli.FAIL and data["interferes"] is True    # both at the origin
     code, data = run(capsys, "measure", "demo", "plate", "block", "--posed")
     assert code == cli.OK and data["min_distance_mm"] == pytest.approx(13.0, abs=1e-3)
+
+
+def test_mass_gives_freecads_mass_properties_as_placed(demo, capsys):
+    code, data = run(capsys, "mass", "demo", "plate", "block")
+    assert code == cli.OK
+    assert [b["body"] for b in data["bodies"]] == ["plate", "block"]
+    assert data["mass_kg"] == pytest.approx(sum(b["mass_kg"] for b in data["bodies"]))
+    assert len(data["inertia_kg_mm2"]) == 3 and len(data["principal_moments"]) == 3
+    code, data = run(capsys, "mass", "demo", "nope")
+    assert code == cli.USAGE
 
 
 def test_tables_rules_and_tool_envelopes(demo, capsys):

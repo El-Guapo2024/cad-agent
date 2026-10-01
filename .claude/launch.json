@@ -1,0 +1,12 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "workbench",
+      "runtimeExecutable": "bin/cad",
+      "runtimeArgs": ["serve"],
+      "port": 8733,
+      "autoPort": true
+    }
+  ]
+}

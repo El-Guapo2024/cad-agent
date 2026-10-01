@@ -6,7 +6,7 @@ import pytest
 from build123d import Box, Cylinder, Pos
 
 from cad_agent.checks import check_dfm, check_fit
-from cad_agent.geom import bbox, intersection_volume, mass_g, min_distance, volume
+from cad_agent.geom import bbox, intersection_volume, mass_g, mass_properties, min_distance, volume
 from cad_agent.parts import EXTRUSION, extrusion_blank
 from cad_agent.render import VIEWS, merge, render, tessellate
 
@@ -17,6 +17,29 @@ def test_volume_and_mass():
     b = Box(10, 10, 10)                     # 1000 mm^3 = 1 cm^3
     assert volume(b) == pytest.approx(1000.0, rel=1e-6)
     assert mass_g(b, "aluminium") == pytest.approx(2.70, rel=1e-6)
+
+
+def test_mass_properties_match_a_box_by_hand():
+    # A 10 x 20 x 30 mm box of water: m = 6 g, I_xx = m(b^2 + c^2)/12 about its centre.
+    box = Pos(5, 10, 15) * Box(10, 20, 30)
+    d = mass_properties([(box, 1e-6)])
+    assert d["volume_mm3"] == pytest.approx(6000)
+    assert d["mass_kg"] == pytest.approx(0.006)
+    assert d["surface_area_mm2"] == pytest.approx(2200)
+    assert d["cog"] == pytest.approx([5, 10, 15])
+    J = d["inertia_kg_mm2"]
+    assert [J[0][0], J[1][1], J[2][2]] == pytest.approx([0.65, 0.5, 0.25])
+    assert [J[0][1], J[0][2], J[1][2]] == pytest.approx([0, 0, 0], abs=1e-9)
+    assert sorted(d["principal_moments"]) == pytest.approx([0.25, 0.5, 0.65])
+
+
+def test_mass_properties_weight_each_solid_by_its_density():
+    a, b = Box(10, 10, 10), Pos(100, 0, 0) * Box(10, 10, 10)
+    d = mass_properties([(a, 1e-6), (b, 3e-6)])
+    assert d["mass_kg"] == pytest.approx(0.004)
+    assert d["cog"][0] == pytest.approx(75)       # three times the mass at x = 100
+    assert d["cov"][0] == pytest.approx(50)       # the volume centre ignores density
+    assert d["density_kg_mm3"] == pytest.approx(2e-6)
 
 
 def test_mass_rejects_unknown_material():

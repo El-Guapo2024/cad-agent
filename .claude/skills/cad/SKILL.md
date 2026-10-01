@@ -115,8 +115,27 @@ declares what moves, so the sweep gate can check the whole travel.
 
 Look at every render you make (Read the PNG). The visual gate compares renders
 with approved baselines, and approving one is **the human's call**. Show the
-render and the diff, and let them run `bin/cad approve`. Don't approve your
-own work.
+render and the diff, and let them run `bin/cad approve` (or click Approve in
+the workbench). Don't approve your own work.
+
+## The workbench and hand moves
+
+`bin/cad serve` runs the workbench, a live 3D page for the human (the app's
+Browser pane opens it). It rebuilds within seconds of your edits, so they can
+watch. When they drag a part there, it lands in `placements.toml`, a rigid move
+on top of `assembly.py` that every gate and `cad verify` see.
+
+- `git diff placements.toml` shows what they moved. Treat a move as a request:
+  fold it into `assembly.py` (change the `Pos`/`Rot`, or the parameter behind
+  it), then delete the entry with `bin/cad place <slug> <body> --reset`.
+- To try a position yourself, run `bin/cad place <slug> <body> --by=DX,DY,DZ` (or
+  `--turn=RX,RY,RZ`). It reports what the body now hits, and exits 1 on a
+  fit failure. Write `--by=-5,0,0` when the first value is negative.
+- A settled design has no placements.toml. The code is the source of truth.
+- They can also change a part's PARAMS from the page (`cad set`, which you can
+  run too: `bin/cad set <slug> <part> thickness=6`). That edits the part file
+  itself, so it shows in `git diff` like any edit. Keep PARAMS values plain
+  literals where you can, so they stay editable there.
 
 ## Finish
 
@@ -124,5 +143,7 @@ own work.
 2. Commit the design (parts, assembly, spec, bought, baselines).
 3. `bin/cad verify <slug>`, then `bin/cad done <slug>`.
 4. For a second opinion on what no rule covers, ask the `cad-reviewer` agent.
+   To share the result, `bin/cad page <slug>` writes a review page; publish its
+   folder as a private artifact (index.html plus the files next to it).
 5. Report: the verdict line from `cad done`, measured numbers quoted from the
    output, the assumptions you made, and what the human still has to do.

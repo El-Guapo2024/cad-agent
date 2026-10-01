@@ -38,7 +38,7 @@ def touched_file(session_id: str) -> Path:
 
 def target(path: Path):
     """(projects root, slug, part or None) for a cad design file, else None."""
-    if path.name in ("assembly.py", "spec.toml"):
+    if path.name in ("assembly.py", "spec.toml", "placements.toml"):
         project, part = path.parent, None
     elif path.suffix == ".py" and path.parent.name == "parts" and not path.stem.startswith("_"):
         project, part = path.parent.parent, path.stem
