@@ -63,16 +63,40 @@ type Mode = 'IDLE' | 'INTERACT' | 'ZOOMING' | 'BOXZOOM' | 'PANNING' | 'DRAGGING'
 export type V2 = [number, number]
 /** An input event as Coin sees it. */
 export type NavEvent = {
-  type: 'press' | 'release' | 'move' | 'key'
+  type: 'press' | 'release' | 'move' | 'key' | 'gesture'
   button?: 1 | 2 | 3
   /** KeyboardEvent.key; Control means FreeCAD's Ctrl (Cmd on a Mac). */
   key?: string
   down?: boolean
+  /** A gesture's pinch; its pos is the pinch's centre. */
+  pinch?: PinchEvent
   pos: V2
   t: number // seconds
   ctrl: boolean
   shift: boolean
   alt: boolean
+}
+/** SoGesturePinchEvent (SoTouchEvents.cpp): a touchscreen's two-finger pinch (QPinchGesture)
+ *  or a trackpad's pinch and twist (NativeGesturePinch, fromNativeGesture). Pixels count from
+ *  the bottom left; deltaZoom is the finger spread's ratio to the last update (0: none), and
+ *  deltaAngle the turn since the last update in radians, counter-clockwise positive. */
+export type PinchEvent = {
+  state: 'start' | 'update' | 'end' | 'canceled'
+  curCenter: V2
+  deltaCenter: V2
+  deltaZoom: number
+  deltaAngle: number
+  fromNativeGesture: boolean
+}
+/** NavigationStyle::pinchAction: what an update does. A touchscreen's turn obeys
+ *  DisableTouchTilt; a trackpad's twist never does. */
+export function pinchAction(ev: PinchEvent, touchTiltDisabled: boolean) {
+  const action = { zoom: false, zoomLogFactor: 0, rotate: false, rotateAngle: 0 }
+  if (ev.state !== 'update') return action
+  if (ev.deltaZoom > 0) { action.zoom = true; action.zoomLogFactor = -Math.fround(Math.log(Math.fround(ev.deltaZoom))) }
+  const tiltBlocked = touchTiltDisabled && !ev.fromNativeGesture
+  if (ev.deltaAngle !== 0 && !tiltBlocked) { action.rotate = true; action.rotateAngle = Math.fround(ev.deltaAngle) }
+  return action
 }
 
 type Cam = THREE.OrthographicCamera | THREE.PerspectiveCamera
@@ -101,7 +125,8 @@ export interface NavHost {
   cursor(css: string): void
   viewAll(): void
   orient(name: 'iso' | 'trimetric' | 'top'): void
-  prefs(): NavPrefs & { animate: boolean }
+  /** The navigation preferences, the view animation, and View/DisableTouchTilt. */
+  prefs(): NavPrefs & { animate: boolean; disableTouchTilt: boolean }
 }
 
 const DCI = 0.4 // QApplication::doubleClickInterval, s
@@ -220,6 +245,8 @@ export class Navigation {
   private longPress = 0
   private swallow = false
   private longPressAt: V2 = [0, 0]
+  private lastClickCandidate: number | null = null // lastClickCandidateTime; null is SbTime::zero()
+  private deferredPress: NavEvent | null = null // deferredMouseDownEvent
   /** The dragger took the press: DOM events go to it until the buttons are up. */
   interact = false
 
@@ -546,7 +573,8 @@ export class Navigation {
   /** NavigationStyle::processEvent: the rubber band first, then the style; a left
    *  click on nothing clears the selection unless Ctrl is down. */
   processEvent(ev: NavEvent): boolean {
-    this.mouse = ev.type === 'key' ? this.mouse : ev.pos
+    // A key takes the last mouse position (Quarter's); a gesture doesn't move it.
+    if (ev.type !== 'key' && ev.type !== 'gesture') this.mouse = ev.pos
     if (ev.type === 'key') ev = { ...ev, pos: this.mouse }
     this.longPressFilter(ev)
     // The press that opened Clarify Selection ends in its menu, not in a click.
@@ -607,8 +635,9 @@ export class Navigation {
     else if (ev.type === 'move' && Math.abs(ev.pos[0] - this.longPressAt[0]) + Math.abs(ev.pos[1] - this.longPressAt[1]) > 5) clearTimeout(this.longPress)
   }
 
-  /** NavigationStyle::processSoEvent: the wheel, else the scene graph. */
+  /** NavigationStyle::processSoEvent: the wheel, a pinch, else the scene graph. */
   private baseEvent(ev: NavEvent): boolean {
+    if (ev.type === 'gesture') return this.processPinchEvent(ev.pinch!)
     const processed = this.host.scene(ev)
     if (processed && ev.type === 'press' && ev.button === 1 && this.mode === 'SELECTION') {
       this.selStart = null
@@ -630,15 +659,36 @@ export class Navigation {
     else if (action === 'pan') { this.setupPanningPlane(); this.panCamera(this.plane, this.normalize(pixels!), [0, 0]) }
     else this.doZoomSteps(delta, this.normalize(pos))
   }
-  /** A pinch: zoom by -log(scale) at its centre (processPinchEvent/pinchAction's zoom half).
-   *  Missing: pinchAction's pan-by-deltaCenter and rotate-by-deltaAngle (gated by
-   *  DisableTouchTilt, default true, unless fromNativeGesture) halves. The browser's only
-   *  pinch signal here is a synthesized Ctrl+wheel event (a trackpad gesture the OS turns
-   *  into wheel deltas) with just a scale delta — no gesture centre movement or twist angle,
-   *  which FreeCAD gets from Coin's two-finger touch gesture. Reproducing those needs real
-   *  two-pointer tracking (two live pointerIds in bindNavigation, to compute a centre delta
-   *  and angle each update) instead of the wheel event this reads. */
-  pinch(pos: V2, logfactor: number) { this.doZoom(logfactor, this.normalize(pos)) }
+  /** NavigationStyle::processPinchEvent: the start sets up the panning plane; an update pans
+   *  by the centre's movement, then zooms and turns at the centre as pinchAction says. */
+  private processPinchEvent(ev: PinchEvent): boolean {
+    if (!this.parts()) return false
+    if (ev.state === 'start') { this.setupPanningPlane(); return true }
+    if (ev.state === 'end') return true
+    const action = pinchAction(ev, this.prefs.disableTouchTilt)
+    const posn = this.normalize(ev.curCenter)
+    if (ev.deltaCenter[0] !== 0 || ev.deltaCenter[1] !== 0) this.panCamera(this.plane, this.normalize(ev.deltaCenter), [0, 0])
+    if (action.zoom) this.doZoom(action.zoomLogFactor, posn)
+    if (action.rotate) this.doRotate(action.rotateAngle, posn)
+    return true
+  }
+  /** Not FreeCAD's: Alt+wheel turns the view about the cursor, as a trackpad's twist does,
+   *  for browsers that don't report the twist (Chrome, Firefox). FreeCAD's wheel ignores Alt. */
+  roll(pos: V2, angle: number) { this.doRotate(angle, this.normalize(pos)) }
+  /** A second finger landed: the first one's pseudo-mouse press (Qt makes mouse events from
+   *  the first touch) ends without a click. FreeCAD's GestureState drops it the same way: the
+   *  postponed press is discarded, its destructor clears button1down and button2down, and the
+   *  release that follows is thrown away as one whose press was never seen. */
+  dropPointer() {
+    clearTimeout(this.longPress)
+    if (this.box) { this.box = null; this.host.band(null) }
+    this.b1 = this.b2 = this.b3 = false
+    this.selStart = null
+    this.postponed = []
+    this.maya.consumed = []
+    this.state = 'Idle'
+    this.setViewingMode('IDLE')
+  }
 
   private processKeyboardEvent(ev: NavEvent): boolean {
     // NavigationStyle::processKeyboardEvent's PAGE_UP/PAGE_DOWN cases don't check press vs
@@ -662,7 +712,28 @@ export class Navigation {
   }
   private syncModifierKeys(ev: NavEvent) { this.ctrl = ev.ctrl; this.shift = ev.shift; this.alt = ev.alt }
 
-  private processClickEvent(_ev: NavEvent): boolean { return false }
+  /** processClickEvent (issue #0002433): a press within the double-click interval of the last
+   *  one waits for its release, so a dialog the first click opens can't swallow the release. */
+  private processClickEvent(ev: NavEvent): boolean {
+    let processed = false
+    if (ev.type === 'press') {
+      if (this.isDoubleClickCandidate(ev)) { this.deferMouseDownEvent(ev); processed = true }
+      else this.recordClickCandidate(ev)
+    } else this.replayDeferredMouseDownEvent()
+    return processed
+  }
+  private isDoubleClickCandidate(ev: NavEvent) {
+    return this.lastClickCandidate !== null && ev.t - this.lastClickCandidate < DCI
+  }
+  private deferMouseDownEvent(ev: NavEvent) { this.deferredPress = ev; this.lastClickCandidate = ev.t }
+  private recordClickCandidate(ev: NavEvent) { this.deferredPress = null; this.lastClickCandidate = ev.t }
+  private clearClickCandidateState() { this.deferredPress = null; this.lastClickCandidate = null }
+  /** The held press goes to NavigationStyle::processSoEvent, ahead of its release. */
+  private replayDeferredMouseDownEvent() {
+    if (!this.deferredPress) return
+    this.baseEvent(this.deferredPress)
+    this.deferredPress = null
+  }
 
   private isDraggerUnder() { return this.host.draggerUnderCursor() }
 
@@ -672,6 +743,7 @@ export class Navigation {
     if (Math.hypot(ev.pos[0] - start[0], ev.pos[1] - start[1]) <= DRAG_DISTANCE) return false
     clearTimeout(this.longPress)
     this.host.scene({ ...ev, type: 'move', pos: [-1e6, -1e6] }) // rmvPreselect
+    this.clearClickCandidateState() // a drag is not a click candidate for the next double-click check
     this.box = { a: start, b: ev.pos, additive }
     this.selStart = null
     this.host.band(start, ev.pos)
@@ -941,10 +1013,14 @@ export class Navigation {
     if (ev.type === 'release' && ((ev.button === 1 && !this.b1) || (ev.button === 2 && !this.b2) || (ev.button === 3 && !this.b3))) return true
     if (ev.type === 'press' || ev.type === 'release') this.syncButtons(ev)
     this.syncModifierKeys(ev)
+    // On a Mac FreeCAD hands gestures straight to NavigationStyle ("Qt gesture events seem to be
+    // broken" there), so the machine below never sees them.
+    if (isMac && ev.type === 'gesture') return this.baseEvent(ev)
     const r = { processed: false, propagated: false }
     const isPress = (b: number) => ev.type === 'press' && ev.button === b
     const isRelease = (b: number) => ev.type === 'release' && ev.button === b
     const button = ev.type === 'press' || ev.type === 'release'
+    const gestureActive = ev.type === 'gesture' && (ev.pinch!.state === 'start' || ev.pinch!.state === 'update')
     const mb = this.mbstate()
     const refire = () => {
       for (const p of this.postponed) this.baseEvent(p)
@@ -953,6 +1029,8 @@ export class Navigation {
       r.propagated = true
     }
     const enter = (st: string) => {
+      // ~GestureState: Qt doesn't always send the releases after a touchscreen gesture.
+      if (this.state === 'Gesture') this.b1 = this.b2 = false
       this.postponed = st === 'AwaitingMove' ? this.postponed : []
       this.state = st
       if (st === 'Idle') this.setViewingMode('IDLE')
@@ -961,6 +1039,7 @@ export class Navigation {
       else if (st === 'Pan' || st === 'StickyPan') { this.setViewingMode('PANNING'); this.base = ev.pos; this.setupPanningPlane() }
       else if (st === 'Tilt') { const p = this.parts(); if (p) this.setRotationCenter(p.tgt.clone()); this.setViewingMode('DRAGGING'); this.base = ev.pos; this.setupPanningPlane() }
       else if (st === 'Interact') this.setViewingMode('INTERACT')
+      else if (st === 'Gesture') { this.setViewingMode('PANNING'); this.base = ev.pos; this.setupPanningPlane() }
     }
     const roll = () => {
       if (mb === 0x101) { if (isPress(1)) this.rollDir = -1; if (isPress(2)) this.rollDir = +1 }
@@ -972,6 +1051,7 @@ export class Navigation {
         if (isPress(1) && mb === 0x100 && this.isDraggerUnder()) { enter('Interact'); break }
         if ((isPress(1) && mb === 0x100) || (isPress(2) && mb === 0x001)) { this.postponed.push(ev); r.processed = true; enter('AwaitingMove'); break }
         if (isPress(3) && mb === 0x010) { r.processed = true; this.setupPanningPlane(); this.lookAtPoint(ev.pos); enter('AwaitingRelease'); break }
+        if (gestureActive) { r.processed = true; enter('Gesture'); break }
         if (ev.type === 'key') {
           r.processed = true
           if ((ev.key === 'h' || ev.key === 'H') && !ev.down) { this.setupPanningPlane(); this.lookAtPoint(ev.pos) }
@@ -1001,7 +1081,9 @@ export class Navigation {
           } else if (mb === 0x001) { this.postponed = []; enter('Pan') }
           else if (mb === 0x101) { this.postponed = []; enter('Tilt') }
           else { refire(); enter('Idle') }
+          break
         }
+        if (gestureActive) { r.processed = true; enter('Gesture') }
         break
       }
       case 'Rotate':
@@ -1033,7 +1115,21 @@ export class Navigation {
       case 'AwaitingRelease':
         if (button) { r.processed = true; if (mb === 0) { enter('Idle'); break } roll() }
         if (ev.type === 'move') r.processed = true
+        if (gestureActive) { r.processed = true; enter('Gesture') } // another gesture can start
         break
+      case 'Gesture': {
+        // GestureState: every mouse event Qt fires during the gesture is eaten; a click with
+        // all buttons up leaves (a fail-safe for a lost end).
+        if (button) { r.processed = true; if (mb === 0) { enter('Idle'); break } }
+        if (ev.type === 'move') r.processed = true
+        if (ev.type === 'gesture') {
+          r.processed = true
+          const g = ev.pinch!
+          if (g.state === 'end' || g.state === 'canceled') enter('Idle')
+          else this.processPinchEvent(g)
+        }
+        break
+      }
       case 'Interact':
         if (button) { r.processed = false; if (mb === 0) { enter('Idle'); break } }
         break
@@ -1057,6 +1153,9 @@ export class Navigation {
     if (button) this.syncButtons(ev)
     if (count() >= 2) m.complex = true
     if (button || ev.type === 'move') m.broken ||= Math.hypot(ev.pos[0] - m.downPos[0], ev.pos[1] - m.downPos[1]) >= DRAG_DISTANCE
+    if (ev.type === 'gesture') m.inGesture = ev.pinch!.state === 'start' || ev.pinch!.state === 'update'
+    // A click during a gesture brings mouse navigation back.
+    if (button && m.inGesture) { m.inGesture = false; this.setViewingMode('SELECTION') }
     let processed = false, propagated = false
     const replay = () => { for (const e of m.consumed) this.baseEvent(e); m.consumed = [] }
 
@@ -1101,6 +1200,14 @@ export class Navigation {
           }
           if (m.consumed.length > 0) processed = true
         }
+        // A gesture starts navigating (not while the right button is down); an update without
+        // a start counts as one.
+        if (ev.type === 'gesture' && !this.b2 && (ev.pinch!.state === 'start' || ev.pinch!.state === 'update')) {
+          this.setupPanningPlane()
+          this.saveCursorPosition(ev.pos)
+          this.setViewingMode('DRAGGING')
+          processed = true
+        }
         break
       }
       case 'DRAGGING':
@@ -1117,7 +1224,18 @@ export class Navigation {
             processed = true
           } else { this.setViewingMode('IDLE'); processed = true }
         }
-        if (ev.type === 'move' && m.broken) {
+        if (ev.type === 'gesture') {
+          // Maya's own pinch: no DisableTouchTilt, and the centre's pan only with ZoomAtCursor.
+          const g = ev.pinch!
+          if (g.state === 'end') this.setViewingMode('SELECTION')
+          else if (g.state === 'update') {
+            if (this.prefs.zoomAtCursor) this.panCamera(this.plane, this.normalize(g.deltaCenter), [0, 0])
+            this.doZoom(-Math.fround(Math.log(g.deltaZoom)), this.normalize(g.curCenter))
+            if (g.deltaAngle !== 0) this.doRotate(g.deltaAngle, this.normalize(g.curCenter))
+          } // a gesture starting mid-navigation is eaten
+          processed = true
+        }
+        if (ev.type === 'move' && !m.inGesture && m.broken) {
           if (curmode === 'ZOOMING') { this.zoomByCursor(posn, prev); processed = true }
           else if (curmode === 'PANNING') { this.panCamera(this.plane, posn, prev); processed = true }
           else if (curmode === 'DRAGGING') {
@@ -1129,7 +1247,7 @@ export class Navigation {
         break
       }
       case 'SPINNING':
-        if (!processed && (button || ev.type === 'key')) this.setViewingMode('SELECTION')
+        if (!processed && (button || ev.type === 'key' || ev.type === 'gesture')) this.setViewingMode('SELECTION')
         break
     }
     if (!processed && !propagated) processed = this.baseEvent(ev)
@@ -1257,6 +1375,8 @@ export class Navigation {
     this.host.band(null)
     this.b1 = this.b2 = this.b3 = false
     this.interact = false
+    this.clearClickCandidateState()
+    this.maya.inGesture = false
     this.setViewingMode('IDLE')
   }
   setOrbit(o: OrbitStyle) { this.proj.orbit = o }
@@ -1272,9 +1392,16 @@ export function bindNavigation(nav: Navigation, el: HTMLElement, isCanvas: (t: E
   let macRight = false // a Mac's Ctrl+click, held: the left button acts as the right
   let over = false
   let lastWheel = 0
+  const touches = new Map<number, V2>() // the fingers down on the view
+  let primary: number | null = null // the finger that is the mouse (Qt's mouse events from touch)
+  let pinch: { a: number; b: number } | null = null // a touchscreen pinch's two fingers
+  let touchMuted = false // a pinch ended the mouse: no more of it until every finger is up
+  let wheelPinch = 0 // the timer that ends a Ctrl+wheel pinch
+  let safari: { scale: number; rotation: number } | null = null // a Safari gesture under way
   const coinButton = (domBit: number) => (domBit === 1 ? 1 : domBit === 2 ? 2 : 3) as 1 | 2 | 3
-  const mods = (e: MouseEvent | KeyboardEvent) => ({ ctrl: isMac ? e.metaKey : e.ctrlKey, shift: e.shiftKey, alt: e.altKey })
-  const posOf = (e: MouseEvent): V2 => {
+  type Mods = { ctrlKey: boolean; metaKey: boolean; shiftKey: boolean; altKey: boolean }
+  const mods = (e: Mods) => ({ ctrl: isMac ? e.metaKey : e.ctrlKey, shift: e.shiftKey, alt: e.altKey })
+  const posOf = (e: { clientX: number; clientY: number }): V2 => {
     const c = canvas()
     if (!c) return [0, 0]
     const r = c.getBoundingClientRect()
@@ -1294,7 +1421,60 @@ export function bindNavigation(nav: Navigation, el: HTMLElement, isCanvas: (t: E
     if (e.type === 'pointermove' && !changed) out.push({ type: 'move', pos: posOf(e), t: t(e), ...mods(e) })
     return out
   }
+  const gesture = (pinch: PinchEvent, e: Mods & { timeStamp: number }) =>
+    nav.processEvent({ type: 'gesture', pinch, pos: pinch.curCenter, t: e.timeStamp / 1000, ...mods(e) })
+  const mid = (a: V2, b: V2): V2 => [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2]
+  /** SoGesturePinchEvent::unbranchAngle: into [-π, π). */
+  const unbranch = (a: number) => a - 2 * Math.PI * Math.floor((a + Math.PI) / (2 * Math.PI))
+  /** A touchscreen, as Qt hands it over: the first finger is the mouse's left button, and a
+   *  second makes a QPinchGesture, whose updates carry the centre's movement, the spread's
+   *  ratio and the turn of the line between the fingers. True when the event is used up here. */
+  const touch = (e: PointerEvent): boolean => {
+    const id = e.pointerId
+    if (e.type === 'pointerdown') {
+      if (!isCanvas(e.target)) return false
+      touches.set(id, posOf(e))
+      if (touches.size === 1 && !touchMuted) { primary = id; return false }
+      try { canvas()?.setPointerCapture(id) } catch { /* gone */ }
+      if (touches.size === 2 && !pinch && !nav.interact) {
+        const [a, b] = [...touches.keys()]
+        pinch = { a, b }
+        if (!touchMuted) { touchMuted = true; mask = 0; macRight = false; nav.dropPointer() }
+        gesture({ state: 'start', curCenter: mid(touches.get(a)!, touches.get(b)!), deltaCenter: [0, 0], deltaZoom: 0, deltaAngle: 0, fromNativeGesture: false }, e)
+      }
+      return true
+    }
+    const last = touches.get(id)
+    if (!last) return false
+    const mouse = id === primary && !touchMuted
+    if (e.type === 'pointermove') {
+      const cur = posOf(e)
+      if (pinch && (id === pinch.a || id === pinch.b)) {
+        const other = touches.get(id === pinch.a ? pinch.b : pinch.a)!
+        const [p1, p2, l1, l2] = id === pinch.a ? [cur, other, last, other] : [other, cur, other, last]
+        const c = mid(p1, p2), lc = mid(l1, l2)
+        const len = Math.hypot(p2[0] - p1[0], p2[1] - p1[1]), lastLen = Math.hypot(l2[0] - l1[0], l2[1] - l1[1])
+        // QPinchGesture's rotationAngle grows clockwise: startAngle - QLineF::angle(), and
+        // QLineF::angle() counts counter-clockwise on screen, as atan2 does with y up.
+        const turned = Math.atan2(l2[1] - l1[1], l2[0] - l1[0]) - Math.atan2(p2[1] - p1[1], p2[0] - p1[0])
+        gesture({ state: 'update', curCenter: c, deltaCenter: [c[0] - lc[0], c[1] - lc[1]], deltaZoom: lastLen > 0 ? len / lastLen : 1,
+          deltaAngle: -unbranch(turned), fromNativeGesture: false }, e)
+      }
+      touches.set(id, cur)
+      return !mouse
+    }
+    if (pinch && (id === pinch.a || id === pinch.b)) {
+      const c = mid(touches.get(pinch.a)!, touches.get(pinch.b)!)
+      pinch = null
+      gesture({ state: e.type === 'pointercancel' ? 'canceled' : 'end', curCenter: c, deltaCenter: [0, 0], deltaZoom: 0, deltaAngle: 0, fromNativeGesture: false }, e)
+    }
+    touches.delete(id)
+    if (id === primary) primary = null
+    if (!touches.size) touchMuted = false
+    return !mouse
+  }
   const onPointer = (e: PointerEvent) => {
+    if (e.pointerType === 'touch' && touch(e)) { e.stopPropagation(); return }
     const onCanvas = isCanvas(e.target)
     if (e.type === 'pointerdown' && !onCanvas) return
     if (e.type !== 'pointerdown' && !mask && !onCanvas && !nav.interact) return
@@ -1321,15 +1501,52 @@ export function bindNavigation(nav: Navigation, el: HTMLElement, isCanvas: (t: E
     const begin = e.timeStamp - lastWheel > 200
     lastWheel = e.timeStamp
     const pos = posOf(e), m = mods(e)
-    if (precise && e.ctrlKey) { nav.pinch(pos, e.deltaY * 0.01); return } // a pinch arrives as Ctrl+wheel
-    // isUnwantedHorizontalScroll: suppressed unless it's a precise touchpad AND TouchpadScrollPans
-    // is on (so a horizontal-dominant touchpad swipe is also filtered when the pref is off).
-    if ((!precise || !nav.touchpadScrollPans()) && Math.abs(e.deltaX) > Math.abs(e.deltaY)) return
+    if (precise && e.ctrlKey) { if (!safari) pinchByWheel(e, pos); return } // a trackpad pinch arrives as Ctrl+wheel
     // Qt's angleDelta: 120 a notch, positive away from the user.
     const delta = wd && Math.abs(wd) % 120 === 0 ? -Math.sign(e.deltaY) * Math.abs(wd)
       : e.deltaMode === 1 ? -e.deltaY * 40 : e.deltaMode === 2 ? -e.deltaY * 800
       : Math.abs(e.deltaY) < 50 ? -Math.sign(e.deltaY) * 120 : -e.deltaY * 1.2
+    // Not FreeCAD's: Alt+scroll turns the view (Navigation.roll), a degree per 4 px of touchpad
+    // scroll or 15° a wheel notch; scrolling the page's content right or down turns the model
+    // clockwise.
+    if (e.altKey) { nav.roll(pos, precise ? ((e.deltaX + e.deltaY) * Math.PI) / 720 : (-delta / 120) * (Math.PI / 12)); return }
+    // isUnwantedHorizontalScroll: suppressed unless it's a precise touchpad AND TouchpadScrollPans
+    // is on (so a horizontal-dominant touchpad swipe is also filtered when the pref is off).
+    if ((!precise || !nav.touchpadScrollPans()) && Math.abs(e.deltaX) > Math.abs(e.deltaY)) return
     nav.wheel(pos, delta, precise ? [-e.deltaX, e.deltaY] : null, m.shift, m.ctrl, begin)
+  }
+  /** Chrome's and Firefox's trackpad pinch, a Ctrl+wheel stream, as Qt's native pinch (a
+   *  begin, zooms, an end once the stream stops): deltaY is -100·ln of the scale's step. */
+  const pinchByWheel = (e: WheelEvent, pos: V2) => {
+    const native = (state: PinchEvent['state'], deltaZoom: number) =>
+      gesture({ state, curCenter: pos, deltaCenter: [0, 0], deltaZoom, deltaAngle: 0, fromNativeGesture: true }, e)
+    if (wheelPinch) clearTimeout(wheelPinch)
+    else native('start', 0)
+    native('update', Math.exp(-e.deltaY / 100))
+    wheelPinch = window.setTimeout(() => { wheelPinch = 0; native('end', 0) }, 200)
+  }
+  const endWheelPinch = () => { if (wheelPinch) { clearTimeout(wheelPinch); wheelPinch = 0 } }
+  /** Safari's trackpad pinch and twist (GestureEvent: the scale and the clockwise rotation in
+   *  degrees since the start) as Qt's native ones: NativeGesturePinch zooms by the scale's
+   *  step and turns by -radians(rotation's step), both at the cursor. On a touchscreen Safari
+   *  sends these too, but the fingers' pointer events make that pinch. */
+  const onGesture = (ev: Event) => {
+    const e = ev as Event & Mods & { clientX: number; clientY: number; scale: number; rotation: number }
+    if (!isCanvas(e.target) && !safari) return
+    e.preventDefault() // not the page's zoom
+    if (touches.size) return
+    const native = (state: PinchEvent['state'], deltaZoom: number, deltaAngle: number) =>
+      gesture({ state, curCenter: posOf(e), deltaCenter: [0, 0], deltaZoom, deltaAngle, fromNativeGesture: true }, e)
+    if (e.type === 'gesturestart') {
+      if (wheelPinch) { endWheelPinch(); native('end', 0, 0) }
+      safari = { scale: 1, rotation: 0 }
+      native('start', 0, 0)
+    } else if (safari && e.type === 'gesturechange') {
+      const zoom = e.scale !== safari.scale && safari.scale > 0 ? e.scale / safari.scale : 0
+      const angle = (-(e.rotation - safari.rotation) * Math.PI) / 180
+      safari = { scale: e.scale, rotation: e.rotation }
+      native('update', zoom, angle)
+    } else if (safari && e.type === 'gestureend') { safari = null; native('end', 0, 0) }
   }
   const onMenu = (e: MouseEvent) => { if (isCanvas(e.target)) { e.preventDefault(); e.stopPropagation() } }
   const onKey = (e: KeyboardEvent) => {
@@ -1339,21 +1556,28 @@ export function bindNavigation(nav: Navigation, el: HTMLElement, isCanvas: (t: E
     nav.processEvent({ type: 'key', key, down: e.type === 'keydown', pos: [0, 0], t: t(e), ...mods(e) })
   }
   const onLeave = () => { over = false }
+  // The view takes every touch: no browser panning or zooming starts on it.
+  const touchAction = el.style.touchAction
+  el.style.touchAction = 'none'
   el.addEventListener('pointerdown', onPointer, true)
   el.addEventListener('pointermove', onPointer, true)
   el.addEventListener('pointerup', onPointer, true)
   el.addEventListener('pointercancel', onPointer, true)
   el.addEventListener('wheel', onWheel, { capture: true, passive: false })
+  for (const g of ['gesturestart', 'gesturechange', 'gestureend']) el.addEventListener(g, onGesture, true)
   el.addEventListener('contextmenu', onMenu, true)
   el.addEventListener('pointerleave', onLeave)
   addEventListener('keydown', onKey)
   addEventListener('keyup', onKey)
   return () => {
+    el.style.touchAction = touchAction
+    endWheelPinch()
     el.removeEventListener('pointerdown', onPointer, true)
     el.removeEventListener('pointermove', onPointer, true)
     el.removeEventListener('pointerup', onPointer, true)
     el.removeEventListener('pointercancel', onPointer, true)
     el.removeEventListener('wheel', onWheel, true)
+    for (const g of ['gesturestart', 'gesturechange', 'gestureend']) el.removeEventListener(g, onGesture, true)
     el.removeEventListener('contextmenu', onMenu, true)
     el.removeEventListener('pointerleave', onLeave)
     removeEventListener('keydown', onKey)

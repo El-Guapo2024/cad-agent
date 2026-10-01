@@ -156,13 +156,16 @@ above), so binding their keys would do nothing.
   - `NavigationStyle`: pan on the focal plane, zoom as e^step, zoom at the cursor, roll, `lookAtPoint` (a quick middle click centres the view on the point under it), and the rotation-centre marker.
   - The orbit, through `FCSphereSheetProjector` over Coin's `SbSphereSheetProjector`: Rounded Arcball (the default), Trackball, Trackball Classic, Free Turntable and Turntable. Rotation about the window centre, the cursor, or the object centre.
   - All twelve styles, event by event: Blender, CAD (the default), Gesture, Maya-Gesture, OpenCascade, OpenInventor, OpenSCAD, Revit, Siemens NX, SolidWorks, TinkerCAD and Touchpad.
-  - The wheel: 120 a notch, ZoomStep 0.2, InvertZoom. A touchpad pans (Shift orbits) and a pinch zooms, as `wheelAction` does on a Mac. PageUp and PageDown zoom at the cursor.
+  - The wheel: 120 a notch, ZoomStep 0.2, InvertZoom. A touchpad pans (Shift orbits), as `wheelAction` does on a Mac. PageUp and PageDown zoom at the cursor.
+  - Gestures (`processPinchEvent`, `pinchAction`, `SoTouchEvents.cpp`). A trackpad pinch (Chrome and Firefox send it as Ctrl+wheel) and Safari's pinch and twist work as Qt's native gestures: they zoom and turn at the cursor, and DisableTouchTilt never blocks the turn. On a touchscreen the first finger is the left button. Two fingers make a QPinchGesture: their centre pans, their spread zooms, and their turn rolls the view when DisableTouchTilt is off (it's on by default). The Gesture style enters GestureState (panning), except on a Mac, where FreeCAD hands gestures straight to NavigationStyle. Maya-Gesture drags with its own pinch, which ignores the tilt setting. OpenInventor drops gestures outside selection, as FreeCAD does. A pinch never ends in a click.
+  - `processClickEvent`: a left press within the double-click time of the last one waits for its release (issue #0002433). A drag box clears that state.
+  - Not FreeCAD's: Alt+scroll rolls the view at the cursor, 1° per 4 px of touchpad scroll or 15° per wheel notch, because Chrome and Firefox report no trackpad twist. FreeCAD's wheel ignores Alt, so nothing of FreeCAD's is lost.
   - A left drag from empty space box-selects: left to right takes what is inside or centred in the box, right to left what crosses it (`applyBoxSelection`). Ctrl adds.
   - A left click selects on release; Ctrl toggles (Ctrl is Cmd on a Mac, as Qt maps it). A click on nothing clears.
   - Long press (1 s) opens Clarify Selection; OpenInventor, Gesture and OpenSCAD need Ctrl for it.
   - View changes animate as `NavigationAnimation`: 500 ms, InOutCubic. Fit all animates as `animatedViewAll` and frames the bounding sphere exactly. Spinning animation is optional.
   - Cursors are FreeCAD's rotate, pan and zoom icons.
-- **Preferences**: the Navigation page's settings: style, orbit style, rotation mode, default camera orientation (Trimetric; used for a new view and for Home), zoom step, zoom at cursor, invert zoom, touchpad panning, rotation centre, animations and duration, spinning, long-press clarify and its timeout.
+- **Preferences**: the Navigation page's settings: style, orbit style, rotation mode, default camera orientation (Trimetric; used for a new view and for Home), zoom step, zoom at cursor, invert zoom, touchpad panning, touchscreen tilt, rotation centre, animations and duration, spinning, long-press clarify and its timeout.
 - **NaviCube** (`NaviCube.cpp`):
   - A click turns to the face, edge or corner by FreeCAD's `getFaceRotation`, with `NaviRotateToNearest`: the roll nearest the camera's, in 90° steps (60° on corners). Clicking it again within the double-click time also centres the model.
   - A drag orbits the model's bounding sphere, at sensitivity 0.45 (`beginOrbitDrag`).
@@ -207,7 +210,7 @@ Ten audits compared FreeCAD main 3160daf1e2b6 line by line with this UI, one are
 - Measure: Show Delta, Additive Selection with FreeCAD's Ctrl/Shift rule, Radius winning the tie with Diameter, the unit list in the unit system's unit (mm²) and remembered, Reset; faces classified as discs, cylinders (full or a section) and spheres from the mesh, so QuickMeasure and Measure give diameters, radii and axis distances; the angle drawn as an arc; FreeCAD's measurement colours (60, 240, 0).
 - 3D view: SelectionStyle BoundBox in the selection colours, preselected objects boxed too, no points in Hidden Line, the 0.2 mm vertex/edge preference, perspective Fit All at 45°.
 
-Left on purpose or not possible here: pinch rotation and pan (the browser gives only a zoom), and processClickEvent's double-click deferral (a no-op here).
+Left at the time: pinch rotation and pan, and processClickEvent's double-click deferral. Both are done now (2026-10-01; see Navigation above).
 
 ## Audit, 2026-09-30 (second round)
 
@@ -252,6 +255,7 @@ FreeCAD has one person and a Python console. Here a person in the UI and an agen
 FreeCAD's weekly build of main at exactly 3160daf1e2b6 (`weekly-2026.09.30`, reports 26.3.0dev) lives in `~/.cad-agent/freecad/FreeCAD.app`. Two scripts run it with its user files in a temporary folder:
 
 - `python3 scripts/fcdiff.py [suite…]` puts the same cases through `freecadcmd` and through our TypeScript (bundled for Node) and prints every disagreement; exit 1 if any. Suites: `schemas`, `parse` (Quantity.l / Quantity.y), `user` (UnitsSchema::translate: 39 units × 47 values × 10 schemas × 0/2/4 decimals, plus fractional inches), `number` (Quantity::toNumber), `rotation` (getYawPitchRoll, getRawValue, getEulerAngles in all 26 sequences), `ypr` (setYawPitchRoll), `euler` (setEulerAngles). All pass; the only accepted differences are FreeCAD's undefined behaviour (toDMS casting angles past INT_MAX to int).
+- `node scripts/navcheck.mjs` needs no FreeCAD. It runs FreeCAD's own `NavigationStylePinchTest.cpp` cases against our `pinchAction`. It also drives the double-click deferral, touchscreen pinches, pans and twists, Ctrl+wheel and Safari gestures, and Alt+scroll through fake DOM events, once as a Mac and once as another system. 72 checks, all pass.
 - `python3 scripts/fcgui.py` runs FreeCAD's GUI on Qt's offscreen platform and dumps every command's menu text, tooltip, status tip and shortcut, the menus and toolbars of three workbenches, the docks and the status bar widgets, with screenshots, to `~/.cad-agent/freecad/reference/`.
 
 What the first runs found and fixed:

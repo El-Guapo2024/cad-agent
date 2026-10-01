@@ -357,7 +357,7 @@ export class CadView {
       cursor: (css) => { const c = this.viewer.renderer?.domElement as HTMLElement | undefined; if (c) c.style.cursor = css },
       viewAll: () => this.fitAll(),
       orient: (name) => this.orient(name === 'iso' ? ROTATION.iso : name === 'top' ? ROTATION.top : TRIMETRIC),
-      prefs: () => ({ ...getState().navPrefs, animate: getState().animate }),
+      prefs: () => ({ ...getState().navPrefs, animate: getState().animate, disableTouchTilt: getState().disableTouchTilt }),
     })
     const track = (e: PointerEvent) => { if (this.onCanvas(e)) this.lastClient = { x: e.clientX, y: e.clientY } }
     host.addEventListener('pointermove', track, true)

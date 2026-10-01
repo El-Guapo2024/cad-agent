@@ -102,7 +102,7 @@ def test_default_gui_state_is_empty_and_disconnected(server, demo):
     assert code == 200
     assert data == {"slug": "demo", "connected": False, "selected": [], "preselected": None,
                     "hidden": [], "task": None, "view": {"camera": None, "projection": None},
-                    "view_props": {}, "unselectable": [], "commands": [], "updated": None}
+                    "view_props": {}, "unselectable": [], "commands": [], "camera_node": None, "updated": None}
 
 
 def test_get_gui_404s_for_an_unknown_project(server):
