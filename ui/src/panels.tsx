@@ -27,6 +27,7 @@ import { DependencyGraphTask, ParameterEditorTask, SceneInspectorTask } from './
 import {
   attachView, closeTask, editDefault, getView, place, placementOf, preselect, runCheck, runVerify, select, selectRange, setParams, setViewProps, showPanel,
   setOrtho, toggleVisibility,
+  setTreeUI,
 } from './actions'
 
 export const cls = (...a: (string | false | null | undefined)[]) => a.filter(Boolean).join(' ')
@@ -190,10 +191,10 @@ function ModelTree() {
   // true, so the Description and Internal name columns (and the header itself) start hidden.
   // contextMenuEvent 1334-1370: an unconditional "Tree Settings" submenu (Show Description / Show
   // Internal Name) toggles them, appended to every tree context menu, incl. empty space.
-  const [showDesc, setShowDescRaw] = useState(() => !saved.get('tree.hideColumn', true))
-  const [showInternal, setShowInternalRaw] = useState(() => !saved.get('tree.hideInternalNames', true))
-  const setShowDesc = (v: boolean) => { setShowDescRaw(v); saved.set('tree.hideColumn', !v) }
-  const setShowInternal = (v: boolean) => { setShowInternalRaw(v); saved.set('tree.hideInternalNames', !v) }
+  const tui = useStore((s) => s.treeUI)
+  const showDesc = !tui.hideColumn, showInternal = !tui.hideInternalNames
+  const setShowDesc = (v: boolean) => setTreeUI({ hideColumn: !v })
+  const setShowInternal = (v: boolean) => setTreeUI({ hideInternalNames: !v })
   const settingsMenu: Entry = { label: 'Tree Settings', sub: [
     { label: 'Show Description', checked: showDesc, onSelect: () => setShowDesc(!showDesc),
       title: "Shows a description column for items. An item's description can be set by editing the 'label2' property." },
@@ -201,6 +202,21 @@ function ModelTree() {
       title: 'Shows an internal name column for items.' },
   ] }
   const cols = 1 + (showDesc ? 1 : 0) + (showInternal ? 1 : 0)
+  // Preferences > UI: IconSize (getIconSize: 0 is the style's 16, else at least 10), FontSize
+  // (onFontSizeChanged: ignored at 0, else at least 8 pt), ResizableColumn (setupResizableColumn:
+  // Interactive header sections, their widths kept as ColumnSize1-3; the last one stretches).
+  const iconSize = tui.iconSize > 0 ? Math.max(10, tui.iconSize) : 16
+  const shown = [true, showDesc, showInternal]
+  const template = shown.map((on, i) => (on ? i : -1)).filter((i) => i >= 0)
+    .map((i, j, a) => (tui.resizableColumn && j < a.length - 1 && tui.columnSizes[i] > 0 ? `${tui.columnSizes[i]}px` : '1fr')).join(' ')
+  const startResize = (i: number) => (e: React.PointerEvent) => {
+    e.preventDefault(); e.stopPropagation()
+    const cell = (e.currentTarget as HTMLElement).parentElement!, x0 = e.clientX, w0 = cell.getBoundingClientRect().width
+    const move = (ev: PointerEvent) => { const columnSizes = [...getState().treeUI.columnSizes]; columnSizes[i] = Math.max(20, Math.round(w0 + ev.clientX - x0)); setTreeUI({ columnSizes }) }
+    const up = () => { window.removeEventListener('pointermove', move); window.removeEventListener('pointerup', up) }
+    window.addEventListener('pointermove', move); window.addEventListener('pointerup', up)
+  }
+  const grip = (i: number, last: boolean) => tui.resizableColumn && !last ? <span className="tgrip" onPointerDown={startResize(i)} /> : null
 
   // Tree.cpp onItemEntered/onPreSelectTimer/leaveEvent 3732-3804 (TreeParams.py:51,57,58 for the
   // defaults): hovering an object row preselects after PreSelectionDelay (700ms) of the last
@@ -224,7 +240,8 @@ function ModelTree() {
     else { preselect(null, null); preselectTimer.current = window.setTimeout(firePreselect, 500) }
   }
   return (
-    <div className={cls('tree', cols === 1 && 'onecol')} tabIndex={-1} style={{ '--tree-cols': `repeat(${cols}, 1fr)` } as React.CSSProperties}
+    <div className={cls('tree', cols === 1 && 'onecol', tui.hideHeader && 'ovl-nohead', tui.hideScrollBar && 'ovl-noscroll')} tabIndex={-1}
+      style={{ '--tree-cols': template, '--tree-icon': `${iconSize}px`, ...(tui.fontSize > 0 ? { fontSize: `${Math.max(8, tui.fontSize)}pt` } : {}) } as React.CSSProperties}
       onMouseLeave={() => { hoverRef.current = null; if (!treeOpts.preSelection) return; cancelPreselectTimer(); preselect(null, null) }}
       onContextMenu={(e) => { if (e.target !== e.currentTarget) return; e.preventDefault(); setEmptyMenu({ x: e.clientX, y: e.clientY }) }}>
       {menu && <ContextMenu at={menu} entries={[...treeEntries('object'), 'sep', settingsMenu]} onClose={() => setMenu(null)} />}
@@ -252,7 +269,7 @@ function ModelTree() {
         </>
       })()}
       {(showDesc || showInternal) && (
-        <div className="thead"><span>Labels &amp; Attributes</span>{showDesc && <span>Description</span>}{showInternal && <span>Internal name</span>}</div>
+        <div className="thead"><span>Labels &amp; Attributes{grip(0, cols === 1)}</span>{showDesc && <span>Description{grip(1, !showInternal)}</span>}{showInternal && <span>Internal name</span>}</div>
       )}
       {slug && (
         <div className="trow doc" onClick={() => { cancelPreselectTimer(); select(null) }} onMouseEnter={() => onEnter(null)}
@@ -280,10 +297,10 @@ function ModelTree() {
               <span className="tindent" />
               {/* DocumentObjectItem::getVisibilityIcon (TreeParams VisibilityIcon, on by default): the
                   eye drawn before the object's icon; a click on it toggles visibility (Tree.cpp). */}
-              <span className="teye" title="Toggle visibility (Space)" onClick={(e) => { e.stopPropagation(); toggleVisibility([b.name]) }}
-                onDoubleClick={(e) => e.stopPropagation()}><Icon name={off ? 'eye-off' : 'eye'} size={16} /></span>
+              {tui.visibilityIcon && <span className="teye" title="Toggle visibility (Space)" onClick={(e) => { e.stopPropagation(); toggleVisibility([b.name]) }}
+                onDoubleClick={(e) => e.stopPropagation()}><Icon name={off ? 'eye-off' : 'eye'} size={iconSize} /></span>}
               <span className="ticon">
-                <Icon name={b.kind === 'bought' ? 'bought' : 'part'} />
+                <Icon name={b.kind === 'bought' ? 'bought' : 'part'} size={iconSize} />
                 {st === 'FAIL' && <Icon name="ov-error" className="tov" size={10} />}
               </span>
               <span className="tname">{b.name}</span>
@@ -350,8 +367,9 @@ function PropertyView() {
     if (e.key === 'ArrowDown' || e.key === 'ArrowUp') { e.preventDefault(); rows[i + (e.key === 'ArrowDown' ? 1 : -1)]?.focus() }
     else if (e.key === 'F2' || e.key === 'Enter') { e.preventDefault(); row.querySelector<HTMLElement>('.pv.edit')?.click() }
   }
+  const hidePropScroll = useStore((s) => s.treeUI.hidePropScrollBar)
   return (
-    <div className="props">
+    <div className={cls('props', hidePropScroll && 'ovl-noscroll')}>
       <div className="pgrid" style={colW > 0 ? ({ '--pk-w': `${colW}px` } as React.CSSProperties) : undefined} onKeyDown={onKeyDown}
         onPointerMove={onPointerMove} onPointerDownCapture={onPointerDown} onClickCapture={(e) => { if (dragged.current) e.stopPropagation() }} onContextMenu={(e) => {
         e.preventDefault()

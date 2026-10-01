@@ -756,6 +756,16 @@ input[type=range]:disabled::-webkit-slider-runnable-track { background: var(--da
 .bg-modes { display: flex; flex-wrap: wrap; align-items: center; gap: 0 12px; }
 .bg-grid { display: grid; grid-template-columns: auto auto auto 1fr; align-items: center; gap: 4px 8px; margin-top: 4px; }
 .bg-grid .tcheck { margin: 0; }
+/* Preferences > UI: the tree's icon size, column grips, and what a dock overlay hides
+   (HideHeaderView, HideScrollBar, DockOverlayHidePropertyViewScrollBar; a floating group is
+   dockview's .dv-resize-container). */
+.tree .ticon, .tree .teye .ico { width: var(--tree-icon, 16px); height: var(--tree-icon, 16px); }
+.tree .trow { min-height: calc(var(--tree-icon, 16px) + 2px); height: auto; }
+.tree .thead span { position: relative; }
+.tgrip { position: absolute; top: 0; right: -3px; width: 6px; height: 100%; cursor: col-resize; z-index: 2; }
+.dv-resize-container .tree.ovl-nohead .thead { display: none; }
+.dv-resize-container .ovl-noscroll, .dv-resize-container .ovl-noscroll * { scrollbar-width: none; }
+.dv-resize-container .ovl-noscroll::-webkit-scrollbar, .dv-resize-container .ovl-noscroll *::-webkit-scrollbar { display: none; }
 .sel-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 .pick-radius { width: 120px; }
 .light-grid { display: grid; grid-template-columns: auto minmax(60px, 1fr) minmax(60px, 1fr) auto auto; align-items: center; gap: 4px 6px; }

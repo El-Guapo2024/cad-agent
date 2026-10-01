@@ -7,6 +7,12 @@ import { unitPrefs } from './quantity'
 import { BACKGROUND_DEFAULTS, type BackgroundPrefs } from './background'
 import { LIGHT_DEFAULTS, type LightPrefs } from './lights'
 import { VIEW } from './theme'
+/** Preferences > Display > UI, Tree View and Overlay (TreeParams.py defaults; IconSize shows the
+ *  .ui's 16, which PrefSpinBox restores when the parameter is unset). */
+export type TreeUI = { hideInternalNames: boolean; hideColumn: boolean; hideHeader: boolean; hideScrollBar: boolean; visibilityIcon: boolean
+  resizableColumn: boolean; fontSize: number; iconSize: number; columnSizes: number[]; hidePropScrollBar: boolean }
+export const TREE_UI_DEFAULTS: TreeUI = { hideInternalNames: true, hideColumn: true, hideHeader: true, hideScrollBar: true, visibilityIcon: true,
+  resizableColumn: false, fontSize: 0, iconSize: 16, columnSizes: [0, 0, 0], hidePropScrollBar: false }
 export type SelPrefs = { color: string; preColor: string; enable: boolean; enablePre: boolean }
 /** DlgSettingsSelection.ui: SelectionColor #00ABFF, HighlightColor #0AC8FF (FreeCAD Light's too), both enabled. */
 export const SEL_DEFAULTS: SelPrefs = { color: '#' + VIEW.select.toString(16).padStart(6, '0'), preColor: '#' + VIEW.preselect.toString(16).padStart(6, '0'), enable: true, enablePre: true }
@@ -222,6 +228,7 @@ export type State = {
   lights: LightPrefs
   /** Preferences > Selection (View): SelectionColor, HighlightColor, EnableSelection, EnablePreselection. */
   selPrefs: SelPrefs
+  treeUI: TreeUI
   treeEditColor: string
   units: Units
   editMode: EditMode
@@ -280,7 +287,7 @@ let state: State = {
   reportShow: { msg: true, log: true, warn: true, err: true, critical: true, ...saved.get<Partial<Record<Level, boolean>>>('reportShow', {}) },
   reportTimecode: saved.get('report.timecode', true), reportCleared: 0,
   clip: null, viewSize: null, consoleLines: [], consoleDraft: '', animate: saved.get('animate', true), nav: saved.get<NavStyle>('nav', 'cad'),
-  navPrefs: { ...NAV_DEFAULTS, ...saved.get<Partial<NavPrefs>>('navPrefs', {}) }, homeView: saved.get<HomeView>('homeView', 'Trimetric'), newDocCameraScale: saved.get('newDocCameraScale', 100), corner: saved.get<Corner>('corner', { show: true, size: 10 }), axisColors: { ...AXIS_COLOR_DEFAULTS, ...saved.get<Partial<AxisColors>>('axisColors', {}) }, showFPS: saved.get('showFPS', false), naviCube: { ...NAVICUBE_DEFAULTS, ...saved.get<Partial<NaviCubePrefs>>('naviCube', {}) }, cubePlace: (['top-left', 'top-right', 'bottom-left', 'bottom-right'] as const)[saved.get<Partial<NaviCubePrefs>>('naviCube', {}).corner ?? 1], cubePos: saved.get<CubePos>('cubePos', CORNER_POS[saved.get<Partial<NaviCubePrefs>>('naviCube', {}).corner ?? 1]), cubeOffset: { left: 10, right: 10, top: 10, bottom: 22 }, rotationCenter: saved.get<RotationCenterPrefs>('rotationCenter', { size: 5, color: '#ff0000', alpha: 0.2 }), disableTouchTilt: saved.get('disableTouchTilt', true), background: { ...BACKGROUND_DEFAULTS, ...saved.get<Partial<BackgroundPrefs>>('background', {}) }, lights: { ...LIGHT_DEFAULTS, ...saved.get<Partial<LightPrefs>>('lights', {}) }, selPrefs: { ...SEL_DEFAULTS, ...saved.get<Partial<SelPrefs>>('selPrefs', {}) }, treeEditColor: saved.get('treeEditColor', '#00abff'), units: saved.get<Units>('units', { schema: 0, decimals: 2, denominator: 8 }), editMode: saved.get<EditMode>('editMode', 'default'), pickList: false, picked: [], treeShowHidden: false,
+  navPrefs: { ...NAV_DEFAULTS, ...saved.get<Partial<NavPrefs>>('navPrefs', {}) }, homeView: saved.get<HomeView>('homeView', 'Trimetric'), newDocCameraScale: saved.get('newDocCameraScale', 100), corner: saved.get<Corner>('corner', { show: true, size: 10 }), axisColors: { ...AXIS_COLOR_DEFAULTS, ...saved.get<Partial<AxisColors>>('axisColors', {}) }, showFPS: saved.get('showFPS', false), naviCube: { ...NAVICUBE_DEFAULTS, ...saved.get<Partial<NaviCubePrefs>>('naviCube', {}) }, cubePlace: (['top-left', 'top-right', 'bottom-left', 'bottom-right'] as const)[saved.get<Partial<NaviCubePrefs>>('naviCube', {}).corner ?? 1], cubePos: saved.get<CubePos>('cubePos', CORNER_POS[saved.get<Partial<NaviCubePrefs>>('naviCube', {}).corner ?? 1]), cubeOffset: { left: 10, right: 10, top: 10, bottom: 22 }, rotationCenter: saved.get<RotationCenterPrefs>('rotationCenter', { size: 5, color: '#ff0000', alpha: 0.2 }), disableTouchTilt: saved.get('disableTouchTilt', true), background: { ...BACKGROUND_DEFAULTS, ...saved.get<Partial<BackgroundPrefs>>('background', {}) }, lights: { ...LIGHT_DEFAULTS, ...saved.get<Partial<LightPrefs>>('lights', {}) }, selPrefs: { ...SEL_DEFAULTS, ...saved.get<Partial<SelPrefs>>('selPrefs', {}) }, treeUI: { ...TREE_UI_DEFAULTS, hideColumn: saved.get('tree.hideColumn', true), hideInternalNames: saved.get('tree.hideInternalNames', true), ...saved.get<Partial<TreeUI>>('treeUI', {}) }, treeEditColor: saved.get('treeEditColor', '#00abff'), units: saved.get<Units>('units', { schema: 0, decimals: 2, denominator: 8 }), editMode: saved.get<EditMode>('editMode', 'default'), pickList: false, picked: [], treeShowHidden: false,
   toolbars: saved.get('toolbars', {}), toolbarLock: saved.get('toolbarLock', false), statusBar: saved.get('statusBar', true),
   tree: { syncView: true, syncSelection: true, preSelection: true, recordSelection: true, ...saved.get('tree', {}) }, selHistory: { back: [], forward: [] }, toolbarIconSize: saved.get('toolbarIconSize', 24), prefsOpen: false, cameraNode: null, selFilter: null, gateMsg: null, frozenViews: [], treeCollapsed: false,
   cameraPreset: null,

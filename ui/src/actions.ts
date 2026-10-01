@@ -866,6 +866,10 @@ function stepSelection(from: 'back' | 'forward') {
 export const selBack = () => stepSelection('back')
 export const selForward = () => stepSelection('forward')
 /** A Tree view action switch (TreeParams), kept between sessions. */
+/** TreeParams set from Preferences > UI or the tree's Tree Settings menu. */
+export function setTreeUI(patch: Partial<State['treeUI']>) {
+  setState((s) => { const treeUI = { ...s.treeUI, ...patch }; saved.set('treeUI', treeUI); return { treeUI } })
+}
 export function setTreeOption(k: keyof State['tree'], on: boolean) {
   setState((s) => { const tree = { ...s.tree, [k]: on }; saved.set('tree', tree); return { tree } })
 }

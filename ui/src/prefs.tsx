@@ -5,11 +5,11 @@
 // Settings take effect as they change; Cancel puts back what was there when the dialog opened
 // (or at the last Apply), which is what FreeCAD's deferred apply amounts to.
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
-import { AXIS_COLOR_DEFAULTS, CORNER_POS, NAVICUBE_DEFAULTS, NOTIFY_DEFAULTS, SEL_DEFAULTS, type SelPrefs, getState, saved, setState, useStore } from './store'
+import { AXIS_COLOR_DEFAULTS, CORNER_POS, NAVICUBE_DEFAULTS, NOTIFY_DEFAULTS, SEL_DEFAULTS, TREE_UI_DEFAULTS, type SelPrefs, getState, saved, setState, useStore } from './store'
 import { NAV_DEFAULTS } from './nav'
 import { ContextMenu, type Entry } from './chrome'
 import { messageBox } from './msgbox'
-import { setTreeOption } from './actions'
+import { setTreeOption, setTreeUI } from './actions'
 import { setUnits } from './commands'
 import { PrefsPage } from './panels'
 import { BACKGROUND_DEFAULTS, type BackgroundMode, type BackgroundPrefs } from './background'
@@ -21,7 +21,7 @@ import { LIGHT_DEFAULTS, LightRig, azimuthElevationToDirection, directionToAzimu
 
 const GROUPS: [string, string, string[]][] = [
   ['General', 'preferences-general', ['General', 'Selection', 'Notification Area', 'Report View']],
-  ['Display', 'preferences-display', ['3D View', 'Light Sources', 'Navigation', 'Colors', 'Transform snap']],
+  ['Display', 'preferences-display', ['3D View', 'Light Sources', 'UI', 'Navigation', 'Colors', 'Transform snap']],
   ['Python', 'preferences-python', ['Macro']],
 ]
 
@@ -198,6 +198,55 @@ function LightSourcesPage() {
     </div>
   )
 }
+/** DlgSettingsUI.ui: Theme Customization (one theme here, so n/a), Tree View (TreeParams, all
+ *  live in the tree), Overlay (the property view's scroll bar works; the rest is fixed) and
+ *  Suggested Actions (n/a: no task watcher). */
+function UIPage() {
+  const t = useStore((s) => s.treeUI)
+  const check = (label: string, on: boolean, f: ((v: boolean) => void) | undefined, tip: string) => (
+    <label className="tcheck" title={tip}><input type="checkbox" checked={on} disabled={!f} onChange={(e) => f?.(e.target.checked)} />{label}</label>)
+  const spin = (v: number, lo: number, hi: number, suffix: string, f: (v: number) => void, tip: string) => (
+    <span className="pct-box" title={tip}><input type="number" className="qsb" min={lo} max={hi} value={v} onChange={(e) => f(Math.min(hi, Math.max(lo, Math.round(Number(e.target.value)))))} />{suffix}</span>)
+  const theme = 'n/a: there is one theme here (FreeCAD Light)'
+  return (
+    <div className="pref-content">
+      <fieldset className="tgroup"><legend>Theme Customization</legend>
+        <span className="disabled">Customize the current theme. The offered settings are optional for theme developers so they may or may not have an effect in the current theme.</span>
+        <div className="pref-grid">
+          <span className="disabled">Accent color 1</span><ColorButton value="#00abff" tip={theme} />
+          <span className="disabled">Accent color 2</span><ColorButton value="#b477ff" tip={theme} />
+          <span className="disabled">Accent color 3</span><ColorButton value="#557bb6" tip={theme} />
+          <span className="disabled">Style sheet (advanced)</span><select disabled title={theme}><option>FreeCAD.qss</option></select>
+          <span className="disabled">Overlay style sheet</span><select disabled title={theme}><option>Freecad Overlay.qss</option></select>
+        </div>
+        <div><button className="qbtn" disabled title={theme}>Open Theme Editor</button></div>
+      </fieldset>
+      <fieldset className="tgroup"><legend>Tree View</legend>
+        <div className="pref-grid">
+          <span>Font size</span>{spin(t.fontSize, 0, 100, 'pt', (fontSize) => setTreeUI({ fontSize }), 'Font size override, set to 0 for the default value.')}
+          <span>Icon size</span>{spin(t.iconSize, 0, 99, '', (iconSize) => setTreeUI({ iconSize }), 'Icon size override, set to 0 for the default value.')}
+        </div>
+        {check('Show visibility icon', t.visibilityIcon, (visibilityIcon) => setTreeUI({ visibilityIcon }), 'Displays an eye icon in front of the tree view items, showing their visibility status. When clicked the visibility is toggled.')}
+        {check('Resizable columns', t.resizableColumn, (resizableColumn) => setTreeUI({ resizableColumn }), 'Allow tree view columns to be manually resized.')}
+        {check('Hide description', t.hideColumn, (hideColumn) => setTreeUI({ hideColumn }), 'Hide column with object description in tree view.')}
+        {check('Hide internal names', t.hideInternalNames, (hideInternalNames) => setTreeUI({ hideInternalNames }), 'Hide extra tree view column for internal names')}
+        {check('Hide scroll bar', t.hideScrollBar, (hideScrollBar) => setTreeUI({ hideScrollBar }), 'Hide scroll bar from the tree view, scrolling will still be possible using mouse wheel.')}
+        {check('Hide header', t.hideHeader, (hideHeader) => setTreeUI({ hideHeader }), 'Hide header with column names from the tree view.')}
+      </fieldset>
+      <fieldset className="tgroup"><legend>Overlay</legend>
+        {check('Hide tab bar', true, undefined, 'Hide tab bar in dock overlay (fixed here)')}
+        {check('Hint show tab bar', false, undefined, 'Show tab bar on mouse over when auto hide (fixed here)')}
+        {check('Hide property view scroll bar', t.hidePropScrollBar, (hidePropScrollBar) => setTreeUI({ hidePropScrollBar }), 'Hide property view scroll bar in dock overlay')}
+        {check('Automatically hide in non-3D view', true, undefined, 'n/a: the only view here is the 3D view')}
+        {check('Automatically pass through of the mouse cursor', true, undefined, 'Auto mouse click through transparent part of dock overlay. (fixed here)')}
+        {check('Automatically pass through of the mouse wheel', true, undefined, 'Automatically passes mouse wheel events through the transparent areas of an overlay panel (fixed here)')}
+      </fieldset>
+      <fieldset className="tgroup"><legend>Suggested Actions</legend>
+        {check('Suggest actions in the task view based on the selection', true, undefined, 'n/a: there is no task watcher here')}
+      </fieldset>
+    </div>
+  )
+}
 /** What each page's settings go back to (Reset Page / Group / All): the store's own defaults. */
 const DEFAULTS: Record<string, Record<string, unknown>> = {
   General: { units: { schema: 0, decimals: 2, denominator: 8 }, toolbarIconSize: 24, recentFilesSize: 4 },
@@ -205,6 +254,7 @@ const DEFAULTS: Record<string, Record<string, unknown>> = {
   'Notification Area': { notifyPrefs: NOTIFY_DEFAULTS },
   '3D View': { corner: { show: true, size: 10 }, axes: false, axisColors: AXIS_COLOR_DEFAULTS, showFPS: false },
   'Light Sources': { lights: LIGHT_DEFAULTS },
+  UI: { treeUI: TREE_UI_DEFAULTS },
   Navigation: { nav: 'cad', animate: true, cube: true, navPrefs: NAV_DEFAULTS, homeView: 'Trimetric', newDocCameraScale: 100,
     naviCube: NAVICUBE_DEFAULTS, cubePos: CORNER_POS[1], rotationCenter: { size: 5, color: '#ff0000', alpha: 0.2 }, disableTouchTilt: true },
   Colors: { background: BACKGROUND_DEFAULTS, treeEditColor: '#00abff' },
@@ -259,12 +309,12 @@ function ReportViewPage() {
     </div>
   )
 }
-const page = (name: string): ReactNode => (name === 'Selection' ? <SelectionPage /> : name === 'Report View' ? <ReportViewPage /> : name === 'Colors' ? <ColorsPage /> : name === 'Light Sources' ? <LightSourcesPage /> : <PrefsPage page={name} />)
+const page = (name: string): ReactNode => (name === 'Selection' ? <SelectionPage /> : name === 'Report View' ? <ReportViewPage /> : name === 'Colors' ? <ColorsPage /> : name === 'Light Sources' ? <LightSourcesPage /> : name === 'UI' ? <UIPage /> : <PrefsPage page={name} />)
 
 /** What Cancel puts back: the app's own saved settings and the store fields the pages edit. */
 const PREF_KEYS = ['nav', 'animate', 'cube', 'navPrefs', 'homeView', 'newDocCameraScale', 'units', 'corner', 'axes', 'axisColors',
   'showFPS', 'naviCube', 'cubePos', 'rotationCenter', 'disableTouchTilt', 'recordGuiCommands', 'guiAsComment', 'notifyPrefs', 'tree',
-  'background', 'treeEditColor', 'lights', 'selPrefs'] as const
+  'background', 'treeEditColor', 'lights', 'selPrefs', 'treeUI'] as const
 function snapshot() {
   const s = getState() as unknown as Record<string, unknown>
   const saved: Record<string, string | null> = {}
