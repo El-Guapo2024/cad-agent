@@ -1,7 +1,7 @@
 {
   "name": "cad-agent",
   "displayName": "CAD Agent",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Agent-driven mechanical CAD: parametric build123d parts, deterministic gates, headless renders, and a FreeCAD-style 3D workbench. Installs the `cad` CLI on first use.",
   "author": {
     "name": "El-Guapo2024"

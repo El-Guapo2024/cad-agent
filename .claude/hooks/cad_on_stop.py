@@ -61,9 +61,13 @@ def main() -> int:
     if event.get("stop_hook_active"):
         return 0
     touched = touched_this_session(event.get("session_id", ""))
-    roots = {str((REPO / "projects").resolve())}
-    if os.environ.get("CAD_PROJECTS"):
-        roots.add(str(Path(os.environ["CAD_PROJECTS"]).expanduser().resolve()))
+    # The projects the CLI works on: CAD_PROJECTS (the plugin points it at the project's
+    # cad-projects), else this checkout's own projects/. Run as a plugin without it, only what
+    # this session touched: the plugin's bundled examples are nobody's work.
+    env = os.environ.get("CAD_PROJECTS")
+    roots = {str(Path(env).expanduser().resolve())} if env else set()
+    if not env and not os.environ.get("CLAUDE_PLUGIN_ROOT"):
+        roots.add(str((REPO / "projects").resolve()))
     roots |= {root for root, _ in touched}
 
     open_items = []

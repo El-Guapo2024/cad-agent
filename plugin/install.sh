@@ -11,9 +11,15 @@ mkdir -p "$data/bin"
 if [ ! -x "$venv/bin/python" ] || [ "$(cat "$data/installed" 2>/dev/null)" != "$want" ]; then
   echo "cad-agent: installing the CAD kernel into $venv (first run only, a few minutes)" >&2
   rm -rf "$venv"
+  # A Python built against an older macOS SDK (miniconda's, for one) says it runs macOS 10.16,
+  # and uv then turns down the kernel's macosx_11_0 wheels. This makes macOS give the real
+  # version, as pip asks for it.
+  export SYSTEM_VERSION_COMPAT=0
+  pkg="$root"
+  [ "$(uname -s)" = Darwin ] && pkg="$root[metal]"   # renders through Metal (no headless OpenGL on a Mac)
   if command -v uv >/dev/null 2>&1; then
     uv venv -q --python ">=3.12" "$venv" >&2
-    uv pip install -q -p "$venv/bin/python" -e "$root" >&2
+    uv pip install -q -p "$venv/bin/python" -e "$pkg" >&2
   else
     py=""
     for c in python3.13 python3.12 python3; do
@@ -21,7 +27,7 @@ if [ ! -x "$venv/bin/python" ] || [ "$(cat "$data/installed" 2>/dev/null)" != "$
     done
     [ -n "$py" ] || { echo "cad-agent: needs Python 3.12 or newer (or uv: https://docs.astral.sh/uv/)" >&2; exit 0; }
     "$py" -m venv "$venv" >&2
-    "$venv/bin/pip" install -q -e "$root" >&2
+    "$venv/bin/pip" install -q -e "$pkg" >&2
   fi
   echo "$want" > "$data/installed"
 fi

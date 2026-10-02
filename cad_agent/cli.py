@@ -1268,19 +1268,33 @@ def cmd_service(a) -> Result:
 
 
 def cmd_serve(a) -> Result:
-    from .serve import run
+    from . import serve
+    from .gui_client import _candidates
+    roots = [st.ROOT, *[Path(r).expanduser().resolve() for r in a.roots]]
     # --port, else $PORT (what the app's Browser pane assigns), else 8733
     port = a.port
     if port is None:
         raw = os.environ.get("PORT", "").strip()
         if raw and not raw.isdigit():
             raise UsageError(f"PORT must be a port number, got {raw!r}")
-        port = int(raw) if raw else 8733
-    try:
-        run([st.ROOT, *[Path(r).expanduser().resolve() for r in a.roots]],
-            host=a.host, port=port, keep_warm=a.keep_warm)
-    except RuntimeError as e:
-        raise UsageError(str(e)) from None
+        port = int(raw) if raw else None
+    if port is None:
+        # No port asked for: a workbench already serving these folders is the answer, and one
+        # on other folders (a login service on the real projects, say) keeps 8733 while this
+        # one takes the next free port.
+        want = {Path(r).resolve() for r in roots}
+        for s in _candidates():
+            if want <= {Path(x).expanduser().resolve() for x in s.get("roots", [])}:
+                url = f"{s['url']}/next/"
+                return Result(OK, {"url": url, "reused": True}, f"workbench already running: {url}", url)
+    ports = [port] if port is not None else range(8733, 8753)
+    for p in ports:
+        try:
+            serve.run(roots, host=a.host, port=p, keep_warm=a.keep_warm)
+            break
+        except RuntimeError as e:
+            if p == ports[-1]:
+                raise UsageError(str(e)) from None
     return Result(OK, {}, "workbench stopped", "workbench stopped")
 
 
@@ -1417,7 +1431,8 @@ def build_parser() -> argparse.ArgumentParser:
     sp = add("serve", cmd_serve, "the workbench: a local page with the live 3D view, "
              "draggable parts, checks and the activity feed")
     sp.add_argument("roots", nargs="*", metavar="DIR", help="more projects directories to show")
-    sp.add_argument("--port", type=int, default=None, help="default: $PORT, else 8733")
+    sp.add_argument("--port", type=int, default=None, help="default: $PORT, else the first free one from 8733 "
+                    "(a workbench already serving these folders is reused)")
     sp.add_argument("--host", default="127.0.0.1")
     sp.add_argument("--keep-warm", action="store_true",
                     help="keep the CAD kernel loaded while serving (the login service uses this)")
@@ -1673,7 +1688,7 @@ def main(argv: list[str] | None = None) -> int:
     if a.version:
         import build123d
         from .render import backend_status
-        print(f"cad-agent 0.1.0  build123d {build123d.__version__}  render: {backend_status()}")
+        print(f"cad-agent 0.1.1  build123d {build123d.__version__}  render: {backend_status()}")
         return OK
     if not getattr(a, "func", None):
         (parser if not a.cmd else parser._subparsers._group_actions[0].choices[a.cmd]).print_help(sys.stderr)

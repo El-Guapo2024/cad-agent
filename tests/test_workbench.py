@@ -328,6 +328,7 @@ def test_rescene_debounced_does_not_broadcast_when_the_rebuild_fails(demo):
 
 
 def test_serve_takes_the_port_the_app_assigns(demo, monkeypatch, capsys):
+    monkeypatch.setenv("CAD_RUNTIME_DIR", str(demo.parent / "runtime"))   # not the machine's registry
     got = {}
     monkeypatch.setattr(serve, "run", lambda roots, host, port, **kw: got.update(port=port, **kw))
     monkeypatch.setenv("PORT", "9123")
@@ -337,6 +338,31 @@ def test_serve_takes_the_port_the_app_assigns(demo, monkeypatch, capsys):
     assert cli.main(["serve"]) == cli.USAGE
     monkeypatch.delenv("PORT")
     assert cli.main(["serve"]) == cli.OK and got["port"] == 8733
+
+
+def test_serve_reuses_a_workbench_on_these_folders_else_takes_a_free_port(demo, monkeypatch):
+    from cad_agent import gui_client
+    monkeypatch.setenv("CAD_RUNTIME_DIR", str(demo.parent / "runtime"))
+    monkeypatch.delenv("PORT", raising=False)
+    tried = []
+
+    def run(roots, host, port, **kw):
+        tried.append(port)
+        if port < 8735:
+            raise RuntimeError(f"port {port} is busy")
+    monkeypatch.setattr(serve, "run", run)
+    # 8733 and 8734 serve other folders (a login service on the real projects, say): next free port
+    other = [{"url": "http://127.0.0.1:8733", "roots": [str(demo.parent / "elsewhere")]}]
+    monkeypatch.setattr(gui_client, "_candidates", lambda: other)
+    assert cli.main(["serve"]) == cli.OK and tried == [8733, 8734, 8735]
+    # a port asked for doesn't move
+    tried.clear()
+    assert cli.main(["serve", "--port", "8733"]) == cli.USAGE and tried == [8733]
+    # one already serving these folders is the answer, and nothing new starts
+    tried.clear()
+    mine = [{"url": "http://127.0.0.1:8740", "roots": [str(st.ROOT)]}]
+    monkeypatch.setattr(gui_client, "_candidates", lambda: mine)
+    assert cli.main(["--json", "serve"]) == cli.OK and tried == []
 
 
 def test_the_login_service_keeps_the_kernel_warm_and_restarts_after_a_crash(tmp_path):
@@ -487,7 +513,8 @@ def test_open_file_location_reveals_a_part_file_or_the_project(server, monkeypat
     assert code == 200 and json.loads(body)["revealed"].endswith("parts/block.py")
     code, body = call("/api/reveal", {"slug": "demo", "part": "../assembly"})   # no escaping the parts folder
     assert code == 200 and json.loads(body)["revealed"].endswith("demo")
-    assert len(launched) == 2 and all(str(c[-1]).endswith(("block.py", "demo")) for c in launched)
+    # xdg-open can't select a file, so on Linux it opens the folder that holds it
+    assert len(launched) == 2 and all(str(c[-1]).endswith(("block.py", "parts", "demo")) for c in launched)
 
 
 def test_mass_route_gives_mass_properties(server):
