@@ -42,7 +42,8 @@ def test_clear_keeps_what_a_running_worker_uses(tmp_path, monkeypatch):
     (d / "warm-starting.log").write_text("importing")     # a worker still starting: no socket yet
     _age(d / "warm-old.log", d / "warm-live.log", d / "workbench.json")
     s = socket.socket(socket.AF_UNIX)
-    s.bind(str(d / "warm-live.sock"))
+    monkeypatch.chdir(d)                   # macOS caps a socket path at 104 bytes: bind it relative
+    s.bind("warm-live.sock")
     try:
         assert appcache.clear() == len("stale")
         assert sorted(p.name for p in d.iterdir()) == ["warm-live.log", "warm-live.sock", "warm-old.lock", "warm-starting.log", "workbench.json"]
