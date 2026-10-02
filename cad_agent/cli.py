@@ -987,6 +987,23 @@ def cmd_redo(a) -> Result:
     return _undo_redo(a, "redo")
 
 
+def cmd_pref(a) -> Result:
+    """User preferences the commands act on (userprefs.py): list, get or set one."""
+    from . import userprefs as up
+    if a.key is not None and a.key not in up.DEFAULTS:
+        raise UsageError(f"unknown preference {a.key!r}; known: {', '.join(up.DEFAULTS)}")
+    if a.key is not None and a.value is not None:
+        try:
+            up.set_value(a.key, a.value)
+        except ValueError:
+            raise UsageError(f"{a.key} takes a whole number, not {a.value!r}")
+    prefs = up.load()
+    shown = {a.key: prefs[a.key]} if a.key else prefs
+    lines = [f"{k} = {v}" + ("" if v == up.DEFAULTS[k] else f"  (default {up.DEFAULTS[k]})") for k, v in shown.items()]
+    return Result(OK, {"prefs": shown, "path": str(up.path())}, "\n".join(lines),
+                  ", ".join(f"{k}={v}" for k, v in shown.items()), [])
+
+
 def cmd_history(a) -> Result:
     pdir = _project(a.slug)
     from . import undo as un
@@ -1404,6 +1421,11 @@ def build_parser() -> argparse.ArgumentParser:
     sp = add("redo", cmd_redo, "redo the last change `cad undo` took back")
     sp.add_argument("slug")
     sp.add_argument("--steps", type=int, default=1, help="redo this many steps at once")
+
+    sp = add("pref", cmd_pref, "user preferences the commands act on, shared with the UI's "
+             "Preferences (e.g. MaxUndoSize, the undo/redo steps kept): list, get or set")
+    sp.add_argument("key", nargs="?")
+    sp.add_argument("value", nargs="?")
 
     sp = add("history", cmd_history, "the undo and redo stacks: what changed, who made the "
              "change (ui or agent), and when")

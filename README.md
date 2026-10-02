@@ -132,7 +132,7 @@ them in GuiDocument.xml); `out/` is outside the verifier's source hash.
 Undo is shared too, like a FreeCAD document's: every `cad set`, `cad place` and
 bought-part change is journaled with who made it (`ui` or `agent`), Edit > Undo
 in the UI and `cad undo PROJECT` in a terminal step back through the same list
-(20 steps), and `cad history PROJECT` shows it. Undo refuses when a file was
+(20 steps; `cad pref MaxUndoSize N` or Preferences > Document changes it), and `cad history PROJECT` shows it. Undo refuses when a file was
 edited by hand since.
 
 Macros are FreeCAD's, written in `cad` commands: Macro > Record Macro in the UI

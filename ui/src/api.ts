@@ -113,6 +113,9 @@ export const api = {
   /** Any cad subcommand (not serve/service), exactly as the CLI would run it. */
   cad: (slug: string, argv: string[]) => http<CadResult>('POST', '/api/cad', { slug, argv }),
   // ── Macro menu (macro.tsx): Std_DlgMacroRecord/Execute, DlgMacroExecuteImp's Create/Edit/… ──
+  /** `cad pref`'s store (userprefs.py): the preferences the commands act on, e.g. MaxUndoSize. */
+  prefs: () => http<{ prefs: Record<string, number> }>('GET', '/api/prefs'),
+  setPref: (key: string, value: number) => http<{ prefs: Record<string, number> }>('POST', '/api/pref', { key, value }),
   macros: () => http<{ dir: string; macros: MacroInfo[] }>('GET', '/api/macros'),
   macro: (name: string) => http<MacroText>('GET', '/api/macro', undefined, { name }),
   saveMacro: (name: string, text: string) => http<{ ok?: boolean }>('POST', '/api/macro', { name, text }),

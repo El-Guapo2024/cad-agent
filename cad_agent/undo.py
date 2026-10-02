@@ -14,7 +14,8 @@ entry exactly as if it had been typed by hand — this module has no notion of
 
 Store: `<project>/.cad/undo.json`, `{"undo": [...], "redo": [...]}`, oldest
 first in each list (the last element is the most recent). Both ends are
-capped at MAX_STEPS entries, dropping the oldest. `.cad/` is outside what
+capped at max_steps() entries (Preferences' MaxUndoSize, userprefs.py;
+MAX_STEPS by default), dropping the oldest. `.cad/` is outside what
 `cad verify` hashes (verify.DESIGN lists parts/assembly/spec/placements/
 bought/baseline only) and outside what counts toward git's dirty check
 (verify.git_info skips any path under `/.cad/`), so the journal itself is
@@ -34,6 +35,13 @@ from pathlib import Path
 
 FILE = "undo.json"
 MAX_STEPS = 20
+
+
+def max_steps() -> int:
+    """MaxUndoSize from the user preferences (App::Document::setUndoMode/
+    setMaxUndoStackSize take it from Preferences > Document; 0 keeps nothing)."""
+    from . import userprefs
+    return userprefs.get("MaxUndoSize")
 
 
 class UndoError(ValueError):
@@ -99,7 +107,8 @@ def record(pdir: Path, name: str, cmd: str, files: list[dict], by: str | None = 
     entry = {"id": uuid.uuid4().hex, "t": datetime.now(timezone.utc).isoformat(timespec="seconds"),
              "by": by or actor(), "name": name, "cmd": cmd, "files": files}
     data = load(pdir)
-    data["undo"] = (data["undo"] + [entry])[-MAX_STEPS:]
+    n = max_steps()
+    data["undo"] = (data["undo"] + [entry])[-n:] if n else []
     data["redo"] = []
     _save(pdir, data)
     return entry
@@ -162,7 +171,8 @@ def perform(pdir: Path, direction: str, steps: int = 1) -> dict:
             break
         _write(pdir, entry["files"], write_field)
         data[src] = stack[:-1]
-        data[dst] = (data[dst] + [entry])[-MAX_STEPS:]
+        n = max_steps()
+        data[dst] = (data[dst] + [entry])[-n:] if n else []
         _save(pdir, data)
         applied.append(entry)
     return {"applied": applied, "blocked": blocked}

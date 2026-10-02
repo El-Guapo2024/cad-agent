@@ -10,6 +10,7 @@ import { NAV_DEFAULTS } from './nav'
 import { ContextMenu, type Entry } from './chrome'
 import { messageBox } from './msgbox'
 import { setTreeOption, setTreeUI } from './actions'
+import { api } from './api'
 import { setUnits } from './commands'
 import { PrefsPage } from './panels'
 import { BACKGROUND_DEFAULTS, type BackgroundMode, type BackgroundPrefs } from './background'
@@ -20,7 +21,7 @@ import { gradientMesh } from './background'
 import { LIGHT_DEFAULTS, LightRig, azimuthElevationToDirection, directionToAzimuthElevation, type Light, type LightPrefs } from './lights'
 
 const GROUPS: [string, string, string[]][] = [
-  ['General', 'preferences-general', ['General', 'Selection', 'Notification Area', 'Report View']],
+  ['General', 'preferences-general', ['General', 'Document', 'Selection', 'Notification Area', 'Report View']],
   ['Display', 'preferences-display', ['3D View', 'Light Sources', 'UI', 'Navigation', 'Colors', 'Transform snap']],
   ['Python', 'preferences-python', ['Macro']],
 ]
@@ -247,9 +248,70 @@ function UIPage() {
     </div>
   )
 }
+/** The server-side preferences (`cad pref`, userprefs.py) as last read; the pages edit them
+ *  through the API so the agent's commands see the same values. */
+const SERVER_DEFAULTS: Record<string, number> = { MaxUndoSize: 20 }
+let serverPrefs: Record<string, number> = { ...SERVER_DEFAULTS }
+const serverSubs = new Set<() => void>()
+function loadServerPrefs() { return api.prefs().then((r) => { serverPrefs = { ...SERVER_DEFAULTS, ...r.prefs }; serverSubs.forEach((f) => f()) }).catch(() => {}) }
+function setServerPref(key: string, value: number) {
+  serverPrefs = { ...serverPrefs, [key]: value }; serverSubs.forEach((f) => f())
+  void api.setPref(key, value).then((r) => { serverPrefs = { ...SERVER_DEFAULTS, ...r.prefs }; serverSubs.forEach((f) => f()) }).catch(() => {})
+}
+function useServerPrefs() {
+  const [, redraw] = useState(0)
+  useEffect(() => { const f = () => redraw((n) => n + 1); serverSubs.add(f); return () => { serverSubs.delete(f) } }, [])
+  return serverPrefs
+}
+/** DlgSettingsDocument.ui: General, Storage, Document Objects, Authoring and License. Of these,
+ *  Maximum undo/redo steps applies (the undo journal's cap, `cad pref MaxUndoSize`); the rest is
+ *  about FCStd files, recompute and document objects, which projects here don't have. */
+function DocumentPage() {
+  const sp = useServerPrefs()
+  const na = (why: string) => `n/a: ${why}`
+  const fcstd = na('projects are folders of Python and TOML files, not FCStd documents')
+  const dis = (label: string, on: boolean, tip: string) => <label className="tcheck" title={tip}><input type="checkbox" checked={on} disabled />{label}</label>
+  return (
+    <div className="pref-content">
+      <fieldset className="tgroup"><legend>General</legend>
+        <label className="sel-row"><span>Maximum undo/redo steps</span>
+          <input type="number" className="qsb pick-radius" min={0} max={99} value={sp.MaxUndoSize} title="How many undo/redo steps should be recorded"
+            onChange={(e) => setServerPref('MaxUndoSize', Math.min(99, Math.max(0, Math.round(Number(e.target.value)))))} /></label>
+        {dis('Enables async document recomputation', false, na('a part rebuilds in the CAD worker, not the page'))}
+        {dis('Allow aborting recomputation', false, na('a rebuild is one worker call'))}
+        {dis('Create new document at start up', false, na('the workbench opens the projects in its folders'))}
+        <label className="sel-row"><span className="disabled">Document save compression level<br />(0 = none, 9 = highest, 7 = default)</span><input className="qsb pick-radius" value={7} readOnly disabled title={fcstd} /></label>
+      </fieldset>
+      <fieldset className="tgroup"><legend>Storage</legend>
+        {dis('Run AutoRecovery at startup', true, fcstd)}
+        {dis('Saving transactions (Auto-save)', false, fcstd)}
+        {dis('Discard saved transaction after saving document', false, fcstd)}
+        {dis('Save auto-recovery information every 15 min', true, na('every change is written to the project as it is made'))}
+        {dis('Add thumbnail to project file when saving', true, fcstd)}
+        {dis('Add program icon to the generated thumbnail', false, fcstd)}
+        {dis('Maximum number of backup files to keep when resaving document', true, na('the project is under git; undo keeps the journal'))}
+        {dis('Use date and FCBak extension', true, fcstd)}
+        {dis('Suppress older version warning on save', false, fcstd)}
+      </fieldset>
+      <fieldset className="tgroup"><legend>Document Objects</legend>
+        {dis('Allow duplicate object labels in one document', false, na('a body is named by its key in the assembly, which is unique'))}
+        {dis('Disable partial loading of external linked objects', false, na('no linked documents here'))}
+      </fieldset>
+      <fieldset className="tgroup"><legend>Authoring and License</legend>
+        <div className="pref-grid">
+          <span className="disabled">Author name</span><input disabled title={fcstd} />
+          <span className="disabled">Company</span><input disabled title={fcstd} />
+          <span className="disabled">Default license</span><select disabled title={fcstd}><option>All rights reserved</option></select>
+          <span className="disabled">License URL</span><input disabled title={fcstd} />
+        </div>
+      </fieldset>
+    </div>
+  )
+}
 /** What each page's settings go back to (Reset Page / Group / All): the store's own defaults. */
 const DEFAULTS: Record<string, Record<string, unknown>> = {
   General: { units: { schema: 0, decimals: 2, denominator: 8 }, toolbarIconSize: 24, recentFilesSize: 4 },
+  Document: { 'server:MaxUndoSize': 20 },
   Selection: { selPrefs: SEL_DEFAULTS, tree: { syncView: true, syncSelection: true, preSelection: true, recordSelection: true } },
   'Notification Area': { notifyPrefs: NOTIFY_DEFAULTS },
   '3D View': { corner: { show: true, size: 10 }, axes: false, axisColors: AXIS_COLOR_DEFAULTS, showFPS: false },
@@ -264,6 +326,7 @@ const DEFAULTS: Record<string, Record<string, unknown>> = {
 }
 function resetPages(pages: string[]) {
   for (const p of pages) for (const [k, v] of Object.entries(DEFAULTS[p] ?? {})) {
+    if (k.startsWith('server:')) { setServerPref(k.slice(7), v as number); continue }
     saved.set(k, v)
     if (k === 'units') setUnits(v as never)
     else if (k in getState()) setState({ [k]: v } as never) // the rest (snap, recentFilesSize) live in `saved` only
@@ -309,7 +372,7 @@ function ReportViewPage() {
     </div>
   )
 }
-const page = (name: string): ReactNode => (name === 'Selection' ? <SelectionPage /> : name === 'Report View' ? <ReportViewPage /> : name === 'Colors' ? <ColorsPage /> : name === 'Light Sources' ? <LightSourcesPage /> : name === 'UI' ? <UIPage /> : <PrefsPage page={name} />)
+const page = (name: string): ReactNode => (name === 'Selection' ? <SelectionPage /> : name === 'Report View' ? <ReportViewPage /> : name === 'Colors' ? <ColorsPage /> : name === 'Light Sources' ? <LightSourcesPage /> : name === 'Document' ? <DocumentPage /> : name === 'UI' ? <UIPage /> : <PrefsPage page={name} />)
 
 /** What Cancel puts back: the app's own saved settings and the store fields the pages edit. */
 const PREF_KEYS = ['nav', 'animate', 'cube', 'navPrefs', 'homeView', 'newDocCameraScale', 'units', 'corner', 'axes', 'axisColors',
@@ -319,13 +382,14 @@ function snapshot() {
   const s = getState() as unknown as Record<string, unknown>
   const saved: Record<string, string | null> = {}
   try { for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i)!; if (k.startsWith('cadui.')) saved[k] = localStorage.getItem(k) } } catch { /* no storage */ }
-  return { state: Object.fromEntries(PREF_KEYS.map((k) => [k, s[k]])), saved }
+  return { state: Object.fromEntries(PREF_KEYS.map((k) => [k, s[k]])), saved, server: { ...serverPrefs } }
 }
 function restore(snap: ReturnType<typeof snapshot>) {
   try {
     for (const k of Object.keys(localStorage)) if (k.startsWith('cadui.') && !(k in snap.saved)) localStorage.removeItem(k)
     for (const [k, v] of Object.entries(snap.saved)) if (v !== null) localStorage.setItem(k, v)
   } catch { /* no storage */ }
+  for (const [k, v] of Object.entries(snap.server)) if (serverPrefs[k] !== v) setServerPref(k, v)
   const { units, ...rest } = snap.state as Record<string, unknown>
   setState(rest as never)
   setUnits(units as never)
@@ -353,7 +417,7 @@ export function PreferencesDialog() {
   const [hits, setHits] = useState<{ page: string; text: string }[]>([])
   const [resetAt, setResetAt] = useState<{ x: number; y: number } | null>(null)
   const [gen, setGen] = useState(0) // remounts the page after a reset (Transform snap keeps its own state)
-  useEffect(() => { if (open) { snap.current = snapshot(); setQuery('') } }, [open])
+  useEffect(() => { if (open) { void loadServerPrefs().then(() => { snap.current = snapshot() }); snap.current = snapshot(); setQuery('') } }, [open])
   // DlgPreferencesImp's search: every label on every page, shown as "page" over the text.
   useEffect(() => {
     const q = query.trim().toLowerCase()

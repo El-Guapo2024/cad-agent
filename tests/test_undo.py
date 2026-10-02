@@ -437,3 +437,36 @@ def test_plain_warm_call_without_actor_flag_is_still_agent(warm, monkeypatch):
     assert code in (cli.OK, cli.UNCHECKED), err
     j = un.load(root / "demo")
     assert j["undo"][-1]["by"] == "agent"
+
+
+def test_max_undo_size_preference_caps_the_journal(tmp_path, capsys):
+    # Preferences > Document "Maximum undo/redo steps" (MaxUndoSize), via `cad pref`.
+    code, data = run(capsys, "pref", "MaxUndoSize", "3")
+    assert code == 0 and data["prefs"] == {"MaxUndoSize": 3}
+    for i in range(6):
+        un.record(tmp_path, "Edit Parameters", f"cad set demo a x={i}",
+                  [{"path": "a.txt", "before": str(i), "after": str(i + 1)}])
+    assert [e["cmd"][-3:] for e in un.load(tmp_path)["undo"]] == ["x=3", "x=4", "x=5"]
+    # 0 keeps nothing, as FreeCAD's 0 turns undo off
+    run(capsys, "pref", "MaxUndoSize", "0")
+    un.record(tmp_path, "Edit Parameters", "cad set demo a x=9", [{"path": "a.txt", "before": "9", "after": "10"}])
+    assert un.load(tmp_path)["undo"] == []
+
+
+def test_pref_rejects_unknown_keys_and_clamps_to_the_spin_box(capsys):
+    code, _ = run(capsys, "pref", "Bogus", "1")
+    assert code != 0
+    _, data = run(capsys, "pref", "MaxUndoSize", "500")
+    assert data["prefs"]["MaxUndoSize"] == 99
+    _, data = run(capsys, "pref")
+    assert data["prefs"] == {"MaxUndoSize": 99}
+
+
+def test_the_page_reads_and_writes_the_same_preferences(server, capsys):
+    call, _, _ = server
+    code, body = call("/api/pref", {"key": "MaxUndoSize", "value": 7})
+    assert code == 200 and json.loads(body)["prefs"]["MaxUndoSize"] == 7
+    assert json.loads(call("/api/prefs")[1])["prefs"] == {"MaxUndoSize": 7}
+    _, data = run(capsys, "pref", "MaxUndoSize")
+    assert data["prefs"] == {"MaxUndoSize": 7}
+    assert call("/api/pref", {"key": "Nope", "value": 1})[0] == 400

@@ -566,6 +566,9 @@ def make_handler(bench: Bench):
                 if path == "/api/log":
                     return self._json({"entries": bench.log_tail(q.get("slug", ""),
                                                                  int(q.get("limit", 200)))})
+                if path == "/api/prefs":
+                    from . import userprefs
+                    return self._json({"prefs": userprefs.load()})
                 if path == "/api/history":
                     slug = q.get("slug", "")
                     pdir = bench.root_of(slug) / slug
@@ -707,6 +710,14 @@ def make_handler(bench: Bench):
                 if path == "/api/macro/duplicate":
                     p = macro.duplicate_macro(str(body.get("name", "")), str(body.get("to", "")))
                     return self._json({"name": p.stem, "path": str(p)})
+                if path == "/api/pref":
+                    # `cad pref KEY VALUE`'s store, written here directly (no project involved).
+                    from . import userprefs
+                    try:
+                        userprefs.set_value(str(body.get("key", "")), body.get("value"))
+                    except (KeyError, TypeError, ValueError) as e:
+                        return self._json({"error": f"bad preference: {e}"}, 400)
+                    return self._json({"prefs": userprefs.load()})
                 if path == "/api/macro/run":
                     name = str(body.get("name", ""))
                     text = macro.read_macro(name)

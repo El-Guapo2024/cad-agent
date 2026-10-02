@@ -41,7 +41,7 @@ IDLE_S = 30 * 60
 START_TIMEOUT_S = 240
 PKG = Path(__file__).resolve().parent
 PRELOAD = ("numpy", "build123d")
-ENV_PASS = ("CAD_PROJECTS", "CAD_RENDER_BACKEND", "COLUMNS", "NO_COLOR", "TERM",
+ENV_PASS = ("CAD_PROJECTS", "CAD_RENDER_BACKEND", "CAD_PREFS", "COLUMNS", "NO_COLOR", "TERM",
             "CAD_ACTOR")  # undo.actor()'s fallback for CAD_WARM=0; the
                           # workbench server passes cli.py's --actor flag
                           # instead (a warm-worker fork inherits the
