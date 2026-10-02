@@ -72,10 +72,10 @@ function ToolbarsPage() {
   const mine = toolbars.map((t, k) => [t, k] as const).filter(([t]) => t.wb === wb)
   const edit = (k: number, f: (t: CustomToolbar) => CustomToolbar) => setToolbars(toolbars.map((t, j) => (j === k ? f(t) : t)))
   const dup = (name: string, except = -1) => mine.some(([t, k]) => t.name === name && k !== except)
-  const named = (title: string, value: string, done: (v: string) => void) => setAsk({ title, value, done: (v) => {
+  const named = (title: string, value: string, done: (v: string) => void, except = -1) => setAsk({ title, value, done: (v) => {
     setAsk(null)
     if (!v) return
-    if (dup(v, right?.tb)) { void messageBox('warning', 'Duplicated name', `The toolbar name '${v}' is already used`); return }
+    if (dup(v, except)) { void messageBox('warning', 'Duplicated name', `The toolbar name '${v}' is already used`); return }
     done(v)
   } })
   const sel = right ? toolbars[right.tb] : null
@@ -127,7 +127,7 @@ function ToolbarsPage() {
         <div className="cu-tbbtns">
           <button className="qbtn" onClick={() => named('New toolbar', `Custom${mine.length + 1}`, (name) => {
             setToolbars([...toolbars, { name, wb, active: true, cmds: [] }]); setRight({ tb: toolbars.length, i: null }) })}>New</button>
-          <button className="qbtn" disabled={!sel} onClick={() => sel && named('Rename toolbar', sel.name, (name) => edit(right!.tb, (t) => ({ ...t, name })))}>Rename</button>
+          <button className="qbtn" disabled={!sel} onClick={() => sel && named('Rename toolbar', sel.name, (name) => edit(right!.tb, (t) => ({ ...t, name })), right!.tb)}>Rename</button>
           <button className="qbtn" disabled={!sel} onClick={() => { if (right) { setToolbars(toolbars.filter((_, j) => j !== right.tb)); setRight(null) } }}>Delete</button>
         </div>
       </div>

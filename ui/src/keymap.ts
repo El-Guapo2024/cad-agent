@@ -103,7 +103,10 @@ export function overrideKey(e: KeyboardEvent): boolean {
   if (exact) { e.preventDefault(); e.stopImmediatePropagation(); runUser(exact); return true }
   // A changed command's default keys are free now (unless another command took them, above).
   if (Object.keys(user).some((c) => defaultAccel()[c] === full)) { e.preventDefault(); return true }
-  if (prefix) {
+  // A changed command's two-key default ("V, F") needs its first key remembered too, so the
+  // second one can be swallowed above rather than reach App.tsx's own binding.
+  const freedPrefix = !hadPending && Object.keys(user).some((c) => defaultAccel()[c]?.startsWith(`${seq}, `))
+  if (prefix || freedPrefix) {
     pending = seq; pendingAt = performance.now()
     // App.tsx's own two-key prefixes (V, A, T, G, S, W) still see the key; anything else waits here.
     if (!/^[VATGSW]$/.test(seq)) { e.preventDefault(); return true }

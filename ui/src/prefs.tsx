@@ -261,7 +261,9 @@ function UIPage() {
 const SERVER_DEFAULTS: Record<string, number> = { MaxUndoSize: 20, CacheLimit: 500, CachePeriod: 2 }
 let serverPrefs: Record<string, number> = { ...SERVER_DEFAULTS }
 const serverSubs = new Set<() => void>()
-function loadServerPrefs() { return api.prefs().then((r) => { serverPrefs = { ...SERVER_DEFAULTS, ...r.prefs }; serverSubs.forEach((f) => f()) }).catch(() => {}) }
+function loadServerPrefs(): Promise<Record<string, number> | null> {
+  return api.prefs().then((r) => { serverPrefs = { ...SERVER_DEFAULTS, ...r.prefs }; serverSubs.forEach((f) => f()); return serverPrefs }).catch(() => null)
+}
 function setServerPref(key: string, value: number) {
   serverPrefs = { ...serverPrefs, [key]: value }; serverSubs.forEach((f) => f())
   void api.setPref(key, value).then((r) => { serverPrefs = { ...SERVER_DEFAULTS, ...r.prefs }; serverSubs.forEach((f) => f()) }).catch(() => {})
@@ -274,6 +276,22 @@ function useServerPrefs() {
 /** DlgSettingsDocument.ui: General, Storage, Document Objects, Authoring and License. Of these,
  *  Maximum undo/redo steps applies (the undo journal's cap, `cad pref MaxUndoSize`); the rest is
  *  about FCStd files, recompute and document objects, which projects here don't have. */
+/** PrefSpinBox for MaxUndoSize: the value is stored when typing ends (Return or leaving the box),
+ *  never on each keystroke, and an emptied box goes back to the stored value rather than to 0
+ *  (a 0 would cut the shared undo journal at the next edit). */
+function UndoSizeBox({ value }: { value: number }) {
+  const [text, setText] = useState(String(value))
+  useEffect(() => setText(String(value)), [value])
+  const commit = () => {
+    const n = Number(text)
+    if (text.trim() === '' || !Number.isFinite(n)) { setText(String(value)); return }
+    const v = Math.min(99, Math.max(0, Math.round(n)))
+    setText(String(v))
+    if (v !== value) setServerPref('MaxUndoSize', v)
+  }
+  return <input type="number" className="qsb pick-radius" min={0} max={99} value={text} title="How many undo/redo steps should be recorded"
+    onChange={(e) => setText(e.target.value)} onBlur={commit} onKeyDown={(e) => { if (e.key === 'Enter') commit() }} />
+}
 function DocumentPage() {
   const sp = useServerPrefs()
   const na = (why: string) => `n/a: ${why}`
@@ -283,8 +301,7 @@ function DocumentPage() {
     <div className="pref-content">
       <fieldset className="tgroup"><legend>General</legend>
         <label className="sel-row"><span>Maximum undo/redo steps</span>
-          <input type="number" className="qsb pick-radius" min={0} max={99} value={sp.MaxUndoSize} title="How many undo/redo steps should be recorded"
-            onChange={(e) => setServerPref('MaxUndoSize', Math.min(99, Math.max(0, Math.round(Number(e.target.value)))))} /></label>
+          <UndoSizeBox value={sp.MaxUndoSize} /></label>
         {dis('Enables async document recomputation', false, na('a part rebuilds in the CAD worker, not the page'))}
         {dis('Allow aborting recomputation', false, na('a rebuild is one worker call'))}
         {dis('Create new document at start up', false, na('the workbench opens the projects in its folders'))}
@@ -713,7 +730,14 @@ export function PreferencesDialog() {
   const [hits, setHits] = useState<{ page: string; text: string }[]>([])
   const [resetAt, setResetAt] = useState<{ x: number; y: number } | null>(null)
   const [gen, setGen] = useState(0) // remounts the page after a reset (Transform snap keeps its own state)
-  useEffect(() => { if (open) { void loadServerPrefs().then(() => { snap.current = snapshot() }); snap.current = snapshot(); setQuery('') } }, [open])
+  // The page's own settings are taken now; the server's when they arrive (as they were then:
+  // a page edit sends its own request, so it can't be what this reply holds).
+  useEffect(() => {
+    if (!open) return
+    snap.current = snapshot(); setQuery('')
+    const mine = snap.current
+    void loadServerPrefs().then((p) => { if (p && snap.current === mine) mine.server = { ...p } })
+  }, [open])
   // DlgPreferencesImp's search: every label on every page, shown as "page" over the text.
   useEffect(() => {
     const q = query.trim().toLowerCase()

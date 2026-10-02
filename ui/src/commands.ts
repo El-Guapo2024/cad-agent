@@ -193,8 +193,12 @@ const triple = (v: string | undefined, d: Vec3): Vec3 => (v ? (v.split(',').map(
 
 /** The console's commands: the same `cad` commands the agent runs, minus the slug. */
 export async function runConsole(line: string) {
+  // Only the line's own synchronous effects (select, view, fit) are muted; once it awaits the
+  // server, whatever the person does meanwhile echoes as usual.
   muteEcho(true)
-  try { await runConsoleLine(line) } finally { muteEcho(false) }
+  let run: Promise<void>
+  try { run = runConsoleLine(line) } finally { muteEcho(false) }
+  await run
 }
 async function runConsoleLine(line: string) {
   const text = line.trim()

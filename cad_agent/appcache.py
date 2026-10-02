@@ -52,6 +52,10 @@ def _clearable(p: Path) -> bool:
     # never a lock file or a live worker's (its socket still there).
     if not p.name.startswith("warm-") or p.suffix == ".lock" or p.is_socket():
         return False
+    # A worker still starting (the kernel import takes ~35 s) has no socket yet: leave anything
+    # written to in the last ten minutes.
+    if time.time() - p.stat().st_mtime < 600:
+        return False
     sock = p.with_suffix(".sock")
     return not (sock.exists() and sock.is_socket())
 
