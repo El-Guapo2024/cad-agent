@@ -30,18 +30,19 @@ def test_clear_keeps_what_a_running_worker_uses(tmp_path, monkeypatch):
     (d / "warm-old.log").write_text("stale")
     (d / "warm-old.lock").write_text("")
     (d / "warm-live.log").write_text("in use")
+    (d / "workbench.json").write_text('{"roots": []}')   # settings that live here: never cleared
     s = socket.socket(socket.AF_UNIX)
     s.bind(str(d / "warm-live.sock"))
     try:
         assert appcache.clear() == len("stale")
-        assert sorted(p.name for p in d.iterdir()) == ["warm-live.log", "warm-live.sock", "warm-old.lock"]
+        assert sorted(p.name for p in d.iterdir()) == ["warm-live.log", "warm-live.sock", "warm-old.lock", "workbench.json"]
     finally:
         s.close()
 
 
 def test_cad_cache_reports_against_the_limit_and_clears(tmp_path, monkeypatch, capsys):
     d = _cache(tmp_path, monkeypatch)
-    (d / "big.log").write_bytes(b"x" * (2 * 1024 * 1024))
+    (d / "warm-gone.log").write_bytes(b"x" * (2 * 1024 * 1024))
     userprefs.set_value("CacheLimit", 1)
     code, data = run(capsys, "cache")
     assert code == 0 and data["over"] and data["bytes"] == 2 * 1024 * 1024 and data["limit"] == 1024 * 1024

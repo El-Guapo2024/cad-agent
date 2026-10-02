@@ -4,8 +4,10 @@ the warm worker's `~/.cache/cad-agent` (`CAD_WARM_DIR`): its size, the check
 against Preferences' size limit, and clearing it.
 
 Clearing keeps what is in use, as ApplicationCache::clearDirectory keeps the
-lock files and open documents' transient directories: a running worker's
-lock, socket and log are left alone.
+lock files and open documents' transient directories: only a stopped
+worker's files (warm-<id>.*, no live socket) go. Anything else in the
+directory, such as the workbench's saved project folders (workbench.json),
+is settings, not cache, and stays.
 """
 from __future__ import annotations
 
@@ -45,12 +47,13 @@ def limit_bytes() -> int:
     return userprefs.get("CacheLimit") * 1024 * 1024  # ApplicationCache::toBytes(MB)
 
 
-def _in_use(p: Path) -> bool:
-    # A worker's files share its stem (warm-<id>.lock/.sock/.log); keep any whose socket is live.
-    if p.suffix == ".lock" or p.name == STAMP:
-        return True
+def _clearable(p: Path) -> bool:
+    # A worker's files share its stem (warm-<id>.lock/.sock/.log): a stopped worker's go, but
+    # never a lock file or a live worker's (its socket still there).
+    if not p.name.startswith("warm-") or p.suffix == ".lock" or p.is_socket():
+        return False
     sock = p.with_suffix(".sock")
-    return sock.exists() and sock.is_socket()
+    return not (sock.exists() and sock.is_socket())
 
 
 def clear() -> int:
@@ -59,12 +62,10 @@ def clear() -> int:
     d = directory()
     if not d.is_dir():
         return 0
-    for p in sorted(d.rglob("*"), reverse=True):
-        if p.is_file() and not p.is_socket() and not _in_use(p):
+    for p in d.iterdir():
+        if p.is_file() and _clearable(p):
             freed += p.stat().st_size
             p.unlink()
-        elif p.is_dir() and not any(p.iterdir()):
-            p.rmdir()
     return freed
 
 
