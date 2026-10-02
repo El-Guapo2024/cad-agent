@@ -166,6 +166,7 @@ class Bench:
         self.checking: set[str] = set()
         self.recheck: set[str] = set()
         self.sigs: dict = {}
+        self.listed: set[str] = set()   # the projects the last scan saw
         self.log_pos: dict = {}
         self.gui = GuiBoard()
         self.rescene_timers: dict[str, threading.Timer] = {}
@@ -451,7 +452,13 @@ class Bench:
             return None
 
     def scan(self, announce: bool = True) -> None:
-        for slug, root in self.projects().items():
+        projects = self.projects()
+        # A project made or removed outside the workbench (the agent's `cad init`, say): the
+        # signatures below only cover projects already listed, so say the list itself changed.
+        if announce and set(projects) != self.listed:
+            self.broadcast({"type": "projects"})
+        self.listed = set(projects)
+        for slug, root in projects.items():
             pdir = root / slug
             now = {"design": self._design_sig(pdir),
                    "checks": self._mtime(pdir / "checks.json"),

@@ -294,6 +294,24 @@ def test_the_watcher_announces_design_changes_and_new_log_lines(demo):
     assert next(e for e in got if e["type"] == "log")["entries"][-1]["cmd"] == "check"
 
 
+def test_the_watcher_announces_a_project_made_outside_the_workbench(tmp_path):
+    # The first design usually comes from the agent's `cad init`, not File > New: a page
+    # showing "No projects yet" has to hear about it, once, and about one removed too.
+    bench = serve.Bench([tmp_path], runner=inproc)
+    got = []
+    bench.broadcast = got.append
+    bench.scan(announce=False)
+    bench.scan()
+    assert got == []
+    (tmp_path / "first" / "parts").mkdir(parents=True)
+    bench.scan()
+    bench.scan()
+    assert got == [{"type": "projects"}]
+    (tmp_path / "first" / "parts").rmdir()
+    bench.scan()
+    assert got == [{"type": "projects"}] * 2
+
+
 def test_rescene_debounced_coalesces_rapid_calls_into_one_scene_and_one_broadcast(demo):
     """A slider drag fires many Deviation/AngularDeflection changes a second; `rescene_debounced`
     should fold them into a single `cad scene` run (and a single broadcast) after a quiet period,
