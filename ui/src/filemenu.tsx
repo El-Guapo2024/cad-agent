@@ -111,7 +111,9 @@ export function NewDocumentTask() {
           <input autoFocus value={name} placeholder="Unnamed" disabled={busy} onChange={(e) => setName(e.target.value)}
             onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); create() } }} />
         </div>
-        <p className="hint">Letters, digits, - and _ only — becomes the project's slug (`cad init`).</p>
+        {/* The first command through the warm worker waits for its kernel import: say so, as View3D's "Building the scene" does. */}
+        <p className="hint">{busy ? <>Creating {name.trim()}… The first command starts the CAD kernel, which can take about 30 seconds.</>
+          : <>Letters, digits, - and _ only — becomes the project's folder name (<code>cad init</code>).</>}</p>
       </TaskBox>
       <div className="tbuttons">
         <button className="qbtn default" disabled={!name.trim() || busy} onClick={create}>Create</button>

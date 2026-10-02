@@ -134,6 +134,7 @@ button, select, input { font: inherit; color: inherit; }
 .trow:hover { background: var(--accent-hover); }
 .trow.pre { background: var(--accent-hover); }
 .trow.sel { background: var(--accent-bg); }
+.trow > .hint { margin: 0; }      /* a hint's top margin would push it below its 18 px row */
 .tlab { display: flex; align-items: center; gap: 3px; min-width: 0; padding-left: 2px; }
 .tname, .tdesc { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .tdesc { padding: 0 6px; color: #555; }

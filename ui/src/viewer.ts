@@ -409,7 +409,13 @@ export class CadView {
     const tf = this.tf?.t
     this.stopTransform(false)
     if (this.rendered) this.viewer.clear()
-    this.viewer.render(decodeInstancedFormat(sc.viewer as any), RENDER, { up: 'Z', ...ORBIT, ortho: getState().ortho, ...(cam ?? {}) })
+    // An empty project's scene has no bounding box (bb: null), and three-cad-viewer sizes its grid,
+    // axes and camera from it, which then come out NaN. A new FreeCAD document is framed by
+    // NewDocumentCameraScale (100 mm), so give the empty scene that much room around the origin.
+    const data = sc.viewer as any
+    const shown = data?.shapes && !data.shapes.bb
+      ? { ...data, shapes: { ...data.shapes, bb: { xmin: -50, xmax: 50, ymin: -50, ymax: 50, zmin: -50, zmax: 50 } } } : data
+    this.viewer.render(decodeInstancedFormat(shown), RENDER, { up: 'Z', ...ORBIT, ortho: getState().ortho, ...(cam ?? {}) })
     this.rendered = true
     this.applyBackground(getState().background)
     this.applyLights(getState().lights)
@@ -931,6 +937,9 @@ export class CadView {
       for (const o of this.cubeAxes.children) (o as any).material?.resolution?.set(w, h)
     }
     this.emitSize()
+    // Draw the moved cube now: a view first shown from behind another tab (the Start page) kept
+    // the frame it last drew, with the cube where the old size put it, until the next redraw.
+    this.redraw()
   }
 
   // ── camera commands ────────────────────────────────────────────────────────
