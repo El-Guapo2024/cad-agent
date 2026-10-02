@@ -63,8 +63,14 @@ const WORKBENCHES: Record<Workbench, { label: string; icon: IconName; name: stri
 }
 /** WorkbenchGroup::refreshWorkbenchList: the workbenches in the order of their internal names
  *  (Gui.listWorkbenches()), the first nine on W, 1 … W, 9. */
-export const workbenchList = () => (Object.entries(WORKBENCHES) as [Workbench, (typeof WORKBENCHES)[Workbench]][])
+export const allWorkbenches = () => (Object.entries(WORKBENCHES) as [Workbench, (typeof WORKBENCHES)[Workbench]][])
   .sort((a, b) => (a[1].name < b[1].name ? -1 : 1))
+/** Preferences > Workbenches: the enabled ones in the user's order (Ordered; others after, by name). */
+export const workbenchList = () => {
+  const { order, disabled, startup } = getState().wbPrefs
+  const at = (k: string) => (order.includes(k) ? order.indexOf(k) : order.length)
+  return allWorkbenches().filter(([k]) => k === startup || !disabled.includes(k)).sort((a, b) => at(a[0]) - at(b[0]))
+}
 /** The CAD Agent workbench's own menu (Gui::MenuManager: an addon workbench's menu, inserted right
  *  before Windows — after Macro, see the menu bar below) and toolbar: the cad CLI commands with no
  *  UI of their own yet, status-tip text straight from
@@ -341,7 +347,8 @@ export function MenuBar() {
   useStore((s) => s.selBoxes); useStore((s) => s.axes); useStore((s) => s.clip); useStore((s) => s.subSel)
   useStore((s) => s.recordingMacro); useStore((s) => s.task)
   useSyncExternalStore(subscribeWindow, hasOpenWindow) // File (Close/Print…) and Windows: the 3D view tab isn't in the store
-  const wb = useStore((s) => s.workbench), editMode = useStore((s) => s.editMode), toolbars = useStore((s) => s.toolbars), statusBar = useStore((s) => s.statusBar)
+  const wb = useStore((s) => s.workbench), wbPrefsMenu = useStore((s) => s.wbPrefs), editMode = useStore((s) => s.editMode), toolbars = useStore((s) => s.toolbars), statusBar = useStore((s) => s.statusBar)
+  void wbPrefsMenu // the View > Workbench submenu follows Preferences > Workbenches
   const tree = useStore((s) => s.tree), history = useStore((s) => s.selHistory), frozen = useStore((s) => s.frozenViews)
   const setToolbar = (t: string, on: boolean) => setState((s) => { const toolbars = { ...s.toolbars, [t]: on }; saved.set('toolbars', toolbars); return { toolbars } })
   const one = selected.length === 1 ? selected[0] : null
@@ -658,7 +665,7 @@ const TGrip = () => <span className="tb-grip" />
 /** A toolbar button for a menu Entry (same icon, text, command and state). */
 const EntryBtn = ({ e }: { e: Entry }) => e === 'sep' ? <TSep /> : <Btn icon={e.icon ?? 'help'} title={e.title ?? e.label} cmd={e.cmd} disabled={e.disabled} onClick={() => e.onSelect?.()} />
 export function ToolBar() {
-  const wb = useStore((s) => s.workbench), slug = useStore((s) => s.slug), lock = useStore((s) => s.toolbarLock)
+  const wb = useStore((s) => s.workbench), wbPrefs = useStore((s) => s.wbPrefs), slug = useStore((s) => s.slug), lock = useStore((s) => s.toolbarLock)
   const selected = useStore((s) => s.selected), busy = useStore((s) => s.busy), subSel = useStore((s) => s.subSel), shown = useStore((s) => s.toolbars)
   useStore((s) => s.recordingMacro)
   const one = selected.length === 1 ? selected[0] : null
@@ -679,12 +686,17 @@ export function ToolBar() {
         <Btn icon="edit-cut" title="Removes the selection and copies it to the clipboard" disabled onClick={() => {}} />
         <Btn icon="edit-copy" title="Copies the selection to the clipboard" cmd="Std_Copy" disabled={!selected.length} onClick={copySelection} />
         <Btn icon="edit-paste" title="Pastes the contents of the clipboard" disabled onClick={() => {}} /></>}
-      {on('Workbench') && <><TGrip /><label className="wb" title="Switch workbench">
-        <Icon name={WORKBENCHES[wb].icon} size={20} />
+      {on('Workbench') && <><TGrip />{wbPrefs.selector === 'TabBar' ? (
+        // WorkbenchTabWidget: one tab per workbench, styled by WorkbenchSelectorItem.
+        <span className="wb-tabs" role="tablist">{workbenchList().map(([k, w], i) => (
+          <button key={k} role="tab" className={cls('wb-tab', wb === k && 'sel')} title={`${w.label} (W, ${i + 1})`} onClick={() => setState({ workbench: k })}>
+            {wbPrefs.itemStyle !== 2 && <Icon name={w.icon} size={16} />}{wbPrefs.itemStyle !== 1 && w.label}</button>))}</span>
+      ) : <label className="wb" title="Switch workbench">
+        {wbPrefs.itemStyle !== 2 && <Icon name={WORKBENCHES[wb].icon} size={20} />}
         <QComboBox value={wb} onChange={(e) => setState({ workbench: e.target.value as Workbench })}>
           {workbenchList().map(([k, w]) => <option key={k} value={k}>{w.label}</option>)}
         </QComboBox>
-      </label></>}
+      </label>}</>}
       {on('Macro') && <><TGrip />
         {macroEntries().filter((e) => e !== 'sep' && /^(Record Macro|Stop Macro Recording|Macros|Execute Macro)/.test(e.label)).map((e, i) => <EntryBtn key={i} e={e} />)}</>}
       {on('View') && <><TGrip />

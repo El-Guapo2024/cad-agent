@@ -5,13 +5,15 @@
 // Settings take effect as they change; Cancel puts back what was there when the dialog opened
 // (or at the last Apply), which is what FreeCAD's deferred apply amounts to.
 import { useEffect, useId, useMemo, useRef, useState, type ReactNode } from 'react'
-import { AXIS_COLOR_DEFAULTS, CORNER_POS, NAVICUBE_DEFAULTS, NOTIFY_DEFAULTS, SEL_DEFAULTS, TREE_UI_DEFAULTS, EDITOR_COLORS, OVERLAY_DEFAULTS, type OverlayPrefs, type SelPrefs, getState, saved, setState, useStore } from './store'
+import { AXIS_COLOR_DEFAULTS, CORNER_POS, NAVICUBE_DEFAULTS, NOTIFY_DEFAULTS, SEL_DEFAULTS, TREE_UI_DEFAULTS, EDITOR_COLORS, OVERLAY_DEFAULTS, WB_DEFAULTS, type WbPrefs, type OverlayPrefs, type SelPrefs, getState, saved, setState, useStore } from './store'
 import { NAV_DEFAULTS } from './nav'
 import { ContextMenu, type Entry } from './chrome'
 import { messageBox } from './msgbox'
 import { setTreeOption, setTreeUI, setEditorPrefs, editorStyle, setOverlayPrefs, ANIMATION_CURVES } from './actions'
 import { api, type CacheInfo } from './api'
 import { listCommands } from './cmdreg'
+import { allWorkbenches } from './chrome'
+import { Icon } from './icons'
 import { commandsByShortcut, defaultAccel, eventSeq, nativeText, resetAllShortcuts, setShortcut, shortcutOf } from './keymap'
 import { setUnits } from './commands'
 import { PrefsPage } from './panels'
@@ -25,6 +27,7 @@ import { LIGHT_DEFAULTS, LightRig, azimuthElevationToDirection, directionToAzimu
 const GROUPS: [string, string, string[]][] = [
   ['General', 'preferences-general', ['General', 'Document', 'Selection', 'Keyboard', 'Cache', 'Notification Area', 'Report View']],
   ['Display', 'preferences-display', ['3D View', 'Light Sources', 'UI', 'Navigation', 'Colors', 'Advanced', 'Transform snap']],
+  ['Workbenches', 'preferences-workbenches', ['Available Workbenches']],
   ['Python', 'preferences-python', ['Macro', 'Python General', 'Editor']],
 ]
 
@@ -525,6 +528,54 @@ function CachePage() {
     </div>
   )
 }
+/** DlgSettingsWorkbenches.ui / DlgSettingsWorkbenchesImp.cpp: Workbenches (a row per workbench:
+ *  enable, icon, name, its W, n shortcut, Auto-load, Loaded; drag to reorder, or Sort
+ *  Alphabetically from the context menu; disabled ones after the enabled), Selectors (item style,
+ *  selector type) and Startup (Default workbench; Remember active workbench by tab). */
+function WorkbenchesPage() {
+  const p = useStore((s) => s.wbPrefs)
+  const set = (patch: Partial<WbPrefs>) => { const wbPrefs = { ...getState().wbPrefs, ...patch }; saved.set('wbPrefs', wbPrefs); setState({ wbPrefs }) }
+  const all = allWorkbenches()
+  const at = (k: string) => (p.order.includes(k) ? p.order.indexOf(k) : p.order.length + all.findIndex(([x]) => x === k))
+  const enabled = all.filter(([k]) => k === p.startup || !p.disabled.includes(k)).sort((a, b) => at(a[0]) - at(b[0]))
+  const disabled = all.filter(([k]) => k !== p.startup && p.disabled.includes(k))
+  const [drag, setDrag] = useState<string | null>(null)
+  const [menu, setMenu] = useState<{ x: number; y: number } | null>(null)
+  const move = (k: string, before: string) => { const o: string[] = enabled.map(([x]) => x as string).filter((x) => x !== k); o.splice(o.indexOf(before), 0, k); set({ order: o }) }
+  const row = ([k, w]: (typeof all)[number], i: number | null) => (
+    <div key={k} className={cls('wb-row', i === null && 'disabled')} draggable={i !== null} onDragStart={() => setDrag(k)}
+      onDragOver={(e) => { if (drag && i !== null) e.preventDefault() }} onDrop={() => { if (drag && drag !== k) move(drag, k); setDrag(null) }}
+      onContextMenu={(e) => { e.preventDefault(); setMenu({ x: e.clientX, y: e.clientY }) }}>
+      <input type="checkbox" checked={i !== null} disabled={k === p.startup}
+        title={k === p.startup ? 'This is the current startup module, and must be enabled' : `Toggles the visibility of ${w.label} in the available workbenches`}
+        onChange={(e) => set({ disabled: e.target.checked ? p.disabled.filter((x) => x !== k) : [...p.disabled, k] })} />
+      <Icon name={w.icon} size={16} /><span className="wb-name">{w.label}</span>
+      <span className="wb-key" title="Shortcut to activate this workbench">{i !== null && i < 9 ? `(W, ${i + 1})` : ''}</span>
+      <label className="tcheck" title="n/a: every workbench here is part of the page, loaded with it"><input type="checkbox" checked disabled />Auto-load</label>
+      <span className="wb-loaded">Loaded</span>
+    </div>)
+  return (
+    <div className="pref-content">
+      <fieldset className="tgroup"><legend>Workbenches</legend>
+        <p className="wb-note">You can reorder workbenches by drag and drop or sort them by right-clicking on any workbench and select <b><i>Sort alphabetically</i></b>. Additional workbenches can be installed through the addon manager.</p>
+        <p className="wb-note">Currently installed workbenches:</p>
+        <div className="wb-list">{enabled.map((w, i) => row(w, i))}{disabled.map((w) => row(w, null))}</div>
+        {menu && <ContextMenu at={menu} onClose={() => setMenu(null)} entries={[{ label: 'Sort Alphabetically', onSelect: () => set({ order: [...enabled].sort((a, b) => a[1].label.localeCompare(b[1].label)).map(([k]) => k) }) }]} />}
+      </fieldset>
+      <fieldset className="tgroup"><legend>Selectors</legend>
+        <label className="sel-row"><span>Workbench selector items style</span><select value={p.itemStyle} title="Customizes how the items are displayed" onChange={(e) => set({ itemStyle: Number(e.target.value) as 0 | 1 | 2 })}>
+          <option value={0}>Icon and text</option><option value={1}>Icon</option><option value={2}>Text</option></select></label>
+        <label className="sel-row"><span>Workbench selector type</span><select value={p.selector} title="Choose the workbench selector widget type (restart required)" onChange={(e) => set({ selector: e.target.value as WbPrefs['selector'] })}>
+          <option value="ComboBox">ComboBox</option><option value="TabBar">TabBar</option></select></label>
+      </fieldset>
+      <fieldset className="tgroup"><legend>Startup</legend>
+        <label className="sel-row"><span>Default workbench</span><select value={p.startup} title={'Changes which workbench will be activated and shown\nafter FreeCAD launches'} onChange={(e) => set({ startup: e.target.value, disabled: p.disabled.filter((x) => x !== e.target.value) })}>
+          {enabled.map(([k, w]) => <option key={k} value={k}>{w.label}</option>)}</select></label>
+        <label className="tcheck" title="n/a: there is one 3D view here"><input type="checkbox" disabled />Remember active workbench by tab</label>
+      </fieldset>
+    </div>
+  )
+}
 /** What each page's settings go back to (Reset Page / Group / All): the store's own defaults. */
 const DEFAULTS: Record<string, Record<string, unknown>> = {
   General: { units: { schema: 0, decimals: 2, denominator: 8 }, toolbarIconSize: 24, recentFilesSize: 4 },
@@ -541,6 +592,7 @@ const DEFAULTS: Record<string, Record<string, unknown>> = {
   Colors: { background: BACKGROUND_DEFAULTS, treeEditColor: '#00abff' },
   Advanced: { overlayPrefs: OVERLAY_DEFAULTS },
   'Transform snap': { snap: { mm: 1, deg: 5 } },
+  'Available Workbenches': { wbPrefs: WB_DEFAULTS },
   Macro: { recordGuiCommands: true, guiAsComment: true },
   'Python General': { 'editor:wordWrap': true, 'editor:consoleBlock': false, 'editor:saveHistory': false },
   Editor: { 'editor:blockCursor': false, 'editor:tabSize': 4, 'editor:indentSize': 4, 'editor:spaces': true, 'editor:font': 'ui-monospace', 'editor:fontSize': 10, 'editor:colors': EDITOR_COLORS },
@@ -595,12 +647,12 @@ function ReportViewPage() {
     </div>
   )
 }
-const page = (name: string): ReactNode => (name === 'Selection' ? <SelectionPage /> : name === 'Report View' ? <ReportViewPage /> : name === 'Colors' ? <ColorsPage /> : name === 'Light Sources' ? <LightSourcesPage /> : name === 'Document' ? <DocumentPage /> : name === 'Python General' ? <PythonConsolePage /> : name === 'Editor' ? <EditorPage /> : name === 'Advanced' ? <AdvancedPage /> : name === 'Keyboard' ? <KeyboardPage /> : name === 'Cache' ? <CachePage /> : name === 'UI' ? <UIPage /> : <PrefsPage page={name} />)
+const page = (name: string): ReactNode => (name === 'Selection' ? <SelectionPage /> : name === 'Report View' ? <ReportViewPage /> : name === 'Colors' ? <ColorsPage /> : name === 'Light Sources' ? <LightSourcesPage /> : name === 'Document' ? <DocumentPage /> : name === 'Python General' ? <PythonConsolePage /> : name === 'Editor' ? <EditorPage /> : name === 'Advanced' ? <AdvancedPage /> : name === 'Keyboard' ? <KeyboardPage /> : name === 'Cache' ? <CachePage /> : name === 'Available Workbenches' ? <WorkbenchesPage /> : name === 'UI' ? <UIPage /> : <PrefsPage page={name} />)
 
 /** What Cancel puts back: the app's own saved settings and the store fields the pages edit. */
 const PREF_KEYS = ['nav', 'animate', 'cube', 'navPrefs', 'homeView', 'newDocCameraScale', 'units', 'corner', 'axes', 'axisColors',
   'showFPS', 'naviCube', 'cubePos', 'rotationCenter', 'disableTouchTilt', 'recordGuiCommands', 'guiAsComment', 'notifyPrefs', 'tree',
-  'background', 'treeEditColor', 'lights', 'selPrefs', 'treeUI', 'editorPrefs', 'overlayPrefs', 'shortcuts', 'shortcutTimeout'] as const
+  'background', 'treeEditColor', 'lights', 'selPrefs', 'treeUI', 'editorPrefs', 'overlayPrefs', 'shortcuts', 'shortcutTimeout', 'wbPrefs'] as const
 function snapshot() {
   const s = getState() as unknown as Record<string, unknown>
   const saved: Record<string, string | null> = {}

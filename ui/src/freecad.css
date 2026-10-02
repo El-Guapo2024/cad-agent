@@ -783,6 +783,14 @@ input[type=range]:disabled::-webkit-slider-runnable-track { background: var(--da
 .kb-head { position: sticky; top: 0; background: linear-gradient(var(--btn-top), var(--btn-bottom)); border-bottom: 1px solid var(--border); }
 .kb-grid { display: grid; grid-template-columns: auto 1fr auto; gap: 4px 8px; align-items: center; }
 .accel-edit { min-width: 0; }
+.wb-note { margin: 2px 0 6px; }
+.wb-list { border: 1px solid var(--border); background: #fff; }
+.wb-row { display: grid; grid-template-columns: auto auto 1fr auto auto auto; align-items: center; gap: 8px; padding: 3px 6px; border-bottom: 1px solid #eee; cursor: grab; }
+.wb-row.disabled { color: #999; cursor: default; }
+.wb-key, .wb-loaded { color: #666; }
+.wb-tabs { display: inline-flex; gap: 1px; }
+.wb-tab { display: inline-flex; align-items: center; gap: 4px; height: 24px; padding: 0 8px; border: 1px solid var(--border); background: linear-gradient(var(--btn-top), var(--btn-bottom)); font: inherit; cursor: default; }
+.wb-tab.sel { background: #fff; border-bottom-color: var(--accent); box-shadow: inset 0 -2px 0 var(--accent); }
 .sel-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 .pick-radius { width: 120px; }
 .light-grid { display: grid; grid-template-columns: auto minmax(60px, 1fr) minmax(60px, 1fr) auto auto; align-items: center; gap: 4px 6px; }
