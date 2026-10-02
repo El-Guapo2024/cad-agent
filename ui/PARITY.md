@@ -19,7 +19,8 @@ job, in the code.
 | FreeCAD | Key | Ours |
 |---|---|---|
 | Undo / Redo | ⌘Z / ⇧⌘Z | done (our edits: parameters and placements) |
-| Cut, Copy, Paste, Duplicate, Delete | | n/a (objects come from code) |
+| Copy (Std_Copy) | ⌘C | done: copies the selected objects' and elements' names, one per line (a FreeCAD copy carries the objects themselves) |
+| Cut, Paste, Duplicate, Delete | | n/a (objects come from code) |
 | Recompute (Std_Refresh) | Ctrl+R | done: re-runs the checks. Not bound to ⌘R, which reloads the page |
 | Box selection | ⇧B | done: left to right, parts inside or centred in the box; right to left, parts crossing it (`applyBoxSelection`); Esc cancels |
 | Box element selection | ⇧E | done: vertices inside; faces and edges by the same two rules; a part wholly inside is taken whole |
@@ -52,7 +53,9 @@ job, in the code.
 | Tree view actions (Std_TreeViewActions) | T,1 T,2 T,4 | done: Sync view, Sync selection (a 3D selection scrolls the tree to it), Preselection (hovering a tree item preselects it), Record selection with Selection back and forward, Collapse/Expand, Go to selection. Sync placement and the document modes don't apply (one document) |
 | Status bar (Std_ViewStatusBar) | | done |
 | Overlay panels (Std_DockOverlay) | ⌘←→↑↓, T,T | done: Toggle overlay for all panels (the combo view and the report area float over the 3D view, which takes the whole area; toggling again docks them back at their sizes), Toggle overlay for the active panel, Toggle transparent panels and Toggle transparent mode (transparent until the mouse is over them), Bypass mouse events, Toggle left/right/top/bottom |
-| New 3D view, Document window, Texture mapping, Issue camera position, Toggle navigation/edit | | n/a |
+| Document window (Std_ViewDockUndockFullscreen) | F11 | done: Docked and Fullscreen (the 3D view alone, browser full screen); Undocked n/a (no floating windows) |
+| Issue camera position (Std_ViewIvIssueCamPos) | | done: the camera's settings go to the report view |
+| New 3D view, Texture mapping, Toggle navigation/edit | | n/a (one view; no textures; no separate edit navigation) |
 
 **Standard views**: all done, including Align to selection (looks straight at a selected planar face).
 - Axonometric: Isometric (0), Dimetric, Trimetric
