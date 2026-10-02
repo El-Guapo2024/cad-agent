@@ -719,7 +719,10 @@ input[type=range]:disabled::-webkit-slider-runnable-track { background: var(--da
 .start-thumb { width: 128px; height: 128px; display: flex; align-items: center; justify-content: center; margin-bottom: 11px; }
 .start-thumb img { max-width: 128px; max-height: 128px; }
 .start-name { max-width: 128px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-bottom: 2px; }
-.start-footer { display: flex; align-items: center; justify-content: space-between; padding: 6px 9px; }
+/* StartView.cpp 164-181: the footer is a QHBoxLayout of the button, a stretch and the check box. A
+   QPushButton is never narrower than its label, so in a narrow pane the check box's text wraps instead. */
+.start-footer { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 6px 9px; }
+.start-footer .qbtn { flex-shrink: 0; white-space: nowrap; }
 .qcheck-row { display: inline-flex; align-items: center; gap: 6px; }
 .start-first p { margin: 0 0 14px; }
 .start-first-row { display: flex; gap: 40px; flex-wrap: wrap; }
