@@ -866,6 +866,18 @@ function stepSelection(from: 'back' | 'forward') {
 export const selBack = () => stepSelection('back')
 export const selForward = () => stepSelection('forward')
 /** A Tree view action switch (TreeParams), kept between sessions. */
+/** Preferences > Python > General / Editor, also toggled from the console's own menu. */
+export function setEditorPrefs(patch: Partial<State['editorPrefs']>) {
+  setState((s) => { const editorPrefs = { ...s.editorPrefs, ...patch }; saved.set('editorPrefs', editorPrefs); return { editorPrefs } })
+}
+/** The Editor group's font (Font, FontSize in pt), Text colour, Python output/error colours and
+ *  tab stops, as CSS variables for the console and the macro editor (PythonConsole and
+ *  PythonEditor both follow the Editor group). */
+export function editorStyle(p: State['editorPrefs'], console = false): Record<string, string> {
+  return { '--ed-font': `${p.font === 'ui-monospace' ? '' : `"${p.font}", `}ui-monospace, Menlo, Consolas, monospace`, '--ed-size': `${p.fontSize}pt`,
+    '--ed-text': p.colors.Text, '--ed-out': p.colors['Python output'], '--ed-err': p.colors['Python error'], '--ed-tab': String(p.tabSize),
+    '--ed-caret': (console ? p.consoleBlock : p.blockCursor) ? 'block' : 'auto' } // PythonBlockCursor / EnableBlockCursor
+}
 /** TreeParams set from Preferences > UI or the tree's Tree Settings menu. */
 export function setTreeUI(patch: Partial<State['treeUI']>) {
   setState((s) => { const treeUI = { ...s.treeUI, ...patch }; saved.set('treeUI', treeUI); return { treeUI } })

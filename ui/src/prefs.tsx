@@ -4,12 +4,12 @@
 // The pages here are the ones that apply to these projects (resource.cpp registers FreeCAD's).
 // Settings take effect as they change; Cancel puts back what was there when the dialog opened
 // (or at the last Apply), which is what FreeCAD's deferred apply amounts to.
-import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
-import { AXIS_COLOR_DEFAULTS, CORNER_POS, NAVICUBE_DEFAULTS, NOTIFY_DEFAULTS, SEL_DEFAULTS, TREE_UI_DEFAULTS, type SelPrefs, getState, saved, setState, useStore } from './store'
+import { useEffect, useId, useMemo, useRef, useState, type ReactNode } from 'react'
+import { AXIS_COLOR_DEFAULTS, CORNER_POS, NAVICUBE_DEFAULTS, NOTIFY_DEFAULTS, SEL_DEFAULTS, TREE_UI_DEFAULTS, EDITOR_COLORS, type SelPrefs, getState, saved, setState, useStore } from './store'
 import { NAV_DEFAULTS } from './nav'
 import { ContextMenu, type Entry } from './chrome'
 import { messageBox } from './msgbox'
-import { setTreeOption, setTreeUI } from './actions'
+import { setTreeOption, setTreeUI, setEditorPrefs, editorStyle } from './actions'
 import { api } from './api'
 import { setUnits } from './commands'
 import { PrefsPage } from './panels'
@@ -23,7 +23,7 @@ import { LIGHT_DEFAULTS, LightRig, azimuthElevationToDirection, directionToAzimu
 const GROUPS: [string, string, string[]][] = [
   ['General', 'preferences-general', ['General', 'Document', 'Selection', 'Notification Area', 'Report View']],
   ['Display', 'preferences-display', ['3D View', 'Light Sources', 'UI', 'Navigation', 'Colors', 'Transform snap']],
-  ['Python', 'preferences-python', ['Macro']],
+  ['Python', 'preferences-python', ['Macro', 'Python General', 'Editor']],
 ]
 
 /** DlgSettingsSelection.ui: Viewport Selection Behavior (each enable with its colour beside it,
@@ -308,6 +308,78 @@ function DocumentPage() {
     </div>
   )
 }
+/** Page ids that FreeCAD shows under another name: DlgSettingsPythonConsole's title is "General". */
+const LABEL: Record<string, string> = { 'Python General': 'General' }
+const label = (p: string) => LABEL[p] ?? p
+/** DlgSettingsPythonConsole.ui: Console (word wrap, block cursor, save history: the console here
+ *  follows them, as its own menu's Word Wrap and Save History do) and Other (n/a). */
+function PythonConsolePage() {
+  const ed = useStore((s) => s.editorPrefs)
+  const check = (lbl: string, on: boolean, f: ((v: boolean) => void) | undefined, tip: string) => (
+    <label className="tcheck" title={tip}><input type="checkbox" checked={on} disabled={!f} onChange={(e) => f?.(e.target.checked)} />{lbl}</label>)
+  const na = 'n/a: the console runs cad commands, not Python'
+  return (
+    <div className="pref-content">
+      <fieldset className="tgroup"><legend>Console</legend>
+        {check('Enable word wrap', ed.wordWrap, (wordWrap) => setEditorPrefs({ wordWrap }), 'Words will be wrapped when they exceed available\nhorizontal space in Python console')}
+        {check('Enable block cursor', ed.consoleBlock, (consoleBlock) => setEditorPrefs({ consoleBlock }), 'The cursor shape will be a block')}
+        {check('Save history', ed.saveHistory, (saveHistory) => { setEditorPrefs({ saveHistory }); if (!saveHistory) saved.set('console.history', []) }, 'Saves Python history across sessions')}
+        <label className="sel-row"><span className="disabled">Python profiler interval (ms)</span><input className="qsb pick-radius" value="200 ms" readOnly disabled title={na} /></label>
+      </fieldset>
+      <fieldset className="tgroup"><legend>Other</legend>
+        <label className="sel-row"><span className="disabled">Path to external Python executable (optional)</span><input disabled title={na} /></label>
+      </fieldset>
+    </div>
+  )
+}
+/** DlgSettingsEditor.ui: Options, Indentation, Display Items (the item list with its font family,
+ *  size and colour, and a preview). The macro editor and the console follow the font, Text and
+ *  Python output/error colours and indentation; the editor here is plain text, so line numbers,
+ *  folding and the syntax colours don't show (n/a). */
+const SYNTAX = new Set(['Text', 'Python output', 'Python error'])
+const FONTS = ['ui-monospace', 'Menlo', 'Monaco', 'SF Mono', 'Courier New', 'Consolas', 'DejaVu Sans Mono']
+function EditorPage() {
+  const ed = useStore((s) => s.editorPrefs)
+  const [item, setItem] = useState('Text')
+  const radio = useId() // the search index renders a copy of every page; keep the groups apart
+  const check = (lbl: string, on: boolean, f: ((v: boolean) => void) | undefined, tip: string) => (
+    <label className="tcheck" title={tip}><input type="checkbox" checked={on} disabled={!f} onChange={(e) => f?.(e.target.checked)} />{lbl}</label>)
+  const spin = (v: number, lo: number, hi: number, f: (v: number) => void, tip: string) => (
+    <input type="number" className="qsb pick-radius" min={lo} max={hi} value={v} title={tip} onChange={(e) => f(Math.min(hi, Math.max(lo, Math.round(Number(e.target.value)))))} />)
+  const plain = 'n/a: the macro editor here is plain text'
+  return (
+    <div className="pref-content">
+      <fieldset className="tgroup"><legend>Options</legend>
+        {check('Enable line numbers', true, undefined, plain)}
+        {check('Enable block cursor', ed.blockCursor, (blockCursor) => setEditorPrefs({ blockCursor }), 'The cursor shape will be a block')}
+        {check('Enable folding', true, undefined, plain)}
+      </fieldset>
+      <fieldset className="tgroup"><legend>Indentation</legend>
+        <label className="sel-row"><span>Tab size</span>{spin(ed.tabSize, 1, 99, (tabSize) => setEditorPrefs({ tabSize }), 'Tabulator raster (how many spaces)')}</label>
+        <label className="sel-row"><span>Indent size</span>{spin(ed.indentSize, 1, 99, (indentSize) => setEditorPrefs({ indentSize }), 'How many spaces will be inserted when pressing <Tab>')}</label>
+        <label className="tcheck" title="Pressing <Tab> will insert a tabulator with defined tab size"><input type="radio" name={radio} checked={!ed.spaces} onChange={() => setEditorPrefs({ spaces: false })} />Keep tabs</label>
+        <label className="tcheck" title="Pressing <Tab> will insert amount of defined indent size"><input type="radio" name={radio} checked={ed.spaces} onChange={() => setEditorPrefs({ spaces: true })} />Insert spaces</label>
+      </fieldset>
+      <fieldset className="tgroup"><legend>Display Items</legend>
+        <div className="ed-items">
+          <div className="ed-list" title="Color and font settings will be applied to selected type">
+            {Object.keys(EDITOR_COLORS).map((k) => (
+              <div key={k} className={cls('ed-item', k === item && 'sel', !SYNTAX.has(k) && 'disabled')} onClick={() => setItem(k)}>{k}</div>))}
+          </div>
+          <div className="pref-grid">
+            <span>Family</span><select value={ed.font} title="Font family to be used for selected code type" onChange={(e) => setEditorPrefs({ font: e.target.value })}>
+              {FONTS.map((f) => <option key={f} value={f}>{f === 'ui-monospace' ? 'System fixed font' : f}</option>)}</select>
+            <span>Size</span>{spin(ed.fontSize, 1, 99, (fontSize) => setEditorPrefs({ fontSize }), 'Font size to be used for selected code type')}
+            <span>Color</span><ColorButton value={ed.colors[item]} set={SYNTAX.has(item) ? (c) => setEditorPrefs({ colors: { ...ed.colors, [item]: c } }) : undefined}
+              tip={SYNTAX.has(item) ? undefined : plain} />
+          </div>
+        </div>
+        <span>Preview:</span>
+        <pre className="ed-preview" style={editorStyle(ed) as React.CSSProperties}>{'# A macro: one cad command per line\nset demo plate width=40\n'}<span style={{ color: ed.colors['Python output'] }}>{'demo: plate rebuilt (0.4 s)\n'}</span><span style={{ color: ed.colors['Python error'] }}>{'cad set: unknown parameter'}</span></pre>
+      </fieldset>
+    </div>
+  )
+}
 /** What each page's settings go back to (Reset Page / Group / All): the store's own defaults. */
 const DEFAULTS: Record<string, Record<string, unknown>> = {
   General: { units: { schema: 0, decimals: 2, denominator: 8 }, toolbarIconSize: 24, recentFilesSize: 4 },
@@ -322,11 +394,14 @@ const DEFAULTS: Record<string, Record<string, unknown>> = {
   Colors: { background: BACKGROUND_DEFAULTS, treeEditColor: '#00abff' },
   'Transform snap': { snap: { mm: 1, deg: 5 } },
   Macro: { recordGuiCommands: true, guiAsComment: true },
+  'Python General': { 'editor:wordWrap': true, 'editor:consoleBlock': false, 'editor:saveHistory': false },
+  Editor: { 'editor:blockCursor': false, 'editor:tabSize': 4, 'editor:indentSize': 4, 'editor:spaces': true, 'editor:font': 'ui-monospace', 'editor:fontSize': 10, 'editor:colors': EDITOR_COLORS },
   'Report View': { reportShow: { msg: true, log: true, warn: true, err: true, critical: true }, 'report.showOn': {}, 'report.timecode': true, reportTimecode: true, 'report.colors': {} },
 }
 function resetPages(pages: string[]) {
   for (const p of pages) for (const [k, v] of Object.entries(DEFAULTS[p] ?? {})) {
     if (k.startsWith('server:')) { setServerPref(k.slice(7), v as number); continue }
+    if (k.startsWith('editor:')) { setEditorPrefs({ [k.slice(7)]: v }); continue } // the two pages share one setting
     saved.set(k, v)
     if (k === 'units') setUnits(v as never)
     else if (k in getState()) setState({ [k]: v } as never) // the rest (snap, recentFilesSize) live in `saved` only
@@ -372,12 +447,12 @@ function ReportViewPage() {
     </div>
   )
 }
-const page = (name: string): ReactNode => (name === 'Selection' ? <SelectionPage /> : name === 'Report View' ? <ReportViewPage /> : name === 'Colors' ? <ColorsPage /> : name === 'Light Sources' ? <LightSourcesPage /> : name === 'Document' ? <DocumentPage /> : name === 'UI' ? <UIPage /> : <PrefsPage page={name} />)
+const page = (name: string): ReactNode => (name === 'Selection' ? <SelectionPage /> : name === 'Report View' ? <ReportViewPage /> : name === 'Colors' ? <ColorsPage /> : name === 'Light Sources' ? <LightSourcesPage /> : name === 'Document' ? <DocumentPage /> : name === 'Python General' ? <PythonConsolePage /> : name === 'Editor' ? <EditorPage /> : name === 'UI' ? <UIPage /> : <PrefsPage page={name} />)
 
 /** What Cancel puts back: the app's own saved settings and the store fields the pages edit. */
 const PREF_KEYS = ['nav', 'animate', 'cube', 'navPrefs', 'homeView', 'newDocCameraScale', 'units', 'corner', 'axes', 'axisColors',
   'showFPS', 'naviCube', 'cubePos', 'rotationCenter', 'disableTouchTilt', 'recordGuiCommands', 'guiAsComment', 'notifyPrefs', 'tree',
-  'background', 'treeEditColor', 'lights', 'selPrefs', 'treeUI'] as const
+  'background', 'treeEditColor', 'lights', 'selPrefs', 'treeUI', 'editorPrefs'] as const
 function snapshot() {
   const s = getState() as unknown as Record<string, unknown>
   const saved: Record<string, string | null> = {}
@@ -399,7 +474,7 @@ function restore(snap: ReturnType<typeof snapshot>) {
 function resetEntries(cur: string, done: () => void): Entry[] {
   const group = GROUPS.find(([, , ps]) => ps.includes(cur))!
   return [
-    { label: `Reset Page '${cur}'`, title: `Resets the user settings for the page '${cur}'`, onSelect: () => { resetPages([cur]); done() } },
+    { label: `Reset Page '${label(cur)}'`, title: `Resets the user settings for the page '${label(cur)}'`, onSelect: () => { resetPages([cur]); done() } },
     { label: `Reset Group '${group[0]}'`, title: `Resets the user settings for the group '${group[0]}'`, onSelect: () => { resetPages(group[2]); done() } },
     { label: 'Reset All', title: 'Resets the user settings entirely', onSelect: () => {
       void messageBox('question', 'Clear User Settings', 'Clear all your user settings?\n\nAll settings will be cleared.', ['Yes', 'No'])
@@ -444,7 +519,7 @@ export function PreferencesDialog() {
               {GROUPS.map(([g, icon, ps]) => (
                 <div key={g}>
                   <div className="pref-group"><img src={`./freecad-icons/${icon}.svg`} width={24} height={24} alt="" />{g}</div>
-                  {ps.map((p) => <div key={p} className={cur === p ? 'pref-item sel' : 'pref-item'} onClick={() => setCur(p)}>{p}</div>)}
+                  {ps.map((p) => <div key={p} className={cur === p ? 'pref-item sel' : 'pref-item'} onClick={() => setCur(p)}>{label(p)}</div>)}
                 </div>
               ))}
             </div>
@@ -453,11 +528,11 @@ export function PreferencesDialog() {
           </div>
           <div className="pref-main">
             <div className="pref-head">
-              <span className="pref-header">{cur}</span>
+              <span className="pref-header">{label(cur)}</span>
               <span className="pref-search">
                 <input type="search" placeholder="Search preferences…" value={query} onChange={(e) => setQuery(e.target.value)} />
                 {hits.length > 0 && <div className="pref-hits">{hits.map((h, i) => (
-                  <div key={i} className="pref-hit" onClick={() => { setCur(h.page); setQuery('') }}><b>{h.page}</b><span>{h.text}</span></div>))}</div>}
+                  <div key={i} className="pref-hit" onClick={() => { setCur(h.page); setQuery('') }}><b>{label(h.page)}</b><span>{h.text}</span></div>))}</div>}
               </span>
             </div>
             <div className="pref-page" key={gen}>{page(cur)}</div>

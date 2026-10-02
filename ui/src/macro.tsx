@@ -8,7 +8,7 @@
 // FreeCAD dialog (Preferences, Document information, Units converter, …).
 import { useEffect, useState } from 'react'
 import { api, type MacroInfo } from './api'
-import { closeTask, getDock, hasOpenWindow, openTask, startRecording, stopRecording } from './actions'
+import { closeTask, getDock, hasOpenWindow, openTask, startRecording, stopRecording, editorStyle } from './actions'
 import { consoleLog, getState, report, saved, useStore } from './store'
 import { cls, TaskBox } from './panels'
 import { messageBox } from './msgbox'
@@ -209,6 +209,7 @@ export function MacrosTask() {
 // text editor here); Save returns to the Macros list, as closing the real editor would. ──
 export function MacroEditTask({ name }: { name: string }) {
   const [text, setText] = useState('')
+  const ed = useStore((s) => s.editorPrefs)
   const [loaded, setLoaded] = useState(false)
   const [saving, setSaving] = useState(false)
   useEffect(() => { api.macro(name).then((r) => { setText(r.text); setLoaded(true) }).catch((e) => report('err', `Edit macro: ${msg(e)}`)) }, [name])
@@ -220,7 +221,15 @@ export function MacroEditTask({ name }: { name: string }) {
   return (
     <div className="tasks">
       <TaskBox title={`Edit macro: ${name}`} icon="macros">
-        <textarea className="macro-editor" spellCheck={false} disabled={!loaded} value={text} onChange={(e) => setText(e.target.value)} />
+        <textarea className="macro-editor" spellCheck={false} disabled={!loaded} value={text} onChange={(e) => setText(e.target.value)}
+          style={editorStyle(ed) as React.CSSProperties} onKeyDown={(e) => {
+            // TextEditor::keyPressEvent (TextEdit.cpp): Tab inserts IndentSize spaces, or a tab with "Keep tabs".
+            if (e.key !== 'Tab' || e.shiftKey || e.metaKey || e.ctrlKey || e.altKey) return
+            e.preventDefault()
+            const t = e.currentTarget, ins = ed.spaces ? ' '.repeat(ed.indentSize) : '\t', a = t.selectionStart, b = t.selectionEnd
+            setText(t.value.slice(0, a) + ins + t.value.slice(b))
+            requestAnimationFrame(() => { t.selectionStart = t.selectionEnd = a + ins.length })
+          }} />
         <p className="hint">One `cad` command per line; `# cad gui …` lines are GUI actions, commented out when recorded with Record GUI commands off.</p>
       </TaskBox>
       <div className="tbuttons">

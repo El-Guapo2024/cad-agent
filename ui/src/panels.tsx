@@ -27,7 +27,7 @@ import { DependencyGraphTask, ParameterEditorTask, SceneInspectorTask } from './
 import {
   attachView, closeTask, editDefault, getView, place, placementOf, preselect, runCheck, runVerify, select, selectRange, setParams, setViewProps, showPanel,
   setOrtho, toggleVisibility,
-  setTreeUI,
+  setTreeUI, setEditorPrefs, editorStyle,
 } from './actions'
 
 export const cls = (...a: (string | false | null | undefined)[]) => a.filter(Boolean).join(' ')
@@ -1989,10 +1989,10 @@ export function ReportView() {
  *  Clear console, Insert file name and Word wrap. */
 export function ConsoleView() {
   const log = useStore((s) => s.log), mine = useStore((s) => s.consoleLines), draft = useStore((s) => s.consoleDraft)
-  const [keepHistory, setKeepHistory] = useState(() => saved.get('console.saveHistory', false))
+  const ed = useStore((s) => s.editorPrefs), keepHistory = ed.saveHistory, wrap = ed.wordWrap
   const history = useRef<string[]>(keepHistory ? saved.get<string[]>('console.history', []) : []), at = useRef(history.current.length)
   const input = useRef<HTMLInputElement>(null), file = useRef<HTMLInputElement>(null)
-  const [cleared, setCleared] = useState(0), [wrap, setWrap] = useState(() => saved.get('console.wrap', false))
+  const [cleared, setCleared] = useState(0)
   const [menu, setMenu] = useState<{ x: number; y: number; sel: string } | null>(null)
   const entries = useMemo(() => [
     ...log.slice(-300).map((e) => ({ t: Date.parse(e.t), cmd: cmdline(e.argv), out: `# ${e.summary} (exit ${e.exit}, ${(e.ms / 1000).toFixed(1)} s)`, bad: e.exit !== 0 ? levelOf(e) : '' })),
@@ -2009,7 +2009,7 @@ export function ConsoleView() {
   const allText = () => entries.map((l) => [l.cmd && `>>> ${l.cmd}`, l.out].filter(Boolean).join('\n')).join('\n')
   const download = (name: string, text: string) => { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([text], { type: 'text/plain' })); a.download = name; a.click() }
   return (
-    <div className={cls('console', wrap && 'wrap')} ref={ref} onClick={() => input.current?.focus()}
+    <div className={cls('console', wrap && 'wrap')} ref={ref} style={editorStyle(ed, true) as React.CSSProperties} onClick={() => input.current?.focus()}
       onContextMenu={(e) => {
         e.preventDefault()
         const sl = getSelection(), inside = !!sl && !sl.isCollapsed && !!ref.current?.contains(sl.anchorNode)
@@ -2049,7 +2049,7 @@ export function ConsoleView() {
         { label: 'Save History As…', disabled: !history.current.length, onSelect: () => download(`${getState().slug ?? 'console'}-history.txt`, history.current.join('\n')) },
         { label: 'Save History', checked: keepHistory, title: 'Saves the command history across sessions', onSelect: () => {
           const on = !keepHistory
-          setKeepHistory(on); saved.set('console.saveHistory', on)
+          setEditorPrefs({ saveHistory: on })
           saved.set('console.history', on ? history.current.slice(-100) : [])
         } },
         'sep',
@@ -2059,7 +2059,7 @@ export function ConsoleView() {
         'sep',
         { label: 'Insert File Name…', onSelect: () => file.current?.click() },
         'sep',
-        { label: 'Word Wrap', checked: wrap, onSelect: () => { setWrap(!wrap); saved.set('console.wrap', !wrap) } },
+        { label: 'Word Wrap', checked: wrap, onSelect: () => setEditorPrefs({ wordWrap: !wrap }) },
       ]} />}
     </div>
   )
