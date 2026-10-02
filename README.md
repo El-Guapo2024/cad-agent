@@ -15,6 +15,25 @@ bin/cad cache [--clear]                          # the user cache: location, siz
 .venv/bin/python -m pytest tests -q              # 201 tests
 ```
 
+## Install as a Claude Code plugin
+
+In Claude Code:
+
+```
+/plugin marketplace add El-Guapo2024/cad-agent
+/plugin install cad-agent@cad-agent
+```
+
+(or from a shell: `claude plugin marketplace add El-Guapo2024/cad-agent` then
+`claude plugin install cad-agent@cad-agent`). The plugin brings the `cad` skill, the
+`cad-reviewer` agent, the check-on-edit and done-on-stop hooks, and `/cad-agent:workbench`.
+On the first session it installs the CLI and the CAD kernel (build123d, OCP; a few
+hundred MB, a few minutes) into Claude Code's plugin data folder with `uv` if present,
+else Python 3.12+, and puts `cad` on the session's PATH. Designs go to `./cad-projects`
+in the project you open (set `CAD_PROJECTS` to change it). Check the manifest with
+`claude plugin validate .`. Working inside this repo with the plugin also installed runs
+the hooks twice; disable one of them there.
+
 ## The workbench
 
 `bin/cad serve` opens a local page at http://127.0.0.1:8733 (or `--port`, or

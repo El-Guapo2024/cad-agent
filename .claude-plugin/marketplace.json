@@ -1,0 +1,14 @@
+{
+  "name": "cad-agent",
+  "owner": {
+    "name": "El-Guapo2024"
+  },
+  "description": "cad-agent: agent-driven mechanical CAD for Claude Code.",
+  "plugins": [
+    {
+      "name": "cad-agent",
+      "source": "./",
+      "description": "Agent-driven mechanical CAD with the `cad` CLI and a FreeCAD-style workbench."
+    }
+  ]
+}

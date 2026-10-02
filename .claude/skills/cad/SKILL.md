@@ -9,8 +9,10 @@ description: Design mechanical parts and assemblies with the cad-agent CLI (buil
 from engineering norms, write the assumptions down, and run. Ask only when going
 on would be unsafe or useless.
 
-Everything runs through the CLI: `bin/cad` from the repo root (`bin/cad --help`
-lists every command and the exit codes). Point it at a projects directory with
+Everything runs through the CLI: `bin/cad` from the repo root, or plain `cad` when
+cad-agent is installed as a Claude Code plugin (the commands below are the same;
+`cad --help` lists every command and the exit codes). As a plugin, designs live in
+`./cad-projects` of the project you're working in (`CAD_PROJECTS`). Point it at a projects directory with
 `--projects DIR` or `CAD_PROJECTS`. The exit code is the verdict: 0 pass,
 1 FAIL, 2 UNCHECKED, 3 bad arguments, 4 a cad-agent crash. Add `--json` for
 output to parse.
