@@ -169,6 +169,8 @@ export const viewOf = (s: { view: Record<string, Partial<ViewProps>> }, name: st
 
 export type State = {
   projects: Project[]
+  /** The projects folders `cad serve` watches (GET /api/projects), named when there are no projects yet. */
+  roots: string[]
   slug: string | null
   scene: Scene | null
   sceneError: string | null
@@ -316,7 +318,7 @@ export const saved = {
 }
 
 let state: State = {
-  projects: [], slug: null, scene: null, sceneError: null, building: false, checks: null, status: null,
+  projects: [], roots: [], slug: null, scene: null, sceneError: null, building: false, checks: null, status: null,
   log: [], busy: [], live: false, offline: false, selected: [], preselected: null, prePoint: null, preSub: null, subSel: [], subPts: {}, viewInfo: '', hints: [], hidden: [], task: null,
   undo: [], redo: [], messages: [], notifications: [], notifyPrefs: { ...NOTIFY_DEFAULTS, ...saved.get<Partial<NotifyPrefs>>('notifyPrefs', {}) }, notifyMissed: false, notifyOverflow: false,
   ortho: true, workbench: saved.get<Partial<WbPrefs>>('wbPrefs', {}).startup as Workbench ?? 'agent', drawStyle: 'asis', cube: true,

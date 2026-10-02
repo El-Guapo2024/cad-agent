@@ -6,7 +6,7 @@
 // for exactly what maps to what.
 import { useState } from 'react'
 import { api, resultText, type CadResult } from './api'
-import { clearRecentFiles, closeActiveWindow, closeAllWindows, closeTask, getView, hasOpenWindow, loadProjects, openProject, openTask, recentFiles } from './actions'
+import { clearRecentFiles, closeActiveWindow, closeAllWindows, closeTask, getView, hasOpenWindow, loadProjects, noProjectsText, openProject, openTask, recentFiles } from './actions'
 import { getState, report, saved, useStore } from './store'
 import { messageBox } from './msgbox'
 import { QComboBox } from './combo'
@@ -163,13 +163,15 @@ export function ExportTask() {
 
 export function OpenDocumentTask() {
   const projects = useStore((s) => s.projects)
+  const roots = useStore((s) => s.roots)
   const cur = useStore((s) => s.slug)
   const [sel, setSel] = useState<string | null>(cur)
   const open = () => { if (sel) { openProject(sel); closeTask() } }
   return (
     <div className="tasks">
       <TaskBox title="Open Document" icon="open">
-        {!projects.length && <p className="hint">No projects yet. Add a projects folder with `cad serve DIR`.</p>}
+        {/* the command between backticks shows as code, as in the other hints */}
+        {!projects.length && <p className="hint">{noProjectsText(roots).split('`').map((s, i) => i % 2 ? <code key={i}>{s}</code> : s)}</p>}
         {projects.map((p) => (
           <div key={p.slug} className={cls('trow', sel === p.slug && 'sel')} onClick={() => setSel(p.slug)} onDoubleClick={open}>
             <span>{p.slug}</span><span className="hint">{p.done ? 'DONE' : p.verdict ?? 'NOT VERIFIED'}</span>

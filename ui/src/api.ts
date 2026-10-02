@@ -76,7 +76,8 @@ async function http<T>(method: 'GET' | 'POST', path: string, body?: unknown, par
 }
 
 export const api = {
-  projects: () => http<{ projects: Project[] }>('GET', '/api/projects'),
+  /** `roots`: the folders `cad serve` watches, empty or not. */
+  projects: () => http<{ projects: Project[]; roots: string[] }>('GET', '/api/projects'),
   scene: (slug: string) => http<Scene>('GET', '/api/scene', undefined, { slug }),
   checks: (slug: string) => http<Checks>('GET', '/api/checks', undefined, { slug }),
   status: (slug: string) => http<Status>('GET', '/api/status', undefined, { slug }),

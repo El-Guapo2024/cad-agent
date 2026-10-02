@@ -436,15 +436,25 @@ export async function start() {
   connect()
 }
 
+/** The Report View line and the Open Document hint for an empty project list, the command between
+ *  backticks as the CLI's own text has it. A watched folder that's still empty is normal (`cad serve`
+ *  creates CAD_PROJECTS before the first design), so name it and say how to start; only with no
+ *  folder watched at all is there something to set up. */
+export function noProjectsText(roots: string[]) {
+  return roots.length ? `No projects yet in ${roots.join(', ')}. Ask Claude for a design, or run \`cad init <name>\`.`
+    : 'No projects yet. Add a projects folder with `cad serve DIR`.'
+}
+
 export async function loadProjects() {
   try {
-    const { projects } = await api.projects()
-    setState({ projects })
+    const { projects, roots = [] } = await api.projects()
+    setState({ projects, roots })
     const s = getState()
     const want = [decodeURIComponent(location.hash.slice(1)), s.slug, saved.get<string | null>('slug', null),
       (projects.find((p) => p.assembly) ?? projects[0])?.slug].find((x) => x && projects.some((p) => p.slug === x))
     if (want && want !== s.slug) await openProject(want)
-    if (!projects.length) report('warn', 'No projects yet. Add a projects folder with `cad serve DIR`.')
+    // A Message, not a Warning, while a folder is watched: only Warnings pop a notification.
+    if (!projects.length) report(roots.length ? 'msg' : 'warn', noProjectsText(roots))
   } catch (e) {
     lostServer(() => loadProjects())
   }
