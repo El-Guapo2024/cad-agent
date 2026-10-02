@@ -605,6 +605,18 @@ export class CadView {
       const ac = getState().axisColors
       tc.setColors(ac.x, ac.y, ac.z, 0xffff00)
       if (mode === 'rotate') tc.setSize(1.15)
+      // SoTransformDragger's translation arrows point one way, along +X/+Y/+Z; three's gizmo has a
+      // head and a pick zone at both ends. Drop the − ones (their offsets are baked into the geometry).
+      if (mode === 'translate') {
+        const gz = (tc as any)._gizmo, axis = { X: 'x', Y: 'y', Z: 'z' } as const
+        for (const group of [gz?.gizmo?.translate, gz?.picker?.translate]) for (const o of [...(group?.children ?? [])] as THREE.Mesh[]) {
+          const ax = axis[o.name as keyof typeof axis]
+          if (!ax || !o.geometry) continue
+          o.geometry.computeBoundingBox()
+          const c = o.geometry.boundingBox!.getCenter(new THREE.Vector3())
+          if (c[ax] < -1e-6) o.removeFromParent()
+        }
+      }
       tc.attach(proxy)
       tc.addEventListener('change', () => { this.placeDragLabels(); this.redraw() })
       tc.addEventListener('objectChange', () => { this.followDragger(); this.reportTransform('motion') })
