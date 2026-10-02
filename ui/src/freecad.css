@@ -384,6 +384,8 @@ button, select, input { font: inherit; color: inherit; }
 .expr-dlg { position: fixed; width: 320px; padding: 9px; background: var(--primary); border: 1px solid #8a8a8a; border-radius: 4px; box-shadow: 0 6px 20px rgba(0, 0, 0, 0.22); }
 .expr-text { width: 100%; min-height: 80px; resize: vertical; border: 1px solid var(--border); border-radius: var(--radius); padding: 4px; font: 12px/1.4 ui-monospace, Menlo, monospace; background: var(--field-bg); }
 .expr-text:focus { outline: none; border-color: var(--accent); }
+.expr-comp { position: absolute; left: 9px; right: 9px; max-height: 140px; overflow: auto; background: #fff; border: 1px solid #8a8a8a; box-shadow: 0 3px 8px rgba(0,0,0,.2); z-index: 1; font: 12px/1.5 ui-monospace, Menlo, monospace; }
+.expr-comp > div { padding: 0 6px; cursor: default; } .expr-comp > div:hover { background: var(--accent-hover); } .expr-comp > .sel { background: var(--accent); color: #fff; }
 .expr-result { display: flex; gap: 8px; margin: 6px 0; min-height: 18px; }
 .expr-result > span:first-child { font-weight: 600; }
 .expr-msg { word-break: break-word; }
