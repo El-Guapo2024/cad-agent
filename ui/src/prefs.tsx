@@ -433,7 +433,7 @@ function AdvancedPage() {
 }
 /** Gui::AccelLineEdit (Widgets.cpp): records the keys pressed, up to four chords of a sequence;
  *  Backspace or Delete alone clears it. Shows native text, holds portable text. */
-function AccelEdit({ value, onChange, readOnly, title }: { value: string; onChange?: (v: string) => void; readOnly?: boolean; title?: string }) {
+export function AccelEdit({ value, onChange, readOnly, title }: { value: string; onChange?: (v: string) => void; readOnly?: boolean; title?: string }) {
   return <input className="accel-edit" readOnly value={nativeText(value)} title={title} placeholder={readOnly ? '' : 'Press a shortcut'} disabled={readOnly && !value}
     onKeyDown={readOnly ? undefined : (e) => {
       if (e.key === 'Tab') return

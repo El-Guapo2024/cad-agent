@@ -26,7 +26,7 @@ function pushRecent(name: string) {
 
 /** Prints a macro run's lines like the console prints a `cad` command (commands.ts's
  *  printCadResult): the line typed, then its output or error. */
-async function runMacroToConsole(name: string) {
+export async function runMacroToConsole(name: string) {
   const slug = getState().slug
   if (!slug) return report('warn', 'Execute macro: open a project first')
   try {

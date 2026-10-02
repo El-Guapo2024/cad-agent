@@ -136,6 +136,7 @@ const COMMANDS: Record<string, RegCommand> = {
   Std_UserEditModeCutting: reg('Cutting', () => setEditMode('cutting')),
   Std_UserEditModeColor: reg('Color', () => setEditMode('color')),
   Std_DlgPreferences: reg('Preferences', preferences),
+  Std_DlgCustomize: reg('Customize…', () => setState({ customizeOpen: true })),
 
   // ── Overlay (OverlayWidgets.cpp) ──
   Std_DockOverlayAll: reg('Toggle Overlay for All Panels', overlayAll),
@@ -204,6 +205,9 @@ const COMMANDS: Record<string, RegCommand> = {
 }
 
 export const getCommand = (name: string): RegCommand | undefined => COMMANDS[name]
+/** CommandManager::addCommand / removeCommand, for the macro commands Customize > Macros makes. */
+export function setDynamicCommand(name: string, label: string, run: () => void) { COMMANDS[name] = reg(label, run) }
+export function removeDynamicCommand(name: string) { delete COMMANDS[name] }
 /** publishGui's "commands" field: name/label/enabled for every registered command, sorted so a
  *  JSON diff (actions.ts) is stable when nothing actually changed. */
 export function listCommands(): CommandInfo[] {

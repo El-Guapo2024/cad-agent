@@ -1,5 +1,7 @@
 import * as M from '@radix-ui/react-menubar'
 import { menuKbd } from './keymap'
+import { getCommand } from './cmdreg'
+import { cmdIcon } from './cmdicons'
 import { useEffect, useMemo, useState, useSyncExternalStore, type ReactNode } from 'react'
 import { createPortal } from 'react-dom'
 import type { IDockviewHeaderActionsProps } from 'dockview-react'
@@ -48,7 +50,7 @@ export const DRAW_STYLES: [DrawStyle, string, string, IconName, string][] = [
   ['shaded', 'Shaded', 'V, 6', 'ds-shaded', 'Std_DrawStyleShaded'], ['flatlines', 'Flat Lines', 'V, 7', 'ds-flatlines', 'Std_DrawStyleFlatLines'],
 ]
 /** Application::listUserEditModes, plus each mode's own Std_UserEditModeX command id. */
-const EDIT_MODES: [EditMode, string, IconName, string, string][] = [
+export const EDIT_MODES: [EditMode, string, IconName, string, string][] = [
   ['default', 'Default', 'edit-default', 'The object will be edited using the mode defined internally to be the most appropriate for the object type', 'Std_UserEditModeDefault'],
   ['transform', 'Transform', 'edit-transform', 'The object will have its placement editable with the Std TransformManip command', 'Std_UserEditModeTransform'],
   ['cutting', 'Cutting', 'edit-cutting', 'This edit mode is implemented as available but currently does not seem to be used by any object', 'Std_UserEditModeCutting'],
@@ -426,6 +428,7 @@ export function MenuBar() {
         // StdCmdWorkbench: the enabled workbenches by menu text, W, 1 … W, 9 for the first nine.
         { label: 'Workbench', sub: workbenchList().map(([k, w], i): Entry => ({ label: w.label, icon: w.icon, kbd: i < 9 ? `W, ${i + 1}` : undefined, checked: wb === k, onSelect: () => setState({ workbench: k }) })) },
         { label: 'Toolbars', sub: [...TOOLBARS.filter((t) => t !== 'CAD Agent' || wb === 'agent').map((t): Entry => ({ label: t, checked: toolbarOn(toolbars, t), onSelect: () => setToolbar(t, !toolbarOn(toolbars, t)) })),
+          ...getState().customToolbars.map((t, k) => [t, k] as const).filter(([t]) => t.wb === 'Global' || t.wb === wb).map(([t, k]): Entry => ({ label: t.name, checked: t.active, onSelect: () => { const customToolbars = getState().customToolbars.map((x, j) => (j === k ? { ...x, active: !x.active } : x)); saved.set('customToolbars', customToolbars); setState({ customToolbars }) } })),
           'sep', { label: 'Lock Toolbars', cmd: 'Std_ToggleToolBarLock', checked: getState().toolbarLock, onSelect: () => { const v = !getState().toolbarLock; setState({ toolbarLock: v }); saved.set('toolbarLock', v) } }] },
         { label: 'Panels', sub: PANELS.map(([id, label]): Entry => ({ label, onSelect: () => showPanel(id) })) },
         { label: 'Overlay Docked Panel', sub: [
@@ -487,7 +490,7 @@ export function MenuBar() {
         'sep',
         { label: 'Document Utility', disabled: true, title: 'n/a: no FCStd files here for it to check or recover' },
         { label: 'Edit Parameters', icon: 'dlg-parameter', cmd: 'Std_DlgParameter', onSelect: editParameters },
-        { label: 'Customize', icon: 'customize', disabled: true, title: 'n/a: no customizable workbench toolbars, commands or keyboard shortcuts stored here' },
+        { label: 'Customize…', icon: 'customize', cmd: 'Std_DlgCustomize', title: 'Customize toolbars and macros', onSelect: () => setState({ customizeOpen: true }) },
       ]} />
       <Menu label="Macro" entries={macroEntries()} />
       {/* Gui::MenuManager: a workbench inserts its own menu(s) with root->insertItem(root->
@@ -668,6 +671,7 @@ export function ToolBar() {
   const wb = useStore((s) => s.workbench), wbPrefs = useStore((s) => s.wbPrefs), slug = useStore((s) => s.slug), lock = useStore((s) => s.toolbarLock)
   const selected = useStore((s) => s.selected), busy = useStore((s) => s.busy), subSel = useStore((s) => s.subSel), shown = useStore((s) => s.toolbars)
   useStore((s) => s.recordingMacro)
+  const customToolbars = useStore((s) => s.customToolbars), macroCommands = useStore((s) => s.macroCommands)
   const one = selected.length === 1 ? selected[0] : null
   const on = (name: (typeof TOOLBARS)[number]) => toolbarOn(shown, name)
   const na = 'n/a: the assembly\'s structure comes from its source'
@@ -741,6 +745,18 @@ export function ToolBar() {
         {wb !== 'inspection' && <Btn icon="placement" title="Placement: type the move" cmd="Std_Placement" disabled={!one} onClick={() => one && openTask('placement', one)} />}
         {wb === 'inspection' && <Btn icon="pass" title="Verify (fresh rebuild)" cmd="CADAgent_Verify" active={busy.includes('verify')} onClick={runVerify} />}
       </>}
+      {/* Tools > Customize > Toolbars: the user's toolbars for this workbench and the Global ones. */}
+      {customToolbars.filter((t) => t.active && (t.wb === 'Global' || t.wb === wb)).map((t, k) => (
+        <span key={k} className="tb-group" title={t.name}><TGrip />{t.cmds.map((c, i) => {
+          if (c === 'Separator') return <TSep key={i} />
+          const cmd = getCommand(c)
+          if (!cmd) return null
+          const m = macroCommands.find((x) => x.name === c)
+          const icon = m ? (m.pixmap as IconName) || null : cmdIcon(c)
+          const tip = m?.toolTip || cmd.label()
+          return icon ? <Btn key={i} icon={icon} title={tip} cmd={c} disabled={!cmd.isEnabled()} onClick={() => cmd.run([])} />
+            : <button key={i} className="tb-btn tb-text" title={tip} disabled={!cmd.isEnabled()} onClick={() => recordAndRun(c, () => cmd.run([]))}>{cmd.label()}</button>
+        })}</span>))}
     </div>
   )
 }

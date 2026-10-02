@@ -1,0 +1,77 @@
+// Each command's toolbar/menu icon (Command::getPixmap), as chrome.tsx's menus and toolbars give
+// it with the command's id; used where a command is shown by id alone (Customize's command list,
+// custom toolbars). Views, draw styles and edit modes add theirs from their own tables.
+import type { IconName } from './icons'
+import { DRAW_STYLES, EDIT_MODES, VIEWS } from './chrome'
+
+const STATIC: Record<string, IconName> = {
+  CADAgent_Bought: 'bought',
+  CADAgent_Check: 'recompute',
+  CADAgent_Done: 'pending',
+  CADAgent_Render: 'shot',
+  CADAgent_Rules: 'help',
+  CADAgent_Tables: 'report',
+  CADAgent_ToolEnvelope: 'body',
+  CADAgent_Verify: 'pass',
+  Std_AlignToSelection: 'align',
+  Std_Alignment: 'align-obj',
+  Std_AxisCross: 'axis-cross',
+  Std_BoxElementSelection: 'box-select',
+  Std_BoxSelection: 'box-select',
+  Std_ClarifySelection: 'clarify',
+  Std_Copy: 'edit-copy',
+  Std_DemoMode: 'turntable',
+  Std_DependencyGraph: 'dependency-graph',
+  Std_DlgParameter: 'dlg-parameter',
+  Std_Edit: 'body',
+  Std_Export: 'export',
+  Std_HideSelection: 'hide',
+  Std_MainFullscreen: 'fullscreen',
+  Std_MassProperties: 'mass',
+  Std_Measure: 'measure',
+  Std_New: 'new',
+  Std_Open: 'open',
+  Std_OrthographicCamera: 'ortho',
+  Std_PerspectiveCamera: 'perspective',
+  Std_Placement: 'placement',
+  Std_Properties: 'report',
+  Std_RandomColor: 'random-color',
+  Std_Refresh: 'recompute',
+  Std_Save: 'save',
+  Std_SceneInspector: 'scene-inspector',
+  Std_SelectAll: 'select-all',
+  Std_SendToPythonConsole: 'console',
+  Std_SetAppearance: 'appearance',
+  Std_ShowObjects: 'show',
+  Std_ShowSelection: 'show-sel',
+  Std_ToggleClipPlane: 'clip',
+  Std_ToggleSelectability: 'unselectable',
+  Std_ToggleTransparency: 'transparency',
+  Std_ToggleVisibility: 'visibility',
+  Std_TransformManip: 'transform',
+  Std_TreeSelection: 'goto-sel',
+  Std_UnitsCalculator: 'units',
+  Std_ViewBoxZoom: 'zoom-box',
+  Std_ViewDimetric: 'dimetric',
+  Std_ViewFitAll: 'fit-all',
+  Std_ViewFitSelection: 'fit-sel',
+  Std_ViewFullscreen: 'fullscreen',
+  Std_ViewHome: 'home',
+  Std_ViewIsometric: 'iso',
+  Std_ViewIvIssueCamPos: 'issue-cam',
+  Std_ViewLoadImage: 'load-image',
+  Std_ViewRotateLeft: 'rot-left',
+  Std_ViewRotateRight: 'rot-right',
+  Std_ViewScreenShot: 'shot',
+  Std_ViewTrimetric: 'trimetric',
+  Std_ViewZoomIn: 'zoom-in',
+  Std_ViewZoomOut: 'zoom-out',
+  Std_WhatsThis: 'whats-this',
+}
+export function cmdIcon(cmd: string): IconName | null {
+  if (cmd in STATIC) return STATIC[cmd]
+  const v = VIEWS.find((x) => x[3] === cmd); if (v) return v[0] as IconName
+  const d = DRAW_STYLES.find((x) => x[4] === cmd); if (d) return d[3]
+  const e = EDIT_MODES.find((x) => x[4] === cmd); if (e) return e[2]
+  return null
+}

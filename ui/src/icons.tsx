@@ -1,6 +1,6 @@
 // FreeCAD 1.1.4's icons, copied into public/freecad-icons (licences in its
 // README). Placeholders until we draw our own.
-const FILES = {
+export const FILES = {
   document: 'Document', group: 'Group', part: 'Part_Feature', bought: 'Part_FeatureImport', body: 'PartDesign_Body',
   'wb-design': 'PartDesignWorkbench', 'wb-assembly': 'AssemblyWorkbench', 'wb-inspection': 'InspectionWorkbench',
   iso: 'view-isometric', front: 'view-front', top: 'view-top', right: 'view-right', rear: 'view-rear', bottom: 'view-bottom',

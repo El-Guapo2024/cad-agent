@@ -9,6 +9,7 @@ import { workbenchList } from './chrome'
 import { setState } from './store'
 import { MessageBoxHost } from './msgbox'
 import { PreferencesDialog, applyReportColors, checkCache } from './prefs'
+import { CustomizeDialog } from './customize'
 import { api } from './api'
 import { exportCommand, printView } from './filemenu'
 import { executeMacroDirect } from './macro'
@@ -171,6 +172,7 @@ export function App() {
       <div className="dock"><DockviewReact components={components} onReady={onReady} theme={themeLight} rightHeaderActionsComponent={OverlayTitleActions} /></div>
       {statusBar && <StatusBar />}
       <PreferencesDialog />
+      <CustomizeDialog />
       <MessageBoxHost />
     </div>
   )
