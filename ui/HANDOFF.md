@@ -9,8 +9,7 @@ Goal: the workbench UI in `ui/` looks and behaves like FreeCAD main 3160daf1e2b6
 
 ## Next
 1. Run fcdiff.py / fcgui.py on the Mac against the new pages (Light Sources, UI, Document, Keyboard, Cache, Advanced, Workbenches, PDF, Python General/Editor) and fix any label differences.
-2. Rotation rings of the Transform dragger: check their drag updates the Rotation fields as the arrows do (the arrows were checked with a real mouse drag).
-3. Anything left is n/a by design (listed in PARITY.md).
+2. Anything left is n/a by design (listed in PARITY.md).
 
 ## Testing without touching real projects
 `cad serve` always includes the repo's own `projects/`. For UI tests, start the workbench with `serve.run([scratch_root])` from Python and set CAD_PREFS, CAD_WARM_DIR, CAD_RUNTIME_DIR and CAD_MACRO_DIR to scratch paths.
