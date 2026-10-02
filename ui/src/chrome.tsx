@@ -1,4 +1,5 @@
 import * as M from '@radix-ui/react-menubar'
+import { menuKbd } from './keymap'
 import { useEffect, useMemo, useState, useSyncExternalStore, type ReactNode } from 'react'
 import { createPortal } from 'react-dom'
 import type { IDockviewHeaderActionsProps } from 'dockview-react'
@@ -321,7 +322,7 @@ function BarEntry({ e }: { e: Entry }) {
       </M.Sub>
     )
   }
-  return <M.Item className="mb-item" data-cmd={e.cmd} disabled={e.disabled} onSelect={() => fireEntry(e)} title={e.title}>{lead}{e.label}{e.kbd && <span className="mb-kbd">{e.kbd}</span>}</M.Item>
+  return <M.Item className="mb-item" data-cmd={e.cmd} disabled={e.disabled} onSelect={() => fireEntry(e)} title={e.title}>{lead}{e.label}{menuKbd(e.cmd, e.kbd) && <span className="mb-kbd">{menuKbd(e.cmd, e.kbd)}</span>}</M.Item>
 }
 function Menu({ label, entries }: { label: string; entries: Entry[] }) {
   return (
@@ -555,7 +556,7 @@ function CtxEntry({ e, close }: { e: Entry; close(): void }) {
       onMouseEnter={() => { setOpen(true); e.onHover?.() }} onMouseLeave={() => setOpen(false)}
       onClick={() => { if (e.disabled || e.sub) return; close(); fireEntry(e) }}>
       <span className="mb-ico">{e.checked ? <span className="mb-check">✓</span> : e.icon ? <Icon name={e.icon} /> : e.img && <img src={e.img} width={16} height={16} alt="" draggable={false} />}</span>
-      {e.label}{e.kbd && <span className="mb-kbd">{e.kbd}</span>}{e.sub && <span className="mb-kbd">▸</span>}
+      {e.label}{menuKbd(e.cmd, e.kbd) && <span className="mb-kbd">{menuKbd(e.cmd, e.kbd)}</span>}{e.sub && <span className="mb-kbd">▸</span>}
       {e.sub && open && <div className="mb-content ctx-sub">{e.sub.map((s, i) => <CtxEntry key={i} e={s} close={close} />)}</div>}
     </div>
   )

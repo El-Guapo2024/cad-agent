@@ -15,6 +15,7 @@ import { executeMacroDirect } from './macro'
 // onCommandList, the same callback pattern as commands.ts's own onGuiEvent); no named import
 // needed here, just the module's side effect, so this file is the one place that loads it.
 import './cmdreg'
+import { overrideKey } from './keymap'
 import { StartPanel } from './start'
 
 const components: Record<string, FC<IDockviewPanelProps>> = {
@@ -69,6 +70,8 @@ function useKeys() {
     let prefix = '', prefixAt = 0
     const onKey = (e: KeyboardEvent) => {
       if ((e.target as HTMLElement | null)?.closest?.('input, textarea, select, [contenteditable="true"]')) return
+      // The user's own shortcuts (Preferences > General > Keyboard) come first.
+      if (overrideKey(e)) { prefix = ''; return }
       // The report view and console are text: Ctrl+A and Ctrl+C there act on the text (ReportOutput::event).
       const inText = !!(e.target as HTMLElement | null)?.closest?.('.report, .console')
       if (inText && (e.metaKey || e.ctrlKey) && (e.key.toLowerCase() === 'a' || e.key.toLowerCase() === 'c')) return

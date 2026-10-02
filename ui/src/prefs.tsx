@@ -11,6 +11,8 @@ import { ContextMenu, type Entry } from './chrome'
 import { messageBox } from './msgbox'
 import { setTreeOption, setTreeUI, setEditorPrefs, editorStyle, setOverlayPrefs, ANIMATION_CURVES } from './actions'
 import { api } from './api'
+import { listCommands } from './cmdreg'
+import { commandsByShortcut, defaultAccel, eventSeq, nativeText, resetAllShortcuts, setShortcut, shortcutOf } from './keymap'
 import { setUnits } from './commands'
 import { PrefsPage } from './panels'
 import { BACKGROUND_DEFAULTS, type BackgroundMode, type BackgroundPrefs } from './background'
@@ -21,7 +23,7 @@ import { gradientMesh } from './background'
 import { LIGHT_DEFAULTS, LightRig, azimuthElevationToDirection, directionToAzimuthElevation, type Light, type LightPrefs } from './lights'
 
 const GROUPS: [string, string, string[]][] = [
-  ['General', 'preferences-general', ['General', 'Document', 'Selection', 'Notification Area', 'Report View']],
+  ['General', 'preferences-general', ['General', 'Document', 'Selection', 'Keyboard', 'Notification Area', 'Report View']],
   ['Display', 'preferences-display', ['3D View', 'Light Sources', 'UI', 'Navigation', 'Colors', 'Advanced', 'Transform snap']],
   ['Python', 'preferences-python', ['Macro', 'Python General', 'Editor']],
 ]
@@ -423,10 +425,77 @@ function AdvancedPage() {
     </div>
   )
 }
+/** Gui::AccelLineEdit (Widgets.cpp): records the keys pressed, up to four chords of a sequence;
+ *  Backspace or Delete alone clears it. Shows native text, holds portable text. */
+function AccelEdit({ value, onChange, readOnly, title }: { value: string; onChange?: (v: string) => void; readOnly?: boolean; title?: string }) {
+  return <input className="accel-edit" readOnly value={nativeText(value)} title={title} placeholder={readOnly ? '' : 'Press a shortcut'} disabled={readOnly && !value}
+    onKeyDown={readOnly ? undefined : (e) => {
+      if (e.key === 'Tab') return
+      e.preventDefault(); e.stopPropagation()
+      const k = eventSeq(e.nativeEvent)
+      if (!k) return
+      if ((k === 'Backspace' || k === 'Del')) { onChange?.(''); return }
+      const chords = value ? value.split(', ') : []
+      onChange?.((chords.length >= 4 ? [k] : [...chords, k]).join(', '))
+    }} />
+}
+/** DlgKeyboard.ui / DlgKeyboardImp.cpp: General (Multi-key sequence delay) and Shortcuts: the
+ *  search box, Category, the command list (Icon, Command, Shortcut, Default), Current shortcut,
+ *  New shortcut with Assign / Clear / Reset / Reset All, and the Priority List of the commands
+ *  that share the shortcut. Shortcuts take effect at once (keymap.ts). */
+function KeyboardPage() {
+  const user = useStore((s) => s.shortcuts), timeout = useStore((s) => s.shortcutTimeout)
+  const [filter, setFilter] = useState('')
+  const [cur, setCur] = useState<string | null>(null)
+  const [edit, setEdit] = useState('')
+  const cmds = useMemo(() => listCommands(), [])
+  const names = cmds.map((c) => c.name)
+  const q = filter.trim().toLowerCase()
+  const shown = cmds.filter((c) => !q || c.name.toLowerCase().includes(q) || c.label.toLowerCase().includes(q))
+  const current = cur ? shortcutOf(cur) : ''
+  void user // re-render on change: shortcutOf reads the store
+  const priority = commandsByShortcut(edit || current, names)
+  return (
+    <div className="pref-content">
+      <fieldset className="tgroup"><legend>General</legend>
+        <label className="sel-row"><span>Multi-key sequence delay</span>
+          <span className="pct-box" title={'Time in milliseconds to wait for the next keystroke of the current key sequence.\nFor example, pressing F will wait for this time to see if F is part of a longer sequence like F,G.'}>
+            <input type="number" className="qsb" min={0} max={10000} step={100} value={timeout}
+              onChange={(e) => { const v = Math.min(10000, Math.max(0, Math.round(Number(e.target.value)))); saved.set('shortcutTimeout', v); setState({ shortcutTimeout: v }) }} />ms</span></label>
+      </fieldset>
+      <fieldset className="tgroup"><legend>Shortcuts</legend>
+        <input type="search" placeholder="Type to search…" value={filter} onChange={(e) => setFilter(e.target.value)} />
+        <label className="sel-row"><span>Category</span><select value="All" title="n/a: commands here aren't grouped into categories"><option value="All">All</option></select></label>
+        <div className="kb-list">
+          <div className="kb-row kb-head"><span>Command</span><span>Shortcut</span><span>Default</span></div>
+          {shown.map((c) => (
+            <div key={c.name} className={cls('kb-row', cur === c.name && 'sel')} title={c.name} onClick={() => { setCur(c.name); setEdit('') }}>
+              <span>{c.label}</span><span>{nativeText(shortcutOf(c.name))}</span><span>{nativeText(defaultAccel()[c.name] ?? '')}</span></div>))}
+        </div>
+        <div className="kb-grid">
+          <span>Current shortcut</span><AccelEdit value={current} readOnly title="To change a current shortcut enter the new shortcut in the field below and press 'Assign'." />
+          <button className="qbtn" disabled={!cur || !edit || edit === current} onClick={() => { setShortcut(cur!, edit); setEdit('') }}>Assign</button>
+          <span>New shortcut</span><AccelEdit value={edit} onChange={setEdit} />
+          <button className="qbtn" disabled={!cur} onClick={() => { setShortcut(cur!, ''); setEdit('') }}>Clear</button>
+          <span /><span />
+          <button className="qbtn" disabled={!cur || !(cur in user)} onClick={() => setShortcut(cur!, null)}>Reset</button>
+          <span /><span />
+          <button className="qbtn" disabled={!Object.keys(user).length} onClick={resetAllShortcuts}>Reset All</button>
+        </div>
+        <fieldset className="tgroup"><legend>Priority List</legend>
+          <div className="kb-list kb-prio">{priority.map((n) => <div key={n} className="kb-row"><span>{n}</span><span>{cmds.find((c) => c.name === n)?.label}</span></div>)}</div>
+          <div><button className="qbtn" disabled title="n/a: a shortcut here runs the first command that has it">Move Up</button>
+            <button className="qbtn" disabled title="n/a: a shortcut here runs the first command that has it">Move Down</button></div>
+        </fieldset>
+      </fieldset>
+    </div>
+  )
+}
 /** What each page's settings go back to (Reset Page / Group / All): the store's own defaults. */
 const DEFAULTS: Record<string, Record<string, unknown>> = {
   General: { units: { schema: 0, decimals: 2, denominator: 8 }, toolbarIconSize: 24, recentFilesSize: 4 },
   Document: { 'server:MaxUndoSize': 20 },
+  Keyboard: { shortcuts: {}, shortcutTimeout: 300 },
   Selection: { selPrefs: SEL_DEFAULTS, tree: { syncView: true, syncSelection: true, preSelection: true, recordSelection: true } },
   'Notification Area': { notifyPrefs: NOTIFY_DEFAULTS },
   '3D View': { corner: { show: true, size: 10 }, axes: false, axisColors: AXIS_COLOR_DEFAULTS, showFPS: false },
@@ -491,12 +560,12 @@ function ReportViewPage() {
     </div>
   )
 }
-const page = (name: string): ReactNode => (name === 'Selection' ? <SelectionPage /> : name === 'Report View' ? <ReportViewPage /> : name === 'Colors' ? <ColorsPage /> : name === 'Light Sources' ? <LightSourcesPage /> : name === 'Document' ? <DocumentPage /> : name === 'Python General' ? <PythonConsolePage /> : name === 'Editor' ? <EditorPage /> : name === 'Advanced' ? <AdvancedPage /> : name === 'UI' ? <UIPage /> : <PrefsPage page={name} />)
+const page = (name: string): ReactNode => (name === 'Selection' ? <SelectionPage /> : name === 'Report View' ? <ReportViewPage /> : name === 'Colors' ? <ColorsPage /> : name === 'Light Sources' ? <LightSourcesPage /> : name === 'Document' ? <DocumentPage /> : name === 'Python General' ? <PythonConsolePage /> : name === 'Editor' ? <EditorPage /> : name === 'Advanced' ? <AdvancedPage /> : name === 'Keyboard' ? <KeyboardPage /> : name === 'UI' ? <UIPage /> : <PrefsPage page={name} />)
 
 /** What Cancel puts back: the app's own saved settings and the store fields the pages edit. */
 const PREF_KEYS = ['nav', 'animate', 'cube', 'navPrefs', 'homeView', 'newDocCameraScale', 'units', 'corner', 'axes', 'axisColors',
   'showFPS', 'naviCube', 'cubePos', 'rotationCenter', 'disableTouchTilt', 'recordGuiCommands', 'guiAsComment', 'notifyPrefs', 'tree',
-  'background', 'treeEditColor', 'lights', 'selPrefs', 'treeUI', 'editorPrefs', 'overlayPrefs'] as const
+  'background', 'treeEditColor', 'lights', 'selPrefs', 'treeUI', 'editorPrefs', 'overlayPrefs', 'shortcuts', 'shortcutTimeout'] as const
 function snapshot() {
   const s = getState() as unknown as Record<string, unknown>
   const saved: Record<string, string | null> = {}
