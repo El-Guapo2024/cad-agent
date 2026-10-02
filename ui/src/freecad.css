@@ -315,15 +315,15 @@ button, select, input { font: inherit; color: inherit; }
    curve are OverlayParams defaults (DockOverlayAnimationDuration 200ms, DockOverlayAnimationCurve
    7 = QEasingCurve::InOutCubic; cubic-bezier below is the closest standard CSS easing to it). */
 .dock .dv-resize-container.ovl-auto {
-  transition: transform .2s cubic-bezier(.645, .045, .355, 1);
+  transition: transform var(--ovl-anim, .2s) var(--ovl-ease, cubic-bezier(.645, .045, .355, 1));
 }
 /* OverlayProxyWidget::getRect (OverlayWidgets.cpp 276-320): collapsed, the panel slides out to
    the edge bordering the 3D view, leaving only a hint strip. The translated-but-present box is
    naturally clipped by the viewport (no extra pointer-events/z-index rules needed), and it stays
    hoverable across DockOverlayHintTriggerSize (16px) even though the painted strip (::after,
    DockOverlayHintSize 8px) is narrower, same as the real OverlayProxyWidget vs. its hit test. */
-.dock .dv-resize-container.ovl-auto.ovl-collapsed[data-ovl-side="left"] { transform: translateX(calc(-100% + 16px)); }
-.dock .dv-resize-container.ovl-auto.ovl-collapsed[data-ovl-side="bottom"] { transform: translateY(calc(100% - 16px)); }
+.dock .dv-resize-container.ovl-auto.ovl-collapsed[data-ovl-side="left"] { transform: translateX(calc(-100% + var(--ovl-trigger, 16px))); }
+.dock .dv-resize-container.ovl-auto.ovl-collapsed[data-ovl-side="bottom"] { transform: translateY(calc(100% - var(--ovl-trigger, 16px))); }
 /* Hide the real content while collapsed (OverlayTabWidget::setState's State::Hint, 1224-1246,
    hides the title bar and splitter too; DockOverlayHintTabBar defaults off) instead of letting a
    16px sliver of real tree rows/buttons peek out. */
@@ -331,8 +331,8 @@ button, select, input { font: inherit; color: inherit; }
 .dock .dv-resize-container.ovl-auto.ovl-collapsed::after {
   content: ''; position: absolute; background: rgba(50, 50, 50, .4); transition: background .15s;
 }
-.dock .dv-resize-container.ovl-auto.ovl-collapsed[data-ovl-side="left"]::after { top: 0; bottom: 0; right: 0; width: 8px; }
-.dock .dv-resize-container.ovl-auto.ovl-collapsed[data-ovl-side="bottom"]::after { left: 0; right: 0; top: 0; height: 8px; }
+.dock .dv-resize-container.ovl-auto.ovl-collapsed[data-ovl-side="left"]::after { top: var(--ovl-left-off, 0); height: var(--ovl-left-len, 100%); right: 0; width: var(--ovl-hint, 8px); }
+.dock .dv-resize-container.ovl-auto.ovl-collapsed[data-ovl-side="bottom"]::after { left: var(--ovl-bottom-off, 0); width: var(--ovl-bottom-len, 100%); top: 0; height: var(--ovl-hint, 8px); }
 .dock .dv-resize-container.ovl-auto.ovl-collapsed:hover::after { background: rgba(50, 50, 50, .7); }
 
 /* OverlayManager::createTitleBar (OverlayManager.cpp 1052-1078): the overlay panel's own title

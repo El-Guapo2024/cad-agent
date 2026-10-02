@@ -179,14 +179,45 @@ export function overlayTransparent(all: boolean) {
 export const overlayBypass = () => document.querySelector('.dock')?.classList.toggle('ovl-bypass')
 
 // ── OverlayWidgets.cpp: auto hide/show modes, hover reveal, animation ─────────
-// No preferences dialog here, so OverlayParams.py's defaults are hardcoded, not user-editable.
-const HINT_TRIGGER = 16 // DockOverlayHintTriggerSize: hover hit zone at the edge, px
-const HINT_SIZE = 8 // DockOverlayHintSize: the painted hint strip inside that zone, px (see css-overlay.css)
-const HINT_DELAY = 200 // DockOverlayHintDelay: ms hover dwell before the hint reveals (OverlayProxyWidget::hitTest)
-const REVEAL_GRACE = 2000 // DockOverlayRevealDelay: ms a just-revealed panel stays up even if the mouse leaves
-export const OVERLAY_ANIM_MS = 200 // DockOverlayAnimationDuration (0 would disable it; FreeCAD's default is on)
-// DockOverlayAnimationCurve default (7) is QEasingCurve::InOutCubic; closest standard CSS easing.
-export const OVERLAY_ANIM_CURVE = 'cubic-bezier(.645,.045,.355,1)'
+// OverlayParams.py's settings, from Preferences > Display > Advanced (store.overlayPrefs):
+// DockOverlayHintTriggerSize (hover hit zone at the edge), DockOverlayHintSize (the painted strip),
+// the per-side hint offset/length, DockOverlayHintDelay (hover dwell before the hint reveals,
+// OverlayProxyWidget::hitTest), DockOverlayActivateOnHover, DockOverlayAnimationDuration/Curve.
+const ov = () => getState().overlayPrefs
+const REVEAL_GRACE = 2000 // DockOverlayRevealDelay (not on the page): ms a just-revealed panel stays up even if the mouse leaves
+/** OverlayParams::AnimationCurveTypes, QEasingCurve's names in its enum order. */
+export const ANIMATION_CURVES = ['Linear', 'InQuad', 'OutQuad', 'InOutQuad', 'OutInQuad', 'InCubic', 'OutCubic', 'InOutCubic', 'OutInCubic',
+  'InQuart', 'OutQuart', 'InOutQuart', 'OutInQuart', 'InQuint', 'OutQuint', 'InOutQuint', 'OutInQuint', 'InSine', 'OutSine', 'InOutSine',
+  'OutInSine', 'InExpo', 'OutExpo', 'InOutExpo', 'OutInExpo', 'InCirc', 'OutCirc', 'InOutCirc', 'OutInCirc', 'InElastic', 'OutElastic',
+  'InOutElastic', 'OutInElastic', 'InBack', 'OutBack', 'InOutBack', 'OutInBack', 'InBounce', 'OutBounce', 'InOutBounce', 'OutInBounce']
+// The same curves as CSS cubic-béziers (the standard Penner fits). OutIn*, Elastic and Bounce have
+// no cubic-bézier form; they use their family's InOut / Back fit.
+const BEZIER: Record<string, string> = {
+  Linear: 'linear', InQuad: '.11,0,.5,0', OutQuad: '.5,1,.89,1', InOutQuad: '.45,0,.55,1', InCubic: '.32,0,.67,0', OutCubic: '.33,1,.68,1',
+  InOutCubic: '.645,.045,.355,1', InQuart: '.5,0,.75,0', OutQuart: '.25,1,.5,1', InOutQuart: '.76,0,.24,1', InQuint: '.64,0,.78,0',
+  OutQuint: '.22,1,.36,1', InOutQuint: '.83,0,.17,1', InSine: '.12,0,.39,0', OutSine: '.61,1,.88,1', InOutSine: '.37,0,.63,1',
+  InExpo: '.7,0,.84,0', OutExpo: '.16,1,.3,1', InOutExpo: '.87,0,.13,1', InCirc: '.55,0,1,.45', OutCirc: '0,.55,.45,1', InOutCirc: '.85,0,.15,1',
+  InBack: '.36,0,.66,-.56', OutBack: '.34,1.56,.64,1', InOutBack: '.68,-.6,.32,1.6' }
+export function overlayEasing(curve: number) {
+  const name = ANIMATION_CURVES[curve] ?? 'InOutCubic'
+  const fit = BEZIER[name] ?? BEZIER[name.replace(/^OutIn/, 'InOut').replace('Elastic', 'Back').replace('Bounce', 'Back')] ?? BEZIER.InOutCubic
+  return fit === 'linear' ? fit : `cubic-bezier(${fit})`
+}
+/** The overlay's CSS geometry and timing (freecad.css's .ovl-* rules), as variables on the page. */
+function applyOverlayVars() {
+  const p = ov(), st = document.documentElement.style
+  const len = (n: number) => (n > 0 ? `${n}px` : '100%') // a length of 0 fills the side
+  st.setProperty('--ovl-trigger', `${p.hintTriggerSize}px`); st.setProperty('--ovl-hint', `${p.hintSize}px`)
+  st.setProperty('--ovl-left-off', `${p.hintLeftOffset}px`); st.setProperty('--ovl-left-len', len(p.hintLeftLength))
+  st.setProperty('--ovl-bottom-off', `${p.hintBottomOffset}px`); st.setProperty('--ovl-bottom-len', len(p.hintBottomLength))
+  st.setProperty('--ovl-anim', `${p.animationDuration}ms`); st.setProperty('--ovl-ease', overlayEasing(p.animationCurve))
+}
+let lastOverlay: unknown = null
+subscribe(() => { if (getState().overlayPrefs !== lastOverlay) { lastOverlay = getState().overlayPrefs; applyOverlayVars() } })
+/** Preferences > Display > Advanced. */
+export function setOverlayPrefs(patch: Partial<State['overlayPrefs']>) {
+  setState((s) => { const overlayPrefs = { ...s.overlayPrefs, ...patch }; saved.set('overlayPrefs', overlayPrefs); return { overlayPrefs } })
+}
 
 /** OverlayTabWidget::AutoMode (OverlayWidgets.h 139-151); 'none' is NoAutoMode. */
 export type OverlayAutoMode = 'none' | 'autohide' | 'editshow' | 'edithide' | 'taskshow'
@@ -273,7 +304,7 @@ subscribe(() => {
  *  there's no preference here to turn that off and fall back to click-to-reveal). */
 function onHintHover(side: Side) {
   clearTimeout(hintTimer[side])
-  hintTimer[side] = window.setTimeout(() => { grace(side); evaluate(side) }, HINT_DELAY)
+  hintTimer[side] = window.setTimeout(() => { grace(side); evaluate(side) }, ov().hintDelay)
 }
 /** Wire up one overlaid side's auto-hide: hover/focus collapse state (OverlayTabWidget::enterEvent/
  *  leaveEvent, 1305-1317), armed only while that side is actually floating. */
@@ -286,21 +317,25 @@ function armAutoHide(side: Side) {
   const onEnter = () => {
     hovered[side] = true
     clearTimeout(leaveTimer[side])
-    if (box.classList.contains('ovl-collapsed')) onHintHover(side)
+    if (box.classList.contains('ovl-collapsed')) { if (ov().activateOnHover) onHintHover(side) }
     else evaluate(side)
   }
   const onLeave = () => {
     hovered[side] = false
     clearTimeout(hintTimer[side])
-    leaveTimer[side] = window.setTimeout(() => evaluate(side), HINT_DELAY)
+    leaveTimer[side] = window.setTimeout(() => evaluate(side), ov().hintDelay)
   }
+  // DockOverlayActivateOnHover off: "then show on mouse click".
+  const onClick = () => { if (!ov().activateOnHover && box.classList.contains('ovl-collapsed')) { grace(side); evaluate(side) } }
   const onFocusIn = () => { focused[side] = true; evaluate(side) }
-  const onFocusOut = () => { focused[side] = false; leaveTimer[side] = window.setTimeout(() => evaluate(side), HINT_DELAY) }
+  const onFocusOut = () => { focused[side] = false; leaveTimer[side] = window.setTimeout(() => evaluate(side), ov().hintDelay) }
   box.addEventListener('mouseenter', onEnter)
   box.addEventListener('mouseleave', onLeave)
   box.addEventListener('focusin', onFocusIn)
   box.addEventListener('focusout', onFocusOut)
+  box.addEventListener('click', onClick)
   unarm[side] = () => {
+    box.removeEventListener('click', onClick)
     box.removeEventListener('mouseenter', onEnter)
     box.removeEventListener('mouseleave', onLeave)
     box.removeEventListener('focusin', onFocusIn)
@@ -318,7 +353,7 @@ function disarmAutoHide(side: Side) {
   hovered[side] = false; focused[side] = false
 }
 /** The hint strip's CSS geometry (css-overlay.css), exported so chrome.tsx cites the same numbers. */
-export const OVERLAY_HINT = { trigger: HINT_TRIGGER, size: HINT_SIZE }
+export const OVERLAY_HINT = { get trigger() { return ov().hintTriggerSize }, get size() { return ov().hintSize } }
 
 /** Std_ToggleBottomPanels (Ctrl+0): hide or show the bottom dock area. */
 export function toggleBottomPanels() {

@@ -5,11 +5,11 @@
 // Settings take effect as they change; Cancel puts back what was there when the dialog opened
 // (or at the last Apply), which is what FreeCAD's deferred apply amounts to.
 import { useEffect, useId, useMemo, useRef, useState, type ReactNode } from 'react'
-import { AXIS_COLOR_DEFAULTS, CORNER_POS, NAVICUBE_DEFAULTS, NOTIFY_DEFAULTS, SEL_DEFAULTS, TREE_UI_DEFAULTS, EDITOR_COLORS, type SelPrefs, getState, saved, setState, useStore } from './store'
+import { AXIS_COLOR_DEFAULTS, CORNER_POS, NAVICUBE_DEFAULTS, NOTIFY_DEFAULTS, SEL_DEFAULTS, TREE_UI_DEFAULTS, EDITOR_COLORS, OVERLAY_DEFAULTS, type OverlayPrefs, type SelPrefs, getState, saved, setState, useStore } from './store'
 import { NAV_DEFAULTS } from './nav'
 import { ContextMenu, type Entry } from './chrome'
 import { messageBox } from './msgbox'
-import { setTreeOption, setTreeUI, setEditorPrefs, editorStyle } from './actions'
+import { setTreeOption, setTreeUI, setEditorPrefs, editorStyle, setOverlayPrefs, ANIMATION_CURVES } from './actions'
 import { api } from './api'
 import { setUnits } from './commands'
 import { PrefsPage } from './panels'
@@ -22,7 +22,7 @@ import { LIGHT_DEFAULTS, LightRig, azimuthElevationToDirection, directionToAzimu
 
 const GROUPS: [string, string, string[]][] = [
   ['General', 'preferences-general', ['General', 'Document', 'Selection', 'Notification Area', 'Report View']],
-  ['Display', 'preferences-display', ['3D View', 'Light Sources', 'UI', 'Navigation', 'Colors', 'Transform snap']],
+  ['Display', 'preferences-display', ['3D View', 'Light Sources', 'UI', 'Navigation', 'Colors', 'Advanced', 'Transform snap']],
   ['Python', 'preferences-python', ['Macro', 'Python General', 'Editor']],
 ]
 
@@ -380,6 +380,49 @@ function EditorPage() {
     </div>
   )
 }
+/** DlgSettingsAdvanced.cpp (generated from OverlayParams.py): its one Overlay group, a grid of
+ *  label and spin box per DockOverlay* setting with OverlayParams' ranges, steps, suffixes and
+ *  docs. The hint, its delay, hover-or-click and the animation work; the right and top panels
+ *  aren't overlaid here, and the pass-through, splitter and layout timings are fixed. */
+function AdvancedPage() {
+  const p = useStore((s) => s.overlayPrefs)
+  type NumKey = { [K in keyof OverlayPrefs]: OverlayPrefs[K] extends number ? K : never }[keyof OverlayPrefs]
+  const row = (lbl: string, k: NumKey, lo: number, hi: number, step: number, suffix: string, doc: string, na?: string) => (<>
+    <span className={na ? 'disabled' : undefined} title={na ?? doc}>{lbl}</span>
+    <span className="pct-box" title={na ?? doc}><input type="number" className="qsb" min={lo} max={hi} step={step} value={p[k]} disabled={!!na}
+      onChange={(e) => setOverlayPrefs({ [k]: Math.min(hi, Math.max(lo, Math.round(Number(e.target.value)))) })} />{suffix}</span></>)
+  const fixed = (doc: string) => `${doc}\n(fixed here)`
+  const noSide = 'n/a: only the left and bottom panels are overlaid here'
+  return (
+    <div className="pref-content">
+      <fieldset className="tgroup"><legend>Overlay</legend>
+        <div className="pref-grid">
+          {row('Delay mouse wheel pass through', 'wheelDelay', 0, 99999, 1, 'ms', '', fixed('Delay capturing mouse wheel event for passing through if it is\npreviously handled by other widget.'))}
+          {row('Alpha test radius', 'alphaRadius', 1, 100, 1, 'px', '', fixed('If auto mouse click through is enabled, then this radius\ndefines a region of alpha test under the mouse cursor.'))}
+          <label className="tcheck" title={fixed('Leave space for Navigation Cube in dock overlay')}><input type="checkbox" checked={p.checkNaviCube} disabled />Check navigation cube</label><span />
+          {row('Hint trigger size', 'hintTriggerSize', 1, 100, 1, 'px', 'Auto hide hint visual display triggering width')}
+          {row('Hint width', 'hintSize', 1, 100, 1, 'px', 'Auto hide hint visual display width')}
+          {row('Left panel hint offset', 'hintLeftOffset', 0, 10000, 10, 'px', 'Auto hide hint visual display offset for left panel')}
+          {row('Left panel hint length', 'hintLeftLength', 0, 10000, 10, 'px', 'Auto hide hint visual display length for left panel. Set to zero to fill the space.')}
+          {row('Right panel hint offset', 'hintRightOffset', 0, 10000, 10, 'px', '', noSide)}
+          {row('Right panel hint length', 'hintRightLength', 0, 10000, 10, 'px', '', noSide)}
+          {row('Top panel hint offset', 'hintTopOffset', 0, 10000, 10, 'px', '', noSide)}
+          {row('Top panel hint length', 'hintTopLength', 0, 10000, 10, 'px', '', noSide)}
+          {row('Bottom panel hint offset', 'hintBottomOffset', 0, 10000, 10, 'px', 'Auto hide hint visual display offset for bottom panel')}
+          {row('Bottom panel hint length', 'hintBottomLength', 0, 10000, 10, 'px', 'Auto hide hint visual display length for bottom panel. Set to zero to fill the space.')}
+          {row('Hint delay', 'hintDelay', 0, 1000, 100, 'ms', 'Delay before show hint visual')}
+          {row('Splitter auto hide delay', 'splitterHandleTimeout', 0, 99999, 100, 'ms', '', fixed('Overlay splitter handle auto hide delay. Set zero to disable auto hiding.'))}
+          <label className="tcheck" title={'Show auto hidden dock overlay on mouse over.\nIf disabled, then show on mouse click.'}><input type="checkbox" checked={p.activateOnHover} onChange={(e) => setOverlayPrefs({ activateOnHover: e.target.checked })} />Activate on hover</label><span />
+          {row('Layout delay', 'delay', 0, 5000, 100, 'ms', '', fixed('Overlay layout delay'))}
+          {row('Animation duration', 'animationDuration', 0, 5000, 100, 'ms', 'Auto hide animation duration, 0 to disable')}
+          <span title="Auto hide animation curve type">Animation curve type</span>
+          <select value={p.animationCurve} title="Auto hide animation curve type" onChange={(e) => setOverlayPrefs({ animationCurve: Number(e.target.value) })}>
+            {ANIMATION_CURVES.map((c, i) => <option key={c} value={i}>{c}</option>)}</select>
+        </div>
+      </fieldset>
+    </div>
+  )
+}
 /** What each page's settings go back to (Reset Page / Group / All): the store's own defaults. */
 const DEFAULTS: Record<string, Record<string, unknown>> = {
   General: { units: { schema: 0, decimals: 2, denominator: 8 }, toolbarIconSize: 24, recentFilesSize: 4 },
@@ -392,6 +435,7 @@ const DEFAULTS: Record<string, Record<string, unknown>> = {
   Navigation: { nav: 'cad', animate: true, cube: true, navPrefs: NAV_DEFAULTS, homeView: 'Trimetric', newDocCameraScale: 100,
     naviCube: NAVICUBE_DEFAULTS, cubePos: CORNER_POS[1], rotationCenter: { size: 5, color: '#ff0000', alpha: 0.2 }, disableTouchTilt: true },
   Colors: { background: BACKGROUND_DEFAULTS, treeEditColor: '#00abff' },
+  Advanced: { overlayPrefs: OVERLAY_DEFAULTS },
   'Transform snap': { snap: { mm: 1, deg: 5 } },
   Macro: { recordGuiCommands: true, guiAsComment: true },
   'Python General': { 'editor:wordWrap': true, 'editor:consoleBlock': false, 'editor:saveHistory': false },
@@ -447,12 +491,12 @@ function ReportViewPage() {
     </div>
   )
 }
-const page = (name: string): ReactNode => (name === 'Selection' ? <SelectionPage /> : name === 'Report View' ? <ReportViewPage /> : name === 'Colors' ? <ColorsPage /> : name === 'Light Sources' ? <LightSourcesPage /> : name === 'Document' ? <DocumentPage /> : name === 'Python General' ? <PythonConsolePage /> : name === 'Editor' ? <EditorPage /> : name === 'UI' ? <UIPage /> : <PrefsPage page={name} />)
+const page = (name: string): ReactNode => (name === 'Selection' ? <SelectionPage /> : name === 'Report View' ? <ReportViewPage /> : name === 'Colors' ? <ColorsPage /> : name === 'Light Sources' ? <LightSourcesPage /> : name === 'Document' ? <DocumentPage /> : name === 'Python General' ? <PythonConsolePage /> : name === 'Editor' ? <EditorPage /> : name === 'Advanced' ? <AdvancedPage /> : name === 'UI' ? <UIPage /> : <PrefsPage page={name} />)
 
 /** What Cancel puts back: the app's own saved settings and the store fields the pages edit. */
 const PREF_KEYS = ['nav', 'animate', 'cube', 'navPrefs', 'homeView', 'newDocCameraScale', 'units', 'corner', 'axes', 'axisColors',
   'showFPS', 'naviCube', 'cubePos', 'rotationCenter', 'disableTouchTilt', 'recordGuiCommands', 'guiAsComment', 'notifyPrefs', 'tree',
-  'background', 'treeEditColor', 'lights', 'selPrefs', 'treeUI', 'editorPrefs'] as const
+  'background', 'treeEditColor', 'lights', 'selPrefs', 'treeUI', 'editorPrefs', 'overlayPrefs'] as const
 function snapshot() {
   const s = getState() as unknown as Record<string, unknown>
   const saved: Record<string, string | null> = {}
