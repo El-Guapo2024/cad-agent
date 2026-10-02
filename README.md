@@ -38,6 +38,10 @@ Then ask it to design something ("design a bracket for a NEMA 17 motor"), and op
 
 The status bar shows what's left, like "6 unchecked · NOT VERIFIED" before the renders are approved. Ask "review the design" for a second opinion on things no check covers, such as assembly order and tool access.
 
+## License
+
+MIT ([LICENSE](LICENSE)), except the workbench UI. [ui/](ui/) and its build in `cad_agent/workbench/next/` are ported from [FreeCAD](https://github.com/FreeCAD/FreeCAD) and use its icons, so like FreeCAD they're LGPL-2.1-or-later ([ui/LICENSE](ui/LICENSE)).
+
 ## Links
 
 - GitHub: https://github.com/El-Guapo2024/cad-agent
