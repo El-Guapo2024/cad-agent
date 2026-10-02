@@ -821,6 +821,9 @@ input[type=range]:disabled::-webkit-slider-runnable-track { background: var(--da
 .light-grid { display: grid; grid-template-columns: auto minmax(60px, 1fr) minmax(60px, 1fr) auto auto; align-items: center; gap: 4px 6px; }
 .pct-box { display: inline-flex; align-items: center; gap: 2px; }
 .pct-box input { width: 48px; }
+.pref-pair { display: inline-flex; align-items: center; gap: 6px; }
+.pref-pair .tcheck { margin: 0; }
+.pref-wide { width: 160px; }
 .light-preview { display: flex; gap: 2px; height: 220px; }
 .light-view { flex: 1; min-width: 0; border: 1px solid var(--border); }
 .light-view canvas { display: block; }

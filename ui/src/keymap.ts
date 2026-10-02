@@ -44,6 +44,11 @@ export function eventSeq(e: KeyboardEvent): string | null {
   return [(e.metaKey || e.ctrlKey) && 'Ctrl', e.altKey && 'Alt', e.shiftKey && 'Shift', key].filter(Boolean).join('+')
 }
 const MAC = typeof navigator !== 'undefined' && /Mac|iPhone|iPad/.test(navigator.platform)
+/** qkeysequence.cpp's AppleSpecialKey entries[]: the glyph a Mac shows for each special key. */
+const MAC_KEYS: Record<string, string> = {
+  Esc: '⎋', Tab: '⇥', Backtab: '⇤', Backspace: '⌫', Return: '↵', Enter: '⌤', Del: '⌦', Clear: '⌧', Home: '↖', End: '↘',
+  Left: '←', Up: '↑', Right: '→', Down: '↓', PgUp: '⇞', PgDown: '⇟', CapsLock: '⇪', Eject: '⏏',
+}
 /** QKeySequence::NativeText: ⌃⌥⇧⌘ glyphs on a Mac, the portable text elsewhere. */
 export function nativeText(seq: string): string {
   if (!MAC) return seq
@@ -52,7 +57,7 @@ export function nativeText(seq: string): string {
     const key = chord.endsWith('++') ? '+' : parts.pop()!
     const glyph = (m: string) => ({ Alt: '⌥', Shift: '⇧', Ctrl: '⌘', Meta: '⌃' } as Record<string, string>)[m] ?? m
     const order = ['Meta', 'Alt', 'Shift', 'Ctrl'].filter((m) => parts.includes(m))
-    return order.map(glyph).join('') + (({ Left: '←', Right: '→', Up: '↑', Down: '↓', Return: '↩', Esc: '⎋' } as Record<string, string>)[key] ?? key)
+    return order.map(glyph).join('') + (MAC_KEYS[key] ?? key)
   }).join(', ')
 }
 /** ShortcutManager::getShortcut: the user's shortcut, else the default. */

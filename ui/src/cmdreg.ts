@@ -136,7 +136,7 @@ const COMMANDS: Record<string, RegCommand> = {
   Std_UserEditModeCutting: reg('Cutting', () => setEditMode('cutting')),
   Std_UserEditModeColor: reg('Color', () => setEditMode('color')),
   Std_DlgPreferences: reg('Preferences', preferences),
-  Std_DlgCustomize: reg('Customize…', () => setState({ customizeOpen: true })),
+  Std_DlgCustomize: reg('Customize', () => setState({ customizeOpen: true })),
 
   // ── Overlay (OverlayWidgets.cpp) ──
   Std_DockOverlayAll: reg('Toggle Overlay for All Panels', overlayAll),

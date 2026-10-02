@@ -120,14 +120,14 @@ const viewsSub = (): Entry[] => {
     { label: 'Align to Selection', icon: 'align', cmd: 'Std_AlignToSelection', disabled: !getState().subSel.some((r) => /\.Face\d+$/.test(r)), onSelect: alignToSelection },
     { label: 'Axonometric', icon: 'iso', sub: axonometric() },
     'sep',
-    { label: 'Home', kbd: 'Home', icon: 'home', cmd: 'Std_ViewHome', onSelect: viewHome },
+    { label: 'Home', kbd: '↖', icon: 'home', cmd: 'Std_ViewHome', onSelect: viewHome },
     ...sixViews(),
     'sep',
     { label: 'Rotate Left', kbd: '⇧←', icon: 'rot-left', cmd: 'Std_ViewRotateLeft', onSelect: rotateLeft },
     { label: 'Rotates Right', kbd: '⇧→', icon: 'rot-right', cmd: 'Std_ViewRotateRight', onSelect: rotateRight },
     'sep',
-    { label: 'Store Working View', kbd: '⇧End', cmd: 'Std_StoreWorkingView', onSelect: storeView },
-    { label: 'Recall Working View', kbd: 'End', cmd: 'Std_RecallWorkingView', onSelect: recallView },
+    { label: 'Store Working View', kbd: '⇧↘', cmd: 'Std_StoreWorkingView', onSelect: storeView },
+    { label: 'Recall Working View', kbd: '↘', cmd: 'Std_RecallWorkingView', onSelect: recallView },
   ]
 }
 const styleSub = (): Entry[] => DRAW_STYLES.map(([s, label, key, icon, cmd]): Entry =>
@@ -218,7 +218,7 @@ function selectionTreeEntries(one: Body | undefined): Entry[] {
     { label: 'Send to Console', kbd: '⇧⌘P', icon: 'console', onSelect: sendToConsole },
     ...(one ? [{ label: 'Transform', icon: 'transform', onSelect: () => openTask('transform', one.name) } as Entry,
       { label: 'Placement', icon: 'placement', onSelect: () => openTask('placement', one.name) } as Entry] : []),
-    { label: 'Properties', kbd: '⌥↩', onSelect: properties },
+    { label: 'Properties', kbd: '⌥↵', onSelect: properties },
   ]
 }
 /** The tree's Open file location: the selected part's file, or the project folder, in the file manager. */
@@ -242,7 +242,7 @@ export function viewEntries(): Entry[] {
     { label: 'Fit Selection', kbd: 'V, S', icon: 'fit-sel', disabled: !sel.length, onSelect: () => getView()?.fitAll(sel) },
     { label: 'Align to Selection', icon: 'align', disabled: !s.subSel.some((r) => /\.Face\d+$/.test(r)), onSelect: alignToSelection },
     { label: 'Draw Style', icon: 'ds-asis', sub: styleSub() },
-    { label: 'Standard Views', icon: 'views', sub: [...axonometric().slice(0, 1), 'sep', { label: 'Home', kbd: 'Home', icon: 'home', onSelect: viewHome },
+    { label: 'Standard Views', icon: 'views', sub: [...axonometric().slice(0, 1), 'sep', { label: 'Home', kbd: '↖', icon: 'home', onSelect: viewHome },
       ...sixViews(), 'sep', { label: 'Rotate Left', kbd: '⇧←', icon: 'rot-left', onSelect: rotateLeft },
       { label: 'Rotates Right', kbd: '⇧→', icon: 'rot-right', onSelect: rotateRight }] },
     'sep',
@@ -382,7 +382,7 @@ export function MenuBar() {
         // Std_Alignment, CommandDoc.cpp: isActive() only with exactly two objects selected.
         { label: 'Align To…', icon: 'align-obj', cmd: 'Std_Alignment', disabled: selected.length !== 2, onSelect: alignment },
         { label: 'Send to Console', kbd: '⇧⌘P', icon: 'console', cmd: 'Std_SendToPythonConsole', disabled: !selected.length, onSelect: sendToConsole },
-        { label: 'Properties', kbd: '⌥↩', icon: 'report', cmd: 'Std_Properties', onSelect: properties },
+        { label: 'Properties', kbd: '⌥↵', icon: 'report', cmd: 'Std_Properties', onSelect: properties },
         'sep',
         { label: 'Toggle Edit Mode', icon: 'body', cmd: 'Std_Edit', disabled: !one, onSelect: () => one && editDefault(one) },
         { label: 'Edit Mode', icon: EDIT_MODES.find((m) => m[0] === editMode)![2], sub: EDIT_MODES.map(([m, label, icon, tip, cmd]): Entry => ({ label, icon, cmd, checked: editMode === m, onSelect: () => setEditMode(m), title: tip })) },
@@ -419,7 +419,7 @@ export function MenuBar() {
         { label: 'Texture Mapping', icon: 'texture', disabled: true, title: 'n/a: no textures here' },
         'sep',
         { label: 'Visibility', icon: 'visibility', sub: visibilitySub() },
-        { label: 'Toggle Navigation/Edit Mode', kbd: 'Esc', icon: 'toggle-nav', disabled: true, title: 'Toggles between navigation and edit mode (only while an object is in edit mode)' },
+        { label: 'Toggle Navigation/Edit Mode', kbd: '⎋', icon: 'toggle-nav', disabled: true, title: 'Toggles between navigation and edit mode (only while an object is in edit mode)' },
         { label: 'Material', icon: 'material', disabled: true, title: "n/a: materials are set in the part's source" },
         { label: 'Appearance', kbd: '⌘D', icon: 'appearance', cmd: 'Std_SetAppearance', disabled: !selected.length, onSelect: () => openTask('appearance', ''), title: 'Sets the display properties of the selected object' },
         { label: 'Random Color', icon: 'random-color', cmd: 'Std_RandomColor', disabled: !selected.length, onSelect: randomColor },
@@ -490,7 +490,7 @@ export function MenuBar() {
         'sep',
         { label: 'Document Utility', disabled: true, title: 'n/a: no FCStd files here for it to check or recover' },
         { label: 'Edit Parameters', icon: 'dlg-parameter', cmd: 'Std_DlgParameter', onSelect: editParameters },
-        { label: 'Customize…', icon: 'customize', cmd: 'Std_DlgCustomize', title: 'Customize toolbars and macros', onSelect: () => setState({ customizeOpen: true }) },
+        { label: 'Customize', icon: 'customize', cmd: 'Std_DlgCustomize', title: 'Customize toolbars and macros', onSelect: () => setState({ customizeOpen: true }) },
       ]} />
       <Menu label="Macro" entries={macroEntries()} />
       {/* Gui::MenuManager: a workbench inserts its own menu(s) with root->insertItem(root->
@@ -706,7 +706,7 @@ export function ToolBar() {
       {on('View') && <><TGrip />
         <Btn icon="fit-all" title="Fit all (V, F)" cmd="Std_ViewFitAll" onClick={() => getView()?.fitAll()} />
         <Btn icon="fit-sel" title="Fit selection (V, S)" cmd="Std_ViewFitSelection" disabled={!selected.length} onClick={() => getView()?.fitAll(selected)} />
-        <DropButton icon="views" title="Standard Views" entries={() => [...axonometric(), 'sep', { label: 'Home', kbd: 'Home', icon: 'home', cmd: 'Std_ViewHome', onSelect: viewHome }, ...sixViews()]} />
+        <DropButton icon="views" title="Standard Views" entries={() => [...axonometric(), 'sep', { label: 'Home', kbd: '↖', icon: 'home', cmd: 'Std_ViewHome', onSelect: viewHome }, ...sixViews()]} />
         <Btn icon="align" title="Align to selection: look at the selected face" cmd="Std_AlignToSelection" disabled={!subSel.some((r) => /\.Face\d+$/.test(r))} onClick={alignToSelection} />
         <TSep />
         <DrawStyleButton />

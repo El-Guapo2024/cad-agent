@@ -106,7 +106,7 @@ function ColorsPage() {
       <fieldset className="tgroup"><legend>Color Bar</legend>
         <div className="pref-grid">
           <span className="disabled">Label text color</span><ColorButton value="#212529" tip={na('no colour bars here (Mesh and FEM results)')} />
-          <span className="disabled">Label text size</span><input type="number" className="qsb" value={13} disabled title={na('no colour bars here (Mesh and FEM results)')} />
+          <span className="disabled">Label text size</span><span className="pct-box disabled" title={na('no colour bars here (Mesh and FEM results)')}><input type="number" className="qsb" value={13} disabled /> pt</span>
         </div>
       </fieldset>
     </div>
@@ -296,26 +296,33 @@ function DocumentPage() {
   const sp = useServerPrefs()
   const na = (why: string) => `n/a: ${why}`
   const fcstd = na('projects are folders of Python and TOML files, not FCStd documents')
+  const saved = na('every change is written to the project as it is made')
+  const git = na('the project is under git; undo keeps the journal')
   const dis = (label: string, on: boolean, tip: string) => <label className="tcheck" title={tip}><input type="checkbox" checked={on} disabled />{label}</label>
   return (
     <div className="pref-content">
+      {/* rows in DlgSettingsDocument.ui's grid order, with its default values */}
       <fieldset className="tgroup"><legend>General</legend>
-        <label className="sel-row"><span>Maximum undo/redo steps</span>
-          <UndoSizeBox value={sp.MaxUndoSize} /></label>
-        {dis('Enables async document recomputation', false, na('a part rebuilds in the CAD worker, not the page'))}
-        {dis('Allow aborting recomputation', false, na('a rebuild is one worker call'))}
         {dis('Create new document at start up', false, na('the workbench opens the projects in its folders'))}
         <label className="sel-row"><span className="disabled">Document save compression level<br />(0 = none, 9 = highest, 7 = default)</span><input className="qsb pick-radius" value={7} readOnly disabled title={fcstd} /></label>
+        <label className="sel-row"><span>Maximum undo/redo steps</span>
+          <UndoSizeBox value={sp.MaxUndoSize} /></label>
+        {dis('Allow aborting recomputation', false, na('a rebuild is one worker call'))}
+        {dis('Enables async document recomputation', true, na('a part rebuilds in the CAD worker, not the page'))}
       </fieldset>
       <fieldset className="tgroup"><legend>Storage</legend>
-        {dis('Run AutoRecovery at startup', true, fcstd)}
         {dis('Saving transactions (Auto-save)', false, fcstd)}
         {dis('Discard saved transaction after saving document', false, fcstd)}
-        {dis('Save auto-recovery information every 15 min', true, na('every change is written to the project as it is made'))}
-        {dis('Add thumbnail to project file when saving', true, fcstd)}
+        {dis('Run AutoRecovery at startup', true, fcstd)}
+        <div className="sel-row">{dis('Save auto-recovery information every', true, saved)}<input className="qsb pick-radius" value="15 min" readOnly disabled title={saved} /></div>
+        <div className="sel-row">{dis('Add thumbnail to project file when saving', true, fcstd)}
+          <span className="pref-pair"><span className="disabled">Size</span><input className="qsb pick-radius" value={256} readOnly disabled title={fcstd} /></span></div>
         {dis('Add program icon to the generated thumbnail', false, fcstd)}
-        {dis('Maximum number of backup files to keep when resaving document', true, na('the project is under git; undo keeps the journal'))}
-        {dis('Use date and FCBak extension', true, fcstd)}
+        <div className="sel-row">{dis('Maximum number of backup files to keep when resaving document', true, git)}<input className="qsb pick-radius" value={1} readOnly disabled title={git} /></div>
+        <div className="sel-row">{dis('Use date and FCBak extension', true, fcstd)}
+          <span className="pref-pair"><span className="disabled">Date format</span><input className="pref-wide" value="%Y%m%d-%H%M%S" readOnly disabled title={fcstd} /></span></div>
+        {/* DlgSettingsDocumentImp's constructor sets FormatTimeDocsLabel to this link */}
+        <a href="http://www.cplusplus.com/reference/ctime/strftime/" target="_blank" rel="noreferrer">Show format documentation</a>
         {dis('Suppress older version warning on save', false, fcstd)}
       </fieldset>
       <fieldset className="tgroup"><legend>Document Objects</legend>
@@ -324,10 +331,11 @@ function DocumentPage() {
       </fieldset>
       <fieldset className="tgroup"><legend>Authoring and License</legend>
         <div className="pref-grid">
-          <span className="disabled">Author name</span><input disabled title={fcstd} />
+          <span className="disabled">Author name</span><span className="pref-pair"><input disabled title={fcstd} />{dis('Set on save', false, fcstd)}</span>
           <span className="disabled">Company</span><input disabled title={fcstd} />
           <span className="disabled">Default license</span><select disabled title={fcstd}><option>All rights reserved</option></select>
-          <span className="disabled">License URL</span><input disabled title={fcstd} />
+          {/* onLicenseTypeChanged: a listed licence fills in its URL, read-only */}
+          <span className="disabled">License URL</span><input value="https://en.wikipedia.org/wiki/All_rights_reserved" readOnly disabled title={fcstd} />
         </div>
       </fieldset>
     </div>
@@ -369,8 +377,8 @@ function EditorPage() {
   const radio = useId() // the search index renders a copy of every page; keep the groups apart
   const check = (lbl: string, on: boolean, f: ((v: boolean) => void) | undefined, tip: string) => (
     <label className="tcheck" title={tip}><input type="checkbox" checked={on} disabled={!f} onChange={(e) => f?.(e.target.checked)} />{lbl}</label>)
-  const spin = (v: number, lo: number, hi: number, f: (v: number) => void, tip: string) => (
-    <input type="number" className="qsb pick-radius" min={lo} max={hi} value={v} title={tip} onChange={(e) => f(Math.min(hi, Math.max(lo, Math.round(Number(e.target.value)))))} />)
+  const spin = (v: number, lo: number, hi: number, suffix: string, f: (v: number) => void, tip: string) => (
+    <span className="pct-box" title={tip}><input type="number" className="qsb pick-radius" min={lo} max={hi} value={v} onChange={(e) => f(Math.min(hi, Math.max(lo, Math.round(Number(e.target.value)))))} />{suffix}</span>)
   const plain = 'n/a: the macro editor here is plain text'
   return (
     <div className="pref-content">
@@ -380,8 +388,8 @@ function EditorPage() {
         {check('Enable folding', true, undefined, plain)}
       </fieldset>
       <fieldset className="tgroup"><legend>Indentation</legend>
-        <label className="sel-row"><span>Tab size</span>{spin(ed.tabSize, 1, 99, (tabSize) => setEditorPrefs({ tabSize }), 'Tabulator raster (how many spaces)')}</label>
-        <label className="sel-row"><span>Indent size</span>{spin(ed.indentSize, 1, 99, (indentSize) => setEditorPrefs({ indentSize }), 'How many spaces will be inserted when pressing <Tab>')}</label>
+        <label className="sel-row"><span>Tab size</span>{spin(ed.tabSize, 0, 99, ' spaces', (tabSize) => setEditorPrefs({ tabSize }), 'Tabulator raster (how many spaces)')}</label>
+        <label className="sel-row"><span>Indent size</span>{spin(ed.indentSize, 0, 99, ' spaces', (indentSize) => setEditorPrefs({ indentSize }), 'How many spaces will be inserted when pressing <Tab>')}</label>
         <label className="tcheck" title="Pressing <Tab> will insert a tabulator with defined tab size"><input type="radio" name={radio} checked={!ed.spaces} onChange={() => setEditorPrefs({ spaces: false })} />Keep tabs</label>
         <label className="tcheck" title="Pressing <Tab> will insert amount of defined indent size"><input type="radio" name={radio} checked={ed.spaces} onChange={() => setEditorPrefs({ spaces: true })} />Insert spaces</label>
       </fieldset>
@@ -394,7 +402,7 @@ function EditorPage() {
           <div className="pref-grid">
             <span>Family</span><select value={ed.font} title="Font family to be used for selected code type" onChange={(e) => setEditorPrefs({ font: e.target.value })}>
               {FONTS.map((f) => <option key={f} value={f}>{f === 'ui-monospace' ? 'System fixed font' : f}</option>)}</select>
-            <span>Size</span>{spin(ed.fontSize, 1, 99, (fontSize) => setEditorPrefs({ fontSize }), 'Font size to be used for selected code type')}
+            <span>Size</span>{spin(ed.fontSize, 1, 99, ' pt', (fontSize) => setEditorPrefs({ fontSize }), 'Font size to be used for selected code type')}
             <span>Color</span><ColorButton value={ed.colors[item]} set={SYNTAX.has(item) ? (c) => setEditorPrefs({ colors: { ...ed.colors, [item]: c } }) : undefined}
               tip={SYNTAX.has(item) ? undefined : plain} />
           </div>

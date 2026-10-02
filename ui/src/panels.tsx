@@ -1257,7 +1257,7 @@ export function PrefsPage({ page }: { page: string }) {
               <QComboBox className="qselect-field" value={value} disabled onChange={() => {}}>{opts.map((o) => <option key={o} value={o}>{o}</option>)}</QComboBox></label>))}
           <label className="tfield"><span>Eye to eye distance for stereo modes</span><input type="number" value={5} disabled /></label>
           <label className="tfield"><span>Datum size</span><span className="qsuffix"><input type="number" value={100} disabled />%</span></label>
-          <label className="tfield"><span>Maximum frame rate</span><input readOnly value="No limit" disabled /></label>
+          <label className="tfield" title="n/a: the browser redraws at the display's refresh rate"><span>Maximum frame rate</span><input readOnly value="Automatic" disabled /></label>
         </fieldset>
         <fieldset className="tgroup tg"><legend>Camera Type</legend>
           <label className="tcheck" title="Objects will appear in a perspective projection"><input type="radio" checked={!ortho} onChange={() => setOrtho(false)} /> Perspective rendering</label>
