@@ -47,6 +47,7 @@ export type LogEntry = { t: string; cmd: string; argv: string[]; exit: number; s
 export type Project = { slug: string; root: string; assembly: boolean; verdict: string | null; done: boolean
   /** The Start page's file card: the newest render (out/…png) and the project's own bytes. */
   thumb?: string | null; size?: number }
+export type CacheInfo = { dir: string; bytes: number; text: string; limit: number; limitText: string; due: boolean }
 /** GET /api/macros: one row per macro file in the macros dir. */
 export type MacroInfo = { name: string; lines: number; modified: string }
 export type MacroText = { name: string; text: string }
@@ -115,6 +116,9 @@ export const api = {
   // ── Macro menu (macro.tsx): Std_DlgMacroRecord/Execute, DlgMacroExecuteImp's Create/Edit/… ──
   /** `cad pref`'s store (userprefs.py): the preferences the commands act on, e.g. MaxUndoSize. */
   prefs: () => http<{ prefs: Record<string, number> }>('GET', '/api/prefs'),
+  /** `cad cache` (appcache.py): the user cache's location and size; startup also runs the periodic check. */
+  cache: (startup = false) => http<CacheInfo>('GET', '/api/cache', undefined, startup ? { startup: '1' } : {}),
+  clearCache: () => http<{ freed: number; bytes: number; text: string }>('POST', '/api/cache/clear', {}),
   setPref: (key: string, value: number) => http<{ prefs: Record<string, number> }>('POST', '/api/pref', { key, value }),
   macros: () => http<{ dir: string; macros: MacroInfo[] }>('GET', '/api/macros'),
   macro: (name: string) => http<MacroText>('GET', '/api/macro', undefined, { name }),

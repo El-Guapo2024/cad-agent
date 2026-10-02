@@ -8,7 +8,8 @@ import { boxElementSelection, boxSelection, boxZoom, clarifySelection, exportPar
 import { workbenchList } from './chrome'
 import { setState } from './store'
 import { MessageBoxHost } from './msgbox'
-import { PreferencesDialog, applyReportColors } from './prefs'
+import { PreferencesDialog, applyReportColors, checkCache } from './prefs'
+import { api } from './api'
 import { exportCommand, printView } from './filemenu'
 import { executeMacroDirect } from './macro'
 // Registers cmdreg.ts's command registry into commands.ts/actions.ts (onCommandRegistry/
@@ -26,6 +27,8 @@ const components: Record<string, FC<IDockviewPanelProps>> = {
 /** FreeCAD's default layout: the combo view (Model, Tasks) on the left, the 3D
  *  view in the middle, the report view and console under it. */
 applyReportColors() // Preferences > Report View > Colors, from the last session
+// MainWindow's start-up ApplicationCache check (Preferences > General > Cache's period and limit).
+setTimeout(() => { void api.cache(true).then((c) => (c.due ? checkCache(c) : c)).catch(() => {}) }, 2000)
 
 function onReady(e: DockviewReadyEvent) {
   const a = e.api

@@ -10,6 +10,8 @@ bin/cad --projects <dir> check <slug>            # run every gate
 bin/cad --projects <dir> verify <slug>           # rebuild fresh, record the verdict with git
 bin/cad --projects <dir> done <slug>             # the gate: exit 0 only if that verdict still stands
 bin/cad serve [DIR ...]                          # the workbench: live 3D, drag parts, checks, activity
+bin/cad pref [KEY [VALUE]]                       # preferences the commands use (MaxUndoSize, CacheLimit, ...)
+bin/cad cache [--clear]                          # the user cache: location, size against CacheLimit
 .venv/bin/python -m pytest tests -q              # 201 tests
 ```
 

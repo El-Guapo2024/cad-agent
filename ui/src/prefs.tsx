@@ -10,7 +10,7 @@ import { NAV_DEFAULTS } from './nav'
 import { ContextMenu, type Entry } from './chrome'
 import { messageBox } from './msgbox'
 import { setTreeOption, setTreeUI, setEditorPrefs, editorStyle, setOverlayPrefs, ANIMATION_CURVES } from './actions'
-import { api } from './api'
+import { api, type CacheInfo } from './api'
 import { listCommands } from './cmdreg'
 import { commandsByShortcut, defaultAccel, eventSeq, nativeText, resetAllShortcuts, setShortcut, shortcutOf } from './keymap'
 import { setUnits } from './commands'
@@ -23,7 +23,7 @@ import { gradientMesh } from './background'
 import { LIGHT_DEFAULTS, LightRig, azimuthElevationToDirection, directionToAzimuthElevation, type Light, type LightPrefs } from './lights'
 
 const GROUPS: [string, string, string[]][] = [
-  ['General', 'preferences-general', ['General', 'Document', 'Selection', 'Keyboard', 'Notification Area', 'Report View']],
+  ['General', 'preferences-general', ['General', 'Document', 'Selection', 'Keyboard', 'Cache', 'Notification Area', 'Report View']],
   ['Display', 'preferences-display', ['3D View', 'Light Sources', 'UI', 'Navigation', 'Colors', 'Advanced', 'Transform snap']],
   ['Python', 'preferences-python', ['Macro', 'Python General', 'Editor']],
 ]
@@ -252,7 +252,7 @@ function UIPage() {
 }
 /** The server-side preferences (`cad pref`, userprefs.py) as last read; the pages edit them
  *  through the API so the agent's commands see the same values. */
-const SERVER_DEFAULTS: Record<string, number> = { MaxUndoSize: 20 }
+const SERVER_DEFAULTS: Record<string, number> = { MaxUndoSize: 20, CacheLimit: 500, CachePeriod: 2 }
 let serverPrefs: Record<string, number> = { ...SERVER_DEFAULTS }
 const serverSubs = new Set<() => void>()
 function loadServerPrefs() { return api.prefs().then((r) => { serverPrefs = { ...SERVER_DEFAULTS, ...r.prefs }; serverSubs.forEach((f) => f()) }).catch(() => {}) }
@@ -491,11 +491,46 @@ function KeyboardPage() {
     </div>
   )
 }
+/** ApplicationCache::performAction: over the limit, ask to clear it (Open is n/a in a browser). */
+export async function checkCache(info: CacheInfo): Promise<CacheInfo> {
+  if (info.bytes <= info.limit) return info
+  const b = await messageBox('warning', 'Cache Directory', `The cache directory ${info.dir} exceeds the size of ${info.limitText}. Clear it now?\n\n\n` +
+    'Warning: Make sure that this is the only running cad-agent instance and that no documents are opened as this may result into data loss!', ['Yes', 'No'])
+  if (b !== 'Yes') return info
+  const r = await api.clearCache()
+  return { ...info, bytes: r.bytes, text: r.text }
+}
+/** DlgSettingsCacheDirectory.ui: Location (read-only), Check periodically at program start,
+ *  Cache size limit, Current cache size and Check Now; the cache is `cad cache`'s (appcache.py). */
+function CachePage() {
+  const sp = useServerPrefs()
+  const [info, setInfo] = useState<CacheInfo | null>(null)
+  useEffect(() => { void api.cache().then(setInfo).catch(() => {}) }, [])
+  const limits: [string, number][] = [['100 MB', 100], ['300 MB', 300], ['500 MB', 500], ['1 GB', 1024], ['2 GB', 2048], ['3 GB', 3072]]
+  if (!limits.some(([, v]) => v === sp.CacheLimit)) limits.push([`${sp.CacheLimit} MB`, sp.CacheLimit])
+  return (
+    <div className="pref-content">
+      <fieldset className="tgroup"><legend>Cache Directory</legend>
+        <label className="sel-row"><span>Location (read-only)</span><input readOnly value={info?.dir ?? ''} style={{ flex: 1 }} />
+          <button className="qbtn" disabled title="n/a: a browser can't open a folder on this machine">Browse cache directory</button></label>
+        <label className="sel-row"><span>Check periodically at program start</span>
+          <select value={sp.CachePeriod} onChange={(e) => setServerPref('CachePeriod', Number(e.target.value))}>
+            {['Always', 'Daily', 'Weekly', 'Monthly', 'Yearly', 'Never'].map((p, i) => <option key={p} value={i}>{p}</option>)}</select></label>
+        <label className="sel-row"><span title="Notify the user if the cache size exceeds the specified limit">Cache size limit</span>
+          <select value={sp.CacheLimit} title="Notify the user if the cache size exceeds the specified limit" onChange={(e) => setServerPref('CacheLimit', Number(e.target.value))}>
+            {limits.map(([t, v]) => <option key={v} value={v}>{t}</option>)}</select></label>
+        <div className="sel-row"><span>Current cache size: {info?.text ?? 'Unknown'}</span>
+          <button className="qbtn" onClick={() => { void api.cache().then(checkCache).then(setInfo).catch(() => {}) }}>Check Now</button></div>
+      </fieldset>
+    </div>
+  )
+}
 /** What each page's settings go back to (Reset Page / Group / All): the store's own defaults. */
 const DEFAULTS: Record<string, Record<string, unknown>> = {
   General: { units: { schema: 0, decimals: 2, denominator: 8 }, toolbarIconSize: 24, recentFilesSize: 4 },
   Document: { 'server:MaxUndoSize': 20 },
   Keyboard: { shortcuts: {}, shortcutTimeout: 300 },
+  Cache: { 'server:CacheLimit': 500, 'server:CachePeriod': 2 },
   Selection: { selPrefs: SEL_DEFAULTS, tree: { syncView: true, syncSelection: true, preSelection: true, recordSelection: true } },
   'Notification Area': { notifyPrefs: NOTIFY_DEFAULTS },
   '3D View': { corner: { show: true, size: 10 }, axes: false, axisColors: AXIS_COLOR_DEFAULTS, showFPS: false },
@@ -560,7 +595,7 @@ function ReportViewPage() {
     </div>
   )
 }
-const page = (name: string): ReactNode => (name === 'Selection' ? <SelectionPage /> : name === 'Report View' ? <ReportViewPage /> : name === 'Colors' ? <ColorsPage /> : name === 'Light Sources' ? <LightSourcesPage /> : name === 'Document' ? <DocumentPage /> : name === 'Python General' ? <PythonConsolePage /> : name === 'Editor' ? <EditorPage /> : name === 'Advanced' ? <AdvancedPage /> : name === 'Keyboard' ? <KeyboardPage /> : name === 'UI' ? <UIPage /> : <PrefsPage page={name} />)
+const page = (name: string): ReactNode => (name === 'Selection' ? <SelectionPage /> : name === 'Report View' ? <ReportViewPage /> : name === 'Colors' ? <ColorsPage /> : name === 'Light Sources' ? <LightSourcesPage /> : name === 'Document' ? <DocumentPage /> : name === 'Python General' ? <PythonConsolePage /> : name === 'Editor' ? <EditorPage /> : name === 'Advanced' ? <AdvancedPage /> : name === 'Keyboard' ? <KeyboardPage /> : name === 'Cache' ? <CachePage /> : name === 'UI' ? <UIPage /> : <PrefsPage page={name} />)
 
 /** What Cancel puts back: the app's own saved settings and the store fields the pages edit. */
 const PREF_KEYS = ['nav', 'animate', 'cube', 'navPrefs', 'homeView', 'newDocCameraScale', 'units', 'corner', 'axes', 'axisColors',

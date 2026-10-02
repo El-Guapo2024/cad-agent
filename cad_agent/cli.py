@@ -1004,6 +1004,21 @@ def cmd_pref(a) -> Result:
                   ", ".join(f"{k}={v}" for k, v in shown.items()), [])
 
 
+def cmd_cache(a) -> Result:
+    """The user cache (appcache.py): where it is, its size against CacheLimit, --clear."""
+    from . import appcache
+    freed = appcache.clear() if a.clear else None
+    total, limit = appcache.size(), appcache.limit_bytes()
+    data = {"dir": str(appcache.directory()), "bytes": total, "limit": limit, "over": total > limit,
+            "freed": freed}
+    lines = [f"cache: {data['dir']}", f"  size {appcache.to_string(total)} (limit {appcache.to_string(limit)})"]
+    if freed is not None:
+        lines.append(f"  cleared {appcache.to_string(freed)}")
+    elif total > limit:
+        lines.append(f"  over the limit: `cad cache --clear` clears it")
+    return Result(OK, data, "\n".join(lines), appcache.to_string(total), [])
+
+
 def cmd_history(a) -> Result:
     pdir = _project(a.slug)
     from . import undo as un
@@ -1426,6 +1441,10 @@ def build_parser() -> argparse.ArgumentParser:
              "Preferences (e.g. MaxUndoSize, the undo/redo steps kept): list, get or set")
     sp.add_argument("key", nargs="?")
     sp.add_argument("value", nargs="?")
+
+    sp = add("cache", cmd_cache, "the user cache directory: location and size against the "
+             "CacheLimit preference; --clear empties what no running worker is using")
+    sp.add_argument("--clear", action="store_true", help="delete the cache files not in use")
 
     sp = add("history", cmd_history, "the undo and redo stacks: what changed, who made the "
              "change (ui or agent), and when")

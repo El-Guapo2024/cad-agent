@@ -566,6 +566,14 @@ def make_handler(bench: Bench):
                 if path == "/api/log":
                     return self._json({"entries": bench.log_tail(q.get("slug", ""),
                                                                  int(q.get("limit", 200)))})
+                if path == "/api/cache":
+                    from . import appcache
+                    total = appcache.size()
+                    # ?startup=1: the page's start-up check (ApplicationCache::periodicCheckOfSize).
+                    due = appcache.periodic_check_due() if q.get("startup") else False
+                    return self._json({"dir": str(appcache.directory()), "bytes": total, "due": due,
+                                       "text": appcache.to_string(total), "limit": appcache.limit_bytes(),
+                                       "limitText": appcache.to_string(appcache.limit_bytes())})
                 if path == "/api/prefs":
                     from . import userprefs
                     return self._json({"prefs": userprefs.load()})
@@ -710,6 +718,11 @@ def make_handler(bench: Bench):
                 if path == "/api/macro/duplicate":
                     p = macro.duplicate_macro(str(body.get("name", "")), str(body.get("to", "")))
                     return self._json({"name": p.stem, "path": str(p)})
+                if path == "/api/cache/clear":
+                    from . import appcache
+                    freed = appcache.clear()
+                    total = appcache.size()
+                    return self._json({"freed": freed, "bytes": total, "text": appcache.to_string(total)})
                 if path == "/api/pref":
                     # `cad pref KEY VALUE`'s store, written here directly (no project involved).
                     from . import userprefs

@@ -459,14 +459,14 @@ def test_pref_rejects_unknown_keys_and_clamps_to_the_spin_box(capsys):
     _, data = run(capsys, "pref", "MaxUndoSize", "500")
     assert data["prefs"]["MaxUndoSize"] == 99
     _, data = run(capsys, "pref")
-    assert data["prefs"] == {"MaxUndoSize": 99}
+    assert data["prefs"]["MaxUndoSize"] == 99
 
 
 def test_the_page_reads_and_writes_the_same_preferences(server, capsys):
     call, _, _ = server
     code, body = call("/api/pref", {"key": "MaxUndoSize", "value": 7})
     assert code == 200 and json.loads(body)["prefs"]["MaxUndoSize"] == 7
-    assert json.loads(call("/api/prefs")[1])["prefs"] == {"MaxUndoSize": 7}
+    assert json.loads(call("/api/prefs")[1])["prefs"]["MaxUndoSize"] == 7
     _, data = run(capsys, "pref", "MaxUndoSize")
     assert data["prefs"] == {"MaxUndoSize": 7}
     assert call("/api/pref", {"key": "Nope", "value": 1})[0] == 400

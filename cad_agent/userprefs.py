@@ -10,6 +10,8 @@ Keys, with FreeCAD's names and defaults:
 - MaxUndoSize (Preferences > General > Document, "Maximum undo/redo steps",
   DlgSettingsDocument.ui prefUndoRedoSize, default 20): how many entries
   each end of the undo journal keeps.
+- CacheLimit, CachePeriod (Preferences > General > Cache, CacheDirectory
+  Limit 500 MB and Period 2 = Weekly): appcache.py's size check.
 """
 from __future__ import annotations
 
@@ -17,9 +19,9 @@ import json
 import os
 from pathlib import Path
 
-DEFAULTS: dict[str, int] = {"MaxUndoSize": 20}
+DEFAULTS: dict[str, int] = {"MaxUndoSize": 20, "CacheLimit": 500, "CachePeriod": 2}
 # QSpinBox's own range (DlgSettingsDocument.ui sets none): 0..99.
-RANGES: dict[str, tuple[int, int]] = {"MaxUndoSize": (0, 99)}
+RANGES: dict[str, tuple[int, int]] = {"MaxUndoSize": (0, 99), "CacheLimit": (1, 1 << 20), "CachePeriod": (0, 5)}
 
 
 def path() -> Path:
