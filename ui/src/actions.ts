@@ -26,7 +26,8 @@ export function attachView(v: CadView | null) {
     v.home = (d) => { home(d); setState({ cameraPreset: d }); recordGui('view', 'home') }
     // Std_ViewFitAll / Std_ViewFitSelection: same wrapping trick, for the macro recorder.
     const fitAll = v.fitAll.bind(v)
-    v.fitAll = (names, instant) => { fitAll(names, instant); recordGui('fit', ...(names?.length ? ['selection'] : [])) }
+    // `instant` is the view's own fit (a new scene), not a command: not recorded or echoed.
+    v.fitAll = (names, instant) => { fitAll(names, instant); if (!instant) recordGui('fit', ...(names?.length ? ['selection'] : [])) }
   }
   view = v
   const sc = getState().scene
@@ -41,7 +42,7 @@ export function setDock(d: DockviewApi) {
 /** Set view properties on objects (the property view's View tab and the display commands). */
 export function setViewProps(names: string[], patch: Partial<ViewProps>) {
   setState((s) => ({ view: { ...s.view, ...Object.fromEntries(names.map((n) => [n, { ...s.view[n], ...patch }])) } }))
-  if (isRecording()) { const kv = Object.entries(patch).map(fmtViewProp); for (const n of names) recordGui('set', n, ...kv) }
+  if (isRecording() || getState().scriptToPyConsole) { const kv = Object.entries(patch).map(fmtViewProp); for (const n of names) recordGui('set', n, ...kv) }
 }
 
 // ── Std_DlgMacroRecord: the macro recorder. macro.tsx owns the dialogs, the api calls and the
@@ -100,13 +101,19 @@ const fmtViewProp = ([k, v]: [string, unknown]) => {
  *  commands" preference: live when on, `# ` commented when off, same as
  *  MacroManager::makeComment prepending to a line that isn't already a comment. */
 export function recordGui(cmd: string, ...parts: string[]) {
-  if (!recording) return
-  // MacroOutputOption::values: RecordGui off → not recorded; on with GuiAsComment → a comment.
-  const { recordGuiCommands, guiAsComment, slug } = getState()
-  if (!recordGuiCommands) return
+  guiLines++
+  // MacroOutputOption::values: RecordGui off → not recorded, and a comment; on with GuiAsComment → a comment.
+  const { recordGuiCommands, guiAsComment, slug, scriptToPyConsole } = getState()
   const line = ['cad gui', cmd, slug ?? '', ...parts].filter(Boolean).join(' ')
-  recording.lines.push(guiAsComment ? `# ${line}` : line)
+  const out = !recordGuiCommands || guiAsComment ? `# ${line}` : line
+  if (recording && recordGuiCommands) recording.lines.push(out)
+  // MacroManager::addToOutput: with ScriptToPyConsole every line also goes to the console,
+  // recording or not (not while the console itself runs a typed line, which it shows already).
+  if (scriptToPyConsole && !echoMuted) consoleLog('in', out)
 }
+let guiLines = 0, echoMuted = 0
+/** The console running a typed line: its own GUI effects aren't echoed again. */
+export function muteEcho(on: boolean) { echoMuted = Math.max(0, echoMuted + (on ? 1 : -1)) }
 /** cmdreg.ts's registered commands, triggered from a menu, toolbar or key (chrome.tsx/App.tsx)
  *  while recording: mirrors Command::_invoke's own fallback (src/Gui/Command.cpp) of auto-logging
  *  `Gui.runCommand(name,0)` only when the command didn't already record its own line(s) — our
@@ -114,10 +121,9 @@ export function recordGui(cmd: string, ...parts: string[]) {
  *  setViewProps/select/attachView's viewDir·home·fitAll/setOrtho/toggleVisibility/…) aren't
  *  double-recorded; everything else gets a `cad gui run SLUG name` fallback line. */
 export function recordAndRun(name: string, run: () => void, args: string[] = []) {
-  if (!isRecording()) { run(); return }
-  const before = recording!.lines.length
+  const before = guiLines + (recording?.lines.length ?? 0)
   run()
-  if (recording && recording.lines.length === before) recordGui('run', name, ...args)
+  if (guiLines + (recording?.lines.length ?? 0) === before) recordGui('run', name, ...args)
 }
 // ── Std_DockOverlay: FreeCAD's overlay panels ─────────────────────────────────
 export type Side = 'left' | 'bottom'
@@ -361,20 +367,32 @@ export function toggleBottomPanels() {
   if (g?.api?.setVisible) g.api.setVisible(!g.api.isVisible)
 }
 /** Show a panel; a hidden dock window (the Selection view) joins the left group first. */
+/** dockview 8.3.1's addPanel: while onDidAddPanel fires, an earlier listener rebuilds the group's
+ *  header actions (HeaderActionsService.refresh), and the replaced renderer, still in the fire's
+ *  listener snapshot, throws "resource is already disposed". The panel is in by then; only that
+ *  late throw is dropped, so the command that opened the panel goes on (and is recorded). */
+const dockviewLate = (e: unknown) => { if (!/already disposed/.test(String((e as Error)?.message))) throw e }
+function addPanel(opts: Parameters<DockviewApi['addPanel']>[0]) {
+  try { dock?.addPanel(opts) } catch (e) { dockviewLate(e) }
+}
+/** removePanel has the same late throw (onDidRemovePanel). */
+export function removePanel(panel: Parameters<DockviewApi['removePanel']>[0]) {
+  try { dock?.removePanel(panel) } catch (e) { dockviewLate(e) }
+}
 export function showPanel(id: string) {
   if (dock && !dock.getPanel(id) && id === 'selection') {
-    dock.addPanel({ id, component: id, title: 'Selection View', position: { referencePanel: 'model', direction: 'within' } })
+    addPanel({ id, component: id, title: 'Selection View', position: { referencePanel: 'model', direction: 'within' } })
   }
   // The Tasks dock shows while a task dialog is open (Control().showDialog), tabbed with Model.
   if (dock && !dock.getPanel(id) && id === 'tasks') {
-    dock.addPanel({ id, component: id, title: 'Tasks', position: { referencePanel: 'model', direction: 'within' } })
+    addPanel({ id, component: id, title: 'Tasks', position: { referencePanel: 'model', direction: 'within' } })
   }
   // A dock closed from its title bar comes back where MainWindow first put it (View > Panels).
   const HOME: Record<string, [string, string]> = { model: ['Model', 'left'], report: ['Report View', 'below'], checks: ['Checks', 'below'], console: ['Console', 'below'] }
   if (dock && !dock.getPanel(id) && HOME[id]) {
     const [title, dir] = HOME[id]
     const near = dir === 'below' ? ['report', 'checks', 'console'].map((p) => dock!.getPanel(p)).find(Boolean) : undefined
-    dock.addPanel({ id, component: id, title, position: near ? { referencePanel: near.id, direction: 'within' } : { referencePanel: 'view3d', direction: dir as 'left' | 'below' } })
+    addPanel({ id, component: id, title, position: near ? { referencePanel: near.id, direction: 'within' } : { referencePanel: 'view3d', direction: dir as 'left' | 'below' } })
   }
   dock?.getPanel(id)?.api.setActive()
 }
@@ -395,7 +413,7 @@ const windowSubs = new Set<() => void>()
 const windowChanged = () => windowSubs.forEach((f) => f())
 export function subscribeWindow(f: () => void) { windowSubs.add(f); return () => windowSubs.delete(f) }
 export const hasOpenWindow = () => !!dock?.getPanel('view3d')
-export function closeActiveWindow() { dock?.getPanel('view3d')?.api.close(); windowChanged() } // Std_CloseActiveWindow
+export function closeActiveWindow() { const p = dock?.getPanel('view3d'); if (p) removePanel(p); windowChanged() } // Std_CloseActiveWindow
 export const closeAllWindows = closeActiveWindow // Std_CloseAllWindows
 
 // ── Std_RecentFiles (File menu): recently opened projects, newest first — the same `saved`-backed
@@ -792,7 +810,7 @@ export function closeTask() {
   setState({ task: null })
   showPanel('model')
   const tasks = dock?.getPanel('tasks') // and the Tasks dock goes again (no dialog to show)
-  if (tasks) dock?.removePanel(tasks)
+  if (tasks) removePanel(tasks)
 }
 
 // ── edits: each is one cad command; the backend journals it for undo/redo ────
@@ -807,7 +825,7 @@ export async function setParams(part: string, before: Record<string, unknown>, a
   const what = Object.entries(after).map(([k, v]) => `${k}=${v}`).join(' ')
   // PythonConsole echoing a GUI action (the Property editor here) as the Python it's
   // equivalent to; the console's own `set` command passes echo=false, having shown its own line.
-  if (echo) consoleLog('in', `cad set ${part} ${what}`)
+  if (echo && getState().scriptToPyConsole) consoleLog('in', `cad set ${part} ${what}`)
   try {
     const r = await api.set(slug, part, after)
     const d = r.data ?? {}
@@ -831,7 +849,7 @@ export async function place(body: string, before: Placement | null, after: Place
   const slug = getState().slug
   if (!slug) return false
   const argsText = after ? `--move=${vec(after.move)} --turn=${vec(after.turn)} --about=${vec(after.about)}` : '--reset'
-  if (echo) consoleLog('in', `cad place ${body} ${argsText}`)
+  if (echo && getState().scriptToPyConsole) consoleLog('in', `cad place ${body} ${argsText}`)
   try {
     const r = await api.place(slug, body, after)
     if (r.exit > 2) { report('err', `Not placed: cad place ${body}: ${resultText(r)}`); return false }

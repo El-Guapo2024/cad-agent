@@ -766,9 +766,11 @@ export class CadView {
     const p = this.cameraParts()
     if (!p) return
     const q = new THREE.Quaternion(...ROTATION[d])
-    if (Math.abs(q.dot(p.cam.quaternion)) > 1 - 1e-6) return this.fitAll()
+    // The class's own fitAll, not attachView's recording wrapper: Home is one command, echoed as such.
+    const fit = () => CadView.prototype.fitAll.call(this)
+    if (Math.abs(q.dot(p.cam.quaternion)) > 1 - 1e-6) return fit()
     const box = this.box(), t = p.controls.target.clone()
-    this.nav.startAnimation(q, t, box ? box.getCenter(new THREE.Vector3()).sub(t) : new THREE.Vector3(), () => this.fitAll())
+    this.nav.startAnimation(q, t, box ? box.getCenter(new THREE.Vector3()).sub(t) : new THREE.Vector3(), fit)
   }
 
   /** Coloured dots at picked points (ManualAlignment::pickedPointsSubGraph). */

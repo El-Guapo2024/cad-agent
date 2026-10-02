@@ -14,7 +14,7 @@ import { NotificationArea } from './notifications'
 import { QComboBox } from './combo'
 import { quickMeasure, subInfo, type ViewDir } from './viewer'
 import {
-  doRedo, doUndo, editDefault, getView, hasOpenWindow, hideAll, hideSelection, loadScene, openTask, place, placementOf, runCheck,
+  doRedo, doUndo, removePanel, editDefault, getView, hasOpenWindow, hideAll, hideSelection, loadScene, openTask, place, placementOf, runCheck,
   runVerify, selectAll, selectVisible, setDrawStyle, setOrtho, showAll, showPanel, showSelection, subscribeWindow, toggleAll, toggleCube,
   toggleVisibility, toggleBottomPanels, setTreeOption, selBack, selForward, overlayAll, overlayActive, overlayToggle, overlayTransparent, overlayBypass,
   setViewProps, AUTO_MODES, getAutoMode, isTransparentSide, overlaySide, setOverlayAutoMode, sideOfGroup, subscribeOverlay, toggleTransparentSide,
@@ -802,7 +802,7 @@ export function OverlayTitleActions({ group, location }: IDockviewHeaderActionsP
     <div className="ovl-titlebtns">
       <OvlBtn icon="ovl-overlay" title="Toggle overlay" onClick={() => overlaySide(side, true)} />
       <OvlBtn icon="ovl-float" title="Toggle floating window (n/a here: panels stay in the window)" onClick={() => {}} />
-      <OvlBtn icon="ovl-close" title="Close dock window" onClick={() => { const p = group.activePanel; if (p) getDock()?.removePanel(p) }} />
+      <OvlBtn icon="ovl-close" title="Close dock window" onClick={() => { const p = group.activePanel; if (p) removePanel(p) }} />
     </div>
   )
   const rotate = side === 'bottom' // rotateAutoHideIcon, OverlayWidgets.cpp 2161-2180 (no right/top side here)

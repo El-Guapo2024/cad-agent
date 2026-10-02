@@ -614,7 +614,7 @@ const DEFAULTS: Record<string, Record<string, unknown>> = {
   Advanced: { overlayPrefs: OVERLAY_DEFAULTS },
   'Transform snap': { snap: { mm: 1, deg: 5 } },
   'Available Workbenches': { wbPrefs: WB_DEFAULTS },
-  Macro: { recordGuiCommands: true, guiAsComment: true },
+  Macro: { recordGuiCommands: true, guiAsComment: true, scriptToPyConsole: true },
   'Python General': { 'editor:wordWrap': true, 'editor:consoleBlock': false, 'editor:saveHistory': false },
   Editor: { 'editor:blockCursor': false, 'editor:tabSize': 4, 'editor:indentSize': 4, 'editor:spaces': true, 'editor:font': 'ui-monospace', 'editor:fontSize': 10, 'editor:colors': EDITOR_COLORS },
   'Report View': { reportShow: { msg: true, log: true, warn: true, err: true, critical: true }, 'report.showOn': {}, 'report.timecode': true, reportTimecode: true, 'report.colors': {} },
@@ -673,7 +673,7 @@ const page = (name: string): ReactNode => (name === 'Selection' ? <SelectionPage
 /** What Cancel puts back: the app's own saved settings and the store fields the pages edit. */
 const PREF_KEYS = ['nav', 'animate', 'cube', 'navPrefs', 'homeView', 'newDocCameraScale', 'units', 'corner', 'axes', 'axisColors',
   'showFPS', 'naviCube', 'cubePos', 'rotationCenter', 'disableTouchTilt', 'recordGuiCommands', 'guiAsComment', 'notifyPrefs', 'tree',
-  'background', 'treeEditColor', 'lights', 'selPrefs', 'treeUI', 'editorPrefs', 'overlayPrefs', 'shortcuts', 'shortcutTimeout', 'wbPrefs'] as const
+  'background', 'treeEditColor', 'lights', 'selPrefs', 'treeUI', 'editorPrefs', 'overlayPrefs', 'shortcuts', 'shortcutTimeout', 'wbPrefs', 'scriptToPyConsole'] as const
 function snapshot() {
   const s = getState() as unknown as Record<string, unknown>
   const saved: Record<string, string | null> = {}

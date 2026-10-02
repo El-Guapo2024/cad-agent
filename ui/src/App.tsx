@@ -105,8 +105,8 @@ function useKeys() {
       if (mod && e.shiftKey && k === 'p') { e.preventDefault(); recordAndRun('Std_SendToPythonConsole', sendToConsole); return }
       // Std_New / Std_Open / Std_Print (QKeySequence::New/Open/Print); Std_Save/SaveAs do nothing with no
       // unsaved changes (every edit is already in the files), but still keep the browser's Save Page away.
-      if (mod && !e.shiftKey && k === 'n') { e.preventDefault(); openTask('newDocument', ''); return }
-      if (mod && !e.shiftKey && k === 'o') { e.preventDefault(); openTask('openDocument', ''); return }
+      if (mod && !e.shiftKey && k === 'n') { e.preventDefault(); recordAndRun('Std_New', () => openTask('newDocument', '')); return }
+      if (mod && !e.shiftKey && k === 'o') { e.preventDefault(); recordAndRun('Std_Open', () => openTask('openDocument', '')); return }
       if (mod && !e.shiftKey && k === 'p') { e.preventDefault(); if (getState().slug) printView(); return }
       if (mod && !e.shiftKey && e.key === 'F6') { e.preventDefault(); recordAndRun('Std_DlgMacroExecuteDirect', executeMacroDirect); return }
       if (mod && k === 's') { e.preventDefault(); return }

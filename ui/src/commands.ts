@@ -1,6 +1,6 @@
 // FreeCAD's view, visibility and selection commands, named after their FreeCAD ids.
 import { consoleLog, getState, report, saved, setState, viewOf, type Corner, type EditMode, type HomeView, type NavStyle, type Units, type ViewProps } from './store'
-import { getView, guiSynced, onGuiEvent, openTask, place, placementOf, recordGui, setOrtho, setParams, setViewProps, showPanel } from './actions'
+import { getView, guiSynced, onGuiEvent, openTask, place, placementOf, recordGui, muteEcho, setOrtho, setParams, setViewProps, showPanel } from './actions'
 import { api, resultText, type CadResult, type Vec3 } from './api'
 // Type-only: cmdreg.ts imports this file for its commands' functions, so this stays a type import
 // (erased at build) rather than a real one, the same way actions.ts avoids importing this file back.
@@ -193,6 +193,10 @@ const triple = (v: string | undefined, d: Vec3): Vec3 => (v ? (v.split(',').map(
 
 /** The console's commands: the same `cad` commands the agent runs, minus the slug. */
 export async function runConsole(line: string) {
+  muteEcho(true)
+  try { await runConsoleLine(line) } finally { muteEcho(false) }
+}
+async function runConsoleLine(line: string) {
   const text = line.trim()
   if (!text) return
   say('in', text)

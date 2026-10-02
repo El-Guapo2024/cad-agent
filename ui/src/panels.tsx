@@ -1054,7 +1054,7 @@ export function PrefsPage({ page }: { page: string }) {
   const units = useStore((s) => s.units), corner = useStore((s) => s.corner)
   const axes = useStore((s) => s.axes), axisColors = useStore((s) => s.axisColors), showFPS = useStore((s) => s.showFPS)
   const nc = useStore((s) => s.naviCube), rc = useStore((s) => s.rotationCenter), noTilt = useStore((s) => s.disableTouchTilt)
-  const recordGui = useStore((s) => s.recordGuiCommands), guiAsComment = useStore((s) => s.guiAsComment)
+  const recordGui = useStore((s) => s.recordGuiCommands), guiAsComment = useStore((s) => s.guiAsComment), scriptToConsole = useStore((s) => s.scriptToPyConsole)
   const np = useStore((s) => s.notifyPrefs)
   const toolbarIconSize = useStore((s) => s.toolbarIconSize)
   const [recentMacros, setRecentMacros] = useState(() => saved.get('recentMacrosSize', 12))
@@ -1284,7 +1284,7 @@ export function PrefsPage({ page }: { page: string }) {
           </fieldset>
         </fieldset>
         <fieldset className="tgroup tg"><legend>Logging Commands</legend>
-          <label className="tcheck" title="The console echoes each edit made in the UI as its cad line"><input type="checkbox" checked disabled /> Show script commands in Python console</label>
+          <label className="tcheck" title="Commands executed by macro scripts are shown in Python console"><input type="checkbox" checked={scriptToConsole} onChange={(e) => { saved.set('scriptToPyConsole', e.target.checked); setState({ scriptToPyConsole: e.target.checked }) }} /> Show script commands in Python console</label>
           <label className="tcheck" title="n/a: every command is already logged to the project's .cad/log.jsonl"><input type="checkbox" disabled /> Log all commands issued by menus to file</label>
         </fieldset>
         <fieldset className="tgroup tg"><legend>Recent Macros Menu</legend>
