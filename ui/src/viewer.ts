@@ -1649,8 +1649,10 @@ export class CadView {
     // not pixel-based, so an edge or vertex on the face we hit still counts as visible.
     const slack = 0.2
     ;(this.ray as any).camera = cam
-    this.ray.params.Line2 = { threshold: 6 } as any
-    this.ray.params.Points = { threshold: perPx * 6 }
+    // Preferences > Selection's PickRadius (View3DInventorViewer's pick radius, 5 px by default).
+    const radius = getState().selPrefs.pickRadius
+    this.ray.params.Line2 = { threshold: radius } as any
+    this.ray.params.Points = { threshold: perPx * radius }
     const vert = this.ray.intersectObjects(pick(this.verts), false).find((h) => !face || h.distance <= face.distance + slack)
     const edge = this.ray.intersectObjects(pick(this.edges), false).find((h) => !face || h.distance <= face.distance + slack)
     const id = (h: THREE.Intersection, i: number | null | undefined) => (h.object as any).geometry.attributes.componentId?.getX(i ?? 0) as number
@@ -1666,7 +1668,7 @@ export class CadView {
   }
 
   /** A pick-all: every face along the ray, and the edges and vertices within the pick
-   *  radius (5 px) times a multiplier (Clarify Selection's ClarifySelectionRadiusMultiplier, 5). */
+   *  radius (PickRadius, 5 px) times a multiplier (Clarify Selection's ClarifySelectionRadiusMultiplier, 5). */
   picksAt(e: { x: number; y: number }, multiplier = 5): { body: string; sub: string | null }[] {
     const canvas = this.viewer.renderer?.domElement as HTMLCanvasElement | undefined
     const cam = this.viewer.camera?.getCamera?.()
@@ -1676,8 +1678,9 @@ export class CadView {
     this.ray.setFromCamera(new THREE.Vector2(((e.x - r.left) / r.width) * 2 - 1, -((e.y - r.top) / r.height) * 2 + 1), cam)
     const s = getState(), perPx = this.worldPerPixel(cam, r.height)
     ;(this.ray as any).camera = cam
-    this.ray.params.Line2 = { threshold: 5 * multiplier } as any
-    this.ray.params.Points = { threshold: perPx * 5 * multiplier }
+    const radius = s.selPrefs.pickRadius
+    this.ray.params.Line2 = { threshold: radius * multiplier } as any
+    this.ray.params.Points = { threshold: perPx * radius * multiplier }
     const all = <T extends THREE.Object3D>(m: Map<string, T[]>) => {
       const out: T[] = []
       for (const [name, list] of m) if (!s.unselectable.includes(name)) for (const o of list) if (shown(o)) out.push(o)

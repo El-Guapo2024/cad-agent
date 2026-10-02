@@ -44,7 +44,9 @@ function SelectionPage() {
       <fieldset className="tgroup"><legend>Viewport Selection Behavior</legend>
         <div className="sel-row">{check('Enable selection', sp.enable, (enable) => setSel({ enable }), 'Enable selection, highlighted with specified color')}
           <ColorButton value={sp.color} set={(color) => setSel({ color })} tip="The color used for highlighting selected objects in the 3D view" /></div>
-        <label className="sel-row"><span className="disabled">Radius</span><input className="qsb pick-radius" value="5.0 px" readOnly disabled title="n/a: picking here is three-cad-viewer's ray cast, which has no pick radius" /></label>
+        <label className="sel-row" title={'Area for selecting elements in the 3D view.\nA larger value makes it easier to select elements, but may prevent selection of small features.'}><span>Radius</span>
+          <span className="pct-box"><input type="number" className="qsb pick-radius" min={0.5} max={200} step={1} value={sp.pickRadius}
+            onChange={(e) => setSel({ pickRadius: Math.min(200, Math.max(0.5, Math.round(Number(e.target.value) * 10) / 10)) })} />px</span></label>
         <div className="sel-row">{check('Enable preselection', sp.enablePre, (enablePre) => setSel({ enablePre }), 'Enable preselection, highlighted with specified color')}
           <ColorButton value={sp.preColor} set={(preColor) => setSel({ preColor })} tip="The color used for highlighting preselected objects in the 3D view" /></div>
         {check('Preselect the object in the 3D view when hovering the cursor over the tree item', tree.preSelection, (v) => setTreeOption('preSelection', v))}

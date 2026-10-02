@@ -35,9 +35,9 @@ export const OVERLAY_DEFAULTS: OverlayPrefs = { wheelDelay: 1000, alphaRadius: 2
  *  start-up workbench (AutoloadModule), the selector widget type and its items' style. */
 export type WbPrefs = { order: string[]; disabled: string[]; startup: string; selector: 'ComboBox' | 'TabBar'; itemStyle: 0 | 1 | 2 }
 export const WB_DEFAULTS: WbPrefs = { order: [], disabled: [], startup: 'agent', selector: 'ComboBox', itemStyle: 0 }
-export type SelPrefs = { color: string; preColor: string; enable: boolean; enablePre: boolean }
+export type SelPrefs = { color: string; preColor: string; enable: boolean; enablePre: boolean; pickRadius: number }
 /** DlgSettingsSelection.ui: SelectionColor #00ABFF, HighlightColor #0AC8FF (FreeCAD Light's too), both enabled. */
-export const SEL_DEFAULTS: SelPrefs = { color: '#' + VIEW.select.toString(16).padStart(6, '0'), preColor: '#' + VIEW.preselect.toString(16).padStart(6, '0'), enable: true, enablePre: true }
+export const SEL_DEFAULTS: SelPrefs = { color: '#' + VIEW.select.toString(16).padStart(6, '0'), preColor: '#' + VIEW.preselect.toString(16).padStart(6, '0'), enable: true, enablePre: true, pickRadius: 5 }
 
 /** The report view's message types (Base::LogStyle): Message, Log, Warning, Error, Critical. */
 export type Level = 'msg' | 'log' | 'warn' | 'err' | 'critical'
