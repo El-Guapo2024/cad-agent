@@ -369,6 +369,7 @@ def test_serve_watches_the_projects_folder_before_there_are_designs(tmp_path, mo
     # The plugin points CAD_PROJECTS at <project>/cad-projects, which doesn't exist until the
     # first design: the workbench still has to watch it, so that design shows up live.
     monkeypatch.setattr(st, "ROOT", tmp_path / "cad-projects")
+    monkeypatch.delenv("CAD_PROJECTS", raising=False)    # a plugin session sets it; it would win over ROOT
     got = {}
     monkeypatch.setattr(serve, "run", lambda roots, host, port, **kw: got.update(roots=roots))
     assert cli.main(["serve", "--port", "8800"]) == cli.OK
