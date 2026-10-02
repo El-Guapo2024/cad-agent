@@ -365,6 +365,16 @@ def test_serve_reuses_a_workbench_on_these_folders_else_takes_a_free_port(demo, 
     assert cli.main(["--json", "serve"]) == cli.OK and tried == []
 
 
+def test_serve_watches_the_projects_folder_before_there_are_designs(tmp_path, monkeypatch):
+    # The plugin points CAD_PROJECTS at <project>/cad-projects, which doesn't exist until the
+    # first design: the workbench still has to watch it, so that design shows up live.
+    monkeypatch.setattr(st, "ROOT", tmp_path / "cad-projects")
+    got = {}
+    monkeypatch.setattr(serve, "run", lambda roots, host, port, **kw: got.update(roots=roots))
+    assert cli.main(["serve", "--port", "8800"]) == cli.OK
+    assert (tmp_path / "cad-projects").is_dir() and got["roots"][0] == tmp_path / "cad-projects"
+
+
 def test_the_login_service_keeps_the_kernel_warm_and_restarts_after_a_crash(tmp_path):
     from cad_agent import service
     job = service.definition([tmp_path], port=8799)

@@ -1271,6 +1271,7 @@ def cmd_serve(a) -> Result:
     from . import serve
     from .gui_client import _candidates
     roots = [st.ROOT, *[Path(r).expanduser().resolve() for r in a.roots]]
+    st.ROOT.mkdir(parents=True, exist_ok=True)   # where `cad init` puts designs: watched while still empty
     # --port, else $PORT (what the app's Browser pane assigns), else 8733
     port = a.port
     if port is None:
@@ -1688,7 +1689,7 @@ def main(argv: list[str] | None = None) -> int:
     if a.version:
         import build123d
         from .render import backend_status
-        print(f"cad-agent 0.1.1  build123d {build123d.__version__}  render: {backend_status()}")
+        print(f"cad-agent 0.1.2  build123d {build123d.__version__}  render: {backend_status()}")
         return OK
     if not getattr(a, "func", None):
         (parser if not a.cmd else parser._subparsers._group_actions[0].choices[a.cmd]).print_help(sys.stderr)
