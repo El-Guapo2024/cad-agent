@@ -28,6 +28,7 @@ const GROUPS: [string, string, string[]][] = [
   ['General', 'preferences-general', ['General', 'Document', 'Selection', 'Keyboard', 'Cache', 'Notification Area', 'Report View']],
   ['Display', 'preferences-display', ['3D View', 'Light Sources', 'UI', 'Navigation', 'Colors', 'Advanced', 'Transform snap']],
   ['Workbenches', 'preferences-workbenches', ['Available Workbenches']],
+  ['Import-Export', 'preferences-import-export', ['PDF']],
   ['Python', 'preferences-python', ['Macro', 'Python General', 'Editor']],
 ]
 
@@ -576,6 +577,24 @@ function WorkbenchesPage() {
     </div>
   )
 }
+/** DlgSettingsPDF.ui/.cpp: PDF Export's version and the warning under it (onComboBoxIndexChanged).
+ *  Export PDF here is the browser's Save as PDF, which picks its own version (n/a). */
+const PDF_NOTES = ['This PDF version has limited support for modern features like embedded multimedia and advanced transparency effects.',
+  'This archival PDF format does not support transparency or layers. All content must be self-contained and static.',
+  'While this version supports more modern features, older PDF readers may not fully handle it.',
+  'This PDF format is intended for professional printing and requires all fonts to be embedded; some interactive features may not be supported.']
+function PdfPage() {
+  const na = "n/a: Export PDF uses the browser's Save as PDF, which sets the PDF version itself"
+  return (
+    <div className="pref-content">
+      <fieldset className="tgroup"><legend>PDF Export</legend>
+        <label className="sel-row"><span className="disabled">PDF version</span><select disabled value={0} title={na}>
+          {['PDF/1.4', 'PDF/A-1b', 'PDF/1.6', 'PDF/X-4'].map((v, i) => <option key={v} value={i}>{v}</option>)}</select></label>
+        <span className="disabled">{PDF_NOTES[0]}</span>
+      </fieldset>
+    </div>
+  )
+}
 /** What each page's settings go back to (Reset Page / Group / All): the store's own defaults. */
 const DEFAULTS: Record<string, Record<string, unknown>> = {
   General: { units: { schema: 0, decimals: 2, denominator: 8 }, toolbarIconSize: 24, recentFilesSize: 4 },
@@ -647,7 +666,7 @@ function ReportViewPage() {
     </div>
   )
 }
-const page = (name: string): ReactNode => (name === 'Selection' ? <SelectionPage /> : name === 'Report View' ? <ReportViewPage /> : name === 'Colors' ? <ColorsPage /> : name === 'Light Sources' ? <LightSourcesPage /> : name === 'Document' ? <DocumentPage /> : name === 'Python General' ? <PythonConsolePage /> : name === 'Editor' ? <EditorPage /> : name === 'Advanced' ? <AdvancedPage /> : name === 'Keyboard' ? <KeyboardPage /> : name === 'Cache' ? <CachePage /> : name === 'Available Workbenches' ? <WorkbenchesPage /> : name === 'UI' ? <UIPage /> : <PrefsPage page={name} />)
+const page = (name: string): ReactNode => (name === 'Selection' ? <SelectionPage /> : name === 'Report View' ? <ReportViewPage /> : name === 'Colors' ? <ColorsPage /> : name === 'Light Sources' ? <LightSourcesPage /> : name === 'Document' ? <DocumentPage /> : name === 'Python General' ? <PythonConsolePage /> : name === 'Editor' ? <EditorPage /> : name === 'Advanced' ? <AdvancedPage /> : name === 'Keyboard' ? <KeyboardPage /> : name === 'Cache' ? <CachePage /> : name === 'Available Workbenches' ? <WorkbenchesPage /> : name === 'PDF' ? <PdfPage /> : name === 'UI' ? <UIPage /> : <PrefsPage page={name} />)
 
 /** What Cancel puts back: the app's own saved settings and the store fields the pages edit. */
 const PREF_KEYS = ['nav', 'animate', 'cube', 'navPrefs', 'homeView', 'newDocCameraScale', 'units', 'corner', 'axes', 'axisColors',
