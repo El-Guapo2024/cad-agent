@@ -55,7 +55,7 @@ function SelectionPage() {
         {check('Auto switch to the 3D view containing the selected item', tree.syncView, (v) => setTreeOption('syncView', v), 'Selecting an item in the Tree View automatically activates its document and switches to its 3D view.')}
         {check('Auto expand tree item when the corresponding object is selected in the 3D view', tree.syncSelection, (v) => setTreeOption('syncSelection', v), 'Locates and reveals the selected object within the tree hierarchy. Prevents manual scrolling in deep, complex document structures.')}
         {check('Record selection in tree view in order to go back/forward using navigation button', tree.recordSelection, (v) => setTreeOption('recordSelection', v), "Enables selection history. Use 'Back' and 'Forward' navigation to toggle between previously selected objects without re-searching the tree.")}
-        {check('Add checkboxes for selection in document tree', false, undefined, 'Provides persistent selection toggles for each item. Simplifies batch operations and complex multi-selection without holding modifier keys (Ctrl/Shift).')}
+        {check('Add checkboxes for selection in document tree', tree.checkBoxes, (v) => setTreeOption('checkBoxes', v), 'Provides persistent selection toggles for each item. Simplifies batch operations and complex multi-selection without holding modifier keys (Ctrl/Shift).')}
       </fieldset>
     </div>
   )
@@ -603,7 +603,7 @@ const DEFAULTS: Record<string, Record<string, unknown>> = {
   Document: { 'server:MaxUndoSize': 20 },
   Keyboard: { shortcuts: {}, shortcutTimeout: 300 },
   Cache: { 'server:CacheLimit': 500, 'server:CachePeriod': 2 },
-  Selection: { selPrefs: SEL_DEFAULTS, tree: { syncView: true, syncSelection: true, preSelection: true, recordSelection: true } },
+  Selection: { selPrefs: SEL_DEFAULTS, tree: { syncView: true, syncSelection: true, preSelection: true, recordSelection: true, checkBoxes: false } },
   'Notification Area': { notifyPrefs: NOTIFY_DEFAULTS },
   '3D View': { corner: { show: true, size: 10 }, axes: false, axisColors: AXIS_COLOR_DEFAULTS, showFPS: false },
   'Light Sources': { lights: LIGHT_DEFAULTS },

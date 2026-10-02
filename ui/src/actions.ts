@@ -702,7 +702,7 @@ export function select(name: string | null, additive = false, sub: string | null
     if (additive) return { selected: s.selected.includes(name) ? s.selected.filter((n) => n !== name) : [...s.selected, name], subSel: others }
     return s.selected.length === 1 && s.selected[0] === name && !s.subSel.length ? {} : { selected: [name], subSel: [] }
   })
-  if (isRecording()) recordSelectChange(before, name, sub, additive)
+  if (isRecording() || getState().scriptToPyConsole) recordSelectChange(before, name, sub, additive)
 }
 /** Gui.Selection.addSelection/clearSelection, as `select()` above would record them: a plain
  *  click replaces (clear, then select), Cmd/Ctrl-click adds. An additive click that *removes*

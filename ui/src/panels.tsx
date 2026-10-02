@@ -295,6 +295,11 @@ function ModelTree() {
             onContextMenu={(e) => { e.preventDefault(); if (!getState().selected.includes(b.name)) select(b.name); setMenu({ x: e.clientX, y: e.clientY }) }}>
             <span className="tlab">
               <span className="tindent" />
+              {/* TreeParams CheckBoxesSelection (DocumentObjectItem::setCheckState, TreeWidget::onItemChanged):
+                  a check box before the icons, ticked while the object is selected; ticking it
+                  adds the object to the selection, unticking takes it out, no modifier keys needed. */}
+              {treeOpts.checkBoxes && <input type="checkbox" className="tcheckbox" checked={selected.includes(b.name)}
+                onClick={(e) => e.stopPropagation()} onDoubleClick={(e) => e.stopPropagation()} onChange={() => { cancelPreselectTimer(); select(b.name, true) }} />}
               {/* DocumentObjectItem::getVisibilityIcon (TreeParams VisibilityIcon, on by default): the
                   eye drawn before the object's icon; a click on it toggles visibility (Tree.cpp). */}
               {tui.visibilityIcon && <span className="teye" title="Toggle visibility (Space)" onClick={(e) => { e.stopPropagation(); toggleVisibility([b.name]) }}
