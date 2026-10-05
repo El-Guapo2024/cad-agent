@@ -36,6 +36,7 @@ from pathlib import Path
 
 SKIP = ("drift/", "extent/", "visual/")                          # rows that wait on an approved render
 DROP = ("checks.json", "verify.json", "out", ".cad", "baseline")  # outputs and approvals, never design
+JUNK = (".cad", "__pycache__", ".git", ".DS_Store")              # what tools leave in a folder, never given
 NAME = re.compile(r"^[A-Za-z0-9_][A-Za-z0-9_-]{0,63}$")
 SCORE_TIMEOUT_S = 900                                            # one verify, including a cold kernel
 
@@ -64,7 +65,14 @@ class Task:
     def given(self) -> list[str]:
         base = self.path / "given"
         files = base.rglob("*") if base.is_dir() else []
-        return sorted(p.relative_to(base).as_posix() for p in files if p.is_file())
+        rel = (p.relative_to(base) for p in files if p.is_file())
+        return sorted(r.as_posix() for r in rel if not set(r.parts) & set(JUNK))
+
+    def lay_given(self, project: Path) -> None:
+        """Copy the given files over a project, leaving out what a tool dropped among them."""
+        base = self.path / "given"
+        if base.is_dir():
+            shutil.copytree(base, project, dirs_exist_ok=True, ignore=shutil.ignore_patterns(*JUNK))
 
 
 def tasks_dir(arg: str | None = None) -> Path:
@@ -93,12 +101,10 @@ def get_task(root: Path, name: str) -> Task:
 def lay(task: Task, design: Path, project: Path) -> None:
     """Make the project that gets graded: the design, then the given files, then the hidden spec."""
     def ignore(src, names):
-        drop = {"__pycache__", ".git"} & set(names)
+        drop = set(JUNK) & set(names)
         return drop | (set(DROP) & set(names) if Path(src) == design else set())
     shutil.copytree(design, project, ignore=ignore, ignore_dangling_symlinks=True)
-    given = task.path / "given"
-    if given.is_dir():
-        shutil.copytree(given, project, dirs_exist_ok=True)
+    task.lay_given(project)
     shutil.copyfile(task.path / "spec.toml", project / "spec.toml")
 
 
@@ -234,10 +240,8 @@ def start(task: Task, work: Path) -> tuple[Path, Path]:
     root holds BRIEF.md. Returns (repo root, project folder)."""
     root = work / "repo"
     project = root / "projects" / task.name
-    given = task.path / "given"
     project.mkdir(parents=True)
-    if given.is_dir():
-        shutil.copytree(given, project, dirs_exist_ok=True)
+    task.lay_given(project)
     (root / "BRIEF.md").write_text(task.brief)
     (root / ".gitignore").write_text("projects/*/out/\nprojects/*/.cad/\nprojects/.cad/\n__pycache__/\n")
     _git(root, "init", "-q", "-b", "main")

@@ -119,9 +119,8 @@ def test_the_brief_states_everything_the_hidden_spec_checks(task):
         names |= set(e["parts"])
     for name in sorted(names):
         assert f"`{name}`" in brief, f"{task}: the brief never names `{name}`"
-    for path in (EVALS / task / "given").rglob("*"):
-        if path.is_file() and path.suffix != ".json":
-            assert path.relative_to(EVALS / task / "given").as_posix() in brief
+    for given in evals.get_task(EVALS, task).given:
+        assert given.endswith(".json") or given in brief, f"{task}: the brief never names {given}"
     assert "laid again" in brief and "own `spec.toml`" in brief
 
     assert triple(spec["envelope"]["max_mm"]) in brief
@@ -197,6 +196,24 @@ def test_the_graded_project_has_the_given_files_and_the_hidden_spec(tmp_path):
     assert (project / "placements.toml").is_file()                 # a design input, so it is kept
     for dropped in ("out", ".cad", "baseline", "checks.json", "verify.json", "parts/__pycache__"):
         assert not (project / dropped).exists(), dropped
+
+
+def test_what_a_tool_left_among_the_given_files_is_not_given(tmp_path):
+    root = tmp_path / "evals"
+    given = root / "t" / "given"
+    (given / "bought").mkdir(parents=True)
+    (root / "t" / "brief.md").write_text("# t: a task\n")
+    (root / "t" / "spec.toml").write_text("[envelope]\nmax_mm = [1, 1, 1]\n")
+    (given / "bought" / "thing.step").write_text("step")
+    for junk in (".cad/log.jsonl", "__pycache__/x.pyc", "bought/.DS_Store"):
+        (given / junk).parent.mkdir(exist_ok=True)
+        (given / junk).write_text("x")
+    task = evals.get_task(root, "t")
+    assert task.given == ["bought/thing.step"]
+    task.lay_given(tmp_path / "project")
+    laid = sorted(p.relative_to(tmp_path / "project").as_posix()
+                  for p in (tmp_path / "project").rglob("*") if p.is_file())
+    assert laid == ["bought/thing.step"]
 
 
 def test_a_given_file_the_agent_deleted_comes_back(tmp_path):

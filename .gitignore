@@ -37,3 +37,10 @@ ui/node_modules/
 
 # What `cad eval run` scored: one JSON per run, kept by whoever ran it.
 evals/results/
+
+# What cad writes when it is pointed at a task's folders (its reference design): activity
+# logs, renders, verdicts. Scoring drops them from the copy it grades anyway.
+evals/**/.cad/
+evals/**/out/
+evals/**/checks.json
+evals/**/verify.json
