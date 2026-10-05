@@ -45,7 +45,8 @@ work plane), and the beam axis is x = y = 0.
    (0, 0, -6) within 0.1 mm. `galvo_head` is 100 x 70 x 85 mm (+-0.1) with its center at
    (0, 0, 252.5) within 0.1 mm.
 2. **Out of the beam.** `galvo_mount` does not enter the beam cone (`laser_cone`, focal length 210,
-   field 150, lens diameter 30, tip at (0, 0, 0)). Any overlap fails.
+   field 150, lens diameter 30, with its work plane at z = 0 on the beam axis, `at = [0, 0, 0]`).
+   Any overlap fails.
 3. **It stands on the bench.** The closest distance between `galvo_mount` and `bench` is at most
    0.05 mm. Touching counts; overlapping fails.
 4. **It lies on the head.** The closest distance between `galvo_mount` and `galvo_head` is at

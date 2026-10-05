@@ -86,9 +86,11 @@ keeps each task's repo and agent log.
 1. Decide what it tests and what a careless design gets wrong.
 2. Write the given parts as bought parts: add a model to `make_given.py` (or `cad bought add-step`)
    with a source line that says what the numbers are and are not.
-3. Write the reference in a scratch project until `cad check` is clean, then the hidden `spec.toml`
-   from it. Pin every given body with `[[size]]` and `[[position]]`; write "touches" and "grips" as
-   `max_mm`.
+3. Write the reference in a scratch project named after the task (its `assembly.py` finds its parts
+   by that name, `SLUG = "<task>"`) until `cad check` is clean, then copy `parts/` and `assembly.py`
+   into `reference/`. Editing `reference/` in place makes the edit hook run `cad check reference`,
+   which cannot find a project of that name. Then the hidden `spec.toml`: pin every given body with
+   `[[size]]` and `[[position]]`, and write "touches" and "grips" as `max_mm`.
 4. Write `brief.md`: every number, every body name, every given file, the rule that given files are
    laid again. `tests/test_eval.py` fails if the brief leaves out a body, a given file or a number
    the spec holds a design to.

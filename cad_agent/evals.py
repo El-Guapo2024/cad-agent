@@ -194,7 +194,10 @@ def score(task: Task, design: Path, keep: bool = False, show_all: bool = False,
     work = Path(tempfile.mkdtemp(prefix=f"cad-eval-{task.name}-")).resolve()
     try:
         project = work / "projects" / task.name
-        lay(task, design, project)
+        try:
+            lay(task, design, project)
+        except (OSError, shutil.Error) as e:
+            raise EvalError(f"cannot copy the design from {design}: {e}") from None
         rec = run_verify(project.parent, task.name, timeout)
         g = grade(rec, _failed_parts(project))
     finally:
@@ -273,6 +276,7 @@ def run_task(task: Task, agent: str, timeout: float, keep: bool = False) -> dict
                 timed_out = True
         agent_s = round(time.monotonic() - t0, 1)
         result = score(task, project, keep=keep)
+        print(f"{task.name}: {result['verdict']} {result['score']:.1%}", file=sys.stderr)
         result.update(agent_exit=proc.returncode, agent_seconds=agent_s, timed_out=timed_out,
                       agent_tail=log.read_text(errors="replace")[-1500:])
         if keep:
