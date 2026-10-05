@@ -1,0 +1,104 @@
+# Hidden grader for hotplate_standoffs: the brief as acceptance tests.
+# Every number is stated in brief.md. Axes: z up, base top face at z = 0.
+#
+# Not checked, because cad-agent has no heat rule yet (PLAN_V2 step 6): that the
+# standoff material survives the plate's 250 C. When [[heat]] exists, add a 250 C
+# zone on the hot plate here, so the standoffs' MATERIAL is judged against it.
+
+[envelope]                  # base footprint x (base underside to plate top)
+max_mm = [160, 160, 36]
+
+# The given bodies stay where they are, and what they are.
+[[position]]
+body = "base_plate"
+center_mm = [0, 0, -3]
+
+[[position]]
+body = "hot_plate"
+center_mm = [0, 0, 25]
+
+[[size]]
+body = "base_plate"
+min_mm = [159.9, 159.9, 5.9]
+max_mm = [160.1, 160.1, 6.1]
+
+[[size]]
+body = "hot_plate"
+min_mm = [99.9, 99.9, 9.9]
+max_mm = [100.1, 100.1, 10.1]
+
+# The air gap: still air between a 250 C plate and the base.
+[[clearance]]
+a = "hot_plate"
+b = "base_plate"
+min_mm = 20.0
+
+# Each standoff stands on the base and carries the plate (touching, no overlap).
+[[clearance]]
+a = "standoff_1"
+b = "base_plate"
+max_mm = 0.1
+
+[[clearance]]
+a = "standoff_2"
+b = "base_plate"
+max_mm = 0.1
+
+[[clearance]]
+a = "standoff_3"
+b = "base_plate"
+max_mm = 0.1
+
+[[clearance]]
+a = "standoff_4"
+b = "base_plate"
+max_mm = 0.1
+
+[[clearance]]
+a = "standoff_1"
+b = "hot_plate"
+max_mm = 0.1
+
+[[clearance]]
+a = "standoff_2"
+b = "hot_plate"
+max_mm = 0.1
+
+[[clearance]]
+a = "standoff_3"
+b = "hot_plate"
+max_mm = 0.1
+
+[[clearance]]
+a = "standoff_4"
+b = "hot_plate"
+max_mm = 0.1
+
+# Each standoff's bore is the M3 clearance hole over one of the plate's tapped holes.
+[[interface]]
+a = "standoff_1"
+b = "hot_plate"
+fastener = "M3"
+tol_mm = 0.1
+near_mm = 15
+
+[[interface]]
+a = "standoff_2"
+b = "hot_plate"
+fastener = "M3"
+tol_mm = 0.1
+near_mm = 15
+
+[[interface]]
+a = "standoff_3"
+b = "hot_plate"
+fastener = "M3"
+tol_mm = 0.1
+near_mm = 15
+
+[[interface]]
+a = "standoff_4"
+b = "hot_plate"
+fastener = "M3"
+tol_mm = 0.1
+near_mm = 15
