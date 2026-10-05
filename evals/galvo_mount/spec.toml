@@ -1,0 +1,48 @@
+# galvo_mount, the hidden spec. `cad eval score` writes this over the design's own spec.toml.
+# Every entry is stated in brief.md, in words and numbers.
+
+[envelope]                  # the enclosure: bench and head in one box, 310 mm to the lid
+max_mm = [400, 300, 310]
+
+[[size]]                    # the bench is a 400 x 300 x 12 mm plate
+body = "bench"
+min_mm = [399.9, 299.9, 11.9]
+max_mm = [400.1, 300.1, 12.1]
+
+[[position]]                # its top face is z = 0, the work plane
+body = "bench"
+center_mm = [0, 0, -6]
+
+[[size]]                    # the head is given, at its real size
+body = "galvo_head"
+min_mm = [99.9, 69.9, 84.9]
+max_mm = [100.1, 70.1, 85.1]
+
+[[position]]                # beam leaves the lens at z = 210, on the axis x = y = 0
+body = "galvo_head"
+center_mm = [0, 0, 252.5]
+
+[[keepout]]                 # the beam over the whole 150 mm field
+tool = "laser_cone"
+params = { focal_length = 210, field = 150, lens_dia = 30 }
+at = [0, 0, 0]
+clear = ["galvo_mount"]
+
+[[clearance]]               # the mount stands on the bench
+a = "galvo_mount"
+b = "bench"
+max_mm = 0.05
+
+[[clearance]]               # and lies flat on the head's side face
+a = "galvo_mount"
+b = "galvo_head"
+max_mm = 0.05
+
+[[interface]]               # the head's four tapped M4 holes meet clearance holes in the mount
+a = "galvo_head"
+b = "galvo_mount"
+fastener = "M4"
+
+[[mass]]
+parts = { galvo_mount = 1 }
+max_g = 550

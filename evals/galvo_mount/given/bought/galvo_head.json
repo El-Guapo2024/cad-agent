@@ -1,0 +1,6 @@
+{
+ "source": "10 mm aperture galvo head class (about 100 x 70 mm body) with an F-theta lens barrel; the outline and the 40 mm M4 pattern are the task's own; modelled in build123d by evals/make_given.py, not a vendor file",
+ "vendor": null,
+ "verified": true,
+ "original": "galvo_head.step"
+}

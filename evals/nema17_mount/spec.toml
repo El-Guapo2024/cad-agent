@@ -1,0 +1,46 @@
+# nema17_mount, the hidden spec. `cad eval score` writes this over the design's own spec.toml.
+# Every entry is stated in brief.md, in words and numbers.
+
+[envelope]                  # rail, plate and motor in one box: shaft tip to motor back
+max_mm = [72, 60, 64]
+
+[[size]]                    # the motor is the given part, at its real size
+body = "nema17_motor"
+min_mm = [42.2, 42.2, 63.9]
+max_mm = [42.4, 42.4, 64.1]
+
+[[position]]                # mounting face on z = 0, shaft up, 35 mm from the rail's centreline
+body = "nema17_motor"
+center_mm = [35, 0, -8]
+
+[[size]]                    # 60 mm of 2040, laid so its 40 mm side is vertical
+body = "extrusion"
+min_mm = [19.9, 59.9, 39.9]
+max_mm = [20.1, 60.1, 40.1]
+
+[[position]]                # top face on z = 0
+body = "extrusion"
+center_mm = [0, 0, -20]
+
+[[size]]                    # a plate that covers the whole motor face, and is stiff enough
+body = "bracket"
+min_mm = [62, 42.3, 4]
+
+[[clearance]]               # the plate lies on the rail
+a = "bracket"
+b = "extrusion"
+max_mm = 0.05
+
+[[clearance]]               # and sits flat on the motor's mounting face
+a = "bracket"
+b = "nema17_motor"
+max_mm = 0.05
+
+[[interface]]               # the motor's four tapped M3 holes meet clearance holes in the plate
+a = "nema17_motor"
+b = "bracket"
+fastener = "M3"
+
+[[mass]]
+parts = { bracket = 1 }
+max_g = 32

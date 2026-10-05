@@ -1,0 +1,6 @@
+{
+ "source": "NEMA ICS 16 frame 17 (31.0 mm square pattern, 22.0 mm pilot, 5 mm shaft) with the common 17HS4401 outline (42.3 mm square, 40 mm body, 24 mm shaft); modelled in build123d by evals/make_given.py, not a vendor file",
+ "vendor": null,
+ "verified": true,
+ "original": "nema17_motor.step"
+}

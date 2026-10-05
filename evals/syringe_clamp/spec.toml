@@ -1,0 +1,43 @@
+# syringe_clamp, the hidden spec. `cad eval score` writes this over the design's own spec.toml.
+# Every entry is stated in brief.md, in words and numbers.
+
+[envelope]                  # the head's bay: plate, syringe and clamp in one box
+max_mm = [100, 40, 165]
+
+[[size]]                    # the plate is given, at its real size
+body = "carriage_plate"
+min_mm = [99.9, 5.9, 79.9]
+max_mm = [100.1, 6.1, 80.1]
+
+[[position]]                # front face on y = 0, bolt pattern centred on x = 0, z = 0
+body = "carriage_plate"
+center_mm = [0, 3, 0]
+
+[[size]]                    # so is the syringe
+body = "syringe"
+min_mm = [32.9, 21.9, 162.9]
+max_mm = [33.1, 22.1, 163.1]
+
+[[position]]                # axis at x = 10, y = -16.2, flange underside at z = 35
+body = "syringe"
+center_mm = [10, -16.2, 26.5]
+
+[[clearance]]               # the clamp holds the barrel: a printed bore, 0.05 to 0.35 mm a side
+a = "syringe"
+b = "syringe_clamp"
+min_mm = 0.05
+max_mm = 0.35
+
+[[clearance]]               # and lies on the plate
+a = "syringe_clamp"
+b = "carriage_plate"
+max_mm = 0.05
+
+[[interface]]               # its bolt holes meet the plate's M3 clearance holes
+a = "syringe_clamp"
+b = "carriage_plate"
+fastener = "M3"
+
+[[mass]]                    # it rides the carriage
+parts = { syringe_clamp = 1 }
+max_g = 30

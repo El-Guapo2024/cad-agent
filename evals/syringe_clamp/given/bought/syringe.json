@@ -1,0 +1,6 @@
+{
+ "source": "typical 10 mL luer-lock syringe: 16.0 mm barrel, 33 mm finger flange; makers differ by about 0.5 mm; modelled in build123d by evals/make_given.py, not a vendor file",
+ "vendor": null,
+ "verified": true,
+ "original": "syringe.step"
+}
