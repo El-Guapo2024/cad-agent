@@ -331,15 +331,17 @@ def test_the_agent_runs_in_a_git_repo_with_the_brief_and_the_given_files(worker,
     out = mini / "out" / "results.json"
     code, r = run(capsys, "eval", "run", "--agent", probe, "--evals", str(mini), "--keep",
                   "--out", str(out), "--timeout", "120")
-    agent_dir = Path(r["tasks"][0]["agent_dir"])
+    (t,) = r["tasks"]
+    agent_dir, scratch = Path(t["agent_dir"]), Path(t["kept"])        # --keep keeps both
     try:
-        (t,) = r["tasks"]
         assert t["agent_exit"] == 0 and not t["timed_out"], t["agent_tail"]
         assert t["task"] == "mini" and code == cli.UNCHECKED and t["verdict"] == "UNCHECKED"
         assert r["file"] == str(out) and json.loads(out.read_text())["tasks"][0]["task"] == "mini"
         assert (agent_dir / "repo" / ".gitignore").is_file()
+        assert (scratch / "projects" / "mini" / "spec.toml").is_file()
     finally:
         shutil.rmtree(agent_dir, ignore_errors=True)
+        shutil.rmtree(scratch, ignore_errors=True)
 
 
 def test_results_go_to_a_dated_file_next_to_the_tasks_by_default(worker, mini, capsys):
