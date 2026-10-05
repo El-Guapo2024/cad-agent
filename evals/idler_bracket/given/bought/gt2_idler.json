@@ -1,0 +1,6 @@
+{
+ "source": "GT2 20T toothless (smooth) idler for a 6 mm belt: bore 5, across flanges 18, overall width 8.5. Two retailer listings agree (no maker datasheet found): botland.store product 18929 'smooth pulley 20T GT2 6mm, 5 mm hole', and tinytronics.nl 'GT2-20 pulley toothless 5mm axis'. Belt-running 12.2 is the 20-tooth GT2 tip circle (the listings say it matches one); flange 1.0 thick is assumed, not published. A flanged wheel: no bearing, no hub.",
+ "vendor": null,
+ "verified": true,
+ "original": "gt2_idler.step"
+}
