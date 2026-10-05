@@ -1,0 +1,78 @@
+# Hidden grader for pinned_carrier: the brief as acceptance tests.
+# Every number is stated in brief.md. Axes: z up, base top face at z = 0.
+
+# The given bodies stay where they are, and what they are. Centres are bounding-box centres:
+# the pins span z -6 to 10, the screw z -10 to 4, the base z -10 to 0.
+[[position]]
+body = "base_plate"
+center_mm = [0, 0, -5]
+
+[[position]]
+body = "pin_1"
+center_mm = [-25, 0, 2]
+
+[[position]]
+body = "pin_2"
+center_mm = [25, 0, 2]
+
+[[position]]
+body = "clamp_screw"
+center_mm = [0, 0, -3]
+
+[[size]]
+body = "base_plate"
+min_mm = [99.9, 59.9, 9.9]
+max_mm = [100.1, 60.1, 10.1]
+
+[[size]]
+body = "pin_1"
+min_mm = [3.9, 3.9, 15.9]
+max_mm = [4.1, 4.1, 16.1]
+
+[[size]]
+body = "pin_2"
+min_mm = [3.9, 3.9, 15.9]
+max_mm = [4.1, 4.1, 16.1]
+
+[[size]]
+body = "clamp_screw"
+min_mm = [6.9, 6.9, 13.9]
+max_mm = [7.1, 7.1, 14.1]
+
+# The carrier's own size: 70 x 30 x 12 mm, long axis along x.
+[[size]]
+body = "carrier"
+min_mm = [69.8, 29.8, 11.8]
+max_mm = [70.2, 30.2, 12.2]
+
+# Location fit: each pin sits in its hole with at most 0.1 mm to spare (radially), and
+# any overlap fails.
+[[clearance]]
+a = "pin_1"
+b = "carrier"
+max_mm = 0.1
+
+[[clearance]]
+a = "pin_2"
+b = "carrier"
+max_mm = 0.1
+
+# Seats flat: the carrier's underside is on the base (touching, no overlap).
+[[clearance]]
+a = "carrier"
+b = "base_plate"
+max_mm = 0.05
+
+# The relief pocket clears the screw head by at least 0.5 mm on every side and above.
+[[clearance]]
+a = "carrier"
+b = "clamp_screw"
+min_mm = 0.5
+
+# Coaxial holes: every round hole or pocket in the carrier that points at the base lines up
+# with a hole in the base (the two pin holes and the screw hole). No fastener: no size check.
+[[interface]]
+a = "carrier"
+b = "base_plate"
+tol_mm = 0.05
+near_mm = 15
