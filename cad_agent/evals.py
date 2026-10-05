@@ -237,6 +237,9 @@ def plugin_copy(dest: Path, tasks: Path | None = None, src: Path | None = None) 
     (default: the one this package is in).
     """
     src = (src or Path(__file__).resolve().parent.parent).resolve()
+    if not (src / ".claude-plugin" / "plugin.json").is_file():   # e.g. site-packages, for a plain install
+        raise EvalError(f"{src} is not a plugin folder (no .claude-plugin/plugin.json): "
+                        "{plugin} needs a checkout of cad-agent")
     tasks = tasks.resolve() if tasks else None
     skip = shutil.ignore_patterns(*NOT_PLUGIN)
 
@@ -342,7 +345,7 @@ def run(root: Path, agent: str, names: list[str], timeout: float, keep: bool = F
     started = datetime.now(timezone.utc)
     work = plugin = None
     try:
-        if "{plugin}" in agent:                  # one copy for the whole run, so its first-run install happens once
+        if "{plugin}" in agent:        # one copy for the whole run: the plugin's first-run install is per path
             work = Path(tempfile.mkdtemp(prefix="cad-eval-plugin-")).resolve()
             plugin = plugin_copy(work / "cad-agent", root)
             print(f"{{plugin}}: a copy of the repo without evals/ at {plugin}", file=sys.stderr)

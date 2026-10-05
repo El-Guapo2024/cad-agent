@@ -112,8 +112,12 @@ def test_ls_and_brief_describe_every_task(capsys):
     assert run(capsys, "eval", "--evals", str(EVALS), "ls")[1] == data      # before the action works too
     rows = {r["task"]: r for r in data["tasks"]}
     assert set(TASKS) <= set(rows)
-    for task in TASKS:
-        assert rows[task]["title"].startswith(task) and rows[task]["given"] and rows[task]["reference"]
+    for task in TASKS:                       # "name: what it is", which is what `ls` shows
+        assert rows[task]["title"].startswith(f"{task}: ")
+        assert rows[task]["given"] and rows[task]["reference"]
+    cli.main(["eval", "ls", "--evals", str(EVALS)])
+    lines = capsys.readouterr().out.splitlines()
+    assert len({line.index(f"{t}: ") for t in TASKS for line in lines if line.startswith(f"  {t}")}) == 1
     code, data = run(capsys, "eval", "brief", "nema17_mount", "--evals", str(EVALS))
     assert code == cli.OK and data["given"] == rows["nema17_mount"]["given"]
     assert data["brief"] == (EVALS / "nema17_mount" / "brief.md").read_text()
@@ -335,7 +339,8 @@ def test_a_verify_that_did_not_finish_scores_zero():
 
 
 def test_placeholders_are_quoted_and_other_braces_left_alone():
-    cmd = evals.fill('claude -p "$(cat {brief})" --add-dir {dir} --plugin-dir {plugin} # {task} ${HOME} {root}',
+    cmd = evals.fill('claude -p "$(cat {brief})" --add-dir {dir} --plugin-dir {plugin} '
+                     '# {task} ${HOME} {root}',
                      brief=Path("/a b/BRIEF.md"), dir=Path("/a b/p"), task="t", root=Path("/a b"),
                      plugin=Path("/a b/plugin"))
     assert cmd == ("claude -p \"$(cat '/a b/BRIEF.md')\" --add-dir '/a b/p' --plugin-dir '/a b/plugin' "
@@ -349,11 +354,13 @@ def test_the_plugin_copy_leaves_out_what_grades_and_what_is_not_a_plugin(tmp_pat
     in evals/, a tasks folder elsewhere in the repo, the history, other agents' worktrees) and
     what is only weight (the environment, caches). Everything else comes across."""
     src = tmp_path / "repo"
-    kept = ["bin/cad", ".claude-plugin/plugin.json", ".claude/skills/cad/SKILL.md", "cad_agent/__init__.py",
-            "docs/evals.md", "pyproject.toml", "ui/src/main.ts", ".github/ci.yml"]
-    left_out = ["evals/t/spec.toml", "specs/t/spec.toml", ".git/HEAD", "vendor/lib/.git", ".venv/bin/python",
-                ".claude/worktrees/w/evals/t/spec.toml", "ui/node_modules/x/index.js",
-                "cad_agent/__pycache__/x.pyc", "cad_agent.egg-info/PKG-INFO", ".pytest_cache/v", "bin/.DS_Store"]
+    kept = ["bin/cad", ".claude-plugin/plugin.json", ".claude/skills/cad/SKILL.md",
+            "cad_agent/__init__.py", "docs/evals.md", "pyproject.toml", "ui/src/main.ts",
+            ".github/ci.yml"]
+    left_out = ["evals/t/spec.toml", "specs/t/spec.toml", ".git/HEAD", "vendor/lib/.git",
+                ".venv/bin/python", ".claude/worktrees/w/evals/t/spec.toml",
+                "ui/node_modules/x/index.js", "cad_agent/__pycache__/x.pyc",
+                "cad_agent.egg-info/PKG-INFO", ".pytest_cache/v", "bin/.DS_Store"]
     for rel in kept + left_out:
         (src / rel).parent.mkdir(parents=True, exist_ok=True)
         (src / rel).write_text("x")
@@ -372,6 +379,14 @@ def test_the_real_plugin_copy_is_a_working_plugin_without_evals(tmp_path):
     names = {p.name for p in copy.rglob("*")}
     assert not {"evals", ".git", ".venv", "worktrees", "node_modules"} & names
     assert not set(TASKS) & names                                       # no task folder, wherever
+
+
+def test_a_folder_that_is_not_a_plugin_is_not_copied(tmp_path):
+    """A plain install has no checkout to copy: the repo root is then site-packages."""
+    (tmp_path / "site-packages").mkdir()
+    with pytest.raises(evals.EvalError, match="not a plugin folder"):
+        evals.plugin_copy(tmp_path / "copy", src=tmp_path / "site-packages")
+    assert not (tmp_path / "copy").exists()
 
 
 def test_a_plugin_placeholder_without_a_plugin_copy_is_refused():

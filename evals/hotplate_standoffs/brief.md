@@ -1,4 +1,4 @@
-# hotplate_standoffs
+# hotplate_standoffs: four standoffs that hold a 250 C hot plate 20 mm above its base
 
 A small reflow hot plate has to sit 20 mm above its base plate on four standoffs. Design the
 standoffs and the assembly. The project slug is `hotplate_standoffs`.

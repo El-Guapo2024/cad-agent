@@ -1,4 +1,4 @@
-# idler_bracket
+# idler_bracket: a bracket on the end of a 2040 extrusion that holds a GT2 idler's shaft
 
 Design a bracket that bolts to the end of a 2040 extrusion and holds the M5
 shaft of a GT2 toothless idler, so the idler spins freely. The extrusion, idler

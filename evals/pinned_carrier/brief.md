@@ -1,4 +1,4 @@
-# pinned_carrier
+# pinned_carrier: a carrier block that locates on two dowel pins and clears a screw head
 
 A base plate has two dowel pins pressed in, and a screw head standing proud between them.
 Design a carrier block that locates on the pins, seats flat on the base, and has a relief pocket

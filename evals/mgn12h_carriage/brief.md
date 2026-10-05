@@ -1,4 +1,4 @@
-# mgn12h_carriage
+# mgn12h_carriage: the carriage plate of a linear axis, on an MGN12H block between two end stops
 
 Design the carriage plate of a linear axis. It bolts onto a HIWIN MGN12H block,
 carries a tool flange, and travels with the block 40 mm either way along an

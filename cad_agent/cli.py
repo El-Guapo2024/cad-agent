@@ -657,10 +657,11 @@ def cmd_eval_ls(a) -> Result:
     rows = [{"task": t.name, "title": t.title, "given": t.given,
              "reference": (t.path / "reference").is_dir()}
             for t in _eval_call(evals.list_tasks, root)]
+    w = max([16] + [len(r["task"]) for r in rows])
     lines = [f"{len(rows)} tasks in {root}"]
     for r in rows:
-        lines += [f"  {r['task']:16} {r['title']}",
-                  f"  {'':16} given: {', '.join(r['given']) or 'nothing'}"]
+        lines += [f"  {r['task']:{w}} {r['title']}",
+                  f"  {'':{w}} given: {', '.join(r['given']) or 'nothing'}"]
     return Result(OK, {"evals": str(root), "tasks": rows}, "\n".join(lines), f"{len(rows)} tasks")
 
 
@@ -697,9 +698,10 @@ def cmd_eval_run(a) -> Result:
                          "--agent 'claude -p \"$(cat {brief})\" --plugin-dir {plugin}'")
     r = _eval_call(evals.run, _evals_root(a), a.agent, a.tasks, a.timeout, a.keep,
                    Path(a.out).expanduser() if a.out else None)
-    lines = [f"{'task':16} {'verdict':9} {'score':>6} {'rows':>9} {'agent s':>8} {'score s':>8}"]
+    w = max([16] + [len(t["task"]) for t in r["tasks"]])
+    lines = [f"{'task':{w}} {'verdict':9} {'score':>6} {'rows':>9} {'agent s':>8} {'score s':>8}"]
     for t in r["tasks"]:
-        lines.append(f"{t['task']:16} {t['verdict']:9} {t['score']:6.1%} "
+        lines.append(f"{t['task']:{w}} {t['verdict']:9} {t['score']:6.1%} "
                      f"{t['passed']:>4}/{t['graded']:<4} {t['agent_seconds']:8.0f} {t['seconds']:8.1f}"
                      + ("  agent timed out" if t["timed_out"] else ""))
         lines += [f"    {ln.strip()}" for ln in _rows_text(t["rows"][:3], True)]
