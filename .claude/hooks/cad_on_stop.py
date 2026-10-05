@@ -18,6 +18,9 @@ It blocks once. When Claude stops again right after, stop_hook_active is true
 and the stop goes through: the point is that "not done" gets said, not a loop.
 `cad done` never imports the CAD kernel, so this takes about half a second per
 project. Standard library only; the CLI does the work.
+
+Nothing under a cad-agent checkout's evals/ counts (see `in_evals`): the eval tasks'
+given files and reference designs look like projects but are fixtures, never verified.
 """
 import json
 import os
@@ -40,6 +43,16 @@ def cad(*argv):
         return json.loads(p.stdout.strip().splitlines()[-1]).get("data") or {}
     except (ValueError, IndexError):
         return {}
+
+
+def in_evals(path: Path) -> bool:
+    """Is this under the evals/ folder of a cad-agent checkout (the one holding evals/README.md)?
+
+    The same test as in cad_on_edit.py, which says why. Those folders look like projects
+    (parts/, assembly.py) and are never verified, so listing them here would block every stop.
+    """
+    return any(p.name == "evals" and (p / "README.md").is_file() and not (p / "parts").is_dir()
+               for p in (path, *path.parents))
 
 
 def touched_this_session(session_id: str) -> set[tuple[str, str]]:
@@ -71,7 +84,7 @@ def main() -> int:
     roots |= {root for root, _ in touched}
 
     open_items = []
-    for root in sorted(r for r in roots if Path(r).is_dir()):
+    for root in sorted(r for r in roots if Path(r).is_dir() and not in_evals(Path(r))):
         for slug in cad("--projects", root, "ls").get("projects", []):
             s = cad("--projects", root, "done", slug)
             if not s or s.get("done"):

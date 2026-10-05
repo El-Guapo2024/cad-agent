@@ -69,6 +69,64 @@ def test_stop_hook_lets_a_second_stop_through(env):
     assert hook(STOP, {"stop_hook_active": True}, env) is None
 
 
+# ─── The eval tasks are fixtures, not projects ───────────────────────────────
+
+FAILING = PLATE.replace('"thickness": 4.0', '"thickness": 0.5')       # fails its wall gate
+
+
+def listing(root):
+    return sorted(p.relative_to(root).as_posix() for p in root.rglob("*"))
+
+
+@pytest.fixture()
+def checkout(tmp_path):
+    """The layout of a cad-agent checkout's evals/: a README, and a task whose reference design
+    has parts/ and assembly.py like a project. Returns (the checkout, the task's folder)."""
+    (tmp_path / "evals").mkdir()
+    (tmp_path / "evals" / "README.md").write_text("# evals\n")
+    ref = tmp_path / "evals" / "task" / "reference"
+    (ref / "parts").mkdir(parents=True)
+    (ref / "parts" / "plate.py").write_text(FAILING)
+    (ref / "assembly.py").write_text("def parts():\n    return {}\n")
+    return tmp_path, tmp_path / "evals" / "task"
+
+
+def test_the_hooks_leave_the_eval_tasks_alone(env, checkout):
+    """Checking, logging or listing an eval task's reference piles .cad/, out/ and checks.json up
+    in the repo, and a stop blocked over a design nobody is verifying."""
+    root, task = checkout
+    before = listing(root)
+    for path in (task / "reference" / "parts" / "plate.py", task / "reference" / "assembly.py"):
+        assert hook(EDIT, dict(edit(path), session_id="sess-evals"), env) is None
+    assert hook(STOP, {"session_id": "sess-evals"}, env) is None       # and no touched record
+    # What an older edit hook would have recorded for this session, and a projects folder
+    # pointed at the task: the stop hook does not list them either.
+    (Path(env["CAD_WARM_DIR"]) / "touched-sess-old.tsv").write_text(f"{task}\treference\n")
+    assert hook(STOP, {"session_id": "sess-old"}, env) is None
+    assert hook(STOP, {}, env, CAD_PROJECTS=str(task)) is None
+    assert listing(root) == before
+
+
+def test_without_the_evals_readme_it_is_an_ordinary_folder(env, checkout):
+    """The marker is what makes a folder a checkout's evals/; the same files elsewhere are a project."""
+    root, task = checkout
+    (root / "evals" / "README.md").unlink()
+    part = task / "reference" / "parts" / "plate.py"
+    out = hook(EDIT, dict(edit(part), session_id="sess-plain"), env)
+    assert out["decision"] == "block" and "cad check reference/plate" in out["reason"]
+    out = hook(STOP, {"session_id": "sess-plain"}, env)
+    assert out["decision"] == "block" and "reference" in out["reason"]
+
+
+def test_a_project_that_is_called_evals_is_still_checked(env, tmp_path):
+    rig = tmp_path / "evals"
+    (rig / "parts").mkdir(parents=True)
+    (rig / "parts" / "plate.py").write_text(FAILING)
+    (rig / "README.md").write_text("notes on this design\n")
+    out = hook(EDIT, edit(rig / "parts" / "plate.py"), env)
+    assert out["decision"] == "block" and "cad check evals/plate" in out["reason"]
+
+
 def git(d, *args):
     subprocess.run(["git", "-C", str(d), "-c", "user.name=t", "-c", "user.email=t@t", *args],
                    check=True, capture_output=True)

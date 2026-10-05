@@ -15,6 +15,9 @@ It also records the project as touched in this session (by the session_id
 every hook receives), which is how the stop hook knows what this session
 changed without guessing from file times. Standard library only; the CLI does
 the work.
+
+Anything under a cad-agent checkout's evals/ is left alone (see `in_evals`): the
+eval tasks' given files and reference designs look like projects but are fixtures.
 """
 import json
 import os
@@ -34,6 +37,19 @@ def touched_file(session_id: str) -> Path:
     d = Path(os.environ.get("CAD_WARM_DIR") or Path.home() / ".cache" / "cad-agent")
     d.mkdir(parents=True, exist_ok=True)
     return d / f"touched-{re.sub(r'[^A-Za-z0-9_-]', '_', session_id)}.tsv"
+
+
+def in_evals(path: Path) -> bool:
+    """Is this under the evals/ folder of a cad-agent checkout (the one holding evals/README.md)?
+
+    That folder holds the eval tasks: given files, reference designs and the scripts that make
+    the given files. They look like projects (parts/, assembly.py), but `cad eval` copies and
+    scores them, so a check here is noise, and the logs, renders and verdicts it writes would
+    pile up in the repo. A project that happens to be called evals has parts/ and no README.
+    The stop hook has the same test.
+    """
+    return any(p.name == "evals" and (p / "README.md").is_file() and not (p / "parts").is_dir()
+               for p in (path, *path.parents))
 
 
 def target(path: Path):
@@ -56,7 +72,8 @@ def main() -> int:
         return 0
     raw = (event.get("tool_input") or {}).get("file_path") or \
         (event.get("tool_response") or {}).get("filePath")
-    hit = target(Path(raw).resolve()) if raw else None
+    path = Path(raw).resolve() if raw else None
+    hit = target(path) if path and not in_evals(path) else None
     if hit is None:
         return 0
     root, slug, part = hit
