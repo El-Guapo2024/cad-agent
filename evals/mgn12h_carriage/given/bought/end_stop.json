@@ -1,0 +1,6 @@
+{
+ "source": "eval fixture, not a vendor part: 8 x 24 x 20 mm end stop butted against a rail end. Made by evals/mgn12h_carriage/source/mgn12.py.",
+ "vendor": null,
+ "verified": true,
+ "original": "end_stop.step"
+}

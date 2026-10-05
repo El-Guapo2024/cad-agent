@@ -1,0 +1,97 @@
+# mgn12h_carriage: the hidden grader. brief.md states every number in here.
+
+# --- the given bodies: where the brief puts them, at their real size ---------
+# Pinned so a design cannot pass by moving, dropping or swapping one.
+
+[[position]]
+body = "rail"
+center_mm = [0, 0, 4]
+
+[[position]]
+body = "block"
+center_mm = [0, 0, 8]
+
+[[position]]
+body = "stop_left"
+center_mm = [-79, 0, 10]
+
+[[position]]
+body = "stop_right"
+center_mm = [79, 0, 10]
+
+[[position]]                 # on the plate's top face: 13 + 8 + half its 6 mm
+body = "tool"
+center_mm = [0, 0, 24]
+
+[[size]]
+body = "rail"
+min_mm = [149.95, 11.95, 7.95]
+max_mm = [150.05, 12.05, 8.05]
+
+[[size]]
+body = "block"
+min_mm = [45.35, 26.95, 9.95]
+max_mm = [45.45, 27.05, 10.05]
+
+[[size]]
+body = "stop_left"
+min_mm = [7.95, 23.95, 19.95]
+max_mm = [8.05, 24.05, 20.05]
+
+[[size]]
+body = "stop_right"
+min_mm = [7.95, 23.95, 19.95]
+max_mm = [8.05, 24.05, 20.05]
+
+[[size]]
+body = "tool"
+min_mm = [35.95, 35.95, 5.95]
+max_mm = [36.05, 36.05, 6.05]
+
+# --- the plate -----------------------------------------------------------------
+
+[[size]]                     # 8 mm thick; 40 to 66 along the rail, 40 to 60 across
+body = "carriage_plate"
+min_mm = [40, 40, 7.95]
+max_mm = [66, 60, 8.05]
+
+[[interface]]                # four M3 bolts, plate to block: coaxial, clearance over tap
+a = "carriage_plate"
+b = "block"
+fastener = "M3"
+
+[[interface]]                # four M3 screws, tool to plate: the tool's 3.4 holes over the plate's bores
+a = "tool"
+b = "carriage_plate"
+fastener = "M3"
+
+[[clearance]]                # the plate rests on the block: no gap, no overlap
+a = "carriage_plate"
+b = "block"
+min_mm = 0
+max_mm = 0.05
+
+[[clearance]]                # and the tool rests on the plate
+a = "tool"
+b = "carriage_plate"
+min_mm = 0
+max_mm = 0.05
+
+[[clearance]]                # daylight between the plate and the rail
+a = "carriage_plate"
+b = "rail"
+min_mm = 3.0
+
+[[clearance]]                # 40 mm of travel plus 2 mm to each end stop, checked at home
+a = "carriage_plate"
+b = "stop_left"
+min_mm = 42.0
+
+[[clearance]]
+a = "carriage_plate"
+b = "stop_right"
+min_mm = 42.0
+
+[[mass]]                     # the moving plate
+parts = { carriage_plate = 1 }
+max_g = 30
