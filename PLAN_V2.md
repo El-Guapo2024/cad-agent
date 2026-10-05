@@ -201,6 +201,7 @@ Each step ends with the tests green.
    - 9 new tests; 159 passing. First real run: assembly_cell PASS at commit 8055012.
 3. `spec.toml`, starting with envelope, keep-out, clearance and interface. **Done 2026-09-28** (`cad_agent/spec.py`, registered as the `spec` gate, so `check` and `verify` both run it):
    - Requirement types: `[envelope]`, `[[clearance]]`, `[[keepout]]` (any tool envelope, such as the laser cone), `[[mass]]` (a budget over part modules), and `[[interface]]` (holes in one body that point into another must be coaxial within tolerance, and sized for the fastener: clearance over tap, insert or clearance).
+   - Added 2026-10-04 for the eval set: `[[size]]` (a body's bounding box, `min_mm` and/or `max_mm`), `[[position]]` (its bounding-box center, within `tol_mm`), and `max_mm` on `[[clearance]]`.
    - It fails closed: no spec, an unparseable spec, an unknown section, a missing field or an unknown body are all UNCHECKED.
    - Both fixtures now carry a spec. On the real gantry, the interface rule confirmed the syringe clamp's four M3 insert bores sit exactly on the carriage's clearance holes (0.000 mm offset). The moving head is 237 g against a 400 g budget.
    - 17 new tests; 176 passing. CI is green on GitHub.
@@ -223,5 +224,9 @@ Each step ends with the tests green.
    - Step 5 is done.
    - Viewer swapped for libraries (2026-09-29, your call: "don't over-code"). three-cad-viewer 5.0.7 (MIT) now draws both pages, fed by ocp-tessellate 3.5.3 (Apache-2.0). It brings the tree, clipping with caps, explode, measuring (its own mesh backend), views, zebra and studio. The ~800 lines of hand-made viewer (`view.js`, `measure.js`) are deleted. Ours now: the drag handle (three.js TransformControls on its part groups, writing placements.toml), the panels, and live reload. Dropped for now: the motion sliders (use its animation tracks if needed).
 6. Machine scale: parts library, sub-assemblies, the heat, mass and deflection rules, shop outputs.
-7. The eval set and its scores.
+7. The eval set and its scores. **Phase 1 done 2026-10-04** (`evals/`, `cad eval ls|brief|score|run`, `cad_agent/evals.py`, `evals/README.md`):
+   - 3 tasks: `nema17_mount`, `syringe_clamp`, `galvo_mount`. Each is a brief that states every number, a hidden `spec.toml`, given bought parts, and a reference design that scores 100% (about 3 s each through the warm worker).
+   - `spec.toml` gained `[[size]]`, `[[position]]` and `max_mm` on `[[clearance]]` to pin the given parts and write "touches" and "grips".
+   - The real agent run isn't done yet; the command is in `evals/README.md`.
+   - 7 to go: mgn12h_carriage (AXES), hotplate_standoffs, pinned_carrier, laser_panel, pcb_enclosure, +2.
 8. First real job: the one-machine layout (frame, gantry, dock, laser keep-out).

@@ -21,6 +21,8 @@ On the Mac (these need FreeCAD or a real Claude Code install):
 
 Then the product (PLAN_V2.md build order, steps 6–8). Recommended order:
 4. Step 7 first, the eval set: about 10 small briefs, each with a hidden `spec.toml`, and a runner (`cad eval`) that scores them through `cad verify`. That way every later harness change is measured.
+   - Phase 1 done 2026-10-04: 3 tasks (`nema17_mount`, `syringe_clamp`, `galvo_mount`) in `evals/`, `cad eval ls|brief|score|run`, `spec.toml` gained `[[size]]`, `[[position]]` and `max_mm` on `[[clearance]]`. See `evals/README.md`; the first real agent run (command there) hasn't been done.
+   - 7 to go: mgn12h_carriage (AXES), hotplate_standoffs, pinned_carrier, laser_panel, pcb_enclosure, +2.
 5. Step 6, machine scale: a parts library with vendor STEPs and sources, sub-assemblies, the heat, mass and deflection rules, and shop outputs (DXF, drawings, STL/3MF, BOM).
 6. Step 8, the first real job: the one-machine layout (frame, gantry, dock, laser keep-out).
 

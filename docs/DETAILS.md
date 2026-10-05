@@ -112,6 +112,12 @@ checks every entry. A project without one is UNCHECKED. See
 `cad_agent/spec.py` for the format and `tests/fixtures/*/spec.toml` for real
 examples.
 
+**The eval set.** `evals/` holds small design tasks, each a brief with a hidden
+`spec.toml`, given parts and a reference design. `cad eval score <task> <dir>` verifies a
+copy of a design with the given files and the hidden spec laid over it, and
+`cad eval run --agent CMD` runs an agent on each task and scores what it leaves, so a change
+to a rule, the skill or a hook shows up as a number. See `evals/README.md`.
+
 Projects live wherever you keep them: `--projects DIR` or `CAD_PROJECTS`, or
 `projects/` here by default. The first call starts a warm worker that imports
 the CAD kernel once (20–35 s), then each command takes about a second;
@@ -233,6 +239,7 @@ cad_agent/
   warm.py       the warm worker: kernel imported once, a fresh fork per command
   verify.py     the verifier: fresh rebuild, source and engine hashes, git, cad done
   spec.py       spec.toml, the brief as acceptance tests
+  evals.py      cad eval: design tasks (evals/) scored through cad verify, no kernel of its own
   placements.py placements.toml: parts moved by hand, applied under every gate
   scene.py      out/scene.json: ocp-tessellate data for the viewer, plus moves, axes, masses
   serve.py      cad serve: the workbench server, live events, CLI-backed actions

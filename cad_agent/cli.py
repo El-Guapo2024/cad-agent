@@ -631,6 +631,85 @@ def cmd_bought_verify(a) -> Result:
                   f"  source {info['source']}", f"verified {a.name}")
 
 
+# ─── Evals ───────────────────────────────────────────────────────────────────
+
+def _eval_call(fn, *args, **kw):
+    from . import evals
+    try:
+        return fn(*args, **kw)
+    except evals.EvalError as e:
+        raise UsageError(str(e)) from None
+
+
+def _evals_root(a) -> Path:
+    from . import evals
+    return evals.tasks_dir(getattr(a, "evals", None))
+
+
+def _eval_code(verdicts) -> int:
+    verdicts = set(verdicts)
+    return FAIL if "FAIL" in verdicts else UNCHECKED if "UNCHECKED" in verdicts else OK
+
+
+def cmd_eval_ls(a) -> Result:
+    from . import evals
+    root = _evals_root(a)
+    rows = [{"task": t.name, "title": t.title, "given": t.given,
+             "reference": (t.path / "reference").is_dir()}
+            for t in _eval_call(evals.list_tasks, root)]
+    lines = [f"{len(rows)} tasks in {root}"]
+    for r in rows:
+        lines += [f"  {r['task']:16} {r['title']}",
+                  f"  {'':16} given: {', '.join(r['given']) or 'nothing'}"]
+    return Result(OK, {"evals": str(root), "tasks": rows}, "\n".join(lines), f"{len(rows)} tasks")
+
+
+def cmd_eval_brief(a) -> Result:
+    from . import evals
+    task = _eval_call(evals.get_task, _evals_root(a), a.task)
+    given = task.given
+    text = (task.brief.rstrip() + f"\n\ngiven files, laid into projects/{task.name}/:\n"
+            + "\n".join(f"  {g}" for g in given))
+    return Result(OK, {"task": task.name, "brief": task.brief, "given": given}, text,
+                  f"{task.name}: {len(given)} given files")
+
+
+def cmd_eval_score(a) -> Result:
+    from . import evals
+    task = _eval_call(evals.get_task, _evals_root(a), a.task)
+    r = _eval_call(evals.score, task, Path(a.design), keep=a.keep, show_all=a.all)
+    lines = [f"{r['task']}  {r['verdict']}  {r['score']:.1%}  {r['passed']}/{r['graded']} rows pass · "
+             f"{r['skipped']} render and {r['na']} n/a rows not counted · {r['seconds']} s"]
+    lines += _rows_text(r["rows"], True)
+    if not a.all and r["passed"]:
+        lines.append(f"  ({r['passed']} passing rows hidden; --all shows them)")
+    lines += [f"  note: {n}" for n in r["notes"]]
+    if r.get("kept"):
+        lines.append(f"  kept {r['kept']}")
+    return Result(_eval_code([r["verdict"]]), r, "\n".join(lines), f"{r['verdict']} {r['score']:.1%}")
+
+
+def cmd_eval_run(a) -> Result:
+    from . import evals
+    if not a.agent:
+        raise UsageError("cad eval run needs --agent CMD, run through the shell in each task's repo "
+                         "({brief} {dir} {task} {root} are filled in), e.g. "
+                         "--agent 'claude -p \"$(cat {brief})\"'")
+    r = _eval_call(evals.run, _evals_root(a), a.agent, a.tasks, a.timeout, a.keep,
+                   Path(a.out).expanduser() if a.out else None)
+    lines = [f"{'task':16} {'verdict':9} {'score':>6} {'rows':>9} {'agent s':>8} {'score s':>8}"]
+    for t in r["tasks"]:
+        lines.append(f"{t['task']:16} {t['verdict']:9} {t['score']:6.1%} "
+                     f"{t['passed']:>4}/{t['graded']:<4} {t['agent_seconds']:8.0f} {t['seconds']:8.1f}"
+                     + ("  agent timed out" if t["timed_out"] else ""))
+        lines += [f"    {ln.strip()}" for ln in _rows_text(t["rows"][:3], True)]
+    s = r["summary"]
+    lines += [f"{s['tasks']} tasks, {s['pass']} PASS, mean score {s['mean_score']:.1%}",
+              f"results: {r['file']}"]
+    return Result(_eval_code(t["verdict"] for t in r["tasks"]), r, "\n".join(lines),
+                  f"{s['pass']}/{s['tasks']} PASS, mean {s['mean_score']:.1%}", [r["file"]])
+
+
 # ─── Macros: FreeCAD's macro recorder, for this CLI ──────────────────────────
 # A macro is a text file of `cad` commands (macro.py owns the file format and
 # the shared replay loop); see macro.py's module docstring for the contract.
@@ -1582,6 +1661,48 @@ def build_parser() -> argparse.ArgumentParser:
     sp.add_argument("name")
     sp.add_argument("--note", required=True, help="what was measured, and how")
     sp.set_defaults(cmd_name="bought verify")
+
+    ep = add("eval", None, "the eval set: design tasks scored by the verifier, so a change to "
+             "cad-agent is a number")
+    ep.add_argument("--evals", metavar="DIR", help="tasks folder (default: CAD_EVALS, else cad-agent/evals)")
+    esub = ep.add_subparsers(dest="eval_cmd", metavar="<action>", parser_class=_Parser)
+
+    def evals_dir(sp):
+        sp.add_argument("--evals", metavar="DIR", default=argparse.SUPPRESS,
+                        help="tasks folder (default: CAD_EVALS, else cad-agent/evals)")
+
+    sp = add("ls", cmd_eval_ls, "the tasks: the brief's first line and what is given", parent=esub)
+    evals_dir(sp)
+    sp.set_defaults(cmd_name="eval ls")
+
+    sp = add("brief", cmd_eval_brief, "what an agent is given for one task: the brief and the "
+             "given files", parent=esub)
+    sp.add_argument("task")
+    evals_dir(sp)
+    sp.set_defaults(cmd_name="eval brief")
+
+    sp = add("score", cmd_eval_score, "grade a design folder against a task's hidden spec: copy "
+             "it, lay the given files and the spec over the copy, `cad verify` it in a fresh "
+             "process (exit 0 PASS, 1 FAIL, 2 UNCHECKED)", parent=esub)
+    sp.add_argument("task")
+    sp.add_argument("design", metavar="DESIGN_DIR", help="a project folder: parts/, assembly.py, ...")
+    sp.add_argument("--keep", action="store_true", help="keep the scratch project and say where it is")
+    sp.add_argument("--all", action="store_true", help="show passing rows too")
+    evals_dir(sp)
+    sp.set_defaults(cmd_name="eval score")
+
+    sp = add("run", cmd_eval_run, "run an agent on tasks and score what it leaves: per task a "
+             "fresh git repo with the given files and BRIEF.md, the agent command run in it, "
+             "then `score`", parent=esub)
+    sp.add_argument("tasks", nargs="*", metavar="TASK", help="default: every task")
+    sp.add_argument("--agent", metavar="CMD", help="shell command; {brief} {dir} {task} {root} "
+                    "are replaced by quoted paths and the task name; CAD_PROJECTS is set")
+    sp.add_argument("--timeout", type=float, default=1800, metavar="S",
+                    help="seconds the agent gets per task (default 1800)")
+    sp.add_argument("--keep", action="store_true", help="keep each task's repo and say where")
+    sp.add_argument("--out", metavar="FILE", help="results JSON (default: evals/results/<UTC stamp>.json)")
+    evals_dir(sp)
+    sp.set_defaults(cmd_name="eval run")
 
     mp = add("macro", None, "record and replay a sequence of cad commands "
              "(FreeCAD's macros, for this CLI)")

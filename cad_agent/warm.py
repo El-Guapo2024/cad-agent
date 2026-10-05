@@ -49,7 +49,7 @@ ENV_PASS = ("CAD_PROJECTS", "CAD_RENDER_BACKEND", "CAD_PREFS", "COLUMNS", "NO_CO
                           # client's, so an env var set here would only take
                           # effect after the next time the daemon restarts)
 COLD = {(), ("-h",), ("--help",)}           # nothing to import: answer without a worker
-NO_KERNEL = {"serve", "service"}   # kernel-free: never hold a worker fork
+NO_KERNEL = {"serve", "service", "eval"}   # kernel-free: never hold a worker fork
 
 
 def _command(argv: list[str]) -> str | None:

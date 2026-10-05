@@ -34,3 +34,6 @@ ui/node_modules/
 
 # TypeScript's incremental build cache for ui/ (tsc -b).
 *.tsbuildinfo
+
+# What `cad eval run` scored: one JSON per run, kept by whoever ran it.
+evals/results/
