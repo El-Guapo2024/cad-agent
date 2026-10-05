@@ -1,0 +1,6 @@
+{
+ "source": "Adafruit 16mm Panel Mount Momentary Pushbutton, https://www.adafruit.com/product/1502 (Technical Details: shaft 14.89 x 15.56 x 18.7 mm, button height 5 mm, max 18.06 x 18 x 29.4 mm) and https://cdn-shop.adafruit.com/datasheets/R13diagram.jpg (M16 x 1.0, cap 13.0, tabs 0.7 x 3.2 on 9.5 mm). Envelope: flange and nut not modelled.",
+ "vendor": "Adafruit",
+ "verified": true,
+ "original": "push_button.step"
+}
