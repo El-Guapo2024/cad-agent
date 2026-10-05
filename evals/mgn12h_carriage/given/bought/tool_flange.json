@@ -1,0 +1,6 @@
+{
+ "source": "eval fixture, not a vendor part: 36 x 36 x 6 mm tool flange, four M3 clearance holes (3.4) on 30 x 30, 26 x 26 x 3 relief underneath. Made by evals/mgn12h_carriage/source/mgn12.py.",
+ "vendor": null,
+ "verified": true,
+ "original": "tool_flange.step"
+}
