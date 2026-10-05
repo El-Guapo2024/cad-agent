@@ -7,6 +7,7 @@ fresh process, through a warm worker kept in a temporary CAD_WARM_DIR and stoppe
 the first score pays one kernel import and each later one a few seconds.
 """
 import json
+import re
 import shlex
 import shutil
 import subprocess
@@ -22,7 +23,8 @@ from test_cli import run
 
 REPO = Path(__file__).resolve().parent.parent
 EVALS = REPO / "evals"
-TASKS = ("nema17_mount", "syringe_clamp", "galvo_mount")
+TASKS = ("nema17_mount", "syringe_clamp", "galvo_mount", "mgn12h_carriage", "hotplate_standoffs",
+         "pinned_carrier", "laser_panel", "pcb_enclosure", "idler_bracket", "endstop_bracket")
 
 # What each hidden spec adds to the usual rows, as the rules a score has to contain.
 SPEC_RULES = {
@@ -32,13 +34,38 @@ SPEC_RULES = {
                       "spec/interface", "spec/mass"},
     "galvo_mount": {"spec/envelope", "spec/size", "spec/position", "spec/clearance",
                     "spec/interface", "spec/mass", "spec/keepout"},
+    "mgn12h_carriage": {"spec/size", "spec/position", "spec/clearance", "spec/interface", "spec/mass"},
+    "hotplate_standoffs": {"spec/envelope", "spec/size", "spec/position", "spec/clearance",
+                           "spec/interface"},
+    "pinned_carrier": {"spec/size", "spec/position", "spec/clearance", "spec/interface"},
+    "laser_panel": {"spec/envelope", "spec/size", "spec/position", "spec/clearance", "spec/interface"},
+    "pcb_enclosure": {"spec/envelope", "spec/size", "spec/position", "spec/clearance", "spec/interface"},
+    "idler_bracket": {"spec/envelope", "spec/size", "spec/position", "spec/clearance", "spec/interface"},
+    "endstop_bracket": {"spec/envelope", "spec/size", "spec/position", "spec/clearance",
+                        "spec/interface"},
 }
 
-# One small edit to each reference, and the rule it has to break.
+# One small edit to each reference, and the rule it has to break: (file, old, new, rule). A rule
+# can be a tuple when the edit breaks what follows from it too (a pin that no longer fits its
+# hole also overlaps the block), and a fifth item names the row's subject where one rule has
+# several entries.
 BROKEN = {
     "nema17_mount": ("parts/bracket.py", '"motor_pitch": 31.0', '"motor_pitch": 30.0', "spec/interface"),
     "syringe_clamp": ("parts/syringe_clamp.py", '"fit": 0.4', '"fit": 1.0', "spec/clearance"),
     "galvo_mount": ("parts/galvo_mount.py", '"column_x": 112.0', '"column_x": 80.0', "spec/keepout"),
+    "mgn12h_carriage": ("parts/carriage_plate.py", '"bolt_pitch_y": 20.0', '"bolt_pitch_y": 15.0',
+                        "spec/interface"),
+    "hotplate_standoffs": ("parts/standoff.py", "CLEARANCE_HOLE[screw] / 2.0", "3.2 / 2.0",
+                           "spec/interface"),                       # a 3.2 mm bore is no M3 clearance
+    "pinned_carrier": ("parts/carrier.py", '"pin_pitch": 50.0', '"pin_pitch": 50.2',
+                       ("spec/interface", "spec/clearance", "interference")),
+    "laser_panel": ("parts/panel.py", '"button_hole": 16.0', '"button_hole": 17.0', "spec/clearance",
+                    "push_button|panel"),                           # the max_mm: a button that gapes
+    "pcb_enclosure": ("parts/base.py", 'round(h["point"].X, 3)', 'round(h["point"].X + 0.5, 3)',
+                      "spec/interface"),
+    "idler_bracket": ("parts/bracket.py", '"gap": 0.75', '"gap": 0.25',
+                      ("spec/clearance", "clearance"), "idler|bracket"),
+    "endstop_bracket": ("parts/bracket.py", '"pitch": 9.5', '"pitch": 10.0', "spec/interface"),
 }
 
 
@@ -97,15 +124,29 @@ def test_ls_and_brief_describe_every_task(capsys):
                         "  bought/nema17_motor.json\n  bought/nema17_motor.step\n")
 
 
+NUM = r"-?\d+(?:\.\d+)?"
+SIZES = re.compile(rf"({NUM})\s*x\s*({NUM})\s*x\s*({NUM})")                  # 100 x 60 x 3
+POINTS = re.compile(rf"\(\s*({NUM})\s*,\s*({NUM})\s*,\s*({NUM})\s*\)")       # (-22.5, 0, -6.7)
+
+
+def numbers(text):
+    """Every number in a text, as floats, so 13 and 13.0 are the same one."""
+    found = [round(float(m), 4) for m in re.findall(NUM, text)]
+    return set(found) | {abs(v) for v in found}
+
+
+def triples(pattern, text):
+    return {tuple(round(float(v), 4) for v in m) for m in pattern.findall(text)}
+
+
 @pytest.mark.parametrize("task", TASKS)
 def test_the_brief_states_everything_the_hidden_spec_checks(task):
     """No gotchas: every body and part module the spec names, every given file, and every
-    number the spec holds a design to, are in the brief the agent gets."""
+    number the spec holds a design to, are in the brief the agent gets. Numbers are read, not
+    matched as text, since each brief has its own way to write 13.0 and 6 x 12 x 14."""
     brief = (EVALS / task / "brief.md").read_text()
     spec = tomllib.loads((EVALS / task / "spec.toml").read_text())
-
-    def triple(values):
-        return " x ".join(f"{v:g}" for v in values)
+    nums, sizes, points = numbers(brief), triples(SIZES, brief), triples(POINTS, brief)
 
     names = set()
     for kind in ("size", "position"):
@@ -119,21 +160,38 @@ def test_the_brief_states_everything_the_hidden_spec_checks(task):
         names |= set(e["parts"])
     for name in sorted(names):
         assert f"`{name}`" in brief, f"{task}: the brief never names `{name}`"
-    for given in evals.get_task(EVALS, task).given:
-        assert given.endswith(".json") or given in brief, f"{task}: the brief never names {given}"
-    assert "laid again" in brief and "own `spec.toml`" in brief
+    for given in evals.get_task(EVALS, task).given:       # by file name: they all say they are in bought/
+        assert given.endswith(".json") or Path(given).name in brief, \
+            f"{task}: the brief never names {given}"
+    assert re.search(r"\blaid\b[^.]*\bagain\b", brief), \
+        f"{task}: the brief never says the given files are laid again"
+    assert "spec.toml" in brief and re.search(r"replace|not read", brief), \
+        f"{task}: the brief never says the agent's own spec.toml is not the grader's"
 
-    assert triple(spec["envelope"]["max_mm"]) in brief
-    for e in spec.get("size", []):          # a pin states its nominal size, a floor its floor
+    for key in ("min_mm", "max_mm"):
+        if key in spec.get("envelope", {}):
+            assert tuple(round(v, 4) for v in spec["envelope"][key]) in sizes, spec["envelope"]
+    for e in spec.get("size", []):
         lo, hi = e.get("min_mm"), e.get("max_mm")
-        assert triple([(a + b) / 2 for a, b in zip(lo, hi)] if lo and hi else lo or hi) in brief, e
+        if lo and hi and all(b - a <= 1 for a, b in zip(lo, hi)):     # a pin states its nominal size
+            assert tuple(round((a + b) / 2, 4) for a, b in zip(lo, hi)) in sizes, e
+        elif (lo or hi) and not (lo and hi) and all(lo or hi):         # a floor, or a ceiling, its limit
+            assert tuple(lo or hi) in sizes, e
+        for a, b in zip(lo or [0] * 3, hi or [0] * 3):                 # per axis: both ends, or the middle
+            ends = [v for v in (a, b) if v]                            # (0 leaves that side open)
+            assert all(round(v, 4) in nums for v in ends) or \
+                (len(ends) == 2 and round((a + b) / 2, 4) in nums), (e, a, b)
     for e in spec.get("position", []):
-        assert "(" + ", ".join(f"{v:g}" for v in e["center_mm"]) + ")" in brief, e
+        assert tuple(round(v, 4) for v in e["center_mm"]) in points, e
+        assert "tol_mm" not in e or e["tol_mm"] in nums, e
     for e in spec.get("clearance", []):
         for key in ("min_mm", "max_mm"):
-            assert key not in e or f"{e[key]:g}" in brief, e
+            assert key not in e or e[key] in nums, e
+    for e in spec.get("interface", []):                                # its default tolerance is 0.1
+        assert e.get("tol_mm", 0.1) in nums and ("near_mm" not in e or e["near_mm"] in nums), e
+        assert "fastener" not in e or e["fastener"] in brief, e
     for e in spec.get("keepout", []):
-        assert all(f"{v:g}" in brief for v in e["params"].values()), e
+        assert all(v in nums for v in e["params"].values()), e
     for e in spec.get("mass", []):
         assert f"{e['max_g']:g} g" in brief, e
 
@@ -334,15 +392,18 @@ def test_the_reference_scores_full_marks(reference, task):
 
 @pytest.mark.parametrize("task", TASKS)
 def test_a_small_edit_to_the_reference_fails_on_the_rule_it_should(worker, tmp_path, capsys, task):
-    rel, old, new, rule = BROKEN[task]
+    rel, old, new, rules, *subject = BROKEN[task]
+    rules = (rules,) if isinstance(rules, str) else rules
     design = copy_reference(task, tmp_path / "design")
     text = (design / rel).read_text()
     assert old in text
     (design / rel).write_text(text.replace(old, new))
     code, r = run(capsys, "eval", "score", task, str(design), "--evals", str(EVALS))
     assert code == cli.FAIL and r["verdict"] == "FAIL" and 0.5 < r["score"] < 1.0
-    assert {x["rule"] for x in r["rows"]} == {rule}              # nothing else broke, only that rule
+    assert {x["rule"] for x in r["rows"]} == set(rules)          # nothing else broke, only that rule
     assert all(x["state"] == "FAIL" for x in r["rows"])
+    if subject:                                                  # and it is the entry that was meant
+        assert subject[0] in {x["subject"] for x in r["rows"] if x["rule"] == rules[0]}
 
 
 def test_tampering_with_a_given_file_or_the_spec_gains_nothing(worker, tmp_path, capsys):

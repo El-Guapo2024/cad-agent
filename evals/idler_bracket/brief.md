@@ -35,13 +35,13 @@ x runs along the extrusion, y across its 40 mm side, z up: its 20 mm side, and
 the shaft's direction. The extrusion's end face is x = 0 and the stub runs back
 to x = -60. Its two end bores run along x at y = ±10, z = 0. The idler and shaft
 axis is the line x = 22, y = 0. The grader checks each given body's
-bounding-box centre to 0.1 mm, and its size:
+bounding-box centre to 0.1 mm, and its size to 0.05 mm:
 
-| body | centre (x, y, z) |
-|---|---|
-| `extrusion` | (-30, 0, 0) |
-| `idler` | (22, 0, 0) |
-| `shaft` | (22, 0, 0) |
+| body | centre (x, y, z) | size (x, y, z) |
+|---|---|---|
+| `extrusion` | (-30, 0, 0) | 60 x 40 x 20 mm |
+| `idler` | (22, 0, 0) | 18 x 18 x 8.5 mm |
+| `shaft` | (22, 0, 0) | 5 x 5 x 20 mm |
 
 ## What to build
 
