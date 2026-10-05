@@ -1,0 +1,54 @@
+# endstop_bracket: the hidden grader. Every entry is stated in brief.md.
+
+[envelope]                  # the whole assembly: the extrusion, the flag, the bracket and the switch
+max_mm = [45, 45, 200]
+
+# The extrusion and the flag are given and pinned, so a design can't pass by moving or swapping them.
+[[position]]
+body = "extrusion"
+center_mm = [0.0, 0.0, 100.0]
+
+[[size]]
+body = "extrusion"
+min_mm = [19.95, 39.95, 199.95]
+max_mm = [20.05, 40.05, 200.05]
+
+[[position]]
+body = "flag"
+center_mm = [27.5, 4.0, 47.0]
+
+[[size]]
+body = "flag"
+min_mm = [5.95, 11.95, 13.95]
+max_mm = [6.05, 12.05, 14.05]
+
+# The switch is placed by the design, so only its size is pinned: upright (15.2 mm tall with
+# the lever on top), turned about the vertical axis either way (19.8 x 6.4 in plan).
+[[size]]
+body = "switch"
+min_mm = [6.3, 6.3, 15.1]
+max_mm = [19.9, 19.9, 15.3]
+
+[[clearance]]               # the flag reaches the lever: touching it, or within 0.5 mm
+a = "switch"
+b = "flag"
+max_mm = 0.5
+
+[[clearance]]               # the bracket is on the extrusion
+a = "bracket"
+b = "extrusion"
+max_mm = 0.5
+
+[[clearance]]               # the flag only ever touches the lever
+a = "bracket"
+b = "flag"
+min_mm = 1.0
+
+# The switch's two holes (2.35 mm) must each land on a hole in the bracket (1.6 mm tapping drill
+# or 2.4 mm clearance for M2). `a` is the switch, so only its two holes are judged and the
+# bracket's other holes can't trip it.
+[[interface]]
+a = "switch"
+b = "bracket"
+fastener = "M2"
+tol_mm = 0.1
