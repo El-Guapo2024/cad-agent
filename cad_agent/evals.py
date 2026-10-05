@@ -15,6 +15,10 @@ its own verdict gains nothing, because none of it survives the copy. Every row c
 three kinds that wait on a person approving a render (the edit hook skips the same ones), and
 N/A is not held against a design. A score is passed rows over graded rows; PASS needs all of them.
 
+An agent under test must not be able to read the graders, and they ship in the repo, which is also
+the plugin. `run` therefore hands the agent command `{plugin}`: a copy of the repo without evals/
+(the hidden specs and the references), its history, its environment and other agents' worktrees.
+
 This module imports no CAD kernel. The one place geometry happens is the verify subprocess, which
 runs this package's own code, so a change to a rule moves the score it is meant to move.
 """
@@ -37,6 +41,8 @@ from pathlib import Path
 SKIP = ("drift/", "extent/", "visual/")                          # rows that wait on an approved render
 DROP = ("checks.json", "verify.json", "out", ".cad", "baseline")  # outputs and approvals, never design
 JUNK = (".cad", "__pycache__", ".git", ".DS_Store")              # what tools leave in a folder, never given
+NOT_PLUGIN = (".git", ".venv", "node_modules", "__pycache__", ".pytest_cache", ".DS_Store",
+              "*.egg-info")                                      # history, environment, caches: not the plugin
 NAME = re.compile(r"^[A-Za-z0-9_][A-Za-z0-9_-]{0,63}$")
 SCORE_TIMEOUT_S = 900                                            # one verify, including a cold kernel
 
@@ -221,8 +227,33 @@ def score(task: Task, design: Path, keep: bool = False, show_all: bool = False,
 
 # ─── Running an agent ────────────────────────────────────────────────────────
 
+def plugin_copy(dest: Path, tasks: Path | None = None, src: Path | None = None) -> Path:
+    """The repo as a plugin, without what an agent under test must not read.
+
+    The hidden specs and the reference designs are in evals/, and the same repo is the plugin an
+    agent is pointed at with --plugin-dir. This copy leaves out evals/ (and `tasks`, when the tasks
+    folder is somewhere else in the repo), .git (every commit still has evals/), .venv, caches and
+    .claude/worktrees (other agents' checkouts, each with its own evals/). `src` is the repo
+    (default: the one this package is in).
+    """
+    src = (src or Path(__file__).resolve().parent.parent).resolve()
+    tasks = tasks.resolve() if tasks else None
+    skip = shutil.ignore_patterns(*NOT_PLUGIN)
+
+    def ignore(folder, names):
+        here = Path(folder).resolve()
+        drop = set(skip(folder, names))
+        if here == src:
+            drop |= {"evals"} & set(names)
+        elif here == src / ".claude":
+            drop |= {"worktrees"} & set(names)
+        return drop | {n for n in names if tasks and (here / n).resolve() == tasks}
+    shutil.copytree(src, dest, ignore=ignore, symlinks=True)
+    return dest
+
+
 def fill(command: str, **values) -> str:
-    """Put {brief} {dir} {task} {root} into an agent command, each quoted for the shell."""
+    """Put {brief} {dir} {task} {root} {plugin} into an agent command, each quoted for the shell."""
     for key, value in values.items():
         command = command.replace("{" + key + "}", shlex.quote(str(value)))
     return command
@@ -253,14 +284,23 @@ def start(task: Task, work: Path) -> tuple[Path, Path]:
     return root, project
 
 
-def run_task(task: Task, agent: str, timeout: float, keep: bool = False) -> dict:
-    """One task, start to score: set up the repo, run the agent command in it, grade what it left."""
+def run_task(task: Task, agent: str, timeout: float, keep: bool = False,
+             plugin: Path | None = None) -> dict:
+    """One task, start to score: set up the repo, run the agent command in it, grade what it left.
+
+    `plugin` is what {plugin} stands for (see plugin_copy). The agent's environment has no
+    CAD_EVALS, which would point it at the graders.
+    """
+    if "{plugin}" in agent and plugin is None:
+        raise EvalError("the agent command uses {plugin}, which needs a plugin copy (run makes one)")
     work = Path(tempfile.mkdtemp(prefix=f"cad-eval-run-{task.name}-")).resolve()   # macOS /var is /private/var
     log = work / "agent.log"
     try:
         root, project = start(task, work)
-        command = fill(agent, brief=root / "BRIEF.md", dir=project, task=task.name, root=root)
-        env = dict(os.environ, CAD_PROJECTS=str(root / "projects"))
+        command = fill(agent, brief=root / "BRIEF.md", dir=project, task=task.name, root=root,
+                       **({"plugin": plugin} if plugin else {}))
+        env = {k: v for k, v in os.environ.items() if k != "CAD_EVALS"}
+        env["CAD_PROJECTS"] = str(root / "projects")
         print(f"{task.name}: running the agent (up to {timeout:g} s), output in {log}", file=sys.stderr)
         t0 = time.monotonic()
         timed_out = False
@@ -300,12 +340,23 @@ def run(root: Path, agent: str, names: list[str], timeout: float, keep: bool = F
     if not tasks:
         raise EvalError(f"no tasks in {root}")
     started = datetime.now(timezone.utc)
-    results = [run_task(t, agent, timeout, keep) for t in tasks]
+    work = plugin = None
+    try:
+        if "{plugin}" in agent:                  # one copy for the whole run, so its first-run install happens once
+            work = Path(tempfile.mkdtemp(prefix="cad-eval-plugin-")).resolve()
+            plugin = plugin_copy(work / "cad-agent", root)
+            print(f"{{plugin}}: a copy of the repo without evals/ at {plugin}", file=sys.stderr)
+        results = [run_task(t, agent, timeout, keep, plugin) for t in tasks]
+    finally:
+        if work and not keep:
+            shutil.rmtree(work, ignore_errors=True)
     scores = [r["score"] for r in results]
     data = {"started_utc": started.strftime("%Y-%m-%dT%H:%M:%SZ"), "agent": agent,
             "timeout_s": timeout, "evals": str(root), "tasks": results,
             "summary": {"tasks": len(results), "pass": sum(r["verdict"] == "PASS" for r in results),
                         "mean_score": round(sum(scores) / len(scores), 4)}}
+    if plugin and keep:
+        data["plugin_dir"] = str(plugin)
     path = out or root / "results" / f"{started.strftime('%Y%m%dT%H%M%SZ')}.json"
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(data, indent=2))

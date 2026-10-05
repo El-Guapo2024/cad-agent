@@ -693,8 +693,8 @@ def cmd_eval_run(a) -> Result:
     from . import evals
     if not a.agent:
         raise UsageError("cad eval run needs --agent CMD, run through the shell in each task's repo "
-                         "({brief} {dir} {task} {root} are filled in), e.g. "
-                         "--agent 'claude -p \"$(cat {brief})\"'")
+                         "({brief} {dir} {task} {root} {plugin} are filled in), e.g. "
+                         "--agent 'claude -p \"$(cat {brief})\" --plugin-dir {plugin}'")
     r = _eval_call(evals.run, _evals_root(a), a.agent, a.tasks, a.timeout, a.keep,
                    Path(a.out).expanduser() if a.out else None)
     lines = [f"{'task':16} {'verdict':9} {'score':>6} {'rows':>9} {'agent s':>8} {'score s':>8}"]
@@ -706,6 +706,8 @@ def cmd_eval_run(a) -> Result:
     s = r["summary"]
     lines += [f"{s['tasks']} tasks, {s['pass']} PASS, mean score {s['mean_score']:.1%}",
               f"results: {r['file']}"]
+    if r.get("plugin_dir"):
+        lines.append(f"plugin copy kept at {r['plugin_dir']}")
     return Result(_eval_code(t["verdict"] for t in r["tasks"]), r, "\n".join(lines),
                   f"{s['pass']}/{s['tasks']} PASS, mean {s['mean_score']:.1%}", [r["file"]])
 
@@ -1696,10 +1698,12 @@ def build_parser() -> argparse.ArgumentParser:
              "then `score`", parent=esub)
     sp.add_argument("tasks", nargs="*", metavar="TASK", help="default: every task")
     sp.add_argument("--agent", metavar="CMD", help="shell command; {brief} {dir} {task} {root} "
-                    "are replaced by quoted paths and the task name; CAD_PROJECTS is set")
+                    "{plugin} are replaced by quoted paths and the task name ({plugin} is a copy "
+                    "of this repo as a plugin, without evals/); CAD_PROJECTS is set")
     sp.add_argument("--timeout", type=float, default=1800, metavar="S",
                     help="seconds the agent gets per task (default 1800)")
-    sp.add_argument("--keep", action="store_true", help="keep each task's repo and say where")
+    sp.add_argument("--keep", action="store_true",
+                    help="keep each task's repo (and the plugin copy) and say where")
     sp.add_argument("--out", metavar="FILE", help="results JSON (default: evals/results/<UTC stamp>.json)")
     evals_dir(sp)
     sp.set_defaults(cmd_name="eval run")

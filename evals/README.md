@@ -62,12 +62,19 @@ scratch folder and prints it; `--all` shows passing rows too.
 **`run`** does that for an agent. For each task it makes a temp git repo: `projects/<task>/` with
 the given files, `BRIEF.md` at the root, one commit. It runs `--agent CMD` through the shell with
 the repo root as the working directory and `CAD_PROJECTS=<root>/projects`, replacing `{brief}`
-(path of BRIEF.md), `{dir}` (the project folder), `{task}` and `{root}` with shell-quoted values,
-then scores the project folder. A table prints and the results go to
+(path of BRIEF.md), `{dir}` (the project folder), `{task}`, `{root}` and `{plugin}` with
+shell-quoted values, then scores the project folder. A table prints and the results go to
 `evals/results/<UTC stamp>.json` (or `--out`): per task the verdict, score, the failing rows, how
 long the agent took, and the tail of its output. The agent gets `--timeout` seconds (default 1800)
 per task and is killed with its process group after that; what it left is still scored. `--keep`
-keeps each task's repo and agent log.
+keeps each task's repo and agent log, and the plugin copy.
+
+**`{plugin}`** is the repo as a plugin, minus what grades: a copy without `evals/` (the hidden specs
+and the references), `.git` (every commit still has them), `.venv`, caches and `.claude/worktrees`
+(other agents' checkouts, each with its own `evals/`). It is made once per run, only when the
+command uses `{plugin}`, and removed at the end. The plugin's first-run hook installs the CAD
+kernel for the copy's path, so that takes its few minutes once per run. The agent's environment has
+no `CAD_EVALS`.
 
 ## What a score does not prove
 
@@ -78,8 +85,10 @@ keeps each task's repo and agent log.
 - `max_mm` on a clearance is the closest approach: a looser bore with the barrel resting on one side
   can pass "grips". `[[mass]]` uses the `MATERIAL` the part declares.
 - Nothing here judges assembly order, tool access or cable routing; that is the reviewer's job.
-- The agent can read the plugin folder it is given. A real run should point `--plugin-dir` at a copy
-  of the repo without `evals/`, or the hidden specs and references are one `ls` away.
+- The agent can read whatever folder it is pointed at. The hidden specs and the references are in
+  this repo, which is also the plugin, so a real run says `--plugin-dir {plugin}` (the copy above).
+  Pointing it at the repo itself puts them one `ls` away. The copy still has the docs: PLAN_V2.md and
+  ui/HANDOFF.md name the tasks and say what the grader does not check.
 
 ## Adding a task
 
@@ -101,12 +110,12 @@ keeps each task's repo and agent log.
 ## Suggested real run (not run yet)
 
 ```
-bin/cad eval run --agent 'claude -p "$(cat {brief})" --plugin-dir ~/ws/cad-agent --permission-mode acceptEdits'
+bin/cad eval run --agent 'claude -p "$(cat {brief})" --plugin-dir {plugin} --permission-mode acceptEdits'
 ```
 
 It spends plan usage: each task is a whole design session. Try `bin/cad eval run ... nema17_mount
 --timeout 900` first. Compare the mean score between runs, and `rows` in the results file for what
-moved. See the note above about `--plugin-dir`.
+moved. Keep `--plugin-dir {plugin}`: see the note above about what the agent can read.
 
 ## To go
 

@@ -277,9 +277,48 @@ def test_a_verify_that_did_not_finish_scores_zero():
 
 
 def test_placeholders_are_quoted_and_other_braces_left_alone():
-    cmd = evals.fill('claude -p "$(cat {brief})" --add-dir {dir} # {task} ${HOME} {root}',
-                     brief=Path("/a b/BRIEF.md"), dir=Path("/a b/p"), task="t", root=Path("/a b"))
-    assert cmd == "claude -p \"$(cat '/a b/BRIEF.md')\" --add-dir '/a b/p' # t ${HOME} '/a b'"
+    cmd = evals.fill('claude -p "$(cat {brief})" --add-dir {dir} --plugin-dir {plugin} # {task} ${HOME} {root}',
+                     brief=Path("/a b/BRIEF.md"), dir=Path("/a b/p"), task="t", root=Path("/a b"),
+                     plugin=Path("/a b/plugin"))
+    assert cmd == ("claude -p \"$(cat '/a b/BRIEF.md')\" --add-dir '/a b/p' --plugin-dir '/a b/plugin' "
+                   "# t ${HOME} '/a b'")
+
+
+# ─── The plugin an agent is given: no graders in it ──────────────────────────
+
+def test_the_plugin_copy_leaves_out_what_grades_and_what_is_not_a_plugin(tmp_path):
+    """A repo with one of everything: what an agent under test must not read (the hidden specs
+    in evals/, a tasks folder elsewhere in the repo, the history, other agents' worktrees) and
+    what is only weight (the environment, caches). Everything else comes across."""
+    src = tmp_path / "repo"
+    kept = ["bin/cad", ".claude-plugin/plugin.json", ".claude/skills/cad/SKILL.md", "cad_agent/__init__.py",
+            "docs/evals.md", "pyproject.toml", "ui/src/main.ts", ".github/ci.yml"]
+    left_out = ["evals/t/spec.toml", "specs/t/spec.toml", ".git/HEAD", "vendor/lib/.git", ".venv/bin/python",
+                ".claude/worktrees/w/evals/t/spec.toml", "ui/node_modules/x/index.js",
+                "cad_agent/__pycache__/x.pyc", "cad_agent.egg-info/PKG-INFO", ".pytest_cache/v", "bin/.DS_Store"]
+    for rel in kept + left_out:
+        (src / rel).parent.mkdir(parents=True, exist_ok=True)
+        (src / rel).write_text("x")
+    copy = evals.plugin_copy(tmp_path / "copy", tasks=src / "specs", src=src)
+    assert copy == tmp_path / "copy"
+    got = sorted(p.relative_to(copy).as_posix() for p in copy.rglob("*") if p.is_file())
+    assert got == sorted(kept)
+
+
+def test_the_real_plugin_copy_is_a_working_plugin_without_evals(tmp_path):
+    copy = evals.plugin_copy(tmp_path / "plugin", EVALS)
+    for rel in (".claude-plugin/plugin.json", "plugin/hooks.json", ".claude/hooks/cad_on_edit.py",
+                ".claude/hooks/cad_on_stop.py", ".claude/skills/cad/SKILL.md", "bin/cad",
+                "pyproject.toml", "cad_agent/evals.py"):
+        assert (copy / rel).is_file(), rel
+    names = {p.name for p in copy.rglob("*")}
+    assert not {"evals", ".git", ".venv", "worktrees", "node_modules"} & names
+    assert not set(TASKS) & names                                       # no task folder, wherever
+
+
+def test_a_plugin_placeholder_without_a_plugin_copy_is_refused():
+    with pytest.raises(evals.EvalError, match="plugin"):
+        evals.run_task(evals.get_task(EVALS, "nema17_mount"), "echo {plugin}", 5)
 
 
 # ─── Scoring for real ────────────────────────────────────────────────────────
@@ -367,6 +406,41 @@ def test_results_go_to_a_dated_file_next_to_the_tasks_by_default(worker, mini, c
     assert path.parent == mini / "results" and path.suffix == ".json" and path.is_file()
     assert json.loads(path.read_text())["summary"] == r["summary"]
     assert r["summary"]["tasks"] == 1 and r["summary"]["pass"] == 0
+
+
+def plugin_probe(seen):
+    """An agent command that writes what it sees of {plugin} into a file, and fails if the
+    environment still points it at the tasks."""
+    out = shlex.quote(str(seen))
+    return f'ls -A {{plugin}} > {out} && echo {{plugin}} >> {out} && test -z "${{CAD_EVALS:-}}"'
+
+
+def test_the_agent_gets_a_plugin_copy_without_evals_that_goes_away(worker, mini, capsys, tmp_path,
+                                                                   monkeypatch):
+    monkeypatch.setenv("CAD_EVALS", str(mini))          # run finds the tasks here; the agent must not
+    seen = tmp_path / "seen.txt"
+    code, r = run(capsys, "eval", "run", "--agent", plugin_probe(seen), "--timeout", "120")
+    (t,) = r["tasks"]
+    assert t["agent_exit"] == 0, t["agent_tail"]
+    *top, where = seen.read_text().splitlines()
+    assert {".claude-plugin", "cad_agent", "bin"} <= set(top)
+    assert not {"evals", ".git", ".venv"} & set(top)
+    assert not Path(where).exists() and "plugin_dir" not in r            # one copy per run, removed after it
+
+
+def test_keep_keeps_the_plugin_copy_and_says_where(worker, mini, capsys, tmp_path):
+    seen = tmp_path / "seen.txt"
+    code, r = run(capsys, "eval", "run", "--agent", plugin_probe(seen), "--evals", str(mini), "--keep",
+                  "--timeout", "120")
+    (t,) = r["tasks"]
+    kept = Path(r["plugin_dir"])
+    try:
+        assert t["agent_exit"] == 0, t["agent_tail"]
+        assert seen.read_text().splitlines()[-1] == str(kept)             # the agent was given this copy
+        assert (kept / "cad_agent" / "evals.py").is_file() and not (kept / "evals").exists()
+    finally:
+        for folder in (kept.parent, t["agent_dir"], t["kept"]):
+            shutil.rmtree(folder, ignore_errors=True)
 
 
 def test_an_agent_that_runs_out_of_time_is_killed_and_what_it_left_is_scored(worker, mini, capsys):
