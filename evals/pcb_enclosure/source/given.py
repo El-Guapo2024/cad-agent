@@ -24,13 +24,13 @@ Where each number comes from:
       pattern. The right edge steps out 2.54 mm between two 45 degree chamfers,
       read off the same drawing to about 0.2 mm.
   USB-B socket   16.5 x 12.2 x 10.8 mm
-      Same Sky UJ2-BH-2-TH datasheet, a through-hole horizontal type B
-      receptacle. Its front sits 6.4 mm past the board edge and its axis is
-      15.24 mm from the top edge, both read off the drawing above.
+      Same Sky UJ2-BH-2-TH, a through-hole horizontal type B receptacle (the
+      size is from its product page). Its front sits 6.4 mm past the board edge
+      and its axis is 15.24 mm from the top edge, both read off the drawing above.
   DC jack        14.4 x 9.0 x 11.0 mm
-      Same Sky PJ-002A datasheet, 7.62 mm from the bottom edge. The drawing puts
-      its front 1.6 mm past the board edge; it is moved out to 2.1 mm so its rear
-      end stays clear of the lower-left hole.
+      Same Sky PJ-002A (size from its product page), 7.62 mm from the bottom
+      edge. The drawing puts its front 1.6 mm past the board edge; it is moved
+      out to 2.1 mm so its rear end stays clear of the lower-left hole.
   Headers        2.54 mm female strips, 8.5 mm tall
       A typical stackable header height, and positions from the usual UNO layout
       (10-pin and 8-pin on top with the odd 0.16 in gap between them, 8-pin and

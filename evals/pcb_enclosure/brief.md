@@ -30,8 +30,8 @@ Where the numbers come from:
 
 - Board outline and the four 3.20 mm holes: Arduino UNO R3 datasheet A000066, section 5.4,
   page 12. The lower-left hole is drawn 1.3 mm nearer the edge than the upper-left one.
-- USB-B socket (16.5 x 12.2 x 10.8) and DC jack (14.4 x 9 x 11): Same Sky UJ2-BH-2-TH and
-  PJ-002A datasheets. Header strips are typical 8.5 mm ones.
+- USB-B socket (16.5 x 12.2 x 10.8) and DC jack (14.4 x 9 x 11): the sizes Same Sky publishes
+  for the UJ2-BH-2-TH and PJ-002A. Header strips are typical 8.5 mm ones.
 - Plug housing (26.7 x 11.4 x 10.5): W+P Products series 826 USB 2.0 cable assemblies
   datasheet, "Housing Dimensions", USB B male.
 - Read the holes from the given board, never from memory. `cad bought info pcb_enclosure
