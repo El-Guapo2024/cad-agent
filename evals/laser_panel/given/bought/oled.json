@@ -1,0 +1,6 @@
+{
+ "source": "Winstar WEA012864D-03 0.96 inch 128x64 COG+PCB OLED module (SSD1306BZ, I2C), OLED SPECIFICATION General Specification and Contour Drawing (https://blog.e-ika.com/wp-content/uploads/2020/02/oled096-datasheet.pdf, product page https://www.winstar.com.tw/products/oled-module/graphic-oled-display/4-pin-oled.html): 27.30 x 27.30 x 2.37 mm, glass 26.7 x 19.26 mm, 4 x 2.5 mm holes 20.7 x 23.2 mm apart, header pins 7.5 mm behind the PCB",
+ "vendor": "Winstar",
+ "verified": true,
+ "original": "oled.step"
+}

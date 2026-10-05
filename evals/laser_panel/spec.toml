@@ -1,0 +1,65 @@
+# laser_panel: the hidden spec. `cad eval score` writes it over the design and runs `cad verify`.
+# brief.md states every entry below in words and numbers.
+
+[envelope]                  # the whole assembly: the frame sets x and y, the button sets z
+min_mm = [99.5, 59.5, 29.2]
+max_mm = [100.5, 60.5, 29.6]
+
+[[interface]]               # four M3: the panel's clearance holes over the frame's tapped holes
+a = "panel"
+b = "frame"
+fastener = "M3"
+tol_mm = 0.1
+near_mm = 6
+
+[[clearance]]               # the panel sits on the frame: touching, no gap
+a = "panel"
+b = "frame"
+max_mm = 0.05
+
+[[clearance]]               # the button hole fits the barrel and does not gape
+a = "push_button"
+b = "panel"
+min_mm = 0.10
+max_mm = 0.40
+
+[[clearance]]               # the window fits the OLED glass and does not gape
+a = "oled"
+b = "panel"
+min_mm = 0.10
+max_mm = 0.40
+
+[[size]]                    # the sheet: 3 mm thick, the frame's outline
+body = "panel"
+min_mm = [99.5, 59.5, 2.9]
+max_mm = [100.5, 60.5, 3.1]
+
+[[size]]                    # the given bodies, so none can be swapped, resized or turned
+body = "frame"
+min_mm = [99.95, 59.95, 7.95]
+max_mm = [100.05, 60.05, 8.05]
+
+[[size]]
+body = "push_button"
+min_mm = [15.51, 14.84, 29.35]
+max_mm = [15.61, 14.94, 29.45]
+
+[[size]]
+body = "oled"
+min_mm = [27.25, 27.25, 9.82]
+max_mm = [27.35, 27.35, 9.92]
+
+[[position]]                # bounding-box centres of the given bodies, as placed
+body = "frame"
+center_mm = [0.0, 0.0, -4.0]
+tol_mm = 0.05
+
+[[position]]
+body = "push_button"
+center_mm = [-22.5, 0.0, -6.7]
+tol_mm = 0.05
+
+[[position]]
+body = "oled"
+center_mm = [17.5, 0.0, -4.365]
+tol_mm = 0.05
