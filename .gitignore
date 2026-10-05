@@ -44,3 +44,4 @@ evals/**/.cad/
 evals/**/out/
 evals/**/checks.json
 evals/**/verify.json
+.claude/worktrees/
