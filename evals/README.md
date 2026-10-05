@@ -2,7 +2,8 @@
 
 Each task is a small brief with a hidden `spec.toml`. An agent designs through the `cad` CLI and
 `cad verify` scores what it leaves, so "better" is a number: run the set before and after a change
-to cad-agent (a rule, the skill, a hook, the CLI) and compare. Phase 1 is here, 3 of about 10 tasks.
+to cad-agent (a rule, the skill, a hook, the CLI) and compare. There are 10 tasks (phase 1 and phase
+2). No real agent has run them yet: the command is under "Suggested real run" below.
 
 ## Layout
 
@@ -16,7 +17,9 @@ evals/<task>/
                project's own layout: given/bought/x.step -> projects/<task>/bought/x.step
   reference/   a complete design (parts/, assembly.py) that scores 100%: proof the task can be
                solved, and what the tests break to check each rule is really graded
-evals/make_given.py   writes the given STEPs (modelled in build123d), with the source of every number
+  source/      phase 2 tasks: the script that makes the given STEPs, with the source of every
+               number. Never laid into the agent's project
+evals/make_given.py   the same for the phase 1 tasks (modelled in build123d)
 evals/results/        what `cad eval run` scored, one JSON per run (not in git)
 ```
 
@@ -29,6 +32,13 @@ provenance row, which passes.
 | `nema17_mount` | a plate on a 2040 rail carrying a NEMA 17: the M3 pattern on the motor's 31 mm square, touching rail and motor, mass, envelope, the motor pinned |
 | `syringe_clamp` | a clamp that holds a 10 mL barrel 0.05 to 0.35 mm off, bolted to a plate with an off-centre syringe: `max_mm` as "grips", an M3 interface, mass |
 | `galvo_mount` | a mount that stands on the bench and holds a galvo head, outside the laser cone: a `[[keepout]]`, an M4 interface, mass |
+| `mgn12h_carriage` | a plate on an MGN12H block that carries a tool flange between two end stops: an M3 pattern to the block and one to the tool, a size range, 42 mm to each stop at home, mass. The brief asks for `AXES`; nothing grades it |
+| `hotplate_standoffs` | four standoffs holding a 250 C plate 20 mm over a base: each touching both (`max_mm`), an M3 bore over the plate's tapped holes, the 20 mm air gap. The material is not graded: there is no heat rule |
+| `pinned_carrier` | a block that locates on two dowel pins (0.1 mm to spare at most, `max_mm`), seats on the base and clears a screw head by 0.5 mm: coaxial holes and a relief pocket, no fastener |
+| `laser_panel` | a 3 mm laser-cut panel on a frame, with a button hole and an OLED window each 0.10 to 0.40 mm off its part (`min_mm` with `max_mm`), M3 mounting, an envelope held from both sides |
+| `pcb_enclosure` | a base and a lid for an Arduino UNO with its USB plug in: standoffs on the board's own holes (read from the board, axes only), a window the plug clears by 1 mm, a floor on each size |
+| `idler_bracket` | a bracket on a 2040 end holding a GT2 idler's M5 shaft: M5 mounting holes, shaft holes judged by the shaft's gap (0.1 to 0.5 mm) since no fastener size fits its 5.0 bore, 0.5 mm to the idler |
+| `endstop_bracket` | a bracket that holds a microswitch where a carriage flag presses its lever: M2 holes read from the switch, the flag within 0.5 mm, the switch's size as a range so it can turn a quarter turn |
 
 ## Commands
 
@@ -93,18 +103,21 @@ no `CAD_EVALS`.
 ## Adding a task
 
 1. Decide what it tests and what a careless design gets wrong.
-2. Write the given parts as bought parts: add a model to `make_given.py` (or `cad bought add-step`)
-   with a source line that says what the numbers are and are not.
+2. Write the given parts as bought parts: a script in `evals/<task>/source/` (or a model in
+   `make_given.py`, or `cad bought add-step`) with a source line that says what the numbers are and
+   are not.
 3. Write the reference in a scratch project named after the task (its `assembly.py` finds its parts
    by that name, `SLUG = "<task>"`) until `cad check` is clean, then copy `parts/` and `assembly.py`
-   into `reference/`. Editing `reference/` in place makes the edit hook run `cad check reference`,
-   which cannot find a project of that name. Then the hidden `spec.toml`: pin every given body with
-   `[[size]]` and `[[position]]`, and write "touches" and "grips" as `max_mm`.
+   into `reference/`. The edit and stop hooks skip everything under `evals/`, so nothing checks a
+   reference where it lies and nothing is written into it. Then the hidden `spec.toml`: pin every
+   given body with `[[size]]` and `[[position]]`, and write "touches" and "grips" as `max_mm`.
 4. Write `brief.md`: every number, every body name, every given file, the rule that given files are
    laid again. `tests/test_eval.py` fails if the brief leaves out a body, a given file or a number
-   the spec holds a design to.
+   the spec holds a design to (it reads numbers, so 13 and 13.0 are one; a size pinned to 0.1 mm is
+   stated as its nominal `a x b x c`, and a range or a floor as its limits).
 5. Add the task to `TASKS`, `SPEC_RULES` and `BROKEN` in `tests/test_eval.py`: a one-line edit to
-   the reference that must fail on one named rule.
+   the reference that must fail on one named rule. When the edit breaks what follows from it too
+   (a pin that no longer fits its hole also overlaps the block), `BROKEN` names all the rules.
 6. `cad eval score <task> evals/<task>/reference` says PASS 100.0%.
 
 ## Suggested real run (not run yet)
@@ -117,7 +130,24 @@ It spends plan usage: each task is a whole design session. Try `bin/cad eval run
 --timeout 900` first. Compare the mean score between runs, and `rows` in the results file for what
 moved. Keep `--plugin-dir {plugin}`: see the note above about what the agent can read.
 
-## To go
+## Known gaps
 
-Phase 1 is the three tasks above. Seven more: `mgn12h_carriage` (declared `AXES`, so the sweep
-rule), `hotplate_standoffs`, `pinned_carrier`, `laser_panel`, `pcb_enclosure`, and two more.
+What the grader cannot say yet, and how the tasks go round it. Each is a rule or a `spec.toml` kind
+to add; none was needed to write the ten tasks.
+
+- No `[[axis]]` kind, so `AXES` can't be required: `mgn12h_carriage` asks for it in the brief, and a
+  design that leaves it out has no sweep rows, only the home pose graded (42 mm to each stop).
+- `[[interface]]` reads any concave cylinder of `a` (a counterbore, a slot's end, a fillet) as a
+  hole. The briefs forbid those where `a` faces `b`.
+- Its M3 size match is 3.4 +-0.15 mm, so a real 3.2 mm hole fails it. `pcb_enclosure` has no
+  `fastener` and judges the UNO's 3.20 mm holes by their axes only.
+- No hole-count option and no shaft-fit option: `idler_bracket` fits its 5.0 shaft through the
+  closest-approach range (0.1 to 0.5 mm) instead, and a hole left out is caught only when the given
+  body is `a`, as in `pcb_enclosure` and `endstop_bracket`.
+- A clearance `max_mm` bounds only the closest approach (said above), and there is no clearance to
+  a sub-feature: "the pocket clears the screw head" is a distance between two bodies.
+- `geometry/web` is UNCHECKED for a plain flat part, so one needs a cutout and `EXPECT_FEATURES`
+  to pass.
+- `laser_cut`'s kerf and minimum hole are not used by any rule, and there is no DXF export.
+- No heat rule: `hotplate_standoffs` says the material needs 250 C, and a reviewer reads it.
+- No body count: "exactly six bodies" is asked in the briefs and not checked.

@@ -224,9 +224,18 @@ Each step ends with the tests green.
    - Step 5 is done.
    - Viewer swapped for libraries (2026-09-29, your call: "don't over-code"). three-cad-viewer 5.0.7 (MIT) now draws both pages, fed by ocp-tessellate 3.5.3 (Apache-2.0). It brings the tree, clipping with caps, explode, measuring (its own mesh backend), views, zebra and studio. The ~800 lines of hand-made viewer (`view.js`, `measure.js`) are deleted. Ours now: the drag handle (three.js TransformControls on its part groups, writing placements.toml), the panels, and live reload. Dropped for now: the motion sliders (use its animation tracks if needed).
 6. Machine scale: parts library, sub-assemblies, the heat, mass and deflection rules, shop outputs.
-7. The eval set and its scores. **Phase 1 done 2026-10-04** (`evals/`, `cad eval ls|brief|score|run`, `cad_agent/evals.py`, `evals/README.md`):
-   - 3 tasks: `nema17_mount`, `syringe_clamp`, `galvo_mount`. Each is a brief that states every number, a hidden `spec.toml`, given bought parts, and a reference design that scores 100% (about 3 s each through the warm worker).
+7. The eval set and its scores. **Phases 1 and 2 done 2026-10-04** (`evals/`, `cad eval ls|brief|score|run`, `cad_agent/evals.py`, `evals/README.md`):
+   - 10 tasks: `nema17_mount`, `syringe_clamp`, `galvo_mount` (phase 1) and `mgn12h_carriage`, `hotplate_standoffs`, `pinned_carrier`, `laser_panel`, `pcb_enclosure`, `idler_bracket`, `endstop_bracket` (phase 2). Each is a brief that states every number, a hidden `spec.toml`, given bought parts, and a reference design that scores 100% (4 to 13 s each through the warm worker). The tests break each reference once and check which rule fails.
    - `spec.toml` gained `[[size]]`, `[[position]]` and `max_mm` on `[[clearance]]` to pin the given parts and write "touches" and "grips".
-   - The real agent run isn't done yet; the command is in `evals/README.md`.
-   - 7 to go: mgn12h_carriage (AXES), hotplate_standoffs, pinned_carrier, laser_panel, pcb_enclosure, +2.
+   - `cad eval run` gives the agent `{plugin}`: a copy of the repo as a plugin without `evals/`, `.git`, `.venv` and `.claude/worktrees`, so the hidden specs aren't one `ls` away. The edit and stop hooks skip everything under `evals/`.
+   - Never run with a real agent yet. It spends plan usage, so it needs Juan's OK; the command is in `evals/README.md`.
+   - Known gaps, what the grader can't say yet (each task works round them; `evals/README.md` has the detail):
+     - no `[[axis]]` kind, so `AXES` can't be required (`mgn12h_carriage` asks for it; without it only the home pose is graded);
+     - `[[interface]]` reads any concave cylinder of `a` (a counterbore, a slot's end, a fillet) as a hole;
+     - its M3 size match is 3.4 +-0.15 mm, so real 3.2 mm holes fail;
+     - no hole-count option and no shaft-fit option;
+     - a clearance `max_mm` bounds only the closest approach, and there is no clearance to a sub-feature;
+     - `geometry/web` is UNCHECKED for a plain flat part;
+     - `laser_cut`'s kerf and minimum hole are unused, and there is no DXF export;
+     - no heat rule and no body count.
 8. First real job: the one-machine layout (frame, gantry, dock, laser keep-out).
