@@ -32,7 +32,7 @@ provenance row, which passes.
 | `nema17_mount` | a plate on a 2040 rail carrying a NEMA 17: the M3 pattern on the motor's 31 mm square, touching rail and motor, mass, envelope, the motor pinned |
 | `syringe_clamp` | a clamp that holds a 10 mL barrel 0.05 to 0.35 mm off, bolted to a plate with an off-centre syringe: `max_mm` as "grips", an M3 interface, mass |
 | `galvo_mount` | a mount that stands on the bench and holds a galvo head, outside the laser cone: a `[[keepout]]`, an M4 interface, mass |
-| `mgn12h_carriage` | a plate on an MGN12H block that carries a tool flange between two end stops: an M3 pattern to the block and one to the tool, a size range, 42 mm to each stop at home, mass. The brief asks for `AXES`; nothing grades it |
+| `mgn12h_carriage` | a plate on an MGN12H block that carries a tool flange between two end stops: an M3 pattern to the block and one to the tool, a size range, 42 mm to each stop at home, mass. The brief asks for `AXES`; leaving it out costs nothing |
 | `hotplate_standoffs` | four standoffs holding a 250 C plate 20 mm over a base: each touching both (`max_mm`), an M3 bore over the plate's tapped holes, the 20 mm air gap. The material is not graded: there is no heat rule |
 | `pinned_carrier` | a block that locates on two dowel pins (0.1 mm to spare at most, `max_mm`), seats on the base and clears a screw head by 0.5 mm: coaxial holes and a relief pocket, no fastener |
 | `laser_panel` | a 3 mm laser-cut panel on a frame, with a button hole and an OLED window each 0.10 to 0.40 mm off its part (`min_mm` with `max_mm`), M3 mounting, an envelope held from both sides |
