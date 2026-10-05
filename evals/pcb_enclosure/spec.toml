@@ -1,0 +1,66 @@
+# pcb_enclosure: the hidden grader. Every entry is stated in brief.md.
+
+[envelope]                  # the whole assembly, plug included
+max_mm = [112, 66, 30]
+
+# The two given bodies, pinned so a design can't pass by moving or swapping them.
+[[position]]
+body = "pcb"
+center_mm = [-3.2, 0.0, 12.3]
+
+[[size]]
+body = "pcb"
+min_mm = [74.93, 53.29, 12.55]
+max_mm = [75.03, 53.39, 12.65]
+
+[[position]]
+body = "usb_plug"
+center_mm = [-54.04, 11.43, 13.0]
+
+[[size]]
+body = "usb_plug"
+min_mm = [26.65, 11.35, 10.45]
+max_mm = [26.75, 11.45, 10.55]
+
+# The box covers the whole board, USB socket included: each part is at least this big in plan.
+[[size]]
+body = "base"
+min_mm = [76, 54.5, 0]
+
+[[size]]
+body = "lid"
+min_mm = [76, 54.5, 0]
+
+# The board's four holes each need a hole in the base on the same axis (the standoffs').
+# `a` is the board on purpose: only its four holes are judged, so the base's other round
+# faces (a cable hole, a rounded inside corner) can't trip it. There is no `fastener`: the
+# board's holes are 3.20 mm, which the engine's M3 table (3.4 +/- 0.15) does not accept.
+[[interface]]
+a = "pcb"
+b = "base"
+tol_mm = 0.1
+
+[[clearance]]               # the lid stays clear of the tallest part, the DC jack
+a = "pcb"
+b = "lid"
+min_mm = 1.5
+
+[[clearance]]               # the plug gets a window in the box
+a = "base"
+b = "usb_plug"
+min_mm = 1.0
+
+[[clearance]]
+a = "lid"
+b = "usb_plug"
+min_mm = 1.0
+
+[[clearance]]               # the board rests on the standoffs: touching, or within 0.5 mm
+a = "base"
+b = "pcb"
+max_mm = 0.5
+
+[[clearance]]               # the lid sits on the base
+a = "lid"
+b = "base"
+max_mm = 0.5
