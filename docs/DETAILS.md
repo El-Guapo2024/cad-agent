@@ -105,8 +105,9 @@ Open a Claude Code session in this repo and it loads the harness from `.claude/`
 - the read-only `cad-reviewer` agent
 - permission to run `bin/cad`
 
-Each project states what it must do in `spec.toml` (envelope, clearances, tool
-keep-outs, mass budgets, bolt holes that must line up), and the `spec` gate
+Each project states what it must do in `spec.toml` (envelope, clearances and how
+far apart a pair may be, the size and position of a body, tool keep-outs, mass
+budgets, bolt holes that must line up), and the `spec` gate
 checks every entry. A project without one is UNCHECKED. See
 `cad_agent/spec.py` for the format and `tests/fixtures/*/spec.toml` for real
 examples.

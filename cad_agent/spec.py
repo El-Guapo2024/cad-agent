@@ -9,10 +9,21 @@ spec.toml is UNCHECKED too: nothing states what the design must do.
     [envelope]                  # the whole assembly's bounding box
     max_mm = [560, 520, 300]    # x, y, z; min_mm is optional
 
+    [[size]]                    # one placed body's own bounding box, x, y, z
+    body = "motor"              # min_mm and/or max_mm, at least one. Held to its real
+    min_mm = [42.2, 42.2, 64]   # size, a given part can't be swapped for a smaller one
+    max_mm = [42.4, 42.4, 65]
+
+    [[position]]                # where a placed body's bounding-box center must be
+    body = "motor"
+    center_mm = [0, 0, 20]      # x, y, z
+    tol_mm = 0.1                # distance allowed; default 0.1
+
     [[clearance]]               # a gap two placed bodies must keep
     a = "x_carriage"
     b = "gantry_end_left"
-    min_mm = 3.0
+    min_mm = 3.0                # min_mm and/or max_mm, at least one; overlap always fails
+    max_mm = 20.0               # a small max_mm is how "must grip" or "must touch" is written
 
     [[keepout]]                 # a tool's volume the listed bodies must stay out of
     tool = "laser_cone"         # drill, end_mill, collet_nose, laser_cone, needle
@@ -41,7 +52,7 @@ import tomllib
 from . import state as st
 from .registry import Row
 
-KINDS = ("envelope", "clearance", "keepout", "mass", "interface")
+KINDS = ("envelope", "size", "position", "clearance", "keepout", "mass", "interface")
 TOOLS = ("drill", "end_mill", "collet_nose", "laser_cone", "needle")
 
 
@@ -75,8 +86,8 @@ def check_spec(slug: str, parts: dict):
 
     if "envelope" in spec:
         yield from _guard("envelope", "[envelope]", lambda: _envelope(spec["envelope"], parts))
-    for kind, fn in (("clearance", _clearance), ("keepout", _keepout),
-                     ("interface", _interface)):
+    for kind, fn in (("size", _size), ("position", _position), ("clearance", _clearance),
+                     ("keepout", _keepout), ("interface", _interface)):
         for i, entry in enumerate(_entries(spec, kind), 1):
             yield from _guard(kind, f"[[{kind}]] #{i}", lambda e=entry, f=fn: f(e, parts),
                               source=f"spec.toml [[{kind}]] #{i}")
@@ -128,6 +139,17 @@ def _vec3(value, what: str) -> list[float]:
 
 # ─── Requirements ────────────────────────────────────────────────────────────
 
+def _bounds(dims, top, low):
+    """The state, the reason and the limit text for a box held to x, y, z bounds."""
+    over = [a for a, d, m in zip("xyz", dims, top) if d > m + 1e-6] if top else []
+    under = [a for a, d, m in zip("xyz", dims, low) if d < m - 1e-6] if low else []
+    why = (f", too big in {''.join(over)}" if over else "") + \
+          (f", too small in {''.join(under)}" if under else "")
+    limit = ", ".join(f"{sign} {b[0]:g} x {b[1]:g} x {b[2]:g} mm"
+                      for sign, b in (("<=", top), (">=", low)) if b)
+    return ("FAIL" if over or under else "PASS"), why, limit
+
+
 def _envelope(entry: dict, parts: dict):
     from .geom import bbox
     if not parts:
@@ -138,30 +160,63 @@ def _envelope(entry: dict, parts: dict):
     lo = [min(b[0][i] for b in boxes) for i in range(3)]
     hi = [max(b[1][i] for b in boxes) for i in range(3)]
     dims = [round(hi[i] - lo[i], 2) for i in range(3)]
-    over = [a for a, d, m in zip("xyz", dims, top) if d > m + 1e-6]
-    under = [a for a, d, m in zip("xyz", dims, low) if d < m - 1e-6] if low else []
-    state = "FAIL" if over or under else "PASS"
-    why = (f", too big in {''.join(over)}" if over else "") + \
-          (f", too small in {''.join(under)}" if under else "")
-    limit = f"<= {top[0]:g} x {top[1]:g} x {top[2]:g} mm" + \
-            (f", >= {low[0]:g} x {low[1]:g} x {low[2]:g}" if low else "")
+    state, why, limit = _bounds(dims, top, low)
     yield _row("assembly", "envelope", state,
                f"{dims[0]} x {dims[1]} x {dims[2]} mm{why}", limit)
+
+
+def _size(entry: dict, parts: dict):
+    from .geom import bbox
+    name = _need(entry, "body", "[[size]]")
+    top = _vec3(entry["max_mm"], "max_mm") if "max_mm" in entry else None
+    low = _vec3(entry["min_mm"], "min_mm") if "min_mm" in entry else None
+    if top is None and low is None:
+        raise _Unusable("[[size]] needs `min_mm` and/or `max_mm`")
+    lo, hi = bbox(_body(parts, name))
+    dims = [round(hi[i] - lo[i], 2) for i in range(3)]
+    state, why, limit = _bounds(dims, top, low)
+    yield _row(name, "size", state, f"{dims[0]} x {dims[1]} x {dims[2]} mm{why}", limit)
+
+
+def _position(entry: dict, parts: dict):
+    from .geom import bbox
+    name = _need(entry, "body", "[[position]]")
+    want = _vec3(_need(entry, "center_mm", "[[position]]"), "center_mm")
+    tol = float(entry.get("tol_mm", 0.1))
+    if tol < 0:
+        raise _Unusable("tol_mm must not be negative")
+    lo, hi = bbox(_body(parts, name))
+    got = [(lo[i] + hi[i]) / 2.0 for i in range(3)]
+    delta = [g - w for g, w in zip(got, want)]
+    off = math.sqrt(sum(d * d for d in delta))
+    ok = off <= tol + 1e-9
+    yield _row(name, "position", "PASS" if ok else "FAIL",
+               f"center ({got[0]:.2f}, {got[1]:.2f}, {got[2]:.2f}) mm, offset {off:.3f} mm"
+               + ("" if ok else f" (dx {delta[0]:+.2f}, dy {delta[1]:+.2f}, dz {delta[2]:+.2f})"),
+               f"center ({want[0]:g}, {want[1]:g}, {want[2]:g}) mm within {tol:g} mm")
 
 
 def _clearance(entry: dict, parts: dict):
     from .geom import intersection_volume, min_distance
     a, b = _need(entry, "a", "[[clearance]]"), _need(entry, "b", "[[clearance]]")
-    need = float(_need(entry, "min_mm", "[[clearance]]"))
+    if "min_mm" not in entry and "max_mm" not in entry:
+        raise _Unusable("[[clearance]] needs `min_mm` and/or `max_mm`")
+    need = float(entry["min_mm"]) if "min_mm" in entry else None
+    cap = float(entry["max_mm"]) if "max_mm" in entry else None
+    if need is not None and cap is not None and need > cap:
+        raise _Unusable(f"[[clearance]] min_mm {need:g} is above max_mm {cap:g}")
+    limit = ", ".join(f"{sign} {v:g} mm" for sign, v in ((">=", need), ("<=", cap))
+                      if v is not None)
     sa, sb = _body(parts, a), _body(parts, b)
     overlap = intersection_volume(sa, sb)
     if overlap > 1e-6:
         yield _row(f"{a}|{b}", "clearance", "FAIL",
-                   f"they interfere, overlap {overlap:.3f} mm^3", f">= {need:g} mm")
+                   f"they interfere, overlap {overlap:.3f} mm^3", limit)
         return
     gap = min_distance(sa, sb)
-    yield _row(f"{a}|{b}", "clearance", "PASS" if gap >= need - 1e-6 else "FAIL",
-               f"{gap:.3f} mm", f">= {need:g} mm")
+    close, far = need is not None and gap < need - 1e-6, cap is not None and gap > cap + 1e-6
+    yield _row(f"{a}|{b}", "clearance", "FAIL" if close or far else "PASS",
+               f"{gap:.3f} mm" + (", too close" if close else ", too far" if far else ""), limit)
 
 
 def _keepout(entry: dict, parts: dict):

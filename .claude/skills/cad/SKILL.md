@@ -58,7 +58,17 @@ max_mm = [560, 450, 200]
 [[clearance]]               # a gap two placed bodies must keep
 a = "x_carriage"
 b = "gantry_end_left"
-min_mm = 3.0
+min_mm = 3.0                # min_mm and/or max_mm; max_mm = 0.3 is how "must grip" is written
+
+[[size]]                    # a placed body's own bounding box (min_mm and/or max_mm)
+body = "pump"               # holds a given part to its real size
+min_mm = [60, 40, 25]
+max_mm = [61, 41, 26]
+
+[[position]]                # where a placed body's bounding-box center must be
+body = "pump"
+center_mm = [0, 0, 20]
+tol_mm = 0.1                # default
 
 [[keepout]]                 # a tool volume listed bodies must avoid
 tool = "laser_cone"         # drill, end_mill, collet_nose, laser_cone, needle
