@@ -19,14 +19,17 @@ What this keeps:
   takes effect on the next call. Only third-party modules are preloaded;
   after upgrading one of those, run `cad warm stop`.
 - The parent is single-threaded (one-thread BLAS) and never touches
-  Objective-C, which is what makes fork safe on macOS. The Metal renderer
-  loads in the child.
+  Objective-C, which is what makes fork safe on macOS. A fork cannot compile
+  Metal shaders either (their compiler is an XPC service, and XPC fails in a
+  process that was forked and not exec'd), so the worker execs a sidecar
+  that draws for its children; metal_render.py has the details.
 - It exits by itself after 30 idle minutes. CAD_WARM=0 skips it entirely.
 """
 from __future__ import annotations
 
 import fcntl
 import hashlib
+import importlib.util
 import json
 import os
 import select
@@ -50,6 +53,7 @@ ENV_PASS = ("CAD_PROJECTS", "CAD_RENDER_BACKEND", "CAD_PREFS", "COLUMNS", "NO_CO
                           # effect after the next time the daemon restarts)
 COLD = {(), ("-h",), ("--help",)}           # nothing to import: answer without a worker
 NO_KERNEL = {"serve", "service", "eval"}   # kernel-free: never hold a worker fork
+METAL_ENV = "CAD_METAL_SIDECAR"            # metal_render.SIDECAR_ENV (no cad_agent import here)
 
 
 def _command(argv: list[str]) -> str | None:
@@ -138,6 +142,75 @@ def _child(req: dict, fds: list[int]) -> None:
     os._exit(code if isinstance(code, int) else 4)
 
 
+class _Sidecar:
+    """The Metal sidecar: a process this worker execs, because a fork cannot
+    use Metal's shader compiler (metal_render.py has the story).
+
+    It starts before the kernel import, which takes far longer, so it is ready
+    first. Children find its socket in CAD_METAL_SIDECAR. It exits when the
+    worker does, and the worker starts it again if it dies, up to MAX_STARTS
+    times in all; after that, or on a machine with no Metal, children draw with
+    numpy. Like the worker it keeps the code it started with, so after editing
+    metal_render.py run `cad warm stop`.
+    """
+    MAX_STARTS = 3
+
+    def __init__(self, path: Path):
+        self.sock = path.with_suffix(".metal")
+        self.starts = 0
+        self.proc: subprocess.Popen | None = None
+        self.wanted = sys.platform == "darwin" and importlib.util.find_spec("Metal") is not None
+        os.environ.pop(METAL_ENV, None)        # never a sidecar inherited from whoever started us
+        self.check()
+
+    def check(self) -> None:
+        """Start the sidecar, or start it again once it has died."""
+        if not self.wanted or (self.proc is not None and self.proc.poll() is None):
+            return
+        if self.starts >= self.MAX_STARTS:
+            self.wanted = False
+            os.environ.pop(METAL_ENV, None)
+            return
+        self.sock.unlink(missing_ok=True)
+        env = {k: v for k, v in os.environ.items() if k != METAL_ENV}
+        argv = [sys.executable, "-m", "cad_agent.metal_render", "_serve",
+                str(self.sock), str(os.getpid())]
+        try:
+            # stdout and stderr stay the worker's, so the sidecar's complaints land in the worker's log
+            self.proc = subprocess.Popen(argv, stdin=subprocess.DEVNULL, cwd=str(PKG.parent), env=env)
+        except OSError as e:
+            print(f"warm worker: no Metal sidecar: {e}", flush=True)
+            self.wanted = False
+            return
+        self.starts += 1
+        os.environ[METAL_ENV] = str(self.sock)
+
+    def describe(self) -> str | None:
+        """One line for `cad warm status`; None where there is nothing to say."""
+        if self.starts == 0:
+            return None
+        s = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+        s.settimeout(1)
+        try:
+            s.connect(str(self.sock))
+            s.sendall(b'{"op": "ping"}\n')
+            r = json.loads(s.makefile("rb").readline())
+            return f"sidecar {r['pid']} on {r['name']}, {r['served']} draws served"
+        except (OSError, ValueError, KeyError):
+            return "sidecar not answering (see the worker's log), children draw with numpy"
+        finally:
+            s.close()
+
+    def stop(self) -> None:
+        if self.proc is not None and self.proc.poll() is None:
+            self.proc.terminate()
+            try:
+                self.proc.wait(2)
+            except subprocess.TimeoutExpired:
+                self.proc.kill()
+        self.sock.unlink(missing_ok=True)
+
+
 def serve(path: Path) -> None:
     lock = open(path.with_suffix(".lock"), "w")
     try:
@@ -150,6 +223,7 @@ def serve(path: Path) -> None:
     import warnings
     warnings.filterwarnings("ignore", message=".*fork.*", category=DeprecationWarning)
 
+    sidecar = _Sidecar(path)                   # starts now: the import below is the long part
     t0 = time.time()
     for mod in PRELOAD:
         __import__(mod)
@@ -175,6 +249,7 @@ def serve(path: Path) -> None:
     signal.signal(signal.SIGTERM, _terminate)
     try:
         while not stop:
+            sidecar.check()
             while running:                     # reap finished children, report their codes
                 try:
                     pid, status = os.waitpid(-1, os.WNOHANG)
@@ -215,7 +290,8 @@ def serve(path: Path) -> None:
                         last = time.time()
                     _reply(conn, {"exit": 0, "pid": os.getpid(), "up_s": int(time.time() - started),
                                   "served": served, "running": len(running),
-                                  "preload_s": preload_s, "socket": str(path)})
+                                  "preload_s": preload_s, "socket": str(path),
+                                  "metal": sidecar.describe() if req["control"] == "status" else None})
                     continue
                 if req.get("control") == "stop":
                     _reply(conn, {"exit": 0, "stopped": os.getpid()})
@@ -246,6 +322,7 @@ def serve(path: Path) -> None:
                 os.kill(pid, signal.SIGTERM)
             except ProcessLookupError:
                 pass
+        sidecar.stop()
         srv.close()
         path.unlink(missing_ok=True)
 
@@ -408,6 +485,8 @@ def _control(args: list[str]) -> int:
         print(f"cad warm: worker {reply.get('pid')} up {reply.get('up_s')} s, "
               f"{reply.get('served')} commands served, kernel import took "
               f"{reply.get('preload_s')} s\n  socket {reply.get('socket')}")
+        if reply.get("metal"):
+            print(f"  metal {reply['metal']}")
     return 0
 
 

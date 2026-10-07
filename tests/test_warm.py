@@ -8,6 +8,7 @@ costs one kernel import (20-35 s on this machine).
 """
 import json
 import os
+import re
 import subprocess
 import time
 from pathlib import Path
@@ -100,3 +101,25 @@ def test_a_long_lived_caller_runs_commands_without_launching_a_client(warm, monk
     assert code == 1 and json.loads(out)["data"]["interferes"] is True
     reply = w.ping()                            # the keep-alive the login service sends
     assert reply and reply["exit"] == 0 and reply["pid"]
+
+
+def test_a_render_through_the_worker_is_the_render_a_cold_run_makes(warm, monkeypatch):
+    # The worker changes speed and nothing else, pictures included. On a Mac this
+    # also holds the worker to Metal: a fork cannot compile shaders (nor, on a fresh
+    # install, find them cached), so its sidecar must be the one that drew.
+    from cad_agent import cli
+    from cad_agent import state as st
+    from cad_agent.render import backend_status
+    cad, root = warm
+    monkeypatch.setattr(st, "ROOT", st.ROOT)          # cli.main moves it to the scratch root
+    png = root / "demo" / "out" / "plate_iso.png"
+    assert cli.main(["--projects", str(root), "render", "demo", "plate"]) == 0
+    cold = png.read_bytes()
+    png.unlink()
+    p = cad("render", "demo", "plate")
+    assert p.returncode == 0, p.stderr
+    assert png.read_bytes() == cold
+    if backend_status().startswith("metal"):
+        status = cad("warm", "status").stdout
+        drawn = re.search(r"metal sidecar \d+ on .+, (\d+) draws served", status)
+        assert drawn and int(drawn.group(1)) >= 1, status

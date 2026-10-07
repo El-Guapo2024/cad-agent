@@ -223,7 +223,8 @@ cad_agent/
   geom.py       OCCT queries: min distance, overlap volume, mass, bbox
   parts.py      ISO 273 hole tables, tap drills, insert bores, extrusions
   render.py     tessellate, backend dispatch, numpy z-buffer fallback, PNG writer
-  metal_render.py  GPU rasteriser via PyObjC Metal. Offscreen, no window
+  metal_render.py  GPU rasteriser via PyObjC Metal. Offscreen, no window; also the
+                sidecar process the warm worker's forks draw through
   checks/fit.py every pair: interference volume or measured gap vs required
   checks/dfm.py per process: envelope, measured wall, in-plane web, feature count
   checks/web.py section a flat part, measure the material between its boundaries
@@ -236,7 +237,7 @@ cad_agent/
   cutlist.py    stock derived from each part's CUTLIST, roughly priced
   export.py     STEP for a shop, STL for a printer
   cli.py        the cad CLI: every command, --json, exit codes, activity log
-  warm.py       the warm worker: kernel imported once, a fresh fork per command
+  warm.py       the warm worker: kernel imported once, a fresh fork per command, plus the Metal sidecar
   verify.py     the verifier: fresh rebuild, source and engine hashes, git, cad done
   spec.py       spec.toml, the brief as acceptance tests
   evals.py      cad eval: design tasks (evals/) scored through cad verify, no kernel of its own
@@ -264,6 +265,18 @@ colour texture plus a depth texture, one render pass, no window and no
 window-server session. It works over ssh and in a subprocess. Shading is
 computed in numpy and the triangles are sent unindexed, so each carries its
 own flat colour and the shader needs no per-primitive data.
+
+**Metal in the warm worker.** Its commands run in forks, and a fork cannot
+compile a Metal shader: the compiler is an XPC service, and XPC does not work
+in a process that was forked and not exec'd. The compile only succeeded when
+Metal's on-disk shader cache already held this shader for this python (a cold
+run fills it; another venv's python does not share it), so a venv that had
+once rendered cold looked fine and a fresh install fell back to numpy. So the
+worker execs a sidecar (`python -m cad_agent.metal_render
+_serve`) that owns the device and does every draw; a fork sends it its
+triangles over a socket (`CAD_METAL_SIDECAR`) and gets pixels identical to a
+cold render's. `cad warm status` shows it. After editing `metal_render.py`,
+`cad warm stop`.
 
 **numpy z-buffer, the fallback.** Pure numpy, hand-rolled PNG writer, no
 image library and no GPU. Kept so a machine without Metal renders rather than
