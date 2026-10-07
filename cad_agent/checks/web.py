@@ -70,14 +70,23 @@ def section_wires(solid, z: float | None = None, axis: int | None = None):
 
 def web_report(solid, z: float | None = None, max_pairs: int = 4000,
                axis: int | None = None) -> dict:
-    """Narrowest web, feature count, and region count for a flat part."""
+    """Narrowest web, feature count, and region count for a flat part.
+
+    `state` is MEASURED, or says why there is no web number. TRIVIAL is a slice with one
+    boundary, a plain plate: no cutout reaches it, so nothing sits between a cutout and the
+    edge, and there is no web to find. EMPTY is a slice that cut no material, so the outline
+    could not be read at all, and SKIPPED a part with more boundaries than max_pairs allows.
+    """
     if axis is None:
         axis = thin_axis(solid)
     outers, inners, n_faces = section_wires(solid, z, axis)
     wires = outers + inners
+    if not wires:
+        return {"state": "EMPTY", "features": 0, "regions": 0,
+                "note": "the slice cuts no material, so the outline could not be read"}
     if len(wires) < 2:
         return {"state": "TRIVIAL", "features": len(inners), "regions": n_faces,
-                "note": "fewer than two boundaries, so there is no web to measure"}
+                "note": "one boundary, so no cutout reaches the slice and there is no web to measure"}
 
     pairs = list(combinations(range(len(wires)), 2))
     if len(pairs) > max_pairs:

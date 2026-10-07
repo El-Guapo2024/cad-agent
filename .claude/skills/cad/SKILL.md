@@ -117,7 +117,7 @@ profiles.
 shaped that way, and where any bought-part number came from), `PARAMS` (every
 dimension, named), `MATERIAL`, `PROCESS`, `MIN_FEATURE_MM`, and
 `build(**params)` returning one solid. `EXPECT_FEATURES` states the cutout count
-for flat parts. `CUTLIST` is optional.
+for flat parts (0 for a plain plate). `CUTLIST` is optional.
 
 `assembly.py` exposes `parts()` returning `{name: positioned solid}`, plus
 `CLEARANCE` and `ALLOW_CONTACT`. Contact is never allowed implicitly. `AXES`

@@ -6,7 +6,7 @@ test below reproduces one of those faults in miniature and asserts the gate
 now catches it.
 """
 import pytest
-from build123d import Box, Cylinder, Pos
+from build123d import Box, Compound, Cylinder, Pos
 
 from cad_agent.checks import check_dfm
 from cad_agent.checks.web import section_wires, web_report
@@ -112,6 +112,42 @@ def test_a_part_cut_into_pieces_fails():
     rows = check_dfm("plate", plate, "laser_cut", measure=False, min_feature_mm=3.0)
     regions = [r for r in rows if r["rule"] == "regions"]
     assert regions and regions[0]["state"] == "FAIL"
+
+
+# ─── a plain plate ───────────────────────────────────────────────────────────
+
+def test_a_plain_plate_has_no_web_to_measure():
+    """A lid with no cutout has nothing between a cutout and the edge: N/A, so it can pass."""
+    assert web_report(Box(80, 40, 3))["state"] == "TRIVIAL"
+    rows = check_dfm("lid", Box(80, 40, 3), "laser_cut", measure=False, min_feature_mm=3.0,
+                     expect_features=0)
+    web = next(r for r in rows if r["rule"] == "web")
+    assert web["state"] == "N/A" and "no cutout reaches the mid-plane" in web["measured"]
+    assert web["limit"] == "1.5 mm" and "no web" in web["source"]
+    assert next(r for r in rows if r["rule"] == "feature count")["state"] == "PASS"
+    assert not [r for r in rows if r["state"] in ("FAIL", "UNCHECKED")]
+
+
+def test_a_plain_plate_still_answers_for_its_cutout_count():
+    """N/A for the web must not let a plate whose holes all went missing through."""
+    plain = Box(80, 40, 3)
+    undeclared = check_dfm("lid", plain, "laser_cut", measure=False, min_feature_mm=3.0)
+    count = next(r for r in undeclared if r["rule"] == "feature count")
+    assert count["state"] == "UNCHECKED" and "0 cutouts found" in count["measured"]
+    assert "0 for a plain part" in count["source"]
+    gone = check_dfm("lid", plain, "laser_cut", measure=False, min_feature_mm=3.0, expect_features=4)
+    count = next(r for r in gone if r["rule"] == "feature count")
+    assert count["state"] == "FAIL" and "0 cutouts" in count["measured"]
+
+
+def test_a_slice_that_cuts_no_material_is_still_unchecked():
+    """Not a plain plate: the outline could not be read, which is not the same as nothing to find."""
+    pair = Compound([Pos(0, 0, -2.5) * Box(50, 50, 1), Pos(0, 0, 2.5) * Box(50, 50, 1)])
+    assert web_report(pair)["state"] == "EMPTY"
+    rows = check_dfm("pair", pair, "laser_cut", measure=False, min_feature_mm=3.0, expect_features=0)
+    web = next(r for r in rows if r["rule"] == "web")
+    assert web["state"] == "UNCHECKED" and "no material" in web["source"]
+    assert not [r for r in rows if r["rule"] == "feature count"]
 
 
 # ─── scope ───────────────────────────────────────────────────────────────────

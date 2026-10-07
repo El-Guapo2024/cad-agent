@@ -14,6 +14,10 @@ The web rule exists because the wall rule cannot see the fault it catches. On
 a 3 mm sheet every inward ray measures 3 mm, whether it starts in the middle
 of the plate or in the 0.8 mm strip between two slots. The first car had
 exactly that fault twice, and both times it took a human eye to notice.
+
+A flat part with no cutout has no web: nothing sits between a cutout and the
+edge, so the rule is N/A there. Its cutout count is still held to what the part
+declares, so a plate whose holes all went missing does not slip through.
 """
 from __future__ import annotations
 
@@ -111,6 +115,14 @@ def check_dfm(name: str, solid, process: str, min_feature_mm: float | None = Non
             if w["regions"] > 1:
                 row("regions", "FAIL", f"{w['regions']} separate regions", "1",
                     "the part has been cut into pieces by its own features")
+        elif w["state"] == "TRIVIAL":
+            row("web", "N/A", "no cutout reaches the mid-plane", f"{p['min_web_mm']} mm",
+                "a plain plate has no web between a cutout and the edge; its cutout "
+                "count is still gated below")
+        else:
+            row("web", "UNCHECKED", w["state"].lower(), f"{p['min_web_mm']} mm",
+                w.get("note", ""))
+        if w["state"] in ("MEASURED", "TRIVIAL"):
             if expect_features is not None:
                 got = w["features"]
                 row("feature count", "PASS" if got == expect_features else "FAIL",
@@ -120,10 +132,8 @@ def check_dfm(name: str, solid, process: str, min_feature_mm: float | None = Non
             else:
                 row("feature count", "UNCHECKED", f"{w['features']} cutouts found",
                     "no expectation", "declare EXPECT_FEATURES in the part to "
-                    "gate this; without it a swallowed cutout goes unnoticed")
-        else:
-            row("web", "UNCHECKED", w["state"].lower(), f"{p['min_web_mm']} mm",
-                w.get("note", ""))
+                    "gate this (0 for a plain part); without it a swallowed cutout "
+                    "goes unnoticed")
 
     row("volume", "PASS", f"{volume(solid) / 1000.0:.2f} cm^3", "n/a", "computed")
     return rows

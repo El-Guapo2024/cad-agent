@@ -398,7 +398,11 @@ boundary and every cutout. One section yields three rules:
 | region count | a part severed into pieces by its own features |
 
 The web rule reports the coordinate of the narrow point. A failure naming an
-anonymous feature index cannot be acted on.
+anonymous feature index cannot be acted on. A flat part with no cutout has no
+web, so the rule is N/A for a plain plate or lid; its feature count is still
+held to the `EXPECT_FEATURES` the part declares (0 for a plain one). A slice
+that cuts no material is different: the outline could not be read, so that
+stays UNCHECKED.
 
 ## The gates fail, they do not report
 
@@ -407,7 +411,7 @@ thickness that was never measured is not a pass. This is deliberate: an
 unreviewed finding that joins a pile is a finding nobody acts on.
 
 `N/A` is distinct from a pass: it marks a rule that does not apply, such as
-the in-plane web rule on a chunky part.
+the in-plane web rule on a chunky part or on a flat one with no cutout.
 
 ## First project
 
