@@ -47,6 +47,10 @@ all the way round, and its size is its smallest bore, so a counterbore is part o
 slot is judged by its centre line: the other body's hole axis has to lie on it, and its width
 is the size. Fillets and other partial arcs are not holes.
 
+With a fastener, one hole of each pair must be a clearance hole and the other a clearance, tap
+or heat-set size. Clearance is anything from ISO 273's fine to its coarse series (M3: 3.2 to
+3.6 mm); a tap drill or insert bore is its table size to within 0.15 mm (`cad tables`).
+
 Bodies are the names assembly.py places; parts in [[mass]] are part modules.
 """
 from __future__ import annotations
@@ -533,19 +537,39 @@ def _xyz(p) -> str:
     return "(" + ", ".join(f"{round(v, 1) + 0.0:.1f}" for v in (p.X, p.Y, p.Z)) + ")"
 
 
+SIZE_TOL = 0.15         # mm: how far a tap drill or heat-set bore may be off its size
+
+
 def _sizes(fastener: str) -> dict:
-    from .parts import CLEARANCE_HOLE, HEATSET_BORE, TAP_DRILL
-    if fastener not in CLEARANCE_HOLE:
-        raise _Unusable(f"unknown fastener {fastener!r} (known: {', '.join(CLEARANCE_HOLE)})")
-    return {"clearance": CLEARANCE_HOLE[fastener], "tap": TAP_DRILL.get(fastener),
+    """What a hole may measure for a fastener: a clearance range, a tap drill, a heat-set bore.
+
+    Clearance is any of ISO 273's fine, medium and coarse sizes and between them, so a close 3.2 mm
+    M3 hole is as good as the 3.4 mm medium one. A tap drill and a bore are tight and stay a size.
+    """
+    from .parts import HEATSET_BORE, ISO_273, TAP_DRILL
+    if fastener not in ISO_273:
+        raise _Unusable(f"unknown fastener {fastener!r} (known: {', '.join(ISO_273)})")
+    fine, _, coarse = ISO_273[fastener]
+    return {"clearance": (fine, coarse), "tap": TAP_DRILL.get(fastener),
             "insert": HEATSET_BORE.get(fastener)}
 
 
-def _kind_of(dia: float, sizes: dict, tol: float = 0.15) -> str | None:
+def _kind_of(dia: float, sizes: dict) -> str | None:
     for kind, size in sizes.items():
-        if size is not None and abs(dia - float(size)) <= tol:
+        if size is None:
+            continue
+        lo, hi = size if isinstance(size, tuple) else (size - SIZE_TOL, size + SIZE_TOL)
+        if lo - 1e-6 <= dia <= hi + 1e-6:
             return kind
     return None
+
+
+def _sizes_text(fastener: str, sizes: dict) -> str:
+    """The sizes that suit a fastener, for the limit of a row."""
+    low, high = sizes["clearance"]
+    text = [f"clearance {low:g} to {high:g}"]
+    text += [f"{kind} {sizes[kind]:g} +-{SIZE_TOL:g}" for kind in ("tap", "insert") if sizes[kind] is not None]
+    return f"{fastener}: {', '.join(text)} mm"
 
 
 def _interface(entry: dict, parts: dict):
@@ -573,10 +597,10 @@ def _interface(entry: dict, parts: dict):
             ka, kb = _kind_of(h["dia"], sizes), _kind_of(g["dia"], sizes)
             if not ka or not kb or "clearance" not in (ka, kb):
                 state = "FAIL"
-                note = (f"; sizes {h['dia']:.2f}/{g['dia']:.2f} do not suit {entry['fastener']} "
-                        f"(clearance {sizes['clearance']}, tap {sizes['tap']}, insert {sizes['insert']})")
+                note = f"; sizes {h['dia']:.2f}/{g['dia']:.2f} do not suit {entry['fastener']}"
             else:
                 note = f"; {ka} over {kb}"
         mate = f"dia {g['dia']:.2f}" if g["kind"] == "hole" else f"slot {g['dia']:.2f} wide"
         yield _row(f"{a}|{b}", "interface", state, f"{where}: offset {off:.3f} mm to {b} {mate}{note}",
-                   f"coaxial within {tol:g} mm" + (f", sized for {entry['fastener']}" if sizes else ""))
+                   f"coaxial within {tol:g} mm"
+                   + (f", sized for {_sizes_text(entry['fastener'], sizes)}" if sizes else ""))

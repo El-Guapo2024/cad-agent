@@ -11,7 +11,7 @@ from build123d import Axis, Box, Compound, Cylinder, Pos, Rot, Vector
 
 from cad_agent import spec as sp
 from cad_agent import state as st
-from cad_agent.parts import CLEARANCE_HOLE, TAP_DRILL
+from cad_agent.parts import CLEARANCE_HOLE, ISO_273, TAP_DRILL
 
 HOLES = [(-20.0, 0.0), (20.0, 0.0)]
 
@@ -290,6 +290,58 @@ def test_a_missing_hole_fails(rig):
 def test_holes_the_fastener_does_not_suit_fail(rig):
     rows = by_rule(check(rig, IFACE, bodies(base_dia=5.0)), "interface")
     assert rows and all(r.state == "FAIL" and "do not suit M3" in r.measured for r in rows)
+
+
+def test_the_clearance_series_are_iso_273():
+    assert ISO_273 == {"M2": (2.2, 2.4, 2.6), "M2.5": (2.7, 2.9, 3.1), "M3": (3.2, 3.4, 3.6),
+                       "M4": (4.3, 4.5, 4.8), "M5": (5.3, 5.5, 5.8), "M6": (6.4, 6.6, 7.0),
+                       "M8": (8.4, 9.0, 10.0)}
+    assert {screw: medium for screw, (_, medium, _) in ISO_273.items()} == CLEARANCE_HOLE
+    assert set(ISO_273) <= set(TAP_DRILL)                    # every screw it knows can meet a tapped hole
+
+
+@pytest.mark.parametrize("dia, state", [(3.1, "FAIL"), (3.2, "PASS"), (3.4, "PASS"), (3.6, "PASS"),
+                                        (3.8, "FAIL")])
+def test_m3_clearance_is_anything_from_the_fine_to_the_coarse_series(rig, dia, state):
+    rows = by_rule(check(rig, IFACE, with_top(plate(60, 40, 4, HOLES, dia))), "interface")
+    assert len(rows) == 2 and {r.state for r in rows} == {state}
+    if state == "PASS":
+        assert all("clearance over tap" in r.measured for r in rows)
+    else:
+        assert all(f"sizes {dia:.2f}/2.50 do not suit M3" in r.measured for r in rows)
+    assert rows[0].limit == ("coaxial within 0.1 mm, sized for M3: clearance 3.2 to 3.6, "
+                             "tap 2.5 +-0.15, insert 4 +-0.15 mm")      # the range is in the limit
+
+
+@pytest.mark.parametrize("screw", list(ISO_273))
+def test_every_screw_takes_its_fine_and_coarse_holes_and_no_wider(screw):
+    fine, medium, coarse = ISO_273[screw]
+    sizes = sp._sizes(screw)
+    assert [sp._kind_of(d, sizes) for d in (fine, medium, coarse)] == ["clearance"] * 3
+    assert sp._kind_of(fine - 0.2, sizes) is None and sp._kind_of(coarse + 0.2, sizes) is None
+
+
+@pytest.mark.parametrize("dia, state, kind", [(2.35, "PASS", "tap"), (2.65, "PASS", "tap"),
+                                              (2.7, "FAIL", None), (4.0, "PASS", "insert"),
+                                              (4.2, "FAIL", None), (3.85, "PASS", "insert")])
+def test_a_tap_drill_or_an_insert_bore_is_held_to_0_15_mm(rig, dia, state, kind):
+    rows = by_rule(check(rig, IFACE, bodies(base_dia=dia)), "interface")
+    assert {r.state for r in rows} == {state}
+    if kind:
+        assert all(f"clearance over {kind}" in r.measured for r in rows)
+
+
+def test_two_holes_of_the_wrong_kind_do_not_make_a_pair(rig):
+    # Two tap drills, or two bores for inserts, have no clearance for the screw to pass.
+    taps = by_rule(check(rig, IFACE, with_top(plate(60, 40, 4, HOLES, TAP_DRILL["M3"]))), "interface")
+    assert {r.state for r in taps} == {"FAIL"}
+    inserts = by_rule(check(rig, IFACE, with_top(plate(60, 40, 4, HOLES, 4.0))), "interface")
+    assert {r.state for r in inserts} == {"FAIL"}
+
+
+def test_an_unknown_fastener_is_unchecked(rig):
+    row = check(rig, '[[interface]]\na = "top"\nb = "base"\nfastener = "M7"\n')[0]
+    assert row.state == "UNCHECKED" and "unknown fastener 'M7'" in row.measured and "M8" in row.measured
 
 
 def test_a_body_with_no_facing_hole_is_unchecked(rig):

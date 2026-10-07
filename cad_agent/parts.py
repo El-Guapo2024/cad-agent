@@ -1,13 +1,19 @@
-"""Shared geometry helpers. Standard hole sizes come from ISO 273 medium fit."""
+"""Shared geometry helpers. Standard hole sizes come from ISO 273 and the usual tap drills."""
 from __future__ import annotations
 from build123d import (
     BuildPart, BuildSketch, Plane, Pos, Rot, Box, Cylinder, Rectangle, Circle,
     extrude, Mode, Axis, Locations, fillet, chamfer,
 )
 
-# ISO 273 medium clearance, and tapping drill diameters for coarse thread.
-CLEARANCE_HOLE = {"M2": 2.4, "M2.5": 2.9, "M3": 3.4, "M4": 4.5, "M5": 5.5, "M6": 6.6}
-TAP_DRILL = {"M2": 1.6, "M2.5": 2.05, "M3": 2.5, "M4": 3.3, "M5": 4.2, "M6": 5.0}
+# ISO 273 clearance holes for coarse-thread screws, as (fine, medium, coarse). Parts drill the
+# medium size; `[[interface]]` in a spec accepts anything from fine to coarse, since a close
+# 3.2 mm or a loose 3.6 mm hole for an M3 is no mistake.
+ISO_273 = {"M2": (2.2, 2.4, 2.6), "M2.5": (2.7, 2.9, 3.1), "M3": (3.2, 3.4, 3.6),
+           "M4": (4.3, 4.5, 4.8), "M5": (5.3, 5.5, 5.8), "M6": (6.4, 6.6, 7.0),
+           "M8": (8.4, 9.0, 10.0)}
+CLEARANCE_HOLE = {screw: sizes[1] for screw, sizes in ISO_273.items()}
+# Tapping drill diameters for coarse thread.
+TAP_DRILL = {"M2": 1.6, "M2.5": 2.05, "M3": 2.5, "M4": 3.3, "M5": 4.2, "M6": 5.0, "M8": 6.8}
 # Heat-set insert bores, typical for brass knurled inserts in FDM parts.
 HEATSET_BORE = {"M3": 4.0, "M4": 5.6, "M5": 6.4}
 

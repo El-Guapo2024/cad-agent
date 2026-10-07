@@ -55,8 +55,8 @@ BROKEN = {
     "galvo_mount": ("parts/galvo_mount.py", '"column_x": 112.0', '"column_x": 80.0', "spec/keepout"),
     "mgn12h_carriage": ("parts/carriage_plate.py", '"bolt_pitch_y": 20.0', '"bolt_pitch_y": 15.0',
                         "spec/interface"),
-    "hotplate_standoffs": ("parts/standoff.py", "CLEARANCE_HOLE[screw] / 2.0", "3.2 / 2.0",
-                           "spec/interface"),                       # a 3.2 mm bore is no M3 clearance
+    "hotplate_standoffs": ("parts/standoff.py", "CLEARANCE_HOLE[screw] / 2.0", "3.8 / 2.0",
+                           "spec/interface"),                       # a 3.8 mm bore is past M3's coarse 3.6
     "pinned_carrier": ("parts/carrier.py", '"pin_pitch": 50.0', '"pin_pitch": 50.2',
                        ("spec/interface", "spec/clearance", "interference")),
     "laser_panel": ("parts/panel.py", '"button_hole": 16.0', '"button_hole": 17.0', "spec/clearance",
