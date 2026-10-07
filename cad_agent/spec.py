@@ -289,13 +289,13 @@ def holes(solid) -> list[dict]:
 
     A hole is the concave cylinders on one axis that together go all the way round. A
     counterbore shares the axis of the hole it widens, so it is part of that hole: `dia`
-    is the smallest bore, which is what a screw passes, and `bores` lists every diameter.
+    is the narrowest bore, which is what a screw passes, and `bores` lists every diameter.
     OCCT often splits one cylinder in two at a seam, so the angles are added up per axis and
     radius, not taken from one face.
 
     A slot is two half-turn cylinders of one radius on parallel axes, each bulging away from
     the other. Its `ends` are those axes at mid-depth, `point` is halfway between them and
-    `dia` is its width; a hole is the same thing with both ends on one axis.
+    `dia` is its width. A hole is the same with both ends on one axis, so `ends` serves both.
 
     Nothing else is a hole. An inside-corner fillet covers a quarter turn, and a notch open
     at one end half of one. A boss has the same kind of face with the normal pointing away.
@@ -559,7 +559,7 @@ def _kind_of(dia: float, sizes: dict) -> str | None:
         if size is None:
             continue
         lo, hi = size if isinstance(size, tuple) else (size - SIZE_TOL, size + SIZE_TOL)
-        if lo - 1e-6 <= dia <= hi + 1e-6:
+        if lo - 1e-6 <= dia <= hi + 1e-6:              # 1e-6: float noise, so 3.6 is 3.6
             return kind
     return None
 
@@ -568,7 +568,9 @@ def _sizes_text(fastener: str, sizes: dict) -> str:
     """The sizes that suit a fastener, for the limit of a row."""
     low, high = sizes["clearance"]
     text = [f"clearance {low:g} to {high:g}"]
-    text += [f"{kind} {sizes[kind]:g} +-{SIZE_TOL:g}" for kind in ("tap", "insert") if sizes[kind] is not None]
+    for kind in ("tap", "insert"):
+        if sizes[kind] is not None:
+            text.append(f"{kind} {sizes[kind]:g} +-{SIZE_TOL:g}")
     return f"{fastener}: {', '.join(text)} mm"
 
 

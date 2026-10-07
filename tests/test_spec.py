@@ -368,6 +368,20 @@ def test_a_counterbore_is_part_of_its_hole(rig):
     assert [[round(b, 2) for b in h["bores"]] for h in found] == [[3.4, 6.4]] * 2
 
 
+def test_a_hole_and_a_slot_report_where_they_are():
+    """The briefs point agents at holes(): a hole's `point`, `dir` and `dia` stay what they were."""
+    (hole,) = sp.holes(plate(60, 40, 4, [(5, 0)], 3.4))
+    assert {"kind", "point", "ends", "dir", "dia", "bores", "face"} <= set(hole)
+    assert hole["kind"] == "hole" and abs(hole["dir"].Z) == pytest.approx(1)
+    assert (hole["point"].X, hole["point"].Y, hole["point"].Z) == pytest.approx((5, 0, 0), abs=1e-9)
+    assert all((p - hole["point"]).length < 1e-9 for p in hole["ends"])           # both ends are its axis
+    (slot,) = sp.holes(Box(60, 40, 4) - slot_tool(4, -3, 10, 3.4, 4))
+    assert slot["kind"] == "slot" and slot["dia"] == pytest.approx(3.4)
+    ends = sorted((round(p.X, 6), round(p.Y, 6), round(p.Z, 6)) for p in slot["ends"])
+    assert ends == [(-1.0, -3.0, 0.0), (9.0, -3.0, 0.0)]                          # 10 apart, about (4, -3)
+    assert (slot["point"].X, slot["point"].Y, slot["point"].Z) == pytest.approx((4, -3, 0), abs=1e-9)
+
+
 def test_the_mate_is_judged_by_its_smallest_bore_too(rig):
     base = counterbored(60, 40, 5, HOLES, TAP_DRILL["M3"], bore=6.0)       # the step faces the top plate
     rows = by_rule(check(rig, IFACE, with_top(plate(60, 40, 4, HOLES, CLEARANCE_HOLE["M3"]), base)),

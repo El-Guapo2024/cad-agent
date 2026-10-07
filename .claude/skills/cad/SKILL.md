@@ -86,6 +86,11 @@ b = "x_carriage"
 fastener = "M3"
 ```
 
+An `[[interface]]` judges holes, not every round face: a counterbore is part of
+its hole (the narrowest bore is the size), a slot passes when the other body's
+hole sits on its centre line, and fillets are not holes. A fastener's clearance
+hole is anything from ISO 273's fine to coarse series (M3: 3.2 to 3.6 mm).
+
 `tests/fixtures/*/spec.toml` are real examples.
 
 ## Two rules that carry the run
