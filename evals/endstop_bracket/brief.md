@@ -75,8 +75,8 @@ spec.toml of your own is replaced, so it only helps you check your work.
    0.5 mm. Touching is fine, overlap is not.
 4. **Screws.** Each of the switch's two holes has a hole in the bracket on the same axis,
    within 0.1 mm, sized for M2: the bracket's hole is within 0.15 mm of 1.6 mm (the M2
-   tapping drill) or 2.4 mm (M2 clearance), from `cad tables`. The bracket's other holes
-   are not judged.
+   tapping drill) or 2.2 to 2.6 mm (M2 clearance, ISO 273 fine to coarse; `cad tables` has
+   the 2.4 mm medium size). The bracket's other holes are not judged.
 5. **The bracket is on the extrusion.** The closest approach between `bracket` and `extrusion`
    is 0 to 0.5 mm. How it is fastened (slot nuts, a clamp) is yours; the slots are not in
    the model, so no holes are checked there.
@@ -85,7 +85,6 @@ spec.toml of your own is replaced, so it only helps you check your work.
 8. **No overlaps.** Two bodies may touch but never overlap.
 9. **Part gates.** Every part builds, declares a PROCESS, and passes that process's rules
    (FDM needs walls of 0.8 mm or more). A flat part, thinner than a quarter of its longest
-   side, must declare `EXPECT_FEATURES` and have at least one cutout, or its web gate cannot
-   be settled.
+   side, must declare `EXPECT_FEATURES`, the number of cutouts it has (0 for a plain plate).
 
 Not graded: the carriage's own body, how the screws look, mass and cost.

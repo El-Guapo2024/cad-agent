@@ -68,6 +68,14 @@ BROKEN = {
     "endstop_bracket": ("parts/bracket.py", '"pitch": 9.5', '"pitch": 10.0', "spec/interface"),
 }
 
+# One edit to a reference that its brief says is fine, and that must still score 100%: what the
+# briefs allow and what the grader accepts have to agree. (file, old, new)
+PERMITTED = {
+    "hotplate_standoffs": ("parts/standoff.py", "CLEARANCE_HOLE[screw] / 2.0", "3.2 / 2.0"),   # M3 close fit
+    "mgn12h_carriage": ("parts/carriage_plate.py", "* Cylinder(d / 2.0, thickness + 2.0)",   # counterbored bolts
+                        "* (Cylinder(d / 2.0, thickness + 2.0) + Pos(0, 0, 2.5) * Cylinder(3.0, 3.0))"),
+}
+
 
 @pytest.fixture(scope="module")
 def worker(tmp_path_factory):
@@ -419,6 +427,17 @@ def test_a_small_edit_to_the_reference_fails_on_the_rule_it_should(worker, tmp_p
     assert all(x["state"] == "FAIL" for x in r["rows"])
     if subject:                                                  # and it is the entry that was meant
         assert subject[0] in {x["subject"] for x in r["rows"] if x["rule"] == rules[0]}
+
+
+@pytest.mark.parametrize("task", PERMITTED)
+def test_an_edit_the_brief_allows_still_scores_full_marks(worker, tmp_path, capsys, task):
+    rel, old, new = PERMITTED[task]
+    design = copy_reference(task, tmp_path / "design")
+    text = (design / rel).read_text()
+    assert old in text
+    (design / rel).write_text(text.replace(old, new))
+    code, r = run(capsys, "eval", "score", task, str(design), "--evals", str(EVALS))
+    assert code == cli.OK and r["verdict"] == "PASS" and r["score"] == 1.0, r["rows"]
 
 
 def test_tampering_with_a_given_file_or_the_spec_gains_nothing(worker, tmp_path, capsys):

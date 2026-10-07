@@ -78,7 +78,6 @@ spec.toml of your own is replaced, so it only helps you check your work.
 9. **No overlaps.** Two bodies may touch but never overlap.
 10. **Part gates.** Every part builds, declares a PROCESS, and passes that process's rules
     (FDM needs walls of 0.8 mm or more). A flat part, thinner than a quarter of its longest
-    side, must declare `EXPECT_FEATURES` and have at least one cutout, or its web gate cannot
-    be settled.
+    side, must declare `EXPECT_FEATURES`, the number of cutouts it has (0 for a plain plate).
 
 Not graded: how the lid is held on, mass and cost.

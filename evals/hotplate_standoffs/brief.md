@@ -29,8 +29,8 @@ returns exactly six bodies, with these names:
 - Place `hot_plate` centred on x = y = 0 with its underside at z = 20.
 - One standoff on each of the plate's four hole axes, standing from the base's top face to the
   plate's underside: each touches both and overlaps neither.
-- Each standoff has one plain through bore, the M3 clearance size from `cad tables holes`
-  (3.4 mm), on the plate hole's axis. It has no other round hole, counterbore or recess.
+- Each standoff has one through bore, an M3 clearance hole on the plate hole's axis (3.2 to
+  3.6 mm; `cad tables holes` has the 3.4 mm medium size). It has no other round hole.
 - Don't model screws: a tapped hole is modelled at its drill size, so a screw would overlap
   the plate.
 - Material: the standoffs must be rated for at least 250 C continuous. From `cad tables
@@ -55,9 +55,10 @@ assembly gate still applies (`cad rules`), so no two bodies may interfere.
   with no overlap.
 - **M3 interface**, each standoff against `hot_plate`: every hole in the standoff whose axis
   points at the plate, and whose middle is within 15 mm of it, is coaxial with a plate hole to
-  within 0.1 mm, and the pair is sized for M3: each hole is the 3.4 mm clearance, the 2.5 mm tap
-  drill or the 4.0 mm insert bore (within 0.15 mm), and at least one of the two is the clearance.
-  The plate's holes are 2.5 mm, so the standoff's bore must be 3.4 mm.
+  within 0.1 mm, and the pair is sized for M3: each hole is a clearance hole (3.2 to 3.6 mm), the
+  2.5 mm tap drill or the 4.0 mm insert bore (those two within 0.15 mm), and at least one of the
+  two is the clearance. A hole is judged by its narrowest bore, so a counterbore on the same axis
+  is part of it. The plate's holes are 2.5 mm, so the standoff's bore must be 3.2 to 3.6 mm.
 
 ## Where the numbers come from
 
@@ -67,7 +68,8 @@ assembly gate still applies (`cad rules`), so no two bodies may interfere.
   holes and bolt threads made to order. The vendor publishes no drawing, so the 100 x 100 x 10 mm
   outline and the four M3 holes 7 mm from the edges are this task's order. The STEP's `.json`
   repeats this.
-- M3 clearance 3.4 mm (ISO 273 medium) and tap drill 2.5 mm: `cad tables holes`, `cad tables taps`.
+- M3 clearance 3.2, 3.4 and 3.6 mm (ISO 273 fine, medium and coarse) and tap drill 2.5 mm:
+  `cad tables holes` has the medium size, `cad tables taps` the drill.
 - The 20 mm air gap: still air between a plate over 100 C and what's under it, the default in
   the `/cad` skill.
 

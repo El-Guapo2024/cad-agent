@@ -24,7 +24,7 @@ Block and rail dimensions come from the HIWIN MG series catalog
 GW-11-5-EN-2207-K: table 3.79 (MGN12H: H 13, H1 3.0, W 27, B 20, C 20, L 45.4,
 M3 x 3.5) and table 3.81 (MGNR12R: 12 x 8, pitch 25). The stops and the flange
 are fixtures made for this task. M3 hole sizes come from `bin/cad tables`
-(ISO 273 clearance 3.4, tap drill 2.5, heat-set bore 4.0).
+(ISO 273 clearance 3.2 to 3.6 with 3.4 the medium size, tap drill 2.5, heat-set bore 4.0).
 
 Each STEP is centred on its own bounding box and already turned the way the
 assembly needs it, so you only translate it. `bin/cad bought info mgn12h_carriage <name>`
@@ -58,15 +58,15 @@ The grader checks these, and nothing else beyond the usual gates:
 
 1. **Bolts to the block.** Four M3 holes in the plate at x = ±10, y = ±10 (the
    block's 20 x 20 pattern). Each axis is within 0.1 mm of the block's hole
-   under it, and each hole is the 3.4 mm M3 clearance (within 0.15 mm) over the
+   under it, and each hole is an M3 clearance hole (3.2 to 3.6 mm) over the
    block's tapped 2.5.
 2. **Seats on the block.** The plate's underside rests on the block's top
    face, z = 13: gap at most 0.05 mm, no overlap.
 3. **Carries the tool.** Four M3 holes at x = ±15, y = ±15 (30 x 30, centred on
    the block). Each axis is within 0.1 mm of the tool's hole above it, and each
-   hole is a heat-set insert bore (4.0 mm), a tapped-drill hole (2.5) or a
-   clearance hole (3.4), within 0.15 mm. The tool rests on the plate's top
-   face: gap at most 0.05 mm, no overlap.
+   hole is a heat-set insert bore (4.0 mm) or a tapped-drill hole (2.5), both
+   within 0.15 mm, or a clearance hole (3.2 to 3.6 mm). The tool rests on the
+   plate's top face: gap at most 0.05 mm, no overlap.
 4. **Size.** 8.0 mm thick, within 0.05 (that fixes where the tool sits, and a
    5.7 mm insert needs the depth); 40 to 66 mm along x; 40 to 60 mm along y. The
    40 leaves 3 mm of material beyond each tool bore, and the 66 is what the
@@ -80,11 +80,12 @@ The grader checks these, and nothing else beyond the usual gates:
 **Round holes.** The checker reads every round hole in the plate whose axis line
 passes through the block's bounding box (45.4 x 27 x 10 mm, plus 0.5 mm all
 round) as a bolt hole, and wants the block's hole under it. So over the block
-the plate has the four bolt holes and nothing else round: no lightening holes,
-no rounded pockets, and no counterbores (a counterbore is a wider hole on the
-same axis, and fails the size check). The screw heads sit on the plate's top
-face, inside the tool flange's relief. The tool bores, at y = ±15, are outside
-that box.
+the plate has the four bolt holes and no other round hole: a lightening hole or
+a round pocket would have nothing under it. A counterbore is a wider step on a
+bolt hole's axis, so it is part of that hole, judged by its narrowest bore, and
+the rounded corners of a pocket are not holes. The screw heads sit on the
+plate's top face, inside the tool flange's relief. The tool bores, at y = ±15,
+are outside that box.
 
 ## Declare the travel
 

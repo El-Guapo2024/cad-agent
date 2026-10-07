@@ -38,8 +38,8 @@ exactly five bodies, with these names:
 - One relief pocket in the underside, concentric with the screw, so the block seats on the base
   and not on the screw head. It clears the head by at least 0.5 mm on every side and above: at
   least 8.0 mm across and 4.5 mm deep.
-- The block has no other round cut: no slot, no extra mounting hole, no rounded pocket corners
-  (see "Coaxial holes" below). It is made of aluminium on a CNC. There is no heat requirement.
+- The block has no other round cut: an extra hole or pocket would need a hole of the base under
+  it (see "Coaxial holes" below). It is made of aluminium on a CNC. There is no heat requirement.
 - The usual part gates apply (`cad rules`). A 12 mm block counts as a flat part, so it needs
   `EXPECT_FEATURES`: `cad check` reports how many cutouts it finds at mid-height.
 
@@ -60,9 +60,9 @@ assembly gate still applies, so no two bodies may interfere.
 - **Coaxial holes**, `carrier` against `base_plate`: every round hole or pocket in the carrier whose
   axis points at the base, and whose middle is within 15 mm of it, is coaxial with a hole in the
   base to within 0.05 mm. The base has three holes: the pin holes at (+-25, 0) and the screw hole
-  at (0, 0). So the carrier's round cuts are the two pin holes and a counterbore on the screw's
-  axis. The rule cannot judge a slot (its far end has no hole under it), so this task uses two
-  round holes. A pocket with rounded corners fails it too; one with square corners does not.
+  at (0, 0). So the carrier's round cuts are the two pin holes and the relief pocket on the
+  screw's axis. A slot is judged by its centre line, which has to pass over a hole of the base,
+  and the rounded corners of a pocket are not holes.
 
 ## Where the numbers come from
 

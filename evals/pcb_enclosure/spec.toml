@@ -32,9 +32,9 @@ body = "lid"
 min_mm = [76, 54.5, 0]
 
 # The board's four holes each need a hole in the base on the same axis (the standoffs').
-# `a` is the board on purpose: only its four holes are judged, so the base's other round
-# faces (a cable hole, a rounded inside corner) can't trip it. There is no `fastener`: the
-# board's holes are 3.20 mm, which the engine's M3 table (3.4 +/- 0.15) does not accept.
+# `a` is the board on purpose: only its four holes are judged, so the base's other holes (a
+# cable hole) can't trip it. There is no `fastener`: the brief grades the axes only, and
+# leaves the size of the standoffs' holes to the design.
 [[interface]]
 a = "pcb"
 b = "base"

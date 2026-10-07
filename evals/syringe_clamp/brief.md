@@ -48,8 +48,8 @@ is why the grip below is a range. It is modelled from those figures, not a vendo
 4. **M3 bolts.** Every hole in the clamp that points into the plate (its axis meets the plate and
    it lies within 15 mm of it) is on the same axis, within 0.1 mm, as one of the plate's four
    holes, and the pair suits an M3 screw: the plate's side is clearance (3.4 mm), the clamp's is
-   a heat-set insert bore (4.0 mm, `cad tables inserts`), a tap drill (2.5) or clearance (3.4).
-   Screws come from behind the plate.
+   a heat-set insert bore (4.0 mm, `cad tables inserts`), a tap drill (2.5) or clearance (3.2 to
+   3.6 mm). Screws come from behind the plate.
 5. **Mass.** `syringe_clamp` weighs at most 30 g, computed from its `MATERIAL`.
 6. **Envelope.** Plate, syringe and clamp together fit in 100 x 40 x 165 mm (x, y, z).
 

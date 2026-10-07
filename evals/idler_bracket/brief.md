@@ -53,9 +53,10 @@ the shaft with the idler on it.
 The grader checks these, and nothing else beyond the usual gates:
 
 1. **Bolts to the extrusion.** Two holes in the bracket on the end bores (axes
-   along x at y = ±10, z = 0), each axis within 0.1 mm of its bore's, 5.5 mm
-   across (M5 clearance, over the 4.2 mm bore), within 0.15 mm. The bracket
-   rests on the end face: gap at most 0.05 mm, no overlap.
+   along x at y = ±10, z = 0), each axis within 0.1 mm of its bore's, 5.3 to
+   5.8 mm across (M5 clearance, ISO 273 fine to coarse; 5.5 is the medium size),
+   over the 4.2 mm bore. The bracket rests on the end face: gap at most 0.05 mm,
+   no overlap.
 2. **Shaft holes.** Round holes in the bracket whose axes are within 0.1 mm of
    the idler's bore axis. They must also fit the shaft: the closest approach of
    the shaft to the bracket is between 0.1 and 0.5 mm, which is a hole of about
@@ -71,10 +72,12 @@ Round holes. The checker reads every round hole in the bracket whose axis line
 passes through the extrusion's or the idler's bounding box (plus 0.5 mm all
 round) as a mounting or shaft hole, and wants a matching hole there. So over
 those two boxes the bracket has the two mounting holes and the shaft holes and
-nothing else round: no lightening holes, and no slots (a slot's rounded end is
-a hole). A counterbore or nut trap on a shaft hole is fine, since it shares the
-shaft's axis. One on a mounting hole is not: it is a hole of the wrong size. The
-idler's box ends at y = ±9, so the mounting holes at y = ±10 stay clear of it.
+no other hole: a lightening hole would have nothing under it. A counterbore or
+nut trap shares its hole's axis and is part of that hole, judged by its narrowest
+bore, so it is fine on a shaft hole and on a mounting hole alike. A slot is
+judged by its centre line, which has to pass over the matching hole, and the
+rounded corners of a pocket are not holes. The idler's box ends at y = ±9, so
+the mounting holes at y = ±10 stay clear of it.
 
 ## Also expected, not scored
 

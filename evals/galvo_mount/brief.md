@@ -53,7 +53,7 @@ work plane), and the beam axis is x = y = 0.
    most 0.05 mm, touching but not overlapping.
 5. **M4 bolts.** Each of the head's four tapped M4 holes has a hole in the mount on the same axis,
    within 0.1 mm, and the pair suits an M4 screw: the mount's holes are M4 clearance holes
-   (4.5 mm, see `cad tables holes`).
+   (4.3 to 4.8 mm, ISO 273 fine to coarse; `cad tables holes` has the 4.5 mm medium size).
 6. **Mass.** `galvo_mount` weighs at most 550 g, computed from its `MATERIAL`.
 7. **Envelope.** Bench, head and mount together fit in 400 x 300 x 310 mm (x, y, z).
 

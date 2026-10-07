@@ -44,7 +44,7 @@ it, z up; z = 0 is the rail's top face):
    most 0.05 mm, again touching but not overlapping. The motor's pilot has to go into a bore.
 5. **M3 holes.** Each of the motor's four tapped M3 holes has a hole in the bracket on the same
    axis, within 0.1 mm, and the pair suits an M3 screw: the bracket's holes are M3 clearance holes
-   (3.4 mm, see `cad tables holes`).
+   (3.2 to 3.6 mm, ISO 273 fine to coarse; `cad tables holes` has the 3.4 mm medium size).
 6. **Mass.** `bracket` weighs at most 32 g, computed from its `MATERIAL`.
 7. **Envelope.** Rail, motor and bracket together fit in 72 x 60 x 64 mm (x, y, z).
 
