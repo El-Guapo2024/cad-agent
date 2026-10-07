@@ -4,8 +4,10 @@ The geometry is built here: a top plate with M3 clearance holes sitting on a
 base plate with M3 tap holes, and a block far off to one side. Each test writes
 a spec and reads back the rows, the same rows `cad check` and `cad verify` see.
 """
+import math
+
 import pytest
-from build123d import Box, Cylinder, Pos
+from build123d import Axis, Box, Compound, Cylinder, Pos, Rot, Vector
 
 from cad_agent import spec as sp
 from cad_agent import state as st
@@ -43,6 +45,43 @@ def bodies(shift=0.0, base_holes=HOLES, base_dia=TAP_DRILL["M3"]):
                                  CLEARANCE_HOLE["M3"])
     return {"top": top, "base": plate(60, 40, 5, base_holes, base_dia),
             "far": Pos(200, 0, 10) * Box(10, 10, 20)}
+
+
+def counterbored(w, d, t, holes, dia, bore=6.4, depth=2.0):
+    """A plate whose holes widen to `bore` over the top `depth` mm."""
+    p = plate(w, d, t, holes, dia)
+    for x, y in holes:
+        p -= Pos(x, y, t / 2 - depth / 2 + 0.5) * Cylinder(bore / 2, depth + 1)
+    return p
+
+
+def slot_tool(x, y, length, width, t, turn=0.0):
+    """What cuts a slot: round ends `length` apart, centre to centre, and the box between."""
+    r = width / 2
+    cutter = (Pos(-length / 2, 0, 0) * Cylinder(r, t + 2) + Pos(length / 2, 0, 0) * Cylinder(r, t + 2)
+              + Box(length, width, t + 2))
+    return Pos(x, y, 0) * Rot(0, 0, turn) * cutter
+
+
+def rounded_window(w, d, t, window_w, window_d, r):
+    """A plate with a window through it, its four inside corners rounded to radius r."""
+    p = Box(w, d, t) - Box(window_w, window_d, t + 2)
+    corners = [e for e in p.edges().filter_by(Axis.Z)
+               if abs(e.center().X) < window_w / 2 + 1 and abs(e.center().Y) < window_d / 2 + 1]
+    return p.fillet(r, corners)
+
+
+def split_faces(solid, degrees=100):
+    """The same solid with every cylinder cut into pieces, the way some CAD programs export one."""
+    from OCP.ShapeUpgrade import ShapeUpgrade_ShapeDivideAngle
+    divide = ShapeUpgrade_ShapeDivideAngle(math.radians(degrees), solid.wrapped)
+    divide.Perform()
+    return Compound(divide.Result())
+
+
+def with_top(top, base=None):
+    """The rig's bodies with another top plate (built about its own centre) and maybe base."""
+    return bodies() | {"top": Pos(0, 0, 4.5) * top} | ({"base": base} if base is not None else {})
 
 
 @pytest.fixture()
@@ -262,6 +301,129 @@ def test_holes_are_told_from_bosses():
     boss_and_hole = Box(20, 20, 6) - Pos(5, 0, 0) * Cylinder(1.7, 6) + Pos(-5, 0, 5) * Cylinder(2, 4)
     found = sp.holes(boss_and_hole)
     assert [round(h["dia"], 2) for h in found] == [3.4]
+
+
+# ─── Interfaces: counterbores, slots and fillets are not extra holes ─────────
+
+def test_a_counterbore_is_part_of_its_hole(rig):
+    top = counterbored(60, 40, 4, HOLES, CLEARANCE_HOLE["M3"])
+    rows = by_rule(check(rig, IFACE, with_top(top)), "interface")
+    assert len(rows) == 2 and all(r.state == "PASS" for r in rows)          # two holes, not four
+    assert all("clearance over tap" in r.measured for r in rows)           # the 3.4 bore is the size
+    assert all("hole dia 3.40 (stepped, widest 6.40)" in r.measured for r in rows)
+    found = sp.holes(top)
+    assert [round(h["dia"], 2) for h in found] == [3.4, 3.4]
+    assert [[round(b, 2) for b in h["bores"]] for h in found] == [[3.4, 6.4]] * 2
+
+
+def test_the_mate_is_judged_by_its_smallest_bore_too(rig):
+    base = counterbored(60, 40, 5, HOLES, TAP_DRILL["M3"], bore=6.0)       # the step faces the top plate
+    rows = by_rule(check(rig, IFACE, with_top(plate(60, 40, 4, HOLES, CLEARANCE_HOLE["M3"]), base)),
+                   "interface")
+    assert len(rows) == 2 and all(r.state == "PASS" for r in rows)
+    assert all("clearance over tap" in r.measured for r in rows)
+
+
+def test_a_step_on_the_other_side_and_two_steps_are_still_one_hole():
+    both = counterbored(60, 40, 6, [(5, 0)], 3.4) - Pos(5, 0, -2.5) * Cylinder(4.5, 2)
+    (found,) = sp.holes(both)
+    assert [round(b, 2) for b in found["bores"]] == [3.4, 6.4, 9.0] and round(found["dia"], 2) == 3.4
+
+
+def test_a_hole_cut_into_pieces_is_one_hole_and_a_slot_one_slot():
+    cut = split_faces(plate(60, 40, 4, [(5, 0)], 3.4))
+    assert len(sp._concave_cylinders(cut)) == 4                             # four faces of a quarter turn
+    assert [(h["kind"], round(h["dia"], 2)) for h in sp.holes(cut)] == [("hole", 3.4)]
+    slotted = split_faces(Box(60, 40, 4) - slot_tool(0, 0, 12, 3.4, 4), degrees=50)
+    assert len(sp._concave_cylinders(slotted)) > 2
+    assert [(h["kind"], round(h["dia"], 2)) for h in sp.holes(slotted)] == [("slot", 3.4)]
+
+
+def test_a_slot_passes_when_the_mate_is_on_its_centre_line(rig):
+    top = Box(60, 40, 4) - slot_tool(0, 0, 10, 3.4, 4)
+    for x in (0.0, 3.0, 5.0, -5.0):                                         # anywhere between its centres
+        base = plate(60, 40, 5, [(x, 0)], TAP_DRILL["M3"])
+        (row,) = by_rule(check(rig, IFACE, with_top(top, base)), "interface")
+        assert row.state == "PASS", x
+        assert "slot 3.40 wide, axes 10.0 apart" in row.measured and "clearance over tap" in row.measured
+
+
+def test_a_slot_fails_when_the_mate_is_off_its_centre_line(rig):
+    top = Box(60, 40, 4) - slot_tool(0, 0, 10, 3.4, 4)
+    for hole, off in (((8.0, 0), 3.0), ((-9.0, 0), 4.0), ((0.0, 2.0), 2.0)):   # past an end, past the other, beside
+        base = plate(60, 40, 5, [hole], TAP_DRILL["M3"])
+        (row,) = by_rule(check(rig, IFACE, with_top(top, base)), "interface")
+        assert row.state == "FAIL" and f"offset {off:.3f}" in row.measured, hole
+    bare = by_rule(check(rig, IFACE, with_top(top, Box(60, 40, 5))), "interface")
+    assert [r.state for r in bare] == ["FAIL"] and "no hole in base under it" in bare[0].measured
+
+
+def test_a_slot_is_sized_by_its_width(rig):
+    base = plate(60, 40, 5, [(0, 0)], TAP_DRILL["M3"])
+    fits = by_rule(check(rig, IFACE, with_top(Box(60, 40, 4) - slot_tool(0, 0, 10, 3.4, 4), base)), "interface")
+    wide = by_rule(check(rig, IFACE, with_top(Box(60, 40, 4) - slot_tool(0, 0, 10, 5.0, 4), base)), "interface")
+    assert [r.state for r in fits] == ["PASS"] and [r.state for r in wide] == ["FAIL"]
+    assert "5.00/2.50 do not suit M3" in wide[0].measured                  # its ends are no holes of their own
+
+
+def test_a_slot_is_a_slot_however_it_is_turned(rig):
+    top = Box(60, 40, 4) - slot_tool(0, 0, 10, 3.4, 4, turn=30)
+    on = plate(60, 40, 5, [(4.0 * math.cos(math.radians(30)), 4.0 * math.sin(math.radians(30)))],
+               TAP_DRILL["M3"])
+    off = plate(60, 40, 5, [(4.0 * math.cos(math.radians(30)), -4.0 * math.sin(math.radians(30)))],
+                TAP_DRILL["M3"])
+    assert [r.state for r in by_rule(check(rig, IFACE, with_top(top, on)), "interface")] == ["PASS"]
+    assert [r.state for r in by_rule(check(rig, IFACE, with_top(top, off)), "interface")] == ["FAIL"]
+
+
+def test_a_hole_over_a_slot_is_judged_the_same_way(rig):
+    top = plate(60, 40, 4, [(3.0, 0)], CLEARANCE_HOLE["M3"])
+    base = Box(60, 40, 5) - slot_tool(0, 0, 10, 2.5, 5)
+    (row,) = by_rule(check(rig, IFACE, with_top(top, base)), "interface")
+    assert row.state == "PASS" and "to base slot 2.50 wide" in row.measured and "clearance over tap" in row.measured
+    far = plate(60, 40, 4, [(9.0, 0)], CLEARANCE_HOLE["M3"])
+    (row,) = by_rule(check(rig, IFACE, with_top(far, base)), "interface")
+    assert row.state == "FAIL" and "offset 4.000" in row.measured
+
+
+def test_slots_that_cross_pass_and_slots_that_miss_fail(rig):
+    top = Box(60, 40, 4) - slot_tool(0, 0, 20, 3.4, 4)
+    cross = Box(60, 40, 5) - slot_tool(0, 0, 20, 2.5, 5, turn=90)
+    apart = Box(60, 40, 5) - slot_tool(0, 15, 20, 2.5, 5)
+    assert [r.state for r in by_rule(check(rig, IFACE, with_top(top, cross)), "interface")] == ["PASS"]
+    assert [r.state for r in by_rule(check(rig, IFACE, with_top(top, apart)), "interface")] == ["FAIL"]
+
+
+def test_inside_corner_fillets_are_not_holes(rig):
+    window = rounded_window(60, 40, 4, 20, 10, 2.0)
+    assert sp.holes(window) == []                                           # four quarter turns
+    top = window
+    for x, y in HOLES:
+        top = top - Pos(x, y, 0) * Cylinder(CLEARANCE_HOLE["M3"] / 2, 6)
+    rows = by_rule(check(rig, IFACE, with_top(top)), "interface")
+    assert len(rows) == 2 and all(r.state == "PASS" for r in rows)          # the corners have no mates, and need none
+    only = check(rig, IFACE, with_top(window))[0]                          # but nothing else to judge
+    assert only.state == "UNCHECKED" and "no hole in top points into base" in only.measured
+
+
+def test_arcs_that_are_not_a_whole_turn_are_not_holes():
+    # Two windows stacked on one block put their rounded corners on shared axes: two quarter
+    # turns on each axis never add up to a bore. A notch cut into an edge is half a turn, alone.
+    block = Box(40, 30, 12) - Pos(0, 0, 4) * Box(20, 10, 4) - Pos(0, 0, -4) * Box(20, 10, 4)
+    corners = [e for e in block.edges().filter_by(Axis.Z) if abs(e.center().X) < 11 and abs(e.center().Y) < 6]
+    assert len(sp._concave_cylinders(block.fillet(2.0, corners))) == 8
+    assert sp.holes(block.fillet(2.0, corners)) == []
+    assert sp.holes(Box(40, 30, 6) - Pos(19, 0, 0) * Cylinder(3, 8)) == []
+
+
+def test_segments_are_measured_to_each_other():
+    v, gap = Vector, sp._segment_gap
+    assert gap(v(0, 0, 0), v(10, 0, 0), v(5, 3, 0), v(5, 3, 0)) == pytest.approx(3)       # a point beside
+    assert gap(v(0, 0, 0), v(10, 0, 0), v(12, 0, 0), v(12, 0, 0)) == pytest.approx(2)     # a point past the end
+    assert gap(v(0, 0, 0), v(10, 0, 0), v(5, -4, 0), v(5, 4, 0)) == pytest.approx(0)      # crossing
+    assert gap(v(0, 0, 0), v(10, 0, 0), v(8, 5, 0), v(20, 5, 0)) == pytest.approx(5)       # parallel, overlapping
+    assert gap(v(0, 0, 0), v(10, 0, 0), v(13, 4, 0), v(20, 4, 0)) == pytest.approx(5)      # parallel, past the end
+    assert gap(v(1, 1, 0), v(1, 1, 0), v(4, 5, 0), v(4, 5, 0)) == pytest.approx(5)         # two points
 
 
 # ─── Through the runner ──────────────────────────────────────────────────────

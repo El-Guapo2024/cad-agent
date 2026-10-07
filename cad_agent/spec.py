@@ -42,6 +42,11 @@ spec.toml is UNCHECKED too: nothing states what the design must do.
     tol_mm = 0.1                # axis offset allowed; default 0.1
     near_mm = 15                # only holes of `a` this close to `b`; default 15
 
+An interface judges holes, not every round face. A hole is the cylinders on one axis that go
+all the way round, and its size is its smallest bore, so a counterbore is part of its hole. A
+slot is judged by its centre line: the other body's hole axis has to lie on it, and its width
+is the size. Fillets and other partial arcs are not holes.
+
 Bodies are the names assembly.py places; parts in [[mass]] are part modules.
 """
 from __future__ import annotations
@@ -270,14 +275,62 @@ def _mass(entry: dict, slug: str):
 
 # ─── Interfaces: holes that must line up ─────────────────────────────────────
 
-def holes(solid) -> list[dict]:
-    """Cylindrical holes: faces whose outward normal points toward their own axis.
+FULL_TURN = 2.0 * math.pi
+ARC_TOL = 1e-3          # radians: how far two arcs may miss meeting, or a half turn be off
+ALIGNED = math.cos(math.radians(2.0))     # how well a slot's two ends must face each other
 
-    A boss has the same kind of face with the normal pointing away. OCCT often
-    splits one cylinder into two faces at a seam, so holes sharing an axis and a
-    radius are merged.
+
+def holes(solid) -> list[dict]:
+    """The holes and slots of a solid: the places a fastener can go.
+
+    A hole is the concave cylinders on one axis that together go all the way round. A
+    counterbore shares the axis of the hole it widens, so it is part of that hole: `dia`
+    is the smallest bore, which is what a screw passes, and `bores` lists every diameter.
+    OCCT often splits one cylinder in two at a seam, so the angles are added up per axis and
+    radius, not taken from one face.
+
+    A slot is two half-turn cylinders of one radius on parallel axes, each bulging away from
+    the other. Its `ends` are those axes at mid-depth, `point` is halfway between them and
+    `dia` is its width; a hole is the same thing with both ends on one axis.
+
+    Nothing else is a hole. An inside-corner fillet covers a quarter turn, and a notch open
+    at one end half of one. A boss has the same kind of face with the normal pointing away.
     """
-    from build123d import Vector
+    axes = []                                          # the cylinders on each axis
+    for c in _concave_cylinders(solid):
+        for group in axes:
+            if _same_axis(group[0], c):
+                group.append(c)
+                break
+        else:
+            axes.append([c])
+    found, halves = [], []
+    for group in axes:
+        d, x = group[0]["dir"], group[0]["x"]
+        radii = []                                     # the cylinders of one diameter each
+        for c in group:
+            for same in radii:
+                if abs(same[0]["dia"] - c["dia"]) < 1e-3:
+                    same.append(c)
+                    break
+            else:
+                radii.append([c])
+        bores, arcs = [], []
+        for same in radii:
+            cover = _cover([_arc(c, d, x) for c in same])
+            if len(cover) == 1 and cover[0][1] - cover[0][0] >= FULL_TURN - ARC_TOL:
+                bores.append(same)
+            elif len(cover) == 1 and abs(cover[0][1] - cover[0][0] - math.pi) <= ARC_TOL:
+                arcs.append((same, sum(cover[0]) / 2.0))
+        if bores:
+            found.append(_hole(group[0]["point"], d, bores))
+        else:                                          # on an axis with a hole, a half turn is its step
+            halves += [_half(same, d, x, mid) for same, mid in arcs]
+    return found + _slots(halves)
+
+
+def _concave_cylinders(solid) -> list[dict]:
+    """Every cylinder face whose outward normal points toward its own axis."""
     from OCP.BRepAdaptor import BRepAdaptor_Surface
     from OCP.GeomAbs import GeomAbs_Cylinder
     found = []
@@ -288,17 +341,105 @@ def holes(solid) -> list[dict]:
         if surf.GetType() != GeomAbs_Cylinder:
             continue
         cyl = surf.Cylinder()
-        r, ax = cyl.Radius(), cyl.Axis()
-        o = Vector(ax.Location().X(), ax.Location().Y(), ax.Location().Z())
-        d = Vector(ax.Direction().X(), ax.Direction().Y(), ax.Direction().Z()).normalized()
+        frame = cyl.Position()
+        o, d = _vector(frame.Location()), _vector(frame.Direction()).normalized()
         p = f.position_at(0.5, 0.5)                    # a point on the face itself
         foot = o + d * ((p - o).dot(d))
         if (foot - p).dot(f.normal_at(p)) <= 0:
             continue                                   # a boss, not a hole
-        h = {"point": foot, "dir": d, "dia": 2 * r, "face": f}
-        if not any(_same_axis(h, g) and abs(h["dia"] - g["dia"]) < 1e-3 for g in found):
-            found.append(h)
+        v0, v1 = surf.FirstVParameter(), surf.LastVParameter()
+        found.append({"point": o, "dir": d, "dia": 2 * cyl.Radius(), "face": f,
+                      "x": _vector(frame.XDirection()), "y": _vector(frame.YDirection()),
+                      "u": (surf.FirstUParameter(), surf.LastUParameter()),
+                      "ends": (o + d * v0, o + d * v1)})   # the axis where the face starts and stops
     return found
+
+
+def _vector(g):
+    """A build123d Vector from an OCCT point or direction."""
+    from build123d import Vector
+    return Vector(g.X(), g.Y(), g.Z())
+
+
+def _arc(c, d, x):
+    """The angles a cylinder face covers around the axis d, as (start, span) counterclockwise from x."""
+    u0, u1 = c["u"]
+    span = min(u1 - u0, FULL_TURN)
+    start = c["x"] * math.cos(u0) + c["y"] * math.sin(u0)
+    start = math.atan2(start.dot(d.cross(x)), start.dot(x))
+    if c["x"].cross(c["y"]).dot(d) < 0:                # a left-handed OCCT frame: u runs clockwise
+        start -= span
+    return start % FULL_TURN, span
+
+
+def _cover(arcs) -> list[list[float]]:
+    """Arcs (start, span) of one circle merged into disjoint [start, end] intervals."""
+    merged = []
+    for start, span in sorted(arcs):
+        if merged and start <= merged[-1][1] + ARC_TOL:
+            merged[-1][1] = max(merged[-1][1], start + span)
+        else:
+            merged.append([start, start + span])
+    while len(merged) > 1 and merged[-1][1] >= merged[0][0] + FULL_TURN - ARC_TOL:
+        first = merged.pop(0)                          # the last arc runs on past 2 pi into the first
+        merged[-1][1] = max(merged[-1][1], first[1] + FULL_TURN)
+    return merged
+
+
+def _hole(base, d, bores) -> dict:
+    """One hole from the bores on an axis, its middle halfway along all of them."""
+    z = [p.dot(d) for same in bores for c in same for p in c["ends"]]
+    point = base + d * ((min(z) + max(z)) / 2.0 - base.dot(d))
+    narrowest = min(bores, key=lambda same: same[0]["dia"])
+    return {"kind": "hole", "point": point, "ends": (point, point), "dir": d,
+            "dia": narrowest[0]["dia"], "bores": sorted(same[0]["dia"] for same in bores),
+            "face": narrowest[0]["face"]}
+
+
+def _half(same, d, x, mid) -> dict:
+    """A half-turn cylinder, maybe a slot's end; `wall` points from its axis to the middle of the arc."""
+    return {"point": same[0]["point"], "dir": d, "dia": same[0]["dia"], "face": same[0]["face"],
+            "wall": x * math.cos(mid) + d.cross(x) * math.sin(mid),
+            "ends": [p for c in same for p in c["ends"]]}
+
+
+def _slots(halves) -> list[dict]:
+    """Pair half-turn cylinders into slots, nearest first, each one used once.
+
+    Two make a slot when they have one radius, parallel axes, and each wall bulges away from the
+    other end, so the arcs sit at the ends of the line between the axes.
+    """
+    pairs = []
+    for i, a in enumerate(halves):
+        for j in range(i + 1, len(halves)):
+            b = halves[j]
+            if abs(a["dia"] - b["dia"]) >= 1e-3 or not _parallel(a, b, 2.0):
+                continue
+            across = b["point"] - a["point"]
+            across = across - a["dir"] * across.dot(a["dir"])
+            if across.length < 1e-3:
+                continue
+            u = across.normalized()
+            if a["wall"].dot(u) <= -ALIGNED and b["wall"].dot(u) >= ALIGNED:   # both bulge outward
+                pairs.append((across.length, i, j))
+    slots, used = [], set()
+    for _, i, j in sorted(pairs):
+        if i in used or j in used:
+            continue
+        used.update((i, j))
+        a, b = halves[i], halves[j]
+        z = [p.dot(a["dir"]) for p in a["ends"] + b["ends"]]
+        mid = (min(z) + max(z)) / 2.0
+        p, q = _at(a, mid, a["dir"]), _at(b, mid, a["dir"])
+        slots.append({"kind": "slot", "point": (p + q) * 0.5, "ends": (p, q), "dir": a["dir"],
+                      "dia": a["dia"], "bores": [a["dia"]], "face": a["face"]})
+    return slots
+
+
+def _at(axis, z, along):
+    """The point on an axis whose coordinate along the direction `along` is z."""
+    p, d = axis["point"], axis["dir"]
+    return p + d * ((z - p.dot(along)) / d.dot(along))
 
 
 def _axis_offset(h, g) -> float:
@@ -315,12 +456,48 @@ def _same_axis(h, g) -> bool:
     return _parallel(h, g, 0.01) and _axis_offset(h, g) < 1e-3
 
 
-def _axis_hits_box(h, box, margin: float = 0.5) -> bool:
-    """Does the hole's axis line pass through the box (slab test)?"""
+def _gap(h, g) -> float:
+    """How far apart two parallel holes or slots are, measured across their axes.
+
+    Two holes: axis to axis. A hole and a slot: the axis to the slot's centre line, the segment
+    between its two axes, so zero anywhere along it. Two slots: how close their lines come.
+    """
+    n = h["dir"]
+    flat = [p - n * p.dot(n) for p in (*h["ends"], *g["ends"])]
+    return _segment_gap(*flat)
+
+
+def _segment_gap(p1, q1, p2, q2) -> float:
+    """Shortest distance between the segments p1-q1 and p2-q2; a point is a segment of no length."""
+    d1, d2, r = q1 - p1, q2 - p2, p1 - p2
+    a, e, f = d1.dot(d1), d2.dot(d2), d2.dot(r)
+    clamp = lambda t: min(1.0, max(0.0, t))            # noqa: E731
+    if a < 1e-12 and e < 1e-12:
+        return r.length
+    if a < 1e-12:
+        s, t = 0.0, clamp(f / e)
+    else:
+        c = d1.dot(r)
+        if e < 1e-12:
+            s, t = clamp(-c / a), 0.0
+        else:
+            b = d1.dot(d2)
+            denom = a * e - b * b                      # zero for parallel segments: any s will do
+            s = clamp((b * f - c * e) / denom) if denom > 1e-12 * a * e else 0.0
+            t = (b * s + f) / e
+            if t < 0.0:
+                s, t = clamp(-c / a), 0.0
+            elif t > 1.0:
+                s, t = clamp((b - c) / a), 1.0
+    return ((p1 + d1 * s) - (p2 + d2 * t)).length
+
+
+def _axis_hits_box(point, direction, box, margin: float = 0.5) -> bool:
+    """Does the line through a point along a direction pass through the box (slab test)?"""
     lo, hi = box
     t0, t1 = -math.inf, math.inf
-    p = (h["point"].X, h["point"].Y, h["point"].Z)
-    d = (h["dir"].X, h["dir"].Y, h["dir"].Z)
+    p = (point.X, point.Y, point.Z)
+    d = (direction.X, direction.Y, direction.Z)
     for i in range(3):
         a, b = lo[i] - margin, hi[i] + margin
         if abs(d[i]) < 1e-12:
@@ -330,6 +507,30 @@ def _axis_hits_box(h, box, margin: float = 0.5) -> bool:
         s0, s1 = (a - p[i]) / d[i], (b - p[i]) / d[i]
         t0, t1 = max(t0, min(s0, s1)), min(t1, max(s0, s1))
     return t0 <= t1
+
+
+def _points_into(h, box, body, near: float) -> bool:
+    """Does the hole's axis meet the box with the hole within `near` of the body?
+
+    A slot is looked at in the middle and at both ends: it points into the body if any of them does.
+    """
+    from build123d import Vertex
+    spots = [h["point"]] if h["kind"] == "hole" else [h["point"], *h["ends"]]
+    return any(_axis_hits_box(p, h["dir"], box) and Vertex(p).distance_to(body) <= near
+               for p in spots)
+
+
+def _describe(h) -> str:
+    if h["kind"] == "slot":
+        length = (h["ends"][1] - h["ends"][0]).length
+        return f"slot {h['dia']:.2f} wide, axes {length:.1f} apart"
+    steps = f" (stepped, widest {h['bores'][-1]:.2f})" if len(h["bores"]) > 1 else ""
+    return f"hole dia {h['dia']:.2f}{steps}"
+
+
+def _xyz(p) -> str:
+    """A point as text; adding 0.0 turns the -0.0 that rounding noise leaves into 0.0."""
+    return "(" + ", ".join(f"{round(v, 1) + 0.0:.1f}" for v in (p.X, p.Y, p.Z)) + ")"
 
 
 def _sizes(fastener: str) -> dict:
@@ -348,7 +549,6 @@ def _kind_of(dia: float, sizes: dict, tol: float = 0.15) -> str | None:
 
 
 def _interface(entry: dict, parts: dict):
-    from build123d import Vertex
     from .geom import bbox
     a, b = _need(entry, "a", "[[interface]]"), _need(entry, "b", "[[interface]]")
     tol = float(entry.get("tol_mm", 0.1))
@@ -356,19 +556,18 @@ def _interface(entry: dict, parts: dict):
     sa, sb = _body(parts, a), _body(parts, b)
     sizes = _sizes(entry["fastener"]) if "fastener" in entry else None
     box_b = bbox(sb)
-    facing = [h for h in holes(sa)
-              if _axis_hits_box(h, box_b) and Vertex(h["point"]).distance_to(sb) <= near]
+    facing = [h for h in holes(sa) if _points_into(h, box_b, sb, near)]
     if not facing:
         raise _Unusable(f"no hole in {a} points into {b} within {near:g} mm")
     in_b = holes(sb)
     for h in facing:
-        where = f"{a} hole dia {h['dia']:.2f} at ({h['point'].X:.1f}, {h['point'].Y:.1f}, {h['point'].Z:.1f})"
-        mates = sorted((g for g in in_b if _parallel(h, g)), key=lambda g: _axis_offset(h, g))
-        if not mates or _axis_offset(h, mates[0]) > tol + 2.0 * max(h["dia"], mates[0]["dia"]):
+        where = f"{a} {_describe(h)} at {_xyz(h['point'])}"
+        mates = sorted((g for g in in_b if _parallel(h, g)), key=lambda g: _gap(h, g))
+        if not mates or _gap(h, mates[0]) > tol + 2.0 * max(h["dia"], mates[0]["dia"]):
             yield _row(f"{a}|{b}", "interface", "FAIL", f"{where}: no hole in {b} under it",
                        f"a coaxial hole within {tol:g} mm")
             continue
-        g, off = mates[0], _axis_offset(h, mates[0])
+        g, off = mates[0], _gap(h, mates[0])
         state, note = ("PASS" if off <= tol else "FAIL"), ""
         if sizes and state == "PASS":
             ka, kb = _kind_of(h["dia"], sizes), _kind_of(g["dia"], sizes)
@@ -378,6 +577,6 @@ def _interface(entry: dict, parts: dict):
                         f"(clearance {sizes['clearance']}, tap {sizes['tap']}, insert {sizes['insert']})")
             else:
                 note = f"; {ka} over {kb}"
-        yield _row(f"{a}|{b}", "interface", state,
-                   f"{where}: offset {off:.3f} mm to {b} dia {g['dia']:.2f}{note}",
+        mate = f"dia {g['dia']:.2f}" if g["kind"] == "hole" else f"slot {g['dia']:.2f} wide"
+        yield _row(f"{a}|{b}", "interface", state, f"{where}: offset {off:.3f} mm to {b} {mate}{note}",
                    f"coaxial within {tol:g} mm" + (f", sized for {entry['fastener']}" if sizes else ""))
