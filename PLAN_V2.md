@@ -229,13 +229,11 @@ Each step ends with the tests green.
    - `spec.toml` gained `[[size]]`, `[[position]]` and `max_mm` on `[[clearance]]` to pin the given parts and write "touches" and "grips".
    - `cad eval run` gives the agent `{plugin}`: a copy of the repo as a plugin without `evals/`, `.git`, `.venv` and `.claude/worktrees`, so the hidden specs aren't one `ls` away. The edit and stop hooks skip everything under `evals/`.
    - Never run with a real agent yet. It spends plan usage, so it needs Juan's OK; the command is in `evals/README.md`.
+   - Three checks that wrongly failed good designs, fixed 2026-10-07 (the briefs dropped their workarounds): `[[interface]]` judges holes, not every round face (a counterbore is part of its hole and sized by its narrowest bore, a slot is judged by its centre line, fillets and notches are not holes); a clearance hole is anything in ISO 273's fine to coarse range (M3: 3.2 to 3.6 mm); `geometry/web` is N/A for a flat part with no cutout, whose cutout count is still held to `EXPECT_FEATURES`.
    - Known gaps, what the grader can't say yet (each task works round them; `evals/README.md` has the detail):
      - no `[[axis]]` kind, so `AXES` can't be required (`mgn12h_carriage` asks for it; without it only the home pose is graded);
-     - `[[interface]]` reads any concave cylinder of `a` (a counterbore, a slot's end, a fillet) as a hole;
-     - its M3 size match is 3.4 +-0.15 mm, so real 3.2 mm holes fail;
      - no hole-count option and no shaft-fit option;
      - a clearance `max_mm` bounds only the closest approach, and there is no clearance to a sub-feature;
-     - `geometry/web` is UNCHECKED for a plain flat part;
      - `laser_cut`'s kerf and minimum hole are unused, and there is no DXF export;
      - no heat rule and no body count.
 8. First real job: the one-machine layout (frame, gantry, dock, laser keep-out).

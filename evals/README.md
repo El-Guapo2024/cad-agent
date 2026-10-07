@@ -91,7 +91,9 @@ no `CAD_EVALS`.
 - It reads the geometry `assembly.py` produced, not how. An assembly could edit a given part's
   solid; the pins hold its bounding box and position, not its holes.
 - `[[interface]]` judges the holes of `a` whose axis meets `b`: a design that leaves a given hole
-  uncovered is judged on the rest.
+  uncovered is judged on the rest. A hole is a bore that goes all the way round (a counterbore is
+  part of it, and it is sized by its narrowest bore) and a slot is judged by its centre line;
+  fillets and a notch open to an edge are not holes, so nothing judges them.
 - `max_mm` on a clearance is the closest approach: a looser bore with the barrel resting on one side
   can pass "grips". `[[mass]]` uses the `MATERIAL` the part declares.
 - Nothing here judges assembly order, tool access or cable routing; that is the reviewer's job.
@@ -137,17 +139,11 @@ to add; none was needed to write the ten tasks.
 
 - No `[[axis]]` kind, so `AXES` can't be required: `mgn12h_carriage` asks for it in the brief, and a
   design that leaves it out has no sweep rows, only the home pose graded (42 mm to each stop).
-- `[[interface]]` reads any concave cylinder of `a` (a counterbore, a slot's end, a fillet) as a
-  hole. The briefs forbid those where `a` faces `b`.
-- Its M3 size match is 3.4 +-0.15 mm, so a real 3.2 mm hole fails it. `pcb_enclosure` has no
-  `fastener` and judges the UNO's 3.20 mm holes by their axes only.
 - No hole-count option and no shaft-fit option: `idler_bracket` fits its 5.0 shaft through the
   closest-approach range (0.1 to 0.5 mm) instead, and a hole left out is caught only when the given
   body is `a`, as in `pcb_enclosure` and `endstop_bracket`.
 - A clearance `max_mm` bounds only the closest approach (said above), and there is no clearance to
   a sub-feature: "the pocket clears the screw head" is a distance between two bodies.
-- `geometry/web` is UNCHECKED for a plain flat part, so one needs a cutout and `EXPECT_FEATURES`
-  to pass.
 - `laser_cut`'s kerf and minimum hole are not used by any rule, and there is no DXF export.
 - No heat rule: `hotplate_standoffs` says the material needs 250 C, and a reviewer reads it.
 - No body count: "exactly six bodies" is asked in the briefs and not checked.
