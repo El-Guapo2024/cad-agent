@@ -14,7 +14,7 @@ from pathlib import Path
 import pytest
 
 from conftest import cad_env
-from test_cli import PLATE
+from test_cli import PLATE, _checkouts, _stub
 
 REPO = Path(__file__).resolve().parent.parent
 EDIT =REPO / ".claude" / "hooks" / "cad_on_edit.py"
@@ -164,3 +164,17 @@ def test_stop_hook_leaves_untouched_projects_alone(env, project):
     for p in rig.rglob("*"):
         os.utime(p, (now, now))                                   # brand-new file times
     assert hook(STOP, {}, env, CAD_PROJECTS=str(root)) is None
+
+
+def test_the_hooks_run_the_python_bin_cad_picks_in_a_worktree(tmp_path):
+    """The hooks call bin/cad, so a worktree's hooks get the main checkout's venv, not the plugin's."""
+    main, wt = _checkouts(tmp_path)
+    _stub(main / ".venv" / "bin" / "python", code=1)           # exit 1, so the hook reports its output
+    _stub(tmp_path / "home" / ".claude" / "plugins" / "data" / "cad-agent-x" / "venv" / "bin" / "python", code=1)
+    part = tmp_path / "projects" / "rig" / "parts" / "plate.py"
+    part.parent.mkdir(parents=True)
+    part.write_text(PLATE)
+    env = {"PATH": os.environ["PATH"], "HOME": str(tmp_path / "home")}
+    out = hook(wt / ".claude" / "hooks" / "cad_on_edit.py", edit(part), env)
+    assert f"ran:{main / '.venv' / 'bin' / 'python'}" in out["reason"]
+    assert f"pythonpath:{wt}" in out["reason"]

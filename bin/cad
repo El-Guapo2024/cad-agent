@@ -12,14 +12,31 @@ while [ -L "$self" ]; do
   esac
 done
 here="$(cd "$(dirname "$self")/.." && pwd -P)"
-# The Python with cad-agent installed: CAD_PYTHON, else this checkout's .venv, else the one the
-# Claude Code plugin's first-run hook made (plugin/install.sh), else python3.
+# The Python with cad-agent's dependencies: CAD_PYTHON, else this checkout's .venv, else the
+# main checkout's .venv when this is a git worktree of it (a worktree has no .venv, and the
+# plugin's is another install with its own build123d and OCCT), else the one the Claude Code
+# plugin's first-run hook made (plugin/install.sh), else python3.
 py="${CAD_PYTHON:-}"
 if [ -z "$py" ] && [ -x "$here/.venv/bin/python" ]; then py="$here/.venv/bin/python"; fi
+if [ -z "$py" ] && [ -e "$here/.git" ]; then
+  common="$(git -C "$here" rev-parse --git-common-dir 2>/dev/null || true)"
+  if [ -n "$common" ]; then
+    case "$common" in /*) ;; *) common="$here/$common" ;; esac
+    main="$(cd "$common/.." 2>/dev/null && pwd -P || true)"
+    if [ -n "$main" ] && [ "$main" != "$here" ] && [ -f "$main/cad_agent/warm.py" ] \
+        && [ -x "$main/.venv/bin/python" ]; then
+      py="$main/.venv/bin/python"
+    fi
+  fi
+fi
 if [ -z "$py" ] && [ -n "${CLAUDE_PLUGIN_DATA:-}" ] && [ -x "$CLAUDE_PLUGIN_DATA/venv/bin/python" ]; then py="$CLAUDE_PLUGIN_DATA/venv/bin/python"; fi
 if [ -z "$py" ]; then
   for c in "$HOME"/.claude/plugins/data/cad-agent*/venv/bin/python; do
     if [ -x "$c" ]; then py="$c"; break; fi
   done
 fi
+# Whichever Python it is, run this checkout's code: the main checkout's venv has an editable
+# install of the main checkout, and a worktree's cad_agent must not lose to it.
+PYTHONPATH="$here${PYTHONPATH:+:$PYTHONPATH}"
+export PYTHONPATH
 exec "${py:-python3}" -m cad_agent.warm "$@"

@@ -7,6 +7,9 @@ subprocess, so the wrapper and the exit codes a shell sees are covered too;
 both are chosen to fail or finish before the slow build123d import.
 """
 import json
+import os
+import re
+import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -318,3 +321,73 @@ def test_bin_cad_in_a_test_runs_the_tests_own_python(tmp_path, monkeypatch):
     p = _bin(tmp_path, "--json", "ls")
     assert p.returncode == 0, p.stderr
     assert json.loads(p.stdout)["data"]["projects"] == ["alpha"]
+
+
+# ─── Which Python bin/cad runs ───────────────────────────────────────────────
+
+def _stub(path: Path, code: int = 0) -> Path:
+    """A "python" that says which one it is and what PYTHONPATH it was given."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(f'#!/bin/sh\necho "ran:$0"\necho "pythonpath:$PYTHONPATH"\nexit {code}\n')
+    path.chmod(0o755)
+    return path
+
+
+def _checkouts(tmp_path):
+    """(main, worktree): a minimal cad-agent checkout and a git worktree of it."""
+    main = tmp_path / "main"
+    (main / "bin").mkdir(parents=True)
+    shutil.copy(REPO / "bin" / "cad", main / "bin" / "cad")
+    (main / "cad_agent").mkdir()
+    (main / "cad_agent" / "warm.py").write_text("")
+    shutil.copytree(REPO / ".claude" / "hooks", main / ".claude" / "hooks",
+                    ignore=shutil.ignore_patterns("__pycache__"))
+    for args in (["init", "-q", "-b", "main"], ["add", "-A"], ["commit", "-q", "-m", "x"],
+                 ["worktree", "add", "-q", "-b", "wt", str(tmp_path / "wt")]):
+        subprocess.run(["git", "-C", str(main), "-c", "user.name=t", "-c", "user.email=t@t", *args],
+                       check=True, capture_output=True)
+    return main.resolve(), (tmp_path / "wt").resolve()
+
+
+def _python_of(checkout, tmp_path, **env):
+    """(the python bin/cad ran, its PYTHONPATH) in a shell with no CAD_PYTHON and an empty home."""
+    e = {"PATH": os.environ["PATH"], "HOME": str(tmp_path / "home"), **env}
+    p = subprocess.run([str(checkout / "bin" / "cad"), "x"], capture_output=True, text=True,
+                       env=e, cwd=tmp_path, timeout=60)
+    assert p.returncode == 0, p.stderr
+    return (re.search(r"ran:(.*)", p.stdout).group(1), re.search(r"pythonpath:(.*)", p.stdout).group(1))
+
+
+def test_a_worktree_runs_the_main_checkouts_python_on_its_own_code(tmp_path):
+    # A worktree has no .venv, and falling through to the plugin's means another build123d and
+    # OCCT; the main checkout's venv has an editable install of the main checkout, so the
+    # worktree's cad_agent has to be put first.
+    main, wt = _checkouts(tmp_path)
+    _stub(main / ".venv" / "bin" / "python")
+    _stub(tmp_path / "home" / ".claude" / "plugins" / "data" / "cad-agent-x" / "venv" / "bin" / "python")
+    assert _python_of(wt, tmp_path) == (str(main / ".venv" / "bin" / "python"), str(wt))
+    assert _python_of(main, tmp_path) == (str(main / ".venv" / "bin" / "python"), str(main))
+
+
+def test_the_python_bin_cad_picks_goes_by_order(tmp_path):
+    main, wt = _checkouts(tmp_path)
+    plugin = _stub(tmp_path / "home" / ".claude" / "plugins" / "data" / "cad-agent-x" / "venv" / "bin" / "python")
+    assert _python_of(wt, tmp_path)[0] == str(plugin)        # a worktree of a checkout with no venv
+    own = _stub(wt / ".venv" / "bin" / "python")
+    _stub(main / ".venv" / "bin" / "python")
+    assert _python_of(wt, tmp_path)[0] == str(own)           # its own venv beats the main one
+    chosen = _stub(tmp_path / "chosen" / "python")
+    assert _python_of(wt, tmp_path, CAD_PYTHON=str(chosen))[0] == str(chosen)
+    data = _stub(tmp_path / "data" / "venv" / "bin" / "python")
+    own.unlink()
+    shutil.rmtree(main / ".venv")
+    assert _python_of(wt, tmp_path, CLAUDE_PLUGIN_DATA=str(tmp_path / "data"))[0] == str(data)
+
+
+def test_a_checkout_that_is_not_a_worktree_does_not_borrow_a_venv(tmp_path):
+    # A plugin's copy of the repo, or a clone nobody installed: no venv of its own, no git parent.
+    alone = tmp_path / "alone"
+    (alone / "bin").mkdir(parents=True)
+    shutil.copy(REPO / "bin" / "cad", alone / "bin" / "cad")
+    plugin = _stub(tmp_path / "home" / ".claude" / "plugins" / "data" / "cad-agent-x" / "venv" / "bin" / "python")
+    assert _python_of(alone, tmp_path) == (str(plugin), str(alone.resolve()))
