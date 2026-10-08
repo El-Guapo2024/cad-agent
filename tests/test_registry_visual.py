@@ -10,6 +10,7 @@ import pytest
 from build123d import Box, Cylinder, Pos
 
 from cad_agent import registry as reg
+from cad_agent import rules  # noqa: F401  (importing it registers every shipped check)
 from cad_agent.checks import visual as vis
 from cad_agent.render import draw, read_png, tessellate
 
