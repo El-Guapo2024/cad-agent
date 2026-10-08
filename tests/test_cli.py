@@ -620,3 +620,14 @@ def test_a_file_that_starts_with_a_dot_is_not_a_part(demo, capsys):
     assert data["summary"]["parts_failed"] == 0 and data["summary"]["parts_built"] == 2
     code, data = run(capsys, "approve", "demo")
     assert code == cli.OK and not any("hidden" in d or "._" in d for d in data["approved"])
+
+
+def test_bin_cad_runs_its_own_checkouts_code_from_inside_another_one(tmp_path):
+    # `python -m` puts the current folder first on sys.path: run from a folder holding another
+    # checkout's cad_agent/, bin/cad ran that one's code under this one's name.
+    (tmp_path / "cad_agent").mkdir()
+    (tmp_path / "cad_agent" / "__init__.py").write_text("")
+    (tmp_path / "cad_agent" / "warm.py").write_text('print("the other checkout")\n')
+    p = subprocess.run([str(REPO / "bin" / "cad"), "warm", "--help"], capture_output=True, text=True,
+                       env=cad_env(CAD_WARM_DIR=str(tmp_path / "w")), cwd=tmp_path, timeout=60)
+    assert p.returncode == 0 and "usage: cad warm" in p.stdout and "other checkout" not in p.stdout

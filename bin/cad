@@ -39,4 +39,7 @@ fi
 # install of the main checkout, and a worktree's cad_agent must not lose to it.
 PYTHONPATH="$here${PYTHONPATH:+:$PYTHONPATH}"
 export PYTHONPATH
+# `python -m` puts the current folder first on sys.path, so run from inside another checkout (or
+# any folder with a cad_agent/ in it) it would import that one's code. Not with this set.
+export PYTHONSAFEPATH=1
 exec "${py:-python3}" -m cad_agent.warm "$@"
