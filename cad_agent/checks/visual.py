@@ -141,7 +141,7 @@ def visual_rows(subject: str, solid, out_dir: Path, project_dir: Path,
             yield Row(subject=subject, rule=f"drift/{view}", state="UNCHECKED",
                       measured="no approved image",
                       limit=f"drift under {DRIFT_TOL * 100:.1f}% of the frame",
-                      source="approve this view with baseline_approve to gate it",
+                      source="look at the render, then `cad approve` makes it the baseline this view is gated on",
                       artifacts=[str(cur)])
             continue
 

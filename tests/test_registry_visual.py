@@ -98,7 +98,7 @@ def test_first_run_is_unchecked_not_passed(visual_project):
     rows = list(vis.visual_rows("cube", Box(10, 10, 10), out, root))
     drift = next(r for r in rows if r.rule.startswith("drift"))
     assert drift.state == "UNCHECKED"
-    assert "approve" in drift.source
+    assert "`cad approve`" in drift.source and "baseline_approve" not in drift.source   # the CLI, not the retired tool
 
 
 def test_an_unchanged_part_passes_after_approval(visual_project):
