@@ -248,3 +248,18 @@ def test_a_worker_folder_that_cannot_be_made_runs_cold_and_says_so(tmp_path):
     q = subprocess.run([str(REPO / "bin" / "cad"), "warm", "status"], capture_output=True, text=True,
                        env=env, timeout=60)
     assert q.returncode == 4 and "CAD_WARM_DIR" in q.stderr
+
+
+def test_a_command_that_needs_no_kernel_does_not_start_a_worker_for_itself(tmp_path):
+    # The first `cad pref` of a session waited for a kernel import (5 to 35 s) it never used.
+    env = cad_env(CAD_WARM_DIR=str(tmp_path / "warm"), CAD_PROJECTS=str(tmp_path),
+                  CAD_PREFS=str(tmp_path / "prefs.json"))
+    env.pop("CAD_WARM", None)
+    t0 = time.monotonic()
+    p = subprocess.run([str(REPO / "bin" / "cad"), "--json", "pref"], capture_output=True, text=True,
+                       env=env, timeout=120)
+    assert p.returncode == 0 and "starting the warm worker" not in p.stderr, p.stderr
+    assert time.monotonic() - t0 < 10
+    q = subprocess.run([str(REPO / "bin" / "cad"), "warm", "status"], capture_output=True, text=True,
+                       env=env, timeout=60)
+    assert q.returncode == 2 and "not running" in q.stdout

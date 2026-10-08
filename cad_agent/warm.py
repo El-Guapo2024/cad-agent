@@ -5,8 +5,8 @@ bindings, and 20 s for scikit-learn, scipy and fonts that build123d imports
 eagerly. A CLI that pays that on every call is unusable in an agent loop; the
 MCP server hid it by staying alive.
 
-So the first `cad` call starts one background process that imports the
-third-party stack once and waits on a Unix socket. Each later call sends its
+So the first `cad` call that needs the kernel starts one background process
+that imports the third-party stack once and waits on a Unix socket. Each later call sends its
 argv plus its own stdin, stdout and stderr file descriptors. The worker forks;
 the child adopts those descriptors, moves to the caller's directory and runs
 the command, writing straight to the caller's terminal. The parent sends the
@@ -61,6 +61,9 @@ ENV_PASS = ("CAD_PROJECTS", "CAD_RENDER_BACKEND", "CAD_PREFS", "CAD_MACRO_DIR", 
                           # effect after the next time the daemon restarts)
 COLD = {(), ("-h",), ("--help",)}           # nothing to import: answer without a worker
 NO_KERNEL = {"serve", "service", "eval"}   # kernel-free: never hold a worker fork
+# These never import the kernel either, but a worker that is up serves them as well as any. With none
+# up they answer cold at once, instead of the first `cad pref` of a session waiting for a kernel import.
+KERNEL_FREE = {"status", "done", "history", "pref", "cache", "init"}
 METAL_ENV = "CAD_METAL_SIDECAR"            # metal_render.SIDECAR_ENV (no cad_agent import here)
 INHERIT_ENV = "CAD_WARM_INHERIT"           # a restarting worker's socket and lock, for its next self
 # The cad_agent files the worker process, and the sidecar it execs, import and keep (see
@@ -697,7 +700,11 @@ def main(argv: list[str] | None = None) -> int:
         return _cold(argv)
     _open_std_fds()
     try:
-        conn = _connect_or_start(sock_path())
+        path = sock_path()
+        conn = _connect(path)
+        if conn is None and _command(argv) in KERNEL_FREE:
+            return _cold(argv)
+        conn = conn or _connect_or_start(path)
     except OSError as e:
         print(f"cad: no folder for the warm worker ({e}); running cold", file=sys.stderr)
         return _cold(argv)
