@@ -224,3 +224,27 @@ def test_warm_help_is_help_not_an_error(tmp_path):
     p = subprocess.run([str(REPO / "bin" / "cad"), "warm", "--help"], capture_output=True, text=True,
                        env=env, timeout=60)
     assert p.returncode == 0 and "stop" in p.stdout and not p.stderr
+
+
+def test_a_closed_stdout_or_stderr_is_not_a_crash(warm):
+    # `cad ls >&-` left Python without a sys.stdout, and the worker was handed a descriptor that
+    # was not open: the client died in its own flush. A cold run writes to nowhere and succeeds.
+    cad, _ = warm
+    for redirect in (">&-", "2>&-", "<&-"):
+        p = subprocess.run(["bash", "-c", f"'{REPO / 'bin' / 'cad'}' --json ls demo {redirect}"],
+                           capture_output=True, text=True, env=cad.env, timeout=120)
+        assert p.returncode == 0 and "Traceback" not in p.stderr, (redirect, p.stderr)
+
+
+def test_a_worker_folder_that_cannot_be_made_runs_cold_and_says_so(tmp_path):
+    blocker = tmp_path / "a-file"
+    blocker.write_text("")
+    env = cad_env(CAD_WARM_DIR=str(blocker / "sub"), CAD_PROJECTS=str(tmp_path))
+    env.pop("CAD_WARM", None)
+    p = subprocess.run([str(REPO / "bin" / "cad"), "--json", "ls"], capture_output=True, text=True,
+                       env=env, timeout=120)
+    assert p.returncode == 0 and json.loads(p.stdout)["data"]["projects"] == []
+    assert "running cold" in p.stderr and "Traceback" not in p.stderr
+    q = subprocess.run([str(REPO / "bin" / "cad"), "warm", "status"], capture_output=True, text=True,
+                       env=env, timeout=60)
+    assert q.returncode == 4 and "CAD_WARM_DIR" in q.stderr

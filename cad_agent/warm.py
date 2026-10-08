@@ -504,6 +504,20 @@ def _log_tail(path: Path, n: int = 6) -> str:
         return ""
 
 
+def _open_std_fds() -> None:
+    """Point a closed stdin, stdout or stderr (`cad ls >&-`) at /dev/null, where a cold run's
+    output goes too. The worker is handed descriptors 0, 1 and 2, and the socket opened next
+    would otherwise take one of their numbers."""
+    for fd, flags in ((0, os.O_RDONLY), (1, os.O_WRONLY), (2, os.O_WRONLY)):
+        try:
+            os.fstat(fd)
+        except OSError:
+            null = os.open(os.devnull, flags)
+            if null != fd:
+                os.dup2(null, fd)
+                os.close(null)
+
+
 def _connect_or_start(path: Path, quiet: bool = False) -> socket.socket | None:
     conn = _connect(path)
     if conn is not None:
@@ -565,7 +579,10 @@ def run_captured(argv: list[str], cwd: str | None = None,
                  timeout: float = 900) -> tuple[int, str, str] | None:
     """One command in a worker fork, output captured: (exit, stdout, stderr).
     None when no worker can be started (the caller runs it cold instead)."""
-    conn = _connect_or_start(sock_path(), quiet=True)
+    try:
+        conn = _connect_or_start(sock_path(), quiet=True)
+    except OSError:                             # the worker's folder cannot be made
+        return None
     if conn is None:
         return None
     out_r, out_w = os.pipe()
@@ -612,7 +629,10 @@ def run_captured(argv: list[str], cwd: str | None = None,
 
 def ping() -> dict | None:
     """Start the worker if it is not running, and reset its idle clock."""
-    conn = _connect_or_start(sock_path(), quiet=True)
+    try:
+        conn = _connect_or_start(sock_path(), quiet=True)
+    except OSError:
+        return None
     if conn is None:
         return None
     try:
@@ -624,7 +644,11 @@ def ping() -> dict | None:
 
 def _control(args: list[str]) -> int:
     action = args[0] if args else "status"
-    path = sock_path()
+    try:
+        path = sock_path()
+    except OSError as e:
+        print(f"cad warm: no folder for the worker ({e}); CAD_WARM_DIR names it", file=sys.stderr)
+        return 4
     if action == "start":
         conn = _connect_or_start(path)
         if conn is None:
@@ -671,12 +695,18 @@ def main(argv: list[str] | None = None) -> int:
     if (os.environ.get("CAD_WARM", "1") == "0" or tuple(argv) in COLD
             or _command(argv) in NO_KERNEL):
         return _cold(argv)
-    conn = _connect_or_start(sock_path())
+    _open_std_fds()
+    try:
+        conn = _connect_or_start(sock_path())
+    except OSError as e:
+        print(f"cad: no folder for the warm worker ({e}); running cold", file=sys.stderr)
+        return _cold(argv)
     if conn is None:
         print("cad: the warm worker did not start; running cold", file=sys.stderr)
         return _cold(argv)
     for stream in (sys.stdout, sys.stderr):
-        stream.flush()
+        if stream is not None:
+            stream.flush()
     header = {"argv": argv, "cwd": os.getcwd(),
               "env": {k: os.environ[k] for k in ENV_PASS if k in os.environ}}
     try:
