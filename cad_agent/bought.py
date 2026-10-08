@@ -35,16 +35,20 @@ class MissingProvenance(ValueError):
     """A measured part that does not say where its dimensions came from."""
 
 
-def bought_dir(slug: str) -> Path:
+def bought_dir(slug: str, create: bool = False) -> Path:
+    """The folder of bought parts; made only for a write, so that listing them in a project
+    nobody can write to (a read-only checkout) is a listing and not a PermissionError."""
     d = project_dir(slug) / "bought"
-    d.mkdir(parents=True, exist_ok=True)
+    if create:
+        d.mkdir(parents=True, exist_ok=True)
     return d
 
 
 def list_bought(slug: str) -> list[dict]:
     """Every bought part, with its kind and provenance."""
     out = []
-    for p in sorted(bought_dir(slug).iterdir()):
+    d = bought_dir(slug)
+    for p in sorted(d.iterdir()) if d.is_dir() else []:
         if p.suffix.lower() in (".step", ".stp"):
             meta = _sidecar(p)
             out.append({"name": p.stem, "kind": "STEP", "file": p.name,
@@ -77,7 +81,7 @@ def register_step(slug: str, name: str, step_path: str, source: str,
         raise FileNotFoundError(f"no STEP at {src}")
     if not source.strip():
         raise MissingProvenance("source is required: the page the file came from")
-    dest = bought_dir(slug) / f"{name}{src.suffix.lower()}"
+    dest = bought_dir(slug, create=True) / f"{name}{src.suffix.lower()}"
     dest.write_bytes(src.read_bytes())
     dest.with_suffix(".json").write_text(json.dumps(
         {"source": source, "vendor": vendor, "verified": verified,
@@ -183,7 +187,7 @@ def register_measured(slug: str, name: str, length: float, width: float,
         body = ("    for hx, hy in holes:\n"
                 "        body -= Pos(hx, hy, 0) * Cylinder(hole_dia / 2.0, height + 2)\n")
 
-    path = bought_dir(slug) / f"{name}.py"
+    path = bought_dir(slug, create=True) / f"{name}.py"
     if path.exists():
         raise FileExistsError(
             f"{path} already exists; edit it rather than overwriting, so its "

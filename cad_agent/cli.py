@@ -474,6 +474,8 @@ def cmd_check(a) -> Result:
         from .runner import part_check
         try:
             r = part_check(a.slug, a.part, ov)
+        except PermissionError:
+            raise
         except Exception as e:
             raise BuildFailed(f"{a.part} did not build: {st.why(e)}") from e
         code = _verdict(x["state"] for x in r["rows"])
@@ -620,7 +622,7 @@ def cmd_bought_add_step(a) -> Result:
     from .bought import bought_dir, bought_info, register_step
     pdir = _project(a.slug)
     src = Path(a.step_path).expanduser()
-    dest = bought_dir(a.slug) / f"{a.name}{src.suffix.lower()}"
+    dest = bought_dir(a.slug, create=True) / f"{a.name}{src.suffix.lower()}"
     sidecar = dest.with_suffix(".json")
     before = [dest.read_text() if dest.exists() else None,
              sidecar.read_text() if sidecar.exists() else None]
@@ -1900,6 +1902,10 @@ def main(argv: list[str] | None = None) -> int:
         res = Result(FAIL, {"error": str(e)}, str(e), str(e))
     except WorkbenchDown as e:
         res = Result(UNCHECKED, {"error": str(e)}, str(e), str(e))
+    except PermissionError as e:       # a folder we may not write to is the caller's to change
+        msg = (f"cannot write {e.filename}: {e.strerror}; `cad {a.cmd_name}` writes into the "
+               "project, so it needs a folder you can write to")
+        res = Result(USAGE, {"error": msg}, f"cad {a.cmd_name}: {msg}", msg)
     except Exception as e:
         res = Result(CRASH, {"error": f"{type(e).__name__}: {e}"},
                      "cad crashed, this is a cad-agent bug:\n" + traceback.format_exc(),

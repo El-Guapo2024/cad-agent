@@ -525,3 +525,28 @@ def test_the_top_level_help_names_the_warm_worker(capsys):
     # Messages tell people to `cad warm stop`; it is not a subcommand argparse lists.
     assert cli.main(["--help"]) == cli.OK
     assert "cad warm status|start|stop" in capsys.readouterr().out
+
+
+def test_listing_a_read_only_project_does_not_write_into_it(tmp_path, monkeypatch, capsys):
+    # `cad ls` and `bought ls` made the project's bought/ folder, so a project nobody could write to
+    # (a read-only checkout) crashed on them.
+    monkeypatch.setattr(st, "ROOT", tmp_path)
+    (tmp_path / "ro" / "parts").mkdir(parents=True)
+    (tmp_path / "ro" / "parts" / "plate.py").write_text(PLATE)
+    for argv in (["ls", "ro"], ["bought", "ls", "ro"], ["status", "ro"]):
+        code, data = run(capsys, *argv)
+        assert code == cli.OK, argv
+    assert not (tmp_path / "ro" / "bought").exists()
+
+
+def test_a_folder_that_refuses_the_write_is_a_usage_error_naming_it(demo, monkeypatch, capsys):
+    real = Path.mkdir
+
+    def refuse(self, *a, **kw):
+        if self.name == "out":
+            raise PermissionError(13, "Permission denied", str(self))
+        return real(self, *a, **kw)
+    monkeypatch.setattr(Path, "mkdir", refuse)
+    for argv in (["render", "demo", "plate"], ["check", "demo", "--part", "plate"]):
+        code, data = run(capsys, *argv)
+        assert code == cli.USAGE and "cannot write" in data["error"] and "out" in data["error"], argv
