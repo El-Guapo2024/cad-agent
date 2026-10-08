@@ -632,6 +632,12 @@ def _control(args: list[str]) -> int:
             return 4
         conn.close()
         action = "status"
+    if action in ("-h", "--help", "help"):
+        print("usage: cad warm [status|start|stop]\n"
+              "  status  whether the worker that keeps the CAD kernel loaded is up, and what it has done\n"
+              "  start   start it now, rather than with the next command that needs it\n"
+              "  stop    stop it; the next command starts a new one (about 35 s)")
+        return 0
     if action not in ("status", "stop"):
         print("usage: cad warm [status|start|stop]", file=sys.stderr)
         return 3

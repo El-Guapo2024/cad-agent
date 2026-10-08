@@ -217,3 +217,10 @@ def test_a_stopped_worker_leaves_no_lock_and_no_log_behind(warm):
     while list(sock.parent.glob(f"{sock.stem}.*")) and time.monotonic() < deadline:
         time.sleep(0.2)                             # the sidecar is given a moment to leave
     assert list(sock.parent.glob(f"{sock.stem}.*")) == []
+
+
+def test_warm_help_is_help_not_an_error(tmp_path):
+    env = cad_env(CAD_WARM_DIR=str(tmp_path / "none"))
+    p = subprocess.run([str(REPO / "bin" / "cad"), "warm", "--help"], capture_output=True, text=True,
+                       env=env, timeout=60)
+    assert p.returncode == 0 and "stop" in p.stdout and not p.stderr

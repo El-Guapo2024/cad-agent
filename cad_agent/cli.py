@@ -1442,7 +1442,8 @@ def build_parser() -> argparse.ArgumentParser:
                         help="projects directory (default: CAD_PROJECTS, else cad-agent/projects)")
 
     p = _Parser(prog="cad", description="cad-agent: parametric parts, deterministic "
-                "gates, headless renders. Every command runs on build123d.",
+                "gates, headless renders. Every command runs on build123d, which a background "
+                "worker keeps loaded (`cad warm status|start|stop`; CAD_WARM=0 runs cold).",
                 epilog=EXIT_CODES, formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument("--json", action="store_true", default=False,
                    help="print one JSON object on stdout")

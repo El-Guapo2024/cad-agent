@@ -517,3 +517,9 @@ def test_a_cutlist_reads_the_part_as_it_is_now_and_leaves_no_bytecode_behind(dem
     code, data = run(capsys, "cutlist", "demo")
     assert data["rows"][0]["length_mm"] == 200
     assert not (demo / "parts" / "__pycache__").exists()
+
+
+def test_the_top_level_help_names_the_warm_worker(capsys):
+    # Messages tell people to `cad warm stop`; it is not a subcommand argparse lists.
+    assert cli.main(["--help"]) == cli.OK
+    assert "cad warm status|start|stop" in capsys.readouterr().out
