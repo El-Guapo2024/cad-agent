@@ -22,6 +22,7 @@ declares, so a plate whose holes all went missing does not slip through.
 from __future__ import annotations
 
 from ..geom import bbox, volume
+from ..registry import TOL_MM
 from .web import web_report
 
 PROCESS = {
@@ -68,7 +69,7 @@ def check_dfm(name: str, solid, process: str, min_feature_mm: float | None = Non
         rows.append({"part": name, "rule": rule, "state": state,
                      "measured": measured, "limit": limit, "source": source})
 
-    fits = all(sorted(dims)[i] <= sorted(p["max_bbox_mm"])[i] for i in range(3))
+    fits = all(sorted(dims)[i] <= sorted(p["max_bbox_mm"])[i] + TOL_MM for i in range(3))
     row("envelope", "PASS" if fits else "FAIL",
         f"{dims[0]} x {dims[1]} x {dims[2]} mm",
         " x ".join(str(v) for v in p["max_bbox_mm"]) + " mm", p["source"])
@@ -78,7 +79,7 @@ def check_dfm(name: str, solid, process: str, min_feature_mm: float | None = Non
         from ..thickness import measure_min_wall
         t = measure_min_wall(solid, samples=samples)
         if t["state"] == "MEASURED":
-            ok = t["p01_mm"] >= p["min_wall_mm"]
+            ok = t["p01_mm"] >= p["min_wall_mm"] - TOL_MM
             row("min wall", "PASS" if ok else "FAIL",
                 f"{t['p01_mm']} mm at the 1st percentile "
                 f"(min {t['min_mm']}, median {t['median_mm']}, {t['samples']} rays)",
@@ -92,13 +93,13 @@ def check_dfm(name: str, solid, process: str, min_feature_mm: float | None = Non
         row("min wall", "UNCHECKED", "not measured", f"{p['min_wall_mm']} mm",
             "measurement disabled and nothing declared")
     else:
-        ok = min_feature_mm >= p["min_wall_mm"]
+        ok = min_feature_mm >= p["min_wall_mm"] - TOL_MM
         row("min wall", "PASS" if ok else "FAIL",
             f"{min_feature_mm} mm (declared, not measured)",
             f"{p['min_wall_mm']} mm", "declared by the part")
 
     # ── in-plane web, for flat parts ─────────────────────────────────────────
-    flat = min(dims) / max(dims) <= FLAT_RATIO
+    flat = min(dims) <= FLAT_RATIO * max(dims) + TOL_MM
     if not flat:
         row("web", "N/A", f"not a flat part (thinnest/longest = "
             f"{min(dims) / max(dims):.2f})", f"{p['min_web_mm']} mm",
@@ -106,7 +107,7 @@ def check_dfm(name: str, solid, process: str, min_feature_mm: float | None = Non
     else:
         w = web_report(solid)
         if w["state"] == "MEASURED":
-            ok = w["min_web_mm"] >= p["min_web_mm"]
+            ok = w["min_web_mm"] >= p["min_web_mm"] - TOL_MM
             row("web", "PASS" if ok else "FAIL",
                 f"{w['min_web_mm']} mm between {w['between']}, at "
                 f"({w['at_xy'][0]}, {w['at_xy'][1]})",

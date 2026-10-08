@@ -42,6 +42,11 @@ Scope = Literal["part", "assembly", "project"]
 STATES = ("PASS", "FAIL", "UNCHECKED", "N/A")
 FAILING = ("FAIL", "UNCHECKED")   # what holds a project open
 
+# A measured length meets its limit when it misses by no more than this. OCCT's distances carry
+# about 1e-7 of noise, so a part placed exactly on a limit would otherwise pass or fail by the
+# last digit. Every rule that compares a length to a limit allows it.
+TOL_MM = 1e-6
+
 
 @dataclass
 class Row:

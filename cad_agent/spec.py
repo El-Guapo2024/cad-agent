@@ -64,7 +64,7 @@ import math
 import tomllib
 
 from . import state as st
-from .registry import Row
+from .registry import TOL_MM, Row
 
 KINDS = ("envelope", "size", "position", "clearance", "keepout", "mass", "interface")
 TOOLS = ("drill", "end_mill", "collet_nose", "laser_cone", "needle")
@@ -155,8 +155,8 @@ def _vec3(value, what: str) -> list[float]:
 
 def _bounds(dims, top, low):
     """The state, the reason and the limit text for a box held to x, y, z bounds."""
-    over = [a for a, d, m in zip("xyz", dims, top) if d > m + 1e-6] if top else []
-    under = [a for a, d, m in zip("xyz", dims, low) if d < m - 1e-6] if low else []
+    over = [a for a, d, m in zip("xyz", dims, top) if d > m + TOL_MM] if top else []
+    under = [a for a, d, m in zip("xyz", dims, low) if d < m - TOL_MM] if low else []
     why = (f", too big in {''.join(over)}" if over else "") + \
           (f", too small in {''.join(under)}" if under else "")
     limit = ", ".join(f"{sign} {b[0]:g} x {b[1]:g} x {b[2]:g} mm"
@@ -203,7 +203,7 @@ def _position(entry: dict, parts: dict):
     got = [(lo[i] + hi[i]) / 2.0 for i in range(3)]
     delta = [g - w for g, w in zip(got, want)]
     off = math.sqrt(sum(d * d for d in delta))
-    ok = off <= tol + 1e-9
+    ok = off <= tol + TOL_MM
     yield _row(name, "position", "PASS" if ok else "FAIL",
                f"center ({got[0]:.2f}, {got[1]:.2f}, {got[2]:.2f}) mm, offset {off:.3f} mm"
                + ("" if ok else f" (dx {delta[0]:+.2f}, dy {delta[1]:+.2f}, dz {delta[2]:+.2f})"),
@@ -228,7 +228,7 @@ def _clearance(entry: dict, parts: dict):
                    f"they interfere, overlap {overlap:.3f} mm^3", limit)
         return
     gap = min_distance(sa, sb)
-    close, far = need is not None and gap < need - 1e-6, cap is not None and gap > cap + 1e-6
+    close, far = need is not None and gap < need - TOL_MM, cap is not None and gap > cap + TOL_MM
     yield _row(f"{a}|{b}", "clearance", "FAIL" if close or far else "PASS",
                f"{gap:.3f} mm" + (", too close" if close else ", too far" if far else ""), limit)
 
@@ -278,7 +278,7 @@ def _mass(entry: dict, slug: str):
         g = mass_g(solid, meta["material"]) * float(n)
         total += g
         lines.append(f"{name} x{n} {g:.1f} g")
-    yield _row(", ".join(counts), "mass", "PASS" if total <= limit + 1e-9 else "FAIL",
+    yield _row(", ".join(counts), "mass", "PASS" if total <= limit + TOL_MM else "FAIL",
                f"{total:.1f} g ({'; '.join(lines)})", f"<= {limit:g} g")
 
 
@@ -528,7 +528,7 @@ def _axis_span(point, direction, box, margin: float = 1.0):
 def _on_hole(point, direction, in_body) -> bool:
     """Is the line through a point along a direction inside one of the body's holes or slots?"""
     probe = {"dir": direction, "ends": (point, point)}
-    return any(_parallel(probe, g) and _gap(probe, g) <= g["dia"] / 2.0 + TOUCH_MM for g in in_body)
+    return any(_parallel(probe, g) and _gap(probe, g) <= g["dia"] / 2.0 + TOL_MM for g in in_body)
 
 
 def _on_material(point, direction, body, box) -> bool:
@@ -539,7 +539,7 @@ def _on_material(point, direction, body, box) -> bool:
     if span is None:
         return False
     line = Edge.make_line(point + direction * span[0], point + direction * span[1])
-    return min_distance(line, body) <= TOUCH_MM
+    return min_distance(line, body) <= TOL_MM
 
 
 def _points_into(h, body, box, in_body, near=None) -> bool:
@@ -571,7 +571,6 @@ def _xyz(p) -> str:
 
 
 SIZE_TOL = 0.15         # mm: how far a tap drill or heat-set bore may be off its size
-TOUCH_MM = 1e-6         # mm: a line this close to a surface is on it
 
 
 def _sizes(fastener: str) -> dict:
@@ -593,7 +592,7 @@ def _kind_of(dia: float, sizes: dict) -> str | None:
         if size is None:
             continue
         lo, hi = size if isinstance(size, tuple) else (size - SIZE_TOL, size + SIZE_TOL)
-        if lo - 1e-6 <= dia <= hi + 1e-6:              # 1e-6: float noise, so 3.6 is 3.6
+        if lo - TOL_MM <= dia <= hi + TOL_MM:          # float noise, so 3.6 is 3.6
             return kind
     return None
 
@@ -628,7 +627,7 @@ def _interface(entry: dict, parts: dict):
                        f"a coaxial hole within {tol:g} mm")
             continue
         g, off = mates[0], _gap(h, mates[0])
-        state, note = ("PASS" if off <= tol else "FAIL"), ""
+        state, note = ("PASS" if off <= tol + TOL_MM else "FAIL"), ""
         if sizes and state == "PASS":
             ka, kb = _kind_of(h["dia"], sizes), _kind_of(g["dia"], sizes)
             if not ka or not kb or "clearance" not in (ka, kb):

@@ -6,6 +6,7 @@ some minimum distance. A required clearance turns that distance into a gate.
 from __future__ import annotations
 from itertools import combinations
 from ..geom import min_distance, intersection_volume
+from ..registry import TOL_MM
 
 # OCCT boolean noise on coincident faces. Below this an "overlap" is contact.
 VOLUME_NOISE_MM3 = 1e-6
@@ -45,7 +46,7 @@ def check_fit(parts: dict, required_clearance: dict | None = None,
             state = "PASS" if need <= 0.0 else "FAIL"
             detail = "in contact" + ("" if need <= 0.0 else f", needs {need:.2f} mm gap")
         else:
-            state = "PASS" if dist >= need - 1e-9 else "FAIL"
+            state = "PASS" if dist >= need - TOL_MM else "FAIL"
             detail = f"gap {dist:.3f} mm" + ("" if state == "PASS" else f" < required {need:.2f} mm")
         rows.append({
             "pair": f"{na} vs {nb}", "state": state,
