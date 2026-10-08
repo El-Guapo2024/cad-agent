@@ -381,7 +381,12 @@ def cmd_mass(a) -> Result:
     _project(a.slug)
     from .geom import DENSITY, mass_properties
     from .scene import placed_solids
-    shown, materials = placed_solids(a.slug)
+    try:
+        shown, materials = placed_solids(a.slug)
+    except (PlacementError, UsageError):
+        raise
+    except Exception as e:
+        raise BuildFailed(f"{a.slug} did not build: {st.why(e)}") from e
     names = a.bodies or sorted(shown)
     missing = [n for n in names if n not in shown]
     if missing:

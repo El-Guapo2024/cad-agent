@@ -490,3 +490,16 @@ def test_a_centre_of_gravity_and_a_tool_envelope_are_not_printed_as_minus_zero(d
     assert "-0.000" not in capsys.readouterr().out
     assert cli.main(["tool", "drill", "diameter=3", "flute=20"]) == cli.OK
     assert "-0.0" not in capsys.readouterr().out
+
+
+# ─── A design that fails to build fails the gates; it does not crash them ────────────────────
+
+def test_an_assembly_that_raises_fails_the_gates_instead_of_crashing(demo, capsys):
+    (demo / "assembly.py").write_text('def parts():\n    raise RuntimeError("no such body")\n')
+    code, data = run(capsys, "check", "demo")
+    assert code == cli.FAIL
+    row = next(r for r in data["rows"] if r["check"] == "assembly" and r["rule"] == "build")
+    assert row["state"] == "FAIL" and "no such body" in row["measured"]
+    for cmd in ("verify", "mass"):
+        code, data = run(capsys, cmd, "demo")
+        assert code == cli.FAIL, cmd

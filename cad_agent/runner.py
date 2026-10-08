@@ -10,7 +10,7 @@ import numpy as np
 
 from . import rules  # noqa: F401  — importing is what registers the checks
 from .geom import bbox, mass_g, volume
-from .registry import (AssemblyCtx, FAILING, PartCtx, ProjectCtx, checks,
+from .registry import (AssemblyCtx, FAILING, PartCtx, ProjectCtx, Row, checks,
                        run as run_check)
 from .render import draw, merge, tessellate
 from .state import (build_part, load_assembly, part_names, project_dir,
@@ -67,7 +67,13 @@ def check_all(slug: str, render_views=("iso",), tolerance: float = 0.05):
                                 "triangles": int(len(mesh.tris))})
 
     # ── assembly checks ──────────────────────────────────────────────────────
-    asm, clearance, allow_contact, axes = load_assembly(slug)
+    try:
+        asm, clearance, allow_contact, axes = load_assembly(slug)
+    except Exception as e:            # the design's failure to report, not a crash of the checker
+        asm, clearance, allow_contact, axes = None, {}, set(), {}
+        rows.append(Row(subject=slug, rule="build", state="FAIL", measured=why(e),
+                        limit="an assembly.py whose parts() returns the bodies",
+                        source="assembly.py", check="assembly"))
     actx = AssemblyCtx(slug=slug, parts=asm or {}, clearance=clearance,
                        allow_contact=allow_contact, out_dir=out, axes=axes)
     for spec in checks("assembly"):
