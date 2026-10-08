@@ -90,6 +90,17 @@ def test_a_rule_change_makes_the_verdict_stale(demo, monkeypatch):
     assert "cad-agent's rules changed since it was verified" in verify.status("demo")["reasons"]
 
 
+def test_a_rule_change_during_the_run_leaves_the_verdict_unchecked(demo, monkeypatch):
+    # A `git pull` while `cad verify` runs: the process imported some rules before it and some
+    # after, and the hash it would write describes only the files on disk at the end.
+    seen = iter(["rules as the run began", "rules as the run ended"])
+    monkeypatch.setattr(verify, "engine_hash", lambda: next(seen))
+    rec = verify.run("demo", fresh=True, mode="test")
+    assert rec["verdict"] == "UNCHECKED"
+    assert "cad-agent's own code changed while it was being verified" in " ".join(rec["notes"])
+    assert rec["engine_hash"] == "rules as the run began"
+
+
 def test_a_failing_design_fails_the_gate(demo, capsys):
     # The block moves down into the plate: the fit gate must fail.
     (demo / "assembly.py").write_text(ASSEMBLY.replace("Pos(0, 0, 20)", "Pos(0, 0, 0)"))

@@ -7,7 +7,9 @@ verify.json with the verdict and exactly what was verified:
     source_hash  sha256 over every file that defines the design: parts,
                  assembly, spec, bought geometry and the approved renders
     engine_hash  sha256 over cad-agent's own source, because a change to a
-                 rule changes what "passes" means
+                 rule changes what "passes" means; read before the run and
+                 again after it, so a verdict is never written for rules that
+                 changed in between (a `git pull` mid-verify)
     git          the commit, the project's tree at that commit, and whether
                  the design had uncommitted changes
     process      whether it ran in a fresh process: a warm-worker fork or a
@@ -135,6 +137,7 @@ def run(slug: str, fresh: bool, mode: str, views=("iso",)) -> dict:
     from .runner import check_all
     pdir = st.project_dir(slug)
     before, n_files = source_hash(pdir)
+    engine = engine_hash()
     t0 = time.perf_counter()
     payload = check_all(slug, render_views=tuple(views))
     after, _ = source_hash(pdir)
@@ -145,6 +148,9 @@ def run(slug: str, fresh: bool, mode: str, views=("iso",)) -> dict:
     if before != after:
         verdict = "UNCHECKED"
         notes.append("the design changed while it was being verified; run again")
+    if engine_hash() != engine:
+        verdict = "UNCHECKED"
+        notes.append("cad-agent's own code changed while it was being verified; run again")
     if not fresh:
         if verdict == "PASS":
             verdict = "UNCHECKED"
@@ -161,7 +167,7 @@ def run(slug: str, fresh: bool, mode: str, views=("iso",)) -> dict:
         "seconds": round(time.perf_counter() - t0, 1),
         "source_hash": before,
         "design_files": n_files,
-        "engine_hash": engine_hash(),
+        "engine_hash": engine,
         "git": git,
         "process": {"fresh": fresh, "mode": mode},
         "views": list(views),
