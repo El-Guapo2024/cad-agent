@@ -3,7 +3,7 @@ on a report can be trusted, so they check the failure paths, not just happy ones
 """
 import numpy as np
 import pytest
-from build123d import Box, Cylinder, Pos
+from build123d import Box, Compound, Cylinder, Pos, Rot
 
 from cad_agent.checks import check_dfm, check_fit
 from cad_agent.checks import fit as fit_module
@@ -192,6 +192,17 @@ def test_tessellate_produces_triangles():
     m = tessellate(Box(10, 10, 10))
     assert m.tris.shape[1] == 3
     assert len(m.tris) >= 12
+
+
+def test_tessellate_gives_the_arrays_of_the_shapes_own_tessellate():
+    """The same vertices and triangles in the same order, or the renders and the wall rays move."""
+    plate = Pos(7, -3, 2) * Rot(0, 30, 45) * (Box(30, 20, 5) - Pos(5, 0, 0) * Cylinder(3, 10))
+    pair = Compound(children=[Box(5, 5, 5), Pos(20, 0, 0) * Cylinder(3, 8)])
+    for shape in (Box(10, 20, 30), Cylinder(5, 20), plate, pair):
+        verts, tris = shape.tessellate(0.1, 0.3)
+        m = tessellate(shape, 0.1, 0.3)
+        assert np.array_equal(m.verts, np.array([[p.X, p.Y, p.Z] for p in verts], dtype=float))
+        assert np.array_equal(m.tris, np.array(tris, dtype=int).reshape(-1, 3))
 
 
 def test_render_writes_a_png_of_the_right_size(tmp_path):

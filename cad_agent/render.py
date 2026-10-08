@@ -32,12 +32,42 @@ class Mesh:
         return self.verts.min(axis=0), self.verts.max(axis=0)
 
 
+def _triangulation(shape, tolerance: float, angular: float):
+    """The vertices and triangles Shape.tessellate() returns, in its order, read a faster way.
+
+    tessellate() reads each face's triangles by looping over `poly.Triangles()`, and that call
+    costs about 5 ms a face before it yields one. Over the faces of a part, three times a check,
+    it was most of what a render took. Reading by index gives the same numbers in microseconds.
+    The meshing itself is still the shape's own mesh(), so what is reused or redone is unchanged.
+    """
+    from OCP.BRep import BRep_Tool
+    from OCP.TopAbs import TopAbs_Orientation
+    from OCP.TopLoc import TopLoc_Location
+    shape.mesh(tolerance, angular)
+    verts, tris = [], []
+    for face in shape.faces():
+        loc = TopLoc_Location()
+        poly = BRep_Tool.Triangulation_s(face.wrapped, loc)
+        trsf = loc.Transformation()
+        flip = face.wrapped.Orientation() == TopAbs_Orientation.TopAbs_REVERSED
+        base = len(verts) - 1
+        for i in range(1, poly.NbNodes() + 1):
+            p = poly.Node(i).Transformed(trsf)
+            verts.append((p.X(), p.Y(), p.Z()))
+        for i in range(1, poly.NbTriangles() + 1):
+            a, b, c = poly.Triangle(i).Get()
+            tris.append((a + base, c + base, b + base) if flip else (a + base, b + base, c + base))
+    return verts, tris
+
+
 def tessellate(shape, tolerance: float = 0.1, angular: float = 0.3) -> Mesh:
-    """build123d/OCCT shape -> Mesh. Uses the shape's own tessellate()."""
-    inner = getattr(shape, "wrapped", None)
-    obj = shape if inner is None else shape
-    verts, tris = obj.tessellate(tolerance, angular)
-    v = np.array([[p.X, p.Y, p.Z] for p in verts], dtype=float)
+    """build123d/OCCT shape -> Mesh."""
+    if hasattr(shape, "mesh") and hasattr(shape, "faces"):
+        verts, tris = _triangulation(shape, tolerance, angular)
+        v = np.array(verts, dtype=float)
+    else:                                # anything that only knows how to tessellate itself
+        verts, tris = shape.tessellate(tolerance, angular)
+        v = np.array([[p.X, p.Y, p.Z] for p in verts], dtype=float)
     t = np.array(tris, dtype=int).reshape(-1, 3)
     return Mesh(v, t)
 
