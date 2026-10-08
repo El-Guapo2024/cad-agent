@@ -413,6 +413,8 @@ def test_values_that_make_no_tool_are_usage_errors(demo, capsys):
         assert code == cli.USAGE and "positive" in data["error"], argv
     code, data = run(capsys, "tool", "drill", "diameter=abc", "flute=20")
     assert code == cli.USAGE and "diameter must be a number" in data["error"]
+    code, data = run(capsys, "tool", "drill", "diameter=3", "flute=20", "colour=red")
+    assert code == cli.USAGE and "no parameter colour" in data["error"] and "shank_dia" in data["error"]
 
 
 def test_a_tolerance_the_mesher_cannot_use_is_a_usage_error(demo, capsys):

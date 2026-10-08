@@ -26,6 +26,7 @@ from __future__ import annotations
 import argparse
 import contextlib
 import difflib
+import inspect
 import io
 import json
 import os
@@ -438,6 +439,10 @@ def cmd_tool(a) -> Result:
     from . import tooling
     from .geom import bbox
     params = _pairs(a.params, "tool")
+    known = list(inspect.signature(getattr(tooling, a.kind)).parameters)
+    unknown = [k for k in params if k not in known]
+    if unknown:
+        raise UsageError(f"{a.kind} has no parameter {', '.join(unknown)} (params: {', '.join(known)})")
     for key, value in params.items():
         if isinstance(value, bool) or not isinstance(value, (int, float)):
             raise UsageError(f"{a.kind}: {key} must be a number in mm, got {value!r}")
@@ -1439,7 +1444,7 @@ def build_parser() -> argparse.ArgumentParser:
     common.add_argument("--json", action="store_true", default=argparse.SUPPRESS,
                         help="print one JSON object on stdout")
     common.add_argument("--projects", metavar="DIR", default=argparse.SUPPRESS,
-                        help="projects directory (default: CAD_PROJECTS, else cad-agent/projects)")
+                        help=argparse.SUPPRESS)       # as before the command (listed above), too
 
     p = _Parser(prog="cad", description="cad-agent: parametric parts, deterministic "
                 "gates, headless renders. Every command runs on build123d, which a background "
