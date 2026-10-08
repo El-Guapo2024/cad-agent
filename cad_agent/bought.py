@@ -28,7 +28,7 @@ from pathlib import Path
 from build123d import import_step
 
 from .geom import bbox, volume
-from .state import _load_module, project_dir
+from .state import _load_module, project_dir, why
 
 
 class MissingProvenance(ValueError):
@@ -56,7 +56,12 @@ def list_bought(slug: str) -> list[dict]:
                         "vendor": meta.get("vendor"),
                         "verified": meta.get("verified", True)})
         elif p.suffix == ".py" and not p.stem.startswith("_"):
-            mod = _load(p)
+            try:
+                mod = _load(p)
+            except Exception as e:     # still listed, as unconfirmed, so `ls` shows it and the gates say why
+                out.append({"name": p.stem, "kind": "MEASURED", "file": p.name,
+                            "source": f"cannot load: {why(e)}", "vendor": None, "verified": False})
+                continue
             out.append({"name": p.stem, "kind": "MEASURED", "file": p.name,
                         "source": getattr(mod, "SOURCE", "UNRECORDED"),
                         "vendor": getattr(mod, "VENDOR", None),
@@ -66,7 +71,11 @@ def list_bought(slug: str) -> list[dict]:
 
 def _sidecar(step_path: Path) -> dict:
     j = step_path.with_suffix(".json")
-    return json.loads(j.read_text()) if j.exists() else {}
+    try:
+        data = json.loads(j.read_text()) if j.exists() else {}
+    except ValueError:
+        return {}                      # unreadable: no source on record, which load_bought refuses
+    return data if isinstance(data, dict) else {}
 
 
 def _load(path: Path):

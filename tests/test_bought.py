@@ -107,3 +107,21 @@ def test_a_measured_part_rewritten_within_the_second_runs_its_new_text(project, 
     os.utime(path, (stamp, stamp))                               # the same second, the same size
     assert B.bought_info(SLUG, "block")["bbox_mm"] != first
     assert not (path.parent / "__pycache__").exists()
+
+
+def test_a_bought_part_that_cannot_be_read_is_listed_not_a_crash(project):
+    # A truncated sidecar or a measured module with a syntax error made `cad ls` and `cad bought ls`
+    # exit 4; the part is listed, as unconfirmed, and loading it still says what is wrong.
+    tmp, step = project
+    B.register_step(SLUG, "widget", str(step), source="vendor drawing")
+    B.register_measured(SLUG, "block", 10, 20, 30, source="datasheet p.1")
+    folder = tmp / SLUG / "bought"
+    (folder / "widget.json").write_text("{not json")
+    (folder / "block.py").write_text("def build(:\n")
+    rows = {r["name"]: r for r in B.list_bought(SLUG)}
+    assert rows["widget"]["source"] == "UNRECORDED"
+    assert rows["block"]["verified"] is False and "cannot load" in rows["block"]["source"]
+    with pytest.raises(B.MissingProvenance):
+        B.load_bought(SLUG, "widget")
+    with pytest.raises(SyntaxError):
+        B.load_bought(SLUG, "block")
