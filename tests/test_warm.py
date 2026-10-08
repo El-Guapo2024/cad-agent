@@ -207,18 +207,6 @@ def test_a_clean_exit_keeps_a_log_that_has_a_complaint(tmp_path):
     assert [p.name for p in tmp_path.iterdir()] == ["warm-x.log"]
 
 
-def test_a_stopped_worker_leaves_no_lock_and_no_log_behind(warm):
-    # Last in the module: it stops the worker the others share. Every test run, and every day
-    # of use, starts a worker per scratch folder or checkout; their files piled up in /tmp.
-    cad, _ = warm
-    sock = Path(re.search(r"socket (\S+)", cad("warm", "status").stdout).group(1))
-    assert cad("warm", "stop").returncode == 0
-    deadline = time.monotonic() + 15
-    while list(sock.parent.glob(f"{sock.stem}.*")) and time.monotonic() < deadline:
-        time.sleep(0.2)                             # the sidecar is given a moment to leave
-    assert list(sock.parent.glob(f"{sock.stem}.*")) == []
-
-
 def test_warm_help_is_help_not_an_error(tmp_path):
     env = cad_env(CAD_WARM_DIR=str(tmp_path / "none"))
     p = subprocess.run([str(REPO / "bin" / "cad"), "warm", "--help"], capture_output=True, text=True,
@@ -263,3 +251,15 @@ def test_a_command_that_needs_no_kernel_does_not_start_a_worker_for_itself(tmp_p
     q = subprocess.run([str(REPO / "bin" / "cad"), "warm", "status"], capture_output=True, text=True,
                        env=env, timeout=60)
     assert q.returncode == 2 and "not running" in q.stdout
+
+
+def test_a_stopped_worker_leaves_no_lock_and_no_log_behind(warm):
+    # Last in the module: it stops the worker the others share. Every test run, and every day
+    # of use, starts a worker per scratch folder or checkout; their files piled up in /tmp.
+    cad, _ = warm
+    sock = Path(re.search(r"socket (\S+)", cad("warm", "status").stdout).group(1))
+    assert cad("warm", "stop").returncode == 0
+    deadline = time.monotonic() + 15
+    while list(sock.parent.glob(f"{sock.stem}.*")) and time.monotonic() < deadline:
+        time.sleep(0.2)                             # the sidecar is given a moment to leave
+    assert list(sock.parent.glob(f"{sock.stem}.*")) == []
