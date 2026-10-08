@@ -6,9 +6,10 @@ test below reproduces one of those faults in miniature and asserts the gate
 now catches it.
 """
 import pytest
-from build123d import Box, Compound, Cylinder, Pos
+from build123d import Box, Compound, Cylinder, Pos, Rot
 
 from cad_agent.checks import check_dfm
+from cad_agent.checks.dfm import PROCESS
 from cad_agent.checks.web import section_wires, web_report
 from cad_agent.thickness import measure_min_wall
 
@@ -161,3 +162,112 @@ def test_section_wires_separates_edge_from_cutouts():
     plate = Box(50, 50, 3) - Pos(10, 0, 0) * Cylinder(3, 5) - Pos(-10, 0, 0) * Cylinder(3, 5)
     outers, inners, faces = section_wires(plate)
     assert len(outers) == 1 and len(inners) == 2 and faces == 1
+
+
+# ─── holes and slots, as the process cuts them ───────────────────────────────
+
+def stadium(length, width, t, turn=0.0):
+    """What cuts a slot: round ends `length` apart, centre to centre, and the box between."""
+    r = width / 2
+    tool = (Pos(-length / 2, 0, 0) * Cylinder(r, t + 2) + Pos(length / 2, 0, 0) * Cylinder(r, t + 2)
+            + Box(length, width, t + 2))
+    return Rot(0, 0, turn) * tool
+
+
+def cuts(solid, process, features):
+    """The part rules of a plate, keyed by rule name."""
+    rows = check_dfm("plate", solid, process, measure=False, min_feature_mm=3.0,
+                     expect_features=features)
+    return {r["rule"]: r for r in rows}
+
+
+@pytest.mark.parametrize("dia, state", [(0.5, "FAIL"), (0.99, "FAIL"), (1.0, "PASS"), (3.4, "PASS")])
+def test_a_laser_cut_hole_under_the_minimum_fails(dia, state):
+    plate = Box(60, 30, 3) - Pos(10, 0, 0) * Cylinder(dia / 2, 5) - Pos(-10, 0, 0) * Cylinder(2.5, 5)
+    r = cuts(plate, "laser_cut", 2)["min hole"]
+    assert r["state"] == state and r["limit"] == "1.0 mm"
+    assert r["measured"].startswith(f"{min(dia, 5.0):g} mm at (")            # the smallest of the two
+    assert "the smallest of 2 round holes" in r["measured"]
+    assert state == "PASS" or "(10, 0, 0)" in r["measured"]                  # a failure says where
+
+
+@pytest.mark.parametrize("make", [
+    lambda w: Pos(10, 0, 0) * stadium(10, w, 3),                            # round ends
+    lambda w: Pos(10, 0, 0) * Box(10, w, 5),                                 # a window's short side
+    lambda w: Pos(35, 0, 0) * Box(10, w, 5),                                 # a notch open to the edge
+    lambda w: Pos(10, 0, 0) * Rot(0, 0, 30) * Box(10, w, 5),                 # a slit that is turned
+], ids=["stadium slot", "slit", "notch at the edge", "turned slit"])
+def test_a_laser_cut_slot_or_gap_narrower_than_the_kerf_fails(make):
+    bad = cuts(Box(80, 40, 3) - make(0.1), "laser_cut", 1)["kerf"]
+    assert bad["state"] == "FAIL" and bad["limit"] == "0.15 mm"
+    assert bad["measured"].startswith("0.1 mm at (")
+    good = cuts(Box(80, 40, 3) - make(0.2), "laser_cut", 1)["kerf"]
+    assert good["state"] == "PASS" and good["measured"].startswith("0.2 mm at (")
+
+
+def test_the_kerf_reads_the_air_between_flat_walls_not_the_material_between_them():
+    # A 0.5 mm web between two slots is the web rule's business; the slots themselves are wide.
+    plate = Box(80, 40, 3) - Pos(0, 4, 0) * Box(20, 4, 5) - Pos(0, -0.5, 0) * Box(20, 4, 5)
+    rows = cuts(plate, "laser_cut", 2)
+    assert rows["kerf"]["state"] == "PASS" and rows["kerf"]["measured"].startswith("4 mm at (")
+    assert rows["web"]["state"] == "FAIL"
+
+
+def test_a_gap_beside_a_tab_counts_and_a_plain_plate_has_nothing_to_judge():
+    # A notch 12 mm wide open to the right edge, with a tab in it 11.9 mm wide: 0.05 mm each side.
+    comb = (Box(40, 40, 3) - Pos(10, 0, 0) * Box(20, 12, 5)) + Pos(7, 0, 0) * Box(16, 11.9, 3)
+    assert cuts(comb, "laser_cut", 0)["kerf"]["state"] == "FAIL"
+    plain = cuts(Box(80, 40, 3), "laser_cut", 0)
+    assert plain["kerf"]["state"] == "N/A" and plain["min hole"]["state"] == "N/A"
+
+
+def test_slots_are_not_holes_for_the_laser_and_are_for_the_mill():
+    plate = Box(80, 40, 6) - Pos(10, 0, 0) * stadium(10, 0.8, 6)
+    laser = cuts(plate, "laser_cut", 1)
+    assert laser["min hole"]["state"] == "N/A" and "no round hole" in laser["min hole"]["measured"]
+    assert laser["kerf"]["state"] == "PASS"                                  # 0.8 is far over 0.15
+    mill = cuts(plate, "cnc", 1)
+    assert mill["min hole"]["state"] == "FAIL" and "the smallest of 1 hole or slot" in mill["min hole"]["measured"]
+    assert "kerf" not in mill                                                # a mill has none
+
+
+def test_a_printed_part_has_no_hole_floor():
+    plate = Box(80, 40, 6) - Pos(10, 0, 0) * Cylinder(0.5, 8)               # drilled out after printing
+    rows = cuts(plate, "fdm", 1)
+    assert "min hole" not in rows and "kerf" not in rows
+    assert not [r for r in rows.values() if r["state"] == "FAIL"]
+
+
+def test_a_search_that_fails_leaves_the_hole_and_kerf_rows_unchecked(monkeypatch):
+    from cad_agent.checks import cuts as reader
+
+    def boom(solid):
+        raise RuntimeError("no cylinders today")
+    monkeypatch.setattr(reader, "hole_report", boom)
+    rows = cuts(Box(60, 30, 3) - Pos(10, 0, 0) * Cylinder(1.7, 5), "laser_cut", 1)
+    for rule in ("min hole", "kerf"):
+        assert rows[rule]["state"] == "UNCHECKED"
+        assert "RuntimeError: no cylinders today" in rows[rule]["measured"]
+
+
+@pytest.mark.parametrize("process", sorted(PROCESS))
+def test_every_number_in_a_process_table_is_read_by_a_rule(monkeypatch, process):
+    """A limit nothing reads is a promise nobody keeps: laser_cut's kerf and every process's
+    minimum hole sat in the table for weeks, judged by no one."""
+    class Reads(dict):
+        asked: set
+
+        def __getitem__(self, key):
+            self.asked.add(key)
+            return super().__getitem__(key)
+
+        def __contains__(self, key):
+            self.asked.add(key)
+            return super().__contains__(key)
+
+    table = Reads(PROCESS[process])
+    table.asked = set()
+    monkeypatch.setitem(PROCESS, process, table)
+    plate = Box(80, 40, 3) - Pos(10, 0, 0) * Cylinder(1.7, 5) - Pos(-10, 0, 0) * stadium(10, 3.4, 3)
+    check_dfm("plate", plate, process, measure=False, min_feature_mm=3.0, expect_features=2)
+    assert set(PROCESS[process]) <= table.asked, set(PROCESS[process]) - table.asked

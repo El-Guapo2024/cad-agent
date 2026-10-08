@@ -63,8 +63,9 @@ STEP has its origin at the middle of its bounding box, so place it with `Pos(cen
 
 The usual `cad` gates apply on top: no two bodies overlap, and `panel` passes the part rules for
 `laser_cut` (`cad rules`), which include 1.5 mm of material between cutouts and between a cutout and an
-edge, and the cutout count it declares in `EXPECT_FEATURES`. Acrylic is the material `cad` has a density
-for. Model the cut outline as it should come out: the checks apply no kerf compensation.
+edge, round holes of at least 1.0 mm, no slot or gap narrower than the 0.15 mm kerf, and the cutout
+count it declares in `EXPECT_FEATURES`. Acrylic is the material `cad` has a density for. Model the cut
+outline as it should come out: the checks apply no kerf compensation.
 
 ## Working
 

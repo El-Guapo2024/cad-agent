@@ -98,6 +98,9 @@ no `CAD_EVALS`.
   only holes that close to `b`.
 - `max_mm` on a clearance is the closest approach: a looser bore with the barrel resting on one side
   can pass "grips". `[[mass]]` uses the `MATERIAL` the part declares.
+- The `kerf` row of a `laser_cut` part reads slots and the air between flat walls that face each
+  other; a curved gap other than a slot's ends (a ring groove) is not read. `min hole` reads round
+  holes, and on a `cnc` part slots too. A printed part has no hole floor.
 - Nothing here judges assembly order, tool access or cable routing; that is the reviewer's job.
 - The agent can read whatever folder it is pointed at. The hidden specs and the references are in
   this repo, which is also the plugin, so a real run says `--plugin-dir {plugin}` (the copy above).
@@ -148,6 +151,6 @@ to add; none was needed to write the ten tasks.
   body is `a`, as in `pcb_enclosure` and `endstop_bracket`.
 - A clearance `max_mm` bounds only the closest approach (said above), and there is no clearance to
   a sub-feature: "the pocket clears the screw head" is a distance between two bodies.
-- `laser_cut`'s kerf and minimum hole are not used by any rule, and there is no DXF export.
+- There is no DXF export for laser parts.
 - No heat rule: `hotplate_standoffs` says the material needs 250 C, and a reviewer reads it.
 - No body count: "exactly six bodies" is asked in the briefs and not checked.

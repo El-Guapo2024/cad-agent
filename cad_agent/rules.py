@@ -20,7 +20,7 @@ from .registry import TOL_MM, Row, register
 
 @register(scope="part", name="geometry", order=10)
 def geometry(ctx):
-    """Envelope, wall thickness, in-plane web and feature count, per process."""
+    """Envelope, wall thickness, in-plane web, feature count, smallest hole and kerf, per process."""
     process = ctx.meta.get("process")
     if not process:
         yield Row(subject=ctx.name, rule="process", state="UNCHECKED",

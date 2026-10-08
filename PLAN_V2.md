@@ -234,6 +234,6 @@ Each step ends with the tests green.
      - no `[[axis]]` kind, so `AXES` can't be required (`mgn12h_carriage` asks for it; without it only the home pose is graded);
      - no hole-count option and no shaft-fit option;
      - a clearance `max_mm` bounds only the closest approach, and there is no clearance to a sub-feature;
-     - `laser_cut`'s kerf and minimum hole are unused, and there is no DXF export;
+     - there is no DXF export for laser parts;
      - no heat rule and no body count.
 8. First real job: the one-machine layout (frame, gantry, dock, laser keep-out).

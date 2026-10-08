@@ -28,7 +28,7 @@ Then the product (PLAN_V2.md build order, steps 6–8). Recommended order:
      - no `[[axis]]` kind, so `AXES` can't be required (`mgn12h_carriage` asks for it; without it only the home pose is graded);
      - no hole-count option and no shaft-fit option;
      - a clearance `max_mm` bounds only the closest approach, and there is no clearance to a sub-feature;
-     - `laser_cut`'s kerf and minimum hole are unused, and there is no DXF export;
+     - there is no DXF export for laser parts;
      - no heat rule and no body count.
 5. Step 6, machine scale: a parts library with vendor STEPs and sources, sub-assemblies, the heat, mass and deflection rules, and shop outputs (DXF, drawings, STL/3MF, BOM).
 6. Step 8, the first real job: the one-machine layout (frame, gantry, dock, laser keep-out).
