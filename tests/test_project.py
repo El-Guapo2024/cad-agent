@@ -101,6 +101,16 @@ def test_check_all_writes_checks_json(checked):
     assert on_disk["written_utc"]
 
 
+def test_check_all_builds_each_part_once_for_its_own_checks(checked, monkeypatch):
+    """The part rules take their declarations from the first build; a second one only cost seconds."""
+    from cad_agent import runner
+    built, real = [], runner.build_part
+    monkeypatch.setattr(runner, "build_part", lambda slug, name, *a, **kw: built.append(name) or real(slug, name, *a, **kw))
+    again = check_all(SLUG, render_views=("iso",))
+    assert sorted(built) == sorted(st.part_names(SLUG))
+    assert again["rows"] == checked["rows"]
+
+
 def test_every_row_is_attributed_to_a_check(checked):
     payload = st.read_checks(SLUG)
     for r in payload["rows"]:

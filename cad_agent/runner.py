@@ -25,6 +25,7 @@ def check_all(slug: str, render_views=("iso",), tolerance: float = 0.05):
 
     parts_out: dict = {}
     solids: dict = {}
+    metas: dict = {}
     render_rows: list = []
     rows: list = []
 
@@ -36,6 +37,7 @@ def check_all(slug: str, render_views=("iso",), tolerance: float = 0.05):
             parts_out[name] = {"state": "FAIL", "error": why(e)}
             continue
         solids[name] = solid
+        metas[name] = meta
         lo, hi = bbox(solid)
         row = {
             "state": "BUILT", "doc": meta["doc"], "params": meta["params"],
@@ -55,8 +57,7 @@ def check_all(slug: str, render_views=("iso",), tolerance: float = 0.05):
     # ── per-part checks ──────────────────────────────────────────────────────
     part_specs = checks("part")
     for name, solid in solids.items():
-        _, meta = build_part(slug, name)
-        ctx = PartCtx(slug=slug, name=name, solid=solid, meta=meta, out_dir=out)
+        ctx = PartCtx(slug=slug, name=name, solid=solid, meta=metas[name], out_dir=out)
         for spec in part_specs:
             rows += run_check(spec, ctx)
 
