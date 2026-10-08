@@ -5,13 +5,15 @@ web between two slots, and a cutout that swallowed two mounting holes. Each
 test below reproduces one of those faults in miniature and asserts the gate
 now catches it.
 """
+import numpy as np
 import pytest
 from build123d import Box, Compound, Cylinder, Pos, Rot
 
+from cad_agent import thickness
 from cad_agent.checks import check_dfm
 from cad_agent.checks.dfm import PROCESS
 from cad_agent.checks.web import section_wires, web_report
-from cad_agent.thickness import measure_min_wall
+from cad_agent.thickness import measure_min_wall, thickness_samples
 
 
 # ─── measured thickness ──────────────────────────────────────────────────────
@@ -21,6 +23,55 @@ def test_thickness_matches_known_solids():
     tube = Cylinder(10, 40) - Cylinder(8, 42)
     assert measure_min_wall(tube, 2500)["median_mm"] == pytest.approx(2.0, abs=0.05)
     assert measure_min_wall(Box(50, 50, 0.8), 1500)["median_mm"] == pytest.approx(0.8, abs=0.02)
+
+
+def _bracket():
+    """Walls of several thicknesses, round holes and an inside corner: rays that leave the part every which way."""
+    body = Box(40, 30, 6) - Pos(8, 0, 0) * Cylinder(4, 10) - Pos(-10, 5, 0) * Cylinder(2.5, 10)
+    return body + Pos(-15, 0, 9) * Box(6, 30, 12)
+
+
+def test_the_rays_run_on_embree_when_it_is_installed():
+    pytest.importorskip("embreex")
+    assert "ray_pyembree" in type(thickness._trimesh(Box(10, 10, 10), 0.1).ray).__module__
+    assert "ray_triangle" in type(thickness._trimesh(Box(10, 10, 10), 0.1, embree=False).ray).__module__
+
+
+def test_embree_and_the_python_caster_measure_the_same():
+    """Embree is only the faster caster: the numbers on a report must not depend on which one ran."""
+    pytest.importorskip("embreex")
+    part = _bracket()
+    fast, slow = thickness_samples(part, 1500), thickness_samples(part, 1500, embree=False)
+    assert len(fast) == len(slow) > 0
+    assert np.allclose(np.sort(fast), np.sort(slow), rtol=0, atol=1e-9)
+    assert measure_min_wall(part, 1500)["p01_mm"] == pytest.approx(
+        float(np.percentile(slow, 1)), abs=1e-4)
+
+
+def test_a_fault_inside_embree_falls_back_to_the_python_caster():
+    import trimesh
+
+    class Broken:
+        def intersects_location(self, *args, **kwargs):
+            raise RuntimeError("embree gave up")
+
+    mesh = trimesh.creation.box((10, 10, 10))
+    mesh.ray = Broken()
+    where, which, _ = thickness._first_hits(mesh, np.array([[0.0, 0.0, 0.0]]), np.array([[0.0, 0.0, 1.0]]))
+    assert list(which) == [0] and where[0] == pytest.approx([0, 0, 5])
+
+
+def test_a_fault_in_the_python_caster_is_not_swallowed(monkeypatch):
+    import trimesh
+    box = trimesh.creation.box((10, 10, 10))
+    mesh = trimesh.Trimesh(vertices=box.vertices, faces=box.faces, use_embree=False)
+
+    def broken(self, *args, **kwargs):
+        raise RuntimeError("the caster gave up")
+
+    monkeypatch.setattr(type(mesh.ray), "intersects_location", broken)
+    with pytest.raises(RuntimeError, match="the caster gave up"):
+        thickness._first_hits(mesh, np.array([[0.0, 0.0, 0.0]]), np.array([[0.0, 0.0, 1.0]]))
 
 
 def test_thin_sheet_fails_the_wall_rule():

@@ -4,6 +4,9 @@
 # use the numpy rasteriser, which a test holds to the Metal output within edge
 # noise; that is what lets baselines approved on a Mac gate here.
 #
+# It installs the embree extra too, as the plugin does, so the tests and the regression designs run on
+# the Embree ray caster; a test holds it to the numbers of the Python caster.
+#
 # FAIL, a bad invocation or a crash turn the run red. UNCHECKED is a warning:
 # the hot plate fixture has an honest open item (its mica heater's dimensions
 # are unconfirmed), and the verifier is right to say so.
@@ -29,7 +32,7 @@ jobs:
       - name: Install
         run: |
           python -m venv .venv
-          .venv/bin/pip install -e ".[dev]"
+          .venv/bin/pip install -e ".[dev,embree]"
 
       - name: Tests
         env:

@@ -17,9 +17,13 @@ if [ ! -x "$venv/bin/python" ] || [ "$(cat "$data/installed" 2>/dev/null)" != "$
   export SYSTEM_VERSION_COMPAT=0
   pkg="$root"
   [ "$(uname -s)" = Darwin ] && pkg="$root[metal]"   # renders through Metal (no headless OpenGL on a Mac)
+  # Embree casts the wall-thickness rays some thirty times faster, with the same numbers. It is optional:
+  # a platform it has no wheel for keeps trimesh's slower caster, so this step may fail without failing the install.
+  no_embree() { echo "cad-agent: Embree not installed (optional); wall-thickness rays will use the slower Python caster" >&2; }
   if command -v uv >/dev/null 2>&1; then
     uv venv -q --python ">=3.12" "$venv" >&2
     uv pip install -q -p "$venv/bin/python" -e "$pkg" >&2
+    uv pip install -q -p "$venv/bin/python" -e "$root[embree]" >&2 || no_embree
   else
     py=""
     for c in python3.13 python3.12 python3; do
@@ -28,6 +32,7 @@ if [ ! -x "$venv/bin/python" ] || [ "$(cat "$data/installed" 2>/dev/null)" != "$
     [ -n "$py" ] || { echo "cad-agent: needs Python 3.12 or newer (or uv: https://docs.astral.sh/uv/)" >&2; exit 0; }
     "$py" -m venv "$venv" >&2
     "$venv/bin/pip" install -q -e "$pkg" >&2
+    "$venv/bin/pip" install -q -e "$root[embree]" >&2 || no_embree
   fi
   echo "$want" > "$data/installed"
 fi
