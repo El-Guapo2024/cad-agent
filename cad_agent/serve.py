@@ -569,7 +569,8 @@ def make_handler(bench: Bench):
                     p = bench.root_of(q.get("slug", "")) / q["slug"] / "checks.json"
                     return self._send(200, p.read_bytes() if p.exists() else b"{}")
                 if path == "/api/status":
-                    return self._json(bench.status(q.get("slug", "")))
+                    bench.root_of(q.get("slug", ""))      # an unknown project is a 404, like the others
+                    return self._json(bench.status(q["slug"]))
                 if path == "/api/log":
                     return self._json({"entries": bench.log_tail(q.get("slug", ""),
                                                                  int(q.get("limit", 200)))})
@@ -608,7 +609,9 @@ def make_handler(bench: Bench):
             except ValueError as e:
                 return self._json({"error": str(e)}, 400)
             except KeyError:
-                return self._json({"error": f"no project {q.get('slug')!r}"}, 404)
+                if not q.get("slug"):
+                    return self._json({"error": "missing ?slug="}, 400)
+                return self._json({"error": f"no project {q['slug']!r}"}, 404)
             except (BrokenPipeError, ConnectionResetError):
                 pass
 
@@ -743,7 +746,12 @@ def make_handler(bench: Bench):
                     text = macro.read_macro(name)
                     run_slug = str(body.get("slug") or "")
                     return self._json(bench.macro_run(run_slug, name, text.splitlines()))
-                bench.root_of(slug)
+                try:
+                    bench.root_of(slug)
+                except KeyError:
+                    if not slug:
+                        return self._json({"error": "missing slug"}, 400)
+                    return self._json({"error": f"no project {slug!r}"}, 404)
                 if path in ("/api/undo", "/api/redo"):
                     action = path.rsplit("/", 1)[-1]
                     steps = int(body.get("steps") or 1)

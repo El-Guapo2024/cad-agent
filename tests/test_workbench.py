@@ -279,6 +279,18 @@ def test_the_server_refuses_what_a_foreign_page_could_ask(server, demo):
     assert code == 404
 
 
+def test_the_server_says_which_project_is_unknown_or_missing(server):
+    # /api/status answered 200 for a project that does not exist, a request without a slug said
+    # "no project None", and a POST named the project as "missing or unknown 'nope'".
+    call, _, _ = server
+    for path, body in (("/api/status?slug=nope", None), ("/api/check", {"slug": "nope"})):
+        code, raw = call(path, body)
+        assert code == 404 and json.loads(raw)["error"] == "no project 'nope'", path
+    for path, body in (("/api/status", None), ("/api/scene", None), ("/api/check", {})):
+        code, raw = call(path, body)
+        assert code == 400 and "slug" in json.loads(raw)["error"], path
+
+
 def test_the_watcher_announces_design_changes_and_new_log_lines(demo):
     bench = serve.Bench([demo.parent], runner=inproc)
     got = []
