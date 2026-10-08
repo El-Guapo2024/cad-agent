@@ -615,3 +615,15 @@ def test_cli_gui_run_and_commands_exit_unchecked_when_no_workbench_is_running(ru
     assert code == cli.UNCHECKED and "no workbench running" in data["error"]
     code, data = run(capsys, "gui", "commands", "demo")
     assert code == cli.UNCHECKED and "no workbench running" in data["error"]
+
+
+def test_cli_gui_names_the_address_nothing_answers_at(runtime, demo, monkeypatch, capsys):
+    import socket
+    with socket.socket() as s:
+        s.bind(("127.0.0.1", 0))
+        port = s.getsockname()[1]               # free again once the socket closes
+    monkeypatch.setenv("CAD_SERVE_URL", f"http://127.0.0.1:{port}")
+    code, data = run(capsys, "gui", "state", "demo")
+    assert code == cli.UNCHECKED
+    assert f"no workbench answering at http://127.0.0.1:{port}" in data["error"]
+    assert "cad serve" in data["error"]

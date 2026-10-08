@@ -37,7 +37,9 @@ def _call(req: urllib.request.Request, timeout: float) -> tuple[int, dict]:
         except ValueError:
             return e.code, {}
     except (urllib.error.URLError, OSError, TimeoutError, ValueError) as e:
-        raise NoWorkbench(str(e)) from None
+        parts = urllib.parse.urlsplit(req.full_url)
+        raise NoWorkbench(f"no workbench answering at {parts.scheme}://{parts.netloc} "
+                          f"({getattr(e, 'reason', e)}); start one with `cad serve`") from None
 
 
 def _get(url: str, timeout: float = 5) -> tuple[int, dict]:
