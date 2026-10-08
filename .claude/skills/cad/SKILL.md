@@ -125,7 +125,10 @@ profiles.
 shaped that way, and where any bought-part number came from), `PARAMS` (every
 dimension, named), `MATERIAL`, `PROCESS`, `MIN_FEATURE_MM`, and
 `build(**params)` returning one solid. `EXPECT_FEATURES` states the cutout count
-for flat parts (0 for a plain plate). `CUTLIST` is optional.
+for flat parts (0 for a plain plate). `CUTLIST` is optional. The process gates
+read the geometry: a `laser_cut` part's round holes are 1.0 mm or more and its
+slots and gaps at least the 0.15 mm kerf, a `cnc` part's holes and slots 1.0 mm or
+more (each `cad check` row names its limit), and a printed part has no hole floor.
 
 `assembly.py` exposes `parts()` returning `{name: positioned solid}`, plus
 `CLEARANCE` and `ALLOW_CONTACT`. Contact is never allowed implicitly. `AXES`
