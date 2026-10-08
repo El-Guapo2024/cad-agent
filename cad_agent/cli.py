@@ -1885,6 +1885,12 @@ def main(argv: list[str] | None = None) -> int:
     # Fresh means nothing ran here before this command: no earlier command and no
     # gate code loaded. A warm-worker fork and a new interpreter both qualify; a
     # long-lived process calling main() again (the test suite) does not.
+    if st.ROOT.exists() and not st.ROOT.is_dir():      # a typo like --projects part.py, not a folder
+        msg = (f"{st.ROOT} is not a folder; --projects (or CAD_PROJECTS) names the folder "
+               "that holds the projects")
+        _emit(a, Result(USAGE, {"error": msg}, f"cad {a.cmd_name}: {msg}", msg))
+        return USAGE
+
     global _RUNS
     a._fresh = _RUNS == 0 and "cad_agent.runner" not in sys.modules
     _RUNS += 1

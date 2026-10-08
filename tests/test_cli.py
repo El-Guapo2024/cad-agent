@@ -550,3 +550,14 @@ def test_a_folder_that_refuses_the_write_is_a_usage_error_naming_it(demo, monkey
     for argv in (["render", "demo", "plate"], ["check", "demo", "--part", "plate"]):
         code, data = run(capsys, *argv)
         assert code == cli.USAGE and "cannot write" in data["error"] and "out" in data["error"], argv
+
+
+def test_a_projects_path_that_is_a_file_is_a_usage_error_not_a_crash(tmp_path, monkeypatch, capsys):
+    monkeypatch.setattr(st, "ROOT", st.ROOT)
+    monkeypatch.delenv("CAD_PROJECTS", raising=False)
+    not_a_folder = tmp_path / "part.py"
+    not_a_folder.write_text("")
+    for argv in (["ls"], ["status", "demo"], ["init", "demo"]):
+        assert cli.main(["--json", "--projects", str(not_a_folder), *argv]) == cli.USAGE, argv
+        out = capsys.readouterr()
+        assert "is not a folder" in json.loads(out.out)["data"]["error"] and "Traceback" not in out.err

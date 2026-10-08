@@ -47,7 +47,7 @@ def project_dir(slug: str, create: bool = False) -> Path:
 
 def list_projects() -> list[str]:
     """Project directories. Hidden ones (the CLI's .cad activity log) are not projects."""
-    if not ROOT.exists():
+    if not ROOT.is_dir():
         return []
     return sorted(p.name for p in ROOT.iterdir()
                   if p.is_dir() and not p.name.startswith("."))
