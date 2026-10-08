@@ -440,3 +440,53 @@ def test_a_set_of_the_wrong_type_is_a_usage_error_like_cad_set(demo, capsys):
     assert code == cli.USAGE and "thickness is a number" in data["error"]
     code, data = run(capsys, "build", "demo", "plate", "--set", "thickness=5")
     assert code == cli.OK and data["overrides"] == {"thickness": 5.0}
+
+
+# ─── Messages that say what to do ────────────────────────────────────────────────────────────
+
+def test_measure_names_the_flag_that_reaches_bought_parts_and_placed_bodies(demo, capsys):
+    code, data = run(capsys, "measure", "demo", "plate", "motor")
+    assert code == cli.USAGE and "no part 'motor'" in data["error"] and "--posed" in data["error"]
+
+
+def test_a_build_failure_with_no_message_says_where_to_look(demo, capsys):
+    (demo / "parts" / "broken.py").write_text(BROKEN.replace('ValueError("wall thickness came out negative")',
+                                                             "RuntimeError()"))
+    code, data = run(capsys, "build", "demo", "broken")
+    assert code == cli.FAIL and "RuntimeError" in data["error"] and "dimension" in data["error"]
+
+
+def test_projects_may_follow_the_subcommand_like_json(tmp_path, monkeypatch, capsys):
+    monkeypatch.setattr(st, "ROOT", st.ROOT)              # cli.main moves it to the folder named
+    monkeypatch.delenv("CAD_PROJECTS", raising=False)
+    (tmp_path / "alpha").mkdir()
+    assert cli.main(["ls", "--projects", str(tmp_path), "--json"]) == cli.OK
+    assert json.loads(capsys.readouterr().out)["data"]["projects"] == ["alpha"]
+
+
+def test_ls_says_so_when_the_projects_folder_does_not_exist(tmp_path, monkeypatch, capsys):
+    monkeypatch.setattr(st, "ROOT", tmp_path / "nope")
+    assert cli.main(["ls"]) == cli.OK
+    out = capsys.readouterr().out
+    assert "no projects yet" in out and "does not exist" in out and "cad init" in out
+
+
+def test_a_preference_asked_out_of_range_says_what_was_kept(capsys):
+    assert cli.main(["pref", "MaxUndoSize", "500"]) == cli.OK
+    out = capsys.readouterr().out
+    assert "MaxUndoSize = 99" in out and "asked for 500" in out and "0 to 99" in out
+
+
+def test_nothing_to_undo_says_so_when_undo_is_switched_off(demo, capsys):
+    assert cli.main(["pref", "MaxUndoSize", "0"]) == cli.OK       # what `pref MaxUndoSize -4` leaves
+    capsys.readouterr()
+    for cmd in ("undo", "redo"):
+        code, data = run(capsys, cmd, "demo")
+        assert code == cli.USAGE and "nothing to" in data["error"] and "MaxUndoSize" in data["error"], cmd
+
+
+def test_a_centre_of_gravity_and_a_tool_envelope_are_not_printed_as_minus_zero(demo, capsys):
+    assert cli.main(["mass", "demo"]) == cli.OK
+    assert "-0.000" not in capsys.readouterr().out
+    assert cli.main(["tool", "drill", "diameter=3", "flute=20"]) == cli.OK
+    assert "-0.0" not in capsys.readouterr().out

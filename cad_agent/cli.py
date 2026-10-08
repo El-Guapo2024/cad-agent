@@ -157,7 +157,7 @@ def _overrides(a) -> dict:
     try:
         defaults = dict(getattr(st._load_module(path), "PARAMS", {}))
     except Exception as e:
-        raise BuildFailed(f"{a.part} did not load: {type(e).__name__}: {e}") from e
+        raise BuildFailed(f"{a.part} did not load: {st.why(e)}") from e
     unknown = sorted(set(ov) - set(defaults))
     if unknown:
         raise UsageError(f"{a.part} has no parameter {', '.join(unknown)} "
@@ -177,7 +177,7 @@ def _build(slug: str, name: str, overrides: dict | None = None):
     try:
         return st.build_part(slug, name, overrides)
     except Exception as e:
-        raise BuildFailed(f"{name} did not build: {type(e).__name__}: {e}") from e
+        raise BuildFailed(f"{name} did not build: {st.why(e)}") from e
 
 
 def _assembly(slug: str) -> dict:
@@ -185,7 +185,7 @@ def _assembly(slug: str) -> dict:
     try:
         asm, *_ = st.load_assembly(slug)
     except Exception as e:
-        raise BuildFailed(f"{slug} assembly did not build: {type(e).__name__}: {e}") from e
+        raise BuildFailed(f"{slug} assembly did not build: {st.why(e)}") from e
     if asm is None:
         raise UsageError(f"{slug} has no assembly.py")
     return asm
@@ -241,8 +241,9 @@ def cmd_init(a) -> Result:
 def cmd_ls(a) -> Result:
     if not a.slug:
         names = st.list_projects()
-        return Result(OK, {"projects": names}, "\n".join(names) or "no projects yet",
-                      f"{len(names)} projects")
+        none = "no projects yet" + ("" if st.ROOT.is_dir() else
+                                    f" ({st.ROOT} does not exist; `cad init NAME` creates it)")
+        return Result(OK, {"projects": names}, "\n".join(names) or none, f"{len(names)} projects")
     pdir = _project(a.slug)
     from .bought import list_bought
     parts = st.part_names(a.slug)
@@ -344,8 +345,11 @@ def cmd_export(a) -> Result:
 def cmd_measure(a) -> Result:
     _project(a.slug)
     if not a.posed:
-        _part(a.slug, a.a)
-        _part(a.slug, a.b)
+        try:
+            _part(a.slug, a.a)
+            _part(a.slug, a.b)
+        except UsageError as e:
+            raise UsageError(f"{e}; bought parts and placed bodies need --posed") from None
     from .geom import closest_points, intersection_volume
     if a.posed:
         asm = _assembly(a.slug)
@@ -396,7 +400,7 @@ def cmd_mass(a) -> Result:
     data = {"project": a.slug, "bodies": per, "default_density": defaulted, **mass_properties(items)}
     msg = (f"{len(names)} bod{'y' if len(names) == 1 else 'ies'}: volume {data['volume_mm3']:.3f} mm^3, "
            f"mass {data['mass_kg'] * 1000:.3f} g, centre of gravity "
-           f"({', '.join(f'{c:.3f}' for c in data['cog'])}) mm")
+           f"({', '.join(f'{round(c, 3) + 0.0:.3f}' for c in data['cog'])}) mm")
     if defaulted:
         msg += f"; no density for {', '.join(defaulted)}, used 1 g/cm^3 as FreeCAD does"
     return Result(OK, data, msg, f"{data['mass_kg'] * 1000:.2f} g")
@@ -439,7 +443,7 @@ def cmd_tool(a) -> Result:
     lo, hi = bbox(solid)
     data = {"kind": a.kind, "params": params,
             "bbox_mm": [round(hi[i] - lo[i], 2) for i in range(3)],
-            "z_mm": [round(lo[2], 2), round(hi[2], 2)]}
+            "z_mm": [round(lo[2], 2) + 0.0, round(hi[2], 2) + 0.0]}
     lines = [f"{a.kind} {params}",
              f"  bbox  {data['bbox_mm'][0]} x {data['bbox_mm'][1]} x {data['bbox_mm'][2]} mm",
              f"  z     {data['z_mm'][0]} .. {data['z_mm'][1]} (tip at z = 0)"]
@@ -461,7 +465,7 @@ def cmd_check(a) -> Result:
         try:
             r = part_check(a.slug, a.part, ov)
         except Exception as e:
-            raise BuildFailed(f"{a.part} did not build: {type(e).__name__}: {e}") from e
+            raise BuildFailed(f"{a.part} did not build: {st.why(e)}") from e
         code = _verdict(x["state"] for x in r["rows"])
         d = r["bbox_mm"]
         lines = [f"{a.slug}/{a.part}  {'OK' if code == OK else ('FAIL' if code == FAIL else 'UNCHECKED')}",
@@ -852,7 +856,7 @@ def cmd_scene(a) -> Result:
     except (PlacementError, UsageError):
         raise
     except Exception as e:
-        raise BuildFailed(f"{a.slug} did not build: {type(e).__name__}: {e}") from e
+        raise BuildFailed(f"{a.slug} did not build: {st.why(e)}") from e
     tris = sc["triangles"]
     size = path.stat().st_size
     data = {"project": a.slug, "path": str(path), "bytes": size, "triangles": tris,
@@ -873,7 +877,7 @@ def cmd_place(a) -> Result:
     try:
         base, clearance, allow, _ = st.load_assembly(a.slug, placed=False)
     except Exception as e:
-        raise BuildFailed(f"{a.slug} assembly did not build: {type(e).__name__}: {e}") from e
+        raise BuildFailed(f"{a.slug} assembly did not build: {st.why(e)}") from e
     if base is None:
         raise UsageError(f"{a.slug} has no assembly.py, so there is nothing to place parts in")
     if a.body not in base:
@@ -1072,7 +1076,8 @@ def _undo_redo(a, direction: str) -> Result:
     from . import undo as un
     before = un.load(pdir)
     if not before["undo" if direction == "undo" else "redo"]:
-        raise UsageError(f"nothing to {direction} in {a.slug}")
+        off = " (undo is switched off: `cad pref MaxUndoSize 20` turns it on)" if un.max_steps() == 0 else ""
+        raise UsageError(f"nothing to {direction} in {a.slug}{off}")
     result = un.perform(pdir, direction, steps=a.steps)
     applied = result["applied"]
     if not applied:
@@ -1107,16 +1112,22 @@ def cmd_redo(a) -> Result:
 def cmd_pref(a) -> Result:
     """User preferences the commands act on (userprefs.py): list, get or set one."""
     from . import userprefs as up
+    clamped = ""
     if a.key is not None and a.key not in up.DEFAULTS:
         raise UsageError(f"unknown preference {a.key!r}; known: {', '.join(up.DEFAULTS)}")
     if a.key is not None and a.value is not None:
         try:
-            up.set_value(a.key, a.value)
+            stored = up.set_value(a.key, a.value)
         except ValueError:
             raise UsageError(f"{a.key} takes a whole number, not {a.value!r}")
+        if stored != int(a.value):
+            lo, hi = up.RANGES[a.key]
+            clamped = f"  (asked for {a.value}; {a.key} runs from {lo} to {hi})"
     prefs = up.load()
     shown = {a.key: prefs[a.key]} if a.key else prefs
     lines = [f"{k} = {v}" + ("" if v == up.DEFAULTS[k] else f"  (default {up.DEFAULTS[k]})") for k, v in shown.items()]
+    if clamped:
+        lines[0] += clamped
     return Result(OK, {"prefs": shown, "path": str(up.path())}, "\n".join(lines),
                   ", ".join(f"{k}={v}" for k, v in shown.items()), [])
 
@@ -1346,7 +1357,7 @@ def cmd_page(a) -> Result:
     try:
         out, data = build_page(a.slug, Path(a.out).expanduser().resolve() if a.out else None)
     except Exception as e:
-        raise BuildFailed(f"{a.slug} page did not build: {type(e).__name__}: {e}") from e
+        raise BuildFailed(f"{a.slug} page did not build: {st.why(e)}") from e
     files = sorted(str(p.relative_to(out)) for p in out.rglob("*") if p.is_file())
     st_ = data["status"]
     verdict = "DONE" if st_.get("done") else (st_.get("verdict") or "not verified")
@@ -1422,6 +1433,8 @@ def build_parser() -> argparse.ArgumentParser:
     common = argparse.ArgumentParser(add_help=False)
     common.add_argument("--json", action="store_true", default=argparse.SUPPRESS,
                         help="print one JSON object on stdout")
+    common.add_argument("--projects", metavar="DIR", default=argparse.SUPPRESS,
+                        help="projects directory (default: CAD_PROJECTS, else cad-agent/projects)")
 
     p = _Parser(prog="cad", description="cad-agent: parametric parts, deterministic "
                 "gates, headless renders. Every command runs on build123d.",

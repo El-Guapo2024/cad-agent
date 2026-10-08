@@ -23,6 +23,16 @@ def _is_name(slug: str) -> bool:
     return bool(slug) and slug == Path(slug).name and not slug.startswith(".")
 
 
+def why(e: BaseException) -> str:
+    """A failure as a line to show: the kernel's own errors (Standard_Failure) carry no message,
+    and the bare name leaves the reader nothing to change."""
+    text = str(e).strip()
+    if text:
+        return f"{type(e).__name__}: {text}"
+    return (f"{type(e).__name__} (it gave no message; a zero, negative or oversized "
+            "dimension is the usual cause)")
+
+
 def project_dir(slug: str, create: bool = False) -> Path:
     if not _is_name(slug):
         raise FileNotFoundError(f"no project {slug!r}")

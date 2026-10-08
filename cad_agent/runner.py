@@ -14,7 +14,7 @@ from .registry import (AssemblyCtx, FAILING, PartCtx, ProjectCtx, checks,
                        run as run_check)
 from .render import draw, merge, tessellate
 from .state import (build_part, load_assembly, part_names, project_dir,
-                    read_checks, write_checks)
+                    read_checks, why, write_checks)
 
 
 def check_all(slug: str, render_views=("iso",), tolerance: float = 0.05):
@@ -32,8 +32,7 @@ def check_all(slug: str, render_views=("iso",), tolerance: float = 0.05):
         try:
             solid, meta = build_part(slug, name)
         except Exception as e:
-            parts_out[name] = {"state": "FAIL",
-                               "error": f"{type(e).__name__}: {e}"}
+            parts_out[name] = {"state": "FAIL", "error": why(e)}
             continue
         solids[name] = solid
         lo, hi = bbox(solid)
