@@ -117,6 +117,11 @@ def load_assembly(slug: str, placed: bool = True):
         return None, {}, set(), {}
     mod = _load_module(path)
     parts = mod.parts()
+    bad = [f"{k!r}: {type(v).__name__}" for k, v in parts.items()
+           if not (isinstance(k, str) and hasattr(v, "bounding_box"))] if isinstance(parts, dict) else None
+    if bad is None or bad:
+        got = type(parts).__name__ if bad is None else f"{bad[0]} among its entries"
+        raise TypeError(f"assembly.py parts() must return {{name: solid}}, got {got}")
     if placed:
         parts = placements.apply(parts, placements.load(pdir))
     return (parts, dict(getattr(mod, "CLEARANCE", {})),

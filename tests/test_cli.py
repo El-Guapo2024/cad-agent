@@ -579,3 +579,19 @@ def test_a_build_that_returns_no_solid_fails_the_part_not_the_tool(demo, capsys)
     for cmd in ("check", "verify"):
         code, data = run(capsys, cmd, "demo")
         assert code == cli.FAIL, cmd
+
+
+def test_an_assembly_that_returns_the_wrong_thing_fails_with_what_it_returned(demo, capsys):
+    # parts() gave back a list, a number where a solid goes, or a key that is not a name: each
+    # crashed another command with exit 4 and an AttributeError from deep in the renderer.
+    for text, shown in (("def parts():\n    return [1, 2]\n", "got list"),
+                        ("def parts():\n    return {'a': 5}\n", "'a': int"),
+                        ("def parts():\n    return {1: None}\n", "1: NoneType")):
+        (demo / "assembly.py").write_text(text)
+        for argv in (["mass", "demo"], ["render", "demo"], ["place", "demo", "a", "--by=1,0,0"],
+                     ["measure", "demo", "a", "b", "--posed"]):
+            code, data = run(capsys, *argv)
+            assert code == cli.FAIL and shown in data["error"], (text, argv)
+        code, data = run(capsys, "check", "demo")
+        row = next(r for r in data["rows"] if r["check"] == "assembly" and r["rule"] == "build")
+        assert code == cli.FAIL and shown in row["measured"], text
