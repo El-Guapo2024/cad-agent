@@ -7,7 +7,8 @@ given/bought/:
 
 The files are registered the way `cad bought add-step` does it (the STEP plus a
 sidecar naming where the numbers came from), so the provenance gate passes and
-nothing in the task is a remembered dimension.
+nothing in the task is a remembered dimension. The STEPs are written with
+cad_agent.export.write_step, so every run writes the same bytes.
 
 The switch is drawn in the frame of the datasheet's side view: x along the 19.8 mm
 body, z up toward the lever, y through the 6.4 mm thickness. The origin is the
@@ -41,8 +42,9 @@ import sys
 import tempfile
 from pathlib import Path
 
-from build123d import Box, Cylinder, Pos, Rot, export_step
+from build123d import Box, Cylinder, Pos, Rot
 
+from cad_agent.export import write_step
 from cad_agent.parts import extrusion_blank
 
 HERE = Path(__file__).resolve().parent
@@ -112,7 +114,7 @@ def register(name: str, solid, source: str, vendor: str) -> None:
         state.ROOT = Path(tmp)
         state.project_dir("scratch", create=True)
         step = Path(tmp) / f"{name}.step"
-        export_step(solid, str(step))
+        write_step(solid, step)
         register_step("scratch", name, str(step), source, vendor)
         GIVEN.mkdir(parents=True, exist_ok=True)
         for ext in (".step", ".json"):

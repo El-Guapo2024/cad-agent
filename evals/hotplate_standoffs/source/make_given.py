@@ -6,9 +6,9 @@ Run from the repo root with the cad-agent Python:
 
 It writes a STEP file and a source note for each body into
 evals/hotplate_standoffs/given/bought/, the same pair `cad bought add-step`
-leaves in a project (it calls the same function). STEP files carry a timestamp,
-so they never come out byte for byte the same twice: the committed STEPs are the
-artefacts, and this script says how they were made.
+leaves in a project (it calls the same function). The STEPs are written with
+cad_agent.export.write_step, so every run writes the same bytes; the committed
+STEPs are the artefacts, and this script says how they were made.
 
 Every number is a dimension of the brief; the hole sizes come from
 cad_agent.parts, so the interface rule and these files cannot drift apart.
@@ -20,10 +20,11 @@ import sys
 import tempfile
 from pathlib import Path
 
-from build123d import Box, Cylinder, Pos, export_step
+from build123d import Box, Cylinder, Pos
 
 from cad_agent import state
 from cad_agent.bought import register_step
+from cad_agent.export import write_step
 from cad_agent.parts import CLEARANCE_HOLE, TAP_DRILL
 
 OUT = Path(__file__).resolve().parent.parent / "given" / "bought"
@@ -82,7 +83,7 @@ def main() -> int:
                 ("hot_plate", hot_plate(), HOT_PLATE_SOURCE, "Hillesheim GmbH"),
                 ("base_plate", base_plate(), BASE_PLATE_SOURCE, None)):
             step = Path(tmp) / f"{name}.step"
-            export_step(solid, str(step))
+            write_step(solid, step)
             register_step(slug, name, str(step), source, vendor)
         OUT.mkdir(parents=True, exist_ok=True)
         for p in sorted((Path(tmp) / slug / "bought").iterdir()):

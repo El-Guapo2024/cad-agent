@@ -103,6 +103,29 @@ def test_a_long_lived_caller_runs_commands_without_launching_a_client(warm, monk
     assert reply and reply["exit"] == 0 and reply["pid"]
 
 
+def test_a_step_through_the_worker_is_the_step_a_busy_process_makes(warm, monkeypatch):
+    # A fork starts from a parent that has exported nothing; this process has exported plenty.
+    # Neither the clock nor OCCT's occurrence counter may tell them apart (see test_export.py).
+    from cad_agent import export as ex
+    from cad_agent import state as st
+    from test_export import PLACED
+    cad, root = warm
+    part = root / "demo" / "parts" / "placed.py"
+    step = root / "demo" / "out" / "placed.step"
+    part.write_text(PLACED)
+    try:
+        assert cad("export", "demo", "placed").returncode == 0
+        first = step.read_bytes()
+        assert cad("export", "demo", "placed").returncode == 0
+        assert step.read_bytes() == first
+        monkeypatch.setattr(st, "ROOT", root)
+        for _ in range(3):
+            ex.export_part("demo", "placed")
+        assert step.read_bytes() == first
+    finally:
+        part.unlink()
+
+
 def test_a_render_through_the_worker_is_the_render_a_cold_run_makes(warm, monkeypatch):
     # The worker changes speed and nothing else, pictures included. On a Mac this
     # also holds the worker to Metal: a fork cannot compile shaders (nor, on a fresh

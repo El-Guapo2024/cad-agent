@@ -8,8 +8,10 @@ Every body is modelled centred on its own bounding box and already in the
 assembly's orientation (idler and shaft axes along z, extrusion along x), so a
 design only has to translate it. Each one is registered the way
 `cad bought add-step` does it, so the files land in given/bought/ with a .json
-sidecar recording where the numbers came from. This script is not laid into the
-agent's project; it is the record of how the given geometry was made.
+sidecar recording where the numbers came from. The STEPs are written with
+cad_agent.export.write_step, so every run writes the same bytes. This script is
+not laid into the agent's project; it is the record of how the given geometry
+was made.
 """
 from __future__ import annotations
 
@@ -19,9 +21,10 @@ import tempfile
 from pathlib import Path
 
 from build123d import (Axis, BuildLine, BuildPart, BuildSketch, Box, Cylinder, Plane, Polyline,
-                       Pos, export_step, make_face, revolve)
+                       Pos, make_face, revolve)
 
 from cad_agent import bought, state
+from cad_agent.export import write_step
 from cad_agent.parts import EXTRUSION
 
 OUT = Path(__file__).resolve().parent.parent / "given" / "bought"
@@ -92,7 +95,7 @@ def register(name: str, solid, source: str, vendor: str | None) -> Path:
         state.ROOT = Path(tmp)
         state.project_dir("gen", create=True)
         step = Path(tmp) / f"{name}.step"
-        export_step(solid, str(step))
+        write_step(solid, step)
         dest = bought.register_step("gen", name, str(step), source, vendor)
         OUT.mkdir(parents=True, exist_ok=True)
         for f in (dest, dest.with_suffix(".json")):

@@ -7,7 +7,8 @@ usb_b_plug.{step,json}:
 
 The files are registered the way `cad bought add-step` does it (the STEP plus
 a sidecar naming where the numbers came from), so the project's provenance gate
-passes and nothing in the task is a remembered dimension.
+passes and nothing in the task is a remembered dimension. The STEPs are written
+with cad_agent.export.write_step, so every run writes the same bytes.
 
 Both bodies share one frame, the board's: the origin is the centre of the board
 outline, z = 0 is the underside of the PCB, x runs along the long edge with the
@@ -51,7 +52,9 @@ import sys
 import tempfile
 from pathlib import Path
 
-from build123d import Box, Cylinder, Polygon, Pos, export_step, extrude, fillet
+from build123d import Box, Cylinder, Polygon, Pos, extrude, fillet
+
+from cad_agent.export import write_step
 
 HERE = Path(__file__).resolve().parent
 GIVEN = HERE.parent / "given" / "bought"
@@ -117,7 +120,7 @@ def register(name: str, solid, source: str, vendor: str) -> None:
         state.ROOT = Path(tmp)
         state.project_dir("scratch", create=True)
         step = Path(tmp) / f"{name}.step"
-        export_step(solid, str(step))
+        write_step(solid, step)
         register_step("scratch", name, str(step), source, vendor)
         GIVEN.mkdir(parents=True, exist_ok=True)
         for ext in (".step", ".json"):

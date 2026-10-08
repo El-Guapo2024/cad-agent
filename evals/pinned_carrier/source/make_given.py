@@ -6,9 +6,9 @@ Run from the repo root with the cad-agent Python:
 
 It writes a STEP file and a source note for each body into
 evals/pinned_carrier/given/bought/, the same pair `cad bought add-step` leaves in a
-project (it calls the same function). STEP files carry a timestamp, so they never come
-out byte for byte the same twice: the committed STEPs are the artefacts, and this
-script says how they were made.
+project (it calls the same function). The STEPs are written with
+cad_agent.export.write_step, so every run writes the same bytes; the committed STEPs
+are the artefacts, and this script says how they were made.
 
 The dowel pin and the screw are modelled at their nominal sizes from the standards'
 tables; the hole sizes come from cad_agent.parts, so the interface rule and these
@@ -21,10 +21,11 @@ import sys
 import tempfile
 from pathlib import Path
 
-from build123d import Box, Cylinder, GeomType, Pos, RegularPolygon, chamfer, export_step, extrude
+from build123d import Box, Cylinder, GeomType, Pos, RegularPolygon, chamfer, extrude
 
 from cad_agent import state
 from cad_agent.bought import register_step
+from cad_agent.export import write_step
 from cad_agent.parts import CLEARANCE_HOLE
 
 OUT = Path(__file__).resolve().parent.parent / "given" / "bought"
@@ -96,7 +97,7 @@ def main() -> int:
                 ("dowel_pin", dowel_pin(), PIN_SOURCE, None),
                 ("clamp_screw", clamp_screw(), SCREW_SOURCE, None)):
             step = Path(tmp) / f"{name}.step"
-            export_step(solid, str(step))
+            write_step(solid, step)
             register_step(slug, name, str(step), source, vendor)
         OUT.mkdir(parents=True, exist_ok=True)
         for p in sorted((Path(tmp) / slug / "bought").iterdir()):

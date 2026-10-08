@@ -235,7 +235,7 @@ cad_agent/
   rules.py      every check, registered. The list of what a run verifies
   checks/visual.py  render drift against approved baselines, with diff images
   cutlist.py    stock derived from each part's CUTLIST, roughly priced
-  export.py     STEP for a shop, STL for a printer
+  export.py     STEP for a shop (the same bytes on every run), STL for a printer
   cli.py        the cad CLI: every command, --json, exit codes, activity log
   warm.py       the warm worker: kernel imported once, a fresh fork per command, plus the Metal sidecar
   verify.py     the verifier: fresh rebuild, source and engine hashes, git, cad done

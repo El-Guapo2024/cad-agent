@@ -107,7 +107,9 @@ no `CAD_EVALS`.
 1. Decide what it tests and what a careless design gets wrong.
 2. Write the given parts as bought parts: a script in `evals/<task>/source/` (or a model in
    `make_given.py`, or `cad bought add-step`) with a source line that says what the numbers are and
-   are not.
+   are not. Write its STEPs with `cad_agent.export.write_step`, not build123d's `export_step`: the
+   second puts the clock and OCCT's occurrence counter in the file, so a rerun changes it
+   (`tests/test_export.py` fails on a raw `export_step`).
 3. Write the reference in a scratch project named after the task (its `assembly.py` finds its parts
    by that name, `SLUG = "<task>"`) until `cad check` is clean, then copy `parts/` and `assembly.py`
    into `reference/`. The edit and stop hooks skip everything under `evals/`, so nothing checks a

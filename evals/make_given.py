@@ -5,7 +5,8 @@
 The STEPs are checked in, so nothing needs this at scoring time. It exists so the
 numbers behind every file are written down in one place, and a changed dimension
 is a change to a script a reviewer can read, not to a binary. Each STEP gets the
-sidecar bought.py asks for, with its source.
+sidecar bought.py asks for, with its source. They are written with
+cad_agent.export.write_step, so every run writes the same bytes.
 
 These are task fixtures, not vendor files: the outlines follow the figures named
 in each source line, and anything the figures do not give (a hole pattern the
@@ -17,7 +18,9 @@ import json
 import sys
 from pathlib import Path
 
-from build123d import Axis, Box, Cone, Cylinder, Pos, Rot, export_step
+from build123d import Axis, Box, Cone, Cylinder, Pos, Rot
+
+from cad_agent.export import write_step
 
 HERE = Path(__file__).resolve().parent
 
@@ -25,7 +28,7 @@ HERE = Path(__file__).resolve().parent
 def write(task: str, name: str, solid, source: str) -> None:
     out = HERE / task / "given" / "bought"
     out.mkdir(parents=True, exist_ok=True)
-    export_step(solid, str(out / f"{name}.step"))
+    write_step(solid, out / f"{name}.step")
     (out / f"{name}.json").write_text(json.dumps(
         {"source": source, "vendor": None, "verified": True, "original": f"{name}.step"}, indent=1))
     lo, hi = solid.bounding_box().min, solid.bounding_box().max

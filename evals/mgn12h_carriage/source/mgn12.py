@@ -8,8 +8,9 @@ Every body is modelled centred on its own bounding box and already in the
 assembly's orientation (rail along x, block face up), so a design only has to
 translate it. Each one is registered the way `cad bought add-step` does it, so
 the files land in given/bought/ with a .json sidecar recording where the
-numbers came from. This script is not laid into the agent's project; it is the
-record of how the given geometry was made.
+numbers came from. The STEPs are written with cad_agent.export.write_step, so
+every run writes the same bytes. This script is not laid into the agent's
+project; it is the record of how the given geometry was made.
 
 The block and rail are envelopes for clearance checking, not models of the
 part: no balls, end caps, seals or grease nipple, and the rail has no ball
@@ -22,9 +23,10 @@ import sys
 import tempfile
 from pathlib import Path
 
-from build123d import Box, Cylinder, Pos, export_step
+from build123d import Box, Cylinder, Pos
 
 from cad_agent import bought, state
+from cad_agent.export import write_step
 from cad_agent.parts import CLEARANCE_HOLE, TAP_DRILL
 
 OUT = Path(__file__).resolve().parent.parent / "given" / "bought"
@@ -117,7 +119,7 @@ def register(name: str, solid, source: str, vendor: str | None) -> Path:
         state.ROOT = Path(tmp)
         state.project_dir("gen", create=True)
         step = Path(tmp) / f"{name}.step"
-        export_step(solid, str(step))
+        write_step(solid, step)
         dest = bought.register_step("gen", name, str(step), source, vendor)
         OUT.mkdir(parents=True, exist_ok=True)
         for f in (dest, dest.with_suffix(".json")):

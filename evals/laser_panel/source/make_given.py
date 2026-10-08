@@ -7,8 +7,9 @@ Run from the repo root with the cad-agent Python:
 Each body is built by its own module here (frame.py, push_button.py, oled.py), and each module says where
 its numbers come from. This writes a STEP file and a source note for every body into
 evals/laser_panel/given/bought/, the same pair `cad bought add-step` leaves in a project (it calls the
-same function). The STEPs carry a fixed timestamp, so a rerun makes the same files, but the committed ones
-are the artefacts and this script says how they were made.
+same function). The STEPs are written with cad_agent.export.write_step, so every run writes the same bytes,
+whatever order the bodies come in; the committed ones are the artefacts and this script says how they were
+made.
 
 The push button and the OLED are envelopes of the real parts, not models of them: see their docstrings
 for what is left out. The hole sizes the frame is drilled to come from cad_agent.parts.
@@ -18,13 +19,11 @@ from __future__ import annotations
 import shutil
 import sys
 import tempfile
-from datetime import datetime
 from pathlib import Path
-
-from build123d import export_step
 
 from cad_agent import state
 from cad_agent.bought import register_step
+from cad_agent.export import write_step
 
 import frame
 import oled
@@ -41,7 +40,7 @@ def main() -> int:
         state.project_dir(slug, create=True)
         for name, module in BODIES:
             step = Path(tmp) / f"{name}.step"
-            export_step(module.build(), str(step), timestamp=datetime(2026, 10, 4))
+            write_step(module.build(), step)
             register_step(slug, name, str(step), module.SOURCE, module.VENDOR)
         OUT.mkdir(parents=True, exist_ok=True)
         for p in sorted((Path(tmp) / slug / "bought").iterdir()):
