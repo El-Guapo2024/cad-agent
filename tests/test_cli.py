@@ -561,3 +561,12 @@ def test_a_projects_path_that_is_a_file_is_a_usage_error_not_a_crash(tmp_path, m
         assert cli.main(["--json", "--projects", str(not_a_folder), *argv]) == cli.USAGE, argv
         out = capsys.readouterr()
         assert "is not a folder" in json.loads(out.out)["data"]["error"] and "Traceback" not in out.err
+
+
+def test_a_part_that_cannot_be_built_fails_export_approve_and_cutlist_instead_of_crashing(demo, capsys):
+    (demo / "parts" / "plate.py").write_text("def build(:\n")                  # a syntax error
+    (demo / "parts" / "block.py").write_text('PARAMS = {}\n')                  # no build()
+    for argv in (["export", "demo", "plate"], ["export", "demo", "block"], ["approve", "demo"],
+                 ["cutlist", "demo"]):
+        code, data = run(capsys, *argv)
+        assert code == cli.FAIL and "did not build" in data["error"], argv

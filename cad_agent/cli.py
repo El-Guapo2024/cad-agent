@@ -335,8 +335,8 @@ def cmd_export(a) -> Result:
     from .export import export_part
     try:
         path = str(export_part(a.slug, a.part, a.format))
-    except ValueError as e:
-        raise UsageError(str(e)) from e
+    except Exception as e:                     # --format is checked by the parser: this is the part
+        raise BuildFailed(f"{a.part} did not build: {st.why(e)}") from e
     return Result(OK, {"project": a.slug, "part": a.part, "format": a.format,
                        "path": path}, path, f"{a.part} as {a.format}", [path])
 
@@ -528,6 +528,8 @@ def cmd_approve(a) -> Result:
         done = approve_views(a.slug, a.part, a.view)
     except FileNotFoundError as e:             # nothing rendered yet: its message says to check first
         raise UsageError(str(e)) from None
+    except Exception as e:
+        raise BuildFailed(f"{a.slug} did not build: {st.why(e)}") from e
     print("approved renders become the baseline the visual gate compares against; "
           "look at the diff first", file=sys.stderr)
     return Result(OK, {"project": a.slug, "approved": done},
@@ -589,7 +591,10 @@ def cmd_done(a) -> Result:
 def cmd_cutlist(a) -> Result:
     from .cutlist import cutlist
     _project(a.slug)
-    c = cutlist(a.slug)
+    try:
+        c = cutlist(a.slug)
+    except Exception as e:
+        raise BuildFailed(f"{a.slug} cutlist did not build: {st.why(e)}") from e
     return Result(OK, c, json.dumps(c, indent=1, default=str), "cutlist")
 
 
