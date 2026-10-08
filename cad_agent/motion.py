@@ -42,7 +42,7 @@ from itertools import combinations
 import numpy as np
 from build123d import Pos
 
-from .geom import bbox, intersection_volume, min_distance
+from .geom import BOX_MARGIN_MM, bbox, intersection_volume, min_distance
 
 # Overlap below this is OCCT noise on coincident faces, matching checks.fit.
 VOLUME_NOISE_MM3 = 1e-6
@@ -170,7 +170,7 @@ def sweep_axis(parts: dict, axis: Axis, required: dict, allow_contact: set,
             lower = _bbox_gap(a, b)
             if lower > need and lower >= hit.distance:
                 continue
-            overlap = intersection_volume(a, b)
+            overlap = 0.0 if lower > BOX_MARGIN_MM else intersection_volume(a, b)
             if overlap > VOLUME_NOISE_MM3:
                 if overlap > hit.overlap:
                     hit.overlap, hit.at, hit.distance = overlap, t, 0.0

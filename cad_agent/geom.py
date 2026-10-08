@@ -11,10 +11,15 @@ def _w(shape):
     return shape.wrapped if hasattr(shape, "wrapped") else shape
 
 
+# OCCT's two-shape constructors run the operation, so calling Perform() or Build() after them did
+# the whole search a second time: half the time of every fit, sweep and spec pair, for the same
+# number. The helpers below ask again only if a build of OCCT left the constructor idle.
+
 def min_distance(a, b) -> float:
     """Minimum distance between two solids in mm. 0.0 means touching or overlapping."""
     d = BRepExtrema_DistShapeShape(_w(a), _w(b))
-    d.Perform()
+    if not d.IsDone():
+        d.Perform()
     if not d.IsDone():
         raise RuntimeError("distance computation failed")
     return float(d.Value())
@@ -27,7 +32,8 @@ def closest_points(a, b):
     anonymous feature index cannot.
     """
     d = BRepExtrema_DistShapeShape(_w(a), _w(b))
-    d.Perform()
+    if not d.IsDone():
+        d.Perform()
     if not d.IsDone() or d.NbSolution() < 1:
         raise RuntimeError("distance computation failed")
     p1, p2 = d.PointOnShape1(1), d.PointOnShape2(1)
@@ -39,12 +45,41 @@ def closest_points(a, b):
 def intersection_volume(a, b) -> float:
     """Volume of overlap in mm^3. > 0 means the parts interfere."""
     common = BRepAlgoAPI_Common(_w(a), _w(b))
-    common.Build()
+    if not common.IsDone():
+        common.Build()
     if not common.IsDone():
         raise RuntimeError("boolean common failed")
     props = GProp_GProps()
     BRepGProp.VolumeProperties_s(common.Shape(), props)
     return abs(float(props.Mass()))
+
+
+def box(a):
+    """A shape's bounding box from its geometry alone, as OCCT's Bnd_Box.
+
+    bbox() goes through build123d, which first strips the mesh off the shape. A check that only
+    wants to rule a pair out should not cost a body its mesh, so this leaves it alone.
+    """
+    from OCP.Bnd import Bnd_Box
+    from OCP.BRepBndLib import BRepBndLib
+    b = Bnd_Box()
+    BRepBndLib.AddOptimal_s(_w(a), b, False, False)
+    return b
+
+
+BOX_MARGIN_MM = 1e-3        # boxes this far apart hold shapes that cannot overlap, whatever the box error
+
+
+def apart(box_a, box_b, margin: float = BOX_MARGIN_MM) -> bool:
+    """Whether two boxes from box() are more than `margin` mm apart, so what is in them cannot overlap.
+
+    The boolean in intersection_volume is the dearest call of a fit check, and for bodies that sit
+    clear of each other it can only answer 0. The margin is far above the error of the boxes, so a
+    pair close enough to be in doubt still goes to the boolean, and so does an empty shape.
+    """
+    if box_a.IsVoid() or box_b.IsVoid():
+        return False
+    return box_a.Distance(box_b) > margin
 
 
 def volume(a) -> float:

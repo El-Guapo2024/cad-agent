@@ -6,7 +6,9 @@ import pytest
 from build123d import Box, Cylinder, Pos
 
 from cad_agent.checks import check_dfm, check_fit
-from cad_agent.geom import bbox, intersection_volume, mass_g, mass_properties, min_distance, volume
+from cad_agent.checks import fit as fit_module
+from cad_agent.geom import (apart, bbox, box, intersection_volume, mass_g, mass_properties,
+                            min_distance, volume)
 from cad_agent.parts import EXTRUSION, extrusion_blank
 from cad_agent.render import VIEWS, merge, render, tessellate
 
@@ -58,7 +60,46 @@ def test_min_distance_and_overlap():
     assert intersection_volume(a, over) == pytest.approx(500.0, rel=1e-4)
 
 
+def test_apart_rules_out_only_boxes_that_cannot_touch():
+    a = box(Box(10, 10, 10))
+    assert apart(a, box(Pos(0, 0, 20) * Box(10, 10, 10)))             # 10 mm clear
+    assert not apart(a, box(Pos(0, 0, 10.0005) * Box(10, 10, 10)))    # half a micron: in doubt
+    assert not apart(a, box(Pos(0, 0, 10) * Box(10, 10, 10)))         # touching
+    assert not apart(a, box(Pos(0, 0, 5) * Box(10, 10, 10)))          # overlapping
+    from OCP.Bnd import Bnd_Box
+    assert not apart(a, Bnd_Box())                                    # nothing in it: ask the boolean
+
+
+def test_box_leaves_the_shapes_mesh_alone():
+    """bbox() strips the mesh (build123d does); a check that only rules out a pair must not."""
+    from OCP.BRepTools import BRepTools
+    part = Box(10, 10, 10)
+    tessellate(part, 0.1, 0.3)
+    assert BRepTools.Triangulation_s(part.wrapped, 0.1)
+    box(part)
+    assert BRepTools.Triangulation_s(part.wrapped, 0.1)
+    bbox(part)
+    assert not BRepTools.Triangulation_s(part.wrapped, 0.1)
+
+
 # ─── fit gate ────────────────────────────────────────────────────────────────
+
+def test_fit_runs_the_boolean_only_where_the_boxes_leave_room_for_doubt(monkeypatch):
+    parts = {"a": Box(10, 10, 10),
+             "far": Pos(0, 0, 20) * Box(10, 10, 10),            # 10 mm clear
+             "near": Pos(10.0005, 0, 0) * Box(10, 10, 10),      # half a micron
+             "over": Pos(5, 0, 0) * Box(10, 10, 10)}            # inside a's box
+    asked = []
+    real = fit_module.intersection_volume
+    monkeypatch.setattr(fit_module, "intersection_volume", lambda x, y: asked.append(1) or real(x, y))
+    rows = check_fit(parts)
+    with_boxes = len(asked)
+    monkeypatch.setattr(fit_module, "apart", lambda *args, **kw: False)       # ask the boolean about every pair
+    asked.clear()
+    assert check_fit(parts) == rows                                         # the same verdict on every pair
+    assert with_boxes < len(asked) == 6
+    assert {r["pair"]: r["state"] for r in rows}["a vs over"] == "FAIL"
+
 
 def test_fit_flags_interference():
     parts = {"a": Box(10, 10, 10), "b": Pos(0, 0, 5) * Box(10, 10, 10)}
