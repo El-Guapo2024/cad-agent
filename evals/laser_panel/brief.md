@@ -46,9 +46,9 @@ STEP has its origin at the middle of its bounding box, so place it with `Pos(cen
 3. **M3 mounting.** Four holes in `panel` line up with the frame's four tapped holes: each axis within
    0.1 mm of a frame hole's axis, each sized as an M3 clearance hole, 3.2 to 3.6 mm (ISO 273 fine to
    coarse; `cad tables holes` has the 3.4 mm medium size), over the frame's 2.5 mm tapped hole. Any
-   hole in the panel that lies within 6 mm of the frame counts as a mounting hole and has to line up
-   the same way, so the panel has no other holes near the frame. At the positions above, the button
-   hole and the window are more than 8 mm from it.
+   hole in the panel whose axis lands on the frame, on its rim or in one of its holes, counts as a
+   mounting hole and has to line up the same way, so the panel has no other holes over the rim. The
+   button hole and the window are over the frame's 80 x 40 mm opening, so they are not judged here.
 4. **The button hole.** The closest distance between `push_button` and `panel` is between 0.10 and 0.40 mm.
 5. **The OLED window.** The closest distance between `oled` and `panel` is between 0.10 and 0.40 mm. The
    glass reaches into the panel, so the window clears the whole glass outline, not just the visible area.

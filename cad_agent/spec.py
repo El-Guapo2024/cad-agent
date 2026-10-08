@@ -40,13 +40,17 @@ spec.toml is UNCHECKED too: nothing states what the design must do.
     b = "base_plate"
     fastener = "M3"             # optional: hole sizes must suit it
     tol_mm = 0.1                # axis offset allowed; default 0.1
-    near_mm = 15                # only holes of `a` this close to `b`; default 15
+    near_mm = 15                # optional: also only holes of `a` this close to `b`
 
 An interface judges holes, not every round face. A hole is the cylinders of one radius on one
 axis that turn 270 degrees or more, and its size is its smallest bore, so a counterbore is part
 of its hole, and a teardrop's point, a D's flat or a clamp's slit leave the bore what it was. A
 slot is judged by its centre line: the other body's hole axis has to lie on it, and its width
 is the size. Fillets and other shorter arcs are not holes.
+
+It judges the holes of `a` that point into `b`: those whose axis lands on `b`, on its material
+or in one of its holes. A button's cutout over a window in `b` lands on nothing, so it is no
+mounting hole and needs no mate. `near_mm` adds a distance: only holes this close to `b`.
 
 With a fastener, one hole of each pair must be a clearance hole and the other a clearance, tap
 or heat-set size. Clearance is anything from ISO 273's fine to its coarse series (M3: 3.2 to
@@ -501,8 +505,11 @@ def _segment_gap(p1, q1, p2, q2) -> float:
     return ((p1 + d1 * s) - (p2 + d2 * t)).length
 
 
-def _axis_hits_box(point, direction, box, margin: float = 0.5) -> bool:
-    """Does the line through a point along a direction pass through the box (slab test)?"""
+def _axis_span(point, direction, box, margin: float = 1.0):
+    """Where the line through a point along a direction crosses the box, grown by `margin`.
+
+    Returns (t0, t1), distances along the direction, or None when the line misses it (slab test).
+    """
     lo, hi = box
     t0, t1 = -math.inf, math.inf
     p = (point.X, point.Y, point.Z)
@@ -511,21 +518,42 @@ def _axis_hits_box(point, direction, box, margin: float = 0.5) -> bool:
         a, b = lo[i] - margin, hi[i] + margin
         if abs(d[i]) < 1e-12:
             if not a <= p[i] <= b:
-                return False
+                return None
             continue
         s0, s1 = (a - p[i]) / d[i], (b - p[i]) / d[i]
         t0, t1 = max(t0, min(s0, s1)), min(t1, max(s0, s1))
-    return t0 <= t1
+    return (t0, t1) if t0 <= t1 else None
 
 
-def _points_into(h, box, body, near: float) -> bool:
-    """Does the hole's axis meet the box with the hole within `near` of the body?
+def _on_hole(point, direction, in_body) -> bool:
+    """Is the line through a point along a direction inside one of the body's holes or slots?"""
+    probe = {"dir": direction, "ends": (point, point)}
+    return any(_parallel(probe, g) and _gap(probe, g) <= g["dia"] / 2.0 + TOUCH_MM for g in in_body)
 
-    A slot is looked at in the middle and at both ends: it points into the body if any of them does.
+
+def _on_material(point, direction, body, box) -> bool:
+    """Does the line through a point along a direction hit the body's solid, not just its box?"""
+    from build123d import Edge
+    from .geom import min_distance
+    span = _axis_span(point, direction, box)
+    if span is None:
+        return False
+    line = Edge.make_line(point + direction * span[0], point + direction * span[1])
+    return min_distance(line, body) <= TOUCH_MM
+
+
+def _points_into(h, body, box, in_body, near=None) -> bool:
+    """Does the hole's axis land on the body: on its material, or in one of its holes?
+
+    A mounting hole has something under it: material that wants a hole, or a hole to line up
+    with. A cutout over a window has nothing, so it points into nothing and needs no mate. A
+    slot is looked at in the middle and at both ends: it points into the body if any of them
+    does. With `near`, the hole also has to be that close to the body.
     """
     from build123d import Vertex
     spots = [h["point"]] if h["kind"] == "hole" else [h["point"], *h["ends"]]
-    return any(_axis_hits_box(p, h["dir"], box) and Vertex(p).distance_to(body) <= near
+    return any((_on_hole(p, h["dir"], in_body) or _on_material(p, h["dir"], body, box))
+               and (near is None or Vertex(p).distance_to(body) <= near)
                for p in spots)
 
 
@@ -543,6 +571,7 @@ def _xyz(p) -> str:
 
 
 SIZE_TOL = 0.15         # mm: how far a tap drill or heat-set bore may be off its size
+TOUCH_MM = 1e-6         # mm: a line this close to a surface is on it
 
 
 def _sizes(fastener: str) -> dict:
@@ -583,14 +612,14 @@ def _interface(entry: dict, parts: dict):
     from .geom import bbox
     a, b = _need(entry, "a", "[[interface]]"), _need(entry, "b", "[[interface]]")
     tol = float(entry.get("tol_mm", 0.1))
-    near = float(entry.get("near_mm", 15.0))
+    near = float(entry["near_mm"]) if "near_mm" in entry else None
     sa, sb = _body(parts, a), _body(parts, b)
     sizes = _sizes(entry["fastener"]) if "fastener" in entry else None
-    box_b = bbox(sb)
-    facing = [h for h in holes(sa) if _points_into(h, box_b, sb, near)]
+    box_b, in_b = bbox(sb), holes(sb)
+    facing = [h for h in holes(sa) if _points_into(h, sb, box_b, in_b, near)]
     if not facing:
-        raise _Unusable(f"no hole in {a} points into {b} within {near:g} mm")
-    in_b = holes(sb)
+        raise _Unusable(f"no hole in {a} points into {b}: none has its axis on {b}'s material "
+                        f"or in a hole of {b}" + (f", within {near:g} mm" if near is not None else ""))
     for h in facing:
         where = f"{a} {_describe(h)} at {_xyz(h['point'])}"
         mates = sorted((g for g in in_b if _parallel(h, g)), key=lambda g: _gap(h, g))

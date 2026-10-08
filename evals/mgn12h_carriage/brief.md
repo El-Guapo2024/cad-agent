@@ -78,14 +78,14 @@ The grader checks these, and nothing else beyond the usual gates:
    (`bin/cad tables`).
 
 **Round holes.** The checker reads every round hole in the plate whose axis line
-passes through the block's bounding box (45.4 x 27 x 10 mm, plus 0.5 mm all
-round) as a bolt hole, and wants the block's hole under it. So over the block
-the plate has the four bolt holes and no other round hole: a lightening hole or
-a round pocket would have nothing under it. A counterbore is a wider step on a
-bolt hole's axis, so it is part of that hole, judged by its narrowest bore, and
-the rounded corners of a pocket are not holes. The screw heads sit on the
-plate's top face, inside the tool flange's relief. The tool bores, at y = ±15,
-are outside that box.
+lands on the block, on its material or in one of its holes, as a bolt hole, and
+wants the block's hole under it. So over the block the plate has the four bolt
+holes and no other round hole: a lightening hole or a round pocket would have
+nothing under it. A counterbore is a wider step on a bolt hole's axis, so it is
+part of that hole, judged by its narrowest bore, and the rounded corners of a
+pocket are not holes. The screw heads sit on the plate's top face, inside the
+tool flange's relief. The tool bores, at y = ±15, are off the block, which is
+27 mm wide.
 
 ## Declare the travel
 

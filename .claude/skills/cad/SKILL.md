@@ -86,11 +86,13 @@ b = "x_carriage"
 fastener = "M3"
 ```
 
-An `[[interface]]` judges holes, not every round face: a counterbore is part of
-its hole (the narrowest bore is the size), a teardrop's point, a D's flat or a
-slit leaves a bore a hole, a slot passes when the other body's hole sits on its
-centre line, and fillets are not holes. A fastener's clearance hole is anything
-from ISO 273's fine to coarse series (M3: 3.2 to 3.6 mm).
+An `[[interface]]` judges the holes of `a` whose axis lands on `b` (on its
+material or in one of its holes), not every round face: a cutout over a window in
+`b` is no mounting hole. A counterbore is part of its hole (the narrowest bore is
+the size), a teardrop's point, a D's flat or a slit leaves a bore a hole, a slot
+passes when the other body's hole sits on its centre line, and fillets are not
+holes. A fastener's clearance hole is anything from ISO 273's fine to coarse
+series (M3: 3.2 to 3.6 mm). `near_mm = 15` also asks for a hole within 15 mm of `b`.
 
 `tests/fixtures/*/spec.toml` are real examples.
 

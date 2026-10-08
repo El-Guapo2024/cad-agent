@@ -11,6 +11,7 @@ from build123d import Axis, Box, Compound, Cylinder, Pos, Rot, Vector
 
 from cad_agent import spec as sp
 from cad_agent import state as st
+from cad_agent.geom import bbox
 from cad_agent.parts import CLEARANCE_HOLE, ISO_273, TAP_DRILL
 
 HOLES =[(-20.0, 0.0), (20.0, 0.0)]
@@ -370,6 +371,56 @@ def test_an_unknown_fastener_is_unchecked(rig):
 def test_a_body_with_no_facing_hole_is_unchecked(rig):
     row = check(rig, '[[interface]]\na = "far"\nb = "base"\n')[0]
     assert row.state == "UNCHECKED" and "no hole in far points into base" in row.measured
+
+
+# ─── Interfaces: which holes of `a` point into `b` ───────────────────────────
+
+def test_a_cutout_over_a_window_in_b_is_no_mounting_hole(rig):
+    # The base is a frame with a window under the middle of the top plate, where a 16 mm button
+    # hole sits. It is close to the base and inside its box, but its axis lands on nothing.
+    base = plate(60, 40, 5, HOLES, TAP_DRILL["M3"]) - Box(24, 14, 7)
+    top = plate(60, 40, 4, HOLES, CLEARANCE_HOLE["M3"]) - Cylinder(8, 6)
+    rows = by_rule(check(rig, IFACE, with_top(top, base)), "interface")
+    assert len(rows) == 2 and all(r.state == "PASS" for r in rows)
+    assert all("hole dia 3.40" in r.measured for r in rows)                # the two mounting holes only
+
+
+@pytest.mark.parametrize("x, state", [(11.0, "UNCHECKED"), (13.0, "FAIL")])
+def test_the_axis_decides_not_the_size_of_the_cutout(rig, x, state):
+    # A 10 mm hole 1 mm inside the window's edge, and 1 mm over the frame: both overlap the frame.
+    # Only the second has its axis on material, so only that one needs a mate, and has none.
+    base = Box(60, 40, 5) - Box(24, 14, 7)
+    top = plate(60, 40, 4, [(x, 0)], 10.0)
+    (row,) = by_rule(check(rig, IFACE, with_top(top, base)), "interface")
+    assert row.state == state
+    assert ("no hole in base under it" if state == "FAIL" else "no hole in top points into base") in row.measured
+
+
+def test_the_axis_in_a_hole_of_b_counts_as_pointing_into_it(rig):
+    # A tap hole runs all the way through the base, so the line down its axis never meets the solid.
+    base = plate(60, 40, 5, HOLES, TAP_DRILL["M3"])
+    hole = sp.holes(base)[0]
+    assert not sp._on_material(hole["point"], hole["dir"], base, bbox(base))
+    assert sp._on_hole(hole["point"], hole["dir"], sp.holes(base))
+    rows = by_rule(check(rig, IFACE, with_top(plate(60, 40, 4, HOLES, CLEARANCE_HOLE["M3"]), base)), "interface")
+    assert len(rows) == 2 and all(r.state == "PASS" for r in rows)
+
+
+def test_a_mate_missed_by_more_than_its_bore_is_still_judged(rig):
+    # 2 mm off puts the top plate's axes on the base's material, not in its holes: still a mating pair.
+    rows = by_rule(check(rig, IFACE, bodies(shift=2.0)), "interface")
+    assert len(rows) == 2 and all(r.state == "FAIL" and "offset 2.000" in r.measured for r in rows)
+
+
+def test_near_mm_is_an_option_not_a_default(rig):
+    parts = bodies() | {"top": Pos(0, 0, 34.5) * plate(60, 40, 4, HOLES, CLEARANCE_HOLE["M3"])}   # 32 mm over the base
+    anywhere = by_rule(check(rig, IFACE, parts), "interface")
+    assert len(anywhere) == 2 and all(r.state == "PASS" for r in anywhere)     # its axes land on the base's holes
+    (too_far,) = by_rule(check(rig, IFACE + "near_mm = 10\n", parts), "interface")
+    assert too_far.state == "UNCHECKED" and "no hole in top points into base" in too_far.measured
+    assert "within 10 mm" in too_far.measured
+    close = by_rule(check(rig, IFACE + "near_mm = 40\n", parts), "interface")
+    assert len(close) == 2 and all(r.state == "PASS" for r in close)
 
 
 def test_holes_are_told_from_bosses():
