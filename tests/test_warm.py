@@ -10,6 +10,7 @@ import json
 import os
 import re
 import subprocess
+import sys
 import time
 from pathlib import Path
 
@@ -27,7 +28,9 @@ def warm(tmp_path_factory):
     d.mkdir(parents=True)
     (d / "plate.py").write_text(PLATE)
     (d / "block.py").write_text(BLOCK)
-    env = dict(os.environ, CAD_PROJECTS=str(root),
+    # The worker runs this test's own Python: a plugin session's CAD_PYTHON would bring
+    # another install's kernel, and its files would not match the in-process ones.
+    env = dict(os.environ, CAD_PROJECTS=str(root), CAD_PYTHON=sys.executable,
                CAD_WARM_DIR=str(tmp_path_factory.mktemp("warm")))
     env.pop("CAD_WARM", None)
 
