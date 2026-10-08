@@ -142,6 +142,44 @@ def _child(req: dict, fds: list[int]) -> None:
     os._exit(code if isinstance(code, int) else 4)
 
 
+def _take_lock(path: Path):
+    """The worker lock, or None when another worker owns this checkout.
+
+    A worker removes the file on its way out (_retire), so a lock taken on a file that has just
+    been removed would guard nothing: check that the path still names the file we hold.
+    """
+    while True:
+        lock = open(path, "w")
+        try:
+            fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        except OSError:
+            lock.close()
+            return None
+        try:
+            if os.fstat(lock.fileno()).st_ino == os.stat(path).st_ino:
+                return lock
+        except FileNotFoundError:
+            pass
+        lock.close()
+
+
+def _retire(path: Path, lock) -> None:
+    """Leave no lock and no log behind after a clean exit: a test run, or a day of use, starts
+    a worker per scratch folder and checkout, and the files piled up in /tmp.
+
+    The lock goes while it is still held (see _take_lock). A log that says more than our own
+    start-up lines stays: a sidecar's complaint is worth reading after the fact.
+    """
+    path.with_suffix(".lock").unlink(missing_ok=True)
+    lock.close()
+    log = path.with_suffix(".log")
+    try:
+        if all(ln.startswith("warm worker ") for ln in log.read_text().splitlines()):
+            log.unlink()
+    except OSError:
+        pass
+
+
 class _Sidecar:
     """The Metal sidecar: a process this worker execs, because a fork cannot
     use Metal's shader compiler (metal_render.py has the story).
@@ -212,10 +250,8 @@ class _Sidecar:
 
 
 def serve(path: Path) -> None:
-    lock = open(path.with_suffix(".lock"), "w")
-    try:
-        fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
-    except OSError:
+    lock = _take_lock(path.with_suffix(".lock"))
+    if lock is None:
         return                                 # another worker owns this checkout
     for var in ("OPENBLAS_NUM_THREADS", "OMP_NUM_THREADS", "MKL_NUM_THREADS",
                 "VECLIB_MAXIMUM_THREADS"):
@@ -241,7 +277,7 @@ def serve(path: Path) -> None:
 
     running: dict[int, socket.socket] = {}     # child pid -> its client connection
     served, last, started = 0, time.time(), time.time()
-    stop = False
+    stop = clean = False
 
     def _terminate(*_):
         raise KeyboardInterrupt                # SIGTERM: stop children, remove the socket
@@ -314,8 +350,9 @@ def serve(path: Path) -> None:
                 running[pid] = conn
                 served += 1
                 last = time.time()
+        clean = True
     except KeyboardInterrupt:
-        pass
+        clean = True
     finally:
         for pid in running:
             try:
@@ -325,6 +362,8 @@ def serve(path: Path) -> None:
         sidecar.stop()
         srv.close()
         path.unlink(missing_ok=True)
+        if clean:
+            _retire(path, lock)
 
 
 # ─── Client ──────────────────────────────────────────────────────────────────
@@ -369,11 +408,23 @@ def _connect_or_start(path: Path, quiet: bool = False) -> socket.socket | None:
         if conn is not None:
             return conn
         # Exit 0 means another worker holds the lock and may still be importing:
-        # keep waiting for it. Anything else is a crash: say why and give up.
+        # keep waiting for it, unless it has let go without a socket (it was on
+        # its way out when we started). Anything else is a crash: say why and give up.
         if proc.poll() not in (None, 0):
             print(f"cad: the warm worker exited:\n{_log_tail(path)}", file=sys.stderr)
             return _connect(path)
+        if proc.poll() == 0 and _lock_is_free(path):
+            proc = _start(path)
     return None
+
+
+def _lock_is_free(path: Path) -> bool:
+    try:
+        with open(path.with_suffix(".lock"), "a") as f:
+            fcntl.flock(f, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            return True
+    except OSError:
+        return False
 
 
 def _read_reply(conn: socket.socket) -> dict:

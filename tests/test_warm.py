@@ -14,6 +14,7 @@ from pathlib import Path
 
 import pytest
 
+from cad_agent import warm as warm_module
 from conftest import cad_env
 from test_cli import BLOCK, PLATE
 
@@ -145,3 +146,48 @@ def test_a_render_through_the_worker_is_the_render_a_cold_run_makes(warm, monkey
         status = cad("warm", "status").stdout
         drawn = re.search(r"metal sidecar \d+ on .+, (\d+) draws served", status)
         assert drawn and int(drawn.group(1)) >= 1, status
+
+
+# ─── The lock and the log ────────────────────────────────────────────────────
+
+def test_a_second_worker_cannot_take_the_lock_and_a_removed_one_can_be_retaken(tmp_path):
+    path = tmp_path / "warm-x.lock"
+    first = warm_module._take_lock(path)
+    assert first is not None and warm_module._take_lock(path) is None
+    assert warm_module._lock_is_free(tmp_path / "warm-x.sock") is False
+    path.unlink()                                   # what a worker on its way out does
+    first.close()
+    assert warm_module._lock_is_free(tmp_path / "warm-x.sock") is True
+    again = warm_module._take_lock(path)
+    assert again is not None
+    again.close()
+
+
+def test_a_clean_exit_removes_the_lock_and_a_log_with_nothing_to_say(tmp_path):
+    sock = tmp_path / "warm-x.sock"
+    lock = warm_module._take_lock(sock.with_suffix(".lock"))
+    sock.with_suffix(".log").write_text("warm worker 1 ready in 5.0 s at x\n"
+                                        "warm worker 1: warm.py changed on disk, restarting\n")
+    warm_module._retire(sock, lock)
+    assert list(tmp_path.iterdir()) == []
+
+
+def test_a_clean_exit_keeps_a_log_that_has_a_complaint(tmp_path):
+    sock = tmp_path / "warm-x.sock"
+    lock = warm_module._take_lock(sock.with_suffix(".lock"))
+    sock.with_suffix(".log").write_text("warm worker 1 ready in 5.0 s at x\n"
+                                        "metal sidecar: shader would not compile\n")
+    warm_module._retire(sock, lock)
+    assert [p.name for p in tmp_path.iterdir()] == ["warm-x.log"]
+
+
+def test_a_stopped_worker_leaves_no_lock_and_no_log_behind(warm):
+    # Last in the module: it stops the worker the others share. Every test run, and every day
+    # of use, starts a worker per scratch folder or checkout; their files piled up in /tmp.
+    cad, _ = warm
+    sock = Path(re.search(r"socket (\S+)", cad("warm", "status").stdout).group(1))
+    assert cad("warm", "stop").returncode == 0
+    deadline = time.monotonic() + 15
+    while list(sock.parent.glob(f"{sock.stem}.*")) and time.monotonic() < deadline:
+        time.sleep(0.2)                             # the sidecar is given a moment to leave
+    assert list(sock.parent.glob(f"{sock.stem}.*")) == []
