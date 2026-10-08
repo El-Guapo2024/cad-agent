@@ -5,8 +5,7 @@ A part module opts in by exposing CUTLIST, a list of dicts with `kind`
 """
 from __future__ import annotations
 from collections import defaultdict
-from .state import part_names, build_part, project_dir
-import importlib.util
+from .state import _load_module, part_names, build_part, project_dir
 
 # Rough vendor prices, September 2026, from the tooling survey. Planning only.
 PRICE = {
@@ -22,10 +21,7 @@ def cutlist(slug: str) -> dict:
     rows = defaultdict(lambda: {"qty": 0, "total_mm": 0.0})
     for name in part_names(slug):
         path = project_dir(slug) / "parts" / f"{name}.py"
-        spec = importlib.util.spec_from_file_location(f"_cut_{name}", path)
-        mod = importlib.util.module_from_spec(spec)
-        spec.loader.exec_module(mod)
-        for item in getattr(mod, "CUTLIST", []):
+        for item in getattr(_load_module(path), "CUTLIST", []):
             key = (item["kind"], item.get("length_mm"))
             rows[key]["qty"] += int(item.get("qty", 1))
             rows[key]["total_mm"] += float(item.get("length_mm") or 0) * int(item.get("qty", 1))

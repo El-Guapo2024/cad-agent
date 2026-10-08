@@ -22,14 +22,13 @@ rejected rather than trusted.
 """
 from __future__ import annotations
 
-import importlib.util
 import json
 from pathlib import Path
 
 from build123d import import_step
 
 from .geom import bbox, volume
-from .state import project_dir
+from .state import _load_module, project_dir
 
 
 class MissingProvenance(ValueError):
@@ -67,10 +66,7 @@ def _sidecar(step_path: Path) -> dict:
 
 
 def _load(path: Path):
-    spec = importlib.util.spec_from_file_location(f"_bought_{path.stem}", path)
-    mod = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(mod)
-    return mod
+    return _load_module(path)             # from source: see state._load_module for why
 
 
 def register_step(slug: str, name: str, step_path: str, source: str,

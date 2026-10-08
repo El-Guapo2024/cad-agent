@@ -503,3 +503,17 @@ def test_an_assembly_that_raises_fails_the_gates_instead_of_crashing(demo, capsy
     for cmd in ("verify", "mass"):
         code, data = run(capsys, cmd, "demo")
         assert code == cli.FAIL, cmd
+
+
+def test_a_cutlist_reads_the_part_as_it_is_now_and_leaves_no_bytecode_behind(demo, monkeypatch, capsys):
+    monkeypatch.setattr(sys, "dont_write_bytecode", False)
+    part = demo / "parts" / "plate.py"
+    part.write_text(PLATE + "\nCUTLIST = [{'kind': '2020', 'length_mm': 100, 'qty': 1}]\n")
+    stamp = part.stat().st_mtime
+    code, data = run(capsys, "cutlist", "demo")
+    assert code == cli.OK and data["rows"][0]["length_mm"] == 100
+    part.write_text(PLATE + "\nCUTLIST = [{'kind': '2020', 'length_mm': 200, 'qty': 1}]\n")
+    os.utime(part, (stamp, stamp))                               # the same second, the same size
+    code, data = run(capsys, "cutlist", "demo")
+    assert data["rows"][0]["length_mm"] == 200
+    assert not (demo / "parts" / "__pycache__").exists()

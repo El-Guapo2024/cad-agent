@@ -89,3 +89,21 @@ def test_unknown_bought_part_names_the_two_routes(project):
     with pytest.raises(FileNotFoundError) as e:
         B.load_bought(SLUG, "ghost")
     assert "register_step" in str(e.value)
+
+
+def test_a_measured_part_rewritten_within_the_second_runs_its_new_text(project, monkeypatch):
+    # Bytecode is reused when the file's mtime (whole seconds) and size match, so a rewrite of the
+    # same length in the same second ran the old numbers: state._load_module says why design files
+    # are never loaded that way, and bought.py loaded them that way (and left a __pycache__ in
+    # the project).
+    import os
+    import sys
+    monkeypatch.setattr(sys, "dont_write_bytecode", False)       # as in a shell that does not set it
+    tmp, _ = project
+    path = B.register_measured(SLUG, "block", 10, 20, 30, source="datasheet p.1")
+    first = B.bought_info(SLUG, "block")["bbox_mm"]
+    stamp = path.stat().st_mtime
+    path.write_text(path.read_text().replace("'length': 10", "'length': 11"))
+    os.utime(path, (stamp, stamp))                               # the same second, the same size
+    assert B.bought_info(SLUG, "block")["bbox_mm"] != first
+    assert not (path.parent / "__pycache__").exists()
