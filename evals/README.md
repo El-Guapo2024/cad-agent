@@ -91,9 +91,10 @@ no `CAD_EVALS`.
 - It reads the geometry `assembly.py` produced, not how. An assembly could edit a given part's
   solid; the pins hold its bounding box and position, not its holes.
 - `[[interface]]` judges the holes of `a` whose axis meets `b`: a design that leaves a given hole
-  uncovered is judged on the rest. A hole is a bore that goes all the way round (a counterbore is
-  part of it, and it is sized by its narrowest bore) and a slot is judged by its centre line;
-  fillets and a notch open to an edge are not holes, so nothing judges them.
+  uncovered is judged on the rest. A hole is a bore that turns 270 degrees or more (a teardrop, a
+  D-bore and a slit bore count; a counterbore is part of it, and it is sized by its narrowest
+  bore) and a slot is judged by its centre line; fillets and a notch open to an edge are not
+  holes, so nothing judges them.
 - `max_mm` on a clearance is the closest approach: a looser bore with the barrel resting on one side
   can pass "grips". `[[mass]]` uses the `MATERIAL` the part declares.
 - Nothing here judges assembly order, tool access or cable routing; that is the reviewer's job.

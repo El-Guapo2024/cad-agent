@@ -42,10 +42,11 @@ spec.toml is UNCHECKED too: nothing states what the design must do.
     tol_mm = 0.1                # axis offset allowed; default 0.1
     near_mm = 15                # only holes of `a` this close to `b`; default 15
 
-An interface judges holes, not every round face. A hole is the cylinders on one axis that go
-all the way round, and its size is its smallest bore, so a counterbore is part of its hole. A
+An interface judges holes, not every round face. A hole is the cylinders of one radius on one
+axis that turn 270 degrees or more, and its size is its smallest bore, so a counterbore is part
+of its hole, and a teardrop's point, a D's flat or a clamp's slit leave the bore what it was. A
 slot is judged by its centre line: the other body's hole axis has to lie on it, and its width
-is the size. Fillets and other partial arcs are not holes.
+is the size. Fillets and other shorter arcs are not holes.
 
 With a fastener, one hole of each pair must be a clearance hole and the other a clearance, tap
 or heat-set size. Clearance is anything from ISO 273's fine to its coarse series (M3: 3.2 to
@@ -280,6 +281,7 @@ def _mass(entry: dict, slug: str):
 # ─── Interfaces: holes that must line up ─────────────────────────────────────
 
 FULL_TURN = 2.0 * math.pi
+BORE_TURN = 1.5 * math.pi       # 270 degrees: the least a bore turns, since a teardrop's point takes 90
 ARC_TOL = 1e-3          # radians: how far two arcs may miss meeting, or a half turn be off
 ALIGNED = math.cos(math.radians(2.0))     # how well a slot's two ends must face each other
 
@@ -287,11 +289,13 @@ ALIGNED = math.cos(math.radians(2.0))     # how well a slot's two ends must face
 def holes(solid) -> list[dict]:
     """The holes and slots of a solid: the places a fastener can go.
 
-    A hole is the concave cylinders on one axis that together go all the way round. A
-    counterbore shares the axis of the hole it widens, so it is part of that hole: `dia`
-    is the narrowest bore, which is what a screw passes, and `bores` lists every diameter.
-    OCCT often splits one cylinder in two at a seam, so the angles are added up per axis and
-    radius, not taken from one face.
+    A hole is the concave cylinders of one radius on one axis that together turn 270 degrees
+    or more without a break. Most go all the way round. A printed hole lying on its side has a
+    teardrop's point, a shaft bore a D's flat, a clamp a slit: each takes part of the circle and
+    leaves the bore what it was, so none of them changes `dia`. A counterbore shares the axis of
+    the hole it widens, so it is part of that hole: `dia` is the narrowest bore, which is what a
+    screw passes, and `bores` lists every diameter. OCCT often splits one cylinder in two at a
+    seam, so the angles are added up per axis and radius, not taken from one face.
 
     A slot is two half-turn cylinders of one radius on parallel axes, each bulging away from
     the other. Its `ends` are those axes at mid-depth, `point` is halfway between them and
@@ -322,9 +326,10 @@ def holes(solid) -> list[dict]:
         bores, arcs = [], []
         for same in radii:
             cover = _cover([_arc(c, d, x) for c in same])
-            if len(cover) == 1 and cover[0][1] - cover[0][0] >= FULL_TURN - ARC_TOL:
+            turn = max(end - start for start, end in cover)        # the longest unbroken arc
+            if turn >= BORE_TURN - ARC_TOL:
                 bores.append(same)
-            elif len(cover) == 1 and abs(cover[0][1] - cover[0][0] - math.pi) <= ARC_TOL:
+            elif len(cover) == 1 and abs(turn - math.pi) <= ARC_TOL:
                 arcs.append((same, sum(cover[0]) / 2.0))
         if bores:
             found.append(_hole(group[0]["point"], d, bores))

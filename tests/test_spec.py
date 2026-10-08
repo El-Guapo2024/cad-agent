@@ -13,7 +13,7 @@ from cad_agent import spec as sp
 from cad_agent import state as st
 from cad_agent.parts import CLEARANCE_HOLE, ISO_273, TAP_DRILL
 
-HOLES = [(-20.0, 0.0), (20.0, 0.0)]
+HOLES =[(-20.0, 0.0), (20.0, 0.0)]
 
 TOP_PLATE = '''"""Top plate of the test rig."""
 from build123d import Box, Cylinder, Pos
@@ -45,6 +45,29 @@ def bodies(shift=0.0, base_holes=HOLES, base_dia=TAP_DRILL["M3"]):
                                  CLEARANCE_HOLE["M3"])
     return {"top": top, "base": plate(60, 40, 5, base_holes, base_dia),
             "far": Pos(200, 0, 10) * Box(10, 10, 20)}
+
+
+def teardrop_tool(r, t):
+    """What cuts a teardrop hole: a circle with a 45 degree point toward +y, as a hole lying on its side is printed."""
+    return Cylinder(r, t + 2) + Pos(0, r / math.sqrt(2), 0) * Rot(0, 0, 45) * Box(r, r, t + 2)
+
+
+def d_tool(r, t, flat):
+    """What cuts a D-bore: a circle with its +x side cut off, `flat` mm in from the wall."""
+    return Cylinder(r, t + 2) - Pos(r - flat + 5, 0, 0) * Box(10, 4 * r, t + 4)
+
+
+def slit_tool(r, t, width=0.5):
+    """What cuts a bore with a slit: a circle and a narrow slot out through +x, as a clamp has."""
+    return Cylinder(r, t + 2) + Pos(r, 0, 0) * Box(2 * r, width, t + 2)
+
+
+def shaped(w, d, t, holes, tool):
+    """A plate cut by `tool` at each hole."""
+    p = Box(w, d, t)
+    for x, y in holes:
+        p -= Pos(x, y, 0) * tool
+    return p
 
 
 def counterbored(w, d, t, holes, dia, bore=6.4, depth=2.0):
@@ -458,6 +481,58 @@ def test_slots_that_cross_pass_and_slots_that_miss_fail(rig):
     apart = Box(60, 40, 5) - slot_tool(0, 15, 20, 2.5, 5)
     assert [r.state for r in by_rule(check(rig, IFACE, with_top(top, cross)), "interface")] == ["PASS"]
     assert [r.state for r in by_rule(check(rig, IFACE, with_top(top, apart)), "interface")] == ["FAIL"]
+
+
+# ─── Interfaces: a bore with part of its circle missing is still a hole ─────
+
+TOOLS = {"teardrop": lambda d, t: teardrop_tool(d / 2, t),               # 270 degrees of the circle left
+         "D": lambda d, t: d_tool(d / 2, t, 0.3 * d / 2.5),              # about 290
+         "slit": lambda d, t: slit_tool(d / 2, t)}                       # about 335
+
+
+@pytest.mark.parametrize("shape", TOOLS)
+def test_a_bore_with_a_point_a_flat_or_a_slit_is_one_hole_of_its_own_size(shape):
+    (found,) = sp.holes(shaped(60, 40, 4, [(5, 0)], TOOLS[shape](3.4, 4)))
+    assert found["kind"] == "hole" and found["dia"] == pytest.approx(3.4)
+    assert (found["point"].X, found["point"].Y, found["point"].Z) == pytest.approx((5, 0, 0), abs=1e-9)
+    cut = split_faces(shaped(60, 40, 4, [(5, 0)], TOOLS[shape](3.4, 4)), degrees=60)
+    assert len(sp._concave_cylinders(cut)) > 1                              # OCCT cut it at its seams
+    assert [(h["kind"], round(h["dia"], 2)) for h in sp.holes(cut)] == [("hole", 3.4)]
+
+
+@pytest.mark.parametrize("shape", TOOLS)
+def test_a_bore_with_a_point_a_flat_or_a_slit_passes_over_its_mate_and_fails_offset(rig, shape):
+    top = shaped(60, 40, 4, HOLES, TOOLS[shape](CLEARANCE_HOLE["M3"], 4))
+    rows = by_rule(check(rig, IFACE, with_top(top)), "interface")
+    assert len(rows) == 2 and all(r.state == "PASS" for r in rows)
+    assert all("hole dia 3.40" in r.measured and "clearance over tap" in r.measured for r in rows)
+    moved = shaped(60, 40, 4, [(x + 0.5, y) for x, y in HOLES], TOOLS[shape](CLEARANCE_HOLE["M3"], 4))
+    rows = by_rule(check(rig, IFACE, with_top(moved)), "interface")
+    assert len(rows) == 2 and all(r.state == "FAIL" and "offset 0.500" in r.measured for r in rows)
+
+
+@pytest.mark.parametrize("shape", TOOLS)
+def test_the_mate_may_be_the_odd_one_out_too(rig, shape):
+    base = shaped(60, 40, 5, HOLES, TOOLS[shape](TAP_DRILL["M3"], 5))
+    rows = by_rule(check(rig, IFACE, with_top(plate(60, 40, 4, HOLES, CLEARANCE_HOLE["M3"]), base)),
+                   "interface")
+    assert len(rows) == 2 and all(r.state == "PASS" and "tap" in r.measured for r in rows)
+
+
+def test_two_bodies_with_only_odd_bores_facing_each_other_are_judged_not_unchecked(rig):
+    top = shaped(60, 40, 4, HOLES, teardrop_tool(CLEARANCE_HOLE["M3"] / 2, 4))
+    base = shaped(60, 40, 5, HOLES, d_tool(TAP_DRILL["M3"] / 2, 5, 0.3))
+    rows = check(rig, IFACE, with_top(top, base))
+    assert [(r.rule, r.state) for r in rows] == [("spec/interface", "PASS")] * 2
+    assert all("clearance over tap" in r.measured for r in rows)
+
+
+def test_a_flat_that_takes_more_than_a_quarter_of_the_circle_leaves_no_bore():
+    # 90 degrees gone from a circle is the most a teardrop takes; a deeper D is a notch, not a hole.
+    deep = shaped(60, 40, 4, [(5, 0)], d_tool(1.7, 4, 1.7 * (1 - math.cos(math.radians(50)))))
+    assert sp.holes(deep) == []
+    shallow = shaped(60, 40, 4, [(5, 0)], d_tool(1.7, 4, 1.7 * (1 - math.cos(math.radians(40)))))
+    assert [round(h["dia"], 2) for h in sp.holes(shallow)] == [3.4]
 
 
 def test_inside_corner_fillets_are_not_holes(rig):
