@@ -41,7 +41,7 @@ UI parity itself is done. Anything left is n/a by design (listed in PARITY.md).
 ## How to check
 - `cd ui && npx tsc -b --noEmit && npm run build` (the build goes to `cad_agent/workbench/next/`; commit it).
 - `node ui/scripts/navcheck.mjs`: 72 navigation checks, needs only Node.
-- `.venv/bin/python -m pytest -q`: 374 tests.
+- While fixing: `.venv/bin/python tests/affected.py` runs only the test files that can see what changed since main (`--list` to see them). The full suite (`.venv/bin/python -m pytest -q`, about 500 tests, 7 to 20 minutes here) runs on GitHub CI for every push: fixes collect on a `batch` branch, which is pushed every couple of hours and fast-forwards main once CI is green.
 - keycheck on the Mac: Playwright comes with the miniconda Python install. Make a folder holding a symlink `playwright -> ~/miniconda3/lib/python3.13/site-packages/playwright/driver/package` and run `NODE_PATH=<folder> node ui/scripts/keycheck.mjs http://127.0.0.1:<port>/next/` against a scratch workbench (serve.run with the CAD_* variables above; a `cad-keycheck` entry in ~/ws/.claude/launch.json does this on port 8792).
 - Preferences against FreeCAD: `node ui/scripts/prefdump.mjs URL dump.json`, then `python3 ui/scripts/prefdiff.py dump.json` (fetches the .ui files once).
 - Menus against FreeCAD: `python3 ui/scripts/fcgui.py` (FreeCAD's dump), `python3 ui/scripts/fcref.py <scratch project>`, then `node ui/scripts/menurun.mjs 'URL#<project>'`. 43 expected differences as of 2026-10-02 (PARITY.md's Menus note).
