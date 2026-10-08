@@ -391,3 +391,52 @@ def test_a_checkout_that_is_not_a_worktree_does_not_borrow_a_venv(tmp_path):
     shutil.copy(REPO / "bin" / "cad", alone / "bin" / "cad")
     plugin = _stub(tmp_path / "home" / ".claude" / "plugins" / "data" / "cad-agent-x" / "venv" / "bin" / "python")
     assert _python_of(alone, tmp_path) == (str(plugin), str(alone.resolve()))
+
+
+# ─── A mistake in the arguments is a usage error, never a crash ───────────────────────────────
+
+def test_a_project_name_is_one_folder_not_a_path(demo, capsys):
+    # `status ..` took the folder above the projects for a project, `check ""` the root itself
+    # and `check /etc` any folder on the machine, and a gate writes checks.json into its project.
+    for name in ("..", "", "/etc", "a/b", ".cad"):
+        code, data = run(capsys, "status", name)
+        assert code == cli.USAGE and "no project" in data["error"], name
+    code, data = run(capsys, "check", "..")
+    assert code == cli.USAGE
+    assert not (demo.parent / "checks.json").exists() and not (demo.parent.parent / "checks.json").exists()
+
+
+def test_values_that_make_no_tool_are_usage_errors(demo, capsys):
+    for argv in (["drill", "diameter=-3", "flute=20"], ["drill", "diameter=0", "flute=0"],
+                 ["laser_cone", "focal_length=0", "field=110", "lens_dia=30"]):
+        code, data = run(capsys, "tool", *argv)
+        assert code == cli.USAGE and "positive" in data["error"], argv
+    code, data = run(capsys, "tool", "drill", "diameter=abc", "flute=20")
+    assert code == cli.USAGE and "diameter must be a number" in data["error"]
+
+
+def test_a_tolerance_the_mesher_cannot_use_is_a_usage_error(demo, capsys):
+    for bad in ("0", "-1", "nan", "inf"):
+        code, data = run(capsys, "render", "demo", "plate", "--tolerance", bad)
+        assert code == cli.USAGE and "above 0" in data["error"], bad
+    code, data = run(capsys, "scene", "demo", "--tolerance", "0")
+    assert code == cli.USAGE
+
+
+def test_an_unknown_view_is_a_usage_error_for_check_verify_and_approve(demo, capsys):
+    for argv in (["check", "demo", "--views", "iso,nope"], ["verify", "demo", "--views", "nope"],
+                 ["approve", "demo", "--view", "nope"]):
+        code, data = run(capsys, *argv)
+        assert code == cli.USAGE and "unknown view 'nope'" in data["error"] and "iso2" in data["error"], argv
+
+
+def test_approve_before_anything_was_rendered_says_to_run_the_checks(demo, capsys):
+    code, data = run(capsys, "approve", "demo")
+    assert code == cli.USAGE and "run the checks first" in data["error"]
+
+
+def test_a_set_of_the_wrong_type_is_a_usage_error_like_cad_set(demo, capsys):
+    code, data = run(capsys, "build", "demo", "plate", "--set", "thickness=abc")
+    assert code == cli.USAGE and "thickness is a number" in data["error"]
+    code, data = run(capsys, "build", "demo", "plate", "--set", "thickness=5")
+    assert code == cli.OK and data["overrides"] == {"thickness": 5.0}

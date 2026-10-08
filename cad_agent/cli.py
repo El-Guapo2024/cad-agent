@@ -118,6 +118,24 @@ def _part(slug: str, name: str) -> Path:
     return path
 
 
+def _views(text: str) -> tuple[str, ...]:
+    """A comma list of views for check, verify and approve, each one the renderer draws."""
+    from .render import VIEWS
+    views = tuple(v.strip() for v in text.split(",") if v.strip()) or ("iso",)
+    bad = [v for v in views if v not in VIEWS]
+    if bad:
+        raise UsageError(f"unknown view {', '.join(repr(v) for v in bad)} "
+                         f"(views: {', '.join(sorted(VIEWS))})")
+    return views
+
+
+def _tolerance(value: float | None) -> None:
+    """--tolerance is the tessellation tolerance in mm: the mesher fails on zero or less."""
+    if value is not None and not 0 < value < float("inf"):
+        raise UsageError(f"--tolerance is the tessellation tolerance in mm and must be above 0, "
+                         f"got {value:g}")
+
+
 def _actor(a) -> str:
     """Who to journal a change under: `--actor` when the caller passed it
     (the workbench server adds it to every command it runs; see undo.record's
@@ -137,13 +155,20 @@ def _overrides(a) -> dict:
         raise UsageError("--set changes one part's PARAMS; name the part")
     path = _part(a.slug, a.part)
     try:
-        known = set(getattr(st._load_module(path), "PARAMS", {}))
+        defaults = dict(getattr(st._load_module(path), "PARAMS", {}))
     except Exception as e:
         raise BuildFailed(f"{a.part} did not load: {type(e).__name__}: {e}") from e
-    unknown = sorted(set(ov) - known)
+    unknown = sorted(set(ov) - set(defaults))
     if unknown:
         raise UsageError(f"{a.part} has no parameter {', '.join(unknown)} "
-                         f"(params: {', '.join(sorted(known))})")
+                         f"(params: {', '.join(sorted(defaults))})")
+    from .params import ParamError, coerce
+    for key, value in list(ov.items()):          # a number where the part has a number, as `cad set`
+        if isinstance(defaults[key], (bool, int, float)):
+            try:
+                ov[key] = coerce(key, defaults[key], value)
+            except ParamError as e:
+                raise UsageError(str(e)) from None
     return ov
 
 
@@ -285,6 +310,7 @@ def cmd_render(a) -> Result:
     from .render import VIEWS, draw, merge, tessellate
     if a.view not in VIEWS:
         raise UsageError(f"unknown view {a.view!r} (views: {', '.join(sorted(VIEWS))})")
+    _tolerance(a.tolerance)
     if a.part:
         solid, _ = _build(a.slug, a.part, ov)
         mesh = tessellate(solid, a.tolerance, 0.2)
@@ -403,9 +429,12 @@ def cmd_tool(a) -> Result:
     from . import tooling
     from .geom import bbox
     params = _pairs(a.params, "tool")
+    for key, value in params.items():
+        if isinstance(value, bool) or not isinstance(value, (int, float)):
+            raise UsageError(f"{a.kind}: {key} must be a number in mm, got {value!r}")
     try:
         solid = getattr(tooling, a.kind)(**params)
-    except TypeError as e:
+    except (TypeError, ValueError) as e:
         raise UsageError(f"{a.kind}: {e}") from e
     lo, hi = bbox(solid)
     data = {"kind": a.kind, "params": params,
@@ -447,8 +476,7 @@ def cmd_check(a) -> Result:
     if a.set:
         raise UsageError("--set changes one part's PARAMS; add --part")
     from .runner import check_all
-    views = tuple(v.strip() for v in a.views.split(",") if v.strip()) or ("iso",)
-    p = check_all(a.slug, render_views=views)
+    p = check_all(a.slug, render_views=_views(a.views))
     s = p["summary"]
     code = FAIL if s.get("parts_failed") else _verdict(r["state"] for r in p["rows"])
     shown = p["rows"] if a.all else [r for r in p["rows"] if r["state"] != "PASS"]
@@ -478,7 +506,12 @@ def cmd_approve(a) -> Result:
     pdir = _project(a.slug)
     if a.part:
         _part(a.slug, a.part)
-    done = approve_views(a.slug, a.part, a.view)
+    if a.view:
+        _views(a.view)
+    try:
+        done = approve_views(a.slug, a.part, a.view)
+    except FileNotFoundError as e:             # nothing rendered yet: its message says to check first
+        raise UsageError(str(e)) from None
     print("approved renders become the baseline the visual gate compares against; "
           "look at the diff first", file=sys.stderr)
     return Result(OK, {"project": a.slug, "approved": done},
@@ -498,7 +531,7 @@ def cmd_verify(a) -> Result:
     """Rebuild from source in a fresh process, run every gate, write verify.json."""
     pdir = _project(a.slug)
     from . import verify
-    views = tuple(v.strip() for v in a.views.split(",") if v.strip()) or ("iso",)
+    views = _views(a.views)
     mode = (("warm-fork" if os.environ.get("CAD_WARM_CHILD") == "1" else "cold")
             if a._fresh else "reused")
     rec = verify.run(a.slug, fresh=a._fresh, mode=mode, views=views)
@@ -811,6 +844,7 @@ def _triple(text: str, flag: str) -> tuple[float, float, float]:
 
 def cmd_scene(a) -> Result:
     _project(a.slug)
+    _tolerance(a.tolerance)
     from .placements import PlacementError
     from .scene import write_scene
     try:

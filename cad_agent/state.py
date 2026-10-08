@@ -16,7 +16,16 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent / "projects"
 
 
+def _is_name(slug: str) -> bool:
+    """A project is one folder directly under the projects root. An empty name, `..` or a path
+    would otherwise name the root itself, the folder above it, or any folder on the machine, and
+    `cad check` would write checks.json there."""
+    return bool(slug) and slug == Path(slug).name and not slug.startswith(".")
+
+
 def project_dir(slug: str, create: bool = False) -> Path:
+    if not _is_name(slug):
+        raise FileNotFoundError(f"no project {slug!r}")
     d = ROOT / slug
     if create:
         for sub in ("parts", "bought", "out"):
