@@ -10,6 +10,7 @@ import numpy as np
 
 from . import rules  # noqa: F401  — importing is what registers the checks
 from .geom import bbox, mass_g, volume
+from .placements import PlacementError
 from .registry import (AssemblyCtx, FAILING, PartCtx, ProjectCtx, Row, checks,
                        run as run_check)
 from .render import draw, merge, tessellate
@@ -69,6 +70,8 @@ def check_all(slug: str, render_views=("iso",), tolerance: float = 0.05):
     # ── assembly checks ──────────────────────────────────────────────────────
     try:
         asm, clearance, allow_contact, axes = load_assembly(slug)
+    except PlacementError:
+        raise                         # fails closed with its own message: cli.main reports it
     except Exception as e:            # the design's failure to report, not a crash of the checker
         asm, clearance, allow_contact, axes = None, {}, set(), {}
         rows.append(Row(subject=slug, rule="build", state="FAIL", measured=why(e),
