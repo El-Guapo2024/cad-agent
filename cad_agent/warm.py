@@ -48,7 +48,11 @@ IDLE_S = 30 * 60
 START_TIMEOUT_S = 240
 PKG = Path(__file__).resolve().parent
 PRELOAD = ("numpy", "build123d")
-ENV_PASS = ("CAD_PROJECTS", "CAD_RENDER_BACKEND", "CAD_PREFS", "COLUMNS", "NO_COLOR", "TERM",
+# What a command reads from the environment, as its own client had it. A fork inherits the
+# worker's environment, which is whoever started the worker's, so a variable missing here would
+# make a warm call differ from a cold one. test_warm.py holds this to the variables the package reads.
+ENV_PASS = ("CAD_PROJECTS", "CAD_RENDER_BACKEND", "CAD_PREFS", "CAD_MACRO_DIR", "CAD_RUNTIME_DIR",
+            "CAD_SERVE_URL", "COLUMNS", "NO_COLOR", "TERM",
             "CAD_ACTOR")  # undo.actor()'s fallback for CAD_WARM=0; the
                           # workbench server passes cli.py's --actor flag
                           # instead (a warm-worker fork inherits the

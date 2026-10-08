@@ -28,7 +28,8 @@ def warm(tmp_path_factory):
     d.mkdir(parents=True)
     (d / "plate.py").write_text(PLATE)
     (d / "block.py").write_text(BLOCK)
-    env = cad_env(CAD_PROJECTS=str(root), CAD_WARM_DIR=str(tmp_path_factory.mktemp("warm")))
+    env = cad_env(CAD_PROJECTS=str(root), CAD_WARM_DIR=str(tmp_path_factory.mktemp("warm")),
+                  CAD_MACRO_DIR=str(tmp_path_factory.mktemp("macros")))
     env.pop("CAD_WARM", None)
 
     def cad(*argv):
@@ -146,6 +147,31 @@ def test_a_render_through_the_worker_is_the_render_a_cold_run_makes(warm, monkey
         status = cad("warm", "status").stdout
         drawn = re.search(r"metal sidecar \d+ on .+, (\d+) draws served", status)
         assert drawn and int(drawn.group(1)) >= 1, status
+
+
+# ─── The environment a fork sees ─────────────────────────────────────────────
+
+# Read by the client, or set by the worker, so a fork never takes them from its client.
+NOT_FORWARDED = {"CAD_WARM", "CAD_WARM_DIR", "CAD_WARM_CHILD", "CAD_EVALS"}
+
+
+def test_every_variable_a_command_reads_reaches_its_fork():
+    # A variable missing from ENV_PASS is read from the environment of whoever started the worker:
+    # `CAD_MACRO_DIR=x cad macro save` wrote to the folder of the first client.
+    read = set()
+    for f in (REPO / "cad_agent").glob("*.py"):
+        read |= set(re.findall(r'environ(?:\.get|\.pop|\.setdefault)?[(\[]\s*"(CAD_[A-Z_]+)"', f.read_text()))
+    assert read - NOT_FORWARDED <= set(warm_module.ENV_PASS), read - NOT_FORWARDED - set(warm_module.ENV_PASS)
+
+
+def test_a_forks_macro_folder_is_its_clients_not_the_workers(warm, tmp_path):
+    cad, _ = warm
+    mine = tmp_path / "mine"
+    p = subprocess.run([str(REPO / "bin" / "cad"), "macro", "save", "m1", "-"], input="ls\n",
+                       capture_output=True, text=True, env=dict(cad.env, CAD_MACRO_DIR=str(mine)), timeout=120)
+    assert p.returncode == 0, p.stderr
+    assert (mine / "m1.cad").exists()
+    assert not (Path(cad.env["CAD_MACRO_DIR"]) / "m1.cad").exists()
 
 
 # ─── The lock and the log ────────────────────────────────────────────────────
