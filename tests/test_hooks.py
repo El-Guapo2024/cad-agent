@@ -13,18 +13,18 @@ from pathlib import Path
 
 import pytest
 
+from conftest import cad_env
 from test_cli import PLATE
 
 REPO = Path(__file__).resolve().parent.parent
-EDIT = REPO / ".claude" / "hooks" / "cad_on_edit.py"
+EDIT =REPO / ".claude" / "hooks" / "cad_on_edit.py"
 STOP = REPO / ".claude" / "hooks" / "cad_on_stop.py"
 
 
 @pytest.fixture(scope="module")
 def env(tmp_path_factory):
-    e = dict(os.environ, CAD_WARM_DIR=str(tmp_path_factory.mktemp("warm")))
+    e = cad_env(CAD_WARM_DIR=str(tmp_path_factory.mktemp("warm")))
     e.pop("CAD_WARM", None)
-    e.pop("CAD_PROJECTS", None)
     yield e
     subprocess.run([str(REPO / "bin" / "cad"), "warm", "stop"], env=e, capture_output=True)
 
