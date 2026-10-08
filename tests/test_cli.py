@@ -607,3 +607,16 @@ def test_set_on_a_part_file_that_is_not_text_fails_the_part_not_the_tool(demo, c
     (demo / "parts" / "plate.py").write_bytes(b"# \xff\xfe not UTF-8\nPARAMS = {}\n")
     code, data = run(capsys, "set", "demo", "plate", "thickness=5")
     assert code == cli.FAIL and "plate does not parse" in data["error"]
+
+
+def test_a_file_that_starts_with_a_dot_is_not_a_part(demo, capsys):
+    # Copying a project through a stick or a zip from a Mac leaves ._plate.py beside plate.py, and
+    # it was a part that does not build: approve, export and the gates all tripped on it.
+    (demo / "parts" / "._plate.py").write_bytes(b"\x00\x05\x16\x07 resource fork")
+    (demo / "parts" / ".hidden.py").write_text("X = 1\n")
+    code, data = run(capsys, "ls", "demo")
+    assert data["parts"] == ["block", "plate"]
+    code, data = run(capsys, "check", "demo")
+    assert data["summary"]["parts_failed"] == 0 and data["summary"]["parts_built"] == 2
+    code, data = run(capsys, "approve", "demo")
+    assert code == cli.OK and not any("hidden" in d or "._" in d for d in data["approved"])

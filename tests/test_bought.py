@@ -125,3 +125,12 @@ def test_a_bought_part_that_cannot_be_read_is_listed_not_a_crash(project):
         B.load_bought(SLUG, "widget")
     with pytest.raises(SyntaxError):
         B.load_bought(SLUG, "block")
+
+
+def test_dot_files_in_bought_are_not_bought_parts(project):
+    tmp, step = project
+    B.register_step(SLUG, "widget", str(step), source="vendor drawing")
+    folder = tmp / SLUG / "bought"
+    (folder / ".DS_Store").write_bytes(b"\x00")
+    (folder / "._widget.step").write_bytes(b"\x00\x05\x16\x07")
+    assert [r["name"] for r in B.list_bought(SLUG)] == ["widget"]

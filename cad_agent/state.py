@@ -68,7 +68,7 @@ def _load_module(path: Path):
 
 def part_names(slug: str) -> list[str]:
     d = project_dir(slug) / "parts"
-    return sorted(p.stem for p in d.glob("*.py") if not p.stem.startswith("_"))
+    return sorted(p.stem for p in d.glob("*.py") if not p.stem.startswith(("_", ".")))   # ._x.py: a Mac's resource fork
 
 
 def build_part(slug: str, name: str, overrides: dict | None = None):

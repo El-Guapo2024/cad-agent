@@ -49,6 +49,8 @@ def list_bought(slug: str) -> list[dict]:
     out = []
     d = bought_dir(slug)
     for p in sorted(d.iterdir()) if d.is_dir() else []:
+        if p.name.startswith("."):
+            continue                   # .DS_Store, and ._x.step: a Mac's resource fork beside a file copied off a stick
         if p.suffix.lower() in (".step", ".stp"):
             meta = _sidecar(p)
             out.append({"name": p.stem, "kind": "STEP", "file": p.name,
