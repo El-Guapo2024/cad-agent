@@ -570,3 +570,12 @@ def test_a_part_that_cannot_be_built_fails_export_approve_and_cutlist_instead_of
                  ["cutlist", "demo"]):
         code, data = run(capsys, *argv)
         assert code == cli.FAIL and "did not build" in data["error"], argv
+
+
+def test_a_build_that_returns_no_solid_fails_the_part_not_the_tool(demo, capsys):
+    (demo / "parts" / "plate.py").write_text(PLATE.replace("    return part\n", "    return None\n"))
+    code, data = run(capsys, "build", "demo", "plate")
+    assert code == cli.FAIL and "returned NoneType, not a solid" in data["error"]
+    for cmd in ("check", "verify"):
+        code, data = run(capsys, cmd, "demo")
+        assert code == cli.FAIL, cmd

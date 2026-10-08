@@ -81,6 +81,9 @@ def build_part(slug: str, name: str, overrides: dict | None = None):
     params.update(overrides or {})
     t0 = time.perf_counter()
     solid = mod.build(**params)
+    if not hasattr(solid, "bounding_box"):         # geom.bbox's own test for "a shape"
+        raise TypeError(f"{name}.build() returned {type(solid).__name__}, not a solid: "
+                        "return the Part (or Compound) it makes")
     meta = {
         "params": params,
         "material": getattr(mod, "MATERIAL", None),
