@@ -16,8 +16,12 @@ What this keeps:
 - Every command runs in a fresh child forked from a parent that has never run
   project code, so nothing leaks from one command into the next.
 - cad_agent is imported fresh in every child, so an edit to a rule or a part
-  takes effect on the next call. Only third-party modules are preloaded;
-  after upgrading one of those, run `cad warm stop`.
+  takes effect on the next call. What the worker holds itself does not follow
+  the disk: this file, the sidecar's files and the preloaded kernel. It checks
+  them before every command (a stat each; `cad verify` hashes the same files
+  into its verdict) and, when one has changed, lets the commands in flight
+  finish and re-execs itself, keeping its socket, so no command runs on old
+  code. A worker started before that check existed needs one `cad warm stop`.
 - The parent is single-threaded (one-thread BLAS) and never touches
   Objective-C, which is what makes fork safe on macOS. A fork cannot compile
   Metal shaders either (their compiler is an XPC service, and XPC fails in a
@@ -54,6 +58,11 @@ ENV_PASS = ("CAD_PROJECTS", "CAD_RENDER_BACKEND", "CAD_PREFS", "COLUMNS", "NO_CO
 COLD = {(), ("-h",), ("--help",)}           # nothing to import: answer without a worker
 NO_KERNEL = {"serve", "service", "eval"}   # kernel-free: never hold a worker fork
 METAL_ENV = "CAD_METAL_SIDECAR"            # metal_render.SIDECAR_ENV (no cad_agent import here)
+INHERIT_ENV = "CAD_WARM_INHERIT"           # a restarting worker's socket and lock, for its next self
+# The cad_agent files the worker process, and the sidecar it execs, import and keep (see
+# _Watch). test_warm_restart.py holds both lists to what those processes really import.
+OWN_CODE = ("__init__.py", "warm.py")
+SIDECAR_CODE = ("__init__.py", "metal_render.py", "render.py")
 
 
 def _command(argv: list[str]) -> str | None:
@@ -142,6 +151,58 @@ def _child(req: dict, fds: list[int]) -> None:
     os._exit(code if isinstance(code, int) else 4)
 
 
+def _stat(p: Path) -> tuple | None:
+    try:
+        s = p.stat()
+    except OSError:
+        return None
+    return s.st_mtime_ns, s.st_size, s.st_ino
+
+
+def _digest(p: Path) -> str | None:
+    try:
+        return hashlib.sha256(p.read_bytes()).hexdigest()
+    except OSError:
+        return None
+
+
+class _Watch:
+    """The files this worker, and the sidecar it execs, hold from when they started: has any changed?
+
+    A command needs no restart for an edit to a rule or a part, because its fork imports
+    cad_agent fresh. What the worker keeps does not follow the disk: warm.py (the loop, and what
+    each fork does before it imports cli), the sidecar's files, and the kernel it preloaded. A
+    command served on those runs old code while `cad verify` hashes the new, so a change to any
+    of them restarts the worker (_restart). The snapshot is taken before the imports it
+    describes, so an edit in between shows up as a change.
+
+    A change is other bytes, not another time: `git checkout` and `touch` rewrite files they
+    leave alone, and a restart costs a kernel import. Nothing changed costs a stat per file,
+    about 25 microseconds for all of them.
+    """
+
+    def __init__(self, paths: list[Path]):
+        self.seen = {p: (_stat(p), _digest(p)) for p in paths}
+
+    def changed(self) -> list[Path]:
+        out = []
+        for p, (stat, digest) in self.seen.items():
+            now = _stat(p)
+            if now == stat:
+                continue
+            if now is not None and _digest(p) == digest:      # rewritten, not changed
+                self.seen[p] = (now, digest)
+            else:
+                out.append(p)
+        return out
+
+
+def _kernel_files() -> list[Path]:
+    """Where the preloaded modules live, found without importing them."""
+    found = (importlib.util.find_spec(m) for m in PRELOAD)
+    return [Path(s.origin) for s in found if s and s.origin and s.origin.endswith(".py")]
+
+
 def _take_lock(path: Path):
     """The worker lock, or None when another worker owns this checkout.
 
@@ -180,6 +241,31 @@ def _retire(path: Path, lock) -> None:
         pass
 
 
+def _restart(path: Path, srv: socket.socket, lock, sidecar: _Sidecar, restarts: int,
+             changed: list[Path]) -> None:
+    """Replace this process with a new worker that runs the files on disk, keeping the socket.
+
+    The listening socket and the lock go across the exec, so a client that connects meanwhile
+    waits in the queue and is served by the new code rather than turned away, and no second
+    worker can start. The sidecar goes first: the new worker starts its own, in parallel with
+    the kernel import, which is the long part. Returns only when the exec fails (the
+    interpreter is gone, say); the caller then stops, since serving on old code is what this
+    prevents.
+    """
+    names = ", ".join(sorted(p.name for p in changed))
+    print(f"warm worker {os.getpid()}: {names} changed on disk, restarting", flush=True)
+    sidecar.stop()
+    for f in (srv, lock):
+        os.set_inheritable(f.fileno(), True)
+    os.environ[INHERIT_ENV] = json.dumps({"listener": srv.fileno(), "lock": lock.fileno(),
+                                          "restarts": restarts + 1})
+    try:
+        os.execv(sys.executable, [sys.executable, "-m", "cad_agent.warm", "_serve", str(path)])
+    except OSError as e:
+        os.environ.pop(INHERIT_ENV, None)
+        print(f"warm worker {os.getpid()}: cannot restart ({e}); stopping", flush=True)
+
+
 class _Sidecar:
     """The Metal sidecar: a process this worker execs, because a fork cannot
     use Metal's shader compiler (metal_render.py has the story).
@@ -188,8 +274,8 @@ class _Sidecar:
     first. Children find its socket in CAD_METAL_SIDECAR. It exits when the
     worker does, and the worker starts it again if it dies, up to MAX_STARTS
     times in all; after that, or on a machine with no Metal, children draw with
-    numpy. Like the worker it keeps the code it started with, so after editing
-    metal_render.py run `cad warm stop`.
+    numpy. Like the worker it keeps the code it started with: the worker
+    restarts, sidecar included, when metal_render.py or render.py changes.
     """
     MAX_STARTS = 3
 
@@ -199,7 +285,6 @@ class _Sidecar:
         self.proc: subprocess.Popen | None = None
         self.wanted = sys.platform == "darwin" and importlib.util.find_spec("Metal") is not None
         os.environ.pop(METAL_ENV, None)        # never a sidecar inherited from whoever started us
-        self.check()
 
     def check(self) -> None:
         """Start the sidecar, or start it again once it has died."""
@@ -250,33 +335,46 @@ class _Sidecar:
 
 
 def serve(path: Path) -> None:
-    lock = _take_lock(path.with_suffix(".lock"))
-    if lock is None:
-        return                                 # another worker owns this checkout
+    carried = json.loads(os.environ.pop(INHERIT_ENV, "") or "{}")   # from _restart, in the new self
+    if carried:
+        lock = os.fdopen(carried["lock"], "w")
+        os.set_inheritable(lock.fileno(), False)
+    else:
+        lock = _take_lock(path.with_suffix(".lock"))
+        if lock is None:
+            return                             # another worker owns this checkout
     for var in ("OPENBLAS_NUM_THREADS", "OMP_NUM_THREADS", "MKL_NUM_THREADS",
                 "VECLIB_MAXIMUM_THREADS"):
         os.environ.setdefault(var, "1")        # keep the parent single-threaded for fork
     import warnings
     warnings.filterwarnings("ignore", message=".*fork.*", category=DeprecationWarning)
 
-    sidecar = _Sidecar(path)                   # starts now: the import below is the long part
+    sidecar = _Sidecar(path)
+    watch = _Watch([PKG / n for n in OWN_CODE]
+                   + [PKG / n for n in SIDECAR_CODE if sidecar.wanted] + _kernel_files())
+    sidecar.check()                            # starts now: the import below is the long part
     t0 = time.time()
     for mod in PRELOAD:
         __import__(mod)
     preload_s = round(time.time() - t0, 1)
 
-    path.unlink(missing_ok=True)
-    srv = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
-    old = os.umask(0o177)                      # socket readable by this user only
-    try:
-        srv.bind(str(path))
-    finally:
-        os.umask(old)
-    srv.listen(16)
+    if carried:
+        srv = socket.socket(fileno=carried["listener"])
+        os.set_inheritable(srv.fileno(), False)
+    else:
+        path.unlink(missing_ok=True)
+        srv = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+        old = os.umask(0o177)                  # socket readable by this user only
+        try:
+            srv.bind(str(path))
+        finally:
+            os.umask(old)
+        srv.listen(16)
     print(f"warm worker {os.getpid()} ready in {preload_s} s at {path}", flush=True)
 
     running: dict[int, socket.socket] = {}     # child pid -> its client connection
     served, last, started = 0, time.time(), time.time()
+    restarts = carried.get("restarts", 0)
     stop = clean = False
 
     def _terminate(*_):
@@ -299,7 +397,13 @@ def serve(path: Path) -> None:
                 last = time.time()
             if not running and time.time() - last > IDLE_S:
                 break
-            ready, _, _ = select.select([srv, *running.values()], [], [], 0.2)
+            changed = watch.changed()
+            if changed and not running:
+                _restart(path, srv, lock, sidecar, restarts, changed)
+                break                          # only reached when the exec failed
+            # A changed worker takes no command (they wait in the queue) until the new one runs.
+            ready, _, _ = select.select([*([] if changed else [srv]), *running.values()],
+                                        [], [], 0.2)
             for s in ready:
                 if s is not srv:               # a client hung up mid-command (Ctrl-C)
                     try:
@@ -314,6 +418,8 @@ def serve(path: Path) -> None:
                                 except ProcessLookupError:
                                     pass
                     continue
+                if watch.changed():
+                    break                      # edited since the check above: restart first
                 conn, _ = srv.accept()
                 try:
                     msg, fds, _, _ = socket.recv_fds(conn, 65536, 3)
@@ -327,6 +433,7 @@ def serve(path: Path) -> None:
                     _reply(conn, {"exit": 0, "pid": os.getpid(), "up_s": int(time.time() - started),
                                   "served": served, "running": len(running),
                                   "preload_s": preload_s, "socket": str(path),
+                                  "restarts": restarts,
                                   "metal": sidecar.describe() if req["control"] == "status" else None})
                     continue
                 if req.get("control") == "stop":
@@ -536,6 +643,8 @@ def _control(args: list[str]) -> int:
         print(f"cad warm: worker {reply.get('pid')} up {reply.get('up_s')} s, "
               f"{reply.get('served')} commands served, kernel import took "
               f"{reply.get('preload_s')} s\n  socket {reply.get('socket')}")
+        if reply.get("restarts"):
+            print(f"  restarted {reply['restarts']} time(s) because its own code changed on disk")
         if reply.get("metal"):
             print(f"  metal {reply['metal']}")
     return 0

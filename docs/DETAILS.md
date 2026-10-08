@@ -275,7 +275,10 @@ once rendered cold looked fine and a fresh install fell back to numpy. So the
 worker execs a sidecar (`python -m cad_agent.metal_render
 _serve`) that owns the device and does every draw; a fork sends it its
 triangles over a socket (`CAD_METAL_SIDECAR`) and gets pixels identical to a
-cold render's. `cad warm status` shows it. After editing `metal_render.py`,
+cold render's. `cad warm status` shows it. The worker restarts itself, sidecar
+included, when `metal_render.py`, `render.py`, `warm.py` or the preloaded kernel
+changes on disk (it checks before every command, so no command runs on old code
+under the engine hash of the new); a worker started before that check needs one
 `cad warm stop`.
 
 **numpy z-buffer, the fallback.** Pure numpy, hand-rolled PNG writer, no

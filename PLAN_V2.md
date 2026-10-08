@@ -56,7 +56,7 @@ cad verify <slug>                            the verifier (below)
 Conventions:
 - Every command prints a short human-readable table by default, or JSON with `--json`.
 - Exit codes: 0 pass, 1 fail, 2 unchecked, 3 usage error, 4 crash (a cad-agent bug, never a verdict).
-- **Warm worker** (`cad_agent/warm.py`). Importing build123d costs 20–35 s here, so the first call starts a background worker that imports it once. Every command then runs in a fresh fork of that worker, in about 1 s. `CAD_WARM=0` runs cold; `cad warm status|stop`.
+- **Warm worker** (`cad_agent/warm.py`). Importing build123d costs 20–35 s here, so the first call starts a background worker that imports it once. Every command then runs in a fresh fork of that worker, in about 1 s. `CAD_WARM=0` runs cold; `cad warm status|stop`. The worker restarts itself when the files it holds (its own, the Metal sidecar's, the kernel) change on disk, so a command never runs on old code under the new engine hash.
 - Renders are files; the agent opens them with Read.
 - The tests drive the CLI through a subprocess, so the CLI itself is what's tested.
 
