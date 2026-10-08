@@ -10,7 +10,6 @@ a = "panel"
 b = "frame"
 fastener = "M3"
 tol_mm = 0.1
-near_mm = 6
 
 [[clearance]]               # the panel sits on the frame: touching, no gap
 a = "panel"

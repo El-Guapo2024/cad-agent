@@ -230,10 +230,11 @@ Each step ends with the tests green.
    - `cad eval run` gives the agent `{plugin}`: a copy of the repo as a plugin without `evals/`, `.git`, `.venv` and `.claude/worktrees`, so the hidden specs aren't one `ls` away. The edit and stop hooks skip everything under `evals/`.
    - Never run with a real agent yet. It spends plan usage, so it needs Juan's OK; the command is in `evals/README.md`.
    - Three checks that wrongly failed good designs, fixed 2026-10-07 (the briefs dropped their workarounds): `[[interface]]` judges holes, not every round face (a counterbore is part of its hole and sized by its narrowest bore, a slot is judged by its centre line, fillets and notches are not holes); a clearance hole is anything in ISO 273's fine to coarse range (M3: 3.2 to 3.6 mm); `geometry/web` is N/A for a flat part with no cutout, whose cutout count is still held to `EXPECT_FEATURES`.
+   - A second pass of fixes, 2026-10-07: `[[interface]]` reads a bore of 270 degrees or more as a hole (a teardrop, a D-bore, a slit bore) and judges a hole of `a` only when its axis lands on `b`'s material or in one of its holes, so `near_mm` is an explicit extra and `laser_panel` dropped its `near_mm = 6`; the part rules read `laser_cut`'s kerf (slots and gaps) and the minimum hole of `laser_cut` and `cnc`, a test holds every number in the process table to being read, and fdm's `min_hole_mm` is gone (a printed hole under 2 mm is drilled afterwards); every length compared to a limit allows 1e-6 mm (`registry.TOL_MM`), so a 5.0 mm stance patch stands; the tests that run `bin/cad` or the warm worker run their own Python whatever `CAD_PYTHON` a plugin session exports (`conftest.cad_env`); the 24 given STEPs were rewritten by `write_step`.
    - Known gaps, what the grader can't say yet (each task works round them; `evals/README.md` has the detail):
      - no `[[axis]]` kind, so `AXES` can't be required (`mgn12h_carriage` asks for it; without it only the home pose is graded);
      - no hole-count option and no shaft-fit option;
      - a clearance `max_mm` bounds only the closest approach, and there is no clearance to a sub-feature;
-     - `laser_cut`'s kerf and minimum hole are unused, and there is no DXF export;
+     - there is no DXF export for laser parts;
      - no heat rule and no body count.
 8. First real job: the one-machine layout (frame, gantry, dock, laser keep-out).

@@ -69,14 +69,14 @@ The grader checks these, and nothing else beyond the usual gates:
    bracket is no wider than the extrusion (40) and no taller than it (20).
 
 Round holes. The checker reads every round hole in the bracket whose axis line
-passes through the extrusion's or the idler's bounding box (plus 0.5 mm all
-round) as a mounting or shaft hole, and wants a matching hole there. So over
-those two boxes the bracket has the two mounting holes and the shaft holes and
+lands on the extrusion or on the idler, on its material or in one of its holes,
+as a mounting or shaft hole, and wants a matching hole there. So over those two
+bodies the bracket has the two mounting holes and the shaft holes and
 no other hole: a lightening hole would have nothing under it. A counterbore or
 nut trap shares its hole's axis and is part of that hole, judged by its narrowest
 bore, so it is fine on a shaft hole and on a mounting hole alike. A slot is
 judged by its centre line, which has to pass over the matching hole, and the
-rounded corners of a pocket are not holes. The idler's box ends at y = ±9, so
+rounded corners of a pocket are not holes. The idler ends at y = ±9, so
 the mounting holes at y = ±10 stay clear of it.
 
 ## Also expected, not scored

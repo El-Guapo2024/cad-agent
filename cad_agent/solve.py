@@ -46,6 +46,8 @@ from .runner import part_check
 SENSE = {
     "min wall": +1,
     "web": +1,
+    "min hole": +1,
+    "kerf": +1,
     "silhouette": +1,
     "drift": -1,
     "extent": -1,

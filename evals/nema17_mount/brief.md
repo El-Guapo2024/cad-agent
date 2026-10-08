@@ -49,7 +49,8 @@ it, z up; z = 0 is the rail's top face):
 7. **Envelope.** Rail, motor and bracket together fit in 72 x 60 x 64 mm (x, y, z).
 
 The usual `cad` gates apply on top of these: no two bodies overlap, and every part passes the
-part rules for its `PROCESS` (`cad rules`; a flat part declares `EXPECT_FEATURES`).
+part rules for its `PROCESS` (`cad rules`; a flat part declares `EXPECT_FEATURES`, and a `cnc` or
+`laser_cut` part has no round hole under 1 mm).
 
 ## Working
 

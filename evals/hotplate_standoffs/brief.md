@@ -44,7 +44,8 @@ returns exactly six bodies, with these names:
 ## What `cad verify` grades
 
 The grader's `spec.toml` replaces yours. Every number it uses is here, and every part and
-assembly gate still applies (`cad rules`), so no two bodies may interfere.
+assembly gate still applies (`cad rules`; a `cnc` part has no round hole or slot under 1 mm), so
+no two bodies may interfere.
 
 - **Envelope:** the whole assembly fits in 160 x 160 x 36 mm.
 - **Positions:** `base_plate` bounding-box centre at (0, 0, -3) and `hot_plate` at (0, 0, 25),

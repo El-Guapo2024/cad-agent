@@ -7,14 +7,15 @@ subprocess, so the wrapper and the exit codes a shell sees are covered too;
 both are chosen to fail or finish before the slow build123d import.
 """
 import json
-import os
 import subprocess
+import sys
 from pathlib import Path
 
 import pytest
 
 from cad_agent import cli
 from cad_agent import state as st
+from conftest import cad_env
 
 REPO = Path(__file__).resolve().parent.parent
 
@@ -289,7 +290,7 @@ def test_every_command_lands_in_the_activity_log(demo, capsys):
 def _bin(tmp_path, *argv):
     # Cold on purpose: these cover the wrapper and the exit code, and must not
     # leave a warm worker running (test_warm.py covers that path).
-    env = dict(os.environ, CAD_PROJECTS=str(tmp_path), CAD_WARM="0")
+    env = cad_env(CAD_PROJECTS=str(tmp_path), CAD_WARM="0")
     return subprocess.run([str(REPO / "bin" / "cad"), *argv], capture_output=True,
                           text=True, env=env, timeout=120)
 
@@ -304,3 +305,16 @@ def test_bin_cad_runs_and_honours_cad_projects(tmp_path):
 def test_bin_cad_exit_code_reaches_the_shell(tmp_path):
     p = _bin(tmp_path, "build", "nope", "plate")
     assert p.returncode == 3 and "no project" in p.stderr
+
+
+def test_bin_cad_in_a_test_runs_the_tests_own_python(tmp_path, monkeypatch):
+    # A plugin session exports CAD_PYTHON for its own install and CAD_PROJECTS for its own designs.
+    monkeypatch.setenv("CAD_PYTHON", str(tmp_path / "no-such-python"))
+    monkeypatch.setenv("CAD_PROJECTS", str(tmp_path / "someone-elses-projects"))
+    env = cad_env()
+    assert env["CAD_PYTHON"] == sys.executable and "CAD_PROJECTS" not in env
+    assert cad_env(CAD_PROJECTS="/here")["CAD_PROJECTS"] == "/here"
+    (tmp_path / "alpha").mkdir()
+    p = _bin(tmp_path, "--json", "ls")
+    assert p.returncode == 0, p.stderr
+    assert json.loads(p.stdout)["data"]["projects"] == ["alpha"]

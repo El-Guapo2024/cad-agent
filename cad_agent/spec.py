@@ -40,12 +40,17 @@ spec.toml is UNCHECKED too: nothing states what the design must do.
     b = "base_plate"
     fastener = "M3"             # optional: hole sizes must suit it
     tol_mm = 0.1                # axis offset allowed; default 0.1
-    near_mm = 15                # only holes of `a` this close to `b`; default 15
+    near_mm = 15                # optional: also only holes of `a` this close to `b`
 
-An interface judges holes, not every round face. A hole is the cylinders on one axis that go
-all the way round, and its size is its smallest bore, so a counterbore is part of its hole. A
+An interface judges holes, not every round face. A hole is the cylinders of one radius on one
+axis that turn 270 degrees or more, and its size is its smallest bore, so a counterbore is part
+of its hole, and a teardrop's point, a D's flat or a clamp's slit leave the bore what it was. A
 slot is judged by its centre line: the other body's hole axis has to lie on it, and its width
-is the size. Fillets and other partial arcs are not holes.
+is the size. Fillets and other shorter arcs are not holes.
+
+It judges the holes of `a` that point into `b`: those whose axis lands on `b`, on its material
+or in one of its holes. A button's cutout over a window in `b` lands on nothing, so it is no
+mounting hole and needs no mate. `near_mm` adds a distance: only holes this close to `b`.
 
 With a fastener, one hole of each pair must be a clearance hole and the other a clearance, tap
 or heat-set size. Clearance is anything from ISO 273's fine to its coarse series (M3: 3.2 to
@@ -59,7 +64,7 @@ import math
 import tomllib
 
 from . import state as st
-from .registry import Row
+from .registry import TOL_MM, Row
 
 KINDS = ("envelope", "size", "position", "clearance", "keepout", "mass", "interface")
 TOOLS = ("drill", "end_mill", "collet_nose", "laser_cone", "needle")
@@ -150,8 +155,8 @@ def _vec3(value, what: str) -> list[float]:
 
 def _bounds(dims, top, low):
     """The state, the reason and the limit text for a box held to x, y, z bounds."""
-    over = [a for a, d, m in zip("xyz", dims, top) if d > m + 1e-6] if top else []
-    under = [a for a, d, m in zip("xyz", dims, low) if d < m - 1e-6] if low else []
+    over = [a for a, d, m in zip("xyz", dims, top) if d > m + TOL_MM] if top else []
+    under = [a for a, d, m in zip("xyz", dims, low) if d < m - TOL_MM] if low else []
     why = (f", too big in {''.join(over)}" if over else "") + \
           (f", too small in {''.join(under)}" if under else "")
     limit = ", ".join(f"{sign} {b[0]:g} x {b[1]:g} x {b[2]:g} mm"
@@ -198,7 +203,7 @@ def _position(entry: dict, parts: dict):
     got = [(lo[i] + hi[i]) / 2.0 for i in range(3)]
     delta = [g - w for g, w in zip(got, want)]
     off = math.sqrt(sum(d * d for d in delta))
-    ok = off <= tol + 1e-9
+    ok = off <= tol + TOL_MM
     yield _row(name, "position", "PASS" if ok else "FAIL",
                f"center ({got[0]:.2f}, {got[1]:.2f}, {got[2]:.2f}) mm, offset {off:.3f} mm"
                + ("" if ok else f" (dx {delta[0]:+.2f}, dy {delta[1]:+.2f}, dz {delta[2]:+.2f})"),
@@ -223,7 +228,7 @@ def _clearance(entry: dict, parts: dict):
                    f"they interfere, overlap {overlap:.3f} mm^3", limit)
         return
     gap = min_distance(sa, sb)
-    close, far = need is not None and gap < need - 1e-6, cap is not None and gap > cap + 1e-6
+    close, far = need is not None and gap < need - TOL_MM, cap is not None and gap > cap + TOL_MM
     yield _row(f"{a}|{b}", "clearance", "FAIL" if close or far else "PASS",
                f"{gap:.3f} mm" + (", too close" if close else ", too far" if far else ""), limit)
 
@@ -273,13 +278,14 @@ def _mass(entry: dict, slug: str):
         g = mass_g(solid, meta["material"]) * float(n)
         total += g
         lines.append(f"{name} x{n} {g:.1f} g")
-    yield _row(", ".join(counts), "mass", "PASS" if total <= limit + 1e-9 else "FAIL",
+    yield _row(", ".join(counts), "mass", "PASS" if total <= limit + TOL_MM else "FAIL",
                f"{total:.1f} g ({'; '.join(lines)})", f"<= {limit:g} g")
 
 
 # ─── Interfaces: holes that must line up ─────────────────────────────────────
 
 FULL_TURN = 2.0 * math.pi
+BORE_TURN = 1.5 * math.pi       # 270 degrees: the least a bore turns, since a teardrop's point takes 90
 ARC_TOL = 1e-3          # radians: how far two arcs may miss meeting, or a half turn be off
 ALIGNED = math.cos(math.radians(2.0))     # how well a slot's two ends must face each other
 
@@ -287,11 +293,13 @@ ALIGNED = math.cos(math.radians(2.0))     # how well a slot's two ends must face
 def holes(solid) -> list[dict]:
     """The holes and slots of a solid: the places a fastener can go.
 
-    A hole is the concave cylinders on one axis that together go all the way round. A
-    counterbore shares the axis of the hole it widens, so it is part of that hole: `dia`
-    is the narrowest bore, which is what a screw passes, and `bores` lists every diameter.
-    OCCT often splits one cylinder in two at a seam, so the angles are added up per axis and
-    radius, not taken from one face.
+    A hole is the concave cylinders of one radius on one axis that together turn 270 degrees
+    or more without a break. Most go all the way round. A printed hole lying on its side has a
+    teardrop's point, a shaft bore a D's flat, a clamp a slit: each takes part of the circle and
+    leaves the bore what it was, so none of them changes `dia`. A counterbore shares the axis of
+    the hole it widens, so it is part of that hole: `dia` is the narrowest bore, which is what a
+    screw passes, and `bores` lists every diameter. OCCT often splits one cylinder in two at a
+    seam, so the angles are added up per axis and radius, not taken from one face.
 
     A slot is two half-turn cylinders of one radius on parallel axes, each bulging away from
     the other. Its `ends` are those axes at mid-depth, `point` is halfway between them and
@@ -322,9 +330,10 @@ def holes(solid) -> list[dict]:
         bores, arcs = [], []
         for same in radii:
             cover = _cover([_arc(c, d, x) for c in same])
-            if len(cover) == 1 and cover[0][1] - cover[0][0] >= FULL_TURN - ARC_TOL:
+            turn = max(end - start for start, end in cover)        # the longest unbroken arc
+            if turn >= BORE_TURN - ARC_TOL:
                 bores.append(same)
-            elif len(cover) == 1 and abs(cover[0][1] - cover[0][0] - math.pi) <= ARC_TOL:
+            elif len(cover) == 1 and abs(turn - math.pi) <= ARC_TOL:
                 arcs.append((same, sum(cover[0]) / 2.0))
         if bores:
             found.append(_hole(group[0]["point"], d, bores))
@@ -496,8 +505,11 @@ def _segment_gap(p1, q1, p2, q2) -> float:
     return ((p1 + d1 * s) - (p2 + d2 * t)).length
 
 
-def _axis_hits_box(point, direction, box, margin: float = 0.5) -> bool:
-    """Does the line through a point along a direction pass through the box (slab test)?"""
+def _axis_span(point, direction, box, margin: float = 1.0):
+    """Where the line through a point along a direction crosses the box, grown by `margin`.
+
+    Returns (t0, t1), distances along the direction, or None when the line misses it (slab test).
+    """
     lo, hi = box
     t0, t1 = -math.inf, math.inf
     p = (point.X, point.Y, point.Z)
@@ -506,21 +518,42 @@ def _axis_hits_box(point, direction, box, margin: float = 0.5) -> bool:
         a, b = lo[i] - margin, hi[i] + margin
         if abs(d[i]) < 1e-12:
             if not a <= p[i] <= b:
-                return False
+                return None
             continue
         s0, s1 = (a - p[i]) / d[i], (b - p[i]) / d[i]
         t0, t1 = max(t0, min(s0, s1)), min(t1, max(s0, s1))
-    return t0 <= t1
+    return (t0, t1) if t0 <= t1 else None
 
 
-def _points_into(h, box, body, near: float) -> bool:
-    """Does the hole's axis meet the box with the hole within `near` of the body?
+def _on_hole(point, direction, in_body) -> bool:
+    """Is the line through a point along a direction inside one of the body's holes or slots?"""
+    probe = {"dir": direction, "ends": (point, point)}
+    return any(_parallel(probe, g) and _gap(probe, g) <= g["dia"] / 2.0 + TOL_MM for g in in_body)
 
-    A slot is looked at in the middle and at both ends: it points into the body if any of them does.
+
+def _on_material(point, direction, body, box) -> bool:
+    """Does the line through a point along a direction hit the body's solid, not just its box?"""
+    from build123d import Edge
+    from .geom import min_distance
+    span = _axis_span(point, direction, box)
+    if span is None:
+        return False
+    line = Edge.make_line(point + direction * span[0], point + direction * span[1])
+    return min_distance(line, body) <= TOL_MM
+
+
+def _points_into(h, body, box, in_body, near=None) -> bool:
+    """Does the hole's axis land on the body: on its material, or in one of its holes?
+
+    A mounting hole has something under it: material that wants a hole, or a hole to line up
+    with. A cutout over a window has nothing, so it points into nothing and needs no mate. A
+    slot is looked at in the middle and at both ends: it points into the body if any of them
+    does. With `near`, the hole also has to be that close to the body.
     """
     from build123d import Vertex
     spots = [h["point"]] if h["kind"] == "hole" else [h["point"], *h["ends"]]
-    return any(_axis_hits_box(p, h["dir"], box) and Vertex(p).distance_to(body) <= near
+    return any((_on_hole(p, h["dir"], in_body) or _on_material(p, h["dir"], body, box))
+               and (near is None or Vertex(p).distance_to(body) <= near)
                for p in spots)
 
 
@@ -559,7 +592,7 @@ def _kind_of(dia: float, sizes: dict) -> str | None:
         if size is None:
             continue
         lo, hi = size if isinstance(size, tuple) else (size - SIZE_TOL, size + SIZE_TOL)
-        if lo - 1e-6 <= dia <= hi + 1e-6:              # 1e-6: float noise, so 3.6 is 3.6
+        if lo - TOL_MM <= dia <= hi + TOL_MM:          # float noise, so 3.6 is 3.6
             return kind
     return None
 
@@ -578,14 +611,14 @@ def _interface(entry: dict, parts: dict):
     from .geom import bbox
     a, b = _need(entry, "a", "[[interface]]"), _need(entry, "b", "[[interface]]")
     tol = float(entry.get("tol_mm", 0.1))
-    near = float(entry.get("near_mm", 15.0))
+    near = float(entry["near_mm"]) if "near_mm" in entry else None
     sa, sb = _body(parts, a), _body(parts, b)
     sizes = _sizes(entry["fastener"]) if "fastener" in entry else None
-    box_b = bbox(sb)
-    facing = [h for h in holes(sa) if _points_into(h, box_b, sb, near)]
+    box_b, in_b = bbox(sb), holes(sb)
+    facing = [h for h in holes(sa) if _points_into(h, sb, box_b, in_b, near)]
     if not facing:
-        raise _Unusable(f"no hole in {a} points into {b} within {near:g} mm")
-    in_b = holes(sb)
+        raise _Unusable(f"no hole in {a} points into {b}: none has its axis on {b}'s material "
+                        f"or in a hole of {b}" + (f", within {near:g} mm" if near is not None else ""))
     for h in facing:
         where = f"{a} {_describe(h)} at {_xyz(h['point'])}"
         mates = sorted((g for g in in_b if _parallel(h, g)), key=lambda g: _gap(h, g))
@@ -594,7 +627,7 @@ def _interface(entry: dict, parts: dict):
                        f"a coaxial hole within {tol:g} mm")
             continue
         g, off = mates[0], _gap(h, mates[0])
-        state, note = ("PASS" if off <= tol else "FAIL"), ""
+        state, note = ("PASS" if off <= tol + TOL_MM else "FAIL"), ""
         if sizes and state == "PASS":
             ka, kb = _kind_of(h["dia"], sizes), _kind_of(g["dia"], sizes)
             if not ka or not kb or "clearance" not in (ka, kb):

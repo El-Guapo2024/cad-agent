@@ -40,8 +40,9 @@ exactly five bodies, with these names:
   least 8.0 mm across and 4.5 mm deep.
 - The block has no other round cut: an extra hole or pocket would need a hole of the base under
   it (see "Coaxial holes" below). It is made of aluminium on a CNC. There is no heat requirement.
-- The usual part gates apply (`cad rules`). A 12 mm block counts as a flat part, so it needs
-  `EXPECT_FEATURES`: `cad check` reports how many cutouts it finds at mid-height.
+- The usual part gates apply (`cad rules`; a `cnc` part has no round hole or slot under 1 mm). A
+  12 mm block counts as a flat part, so it needs `EXPECT_FEATURES`: `cad check` reports how many
+  cutouts it finds at mid-height.
 
 ## What `cad verify` grades
 

@@ -13,14 +13,14 @@ from __future__ import annotations
 from .checks.dfm import PROCESS, check_dfm
 from .checks.fit import check_fit
 from .checks.visual import DEFAULT_VIEWS, visual_rows
-from .registry import Row, register
+from .registry import TOL_MM, Row, register
 
 # ─── part scope ──────────────────────────────────────────────────────────────
 
 
 @register(scope="part", name="geometry", order=10)
 def geometry(ctx):
-    """Envelope, wall thickness, in-plane web and feature count, per process."""
+    """Envelope, wall thickness, in-plane web, feature count, smallest hole and kerf, per process."""
     process = ctx.meta.get("process")
     if not process:
         yield Row(subject=ctx.name, rule="process", state="UNCHECKED",
@@ -90,17 +90,17 @@ def stance(ctx):
                   source="nothing positioned to stand up")
         return
 
+    GROUND_MM, MIN_SPAN = 0.05, 5.0       # a body this near the lowest plane rests on it
     boxes = {n: bbox(s) for n, s in ctx.parts.items()}
     ground = min(lo[2] for lo, _ in boxes.values())
     touching = {n: (lo, hi) for n, (lo, hi) in boxes.items()
-                if abs(lo[2] - ground) < 0.05}
+                if lo[2] - ground <= GROUND_MM + TOL_MM}
 
     xs = [v for lo, hi in touching.values() for v in (lo[0], hi[0])]
     ys = [v for lo, hi in touching.values() for v in (lo[1], hi[1])]
     span_x, span_y = max(xs) - min(xs), max(ys) - min(ys)
-    MIN_SPAN = 5.0
 
-    ok = span_x >= MIN_SPAN and span_y >= MIN_SPAN
+    ok = span_x >= MIN_SPAN - TOL_MM and span_y >= MIN_SPAN - TOL_MM
     yield Row(subject="assembly", rule="footprint", state="PASS" if ok else "FAIL",
               measured=f"{span_x:.1f} × {span_y:.1f} mm across "
                        f"{len(touching)} bodies at z = {ground:.2f} "
@@ -110,7 +110,7 @@ def stance(ctx):
                      "near zero in either axis is a line or point contact and "
                      "will tip. Does not test the centre of mass.")
 
-    floating = [n for n, (lo, hi) in boxes.items() if lo[2] > ground + 0.05]
+    floating = [n for n in boxes if n not in touching]
     yield Row(subject="assembly", rule="ground plane", state="PASS",
               measured=f"{len(touching)} bodies on the plane, "
                        f"{len(floating)} above it, none below",
@@ -195,7 +195,7 @@ def sweep(ctx):
                 continue
             if hit.distance <= 1e-7 and key in contact_ok:
                 continue          # a screwed joint that travels with the axis
-            if hit.distance < need - 1e-9:
+            if hit.distance < need - TOL_MM:
                 yield Row(subject=f"{key[0]} vs {key[1]}",
                           rule=f"sweep/{name}", state="FAIL",
                           measured=f"closest {hit.distance:.3f} mm at "
@@ -239,7 +239,7 @@ def reach(ctx):
             continue
         lo, hi = tool_span(axis)
         wlo, whi = axis.work
-        ok = wlo >= lo - 1e-9 and whi <= hi + 1e-9
+        ok = wlo >= lo - TOL_MM and whi <= hi + TOL_MM
         margin = min(wlo - lo, hi - whi)
         yield Row(subject=f"axis {name}", rule="reach",
                   state="PASS" if ok else "FAIL",

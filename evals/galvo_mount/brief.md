@@ -59,7 +59,8 @@ work plane), and the beam axis is x = y = 0.
 
 The usual `cad` gates apply on top of these: no two bodies overlap, and every part passes the
 part rules for its `PROCESS` (`cad rules`; a `cnc` part has to fit a 300 x 200 x 100 mm box in
-some orientation, so no dimension of the mount may pass 300 mm).
+some orientation, so no dimension of the mount may pass 300 mm, and it has no round hole or slot
+under 1 mm).
 
 ## Working
 

@@ -7,15 +7,14 @@ touches ~/.cache, and stopped at the end even if a test fails. Starting it
 costs one kernel import (20-35 s on this machine).
 """
 import json
-import os
 import re
 import subprocess
-import sys
 import time
 from pathlib import Path
 
 import pytest
 
+from conftest import cad_env
 from test_cli import BLOCK, PLATE
 
 REPO = Path(__file__).resolve().parent.parent
@@ -28,10 +27,7 @@ def warm(tmp_path_factory):
     d.mkdir(parents=True)
     (d / "plate.py").write_text(PLATE)
     (d / "block.py").write_text(BLOCK)
-    # The worker runs this test's own Python: a plugin session's CAD_PYTHON would bring
-    # another install's kernel, and its files would not match the in-process ones.
-    env = dict(os.environ, CAD_PROJECTS=str(root), CAD_PYTHON=sys.executable,
-               CAD_WARM_DIR=str(tmp_path_factory.mktemp("warm")))
+    env = cad_env(CAD_PROJECTS=str(root), CAD_WARM_DIR=str(tmp_path_factory.mktemp("warm")))
     env.pop("CAD_WARM", None)
 
     def cad(*argv):
