@@ -128,11 +128,19 @@ def load_assembly(slug: str, placed: bool = True):
             set(getattr(mod, "ALLOW_CONTACT", set())), load_axes(mod))
 
 
+def write_atomic(path: Path, text: str) -> None:
+    """Write beside the file and rename over it, so a run killed half way leaves the old file
+    and not a truncated one that every later `cad status` or `cad done` has to choke on."""
+    tmp = path.with_name(path.name + ".tmp")
+    tmp.write_text(text)
+    tmp.replace(path)
+
+
 def write_checks(slug: str, payload: dict) -> Path:
     p = project_dir(slug) / "checks.json"
     payload = dict(payload)
     payload["written_utc"] = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
-    p.write_text(json.dumps(payload, indent=2))
+    write_atomic(p, json.dumps(payload, indent=2))
     return p
 
 

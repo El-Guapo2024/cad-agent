@@ -271,6 +271,8 @@ def cmd_status(a) -> Result:
                      f"{s.get('by_state')}")
     except FileNotFoundError:
         lines.append("  no checks.json yet: run `cad check`")
+    except ValueError as e:
+        lines.append(f"  checks.json cannot be read ({e}): run `cad check` to write it again")
     return Result(OK, data, "\n".join(lines), f"{len(parts)} parts")
 
 

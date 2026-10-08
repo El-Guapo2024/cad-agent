@@ -595,3 +595,9 @@ def test_an_assembly_that_returns_the_wrong_thing_fails_with_what_it_returned(de
         code, data = run(capsys, "check", "demo")
         row = next(r for r in data["rows"] if r["check"] == "assembly" and r["rule"] == "build")
         assert code == cli.FAIL and shown in row["measured"], text
+
+
+def test_status_says_what_to_do_about_a_checks_json_it_cannot_read(demo, capsys):
+    (demo / "checks.json").write_text("{not json")
+    assert cli.main(["status", "demo"]) == cli.OK
+    assert "cannot be read" in capsys.readouterr().out

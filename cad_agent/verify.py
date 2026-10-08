@@ -175,7 +175,7 @@ def run(slug: str, fresh: bool, mode: str, views=("iso",)) -> dict:
         "notes": notes,
         "rows": rows,
     }
-    (pdir / "verify.json").write_text(json.dumps(record, indent=2))
+    st.write_atomic(pdir / "verify.json", json.dumps(record, indent=2))
     return record
 
 
@@ -189,7 +189,14 @@ def status(slug: str) -> dict:
         if git and git.get("dirty"):
             reasons.append("the design has uncommitted changes")
         return {"project": slug, "done": False, "verdict": None, "reasons": reasons}
-    rec = json.loads(path.read_text())
+    try:
+        rec = json.loads(path.read_text())
+        if not (isinstance(rec, dict) and isinstance(rec.get("process", {}), dict)
+                and isinstance(rec.get("git"), (dict, type(None)))):
+            raise ValueError("not a verify record")
+    except (OSError, ValueError) as e:
+        return {"project": slug, "done": False, "verdict": None,
+                "reasons": [f"verify.json cannot be read ({e}): run `cad verify` to write it again"]}
     reasons = []
     current, _ = source_hash(pdir)
     if current != rec.get("source_hash"):

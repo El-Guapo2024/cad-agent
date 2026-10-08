@@ -129,3 +129,27 @@ def test_in_a_repo_only_committed_work_counts(demo):
     git(demo, "commit", "-q", "-am", "smaller block")
     verify.run("demo", fresh=True, mode="test")
     assert verify.status("demo")["done"] is True
+
+
+def test_a_verify_record_nobody_can_read_is_not_a_verdict_and_not_a_crash(demo, capsys):
+    for text in ("{not json", "[1, 2, 3]", '{"process": 5}'):
+        (demo / "verify.json").write_text(text)
+        s = verify.status("demo")
+        assert s["done"] is False and "cannot be read" in s["reasons"][0], text
+        code, data = run(capsys, "done", "demo")
+        assert code == cli.UNCHECKED and "cad verify" in data["reasons"][0], text
+
+
+def test_a_run_that_dies_while_writing_leaves_the_old_checks_and_verdict(demo, monkeypatch):
+    from pathlib import Path
+    verify.run("demo", fresh=True, mode="test")
+    before = {n: (demo / n).read_text() for n in ("checks.json", "verify.json")}
+
+    def die(self, target):
+        raise OSError("killed")
+    monkeypatch.setattr(Path, "replace", die)
+    with pytest.raises(OSError):
+        st.write_checks("demo", {"rows": []})
+    with pytest.raises(OSError):
+        verify.run("demo", fresh=True, mode="test")
+    assert {n: (demo / n).read_text() for n in before} == before          # whole, not truncated
