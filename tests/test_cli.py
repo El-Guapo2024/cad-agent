@@ -601,3 +601,9 @@ def test_status_says_what_to_do_about_a_checks_json_it_cannot_read(demo, capsys)
     (demo / "checks.json").write_text("{not json")
     assert cli.main(["status", "demo"]) == cli.OK
     assert "cannot be read" in capsys.readouterr().out
+
+
+def test_set_on_a_part_file_that_is_not_text_fails_the_part_not_the_tool(demo, capsys):
+    (demo / "parts" / "plate.py").write_bytes(b"# \xff\xfe not UTF-8\nPARAMS = {}\n")
+    code, data = run(capsys, "set", "demo", "plate", "thickness=5")
+    assert code == cli.FAIL and "plate does not parse" in data["error"]

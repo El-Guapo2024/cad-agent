@@ -990,7 +990,7 @@ def cmd_set(a) -> Result:
         raise UsageError("say what to change: cad set <slug> <part> key=value ...")
     try:
         current = pm.read(path)
-    except SyntaxError as e:
+    except (SyntaxError, ValueError) as e:        # a UnicodeDecodeError, or a null byte, is a ValueError
         raise BuildFailed(f"{a.part} does not parse: {e}") from e
     names = ", ".join(current) or "none"
     for key in changes:
