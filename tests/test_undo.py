@@ -325,8 +325,9 @@ def test_undo_json_is_outside_source_hash(demo, capsys):
     assert h1 == h2                                       # the journal never moves the hash
 
 
-def test_macro_run_journals_one_entry_per_line(demo, capsys):
+def test_macro_run_journals_one_entry_per_line(demo, capsys, monkeypatch):
     from cad_agent import macro
+    monkeypatch.setenv("CAD_MACRO_DIR", str(demo.parent / "macros"))      # not the real ~/.cad-agent/macros
     macro.save_macro("Bump", "cad set demo plate thickness=6\n"
                              "cad place demo block --move=5,0,0\n")
     code, data = run(capsys, "macro", "run", "Bump")
