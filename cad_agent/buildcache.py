@@ -189,6 +189,25 @@ def _plain(solid) -> str | None:
     return cls.__name__
 
 
+def _count(shape, kind) -> int:
+    """Distinct sub-shapes of one kind, the same ones (IsSame) counted once.
+
+    OCP for OCCT 8 no longer has TopTools_IndexedMapOfShape, so this walks the shape itself:
+    the same count on either kernel, and the same before and after a round trip.
+    """
+    from OCP.TopExp import TopExp_Explorer
+    seen: dict[int, list] = {}
+    n, walk = 0, TopExp_Explorer(shape, kind)
+    while walk.More():
+        s = walk.Current()
+        bucket = seen.setdefault(hash(s), [])
+        if not any(s.IsSame(o) for o in bucket):
+            bucket.append(s)
+            n += 1
+        walk.Next()
+    return n
+
+
 def _fingerprint(shape) -> list:
     """Numbers a shape must give back after a round trip through the file."""
     from OCP.Bnd import Bnd_Box
@@ -196,18 +215,14 @@ def _fingerprint(shape) -> list:
     from OCP.BRepGProp import BRepGProp
     from OCP.GProp import GProp_GProps
     from OCP.TopAbs import TopAbs_EDGE, TopAbs_FACE, TopAbs_SOLID, TopAbs_VERTEX
-    from OCP.TopExp import TopExp
-    from OCP.TopTools import TopTools_IndexedMapOfShape
-    counts = []
-    for kind in (TopAbs_SOLID, TopAbs_FACE, TopAbs_EDGE, TopAbs_VERTEX):
-        found = TopTools_IndexedMapOfShape()
-        TopExp.MapShapes_s(shape, kind, found)
-        counts.append(found.Extent())
+    counts = [_count(shape, kind) for kind in (TopAbs_SOLID, TopAbs_FACE, TopAbs_EDGE, TopAbs_VERTEX)]
     vol, area, box = GProp_GProps(), GProp_GProps(), Bnd_Box()
     BRepGProp.VolumeProperties_s(shape, vol)
     BRepGProp.SurfaceProperties_s(shape, area)
     BRepBndLib.AddOptimal_s(shape, box, False, False)
-    return json.loads(json.dumps([counts, vol.Mass(), area.Mass(), list(box.Get())]))
+    lo, hi = box.CornerMin(), box.CornerMax()          # Bnd_Box.Get() can't cross into Python on OCCT 8
+    corners = [lo.X(), lo.Y(), lo.Z(), hi.X(), hi.Y(), hi.Z()]
+    return json.loads(json.dumps([counts, vol.Mass(), area.Mass(), corners]))
 
 
 def _same_shape(a: list, b: list) -> bool:
