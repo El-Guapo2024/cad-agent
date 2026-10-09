@@ -65,6 +65,15 @@ def test_edit_hook_is_silent_on_a_passing_part_and_reports_a_failing_one(env, pr
     assert "min wall" in out["reason"]
 
 
+def test_the_install_script_asks_uv_to_look_at_the_interpreter_again():
+    """uv keeps what an interpreter reported and a record made without SYSTEM_VERSION_COMPAT=0 turns
+    down embreex's wheel; every uv install in the script says to refresh (see the comment in it)."""
+    script = REPO / "plugin" / "install.sh"
+    assert subprocess.run(["sh", "-n", str(script)], capture_output=True).returncode == 0
+    installs = [ln for ln in script.read_text().splitlines() if ln.strip().startswith("uv pip install")]
+    assert len(installs) == 2 and all("--refresh-package" in ln for ln in installs)
+
+
 def test_stop_hook_lets_a_second_stop_through(env):
     assert hook(STOP, {"stop_hook_active": True}, env) is None
 
