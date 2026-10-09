@@ -9,8 +9,11 @@ projects/<slug>/
   checks.json          the only source of numbers for the report
 """
 from __future__ import annotations
+import copy
 import json
 import time
+from contextlib import contextmanager
+from contextvars import ContextVar
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent / "projects"
@@ -71,11 +74,37 @@ def part_names(slug: str) -> list[str]:
     return sorted(p.stem for p in d.glob("*.py") if not p.stem.startswith(("_", ".")))   # ._x.py: a Mac's resource fork
 
 
+_BUILT: ContextVar = ContextVar("built_parts", default=None)
+
+
+@contextmanager
+def reusing_builds():
+    """Inside the block, a part that was built once is copied rather than built again.
+
+    One run builds the same part several times: for its own checks, again when assembly.py asks
+    for it, again for a mass budget. Each is the same code with the same numbers, and a build
+    takes a few tenths of a second to a second where a copy takes a few milliseconds. A pristine
+    copy is kept the moment the part is built, before a rule meshes or measures the solid (both
+    change a shape in place), and every later call is handed its own deep copy of that, so no two
+    callers share a shape and none gets a mesh it did not make. A part asked for with overrides,
+    or one that cannot be copied, is built as before.
+    """
+    token = _BUILT.set({})
+    try:
+        yield
+    finally:
+        _BUILT.reset(token)
+
+
 def build_part(slug: str, name: str, overrides: dict | None = None):
     """Returns (solid, meta). meta carries the resolved params and process info."""
     path = project_dir(slug) / "parts" / f"{name}.py"
     if not path.exists():
         raise FileNotFoundError(f"no part {name!r} in {slug}")
+    built = _BUILT.get()
+    if built is not None and not overrides and str(path) in built:
+        solid, meta = built[str(path)]
+        return copy.deepcopy(solid), copy.deepcopy(meta)
     mod = _load_module(path)
     params = dict(getattr(mod, "PARAMS", {}))
     params.update(overrides or {})
@@ -93,6 +122,11 @@ def build_part(slug: str, name: str, overrides: dict | None = None):
         "doc": (mod.__doc__ or "").strip().splitlines()[0] if mod.__doc__ else "",
         "build_s": round(time.perf_counter() - t0, 3),
     }
+    if built is not None and not overrides:
+        try:
+            built[str(path)] = (copy.deepcopy(solid), copy.deepcopy(meta))
+        except Exception:                          # a shape that will not copy is built each time, as before
+            pass
     return solid, meta
 
 

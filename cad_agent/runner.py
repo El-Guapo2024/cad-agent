@@ -15,10 +15,19 @@ from .registry import (AssemblyCtx, FAILING, PartCtx, ProjectCtx, Row, checks,
                        run as run_check)
 from .render import draw, merge, tessellate
 from .state import (build_part, load_assembly, part_names, project_dir,
-                    read_checks, why, write_checks)
+                    read_checks, reusing_builds, why, write_checks)
 
 
 def check_all(slug: str, render_views=("iso",), tolerance: float = 0.05):
+    """Build every part, run every registered check, write checks.json.
+
+    A part is built once: assembly.py and the mass budgets that ask for it again get a copy.
+    """
+    with reusing_builds():
+        return _check_all(slug, render_views, tolerance)
+
+
+def _check_all(slug: str, render_views, tolerance: float):
     pdir = project_dir(slug)
     out = pdir / "out"
     out.mkdir(parents=True, exist_ok=True)

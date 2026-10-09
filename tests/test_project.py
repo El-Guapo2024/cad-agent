@@ -111,6 +111,37 @@ def test_check_all_builds_each_part_once_for_its_own_checks(checked, monkeypatch
     assert again["rows"] == checked["rows"]
 
 
+def test_a_part_assembly_py_asks_for_again_is_copied_not_built(checked, monkeypatch):
+    """A run builds a part once; assembly.py gets a copy, and the verdicts do not depend on it."""
+    import contextlib
+    from cad_agent import runner
+    loaded, real = [], st._load_module
+    monkeypatch.setattr(st, "_load_module", lambda path: loaded.append(Path(path).stem) or real(path))
+    with_copies = check_all(SLUG, render_views=("iso",))
+    assert sorted(n for n in loaded if n in st.part_names(SLUG)) == sorted(st.part_names(SLUG))
+    loaded.clear()
+    monkeypatch.setattr(runner, "reusing_builds", contextlib.nullcontext)
+    rebuilt = check_all(SLUG, render_views=("iso",))
+    assert len([n for n in loaded if n in st.part_names(SLUG)]) > len(st.part_names(SLUG))
+    assert with_copies["rows"] == rebuilt["rows"] == checked["rows"]
+
+
+def test_a_copy_of_a_part_is_its_own_shape_without_a_mesh():
+    from OCP.BRepTools import BRepTools
+    from cad_agent.render import tessellate
+    with st.reusing_builds():
+        first, meta = st.build_part(SLUG, "hot_plate")
+        tessellate(first, 0.05, 0.25)                          # the caller's rules mesh it
+        second, meta2 = st.build_part(SLUG, "hot_plate")
+        third, _ = st.build_part(SLUG, "hot_plate", {"thickness": 6.0})        # overrides are always built
+    assert second.wrapped is not first.wrapped and not BRepTools.Triangulation_s(second.wrapped, 0.05)
+    assert BRepTools.Triangulation_s(first.wrapped, 0.05)
+    assert meta2 == meta and meta2 is not meta
+    from cad_agent.geom import volume
+    assert volume(second) == volume(first) != volume(third)
+    assert st._BUILT.get() is None                              # and outside the block nothing is kept
+
+
 def test_every_row_is_attributed_to_a_check(checked):
     payload = st.read_checks(SLUG)
     for r in payload["rows"]:
