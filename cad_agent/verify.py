@@ -1,7 +1,8 @@
 """The verifier: rebuilds a project from source and decides whether it passes.
 
 The agent that edits a design never grades it. `cad verify` rebuilds every
-part and the assembly from what is on disk, runs every gate, and writes
+part and the assembly from what is on disk (never from the build cache that
+`check` and `scene` keep for the edit loop), runs every gate, and writes
 verify.json with the verdict and exactly what was verified:
 
     source_hash  sha256 over every file that defines the design: parts,
@@ -139,7 +140,7 @@ def run(slug: str, fresh: bool, mode: str, views=("iso",)) -> dict:
     before, n_files = source_hash(pdir)
     engine = engine_hash()
     t0 = time.perf_counter()
-    payload = check_all(slug, render_views=tuple(views))
+    payload = check_all(slug, render_views=tuple(views), cached=False)   # never the build cache: see buildcache.py
     after, _ = source_hash(pdir)
     rows, summary = payload["rows"], payload["summary"]
 

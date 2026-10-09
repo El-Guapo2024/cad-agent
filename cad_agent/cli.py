@@ -192,6 +192,25 @@ def _assembly(slug: str) -> dict:
     return asm
 
 
+@contextlib.contextmanager
+def _builds(a):
+    """The scope the edit loop's commands build parts in: a part got once is copied, and unless
+    --no-cache it comes from the project's build cache and goes back into it. Yields the log of
+    builds. `verify` does not use this; see buildcache.py."""
+    with st.reusing_builds() as log, st.caching_builds(not getattr(a, "no_cache", False)):
+        yield log
+
+
+def _from_cache(log) -> str:
+    """A line on where a run's parts came from, when some came from the build cache."""
+    cached = [b["part"] for b in log if b["how"] == "cache"]
+    if not cached:
+        return ""
+    built = [b["part"] for b in log if b["how"] == "built"]
+    return (f"build cache: {len(cached)} of {len(cached) + len(built)} parts reused"
+            + (f", built {', '.join(built)}" if built else ""))
+
+
 def _verdict(states) -> int:
     states = set(states)
     if "FAIL" in states:
@@ -354,19 +373,20 @@ def cmd_measure(a) -> Result:
         except UsageError as e:
             raise UsageError(f"{e}; bought parts and placed bodies need --posed") from None
     from .geom import closest_points, intersection_volume
-    if a.posed:
-        asm = _assembly(a.slug)
-        missing = [n for n in (a.a, a.b) if n not in asm]
-        if missing:
-            raise UsageError(f"not in {a.slug}'s assembly: {', '.join(missing)} "
-                             f"(bodies: {', '.join(sorted(asm))})")
-        sa, sb = asm[a.a], asm[a.b]
-    else:
-        sa, _ = _build(a.slug, a.a)
-        sb, _ = _build(a.slug, a.b)
+    with _builds(a) as log:
+        if a.posed:
+            asm = _assembly(a.slug)
+            missing = [n for n in (a.a, a.b) if n not in asm]
+            if missing:
+                raise UsageError(f"not in {a.slug}'s assembly: {', '.join(missing)} "
+                                 f"(bodies: {', '.join(sorted(asm))})")
+            sa, sb = asm[a.a], asm[a.b]
+        else:
+            sa, _ = _build(a.slug, a.a)
+            sb, _ = _build(a.slug, a.b)
     where = "as placed in the assembly" if a.posed else "each at its own origin"
     overlap = intersection_volume(sa, sb)
-    data = {"project": a.slug, "a": a.a, "b": a.b, "posed": a.posed}
+    data = {"project": a.slug, "a": a.a, "b": a.b, "posed": a.posed, "builds": log}
     if overlap > 1e-6:
         data.update(interferes=True, overlap_mm3=round(overlap, 4), min_distance_mm=0.0)
         return Result(FAIL, data,
@@ -475,8 +495,8 @@ def cmd_check(a) -> Result:
         ov = _overrides(a)
         from .runner import part_check
         try:
-            r = part_check(a.slug, a.part, ov)
-        except PermissionError:
+            r = part_check(a.slug, a.part, ov, fit=True, cached=not a.no_cache)
+        except (PermissionError, PlacementError):
             raise
         except Exception as e:
             raise BuildFailed(f"{a.part} did not build: {st.why(e)}") from e
@@ -488,22 +508,24 @@ def cmd_check(a) -> Result:
             lines.append(f"  overrides {ov}")
         lines += _rows_text(r["rows"], a.all)
         lines.append(f"  ({r['scope']})")
+        lines += [f"  {x}" for x in [_from_cache(r["builds"])] if x]
         files = [str(pdir / r["render"])] if r.get("render") else []
         return Result(code, {"project": a.slug, **r}, "\n".join(lines),
                       f"{a.part}: {len(r['failing'])} not passing", files)
     if a.set:
         raise UsageError("--set changes one part's PARAMS; add --part")
     from .runner import check_all
-    p = check_all(a.slug, render_views=_views(a.views))
+    p = check_all(a.slug, render_views=_views(a.views), cached=not a.no_cache)
     s = p["summary"]
     code = FAIL if s.get("parts_failed") else _verdict(r["state"] for r in p["rows"])
     shown = p["rows"] if a.all else [r for r in p["rows"] if r["state"] != "PASS"]
     lines = [f"{a.slug}  {'OK' if code == OK else ('FAIL' if code == FAIL else 'UNCHECKED')}  "
              f"{s.get('parts_built')} parts built, {s.get('parts_failed')} failed · {s.get('by_state')}"]
     lines += _rows_text(p["rows"], a.all)
+    lines += [f"  {x}" for x in [_from_cache(p["builds"])] if x]
     files = [str(pdir / "checks.json")] + [str(pdir / r["path"]) for r in p["renders"]]
     data = {"project": a.slug, "summary": s, "rows": shown,
-            "rows_total": len(p["rows"]), "parts": p["parts"]}
+            "rows_total": len(p["rows"]), "parts": p["parts"], "builds": p["builds"]}
     return Result(code, data, "\n".join(lines),
                   f"{sum(1 for r in p['rows'] if r['state'] != 'PASS')} of {len(p['rows'])} rows not passing",
                   files)
@@ -871,7 +893,8 @@ def cmd_scene(a) -> Result:
     from .placements import PlacementError
     from .scene import write_scene
     try:
-        path, sc = write_scene(a.slug, a.tolerance)
+        with _builds(a) as log:
+            path, sc = write_scene(a.slug, a.tolerance)
     except (PlacementError, UsageError):
         raise
     except Exception as e:
@@ -881,9 +904,9 @@ def cmd_scene(a) -> Result:
     data = {"project": a.slug, "path": str(path), "bytes": size, "triangles": tris,
             "bodies": [b["name"] for b in sc["bodies"]], "assembly": sc["assembly"],
             "axes": [x["name"] for x in sc["axes"]], "source_hash": sc["source_hash"],
-            "unknown_placements": sc["unknown_placements"]}
-    text = (f"{a.slug}: {len(sc['bodies'])} bodies, {tris} triangles -> {path} "
-            f"({size / 1024:.0f} KB)")
+            "unknown_placements": sc["unknown_placements"], "builds": log}
+    text = "\n  ".join([f"{a.slug}: {len(sc['bodies'])} bodies, {tris} triangles -> {path} "
+                         f"({size / 1024:.0f} KB)"] + [x for x in [_from_cache(log)] if x])
     return Result(OK, data, text, f"scene: {len(sc['bodies'])} bodies", [str(path)])
 
 
@@ -894,7 +917,8 @@ def cmd_place(a) -> Result:
     from .geom import bbox
     from .motion import _bbox_gap
     try:
-        base, clearance, allow, _ = st.load_assembly(a.slug, placed=False)
+        with _builds(a) as log:
+            base, clearance, allow, _ = st.load_assembly(a.slug, placed=False)
     except Exception as e:
         raise BuildFailed(f"{a.slug} assembly did not build: {st.why(e)}") from e
     if base is None:
@@ -975,7 +999,7 @@ def cmd_place(a) -> Result:
     lines = [f"{a.slug}/{a.body}: {where}"]
     lines += [f"  FAIL  {r['pair']}: {r['detail']}" for r in fails] or ["  clear of every other body"]
     data = {"project": a.slug, "body": a.body, "placement": entry, "file": str(path),
-            "rows": rows, "fails": len(fails)}
+            "rows": rows, "fails": len(fails), "builds": log}
     return Result(FAIL if fails else OK, data, "\n".join(lines),
                   f"placed {a.body}: {len(fails)} failing" if fails else f"placed {a.body}: clear",
                   [str(path)] if path.exists() else [])
@@ -1017,7 +1041,7 @@ def cmd_set(a) -> Result:
               [{"path": path.relative_to(pdir).as_posix(), "before": before_text,
                 "after": path.read_text()}], by=_actor(a))
     from .runner import part_check
-    r = part_check(a.slug, a.part, {})
+    r = part_check(a.slug, a.part, {}, cached=True)       # the next `cad scene` finds the new part in the cache
     code = _verdict(x["state"] for x in r["rows"])
     try:
         mass = round(mass_g(solid, meta["material"]), 2) if meta.get("material") else None
@@ -1029,7 +1053,8 @@ def cmd_set(a) -> Result:
              f"  bbox {d[0]} x {d[1]} x {d[2]} mm" + (f" · {mass} g" if mass is not None else "")]
     lines += _rows_text(r["rows"], False)
     data = {"project": a.slug, "part": a.part, "changed": {k: [before[k], new[k]] for k in new},
-            "bbox_mm": d, "mass_g": mass, "failing": r["failing"], "file": str(path)}
+            "bbox_mm": d, "mass_g": mass, "failing": r["failing"], "file": str(path),
+            "builds": r["builds"]}
     return Result(code, data, "\n".join(lines), f"set {a.part}: {moved}", [str(path)])
 
 
@@ -1052,7 +1077,7 @@ def _undo_followup(slug: str, entry: dict) -> str | None:
         if entry["name"] == "Edit Parameters" and len(entry["files"]) == 1:
             part = Path(entry["files"][0]["path"]).stem
             from .runner import part_check
-            r = part_check(slug, part, {})
+            r = part_check(slug, part, {}, cached=True)
             code = _verdict(x["state"] for x in r["rows"])
             label = "OK" if code == OK else ("FAIL" if code == FAIL else "UNCHECKED")
             return f"part gates for {part}: {label}"
@@ -1072,7 +1097,8 @@ def _undo_followup(slug: str, entry: dict) -> str | None:
             if not bodies:
                 return None
             pdir = _project(slug)
-            base, clearance, allow, _ = st.load_assembly(slug, placed=False)
+            with st.reusing_builds(), st.caching_builds():
+                base, clearance, allow, _ = st.load_assembly(slug, placed=False)
             if base is None:
                 return None
             from . import placements as pl
@@ -1484,6 +1510,11 @@ def build_parser() -> argparse.ArgumentParser:
         sp.add_argument("--set", action="append", metavar="KEY=VALUE",
                         help="override one PARAMS value for this run (repeatable)")
 
+    def nocache(sp):
+        sp.add_argument("--no-cache", action="store_true",
+                        help="build every part from source, not from the project's build cache "
+                             "(.cad/cache; a part is rebuilt only when it or something it uses changed)")
+
     sp = add("init", cmd_init, "create a project")
     sp.add_argument("slug")
     sp.add_argument("--brief", default="", help="one paragraph for mech_profile.md")
@@ -1518,6 +1549,7 @@ def build_parser() -> argparse.ArgumentParser:
     sp.add_argument("b")
     sp.add_argument("--posed", action="store_true",
                     help="use the bodies as placed by assembly.py, not each part at its origin")
+    nocache(sp)
 
     sp = add("mass", cmd_mass, "mass, volume, area, centre of gravity and inertia of bodies "
              "as placed (FreeCAD's Mass Properties)")
@@ -1534,10 +1566,12 @@ def build_parser() -> argparse.ArgumentParser:
     sp = add("check", cmd_check, "run every gate and write checks.json "
              "(or, with --part, the fast part-only rules)")
     sp.add_argument("slug")
-    sp.add_argument("--part", help="fast loop: one part, part rules only")
+    sp.add_argument("--part", help="fast loop: one part, its part rules and the fit of its bodies "
+                                   "in assembly.py")
     sp.add_argument("--views", default="iso", help="views to render and gate, comma separated")
     sp.add_argument("--all", action="store_true", help="show passing rows too")
     sets(sp)
+    nocache(sp)
 
     add("rules", cmd_rules, "every registered check and what it verifies")
 
@@ -1568,6 +1602,7 @@ def build_parser() -> argparse.ArgumentParser:
                          "body, overriding out/gui.json's per-body view_props; default: each "
                          "body's own Deviation/AngularDeflection, FreeCAD's 0.2 / 28.65 deg when "
                          "a body has neither set")
+    nocache(sp)
 
     sp = add("place", cmd_place, "move a body by hand (placements.toml) and report what it "
              "now hits (exit 1 if a fit rule fails)")
@@ -1578,6 +1613,7 @@ def build_parser() -> argparse.ArgumentParser:
     sp.add_argument("--turn", metavar="RX,RY,RZ", help="rotation, degrees, applied X then Y then Z")
     sp.add_argument("--about", metavar="X,Y,Z", help="pivot for --turn (default: the body's centre)")
     sp.add_argument("--reset", action="store_true", help="put it back where assembly.py puts it")
+    nocache(sp)
 
     sp = add("serve", cmd_serve, "the workbench: a local page with the live 3D view, "
              "draggable parts, checks and the activity feed")
@@ -1809,14 +1845,19 @@ def build_parser() -> argparse.ArgumentParser:
 # ─── Running ─────────────────────────────────────────────────────────────────
 
 def log_activity(pdir: Path, cmd: str, argv: list, code: int, summary: str,
-                 files: list | None = None, ms: int = 0) -> None:
+                 files: list | None = None, ms: int = 0, builds: list | None = None) -> None:
     """Append one line to a project's (or the root's) activity log: what ran,
     how it ended, what it wrote. Used by every `cad` command (via `_log`
     below) and by the workbench for UI/agent actions that are not `cad`
-    subcommands themselves (the gui.* entries POST /api/gui/do writes)."""
+    subcommands themselves (the gui.* entries POST /api/gui/do writes).
+    `builds` is the command's log of builds, kept as the parts it built and
+    the parts it took from the build cache."""
     entry = {"t": datetime.now(timezone.utc).isoformat(timespec="seconds"),
              "cmd": cmd, "argv": argv, "exit": code, "summary": summary,
              "files": files or [], "ms": ms}
+    if builds:
+        entry["builds"] = {how: [b["part"] for b in builds if b["how"] == how]
+                           for how in ("built", "cache")}
     try:
         d = Path(pdir) / ".cad"
         d.mkdir(parents=True, exist_ok=True)
@@ -1853,7 +1894,8 @@ def _log(a, argv, res: Result, ms: int) -> None:
         except FileNotFoundError:
             pass
     log_activity(base, getattr(a, "cmd_name", None), _strip_internal_flags(argv),
-                 res.code, res.summary, res.files, ms)
+                 res.code, res.summary, res.files, ms,
+                 builds=res.data.get("builds") if isinstance(res.data, dict) else None)
 
 
 def _emit(a, res: Result) -> None:

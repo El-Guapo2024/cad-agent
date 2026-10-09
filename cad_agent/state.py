@@ -75,6 +75,8 @@ def part_names(slug: str) -> list[str]:
 
 
 _BUILT: ContextVar = ContextVar("built_parts", default=None)
+_EVENTS: ContextVar = ContextVar("build_events", default=None)
+_CACHE: ContextVar = ContextVar("cached_builds", default=False)
 
 
 @contextmanager
@@ -88,23 +90,49 @@ def reusing_builds():
     change a shape in place), and every later call is handed its own deep copy of that, so no two
     callers share a shape and none gets a mesh it did not make. A part asked for with overrides,
     or one that cannot be copied, is built as before.
+
+    It yields the block's log of builds: one {"part", "how", "s"} for each part got any other way
+    than by copy, how being "built" (its build() ran) or "cache" (see caching_builds).
     """
-    token = _BUILT.set({})
+    token, log = _BUILT.set({}), _EVENTS.set([])
+    try:
+        yield _EVENTS.get()
+    finally:
+        _BUILT.reset(token)
+        _EVENTS.reset(log)
+
+
+@contextmanager
+def caching_builds(on: bool = True):
+    """Inside the block, build_part takes a part from the project's build cache when it and
+    everything it depends on are as they were, and keeps what it builds there (buildcache.py).
+
+    The edit loop uses it and a command asks for it by name. `cad verify` runs the checks inside
+    caching_builds(False), so a verdict never rests on a part remembered from an earlier run;
+    False holds inside an outer block that turned it on.
+    """
+    token = _CACHE.set(bool(on))
     try:
         yield
     finally:
-        _BUILT.reset(token)
+        _CACHE.reset(token)
 
 
 def build_part(slug: str, name: str, overrides: dict | None = None):
     """Returns (solid, meta). meta carries the resolved params and process info."""
-    path = project_dir(slug) / "parts" / f"{name}.py"
+    pdir = project_dir(slug)
+    path = pdir / "parts" / f"{name}.py"
     if not path.exists():
         raise FileNotFoundError(f"no part {name!r} in {slug}")
     built = _BUILT.get()
     if built is not None and not overrides and str(path) in built:
         solid, meta = built[str(path)]
         return copy.deepcopy(solid), copy.deepcopy(meta)
+    k = None
+    if _CACHE.get():
+        k, hit = _cache_lookup(pdir, name, overrides)
+        if hit is not None:
+            return _kept(built, path, overrides, name, "cache", *hit)
     mod = _load_module(path)
     params = dict(getattr(mod, "PARAMS", {}))
     params.update(overrides or {})
@@ -122,6 +150,27 @@ def build_part(slug: str, name: str, overrides: dict | None = None):
         "doc": (mod.__doc__ or "").strip().splitlines()[0] if mod.__doc__ else "",
         "build_s": round(time.perf_counter() - t0, 3),
     }
+    if k:
+        from . import buildcache
+        buildcache.store(pdir, name, overrides, k, solid, meta)
+    return _kept(built, path, overrides, name, "built", solid, meta)
+
+
+def _cache_lookup(pdir: Path, name: str, overrides: dict | None):
+    """(key, (solid, meta) or None). Trouble with the cache is a miss, never a failed build."""
+    try:
+        from . import buildcache
+        k = buildcache.key(pdir, name, overrides)
+        return k, (buildcache.load(pdir, k) if k else None)
+    except Exception:
+        return None, None
+
+
+def _kept(built, path: Path, overrides, name: str, how: str, solid, meta):
+    """Log how a part was got, and keep a pristine copy of it for the rest of the run."""
+    events = _EVENTS.get()
+    if events is not None:
+        events.append({"part": name, "how": how, "s": meta["build_s"]})
     if built is not None and not overrides:
         try:
             built[str(path)] = (copy.deepcopy(solid), copy.deepcopy(meta))

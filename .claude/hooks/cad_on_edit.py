@@ -3,10 +3,11 @@
 
 Claude Code sends the tool call as JSON on stdin. If the edited file is a part
 module (<root>/<slug>/parts/<name>.py), an assembly.py or a spec.toml, this runs
-`bin/cad check` on it (the part alone for a part, every gate otherwise) and,
-when rows fail, prints {"decision": "block", "reason": ...} so the failures go
-back to Claude. The edit has already happened; "block" means "read this before
-going on".
+`bin/cad check` on it (for a part: its own rules and the fit of its bodies
+against the rest of the assembly, the other parts coming from the build cache;
+every gate otherwise) and, when rows fail, prints {"decision": "block",
+"reason": ...} so the failures go back to Claude. The edit has already happened;
+"block" means "read this before going on".
 
 Drift, extent and visual rows are left out: they wait on a human approving a
 render, which is nothing to fix mid-edit. `cad verify` still gates them.

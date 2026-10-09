@@ -13,10 +13,12 @@ VOLUME_NOISE_MM3 = 1e-6
 
 
 def check_fit(parts: dict, required_clearance: dict | None = None,
-              default_clearance: float = 0.0, allow_contact: set | None = None):
+              default_clearance: float = 0.0, allow_contact: set | None = None,
+              involving: set | None = None):
     """parts: {name: solid}. required_clearance: {(a,b): mm} or {"a|b": mm}.
 
-    Returns a list of row dicts, one per pair, each with an explicit state.
+    Returns a list of row dicts, one per pair, each with an explicit state. With `involving`,
+    only the pairs that have one of those bodies in them: what an edit to a part can change.
     """
     req = {}
     for k, v in (required_clearance or {}).items():
@@ -28,6 +30,8 @@ def check_fit(parts: dict, required_clearance: dict | None = None,
     rows = []
     boxes = {name: box(solid) for name, solid in parts.items()}
     for (na, a), (nb, b) in combinations(sorted(parts.items()), 2):
+        if involving is not None and na not in involving and nb not in involving:
+            continue
         key = tuple(sorted((na, nb)))
         need = req.get(key, default_clearance)
         overlap = 0.0 if apart(boxes[na], boxes[nb]) else intersection_volume(a, b)

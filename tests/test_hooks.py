@@ -14,7 +14,7 @@ from pathlib import Path
 import pytest
 
 from conftest import cad_env
-from test_cli import PLATE, _checkouts, _stub
+from test_cli import ASSEMBLY, BLOCK, PLATE, _checkouts, _stub
 
 REPO = Path(__file__).resolve().parent.parent
 EDIT =REPO / ".claude" / "hooks" / "cad_on_edit.py"
@@ -63,6 +63,22 @@ def test_edit_hook_is_silent_on_a_passing_part_and_reports_a_failing_one(env, pr
     assert out["decision"] == "block"
     assert "cad check rig/plate" in out["reason"] and "FAIL" in out["reason"]
     assert "min wall" in out["reason"]
+
+
+def test_edit_hook_reports_a_part_that_has_grown_into_its_neighbour(env, project):
+    """A part edit is judged against the other bodies of the assembly too, which the build cache
+    supplies, so the interference shows up at the edit and not at the next full check."""
+    root, rig = project
+    (rig / "parts" / "block.py").write_text(BLOCK)
+    (rig / "assembly.py").write_text(ASSEMBLY.replace('SLUG = "demo"', 'SLUG = "rig"'))
+    part = rig / "parts" / "plate.py"
+    assert hook(EDIT, edit(part), env) is None             # the block sits 13 mm above the plate
+    part.write_text(PLATE.replace('"thickness": 4.0', '"thickness": 40.0'))
+    out = hook(EDIT, edit(part), env)
+    assert out["decision"] == "block" and "cad check rig/plate" in out["reason"]
+    assert "FAIL" in out["reason"] and "interference" in out["reason"] and "block vs plate" in out["reason"]
+    part.write_text(PLATE)
+    assert hook(EDIT, edit(part), env) is None
 
 
 def test_the_install_script_asks_uv_to_look_at_the_interpreter_again():

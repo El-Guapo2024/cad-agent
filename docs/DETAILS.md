@@ -100,7 +100,8 @@ shows exactly what moved. Fold settled moves into `assembly.py`
 
 Open a Claude Code session in this repo and it loads the harness from `.claude/`:
 - the `/cad` skill, with the design loop
-- a hook that runs `cad check` after every edit to a design file and feeds back what fails
+- a hook that runs `cad check` after every edit to a design file and feeds back what fails (a part
+  edit also judges that part's bodies against the rest of the assembly)
 - a stop hook that won't let a changed project go unverified without saying so
 - the read-only `cad-reviewer` agent
 - permission to run `bin/cad`
@@ -230,6 +231,8 @@ cad_agent/
   checks/web.py section a flat part, measure the material between its boundaries
   thickness.py  ray-cast wall thickness, so a part cannot declare its own
   runner.py     check_all writes checks.json; done_check is the gate
+  buildcache.py a built part kept in <project>/.cad/cache for the edit loop (check, scene, measure,
+                place); `cad verify` never reads it
   bought.py     vendor STEP or measured-with-a-source geometry, provenance enforced
   registry.py   the check registry: Row, scopes, and the @register decorator
   rules.py      every check, registered. The list of what a run verifies

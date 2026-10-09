@@ -14,17 +14,25 @@ from .placements import PlacementError
 from .registry import (AssemblyCtx, FAILING, PartCtx, ProjectCtx, Row, checks,
                        run as run_check)
 from .render import draw, merge, tessellate
-from .state import (build_part, load_assembly, part_names, project_dir,
+from .state import (build_part, caching_builds, load_assembly, part_names, project_dir,
                     read_checks, reusing_builds, why, write_checks)
 
 
-def check_all(slug: str, render_views=("iso",), tolerance: float = 0.05):
+def check_all(slug: str, render_views=("iso",), tolerance: float = 0.05, cached: bool = False):
     """Build every part, run every registered check, write checks.json.
 
     A part is built once: assembly.py and the mass budgets that ask for it again get a copy.
+    With `cached` a part comes from the project's build cache when nothing it depends on changed
+    (the edit loop: `cad check`); without it every part is built from source, which is what
+    `cad verify` needs, so this is also what turns a cache an outer block asked for off.
+
+    The payload also lists how each part was got ("builds"); that is not written to checks.json,
+    so a cached run and a rebuilt one leave the same file.
     """
-    with reusing_builds():
-        return _check_all(slug, render_views, tolerance)
+    with reusing_builds() as builds, caching_builds(cached):
+        payload = _check_all(slug, render_views, tolerance)
+    payload["builds"] = list(builds or [])
+    return payload
 
 
 def _check_all(slug: str, render_views, tolerance: float):
@@ -184,7 +192,8 @@ def approve_views(slug: str, subject: str | None = None, view: str | None = None
 
 def part_check(slug: str, name: str, overrides: dict | None = None,
                render: bool = True, view: str = "iso",
-               only: set | None = None, opts: dict | None = None):
+               only: set | None = None, opts: dict | None = None,
+               fit: bool = False, cached: bool = False):
     """The fast inner loop: build one part, run only the part-scope rules.
 
     `check_all` rebuilds every part, poses the assembly and sweeps every axis,
@@ -193,10 +202,24 @@ def part_check(slug: str, name: str, overrides: dict | None = None,
     number and seeing whether it still holds costs a second rather than a
     minute.
 
-    What it deliberately cannot tell you: anything about fit, travel or reach.
-    Those are assembly facts, and a part that passes here can still crash. Run
-    `check_all` before believing a design.
+    What it deliberately cannot tell you: anything about travel or reach, and
+    the spec. Those are assembly facts, and a part that passes here can still
+    crash. Run `check_all` before believing a design.
+
+    With `fit` it also judges the bodies assembly.py makes from this part against
+    every other body (the fit rule's own rows, for those pairs only), so a part that
+    has grown into its neighbour fails where it was edited. That builds the other
+    parts, which takes seconds unless they come from the build cache (`cached`).
+    A `--set` variant has no fit to judge: assembly.py builds the part from its file.
     """
+    with reusing_builds() as builds, caching_builds(cached):
+        result = _part_check(slug, name, overrides, render, view, only, opts,
+                             fit and not overrides)
+    result["builds"] = list(builds or [])
+    return result
+
+
+def _part_check(slug: str, name: str, overrides, render: bool, view: str, only, opts, fit: bool):
     pdir = project_dir(slug)
     out = pdir / "out"
     out.mkdir(parents=True, exist_ok=True)
@@ -212,6 +235,12 @@ def part_check(slug: str, name: str, overrides: dict | None = None,
             continue
         rows += run_check(spec, ctx)
 
+    scope = "part rules only; fit, sweep and reach need check_all"
+    if fit:
+        fit_rows, said = _part_fit(slug, name)
+        rows += fit_rows
+        scope = said or scope
+
     lo, hi = bbox(solid)
     result = {
         "part": name,
@@ -221,7 +250,7 @@ def part_check(slug: str, name: str, overrides: dict | None = None,
         "build_s": meta["build_s"],
         "rows": [r.as_dict() for r in rows],
         "failing": [r.as_dict() for r in rows if r.state in FAILING],
-        "scope": "part rules only; fit, sweep and reach need check_all",
+        "scope": scope,
         "skipped_checks": skipped,
         "opts": dict(opts or {}),
     }
@@ -231,3 +260,34 @@ def part_check(slug: str, name: str, overrides: dict | None = None,
         result["render"] = str(draw(mesh, out / f"_iter_{name}_{view}.png",
                                     view=view).relative_to(pdir))
     return result
+
+
+def _part_fit(slug: str, name: str) -> tuple[list, str | None]:
+    """The fit rows of the pairs that involve a body assembly.py makes from this part, and what
+    the check's scope line should then say (None: there is no assembly.py, so nothing changes).
+
+    The assembly is posed as check_all poses it, and the rows are the fit rule's own, so a pair
+    reads the same here as in the full check. Which bodies come from the part is scene.py's
+    rule, the one that colours them: the part's name, with or without a position or index.
+    """
+    from .rules import fit_rows
+    from .scene import _part_for
+    try:
+        asm, clearance, allow_contact, _ = load_assembly(slug)
+    except PlacementError:
+        raise                         # fails closed with its own message, as in check_all
+    except Exception as e:
+        return [Row(subject=slug, rule="build", state="FAIL", measured=why(e),
+                    limit="an assembly.py whose parts() returns the bodies",
+                    source="assembly.py", check="assembly")], "part rules only; assembly.py did not build"
+    if asm is None:
+        return [], None
+    names = part_names(slug)
+    bodies = sorted(b for b in asm if _part_for(b, names) == name)
+    if not bodies:
+        return [], "part rules only; no body of assembly.py comes from this part"
+    rows = list(fit_rows(asm, clearance, allow_contact, involving=set(bodies)))
+    for r in rows:
+        r.check = "fit"
+    return rows, (f"part rules, and the fit of {', '.join(bodies)} in assembly.py; "
+                  "sweep, reach and the spec need check_all")

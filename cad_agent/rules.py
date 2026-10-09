@@ -51,6 +51,18 @@ def visual(ctx):
 # ─── assembly scope ──────────────────────────────────────────────────────────
 
 
+def fit_rows(parts, clearance, allow_contact, involving=None):
+    """The fit rule's rows for positioned solids: every pair, or the pairs with a body in
+    `involving`. The full check and the check of one edited part both read pairs through here."""
+    for r in check_fit(parts, required_clearance=clearance, allow_contact=allow_contact,
+                       involving=involving):
+        yield Row(subject=r["pair"], rule=r["check"], state=r["state"],
+                  measured=r["detail"],
+                  limit=(f"{r['required_mm']:.2f} mm"
+                         if r.get("required_mm") else "no overlap"),
+                  source="measured overlap volume, or closest approach")
+
+
 @register(scope="assembly", name="fit", order=20)
 def fit(ctx):
     """Interference and clearance between every pair of positioned solids."""
@@ -60,13 +72,7 @@ def fit(ctx):
                   limit="every pair measured",
                   source="add assembly.py returning positioned solids")
         return
-    for r in check_fit(ctx.parts, required_clearance=ctx.clearance,
-                       allow_contact=ctx.allow_contact):
-        yield Row(subject=r["pair"], rule=r["check"], state=r["state"],
-                  measured=r["detail"],
-                  limit=(f"{r['required_mm']:.2f} mm"
-                         if r.get("required_mm") else "no overlap"),
-                  source="measured overlap volume, or closest approach")
+    yield from fit_rows(ctx.parts, ctx.clearance, ctx.allow_contact)
 
 
 @register(scope="assembly", name="stance", order=30)

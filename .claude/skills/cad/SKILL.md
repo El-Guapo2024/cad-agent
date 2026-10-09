@@ -31,7 +31,7 @@ output to parse.
 bin/cad init <slug> --brief "..."             # new project
 # write spec.toml first: what the design must do (below)
 # write parts/<name>.py, then assembly.py
-bin/cad check <slug> --part <name>            # fast loop, part rules only (~1 s)
+bin/cad check <slug> --part <name>            # fast loop: the part's rules, and its bodies' fit against the rest
 bin/cad build <slug> <name> --set t=5         # sweep a value without editing the file
 bin/cad render <slug> [<name>] --view iso     # prints a PNG path: Read it and look
 bin/cad measure <slug> <a> <b> --posed        # the raw fit query between placed bodies
@@ -45,6 +45,12 @@ A hook runs `cad check` after every edit to a part, assembly or spec, and hands
 back what fails. A stop hook will not let you finish over a changed project
 that `cad done` rejects. Fix what they name, or say plainly that the design is
 not done and why.
+
+`check`, `scene`, `measure` and `place` rebuild only the parts that changed: a built
+part is kept under the project's `.cad/cache` and read back while it and everything
+it imports are as they were (`--no-cache` rebuilds all). That is why a part edit can
+also show `interference` or `clearance` rows against its neighbours straight away.
+`cad verify` never reads that cache: it rebuilds everything from source.
 
 ## Write the spec first
 
