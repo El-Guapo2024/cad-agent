@@ -1,7 +1,26 @@
 import os
 import sys
+import tempfile
 
 import pytest
+
+
+@pytest.fixture(autouse=True, scope="session")
+def _isolated_env(tmp_path_factory):
+    """Keep every test off the user's real folders, whatever the shell that started pytest exports.
+
+    A plugin session exports CAD_PROJECTS, so a test that runs `cad` without --projects would log
+    into, or change, someone's real designs; macros, the workbench registry and warm workers would
+    land in ~/.cad-agent and ~/.cache/cad-agent. Session scope, so module fixtures see it too.
+    """
+    with pytest.MonkeyPatch.context() as mp:
+        for name in ("CAD_PROJECTS", "CAD_SERVE_URL", "CAD_EVALS"):
+            mp.delenv(name, raising=False)
+        mp.setenv("CAD_MACRO_DIR", str(tmp_path_factory.mktemp("macros")))
+        mp.setenv("CAD_RUNTIME_DIR", str(tmp_path_factory.mktemp("runtime")))
+        # Warm workers keep their sockets here, and macOS caps a socket path at 104 bytes.
+        mp.setenv("CAD_WARM_DIR", tempfile.mkdtemp(prefix="cadw", dir="/tmp"))
+        yield
 
 
 @pytest.fixture(autouse=True)
