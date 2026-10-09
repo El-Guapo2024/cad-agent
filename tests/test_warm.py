@@ -8,7 +8,11 @@ costs one kernel import (20-35 s on this machine).
 """
 import json
 import re
+import shutil
+import socket
 import subprocess
+import tempfile
+import threading
 import time
 from pathlib import Path
 
@@ -207,6 +211,39 @@ def test_a_clean_exit_keeps_a_log_that_has_a_complaint(tmp_path):
     assert [p.name for p in tmp_path.iterdir()] == ["warm-x.log"]
 
 
+def test_stop_returns_only_once_the_worker_no_longer_listens(monkeypatch):
+    """A worker answers `stop` and then tears its Metal sidecar down, up to two seconds in which its
+    socket was still there. A command sent right after `cad warm stop` queued on that socket and was
+    dropped ("the warm worker dropped the command"). So `stop` waits until the socket is gone."""
+    d = Path(tempfile.mkdtemp(prefix="cadw", dir="/tmp"))      # macOS caps a socket path at 104 bytes
+    path = d / "warm-x.sock"
+    srv = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+    srv.bind(str(path))
+    srv.listen(1)
+    srv.settimeout(10)                           # a client that never comes must not hang the test
+
+    def leaving_worker():
+        conn, _ = srv.accept()
+        conn.recv(4096)
+        conn.sendall(b'{"exit": 0, "stopped": 4242}\n')
+        conn.close()
+        time.sleep(1.0)                          # the sidecar is slow to go, and the socket is still here
+        srv.close()
+        path.unlink()
+
+    worker = threading.Thread(target=leaving_worker)
+    worker.start()
+    try:
+        monkeypatch.setattr(warm_module, "sock_path", lambda: path)
+        t0 = time.monotonic()
+        assert warm_module._control(["stop"]) == 0
+        assert not path.exists()                 # nothing is left for a next command to connect to
+        assert time.monotonic() - t0 >= 0.9      # it waited for the worker to go, not for its reply only
+    finally:
+        worker.join()
+        shutil.rmtree(d, ignore_errors=True)
+
+
 def test_warm_help_is_help_not_an_error(tmp_path):
     env = cad_env(CAD_WARM_DIR=str(tmp_path / "none"))
     p = subprocess.run([str(REPO / "bin" / "cad"), "warm", "--help"], capture_output=True, text=True,
@@ -259,6 +296,7 @@ def test_a_stopped_worker_leaves_no_lock_and_no_log_behind(warm):
     cad, _ = warm
     sock = Path(re.search(r"socket (\S+)", cad("warm", "status").stdout).group(1))
     assert cad("warm", "stop").returncode == 0
+    assert not sock.exists()                        # `stop` returns once nothing can connect any more
     deadline = time.monotonic() + 15
     while list(sock.parent.glob(f"{sock.stem}.*")) and time.monotonic() < deadline:
         time.sleep(0.2)                             # the sidecar is given a moment to leave
