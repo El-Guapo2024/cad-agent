@@ -47,7 +47,9 @@ from pathlib import Path
 IDLE_S = 30 * 60
 START_TIMEOUT_S = 240
 PKG = Path(__file__).resolve().parent
-PRELOAD = ("numpy", "build123d")
+# What the worker imports once so that no fork does. trimesh is for the wall rule, and costs a
+# fork about half a second; it starts no thread, so the parent stays single-threaded.
+PRELOAD = ("numpy", "build123d", "trimesh")
 # What a command reads from the environment, as its own client had it. A fork inherits the
 # worker's environment, which is whoever started the worker's, so a variable missing here would
 # make a warm call differ from a cold one. test_warm.py holds this to the variables the package reads.
