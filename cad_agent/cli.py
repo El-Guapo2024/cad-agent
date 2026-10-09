@@ -1925,7 +1925,7 @@ def main(argv: list[str] | None = None) -> int:
     if a.version:
         import build123d
         from .render import backend_status
-        print(f"cad-agent 0.1.2  build123d {build123d.__version__}  render: {backend_status()}")
+        print(f"cad-agent 0.1.3  build123d {build123d.__version__}  render: {backend_status()}")
         return OK
     if not getattr(a, "func", None):
         (parser if not a.cmd else parser._subparsers._group_actions[0].choices[a.cmd]).print_help(sys.stderr)
