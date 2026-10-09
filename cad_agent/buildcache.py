@@ -182,7 +182,9 @@ def _plain(solid) -> str | None:
     try:
         twin = cls(solid.wrapped)
         a, b = dict(vars(solid)), dict(vars(twin))
-        if a.keys() != b.keys() or any(a[k] != b[k] for k in a if k != "_wrapped"):
+        # build123d 0.13 keeps each operation's history on a part (_history); nothing after the
+        # build reads it, and a part rebuilt from its BRep starts with an empty one.
+        if a.keys() != b.keys() or any(a[k] != b[k] for k in a if k not in ("_wrapped", "_history")):
             return None
     except Exception:
         return None
