@@ -34,7 +34,7 @@ command faster.
 What comes back is the shape that went in, not the same bits. OCCT rebuilds each surface frame and
 location from the numbers it reads (renormalising them), so a frame that was a hair off square, as
 Rot(0, 90, 0) leaves one (6e-17 where a 0 belongs), returns a few ulps away, and a zero may change
-its sign. That is nine orders below the 1e-6 mm every gate allows and below what any row prints;
+its sign. That is some eight orders below the 1e-6 mm every gate allows and below what any row prints;
 FINGERPRINT_TOL holds it to that when a part is stored, and tests/test_buildcache.py holds the rows
 of cached and uncached `check` equal on the fixture designs.
 """

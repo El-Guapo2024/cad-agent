@@ -79,6 +79,10 @@ def test_a_second_check_builds_nothing_and_leaves_the_same_checks_json(demo, cap
     assert how(third) == {"built": ["block", "plate"], "cache": []} and code3 == code
     assert checks_json(demo) == cold                   # the file does not say how its parts were got
     assert second["rows"] == third["rows"]
+    text = lambda *argv: (cli.main(["--json", "--with-text", *argv]), json.loads(
+        capsys.readouterr().out.strip().splitlines()[-1])["text"])[1]
+    assert "build cache: 2 of 2 parts reused" in text("check", "demo")       # the line a human reads
+    assert "build cache" not in text("check", "demo", "--no-cache")
 
 
 def test_an_edit_rebuilds_only_the_part_edited(demo, capsys):
@@ -175,6 +179,18 @@ def test_a_part_check_judges_the_pairs_of_its_bodies_in_the_assembly(demo, capsy
     # the block's own edit is judged against the plate that is there now
     code, data = run(capsys, "check", "demo", "--part", "block")
     assert any(r["rule"] == "interference" for r in judged(data["failing"]))
+
+
+def test_the_fit_rule_can_judge_only_the_pairs_of_some_bodies():
+    from build123d import Box, Pos
+    from cad_agent.checks.fit import check_fit
+    parts = {"a": Box(10, 10, 10), "b": Pos(30, 0, 0) * Box(10, 10, 10), "c": Pos(60, 0, 0) * Box(10, 10, 10)}
+    pairs = lambda **kw: [r["pair"] for r in check_fit(parts, **kw)]
+    assert pairs() == ["a vs b", "a vs c", "b vs c"]
+    assert pairs(involving={"a"}) == ["a vs b", "a vs c"]
+    assert pairs(involving={"c"}) == ["a vs c", "b vs c"]
+    assert pairs(involving={"b", "c"}) == ["a vs b", "a vs c", "b vs c"]
+    assert pairs(involving=set()) == []
 
 
 def test_a_set_variant_and_a_project_without_an_assembly_have_no_fit_to_judge(demo, capsys):
