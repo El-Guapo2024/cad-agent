@@ -10,6 +10,7 @@ import os
 import subprocess
 import time
 from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
 
@@ -88,6 +89,121 @@ def test_the_install_script_asks_uv_to_look_at_the_interpreter_again():
     assert subprocess.run(["sh", "-n", str(script)], capture_output=True).returncode == 0
     installs = [ln for ln in script.read_text().splitlines() if ln.strip().startswith("uv pip install")]
     assert len(installs) == 2 and all("--refresh-package" in ln for ln in installs)
+
+
+# ─── The install script, run offline with tools that only log what they are asked ───
+
+# What a venv's python finds when the script asks it to load the kernel, so that a test can say the
+# session was already usable by then: `cad` linked into the plugin's bin, and the env file written.
+_PY_STUB = """#!/bin/sh
+usable=no
+[ -L "$FAKE_DATA/bin/cad" ] && grep -q CAD_PYTHON "$FAKE_ENV" && usable=yes
+echo "python $* [warm=${CAD_WARM:-unset} bytecode=<${PYTHONDONTWRITEBYTECODE-unset}> usable=$usable]" >> "$FAKE_LOG"
+[ -z "${FAKE_KERNEL_FAILS:-}" ]
+"""
+_PIP_STUB = """#!/bin/sh
+echo "pip $* [compat=${SYSTEM_VERSION_COMPAT:-unset}]" >> "$FAKE_LOG"
+case "$*" in *"[embree]"*) [ -z "${FAKE_EMBREE_FAILS:-}" ] ;; esac
+"""
+_UV_STUB = """#!/bin/sh
+echo "uv $* [compat=${SYSTEM_VERSION_COMPAT:-unset}]" >> "$FAKE_LOG"
+case "$1" in
+  venv) for last; do :; done; mkdir -p "$last/bin"; cp "$FAKE_PYTHON" "$last/bin/python"; chmod +x "$last/bin/python" ;;
+  pip) case "$*" in *"[embree]"*) [ -z "${FAKE_EMBREE_FAILS:-}" ] ;; esac ;;
+esac
+"""
+_PYTHON313_STUB = """#!/bin/sh
+case "$1" in
+  -c) echo "probe $2" >> "$FAKE_LOG"; exit 0 ;;
+  -m) mkdir -p "$3/bin"; cp "$FAKE_PYTHON" "$3/bin/python"; cp "$FAKE_PIP" "$3/bin/pip"
+      chmod +x "$3/bin/python" "$3/bin/pip" ;;
+esac
+"""
+
+
+def _install(tmp_path, uv=True, **flags):
+    """Run plugin/install.sh as a SessionStart hook does, with a uv (or, without one, a python3.13) and a
+    venv python that log their calls in tmp_path/calls.log. Returns an object with run() for another start."""
+    s = SimpleNamespace()
+    s.root, s.data, s.project = tmp_path / "root", tmp_path / "data", tmp_path / "proj"
+    s.env_file, s.log = tmp_path / "session-env.sh", tmp_path / "calls.log"
+    (s.root / "bin").mkdir(parents=True)
+    (s.root / "pyproject.toml").write_text('[project]\nname = "cad-agent"\nversion = "9.9.9"\n')
+    (s.root / "bin" / "cad").write_text("#!/bin/sh\n")
+    s.project.mkdir()
+    s.env_file.write_text("")
+    fake = tmp_path / "fakebin"
+    fake.mkdir()
+    for name, text in (("python_stub", _PY_STUB), ("pip_stub", _PIP_STUB)):
+        (tmp_path / name).write_text(text)
+    for name, text in (("uv", _UV_STUB),) if uv else (("python3.13", _PYTHON313_STUB),):
+        (fake / name).write_text(text)
+        (fake / name).chmod(0o755)
+    env = {"PATH": f"{fake}:/usr/bin:/bin", "HOME": str(tmp_path / "home"),
+           "CLAUDE_PLUGIN_ROOT": str(s.root), "CLAUDE_PLUGIN_DATA": str(s.data),
+           "CLAUDE_PROJECT_DIR": str(s.project), "CLAUDE_ENV_FILE": str(s.env_file),
+           "FAKE_LOG": str(s.log), "FAKE_DATA": str(s.data), "FAKE_ENV": str(s.env_file),
+           "FAKE_PYTHON": str(tmp_path / "python_stub"), "FAKE_PIP": str(tmp_path / "pip_stub"), **flags}
+    s.run = lambda: subprocess.run(["sh", str(REPO / "plugin" / "install.sh")], env=env, cwd=s.project,
+                                   capture_output=True, text=True, timeout=60)
+    s.calls = lambda: s.log.read_text().splitlines() if s.log.exists() else []
+    s.pkg = f"{s.root}[metal]" if os.uname().sysname == "Darwin" else str(s.root)
+    s.first = s.run()
+    return s
+
+
+def test_the_install_script_installs_once_and_loads_the_kernel_once_cad_is_in_place(tmp_path):
+    s = _install(tmp_path)
+    assert s.first.returncode == 0, s.first.stderr
+    assert s.first.stdout == ""                       # a hook's stdout reaches the model: all talk is stderr
+    calls = s.calls()
+    uv = [c for c in calls if c.startswith("uv ")]
+    # The kernel's wheels stop at Python 3.14 (OCP has no cp315, build123d says <3.15): a uv that knows
+    # 3.15 would otherwise pick it on a machine with no other 3.12+, and the install would not resolve.
+    assert uv[0] == f"uv venv -q --python >=3.12,<3.15 {s.data / 'venv'} [compat=0]"
+    assert f"-e {s.pkg} [compat=0]" in uv[1] and f"-e {s.root}[embree] [compat=0]" in uv[2]
+    assert (s.data / "installed").read_text().strip() == f"9.9.9 {s.root}"
+    assert (s.data / "bin" / "cad").resolve() == (s.root / "bin" / "cad").resolve()
+    env_lines = s.env_file.read_text().splitlines()
+    assert env_lines[0] == f'export CAD_PYTHON="{s.data / "venv" / "bin" / "python"}"'
+    assert env_lines[2] == f'export CAD_PROJECTS="{s.project}/cad-projects"'
+    # The first import of the new venv takes minutes on a Mac (every native library is checked the first
+    # time it loads), so it happens here and not in the first `cad` call: with bytecode caching forced on, no
+    # worker, and only once `cad` is on PATH and the session env is written, so a hook cut short there loses nothing.
+    py = [c for c in calls if c.startswith("python ")]
+    assert py[0] == "python -P -m cad_agent.warm --version [warm=0 bytecode=<> usable=yes]"
+    assert py[1].startswith("python -P -c import trimesh, embreex")
+    assert calls.index(uv[-1]) < calls.index(py[0])
+    # Started again with the install in place, it only sets up the session.
+    before = s.calls()
+    again = s.run()
+    assert again.returncode == 0 and again.stdout == ""
+    assert s.calls() == before
+    assert len(s.env_file.read_text().splitlines()) == 2 * len(env_lines)
+
+
+def test_a_kernel_that_will_not_start_after_the_install_is_said_and_does_not_undo_it(tmp_path):
+    s = _install(tmp_path, FAKE_KERNEL_FAILS="1")
+    assert s.first.returncode == 0 and "the CAD kernel did not start" in s.first.stderr
+    assert (s.data / "installed").exists() and (s.data / "bin" / "cad").is_symlink()
+    assert "CAD_PYTHON" in s.env_file.read_text()
+
+
+def test_a_platform_without_embree_still_installs(tmp_path):
+    s = _install(tmp_path, FAKE_EMBREE_FAILS="1")
+    assert s.first.returncode == 0 and "Embree not installed" in s.first.stderr
+    assert (s.data / "installed").exists()
+
+
+def test_without_uv_the_script_makes_its_venv_with_python_and_pip(tmp_path):
+    s = _install(tmp_path, uv=False)
+    assert s.first.returncode == 0, s.first.stderr
+    pip = [c for c in s.calls() if c.startswith("pip ")]
+    assert pip == [f"pip install -q -e {s.pkg} [compat=0]", f"pip install -q -e {s.root}[embree] [compat=0]"]
+    probe = next(c for c in s.calls() if c.startswith("probe "))     # the python it accepts: 3.12 to 3.14
+    assert "(3, 12) <= sys.version_info[:2] < (3, 15)" in probe
+    assert any(c.startswith("python -P -m cad_agent.warm --version") for c in s.calls())
+    assert (s.data / "installed").exists()
 
 
 def test_stop_hook_lets_a_second_stop_through(env):

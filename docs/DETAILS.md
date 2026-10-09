@@ -41,7 +41,11 @@ In Claude Code:
 `cad-reviewer` agent, the check-on-edit and done-on-stop hooks, and `/cad-agent:workbench`.
 On the first session it installs the CLI and the CAD kernel (build123d, OCP; a few
 hundred MB, a few minutes) into Claude Code's plugin data folder with `uv` if present,
-else Python 3.12+, and puts `cad` on the session's PATH. Designs go to `./cad-projects`
+else Python 3.12 to 3.14 (the kernel has no wheels for 3.15 yet), and puts `cad` on the
+session's PATH. It then loads the kernel once
+(`cad --version`, whose line it prints), so the first command is quick: on macOS the first
+load of each native library is checked by the system, which can take minutes on a new
+install and would otherwise be spent in your first `cad` call. Designs go to `./cad-projects`
 in the project you open (set `CAD_PROJECTS` to change it). Check the manifest with
 `claude plugin validate .`. Working inside this repo with the plugin also installed runs
 the hooks twice; disable one of them there.
