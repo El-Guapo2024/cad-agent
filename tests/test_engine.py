@@ -60,6 +60,22 @@ def test_min_distance_and_overlap():
     assert intersection_volume(a, over) == pytest.approx(500.0, rel=1e-4)
 
 
+def test_min_distance_is_the_single_thread_number_to_the_last_bit():
+    """It runs on every core; OCCT merges the tasks in order, so no pair may read differently."""
+    from OCP.BRepExtrema import BRepExtrema_DistShapeShape
+    a = Box(10, 10, 10) - Pos(2, 1, 0) * Cylinder(2, 20)
+    pairs = [Pos(0, 0, 20) * Box(10, 10, 10),                    # clear
+             Pos(0, 0, 10) * Box(10, 10, 10),                    # touching
+             Pos(3, 0, 4) * Box(10, 10, 10),                     # overlapping
+             Pos(1, 1, 1) * Box(2, 2, 2),                        # inside the solid
+             Pos(2, 1, 0) * Cylinder(1.5, 30),                   # a pin through the hole
+             Pos(7.3, -2.1, 11.9) * Rot(20, 35, 50) * Cylinder(3, 7)]
+    for b in pairs:
+        one = BRepExtrema_DistShapeShape(a.wrapped, b.wrapped)       # the constructor runs it on one thread
+        assert min_distance(a, b) == one.Value()
+        assert min_distance(b, a) == BRepExtrema_DistShapeShape(b.wrapped, a.wrapped).Value()
+
+
 def test_apart_rules_out_only_boxes_that_cannot_touch():
     a = box(Box(10, 10, 10))
     assert apart(a, box(Pos(0, 0, 20) * Box(10, 10, 10)))             # 10 mm clear

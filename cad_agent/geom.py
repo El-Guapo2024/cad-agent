@@ -13,13 +13,21 @@ def _w(shape):
 
 # OCCT's two-shape constructors run the operation, so calling Perform() or Build() after them did
 # the whole search a second time: half the time of every fit, sweep and spec pair, for the same
-# number. The helpers below ask again only if a build of OCCT left the constructor idle.
+# number. The helpers below ask once; closest_points and intersection_volume ask again only if a
+# build of OCCT left the constructor idle.
 
 def min_distance(a, b) -> float:
-    """Minimum distance between two solids in mm. 0.0 means touching or overlapping."""
-    d = BRepExtrema_DistShapeShape(_w(a), _w(b))
-    if not d.IsDone():
-        d.Perform()
+    """Minimum distance between two solids in mm. 0.0 means touching or overlapping.
+
+    The search runs on every core. OCCT cuts the face pairs into the same tasks whether one thread
+    runs them or many, each task keeps its own result, and the results are merged in task order,
+    so the number is the single-thread one to the last bit.
+    """
+    d = BRepExtrema_DistShapeShape()
+    d.SetMultiThread(True)
+    d.LoadS1(_w(a))
+    d.LoadS2(_w(b))
+    d.Perform()
     if not d.IsDone():
         raise RuntimeError("distance computation failed")
     return float(d.Value())
