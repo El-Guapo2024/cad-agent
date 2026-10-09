@@ -62,10 +62,14 @@ def _triangulation(shape, tolerance: float, angular: float):
 
 def tessellate(shape, tolerance: float = 0.1, angular: float = 0.3) -> Mesh:
     """build123d/OCCT shape -> Mesh."""
+    verts = None
     if hasattr(shape, "mesh") and hasattr(shape, "faces"):
-        verts, tris = _triangulation(shape, tolerance, angular)
-        v = np.array(verts, dtype=float)
-    else:                                # anything that only knows how to tessellate itself
+        try:
+            verts, tris = _triangulation(shape, tolerance, angular)
+            v = np.array(verts, dtype=float)
+        except (AttributeError, TypeError):     # a build of OCP that binds the mesh another way
+            verts = None
+    if verts is None:                        # the shape's own tessellate(), as before
         verts, tris = shape.tessellate(tolerance, angular)
         v = np.array([[p.X, p.Y, p.Z] for p in verts], dtype=float)
     t = np.array(tris, dtype=int).reshape(-1, 3)

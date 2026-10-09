@@ -221,6 +221,20 @@ def test_tessellate_gives_the_arrays_of_the_shapes_own_tessellate():
         assert np.array_equal(m.tris, np.array(tris, dtype=int).reshape(-1, 3))
 
 
+def test_tessellate_falls_back_to_the_shapes_own_when_the_fast_read_is_unavailable(monkeypatch):
+    """A build of OCP that binds Poly_Triangle another way must cost speed, not renders."""
+    from cad_agent import render
+    part = Box(10, 20, 30) - Cylinder(3, 40)
+    fast = tessellate(part, 0.1, 0.3)
+
+    def unavailable(*args, **kwargs):
+        raise AttributeError("'Poly_Triangle' object has no attribute 'Get'")
+
+    monkeypatch.setattr(render, "_triangulation", unavailable)
+    slow = tessellate(part, 0.1, 0.3)
+    assert np.array_equal(fast.verts, slow.verts) and np.array_equal(fast.tris, slow.tris) and len(fast.tris)
+
+
 def test_render_writes_a_png_of_the_right_size(tmp_path):
     m = tessellate(Box(10, 20, 30))
     p = render(m, tmp_path / "a.png", view="iso", size=(120, 90))
