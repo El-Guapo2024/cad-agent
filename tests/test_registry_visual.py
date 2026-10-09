@@ -94,6 +94,37 @@ def test_coverage_sees_a_drawn_part(tmp_path):
     assert vis._coverage(read_png(p)) > 0.1
 
 
+def test_the_image_numbers_are_those_of_plain_integer_arithmetic(tmp_path):
+    """Coverage, drift and drawn extent are held to the int64 sums they were first written as."""
+    from cad_agent.render import _write_png
+    rng = np.random.default_rng(7)
+    cur = rng.integers(0, 256, (48, 64, 3), dtype=np.uint8)
+    base = np.where(rng.random((48, 64, 1)) < 0.9, cur, rng.integers(0, 256, (48, 64, 3), dtype=np.uint8))
+    cur[0, 0] = base[0, 0] = (247, 246, 244)
+    cur[:6], base[:6, :20] = (247, 246, 244), (247, 246, 244)                   # background to be found
+    _write_png(cur, tmp_path / "cur.png")
+    _write_png(base, tmp_path / "base.png")
+
+    def ink(img):
+        return np.abs(img.astype(int) - img[0, 0].astype(int)).max(axis=2) > vis.CHANNEL_TOL
+
+    def extent(img):
+        ys, xs = np.nonzero(ink(img))
+        return int(xs.min()), int(ys.min()), int(xs.max()), int(ys.max())
+
+    assert vis._coverage(cur) == float(ink(cur).mean()) > 0
+    assert vis._drawn_bbox(cur) == extent(cur)
+    shown = vis.compare(tmp_path / "cur.png", tmp_path / "base.png", tmp_path / "diff.png")
+    moved = np.abs(cur.astype(int) - base.astype(int)).max(axis=2) > vis.CHANNEL_TOL
+    assert shown["drift"] == float(moved.mean()) > 0
+    assert (shown["coverage"], shown["baseline_coverage"]) == (float(ink(cur).mean()), float(ink(base).mean()))
+    assert (shown["bbox"], shown["baseline_bbox"]) == (extent(cur), extent(base))
+    ys, xs = np.nonzero(moved)
+    assert shown["changed_region"] == [int(xs.min()), int(ys.min()), int(xs.max()), int(ys.max())]
+    assert vis.compare(tmp_path / "cur.png", tmp_path / "base.png", tmp_path / "diff2.png", current=cur) == \
+        {**shown, "diff_png": str(tmp_path / "diff2.png")}                       # an image already read gives the same
+
+
 def test_first_run_is_unchecked_not_passed(visual_project):
     root, out = visual_project
     rows = list(vis.visual_rows("cube", Box(10, 10, 10), out, root))

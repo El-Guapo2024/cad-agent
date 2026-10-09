@@ -56,20 +56,24 @@ def baseline_dir(project_dir: Path) -> Path:
     return d
 
 
-def _coverage(img: np.ndarray) -> float:
-    """Fraction of the frame that is not background.
+def _ink(img: np.ndarray) -> np.ndarray:
+    """Which pixels are not background.
 
     Background is taken from the corner pixel rather than a constant, so a
-    theme or palette change does not read as the part vanishing.
+    theme or palette change does not read as the part vanishing. A channel
+    difference fits int16, which moves a quarter of the memory int64 did.
     """
-    bg = img[0, 0].astype(int)
-    d = np.abs(img.astype(int) - bg).max(axis=2)
-    return float((d > CHANNEL_TOL).mean())
+    bg = img[0, 0].astype(np.int16)
+    return np.abs(img.astype(np.int16) - bg).max(axis=2) > CHANNEL_TOL
 
 
-def _drawn_bbox(img: np.ndarray):
-    bg = img[0, 0].astype(int)
-    mask = np.abs(img.astype(int) - bg).max(axis=2) > CHANNEL_TOL
+def _coverage(img: np.ndarray) -> float:
+    """Fraction of the frame that is not background."""
+    return float(_ink(img).mean())
+
+
+def _drawn_bbox(img: np.ndarray, ink: np.ndarray | None = None):
+    mask = _ink(img) if ink is None else ink
     if not mask.any():
         return None
     ys, xs = np.nonzero(mask)
@@ -84,21 +88,26 @@ def _write_diff(base: np.ndarray, cur: np.ndarray, mask: np.ndarray, path: Path)
     _write_png(np.ascontiguousarray(out), path)
 
 
-def compare(current_png: Path, baseline_png: Path, diff_png: Path) -> dict:
-    """Compare two renders. Returns coverage, drift and where it moved."""
-    cur = read_png(current_png)
+def compare(current_png: Path, baseline_png: Path, diff_png: Path,
+            current: np.ndarray | None = None) -> dict:
+    """Compare two renders. Returns coverage, drift and where it moved.
+
+    `current` is the first image already read, for a caller that has it.
+    """
+    cur = read_png(current_png) if current is None else current
     base = read_png(baseline_png)
     if cur.shape != base.shape:
         return {"state": "SIZE_CHANGED",
                 "note": f"render is {cur.shape[1]}x{cur.shape[0]}, approved "
                         f"image is {base.shape[1]}x{base.shape[0]}"}
-    d = np.abs(cur.astype(int) - base.astype(int)).max(axis=2)
+    d = np.abs(cur.astype(np.int16) - base.astype(np.int16)).max(axis=2)
     mask = d > CHANNEL_TOL
     drift = float(mask.mean())
+    ink_cur, ink_base = _ink(cur), _ink(base)
     res = {"state": "COMPARED", "drift": drift,
-           "coverage": _coverage(cur),
-           "baseline_coverage": _coverage(base),
-           "bbox": _drawn_bbox(cur), "baseline_bbox": _drawn_bbox(base)}
+           "coverage": float(ink_cur.mean()),
+           "baseline_coverage": float(ink_base.mean()),
+           "bbox": _drawn_bbox(cur, ink_cur), "baseline_bbox": _drawn_bbox(base, ink_base)}
     if drift > 0:
         _write_diff(base, cur, mask, diff_png)
         res["diff_png"] = str(diff_png)
@@ -127,7 +136,8 @@ def visual_rows(subject: str, solid, out_dir: Path, project_dir: Path,
             continue
 
         cur = render_for_check(solid, out_dir, subject, view)
-        cov = _coverage(read_png(cur))
+        image = read_png(cur)
+        cov = _coverage(image)
 
         yield Row(subject=subject, rule=f"silhouette/{view}",
                   state="PASS" if cov >= MIN_COVERAGE else "FAIL",
@@ -145,7 +155,7 @@ def visual_rows(subject: str, solid, out_dir: Path, project_dir: Path,
                       artifacts=[str(cur)])
             continue
 
-        r = compare(cur, base, Path(out_dir) / f"_diff_{subject}_{view}.png")
+        r = compare(cur, base, Path(out_dir) / f"_diff_{subject}_{view}.png", current=image)
         if r["state"] == "SIZE_CHANGED":
             yield Row(subject=subject, rule=f"drift/{view}", state="UNCHECKED",
                       measured=r["note"], limit="same size as the approved image",
