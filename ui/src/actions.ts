@@ -1,5 +1,5 @@
 import type { DockviewApi } from 'dockview-react'
-import { api, resultText, type Body, type GuiState, type Placement, type Vec3 } from './api'
+import { api, resultText, type Body, type CadResult, type GuiState, type Placement, type Vec3 } from './api'
 import { consoleLog, getState, report, saved, setState, subscribe, type DrawStyle, type SelEntry, type State, type Task, type ViewProps } from './store'
 import type { CadView } from './viewer'
 // Type-only: cmdreg.ts imports this file for its commands' functions, so this stays a type import
@@ -855,6 +855,14 @@ export async function setParams(part: string, before: Record<string, unknown>, a
 // cad place's own --move=x,y,z syntax (console help: `place BODY --move=x,y,z [--turn=a,b,c] [--about=x,y,z]`).
 const vec = (v: Vec3) => v.map((n) => Number(n.toPrecision(6))).join(',')
 
+/** What a `cad place` that exits 1 says is wrong: its FAIL rows as `cad place` prints them
+ *  ("arduino vs wheel_left: overlap 499.200 mm^3"), the first three, then how many more. */
+function fitFails(r: CadResult): string {
+  const rows = ((r.data?.rows ?? []) as { pair?: string; state?: string; detail?: string }[]).filter((x) => x.state === 'FAIL')
+  if (!rows.length) return resultText(r)
+  return rows.slice(0, 3).map((x) => `${x.pair}: ${x.detail}`).join('; ') + (rows.length > 3 ? `; and ${rows.length - 3} more` : '')
+}
+
 export async function place(body: string, before: Placement | null, after: Placement | null, record = true, echo = true) {
   const slug = getState().slug
   if (!slug) return false
@@ -863,7 +871,7 @@ export async function place(body: string, before: Placement | null, after: Place
   try {
     const r = await api.place(slug, body, after)
     if (r.exit > 2) { report('err', `Not placed: cad place ${body}: ${resultText(r)}`); return false }
-    if (r.exit === 1) report('warn', `${body} was placed, but a fit check fails: ${resultText(r)}`)
+    if (r.exit === 1) report('warn', `${body} was placed, but a fit check fails: ${fitFails(r)}`)
     if (record) recordLine(`cad place ${slug} ${body} ${argsText}`)
     return true
   } catch (e) {

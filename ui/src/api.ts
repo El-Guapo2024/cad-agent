@@ -130,7 +130,10 @@ export const api = {
   runMacro: (name: string, slug: string) => http<MacroRunResult>('POST', '/api/macro/run', { name, slug }),
 }
 
-/** What a cad call said when it didn't pass, for the report view. */
+/** What a cad call said when it didn't pass, for the report view. A verdict (exit 1 or 2) has no
+ *  error: the answer is the command's own text, whose first line says it ("arduino_car  NOT DONE"). */
 export function resultText(r: CadResult): string {
-  return r.data?.error || r.data?.summary || (r.stderr || '').trim().split('\n').pop() || `exit ${r.exit}`
+  const first = (r.text || '').split('\n').find((l) => l.trim())
+  const summary = r.data?.summary // check and verify put their counts here, not a sentence
+  return r.data?.error || (typeof summary === 'string' ? summary : '') || first?.trim() || (r.stderr || '').trim().split('\n').pop() || `exit ${r.exit}`
 }

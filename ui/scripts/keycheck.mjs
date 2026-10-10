@@ -18,7 +18,10 @@ for (const [k, c] of [['0', 'Std_ViewIsometric'], ['1', 'Std_ViewFront'], ['2', 
 for (let i = 1; i <= 7; i++) table.push([`Std_DrawStyle#${i}`, `V, ${i}`])
 const KEY = { Return: 'Enter', Left: 'ArrowLeft', Right: 'ArrowRight', Up: 'ArrowUp', Down: 'ArrowDown', ',': 'Comma', '+': 'Equal', '-': 'Minus', Space: 'Space' }
 const chord = (c) => { const parts = c.endsWith('++') ? [...c.slice(0, -2).split('+'), '+'] : c.split('+'); const key = parts.pop(); return [...parts.map((m) => (m === 'Ctrl' ? 'Control' : m)), KEY[key] ?? (key.length === 1 ? key.toLowerCase() : key)].join('+') }
-const b = await chromium.launch()
+// WebGL on ANGLE's SwiftShader, opted into explicitly. Headless Chromium's own fallback to software WebGL
+// froze the page at the first click on the 3D view's tab on the Mac (2026-10-09): 50 s at load 65 to 90,
+// so Playwright's click timed out and the run died, and 3.3 s at load 6; with these flags it takes 0.6 s.
+const b = await chromium.launch({ args: ['--use-angle=swiftshader', '--use-gl=angle', '--enable-unsafe-swiftshader'] })
 const p = await b.newPage({ viewport: { width: 1400, height: 900 } })
 const errs = []; p.on('pageerror', (e) => errs.push(e.message))
 await p.goto(BASE, { waitUntil: 'load' })

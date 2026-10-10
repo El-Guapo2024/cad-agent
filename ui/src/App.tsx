@@ -56,7 +56,13 @@ function onReady(e: DockviewReadyEvent) {
       g.element.dataset.dockTitle = many ? g.activePanel?.title ?? '' : ''
     }
   }
-  a.onDidAddPanel(syncDocks); a.onDidRemovePanel(syncDocks); a.onDidActivePanelChange(syncDocks)
+  // dockview 8.3.1 fires onDidAddPanel / onDidRemovePanel while the group is still telling its header
+  // actions about the change. Moving a header from inside that call rebuilds those actions, and the
+  // group's next listener then throws "resource is already disposed" (actions.ts's dockviewLate drops it).
+  // On a removal that throw also skipped panel.dispose(), so a closed Tasks panel stayed mounted and its
+  // on-mount command ran again at every later open: the Nth Verify ran N times. Sync once the call is over.
+  const syncLater = () => queueMicrotask(syncDocks)
+  a.onDidAddPanel(syncLater); a.onDidRemovePanel(syncLater); a.onDidActivePanelChange(syncDocks)
   syncDocks()
   setDock(a)
 }
