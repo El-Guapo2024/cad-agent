@@ -446,6 +446,10 @@ def serve(path: Path) -> None:
                                   "metal": sidecar.describe() if req["control"] == "status" else None})
                     continue
                 if req.get("control") == "stop":
+                    # Stop listening before saying so: a client that connected after the reply would
+                    # queue on a socket nobody answers while the sidecar goes, and be dropped.
+                    srv.close()
+                    path.unlink(missing_ok=True)
                     _reply(conn, {"exit": 0, "stopped": os.getpid()})
                     stop = True
                     break
@@ -470,14 +474,16 @@ def serve(path: Path) -> None:
     except KeyboardInterrupt:
         clean = True
     finally:
+        # First, on every way out: the sidecar below takes up to two seconds to go, and a client that
+        # connects meanwhile is dropped (it was queued on a socket that closes under it).
+        srv.close()
+        path.unlink(missing_ok=True)
         for pid in running:
             try:
                 os.kill(pid, signal.SIGTERM)
             except ProcessLookupError:
                 pass
         sidecar.stop()
-        srv.close()
-        path.unlink(missing_ok=True)
         if clean:
             _retire(path, lock)
 
@@ -555,6 +561,19 @@ def _lock_is_free(path: Path) -> bool:
             return True
     except OSError:
         return False
+
+
+def _wait_until_gone(path: Path, timeout: float = 15.0) -> None:
+    """Return once the worker that was told to stop no longer has its socket (or after `timeout`).
+
+    A worker answers `stop` and then tears down its Metal sidecar, which takes up to two seconds.
+    A command sent in between found the socket still there, queued on a listener that was about
+    to close, and was dropped ("the warm worker dropped the command"): so `cad warm stop`, and
+    the command right after it, failed. With the socket gone the next command starts a new worker.
+    """
+    deadline = time.time() + timeout
+    while path.exists() and time.time() < deadline:
+        time.sleep(0.05)
 
 
 def _read_reply(conn: socket.socket) -> dict:
@@ -678,6 +697,7 @@ def _control(args: list[str]) -> int:
     reply = _read_reply(conn)
     if action == "stop":
         print(f"cad warm: stopped worker {reply.get('stopped')}")
+        _wait_until_gone(path)
     else:
         print(f"cad warm: worker {reply.get('pid')} up {reply.get('up_s')} s, "
               f"{reply.get('served')} commands served, kernel import took "
