@@ -291,6 +291,27 @@ def test_the_server_says_which_project_is_unknown_or_missing(server):
         assert code == 400 and "slug" in json.loads(raw)["error"], path
 
 
+def test_a_verdict_is_not_an_error_but_a_usage_mistake_or_a_crash_says_why():
+    # `cad place` of a part into another exits 1 and `cad verify` of an unfinished design exits 2: both are
+    # answers, with their rows. The server used to add error="cad failed" to them, and the page showed that
+    # as the whole message ("wheel_left was placed, but a fit check fails: cad failed").
+    hit = '{"cmd": "place", "exit": 1, "data": {"fails": 1, "rows": [{"pair": "a vs b", "state": "FAIL"}]}}'
+    r = serve._result(cli.FAIL, hit, "")
+    assert r["exit"] == cli.FAIL and "error" not in r["data"] and r["data"]["rows"][0]["pair"] == "a vs b"
+    r = serve._result(cli.UNCHECKED, '{"cmd": "verify", "exit": 2, "data": {"verdict": "UNCHECKED"}, "text": "demo  UNCHECKED"}', "")
+    assert "error" not in r["data"] and r["text"] == "demo  UNCHECKED"
+    # what went wrong, when nothing was verdict: the command's own message, else its stderr, else a stand-in
+    r = serve._result(cli.FAIL, '{"cmd": "scene", "exit": 1, "data": {"error": "demo did not build"}}', "")
+    assert r["data"]["error"] == "demo did not build"
+    r = serve._result(cli.USAGE, '{"cmd": "place", "exit": 3, "data": {}}', "cad place: no body 'x'\n")
+    assert r["data"]["error"] == "cad place: no body 'x'"
+    r = serve._result(cli.CRASH, "", "")
+    assert r["exit"] == cli.CRASH and r["data"]["error"] == "cad failed"
+    r = serve._result(-9, "", "")                        # a process killed from outside
+    assert r["data"]["error"] == "cad failed"
+    assert "error" not in serve._result(cli.OK, '{"cmd": "status", "exit": 0, "data": {}}', "")["data"]
+
+
 def test_the_watcher_announces_design_changes_and_new_log_lines(demo):
     bench = serve.Bench([demo.parent], runner=inproc)
     got = []

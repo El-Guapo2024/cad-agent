@@ -121,7 +121,10 @@ def _result(code: int, stdout: str, stderr: str) -> dict:
     except ValueError:
         payload = {}
     data = payload.get("data", {})
-    if code and not data.get("error"):
+    # Exit 1 (FAIL) and 2 (UNCHECKED) are verdicts: the data is the answer, and an error added to it
+    # ("cad failed") hid it from the page. Anything else that is not 0 (usage 3, crash 4, a killed
+    # process) says why on stderr, so that one gets the error.
+    if code not in (0, 1, 2) and not data.get("error"):
         data = {**data, "error": (stderr.strip().splitlines() or ["cad failed"])[-1]}
     res = {"exit": code, "data": data, "stderr": stderr[-4000:]}
     if "text" in payload:
