@@ -27,6 +27,9 @@ else assembly.py builds itself, an extrusion blank for one). It is decided in th
   3. its name is a file in bought/ (`bought_stems`), so it is bought;
   4. otherwise it is stock.
 
+scene.py (the workbench's colours and kinds) still decides by steps 2 to 4 alone, so a body it shows as
+stock can be bought here: arduino_car's `arduino` is `bought_solid(SLUG, "arduino_uno")`.
+
 The first two fields of a body say where it is from; the rest are what a rule may rest on, and each is
 `None` or "envelope" when nothing declares it, never a default that looks like a measurement:
 
