@@ -228,7 +228,7 @@ def profile(solid, axis: int | None = None) -> Profile:
     solids = _count(shape, "solid")
     if solids != 1:
         raise NotABeam(f"the body is {solids} solids, and a beam is one")
-    g = box(shape).Get()
+    g = _corners(box(shape))
     lo3, hi3 = g[:3], g[3:]
     size = [h - low for low, h in zip(lo3, hi3)]
     if axis is None:
@@ -263,23 +263,32 @@ def _count(shape, kind: str) -> int:
     return n
 
 
+def _corners(b) -> tuple:
+    """A Bnd_Box as (xmin, ymin, zmin, xmax, ymax, zmax). OCP for OCCT 8 cannot return Bnd_Box.Get()'s
+    Limits struct, so this reads the two corners, which both kernels bind."""
+    lo, hi = b.CornerMin(), b.CornerMax()
+    return (lo.X(), lo.Y(), lo.Z(), hi.X(), hi.Y(), hi.Z())
+
+
 def _edges(shape, axis: int) -> list[tuple]:
-    """(where it starts along the beam, where it ends, how far it strays across) for every edge of the shape."""
+    """(where it starts along the beam, where it ends, how far it strays across) for every edge of the shape.
+
+    The walk meets an edge once for each face it bounds; the set keeps one of each (OCP for OCCT 8 has no
+    TopTools_IndexedMapOfShape to do it)."""
     from OCP.Bnd import Bnd_Box
     from OCP.BRepBndLib import BRepBndLib
     from OCP.TopAbs import TopAbs_EDGE
-    from OCP.TopExp import TopExp
-    from OCP.TopTools import TopTools_IndexedMapOfShape
+    from OCP.TopExp import TopExp_Explorer
     u, v = (i for i in range(3) if i != axis)
-    edges = TopTools_IndexedMapOfShape()
-    TopExp.MapShapes_s(shape, TopAbs_EDGE, edges)
     found = set()
-    for i in range(1, edges.Extent() + 1):
+    walk = TopExp_Explorer(shape, TopAbs_EDGE)
+    while walk.More():
         box = Bnd_Box()
-        BRepBndLib.AddOptimal_s(edges.FindKey(i), box, False, False)
+        BRepBndLib.AddOptimal_s(walk.Current(), box, False, False)
+        walk.Next()
         if box.IsVoid():                                  # a degenerate edge (a cone's apex) has no extent
             continue
-        g = box.Get()
+        g = _corners(box)
         found.add((round(g[axis], 5), round(g[axis + 3], 5), round(math.hypot(g[u + 3] - g[u], g[v + 3] - g[v]), 5)))
     return sorted(found)
 
@@ -401,7 +410,7 @@ def _section(shape, axis: int, x: float, centre: list, half: float, u: int, v: i
 
     box = Bnd_Box()
     BRepBndLib.AddOptimal_s(cut, box, False, False)
-    g = box.Get()
+    g = _corners(box)
     # for a flat section M[i][i] is the integral of the squares of the other two coordinates, and M[i][j] is
     # minus the integral of the product of i and j, so across the beam M[v][v] is the one for a load along u
     return Section(x=x, area=area, iu=moment(v, v), iv=moment(u, u), iuv=-moment(u, v),
