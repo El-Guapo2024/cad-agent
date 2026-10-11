@@ -43,8 +43,10 @@ sections spread over 400 mm. The stations are STATIONS equal cells' middles, the
 and the middle of every cut across the beam: OCCT gives where each edge of the solid starts and ends along the
 axis, a section changes in kind only between those, and the middle of a hole's extent is its diameter plane, the
 weakest section it makes. A body with more than MAX_STATIONS of them is not one this samples (NotABeam). None is
-within SKIRT of the section's size from an end except the end stations, just beyond it: a body a degree or two
-off its axis ends in a slanted cut, which is no cross-section.
+within SKIRT of the section's size from an end except the end stations, just beyond it. A body a degree or two off
+its axis ends in a slanted cut, which is no cross-section, and the chamfers and fillets of an end are as short:
+a zone that short at the clamped end of a cantilever, with half the stiffness, moves the tip by 3 w / L, which is
+3 % for the 10 % of a beam ten times as long as it is deep, and less anywhere else.
 
 The weakest section stands for the whole beam in the answer, and so does the stiffest: with every section at
 least I_min the deflection cannot exceed the one computed with I_min everywhere (for a simple or cantilever beam
@@ -91,8 +93,9 @@ SPLIT_RUN = 0.5               # a section may be in pieces for this fraction of 
 SLENDER = {"simple": 10.0, "cantilever": 10.0, "fixed": 20.0}     # span/depth below which shear matters
 MERGE_MM = 1e-3               # stations closer than this are one
 NUDGE_MM = 1e-2               # how far a station on a face across the beam is moved off it
-SKIRT = 0.05                  # a body a degree or two off its axis is cut slantwise at its ends: no station is nearer
-                              # an end than this fraction of its size across, and the end stations sit just beyond
+SKIRT = 0.1                   # a body a degree or two off its axis is cut slantwise at its ends, and an end has its
+                              # chamfers: no station is nearer an end than this fraction of the body's size across,
+                              # and the end stations sit just beyond
 END_FRACTION = 1e-3           # the end stations are at least this fraction of the length inside the ends
 GAP = 0.05                    # the second longest side is this much shorter than the longest, or the way is unclear
 AXES = "xyz"
@@ -261,6 +264,8 @@ def _edges(shape, axis: int) -> list[tuple]:
     for i in range(1, edges.Extent() + 1):
         box = Bnd_Box()
         BRepBndLib.AddOptimal_s(edges.FindKey(i), box, False, False)
+        if box.IsVoid():                                  # a degenerate edge (a cone's apex) has no extent
+            continue
         g = box.Get()
         found.add((round(g[axis], 5), round(g[axis + 3], 5), round(math.hypot(g[u + 3] - g[u], g[v + 3] - g[v]), 5)))
     return sorted(found)

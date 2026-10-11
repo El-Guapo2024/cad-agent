@@ -266,11 +266,15 @@ def test_a_hole_is_a_station_at_its_diameter_and_does_not_make_the_plate_two_bea
     assert prof.second_moment(1)[0] < 6 * 40 ** 3 / 12                 # the strong axis feels it a little
 
 
-def test_the_ends_are_sections_too():
-    thin_ends = Box(L, 30, 6) + Box(L - 6, 30, 12)                    # 3 mm of the thin plate shows at each end
+def test_the_ends_are_sections_but_a_chamfer_is_not_a_weak_end():
+    thin_ends = Box(L, 30, 6) + Box(L - 10, 30, 12)                   # 5 mm of the thin plate shows at each end
     prof = beam.profile(thin_ends)
     assert prof.second_moment(2)[0] == approx(30 * 6 ** 3 / 12)
-    assert prof.sections[0].x < prof.lo + 3.0 and prof.sections[-1].x > prof.hi - 3.0
+    assert prof.sections[0].x < prof.lo + 5.0 and prof.sections[-1].x > prof.hi - 5.0
+    chamfered = Box(L, 30, 12)                                        # 2 mm chamfers round both ends, inside the skirt
+    chamfered = chamfered.chamfer(2.0, None, chamfered.edges().filter_by(lambda e: abs(e.center().X) > L / 2 - 1))
+    both = beam.profile(chamfered).second_moment(2)
+    assert both == (approx(I_Z), approx(I_Z))
 
 
 # ─── 2040: a T-slot extrusion against its datasheet ──────────────────────────
