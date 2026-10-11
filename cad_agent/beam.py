@@ -28,7 +28,7 @@ in tests/test_deflection.py, which does not use these coefficients.
 The sections
 ------------
 E I needs the second moment of area of the beam's section, which is read from the solid and not from its
-bounding box: a 20 x 40 T-slot extrusion has less than half the stiffness of the solid bar around it. The solid
+bounding box: a 20 x 40 T-slot extrusion has about half the stiffness of the solid bar around it. The solid
 is cut by a plane across the beam (BRepAlgoAPI_Common with a planar face, which leaves the face of the cut, holes
 and separate regions included), BRepGProp.SurfaceProperties gives its area and centroid and GProp_GProps
 .MatrixOfInertia its second moments about that centroid. That is what FreeCAD's Face.MatrixOfInertia returns for
