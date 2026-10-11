@@ -5,8 +5,7 @@ The format is in cad_agent/spec.py.
 from __future__ import annotations
 
 from ..registry import TOL_MM, spec_kind
-from .kit import Unusable as _Unusable
-from .kit import get_body as _body, require as _need, row as _row
+from .kit import (Unusable as _Unusable, get_body as _body, require as _need, row as _row)
 
 
 @spec_kind("clearance", order=40)

@@ -5,8 +5,8 @@ The format is in cad_agent/spec.py.
 from __future__ import annotations
 
 from ..registry import spec_kind
-from .kit import Unusable as _Unusable
-from .kit import bounds as _bounds, require as _need, row as _row, vec3 as _vec3
+from .kit import (Unusable as _Unusable, bounds as _bounds, require as _need, row as _row,
+                  vec3 as _vec3)
 
 
 @spec_kind("envelope", order=10, table=True)

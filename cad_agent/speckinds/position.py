@@ -7,8 +7,8 @@ from __future__ import annotations
 import math
 
 from ..registry import TOL_MM, spec_kind
-from .kit import Unusable as _Unusable
-from .kit import get_body as _body, require as _need, row as _row, vec3 as _vec3
+from .kit import (Unusable as _Unusable, get_body as _body, require as _need, row as _row,
+                  vec3 as _vec3)
 
 
 @spec_kind("position", order=30)
