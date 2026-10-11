@@ -54,7 +54,7 @@ PRELOAD = ("numpy", "build123d", "trimesh")
 # worker's environment, which is whoever started the worker's, so a variable missing here would
 # make a warm call differ from a cold one. test_warm.py holds this to the variables the package reads.
 ENV_PASS = ("CAD_PROJECTS", "CAD_RENDER_BACKEND", "CAD_PREFS", "CAD_MACRO_DIR", "CAD_RUNTIME_DIR",
-            "CAD_SERVE_URL", "COLUMNS", "NO_COLOR", "TERM",
+            "CAD_LIBRARY", "CAD_SERVE_URL", "COLUMNS", "NO_COLOR", "TERM",
             "CAD_ACTOR")  # undo.actor()'s fallback for CAD_WARM=0; the
                           # workbench server passes cli.py's --actor flag
                           # instead (a warm-worker fork inherits the
@@ -65,7 +65,7 @@ COLD = {(), ("-h",), ("--help",)}           # nothing to import: answer without 
 NO_KERNEL = {"serve", "service", "eval"}   # kernel-free: never hold a worker fork
 # These never import the kernel either, but a worker that is up serves them as well as any. With none
 # up they answer cold at once, instead of the first `cad pref` of a session waiting for a kernel import.
-KERNEL_FREE = {"status", "done", "history", "pref", "cache", "init"}
+KERNEL_FREE = {"status", "done", "history", "pref", "cache", "init", "lib"}   # lib: the catalog, hashes and copies
 METAL_ENV = "CAD_METAL_SIDECAR"            # metal_render.SIDECAR_ENV (no cad_agent import here)
 INHERIT_ENV = "CAD_WARM_INHERIT"           # a restarting worker's socket and lock, for its next self
 # The cad_agent files the worker process, and the sidecar it execs, import and keep (see

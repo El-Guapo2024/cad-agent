@@ -35,202 +35,33 @@ import shlex
 import sys
 import time
 import traceback
-from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
 
+from . import cmdbase
 from . import gui_client
 from . import macro
 from . import state as st
 from . import gui
+from .cmdbase import (CRASH, EXIT_CODES, FAIL, OK, UNCHECKED, USAGE, BuildFailed, NotBuilt, Result,
+                      UsageError, WorkbenchDown)
 from .gui import COMMAND_NAME_RE, FREECAD_PROP_NAMES, VIEW_CAMERA, VIEW_PROJECTION
 from .placements import PlacementError
 from .undo import UndoError
 
-OK, FAIL, UNCHECKED, USAGE, CRASH = 0, 1, 2, 3, 4
 _RUNS = 0     # commands run in this process: only the first one runs fresh
 TOOL_KINDS = ("drill", "end_mill", "collet_nose", "laser_cone", "needle")
+EXPORT_FORMATS = ("step", "stl", "3mf", "dxf")     # what `cad export --format` accepts; export.FORMATS is what is built
 SLUG = re.compile(r"^[A-Za-z0-9_][A-Za-z0-9_-]{0,63}$")
 
-EXIT_CODES = """exit codes:
-  0  ok        every row PASS or N/A, or the query succeeded
-  1  FAIL      a gate failed, parts interfere, or a part did not build
-  2  UNCHECKED something could not be settled (not a pass)
-  3  usage     bad arguments, unknown project, part or tool
-  4  crash     unexpected exception in cad-agent"""
-
-
-class UsageError(Exception):
-    """Bad arguments, or a project, part or tool that does not exist."""
-
-
-class BuildFailed(Exception):
-    """A part module raised: the design failed, not the tool."""
-
-
-class WorkbenchDown(Exception):
-    """`cad gui` found no running workbench to answer for a project: UNCHECKED,
-    not a usage error — the command was fine, the workbench just is not up."""
-
-
-@dataclass
-class Result:
-    code: int
-    data: dict
-    text: str
-    summary: str = ""
-    files: list = field(default_factory=list)
-
-
-# ─── Argument helpers ────────────────────────────────────────────────────────
-
-def _value(text: str):
-    """Read a value the way a person means it: 5 is a number, true a bool,
-    [1, 2] a list, anything else a string."""
-    try:
-        return json.loads(text)
-    except ValueError:
-        return text
-
-
-def _pairs(items, what: str) -> dict:
-    out = {}
-    for item in items or []:
-        key, sep, raw = item.partition("=")
-        if not sep or not key:
-            raise UsageError(f"{what} takes key=value, got {item!r}")
-        out[key] = _value(raw)
-    return out
-
-
-def _project(slug: str) -> Path:
-    try:
-        return st.project_dir(slug)
-    except FileNotFoundError:
-        have = ", ".join(st.list_projects()) or "none"
-        raise UsageError(f"no project {slug!r} (projects: {have})") from None
-
-
-def _part(slug: str, name: str) -> Path:
-    path = _project(slug) / "parts" / f"{name}.py"
-    if not path.exists():
-        have = ", ".join(st.part_names(slug)) or "none"
-        raise UsageError(f"no part {name!r} in {slug} (parts: {have})")
-    return path
-
-
-def _views(text: str) -> tuple[str, ...]:
-    """A comma list of views for check, verify and approve, each one the renderer draws."""
-    from .render import VIEWS
-    views = tuple(v.strip() for v in text.split(",") if v.strip()) or ("iso",)
-    bad = [v for v in views if v not in VIEWS]
-    if bad:
-        raise UsageError(f"unknown view {', '.join(repr(v) for v in bad)} "
-                         f"(views: {', '.join(sorted(VIEWS))})")
-    return views
-
-
-def _tolerance(value: float | None) -> None:
-    """--tolerance is the tessellation tolerance in mm: the mesher fails on zero or less."""
-    if value is not None and not 0 < value < float("inf"):
-        raise UsageError(f"--tolerance is the tessellation tolerance in mm and must be above 0, "
-                         f"got {value:g}")
-
-
-def _actor(a) -> str:
-    """Who to journal a change under: `--actor` when the caller passed it
-    (the workbench server adds it to every command it runs; see undo.record's
-    docstring), else undo.actor()'s own CAD_ACTOR-env fallback (default
-    "agent")."""
-    from . import undo as un
-    return a.actor or un.actor()
-
-
-def _overrides(a) -> dict:
-    """--set values, checked against the part's PARAMS so a typo is a usage
-    error naming the real parameters rather than a TypeError from build()."""
-    ov = _pairs(getattr(a, "set", None), "--set")
-    if not ov:
-        return {}
-    if not getattr(a, "part", None):
-        raise UsageError("--set changes one part's PARAMS; name the part")
-    path = _part(a.slug, a.part)
-    try:
-        defaults = dict(getattr(st._load_module(path), "PARAMS", {}))
-    except Exception as e:
-        raise BuildFailed(f"{a.part} did not load: {st.why(e)}") from e
-    unknown = sorted(set(ov) - set(defaults))
-    if unknown:
-        raise UsageError(f"{a.part} has no parameter {', '.join(unknown)} "
-                         f"(params: {', '.join(sorted(defaults))})")
-    from .params import ParamError, coerce
-    for key, value in list(ov.items()):          # a number where the part has a number, as `cad set`
-        if isinstance(defaults[key], (bool, int, float)):
-            try:
-                ov[key] = coerce(key, defaults[key], value)
-            except ParamError as e:
-                raise UsageError(str(e)) from None
-    return ov
-
-
-def _build(slug: str, name: str, overrides: dict | None = None):
-    _part(slug, name)
-    try:
-        return st.build_part(slug, name, overrides)
-    except Exception as e:
-        raise BuildFailed(f"{name} did not build: {st.why(e)}") from e
-
-
-def _assembly(slug: str) -> dict:
-    _project(slug)
-    try:
-        asm, *_ = st.load_assembly(slug)
-    except Exception as e:
-        raise BuildFailed(f"{slug} assembly did not build: {st.why(e)}") from e
-    if asm is None:
-        raise UsageError(f"{slug} has no assembly.py")
-    return asm
-
-
-@contextlib.contextmanager
-def _builds(a):
-    """The scope the edit loop's commands build parts in: a part got once is copied, and unless
-    --no-cache it comes from the project's build cache and goes back into it. Yields the log of
-    builds. `verify` does not use this; see buildcache.py."""
-    with st.reusing_builds() as log, st.caching_builds(not getattr(a, "no_cache", False)):
-        yield log
-
-
-def _from_cache(log) -> str:
-    """A line on where a run's parts came from, when some came from the build cache."""
-    cached = [b["part"] for b in log if b["how"] == "cache"]
-    if not cached:
-        return ""
-    built = [b["part"] for b in log if b["how"] == "built"]
-    return (f"build cache: {len(cached)} of {len(cached) + len(built)} parts reused"
-            + (f", built {', '.join(built)}" if built else ""))
-
-
-def _verdict(states) -> int:
-    states = set(states)
-    if "FAIL" in states:
-        return FAIL
-    if "UNCHECKED" in states:
-        return UNCHECKED
-    return OK
-
-
-def _rows_text(rows, show_all: bool) -> list[str]:
-    shown = rows if show_all else [r for r in rows if r["state"] != "PASS"]
-    lines = []
-    for r in shown:
-        rule = f"{r['check']}/{r['rule']}" if r.get("check") else r["rule"]
-        limit = r.get("limit")
-        tail = f"   [limit {limit}]" if limit not in (None, "n/a") else ""
-        lines.append(f"  {r['state']:9} {rule:24} {r['subject']:20} {r['measured']}{tail}")
-    if len(shown) < len(rows):
-        lines.append(f"  ({len(rows) - len(shown)} passing rows hidden; --all shows them)")
-    return lines
+# The exit codes, the errors, Result and the helpers every handler uses live in cmdbase.py, where a
+# module that adds a command can reach them without importing this file. These are the names they
+# had here.
+_value, _pairs, _project, _part = cmdbase.value, cmdbase.pairs, cmdbase.project, cmdbase.part
+_views, _tolerance, _actor, _overrides = cmdbase.views, cmdbase.tolerance, cmdbase.actor, cmdbase.overrides
+_build, _assembly, _builds = cmdbase.build, cmdbase.assembly, cmdbase.builds
+_from_cache, _verdict, _rows_text = cmdbase.from_cache, cmdbase.verdict, cmdbase.rows_text
+_Parser = cmdbase.Parser
 
 
 # ─── Projects ────────────────────────────────────────────────────────────────
@@ -353,7 +184,10 @@ def cmd_render(a) -> Result:
 
 def cmd_export(a) -> Result:
     _part(a.slug, a.part)
-    from .export import export_part
+    from .export import FORMATS, export_part
+    if a.format not in FORMATS:                # 3mf and dxf: step 6, piece D adds them to export.FORMATS
+        raise NotBuilt(f"--format {a.format} is not built yet (step 6, piece D; "
+                       f"cad_agent/export.py writes {', '.join(FORMATS)} so far)")
     try:
         path = str(export_part(a.slug, a.part, a.format))
     except Exception as e:                     # --format is checked by the parser: this is the part
@@ -862,16 +696,6 @@ def cmd_macro_run(a) -> Result:
         lines.append(f"  [{i}] {r['line']}  {tag}" + (f"  -- {note}" if note else ""))
     return Result(result["exit"], {"name": a.name, **result}, "\n".join(lines),
                   f"{a.name}: {len(result['ran'])} ran, exit {verdict}")
-
-
-# ─── Parser ──────────────────────────────────────────────────────────────────
-
-class _Parser(argparse.ArgumentParser):
-    """argparse exits 2 on bad arguments; 2 means UNCHECKED here, so use 3."""
-
-    def error(self, message):
-        self.print_usage(sys.stderr)
-        self.exit(USAGE, f"{self.prog}: error: {message}\n")
 
 
 # ─── Workbench ───────────────────────────────────────────────────────────────
@@ -1506,6 +1330,14 @@ def build_parser() -> argparse.ArgumentParser:
         sp.set_defaults(func=func, cmd_name=name, slug=None)
         return sp
 
+    def add_lazy(command, parent=sub):
+        """A command another module builds (cmdbase.LAZY): listed and parsed now, handled when it is run.
+        Its arguments come from that module's ARGUMENTS, and until it exists the command says so (exit 3)."""
+        sp = add(command.split()[-1], cmdbase.handler(command), cmdbase.LAZY[command].help, parent=parent)
+        sp.set_defaults(cmd_name=command)
+        sp.lazy_command = command
+        return sp
+
     def sets(sp):
         sp.add_argument("--set", action="append", metavar="KEY=VALUE",
                         help="override one PARAMS value for this run (repeatable)")
@@ -1537,10 +1369,11 @@ def build_parser() -> argparse.ArgumentParser:
     sp.add_argument("--tolerance", type=float, default=0.05, help="tessellation tolerance, mm")
     sets(sp)
 
-    sp = add("export", cmd_export, "export a part as STEP (for a shop) or STL (for a printer)")
+    sp = add("export", cmd_export, "export a part as STEP (for a shop), STL or 3MF (for a printer) "
+             "or DXF (for a laser)")
     sp.add_argument("slug")
     sp.add_argument("part")
-    sp.add_argument("--format", choices=("step", "stl"), default="step")
+    sp.add_argument("--format", choices=EXPORT_FORMATS, default="step")
 
     sp = add("measure", cmd_measure, "minimum distance or overlap between two bodies "
              "(exit 1 if they interfere)")
@@ -1593,6 +1426,9 @@ def build_parser() -> argparse.ArgumentParser:
 
     sp = add("cutlist", cmd_cutlist, "stock to order and cut, roughly priced")
     sp.add_argument("slug")
+
+    for command in ("bom", "shop", "drawing"):
+        add_lazy(command)
 
     sp = add("scene", cmd_scene, "tessellate the assembly for the workbench: "
              "out/scene.json with faces, edges, moves and axes")
@@ -1768,6 +1604,11 @@ def build_parser() -> argparse.ArgumentParser:
     sp.add_argument("name")
     sp.add_argument("--note", required=True, help="what was measured, and how")
     sp.set_defaults(cmd_name="bought verify")
+
+    lp = add("lib", None, "the part library: vendor and generated parts to copy into a project's bought/")
+    lsub = lp.add_subparsers(dest="lib_cmd", metavar="<action>", parser_class=_Parser)
+    for command in (c for c in cmdbase.LAZY if c.startswith("lib ")):
+        add_lazy(command, parent=lsub)
 
     ep = add("eval", None, "the eval set: design tasks scored by the verifier, so a change to "
              "cad-agent is a number")
@@ -1947,6 +1788,8 @@ def main(argv: list[str] | None = None) -> int:
     t0 = time.perf_counter()
     try:
         res = a.func(a)
+    except NotBuilt as e:               # a command a later piece of step 6 builds: exit 3, and say so in the data
+        res = Result(USAGE, {"error": str(e), "not_built": True}, f"cad {a.cmd_name}: {e}", str(e))
     except UsageError as e:
         res = Result(USAGE, {"error": str(e)}, f"cad {a.cmd_name}: {e}", str(e))
     except BuildFailed as e:

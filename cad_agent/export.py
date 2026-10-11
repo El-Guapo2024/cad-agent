@@ -1,4 +1,7 @@
-"""Exports. STEP for a machine shop, STL for printing, DXF for laser cutting.
+"""Exports. STEP for a machine shop, STL for printing; 3MF and DXF (for printing and laser cutting) are
+step 6, piece D's, and FORMATS lists what is written so far. `cad export --format` already accepts all
+four (cli.EXPORT_FORMATS) and answers "not built yet" for one that FORMATS lacks, so adding a writer
+is one branch in export_part and one name in FORMATS.
 
 A STEP is also a design file: a bought part is one, and `cad verify` hashes bought/*. So one part
 has to write one file, in a fresh process or a worker that has exported a hundred, today or next
@@ -20,6 +23,7 @@ from build123d import export_step, export_stl
 from .state import project_dir, build_part
 
 STEP_STAMP = "1970-01-01T00:00:00"      # FILE_NAME's time_stamp; the epoch says "no date", on purpose
+FORMATS = ("step", "stl")               # what export_part writes
 
 _STAMP = re.compile(rb"(FILE_NAME\(\s*'(?:[^']|'')*'\s*,\s*')[^']*(')")
 _OCCURRENCE = re.compile(rb"(#\d+\s*=\s*NEXT_ASSEMBLY_USAGE_OCCURRENCE\(\s*')(\d+)(')")
@@ -59,5 +63,5 @@ def export_part(slug: str, name: str, fmt: str = "step") -> Path:
         p = out / f"{name}.stl"
         export_stl(solid, str(p))
     else:
-        raise ValueError(f"unsupported format {fmt!r}; use step or stl")
+        raise ValueError(f"unsupported format {fmt!r}; use {' or '.join(FORMATS)}")
     return p
