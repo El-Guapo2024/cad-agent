@@ -113,7 +113,7 @@ class NotABeam(Exception):
 _CASES = {
     "simple": {"center": (1 / 48, "1e"), "udl": (5 / 384, "2e")},
     "fixed": {"center": (1 / 192, "1d"), "udl": (1 / 384, "2d")},
-    "cantilever": {"center": (5 / 48, "1a, a = L/2"), "end": (1 / 3, "1a, a = 0"), "udl": (1 / 8, "2a")},
+    "cantilever": {"center": (5 / 48, "1a (a = L/2)"), "end": (1 / 3, "1a (a = 0)"), "udl": (1 / 8, "2a")},
 }
 
 

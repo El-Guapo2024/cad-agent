@@ -100,8 +100,8 @@ def test_where_the_deflection_is_and_which_roark_cases_gave_it():
     assert beam.deflection("cantilever", L, E_AL, I_Z, 1.0, 1.0).where == "the free end"
     cases = {(s, a): beam.deflection(s, L, E_AL, I_Z, 1.0, 1.0, a).cases for s, a in PLACES}
     assert cases[("simple", "worst")] == ("1e", "2e") and cases[("fixed", "center")] == ("1d", "2d")
-    assert cases[("cantilever", "worst")] == ("1a, a = 0", "2a") == cases[("cantilever", "end")]
-    assert cases[("cantilever", "center")] == ("1a, a = L/2", "2a")
+    assert cases[("cantilever", "worst")] == ("1a (a = 0)", "2a") == cases[("cantilever", "end")]
+    assert cases[("cantilever", "center")] == ("1a (a = L/2)", "2a")
 
 
 def test_worst_is_midspan_for_a_simple_or_fixed_beam_and_the_free_end_for_a_cantilever():
@@ -463,7 +463,7 @@ def test_a_cantilever_is_loaded_at_its_free_end_unless_the_load_is_said_to_be_at
     mid = one({"support": "cantilever", "load_n": 2.0, "at": "center"})
     assert end.measured.startswith(f"{expected_um('cantilever', 'end', 2.0):.3f} um at the free end")
     assert mid.measured.startswith(f"{expected_um('cantilever', 'center', 2.0):.3f} um at the free end")
-    assert "case 1a, a = 0" in end.measured and "case 1a, a = L/2" in mid.measured
+    assert "case 1a (a = 0)" in end.measured and "case 1a (a = L/2)" in mid.measured
 
 
 def test_a_load_across_gravity_and_the_weight_are_two_planes_that_combine_as_vectors():
