@@ -133,7 +133,11 @@ def stance(ctx):
 
 @register(scope="project", name="provenance", order=40)
 def provenance(ctx):
-    """Whether every bought part records where its dimensions came from, and still is the file it pinned."""
+    """Whether every bought part records where its dimensions came from.
+
+    A part that declares more (bought.py has the contract) gets a row for each key that does not hold
+    and one for its pinned hash, which FAILs when the file in bought/ has changed since.
+    """
     from .bought import list_bought
     rows = list_bought(ctx.slug)
     if not rows:
