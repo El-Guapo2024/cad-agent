@@ -28,7 +28,7 @@ in tests/test_deflection.py, which does not use these coefficients.
 The sections
 ------------
 E I needs the second moment of area of the beam's section, which is read from the solid and not from its
-bounding box: a T-slot extrusion has a quarter of the stiffness of the solid bar around it. The solid is cut by a
+bounding box: a 20 x 40 T-slot extrusion has less than half the stiffness of the solid bar around it. The solid is cut by a
 plane across the beam (BRepAlgoAPI_Common with a planar face, which leaves the face of the cut, holes and
 separate regions included), BRepGProp.SurfaceProperties gives its area and centroid and GProp_GProps
 .MatrixOfInertia its second moments about that centroid. That is what FreeCAD's Face.MatrixOfInertia returns for a
@@ -49,9 +49,11 @@ off its axis ends in a slanted cut, which is no cross-section.
 The weakest section stands for the whole beam in the answer, and so does the stiffest: with every section at
 least I_min the deflection cannot exceed the one computed with I_min everywhere (for a simple or cantilever beam
 the deflection is a sum of positive terms, one for each section; for a fixed beam it follows from Castigliano for
-a point load, and is the usual bound for the own weight), and with every section at most I_max it cannot fall
-below the one computed with I_max. `Profile.second_moment` gives both; the rule passes on the first, fails on
-the second, and is UNCHECKED between them, since the answer then depends on a section it cannot choose.
+a point load, and for its own weight it is the usual bound), and with every section at most I_max it cannot fall
+below the one computed with I_max. tests/test_deflection.py holds both on finite-element beams whose stiffness
+changes from element to element at random, for every support and load. `Profile.second_moment` gives I_min and
+I_max; the rule passes on the first, fails on the second, and is UNCHECKED between them, since the answer then
+depends on a section it cannot choose.
 
 What a body must be to be a beam, and what is left out
 -------------------------------------------------------
@@ -77,7 +79,8 @@ import math
 from dataclasses import dataclass
 from typing import NamedTuple
 
-from . import geom
+# The CAD kernel is imported where a solid is read (profile and what it calls), not here: cad_agent.spec
+# imports every spec kind, and `cad ls` and `cad lib` answer without loading the kernel.
 
 GRAVITY = 9.80665             # m/s^2, standard gravity: a mass of m grams weighs m * GRAVITY / 1000 newtons
 STATIONS = 21                 # equal cells along the body, a section in the middle of each (the plan's number)
@@ -204,11 +207,12 @@ def profile(solid, axis: int | None = None) -> Profile:
 
     Raises NotABeam when it is not one: see the module docstring.
     """
+    from .geom import box
     shape = solid.wrapped if hasattr(solid, "wrapped") else solid
     solids = _count(shape, "solid")
     if solids != 1:
         raise NotABeam(f"the body is {solids} solids, and a beam is one")
-    g = geom.box(shape).Get()
+    g = box(shape).Get()
     lo3, hi3 = g[:3], g[3:]
     size = [h - low for low, h in zip(lo3, hi3)]
     if axis is None:

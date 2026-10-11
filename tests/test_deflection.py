@@ -18,7 +18,10 @@ import functools
 import json
 import math
 import re
+import subprocess
+import sys
 import textwrap
+from pathlib import Path
 
 import numpy as np
 import pytest
@@ -32,7 +35,9 @@ from cad_agent.motion import Axis
 from cad_agent.registry import SpecCtx
 from cad_agent.speckinds.deflection import deflection as kind
 from cad_agent.speckinds.kit import Unusable
+from conftest import cad_env
 
+REPO = Path(__file__).resolve().parent.parent
 E_AL = materials.prop("aluminium", "youngs_modulus_mpa").value          # 70000 MPa
 LEGACY = ("envelope", "size", "position", "clearance", "keepout", "mass", "interface")
 
@@ -112,6 +117,18 @@ def test_worst_is_midspan_for_a_simple_or_fixed_beam_and_the_free_end_for_a_cant
         beam.place_of("simple", "middle")
 
 
+def test_beam_and_the_kind_import_without_the_cad_kernel():
+    # cad_agent.spec imports every kind, so a kind that imported the kernel at module level would make `cad ls`
+    # and `cad lib` wait for it: geometry is read where a body is cut, not where the module is imported
+    code = ("import sys\n"
+            "import cad_agent.beam, cad_agent.speckinds.deflection, cad_agent.spec\n"
+            "print(sorted(m for m in ('build123d', 'OCP') if m in sys.modules))\n")
+    p = subprocess.run([sys.executable, "-c", code], capture_output=True, text=True, timeout=120,
+                       env=cad_env(PYTHONPATH=str(REPO)), cwd=str(REPO))
+    assert p.returncode == 0, p.stderr
+    assert p.stdout.strip().splitlines()[-1] == "[]"
+
+
 def test_the_closed_forms_refuse_what_is_not_a_beam_or_not_a_load():
     for bad in (dict(span_mm=0.0), dict(e_mpa=-1.0), dict(i_mm4=float("nan")), dict(i_mm4=float("inf"))):
         with pytest.raises(ValueError, match="must be a positive number"):
@@ -121,24 +138,30 @@ def test_the_closed_forms_refuse_what_is_not_a_beam_or_not_a_load():
     assert beam.weight_n(1000.0) == pytest.approx(9.80665)
 
 
-def hermite(support, span, ei, point_n, udl_n, point_node, n=8):
-    """The largest nodal deflection of a beam by cubic Hermite elements: exact at the nodes for loads at nodes and
-    for a uniform load, so it is the closed form by another road. Nothing here is shared with beam.py."""
+def hermite_nodes(support, span, ei, point_n, udl_n, point_node, n=8):
+    """The deflection at each node of a beam of n cubic Hermite elements, `ei` a number or one for each element.
+    It is exact at the nodes for loads at nodes and for a uniform load, so for a prismatic beam it is the closed
+    form by another road. Nothing here is shared with beam.py."""
     h = span / n
-    ke = ei / h ** 3 * np.array([[12, 6 * h, -12, 6 * h], [6 * h, 4 * h * h, -6 * h, 2 * h * h],
-                                 [-12, -6 * h, 12, -6 * h], [6 * h, 2 * h * h, -6 * h, 4 * h * h]])
+    ei = np.broadcast_to(np.asarray(ei, dtype=float), (n,))
     fe = udl_n / span * np.array([h / 2, h * h / 12, h / 2, -h * h / 12])
     k, f = np.zeros((2 * (n + 1),) * 2), np.zeros(2 * (n + 1))
     for e in range(n):
         s = slice(2 * e, 2 * e + 4)
-        k[s, s] += ke
+        k[s, s] += ei[e] / h ** 3 * np.array([[12, 6 * h, -12, 6 * h], [6 * h, 4 * h * h, -6 * h, 2 * h * h],
+                                              [-12, -6 * h, 12, -6 * h], [6 * h, 2 * h * h, -6 * h, 4 * h * h]])
         f[s] += fe
     f[2 * point_node] += point_n
     held = {"simple": [0, 2 * n], "fixed": [0, 1, 2 * n, 2 * n + 1], "cantilever": [0, 1]}[support]
     free = [i for i in range(2 * (n + 1)) if i not in held]
     u = np.zeros(2 * (n + 1))
     u[free] = np.linalg.solve(k[np.ix_(free, free)], f[free])
-    return float(np.max(np.abs(u[0::2])))
+    return np.abs(u[0::2])
+
+
+def hermite(support, span, ei, point_n, udl_n, point_node, n=8):
+    """The largest nodal deflection (see hermite_nodes)."""
+    return float(hermite_nodes(support, span, ei, point_n, udl_n, point_node, n).max())
 
 
 @pytest.mark.parametrize("support, at", PLACES)
@@ -155,6 +178,22 @@ def test_no_place_for_the_load_does_more_harm_than_the_one_worst_names(support):
     by_place = [hermite(support, L, E_AL * I_Z, 10.0, 0.0, node) for node in nodes]
     assert max(by_place) == approx(beam.deflection(support, L, E_AL, I_Z, 10.0, 0.0, "worst").mm)
     assert by_place.index(max(by_place)) + 1 == (8 if support == "cantilever" else 4)
+
+
+@pytest.mark.parametrize("support", ["simple", "fixed", "cantilever"])
+@pytest.mark.parametrize("point, udl", LOADS)
+def test_the_weakest_and_the_stiffest_section_bound_a_beam_whose_stiffness_varies(support, point, udl):
+    """The rule passes on the deflection of the weakest section the whole way and fails on that of the stiffest,
+    which is only right if a beam whose every section lies between them deflects between the two: held here
+    with finite elements, for stiffnesses that change from element to element at random."""
+    n, node = 20, 20 if support == "cantilever" else 10
+    rng = np.random.default_rng(7)
+    for trial in range(60):
+        ei = E_AL * I_Z * (rng.uniform(1.0, 6.0, n) if trial % 2 else np.where(rng.random(n) < 0.3, 6.0, 1.0))
+        real = hermite_nodes(support, L, ei, point, udl, node, n).max()
+        weakest = hermite_nodes(support, L, ei.min(), point, udl, node, n).max()
+        stiffest = hermite_nodes(support, L, ei.max(), point, udl, node, n).max()
+        assert stiffest * (1 - 1e-9) <= real <= weakest * (1 + 1e-9), (trial, stiffest, real, weakest)
 
 
 # ─── The sections ────────────────────────────────────────────────────────────
@@ -553,7 +592,8 @@ I_THIN, I_THICK = 30 * 8 ** 3 / 12, 30 * 12 ** 3 / 12
 
 def test_a_section_that_varies_passes_on_its_weakest_fails_on_its_stiffest_and_is_unchecked_between():
     upper, lower = expected_um(point=20.0, i=I_THIN), expected_um(point=20.0, i=I_THICK)
-    assert lower < upper
+    real = hermite_nodes("simple", L, E_AL * np.array([I_THIN] * 2 + [I_THICK] * 6 + [I_THIN] * 2), 20.0, 0.0, 5, 10).max()
+    assert lower < real * 1000 < upper                      # the beam as it is, by finite elements, is between the two
     weak = one({"load_n": 20.0, "max_um": upper * 1.01}, solid=STEPPED)
     assert weak.state == "PASS" and weak.measured.startswith(f"{upper:.3f} um or less at midspan (the weakest section)")
     assert f"I {I_THIN:.5g} (largest {I_THICK:.5g}) mm^4" in weak.measured
