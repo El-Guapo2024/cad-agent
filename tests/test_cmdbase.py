@@ -170,6 +170,21 @@ def test_the_help_of_a_built_command_shows_the_module_arguments(fake_shop, capsy
     assert "--draft" in out and "--check" in out
 
 
+def test_a_module_that_raises_while_giving_its_arguments_is_a_crash_with_a_traceback(monkeypatch, capsys):
+    mod = types.ModuleType("crashing_module")
+    mod.cmd_shop = lambda a: None
+
+    def boom(parser):
+        raise RuntimeError("the arguments hook is a bug")
+
+    mod.ARGUMENTS = {"shop": boom}
+    monkeypatch.setitem(sys.modules, "crashing_module", mod)
+    monkeypatch.setitem(LAZY, "shop", dataclasses.replace(LAZY["shop"], target="crashing_module:cmd_shop"))
+    assert cli.main(["shop", "x"]) == cmdbase.CRASH == 4
+    err = capsys.readouterr().err
+    assert "cad-agent bug" in err and "the arguments hook is a bug" in err and "Traceback" in err
+
+
 def test_a_module_without_the_function_is_still_not_built(monkeypatch, capsys):
     mod = types.ModuleType("half_built_module")                 # the file is there, the handler is not
     monkeypatch.setitem(sys.modules, "half_built_module", mod)

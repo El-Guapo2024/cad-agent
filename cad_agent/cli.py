@@ -1760,6 +1760,10 @@ def main(argv: list[str] | None = None) -> int:
         a = parser.parse_args(argv)
     except SystemExit as e:  # --help is 0, bad arguments are 3
         return e.code if isinstance(e.code, int) else USAGE
+    except Exception:        # a module that builds a command and raises while giving it its arguments
+        print("cad crashed while reading its arguments, this is a cad-agent bug:\n" + traceback.format_exc(),
+              file=sys.stderr)
+        return CRASH
 
     projects = a.projects or os.environ.get("CAD_PROJECTS")
     if projects:
