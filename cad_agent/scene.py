@@ -22,7 +22,7 @@ from pathlib import Path
 
 import numpy as np
 
-from . import gui, placements, state as st
+from . import bodies, gui, placements, state as st
 from .params import read as params_of
 
 FORMAT = "cad-scene/2"
@@ -40,30 +40,8 @@ PALETTE = ["#e8833a", "#3f8fd2", "#4fae6e", "#d4b13c", "#b26ad1", "#e0607e"]
 FLOAT_KEYS = {"vertices", "normals", "edges", "obj_vertices", "uvs"}
 
 
-POSITION = {"left", "right", "front", "back", "top", "bottom", "upper", "lower", "inner",
-            "outer", "l", "r", "fl", "fr", "bl", "br", "tl", "tr"}
-
-
-def _part_for(body: str, parts: list[str]) -> str | None:
-    """The part module a body comes from: the same name, or the name without
-    a position or index suffix (end_plate_left -> end_plate), or the one part
-    that name ends (standoff_fl -> plate_standoff). Anything else is stock:
-    gantry_beam is not a gantry_end."""
-    if body in parts:
-        return body
-    words = body.split("_")
-    while len(words) > 1 and (words[-1] in POSITION or words[-1].isdigit()):
-        words.pop()
-    stem = "_".join(words)
-    if stem in parts:
-        return stem
-    hits = [p for p in parts if p.endswith("_" + stem)]
-    return hits[0] if len(hits) == 1 else None
-
-
-def _bought_names(pdir: Path) -> set[str]:
-    d = pdir / "bought"
-    return {p.stem for p in d.glob("*") if p.suffix in (".py", ".step", ".stp")} if d.is_dir() else set()
+# bodies.py decides what a body is; these are the names scene.py and the runner have always used for it.
+_part_for, _bought_names = bodies.part_for, bodies.bought_stems
 
 
 def _encode(instance: dict) -> dict:

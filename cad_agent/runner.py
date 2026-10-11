@@ -14,8 +14,8 @@ from .placements import PlacementError
 from .registry import (AssemblyCtx, FAILING, PartCtx, ProjectCtx, Row, checks,
                        run as run_check)
 from .render import draw, merge, tessellate
-from .state import (build_part, caching_builds, load_assembly, part_names, project_dir,
-                    read_checks, reusing_builds, why, write_checks)
+from .state import (build_part, caching_builds, load_assembly, load_machine, part_names,
+                    project_dir, read_checks, reusing_builds, why, write_checks)
 
 
 def check_all(slug: str, render_views=("iso",), tolerance: float = 0.05, cached: bool = False):
@@ -87,16 +87,17 @@ def _check_all(slug: str, render_views, tolerance: float):
 
     # ── assembly checks ──────────────────────────────────────────────────────
     try:
-        asm, clearance, allow_contact, axes = load_assembly(slug)
+        machine = load_machine(slug)
     except PlacementError:
         raise                         # fails closed with its own message: cli.main reports it
     except Exception as e:            # the design's failure to report, not a crash of the checker
-        asm, clearance, allow_contact, axes = None, {}, set(), {}
+        machine = None
         rows.append(Row(subject=slug, rule="build", state="FAIL", measured=why(e),
                         limit="an assembly.py whose parts() returns the bodies",
                         source="assembly.py", check="assembly"))
+    asm, clearance, allow_contact, axes = machine.as_tuple() if machine else (None, {}, set(), {})
     actx = AssemblyCtx(slug=slug, parts=asm or {}, clearance=clearance,
-                       allow_contact=allow_contact, out_dir=out, axes=axes)
+                       allow_contact=allow_contact, out_dir=out, axes=axes, machine=machine)
     for spec in checks("assembly"):
         rows += run_check(spec, actx)
 

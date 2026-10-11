@@ -133,7 +133,7 @@ def stance(ctx):
 
 @register(scope="project", name="provenance", order=40)
 def provenance(ctx):
-    """Whether every bought part records where its dimensions came from."""
+    """Whether every bought part records where its dimensions came from, and still is the file it pinned."""
     from .bought import list_bought
     rows = list_bought(ctx.slug)
     if not rows:
@@ -156,6 +156,28 @@ def provenance(ctx):
             yield Row(subject=d["name"], rule="source", state="PASS",
                       measured=d["source"], limit="recorded and confirmed",
                       source=f"{d['kind']} route")
+        yield from _contract_rows(ctx.slug, d["name"])
+
+
+def _contract_rows(slug, name):
+    """The rows of what a bought part declares beyond its source (bought.py has the contract): one FAIL
+    for each key that is malformed, and the file's hash against the sha256 it pins. A part that declares
+    neither has no row, so a project written before the contract reads as it did."""
+    from .bought import bought_dir, bought_spec, file_sha256
+    spec = bought_spec(slug, name)
+    for problem in spec.problems:
+        yield Row(subject=name, rule="contract", state="FAIL", measured=problem,
+                  limit="every contract key well formed",
+                  source="cad_agent/bought.py describes the keys a bought part may declare")
+    if spec.sha256:
+        actual = file_sha256(bought_dir(slug) / spec.file)
+        ok = actual == spec.sha256
+        yield Row(subject=name, rule="sha256", state="PASS" if ok else "FAIL",
+                  measured=(f"{spec.file} hashes to {actual[:16]}..., the pin" if ok else
+                            f"{spec.file} hashes to {actual[:16]}..., the sidecar pins {spec.sha256[:16]}..."),
+                  limit="the sha256 the part pins",
+                  source=("a changed vendor file is a different part: copy it in again, or correct the pin"
+                          if not ok else "the file is the one that was pinned"))
 
 
 # ─── motion scope (assembly, but over travel rather than at one pose) ────────

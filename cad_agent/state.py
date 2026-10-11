@@ -3,7 +3,8 @@
 projects/<slug>/
   mech_profile.md      the spec, written by the agent, edited by the human
   parts/<name>.py      each exposes PARAMS, MATERIAL, PROCESS, MIN_FEATURE_MM, build(**params)
-  assembly.py          optional: parts() -> {name: solid}, CLEARANCE, ALLOW_CONTACT
+  assembly.py          optional: parts() -> {name: solid}, CLEARANCE, ALLOW_CONTACT, AXES, POSES,
+                       SUBASSEMBLIES (load_machine reads them; bodies.py says what each holds)
   bought/*.step        vendor geometry, never modelled from memory
   out/                 renders, exports
   checks.json          the only source of numbers for the report
@@ -156,6 +157,14 @@ def build_part(slug: str, name: str, overrides: dict | None = None):
     return _kept(built, path, overrides, name, "built", solid, meta)
 
 
+def built_meta(slug: str, name: str) -> dict | None:
+    """The meta of a part already built in this reusing_builds() block, or None. Nothing is built or
+    loaded to answer, so a caller that only wants a part's MATERIAL or PROCESS costs the run nothing."""
+    built = _BUILT.get()
+    hit = built.get(str(project_dir(slug) / "parts" / f"{name}.py")) if built is not None else None
+    return copy.deepcopy(hit[1]) if hit else None
+
+
 def _cache_lookup(pdir: Path, name: str, overrides: dict | None):
     """(key, (solid, meta) or None). Trouble with the cache is a miss, never a failed build."""
     try:
@@ -179,25 +188,34 @@ def _kept(built, path: Path, overrides, name: str, how: str, solid, meta):
     return solid, meta
 
 
-def bought_solid(slug: str, name: str):
-    """Bought geometry for an assembly to place. Imported here to avoid a cycle."""
-    from .bought import load_bought
-    return load_bought(slug, name)
+def bought_solid(slug: str, name: str, **params):
+    """Bought geometry for an assembly to place, in the part's own frame (its datum applied).
 
-
-def load_assembly(slug: str, placed: bool = True):
-    """Returns (parts, clearance, allow_contact, axes) or (None, {}, set(), {}).
-
-    `axes` is the declared motion of the machine, empty for a static assembly.
-    Parts moved by hand (placements.toml) are applied unless `placed` is False,
-    which the workbench uses to show the move separately from the code's pose.
+    A generated part takes `params` over its PARAMS (`bought_solid(SLUG, "mgn12_rail", length=300)`),
+    a STEP takes none. The solid is tagged with the part it is, which is how bodies.describe knows a
+    body is bought and what it declares (mass, material, temperature, geometry); see bought.py.
+    Imported here to avoid a cycle.
     """
+    from .bought import load_bought
+    return load_bought(slug, name, **params)
+
+
+def load_machine(slug: str, placed: bool = True, describe: bool = True):
+    """The assembly assembly.py describes, as a bodies.Assembly, or None when the project has none.
+
+    parts is what parts() returns, with the hand-made moves of placements.toml applied unless `placed`
+    is False (the workbench shows a move apart from the code's pose). clearance, allow_contact and
+    axes are CLEARANCE, ALLOW_CONTACT and AXES; poses is POSES, held as declared ({name: {...}});
+    bodies is a BodyInfo for each body (skipped with `describe=False`, for a caller that only wants
+    solids). SUBASSEMBLIES, if declared, is expanded by piece B's subassembly.expand, and a design that
+    declares it before that exists does not load. See bodies.py for what each field holds.
+    """
+    from . import bodies, placements
     from .motion import load_axes
-    from . import placements
     pdir = project_dir(slug)
     path = pdir / "assembly.py"
     if not path.exists():
-        return None, {}, set(), {}
+        return None
     mod = _load_module(path)
     parts = mod.parts()
     bad = [f"{k!r}: {type(v).__name__}" for k, v in parts.items()
@@ -207,8 +225,38 @@ def load_assembly(slug: str, placed: bool = True):
         raise TypeError(f"assembly.py parts() must return {{name: solid}}, got {got}")
     if placed:
         parts = placements.apply(parts, placements.load(pdir))
-    return (parts, dict(getattr(mod, "CLEARANCE", {})),
-            set(getattr(mod, "ALLOW_CONTACT", set())), load_axes(mod))
+    poses = getattr(mod, "POSES", None) or {}
+    if not (isinstance(poses, dict) and all(isinstance(k, str) and isinstance(v, dict) for k, v in poses.items())):
+        raise TypeError("assembly.py POSES must be {name: {...}}, one dict for each named pose")
+    machine = bodies.Assembly(
+        slug=slug, parts=parts, clearance=dict(getattr(mod, "CLEARANCE", {})),
+        allow_contact=set(getattr(mod, "ALLOW_CONTACT", set())), axes=load_axes(mod), poses=dict(poses))
+    declared = getattr(mod, "SUBASSEMBLIES", None)
+    if declared:
+        from .cmdbase import NotBuilt, resolve
+        expand = resolve("cad_agent.subassembly:expand")
+        if expand is None:
+            raise NotBuilt("assembly.py declares SUBASSEMBLIES, which step 6 piece B builds "
+                           "(cad_agent/subassembly.py: expand(machine, declared) -> Assembly)")
+        machine = expand(machine, declared)
+    if describe:
+        left = {n: s for n, s in machine.parts.items() if n not in machine.bodies}
+        machine.bodies.update(bodies.describe(slug, left))
+    return machine
+
+
+def load_assembly(slug: str, placed: bool = True):
+    """Returns (parts, clearance, allow_contact, axes) or (None, {}, set(), {}).
+
+    `axes` is the declared motion of the machine, empty for a static assembly.
+    Parts moved by hand (placements.toml) are applied unless `placed` is False,
+    which the workbench uses to show the move separately from the code's pose.
+    The same call as load_machine, for a caller that wants the four and not the bodies.
+    """
+    machine = load_machine(slug, placed, describe=False)
+    if machine is None:
+        return None, {}, set(), {}
+    return machine.as_tuple()
 
 
 def write_atomic(path: Path, text: str) -> None:

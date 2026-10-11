@@ -173,12 +173,21 @@ class SpecCtx:
 
     `parts` is the positioned solids, as the fit rule sees them. `machine` is the bodies.Assembly
     they came from (its poses, axes, children and the BodyInfo of every body), or None when the
-    caller only had the solids, as the tests of a kind do. `slug` names the project, for a kind
-    that builds part modules itself.
+    caller only had the solids, as the tests of a kind do; `bodies` is its BodyInfo either way.
+    `slug` names the project, for a kind that builds part modules itself.
     """
     slug: str
     parts: dict
     machine: Any = None
+
+    @property
+    def bodies(self) -> dict:
+        """A BodyInfo for every body: the machine's, or described from the project's files when the
+        caller had only the solids (see bodies.py for what each holds)."""
+        if self.machine is not None and getattr(self.machine, "bodies", None):
+            return self.machine.bodies
+        from .bodies import describe
+        return describe(self.slug, self.parts)
 
 
 @dataclass
