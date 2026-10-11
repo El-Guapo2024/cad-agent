@@ -42,7 +42,9 @@ Where along the body the sections are taken matters as much as how: a notch 2 mm
 sections spread over 400 mm. The stations are STATIONS equal cells' middles, the two ends (a small way in),
 and the middle of every cut across the beam: OCCT gives where each edge of the solid starts and ends along the
 axis, a section changes in kind only between those, and the middle of a hole's extent is its diameter plane, the
-weakest section it makes. A body with more than MAX_STATIONS of them is not one this samples (NotABeam).
+weakest section it makes. A body with more than MAX_STATIONS of them is not one this samples (NotABeam). None is
+within SKIRT of the section's size from an end except the end stations, just beyond it: a body a degree or two
+off its axis ends in a slanted cut, which is no cross-section.
 
 The weakest section stands for the whole beam in the answer, and so does the stiffest: with every section at
 least I_min the deflection cannot exceed the one computed with I_min everywhere (for a simple or cantilever beam
@@ -54,9 +56,12 @@ the second, and is UNCHECKED between them, since the answer then depends on a se
 What a body must be to be a beam, and what is left out
 -------------------------------------------------------
 `profile` refuses (NotABeam, which the rule reports as UNCHECKED) a body that is not one solid, one that is as
-wide as it is long, one whose section is cut right through or comes in pieces somewhere (parts joined elsewhere
-do not bend as one: a ladder, a frame), one with a long edge that strays more than TILT_DEG from its axis (a
-tilted, bent or tapered body: a plane across it is not its cross-section), and one with too many cuts.
+wide as it is long, one with a long edge (a quarter of its length) that strays more than TILT_DEG from its axis
+(a tilted, bent or tapered body: a plane across it is not its cross-section) or none at all, one with too many
+cuts, and one whose section is in pieces over more than SPLIT_RUN of its size. A hole cuts the section at its
+diameter in two, and the plate is still one beam, since the material round the hole ties the strips together;
+the rails of a ladder, or the prongs of a fork, are tied only far away, so each bends alone or the load goes to
+one of them.
 
 Left out, and said in the rows: shear (the rule needs span/depth of SLENDER or more: for a solid rectangle the
 shear term is (E / kG)(h / L)^2 of the bending term for a simple beam with a central load, a quarter of that for
@@ -78,12 +83,15 @@ GRAVITY = 9.80665             # m/s^2, standard gravity: a mass of m grams weigh
 STATIONS = 21                 # equal cells along the body, a section in the middle of each (the plan's number)
 MAX_STATIONS = 120            # all stations together: about 60 ms each for a body with 60 holes, so 7 s at most
 TILT_DEG = 2.0                # a long edge of the body may stray this far from its axis: 0.1 % off the section's I
+LONG_EDGE = 0.25              # an edge is long enough to say which way the body runs at this fraction of its length
 SPLIT_RUN = 0.5               # a section may be in pieces for this fraction of its size along the body (a hole)
 SLENDER = {"simple": 10.0, "cantilever": 10.0, "fixed": 20.0}     # span/depth below which shear matters
 MERGE_MM = 1e-3               # stations closer than this are one
 NUDGE_MM = 1e-2               # how far a station on a face across the beam is moved off it
-END_FRACTION = 1e-3           # the end stations are this fraction of the length inside the ends
-GAP = 0.05                    # the second longest side is this much shorter than the longest, or the way is unclear
+SKIRT = 0.05                  # a body a degree or two off its axis is cut slantwise at its ends: no station is nearer
+                              # an end than this fraction of its size across, and the end stations sit just beyond
+END_FRACTION = 1e-3           # the end stations are at least this fraction of the length inside the ends
+GAP = 0.05                   # the second longest side is this much shorter than the longest, or the way is unclear
 AXES = "xyz"
 SUPPORTS = ("simple", "fixed", "cantilever")
 PLACES = ("center", "end", "worst")
@@ -218,7 +226,8 @@ def profile(solid, axis: int | None = None) -> Profile:
     u, v = (i for i in range(3) if i != axis)
     centre, half = [(low + h) / 2.0 for low, h in zip(lo3, hi3)], max(size) + 1.0
     marks = _marks(edges, lo, hi)
-    sections = tuple(_section(shape, axis, x, centre, half, u, v) for x in _stations(edges, marks, lo, hi))
+    stations = _stations(edges, marks, lo, hi, SKIRT * max(size[u], size[v]))
+    sections = tuple(_section(shape, axis, x, centre, half, u, v) for x in stations)
     _joined(sections, marks, axis)
     return Profile(axis, lo, hi, sections)
 
@@ -257,9 +266,10 @@ def _straight(edges: list[tuple], axis: int, lo: float, hi: float) -> None:
     """The body's long edges must run along its axis: a plane across a tilted, bent or tapered body is not its
     cross-section, and the second moment read from it is too big. An edge that runs most of the length and strays
     across by more than TILT_DEG of it says the body is not straight."""
-    long = [(a, b, w) for a, b, w in edges if b - a >= 0.5 * (hi - lo)]
+    long = [(a, b, w) for a, b, w in edges if b - a >= LONG_EDGE * (hi - lo)]
     if not long:
-        raise NotABeam(f"no edge of the body runs along its length in {AXES[axis]}")
+        raise NotABeam(f"no edge of the body runs even {LONG_EDGE:.0%} of its length along {AXES[axis]}, so its "
+                       "straightness cannot be told (ribs or grooves across every edge, or a curved body)")
     a, b, w = max(long, key=lambda e: e[2] / (e[1] - e[0]))
     if w > math.tan(math.radians(TILT_DEG)) * (b - a):
         raise NotABeam(f"an edge that runs along the body strays {w:.2f} mm across over {b - a:.1f} mm "
@@ -274,16 +284,20 @@ def _marks(edges: list[tuple], lo: float, hi: float) -> list[float]:
     return _merged(sorted({lo, hi} | {x for a, b, _ in edges for x in (a, b)}))
 
 
-def _stations(edges: list[tuple], marks: list[float], lo: float, hi: float) -> list[float]:
+def _stations(edges: list[tuple], marks: list[float], lo: float, hi: float, skirt: float) -> list[float]:
     """Where along the beam to cut: the middle of each of STATIONS equal cells, a little inside each end, and
     the middle of every edge's extent along the beam (a hole's diameter plane) and of every gap between marks.
-    A station on a face across the beam is moved off it, since a cut in the plane of a face does not say which
-    side it is on."""
+    None is within `skirt` of an end but the two end stations, just beyond it: a body that is a degree off its
+    axis ends in a slanted cut, which is no cross-section. A station on a face across the beam is moved off it,
+    since a cut in the plane of a face does not say which side it is on."""
     length = hi - lo
-    inset = max(END_FRACTION * length, 10 * MERGE_MM)
-    want = [lo + (i + 0.5) * length / STATIONS for i in range(STATIONS)] + [lo + inset, hi - inset]
+    inset = max(END_FRACTION * length, 10 * MERGE_MM, 1.1 * skirt)
+    if 2 * inset >= length:
+        return [lo + length / 2.0]
+    want = [lo + (i + 0.5) * length / STATIONS for i in range(STATIONS)]
     want += [(a + b) / 2.0 for a, b in zip(marks, marks[1:]) if b - a > 10 * MERGE_MM]
     want += [(a + b) / 2.0 for a, b, _ in edges if b - a > 10 * MERGE_MM]
+    want = [x for x in want if lo + skirt <= x <= hi - skirt] + [lo + inset, hi - inset]
     cut: list[float] = []
     for x in sorted(want):
         if any(abs(x - m) < MERGE_MM for m in marks):

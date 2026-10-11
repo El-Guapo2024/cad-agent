@@ -216,16 +216,16 @@ def _basis(r: _Request, modulus, span: float, ratio: float, planes: list, point)
     several = len(planes) > 1
     loads = [point[1] + (f" along {'xyz'[r.direction]}" if several else "")] if point is not None else []
     loads += [f"{p.udl_n:.4g} N own weight" for p in planes if p.udl_n > 0]
-    inertia = [f"{p.i_min:.5g}" + (f" (largest {p.i_max:.5g})" if p.i_max - p.i_min > 1e-9 * p.i_max else "")
+    inertia = [f"{p.i_min:.5g}" + (f" (largest {p.i_max:.5g})" if p.i_max - p.i_min > 1e-9 * p.i_max else "") + " mm^4"
                + (f" for a load along {'xyz'[p.axis]}" if several else "") for p in planes]
     cases = []
     for p in planes:
         for used, case in ((p.point_n, p.weak.cases[0]), (p.udl_n, p.weak.cases[1])):
             if used > 0 and case not in cases:
                 cases.append(case)
-    return (f"{r.support} span {span:g} mm, load {' + '.join(loads)}; I {', '.join(inertia)} mm^4; "
+    return (f"{r.support} span {span:g} mm, load {' + '.join(loads)}; I {', '.join(inertia)}; "
             f"E {modulus.value:g} MPa ({modulus.source}); span/depth {ratio:.1f}; "
-            f"Roark Table 8.1 case {', '.join(cases)}")
+            f"Roark Table 8.1 case{'s' if len(cases) > 1 else ''} {', '.join(cases)}")
 
 
 def _um(mm: float) -> str:
