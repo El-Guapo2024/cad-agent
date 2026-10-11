@@ -80,6 +80,21 @@ def test_the_cli_and_its_parse_never_import_the_cad_kernel():
     assert p.stdout.strip().splitlines()[-1] == "[]"
 
 
+def test_the_modules_a_piece_builds_on_import_without_the_cad_kernel():
+    # What a piece reads (the registries, materials, the bought contract, bodies) must not cost a command
+    # that only reads it, `cad lib ls` for one, the 35 s of build123d: geometry is imported where it is used.
+    code = ("import sys\n"
+            "import cad_agent.bought, cad_agent.bodies, cad_agent.materials, cad_agent.registry, cad_agent.spec\n"
+            "import cad_agent.cmdbase, cad_agent.speckinds.kit, cad_agent.state\n"
+            "from cad_agent import bought\n"
+            "bought.library_dir(); bought.CONTRACT_KEYS\n"
+            "print(sorted(m for m in ('build123d', 'OCP') if m in sys.modules))\n")
+    p = subprocess.run([sys.executable, "-c", code], capture_output=True, text=True, timeout=120,
+                       env=cad_env(PYTHONPATH=str(REPO)), cwd=str(REPO))
+    assert p.returncode == 0, p.stderr
+    assert p.stdout.strip().splitlines()[-1] == "[]"
+
+
 # ─── Not built yet ───────────────────────────────────────────────────────────
 
 @pytest.mark.parametrize("command", [c for c in sorted(LAZY) if not_built(c)] or [pytest.param(

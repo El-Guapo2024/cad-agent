@@ -52,6 +52,10 @@ makes and tells bodies.describe what a body is whatever it is called.
 The vendor STEPs that may not go in the public repo live in a store of the user's, `library_dir()`:
 $CAD_LIBRARY, else ~/.cad-agent/library. A project copies in what it uses, so verify, the build cache
 and CI read only the project.
+
+Reading a STEP's declaration (`bought_spec`, `library_dir`, `register_step`) does not import the CAD
+kernel, which is why `cad lib` can answer without waiting for it; loading geometry (`load_bought`,
+`bought_info`) imports it when it is called, and so does running a measured module.
 """
 from __future__ import annotations
 
@@ -63,9 +67,6 @@ import re
 from dataclasses import asdict, dataclass
 from pathlib import Path
 
-from build123d import import_step
-
-from .geom import bbox, volume
 from .state import _load_module, project_dir, why
 
 
@@ -161,6 +162,7 @@ def load_bought(slug: str, name: str, **params):
     fixed file and takes none. The datum, if the part declares one, is applied, and the solid carries a
     tag naming the part (see the contract in the module docstring).
     """
+    from build123d import import_step
     d = bought_dir(slug)
     for ext in (".step", ".stp"):
         p = d / f"{name}{ext}"
@@ -369,6 +371,7 @@ def pin_status(slug: str, name: str) -> tuple[str, str] | None:
 
 
 def bought_info(slug: str, name: str) -> dict:
+    from .geom import bbox, volume
     solid = load_bought(slug, name)
     lo, hi = bbox(solid)
     rows = {r["name"]: r for r in list_bought(slug)}
