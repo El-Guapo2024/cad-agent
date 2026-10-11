@@ -7,6 +7,9 @@ cost of writing the measurement, not the cost of threading it through.
 
 Import order is the only wiring left: importing this module is what puts the
 checks in the registry, so the runner imports it and nothing else needs to.
+
+The rules below are the ones written before step 6. A new rule is a file in cad_agent/ruleset/, which
+the last line of this module imports (every module in it), so rules.py itself no longer changes.
 """
 from __future__ import annotations
 
@@ -265,7 +268,7 @@ def spec(ctx):
     clearances, tool keep-outs, mass budgets and bolt holes that must line up.
     A project with no spec is UNCHECKED: nothing states what it must do."""
     from .spec import check_spec
-    yield from check_spec(ctx.slug, ctx.parts or {})
+    yield from check_spec(ctx.slug, ctx.parts or {}, machine=ctx.machine)
 
 
 @register(scope="assembly", name="placements", order=15)
@@ -293,3 +296,7 @@ def placements_rule(ctx):
                   measured=f"moved by hand: move {list(p['move'])} mm, turn {list(p['turn'])} deg "
                            f"about {list(p['about'])}",
                   limit="n/a", source=f"{placements.FILE}; fit and spec judge the result")
+
+
+# Last: every module of cad_agent/ruleset/ registers its rules (it may import what is defined above).
+from . import ruleset  # noqa: E402,F401

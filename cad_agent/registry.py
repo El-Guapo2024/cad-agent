@@ -17,6 +17,18 @@ Scopes decide what the runner hands you:
     assembly   once, with every positioned solid and the clearance table
     project    once, with the whole project directory
 
+A check is a function in a module of cad_agent/ruleset/, which rules.py imports with the rest: a new
+rule is one new file there, and no other file changes (`autoload`, below, finds it).
+
+The same holds for the sections of a project's spec.toml. A kind judges one entry of one section and
+registers itself with `spec_kind`:
+
+    @spec_kind("heat", order=80)
+    def heat(entry, ctx):
+        yield Row(...)
+
+and lives in its own module of cad_agent/speckinds/ (see speckinds/kit.py for what a kind uses).
+
 Three rules the shape enforces, because they are what make a gate worth
 having:
 
@@ -93,6 +105,10 @@ class AssemblyCtx:
     allow_contact: set
     out_dir: Any
     axes: dict = field(default_factory=dict)
+    # The bodies.Assembly that parts, clearance, allow_contact and axes came from, with what else
+    # assembly.py declares: poses, the BodyInfo of every body, sub-assemblies. None when the project
+    # has no assembly.py or a caller built this context by hand.
+    machine: Any = None
 
 
 @dataclass
@@ -147,3 +163,86 @@ def run(spec: CheckSpec, ctx) -> list[Row]:
     for r in rows:
         r.check = spec.name
     return rows
+
+
+# ─── The sections of spec.toml ───────────────────────────────────────────────
+
+@dataclass
+class SpecCtx:
+    """What a spec kind is handed with each entry.
+
+    `parts` is the positioned solids, as the fit rule sees them. `machine` is the bodies.Assembly
+    they came from (its poses, axes, children and the BodyInfo of every body), or None when the
+    caller only had the solids, as the tests of a kind do. `slug` names the project, for a kind
+    that builds part modules itself.
+    """
+    slug: str
+    parts: dict
+    machine: Any = None
+
+
+@dataclass
+class SpecKind:
+    name: str
+    fn: Callable
+    order: int
+    table: bool
+    doc: str
+
+
+_SPEC_KINDS: dict[str, SpecKind] = {}
+
+
+def spec_kind(name: str, order: int = 50, table: bool = False):
+    """Register a section of spec.toml. The function judges one entry and yields Rows:
+
+        fn(entry: dict, ctx: SpecCtx) -> Iterable[Row]
+
+    `[[name]]` is a list of entries, each judged on its own and reported as `[[name]] #i`; with
+    `table=True` the section is one `[name]` table, judged once. `order` is where its rows come among
+    the other sections' (ascending, ties by name), and the order sections are *listed* in a message
+    is the order they registered in. A name that is registered twice is refused, and so is one that
+    would not be a TOML key.
+    """
+    if not name.isidentifier() or name != name.lower():
+        raise ValueError(f"a spec kind is a lower-case TOML key, not {name!r}")
+
+    def deco(fn: Callable) -> Callable:
+        if name in _SPEC_KINDS:
+            raise ValueError(f"a spec kind named {name!r} is already registered")
+        _SPEC_KINDS[name] = SpecKind(
+            name=name, fn=fn, order=order, table=table,
+            doc=(fn.__doc__ or "").strip().splitlines()[0] if fn.__doc__ else "")
+        return fn
+    return deco
+
+
+def spec_kinds() -> list[SpecKind]:
+    """Every registered kind, in the order their rows are reported."""
+    return sorted(_SPEC_KINDS.values(), key=lambda k: (k.order, k.name))
+
+
+def spec_kind_names() -> tuple[str, ...]:
+    """Every registered kind's name, in the order they registered in: the order a message lists them."""
+    return tuple(_SPEC_KINDS)
+
+
+# ─── Finding the modules ─────────────────────────────────────────────────────
+
+def autoload(package: str, first: tuple = ()) -> list[str]:
+    """Import every module of a package, so that what each registers is registered.
+
+    The modules named in `first` come first, in that order, and then the rest by name. A module
+    whose name starts with an underscore is a helper and is left alone. Returns the names, in the
+    order imported. An import that fails raises: a rule or a spec kind that cannot load is a bug to
+    see, and a gate that quietly lost one is worse than a crash.
+    """
+    import importlib
+    import pkgutil
+    pkg = importlib.import_module(package)
+    names = list(first)
+    names += sorted(m.name for m in pkgutil.iter_modules(pkg.__path__)
+                    if not m.name.startswith("_") and m.name not in names)
+    for name in names:
+        importlib.import_module(f"{package}.{name}")
+    return names
