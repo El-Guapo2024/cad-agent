@@ -167,7 +167,7 @@ def _judge(r: _Request, solid, ctx):
     modulus = _modulus(info)
     point = _point(r, ctx, bodies)
     weight = _own_weight(r, info)
-    prof = beam.profile(solid, r.axis)
+    prof = _profile(ctx, r, solid)
     span = r.span if r.span is not None else prof.length
     if span > prof.length + TOL_MM:
         raise _Unusable(f"[[deflection]] `span_mm` {span:g} is longer than the body ({prof.length:.2f} mm)")
@@ -193,6 +193,15 @@ def _judge(r: _Request, solid, ctx):
                               beam.deflection(r.support, span, modulus.value, i_min, point_n, udl_n, r.at),
                               beam.deflection(r.support, span, modulus.value, i_max, point_n, udl_n, r.at)))
     return _finish(r, modulus, span, ratio, results, point)
+
+
+def _profile(ctx, r: _Request, solid):
+    """The body's sections: about 25 cuts, 1.5 s for a T-slot extrusion, made once for every entry of this run that
+    names the body and its axis (a beam judged as simple, fixed and cantilever is cut once)."""
+    cache = ctx.__dict__.setdefault("_beam_profiles", {})
+    if (r.body, r.axis) not in cache:
+        cache[(r.body, r.axis)] = beam.profile(solid, r.axis)
+    return cache[(r.body, r.axis)]
 
 
 def _finish(r: _Request, modulus, span: float, ratio: float, planes: list, point):

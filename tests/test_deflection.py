@@ -451,6 +451,19 @@ def test_each_load_a_row_can_carry_adds_up():
     assert "own weight" in row.measured and "load 3.813 N own weight" in row.measured
 
 
+def test_a_body_is_cut_once_however_many_entries_name_it(monkeypatch):
+    calls, real = [], beam.profile
+    monkeypatch.setattr(beam, "profile", lambda solid, axis=None: calls.append(axis) or real(solid, axis))
+    parts = {"b": shape("rect")}
+    ctx = SpecCtx(slug="t", parts=parts, machine=Assembly(slug="t", parts=parts, bodies={"b": info()}))
+    entry = {"body": "b", "support": "simple", "load_n": 5.0, "max_um": 1000.0}
+    rows = [row for e in (entry, {**entry, "support": "fixed"}, {**entry, "support": "cantilever", "at": "center"},
+                          {**entry, "axis": "x"}) for row in kind(e, ctx)]
+    assert calls == [None, 0]                                  # one cut for the three that leave the axis to the body
+    assert [r.state for r in rows] == ["PASS"] * 4
+    assert rows[0].measured.split(";")[0] != rows[1].measured.split(";")[0]        # and each still has its own answer
+
+
 def test_a_span_shorter_than_the_body_shortens_the_formula_and_the_weight_on_it():
     w = beam.weight_n(388.8) * 350 / 400
     row = one({"span_mm": 350, "load_n": 5.0, "self_weight": True}, mass=388.8)
