@@ -270,16 +270,17 @@ def cmd_mass(a) -> Result:
 
 TABLE_ALIASES = {"holes": "clearance_hole_mm", "taps": "tap_drill_mm",
                  "inserts": "heatset_bore_mm", "extrusions": "extrusion",
-                 "density": "density_g_cm3", "views": "views"}
+                 "density": "density_g_cm3", "materials": "materials", "views": "views"}
 
 
 def cmd_tables(a) -> Result:
+    from . import materials
     from .geom import DENSITY
     from .parts import CLEARANCE_HOLE, EXTRUSION, HEATSET_BORE, TAP_DRILL
     from .render import VIEWS, backend_status
     tables = {"clearance_hole_mm": CLEARANCE_HOLE, "tap_drill_mm": TAP_DRILL,
               "heatset_bore_mm": HEATSET_BORE, "extrusion": EXTRUSION,
-              "density_g_cm3": DENSITY, "views": sorted(VIEWS),
+              "density_g_cm3": DENSITY, "materials": materials.table(), "views": sorted(VIEWS),
               "render_backend": backend_status()}
     if a.section:
         key = TABLE_ALIASES.get(a.section, a.section)
@@ -1389,7 +1390,8 @@ def build_parser() -> argparse.ArgumentParser:
     sp.add_argument("slug")
     sp.add_argument("bodies", nargs="*", help="bodies to include (default: all)")
 
-    sp = add("tables", cmd_tables, "hole sizes, tap drills, insert bores, extrusions, densities")
+    sp = add("tables", cmd_tables, "hole sizes, tap drills, insert bores, extrusions, densities, "
+             "materials with the source of every value")
     sp.add_argument("section", nargs="?", help=", ".join(TABLE_ALIASES))
 
     sp = add("tool", cmd_tool, "generate a tool envelope and measure it")

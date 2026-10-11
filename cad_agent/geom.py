@@ -6,6 +6,8 @@ from OCP.GProp import GProp_GProps
 from OCP.BRep import BRep_Tool
 from OCP.BRepGProp import BRepGProp
 
+from . import materials
+
 
 def _w(shape):
     return shape.wrapped if hasattr(shape, "wrapped") else shape
@@ -106,21 +108,7 @@ def bbox(a):
     )
 
 
-DENSITY = {  # g/cm^3
-    "aluminium": 2.70,
-    "aluminum": 2.70,
-    "steel": 7.85,
-    "stainless": 8.00,
-    "brass": 8.50,
-    "copper": 8.96,
-    "pla": 1.24,
-    "petg": 1.27,
-    "abs": 1.04,
-    "nylon": 1.14,
-    "acrylic": 1.18,
-    "fr4": 1.85,
-    "polyimide": 1.42,
-}
+DENSITY = materials.density_table()     # g/cm^3, by name; the numbers and their sources are in materials.py
 
 
 def mass_g(a, material: str) -> float:
