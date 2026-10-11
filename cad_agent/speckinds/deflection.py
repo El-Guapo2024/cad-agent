@@ -97,9 +97,10 @@ def deflection(entry: dict, ctx):
     request = _read(entry)
     solid = _body(ctx.parts, request.body)
     try:
-        yield _judge(request, solid, ctx)
+        row = _judge(request, solid, ctx)
     except (_Cannot, beam.NotABeam) as e:
-        yield _row(request.body, "deflection", "UNCHECKED", str(e), request.limit)
+        row = _row(request.body, "deflection", "UNCHECKED", str(e), request.limit)
+    yield row
 
 
 # ─── The entry ───────────────────────────────────────────────────────────────

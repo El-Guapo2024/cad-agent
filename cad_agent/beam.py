@@ -28,11 +28,11 @@ in tests/test_deflection.py, which does not use these coefficients.
 The sections
 ------------
 E I needs the second moment of area of the beam's section, which is read from the solid and not from its
-bounding box: a 20 x 40 T-slot extrusion has less than half the stiffness of the solid bar around it. The solid is cut by a
-plane across the beam (BRepAlgoAPI_Common with a planar face, which leaves the face of the cut, holes and
-separate regions included), BRepGProp.SurfaceProperties gives its area and centroid and GProp_GProps
-.MatrixOfInertia its second moments about that centroid. That is what FreeCAD's Face.MatrixOfInertia returns for a
-face (src/Mod/Part/App/TopoShapeFacePyImp.cpp, TopoShapeFacePy::getMatrixOfInertia at 3160daf1e2b6). With the
+bounding box: a 20 x 40 T-slot extrusion has less than half the stiffness of the solid bar around it. The solid
+is cut by a plane across the beam (BRepAlgoAPI_Common with a planar face, which leaves the face of the cut, holes
+and separate regions included), BRepGProp.SurfaceProperties gives its area and centroid and GProp_GProps
+.MatrixOfInertia its second moments about that centroid. That is what FreeCAD's Face.MatrixOfInertia returns for
+a face (src/Mod/Part/App/TopoShapeFacePyImp.cpp, TopoShapeFacePy::getMatrixOfInertia at 3160daf1e2b6). With the
 beam along a, a load along d and p the third axis, a flat section has M[p][p] = the integral of d^2 dA, which is
 the second moment of area for that load: the one about the axis normal to the load. A section that is not
 symmetric about the load has a product of inertia as well, and bends sideways; the stiffness against the load is
@@ -94,7 +94,7 @@ NUDGE_MM = 1e-2               # how far a station on a face across the beam is m
 SKIRT = 0.05                  # a body a degree or two off its axis is cut slantwise at its ends: no station is nearer
                               # an end than this fraction of its size across, and the end stations sit just beyond
 END_FRACTION = 1e-3           # the end stations are at least this fraction of the length inside the ends
-GAP = 0.05                   # the second longest side is this much shorter than the longest, or the way is unclear
+GAP = 0.05                    # the second longest side is this much shorter than the longest, or the way is unclear
 AXES = "xyz"
 SUPPORTS = ("simple", "fixed", "cantilever")
 PLACES = ("center", "end", "worst")
