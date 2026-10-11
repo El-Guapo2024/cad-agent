@@ -10,9 +10,10 @@ cad_agent/beam.py is the engineering and speckinds/deflection.py the judge. Thes
   * every way a body is not a beam, and every PASS, FAIL and UNCHECKED the rule gives, with the numbers it gives;
   * that the section is one more kind after the seven there were, its rows after theirs.
 
-No project uses [[deflection]] yet, so nothing verified before changes: the sample designs' checks.json and
-verify.json were run against the code without it (see the report), and the last tests here hold what a unit
-test can: the other sections' rows are the same with or without it.
+No project uses [[deflection]] yet, so no verdict that held before changes. The sample designs' checks.json and
+verify.json rows were compared by hand with the code without this piece (they are identical), and the last
+tests here hold what a unit test can: the other sections' rows are the same with or without it, in the same
+order.
 """
 import functools
 import json
