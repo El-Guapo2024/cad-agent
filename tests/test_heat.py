@@ -11,7 +11,7 @@ import re
 import textwrap
 
 import pytest
-from build123d import Box, Cylinder, Pos, Rot, export_step
+from build123d import Box, Pos, export_step
 
 from cad_agent import materials
 from cad_agent import state as st
@@ -94,6 +94,15 @@ def heat(d, text):
 
 PLATE_250 = '[[heat]]\nsource = "hot_plate"\ntemp_c = 250\nradius_mm = 15\n'
 STANDOFFS = ["standoff_1", "standoff_2", "standoff_3", "standoff_4"]
+
+
+def test_heat_is_a_registered_section_after_the_seven_and_after_mass():
+    from cad_agent import registry as reg
+    from cad_agent import spec as sp
+    assert "heat" in sp.KINDS and sp.KINDS[:7] == ("envelope", "size", "position", "clearance", "keepout", "mass", "interface")
+    kinds = {k.name: k for k in reg.spec_kinds()}
+    assert kinds["heat"].order == 80 > kinds["mass"].order and not kinds["heat"].table
+    assert "a zone, not a thermal model" in kinds["heat"].doc
 
 
 # ─── The service temperatures ────────────────────────────────────────────────
@@ -198,6 +207,44 @@ def test_aluminium_passes_a_zone_it_is_rated_for_and_fails_the_one_it_is_not(doc
     assert heat(dock, PLATE_250)["standoff_2"].measured.startswith("aluminium (stated service limit) rated 170 C")
 
 
+SPACER = textwrap.dedent('''\
+    """A bought spacer in a plastic that is not in materials.py."""
+    from build123d import Cylinder
+
+    SOURCE = "the test rig"
+    VERIFIED = True
+    PARAMS = {}
+    DECLARES
+
+
+    def build():
+        return Cylinder(5, 20) - Cylinder(1.7, 22)
+''')
+ILLUSTRATIVE = "illustrative HDT at 0.45 MPa, not a datasheet"
+
+
+def spacers(d, declares):
+    """The four standoffs as one bought part that declares what `declares` (lines of its module) says."""
+    (d / "bought" / "spacer.py").write_text(SPACER.replace("DECLARES", declares))
+    (d / "assembly.py").write_text(ASSEMBLY.replace('standoff, _ = build_part(SLUG, "standoff")',
+                                                    'standoff = bought_solid(SLUG, "spacer")'))
+
+
+def test_pc_and_asa_standoffs_are_bought_parts_that_declare_a_rating_and_clear_a_90_c_plate(dock):
+    # Polycarbonate and ASA are not in materials.py, so a standoff in either is a bought part and says what it
+    # takes. PLA fails a 90 C plate; aluminium, PC (say 130 C) and ASA (say 95 C) pass it; no plastic passes 250 C.
+    zone = '[[heat]]\nsource = "hot_plate"\ntemp_c = {}\nradius_mm = 15\n'
+    for material, outcome in (("pla", "FAIL"), ("aluminium", "PASS")):
+        spacers(dock, f'MATERIAL = "{material}"')                              # no rating of its own: the table's
+        assert {r.state for r in heat(dock, zone.format(90)).values()} == {outcome}, material
+    for rating, outcome in ((130, "PASS"), (95, "PASS"), (85, "FAIL")):
+        spacers(dock, f'MAX_TEMP_C = {rating}\nMAX_TEMP_SOURCE = "{ILLUSTRATIVE}"')
+        got = heat(dock, zone.format(90))
+        assert sorted(got) == STANDOFFS and {r.state for r in got.values()} == {outcome}, rating
+        assert got["standoff_1"].measured == f"declared {rating} C ({ILLUSTRATIVE}), 0.00 mm from hot_plate"
+        assert {r.state for r in heat(dock, zone.format(250)).values()} == {"FAIL"}
+
+
 def test_the_rating_has_to_reach_the_zone_plus_the_margin(dock):
     zone = '[[heat]]\nsource = "hot_plate"\ntemp_c = 250\nradius_mm = 15\nmargin_c = {}\n'
     r = heat(dock, zone.format(110))["standoff_1"]                        # 360 C against 250 + 110: exactly enough
@@ -285,6 +332,15 @@ def test_the_distance_is_the_exact_one_and_not_the_bounding_box(dock):
     # (36, -36) is inside the bar's bounding box and 50 mm from the bar
     assert "bar" not in heat(dock, '[[heat]]\nat = [36, -36, 100]\ntemp_c = 250\nradius_mm = 10\n')
     assert heat(dock, '[[heat]]\nat = [0, 0, 100]\ntemp_c = 250\nradius_mm = 1\n')["bar"].state == "UNCHECKED"   # on it
+
+
+def test_a_body_nowhere_near_costs_no_exact_distance(dock, monkeypatch):
+    from cad_agent import geom
+    calls = []
+    real = geom.min_distance
+    monkeypatch.setattr(geom, "min_distance", lambda a, b: calls.append(1) or real(a, b))
+    heat(dock, PLATE_250)
+    assert len(calls) == 4                         # the four standoffs; the base, 20 mm off, is ruled out by its box
 
 
 def test_a_zone_with_nothing_in_it_says_so(dock):

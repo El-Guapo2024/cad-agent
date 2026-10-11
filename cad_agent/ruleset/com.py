@@ -23,8 +23,8 @@ When it applies. The rule is N/A for a design in which no bought part declares a
 that existed before step 6 are like that, each with a body of unknown mass (a motor, a rail, a bench), so
 a rule that went UNCHECKED on every unknown mass would have put every one of them on hold for a claim
 none of them ever made. Declaring a mass on a bought part is how a design starts to claim a balance, and
-from then on the rule is strict: UNCHECKED while any body's mass is unknown, naming each and why. That is
-the only place it can be loosened: `_judged` below.
+from then on the rule is strict: UNCHECKED while any body's mass is unknown, naming each and why.
+`_judged` below is the one place that decides it.
 
 What it does not judge: dynamics, anything flexing, a pose other than home and the ends of each axis, two
 axes off home together (step 8), or whether the thing is meant to stand at all. A bracket that is screwed
@@ -109,7 +109,8 @@ def com(ctx):
         yield _axis_row(name, axis, bodies, resting, hull, centre, total, ctx.parts)
 
 
-def _axis_row(name: str, axis, bodies: dict, resting: list, hull: list, centre: tuple, total: float, parts: dict) -> Row:
+def _axis_row(name: str, axis, bodies: dict, resting: list, hull: list, centre: tuple, total: float,
+              parts: dict) -> Row:
     """The centre of mass with the axis at each end of its travel, against the footprint at home."""
     rule = f"{RULE}/{name}"
     missing = [m for m in axis.moves if m not in parts]
@@ -133,16 +134,17 @@ def _axis_row(name: str, axis, bodies: dict, resting: list, hull: list, centre: 
     for t in axis.travel:
         at = (centre[0] + share * u[0] * t, centre[1] + share * u[1] * t)
         ends.append((_margin(hull, at), t, at))
-    worst = min(ends, key=lambda e: e[0])
-    if worst[0] >= -TOL_MM:
+    margin, t, at = min(ends, key=lambda e: e[0])
+    moves = f"({share * 100:.0f}% of the mass moves)"
+    if margin >= -TOL_MM:
         return Row(subject=f"axis {name}", rule=rule, state="PASS",
-                   measured=(f"over {name} = {axis.travel[0]:+.1f} to {axis.travel[1]:+.1f} mm the centre of mass stays "
-                             f"inside the footprint, closest {_mm(max(worst[0], 0.0))} mm from its edge at {name} = "
-                             f"{worst[1]:+.1f} mm ({share * 100:.0f}% of the mass moves)"),
+                   measured=(f"over {name} = {axis.travel[0]:+.1f} to {axis.travel[1]:+.1f} mm the centre of mass "
+                             f"stays inside the footprint, closest {_mm(max(margin, 0.0))} mm from its edge at "
+                             f"{name} = {t:+.1f} mm {moves}"),
                    limit="inside the footprint at both ends of travel", source=SOURCE)
     return Row(subject=f"axis {name}", rule=rule, state="FAIL",
-               measured=(f"at {name} = {worst[1]:+.1f} mm the centre of mass ({_mm(worst[2][0])}, {_mm(worst[2][1])}) mm "
-                         f"is {_mm(-worst[0])} mm outside the footprint ({share * 100:.0f}% of the mass moves)"),
+               measured=(f"at {name} = {t:+.1f} mm the centre of mass ({_mm(at[0])}, {_mm(at[1])}) mm is "
+                         f"{_mm(-margin)} mm outside the footprint {moves}"),
                limit="inside the footprint at both ends of travel", source=SOURCE)
 
 

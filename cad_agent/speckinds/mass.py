@@ -40,7 +40,8 @@ def mass(entry: dict, ctx):
     """A weight budget: part modules by count, placed bodies, or everything one axis moves."""
     forms = [k for k in FORMS if k in entry]
     if len(forms) > 1:
-        raise _Unusable(f"[[mass]] takes one of `parts`, `bodies` or `moving`, and this one has {' and '.join(forms)}")
+        raise _Unusable("[[mass]] takes one of `parts`, `bodies` or `moving`, "
+                        f"and this one has {' and '.join(forms)}")
     if "bodies" in entry:
         yield from _bodies(entry, ctx)
     elif "moving" in entry:
@@ -133,7 +134,8 @@ def _budget(subject: str, names: list, limit: float, ctx):
     gone = f"no mass for {'; '.join(unknown)}"
     if known > limit + TOL_MM:
         return _row(subject, "mass", "FAIL",
-                    f"{known:.1f} g already, before the bodies of unknown mass ({'; '.join(lines)}); {gone}", limit_text)
+                    f"{known:.1f} g already, before the bodies of unknown mass ({'; '.join(lines)}); {gone}",
+                    limit_text)
     return _row(subject, "mass", "UNCHECKED",
                 f"{gone}; the others weigh {known:.1f} g ({'; '.join(lines) or 'none'})", limit_text)
 

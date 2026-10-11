@@ -347,11 +347,15 @@ def margin(row):
     return float(m[1]) * (1 if m[2] == "inside" else -1)
 
 
-def test_registered_after_stance_and_described_in_one_line():
+def test_registered_after_stance_and_described_in_one_line(capsys):
     spec_ = next(c for c in reg.checks("assembly") if c.name == "com")
     names = [c.name for c in reg.checks("assembly")]
     assert names.index("stance") < names.index("com") < names.index("spec") and spec_.order == 35
     assert spec_.doc.startswith("Whether the centre of mass is over the footprint")
+    from cad_agent import cli
+    assert cli.main(["--json", "rules"]) == cli.OK                                         # `cad rules` lists it too
+    listed = json.loads([ln for ln in capsys.readouterr().out.splitlines() if ln.startswith("{")][-1])["data"]["rules"]
+    assert {"name": "com", "scope": "assembly", "order": 35, "does": spec_.doc} in listed
 
 
 def test_with_every_mass_known_a_centre_over_the_legs_passes_and_the_row_says_by_how_much():
