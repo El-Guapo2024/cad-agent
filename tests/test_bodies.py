@@ -220,7 +220,9 @@ def test_a_bought_body_has_what_it_declares_and_nothing_it_does_not(mach):
     assert (motor.mass_g, motor.mass_source) == (280.0, "datasheet table 2")
     assert (motor.material, motor.vendor, motor.pn, motor.source) == ("steel", "Motors Inc", "M-17", "vendor drawing 12")
     assert motor.geometry == "envelope"                                 # a STEP is an envelope until it says otherwise
-    assert motor.max_temp_c is None and motor.process is None and motor.notes == ()
+    steel = materials.prop("steel", "max_service_temp_c")             # it names a material and no temperature of its own
+    assert motor.max_temp_c == steel.value and motor.max_temp_source.startswith(f"materials.py steel ({steel.basis})")
+    assert motor.process is None and motor.notes == ()
     sensor = m.bodies["sensor"]
     assert (sensor.mass_g, sensor.max_temp_c, sensor.max_temp_source) == (4.5, 85.0, "datasheet p.1, operating range")
     assert (sensor.material, sensor.pn, sensor.verified) == ("fr4", "S-100", True)

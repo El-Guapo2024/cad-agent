@@ -11,7 +11,7 @@ What a material holds, in the units of its key:
     poisson_ratio         PoissonRatio
     yield_strength_mpa    YieldStrength
     max_service_temp_c    MaxServiceTemperature: FreeCAD's cards have none, so this slot is ours (step 6,
-                          piece C1 fills it)
+                          piece C1; see "Service temperatures" below)
 
 and `card`, the name of the FreeCAD material card it follows. Each property is `None` (nothing in a
 source we can cite: a rule that needs it is UNCHECKED, by design) or a tuple `(value, source)`:
@@ -22,8 +22,31 @@ source we can cite: a rule that needs it is UNCHECKED, by design) or a tuple `(v
 A source says what a reader needs to look the number up, and tests/test_materials.py reads it back: a
 card's own text must give the value after the unit conversion, and a datasheet's text must contain it.
 `max_service_temp_c` takes `(value_c, source_url, basis)`, and the basis is one of MAX_TEMP_BASES: heat
-deflection temperature at 0.45 MPa (ISO 75-2 method B), a UL 746B relative thermal index, or a glass
-transition. It is a ceiling for a part held at temperature for its life, not a melting point.
+deflection temperature at 0.45 MPa (ISO 75-2 method B), a UL 746B relative thermal index, a glass
+transition, or the service limit a maker or handbook states. It is a ceiling for a part held at
+temperature for its life, not a melting point.
+
+Service temperatures
+--------------------
+One number per material, in degrees C, that the `[[heat]]` rule holds a body to. Which kind of number it
+is differs by material, because no one kind exists for all of them, and the basis says which:
+
+  HDT ISO 75-2 B        the thermoplastics (PLA, PETG, ABS, nylon): the temperature at which a bar bends
+                        0.25 mm under 0.45 MPa. It is where a part starts to give under a light load, not
+                        a life rating (a UL RTI is lower), so a design that must last asks `[[heat]]` for a
+                        `margin_c`. A sheet that gives HDT at 0.45 MPa and nothing else is read that way.
+  Tg                    a film or thermoset with no HDT on its sheet (polyimide): the low end of the
+                        glass transition the sheet gives.
+  stated service limit  what the maker or a handbook says the material may sit at: acrylic and FR4 (the
+                        sheet states it), and the metals, which have no HDT, RTI or Tg. For the metals it
+                        is MakeItFrom.com's "Maximum Temperature: Mechanical" for the alloy the table's
+                        density and card stand for (6061-T6 170 C, brass C36000 120 C, copper C11000
+                        200 C, A36 400 C, 304 710 C), the same kind of number for all five. A range on a
+                        sheet is read at its low end.
+
+So steel, stainless and polyimide clear a 250 C zone and aluminium, brass and copper do not: a loaded part
+at a heater's temperature is what the rule exists to catch (the heater's own plate is the `source` and
+is exempt). A value nobody can cite is `None`.
 
 Densities
 ---------
@@ -48,7 +71,7 @@ PROPERTIES = ("density_g_cm3", "youngs_modulus_mpa", "poisson_ratio", "yield_str
 FREECAD_NAMES = {"density_g_cm3": "Density", "youngs_modulus_mpa": "YoungsModulus",
                  "poisson_ratio": "PoissonRatio", "yield_strength_mpa": "YieldStrength",
                  "max_service_temp_c": "MaxServiceTemperature"}
-MAX_TEMP_BASES = ("HDT ISO 75-2 B", "UL 746B RTI", "Tg")
+MAX_TEMP_BASES = ("HDT ISO 75-2 B", "UL 746B RTI", "Tg", "stated service limit")
 
 
 class Prop(NamedTuple):
@@ -97,6 +120,15 @@ _ZYTEL = "https://protolabs.com/media/tcebrq5j/zytel-101l.pdf"
 _WK_PMMA = "https://wkfluidhandling.com/wp-content/media/materials/pmma-acrylic.pdf"
 _G10 = "https://www.polymershapes.com/wp-content/uploads/2020/04/Polymershapes_Accurate_DataSheet-Acculam-Epoxyglas-G10-FR4.pdf"
 _KAPTON = "https://www.epectec.com/downloads/DuPont-Kapton-HN-Polyimide-Film.pdf"
+# The service temperatures (see the docstring): the sheets for the plastics, MakeItFrom.com for the metals.
+_PRUSA_PLA = "https://www.matterhackers.com/r/xFvGl8"          # the Prusament PLA datasheet, as MatterHackers hosts it
+_GUND_FR4 = "https://thegundcompany.com/wp-content/uploads/2024/03/NEMA-FR4-Glass-Epoxy-Laminate-by-The-Gund-Co.pdf"
+_MIF = "https://www.makeitfrom.com/material-properties/"
+_MIF_6061 = _MIF + "6061-T6-Aluminum"
+_MIF_A36 = _MIF + "ASTM-A36-SS400-S275-Structural-Carbon-Steel"
+_MIF_304 = _MIF + "AISI-304-S30400-Stainless-Steel"
+_MIF_C36000 = _MIF + "UNS-C36000-CW603N-Free-Cutting-Brass"
+_MIF_C11000 = _MIF + "UNS-C11000-CW004A-Electrolytic-Tough-Pitch-Copper"
 
 # The order is the order geom.DENSITY lists them in (`cad tables density`), each followed by its aliases.
 MATERIALS: dict[str, dict] = {
@@ -106,7 +138,9 @@ MATERIALS: dict[str, dict] = {
         "youngs_modulus_mpa": (70000.0, fc(_AL, "YoungsModulus", "70000 MPa")),
         "poisson_ratio": (0.35, fc(_AL, "PoissonRatio", "0.35")),
         "yield_strength_mpa": None,             # the Generic card has none: it is every alloy and temper
-        "max_service_temp_c": None,
+        "max_service_temp_c": (170.0, ds(_MIF_6061, "MakeItFrom.com, 6061-T6 aluminum, Thermal Properties: "
+                                                   "Maximum Temperature: Mechanical 170 °C (330 °F)"),
+                               "stated service limit"),
     },
     "steel": {
         "card": "Steel-Generic",
@@ -114,7 +148,9 @@ MATERIALS: dict[str, dict] = {
         "youngs_modulus_mpa": (200000.0, fc(_STEEL, "YoungsModulus", "200000 MPa")),
         "poisson_ratio": (0.3, fc(_STEEL, "PoissonRatio", "0.3")),
         "yield_strength_mpa": None,
-        "max_service_temp_c": None,
+        "max_service_temp_c": (400.0, ds(_MIF_A36, "MakeItFrom.com, ASTM A36 (SS400, S275) structural carbon steel, "
+                                                  "Thermal Properties: Maximum Temperature: Mechanical 400 °C (750 °F)"),
+                               "stated service limit"),
     },
     "stainless": {
         "card": "X5CrNi18-10",
@@ -122,7 +158,10 @@ MATERIALS: dict[str, dict] = {
         "youngs_modulus_mpa": (200000.0, fc(_SS, "YoungsModulus", "200000 MPa")),
         "poisson_ratio": (0.3, fc(_SS, "PoissonRatio", "0.3")),
         "yield_strength_mpa": (210.0, fc(_SS, "YieldStrength", "210 MPa")),
-        "max_service_temp_c": None,
+        "max_service_temp_c": (710.0, ds(_MIF_304, "MakeItFrom.com, AISI 304 (S30400) stainless steel, Thermal "
+                                                  "Properties: Maximum Temperature: Mechanical 710 °C (1300 °F); "
+                                                  "its Maximum Temperature: Corrosion is 420 °C (790 °F)"),
+                               "stated service limit"),
     },
     "brass": {
         "card": None,                            # FreeCAD has no brass card with mechanical values
@@ -132,7 +171,10 @@ MATERIALS: dict[str, dict] = {
                                                     "14000 ksi, 96527 MPa")),
         "poisson_ratio": None,
         "yield_strength_mpa": None,              # it depends on the temper
-        "max_service_temp_c": None,
+        "max_service_temp_c": (120.0, ds(_MIF_C36000, "MakeItFrom.com, UNS C36000 (CW603N) free-cutting brass, "
+                                                     "Thermal Properties: Maximum Temperature: Mechanical 120 °C "
+                                                     "(250 °F)"),
+                               "stated service limit"),
     },
     "copper": {
         "card": "Copper Generic",
@@ -140,7 +182,10 @@ MATERIALS: dict[str, dict] = {
         "youngs_modulus_mpa": (119000.0, fc(_CU, "YoungsModulus", "119 GPa")),
         "poisson_ratio": (0.343, fc(_CU, "PoissonRatio", "0.343")),
         "yield_strength_mpa": (33.3, fc(_CU, "YieldStrength", "33.3 MPa")),
-        "max_service_temp_c": None,
+        "max_service_temp_c": (200.0, ds(_MIF_C11000, "MakeItFrom.com, UNS C11000 (CW004A) electrolytic tough pitch "
+                                                     "copper, Thermal Properties: Maximum Temperature: Mechanical "
+                                                     "200 °C (390 °F)"),
+                               "stated service limit"),
     },
     "pla": {
         "card": "PLA",
@@ -148,7 +193,10 @@ MATERIALS: dict[str, dict] = {
         "youngs_modulus_mpa": (3640.0, fc(_PLA, "YoungsModulus", "3640 MPa")),
         "poisson_ratio": (0.36, fc(_PLA, "PoissonRatio", "0.36")),
         "yield_strength_mpa": (35.9, fc(_PLA, "YieldStrength", "35.9 MPa")),
-        "max_service_temp_c": None,
+        "max_service_temp_c": (55.0, ds(_PRUSA_PLA, "Prusament PLA technical datasheet v1.1 (27-07-2022), as hosted by "
+                                                   "MatterHackers: Heat Deflection Temperature (0.45 MPa) 55 °C "
+                                                   "(ISO 75)"),
+                               "HDT ISO 75-2 B"),
     },
     "petg": {
         "card": None,                            # FreeCAD's PET card is PET, not the glycol-modified copolymer
@@ -159,7 +207,9 @@ MATERIALS: dict[str, dict] = {
         "poisson_ratio": None,
         "yield_strength_mpa": (47.0, ds(_PETG, "Prusament PETG technical datasheet v1.1: Tensile Yield "
                                                "Strength 47 MPa (ISO 527-1, printed specimens, horizontal)")),
-        "max_service_temp_c": None,
+        "max_service_temp_c": (68.0, ds(_PETG, "Prusament PETG technical datasheet v1.1: Heat Deflection "
+                                              "Temperature (0.45 MPa) 68 °C (ISO 75)"),
+                               "HDT ISO 75-2 B"),
     },
     "abs": {
         "card": "ABS",
@@ -167,7 +217,10 @@ MATERIALS: dict[str, dict] = {
         "youngs_modulus_mpa": (2300.0, fc(_ABS, "YoungsModulus", "2300 MPa")),
         "poisson_ratio": (0.37, fc(_ABS, "PoissonRatio", "0.37")),
         "yield_strength_mpa": (44.1, fc(_ABS, "YieldStrength", "44.1 MPa")),
-        "max_service_temp_c": None,
+        "max_service_temp_c": (99.0, ds(_GP22, "INEOS Styrolution Terluran GP-22 datasheet (UL Prospector "
+                                              "TDS-37722-en): Deflection Temperature Under Load 0.45 MPa, Annealed "
+                                              "99.0 °C (ISO 75-2/B)"),
+                               "HDT ISO 75-2 B"),
     },
     "nylon": {
         "card": "Polyamide 6",
@@ -175,7 +228,10 @@ MATERIALS: dict[str, dict] = {
         "youngs_modulus_mpa": (2930.0, fc(_PA6, "YoungsModulus", "2930 MPa")),
         "poisson_ratio": (0.39, fc(_PA6, "PoissonRatio", "0.39")),
         "yield_strength_mpa": (70.5, fc(_PA6, "YieldStrength", "70.5 MPa")),
-        "max_service_temp_c": None,
+        "max_service_temp_c": (190.0, ds(_ZYTEL, "Zytel 101L NC010 datasheet (a PA66; UL Prospector TDS-61076-en): "
+                                                "Heat Deflection Temperature 66 psi (0.45 MPa), Unannealed, dry, "
+                                                "374 °F (190 °C) (ISO 75-2/B)"),
+                               "HDT ISO 75-2 B"),
     },
     "acrylic": {
         "card": "Acrylic Glass",
@@ -184,7 +240,10 @@ MATERIALS: dict[str, dict] = {
         "youngs_modulus_mpa": (2550.0, fc(_PMMA, "YoungsModulus", "2550 MPa")),
         "poisson_ratio": (0.38, fc(_PMMA, "PoissonRatio", "0.38")),
         "yield_strength_mpa": (73.7, fc(_PMMA, "YieldStrength", "73.7 MPa")),
-        "max_service_temp_c": None,
+        "max_service_temp_c": (65.0, ds(_WK_PMMA, "W-K Fluid Handling PMMA acrylic data sheet: Max Operating Temp "
+                                                 "150-200 °F / 65-93 °C, read at its low end (the sheet covers "
+                                                 "extruded, cast and moulded grades)"),
+                               "stated service limit"),
     },
     "fr4": {
         "card": None,                            # FreeCAD has glass fibre cards, not the laminate
@@ -193,7 +252,10 @@ MATERIALS: dict[str, dict] = {
         "youngs_modulus_mpa": None,              # a laminate: its modulus differs along and across the weave
         "poisson_ratio": None,
         "yield_strength_mpa": None,
-        "max_service_temp_c": None,
+        "max_service_temp_c": (130.0, ds(_GUND_FR4, "The Gund Company NEMA FR4 glass epoxy laminate technical data "
+                                                   "sheet (TGCR 06/2026): Temperature Index 130 °C (ASTM D2304); "
+                                                   "properties held at elevated temperatures of up to 130 °C"),
+                               "stated service limit"),
     },
     "polyimide": {
         "card": None,
@@ -203,7 +265,10 @@ MATERIALS: dict[str, dict] = {
                                                    "at 23 C 2.5 GPa (ASTM D-882)")),
         "poisson_ratio": (0.34, ds(_KAPTON, "DuPont Kapton HN data sheet K-15345-2: Poisson's Ratio 0.34")),
         "yield_strength_mpa": None,              # a film with no yield point
-        "max_service_temp_c": None,
+        "max_service_temp_c": (360.0, ds(_KAPTON, "DuPont Kapton HN data sheet K-15345-2: a second order transition "
+                                                 "between 360 °C (680 °F) and 410 °C (770 °F), assumed to be the "
+                                                 "glass transition, read at its low end"),
+                               "Tg"),
     },
 }
 

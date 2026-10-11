@@ -42,9 +42,11 @@ def converted(text):
 
 
 def sources():
+    """Every (value, source) a material cites: max_service_temp_c is left out, it has a basis as well and
+    tests/test_heat.py reads its numbers back."""
     for name, material in MATERIALS.items():
         for p in PROPERTIES:
-            if material[p]:
+            if material[p] and p != "max_service_temp_c":
                 yield name, p, material[p]
 
 
@@ -110,7 +112,7 @@ def test_prop_gives_the_value_with_its_source_and_refuses_a_property_it_does_not
 
 def test_every_source_is_a_freecad_card_at_the_pinned_commit_or_a_datasheet():
     for name, p, spec in sources():
-        assert len(spec) == 2, (name, p)                        # max_service_temp_c is the one that takes a basis
+        assert len(spec) == 2, (name, p)                        # max_service_temp_c, the one with a basis, is not here
         source = spec[1]
         assert CARD_SOURCE.match(source) or SHEET_SOURCE.match(source), (name, p, source)
 
@@ -169,7 +171,8 @@ def test_the_cards_are_listed_with_their_licence_and_author_and_all_in_use():
 # ─── The slot for step 6, piece C1 ───────────────────────────────────────────
 
 def test_max_service_temperature_is_a_slot_that_takes_a_value_a_basis_and_a_datasheet():
-    # Empty until C1 fills it. What it may hold is fixed now: (value in C, datasheet URL, basis).
+    # What it may hold: (value in C, datasheet URL: what it says, basis). Piece C1 filled it; tests/test_heat.py
+    # reads each number back against its sheet.
     for name, material in MATERIALS.items():
         slot = material["max_service_temp_c"]
         if slot is None:
@@ -178,7 +181,7 @@ def test_max_service_temperature_is_a_slot_that_takes_a_value_a_basis_and_a_data
         assert -273.0 < value < 3000.0, name
         assert re.match(r"https://\S+: .+", source) and basis in MAX_TEMP_BASES, (name, slot)
         assert materials.prop(name, "max_service_temp_c").basis == basis
-    assert MAX_TEMP_BASES == ("HDT ISO 75-2 B", "UL 746B RTI", "Tg")
+    assert MAX_TEMP_BASES == ("HDT ISO 75-2 B", "UL 746B RTI", "Tg", "stated service limit")
 
 
 # ─── It is code, so the engine hash covers it ────────────────────────────────
@@ -204,7 +207,9 @@ def test_cad_tables_materials_prints_every_value_with_its_source(capsys):
     assert list(table) == list(MATERIALS)
     al = table["aluminium"]
     assert al["density_g_cm3"] == 2.7 and al["youngs_modulus_mpa"] == 70000.0 and al["poisson_ratio"] == 0.35
-    assert al["yield_strength_mpa"] is None and al["max_service_temp_c"] is None
+    assert al["yield_strength_mpa"] is None
+    assert al["max_service_temp_c"] == 170.0 and al["max_service_temp_basis"] == "stated service limit"
+    assert al["sources"]["max_service_temp_c"].startswith("https://www.makeitfrom.com/")
     assert al["aliases"] == ["aluminum"] and al["card"] == "Aluminum Generic"
     assert al["sources"]["density_g_cm3"].startswith(f"FreeCAD {FREECAD_COMMIT} src/Mod/Material/")
     assert "yield_strength_mpa" not in al["sources"]                    # nothing to cite, nothing printed
