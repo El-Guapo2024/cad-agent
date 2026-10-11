@@ -30,7 +30,13 @@ yet answers exit 3 "not built yet". To build one:
      yet";
   3. nothing else: no edit to cli.py, and the file that holds the handler is the piece's own.
 
-A command with a sub-command (`cad lib use`) is two words in LAZY: "lib use".
+A command with a sub-command (`cad lib use`) is two words in LAZY: "lib use". A module with the file
+but not the function yet is still "not built"; one that fails to import anything else raises, so a half
+built piece is a crash with a traceback and not a quiet exit 3. Do not add `--json` or `--projects`: the
+parser has them. A command that changes a project's files journals the change (`undo.record(...,
+by=actor(a))`, as `cad bought add-step` does), and one that reads no geometry should not import the CAD
+kernel at module level (`lib` is in warm.KERNEL_FREE and answers without a worker). Name the tests
+`tests/test_<piece>.py` so `tests/affected.py` finds them from the module's name.
 """
 from __future__ import annotations
 

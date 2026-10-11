@@ -6,7 +6,9 @@ section is a new file in this folder and no other edit: spec.py runs whatever is
 "unknown section" message lists it (`spec.KINDS`), and `kit.py` has what a kind uses.
 
 A kind lives in the module named for its section (`heat.py` for `[[heat]]`), and documents its format
-in that module's docstring. Row order is the kind's `order`; the listing order is the order below
+in that module's docstring. Row order is the kind's `order`: the seven below hold 10 to 70 (envelope
+10, size 20, position 30, clearance 40, keepout 50, interface 60, mass 70), so a new kind takes 80 or
+more, and a number between two of them puts its rows among theirs. The listing order is the order below
 and then alphabetical, so a section registered later is listed last.
 """
 from ..registry import autoload
