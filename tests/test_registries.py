@@ -89,7 +89,8 @@ def test_a_spec_with_every_section_reports_them_in_that_order(rig):
 
 def test_the_unknown_section_message_lists_the_kinds_as_it_always_did(rig):
     rows = check(rig, "[nonsense]\nx = 1\n")
-    assert rows[0].limit == "one of envelope, size, position, clearance, keepout, mass, interface"
+    # the seven first, in that order, and then whatever later pieces registered (heat, ...)
+    assert rows[0].limit.startswith("one of envelope, size, position, clearance, keepout, mass, interface")
     assert rows[0].measured == "unknown section [nonsense]" and rows[-1].limit.startswith("at least one of envelope")
 
 
@@ -175,8 +176,8 @@ def test_a_kind_registered_twice_or_badly_named_is_refused(kinds):
 
 
 def test_a_kind_nobody_registered_is_unchecked_not_ignored(rig):
-    rows = check(rig, '[[heat]]\nsource = "x"\n[[size]]\nbody = "far"\nmax_mm = [11, 11, 21]\n')
-    assert (rows[0].rule, rows[0].state, rows[0].measured) == ("spec/heat", "UNCHECKED", "unknown section [heat]")
+    rows = check(rig, '[[sparkle]]\nsource = "x"\n[[size]]\nbody = "far"\nmax_mm = [11, 11, 21]\n')
+    assert (rows[0].rule, rows[0].state, rows[0].measured) == ("spec/sparkle", "UNCHECKED", "unknown section [sparkle]")
 
 
 # ─── Finding the modules ─────────────────────────────────────────────────────
