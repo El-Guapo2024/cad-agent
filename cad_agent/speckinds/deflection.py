@@ -11,14 +11,25 @@
     max_um = 50              # the most it may deflect, in micrometres
     direction = "-z"         # which way the load pushes: x, y or z, a sign allowed and ignored; default gravity
     axis = "x"               # which way the beam runs, when the body is not clearly longest along one
+    solid = true             # the body really is a solid bar, though a box of a 2020, 2040 or 4040's size (below)
 
 The method and its limits are in cad_agent/beam.py: Euler-Bernoulli superposition from Roark's Table 8.1, the
 second moment of area read from the body's own cross-sections (the weakest of 21 and of the places its shape
 changes), Young's modulus from materials.py with the source it cites. A beam is a formula and not a finite-element
 model, so the rule says UNCHECKED, with its reason, wherever the formula would not hold, and never a guess:
 
-  * the body's geometry is an envelope: stock that assembly.py builds (extrusion_blank is a box, not a profile),
-    or a bought part not declared `geometry = "exact"`, or one whose dimensions are unverified;
+  * the body's geometry is an envelope: stock that assembly.py builds, or a bought part not declared
+    `geometry = "exact"`, or one whose dimensions are unverified;
+  * the body is a solid box standing for an extrusion: `parts.extrusion_blank` makes one, a part module may
+    return it or drill and cut it, and bodies.py then calls it made and exact, but its section is a solid
+    rectangle and a real 2040 has about half that stiffness, so a PASS from it could be false. It is recognised
+    by what it is and not by a tag, since a boolean drops the tag (parts.blank_of): the usual section, read from
+    the cuts, is as wide and as high as a 2020, 2040 or 4040, the body is at least twice as long as the longer
+    side, and its volume is 90 % or more of that footprint times its length. Holes, bores, notches, a placement
+    and a turn of a degree or two leave that as it was. A real profile fills 30 to 55 % and a bracket cut from
+    a bar far less, so neither is caught. The way to get it judged is the real profile, a bought part declared
+    `geometry = "exact"` (the library's, `cad lib`). A solid bar that really is one of these sizes says
+    `solid = true`, and the row then says it was taken on the entry's word;
   * the body has no material, or materials.py has no Young's modulus with a source for it;
   * a mass it needs is unknown: `load_moving` adds up the masses of the bodies the axis moves (the beam itself
     left out: `self_weight` is its own) and `self_weight` uses the body's, each as bodies.py gives them (a
@@ -51,7 +62,7 @@ from ..registry import TOL_MM, spec_kind
 from .kit import Unusable as _Unusable, get_body as _body, require as _need, row as _row
 
 KEYS = ("body", "support", "span_mm", "load_n", "load_g", "load_moving", "at", "self_weight", "max_um",
-        "direction", "axis")
+        "direction", "axis", "solid")
 LOADS = ("load_n", "load_g", "load_moving")
 GRAVITY_AXIS = 2                                         # z: the weight of the body acts along it
 
@@ -73,6 +84,7 @@ class _Request:
     max_um: float
     direction: int
     axis: int | None
+    solid_bar: bool = False
 
     @property
     def limit(self) -> str:
@@ -129,13 +141,16 @@ def _read(entry: dict) -> _Request:
     moving = entry.get("load_moving")
     if "load_moving" in entry and not (isinstance(moving, str) and moving):
         raise _Unusable("[[deflection]] `load_moving` must be the name of an axis")
+    solid_bar = entry.get("solid", False)
+    if not isinstance(solid_bar, bool):
+        raise _Unusable(f"[[deflection]] `solid` must be true or false, not {solid_bar!r}")
     return _Request(
         body=body, support=support, span=_number(entry, "span_mm") if "span_mm" in entry else None,
         load_n=_number(entry, "load_n") if "load_n" in entry else None,
         load_g=_number(entry, "load_g") if "load_g" in entry else None,
         moving=moving, at=at, self_weight=self_weight, max_um=_number(entry, "max_um"),
         direction=_axis(entry.get("direction", "-z"), "direction"),
-        axis=_axis(entry["axis"], "axis") if "axis" in entry else None)
+        axis=_axis(entry["axis"], "axis") if "axis" in entry else None, solid_bar=solid_bar)
 
 
 def _number(entry: dict, key: str) -> float:
@@ -168,6 +183,9 @@ def _judge(r: _Request, solid, ctx):
     point = _point(r, ctx, bodies)
     weight = _own_weight(r, info)
     prof = _profile(ctx, r, solid)
+    blank = _blank(solid, prof)
+    if blank is not None and not r.solid_bar:
+        raise _Cannot(_stand_in(r.body, blank))
     span = r.span if r.span is not None else prof.length
     if span > prof.length + TOL_MM:
         raise _Unusable(f"[[deflection]] `span_mm` {span:g} is longer than the body ({prof.length:.2f} mm)")
@@ -192,7 +210,7 @@ def _judge(r: _Request, solid, ctx):
         results.append(_Plane(axis, i_min, i_max, point_n, udl_n,
                               beam.deflection(r.support, span, modulus.value, i_min, point_n, udl_n, r.at),
                               beam.deflection(r.support, span, modulus.value, i_max, point_n, udl_n, r.at)))
-    return _finish(r, modulus, span, ratio, results, point)
+    return _finish(r, modulus, span, ratio, results, point, blank)
 
 
 def _profile(ctx, r: _Request, solid):
@@ -204,7 +222,7 @@ def _profile(ctx, r: _Request, solid):
     return cache[(r.body, r.axis)]
 
 
-def _finish(r: _Request, modulus, span: float, ratio: float, planes: list, point):
+def _finish(r: _Request, modulus, span: float, ratio: float, planes: list, point, blank=None):
     upper = math.sqrt(sum(p.weak.mm ** 2 for p in planes))      # the weakest section the whole way: no more than this
     lower = math.sqrt(sum(p.stiff.mm ** 2 for p in planes))     # the stiffest the whole way: no less than this
     limit, spread, where = r.max_um / 1000.0, upper - lower > 1e-9 * upper, planes[0].weak.where
@@ -218,10 +236,10 @@ def _finish(r: _Request, modulus, span: float, ratio: float, planes: list, point
         state = "UNCHECKED"
         shown = (f"between {_um(lower)} and {_um(upper)} um at {where}: the section varies along the body, and the "
                  "limit falls between what its stiffest and its weakest section give")
-    return _row(r.body, "deflection", state, f"{shown}; {_basis(r, modulus, span, ratio, planes, point)}", r.limit)
+    return _row(r.body, "deflection", state, f"{shown}; {_basis(r, modulus, span, ratio, planes, point, blank)}", r.limit)
 
 
-def _basis(r: _Request, modulus, span: float, ratio: float, planes: list, point) -> str:
+def _basis(r: _Request, modulus, span: float, ratio: float, planes: list, point, blank=None) -> str:
     """What the number rests on: the span, the load, the second moment, E and where it came from."""
     several = len(planes) > 1
     loads = [point[1] + (f" along {'xyz'[r.direction]}" if several else "")] if point is not None else []
@@ -233,9 +251,12 @@ def _basis(r: _Request, modulus, span: float, ratio: float, planes: list, point)
         for used, case in ((p.point_n, p.weak.cases[0]), (p.udl_n, p.weak.cases[1])):
             if used > 0 and case not in cases:
                 cases.append(case)
-    return (f"{r.support} span {span:g} mm, load {' + '.join(loads)}; I {', '.join(inertia)}; "
+    text = (f"{r.support} span {span:g} mm, load {' + '.join(loads)}; I {', '.join(inertia)}; "
             f"E {modulus.value:g} MPa ({modulus.source}); span/depth {ratio:.1f}; "
             f"Roark Table 8.1 case{'s' if len(cases) > 1 else ''} {', '.join(cases)}")
+    if blank is not None:                                  # only reached with `solid = true`
+        text += f"; a solid bar because the entry says `solid = true`, though a box of a {blank.kind}'s outer size"
+    return text
 
 
 def _um(mm: float) -> str:
@@ -249,6 +270,24 @@ def _envelope(info) -> str:
             "bought": "a bought part that is not declared `geometry = \"exact\"`"}.get(info.kind, "not exact geometry")
     return (f"{info.name} is {what}: an envelope has no cross-section to take a second moment of area from "
             "(use a part module, or a bought part whose sidecar says geometry = \"exact\")")
+
+
+def _blank(solid, prof):
+    """The extrusion this body is a solid box of, or None (parts.blank_of), from its sections and its volume.
+    parts and geom import the kernel, so they are imported here, where a body has been cut, and not where the
+    spec kinds are."""
+    from ..geom import volume
+    from ..parts import blank_of
+    return blank_of(prof.footprint, prof.length, volume(solid))
+
+
+def _stand_in(name: str, blank) -> str:
+    w, h = blank.footprint_mm
+    return (f"{name} is a solid box of a {blank.kind}'s outer size ({w:g} x {h:g} mm, {blank.fill:.0%} of its box "
+            f"filled): that is what extrusion_blank makes, drilled or cut or not, and a real {blank.kind} has about "
+            "half the stiffness of the solid, so a section read from this box could pass what the rail would fail. "
+            "Judge the real profile (a bought part declared `geometry = \"exact\"`, the library's once it has one), "
+            "or, if the part really is a solid bar, say `solid = true`")
 
 
 def _modulus(info):

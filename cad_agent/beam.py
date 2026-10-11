@@ -204,6 +204,19 @@ class Profile:
         u, v = self.across
         return max(s.extent[0 if load_axis == u else 1] for s in self.sections)
 
+    @property
+    def footprint(self) -> tuple:
+        """The two sides, smaller first in mm, of the rectangle that has the usual section's area and second
+        moments: for a solid rectangle its own sides, turned about the beam or not, since the principal values of
+        the section's second moments do not care how it sits. The median over the sections, so a hole or a notch
+        at a few of them does not move it."""
+        sides = []
+        for s in self.sections:
+            mean, spread = (s.iu + s.iv) / 2.0, math.hypot((s.iu - s.iv) / 2.0, s.iuv)
+            sides.append(sorted(math.sqrt(12.0 * (mean + sign * spread) / s.area) for sign in (-1, 1)))
+        mid = len(sides) // 2
+        return tuple(sorted(side[i] for side in sides)[mid] for i in (0, 1))
+
 
 def profile(solid, axis: int | None = None) -> Profile:
     """The sections of `solid` along its axis (the longest way, or `axis` when it is given, as 0, 1 or 2).

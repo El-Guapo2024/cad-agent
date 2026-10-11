@@ -28,11 +28,12 @@ import numpy as np
 import pytest
 from build123d import Box, Compound, Cylinder, Face, Location, Pos, Rot, Solid, Vector, Wire, export_step
 
-from cad_agent import beam, materials, registry
+from cad_agent import beam, geom, materials, registry
 from cad_agent import spec as sp
 from cad_agent import state as st
 from cad_agent.bodies import Assembly, BodyInfo
 from cad_agent.motion import Axis
+from cad_agent.parts import blank_of, extrusion_blank
 from cad_agent.registry import SpecCtx
 from cad_agent.speckinds.deflection import deflection as kind
 from cad_agent.speckinds.kit import Unusable
@@ -246,6 +247,18 @@ def test_a_section_turned_about_the_beam_has_its_product_of_inertia_taken_out():
     assert prof.second_moment(2)[0] < tzz                                    # the sideways give costs stiffness
     quarter = beam.profile(Rot(90, 0, 0) * Box(L, B, H))
     assert quarter.second_moment(2)[0] == approx(I_Y) and quarter.second_moment(1)[0] == approx(I_Z)
+
+
+def test_the_footprint_is_the_rectangle_with_the_sections_area_and_moments_however_it_is_turned():
+    plain = beam.profile(Box(L, 20, 40)).footprint
+    assert plain == (pytest.approx(20, abs=1e-9), pytest.approx(40, abs=1e-9))
+    for turn in (30, 45, 90):
+        turned = beam.profile(Rot(turn, 0, 0) * Box(L, 20, 40)).footprint
+        assert turned == (pytest.approx(20, abs=1e-9), pytest.approx(40, abs=1e-9)), turn
+    holed = beam.profile(Box(L, 40, 20) - Pos(-100.7, 0, 0) * Cylinder(2.75, 30)).footprint
+    assert holed == (pytest.approx(20, abs=1e-9), pytest.approx(40, abs=1e-9))     # the median, not the section at a hole
+    w, h = beam.profile(t_slot_2040()).footprint
+    assert (w, h) != (pytest.approx(20, abs=0.1), pytest.approx(40, abs=0.1)) and w > 20 and h > 40
 
 
 def uniform_stations(prof):
@@ -604,6 +617,76 @@ def test_fixed_ends_need_twice_the_slenderness_since_their_shear_is_four_times_a
     assert beam.SLENDER == {"simple": 10.0, "cantilever": 10.0, "fixed": 20.0}
 
 
+# ─── A solid box that stands for an extrusion ────────────────────────────────
+
+def bracket_blank(kind="2040", length=400.0):
+    """A blank as a part module makes a bracket of it: cross holes, a tapped end and a notch cut in it."""
+    rail = extrusion_blank(kind, length, axis="x")                        # 400 long in x, 40 in y, 20 in z (2040)
+    for x in (-150, -50, 50, 150):
+        rail -= Pos(x, 0, 0) * Cylinder(2.75, 50)                         # M5 clearance holes right through
+    rail -= Pos(-length / 2 + 5, 0, 0) * Rot(0, 90, 0) * Cylinder(2.1, 10)    # a tapped end
+    return rail - Pos(100, 0, 8) * Box(20, 60, 4)                         # and a notch
+
+
+def blank(body):
+    """What parts.blank_of says of a body, from its sections and its volume as the rule reads them."""
+    prof = beam.profile(body)
+    return blank_of(prof.footprint, prof.length, geom.volume(body))
+
+
+@pytest.mark.parametrize("kind", ["2020", "2040", "4040"])
+@pytest.mark.parametrize("axis", ["x", "y", "z"])
+def test_a_box_of_an_extrusions_size_is_unchecked_whoever_made_it_and_which_way_it_runs(kind, axis):
+    row = unchecked({}, rf"solid box of a {kind}'s outer size \(.* filled\): that is what extrusion_blank makes",
+                    solid=extrusion_blank(kind, 400.0, axis=axis))
+    assert 'geometry = "exact"' in row.measured and "solid = true" in row.measured
+    unchecked({}, "solid box of a", solid=extrusion_blank(kind, 400.0, axis=axis), kind_="bought", geometry="exact")
+
+
+def test_a_blank_that_has_been_drilled_cut_moved_and_turned_is_still_one():
+    body = bracket_blank()                                                # every boolean has dropped any tag
+    found = blank(body)
+    assert found.kind == "2040" and 0.97 < found.fill < 1.0
+    assert found.footprint_mm == (pytest.approx(20, abs=1e-3), pytest.approx(40, abs=1e-3))
+    for placed in (body, Pos(10, 20, 30) * body, Rot(0, 0, 90) * Pos(10, 20, 30) * body,
+                   Rot(30, 0, 0) * body,                                  # turned about its own length
+                   Rot(0, 0, 1.5) * body):                                # and a degree and a half off its axis
+        unchecked({}, r"solid box of a 2040's outer size \(20 x 40(\.\d+)? mm, 9\d% of its box filled\)", solid=placed)
+
+
+def test_what_is_not_a_blank_is_judged_as_the_body_it_is():
+    real = t_slot_2040()                                                  # a real profile fills 39 % of its box
+    pocketed = extrusion_blank("2040", L, axis="x") - Pos(0, 0, 4) * Box(300, 30, 12)     # 34 % milled out
+    for body in (real, pocketed, Box(L, 25, 30), Box(L, 20, 41)):         # and a solid bar of another size
+        assert blank(body) is None
+    row = one({"load_n": 5.0}, solid=real)
+    assert row.state == "PASS" and "a solid bar" not in row.measured
+    assert one({"load_n": 5.0}, solid=pocketed).state == "PASS"
+    assert um(row) > expected_um(point=5.0, i=20 * 40 ** 3 / 12) * 2           # a real 2040 is 2 times too soft for its box
+
+
+def test_a_stub_a_cube_and_a_size_that_is_nearly_one_are_not_blanks():
+    assert blank_of((20, 40), 60.0, 20 * 40 * 60) is None                 # under twice as long as wide
+    assert blank_of((40, 40), 40.0, 40 ** 3) is None
+    assert blank_of((20.05, 40), L, 20.05 * 40 * L) is not None and blank_of((20.3, 40), L, 20.3 * 40 * L) is None
+    assert blank_of((40, 20), L, 20 * 40 * L).kind == "2040"              # either way round
+    assert blank_of((20, 40), L, 0.89 * 20 * 40 * L) is None and blank_of((20, 40), L, 0.91 * 20 * 40 * L)
+    stub = unchecked({}, r"span/depth is 3\.0", solid=extrusion_blank("2040", 60.0, axis="x"))
+    assert "extrusion_blank" not in stub.measured
+
+
+def test_a_solid_bar_of_such_a_size_that_really_is_one_says_so():
+    bar = Box(L, 20, 40)                                                  # a 20 x 40 flat bar, not an extrusion
+    unchecked({}, "say `solid = true`", solid=bar)
+    row = one({"load_n": 50.0, "solid": True}, solid=bar)
+    assert row.state == "PASS" and um(row) == pytest.approx(expected_um(point=50.0, i=20 * 40 ** 3 / 12), abs=5e-4)
+    assert row.measured.endswith("a solid bar because the entry says `solid = true`, though a box of a 2040's outer size")
+    other = one({"solid": True})                                          # nothing to take on its word: no note
+    assert "solid = true" not in other.measured
+    bad({"solid": "yes"}, "`solid` must be true or false")
+    bad({"solid": 1}, "`solid` must be true or false")
+
+
 STEPPED = Box(L, 30, 8) + Box(240, 30, 12)                             # 80 mm of 8 thick at each end, 240 of 12 between
 I_THIN, I_THICK = 30 * 8 ** 3 / 12, 30 * 12 ** 3 / 12
 
@@ -675,7 +758,7 @@ def test_a_malformed_entry_is_not_a_guess():
 
 def test_a_key_that_is_misspelt_is_refused_so_that_a_weight_is_never_quietly_dropped():
     bad({"selfweight": True}, r"no key `selfweight` \(keys: body, support, span_mm, load_n, load_g, load_moving, at, "
-                              r"self_weight, max_um, direction, axis\)")
+                              r"self_weight, max_um, direction, axis, solid\)")
     bad({"load_kg": 2}, "no key `load_kg`")
 
 
