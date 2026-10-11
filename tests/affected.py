@@ -26,6 +26,19 @@ COVERS = {
     "plugin/": ["test_hooks.py"],
     "bin/": ["test_cli.py", "test_warm.py"],
     "cad_agent/workbench/": ["test_workbench.py"],
+    # Step 6. A rule, a spec kind or a command is a file of its own in a folder the tests reach through
+    # the registry, and its name (heat.py, com.py) is not a word the tests that cover it say.
+    "cad_agent/cmdbase.py": ["test_cmdbase.py", "test_cli.py"],
+    "cad_agent/speckinds/": ["test_registries.py", "test_spec.py"],
+    "cad_agent/ruleset/": ["test_registries.py", "test_registry_visual.py", "test_verify.py"],
+    "cad_agent/materials.py": ["test_materials.py", "test_engine.py"],
+    "cad_agent/bodies.py": ["test_bodies.py", "test_bought_contract.py", "test_workbench.py"],
+    "cad_agent/bought.py": ["test_bought.py", "test_bought_contract.py", "test_bodies.py"],
+    "cad_agent/library/": ["test_library.py", "test_bought_contract.py"],       # the catalog is data, not a module
+    "cad_agent/subassembly.py": ["test_subassembly.py", "test_bodies.py"],
+    "cad_agent/shop.py": ["test_shop.py", "test_export.py"],
+    "cad_agent/bom.py": ["test_bom.py", "test_shop.py"],
+    "cad_agent/drawing": ["test_drawing.py"],
 }
 EVERYTHING = ("tests/conftest.py", "pyproject.toml")    # these reach every test
 

@@ -11,13 +11,15 @@ def _isolated_env(tmp_path_factory):
 
     A plugin session exports CAD_PROJECTS, so a test that runs `cad` without --projects would log
     into, or change, someone's real designs; macros, the workbench registry and warm workers would
-    land in ~/.cad-agent and ~/.cache/cad-agent. Session scope, so module fixtures see it too.
+    land in ~/.cad-agent and ~/.cache/cad-agent, and so would the library of vendor STEP files. Session
+    scope, so module fixtures see it too.
     """
     with pytest.MonkeyPatch.context() as mp:
         for name in ("CAD_PROJECTS", "CAD_SERVE_URL", "CAD_EVALS"):
             mp.delenv(name, raising=False)
         mp.setenv("CAD_MACRO_DIR", str(tmp_path_factory.mktemp("macros")))
         mp.setenv("CAD_RUNTIME_DIR", str(tmp_path_factory.mktemp("runtime")))
+        mp.setenv("CAD_LIBRARY", str(tmp_path_factory.mktemp("library")))      # the vendor STEP store, not ~/.cad-agent
         # Warm workers keep their sockets here, and macOS caps a socket path at 104 bytes.
         mp.setenv("CAD_WARM_DIR", tempfile.mkdtemp(prefix="cadw", dir="/tmp"))
         yield

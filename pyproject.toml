@@ -13,6 +13,10 @@ dependencies = [
     "trimesh>=4.0",     # ray-cast wall thickness over the tessellated solid
     "rtree>=1.0",       # the spatial index trimesh's ray queries need
     "ocp-tessellate>=3.5",  # the workbench's scene, in three-cad-viewer's format
+    "ezdxf>=1.4",       # DXF in and out: laser parts, drawings (MIT)
+    # 3MF for printed parts (BSD-2-Clause). It has wheels for macOS, Linux x86_64 and Windows x86_64
+    # and none for Linux aarch64, where pip would otherwise stop at it: cad_agent imports it lazily.
+    'lib3mf>=2.4; sys_platform != "linux" or platform_machine != "aarch64"',
 ]
 
 [project.optional-dependencies]
@@ -23,6 +27,10 @@ metal = ["pyobjc-framework-Metal>=10.0"]
 # finds the same hits, so the numbers do not move. It has wheels for macOS 13 and up, Linux x86_64
 # and Windows x86_64; elsewhere the Python caster does the same job slower.
 embree = ['embreex>=4.4; platform_machine != "aarch64" and platform_machine != "ARM64"']
+# Dimensioned drawings as PDF and SVG (`cad drawing`); the DXF master needs only ezdxf.
+drawings = ["matplotlib>=3.8"]
+# ISO fasteners for the part library (`cad lib`), Apache-2.0.
+fasteners = ["bd_warehouse>=0.3"]
 dev = ["pytest"]
 
 [project.scripts]
@@ -32,4 +40,5 @@ cad = "cad_agent.warm:main"            # the CLI agents drive, via the warm work
 include = ["cad_agent*"]
 
 [tool.setuptools.package-data]
-cad_agent = ["workbench/*", "workbench/vendor/*", "workbench/next/*", "workbench/next/assets/*", "workbench/next/freecad-icons/*"]
+cad_agent = ["workbench/*", "workbench/vendor/*", "workbench/next/*", "workbench/next/assets/*", "workbench/next/freecad-icons/*",
+             "library/*.toml"]       # the part library's catalog (step 6, piece A); its generators are Python packages

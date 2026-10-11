@@ -237,9 +237,15 @@ cad_agent/
   runner.py     check_all writes checks.json; done_check is the gate
   buildcache.py a built part kept in <project>/.cad/cache for the edit loop (check, scene, measure,
                 place); `cad verify` never reads it
-  bought.py     vendor STEP or measured-with-a-source geometry, provenance enforced
-  registry.py   the check registry: Row, scopes, and the @register decorator
-  rules.py      every check, registered. The list of what a run verifies
+  bought.py     vendor STEP or measured-with-a-source geometry, provenance enforced; the contract a bought
+                part may declare (mass, material, max temperature, geometry, datum, sha256)
+  bodies.py     what each body of an assembly is (BodyInfo) and the Assembly state.load_machine returns
+  materials.py  density, stiffness, strength and service temperature, each with its source (FreeCAD cards or datasheets)
+  cmdbase.py    the command contract: exit codes, Result, the argument helpers, and the commands built later
+  registry.py   the registries: Row, scopes, @register for checks and @spec_kind for spec.toml sections
+  rules.py      the checks written before step 6, registered. The list of what a run verifies
+  ruleset/      one module per rule from step 6 on; rules.py imports them all
+  speckinds/    one module per section of spec.toml; the seven original kinds, and kit.py for new ones
   checks/visual.py  render drift against approved baselines, with diff images
   cutlist.py    stock derived from each part's CUTLIST, roughly priced
   export.py     STEP for a shop (the same bytes on every run), STL for a printer
@@ -320,14 +326,23 @@ Either may set `VERIFIED = False` for numbers taken from a listing that never
 published them. That is reported everywhere the part appears and fails
 `done_check`, so an unconfirmed dimension cannot quietly become load-bearing.
 
+A bought part may also declare what the rules for mass, heat and stiffness read:
+`mass_g` and where it came from, `material`, `max_temp_c` and its datasheet, `geometry`
+(`exact` or `envelope`, the default: only an exact part may give stiffness), a `datum`
+that puts the vendor's origin where the part's own frame is, and the `sha256` of the
+file, which the provenance rule checks. `cad_agent/bought.py` documents the keys. Nothing
+is defaulted to look measured: a mass with no source is not used.
+
 A STEP carries its donor assembly's coordinates, so an assembly must
 re-origin bought geometry rather than assume it is centred. The SK-Cube
 bracket in the first project lands at (-270.8, -541.0, 171.5).
 
 ## Adding a check is one function
 
-Checks live in `rules.py` and register themselves. The runner discovers them,
-the gate consumes them, and the report prints them, with no other edit:
+Checks register themselves. The runner discovers them, the gate consumes them,
+and the report prints them, with no other edit. The ones written first are in
+`rules.py`; a new one is a file in `cad_agent/ruleset/`, which `rules.py` imports
+whole:
 
 ```python
 @register(scope="part", name="web")
@@ -348,6 +363,13 @@ different: the rule does not apply to this subject. Every row names its limit
 and where that limit came from, so a reader can disagree with the threshold
 rather than with the number. A check that raises becomes one `UNCHECKED` row
 instead of killing the run, because one broken rule must not hide the rest.
+
+A section of `spec.toml` is added the same way: a function registered with
+`@spec_kind("heat")` in its own module of `cad_agent/speckinds/` judges one entry
+and yields rows (`speckinds/kit.py` has the helpers), and `spec.py` runs whatever is
+registered. A section nobody registered is UNCHECKED. A command another piece of the
+work builds is a row in `cmdbase.LAZY`: it is listed and parsed now, and answers exit 3
+"not built yet" until its module exists.
 
 Shipped checks:
 

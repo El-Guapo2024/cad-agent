@@ -84,7 +84,7 @@ CONTRACT_KEYS = ("source", "vendor", "verified", "mass_g", "mass_source", "mater
 def library_dir() -> Path:
     """The user's store of vendor STEP files: $CAD_LIBRARY, else ~/.cad-agent/library. It is read
     where it is and never made here; the library (step 6, piece A) fills it."""
-    raw = os.environ.get(LIBRARY_ENV)
+    raw = os.environ.get("CAD_LIBRARY")          # spelt out so test_warm sees it and holds warm.ENV_PASS to it
     return Path(raw).expanduser() if raw else Path.home() / ".cad-agent" / "library"
 
 
