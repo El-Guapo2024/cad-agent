@@ -133,6 +133,12 @@ def test_load_machine_returns_the_assembly_with_everything_assembly_py_declares(
     assert set(m.bodies) == set(m.parts) and all(isinstance(b, BodyInfo) for b in m.bodies.values())
 
 
+def test_load_machine_can_be_asked_of_either_module(mach):
+    a, b = st.load_machine(SLUG), bodies.load_machine(SLUG)
+    assert isinstance(b, Assembly) and sorted(a.parts) == sorted(b.parts) and a.bodies == b.bodies
+    assert bodies.load_machine(SLUG, describe=False).bodies == {}
+
+
 def test_a_project_with_no_assembly_has_no_machine(mach):
     (mach / "assembly.py").unlink()
     assert st.load_machine(SLUG) is None

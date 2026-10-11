@@ -115,6 +115,11 @@ class Assembly:
         return self.parts, self.clearance, self.allow_contact, self.axes
 
 
+def load_machine(slug: str, placed: bool = True, describe: bool = True) -> Assembly | None:
+    """`state.load_machine`, for a caller that already imports this module."""
+    return st.load_machine(slug, placed, describe)
+
+
 def part_for(body: str, parts: list[str]) -> str | None:
     """The part module a body comes from: the same name, or the name without
     a position or index suffix (end_plate_left -> end_plate), or the one part
