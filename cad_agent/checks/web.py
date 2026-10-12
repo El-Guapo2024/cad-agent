@@ -59,7 +59,11 @@ def section_wires(solid, z: float | None = None, axis: int | None = None):
     if z is None:
         lo, hi = bbox(solid)
         z = (lo[axis] + hi[axis]) / 2.0
-    sketch = section(solid, _PLANE[axis].offset(z))
+    plane = _PLANE[axis]
+    # offset() moves along the plane's own normal, and Plane.XZ faces -y: give it the signed distance, or a part
+    # thin in y and away from y = 0 is cut on the wrong side and the slice comes back empty
+    normal = (plane.z_dir.X, plane.z_dir.Y, plane.z_dir.Z)[axis]
+    sketch = section(solid, plane.offset(z * normal))
     faces = sketch.faces()
     outers, inners = [], []
     for f in faces:

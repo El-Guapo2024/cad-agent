@@ -215,6 +215,16 @@ def test_section_wires_separates_edge_from_cutouts():
     assert len(outers) == 1 and len(inners) == 2 and faces == 1
 
 
+@pytest.mark.parametrize("turn, at", [((0, 0, 0), (0, 0, 30)), ((90, 0, 0), (0, 30, 0)), ((90, 0, 0), (0, -30, 0)),
+                                      ((0, 90, 0), (30, 0, 0))])
+def test_section_wires_cuts_a_plate_thin_on_any_axis_wherever_it_sits(turn, at):
+    """The slice is at the plate's own middle, whichever way it is thin and however far from the origin."""
+    plate = Pos(*at) * Rot(*turn) * (Box(50, 50, 3) - Pos(10, 0, 0) * Cylinder(3, 5) - Pos(-10, 0, 0) * Cylinder(3, 5))
+    outers, inners, faces = section_wires(plate)
+    assert len(outers) == 1 and len(inners) == 2 and faces == 1
+    assert web_report(plate)["state"] == "MEASURED"
+
+
 # ─── holes and slots, as the process cuts them ───────────────────────────────
 
 def stadium(length, width, t, turn=0.0):
