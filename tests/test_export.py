@@ -439,3 +439,12 @@ def test_a_curved_solid_is_meshed_within_half_a_percent_of_its_volume_on_the_wor
     assert got.open_edges == got.repeated_edges == 0
     assert abs(got.volume_mm3 - ball.volume) / ball.volume < threemf.VOLUME_LIMIT
     assert threemf.mesh_of(ball).vertices.tolist() == mesh.vertices.tolist()                 # and the mesh repeats
+
+
+def test_a_part_that_is_not_a_prism_still_exports_its_mid_plane_section_and_a_prism_its_end_face(monkeypatch):
+    def comment(solid):
+        return dxf.dxf_of(solid, "p").decode().split("\n", 2)[1]
+    assert "end face normal to z at z = 2.000000 mm" in comment(Box(40, 20, 4))
+    assert "section normal to z at z = 0.000000 mm" in comment(Box(40, 20, 4) - Pos(0, 0, 1) * Box(10, 6, 2))      # a blind pocket
+    monkeypatch.setattr(dxf, "faces_report", lambda *a, **k: (_ for _ in ()).throw(RuntimeError("no faces")))
+    assert "section normal to z at z = 0.000000 mm" in comment(Box(40, 20, 4))                                    # and a part it cannot sort

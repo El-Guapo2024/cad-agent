@@ -12,8 +12,9 @@ with an absolute linear deflection of LINEAR_MM and an angular one of ANGULAR_RA
 what holds the mesh's volume within 0.5 % of the solid's: a sphere is the worst shape, and at 0.1 rad it is
 about 0.2 % short. The nodes are put on a grid of GRID_MM (0.1 micrometre) as integers, coincident nodes are
 merged, and the vertices are sorted; each triangle starts at its smallest vertex and the triangles are
-sorted. OCCT 7.9 and 8.0 mesh a face the same way, but they do not visit the faces, or start a triangle, in
-the same order, so the bytes follow from the sorted integer mesh and not from the order the kernel gave.
+sorted. OCCT 7.9 and 8.0 cut a face into the same triangles (compared on a plate, a filleted block, a bracket,
+a sphere with a cone and a torus), but nothing promises the order they hand them over in, so the bytes follow from
+the sorted integer mesh and not from that order.
 Integers also keep the arithmetic exact: a normal is a cross product of integers, and a coordinate is
 written from its integer, never from a float's repr.
 
@@ -23,7 +24,7 @@ written from its integer, never from a float's repr.
 compression and with a fixed time stamp, so that the same mesh gives the same bytes (a deflated stream
 changes with the zlib that made it). It is written here and not by lib3mf for three reasons: lib3mf has no
 wheel for Linux on aarch64, where pyproject leaves it out; its writer's choices (the compressor, the
-metadata, the identifiers) are the library's and move with its version, and the bytes are pinned; and the
+metadata, the identifiers) are the library's, so pinned bytes would follow its version and not ours; and the
 file is small enough to write by hand. lib3mf is the reader instead (`read_3mf`), which is what makes the
 read-back a check: the code that reads the file is not the code that wrote it, and it is the 3MF
 Consortium's own. Where lib3mf is missing, a reader of this module's own reads the file (zipfile and

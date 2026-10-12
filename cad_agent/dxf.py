@@ -67,7 +67,9 @@ this module made, so an error in the conversion cannot hide itself.
 
 The part rules
 --------------
-`laser_rows` gives the rows of a laser-cut part, which `cad shop`, the `shop` part rule and `[shop]` run:
+`laser_rows` gives the rows of a laser-cut part. `cad shop` runs it on what it is about to write, and the `shop`
+part rule (ruleset/shop.py) runs it in `cad check` and `cad verify` for a project whose spec.toml has a `[shop]`
+table:
 
   laser through-cut   the part is a prism of its outline, the one thing a laser can make. Every face is either
                       a plane across the thickness at one end of the part, or a surface that runs along the
