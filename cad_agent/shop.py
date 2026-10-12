@@ -108,6 +108,18 @@ def sha256(data: bytes) -> str:
     return hashlib.sha256(data).hexdigest()
 
 
+def shop_spec(slug: str) -> dict | None:
+    """The `[shop]` table of the project's spec.toml, or None: no spec, one that does not parse (the `spec` rule
+    says so), or one without the table, which means the project has not opted in to the shop's rules."""
+    import tomllib
+    try:
+        spec = tomllib.loads((st.project_dir(slug) / "spec.toml").read_text())
+    except (OSError, ValueError):
+        return None
+    table = spec.get("shop")
+    return table if isinstance(table, dict) else None
+
+
 # ─── Making the files ────────────────────────────────────────────────────────
 
 def prepare(slug: str, stamp: str | None) -> Plan:

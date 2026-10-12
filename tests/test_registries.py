@@ -42,7 +42,7 @@ def test_their_rows_come_in_the_order_they_always_did():
     # envelope, then every [[size]], [[position]], [[clearance]], [[keepout]], [[interface]], and [[mass]] last
     order = [k.name for k in reg.spec_kinds() if k.name in LEGACY]
     assert order == ["envelope", "size", "position", "clearance", "keepout", "interface", "mass"]
-    assert [k.name for k in reg.spec_kinds() if k.table] == ["envelope"]
+    assert [k.name for k in reg.spec_kinds() if k.table and k.name in LEGACY] == ["envelope"]      # [shop] (piece D) is a table too
 
 
 def test_a_spec_with_every_section_reports_them_in_that_order(rig):

@@ -253,6 +253,10 @@ def cut_at(solid, axis: int | None = None, fraction: float = 0.5) -> Cut:
     return Cut(frame, loops, sum(f.area for f in faces), length, thickness, "section")
 
 
+PLURAL = {"flat wall": "flat walls", "end plane": "end planes", "cylinder along it": "cylinders along it",
+          "extrusion along it": "extrusions along it"}
+
+
 class Faces(NamedTuple):
     counts: Counter             # what kind of face the part has (a noun, singular), for the PASS row
     bad: list                   # a sentence for each face that is not part of a prism
@@ -909,7 +913,7 @@ def through_cut(solid, mid: Cut) -> Prism:
         more = f"; and {len(said) - 3} other kinds" if len(said) > 3 else ""
         return Prism("FAIL", f"not a through-cut: the part has {shown}{more}. A laser cuts the outline through the "
                              f"whole thickness, nothing else", faces)
-    made = ", ".join(f"{n} {k}{'' if n == 1 else 's'}" for k, n in sorted(faces.counts.items())) or "no faces it could read"
+    made = ", ".join(f"{n} {k if n == 1 else PLURAL[k]}" for k, n in sorted(faces.counts.items())) or "no faces it could read"
     if not faces.unknown:       # every face is a kind that is exact, so the sections would only repeat what the faces say
         return Prism("PASS", f"a prism along {name}: its faces are {made}", faces)
     areas = [mid.area if f == 0.5 else sum(face.area for face in faces_at(solid, axis, f)[1]) for f in LEVELS]
