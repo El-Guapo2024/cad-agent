@@ -269,6 +269,11 @@ def build(slug: str, machine=None, only_parts: bool = False, detail: bool = True
     return _bom(slug, True, dict(machine.parts), infos, only_parts, detail)
 
 
+def from_parts(slug: str, parts: dict, infos: dict, only_parts: bool = False, detail: bool = True) -> Bom:
+    """The BOM of bodies a caller already has (the positioned solids of a run, and their BodyInfo)."""
+    return _bom(slug, True, dict(parts), dict(infos), only_parts, detail)
+
+
 def _bom(slug: str, assembly: bool, solids: dict, infos: dict, only_parts: bool, detail: bool) -> Bom:
     shapes = {n: shape_of(s) for n, s in solids.items()}
     order = {n: k for k, n in enumerate(solids)}
