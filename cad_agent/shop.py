@@ -295,9 +295,9 @@ def differences(folder: Path, plan: Plan, previous: dict) -> list:
                 out.append({"path": path, "why": "edited", "detail": "its bytes are not the ones the manifest recorded"})
             elif on_disk != want:
                 out.append({"path": path, "why": "stale", "detail": "the design now makes other bytes"})
-    for path in sorted(set(recorded) - set(plan.files)):
+    for path in sorted(set(recorded) - set(plan.files) - set(plan.missing)):
         out.append({"path": path, "why": "gone", "detail": "the manifest lists it and the design no longer makes it"})
-    listed = set(recorded) | {MANIFEST}
+    listed = set(recorded) | set(plan.files) | {MANIFEST}
     for found in sorted(p.relative_to(folder).as_posix() for p in folder.rglob("*") if p.is_file()):
         if found not in listed and not found.endswith(".tmp"):
             out.append({"path": found, "why": "extra", "detail": "in out/shop/ and in no manifest"})
@@ -342,8 +342,9 @@ def cmd_shop(a) -> Result:
     folder = pdir / "out" / OUT
     head = f"{a.slug}  cad shop" + (" --draft" if draft else " --check" if check else "")
     if not status["done"] and not draft:
-        lines = [f"{head}: NOT DONE, so nothing is written"] + [f"  {r}" for r in status["reasons"]]
-        lines.append(f"  run `cad verify` on committed work, or `cad shop {a.slug} --draft` to look at it stamped {STAMP}")
+        lines = [f"{head}: NOT DONE, so " + ("there is nothing to certify" if check else "nothing is written")]
+        lines += [f"  {r}" for r in status["reasons"]]
+        lines.append(f"  run `cad verify` on committed work" + ("" if check else f", or `cad shop {a.slug} --draft` to look at it stamped {STAMP}"))
         return Result(UNCHECKED, {"project": a.slug, "done": False, "reasons": status["reasons"], "wrote": []},
                       "\n".join(lines), "not done: " + (status["reasons"][0] if status["reasons"] else ""))
     previous = None

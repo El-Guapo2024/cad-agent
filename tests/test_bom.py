@@ -7,12 +7,11 @@ changes it writes the change into a scratch copy of the project, the way a desig
 import csv
 import io
 import json
-import shutil
 import textwrap
 from pathlib import Path
 
 import pytest
-from build123d import Box, Cylinder, Pos, Rot, export_step
+from build123d import Box, Pos
 
 from cad_agent import bom as bomlib
 from cad_agent import cli
