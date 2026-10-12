@@ -17,6 +17,9 @@ An entry that names something missing or lacks a field raises Unusable, and chec
 one UNCHECKED row naming the entry (`[[heat]] #2`) and carrying the message, so a typo fails the gate
 and hides no other result. Any other exception does the same with its type in front. A row says
 where its limit came from; `source` defaults to the spec entry and check_spec fills in which one.
+
+A kind that can be judged with the machine at a named pose (`pose = "park"`) takes its solids from
+`posed(ctx, entry, "[[x]]")` instead of `ctx.parts`, and puts the words it returns after its measurement.
 """
 from __future__ import annotations
 
@@ -45,6 +48,32 @@ def get_body(parts: dict, name: str):
     if name not in parts:
         raise Unusable(f"no body {name!r} in the assembly (bodies: {', '.join(sorted(parts))})")
     return parts[name]
+
+
+def posed(ctx, entry: dict, where: str) -> tuple[dict, str]:
+    """(the solids the entry is judged on, the words that say where) for an entry that may name a `pose`.
+
+    Without `pose` that is home, `ctx.parts` as they are, and no words, so a row reads as it always did. With one it
+    is the machine driven to that pose of POSES (subassembly.apply_pose); a pose that does not exist, an axis it
+    drives that is not declared, a position outside travel or no assembly to pose is an Unusable entry. The posed
+    solids are kept on the context, so the entries of a spec that share a pose pose the machine once.
+    """
+    if "pose" not in entry:
+        return ctx.parts, ""
+    name = entry["pose"]
+    if not isinstance(name, str) or not name:
+        raise Unusable(f"{where} `pose` must name a pose of POSES, got {name!r}")
+    if getattr(ctx, "machine", None) is None:
+        raise Unusable(f"{where} names the pose {name!r}, which is read from POSES and AXES in assembly.py, "
+                       "and no assembly was loaded")
+    kept = ctx.__dict__.setdefault("_posed", {})
+    if name not in kept:
+        from ..subassembly import PoseError, apply_pose
+        try:
+            kept[name] = apply_pose(ctx.machine, name, ctx.parts)
+        except PoseError as e:
+            raise Unusable(f"{where}: {e}") from None
+    return kept[name], f" at pose {name}"
 
 
 def vec3(value, what: str) -> list[float]:

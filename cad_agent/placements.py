@@ -14,17 +14,24 @@ the moved parts, because `state.load_assembly` applies this file. It is a
 design input: `cad verify` hashes it, and git shows exactly what moved. Once
 a move settles, fold it into assembly.py and delete the entry.
 
+A body of a sub-assembly (subassembly.py) is moved by its full name, which the file writes as a quoted key:
+`["gantry/x_carriage"]`. The move belongs to this project's file and not to the child's, and is applied after
+the child is flattened in.
+
 It fails closed: an unparseable file, an unknown key, or a vector that is not
 three numbers raises, so a typo cannot quietly leave a part where it was.
 """
 from __future__ import annotations
 
+import json
 import math
+import re
 import tomllib
 from pathlib import Path
 
 FILE = "placements.toml"
 KEYS = ("move", "turn", "about")
+_BARE = re.compile(r"[A-Za-z0-9_-]+")        # what TOML allows in a key without quotes
 HEADER = """\
 # Parts moved by hand in the workbench (cad serve) or with `cad place`.
 # Each entry is a rigid move on top of assembly.py, in world mm and degrees:
@@ -111,6 +118,12 @@ def _fmt(v) -> str:
     return "[" + ", ".join(repr(round(float(x), 6) + 0.0) for x in v) + "]"
 
 
+def _table(name: str) -> str:
+    """A body's name as a TOML table header. A name that is not a bare key is quoted: a sub-assembly's body
+    (`gantry/x_carriage`) has a "/", and left bare the file would not parse and the whole project would fail."""
+    return name if _BARE.fullmatch(name) else json.dumps(name)
+
+
 def save(pdir: Path, placed: dict) -> Path:
     """Write every placement, sorted, in a stable format so diffs stay small.
     An empty mapping removes the file."""
@@ -121,7 +134,7 @@ def save(pdir: Path, placed: dict) -> Path:
     lines = [HEADER]
     for name in sorted(placed):
         p = placed[name]
-        lines += [f"[{name}]", f"move = {_fmt(p['move'])}", f"turn = {_fmt(p['turn'])}",
+        lines += [f"[{_table(name)}]", f"move = {_fmt(p['move'])}", f"turn = {_fmt(p['turn'])}",
                   f"about = {_fmt(p['about'])}", ""]
     path.write_text("\n".join(lines))
     return path

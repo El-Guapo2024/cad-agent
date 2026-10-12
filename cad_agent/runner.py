@@ -92,9 +92,7 @@ def _check_all(slug: str, render_views, tolerance: float):
         raise                         # fails closed with its own message: cli.main reports it
     except Exception as e:            # the design's failure to report, not a crash of the checker
         machine = None
-        rows.append(Row(subject=slug, rule="build", state="FAIL", measured=why(e),
-                        limit="an assembly.py whose parts() returns the bodies",
-                        source="assembly.py", check="assembly"))
+        rows += _load_failure(slug, e)
     asm, clearance, allow_contact, axes = machine.as_tuple() if machine else (None, {}, set(), {})
     actx = AssemblyCtx(slug=slug, parts=asm or {}, clearance=clearance,
                        allow_contact=allow_contact, out_dir=out, axes=axes, machine=machine)
@@ -113,6 +111,13 @@ def _check_all(slug: str, render_views, tolerance: float):
     pctx = ProjectCtx(slug=slug, dir=pdir, parts=parts_out, out_dir=out)
     for spec in checks("project"):
         rows += run_check(spec, pctx)
+
+    # ── the rest of the tree ─────────────────────────────────────────────────
+    tree = None
+    if machine is not None and machine.children:
+        from .subassembly import tree_summary
+        rows += _tree_rows(machine)
+        tree = tree_summary(machine)
 
     dict_rows = [r.as_dict() for r in rows]
     by_state: dict = {}
@@ -143,8 +148,62 @@ def _check_all(slug: str, render_views, tolerance: float):
                 r.get("state") == "FAIL" for r in parts_out.values()),
         },
     }
+    if tree is not None:
+        payload["tree"] = tree        # only a project with sub-assemblies has one: the rest write what they always did
     write_checks(slug, payload)
     return payload
+
+
+def _load_failure(slug: str, e: Exception) -> list:
+    """The rows for an assembly that did not load: one for a build that failed, and for a sub-assembly that
+    could not be flattened in one for each fault (subassembly.py lists the kinds)."""
+    from .subassembly import SubassemblyError
+    if isinstance(e, SubassemblyError):
+        return e.rows()
+    return [Row(subject=slug, rule="build", state="FAIL", measured=why(e),
+                limit="an assembly.py whose parts() returns the bodies",
+                source="assembly.py", check="assembly")]
+
+
+def _tree_rows(machine) -> list:
+    """The rows of every other project in the tree, each as `cad check <project>` gives them (subassembly.py says
+    why a parent's verdict has to hold them). A row is named <project>:<check>, so `gantry:geometry/walls` is the
+    walls rule on a part of the project gantry; its rule and its subject are the project's own."""
+    from .subassembly import projects_of
+    rows = []
+    for project, sub in projects_of(machine):
+        rows += _project_rows(project, sub)
+    return rows
+
+
+def _project_rows(project: str, sub) -> list:
+    """Every gate of one project, from its own folder and its machine `sub`: no checks.json, no renders of its own."""
+    pdir = project_dir(project)
+    out = pdir / "out"
+    out.mkdir(parents=True, exist_ok=True)
+    rows, solids, metas, parts_out = [], {}, {}, {}
+    for name in part_names(project):
+        try:
+            solids[name], metas[name] = build_part(project, name)
+        except Exception as e:
+            rows.append(Row(subject=name, rule="build", state="FAIL", measured=why(e), limit="a part that builds",
+                            source=f"parts/{name}.py", check="build"))
+            continue
+        parts_out[name] = {"state": "BUILT", "material": metas[name]["material"], "process": metas[name]["process"]}
+    for name, solid in solids.items():
+        ctx = PartCtx(slug=project, name=name, solid=solid, meta=metas[name], out_dir=out)
+        for spec in checks("part"):
+            rows += run_check(spec, ctx)
+    actx = AssemblyCtx(slug=project, parts=sub.parts, clearance=sub.clearance, allow_contact=sub.allow_contact,
+                       out_dir=out, axes=sub.axes, machine=sub)
+    for spec in checks("assembly"):
+        rows += run_check(spec, actx)
+    pctx = ProjectCtx(slug=project, dir=pdir, parts=parts_out, out_dir=out)
+    for spec in checks("project"):
+        rows += run_check(spec, pctx)
+    for r in rows:
+        r.check = f"{project}:{r.check}"
+    return rows
 
 
 def done_check(slug: str) -> dict:

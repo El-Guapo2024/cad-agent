@@ -207,8 +207,10 @@ def load_machine(slug: str, placed: bool = True, describe: bool = True):
     is False (the workbench shows a move apart from the code's pose). clearance, allow_contact and
     axes are CLEARANCE, ALLOW_CONTACT and AXES; poses is POSES, held as declared ({name: {...}});
     bodies is a BodyInfo for each body (skipped with `describe=False`, for a caller that only wants
-    solids). SUBASSEMBLIES, if declared, is expanded by piece B's subassembly.expand, and a design that
-    declares it before that exists does not load. See bodies.py for what each field holds.
+    solids). SUBASSEMBLIES, if declared, is expanded by subassembly.expand (the children's bodies come in
+    as `child/body`, and they are described there). placements.toml is applied after that, so the file
+    may move a child's body by its full name, quoted; subassembly.py has the rest. See bodies.py for what
+    each field holds.
     """
     from . import bodies, placements
     from .motion import load_axes
@@ -223,8 +225,6 @@ def load_machine(slug: str, placed: bool = True, describe: bool = True):
     if bad is None or bad:
         got = type(parts).__name__ if bad is None else f"{bad[0]} among its entries"
         raise TypeError(f"assembly.py parts() must return {{name: solid}}, got {got}")
-    if placed:
-        parts = placements.apply(parts, placements.load(pdir))
     poses = getattr(mod, "POSES", None) or {}
     if not (isinstance(poses, dict) and all(isinstance(k, str) and isinstance(v, dict) for k, v in poses.items())):
         raise TypeError("assembly.py POSES must be {name: {...}}, one dict for each named pose")
@@ -239,6 +239,8 @@ def load_machine(slug: str, placed: bool = True, describe: bool = True):
             raise NotBuilt("assembly.py declares SUBASSEMBLIES, which step 6 piece B builds "
                            "(cad_agent/subassembly.py: expand(machine, declared) -> Assembly)")
         machine = expand(machine, declared)
+    if placed:
+        machine.parts = placements.apply(machine.parts, placements.load(pdir))
     if describe:
         left = {n: s for n, s in machine.parts.items() if n not in machine.bodies}
         machine.bodies.update(bodies.describe(slug, left))

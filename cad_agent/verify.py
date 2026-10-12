@@ -6,15 +6,27 @@ part and the assembly from what is on disk (never from the build cache that
 verify.json with the verdict and exactly what was verified:
 
     source_hash  sha256 over every file that defines the design: parts,
-                 assembly, spec, bought geometry and the approved renders
+                 assembly, spec, bought geometry and the approved renders,
+                 and the same files of every project it links as a
+                 sub-assembly (subassembly.py), down the tree
     engine_hash  sha256 over cad-agent's own source, because a change to a
                  rule changes what "passes" means; read before the run and
                  again after it, so a verdict is never written for rules that
                  changed in between (a `git pull` mid-verify)
     git          the commit, the project's tree at that commit, and whether
-                 the design had uncommitted changes
+                 the design had uncommitted changes; for each linked project
+                 too, under `children`
     process      whether it ran in a fresh process: a warm-worker fork or a
                  new interpreter, never a process that already ran commands
+    tree         only with sub-assemblies: each one linked, and the hash of
+                 every project below this one
+
+A project with sub-assemblies is verified as the whole: every part of every project in the tree is rebuilt from
+source in this one process and every gate of every project is run (their rows are named <project>:<check>), so
+PASS stands for each project passing `cad verify` on these files. A child's own verify.json and checks.json are
+never read; they are claims, and this is the evidence. The projects are found by reading assembly.py (nothing
+is run to hash them), and the run checks that it loaded no project that reading missed: if it did, the verdict
+cannot be PASS, because the hashes would not cover what was judged.
 
 `cad done` accepts a verdict only while its hashes still match the disk,
 only from a fresh process, and, inside a repo, only on committed work.
@@ -35,6 +47,7 @@ import time
 from pathlib import Path
 
 from . import state as st
+from .subassembly import tree_dirs, tree_projects
 
 PKG = Path(__file__).resolve().parent
 DESIGN = ("parts/*.py", "assembly.py", "spec.toml", "placements.toml", "bought/*",
@@ -49,14 +62,39 @@ def design_files(pdir: Path) -> list[Path]:
     return sorted(files)
 
 
+def _feed(h, files: list[Path], base: Path, label: str = "") -> None:
+    for p in files:
+        h.update((label + p.relative_to(base).as_posix()).encode() + b"\0")
+        h.update(hashlib.sha256(p.read_bytes()).digest())
+
+
+def _own_hash(pdir: Path) -> tuple[str, int]:
+    """The hash of one project's own inputs, without the projects it links."""
+    h = hashlib.sha256()
+    files = design_files(pdir) if pdir.is_dir() else []
+    _feed(h, files, pdir)
+    return h.hexdigest(), len(files)
+
+
 def source_hash(pdir: Path) -> tuple[str, int]:
-    """Hash of the design as it is on disk: path and content of every input."""
+    """Hash of the design as it is on disk: path and content of every input.
+
+    A project that links sub-assemblies (subassembly.py) is made of their files too, and of their own, down the
+    tree: each project's inputs are hashed after this one's, under its name, so an edit to a child changes the
+    parent's hash and a verdict about the parent stops standing. The projects are found by reading assembly.py's
+    source (subassembly.tree_projects), and `run` below checks that the run loaded no project this missed. A
+    project that links nothing hashes as it always did.
+    """
     h = hashlib.sha256()
     files = design_files(pdir)
-    for p in files:
-        h.update(p.relative_to(pdir).as_posix().encode() + b"\0")
-        h.update(hashlib.sha256(p.read_bytes()).digest())
-    return h.hexdigest(), len(files)
+    _feed(h, files, pdir)
+    count = len(files)
+    for name, cdir in tree_dirs(pdir):
+        kept = design_files(cdir) if cdir.is_dir() else []
+        h.update(b"project\0" + name.encode() + b"\0")
+        _feed(h, kept, cdir, label=f"{name}/")
+        count += len(kept)
+    return h.hexdigest(), count
 
 
 def engine_hash() -> str:
@@ -103,7 +141,30 @@ def git_info(pdir: Path) -> dict | None:
     Projects are often symlinked in from elsewhere, so this works on the real
     path. Run outputs (checks.json, verify.json, out/, .cad/) are not design,
     so they never make the tree dirty.
+
+    A project that links sub-assemblies answers for them as well: `children` holds the same record for each
+    project below it, and the design is dirty if any of them is. A child that is in no git repository while this
+    one is cannot be said to be committed, so it counts as uncommitted and the entry says so. Without children
+    the record is what it always was.
     """
+    info = _git_info(pdir)
+    kids = tree_dirs(pdir) if info is not None else []
+    if kids:
+        info["children"] = {}
+        for name, cdir in kids:
+            sub = _git_info(cdir) if cdir.is_dir() else None
+            info["children"][name] = sub
+            if sub is None:
+                why = f"{name}: " + ("not in a git repository" if cdir.is_dir() else "no such project")
+                info["uncommitted"] = (info["uncommitted"] + [why])[:20]
+                info["dirty"] = True
+            elif sub["dirty"]:
+                info["uncommitted"] = (info["uncommitted"] + [f"{name}/{p}" for p in sub["uncommitted"]])[:20]
+                info["dirty"] = True
+    return info
+
+
+def _git_info(pdir: Path) -> dict | None:
     real = pdir.resolve()
     top = _git(real, "rev-parse", "--show-toplevel")
     if top is None:
@@ -146,6 +207,14 @@ def run(slug: str, fresh: bool, mode: str, views=("iso",)) -> dict:
 
     verdict = _verdict(rows, summary.get("parts_failed", 0))
     notes = []
+    tree = payload.get("tree")
+    loaded = set(tree["projects"]) if tree else set()
+    unhashed = sorted(loaded - set(tree_projects(pdir)[0]))
+    if unhashed:
+        if verdict == "PASS":
+            verdict = "UNCHECKED"
+        notes.append(f"the run loaded {', '.join(unhashed)}, which assembly.py's source does not name as a plain "
+                     "string, so the hashes do not cover it: write each SUBASSEMBLIES project as a literal")
     if before != after:
         verdict = "UNCHECKED"
         notes.append("the design changed while it was being verified; run again")
@@ -176,6 +245,10 @@ def run(slug: str, fresh: bool, mode: str, views=("iso",)) -> dict:
         "notes": notes,
         "rows": rows,
     }
+    if tree:
+        record["tree"] = {"subassemblies": tree["subassemblies"],
+                          "projects": {name: dict(zip(("source_hash", "design_files"), _own_hash(cdir)))
+                                       for name, cdir in tree_dirs(pdir)}}
     st.write_atomic(pdir / "verify.json", json.dumps(record, indent=2))
     return record
 

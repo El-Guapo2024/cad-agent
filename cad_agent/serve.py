@@ -35,6 +35,7 @@ from . import macro
 from . import state as st
 from . import undo
 from .gui import GuiBoard, GuiError, RETESSELLATE_PROPS, parse_prop_args
+from .subassembly import tree_dirs
 from .verify import DESIGN
 
 PKG = Path(__file__).resolve().parent
@@ -437,14 +438,17 @@ class Bench:
 
     # ── watching ─────────────────────────────────────────────────────────────
     def _design_sig(self, pdir: Path):
+        """What the page watches for a design change: the project's own inputs and those of every project it links
+        as a sub-assembly, so an edit to a child is a change to the machine."""
         sig = []
-        for pattern in DESIGN:
-            for p in sorted(pdir.glob(pattern)):
-                try:
-                    s = p.stat()
-                    sig.append((p.name, s.st_mtime_ns, s.st_size))
-                except OSError:
-                    pass
+        for base, label in [(pdir, ""), *[(cdir, f"{name}:") for name, cdir in tree_dirs(pdir)]]:
+            for pattern in DESIGN:
+                for p in sorted(base.glob(pattern)):
+                    try:
+                        s = p.stat()
+                        sig.append((label + p.name, s.st_mtime_ns, s.st_size))
+                    except OSError:
+                        pass
         return tuple(sig)
 
     @staticmethod

@@ -11,6 +11,11 @@ panels need and the viewer does not know:
 - AXES, the spec envelope, and the design hash the scene was built from
 
 Bodies are drawn where every gate sees them: placements applied.
+
+A body of a sub-assembly (`gantry/x_carriage`, subassembly.py) shows what its own project says it is (kind,
+material, mass), carries `project` and `from_part`, and has no `part` and no parameters here: they are the
+child's, edited in the child. It reaches the viewer as `gantry%2Fx_carriage`, so the viewer does not take the "/"
+for a group of its own; `path` ends the same way and `name` stays the full name.
 """
 from __future__ import annotations
 
@@ -44,6 +49,13 @@ FLOAT_KEYS = {"vertices", "normals", "edges", "obj_vertices", "uvs"}
 _part_for, _bought_names = bodies.part_for, bodies.bought_stems
 
 
+def viewer_name(name: str) -> str:
+    """A body's name as the viewer is given it, and so as its tree path ends: a "/" (a sub-assembly's body,
+    `gantry/x_carriage`) would nest it in a group of the viewer's own, so it is written %2F there. The body's
+    own `name` in scene.json stays what the rest of the harness calls it."""
+    return name.replace("/", "%2F")
+
+
 def _encode(instance: dict) -> dict:
     """One tessellated instance as three-cad-viewer's base64 buffers."""
     out = {}
@@ -73,7 +85,9 @@ def placed_solids(slug: str) -> tuple[dict, dict]:
     when there is no assembly.py), and each made part's material."""
     from .geom import bbox
     part_names = st.part_names(slug)
-    base, _, _, _ = st.load_assembly(slug, placed=False)
+    machine = st.load_machine(slug, placed=False, describe=False)
+    base = machine.parts if machine is not None else None
+    linked = machine.bodies if machine is not None else {}      # the bodies of sub-assemblies, described as they came in
     metas: dict = {}
     if base is None:
         from build123d import Pos
@@ -86,6 +100,9 @@ def placed_solids(slug: str) -> tuple[dict, dict]:
     shown = placements.apply(base, placements.load(st.project_dir(slug)))
     materials = {}
     for name in shown:
+        if name in linked:                    # a sub-assembly's body: its material is its own project's
+            materials[name] = linked[name].material
+            continue
         part = _part_for(name, part_names)
         if part:
             if part not in metas:
@@ -131,7 +148,7 @@ def _tessellate_bodies(shown: dict, colors: dict, view_props: dict,
     combined_bb: dict | None = None
     template: dict | None = None
     for (dev, ang), names in buckets.items():
-        group, instances = to_ocpgroup(*[shown[n] for n in names], names=names,
+        group, instances = to_ocpgroup(*[shown[n] for n in names], names=[viewer_name(n) for n in names],
                                        colors=[colors[n] for n in names])
         inst, shapes, _ = tessellate_group(group, instances,
                                            {"deviation": dev, "angular_tolerance": ang})
@@ -157,7 +174,9 @@ def build_scene(slug: str, deviation: float | None = None, angular: float | None
     from .verify import source_hash
     pdir = st.project_dir(slug)
     part_names = st.part_names(slug)
-    base, _, _, axes = st.load_assembly(slug, placed=False)
+    machine = st.load_machine(slug, placed=False, describe=False)
+    base, axes = (machine.parts, machine.axes) if machine is not None else (None, {})
+    linked = machine.bodies if machine is not None else {}      # the bodies of sub-assemblies, described as they came in
     metas: dict = {}
     assembly = base is not None
     if not assembly:
@@ -180,22 +199,29 @@ def build_scene(slug: str, deviation: float | None = None, angular: float | None
 
     bodies, lo_all, hi_all = [], [np.inf] * 3, [-np.inf] * 3
     for name, solid in base.items():
-        part = _part_for(name, part_names)
-        material = None
-        if part:
-            meta = metas.get(part) or parts_meta.get(part)
-            if not meta or "material" not in meta:
-                _, meta = st.build_part(slug, part)
-            metas[part] = meta
-            material = meta.get("material")
-        kind = "made" if part else ("bought" if name in bought else "stock")
+        info = linked.get(name)
+        if info is not None:
+            # A body of a sub-assembly belongs to another project: its part is not one of this project's modules (so
+            # the page offers no parameters to edit here), and what it is made of comes from the project it came from.
+            part, material, kind = None, info.material, info.kind
+            mass = round(info.mass_g, 2) if info.mass_g is not None else None
+        else:
+            part = _part_for(name, part_names)
+            material = None
+            if part:
+                meta = metas.get(part) or parts_meta.get(part)
+                if not meta or "material" not in meta:
+                    _, meta = st.build_part(slug, part)
+                metas[part] = meta
+                material = meta.get("material")
+            kind = "made" if part else ("bought" if name in bought else "stock")
+            try:
+                mass = round(mass_g(solid, material), 2) if material else None
+            except KeyError:
+                mass = None
         color = (MATERIAL_COLOR.get((material or "").lower())
                  or (BOUGHT_COLOR if kind == "bought" else STOCK_COLOR if kind == "stock"
                      else PALETTE[zlib.crc32(name.encode()) % len(PALETTE)]))
-        try:
-            mass = round(mass_g(solid, material), 2) if material else None
-        except KeyError:
-            mass = None
         blo, bhi = bbox(solid)
         slo, shi = bbox(shown[name])
         lo_all = [min(lo_all[i], slo[i]) for i in range(3)]
@@ -203,7 +229,7 @@ def build_scene(slug: str, deviation: float | None = None, angular: float | None
         center = [round((blo[i] + bhi[i]) / 2, 4) for i in range(3)]
         move = placed.get(name)
         bodies.append({
-            "name": name, "path": f"/Group/{name}", "part": part, "kind": kind,
+            "name": name, "path": f"/Group/{viewer_name(name)}", "part": part, "kind": kind,
             # read from the file, not from checks.json, so the fields show what is there now
             "params": params_of(pdir / "parts" / f"{part}.py") if part else {},
             "material": material, "color": color, "mass_g": mass,
@@ -211,6 +237,7 @@ def build_scene(slug: str, deviation: float | None = None, angular: float | None
             "center": center,
             "placement": {k: list(v) for k, v in move.items()} if move else None,
             "about": list(move["about"]) if move else center,
+            **({"project": info.project, "from_part": info.part} if info is not None else {}),
         })
 
     for b in bodies:                   # one part module can make several bodies

@@ -19,7 +19,10 @@ is a miss and never a stale hit:
   everything in bought/ (a part can import a bought module, as arduino_car's chassis does);
   every file of the project, if what the part runs opens a file, builds another part or imports by
     a name it computes (open, read_text, build_part, importlib, exec and the like), since then
-    nothing says what it reads;
+    nothing says what it reads. That includes the files of every project this one links as a
+    sub-assembly (subassembly.py), which such a part can read as well, so an edit to a child is a miss
+    for it. A child's own parts are cached in the child's folder under the child's key, so the
+    parent's assembly always gets the child's current geometry;
   cad-agent's own source (verify.engine_hash), build123d, OCP, Python and the machine.
 
 An entry is one file: a line of JSON (the key, the class, the part's meta and a fingerprint of the
@@ -164,6 +167,12 @@ def key(pdir: Path, name: str, overrides: dict | None = None, env: str | None = 
         h.update(src)
         for p in sorted(set(files) - {part} if reaches else need):
             h.update(p.relative_to(pdir).as_posix().encode() + b"\0" + hashlib.sha256(p.read_bytes()).digest())
+        if reaches:                                          # what it runs may be a linked project's too
+            from .subassembly import tree_dirs
+            for linked, cdir in tree_dirs(pdir):
+                for p in _files(cdir) if cdir.is_dir() else []:
+                    h.update(f"{linked}/{p.relative_to(cdir).as_posix()}".encode() + b"\0"
+                             + hashlib.sha256(p.read_bytes()).digest())
         return h.hexdigest()
     except (OSError, TypeError, ValueError):
         return None
