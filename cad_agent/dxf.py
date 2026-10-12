@@ -913,9 +913,9 @@ def through_cut(solid, mid: Cut) -> Prism:
         more = f"; and {len(said) - 3} other kinds" if len(said) > 3 else ""
         return Prism("FAIL", f"not a through-cut: the part has {shown}{more}. A laser cuts the outline through the "
                              f"whole thickness, nothing else", faces)
-    made = ", ".join(f"{n} {k if n == 1 else PLURAL[k]}" for k, n in sorted(faces.counts.items())) or "no faces it could read"
+    made = ", ".join(f"{n} {k if n == 1 else PLURAL[k]}" for k, n in sorted(faces.counts.items()))
     if not faces.unknown:       # every face is a kind that is exact, so the sections would only repeat what the faces say
-        return Prism("PASS", f"a prism along {name}: its faces are {made}", faces)
+        return Prism("PASS", f"a prism along {name}: its faces are {made or 'none'}", faces)
     areas = [mid.area if f == 0.5 else sum(face.area for face in faces_at(solid, axis, f)[1]) for f in LEVELS]
     vol, a = volume(solid), mid.area
     flat = max(abs(areas[0] - a), abs(areas[2] - a)) / a
@@ -926,8 +926,10 @@ def through_cut(solid, mid: Cut) -> Prism:
         return Prism("FAIL", f"not a through-cut: {faces.unknown} faces are B-spline surfaces, which only the sections can "
                              f"judge, and the section is {where}; volume {vol:.2f} mm^3 against area x thickness "
                              f"{a * mid.thickness:.2f}. Something does not go all the way through", faces)
-    return Prism("PASS", f"a prism along {name}: its faces are {made}, and {faces.unknown} B-spline faces judged by the "
-                         f"sections alone: {where}; volume {vol:.2f} mm^3 = area x thickness (off by {prism * 100:.3f} %)", faces)
+    kinds = (f"its faces are {made}, and {faces.unknown} B-spline faces" if made
+             else f"its {faces.unknown} faces are B-spline surfaces")
+    return Prism("PASS", f"a prism along {name}: {kinds} judged by the sections alone: {where}; volume {vol:.2f} mm^3 "
+                         f"= area x thickness (off by {prism * 100:.3f} %)", faces)
 
 
 class Laser(NamedTuple):
