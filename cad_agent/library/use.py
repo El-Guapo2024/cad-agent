@@ -25,7 +25,8 @@ from pathlib import Path
 
 from .. import bought
 from . import store
-from .catalog import PART_NAME, Catalog, Entry, IntegrityError, LibraryError, arguments, resolve_params, sidecar
+from .catalog import (PART_NAME, Catalog, Entry, IntegrityError, LibraryError, arguments, fetch_ruling, resolve_params,
+                      sidecar)
 
 SUFFIXES = (".step", ".stp", ".py", ".json")        # what bought/ may hold under one name
 JOURNAL_MAX = 4 << 20                               # bytes of files the undo journal is given for one copy
@@ -52,19 +53,24 @@ def command(entry: Entry, name: str, params: dict) -> str:
     return f"cad lib use <project> {entry.name}{' ' + given if given else ''} --as {name} --replace"
 
 
+def _doc(text: str) -> str:
+    """Text for the inside of a triple-quoted docstring: a backslash or a run of quotes must not end or break it."""
+    return text.replace("\\", "/").replace('"""', "'''")
+
+
 def render_module(entry: Entry, name: str, args: dict, params: dict) -> str:
     """The module a generator entry becomes: its docstring says what it is, ARGS holds every number, build() calls the generator."""
     module, _, function = entry.generator.partition(":")
     made = ", ".join(f"{k} {v:g}" + (f" {entry.params[k]['unit']}" if entry.params[k]["unit"] else "")
                      if isinstance(v, float) else f"{k} {v}" for k, v in params.items())
-    head = [f'"""{name}: {entry.title}' + (f", {made}" if made else "") + ".", "",
+    head = [f'"""{name}: {_doc(entry.title)}' + (f", {made}" if made else "") + ".", "",
             f"Copied from the library entry {entry.name} by `cad lib use`; where each number came from is in {name}.json",
             f"and in `cad lib info {entry.name}`."]
     if entry.verified:
         head += [f"It is meant to be left alone: `{command(entry, name, params)}`", "writes it again, and `cad lib check <project>` "
                  "fails when this file no longer hashes to the pin in the sidecar."]
     else:
-        head += ["", "Not confirmed: " + ", ".join(entry.unconfirmed) + ". Measure the real part, put what you measured in ARGS,",
+        head += ["", "Not confirmed: " + _doc(", ".join(entry.unconfirmed)) + ". Measure the real part, put what you measured in ARGS,",
                  f"and run `cad bought verify <project> {name} --note \"what you measured\"`. It pins no hash, because that",
                  "command rewrites this file."]
     lines = head + ['"""']
@@ -136,8 +142,10 @@ def use(slug: str, catalog: Catalog, entry_name: str, given: dict, name: str | N
     if entry.kind == "step":
         src = store.path_of(entry.sha256, catalog.store)
         if not src.exists():
-            raise LibraryError(f"{entry.name} is not in your store ({catalog.store}): `cad lib fetch {entry.name}`, or "
-                               f"download it by hand and `cad lib add {entry.name} FILE --source URL`")
+            ok, _ = fetch_ruling(entry)
+            how = (f"`cad lib fetch {entry.name}`, or download it by hand and " if ok else "download it by hand and ")
+            raise LibraryError(f"{entry.name} is not in your store ({catalog.store}): {how}"
+                               f"`cad lib add {entry.name} FILE --source URL`")
         if store.sha256_of(src) != entry.sha256:
             raise IntegrityError(f"the store's file for {entry.name} no longer hashes to the catalog's pin "
                                  f"{entry.sha256}: it is damaged. Delete {src} and fetch it again")
@@ -172,7 +180,8 @@ def use(slug: str, catalog: Catalog, entry_name: str, given: dict, name: str | N
     if "mass_g" not in side:
         notes.append("declares no mass_g: [[mass]] bodies and the centre-of-mass rule take its mass as unknown")
     if "max_temp_c" not in side and "material" not in side:
-        notes.append("declares neither max_temp_c nor a material: [[heat]] cannot rate it, so a hot zone near it is UNCHECKED")
+        notes.append("declares neither max_temp_c nor a material (its sources give none): [[heat]] cannot rate it, so a hot "
+                     "zone near it is UNCHECKED")
     if not entry.verified:
         notes.append("unconfirmed (" + ", ".join(entry.unconfirmed or ["its dimensions"]) +
                      "): the provenance rule says UNCHECKED until it is measured")

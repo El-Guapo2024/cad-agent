@@ -11,10 +11,10 @@ marks it `geometry = "envelope"` and only `exact` may give stiffness.
 corner radii, a T-slot cut into each face (neck, lip, undercut cavity with its 45 degree shoulders, floor), the
 centre bore, and for the 20 x 40 and the 40 x 40 the hollow chambers between the slots. Everything is drawn from
 the profile's own numbers, which the catalog lists one by one with the file they were measured on. What is left
-out is what is under half a millimetre: the 0.2 and 0.5 mm fillets of the slot edges, which move the section's
-area by about a quarter of a percent and its second moment by about a tenth. tests/test_library.py holds each section
-to the area and the second moments the maker's model has (0.3 and 0.2 percent), so a number mistyped in the catalog is
-found by the test and not by a deflection that is wrong by a few percent.
+out is what is under half a millimetre: the 0.2 and 0.5 mm fillets of the slot edges, which leave the section
+a few tenths of a percent over the maker's area and second moments (0.6 percent at most, for the 20 x 40).
+tests/test_library.py holds each section to the area and the second moments the maker's model has, to 1 percent, so
+a number mistyped in the catalog is found by the test and not by a deflection that is wrong by a few percent.
 
 The section is drawn in the xy plane, `width` across x and `height` along y (20 x 40 means the long side along y), then
 extruded along z and turned to `axis`, with the same bounding box `envelope` has for the same arguments: the profile's

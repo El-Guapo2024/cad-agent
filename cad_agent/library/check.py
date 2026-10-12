@@ -52,13 +52,16 @@ def check_store(catalog: Catalog) -> list[dict]:
     for entry in catalog.entries.values():
         if entry.kind != "step" or not entry.sha256 or entry.problems:
             continue
-        if whole.get(entry.sha256):
-            rows.append(row("PASS", "pin", entry.name, f"in the store, and it is the file pinned ({entry.sha256[:12]})",
+        if entry.sha256 in whole:
+            ok = whole[entry.sha256]
+            rows.append(row("PASS" if ok else "FAIL", "pin", entry.name,
+                            f"in the store, and it is the file pinned ({entry.sha256[:12]})" if ok else
+                            f"the store's file for it ({entry.sha256[:12]}) is damaged",
                             "the file the entry pins", f"the {entry.origin} entry's sha256"))
-        elif entry.sha256 not in whole and entry.origin == "shipped":
+        elif entry.origin == "shipped":
             rows.append(row("N/A", "pin", entry.name, "not in your store (it is not a fault that it was not downloaded)",
                             "n/a", f"`cad lib fetch {entry.name}` or `cad lib add`"))
-        elif entry.sha256 not in whole:
+        else:
             rows.append(row("FAIL", "pin", entry.name, f"your entry pins {entry.sha256[:12]} and the store lacks it",
                             "the file the entry pins", "the store's library.json"))
     if not rows:
@@ -124,6 +127,8 @@ def check_project(slug: str, catalog: Catalog) -> list[dict]:
         path = bought.bought_dir(slug) / spec.file
         side = _side(path)
         actual = bought.file_sha256(path)
+        rows += [row("FAIL", "contract", name, problem, "every contract key well formed", "bought.py describes the keys")
+                 for problem in spec.problems]
         if spec.sha256 is not None:
             ok = actual == spec.sha256
             rows.append(row("PASS" if ok else "FAIL", "sha256", name,

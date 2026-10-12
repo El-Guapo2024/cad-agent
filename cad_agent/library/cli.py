@@ -214,7 +214,7 @@ def _new_entry(a, sha: str, size: int) -> dict:
     if a.datum_move or a.datum_turn:
         datum = {"move": _vector(a.datum_move, "--datum-move") or [0, 0, 0],
                  "turn": _vector(a.datum_turn, "--datum-turn") or [0, 0, 0]}
-    raw = {"title": a.title or a.entry, "kind": "step", "licence": a.licence or "unknown", "geometry": a.geometry,
+    raw = {"title": a.title or a.entry, "kind": "step", "licence": a.licence or "unknown", "geometry": a.geometry or "envelope",
            "verified": not a.unverified, "source": a.source, "vendor": a.vendor, "pn": a.pn,
            "attribution": a.attribution, "material": a.material,
            "mass": {"g": a.mass_g, "source": a.mass_source} if a.mass_g is not None else None,
@@ -358,8 +358,9 @@ def _add_arguments(p) -> None:
     new.add_argument("--mass-source")
     new.add_argument("--max-temp-c", type=float, help="degrees C, with --max-temp-source")
     new.add_argument("--max-temp-source")
-    new.add_argument("--geometry", choices=bought.GEOMETRIES, default="envelope",
-                     help="exact only when the solid is the real shape and a stiffness rule may stand on it")
+    new.add_argument("--geometry", choices=bought.GEOMETRIES,
+                     help="exact only when the solid is the real shape and a stiffness rule may stand on it "
+                          "(default envelope)")
     new.add_argument("--datum-move", metavar="X,Y,Z", help="mm that take the file's origin to the part's frame")
     new.add_argument("--datum-turn", metavar="RX,RY,RZ", help="degrees, applied before the move")
     new.add_argument("--unverified", action="store_true", help="its dimensions are not confirmed: the provenance rule says UNCHECKED")
