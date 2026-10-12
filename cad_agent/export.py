@@ -1,67 +1,103 @@
-"""Exports. STEP for a machine shop, STL for printing; 3MF and DXF (for printing and laser cutting) are
-step 6, piece D's, and FORMATS lists what is written so far. `cad export --format` already accepts all
-four (cli.EXPORT_FORMATS) and answers "not built yet" for one that FORMATS lacks, so adding a writer
-is one branch in export_part and one name in FORMATS.
+"""Exports: STEP for a machine shop, STL and 3MF for a printer, DXF for a laser. `cad export --format` writes them
+to the project's out/ folder, and `cad shop` (shop.py) writes the same files, from `render`, to out/shop/.
 
-A STEP is also a design file: a bought part is one, and `cad verify` hashes bought/*. So one part
-has to write one file, in a fresh process or a worker that has exported a hundred, today or next
-week. OCCT breaks that in two places, and `write_step` fixes both:
+A file that goes to a shop, or is a design file (a bought part is a STEP, and `cad verify` hashes bought/*),
+has to be the same bytes whenever and wherever it is written: in a fresh process or a worker that has
+exported a hundred parts, today or next week, on OCCT 7.9 or 8.0. A hash in a manifest and `cad shop --check`
+both rest on it. Each format gets there its own way:
 
-  - the header's time stamp is the wall clock; it is pinned to STEP_STAMP;
-  - an assembly occurrence is numbered from a counter that lives as long as the process, and a part
-    returned as `Pos(...) * body` is an assembly of one. The first export of a process writes
-    NEXT_ASSEMBLY_USAGE_OCCURRENCE('1', ...), the twentieth writes '20'. The numbers are counted
-    again from 1, which is what a fresh process writes.
+  STEP   OCCT puts the process into it in three places, and `canonical_step` fixes each: the header's time
+         stamp is the wall clock (pinned to STEP_STAMP); an assembly occurrence is numbered from a counter that
+         lives as long as the process, and a part returned as `Pos(...) * body` is an assembly of one (the
+         first export of a process writes NEXT_ASSEMBLY_USAGE_OCCURRENCE('1', ...), the twentieth writes
+         '20'; the numbers are counted again from 1, which is what a fresh process writes); and the header
+         names the version of the kernel that wrote it (pinned to STEP_PROCESSOR, the 7.9 the committed STEP
+         files say). Everything else a part's STEP says comes from the part, and is the same on both kernels
+  3MF    threemf.py: a mesh of sorted integers, in a zip written by hand (the module says why)
+  STL    the same mesh, so a printed part's STL and 3MF are one shape. This replaced OCCT's own STL writer,
+         whose triangles come in the kernel's order and move with its version
+  DXF    dxf.py: the part's outline, as FreeCAD's ImpExpDxf writes one, to a nanometre
 
-Everything else a part's STEP says comes from the part, and does not change between runs.
+`render(solid, name, fmt, stamp)` gives the bytes of any of them. A `stamp` ("NOT VERIFIED", for `cad shop
+--draft`) is written into the file where the format has room for it: the STEP's description, the 3MF's title
+and name, the STL's header, a text on the DXF's own layer.
 """
 from __future__ import annotations
 import re
 import tempfile
 from pathlib import Path
-from build123d import export_step, export_stl
+from build123d import export_step
 from .state import project_dir, build_part
 
 STEP_STAMP = "1970-01-01T00:00:00"      # FILE_NAME's time_stamp; the epoch says "no date", on purpose
-FORMATS = ("step", "stl")               # what export_part writes
+STEP_PROCESSOR = "Open CASCADE STEP processor 7.9"      # FILE_NAME's originating system: the kernel that wrote it
+FORMATS = ("step", "stl", "3mf", "dxf")               # what export_part writes
 
 _STAMP = re.compile(rb"(FILE_NAME\(\s*'(?:[^']|'')*'\s*,\s*')[^']*(')")
+_PROCESSOR = re.compile(rb"Open CASCADE STEP processor [0-9][0-9.]*")
 _OCCURRENCE = re.compile(rb"(#\d+\s*=\s*NEXT_ASSEMBLY_USAGE_OCCURRENCE\(\s*')(\d+)(')")
+_DESCRIPTION = re.compile(rb"(FILE_DESCRIPTION\(\()")
 
 
 def canonical_step(data: bytes) -> bytes:
     """What a fresh process would have written, however the STEP in `data` was made.
 
-    Only the time stamp and the occurrence numbers change. The numbers keep their order, so each
-    occurrence keeps its place: `'7', '5', '6'` becomes `'3', '1', '2'`.
+    Only the time stamp, the kernel's version and the occurrence numbers change. The numbers keep their order,
+    so each occurrence keeps its place: `'7', '5', '6'` becomes `'3', '1', '2'`.
     """
     data = _STAMP.sub(lambda m: m[1] + STEP_STAMP.encode() + m[2], data, count=1)
+    data = _PROCESSOR.sub(STEP_PROCESSOR.encode(), data, count=1)
     seen = sorted({int(m[2]) for m in _OCCURRENCE.finditer(data)})
     number = {old: b"%d" % new for new, old in enumerate(seen, 1)}
     return _OCCURRENCE.sub(lambda m: m[1] + number[int(m[2])] + m[3], data)
 
 
-def write_step(shape, path: str | Path) -> Path:
-    """Write `shape` as STEP to `path`: the same shape, the same bytes, in any process at any time."""
-    path = Path(path)
+def stamp_step(data: bytes, stamp: str) -> bytes:
+    """A STEP with `stamp` as the first line of its description, which is where a reader looks for a note."""
+    text = stamp.encode("ascii", "replace").replace(b"'", b"''")
+    return _DESCRIPTION.sub(lambda m: m[1] + b"'" + text + b"',", data, count=1)
+
+
+def step_bytes(shape) -> bytes:
+    """The STEP of `shape`: the same shape, the same bytes, in any process at any time, on either kernel."""
     with tempfile.TemporaryDirectory() as tmp:
         raw = Path(tmp) / "shape.step"
         export_step(shape, str(raw))
         data = raw.read_bytes()
-    path.write_bytes(canonical_step(data))
+    return canonical_step(data)
+
+
+def write_step(shape, path: str | Path) -> Path:
+    """Write `shape` as STEP to `path` (see step_bytes)."""
+    path = Path(path)
+    path.write_bytes(step_bytes(shape))
     return path
+
+
+def render(solid, name: str, fmt: str, stamp: str | None = None) -> bytes:
+    """The bytes of `solid` as `fmt` (one of FORMATS), named `name` inside the file, with `stamp` written into it."""
+    fmt = fmt.lower()
+    if fmt == "step":
+        data = step_bytes(solid)
+        return stamp_step(data, stamp) if stamp else data
+    if fmt in ("stl", "3mf"):
+        from . import threemf
+        mesh = threemf.mesh_of(solid)
+        return (threemf.write_stl if fmt == "stl" else threemf.write_3mf)(mesh, name, stamp)
+    if fmt == "dxf":
+        from . import dxf
+        return dxf.dxf_of(solid, name, stamp)
+    raise ValueError(f"unsupported format {fmt!r}; use {' or '.join(FORMATS)}")
 
 
 def export_part(slug: str, name: str, fmt: str = "step") -> Path:
     solid, _ = build_part(slug, name)
+    fmt = fmt.lower()
+    if fmt not in FORMATS:
+        raise ValueError(f"unsupported format {fmt!r}; use {' or '.join(FORMATS)}")
+    data = render(solid, name, fmt)
     out = project_dir(slug) / "out"
     out.mkdir(parents=True, exist_ok=True)
-    fmt = fmt.lower()
-    if fmt == "step":
-        p = write_step(solid, out / f"{name}.step")
-    elif fmt == "stl":
-        p = out / f"{name}.stl"
-        export_stl(solid, str(p))
-    else:
-        raise ValueError(f"unsupported format {fmt!r}; use {' or '.join(FORMATS)}")
+    p = out / f"{name}.{fmt}"
+    p.write_bytes(data)
     return p

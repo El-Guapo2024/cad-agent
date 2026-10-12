@@ -254,7 +254,7 @@ def cut_at(solid, axis: int | None = None, fraction: float = 0.5) -> Cut:
 
 
 class Faces(NamedTuple):
-    counts: Counter             # what kind of face the part has, for the PASS row
+    counts: Counter             # what kind of face the part has (a noun, singular), for the PASS row
     bad: list                   # a sentence for each face that is not part of a prism
     unknown: int                # faces of a kind this cannot judge (B-spline surfaces)
     top: list                   # the planes across the thickness at its top end
@@ -279,27 +279,27 @@ def faces_report(solid, axis: int) -> Faces:
         if t == GeomAbs_Plane:
             d = along(s.Plane().Axis().Direction())
             if d < 1e-9:
-                counts["flat walls"] += 1
+                counts["flat wall"] += 1
             elif d > 1.0 - 1e-9:
                 flo, fhi = bbox(face)
                 z = flo[axis]
                 if abs(z - hi[axis]) <= END_TOL_MM:
-                    counts["end planes"] += 1
+                    counts["end plane"] += 1
                     top.append(face)
                 elif abs(z - lo[axis]) <= END_TOL_MM:
-                    counts["end planes"] += 1
+                    counts["end plane"] += 1
                 else:
                     bad.append(f"a plane across {name} at {name} = {z:.3f} mm, which is neither end of the part (a pocket floor, a step or a boss)")
             else:
                 bad.append(f"a plane slanted to {name} (a chamfer or a draft)")
         elif t == GeomAbs_Cylinder:
             if along(s.Cylinder().Axis().Direction()) > 1.0 - 1e-9:
-                counts["cylinders along it"] += 1
+                counts["cylinder along it"] += 1
             else:
                 bad.append(f"a cylinder across {name}, not along it (a cross hole)")
         elif t == GeomAbs_SurfaceOfExtrusion:
             if along(s.Direction()) > 1.0 - 1e-9:
-                counts["extrusions along it"] += 1
+                counts["extrusion along it"] += 1
             else:
                 bad.append(f"an extrusion across {name}, not along it")
         elif t == GeomAbs_Cone:
@@ -909,7 +909,7 @@ def through_cut(solid, mid: Cut) -> Prism:
         more = f"; and {len(said) - 3} other kinds" if len(said) > 3 else ""
         return Prism("FAIL", f"not a through-cut: the part has {shown}{more}. A laser cuts the outline through the "
                              f"whole thickness, nothing else", faces)
-    made = ", ".join(f"{n} {k}" for k, n in sorted(faces.counts.items())) or "no faces it could read"
+    made = ", ".join(f"{n} {k}{'' if n == 1 else 's'}" for k, n in sorted(faces.counts.items())) or "no faces it could read"
     if not faces.unknown:       # every face is a kind that is exact, so the sections would only repeat what the faces say
         return Prism("PASS", f"a prism along {name}: its faces are {made}", faces)
     areas = [mid.area if f == 0.5 else sum(face.area for face in faces_at(solid, axis, f)[1]) for f in LEVELS]
