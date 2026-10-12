@@ -20,6 +20,7 @@ rule, carries the mass and rating the rules of step 6 read, and is pinned by the
 import hashlib
 import importlib.util
 import json
+import math
 import re
 import runpy
 import shutil
@@ -702,9 +703,26 @@ def test_the_envelope_can_carry_the_end_bores_the_evals_stub_has():
 
 
 # The eval givens: each one is drawn by a script in evals/ that calls these generators with the numbers the task
-# gives, and must come out the bytes it was committed as. The one thing a kernel changes in a STEP is the version of
-# its own processor in the header, which no generator controls: that token is blanked in the comparison.
+# gives, and must come out the bytes it was committed as. On the kernel that wrote them that means every byte. On
+# another one (CI's OCCT 8 on Linux) the header names that kernel's processor, which no generator controls, and a
+# coordinate can come out a few ulps apart (a different libm): there the STEP must match token for token, with each
+# number within a nanometre, which no change to a generator's numbers could pass.
 PROCESSOR = re.compile(rb"Open CASCADE STEP processor \d+(?:\.\d+)*")
+NUMBER = re.compile(rb"(-?\d+\.\d*(?:E[+-]?\d+)?)")
+
+
+def _same_step(got: bytes, want: bytes) -> str | None:
+    """None when two STEP files match token for token with every real within 1e-9 mm, else the first difference."""
+    a, b = NUMBER.split(PROCESSOR.sub(b"X", got)), NUMBER.split(PROCESSOR.sub(b"X", want))
+    if len(a) != len(b):
+        return f"{(len(a) - 1) // 2} numbers against {(len(b) - 1) // 2}"
+    for i, (x, y) in enumerate(zip(a, b)):
+        if i % 2 == 0:
+            if x != y:
+                return f"text {x[:60]!r} against {y[:60]!r}"
+        elif not math.isclose(float(x), float(y), rel_tol=1e-12, abs_tol=1e-9):
+            return f"number {x.decode()} against {y.decode()}"
+    return None
 EVAL_SCRIPTS = ("make_given.py", "endstop_bracket/source/given.py", "hotplate_standoffs/source/make_given.py",
                 "idler_bracket/source/idler.py", "laser_panel/source/make_given.py", "mgn12h_carriage/source/mgn12.py",
                 "pcb_enclosure/source/given.py", "pinned_carrier/source/make_given.py")
@@ -733,10 +751,11 @@ def test_every_eval_given_file_regenerates_to_the_bytes_it_was_committed_as(tmp_
         again = copy / given.relative_to(REPO / "evals")
         assert again.exists(), given
         want, got = given.read_bytes(), again.read_bytes()
-        assert PROCESSOR.sub(b"X", got) == PROCESSOR.sub(b"X", want), f"{given.relative_to(REPO)} is not what its script draws"
         header = PROCESSOR.search(want)
-        if header and header.group(0) == (PROCESSOR.search(got) or header).group(0):
-            assert got == want                                    # this kernel wrote them: not one byte differs
+        if header and header.group(0) != (PROCESSOR.search(got) or header).group(0):
+            assert _same_step(got, want) is None, f"{given.relative_to(REPO)}: {_same_step(got, want)}"
+        else:
+            assert got == want, f"{given.relative_to(REPO)} is not what its script draws"     # this kernel wrote it
         checked += 1
     assert checked == 48
 
