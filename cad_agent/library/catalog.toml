@@ -1,0 +1,723 @@
+# The part library's catalog: what cad-agent ships, and where every number in it came from.
+#
+# cad_agent/library/catalog.py says what each key means. In short: a `generator` entry is geometry the repo draws
+# (cad_agent/library/gen/) from the numbers under its [dims], each with the page it was read from; a `step` entry is a
+# file somebody else made, pinned by URL and sha256 and never in this repo; a `bd_warehouse` entry is drawn by that
+# package. A number no source gives is not here, and what needs it is UNCHECKED (a part with no mass declares none, a
+# part with no rating declares none, a dimension nobody publishes makes the part unconfirmed).
+#
+# Read on 2026-10-10 unless an entry says otherwise. Corners of 0.5 mm or less are drawn sharp in the extrusions, at the
+# point where their two walls meet.
+
+# ─── HIWIN MG series: rails and carriages ───────────────────────────────────
+# One document for all of them: HIWIN's linear guideways catalog GW-11-5-EN-2207-K, pages 92 to 105 (the MG series),
+# as damencnc.com hosts them. Table 3.79 (page 97) is the blocks, 3.81 (page 99) the MGN rails. Weights are the
+# tables' own: kg for a block, kg per metre for a rail.
+
+[parts.mgn12-rail]
+title = "HIWIN MGNR12R miniature linear guide rail"
+kind = "generator"
+generator = "cad_agent.library.gen.mgn:rail"
+vendor = "HIWIN"
+pn = "MGNR12R"
+licence = "MIT"
+geometry = "envelope"
+source = "HIWIN MG series catalog GW-11-5-EN-2207-K, table 3.81 (page 99): MGNR12R, 12 wide and 8.0 high, holes every 25 mm, counterbore D 6.0 x 4.5 deep, through hole d 3.5, cut to length with the most holes that leave E at least 5 (F 3.16, note 2). An envelope: no ball grooves."
+docs = ["https://damencnc.com/userdata/file/3455-3_HIWIN_MGN_and_MGW_Product_Catalog_2023.pdf", "https://damencnc.com/userdata/file/730-3_HIWIN_Manual.pdf"]
+notes = ["HIWIN's order code adds the rail length, the accuracy class and the stainless-steel mark (MGNR12R0150HM), which the envelope does not depend on", "no rating is declared for the standard block or rail: the catalog pages give none, and HIWIN's manual (G99LE16-0502, page 28) only offers a heat resistant steel end cap and copper bolt cap for MGN 9, 12 and 15, service under 150 C and peak 200 C"]
+
+[parts.mgn12-rail.dims]
+width = { value = 12.0, source = "table 3.81: WR 12" }
+height = { value = 8.0, source = "table 3.81: HR 8.0" }
+pitch = { value = 25.0, source = "table 3.81: P 25" }
+counterbore_dia = { value = 6.0, source = "table 3.81: D 6.0" }
+counterbore_depth = { value = 4.5, source = "table 3.81: H 4.5, the counterbore's depth (h in the drawing)" }
+hole_dia = { value = 3.5, source = "table 3.81: d 3.5" }
+end_min = { value = 5.0, source = "table 3.81: E1/2 min 5" }
+
+[parts.mgn12-rail.params.length]
+default = 150.0
+min = 35.0
+max = 2000.0
+unit = "mm"
+source = "table 3.81: min length 35, max length 2000"
+
+[parts.mgn12-rail.mass]
+per_m_g = 650.0
+param = "length"
+source = "HIWIN MG series catalog GW-11-5-EN-2207-K, table 3.81: weight 0.65 kg/m"
+
+[parts.mgn15-rail]
+title = "HIWIN MGNR15R miniature linear guide rail"
+kind = "generator"
+generator = "cad_agent.library.gen.mgn:rail"
+vendor = "HIWIN"
+pn = "MGNR15R"
+licence = "MIT"
+geometry = "envelope"
+source = "HIWIN MG series catalog GW-11-5-EN-2207-K, table 3.81 (page 99): MGNR15R, 15 wide and 10.0 high, holes every 40 mm, counterbore D 6.0 x 4.5 deep, through hole d 3.5, cut to length with the most holes that leave E at least 6 (F 3.16, note 2). An envelope: no ball grooves."
+docs = ["https://damencnc.com/userdata/file/3455-3_HIWIN_MGN_and_MGW_Product_Catalog_2023.pdf", "https://damencnc.com/userdata/file/730-3_HIWIN_Manual.pdf"]
+notes = ["HIWIN's order code adds the rail length, the accuracy class and the stainless-steel mark, which the envelope does not depend on", "no rating is declared for the standard block or rail: the catalog pages give none, and HIWIN's manual (G99LE16-0502, page 28) only offers a heat resistant steel end cap and copper bolt cap for MGN 9, 12 and 15, service under 150 C and peak 200 C"]
+
+[parts.mgn15-rail.dims]
+width = { value = 15.0, source = "table 3.81: WR 15" }
+height = { value = 10.0, source = "table 3.81: HR 10.0" }
+pitch = { value = 40.0, source = "table 3.81: P 40" }
+counterbore_dia = { value = 6.0, source = "table 3.81: D 6.0" }
+counterbore_depth = { value = 4.5, source = "table 3.81: H 4.5, the counterbore's depth (h in the drawing)" }
+hole_dia = { value = 3.5, source = "table 3.81: d 3.5" }
+end_min = { value = 6.0, source = "table 3.81: E1/2 min 6" }
+
+[parts.mgn15-rail.params.length]
+default = 160.0
+min = 52.0
+max = 2000.0
+unit = "mm"
+source = "table 3.81: min length 52, max length 2000"
+
+[parts.mgn15-rail.mass]
+per_m_g = 1060.0
+param = "length"
+source = "HIWIN MG series catalog GW-11-5-EN-2207-K, table 3.81: weight 1.06 kg/m"
+
+[parts.mgn12c]
+title = "HIWIN MGN12C carriage (average load block)"
+kind = "generator"
+generator = "cad_agent.library.gen.mgn:carriage"
+vendor = "HIWIN"
+pn = "MGN12C"
+licence = "MIT"
+geometry = "envelope"
+source = "HIWIN MG series catalog GW-11-5-EN-2207-K, table 3.79 (page 97): MGN12C, 34.7 x 27, H 13 above the rail's base and H1 3.0 clear of it, four M3 x 3.5 holes 15 x 20 apart, weight 0.030 kg; it runs on the 12 wide rail of table 3.81. An envelope: no balls, end caps, seals or grease nipple."
+docs = ["https://damencnc.com/userdata/file/3455-3_HIWIN_MGN_and_MGW_Product_Catalog_2023.pdf", "https://damencnc.com/userdata/file/730-3_HIWIN_Manual.pdf"]
+notes = ["HIWIN's order code adds the preload and accuracy class (MGN12CZ0HM), which the envelope does not depend on", "no rating is declared for the standard block or rail: the catalog pages give none, and HIWIN's manual (G99LE16-0502, page 28) only offers a heat resistant steel end cap and copper bolt cap for MGN 9, 12 and 15, service under 150 C and peak 200 C"]
+
+[parts.mgn12c.dims]
+length = { value = 34.7, source = "table 3.79: L 34.7" }
+width = { value = 27.0, source = "table 3.79: W 27" }
+height = { value = 13.0, source = "table 3.79: H 13, from the rail's base to the block's top" }
+base_gap = { value = 3.0, source = "table 3.79: H1 3.0, from the rail's base to the block's underside" }
+rail_width = { value = 12.0, source = "table 3.81: WR 12, the rail it runs on" }
+hole_pitch_along = { value = 15.0, source = "table 3.79: C 15" }
+hole_pitch_across = { value = 20.0, source = "table 3.79: B 20" }
+tap_depth = { value = 3.5, source = "table 3.79: M x l = M3 x 3.5" }
+
+[parts.mgn12c.model]
+tap_dia = 2.5
+rail_gap = 0.2
+
+[parts.mgn12c.mass]
+g = 30.0
+source = "HIWIN MG series catalog GW-11-5-EN-2207-K, table 3.79: weight 0.030 kg"
+
+[parts.mgn12h]
+title = "HIWIN MGN12H carriage (heavy load block)"
+kind = "generator"
+generator = "cad_agent.library.gen.mgn:carriage"
+vendor = "HIWIN"
+pn = "MGN12H"
+licence = "MIT"
+geometry = "envelope"
+source = "HIWIN MG series catalog GW-11-5-EN-2207-K, table 3.79 (page 97): MGN12H, 45.4 x 27, H 13 above the rail's base and H1 3.0 clear of it, four M3 x 3.5 holes 20 x 20 apart, weight 0.050 kg; it runs on the 12 wide rail of table 3.81. An envelope: no balls, end caps, seals or grease nipple."
+docs = ["https://damencnc.com/userdata/file/3455-3_HIWIN_MGN_and_MGW_Product_Catalog_2023.pdf", "https://damencnc.com/userdata/file/730-3_HIWIN_Manual.pdf"]
+notes = ["HIWIN's order code adds the preload and accuracy class (MGN12HZ0HM), which the envelope does not depend on", "no rating is declared for the standard block or rail: the catalog pages give none, and HIWIN's manual (G99LE16-0502, page 28) only offers a heat resistant steel end cap and copper bolt cap for MGN 9, 12 and 15, service under 150 C and peak 200 C"]
+
+[parts.mgn12h.dims]
+length = { value = 45.4, source = "table 3.79: L 45.4" }
+width = { value = 27.0, source = "table 3.79: W 27" }
+height = { value = 13.0, source = "table 3.79: H 13, from the rail's base to the block's top" }
+base_gap = { value = 3.0, source = "table 3.79: H1 3.0, from the rail's base to the block's underside" }
+rail_width = { value = 12.0, source = "table 3.81: WR 12, the rail it runs on" }
+hole_pitch_along = { value = 20.0, source = "table 3.79: C 20" }
+hole_pitch_across = { value = 20.0, source = "table 3.79: B 20" }
+tap_depth = { value = 3.5, source = "table 3.79: M x l = M3 x 3.5" }
+
+[parts.mgn12h.model]
+tap_dia = 2.5
+rail_gap = 0.2
+
+[parts.mgn12h.mass]
+g = 50.0
+source = "HIWIN MG series catalog GW-11-5-EN-2207-K, table 3.79: weight 0.050 kg"
+
+[parts.mgn15c]
+title = "HIWIN MGN15C carriage (average load block)"
+kind = "generator"
+generator = "cad_agent.library.gen.mgn:carriage"
+vendor = "HIWIN"
+pn = "MGN15C"
+licence = "MIT"
+geometry = "envelope"
+source = "HIWIN MG series catalog GW-11-5-EN-2207-K, table 3.79 (page 97): MGN15C, 42.1 x 32, H 16 above the rail's base and H1 4.0 clear of it, four M3 x 4 holes 20 x 25 apart, weight 0.060 kg; it runs on the 15 wide rail of table 3.81. An envelope: no balls, end caps, seals or grease nipple."
+docs = ["https://damencnc.com/userdata/file/3455-3_HIWIN_MGN_and_MGW_Product_Catalog_2023.pdf", "https://damencnc.com/userdata/file/730-3_HIWIN_Manual.pdf"]
+notes = ["the grease nipple (G 4.5 beyond the block's end) is not drawn", "HIWIN's order code adds the preload and accuracy class, which the envelope does not depend on", "no rating is declared for the standard block or rail: the catalog pages give none, and HIWIN's manual (G99LE16-0502, page 28) only offers a heat resistant steel end cap and copper bolt cap for MGN 9, 12 and 15, service under 150 C and peak 200 C"]
+
+[parts.mgn15c.dims]
+length = { value = 42.1, source = "table 3.79: L 42.1" }
+width = { value = 32.0, source = "table 3.79: W 32" }
+height = { value = 16.0, source = "table 3.79: H 16, from the rail's base to the block's top" }
+base_gap = { value = 4.0, source = "table 3.79: H1 4.0, from the rail's base to the block's underside" }
+rail_width = { value = 15.0, source = "table 3.81: WR 15, the rail it runs on" }
+hole_pitch_along = { value = 20.0, source = "table 3.79: C 20" }
+hole_pitch_across = { value = 25.0, source = "table 3.79: B 25" }
+tap_depth = { value = 4.0, source = "table 3.79: M x l = M3 x 4" }
+
+[parts.mgn15c.model]
+tap_dia = 2.5
+rail_gap = 0.2
+
+[parts.mgn15c.mass]
+g = 60.0
+source = "HIWIN MG series catalog GW-11-5-EN-2207-K, table 3.79: weight 0.060 kg"
+
+[parts.mgn15h]
+title = "HIWIN MGN15H carriage (heavy load block)"
+kind = "generator"
+generator = "cad_agent.library.gen.mgn:carriage"
+vendor = "HIWIN"
+pn = "MGN15H"
+licence = "MIT"
+geometry = "envelope"
+source = "HIWIN MG series catalog GW-11-5-EN-2207-K, table 3.79 (page 97): MGN15H, 58.8 x 32, H 16 above the rail's base and H1 4.0 clear of it, four M3 x 4 holes 25 x 25 apart, weight 0.090 kg; it runs on the 15 wide rail of table 3.81. An envelope: no balls, end caps, seals or grease nipple."
+docs = ["https://damencnc.com/userdata/file/3455-3_HIWIN_MGN_and_MGW_Product_Catalog_2023.pdf", "https://damencnc.com/userdata/file/730-3_HIWIN_Manual.pdf"]
+notes = ["the grease nipple (G 4.5 beyond the block's end) is not drawn", "HIWIN's order code adds the preload and accuracy class, which the envelope does not depend on", "no rating is declared for the standard block or rail: the catalog pages give none, and HIWIN's manual (G99LE16-0502, page 28) only offers a heat resistant steel end cap and copper bolt cap for MGN 9, 12 and 15, service under 150 C and peak 200 C"]
+
+[parts.mgn15h.dims]
+length = { value = 58.8, source = "table 3.79: L 58.8" }
+width = { value = 32.0, source = "table 3.79: W 32" }
+height = { value = 16.0, source = "table 3.79: H 16, from the rail's base to the block's top" }
+base_gap = { value = 4.0, source = "table 3.79: H1 4.0, from the rail's base to the block's underside" }
+rail_width = { value = 15.0, source = "table 3.81: WR 15, the rail it runs on" }
+hole_pitch_along = { value = 25.0, source = "table 3.79: C 25" }
+hole_pitch_across = { value = 25.0, source = "table 3.79: B 25" }
+tap_depth = { value = 4.0, source = "table 3.79: M x l = M3 x 4" }
+
+[parts.mgn15h.model]
+tap_dia = 2.5
+rail_gap = 0.2
+
+[parts.mgn15h.mass]
+g = 90.0
+source = "HIWIN MG series catalog GW-11-5-EN-2207-K, table 3.79: weight 0.090 kg"
+
+# ─── Aluminium T-slot extrusion ─────────────────────────────────────────────
+# The exact sections are drawn from Framing Tech's own models of its profiles (STEP files from the product pages,
+# SolidWorks, 6063-T6): the section at mid length, measured with build123d on 2026-10-10. Each model's section area
+# and second moments are the ones tests/test_library.py holds the generator to (within 1 percent). The model is
+# not redistributed; its sha256 is given so that the measurement can be repeated on the same file:
+#   20x20.STEP     407074 bytes  c601a3ccf0993878701cba4238a89afacfc44fb48d358c620613b68c3ed8df7b
+#   20x40.STEP     824630 bytes  9e30c8a379463208ff1113f9bfc2cdc6740ac4d2747408fab42a914c2b735047
+#   40x40-08.STEP  370422 bytes  0b7fdcde18f3ee3a6f37bc9363912fac173c1b84eabdf5b02bee6126dd73631a
+# The mass of a metre is that section's area at materials.py's density for aluminium. The pages' own weights are
+# not used where they disagree with their own areas: the 20 x 20 page says 0.40 kg/m and 1.60 cm2 (0.43 at 2.70
+# g/cm3), the 20 x 40 page 1.19 kg/m and 2.85 cm2 (0.77), the 40 x 40 page 1.75 kg/m and 6.49 cm2 (1.75).
+
+[parts.extrusion-2020]
+title = "20 x 20 T-slot aluminium extrusion, 6 mm slots, the real section"
+kind = "generator"
+generator = "cad_agent.library.gen.extrusion:tslot6"
+vendor = "Framing Tech"
+pn = "20x20"
+licence = "MIT"
+geometry = "exact"
+material = "aluminium"
+source = "Framing Tech's model of its 20 x 20 profile, 20x20.STEP (SolidWorks 2016): the section at mid length, 167.794 mm2 with Ix = Iy = 6938.5 mm4; its page says 6063-T6, four 6 mm T-slots, a centre bore for M6, 1.60 cm2 and 0.67 cm4. The model's slot edges rounded 0.5 mm or less are drawn sharp. A stiffness rule may stand on it."
+docs = ["https://framingtech.com/products/t-slot-extrusions/aluminum-extrusions/20-series-6mm-t-slot/20-x-20", "https://framingtech.com/web/content/212492?download=true"]
+notes = ["the section is 0.30 percent over the model's area and 0.13 percent over its second moments (tests/test_library.py holds it to 1 percent)", "no temperature is declared: the part rates as aluminium in materials.py"]
+
+[parts.extrusion-2020.dims]
+width = { value = 20.0, source = "20x20.STEP: the section is 20 across" }
+height = { value = 20.0, source = "20x20.STEP: the section is 20 tall" }
+corner = { value = 1.5, source = "20x20.STEP: the outer corners are rounded R1.5" }
+neck = { value = 2.9, source = "20x20.STEP: a slot's neck walls are 2.9 either side of its axis" }
+lead = { value = 3.7, source = "20x20.STEP: the lip's outer edge begins 3.7 either side of the axis" }
+lead_t = { value = 0.737, source = "20x20.STEP: the entry narrows to the neck 0.737 in from the face" }
+lip = { value = 1.537, source = "20x20.STEP: the lip is 1.537 thick" }
+cavity = { value = 5.9, source = "20x20.STEP: the cavity under the lips is 5.9 either side of the axis" }
+shoulder_t = { value = 2.945, source = "20x20.STEP: the cavity's 45 degree walls start 2.945 in from the face" }
+floor = { value = 5.5, source = "20x20.STEP: the cavity's floor is 5.5 in from the face" }
+floor_s = { value = 3.345, source = "20x20.STEP: the 45 degree walls meet the floor 3.345 either side of the axis" }
+notch_s = { value = 0.926, source = "20x20.STEP: a V notch in the floor begins 0.926 either side of the axis" }
+notch_t = { value = 6.034, source = "20x20.STEP: and comes to a point 6.034 in from the face" }
+core_r = { value = 2.8, source = "20x20.STEP: the centre bore is R2.8" }
+ear_root = { value = [1.285, 2.488], source = "20x20.STEP: the bore's four corner reliefs start on it at (1.285, 2.488)" }
+ear_tip = { value = [1.887, 2.948], source = "20x20.STEP: and reach R3.5 at (1.887, 2.948)" }
+
+[parts.extrusion-2020.params.length]
+default = 100.0
+min = 1.0
+max = 6000.0
+unit = "mm"
+source = "any length is cut from stock"
+
+[parts.extrusion-2020.params.axis]
+default = "x"
+choices = ["x", "y", "z"]
+source = "the axis the length runs along, as cad_agent.parts.extrusion_blank"
+
+[parts.extrusion-2020.mass]
+section_mm2 = 167.794
+material = "aluminium"
+param = "length"
+source = "the section of Framing Tech's 20x20.STEP (measured)"
+
+[parts.extrusion-2040]
+title = "20 x 40 T-slot aluminium extrusion, 6 mm slots, the real section"
+kind = "generator"
+generator = "cad_agent.library.gen.extrusion:tslot6"
+vendor = "Framing Tech"
+pn = "20x40"
+licence = "MIT"
+geometry = "exact"
+material = "aluminium"
+source = "Framing Tech's model of its 20 x 40 profile, 20x40.STEP (SolidWorks 2022): the section at mid length, 288.925 mm2 with Ix 12133.8 and Iy 46514.3 mm4 (the long side along y); its page says 6063-T6, six 6 mm T-slots, a centre bore for M6, 2.85 cm2 and 4.57 and 1.19 cm4. The model's slot edges rounded 0.5 mm or less are drawn sharp. A stiffness rule may stand on it."
+docs = ["https://framingtech.com/products/t-slot-extrusions/aluminum-extrusions/20-series-6mm-t-slot/20-x-40", "https://framingtech.com/web/content/212518?download=true"]
+notes = ["the section is 0.61 percent over the model's area, 0.48 percent over its second moment about x and 0.09 percent over the one about y (tests/test_library.py holds it to 1 percent)", "no temperature is declared: the part rates as aluminium in materials.py"]
+
+[parts.extrusion-2040.dims]
+width = { value = 20.0, source = "20x40.STEP: the section is 20 across" }
+height = { value = 40.0, source = "20x40.STEP: and 40 along its long side" }
+corner = { value = 1.3, source = "20x40.STEP: the outer corners are rounded R1.3" }
+neck = { value = 3.0, source = "20x40.STEP: a slot's neck walls are 3.0 either side of its axis" }
+lead = { value = 3.75, source = "20x40.STEP: the lip's outer edge begins 3.75 either side of the axis" }
+lead_t = { value = 0.75, source = "20x40.STEP: the entry narrows to the neck 0.75 in from the face" }
+lip = { value = 1.56, source = "20x40.STEP: the lip is 1.56 thick" }
+cavity = { value = 6.0, source = "20x40.STEP: the cavity under the lips is 6.0 either side of the axis" }
+shoulder_t = { value = 3.0, source = "20x40.STEP: the cavity's 45 degree walls start 3.0 in from the face" }
+floor = { value = 5.5, source = "20x40.STEP: the cavity's floor is 5.5 in from the face" }
+floor_s = { value = 3.431, source = "20x40.STEP: the 45 degree walls meet the floor 3.431 either side of the axis" }
+notch_s = { value = 0.901, source = "20x40.STEP: a V notch in the floor begins 0.901 either side of the axis" }
+notch_t = { value = 6.02, source = "20x40.STEP: and comes to a point 6.02 in from the face" }
+core_r = { value = 2.75, source = "20x40.STEP: each centre bore is R2.75" }
+ear_root = { value = [1.259, 2.508], source = "20x40.STEP: a bore's four corner reliefs start on it at (1.259, 2.508)" }
+ear_tip = { value = [1.788, 2.931], source = "20x40.STEP: and reach R3.5 at (1.788, 2.931)" }
+chamber = { value = [[0.0, 6.016], [0.901, 5.496], [3.432, 5.496], [6.3, 2.55], [8.44, 2.55]], source = "20x40.STEP: the hollow between the two modules, one quadrant of its outline as (across, along) points: (0, 6.016) (0.901, 5.496) (3.432, 5.496) (6.3, 2.55) (8.44, 2.55)" }
+
+[parts.extrusion-2040.params.length]
+default = 100.0
+min = 1.0
+max = 6000.0
+unit = "mm"
+source = "any length is cut from stock"
+
+[parts.extrusion-2040.params.axis]
+default = "x"
+choices = ["x", "y", "z"]
+source = "the axis the length runs along, as cad_agent.parts.extrusion_blank"
+
+[parts.extrusion-2040.mass]
+section_mm2 = 288.925
+material = "aluminium"
+param = "length"
+source = "the section of Framing Tech's 20x40.STEP (measured)"
+
+[parts.extrusion-4040]
+title = "40 x 40 T-slot aluminium extrusion, 8 mm slots, the real section"
+kind = "generator"
+generator = "cad_agent.library.gen.extrusion:tslot8"
+vendor = "Framing Tech"
+pn = "40x40-08"
+licence = "MIT"
+geometry = "exact"
+material = "aluminium"
+source = "Framing Tech's model of its 40 x 40 profile with four 8 mm slots, 40x40-08.STEP (SolidWorks 2014): the section at mid length, 648.495 mm2 with Ix = Iy = 91742.9 mm4; its page says 6063-T6, a centre bore for M8, 6.49 cm2 and 9.18 cm4. The model's slot edges rounded 0.5 mm or less are drawn sharp. A stiffness rule may stand on it."
+docs = ["https://framingtech.com/products/t-slot-extrusions/aluminum-extrusions/40-series-8mm-t-slot/40-x-40-08", "https://www.framingtech.com/web/content/212580?download=true"]
+notes = ["the section is 0.09 percent under the model's area and 0.14 percent under its second moments (tests/test_library.py holds it to 1 percent)", "no temperature is declared: the part rates as aluminium in materials.py"]
+
+[parts.extrusion-4040.dims]
+width = { value = 40.0, source = "40x40-08.STEP: the section is 40 across" }
+corner = { value = 4.0, source = "40x40-08.STEP: the outer corners are rounded R4" }
+neck = { value = 4.1, source = "40x40-08.STEP: a slot's neck walls are 4.1 either side of its axis" }
+lead = { value = 5.6, source = "40x40-08.STEP: the lip's outer edge, rounded R1.5, begins 5.6 either side of the axis" }
+hook_t = { value = 3.65, source = "40x40-08.STEP: the neck walls run 3.65 in from the face to a hook" }
+hook_r = { value = 1.0, source = "40x40-08.STEP: the hook's inner corner is rounded R1.0" }
+hook_top = { value = 4.65, source = "40x40-08.STEP: the hook's top is 4.65 in from the face" }
+hook_out = { value = 7.1, source = "40x40-08.STEP: the hook's outer side is 7.1 from the axis" }
+wing_c = { value = [7.6, 4.485], source = "40x40-08.STEP: the cavity wings out round a circle R2.5 about (7.6, 4.485)" }
+wing_r = { value = 2.5, source = "40x40-08.STEP: the wing's radius is 2.5" }
+wall = { value = 10.1, source = "40x40-08.STEP: the cavity's walls are 10.1 either side of the axis" }
+shoulder_r = { value = 5.0, source = "40x40-08.STEP: two shoulders of R5.0 join the walls to the floor" }
+shoulder_t = { value = 5.708, source = "40x40-08.STEP: the first shoulder's centre is 5.708 in from the face" }
+floor = { value = 12.4, source = "40x40-08.STEP: the floor is 12.4 in from the face" }
+floor_half = { value = 3.408, source = "40x40-08.STEP: the floor is 3.408 either side of the axis before the shoulders" }
+chamber_lo = { value = 11.8, source = "40x40-08.STEP: a hollow corner chamber starts 11.8 from the centre" }
+chamber_hi = { value = 18.2, source = "40x40-08.STEP: and ends 18.2 from the centre" }
+chamber_r = { value = 2.2, source = "40x40-08.STEP: its outer corner is rounded R2.2" }
+bore_r = { value = 3.35, source = "40x40-08.STEP: the centre bore is R3.35" }
+
+[parts.extrusion-4040.params.length]
+default = 100.0
+min = 1.0
+max = 6000.0
+unit = "mm"
+source = "any length is cut from stock"
+
+[parts.extrusion-4040.params.axis]
+default = "x"
+choices = ["x", "y", "z"]
+source = "the axis the length runs along, as cad_agent.parts.extrusion_blank"
+
+[parts.extrusion-4040.mass]
+section_mm2 = 648.495
+material = "aluminium"
+param = "length"
+source = "the section of Framing Tech's 40x40-08.STEP (measured)"
+
+# The envelopes: the box of the profile's outer size, which is what the evals' given files use and what a fit is
+# checked against. A box is solid, so a stiffness rule must not read it: these are `envelope`, and the exact entries
+# above are the ones to use for a beam. The mass is the real profile's, whatever the box weighs.
+
+[parts.extrusion-2020-envelope]
+title = "20 x 20 T-slot aluminium extrusion, the box of its outer size"
+kind = "generator"
+generator = "cad_agent.library.gen.extrusion:envelope"
+vendor = "Framing Tech"
+pn = "20x20"
+licence = "MIT"
+geometry = "envelope"
+material = "aluminium"
+source = "The outer size of Framing Tech's 20 x 20 profile, 20x20.STEP (SolidWorks 2016), as a box; slots and centre bore are not drawn. Its mass is the real profile's, 167.794 mm2 of section (see extrusion-2020)."
+docs = ["https://framingtech.com/products/t-slot-extrusions/aluminum-extrusions/20-series-6mm-t-slot/20-x-20", "https://framingtech.com/web/content/212492?download=true"]
+notes = ["a solid box is far stiffer than the profile: use extrusion-2020 for a beam"]
+
+[parts.extrusion-2020-envelope.dims]
+width = { value = 20.0, source = "20x20.STEP: the section is 20 across" }
+height = { value = 20.0, source = "20x20.STEP: the section is 20 tall" }
+
+[parts.extrusion-2020-envelope.params.length]
+default = 100.0
+min = 1.0
+max = 6000.0
+unit = "mm"
+source = "any length is cut from stock"
+
+[parts.extrusion-2020-envelope.params.axis]
+default = "x"
+choices = ["x", "y", "z"]
+source = "the axis the length runs along, as cad_agent.parts.extrusion_blank"
+
+[parts.extrusion-2020-envelope.mass]
+section_mm2 = 167.794
+material = "aluminium"
+param = "length"
+source = "the section of Framing Tech's 20x20.STEP (measured)"
+
+[parts.extrusion-2040-envelope]
+title = "20 x 40 T-slot aluminium extrusion, the box of its outer size"
+kind = "generator"
+generator = "cad_agent.library.gen.extrusion:envelope"
+vendor = "Framing Tech"
+pn = "20x40"
+licence = "MIT"
+geometry = "envelope"
+material = "aluminium"
+source = "The outer size of Framing Tech's 20 x 40 profile, 20x40.STEP (SolidWorks 2022), as a box; slots and centre bores are not drawn. Its mass is the real profile's, 288.925 mm2 of section (see extrusion-2040)."
+docs = ["https://framingtech.com/products/t-slot-extrusions/aluminum-extrusions/20-series-6mm-t-slot/20-x-40", "https://framingtech.com/web/content/212518?download=true"]
+notes = ["a solid box is far stiffer than the profile: use extrusion-2040 for a beam"]
+
+[parts.extrusion-2040-envelope.dims]
+width = { value = 20.0, source = "20x40.STEP: the section is 20 across" }
+height = { value = 40.0, source = "20x40.STEP: and 40 along its long side" }
+
+[parts.extrusion-2040-envelope.params.length]
+default = 100.0
+min = 1.0
+max = 6000.0
+unit = "mm"
+source = "any length is cut from stock"
+
+[parts.extrusion-2040-envelope.params.axis]
+default = "x"
+choices = ["x", "y", "z"]
+source = "the axis the length runs along, as cad_agent.parts.extrusion_blank"
+
+[parts.extrusion-2040-envelope.mass]
+section_mm2 = 288.925
+material = "aluminium"
+param = "length"
+source = "the section of Framing Tech's 20x40.STEP (measured)"
+
+[parts.extrusion-4040-envelope]
+title = "40 x 40 T-slot aluminium extrusion, the box of its outer size"
+kind = "generator"
+generator = "cad_agent.library.gen.extrusion:envelope"
+vendor = "Framing Tech"
+pn = "40x40-08"
+licence = "MIT"
+geometry = "envelope"
+material = "aluminium"
+source = "The outer size of Framing Tech's 40 x 40 profile with four 8 mm slots, 40x40-08.STEP (SolidWorks 2014), as a box; slots, chambers and bore are not drawn. Its mass is the real profile's, 648.495 mm2 of section (see extrusion-4040)."
+docs = ["https://framingtech.com/products/t-slot-extrusions/aluminum-extrusions/40-series-8mm-t-slot/40-x-40-08", "https://www.framingtech.com/web/content/212580?download=true"]
+notes = ["a solid box is far stiffer than the profile: use extrusion-4040 for a beam"]
+
+[parts.extrusion-4040-envelope.dims]
+width = { value = 40.0, source = "40x40-08.STEP: the section is 40 across" }
+height = { value = 40.0, source = "40x40-08.STEP: and 40 tall" }
+
+[parts.extrusion-4040-envelope.params.length]
+default = 100.0
+min = 1.0
+max = 6000.0
+unit = "mm"
+source = "any length is cut from stock"
+
+[parts.extrusion-4040-envelope.params.axis]
+default = "x"
+choices = ["x", "y", "z"]
+source = "the axis the length runs along, as cad_agent.parts.extrusion_blank"
+
+[parts.extrusion-4040-envelope.mass]
+section_mm2 = 648.495
+material = "aluminium"
+param = "length"
+source = "the section of Framing Tech's 40x40-08.STEP (measured)"
+
+# ─── Stepper motors ─────────────────────────────────────────────────────────
+# Envelopes: the frame's body, pilot, shaft and four tapped holes, from the makers' own drawings. The rating is the
+# ambient temperature the sheet allows (the winding's thermal class is higher, but it includes the motor's own rise).
+
+[parts.nema17]
+title = "NEMA 17 stepper motor, 1.8 degree, 34, 40 or 48 mm body"
+kind = "generator"
+generator = "cad_agent.library.gen.nema:motor"
+vendor = "Novanta IMS"
+pn = "M-17nn-1.5"
+licence = "MIT"
+geometry = "envelope"
+source = "Novanta IMS (Schneider Electric Motion) NEMA 17 stepper motors datasheet, M-1713-1.5, M-1715-1.5 and M-1719-1.5: the dimensions drawing (page 4), the weights and ambient range (page 3). A 42.3 mm square flange, pilot 22.0 x 2.03, shaft 5.0 out 23.88 from the face, four M3 holes 4.5 deep on a 31.0 square."
+docs = ["https://www.novantaims.com/downloads/datasheets/Nema17_motors.pdf"]
+notes = ["nn is 13, 15 or 19 for the 34, 40 and 48 mm bodies", "the flange's cut corners are not dimensioned on the sheet and are not drawn: the body keeps square corners, the larger envelope", "the shaft's flat, the connector and the wires are not drawn"]
+max_temp_c = 40.0
+max_temp_source = "IMS NEMA 17 datasheet, page 3 'Characteristics': ambient temperature -25 ... +40 C (thermal class 130 (B) is the winding's, which adds the motor's own rise)"
+
+[parts.nema17.dims]
+face = { value = 42.3, source = "page 4 drawing: flange 1.67 in square (42.3 mm)" }
+pilot_dia = { value = 22.0, source = "page 4: pilot diameter 0.866 in (22.0 +0/-0.052 mm)" }
+pilot_height = { value = 2.03, source = "page 4: pilot 0.08 in (2.03 mm) high" }
+shaft_dia = { value = 5.0, source = "page 4: shaft diameter 0.197 in (5.0 +0/-0.012 mm)" }
+shaft_length = { value = 23.88, source = "page 4: shaft 0.94 +-0.02 in (23.88 +-0.51 mm) from the mounting face" }
+hole_pitch = { value = 31.0, source = "page 4: bolt square 1.22 in (31.0 mm)" }
+hole_depth = { value = 4.5, source = "page 4: four M3 x P0.5 threads, 0.177 in (4.5 mm) deep minimum" }
+
+[parts.nema17.model]
+hole_dia = 2.5
+
+[parts.nema17.params.length]
+default = 40
+choices = [34, 40, 48]
+unit = "mm"
+source = "page 4: L 1.34 (34), 1.57 (40) and 1.89 (48) in (mm) for M-1713-1.5, M-1715-1.5 and M-1719-1.5"
+
+[parts.nema17.mass]
+by = "length"
+table = { "34" = 210.0, "40" = 230.0, "48" = 360.0 }
+source = "IMS NEMA 17 datasheet, page 3: weight 7.4, 8.1 and 12.7 oz (210, 230 and 360 g) for M-1713-1.5, M-1715-1.5 and M-1719-1.5"
+
+[parts.nema8]
+title = "NEMA 8 stepper motor, 1.8 degree, 42 mm body (Nanotec ST2018M0804-A)"
+kind = "generator"
+generator = "cad_agent.library.gen.nema:motor"
+vendor = "Nanotec"
+pn = "ST2018M0804-A"
+licence = "MIT"
+geometry = "envelope"
+source = "Nanotec ST2018M0804-A technical drawing 20002134, rev 08 (14.07.2025): a 20 mm square flange with R1.5 corners, pilot 15 x 1.5, shaft 4 out 15 from the pilot, four M2 holes 3 deep on a 16 square, body 42 max, weight 0.080 kg, ambient -10 to 50 C."
+docs = ["https://www.nanotec.com/fileadmin/files/Datenblaetter/Schrittmotoren/ST2018/ST2018M0804-A.pdf", "https://nanotec.com/eu/en/products/440-st2018m0804-a"]
+notes = ["the shaft's flat and the rear connector (11.8 wide, 3.5 out) are not drawn"]
+max_temp_c = 50.0
+max_temp_source = "Nanotec ST2018M0804-A drawing: ambient temperature -10 ... 50 C (insulation class B, temperature rise 80 K at standstill)"
+
+[parts.nema8.dims]
+face = { value = 20.0, source = "drawing: flange 20 square" }
+length = { value = 42.0, source = "drawing: body 42 max." }
+corner_radius = { value = 1.5, source = "drawing: 4x R1.5" }
+pilot_dia = { value = 15.0, source = "drawing: pilot diameter 15 (0/-0.033)" }
+pilot_height = { value = 1.5, source = "drawing: pilot 1.5 high" }
+shaft_dia = { value = 4.0, source = "drawing: shaft diameter 4 (0/-0.013)" }
+shaft_length = { value = 16.5, source = "drawing: shaft 15 +-0.5 beyond the 1.5 pilot, so 16.5 from the mounting face" }
+hole_pitch = { value = 16.0, source = "drawing: bolt square 16 +-0.2" }
+hole_depth = { value = 3.0, source = "drawing: four M2, depth 3 min." }
+
+[parts.nema8.model]
+hole_dia = 1.6
+
+[parts.nema8.mass]
+g = 80.0
+source = "Nanotec ST2018M0804-A drawing: weight 0.080 kg (+-10 percent)"
+
+# ─── GT2 idler ──────────────────────────────────────────────────────────────
+# No maker publishes a drawing of the smooth idler. The retailers' listings give the flange diameter, the width and
+# the bore, and Adafruit's gives the tip circle of the 20-tooth GT2 pulley the idler matches. The flange's thickness
+# is published nowhere I could read: it is a choice of the model, and the part is unconfirmed until it is measured.
+
+[parts.gt2-idler-20t]
+title = "GT2 smooth idler pulley, 20 teeth, 5 mm bore, for a 6 mm belt"
+kind = "generator"
+generator = "cad_agent.library.gen.gt2:idler"
+licence = "MIT"
+geometry = "envelope"
+verified = false
+material = "aluminium"
+unconfirmed = ["the flange thickness (1.0 mm assumed: no listing gives it)"]
+source = "Retailer listings, no maker's drawing: botland.store product 18929 (smooth pulley 20T GT2 6 mm: diameter 18 mm, bore 5 mm, overall height 8.5 mm, aluminum) and Adafruit product 1251 (20-tooth GT2 pulley: 12.2 mm across the teeth). A flanged wheel: no bearing, no hub, no set screw."
+docs = ["https://botland.store/components-for-3d-printers-construction/18929-kolo-pasowe-gladkie-20t-dla-paska-gt2-6mm-5904422354985.html", "https://www.adafruit.com/product/1251"]
+notes = ["no mass is declared: the listings give a packaged weight, not the idler's"]
+
+[parts.gt2-idler-20t.dims]
+bore = { value = 5.0, source = "botland 18929: bore diameter 5 mm; Adafruit 1251: 5 mm bore" }
+flange_od = { value = 18.0, source = "botland 18929: diameter of smooth pulley 18 mm" }
+belt_od = { value = 12.2, source = "Adafruit 1251: 12.2 mm across the 20-tooth GT2 pulley's teeth, which the smooth idler matches" }
+width = { value = 8.5, source = "botland 18929: overall height of the pulley 8.5 mm" }
+
+[parts.gt2-idler-20t.model]
+flange_t = 1.0
+
+# ─── FreeCAD-library: CC-BY 3.0, fetched into your store, never in this repo ─
+# https://github.com/FreeCAD/FreeCAD-library says "All Parts in this repository are licensed under CC-BY 3.0". Each
+# file is pinned at commit f5ca01cdcaa2f69b9295a6382719c2d90628780c (2026-10-07), by the sha256 of its bytes and by the
+# blob id GitHub lists for it. They are community models: nobody has checked them against a maker's drawing, so a
+# copy is unconfirmed until you do. The datum puts each in the part's own frame (the axis along z, centred; a motor's
+# face at z = 0 with the shaft toward +z).
+
+[parts.fcl-608zz]
+title = "608ZZ ball bearing (FreeCAD-library)"
+kind = "step"
+pn = "608ZZ"
+licence = "CC-BY-3.0"
+geometry = "envelope"
+verified = false
+unconfirmed = ["a community model, not checked against a maker's drawing"]
+source = "FreeCAD-library, Mechanical Parts/Bearings/608ZZ_Ball_Bearing.step at commit f5ca01cd: one solid 22 x 22 x 7 mm."
+attribution = "FreeCAD-library contributors, Mechanical Parts/Bearings/608ZZ_Ball_Bearing.step, https://github.com/FreeCAD/FreeCAD-library, licensed CC-BY 3.0 (https://creativecommons.org/licenses/by/3.0/); used unchanged."
+docs = ["https://github.com/FreeCAD/FreeCAD-library"]
+url = "https://raw.githubusercontent.com/FreeCAD/FreeCAD-library/f5ca01cdcaa2f69b9295a6382719c2d90628780c/Mechanical%20Parts/Bearings/608ZZ_Ball_Bearing.step"
+sha256 = "45246a4cf1bc63c8186ad8de22a74f44a63aecb450294356592c321bf281e3d3"
+size = 39363
+
+[parts.fcl-623zz]
+title = "623ZZ ball bearing (FreeCAD-library)"
+kind = "step"
+pn = "623ZZ"
+licence = "CC-BY-3.0"
+geometry = "envelope"
+verified = false
+unconfirmed = ["a community model, not checked against a maker's drawing"]
+source = "FreeCAD-library, Mechanical Parts/Bearings/623ZZ_Ball_Bearing.step at commit f5ca01cd: three solids (the two rings and the balls) 10 mm across and 4 mm along y."
+attribution = "FreeCAD-library contributors, Mechanical Parts/Bearings/623ZZ_Ball_Bearing.step, https://github.com/FreeCAD/FreeCAD-library, licensed CC-BY 3.0 (https://creativecommons.org/licenses/by/3.0/); used unchanged."
+docs = ["https://github.com/FreeCAD/FreeCAD-library"]
+url = "https://raw.githubusercontent.com/FreeCAD/FreeCAD-library/f5ca01cdcaa2f69b9295a6382719c2d90628780c/Mechanical%20Parts/Bearings/623ZZ_Ball_Bearing.step"
+sha256 = "900040c258cabfe83c113d8aa8f2fc0b1d73902afb92d6baa3e3a8cc9f429943"
+size = 42174
+datum = { move = [0.0, 0.0, 2.0], turn = [90.0, 0.0, 0.0] }
+
+[parts.fcl-gt2-idler-20t]
+title = "GT2 smooth idler pulley, 20 teeth, 5 mm bore (FreeCAD-library)"
+kind = "step"
+pn = "GT2 20T smooth, 5 mm bore"
+licence = "CC-BY-3.0"
+geometry = "envelope"
+verified = false
+unconfirmed = ["a community model, not checked against a maker's drawing"]
+source = "FreeCAD-library, Mechanical Parts/Pulleys/GT2_20T_Smooth_5mm_Bore.step at commit f5ca01cd: one solid 18 mm across and 8.75 mm along z."
+attribution = "FreeCAD-library contributors, Mechanical Parts/Pulleys/GT2_20T_Smooth_5mm_Bore.step, https://github.com/FreeCAD/FreeCAD-library, licensed CC-BY 3.0 (https://creativecommons.org/licenses/by/3.0/); used unchanged."
+docs = ["https://github.com/FreeCAD/FreeCAD-library"]
+url = "https://raw.githubusercontent.com/FreeCAD/FreeCAD-library/f5ca01cdcaa2f69b9295a6382719c2d90628780c/Mechanical%20Parts/Pulleys/GT2_20T_Smooth_5mm_Bore.step"
+sha256 = "f20d8de6ffe013061edd3d13e7f8e34df40ead68a5ac9c8b292decc1ae528d86"
+size = 51245
+datum = { move = [0.0, 0.0, -4.25], turn = [0.0, 0.0, 0.0] }
+
+[parts.fcl-nema17]
+title = "NEMA 17 stepper motor with connector (FreeCAD-library)"
+kind = "step"
+pn = "NEMA 17 with connector"
+licence = "CC-BY-3.0"
+geometry = "envelope"
+verified = false
+unconfirmed = ["a community model, not checked against a maker's drawing"]
+source = "FreeCAD-library, Electrical Parts/Motors/Stepper/NEMA/NEMA_17_with_connector.step at commit f5ca01cd: six solids, 42.3 mm square, 42.1 mm of body, a shaft out 19.9 mm and a connector 6 mm out along x."
+attribution = "FreeCAD-library contributors, Electrical Parts/Motors/Stepper/NEMA/NEMA_17_with_connector.step, https://github.com/FreeCAD/FreeCAD-library, licensed CC-BY 3.0 (https://creativecommons.org/licenses/by/3.0/); used unchanged."
+docs = ["https://github.com/FreeCAD/FreeCAD-library"]
+url = "https://raw.githubusercontent.com/FreeCAD/FreeCAD-library/f5ca01cdcaa2f69b9295a6382719c2d90628780c/Electrical%20Parts/Motors/Stepper/NEMA/NEMA_17_with_connector.step"
+sha256 = "00563aca19a218704799e413bc63b323474b6fd7720b12625ae15421a7f569fa"
+size = 8075316
+datum = { move = [0.0, 0.0, -42.1], turn = [0.0, 0.0, 0.0] }
+notes = ["8 MB: the largest file in the library"]
+
+# ─── bd_warehouse: ISO fasteners, drawn by the package (Apache-2.0, `pip install 'cad-agent[fasteners]'`) ─
+# bd_warehouse 0.4.0 draws them from the ISO tables, unthreaded (simple = True) with the head's bearing face at z = 0 and
+# the shank toward -z. tests/test_library.py holds M3 and M4 of each to the standard's tables as three pages print them:
+#   ISO 4762 (engineersedge.com/iso_socket_head_screw.htm): M3 head 5.5 x 3.0, M4 head 7.0 x 4.0
+#   ISO 4032 (wermac.org/bolts/dimensions_hex-nuts_across-flats-and-heights_din-iso.html): M3 5.5 across flats, 2.4 thick;
+#     M4 7.0, 3.2
+#   ISO 7089 (torqbolt.com/iso-7089-flat-washers-200hv-dimensions-standards-specifications): M3 3.2 bore, 7.0 across,
+#     0.55 thick; M4 4.3, 9.0, 0.9
+# Nothing here declares a mass or a rating: the standards fix neither a steel nor a weight.
+
+[parts.iso4762-screw]
+title = "ISO 4762 socket head cap screw"
+kind = "bd_warehouse"
+generator = "bd_warehouse.fastener:SocketHeadCapScrew"
+requires = "bd_warehouse"
+pn = "ISO 4762"
+licence = "Apache-2.0"
+geometry = "envelope"
+source = "ISO 4762 as bd_warehouse 0.4.0 (Gumyr, Apache-2.0) draws it: unthreaded, the head's bearing face at z = 0, the shank toward -z."
+attribution = "bd_warehouse by Gumyr, https://github.com/gumyr/bd_warehouse, Apache-2.0"
+docs = ["https://bd-warehouse.readthedocs.io/en/latest/fastener.html", "https://engineersedge.com/iso_socket_head_screw.htm"]
+
+[parts.iso4762-screw.model]
+fastener_type = "iso4762"
+simple = true
+
+[parts.iso4762-screw.params.size]
+default = "M3-0.5"
+choices = ["M2-0.4", "M2.5-0.45", "M3-0.5", "M4-0.7", "M5-0.8", "M6-1", "M8-1.25"]
+source = "ISO 4762 sizes bd_warehouse draws"
+
+[parts.iso4762-screw.params.length]
+default = 10.0
+min = 2.5
+max = 300.0
+unit = "mm"
+source = "ISO 4762 nominal lengths, 2.5 to 300 mm, from the head's bearing face to the tip"
+
+[parts.iso4032-nut]
+title = "ISO 4032 hexagon nut"
+kind = "bd_warehouse"
+generator = "bd_warehouse.fastener:HexNut"
+requires = "bd_warehouse"
+pn = "ISO 4032"
+licence = "Apache-2.0"
+geometry = "envelope"
+source = "ISO 4032 as bd_warehouse 0.4.0 (Gumyr, Apache-2.0) draws it: unthreaded, one face at z = 0."
+attribution = "bd_warehouse by Gumyr, https://github.com/gumyr/bd_warehouse, Apache-2.0"
+docs = ["https://bd-warehouse.readthedocs.io/en/latest/fastener.html", "https://www.wermac.org/bolts/dimensions_hex-nuts_across-flats-and-heights_din-iso.html"]
+
+[parts.iso4032-nut.model]
+fastener_type = "iso4032"
+simple = true
+
+[parts.iso4032-nut.params.size]
+default = "M3-0.5"
+choices = ["M2-0.4", "M2.5-0.45", "M3-0.5", "M4-0.7", "M5-0.8", "M6-1", "M8-1.25"]
+source = "ISO 4032 sizes bd_warehouse draws"
+
+[parts.iso7089-washer]
+title = "ISO 7089 plain washer"
+kind = "bd_warehouse"
+generator = "bd_warehouse.fastener:PlainWasher"
+requires = "bd_warehouse"
+pn = "ISO 7089"
+licence = "Apache-2.0"
+geometry = "envelope"
+source = "ISO 7089 as bd_warehouse 0.4.0 (Gumyr, Apache-2.0) draws it, one face at z = 0."
+attribution = "bd_warehouse by Gumyr, https://github.com/gumyr/bd_warehouse, Apache-2.0"
+docs = ["https://bd-warehouse.readthedocs.io/en/latest/fastener.html", "https://torqbolt.com/iso-7089-flat-washers-200hv-dimensions-standards-specifications"]
+
+[parts.iso7089-washer.model]
+fastener_type = "iso7089"
+
+[parts.iso7089-washer.params.size]
+default = "M3"
+choices = ["M2", "M2.5", "M3", "M4", "M5", "M6", "M8"]
+source = "ISO 7089 sizes bd_warehouse draws"

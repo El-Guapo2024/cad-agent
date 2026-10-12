@@ -32,7 +32,8 @@ The raised end of the body (the step near the hinge) and the width of the tabs
 and lever are read off the drawing to about 0.3 mm; none of them is graded.
 
 The extrusion is the envelope of a 2040 profile (20 x 40 mm, `cad tables`) with the
-slots left out, which is what cad_agent.parts.extrusion_blank draws. The flag is
+slots left out, which is what cad_agent.parts.extrusion_blank draws and the library's
+envelope generator (cad_agent/library/gen/extrusion.py) draws the same way. The flag is
 a plain tab defined by the task, not a catalogue part.
 """
 from __future__ import annotations
@@ -45,7 +46,8 @@ from pathlib import Path
 from build123d import Box, Cylinder, Pos, Rot
 
 from cad_agent.export import write_step
-from cad_agent.parts import extrusion_blank
+from cad_agent.library.gen.extrusion import envelope
+from cad_agent.parts import EXTRUSION
 
 HERE = Path(__file__).resolve().parent
 GIVEN = HERE.parent / "given" / "bought"
@@ -80,7 +82,8 @@ FLAG_SOURCE = (
 
 
 def extrusion():
-    return extrusion_blank("2040", LENGTH_EXTRUSION, axis="z")
+    e = EXTRUSION["2040"]
+    return envelope(e["w"], e["h"], LENGTH_EXTRUSION, axis="z")
 
 
 def flag():
