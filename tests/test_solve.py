@@ -133,10 +133,12 @@ def test_skipping_ignored_checks_does_not_change_the_verdict():
 
 def test_part_check_reports_what_it_skipped():
     """A cheaper run must say it was cheaper, or a reader over-reads it."""
+    from cad_agent.registry import checks
     from cad_agent.runner import part_check
     r = part_check(SLUG, PART, render=False, only={"geometry"},
                    opts={"measure": False})
-    assert r["skipped_checks"] == ["visual"]
+    assert "visual" in r["skipped_checks"]
+    assert r["skipped_checks"] == [c.name for c in checks("part") if c.name != "geometry"]     # every other one, named
     assert r["opts"] == {"measure": False}
 
 
