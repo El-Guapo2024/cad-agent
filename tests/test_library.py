@@ -25,7 +25,6 @@ import runpy
 import shutil
 import subprocess
 import sys
-import tomllib
 import urllib.error
 from pathlib import Path
 
@@ -34,7 +33,7 @@ import pytest
 from cad_agent import bought as B
 from cad_agent import cli, cmdbase, rules, undo, warm
 from cad_agent import state as st
-from cad_agent.library import catalog, check, store, use
+from cad_agent.library import catalog, store
 from cad_agent.library import cli as libcli
 from cad_agent.registry import ProjectCtx
 from conftest import cad_env
@@ -463,7 +462,7 @@ def test_parameters_are_held_to_their_type_and_limits():
     for given, message in (({"width": 5}, "no parameter width (parameters: length, axis, turns)"),
                            ({"length": 5}, "length must be from 10 to 500 mm, got 5 (the sheet)"),
                            ({"length": 501}, "length must be from 10 to 500 mm, got 501"),
-                           ({"length": "long"}, "length must be a number mm, got 'long'"),
+                           ({"length": "long"}, "length must be a number of mm, got 'long'"),
                            ({"length": True}, "length must be a number"),
                            ({"axis": "w"}, "axis must be one of x, y, z, got 'w'"),
                            ({"turns": 5}, "turns must be one of 4, 8, got 5")):
@@ -629,7 +628,6 @@ def test_a_nema_8_has_round_corners_and_the_nanotec_shaft(demo, capsys):
     motor = built(SLUG, "small")
     lo, hi = lo_hi(motor)
     assert (round(hi[0] - lo[0], 6), round(hi[1] - lo[1], 6), round(lo[2], 6), round(hi[2], 6)) == (20.0, 20.0, -42.0, 16.5)
-    from build123d import Pos, Box
     assert motor.volume < 20.0 * 20.0 * 42.0 + 4.0 ** 2 * 3.14159 * 16.5             # round corners, holes: under a box of the same size
 
 
@@ -920,6 +918,52 @@ def test_a_mass_the_sources_give_is_what_the_rules_of_step_6_weigh(demo, capsys)
     assert "Novanta IMS" in infos["motor"].max_temp_source or "IMS NEMA 17" in infos["motor"].max_temp_source
 
 
+def test_library_parts_give_the_mass_and_heat_rules_what_they_read(demo, capsys):
+    copy_in(capsys, demo, "extrusion-2040", "length=400", name="beam")
+    copy_in(capsys, demo, "nema17", name="motor")
+    copy_in(capsys, demo, "mgn12h", name="block")
+    copy_in(capsys, demo, "gt2-idler-20t", name="idler")
+    (demo / "assembly.py").write_text(
+        "from build123d import Pos\nfrom cad_agent.state import bought_solid\n\nSLUG = 'demo'\nCLEARANCE = {}\nALLOW_CONTACT = set()\n\n\n"
+        "def parts():\n    return {'beam': bought_solid(SLUG, 'beam'), 'motor': Pos(300, 0, 100) * bought_solid(SLUG, 'motor'),\n"
+        "            'block': Pos(0, 0, 40) * bought_solid(SLUG, 'block'), 'idler': Pos(0, 100, 0) * bought_solid(SLUG, 'idler')}\n")
+    (demo / "spec.toml").write_text(
+        '[[mass]]\nbodies = ["beam", "motor", "block"]\nmax_g = 700\n\n[[mass]]\nbodies = ["beam", "idler"]\nmax_g = 5000\n\n'
+        "[[heat]]\nat = [300, 0, 100]\ntemp_c = 60\nradius_mm = 80\n\n[[heat]]\nat = [0, 0, 0]\ntemp_c = 150\nradius_mm = 30\n")
+    code, data = run(capsys, "check", SLUG, "--all")
+    rows = [r for r in data["rows"] if r["rule"] in ("spec/mass", "spec/heat") or r["rule"].startswith("centre of mass")]
+    mass_rows = [r for r in rows if r["rule"] == "spec/mass"]
+    assert mass_rows[0]["state"] == "PASS" and mass_rows[0]["measured"].startswith("592.0 g")          # 312.0 + 230 + 50
+    assert "beam 312.0 g (the section of Framing Tech's 20x40.STEP (measured); 288.925 mm2 x 2.7 g/cm3" in mass_rows[0]["measured"]
+    assert "motor 230.0 g (IMS NEMA 17 datasheet, page 3" in mass_rows[0]["measured"] and "block 50.0 g (HIWIN MG series catalog" in mass_rows[0]["measured"]
+    assert mass_rows[1]["state"] == "UNCHECKED" and "no mass for idler (bought part 'idler' declares no mass_g" in mass_rows[1]["measured"]
+    heat = {r["subject"]: r for r in rows if r["rule"] == "spec/heat"}
+    assert heat["motor"]["state"] == "FAIL" and "declared 40 C (IMS NEMA 17 datasheet" in heat["motor"]["measured"]
+    assert heat["beam"]["state"] == "PASS" and "rated 170 C" in heat["beam"]["measured"]                # aluminium, from materials.py
+    com = [r for r in rows if r["rule"].startswith("centre of mass")]
+    assert com and com[0]["state"] == "UNCHECKED" and "idler" in com[0]["measured"]                      # judged now, and the idler's mass is unknown
+
+
+def test_a_library_beam_is_judged_by_the_deflection_rule_and_its_box_is_not(demo, capsys):
+    from cad_agent import spec
+    if "deflection" not in spec.KINDS:                         # step 6 piece C2: a tree without it has no such rule
+        pytest.skip("no [[deflection]] spec kind in this tree")
+    copy_in(capsys, demo, "extrusion-2040", "length=400", name="beam")
+    copy_in(capsys, demo, "extrusion-2040-envelope", "length=400", name="blank")
+    (demo / "assembly.py").write_text(
+        "from build123d import Pos\nfrom cad_agent.state import bought_solid\n\nSLUG = 'demo'\nCLEARANCE = {}\nALLOW_CONTACT = set()\n\n\n"
+        "def parts():\n    return {'beam': bought_solid(SLUG, 'beam'), 'blank': Pos(0, 100, 0) * bought_solid(SLUG, 'blank')}\n")
+    (demo / "spec.toml").write_text(
+        '[[deflection]]\nbody = "beam"\nsupport = "simple"\nload_g = 500\nat = "center"\nself_weight = true\nmax_um = 200\n\n'
+        '[[deflection]]\nbody = "blank"\nsupport = "simple"\nload_g = 500\nmax_um = 200\n')
+    code, data = run(capsys, "check", SLUG, "--all")
+    rows = {r["subject"]: r for r in data["rows"] if r["rule"] == "spec/deflection"}
+    assert rows["beam"]["state"] == "PASS" and "E 70000 MPa" in rows["beam"]["measured"]
+    second = float(re.search(r"I (\d+) mm\^4", rows["beam"]["measured"]).group(1))
+    assert second == pytest.approx(12133.8, rel=0.01)                         # the weak axis of the maker's own 20 x 40 section
+    assert rows["blank"]["state"] == "UNCHECKED" and 'not declared `geometry = "exact"`' in rows["blank"]["measured"]
+
+
 def test_the_default_name_is_the_entrys_with_underscores_and_a_name_in_use_is_not_overwritten(demo, capsys):
     data = copy_in(capsys, demo, "mgn12-rail")
     assert data["name"] == "mgn12_rail" and (bought_dir(demo) / "mgn12_rail.py").exists()
@@ -945,7 +989,7 @@ def test_replace_writes_a_part_the_library_made_again_and_never_one_it_did_not(d
 @pytest.mark.parametrize("argv, message", [
     (["mgn12-rail", "length=20"], "length must be from 35 to 2000 mm, got 20 (table 3.81: min length 35, max length 2000)"),
     (["mgn12-rail", "length=9000"], "length must be from 35 to 2000 mm, got 9000"),
-    (["mgn12-rail", "length=long"], "length must be a number mm, got 'long'"),
+    (["mgn12-rail", "length=long"], "length must be a number of mm, got 'long'"),
     (["mgn12-rail", "width=3"], "mgn12-rail has no parameter width (parameters: length)"),
     (["nema17", "length=41"], "length must be one of 34, 40, 48, got 41"),
     (["nema8", "length=42"], "nema8 has no parameter length (parameters: none)"),
@@ -960,6 +1004,14 @@ def test_a_request_that_cannot_be_done_as_asked_is_a_usage_error_that_writes_not
     assert code == cmdbase.USAGE and message in data["error"]
     assert not bought_dir(demo).exists() or list(bought_dir(demo).iterdir()) == []
     assert not (demo / ".cad" / "undo.json").exists()
+
+
+def test_a_bought_part_does_not_take_the_name_of_a_part_module(demo, capsys):
+    (demo / "parts").mkdir(exist_ok=True)
+    (demo / "parts" / "bracket.py").write_text("PARAMS = {}\n\n\ndef build():\n    raise NotImplementedError\n")
+    code, data = run(capsys, "lib", "use", SLUG, "mgn12-rail", "--as", "bracket")
+    assert code == cmdbase.USAGE and "demo already has a part module called bracket" in data["error"]
+    assert not bought_dir(demo).exists() or list(bought_dir(demo).iterdir()) == []
 
 
 def test_use_in_a_project_that_is_not_there_is_a_usage_error(capsys):
@@ -1596,6 +1648,24 @@ def test_the_library_commands_never_import_the_cad_kernel(tmp_path):
                        cwd=str(REPO))
     assert p.returncode == 0, p.stderr
     assert p.stdout.strip().splitlines()[-1] == "[0, 0, 0, 0, 0] []"
+
+
+def test_bin_cad_answers_lib_without_starting_a_worker_and_reads_the_store_it_was_given(tmp_path):
+    import tempfile
+    warm_dir = Path(tempfile.mkdtemp(prefix="cadw", dir="/tmp"))          # a socket path is capped at 104 bytes
+    try:
+        env = cad_env(CAD_WARM_DIR=str(warm_dir), CAD_LIBRARY=str(tmp_path / "store"), CAD_PREFS=str(tmp_path / "prefs.json"))
+        (tmp_path / "store").mkdir()
+        (tmp_path / "store" / f"{sha(STEP)}.step").write_bytes(STEP)
+        p = subprocess.run([str(REPO / "bin" / "cad"), "--projects", str(tmp_path / "p"), "--json", "lib", "ls", "608zz"],
+                           capture_output=True, text=True, timeout=120, env=env, cwd=str(tmp_path))
+        assert p.returncode == 0, p.stderr
+        out = json.loads(p.stdout.strip().splitlines()[-1])
+        assert out["cmd"] == "lib ls" and out["data"]["store"] == str(tmp_path / "store")
+        assert [r["name"] for r in out["data"]["entries"]] == ["fcl-608zz"]
+        assert not list(warm_dir.glob("*.sock"))                           # `lib` is in warm.KERNEL_FREE: no worker was started for it
+    finally:
+        shutil.rmtree(warm_dir, ignore_errors=True)
 
 
 # ─── The store, directly ─────────────────────────────────────────────────────────────────────────────────────

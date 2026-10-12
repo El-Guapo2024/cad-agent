@@ -6,12 +6,13 @@ the exit codes of every other command:
 
     0  the request was done, or the query answered
     1  FAIL         a file is not the one a pin names: a download or a file given to `add` that does not hash to the
-                    catalog's pin, a store file that no longer hashes to its name, a library.json that cannot be read
-                    (and, for `check`, any row that is FAIL)
-    2  UNCHECKED    nothing could be settled: the network did not answer a `fetch`, and for `check` any row that is
-    3  usage         an unknown project, entry or parameter, a name already taken, a licence that does not allow a
+                    catalog's pin, a store file that no longer hashes to its name, a library.json that cannot be read;
+                    for `check`, any row that is FAIL
+    2  UNCHECKED    nothing could be settled: the network did not answer a `fetch`; for `check`, a row that is
+                    UNCHECKED (a part that pins no hash, a catalog that has moved on since the copy was made)
+    3  usage        an unknown project, entry or parameter, a name already taken, a licence that does not allow a
                     fetch, a file that is not a STEP. Nothing was written
-    4  crash         a bug here (cad.main turns any other exception into this)
+    4  crash        a bug here (cad.main turns any other exception into this)
 
 A command that changes a project (`use`) writes its files into bought/ and journals the change like `cad bought
 add-step` does, so `cad undo` takes it back. Every command is kernel-free (warm.KERNEL_FREE has `lib`): the catalog,
@@ -21,14 +22,12 @@ geometry a generator draws is built when a project builds the part it copied in.
 from __future__ import annotations
 
 import importlib.util
-import json
-import re
 import shlex
 from pathlib import Path
 
 from .. import bought
 from .. import cmdbase
-from ..cmdbase import FAIL, OK, UNCHECKED, Result, UsageError
+from ..cmdbase import FAIL, OK, Result, UsageError
 from . import check, store, use
 from .catalog import (KINDS, NAME, IntegrityError, LibraryError, Unreachable, fetch_ruling, load, mass_of,
                       resolve_params)

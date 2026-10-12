@@ -33,7 +33,7 @@ from pathlib import Path
 
 from .. import bought
 from ..state import write_atomic
-from .catalog import FORMAT, HEX64, STORE_FILE, IntegrityError, LibraryError, Unreachable, parse_entry
+from .catalog import FORMAT, STORE_FILE, IntegrityError, LibraryError, Unreachable, parse_entry
 
 OPEN = urllib.request.urlopen              # replaced by tests: fetch is the only thing in the library that uses the network
 TIMEOUT_S = 60

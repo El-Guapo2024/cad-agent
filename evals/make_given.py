@@ -22,7 +22,7 @@ import json
 import sys
 from pathlib import Path
 
-from build123d import Axis, Box, Cone, Cylinder, Pos, Rot
+from build123d import Box, Cone, Cylinder, Pos, Rot
 
 from cad_agent.export import write_step
 from cad_agent.library.gen import nema

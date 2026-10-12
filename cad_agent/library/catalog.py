@@ -58,7 +58,7 @@ import json
 import math
 import re
 import tomllib
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, field
 from pathlib import Path
 
 from .. import bought, materials
@@ -68,7 +68,6 @@ STORE_FILE = "library.json"
 FORMAT = 1
 KINDS = ("generator", "step", "bd_warehouse")
 GEN_PACKAGE = "cad_agent.library.gen."          # a generator entry draws with one of ours
-EXTRA_PACKAGES = {"bd_warehouse": "fasteners"}   # a package an entry needs, and the extra that brings it
 NAME = re.compile(r"^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$")           # an entry: mgn12-rail
 PART_NAME = re.compile(r"^[A-Za-z][A-Za-z0-9_]{0,63}$")          # a bought part in a project: rail_x
 HEX64 = re.compile(r"^[0-9a-f]{64}$")
@@ -119,9 +118,9 @@ class Entry:
     size: int | None = None
     generator: str | None = None
     requires: str | None = None
-    dims: dict = None                # {name: {"value", "source"}}
-    model: dict = None               # {name: value}
-    params: dict = None              # {name: {"default", "min", "max", "choices", "unit", "source"}}
+    dims: dict = field(default_factory=dict)       # {name: {"value", "source"}}
+    model: dict = field(default_factory=dict)      # {name: value}
+    params: dict = field(default_factory=dict)     # {name: {"default", "min", "max", "choices", "unit", "source"}}
     unconfirmed: tuple = ()          # what a maker's drawing does not give and the geometry still needs
     notes: tuple = ()
     problems: tuple = ()
@@ -408,12 +407,12 @@ def resolve_params(entry: Entry, given: dict) -> dict:
         v = given.get(key, spec["default"])
         unit = f" {spec['unit']}" if spec["unit"] else ""
         if spec["choices"] is not None:
-            if v not in spec["choices"]:
+            if isinstance(v, bool) or v not in spec["choices"]:
                 raise LibraryError(f"{key} must be one of {', '.join(str(c) for c in spec['choices'])}, got {v!r}")
             v = spec["choices"][spec["choices"].index(v)]           # 40.0 is the choice 40: a table is keyed by it
         else:
             if not _number(v):
-                raise LibraryError(f"{key} must be a number{unit}, got {v!r}")
+                raise LibraryError(f"{key} must be a number" + (f" of {spec['unit']}" if spec["unit"] else "") + f", got {v!r}")
             v = float(v)
             if (spec["min"] is not None and v < spec["min"]) or (spec["max"] is not None and v > spec["max"]):
                 lo = "" if spec["min"] is None else f"{spec['min']:g}"

@@ -139,7 +139,7 @@ def _on(c, r, angle):
 
 
 def _arc(c, r, start, end):
-    """(the point halfway, the end point) of the arc about `c` of radius `r` from angle `start` to `end` (degrees)."""
+    """(the point halfway, the end point) of the arc about `c` of radius `r` from angle `start` to `end` (degrees, the short way)."""
     return _on(c, r, (start + end) / 2.0), _on(c, r, end)
 
 
@@ -177,8 +177,8 @@ def tslot8_section(width, corner, neck, lead, hook_t, hook_r, hook_top, hook_out
     meet = (hook_out, wing_c[1] + wing_r * math.sin(math.radians(wing_start)))
     c1 = (wall - shoulder_r, shoulder_t)
     c2 = (floor_half, floor - shoulder_r)
-    right = [((lead, -1.0), None), ((lead, 0.0), None), _round((lead, lead_r), lead_r, 225, 180),
-             ((neck, hook_t), None), _round((neck + hook_r, hook_t), hook_r, 135, 90),
+    right = [((lead, -1.0), None), ((lead, 0.0), None), _round((lead, lead_r), lead_r, 270, 180),
+             ((neck, hook_t), None), _round((neck + hook_r, hook_t), hook_r, 180, 90),
              ((hook_out, hook_top), None), (meet, None), _round(wing_c, wing_r, wing_start, 0),
              ((wall, shoulder_t), None), _round(c1, shoulder_r, 0, 45),
              (_on(c2, shoulder_r, 45), None), _round(c2, shoulder_r, 45, 90),

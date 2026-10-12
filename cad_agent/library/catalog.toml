@@ -23,8 +23,8 @@ pn = "MGNR12R"
 licence = "MIT"
 geometry = "envelope"
 source = "HIWIN MG series catalog GW-11-5-EN-2207-K, table 3.81 (page 99): MGNR12R, 12 wide and 8.0 high, holes every 25 mm, counterbore D 6.0 x 4.5 deep, through hole d 3.5, cut to length with the most holes that leave E at least 5 (F 3.16, note 2). An envelope: no ball grooves."
-docs = ["https://damencnc.com/userdata/file/3455-3_HIWIN_MGN_and_MGW_Product_Catalog_2023.pdf"]
-notes = ["HIWIN's order code adds the rail length, the accuracy class and the stainless-steel mark (MGNR12R0150HM), which the envelope does not depend on"]
+docs = ["https://damencnc.com/userdata/file/3455-3_HIWIN_MGN_and_MGW_Product_Catalog_2023.pdf", "https://damencnc.com/userdata/file/730-3_HIWIN_Manual.pdf"]
+notes = ["HIWIN's order code adds the rail length, the accuracy class and the stainless-steel mark (MGNR12R0150HM), which the envelope does not depend on", "no rating is declared for the standard block or rail: the catalog pages give none, and HIWIN's manual (G99LE16-0502, page 28) only offers a heat resistant steel end cap and copper bolt cap for MGN 9, 12 and 15, service under 150 C and peak 200 C"]
 
 [parts.mgn12-rail.dims]
 width = { value = 12.0, source = "table 3.81: WR 12" }
@@ -56,8 +56,8 @@ pn = "MGNR15R"
 licence = "MIT"
 geometry = "envelope"
 source = "HIWIN MG series catalog GW-11-5-EN-2207-K, table 3.81 (page 99): MGNR15R, 15 wide and 10.0 high, holes every 40 mm, counterbore D 6.0 x 4.5 deep, through hole d 3.5, cut to length with the most holes that leave E at least 6 (F 3.16, note 2). An envelope: no ball grooves."
-docs = ["https://damencnc.com/userdata/file/3455-3_HIWIN_MGN_and_MGW_Product_Catalog_2023.pdf"]
-notes = ["HIWIN's order code adds the rail length, the accuracy class and the stainless-steel mark, which the envelope does not depend on"]
+docs = ["https://damencnc.com/userdata/file/3455-3_HIWIN_MGN_and_MGW_Product_Catalog_2023.pdf", "https://damencnc.com/userdata/file/730-3_HIWIN_Manual.pdf"]
+notes = ["HIWIN's order code adds the rail length, the accuracy class and the stainless-steel mark, which the envelope does not depend on", "no rating is declared for the standard block or rail: the catalog pages give none, and HIWIN's manual (G99LE16-0502, page 28) only offers a heat resistant steel end cap and copper bolt cap for MGN 9, 12 and 15, service under 150 C and peak 200 C"]
 
 [parts.mgn15-rail.dims]
 width = { value = 15.0, source = "table 3.81: WR 15" }
@@ -89,8 +89,8 @@ pn = "MGN12C"
 licence = "MIT"
 geometry = "envelope"
 source = "HIWIN MG series catalog GW-11-5-EN-2207-K, table 3.79 (page 97): MGN12C, 34.7 x 27, H 13 above the rail's base and H1 3.0 clear of it, four M3 x 3.5 holes 15 x 20 apart, weight 0.030 kg; it runs on the 12 wide rail of table 3.81. An envelope: no balls, end caps, seals or grease nipple."
-docs = ["https://damencnc.com/userdata/file/3455-3_HIWIN_MGN_and_MGW_Product_Catalog_2023.pdf"]
-notes = ["HIWIN's order code adds the preload and accuracy class (MGN12CZ0HM), which the envelope does not depend on"]
+docs = ["https://damencnc.com/userdata/file/3455-3_HIWIN_MGN_and_MGW_Product_Catalog_2023.pdf", "https://damencnc.com/userdata/file/730-3_HIWIN_Manual.pdf"]
+notes = ["HIWIN's order code adds the preload and accuracy class (MGN12CZ0HM), which the envelope does not depend on", "no rating is declared for the standard block or rail: the catalog pages give none, and HIWIN's manual (G99LE16-0502, page 28) only offers a heat resistant steel end cap and copper bolt cap for MGN 9, 12 and 15, service under 150 C and peak 200 C"]
 
 [parts.mgn12c.dims]
 length = { value = 34.7, source = "table 3.79: L 34.7" }
@@ -119,8 +119,8 @@ pn = "MGN12H"
 licence = "MIT"
 geometry = "envelope"
 source = "HIWIN MG series catalog GW-11-5-EN-2207-K, table 3.79 (page 97): MGN12H, 45.4 x 27, H 13 above the rail's base and H1 3.0 clear of it, four M3 x 3.5 holes 20 x 20 apart, weight 0.050 kg; it runs on the 12 wide rail of table 3.81. An envelope: no balls, end caps, seals or grease nipple."
-docs = ["https://damencnc.com/userdata/file/3455-3_HIWIN_MGN_and_MGW_Product_Catalog_2023.pdf"]
-notes = ["HIWIN's order code adds the preload and accuracy class (MGN12HZ0HM), which the envelope does not depend on"]
+docs = ["https://damencnc.com/userdata/file/3455-3_HIWIN_MGN_and_MGW_Product_Catalog_2023.pdf", "https://damencnc.com/userdata/file/730-3_HIWIN_Manual.pdf"]
+notes = ["HIWIN's order code adds the preload and accuracy class (MGN12HZ0HM), which the envelope does not depend on", "no rating is declared for the standard block or rail: the catalog pages give none, and HIWIN's manual (G99LE16-0502, page 28) only offers a heat resistant steel end cap and copper bolt cap for MGN 9, 12 and 15, service under 150 C and peak 200 C"]
 
 [parts.mgn12h.dims]
 length = { value = 45.4, source = "table 3.79: L 45.4" }
@@ -149,8 +149,8 @@ pn = "MGN15C"
 licence = "MIT"
 geometry = "envelope"
 source = "HIWIN MG series catalog GW-11-5-EN-2207-K, table 3.79 (page 97): MGN15C, 42.1 x 32, H 16 above the rail's base and H1 4.0 clear of it, four M3 x 4 holes 20 x 25 apart, weight 0.060 kg; it runs on the 15 wide rail of table 3.81. An envelope: no balls, end caps, seals or grease nipple."
-docs = ["https://damencnc.com/userdata/file/3455-3_HIWIN_MGN_and_MGW_Product_Catalog_2023.pdf"]
-notes = ["the grease nipple (G 4.5 beyond the block's end) is not drawn", "HIWIN's order code adds the preload and accuracy class, which the envelope does not depend on"]
+docs = ["https://damencnc.com/userdata/file/3455-3_HIWIN_MGN_and_MGW_Product_Catalog_2023.pdf", "https://damencnc.com/userdata/file/730-3_HIWIN_Manual.pdf"]
+notes = ["the grease nipple (G 4.5 beyond the block's end) is not drawn", "HIWIN's order code adds the preload and accuracy class, which the envelope does not depend on", "no rating is declared for the standard block or rail: the catalog pages give none, and HIWIN's manual (G99LE16-0502, page 28) only offers a heat resistant steel end cap and copper bolt cap for MGN 9, 12 and 15, service under 150 C and peak 200 C"]
 
 [parts.mgn15c.dims]
 length = { value = 42.1, source = "table 3.79: L 42.1" }
@@ -179,8 +179,8 @@ pn = "MGN15H"
 licence = "MIT"
 geometry = "envelope"
 source = "HIWIN MG series catalog GW-11-5-EN-2207-K, table 3.79 (page 97): MGN15H, 58.8 x 32, H 16 above the rail's base and H1 4.0 clear of it, four M3 x 4 holes 25 x 25 apart, weight 0.090 kg; it runs on the 15 wide rail of table 3.81. An envelope: no balls, end caps, seals or grease nipple."
-docs = ["https://damencnc.com/userdata/file/3455-3_HIWIN_MGN_and_MGW_Product_Catalog_2023.pdf"]
-notes = ["the grease nipple (G 4.5 beyond the block's end) is not drawn", "HIWIN's order code adds the preload and accuracy class, which the envelope does not depend on"]
+docs = ["https://damencnc.com/userdata/file/3455-3_HIWIN_MGN_and_MGW_Product_Catalog_2023.pdf", "https://damencnc.com/userdata/file/730-3_HIWIN_Manual.pdf"]
+notes = ["the grease nipple (G 4.5 beyond the block's end) is not drawn", "HIWIN's order code adds the preload and accuracy class, which the envelope does not depend on", "no rating is declared for the standard block or rail: the catalog pages give none, and HIWIN's manual (G99LE16-0502, page 28) only offers a heat resistant steel end cap and copper bolt cap for MGN 9, 12 and 15, service under 150 C and peak 200 C"]
 
 [parts.mgn15h.dims]
 length = { value = 58.8, source = "table 3.79: L 58.8" }
@@ -521,7 +521,7 @@ vendor = "Nanotec"
 pn = "ST2018M0804-A"
 licence = "MIT"
 geometry = "envelope"
-source = "Nanotec ST2018M0804-A technical drawing 20002134 rev 08 (2023-10-25): a 20 mm square flange with R1.5 corners, pilot 15 x 1.5, shaft 4 out 15 from the pilot, four M2 holes 3 deep on a 16 square, body 42 max, weight 0.080 kg, ambient -10 to 50 C."
+source = "Nanotec ST2018M0804-A technical drawing 20002134, rev 08 (14.07.2025): a 20 mm square flange with R1.5 corners, pilot 15 x 1.5, shaft 4 out 15 from the pilot, four M2 holes 3 deep on a 16 square, body 42 max, weight 0.080 kg, ambient -10 to 50 C."
 docs = ["https://www.nanotec.com/fileadmin/files/Datenblaetter/Schrittmotoren/ST2018/ST2018M0804-A.pdf", "https://nanotec.com/eu/en/products/440-st2018m0804-a"]
 notes = ["the shaft's flat and the rear connector (11.8 wide, 3.5 out) are not drawn"]
 max_temp_c = 50.0

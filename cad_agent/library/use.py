@@ -130,6 +130,8 @@ def use(slug: str, catalog: Catalog, entry_name: str, given: dict, name: str | N
         raise LibraryError(f"{entry.name} is drawn by {entry.requires}, which is not installed: "
                            "`pip install 'cad-agent[fasteners]'`")
     bdir = bought.bought_dir(slug)
+    if (bdir.parent / "parts" / f"{name}.py").exists():
+        raise LibraryError(f"{slug} already has a part module called {name}: `--as` picks another name for the bought part")
     taken = _taken(bdir, name)
     if taken and not replace:
         raise LibraryError(f"bought/ already has {', '.join(p.name for p in taken)}; `--as` picks another name, "
@@ -165,12 +167,13 @@ def use(slug: str, catalog: Catalog, entry_name: str, given: dict, name: str | N
         side.pop("verified", None)                       # the module's flag says it, and `cad bought verify` edits that
     side_path = bdir / f"{name}.json"
 
+    data = src.read_bytes() if src is not None else None          # read before anything is removed
     before = {p: _text(p) for p in taken}
     for p in taken:
         p.unlink()
     bought.bought_dir(slug, create=True)
-    if src is not None:
-        geometry_file.write_bytes(src.read_bytes())
+    if data is not None:
+        geometry_file.write_bytes(data)
     else:
         geometry_file.write_text(payload, encoding="utf-8")
     side_path.write_text(json.dumps(side, indent=1) + "\n", encoding="utf-8")
