@@ -20,11 +20,12 @@ import sys
 import tempfile
 from pathlib import Path
 
-from build123d import (Axis, BuildLine, BuildPart, BuildSketch, Box, Cylinder, Plane, Polyline,
-                       Pos, make_face, revolve)
+from build123d import Cylinder
 
 from cad_agent import bought, state
 from cad_agent.export import write_step
+from cad_agent.library.gen import gt2
+from cad_agent.library.gen.extrusion import envelope as extrusion_envelope
 from cad_agent.parts import EXTRUSION
 
 OUT = Path(__file__).resolve().parent.parent / "given" / "bought"
@@ -38,17 +39,7 @@ def idler():
     20-tooth GT2 pulley (they say the smooth wheel matches it). The flange is
     taken as 1.0 mm thick, which leaves 6.5 mm between flanges for a 6 mm belt.
     """
-    bore, flange_od, belt_od, width, flange_t = 5.0, 18.0, 12.2, 8.5, 1.0
-    r0, r1, r2, h = bore / 2.0, belt_od / 2.0, flange_od / 2.0, width / 2.0
-    half = [(r0, -h), (r2, -h), (r2, -h + flange_t), (r1, -h + flange_t),
-            (r1, h - flange_t), (r2, h - flange_t), (r2, h), (r0, h), (r0, -h)]
-    with BuildPart() as part:
-        with BuildSketch(Plane.XZ):
-            with BuildLine():
-                Polyline(*half)
-            make_face()
-        revolve(axis=Axis.Z)
-    return part.part
+    return gt2.idler(bore=5.0, flange_od=18.0, belt_od=12.2, width=8.5, flange_t=1.0)
 
 
 def shaft():
@@ -69,11 +60,7 @@ def extrusion():
     end mount never touches them.
     """
     e = EXTRUSION["2040"]
-    length = 60.0
-    body = Box(length, e["h"], e["w"])
-    for sy in (-1, 1):
-        body -= Pos(0, sy * e["h"] / 4.0, 0) * Cylinder(e["bore"] / 2.0, length + 2.0).rotate(Axis.Y, 90)
-    return body
+    return extrusion_envelope(e["w"], e["h"], 60.0, axis="x", bore_dia=e["bore"], bores=2)
 
 
 PARTS = {

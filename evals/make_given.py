@@ -10,7 +10,11 @@ cad_agent.export.write_step, so every run writes the same bytes.
 
 These are task fixtures, not vendor files: the outlines follow the figures named
 in each source line, and anything the figures do not give (a hole pattern the
-task needs, a mounting face) is the task's own choice and says so.
+task needs, a mounting face) is the task's own choice and says so. The motor is
+drawn by the library's generator (cad_agent/library/gen/nema.py) with the numbers
+written out here, which are the task's own: they are not the library's NEMA 17 entry,
+whose numbers are a maker's datasheet's, and tests/test_library.py holds this file
+to the bytes it has.
 """
 from __future__ import annotations
 
@@ -18,9 +22,10 @@ import json
 import sys
 from pathlib import Path
 
-from build123d import Axis, Box, Cone, Cylinder, Pos, Rot
+from build123d import Box, Cone, Cylinder, Pos, Rot
 
 from cad_agent.export import write_step
+from cad_agent.library.gen import nema
 
 HERE = Path(__file__).resolve().parent
 
@@ -37,14 +42,10 @@ def write(task: str, name: str, solid, source: str) -> None:
 
 def nema17_motor():
     """Origin at the middle of the mounting face, shaft toward +z, body behind it."""
-    body = Pos(0, 0, -20) * Box(42.3, 42.3, 40.0)
-    body = body.chamfer(5.0, None, body.edges().filter_by(Axis.Z))      # the cut corners
-    motor = body + Pos(0, 0, 1) * Cylinder(11.0, 2.0)                   # 22 mm pilot, 2 mm high
-    motor += Pos(0, 0, 12) * Cylinder(2.5, 24.0)                        # 5 mm shaft, 24 mm out of the face
-    for sx in (-1, 1):
-        for sy in (-1, 1):                                              # M3 tapped, 4.5 mm deep
-            motor -= Pos(sx * 15.5, sy * 15.5, -1.75) * Cylinder(1.25, 5.5)
-    return motor
+    return nema.motor(face=42.3, length=40.0, corner_cut=5.0,            # the cut corners
+                      pilot_dia=22.0, pilot_height=2.0,                  # 22 mm pilot, 2 mm high
+                      shaft_dia=5.0, shaft_length=24.0,                  # 5 mm shaft, 24 mm out of the face
+                      hole_pitch=31.0, hole_dia=2.5, hole_depth=4.5)     # M3 tapped, 4.5 mm deep
 
 
 def syringe():

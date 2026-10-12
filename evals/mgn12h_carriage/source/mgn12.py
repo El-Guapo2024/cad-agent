@@ -27,6 +27,7 @@ from build123d import Box, Cylinder, Pos
 
 from cad_agent import bought, state
 from cad_agent.export import write_step
+from cad_agent.library.gen import mgn
 from cad_agent.parts import CLEARANCE_HOLE, TAP_DRILL
 
 OUT = Path(__file__).resolve().parent.parent / "given" / "bought"
@@ -41,16 +42,8 @@ def rail(length: float = 150.0):
     distance: L = (n - 1) x P + E1 + E2. Six holes on a 150 mm rail leave
     E = 12.5, inside the catalog's 5 to 20 and not over P / 2.
     """
-    w, h, pitch = 12.0, 8.0, 25.0
-    dia_cb, depth_cb, dia_thru = 6.0, 4.5, 3.5
-    n = 6
-    end = (length - (n - 1) * pitch) / 2.0
-    body = Box(length, w, h)
-    for i in range(n):
-        x = -length / 2.0 + end + i * pitch
-        body -= Pos(x, 0, 0) * Cylinder(dia_thru / 2.0, h + 2.0)
-        body -= Pos(x, 0, h / 2.0 - depth_cb / 2.0 + 0.5) * Cylinder(dia_cb / 2.0, depth_cb + 1.0)
-    return body
+    return mgn.rail(width=12.0, height=8.0, pitch=25.0, counterbore_dia=6.0, counterbore_depth=4.5, hole_dia=3.5,
+                    end_min=5.0, length=length, holes=6)
 
 
 def block():
@@ -62,19 +55,8 @@ def block():
     rail by 0.2 mm a side and above, which a real block's preload does not
     show but keeps the two from touching in every fit query.
     """
-    length, width, height = 45.4, 27.0, 10.0
-    rail_w, gap = 12.0, 0.2
-    body = Box(length, width, height)
-    channel_top = gap                       # rail top is z = 0 in this frame
-    channel = Pos(0, 0, (-height / 2.0 - 1.0 + channel_top) / 2.0) \
-        * Box(length + 2.0, rail_w + 2 * gap, channel_top + height / 2.0 + 1.0)
-    body -= channel
-    tap, depth = TAP_DRILL["M3"], 3.5       # M3 x 3.5: thread length from the catalog
-    for sx in (-1, 1):
-        for sy in (-1, 1):
-            body -= Pos(sx * 10.0, sy * 10.0, height / 2.0 - depth / 2.0 + 0.5) \
-                * Cylinder(tap / 2.0, depth + 1.0)
-    return body
+    return mgn.carriage(length=45.4, width=27.0, height=13.0, base_gap=3.0, rail_width=12.0, hole_pitch_along=20.0,
+                        hole_pitch_across=20.0, tap_dia=TAP_DRILL["M3"], tap_depth=3.5, rail_gap=0.2)
 
 
 def end_stop():
