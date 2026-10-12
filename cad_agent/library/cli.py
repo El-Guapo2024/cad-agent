@@ -239,7 +239,11 @@ def cmd_lib_add(a) -> Result:
             if flags:
                 raise UsageError(f"the catalog already says what {known.name} is; {', '.join('--' + f.replace('_', '-') for f in flags)} "
                                  "are for a file it does not know")
-            sha, dest, created = store.put(path, expect=known.sha256, store=catalog.store)
+            try:
+                sha, dest, created = store.put(path, expect=known.sha256, store=catalog.store)
+            except IntegrityError as e:
+                raise IntegrityError(f"{e}. To keep it anyway, give it a name of your own: "
+                                     f"`cad lib add NAME {a.file} --source URL`") from None
             action = f"{known.name}: the file is the one the catalog pins"
         elif known is not None:                                      # one of the user's own
             sha = store.sha256_of(path)

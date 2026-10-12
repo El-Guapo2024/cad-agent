@@ -1049,21 +1049,35 @@ def test_a_bd_warehouse_part_needs_its_package_and_the_message_says_which_extra(
     assert side_of(demo, "screw")["library_params"] == {"size": "M4-0.7"}
 
 
-def test_a_bd_warehouse_part_is_the_standards_table(demo, capsys):
+# The three standards' tables as the pages the catalog cites print them: ISO 4762 (engineersedge.com/iso_socket_head_screw.htm),
+# head diameter dk and height k; ISO 4032 (wermac.org, dimensions_hex-nuts_across-flats-and-heights_din-iso.html), across flats and
+# thickness; ISO 7089 (torqbolt.com/iso-7089-flat-washers-200hv-dimensions-standards-specifications), outside diameter and thickness.
+ISO_4762 = {"M2-0.4": (3.8, 2.0), "M2.5-0.45": (4.5, 2.5), "M3-0.5": (5.5, 3.0), "M4-0.7": (7.0, 4.0), "M5-0.8": (8.5, 5.0),
+            "M6-1": (10.0, 6.0), "M8-1.25": (13.0, 8.0)}
+ISO_4032 = {"M2-0.4": (4.0, 1.6), "M2.5-0.45": (5.0, 2.0), "M3-0.5": (5.5, 2.4), "M4-0.7": (7.0, 3.2), "M5-0.8": (8.0, 4.7),
+            "M6-1": (10.0, 5.2), "M8-1.25": (13.0, 6.8)}
+ISO_7089 = {"M2": (5.0, 0.35), "M2.5": (6.0, 0.55), "M3": (7.0, 0.55), "M4": (9.0, 0.9), "M5": (10.0, 1.1), "M6": (12.0, 1.8),
+            "M8": (16.0, 1.8)}
+
+
+def test_the_catalogs_bd_warehouse_sizes_are_the_standards_tables(demo, capsys, shipped):
     pytest.importorskip("bd_warehouse")
-    # ISO 4762 (engineersedge.com): M3 head 5.5 x 3.0, M4 7.0 x 4.0; ISO 4032 (wermac.org): M3 5.5 across flats, 2.4 thick, M4 7.0, 3.2;
-    # ISO 7089 (torqbolt.com): M3 3.2 bore, 7.0 across, 0.55 thick, M4 4.3, 9.0, 0.9. bd_warehouse knurls the head, so dk is its max: 5.68, 7.22.
-    copy_in(capsys, demo, "iso4762-screw", "size=M4-0.7", "length=12", name="screw")
-    copy_in(capsys, demo, "iso4032-nut", "size=M3-0.5", name="nut")
-    copy_in(capsys, demo, "iso7089-washer", "size=M4", name="washer")
-    screw, nut, washer = built(SLUG, "screw"), built(SLUG, "nut"), built(SLUG, "washer")
-    lo, hi = lo_hi(screw)
-    assert (round(lo[2], 3), round(hi[2], 3)) == (-12.0, 4.0)                              # k 4.0 above the face, 12 below it
-    assert 7.0 <= hi[0] - lo[0] <= 7.3
-    nl, nh = lo_hi(nut)
-    assert round(nh[2] - nl[2], 3) == 2.4 and round(nh[1] - nl[1], 3) == 5.5
-    wl, wh = lo_hi(washer)
-    assert round(wh[2] - wl[2], 3) == 0.9 and round(wh[0] - wl[0], 3) == 9.0
+    assert tuple(shipped["iso4762-screw"].params["size"]["choices"]) == tuple(ISO_4762)
+    assert tuple(shipped["iso4032-nut"].params["size"]["choices"]) == tuple(ISO_4032)
+    assert tuple(shipped["iso7089-washer"].params["size"]["choices"]) == tuple(ISO_7089)
+    for size, (dk, k) in ISO_4762.items():
+        run(capsys, "lib", "use", SLUG, "iso4762-screw", f"size={size}", "length=12", "--as", "screw", "--replace")
+        lo, hi = lo_hi(built(SLUG, "screw"))
+        assert (round(lo[2], 3), round(hi[2], 3)) == (-12.0, k), size                         # k above the face, 12 below it
+        assert dk <= hi[0] - lo[0] <= dk + 0.3, size                                          # bd_warehouse knurls the head: dk max + 0.18 to 0.27
+    for size, (flats, thick) in ISO_4032.items():
+        run(capsys, "lib", "use", SLUG, "iso4032-nut", f"size={size}", "--as", "nut", "--replace")
+        lo, hi = lo_hi(built(SLUG, "nut"))
+        assert round(hi[2] - lo[2], 3) == thick and round(hi[1] - lo[1], 3) == flats, size
+    for size, (across, thick) in ISO_7089.items():
+        run(capsys, "lib", "use", SLUG, "iso7089-washer", f"size={size}", "--as", "washer", "--replace")
+        lo, hi = lo_hi(built(SLUG, "washer"))
+        assert round(hi[2] - lo[2], 3) == thick and round(hi[0] - lo[0], 3) == across, size
 
 
 # ─── cad lib use: a STEP, from the store ─────────────────────────────────────────────────────────────────────
@@ -1185,6 +1199,7 @@ def test_add_refuses_a_file_that_is_not_the_one_the_catalog_pins_and_stores_noth
     code, data = run(capsys, "lib", "add", "widget", str(other), "--source", "a page")
     assert code == cmdbase.FAIL
     assert f"hashes to {sha(OTHER)}, not the {sha(STEP)} the catalog pins" in data["error"] and "Nothing was stored" in data["error"]
+    assert f"To keep it anyway, give it a name of your own: `cad lib add NAME {other} --source URL`" in data["error"]
     assert not (tmp_path / "store").exists() or list((tmp_path / "store").iterdir()) == []
 
 
