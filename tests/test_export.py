@@ -7,8 +7,9 @@ process starts at 1. The kernel tests below export a part that carries that coun
 
 The same goes for what a shop and a printer read (step 6, piece D): a DXF, a 3MF and an STL are pinned by their
 hashes below, and the hashes are the ones OCCT 7.9 (build123d 0.11) and OCCT 8.0 (build123d 0.13) both write, so
-this file passes on either kernel or a writer has drifted. Each of them is checked too against a reader that
-shares no code with the writer: ezdxf and trimesh for the DXF, lib3mf for the 3MF.
+this file passes on either kernel or a writer has drifted. So is a STEP, but for the one header line that names the
+kernel that wrote it. Each of them is checked too against a reader that shares no code with the writer: ezdxf and
+trimesh for the DXF, lib3mf for the 3MF.
 """
 import hashlib
 import io
@@ -139,14 +140,15 @@ def test_every_step_the_repo_writes_goes_through_write_step():
 
 # ─── What a shop and a printer read: pinned, and read back by code that is not ours ──────────────────
 
-# sha256 of each format of the two test parts, written by OCCT 7.9 and by OCCT 8.0 alike. If a hash moves,
-# either the writer changed on purpose (pin the new one), or the kernel changed what it gives it (a bug here).
+# sha256 of each format of the two test parts, written by OCCT 7.9 and by OCCT 8.0 alike (a STEP without the
+# processor line that names the kernel: `kernel_free`). If a hash moves, either the writer changed on purpose (pin
+# the new one), or the kernel changed what it gives it (a bug here).
 PINNED = {
-    ("plate", "step"): "26c0ce424c4bd954a9f0379b50f3e49ab2fd8f95bd79215f1a13b6cadafba47d",
+    ("plate", "step"): "7ca950f6e062bd6d31ac05b8cf71d6d9f9d82aa679b94142be00d1269e5d6b9e",
     ("plate", "stl"): "f5cd088af9256d7e9b6b351d08fa8af77b89f7ce673c138b963e9af1dfc4cc38",
     ("plate", "3mf"): "8c6840d1e86519f0f0ace81e66d7d7434287005c4a46970f105f72a97c98c147",
     ("plate", "dxf"): "686fb27fe2d99fa83d27fdf47320ce982f67c04f3fd0da68d7e5112e52db0693",
-    ("placed", "step"): "34af42ef8097a187b4cfc765d146ab357710026b00ae2a218f25fa5c6f9a89ef",
+    ("placed", "step"): "70f82db32de16c5d106971cc661349091c9108e87046f69749247822814e0fdd",
     ("placed", "stl"): "b1c71ccdb5663c4ff96bb2a8718d4be120d7cd62bec070d08df73224b3d5f753",
     ("placed", "3mf"): "b8efe6eed0b291b83b270be62499587d89009fd06a36ecf17ed01717d5c27b4e",
     ("placed", "dxf"): "99fa38f7ca079939e112d8b98a4e45a5be806be6766076f9e22c34ebcc4aa526",
@@ -167,7 +169,8 @@ def test_export_writes_every_format_and_refuses_one_it_does_not_know(shop):
 
 @pytest.mark.parametrize("name,fmt", sorted(PINNED))
 def test_a_part_is_the_same_bytes_in_every_format_on_either_kernel(shop, name, fmt):
-    got = hashlib.sha256(ex.export_part("shop", name, fmt).read_bytes()).hexdigest()
+    data = ex.export_part("shop", name, fmt).read_bytes()
+    got = hashlib.sha256(ex.kernel_free(data) if fmt == "step" else data).hexdigest()
     assert got == PINNED[name, fmt], (f"{name}.{fmt} is {got}. If the writer changed on purpose, pin this; if not, the "
                                       "kernel gave it other triangles, edges or numbers: OCCT 7.9 and 8.0 must agree")
 
@@ -183,11 +186,14 @@ def test_a_fresh_process_writes_the_same_dxf_3mf_and_stl(shop, tmp_path):
         assert (shop / "out" / f"plate.{fmt}").read_bytes() == data
 
 
-def test_a_step_names_occt_7_9_whichever_kernel_wrote_it():
+def test_a_step_keeps_the_kernel_it_names_and_kernel_free_is_the_same_file_without_it():
+    head = b"FILE_NAME('a','2026-01-01T00:00:00',('x'),(\n 'o'),'Open CASCADE STEP processor "
     for version in (b"7.9", b"8.0", b"8.1.2"):
-        text = b"FILE_NAME('a','2026-01-01T00:00:00',('x'),(\n 'o'),'Open CASCADE STEP processor " + version + b"','b','u');\n"
-        assert b"'Open CASCADE STEP processor 7.9'" in ex.canonical_step(text)
-    assert ex.canonical_step(ex.canonical_step(text)) == ex.canonical_step(text)
+        text = head + version + b"','b','u');\n"
+        assert b"processor " + version + b"'" in ex.canonical_step(text)                      # true, and left as it is
+        assert b"STEP processor','b','u')" in ex.kernel_free(text)
+    assert ex.kernel_free(head + b"7.9','b','u');\n") == ex.kernel_free(head + b"8.0','b','u');\n")
+    assert ex.kernel_free(b"no header") == b"no header"
 
 
 def test_a_stamp_goes_into_the_step_description_and_the_file_still_reads_back(shop, tmp_path):

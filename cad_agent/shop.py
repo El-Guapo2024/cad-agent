@@ -37,9 +37,11 @@ A file that goes to a shop is one a person may cut or print without looking, so:
 
 The bytes
 ---------
-Every file is the same bytes whenever it is made and on either kernel (export.py says how), and the manifest
-holds nothing that is not: no time, no machine, no kernel version, only the verify record's own time. So
-`--check` is exact.
+Every file is the same bytes whenever it is made, and the DXF, 3MF, STL and bom files on either kernel
+(export.py says how). A STEP names the kernel that wrote it in one header line and is otherwise the same on both,
+so `--check` compares a STEP without that line and says nothing of a folder written by the other kernel. The
+manifest holds nothing that changes with the run: no time, no machine, no kernel version, only the verify
+record's own time. So `--check` is exact.
 
 `--check`
 ---------
@@ -280,6 +282,7 @@ def _write(path: Path, data: bytes) -> None:
 
 def differences(folder: Path, plan: Plan, previous: dict) -> list:
     """What differs between a fresh run and the folder (the module docstring lists the kinds)."""
+    from .export import kernel_free
     recorded = {f["path"]: f["sha256"] for f in previous["files"]}
     out = []
     for path in sorted(plan.files):
@@ -293,7 +296,7 @@ def differences(folder: Path, plan: Plan, previous: dict) -> list:
             on_disk = sha256(target.read_bytes())
             if on_disk != recorded[path]:
                 out.append({"path": path, "why": "edited", "detail": "its bytes are not the ones the manifest recorded"})
-            elif on_disk != want:
+            elif on_disk != want and not (path.endswith(".step") and kernel_free(target.read_bytes()) == kernel_free(plan.files[path])):
                 out.append({"path": path, "why": "stale", "detail": "the design now makes other bytes"})
     for path in sorted(set(recorded) - set(plan.files) - set(plan.missing)):
         out.append({"path": path, "why": "gone", "detail": "the manifest lists it and the design no longer makes it"})

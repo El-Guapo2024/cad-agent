@@ -4,15 +4,19 @@ to the project's out/ folder, and `cad shop` (shop.py) writes the same files, fr
 A file that goes to a shop, or is a design file (a bought part is a STEP, and `cad verify` hashes bought/*),
 has to be the same bytes whenever and wherever it is written: in a fresh process or a worker that has
 exported a hundred parts, today or next week, on OCCT 7.9 or 8.0. A hash in a manifest and `cad shop --check`
-both rest on it. Each format gets there its own way:
+both rest on it. Each format gets there its own way (the DXF, 3MF and STL are the same bytes on both kernels,
+the STEP all but one line):
 
-  STEP   OCCT puts the process into it in three places, and `canonical_step` fixes each: the header's time
+  STEP   OCCT puts the process into it in two places, and `canonical_step` fixes each: the header's time
          stamp is the wall clock (pinned to STEP_STAMP); an assembly occurrence is numbered from a counter that
          lives as long as the process, and a part returned as `Pos(...) * body` is an assembly of one (the
          first export of a process writes NEXT_ASSEMBLY_USAGE_OCCURRENCE('1', ...), the twentieth writes
-         '20'; the numbers are counted again from 1, which is what a fresh process writes); and the header
-         names the version of the kernel that wrote it (pinned to STEP_PROCESSOR, the 7.9 the committed STEP
-         files say). Everything else a part's STEP says comes from the part, and is the same on both kernels
+         '20'; the numbers are counted again from 1, which is what a fresh process writes). The header also
+         names the version of the kernel that wrote it ("Open CASCADE STEP processor 7.9" or "8.0"), and that is
+         left as it is: it is true, the committed STEP files say it, and tests/test_library.py tells another
+         kernel by it. It is the only thing a part's STEP says that differs between OCCT 7.9 and 8.0 (checked on a
+         plate, a filleted block, a sphere with a cone, a torus, a bracket and a turned plate), so `kernel_free`
+         gives the bytes without it, which is what `cad shop --check` compares and the tests pin
   3MF    threemf.py: a mesh of sorted integers, in a zip written by hand (the module says why)
   STL    the same mesh, so a printed part's STL and 3MF are one shape. This replaced OCCT's own STL writer,
          whose triangles come in the kernel's order and move with its version
@@ -30,7 +34,6 @@ from build123d import export_step
 from .state import project_dir, build_part
 
 STEP_STAMP = "1970-01-01T00:00:00"      # FILE_NAME's time_stamp; the epoch says "no date", on purpose
-STEP_PROCESSOR = "Open CASCADE STEP processor 7.9"      # FILE_NAME's originating system: the kernel that wrote it
 FORMATS = ("step", "stl", "3mf", "dxf")               # what export_part writes
 
 _STAMP = re.compile(rb"(FILE_NAME\(\s*'(?:[^']|'')*'\s*,\s*')[^']*(')")
@@ -42,14 +45,18 @@ _DESCRIPTION = re.compile(rb"(FILE_DESCRIPTION\(\()")
 def canonical_step(data: bytes) -> bytes:
     """What a fresh process would have written, however the STEP in `data` was made.
 
-    Only the time stamp, the kernel's version and the occurrence numbers change. The numbers keep their order,
-    so each occurrence keeps its place: `'7', '5', '6'` becomes `'3', '1', '2'`.
+    Only the time stamp and the occurrence numbers change. The numbers keep their order, so each occurrence
+    keeps its place: `'7', '5', '6'` becomes `'3', '1', '2'`.
     """
     data = _STAMP.sub(lambda m: m[1] + STEP_STAMP.encode() + m[2], data, count=1)
-    data = _PROCESSOR.sub(STEP_PROCESSOR.encode(), data, count=1)
     seen = sorted({int(m[2]) for m in _OCCURRENCE.finditer(data)})
     number = {old: b"%d" % new for new, old in enumerate(seen, 1)}
     return _OCCURRENCE.sub(lambda m: m[1] + number[int(m[2])] + m[3], data)
+
+
+def kernel_free(data: bytes) -> bytes:
+    """A STEP without the one thing in it that is the kernel's: the version it names as its processor."""
+    return _PROCESSOR.sub(b"Open CASCADE STEP processor", data, count=1)
 
 
 def stamp_step(data: bytes, stamp: str) -> bytes:
@@ -59,7 +66,8 @@ def stamp_step(data: bytes, stamp: str) -> bytes:
 
 
 def step_bytes(shape) -> bytes:
-    """The STEP of `shape`: the same shape, the same bytes, in any process at any time, on either kernel."""
+    """The STEP of `shape`: the same shape, the same bytes, in any process at any time (and on either kernel, but for
+    the processor line, see `kernel_free`)."""
     with tempfile.TemporaryDirectory() as tmp:
         raw = Path(tmp) / "shape.step"
         export_step(shape, str(raw))

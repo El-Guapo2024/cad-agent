@@ -712,6 +712,22 @@ def test_check_names_every_way_a_folder_can_differ(shopped, capsys):
     assert "edited   clip.stl" in text and "missing  panel.step" in text and "extra    stray.txt" in text
 
 
+def test_check_does_not_mind_a_step_the_other_kernel_wrote(shopped, capsys):
+    step = shopped / "block.step"
+    other = re.sub(rb"processor [0-9.]+", b"processor 6.1", step.read_bytes(), count=1)
+    assert other != step.read_bytes()
+    step.write_bytes(other)
+    manifest = json.loads((shopped / "manifest.json").read_text())
+    next(f for f in manifest["files"] if f["path"] == "block.step")["sha256"] = hashlib.sha256(other).hexdigest()
+    (shopped / "manifest.json").write_text(json.dumps(manifest))                     # as if `cad shop` had run on that kernel
+    assert run(capsys, "shop", SLUG, "--check")[0] == cli.OK
+    step.write_bytes(other.replace(b"DATA;", b"DATA; ", 1))                          # but any other change to it is stale
+    manifest["files"][[f["path"] for f in manifest["files"]].index("block.step")]["sha256"] = hashlib.sha256(step.read_bytes()).hexdigest()
+    (shopped / "manifest.json").write_text(json.dumps(manifest))
+    code, data = run(capsys, "shop", SLUG, "--check")
+    assert code == cli.FAIL and [(d["path"], d["why"]) for d in data["differences"]] == [("block.step", "stale")]
+
+
 def test_check_cannot_say_when_there_is_nothing_to_compare_or_nothing_that_could_pass(project, capsys, monkeypatch):
     no_drawings(monkeypatch)
     code, data = run(capsys, "shop", SLUG, "--check")                                  # no out/shop yet
