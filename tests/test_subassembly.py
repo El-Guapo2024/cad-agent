@@ -849,6 +849,7 @@ def test_the_childs_rows_in_the_parents_check_are_the_ones_its_own_check_gives(a
     assert {r["check"] for r in from_child} >= {"gantry:geometry", "gantry:fit", "gantry:sweep", "gantry:spec", "gantry:visual"}
     assert parent["tree"]["projects"] == ["gantry"] and parent["tree"]["subassemblies"][0]["bodies"] == 2
     assert "tree" not in own and parent["summary"]["parts_built"] == 1             # the child's parts are not the parent's
+    assert any(r["artifacts"] for r in own["rows"]) and not any(r["artifacts"] for r in from_child)   # its renders are in its folder
     assert json.loads((st.project_dir("machine") / "checks.json").read_text())["tree"] == parent["tree"]
 
 
@@ -895,6 +896,22 @@ def test_a_child_edit_misses_the_cache_and_the_parent_sees_the_new_geometry(tree
     code, scene = run(capsys, "scene", "machine")
     assert parts_got(scene, "built") == [] and "gantry/block" in scene["bodies"]      # and the edit was kept for the next command
     assert sorted(p.name for p in buildcache.cache_dir(st.project_dir("gantry")).glob("*.part"))   # in the child's own cache
+
+
+def test_checking_the_parent_after_a_child_edit_reads_the_new_geometry(tree, capsys):
+    buildcache.forget()
+    (tree / "machine" / "spec.toml").write_text('[[size]]\nbody = "gantry/block"\nmax_mm = [20, 20, 20]\n')
+    sizes = lambda data: [r["measured"] for r in data["rows"] if r["rule"] == "spec/size"]
+    code, first = run(capsys, "check", "machine", "--all")
+    assert sizes(first) == ["10.0 x 10.0 x 10.0 mm"] and parts_got(first, "built") == ["block", "plate", "plate"]
+    code, second = run(capsys, "check", "machine", "--all")
+    assert sizes(second) == sizes(first) and parts_got(second, "built") == [] and parts_got(second, "cache") == ["block", "plate", "plate"]
+    (tree / "gantry" / "parts" / "block.py").write_text(BLOCK.replace('"size": 10.0', '"size": 14.0'))
+    code, third = run(capsys, "check", "machine", "--all")
+    assert sizes(third) == ["14.0 x 14.0 x 14.0 mm"] and parts_got(third, "built") == ["block"]
+    code, fresh = run(capsys, "check", "machine", "--all", "--no-cache")               # a run that trusts no cache says the same
+    assert [key(r) for r in fresh["rows"]] == [key(r) for r in third["rows"]]
+    assert parts_got(fresh, "built") == ["block", "plate", "plate"]
 
 
 def test_a_part_that_runs_a_childs_files_is_keyed_by_them_and_the_rest_is_not(tree):
@@ -1000,6 +1017,7 @@ def test_the_child_is_asked_for_its_own_parts_and_writes_into_itself(tree, capsy
     ["cutlist", "machine"],
     ["render", "machine"],
     ["check", "machine", "--part", "plate"],
+    ["page", "machine"],
     ["ls", "machine"],
     ["status", "machine"],
     ["gui", "select", "machine", CHILD_BODY],

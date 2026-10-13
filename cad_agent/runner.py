@@ -203,6 +203,7 @@ def _project_rows(project: str, sub) -> list:
         rows += run_check(spec, pctx)
     for r in rows:
         r.check = f"{project}:{r.check}"
+        r.artifacts = []          # they are paths in the child's folder, which the page would look for in the parent's
     return rows
 
 
