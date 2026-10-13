@@ -25,9 +25,12 @@ import re
 import runpy
 import shlex
 import shutil
+import ssl
 import subprocess
 import sys
+import types
 import urllib.error
+import urllib.request
 from pathlib import Path
 
 import pytest
@@ -42,6 +45,7 @@ from conftest import cad_env
 from test_cli import log_lines, run
 
 REPO = Path(__file__).resolve().parent.parent
+REAL_OPEN = store.OPEN                  # before the fixtures below replace it with one that fails
 SLUG = "demo"
 CATALOG_TOML = REPO / "cad_agent" / "library" / "catalog.toml"
 STEP = b"ISO-10303-21;\nHEADER;\nENDSEC;\nDATA;\n#1 = CARTESIAN_POINT('', (0., 0., 0.));\nENDSEC;\nEND-ISO-10303-21;\n"
@@ -1350,6 +1354,51 @@ def test_a_store_record_that_cannot_be_read_is_never_written_over(capsys, tmp_pa
 
 
 # ─── cad lib fetch ───────────────────────────────────────────────────────────────────────────────────────────
+
+NO_ROOTS = ssl.DefaultVerifyPaths(cafile=None, capath=None, openssl_cafile_env="SSL_CERT_FILE", openssl_cafile="/nowhere/cert.pem",
+                                  openssl_capath_env="SSL_CERT_DIR", openssl_capath="/nowhere/certs")
+
+
+def test_a_python_with_no_root_certificates_verifies_a_download_with_certifi_or_the_system_bundle(monkeypatch, tmp_path):
+    """python.org's macOS builds find no roots until their user runs Install Certificates.command, so a plugin's venv made
+    from one failed every `lib fetch` with CERTIFICATE_VERIFY_FAILED, which reads as a network that did not answer
+    (a handshake with raw.githubusercontent.com, where the catalog's files are, failed on /usr/local/bin/python3.13)."""
+    monkeypatch.setattr(ssl, "get_default_verify_paths", lambda: NO_ROOTS)
+    certifi_pem, system_pem = tmp_path / "certifi.pem", tmp_path / "system.pem"
+    monkeypatch.setitem(sys.modules, "certifi", types.SimpleNamespace(where=lambda: str(certifi_pem)))
+    monkeypatch.setattr(store, "SYSTEM_ROOTS", (str(system_pem),))
+    assert store.root_file() is None                        # nothing anywhere: the default context fails as it always did
+    system_pem.write_text("x")
+    assert store.root_file() == str(system_pem)
+    certifi_pem.write_text("x")
+    assert store.root_file() == str(certifi_pem)            # certifi's first
+    monkeypatch.setitem(sys.modules, "certifi", None)       # an import of it fails
+    assert store.root_file() == str(system_pem)
+    monkeypatch.setattr(ssl, "get_default_verify_paths", lambda: NO_ROOTS._replace(cafile="/somewhere/cert.pem"))
+    assert store.root_file() is None                        # a Python that has roots of its own is left alone
+
+
+def test_the_bundle_it_falls_back_to_loads_into_a_real_context(monkeypatch):
+    certifi = pytest.importorskip("certifi")
+    monkeypatch.setattr(ssl, "get_default_verify_paths", lambda: NO_ROOTS)
+    monkeypatch.setattr(store, "SYSTEM_ROOTS", ())
+    ctx = store.tls_context()
+    assert ctx.verify_mode == ssl.CERT_REQUIRED and ctx.check_hostname and ctx.cert_store_stats()["x509_ca"] > 0
+    assert store.root_file() == certifi.where()
+
+
+def test_the_download_opener_hands_urlopen_that_context_and_the_timeout(monkeypatch):
+    seen = {}
+
+    def urlopen(request, timeout=None, context=None):
+        seen.update(request=request, timeout=timeout, context=context)
+        return "a response"
+
+    monkeypatch.setattr(store, "tls_context", lambda: "the context")
+    monkeypatch.setattr(urllib.request, "urlopen", urlopen)
+    assert REAL_OPEN("a request", timeout=5) == "a response"
+    assert seen == {"request": "a request", "timeout": 5, "context": "the context"}
+
 
 def test_fetch_downloads_a_file_the_licence_allows_and_stores_it_under_its_hash(capsys, tiny, tmp_path, monkeypatch):
     calls = []

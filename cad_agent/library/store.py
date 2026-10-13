@@ -15,7 +15,8 @@ it uses (use.py) and reads only its own tree after that, so a store that is gone
 verdict about a design that was verified.
 
 Nothing here imports the CAD kernel, and nothing reaches the network when it is imported: a download goes
-through `OPEN`, which a test replaces.
+through `OPEN`, which a test replaces. It verifies the server with the Python's own root certificates, and with
+certifi's or the system's when the Python has none (tls_context says why).
 """
 from __future__ import annotations
 
@@ -25,6 +26,7 @@ import json
 import os
 import re
 import shutil
+import ssl
 import tempfile
 import time
 import urllib.error
@@ -35,11 +37,38 @@ from .. import bought
 from ..state import write_atomic
 from .catalog import FORMAT, STORE_FILE, IntegrityError, LibraryError, Unreachable, parse_entry
 
-OPEN = urllib.request.urlopen              # replaced by tests: fetch is the only thing in the library that uses the network
 TIMEOUT_S = 60
+SYSTEM_ROOTS = ("/etc/ssl/cert.pem",)      # macOS's bundle, the one curl uses
 MAX_BYTES = 256 * 1024 * 1024              # a STEP larger than this is not one a catalog pins
 CHUNK = 1 << 20
 STORE_NAME = re.compile(r"^[0-9a-f]{64}\.step$")
+
+
+def root_file() -> str | None:
+    """A file of root certificates to verify a download with when this Python has none of its own, else None.
+
+    python.org's macOS builds look for roots in a folder that is empty until their user runs Install Certificates.command,
+    and a plugin's venv is made from whatever Python the machine has: every `lib fetch` there would fail with
+    CERTIFICATE_VERIFY_FAILED, which reads as a network that did not answer. certifi's bundle comes first (requests
+    brings it, with build123d), then the system's."""
+    paths = ssl.get_default_verify_paths()
+    if paths.cafile or paths.capath:           # None when the file or folder the Python looks in is not there
+        return None
+    try:
+        import certifi
+        found = [certifi.where(), *SYSTEM_ROOTS]
+    except ImportError:
+        found = list(SYSTEM_ROOTS)
+    return next((p for p in found if os.path.isfile(p)), None)
+
+
+def tls_context() -> ssl.SSLContext:
+    return ssl.create_default_context(cafile=root_file())
+
+
+def OPEN(request, timeout=None):
+    """urlopen with `tls_context`: replaced by tests, as fetch is the only thing in the library that uses the network."""
+    return urllib.request.urlopen(request, timeout=timeout, context=tls_context())
 
 
 def store_dir() -> Path:
