@@ -34,11 +34,11 @@ returns exactly six bodies, with these names:
 - Don't model screws: a tapped hole is modelled at its drill size, so a screw would overlap
   the plate.
 - Material: the standoffs must be rated for at least 250 C continuous, which `cad verify` checks (the heat
-  bullet below): `MATERIAL` is one of the materials `cad tables materials` knows, and that table gives each one's
-  maximum service temperature with where the number came from. Aluminium (170 C there), brass (120) and copper
-  (200) fall short, and so do PLA, PETG, ABS, nylon, acrylic and FR4. A material the table does not know (PTFE, a
-  machinable ceramic, PEEK) has no rating, and then the row cannot pass. Prefer low conductivity, since the air gap
-  is there to keep heat out of the base. Set `PROCESS = "cnc"`: nothing printed survives this.
+  bullet below). `MATERIAL` is one of the materials `cad tables materials` knows, and that table, not a handbook or
+  memory, is what the grader reads: it gives each one's maximum service temperature with its basis and where the
+  number came from. A material it does not know (PTFE, a machinable ceramic, PEEK) has no rating, and then the row
+  cannot pass. Prefer low conductivity, since the air gap is there to keep heat out of the base. Set
+  `PROCESS = "cnc"`: nothing printed survives this.
 
 ## What `cad verify` grades
 

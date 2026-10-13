@@ -211,20 +211,24 @@ def test_a_failing_entry_for_each_piece_fails_on_its_own_row_and_nothing_else_mo
     spec = root / PARENT / "spec.toml"
     text = spec.read_text()
     assert "base = 1\n" in text
-    spec.write_text((text.replace("base = 1\n", "base = 2\n") + BREAKS))              # and one BOM quantity that is wrong
+    assert '"drawings/base.pdf",' in text                                                    # the drawings of the two laser plates
+    spec.write_text((text.replace("base = 1\n", "base = 2\n")                              # and one BOM quantity that is wrong,
+                     .replace('"drawings/base.pdf",', '"drawings/base.pdf", "drawings/nowhere.pdf",') + BREAKS))   # and a drawing that is not
     monkeypatch.setattr(st, "ROOT", root)
     monkeypatch.setenv("CAD_LIBRARY", str(root / "store"))
     payload = check_all(PARENT, render_views=("iso",))
     failing = [(r["rule"], r["subject"]) for r in payload["rows"] if r["state"] == "FAIL"]
     assert sorted(failing) == sorted([
         ("spec/heat", "insulator"), ("spec/deflection", "gantry/beam"), ("spec/mass", "axis slide"),
-        ("spec/clearance", "gantry/beam|back_wall"), ("spec/axis", "axis gantry/x"), ("spec/shop", "base")])
+        ("spec/clearance", "gantry/beam|back_wall"), ("spec/axis", "axis gantry/x"), ("spec/shop", "base"),
+        ("spec/shop", "drawings/nowhere.pdf")])
     got = {(r["rule"], r["subject"]): r["measured"] for r in payload["rows"] if r["state"] == "FAIL"}
     assert got[("spec/heat", "insulator")] == "polyimide (Tg) rated 360 C, 0.00 mm from hot_plate"
     assert number(got[("spec/deflection", "gantry/beam")], r"^([\d.]+) um") == pytest.approx(0.905, abs=0.01)
     assert got[("spec/clearance", "gantry/beam|back_wall")] == "18.000 mm at pose park, too close"
     assert "runs 90.0 deg off the line asked for" in got[("spec/axis", "axis gantry/x")]
     assert got[("spec/shop", "base")].startswith("1 in the BOM")
+    assert got[("spec/shop", "drawings/nowhere.pdf")] == "cad shop does not draw it: no part 'nowhere' in the BOM"
 
 
 # ─── cad bom, cad shop and cad drawing on it ─────────────────────────────────
@@ -259,6 +263,7 @@ def test_a_draft_of_the_shop_files_is_stamped_and_exits_2_until_the_design_is_do
         f"drawings/{p}.pdf" for p in ("back_wall", "base", "hot_plate", "insulator")]     # a drawing for each plate
     manifest = json.loads((folder / "manifest.json").read_text())
     assert manifest["draft"] is True and manifest["verdict"] == "NOT VERIFIED" and manifest["drawings"]["built"] is True
+    assert {"drawings/base.pdf", "drawings/base.dxf", "drawings/back_wall.svg"} <= set(manifest["drawings"]["files"])   # [shop] files
     assert "NOT VERIFIED" in (folder / "base.dxf").read_text() and "NOT VERIFIED" in (folder / "bom.csv").read_text()
     assert not any(p.startswith(("post", "tool_plate", "gantry")) for p in made)              # the child's files are its own
     assert not [r for r in data["rows"] if r["state"] == "FAIL"]                              # and no row refused a file

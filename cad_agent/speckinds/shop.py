@@ -28,8 +28,13 @@ a key may also be the name of one of a line's bodies):
               cannot ask for this. The lines without are one UNCHECKED row naming each and why. "any" asks nothing
   files       each name must be a file `cad shop` makes for this BOM: <part>.step for each made part, <part>.dxf for
               a laser_cut part, <part>.3mf and <part>.stl for an fdm part, bom.csv, bom.json, manifest.json. One that
-              is not is a FAIL naming the part's process. A drawing (`drawings/...`) is piece E's, and is UNCHECKED
-              here: the BOM cannot say what it will make
+              is not is a FAIL naming the part's process. A drawing, `drawings/<part>.dxf`, `.svg` or `.pdf`, is one
+              cad shop makes for a cnc or laser_cut part that is a plate `cad drawing` can draw, and the BOM cannot say
+              which are: so it is judged by asking what `cad shop` asks, `cad_agent.drawing.shop_drawings`, for the made
+              parts of this project built from source. That is the list of the manifest's `drawings` block and of
+              out/shop/drawings/, so a name that passes is a file the shop writes, and one that fails says why (the
+              part is printed, is not a plate, its drawing did not pass its own gates: the reason `cad shop` gives in
+              `skipped`). UNCHECKED when that cannot be asked: a part does not build, or the drawing module raised
 
 and one summary row, `bom`, with the number of lines and bodies; UNCHECKED if the assembly has no bodies, since a
 BOM of nothing says nothing. A key this section does not have is an UNCHECKED row for the entry, like any other kind.
@@ -85,7 +90,7 @@ def shop(entry: dict, ctx):
     if mass == "known":
         yield _mass(leaves, t)
     if files:
-        yield from _files(bill, files)
+        yield from _files(ctx.slug, bill, files)
     for r in bomlib.module_rows(ctx.slug, bill, solids, rule="spec/shop file"):
         yield r
 
@@ -139,15 +144,22 @@ def _mass(leaves, totals):
     return row("masses", "shop", "PASS", f"every line has a mass, {totals['mass_known_g']:.2f} g in all", limit, source)
 
 
-def _files(bill, wanted: list):
+def _files(slug, bill, wanted: list):
     made = {ln.part: ln for ln in bill.lines if ln.shop_files}
     planned = {f for ln in made.values() for f in ln.shop_files} | set(ALWAYS)
     limit, source = "a file cad shop makes for this BOM", "the shop files of the BOM lines (bom.py)"
+    drawn = None                                    # what cad shop draws, asked once and only if a drawing is named
     bad = 0
     for f in wanted:
         if f.startswith("drawings/"):
-            bad += 1
-            yield row(f, "shop", "UNCHECKED", "a drawing is piece E's, and the BOM cannot say what it makes", limit, source)
+            drawn = drawn or _drawn(slug, bill)
+            files, skipped, why = drawn
+            if files is None:
+                bad += 1
+                yield row(f, "shop", "UNCHECKED", f"cannot say whether cad shop draws it: {why}", limit, _DRAWN)
+            elif f not in files:
+                bad += 1
+                yield row(f, "shop", "FAIL", f"cad shop does not draw it: {_not_drawn(f, slug, bill, skipped)}", limit, _DRAWN)
         elif f not in planned:
             bad += 1
             stem, _, ext = f.rpartition(".")
@@ -161,3 +173,44 @@ def _files(bill, wanted: list):
             yield row(f, "shop", "FAIL", f"cad shop does not make it: {why}", limit, source)
     if not bad:
         yield row("files", "shop", "PASS", f"{len(wanted)} files, all made: {', '.join(wanted)}", limit, source)
+
+
+_DRAWN = "the drawings cad_agent.drawing.shop_drawings makes for the made parts, which are the manifest's (shop.py)"
+
+
+def _drawn(slug: str, bill) -> tuple:
+    """(the paths `cad shop` would write under drawings/, why a part is not drawn by part, why not) for this project.
+
+    It is the call `cad shop` makes (shop._drawings, on the parts built from source), so what it names is what the
+    manifest's `drawings` block lists. The paths are None when it cannot be asked: a part that does not build (the
+    part rules say so), a drawing module that is missing or raised."""
+    from .. import shop as shoplib
+    from .. import state as st
+    made = {}
+    for ln in bill.lines:
+        if ln.kind == "made" and ln.project == slug and ln.part:
+            made.setdefault(ln.part, ln.process)
+    try:
+        solids = {part: st.build_part(slug, part)[0] for part in sorted(made)}
+    except Exception as e:      # noqa: BLE001 - a part that does not build is for the part rules to fail, not this
+        return None, {}, f"{type(e).__name__}: {e}"
+    drawings, rows = shoplib._drawings(slug, solids, made, None)
+    if rows and rows[0].state != "PASS":
+        return None, {}, rows[0].measured
+    if not drawings["built"]:
+        return None, {}, drawings.get("why") or "cad shop makes no drawings"
+    return set(drawings["files"]), drawings["skipped"], None
+
+
+def _not_drawn(name: str, slug: str, bill, skipped: dict) -> str:
+    """Why `drawings/<part>.<ext>` is not among what cad shop draws."""
+    stem, _, ext = name.removeprefix("drawings/").rpartition(".")
+    if "/" in stem or not stem or ext not in ("dxf", "svg", "pdf"):
+        return f"it writes drawings/<part>.dxf, .svg and .pdf, and {name} is none of them"
+    if stem in skipped:
+        return f"{stem} is not drawn: {skipped[stem]}"
+    if any(ln.kind == "made" and ln.project == slug and ln.part == stem for ln in bill.lines):
+        return f"{stem} is drawn, but not as {ext}"
+    if any(stem == (ln.part or ln.name) for ln in bill.lines):
+        return f"{stem} is not made in this project, so it is drawn by the project that makes it"
+    return f"no part {stem!r} in the BOM"

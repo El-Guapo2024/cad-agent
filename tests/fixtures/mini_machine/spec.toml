@@ -101,7 +101,7 @@ pose = "work"
 orderable = true
 mass = "known"
 files = ["base.dxf", "back_wall.dxf", "base.step", "back_wall.step", "insulator.step", "hot_plate.step",
-         "bom.csv", "bom.json", "manifest.json"]
+         "drawings/base.pdf", "drawings/base.dxf", "drawings/back_wall.svg", "bom.csv", "bom.json", "manifest.json"]
 
 # The BOM has the gantry's lines nested under it (5.1 post, 5.2 extrusion_2020, ...), and a key may be any of them.
 [shop.bom]
