@@ -1,6 +1,6 @@
 # cad-agent
 
-AI agents that design mechanical parts. You describe a part or an assembly; the agent writes it as code, checks that the parts fit, and shows you the result in a live 3D workbench where you can move parts yourself. A design is only marked done when every check passes.
+AI agents that design mechanical parts and machines. You describe a part, an assembly or a machine; the agent writes it as code, checks that the parts fit, and shows you the result in a live 3D workbench where you can move parts yourself. A design is only marked done when every check passes.
 
 ## Demo
 
@@ -16,6 +16,14 @@ More designs: the workbench inspector, and an Arduino car.
 | | |
 |---|---|
 | ![Arduino car](docs/images/arduino-car-iso.png) | ![Arduino car, top](docs/images/arduino-car-top.png) |
+
+## What it does
+
+- **Parts and assemblies as code.** Each part is a Python module (build123d). Gates check fit, motion, wall thickness, what the process can make, and where every bought part's numbers came from.
+- **A spec as acceptance tests.** `spec.toml` states what the design must do: sizes, clearances, keep-outs, bolt holes that line up, mass budgets, hot zones (everything near a heater is rated for it), beam deflection, axes, how many bodies, what goes to a shop. What a rule can't measure says UNCHECKED, and UNCHECKED is not a pass.
+- **A library of real parts.** MGN rails and carriages, 2020/2040/4040 extrusions, NEMA 8 and 17 motors, ISO fasteners, each with its source, mass and hash.
+- **Machines.** A machine is projects linked as sub-assemblies (a gantry, a head), with named poses. Each one stays a full project, and the machine is done only when every one is.
+- **Files for a shop.** STEP, DXF for laser parts, 3MF and STL for printed ones, dimensioned drawings of plates and a bill of materials, written only for a design that is done, with a manifest of hashes.
 
 ## Install
 
@@ -37,6 +45,31 @@ Then ask it to design something ("design a bracket for a NEMA 17 motor"), and op
 5. **Approve the renders.** Some checks compare each part's picture with an approved one, and approving is your call: **CAD Agent > Approve Renders…** in the workbench. Then Claude runs the final verify, and the design is marked done.
 
 The status bar shows what's left, like "6 unchecked · NOT VERIFIED" before the renders are approved. Ask "review the design" for a second opinion on things no check covers, such as assembly order and tool access.
+
+## Commands
+
+You mostly ask Claude and it runs these; they work from a shell too (`cad --help` lists them all). The exit code is the verdict: 0 pass, 1 FAIL, 2 UNCHECKED, 3 bad arguments, 4 crash.
+
+```
+cad init | check | verify | done              the design loop: a design is done only when verify passed on committed work
+cad lib ls | info | use | add | fetch | check  the part library
+cad export <project> <part> --format step|stl|3mf|dxf
+cad bom <project>                              the bill of materials (CSV and JSON)
+cad shop <project> [--draft | --check]         the shop files, for a design that is done
+cad drawing <project> <part>                   a dimensioned drawing of a machined or laser-cut plate (DXF, SVG, PDF)
+```
+
+## The library
+
+Vendor STEP files never go in this repo. They live in a folder of yours, `~/.cad-agent/library` or wherever `CAD_LIBRARY` points (a private repo works). `cad lib fetch` downloads a file only where its licence allows it; for any other, download it by hand and run `cad lib add`. `cad lib use` copies what a design needs into its `bought/` folder with its source, mass and hash, so verifying a design never reads the library.
+
+The ISO fasteners come from [bd_warehouse](https://github.com/gumyr/bd_warehouse), an optional extra:
+
+```
+pip install 'cad-agent[fasteners]'
+```
+
+(With the plugin, install it into the Python that runs `cad`.)
 
 ## License
 
