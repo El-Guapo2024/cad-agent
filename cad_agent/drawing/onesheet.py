@@ -40,7 +40,7 @@ def scope_row(part: str, state: str, measured: str) -> Row:
 def views_of(solid, plate: P.Plate, angle: str) -> tuple:
     """(face view, side view): the face from the positive side of the thin axis, the side from the left in first angle
     projection and from the right in third, as TechDraw's ProjectionType puts them (DrawProjGroup::getViewIndex)."""
-    u, v, n = plate.frame.u, plate.frame.v, plate.frame.n
+    u, n = plate.frame.u, plate.frame.n
     neg = lambda t: tuple(-x for x in t)                    # noqa: E731
     face = V.project(solid, "face", n, u)
     side = V.project(solid, "left", neg(u), n) if angle == "first" else V.project(solid, "right", u, neg(n))

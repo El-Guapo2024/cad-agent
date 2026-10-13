@@ -207,8 +207,8 @@ def shop_drawings(slug: str, parts: dict, processes: dict, stamp: str | None) ->
     `parts` maps each part the run makes to its solid, `processes` to its PROCESS, `stamp` is "NOT VERIFIED" or None.
     Every cnc and laser_cut part that is a plate is drawn in first angle projection as DXF, SVG and PDF, named by
     `subassembly.file_stem`; a part of a child project is not here, the child draws its own. A part that is not drawn
-    is in `skipped` with the reason, and the same drawing is never made twice: a part whose drawing does not pass its
-    own gates is skipped, never written.
+    is in `skipped` with the reason, and a part whose drawing does not pass its own gates is skipped, never written:
+    the shop is not stopped by a plate that cannot be drawn, it just goes without one.
     """
     from .. import subassembly, verify
     from . import onesheet as draw

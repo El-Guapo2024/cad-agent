@@ -34,7 +34,6 @@ widths of ISO 128-20 per layer. Text is TEXT in the STANDARD style at the height
 """
 from __future__ import annotations
 
-import math
 from dataclasses import dataclass, field
 from typing import NamedTuple
 
@@ -189,7 +188,6 @@ def frame(sheet: Sheet) -> tuple:
     x0, y0, x1, y1 = drawing_space(sheet.size)
     sheet.rect("FRAME", x0, y0, x1, y1)
     cx, cy = w / 2.0, h / 2.0
-    m = border(sheet.size)
     sheet.line("MARKS", (cx, 0.0), (cx, y0 + 5.0))
     sheet.line("MARKS", (cx, h), (cx, y1 - 5.0))
     sheet.line("MARKS", (0.0, cy), (x0 + 5.0, cy))

@@ -29,17 +29,17 @@ from collections import Counter
 from pathlib import Path
 
 import pytest
-from build123d import (Axis, Box, Cone, Cylinder, Edge, Ellipse, GeomType, Polygon, Pos, RectangleRounded, Rot, SlotOverall,
-                       Sphere, chamfer, extrude, fillet)
+from build123d import (Axis, Box, Cone, Cylinder, Edge, Ellipse, GeomType, Polygon, Pos, Rectangle, RectangleRounded, Rot,
+                       SlotOverall, Sphere, chamfer, extrude, fillet)
 
-from cad_agent import cli, cmdbase, dxf, evals, shop, verify
+from cad_agent import cli, dxf, evals, verify
 from cad_agent import state as st
 # the modules of cad_agent/drawing under the short names this file uses for them
 from cad_agent.drawing import arrange as layout, hlr as V, onesheet as draw, paper as S, platefit as P, readback as check
 from cad_agent.drawing import writers as render
 from cad_agent.registry import Row
 from cad_agent.runner import approve_views, check_all
-from test_bom import ASSEMBLY, BLOCK, CLIP, PANEL, SLUG, SPEC, make_workshop, workshop  # noqa: F401 (the workshop fixture)
+from test_bom import BLOCK, PANEL, SLUG, make_workshop, workshop  # noqa: F401 (the workshop fixture)
 
 REPO = Path(__file__).resolve().parent.parent
 
@@ -184,6 +184,21 @@ def test_two_pieces_and_a_part_whose_mid_plane_misses_the_material_are_unfit():
         P.analyse(Pos(-15, 0, 0) * Box(10, 10, 4) + Pos(15, 0, 0) * Box(10, 10, 4))
     with pytest.raises(P.Unfit, match="its mid-plane cuts no material"):
         P.analyse(Pos(0, 0, -5) * Box(20, 20, 1) + Pos(0, 0, 5) * Box(20, 20, 1))
+
+
+def test_a_size_that_iso_2768_gives_no_general_tolerance_for_is_unfit():
+    for what, solid, said in [
+        ("a sheet under half a millimetre", Box(40, 20, 0.3), r"its thickness is under 0.5 mm \(0.3\)"),
+        ("a hole under half a millimetre", Box(40, 20, 4) - thru(0.4), r"its hole of diameter 0.4 is under 0.5 mm \(0.4\)"),
+        ("a corner radius under half a millimetre", fillet(Box(40, 20, 4).edges().filter_by(Axis.Z), 0.3), r"its corner radius is under 0.5 mm \(0.3\)"),
+        ("a slot too narrow", Box(60, 30, 4) - extrude(SlotOverall(20, 0.4), 6, both=True), r"its slot of width 0.4 and length 20 is under 0.5 mm"),
+        ("a window too narrow", Box(40, 20, 4) - extrude(Rectangle(10, 0.4), 6, both=True), r"its window of 10 x 0.4 is under 0.5 mm"),
+        ("a plate over four metres", Box(4200, 100, 5), r"it is 4200 mm long, over the 4000 mm that ISO 2768-1 gives general tolerances for"),
+    ]:
+        with pytest.raises(P.Unfit, match=said):
+            P.analyse(solid)
+        assert what
+    assert P.analyse(Box(40, 20, 0.5) - thru(0.5)).thickness == 0.5                    # half a millimetre is in the table
 
 
 def test_the_hole_finder_and_the_outline_must_agree_or_the_plate_is_not_drawn(monkeypatch):
