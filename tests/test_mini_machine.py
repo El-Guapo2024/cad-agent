@@ -32,10 +32,12 @@ VERIFY_SECONDS = 120.0               # a guard against a rule gone slow, not a p
 
 
 def lay(root: Path) -> None:
-    """Both projects as sibling folders of `root`, with the files that are design and none of what a run writes."""
+    """Both projects as sibling folders of `root`, with the files that are design and none of what a run writes, and none
+    of the approved renders either: a person approves those (`cad approve`) and commits them under baseline/, and these
+    tests judge the same things before and after that, with the six images always waiting."""
     for name in (PARENT, CHILD):
         shutil.copytree(FIXTURES / name, root / name,
-                        ignore=shutil.ignore_patterns("out", ".cad", "checks.json", "verify.json", "__pycache__"))
+                        ignore=shutil.ignore_patterns("out", ".cad", "checks.json", "verify.json", "__pycache__", "baseline"))
 
 
 @pytest.fixture(scope="module")
@@ -68,7 +70,9 @@ def number(text, pattern):
 def test_a_parent_and_a_child_are_sibling_folders_each_with_its_own_spec():
     for name in (PARENT, CHILD):
         assert (FIXTURES / name / "assembly.py").is_file() and (FIXTURES / name / "spec.toml").read_text().strip()
-        assert not (FIXTURES / name / "baseline").exists()        # nothing is approved: that is a person's step
+        baseline = FIXTURES / name / "baseline"                    # approving is a person's step, and no test does it; what a
+        wanted = AWAITING[("visual", "drift/iso") if name == PARENT else (f"{CHILD}:visual", "drift/iso")]   # person approves
+        assert not baseline.exists() or {p.name for p in baseline.glob("*")} <= {f"{part}_iso.png" for part in wanted}
     source = (FIXTURES / PARENT / "assembly.py").read_text()
     assert f'"project": "{CHILD}"' in source and '"turn": [0, 0, 90]' in source         # a literal, so verify can hash it
     assert "AXES = {" in source and "POSES = {" in source and "SUBASSEMBLIES = {" in source
