@@ -251,6 +251,14 @@ def sheet_row(part: str, plate: P.Plate, doc: R.Doc, data: bytes, meta: dict, an
         if tags.get(g.tag, 0) != len(g.members):
             problems.append(f"the letter {g.tag} is written {tags.get(g.tag, 0)} times and {len(g.members)} cutouts have it")
     facts.append(f"{len(groups_)} sizes of cutout in the notes")
+    said = {t.value for t in texts}
+    for line in L.tolerance_notes(plate):
+        if line not in said:
+            problems.append(f"the notes do not say {line!r}")
+    if L.tolerance_notes(plate):
+        facts.append(f"{len(L.tolerance_notes(plate))} sizes ISO 2768-m does not cover, said so")
+    elif any(t.value.startswith("NO GENERAL TOLERANCE") for t in texts):
+        problems.append("the notes say a size has no general tolerance and none lacks it")
 
     # the stamp and the title block
     stamped = any(isinstance(g, S.Text) and g.value == "NOT VERIFIED" for g in by.get(dxf.STAMP_LAYER, []))

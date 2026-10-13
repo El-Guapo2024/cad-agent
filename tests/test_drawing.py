@@ -186,19 +186,28 @@ def test_two_pieces_and_a_part_whose_mid_plane_misses_the_material_are_unfit():
         P.analyse(Pos(0, 0, -5) * Box(20, 20, 1) + Pos(0, 0, 5) * Box(20, 20, 1))
 
 
-def test_a_size_that_iso_2768_gives_no_general_tolerance_for_is_unfit():
-    for what, solid, said in [
-        ("a sheet under half a millimetre", Box(40, 20, 0.3), r"its thickness is under 0.5 mm \(0.3\)"),
-        ("a hole under half a millimetre", Box(40, 20, 4) - thru(0.4), r"its hole of diameter 0.4 is under 0.5 mm \(0.4\)"),
-        ("a corner radius under half a millimetre", fillet(Box(40, 20, 4).edges().filter_by(Axis.Z), 0.3), r"its corner radius is under 0.5 mm \(0.3\)"),
-        ("a slot too narrow", Box(60, 30, 4) - extrude(SlotOverall(20, 0.4), 6, both=True), r"its slot of width 0.4 and length 20 is under 0.5 mm"),
-        ("a window too narrow", Box(40, 20, 4) - extrude(Rectangle(10, 0.4), 6, both=True), r"its window of 10 x 0.4 is under 0.5 mm"),
-        ("a plate over four metres", Box(4200, 100, 5), r"it is 4200 mm long, over the 4000 mm that ISO 2768-1 gives general tolerances for"),
-    ]:
-        with pytest.raises(P.Unfit, match=said):
-            P.analyse(solid)
-        assert what
-    assert P.analyse(Box(40, 20, 0.5) - thru(0.5)).thickness == 0.5                    # half a millimetre is in the table
+def test_a_size_iso_2768_gives_no_tolerance_for_is_said_on_the_sheet_and_not_promised():
+    # the R0.4 of a laser-cut window, a sheet under half a millimetre, a hole as small, a plate over four metres
+    assert "NO GENERAL TOLERANCE: WINDOW CORNER R0.4 (UNDER 0.5)" in made("panel", stamp=None).sheet.notes
+    thin = draw.make("thin", Box(40, 20, 0.3) - thru(0.4), meta("thin", None), "first")
+    assert thin.judged() and thin.sheet.notes[-2:] == ["NO GENERAL TOLERANCE: THICKNESS 0.3 (UNDER 0.5)",
+                                                       "NO GENERAL TOLERANCE: HOLE %%c0.4 (UNDER 0.5)"]
+    long_ = draw.make("long", Box(4200, 100, 5), meta("long", None), "first")
+    assert long_.judged() and long_.sheet.notes[-1] == "NO GENERAL TOLERANCE: WIDTH 4200 (OVER 4000)" and long_.sheet.size == "A0"
+    assert P.uncovered(P.analyse(Box(40, 20, 0.5) - thru(0.5))) == [] and P.uncovered(P.analyse(Box(4000, 100, 5))) == []        # the table's own ends
+    assert P.uncovered(P.analyse(fillet(Box(40, 20, 4).edges().filter_by(Axis.Z), 0.3))) == [("OUTLINE CORNER R", 0.3, "UNDER 0.5")]
+    slot_and_window = Box(60, 30, 4) - extrude(SlotOverall(20, 0.4), 6, both=True) - Pos(20, 8, 0) * extrude(Rectangle(10, 0.4), 6, both=True)
+    assert [(w, v) for w, v, _ in P.uncovered(P.analyse(slot_and_window))] == [("SLOT WIDTH", 0.4), ("WINDOW HEIGHT", 0.4)]
+    # a sheet that leaves the note out, or says one where none is due, fails its gate
+    doc = render.read(thin.files["dxf"])
+    gone = doc._replace(items=[i for i in doc.items if not (isinstance(i[1], S.Text) and i[1].value.startswith("NO GENERAL"))])
+    complaint(check.sheet_row("thin", thin.plate, gone, thin.files["dxf"], meta("thin", None), "first", None),
+              "the notes do not say 'NO GENERAL TOLERANCE: THICKNESS 0.3 (UNDER 0.5)'")
+    plain = made("plate", stamp=None)
+    pdoc = render.read(plain.files["dxf"])
+    stray = pdoc._replace(items=pdoc.items + [("TEXT", S.Text((10.0, 100.0), 3.5, "NO GENERAL TOLERANCE: X 1 (UNDER 0.5)"))])
+    complaint(check.sheet_row("plate", plain.plate, stray, plain.files["dxf"], meta("plate", None), "first", None),
+              "the notes say a size has no general tolerance and none lacks it")
 
 
 def test_the_hole_finder_and_the_outline_must_agree_or_the_plate_is_not_drawn(monkeypatch):
@@ -374,7 +383,8 @@ def test_a_sheet_or_a_scale_that_was_asked_for_is_used_or_the_plate_does_not_fit
 def test_the_cutouts_are_lettered_by_kind_and_size_and_the_notes_say_what_each_is():
     got = made("panel", stamp=None)
     assert got.sheet.notes == ["A  4X %%c3.4 THRU", "B  %%c16 THRU", "C  SLOT 6 X 20 THRU", "D  WINDOW 27.2 X 19.76 CORNERS R0.4 THRU",
-                               "ALL OUTLINE CORNERS R5", "ORDINATES FROM LOWER LEFT CORNER", "DIMENSIONS IN mm", "GENERAL TOLERANCES ISO 2768-m"]
+                               "ALL OUTLINE CORNERS R5", "ORDINATES FROM LOWER LEFT CORNER", "DIMENSIONS IN mm", "GENERAL TOLERANCES ISO 2768-m",
+                               "NO GENERAL TOLERANCE: WINDOW CORNER R0.4 (UNDER 0.5)"]
     groups = [d for d in got.sheet.dims if d["kind"] == "group"]
     assert [(d["tag"], d["what"], d["count"]) for d in groups] == [("A", "hole", 4), ("B", "hole", 1), ("C", "slot", 1), ("D", "window", 1)]
     doc = render.read(got.files["dxf"])
@@ -556,12 +566,12 @@ PINNED = {
     ("nema", "first", "dxf"): "94d0e19e67cb335b37fad872f923b0f0af6513cba68786588001fead46dca9ea",
     ("nema", "first", "svg"): "81b255b568e3ee807d65c20a8e76bdf108e7fd4e752b8e3a7c9e224148f3d40a",
     ("nema", "first", "pdf"): "e8e3f21cbc167e38d214300f54d48413762baf84b7f27f75d6826af151abe56b",
-    ("panel", "first", "dxf"): "8d05219f331302ab70ce9429876b77198a5d186182e9a516223bf1013a8f874b",
-    ("panel", "first", "svg"): "4980c29f8494b15bfac6c227e3febd96de99f5346133da2e56b50e16185f2211",
-    ("panel", "first", "pdf"): "047ad2074ecc540aac28d173199f9eb29e03d7636614e4d50213ea38c40f2978",
-    ("panel", "third", "dxf"): "b60b06e5a3fb4d2d7ec1dec47885e5146cbd68f2a4da18ac1d18066f1c13bea2",
-    ("panel", "third", "svg"): "6d14325bdf71504c8e23345ea6558020b6692020c28bbbc2f4cc14b4add376dc",
-    ("panel", "third", "pdf"): "2820de24be3bbe9128a08468d0d5876a35c142719ee311000e7365d4b45aea09",
+    ("panel", "first", "dxf"): "ffffad09894fd5149de4b8cf38e6de4a22b337dca351f5b67f1c135d302cd6a9",
+    ("panel", "first", "svg"): "9b0155b17375e088f4ec47a1518ab49d31747cb0209778d6d217b055e2e505c2",
+    ("panel", "first", "pdf"): "4ff94db57fbb897c97b1138689943c2f424f2c43ba4db7f99aa955bba02126f8",
+    ("panel", "third", "dxf"): "6accc4a6cdbc8b8b843149c7b0eb66dacf27f2f6193487d5dc4b156838217250",
+    ("panel", "third", "svg"): "d0c16bd3c43bdd1b72084d13cd4dce9a0ff8f95aded3a86c7838c6b8c696e8ef",
+    ("panel", "third", "pdf"): "15f15b2bfef65fe5c837cff459f0459d6c013e71b1bceb9db3e9ddb386a2d4e9",
 }
 
 

@@ -29,7 +29,7 @@ from dataclasses import dataclass, field
 
 from .. import dxf
 from . import paper as S
-from .platefit import Plate, Unfit
+from .platefit import Plate, Unfit, uncovered
 from .hlr import View
 
 TOLERANCE = "ISO 2768-m"
@@ -75,6 +75,12 @@ def features(plate: Plate) -> list:
 
 def _key(f: Feature) -> tuple:
     return ({"hole": 0, "slot": 1, "window": 2}[f.kind],) + tuple(round(x, 2) if isinstance(x, float) else x for x in f.size)
+
+
+def tolerance_notes(plate: Plate) -> list:
+    """A line for each size of the plate that ISO 2768-m gives no tolerance for (platefit.uncovered): the sheet does not
+    promise one it was not given."""
+    return [f"NO GENERAL TOLERANCE: {what}{'' if what.endswith(('R', '%%c')) else ' '}{S.fmt(v)} ({why})" for what, v, why in uncovered(plate)]
 
 
 def callout(kind: str, n: int, size: tuple) -> str:
@@ -224,7 +230,7 @@ def build(plate: Plate, face: View, side: View, meta: dict, angle: str = "first"
         notes.append(f"ALL OUTLINE CORNERS R{S.fmt(plate.corner_r)}")
     if feats:
         notes.append("ORDINATES FROM LOWER LEFT CORNER")
-    notes += ["DIMENSIONS IN mm", f"GENERAL TOLERANCES {TOLERANCE}"]
+    notes += ["DIMENSIONS IN mm", f"GENERAL TOLERANCES {TOLERANCE}"] + tolerance_notes(plate)
     band = max(S.TITLE_H, 6.0 + 5.0 * len(notes)) + 5.0
     labs = ordinates(feats)
     sz, sc, plan = choose(plate, feats, labs, band, bool(stamp), size, scale)

@@ -6,9 +6,9 @@ corner radius, all with their sides along the part's own axes. That is a laser-c
 of a bracket. Anything else (a pocket, a step, a chamfer, a counterbore, a blind hole, a cross hole, a fillet on the
 top edge, an L-shaped outline, a slanted slot, a cutout of free form) is `Unfit`, with the sentence that says what
 was found, and no drawing is made of it. The plan's scope is "machined plates only, no sections and no GD&T", and a
-plate with a pocket needs a section to be understood. So is a size the sheet's general tolerance does not cover: the
-note is ISO 2768-m, which gives deviations for sizes from 0.5 to 4000 mm only (ISO 2768-1), and a thinner sheet, a
-smaller hole or a longer plate would be drawn with a promise nobody made.
+plate with a pocket needs a section to be understood. A size ISO 2768-m gives no tolerance for (under 0.5 mm, over
+4000 mm) is not a reason to refuse, but the sheet must not promise one: `uncovered` lists them and the sheet's notes
+say so.
 
 How a plate is recognised
 -------------------------
@@ -290,7 +290,6 @@ def analyse(solid) -> Plate:
         else:
             plate.windows.append(Window(dxf.snap(cu), dxf.snap(cv), dxf.snap(a1 - a0), dxf.snap(b1 - b0), dxf.snap(extra)))
     _check_holes(solid, plate)
-    _general_tolerances(plate)
     lo, hi = _box(solid)
     n = plate.frame.n
     corners = [sum(c[i] * n[i] for i in range(3)) for c in _corners(lo, hi)]
@@ -300,22 +299,27 @@ def analyse(solid) -> Plate:
     return plate
 
 
-def _general_tolerances(plate: Plate) -> None:
-    """The sheet's note is ISO 2768-m, and ISO 2768-1 gives its tolerances for sizes from 0.5 to 4000 mm (radii from 0.5):
-    below that the deviation must be written beside the size, which this sheet does not do, so no drawing is made."""
-    sizes = [("thickness", plate.thickness), ("width", plate.width), ("height", plate.height)]
-    sizes += [("corner radius", plate.corner_r)] if plate.corner_r else []
-    sizes += [(f"hole of diameter {h.dia:g}", h.dia) for h in plate.holes]
-    sizes += [(f"slot of width {s.width:g} and length {s.length:g}", min(s.width, s.length)) for s in plate.slots]
-    sizes += [(f"window of {w.w:g} x {w.h:g}", min(w.w, w.h)) for w in plate.windows]
-    sizes += [(f"corner radius of the window of {w.w:g} x {w.h:g}", w.r) for w in plate.windows if w.r]
-    small = [(what, v) for what, v in sizes if v < GENERAL_FROM_MM]
-    if small:
-        raise Unfit(f"its {small[0][0]} is under {GENERAL_FROM_MM:g} mm ({small[0][1]:g}), below the sizes ISO 2768-1 gives "
-                    "general tolerances for: it would need the deviation written beside the size")
-    if max(plate.width, plate.height) > GENERAL_TO_MM:
-        raise Unfit(f"it is {max(plate.width, plate.height):g} mm long, over the {GENERAL_TO_MM:g} mm that ISO 2768-1 gives "
-                    "general tolerances for")
+def uncovered(plate: Plate) -> list:
+    """What ISO 2768-m gives no tolerance for, as (what, size, why): the sheet says so beside its general tolerance.
+
+    ISO 2768-1 has deviations for sizes from 0.5 to 4000 mm (external radii from 0.5), and for a size below that it asks
+    for the deviation to be written beside the size. A sheet that names ISO 2768-m and says nothing of a R0.4 corner
+    would promise a tolerance nobody gave, and a plate with a corner that small is common (a laser-cut window's relief),
+    so such a plate is drawn, with a note naming each size the class does not cover.
+    """
+    sizes = [("THICKNESS", plate.thickness), ("WIDTH", plate.width), ("HEIGHT", plate.height)]
+    sizes += [("OUTLINE CORNER R", plate.corner_r)] if plate.corner_r else []
+    sizes += [("HOLE %%c", h.dia) for h in plate.holes]
+    sizes += [("SLOT WIDTH", s.width) for s in plate.slots] + [("SLOT LENGTH", s.length) for s in plate.slots]
+    sizes += [("WINDOW WIDTH", w.w) for w in plate.windows] + [("WINDOW HEIGHT", w.h) for w in plate.windows]
+    sizes += [("WINDOW CORNER R", w.r) for w in plate.windows if w.r]
+    out = []
+    for what, v in sizes:
+        why = "UNDER 0.5" if v < GENERAL_FROM_MM else "OVER 4000" if v > GENERAL_TO_MM else None
+        entry = (what, round(v, 2), why)
+        if why and entry not in out:
+            out.append(entry)
+    return out
 
 
 def _box(solid):
