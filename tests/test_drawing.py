@@ -524,7 +524,7 @@ def test_a_pdf_renders_the_sheet_when_pymupdf_is_there():
 def test_every_run_gives_the_same_bytes_in_this_process_and_in_a_fresh_one(tmp_path):
     a, b = draw.make("nema", nema(), meta("nema"), "first"), draw.make("nema", nema(), meta("nema"), "first")
     assert a.files == b.files
-    code = ("import hashlib\nfrom build123d import Box, Cylinder, Pos\nfrom cad_agent.drawing import draw\n"
+    code = ("import hashlib\nfrom build123d import Box, Cylinder, Pos\nfrom cad_agent.drawing import onesheet as draw\n"
             + inspect.getsource(thru) + inspect.getsource(nema) + f"meta = {meta('nema')!r}\n"
             "m = draw.make('nema', nema(), meta, 'first')\n"
             "print(','.join(hashlib.sha256(m.files[e]).hexdigest() for e in ('dxf', 'svg', 'pdf')))\n")
