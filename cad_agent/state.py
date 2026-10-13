@@ -11,13 +11,30 @@ projects/<slug>/
 """
 from __future__ import annotations
 import copy
+import importlib.util
 import json
+import shlex
+import sys
 import time
 from contextlib import contextmanager
 from contextvars import ContextVar
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent / "projects"
+
+# The packages cad-agent can use and does not require: the module a part imports, and what to install for it. Each
+# is an extra of pyproject.toml (a test holds the two to each other), and the plugin's installer adds them all.
+OPTIONAL = {"bd_warehouse": "bd_warehouse>=0.3"}       # `fasteners`: the library's ISO screw, nut and washer
+
+
+def install_command(requirement: str) -> str:
+    """The command that adds `requirement` to the Python that is running cad. That interpreter's own pip when it has
+    one, else uv: the plugin's venv is made by uv, which leaves no pip in it and none on PATH, and a bare
+    `pip install 'cad-agent[...]'` names a package that nobody publishes, so that advice cannot work there."""
+    py, req = shlex.quote(sys.executable), shlex.quote(requirement)
+    if importlib.util.find_spec("pip") is not None:
+        return f"{py} -m pip install {req}"
+    return f"uv pip install -p {py} {req}"
 
 
 def _is_name(slug: str) -> bool:
@@ -29,9 +46,13 @@ def _is_name(slug: str) -> bool:
 
 def why(e: BaseException) -> str:
     """A failure as a line to show: the kernel's own errors (Standard_Failure) carry no message,
-    and the bare name leaves the reader nothing to change."""
+    and the bare name leaves the reader nothing to change. A module of an optional package that is
+    not installed says how to install it (a project copied from a machine that has it)."""
     text = str(e).strip()
     if text:
+        need = OPTIONAL.get((getattr(e, "name", None) or "").partition(".")[0]) if isinstance(e, ModuleNotFoundError) else None
+        if need:
+            text += f" (an optional package of cad-agent: `{install_command(need)}`)"
         return f"{type(e).__name__}: {text}"
     return (f"{type(e).__name__} (it gave no message; a zero, negative or oversized "
             "dimension is the usual cause)")

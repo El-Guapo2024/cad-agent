@@ -65,8 +65,8 @@ source), their PROCESS (`processes`: name -> "cnc", "laser_cut", ..., or None) a
 None). It returns the bytes of each drawing it makes, as paths under `drawings/` (`drawings/plate.dxf`,
 `drawings/plate.pdf`), the same bytes for the same part, and a reason for each part it does not draw. Anything
 else it returns, a path outside `drawings/`, or an exception is an UNCHECKED row, and a missing library is said as
-such (the drawings need only ezdxf and are written by hand to SVG and PDF, so no extra is involved; EXTRAS names the
-extra of a library that has one). Until the module has the function the manifest says
+such (the drawings need only ezdxf and are written by hand to SVG and PDF, so no extra is involved; state.OPTIONAL names
+the requirement of an optional package that has one). Until the module has the function the manifest says
 `drawings: {"built": false, "why": ...}`. The `[shop] files` spec entries under drawings/ ask this same call what it
 draws (speckinds/shop.py), so a name the spec lists passes exactly when the manifest lists it.
 
@@ -91,7 +91,6 @@ STAMP = "NOT VERIFIED"
 OUT = "shop"                    # out/shop/
 MANIFEST = "manifest.json"
 DRAWINGS = "cad_agent.drawing:shop_drawings"
-EXTRAS = {"bd_warehouse": "fasteners"}      # a library of an optional extra of pyproject.toml, and the extra
 
 
 @dataclass
@@ -210,8 +209,8 @@ def _drawings(slug: str, solids: dict, processes: dict, stamp: str | None) -> tu
 
 
 def _needs(e: ImportError) -> str:
-    extra = EXTRAS.get(e.name or "")
-    return (f"the drawings need {e.name}, which is not installed: pip install \"cad-agent[{extra}]\"" if extra
+    need = st.OPTIONAL.get((e.name or "").partition(".")[0])
+    return (f"the drawings need {e.name}, which is not installed: {st.install_command(need)}" if need
             else f"the drawings need {e.name or 'a library'}, which is not installed: {e}")
 
 

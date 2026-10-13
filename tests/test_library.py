@@ -23,6 +23,7 @@ import json
 import math
 import re
 import runpy
+import shlex
 import shutil
 import subprocess
 import sys
@@ -1060,13 +1061,50 @@ def test_a_bd_warehouse_part_needs_its_package_and_the_message_says_which_extra(
     real = importlib.util.find_spec
     monkeypatch.setattr(importlib.util, "find_spec", lambda n, *a: None if n == "bd_warehouse" else real(n, *a))
     code, data = run(capsys, "lib", "use", SLUG, "screw")
-    assert code == cmdbase.USAGE and "bd_warehouse, which is not installed: `pip install 'cad-agent[fasteners]'`" in data["error"]
+    assert code == cmdbase.USAGE and f"bd_warehouse, which is not installed: `{st.install_command('bd_warehouse>=0.3')}`" in data["error"]
     assert not bought_dir(demo).exists() or list(bought_dir(demo).iterdir()) == []
     monkeypatch.setattr(importlib.util, "find_spec", lambda n, *a: object() if n == "bd_warehouse" else real(n, *a))
     code, data = run(capsys, "lib", "use", SLUG, "screw", "size=M4-0.7")
     assert code == cmdbase.OK and "from bd_warehouse.fastener import SocketHeadCapScrew" in (bought_dir(demo) / "screw.py").read_text()
     assert "'fastener_type': 'iso4762'" in (bought_dir(demo) / "screw.py").read_text() and "mass_g" not in side_of(demo, "screw")
     assert side_of(demo, "screw")["library_params"] == {"size": "M4-0.7"}
+
+
+def test_the_install_command_is_for_the_python_that_runs_cad(monkeypatch):
+    """The plugin's venv is made by uv: no pip in it and none on PATH, and `pip install 'cad-agent[fasteners]'` names a
+    package nobody publishes. So the hint names the interpreter, with its own pip when it has one and uv when not."""
+    real, py = importlib.util.find_spec, shlex.quote(sys.executable)
+    monkeypatch.setattr(importlib.util, "find_spec", lambda n, *a: object() if n == "pip" else real(n, *a))
+    assert st.install_command("bd_warehouse>=0.3") == f"{py} -m pip install 'bd_warehouse>=0.3'"
+    monkeypatch.setattr(importlib.util, "find_spec", lambda n, *a: None if n == "pip" else real(n, *a))
+    assert st.install_command("bd_warehouse>=0.3") == f"uv pip install -p {py} 'bd_warehouse>=0.3'"
+    monkeypatch.setattr(sys, "executable", "/Users/a b/.claude/plugins/data/cad-agent/venv/bin/python")      # a path with a space
+    assert st.install_command("x>=1") == "uv pip install -p '/Users/a b/.claude/plugins/data/cad-agent/venv/bin/python' 'x>=1'"
+
+
+def test_the_optional_packages_are_the_extras_of_pyproject_and_the_plugin_installs_them():
+    import tomllib
+    extras = tomllib.loads((REPO / "pyproject.toml").read_text(encoding="utf-8"))["project"]["optional-dependencies"]
+    assert extras["fasteners"] == [st.OPTIONAL["bd_warehouse"]]
+    assert {e.requires for e in catalog.shipped().values() if e.requires} == set(st.OPTIONAL)       # no entry names a package with no command
+    install = (REPO / "plugin" / "install.sh").read_text(encoding="utf-8")
+    assert install.count('-e "$root[fasteners]"') == 2                                                  # the uv path and the pip path
+
+
+def test_a_copied_part_whose_package_is_missing_says_how_to_install_it(demo, capsys, tiny, monkeypatch):
+    """A project made where bd_warehouse is installed builds nowhere that it is not: the row names the package and the
+    command for the Python that is running, as `lib use` does when asked for one."""
+    real = importlib.util.find_spec
+    monkeypatch.setattr(importlib.util, "find_spec", lambda n, *a: object() if n == "bd_warehouse" else real(n, *a))
+    assert run(capsys, "lib", "use", SLUG, "screw")[0] == cmdbase.OK
+    monkeypatch.setitem(sys.modules, "bd_warehouse", None)                    # an import of it fails, as where it is not installed
+    with pytest.raises(ModuleNotFoundError) as caught:
+        B.load_bought(SLUG, "screw")
+    line = st.why(caught.value)
+    assert line.startswith("ModuleNotFoundError: ") and "(an optional package of cad-agent: `" in line
+    assert line.endswith(f"(an optional package of cad-agent: `{st.install_command('bd_warehouse>=0.3')}`)")
+    other = ModuleNotFoundError("No module named 'nothing_of_ours'", name="nothing_of_ours")
+    assert st.why(other) == "ModuleNotFoundError: No module named 'nothing_of_ours'"            # only its own packages are advised
 
 
 # The three standards' tables as the pages the catalog cites print them: ISO 4762 (engineersedge.com/iso_socket_head_screw.htm),

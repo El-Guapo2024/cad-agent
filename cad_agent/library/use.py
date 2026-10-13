@@ -24,6 +24,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 from .. import bought
+from ..state import OPTIONAL, install_command
 from . import store
 from .catalog import (PART_NAME, Catalog, Entry, IntegrityError, LibraryError, arguments, fetch_ruling, resolve_params,
                       sidecar)
@@ -128,7 +129,7 @@ def use(slug: str, catalog: Catalog, entry_name: str, given: dict, name: str | N
     params = resolve_params(entry, given)
     if entry.kind == "bd_warehouse" and importlib.util.find_spec(entry.requires) is None:
         raise LibraryError(f"{entry.name} is drawn by {entry.requires}, which is not installed: "
-                           "`pip install 'cad-agent[fasteners]'`")
+                           f"`{install_command(OPTIONAL.get(entry.requires, entry.requires))}`")
     bdir = bought.bought_dir(slug)
     if (bdir.parent / "parts" / f"{name}.py").exists():
         raise LibraryError(f"{slug} already has a part module called {name}: `--as` picks another name for the bought part")
