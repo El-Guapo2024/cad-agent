@@ -1,6 +1,6 @@
 ---
 name: cad
-description: Design mechanical parts and assemblies with the cad-agent CLI (build123d). Write parametric part modules, an assembly and a spec.toml, run the gates, look at renders, and finish only when `cad verify` then `cad done` pass. Use for any 3D mechanical design task in this repo, or when the user says "design a part", "bracket", "mount", "enclosure", "gantry", or asks to check, verify or render a cad project.
+description: Design mechanical parts, assemblies and machines with the cad-agent CLI (build123d). Write parametric part modules, an assembly and a spec.toml, run the gates, look at renders, and finish only when `cad verify` then `cad done` pass. Use for any 3D mechanical design task in this repo, or when the user says "design a part", "bracket", "mount", "enclosure", "gantry", "machine", "bill of materials", or asks to check, verify or render a cad project, or for files for a shop (DXF, 3MF, STL, STEP, drawings).
 ---
 
 # Mechanical design with `cad`
@@ -17,6 +17,11 @@ cad-agent is installed as a Claude Code plugin (the commands below are the same;
 1 FAIL, 2 UNCHECKED, 3 bad arguments, 4 a cad-agent crash. Add `--json` for
 output to parse.
 
+This file is the short version. `docs/DETAILS.md` (three folders up from here, in the
+checkout or the plugin) has the rest: every key of every spec section, every case a
+rule calls UNCHECKED, the exit codes of each command. The format of a spec section is
+also the docstring of `cad_agent/speckinds/<section>.py`.
+
 ## The boundary
 
 **You specify. The kernel computes. The verifier decides. The human fabricates.**
@@ -30,6 +35,7 @@ output to parse.
 ```
 bin/cad init <slug> --brief "..."             # new project
 # write spec.toml first: what the design must do (below)
+bin/cad lib ls                                # bought parts the library has; `lib use <slug> <entry>` copies one in
 # write parts/<name>.py, then assembly.py
 bin/cad check <slug> --part <name>            # fast loop: the part's rules, and its bodies' fit against the rest
 bin/cad build <slug> <name> --set t=5         # sweep a value without editing the file
@@ -39,6 +45,7 @@ bin/cad check <slug>                          # every gate, including the spec
 git commit                                    # the verifier only counts committed work
 bin/cad verify <slug>                         # fresh rebuild; verdict tied to the commit
 bin/cad done <slug>                           # exit 0 only if that verdict still stands
+bin/cad shop <slug>                           # files for a shop, only for a design that is done (below)
 ```
 
 A hook runs `cad check` after every edit to a part, assembly or spec, and hands
@@ -65,6 +72,7 @@ max_mm = [560, 450, 200]
 a = "x_carriage"
 b = "gantry_end_left"
 min_mm = 3.0                # min_mm and/or max_mm; max_mm = 0.3 is how "must grip" is written
+pose = "park"               # optional, here and on position and keepout: judged with the machine at that pose
 
 [[size]]                    # a placed body's own bounding box (min_mm and/or max_mm)
 body = "pump"               # holds a given part to its real size
@@ -82,14 +90,44 @@ params = { focal_length = 210, field = 150, lens_dia = 30 }
 at = [0, 0, 0]
 clear = ["gantry_beam"]     # or "all"
 
-[[mass]]                    # a budget over part modules
-parts = { x_carriage = 1 }
+[[mass]]                    # a weight budget over part modules,
+parts = { x_carriage = 1 }  # or over placed bodies: bodies = ["x_carriage", "motor_x"],
+                            # or over what an axis moves: moving = "x" (one of the three)
 max_g = 400
 
 [[interface]]               # holes in a that point into b must line up, sized for M3
 a = "syringe_clamp"
 b = "x_carriage"
 fastener = "M3"
+
+[[heat]]                    # every other body within radius_mm of the source must be rated for temp_c
+source = "hot_plate"        # a body, or at = [x, y, z]
+temp_c = 250
+radius_mm = 15
+margin_c = 20               # optional headroom; clear = ["pcb"] also keeps those bodies out of the zone
+
+[[deflection]]              # a body as a beam: the most it may sag (Euler-Bernoulli, Roark's Table 8.1)
+body = "gantry_beam"        # a part module, or a bought part declared geometry = "exact"
+support = "simple"          # simple, fixed or cantilever
+span_mm = 400               # default: its length
+load_g = 350                # or load_n, or load_moving = "y" (the mass axis y moves); self_weight = true adds its own
+max_um = 50                 # also at, direction (default "-z"), axis, solid = true (a solid bar of an extrusion's size)
+
+[[axis]]                    # the design must declare this axis in AXES, and it must do this
+name = "x"                  # only name is required; a sub-assembly's axis is "gantry/x"
+moves = ["block", "tool"]   # at least these; only = true: and no others
+direction = [1, 0, 0]       # along this line, within tol_deg (default 1)
+travel_min_mm = 80          # also travel_max_mm, work_min_mm, tool = "tool" (the body that carries the tool point)
+
+[bodies]                    # exactly this many bodies, and/or exactly these
+count = 6
+names = ["rail", "block", "stop_left", "stop_right", "tool", "carriage_plate"]
+
+[shop]                      # this design goes to a shop: the shop part rules run; every key is optional
+bom = { wheel = 2 }         # how many of each BOM line
+orderable = true            # every bought line has a vendor and a part number
+mass = "known"              # every line has a mass with its source
+files = ["chassis.dxf", "wheel.3mf"]    # files `cad shop` must make
 ```
 
 An `[[interface]]` judges the holes of `a` whose axis lands on `b` (on its
@@ -100,21 +138,37 @@ passes when the other body's hole sits on its centre line, and fillets are not
 holes. A fastener's clearance hole is anything from ISO 273's fine to coarse
 series (M3: 3.2 to 3.6 mm). `near_mm = 15` also asks for a hole within 15 mm of `b`.
 
-`tests/fixtures/*/spec.toml` are real examples.
+Add `[[heat]]` when anything in the brief is hot, `[[deflection]]` for a beam that
+carries a load, `[[axis]]` and `[bodies]` when the brief names axes or a number of
+bodies, `[shop]` when files go to a shop. `[[heat]]` is a distance and a rating, not a
+thermal model: every body inside the zone is held to `temp_c` as if it touched the
+source, and a body touching the source is inside it. `[[deflection]]` is a formula, not
+finite elements: it says UNCHECKED, with its reason, wherever a beam formula would not
+hold, and never a guess. Heat, deflection and `[[mass]]` with `bodies` or `moving` read
+what a body is made of: a part module's `MATERIAL`, or a bought part's `mass_g`,
+`max_temp_c` and `geometry` (the library fills these in). A number nobody states is
+unknown, and an unknown makes the row UNCHECKED. A `pose` has to be in `POSES` of
+assembly.py.
+
+`tests/fixtures/*/spec.toml` are real examples; `mini_machine` uses every section.
 
 ## Two rules that carry the run
 
-1. **No bought part modelled from memory.** Register a vendor STEP with
+1. **No bought part modelled from memory.** Look in the library first: `bin/cad lib ls`
+   and `lib info <entry>` (rails, carriages, extrusions, NEMA motors, fasteners, each
+   with its source), then `bin/cad lib use <slug> <entry> [KEY=VALUE ...]` copies it
+   into `bought/` with its mass and hash, and `bought_solid(SLUG, "<name>")` (from
+   `cad_agent.state`) in assembly.py loads it. Otherwise register a vendor STEP with
    `bin/cad bought add-step <slug> <name> <file> --source <url>`, or a datasheet
    envelope with `bought add-measured ... --source "<page>"`. A remembered bolt
    circle is how an assembly passes every check and still does not fit.
 2. **`cad` output is ground truth.** Quote it. Never reason about whether a part
    fits; measure it.
 
-Memory is for judgement (which process suits a part, that a printed bracket
-creeps near a hot plate), never for dimensions, prices or what a vendor stocks.
-Use `bin/cad tables` for hole sizes, tap drills, insert bores and extrusion
-profiles.
+Memory is for judgement (which process suits a part), never for dimensions, prices,
+masses, temperature ratings or what a vendor stocks. Use `bin/cad tables` for hole
+sizes, tap drills, insert bores, extrusion profiles and `tables materials` (density,
+stiffness and service temperature, each with its source).
 
 ## Defaults when the brief is silent
 
@@ -124,12 +178,14 @@ profiles.
 | Material | PETG printed, 6061 aluminium machined, 3 mm acrylic panels |
 | Fastener | M3 unless load says otherwise |
 | Clearance | 0.2 mm sliding, 0 mm bolted joints, 20 mm around anything over 100 C |
+| Material in a hot zone | steel or stainless: `tables materials` rates aluminium 170 C, brass 120 C, copper 200 C, printed plastics lower |
 
 ## Writing a part module
 
 `parts/<name>.py` exposes a docstring (first line: what it is; body: why it is
 shaped that way, and where any bought-part number came from), `PARAMS` (every
-dimension, named), `MATERIAL`, `PROCESS`, `MIN_FEATURE_MM`, and
+dimension, named), `MATERIAL` (a key of `bin/cad tables materials`: it gives the
+mass, heat and deflection rules their numbers), `PROCESS`, `MIN_FEATURE_MM`, and
 `build(**params)` returning one solid. `EXPECT_FEATURES` states the cutout count
 for flat parts (0 for a plain plate). `CUTLIST` is optional. The process gates
 read the geometry: a `laser_cut` part's round holes are 1.0 mm or more and its
@@ -138,7 +194,80 @@ more (each `cad check` row names its limit), and a printed part has no hole floo
 
 `assembly.py` exposes `parts()` returning `{name: positioned solid}`, plus
 `CLEARANCE` and `ALLOW_CONTACT`. Contact is never allowed implicitly. `AXES`
-declares what moves, so the sweep gate can check the whole travel.
+declares what moves, so the sweep gate can check the whole travel. `POSES =
+{"park": {"x": -150}}` names a position of the machine (axis positions in mm, inside
+travel) for the spec entries that say `pose = "park"`. A body that is neither a part
+module nor a bought part is stock, with no mass and no rating, and `mirror()`, `scale()`
+and a boolean turn a bought solid into one (a mirrored motor named `motor_right`):
+build the second one again, or rotate it.
+
+## A machine of several projects
+
+When a part of the machine is a design of its own (a gantry, a head, a dock), make it a
+project with its parts, its spec and its own `cad verify`, and link it from the machine's
+assembly.py. A bracket or an enclosure stays one project: a machine's check costs about
+twice what the same bodies cost in one.
+
+```python
+# in the machine's assembly.py
+SUBASSEMBLIES = {"gantry": {"project": "gantry", "at": [0, 0, 120], "turn": [0, 0, 90]}}
+AXES = {"z": {"moves": ("gantry/*",), "direction": (0, 0, 1), "travel": (0, 50),
+              "work": (0, 40)}}                       # "gantry/*" is every body of that instance
+POSES = {"park": {"gantry/x": -150}}
+```
+
+- Its bodies are called `gantry/x_carriage`, its axes `gantry/x`, its poses
+  `gantry/park`. `at` (mm) and `turn` (degrees, Rx.Ry.Rz) move the child's whole frame.
+  A body of the machine's own never has a "/" in its name.
+- Write each `project` as a plain string: verify reads the tree without running it,
+  and a name it cannot read leaves the verdict UNCHECKED.
+- `cad check machine` runs every gate of every project below it (their rows read
+  `<project>:fit/clearance`), and `cad verify machine` rebuilds the whole tree in one
+  fresh process. The machine is not done until each child has a spec.toml and approved
+  renders: `cad approve gantry` is the human's call, as for any project.
+- A cycle, more than 8 levels, a missing project, a bad entry or a "/" in your own
+  body's name is a FAIL row `subassembly/<kind>`, and all of them are listed at once.
+- A child's parts are cut and drawn from the child (`cad shop gantry`, once that
+  project is done itself, and `cad drawing gantry plate`). The machine's own `cad shop`
+  makes files for its own parts, and its BOM lists the child's parts nested under the child.
+
+## When a rule says UNCHECKED
+
+A rule that lacks a number says UNCHECKED and names it. Give it the number; don't loosen the spec.
+
+| Rule | Needs | UNCHECKED when |
+|---|---|---|
+| `[[heat]]` | a rating for each body in the zone | no `MATERIAL`, or one `tables materials` does not list; a stock body (assembly.py builds it); a bought part with no `max_temp_c` and `max_temp_source` |
+| `[[mass]]` `bodies`/`moving` | a mass for each body | a stock body; a bought part with no `mass_g` and `mass_source`. Over `max_g` already is a FAIL |
+| `com` (always on) | the same masses | N/A until a bought part declares a mass; from then on UNCHECKED while any body has none (FAIL when the centre of mass is outside the footprint, at home or at an end of an axis's travel) |
+| `[[deflection]]` | exact geometry, a `MATERIAL` with a modulus, the load's mass | stock or envelope geometry; a solid box of a 2020, 2040 or 4040's size (that is `extrusion_blank`, not the profile: use the library's, or `solid = true` for a real bar); span/depth under 10 (20 for fixed ends); a section that varies so much the limit falls between its weakest and stiffest |
+| `[[axis]]`, `[bodies]`, `pose` | the axis, bodies and pose to exist | a body that is not there; a pose not in POSES or outside travel; `pose` on a section that does not read one |
+| `[shop]` | what it holds the BOM to | `orderable`: a bought line with no vendor or part number; `mass = "known"`: a line with no mass |
+| bought parts (`provenance`, `lib check`) | a source, and for a library copy its hash | a part marked unverified (`lib info` says which dimension; the GT2 idler and the FreeCAD-library STEPs are, until `cad bought verify`); a library copy that pins no hash, or a catalog that moved on since the copy |
+
+## Files for a shop
+
+```
+bin/cad export <slug> <part> --format step|stl|3mf|dxf   # one file into out/; it writes what you ask for and judges none of it
+bin/cad bom <slug>                       # out/bom.csv and bom.json: a line per distinct thing, with kind, material, process, vendor, PN, mass
+bin/cad shop <slug>                      # out/shop/: STEP of every made part, DXF (laser_cut), 3MF and STL (fdm), drawings, bom, manifest.json
+bin/cad shop <slug> --draft              # the same for a design that is not done, NOT VERIFIED inside every file
+bin/cad shop <slug> --check              # regenerate and compare with out/shop/ by sha256
+bin/cad drawing <slug> <part>            # DXF, SVG and PDF of a cnc or laser_cut plate, with the sizes and the holes
+```
+
+- `shop` writes nothing and exits 2 unless `cad done` holds. A FAIL or UNCHECKED row
+  stops it too, with nothing written. A `[shop]` table in the spec turns on the part
+  rules: a laser part must be a through-cut that its DXF reads back to, a printed part's 3MF
+  must be watertight with the solid's volume.
+- `drawing` draws a prism along its thinnest axis (outline, round holes, slots, windows
+  through) and says why when a part is anything else (exit 2). Its sheet is stamped NOT VERIFIED
+  until `cad done`.
+- Exit codes, as everywhere (0 ok, 1 FAIL, 2 UNCHECKED, 3 bad arguments, 4 crash).
+  `lib`: 1 for a file that is not the one a pin names, 2 when the network does not answer,
+  3 for an unknown entry or a licence that bars `fetch`. `bom` never exits 2.
+  `shop` and `drawing`: 2 for a design that is not done (a draft is written, and still exits 2)
+  or a row UNCHECKED, 1 for a row FAIL, 3 for a part that is not cnc or laser_cut (`drawing`).
 
 ## Renders and approval
 
@@ -170,9 +299,12 @@ on top of `assembly.py` that every gate and `cad verify` see.
 
 1. `bin/cad check <slug>`: fix every FAIL. Explain every UNCHECKED you can't close.
 2. Commit the design (parts, assembly, spec, bought, baselines).
-3. `bin/cad verify <slug>`, then `bin/cad done <slug>`.
-4. For a second opinion on what no rule covers, ask the `cad-reviewer` agent.
+3. `bin/cad verify <slug>`, then `bin/cad done <slug>`. A machine's children need
+   their own spec.toml and approved renders first.
+4. If the brief wants files for a shop: `bin/cad shop <slug>`, then `--check` shows
+   out/shop/ is what a fresh run writes.
+5. For a second opinion on what no rule covers, ask the `cad-reviewer` agent.
    To share the result, `bin/cad page <slug>` writes a review page; publish its
    folder as a private artifact (index.html plus the files next to it).
-5. Report: the verdict line from `cad done`, measured numbers quoted from the
+6. Report: the verdict line from `cad done`, measured numbers quoted from the
    output, the assumptions you made, and what the human still has to do.
