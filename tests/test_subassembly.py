@@ -896,6 +896,74 @@ def test_a_child_that_fails_its_own_gates_fails_the_parent_whatever_the_parent_s
     assert [r["measured"] for r in rows if r["check"] == "gantry:build"] == ["ValueError: no wall"]
 
 
+def test_a_child_with_no_spec_holds_the_parent_open_whatever_the_parent_says(tree):
+    (tree / "machine" / "spec.toml").write_text(MACHINE_SPEC)                       # the parent states its requirements
+    rows = check_all("machine")["rows"]
+    held = [(r["check"], r["rule"], r["state"]) for r in rows if r["rule"] == "spec/present"]
+    assert held == [("gantry:spec", "spec/present", "UNCHECKED")]                    # and the child states none: nothing passes
+
+
+def test_a_parents_verify_trusts_no_build_cache_in_the_child_either(approved, capsys, monkeypatch):
+    run(capsys, "check", "machine")                                                  # the edit loop fills both projects' caches
+    assert list(buildcache.cache_dir(st.project_dir("gantry")).glob("*.part"))
+    calls = []
+    monkeypatch.setattr(buildcache, "load", lambda *a, **k: calls.append("load"))
+    monkeypatch.setattr(buildcache, "store", lambda *a, **k: calls.append("store"))
+    rec = verify.run("machine", fresh=True, mode="test")
+    assert rec["verdict"] == "PASS" and calls == []                                  # neither read nor written, whoever's part it is
+
+
+def test_the_two_gaps_the_eval_set_listed_are_closed(tmp_path, monkeypatch):
+    """evals/README.md "Known gaps": the mgn12h_carriage brief asks for AXES and a design could leave them out, and
+    "exactly six bodies" is in the briefs and was not held. Here are both, written as a hidden spec could, on the
+    real reference design."""
+    import shutil
+    task = Path(__file__).resolve().parent.parent / "evals" / "mgn12h_carriage"
+    monkeypatch.setattr(st, "ROOT", tmp_path)
+    d = tmp_path / "mgn12h_carriage"
+    shutil.copytree(task / "reference", d)
+    shutil.copytree(task / "given", d, dirs_exist_ok=True)
+    (d / "spec.toml").write_text((task / "spec.toml").read_text() + textwrap.dedent('''
+        [[axis]]
+        name = "x"
+        moves = ["block", "carriage_plate", "tool"]
+        only = true
+        direction = [1, 0, 0]
+        travel_min_mm = 80
+        work_min_mm = 80
+        tool = "tool"
+
+        [bodies]
+        count = 6
+        names = ["rail", "block", "stop_left", "stop_right", "tool", "carriage_plate"]
+    '''))
+
+    def judged():
+        m = st.load_machine("mgn12h_carriage")
+        return {r.rule: r for r in check_spec("mgn12h_carriage", m.parts, machine=m) if r.rule in ("spec/axis", "spec/bodies")}
+    rows = judged()
+    assert rows["spec/axis"].state == "PASS" and rows["spec/bodies"].state == "PASS", {k: v.measured for k, v in rows.items()}
+    text = (d / "assembly.py").read_text()
+    (d / "assembly.py").write_text(text.replace("AXES = {", "_AXES = {", 1))           # the design the brief says loses nothing
+    rows = judged()
+    assert rows["spec/axis"].state == "FAIL" and "assembly.py declares no AXES" in rows["spec/axis"].measured
+    assert rows["spec/bodies"].state == "PASS"
+    (d / "assembly.py").write_text(text + textwrap.dedent('''
+
+        from build123d import Box
+        _parts = parts
+
+
+        def parts():
+            out = _parts()
+            out["spare"] = Pos(300, 0, 0) * Box(1, 1, 1)
+            return out
+    '''))
+    rows = judged()
+    assert rows["spec/axis"].state == "PASS" and rows["spec/bodies"].state == "FAIL"
+    assert rows["spec/bodies"].measured == "7 bodies, 1 more than 6; not asked for: spare"
+
+
 def test_two_instances_of_a_project_run_its_gates_once(light):
     write("gantry", GANTRY, {"plate": PLATE, "block": BLOCK}, spec=GANTRY_SPEC)
     write("machine", machine('{"left": {"project": "gantry", "at": [-50, 0, 0]}, "right": {"project": "gantry", "at": [50, 0, 0]}}'),
