@@ -351,6 +351,368 @@ A STEP carries its donor assembly's coordinates, so an assembly must
 re-origin bought geometry rather than assume it is centred. The SK-Cube
 bracket in the first project lands at (-270.8, -541.0, 171.5).
 
+## The part library
+
+A machine is made of parts nobody here draws: rails, motors, extrusions, bearings,
+fasteners. `cad lib` is where a design gets them, with their numbers and where each
+number came from, so the mass, the temperature rating and the stiffness the rules read
+are not remembered either.
+
+```
+cad lib ls [QUERY] [--kind generator|step|bd_warehouse]   what the library holds, and what is ready to use
+cad lib info <entry>                         vendor, part number, licence, every dimension with its source, mass, rating
+cad lib use <slug> <entry> [KEY=VALUE ...]   copy it into the project's bought/ (--as NAME, --replace)
+cad lib add <entry> FILE --source URL        keep a STEP you downloaded in your own store
+cad lib fetch <entry> ...                    download a STEP where its licence allows it
+cad lib check [<slug>]                       hashes: the store against the catalog, or a project's bought/ against its sidecars
+```
+
+The catalog (`cad_agent/library/catalog.toml`) ships 22 entries. Every number sits beside
+the page it came from, and a number no source gives is not in it: what needs that number
+is UNCHECKED, by design.
+
+| Entry | What it is |
+|---|---|
+| `mgn12-rail`, `mgn12c`, `mgn12h`, `mgn15-rail`, `mgn15c`, `mgn15h` | HIWIN MGN rails (they take a `length`) and carriages, drawn from the maker's catalog tables. Envelopes: no balls, end caps or seals |
+| `extrusion-2020`, `-2040`, `-4040`, and each with `-envelope` | Framing Tech T-slot profiles. The profiles have the real slot section and are `exact` (area and second moment within 1 % of the maker's STEP), so a stiffness rule may stand on them. The envelope ones are a plain box |
+| `nema17`, `nema8` | Novanta IMS and Nanotec motors, with the maker's mass (the NEMA 17 takes a `length`) |
+| `gt2-idler-20t` | a smooth 20-tooth idler drawn from retailer listings, since no maker publishes a drawing: marked unverified |
+| `fcl-608zz`, `fcl-623zz`, `fcl-gt2-idler-20t`, `fcl-nema17` | four STEP files from the FreeCAD-library (CC-BY 3.0), pinned by URL and sha256. Community models: marked unverified |
+| `iso4762-screw`, `iso4032-nut`, `iso7089-washer` | ISO fasteners drawn by bd_warehouse (Apache-2.0). They need `pip install 'cad-agent[fasteners]'` (in the plugin's Python for a plugin install) |
+
+**Where vendor files live.** A vendor's STEP is never in the repo. The store is a folder
+of yours, `$CAD_LIBRARY` or `~/.cad-agent/library` (it can be a private repository your
+team shares): `<sha256>.step` for each file and `library.json` for your own entries and
+how each file came to be there. `fetch` downloads a file into it only where the licence
+lets the repo do that (CC-BY and the like, with the credit carried into the sidecar) and
+checks it against the catalog's sha256. For any other licence, download it by hand and run
+`lib add <entry> FILE --source URL`, which checks the same pin. A file that does not hash
+to its pin is refused and written nowhere.
+
+**What `use` writes.** A generator or bd_warehouse entry becomes a small module in
+`bought/` that holds every number its part was built from. A STEP entry becomes the file.
+Beside it goes a sidecar: library, source, vendor, pn, licence, attribution, `mass_g` with
+its `mass_source` (for the length you asked for: a 300 mm rail is not a 150 mm one),
+material, `max_temp_c` with its source, geometry, datum and sha256. The module is pinned by
+that hash, so editing it by hand is a FAIL row (`lib use --replace` writes it again); a part
+that declares something unconfirmed is left unpinned, because `cad bought verify` rewrites it
+when you record a calliper reading. The change is journaled, so `cad undo` takes it back
+(copies of 4 MiB or more are not journaled, and the command says so).
+
+After that the project is on its own. `cad verify`, the build cache, CI and the eval scorer
+read the project's tree and never the store or the catalog, so a verdict does not move when
+the library does. The generators are code in `cad_agent/library/gen/`, which is part of the
+engine hash: a change to a generator changes the verdicts of every project that uses it, as a
+change to a rule does. `lib check <slug>` re-hashes the copies and says when the catalog has
+moved on since.
+
+What the entries declare: the two motors give the maker's ambient limit as `max_temp_c`
+(40 C and 50 C), so a `[[heat]]` zone above that around a motor is a FAIL, which is the maker's
+rating and not a bug. The rails and carriages declare no rating, because no source gives one for
+the standard block, so a hot zone near one is UNCHECKED; the extrusions are rated as the
+aluminium they are. Only the extrusion profiles are `exact`.
+
+## A machine: sub-assemblies, poses and axes
+
+A machine is too big for one assembly.py. The gantry is a design of its own, with its parts,
+its gates and its own `cad verify`. The machine says where it stands, and the two are judged
+together. This is FreeCAD's link to another document (`Assembly::AssemblyLink`).
+
+```python
+SUBASSEMBLIES = {"gantry": {"project": "gantry", "at": [0, 0, 120], "turn": [0, 0, 90]}}
+POSES = {"park": {"gantry/x": -150, "gantry/y": 0}}
+AXES = {"z": {"moves": ("gantry/*",), "direction": (0, 0, 1), "travel": (0, 50), "work": (0, 40)}}
+```
+
+**The declaration.** The key is the instance's name and the prefix of its bodies, so one
+project can be placed twice (`z_left`, `z_right`). `project` is a folder next to the
+machine's under the projects root: a name, never a path. `at` (mm) and `turn` (degrees,
+Rx.Ry.Rz about the child's own origin) are a rigid move of the child's whole frame,
+`Pos(*at) * Rot(*turn)`, which is what placements.toml means by a move. There is no mirror
+and no scale: `mirror()` drops what a body is.
+
+**What flattening does.** Bodies are named `gantry/x_carriage`; a child's own children nest
+(`gantry/pulley/belt`). The child's CLEARANCE and ALLOW_CONTACT come in with both names
+prefixed (the machine's own entry for a pair wins). Its AXES come in as `gantry/x`, with
+direction and tool point turned by the instance (travel and work are distances and stay),
+and its POSES as `gantry/park`. The machine may list `"gantry/*"` in an axis's `moves`: every
+body under that instance. Its own `placements.toml` may move a child's body by its full name
+(`cad place machine gantry/x_carriage ...`); the child's own placements.toml always applies.
+
+**What stays the child's.** Each child is a full project: `cad check gantry` and
+`cad verify gantry` work on it alone, and a design that is not done on its own does not become
+done by being linked.
+- The machine's `cad check` runs every gate of every project in the tree, each as
+  `cad check <child>` runs it, and reports their rows as `<project>:<check>/<rule>`.
+- The machine's `cad verify` rebuilds all of it from source in one fresh process. It never
+  reads a child's verify.json or checks.json, which are claims and not evidence. Its
+  `source_hash` and git record cover every project below it (`children`, and `tree` in
+  verify.json).
+- The machine is not done until every child is: each needs a spec.toml (without one the row is
+  `<project>:spec/present`) and its approved renders (`cad approve <project>`).
+- Project names in SUBASSEMBLIES must be string literals, because verify finds the tree by
+  reading assembly.py and running nothing. A name it cannot read leaves the verdict UNCHECKED.
+- Cost, measured with simple parts: `verify` takes 2.0 s for 20 bodies (a machine of 6 and two
+  sub-assemblies of 7) against 1.1 s for the same bodies in one project, and 11 to 13 s against
+  6 to 7 s for 80. The pairs inside a child are measured in its own check and again in the
+  machine's. A machine of heavy STEP bodies costs more for each pair.
+
+**Failures** are FAIL rows `subassembly/<kind>`, never a crash, all listed at once (exit 1):
+`cycle` (a project is its own ancestor; the chain is in the row), `depth` (more than 8
+levels), `name` (a "/" in a body or instance name that is not the prefix of a sub-assembly's
+bodies, or a body with an instance's name), `project` (it does not exist or has no
+assembly.py), `build` (its assembly.py or a part raised), `declaration` (not
+`{project, at, turn}`, or an `at` or `turn` that is not three numbers), `moves` ("gantry/*"
+with no such instance or no bodies). Each linked instance also gets a PASS row
+`subassembly/linked`.
+
+**Shop files.** The machine's `cad shop` makes files for its own parts only, and its BOM lists a
+child's parts nested under the child. A child's parts are cut and drawn from the child
+(`cad shop gantry`, once that project is done itself; `cad drawing gantry plate`).
+`subassembly.file_stem` turns `gantry/x_carriage` into `gantry__x_carriage` wherever a file is
+named after a body.
+
+**Poses.** A pose is `{axis: mm}` from home, inside the axis's travel. `pose = "park"` on a
+`[[clearance]]`, `[[keepout]]` or `[[position]]` judges that entry with the machine there; the
+row says `at pose park`. The `poses` rule checks every declared pose: its axes are declared,
+each position is inside travel, the bodies the axes move exist. A spec entry that names a pose
+in a section that does not read one (anything but those three) is UNCHECKED. `sweep` still
+drives each axis alone from home, so a pose is the only place two axes are off home together,
+at the positions someone named. `cad render` and the workbench show home.
+
+**`[[axis]]` and `[bodies]`.** A design that declared no AXES was judged at home and passed the
+sweep and reach rules by having nothing to judge, and "exactly six bodies, called ..." in a brief
+was held by nothing. `[[axis]] name = "x"` requires the axis to exist, and its other keys say what
+it must do: `moves` (at least these bodies; exactly these with `only = true`), `direction` (a line,
+either way, within `tol_deg`, default 1), `travel_min_mm` and `travel_max_mm`, `work_min_mm`
+(a work span at least that long), `tool` (the body that carries its tool point). Whether the work
+span lies inside the travel is `reach`'s and whether the travel is clear is `sweep`'s. `[bodies]`
+takes `count` and/or `names`. Both are FAIL when the design does not do what was asked, and
+UNCHECKED when the entry cannot be read (a body that is not there, a direction of zero length, no
+assembly).
+
+`tests/fixtures/mini_machine` is a regression machine that uses every piece of this section and the
+two after it; CI runs `cad verify` on it like on every folder of `tests/fixtures`.
+
+## Mass, heat and deflection
+
+These rules read what a body is. `bodies.py` gives every body of an assembly a `BodyInfo`:
+`made` (a part module), `bought` (from `bought/`) or `stock` (anything else assembly.py builds;
+it has no material, so no mass and no rating). A made body weighs volume times density of its
+MATERIAL and is rated for the service temperature `materials.py` gives that material. A bought
+body weighs the `mass_g` it declares with a `mass_source`, and is rated for the `max_temp_c` it
+declares with a `max_temp_source`, else for its declared `material`. Geometry is `exact` for a
+made body and for a bought part only if it says so. No rule fills a gap with a default: a number
+nobody states is unknown, and the row is UNCHECKED, naming the body and what it lacks.
+
+**Materials** (`cad tables materials`) has 12 materials with density, Young's modulus, Poisson's
+ratio, yield strength and service temperature, each with the FreeCAD card or datasheet it came
+from. FreeCAD's cards have no service temperature, so that number is ours, with its basis: heat
+deflection temperature at 0.45 MPa (ISO 75-2 B) for the thermoplastics, the glass transition for
+polyimide, and a stated service limit for acrylic, FR4 and the metals (MakeItFrom.com's "Maximum
+Temperature: Mechanical" for the alloy the table stands for). At 250 C only steel (400),
+stainless (710) and polyimide (360) are rated; aluminium (170), brass (120), copper (200) and every
+printed plastic are not. PC and ASA are not in the table (adding them would move the pinned
+densities): a bought part declares its own `max_temp_c`. The densities are the ones `geom.DENSITY`
+always had, and every mass row rests on them; where a FreeCAD card says otherwise the old value
+stays and a datasheet is its source. Some FreeCAD cards are CC-BY-3.0, and `materials.CARDS`
+credits each author.
+
+**`[[mass]]`** has three forms, one to an entry. `parts = { x_carriage = 1 }` counts part modules
+as built, which is blind to anything assembly.py does to them. `bodies = [...]` weighs the placed
+bodies as assembly.py holds them, so a part cut there weighs what is left. `moving = "x"` weighs
+every body `AXES["x"]` moves. A body of unknown mass makes the row UNCHECKED, naming each one,
+with one exception that is a proof and not a guess: if the bodies whose mass is known already weigh
+more than `max_g`, the row is FAIL.
+
+**`com`** answers what `stance` says it does not: that the weight is over the footprint. The
+assembly stands on its lowest plane. The footprint is the support polygon, the convex hull of
+everything within 0.05 mm of that plane (not the bounding box of the bodies that touch). The centre
+of mass is the mass-weighted mean of the bodies' centroids, and it must lie inside. Then, for each
+axis, the same at both ends of its travel, one axis at a time: the centre moves by (mass moved /
+total mass) times the travel, so a gantry that is stable at home and tips with its carriage at the
+end is a FAIL there. An axis that moves a body standing on the ground changes the footprint as it
+goes, which this does not model: UNCHECKED. The rule is N/A until a bought part declares a mass, and
+strict from then on (UNCHECKED while any body has none). The 13 designs of before step 6 each hold a
+body of unknown mass, and putting them all on hold for a claim none made would have been wrong.
+
+**`[[heat]]`**: `source` (a body) or `at` (a point), `temp_c`, `radius_mm`, optional `margin_c` and
+`clear`. Every other body within `radius_mm` of the source needs a rating of at least
+`temp_c + margin_c`. The distance is the exact B-rep distance, the way `[[clearance]]` measures a
+gap, and a body that overlaps the source is at distance 0, so it is inside. The source is exempt:
+it makes the heat. `clear` lists bodies that must stay outside the zone however well rated, or
+`"all"`: PASS outside, FAIL inside. A rating below the need is a FAIL. These are UNCHECKED: a body in
+the zone with no rating (no MATERIAL, a material the table does not list, a bought part with
+neither `max_temp_c` nor a material, a stock body), a source that is not a body, a missing or
+unknown key. An entry with no body in its zone gives one PASS row saying so.
+
+Every row says "a zone, not a thermal model". Nothing conducts, radiates or cools: a body at the
+edge is judged as hot as one touching the source, and inside the radius an air gap, an insulating
+standoff or a heat sink buys nothing here. A heat deflection temperature is not a life rating, so
+`margin_c` is how a design asks for headroom the table does not have.
+
+**`[[deflection]]`**: `body`, `support` (`simple`, `fixed` or `cantilever`), `span_mm` (default the
+body's length), one load (`load_n`, `load_g`, or `load_moving` = the mass an axis moves; `self_weight`
+alone is a load too), `at` (`center`, `end` or `worst`, the default), `max_um`, `direction` (default
+`"-z"`; a sign is allowed and ignored), `axis` (which way the beam runs, when it is not clearly
+longest along one), `solid`.
+
+The method is Euler-Bernoulli superposition from Roark's Table 8.1 (the case ids were checked against
+two open transcriptions of the table, not the book). E comes from `materials.py` with the source it
+cites. The second moment of area comes from the body's own cross-sections: a plane across the beam
+cuts the solid (`BRepAlgoAPI_Common`) and `BRepGProp` gives the face's moments, as FreeCAD's
+`Face.MatrixOfInertia` does. The sections are the middle of 21 equal cells, a little way in from both
+ends, and the middle of every cut across the beam, so a 2 mm notch is not missed. The rule PASSes when the weakest section the
+whole way gives no more than `max_um`, FAILs when the stiffest section the whole way gives more, and
+is UNCHECKED between the two, because then the answer depends on a section it cannot choose.
+
+UNCHECKED, with its reason, and never a guess:
+- the geometry is an envelope: stock built in assembly.py, or a bought part not declared
+  `geometry = "exact"` (or one whose dimensions are unverified);
+- the body is a solid box of a 2020, 2040 or 4040's outer size. That is what `extrusion_blank`
+  makes, drilled or not, and a real profile has about half the stiffness of the solid. It is
+  recognised by what it is (at least twice as long as its longer side, 90 % or more of the
+  footprint filled), not by a tag. Judge the library's real profile, or say `solid = true` if the part
+  really is a bar (the row then says it took the entry's word). A box of another size is judged as
+  the solid bar it is;
+- no MATERIAL, or no Young's modulus with a source for it;
+- a mass it needs is unknown (`load_moving` adds the masses of the bodies the axis moves, the beam
+  itself left out; `self_weight` uses the body's own);
+- the body is not a beam: not one solid, not clearly longest along one axis, a long edge tilted or
+  bent, a section cut through or in pieces over a long run, more than 120 stations;
+- span/depth is under 10 for simple and cantilever beams, 20 for fixed ends, where shear matters and
+  Euler-Bernoulli leaves it out;
+- the load acts along the beam's own axis.
+
+Not modelled: torsion (the load is taken through the section's centre, so an open section such as a
+channel or an angle will twist), buckling, the local give of a load or a support, creep, and the
+anisotropy of a printed part. Supports are ideal. A T-slot body costs about 1.5 s a run, since it is
+cut once and every entry that names it shares the cuts. The closed forms are held against
+textbook cases and a finite-element beam that shares no coefficient with them, the bounds on beams
+whose stiffness changes at random, and a T-slot against its datasheet. A finite-element cross-check
+(CalculiX with Gmsh) was planned as an optional second opinion and is not built.
+
+## Files for a shop
+
+```
+cad export <slug> <part> --format step|stl|3mf|dxf
+cad bom <slug> [--only-parts] [--flat]
+cad shop <slug> [--draft | --check] [--all]
+cad drawing <slug> <part> [--angle first|third] [--format dxf,svg,pdf] [--sheet A4..A0|auto] [--scale 1:1..|auto] [--out DIR] [--all]
+```
+
+**The bytes.** A hash in a manifest rests on every file being the same bytes whenever and wherever
+it is made. STL, 3MF, DXF and the BOM files are, on either kernel (OCCT 7.9 and 8.0). A STEP is too,
+but for one header line that names the OCCT that wrote it, which is true and is left alone;
+`--check` compares a STEP without it. The STEP's time stamp is pinned and its occurrence numbers are
+counted from 1. STL and 3MF are one mesh of sorted integers (the 3MF a zip written by hand, stored,
+with a fixed time stamp, because lib3mf has no wheel for Linux on aarch64 and its writer's choices
+would put the library's version in the bytes; lib3mf reads the file back instead). The DXF is
+written by hand at release 14, with FreeCAD's ImpExpDxf defaults, on a nanometre grid, holes first
+and the outline last. A part's DXF is the section by the plane half way through its thickness, in the
+part's own frame, in millimetres.
+
+**`cad export`** writes the file you ask for into `out/<part>.<format>` and judges none of it: a DXF
+of a wheel is the wheel's mid-plane section. The rules below belong to `shop`.
+
+**`cad bom`** ports FreeCAD's `Assembly_CreateBom`. Its columns come first and in its order (Index,
+Name, Description, File Name, Quantity); the index is hierarchical, and a quantity folds the same
+things together. It adds Kind (made, bought, stock or assembly), Material, Process, Vendor, PN,
+Licence, Source, Mass (g) with its source, Shop file, Bodies and Notes. Two bodies are one line when
+they are the same kind from the same part and the same shape (volume and area to a millionth, the
+same faces) wherever they stand. A mirrored body has lost what it was, so it joins the made or
+bought line of its shape and name stem and says so in Notes. A mass is never filled in: the word is
+`unknown`, and the totals say how many bodies they leave out. `--only-parts` is FreeCAD's "Only
+parts" (made parts and sub-assemblies); `--flat` turns off its detailed sub-assemblies. It writes
+`out/bom.csv` and `out/bom.json`, and never exits 2: it judges nothing.
+
+**`cad shop`** writes `out/shop/` for the parts this project makes:
+
+| File | For |
+|---|---|
+| `<part>.step` | every made part |
+| `<part>.dxf` | a `laser_cut` part |
+| `<part>.3mf`, `<part>.stl` | an `fdm` part |
+| `drawings/<part>.dxf`, `.svg`, `.pdf` | each cnc and laser_cut part that is a plate `cad drawing` can show |
+| `bom.csv`, `bom.json` | the whole design |
+| `manifest.json` | each file's sha256 and size, the commit, the verdict, the rows, the drawings that were skipped |
+
+A file that goes to a shop is one a person may cut or print without looking, so the command is
+fenced:
+- It exits 2 and writes nothing unless `cad done` holds: the last `cad verify` passed in a fresh
+  process, on these files and these rules, on committed work. The manifest records that commit and
+  the one at HEAD.
+- Parts are built from source, never from the build cache.
+- The rules of a made part run on what is about to be written. A row that is not PASS or N/A stops
+  it, with nothing written (FAIL exits 1, UNCHECKED exits 2), so a folder from an earlier run is
+  never half replaced.
+- `--draft` writes whatever there is, with NOT VERIFIED inside every file where the format has room
+  (the DXF's comment and a text on layer `NOT_VERIFIED`, the 3MF's title and description, the STL's
+  header, the STEP's description, a Status column in bom.csv, `draft: true` in the manifest). It
+  exits as the rows say, and 2 for a design that is not done.
+- `--check` writes nothing. It regenerates and compares with out/shop/ file by file by sha256 and
+  lists what is `missing`, `edited`, `stale`, `new`, `gone` or `extra`. Exit 0 when nothing differs,
+  1 when something does, 2 when it cannot say (no out/shop/, a draft folder, a design that is not
+  done).
+
+**`[shop]` and the part rules.** A spec with a `[shop]` table (an empty one is enough) says the
+design goes to a shop. From then on `cad check` and `cad verify` run these on every part, and a
+design without the table is not held to them:
+- `shop/laser through-cut` (a `laser_cut` part): every face is an end plane or runs along the
+  thickness. A pocket, a step, a chamfer, a countersink, a draft or a cross hole is a FAIL.
+- `shop/dxf readback`: ezdxf reads the DXF back and it equals the mid-plane section within 0.001 mm,
+  entity for entity and in millimetres.
+- `shop/3mf watertight` (an `fdm` part): the 3MF reads back closed, manifold and wound one way round
+  (by lib3mf, or the built-in reader where lib3mf is not installed, and the row says so).
+- `shop/3mf volume`: its volume is the solid's within 0.5 %.
+- `shop file` for every made body: the part module the file is made from builds this body. A body
+  assembly.py cuts, or builds with other parameters, would be made wrong, and that is a FAIL.
+
+The table's keys are judged against the BOM `cad bom` writes: `bom = { wheel = 2 }` (the quantity of a
+line, or of a body's line; 0 says it must not be there), `orderable = true` (each bought line has a
+vendor and a part number: UNCHECKED naming what it lacks), `mass = "known"` (each line has a mass with
+its source: UNCHECKED naming the lines without), `files = [...]` (each must be a file `cad shop` makes
+for this BOM, else FAIL naming the part's process). A file under `drawings/` in `files` is UNCHECKED:
+the BOM cannot say which plates will be drawn. Anything a rule cannot measure is UNCHECKED, never PASS.
+
+**`cad drawing`** is a port of what TechDraw does for a plate: hidden-line removal with OCCT's
+`HLRBRep_Algo` (visible edges solid, hidden ones dashed), first angle projection by default
+(ISO 128-30, TechDraw's default) or `--angle third`, an ISO 5457 frame (without the zone grid),
+and the plate's sizes from its B-rep: overall size, the position of every hole, slot and window from
+the lower-left corner, a letter and a callout for each size of cutout, and the general tolerance of
+ISO 2768-m. A size that standard has no tolerance for (under 0.5 mm, over 4000 mm) is drawn with a
+note saying so. The title block carries the part, project, material, process, scale, sheet, projection
+and commit, and NOT VERIFIED in red and in a banner unless `cad done` holds. The DXF is the master
+(layers FRAME, MARKS, TITLE, VISIBLE, HIDDEN, CENTRE, DIMENSION, DIM_ORD, DIM_TEXT, TEXT,
+NOT_VERIFIED); the SVG and the PDF are drawn from what ezdxf reads in it, by code of this repo and no
+library.
+
+It draws a prism along its thinnest axis: a rectangular outline with equal corner radii, round holes,
+slots and rectangular windows, all the way through. Nothing else is drawn, and nothing is written for
+it: no sections, no GD&T, no tolerance but the general one, no threads, countersinks, counterbores,
+sheet metal or printed parts. A wrong drawing is worse than none. Of the eval reference designs it
+draws `laser_panel/panel` and `nema17_mount/bracket`; `galvo_mount`, `pinned_carrier` and
+`hotplate_standoffs` have pockets or cross holes (exit 2, with the reason), and the rest are printed
+(exit 3). Every drawing is judged before it is written: the
+plate the printed numbers describe equals the solid's end face, the DXF read back by ezdxf draws that
+plate at its stated scale with each dimension at the length its number says, no two labels overlap, and
+the SVG and PDF have an element for each entity of the DXF. A plate takes 75 to 180 ms, and 0.7 s with
+40 holes.
+
+**Exit codes of the step 6 commands**, on top of the usual 0 ok, 1 FAIL, 2 UNCHECKED, 3 usage, 4 crash:
+
+| Command | 1 | 2 | 3 |
+|---|---|---|---|
+| `lib ls`, `lib info` | | | an unknown entry |
+| `lib use` | a file is not the one pinned | | an unknown project, entry or parameter; a name taken |
+| `lib add` | the file is not the pin | | not a STEP; no `--source`; a bad name |
+| `lib fetch` | the download does not hash to the pin | the network did not answer | no URL, no pin, or a licence that does not allow it |
+| `lib check` | any FAIL row (a store file, a pinned copy that changed) | any UNCHECKED row | an unknown project |
+| `export` | the part did not build | | an unknown part or format |
+| `bom` | the project did not build | never | an unknown project |
+| `shop` | a row FAIL; `--check` found a difference | not done; a row UNCHECKED; `--draft` unless done and clean; nothing to check | an unknown project; `--draft` with `--check` |
+| `drawing` | a gate FAIL; the part did not build | drawn but NOT VERIFIED; not a plate; a row unsettled | a printed part, no PROCESS, a "/" in the part name, a bad option |
+
 ## Adding a check is one function
 
 Checks register themselves. The runner discovers them, the gate consumes them,
@@ -381,9 +743,11 @@ instead of killing the run, because one broken rule must not hide the rest.
 A section of `spec.toml` is added the same way: a function registered with
 `@spec_kind("heat")` in its own module of `cad_agent/speckinds/` judges one entry
 and yields rows (`speckinds/kit.py` has the helpers), and `spec.py` runs whatever is
-registered. A section nobody registered is UNCHECKED. A command another piece of the
-work builds is a row in `cmdbase.LAZY`: it is listed and parsed now, and answers exit 3
-"not built yet" until its module exists.
+registered. A section nobody registered is UNCHECKED. The commands of step 6 (`lib`,
+`bom`, `shop`, `drawing`) are rows in `cmdbase.LAZY`: they are listed and parsed at once, and
+the module that handles one is imported only when the command runs, so `cad --help` and
+`cad lib ls` do not wait for the kernel. A command whose module is missing answers exit 3
+"not built yet".
 
 Shipped checks:
 
@@ -391,12 +755,16 @@ Shipped checks:
 |---|---|---|
 | `geometry` | part | envelope, measured wall, in-plane web, feature count |
 | `visual` | part | silhouette coverage, drift from the approved render, drawn extent |
-| `fit` | assembly | interference and clearance, every pair |
-| `stance` | assembly | footprint area at the contact plane |
-| `sweep`, `reach` | assembly | each declared axis swept through its travel; the tool point covers the work span |
+| `shop` | part | a laser part is a through-cut its DXF reads back to; a printed part's 3MF is closed and has the solid's volume (only with `[shop]`) |
+| `subassembly` | assembly | each sub-assembly is linked as declared; no "/" in a body's name that no sub-assembly explains |
 | `placements` | assembly | which bodies were moved by hand; an entry for a missing body is UNCHECKED |
+| `fit` | assembly | interference and clearance, every pair |
+| `sweep`, `reach` | assembly | each declared axis swept through its travel; the tool point covers the work span |
+| `poses` | assembly | every pose in POSES drives declared axes inside their travel; no spec entry names a pose it ignores |
+| `stance` | assembly | footprint area at the contact plane |
+| `com` | assembly | the centre of mass is over the footprint, at home and at the ends of each axis (once a bought part declares a mass) |
 | `spec` | assembly | every requirement in spec.toml |
-| `provenance` | project | whether each bought part records, and confirms, its source |
+| `provenance` | project | whether each bought part records, and confirms, its source, its declared keys and its hash |
 
 ## Visual regression
 
