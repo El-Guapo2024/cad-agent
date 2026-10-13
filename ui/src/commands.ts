@@ -1,7 +1,7 @@
 // FreeCAD's view, visibility and selection commands, named after their FreeCAD ids.
 import { consoleLog, getState, report, saved, setState, viewOf, type Corner, type EditMode, type HomeView, type NavStyle, type Units, type ViewProps } from './store'
 import { getView, guiSynced, onGuiEvent, openTask, place, placementOf, recordGui, muteEcho, setOrtho, setParams, setViewProps, showPanel } from './actions'
-import { api, resultText, type CadResult, type Vec3 } from './api'
+import { api, resultText, type CadResult, type ExportFormat, type Vec3 } from './api'
 // Type-only: cmdreg.ts imports this file for its commands' functions, so this stays a type import
 // (erased at build) rather than a real one, the same way actions.ts avoids importing this file back.
 import type { RegCommand } from './cmdreg'
@@ -265,7 +265,7 @@ export function sendToConsole() {
 }
 
 /** File > Export: the selected part as STEP or STL, through `cad export`. */
-export async function exportPart(format: 'step' | 'stl') {
+export async function exportPart(format: ExportFormat) {
   const s = getState(), b = s.scene?.bodies.find((x) => x.name === s.selected[0])
   if (!s.slug || !b?.part) return report('warn', 'Export: select one made part (bought parts come as vendor files)')
   report('msg', `Exporting ${b.part} as ${format.toUpperCase()}…`)

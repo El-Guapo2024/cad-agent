@@ -648,7 +648,8 @@ def make_handler(bench: Bench):
                     if d in rel:
                         target = (pdir / (d.strip("/") + "/" + rel.rsplit(d, 1)[1])).resolve()
                         break
-            kinds = {".png": "image/png", ".step": "application/step", ".stl": "model/stl"}
+            kinds = {".png": "image/png", ".step": "application/step", ".stl": "model/stl",
+                     ".3mf": "model/3mf", ".dxf": "image/vnd.dxf"}         # what /api/export writes
             ok = target.suffix in kinds and target.is_file() and inside(target)
             if not ok:
                 return self._json({"error": "only renders and exports under out/ or baseline/"}, 404)
@@ -791,9 +792,10 @@ def make_handler(bench: Bench):
                         bench.schedule(slug, "check")
                     return self._json(r)
                 if path == "/api/export":
+                    from .export import FORMATS
                     fmt = str(body.get("format", "step"))
-                    if fmt not in ("step", "stl"):
-                        return self._json({"error": "format is step or stl"}, 400)
+                    if fmt not in FORMATS:
+                        return self._json({"error": f"format is one of {', '.join(FORMATS)}"}, 400)
                     return self._json(bench.cad(slug, "export", ["export", slug, str(body["part"]), "--format", fmt]))
                 if path == "/api/measure":
                     return self._json(bench.cad(slug, "measure", ["measure", slug, str(body["a"]),

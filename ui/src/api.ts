@@ -55,6 +55,8 @@ export type MacroText = { name: string; text: string }
 export type MacroRunResult = { exit: number; ran: { line: string; exit: number; text: string }[] }
 /** What `cad serve` returns for a cad command: the exit code and the command's JSON data. */
 export type CadResult = { exit: number; data?: Record<string, any>; stderr?: string; text?: string }
+/** What `cad export --format` writes (export.FORMATS). */
+export type ExportFormat = 'step' | 'stl' | '3mf' | 'dxf'
 /** `cad gui`: the person's current selection/visibility/view, so an agent (`cad gui …`) and
  *  the person stay in sync. `view` carries the camera/projection plus one Partial<ViewProps>
  *  entry per body (same keys as the store's `view` record), keyed by body name. */
@@ -100,7 +102,7 @@ export const api = {
   mass: (slug: string, bodies: string[]) => http<CadResult>('POST', '/api/mass', { slug, bodies }),
   reveal: (slug: string, part?: string) => http<{ revealed: string }>('POST', '/api/reveal', { slug, part }),
   /** `cad export`: a part as STEP or STL under out/, for a shop or a printer. */
-  export: (slug: string, part: string, format: 'step' | 'stl') => http<CadResult>('POST', '/api/export', { slug, part, format }),
+  export: (slug: string, part: string, format: ExportFormat) => http<CadResult>('POST', '/api/export', { slug, part, format }),
   fileUrl: (slug: string, path: string) => `/api/file?${new URLSearchParams({ slug, path })}`,
   // ── File menu (filemenu.tsx): Std_New. Contract per the lead (not yet built server-side):
   // {"name"} -> {"exit", "data": {"slug", "root"}, "stderr", "text"}, same CadResult envelope

@@ -567,6 +567,20 @@ def test_export_downloads_a_step_file(server):
     assert code == 400
 
 
+def test_export_offers_every_format_the_cli_writes(server):
+    """File > Export lists 3MF and DXF too, so the server takes every format `cad export` writes."""
+    call, _, _ = server
+    code, body = call("/api/export", {"slug": "demo", "part": "block", "format": "3mf"})
+    data = json.loads(body)["data"]
+    assert code == 200 and data["path"].endswith(".3mf")
+    code, body = call("/api/file?" + urllib.parse.urlencode({"slug": "demo", "path": data["path"]}))
+    assert code == 200 and body.startswith(b"PK")                  # a 3MF is a zip
+    code, body = call("/api/export", {"slug": "demo", "part": "block", "format": "dxf"})
+    assert code == 200 and "exit" in json.loads(body)              # what `cad export` says of a block, not a 400
+    code, body = call("/api/export", {"slug": "demo", "part": "block", "format": "obj"})
+    assert code == 400 and "3mf" in json.loads(body)["error"]
+
+
 def test_open_file_location_reveals_a_part_file_or_the_project(server, monkeypatch):
     call, _, _ = server
     launched = []

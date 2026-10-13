@@ -5,7 +5,7 @@
 // `cad` CLI and this app's own project list rather than ported one for one; see fileEntries below
 // for exactly what maps to what.
 import { useState } from 'react'
-import { api, resultText, type CadResult } from './api'
+import { api, resultText, type CadResult, type ExportFormat } from './api'
 import { clearRecentFiles, closeActiveWindow, closeAllWindows, closeTask, getView, hasOpenWindow, loadProjects, noProjectsText, openProject, openTask, recentFiles } from './actions'
 import { getState, report, saved, useStore } from './store'
 import { messageBox } from './msgbox'
@@ -128,7 +128,11 @@ export function NewDocumentTask() {
 /** Std_Export (CommandDoc.cpp): with nothing selected, a "No Selection" warning; else the save
  *  dialog with the export filters (App::Application::getExportFilters, a sorted map). Here the
  *  file goes to the browser's downloads. */
-const EXPORT_FILTERS = ['STEP with colors (*.step *.stp)', 'STL Mesh (*.stl *.ast)', 'WebGL (*.html)'] as const
+const EXPORT_FILTERS = ['3D Manufacturing Format (*.3mf)', 'AutoCAD DXF (*.dxf)', 'STEP with colors (*.step *.stp)',
+  'STL Mesh (*.stl *.ast)', 'WebGL (*.html)'] as const
+const DEFAULT_FILTER = 'STEP with colors (*.step *.stp)'
+// The filter's own file extension, which is also the `cad export --format` it asks for.
+const extOf = (filter: string) => /\*\.(\w+)/.exec(filter)?.[1] ?? 'step'
 export function exportCommand() {
   if (!getState().selected.length) {
     void messageBox('warning', 'No Selection', 'Select objects to export before using the Export command.')
@@ -138,17 +142,17 @@ export function exportCommand() {
 }
 export function ExportTask() {
   const selected = useStore((s) => s.selected)
-  const [filter, setFilter] = useState<string>(saved.get('FileExportFilter', EXPORT_FILTERS[0]))
+  const [filter, setFilter] = useState<string>(saved.get('FileExportFilter', DEFAULT_FILTER))
   const go = () => {
     saved.set('FileExportFilter', filter)
     if (filter.startsWith('WebGL')) exportPage()
-    else exportPart(filter.startsWith('STEP') ? 'step' : 'stl')
+    else exportPart(extOf(filter) as ExportFormat)
     closeTask()
   }
   return (
     <div className="tasks">
       <TaskBox title="Export File" icon="export">
-        <label className="tfield"><span>File name:</span><input readOnly value={`${selected[0] ?? ''}.${filter.startsWith('STEP') ? 'step' : filter.startsWith('STL') ? 'stl' : 'html'}`} /></label>
+        <label className="tfield"><span>File name:</span><input readOnly value={`${selected[0] ?? ''}.${extOf(filter)}`} /></label>
         <label className="tfield"><span>Files of type:</span>
           <QComboBox value={filter} onChange={(e) => setFilter(e.target.value)}>{EXPORT_FILTERS.map((f) => <option key={f} value={f}>{f}</option>)}</QComboBox>
         </label>
