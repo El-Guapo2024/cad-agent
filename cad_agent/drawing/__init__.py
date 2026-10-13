@@ -149,8 +149,9 @@ def cmd_drawing(a) -> Result:
     pdir = cmdbase.project(a.slug)
     if "/" in a.part:
         child, _, rest = a.part.partition("/")
+        project = subassembly.instance_project(pdir, child) or child       # the instance's name is not its project's
         raise UsageError(f"{a.part!r} is a body of the sub-assembly {child!r}, not a part of {a.slug}: a child's part is drawn "
-                         f"by the child project, `cad drawing {child} {rest}`")
+                         f"by the child project, `cad drawing {project} {rest}`")
     cmdbase.part(a.slug, a.part)
     formats, size, scale = _options(a)
     try:

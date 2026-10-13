@@ -523,6 +523,35 @@ def _scan(path: str, mtime_ns: int, size: int) -> tuple[tuple, bool]:
     return tuple(dict.fromkeys(names)), whole
 
 
+@lru_cache(maxsize=512)
+def _scan_instances(path: str, mtime_ns: int, size: int) -> tuple:
+    """((instance, project), ...) for every entry of a SUBASSEMBLIES dict literal whose key and project are strings."""
+    try:
+        tree = ast.parse(Path(path).read_bytes())
+    except (OSError, SyntaxError, ValueError):
+        return ()
+    found = []
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Assign) and isinstance(node.value, ast.Dict) \
+                and any(isinstance(t, ast.Name) and t.id == NAME for t in node.targets):
+            for key, entry in zip(node.value.keys, node.value.values):
+                project = _entry_project(entry)
+                if isinstance(key, ast.Constant) and isinstance(key.value, str) and project:
+                    found.append((key.value, project))
+    return tuple(found)
+
+
+def instance_project(pdir, instance: str) -> str | None:
+    """The project a SUBASSEMBLIES instance is (the instance is only the name of its bodies' prefix: "gantry" may be the
+    project "mini_gantry"), read from assembly.py's source with nothing run; None when it is not written as plain strings."""
+    path = Path(pdir) / "assembly.py"
+    try:
+        stat = path.stat()
+    except OSError:
+        return None
+    return dict(_scan_instances(str(path), stat.st_mtime_ns, stat.st_size)).get(instance)
+
+
 def static_children(pdir) -> tuple[list, bool]:
     """The projects a project's assembly.py links, read from its source (nothing is run), and whether that list is
     all of them. False means the declaration is written in a way that only running it would settle (a name that

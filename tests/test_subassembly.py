@@ -789,6 +789,20 @@ def test_the_projects_a_design_links_are_read_from_its_source_and_a_doubt_is_sai
     assert subassembly.static_children(light / "nobody") == ([], True)                           # no assembly.py: nothing linked
 
 
+def test_an_instance_is_not_its_project_and_the_project_is_read_from_the_source(light):
+    """`gantry/post` is a body of the instance `gantry`, whose project may be called anything: a message that tells
+    someone which project to run a command on has to say the project (it said the instance: `cad drawing gantry post`)."""
+    d = st.project_dir("par", create=True)
+    (d / "assembly.py").write_text('SUBASSEMBLIES = {"gantry": {"project": "mini_gantry"}, "z": dict(project="zed")}\n')
+    assert subassembly.instance_project(d, "gantry") == "mini_gantry" and subassembly.instance_project(d, "z") == "zed"
+    assert subassembly.instance_project(d, "nobody") is None
+    assert subassembly.instance_project(light / "absent", "gantry") is None                      # no assembly.py: none linked
+    (d / "assembly.py").write_text('SUBASSEMBLIES = {"gantry": {"project": "gan" + "try"}}\n')
+    assert subassembly.instance_project(d, "gantry") is None                                     # computed: only running it says
+    (d / "assembly.py").write_text('SUBASSEMBLIES = dict(gantry=dict(project="mini_gantry"))\n')
+    assert subassembly.instance_project(d, "gantry") is None                                     # the caller falls back to the name
+
+
 def test_a_run_that_loaded_a_project_the_hashes_miss_cannot_pass(approved):
     (st.project_dir("machine") / "assembly.py").write_text(
         machine('{"gantry": {"project": "gan" + "try", "at": [0, 0, 20], "turn": [0, 0, 90]}}'))
