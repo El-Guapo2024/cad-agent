@@ -567,6 +567,17 @@ def test_export_downloads_a_step_file(server):
     assert code == 400
 
 
+def test_the_images_a_check_row_names_open_in_the_page(server, demo, capsys):
+    """checks.json names a row's images from the project folder (it is committed), and the page opens them by it."""
+    call, _, _ = server
+    run(capsys, "check", "demo")
+    arts = {a for r in json.loads((demo / "checks.json").read_text())["rows"] for a in r["artifacts"]}
+    assert arts and not any(a.startswith("/") for a in arts)
+    for a in sorted(arts):
+        code, body = call("/api/file?" + urllib.parse.urlencode({"slug": "demo", "path": a}))
+        assert code == 200 and body.startswith(b"\x89PNG"), a
+
+
 def test_open_file_location_reveals_a_part_file_or_the_project(server, monkeypatch):
     call, _, _ = server
     launched = []
