@@ -8,6 +8,7 @@ from ..dxf import NeedsExtra
 from ..registry import Row
 from . import arrange as L
 from . import hlr as V
+from . import paper as S
 from . import platefit as P
 from . import readback as check
 from . import writers as R
@@ -65,6 +66,8 @@ def make(part: str, solid, meta: dict, angle: str = "first", size: str | None = 
     """
     t0 = time.perf_counter()
     made = Made(part)
+    # a DXF of this kind holds ASCII: a part called after an accent is drawn without it (its files keep their names)
+    meta = {**meta, **{k: S.ascii_text(meta[k]) for k in ("part", "project", "material", "process") if isinstance(meta.get(k), str)}}
     try:
         plate = P.analyse(solid)
     except P.Unfit as e:
@@ -92,7 +95,7 @@ def make(part: str, solid, meta: dict, angle: str = "first", size: str | None = 
         made.rows[0] = scope_row(part, "UNCHECKED", f"{part} cannot be laid out on a sheet: {e}")
         return made
     made.sheet = sheet
-    data = R.write(sheet, meta, V.SOURCE)
+    data = R.write(sheet, meta)
     made.files["dxf"] = data
     made.rows.append(judge(part, "dimensions", check.dimensions_row, part, plate))
     try:

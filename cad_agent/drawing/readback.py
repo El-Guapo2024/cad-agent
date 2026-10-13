@@ -2,23 +2,24 @@
 that made them.
 
 A drawing is something a person cuts metal by. Three links can break between the B-rep and what they read, and each
-has its own row:
+has its own row (`cad drawing` shows them as drawing/<name>; onesheet.py adds `scope` and `views` before them):
 
-  drawing dimensions   the plate the numbers describe is the plate. The numbers are the plate's own (outline, corner
-                       radius, holes, slots, windows, from the B-rep); the plate they describe is built and compared with
-                       the end face of the solid, area in one and not the other both ways, which must be nothing. A
-                       cutout left out, one made into another kind, or one in the wrong place fails it (plate.reconstruct)
-  drawing sheet        the sheet, read back from the DXF with ezdxf (which shares no code with the writer), draws that
-                       plate at the scale it states: the visible lines of the face view are as big as the plate and the
-                       side view as thick, every hole is a circle where the B-rep has it, each cutout has an ordinate line
-                       through its centre whose label is its distance from the corner at the scale of the sheet, the
-                       overall sizes are the lengths of their dimension lines, the through holes are dashed in the side
-                       view, and every number the notes print is one of the plate's
-  drawing layout       no two labels overlap, and nothing is outside the frame
-  drawing svg, pdf     the SVG and the PDF have an element for each entity of the DXF they were drawn from, of the same
-                       kind and in the same order, and the PDF is a well formed file (its cross reference table points at
-                       its objects and its page is the sheet's size)
+  dimensions   the plate the numbers describe is the plate. The numbers are the plate's own (outline, corner radius,
+               holes, slots, windows, from the B-rep); the plate they describe is built and compared with the end face
+               of the solid, area in one and not the other both ways, which must be nothing. A cutout left out, one made
+               into another kind, or one in the wrong place fails it (platefit.reconstruct)
+  sheet        the sheet, read back from the DXF with ezdxf (which shares no code with the writer), draws that plate at
+               the scale it states: the visible lines of the face view are as big as the plate and the side view as
+               thick, every hole is a circle where the B-rep has it, each cutout has an ordinate line through its centre
+               whose label is its distance from the corner at the scale of the sheet, the overall sizes are the lengths of
+               their dimension lines, the through holes are dashed in the side view, and every number the notes print is
+               one of the plate's
+  layout       no two labels overlap, and nothing is outside the frame
+  svg, pdf     the SVG and the PDF have an element for each entity of the DXF they were drawn from, of the same kind and
+               in the same order, and the PDF is a well formed file (its cross reference table points at its objects and
+               its page is the sheet's size)
 
+A gate that raises is an UNCHECKED row too (onesheet.judge).
 A row that cannot be settled is UNCHECKED and one that is wrong FAIL, and `cad drawing` writes nothing for either.
 Tolerances are the printing's: a printed number is rounded to 0.01 mm, so it may differ from the plate's by 0.005; what
 the DXF holds, a nanometre grid, may differ from the plate's by 0.001 mm times the scale.

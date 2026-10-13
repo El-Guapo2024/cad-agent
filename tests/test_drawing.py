@@ -28,6 +28,7 @@ import xml.etree.ElementTree as ET
 from collections import Counter
 from pathlib import Path
 
+import numpy as np
 import pytest
 from build123d import (Axis, Box, Cone, Cylinder, Edge, Ellipse, GeomType, Polygon, Pos, Rectangle, RectangleRounded, Rot,
                        SlotOverall, Sphere, chamfer, extrude, fillet)
@@ -438,7 +439,8 @@ def test_the_title_block_says_the_part_the_material_the_commit_and_whether_the_d
         assert ("NOT VERIFIED" in [g.value for l, g in doc.items if l == dxf.STAMP_LAYER and isinstance(g, S.Text)]) == (status == "NOT VERIFIED")
     assert [g.value for l, g in render.read(stamped.files["dxf"]).items if l == dxf.STAMP_LAYER and isinstance(g, S.Text)] == \
         ["NOT VERIFIED", "NOT VERIFIED"]                                              # the banner and the status cell
-    assert stamped.files["dxf"].decode().split("\n")[1].startswith("NOT VERIFIED: not from a verified design. cad-agent drawing")
+    comment = stamped.files["dxf"].decode().split("\n")[1]
+    assert comment.startswith("NOT VERIFIED: not from a verified design. cad-agent drawing scratch/panel: first angle, scale 1:1, sheet A4;") and len(comment) <= 255
     dirty = draw.make("panel", panel(), meta("panel", None, dirty=True), "first")
     assert "cd05de0a1b2c +UNCOMMITTED" in {g.value for _, g in render.read(dirty.files["dxf"]).items if isinstance(g, S.Text)}
     none = draw.make("panel", panel(), meta("panel", None, commit=None, material=None, process=None), "first")
@@ -483,6 +485,25 @@ def test_the_dxf_holds_layers_linetypes_text_and_arrowheads_that_ezdxf_reads():
     assert not doc.audit().errors
     doc.modelspace()                                                                 # and it loads again
     assert render.read(data).problems == [] and render.read(data).units == 4
+
+
+def test_trimesh_reads_the_same_lines_and_arcs_from_the_sheet(tmp_path):
+    trimesh = pytest.importorskip("trimesh")                                         # a second reader, as test_export has for the outline
+    got = made("panel", stamp=None)
+    (tmp_path / "panel.dxf").write_bytes(got.files["dxf"])
+    loaded = trimesh.load(str(tmp_path / "panel.dxf"), file_type="dxf")
+    doc = render.read(got.files["dxf"])
+    kinds = Counter(type(e).__name__ for e in loaded.entities)
+    assert kinds["Line"] == sum(isinstance(g, dxf.Line) for _, g in doc.items)
+    assert kinds["Arc"] == sum(isinstance(g, (dxf.Arc, dxf.Circle)) for _, g in doc.items)
+    assert np.allclose(loaded.bounds, [[0.0, 0.0], [297.0, 210.0]])                  # the centring marks run out to the edges of the sheet
+
+
+def test_names_with_accents_are_put_in_ascii_for_the_sheet_and_the_files_keep_their_own():
+    assert S.ascii_text("tapa_\u00f1") == "tapa_n" and S.ascii_text("alumin\u00edo \u00e9\u00e8") == "aluminio ee" and S.ascii_text("\u4e2d") == "?"
+    got = draw.make("tapa_\u00f1", plate(), meta("tapa_\u00f1", None, material="alumin\u00edo"), "first")
+    words = {g.value for _, g in render.read(got.files["dxf"]).items if isinstance(g, S.Text)}
+    assert got.judged() and {"tapa_n", "scratch/tapa_n", "ALUMINIO"} <= words and got.rows[0].subject == "tapa_\u00f1"
 
 
 def test_the_writer_makes_text_arrowheads_and_linetypes_and_the_old_outline_is_unchanged():
@@ -574,13 +595,13 @@ def test_every_run_gives_the_same_bytes_in_this_process_and_in_a_fresh_one(tmp_p
 # lines on both to 1e-9 mm, and the sheet is built on a 1e-4 mm grid. If a hash moves, either the layout or a writer
 # changed on purpose (pin the new one) or a kernel gave other lines (a bug in views.py: OCCT 7.9 and 8.0 must agree)
 PINNED = {
-    ("nema", "first", "dxf"): "46464732747260fcb8937f211fbf1aee1d659a1ac6981541ce35955cf0788e81",
+    ("nema", "first", "dxf"): "d4a8833244a0d2e38a090a4033b6ef163934fe6bcbc6e5cd41271e227454f761",
     ("nema", "first", "svg"): "a59a7a878a8c1bb3cdeee8a1ba055110e0ad5de458d6e9c75ec90148eaade85e",
     ("nema", "first", "pdf"): "c2660c12e93053e71da39a67c162f518df5ebb61cae703f808f5908d65d940af",
-    ("panel", "first", "dxf"): "9fb462bccf243a9eac9d68da5268b1bb68e1541c73f95189df343c2c2314b4e8",
+    ("panel", "first", "dxf"): "b138c0027bb8dcbda71b485ef9f9ae43ac304c4f3716a2b5fc1da2ad7ca18912",
     ("panel", "first", "svg"): "8743934ea9447b27bb6c25ebf94f76686ed65aa2a214e54d7ff31abb279fcfd1",
     ("panel", "first", "pdf"): "0f1d407ae02cfa593c32ab495d1bd4b30a0c2b5144d3cf20c6ced611668ecf49",
-    ("panel", "third", "dxf"): "9c8bdb12819a6f4d9afddd892286b27d966f3fa01b7e0779bc42fe155d8dbe99",
+    ("panel", "third", "dxf"): "c388a1fee57520098b15bfb6ab6fafd8bd82bd857722c29a2ca79fb599f3acf4",
     ("panel", "third", "svg"): "3d37a6dc35236f8a79af485b063aed8959426fdff0da12dc7bbe8ced3421758b",
     ("panel", "third", "pdf"): "6289ac7ba13cbc0d0a28b6d4c6fd10f8a20cf510fb88a4a54d2ef047523f38e2",
 }
@@ -850,10 +871,10 @@ def test_a_plate_that_fits_no_sheet_is_exit_2_unless_the_arguments_made_it_a_usa
 def test_a_drawing_that_would_say_something_wrong_is_exit_1_and_is_not_written(workshop, capsys, monkeypatch):
     real = render.write
 
-    def lose_a_hole(sheet, meta_, source):
+    def lose_a_hole(sheet, meta_):
         first = next(i for i, (l, g) in enumerate(sheet.items) if l == "VISIBLE" and isinstance(g, dxf.Circle))
         del sheet.items[first]
-        return real(sheet, meta_, source)
+        return real(sheet, meta_)
     monkeypatch.setattr(render, "write", lose_a_hole)
     code = cli.main(["drawing", SLUG, "panel"])
     text = capsys.readouterr().out

@@ -102,6 +102,13 @@ class Solid(NamedTuple):
     pts: tuple
 
 
+def ascii_text(value: str) -> str:
+    """A string the DXF can hold: accents dropped (n with a tilde is n), anything else that is not ASCII a question mark."""
+    import unicodedata
+    plain = "".join(c for c in unicodedata.normalize("NFKD", value) if not unicodedata.combining(c))
+    return "".join(c if 32 <= ord(c) < 127 else "?" for c in plain.encode("ascii", "replace").decode("ascii"))
+
+
 def display(value: str) -> str:
     """The string as it is read: %%c is the diameter sign, %%p plus-minus, %%d degrees."""
     for code, sign in (("%%c", "Ø"), ("%%p", "±"), ("%%d", "°")):

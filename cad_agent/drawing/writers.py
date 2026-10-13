@@ -33,19 +33,20 @@ PT = 72.0 / 25.4                # points in a millimetre
 
 # ─── The DXF ─────────────────────────────────────────────────────────────────
 
-def comment_of(sheet: S.Sheet, meta: dict, source: str) -> str:
-    text = (f"cad-agent drawing {meta['project']}/{meta['part']}: {sheet.angle} angle projection, scale "
-            f"{S.scale_text(sheet.scale)}, sheet {sheet.size} ({sheet.width:g} x {sheet.height:g} mm); units mm; views by "
-            f"{source}; entities as FreeCAD {dxf.FREECAD_COMMIT} ImpExpDxf, version {dxf.VERSION}")
-    return f"{sheet.stamp}: not from a verified design. {text}" if sheet.stamp else text
+def comment_of(sheet: S.Sheet, meta: dict) -> str:
+    """The first line of the file (group 999). A string of a DXF holds 255 characters, so it is short: the sheet in
+    a few words, where its views and its entities come from, and the stamp first if the design is not verified."""
+    text = (f"cad-agent drawing {meta['project']}/{meta['part']}: {sheet.angle} angle, scale {S.scale_text(sheet.scale)}, "
+            f"sheet {sheet.size}; mm; views as FreeCAD {dxf.FREECAD_COMMIT} TechDraw projectShape; entities as ImpExpDxf R{dxf.VERSION}")
+    return (f"{sheet.stamp}: not from a verified design. " + text if sheet.stamp else text)[:255]
 
 
-def write(sheet: S.Sheet, meta: dict, source: str) -> bytes:
+def write(sheet: S.Sheet, meta: dict) -> bytes:
     layers = [dxf.Layer(name, st.colour, st.linetype) for name, st in S.LAYERS.items()
               if name != dxf.STAMP_LAYER or sheet.stamp or any(layer == name for layer, _ in sheet.items)]
     header = [("$LTSCALE", [(40, "1.0")]), ("$LIMMIN", [(10, "0.000000"), (20, "0.000000")]),
               ("$LIMMAX", [(10, dxf.num(sheet.width)), (20, dxf.num(sheet.height))])]
-    w = dxf.DxfWriter(comment_of(sheet, meta, source), (0.0, 0.0), (sheet.width, sheet.height), layers, S.LINETYPES, header)
+    w = dxf.DxfWriter(comment_of(sheet, meta), (0.0, 0.0), (sheet.width, sheet.height), layers, S.LINETYPES, header)
     for layer, g in sheet.items:
         if isinstance(g, S.Text):
             w.text(layer, g.at, g.height, g.value, g.rotation, g.halign, g.valign)
