@@ -8,12 +8,16 @@ import json
 import math
 import subprocess
 import textwrap
+import threading
+import urllib.error
+import urllib.request
+from pathlib import Path
 
 import numpy as np
 import pytest
 from build123d import Box, Pos, Rot
 
-from cad_agent import cli, placements, subassembly, verify
+from cad_agent import buildcache, cli, placements, serve, subassembly, verify
 from cad_agent import state as st
 from cad_agent.geom import bbox
 from cad_agent.registry import SpecCtx
@@ -21,7 +25,8 @@ from cad_agent.runner import approve_views, check_all
 from cad_agent.spec import check_spec
 from cad_agent.subassembly import PoseError, SubassemblyError, apply_pose
 from test_buildcache import BLOCK            # the block that returns a Part, which the build cache keeps
-from test_cli import PLATE, run
+from test_cli import PLATE, log_lines, run
+from test_workbench import inproc
 
 # The child. Its plate spans x -20..20, y -10..10, z -2..2 and its block 10 mm up, so the 1 mm of air between
 # them is a required clearance, and the block rides the x axis 10 mm either way.
@@ -160,17 +165,22 @@ def test_a_bodys_info_is_its_projects_with_the_name_prefixed(tree):
     assert m.bodies["plate"].project == "machine" and set(m.bodies) == set(m.parts)
 
 
-def test_a_bought_body_stays_the_bought_part_it_is_and_keeps_its_declared_mass(tree):
+def add_motor(mass_g=120):
+    """A bought motor in the gantry, 30 mm up, with a declared mass: from then on every body of the gantry has one."""
+    from build123d import export_step
     d = st.project_dir("gantry")
     (d / "bought").mkdir(exist_ok=True)
-    from build123d import export_step
     export_step(Box(8, 8, 8), str(d / "bought" / "motor.step"))
     (d / "bought" / "motor.json").write_text(json.dumps(
-        {"source": "vendor drawing 1", "mass_g": 120, "mass_source": "datasheet", "material": "steel"}))
+        {"source": "vendor drawing 1", "mass_g": mass_g, "mass_source": "datasheet", "material": "steel"}))
     (d / "assembly.py").write_text(GANTRY.replace(
         'return {"plate": plate, "block": Pos(0, 0, 8) * block}',
         'from cad_agent.state import bought_solid\n    return {"plate": plate, "block": Pos(0, 0, 8) * block,'
         ' "motor": Pos(0, 0, 30) * bought_solid(SLUG, "motor")}'))
+
+
+def test_a_bought_body_stays_the_bought_part_it_is_and_keeps_its_declared_mass(tree):
+    add_motor()
     info = st.load_machine("machine").bodies["gantry/motor"]
     assert (info.kind, info.project, info.part, info.mass_g) == ("bought", "gantry", "motor", 120.0)
     assert info.mass_source == "datasheet"
@@ -861,3 +871,330 @@ def test_two_instances_of_a_project_run_its_gates_once(light):
     assert len([r for r in rows if r["check"] == "subassembly" and r["rule"] == "linked"]) == 2
     assert len([r for r in rows if r["check"] == "sweep" and r["rule"] == "sweep/left/x"]) == 1
     assert [r for r in rows if r["check"] == "sweep" and r["rule"] == "sweep/right/x"]
+
+
+# ─── The build cache: an edit to a child is a miss ───────────────────────────
+
+def parts_got(data, how):
+    return sorted(b["part"] for b in data["builds"] if b["how"] == how)
+
+
+def test_a_child_edit_misses_the_cache_and_the_parent_sees_the_new_geometry(tree, capsys):
+    buildcache.forget()
+    ask = ("measure", "machine", "gantry/block", "plate", "--posed")
+    code, first = run(capsys, *ask)
+    assert first["min_distance_mm"] == pytest.approx(71.0)             # the block's underside, 23 up, over the plate's top, -48
+    assert parts_got(first, "built") == ["block", "plate", "plate"] and parts_got(first, "cache") == []
+    code, second = run(capsys, *ask)
+    assert parts_got(second, "built") == [] and parts_got(second, "cache") == ["block", "plate", "plate"]
+    assert second["min_distance_mm"] == first["min_distance_mm"]
+    (st.project_dir("gantry") / "parts" / "block.py").write_text(BLOCK.replace('"size": 10.0', '"size": 14.0'))
+    code, third = run(capsys, *ask)
+    assert parts_got(third, "built") == ["block"] and parts_got(third, "cache") == ["plate", "plate"]
+    assert third["min_distance_mm"] == pytest.approx(69.0)             # the block is 2 mm taller each way: the new geometry
+    code, scene = run(capsys, "scene", "machine")
+    assert parts_got(scene, "built") == [] and "gantry/block" in scene["bodies"]      # and the edit was kept for the next command
+    assert sorted(p.name for p in buildcache.cache_dir(st.project_dir("gantry")).glob("*.part"))   # in the child's own cache
+
+
+def test_a_part_that_runs_a_childs_files_is_keyed_by_them_and_the_rest_is_not(tree):
+    buildcache.forget()
+    machine_dir, child = st.project_dir("machine"), st.project_dir("gantry")
+    (machine_dir / "parts" / "bracket.py").write_text(
+        BLOCK + "\nfrom cad_agent.state import build_part\n\nOTHER = build_part('gantry', 'block')\n")
+    (machine_dir / "parts" / "plain.py").write_text(BLOCK)
+    stranger = write("stranger", GANTRY, {"plate": PLATE, "block": BLOCK})          # a project nothing links
+    keys = lambda: {n: buildcache.key(machine_dir, n) for n in ("bracket", "plain", "plate")}
+    before = keys()
+    (child / "parts" / "block.py").write_text(BLOCK + "# edit\n")
+    after = keys()
+    assert after["bracket"] != before["bracket"]                                    # it builds from the child's block
+    assert after["plain"] == before["plain"] and after["plate"] == before["plate"]  # these do not
+    (child / "checks.json").write_text("{}")
+    (child / "out").mkdir(exist_ok=True)
+    (child / "out" / "x.png").write_bytes(b"x")
+    (stranger / "parts" / "block.py").write_text(BLOCK + "# edit\n")
+    assert keys() == after                                                           # outputs, and a project not linked, are no input
+    (child / "assembly.py").write_text(GANTRY + "# edit\n")
+    assert keys()["bracket"] != after["bracket"]
+
+
+def test_the_workbench_watches_a_childs_files_for_the_parent(tree):
+    bench = serve.Bench([tree], runner=inproc)
+    before = bench._design_sig(tree / "machine")
+    assert bench._design_sig(tree / "gantry") != before                              # its own watch is its own
+    (tree / "gantry" / "parts" / "block.py").write_text(BLOCK + "# edit\n")
+    assert bench._design_sig(tree / "machine") != before                             # a child's edit is the machine's
+    again = bench._design_sig(tree / "machine")
+    (tree / "gantry" / "checks.json").write_text("{}")
+    assert bench._design_sig(tree / "machine") == again
+
+
+# ─── "/" in a name: every command takes it or refuses it cleanly ─────────────
+
+CHILD_BODY = "gantry/plate"
+
+
+def paths_under(root):
+    return {p.relative_to(root).as_posix() for p in root.rglob("*")}
+
+
+def stray(before, after):
+    """New folders or files that a child's body name made: the name as a path under a project's own folders."""
+    return sorted(p for p in after - before
+                  if "gantry" in Path(p).parts[1:] or "gantry" in Path(p).name.split("_") or Path(p).name.startswith("gantry"))
+
+
+@pytest.mark.parametrize("argv", [
+    ["build", "machine", CHILD_BODY],
+    ["render", "machine", CHILD_BODY],
+    ["export", "machine", CHILD_BODY],
+    ["export", "machine", CHILD_BODY, "--format", "step"],
+    ["export", "machine", CHILD_BODY, "--format", "stl"],
+    ["set", "machine", CHILD_BODY, "thickness=5"],
+    ["check", "machine", "--part", CHILD_BODY],
+    ["approve", "machine", "--part", CHILD_BODY],
+    ["measure", "machine", CHILD_BODY, "plate"],            # without --posed the names are part modules
+    ["check", CHILD_BODY],                                  # where a project goes
+    ["ls", CHILD_BODY],
+    ["status", CHILD_BODY],
+    ["bom", CHILD_BODY],
+    ["shop", CHILD_BODY],
+    ["place", CHILD_BODY, "plate", "--by=1,0,0"],
+    ["gui", "select", "machine", "gantry/nope"],
+])
+def test_a_command_that_takes_a_part_module_or_a_project_refuses_a_childs_body_name_cleanly(tree, capsys, argv):
+    before = paths_under(tree)
+    code, data = run(capsys, *argv)
+    assert code == cli.USAGE and data["error"]                                       # 3, with a message; never 4
+    after = paths_under(tree)
+    assert stray(before, after) == []
+    assert not [p for p in after - before if not p.startswith((".cad", "machine/.cad", "gantry/.cad"))]    # it wrote nothing at all
+
+
+def test_a_refusal_names_the_modules_there_are_and_the_log_keeps_the_name(tree, capsys):
+    code, data = run(capsys, "export", "machine", CHILD_BODY)
+    assert "no part 'gantry/plate' in machine (parts: plate)" in data["error"]
+    entries = log_lines(tree / "machine")
+    assert entries[-1]["cmd"] == "export" and entries[-1]["argv"][-1] == CHILD_BODY and entries[-1]["exit"] == cli.USAGE
+    code, data = run(capsys, "check", CHILD_BODY)                                    # no project to log into: the root's log
+    assert code == cli.USAGE and log_lines(tree)[-1]["argv"] == ["--json", "check", CHILD_BODY]
+    assert not (tree / "gantry" / "gantry").exists() and not (tree / "machine" / "gantry").exists()
+
+
+def test_the_child_is_asked_for_its_own_parts_and_writes_into_itself(tree, capsys):
+    code, data = run(capsys, "export", "gantry", "plate")                            # what the refusals point to
+    assert code == cli.OK and data["path"].endswith("gantry/out/plate.step")
+    assert (tree / "gantry" / "out" / "plate.step").is_file() and not (tree / "machine" / "out" / "plate.step").exists()
+
+
+@pytest.mark.parametrize("argv", [
+    ["measure", "machine", CHILD_BODY, "plate", "--posed"],
+    ["measure", "machine", "gantry/block", CHILD_BODY, "--posed"],
+    ["mass", "machine", CHILD_BODY, "gantry/block"],
+    ["place", "machine", "gantry/block", "--by=0,1,0"],
+    ["place", "machine", "gantry/block", "--reset"],
+    ["scene", "machine"],
+    ["bom", "machine"],
+    ["bom", "machine", "--flat"],
+    ["cutlist", "machine"],
+    ["render", "machine"],
+    ["check", "machine", "--part", "plate"],
+    ["ls", "machine"],
+    ["status", "machine"],
+    ["gui", "select", "machine", CHILD_BODY],
+    ["gui", "select", "machine", "gantry/plate.Face1", "gantry/block"],
+    ["gui", "hide", "machine", CHILD_BODY],
+])
+def test_a_command_that_takes_a_body_takes_a_childs_and_makes_no_stray_folder(tree, capsys, argv):
+    before = paths_under(tree)
+    code, data = run(capsys, *argv)
+    assert code in (cli.OK, cli.FAIL, cli.UNCHECKED), data                           # a verdict or "no workbench is up", not usage or a crash
+    if argv[0] == "gui":
+        assert code == cli.UNCHECKED and "workbench" in data["error"]                # the name was accepted; nothing is serving
+    assert stray(before, paths_under(tree)) == []
+
+
+def test_a_childs_body_is_placed_by_its_full_name_in_the_parents_file_and_the_move_is_undone_cleanly(tree, capsys):
+    code, data = run(capsys, "place", "machine", "gantry/block", "--by=0,3,0")
+    assert code == cli.OK and data["placement"]["move"] == [0.0, 3.0, 0.0]
+    text = (tree / "machine" / "placements.toml").read_text()
+    assert '["gantry/block"]' in text and not (tree / "gantry" / "placements.toml").exists()
+    code, data = run(capsys, "check", "machine", "--all")
+    moved = [r for r in data["rows"] if r["check"] == "placements"]
+    assert [(r["subject"], r["state"]) for r in moved] == [("gantry/block", "PASS")]
+    code, data = run(capsys, "mass", "machine", "gantry/block")
+    assert data["bodies"][0]["material"] == "aluminium" and data["default_density"] == []         # the child's material
+    assert np.allclose(data["cog"], [0, 3, 28])
+    code, data = run(capsys, "undo", "machine")
+    assert code == cli.OK and not (tree / "machine" / "placements.toml").exists()
+    code, data = run(capsys, "place", "machine", "gantry/ghost", "--by=1,0,0")
+    assert code == cli.USAGE and "gantry/block" in data["error"]
+
+
+def test_a_childs_body_in_a_hand_moved_file_that_names_nobody_is_unchecked_by_name(tree, capsys):
+    (tree / "machine" / "placements.toml").write_text('["gantry/ghost"]\nmove = [1.0, 0.0, 0.0]\n')
+    code, data = run(capsys, "check", "machine")
+    ghost = [r for r in data["rows"] if r["check"] == "placements"]
+    assert [(r["subject"], r["state"]) for r in ghost] == [("gantry/ghost", "UNCHECKED")] and code == cli.UNCHECKED
+
+
+@pytest.fixture()
+def served(tree, monkeypatch):
+    bench = serve.Bench([tree], runner=inproc)
+    scheduled = []
+    monkeypatch.setattr(bench, "schedule", lambda slug, kind="check": scheduled.append((slug, kind)))
+    srv = serve.make_server(bench, "127.0.0.1", 0)
+    threading.Thread(target=srv.serve_forever, daemon=True).start()
+    base = f"http://127.0.0.1:{srv.server_address[1]}"
+
+    def call(path, body=None):
+        req = urllib.request.Request(base + path)
+        if body is not None:
+            req.data = json.dumps(body).encode()
+            req.add_header("Content-Type", "application/json")
+            req.add_header("X-CAD", "1")
+        try:
+            with urllib.request.urlopen(req, timeout=120) as r:
+                return r.status, json.loads(r.read() or b"null")
+        except urllib.error.HTTPError as e:
+            return e.code, json.loads(e.read() or b"null")
+
+    yield call, bench, scheduled
+    srv.shutdown()
+    srv.server_close()
+
+
+def test_the_scene_hands_the_viewer_a_flat_name_and_the_page_a_childs_own_facts(served, tree):
+    call, _, _ = served
+    code, scene = call("/api/scene?slug=machine")
+    assert code == 200 and {b["name"] for b in scene["bodies"]} == {"plate", "gantry/plate", "gantry/block"}
+    ids = {p["id"] for p in scene["viewer"]["shapes"]["parts"]}
+    assert ids == {"/Group/plate", "/Group/gantry%2Fplate", "/Group/gantry%2Fblock"}      # no group of the viewer's own
+    assert all(b["path"] in ids for b in scene["bodies"])
+    child = next(b for b in scene["bodies"] if b["name"] == "gantry/plate")
+    assert (child["part"], child["kind"], child["material"], child["project"], child["from_part"]) == (
+        None, "made", "petg", "gantry", "plate")
+    assert child["params"] == {} and child["mass_g"] > 0 and child["used_by"] == []     # the parameters are the child's to edit
+    own = next(b for b in scene["bodies"] if b["name"] == "plate")
+    assert own["part"] == "plate" and "project" not in own and own["params"]["thickness"]["editable"] is True
+    assert [a["name"] for a in scene["axes"]] == ["gantry/x"] and scene["axes"][0]["moves"] == ["gantry/block"]
+    assert scene["source_hash"] == verify.source_hash(tree / "machine")[0]
+
+
+def test_the_scene_follows_an_edit_to_a_child(served, tree):
+    call, _, _ = served
+    first = call("/api/scene?slug=machine")[1]
+    (tree / "gantry" / "parts" / "block.py").write_text(BLOCK.replace('"size": 10.0', '"size": 14.0'))
+    again = call("/api/scene?slug=machine")[1]
+    assert again["source_hash"] != first["source_hash"]
+    old, new = (next(b for b in s["bodies"] if b["name"] == "gantry/block")["bbox"] for s in (first, again))
+    assert new[1][2] - new[0][2] == pytest.approx(14.0) and old[1][2] - old[0][2] == pytest.approx(10.0)
+
+
+def test_the_page_moves_measures_and_weighs_a_childs_body_through_the_cli(served, tree):
+    call, _, scheduled = served
+    code, r = call("/api/place", {"slug": "machine", "body": "gantry/block", "move": [0, 3, 0], "turn": [0, 0, 0],
+                                  "about": [0, 0, 28]})
+    assert code == 200 and r["exit"] == cli.OK and scheduled == [("machine", "check")]
+    assert placements.load(tree / "machine")["gantry/block"]["move"] == (0.0, 3.0, 0.0)
+    assert '["gantry/block"]' in (tree / "machine" / "placements.toml").read_text()
+    block = next(b for b in call("/api/scene?slug=machine")[1]["bodies"] if b["name"] == "gantry/block")
+    assert block["placement"]["move"] == [0.0, 3.0, 0.0]
+    code, r = call("/api/measure", {"slug": "machine", "a": "gantry/block", "b": "plate"})
+    assert r["exit"] == cli.OK and r["data"]["min_distance_mm"] == pytest.approx(71.0)
+    code, r = call("/api/mass", {"slug": "machine", "bodies": ["gantry/plate"]})
+    assert r["exit"] == cli.OK and r["data"]["bodies"][0]["material"] == "petg" and r["data"]["default_density"] == []
+    code, r = call("/api/place", {"slug": "machine", "body": "gantry/block", "reset": True})
+    assert r["exit"] == cli.OK and not (tree / "machine" / "placements.toml").exists()
+    log = (tree / "machine" / ".cad" / "log.jsonl").read_text()
+    assert '"gantry/block"' in log                                                       # the page's moves are in the activity log
+
+
+@pytest.mark.parametrize("path,body", [
+    ("/api/set", {"part": CHILD_BODY, "values": {"thickness": 5}}),
+    ("/api/export", {"part": CHILD_BODY, "format": "step"}),
+    ("/api/approve", {"part": CHILD_BODY}),
+    ("/api/place", {"body": "gantry/ghost", "reset": True}),
+])
+def test_the_page_asking_for_a_childs_part_gets_a_usage_answer_not_a_server_error(served, path, body):
+    call, _, _ = served
+    code, r = call(path, {"slug": "machine", **body})
+    assert code == 200 and r["exit"] == cli.USAGE and r["data"]["error"]
+
+
+def test_a_name_is_never_a_path_to_the_server(served, tree, monkeypatch):
+    call, _, _ = served
+    for rel in ("out/gantry/plate_iso.png", "../gantry/assembly.py", "out/../../gantry/assembly.py",
+                "out%2F..%2F..%2Fgantry%2Fassembly.py", "baseline/gantry%2Fplate_iso.png"):
+        code, r = call("/api/file?slug=machine&path=" + rel)
+        assert code == 404, rel
+    opened = []
+    monkeypatch.setattr(serve.subprocess, "Popen", lambda cmd, **kw: opened.append(cmd))
+    code, r = call("/api/reveal", {"slug": "machine", "part": CHILD_BODY})
+    assert code == 200 and r["revealed"] == str(tree / "machine") and len(opened) == 1       # the project, not a path from the name
+    code, r = call("/api/reveal", {"slug": "machine", "part": "plate"})
+    assert r["revealed"].endswith("machine/parts/plate.py")
+
+
+def test_the_page_selects_and_hides_a_childs_body_by_its_name(served):
+    call, _, _ = served
+    code, r = call("/api/gui/do", {"slug": "machine", "cmd": "select", "args": [CHILD_BODY, "gantry/block.Face2"]})
+    assert code == 200 and r["ok"] is True
+    code, r = call("/api/gui/do", {"slug": "machine", "cmd": "hide", "args": ["gantry/block"]})
+    assert code == 200
+    code, state = call("/api/gui?slug=machine")
+    assert state["selected"] == [CHILD_BODY, "gantry/block.Face2"] and state["hidden"] == ["gantry/block"]
+
+
+# ─── What the other rules and commands make of a sub-assembly ────────────────
+
+def test_the_centre_of_mass_rule_moves_it_along_the_axis_as_the_instance_turned_it(tree):
+    from cad_agent.ruleset.com import com
+    add_motor(120)
+    ctx = actx("machine")
+    infos = ctx.machine.bodies
+    assert all(i.mass_g for i in infos.values())                                     # a mass for every body, so the rule judges
+    rows = {r.rule: r for r in com(ctx)}
+    assert rows["centre of mass"].state == "PASS" and rows["centre of mass/gantry/x"].state == "PASS"
+    total = sum(i.mass_g for i in infos.values())
+    share = infos["gantry/block"].mass_g / total
+    # the centre of mass is on the plate's centre line; x turned a quarter runs along y, where the plate is 10 either side
+    assert f"closest {10 - share * 10:.1f} mm from its edge" in rows["centre of mass/gantry/x"].measured
+    assert f"({share * 100:.0f}% of the mass moves)" in rows["centre of mass/gantry/x"].measured
+
+
+def test_a_mass_budget_over_everything_a_lifted_axis_moves_weighs_the_prefixed_bodies(tree):
+    add_motor(120)
+    write("gantry", (st.project_dir("gantry") / "assembly.py").read_text().replace(
+        '"moves": ("block",)', '"moves": ("block", "motor")'), {"plate": PLATE, "block": BLOCK})
+    mass = lambda text: only(spec_rows("machine", text))
+    loose = mass('[[mass]]\nmoving = "gantry/x"\nmax_g = 200\n')
+    assert loose.state == "PASS" and "gantry/block" in loose.measured and "gantry/motor 120.0 g" in loose.measured
+    assert mass('[[mass]]\nmoving = "gantry/x"\nmax_g = 100\n').state == "FAIL"
+    assert mass('[[mass]]\nmoving = "x"\nmax_g = 100\n').state == "UNCHECKED"          # the child's name is not the machine's
+    assert mass('[[mass]]\nbodies = ["gantry/block", "plate"]\nmax_g = 20\n').state == "PASS"
+
+
+def test_the_bom_nests_a_sub_assemblys_bodies_under_a_line_of_its_own(tree, capsys):
+    code, data = run(capsys, "bom", "machine")
+    lines = [(ln["index"], ln["name"], ln["kind"], ln["project"], ln["depth"]) for ln in data["lines"]]
+    assert lines == [("1", "plate", "made", "machine", 0), ("2", "gantry", "assembly", "gantry", 0),
+                     ("2.1", "plate", "made", "gantry", 1), ("2.2", "block", "made", "gantry", 1)]
+    assert data["lines"][0]["shop_files"] == ["plate.step", "plate.3mf", "plate.stl"]       # the parent's own part has files
+    assert data["lines"][2]["shop_files"] == [] and data["lines"][2]["file_name"] == "parts/plate.py"
+    flat = run(capsys, "bom", "machine", "--flat")[1]
+    assert [ln["kind"] for ln in flat["lines"]] == ["made", "assembly"] and flat["totals"]["bodies"] == 3
+
+
+def test_the_parents_shop_makes_files_for_its_own_parts_only(tree, capsys):
+    code, data = run(capsys, "shop", "machine", "--draft")
+    assert code in (cli.OK, cli.UNCHECKED), data                                     # a draft of a design nobody verified
+    out = tree / "machine" / "out" / "shop"
+    assert sorted(p.name for p in out.iterdir()) == ["bom.csv", "bom.json", "manifest.json", "plate.3mf", "plate.step", "plate.stl"]
+    manifest = json.loads((out / "manifest.json").read_text())
+    assert not [f for f in manifest["files"] if "gantry" in f["path"] or "block" in f["path"]]
+    assert manifest["skipped"] == [] and manifest["bom"]["bodies"] == 3                # the BOM counts the child's, the shop does not make them
+    bom = json.loads((out / "bom.json").read_text())
+    assert [ln["name"] for ln in bom["lines"]] == ["plate", "gantry", "plate", "block"]
+    assert not (tree / "gantry" / "out" / "shop").exists()                            # that is the child's shop
