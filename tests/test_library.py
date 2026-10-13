@@ -1085,6 +1085,12 @@ def test_the_install_command_is_for_the_python_that_runs_cad(monkeypatch):
     monkeypatch.setattr(sys, "executable", "/Users/a b/.claude/plugins/data/cad-agent/venv/bin/python")      # a path with a space
     assert st.install_command("x>=1") == "uv pip install -p '/Users/a b/.claude/plugins/data/cad-agent/venv/bin/python' 'x>=1'"
 
+    def broken(name, *a):
+        raise ValueError("pip.__spec__ is None")
+
+    monkeypatch.setattr(importlib.util, "find_spec", broken)                    # it runs inside why(), which must not fail
+    assert st.install_command("x>=1").startswith("uv pip install -p ")
+
 
 def test_the_optional_packages_are_the_extras_of_pyproject_and_the_plugin_installs_them():
     import tomllib

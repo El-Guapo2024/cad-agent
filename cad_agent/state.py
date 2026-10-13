@@ -32,9 +32,11 @@ def install_command(requirement: str) -> str:
     one, else uv: the plugin's venv is made by uv, which leaves no pip in it and none on PATH, and a bare
     `pip install 'cad-agent[...]'` names a package that nobody publishes, so that advice cannot work there."""
     py, req = shlex.quote(sys.executable), shlex.quote(requirement)
-    if importlib.util.find_spec("pip") is not None:
-        return f"{py} -m pip install {req}"
-    return f"uv pip install -p {py} {req}"
+    try:
+        has_pip = importlib.util.find_spec("pip") is not None
+    except (ImportError, ValueError):               # a pip with no spec: this runs inside why(), which must not fail
+        has_pip = False
+    return f"{py} -m pip install {req}" if has_pip else f"uv pip install -p {py} {req}"
 
 
 def _is_name(slug: str) -> bool:
