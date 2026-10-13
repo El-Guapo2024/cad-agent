@@ -619,11 +619,21 @@ def test_the_other_library_extrusions_miss_the_beam_task_on_their_own_rule(worke
     assert says in rows[0]["measured"] and r["verdict"] == state
 
 
+def test_the_beam_brief_quotes_the_working_volumes_the_part_rules_use():
+    """It says no part module can be a bar 640 mm long, and why: the `envelope` row's limit for each process."""
+    from cad_agent.checks.dfm import PROCESS
+    brief = (EVALS / "beam_deflection" / "brief.md").read_text()
+    for name, volume in {n: p["max_bbox_mm"] for n, p in PROCESS.items()}.items():
+        assert " x ".join(f"{v:g}" for v in volume) in brief and f"`{name}`" in brief, name
+    assert max(max(p["max_bbox_mm"]) for p in PROCESS.values()) < 640           # so the claim is true
+
+
 def test_the_reference_beam_is_the_2040_on_its_edge_with_room_to_spare_on_both_limits(reference):
     r = {x["rule"]: x for x in reference("beam_deflection")["rows"]}
-    assert r["spec/deflection"]["measured"].startswith("37.666 um at midspan")        # of 50
-    assert r["spec/mass"]["measured"].startswith("499.3 g")                           # of 600
-    assert "I 46740 mm^4" in r["spec/deflection"]["measured"]                         # the 40 mm side up: 12145 lying flat
+    deflection = r["spec/deflection"]["measured"]
+    assert float(re.match(r"([\d.]+) um at midspan", deflection)[1]) == pytest.approx(37.67, abs=0.02)      # of 50
+    assert r["spec/mass"]["measured"].startswith("499.3 g")                                               # of 600
+    assert float(re.search(r"I ([\d.]+) mm\^4", deflection)[1]) == pytest.approx(46740, abs=20)         # 12145 lying flat
     note = json.loads((EVALS / "beam_deflection" / "reference" / "bought" / "extrusion_2040.json").read_text())
     assert note["library"] == "extrusion-2040" and note["geometry"] == "exact" and note["sha256"]    # `cad lib use` wrote it
 

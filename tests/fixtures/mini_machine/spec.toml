@@ -54,7 +54,8 @@ max_g = 150
 bodies = ["base", "insulator", "hot_plate", "back_wall"]
 max_g = 2000
 
-# The gantry beam, with the carriage's load at midspan, from here as the sub-assembly's axis is named here.
+# The gantry's beam under the carriage's load at midspan. The carriage's axis is `gantry/x` here and `x` in the child's
+# own spec, which makes the same check of the same beam.
 [[deflection]]
 body = "gantry/beam"
 support = "simple"
