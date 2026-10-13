@@ -8,7 +8,9 @@ panels need and the viewer does not know:
 - per body: the part module it comes from, material, colour, mass, size
 - the hand-made move (placements.toml) with its pivot, so a drag in the
   workbench can be written back as a new placement
-- AXES, the spec envelope, and the design hash the scene was built from
+- AXES and POSES (a pose is a position for each of some axes, so the page can show the machine there: a
+  rigid move of the bodies each axis carries, as motion.pose makes it), the spec envelope, and the design
+  hash the scene was built from
 
 Bodies are drawn where every gate sees them: placements applied.
 
@@ -30,7 +32,7 @@ import numpy as np
 from . import bodies, gui, placements, state as st
 from .params import read as params_of
 
-FORMAT = "cad-scene/2"
+FORMAT = "cad-scene/3"      # /3: POSES; serve.SCENE_FORMAT must say the same, so a scene.json from before is rebuilt
 
 # Colours by material: what a part is made of should read at a glance.
 MATERIAL_COLOR = {
@@ -176,6 +178,8 @@ def build_scene(slug: str, deviation: float | None = None, angular: float | None
     part_names = st.part_names(slug)
     machine = st.load_machine(slug, placed=False, describe=False)
     base, axes = (machine.parts, machine.axes) if machine is not None else (None, {})
+    poses = {name: {axis: float(at) for axis, at in pose.items() if isinstance(at, (int, float)) and not isinstance(at, bool)}
+             for name, pose in (machine.poses if machine is not None else {}).items()}
     linked = machine.bodies if machine is not None else {}      # the bodies of sub-assemblies, described as they came in
     metas: dict = {}
     assembly = base is not None
@@ -263,6 +267,7 @@ def build_scene(slug: str, deviation: float | None = None, angular: float | None
         "axes": [{"name": a.name, "moves": list(a.moves), "direction": list(a.direction),
                   "travel": list(a.travel), "work": list(a.work) if a.work else None}
                  for a in axes.values()],
+        "poses": poses,
         "envelope": envelope,
         "unknown_placements": sorted(set(placed) - set(base)),
         "viewer": {"instances": [_encode(i) for i in inst], "shapes": shapes},
