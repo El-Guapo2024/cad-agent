@@ -196,7 +196,7 @@
       "source": "non-background pixels; near zero means nothing was drawn",
       "check": "visual",
       "artifacts": [
-        "/Users/juanantonioluera/ws/cad-agent/projects/arduino_car/out/_check_caster_iso.png"
+        "out/_check_caster_iso.png"
       ]
     },
     {
@@ -208,8 +208,8 @@
       "source": "compared against the approved image; a deliberate change is re-approved, an accidental one is caught",
       "check": "visual",
       "artifacts": [
-        "/Users/juanantonioluera/ws/cad-agent/projects/arduino_car/out/_check_caster_iso.png",
-        "/Users/juanantonioluera/ws/cad-agent/projects/arduino_car/baseline/caster_iso.png"
+        "out/_check_caster_iso.png",
+        "baseline/caster_iso.png"
       ]
     },
     {
@@ -281,7 +281,7 @@
       "source": "non-background pixels; near zero means nothing was drawn",
       "check": "visual",
       "artifacts": [
-        "/Users/juanantonioluera/ws/cad-agent/projects/arduino_car/out/_check_chassis_iso.png"
+        "out/_check_chassis_iso.png"
       ]
     },
     {
@@ -293,8 +293,8 @@
       "source": "compared against the approved image; a deliberate change is re-approved, an accidental one is caught",
       "check": "visual",
       "artifacts": [
-        "/Users/juanantonioluera/ws/cad-agent/projects/arduino_car/out/_check_chassis_iso.png",
-        "/Users/juanantonioluera/ws/cad-agent/projects/arduino_car/baseline/chassis_iso.png"
+        "out/_check_chassis_iso.png",
+        "baseline/chassis_iso.png"
       ]
     },
     {
@@ -356,7 +356,7 @@
       "source": "non-background pixels; near zero means nothing was drawn",
       "check": "visual",
       "artifacts": [
-        "/Users/juanantonioluera/ws/cad-agent/projects/arduino_car/out/_check_motor_bracket_iso.png"
+        "out/_check_motor_bracket_iso.png"
       ]
     },
     {
@@ -368,8 +368,8 @@
       "source": "compared against the approved image; a deliberate change is re-approved, an accidental one is caught",
       "check": "visual",
       "artifacts": [
-        "/Users/juanantonioluera/ws/cad-agent/projects/arduino_car/out/_check_motor_bracket_iso.png",
-        "/Users/juanantonioluera/ws/cad-agent/projects/arduino_car/baseline/motor_bracket_iso.png"
+        "out/_check_motor_bracket_iso.png",
+        "baseline/motor_bracket_iso.png"
       ]
     },
     {
@@ -431,7 +431,7 @@
       "source": "non-background pixels; near zero means nothing was drawn",
       "check": "visual",
       "artifacts": [
-        "/Users/juanantonioluera/ws/cad-agent/projects/arduino_car/out/_check_wheel_iso.png"
+        "out/_check_wheel_iso.png"
       ]
     },
     {
@@ -443,8 +443,8 @@
       "source": "compared against the approved image; a deliberate change is re-approved, an accidental one is caught",
       "check": "visual",
       "artifacts": [
-        "/Users/juanantonioluera/ws/cad-agent/projects/arduino_car/out/_check_wheel_iso.png",
-        "/Users/juanantonioluera/ws/cad-agent/projects/arduino_car/baseline/wheel_iso.png"
+        "out/_check_wheel_iso.png",
+        "baseline/wheel_iso.png"
       ]
     },
     {

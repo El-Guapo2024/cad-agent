@@ -101,6 +101,15 @@ def test_check_all_writes_checks_json(checked):
     assert on_disk["written_utc"]
 
 
+def test_checks_json_names_no_folder_above_the_project(checked):
+    """checks.json is committed with the design, so every path in it is from the project folder: an absolute one
+    would put the folder the run was in into the repo, and a home folder names its owner."""
+    pdir = st.project_dir(SLUG)
+    assert str(st.ROOT) not in (pdir / "checks.json").read_text()
+    arts = [a for r in checked["rows"] for a in r["artifacts"]]
+    assert arts and all(not Path(a).is_absolute() and (pdir / a).is_file() for a in arts)
+
+
 def test_check_all_builds_each_part_once_for_its_own_checks(checked, monkeypatch):
     """The part rules take their declarations from the first build; a second one only cost seconds."""
     from cad_agent import runner

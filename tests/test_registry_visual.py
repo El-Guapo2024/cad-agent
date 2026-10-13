@@ -157,6 +157,21 @@ def test_a_changed_part_fails_and_says_where(visual_project):
     assert any("_diff_" in a for a in drift.artifacts), "a diff image must be written"
 
 
+def test_artifacts_are_paths_from_the_project_folder(visual_project):
+    """checks.json is committed, so a row names its images from the project folder and never the folder it ran in
+    (a home folder names its owner)."""
+    root, out = visual_project
+    plain = Box(30, 30, 30)
+    first = list(vis.visual_rows("blk", plain, out, root))
+    assert [r.artifacts for r in first] == [["out/_check_blk_iso.png"]] * 2          # silhouette, and drift with no baseline
+    vis.approve(root, out, "blk", "iso")
+
+    rows = list(vis.visual_rows("blk", plain - Pos(0, 0, 0) * Cylinder(6, 40), out, root))
+    drift = next(r for r in rows if r.rule.startswith("drift"))
+    assert drift.artifacts == ["out/_check_blk_iso.png", "baseline/blk_iso.png", "out/_diff_blk_iso.png"]
+    assert all((root / a).is_file() for a in drift.artifacts)
+
+
 def test_the_diff_image_marks_only_what_changed(visual_project):
     root, out = visual_project
     plain = Box(30, 30, 30)
