@@ -368,8 +368,7 @@ def reconstruct(plate: Plate, values: dict) -> tuple:
     """
     from build123d import Compound, Plane, Vector
     u, v, n = plate.frame.u, plate.frame.v, plate.frame.n
-    level = plate.frame.level
-    origin = Vector(*(plate.lo[0] * u[i] + plate.lo[1] * v[i] + level * n[i] for i in range(3)))
+    origin = Vector(*(plate.frame.origin[i] + plate.lo[0] * u[i] + plate.lo[1] * v[i] for i in range(3)))
     sketch = rebuilt(values)
     placed = Plane(origin=origin, x_dir=Vector(*u), z_dir=Vector(*n)) * sketch
     actual = Compound(plate.top)
