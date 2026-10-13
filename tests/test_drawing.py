@@ -591,9 +591,16 @@ def test_every_run_gives_the_same_bytes_in_this_process_and_in_a_fresh_one(tmp_p
     assert fresh.stdout.strip().splitlines()[-1].split(",") == [hashlib.sha256(a.files[e]).hexdigest() for e in ("dxf", "svg", "pdf")]
 
 
-# sha256 of the files of three sheets, written by OCCT 7.9 and by OCCT 8.0 alike: hidden line removal gives the same
-# lines on both to 1e-9 mm, and the sheet is built on a 1e-4 mm grid. If a hash moves, either the layout or a writer
-# changed on purpose (pin the new one) or a kernel gave other lines (a bug in views.py: OCCT 7.9 and 8.0 must agree)
+# sha256 of the files of three sheets, written by OCCT 7.9 and by OCCT 8.0 alike on the machine that pinned them: hidden
+# line removal gives the same lines on both to 1e-9 mm, and the sheet is built on a 1e-4 mm grid. tests/golden/drawings
+# holds the three DXF files. Another platform may move a coordinate in its last place, which is no reason to fail
+# the build: then the DXF must still be the golden one to 2e-3 mm, and that is all the kernels may differ by, the way
+# test_library.py holds a STEP of another kernel to its own to a tolerance. The SVG and the PDF are functions of the DXF,
+# so they are pinned as drawn from the golden DXF and are the same on every platform. If a hash moves, either the layout
+# or a writer changed on purpose (write the three DXF files of `made(...)` over tests/golden/drawings and pin the new
+# hashes), or a kernel gave other lines (a bug in hlr.py: OCCT 7.9 and 8.0 must agree). The golden files are not in
+# tests/fixtures: CI runs `cad verify` on every folder there, as a project.
+GOLDEN = REPO / "tests" / "golden" / "drawings"
 PINNED = {
     ("nema", "first", "dxf"): "d4a8833244a0d2e38a090a4033b6ef163934fe6bcbc6e5cd41271e227454f761",
     ("nema", "first", "svg"): "a59a7a878a8c1bb3cdeee8a1ba055110e0ad5de458d6e9c75ec90148eaade85e",
@@ -607,13 +614,52 @@ PINNED = {
 }
 
 
+def same_dxf(got: bytes, want: bytes, tol: float = 2e-3) -> str | None:
+    """None when two DXF files are the same line for line with every number within `tol` mm, else the first difference."""
+    a, b = got.decode("ascii").split("\n"), want.decode("ascii").split("\n")
+    if len(a) != len(b):
+        return f"{len(a)} lines against {len(b)}"
+    for n, (x, y) in enumerate(zip(a, b), 1):
+        if x == y:
+            continue
+        try:
+            close = abs(float(x) - float(y)) <= tol
+        except ValueError:
+            close = False
+        if not close:
+            return f"line {n}: {x[:60]!r} against {y[:60]!r}"
+    return None
+
+
+def test_same_dxf_is_tolerant_of_a_last_digit_and_of_nothing_else():
+    one = b"999\ncomment\n 10\n12.345678\n 20\n0.000000\nEOF\n"
+    assert same_dxf(one, one) is None
+    assert same_dxf(one, one.replace(b"12.345678", b"12.345001")) is None                    # a coordinate a hair off
+    assert "line 4: '12.345678' against '12.350000'" in same_dxf(one, one.replace(b"12.345678", b"12.350000"))
+    assert "line 2:" in same_dxf(one, one.replace(b"comment", b"another"))                   # text must be the text
+    assert same_dxf(one, one + b"EOF\n") == "8 lines against 9"                               # and so must the number of lines
+
+
 @pytest.mark.parametrize("name,angle,stamp", [("nema", "first", "NOT VERIFIED"), ("panel", "first", None), ("panel", "third", "NOT VERIFIED")])
 def test_a_sheet_is_the_same_bytes_on_either_kernel(name, angle, stamp):
     got = made(name, angle, stamp)
-    for ext in ("dxf", "svg", "pdf"):
-        digest = hashlib.sha256(got.files[ext]).hexdigest()
-        assert PINNED.get((name, angle, ext)) == digest, (f"{name} {angle} .{ext} is {digest}. If the layout or a writer changed on purpose, pin "
-                                                          "this; if not, a kernel gave other lines")
+    golden = (GOLDEN / f"{name}_{angle}.dxf").read_bytes()
+    assert hashlib.sha256(golden).hexdigest() == PINNED[name, angle, "dxf"], "the golden DXF is not the pinned one"
+    digest = hashlib.sha256(got.files["dxf"]).hexdigest()
+    assert digest == PINNED[name, angle, "dxf"] or same_dxf(got.files["dxf"], golden) is None, (
+        f"{name} {angle} .dxf is {digest} and is not the golden sheet to 2e-3 mm either: {same_dxf(got.files['dxf'], golden)}. If the layout "
+        "or a writer changed on purpose, write the golden files again and pin the new hashes; if not, a kernel gave other lines")
+    doc = render.read(golden)
+    for ext, make in (("svg", render.svg), ("pdf", render.pdf)):
+        digest = hashlib.sha256(make(doc, f"scratch/{name}")).hexdigest()
+        assert digest == PINNED[name, angle, ext], f"{name} {angle} .{ext} drawn from the golden DXF is {digest}"
+    if digest_matches(got, name, angle):                       # on the machine that pinned them nothing may have moved, in any file
+        assert hashlib.sha256(got.files["svg"]).hexdigest() == PINNED[name, angle, "svg"]
+        assert hashlib.sha256(got.files["pdf"]).hexdigest() == PINNED[name, angle, "pdf"]
+
+
+def digest_matches(got, name: str, angle: str) -> bool:
+    return hashlib.sha256(got.files["dxf"]).hexdigest() == PINNED[name, angle, "dxf"]
 
 
 # ─── The gates fail when the sheet is damaged ────────────────────────────────
