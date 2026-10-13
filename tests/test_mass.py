@@ -406,6 +406,26 @@ def test_a_ball_on_the_ground_is_a_dot_and_a_centre_off_it_falls():
     assert r.state == "FAIL" and "mm outside the footprint of ball;" in r.measured       # 6.3 mm off a 0.7 mm dot
 
 
+def test_a_block_read_from_a_step_file_stands_on_the_ground_like_any_other(tmp_path):
+    # A bought body is a Compound, and build123d 0.11's `&` of one with the slab that cuts the contact patch gave an
+    # empty shape (so the rule said "could not be measured: Cannot tessellate an empty shape") or a slab the size of
+    # the block's box (so a footprint it does not have); 0.13 gets it right. The patch is cut by the kernel's own
+    # common now, which every version does the same way.
+    from build123d import Compound, import_step
+    from cad_agent.export import write_step
+    write_step(Compound(children=[Box(40, 40, 40).solids()[0]]), tmp_path / "block.step")   # a Compound of one solid, as
+    block = import_step(str(tmp_path / "block.step"))                                       # the evals' given files are
+    assert type(block).__name__ == "Compound"
+    parts = {"left": Pos(-320, 0, 20) * block, "right": Pos(320, 0, 20) * block, "bar": Pos(0, 0, 50) * Box(680, 10, 20)}
+    xs, ys = zip(*comrule._patch(parts["left"], 0.0, "left"))
+    assert (min(xs), max(xs), min(ys), max(ys)) == pytest.approx((-340, -300, -20, 20), abs=1e-6)       # its own 40 x 40 foot
+    (r,) = run(parts, {"left": ("bought", 500.0), "right": ("bought", 500.0), "bar": ("made", 300.0)})
+    assert r.state == "PASS" and "inside the footprint of left, right" in r.measured
+    assert margin(r) == pytest.approx(20.0, abs=0.1)                  # a 680 x 40 hull, the centre of mass in its middle
+    with pytest.raises(comrule._Unmeasurable, match="no material of it is within 0.05 mm"):
+        comrule._patch(Pos(0, 0, 20) * block, -10.0, "floating")     # a ground plane it does not reach says so, in words
+
+
 # ─── com: when it applies, and what it says when it cannot ───────────────────
 
 def test_a_design_that_declares_no_mass_is_not_judged_and_the_row_says_what_turns_it_on():

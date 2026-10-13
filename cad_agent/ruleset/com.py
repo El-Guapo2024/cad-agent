@@ -203,15 +203,27 @@ def _body(solid, mass_g: float, name: str) -> _Body:
 
 
 def _patch(solid, ground: float, name: str) -> list:
-    """The XY points of the part of `solid` within GROUND_MM of the ground plane."""
-    from build123d import Box, Pos
-    from ..geom import bbox
+    """The XY points of the part of `solid` within GROUND_MM of the ground plane.
+
+    The slab is cut with the kernel's own common and not with build123d's `solid & slab`: a body read from a STEP
+    file (every bought part) is a Compound of one solid, and build123d 0.11's `&` on one is wrong, giving an empty
+    shape or the slab the size of the body's box, while 0.13's is right. OCCT's boolean is the same on every version.
+    """
+    from build123d import Box, Compound, Pos
+    from OCP.BRepAlgoAPI import BRepAlgoAPI_Common
+    from ..geom import _w, bbox
     lo, hi = bbox(solid)
     height = 1.0 + GROUND_MM
     slab = Pos((lo[0] + hi[0]) / 2, (lo[1] + hi[1]) / 2, ground - 1.0 + height / 2) * Box(
         hi[0] - lo[0] + 2, hi[1] - lo[1] + 2, height)
     try:
-        vertices, _ = (solid & slab).tessellate(CHORD_MM)
+        common = BRepAlgoAPI_Common(_w(solid), _w(slab))
+        if not common.IsDone():
+            common.Build()
+        if not common.IsDone():
+            raise RuntimeError("boolean common failed")
+        patch = Compound(common.Shape())
+        vertices = patch.tessellate(CHORD_MM)[0] if patch.solids() else []
     except Exception as e:      # a boolean the kernel cannot do is a body we cannot measure, not a crash
         raise _Unmeasurable(f"where {name} touches the ground could not be measured: {type(e).__name__}: {e}") from e
     if not vertices:
