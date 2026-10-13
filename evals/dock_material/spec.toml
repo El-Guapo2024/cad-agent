@@ -1,0 +1,70 @@
+# dock_material: the hidden grader. Every entry is stated in brief.md. Axes: z up, the base plate's top face at z = 0.
+#
+# What the task is about is the last entry: the dock stands inside a 250 C zone, so its MATERIAL is judged against the
+# maximum service temperature materials.py gives it (only steel, stainless and polyimide reach 250 C). The base plate
+# is inside the zone too, and a bought body with no rating would be UNCHECKED, which no design could fix: its sidecar
+# declares max_temp_c and max_temp_source, and passes on those.
+
+[bodies]                    # `parts()` returns exactly these three
+count = 3
+names = ["base_plate", "hot_plate", "dock"]
+
+[envelope]                  # the base plate's footprint, from its underside to the top of the tallest dock
+max_mm = [140, 120, 26]
+
+# The given bodies stay where they are, and what they are.
+[[position]]
+body = "base_plate"
+center_mm = [0, 0, -3]
+
+[[position]]
+body = "hot_plate"
+center_mm = [0, 0, 5]
+
+[[size]]
+body = "base_plate"
+min_mm = [139.9, 119.9, 5.9]
+max_mm = [140.1, 120.1, 6.1]
+
+[[size]]
+body = "hot_plate"
+min_mm = [79.9, 59.9, 9.9]
+max_mm = [80.1, 60.1, 10.1]
+
+# The dock is a rail, and it stands off the plate: the plate grows when it is hot.
+[[size]]
+body = "dock"
+min_mm = [90, 12, 12]
+max_mm = [120, 20, 20]
+
+[[clearance]]
+a = "dock"
+b = "hot_plate"
+min_mm = 2.0
+max_mm = 4.0
+
+# It stands on the base plate (touching, no overlap) and is bolted to it. `a` is the dock, so each of its holes
+# must be on a hole of the base plate; and again with the base plate as `a`, so that a base hole under the dock
+# cannot be left with no hole of the dock over it.
+[[clearance]]
+a = "dock"
+b = "base_plate"
+max_mm = 0.1
+
+[[interface]]
+a = "dock"
+b = "base_plate"
+fastener = "M4"
+tol_mm = 0.1
+
+[[interface]]
+a = "base_plate"
+b = "dock"
+fastener = "M4"
+tol_mm = 0.1
+
+# The plate runs at 250 C: every body within 15 mm of it must be rated for that.
+[[heat]]
+source = "hot_plate"
+temp_c = 250
+radius_mm = 15

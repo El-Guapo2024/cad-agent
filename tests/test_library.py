@@ -725,7 +725,8 @@ def _same_step(got: bytes, want: bytes) -> str | None:
     return None
 EVAL_SCRIPTS = ("make_given.py", "endstop_bracket/source/given.py", "hotplate_standoffs/source/make_given.py",
                 "idler_bracket/source/idler.py", "laser_panel/source/make_given.py", "mgn12h_carriage/source/mgn12.py",
-                "pcb_enclosure/source/given.py", "pinned_carrier/source/make_given.py")
+                "pcb_enclosure/source/given.py", "pinned_carrier/source/make_given.py",
+                "dock_material/source/make_given.py", "beam_deflection/source/make_given.py")
 
 
 def test_every_eval_given_file_regenerates_to_the_bytes_it_was_committed_as(tmp_path):
@@ -757,7 +758,7 @@ def test_every_eval_given_file_regenerates_to_the_bytes_it_was_committed_as(tmp_
         else:
             assert got == want, f"{given.relative_to(REPO)} is not what its script draws"     # this kernel wrote it
         checked += 1
-    assert checked == 48
+    assert checked == 54
 
 
 def test_the_evals_draw_their_parts_with_the_library_and_keep_their_own_numbers():
