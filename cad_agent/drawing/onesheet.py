@@ -4,12 +4,13 @@ from __future__ import annotations
 import time
 from dataclasses import dataclass, field
 
+from ..dxf import NeedsExtra
 from ..registry import Row
-from . import readback as check
 from . import arrange as L
-from . import platefit as P
-from . import writers as R
 from . import hlr as V
+from . import platefit as P
+from . import readback as check
+from . import writers as R
 
 FORMATS = ("dxf", "svg", "pdf")
 PROCESSES = ("cnc", "laser_cut")
@@ -35,6 +36,14 @@ def scope_row(part: str, state: str, measured: str) -> Row:
                limit="a prism along its thinnest axis: an outline of straight sides and equal corner radii, with round holes, "
                      "slots and rectangular windows all the way through, their sides along the part's own axes",
                source="dxf.faces_report and through_cut (the faces), the loops of the end face, and spec.holes (the hole finder)")
+
+
+def judge(part: str, rule: str, gate, *args) -> Row:
+    """The row of a gate. One that raises is UNCHECKED and says what it raised: never a crash, and never a pass."""
+    try:
+        return gate(*args)
+    except Exception as e:      # noqa: BLE001 - a rule must not take the run down
+        return check.row(part, rule, "UNCHECKED", f"the gate could not be run: {type(e).__name__}: {e}", "the gate runs and passes")
 
 
 def views_of(solid, plate: P.Plate, angle: str) -> tuple:
@@ -85,20 +94,22 @@ def make(part: str, solid, meta: dict, angle: str = "first", size: str | None = 
     made.sheet = sheet
     data = R.write(sheet, meta, V.SOURCE)
     made.files["dxf"] = data
-    made.rows.append(check.dimensions_row(part, plate))
+    made.rows.append(judge(part, "dimensions", check.dimensions_row, part, plate))
     try:
         doc = R.read(data)
+    except NeedsExtra:
+        raise
     except Exception as e:      # noqa: BLE001 - the master that cannot be read back is not passed
         made.rows.append(check.row(part, "sheet", "FAIL", f"the DXF does not read back: {e}", "the DXF reads back with ezdxf"))
         return made
     title = f"{meta['project']}/{meta['part']}"
-    made.rows.append(check.sheet_row(part, plate, doc, data, meta, angle, meta.get("stamp")))
-    made.rows.append(check.layout_row(part, doc))
+    made.rows.append(judge(part, "sheet", check.sheet_row, part, plate, doc, data, meta, angle, meta.get("stamp")))
+    made.rows.append(judge(part, "layout", check.layout_row, part, doc))
     if "svg" in formats:
         made.files["svg"] = R.svg(doc, title)
-        made.rows.append(check.svg_row(part, doc, made.files["svg"]))
+        made.rows.append(judge(part, "svg", check.svg_row, part, doc, made.files["svg"]))
     if "pdf" in formats:
         made.files["pdf"] = R.pdf(doc, title)
-        made.rows.append(check.pdf_row(part, doc, made.files["pdf"]))
+        made.rows.append(judge(part, "pdf", check.pdf_row, part, doc, made.files["pdf"]))
     made.seconds["total"] = time.perf_counter() - t0
     return made

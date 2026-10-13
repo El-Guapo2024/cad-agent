@@ -231,13 +231,14 @@ def test_the_hole_finder_and_the_outline_must_agree_or_the_plate_is_not_drawn(mo
 
 
 def test_a_section_that_cannot_be_made_or_faces_that_cannot_be_sorted_are_unfit_not_a_crash(monkeypatch):
-    monkeypatch.setattr(dxf, "cut_at", lambda *a, **k: (_ for _ in ()).throw(RuntimeError("the kernel refused")))
-    with pytest.raises(P.Unfit, match="its mid-plane section could not be made: RuntimeError: the kernel refused"):
-        P.analyse(plate())
-    monkeypatch.undo()
-    monkeypatch.setattr(dxf, "faces_report", lambda *a, **k: (_ for _ in ()).throw(RuntimeError("no faces")))
-    with pytest.raises(P.Unfit, match="its faces could not be sorted: RuntimeError: no faces"):
-        P.analyse(plate())
+    with monkeypatch.context() as m:
+        m.setattr(dxf, "cut_at", lambda *a, **k: (_ for _ in ()).throw(RuntimeError("the kernel refused")))
+        with pytest.raises(P.Unfit, match="its mid-plane section could not be made: RuntimeError: the kernel refused"):
+            P.analyse(plate())
+    with monkeypatch.context() as m:
+        m.setattr(dxf, "faces_report", lambda *a, **k: (_ for _ in ()).throw(RuntimeError("no faces")))
+        with pytest.raises(P.Unfit, match="its faces could not be sorted: RuntimeError: no faces"):
+            P.analyse(plate())
 
 
 def test_faces_the_kernel_gives_as_b_spline_surfaces_are_unfit_since_no_end_plane_is_there_to_read():
@@ -517,6 +518,7 @@ def test_the_svg_is_plain_xml_with_an_element_for_each_entity_and_the_stamp_in_r
     assert visible and {el.get("stroke-width") for el in visible} == {"0.5"}
     texts = [el.text for el in root if el.tag == ns + "text"]
     assert "A  4X Ø3.4 THRU" in texts and "NOT VERIFIED" in texts and "%%c" not in got.files["svg"].decode()
+    assert all(el.get("{http://www.w3.org/XML/1998/namespace}space") == "preserve" for el in root if el.tag == ns + "text")      # the two spaces after a letter stay
     red = [el for el in root if el.tag == ns + "text" and el.text == "NOT VERIFIED"]
     assert red and all(el.get("fill") == "#cc0000" for el in red)
     assert b"<?xml" in got.files["svg"][:40] and got.files["svg"].endswith(b"</svg>\n")
@@ -564,13 +566,13 @@ def test_every_run_gives_the_same_bytes_in_this_process_and_in_a_fresh_one(tmp_p
 # changed on purpose (pin the new one) or a kernel gave other lines (a bug in views.py: OCCT 7.9 and 8.0 must agree)
 PINNED = {
     ("nema", "first", "dxf"): "46464732747260fcb8937f211fbf1aee1d659a1ac6981541ce35955cf0788e81",
-    ("nema", "first", "svg"): "8afe01e6ede47d6eb316a54740c98cbd62df2cd5045c7e930d064b2bf1daa523",
+    ("nema", "first", "svg"): "a59a7a878a8c1bb3cdeee8a1ba055110e0ad5de458d6e9c75ec90148eaade85e",
     ("nema", "first", "pdf"): "c2660c12e93053e71da39a67c162f518df5ebb61cae703f808f5908d65d940af",
     ("panel", "first", "dxf"): "9fb462bccf243a9eac9d68da5268b1bb68e1541c73f95189df343c2c2314b4e8",
-    ("panel", "first", "svg"): "827fe85277f424d28bdc898a2a4223c518a155e95ea2b536f3e360abbef71fa6",
+    ("panel", "first", "svg"): "8743934ea9447b27bb6c25ebf94f76686ed65aa2a214e54d7ff31abb279fcfd1",
     ("panel", "first", "pdf"): "0f1d407ae02cfa593c32ab495d1bd4b30a0c2b5144d3cf20c6ced611668ecf49",
     ("panel", "third", "dxf"): "9c8bdb12819a6f4d9afddd892286b27d966f3fa01b7e0779bc42fe155d8dbe99",
-    ("panel", "third", "svg"): "95c39a8744beb1785e9ffea398d5b033e78d9f1c6d8ad5a6afd285f090becb13",
+    ("panel", "third", "svg"): "3d37a6dc35236f8a79af485b063aed8959426fdff0da12dc7bbe8ced3421758b",
     ("panel", "third", "pdf"): "6289ac7ba13cbc0d0a28b6d4c6fd10f8a20cf510fb88a4a54d2ef047523f38e2",
 }
 
@@ -872,9 +874,18 @@ def test_a_bug_in_the_drawing_code_is_exit_4(workshop, capsys, monkeypatch):
 
 
 def test_a_missing_ezdxf_is_a_usage_error_that_says_what_to_install(workshop, capsys, monkeypatch):
-    monkeypatch.setattr(draw, "make", lambda *a, **k: (_ for _ in ()).throw(dxf.NeedsExtra('reading a DXF back needs ezdxf: install it with: pip install "ezdxf>=1.4"')))
+    monkeypatch.setattr(dxf, "ezdxf_module", lambda: (_ for _ in ()).throw(dxf.NeedsExtra('reading a DXF back needs ezdxf: install it with: pip install "ezdxf>=1.4"')))
     code, data = run(capsys, "drawing", SLUG, "panel")
-    assert code == cli.USAGE and 'pip install "ezdxf>=1.4"' in data["error"]
+    assert code == cli.USAGE and 'pip install "ezdxf>=1.4"' in data["error"] and not (workshop / "out" / "drawings").exists()
+
+
+@pytest.mark.parametrize("gate,rule", [("sheet_row", "sheet"), ("layout_row", "layout"), ("svg_row", "svg"), ("pdf_row", "pdf")])
+def test_a_gate_that_raises_is_an_unchecked_row_and_not_a_crash_or_a_pass(monkeypatch, gate, rule):
+    monkeypatch.setattr(check, gate, lambda *a, **k: (_ for _ in ()).throw(RuntimeError("boom")))
+    got = draw.make("p", plate(), meta("p", None), "first")
+    bad = [r for r in got.rows if r.state != "PASS"]
+    assert [(r.rule, r.state) for r in bad] == [(rule, "UNCHECKED")] and "the gate could not be run: RuntimeError: boom" in bad[0].measured
+    assert not got.judged()
 
 
 def git(d, *args):
@@ -968,15 +979,17 @@ def test_the_hook_names_files_by_file_stem_and_skips_what_it_cannot_draw_without
     assert "a pocket floor" in got["skipped"]["pocket"] and got["skipped"]["pocket"].startswith("not a plate this drawing can show: it is not a prism along z")
     assert got["skipped"]["none"] == "declares no PROCESS, so it is not known to be machined or cut"
     assert "NOT DECLARED" in {g.value for _, g in render.read(got["files"]["drawings/gantry__plate.dxf"]).items if isinstance(g, S.Text)}
-    monkeypatch.setattr(check, "sheet_row", lambda *a, **k: check.row("block", "sheet", "FAIL", "a hole is missing", "x"))
-    failed = drawing.shop_drawings(SLUG, {"block": solids["block"]}, {"block": "cnc"}, None)
+    with monkeypatch.context() as m:
+        m.setattr(check, "sheet_row", lambda *a, **k: check.row("block", "sheet", "FAIL", "a hole is missing", "x"))
+        failed = drawing.shop_drawings(SLUG, {"block": solids["block"]}, {"block": "cnc"}, None)
     assert failed == {"files": {}, "skipped": {"block": "its drawing did not pass its own gates: sheet: a hole is missing"}}
-    monkeypatch.undo()
-    monkeypatch.setattr(draw, "make", lambda *a, **k: (_ for _ in ()).throw(RuntimeError("no kernel")))
-    assert drawing.shop_drawings(SLUG, {"block": solids["block"]}, {"block": "cnc"}, None)["skipped"] == {
-        "block": "its drawing could not be made: RuntimeError: no kernel"}
-    monkeypatch.setattr(draw, "make", lambda *a, **k: (_ for _ in ()).throw(layout.DoesNotFit("too big")))
-    assert drawing.shop_drawings(SLUG, {"block": solids["block"]}, {"block": "cnc"}, None)["skipped"] == {"block": "too big"}
+    with monkeypatch.context() as m:
+        m.setattr(draw, "make", lambda *a, **k: (_ for _ in ()).throw(RuntimeError("no kernel")))
+        assert drawing.shop_drawings(SLUG, {"block": solids["block"]}, {"block": "cnc"}, None)["skipped"] == {
+            "block": "its drawing could not be made: RuntimeError: no kernel"}
+    with monkeypatch.context() as m:
+        m.setattr(draw, "make", lambda *a, **k: (_ for _ in ()).throw(layout.DoesNotFit("too big")))
+        assert drawing.shop_drawings(SLUG, {"block": solids["block"]}, {"block": "cnc"}, None)["skipped"] == {"block": "too big"}
 
 
 def test_cad_shop_writes_the_drawings_and_the_manifest_lists_them_and_check_agrees(project, capsys):

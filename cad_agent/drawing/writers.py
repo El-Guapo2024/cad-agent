@@ -197,7 +197,8 @@ def svg(doc: Doc, title: str) -> bytes:
             tr = f' transform="rotate({_n(-g.rotation)} {_n(g.at[0])} {_n(H - g.at[1])})"' if g.rotation else ""
             colour = stroke_of(layer)
             out.append(f'<text x="{_n(g.at[0])}" y="{_n(H - g.at[1])}" font-family="Helvetica, Arial, sans-serif" '
-                       f'font-size="{_n(g.height)}" text-anchor="{anchor}" fill="{colour}"{tr}>{esc(S.display(g.value))}</text>')
+                       f'font-size="{_n(g.height)}" text-anchor="{anchor}" fill="{colour}" xml:space="preserve"{tr}>'
+                       f'{esc(S.display(g.value))}</text>')
         elif isinstance(g, S.Solid):
             pts = " ".join(f"{_n(x)},{_n(H - y)}" for x, y in g.pts)
             out.append(f'<polygon points="{pts}" fill="{stroke_of(layer)}" stroke="none"/>')
