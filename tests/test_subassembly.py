@@ -31,8 +31,8 @@ from cad_agent.state import build_part
 SLUG = "gantry"
 CLEARANCE = {"plate|block": 1.0}
 ALLOW_CONTACT = {("plate", "rail")}
-AXES = {"x": {"moves": ("block",), "direction": (1, 0, 0), "travel": (-10.0, 10.0), "work": (-10.0, 10.0),
-              "tool": "block", "tool_point": (3.0, 0.0, 5.0)}}
+AXES = {"x": {"moves": ("block",), "direction": (1, 0, 0), "travel": (-10.0, 10.0), "work": (-7.0, 7.0),
+              "tool": "block", "tool_point": (3.0, 0.0, 5.0)}}      # the tool point reaches 3 mm along x, so -7 to 13
 POSES = {"park": {"x": -10}}
 
 
@@ -192,7 +192,7 @@ def test_axes_and_poses_are_lifted_and_turn_with_the_instance(tree):
     assert ax.name == "gantry/x" and ax.moves == ("gantry/block",) and ax.tool == "gantry/block"
     assert np.allclose(ax.direction, (0, 1, 0), atol=1e-12)                    # x turned a quarter about z is y
     assert np.allclose(ax.tool_point, (0, 3, 5), atol=1e-12)
-    assert ax.travel == (-10.0, 10.0) and ax.work == (-10.0, 10.0)             # distances along the axis do not turn
+    assert ax.travel == (-10.0, 10.0) and ax.work == (-7.0, 7.0)             # distances along the axis do not turn
     assert st.load_machine("machine").poses == {"gantry/park": {"gantry/x": -10}}
     own = st.load_machine("gantry").axes["x"]                                  # the child's own axis is still x
     assert own.direction == (1.0, 0.0, 0.0) and own.moves == ("block",)
@@ -626,3 +626,238 @@ def test_a_body_count_has_nothing_to_count_without_an_assembly_and_counts_a_sub_
     assert ok.state == "PASS" and ok.measured == "3 bodies: gantry/block, gantry/plate, plate"
     assert only(spec_rows("machine", '[bodies]\nnames = ["plate", "plate"]\n')).state == "UNCHECKED"
     assert only(spec_rows("machine", '[bodies]\nnames = ["plate", "plate_2"]\n')).state == "FAIL"
+
+
+# ─── The tree is hashed, rebuilt and judged as a whole ───────────────────────
+
+GANTRY_SPEC = "[envelope]\nmax_mm = [50, 30, 30]\n"
+MACHINE_SPEC = ('[bodies]\ncount = 3\n\n[[axis]]\nname = "gantry/x"\ndirection = [0, 1, 0]\n\n'
+                '[[position]]\nbody = "gantry/block"\ncenter_mm = [0, -10, 28]\npose = "gantry/park"\n')
+
+
+@pytest.fixture()
+def approved(tree):
+    """The tree with a spec each and every render approved, so that nothing waits on a person."""
+    (tree / "gantry" / "spec.toml").write_text(GANTRY_SPEC)
+    (tree / "machine" / "spec.toml").write_text(MACHINE_SPEC)
+    check_all("machine")                          # draws a render of every part, the child's too
+    approve_views("gantry")
+    approve_views("machine")
+    return tree
+
+
+def unsettled(rec):
+    return [(r["check"], r["rule"], r["state"], r["measured"]) for r in rec["rows"] if r["state"] not in ("PASS", "N/A")]
+
+
+def git(d, *args):
+    return subprocess.run(["git", "-C", str(d), "-c", "user.name=t", "-c", "user.email=t@t", *args],
+                          check=True, capture_output=True, text=True).stdout.strip()
+
+
+def test_a_tree_is_verified_as_a_whole_and_an_edit_to_a_child_makes_the_verdict_stale(approved):
+    rec = verify.run("machine", fresh=True, mode="test")
+    assert rec["verdict"] == "PASS", unsettled(rec)
+    assert {r["check"].split(":")[0] for r in rec["rows"] if ":" in r["check"]} == {"gantry"}      # the child's gates ran
+    assert [s["project"] for s in rec["tree"]["subassemblies"]] == ["gantry"]
+    own = verify._own_hash(st.project_dir("gantry"))
+    assert rec["tree"]["projects"] == {"gantry": {"source_hash": own[0], "design_files": own[1]}}
+    assert rec["design_files"] == len(verify.design_files(st.project_dir("machine"))) + own[1]
+    assert verify.status("machine")["done"] is True
+    block = st.project_dir("gantry") / "parts" / "block.py"
+    block.write_text(block.read_text().replace('"size": 10.0', '"size": 9.0'))
+    s = verify.status("machine")
+    assert s["done"] is False and "the design changed since it was verified" in s["reasons"]
+
+
+def test_a_project_that_links_nothing_verifies_and_hashes_as_it_always_did(approved):
+    import hashlib
+    child = st.project_dir("gantry")
+    h = hashlib.sha256()
+    for p in verify.design_files(child):
+        h.update(p.relative_to(child).as_posix().encode() + b"\0")
+        h.update(hashlib.sha256(p.read_bytes()).digest())
+    assert verify.source_hash(child) == (h.hexdigest(), len(verify.design_files(child)))
+    rec = verify.run("gantry", fresh=True, mode="test")
+    assert rec["verdict"] == "PASS", unsettled(rec)
+    assert "tree" not in rec and verify.git_info(child) is None                   # nothing new in its record
+
+
+def test_the_source_hash_follows_every_design_file_of_every_project_below_and_nothing_else(approved):
+    machine_dir, child = st.project_dir("machine"), st.project_dir("gantry")
+    base, n = verify.source_hash(machine_dir)
+    for output in (child / "checks.json", child / "verify.json", child / "out" / "notes.txt", child / ".cad" / "x.json"):
+        output.parent.mkdir(exist_ok=True)
+        output.write_text("changed")
+    assert verify.source_hash(machine_dir) == (base, n)                         # a run's outputs are not design
+    seen = {base}
+    for name, write_it in {
+        "a part": lambda: (child / "parts" / "block.py").write_text(BLOCK + "# edit\n"),
+        "its spec": lambda: (child / "spec.toml").write_text(GANTRY_SPEC + "# edit\n"),
+        "its hand moves": lambda: (child / "placements.toml").write_text("[block]\nmove = [1.0, 0.0, 0.0]\n"),
+        "its bought parts": lambda: ((child / "bought").mkdir(exist_ok=True), (child / "bought" / "m.step").write_text("x")),
+        "an approved render": lambda: sorted((child / "baseline").glob("*.png"))[0].write_bytes(b"other"),
+        "its assembly": lambda: (child / "assembly.py").write_text(GANTRY + "# edit\n"),
+    }.items():
+        write_it()
+        now, count = verify.source_hash(machine_dir)
+        assert now not in seen, name
+        seen.add(now)
+    assert count == n + 2                                                         # the hand moves and the bought part are two more
+    (machine_dir / "parts" / "plate.py").write_text(PLATE + "# edit\n")           # and the parent's own, as before
+    assert verify.source_hash(machine_dir)[0] not in seen
+
+
+def test_the_tree_goes_all_the_way_down(light):
+    write("gantry", GANTRY, {"plate": PLATE, "block": BLOCK})
+    write("machine", machine(), {"plate": PLATE})
+    write("plant", machine('{"line": {"project": "machine"}}').replace('SLUG = "machine"', 'SLUG = "plant"'), {"plate": PLATE})
+    assert subassembly.tree_projects(st.project_dir("plant")) == (["machine", "gantry"], True)
+    before = verify.source_hash(st.project_dir("plant"))[0]
+    block = st.project_dir("gantry") / "parts" / "block.py"
+    block.write_text(BLOCK + "# edit\n")
+    assert verify.source_hash(st.project_dir("plant"))[0] != before               # a grandchild is part of the plant
+    assert [p for p, _ in subassembly.tree_dirs(st.project_dir("plant"))] == ["gantry", "machine"]
+
+
+@pytest.mark.parametrize("src,names,whole", [
+    ("", [], True),
+    ("SUBASSEMBLIES = {}\n", [], True),
+    ('SUBASSEMBLIES = {"a": {"project": "p1"}, "b": {"project": "p2", "at": [X, 0, 0]}}\n', ["p1", "p2"], True),
+    ('SUBASSEMBLIES = dict(a=dict(project="p1"), b={"project": "p2"})\n', ["p1", "p2"], True),
+    ('SUBASSEMBLIES: dict = {"a": {"project": "p1"}}\n', ["p1"], True),
+    ('K = "a"\nSUBASSEMBLIES = {K: {"project": "p1"}}\n', ["p1"], True),                        # a computed key is no matter
+    ('SUBASSEMBLIES = {"a": {"project": "p1"}}\nSUBASSEMBLIES["b"] = {"project": "p2"}\n', ["p1", "p2"], True),
+    ('SUBASSEMBLIES = {"a": {"project": "p" + "1"}}\n', [], False),
+    ('SUBASSEMBLIES = {"a": {"project": NAME}}\n', [], False),
+    ('SUBASSEMBLIES = {"a": "p1"}\n', [], False),
+    ('SUBASSEMBLIES = {"a": {"project": "p1"}, **MORE}\n', ["p1"], False),
+    ('SUBASSEMBLIES = {"a": {"project": "p1"}}\nSUBASSEMBLIES["b"] = make()\n', ["p1"], False),
+    ('SUBASSEMBLIES = {"a": {"project": "p1"}}\nSUBASSEMBLIES.update(b={"project": "p2"})\n', ["p1"], False),
+    ('SUBASSEMBLIES = {"a": {"project": "p1"}}\nSUBASSEMBLIES |= more()\n', ["p1"], False),
+    ("from elsewhere import SUBASSEMBLIES\n", [], False),
+    ("SUBASSEMBLIES = make()\n", [], False),
+    ("SUBASSEMBLIES = {\n", [], False),                                                           # unreadable
+])
+def test_the_projects_a_design_links_are_read_from_its_source_and_a_doubt_is_said(light, src, names, whole):
+    d = st.project_dir("par", create=True)
+    (d / "assembly.py").write_text(src)
+    assert subassembly.static_children(d) == (names, whole)
+    assert subassembly.static_children(light / "nobody") == ([], True)                           # no assembly.py: nothing linked
+
+
+def test_a_run_that_loaded_a_project_the_hashes_miss_cannot_pass(approved):
+    (st.project_dir("machine") / "assembly.py").write_text(
+        machine('{"gantry": {"project": "gan" + "try", "at": [0, 0, 20], "turn": [0, 0, 90]}}'))
+    assert subassembly.tree_projects(st.project_dir("machine")) == ([], False)
+    rec = verify.run("machine", fresh=True, mode="test")
+    assert rec["verdict"] == "UNCHECKED" and not [r for r in rec["rows"] if r["state"] == "FAIL"]
+    assert "loaded gantry, which assembly.py's source does not name as a plain string" in " ".join(rec["notes"])
+    assert verify.status("machine")["done"] is False
+
+
+def test_a_parents_verify_never_reads_a_childs_verify_or_checks_and_a_failing_child_fails_it(approved, monkeypatch):
+    child = st.project_dir("gantry")
+    (child / "spec.toml").write_text("[envelope]\nmax_mm = [1, 1, 1]\n")          # it fails its own spec
+    (child / "verify.json").write_text(json.dumps({"project": "gantry", "verdict": "PASS"}))     # and says it passes
+    (child / "checks.json").write_text("not json at all")
+    looked = []
+    for owner, name in ((verify, "status"), (st, "read_checks")):
+        real = getattr(owner, name)
+        monkeypatch.setattr(owner, name, lambda slug, *a, _real=real, _name=name: (looked.append((_name, slug)), _real(slug, *a))[1])
+    rec = verify.run("machine", fresh=True, mode="test")
+    assert rec["verdict"] == "FAIL"
+    (bad,) = [r for r in rec["rows"] if r["state"] == "FAIL"]
+    assert (bad["check"], bad["rule"]) == ("gantry:spec", "spec/envelope") and bad["subject"] == "assembly"
+    assert not [seen for seen in looked if seen[1] == "gantry"]
+    assert (child / "checks.json").read_text() == "not json at all"              # nor did it write them
+    assert json.loads((child / "verify.json").read_text())["verdict"] == "PASS"
+
+
+def test_git_answers_for_every_child_and_a_child_outside_a_repo_is_not_committed(approved):
+    root = approved
+    git(root, "init", "-q", "-b", "main")
+    git(root, "add", "-A")
+    git(root, "commit", "-q", "-m", "the machine")
+    info = verify.git_info(root / "machine")
+    assert info["dirty"] is False and set(info["children"]) == {"gantry"}
+    assert info["children"]["gantry"]["commit"] == info["commit"] and info["children"]["gantry"]["path"] == "gantry"
+    rec = verify.run("machine", fresh=True, mode="test")
+    assert rec["git"]["children"]["gantry"]["tree"] and verify.status("machine")["done"] is True
+    block = root / "gantry" / "parts" / "block.py"
+    block.write_text(block.read_text() + "# edit\n")
+    info = verify.git_info(root / "machine")
+    assert info["dirty"] is True and info["uncommitted"] == ["gantry/parts/block.py"]
+    assert info["children"]["gantry"]["dirty"] is True and info["children"]["gantry"]["uncommitted"] == ["gantry/parts/block.py"]
+    (root / "gantry" / "out" / "x.png").write_bytes(b"x")                         # a run's output is no change
+    assert verify.git_info(root / "machine")["uncommitted"] == ["gantry/parts/block.py"]
+    assert verify.run("machine", fresh=True, mode="test")["git"]["dirty"] is True  # a verdict on uncommitted work is said so
+    s = verify.status("machine")
+    assert s["done"] is False and any("uncommitted" in r for r in s["reasons"])
+    git(root, "commit", "-q", "-am", "edit the child")
+    verify.run("machine", fresh=True, mode="test")
+    assert verify.status("machine")["done"] is True
+
+
+def test_a_child_with_a_repository_of_its_own_is_named_in_the_parents_list(approved):
+    for name in ("machine", "gantry"):
+        git(approved / name, "init", "-q", "-b", "main")
+        git(approved / name, "add", "-A")
+        git(approved / name, "commit", "-q", "-m", name)
+    clean = verify.git_info(approved / "machine")
+    assert clean["dirty"] is False and clean["children"]["gantry"]["commit"] != clean["commit"]
+    block = approved / "gantry" / "parts" / "block.py"
+    block.write_text(block.read_text() + "# edit\n")
+    info = verify.git_info(approved / "machine")
+    assert info["dirty"] is True and info["uncommitted"] == ["gantry/parts/block.py"]       # its own repo's path, under its name
+    assert info["children"]["gantry"]["uncommitted"] == ["parts/block.py"]
+
+
+def test_a_child_outside_the_repo_or_gone_counts_as_uncommitted_and_says_so(approved):
+    git(approved / "machine", "init", "-q", "-b", "main")                         # only the parent is in a repo
+    git(approved / "machine", "add", "-A")
+    git(approved / "machine", "commit", "-q", "-m", "machine")
+    info = verify.git_info(approved / "machine")
+    assert info["dirty"] is True and info["children"] == {"gantry": None}
+    assert info["uncommitted"] == ["gantry: not in a git repository"]
+    import shutil
+    shutil.rmtree(approved / "gantry")
+    assert verify.git_info(approved / "machine")["uncommitted"] == ["gantry: no such project"]
+
+
+# ─── The parent's check runs every gate of every project in the tree ─────────
+
+def key(row):
+    return (row["check"], row["rule"], row["subject"], row["state"], row["measured"], row["limit"], row["source"])
+
+
+def test_the_childs_rows_in_the_parents_check_are_the_ones_its_own_check_gives(approved):
+    parent = check_all("machine")
+    own = check_all("gantry")
+    from_child = [r for r in parent["rows"] if r["check"].startswith("gantry:")]
+    assert from_child and [key({**r, "check": r["check"].split(":", 1)[1]}) for r in from_child] == [key(r) for r in own["rows"]]
+    assert {r["check"] for r in from_child} >= {"gantry:geometry", "gantry:fit", "gantry:sweep", "gantry:spec", "gantry:visual"}
+    assert parent["tree"]["projects"] == ["gantry"] and parent["tree"]["subassemblies"][0]["bodies"] == 2
+    assert "tree" not in own and parent["summary"]["parts_built"] == 1             # the child's parts are not the parent's
+    assert json.loads((st.project_dir("machine") / "checks.json").read_text())["tree"] == parent["tree"]
+
+
+def test_a_child_that_fails_its_own_gates_fails_the_parent_whatever_the_parent_says(approved):
+    child = st.project_dir("gantry")
+    (child / "spec.toml").write_text(GANTRY_SPEC + '\n[[mass]]\nparts = { block = 1 }\nmax_g = 1\n')
+    (child / "parts" / "spare.py").write_text(BLOCK.replace("return", "raise ValueError('no wall')\n    return"))
+    rows = check_all("machine")["rows"]
+    bad = {(r["check"], r["rule"], r["subject"]) for r in rows if r["state"] == "FAIL"}
+    assert bad == {("gantry:spec", "spec/mass", "block"), ("gantry:build", "build", "spare")}
+    assert [r["measured"] for r in rows if r["check"] == "gantry:build"] == ["ValueError: no wall"]
+
+
+def test_two_instances_of_a_project_run_its_gates_once(light):
+    write("gantry", GANTRY, {"plate": PLATE, "block": BLOCK}, spec=GANTRY_SPEC)
+    write("machine", machine('{"left": {"project": "gantry", "at": [-50, 0, 0]}, "right": {"project": "gantry", "at": [50, 0, 0]}}'),
+          {"plate": PLATE})
+    rows = check_all("machine")["rows"]
+    assert len([r for r in rows if r["check"] == "gantry:spec"]) == 1
+    assert len([r for r in rows if r["check"] == "subassembly" and r["rule"] == "linked"]) == 2
+    assert len([r for r in rows if r["check"] == "sweep" and r["rule"] == "sweep/left/x"]) == 1
+    assert [r for r in rows if r["check"] == "sweep" and r["rule"] == "sweep/right/x"]

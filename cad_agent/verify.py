@@ -159,7 +159,10 @@ def git_info(pdir: Path) -> dict | None:
                 info["uncommitted"] = (info["uncommitted"] + [why])[:20]
                 info["dirty"] = True
             elif sub["dirty"]:
-                info["uncommitted"] = (info["uncommitted"] + [f"{name}/{p}" for p in sub["uncommitted"]])[:20]
+                # git names a path from the root of its repository: as it stands if the child is in this one,
+                # and under the child's name if it has a repository of its own
+                same = sub["repo"] == info["repo"]
+                info["uncommitted"] = (info["uncommitted"] + [p if same else f"{name}/{p}" for p in sub["uncommitted"]])[:20]
                 info["dirty"] = True
     return info
 
