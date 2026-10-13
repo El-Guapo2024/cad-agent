@@ -704,7 +704,7 @@ the SVG and PDF have an element for each entity of the DXF. A plate takes 75 to 
 | Command | 1 | 2 | 3 |
 |---|---|---|---|
 | `lib ls`, `lib info` | | | an unknown entry |
-| `lib use` | a file is not the one pinned | | an unknown project, entry or parameter; a name taken |
+| `lib use` | a file is not the one pinned | | an unknown project, entry or parameter; a name taken; bd_warehouse not installed |
 | `lib add` | the file is not the pin | | not a STEP; no `--source`; a bad name |
 | `lib fetch` | the download does not hash to the pin | the network did not answer | no URL, no pin, or a licence that does not allow it |
 | `lib check` | any FAIL row (a store file, a pinned copy that changed) | any UNCHECKED row | an unknown project |
