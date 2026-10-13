@@ -5,6 +5,7 @@ import type { CadView } from './viewer'
 // Type-only: cmdreg.ts imports this file for its commands' functions, so this stays a type import
 // (erased at build), the same way commands.ts avoids importing cmdreg.ts back.
 import type { CommandInfo } from './cmdreg'
+import { poseNames, poseOffsets, poseText } from './poses'
 
 const msg = (e: unknown) => (e instanceof Error ? e.message : String(e))
 // fetch() rejects with a TypeError when it can't reach the server at all.
@@ -37,6 +38,9 @@ export function attachView(v: CadView | null) {
 export const getDock = () => dock
 export function setDock(d: DockviewApi) {
   dock = d
+  // the menus follow the document windows, whoever opens or closes one (a drawing's tab has a close button of its own)
+  d.onDidAddPanel(() => windowChanged())
+  d.onDidRemovePanel(() => windowChanged())
   titleView()
 }
 /** Set view properties on objects (the property view's View tab and the display commands). */
@@ -412,9 +416,39 @@ function titleView() {
 const windowSubs = new Set<() => void>()
 const windowChanged = () => windowSubs.forEach((f) => f())
 export function subscribeWindow(f: () => void) { windowSubs.add(f); return () => windowSubs.delete(f) }
-export const hasOpenWindow = () => !!dock?.getPanel('view3d')
-export function closeActiveWindow() { const p = dock?.getPanel('view3d'); if (p) removePanel(p); windowChanged() } // Std_CloseActiveWindow
-export const closeAllWindows = closeActiveWindow // Std_CloseAllWindows
+export const hasOpenWindow = () => !!dock?.getPanel('view3d') || drawingPanels().length > 0
+/** How many document windows are open (the 3D view and the drawings): a snapshot that changes when one opens or closes, for the menus. */
+export const windowCount = () => (dock?.getPanel('view3d') ? 1 : 0) + drawingPanels().length
+/** Std_CloseActiveWindow closes the document window in front: a drawing's tab when that is the one showing, else the 3D view. */
+export function closeActiveWindow() {
+  const front = dock?.activePanel
+  const p = front?.id.startsWith(DRAWING) ? front : dock?.getPanel('view3d')
+  if (p) removePanel(p)
+  windowChanged()
+}
+export function closeAllWindows() { // Std_CloseAllWindows
+  for (const p of drawingPanels()) removePanel(p)
+  const v = dock?.getPanel('view3d')
+  if (v) removePanel(v)
+  windowChanged()
+}
+
+// ── CADAgent_Drawing's tab: TechDraw opens a page as an MDI view of the document, so a drawing is a tab beside the
+// 3D view (and in Windows), one for each plate drawn, refreshed when drawn again, closed with the project. ──
+const DRAWING = 'drawing:'
+export type DrawingParams = { slug: string; part: string; files: string[]; sheet: string | null; angle: string; stamp: string | null; nonce: number }
+export const drawingPanels = () => (dock?.panels ?? []).filter((p) => p.id.startsWith(DRAWING))
+export function openDrawing(p: DrawingParams) {
+  if (!dock) return
+  const id = DRAWING + p.part
+  const open = dock.getPanel(id)
+  if (open) { open.api.updateParameters(p); open.api.setActive(); return }
+  const near = dock.getPanel('view3d') ?? dock.getPanel('start') ?? drawingPanels()[0]
+  addPanel({ id, component: 'drawing', title: `${p.part} : Drawing`, params: p, ...(near ? { position: { referencePanel: near.id, direction: 'within' as const } } : {}) })
+  dock.getPanel(id)?.api.setActive()
+  windowChanged()
+}
+function closeDrawings() { for (const p of drawingPanels()) removePanel(p) }
 
 // ── Std_RecentFiles (File menu): recently opened projects, newest first — the same `saved`-backed
 // pattern as macro.tsx's recentMacros, for Recent Macros. DlgSettingsGeneral.ui's "Recent File List
@@ -481,8 +515,9 @@ function refreshAll() {
 }
 
 export async function openProject(slug: string) {
+  if (slug !== getState().slug) closeDrawings() // a drawing belongs to its project, as a TechDraw page to its document
   setState({ slug, scene: null, sceneError: null, checks: null, status: null, log: [], selected: [], preselected: null,
-    prePoint: null, hidden: [], task: null, undo: [], redo: [], unselectable: [], view: {}, treeFilter: null })
+    prePoint: null, hidden: [], task: null, undo: [], redo: [], unselectable: [], view: {}, treeFilter: null, pose: null })
   saved.set('slug', slug)
   pushRecentFile(slug)
   history.replaceState(null, '', '#' + encodeURIComponent(slug))
@@ -511,8 +546,9 @@ export async function loadScene(fresh = false) {
     // A new source, or the same source tessellated again (Deviation / AngularDeflection changed).
     if (fresh || !prev || sc.source_hash !== prev.source_hash || sc.written_utc !== prev.written_utc) {
       const names = new Set(sc.bodies.map((b) => b.name))
+      // the pose shown stays while the new scene still declares it (the view re-poses itself in show())
       setState((s) => ({ scene: sc, sceneError: null, selected: s.selected.filter((n) => names.has(n)),
-        hidden: s.hidden.filter((n) => names.has(n)) }))
+        hidden: s.hidden.filter((n) => names.has(n)), pose: s.pose && sc.poses?.[s.pose] ? s.pose : null }))
       view?.show(sc, !fresh && !!prev)
       report('log', `Scene: ${sc.bodies.length} bodies, ${sc.triangles} triangles (${((performance.now() - t0) / 1000).toFixed(1)} s)`)
     } else if (getState().sceneError) {
@@ -798,10 +834,42 @@ export function setOrtho(flag: boolean) {
 }
 
 // ── tasks ────────────────────────────────────────────────────────────────────
+const MOVES = ['placement', 'transform', 'align']
 export function openTask(kind: Task['kind'], body: string, other?: string) {
+  // A pose is a picture of the machine away from where assembly.py puts it, and a hand move (`cad place`) is written
+  // from where assembly.py puts it: a part moved while the view shows a pose would land somewhere else than it looks.
+  const pose = getState().pose
+  if (pose && MOVES.includes(kind)) {
+    report('warn', `The view shows the pose "${pose}", not where assembly.py puts the machine. Return to Home (CAD Agent > Pose) before moving a part.`)
+    return
+  }
   // Editing tasks are about one part; the rest use the selection as it is.
   setState((s) => ({ task: { kind, body, other }, ...(kind === 'params' || kind === 'placement' || kind === 'transform' ? { selected: [body], subSel: [] } : {}) }))
   showPanel('tasks')
+}
+
+/** The part module of the first selected body ('' for none, a bought part or a sub-assembly's body): what Drawing… and Build Part… open on. */
+export function selectedPart(): string {
+  const s = getState()
+  return s.scene?.bodies.find((b) => b.name === s.selected[0])?.part ?? ''
+}
+
+/** CADAgent_Pose (poses.ts): the 3D view shows the machine at one of assembly.py's POSES, or at home (null). It is the view
+ *  that moves; the checks, `cad measure` and `cad mass` judge the machine at home, and the spec's own `pose = "park"` entries
+ *  judge it at that pose. `cad gui run PROJECT CADAgent_Pose park` does the same from a terminal. */
+export function setPose(name: string | null): boolean {
+  const s = getState(), sc = s.scene
+  if (name && !sc?.poses?.[name]) {
+    report('warn', `Pose: no pose "${name}" (poses: ${poseNames(sc).join(', ') || 'none declared'})`)
+    return false
+  }
+  if (MOVES.includes(s.task?.kind ?? '')) closeTask()
+  setState({ pose: name })
+  getView()?.setPose(name && sc ? poseOffsets(sc, name) : null)
+  report('msg', name && sc ? `Pose ${name}: ${poseText(sc, name)}. The view only: the checks, measure and mass use the machine at home.`
+    : 'Pose: home, where assembly.py puts the machine')
+  recordGui('run', 'CADAgent_Pose', name ?? 'home')
+  return true
 }
 /** Double-click: the object's edit mode. A part with parameters edits those; a
  *  plain shape gets FreeCAD's default edit mode for one, Transform. */

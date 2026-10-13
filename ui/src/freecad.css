@@ -119,6 +119,10 @@ button, select, input { font: inherit; color: inherit; }
 .view-banner { position: absolute; left: 8px; right: 130px; top: 8px; padding: 4px 8px; background: #fff3cd;
   border: 1px solid #e0c060; border-radius: var(--radius); font-size: 12px; }
 
+.view-pose { position: absolute; left: 8px; top: 8px; display: flex; align-items: center; gap: 6px; padding: 3px 6px; background: #e8f3ff;
+  border: 1px solid #7fb6e8; border-radius: var(--radius); font-size: 12px; }
+.view-pose .qbtn { height: 20px; min-width: 0; padding: 0 8px; }
+
 /* ── model tree (QTreeView) ── */
 .split { display: flex; flex-direction: column; height: 100%; }
 .split-a { min-height: 60px; overflow: hidden; display: flex; flex-direction: column; }
@@ -887,3 +891,26 @@ input[type=range]:disabled::-webkit-slider-runnable-track { background: var(--da
 .dv-groupview-header-bottom:not(.mdi) { position: relative; }
 .dv-groupview-header-bottom:not(.mdi)[data-dock-title]:not([data-dock-title=""]) .dv-right-actions-container {
   position: absolute; top: 0; right: 2px; height: 22px; display: flex; align-items: center; z-index: 2; }
+
+/* ── CAD Agent: the shop's tasks (bill of materials, shop files, library) and the drawing's tab ── */
+.tbuttons.dl { justify-content: flex-start; margin: 8px 0 0; }
+.ctable td.dl { display: flex; gap: 4px; justify-content: flex-end; padding: 1px 6px; border-bottom: none; }
+.ctable td.dl .qbtn, .tbuttons.dl .qbtn { min-width: 0; text-decoration: none; color: inherit; }
+.ctable td.dl .qbtn { height: 20px; padding: 0 8px; }
+.ctable tr.sel td { background: var(--accent-bg); }
+.ctable tr.dim td { color: var(--text-disabled); }
+pre.hint.pre { white-space: pre-wrap; overflow-wrap: anywhere; font: 11.5px/1.35 ui-monospace, Menlo, Consolas, monospace; margin: 6px 0 0; }
+.tbox-body details { margin: 6px 0; }
+.tbox-body details > summary { cursor: default; }
+.tfield input[type=file] { height: auto; padding: 2px 0; border: none; background: none; min-width: 0; }
+.tform textarea { width: 100%; box-sizing: border-box; border: 1px solid var(--border); border-radius: var(--radius); padding: 3px 4px; font: inherit; resize: vertical; background: var(--field-bg); }
+.tform textarea:focus { outline: none; border-color: var(--accent); }
+.tfield.top > span:first-child { align-self: start; padding-top: 3px; }
+.drawing { display: flex; flex-direction: column; width: 100%; height: 100%; background: #e9e9e9; }
+.drawing-bar { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; padding: 4px 6px; background: var(--primary); border-bottom: 1px solid var(--border); font-size: 12px; }
+.drawing-bar .spacer { flex: 1; }
+.drawing-bar .qbtn { text-decoration: none; color: inherit; min-width: 0; height: 22px; }
+.drawing-bar .qbtn.ibtn { width: 26px; }
+.drawing-sheet { position: relative; flex: 1; overflow: hidden; cursor: grab; touch-action: none; }
+.drawing-sheet:active { cursor: grabbing; }
+.drawing-sheet img { position: absolute; left: 0; top: 0; max-width: none; transform-origin: 0 0; background: #fff; box-shadow: 0 1px 6px rgba(0, 0, 0, 0.35); user-select: none; }

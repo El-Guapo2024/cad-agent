@@ -7,7 +7,7 @@
 import { useEffect, useState } from 'react'
 import { api, resultText, type CadResult, type CheckRow } from './api'
 import { closeTask, loadChecks, loadStatus } from './actions'
-import { cls, cmdline, TaskBox, TaskButtons, vec } from './panels'
+import { cls, cmdline, ruleText, TaskBox, TaskButtons, vec } from './panels'
 import { QComboBox } from './combo'
 import { getState, report, useStore } from './store'
 import { messageBox } from './msgbox'
@@ -18,12 +18,15 @@ import { Icon } from './icons'
  *  call said when it didn't pass"). Never throws; callers read r.exit themselves (0 ok, 1 FAIL,
  *  2 UNCHECKED, 3 usage, 4 crash) because for Check/Verify/Done a non-zero exit is the answer,
  *  not a failure to answer. Rules and Tool envelope take no project; slug is '' for those. */
-async function agentRun(argv: string[]): Promise<CadResult> {
+export async function agentRun(argv: string[]): Promise<CadResult> {
   const line = cmdline(argv)
   report('log', line)
   try {
     const r = await api.cad(getState().slug ?? '', argv)
-    report(r.exit === 0 ? 'msg' : r.exit <= 2 ? 'warn' : 'err', r.exit === 0 ? `${line}: done` : `${line}: ${resultText(r)}`)
+    // A clean run says what the command says first ("mini_machine  bill of materials: 11 lines, 11 bodies"), as
+    // a terminal's first line does; a verdict or a mistake says why (resultText).
+    const first = (r.text ?? '').split('\n').find((l) => l.trim())?.trim().slice(0, 160)
+    report(r.exit === 0 ? 'msg' : r.exit <= 2 ? 'warn' : 'err', r.exit === 0 ? `${line}: ${first || 'done'}` : `${line}: ${resultText(r)}`)
     return r
   } catch (e) {
     const text = e instanceof Error ? e.message : String(e)
@@ -35,17 +38,21 @@ async function agentRun(argv: string[]): Promise<CadResult> {
 /** A JSON-ish value (dicts of dicts, arrays, numbers, strings) to label/value rows, for the
  *  reference-table commands (Tables, Tool envelope) whose exact shape isn't hand-modelled here.
  *  Drops null/undefined leaves so an unset optional field just doesn't show a row. */
-function flattenRows(obj: unknown, prefix = ''): [string, string][] {
+export function flattenRows(obj: unknown, prefix = ''): [string, string][] {
   if (obj === null || obj === undefined) return []
   if (Array.isArray(obj)) return [[prefix || 'value', obj.join(', ')]]
   if (typeof obj === 'object') return Object.entries(obj as Record<string, unknown>).flatMap(([k, v]) => flattenRows(v, prefix ? `${prefix}.${k}` : k))
   return [[prefix || 'value', String(obj)]]
 }
 
+/** "width=50 thickness=6" (spaces or commas) as `--set width=50 --set thickness=6`: the trial values `cad build`, `cad render`
+ *  and `cad check --part` take for one run, which write nothing (`cad set` writes). */
+export const overrideArgs = (text: string): string[] => text.split(/[\s,]+/).filter((x) => x.includes('=')).flatMap((kv) => ['--set', kv])
+
 const ORDER: Record<string, number> = { FAIL: 0, UNCHECKED: 1, PASS: 2 }
 /** The same rows table ChecksView draws for checks.json, reused here so Check/Verify/Done's
  *  own task panel reads exactly like the live Checks panel. */
-function RowsTable({ rows }: { rows: CheckRow[] }) {
+export function RowsTable({ rows }: { rows: CheckRow[] }) {
   const sorted = [...rows].sort((a, b) => (ORDER[a.state] ?? 3) - (ORDER[b.state] ?? 3))
   return (
     <table className="ctable">
@@ -53,7 +60,7 @@ function RowsTable({ rows }: { rows: CheckRow[] }) {
       <tbody>{sorted.map((r, i) => (
         <tr key={i} className={'st-' + r.state.toLowerCase()} title={r.source}>
           <td><Icon name={r.state === 'PASS' ? 'pass' : r.state === 'FAIL' ? 'fail' : 'pending'} size={14} /> {r.state}</td>
-          <td>{r.rule}</td><td>{r.subject}</td><td>{r.measured ?? ''}</td><td>{r.limit ?? ''}</td>
+          <td>{ruleText(r)}</td><td>{r.subject}</td><td>{r.measured ?? ''}</td><td>{r.limit ?? ''}</td>
         </tr>
       ))}</tbody>
     </table>
@@ -70,14 +77,21 @@ const GATE_HELP: Record<'check' | 'verify' | 'done', { label: string; icon: 'rec
  *  the verdict, same data the live Checks panel and status bar read. Also refreshes those (like
  *  Edit > Recompute and Tools > Verify do) so the rest of the UI doesn't wait on the SSE round trip. */
 function GateTask({ verb }: { verb: 'check' | 'verify' | 'done' }) {
-  const slug = useStore((s) => s.slug)
+  const slug = useStore((s) => s.slug), scene = useStore((s) => s.scene)
   const [busy, setBusy] = useState(false)
   const [data, setData] = useState<Record<string, any> | null>(null)
   const [err, setErr] = useState<string | null>(null)
+  // The command's own options: the views the visual gate renders and judges (`--views`), the fast loop on one part
+  // (`check --part`), and the passing rows (`--all`). The first run is the default one; the options apply to Run again.
+  const [views, setViews] = useState<string[]>(['iso'])
+  const [only, setOnly] = useState('')
+  const [all, setAll] = useState(false)
+  const parts = [...new Set((scene?.bodies ?? []).map((b) => b.part).filter((p): p is string => !!p))]
   const run = async () => {
     if (!slug) return
     setBusy(true); setErr(null)
-    const r = await agentRun([verb, slug])
+    const opts = verb === 'done' ? [] : [...(verb === 'check' && only ? ['--part', only] : []), ...(views.length ? ['--views', views.join(',')] : []), ...(all ? ['--all'] : [])]
+    const r = await agentRun([verb, slug, ...opts])
     setBusy(false)
     if (r.exit > 2) { setErr(resultText(r)); return }
     setData(r.data ?? {})
@@ -103,6 +117,18 @@ function GateTask({ verb }: { verb: 'check' | 'verify' | 'done' }) {
         {!!meta.length && <table className="ctable wrap"><tbody>{meta.map(([k, v]) => <tr key={k}><td>{k}</td><td>{v}</td></tr>)}</tbody></table>}
         <p className="hint">{g.help}</p>
       </TaskBox>
+      {verb !== 'done' && <TaskBox title="Options" icon="help">
+        <p className="hint" style={{ marginTop: 0 }}>Views the visual gate renders and judges:</p>
+        <div className="tgrid2">{RENDER_VIEWS.map((v) => (
+          <label key={v} className="tcheck"><input type="checkbox" checked={views.includes(v)}
+            onChange={(e) => setViews(e.target.checked ? [...views, v] : views.filter((x) => x !== v))} /> {v}</label>))}</div>
+        {verb === 'check' && <label className="tfield"><span>Part</span>
+          <QComboBox className="qselect-field" value={only} onChange={(e) => setOnly(e.target.value)} title="check --part: the fast loop, one part's rules and the fit of its bodies">
+            <option value="">(whole project)</option>{parts.map((p) => <option key={p} value={p}>{p}</option>)}
+          </QComboBox></label>}
+        <label className="tcheck"><input type="checkbox" checked={all} onChange={(e) => setAll(e.target.checked)} /> Show passing rows too</label>
+        <div className="tbuttons"><button className="qbtn" disabled={busy || !slug || !views.length} onClick={run}>Run with these</button></div>
+      </TaskBox>}
     </div>
   )
 }
@@ -298,22 +324,47 @@ function BoughtTask({ initial }: { initial: 'list' | 'add' }) {
     if (r.exit !== 0) { setErr(resultText(r)); return }
     setInfo(r.data as BoughtInfo)
   }
+  // Verify: a calliper measurement of a part that came as a datasheet envelope (`cad bought verify --note`).
+  const [verifying, setVerifying] = useState<string | null>(null)
+  const [note, setNote] = useState('')
+  const verify = async (name: string) => {
+    if (!slug || !note.trim()) return
+    setBusy(true); setErr(null)
+    const r = await agentRun(['bought', 'verify', slug, name, '--note', note.trim()])
+    setBusy(false)
+    if (r.exit !== 0) { setErr(resultText(r)); return }
+    setVerifying(null); setNote('')
+    loadList()
+  }
   // Add tab: a vendor STEP file (the File > Import flow), or a quick datasheet envelope.
   const [mode, setMode] = useState<'step' | 'measured'>('step')
-  const [f, setF] = useState({ name: '', path: '', source: '', vendor: '', l: '', w: '', h: '' })
+  const [f, setF] = useState({ name: '', path: '', source: '', vendor: '', l: '', w: '', h: '', holes: '', holeDia: '' })
   const set = (k: keyof typeof f) => (e: React.ChangeEvent<HTMLInputElement>) => setF({ ...f, [k]: e.target.value })
   const stepOk = f.name.trim() && f.path.trim() && f.source.trim()
   const measuredOk = f.name.trim() && f.l.trim() && f.w.trim() && f.h.trim() && f.source.trim()
+  // A file picked on this computer: a browser gives a page its bytes and never its path, so the server keeps a copy and says where.
+  const pickStep = async (file: File | undefined) => {
+    if (!file) return
+    setBusy(true); setErr(null)
+    try {
+      const up = await api.upload(file)
+      setF((o) => ({ ...o, path: up.path, name: o.name || up.name.replace(/\.(step|stp)$/i, '').replace(/[^A-Za-z0-9_]+/g, '_') }))
+    } catch (e) { setErr(e instanceof Error ? e.message : String(e)) }
+    setBusy(false)
+  }
   const add = async () => {
     if (!slug) return
     setBusy(true); setErr(null)
+    // `--hole=X,Y` with an equals sign: X may be negative (add-measured's own help says so)
+    const holes = f.holes.split('\n').map((l) => l.trim()).filter(Boolean).map((l) => `--hole=${l.replace(/\s+/g, ',').replace(/,+/g, ',')}`)
     const argv = mode === 'step'
       ? ['bought', 'add-step', slug, f.name.trim(), f.path.trim(), '--source', f.source.trim(), ...(f.vendor.trim() ? ['--vendor', f.vendor.trim()] : [])]
-      : ['bought', 'add-measured', slug, f.name.trim(), '--size', f.l.trim(), f.w.trim(), f.h.trim(), '--source', f.source.trim(), ...(f.vendor.trim() ? ['--vendor', f.vendor.trim()] : [])]
+      : ['bought', 'add-measured', slug, f.name.trim(), '--size', f.l.trim(), f.w.trim(), f.h.trim(), '--source', f.source.trim(), ...(f.vendor.trim() ? ['--vendor', f.vendor.trim()] : []),
+        ...holes, ...(f.holeDia.trim() ? ['--hole-dia', f.holeDia.trim()] : [])]
     const r = await agentRun(argv)
     setBusy(false)
     if (r.exit !== 0) { setErr(resultText(r)); return }
-    setF({ name: '', path: '', source: '', vendor: '', l: '', w: '', h: '' })
+    setF({ name: '', path: '', source: '', vendor: '', l: '', w: '', h: '', holes: '', holeDia: '' })
     goTab('list')
   }
   return (
@@ -331,10 +382,17 @@ function BoughtTask({ initial }: { initial: 'list' | 'add' }) {
           {!!rows?.length && <table className="ctable wrap">
             <thead><tr><th>Name</th><th>Kind</th><th>Vendor</th><th>Source</th><th>Verified</th><th /></tr></thead>
             <tbody>{rows.map((b) => <tr key={b.name}>
-              <td>{b.name}</td><td>{b.kind}</td><td>{b.vendor ?? ''}</td><td>{b.source}</td><td>{b.verified ? 'yes' : 'UNVERIFIED'}</td>
+              <td>{b.name}</td><td>{b.kind}</td><td>{b.vendor ?? ''}</td><td>{b.source}</td>
+              <td>{b.verified ? 'yes' : <button className="qbtn" title="record a calliper measurement" onClick={() => { setVerifying(b.name); setNote('') }}>Verify…</button>}</td>
               <td><button className="qbtn" onClick={() => showInfo(b.name)}>Info</button></td>
             </tr>)}</tbody>
           </table>}
+          {verifying && <div className="tform">
+            <p className="hint">Verify {verifying}: what was measured, and how (cad bought verify --note).</p>
+            <textarea rows={3} value={note} onChange={(e) => setNote(e.target.value)} placeholder="e.g. 30.1 x 20.0 x 19.9 mm with a 0.01 mm calliper, three readings each" />
+            <div className="tbuttons"><button className="qbtn default" disabled={busy || !note.trim()} onClick={() => verify(verifying)}>Mark verified</button>
+              <button className="qbtn" onClick={() => setVerifying(null)}>Cancel</button></div>
+          </div>}
           {info && <table className="ctable wrap"><tbody>
             <tr><td>Envelope</td><td>{vec(info.bbox_mm)} mm</td></tr>
             <tr><td>Origin</td><td>{vec(info.origin_mm)} mm</td></tr>
@@ -348,11 +406,17 @@ function BoughtTask({ initial }: { initial: 'list' | 'add' }) {
           <div className="tform">
             <label className="tfield"><span>Name</span><input value={f.name} onChange={set('name')} /></label>
             {mode === 'step'
-              ? <label className="tfield"><span>STEP path</span><input value={f.path} onChange={set('path')} placeholder="/path/to/part.step" /></label>
+              ? <>
+                  <label className="tfield"><span>STEP file</span><input type="file" accept=".step,.stp,.STEP,.STP" onChange={(e) => pickStep(e.target.files?.[0])} /></label>
+                  <label className="tfield"><span>or its path</span><input value={f.path} onChange={set('path')} placeholder="/path/to/part.step" /></label>
+                </>
               : <>
                   <label className="tfield"><span>Length</span><input value={f.l} onChange={set('l')} /><span className="unit">mm</span></label>
                   <label className="tfield"><span>Width</span><input value={f.w} onChange={set('w')} /><span className="unit">mm</span></label>
                   <label className="tfield"><span>Height</span><input value={f.h} onChange={set('h')} /><span className="unit">mm</span></label>
+                  <label className="tfield top"><span>Bolt holes</span>
+                    <textarea rows={2} value={f.holes} onChange={(e) => setF({ ...f, holes: e.target.value })} placeholder={'X,Y in mm, one hole a line, e.g.\n-15.5,-15.5'} /></label>
+                  <label className="tfield"><span>Hole diameter</span><input value={f.holeDia} onChange={set('holeDia')} placeholder="3.2" /><span className="unit">mm</span></label>
                 </>}
             <label className="tfield"><span>Source URL</span><input value={f.source} onChange={set('source')} placeholder="the page it came from" /></label>
             <label className="tfield"><span>Vendor (optional)</span><input value={f.vendor} onChange={set('vendor')} /></label>
@@ -377,13 +441,14 @@ function RenderTask() {
   const [part, setPart] = useState('')
   const [view, setView] = useState<(typeof RENDER_VIEWS)[number]>('iso')
   const [tol, setTol] = useState('')
+  const [sets, setSets] = useState('')
   const [data, setData] = useState<RenderData | null>(null)
   const [err, setErr] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
   const run = async () => {
     if (!slug) return
     setBusy(true); setErr(null); setData(null)
-    const argv = ['render', slug, ...(part ? [part] : []), '--view', view, ...(tol.trim() ? ['--tolerance', tol.trim()] : [])]
+    const argv = ['render', slug, ...(part ? [part] : []), '--view', view, ...(tol.trim() ? ['--tolerance', tol.trim()] : []), ...overrideArgs(sets)]
     const r = await agentRun(argv)
     setBusy(false)
     if (r.exit !== 0) { setErr(resultText(r)); return }
@@ -405,6 +470,8 @@ function RenderTask() {
               {RENDER_VIEWS.map((v) => <option key={v} value={v}>{v}</option>)}
             </QComboBox></label>
           <label className="tfield"><span>Tolerance (optional)</span><input value={tol} onChange={(e) => setTol(e.target.value)} placeholder="mm" /></label>
+          {part && <label className="tfield" title="render --set: try values for this run; nothing is written"><span>Try values</span>
+            <input value={sets} onChange={(e) => setSets(e.target.value)} placeholder="width=50 thickness=6" /></label>}
         </div>
         {busy && <p className="hint">Running cad render…</p>}
         {err && <p className="hint err">{err}</p>}
@@ -412,6 +479,64 @@ function RenderTask() {
           <img className="agent-render-img" src={api.fileUrl(slug, data.png)} alt={data.subject} />
           <p className="hint">{data.subject} · {data.view}</p>
         </>}
+      </TaskBox>
+    </div>
+  )
+}
+
+// ── Build part ───────────────────────────────────────────────────────────────
+type BuildData = { part: string; bbox_mm: number[]; volume_cm3: number; mass_g: number | null; material: string | null; process: string | null
+  build_s: number; params: Record<string, unknown>; overrides: Record<string, unknown>; doc: string }
+/** `cad build`: one part module built and measured, with its size, volume, mass, material, process and build time. "Try values"
+ *  builds it with other parameters for this run only (`--set`): nothing is written, which is what the Parameters panel (`cad set`)
+ *  does not do. */
+export function BuildTask({ part: want }: { part?: string }) {
+  const slug = useStore((s) => s.slug), scene = useStore((s) => s.scene)
+  const parts = [...new Set((scene?.bodies ?? []).map((b) => b.part).filter((p): p is string => !!p))]
+  const [part, setPart] = useState(want && parts.includes(want) ? want : parts[0] ?? '')
+  const [sets, setSets] = useState('')
+  const [data, setData] = useState<BuildData | null>(null)
+  const [err, setErr] = useState<string | null>(null)
+  const [busy, setBusy] = useState(false)
+  const run = async () => {
+    if (!slug || !part) return
+    setBusy(true); setErr(null)
+    const r = await agentRun(['build', slug, part, ...overrideArgs(sets)])
+    setBusy(false)
+    if (r.exit !== 0) { setErr(resultText(r)); setData(null); return }
+    setData(r.data as BuildData)
+  }
+  useEffect(() => { if (!part && parts[0]) setPart(parts[0]) }, [parts.join(',')])
+  useEffect(() => { if (part) run() }, [slug, part])
+  return (
+    <div className="tasks">
+      <TaskButtons onOk={closeTask} />
+      <div className="tbuttons"><button className="qbtn default" disabled={busy || !slug || !part} onClick={run}>Build</button></div>
+      <TaskBox title="Build part" icon="body">
+        <div className="tform">
+          <label className="tfield"><span>Part</span>
+            <QComboBox className="qselect-field" value={part} onChange={(e) => setPart(e.target.value)}>
+              {!parts.length && <option value="">(no parts)</option>}{parts.map((p) => <option key={p} value={p}>{p}</option>)}
+            </QComboBox></label>
+          <label className="tfield" title="build --set: other values for this run only; nothing is written"><span>Try values</span>
+            <input value={sets} onChange={(e) => setSets(e.target.value)} placeholder="width=50 thickness=6" /></label>
+        </div>
+        {busy && <p className="hint">Running cad build…</p>}
+        {err && <p className="hint err">{err}</p>}
+        {data && <>
+          <table className="ctable wrap"><tbody>
+            <tr><td>Size</td><td>{data.bbox_mm.join(' x ')} mm</td></tr>
+            <tr><td>Volume</td><td>{data.volume_cm3} cm³</td></tr>
+            <tr><td>Mass</td><td>{data.mass_g != null ? `${data.mass_g} g${data.material ? ` of ${data.material}` : ''}` : 'unknown'}</td></tr>
+            <tr><td>Process</td><td>{data.process ?? 'none declared'}</td></tr>
+            <tr><td>Built in</td><td>{data.build_s} s</td></tr>
+            {data.doc && <tr><td>About</td><td>{data.doc}</td></tr>}
+          </tbody></table>
+          {!!Object.keys(data.params ?? {}).length && <table className="ctable wrap"><thead><tr><th>Parameter</th><th>Value</th></tr></thead>
+            <tbody>{Object.entries(data.params).map(([k, v]) => <tr key={k} className={k in (data.overrides ?? {}) ? 'sel' : undefined}>
+              <td>{k}</td><td>{String(v)}{k in (data.overrides ?? {}) ? ' (tried)' : ''}</td></tr>)}</tbody></table>}
+        </>}
+        <p className="hint">build one part and measure it</p>
       </TaskBox>
     </div>
   )
@@ -445,3 +570,4 @@ export async function exportPage() {
 }
 
 export { GateTask, RulesTask, CutlistTask, TablesTask, ToolTask, BoughtTask, RenderTask }
+// BuildTask is exported where it is declared.

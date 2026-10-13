@@ -18,8 +18,9 @@ import {
   getView, doUndo, doRedo, runCheck, selectAll, selectVisible, showAll, hideAll, toggleAll, toggleVisibility,
   showSelection, hideSelection, toggleCube, setDrawStyle, setOrtho, showPanel, openTask, closeActiveWindow,
   closeAllWindows, hasOpenWindow, stopRecording, selBack, selForward, setTreeOption, overlayAll, overlayActive,
-  overlayToggle, overlayTransparent, overlayBypass, toggleBottomPanels, editDefault, onCommandList,
+  overlayToggle, overlayTransparent, overlayBypass, toggleBottomPanels, editDefault, onCommandList, selectedPart, setPose,
 } from './actions'
+import { poseNames } from './poses'
 import {
   viewHome, viewDimetric, viewTrimetric, rotateLeft, rotateRight, zoomIn, zoomOut, storeView, recallView, boxZoom,
   toggleAxisCross, toggleBoundingBox, toggleTransparency, toggleSelectability, randomColor, selectInstances, gotoSelection,
@@ -201,6 +202,15 @@ const COMMANDS: Record<string, RegCommand> = {
   CADAgent_Render: reg('Render…', () => openTask('render', ''), () => !!getState().slug),
   CADAgent_ApproveRenders: reg('Approve Renders…', () => approveRenders(), () => !!getState().slug),
   CADAgent_Rules: reg('Rules…', () => openTask('rules', '')),
+  // The shop's commands (shopwb.tsx, librarywb.tsx). `cad gui run P CADAgent_Drawing base` opens Drawing on that part, and
+  // `cad gui run P CADAgent_Pose park` shows the machine at that pose (home, or no argument, puts it back).
+  CADAgent_Build: reg('Build Part…', (args) => openTask('build', args[0] ?? selectedPart()), () => !!getState().slug),
+  CADAgent_Bom: reg('Bill of Materials…', () => openTask('bom', ''), () => !!getState().slug),
+  CADAgent_Shop: reg('Shop Files…', () => openTask('shop', ''), () => !!getState().slug),
+  CADAgent_Drawing: reg('Drawing…', (args) => openTask('drawing', args[0] ?? selectedPart()), () => !!getState().slug),
+  CADAgent_Library: reg('Library…', () => openTask('library', '')),
+  CADAgent_Pose: reg(() => (getState().pose ? `Pose: ${getState().pose}` : 'Pose'), (args) => { setPose(!args[0] || args[0] === 'home' ? null : args[0]) },
+    () => poseNames(getState().scene).length > 0 || !!getState().pose),
   CADAgent_ExportReviewPage: reg('Review page (*.html)', () => exportPage(), () => !!getState().slug),
 }
 

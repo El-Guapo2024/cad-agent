@@ -54,6 +54,10 @@ export const FILES = {
   material: 'Material_Edit', 'link-select': 'LinkSelect', 'link-select-final': 'LinkSelectFinal',
   'link-select-all': 'LinkSelectAll', 'tree-drag': 'tree-item-drag', 'tree-collapse': 'tree-doc-collapse',
   addon: 'AddonManager', start: 'StartCommandIcon', export: 'Std_Export',
+  // The CAD Agent workbench's shop commands: Assembly_CreateBom's pixmap, Assembly_InsertLink (Insert Component),
+  // Assembly_ExplodedView, and TechDraw's default page and its DXF and SVG exports (public/freecad-icons/README.md).
+  bom: 'Assembly_BillOfMaterials', library: 'Assembly_InsertLink', pose: 'Assembly_ExplodedView',
+  drawing: 'TechDraw_PageDefault', 'export-dxf': 'TechDraw_ExportPageDXF', 'export-svg': 'TechDraw_ExportPageSVG',
   // StdWorkbench's Structure toolbar.
   'std-part': 'Geofeaturegroup', 'std-group': 'folder', varset: 'VarSet', link: 'Link',
   // Part_SelectFilter's gates.
