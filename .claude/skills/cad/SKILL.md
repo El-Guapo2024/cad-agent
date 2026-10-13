@@ -141,13 +141,11 @@ series (M3: 3.2 to 3.6 mm). `near_mm = 15` also asks for a hole within 15 mm of 
 Add `[[heat]]` when anything in the brief is hot, `[[deflection]]` for a beam that
 carries a load, `[[axis]]` and `[bodies]` when the brief names axes or a number of
 bodies, `[shop]` when files go to a shop. `[[heat]]` is a distance and a rating, not a
-thermal model: every body inside the zone is held to `temp_c` as if it touched the
-source, and a body touching the source is inside it. `[[deflection]]` is a formula, not
-finite elements: it says UNCHECKED, with its reason, wherever a beam formula would not
-hold, and never a guess. Heat, deflection and `[[mass]]` with `bodies` or `moving` read
-what a body is made of: a part module's `MATERIAL`, or a bought part's `mass_g`,
-`max_temp_c` and `geometry` (the library fills these in). A number nobody states is
-unknown, and an unknown makes the row UNCHECKED. A `pose` has to be in `POSES` of
+thermal model: every body inside the zone, or touching the source, is held to `temp_c`.
+`[[deflection]]` is a formula, not finite elements, and says UNCHECKED where it would not
+hold. They read what a body is made of (a part module's `MATERIAL`, or a bought part's
+`mass_g`, `max_temp_c` and `geometry`, which the library fills in); a number nobody
+states is unknown, and makes the row UNCHECKED. A `pose` has to be in `POSES` of
 assembly.py.
 
 `tests/fixtures/*/spec.toml` are real examples; `mini_machine` uses every section.
@@ -157,7 +155,8 @@ assembly.py.
 1. **No bought part modelled from memory.** Look in the library first: `bin/cad lib ls`
    and `lib info <entry>` (rails, carriages, extrusions, NEMA motors, fasteners, each
    with its source), then `bin/cad lib use <slug> <entry> [KEY=VALUE ...]` copies it
-   into `bought/` with its mass and hash, and `bought_solid(SLUG, "<name>")` (from
+   into `bought/` with its mass and hash (don't edit the copy: its hash is pinned, and
+   `lib use --replace` writes it again), and `bought_solid(SLUG, "<name>")` (from
    `cad_agent.state`) in assembly.py loads it. Otherwise register a vendor STEP with
    `bin/cad bought add-step <slug> <name> <file> --source <url>`, or a datasheet
    envelope with `bought add-measured ... --source "<page>"`. A remembered bolt
@@ -216,20 +215,18 @@ AXES = {"z": {"moves": ("gantry/*",), "direction": (0, 0, 1), "travel": (0, 50),
 POSES = {"park": {"gantry/x": -150}}
 ```
 
-- Its bodies are called `gantry/x_carriage`, its axes `gantry/x`, its poses
-  `gantry/park`. `at` (mm) and `turn` (degrees, Rx.Ry.Rz) move the child's whole frame.
-  A body of the machine's own never has a "/" in its name.
-- Write each `project` as a plain string: verify reads the tree without running it,
-  and a name it cannot read leaves the verdict UNCHECKED.
+- Bodies are `gantry/x_carriage`, axes `gantry/x`, poses `gantry/park`; `at` (mm) and `turn`
+  (degrees, Rx.Ry.Rz) move the child's whole frame. A body of the machine's own never has a "/".
+- Write each `project` as a plain string: verify reads the tree without running it, and a
+  name it cannot read leaves the verdict UNCHECKED.
 - `cad check machine` runs every gate of every project below it (their rows read
-  `<project>:fit/clearance`), and `cad verify machine` rebuilds the whole tree in one
-  fresh process. The machine is not done until each child has a spec.toml and approved
-  renders: `cad approve gantry` is the human's call, as for any project.
-- A cycle, more than 8 levels, a missing project, a bad entry or a "/" in your own
-  body's name is a FAIL row `subassembly/<kind>`, and all of them are listed at once.
-- A child's parts are cut and drawn from the child (`cad shop gantry`, once that
-  project is done itself, and `cad drawing gantry plate`). The machine's own `cad shop`
-  makes files for its own parts, and its BOM lists the child's parts nested under the child.
+  `<project>:fit/clearance`), and `cad verify machine` rebuilds the whole tree in one fresh
+  process. The machine is not done until each child has a spec.toml and approved renders
+  (`cad approve gantry` is the human's call).
+- A cycle, more than 8 levels, a missing project, a bad entry or a "/" in your own body's
+  name is a FAIL row `subassembly/<kind>`, all listed at once.
+- A child's parts are cut and drawn from the child (`cad shop gantry` once it is done itself).
+  The machine's `cad shop` makes files for its own parts, and its BOM nests the child's.
 
 ## When a rule says UNCHECKED
 
@@ -240,10 +237,10 @@ A rule that lacks a number says UNCHECKED and names it. Give it the number; don'
 | `[[heat]]` | a rating for each body in the zone | no `MATERIAL`, or one `tables materials` does not list; a stock body (assembly.py builds it); a bought part with no `max_temp_c` and `max_temp_source` |
 | `[[mass]]` `bodies`/`moving` | a mass for each body | a stock body; a bought part with no `mass_g` and `mass_source`. Over `max_g` already is a FAIL |
 | `com` (always on) | the same masses | N/A until a bought part declares a mass; from then on UNCHECKED while any body has none (FAIL when the centre of mass is outside the footprint, at home or at an end of an axis's travel) |
-| `[[deflection]]` | exact geometry, a `MATERIAL` with a modulus, the load's mass | stock or envelope geometry; a solid box of a 2020, 2040 or 4040's size (that is `extrusion_blank`, not the profile: use the library's, or `solid = true` for a real bar); span/depth under 10 (20 for fixed ends); a section that varies so much the limit falls between its weakest and stiffest |
-| `[[axis]]`, `[bodies]`, `pose` | the axis, bodies and pose to exist | a body that is not there; a pose not in POSES or outside travel; `pose` on a section that does not read one |
-| `[shop]` | what it holds the BOM to | `orderable`: a bought line with no vendor or part number; `mass = "known"`: a line with no mass |
-| bought parts (`provenance`, `lib check`) | a source, and for a library copy its hash | a part marked unverified (`lib info` says which dimension; the GT2 idler and the FreeCAD-library STEPs are, until `cad bought verify`); a library copy that pins no hash, or a catalog that moved on since the copy |
+| `[[deflection]]` | exact geometry, a `MATERIAL` with a modulus, the load's mass | stock or envelope geometry; a solid box of a 2020, 2040 or 4040's size (use the library's profile, or `solid = true` for a real bar); span/depth under 10 (20 for fixed ends); a section that varies past the limit |
+| `[[axis]]`, `[bodies]`, `pose` | the axis, bodies and pose to exist | a body that is not there; a pose not in POSES or outside travel; `pose` on a section that ignores it |
+| `[shop]` | vendor, part number, mass | `orderable`: a bought line without a vendor or part number; `mass = "known"`: a line without a mass |
+| bought parts | a source, and a hash for a library copy | a part marked unverified (the GT2 idler and the FreeCAD-library STEPs, until `cad bought verify`); a catalog that moved on since the copy |
 
 ## Files for a shop
 
@@ -256,18 +253,16 @@ bin/cad shop <slug> --check              # regenerate and compare with out/shop/
 bin/cad drawing <slug> <part>            # DXF, SVG and PDF of a cnc or laser_cut plate, with the sizes and the holes
 ```
 
-- `shop` writes nothing and exits 2 unless `cad done` holds. A FAIL or UNCHECKED row
-  stops it too, with nothing written. A `[shop]` table in the spec turns on the part
-  rules: a laser part must be a through-cut that its DXF reads back to, a printed part's 3MF
-  must be watertight with the solid's volume.
-- `drawing` draws a prism along its thinnest axis (outline, round holes, slots, windows
-  through) and says why when a part is anything else (exit 2). Its sheet is stamped NOT VERIFIED
-  until `cad done`.
-- Exit codes, as everywhere (0 ok, 1 FAIL, 2 UNCHECKED, 3 bad arguments, 4 crash).
-  `lib`: 1 for a file that is not the one a pin names, 2 when the network does not answer,
-  3 for an unknown entry or a licence that bars `fetch`. `bom` never exits 2.
-  `shop` and `drawing`: 2 for a design that is not done (a draft is written, and still exits 2)
-  or a row UNCHECKED, 1 for a row FAIL, 3 for a part that is not cnc or laser_cut (`drawing`).
+- `shop` writes nothing and exits 2 unless `cad done` holds; a FAIL or UNCHECKED row stops it
+  too. A `[shop]` table in the spec turns on the part rules: a laser part must be a
+  through-cut that its DXF reads back to, a printed part's 3MF must be watertight.
+- `drawing` draws a prism along its thinnest axis (outline, round holes, slots, windows through)
+  and says why when a part is anything else. Its sheet says NOT VERIFIED until `cad done`.
+- Exit codes are the usual (0 ok, 1 FAIL, 2 UNCHECKED, 3 bad arguments, 4 crash). `lib`: 1 for
+  a file that is not the one a pin names, 2 when the network does not answer, 3 for an unknown
+  entry or a licence that bars `fetch`. `bom` never exits 2. `shop` and `drawing`: 2 for a design
+  that is not done (a draft is written and still exits 2) or a row UNCHECKED, 1 for a FAIL; `drawing`
+  exits 3 for a part that is not cnc or laser_cut, and 2 for one that is not a plate.
 
 ## Renders and approval
 
