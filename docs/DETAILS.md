@@ -2,17 +2,21 @@
 
 Agent-driven mechanical CAD. Parametric parts in Python, deterministic gates,
 headless renders, and an independent verifier. A harness: agents drive it from
-the shell, and a design is done only when `cad verify` says so.
+the shell, and a design is done only when `cad verify` says so. Since step 6 it
+scales to a machine: a library of real bought parts, projects linked as
+sub-assemblies, rules for mass, heat and bending, and the files a shop needs.
 
 ```
 bin/cad --help                                   # every command, and the exit codes
 bin/cad --projects <dir> check <slug>            # run every gate
 bin/cad --projects <dir> verify <slug>           # rebuild fresh, record the verdict with git
 bin/cad --projects <dir> done <slug>             # the gate: exit 0 only if that verdict still stands
+bin/cad --projects <dir> shop <slug>             # DXF, 3MF, STL, STEP, drawings and the BOM, for a design that is done
+bin/cad lib ls                                   # the part library: rails, motors, extrusions, fasteners, with their sources
 bin/cad serve [DIR ...]                          # the workbench: live 3D, drag parts, checks, activity
 bin/cad pref [KEY [VALUE]]                       # preferences the commands use (MaxUndoSize, CacheLimit, ...)
 bin/cad cache [--clear]                          # the user cache: location, size against CacheLimit
-.venv/bin/python -m pytest tests -q              # 551 tests
+.venv/bin/python -m pytest tests -q              # 1553 tests
 ```
 
 ## Screenshots
@@ -39,8 +43,8 @@ In Claude Code:
 (or from a shell: `claude plugin marketplace add El-Guapo2024/cad-agent` then
 `claude plugin install cad-agent@cad-agent`). The plugin brings the `cad` skill, the
 `cad-reviewer` agent, the check-on-edit and done-on-stop hooks, and `/cad-agent:workbench`.
-On the first session it installs the CLI and the CAD kernel (build123d, OCP; a few
-hundred MB, a few minutes) into Claude Code's plugin data folder with `uv` if present,
+On the first session it installs the CLI and the CAD kernel (build123d, OCP, and ezdxf
+and lib3mf for DXF and 3MF; a few hundred MB, a few minutes) into Claude Code's plugin data folder with `uv` if present,
 else Python 3.12 to 3.14 (the kernel has no wheels for 3.15 yet), and puts `cad` on the
 session's PATH. It then loads the kernel once
 (`cad --version`, whose line it prints), so the first command is quick: on macOS the first
@@ -112,9 +116,11 @@ Open a Claude Code session in this repo and it loads the harness from `.claude/`
 
 Each project states what it must do in `spec.toml` (envelope, clearances and how
 far apart a pair may be, the size and position of a body, tool keep-outs, mass
-budgets, bolt holes that must line up), and the `spec` gate
+budgets, bolt holes that must line up, hot zones, beam deflection, the axes and the
+number of bodies a design must have, what goes to a shop), and the `spec` gate
 checks every entry. A project without one is UNCHECKED. See
-`cad_agent/spec.py` for the format and `tests/fixtures/*/spec.toml` for real
+`cad_agent/spec.py` for the format (each section's own keys are in the docstring of
+its module in `cad_agent/speckinds/`) and `tests/fixtures/*/spec.toml` for real
 examples.
 
 **The eval set.** `evals/` holds small design tasks, each a brief with a hidden
@@ -245,10 +251,18 @@ cad_agent/
   registry.py   the registries: Row, scopes, @register for checks and @spec_kind for spec.toml sections
   rules.py      the checks written before step 6, registered. The list of what a run verifies
   ruleset/      one module per rule from step 6 on; rules.py imports them all
-  speckinds/    one module per section of spec.toml; the seven original kinds, and kit.py for new ones
+  speckinds/    one module per section of spec.toml (twelve), and kit.py for what a kind uses
+  library/      the part library: catalog.toml, the generators (gen/), the user's store, `cad lib`
+  subassembly.py a machine made of sibling projects, and the poses it can be put in
+  beam.py       Euler-Bernoulli bending and the cross-sections of a solid, for [[deflection]]
   checks/visual.py  render drift against approved baselines, with diff images
   cutlist.py    stock derived from each part's CUTLIST, roughly priced
-  export.py     STEP for a shop (the same bytes on every run), STL for a printer
+  export.py     STEP for a shop (the same bytes on every run), STL and 3MF for a printer, DXF for a laser
+  dxf.py        a laser part's outline as a DXF, written the way FreeCAD writes one and read back by ezdxf
+  threemf.py    a printed part's mesh as a 3MF and an STL, the same bytes every run, read back
+  bom.py        the bill of materials: FreeCAD's Assembly_CreateBom plus what a shop needs
+  shop.py       cad shop: out/shop/ for a design that is done, with a manifest of hashes
+  drawing/      cad drawing: a dimensioned sheet of a plate (hidden line removal, DXF master, SVG and PDF)
   cli.py        the cad CLI: every command, --json, exit codes, activity log
   warm.py       the warm worker: kernel imported once, a fresh fork per command, plus the Metal sidecar
   verify.py     the verifier: fresh rebuild, source and engine hashes, git, cad done
