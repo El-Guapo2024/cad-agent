@@ -290,9 +290,10 @@ def reach(ctx):
 
 @register(scope="assembly", name="spec", order=60)
 def spec(ctx):
-    """The project's spec.toml, the brief as acceptance tests: envelope,
-    clearances, tool keep-outs, mass budgets and bolt holes that must line up.
-    A project with no spec is UNCHECKED: nothing states what it must do."""
+    """The project's spec.toml, the brief as acceptance tests: envelope, size, position, clearance, keepout, mass, interface, heat, deflection, axis, bodies, shop.
+
+    Each section is a kind: cad_agent/spec.py shows the formats and cad_agent/speckinds/ has every key and
+    every case a kind calls UNCHECKED. A project with no spec is UNCHECKED: nothing states what it must do."""
     from .spec import check_spec
     yield from check_spec(ctx.slug, ctx.parts or {}, machine=ctx.machine)
 

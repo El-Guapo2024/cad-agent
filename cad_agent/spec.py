@@ -18,6 +18,8 @@ spec.toml is UNCHECKED too: nothing states what the design must do.
     body = "motor"
     center_mm = [0, 0, 20]      # x, y, z
     tol_mm = 0.1                # distance allowed; default 0.1
+    pose = "park"               # optional on position, clearance and keepout: judged with the machine at that
+                                # pose of POSES in assembly.py (cad_agent/subassembly.py), the row says so
 
     [[clearance]]               # a gap two placed bodies must keep
     a = "x_carriage"
@@ -32,8 +34,8 @@ spec.toml is UNCHECKED too: nothing states what the design must do.
     clear = ["gantry_beam"]     # or "all"
 
     [[mass]]                    # a weight budget over part modules
-    parts = { x_carriage = 1, syringe_clamp = 1 }
-    max_g = 400
+    parts = { x_carriage = 1, syringe_clamp = 1 }       # or bodies = ["x_carriage", "motor_x"], the placed
+    max_g = 400                                         # bodies, or moving = "x", everything axis x moves
 
     [[interface]]               # bolt holes in `a` that point into `b` must line up
     a = "top_plate"             # with a hole in `b`
@@ -41,6 +43,29 @@ spec.toml is UNCHECKED too: nothing states what the design must do.
     fastener = "M3"             # optional: hole sizes must suit it
     tol_mm = 0.1                # axis offset allowed; default 0.1
     near_mm = 15                # optional: also only holes of `a` this close to `b`
+
+    [[heat]]                    # every other body within radius_mm of the source needs a rating of temp_c
+    source = "hot_plate"        # a body, or at = [x, y, z]
+    temp_c = 250
+    radius_mm = 15
+    margin_c = 20               # optional headroom; clear = ["pcb"] also keeps those bodies out of the zone
+
+    [[deflection]]              # a body held as a beam: the most it may sag under a load
+    body = "gantry_beam"
+    support = "simple"          # simple, fixed or cantilever
+    load_g = 350                # or load_n, or load_moving = "y" (the mass axis y moves); self_weight = true
+    max_um = 50                 # also span_mm, at, direction, axis, solid
+
+    [[axis]]                    # the design must declare this axis in AXES, and it must do this
+    name = "x"                  # a sub-assembly's axis is "gantry/x"
+    moves = ["block", "tool"]   # optional: at least these (only = true: and no others); also direction,
+    travel_min_mm = 80          # tol_deg, travel_max_mm, work_min_mm and tool
+
+    [bodies]                    # exactly this many bodies, and/or exactly these names
+    count = 6
+
+    [shop]                      # the design goes to a shop: the shop part rules run, and these hold the BOM
+    bom = { wheel = 2 }         # also orderable, mass and files
 
 An interface judges holes, not every round face. A hole is the cylinders of one radius on one
 axis that turn 270 degrees or more, and its size is its smallest bore, so a counterbore is part
@@ -60,9 +85,10 @@ Bodies are the names assembly.py places; parts in [[mass]] are part modules.
 
 Each section is a kind: a function registered with @spec_kind in its own module of
 cad_agent/speckinds/ (kit.py has what a kind uses), and check_spec runs whatever is registered. The
-seven above are the ones there before step 6; a section added later documents its format in its own
-module and not here. A section nobody registered is UNCHECKED, like a malformed entry: the list of
-kinds is `spec.KINDS`.
+seven there before step 6 are documented above in full. The five that came with it (heat, deflection, axis,
+bodies, shop) and the `bodies` and `moving` forms of mass are shown above in their shape only: each
+module's docstring has every key, every case it calls UNCHECKED and what it does not model. A section
+nobody registered is UNCHECKED, like a malformed entry: the list of kinds is `spec.KINDS`.
 """
 from __future__ import annotations
 
