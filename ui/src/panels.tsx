@@ -152,13 +152,19 @@ export function ModelPanel() {
 }
 
 const RANK: Record<string, number> = { PASS: 0, 'N/A': 0, UNCHECKED: 1, FAIL: 2 }
+// The bodies a check row is about: its subject names a body or a part, alone or in a pair ("a vs b"). A body of a
+// sub-assembly is named through its instance (gantry/carriage), so "/" belongs to a name and never splits one.
+export function subjectBodies(subject: string, bodies: Body[]): string[] {
+  const toks = new Set(subject.split(/[^A-Za-z0-9_/]+/))
+  return bodies.filter((b) => b.name === subject || b.part === subject || toks.has(b.name) || (!!b.part && toks.has(b.part)))
+    .map((b) => b.name)
+}
 function statesByBody(rows: CheckRow[] | undefined, bodies: Body[]) {
   const out = new Map<string, string>()
   for (const b of bodies) {
     let worst = ''
     for (const r of rows ?? []) {
-      const toks = r.subject.split(/[^A-Za-z0-9_]+/)
-      if (r.subject !== b.name && r.subject !== b.part && !toks.includes(b.name) && !(b.part && toks.includes(b.part))) continue
+      if (!subjectBodies(r.subject, [b]).length) continue
       if ((RANK[r.state] ?? 0) > (RANK[worst] ?? -1)) worst = r.state
     }
     if (worst) out.set(b.name, worst)
@@ -2087,10 +2093,9 @@ const ORDER: Record<string, number> = { FAIL: 0, UNCHECKED: 1, PASS: 2 }
 export function ChecksView() {
   const checks = useStore((s) => s.checks), status = useStore((s) => s.status), busy = useStore((s) => s.busy)
   const rows = useMemo(() => [...(checks?.rows ?? [])].sort((a, b) => (ORDER[a.state] ?? 3) - (ORDER[b.state] ?? 3)), [checks])
-  const pick = (subject: string) => {
-    const sc = getState().scene
-    const hit = sc?.bodies.find((b) => b.name === subject) ?? sc?.bodies.find((b) => b.part === subject)
-    if (hit) select(hit.name)
+  const pick = (subject: string) => {            // a pair row selects both bodies
+    const names = subjectBodies(subject, getState().scene?.bodies ?? [])
+    names.forEach((n, i) => select(n, i > 0))
   }
   return (
     <div className="checks">
