@@ -93,6 +93,15 @@ def _meta(slug: str, part: str, meta: dict, git: dict | None, stamp: str | None)
             "commit": (git or {}).get("commit"), "dirty": bool((git or {}).get("dirty")), "stamp": stamp}
 
 
+def _built(slug: str, part: str, process: str) -> dict:
+    """What the title block needs of a part module: its MATERIAL, from the build `cad shop` already made if there is one.
+    A part that cannot be got has no material the sheet can state, and says so."""
+    try:
+        return st.built_meta(slug, part) or st.build_part(slug, part)[1]
+    except Exception:           # noqa: BLE001 - the solid is in hand; only the material is missing
+        return {"material": None, "process": process}
+
+
 def _options(a) -> tuple:
     from . import sheet as S
     formats = tuple(f.strip().lower() for f in a.format.split(",") if f.strip())
@@ -215,8 +224,7 @@ def shop_drawings(slug: str, parts: dict, processes: dict, stamp: str | None) ->
                              else "declares no PROCESS, so it is not known to be machined or cut")
             continue
         try:
-            built = st.built_meta(slug, part) or st.build_part(slug, part)[1]
-            made = draw.make(part, parts[part], _meta(slug, part, built, git, stamp))
+            made = draw.make(part, parts[part], _meta(slug, part, _built(slug, part, process), git, stamp))
         except DoesNotFit as e:
             skipped[part] = str(e)
             continue
