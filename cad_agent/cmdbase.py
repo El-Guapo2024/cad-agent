@@ -270,7 +270,7 @@ LAZY: dict[str, Lazy] = {c.command: c for c in (
     Lazy("shop", "cad_agent.shop:cmd_shop", "D",
          "write out/shop/ for a verified design: DXF, 3MF, STL, STEP, drawings and the BOM"),
     Lazy("drawing", "cad_agent.drawing:cmd_drawing", "E",
-         "a dimensioned drawing of one machined part"),
+         "a dimensioned drawing (DXF, SVG, PDF) of one machined or laser-cut plate"),
 )}
 
 

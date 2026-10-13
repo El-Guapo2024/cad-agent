@@ -89,8 +89,9 @@ def stance(ctx):
     contact patches instead.
 
     What it does not prove: that the centre of mass falls inside that
-    footprint. Bought parts carry no material, so the assembly has no honest
-    mass distribution to test against.
+    footprint. The `com` rule does (ruleset/com.py). It needs the mass of
+    every body, and a bought part has one only when it declares mass_g with a
+    source, so `com` is N/A for a design in which none does.
     """
     from .geom import bbox
     if not ctx.parts:

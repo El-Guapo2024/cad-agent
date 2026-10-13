@@ -823,7 +823,7 @@ def test_drawings_are_written_when_the_module_provides_them_and_the_manifest_lis
 
 def test_drawings_that_cannot_be_made_are_an_unchecked_row_and_say_what_to_install(project, capsys, monkeypatch):
     def missing(*a):
-        raise ModuleNotFoundError("No module named 'matplotlib'", name="matplotlib")
+        raise ModuleNotFoundError("No module named 'ezdxf'", name="ezdxf")
 
     def wrong_place(*a):
         return {"files": {"../outside.pdf": b"x"}}
@@ -834,7 +834,9 @@ def test_drawings_that_cannot_be_made_are_an_unchecked_row_and_say_what_to_insta
     hook(monkeypatch, missing)
     code, data = run(capsys, "shop", SLUG)
     assert code == cli.UNCHECKED and not (project / "out" / "shop").exists()
-    assert data["rows"][-1]["rule"] == "drawings" and 'pip install "cad-agent[drawings]"' in data["rows"][-1]["measured"]
+    measured = data["rows"][-1]["measured"]            # a core library has no extra to name, and no extra is named for drawings
+    assert data["rows"][-1]["rule"] == "drawings" and "the drawings need ezdxf, which is not installed" in measured
+    assert "cad-agent[" not in measured and "matplotlib" not in measured
     hook(monkeypatch, wrong_place)
     assert "not under drawings/" in run(capsys, "shop", SLUG)[1]["rows"][-1]["measured"]
     hook(monkeypatch, broken)

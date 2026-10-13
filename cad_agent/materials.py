@@ -57,6 +57,12 @@ kept 1040), nylon (PA6 card 1150, kept 1140) and acrylic (1160, kept 1180). Stif
 come from the card where there is one. To follow FreeCAD's densities instead is a deliberate change
 that moves every mass row of those materials.
 
+Nylon is a PA6 everywhere but in one number: its stiffness and strength are the PA6 card's, its service
+temperature is a PA6 sheet's (Zytel 7335F, an unreinforced PA6: 180 C, ISO 75-2/B, dry), and its density
+is still the one cited to Zytel 101L, a PA66, because 1.14 is what every mass has used (the PA6 sheet says
+1.13, the card 1.15). The service temperature once cited that same PA66 sheet (190 C), which is a hotter
+polymer than the card describes.
+
 The FreeCAD cards (https://github.com/FreeCAD/FreeCAD, commit 3160daf1e2b6) are used under their own
 licences, which differ by card; CARDS lists each with its author, as CC-BY asks.
 """
@@ -122,6 +128,7 @@ _G10 = "https://www.polymershapes.com/wp-content/uploads/2020/04/Polymershapes_A
 _KAPTON = "https://www.epectec.com/downloads/DuPont-Kapton-HN-Polyimide-Film.pdf"
 # The service temperatures (see the docstring): the sheets for the plastics, MakeItFrom.com for the metals.
 _PRUSA_PLA = "https://www.matterhackers.com/r/xFvGl8"          # the Prusament PLA datasheet, as MatterHackers hosts it
+_ZYTEL_PA6 = "https://www.protolabs.com/media/tqzke2yx/zytel-7335f-nc010.pdf"     # a PA6, as Protolabs hosts its sheet
 _GUND_FR4 = "https://thegundcompany.com/wp-content/uploads/2024/03/NEMA-FR4-Glass-Epoxy-Laminate-by-The-Gund-Co.pdf"
 _MIF = "https://www.makeitfrom.com/material-properties/"
 _MIF_6061 = _MIF + "6061-T6-Aluminum"
@@ -228,9 +235,10 @@ MATERIALS: dict[str, dict] = {
         "youngs_modulus_mpa": (2930.0, fc(_PA6, "YoungsModulus", "2930 MPa")),
         "poisson_ratio": (0.39, fc(_PA6, "PoissonRatio", "0.39")),
         "yield_strength_mpa": (70.5, fc(_PA6, "YieldStrength", "70.5 MPa")),
-        "max_service_temp_c": (190.0, ds(_ZYTEL, "Zytel 101L NC010 datasheet (a PA66; UL Prospector TDS-61076-en): "
-                                                "Heat Deflection Temperature 66 psi (0.45 MPa), Unannealed, dry, "
-                                                "374 °F (190 °C) (ISO 75-2/B)"),
+        "max_service_temp_c": (180.0, ds(_ZYTEL_PA6, "Celanese Zytel 7335F NC010 datasheet (unreinforced, nucleated "
+                                                     "polyamide 6; UL Prospector TDS-40236-en): Deflection "
+                                                     "Temperature Under Load 0.45 MPa, Unannealed, Dry 180 °C "
+                                                     "(ISO 75-2/B)"),
                                "HDT ISO 75-2 B"),
     },
     "acrylic": {

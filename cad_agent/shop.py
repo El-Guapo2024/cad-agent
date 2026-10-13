@@ -64,9 +64,10 @@ is called if it exists, once, with the solids of every part the run makes (`part
 source), their PROCESS (`processes`: name -> "cnc", "laser_cut", ..., or None) and the stamp ("NOT VERIFIED" or
 None). It returns the bytes of each drawing it makes, as paths under `drawings/` (`drawings/plate.dxf`,
 `drawings/plate.pdf`), the same bytes for the same part, and a reason for each part it does not draw. Anything
-else it returns, a path outside `drawings/`, or an exception is an UNCHECKED row, and a missing optional library
-(matplotlib: pip install "cad-agent[drawings]") is said as such. Until the module has the function the manifest
-says `drawings: {"built": false, "why": ...}`.
+else it returns, a path outside `drawings/`, or an exception is an UNCHECKED row, and a missing library is said as
+such (the drawings need only ezdxf and are written by hand to SVG and PDF, so no extra is involved; EXTRAS names the
+extra of a library that has one). Until the module has the function the manifest says
+`drawings: {"built": false, "why": ...}`.
 
 Exit codes: 0 written (or checked, and clean), 1 a row failed or a file differs, 2 not done or something could not
 be settled, 3 usage (an unknown project, `--draft` with `--check`, a library the laser rows need missing), 4 crash.
@@ -89,7 +90,7 @@ STAMP = "NOT VERIFIED"
 OUT = "shop"                    # out/shop/
 MANIFEST = "manifest.json"
 DRAWINGS = "cad_agent.drawing:shop_drawings"
-EXTRAS = {"matplotlib": "drawings", "bd_warehouse": "fasteners"}      # the optional libraries of pyproject.toml
+EXTRAS = {"bd_warehouse": "fasteners"}      # a library of an optional extra of pyproject.toml, and the extra
 
 
 @dataclass
