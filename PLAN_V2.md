@@ -2,6 +2,8 @@
 
 *Written 2026-09-28. Steps 1–4 are done: the CLI, the verifier, spec.toml, and the Claude Code wiring, with MCP retired. v1 (PLAN.md, README.md) had 22 MCP tools, 129 tests, Metal renders, and gates for geometry, fit, motion, tooling, visual and provenance.*
 
+*Updated 2026-10-12: steps 1 to 6 are done, and step 7 has its first two phases. Step 6 (machine scale) is below with what changed from its plan (docs/STEP6_PLAN.md has the plan). Step 8 waits.*
+
 *Split 2026-09-28: cad-agent is its own repo (`~/ws/cad-agent`, GitHub El-Guapo2024/cad-agent). The Desk Fab Line is one project that uses it (`CAD_PROJECTS=~/ws/desk-fab-line/hardware/mech`). Its two CAD projects are snapshotted in `tests/fixtures` as the harness's regression designs. Focus: finish the harness; the fab line waits.*
 
 ## Goal
@@ -49,8 +51,12 @@ cad bought add-step|add-measured|ls|info|verify ...
 cad tables [holes|inserts|extrusions]
 cad approve <slug> <subject> <view>          human step: accept a render as the new baseline
 cad cutlist <slug>
-cad export <slug> [<part>] --step|--stl|--dxf
+cad export <slug> <part> --format step|stl|3mf|dxf
 cad verify <slug>                            the verifier (below)
+cad lib ls|info|use|add|check|fetch ...      the part library (step 6)
+cad bom <slug>                               the bill of materials (step 6)
+cad shop <slug> [--draft|--check]            the shop files, for a design that is done (step 6)
+cad drawing <slug> <part>                    a dimensioned drawing of a plate (step 6)
 ```
 
 Conventions:
@@ -94,6 +100,8 @@ beam_deflection_um = { max = 50, load_n = 10 }
 
 Each requirement becomes a PASS / FAIL / UNCHECKED row with the measured value, the limit and the source, exactly like the gates.
 
+*Step 6 built the last two as `[[heat]] source = "dock"` (or `at = [x, y, z]`) `temp_c`, `radius_mm`, `margin_c`, `clear`; `[[mass]] max_g` over `parts`, `bodies` or `moving = "<axis>"`; and `[[deflection]] body`, `support`, `load_n | load_g | load_moving`, `max_um`. There is no `[budget]` table. The formats are in `cad_agent/speckinds/`.*
+
 ## What designing a whole machine needs next
 
 - **Models from outside.** Two different jobs:
@@ -117,14 +125,14 @@ Each requirement becomes a PASS / FAIL / UNCHECKED row with the measured value, 
     - Free Onshape documents are public, so private designs need a paid plan.
     - Onshape meters API calls per plan.
     - You create the API keys in its developer portal and keep them yourself.
-- **Parts library** shared across projects: vendor STEPs with sources for MGN12, NEMA17/NEMA8, 2020/2040, GT2, fasteners, inserts, 858D, galvo head, cameras, pump. Today each project imports its own.
-- **Sub-assemblies**: frame, gantry, head, dock, laser and enclosure, each placed into one machine assembly.
-- **New rules**:
+- **Parts library** shared across projects: vendor STEPs with sources for MGN12, NEMA17/NEMA8, 2020/2040, GT2, fasteners, inserts, 858D, galvo head, cameras, pump. Today each project imports its own. **Done in step 6 (`cad lib`)** for MGN12/15, 2020/2040/4040, NEMA 8/17, a GT2 idler and ISO fasteners; inserts, 858D, galvo head, cameras and pump are not in the catalog.
+- **Sub-assemblies**: frame, gantry, head, dock, laser and enclosure, each placed into one machine assembly. **Done in step 6** (`SUBASSEMBLIES`, `POSES`).
+- **New rules**: **done in step 6** (heat, moving mass, centre of mass, deflection); interface was done in step 3.
   - interface (holes coaxial, clearance on one side and tap/insert on the other)
   - heat zone (material vs local temperature)
   - moving mass
   - beam deflection (formulas, not FEA)
-- **Shop outputs**: DXF for laser-cut panels, dimensioned PDF drawings for machined plates, print-ready STL/3MF, one BOM and order list.
+- **Shop outputs**: DXF for laser-cut panels, dimensioned PDF drawings for machined plates, print-ready STL/3MF, one BOM and order list. **Done in step 6** (`cad export`, `cad bom`, `cad shop`, `cad drawing`).
 - **Eval set**: about 10 small design tasks, each a brief plus a hidden `spec.toml`. The agent designs through the CLI only, and `cad verify` scores the result. Run it before and after every harness change, so "better" is a number. Examples: NEMA17 mount on 2040, MGN12H carriage plate, syringe clamp, hot-plate standoff, pinned carrier with relief pocket, galvo head mount with beam keep-out, laser-cut panel.
 - **Optional second opinion**: a reviewer subagent reads `verify.json` and the renders, and lists what no rule covers (assembly order, tool access, cables). Its findings become new spec lines or rules, never verdicts.
 
@@ -172,11 +180,11 @@ What "built around git" means:
 - `cad verify` ties its verdict to the git tree hash, so "passed" means "passed at this commit", and a dirty tree is stale by definition.
 - Approving a render is a commit with a name on it. CI runs the verifier on every pull request.
 
-**Collaborating inside it** (you, Seb, whoever joins):
+**Collaborating inside it** (you, a collaborator, whoever joins):
 - **Git is the source of truth.** A design is Python parts, `spec.toml`, `checks.json` and the approved renders, all diffable. Every change is a pull request.
 - **The verifier runs in CI.** `cad verify` runs on every pull request (Linux, numpy renderer), so neither the author nor their agent decides a design passes.
 - **Shared review page.** `cad page` is published as an artifact the others can open. They comment on it, and "approve render" records who approved and when. Approval stays a human step, and now it has a name on it.
-- **claude-share for sessions,** already set up with Seb, so each person sees how the other's agent got to a design.
+- **claude-share for sessions,** already set up with a collaborator, so each person sees how the other's agent got to a design.
 - Everyone runs the same plugin locally, and the workbench stays per person.
 
 **Online, free first** (asked 2026-09-28). Going online doesn't mean leaving git:
@@ -223,18 +231,34 @@ Each step ends with the tests green.
    - `cad page` (`page.py`, `workbench/page.html` + `page.js`), 2026-09-29: a review snapshot of one project at one commit. It opens with a drawing-style title block (verdict, commit, verified date), shows why `cad done` refuses, a model to turn, cut, explode and measure (the same view and measuring code as the workbench), every gate row, parts, and current vs approved renders. Publish the folder as a private artifact. First one: desk_fab_line at 1ffabc747e.
    - Step 5 is done.
    - Viewer swapped for libraries (2026-09-29, your call: "don't over-code"). three-cad-viewer 5.0.7 (MIT) now draws both pages, fed by ocp-tessellate 3.5.3 (Apache-2.0). It brings the tree, clipping with caps, explode, measuring (its own mesh backend), views, zebra and studio. The ~800 lines of hand-made viewer (`view.js`, `measure.js`) are deleted. Ours now: the drag handle (three.js TransformControls on its part groups, writing placements.toml), the panels, and live reload. Dropped for now: the motion sliders (use its animation tracks if needed).
-6. Machine scale: parts library, sub-assemblies, the heat, mass and deflection rules, shop outputs.
+6. Machine scale: parts library, sub-assemblies, the heat, mass and deflection rules, shop outputs. **Done 2026-10-12** (the plan and an "as built" section are in docs/STEP6_PLAN.md; this is the short version). Only the harness: no machine was designed.
+   - A contract first, so six pieces could run side by side. Spec sections register themselves (`cad_agent/speckinds/`), rules load from `cad_agent/ruleset/`, and the new commands answered exit 3 "not built yet" until their module existed (`cmdbase.LAZY`). `materials.py` holds density, stiffness, strength and service temperature, each with its source; `bodies.py` says what each body is (made, bought or stock); a bought part may declare mass, rating, geometry, datum and a sha256.
+   - **Library** (`cad lib ls|info|use|add|check|fetch`): 22 entries (MGN12/15, 2020/2040/4040, NEMA 8/17, a GT2 idler, four FreeCAD-library STEPs, three bd_warehouse fasteners), every number beside its source. Vendor STEPs live in the user's own store (`~/.cad-agent/library` or `CAD_LIBRARY`), never in the repo, and a project copies in what it uses, so verify never reads the library.
+   - **Machines:** `SUBASSEMBLIES` links sibling projects (bodies `gantry/x_carriage`), `POSES` names positions, `pose=` judges a clearance, keep-out or position there, and `[[axis]]` and `[bodies]` close two step 7 gaps. A parent's check runs every gate of every project below it, and its verify rebuilds the whole tree.
+   - **Rules:** `[[heat]]` (a zone, not a thermal model), `[[mass]]` over `bodies` or what an axis moves, the `com` rule (centre of mass over the footprint, at home and at the ends of each axis), `[[deflection]]` (Euler-Bernoulli from Roark's Table 8.1, UNCHECKED wherever the formula would not hold).
+   - **Shop:** `cad export --format step|stl|3mf|dxf`, `cad bom`, `cad shop [--draft|--check]` with a manifest of hashes, the opt-in `[shop]` section and its part rules (a laser part is a through-cut its DXF reads back to; a printed part's 3MF is watertight), and `cad drawing` (a TechDraw-style sheet of a machined or laser-cut plate: DXF master, SVG and PDF).
+   - **Integration:** the skill and the docs, two eval tasks (`dock_material` at 250 C and `beam_deflection` at 50 um) and `mini_machine`, a regression machine in `tests/fixtures` that uses every piece.
+   - **What changed from the plan:**
+     - The `drawings` extra (matplotlib) went: the SVG and PDF are written by hand from the DXF. The 3MF is hand-written too (lib3mf has no Linux aarch64 wheel) and lib3mf reads it back.
+     - FreeCAD's material cards have no service temperature, so the table's numbers are ours, each with its basis (HDT, Tg, or a stated limit). Only steel, stainless and polyimide clear 250 C; aluminium, brass and copper do not (the `hotplate_standoffs` brief still lists them as fine, so that task has no `[[heat]]`).
+     - `com` is N/A until a bought part declares a mass (every design before step 6 holds a body of unknown mass) and it judges the support polygon, not the stance patch's bounding box.
+     - `[[deflection]]` gained UNCHECKED paths the plan did not have: fixed ends need span/depth 20, a solid box of a 2020, 2040 or 4040's size (which is what `extrusion_blank` and the eval givens are) says UNCHECKED until it is a real profile or `solid = true`, and a section that varies is judged by its weakest and stiffest section. The finite-element cross-check was not built.
+     - A STEP differs between OCCT 7.9 and 8.0 in one header line (the processor), so `cad shop --check` compares it without that line; DXF, 3MF, STL and the BOM files are the same bytes on both.
+     - `cad drawing` draws laser-cut plates as well as machined ones, with an ISO 5457 frame but no zone grid, and refuses anything that is not a plate with the reason; hidden-line removal was cheap (75 to 180 ms a plate).
+     - A parent is not done until every child has a spec.toml and approved renders; project names in `SUBASSEMBLIES` must be string literals (verify reads the tree without running it); `"gantry/*"` in an axis's `moves` was added; a parent's check costs about twice what the same bodies cost in one project (80 bodies: 11 to 13 s against 6 to 7 s).
+     - The library grew past the plan with FreeCAD-library STEPs and bd_warehouse fasteners. The GT2 idler and those STEPs are unverified, and the motors' ratings are the makers' ambient limits.
+   - Left before the release (ui/HANDOFF.md "Next"): a UI check, the workbench's "/" row colouring, 3mf and dxf in its export and buttons for the new commands, a fresh-install check of the plugin, and the version bump.
 7. The eval set and its scores. **Phases 1 and 2 done 2026-10-04** (`evals/`, `cad eval ls|brief|score|run`, `cad_agent/evals.py`, `evals/README.md`):
    - 10 tasks: `nema17_mount`, `syringe_clamp`, `galvo_mount` (phase 1) and `mgn12h_carriage`, `hotplate_standoffs`, `pinned_carrier`, `laser_panel`, `pcb_enclosure`, `idler_bracket`, `endstop_bracket` (phase 2). Each is a brief that states every number, a hidden `spec.toml`, given bought parts, and a reference design that scores 100% (3 to 10 s each through the warm worker). The tests break each reference once and check which rule fails.
    - `spec.toml` gained `[[size]]`, `[[position]]` and `max_mm` on `[[clearance]]` to pin the given parts and write "touches" and "grips".
    - `cad eval run` gives the agent `{plugin}`: a copy of the repo as a plugin without `evals/`, `.git`, `.venv` and `.claude/worktrees`, so the hidden specs aren't one `ls` away. The edit and stop hooks skip everything under `evals/`.
-   - Never run with a real agent yet. It spends plan usage, so it needs Juan's OK; the command is in `evals/README.md`.
+   - Never run with a real agent yet. It spends plan usage, so it needs the owner's OK; the command is in `evals/README.md`.
    - Three checks that wrongly failed good designs, fixed 2026-10-07 (the briefs dropped their workarounds): `[[interface]]` judges holes, not every round face (a counterbore is part of its hole and sized by its narrowest bore, a slot is judged by its centre line, fillets and notches are not holes); a clearance hole is anything in ISO 273's fine to coarse range (M3: 3.2 to 3.6 mm); `geometry/web` is N/A for a flat part with no cutout, whose cutout count is still held to `EXPECT_FEATURES`.
    - A second pass of fixes, 2026-10-07: `[[interface]]` reads a bore of 270 degrees or more as a hole (a teardrop, a D-bore, a slit bore) and judges a hole of `a` only when its axis lands on `b`'s material or in one of its holes, so `near_mm` is an explicit extra and `laser_panel` dropped its `near_mm = 6`; the part rules read `laser_cut`'s kerf (slots and gaps) and the minimum hole of `laser_cut` and `cnc`, a test holds every number in the process table to being read, and fdm's `min_hole_mm` is gone (a printed hole under 2 mm is drilled afterwards); every length compared to a limit allows 1e-6 mm (`registry.TOL_MM`), so a 5.0 mm stance patch stands; the tests that run `bin/cad` or the warm worker run their own Python whatever `CAD_PYTHON` a plugin session exports (`conftest.cad_env`); the 24 given STEPs were rewritten by `write_step`.
-   - Known gaps, what the grader can't say yet (each task works round them; `evals/README.md` has the detail):
-     - no `[[axis]]` kind, so `AXES` can't be required (`mgn12h_carriage` asks for it; without it only the home pose is graded);
+   - Known gaps, what the grader can't say yet (each task works round them; `evals/README.md` has the detail). Step 6 closed four, and hidden specs may use them now:
+     - ~~no `[[axis]]` kind~~ (`[[axis]]`);
      - no hole-count option and no shaft-fit option;
      - a clearance `max_mm` bounds only the closest approach, and there is no clearance to a sub-feature;
-     - there is no DXF export for laser parts;
-     - no heat rule and no body count.
-8. First real job: the one-machine layout (frame, gantry, dock, laser keep-out).
+     - ~~there is no DXF export for laser parts~~ (`cad export --format dxf`, `cad shop`);
+     - ~~no heat rule and no body count~~ (`[[heat]]`, `[bodies]`).
+8. First real job: the one-machine layout (frame, gantry, dock, laser keep-out). Not started: the harness comes first, and step 6 built only the harness.
