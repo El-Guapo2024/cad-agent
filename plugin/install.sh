@@ -21,6 +21,11 @@ if [ ! -x "$venv/bin/python" ] || [ "$(cat "$data/installed" 2>/dev/null)" != "$
   # Embree casts the wall-thickness rays some thirty times faster, with the same numbers. It is optional:
   # a platform it has no wheel for keeps trimesh's slower caster, so this step may fail without failing the install.
   no_embree() { echo "cad-agent: Embree not installed (optional); wall-thickness rays will use the slower Python caster" >&2; }
+  # The ISO screw, nut and washer of the part library (`cad lib use iso4762-screw`) are drawn by bd_warehouse
+  # (Apache-2.0): pure Python, under a megabyte on top of the build123d and bd_materials the kernel already has,
+  # and a second or two. Optional like Embree, because a step that fails here (the network dropping) should cost
+  # those three entries and not the install; `cad lib use` says they need it.
+  no_fasteners() { echo "cad-agent: bd_warehouse not installed (optional); the library's ISO screw, nut and washer need it: install 'bd_warehouse>=0.3' into $venv" >&2; }
   # uv keeps what an interpreter reported and believes it until told to ask again. A record made without
   # SYSTEM_VERSION_COMPAT=0 (by any uv command run in a shell that lacked it) says macOS 10.16 and outlives
   # this export, and uv then turns down every macosx_11_0 or newer wheel: embreex's macosx_13_0 one, so
@@ -33,6 +38,7 @@ if [ ! -x "$venv/bin/python" ] || [ "$(cat "$data/installed" 2>/dev/null)" != "$
     uv venv -q --python ">=3.12,<3.15" "$venv" >&2
     uv pip install -q --refresh-package cad-agent -p "$venv/bin/python" -e "$pkg" >&2
     uv pip install -q --refresh-package embreex -p "$venv/bin/python" -e "$root[embree]" >&2 || no_embree
+    uv pip install -q --refresh-package bd-warehouse -p "$venv/bin/python" -e "$root[fasteners]" >&2 || no_fasteners
   else
     py=""
     for c in python3.13 python3.12 python3.14 python3; do
@@ -42,6 +48,7 @@ if [ ! -x "$venv/bin/python" ] || [ "$(cat "$data/installed" 2>/dev/null)" != "$
     "$py" -m venv "$venv" >&2
     "$venv/bin/pip" install -q -e "$pkg" >&2
     "$venv/bin/pip" install -q -e "$root[embree]" >&2 || no_embree
+    "$venv/bin/pip" install -q -e "$root[fasteners]" >&2 || no_fasteners
   fi
   echo "$want" > "$data/installed"
   fresh=1

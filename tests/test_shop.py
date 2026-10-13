@@ -921,7 +921,7 @@ def test_drawings_that_cannot_be_made_are_an_unchecked_row_and_say_what_to_insta
     real = cmdbase.resolve
     monkeypatch.setattr(cmdbase, "resolve", lambda target: (_ for _ in ()).throw(ModuleNotFoundError("No module named 'bd_warehouse'", name="bd_warehouse"))
                         if target == shop.DRAWINGS else real(target))
-    assert 'pip install "cad-agent[fasteners]"' in run(capsys, "shop", SLUG)[1]["rows"][-1]["measured"]
+    assert st.install_command("bd_warehouse>=0.3") in run(capsys, "shop", SLUG)[1]["rows"][-1]["measured"]
     code, data = run(capsys, "shop", SLUG, "--draft")                                  # and a draft goes on without them
     assert code == cli.UNCHECKED and (project / "out" / "shop" / "panel.dxf").exists()
     assert data["drawings"]["built"] is False and "bd_warehouse" in data["drawings"]["why"]

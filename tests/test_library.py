@@ -23,10 +23,14 @@ import json
 import math
 import re
 import runpy
+import shlex
 import shutil
+import ssl
 import subprocess
 import sys
+import types
 import urllib.error
+import urllib.request
 from pathlib import Path
 
 import pytest
@@ -41,6 +45,7 @@ from conftest import cad_env
 from test_cli import log_lines, run
 
 REPO = Path(__file__).resolve().parent.parent
+REAL_OPEN = store.OPEN                  # before the fixtures below replace it with one that fails
 SLUG = "demo"
 CATALOG_TOML = REPO / "cad_agent" / "library" / "catalog.toml"
 STEP = b"ISO-10303-21;\nHEADER;\nENDSEC;\nDATA;\n#1 = CARTESIAN_POINT('', (0., 0., 0.));\nENDSEC;\nEND-ISO-10303-21;\n"
@@ -1060,13 +1065,56 @@ def test_a_bd_warehouse_part_needs_its_package_and_the_message_says_which_extra(
     real = importlib.util.find_spec
     monkeypatch.setattr(importlib.util, "find_spec", lambda n, *a: None if n == "bd_warehouse" else real(n, *a))
     code, data = run(capsys, "lib", "use", SLUG, "screw")
-    assert code == cmdbase.USAGE and "bd_warehouse, which is not installed: `pip install 'cad-agent[fasteners]'`" in data["error"]
+    assert code == cmdbase.USAGE and f"bd_warehouse, which is not installed: `{st.install_command('bd_warehouse>=0.3')}`" in data["error"]
     assert not bought_dir(demo).exists() or list(bought_dir(demo).iterdir()) == []
     monkeypatch.setattr(importlib.util, "find_spec", lambda n, *a: object() if n == "bd_warehouse" else real(n, *a))
     code, data = run(capsys, "lib", "use", SLUG, "screw", "size=M4-0.7")
     assert code == cmdbase.OK and "from bd_warehouse.fastener import SocketHeadCapScrew" in (bought_dir(demo) / "screw.py").read_text()
     assert "'fastener_type': 'iso4762'" in (bought_dir(demo) / "screw.py").read_text() and "mass_g" not in side_of(demo, "screw")
     assert side_of(demo, "screw")["library_params"] == {"size": "M4-0.7"}
+
+
+def test_the_install_command_is_for_the_python_that_runs_cad(monkeypatch):
+    """The plugin's venv is made by uv: no pip in it and none on PATH, and `pip install 'cad-agent[fasteners]'` names a
+    package nobody publishes. So the hint names the interpreter, with its own pip when it has one and uv when not."""
+    real, py = importlib.util.find_spec, shlex.quote(sys.executable)
+    monkeypatch.setattr(importlib.util, "find_spec", lambda n, *a: object() if n == "pip" else real(n, *a))
+    assert st.install_command("bd_warehouse>=0.3") == f"{py} -m pip install 'bd_warehouse>=0.3'"
+    monkeypatch.setattr(importlib.util, "find_spec", lambda n, *a: None if n == "pip" else real(n, *a))
+    assert st.install_command("bd_warehouse>=0.3") == f"uv pip install -p {py} 'bd_warehouse>=0.3'"
+    monkeypatch.setattr(sys, "executable", "/Users/a b/.claude/plugins/data/cad-agent/venv/bin/python")      # a path with a space
+    assert st.install_command("x>=1") == "uv pip install -p '/Users/a b/.claude/plugins/data/cad-agent/venv/bin/python' 'x>=1'"
+
+    def broken(name, *a):
+        raise ValueError("pip.__spec__ is None")
+
+    monkeypatch.setattr(importlib.util, "find_spec", broken)                    # it runs inside why(), which must not fail
+    assert st.install_command("x>=1").startswith("uv pip install -p ")
+
+
+def test_the_optional_packages_are_the_extras_of_pyproject_and_the_plugin_installs_them():
+    import tomllib
+    extras = tomllib.loads((REPO / "pyproject.toml").read_text(encoding="utf-8"))["project"]["optional-dependencies"]
+    assert extras["fasteners"] == [st.OPTIONAL["bd_warehouse"]]
+    assert {e.requires for e in catalog.shipped().values() if e.requires} == set(st.OPTIONAL)       # no entry names a package with no command
+    install = (REPO / "plugin" / "install.sh").read_text(encoding="utf-8")
+    assert install.count('-e "$root[fasteners]"') == 2                                                  # the uv path and the pip path
+
+
+def test_a_copied_part_whose_package_is_missing_says_how_to_install_it(demo, capsys, tiny, monkeypatch):
+    """A project made where bd_warehouse is installed builds nowhere that it is not: the row names the package and the
+    command for the Python that is running, as `lib use` does when asked for one."""
+    real = importlib.util.find_spec
+    monkeypatch.setattr(importlib.util, "find_spec", lambda n, *a: object() if n == "bd_warehouse" else real(n, *a))
+    assert run(capsys, "lib", "use", SLUG, "screw")[0] == cmdbase.OK
+    monkeypatch.setitem(sys.modules, "bd_warehouse", None)                    # an import of it fails, as where it is not installed
+    with pytest.raises(ModuleNotFoundError) as caught:
+        B.load_bought(SLUG, "screw")
+    line = st.why(caught.value)
+    assert line.startswith("ModuleNotFoundError: ") and "(an optional package of cad-agent: `" in line
+    assert line.endswith(f"(an optional package of cad-agent: `{st.install_command('bd_warehouse>=0.3')}`)")
+    other = ModuleNotFoundError("No module named 'nothing_of_ours'", name="nothing_of_ours")
+    assert st.why(other) == "ModuleNotFoundError: No module named 'nothing_of_ours'"            # only its own packages are advised
 
 
 # The three standards' tables as the pages the catalog cites print them: ISO 4762 (engineersedge.com/iso_socket_head_screw.htm),
@@ -1312,6 +1360,51 @@ def test_a_store_record_that_cannot_be_read_is_never_written_over(capsys, tmp_pa
 
 
 # ─── cad lib fetch ───────────────────────────────────────────────────────────────────────────────────────────
+
+NO_ROOTS = ssl.DefaultVerifyPaths(cafile=None, capath=None, openssl_cafile_env="SSL_CERT_FILE", openssl_cafile="/nowhere/cert.pem",
+                                  openssl_capath_env="SSL_CERT_DIR", openssl_capath="/nowhere/certs")
+
+
+def test_a_python_with_no_root_certificates_verifies_a_download_with_certifi_or_the_system_bundle(monkeypatch, tmp_path):
+    """python.org's macOS builds find no roots until their user runs Install Certificates.command, so a plugin's venv made
+    from one failed every `lib fetch` with CERTIFICATE_VERIFY_FAILED, which reads as a network that did not answer
+    (a handshake with raw.githubusercontent.com, where the catalog's files are, failed on /usr/local/bin/python3.13)."""
+    monkeypatch.setattr(ssl, "get_default_verify_paths", lambda: NO_ROOTS)
+    certifi_pem, system_pem = tmp_path / "certifi.pem", tmp_path / "system.pem"
+    monkeypatch.setitem(sys.modules, "certifi", types.SimpleNamespace(where=lambda: str(certifi_pem)))
+    monkeypatch.setattr(store, "SYSTEM_ROOTS", (str(system_pem),))
+    assert store.root_file() is None                        # nothing anywhere: the default context fails as it always did
+    system_pem.write_text("x")
+    assert store.root_file() == str(system_pem)
+    certifi_pem.write_text("x")
+    assert store.root_file() == str(certifi_pem)            # certifi's first
+    monkeypatch.setitem(sys.modules, "certifi", None)       # an import of it fails
+    assert store.root_file() == str(system_pem)
+    monkeypatch.setattr(ssl, "get_default_verify_paths", lambda: NO_ROOTS._replace(cafile="/somewhere/cert.pem"))
+    assert store.root_file() is None                        # a Python that has roots of its own is left alone
+
+
+def test_the_bundle_it_falls_back_to_loads_into_a_real_context(monkeypatch):
+    certifi = pytest.importorskip("certifi")
+    monkeypatch.setattr(ssl, "get_default_verify_paths", lambda: NO_ROOTS)
+    monkeypatch.setattr(store, "SYSTEM_ROOTS", ())
+    ctx = store.tls_context()
+    assert ctx.verify_mode == ssl.CERT_REQUIRED and ctx.check_hostname and ctx.cert_store_stats()["x509_ca"] > 0
+    assert store.root_file() == certifi.where()
+
+
+def test_the_download_opener_hands_urlopen_that_context_and_the_timeout(monkeypatch):
+    seen = {}
+
+    def urlopen(request, timeout=None, context=None):
+        seen.update(request=request, timeout=timeout, context=context)
+        return "a response"
+
+    monkeypatch.setattr(store, "tls_context", lambda: "the context")
+    monkeypatch.setattr(urllib.request, "urlopen", urlopen)
+    assert REAL_OPEN("a request", timeout=5) == "a response"
+    assert seen == {"request": "a request", "timeout": 5, "context": "the context"}
+
 
 def test_fetch_downloads_a_file_the_licence_allows_and_stores_it_under_its_hash(capsys, tiny, tmp_path, monkeypatch):
     calls = []

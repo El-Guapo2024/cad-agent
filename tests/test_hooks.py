@@ -88,7 +88,7 @@ def test_the_install_script_asks_uv_to_look_at_the_interpreter_again():
     script = REPO / "plugin" / "install.sh"
     assert subprocess.run(["sh", "-n", str(script)], capture_output=True).returncode == 0
     installs = [ln for ln in script.read_text().splitlines() if ln.strip().startswith("uv pip install")]
-    assert len(installs) == 2 and all("--refresh-package" in ln for ln in installs)
+    assert len(installs) == 3 and all("--refresh-package" in ln for ln in installs)     # the kernel, Embree, bd_warehouse
 
 
 # ─── The install script, run offline with tools that only log what they are asked ───
@@ -103,13 +103,19 @@ echo "python $* [warm=${CAD_WARM:-unset} bytecode=<${PYTHONDONTWRITEBYTECODE-uns
 """
 _PIP_STUB = """#!/bin/sh
 echo "pip $* [compat=${SYSTEM_VERSION_COMPAT:-unset}]" >> "$FAKE_LOG"
-case "$*" in *"[embree]"*) [ -z "${FAKE_EMBREE_FAILS:-}" ] ;; esac
+case "$*" in
+  *"[embree]"*) [ -z "${FAKE_EMBREE_FAILS:-}" ] ;;
+  *"[fasteners]"*) [ -z "${FAKE_FASTENERS_FAILS:-}" ] ;;
+esac
 """
 _UV_STUB = """#!/bin/sh
 echo "uv $* [compat=${SYSTEM_VERSION_COMPAT:-unset}]" >> "$FAKE_LOG"
 case "$1" in
   venv) for last; do :; done; mkdir -p "$last/bin"; cp "$FAKE_PYTHON" "$last/bin/python"; chmod +x "$last/bin/python" ;;
-  pip) case "$*" in *"[embree]"*) [ -z "${FAKE_EMBREE_FAILS:-}" ] ;; esac ;;
+  pip) case "$*" in
+         *"[embree]"*) [ -z "${FAKE_EMBREE_FAILS:-}" ] ;;
+         *"[fasteners]"*) [ -z "${FAKE_FASTENERS_FAILS:-}" ] ;;
+       esac ;;
 esac
 """
 _PYTHON313_STUB = """#!/bin/sh
@@ -162,6 +168,8 @@ def test_the_install_script_installs_once_and_loads_the_kernel_once_cad_is_in_pl
     # 3.15 would otherwise pick it on a machine with no other 3.12+, and the install would not resolve.
     assert uv[0] == f"uv venv -q --python >=3.12,<3.15 {s.data / 'venv'} [compat=0]"
     assert f"-e {s.pkg} [compat=0]" in uv[1] and f"-e {s.root}[embree] [compat=0]" in uv[2]
+    # The ISO screw, nut and washer of the part library are drawn by bd_warehouse, the `fasteners` extra.
+    assert f"-e {s.root}[fasteners] [compat=0]" in uv[3] and len(uv) == 4
     assert (s.data / "installed").read_text().strip() == f"9.9.9 {s.root}"
     assert (s.data / "bin" / "cad").resolve() == (s.root / "bin" / "cad").resolve()
     env_lines = s.env_file.read_text().splitlines()
@@ -193,13 +201,26 @@ def test_a_platform_without_embree_still_installs(tmp_path):
     s = _install(tmp_path, FAKE_EMBREE_FAILS="1")
     assert s.first.returncode == 0 and "Embree not installed" in s.first.stderr
     assert (s.data / "installed").exists()
+    assert any("[fasteners]" in c for c in s.calls())          # the extras are separate steps: one failing skips none
+
+
+def test_a_failed_bd_warehouse_step_is_said_and_costs_the_install_nothing(tmp_path):
+    """The network dropping on the last pip step must not undo the kernel, or keep the session from starting:
+    the library's ISO screw, nut and washer say what they need when they are asked for (cad lib use)."""
+    s = _install(tmp_path, FAKE_FASTENERS_FAILS="1")
+    assert s.first.returncode == 0 and s.first.stdout == ""
+    assert "bd_warehouse not installed" in s.first.stderr and f"into {s.data / 'venv'}" in s.first.stderr
+    assert "Embree not installed" not in s.first.stderr
+    assert (s.data / "installed").exists() and (s.data / "bin" / "cad").is_symlink()
+    assert any(c.startswith("python -P -m cad_agent.warm --version") for c in s.calls())    # and the kernel still loads
 
 
 def test_without_uv_the_script_makes_its_venv_with_python_and_pip(tmp_path):
     s = _install(tmp_path, uv=False)
     assert s.first.returncode == 0, s.first.stderr
     pip = [c for c in s.calls() if c.startswith("pip ")]
-    assert pip == [f"pip install -q -e {s.pkg} [compat=0]", f"pip install -q -e {s.root}[embree] [compat=0]"]
+    assert pip == [f"pip install -q -e {s.pkg} [compat=0]", f"pip install -q -e {s.root}[embree] [compat=0]",
+                   f"pip install -q -e {s.root}[fasteners] [compat=0]"]
     probe = next(c for c in s.calls() if c.startswith("probe "))     # the python it accepts: 3.12 to 3.14
     assert "(3, 12) <= sys.version_info[:2] < (3, 15)" in probe
     assert any(c.startswith("python -P -m cad_agent.warm --version") for c in s.calls())
