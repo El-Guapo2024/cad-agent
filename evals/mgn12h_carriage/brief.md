@@ -76,6 +76,8 @@ The grader checks these, and nothing else beyond the usual gates:
    home the plate must be at least 42 mm from each stop.
 7. **Mass.** At most 30 g, from your part module's `MATERIAL` density
    (`bin/cad tables`).
+8. **Bodies and axis.** Exactly the six bodies named above, and `AXES` declares `x`: it moves exactly
+   `block`, `carriage_plate` and `tool`, along x, with at least 80 mm of travel.
 
 **Round holes.** The checker reads every round hole in the plate whose axis line
 lands on the block, on its material or in one of its holes, as a bolt hole, and

@@ -95,3 +95,15 @@ min_mm = 42.0
 [[mass]]                     # the moving plate
 parts = { carriage_plate = 1 }
 max_g = 30
+
+# --- bodies and axis: the brief asks for exactly these six, and for the travel to be declared -------------
+[bodies]
+count = 6
+names = ["rail", "block", "stop_left", "stop_right", "tool", "carriage_plate"]
+
+[[axis]]
+name = "x"
+moves = ["block", "carriage_plate", "tool"]
+only = true
+direction = [1, 0, 0]
+travel_min_mm = 80

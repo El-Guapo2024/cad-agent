@@ -1,6 +1,10 @@
 # Hidden grader for pinned_carrier: the brief as acceptance tests.
 # Every number is stated in brief.md. Axes: z up, base top face at z = 0.
 
+[bodies]                    # `parts()` returns exactly these five
+count = 5
+names = ["base_plate", "pin_1", "pin_2", "clamp_screw", "carrier"]
+
 # The given bodies stay where they are, and what they are. Centres are bounding-box centres:
 # the pins span z -6 to 10, the screw z -10 to 4, the base z -10 to 0.
 [[position]]

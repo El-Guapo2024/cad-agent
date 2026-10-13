@@ -2,8 +2,9 @@
 
 Each task is a small brief with a hidden `spec.toml`. An agent designs through the `cad` CLI and
 `cad verify` scores what it leaves, so "better" is a number: run the set before and after a change
-to cad-agent (a rule, the skill, a hook, the CLI) and compare. There are 10 tasks (phase 1 and phase
-2). No real agent has run them yet: the command is under "Suggested real run" below.
+to cad-agent (a rule, the skill, a hook, the CLI) and compare. There are 12 tasks: phase 1 and phase
+2, and two that step 6 added for its new rules (`dock_material`, `beam_deflection`). No real agent has
+run them yet: the command is under "Suggested real run" below.
 
 ## Layout
 
@@ -16,9 +17,12 @@ evals/<task>/
   given/       files laid into the agent's project at the start and again before grading, in the
                project's own layout: given/bought/x.step -> projects/<task>/bought/x.step
   reference/   a complete design (parts/, assembly.py) that scores 100%: proof the task can be
-               solved, and what the tests break to check each rule is really graded
-  source/      phase 2 tasks: the script that makes the given STEPs, with the source of every
-               number. Never laid into the agent's project
+               solved, and what the tests break to check each rule is really graded. A task whose
+               answer is stock, a beam, has a library part instead of a part module: what `cad lib
+               use` copied into reference/bought/
+  source/      phase 2 tasks and step 6's: the script that makes the given STEPs, with the source of
+               every number (and what a rule of step 6 reads from a given part's note: a mass, a
+               rating). Never laid into the agent's project
 evals/make_given.py   the same for the phase 1 tasks (modelled in build123d)
 evals/results/        what `cad eval run` scored, one JSON per run (not in git)
 ```
@@ -32,13 +36,15 @@ provenance row, which passes.
 | `nema17_mount` | a plate on a 2040 rail carrying a NEMA 17: the M3 pattern on the motor's 31 mm square, touching rail and motor, mass, envelope, the motor pinned |
 | `syringe_clamp` | a clamp that holds a 10 mL barrel 0.05 to 0.35 mm off, bolted to a plate with an off-centre syringe: `max_mm` as "grips", an M3 interface, mass |
 | `galvo_mount` | a mount that stands on the bench and holds a galvo head, outside the laser cone: a `[[keepout]]`, an M4 interface, mass |
-| `mgn12h_carriage` | a plate on an MGN12H block that carries a tool flange between two end stops: an M3 pattern to the block and one to the tool, a size range, 42 mm to each stop at home, mass. The brief asks for `AXES`; leaving it out costs nothing |
-| `hotplate_standoffs` | four standoffs holding a 250 C plate 20 mm over a base: each touching both (`max_mm`), an M3 bore over the plate's tapped holes, the 20 mm air gap. The material is not graded: there is no heat rule |
-| `pinned_carrier` | a block that locates on two dowel pins (0.1 mm to spare at most, `max_mm`), seats on the base and clears a screw head by 0.5 mm: coaxial holes and a relief pocket, no fastener |
+| `mgn12h_carriage` | a plate on an MGN12H block that carries a tool flange between two end stops: an M3 pattern to the block and one to the tool, a size range, 42 mm to each stop at home, mass, exactly six bodies (`[bodies]`), and `AXES` declared (`[[axis]]`: `x` moves the block, plate and tool, 80 mm of travel) |
+| `hotplate_standoffs` | four standoffs holding a 250 C plate 20 mm over a base: each touching both (`max_mm`), an M3 bore over the plate's tapped holes, the 20 mm air gap, exactly six bodies, and the standoffs' material against a 250 C `[[heat]]` zone (only steel, stainless and polyimide pass) |
+| `pinned_carrier` | a block that locates on two dowel pins (0.1 mm to spare at most, `max_mm`), seats on the base and clears a screw head by 0.5 mm: coaxial holes and a relief pocket, no fastener, exactly five bodies |
 | `laser_panel` | a 3 mm laser-cut panel on a frame, with a button hole and an OLED window each 0.10 to 0.40 mm off its part (`min_mm` with `max_mm`), M3 mounting, an envelope held from both sides |
 | `pcb_enclosure` | a base and a lid for an Arduino UNO with its USB plug in: standoffs on the board's own holes (read from the board, axes only), a window the plug clears by 1 mm, a floor on each size |
-| `idler_bracket` | a bracket on a 2040 end holding a GT2 idler's M5 shaft: M5 mounting holes, shaft holes judged by the shaft's gap (0.1 to 0.5 mm) since no fastener size fits its 5.0 bore, 0.5 mm to the idler |
+| `idler_bracket` | a bracket on a 2040 end holding a GT2 idler's M5 shaft: M5 mounting holes, shaft holes judged by the shaft's gap (0.1 to 0.5 mm) since no fastener size fits its 5.0 bore, 0.5 mm to the idler, exactly four bodies |
 | `endstop_bracket` | a bracket that holds a microswitch where a carriage flag presses its lever: M2 holes read from the switch, the flag within 0.5 mm, the switch's size as a range so it can turn a quarter turn |
+| `dock_material` | a rail bolted 2 to 4 mm off a 250 C hot plate on a steel base plate: M4 bolts on the base's tapped holes (judged both ways, so no base hole is left uncovered under it), and the point of the task, a 15 mm `[[heat]]` zone: the dock's `MATERIAL` is rated by `cad tables materials`, and only steel, stainless and polyimide pass. The base plate is in the zone too and passes on the rating its own note declares; exactly three bodies |
+| `beam_deflection` | a beam on two steel blocks 600 mm apart, with 2.5 kg at midspan and its own weight: a `[[deflection]]` of at most 50 um, and at most 600 g. The beam is stock (no process's working volume takes a 640 mm part module), so it comes from the library: the 2040 on its 40 mm side is the one that passes (37.7 um, 499 g); a 2020 or a flat 2040 sags too much, a 4040 weighs too much, and the box of a 2040's outer size is UNCHECKED |
 
 ## Commands
 
@@ -101,6 +107,14 @@ no `CAD_EVALS`.
 - The `kerf` row of a `laser_cut` part reads slots and the air between flat walls that face each
   other; a curved gap other than a slot's ends (a ring groove) is not read. `min hole` reads round
   holes, and on a `cnc` part slots too. A printed part has no hole floor.
+- `[[heat]]` is a zone and not a thermal model: every body within the radius is held to the zone's
+  temperature as if it touched the source, so an air gap or an insulator inside the radius buys
+  nothing, and the rating is the table's (a plastic's is its heat deflection temperature, where it
+  starts to give, not a life rating). A body with no rating is UNCHECKED, and so is a bought part
+  that declares none, which is why `dock_material`'s given base plate declares one.
+- `[[deflection]]` is a formula (Euler-Bernoulli, with ideal supports) on the beam's own sections:
+  no shear, torsion, buckling or give at the supports. It says UNCHECKED rather than guess for a
+  section it cannot read, so a solid box of a 2020, 2040 or 4040's outer size is no beam it judges.
 - Nothing here judges assembly order, tool access or cable routing; that is the reviewer's job.
 - The agent can read whatever folder it is pointed at. The hidden specs and the references are in
   this repo, which is also the plugin, so a real run says `--plugin-dir {plugin}` (the copy above).
@@ -117,13 +131,16 @@ no `CAD_EVALS`.
    (`tests/test_export.py` fails on a raw `export_step`).
 3. Write the reference in a scratch project named after the task (its `assembly.py` finds its parts
    by that name, `SLUG = "<task>"`) until `cad check` is clean, then copy `parts/` and `assembly.py`
-   into `reference/`. The edit and stop hooks skip everything under `evals/`, so nothing checks a
+   into `reference/` (and `bought/`, if the answer is a library part `cad lib use` copied in). The edit and stop hooks skip everything under `evals/`, so nothing checks a
    reference where it lies and nothing is written into it. Then the hidden `spec.toml`: pin every
    given body with `[[size]]` and `[[position]]`, and write "touches" and "grips" as `max_mm`.
 4. Write `brief.md`: every number, every body name, every given file, the rule that given files are
    laid again. `tests/test_eval.py` fails if the brief leaves out a body, a given file or a number
    the spec holds a design to (it reads numbers, so 13 and 13.0 are one; a size pinned to 0.1 mm is
-   stated as its nominal `a x b x c`, and a range or a floor as its limits).
+   stated as its nominal `a x b x c`, and a range or a floor as its limits), `[[heat]]`,
+   `[[deflection]]`, `[bodies]` and `[[axis]]` included. A given body inside a heat zone declares its
+   rating in its note (`max_temp_c` with `max_temp_source`) and one the centre-of-mass rule must weigh
+   its `mass_g` with `mass_source`: the task's source script adds them to the note.
 5. Add the task to `TASKS`, `SPEC_RULES` and `BROKEN` in `tests/test_eval.py`: a one-line edit to
    the reference that must fail on one named rule. When the edit breaks what follows from it too
    (a pin that no longer fits its hole also overlaps the block), `BROKEN` names all the rules.
@@ -142,15 +159,17 @@ moved. Keep `--plugin-dir {plugin}`: see the note above about what the agent can
 ## Known gaps
 
 What the grader cannot say yet, and how the tasks go round it. Each is a rule or a `spec.toml` kind
-to add; none was needed to write the ten tasks.
+to add; none was needed to write the twelve tasks.
 
-- No `[[axis]]` kind, so `AXES` can't be required: `mgn12h_carriage` asks for it in the brief, and a
-  design that leaves it out has no sweep rows, only the home pose graded (42 mm to each stop).
+Closed by step 6, and no longer gaps: `[[axis]]` can require that `AXES` is declared (`mgn12h_carriage`
+does), `[bodies]` holds an exact body count and names (the four tasks whose briefs say "exactly" do, and
+the two new ones), `[[heat]]` is a heat rule (`hotplate_standoffs` and `dock_material`), and
+`cad export --format dxf` makes the DXF of a laser part.
+
 - No hole-count option and no shaft-fit option: `idler_bracket` fits its 5.0 shaft through the
   closest-approach range (0.1 to 0.5 mm) instead, and a hole left out is caught only when the given
   body is `a`, as in `pcb_enclosure` and `endstop_bracket`.
 - A clearance `max_mm` bounds only the closest approach (said above), and there is no clearance to
   a sub-feature: "the pocket clears the screw head" is a distance between two bodies.
-- There is no DXF export for laser parts.
-- No heat rule: `hotplate_standoffs` says the material needs 250 C, and a reviewer reads it.
-- No body count: "exactly six bodies" is asked in the briefs and not checked.
+- No task spans more than one project: a sub-assembly is a sibling folder and `cad eval score` lays
+  one design. `tests/fixtures/mini_machine` tests a machine of two projects; scoring one is step 8.

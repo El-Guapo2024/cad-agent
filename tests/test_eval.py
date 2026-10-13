@@ -35,13 +35,15 @@ SPEC_RULES = {
                       "spec/interface", "spec/mass"},
     "galvo_mount": {"spec/envelope", "spec/size", "spec/position", "spec/clearance",
                     "spec/interface", "spec/mass", "spec/keepout"},
-    "mgn12h_carriage": {"spec/size", "spec/position", "spec/clearance", "spec/interface", "spec/mass"},
+    "mgn12h_carriage": {"spec/size", "spec/position", "spec/clearance", "spec/interface", "spec/mass",
+                        "spec/axis", "spec/bodies"},
     "hotplate_standoffs": {"spec/envelope", "spec/size", "spec/position", "spec/clearance",
-                           "spec/interface"},
-    "pinned_carrier": {"spec/size", "spec/position", "spec/clearance", "spec/interface"},
+                           "spec/interface", "spec/bodies", "spec/heat"},
+    "pinned_carrier": {"spec/size", "spec/position", "spec/clearance", "spec/interface", "spec/bodies"},
     "laser_panel": {"spec/envelope", "spec/size", "spec/position", "spec/clearance", "spec/interface"},
     "pcb_enclosure": {"spec/envelope", "spec/size", "spec/position", "spec/clearance", "spec/interface"},
-    "idler_bracket": {"spec/envelope", "spec/size", "spec/position", "spec/clearance", "spec/interface"},
+    "idler_bracket": {"spec/envelope", "spec/size", "spec/position", "spec/clearance", "spec/interface",
+                      "spec/bodies"},
     "endstop_bracket": {"spec/envelope", "spec/size", "spec/position", "spec/clearance",
                         "spec/interface"},
     "dock_material": {"spec/envelope", "spec/size", "spec/position", "spec/clearance", "spec/interface",
@@ -524,6 +526,28 @@ def test_a_pla_or_aluminium_dock_fails_the_heat_row_and_nothing_else(worker, tmp
     assert heat["dock"]["limit"] == ">= 250 C, a zone, not a thermal model"
     assert heat["base_plate"]["state"] == "PASS"                            # the given plate passes on its declared 400 C
     assert [x["rule"] for x in r["rows"] if x["state"] != "PASS"] == ["spec/heat"]
+
+
+def test_an_aluminium_standoff_fails_the_heat_row_hotplate_standoffs_has_now(worker, tmp_path, capsys):
+    """Its brief used to call aluminium, brass and copper fine at 250 C and its grader had no heat rule; the table gives them
+    170, 120 and 200 C, and the grader has the zone now: each of the four standoffs, touching the plate, is one failing row."""
+    design = edited("hotplate_standoffs", tmp_path, "parts/standoff.py", 'MATERIAL = "polyimide"', 'MATERIAL = "aluminium"')
+    code, r = run(capsys, "eval", "score", "hotplate_standoffs", str(design), "--evals", str(EVALS), "--all")
+    heat = dock_rows(r)
+    assert code == cli.FAIL and sorted(heat) == [f"standoff_{i}" for i in range(1, 5)]      # the base is 20 mm off: no row
+    assert {x["state"] for x in heat.values()} == {"FAIL"} and heat["standoff_1"]["measured"].startswith(
+        "aluminium (stated service limit) rated 170 C, 0.00 mm from hot_plate")
+    assert [x["rule"] for x in r["rows"] if x["state"] != "PASS"] == ["spec/heat"] * 4
+
+
+def test_a_carriage_with_no_AXES_fails_the_axis_row_the_brief_asks_for_and_no_longer_costs_nothing(worker, tmp_path, capsys):
+    """The first of the known gaps in evals/README.md: `[[axis]]` can require what the brief asks for."""
+    design = edited("mgn12h_carriage", tmp_path, "assembly.py", "AXES = {", "UNUSED_AXES = {")
+    code, r = run(capsys, "eval", "score", "mgn12h_carriage", str(design), "--evals", str(EVALS), "--all")
+    failing = [(x["rule"], x["subject"]) for x in r["rows"] if x["state"] == "FAIL"]
+    assert code == cli.FAIL and failing == [("spec/axis", "axis x")]
+    (row,) = [x for x in r["rows"] if x["rule"] == "spec/axis"]
+    assert "no axis 'x' in AXES" in row["measured"] and "assembly.py declares no AXES" in row["measured"]
 
 
 def test_the_grader_rates_the_dock_by_the_table_for_every_material_the_brief_lists(worker, tmp_path):

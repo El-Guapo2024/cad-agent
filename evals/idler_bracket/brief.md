@@ -67,6 +67,7 @@ The grader checks these, and nothing else beyond the usual gates:
 4. **Envelope.** The whole assembly, stub included, fits in 96 x 40 x 20 mm: the
    bracket and idler reach no more than 36 mm past the end face, and the
    bracket is no wider than the extrusion (40) and no taller than it (20).
+5. **Bodies.** Exactly four: `extrusion`, `idler`, `shaft` and `bracket`.
 
 Round holes. The checker reads every round hole in the bracket whose axis line
 lands on the extrusion or on the idler, on its material or in one of its holes,
