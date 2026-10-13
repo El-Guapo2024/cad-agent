@@ -564,6 +564,215 @@ class _Out:
         return "\n".join(self.lines) + "\n"
 
 
+class Layer(NamedTuple):
+    """A layer of the LAYER table: its name, its colour (AutoCAD colour index) and the linetype it draws in."""
+    name: str
+    colour: int = 7
+    linetype: str = "CONTINUOUS"
+
+
+class Linetype(NamedTuple):
+    """A linetype of the LTYPE table: dashes and gaps in millimetres, a dash positive and a gap negative (group 49)."""
+    name: str
+    description: str
+    pattern: tuple
+
+
+class DxfWriter:
+    """An R14 DXF written section by section the way `write_dxf` always wrote one: the header, the tables, the two
+    empty block spaces, then the entities one at a time, and `finish`, which closes the file.
+
+    Piece D wrote an outline with it (one layer, one linetype) and piece E (drawing/) writes a whole sheet: more
+    layers, dashed and chain linetypes, text and filled arrowheads. `layers` and `linetypes` are what the file
+    declares besides the defaults (BYBLOCK, BYLAYER, CONTINUOUS and layer 0), and `header` adds variables after
+    $INSUNITS as (name, [(group code, value), ...]). R14 has no lineweights, so a width is not in the file: the
+    layer's colour stands for the pen, as it did before R2000. Every number goes through `num`, so a file is the same
+    bytes whenever it is written. The entities are in model space.
+    """
+
+    def __init__(self, comment: str, lo, hi, layers, linetypes=(), header=()):
+        self.out = out = _Out()
+        self._h = [0]
+        out.put(999, comment)
+
+        # HEADER
+        out.put(0, "SECTION"); out.put(2, "HEADER")
+        out.put(9, "$ACADVER"); out.put(1, "AC1014")
+        out.put(9, "$ACADMAINTVER"); out.put(70, 9)
+        out.put(9, "$DWGCODEPAGE"); out.put(3, "ANSI_1252")
+        out.put(9, "$TEXTSTYLE"); out.put(7, "STANDARD")
+        out.put(9, "$LUNITS"); out.put(70, 2)
+        out.put(9, "$MEASUREMENT"); out.put(70, 1)
+        out.put(9, "$INSUNITS"); out.put(70, 4)
+        for var, pairs in header:
+            out.put(9, var)
+            for code, value in pairs:
+                out.put(code, value)
+        out.put(9, "$EXTMIN"); out.point(10, lo[0], lo[1], 0.0)
+        out.put(9, "$EXTMAX"); out.point(10, hi[0], hi[1], 0.0)
+        out.put(9, "$HANDSEED"); self._seed_at = len(out.lines); out.put(5, "0")
+        out.put(0, "ENDSEC")
+
+        # CLASSES: the one an LWPOLYLINE needs
+        out.put(0, "SECTION"); out.put(2, "CLASSES")
+        out.put(0, "CLASS"); out.put(1, "LWPOLYLINE"); out.put(2, "AcDbPolyline"); out.put(3, "ObjectDBX Classes")
+        out.put(90, 0); out.put(280, 0); out.put(281, 1)
+        out.put(0, "ENDSEC")
+
+        # TABLES
+        out.put(0, "SECTION"); out.put(2, "TABLES")
+        owner = self._table("VPORT", 1)
+        self._record("VPORT", owner, "AcDbViewportTableRecord"); out.put(2, "*ACTIVE"); out.put(70, 0)
+        out.put(0, "ENDTAB")
+        owner = self._table("LTYPE", 3 + len(linetypes))
+        for lname, desc in (("BYBLOCK", ""), ("BYLAYER", ""), ("CONTINUOUS", "Solid line")):
+            self._record("LTYPE", owner, "AcDbLinetypeTableRecord")
+            out.put(2, lname); out.put(70, 0); out.put(3, desc); out.put(72, 65); out.put(73, 0); out.put(40, "0.0")
+        for lt in linetypes:
+            self._record("LTYPE", owner, "AcDbLinetypeTableRecord")
+            out.put(2, lt.name); out.put(70, 0); out.put(3, lt.description); out.put(72, 65)
+            out.put(73, len(lt.pattern)); out.put(40, num(sum(abs(d) for d in lt.pattern)))
+            for d in lt.pattern:
+                out.put(49, num(d)); out.put(74, 0)
+        out.put(0, "ENDTAB")
+        owner = self._table("LAYER", len(layers) + 1)
+        for layer in [Layer("0")] + list(layers):
+            self._record("LAYER", owner, "AcDbLayerTableRecord")
+            out.put(2, layer.name); out.put(70, 0); out.put(62, layer.colour); out.put(6, layer.linetype)
+        out.put(0, "ENDTAB")
+        owner = self._table("STYLE", 1)
+        self._record("STYLE", owner, "AcDbTextStyleTableRecord")
+        out.put(2, "STANDARD"); out.put(70, 0); out.put(40, "0.0"); out.put(41, "1.0"); out.put(50, "0.0"); out.put(71, 0)
+        out.put(42, "2.5"); out.put(3, "txt"); out.put(4, "")
+        out.put(0, "ENDTAB")
+        self._table("VIEW", 0); out.put(0, "ENDTAB")
+        self._table("UCS", 0); out.put(0, "ENDTAB")
+        owner = self._table("APPID", 1)
+        self._record("APPID", owner, "AcDbRegAppTableRecord"); out.put(2, "ACAD"); out.put(70, 0)
+        out.put(0, "ENDTAB")
+        owner = self._table("BLOCK_RECORD", 2)
+        self._model = self._handle()
+        paper_record = self._handle()
+        for hd, bname in ((self._model, "*MODEL_SPACE"), (paper_record, "*PAPER_SPACE")):
+            out.put(0, "BLOCK_RECORD"); out.put(5, hd); out.put(330, owner)
+            out.put(100, "AcDbSymbolTableRecord"); out.put(100, "AcDbBlockTableRecord"); out.put(2, bname)
+        out.put(0, "ENDTAB")
+        out.put(0, "ENDSEC")
+
+        # BLOCKS: model and paper space, empty
+        out.put(0, "SECTION"); out.put(2, "BLOCKS")
+        for owner_record, bname, paper in ((self._model, "*MODEL_SPACE", False), (paper_record, "*PAPER_SPACE", True)):
+            out.put(0, "BLOCK"); out.put(5, self._handle()); out.put(330, owner_record)
+            out.put(100, "AcDbEntity")
+            if paper:
+                out.put(67, 1)
+            out.put(8, "0"); out.put(100, "AcDbBlockBegin"); out.put(2, bname); out.put(70, 0)
+            out.point(10, 0.0, 0.0, 0.0); out.put(3, bname); out.put(1, "")
+            out.put(0, "ENDBLK"); out.put(5, self._handle()); out.put(330, owner_record)
+            out.put(100, "AcDbEntity")
+            if paper:
+                out.put(67, 1)
+            out.put(8, "0"); out.put(100, "AcDbBlockEnd")
+        out.put(0, "ENDSEC")
+
+        out.put(0, "SECTION"); out.put(2, "ENTITIES")
+
+    def _handle(self) -> str:
+        self._h[0] += 1
+        return f"{self._h[0]:X}"
+
+    def _table(self, tname: str, count: int) -> str:
+        owner = self._handle()
+        out = self.out
+        out.put(0, "TABLE"); out.put(2, tname); out.put(5, owner); out.put(330, 0)
+        out.put(100, "AcDbSymbolTable"); out.put(70, count)
+        return owner
+
+    def _record(self, rname: str, owner: str, marker: str) -> str:
+        hd = self._handle()
+        out = self.out
+        out.put(0, rname); out.put(5, hd); out.put(330, owner)
+        out.put(100, "AcDbSymbolTableRecord"); out.put(100, marker)
+        return hd
+
+    def _head(self, etype: str, sub: str, layer: str) -> None:
+        out = self.out
+        out.put(0, etype); out.put(5, self._handle()); out.put(330, self._model)
+        out.put(100, "AcDbEntity"); out.put(8, layer)
+        if sub:
+            out.put(100, sub)
+
+    def entity(self, p, layer: str) -> None:
+        """A Line, Circle, Arc, Ellipse, Spline or Poly, as FreeCAD's exportShape writes it (module docstring)."""
+        out, t = self.out, type(p)
+        if t is Line:
+            self._head("LINE", "AcDbLine", layer); out.point(10, p.a[0], p.a[1], 0.0); out.point(11, p.b[0], p.b[1], 0.0)
+        elif t is Circle:
+            self._head("CIRCLE", "AcDbCircle", layer); out.point(10, p.c[0], p.c[1], 0.0); out.put(40, num(p.r))
+        elif t is Arc:
+            self._head("ARC", "AcDbCircle", layer); out.point(10, p.c[0], p.c[1], 0.0); out.put(40, num(p.r))
+            out.put(100, "AcDbArc"); out.put(50, num(p.a0)); out.put(51, num(p.a1))
+        elif t is Ellipse:
+            self._head("ELLIPSE", "AcDbEllipse", layer); out.point(10, p.c[0], p.c[1], 0.0)
+            out.point(11, p.major[0], p.major[1], 0.0); out.put(40, num(p.ratio))
+            out.put(41, num(p.t0)); out.put(42, num(p.t1))
+        elif t is Spline:
+            self._head("SPLINE", "AcDbSpline", layer); out.point(210, 0.0, 0.0, 1.0)
+            out.put(70, 8); out.put(71, p.degree); out.put(72, len(p.knots)); out.put(73, len(p.poles)); out.put(74, 0)
+            for k in p.knots:
+                out.put(40, num(k))
+            for x, y in p.poles:
+                out.point(10, x, y, 0.0)
+        elif t is Poly:
+            self._head("LWPOLYLINE", "AcDbPolyline", layer); out.put(90, len(p.points)); out.put(70, 1 if p.closed else 0)
+            for x, y in p.points:
+                out.put(10, num(x)); out.put(20, num(y))
+        else:
+            raise TypeError(p)
+
+    def text(self, layer: str, at, height: float, value: str, rotation: float = 0.0, halign: int = 0, valign: int = 0) -> None:
+        """A TEXT. `at` is where it is anchored: halign 0 left, 1 centre, 2 right; valign 0 baseline (3 top, 2 middle,
+        1 bottom). The string is ASCII; %%c, %%p and %%d are the diameter, plus-minus and degree signs of AutoCAD."""
+        out = self.out
+        self._head("TEXT", "AcDbText", layer)
+        out.point(10, at[0], at[1], 0.0); out.put(40, num(height)); out.put(1, value)
+        if rotation:
+            out.put(50, num(angle(rotation)))
+        out.put(7, "STANDARD")
+        if halign or valign:
+            out.put(72, halign); out.point(11, at[0], at[1], 0.0)
+        out.put(100, "AcDbText")
+        if valign:
+            out.put(73, valign)
+
+    def solid(self, layer: str, points) -> None:
+        """A filled triangle or quadrilateral (an arrowhead); the corners are given in the order they are joined."""
+        out = self.out
+        pts = list(points)
+        if len(pts) == 3:
+            pts.append(pts[2])
+        if len(pts) != 4:
+            raise ValueError("a SOLID has three or four corners")
+        self._head("SOLID", "AcDbTrace", layer)
+        a, b, c, d = pts
+        out.point(10, a[0], a[1], 0.0); out.point(11, b[0], b[1], 0.0)
+        out.point(12, c[0], c[1], 0.0); out.point(13, d[0], d[1], 0.0)
+
+    def finish(self) -> bytes:
+        """Close the entities, add the objects section FreeCAD's objects14.rub has, and give the bytes."""
+        out = self.out
+        out.put(0, "ENDSEC")
+        out.put(0, "SECTION"); out.put(2, "OBJECTS")
+        root, groups = self._handle(), self._handle()
+        out.put(0, "DICTIONARY"); out.put(5, root); out.put(330, 0); out.put(100, "AcDbDictionary")
+        out.put(3, "ACAD_GROUP"); out.put(350, groups)
+        out.put(0, "DICTIONARY"); out.put(5, groups); out.put(330, root); out.put(100, "AcDbDictionary")
+        out.put(0, "ENDSEC")
+        out.put(0, "EOF")
+        out.lines[self._seed_at + 1] = f"{self._h[0] + 1:X}"
+        return out.text().encode("ascii", "replace")
+
+
 def write_dxf(cut: Cut, name: str, stamp: str | None = None, loops: list | None = None) -> bytes:
     """The DXF of an outline: the same bytes for the same outline (see the module docstring)."""
     loops = loops_of(cut) if loops is None else loops
@@ -576,153 +785,17 @@ def write_dxf(cut: Cut, name: str, stamp: str | None = None, loops: list | None 
     frame = cut.frame
     over = [AXIS_NAME[i] for i in range(3) if i != frame.axis]
     thin = AXIS_NAME[frame.axis]
-    out = _Out()
     comment = (f"cad-agent part {name}: {cut.source} normal to {thin} at {thin} = {num(frame.level)} mm; "
                f"drawing x,y = part {over[0]},{over[1]}; units mm; entities as FreeCAD {FREECAD_COMMIT} ImpExpDxf, "
                f"version {VERSION}")
     if stamp:
         comment = f"{stamp}: not from a verified design. " + comment
-    out.put(999, comment)
-
-    h = [0]
-
-    def handle() -> str:
-        h[0] += 1
-        return f"{h[0]:X}"
-
-    # HEADER
-    out.put(0, "SECTION"); out.put(2, "HEADER")
-    out.put(9, "$ACADVER"); out.put(1, "AC1014")
-    out.put(9, "$ACADMAINTVER"); out.put(70, 9)
-    out.put(9, "$DWGCODEPAGE"); out.put(3, "ANSI_1252")
-    out.put(9, "$TEXTSTYLE"); out.put(7, "STANDARD")
-    out.put(9, "$LUNITS"); out.put(70, 2)
-    out.put(9, "$MEASUREMENT"); out.put(70, 1)
-    out.put(9, "$INSUNITS"); out.put(70, 4)
-    out.put(9, "$EXTMIN"); out.point(10, lo[0], lo[1], 0.0)
-    out.put(9, "$EXTMAX"); out.point(10, hi[0], hi[1], 0.0)
-    out.put(9, "$HANDSEED"); seed_at = len(out.lines); out.put(5, "0")
-    out.put(0, "ENDSEC")
-
-    # CLASSES: the one an LWPOLYLINE needs
-    out.put(0, "SECTION"); out.put(2, "CLASSES")
-    out.put(0, "CLASS"); out.put(1, "LWPOLYLINE"); out.put(2, "AcDbPolyline"); out.put(3, "ObjectDBX Classes")
-    out.put(90, 0); out.put(280, 0); out.put(281, 1)
-    out.put(0, "ENDSEC")
-
-    # TABLES
-    layers = [LAYER] + ([STAMP_LAYER] if stamp else [])
-    out.put(0, "SECTION"); out.put(2, "TABLES")
-
-    def table(tname: str, count: int):
-        owner = handle()
-        out.put(0, "TABLE"); out.put(2, tname); out.put(5, owner); out.put(330, 0)
-        out.put(100, "AcDbSymbolTable"); out.put(70, count)
-        return owner
-
-    def record(rname: str, owner: str, marker: str):
-        hd = handle()
-        out.put(0, rname); out.put(5, hd); out.put(330, owner)
-        out.put(100, "AcDbSymbolTableRecord"); out.put(100, marker)
-        return hd
-
-    owner = table("VPORT", 1)
-    record("VPORT", owner, "AcDbViewportTableRecord"); out.put(2, "*ACTIVE"); out.put(70, 0)
-    out.put(0, "ENDTAB")
-    owner = table("LTYPE", 3)
-    for lname, desc in (("BYBLOCK", ""), ("BYLAYER", ""), ("CONTINUOUS", "Solid line")):
-        record("LTYPE", owner, "AcDbLinetypeTableRecord")
-        out.put(2, lname); out.put(70, 0); out.put(3, desc); out.put(72, 65); out.put(73, 0); out.put(40, "0.0")
-    out.put(0, "ENDTAB")
-    owner = table("LAYER", len(layers) + 1)
-    for lname in ["0"] + layers:
-        record("LAYER", owner, "AcDbLayerTableRecord")
-        out.put(2, lname); out.put(70, 0); out.put(62, 7); out.put(6, "CONTINUOUS")
-    out.put(0, "ENDTAB")
-    owner = table("STYLE", 1)
-    record("STYLE", owner, "AcDbTextStyleTableRecord")
-    out.put(2, "STANDARD"); out.put(70, 0); out.put(40, "0.0"); out.put(41, "1.0"); out.put(50, "0.0"); out.put(71, 0)
-    out.put(42, "2.5"); out.put(3, "txt"); out.put(4, "")
-    out.put(0, "ENDTAB")
-    table("VIEW", 0); out.put(0, "ENDTAB")
-    table("UCS", 0); out.put(0, "ENDTAB")
-    owner = table("APPID", 1)
-    record("APPID", owner, "AcDbRegAppTableRecord"); out.put(2, "ACAD"); out.put(70, 0)
-    out.put(0, "ENDTAB")
-    owner = table("BLOCK_RECORD", 2)
-    model_record = handle()
-    paper_record = handle()
-    for hd, bname in ((model_record, "*MODEL_SPACE"), (paper_record, "*PAPER_SPACE")):
-        out.put(0, "BLOCK_RECORD"); out.put(5, hd); out.put(330, owner)
-        out.put(100, "AcDbSymbolTableRecord"); out.put(100, "AcDbBlockTableRecord"); out.put(2, bname)
-    out.put(0, "ENDTAB")
-    out.put(0, "ENDSEC")
-
-    # BLOCKS: model and paper space, empty
-    out.put(0, "SECTION"); out.put(2, "BLOCKS")
-    for owner_record, bname, paper in ((model_record, "*MODEL_SPACE", False), (paper_record, "*PAPER_SPACE", True)):
-        out.put(0, "BLOCK"); out.put(5, handle()); out.put(330, owner_record)
-        out.put(100, "AcDbEntity")
-        if paper:
-            out.put(67, 1)
-        out.put(8, "0"); out.put(100, "AcDbBlockBegin"); out.put(2, bname); out.put(70, 0)
-        out.point(10, 0.0, 0.0, 0.0); out.put(3, bname); out.put(1, "")
-        out.put(0, "ENDBLK"); out.put(5, handle()); out.put(330, owner_record)
-        out.put(100, "AcDbEntity")
-        if paper:
-            out.put(67, 1)
-        out.put(8, "0"); out.put(100, "AcDbBlockEnd")
-    out.put(0, "ENDSEC")
-
-    # ENTITIES
-    out.put(0, "SECTION"); out.put(2, "ENTITIES")
-
-    def head(etype: str, sub: str, layer: str = LAYER):
-        out.put(0, etype); out.put(5, handle()); out.put(330, model_record)
-        out.put(100, "AcDbEntity"); out.put(8, layer)
-        if sub:
-            out.put(100, sub)
-
+    w = DxfWriter(comment, lo, hi, [Layer(LAYER)] + ([Layer(STAMP_LAYER)] if stamp else []))
     for p in prims:
-        t = type(p)
-        if t is Line:
-            head("LINE", "AcDbLine"); out.point(10, p.a[0], p.a[1], 0.0); out.point(11, p.b[0], p.b[1], 0.0)
-        elif t is Circle:
-            head("CIRCLE", "AcDbCircle"); out.point(10, p.c[0], p.c[1], 0.0); out.put(40, num(p.r))
-        elif t is Arc:
-            head("ARC", "AcDbCircle"); out.point(10, p.c[0], p.c[1], 0.0); out.put(40, num(p.r))
-            out.put(100, "AcDbArc"); out.put(50, num(p.a0)); out.put(51, num(p.a1))
-        elif t is Ellipse:
-            head("ELLIPSE", "AcDbEllipse"); out.point(10, p.c[0], p.c[1], 0.0)
-            out.point(11, p.major[0], p.major[1], 0.0); out.put(40, num(p.ratio))
-            out.put(41, num(p.t0)); out.put(42, num(p.t1))
-        elif t is Spline:
-            head("SPLINE", "AcDbSpline"); out.point(210, 0.0, 0.0, 1.0)
-            out.put(70, 8); out.put(71, p.degree); out.put(72, len(p.knots)); out.put(73, len(p.poles)); out.put(74, 0)
-            for k in p.knots:
-                out.put(40, num(k))
-            for x, y in p.poles:
-                out.point(10, x, y, 0.0)
-        elif t is Poly:
-            head("LWPOLYLINE", "AcDbPolyline"); out.put(90, len(p.points)); out.put(70, 1 if p.closed else 0)
-            for x, y in p.points:
-                out.put(10, num(x)); out.put(20, num(y))
+        w.entity(p, LAYER)
     if stamp:
-        head("TEXT", "AcDbText", STAMP_LAYER)
-        out.point(10, lo[0], lo[1] - 10.0, 0.0); out.put(40, num(4.0)); out.put(1, stamp); out.put(7, "STANDARD")
-        out.put(100, "AcDbText")
-    out.put(0, "ENDSEC")
-
-    # OBJECTS: the root dictionary and the group dictionary FreeCAD's objects14.rub has
-    out.put(0, "SECTION"); out.put(2, "OBJECTS")
-    root, groups = handle(), handle()
-    out.put(0, "DICTIONARY"); out.put(5, root); out.put(330, 0); out.put(100, "AcDbDictionary")
-    out.put(3, "ACAD_GROUP"); out.put(350, groups)
-    out.put(0, "DICTIONARY"); out.put(5, groups); out.put(330, root); out.put(100, "AcDbDictionary")
-    out.put(0, "ENDSEC")
-    out.put(0, "EOF")
-    out.lines[seed_at + 1] = f"{h[0] + 1:X}"
-    return out.text().encode("ascii", "replace")
+        w.text(STAMP_LAYER, (lo[0], lo[1] - 10.0), 4.0, stamp)
+    return w.finish()
 
 
 # ─── Reading ─────────────────────────────────────────────────────────────────
