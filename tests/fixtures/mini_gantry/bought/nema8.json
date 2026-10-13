@@ -1,0 +1,15 @@
+{
+ "source": "Nanotec ST2018M0804-A technical drawing 20002134, rev 08 (14.07.2025): a 20 mm square flange with R1.5 corners, pilot 15 x 1.5, shaft 4 out 15 from the pilot, four M2 holes 3 deep on a 16 square, body 42 max, weight 0.080 kg, ambient -10 to 50 C.",
+ "vendor": "Nanotec",
+ "verified": true,
+ "library": "nema8",
+ "licence": "MIT",
+ "geometry": "envelope",
+ "pn": "ST2018M0804-A",
+ "mass_g": 80.0,
+ "mass_source": "Nanotec ST2018M0804-A drawing: weight 0.080 kg (+-10 percent)",
+ "max_temp_c": 50.0,
+ "max_temp_source": "Nanotec ST2018M0804-A drawing: ambient temperature -10 ... 50 C (insulation class B, temperature rise 80 K at standstill)",
+ "library_params": {},
+ "sha256": "842f2d85fb44f24bad7fba50ff146df346a10f1dc3e1be19db11724bf9c6daba"
+}
