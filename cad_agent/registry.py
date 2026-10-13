@@ -71,7 +71,7 @@ class Row:
     limit: str = "n/a"
     source: str = ""
     check: str = ""            # filled in by the runner
-    artifacts: list = field(default_factory=list)   # paths a reader can open
+    artifacts: list = field(default_factory=list)   # paths a reader can open, from the project folder (checks.json is committed)
 
     def __post_init__(self):
         if self.state not in STATES:

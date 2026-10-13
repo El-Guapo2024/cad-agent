@@ -125,8 +125,14 @@ def render_for_check(solid, out_dir: Path, name: str, view: str) -> Path:
 
 def visual_rows(subject: str, solid, out_dir: Path, project_dir: Path,
                 views=DEFAULT_VIEWS):
-    """The three visual rules, per view, for one subject."""
+    """The three visual rules, per view, for one subject.
+
+    A row's artifacts are paths from the project folder (out/..., baseline/...), as the renders in
+    checks.json are: that file is committed, so it must not name the folder the run was in (a home
+    folder names its owner), and a clone finds the images all the same.
+    """
     bdir = baseline_dir(project_dir)
+    rel = lambda p: Path(p).relative_to(project_dir).as_posix()
     for view in views:
         if view not in VIEWS:
             yield Row(subject=subject, rule=f"visual/{view}", state="UNCHECKED",
@@ -144,7 +150,7 @@ def visual_rows(subject: str, solid, out_dir: Path, project_dir: Path,
                   measured=f"{cov * 100:.2f}% of the frame",
                   limit=f"at least {MIN_COVERAGE * 100:.1f}%",
                   source="non-background pixels; near zero means nothing was drawn",
-                  artifacts=[str(cur)])
+                  artifacts=[rel(cur)])
 
         base = bdir / f"{subject}_{view}.png"
         if not base.exists():
@@ -152,7 +158,7 @@ def visual_rows(subject: str, solid, out_dir: Path, project_dir: Path,
                       measured="no approved image",
                       limit=f"drift under {DRIFT_TOL * 100:.1f}% of the frame",
                       source="look at the render, then `cad approve` makes it the baseline this view is gated on",
-                      artifacts=[str(cur)])
+                      artifacts=[rel(cur)])
             continue
 
         r = compare(cur, base, Path(out_dir) / f"_diff_{subject}_{view}.png", current=image)
@@ -163,7 +169,7 @@ def visual_rows(subject: str, solid, out_dir: Path, project_dir: Path,
             continue
 
         drift = r["drift"]
-        arts = [str(cur), str(base)] + ([r["diff_png"]] if "diff_png" in r else [])
+        arts = [rel(cur), rel(base)] + ([rel(r["diff_png"])] if "diff_png" in r else [])
         where = ""
         if "changed_region" in r:
             x0, y0, x1, y1 = r["changed_region"]
