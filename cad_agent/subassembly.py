@@ -51,6 +51,14 @@ cross-checks that list against what the run loaded. The build cache keeps a chil
 cache, keyed by the child's files, so an edit to a child is a miss there; buildcache.py also folds the tree's
 files into the key of a parent's part that runs other files (it calls build_part or opens a file).
 
+A parent is not done until every child is. The child's visual rows wait for `cad approve <child>` like any
+project's, and a child with no spec.toml holds the parent open (`<child>:spec/present`). Each project's gates run
+once for the tree, however many instances link it. Cost, measured on a laptop with simple parts: `verify` takes
+2.0 s for 20 bodies (a parent of 6 and two sub-assemblies of 7) against 1.1 s for the same bodies in one project,
+and 11 to 13 s against 6 to 7 s for 80. The fit rule's exact distance for every pair dominates, and the pairs
+inside a child are measured twice (in its own check and in the parent's flattened one); a machine of heavy STEP
+bodies costs more for each pair.
+
 Failures are FAIL rows, never a crash. `expand` raises SubassemblyError with one Problem for each fault and the
 runner turns each into a row (`subassembly/cycle`, `/depth`, `/name`, `/project`, `/build`, `/declaration`,
 `/moves`):
