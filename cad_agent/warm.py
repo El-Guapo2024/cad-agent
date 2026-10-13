@@ -535,7 +535,8 @@ def _connect_or_start(path: Path, quiet: bool = False) -> socket.socket | None:
         return conn
     if not quiet:
         print("cad: starting the warm worker; the first call imports the CAD kernel "
-              "(about 35 s here), later calls take about a second", file=sys.stderr)
+              "(about 10 s, up to 35 s while macOS checks freshly installed libraries), "
+              "later calls take about a second", file=sys.stderr)
     proc = _start(path)
     deadline = time.time() + START_TIMEOUT_S
     while time.time() < deadline:

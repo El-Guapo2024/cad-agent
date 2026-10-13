@@ -63,13 +63,14 @@ cad drawing <project> <part>                   a dimensioned drawing of a machin
 
 Vendor STEP files never go in this repo. They live in a folder of yours, `~/.cad-agent/library` or wherever `CAD_LIBRARY` points (a private repo works). `cad lib fetch` downloads a file only where its licence allows it; for any other, download it by hand and run `cad lib add`. `cad lib use` copies what a design needs into its `bought/` folder with its source, mass and hash, so verifying a design never reads the library.
 
-The ISO fasteners come from [bd_warehouse](https://github.com/gumyr/bd_warehouse), an optional extra:
+The ISO fasteners come from [bd_warehouse](https://github.com/gumyr/bd_warehouse). The plugin's installer adds it.
+In a checkout of your own it is an optional extra:
 
 ```
-pip install 'cad-agent[fasteners]'
+pip install '.[fasteners]'
 ```
 
-(With the plugin, install it into the Python that runs `cad`.)
+If it is missing, `cad lib use` says the exact command for the Python that runs `cad`.
 
 ## License
 
