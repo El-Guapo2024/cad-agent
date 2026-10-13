@@ -8,7 +8,7 @@
 // FreeCAD dialog (Preferences, Document information, Units converter, …).
 import { useEffect, useState } from 'react'
 import { api, type MacroInfo } from './api'
-import { closeTask, drawingPanels, getDock, hasOpenWindow, openTask, startRecording, stopRecording, editorStyle } from './actions'
+import { closeTask, drawingPanels, getDock, openTask, startRecording, stopRecording, editorStyle } from './actions'
 import { consoleLog, getState, report, saved, useStore } from './store'
 import { cls, TaskBox } from './panels'
 import { messageBox } from './msgbox'
@@ -80,7 +80,6 @@ export function mdiWindows() {
  *  drawing; Next/Previous/Tile/Cascade stay disabled (a tab strip has no tiles), and Close and Close All moved to the File
  *  menu (filemenu.tsx) — at this commit Workbench.cpp's own Windows menu doesn't list them, unlike older FreeCAD. */
 export function windowsEntries(): Entry[] {
-  hasOpenWindow()
   const windows = mdiWindows()
   return [
     // QKeySequence::NextChild / PreviousChild on macOS: Ctrl+} and Ctrl+{ (qplatformtheme.cpp).

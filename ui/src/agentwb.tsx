@@ -55,11 +55,11 @@ const ORDER: Record<string, number> = { FAIL: 0, UNCHECKED: 1, PASS: 2 }
 export function RowsTable({ rows }: { rows: CheckRow[] }) {
   const sorted = [...rows].sort((a, b) => (ORDER[a.state] ?? 3) - (ORDER[b.state] ?? 3))
   return (
-    <table className="ctable">
+    <table className="ctable wrap">
       <thead><tr><th>State</th><th>Rule</th><th>Subject</th><th>Measured</th><th>Limit</th></tr></thead>
       <tbody>{sorted.map((r, i) => (
         <tr key={i} className={'st-' + r.state.toLowerCase()} title={r.source}>
-          <td><Icon name={r.state === 'PASS' ? 'pass' : r.state === 'FAIL' ? 'fail' : 'pending'} size={14} /> {r.state}</td>
+          <td className="nw"><Icon name={r.state === 'PASS' ? 'pass' : r.state === 'FAIL' ? 'fail' : 'pending'} size={14} /> {r.state}</td>
           <td>{ruleText(r)}</td><td>{r.subject}</td><td>{r.measured ?? ''}</td><td>{r.limit ?? ''}</td>
         </tr>
       ))}</tbody>
@@ -86,11 +86,14 @@ function GateTask({ verb }: { verb: 'check' | 'verify' | 'done' }) {
   const [views, setViews] = useState<string[]>(['iso'])
   const [only, setOnly] = useState('')
   const [all, setAll] = useState(false)
+  const [fresh, setFresh] = useState(false)      // check --no-cache: every part is built from source
+  const [sets, setSets] = useState('')          // check --part --set: trial values for that part, this run only
   const parts = [...new Set((scene?.bodies ?? []).map((b) => b.part).filter((p): p is string => !!p))]
   const run = async () => {
     if (!slug) return
     setBusy(true); setErr(null)
-    const opts = verb === 'done' ? [] : [...(verb === 'check' && only ? ['--part', only] : []), ...(views.length ? ['--views', views.join(',')] : []), ...(all ? ['--all'] : [])]
+    const opts = verb === 'done' ? [] : [...(verb === 'check' && only ? ['--part', only, ...overrideArgs(sets)] : []), ...(views.length ? ['--views', views.join(',')] : []),
+      ...(all ? ['--all'] : []), ...(verb === 'check' && fresh ? ['--no-cache'] : [])]
     const r = await agentRun([verb, slug, ...opts])
     setBusy(false)
     if (r.exit > 2) { setErr(resultText(r)); return }
@@ -126,7 +129,10 @@ function GateTask({ verb }: { verb: 'check' | 'verify' | 'done' }) {
           <QComboBox className="qselect-field" value={only} onChange={(e) => setOnly(e.target.value)} title="check --part: the fast loop, one part's rules and the fit of its bodies">
             <option value="">(whole project)</option>{parts.map((p) => <option key={p} value={p}>{p}</option>)}
           </QComboBox></label>}
+        {verb === 'check' && only && <label className="tfield" title="check --part --set: other values for this part for one run; nothing is written"><span>Try values</span>
+          <input value={sets} onChange={(e) => setSets(e.target.value)} placeholder="width=50 thickness=6" /></label>}
         <label className="tcheck"><input type="checkbox" checked={all} onChange={(e) => setAll(e.target.checked)} /> Show passing rows too</label>
+        {verb === 'check' && <label className="tcheck" title="check --no-cache: build every part from source, not from the project's build cache"><input type="checkbox" checked={fresh} onChange={(e) => setFresh(e.target.checked)} /> Build every part from source</label>}
         <div className="tbuttons"><button className="qbtn" disabled={busy || !slug || !views.length} onClick={run}>Run with these</button></div>
       </TaskBox>}
     </div>
@@ -524,7 +530,7 @@ export function BuildTask({ part: want }: { part?: string }) {
         {busy && <p className="hint">Running cad build…</p>}
         {err && <p className="hint err">{err}</p>}
         {data && <>
-          <table className="ctable wrap"><tbody>
+          <table className="ctable wrap kv"><tbody>
             <tr><td>Size</td><td>{data.bbox_mm.join(' x ')} mm</td></tr>
             <tr><td>Volume</td><td>{data.volume_cm3} cm³</td></tr>
             <tr><td>Mass</td><td>{data.mass_g != null ? `${data.mass_g} g${data.material ? ` of ${data.material}` : ''}` : 'unknown'}</td></tr>
@@ -538,6 +544,73 @@ export function BuildTask({ part: want }: { part?: string }) {
         </>}
         <p className="hint">build one part and measure it</p>
       </TaskBox>
+    </div>
+  )
+}
+
+// ── Evals ────────────────────────────────────────────────────────────────────
+type EvalTask = { task: string; title: string; given: string[]; reference: boolean }
+type EvalScore = { task: string; verdict: string; score: number; graded: number; passed: number; skipped: number; na: number; rows: CheckRow[]; notes: string[]; seconds: number }
+/** `cad eval ls|brief|score`: the eval set, design tasks each with a brief and a hidden spec, scored by the verifier. Read a
+ *  brief, then score the open project against it: it is judged as a copy, the project is not touched. `cad eval run` starts a
+ *  real agent on a task and spends the plan's usage, so it stays a command typed in a terminal. */
+export function EvalsTask() {
+  const slug = useStore((s) => s.slug), projects = useStore((s) => s.projects)
+  const [tasks, setTasks] = useState<EvalTask[] | null>(null)
+  const [pick, setPick] = useState<string | null>(null)
+  const [brief, setBrief] = useState<string | null>(null)
+  const [all, setAll] = useState(false)
+  const [res, setRes] = useState<{ r: CadResult; d: EvalScore } | null>(null)
+  const [err, setErr] = useState<string | null>(null)
+  const [busy, setBusy] = useState(false)
+  const root = projects.find((p) => p.slug === slug)?.root
+  useEffect(() => {
+    agentRun(['eval', 'ls']).then((r) => { if (r.exit !== 0) setErr(resultText(r)); else setTasks((r.data?.tasks ?? []) as EvalTask[]) })
+  }, [])
+  useEffect(() => {
+    setBrief(null); setRes(null)
+    if (!pick) return
+    let live = true
+    agentRun(['eval', 'brief', pick]).then((r) => { if (live) { if (r.exit !== 0) setErr(resultText(r)); else setBrief(String(r.data?.brief ?? '')) } })
+    return () => { live = false }
+  }, [pick])
+  const score = async () => {
+    if (!pick || !slug || !root) return
+    setBusy(true); setErr(null); setRes(null)
+    const r = await agentRun(['eval', 'score', pick, `${root}/${slug}`, ...(all ? ['--all'] : [])])
+    setBusy(false)
+    if (r.exit > 2) { setErr(resultText(r)); return }
+    setRes({ r, d: r.data as EvalScore })
+  }
+  const verdict = res?.d.verdict ?? ''
+  return (
+    <div className="tasks">
+      <TaskButtons onOk={closeTask} />
+      <TaskBox title="Evals" icon="report">
+        {err && <p className="hint err">{err}</p>}
+        {tasks && !tasks.length && <p className="hint">No eval tasks here.</p>}
+        {!!tasks?.length && <table className="ctable wrap">
+          <thead><tr><th>Task</th><th>Brief</th></tr></thead>
+          <tbody>{tasks.map((t) => <tr key={t.task} className={cls(pick === t.task && 'sel')} onClick={() => setPick(t.task)} title={`${t.given.length} given files`}>
+            <td>{t.task}</td><td>{t.title.replace(/^[^:]*:\s*/, '')}</td></tr>)}</tbody>
+        </table>}
+        <p className="hint">the eval set: design tasks scored by the verifier, so a change to cad-agent is a number. <code>cad eval run</code> starts a real agent and spends your plan's usage: run it in a terminal.</p>
+      </TaskBox>
+      {brief !== null && <TaskBox title={`Brief: ${pick}`} icon="document">
+        <pre className="hint pre">{brief}</pre>
+      </TaskBox>}
+      {pick && <TaskBox title="Score" icon="pass">
+        <label className="tcheck"><input type="checkbox" checked={all} onChange={(e) => setAll(e.target.checked)} /> Show passing rows too</label>
+        <div className="tbuttons"><button className="qbtn default" disabled={busy || !slug || !root} onClick={score}
+          title={slug ? `cad eval score ${pick} ${root}/${slug}` : 'open a project first'}>Score {slug ?? 'a project'} against {pick}</button></div>
+        {busy && <p className="hint">Running cad eval score…</p>}
+        {res && <>
+          <p><span className={cls('verdict', verdict.toLowerCase())}>{verdict}</span> {(res.d.score * 100).toFixed(1)}%, {res.d.passed} of {res.d.graded} rows pass
+            {res.d.skipped || res.d.na ? ` · ${res.d.skipped} render and ${res.d.na} n/a rows not counted` : ''} · {res.d.seconds} s</p>
+          {!!res.d.rows?.length && <RowsTable rows={res.d.rows} />}
+          {!!res.d.notes?.length && <ul className="hint">{res.d.notes.map((n, i) => <li key={i}>{n}</li>)}</ul>}
+        </>}
+      </TaskBox>}
     </div>
   )
 }

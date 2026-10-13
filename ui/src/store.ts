@@ -75,7 +75,7 @@ export type Task = { kind: 'params' | 'placement' | 'transform' | 'measure' | 'm
   // CAD Agent workbench tasks (agentwb.tsx): the cad CLI commands that had no UI yet.
   | 'check' | 'verify' | 'done' | 'rules' | 'cutlist' | 'tables' | 'tool' | 'bought' | 'render'
   // and the shop's (shopwb.tsx, librarywb.tsx): cad bom, cad shop, cad drawing, cad lib
-  | 'bom' | 'shop' | 'drawing' | 'library' | 'build'
+  | 'bom' | 'shop' | 'drawing' | 'library' | 'build' | 'evals'
   // Macro menu (macro.tsx): DlgMacroRecord, DlgMacroExecute, its Edit button, Windows' DlgActivateWindow.
   | 'macroRecord' | 'macros' | 'macroEdit' | 'windows'
   // File menu (filemenu.tsx): Std_New (ask a name first; there's no Save As here) and Std_Open

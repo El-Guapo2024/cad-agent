@@ -202,6 +202,7 @@ const COMMANDS: Record<string, RegCommand> = {
   CADAgent_Render: reg('Render…', () => openTask('render', ''), () => !!getState().slug),
   CADAgent_ApproveRenders: reg('Approve Renders…', () => approveRenders(), () => !!getState().slug),
   CADAgent_Rules: reg('Rules…', () => openTask('rules', '')),
+  CADAgent_Evals: reg('Evals…', () => openTask('evals', '')),
   // The shop's commands (shopwb.tsx, librarywb.tsx). `cad gui run P CADAgent_Drawing base` opens Drawing on that part, and
   // `cad gui run P CADAgent_Pose park` shows the machine at that pose (home, or no argument, puts it back).
   CADAgent_Build: reg('Build Part…', (args) => openTask('build', args[0] ?? selectedPart()), () => !!getState().slug),

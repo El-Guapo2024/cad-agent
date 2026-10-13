@@ -108,10 +108,10 @@ function Browse({ cat, slug, pick, setPick, goAdd }: { cat: ReturnType<typeof us
         {cat.err && <p className="hint err">{cat.err}</p>}
         {cat.entries && !shown.length && <p className="hint">Nothing matches.</p>}
         {!!shown.length && <table className="ctable wrap">
-          <thead><tr><th>Name</th><th>Kind</th><th>Vendor / part number</th><th>Licence</th><th>Status</th></tr></thead>
+          <thead><tr><th>Name</th><th>Vendor / part number</th><th>Status</th></tr></thead>
           <tbody>{shown.map((e) => (
             <tr key={e.name} className={cls(pick === e.name && 'sel', !usable(e.status) && 'dim')} onClick={() => setPick(e.name)} title={e.title}>
-              <td>{e.name}</td><td>{e.kind}</td><td>{[e.vendor, e.pn].filter(Boolean).join(' ') || '-'}</td><td>{e.licence}</td><td>{e.status}</td>
+              <td>{e.name}<div className="sub">{e.kind} · {e.licence}</div></td><td>{[e.vendor, e.pn].filter(Boolean).join(' ') || '-'}</td><td>{e.status}</td>
             </tr>))}</tbody>
         </table>}
         {cat.store && <p className="hint">Your store: {cat.store}. The catalog holds {cat.entries?.length ?? 0} entries.</p>}
@@ -153,7 +153,7 @@ function Detail({ info, slug, goAdd, onUsed }: { info: Info; slug: string | null
   const fetchLine = () => { setState({ consoleDraft: `cad lib fetch ${e.name}` }); showPanel('console') }
   return (
     <TaskBox title={e.name} icon="library">
-      <table className="ctable wrap"><tbody>{facts.map(([k, v]) => <tr key={k}><td>{k}</td><td style={{ whiteSpace: 'pre-line' }}>{v}</td></tr>)}</tbody></table>
+      <table className="ctable wrap kv"><tbody>{facts.map(([k, v]) => <tr key={k}><td>{k}</td><td style={{ whiteSpace: 'pre-line' }}>{v}</td></tr>)}</tbody></table>
       {Object.keys(e.dims).length > 0 && <details><summary>Dimensions, each with where it came from</summary>
         <table className="ctable wrap"><tbody>{Object.entries(e.dims).map(([k, d]) => <tr key={k} title={d.source}><td>{k}</td><td>{String(d.value)}</td><td>{d.source}</td></tr>)}</tbody></table></details>}
       {!usable(info.status) && <p className="hint">{info.status === 'fetch it' ? 'The file is not in your store. ' : info.status.startsWith('add') ? 'The licence does not allow a download here. ' : `${info.status}. `}

@@ -89,6 +89,37 @@ await step('a part of the sub-assembly moved through the page: cad place machine
   ok('Undo puts it back and placements.toml goes', !existsSync(join(pdir, 'placements.toml')), existsSync(join(pdir, 'placements.toml')) ? readFileSync(join(pdir, 'placements.toml'), 'utf8') : '')
 })
 
+await step('a part of the sub-assembly dragged with the Transform dragger: cad place machine gantry/tool_plate, then Undo', async () => {
+  await selectTree('gantry/tool_plate')
+  await menu('Edit', 'Transform')
+  await p.waitForTimeout(1500)
+  // where the +X arrow's pick zone is on the screen: its mesh's centre, through the camera
+  const at = await p.evaluate(() => {
+    const v = cadui.getView(), tc = v.tcs[0], cam = v.viewer.camera.getCamera(), canvas = v.viewer.renderer.domElement, V3 = tc.object.position.constructor
+    tc.getHelper().updateMatrixWorld(true)
+    const r = canvas.getBoundingClientRect(), px = (c) => { c.project(cam); return [r.left + (c.x + 1) / 2 * r.width, r.top + (1 - c.y) / 2 * r.height] }
+    const mesh = tc._gizmo.picker.translate.children.find((c) => c.name === 'X')
+    mesh.geometry.computeBoundingBox()
+    const tip = mesh.geometry.boundingBox.getCenter(new V3()); mesh.localToWorld(tip)
+    return { tip: px(tip), centre: px(tc.object.position.clone()) }
+  })
+  const [x0, y0] = at.tip, d = [x0 - at.centre[0], y0 - at.centre[1]], len = Math.hypot(...d) || 1
+  await p.mouse.move(x0, y0); await p.mouse.down()
+  await p.mouse.move(x0 + (d[0] / len) * 40, y0 + (d[1] / len) * 40, { steps: 8 })
+  await p.mouse.move(x0 + (d[0] / len) * 80, y0 + (d[1] / len) * 80, { steps: 8 })
+  await p.mouse.up()
+  const mm = await p.evaluate(() => cadui.getView().transformDelta().elements[12])
+  ok('the dragger moved the part along +X', mm > 1, mm)
+  await tasks().getByRole('button', { name: 'OK', exact: true }).click()
+  await p.waitForFunction(() => cadui.getState().scene.bodies.find((b) => b.name === 'gantry/tool_plate').placement?.move?.[0] > 1, null, { timeout: 120000 })
+  const toml = readFileSync(join(pdir, 'placements.toml'), 'utf8')
+  ok('placements.toml has the child body under its full name', /\["gantry\/tool_plate"\]/.test(toml) && new RegExp(`move = \\[${mm}(\\.0)?,`).test(toml), toml.slice(-120))
+  ok('the Report view says it was placed', (await report()).some((l) => /cad place: placed gantry\/tool_plate/.test(l)), (await report()).slice(-3).join('|'))
+  await menu('Edit', 'Undo')
+  await p.waitForFunction(() => !cadui.getState().scene.bodies.find((b) => b.name === 'gantry/tool_plate').placement, null, { timeout: 120000 })
+  ok('Undo takes the drag back', !existsSync(join(pdir, 'placements.toml')))
+})
+
 // ── Bill of materials ────────────────────────────────────────────────────────────────────────────────
 await step('bom: the table, a click selecting bodies, the options and the two downloads', async () => {
   await menu('CAD Agent', 'Bill of Materials')
@@ -123,7 +154,11 @@ await step('drawing: draw the selected plate, show it in a tab, save DXF, SVG an
   await tasks().getByRole('button', { name: 'Draw', exact: true }).click()
   await p.getByText('base : Drawing').first().waitFor({ timeout: 180000 })
   await p.waitForFunction(() => { const i = document.querySelector('.drawing-sheet img'); return i && i.complete && i.naturalWidth > 0 }, null, { timeout: 60000 })
-  ok('the tab shows the SVG', (await p.locator('.drawing-sheet img').getAttribute('src')).includes('inline=1'))
+  const src1 = await p.locator('.drawing-sheet img').getAttribute('src')
+  ok('the tab shows the SVG', src1.includes('inline=1'))
+  await tasks().getByRole('button', { name: 'Draw', exact: true }).click()
+  await p.waitForFunction((s) => document.querySelector('.drawing-sheet img')?.getAttribute('src') !== s, src1, { timeout: 120000 })
+  ok('drawing the plate again refreshes the one tab', (await p.evaluate(() => cadui.getDock().panels.filter((x) => x.id.startsWith('drawing:')).length)) === 1)
   const sheetText = await tasks().innerText()
   ok('the task says UNCHECKED and NOT VERIFIED for a design nobody verified', /UNCHECKED/.test(sheetText) && /NOT VERIFIED/.test(sheetText), sheetText.slice(0, 200))
   ok('the tab says NOT VERIFIED too', /NOT VERIFIED/.test(await p.locator('.drawing-bar').innerText()))
@@ -150,6 +185,20 @@ await step('drawing: draw the selected plate, show it in a tab, save DXF, SVG an
   await p.waitForTimeout(500)
   const tabsNow = await p.evaluate(() => cadui.getDock().panels.map((x) => x.id))
   ok('File > Close closes the drawing tab and not the 3D view', !tabsNow.includes('drawing:base') && tabsNow.includes('view3d'), tabsNow.join(','))
+})
+
+await step('drawing: the tree\'s context menu offers it for a plate and not for a bought part', async () => {
+  await p.locator('.trow .tname', { hasText: /^base$/ }).first().click({ button: 'right' })
+  const items = await p.locator('.ctx .mb-item').allInnerTexts()
+  ok('a plate has Drawing… in its menu', items.some((t) => /^Drawing…/.test(t.trim())), items.join('|'))
+  await p.locator('.ctx .mb-item', { hasText: /^Drawing…/ }).first().click()
+  await tasks().locator('.tfield', { hasText: 'Part' }).first().waitFor({ timeout: 10000 })
+  ok('it opens Drawing on that plate', (await tasks().locator('.tfield', { hasText: 'Part' }).first().innerText()).includes('base'))
+  await closeTask()
+  await p.locator('.trow .tname', { hasText: /^gantry\/beam$/ }).first().click({ button: 'right' })
+  const beam = await p.locator('.ctx .mb-item').allInnerTexts()
+  ok('a bought part of the sub-assembly has none', !beam.some((t) => /^Drawing…/.test(t.trim())), beam.join('|'))
+  await p.keyboard.press('Escape')
 })
 
 // ── Shop files ───────────────────────────────────────────────────────────────────────────────────────
@@ -187,6 +236,17 @@ await step('library: browse, search, info, use with Undo, check, add a picked fi
   await tasks().locator('.ctable tbody tr', { hasText: /^nema8/ }).first().click()
   await tasks().getByText('Nanotec').first().waitFor({ timeout: 60000 })
   ok('info shows vendor, part number, licence and mass', /ST2018M0804-A/.test(await tasks().innerText()) && /MIT/.test(await tasks().innerText()) && /80/.test(await tasks().innerText()))
+  // an entry whose file is not in the store: Fetch… only puts the command on the Console's line (a download is the person's Return)
+  await tasks().getByPlaceholder('name, vendor or part number').fill('608zz')
+  await tasks().locator('.ctable tbody tr', { hasText: /^fcl-608zz/ }).first().click()
+  await tasks().getByRole('button', { name: 'Fetch…' }).click()
+  const draft = await p.evaluate(() => cadui.getState().consoleDraft)
+  const walk = (d) => (existsSync(d) ? readdirSync(d, { withFileTypes: true }).flatMap((e) => (e.isDirectory() ? walk(join(d, e.name)) : [join(d, e.name)])) : [])
+  ok('Fetch… puts `cad lib fetch` on the Console line and downloads nothing', draft === 'cad lib fetch fcl-608zz' && !walk(process.env.CAD_LIBRARY ?? '/tmp/uilib').some((f) => f.includes('45246a4c')), draft)
+  await p.evaluate(() => cadui.setState({ consoleDraft: '' }))
+  await tasks().getByPlaceholder('name, vendor or part number').fill('nema')
+  await tasks().locator('.ctable tbody tr', { hasText: /^nema8/ }).first().click()
+  await tasks().getByText('Nanotec').first().waitFor({ timeout: 60000 })
   const name = 'nema8_ui' + String(Date.now()).slice(-5)
   await tasks().getByPlaceholder('nema8').fill(name)
   await tasks().getByRole('button', { name: /^Use in / }).click()
@@ -219,6 +279,34 @@ await step('library: browse, search, info, use with Undo, check, add a picked fi
   await tasks().getByText(entry).first().waitFor({ timeout: 60000 })
   await tasks().locator('.ctable tbody tr', { hasText: entry }).first().waitFor({ timeout: 30000 })
   ok('the picked file is a new entry in the store, and the catalog shows it', true)
+  await closeTask()
+})
+
+await step('console: the open project goes where cad wants it for a sub-command', async () => {
+  await p.getByText('Console', { exact: true }).first().click()
+  const input = p.locator('.console .cinput input')
+  const say = async (line) => { await input.fill(line); await input.press('Enter'); await p.waitForTimeout(2500) }
+  const out = async () => (await p.locator('.console .cl:not(.cinput)').allInnerTexts()).join('\n')
+  await say('cad lib ls nema')
+  ok('lib ls nema lists the nema entries', /nema8/.test(await out()) && /nema17/.test(await out()), (await out()).slice(-300))
+  await say('lib use nema8 --as ui_console_part')
+  ok('lib use puts the open project after the sub-command', existsSync(join(pdir, 'bought', 'ui_console_part.json')) || readdirSync(join(pdir, 'bought')).some((f) => f.startsWith('ui_console_part')), readdirSync(join(pdir, 'bought')).join(','))
+  await say('bought ls')
+  ok('bought ls lists it', /ui_console_part/.test((await out()).split('\n').slice(-12).join('\n')), (await out()).slice(-300))
+  await menu('Edit', 'Undo'); await p.waitForTimeout(1500)
+  ok('Undo takes the console\'s lib use back', !(existsSync(join(pdir, 'bought')) && readdirSync(join(pdir, 'bought')).some((f) => f.startsWith('ui_console_part'))))
+  await p.getByText('Report View', { exact: true }).first().click()
+})
+await step('evals: the tasks, a brief, and the open project scored against one', async () => {
+  await menu('CAD Agent', 'Evals')
+  await tasks().locator('.ctable tbody tr').nth(5).waitFor({ timeout: 60000 })
+  ok('the eval set is listed', (await tasks().locator('.ctable').first().locator('tbody tr').count()) >= 10)
+  await tasks().locator('.ctable tbody tr', { hasText: /^nema17_mount/ }).first().click()
+  await tasks().locator('pre.pre').first().waitFor({ timeout: 60000 })
+  ok('its brief is shown', /NEMA 17/.test(await tasks().locator('pre.pre').first().innerText()))
+  await tasks().getByRole('button', { name: /^Score mini_machine against nema17_mount/ }).click()
+  await tasks().locator('.verdict').first().waitFor({ timeout: 240000 })
+  ok('the verdict of the scoring is shown', /^(PASS|FAIL|UNCHECKED)$/.test((await tasks().locator('.verdict').first().innerText()).trim()), await tasks().locator('.verdict').first().innerText())
   await closeTask()
 })
 

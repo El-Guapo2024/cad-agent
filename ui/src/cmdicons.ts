@@ -11,6 +11,7 @@ const STATIC: Record<string, IconName> = {
   CADAgent_Check: 'recompute',
   CADAgent_Done: 'pending',
   CADAgent_Drawing: 'drawing',
+  CADAgent_Evals: 'report',
   CADAgent_Library: 'library',
   CADAgent_Pose: 'pose',
   CADAgent_Render: 'shot',

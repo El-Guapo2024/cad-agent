@@ -22,6 +22,7 @@ import {
   getDock, setPose, selectedPart, windowCount,
 } from './actions'
 import { poseNames, poseText } from './poses'
+import { plateParts } from './shopwb'
 import { macroEntries, windowsEntries } from './macro'
 import { startPage } from './start'
 import { fileEntries } from './filemenu'
@@ -102,6 +103,7 @@ const agentEntries = (slug: string | null): Entry[] => {
     { label: 'Pose', icon: 'pose', disabled: !poses.length && !s.pose, title: "show the machine at one of assembly.py's POSES (the view only)", sub: poseEntries() },
     'sep',
     { label: 'Rules…', icon: 'help', cmd: 'CADAgent_Rules', title: 'every registered check and what it verifies', onSelect: () => openTask('rules', '') },
+    { label: 'Evals…', icon: 'report', cmd: 'CADAgent_Evals', title: 'the eval set: design tasks scored by the verifier', onSelect: () => openTask('evals', '') },
   ]
 }
 /** The Pose menu and the toolbar's drop-down: Home (where assembly.py puts the machine) and each pose of POSES, the one shown checked. */
@@ -168,6 +170,10 @@ const visibilitySub = (): Entry[] => {
     { label: 'Toggle Selectability', icon: 'unselectable', cmd: 'Std_ToggleSelectability', disabled: !any, onSelect: toggleSelectability },
   ]
 }
+/** Drawing… on the context menus of a made plate: `cad drawing` of the part module the body comes from (shopwb.tsx's
+ *  plateParts says which parts are cnc or laser_cut once a Check has read their PROCESS). */
+const drawingEntry = (b: Body | undefined): Entry[] => (b?.part && plateParts().includes(b.part)
+  ? [{ label: 'Drawing…', icon: 'drawing', title: 'a dimensioned drawing (DXF, SVG, PDF) of this plate', onSelect: () => openTask('drawing', b.part!) }] : [])
 /** What FreeCAD offers for selected objects (tree and 3D view context menus). */
 export function objectEntries(): Entry[] {
   const s = getState(), one = s.selected.length === 1 ? s.scene?.bodies.find((b) => b.name === s.selected[0]) : undefined
@@ -189,6 +195,7 @@ export function objectEntries(): Entry[] {
       { label: 'Transform', icon: 'transform', onSelect: () => openTask('transform', one.name) } as Entry,
       { label: 'Placement', icon: 'placement', onSelect: () => openTask('placement', one.name) } as Entry,
       ...(one.placement ? [{ label: "Reset to the code's position", onSelect: () => place(one.name, placementOf(one), null) } as Entry] : []),
+      ...drawingEntry(one),
       'sep' as const,
     ] : []),
     { label: 'Measure', icon: 'measure', disabled: !canMeasure(), onSelect: measure },
@@ -238,7 +245,7 @@ function selectionTreeEntries(one: Body | undefined): Entry[] {
     { label: 'Delete', kbd: '⌦', icon: 'edit-delete', disabled: true },
     { label: 'Send to Console', kbd: '⇧⌘P', icon: 'console', onSelect: sendToConsole },
     ...(one ? [{ label: 'Transform', icon: 'transform', onSelect: () => openTask('transform', one.name) } as Entry,
-      { label: 'Placement', icon: 'placement', onSelect: () => openTask('placement', one.name) } as Entry] : []),
+      { label: 'Placement', icon: 'placement', onSelect: () => openTask('placement', one.name) } as Entry, ...drawingEntry(one)] : []),
     { label: 'Properties', kbd: '⌥↵', onSelect: properties },
   ]
 }
@@ -297,7 +304,7 @@ export function popupEntries(body: string | null, clarify: (() => void) | null):
     own.push({ label: params ? `Edit ${b.name}` : `Transform ${b.name}`, bold: true, icon: params ? 'body' : 'transform', onSelect: () => editDefault(b.name) })
     if (b.placement) own.push({ label: "Reset to the code's position", onSelect: () => place(b.name, placementOf(b), null) })
     own.push({ label: 'Measure', icon: 'measure', disabled: !canMeasure(), onSelect: measure },
-      { label: 'Mass Properties', disabled: !s.selected.length, onSelect: massProperties })
+      { label: 'Mass Properties', disabled: !s.selected.length, onSelect: massProperties }, ...drawingEntry(b))
   }
   return [
     ...(own.length ? [...own, 'sep' as const] : []),

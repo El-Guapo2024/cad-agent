@@ -47,6 +47,7 @@ export function BomTask() {
   const slug = useStore((s) => s.slug)
   const [onlyParts, setOnlyParts] = useState(false)
   const [detail, setDetail] = useState(true)
+  const [fresh, setFresh] = useState(false)
   const [data, setData] = useState<BomData | null>(null)
   const [err, setErr] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
@@ -54,12 +55,12 @@ export function BomTask() {
   const run = async () => {
     if (!slug) return
     setBusy(true); setErr(null)
-    const r = await agentRun(['bom', slug, ...(onlyParts ? ['--only-parts'] : []), ...(detail ? [] : ['--flat'])])
+    const r = await agentRun(['bom', slug, ...(onlyParts ? ['--only-parts'] : []), ...(detail ? [] : ['--flat']), ...(fresh ? ['--no-cache'] : [])])
     setBusy(false)
     if (r.exit !== 0) { setErr(resultText(r)); return }
     setData(r.data as BomData)
   }
-  useEffect(() => { run() }, [slug, onlyParts, detail])
+  useEffect(() => { run() }, [slug, onlyParts, detail, fresh])
   const line = data?.lines.find((l) => l.index === pick)
   const choose = (l: BomLine) => {
     setPick(l.index)
@@ -81,21 +82,24 @@ export function BomTask() {
           <input type="checkbox" checked={onlyParts} onChange={(e) => setOnlyParts(e.target.checked)} /> Only parts</label>
         <label className="tcheck" title="A sub-assembly's parts are listed under it (FreeCAD's Detail sub-assemblies); off, it is one line">
           <input type="checkbox" checked={detail} onChange={(e) => setDetail(e.target.checked)} /> Detail sub-assemblies</label>
+        <label className="tcheck" title="bom --no-cache: build every part from source, not from the project's build cache">
+          <input type="checkbox" checked={fresh} onChange={(e) => setFresh(e.target.checked)} /> Build every part from source</label>
         {busy && <p className="hint">Running cad bom…</p>}
         {err && <p className="hint err">{err}</p>}
         {data && !data.lines.length && <p className="hint">Nothing to list: the project has no parts.</p>}
         {!!data?.lines.length && <table className="ctable wrap">
-          <thead><tr><th>#</th><th>Name</th><th>Qty</th><th>Kind</th><th>Material</th><th>Mass</th></tr></thead>
+          <thead><tr><th>#</th><th>Name</th><th>Qty</th><th>Mass</th></tr></thead>
           <tbody>{data.lines.map((l) => (
             <tr key={l.index} className={cls(pick === l.index && 'sel')} onClick={() => choose(l)} title={l.description || l.source || undefined}>
-              <td>{l.index}</td><td style={{ paddingLeft: 6 + l.depth * 12 }}>{l.name}</td><td>{l.quantity}</td><td>{l.kind}</td>
-              <td>{l.material ?? ''}</td><td>{l.mass_total_g == null ? 'unknown' : `${l.mass_total_g.toFixed(1)} g`}</td>
+              <td className="nw">{l.index}</td>
+              <td style={{ paddingLeft: 6 + l.depth * 12 }}>{l.name}<div className="sub">{[l.kind, l.material, l.process].filter(Boolean).join(' · ')}</div></td>
+              <td className="nw">{l.quantity}</td><td className="nw">{l.mass_total_g == null ? 'unknown' : `${l.mass_total_g.toFixed(1)} g`}</td>
             </tr>
           ))}</tbody>
         </table>}
         {t && <p className="hint">{t.lines} lines, {t.bodies} bodies, {t.mass_known_g.toFixed(2)} g known
           {t.mass_complete ? '' : `; ${t.bodies_without_mass} of ${t.bodies} bodies have no known mass, so this is not the weight of the machine`}</p>}
-        {!!details.length && <table className="ctable wrap"><tbody>{details.map(([k, v]) => <tr key={k}><td>{k}</td><td>{v}</td></tr>)}</tbody></table>}
+        {!!details.length && <table className="ctable wrap kv"><tbody>{details.map(([k, v]) => <tr key={k}><td>{k}</td><td>{v}</td></tr>)}</tbody></table>}
         {data && slug && <div className="tbuttons dl">
           <Download slug={slug} path="out/bom.csv" label="CSV" title="Save out/bom.csv (FreeCAD's columns first)" />
           <Download slug={slug} path="out/bom.json" label="JSON" title="Save out/bom.json" />
@@ -177,8 +181,8 @@ export function ShopTask() {
             <thead><tr><th>File</th><th>Size</th><th /></tr></thead>
             <tbody>{[...manifest.files, { path: 'manifest.json', sha256: '', bytes: 0 } as ShopFile].map((f) => (
               <tr key={f.path}>
-                <td title={f.sha256 ? `sha256 ${f.sha256}` : undefined}>{f.path}</td><td>{f.bytes ? bytesText(f.bytes) : ''}</td>
-                <td className="dl">
+                <td title={f.sha256 ? `sha256 ${f.sha256}` : undefined}>{f.path}</td><td className="nw">{f.bytes ? bytesText(f.bytes) : ''}</td>
+                <td className="nw">
                   {/\.(svg|pdf)$/.test(f.path) && slug && <a className="qbtn" href={api.fileUrl(slug, `out/shop/${f.path}`, true)} target="_blank" rel="noreferrer" title="Show in a browser tab">View</a>}
                   {slug && <a className="qbtn" href={api.fileUrl(slug, `out/shop/${f.path}`)} download title={`Save ${f.path}`}>Save</a>}
                 </td>

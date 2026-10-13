@@ -20,7 +20,7 @@ import { messageBox } from './msgbox'
 import { NaviButtons } from './navicube'
 import { ExpressionDialog } from './exprdialog'
 import { MassTask, MeasureTask } from './measure'
-import { BoughtTask, BuildTask, CutlistTask, GateTask, RenderTask, RulesTask, TablesTask, ToolTask } from './agentwb'
+import { BoughtTask, BuildTask, CutlistTask, EvalsTask, GateTask, RenderTask, RulesTask, TablesTask, ToolTask } from './agentwb'
 import { BomTask, DrawingTask, ShopTask } from './shopwb'
 import { LibraryTask } from './librarywb'
 import { MacroEditTask, MacroRecordTask, MacrosTask, WindowsTask } from './macro'
@@ -779,6 +779,7 @@ function TaskContent() {
   if (task?.kind === 'bought') return <BoughtTask initial={task.other === 'import' ? 'add' : 'list'} />
   if (task?.kind === 'render') return <RenderTask />
   if (task?.kind === 'build') return <BuildTask part={task.body || undefined} />
+  if (task?.kind === 'evals') return <EvalsTask />
   // The shop's (shopwb.tsx, librarywb.tsx): cad bom, cad shop, cad drawing, cad lib.
   if (task?.kind === 'bom') return <BomTask />
   if (task?.kind === 'shop') return <ShopTask />
