@@ -8,10 +8,11 @@ clock: the same plate gives the same items.
 Standards followed, and where
 ------------------------------
   ISO 5457     sheet sizes A4 to A0 (landscape), a frame 0.7 mm wide 20 mm from the left edge (for filing) and 10 mm
-               from the other three (20 mm on A1 and A0), centring marks 0.5 mm wide at the middle of each side
-  ISO 7200     a title block in the lower right corner of the frame, 180 x 40 mm: the part, its number, the material,
-               the process, the scale, the sheet, the projection, the commit and whether the design is verified, and the
-               general tolerance
+               from the other three (20 mm on A1 and A0), centring marks 0.5 mm wide at the middle of each side. The
+               grid reference along the frame, which the standard recommends, is not drawn
+  ISO 7200     a title block of the kind it describes in the lower right corner of the frame (180 x 40 mm here): the part,
+               its number, the material, the process, the scale, the sheet, the projection, the commit and whether the
+               design is verified, and the general tolerance. There is no date: the same plate is the same bytes
   ISO 128-20   line types: visible edges continuous 0.5 mm (type 01.2), hidden edges dashed 0.25 mm (02.1, dash 12d and
                gap 3d at d = 0.25), centre lines long-dashed dotted 0.25 mm (04.1, dash 24d, gaps 3d, dot 0.5d),
                dimension, extension and leader lines continuous 0.25 mm (01.1)

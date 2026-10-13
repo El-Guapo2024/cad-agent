@@ -74,7 +74,9 @@ def features(plate: Plate) -> list:
 
 
 def _key(f: Feature) -> tuple:
-    return ({"hole": 0, "slot": 1, "window": 2}[f.kind],) + tuple(round(x, 2) if isinstance(x, float) else x for x in f.size)
+    """What makes two cutouts one group: the kind and the sizes the notes say, not which way a slot lies."""
+    size = f.size[:2] if f.kind == "slot" else f.size
+    return ({"hole": 0, "slot": 1, "window": 2}[f.kind],) + tuple(round(x, 2) for x in size)
 
 
 def tolerance_notes(plate: Plate) -> list:

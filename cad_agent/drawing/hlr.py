@@ -9,15 +9,19 @@ TechDraw (FreeCAD commit 3160daf1e2b6, src/Mod/TechDraw/App/GeometryObject.cpp) 
   3. `HLRBRep_HLRToShape` gives ten compounds: for the visible and the hidden side each, the sharp edges
      (`VCompound`, `HCompound`), the smooth ones where two faces meet tangent (`Rg1Line*`), the seams of a closed
      surface (`RgNLine*`), the outlines of curved surfaces (`OutLine*`) and the iso-parametric lines (`IsoLine*`)
-  4. `makeTDGeometry` keeps what a view shows: the hard and the outline edges that are visible, always; smooth,
-     seam and iso edges only if the view asks (`SmoothVisible`, `SeamVisible`, `IsoVisible`, all off by default);
-     and the hard and outline edges that are hidden only if `HardHidden` is on (off by default, and it is what
-     makes a drawing's hidden lines)
+  4. `makeTDGeometry` keeps what a view shows: the hard and the outline edges that are visible, always, and the rest as
+     the view's properties ask (their defaults are in DrawViewPart.cpp): the visible smooth edges (`SmoothVisible`,
+     on by default), the visible seam and iso ones (`SeamVisible`, `IsoVisible`, off), and the hidden hard and outline
+     edges only with `HardHidden` (off by default, and it is what makes a drawing's hidden lines), the hidden smooth,
+     seam and iso ones with their own (off)
 
-This does the same with the same OCCT classes: the visible lines are `VCompound` and `OutLineVCompound`, the
-hidden lines `HCompound` and `OutLineHCompound`, and nothing smooth, seam or iso (a tangent edge between a flat and a
-fillet is not drawn, as drawing practice has it). Where it differs from TechDraw, and why:
+This does the same with the same OCCT classes: the visible lines are `VCompound` and `OutLineVCompound`, the hidden
+lines `HCompound` and `OutLineHCompound` (HardHidden on, since a drawing of a plate shows its holes through). Where it
+differs from TechDraw, and why:
 
+  smooth edges    TechDraw's defaults draw the visible ones (`Rg1LineVCompound`). Here they are left out: the line where
+                  a fillet runs out tangent into a flat is not an edge of the part, and a mechanical drawing usually
+                  leaves it out
   centre, scale   TechDraw copies the shape, moves its centroid to the origin and scales it (`ShapeUtils::centerShape`,
                   `scaleShape`) before the projection, and flips y afterwards (`invertGeometry`) for Qt's downward
                   axis. A part is already near its own origin and the sheet's scale is applied to the lines, and

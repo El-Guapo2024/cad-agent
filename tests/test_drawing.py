@@ -393,6 +393,15 @@ def test_the_cutouts_are_lettered_by_kind_and_size_and_the_notes_say_what_each_i
     assert tags == ["A"] * 4 + ["B", "C", "D"]                                       # a letter on every cutout
 
 
+def test_slots_of_one_size_are_one_group_whichever_way_they_lie_and_windows_are_not():
+    solid = Box(80, 40, 3) - Pos(-20, 0, 0) * extrude(SlotOverall(20, 6), 6, both=True) - Pos(20, 0, 0) * extrude(SlotOverall(20, 6, rotation=90), 6, both=True)
+    got = draw.make("s", solid, meta("s", None), "first")
+    assert got.judged() and got.sheet.notes[0] == "A  2X SLOT 6 X 20 THRU"
+    wide = Box(80, 40, 3) - Pos(-20, 0, 0) * extrude(Rectangle(20, 6), 6, both=True) - Pos(20, 0, 0) * extrude(Rectangle(6, 20), 6, both=True)
+    got = draw.make("w", wide, meta("w", None), "first")
+    assert got.judged() and got.sheet.notes[:2] == ["A  WINDOW 6 X 20 THRU", "B  WINDOW 20 X 6 THRU"]      # a window is as it lies on the plate
+
+
 def test_ordinates_are_written_once_from_the_corner_and_labels_that_would_touch_go_on_another_row():
     feats = layout.features(P.analyse(nema()))
     u, v = layout.ordinates(feats)
