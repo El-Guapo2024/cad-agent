@@ -24,7 +24,8 @@ from test_cli import run
 REPO = Path(__file__).resolve().parent.parent
 EVALS = REPO / "evals"
 TASKS = ("nema17_mount", "syringe_clamp", "galvo_mount", "mgn12h_carriage", "hotplate_standoffs",
-         "pinned_carrier", "laser_panel", "pcb_enclosure", "idler_bracket", "endstop_bracket")
+         "pinned_carrier", "laser_panel", "pcb_enclosure", "idler_bracket", "endstop_bracket",
+         "dock_material", "beam_deflection")
 
 # What each hidden spec adds to the usual rows, as the rules a score has to contain.
 SPEC_RULES = {
@@ -34,15 +35,21 @@ SPEC_RULES = {
                       "spec/interface", "spec/mass"},
     "galvo_mount": {"spec/envelope", "spec/size", "spec/position", "spec/clearance",
                     "spec/interface", "spec/mass", "spec/keepout"},
-    "mgn12h_carriage": {"spec/size", "spec/position", "spec/clearance", "spec/interface", "spec/mass"},
+    "mgn12h_carriage": {"spec/size", "spec/position", "spec/clearance", "spec/interface", "spec/mass",
+                        "spec/axis", "spec/bodies"},
     "hotplate_standoffs": {"spec/envelope", "spec/size", "spec/position", "spec/clearance",
-                           "spec/interface"},
-    "pinned_carrier": {"spec/size", "spec/position", "spec/clearance", "spec/interface"},
+                           "spec/interface", "spec/bodies", "spec/heat"},
+    "pinned_carrier": {"spec/size", "spec/position", "spec/clearance", "spec/interface", "spec/bodies"},
     "laser_panel": {"spec/envelope", "spec/size", "spec/position", "spec/clearance", "spec/interface"},
     "pcb_enclosure": {"spec/envelope", "spec/size", "spec/position", "spec/clearance", "spec/interface"},
-    "idler_bracket": {"spec/envelope", "spec/size", "spec/position", "spec/clearance", "spec/interface"},
+    "idler_bracket": {"spec/envelope", "spec/size", "spec/position", "spec/clearance", "spec/interface",
+                      "spec/bodies"},
     "endstop_bracket": {"spec/envelope", "spec/size", "spec/position", "spec/clearance",
                         "spec/interface"},
+    "dock_material": {"spec/envelope", "spec/size", "spec/position", "spec/clearance", "spec/interface",
+                      "spec/heat", "spec/bodies"},
+    "beam_deflection": {"spec/envelope", "spec/size", "spec/position", "spec/clearance", "spec/mass",
+                        "spec/deflection", "spec/bodies"},
 }
 
 # One small edit to each reference, and the rule it has to break: (file, old, new, rule). A rule
@@ -66,12 +73,17 @@ BROKEN = {
     "idler_bracket": ("parts/bracket.py", '"gap": 0.75', '"gap": 0.25',
                       ("spec/clearance", "clearance"), "idler|bracket"),
     "endstop_bracket": ("parts/bracket.py", '"pitch": 9.5', '"pitch": 10.0', "spec/interface"),
+    "dock_material": ("parts/dock.py", 'MATERIAL = "stainless"', 'MATERIAL = "aluminium"',      # 170 C, in a 250 C zone
+                      "spec/heat", "dock"),
+    "beam_deflection": ("assembly.py", "Rot(90, 0, 0) * bought_solid", "bought_solid",           # the 2040 lies flat
+                        "spec/deflection", "beam"),
 }
 
 # One edit to a reference that its brief says is fine, and that must still score 100%: what the
 # briefs allow and what the grader accepts have to agree. (file, old, new)
 PERMITTED = {
     "hotplate_standoffs": ("parts/standoff.py", "CLEARANCE_HOLE[screw] / 2.0", "3.2 / 2.0"),   # M3 close fit
+    "dock_material": ("parts/dock.py", 'MATERIAL = "stainless"', 'MATERIAL = "polyimide"'),        # 360 C: the table clears it
     "mgn12h_carriage": ("parts/carriage_plate.py", "* Cylinder(d / 2.0, thickness + 2.0)",   # counterbored bolts
                         "* (Cylinder(d / 2.0, thickness + 2.0) + Pos(0, 0, 2.5) * Cylinder(3.0, 3.0))"),
     # A 3 mm LED hole over the frame's opening, 3 mm in from its rim: the brief says only a hole
@@ -176,7 +188,12 @@ def test_the_brief_states_everything_the_hidden_spec_checks(task):
     for e in spec.get("keepout", []):
         names |= set(e["clear"])
     for e in spec.get("mass", []):
-        names |= set(e["parts"])
+        names |= set(e.get("parts", {})) | set(e.get("bodies", []))        # parts = {name = n}, or bodies = [...]
+    for e in spec.get("heat", []):
+        names |= {e["source"]} | (set(e["clear"]) if isinstance(e.get("clear"), list) else set())
+    for e in spec.get("deflection", []):
+        names.add(e["body"])
+    names |= set(spec.get("bodies", {}).get("names", []))
     for name in sorted(names):
         assert f"`{name}`" in brief, f"{task}: the brief never names `{name}`"
     for given in evals.get_task(EVALS, task).given:       # by file name: they all say they are in bought/
@@ -213,6 +230,17 @@ def test_the_brief_states_everything_the_hidden_spec_checks(task):
         assert all(v in nums for v in e["params"].values()), e
     for e in spec.get("mass", []):
         assert f"{e['max_g']:g} g" in brief, e
+    for e in spec.get("heat", []):                                     # the zone: how hot, how far, with what headroom
+        for key in ("temp_c", "radius_mm", "margin_c"):
+            assert key not in e or round(e[key], 4) in nums, (key, e)
+    for e in spec.get("deflection", []):                               # the beam: its span, its load and its limit
+        for key in ("span_mm", "load_n", "load_g", "max_um"):
+            assert key not in e or round(e[key], 4) in nums, (key, e)
+        assert e["support"] in brief and ("self_weight" not in e or "own weight" in brief), e
+    if "count" in spec.get("bodies", {}):
+        assert spec["bodies"]["count"] in nums, spec["bodies"]
+    for e in spec.get("axis", []):                                     # an axis the design must declare
+        assert e["name"] in brief and all(round(e[k], 4) in nums for k in e if k.endswith("_mm")), e
 
 
 @pytest.mark.parametrize("task", TASKS)
@@ -220,7 +248,8 @@ def test_a_task_is_complete(task):
     root = EVALS / task
     assert (root / "brief.md").is_file() and (root / "spec.toml").is_file()
     assert (root / "reference" / "assembly.py").is_file()
-    assert list((root / "reference" / "parts").glob("*.py"))
+    # its own parts, or a library part it copied in (a design of stock, such as a beam, has no part module)
+    assert list((root / "reference" / "parts").glob("*.py")) or list((root / "reference" / "bought").glob("*.py"))
     for sidecar in (root / "given" / "bought").glob("*.step"):       # a bought part says where it came from
         assert json.loads(sidecar.with_suffix(".json").read_text())["source"].strip()
 
@@ -415,7 +444,8 @@ def test_a_plugin_placeholder_without_a_plugin_copy_is_refused():
 def test_the_reference_scores_full_marks(reference, task):
     r = reference(task)
     assert r["verdict"] == "PASS" and r["score"] == 1.0, [x for x in r["rows"] if x["state"] != "PASS"]
-    assert r["graded"] == r["passed"] >= 20 and r["skipped"] >= 1
+    own_parts = list((EVALS / task / "reference" / "parts").glob("*.py"))
+    assert r["graded"] == r["passed"] >= 20 and r["skipped"] >= (1 if own_parts else 0)   # a part's render waits for approval
     assert SPEC_RULES[task] <= {x["rule"] for x in r["rows"]}
     assert not r["notes"] and r["verify_seconds"] is not None
 
@@ -465,6 +495,147 @@ def test_tampering_with_a_given_file_or_the_spec_gains_nothing(worker, tmp_path,
         assert (design / "bought" / "nema17_motor.step").read_text() == "not a step file"   # theirs untouched
     finally:
         shutil.rmtree(kept, ignore_errors=True)
+
+
+# ─── dock_material: what a 250 C zone does to the dock's material ────────────
+
+def edited(task, tmp_path, rel, old, new):
+    """A copy of the task's reference with `old` in `rel` replaced by `new`."""
+    design = copy_reference(task, tmp_path / "design")
+    text = (design / rel).read_text()
+    assert old in text
+    (design / rel).write_text(text.replace(old, new))
+    return design
+
+
+def dock_rows(result):
+    return {x["subject"]: x for x in result["rows"] if x["rule"] == "spec/heat"}
+
+
+@pytest.mark.parametrize("material,rated,basis", [("pla", 55, "HDT ISO 75-2 B"), ("aluminium", 170, "stated service limit")])
+def test_a_pla_or_aluminium_dock_fails_the_heat_row_and_nothing_else(worker, tmp_path, capsys, material, rated, basis):
+    """The dock stands 3 mm from a 250 C plate, inside the 15 mm zone: a body there is held to the plate's
+    temperature as if it touched it, and these two are rated for 55 and 170 C."""
+    design = edited("dock_material", tmp_path, "parts/dock.py", 'MATERIAL = "stainless"', f'MATERIAL = "{material}"')
+    code, r = run(capsys, "eval", "score", "dock_material", str(design), "--evals", str(EVALS), "--all")
+    assert code == cli.FAIL and r["verdict"] == "FAIL" and r["passed"] == r["graded"] - 1
+    heat = dock_rows(r)
+    assert set(heat) == {"dock", "base_plate"}                              # the plate is the source: exempt, no row
+    assert heat["dock"]["state"] == "FAIL"
+    assert heat["dock"]["measured"] == f"{material} ({basis}) rated {rated} C, 3.00 mm from hot_plate"
+    assert heat["dock"]["limit"] == ">= 250 C, a zone, not a thermal model"
+    assert heat["base_plate"]["state"] == "PASS"                            # the given plate passes on its declared 400 C
+    assert [x["rule"] for x in r["rows"] if x["state"] != "PASS"] == ["spec/heat"]
+
+
+def test_an_aluminium_standoff_fails_the_heat_row_hotplate_standoffs_has_now(worker, tmp_path, capsys):
+    """Its brief used to call aluminium, brass and copper fine at 250 C and its grader had no heat rule; the table gives them
+    170, 120 and 200 C, and the grader has the zone now: each of the four standoffs, touching the plate, is one failing row."""
+    design = edited("hotplate_standoffs", tmp_path, "parts/standoff.py", 'MATERIAL = "polyimide"', 'MATERIAL = "aluminium"')
+    code, r = run(capsys, "eval", "score", "hotplate_standoffs", str(design), "--evals", str(EVALS), "--all")
+    heat = dock_rows(r)
+    assert code == cli.FAIL and sorted(heat) == [f"standoff_{i}" for i in range(1, 5)]      # the base is 20 mm off: no row
+    assert {x["state"] for x in heat.values()} == {"FAIL"} and heat["standoff_1"]["measured"].startswith(
+        "aluminium (stated service limit) rated 170 C, 0.00 mm from hot_plate")
+    assert [x["rule"] for x in r["rows"] if x["state"] != "PASS"] == ["spec/heat"] * 4
+
+
+def test_a_carriage_with_no_AXES_fails_the_axis_row_the_brief_asks_for_and_no_longer_costs_nothing(worker, tmp_path, capsys):
+    """The first of the known gaps in evals/README.md: `[[axis]]` can require what the brief asks for."""
+    design = edited("mgn12h_carriage", tmp_path, "assembly.py", "AXES = {", "UNUSED_AXES = {")
+    code, r = run(capsys, "eval", "score", "mgn12h_carriage", str(design), "--evals", str(EVALS), "--all")
+    failing = [(x["rule"], x["subject"]) for x in r["rows"] if x["state"] == "FAIL"]
+    assert code == cli.FAIL and failing == [("spec/axis", "axis x")]
+    (row,) = [x for x in r["rows"] if x["rule"] == "spec/axis"]
+    assert "no axis 'x' in AXES" in row["measured"] and "assembly.py declares no AXES" in row["measured"]
+
+
+def test_the_grader_rates_the_dock_by_the_table_for_every_material_the_brief_lists(worker, tmp_path):
+    """Steel, stainless and polyimide clear 250 C and the other nine do not: one row each, whatever the material."""
+    from cad_agent import materials
+    task = evals.get_task(EVALS, "dock_material")
+    brief = task.brief
+    listed = re.search(r"one of the twelve materials `cad tables materials` knows: (.*?)\. Anything else", brief, re.S)[1]
+    names = {w.strip().lower() for w in re.split(r",| and ", listed.replace("\n", " ")) if w.strip()}
+    assert names == set(materials.names())                                  # the brief lists the table, all of it
+    cleared = {}
+    for material in sorted(names):
+        design = edited("dock_material", tmp_path / material, "parts/dock.py", 'MATERIAL = "stainless"',
+                        f'MATERIAL = "{material}"')
+        r = evals.score(task, design, show_all=True)
+        row = dock_rows(r)["dock"]
+        cleared[material] = row["state"]
+        assert r["verdict"] == ("PASS" if row["state"] == "PASS" else "FAIL"), (material, r["rows"])
+        assert (row["state"] == "PASS") == (materials.prop(material, "max_service_temp_c").value >= 250), row
+    assert {m for m, s in cleared.items() if s == "PASS"} == {"steel", "stainless", "polyimide"}
+
+
+@pytest.mark.parametrize("old,new,why", [
+    ('MATERIAL = "stainless"\n', "", "its part module 'dock' declares no MATERIAL"),
+    ('MATERIAL = "stainless"', 'MATERIAL = "peek"', "material 'peek' is not in materials.py"),
+])
+def test_a_dock_with_no_rating_is_unchecked_not_a_pass(worker, tmp_path, capsys, old, new, why):
+    """The brief says a material the table does not know, or none, leaves the heat row unable to pass."""
+    design = edited("dock_material", tmp_path, "parts/dock.py", old, new)
+    code, r = run(capsys, "eval", "score", "dock_material", str(design), "--evals", str(EVALS), "--all")
+    row = dock_rows(r)["dock"]
+    assert row["state"] == "UNCHECKED" and why in row["measured"] and r["verdict"] != "PASS"
+
+
+def test_the_base_plate_is_in_the_zone_and_passes_on_the_rating_its_note_declares(worker, tmp_path, capsys):
+    """It lies under the hot plate, so it is judged. Its sidecar says 400 C and quotes the page; without a rating the
+    row is UNCHECKED, which no design could fix, and that is what a zone wider than 15 mm would have done to the
+    hotplate_standoffs plate."""
+    from cad_agent import materials
+    note = json.loads((EVALS / "dock_material" / "given" / "bought" / "base_plate.json").read_text())
+    assert note["material"] == "steel" and note["max_temp_c"] == materials.prop("steel", "max_service_temp_c").value
+    assert note["max_temp_source"].startswith("https://www.makeitfrom.com/") and "Mechanical 400" in note["max_temp_source"]
+    root = tmp_path / "evals"                                              # a copy of the task whose base plate says nothing
+    shutil.copytree(EVALS / "dock_material", root / "dock_material", ignore=shutil.ignore_patterns("reference"))
+    side = root / "dock_material" / "given" / "bought" / "base_plate.json"
+    side.write_text(json.dumps({k: v for k, v in note.items() if k not in ("material", "max_temp_c", "max_temp_source")}))
+    r = evals.score(evals.get_task(root, "dock_material"), EVALS / "dock_material" / "reference", show_all=True)
+    base = dock_rows(r)["base_plate"]
+    assert base["state"] == "UNCHECKED" and "declares neither max_temp_c" in base["measured"] and r["verdict"] == "UNCHECKED"
+    assert dock_rows(r)["dock"]["state"] == "PASS"                         # the dock itself is as rated as it was
+
+
+# ─── beam_deflection: which stock clears 50 um, and what else it must be ─────
+
+@pytest.mark.parametrize("entry,rule,state,says", [
+    ("extrusion-2020", "spec/deflection", "FAIL", "242."),                 # a 2020 is far too limber: 242 um
+    ("extrusion-4040", "spec/mass", "FAIL", "1120.6 g"),                   # a 4040 is stiff enough and weighs too much
+    ("extrusion-2040-envelope", "spec/deflection", "UNCHECKED", "not declared `geometry = \"exact\"`"),   # a solid box
+])
+def test_the_other_library_extrusions_miss_the_beam_task_on_their_own_rule(worker, tmp_path, monkeypatch, capsys,
+                                                                           entry, rule, state, says):
+    monkeypatch.setenv("CAD_LIBRARY", str(tmp_path / "store"))
+    design = copy_reference("beam_deflection", tmp_path / "projects" / "beam_deflection")
+    code, out = run(capsys, "lib", "use", "beam_deflection", entry, "length=640", "--as", "extrusion_2040", "--replace")
+    assert code == cli.OK and out["entry"] == entry
+    code, r = run(capsys, "eval", "score", "beam_deflection", str(design), "--evals", str(EVALS), "--all")
+    rows = [x for x in r["rows"] if x["state"] != "PASS"]
+    assert [(x["rule"], x["state"]) for x in rows] == [(rule, state)], rows            # one row, and it is that one
+    assert says in rows[0]["measured"] and r["verdict"] == state
+
+
+def test_the_beam_brief_quotes_the_working_volumes_the_part_rules_use():
+    """It says no part module can be a bar 640 mm long, and why: the `envelope` row's limit for each process."""
+    from cad_agent.checks.dfm import PROCESS
+    brief = (EVALS / "beam_deflection" / "brief.md").read_text()
+    for name, volume in {n: p["max_bbox_mm"] for n, p in PROCESS.items()}.items():
+        assert " x ".join(f"{v:g}" for v in volume) in brief and f"`{name}`" in brief, name
+    assert max(max(p["max_bbox_mm"]) for p in PROCESS.values()) < 640           # so the claim is true
+
+
+def test_the_reference_beam_is_the_2040_on_its_edge_with_room_to_spare_on_both_limits(reference):
+    r = {x["rule"]: x for x in reference("beam_deflection")["rows"]}
+    deflection = r["spec/deflection"]["measured"]
+    assert float(re.match(r"([\d.]+) um at midspan", deflection)[1]) == pytest.approx(37.67, abs=0.02)      # of 50
+    assert r["spec/mass"]["measured"].startswith("499.3 g")                                               # of 600
+    assert float(re.search(r"I ([\d.]+) mm\^4", deflection)[1]) == pytest.approx(46740, abs=20)         # 12145 lying flat
+    note = json.loads((EVALS / "beam_deflection" / "reference" / "bought" / "extrusion_2040.json").read_text())
+    assert note["library"] == "extrusion-2040" and note["geometry"] == "exact" and note["sha256"]    # `cad lib use` wrote it
 
 
 # ─── Running an agent ────────────────────────────────────────────────────────

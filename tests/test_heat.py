@@ -153,7 +153,7 @@ def test_the_metals_are_one_kind_of_number_from_one_source_and_the_plastics_come
 
 def test_the_plastics_order_themselves_as_they_do_in_the_world():
     t = {n: materials.prop(n, "max_service_temp_c").value for n in MATERIALS}
-    assert t["pla"] < t["petg"] < t["abs"] < t["nylon"]                    # 55, 68, 99, 190 (HDT at 0.45 MPa)
+    assert t["pla"] < t["petg"] < t["abs"] < t["nylon"]                    # 55, 68, 99, 180 (HDT at 0.45 MPa)
     assert t["polyimide"] > t["nylon"] and t["fr4"] > t["abs"]
     assert t["pla"] == 55.0 and t["petg"] == 68.0 and t["abs"] == 99.0     # their sheets, to the digit
 

@@ -1,0 +1,15 @@
+{
+ "source": "HIWIN MG series catalog GW-11-5-EN-2207-K, table 3.81 (page 99): MGNR12R, 12 wide and 8.0 high, holes every 25 mm, counterbore D 6.0 x 4.5 deep, through hole d 3.5, cut to length with the most holes that leave E at least 5 (F 3.16, note 2). An envelope: no ball grooves.",
+ "vendor": "HIWIN",
+ "verified": true,
+ "library": "mgn12-rail",
+ "licence": "MIT",
+ "geometry": "envelope",
+ "pn": "MGNR12R",
+ "mass_g": 97.5,
+ "mass_source": "HIWIN MG series catalog GW-11-5-EN-2207-K, table 3.81: weight 0.65 kg/m; 650 g/m x 0.15 m = 97.5 g",
+ "library_params": {
+  "length": 150.0
+ },
+ "sha256": "bf57cb101f16feab936fbc4754d532d15284fde2c5e931793777fa9b6deb9848"
+}

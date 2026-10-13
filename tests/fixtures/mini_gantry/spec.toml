@@ -1,0 +1,61 @@
+# mini_gantry: what the gantry of mini_machine must do, judged on its own (cad verify mini_gantry) and again, with the
+# rest of the tree, whenever mini_machine is checked. Axes: x along the beam, z up, z = 0 the posts' feet.
+
+[bodies]                    # the seven bodies assembly.py returns, and no more
+count = 7
+names = ["post_left", "post_right", "beam", "rail", "carriage", "tool_plate", "motor"]
+
+[envelope]
+max_mm = [270, 45, 115]
+
+[[position]]                # the beam stands on the posts: 50 up, 20 tall
+body = "beam"
+center_mm = [0, 0, 60]
+
+[[position]]                # and the motor, parked at the far end of its travel: its box (shaft and pilot too) is at
+body = "motor"              # x = +8.25 at home, 45 mm back along x there
+center_mm = [-36.75, 0, 97]
+pose = "park"
+
+[[clearance]]               # the carriage rides 3 mm over the beam: the H1 of the block, from its catalog entry
+a = "carriage"
+b = "beam"
+min_mm = 2.9
+max_mm = 3.1
+
+[[interface]]               # the plate's four M3 holes are over the carriage's tapped holes
+a = "tool_plate"
+b = "carriage"
+fastener = "M3"
+
+# The carriage, its plate and the motor weigh 140 g, and are what the x axis moves. The beam, held as a simply supported
+# beam over the 220 mm between the posts, sags under that and its own weight by less than 2 um at midspan. Its span is
+# 11 times its depth, so shear is left out by the rule's own limit of 10.
+[[mass]]
+moving = "x"
+max_g = 150
+
+[[deflection]]
+body = "beam"
+support = "simple"
+span_mm = 220
+load_moving = "x"
+at = "center"
+self_weight = true
+max_um = 2
+
+[[axis]]
+name = "x"
+moves = ["carriage", "tool_plate", "motor"]
+only = true
+direction = [1, 0, 0]
+travel_min_mm = 90
+travel_max_mm = 90
+work_min_mm = 80
+tool = "tool_plate"
+
+[shop]                      # this project's own parts: the posts are milled and the plate is printed
+bom = { post = 2, tool_plate = 1 }
+orderable = true
+mass = "known"
+files = ["post.step", "tool_plate.step", "tool_plate.3mf", "tool_plate.stl", "bom.csv", "bom.json", "manifest.json"]

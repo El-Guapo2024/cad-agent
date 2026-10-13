@@ -9,7 +9,7 @@ What is written, for the parts of the BOM that this project makes (bom.py):
     <part>.step                  every part
     <part>.dxf                   a laser_cut part: the outline, as FreeCAD writes one (dxf.py)
     <part>.3mf, <part>.stl       an fdm part: the same mesh in the two formats a slicer reads (threemf.py)
-    drawings/...                 what piece E's `cad_agent.drawing.shop_drawings` returns (the hook, below)
+    drawings/...                 what `cad_agent.drawing.shop_drawings` returns (the hook, below): a drawing of each plate
     bom.csv, bom.json            the bill of materials, with the shop file of every line (bom.py)
     manifest.json                every file's sha256 and size, the commit, the verdict, the rows
 
@@ -57,16 +57,18 @@ Regenerates what a normal run would write, in memory, and compares it with out/s
 Exit 0 when there are none, 1 when there are any, or when a fresh run's rows would fail; 2 when it cannot say: no
 out/shop/ yet, the folder is a draft, the design is not done, or a row is unchecked. 3 for a bad argument.
 
-The hook for drawings (piece E)
--------------------------------
+The hook for drawings (cad_agent/drawing)
+-----------------------------------------
 `cad_agent.drawing.shop_drawings(slug, parts, processes, stamp) -> {"files": {path: bytes}, "skipped": {part: why}}`
 is called if it exists, once, with the solids of every part the run makes (`parts`: name -> solid, built from
 source), their PROCESS (`processes`: name -> "cnc", "laser_cut", ..., or None) and the stamp ("NOT VERIFIED" or
 None). It returns the bytes of each drawing it makes, as paths under `drawings/` (`drawings/plate.dxf`,
 `drawings/plate.pdf`), the same bytes for the same part, and a reason for each part it does not draw. Anything
-else it returns, a path outside `drawings/`, or an exception is an UNCHECKED row, and a missing optional library
-(matplotlib: pip install "cad-agent[drawings]") is said as such. Until the module has the function the manifest
-says `drawings: {"built": false, "why": ...}`.
+else it returns, a path outside `drawings/`, or an exception is an UNCHECKED row, and a missing library is said as
+such (the drawings need only ezdxf and are written by hand to SVG and PDF, so no extra is involved; EXTRAS names the
+extra of a library that has one). Until the module has the function the manifest says
+`drawings: {"built": false, "why": ...}`. The `[shop] files` spec entries under drawings/ ask this same call what it
+draws (speckinds/shop.py), so a name the spec lists passes exactly when the manifest lists it.
 
 Exit codes: 0 written (or checked, and clean), 1 a row failed or a file differs, 2 not done or something could not
 be settled, 3 usage (an unknown project, `--draft` with `--check`, a library the laser rows need missing), 4 crash.
@@ -89,7 +91,7 @@ STAMP = "NOT VERIFIED"
 OUT = "shop"                    # out/shop/
 MANIFEST = "manifest.json"
 DRAWINGS = "cad_agent.drawing:shop_drawings"
-EXTRAS = {"matplotlib": "drawings", "bd_warehouse": "fasteners"}      # the optional libraries of pyproject.toml
+EXTRAS = {"bd_warehouse": "fasteners"}      # a library of an optional extra of pyproject.toml, and the extra
 
 
 @dataclass

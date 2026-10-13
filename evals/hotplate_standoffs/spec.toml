@@ -1,9 +1,12 @@
 # Hidden grader for hotplate_standoffs: the brief as acceptance tests.
 # Every number is stated in brief.md. Axes: z up, base top face at z = 0.
 #
-# Not checked, because cad-agent has no heat rule yet (PLAN_V2 step 6): that the
-# standoff material survives the plate's 250 C. When [[heat]] exists, add a 250 C
-# zone on the hot plate here, so the standoffs' MATERIAL is judged against it.
+# The last entry is the heat zone: the standoffs touch the 250 C plate, so their MATERIAL is judged against
+# materials.py (only steel, stainless and polyimide reach 250 C). The base plate is 20 mm away, outside the 15 mm.
+
+[bodies]                    # `parts()` returns exactly these six
+count = 6
+names = ["base_plate", "hot_plate", "standoff_1", "standoff_2", "standoff_3", "standoff_4"]
 
 [envelope]                  # base footprint x (base underside to plate top)
 max_mm = [160, 160, 36]
@@ -102,3 +105,9 @@ b = "hot_plate"
 fastener = "M3"
 tol_mm = 0.1
 near_mm = 15
+
+# The plate runs at 250 C: every other body within 15 mm of it must be rated for that.
+[[heat]]
+source = "hot_plate"
+temp_c = 250
+radius_mm = 15

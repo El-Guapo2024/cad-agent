@@ -13,7 +13,7 @@ PDF that did too, which the readback (readback.py) then sees.
        changes between runs: no date, no id
   PDF  A PDF 1.4 written by hand: one page of the sheet's size, the standard Helvetica (not embedded), vector lines and
        Bezier arcs, the same pens. No compression, no date, no id, so the same sheet is the same bytes. This is why
-       the PDF needs no library: the `drawings` extra of pyproject.toml (matplotlib) is not used
+       the PDF needs no library: there is no extra of pyproject.toml for drawings, and nothing here imports a plotting package
 
 All three are the same bytes for the same sheet, on either kernel when the sheet is (hlr.py says how the lines are
 made so).

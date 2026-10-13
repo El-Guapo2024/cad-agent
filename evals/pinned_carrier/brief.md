@@ -49,6 +49,7 @@ exactly five bodies, with these names:
 The grader's `spec.toml` replaces yours. Every number it uses is here, and every part and
 assembly gate still applies, so no two bodies may interfere.
 
+- **Bodies:** exactly five: `base_plate`, `pin_1`, `pin_2`, `clamp_screw` and `carrier`.
 - **Positions:** bounding-box centres, each within 0.1 mm: `base_plate` (0, 0, -5), `pin_1`
   (-25, 0, 2), `pin_2` (25, 0, 2), `clamp_screw` (0, 0, -3).
 - **Sizes**, each within 0.1 mm: `base_plate` 100 x 60 x 10, `pin_1` and `pin_2` 4 x 4 x 16,

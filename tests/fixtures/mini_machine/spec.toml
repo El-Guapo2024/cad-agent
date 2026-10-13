@@ -1,0 +1,117 @@
+# mini_machine: what the machine must do. The gantry (mini_gantry) states its own, and is checked with this.
+# Axes: x across, y along, z up; z = 0 is the base's top face.
+
+[bodies]                    # the four bodies of this project and the seven of the gantry, by their full names
+count = 11
+names = ["base", "insulator", "hot_plate", "back_wall", "gantry/post_left", "gantry/post_right", "gantry/beam",
+         "gantry/rail", "gantry/carriage", "gantry/tool_plate", "gantry/motor"]
+
+[envelope]
+max_mm = [200, 300, 115]
+
+[[position]]
+body = "hot_plate"
+center_mm = [0, 0, 11]
+
+# The gantry's motor, with the slide at the wall and the carriage back: x = 60 (the slide), and y = 8.25 - 45 (the
+# motor's box, shaft included, is 8.25 along y from the machine's middle at home).
+[[position]]
+body = "gantry/motor"
+center_mm = [60, -36.75, 97]
+pose = "park"
+
+# Each post's two M4 bolts are on the slot of the base under it: the slot passes when the hole is on its centre line.
+[[interface]]
+a = "gantry/post_left"
+b = "base"
+fastener = "M4"
+
+[[interface]]
+a = "gantry/post_right"
+b = "base"
+fastener = "M4"
+
+# The hot plate is at 180 C. Every body within 15 mm of it needs 200 C (the 20 C of headroom a thermoplastic's heat
+# deflection temperature does not give): the insulator and the base are in the zone, and the table rates them 360 and
+# 400 C. The motor, rated 50 C, and the printed tool plate must stay out of it.
+[[heat]]
+source = "hot_plate"
+temp_c = 180
+margin_c = 20
+radius_mm = 15
+clear = ["gantry/motor", "gantry/tool_plate"]
+
+# What the slide moves is the whole gantry, and what the carriage moves is its plate, block and motor.
+[[mass]]
+moving = "slide"
+max_g = 700
+
+[[mass]]
+moving = "gantry/x"
+max_g = 150
+
+[[mass]]
+bodies = ["base", "insulator", "hot_plate", "back_wall"]
+max_g = 2000
+
+# The gantry's beam under the carriage's load at midspan. The carriage's axis is `gantry/x` here and `x` in the child's
+# own spec, which makes the same check of the same beam.
+[[deflection]]
+body = "gantry/beam"
+support = "simple"
+span_mm = 220
+load_moving = "gantry/x"
+at = "center"
+self_weight = true
+max_um = 2
+
+[[axis]]
+name = "slide"
+moves = ["gantry/post_left", "gantry/post_right", "gantry/beam", "gantry/rail", "gantry/carriage",
+         "gantry/tool_plate", "gantry/motor"]
+only = true
+direction = [1, 0, 0]
+travel_min_mm = 120
+travel_max_mm = 120
+work_min_mm = 80
+tool = "gantry/tool_plate"
+
+[[axis]]                    # the gantry's x, turned a quarter by SUBASSEMBLIES: it runs along y here
+name = "gantry/x"
+moves = ["gantry/carriage", "gantry/tool_plate", "gantry/motor"]
+only = true
+direction = [0, 1, 0]
+travel_min_mm = 90
+travel_max_mm = 90
+
+# Poses are where two axes are off home together, which a sweep never is.
+[[clearance]]
+a = "gantry/beam"
+b = "back_wall"
+min_mm = 15
+pose = "park"
+
+[[clearance]]
+a = "gantry/tool_plate"
+b = "hot_plate"
+min_mm = 60
+pose = "work"
+
+[shop]
+orderable = true
+mass = "known"
+files = ["base.dxf", "back_wall.dxf", "base.step", "back_wall.step", "insulator.step", "hot_plate.step",
+         "drawings/base.pdf", "drawings/base.dxf", "drawings/back_wall.svg", "bom.csv", "bom.json", "manifest.json"]
+
+# The BOM has the gantry's lines nested under it (5.1 post, 5.2 extrusion_2020, ...), and a key may be any of them.
+[shop.bom]
+base = 1
+back_wall = 1
+insulator = 1
+hot_plate = 1
+post = 2
+extrusion_2020 = 1
+mgn12_rail = 1
+mgn12h = 1
+tool_plate = 1
+nema8 = 1

@@ -184,6 +184,21 @@ def test_max_service_temperature_is_a_slot_that_takes_a_value_a_basis_and_a_data
     assert MAX_TEMP_BASES == ("HDT ISO 75-2 B", "UL 746B RTI", "Tg", "stated service limit")
 
 
+def test_nylons_service_temperature_is_a_pa6_sheets_and_not_the_pa66_its_density_cites():
+    # The card is FreeCAD's Polyamide 6, and the HDT once cited Zytel 101L, a PA66 (190 C): a different polymer.
+    # The density keeps that sheet's 1.14, since every mass rests on it, and says so in the module's docstring.
+    value, source, basis = MATERIALS["nylon"]["max_service_temp_c"]
+    assert (value, basis) == (180.0, "HDT ISO 75-2 B")
+    url, what = source.split(": ", 1)
+    assert url == "https://www.protolabs.com/media/tqzke2yx/zytel-7335f-nc010.pdf"
+    assert "polyamide 6" in what and "PA66" not in what and "101L" not in what
+    assert "0.45 MPa, Unannealed, Dry 180 °C (ISO 75-2/B)" in what
+    assert MATERIALS["nylon"]["card"] == "Polyamide 6"
+    density, density_source = MATERIALS["nylon"]["density_g_cm3"]
+    assert density == LEGACY_DENSITY["nylon"] == 1.14 and "Zytel 101L" in density_source
+    assert "PA66" in materials.__doc__ and "1.13" in materials.__doc__          # and the docstring says so
+
+
 # ─── It is code, so the engine hash covers it ────────────────────────────────
 
 def test_a_change_to_the_table_changes_the_engine_hash_because_it_is_python_source():

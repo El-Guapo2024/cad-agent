@@ -39,10 +39,11 @@ are drawn the way ISO 129-1 draws them and their numbers come from the B-rep (th
 The formats
 -----------
 The DXF is the master. The SVG and the PDF are drawn from what ezdxf reads in it (writers.py), by code of this module and
-no library: the PDF is written by hand (standard Helvetica, vector, uncompressed), so the `drawings` extra of pyproject.toml
-(matplotlib) is not used and nothing here raises ImportError for it. Every file is the same bytes for the same part on one
-kernel. OCCT 7.9 and 8.0 give the same lines to about 1e-9 mm, in another order and cut in other places; hlr.py puts
-them on a 1e-4 mm grid, joins what touches and sorts it, and the sheet is the same entities on both.
+no library: the PDF is written by hand (standard Helvetica, vector, uncompressed), so drawings have no extra of pyproject.toml
+(ezdxf, which reads the DXF back, is a core dependency) and nothing here raises ImportError for a plotting package. Every
+file is the same bytes for the same part on one kernel. OCCT 7.9 and 8.0 give the same lines to about 1e-9 mm, in another
+order and cut in other places; hlr.py puts them on a 1e-4 mm grid, joins what touches and sorts it, and the sheet is the
+same entities on both.
 
 Gates and exit codes
 --------------------
@@ -148,8 +149,9 @@ def cmd_drawing(a) -> Result:
     pdir = cmdbase.project(a.slug)
     if "/" in a.part:
         child, _, rest = a.part.partition("/")
+        project = subassembly.instance_project(pdir, child) or child       # the instance's name is not its project's
         raise UsageError(f"{a.part!r} is a body of the sub-assembly {child!r}, not a part of {a.slug}: a child's part is drawn "
-                         f"by the child project, `cad drawing {child} {rest}`")
+                         f"by the child project, `cad drawing {project} {rest}`")
     cmdbase.part(a.slug, a.part)
     formats, size, scale = _options(a)
     try:

@@ -1,0 +1,17 @@
+{
+ "source": "Framing Tech's model of its 20 x 20 profile, 20x20.STEP (SolidWorks 2016): the section at mid length, 167.794 mm2 with Ix = Iy = 6938.5 mm4; its page says 6063-T6, four 6 mm T-slots, a centre bore for M6, 1.60 cm2 and 0.67 cm4. The model's slot edges rounded 0.5 mm or less are drawn sharp. A stiffness rule may stand on it.",
+ "vendor": "Framing Tech",
+ "verified": true,
+ "library": "extrusion-2020",
+ "licence": "MIT",
+ "geometry": "exact",
+ "pn": "20x20",
+ "material": "aluminium",
+ "mass_g": 117.791,
+ "mass_source": "the section of Framing Tech's 20x20.STEP (measured); 167.794 mm2 x 2.7 g/cm3 (aluminium, materials.py) = 453.0 g/m, x 0.26 m = 117.8 g",
+ "library_params": {
+  "length": 260.0,
+  "axis": "x"
+ },
+ "sha256": "e9170aaf1947f271fb9e4aeaec6a76c688f960c10fdf5d8c11882331d923b583"
+}

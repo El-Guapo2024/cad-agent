@@ -408,7 +408,68 @@ def test_files_must_be_ones_cad_shop_makes_for_this_bom(workshop):
     assert bad["block.dxf"].state == "FAIL" and "block is cnc, which gets block.step" in bad["block.dxf"].measured
     assert bad["motor.step"].state == "FAIL" and "motor is not made in this project" in bad["motor.step"].measured
     assert bad["ghost.dxf"].state == "FAIL" and "no part 'ghost' in the BOM" in bad["ghost.dxf"].measured
-    assert bad["drawings/block.pdf"].state == "UNCHECKED" and "piece E's" in bad["drawings/block.pdf"].measured
+    assert "drawings/block.pdf" not in bad                       # a plate cad shop draws: it passes, and a pass is no row
+
+
+def named(workshop, *files):
+    """The `spec/shop` rows of the workshop that name one of `files`, by file, with the summary row if it is there."""
+    text = "[shop]\nfiles = " + json.dumps(list(files)) + "\n"
+    return {r.subject: r for r in shop_rows(workshop, text) if r.rule == "spec/shop" and r.subject != "bom"}
+
+
+def test_a_drawing_in_files_is_one_cad_shop_draws_and_a_name_that_is_not_says_why(workshop):
+    # block is a cnc prism with a through bore and panel a laser-cut sheet: plates, drawn as dxf, svg and pdf. clip is printed.
+    got = named(workshop, "drawings/block.pdf", "drawings/panel.svg", "drawings/block.dxf")
+    assert got["files"].state == "PASS" and "3 files, all made: drawings/block.pdf, drawings/panel.svg" in got["files"].measured
+    bad = named(workshop, "drawings/clip.pdf", "drawings/ghost.pdf", "drawings/block.png", "drawings/motor.pdf",
+                "drawings/sub/block.pdf", "drawings/panel.pdf")
+    assert "files" not in bad and "drawings/panel.pdf" not in bad
+    assert {name: r.state for name, r in bad.items()} == {name: "FAIL" for name in (
+        "drawings/clip.pdf", "drawings/ghost.pdf", "drawings/block.png", "drawings/motor.pdf", "drawings/sub/block.pdf")}
+    assert "cad shop does not draw it: clip is not drawn: made by 'fdm', and drawings are for cnc and laser_cut parts" \
+        in bad["drawings/clip.pdf"].measured
+    assert "no part 'ghost' in the BOM" in bad["drawings/ghost.pdf"].measured
+    assert "it writes drawings/<part>.dxf, .svg and .pdf, and drawings/block.png is none of them" in bad["drawings/block.png"].measured
+    assert "motor is not made in this project, so it is drawn by the project that makes it" in bad["drawings/motor.pdf"].measured
+    assert "drawings/<part>" in bad["drawings/sub/block.pdf"].measured
+    assert bad["drawings/clip.pdf"].limit == "a file cad shop makes for this BOM" and "manifest" in bad["drawings/clip.pdf"].source
+
+
+def test_a_part_that_is_no_plate_is_not_drawn_and_a_drawing_asked_for_it_fails_with_the_reason_cad_shop_gives(workshop):
+    (workshop / "parts" / "panel.py").write_text(POCKET_PANEL)               # a pocket is no through-cut: not a plate
+    bad = named(workshop, "drawings/panel.pdf", "drawings/block.pdf")
+    assert list(bad) == ["drawings/panel.pdf"] and bad["drawings/panel.pdf"].state == "FAIL"
+    assert "panel is not drawn: not a plate this drawing can show: " in bad["drawings/panel.pdf"].measured
+    with st.reusing_builds():                                                # and it is what the shop's own call says
+        solids = {p: st.build_part(SLUG, p)[0] for p in ("panel", "block", "clip")}
+    skipped = shop._drawings(SLUG, solids, {"panel": "laser_cut", "block": "cnc", "clip": "fdm"}, None)[0]["skipped"]
+    assert bad["drawings/panel.pdf"].measured.endswith(skipped["panel"]) and "block" not in skipped
+
+
+def test_a_drawing_is_unchecked_when_the_shop_cannot_say_what_it_draws(workshop, monkeypatch):
+    """No drawing module, a module that raises, a library it lacks: the BOM cannot say, and nothing is guessed."""
+    real = cmdbase.resolve
+
+    def with_hook(fn):
+        monkeypatch.setattr(cmdbase, "resolve", lambda target: fn if target == shop.DRAWINGS else real(target))
+
+    def boom(*a):
+        raise RuntimeError("the sheet is full")
+
+    def missing(*a):
+        raise ModuleNotFoundError("No module named 'ezdxf'", name="ezdxf")
+
+    no_drawings(monkeypatch)
+    got = named(workshop, "drawings/block.pdf", "block.step")
+    assert got["drawings/block.pdf"].state == "UNCHECKED" and "block.step" not in got
+    assert "cannot say whether cad shop draws it: cad_agent.drawing does not provide shop_drawings" in got["drawings/block.pdf"].measured
+    for hook, said in ((boom, "the drawings could not be made: RuntimeError: the sheet is full"),
+                       (missing, "the drawings need ezdxf, which is not installed")):
+        with_hook(hook)
+        got = named(workshop, "drawings/block.pdf")
+        assert got["drawings/block.pdf"].state == "UNCHECKED" and said in got["drawings/block.pdf"].measured and "files" not in got
+    with_hook(lambda *a: {"files": {"../outside.pdf": b"x"}})
+    assert "not under drawings/" in named(workshop, "drawings/block.pdf")["drawings/block.pdf"].measured
 
 
 def test_a_body_assembly_py_changes_is_not_the_part_its_file_is_made_from(workshop):
@@ -681,6 +742,21 @@ def shopped(project, capsys, monkeypatch):
     return project / "out" / "shop"
 
 
+def test_the_drawings_the_spec_names_are_the_ones_the_manifest_lists(project, capsys):
+    """`[shop] files` asks the shop what it draws by the call the shop makes, so a drawing passes exactly when `cad shop`
+    writes it and the manifest lists it."""
+    assert run(capsys, "shop", SLUG)[0] == cli.OK                           # the real drawing module, on a done project
+    folder = project / "out" / "shop"
+    manifest = json.loads((folder / "manifest.json").read_text())
+    listed = set(manifest["drawings"]["files"])
+    assert listed == {f"drawings/{part}.{ext}" for part in ("block", "panel") for ext in ("dxf", "svg", "pdf")}
+    assert {f for f in listed if (folder / f).is_file()} == listed and set(manifest["drawings"]["skipped"]) == {"clip"}
+    asked = sorted(listed | {"drawings/clip.pdf", "drawings/clip.svg", "drawings/panel.png"})
+    failing = {r.subject for r in named(project, *asked).values() if r.state == "FAIL"}
+    assert failing == set(asked) - listed                                    # and every name the manifest lists passes
+    assert "clip is not drawn: " + manifest["drawings"]["skipped"]["clip"] in named(project, "drawings/clip.pdf")["drawings/clip.pdf"].measured
+
+
 def test_check_is_clean_when_the_folder_is_what_a_fresh_run_writes(shopped, capsys):
     before = folder_bytes(shopped)
     code, data = run(capsys, "shop", SLUG, "--check")
@@ -823,7 +899,7 @@ def test_drawings_are_written_when_the_module_provides_them_and_the_manifest_lis
 
 def test_drawings_that_cannot_be_made_are_an_unchecked_row_and_say_what_to_install(project, capsys, monkeypatch):
     def missing(*a):
-        raise ModuleNotFoundError("No module named 'matplotlib'", name="matplotlib")
+        raise ModuleNotFoundError("No module named 'ezdxf'", name="ezdxf")
 
     def wrong_place(*a):
         return {"files": {"../outside.pdf": b"x"}}
@@ -834,7 +910,9 @@ def test_drawings_that_cannot_be_made_are_an_unchecked_row_and_say_what_to_insta
     hook(monkeypatch, missing)
     code, data = run(capsys, "shop", SLUG)
     assert code == cli.UNCHECKED and not (project / "out" / "shop").exists()
-    assert data["rows"][-1]["rule"] == "drawings" and 'pip install "cad-agent[drawings]"' in data["rows"][-1]["measured"]
+    measured = data["rows"][-1]["measured"]            # a core library has no extra to name, and no extra is named for drawings
+    assert data["rows"][-1]["rule"] == "drawings" and "the drawings need ezdxf, which is not installed" in measured
+    assert "cad-agent[" not in measured and "matplotlib" not in measured
     hook(monkeypatch, wrong_place)
     assert "not under drawings/" in run(capsys, "shop", SLUG)[1]["rows"][-1]["measured"]
     hook(monkeypatch, broken)

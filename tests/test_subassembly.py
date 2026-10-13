@@ -789,6 +789,20 @@ def test_the_projects_a_design_links_are_read_from_its_source_and_a_doubt_is_sai
     assert subassembly.static_children(light / "nobody") == ([], True)                           # no assembly.py: nothing linked
 
 
+def test_an_instance_is_not_its_project_and_the_project_is_read_from_the_source(light):
+    """`gantry/post` is a body of the instance `gantry`, whose project may be called anything: a message that tells
+    someone which project to run a command on has to say the project (it said the instance: `cad drawing gantry post`)."""
+    d = st.project_dir("par", create=True)
+    (d / "assembly.py").write_text('SUBASSEMBLIES = {"gantry": {"project": "mini_gantry"}, "z": dict(project="zed")}\n')
+    assert subassembly.instance_project(d, "gantry") == "mini_gantry" and subassembly.instance_project(d, "z") == "zed"
+    assert subassembly.instance_project(d, "nobody") is None
+    assert subassembly.instance_project(light / "absent", "gantry") is None                      # no assembly.py: none linked
+    (d / "assembly.py").write_text('SUBASSEMBLIES = {"gantry": {"project": "gan" + "try"}}\n')
+    assert subassembly.instance_project(d, "gantry") is None                                     # computed: only running it says
+    (d / "assembly.py").write_text('SUBASSEMBLIES = dict(gantry=dict(project="mini_gantry"))\n')
+    assert subassembly.instance_project(d, "gantry") is None                                     # the caller falls back to the name
+
+
 def test_a_run_that_loaded_a_project_the_hashes_miss_cannot_pass(approved):
     (st.project_dir("machine") / "assembly.py").write_text(
         machine('{"gantry": {"project": "gan" + "try", "at": [0, 0, 20], "turn": [0, 0, 90]}}'))
@@ -915,28 +929,15 @@ def test_a_parents_verify_trusts_no_build_cache_in_the_child_either(approved, ca
 
 def test_the_two_gaps_the_eval_set_listed_are_closed(tmp_path, monkeypatch):
     """evals/README.md "Known gaps": the mgn12h_carriage brief asks for AXES and a design could leave them out, and
-    "exactly six bodies" is in the briefs and was not held. Here are both, written as a hidden spec could, on the
-    real reference design."""
+    "exactly six bodies" is in the briefs and was not held. The task's hidden spec holds both now ([[axis]] and
+    [bodies]), and here it is judged as it stands on the real reference design."""
     import shutil
     task = Path(__file__).resolve().parent.parent / "evals" / "mgn12h_carriage"
     monkeypatch.setattr(st, "ROOT", tmp_path)
     d = tmp_path / "mgn12h_carriage"
     shutil.copytree(task / "reference", d)
     shutil.copytree(task / "given", d, dirs_exist_ok=True)
-    (d / "spec.toml").write_text((task / "spec.toml").read_text() + textwrap.dedent('''
-        [[axis]]
-        name = "x"
-        moves = ["block", "carriage_plate", "tool"]
-        only = true
-        direction = [1, 0, 0]
-        travel_min_mm = 80
-        work_min_mm = 80
-        tool = "tool"
-
-        [bodies]
-        count = 6
-        names = ["rail", "block", "stop_left", "stop_right", "tool", "carriage_plate"]
-    '''))
+    (d / "spec.toml").write_text((task / "spec.toml").read_text())
 
     def judged():
         m = st.load_machine("mgn12h_carriage")

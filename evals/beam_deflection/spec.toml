@@ -1,0 +1,66 @@
+# beam_deflection: the hidden grader. Every entry is stated in brief.md. Axes: x along the beam, z up, z = 0 the bench.
+#
+# What the task is about is the last entry: the beam, held as simply supported over the 600 mm between the two blocks,
+# may sag 50 um at its middle under 2.5 kg and its own weight. The rule reads the beam's own cross-sections, so a
+# library extrusion (its real T-slot profile) or a part of the designer's own section is judged, and a solid box of a
+# 2020, 2040 or 4040's outer size is UNCHECKED: `solid = true` is not here on purpose, since it would let a stand-in
+# for a rail, which has about twice the stiffness of the profile, pass as a solid bar. With the mass cap, the answer is
+# not simply the biggest section: a 2020 on its side or flat, and a 2040 flat, sag too much, a 4040 weighs too much.
+
+[bodies]                    # `parts()` returns exactly these three
+count = 3
+names = ["support_left", "support_right", "beam"]
+
+[envelope]                  # the blocks' outer faces are 680 mm apart, and the tallest beam stands 40 on the blocks' 40
+max_mm = [700, 60, 90]
+
+# The given bodies stay where they are, and what they are.
+[[position]]
+body = "support_left"
+center_mm = [-320, 0, 20]
+
+[[position]]
+body = "support_right"
+center_mm = [320, 0, 20]
+
+[[size]]
+body = "support_left"
+min_mm = [39.9, 39.9, 39.9]
+max_mm = [40.1, 40.1, 40.1]
+
+[[size]]
+body = "support_right"
+min_mm = [39.9, 39.9, 39.9]
+max_mm = [40.1, 40.1, 40.1]
+
+# The beam is a bar that fits on the blocks and reaches across both.
+[[size]]
+body = "beam"
+min_mm = [620, 0, 0]
+max_mm = [680, 40, 40]
+
+# It rests on both blocks: touching, no overlap.
+[[clearance]]
+a = "beam"
+b = "support_left"
+max_mm = 0.1
+
+[[clearance]]
+a = "beam"
+b = "support_right"
+max_mm = 0.1
+
+# And it is light. The beam's mass is its own volume at its material's density, or what a bought beam declares.
+[[mass]]
+bodies = ["beam"]
+max_g = 600
+
+# The point of the task. No `solid = true`: see the note at the top.
+[[deflection]]
+body = "beam"
+support = "simple"
+span_mm = 600
+load_g = 2500
+at = "center"
+self_weight = true
+max_um = 50

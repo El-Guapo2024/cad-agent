@@ -1120,3 +1120,17 @@ def test_the_other_reference_designs_are_refused_for_the_right_reason(evals_laid
     assert code == cli.UNCHECKED and "it is not a prism along y" in data["rows"][0]["measured"] and data["wrote"] == []
     code, data = run(capsys, "drawing", "endstop_bracket", "bracket")
     assert code == cli.USAGE and "bracket is made by 'fdm'" in data["error"]
+
+
+# ─── No extra ────────────────────────────────────────────────────────────────
+
+def test_drawings_have_no_extra_and_no_message_sends_a_user_to_one():
+    """The SVG and the PDF are written by hand, so the `drawings` extra (matplotlib) went from pyproject.toml, and nothing
+    in the package may still say `pip install "cad-agent[drawings]"` or import a plotting package."""
+    import tomllib
+    extras = tomllib.loads((REPO / "pyproject.toml").read_text())["project"]["optional-dependencies"]
+    assert set(extras) == {"metal", "embree", "fasteners", "dev"}
+    assert not any("matplotlib" in requirement for requirements in extras.values() for requirement in requirements)
+    for path in sorted((REPO / "cad_agent").rglob("*.py")):
+        text = path.read_text()
+        assert "cad-agent[drawings]" not in text and "matplotlib" not in text, path

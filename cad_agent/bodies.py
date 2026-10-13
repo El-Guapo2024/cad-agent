@@ -7,9 +7,9 @@ the BOM, sub-assemblies) all start from here, so none of them guesses what a bod
     parts          {body: solid}, placements.toml applied, as every gate sees them
     clearance      CLEARANCE, allow_contact ALLOW_CONTACT, axes AXES (motion.Axis), as before
     poses          POSES: {"park": {...}}, named poses of the machine. Held as declared (a dict of dicts);
-                   what a pose contains and how it is applied is piece B's (subassembly.py)
+                   what a pose contains and how it is applied is subassembly.py's
     bodies         {body: BodyInfo}
-    children       {name: ...} the sub-assemblies, filled by piece B; empty until then
+    children       {name: Child} the sub-assemblies (subassembly.py); empty when there are none
 
 `state.load_assembly` is the same call returning the first four as a tuple, and does not describe the
 bodies (`load_machine(slug, describe=False)`), which is what the commands that only need solids use.
@@ -50,15 +50,16 @@ The first two fields of a body say where it is from; the rest are what a rule ma
     notes         what could not be settled about this body, in words (a declared mass with no source,
                   a material with no density), so a rule can say why it is UNCHECKED
 
-Sub-assemblies (piece B)
-------------------------
+Sub-assemblies
+--------------
 When assembly.py declares SUBASSEMBLIES, `load_machine` hands the machine it has built and that
 declaration to `cad_agent.subassembly.expand(machine, declared) -> Assembly`, which returns the same
 machine with the children's bodies flattened in (`child/body` names), their clearance, allow_contact
 and axes lifted with the prefix, `children` filled, and a BodyInfo for each child body it adds (its
-`project` is the child's slug). Bodies it leaves without one are described here. Until that module
-exists, a design that declares SUBASSEMBLIES does not load: the machine would be missing its children
-and every gate would pass on less of it.
+`project` is the child's slug). Bodies it leaves without one are described here. A declaration that
+cannot be flattened in (a cycle, a missing project, a child that does not build) does not load: the
+machine would be missing its children and every gate would pass on less of it, so each fault is a
+FAIL row (`subassembly/<kind>`) and not a crash.
 """
 from __future__ import annotations
 

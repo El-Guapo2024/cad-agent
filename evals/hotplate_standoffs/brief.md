@@ -33,13 +33,12 @@ returns exactly six bodies, with these names:
   3.6 mm; `cad tables holes` has the 3.4 mm medium size). It has no other round hole.
 - Don't model screws: a tapped hole is modelled at its drill size, so a screw would overlap
   the plate.
-- Material: the standoffs must be rated for at least 250 C continuous. From `cad tables
-  density` that leaves stainless, steel, brass, copper, aluminium and polyimide. PLA, PETG, ABS,
-  nylon, acrylic and FR4/G10 are out. Any other material (PTFE, a machinable ceramic; PEEK is
-  marginal at 250 C) needs its rated temperature and the datasheet it came from in the part's
-  docstring. Prefer low conductivity, since the air gap is there to keep heat out of the base.
-  Set `PROCESS = "cnc"`: nothing printed survives this. `cad verify` has no heat rule yet, so no
-  row checks the material; a reviewer reads `MATERIAL` and the docstring.
+- Material: the standoffs must be rated for at least 250 C continuous, which `cad verify` checks (the heat
+  bullet below). `MATERIAL` is one of the materials `cad tables materials` knows, and that table, not a handbook or
+  memory, is what the grader reads: it gives each one's maximum service temperature with its basis and where the
+  number came from. A material it does not know (PTFE, a machinable ceramic, PEEK) has no rating, and then the row
+  cannot pass. Prefer low conductivity, since the air gap is there to keep heat out of the base. Set
+  `PROCESS = "cnc"`: nothing printed survives this.
 
 ## What `cad verify` grades
 
@@ -47,6 +46,7 @@ The grader's `spec.toml` replaces yours. Every number it uses is here, and every
 assembly gate still applies (`cad rules`; a `cnc` part has no round hole or slot under 1 mm), so
 no two bodies may interfere.
 
+- **Bodies:** exactly six: `base_plate`, `hot_plate` and `standoff_1` to `standoff_4`.
 - **Envelope:** the whole assembly fits in 160 x 160 x 36 mm.
 - **Positions:** `base_plate` bounding-box centre at (0, 0, -3) and `hot_plate` at (0, 0, 25),
   each within 0.1 mm.
@@ -60,6 +60,10 @@ no two bodies may interfere.
   2.5 mm tap drill or the 4.0 mm insert bore (those two within 0.15 mm), and at least one of the
   two is the clearance. A hole is judged by its narrowest bore, so a counterbore on the same axis
   is part of it. The plate's holes are 2.5 mm, so the standoff's bore must be 3.2 to 3.6 mm.
+- **Heat:** the plate is held at 250 C, and every other body within 15 mm of it (the exact distance between
+  surfaces) must be rated for at least that: the maximum service temperature of its `MATERIAL` in `cad tables
+  materials`. The plate is the source and is exempt, the standoffs touch it, and the base plate is 20 mm away,
+  outside the zone. It is a zone and not a thermal model: an air gap or an insulator buys nothing inside the radius.
 
 ## Where the numbers come from
 

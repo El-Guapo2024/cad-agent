@@ -1,5 +1,9 @@
 # idler_bracket: the hidden grader. brief.md states every number in here.
 
+[bodies]                    # `parts()` returns exactly these four
+count = 4
+names = ["extrusion", "idler", "shaft", "bracket"]
+
 # --- the given bodies: where the brief puts them, at their real size ---------
 # Pinned so a design cannot pass by moving, dropping or swapping one.
 
