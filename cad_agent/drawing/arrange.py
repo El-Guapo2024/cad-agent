@@ -296,11 +296,11 @@ def build(plate: Plate, face: View, side: View, meta: dict, angle: str = "first"
     for f in sorted({round(f.dv, 4): f for f in feats if f.kind == "hole" and f.w * s >= 1.5}.values(), key=lambda f: f.dv):
         sh.line("CENTRE", (sx - 2.5, fy + f.dv * s), (sx + ft + 2.5, fy + f.dv * s))
 
-    # the letters of the features, on the side of each that faces the middle of the plate
+    # the letters of the features, up and to the right of each, on the other side where that would cross the outline
     for f in feats:
         cx, cy = fx + f.du * s, fy + f.dv * s
-        sx_ = 1.0 if f.du < plate.width / 2.0 else -1.0
-        sy_ = 1.0 if f.dv < plate.height / 2.0 else -1.0
+        sx_ = -1.0 if (plate.width - f.du) * s < f.w * s / 2.0 + 4.0 else 1.0
+        sy_ = -1.0 if (plate.height - f.dv) * s < f.h * s / 2.0 + 4.0 else 1.0
         if f.kind == "hole":
             d = (f.w * s / 2.0 + 1.0) * 0.7071
             at = (cx + sx_ * d, cy + sy_ * d)

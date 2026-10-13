@@ -12,10 +12,12 @@ the projection, the commit, and whether the design is verified: NOT VERIFIED, in
 holds for the commit. arrange.py has the sheet, readback.py the gates, platefit.py what a plate is.
 
 What it does not draw. Machined plates and laser-cut sheets only: a prism along its thinnest axis whose features all go
-through (platefit.py says exactly which). No sections, no GD&T, no tolerances beyond the general one, no threads, no
-countersinks or counterbores, no sheet metal, nothing printed (fdm). A part that is none of these is not drawn, and
-nothing is written for it: exit 3 where the request is wrong (a printed part, a part with no PROCESS, a part of a
-sub-assembly), exit 2 with the reason where it is the part that is not a plate. A wrong drawing is worse than none.
+through (platefit.py says exactly which). No sections, no GD&T, no tolerances beyond the general one (so a fit that needs
+a tighter one is not on the sheet), no threads, no countersinks or counterbores, no sheet metal, nothing printed (fdm),
+and no zone grid on the frame (ISO 5457 recommends one). A part that is none of these is not drawn, and nothing is written
+for it: exit 3 where the request is wrong (a printed part, a part with no PROCESS, a part of a sub-assembly), exit 2 with
+the reason where it is the part that is not a plate. A wrong drawing is worse than none. A size ISO 2768-m has no tolerance
+for (under 0.5 mm, over 4000 mm) is drawn, and the notes say it has none.
 
 Where the drawing comes from, and what is ported
 -------------------------------------------------
@@ -50,15 +52,29 @@ its number says; no two labels overlap; the SVG and the PDF have an element for 
 FAIL or UNCHECKED as everywhere else.
 
     0  drawn, every row PASS, and `cad done` holds, so the sheet is not stamped
-    1  a row FAIL: the sheet would say something the plate does not; nothing is written
-    2  UNCHECKED: the part is not a plate, a row could not be settled, or the design is not done (the files are
-       written, stamped NOT VERIFIED and exit 2, as `cad shop --draft` does)
+    1  a row FAIL (the sheet would say something the plate does not) or the part did not build; nothing is written
+    2  UNCHECKED: the part is not a plate, a row could not be settled (a label that cannot be kept off another, a
+       plate no sheet holds), or the design is not done (then the files are written, stamped NOT VERIFIED, and it
+       exits 2, as `cad shop --draft` does)
     3  usage: unknown project or part, a printed part, no PROCESS, a "/" in the part name (draw it from the child
        project), a bad --format, --sheet or --scale, or a sheet that cannot hold what the arguments asked for
     4  crash
 
+`--json` gives project, part, process, angle, done and reasons (what `cad done` says), stamp, plate (what was recognised),
+sheet (size and scale), rows (the ones not passing, all with --all), rows_total, wrote (paths), files (path, sha256, bytes)
+and hlr_seconds (OCCT's hidden line removal for the face and the side view, and the whole drawing).
+
 `cad shop` calls `shop_drawings` (below) for the parts it makes, which writes the same files under drawings/ of out/shop/,
 so a drawing is made for each cnc and laser_cut plate of a verified design and the manifest lists it.
+
+What it costs
+-------------
+Slow hidden line removal was a risk of the plan, and for a plate it is small. On the plates of the eval reference designs,
+with the kernel loaded (best of five), OCCT 7.9 takes 2 to 6 ms for the face view and 5 to 54 ms for the side view, where the
+dashed holes are (laser_panel/panel 4 and 54, nema17_mount/bracket 2 and 48, the pcb_enclosure lid 6 and 5); OCCT 8.0 is the
+same within a few ms. The side view grows with the holes: about 150 ms with 20 and 450 ms with 40, the most a sheet takes.
+A whole drawing (plate recognised, both views, sheet, three files, every gate) takes 75 to 180 ms on those plates and
+0.7 s with 40 holes, plus the one time a process loads the kernel.
 """
 from __future__ import annotations
 

@@ -563,15 +563,15 @@ def test_every_run_gives_the_same_bytes_in_this_process_and_in_a_fresh_one(tmp_p
 # lines on both to 1e-9 mm, and the sheet is built on a 1e-4 mm grid. If a hash moves, either the layout or a writer
 # changed on purpose (pin the new one) or a kernel gave other lines (a bug in views.py: OCCT 7.9 and 8.0 must agree)
 PINNED = {
-    ("nema", "first", "dxf"): "94d0e19e67cb335b37fad872f923b0f0af6513cba68786588001fead46dca9ea",
-    ("nema", "first", "svg"): "81b255b568e3ee807d65c20a8e76bdf108e7fd4e752b8e3a7c9e224148f3d40a",
-    ("nema", "first", "pdf"): "e8e3f21cbc167e38d214300f54d48413762baf84b7f27f75d6826af151abe56b",
-    ("panel", "first", "dxf"): "ffffad09894fd5149de4b8cf38e6de4a22b337dca351f5b67f1c135d302cd6a9",
-    ("panel", "first", "svg"): "9b0155b17375e088f4ec47a1518ab49d31747cb0209778d6d217b055e2e505c2",
-    ("panel", "first", "pdf"): "4ff94db57fbb897c97b1138689943c2f424f2c43ba4db7f99aa955bba02126f8",
-    ("panel", "third", "dxf"): "6accc4a6cdbc8b8b843149c7b0eb66dacf27f2f6193487d5dc4b156838217250",
-    ("panel", "third", "svg"): "d0c16bd3c43bdd1b72084d13cd4dce9a0ff8f95aded3a86c7838c6b8c696e8ef",
-    ("panel", "third", "pdf"): "15f15b2bfef65fe5c837cff459f0459d6c013e71b1bceb9db3e9ddb386a2d4e9",
+    ("nema", "first", "dxf"): "46464732747260fcb8937f211fbf1aee1d659a1ac6981541ce35955cf0788e81",
+    ("nema", "first", "svg"): "8afe01e6ede47d6eb316a54740c98cbd62df2cd5045c7e930d064b2bf1daa523",
+    ("nema", "first", "pdf"): "c2660c12e93053e71da39a67c162f518df5ebb61cae703f808f5908d65d940af",
+    ("panel", "first", "dxf"): "9fb462bccf243a9eac9d68da5268b1bb68e1541c73f95189df343c2c2314b4e8",
+    ("panel", "first", "svg"): "827fe85277f424d28bdc898a2a4223c518a155e95ea2b536f3e360abbef71fa6",
+    ("panel", "first", "pdf"): "0f1d407ae02cfa593c32ab495d1bd4b30a0c2b5144d3cf20c6ced611668ecf49",
+    ("panel", "third", "dxf"): "9c8bdb12819a6f4d9afddd892286b27d966f3fa01b7e0779bc42fe155d8dbe99",
+    ("panel", "third", "svg"): "95c39a8744beb1785e9ffea398d5b033e78d9f1c6d8ad5a6afd285f090becb13",
+    ("panel", "third", "pdf"): "6289ac7ba13cbc0d0a28b6d4c6fd10f8a20cf510fb88a4a54d2ef047523f38e2",
 }
 
 
