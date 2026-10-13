@@ -3,7 +3,7 @@
 The DXF is written with piece D's R14 writer (dxf.DxfWriter) and read back with ezdxf, which shares no code with it.
 The SVG and the PDF are not made from the sheet that was laid out: they are made from what ezdxf reads in the DXF, so
 that what a person sees in them is what the master says, and a DXF that lost a line or moved a number is a SVG and a
-PDF that did too, which the readback (check.py) then sees.
+PDF that did too, which the readback (readback.py) then sees.
 
   DXF  layers by function with the linetype of ISO 128-20 (DASHED, CENTER) and a colour for the pen, as R14 has no
        lineweight; model space, one unit a millimetre, the sheet's lower-left corner at 0, 0. The first comment names
@@ -15,7 +15,7 @@ PDF that did too, which the readback (check.py) then sees.
        Bezier arcs, the same pens. No compression, no date, no id, so the same sheet is the same bytes. This is why
        the PDF needs no library: the `drawings` extra of pyproject.toml (matplotlib) is not used
 
-All three are the same bytes for the same sheet, on either kernel when the sheet is (views.py says how the lines are
+All three are the same bytes for the same sheet, on either kernel when the sheet is (hlr.py says how the lines are
 made so).
 """
 from __future__ import annotations
@@ -26,7 +26,7 @@ from collections import Counter
 from typing import NamedTuple
 
 from .. import dxf
-from . import sheet as S
+from . import paper as S
 
 PT = 72.0 / 25.4                # points in a millimetre
 

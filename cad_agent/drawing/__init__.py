@@ -9,10 +9,10 @@ What it draws. The face of the plate and its thickness, in two views, with the o
 hole, slot and window from the lower-left corner, a letter and a callout for each size of cutout, and the general
 tolerance of ISO 2768-m. A title block carries the part, the project, the material, the process, the scale, the sheet,
 the projection, the commit, and whether the design is verified: NOT VERIFIED, in red and in a banner, unless `cad done`
-holds for the commit. layout.py has the sheet, check.py the gates, plate.py what a plate is.
+holds for the commit. arrange.py has the sheet, readback.py the gates, platefit.py what a plate is.
 
 What it does not draw. Machined plates and laser-cut sheets only: a prism along its thinnest axis whose features all go
-through (plate.py says exactly which). No sections, no GD&T, no tolerances beyond the general one, no threads, no
+through (platefit.py says exactly which). No sections, no GD&T, no tolerances beyond the general one, no threads, no
 countersinks or counterbores, no sheet metal, nothing printed (fdm). A part that is none of these is not drawn, and
 nothing is written for it: exit 3 where the request is wrong (a printed part, a part with no PROCESS, a part of a
 sub-assembly), exit 2 with the reason where it is the part that is not a plate. A wrong drawing is worse than none.
@@ -22,7 +22,7 @@ Where the drawing comes from, and what is ported
 FreeCAD (https://github.com/FreeCAD/FreeCAD, commit 3160daf1e2b6, LGPL-2.1-or-later), src/Mod/TechDraw/App:
 
   GeometryObject.cpp   `projectShape` and `makeTDGeometry`: hidden line removal with OCCT's HLRBRep_Algo, the hard and
-                       outline edges visible solid and hidden dashed (views.py has the whole account)
+                       outline edges visible solid and hidden dashed (hlr.py has the whole account)
   DrawProjGroup.cpp    `ProjectionTypeEnums` and `getViewIndex`: first angle puts the view from the left to the right of the
                        front view, third angle the view from the right; the default, `Preferences::projectionAngle`, is
                        first angle, and so it is here, as it is in ISO 128-30
@@ -36,15 +36,15 @@ are drawn the way ISO 129-1 draws them and their numbers come from the B-rep (th
 
 The formats
 -----------
-The DXF is the master. The SVG and the PDF are drawn from what ezdxf reads in it (render.py), by code of this module and
+The DXF is the master. The SVG and the PDF are drawn from what ezdxf reads in it (writers.py), by code of this module and
 no library: the PDF is written by hand (standard Helvetica, vector, uncompressed), so the `drawings` extra of pyproject.toml
 (matplotlib) is not used and nothing here raises ImportError for it. Every file is the same bytes for the same part on one
-kernel. OCCT 7.9 and 8.0 give the same lines to about 1e-9 mm, in another order and cut in other places; views.py puts
+kernel. OCCT 7.9 and 8.0 give the same lines to about 1e-9 mm, in another order and cut in other places; hlr.py puts
 them on a 1e-4 mm grid, joins what touches and sorts it, and the sheet is the same entities on both.
 
 Gates and exit codes
 --------------------
-Every drawing is judged before it is written (check.py): the plate the printed numbers describe equals the solid's end
+Every drawing is judged before it is written (readback.py): the plate the printed numbers describe equals the solid's end
 face; the DXF read back by ezdxf draws that plate at its stated scale with each ordinate and dimension line at the length
 its number says; no two labels overlap; the SVG and the PDF have an element for each entity of the DXF. Rows are PASS,
 FAIL or UNCHECKED as everywhere else.
@@ -103,7 +103,7 @@ def _built(slug: str, part: str, process: str) -> dict:
 
 
 def _options(a) -> tuple:
-    from . import sheet as S
+    from . import paper as S
     formats = tuple(f.strip().lower() for f in a.format.split(",") if f.strip())
     bad = [f for f in formats if f not in FORMATS]
     if bad or not formats:
@@ -127,8 +127,8 @@ def cmd_drawing(a) -> Result:
 
     from .. import subassembly, verify
     from ..dxf import NeedsExtra
-    from . import draw
-    from .layout import DoesNotFit
+    from . import onesheet as draw
+    from .arrange import DoesNotFit
     pdir = cmdbase.project(a.slug)
     if "/" in a.part:
         child, _, rest = a.part.partition("/")
@@ -211,8 +211,8 @@ def shop_drawings(slug: str, parts: dict, processes: dict, stamp: str | None) ->
     own gates is skipped, never written.
     """
     from .. import subassembly, verify
-    from . import draw
-    from .layout import DoesNotFit
+    from . import onesheet as draw
+    from .arrange import DoesNotFit
     pdir = st.project_dir(slug)
     git = verify.git_info(pdir)
     files: dict = {}

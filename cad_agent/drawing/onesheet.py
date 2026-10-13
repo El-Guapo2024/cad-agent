@@ -5,11 +5,11 @@ import time
 from dataclasses import dataclass, field
 
 from ..registry import Row
-from . import check
-from . import layout as L
-from . import plate as P
-from . import render as R
-from . import views as V
+from . import readback as check
+from . import arrange as L
+from . import platefit as P
+from . import writers as R
+from . import hlr as V
 
 FORMATS = ("dxf", "svg", "pdf")
 PROCESSES = ("cnc", "laser_cut")
@@ -52,7 +52,7 @@ def make(part: str, solid, meta: dict, angle: str = "first", size: str | None = 
     """The drawing of one plate. `meta` is the title block's facts: part, project, material, process, commit, dirty, stamp.
 
     A part that is not a plate comes back `unfit` with the sentence that says why, and nothing is drawn. Otherwise the
-    files are made and every row of check.py is judged; the caller writes them only if `judged()`.
+    files are made and every row of readback.py is judged; the caller writes them only if `judged()`.
     """
     t0 = time.perf_counter()
     made = Made(part)

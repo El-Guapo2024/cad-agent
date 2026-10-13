@@ -32,10 +32,10 @@ from collections import Counter
 
 from .. import dxf
 from ..registry import Row
-from . import layout as L
-from . import plate as P
-from . import render as R
-from . import sheet as S
+from . import arrange as L
+from . import platefit as P
+from . import writers as R
+from . import paper as S
 
 PRINT = 0.005                   # a number printed to 0.01 is the plate's within this
 GEOM = 1e-3                     # mm in the plate: where a line or a circle of the sheet may be from where the B-rep has it

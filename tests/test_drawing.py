@@ -34,7 +34,9 @@ from build123d import (Axis, Box, Cone, Cylinder, Edge, Ellipse, GeomType, Polyg
 
 from cad_agent import cli, cmdbase, dxf, evals, shop, verify
 from cad_agent import state as st
-from cad_agent.drawing import check, draw, layout, plate as P, render, sheet as S, views as V
+# the modules of cad_agent/drawing under the short names this file uses for them
+from cad_agent.drawing import arrange as layout, hlr as V, onesheet as draw, paper as S, platefit as P, readback as check
+from cad_agent.drawing import writers as render
 from cad_agent.registry import Row
 from cad_agent.runner import approve_views, check_all
 from test_bom import ASSEMBLY, BLOCK, CLIP, PANEL, SLUG, SPEC, make_workshop, workshop  # noqa: F401 (the workshop fixture)

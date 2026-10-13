@@ -1,7 +1,7 @@
 """The sheet: an ISO 5457 frame, a title block, the views of a plate and its dimensions, as items on layers.
 
 Everything here is in millimetres on the paper, origin at the sheet's lower-left corner, y up, which is also what the
-DXF holds (`render.py` draws the SVG and the PDF from that file). An item is `(layer, geometry)`; the geometry is an
+DXF holds (`writers.py` draws the SVG and the PDF from that file). An item is `(layer, geometry)`; the geometry is an
 entity of dxf.py (Line, Circle, Arc), a `Text` or a `Solid` (a filled arrowhead). Nothing is random and nothing is a
 clock: the same plate gives the same items.
 

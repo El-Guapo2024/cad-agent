@@ -21,16 +21,16 @@ Which sheet and which scale. The smallest of A4 to A0 on which the views and the
 the largest scale of ISO 5455 up to 5:1 that fits on it; a plate too big for A0 at 1:1 goes on A0 at the largest
 reduction that fits. `size` and `scale` fix either, and a plate that does not fit what was fixed is `DoesNotFit`.
 
-The places are in millimetres on the paper (sheet.py), and nothing here reads a clock.
+The places are in millimetres on the paper (paper.py), and nothing here reads a clock.
 """
 from __future__ import annotations
 
 from dataclasses import dataclass, field
 
 from .. import dxf
-from . import sheet as S
-from .plate import Plate, Unfit
-from .views import View
+from . import paper as S
+from .platefit import Plate, Unfit
+from .hlr import View
 
 TOLERANCE = "ISO 2768-m"
 PROCESS_NAMES = {"cnc": "CNC MACHINED", "laser_cut": "LASER CUT"}
