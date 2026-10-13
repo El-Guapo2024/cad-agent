@@ -874,6 +874,23 @@ def test_an_upload_needs_the_header_a_name_and_a_body_that_arrives(works, monkey
     assert b" 413 " in raw(head).split(b"\r\n")[0]
 
 
+def test_an_upload_folder_a_stopped_server_left_behind_goes_after_twelve_hours(works, monkeypatch, tmp_path):
+    import os
+    import tempfile
+    call, bench, _ = works
+    monkeypatch.setattr(tempfile, "tempdir", str(tmp_path / "tmp"))
+    (tmp_path / "tmp").mkdir()
+    old, recent, other = (tmp_path / "tmp" / n for n in ("cad-upload-old", "cad-upload-recent", "somebody-elses"))
+    for d in (old, recent, other):
+        d.mkdir()
+        (d / "x.step").write_text("x")
+    os.utime(old, (time.time() - 13 * 3600,) * 2)
+    os.utime(other, (time.time() - 99 * 3600,) * 2)
+    assert call("/api/upload?name=a.step", raw=b"ISO-10303-21;")[0] == 200
+    assert not old.exists() and recent.exists() and other.exists()      # only an old cad-upload-* folder, and not this server's own
+    assert bench.uploads is not None and bench.uploads.parent == tmp_path / "tmp"
+
+
 def test_a_machines_poses_are_in_the_scene_and_the_pages_arithmetic_is_the_kernels(tmp_path, monkeypatch, capsys):
     """The page shows a pose by moving the bodies each axis carries, so the scene carries AXES and POSES, and the
     sum the page does (motion.pose: the axis's unit direction times its position, added up) must equal what

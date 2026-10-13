@@ -217,6 +217,15 @@ class Bench:
         What is older than UPLOAD_KEEP_S goes when the next file comes; all of it goes when the server stops."""
         with self.lock:
             if self.uploads is None or not self.uploads.is_dir():
+                # a server stopped by a signal never reaches run()'s `finally`, so its folder is still there: what is
+                # as old as UPLOAD_KEEP_S goes, this server's own is made after
+                stale = time.time() - UPLOAD_KEEP_S
+                for old in Path(tempfile.gettempdir()).glob("cad-upload-*"):
+                    try:
+                        if old.is_dir() and old.stat().st_mtime < stale:
+                            shutil.rmtree(old, ignore_errors=True)
+                    except OSError:
+                        pass
                 self.uploads = Path(tempfile.mkdtemp(prefix="cad-upload-"))
             folder = self.uploads
         cutoff = time.time() - UPLOAD_KEEP_S
