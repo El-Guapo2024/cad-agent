@@ -306,6 +306,42 @@ Still to compare: the 3D view's own rendering (no GL offscreen to take a referen
 - **First-run pass** (2026-10-02, clicking through what a new user meets: Start page, New Document, Open, the CAD Agent menu, the Data tab, the 3D view). Fixed: the Start footer's Open First Start Setup wrapped onto two lines and spilled out of its button (a QPushButton never wraps; StartView.cpp 164-181); the Open Document list drew each verdict below its name, overlapping the next row; the New Document hint showed raw backticks; a 3D view first shown from behind the Start tab drew its navigation cube where the old size put it (half off the right edge, away from its arrows) until the next redraw; an empty project's scene had no bounding box, so the viewer's grid and axes came out NaN (now framed like a new FreeCAD document, NewDocumentCameraScale 100 mm). Two deliberate differences: an empty project's 3D view says where parts come from (code, written by the agent or by hand; FreeCAD's empty view is just empty), and New Document says "Creating…" while the first command waits for the CAD kernel, as the 3D view already does.
 - **Re-check on the new engine** (2026-10-09: the Metal sidecar, self-restarting workers, the build cache, 404/400 for unknown projects; Playwright against a scratch workbench on copies of arduino_car and an empty project; tsc clean, navcheck 72 of 72, keycheck 62 of 62). Open, live reload after an edit on disk (camera, selection and visibility stay; only the edited part is rebuilt, the rest come from the build cache), dragging a part with the Transform dragger (placements.toml, the fit rows come back), New Document, Open, Approve Renders (opened and cancelled), an unknown project in the URL, a part that does not build (the page keeps the last good scene and says why), and editing a parameter and undoing it all work, with no console errors. Fixed: closing a task never disposed its Tasks panel, because syncDocks moved the dock headers from inside dockview 8.3.1's onDidRemovePanel and the throw that caused (`dockviewLate` swallowed it) skipped `panel.dispose()`; each closed Tasks panel stayed mounted, so the Nth open of Check, Verify, Done Gate, Cut List, Tables or Rules ran its `cad` command N times, and the docks now sync once the add or remove call is over. The Report view said "cad failed" for every verdict (exit 1 or 2) because the server added that as an error to any non-zero exit; it says the command's first line now ("arduino_car  NOT DONE"), and a drag that hits another part names the pairs ("wheel_left was placed, but a fit check fails: arduino vs wheel_left: overlap 469.841 mm^3; …"). The keycheck script launches Chromium on SwiftShader: the default WebGL fallback froze the first click on the 3D view's tab (50 s at load 65 to 90, 3.3 s at load 6, 0.6 s with the flags). Not FreeCAD differences, only fixes to what the page said and did.
 
+## Every cad command from the page (2026-10-13)
+
+The owner's rule is that a person gets every function the agent has. An audit of each `cad` command and option (`bin/cad --help`,
+cmdbase.py, cli.py) against the menus, toolbars and tasks found the gaps below. Each is a task panel in the Tasks dock that runs the
+command through POST /api/cad, as the console does, so it lands in the activity log and the Report view like an agent's call; each
+also has a registry command, so `cad gui run PROJECT CADAgent_Bom` and the rest work from a terminal. FreeCAD sources are at
+3160daf1e2b6, and the icons are FreeCAD's (public/freecad-icons/README.md).
+
+| Where | Command | What it shows |
+|---|---|---|
+| CAD Agent > Bill of Materials… | `cad bom` (`--only-parts`, `--flat`, `--no-cache`) | `Assembly_CreateBom`'s options (Only parts, Detail sub-assemblies) and columns; one line each, the sub-assembly's parts nested under it, a click selects the line's bodies; out/bom.csv and .json to save |
+| CAD Agent > Shop Files… | `cad shop` (write, `--draft`, `--check`, `--all`) | the verdict, the rows, what is left out, and out/shop/ listed from its manifest with every file to save (SVG and PDF also to view); Write for a design that is not done says why and writes nothing |
+| CAD Agent > Drawing…, and the context menu of a plate | `cad drawing` (`--angle`, `--sheet`, `--scale`, `--format`, `--all`) | a tab "part : Drawing" beside the 3D view, as TechDraw opens a page as an MDI view (`TechDraw_PageDefault`), panned, zoomed with the wheel and fitted, with DXF, SVG and PDF to save (`TechDraw_ExportPageDXF`, `...SVG`). File > Close closes the tab in front, and Windows lists it. The SVG is an image there, and the server sends it with a policy that stops scripts |
+| CAD Agent > Library… | `cad lib ls`, `info`, `use`, `check`, `add` | Browse (search, kind, one entry's facts, its parameters, Use in the open project: journaled, so Edit > Undo takes it back), Check (the store, or the project's bought/), Add (a STEP picked on this computer: the page sends its bytes to POST /api/upload, which answers the path `cad lib add` wants). Works with no project open. `cad lib fetch` downloads, so Fetch… only puts the command on the Console's line and the Return is the person's |
+| CAD Agent > Pose ▸ and the toolbar's drop-down | POSES of assembly.py | the 3D view shows the machine at a named pose, each body an axis carries slid by the sum of the axes that carry it (`motion.pose`; tests/test_workbench.py holds the arithmetic to `apply_pose`'s). A view only: a chip says so and goes Home; the checks, measure and mass use the machine at home; Transform and Placement wait for Home, since a move is written from where assembly.py puts the part |
+| CAD Agent > Build Part… | `cad build` (`--set`) | size, volume, mass, process and build time; "Try values" builds with other parameters for one run and writes nothing |
+| CAD Agent > Evals… | `cad eval ls`, `brief`, `score` | the tasks, a brief, and the open project scored against one (judged as a copy). `cad eval run` starts a real agent and spends the plan's usage, so it stays a terminal command |
+| Check and Verify tasks | `--views`, `check --part`, `--set`, `--all`, `--no-cache` | an Options box under the verdict; Run with these |
+| Bought Parts… | `bought verify --note`, `add-measured --hole --hole-dia`, a picked STEP | a Verify… button on an UNVERIFIED part asks what was measured, and how |
+| Render… | `--set` | Try values |
+| File > New Document | `cad init --brief` | a Brief box |
+
+Also changed: the Checks table and the task tables read `check/rule` as the CLI prints them (`mini_gantry:geometry/envelope`, `subassembly/linked`),
+so a sub-assembly's rows say which project they are about; the console puts the open project where `cad` wants it for a sub-command
+(`lib use`, `bought ls`, `gui state`) and runs the project-free commands with none open, as do Rules, Tables and Tool envelope; and
+a body made with `bought_solid` shows as bought in the tree, whatever it is called (scene.py, bodies.py's first rule).
+
+Left to the CLI, and why: `cad serve` and `cad service` (the workbench cannot start or stop itself, and the console refuses them),
+`cad eval run` (above), `cad lib fetch` (a download), `drawing --out` and `page --out` (server paths), `cad approve --part/--view`
+(Approve Renders stays the owner's whole-project click, after the dialog lists what changes; nothing here approves anything).
+
+`node ui/scripts/agentcheck.mjs URL PROJECTS_ROOT STEP_FILE` drives all of it against a scratch workbench on a copy of tests/fixtures:
+the machine's tree names, its Checks rows, a part of the sub-assembly dragged with the Transform dragger (`cad place mini_machine
+gantry/tool_plate`) and undone, the panels above with their downloads, the Report view's lines, and Approve Renders opened and
+cancelled. 70 checks pass; with navcheck (72) and keycheck (62) and `tsc` clean.
+
 ## Still missing
 
 - Nothing from FreeCAD's standard menus, toolbars, context menus, keys or panels that applies to these projects. What is left is n/a (no FreeCAD document, sketcher or feature tree) or listed as n/a above.

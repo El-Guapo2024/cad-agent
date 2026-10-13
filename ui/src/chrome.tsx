@@ -19,8 +19,10 @@ import {
   toggleVisibility, toggleBottomPanels, setTreeOption, selBack, selForward, overlayAll, overlayActive, overlayToggle, overlayTransparent, overlayBypass,
   setViewProps, AUTO_MODES, getAutoMode, isTransparentSide, overlaySide, setOverlayAutoMode, sideOfGroup, subscribeOverlay, toggleTransparentSide,
   recordAndRun, type OverlayAutoMode, type Side,
-  getDock,
+  getDock, setPose, selectedPart, windowCount,
 } from './actions'
+import { poseNames, poseText } from './poses'
+import { plateParts } from './shopwb'
 import { macroEntries, windowsEntries } from './macro'
 import { startPage } from './start'
 import { fileEntries } from './filemenu'
@@ -77,21 +79,42 @@ export const workbenchList = () => {
  *  before Windows — after Macro, see the menu bar below) and toolbar: the cad CLI commands with no
  *  UI of their own yet, status-tip text straight from
  *  `cad <command> --help`. Both show only while the workbench is active, like any FreeCAD addon's. */
-const agentEntries = (slug: string | null): Entry[] => [
-  { label: 'Check', icon: 'recompute', cmd: 'CADAgent_Check', disabled: !slug, title: 'run every gate and write checks.json (or, with --part, the fast part-only rules)', onSelect: () => openTask('check', '') },
-  { label: 'Verify', icon: 'pass', cmd: 'CADAgent_Verify', disabled: !slug, title: 'the verifier: rebuild from source in a fresh process, run every gate, record the verdict with hashes and git commit', onSelect: () => openTask('verify', '') },
-  { label: 'Done Gate', icon: 'pending', cmd: 'CADAgent_Done', disabled: !slug, title: 'the gate: exit 0 only if the last verify passed, still matches the files, ran fresh, and (in a repo) verified committed work', onSelect: () => openTask('done', '') },
-  'sep',
-  { label: 'Cut List…', cmd: 'CADAgent_CutList', disabled: !slug, title: 'stock to order and cut, roughly priced', onSelect: () => openTask('cutlist', '') },
-  { label: 'Tables…', icon: 'report', cmd: 'CADAgent_Tables', title: 'hole sizes, tap drills, insert bores, extrusions, densities', onSelect: () => openTask('tables', '') },
-  { label: 'Tool Envelope…', icon: 'body', cmd: 'CADAgent_ToolEnvelope', title: 'generate a tool envelope and measure it', onSelect: () => openTask('tool', '') },
-  { label: 'Bought Parts…', icon: 'bought', cmd: 'CADAgent_Bought', disabled: !slug, title: 'bought parts: vendor STEP or measured, always with a source', onSelect: () => openTask('bought', '') },
-  'sep',
-  { label: 'Render…', icon: 'shot', cmd: 'CADAgent_Render', disabled: !slug, title: 'render a part, or the assembly, to a PNG', onSelect: () => openTask('render', '') },
-  { label: 'Approve Renders…', cmd: 'CADAgent_ApproveRenders', disabled: !slug, title: 'promote current renders to approved baselines (your call: look at the diff first)', onSelect: approveRenders },
-  'sep',
-  { label: 'Rules…', icon: 'help', cmd: 'CADAgent_Rules', title: 'every registered check and what it verifies', onSelect: () => openTask('rules', '') },
-]
+const agentEntries = (slug: string | null): Entry[] => {
+  const s = getState(), poses = poseNames(s.scene)
+  return [
+    { label: 'Check', icon: 'recompute', cmd: 'CADAgent_Check', disabled: !slug, title: 'run every gate and write checks.json (or, with --part, the fast part-only rules)', onSelect: () => openTask('check', '') },
+    { label: 'Verify', icon: 'pass', cmd: 'CADAgent_Verify', disabled: !slug, title: 'the verifier: rebuild from source in a fresh process, run every gate, record the verdict with hashes and git commit', onSelect: () => openTask('verify', '') },
+    { label: 'Done Gate', icon: 'pending', cmd: 'CADAgent_Done', disabled: !slug, title: 'the gate: exit 0 only if the last verify passed, still matches the files, ran fresh, and (in a repo) verified committed work', onSelect: () => openTask('done', '') },
+    'sep',
+    { label: 'Build Part…', icon: 'body', cmd: 'CADAgent_Build', disabled: !slug, title: 'build one part and measure it, with other values tried for one run if you like', onSelect: () => openTask('build', selectedPart()) },
+    { label: 'Cut List…', cmd: 'CADAgent_CutList', disabled: !slug, title: 'stock to order and cut, roughly priced', onSelect: () => openTask('cutlist', '') },
+    { label: 'Bill of Materials…', icon: 'bom', cmd: 'CADAgent_Bom', disabled: !slug, title: "the bill of materials of the project's assembly: kind, material, process, vendor, part number, mass", onSelect: () => openTask('bom', '') },
+    { label: 'Shop Files…', icon: 'export', cmd: 'CADAgent_Shop', disabled: !slug, title: 'write out/shop/ for a verified design: DXF, 3MF, STL, STEP, drawings and the BOM', onSelect: () => openTask('shop', '') },
+    { label: 'Drawing…', icon: 'drawing', cmd: 'CADAgent_Drawing', disabled: !slug, title: 'a dimensioned drawing (DXF, SVG, PDF) of one machined or laser-cut plate', onSelect: () => openTask('drawing', selectedPart()) },
+    'sep',
+    { label: 'Tables…', icon: 'report', cmd: 'CADAgent_Tables', title: 'hole sizes, tap drills, insert bores, extrusions, densities', onSelect: () => openTask('tables', '') },
+    { label: 'Tool Envelope…', icon: 'body', cmd: 'CADAgent_ToolEnvelope', title: 'generate a tool envelope and measure it', onSelect: () => openTask('tool', '') },
+    { label: 'Bought Parts…', icon: 'bought', cmd: 'CADAgent_Bought', disabled: !slug, title: 'bought parts: vendor STEP or measured, always with a source', onSelect: () => openTask('bought', '') },
+    { label: 'Library…', icon: 'library', cmd: 'CADAgent_Library', title: 'the part library: vendor and generated parts to copy into a project\'s bought/', onSelect: () => openTask('library', '') },
+    'sep',
+    { label: 'Render…', icon: 'shot', cmd: 'CADAgent_Render', disabled: !slug, title: 'render a part, or the assembly, to a PNG', onSelect: () => openTask('render', '') },
+    { label: 'Approve Renders…', cmd: 'CADAgent_ApproveRenders', disabled: !slug, title: 'promote current renders to approved baselines (your call: look at the diff first)', onSelect: approveRenders },
+    'sep',
+    { label: 'Pose', icon: 'pose', disabled: !poses.length && !s.pose, title: "show the machine at one of assembly.py's POSES (the view only)", sub: poseEntries() },
+    'sep',
+    { label: 'Rules…', icon: 'help', cmd: 'CADAgent_Rules', title: 'every registered check and what it verifies', onSelect: () => openTask('rules', '') },
+    { label: 'Evals…', icon: 'report', cmd: 'CADAgent_Evals', title: 'the eval set: design tasks scored by the verifier', onSelect: () => openTask('evals', '') },
+  ]
+}
+/** The Pose menu and the toolbar's drop-down: Home (where assembly.py puts the machine) and each pose of POSES, the one shown checked. */
+function poseEntries(): Entry[] {
+  const { scene, pose } = getState()
+  return [
+    { label: 'Home', checked: !pose, title: "where assembly.py puts the machine", onSelect: () => setPose(null) },
+    ...poseNames(scene).map((p): Entry => ({ label: p, checked: pose === p, title: poseText(scene!, p), onSelect: () => setPose(p) })),
+    ...(poseNames(scene).length ? [] : [{ label: '(no poses declared in assembly.py)', disabled: true } as Entry]),
+  ]
+}
 
 // ── one description of each menu, used by the menu bar and the right-click menus ──
 export type Entry = { label: string; kbd?: string; icon?: IconName; /** an icon outside icons.tsx (a URL) */ img?: string; checked?: boolean; disabled?: boolean; onSelect?: () => void; sub?: Entry[]
@@ -147,6 +170,10 @@ const visibilitySub = (): Entry[] => {
     { label: 'Toggle Selectability', icon: 'unselectable', cmd: 'Std_ToggleSelectability', disabled: !any, onSelect: toggleSelectability },
   ]
 }
+/** Drawing… on the context menus of a made plate: `cad drawing` of the part module the body comes from (shopwb.tsx's
+ *  plateParts says which parts are cnc or laser_cut once a Check has read their PROCESS). */
+const drawingEntry = (b: Body | undefined): Entry[] => (b?.part && plateParts().includes(b.part)
+  ? [{ label: 'Drawing…', icon: 'drawing', title: 'a dimensioned drawing (DXF, SVG, PDF) of this plate', onSelect: () => openTask('drawing', b.part!) }] : [])
 /** What FreeCAD offers for selected objects (tree and 3D view context menus). */
 export function objectEntries(): Entry[] {
   const s = getState(), one = s.selected.length === 1 ? s.scene?.bodies.find((b) => b.name === s.selected[0]) : undefined
@@ -168,6 +195,7 @@ export function objectEntries(): Entry[] {
       { label: 'Transform', icon: 'transform', onSelect: () => openTask('transform', one.name) } as Entry,
       { label: 'Placement', icon: 'placement', onSelect: () => openTask('placement', one.name) } as Entry,
       ...(one.placement ? [{ label: "Reset to the code's position", onSelect: () => place(one.name, placementOf(one), null) } as Entry] : []),
+      ...drawingEntry(one),
       'sep' as const,
     ] : []),
     { label: 'Measure', icon: 'measure', disabled: !canMeasure(), onSelect: measure },
@@ -217,7 +245,7 @@ function selectionTreeEntries(one: Body | undefined): Entry[] {
     { label: 'Delete', kbd: '⌦', icon: 'edit-delete', disabled: true },
     { label: 'Send to Console', kbd: '⇧⌘P', icon: 'console', onSelect: sendToConsole },
     ...(one ? [{ label: 'Transform', icon: 'transform', onSelect: () => openTask('transform', one.name) } as Entry,
-      { label: 'Placement', icon: 'placement', onSelect: () => openTask('placement', one.name) } as Entry] : []),
+      { label: 'Placement', icon: 'placement', onSelect: () => openTask('placement', one.name) } as Entry, ...drawingEntry(one)] : []),
     { label: 'Properties', kbd: '⌥↵', onSelect: properties },
   ]
 }
@@ -276,7 +304,7 @@ export function popupEntries(body: string | null, clarify: (() => void) | null):
     own.push({ label: params ? `Edit ${b.name}` : `Transform ${b.name}`, bold: true, icon: params ? 'body' : 'transform', onSelect: () => editDefault(b.name) })
     if (b.placement) own.push({ label: "Reset to the code's position", onSelect: () => place(b.name, placementOf(b), null) })
     own.push({ label: 'Measure', icon: 'measure', disabled: !canMeasure(), onSelect: measure },
-      { label: 'Mass Properties', disabled: !s.selected.length, onSelect: massProperties })
+      { label: 'Mass Properties', disabled: !s.selected.length, onSelect: massProperties }, ...drawingEntry(b))
   }
   return [
     ...(own.length ? [...own, 'sep' as const] : []),
@@ -347,8 +375,8 @@ export function MenuBar() {
   const undo = useStore((s) => s.undo), redo = useStore((s) => s.redo)
   useStore((s) => s.ortho); useStore((s) => s.drawStyle); useStore((s) => s.cube); useStore((s) => s.hidden)
   useStore((s) => s.selBoxes); useStore((s) => s.axes); useStore((s) => s.clip); useStore((s) => s.subSel)
-  useStore((s) => s.recordingMacro); useStore((s) => s.task)
-  useSyncExternalStore(subscribeWindow, hasOpenWindow) // File (Close/Print…) and Windows: the 3D view tab isn't in the store
+  useStore((s) => s.recordingMacro); useStore((s) => s.task); useStore((s) => s.pose); useStore((s) => s.scene)
+  useSyncExternalStore(subscribeWindow, windowCount) // File (Close/Print…) and Windows: the 3D view tab isn't in the store
   const wb = useStore((s) => s.workbench), wbPrefsMenu = useStore((s) => s.wbPrefs), editMode = useStore((s) => s.editMode), toolbars = useStore((s) => s.toolbars), statusBar = useStore((s) => s.statusBar)
   void wbPrefsMenu // the View > Workbench submenu follows Preferences > Workbenches
   const tree = useStore((s) => s.tree), history = useStore((s) => s.selHistory), frozen = useStore((s) => s.frozenViews)
@@ -733,8 +761,14 @@ export function ToolBar() {
         <Btn icon="report" title="Tables: hole sizes, tap drills, insert bores, extrusions, densities" cmd="CADAgent_Tables" onClick={() => openTask('tables', '')} />
         <Btn icon="body" title="Tool envelope: generate a tool envelope and measure it" cmd="CADAgent_ToolEnvelope" onClick={() => openTask('tool', '')} />
         <Btn icon="bought" title="Bought parts: vendor STEP or measured, always with a source" cmd="CADAgent_Bought" disabled={!slug} onClick={() => openTask('bought', '')} />
+        <Btn icon="library" title="Library: vendor and generated parts to copy into the project's bought/" cmd="CADAgent_Library" onClick={() => openTask('library', '')} />
+        <TSep />
+        <Btn icon="bom" title="Bill of Materials: kind, material, process, vendor, part number, mass" cmd="CADAgent_Bom" disabled={!slug} onClick={() => openTask('bom', '')} />
+        <Btn icon="export" title="Shop files: DXF, 3MF, STL, STEP, drawings and the BOM, in out/shop/" cmd="CADAgent_Shop" disabled={!slug} onClick={() => openTask('shop', '')} />
+        <Btn icon="drawing" title="Drawing: a dimensioned DXF, SVG and PDF of the selected plate" cmd="CADAgent_Drawing" disabled={!slug} onClick={() => openTask('drawing', selectedPart())} />
         <TSep />
         <Btn icon="shot" title="Render a part, or the assembly, to a PNG" cmd="CADAgent_Render" disabled={!slug} onClick={() => openTask('render', '')} />
+        <DropButton icon="pose" title="Pose: show the machine at one of assembly.py's POSES (the view only)" entries={poseEntries} />
         <TSep />
         <Btn icon="help" title="Rules: every registered check and what it verifies" cmd="CADAgent_Rules" onClick={() => openTask('rules', '')} />
       </>}

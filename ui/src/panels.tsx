@@ -20,17 +20,22 @@ import { messageBox } from './msgbox'
 import { NaviButtons } from './navicube'
 import { ExpressionDialog } from './exprdialog'
 import { MassTask, MeasureTask } from './measure'
-import { BoughtTask, CutlistTask, GateTask, RenderTask, RulesTask, TablesTask, ToolTask } from './agentwb'
+import { BoughtTask, BuildTask, CutlistTask, EvalsTask, GateTask, RenderTask, RulesTask, TablesTask, ToolTask } from './agentwb'
+import { BomTask, DrawingTask, ShopTask } from './shopwb'
+import { LibraryTask } from './librarywb'
 import { MacroEditTask, MacroRecordTask, MacrosTask, WindowsTask } from './macro'
 import { NewDocumentTask, OpenDocumentTask, ExportTask } from './filemenu'
 import { DependencyGraphTask, ParameterEditorTask, SceneInspectorTask } from './tools'
 import {
   attachView, closeTask, editDefault, getView, place, placementOf, preselect, runCheck, runVerify, select, selectRange, setParams, setViewProps, showPanel,
-  setOrtho, toggleVisibility,
+  setOrtho, toggleVisibility, setPose,
   setTreeUI, setEditorPrefs, editorStyle,
 } from './actions'
 
 export const cls = (...a: (string | false | null | undefined)[]) => a.filter(Boolean).join(' ')
+/** A row's rule as `cad check` prints it: the gate first, then the rule. A sub-assembly's rows carry its project in the gate
+ *  (`mini_gantry:geometry/envelope`), so the table says which project a row of the same name is about. */
+export const ruleText = (r: { check?: string; rule: string }) => (r.check ? `${r.check}/${r.rule}` : r.rule)
 const fmtNum = (n: number) => String(Math.round(n * 1000) / 1000)
 const fmtValue = (v: unknown) => (typeof v === 'number' ? fmtNum(v) : String(v))
 const pad = (depth: number) => ({ paddingLeft: 18 + depth * 14 })
@@ -54,7 +59,7 @@ function Twisty({ open, onClick }: { open: boolean; onClick?: () => void }) {
 export function View3D() {
   const ref = useRef<HTMLDivElement>(null)
   const scene = useStore((s) => s.scene), building = useStore((s) => s.building)
-  const err = useStore((s) => s.sceneError), slug = useStore((s) => s.slug), offline = useStore((s) => s.offline)
+  const err = useStore((s) => s.sceneError), slug = useStore((s) => s.slug), offline = useStore((s) => s.offline), pose = useStore((s) => s.pose)
   const [menu, setMenu] = useState<{ at: { x: number; y: number }; entries: Entry[]; leave?: () => void } | null>(null)
   useEffect(() => {
     const host = ref.current!
@@ -90,6 +95,9 @@ export function View3D() {
       {scene && !scene.bodies.length && !err && !building && <div className="view-overlay">
         {slug} has no parts yet. Ask Claude for one in the chat, or add parts/&lt;name&gt;.py. It appears here as soon as it's saved.</div>}
       {scene && err && <div className="view-banner">Rebuild failed, showing the last good scene. {err}</div>}
+      {/* CADAgent_Pose: the machine is drawn somewhere else than assembly.py has it; the chip says so and goes home. */}
+      {scene && pose && <div className="view-pose" title="The view only: the checks, measure and mass use the machine at home">
+        <Icon name="pose" size={14} /> Pose <b>{pose}</b> <button className="qbtn" onClick={() => setPose(null)}>Home</button></div>}
       {menu && <ContextMenu at={menu.at} entries={menu.entries} onLeave={menu.leave} onClose={() => { menu.leave?.(); setMenu(null) }} />}
       {scene && <NaviButtons />}
     </div>
@@ -770,6 +778,13 @@ function TaskContent() {
   if (task?.kind === 'tool') return <ToolTask />
   if (task?.kind === 'bought') return <BoughtTask initial={task.other === 'import' ? 'add' : 'list'} />
   if (task?.kind === 'render') return <RenderTask />
+  if (task?.kind === 'build') return <BuildTask part={task.body || undefined} />
+  if (task?.kind === 'evals') return <EvalsTask />
+  // The shop's (shopwb.tsx, librarywb.tsx): cad bom, cad shop, cad drawing, cad lib.
+  if (task?.kind === 'bom') return <BomTask />
+  if (task?.kind === 'shop') return <ShopTask />
+  if (task?.kind === 'drawing') return <DrawingTask part={task.body || undefined} />
+  if (task?.kind === 'library') return <LibraryTask />
   // Macro menu (macro.tsx): Std_DlgMacroRecord, Std_DlgMacroExecute (+ its Edit button), Std_Windows.
   if (task?.kind === 'macroRecord') return <MacroRecordTask />
   if (task?.kind === 'macros') return <MacrosTask />
@@ -2113,7 +2128,7 @@ export function ChecksView() {
           {rows.map((r, i) => (
             <tr key={i} className={'st-' + r.state.toLowerCase()} onClick={() => pick(r.subject)} title={r.source}>
               <td><Icon name={r.state === 'PASS' ? 'pass' : r.state === 'FAIL' ? 'fail' : 'pending'} size={14} /> {r.state}</td>
-              <td>{r.rule}</td><td>{r.subject}</td><td>{r.measured ?? ''}</td><td>{r.limit ?? ''}</td>
+              <td>{ruleText(r)}</td><td>{r.subject}</td><td>{r.measured ?? ''}</td><td>{r.limit ?? ''}</td>
             </tr>
           ))}
         </tbody>

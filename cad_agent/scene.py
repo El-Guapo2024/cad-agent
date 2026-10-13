@@ -8,7 +8,9 @@ panels need and the viewer does not know:
 - per body: the part module it comes from, material, colour, mass, size
 - the hand-made move (placements.toml) with its pivot, so a drag in the
   workbench can be written back as a new placement
-- AXES, the spec envelope, and the design hash the scene was built from
+- AXES and POSES (a pose is a position for each of some axes, so the page can show the machine there: a
+  rigid move of the bodies each axis carries, as motion.pose makes it), the spec envelope, and the design
+  hash the scene was built from
 
 Bodies are drawn where every gate sees them: placements applied.
 
@@ -16,6 +18,9 @@ A body of a sub-assembly (`gantry/x_carriage`, subassembly.py) shows what its ow
 material, mass), carries `project` and `from_part`, and has no `part` and no parameters here: they are the
 child's, edited in the child. It reaches the viewer as `gantry%2Fx_carriage`, so the viewer does not take the "/"
 for a group of its own; `path` ends the same way and `name` stays the full name.
+
+A body made with `bought_solid` is that bought part whatever it is called (bodies.py's first rule: the solid carries the tag), so the
+tree and the colours show it as bought, and not as stock, where only a file of its name in bought/ used to say so.
 """
 from __future__ import annotations
 
@@ -28,9 +33,10 @@ from pathlib import Path
 import numpy as np
 
 from . import bodies, gui, placements, state as st
+from .bought import tag_of as bought_tag
 from .params import read as params_of
 
-FORMAT = "cad-scene/2"
+FORMAT = "cad-scene/3"      # /3: POSES; serve.SCENE_FORMAT must say the same, so a scene.json from before is rebuilt
 
 # Colours by material: what a part is made of should read at a glance.
 MATERIAL_COLOR = {
@@ -46,7 +52,7 @@ FLOAT_KEYS = {"vertices", "normals", "edges", "obj_vertices", "uvs"}
 
 
 # bodies.py decides what a body is; these are the names scene.py and the runner have always used for it.
-_part_for, _bought_names = bodies.part_for, bodies.bought_stems
+_part_for, _bought_names, _describe = bodies.part_for, bodies.bought_stems, bodies.describe
 
 
 def viewer_name(name: str) -> str:
@@ -176,6 +182,8 @@ def build_scene(slug: str, deviation: float | None = None, angular: float | None
     part_names = st.part_names(slug)
     machine = st.load_machine(slug, placed=False, describe=False)
     base, axes = (machine.parts, machine.axes) if machine is not None else (None, {})
+    poses = {name: {axis: float(at) for axis, at in pose.items() if isinstance(at, (int, float)) and not isinstance(at, bool)}
+             for name, pose in (machine.poses if machine is not None else {}).items()}
     linked = machine.bodies if machine is not None else {}      # the bodies of sub-assemblies, described as they came in
     metas: dict = {}
     assembly = base is not None
@@ -200,9 +208,15 @@ def build_scene(slug: str, deviation: float | None = None, angular: float | None
     bodies, lo_all, hi_all = [], [np.inf] * 3, [-np.inf] * 3
     for name, solid in base.items():
         info = linked.get(name)
+        child = info is not None
+        if info is None and bought_tag(solid):
+            # Made with bought_solid, whatever it is called: bodies.py's first rule says it is that bought part, so the
+            # page shows it as one, with what the bought part declares, and not as stock.
+            info = _describe(slug, {name: solid})[name]
         if info is not None:
             # A body of a sub-assembly belongs to another project: its part is not one of this project's modules (so
             # the page offers no parameters to edit here), and what it is made of comes from the project it came from.
+            # A bought part has no part module either.
             part, material, kind = None, info.material, info.kind
             mass = round(info.mass_g, 2) if info.mass_g is not None else None
         else:
@@ -237,7 +251,7 @@ def build_scene(slug: str, deviation: float | None = None, angular: float | None
             "center": center,
             "placement": {k: list(v) for k, v in move.items()} if move else None,
             "about": list(move["about"]) if move else center,
-            **({"project": info.project, "from_part": info.part} if info is not None else {}),
+            **({"project": info.project, "from_part": info.part} if child else {}),
         })
 
     for b in bodies:                   # one part module can make several bodies
@@ -263,6 +277,7 @@ def build_scene(slug: str, deviation: float | None = None, angular: float | None
         "axes": [{"name": a.name, "moves": list(a.moves), "direction": list(a.direction),
                   "travel": list(a.travel), "work": list(a.work) if a.work else None}
                  for a in axes.values()],
+        "poses": poses,
         "envelope": envelope,
         "unknown_placements": sorted(set(placed) - set(base)),
         "viewer": {"instances": [_encode(i) for i in inst], "shapes": shapes},

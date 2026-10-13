@@ -20,6 +20,8 @@ export type Body = {
   about: Vec3 | null
   used_by: string[] | null
 }
+/** An axis of assembly.py's AXES (motion.Axis): the bodies it carries slide along `direction` by its position. */
+export type Axis = { name: string; moves: string[]; direction: Vec3; travel: [number, number]; work: [number, number] | null }
 export type Scene = {
   project: string
   source_hash: string
@@ -29,6 +31,9 @@ export type Scene = {
   units: string
   triangles: number
   unknown_placements?: string[]
+  /** AXES and POSES of assembly.py (cad-scene/3): a pose is a position in mm for each of some axes. */
+  axes?: Axis[]
+  poses?: Record<string, Record<string, number>>
   viewer: unknown
 }
 export type CheckRow = {
@@ -41,7 +46,9 @@ export type CheckRow = {
   check?: string
   artifacts?: string[]
 }
-export type Checks = { rows?: CheckRow[]; summary?: Record<string, number>; written_utc?: string }
+/** checks.json: the rows, and what each part module said of itself when it was built (its PROCESS and MATERIAL, the docstring). */
+export type PartMeta = { state?: string; doc?: string; material?: string | null; process?: string | null; mass_g?: number | null }
+export type Checks = { rows?: CheckRow[]; summary?: Record<string, number>; written_utc?: string; parts?: Record<string, PartMeta> }
 export type Status = { project: string; done: boolean; verdict: string | null; reasons: string[] }
 export type LogEntry = { t: string; cmd: string; argv: string[]; exit: number; summary: string; files: string[]; ms: number }
 export type Project = { slug: string; root: string; assembly: boolean; verdict: string | null; done: boolean
@@ -103,11 +110,23 @@ export const api = {
   reveal: (slug: string, part?: string) => http<{ revealed: string }>('POST', '/api/reveal', { slug, part }),
   /** `cad export`: a part as STEP or STL under out/, for a shop or a printer. */
   export: (slug: string, part: string, format: ExportFormat) => http<CadResult>('POST', '/api/export', { slug, part, format }),
-  fileUrl: (slug: string, path: string) => `/api/file?${new URLSearchParams({ slug, path })}`,
-  // ── File menu (filemenu.tsx): Std_New. Contract per the lead (not yet built server-side):
-  // {"name"} -> {"exit", "data": {"slug", "root"}, "stderr", "text"}, same CadResult envelope
-  // as every other cad subcommand (it's `cad init` underneath). ──
-  init: (name: string) => http<CadResult>('POST', '/api/init', { name }),
+  /** A file the commands wrote under out/ or baseline/. `inline` asks to see an svg or a pdf (a drawing's tab, a new
+   *  browser tab) instead of saving it. */
+  fileUrl: (slug: string, path: string, inline = false) => `/api/file?${new URLSearchParams({ slug, path, ...(inline ? { inline: '1' } : {}) })}`,
+  /** POST /api/upload: a file the person picked, kept by the server, which answers where. A page is given a file's
+   *  bytes and never its path, and `cad lib add` and `cad bought add-step` want a path. */
+  upload: async (file: File): Promise<{ path: string; name: string; bytes: number; sha256: string }> => {
+    const r = await fetch(`/api/upload?${new URLSearchParams({ name: file.name })}`,
+      { method: 'POST', headers: { 'Content-Type': 'application/octet-stream', 'X-CAD': '1' }, body: file })
+    const text = await r.text()
+    let j: any
+    try { j = text ? JSON.parse(text) : {} } catch { j = { error: text.slice(0, 300) } }
+    if (!r.ok) throw new Error(j.error || r.statusText)
+    return j
+  },
+  // ── File menu (filemenu.tsx): Std_New. {"name", "brief"?} -> {"exit", "data": {"slug", "root"}, "stderr", "text"},
+  // the same CadResult envelope as every other cad subcommand (it's `cad init` underneath). ──
+  init: (name: string, brief?: string) => http<CadResult>('POST', '/api/init', brief ? { name, brief } : { name }),
   check: (slug: string) => http<{ started: boolean }>('POST', '/api/check', { slug }),
   verify: (slug: string) => http<{ started: boolean }>('POST', '/api/verify', { slug }),
   /** What the person's UI currently shows (persisted server-side like `hidden`). */

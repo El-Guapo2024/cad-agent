@@ -74,6 +74,8 @@ export const NOTIFY_DEFAULTS: NotifyPrefs = {
 export type Task = { kind: 'params' | 'placement' | 'transform' | 'measure' | 'mass' | 'clip' | 'info' | 'prefs' | 'units' | 'turntable' | 'shot' | 'align'
   // CAD Agent workbench tasks (agentwb.tsx): the cad CLI commands that had no UI yet.
   | 'check' | 'verify' | 'done' | 'rules' | 'cutlist' | 'tables' | 'tool' | 'bought' | 'render'
+  // and the shop's (shopwb.tsx, librarywb.tsx): cad bom, cad shop, cad drawing, cad lib
+  | 'bom' | 'shop' | 'drawing' | 'library' | 'build' | 'evals'
   // Macro menu (macro.tsx): DlgMacroRecord, DlgMacroExecute, its Edit button, Windows' DlgActivateWindow.
   | 'macroRecord' | 'macros' | 'macroEdit' | 'windows'
   // File menu (filemenu.tsx): Std_New (ask a name first; there's no Save As here) and Std_Open
@@ -299,6 +301,9 @@ export type State = {
   /** The last named Std_View (or Home) direction shown (`iso`, `front`, `dimetric`, …), for
    *  `cad gui`'s camera field; null until one is chosen, or stale after a free orbit. */
   cameraPreset: string | null
+  /** CADAgent_Pose: the machine's pose the 3D view shows (a name of the scene's POSES), or null for home. A view
+   *  only: the checks, measure and mass judge the machine at home (poses.ts). */
+  pose: string | null
   /** Std_DlgMacroRecord: the macro being recorded, or null (macro.tsx owns the line buffer). */
   recordingMacro: string | null
   /** Preferences > Macro > Gui Commands (DlgSettingsMacro.ui): Record GUI commands (RecordGui) and
@@ -329,7 +334,7 @@ let state: State = {
   navPrefs: { ...NAV_DEFAULTS, ...saved.get<Partial<NavPrefs>>('navPrefs', {}) }, homeView: saved.get<HomeView>('homeView', 'Trimetric'), newDocCameraScale: saved.get('newDocCameraScale', 100), corner: saved.get<Corner>('corner', { show: true, size: 10 }), axisColors: { ...AXIS_COLOR_DEFAULTS, ...saved.get<Partial<AxisColors>>('axisColors', {}) }, showFPS: saved.get('showFPS', false), naviCube: { ...NAVICUBE_DEFAULTS, ...saved.get<Partial<NaviCubePrefs>>('naviCube', {}) }, cubePlace: (['top-left', 'top-right', 'bottom-left', 'bottom-right'] as const)[saved.get<Partial<NaviCubePrefs>>('naviCube', {}).corner ?? 1], cubePos: saved.get<CubePos>('cubePos', CORNER_POS[saved.get<Partial<NaviCubePrefs>>('naviCube', {}).corner ?? 1]), cubeOffset: { left: 10, right: 10, top: 10, bottom: 22 }, rotationCenter: saved.get<RotationCenterPrefs>('rotationCenter', { size: 5, color: '#ff0000', alpha: 0.2 }), disableTouchTilt: saved.get('disableTouchTilt', true), background: { ...BACKGROUND_DEFAULTS, ...saved.get<Partial<BackgroundPrefs>>('background', {}) }, lights: { ...LIGHT_DEFAULTS, ...saved.get<Partial<LightPrefs>>('lights', {}) }, selPrefs: { ...SEL_DEFAULTS, ...saved.get<Partial<SelPrefs>>('selPrefs', {}) }, editorPrefs: (() => { const e = saved.get<Partial<EditorPrefs>>('editorPrefs', {}); return { ...EDITOR_DEFAULTS, wordWrap: saved.get('console.wrap', true), saveHistory: saved.get('console.saveHistory', false), ...e, colors: { ...EDITOR_COLORS, ...e.colors } } })(), overlayPrefs: { ...OVERLAY_DEFAULTS, ...saved.get<Partial<OverlayPrefs>>('overlayPrefs', {}) }, shortcuts: saved.get<Record<string, string>>('shortcuts', {}), shortcutTimeout: saved.get('shortcutTimeout', 300), wbPrefs: { ...WB_DEFAULTS, ...saved.get<Partial<WbPrefs>>('wbPrefs', {}) }, customToolbars: saved.get<CustomToolbar[]>('customToolbars', []), macroCommands: saved.get<MacroCommand[]>('macroCommands', []), customizeOpen: false, scriptToPyConsole: saved.get('scriptToPyConsole', true), treeUI: { ...TREE_UI_DEFAULTS, hideColumn: saved.get('tree.hideColumn', true), hideInternalNames: saved.get('tree.hideInternalNames', true), ...saved.get<Partial<TreeUI>>('treeUI', {}) }, treeEditColor: saved.get('treeEditColor', '#00abff'), units: saved.get<Units>('units', { schema: 0, decimals: 2, denominator: 8 }), editMode: saved.get<EditMode>('editMode', 'default'), pickList: false, picked: [], treeShowHidden: false,
   toolbars: saved.get('toolbars', {}), toolbarLock: saved.get('toolbarLock', false), statusBar: saved.get('statusBar', true),
   tree: { syncView: true, syncSelection: true, preSelection: true, recordSelection: true, checkBoxes: false, ...saved.get('tree', {}) }, selHistory: { back: [], forward: [] }, toolbarIconSize: saved.get('toolbarIconSize', 24), prefsOpen: false, cameraNode: null, selFilter: null, gateMsg: null, frozenViews: [], treeCollapsed: false,
-  cameraPreset: null,
+  cameraPreset: null, pose: null,
   recordingMacro: null, recordGuiCommands: saved.get('recordGuiCommands', true), guiAsComment: saved.get('guiAsComment', true),
 }
 const subs = new Set<() => void>()

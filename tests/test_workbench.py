@@ -147,7 +147,7 @@ def test_scene_is_three_cad_viewer_data_plus_what_the_panels_need(demo, capsys):
     code, data = run(capsys, "scene", "demo")
     assert code == cli.OK and sorted(data["bodies"]) == ["block", "plate"] and data["triangles"] > 0
     scene = json.loads((demo / "out" / "scene.json").read_text())
-    assert scene["format"] == "cad-scene/2" and scene["assembly"] is True
+    assert scene["format"] == "cad-scene/3" and scene["assembly"] is True
     shapes = scene["viewer"]["shapes"]
     assert sorted(p["id"] for p in shapes["parts"]) == ["/Group/block", "/Group/plate"]
     inst = scene["viewer"]["instances"][0]
@@ -214,31 +214,43 @@ def inproc(root, args):
     return {"exit": code, "data": json.loads(lines[-1])["data"] if lines else {}, "stderr": ""}
 
 
-@pytest.fixture()
-def server(demo, monkeypatch):
-    bench = serve.Bench([demo.parent], runner=inproc)
+def serving(bench, monkeypatch):
+    """A bench behind a real server on a free port: (call, scheduled, stop). `call(path, body)` is a GET, or a
+    JSON POST with the X-CAD header (header=False leaves it off); `raw=` posts those bytes instead (an upload);
+    full=True also returns the response headers."""
     scheduled = []
     monkeypatch.setattr(bench, "schedule", lambda slug, kind="check": scheduled.append((slug, kind)))
     srv = serve.make_server(bench, "127.0.0.1", 0)
     threading.Thread(target=srv.serve_forever, daemon=True).start()
     base = f"http://127.0.0.1:{srv.server_address[1]}"
 
-    def call(path, body=None, header=True):
+    def call(path, body=None, header=True, raw=None, full=False):
         req = urllib.request.Request(base + path)
-        if body is not None:
-            req.data = json.dumps(body).encode()
-            req.add_header("Content-Type", "application/json")
+        if raw is not None or body is not None:
+            req.data = raw if raw is not None else json.dumps(body).encode()
+            req.add_header("Content-Type", "application/octet-stream" if raw is not None else "application/json")
             if header:
                 req.add_header("X-CAD", "1")
         try:
             with urllib.request.urlopen(req, timeout=120) as r:
-                return r.status, r.read()
+                return (r.status, r.read(), r.headers) if full else (r.status, r.read())
         except urllib.error.HTTPError as e:
-            return e.code, e.read()
+            return (e.code, e.read(), e.headers) if full else (e.code, e.read())
 
+    def stop():
+        srv.shutdown()
+        srv.server_close()
+        bench.clear_uploads()
+    call.base = base
+    return call, scheduled, stop
+
+
+@pytest.fixture()
+def server(demo, monkeypatch):
+    bench = serve.Bench([demo.parent], runner=inproc)
+    call, scheduled, stop = serving(bench, monkeypatch)
     yield call, bench, scheduled
-    srv.shutdown()
-    srv.server_close()
+    stop()
 
 
 def test_the_server_lists_builds_and_places_through_the_cli(server, demo):
@@ -679,3 +691,270 @@ def test_projects_carry_a_file_card(server, demo):
     item = next(p for p in json.loads(call("/api/projects")[1])["projects"] if p["slug"] == "demo")
     assert item["thumb"] == "out/part_iso.png"
     assert item["size"] > 0
+
+
+def test_init_route_takes_the_brief(server, demo):
+    call, _, _ = server
+    code, body = call("/api/init", {"name": "briefed", "brief": "A mount for the laser head."})
+    assert code == 200 and json.loads(body)["exit"] == cli.OK
+    assert "A mount for the laser head." in (demo.parent / "briefed" / "mech_profile.md").read_text()
+    code, body = call("/api/init", {"name": "unbriefed"})
+    assert json.loads(body)["exit"] == cli.OK and "TODO" in (demo.parent / "unbriefed" / "mech_profile.md").read_text()
+
+
+# ─── What a person can do from the page that the agent does from the CLI ─────────────────────────────
+
+@pytest.fixture()
+def works(tmp_path, monkeypatch):
+    """test_bom.py's workshop (a laser-cut panel, two printed clips, a machined block, a bought motor), behind a
+    server, with a library store of its own."""
+    from test_bom import make_workshop
+    monkeypatch.setattr(st, "ROOT", tmp_path)
+    monkeypatch.delenv("CAD_PROJECTS", raising=False)
+    monkeypatch.setenv("CAD_WARM_DIR", str(tmp_path / ".warm"))
+    monkeypatch.setenv("CAD_LIBRARY", str(tmp_path / "store"))
+    project = make_workshop(tmp_path)
+    bench = serve.Bench([tmp_path], runner=inproc)
+    call, _, stop = serving(bench, monkeypatch)
+    yield call, bench, project
+    stop()
+
+
+def cad(call, slug, *argv):
+    """POST /api/cad, the console's door: any `cad` subcommand, run for the page."""
+    code, body = call("/api/cad", {"slug": slug, "argv": list(argv)})
+    assert code == 200, body
+    return json.loads(body)
+
+
+def out(call, path, slug="works", **query):
+    """GET /api/file for a path in the project: (status, bytes, headers)."""
+    return call("/api/file?" + urllib.parse.urlencode({"slug": slug, "path": path, **query}), full=True)
+
+
+def test_a_bom_is_a_table_for_the_page_and_its_files_download(works):
+    call, _, _ = works
+    r = cad(call, "works", "bom", "works")
+    assert r["exit"] == cli.OK and [ln["name"] for ln in r["data"]["lines"]] == ["panel", "clip", "block", "motor"]
+    assert r["data"]["totals"]["lines"] == 4 and r["data"]["files"][0].endswith("out/bom.csv")
+    code, body, head = out(call, "out/bom.csv")
+    assert code == 200 and head["Content-Type"] == "text/csv" and body.startswith(b"Index,Name,")
+    assert head["Content-Disposition"] == 'attachment; filename="bom.csv"'
+    code, body, head = out(call, "out/bom.json")
+    assert code == 200 and head["Content-Type"] == "application/json" and json.loads(body)["project"] == "works"
+    # the two options the page offers are the CLI's
+    r = cad(call, "works", "bom", "works", "--only-parts")
+    assert [ln["name"] for ln in r["data"]["lines"]] == ["panel", "clip", "block"] and r["data"]["options"]["only_parts"]
+
+
+def test_a_drawing_shows_in_the_page_and_downloads_as_a_file(works):
+    call, _, project = works
+    r = cad(call, "works", "drawing", "works", "panel")
+    # the design is not verified: the sheet is written, stamped, and the exit says UNCHECKED
+    assert r["exit"] == cli.UNCHECKED and r["data"]["stamp"] == "NOT VERIFIED"
+    assert [f["path"] for f in r["data"]["files"]] == ["panel.dxf", "panel.pdf", "panel.svg"]
+    assert (project / "out" / "drawings" / "panel.svg").is_file()
+    code, body, head = out(call, "out/drawings/panel.svg")
+    assert code == 200 and head["Content-Type"] == "image/svg+xml" and b"<svg" in body[:600]
+    assert head["Content-Disposition"] == 'attachment; filename="panel.svg"'
+    # the page's own tab asks to see it: no download header, and nothing in it can run
+    code, body, head = out(call, "out/drawings/panel.svg", inline="1")
+    assert code == 200 and head["Content-Disposition"] is None
+    assert "default-src 'none'" in head["Content-Security-Policy"] and head["X-Content-Type-Options"] == "nosniff"
+    code, body, head = out(call, "out/drawings/panel.pdf", inline="1")
+    assert code == 200 and body.startswith(b"%PDF") and head["Content-Type"] == "application/pdf" and head["Content-Disposition"] is None
+    code, body, head = out(call, "out/drawings/panel.pdf")
+    assert head["Content-Disposition"] == 'attachment; filename="panel.pdf"'
+    code, body, head = out(call, "out/drawings/panel.dxf", inline="1")
+    assert code == 200 and head["Content-Disposition"] == 'attachment; filename="panel.dxf"'      # a DXF is only ever saved
+    # a part that is not a plate is the CLI's answer, not the server's
+    r = cad(call, "works", "drawing", "works", "clip")
+    assert r["exit"] == cli.USAGE and "fdm" in r["data"]["error"]
+
+
+def test_the_file_server_gives_back_what_commands_write_and_nothing_else(works):
+    call, _, project = works
+    (project / "out").mkdir(exist_ok=True)
+    for name in ("page.html", "run.py", "notes.txt", "keys.toml", "payload.svgz"):
+        (project / "out" / name).write_text("x")
+    (project / "checks.json").write_text("{}")
+    for path in ("out/page.html", "out/run.py", "out/notes.txt", "out/keys.toml", "out/payload.svgz", "out/missing.csv",
+                 "checks.json", "assembly.py", "parts/panel.py", "bought/motor.json", "out/../assembly.py", "../works/assembly.py"):
+        assert out(call, path)[0] == 404, path
+    (project / "out" / "table.csv").write_text("a,b\n")
+    assert out(call, "out/table.csv")[0] == 200
+
+
+def test_shop_writes_a_stamped_draft_the_page_can_list_and_download(works):
+    call, _, project = works
+    r = cad(call, "works", "shop", "works")                 # nothing is verified: nothing is written
+    assert r["exit"] == cli.UNCHECKED and r["data"]["done"] is False and not (project / "out" / "shop").exists()
+    r = cad(call, "works", "shop", "works", "--draft")
+    assert r["exit"] == cli.UNCHECKED and r["data"]["draft"] is True and r["data"]["rows_total"] > 0
+    paths = {f["path"] for f in r["data"]["files"]}
+    assert {"panel.dxf", "panel.step", "clip.3mf", "clip.stl", "bom.csv", "bom.json", "drawings/panel.svg"} <= paths
+    code, body, head = out(call, "out/shop/manifest.json")        # what the page shows of a shop folder it did not just write
+    manifest = json.loads(body)
+    assert code == 200 and manifest["draft"] is True and manifest["verdict"] == "NOT VERIFIED"
+    assert {f["path"] for f in manifest["files"]} == paths
+    for path in ("out/shop/panel.dxf", "out/shop/clip.3mf", "out/shop/drawings/panel.pdf"):
+        code, body, head = out(call, path)
+        assert code == 200 and body and "attachment" in head["Content-Disposition"], path
+    r = cad(call, "works", "shop", "works", "--check")            # a design nobody verified has nothing to certify
+    assert r["exit"] == cli.UNCHECKED and r["data"]["done"] is False and "cad verify" in r["data"]["reasons"][0]
+
+
+def test_the_library_answers_without_a_project_and_a_part_goes_into_one_with_undo(works):
+    call, bench, project = works
+    code, body = call("/api/cad", {"argv": ["lib", "ls", "nema"]})                   # no slug: the catalog needs no project
+    r = json.loads(body)
+    assert code == 200 and r["exit"] == cli.OK and {"nema8", "nema17", "fcl-nema17"} <= {e["name"] for e in r["data"]["entries"]}
+    code, body = call("/api/cad", {"argv": ["lib", "info", "nema8"]})
+    r = json.loads(body)
+    assert r["exit"] == cli.OK and r["data"]["entry"]["vendor"] == "Nanotec" and r["data"]["status"] == "ready"
+    assert json.loads(call("/api/cad", {"argv": ["rules"]})[1])["data"]["rules"]
+    r = json.loads(call("/api/cad", {"argv": ["eval", "brief", "nema17_mount"]})[1])       # the task set is read, not run
+    assert r["exit"] == cli.OK and r["data"]["task"] == "nema17_mount" and "NEMA 17" in r["data"]["brief"]
+    assert json.loads(call("/api/cad", {"argv": ["eval", "ls"]})[1])["data"]["tasks"]
+    # what reads a project still names one, and so does a command that is not on the list: `eval run` starts a real agent
+    for argv in (["check", "works"], ["bom", "works"], ["approve", "works"], ["eval", "run", "--agent", "true"], ["eval"]):
+        code, body = call("/api/cad", {"argv": argv})
+        assert code == 400 and "missing slug" in json.loads(body)["error"], argv
+
+    r = cad(call, "works", "lib", "use", "works", "extrusion-2020", "length=150", "--as", "rail_2020")
+    assert r["exit"] == cli.OK and r["data"]["journaled"] is True and r["data"]["params"]["length"] == 150
+    assert (project / "bought" / "rail_2020.json").is_file()
+    history = json.loads(call("/api/history?slug=works")[1])
+    assert history["undo"][0]["name"] == "Add Library Part" and history["undo"][0]["by"] == "ui"
+    r = cad(call, "works", "lib", "check", "works")
+    assert r["exit"] == cli.OK and r["data"]["rows"]
+    code, body = call("/api/undo", {"slug": "works"})
+    assert json.loads(body)["exit"] == cli.OK and not (project / "bought" / "rail_2020.json").exists()
+
+
+def test_a_picked_file_is_kept_for_the_command_that_wants_a_path(works, tmp_path):
+    import hashlib
+    from pathlib import Path
+    from build123d import Box
+    from cad_agent import export as ex
+    call, bench, project = works
+    step = tmp_path / "made.step"
+    ex.write_step(Box(10, 20, 30), step)
+    data = step.read_bytes()
+    code, body = call("/api/upload?name=" + urllib.parse.quote("my part (1).step"), raw=data)
+    up = json.loads(body)
+    assert code == 200 and up["name"] == "my_part_1_.step" and up["bytes"] == len(data)
+    assert up["sha256"] == hashlib.sha256(data).hexdigest()
+    assert bench.uploads in Path(up["path"]).parents and Path(up["path"]).read_bytes() == data
+    # a name is a name: no folders, no dots in front
+    code, body = call("/api/upload?name=" + urllib.parse.quote("../../etc/.passwd"), raw=b"x")
+    assert code == 200 and json.loads(body)["name"] == "passwd" and bench.uploads in Path(json.loads(body)["path"]).parents
+
+    # and `cad lib add` takes it, as the file the person picked: a new entry in the store, then into the project
+    r = cad(call, "works", "lib", "add", "test-box", up["path"], "--source", "https://example.com/box", "--title", "Test box")
+    assert r["exit"] == cli.OK and r["data"]["created"] is True and str(tmp_path / "store") in r["data"]["path"]
+    r = cad(call, "works", "lib", "info", "test-box")
+    assert r["exit"] == cli.OK and r["data"]["status"] == "in your store" and r["data"]["in_store"] is True
+    r = cad(call, "works", "lib", "use", "works", "test-box")
+    assert r["exit"] == cli.OK and (project / "bought" / "test_box.step").is_file()
+    # a file that is not a STEP is the CLI's refusal
+    code, body = call("/api/upload?name=notes.txt", raw=b"not a step file")
+    r = cad(call, "works", "lib", "add", "test-notes", json.loads(body)["path"], "--source", "https://example.com/n")
+    assert r["exit"] == cli.USAGE and "STEP" in r["data"]["error"]
+
+
+def test_an_upload_needs_the_header_a_name_and_a_body_that_arrives(works, monkeypatch):
+    import socket
+    call, bench, _ = works
+    assert call("/api/upload?name=a.step", raw=b"x", header=False)[0] == 403
+    assert call("/api/upload", raw=b"x")[0] == 400                    # no name
+    assert call("/api/upload?name=a.step", raw=b"")[0] == 400         # nothing in it
+    assert bench.uploads is None                                      # none of those made a folder
+    host, port = call.base[len("http://"):].split(":")
+
+    def raw(request: bytes, shutdown=False) -> bytes:                 # raw sockets: urllib sends exactly what it says
+        with socket.create_connection((host, int(port)), timeout=10) as s:
+            s.sendall(request)
+            if shutdown:
+                s.shutdown(socket.SHUT_WR)
+            return s.recv(65536)
+    head = b"POST /api/upload?name=a.step HTTP/1.0\r\nHost: 127.0.0.1\r\nX-CAD: 1\r\nContent-Length: 100\r\n\r\n"
+    assert b" 400 " in raw(head + b"0123456789", shutdown=True).split(b"\r\n")[0]       # ten bytes of a hundred
+    assert bench.uploads is not None and not list(bench.uploads.iterdir())              # and no file left behind
+    monkeypatch.setattr(serve, "UPLOAD_MAX", 50)
+    assert b" 413 " in raw(head).split(b"\r\n")[0]
+
+
+def test_an_upload_folder_a_stopped_server_left_behind_goes_after_twelve_hours(works, monkeypatch, tmp_path):
+    import os
+    import tempfile
+    call, bench, _ = works
+    monkeypatch.setattr(tempfile, "tempdir", str(tmp_path / "tmp"))
+    (tmp_path / "tmp").mkdir()
+    old, recent, other = (tmp_path / "tmp" / n for n in ("cad-upload-old", "cad-upload-recent", "somebody-elses"))
+    for d in (old, recent, other):
+        d.mkdir()
+        (d / "x.step").write_text("x")
+    os.utime(old, (time.time() - 13 * 3600,) * 2)
+    os.utime(other, (time.time() - 99 * 3600,) * 2)
+    assert call("/api/upload?name=a.step", raw=b"ISO-10303-21;")[0] == 200
+    assert not old.exists() and recent.exists() and other.exists()      # only an old cad-upload-* folder, and not this server's own
+    assert bench.uploads is not None and bench.uploads.parent == tmp_path / "tmp"
+
+
+def test_a_machines_poses_are_in_the_scene_and_the_pages_arithmetic_is_the_kernels(tmp_path, monkeypatch, capsys):
+    """The page shows a pose by moving the bodies each axis carries, so the scene carries AXES and POSES, and the
+    sum the page does (motion.pose: the axis's unit direction times its position, added up) must equal what
+    subassembly.apply_pose makes of the solids."""
+    from test_mini_machine import lay
+    from cad_agent.geom import bbox
+    from cad_agent.subassembly import apply_pose
+    monkeypatch.setattr(st, "ROOT", tmp_path)
+    monkeypatch.delenv("CAD_PROJECTS", raising=False)
+    monkeypatch.setenv("CAD_WARM_DIR", str(tmp_path / ".warm"))
+    monkeypatch.setenv("CAD_LIBRARY", str(tmp_path / "store"))
+    lay(tmp_path)
+    assert run(capsys, "scene", "mini_machine")[0] == cli.OK
+    scene = json.loads((tmp_path / "mini_machine" / "out" / "scene.json").read_text())
+    assert scene["format"] == "cad-scene/3"
+    assert scene["poses"] == {"park": {"slide": 60.0, "gantry/x": -45.0}, "work": {"slide": 0.0, "gantry/x": 30.0},
+                              "gantry/park": {"gantry/x": -45.0}}
+    axes = {a["name"]: a for a in scene["axes"]}
+
+    def offset(pose, body):      # what the page's poseOffsets does, line for line
+        total = np.zeros(3)
+        for axis, at in scene["poses"][pose].items():
+            a = axes[axis]
+            if body in a["moves"]:
+                d = np.array(a["direction"], dtype=float)
+                total += d / np.linalg.norm(d) * at
+        return total
+
+    machine = st.load_machine("mini_machine", placed=True)
+    for pose in scene["poses"]:
+        posed = apply_pose(machine, pose)
+        for name, solid in machine.parts.items():
+            (lo, _), (plo, _) = bbox(solid), bbox(posed[name])
+            assert np.allclose(np.array(plo) - np.array(lo), offset(pose, name), atol=1e-6), (pose, name)
+    assert any(offset("park", b).any() for b in machine.parts) and not offset("work", "base").any()
+
+
+def test_a_project_without_poses_has_an_empty_set(demo, capsys):
+    run(capsys, "scene", "demo")
+    scene = json.loads((demo / "out" / "scene.json").read_text())
+    assert scene["poses"] == {} and scene["axes"] == []
+
+
+def test_a_body_made_with_bought_solid_is_bought_in_the_scene_whatever_it_is_called(tmp_path, monkeypatch, capsys):
+    """The tree and the colours decided by names alone, so `drive = bought_solid(SLUG, "motor")` showed as stock."""
+    from test_bom import ASSEMBLY, make_workshop
+    monkeypatch.setattr(st, "ROOT", tmp_path)
+    monkeypatch.delenv("CAD_PROJECTS", raising=False)
+    monkeypatch.setenv("CAD_WARM_DIR", str(tmp_path / ".warm"))
+    make_workshop(tmp_path, assembly=ASSEMBLY.replace('"motor":', '"drive":'))
+    assert run(capsys, "scene", "works")[0] == cli.OK
+    scene = json.loads((tmp_path / "works" / "out" / "scene.json").read_text())
+    kinds = {b["name"]: b["kind"] for b in scene["bodies"]}
+    assert kinds["drive"] == "bought" and kinds["panel"] == "made" and kinds["block"] == "made"
+    drive = next(b for b in scene["bodies"] if b["name"] == "drive")
+    assert drive["part"] is None and drive["color"] == "#6f8fb0" and "project" not in drive and drive["params"] == {}

@@ -12,6 +12,13 @@ location, `src/Gui/Stylesheets/overlay/icons/*.svg` (light-theme variants, i.e. 
 with no `_light`/`_lightgray` suffix); renamed with an `overlay-` prefix here to avoid
 clashing with unrelated icons of the same short name.
 
+The CAD Agent workbench's commands for the shop (bill of materials, drawing, library, poses) use six
+more, taken from `src/Mod/Assembly/Gui/Resources/icons` and `src/Mod/TechDraw/Gui/Resources/icons/actions`
+at 3160daf1e2b6: `Assembly_BillOfMaterials.svg` (Assembly_CreateBom's own pixmap), `Assembly_InsertLink.svg`
+(Insert Component, for the library), `Assembly_ExplodedView.svg` (poses), `TechDraw_PageDefault.svg`
+(a drawing), `TechDraw_ExportPageDXF.svg` and `TechDraw_ExportPageSVG.svg`. The first and fourth carry no
+licence metadata, so FreeCAD's LGPL-2.1 applies; the other four say `FreeCAD LGPL2+`.
+
 Licences, as each file's metadata states:
 
 - Most are LGPL-2.0-or-later (`FreeCAD LGPL2+`). Files with no licence in their

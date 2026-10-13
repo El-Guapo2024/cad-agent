@@ -19,10 +19,11 @@ import { executeMacroDirect } from './macro'
 import './cmdreg'
 import { overrideKey } from './keymap'
 import { StartPanel } from './start'
+import { DrawingPanel } from './shopwb'
 
-const components: Record<string, FC<IDockviewPanelProps>> = {
+const components: Record<string, FC<IDockviewPanelProps<any>>> = {
   view3d: View3D, model: ModelPanel, tasks: TasksPanel, report: ReportView, checks: ChecksView, console: ConsoleView, selection: SelectionView,
-  start: StartPanel,
+  start: StartPanel, drawing: DrawingPanel,
 }
 
 /** FreeCAD's default layout: the combo view (Model, Tasks) on the left, the 3D

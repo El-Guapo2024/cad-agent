@@ -15,16 +15,28 @@ watches the project folders:
 It binds to localhost, and every POST needs the X-CAD header, which a page
 from another origin cannot send without a preflight this server never answers.
 Nothing here imports the CAD kernel, so it starts instantly and stays small.
+
+A person can do from the page whatever the agent does from the CLI, through the
+same commands: POST /api/cad runs any `cad` subcommand (bom, shop, drawing, lib, ...),
+GET /api/file hands back what they write (FILE_KINDS), and POST /api/upload takes a file
+the person picked, for the commands that want a path. Promoting renders to baselines
+is a person's call: /api/approve is for the page's own Approve Renders, after the
+person has seen what it would change, and nothing added for the commands above does that.
 """
 from __future__ import annotations
 
+import hashlib
 import json
 import os
 import queue
+import re
+import shutil
 import subprocess
 import sys
+import tempfile
 import threading
 import time
+import uuid
 from datetime import datetime, timezone
 from http import HTTPStatus
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
@@ -40,10 +52,31 @@ from .verify import DESIGN
 
 PKG = Path(__file__).resolve().parent
 STATIC = PKG / "workbench"
-SCENE_FORMAT = "cad-scene/2"        # scene.FORMAT; an older scene.json is rebuilt
+SCENE_FORMAT = "cad-scene/3"        # scene.FORMAT; an older scene.json is rebuilt
 TYPES = {".html": "text/html; charset=utf-8", ".js": "text/javascript; charset=utf-8",
          ".css": "text/css; charset=utf-8", ".png": "image/png", ".svg": "image/svg+xml",
          ".json": "application/json"}
+
+# What GET /api/file hands out of a project's out/ or baseline/: the renders the page shows, and what the
+# commands write for a person to take (export, bom, shop, drawing). Never a script or a page.
+FILE_KINDS = {".png": "image/png", ".step": "application/step", ".stl": "model/stl", ".3mf": "model/3mf",
+              ".dxf": "image/vnd.dxf", ".svg": "image/svg+xml", ".pdf": "application/pdf", ".csv": "text/csv",
+              ".json": "application/json"}
+INLINE_KINDS = (".png", ".svg", ".pdf")     # shown in the page or a tab, not saved: PNG always, the others with ?inline=1
+
+# POST /api/upload: a file the person picked, for a command that wants a path (`cad lib add`, `cad bought add-step`).
+UPLOAD_MAX = 256 * 1024 * 1024
+UPLOAD_KEEP_S = 12 * 3600
+
+# `cad` commands that need no project: POST /api/cad without a slug runs them under the first projects folder.
+PROJECTLESS = frozenset({"rules", "tables", "tool", "lib", "ls", "pref", "cache"})
+# ... and the eval commands that read the task set or score a design folder; `eval run` starts a real agent, so it is not here
+PROJECTLESS_SUB = {"eval": frozenset({"ls", "brief", "score"})}
+
+
+def projectless(argv: list[str]) -> bool:
+    """Whether `cad <argv>` needs no project to run in (POST /api/cad without a slug)."""
+    return argv[0] in PROJECTLESS or (len(argv) > 1 and argv[1] in PROJECTLESS_SUB.get(argv[0], ()))
 
 
 def _config_path() -> Path:
@@ -176,6 +209,39 @@ class Bench:
         self.rescene_timers: dict[str, threading.Timer] = {}
         self.host: str | None = None    # set by run(), for write_registry()
         self.port: int | None = None
+        self.uploads: Path | None = None    # POST /api/upload's folder, made with the first upload
+
+    # ── uploads: a file the person picked, kept until the server stops ────────
+    def upload_dir(self) -> Path:
+        """A folder of this server's own for uploads, one sub-folder for each so two files of one name never meet.
+        What is older than UPLOAD_KEEP_S goes when the next file comes; all of it goes when the server stops."""
+        with self.lock:
+            if self.uploads is None or not self.uploads.is_dir():
+                # a server stopped by a signal never reaches run()'s `finally`, so its folder is still there: what is
+                # as old as UPLOAD_KEEP_S goes, this server's own is made after
+                stale = time.time() - UPLOAD_KEEP_S
+                for old in Path(tempfile.gettempdir()).glob("cad-upload-*"):
+                    try:
+                        if old.is_dir() and old.stat().st_mtime < stale:
+                            shutil.rmtree(old, ignore_errors=True)
+                    except OSError:
+                        pass
+                self.uploads = Path(tempfile.mkdtemp(prefix="cad-upload-"))
+            folder = self.uploads
+        cutoff = time.time() - UPLOAD_KEEP_S
+        for old in folder.iterdir():
+            try:
+                if old.stat().st_mtime < cutoff:
+                    shutil.rmtree(old, ignore_errors=True)
+            except OSError:
+                pass
+        return folder
+
+    def clear_uploads(self) -> None:
+        with self.lock:
+            folder, self.uploads = self.uploads, None
+        if folder is not None:
+            shutil.rmtree(folder, ignore_errors=True)
 
     # ── projects ─────────────────────────────────────────────────────────────
     def add_root(self, root: Path, save: bool = True) -> bool:
@@ -648,14 +714,49 @@ def make_handler(bench: Bench):
                     if d in rel:
                         target = (pdir / (d.strip("/") + "/" + rel.rsplit(d, 1)[1])).resolve()
                         break
-            kinds = {".png": "image/png", ".step": "application/step", ".stl": "model/stl",
-                     ".3mf": "model/3mf", ".dxf": "image/vnd.dxf"}         # what /api/export writes
-            ok = target.suffix in kinds and target.is_file() and inside(target)
+            ok = target.suffix in FILE_KINDS and target.is_file() and inside(target)
             if not ok:
                 return self._json({"error": "only renders and exports under out/ or baseline/"}, 404)
-            # An export is a download; a render shows in the page.
-            extra = {} if target.suffix == ".png" else {"Content-Disposition": f'attachment; filename="{target.name}"'}
-            self._send(200, target.read_bytes(), kinds[target.suffix], extra)
+            # An export is a download; a render shows in the page, and so does a drawing the page asks to see.
+            show = target.suffix == ".png" or (target.suffix in INLINE_KINDS and self._query().get("inline") == "1")
+            extra = {"X-Content-Type-Options": "nosniff"}
+            if not show:
+                extra["Content-Disposition"] = f'attachment; filename="{target.name}"'
+            if target.suffix == ".svg":      # a drawing is ours, but a file in out/ may be anyone's: no script runs from it
+                extra["Content-Security-Policy"] = "default-src 'none'; style-src 'unsafe-inline'; img-src data:; sandbox"
+            self._send(200, target.read_bytes(), FILE_KINDS[target.suffix], extra)
+
+        def _upload(self):
+            """POST /api/upload?name=part.step: the body is a file the person picked in the page. A browser hands a
+            page a file's bytes and never its path, and the commands that take a file (`cad lib add`, `cad bought
+            add-step`) want a path on this machine, so the bytes go to a folder of this server's own and the answer
+            is where. Only the base name of `name` is used, cleaned of anything but letters, digits, . _ -."""
+            name = re.sub(r"[^A-Za-z0-9._-]+", "_", Path(self._query().get("name", "")).name).strip("._")[:80]
+            try:
+                size = int(self.headers.get("Content-Length") or 0)
+            except ValueError:
+                size = 0
+            if not name:
+                return self._json({"error": "upload needs ?name=, the file's name"}, 400)
+            if size <= 0:
+                return self._json({"error": "the upload is empty"}, 400)
+            if size > UPLOAD_MAX:
+                return self._json({"error": f"the upload is {size} bytes; the most taken is {UPLOAD_MAX}"}, 413)
+            folder = bench.upload_dir() / uuid.uuid4().hex[:12]
+            folder.mkdir()
+            target, digest, left = folder / name, hashlib.sha256(), size
+            with target.open("wb") as f:
+                while left:
+                    chunk = self.rfile.read(min(1 << 20, left))
+                    if not chunk:
+                        break
+                    f.write(chunk)
+                    digest.update(chunk)
+                    left -= len(chunk)
+            if left:
+                shutil.rmtree(folder, ignore_errors=True)
+                return self._json({"error": f"the upload stopped {left} bytes short"}, 400)
+            return self._json({"path": str(target), "name": name, "bytes": size, "sha256": digest.hexdigest()})
 
         def _events(self):
             self.send_response(200)
@@ -687,6 +788,11 @@ def make_handler(bench: Bench):
             if not self._local() or self.headers.get("X-CAD") != "1":
                 return self._json({"error": "localhost pages only"}, 403)
             path = urlparse(self.path).path
+            if path == "/api/upload":      # a file's bytes, not JSON
+                try:
+                    return self._upload()
+                except (BrokenPipeError, ConnectionResetError):
+                    return
             try:
                 n = int(self.headers.get("Content-Length") or 0)
                 body = json.loads(self.rfile.read(n) or b"{}")
@@ -712,7 +818,8 @@ def make_handler(bench: Bench):
                     else:
                         return self._json({"exit": 3, "stderr": "", "data": {    # cli.USAGE
                             "error": "no projects root configured; pass \"root\""}})
-                    r = bench.run(root, ["--with-text", "init", name])
+                    brief = body.get("brief")
+                    r = bench.run(root, ["--with-text", "init", name, *(["--brief", str(brief)] if brief else [])])
                     if r["exit"] == 0:
                         r["data"] = {**r["data"], "slug": name, "root": str(root)}
                         added = bench.add_root(root)
@@ -754,6 +861,13 @@ def make_handler(bench: Bench):
                     text = macro.read_macro(name)
                     run_slug = str(body.get("slug") or "")
                     return self._json(bench.macro_run(run_slug, name, text.splitlines()))
+                if path == "/api/cad" and not slug:
+                    # The library, the tables and the rules need no project: run them under the first projects
+                    # folder, as the CLI runs them from anywhere. Anything that reads a project still needs its slug.
+                    argv = body.get("argv")
+                    if (isinstance(argv, list) and argv and all(isinstance(x, str) for x in argv)
+                            and projectless(argv) and bench.roots):
+                        return self._json(bench.run(bench.roots[0], ["--actor", "ui", "--with-text", *argv]))
                 try:
                     bench.root_of(slug)
                 except KeyError:
@@ -917,4 +1031,5 @@ def run(roots, host: str = "127.0.0.1", port: int = 8733, runner=None,
         pass
     finally:
         remove_registry(bench.port)
+        bench.clear_uploads()
         httpd.server_close()

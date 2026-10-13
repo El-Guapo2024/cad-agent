@@ -86,13 +86,14 @@ export function fileEntries(): Entry[] {
 // the result opens, standing in for FreeCAD's create-then-show-empty-document. ──
 export function NewDocumentTask() {
   const [name, setName] = useState('')
+  const [brief, setBrief] = useState('')
   const [busy, setBusy] = useState(false)
   const create = async () => {
     const n = name.trim()
     if (!n || busy) return
     setBusy(true)
     try {
-      const r: CadResult = await api.init(n)
+      const r: CadResult = await api.init(n, brief.trim() || undefined)
       const slug = r.data?.slug
       if (r.exit !== 0 || !slug) { report('err', `New Document: ${resultText(r)}`); return }
       await loadProjects()
@@ -110,6 +111,9 @@ export function NewDocumentTask() {
         <div className="tform">
           <input autoFocus value={name} placeholder="Unnamed" disabled={busy} onChange={(e) => setName(e.target.value)}
             onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); create() } }} />
+          {/* cad init --brief: one paragraph for mech_profile.md, which the agent reads first */}
+          <textarea rows={3} value={brief} placeholder="Brief (optional): what it is for, in a paragraph" disabled={busy}
+            title="cad init --brief: written into mech_profile.md" onChange={(e) => setBrief(e.target.value)} />
         </div>
         {/* The first command through the warm worker waits for its kernel import: say so, as View3D's "Building the scene" does. */}
         <p className="hint">{busy ? <>Creating {name.trim()}… The first command starts the CAD kernel, which can take about 30 seconds.</>

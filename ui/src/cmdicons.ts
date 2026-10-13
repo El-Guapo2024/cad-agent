@@ -5,11 +5,18 @@ import type { IconName } from './icons'
 import { DRAW_STYLES, EDIT_MODES, VIEWS } from './chrome'
 
 const STATIC: Record<string, IconName> = {
+  CADAgent_Bom: 'bom',
   CADAgent_Bought: 'bought',
+  CADAgent_Build: 'body',
   CADAgent_Check: 'recompute',
   CADAgent_Done: 'pending',
+  CADAgent_Drawing: 'drawing',
+  CADAgent_Evals: 'report',
+  CADAgent_Library: 'library',
+  CADAgent_Pose: 'pose',
   CADAgent_Render: 'shot',
   CADAgent_Rules: 'help',
+  CADAgent_Shop: 'export',
   CADAgent_Tables: 'report',
   CADAgent_ToolEnvelope: 'body',
   CADAgent_Verify: 'pass',

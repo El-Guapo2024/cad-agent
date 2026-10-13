@@ -11,6 +11,7 @@ import { Navigation, bindNavigation, type NavPrefs, type V2 } from './nav'
 import { AxisCross } from './axiscross'
 import { toNumber, userString } from './quantity'
 import { placementMatrix } from './placement'
+import { poseOffsets } from './poses'
 
 /** The placement indicator's axis label: white text (labelFontSize 9) on the axis colour. */
 function labelSprite(text: string, color: string): THREE.Sprite {
@@ -420,6 +421,9 @@ export class CadView {
     this.applyBackground(getState().background)
     this.applyLights(getState().lights)
     this.index(sc)
+    // The groups of the scene before are gone with it, and so is what they were moved from: the pose stands again.
+    this.posed.clear()
+    this.setPose(getState().pose ? poseOffsets(sc, getState().pose!) : null)
     // The viewer settles its own size a frame or two after render; fit after it.
     this.fit()
     requestAnimationFrame(() => requestAnimationFrame(() => this.fit()))
@@ -827,6 +831,34 @@ export class CadView {
       // world delta, in the parent's frame: local' = P⁻¹ · delta · P · local
       const local = parent.clone().invert().multiply(delta).multiply(parent).multiply(base)
       local.decompose(g.position, g.quaternion, g.scale)
+      g.updateMatrixWorld(true)
+    }
+    this.redraw()
+  }
+
+  private posed = new Map<string, { pos: THREE.Vector3; quat: THREE.Quaternion; scale: THREE.Vector3 }>()
+  /** CADAgent_Pose: the machine drawn at one of its named poses (poses.ts), every body an axis carries slid by `offsets`
+   *  in the world; null puts them all back where assembly.py has them. A view only, as previewPlacement is: the
+   *  checks, `cad measure` and `cad mass` keep judging the machine at home, and a pose of the spec is judged by its
+   *  own entries (`pose = "park"`). The groups move, not the meshes, so picking, the selection boxes and fitting
+   *  follow them as they follow a dragged part. */
+  setPose(offsets: Record<string, Vec3> | null) {
+    const groups = this.viewer.nestedGroup?.groups as Record<string, THREE.Object3D> | undefined
+    for (const [path, home] of this.posed) {
+      const g = groups?.[path]
+      if (g) { g.position.copy(home.pos); g.quaternion.copy(home.quat); g.scale.copy(home.scale); g.updateMatrixWorld(true) }
+    }
+    this.posed.clear()
+    for (const [name, by] of Object.entries(offsets ?? {})) {
+      const b = getState().scene?.bodies.find((x) => x.name === name)
+      const g = b ? groups?.[b.path] : undefined
+      if (!b || !g) continue
+      this.posed.set(b.path, { pos: g.position.clone(), quat: g.quaternion.clone(), scale: g.scale.clone() })
+      const parent = g.parent?.matrixWorld ?? new THREE.Matrix4()
+      const home = new THREE.Matrix4().compose(g.position, g.quaternion, g.scale)
+      // a world translation, in the parent's frame: local' = P⁻¹ · T · P · local
+      parent.clone().invert().multiply(new THREE.Matrix4().makeTranslation(by[0], by[1], by[2])).multiply(parent).multiply(home)
+        .decompose(g.position, g.quaternion, g.scale)
       g.updateMatrixWorld(true)
     }
     this.redraw()

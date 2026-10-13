@@ -205,8 +205,8 @@ async function runConsoleLine(line: string) {
   if (!text) return
   say('in', text)
   const [cmd, ...args] = text.replace(/^cad\s+/, '').split(/\s+/)
-  const s = getState(), slug = s.slug
-  if (!slug) return say('err', 'no project open')
+  const s = getState(), slug = s.slug ?? ''
+  if (!slug && !PROJECTLESS.has(cmd)) return say('err', 'no project open')
   try {
     if (cmd === 'help') say('out', 'check | verify | set PART k=v ... | place BODY --move=x,y,z [--turn=a,b,c] [--about=x,y,z] | place BODY --reset | measure A B | select NAME ... | view iso|front|top|right|rear|bottom|left | fit'
       + ' | anything else (mass, status, export, cutlist, render, …) runs as that cad subcommand, e.g. mass PART or export PART --format step')
@@ -238,14 +238,31 @@ async function runConsoleLine(line: string) {
     else if (cmd === 'fit') getView()?.fitAll()
     // Anything else: the same cad subcommand through POST /api/cad, with the open project put
     // in when the command takes one and it wasn't typed (`mass post` → `cad mass SLUG post`).
-    else printCadResult(await api.cad(slug, NO_PROJECT.has(cmd) || args[0] === slug || cmd.startsWith('-') ? [cmd, ...args] : [cmd, slug, ...args]))
+    else printCadResult(await api.cad(slug, withProject(cmd, args, slug)))
   } catch (e) {
     say('err', String(e))
   }
 }
 
-/** cad commands that take no project argument (`cad tables`, `cad rules`, …). */
-const NO_PROJECT = new Set(['ls', 'init', 'tables', 'rules', 'tool', 'help'])
+/** cad commands that take no project argument (`cad tables`, `cad rules`, `cad pref`, …). */
+const NO_PROJECT = new Set(['ls', 'init', 'tables', 'rules', 'tool', 'help', 'pref', 'cache', 'macro', 'eval'])
+/** Commands with a sub-command, which take the project after it: `bought ls PROJECT`, `gui state PROJECT`, `lib use PROJECT ENTRY`
+ *  (the rest of `lib` needs none: `lib ls`, `lib info ENTRY`, `lib add ENTRY FILE`, `lib check` for the store, `lib fetch ENTRY`). */
+const SUB_PROJECT: Record<string, string[] | 'all'> = { bought: 'all', gui: 'all', lib: ['use'] }
+/** The ones the workbench answers with no project open (serve.py's PROJECTLESS). */
+const PROJECTLESS = new Set(['rules', 'tables', 'tool', 'lib', 'ls', 'pref', 'cache'])
+/** The argv for a typed line: the open project goes where `cad` wants it when the line didn't name it (`mass post` is
+ *  `cad mass SLUG post`; `lib use nema8` is `cad lib use SLUG nema8`; `bought ls` is `cad bought ls SLUG`). */
+export function withProject(cmd: string, args: string[], slug: string): string[] {
+  if (!slug || NO_PROJECT.has(cmd) || cmd.startsWith('-')) return [cmd, ...args]
+  const subs = SUB_PROJECT[cmd]
+  if (subs) {
+    const [sub, ...rest] = args
+    if (!sub || (subs !== 'all' && !subs.includes(sub))) return [cmd, ...args]
+    return rest[0] === slug ? [cmd, sub, ...rest] : [cmd, sub, slug, ...rest]
+  }
+  return args[0] === slug ? [cmd, ...args] : [cmd, slug, ...args]
+}
 
 /** FreeCAD's console prints what the command prints; here, the same text `cad` prints in a
  *  terminal (the server asks for it with --with-text), so the person sees what the agent sees.

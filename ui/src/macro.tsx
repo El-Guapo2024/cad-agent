@@ -8,7 +8,7 @@
 // FreeCAD dialog (Preferences, Document information, Units converter, …).
 import { useEffect, useState } from 'react'
 import { api, type MacroInfo } from './api'
-import { closeTask, getDock, hasOpenWindow, openTask, startRecording, stopRecording, editorStyle } from './actions'
+import { closeTask, drawingPanels, getDock, openTask, startRecording, stopRecording, editorStyle } from './actions'
 import { consoleLog, getState, report, saved, useStore } from './store'
 import { cls, TaskBox } from './panels'
 import { messageBox } from './msgbox'
@@ -69,14 +69,18 @@ export function macroEntries(): Entry[] {
   ]
 }
 
-/** The Windows menu (Workbench.cpp's "&Windows"). This UI has exactly one document window (the
- *  3D view tab), so Next/Previous/Tile/Cascade (which need two or more) stay disabled, as FreeCAD
- *  would with only one; Close and Close All moved to the File menu (filemenu.tsx) — at this commit
- *  Workbench.cpp's own Windows menu doesn't list them, unlike older FreeCAD. */
+/** The MDI area's windows, in tab order: the Start page, the 3D view, and a tab for each drawing (shopwb.tsx's DrawingPanel). */
+export function mdiWindows() {
+  const dock = getDock()
+  const group = (dock?.getPanel('view3d') ?? dock?.getPanel('start') ?? drawingPanels()[0])?.group
+  return (group?.panels ?? []).filter((p) => p.id === 'start' || p.id === 'view3d' || p.id.startsWith('drawing:'))
+}
+
+/** The Windows menu (Workbench.cpp's "&Windows"). This UI has one document window, the 3D view tab, and a tab for each
+ *  drawing; Next/Previous/Tile/Cascade stay disabled (a tab strip has no tiles), and Close and Close All moved to the File
+ *  menu (filemenu.tsx) — at this commit Workbench.cpp's own Windows menu doesn't list them, unlike older FreeCAD. */
 export function windowsEntries(): Entry[] {
-  const open = hasOpenWindow()
-  // The MDI area's windows: the Start page and the 3D view, in tab order.
-  const windows = (getDock()?.getPanel('view3d')?.group?.panels ?? []).filter((p) => p.id === 'start' || (p.id === 'view3d' && open))
+  const windows = mdiWindows()
   return [
     // QKeySequence::NextChild / PreviousChild on macOS: Ctrl+} and Ctrl+{ (qplatformtheme.cpp).
     { label: 'Next', kbd: '⌘}', icon: 'win-next', disabled: true },
@@ -242,14 +246,16 @@ export function MacroEditTask({ name }: { name: string }) {
 
 // ── Std_Windows: DlgActivateWindowImp (a QTreeWidget of window titles, Activate/Cancel) ──
 export function WindowsTask() {
-  const panel = getDock()?.getPanel('view3d')
-  const title = panel?.api.title ?? '3D view'
+  const windows = mdiWindows().filter((w) => w.id !== 'start')
+  const [pick, setPick] = useState(() => (windows.find((w) => w.api.isActive) ?? windows[0])?.id ?? '')
+  const panel = windows.find((w) => w.id === pick)
   const activate = () => { panel?.api.setActive(); closeTask() }
   return (
     <div className="tasks">
       <TaskBox title="Choose Window" icon="win-list">
-        {panel
-          ? <div className={cls('trow', 'sel')} onClick={activate}><span>{title}</span><span /></div>
+        {windows.length
+          ? windows.map((w) => <div key={w.id} className={cls('trow', w.id === pick && 'sel')} onClick={() => setPick(w.id)} onDoubleClick={activate}>
+            <span>{w.api.title ?? w.id}</span><span /></div>)
           : <p className="hint">No windows open.</p>}
       </TaskBox>
       <div className="tbuttons">
