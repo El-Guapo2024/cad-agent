@@ -468,6 +468,12 @@ function pushRecentFile(slug: string) {
 export async function start() {
   await loadProjects()
   connect()
+  // A link to another project pasted into this tab, or the #name edited in the address bar: open that project.
+  // openProject sets the hash with replaceState, which fires no hashchange, so this never loops.
+  window.addEventListener('hashchange', () => {
+    const want = decodeURIComponent(location.hash.slice(1)), s = getState()
+    if (want && want !== s.slug && s.projects.some((p) => p.slug === want)) void openProject(want)
+  })
 }
 
 /** The Report View line and the Open Document hint for an empty project list, the command between
