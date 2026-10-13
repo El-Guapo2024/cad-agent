@@ -10,7 +10,7 @@ const $ = (s, el = document) => el.querySelector(s);
 const $$ = (s, el = document) => [...el.querySelectorAll(s)];
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const fmt = (x, n = 2) => (x == null || Number.isNaN(+x) ? '—' : (+x).toFixed(n));
-const tokens = (s) => String(s || '').split(/[^A-Za-z0-9_]+/).filter(Boolean);
+const tokens = (s) => String(s || '').split(/[^A-Za-z0-9_/]+/).filter(Boolean);   // "/" stays: gantry/x_carriage is one body
 const V = (a) => new THREE.Vector3(a[0], a[1], a[2]);
 const DEG = Math.PI / 180;
 const EXIT = { 0: 'OK', 1: 'FAIL', 2: 'UNCHECKED', 3: 'USAGE', 4: 'CRASH' };

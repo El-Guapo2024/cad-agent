@@ -5,7 +5,6 @@ a real one: a plate and a block (test_cli.py's) and a few boxes, so what is meas
 load_machine or a rule directly; the few that run whole gates (`check_all`, `verify.run`) say why.
 """
 import json
-import math
 import subprocess
 import textwrap
 import threading
@@ -20,7 +19,6 @@ from build123d import Box, Pos, Rot
 from cad_agent import buildcache, cli, placements, serve, subassembly, verify
 from cad_agent import state as st
 from cad_agent.geom import bbox
-from cad_agent.registry import SpecCtx
 from cad_agent.runner import approve_views, check_all
 from cad_agent.spec import check_spec
 from cad_agent.subassembly import PoseError, SubassemblyError, apply_pose
@@ -221,6 +219,41 @@ def test_a_pose_drives_the_lifted_axis_along_the_direction_it_turned_to(tree):
     assert np.allclose([*lo, *hi], home + [0, -10, 0, 0, -10, 0])               # -10 along (0, 1, 0)
     assert np.allclose(bbox(posed["gantry/plate"])[0], bbox(m.parts["gantry/plate"])[0])   # the rest stays
     assert np.allclose(box("gantry/block", m), home)                            # and the machine itself is not moved
+
+
+def test_apply_pose_says_which_part_of_a_pose_cannot_be_applied(tree):
+    m = st.load_machine("machine")
+    with pytest.raises(PoseError, match="no pose 'nope' in POSES .poses: gantry/park."):
+        apply_pose(m, "nope")
+    m.poses.update({"ghost": {"w": 1}, "over": {"gantry/x": 11}, "text": {"gantry/x": "left"}, "nan": {"gantry/x": float("nan")}})
+    with pytest.raises(PoseError, match=r"drives 'w', which is not an axis of AXES \(axes: gantry/x\)"):
+        apply_pose(m, "ghost")
+    with pytest.raises(PoseError, match=r"puts gantry/x at 11 mm, outside its travel -10 to 10 mm"):
+        apply_pose(m, "over")
+    with pytest.raises(PoseError, match="not a number of mm"):
+        apply_pose(m, "text")
+    with pytest.raises(PoseError, match="not a number of mm"):
+        apply_pose(m, "nan")
+    assert apply_pose(m, "gantry/park", {"gantry/block": m.parts["gantry/block"]}).keys() == {"gantry/block"}   # the solids it is given
+    m.poses["end"] = {"gantry/x": 10.0 + 1e-9}                                  # a position a hair past the end is the end
+    apply_pose(m, "end")
+
+
+def test_a_name_is_split_at_its_first_slash_and_a_file_made_from_it_is_one_file():
+    assert subassembly.split("gantry/x_carriage") == ("gantry", "x_carriage")
+    assert subassembly.split("line/left/block") == ("line", "left/block")
+    assert subassembly.split("plate") == (None, "plate")
+    assert subassembly.file_stem("gantry/x_carriage") == "gantry__x_carriage" and subassembly.file_stem("plate") == "plate"
+    assert "/" not in subassembly.file_stem("a/b/c") and "gantry/x_carriage" in subassembly.name_rule("a/b")
+
+
+def test_a_child_whose_axis_cannot_be_moved_is_a_problem_of_its_own_not_a_crash(tree, capsys):
+    (st.project_dir("gantry") / "assembly.py").write_text(GANTRY.replace('"direction": (1, 0, 0)', '"direction": (1, 0)'))
+    assert st.load_machine("gantry").axes["x"].direction == (1.0, 0.0)           # on its own it loads
+    (p,) = problems("machine")
+    assert p.kind == "build" and p.subject == "gantry" and "could not be flattened in" in p.message
+    code, data = run(capsys, "check", "machine")
+    assert code == cli.FAIL and rows_of(data, "subassembly", "build", "FAIL")
 
 
 def test_two_instances_of_one_project_and_a_grandchild(light):

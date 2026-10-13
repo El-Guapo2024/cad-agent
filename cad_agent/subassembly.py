@@ -318,7 +318,10 @@ def _link(machine, inst, decl, path: tuple) -> _Lifted:
     stray = sorted(n for n in sub.parts if "/" in n and n.split("/", 1)[0] not in nested)
     if stray:
         raise SubassemblyError([Problem(f"{inst}/{n}", "name", f"in {project!r}: {name_rule(n)}") for n in stray])
-    return _lift(inst, project, at, turn, sub, depth=len(path))
+    try:
+        return _lift(inst, project, at, turn, sub, depth=len(path))
+    except Exception as e:      # an axis or a body of the child that cannot be moved: its project's fault, said as a row
+        raise _fault(inst, "build", f"{inst!r} ({project}) could not be flattened in: {st.why(e)}") from e
 
 
 def expand(machine, declared):
