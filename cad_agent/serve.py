@@ -70,6 +70,13 @@ UPLOAD_KEEP_S = 12 * 3600
 
 # `cad` commands that need no project: POST /api/cad without a slug runs them under the first projects folder.
 PROJECTLESS = frozenset({"rules", "tables", "tool", "lib", "ls", "pref", "cache"})
+# ... and the eval commands that read the task set or score a design folder; `eval run` starts a real agent, so it is not here
+PROJECTLESS_SUB = {"eval": frozenset({"ls", "brief", "score"})}
+
+
+def projectless(argv: list[str]) -> bool:
+    """Whether `cad <argv>` needs no project to run in (POST /api/cad without a slug)."""
+    return argv[0] in PROJECTLESS or (len(argv) > 1 and argv[1] in PROJECTLESS_SUB.get(argv[0], ()))
 
 
 def _config_path() -> Path:
@@ -850,7 +857,7 @@ def make_handler(bench: Bench):
                     # folder, as the CLI runs them from anywhere. Anything that reads a project still needs its slug.
                     argv = body.get("argv")
                     if (isinstance(argv, list) and argv and all(isinstance(x, str) for x in argv)
-                            and argv[0] in PROJECTLESS and bench.roots):
+                            and projectless(argv) and bench.roots):
                         return self._json(bench.run(bench.roots[0], ["--actor", "ui", "--with-text", *argv]))
                 try:
                     bench.root_of(slug)

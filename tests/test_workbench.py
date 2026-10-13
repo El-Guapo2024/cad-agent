@@ -802,8 +802,11 @@ def test_the_library_answers_without_a_project_and_a_part_goes_into_one_with_und
     r = json.loads(body)
     assert r["exit"] == cli.OK and r["data"]["entry"]["vendor"] == "Nanotec" and r["data"]["status"] == "ready"
     assert json.loads(call("/api/cad", {"argv": ["rules"]})[1])["data"]["rules"]
-    # what reads a project still names one, and so does a command that is not on the list
-    for argv in (["check", "works"], ["bom", "works"], ["approve", "works"]):
+    r = json.loads(call("/api/cad", {"argv": ["eval", "brief", "nema17_mount"]})[1])       # the task set is read, not run
+    assert r["exit"] == cli.OK and r["data"]["task"] == "nema17_mount" and "NEMA 17" in r["data"]["brief"]
+    assert json.loads(call("/api/cad", {"argv": ["eval", "ls"]})[1])["data"]["tasks"]
+    # what reads a project still names one, and so does a command that is not on the list: `eval run` starts a real agent
+    for argv in (["check", "works"], ["bom", "works"], ["approve", "works"], ["eval", "run", "--agent", "true"], ["eval"]):
         code, body = call("/api/cad", {"argv": argv})
         assert code == 400 and "missing slug" in json.loads(body)["error"], argv
 
@@ -912,3 +915,18 @@ def test_a_project_without_poses_has_an_empty_set(demo, capsys):
     run(capsys, "scene", "demo")
     scene = json.loads((demo / "out" / "scene.json").read_text())
     assert scene["poses"] == {} and scene["axes"] == []
+
+
+def test_a_body_made_with_bought_solid_is_bought_in_the_scene_whatever_it_is_called(tmp_path, monkeypatch, capsys):
+    """The tree and the colours decided by names alone, so `drive = bought_solid(SLUG, "motor")` showed as stock."""
+    from test_bom import ASSEMBLY, make_workshop
+    monkeypatch.setattr(st, "ROOT", tmp_path)
+    monkeypatch.delenv("CAD_PROJECTS", raising=False)
+    monkeypatch.setenv("CAD_WARM_DIR", str(tmp_path / ".warm"))
+    make_workshop(tmp_path, assembly=ASSEMBLY.replace('"motor":', '"drive":'))
+    assert run(capsys, "scene", "works")[0] == cli.OK
+    scene = json.loads((tmp_path / "works" / "out" / "scene.json").read_text())
+    kinds = {b["name"]: b["kind"] for b in scene["bodies"]}
+    assert kinds["drive"] == "bought" and kinds["panel"] == "made" and kinds["block"] == "made"
+    drive = next(b for b in scene["bodies"] if b["name"] == "drive")
+    assert drive["part"] is None and drive["color"] == "#6f8fb0" and "project" not in drive and drive["params"] == {}
