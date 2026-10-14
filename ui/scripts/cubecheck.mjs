@@ -146,6 +146,13 @@ const dragPick = async (key, dx, dy) => {
   await p.mouse.move(at.x + dx / 2, at.y + dy / 2, { steps: 4 }); await p.mouse.move(at.x + dx, at.y + dy, { steps: 4 })
   await p.mouse.up()
 }
+/** Press on a pick and drag the pointer to a place on the screen, in steps, and let go there. */
+const dragPickTo = async (key, x, y) => {
+  const at = (await picks())[key]
+  await p.mouse.move(at.x, at.y); await p.mouse.down()
+  await p.mouse.move((at.x + x) / 2, (at.y + y) / 2, { steps: 4 }); await p.mouse.move(x, y, { steps: 4 })
+  await p.mouse.up()
+}
 const btn = (cls) => p.locator(`.navi.${cls}`).click()
 const key = (k) => p.keyboard.press(k)
 /** The face that looks most squarely at the viewer, as a pick key. */
@@ -329,6 +336,35 @@ await step('actions with no wait between them end where the last one points', as
     await quick('home, at once roll right', front, async () => { await btn('home'); await btn('rr') }, () => qmul(STD.trimetric, qaxis(ez, STEP)), frames, false)
     await quick('click TOP, at once key 0', home, async () => { await clickPick('0,0,1'); await key('0') }, STD.iso, frames)
   }
+})
+
+// ── a cube drag that ends away from the cube ─────────────────────────────────────────────────────────
+await step('a cube drag ends where the button comes up: nothing follows the mouse afterwards', async () => {
+  const home = STARTED[0]
+  const view = await p.evaluate(() => { const r = cadui.getView().viewer.renderer.domElement.getBoundingClientRect(), g = cadui.getView().gizmo._domElement.getBoundingClientRect(); return { x: r.left, y: r.top, w: r.width, h: r.height, cube: [g.left + g.width / 2, g.top + g.height / 2] } })
+  const wander = [[view.x + view.w / 2, view.y + view.h / 2], [view.x + 150, view.y + 400], [view.x + view.w - 40, view.y + 600], view.cube, [view.cube[0] - 40, view.cube[1] + 30], [view.x + 300, view.y + view.h - 100]]
+  // The drag lets go over the 3D view away from the cube (where the navigation stops the pointerup it takes for its own), over the
+  // cube, and over the model tree beside the view.
+  for (const [where, to] of [['over the 3D view, far from the cube', [view.x + view.w / 2 - 200, view.y + 500]], ['over the cube', [view.cube[0] - 25, view.cube[1] + 18]], ['over the model tree', [60, 300]]]) {
+    await restore(home.text)
+    await p.evaluate(() => cadui.setState({ selected: ['base'], subSel: [] }))
+    await watch()
+    await dragPickTo('0,-1,0', ...to)
+    const turned = await settle()
+    const bad = consistency(turned)
+    for (const [x, y] of wander) { await p.mouse.move(x, y); await p.waitForTimeout(100) }
+    const s = await settle()
+    if (qangle(s.camera, turned.camera) > 1e-9 || dist3(s.position, turned.position) > 1e-9) bad.push(`the view turned by itself with the mouse, ${qangle(s.camera, turned.camera).toFixed(3)} deg`)
+    if (s.animating) bad.push('an animation is running')
+    ok(`a drag from FRONT let go ${where}: the view stays where the drag left it`, bad.length === 0, bad.join('; '))
+    ok(`and the selection is still there`, (await p.evaluate(() => cadui.getState().selected.join(','))) === 'base', await p.evaluate(() => cadui.getState().selected.join(',')))
+    // and the next click on the cube is the click it looks like
+    const face = bestFace(await picks())
+    await clickPick(face)
+    const c = await settle()
+    ok(`then a click on ${PICK[face].name} is the ${PICK[face].name} view`, qangle(c.camera, PICK[face].q) < ANGLE_TOL && consistency(c).length === 0, `${qangle(c.camera, PICK[face].q).toFixed(3)} deg off; ${consistency(c).join('; ')}`)
+  }
+  await p.evaluate(() => cadui.setState({ selected: [] }))
 })
 
 // ── a turn while Fit All is still moving the camera ───────────────────────────────────────────────

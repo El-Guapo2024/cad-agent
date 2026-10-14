@@ -394,6 +394,7 @@ export class CadView {
 
   dispose() {
     this.stopTransform(true)
+    this.endCubePress?.()
     this.cleanup.forEach((f) => f())
     this.gizmo?.dispose()
     this.cross.dispose()
@@ -1988,6 +1989,7 @@ export class CadView {
   }
 
   private attachGizmo() {
+    this.endCubePress?.() // a press on the cube being rebuilt has nothing to end on
     this.gizmo?.dispose()
     this.gizmo = null
     this.cubeAxes = null
@@ -2179,7 +2181,12 @@ export class CadView {
     const pick = this.cubePick(e)
     if (!pick) return // PickId::None: let the event fall through to ordinary 3D navigation
     e.preventDefault()
+    this.endCubePress?.() // a press that never got its release (the gizmo was rebuilt under it)
     this.cubeActive = true
+    // The press is the cube's until the button is up, wherever the pointer goes. Captured, its moves and its release are the cube's
+    // own events: a drag that leaves the cube is not taken by the 3D navigation for a press on the canvas, and its pointerup is not
+    // one the navigation stops on the canvas (it does, so this never ran, and every later mouse move went on orbiting the model).
+    try { el.setPointerCapture(e.pointerId) } catch { /* the pointer is gone */ }
     // NaviCube.cpp mousePressed:937 (pressPos) and the cube's relPos at that same instant: the
     // whole drag is tracked from these two, not from each move event's own previous position.
     const pressCubePos = getState().cubePos
@@ -2192,6 +2199,8 @@ export class CadView {
       return [0.5 + (x - (r.left + r.width / 2)) / size, 0.5 - (y - (r.top + r.height / 2)) / size]
     }
     const move = (ev: PointerEvent) => {
+      if (ev.pointerId !== e.pointerId) return
+      if (!(ev.buttons & 1)) return end(ev, true) // released where no pointerup reached us (outside the window, say)
       if (!dragging && (ev.clientX - start.x) ** 2 + (ev.clientY - start.y) ** 2 >= dragThreshold * dragThreshold) {
         dragging = true
         if (!this.cubeDraggable) {
@@ -2204,12 +2213,20 @@ export class CadView {
       else this.nav.updateOrbitDrag(norm(ev.clientX, ev.clientY), norm(last.x, last.y))
       last = { x: ev.clientX, y: ev.clientY }
     }
-    const up = (ev: PointerEvent) => {
+    let ended = false
+    const end = (ev: { clientX: number; clientY: number }, cancelled: boolean) => {
+      if (ended) return
+      ended = true
       removeEventListener('pointermove', move)
       removeEventListener('pointerup', up)
+      removeEventListener('pointercancel', cancel)
+      el.removeEventListener('lostpointercapture', cancel)
+      try { el.releasePointerCapture(e.pointerId) } catch { /* already released */ }
+      this.endCubePress = null
       this.cubeActive = false
       this.updateCubeFade(ev.clientX, ev.clientY)
       if (dragging) { if (!this.cubeDraggable) this.nav.endOrbitDrag(); this.cubeClick = null; return }
+      if (cancelled) return // a press that was taken away is not a click
       const key = pick.toArray().map(Math.round).join(','), now = performance.now()
       if (this.drawLog) this.drawLog.pick = key
       const twice = !!this.cubeClick && this.cubeClick.key === key && now - this.cubeClick.t < 400
@@ -2223,9 +2240,16 @@ export class CadView {
       const q = getState().naviCube.toNearest ? nearestOrientation(this.nav.targetOrientation ?? p.cam.quaternion, std, pick) : std
       this.nav.startAnimation(q, t, twice && box ? box.getCenter(new THREE.Vector3()).sub(t) : new THREE.Vector3())
     }
+    const up = (ev: PointerEvent) => { if (ev.pointerId === e.pointerId) end(ev, false) }
+    const cancel = (ev: Event) => end(ev as PointerEvent, true)
+    this.endCubePress = () => end({ clientX: last.x, clientY: last.y }, true)
     addEventListener('pointermove', move)
     addEventListener('pointerup', up)
+    addEventListener('pointercancel', cancel)
+    el.addEventListener('lostpointercapture', cancel)
   }
+  /** Ends the cube press under way, if one is (see cubePress). */
+  private endCubePress: (() => void) | null = null
 
   /** View3DInventorViewer::setEnabledFPSCounter: create/show or hide the label and its
    *  QTimer(250 ms); the measurement itself (addFrametime, in hookRender) keeps running
