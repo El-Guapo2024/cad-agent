@@ -309,8 +309,6 @@ export class CadView {
   private cleanup: (() => void)[] = []
   /** NaviCubeDraggableCmd: a drag on the cube moves it instead of orbiting. */
   private cubeDraggable = false
-  /** NaviRotateToNearest (default on): a click snaps to the nearest roll of the face. */
-  private naviRotateToNearest = true
   /** mouseDown, for the opacity fade: true for the whole life of a cube press. */
   private cubeActive = false
   /** The whole cube's last-applied opacity factor (mouseMoved's hovering ? 1 : InactiveOpacity). */
@@ -473,7 +471,7 @@ export class CadView {
         cc._zoomStart?.copy?.(cc._zoomEnd); cc._panStart?.copy?.(cc._panEnd)
         cc.update()
       }
-      this.gizmo?.update()
+      this.updateCube()
       this.scaleMarker()
       this.scalePlacementIndicators()
       // The camera the person sees, for the agent (`cad gui state`): once it settles.
@@ -958,7 +956,7 @@ export class CadView {
     const w = 2 * margin + (r.width - c.width), h = (c.top - b.top) + (r.bottom - c.bottom) + margin
     this.viewer.resizeCadView(Math.max(200, Math.floor(this.host.clientWidth - w)), 0,
       Math.max(200, Math.floor(this.host.clientHeight - h)), true)
-    this.gizmo?.update()
+    this.updateCube()
     // NaviCubeImplementation::handleResize runs every render: keep the cube at the same
     // CubePos as the container is resized, not a stale pixel margin from the old size.
     if (this.gizmo) this.applyCubeLayout(getState().cubePos)
@@ -983,7 +981,7 @@ export class CadView {
 
   private settle() {
     this.cameraParts()?.controls.update()
-    this.gizmo?.update()
+    this.updateCube()
     this.redraw()
     this.emitSize()
   }
@@ -1125,13 +1123,14 @@ export class CadView {
   turn(axis: 'x' | 'y' | 'z', deg: number) {
     const p = this.cameraParts()
     if (!p) return
-    // Clicks during the animation add up (NaviCube's flatButtonTargetOrientation).
-    const base = this.nav.animating && this.turnTarget ? this.turnTarget : p.cam.quaternion.clone()
+    // NaviCube.cpp mouseReleased, flat buttons: a press while the animation before it still runs turns where that one is going
+    // (flatButtonTargetOrientation), so quick presses add up. FreeCAD does that only while its own button animation runs; during a face
+    // click's or a standard view's it turns the camera as it is half way, which lands on an orientation nobody asked for. Here the
+    // target of whatever view animation runs is what a press adds to.
+    const base = this.nav.targetOrientation ?? p.cam.quaternion.clone()
     const local = new THREE.Vector3(+(axis === 'x'), +(axis === 'y'), +(axis === 'z'))
-    this.turnTarget = base.clone().multiply(new THREE.Quaternion().setFromAxisAngle(local, THREE.MathUtils.degToRad(deg)))
-    this.animateTo(this.turnTarget, p.controls.target.clone())
+    this.animateTo(base.clone().multiply(new THREE.Quaternion().setFromAxisAngle(local, THREE.MathUtils.degToRad(deg))), p.controls.target.clone())
   }
-  private turnTarget: THREE.Quaternion | null = null
 
 
   /** Std_ViewZoomIn / Out: one ZoomStep about the focal point (NavigationStyle::zoomIn). */
@@ -1920,7 +1919,6 @@ export class CadView {
     if (s.lights !== this.lightsApplied) { this.applyLights(s.lights); dirty = true }
     // Preferences > Navigation Cube: a new size, corner, colour or font rebuilds the cube.
     if (s.naviCube !== this.applied.naviCube) {
-      this.naviRotateToNearest = s.naviCube.toNearest
       if (this.applied.naviCube && s.cube) { this.applied = { ...this.applied, naviCube: s.naviCube }; this.attachGizmo() }
       dirty = true
     }
@@ -2014,7 +2012,18 @@ export class CadView {
     const st = getState() // only on a change: setState re-enters sync
     if (st.cubePlace !== placement || JSON.stringify(st.cubeOffset) !== JSON.stringify(offset)) setState({ cubePlace: placement, cubeOffset: offset })
     this.hookRender()
-    g.update()
+    this.updateCube()
+  }
+
+  /** The cube is the camera seen from outside: it takes its orientation, and its place on the screen, from the camera it is drawn
+   *  for. Done for every draw (hookRender), so no frame can show a cube a step behind its camera, which the frame a controls'
+   *  change event drew first used to (new camera, old cube, then a second draw from cameraChanged). It does not use the
+   *  library's update(), which first runs the orbit controls' update(): that turns the camera by whatever drag the controls last saw. */
+  private updateCube(camera?: THREE.Camera) {
+    const g = this.gizmo, cam = camera ?? this.cameraParts()?.cam
+    if (!g || !cam) return
+    g.camera = cam as THREE.OrthographicCamera | THREE.PerspectiveCamera
+    g.update(false)
   }
 
   /** NaviCubeImplementation::mouseMoved: the whole cube (every face/edge/corner) fades to
@@ -2038,8 +2047,57 @@ export class CadView {
   }
   isCubeDraggable() { return this.cubeDraggable }
   setCubeDraggable(on: boolean) { this.cubeDraggable = on }
-  isNaviRotateToNearest() { return this.naviRotateToNearest }
-  setNaviRotateToNearest(on: boolean) { this.naviRotateToNearest = on }
+
+  // ── test hook ──────────────────────────────────────────────────────────────
+  /** What probe(true) records about the draws that follow it: how many there were, the camera and the cube of the
+   *  last one, the largest angle (degrees) between the cube and the camera's inverse over all of them, and which pick
+   *  the last press on the cube resolved to ("x,y,z"). */
+  private drawLog: { frames: number; worst: number; camera: number[]; position: number[]; zoom: number; cube: number[]; pick: string | null } | null = null
+
+  /** Test hook for ui/scripts/cubecheck.mjs: the camera's and the cube's orientations, as they stand and as last drawn.
+   *  Gate: probe() only reads. The record of draws is kept only after probe(true) (probe(false) drops it), and the page
+   *  never calls either: in normal use nothing is recorded and a draw pays one null check. It is reachable as
+   *  cadui.getView().probe(), like the rest of the console's debugging API (main.tsx). */
+  probe(watch?: boolean) {
+    const p = this.cameraParts()
+    if (!p) return null
+    const cam = p.cam as THREE.OrthographicCamera | THREE.PerspectiveCamera, box = this.box()
+    // The record starts from what is on screen now, so "the last draw matches the camera" holds until something moves.
+    if (watch !== undefined) this.drawLog = watch ? { frames: 0, worst: 0, camera: cam.quaternion.toArray(), position: cam.position.toArray(), zoom: cam.zoom, cube: this.gizmo ? this.gizmo.quaternion.toArray() : [0, 0, 0, 1], pick: null } : null
+    const sphere = box && !box.isEmpty() ? box.getBoundingSphere(new THREE.Sphere()) : null
+    return {
+      ortho: (cam as THREE.OrthographicCamera).isOrthographicCamera === true,
+      camera: cam.quaternion.toArray(), up: cam.up.toArray(), position: cam.position.toArray(), target: p.controls.target.toArray(), zoom: cam.zoom,
+      cube: this.gizmo ? this.gizmo.quaternion.toArray() : null,
+      animating: this.nav.animating, pendingFrame: this.pending,
+      sceneCenter: box && !box.isEmpty() ? box.getCenter(new THREE.Vector3()).toArray() : null, sceneRadius: sphere ? sphere.radius : null,
+      drawn: this.drawLog ? { ...this.drawLog } : null,
+    }
+  }
+  /** What a draw showed: the cube's orientation against the camera it was drawn with (see probe). */
+  private logDraw(camera: THREE.Camera) {
+    const log = this.drawLog, g = this.gizmo
+    if (!log || !g) return
+    const cam = camera as THREE.OrthographicCamera | THREE.PerspectiveCamera
+    log.frames++
+    log.worst = Math.max(log.worst, THREE.MathUtils.radToDeg(g.quaternion.clone().normalize().angleTo(cam.quaternion.clone().normalize().invert())))
+    log.camera = cam.quaternion.toArray(); log.position = cam.position.toArray(); log.zoom = cam.zoom; log.cube = g.quaternion.toArray()
+  }
+  /** Test hook: where each pick of the cube (its 6 faces, 12 edges and 8 corners, by direction as "x,y,z") is on the
+   *  screen, how squarely it faces the viewer (1 straight on, below 0 turned away), and whether a click there reaches the
+   *  cube (`open`: the NaviCube's buttons sit over the cube's rim, and take a click on a pick that lies under one). */
+  cubePicks(): Record<string, { x: number; y: number; facing: number; open: boolean }> {
+    const g = this.gizmo as any, out: Record<string, { x: number; y: number; facing: number; open: boolean }> = {}
+    if (!g?._camera || !g._domElement) return out
+    g.updateMatrixWorld(true)
+    const el = g._domElement as HTMLElement, r = el.getBoundingClientRect()
+    for (const o of g._intersections as THREE.Object3D[]) {
+      const dir = o.position.clone().normalize(), at = o.getWorldPosition(new THREE.Vector3()).project(g._camera)
+      const x = r.left + ((at.x + 1) / 2) * r.width, y = r.top + ((1 - at.y) / 2) * r.height, top = document.elementFromPoint(x, y)
+      out[dir.toArray().map(Math.round).join(',')] = { x, y, facing: dir.applyQuaternion(g.quaternion).z, open: !!top && el.contains(top) }
+    }
+    return out
+  }
 
   /** Re-applies cubeLayout(pos, ...) to the live gizmo without rebuilding it: writes the
    *  margin three-viewport-gizmo bakes into its DOM element at construction time directly
@@ -2104,8 +2162,8 @@ export class CadView {
   }
   /** NaviCube::mousePressed / mouseMoved / mouseReleased: a drag past 3 px orbits the
    *  model's bounding sphere (sensitivity 0.45), or moves the cube itself with the Movable
-   *  Navigation Cube option on; a click turns to the face, edge or corner, to the nearest
-   *  roll (NaviRotateToNearest); clicking it twice centres too. */
+   *  Navigation Cube option on; a click turns to the face, edge or corner, upright (or, with
+   *  NaviRotateToNearest on, to the nearest roll); clicking it twice centres too. */
   private cubePress(e: PointerEvent) {
     const g = this.gizmo as any
     if (!g || e.button !== 0) return
@@ -2145,12 +2203,16 @@ export class CadView {
       this.updateCubeFade(ev.clientX, ev.clientY)
       if (dragging) { if (!this.cubeDraggable) this.nav.endOrbitDrag(); this.cubeClick = null; return }
       const key = pick.toArray().map(Math.round).join(','), now = performance.now()
+      if (this.drawLog) this.drawLog.pick = key
       const twice = !!this.cubeClick && this.cubeClick.key === key && now - this.cubeClick.t < 400
       this.cubeClick = twice ? null : { key, t: now }
       const p = this.cameraParts(), std = faceRotation(pick)
       if (!p || !std) return
       const box = this.box(), t = p.controls.target.clone()
-      const q = this.naviRotateToNearest ? nearestOrientation(p.cam.quaternion, std, pick) : std
+      // NaviRotateToNearest (NaviCube.cpp mouseReleased) is a preference, off by default here: the pick's standard upright
+      // orientation (getFaceRotation) whatever roll the view has. On, the roll nearest the camera's (getNearestOrientation), taken from
+      // the orientation the camera is turning to while an animation runs, not from where it is half way.
+      const q = getState().naviCube.toNearest ? nearestOrientation(this.nav.targetOrientation ?? p.cam.quaternion, std, pick) : std
       this.nav.startAnimation(q, t, twice && box ? box.getCenter(new THREE.Vector3()).sub(t) : new THREE.Vector3())
     }
     addEventListener('pointermove', move)
@@ -2250,7 +2312,7 @@ export class CadView {
         // The view may have been resized since the cube last measured itself, and
         // the cube restores the viewport it saw then. Measure now, and always hand
         // the next frame the whole canvas (else the model draws squeezed and off-centre).
-        if (this.gizmo) { this.gizmo.domUpdate(); this.gizmo.render() }
+        if (this.gizmo) { this.updateCube(camera); this.gizmo.render(); if (this.drawLog) this.logDraw(camera) }
         const size = r.getSize(new THREE.Vector2())
         r.setViewport(0, 0, size.x, size.y)
       } finally {

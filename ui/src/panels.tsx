@@ -1,7 +1,7 @@
 import { Fragment, createContext, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { axisAngleOf, eulerOf as eulerOfSeq, quatOfEuler as quatOfEulerSeq, quatOfYpr, yprOfQuat, type EulerSeq } from './rotation'
 import type { Body, CheckRow, LogEntry, Placement, Vec3 } from './api'
-import { CORNER_POS, getState, report, saved, setState, useStore, viewOf, type AxisColors, type ClipAxis, type ClipView, type HomeView, type NaviCubePrefs, type RotationCenterPrefs, type Level, type NavStyle, type ViewProps as ViewPropsT } from './store'
+import { CORNER_POS, getState, report, saved, saveNaviCube, setState, useStore, viewOf, type AxisColors, type ClipAxis, type ClipView, type HomeView, type NaviCubePrefs, type RotationCenterPrefs, type Level, type NavStyle, type ViewProps as ViewPropsT } from './store'
 import { VIEW } from './theme'
 import { NAV_STYLES, ORBIT_STYLES, type NavPrefs, type OrbitStyle } from './nav'
 import { CadView, measurePair, subInfo, type TransformPhase } from './viewer'
@@ -1096,7 +1096,7 @@ export function PrefsPage({ page }: { page: string }) {
   // CornerNaviCube moves the cube to that corner (and wherever a drag had left it).
   const cubePref = (patch: Partial<NaviCubePrefs>) => setState((s) => {
     const naviCube = { ...s.naviCube, ...patch }
-    saved.set('naviCube', naviCube)
+    saveNaviCube(naviCube)
     if (patch.corner === undefined) return { naviCube }
     // A corner picked here puts the cube back in it (CornerNaviCube; the drag position is cleared).
     saved.set('cubePos', CORNER_POS[patch.corner])

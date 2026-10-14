@@ -490,9 +490,14 @@ export class Navigation {
   stopAnimating() {
     const a = this.anim
     this.anim = null
+    this.animTarget = null
     a?.stop(false)
   }
   get animating() { return this.anim !== null }
+  /** The orientation the running view animation is turning to (FixedTimeAnimation::targetOrientation), or null while none
+   *  turns. A turn asked for meanwhile (a NaviCube arrow or roll) adds to this, not to the half-turned camera. */
+  get targetOrientation(): THREE.Quaternion | null { return this.animTarget }
+  private animTarget: THREE.Quaternion | null = null
 
   /** FixedTimeAnimation: turn to an orientation about a centre while translating,
    *  InOutCubic over AnimationDuration. Without animations it jumps. */
@@ -500,6 +505,9 @@ export class Navigation {
     const p = this.parts()
     if (!p) return
     this.stopAnimating()
+    // Camera.cpp's rotations are float32 literals, a hair off unit length: the camera takes the unit one.
+    q1 = q1.clone().normalize()
+    this.animTarget = q1.clone()
     const fd = p.tgt.clone().sub(p.cam.position).dot(viewDir(p.cam.quaternion))
     const q0 = p.cam.quaternion.clone()
     const world = q1.clone().multiply(q0.clone().invert())
@@ -517,7 +525,9 @@ export class Navigation {
       p.tgt.copy(p.cam.position).addScaledVector(viewDir(next), fd)
       return { a, t }
     }
+    // FixedTimeAnimation::onStop(true): the exact target orientation, and what is left of the translation.
     const end = (last: { a: number; t: THREE.Vector3 }) => {
+      this.animTarget = null
       p.cam.quaternion.copy(q1)
       p.cam.up.copy(Y).applyQuaternion(q1)
       p.cam.position.add(translation.clone().sub(last.t))
@@ -535,9 +545,14 @@ export class Navigation {
     let prev = { a: 0, t: new THREE.Vector3() }, frame = 0, live = true
     const step = () => {
       if (!live) return
+      // QVariantAnimation's last update is at its end value, and only then does it finish: FixedTimeAnimation::update runs once more
+      // at the full angle and translation, and onStop(true) only trims what is left. Finishing on the last frame short of the end,
+      // with the camera still where that frame had put it, left the position part of the way round while the orientation was the
+      // final one, so the focal point (the position plus the view axis) ended wherever that frame had fallen: tens of mm from where
+      // a click found it on a slow machine, hundreds with frames 170 ms apart.
       const k = Math.min(1, (performance.now() - start) / ms)
-      if (k >= 1) { this.anim = null; end(prev); return }
       prev = put(inOutCubic(k), prev.a, prev.t)
+      if (k >= 1) { this.anim = null; end(prev); return }
       this.host.changed()
       frame = requestAnimationFrame(step)
     }
