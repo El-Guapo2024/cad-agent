@@ -2054,7 +2054,13 @@ export class CadView {
     const el = g._domElement as HTMLElement | undefined
     if (el) Object.assign(el.style, { marginLeft: `${offset.left}px`, marginRight: `${offset.right}px`, marginTop: `${offset.top}px`, marginBottom: `${offset.bottom}px` })
     if (g.placement !== placement) g.placement = placement
-    else g.domUpdate?.()
+    // For a corner placement the library writes `transform: " "`, which the browser rejects as
+    // invalid and so keeps whatever was there: the translate(-50%) of a centre placement survives,
+    // and a cube that moved from the middle of a short view to the corner of a tall one sits half
+    // its size too high, cut off by the top of the view. Write it here ('' clears it).
+    const [vert, horiz] = placement.split('-')
+    if (el) el.style.transform = [horiz === 'center' ? 'translateX(-50%)' : '', vert === 'center' ? 'translateY(-50%)' : ''].filter(Boolean).join(' ')
+    g.domUpdate?.()
     const s = getState()
     if (s.cubePlace !== placement || JSON.stringify(s.cubeOffset) !== JSON.stringify(offset)) setState({ cubePlace: placement, cubeOffset: offset })
   }
