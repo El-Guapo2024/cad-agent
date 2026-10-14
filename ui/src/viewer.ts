@@ -339,6 +339,11 @@ export class CadView {
       treeWidth: 0, glass: true, tools: false, theme: 'light', pinning: false,
     } as any)
     this.viewer = new Viewer(this.display, { up: 'Z', ...ORBIT } as any, () => {})
+    // three-cad-viewer keeps keyboard shortcuts of its own on its container (its "2" is its own bottom preset) and stops
+    // the key there, so FreeCAD's 0-6 never reached Std_View*: `2` in the top view showed the bottom, `1` did nothing.
+    // The workbench's keymap owns the keyboard, so the library's listener comes off.
+    const d = this.display as any
+    if (d.container && d._handleKeyboardShortcut) d.container.removeEventListener('keydown', d._handleKeyboardShortcut)
     const ro = new ResizeObserver(() => { this.fit(); this.scaleMarker(); this.scalePlacementIndicators() })
     ro.observe(host)
     const add = <K extends keyof HTMLElementEventMap>(k: K, f: (e: HTMLElementEventMap[K]) => void) => {

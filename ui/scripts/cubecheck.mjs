@@ -155,6 +155,14 @@ const dragPickTo = async (key, x, y) => {
 }
 const btn = (cls) => p.locator(`.navi.${cls}`).click()
 const key = (k) => p.keyboard.press(k)
+/** A key as a person presses it: after a click in the 3D view, which gives the view's own element the keyboard
+ *  (three-cad-viewer focuses its container on mousedown). Without that click the keys reach the page's keymap even
+ *  while the library's own shortcuts sit on that element, which turned `2` in the top view into the bottom. */
+const keyInView = async (k) => {
+  const c = await p.locator('.view3d-host canvas').boundingBox()
+  if (c) { await p.mouse.click(c.x + 8, c.y + c.height - 8); await p.mouse.move(1, 1) }
+  await p.keyboard.press(k)
+}
 /** The face that looks most squarely at the viewer, as a pick key. */
 const bestFace = (here) => Object.entries(here).filter(([k, v]) => nonzero(k) === 1 && v.open).sort((a, c) => c[1].facing - a[1].facing)[0][0]
 /** Put the camera back to a saved one (what `cad gui view` does with Issue Camera Position's text), at once. */
@@ -543,6 +551,14 @@ await step('the cube in a perspective view', async () => {
   await key('v'); await key('o')
   await key('Home'); await settle()
   ok('and back to orthographic', (await probe()).ortho === true)
+})
+
+// ── the view keys after a click in the 3D view, where the keyboard then is ─────────────────────────────
+await step('the view keys after a click in the 3D view: no shortcuts of the viewer library get in first', async () => {
+  const home = STARTED[0]
+  for (const k of ['0', '1', '2', '3', '4', '5', '6']) await act(`click in the view, key ${k} (${KEY_VIEW[k]})`, home, () => keyInView(k), { expect: STD[KEY_VIEW[k]] })
+  await act('click in the view, key 2 twice: still the top', home, async () => { await keyInView('2'); await settle(); await keyInView('2') }, { expect: STD.top })
+  await act('click in the view, key 1 twice: still the front', home, async () => { await keyInView('1'); await settle(); await keyInView('1') }, { expect: STD.front })
 })
 
 console.log('')
