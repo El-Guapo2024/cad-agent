@@ -491,8 +491,13 @@ export class Navigation {
     const a = this.anim
     this.anim = null
     this.animTarget = null
+    this.stopped++
     a?.stop(false)
   }
+  /** How often a running animation was asked to stop. The view's own timed steps (Fit All's) are not one of ours, and note
+   *  it: they carry on only while it has not changed, so a turn started meanwhile is not moved by them afterwards. */
+  get stops() { return this.stopped }
+  private stopped = 0
   get animating() { return this.anim !== null }
   /** The orientation the running view animation is turning to (FixedTimeAnimation::targetOrientation), or null while none
    *  turns. A turn asked for meanwhile (a NaviCube arrow or roll) adds to this, not to the half-turned camera. */
@@ -508,30 +513,38 @@ export class Navigation {
     // Camera.cpp's rotations are float32 literals, a hair off unit length: the camera takes the unit one.
     q1 = q1.clone().normalize()
     this.animTarget = q1.clone()
-    const fd = p.tgt.clone().sub(p.cam.position).dot(viewDir(p.cam.quaternion))
     const q0 = p.cam.quaternion.clone()
     const world = q1.clone().multiply(q0.clone().invert())
     let [axisW, angle] = axisAngle(world)
     if (angle > Math.PI) angle -= 2 * Math.PI
     const axis = axisW.applyQuaternion(q0.clone().invert())
+    // The camera and the focal point are looked up at every step, not kept from the start: a scene reload (CadView.show) or a change
+    // of projection builds a new pair, and an animation that kept the old one went on turning a camera nobody sees, so the view
+    // stopped wherever the reload caught it (a standard view that never arrived). The focal distance is the new camera's own.
     const put = (k: number, prevA: number, prevT: THREE.Vector3) => {
-      const a = angle * k, t = translation.clone().multiplyScalar(k)
-      p.cam.position.sub(prevT)
-      const cur = p.cam.quaternion.clone(), next = cur.clone().multiply(rot(axis, a - prevA))
-      const rel = p.cam.position.clone().sub(center).applyQuaternion(cur.clone().invert())
-      p.cam.quaternion.copy(next)
-      p.cam.position.copy(center).add(rel.applyQuaternion(next)).add(t)
-      p.cam.up.copy(Y).applyQuaternion(next)
-      p.tgt.copy(p.cam.position).addScaledVector(viewDir(next), fd)
+      const a = angle * k, t = translation.clone().multiplyScalar(k), now = this.parts()
+      if (!now) return { a, t }
+      const { cam, tgt } = now, fd = tgt.clone().sub(cam.position).dot(viewDir(cam.quaternion))
+      cam.position.sub(prevT)
+      const cur = cam.quaternion.clone(), next = cur.clone().multiply(rot(axis, a - prevA))
+      const rel = cam.position.clone().sub(center).applyQuaternion(cur.clone().invert())
+      cam.quaternion.copy(next)
+      cam.position.copy(center).add(rel.applyQuaternion(next)).add(t)
+      cam.up.copy(Y).applyQuaternion(next)
+      tgt.copy(cam.position).addScaledVector(viewDir(next), fd)
       return { a, t }
     }
     // FixedTimeAnimation::onStop(true): the exact target orientation, and what is left of the translation.
     const end = (last: { a: number; t: THREE.Vector3 }) => {
       this.animTarget = null
-      p.cam.quaternion.copy(q1)
-      p.cam.up.copy(Y).applyQuaternion(q1)
-      p.cam.position.add(translation.clone().sub(last.t))
-      p.tgt.copy(p.cam.position).addScaledVector(viewDir(q1), fd)
+      const now = this.parts()
+      if (now) {
+        const { cam, tgt } = now, fd = tgt.clone().sub(cam.position).dot(viewDir(cam.quaternion))
+        cam.quaternion.copy(q1)
+        cam.up.copy(Y).applyQuaternion(q1)
+        cam.position.add(translation.clone().sub(last.t))
+        tgt.copy(cam.position).addScaledVector(viewDir(q1), fd)
+      }
       this.host.changed()
       done?.()
     }

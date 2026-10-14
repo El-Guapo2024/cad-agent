@@ -229,7 +229,7 @@ await prefs({ navPrefs: { duration: 150 } })
 const STARTED = []
 await step('every cube action from every start', async () => {
   const seen = new Set()
-  for (const [name, make] of STARTS.slice(0, +(process.env.CUBECHECK_STARTS ?? STARTS.length))) {
+  for (const [name, make] of STARTS.slice(+(process.env.CUBECHECK_FROM ?? 0), +(process.env.CUBECHECK_STARTS ?? STARTS.length))) {
     const st = await startAt(name, make)
     STARTED.push(st)
     const here = await picks()
@@ -259,6 +259,9 @@ await step('every cube action from every start', async () => {
       })
     }
     await act('backside', st, () => btn('back'), { expect: turned(ey, 180) })
+    // Std_ViewRotateLeft and Right (Shift+Left, Shift+Right) are the roll by a quarter turn.
+    await act('rotate left (shift+left)', st, () => key('Shift+ArrowLeft'), { expect: turned(ez, -90) })
+    await act('rotate right (shift+right)', st, () => key('Shift+ArrowRight'), { expect: turned(ez, 90) })
     // Home: the default orientation, then the whole model fitted.
     await act('home', st, () => btn('home'), { expect: STD.trimetric, keepsTarget: false })
     // Standard views by key keep the focal point, the distance and the zoom (View3DPy::viewFront turns the camera only).
@@ -326,6 +329,85 @@ await step('actions with no wait between them end where the last one points', as
     await quick('home, at once roll right', front, async () => { await btn('home'); await btn('rr') }, () => qmul(STD.trimetric, qaxis(ez, STEP)), frames, false)
     await quick('click TOP, at once key 0', home, async () => { await clickPick('0,0,1'); await key('0') }, STD.iso, frames)
   }
+})
+
+// ── a turn while Fit All is still moving the camera ───────────────────────────────────────────────
+await step('a turn started during Fit All is not carried off by what is left of the fit', async () => {
+  const home = STARTED[0]
+  for (const [label, turn, want] of [['roll right', (v) => v.turn('z', 45), (S) => qmul(S.camera, qaxis(ez, STEP))], ['arrow up', (v) => v.turn('x', 45), (S) => qmul(S.camera, qaxis(ex, STEP))], ['key 1', (v) => v.viewDir('front'), () => STD.front]]) {
+    const S = await restore(home.text)
+    await watch()
+    // fitAll's first step runs at once, the nine others 20 ms apart: the turn comes in between, in the same task.
+    const mid = await p.evaluate((turn) => { const v = cadui.getView(); v.fitAll(); const at = v.probe().target; (0, eval)(`(${turn})`)(v); return at }, turn.toString())
+    const s = await settle()
+    const bad = consistency(s), a = qangle(s.camera, want(S))
+    if (a > ANGLE_TOL) bad.push(`the camera is ${a.toFixed(4)} deg off the orientation expected`)
+    if (dist3(s.target, mid) > MM_TOL) bad.push(`the focal point went ${dist3(s.target, mid).toFixed(3)} mm from where the turn found it`)
+    ok(`${label} the moment after Fit All begins`, bad.length === 0, bad.join('; '))
+  }
+})
+
+// ── what the page does to the camera by itself ────────────────────────────────────────────────────
+await step('the view survives what the page does on its own: a scene reload, a resize, the projection, the cube hidden', async () => {
+  const [home, rolled, oblique] = [STARTED[0], STARTED[2], STARTED[7]]
+  const reload = () => p.evaluate(() => cadui.getView().show(cadui.getState().scene, true))   // what a live reload of the project does
+  const unchanged = (s, S) => {
+    const bad = consistency(s)
+    if (qangle(s.camera, S.camera) > ANGLE_TOL) bad.push(`the orientation changed by ${qangle(s.camera, S.camera).toFixed(4)} deg`)
+    if (dist3(s.target, S.target) > 0.01) bad.push(`the focal point moved ${dist3(s.target, S.target).toFixed(3)} mm`)
+    return bad
+  }
+  await prefs({ navPrefs: { duration: 500 } })
+  // A reload keeps the camera, its up vector (which three-cad-viewer sets to z in the new one) and the cube matching it.
+  for (const st of [home, rolled, oblique]) {
+    const S = await restore(st.text)
+    await watch()
+    await reload()
+    const s = await settle()
+    const bad = unchanged(s, S)
+    if (dist3(s.position, S.position) > 0.01 || s.zoom !== S.zoom) bad.push('the position or the zoom changed')
+    ok(`a scene reload keeps the view from ${st.name}`, bad.length === 0, bad.join('; '))
+  }
+  // A reload while a view animation runs: the animation carries on, on the new camera, and arrives (it used to turn the old one).
+  for (const [label, run, want] of [
+    ['key 1', () => key('1'), () => STD.front], ['click FRONT', () => clickPick('0,-1,0'), () => STD.front], ['key 0', () => key('0'), () => STD.iso],
+    ['roll right', () => btn('rr'), (S) => qmul(S.camera, qaxis(ez, STEP))], ['backside', () => btn('back'), (S) => qmul(S.camera, qaxis(ey, 180))],
+  ]) {
+    for (const frames of [0, 170]) {
+      if (frames) await slowFrames(frames)
+      const S = await restore(home.text)
+      await watch()
+      await run(S)
+      await p.waitForTimeout(120)
+      await reload()
+      const s = await settle(), bad = unchanged(s, { ...S, camera: want(S) })
+      ok(`${label}, then a scene reload 120 ms in${frames ? ` (frames ${frames} ms apart)` : ''}: the view arrives`, bad.length === 0, bad.join('; '))
+      if (frames) await slowFrames(0)
+    }
+  }
+  // The projection changed while a view animation runs: the same.
+  for (const [label, keys] of [['key 1, at once perspective', ['v', 'p']], ['key 1, perspective, at once orthographic', ['v', 'p', 'v', 'o']]]) {
+    const S = await restore(home.text)
+    await watch()
+    await key('1')
+    for (const k of keys) await key(k)
+    const s = await settle(), bad = unchanged(s, { ...S, camera: STD.front })
+    ok(`${label}: the view arrives`, bad.length === 0, bad.join('; '))
+    await key('v'); await key('o'); await settle()
+  }
+  // A resize, and the cube hidden and shown: the camera is not touched, the cube still matches it.
+  const S = await restore(rolled.text)
+  await watch()
+  await p.setViewportSize({ width: 1000, height: 1100 })
+  let s = await settle()
+  ok('a smaller window keeps the view, and the cube is still in the corner', unchanged(s, S).length === 0 && (await p.evaluate(() => { const c = cadui.getView().viewer.renderer.domElement.getBoundingClientRect(), g = cadui.getView().gizmo._domElement.getBoundingClientRect(); return g.right <= c.right + 1 && g.top >= c.top - 1 && g.top < c.top + 40 })), unchanged(s, S).join('; '))
+  await p.setViewportSize(VIEWPORT)
+  s = await settle()
+  ok('and the window back again', unchanged(s, S).length === 0, unchanged(s, S).join('; '))
+  await p.evaluate(() => cadui.setState({ cube: false })); await settle()
+  await p.evaluate(() => cadui.setState({ cube: true })); await watch()
+  s = await settle()
+  ok('the cube hidden and shown again matches the camera', unchanged(s, S).length === 0, unchanged(s, S).join('; '))
 })
 
 // ── the owner's own sequence ──────────────────────────────────────────────────────────────────────

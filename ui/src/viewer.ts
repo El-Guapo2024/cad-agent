@@ -416,6 +416,9 @@ export class CadView {
       ? { ...data, shapes: { ...data.shapes, bb: { xmin: -50, xmax: 50, ymin: -50, ymax: 50, zmin: -50, zmax: 50 } } } : data
     this.viewer.render(decodeInstancedFormat(shown), RENDER, { up: 'Z', ...ORBIT, ortho: getState().ortho, ...(cam ?? {}) })
     this.rendered = true
+    // three-cad-viewer gives the new camera the position, orientation, target and zoom of the old one, and its own up (z): the up
+    // is the orientation's y axis here, as everything that turns the camera keeps it (a recalled view, a lookAt, reads it).
+    { const now = this.cameraParts(); if (cam && now) now.cam.up.set(0, 1, 0).applyQuaternion(now.cam.quaternion) }
     this.applyBackground(getState().background)
     this.applyLights(getState().lights)
     this.index(sc)
@@ -921,14 +924,19 @@ export class CadView {
       : sphere.radius / Math.sin(THREE.MathUtils.degToRad(c.fov) / 2) / Math.min(1, aspect)
     const t0 = controls.target.clone(), d0 = cam.position.distanceTo(t0), z0 = cam.zoom
     const put = (k: number) => {
-      controls.target.copy(t0).lerp(sphere.center, k)
-      cam.position.copy(controls.target).addScaledVector(dir, d0 + (dist1 - d0) * k)
-      if (ortho) { cam.zoom = z0 + (zoom1 - z0) * k; cam.updateProjectionMatrix() }
+      const now = this.cameraParts() // not the pair from the start: a scene reload in between builds a new one
+      if (!now) return
+      now.controls.target.copy(t0).lerp(sphere.center, k)
+      now.cam.position.copy(now.controls.target).addScaledVector(dir, d0 + (dist1 - d0) * k)
+      if (ortho) { now.cam.zoom = z0 + (zoom1 - z0) * k; now.cam.updateProjectionMatrix() }
       this.cameraChanged()
     }
     if (instant || !getState().animate || document.visibilityState !== 'visible') return put(1)
+    // 10 steps of 20 ms, which stop when anything else starts or stops a view change (a turn, a zoom, a drag): they would go on
+    // setting the position from the direction this fit began with, over a camera that has turned since.
+    const stops = this.nav.stops
     let i = 0
-    const step = () => { i++; put(i / 10); if (i < 10) setTimeout(step, 20) }
+    const step = () => { if (this.nav.stops !== stops) return; i++; put(i / 10); if (i < 10) setTimeout(step, 20) }
     step()
   }
 
