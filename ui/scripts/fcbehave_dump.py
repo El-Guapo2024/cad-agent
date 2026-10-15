@@ -191,6 +191,55 @@ def zoom():
 safe("zoom", zoom)
 
 
+def drags():
+    """CAD style's mouse: middle drag pans, middle+left (or middle+right) rotates. Qt mouse events sent to the viewer (the pointer
+    of the Mac does not move). The numbers depend on the viewer's size, which is recorded: oursbehave.mjs sizes its canvas to it."""
+    out = {"viewer": [widget3d().width(), widget3d().height()]}
+    w = widget3d()
+    M, Lb, R = QtCore.Qt.MiddleButton, QtCore.Qt.LeftButton, QtCore.Qt.RightButton
+
+    def ev(kind, p, button, held):
+        pos = QtCore.QPointF(p[0], p[1])
+        app.sendEvent(w, QtGui.QMouseEvent(kind, pos, w.mapToGlobal(pos), button, held, QtCore.Qt.NoModifier))
+
+    def drag(presses, a, b, steps=20):
+        held = QtCore.Qt.NoButton
+        ev(QtCore.QEvent.MouseMove, a, QtCore.Qt.NoButton, held)
+        pump(0.05)
+        for btn in presses:
+            held = held | btn
+            ev(QtCore.QEvent.MouseButtonPress, a, btn, held)
+            pump(0.05)
+        for i in range(1, steps + 1):
+            ev(QtCore.QEvent.MouseMove, (a[0] + (b[0] - a[0]) * i / steps, a[1] + (b[1] - a[1]) * i / steps), QtCore.Qt.NoButton, held)
+            pump(0.02)
+        for btn in reversed(presses):
+            held = held & ~btn
+            ev(QtCore.QEvent.MouseButtonRelease, b, btn, held)
+            pump(0.05)
+        pump(0.3)
+
+    def angle(a, b):
+        d = abs(sum(x * y for x, y in zip(a, b)))
+        return math.degrees(2 * math.acos(min(1.0, d)))
+
+    cx, cy = w.width() / 2, w.height() / 2
+    for name, presses, dx, dy in [("MMB drag right 100 (pan)", [M], 100, 0), ("MMB+LMB drag right 100 (rotate)", [M, Lb], 100, 0),
+                                  ("MMB+LMB drag down 100 (rotate)", [M, Lb], 0, 100), ("MMB+RMB drag right 100 (rotate)", [M, R], 100, 0)]:
+        view.viewIsometric()
+        view.fitAll()
+        pump(0.4)
+        s0 = state()
+        drag(presses, (cx, cy), (cx + dx, cy + dy))
+        s1 = state()
+        moved = [b - a for a, b in zip(s0["position"], s1["position"])]
+        out[name] = {"angle_deg": angle(s0["q"], s1["q"]), "moved_in_view_heights": math.sqrt(sum(m * m for m in moved)) / s0["height"]}
+    return out
+
+
+safe("drags", drags)
+
+
 def settings():
     """What the Navigation page's widgets hold: dialog values, which the parameters' defaults fill in."""
     out = {}

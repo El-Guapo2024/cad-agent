@@ -21,6 +21,15 @@ await p.waitForTimeout(3500)
 await p.getByText(`${PROJECT} : 1`).first().click()
 await p.waitForTimeout(4000)
 
+// Fit All is a few timed steps (nav.ts), not an animation `probe().animating` reports: wait until the camera has stopped.
+const still = async (page) => {
+  let last = '', same = 0
+  for (let i = 0; i < 60 && same < 3; i++) {
+    const s = await page.evaluate(() => { const v = cadui.getView().probe(); return JSON.stringify([v.zoom, v.position, v.target]) })
+    same = s === last ? same + 1 : 0; last = s
+    await page.waitForTimeout(250)
+  }
+}
 const probe = () => p.evaluate(() => cadui.getView().probe())
 const settle = async () => {
   for (let i = 0; i < 80; i++) { const s = await probe(); if (s && !s.animating && !s.pendingFrame) break; await p.waitForTimeout(100) }
@@ -61,7 +70,7 @@ for (const [fc, key] of [['viewRotateLeft', 'Shift+ArrowLeft'], ['viewRotateRigh
 const box = await p.locator('canvas').first().boundingBox()
 const cx = box.x + box.width / 2, cy = box.y + box.height / 2
 await p.evaluate(() => cadui.getView().viewDir('iso')); await settle()
-await p.evaluate(() => cadui.getView().fitAll()); await settle()
+await p.evaluate(() => cadui.getView().fitAll()); await settle(); await still(p)
 const z = async () => (await probe()).zoom
 const z0 = await z()
 await p.mouse.move(cx, cy)
@@ -76,7 +85,7 @@ for (let i = 0; i < 5; i++) { await p.mouse.wheel(0, -120); await p.waitForTimeo
 await p.waitForTimeout(300)
 const z3 = await z()
 out.zoom.wheel_up_5_more = { ratio_vs_h2: z2 / z3 }
-await p.evaluate(() => cadui.getView().fitAll()); await settle()
+await p.evaluate(() => cadui.getView().fitAll()); await settle(); await still(p)
 const z4 = await z()
 await press('Meta+Equal'); await p.waitForTimeout(500)
 const z5 = await z()
@@ -86,6 +95,45 @@ out.zoom.zoomIn = { ratio: z4 / z5 }
 out.zoom.zoomOut_after_zoomIn = { ratio_vs_zoomIn: z5 / z6 }
 // settings the Navigation page starts with
 out.nav_state = await p.evaluate(() => { const s = cadui.getState(); return { navCube: s.naviCube, nav: s.navPrefs, homeView: s.homeView, newDocCameraScale: s.newDocCameraScale, rotationCenter: s.rotationCenter, disableTouchTilt: s.disableTouchTilt } })
+// CAD style's mouse (middle drag pans, middle+left or middle+right rotates) at the size of FreeCAD's 3D view, which the angles
+// depend on: the page is resized until its canvas is the viewer fcbehave.py recorded (1014 x 661 in its 1280 x 800 window).
+{
+  const fcFile = FC ? JSON.parse(readFileSync(FC, 'utf8')) : null
+  const [vw, vh] = fcFile?.drags?.viewer ?? [1014, 661]
+  let W = 1280 + (vw - 936), H = 800 + (vh - 463)
+  const ctx2 = await b.newContext({ viewport: { width: W, height: H } })
+  const q = await ctx2.newPage()
+  await q.goto(url + '#' + PROJECT, { waitUntil: 'load' })
+  await q.waitForTimeout(3500)
+  await q.getByText(`${PROJECT} : 1`).first().click()
+  await q.waitForTimeout(3500)
+  let box = await q.locator('canvas').first().boundingBox()
+  for (let i = 0; i < 3; i++) {
+    W += Math.round(vw - box.width); H += Math.round(vh - box.height)
+    await q.setViewportSize({ width: W, height: H }); await q.waitForTimeout(1500)
+    box = await q.locator('canvas').first().boundingBox()
+  }
+  const probe2 = () => q.evaluate(() => cadui.getView().probe())
+  const settle2 = async () => { for (let i = 0; i < 80; i++) { const s = await probe2(); if (s && !s.animating && !s.pendingFrame) break; await q.waitForTimeout(100) } await q.waitForTimeout(250) }
+  const qangle = (a, c) => { const d = Math.abs(a[0] * c[0] + a[1] * c[1] + a[2] * c[2] + a[3] * c[3]); return (2 * Math.acos(Math.min(1, d)) * 180) / Math.PI }
+  const worldH = () => q.evaluate(() => { const c = cadui.getView().cameraParts().cam; return (c.top - c.bottom) / c.zoom })
+  const cx = box.x + box.width / 2, cy = box.y + box.height / 2
+  out.drags = { viewer: [Math.round(box.width), Math.round(box.height)] }
+  for (const [name, buttons, dx, dy] of [['MMB drag right 100 (pan)', ['middle'], 100, 0], ['MMB+LMB drag right 100 (rotate)', ['middle', 'left'], 100, 0],
+    ['MMB+LMB drag down 100 (rotate)', ['middle', 'left'], 0, 100], ['MMB+RMB drag right 100 (rotate)', ['middle', 'right'], 100, 0]]) {
+    await q.evaluate(() => cadui.getView().viewDir('iso')); await settle2()
+    await q.evaluate(() => cadui.getView().fitAll()); await settle2(); await still(q)
+    const s0 = await probe2(), h0 = await worldH()
+    await q.mouse.move(cx, cy)
+    for (const bt of buttons) await q.mouse.down({ button: bt })
+    for (let i = 1; i <= 20; i++) { await q.mouse.move(cx + (dx * i) / 20, cy + (dy * i) / 20); await q.waitForTimeout(25) }
+    for (const bt of [...buttons].reverse()) await q.mouse.up({ button: bt })
+    await q.waitForTimeout(500)
+    const s1 = await probe2()
+    out.drags[name] = { angle_deg: qangle(s0.camera, s1.camera), moved_in_view_heights: Math.hypot(...s1.position.map((v, i) => v - s0.position[i])) / h0 }
+  }
+  await ctx2.close()
+}
 writeFileSync(OUT, JSON.stringify(out, null, 1))
 if (errs.length) console.log('page errors:', errs)
 await b.close()
@@ -103,4 +151,12 @@ if (FC) {
   for (const k of ['viewRotateLeft', 'viewRotateRight']) console.log(k.padEnd(24), qd(out.rotates[k].q, fc.rotates[k].q).toFixed(5).padStart(12), ' ', out.rotates[k].dir.map(f).join(' '), '|', fc.rotates[k].dir.map(f).join(' '))
   console.log('home vs FreeCAD Home    ', qd(out.home.q, fc.home.q).toFixed(5), ' (FreeCAD Home from the front view)', fc.home.q.map(f).join(' '), '| ours', out.home.q.map(f).join(' '))
   console.log('zoom: ours', JSON.stringify(out.zoom), '\n      FreeCAD', JSON.stringify(Object.fromEntries(Object.entries(fc.zoom).filter(([k]) => k !== 'trackpad_scroll_60').map(([k, v]) => [k, v.ratio ?? v.ratio_vs_h1 ?? v.ratio_vs_h2 ?? v.ratio_vs_zoomIn]))))
+  for (const k of Object.keys(out.drags)) {
+    if (k === 'viewer') { console.log('mouse drags at the viewer size: ours', out.drags.viewer.join(' x '), 'FreeCAD', (fc.drags?.viewer ?? []).join(' x ')); continue }
+    const o = out.drags[k], c = fc.drags?.[k]
+    // a pan is judged by how far the view moved (in view heights), a rotation by the angle it turned through
+    console.log(k.padEnd(34), /pan/.test(k)
+      ? `moved (view heights) ours ${o.moved_in_view_heights.toFixed(4)} FreeCAD ${c ? c.moved_in_view_heights.toFixed(4) : '-'}`
+      : `angle (deg) ours ${o.angle_deg.toFixed(3)} FreeCAD ${c ? c.angle_deg.toFixed(3) : '-'}`)
+  }
 }
