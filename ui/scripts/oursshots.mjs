@@ -42,7 +42,8 @@ await step('start', async () => {
   const { ctx, p } = await open('')
   await p.screenshot({ path: out('start') })
   const b = p.getByRole('button', { name: 'Done', exact: true })
-  if (await b.count()) { await b.click(); await p.waitForTimeout(1500); await p.screenshot({ path: out('start-cards') }) }
+  // the page's own mouse, moved off the cards before the shot: a card's title (its path) would show as a tooltip over it
+  if (await b.count()) { await b.click(); await p.mouse.move(700, 790); await p.waitForTimeout(1800); await p.screenshot({ path: out('start-cards') }) }
   await ctx.close()
 })
 
@@ -94,6 +95,16 @@ await step('prefs', async () => {
     await p.locator('.pref-dlg').screenshot({ path: out('prefs-' + key) })
   }
   await p.screenshot({ path: out('prefs-window') })
+  await ctx.close()
+})
+
+// a toolbar button's tooltip (FreeCAD's QToolTip after the 700 ms wake-up), the toolbars and the tooltip cropped
+await step('tooltip', async () => {
+  const { ctx, p } = await open('#' + PROJECT)
+  const btn = p.locator('button[title="Fit all (V, F)"]').first()
+  await btn.hover()
+  await p.waitForTimeout(1500)
+  await p.screenshot({ path: out('tooltip'), clip: { x: 0, y: 24, width: 720, height: 140 } })
   await ctx.close()
 })
 

@@ -246,24 +246,28 @@ def _():
                 holder["timer"].stop()
             return
         holder["timer"].stop()
-        tv = [t for t in dlg.findChildren(QtWidgets.QTreeView) if t.objectName() == "groupsTreeView"][0]
-        m = tv.model()
-        for group, page, key in PAGES:
-            for r in range(m.rowCount()):
-                gi = m.index(r, 0)
-                if m.data(gi) != group:
-                    continue
-                tv.expand(gi)
-                for c in range(m.rowCount(gi)):
-                    pi = m.index(c, 0, gi)
-                    if m.data(pi) == page:
-                        tv.setCurrentIndex(pi)
-                        tv.clicked.emit(pi)
-                        pump(0.8)
-                        save(dlg.grab(), "prefs-" + key)
-                        res["prefs"][key] = {"page": group + " / " + page, "size": [dlg.width(), dlg.height()]}
-                        progress("prefs " + key)
-        dlg.close()
+        try:
+            tv = [t for t in dlg.findChildren(QtWidgets.QTreeView) if t.objectName() == "groupsTreeView"][0]
+            m = tv.model()
+            for group, page, key in PAGES:
+                for r in range(m.rowCount()):
+                    gi = m.index(r, 0)
+                    if m.data(gi) != group:
+                        continue
+                    tv.expand(gi)
+                    for c in range(m.rowCount(gi)):
+                        pi = m.index(c, 0, gi)
+                        if m.data(pi) == page:
+                            tv.setCurrentIndex(pi)
+                            tv.clicked.emit(pi)
+                            pump(0.8)
+                            save(dlg.grab(), "prefs-" + key)
+                            res["prefs"][key] = {"page": group + " / " + page, "size": [dlg.width(), dlg.height()]}
+                            progress("prefs " + key)
+        except Exception:
+            res["errors"]["prefs-dialog"] = traceback.format_exc()
+        finally:
+            dlg.close()           # a dialog left open would block the run
 
     holder["timer"] = QtCore.QTimer()
     holder["timer"].timeout.connect(drive)
@@ -273,7 +277,32 @@ def _():
     pump(0.3)
 
 
-# ── 5. the report view with one message of each kind ────────────────────────────
+# ── 5. a toolbar button's tooltip: FreeCAD's own text for the command, shown by QToolTip as it shows it on hover ──
+@step("tooltip")
+def _():
+    button = None
+    for b in mw.findChildren(QtWidgets.QToolButton):
+        a = b.defaultAction()
+        if a is not None and a.objectName() == "Std_ViewFitAll" and b.isVisible():
+            button = b
+    action = button.defaultAction()
+    res["tooltip"] = {"html": action.toolTip()}
+    QtWidgets.QToolTip.showText(button.mapToGlobal(QtCore.QPoint(button.width() // 2, button.height() - 2)), action.toolTip(), button)
+    pump(0.6)
+    tips = [w for w in app.topLevelWidgets() if w.metaObject().className() == "QTipLabel" and w.isVisible()]
+    res["tooltip"]["found"] = len(tips)
+    if tips:
+        save(tips[0].grab(), "tooltip-popup")
+        base = mw.grab()
+        p = button.mapTo(mw, QtCore.QPoint(button.width() // 2, button.height() - 2))
+        pnt = QtGui.QPainter(base)
+        pnt.drawPixmap(int((p.x() + 2) * DPR), int((p.y() + 16) * DPR), tips[0].grab())
+        pnt.end()
+        save(base.copy(0, 0, int(720 * DPR), int(140 * DPR)), "tooltip")
+    QtWidgets.QToolTip.hideText()
+
+
+# ── 6. the report view with one message of each kind ────────────────────────────
 @step("report")
 def _():
     dw = find(QtWidgets.QDockWidget, "Report view")
