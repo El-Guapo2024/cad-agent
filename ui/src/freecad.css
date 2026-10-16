@@ -350,6 +350,8 @@ button, select, input { font: inherit; color: inherit; }
   padding: 0; border: 1px solid transparent; border-radius: var(--radius); background: transparent; }
 .ovl-tbtn:hover { border-color: var(--border); background: linear-gradient(var(--btn-top), var(--btn-bottom)); }
 .ovl-tbtn.on { border-color: #9a9a9a; background: #d4d4d4; }
+.ovl-tbtn:disabled { pointer-events: none; }
+.ovl-tbtn:disabled .ico { opacity: .3; filter: grayscale(1); }
 /* OverlayTabWidget::rotateAutoHideIcon (OverlayWidgets.cpp 2161-2180): left as drawn, bottom
    rotated -90deg (this UI never overlays a right or top panel, so those cases aren't ported). */
 .ovl-rot { transform: rotate(-90deg); }
@@ -847,7 +849,9 @@ input[type=range]:disabled::-webkit-slider-runnable-track { background: var(--da
 .dv-groupview-header-top .dv-single-tab .dv-tab { flex: 1; justify-content: center; background: var(--primary) !important; }
 .dv-groupview-header-top .dv-single-tab .dv-scrollable { flex: 1 1 auto; min-width: 0; }
 .dv-groupview-header-top .dv-single-tab .dv-default-tab-content { flex: 1; text-align: center; }
-/* QTabBar::close-button (FreeCAD.qss) on the document tabs: close-lightgray, red on hover. */
+/* QTabBar::close-button (FreeCAD.qss) on the document tabs: close-lightgray, red on hover. Only on the MDI area's tabs (the 3D view,
+   the Start page, a drawing): the tabified docks close from their title bar, and the first rule of .dock hides every other tab's. */
+.dock .dv-groupview.mdi .dv-default-tab-action { display: flex !important; }
 .dv-groupview-header-bottom .dv-default-tab-action { background: url(/freecad-icons/qss-close-lightgray.svg) center / 10px no-repeat; }
 .dv-groupview-header-bottom .dv-default-tab-action:hover { background-image: url(/freecad-icons/qss-close-red.svg); }
 .dv-groupview-header-bottom .dv-default-tab-action svg { visibility: hidden; }

@@ -15,6 +15,7 @@ import { cls } from './panels'
 import { getState, onNotify, saved, setState, useStore, type Level, type Notification, type NotifyPrefs } from './store'
 
 const NOTIFIER = 'CAD Agent'
+const USER_NOTIFICATIONS_NA = 'n/a: nothing here is issued as a user notification, only warnings, errors and critical messages'
 const levelIcon = (level: Notification['level']): IconName => (level === 'err' ? 'notify-error' : level === 'warn' ? 'notify-warn' : 'notify-critical')
 // NotificationItem::getMessage: "(%1 times)" once it has repeated.
 const msgText = (n: Notification) => (n.repetitions > 0 ? `${n.text} (${n.repetitions + 1} times)` : n.text)
@@ -150,9 +151,9 @@ function NotifyList({ anchor, onClose }: { anchor: DOMRect; onClose(): void }) {
   const entries = (): Entry[] => [
     { label: 'Delete', bold: true, disabled: !sel.size, onSelect: () => { del(sel); setSel(new Set()) } },
     'sep',
-    // Only ever deletes Base::LogStyle::Notification items, a style report() never issues; kept
-    // (and enabled whenever the list isn't empty) for menu parity with NotificationsAction.
-    { label: 'Delete User Notifications', disabled: !list.length, onSelect: () => {} },
+    // Only ever deletes Base::LogStyle::Notification items, a style report() never issues, so there is nothing for
+    // it to delete: kept, greyed, for menu parity with NotificationsAction.
+    { label: 'Delete User Notifications', disabled: true, title: USER_NOTIFICATIONS_NA },
     { label: 'Delete All', disabled: !list.length, onSelect: () => { setState({ notifications: [] }); onClose() } },
   ]
   const w = 420, h = Math.min(360, list.length * 23 + 26)
@@ -203,7 +204,7 @@ export function NotificationArea() {
       </button>
       {open && ref.current && <NotifyList anchor={ref.current.getBoundingClientRect()} onClose={close} />}
       {menuAt && <ContextMenu at={menuAt} onClose={() => setMenuAt(null)} entries={[
-        { label: 'Delete User Notifications', disabled: !list.length, onSelect: () => {} },
+        { label: 'Delete User Notifications', disabled: true, title: USER_NOTIFICATIONS_NA },
         { label: 'Delete All', bold: true, disabled: !list.length, onSelect: () => setState({ notifications: [] }) },
       ]} />}
       <NotifyBalloon anchor={ref.current} />

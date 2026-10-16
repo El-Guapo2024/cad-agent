@@ -2,7 +2,7 @@ import * as M from '@radix-ui/react-menubar'
 import { menuKbd } from './keymap'
 import { getCommand } from './cmdreg'
 import { cmdIcon } from './cmdicons'
-import { useEffect, useMemo, useState, useSyncExternalStore, type ReactNode } from 'react'
+import { useEffect, useLayoutEffect, useMemo, useRef, useState, useSyncExternalStore, type ReactNode } from 'react'
 import { createPortal } from 'react-dom'
 import type { IDockviewHeaderActionsProps } from 'dockview-react'
 import { getState, report, saved, setState, useStore, viewOf, type DrawStyle, type EditMode, type NavStyle, type Workbench } from './store'
@@ -117,6 +117,8 @@ function poseEntries(): Entry[] {
 }
 
 // ── one description of each menu, used by the menu bar and the right-click menus ──
+/** Why the Link menu's entries are greyed out. */
+const LINK_NA = 'n/a: the assembly\'s structure comes from its source'
 export type Entry = { label: string; kbd?: string; icon?: IconName; /** an icon outside icons.tsx (a URL) */ img?: string; checked?: boolean; disabled?: boolean; onSelect?: () => void; sub?: Entry[]
   /** The menu's default action, drawn bold (QMenu::setDefaultAction). */
   bold?: boolean
@@ -264,7 +266,7 @@ export function viewEntries(): Entry[] {
   const one = sel.length === 1 ? s.scene?.bodies.find((b) => b.name === sel[0]) : undefined
   return [
     // StdWorkbench::createLinkMenu: "Link Actions" (Std_LinkMakeGroup, Std_LinkMake) — no App::Links here.
-    { label: 'Link Actions', sub: [{ label: 'Make Link Group', disabled: true }, { label: 'Make Link', icon: 'link', disabled: true }] },
+    { label: 'Link Actions', sub: [{ label: 'Make Link Group', disabled: true, title: LINK_NA }, { label: 'Make Link', icon: 'link', disabled: true, title: LINK_NA }] },
     'sep',
     { label: 'Fit All', kbd: 'V, F', icon: 'fit-all', onSelect: () => getView()?.fitAll() },
     { label: 'Fit Selection', kbd: 'V, S', icon: 'fit-sel', disabled: !sel.length, onSelect: () => getView()?.fitAll(sel) },
@@ -276,7 +278,7 @@ export function viewEntries(): Entry[] {
     'sep',
     { label: 'Document Window', sub: [
       { label: 'Docked', kbd: 'V, D', checked: !viewIsFullscreen(), onSelect: viewDocked },
-      { label: 'Undocked', kbd: 'V, U', disabled: true },
+      { label: 'Undocked', kbd: 'V, U', disabled: true, title: 'n/a: the 3D view stays in this window' },
       { label: 'Fullscreen', kbd: 'F11', icon: 'fullscreen', checked: viewIsFullscreen(), onSelect: viewFullscreen }] },
     ...(sel.length ? ['sep' as const,
       { label: 'Toggle Visibility', kbd: 'Space', icon: 'visibility', onSelect: () => toggleVisibility() } as Entry,
@@ -304,7 +306,7 @@ export function popupEntries(body: string | null, clarify: (() => void) | null):
     own.push({ label: params ? `Edit ${b.name}` : `Transform ${b.name}`, bold: true, icon: params ? 'body' : 'transform', onSelect: () => editDefault(b.name) })
     if (b.placement) own.push({ label: "Reset to the code's position", onSelect: () => place(b.name, placementOf(b), null) })
     own.push({ label: 'Measure', icon: 'measure', disabled: !canMeasure(), onSelect: measure },
-      { label: 'Mass Properties', disabled: !s.selected.length, onSelect: massProperties }, ...drawingEntry(b))
+      { label: 'Mass Properties', disabled: !s.selected.length, title: s.selected.length ? undefined : 'Select the part first: the mass follows the selection', onSelect: massProperties }, ...drawingEntry(b))
   }
   return [
     ...(own.length ? [...own, 'sep' as const] : []),
@@ -469,8 +471,9 @@ export function MenuBar() {
           { label: 'Bypass Mouse Events in Overlay Panels', kbd: 'T, T', cmd: 'Std_DockOverlayMouseTransparent', onSelect: overlayBypass, title: 'Bypasses all mouse events in docked overlay panels' },
           'sep',
           { label: 'Toggle Left', kbd: '⌘←', cmd: 'Std_DockOverlayToggleLeft', onSelect: () => overlayToggle('left'), title: 'Toggles the visibility of the left overlay panel' },
-          { label: 'Toggle Right', kbd: '⌘→', cmd: 'Std_DockOverlayToggleRight', onSelect: () => overlayToggle('right'), title: 'Toggles the visibility of the right overlay panel' },
-          { label: 'Toggle Top', kbd: '⌘↑', cmd: 'Std_DockOverlayToggleTop', onSelect: () => overlayToggle('top'), title: 'Toggles the visibility of the top overlay panel' },
+          // only the left and bottom docks overlay here (actions.ts overlayToggle), so there is no right or top panel to show or hide
+          { label: 'Toggle Right', kbd: '⌘→', cmd: 'Std_DockOverlayToggleRight', disabled: true, title: 'n/a: only the left and bottom panels overlay here' },
+          { label: 'Toggle Top', kbd: '⌘↑', cmd: 'Std_DockOverlayToggleTop', disabled: true, title: 'n/a: only the left and bottom panels overlay here' },
           { label: 'Toggle Bottom', kbd: '⌘↓', cmd: 'Std_DockOverlayToggleBottom', onSelect: () => overlayToggle('bottom'), title: 'Toggles the visibility of the bottom overlay panel' },
         ] },
         { label: 'Toggle Bottom Panels', kbd: '⌘0', cmd: 'Std_ToggleBottomPanels', onSelect: toggleBottomPanels },
@@ -487,8 +490,8 @@ export function MenuBar() {
           { label: 'Preselection', kbd: 'T, 4', cmd: 'Std_TreePreSelection', checked: tree.preSelection, onSelect: () => setTreeOption('preSelection', !tree.preSelection), title: 'Preselects the object in the 3D view when hovering the cursor over the tree item' },
           { label: 'Record Selection', kbd: 'T, 5', cmd: 'Std_TreeRecordSelection', checked: tree.recordSelection, onSelect: () => setTreeOption('recordSelection', !tree.recordSelection), title: 'Records the selection in the tree view in order to go back/forward using the navigation buttons' },
           'sep',
-          { label: 'Single Document', checked: true, disabled: true },
-          { label: 'Multi Document', disabled: true },
+          { label: 'Single Document', checked: true, disabled: true, title: 'n/a: the tree shows the one project that is open' },
+          { label: 'Multi Document', disabled: true, title: 'n/a: the tree shows the one project that is open' },
           { label: 'Collapse/Expand', icon: 'tree-collapse', cmd: 'Std_TreeCollapseDocument', onSelect: () => setState((s) => ({ treeCollapsed: !s.treeCollapsed })) },
           'sep',
           { label: 'Initiate Dragging', kbd: 'T, D', icon: 'tree-drag', disabled: true, title: 'n/a: the tree is the assembly, ordered by its source' },
@@ -586,16 +589,32 @@ export function whatsThis() {
 }
 
 // ── right-click menu ─────────────────────────────────────────────────────────
+/** A right-click menu's sub-menu opens to the right of its entry, as QMenu's does; QMenu turns it round when the screen's edge is in the
+ *  way, and so does this (a menu at the window's right edge, such as the status bar's, had sub-menus nobody could reach), and shifts it up
+ *  when it would run out of the window's bottom. */
+function CtxSub({ children }: { children: ReactNode }) {
+  const ref = useRef<HTMLDivElement>(null)
+  const [at, setAt] = useState<React.CSSProperties>({})
+  useLayoutEffect(() => {
+    const r = ref.current?.getBoundingClientRect()
+    if (!r) return
+    const style: React.CSSProperties = {}
+    if (r.right > innerWidth) { style.left = 'auto'; style.right = '100%' }
+    if (r.bottom > innerHeight) style.top = -3 - (r.bottom - innerHeight)
+    setAt(style)
+  }, [])
+  return <div ref={ref} className="mb-content ctx-sub" style={at}>{children}</div>
+}
 function CtxEntry({ e, close }: { e: Entry; close(): void }) {
   const [open, setOpen] = useState(false)
   if (e === 'sep') return <div className="mb-sep" />
   return (
-    <div className={cls('mb-item ctx-item', open && 'hl', e.bold && 'bold')} data-disabled={e.disabled || undefined} title={e.title}
+    <div className={cls('mb-item ctx-item', open && 'hl', e.bold && 'bold')} data-disabled={e.disabled || undefined} data-cmd={e.cmd} title={e.title}
       onMouseEnter={() => { setOpen(true); e.onHover?.() }} onMouseLeave={() => setOpen(false)}
       onClick={() => { if (e.disabled || e.sub) return; close(); fireEntry(e) }}>
       <span className="mb-ico">{e.checked ? <span className="mb-check">✓</span> : e.icon ? <Icon name={e.icon} /> : e.img && <img src={e.img} width={16} height={16} alt="" draggable={false} />}</span>
       {e.label}{menuKbd(e.cmd, e.kbd) && <span className="mb-kbd">{menuKbd(e.cmd, e.kbd)}</span>}{e.sub && <span className="mb-kbd">▸</span>}
-      {e.sub && open && <div className="mb-content ctx-sub">{e.sub.map((s, i) => <CtxEntry key={i} e={s} close={close} />)}</div>}
+      {e.sub && open && <CtxSub>{e.sub.map((s, i) => <CtxEntry key={i} e={s} close={close} />)}</CtxSub>}
     </div>
   )
 }
@@ -625,7 +644,7 @@ const useIconSize = () => useStore((s) => s.toolbarIconSize)
 const btnStyle = (n: number) => ({ width: n + 8, height: n + 7 })
 function Btn({ icon, title, onClick, disabled, active, cmd }: { icon: IconName; title: string; onClick(): void; disabled?: boolean; active?: boolean; cmd?: string }) {
   const n = useIconSize()
-  return <button className={cls('tb-btn', active && 'on')} style={btnStyle(n)} title={title} disabled={disabled} onClick={() => (cmd ? recordAndRun(cmd, onClick) : onClick())}><Icon name={icon} size={n} /></button>
+  return <button className={cls('tb-btn', active && 'on')} style={btnStyle(n)} title={title} data-cmd={cmd} disabled={disabled} onClick={() => (cmd ? recordAndRun(cmd, onClick) : onClick())}><Icon name={icon} size={n} /></button>
 }
 const TSep = () => <span className="tb-sep" />
 
@@ -702,7 +721,7 @@ export function ToolBar() {
   const customToolbars = useStore((s) => s.customToolbars), macroCommands = useStore((s) => s.macroCommands)
   const one = selected.length === 1 ? selected[0] : null
   const on = (name: (typeof TOOLBARS)[number]) => toolbarOn(shown, name)
-  const na = 'n/a: the assembly\'s structure comes from its source'
+  const na = LINK_NA
   return (
     <div className={cls('toolbar', lock && 'locked')}>
       {on('File') && <><TGrip />
@@ -797,8 +816,8 @@ export function ToolBar() {
 
 // ── overlay panel title bar (OverlayWidgets.cpp's OverlayTabWidget) ───────────
 /** OverlayToolButton (OverlayWidgets.h 584-589): one action button on an overlay panel's title bar. */
-function OvlBtn({ icon, title, onClick, active, rotate }: { icon: IconName; title: string; onClick(): void; active?: boolean; rotate?: boolean }) {
-  return <button className={cls('ovl-tbtn', active && 'on')} title={title} onClick={onClick}>
+function OvlBtn({ icon, title, onClick, active, rotate, disabled }: { icon: IconName; title: string; onClick(): void; active?: boolean; rotate?: boolean; disabled?: boolean }) {
+  return <button className={cls('ovl-tbtn', active && 'on')} title={title} disabled={disabled} onClick={onClick}>
     <Icon name={icon} size={14} className={rotate ? 'ovl-rot' : undefined} /></button>
 }
 /** refreshIcons/syncAutoMode's per-mode icon (OverlayWidgets.cpp 518-548, 1008-1153), light-theme set. */
@@ -835,7 +854,7 @@ export function OverlayTitleActions({ group, location }: IDockviewHeaderActionsP
   if (location?.type !== 'floating') return (
     <div className="ovl-titlebtns">
       <OvlBtn icon="ovl-overlay" title="Toggle overlay" onClick={() => overlaySide(side, true)} />
-      <OvlBtn icon="ovl-float" title="Toggle floating window (n/a here: panels stay in the window)" onClick={() => {}} />
+      <OvlBtn icon="ovl-float" title="Toggle floating window (n/a here: panels stay in the window)" disabled onClick={() => {}} />
       <OvlBtn icon="ovl-close" title="Close dock window" onClick={() => { const p = group.activePanel; if (p) removePanel(p) }} />
     </div>
   )

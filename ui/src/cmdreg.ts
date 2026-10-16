@@ -146,8 +146,9 @@ const COMMANDS: Record<string, RegCommand> = {
   Std_DockOverlayToggleTransparent: reg('Toggle Transparent Mode', () => overlayTransparent(false)),
   Std_DockOverlayMouseTransparent: reg('Bypass Mouse Events in Overlay Panels', overlayBypass),
   Std_DockOverlayToggleLeft: reg('Toggle Left', () => overlayToggle('left')),
-  Std_DockOverlayToggleRight: reg('Toggle Right', () => overlayToggle('right')),
-  Std_DockOverlayToggleTop: reg('Toggle Top', () => overlayToggle('top')),
+  // only the left and bottom docks overlay here (overlayToggle ignores the other two), so `cad gui run` says they are off rather than doing nothing
+  Std_DockOverlayToggleRight: reg('Toggle Right', () => overlayToggle('right'), () => false),
+  Std_DockOverlayToggleTop: reg('Toggle Top', () => overlayToggle('top'), () => false),
   Std_DockOverlayToggleBottom: reg('Toggle Bottom', () => overlayToggle('bottom')),
   Std_ToggleBottomPanels: reg('Toggle Bottom Panels', toggleBottomPanels),
 

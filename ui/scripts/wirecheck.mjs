@@ -1,26 +1,45 @@
-// Is every button in the workbench wired? Lists every clickable control (menus and sub-menus, toolbars and their drop-downs,
-// the right-click menus, dock title buttons, status bar widgets, the task panels' buttons, the Preferences and Customize
-// dialogs), clicks each enabled one in a scratch workbench, and says what it did.
+// Is every button in the workbench wired? Lists every clickable control, clicks each enabled one in a scratch workbench, and says
+// what it did: the menu bar's menus and sub-menus, every toolbar button and drop-down, the right-click menus (the tree, the 3D view,
+// the Report view, the console, the property and selection views, the NaviCube, the status bar, the notification list), the docks'
+// tabs and title-bar buttons, the status bar's widgets, the buttons of every task panel, the Start page, and the Preferences and
+// Customize dialogs with their pages. Then the flows that only a filled-in form or a made edit enables: Placement and a parameter
+// through the property view with Undo and Redo, New Document and Open, a recorded macro and the Macros task, the Library task, a
+// drawing and its tab, Evals, BOM, the Expression Editor, Customize's toolbars and macros, the Keyboard page.
 //
-//   node ui/scripts/wirecheck.mjs [URL PROJECTS_ROOT] [--only=menus,toolbars,...] [--json=FILE] [--project=mini_machine]
+//   node ui/scripts/wirecheck.mjs [URL PROJECTS_ROOT] [options]
+//     --only=menus,toolbars,docks,status,tree,properties,panels,view3d,customize,customizeflow,start,notifications,msgbox,
+//            expression,prefs,keyboard,tasks,macros,library,drawing,evals,shop,opendoc,newdoc,edits    (default: all)
+//     --top=File,Edit,...    only these menus (with --only=menus)         --task=TEXT   only the tasks whose menu path has TEXT
+//     --entry=A|B            only the menu entries whose path has A or B (with --only=menus)
+//     --forms                also the check boxes, radio buttons, combo boxes, colours and sliders of the panels (buttons only otherwise)
+//     --project=NAME         the project the page opens (mini_machine)    --viewport=1400x900
+//     --json=FILE            every control with its class, command id and what it did      --verbose  every row, with its timing
+//     --debug-dom            where the page's DOM differed when that was all a click did
 //
 // With no URL it starts a scratch workbench of its own on a free port (never 8733, 8734, 8740 or 8792), on copies of
-// tests/fixtures (mini_machine, mini_gantry, assembly_cell) and projects/arduino_car, with every CAD_* path in a scratch folder,
-// and stops it again. With a URL it drives that workbench instead: it must serve SCRATCH copies only (this script deletes,
-// closes and undoes), and PROJECTS_ROOT is the folder it serves.
+// tests/fixtures (mini_machine, mini_gantry, assembly_cell) and projects/arduino_car, with every CAD_* path in a scratch folder and
+// the CPU renderer for the checks' pictures, and stops it again (its warm worker too). With a URL it drives that workbench instead:
+// it must serve SCRATCH copies only (this script deletes, closes and undoes), and PROJECTS_ROOT is the folder it serves.
 //
-// Classes (the summary is at the end of the output):
+// What it does to a control: it puts the page in a known state (a selection, a quiet camera), clicks the control the way a person
+// does (a menu is opened, a sub-menu hovered, then the entry clicked), waits for the page to be quiet, and compares a fingerprint
+// of the page before and after: the store (selection, task, draw style, ...), the camera, the DOM, the Report view and console
+// lines, localStorage, the /api calls the page made, downloads, pop-ups and clipboard writes. An entry with an expectation
+// (the camera looks the way FreeCAD's Camera.cpp says a Front view does, the store has `drawStyle: wireframe`) must also meet it.
+//
+// Classes (the summary is at the end of the output; the exit code is 1 when there is a NO-OP, ERROR or WRONG):
 //   WORKS  it did what its label says (a camera turn, a store change, a task or dialog, a /api call, a download, a Report line)
-//   N/A    disabled, with a reason in its tooltip or in PARITY.md
+//   N/A    disabled, with a reason in its tooltip or in PARITY.md; or enabled and by design the current choice of a pair
 //   NO-OP  enabled, and nothing happened                       (a bug)
-//   ERROR  a console error or an exception                      (a bug)
+//   ERROR  a console error or an exception, or a control that cannot be reached     (a bug)
 //   WRONG  it did something else than its label says            (a bug)
 //   HUMAN  not clicked: approving, `lib fetch` and `eval run` stay a person's call
 //
-// It never presses Approve Renders' OK, never approves, never runs `lib fetch` or `eval run`: those requests are refused at the
-// network layer too. Downloads go to the scratch folder, Finder is not opened (the request is stubbed) and nothing leaves
-// the machine (pop-ups and outside requests are refused). It drives Chromium through Playwright's protocol, so the real mouse
-// pointer never moves. Needs Playwright (NODE_PATH to one) with a Chromium; uses ANGLE's SwiftShader as keycheck.mjs does.
+// It never presses Approve Renders' Yes, never approves, never runs `lib fetch` or `eval run`: those requests are refused at the
+// network layer too. Downloads go to the scratch folder, Finder is not opened (the request is stubbed) and nothing leaves the
+// machine (pop-ups and outside requests are refused). View animations are off here (cubecheck.mjs covers them) and so are CSS
+// animations, which keep a browser drawing for as long as a check runs. It drives Chromium through Playwright's protocol, so the real
+// mouse pointer never moves. Needs Playwright (NODE_PATH to one) with a Chromium; uses ANGLE's SwiftShader as keycheck.mjs does.
 import { createRequire } from 'module'
 import { spawn, spawnSync } from 'child_process'
 import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'fs'
@@ -107,7 +126,8 @@ const errs = []          // page errors and console errors, in order
 const reqs = []          // /api calls: { m, url, body }
 const blocked = []       // requests the safety net refused
 const browser = await chromium.launch({ args: ['--use-angle=swiftshader', '--use-gl=angle', '--enable-unsafe-swiftshader'] })
-const ctx = await browser.newContext({ viewport: { width: 1500, height: 950 }, acceptDownloads: true })
+const [VW, VH] = flag('viewport', '1400x900').split('x').map(Number)
+const ctx = await browser.newContext({ viewport: { width: VW, height: VH }, acceptDownloads: true })
 const page = await ctx.newPage()
 page.setDefaultTimeout(8000)
 page.on('pageerror', (e) => errs.push(`pageerror: ${e.message}`))
@@ -125,10 +145,12 @@ await ctx.route('**/api/**', async (route) => {
   if (u.pathname !== '/api/events' && !(u.pathname === '/api/gui' && req.method() === 'POST')) reqs.push({ m: req.method(), url: u.pathname, q: u.search, body, t: Date.now() })
   const argv = Array.isArray(body?.argv) ? body.argv : []
   const banned = (argv[0] === 'eval' && argv[1] === 'run') || (argv[0] === 'lib' && argv[1] === 'fetch') || argv[0] === 'approve'
-  if (u.pathname === '/api/approve' || u.pathname === '/api/reveal' || banned) {
+  if (u.pathname === '/api/reveal') {      // "Open file location": the answer is made up, so that Finder does not open on the owner's screen
+    return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ revealed: '(not opened: wirecheck)' }) })
+  }
+  if (u.pathname === '/api/approve' || banned) {
     blocked.push(`${req.method()} ${u.pathname} ${argv.join(' ')}`.trim())
-    return route.fulfill({ status: 200, contentType: 'application/json',
-      body: JSON.stringify(u.pathname === '/api/reveal' ? { revealed: '(not opened: wirecheck)' } : { exit: 3, data: { error: 'refused by wirecheck: a person decides this' }, stderr: '' }) })
+    return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ exit: 3, data: { error: 'refused by wirecheck: a person decides this' }, stderr: '' }) })
   }
   return route.continue()
 })
@@ -136,6 +158,12 @@ await ctx.route('**/api/**', async (route) => {
 // ── in the page: a fingerprint of everything a click can change ─────────────────────────────────────────────────────
 await page.addInitScript((keepHtml) => {
   window.__wcKeepHtml = keepHtml
+  // no CSS animation or transition: the status bar's busy indicator would keep the browser drawing, minute after minute, while a check runs
+  document.addEventListener('DOMContentLoaded', () => {
+    const st = document.createElement('style')
+    st.textContent = '*, *::before, *::after { animation: none !important; transition: none !important; caret-color: transparent !important; }'
+    document.head.appendChild(st)
+  })
   const ev = (window.__wcEvents = [])
   try { Object.defineProperty(navigator, 'clipboard', { configurable: true, value: { writeText: async (t) => { ev.push('clipboard'); window.__wcClip = String(t) }, readText: async () => window.__wcClip ?? '' } }) } catch { /* read-only here */ }
   window.open = (url) => { ev.push(`open:${url || 'blank'}`); return window.__wcBlockOpen ? null : { document: { write() {}, close() {} }, close() {}, focus() {}, print() {} } }
@@ -184,8 +212,8 @@ await page.addInitScript((keepHtml) => {
       const ls = {}
       try { for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i); if (k.startsWith('cadui.')) ls[k.slice(6)] = hash(localStorage.getItem(k)) } } catch { /* no storage */ }
       const lines = document.body.innerText.split('\n').map((x) => x.trim()).filter(Boolean)
-      return { store, cam, dom: hash(c.innerHTML), html: window.__wcKeepHtml ? c.innerHTML : '', lines, ls, msgs: S.messages.length, cons: S.consoleLines.length, lastMsg: S.messages.at(-1)?.text ?? '',
-        consTail: S.consoleLines.slice(-8).map((l) => l.text), url: location.href, fs: !!document.fullscreenElement, wev: ev.length, task: S.task?.kind ?? null }
+      return { store, cam, dom: hash(c.innerHTML + '|' + document.body.className + '|' + document.documentElement.className), html: window.__wcKeepHtml ? c.innerHTML : '', lines, ls, msgs: S.messages.length, cons: S.consoleLines.length, lastMsg: S.messages.at(-1)?.text ?? '',
+        consTail: S.consoleLines.slice(-8).map((l) => l.text), url: location.href, fs: !!document.fullscreenElement, selText: (getSelection()?.toString() ?? '').length, wev: ev.length, task: S.task?.kind ?? null }
     },
     events(from) { return ev.slice(from) },
     /** Sets a controlled input's value the way typing does (React ignores a plain assignment). */
@@ -222,13 +250,14 @@ const newLines = (a, b) => { const had = new Set(a); return b.filter((l) => !had
 /** Runs `act`, waits for the page to be quiet, and says what changed. */
 async function observe(act, opts = {}) {
   const t0 = Date.now()
-  await park(); await settle({ min: 120, quiet: 250, max: 60000 })
+  await park(); await settle({ min: 80, quiet: 200, max: 60000 })
   const a = await snap(), e0 = errs.length, q0 = reqs.length, v0 = events.length, w0 = a.wev, b0 = blocked.length
+  const rawBefore = opts.restore === false ? null : await page.evaluate(() => { const o = {}; for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i); o[k] = localStorage.getItem(k) } return o })
   const t1 = Date.now()
   let threw = null
-  try { await act() } catch (e) { threw = String(e.message).split('\n')[0] }
+  try { await act() } catch (e) { threw = String(e.message).split('\n').filter((l) => l.trim() && !/^Call log:$/.test(l.trim())).slice(0, DEBUG_DOM ? 6 : 2).join(' | ').slice(0, 400) }
   const t2 = Date.now()
-  const ok = await settle({ min: opts.min ?? 250, quiet: opts.quiet ?? 350, max: opts.max ?? 60000 })
+  const ok = await settle({ min: opts.min ?? 150, quiet: opts.quiet ?? 300, max: opts.max ?? 60000 })
   await park()
   const b = await snap()
   lastTiming = `${((t1 - t0) / 1000).toFixed(1)}+${((t2 - t1) / 1000).toFixed(1)}+${((Date.now() - t2) / 1000).toFixed(1)}s`
@@ -244,6 +273,7 @@ async function observe(act, opts = {}) {
   for (const k of new Set([...Object.keys(a.ls), ...Object.keys(b.ls)])) if (a.ls[k] !== b.ls[k]) fx.push(`saved:${k}`)
   if (a.url !== b.url) fx.push('url')
   if (a.fs !== b.fs) fx.push('fullscreen')
+  if (a.selText !== b.selText) fx.push('text selection')      // Select All in the Report view or the console selects text, which changes no DOM
   const fresh = newLines(a.lines, b.lines).filter((l) => l.length < 90)
   if (a.dom !== b.dom) {
     fx.push(`dom${fresh.length ? ':+' + fresh.slice(0, 3).join(' / ') : ''}`)
@@ -257,7 +287,7 @@ async function observe(act, opts = {}) {
   for (const x of events.slice(v0)) fx.push(x)
   for (const x of await page.evaluate((n) => window.__wc.events(n), w0)) fx.push(x)
   const errors = errs.slice(e0)
-  return { fx: [...new Set(fx)], errors, threw, quiet: ok, before: a, after: b, blocked: blocked.slice(b0), reqs: reqs.slice(q0) }
+  return { fx: [...new Set(fx)], errors, threw, quiet: ok, before: a, after: b, blocked: blocked.slice(b0), reqs: reqs.slice(q0), rawBefore }
 }
 /** Evaluates an expectation (an expression over S, the store, and V, the view) in the page. */
 const check = (expr, fx = []) => page.evaluate(([src, FX]) => { try { return !!new Function('S', 'V', 'W', 'FX', `return (${src})`)(window.cadui.getState(), window.cadui.getView(), window.__wc, FX) } catch (e) { return false } }, [expr, fx])
@@ -282,8 +312,17 @@ function note(surface, path, meta, klass, detail = '') {
   lastTiming = ''
   return row
 }
-/** Classifies one observed click: ERROR first, then WRONG against an expectation, then NO-OP when nothing changed. */
+/** Judges a click, then undoes what it left in localStorage (see observe): the next control starts from the settings the page started with. */
 async function judge(surface, path, meta, o, expect) {
+  const row = await judge0(surface, path, meta, o, expect)
+  if (o.rawBefore && o.fx.some((f) => f.startsWith('saved:'))) {
+    await page.evaluate((raw) => { localStorage.clear(); for (const [k, v] of Object.entries(raw)) localStorage.setItem(k, v) }, o.rawBefore)
+    await openFresh()
+  }
+  return row
+}
+/** Classifies one observed click: ERROR first, then WRONG against an expectation, then NO-OP when nothing changed. */
+async function judge0(surface, path, meta, o, expect) {
   if (o.blocked.length) return note(surface, path, meta, 'HUMAN', `refused at the network layer: ${o.blocked.join('; ')}`)
   if (o.errors.length) return note(surface, path, meta, 'ERROR', o.errors.join(' | ').slice(0, 240))
   if (o.threw) return note(surface, path, meta, 'ERROR', `click failed: ${o.threw}`)
@@ -294,7 +333,19 @@ async function judge(surface, path, meta, o, expect) {
 }
 
 // ── the page, a project open, a known state ─────────────────────────────────────────────────────────────────────────
+/** The server keeps what the page says about hidden parts, view properties and parts that cannot be selected (out/gui.json), and a page
+ *  opened afresh reads it back: a click that left a part transparent would make the next Toggle Transparency take it back. */
+async function cleanGui(slug) {
+  const origin = new URL(BASE).origin, headers = { 'Content-Type': 'application/json', 'X-CAD': '1' }
+  try {
+    const g = await (await fetch(`${origin}/api/gui?slug=${encodeURIComponent(slug)}`)).json()
+    const view_props = Object.fromEntries(Object.keys(g.view_props ?? {}).map((b) => [b, { transparency: 0, boundingBox: false, showInTree: true, showPlacement: false,
+      displayMode: 'Flat Lines', lighting: 'Two side', drawStyle: 'Solid', onTop: 'Disabled', selectionStyle: 'Shape' }]))
+    await fetch(`${origin}/api/gui`, { method: 'POST', headers, body: JSON.stringify({ slug, state: { hidden: [], unselectable: [], ...(Object.keys(view_props).length ? { view_props } : {}) } }) })
+  } catch { /* nothing to clean if the server does not answer */ }
+}
 async function openFresh(slug = PROJECT) {
+  await cleanGui(slug)
   await page.goto('about:blank'); await page.goto(BASE + '#' + slug, { waitUntil: 'load' })
   await page.waitForSelector('.trow .tname', { timeout: 180000 })
   await page.waitForFunction(() => { const S = window.cadui?.getState?.(); return !!S?.scene && !S.building }, null, { timeout: 180000 })
@@ -302,6 +353,7 @@ async function openFresh(slug = PROJECT) {
   await put({ animate: false })      // view animations are cubecheck.mjs's business; here a view command should be done when it returns
   await settle({ min: 800, quiet: 600 })
   baseline = await page.evaluate((keys) => Object.fromEntries(keys.map((k) => [k, window.cadui.getState()[k]])), BASE_KEYS)
+  await page.evaluate(() => { window.__cam0 = window.cadui.getView()?.getCamera() ?? null })
 }
 /** The store fields a click on a view command can leave changed and a soft reset puts back (the 3D view is told as well). */
 const BASE_KEYS = ['hidden', 'unselectable', 'view', 'drawStyle', 'ortho', 'axes', 'selBoxes', 'cube', 'clip', 'pose', 'selFilter', 'gateMsg', 'workbench', 'pickList', 'consoleDraft',
@@ -314,10 +366,15 @@ const SELECTION = {
   two: { selected: ['base', 'hot_plate'], subSel: [] },
   child: { selected: ['gantry/tool_plate'], subSel: [] },
 }
-/** Closes menus the way a person does, by clicking away: Escape would also reach the page's own key handler, which clears the selection. */
+/** Closes menus. A right-click menu (`.ctx`) takes Escape for itself, and nothing behind it sees the key; a menu bar menu is closed by clicking
+ *  away, since Escape would also reach the page's own key handler, which clears the selection. (A click on an empty spot of the toolbar row
+ *  would also close a dialog whose backdrop it lands on, so a right-click menu inside a dialog must not be closed that way.) */
 async function closeMenus() {
-  for (let i = 0; i < 4 && (await page.locator('[role=menu][data-state=open], .ctx').count()); i++) { await page.mouse.click(1490, 12); await sleep(80) }
-  if (await page.locator('[role=menu][data-state=open], .ctx').count()) { await page.keyboard.press('Escape'); await sleep(80) }
+  for (let i = 0; i < 5; i++) {
+    if (await page.locator('.ctx').count()) { await page.keyboard.press('Escape'); await sleep(60); continue }
+    if (await page.locator('[role=menu][data-state=open]').count()) { await page.mouse.click(1490, 12); await sleep(80); continue }
+    return
+  }
 }
 /** Closes a question the way a person answers one they did not ask for: No, Cancel or Close, and never Yes. */
 async function answerNo() {
@@ -349,6 +406,7 @@ async function resetUI(sel = 'none') {
     const S = window.cadui.getState(), V = window.cadui.getView()
     if (S.pose) V?.setPose(null)
     if (S.ortho !== base.ortho) V?.setOrtho(base.ortho)
+    if (window.__cam0 && V && V.getCamera() !== window.__cam0) V.setCamera(window.__cam0)
     const { recordingMacro, ...rest } = base       // a macro being recorded is stopped through its own menu entry, not here
     window.cadui.setState({ ...rest, ...selection })
   }, [baseline, SELECTION[sel]])
@@ -400,7 +458,7 @@ async function inventoryMenu(top) {
 }
 
 // ── menus: every entry, clicked ─────────────────────────────────────────────────────────────────────────────────────
-const TOPS = ['File', 'Edit', 'View', 'Tools', 'Macro', 'CAD Agent', 'Windows', 'Help']
+const TOPS = flag('top', '') ? flag('top', '').split(',') : ['File', 'Edit', 'View', 'Tools', 'Macro', 'CAD Agent', 'Windows', 'Help']
 const keyOf = (e) => [e.top, ...e.path].join(' > ')
 /** The entries of every menu, as they stand with nothing selected, with a face selected and with two parts selected: an entry that is
  *  greyed in one state and live in another is tested in the state that enables it. */
@@ -408,10 +466,14 @@ async function menuInventory() {
   const union = new Map()
   for (const sel of ['none', 'face', 'two']) {
     await resetUI(sel)
-    for (const top of TOPS) for (const e of await inventoryMenu(top)) {
-      const key = keyOf(e), cur = union.get(key)
-      if (!cur) union.set(key, { ...e, key, enabledIn: e.disabled ? [] : [sel] })
-      else if (!e.disabled) cur.enabledIn.push(sel)
+    for (const top of TOPS) {
+      const inv = await inventoryMenu(top)
+      if (sel === 'none') note('menus', `${top} (menu bar title)`, { enabled: true }, inv.length ? 'WORKS' : 'NO-OP', inv.length ? `opens ${inv.length} entries` : 'opens nothing')
+      for (const e of inv) {
+        const key = keyOf(e), cur = union.get(key)
+        if (!cur) union.set(key, { ...e, key, enabledIn: e.disabled ? [] : [sel] })
+        else if (!e.disabled) cur.enabledIn.push(sel)
+      }
     }
   }
   await resetUI('none')
@@ -502,7 +564,6 @@ const SPEC = {
   'View > Zoom > Zoom In': { pre: remember, expect: 'V.probe().zoom>window.__z0' },
   'View > Zoom > Zoom Out': { pre: remember, expect: 'V.probe().zoom<window.__z0' },
   'View > Zoom > Box Zoom': { post: () => page.keyboard.press('Escape'), expect: `!!document.querySelector('.box-select')` },
-  'View > Document Window > Docked': { pre: () => page.evaluate(() => document.querySelector('.view3d').requestFullscreen()), expect: '!document.fullscreenElement' },
   'View > Document Window > Fullscreen': { post: exitFullscreen, expect: '!!document.fullscreenElement' },
   'View > Issue Camera Position': { expect: sawReq('^report:.*Camera|^report:.*position') },
   'View > Toggle Axis Cross': { expect: 'S.axes', fresh: true },
@@ -529,6 +590,19 @@ const SPEC = {
   'View > Panels > Report View': { pre: () => page.evaluate(() => window.cadui.showPanel('console')), expect: `window.cadui.getDock().getPanel('report').api.isActive` },
   'View > Panels > Checks': { expect: `window.cadui.getDock().getPanel('checks').api.isActive` },
   'View > Toggle Bottom Panels': { fresh: true },
+  // the overlay commands act on the dock that is active, and (the Toggle Left/Bottom ones) on one that is in overlay mode already
+  'View > Overlay Docked Panel > Toggle Overlay for All Panels': { fresh: true, expect: `window.cadui.getDock().getPanel('model').group.api.location.type==='floating'` },
+  'View > Overlay Docked Panel > Toggle Transparent Panels': { fresh: true, expect: `document.querySelector('.dock').classList.contains('ovl-transparent')` },
+  'View > Overlay Docked Panel > Toggle Overlay': { fresh: true, pre: () => showPanel('model'), expect: `window.cadui.getDock().getPanel('model').group.api.location.type==='floating'` },
+  'View > Overlay Docked Panel > Toggle Transparent Mode': { fresh: true, pre: async () => { await showPanel('model'); await clickMenuEntry(entryAt('View', 'Overlay Docked Panel', 'Toggle Overlay')); await settle({ min: 500, quiet: 400 }) },
+    expect: `!!document.querySelector('.dv-resize-container.ovl-transparent-one')` },
+  'View > Overlay Docked Panel > Bypass Mouse Events in Overlay Panels': { fresh: true, expect: `document.querySelector('.dock').classList.contains('ovl-bypass')` },
+  'View > Overlay Docked Panel > Toggle Left': { fresh: true, pre: async () => { await clickMenuEntry(entryAt('View', 'Overlay Docked Panel', 'Toggle Overlay for All Panels')); await settle({ min: 500, quiet: 400 }) },
+    expect: `getComputedStyle(window.cadui.getDock().getPanel('model').group.element.closest('.dv-resize-container')).display==='none'` },
+  'View > Overlay Docked Panel > Toggle Bottom': { fresh: true, pre: async () => { await clickMenuEntry(entryAt('View', 'Overlay Docked Panel', 'Toggle Overlay for All Panels')); await settle({ min: 500, quiet: 400 }) },
+    expect: `getComputedStyle(window.cadui.getDock().getPanel('report').group.element.closest('.dv-resize-container')).display==='none'` },
+  // Docked is the current choice of a pair whose other half (Fullscreen) hides the menus: clicking it can only do nothing
+  'View > Document Window > Docked': { na: 'the current choice of a pair: its other half, Fullscreen, shows the 3D view alone, so no menu is there to click it from (V, D does it)' },
   'View > Tree View Actions > Go to Selection': { sel: 'one', pre: () => page.evaluate(() => window.cadui.showPanel('selection')), expect: `window.cadui.getDock().getPanel('model').api.isActive` },
   'View > Tree View Actions > Selection Back': { pre: async () => { await put({ selected: ['base'] }); await put({ selected: ['hot_plate'] }) }, expect: `S.selected[0]==='base'` },
   'View > Tree View Actions > Selection Forward': { pre: async () => { await put({ selected: ['base'] }); await put({ selected: ['hot_plate'] }); await clickMenuEntry(entryAt('View', 'Tree View Actions', 'Selection Back')) }, expect: `S.selected[0]==='hot_plate'` },
@@ -577,11 +651,14 @@ const SPEC = {
   'Help > Donate to FreeCAD': { expect: sawReq('^open:https://www.freecad.org/sponsor') },
   'Help > About cad-agent': { expect: sawReq('^report:cad-agent UI') },
 }
+const ENTRY = flag('entry', '') ? flag('entry', '').split('|') : null     // --entry=Overlay|Tree View: only the menu entries whose path has one of these
 async function testMenus(inv) {
   for (const e of inv) {
+    if (ENTRY && !ENTRY.some((t) => e.key.includes(t))) continue
     const meta = { cmd: e.cmd || null, enabled: !e.disabled }
     if (e.sub) { note('menus', e.key, meta, e.disabled && !e.enabledIn.length ? 'N/A' : 'WORKS', e.disabled ? 'sub-menu, empty' : 'opens its sub-menu'); continue }
     const spec = SPEC[e.key] ?? {}
+    if (spec.na) { note('menus', e.key, meta, 'N/A', spec.na); continue }
     if (!e.enabledIn.length && !spec.pre) {
       const why = reasonFor(e.label, e.title)
       note('menus', e.key, { ...meta, enabled: false }, why ? 'N/A' : 'NO-OP', why ? `disabled (${why})` : 'disabled, and nothing says why')
@@ -661,6 +738,7 @@ async function testCtx(surface, open, { sel = 'none', specs = {}, prep } = {}) {
     const path = `${surface} > ${e.path.join(' > ')}`, meta = { cmd: e.cmd || null, enabled: !e.disabled }
     if (e.sub) { note('context', path, meta, e.disabled ? 'N/A' : 'WORKS', 'opens its sub-menu'); continue }
     const spec = specs[e.path.join(' > ')] ?? {}
+    if (spec.na) { note('context', path, meta, 'N/A', spec.na); continue }
     if (e.disabled && !spec.pre) {
       const why = reasonFor(e.label, e.title)
       note('context', path, meta, why ? 'N/A' : 'NO-OP', why ? `disabled (${why})` : 'disabled, and nothing says why')
@@ -776,7 +854,10 @@ async function testToolbars() {
 }
 
 // ── task panels: every button, check box, tab, link and combo box of each ───────────────────────────────────────────────
-const CONTROLS = 'button, select, a[href], a[download], input[type=checkbox], input[type=radio], input[type=color], input[type=range], [role=tab], .tbox-head, summary, .taskview .trow'
+// The buttons of a panel (and its tabs, links and clickable rows) always; its check boxes, radio buttons, combo boxes, colours and sliders with --forms.
+const FORMS = args.includes('--forms')
+const BUTTONS = 'button:not([role=combobox]), a[href], a[download], [role=tab], .tbox-head, summary, .taskview .trow'
+const CONTROLS = FORMS ? `${BUTTONS}, button[role=combobox], select, input[type=checkbox], input[type=radio], input[type=color], input[type=range]` : BUTTONS
 /** What a panel holds that a click does something to, in document order. */
 const listControls = (root) => page.evaluate(([rootSel, sel]) => {
   const r = document.querySelector(rootSel)
@@ -784,7 +865,7 @@ const listControls = (root) => page.evaluate(([rootSel, sel]) => {
   return [...r.querySelectorAll(sel)].map((el) => ({ tag: el.tagName.toLowerCase(), role: el.getAttribute('role') || '', type: el.type || '', text: (el.textContent || '').trim().replace(/\s+/g, ' ').slice(0, 40),
     title: el.getAttribute('title') || el.getAttribute('data-fc-title') || el.closest('[title]')?.getAttribute('title') || '', disabled: el.disabled === true || el.getAttribute('aria-disabled') === 'true',
     checked: el.checked ?? null, combo: el.getAttribute('role') === 'combobox', native: el.tagName === 'SELECT', label: el.closest('label')?.textContent?.trim().slice(0, 40) ?? '' }))
-}, [root, CONTROLS + ', [role=combobox]'])
+}, [root, CONTROLS])
 const controlId = (c) => `${c.tag}${c.type ? ':' + c.type : ''}|${c.role}|${c.text}|${c.title}|${c.label}`
 /** The element of the n-th control with this identity (the panel's DOM changes as controls are used, so it is found again each time). */
 async function controlHandle(root, c, nth) {
@@ -792,7 +873,7 @@ async function controlHandle(root, c, nth) {
     const r = document.querySelector(rootSel)
     const idOf = (el) => `${el.tagName.toLowerCase()}${el.type ? ':' + el.type : ''}|${el.getAttribute('role') || ''}|${(el.textContent || '').trim().replace(/\s+/g, ' ').slice(0, 40)}|${el.getAttribute('title') || el.getAttribute('data-fc-title') || ''}|${el.closest('label')?.textContent?.trim().slice(0, 40) ?? ''}`
     return r ? [...r.querySelectorAll(sel)].filter((el) => idOf(el) === id)[n] ?? null : null
-  }, [root, CONTROLS + ', [role=combobox]', controlId(c), nth])).asElement()
+  }, [root, CONTROLS, controlId(c), nth])).asElement()
 }
 const CLOSERS = /^(OK|Cancel|Close|Done|Save|Create|Open|Record|Apply|Back)$/
 const controlName = (c) => c.combo || c.native ? `${c.label || c.text || 'combo box'} (combo box)` : c.type === 'checkbox' || c.type === 'radio' ? `${c.label || c.title} (${c.type})`
@@ -812,7 +893,7 @@ async function useControl(h, c) {
   else await h.click()
 }
 /** Opens a panel with `open`, then uses each live control in it (the ones that close it last). */
-async function walkPanel(surface, root, open, { sel = 'none', fill, skip = () => false, expectFor = () => undefined, fresh = false, max = 90000 } = {}) {
+async function walkPanel(surface, root, open, { sel = 'none', fill, skip = () => false, expectFor = () => undefined, fresh = false, max = 90000, group = 'tasks' } = {}) {
   const reopen = async () => { await resetUI(sel); await open(); await settle({ min: 400, quiet: 500, max: 120000 }); await fill?.() }
   await reopen()
   const all = await listControls(root)
@@ -823,18 +904,18 @@ async function walkPanel(surface, root, open, { sel = 'none', fill, skip = () =>
   const later = []        // a radio button that is the choice already: it can only be clicked once another one has been
   const one = async ({ c, n }, again) => {
     const name = controlName(c), path = `${surface} > ${name}`, meta = { cmd: null, enabled: !c.disabled }
-    if (skip(c)) return note('tasks', path, meta, 'HUMAN', 'not clicked: a person decides this')
+    if (skip(c)) return note(group, path, meta, 'HUMAN', 'not clicked: a person decides this')
     if (c.disabled) {
       const why = reasonFor(name, c.title)
-      return note('tasks', path, { ...meta, enabled: false }, 'N/A', why ? `disabled (${why})` : 'disabled until its fields are filled or its state allows it')
+      return note(group, path, { ...meta, enabled: false }, 'N/A', why ? `disabled (${why})` : 'disabled until its fields are filled or its state allows it')
     }
     if (c.type === 'radio' && c.checked && !again) { later.push({ c, n }); return }
     // the panel may have closed or changed under the last click: open it again for this one
     let h = await controlHandle(root, c, n)
     if (!h) { await reopen(); h = await controlHandle(root, c, n) }
-    if (!h) return note('tasks', path, meta, 'N/A', 'not there any more after the earlier clicks')
-    const o = await observe(() => useControl(h, c), { max })
-    await judge('tasks', path, meta, o, expectFor(c))
+    if (!h) return note(group, path, meta, 'N/A', 'not there any more after the earlier clicks')
+    const o = await observe(() => useControl(h, c), { max, restore: false })
+    await judge(group, path, meta, o, expectFor(c))
     // never leave a question open: its answer is a person's
     await answerNo()
   }
@@ -842,7 +923,7 @@ async function walkPanel(surface, root, open, { sel = 'none', fill, skip = () =>
   for (const item of later) {
     const h = await controlHandle(root, item.c, item.n)
     if (h && !(await h.evaluate((el) => el.checked))) await one(item, true)
-    else note('tasks', `${surface} > ${controlName(item.c)}`, { cmd: null, enabled: true }, 'N/A', 'the choice already made, and the only one of its group')
+    else note(group, `${surface} > ${controlName(item.c)}`, { cmd: null, enabled: true }, 'N/A', 'the choice already made, and the only one of its group')
   }
   if (fresh) await openFresh()
 }
@@ -882,7 +963,10 @@ async function testDocks() {
   // the title bar of a docked panel (OverlayManager::createTitleBar), and of an overlaid one
   for (const [group, id] of [['Model', 'model'], ['Report View', 'report']]) {
     await clickOne('docks', `${group} title bar > Toggle overlay`, { enabled: true }, dockBtn(group, 'Toggle overlay'), { expect: `window.cadui.getDock().getPanel('${id}').group.api.location.type==='floating'`, fresh: true })
-    await clickOne('docks', `${group} title bar > Toggle floating window`, { enabled: false }, dockBtn(group, 'Toggle floating window'), {})
+    // a button that is greyed out is not clicked: it says why in its tooltip, or it is a button that does nothing
+    const floatBtn = dockBtn(group, 'Toggle floating window')
+    if (await floatBtn().isDisabled()) note('docks', `${group} title bar > Toggle floating window`, { enabled: false }, reasonFor('Toggle floating window', await floatBtn().getAttribute('title')) ? 'N/A' : 'NO-OP', 'disabled (tooltip)')
+    else await clickOne('docks', `${group} title bar > Toggle floating window`, { enabled: true }, floatBtn, {})
     await clickOne('docks', `${group} title bar > Close dock window`, { enabled: true }, dockBtn(group, 'Close dock window'), { expect: panelGone(id), fresh: true })
     const overlaid = async () => { await (await dockBtn(group, 'Toggle overlay')()).click(); await settle({ min: 700, quiet: 600 }) }
     for (const [title, expectation] of [['Toggle transparent mode', null], ['Select auto show/hide mode', hasCtx], ['Toggle overlay', `window.cadui.getDock().getPanel('${id}').group.api.location.type!=='floating'`], ['Toggles the visibility', null]]) {
@@ -913,10 +997,11 @@ const treeRow = (n) => L(`.trow[data-name="${n}"]`)
 async function testTree() {
   const T = (path, locate, spec, enabled = true) => clickOne('tree', path, { enabled }, locate, spec)
   await T('eye icon (toggle visibility)', L('.trow[data-name="base"] .teye'), { expect: `S.hidden.includes('base')` })
-  await T('document twisty (fold)', L('.trow.doc .twisty'), { expect: `document.querySelectorAll('.trow[data-name]').length===0` })
+  await T('document twisty (fold)', L('.trow.doc .twisty'), { expect: `document.querySelectorAll('.trow[data-name]').length===0`, fresh: true })
   await T('object row (click)', treeRow('hot_plate'), { expect: `S.selected.length===1&&S.selected[0]==='hot_plate'` })
-  await T('object row (Ctrl+click adds)', treeRow('hot_plate'), { pre: () => put({ selected: ['base'] }), click: { modifiers: ['Control'] }, expect: `S.selected.length===2` })
-  await T('object row (Shift+click selects a range)', treeRow('hot_plate'), { pre: () => put({ selected: ['base'] }), click: { modifiers: ['Shift'] }, expect: `S.selected.length>=2` })
+  // Ctrl+click is a right click on a Mac; the page takes Cmd (a Qt Ctrl) for "add to the selection"
+  await T('object row (Cmd+click adds)', treeRow('hot_plate'), { pre: () => put({ selected: ['base'] }), click: { modifiers: ['Meta'] }, expect: `S.selected.length===2` })
+  await T('object row (Shift+click selects a range)', treeRow('hot_plate'), { pre: async () => { await treeRow('base')().click() }, click: { modifiers: ['Shift'] }, expect: `S.selected.length>=2` })
   await T('object row (double-click edits)', treeRow('hot_plate'), { dbl: true, expect: `S.task?.kind==='params'||S.task?.kind==='transform'` })
   await T('document row (click clears the selection)', L('.trow.doc'), { pre: () => put({ selected: ['base'] }), expect: 'S.selected.length===0' })
   const objectSpecs = {
@@ -924,7 +1009,7 @@ async function testTree() {
     'Toggle Selectability': { expect: `S.unselectable.includes('hot_plate')` }, 'Random Color': { expect: `S.view['hot_plate']?.shapeColor!=null` }, 'Toggle Transparency': { expect: `S.view['hot_plate']?.transparency>0` },
     Copy: { expect: `FX.includes('clipboard')` }, 'Send to Console': { expect: `S.consoleDraft.includes('hot_plate')` }, Transform: { expect: task('transform') }, Placement: { expect: task('placement') },
     'Drawing…': { expect: task('drawing') }, 'Mark to Recompute': { expect: sawReq('POST /api/check') }, 'Recompute Object': { expect: sawReq('POST /api/check') }, 'Open File Location': { expect: sawReq('POST /api/reveal') },
-    'Properties': { pre: () => showPanel('selection'), expect: panelActive('model') },
+    'Properties': { na: 'the Model tab it brings forward is the one the tree is in' },
     'Edit hot_plate': { expect: `S.task?.kind==='params'||S.task?.kind==='transform'` }, 'Transform hot_plate': { expect: task('transform') },
     'Tree Settings > Show Description': { expect: `!S.treeUI.hideColumn` }, 'Tree Settings > Show Internal Name': { expect: `!S.treeUI.hideInternalNames` },
     'Show Items Hidden in Tree View': { expect: 'S.treeShowHidden' }, 'Toggle Visibility in Tree View': { expect: `S.view['hot_plate']?.showInTree===false` },
@@ -945,16 +1030,24 @@ async function testTree() {
 async function testProperties() {
   const T = (path, locate, spec, enabled = true) => clickOne('properties', path, { enabled }, locate, spec)
   const tab = (name) => L('.ptabs button', { hasText: new RegExp(`^${name}$`) })
+  const data = async () => { await put(SELECTION.one); await tab('Data')().click(); await sleep(250); await page.evaluate(() => { window.__rows0 = document.querySelectorAll('.pgrid .prow').length }) }
   await T('View tab', tab('View'), { sel: 'one', expect: `!!document.querySelector('.pgrid .pgroup')&&document.querySelector('.pgrid').innerText.includes('Display Options')` })
-  await T('Data tab', tab('Data'), { sel: 'one', pre: async () => { await put(SELECTION.one); await tab('View')().then((t) => t.click()) }, expect: `document.querySelector('.pgrid').innerText.includes('Placement')` })
-  await T('group header (double-click folds)', L('.pgrid .pgroup'), { sel: 'one', dbl: true })
-  await T('Placement row (opens its Angle, Axis, Position)', L('.pgrid .prow.ro', { hasText: 'Placement' }), { sel: 'one' })
-  await T('parameter value (click to edit)', L('.pgrid .pv.edit'), { sel: 'one', expect: `!!document.querySelector('.pgrid .pedit, .pgrid .pv.edit input')` })
-  // the View tab's controls
-  await walkPanel('properties > View tab', '.props .pgrid', async () => { await put(SELECTION.one); await tab('View')().then((t) => t.click()) }, { sel: 'one' })
-  // the right-click menu
-  await testCtx('properties > menu', async () => { await page.locator('.pgrid .prow').first().click({ button: 'right' }) }, { sel: 'one', prep: async () => { await tab('Data')().then((t) => t.click()) },
-    specs: { Copy: { expect: `FX.includes('clipboard')` } } })
+  await T('Data tab', tab('Data'), { sel: 'one', pre: async () => { await put(SELECTION.one); await tab('View')().click() }, expect: `document.querySelector('.pgrid').innerText.includes('Placement')` })
+  await T('Placement row (opens its Angle, Axis, Position)', L('.pgrid .prow.ro', { hasText: 'Placement' }), { sel: 'one', pre: data, expect: `document.querySelector('.pgrid').innerText.includes('Angle')` })
+  await T('parameter value (click to edit)', L('.pgrid .pv.edit'), { sel: 'one', pre: data, expect: `!!document.querySelector('.pgrid .pedit, .pgrid .pv.edit input')` })
+  await T('group header (double-click folds)', L('.pgrid .pgroup'), { sel: 'one', dbl: true, pre: data, expect: `document.querySelectorAll('.pgrid .prow').length<window.__rows0` })
+  // the View tab's buttons
+  await walkPanel('properties > View tab', '.props .pgrid', async () => { await put(SELECTION.one); await tab('View')().click() }, { sel: 'one', group: 'properties' })
+  // the right-click menu: Expand to Default only shows on groups that are folded, Default Expand is the current choice of three
+  const open = async () => { await page.locator('.pgrid .prow, .pgrid .pgroup').first().click({ button: 'right' }) }     // a row, or a group header when every group is folded
+  const foldAll = async () => { await data(); for (const g of await page.locator('.pgrid .pgroup').all()) await g.dblclick() }
+  const sub = (label) => async () => { await data(); await clickCtxEntry(open, { path: ['Expand/Collapse Properties', label], label }) }
+  await testCtx('properties > menu', open, { sel: 'one', prep: data,
+    specs: { Copy: { expect: `FX.includes('clipboard')` },
+      'Expand/Collapse Properties > Expand to Default': { pre: foldAll, expect: `document.querySelectorAll('.pgrid .prow').length>3` },
+      'Expand/Collapse Properties > Default Expand': { pre: sub('Auto Expand'), expect: `JSON.parse(localStorage.getItem('cadui.props.expandMode')||'"default"')==='default'` },
+      'Expand/Collapse Properties > Auto Expand': { expect: `JSON.parse(localStorage.getItem('cadui.props.expandMode')||'"default"')==='auto-expand'` },
+      'Expand/Collapse Properties > Auto Collapse': { expect: `JSON.parse(localStorage.getItem('cadui.props.expandMode')||'"default"')==='auto-collapse'` } } })
 }
 
 // ── the selection view, report view, console and checks ─────────────────────────────────────────────────────────────────
@@ -980,10 +1073,14 @@ async function testPanels() {
   await T('console', 'command line (`view top` + Enter)', typed('view top'), { pre: () => showPanel('console'), expect: `W.isView('top')` })
   await T('console', 'command line (`fit` + Enter)', typed('fit'), { pre: async () => { await showPanel('console'); await page.evaluate(() => window.cadui.getView().zoomOut()) } })
   await T('console', 'command line (`mass hot_plate` + Enter runs a cad command)', typed('mass hot_plate'), { pre: () => showPanel('console'), expect: sawReq('POST /api/cad mass') })
+  const selectConsole = () => page.evaluate(() => { const c = document.querySelector('.console'), r = document.createRange(); r.selectNodeContents(c); getSelection().removeAllRanges(); getSelection().addRange(r) })
   await testCtx('console > menu', async () => { await page.locator('.console').click({ button: 'right', position: { x: 40, y: 20 } }) }, { prep: () => showPanel('console'),
-    specs: { 'Copy History': { pre: () => runConsoleLine('help'), expect: `FX.includes('clipboard')` }, 'Save History As…': { pre: () => runConsoleLine('help'), expect: sawReq('download:') },
-      'Select All': { expect: `!getSelection().isCollapsed` }, 'Clear Console': { expect: `document.querySelectorAll('.console .cl:not(.cinput)').length===0` }, 'Word Wrap': { expect: `!S.editorPrefs.wordWrap`, post: () => put({ editorPrefs: { ...({}), } }) },
-      'Save History': { expect: 'S.editorPrefs.saveHistory' }, 'Insert File Name…': { expect: `FX.includes('filechooser')` }, Paste: { expect: 'true' } } })
+    specs: {
+      Copy: { pre: selectConsole, expect: `FX.includes('clipboard')` }, 'Copy Command': { pre: selectConsole, expect: `FX.includes('clipboard')` },
+      'Copy History': { pre: () => runConsoleLine('help'), expect: `FX.includes('clipboard')` }, 'Save History As…': { pre: () => runConsoleLine('help'), expect: sawReq('download:') },
+      Paste: { pre: () => page.evaluate(() => { window.__wcClip = 'wc-pasted' }), expect: `S.consoleDraft.includes('wc-pasted')` },
+      'Select All': { expect: `!getSelection().isCollapsed` }, 'Clear Console': { expect: `document.querySelectorAll('.console .cl:not(.cinput)').length===0` },
+      'Word Wrap': { expect: `!S.editorPrefs.wordWrap`, fresh: true }, 'Save History': { expect: 'S.editorPrefs.saveHistory', fresh: true }, 'Insert File Name…': { expect: `FX.includes('filechooser')` } } })
   // Checks
   await T('checks', 'Recompute button', L('.checks .chead .qbtn', { hasText: 'Recompute' }), { pre: () => showPanel('checks'), expect: sawReq('POST /api/check') })
   await T('checks', 'Verify button', L('.checks .chead .qbtn', { hasText: 'Verify' }), { pre: () => showPanel('checks'), expect: sawReq('POST /api/verify') })
@@ -1012,10 +1109,15 @@ async function testView3D() {
   const T = (path, spec, fn) => clickOne('3d view', path, { enabled: true }, fn, spec)
   const atBody = (name, opts) => async () => { const [x, y] = await bodyPoint(name); return { click: (o) => page.mouse.click(x, y, { ...opts, ...o }), dblclick: () => page.mouse.dblclick(x, y) } }
   await T('click on a part selects it', { expect: `S.selected.length===1` }, atBody('hot_plate'))
-  await T('Ctrl+click adds a part', { pre: () => put({ selected: ['hot_plate'] }), expect: `S.selected.length===2` }, async () => { const [x, y] = await bodyPoint('base'); return { click: () => page.mouse.click(x, y, { modifiers: ['Control'] }) } })
+  await T('Cmd+click adds a part', { pre: () => put({ selected: ['hot_plate'] }), expect: `S.selected.length===2` },
+    async () => { const [x, y] = await bodyPoint('base'); return { click: async () => { await page.keyboard.down('Meta'); await page.mouse.click(x, y); await page.keyboard.up('Meta') } } })
   await T('click on empty space clears the selection', { pre: () => put({ selected: ['hot_plate'] }), expect: 'S.selected.length===0' }, async () => { const [x, y] = await emptyPoint(); return { click: () => page.mouse.click(x, y) } })
   await T('double-click on a part edits it', { dbl: true, expect: `S.task?.kind==='params'||S.task?.kind==='transform'` }, atBody('hot_plate'))
-  const menuOn = (name) => async () => { const [x, y] = name ? await bodyPoint(name) : await emptyPoint(); await page.mouse.click(x, y, { button: 'right' }) }
+  const menuOn = (name) => async () => {
+    const pt = name ? await bodyPoint(name) : await emptyPoint()
+    if (!pt) throw new Error(`no spot on ${name ?? 'empty space'} to right-click`)
+    await page.mouse.click(pt[0], pt[1], { button: 'right' })
+  }
   const viewSpecs = {
     'Fit All': SPEC['View > Standard Views > Fit All'], 'Fit Selection': SPEC['View > Standard Views > Fit Selection'], 'Align to Selection': SPEC['View > Standard Views > Align to Selection'],
     Isometric: viewSpec('iso'), Home: SPEC['View > Standard Views > Home'], Front: viewSpec('front'), Top: viewSpec('top'), Right: viewSpec('right'), Rear: viewSpec('rear'), Bottom: viewSpec('bottom'), Left: viewSpec('left'),
@@ -1033,7 +1135,7 @@ async function testView3D() {
     Transform: { expect: task('transform') }, Placement: { expect: task('placement') }, 'Measure': { expect: task('measure') }, 'Mass Properties': { expect: task('mass') }, 'Drawing…': { expect: task('drawing') },
     'Clarify Selection': { expect: hasCtx },
   }
-  await testCtx('3d view > menu on a part', menuOn('hot_plate'), { sel: 'none', specs: viewSpecs, prep: () => put({ selected: [] }) })
+  await testCtx('3d view > menu on a part', menuOn('hot_plate'), { sel: 'none', specs: viewSpecs })
   await testCtx('3d view > menu on empty space', menuOn(null), { sel: 'none', specs: viewSpecs })
   // the cube's buttons
   const NAVI = [['n', 'Rotate the view up'], ['s', 'Rotate the view down'], ['w', 'Rotate the view left'], ['e', 'Rotate the view right'], ['rl', 'Roll left'], ['rr', 'Roll right'], ['home', 'Home view'], ['back', 'Look from the other side']]
@@ -1053,7 +1155,7 @@ const openByMenu = (...p) => () => clickMenuEntry(entryAt(p[0], ...p.slice(1)))
 const typeInto = (sel, text) => async () => { await page.locator(sel).first().fill(text); await sleep(150) }
 const TASKS = [
   ['File > New Document', { fill: typeInto('.taskview input', 'wc_new'), fresh: true }],
-  ['File > Open…', {}],
+  ['File > Open…', { fresh: true }],
   ['File > Import…', {}],
   ['File > Export…', { sel: 'one' }],
   ['File > Document Information', {}],
@@ -1071,7 +1173,7 @@ const TASKS = [
   ['Tools > Scene Inspector', {}],
   ['Tools > Dependency Graph', {}],
   ['Tools > Edit Parameters', {}],
-  ['Macro > Record Macro', { fill: typeInto('.taskview input', 'wc_macro') }],
+  // Macro > Record Macro is in testMacros: its Record button starts a recording that has to be stopped from the Macro menu
   ['Macro > Macros', {}],
   ['CAD Agent > Check', {}],
   ['CAD Agent > Verify', {}],
@@ -1107,25 +1209,41 @@ async function testPrefs() {
   await page.locator('.pref-dlg .pref-buttons .qbtn', { hasText: /^Cancel$/ }).click()
   console.log(`preferences: ${pages.length} pages: ${pages.join(', ')}`)
   for (const pg of pages) {
-    await walkPanel(`Preferences > ${pg}`, '.pref-page', async () => { await open(); await page.locator('.pref-dlg .pref-item', { hasText: new RegExp(`^${esc(pg)}$`) }).click() }, { max: 60000 })
+    await walkPanel(`Preferences > ${pg}`, '.pref-page', async () => { await open(); await page.locator('.pref-dlg .pref-item', { hasText: new RegExp(`^${esc(pg)}$`) }).click() }, { max: 60000, group: 'prefs' })
   }
   // the dialog's own buttons, search and Reset
-  const dlg = (name) => L(`.pref-dlg .pref-buttons .qbtn`, { hasText: new RegExp(`^${name}$`) })
   const opened = async () => { await open() }
-  await clickOne('Preferences', 'Apply', { enabled: true }, dlg('Apply'), { pre: opened, expect: 'S.prefsOpen', post: () => resetUI() })
-  await clickOne('Preferences', 'Cancel', { enabled: true }, dlg('Cancel'), { pre: opened, expect: '!S.prefsOpen' })
-  await clickOne('Preferences', 'OK', { enabled: true }, dlg('OK'), { pre: opened, expect: '!S.prefsOpen' })
+  await testPrefButtons(open)
   await clickOne('Preferences', 'search results (click a hit)', { enabled: true }, L('.pref-dlg .pref-hit'), { pre: async () => { await open(); await page.locator('.pref-dlg input[type=search]').fill('Navigation'); await sleep(300) }, expect: `document.querySelector('.pref-header').textContent!=='General'`, post: () => resetUI() })
   await testCtx('Preferences > Reset menu', async () => { await page.locator('.pref-dlg .pref-side > .qbtn').click() }, { prep: opened, specs: {
     "Reset Page 'General'": { expect: 'true' }, "Reset Group 'General'": { expect: 'true' }, 'Reset All': { expect: `!!document.querySelector('.msgbox')` } } })
   await resetUI()
 }
 
+/** The dialog's own buttons, on a setting that shows (Report View > timecode): Apply has no effect of its own, it is the setting Cancel comes
+ *  back to, so it is judged by what Cancel does after it. */
+async function testPrefButtons(open) {
+  const box = () => page.locator('.pref-page label', { hasText: 'Include a timecode' }).locator('input')
+  const btn = (t) => page.locator('.pref-dlg .pref-buttons .qbtn', { hasText: new RegExp(`^${t}$`) })
+  const go = async () => { await open(); await page.locator('.pref-dlg .pref-item', { hasText: /^Report View$/ }).click() }
+  await go()
+  await box().click()                                   // timecode off
+  await btn('Apply').click()                            // keep it
+  await box().click()                                   // on again
+  const o = await observe(() => btn('Cancel').click(), { max: 30000, restore: false })
+  const kept = await check('S.reportTimecode===false')
+  note('prefs', 'dialog > Apply', { enabled: true }, kept ? 'WORKS' : 'NO-OP', kept ? 'Cancel came back to the setting Apply kept' : 'Cancel went back past what Apply kept')
+  await judge('prefs', 'dialog > Cancel', { enabled: true }, o, '!S.prefsOpen')
+  await go()
+  await box().click()                                   // timecode on again
+  await judge('prefs', 'dialog > OK', { enabled: true }, await observe(() => btn('OK').click(), { max: 30000, restore: false }), '!S.prefsOpen&&S.reportTimecode')
+}
+
 // ── Tools > Customize ───────────────────────────────────────────────────────────────────────────────────────────────────
 async function testCustomize() {
   const open = async () => { await clickMenuEntry(entryAt('Tools', 'Customize')); await page.locator('.cu-dlg').waitFor() }
   for (const tab of ['Toolbars', 'Macros']) {
-    await walkPanel(`Customize > ${tab}`, '.cu-dlg', async () => { await open(); await page.locator('.cu-dlg .cu-tab', { hasText: new RegExp(`^${tab}$`) }).click() }, { max: 60000 })
+    await walkPanel(`Customize > ${tab}`, '.cu-dlg', async () => { await open(); await page.locator('.cu-dlg .cu-tab', { hasText: new RegExp(`^${tab}$`) }).click() }, { max: 60000, group: 'customize' })
   }
 }
 
@@ -1133,17 +1251,24 @@ async function testCustomize() {
 async function testStart() {
   const open = async () => { await showPanel('start') }
   // first start: the unit system and Done
-  await walkPanel('Start page (first start)', '.start-first', open, { fresh: true })
+  await walkPanel('Start page (first start)', '.start-first', open, { fresh: true, group: 'start' })
   await put({}); await page.evaluate(() => localStorage.setItem('cadui.start.firstStart', 'false'))
   await openFresh()
-  await walkPanel('Start page', '.start', open, { fresh: true })
+  await walkPanel('Start page', '.start', open, { fresh: true, group: 'start' })
 }
 async function testNotifications() {
   const warn = async () => { await page.evaluate(() => { window.__wcBlockOpen = true }); await clickMenuEntry(entryAt('File', 'Print')); await settle({ min: 600, quiet: 600 }) }
-  await clickOne('notifications', 'list rows (click selects)', { enabled: true }, L('.notify-list .notify-row'), { pre: async () => { await warn(); await page.locator('.statusbar .notify-btn').click() }, expect: `!!document.querySelector('.notify-row.sel')` })
-  await testCtx('notifications > list menu', async () => { await page.locator('.notify-list').click({ button: 'right' }) }, { prep: async () => { await warn(); await page.locator('.statusbar .notify-btn').click() },
-    specs: { Delete: { pre: () => page.locator('.notify-row').first().click(), expect: `document.querySelectorAll('.notify-row').length===0` }, 'Delete All': { expect: `document.querySelectorAll('.notify-row').length===0` } } })
-  await testCtx('notifications > button menu', async () => { await page.locator('.statusbar .notify-btn').click({ button: 'right' }) }, { prep: warn, specs: { 'Delete All': { expect: 'S.notifications.length===0' } } })
+  // the list opens from the status bar's button, and a notification is made (a pop-up the browser blocked) when there is none
+  const list = async () => {
+    if (!(await getS('S.notifications.length'))) await warn()
+    if (!(await page.locator('.notify-list').count())) await page.locator('.statusbar .notify-btn').click()
+  }
+  await clickOne('notifications', 'list rows (click selects)', { enabled: true }, L('.notify-list .notify-row'), { pre: list, expect: `!!document.querySelector('.notify-row.sel')` })
+  await testCtx('notifications > list menu', async () => { await list(); await page.locator('.notify-list').click({ button: 'right' }) },
+    { specs: { Delete: { pre: async () => { await list(); await page.locator('.notify-row').first().click() }, expect: `document.querySelectorAll('.notify-row').length===0` },
+      'Delete All': { expect: `document.querySelectorAll('.notify-row').length===0` } } })
+  await testCtx('notifications > button menu', async () => { if (!(await getS('S.notifications.length'))) await warn(); await page.locator('.statusbar .notify-btn').click({ button: 'right' }) },
+    { specs: { 'Delete All': { expect: 'S.notifications.length===0' } } })
 }
 async function testMessageBox() {
   // File > Export… with nothing selected: a warning with OK
@@ -1255,30 +1380,35 @@ async function testEdits() {
 /** Macro > Record Macro, the actions it records, Stop, then the Macros task on the file it wrote. */
 async function testMacros() {
   const F = async (path, meta, act, expect, opts = {}) => judge('macros', path, meta, await observe(act, { max: 90000, ...opts }), expect)
+  const row = (n) => page.locator('.taskview .trow').filter({ has: page.locator('span', { hasText: new RegExp(`^${esc(n)}$`) }) }).first()
+  const names = () => page.locator('.taskview .trow > span:first-child').allTextContents()
   await resetUI('none')
   await clickMenuEntry(entryAt('Macro', 'Record Macro'))
   await page.locator('.taskview input').first().fill('wc_macro')
   await F('Record Macro task > Record', { enabled: true }, () => taskButton('Record').click(), `S.recordingMacro==='wc_macro'`)
   await F('(an action while recording) View > Standard Views > Front', { enabled: true }, () => clickMenuEntry(entryAt('View', 'Standard Views', 'Front')), `W.isView('front')`)
   await F('Macro > Stop Macro Recording', { enabled: true }, () => clickMenuEntry(entryAt('Macro', 'Stop Macro Recording')), `!S.recordingMacro`)
-  await F('Macro > Recent Macros', { enabled: true }, async () => { await openMenu('Macro', ['Recent Macros']); await closeMenus() }, 'true')
   // the Macros task: select the new one, then each button
-  const open = async () => { await resetUI('none'); await clickMenuEntry(entryAt('Macro', 'Macros')); await page.locator('.taskview .trow', { hasText: 'wc_macro' }).first().click() }
+  const open = async (pick = 'wc_macro') => { await resetUI('none'); await clickMenuEntry(entryAt('Macro', 'Macros')); await row(pick).click() }
   await open()
   await F('Macros task > Execute', { enabled: true }, () => taskButton('Execute').click(), `!S.task`)
+  await F('Macro > Recent Macros > wc_macro (runs it again)', { enabled: true }, () => clickMenuEntry(entryAt('Macro', 'Recent Macros', 'wc_macro')), sawReq('POST /api/macro/run'))
   await open()
   await F('Macros task > Edit', { enabled: true }, () => taskButton('Edit').click(), task('macroEdit'))
   await F('Macro edit task > Save', { enabled: true }, () => taskButton('Save').click(), task('macros'))
   await open()
-  await F('Macros task > Duplicate', { enabled: true }, async () => { await taskButton('Duplicate').click(); await taskButton('Duplicate').click() }, `document.querySelectorAll('.taskview .trow').length===2`)
-  await F('Macros task > Rename', { enabled: true }, async () => { await taskButton('Rename').click(); await page.locator('.taskview .hbox input').fill('wc_renamed'); await taskButton('Rename').click() }, `document.body.innerText.includes('wc_renamed')`)
+  await F('Macros task > Duplicate', { enabled: true }, async () => { await taskButton('Duplicate').click(); await taskButton('Duplicate').click() },
+    `document.body.innerText.includes('wc_macro (copy)')`)
+  await row('wc_macro (copy)').click()
+  await F('Macros task > Rename', { enabled: true }, async () => { await taskButton('Rename').click(); await page.locator('.taskview .hbox input').fill('wc_renamed'); await taskButton('Rename').click() },
+    `document.body.innerText.includes('wc_renamed')&&!document.body.innerText.includes('wc_macro (copy)')`)
   await F('Macros task > Create', { enabled: true }, async () => { await taskButton('Create').click(); await page.locator('.taskview .hbox input').fill('wc_created'); await page.locator('.taskview .hbox .qbtn.default').click() }, task('macroEdit'))
   await page.locator('.taskview .qbtn', { hasText: /^Close$/ }).first().click()   // back to the list
-  await F('Macro > Recent Macros > wc_macro (runs it)', { enabled: true }, () => clickMenuEntry(entryAt('Macro', 'Recent Macros', 'wc_macro')), `FX.some((f)=>/report:Macro "wc_macro"/.test(f))||FX.length>0`)
-  // Delete asks first; a scratch macro, so Yes is safe here
-  await open()
+  // Delete asks first, and these are scratch macros, so Yes is safe here
+  await row('wc_renamed').click()
   const del = await observe(async () => { await taskButton('Delete').click(); await page.locator('.msgbox .qbtn', { hasText: /^Yes$/ }).click() }, { max: 60000 })
-  await judge('macros', 'Macros task > Delete (answered Yes: a scratch macro)', { enabled: true }, del, `!document.body.innerText.includes('wc_macro (copy)')||true`)
+  await judge('macros', 'Macros task > Delete (answered Yes: a scratch macro)', { enabled: true }, del, `!document.body.innerText.includes('wc_renamed')`)
+  console.log(`macros left in the scratch folder: ${(await names()).join(', ')}`)
   await resetUI('none')
 }
 
@@ -1300,7 +1430,7 @@ async function testDrawing() {
   await resetUI('one')
   await clickMenuEntry(entryAt('CAD Agent', 'Drawing…'))
   await F('Drawing task > Draw (opens the sheet in a tab)', () => taskButton('Draw').click(), `!!${drawing}`, 240000)
-  await walkPanel('drawing tab', '.drawing', () => page.evaluate(() => window.cadui.getDock().panels.find((p) => p.id.startsWith('drawing:'))?.api.setActive()), { max: 60000 })
+  await walkPanel('drawing tab', '.drawing', () => page.evaluate(() => window.cadui.getDock().panels.find((p) => p.id.startsWith('drawing:'))?.api.setActive()), { max: 60000, group: 'drawing' })
   // Windows lists the 3D view and the sheet: each entry brings its window forward
   const labels = (await openMenu('Windows').then(() => readMenuAt(0))).filter((x) => !x.sep && !x.disabled && /^\d /.test(x.label)).map((x) => x.label)
   await closeMenus()
@@ -1417,41 +1547,6 @@ const section = async (name, fn) => {
 }
 async function main() {
   await openFresh()
-  if (ONLY?.includes('idle2')) {      // diagnostics: which kind of click leaves the GPU process busy?
-    const mine = () => spawnSync('sh', ['-c', "ps -axo pid,pcpu,etime,command | grep -i 'chrome-headless-shell' | grep -v grep | grep 'type=gpu' | sort -k3 | head -1 | awk '{print $2}'"]).stdout.toString().trim()
-    const probe = async (what) => { await sleep(2500); console.log(`${what}: gpu ${mine()}%`) }
-    await probe('after load')
-    await openMenu('View'); await probe('View menu open')
-    await closeMenus(); await probe('menu closed by a click at (1490, 12)')
-    await openMenu('View', ['Standard Views']); await probe('sub-menu open')
-    await closeMenus(); await probe('closed')
-    await resetUI('one'); await probe('resetUI one')
-    await clickMenuEntry(entryAt('View', 'Standard Views', 'Front')); await probe('a view command')
-    await clickMenuEntry(entryAt('Edit', 'Preferences')); await probe('preferences open')
-    await resetUI('none'); await probe('reset')
-    await clickMenuEntry(entryAt('Tools', 'Units Converter')); await probe('a task open')
-    await resetUI('none'); await probe('task closed')
-    return
-  }
-  if (ONLY?.includes('idle')) {      // diagnostics: how busy is the browser's GPU process when nothing is going on?
-    const gpu = () => spawnSync('sh', ['-c', "ps -axo pid,pcpu,etime,command | grep -i 'chrome-headless-shell' | grep -v grep | grep 'type=gpu' | awk '{print $1, $2, $3}'"]).stdout.toString().trim()
-    console.log('gpu processes after load (pid cpu etime):\n' + gpu())
-    await sleep(6000)
-    console.log('after 6 s idle:\n' + gpu())
-    await put({ selected: ['hot_plate'] }); await sleep(3000)
-    console.log('after a selection:\n' + gpu())
-    await put({ selected: [] }); await sleep(3000)
-    console.log('after clearing it:\n' + gpu())
-    await put({ animate: true }); await sleep(3000)
-    console.log('animate on again:\n' + gpu())
-    await api('/api/check', { slug: PROJECT })
-    await settle({ min: 500, quiet: 800, max: 240000 })
-    await sleep(2000)
-    console.log('after a check finished:\n' + gpu())
-    await sleep(5000)
-    console.log('5 s later:\n' + gpu())
-    return
-  }
   await section('menus', async () => {
     const inv = await menuInventory()
     console.log(`menus: ${inv.length} entries (${inv.filter((i) => i.sub).length} sub-menus, ${inv.filter((i) => !i.sub && !i.enabledIn.length).length} greyed out in every state)`)
@@ -1464,23 +1559,24 @@ async function main() {
   await section('properties', testProperties)
   await section('panels', testPanels)
   await section('view3d', testView3D)
-  await section('edits', testEdits)
+  await section('customize', testCustomize)
+  await section('customizeflow', testCustomizeFlow)
+  await section('start', testStart)
+  await section('notifications', testNotifications)
+  await section('msgbox', testMessageBox)
+  await section('expression', testExpression)
+  await section('prefs', testPrefs)
+  await section('keyboard', testKeyboardPage)
+  // the ones that wait for a check or a rebuild come last
   await section('tasks', testTasks)
   await section('macros', testMacros)
   await section('library', testLibrary)
-  await section('expression', testExpression)
   await section('drawing', testDrawing)
   await section('evals', testEvals)
   await section('shop', testShop)
   await section('opendoc', testOpenDocument)
   await section('newdoc', testNewDocument)
-  await section('prefs', testPrefs)
-  await section('customize', testCustomize)
-  await section('customizeflow', testCustomizeFlow)
-  await section('keyboard', testKeyboardPage)
-  await section('start', testStart)
-  await section('notifications', testNotifications)
-  await section('msgbox', testMessageBox)
+  await section('edits', testEdits)
 }
 let failed = null
 function summary() {
