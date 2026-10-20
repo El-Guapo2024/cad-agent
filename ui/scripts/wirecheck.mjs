@@ -10,6 +10,7 @@
 //     --only=menus,toolbars,docks,status,tree,properties,panels,view3d,customize,customizeflow,start,notifications,msgbox,
 //            expression,prefs,keyboard,tasks,params,macros,library,drawing,evals,shop,opendoc,newdoc,edits    (default: all)
 //     --top=File,Edit,...    only these menus (with --only=menus)         --task=A|B    only the tasks whose menu path has A or B
+//     --toolbar=A|B          only the toolbar buttons whose name has A or B (with --only=toolbars)
 //     --entry=A|B            only the menu entries whose path has A or B (with --only=menus)
 //     --forms                also the check boxes, radio buttons, combo boxes, colours and sliders of the panels (buttons only otherwise)
 //     --project=NAME         the project the page opens (mini_machine)    --viewport=1400x900
@@ -235,7 +236,7 @@ await page.addInitScript((keepHtml) => {
       return { store, cam, dom: hash(c.innerHTML + '|' + document.body.className + '|' + document.documentElement.className), html: window.__wcKeepHtml ? c.innerHTML : '', lines, ls, msgs: S.messages.length, cons: S.consoleLines.length, lastMsg: S.messages.at(-1)?.text ?? '',
         pdraw: window.__wcPreviewDraws,
         fields: hash([...document.querySelectorAll('input, select, textarea')].map((el) => (el.type === 'checkbox' || el.type === 'radio' ? el.checked : el.value)).join('\u0001')
-          + '|' + (document.activeElement && 'selectionStart' in document.activeElement ? `${document.activeElement.selectionStart}-${document.activeElement.selectionEnd}` : '')),
+          + '|' + [...document.querySelectorAll('textarea, input')].map((el) => { try { return el.selectionStart == null ? '' : `${el.selectionStart}-${el.selectionEnd}` } catch { return '' } }).join(',')),
         consTail: S.consoleLines.slice(-8).map((l) => l.text), url: location.href, fs: !!document.fullscreenElement, selText: (getSelection()?.toString() ?? '').length, wev: ev.length, task: S.task?.kind ?? null }
     },
     events(from) { return ev.slice(from) },
@@ -861,6 +862,7 @@ const TB_SPEC = {
 }
 const key = (b, wb) => `${b.cmd || b.title || b.text}${wb === 'inspection' && b.cmd === 'CADAgent_Verify' ? '@inspection' : ''}`
 TB_SPEC['CADAgent_Verify@inspection'] = { expect: sawReq('POST /api/verify') }
+const ONLY_TB = flag('toolbar', '')
 async function testToolbars() {
   await put({ toolbars: { Clipboard: true, Macro: true, 'Individual Views': true } })
   // which buttons there are depends on the workbench and on what is selected: list them all, test each where it is live
@@ -877,6 +879,7 @@ async function testToolbars() {
   }
   for (const b of seen.values()) {
     const name = (b.title || b.text).split(/ — |: /)[0].slice(0, 60), path = `toolbar > ${name}${b.drop ? ' (drop-down)' : ''}`, meta = { cmd: b.cmd || null, enabled: !b.disabled || b.enabledIn.length > 0 }
+    if (ONLY_TB && !ONLY_TB.split('|').some((t) => name.includes(t))) continue
     const spec = TB_SPEC[key(b, b.enabledIn[0]?.[0])] ?? {}
     if (!b.enabledIn.length && !spec.pre) {
       const why = reasonFor(name, b.title)
@@ -897,7 +900,10 @@ async function testToolbars() {
       // a drop-down: its entries are a menu
       const open = async () => { await (await toolbarButton(b, b.n)).click() }
       // the entries are the menu bar's: a spec of the same name there says what each should do
-      const same = new Proxy({}, { get: (_, path) => (typeof path === 'string' ? menuSpec(path.split(' > ').at(-1)) : undefined) })
+      // (the entries of Undo to… and Redo to… are steps of the journal named after what they did, not the commands of the same name)
+      const own = { 'No Selection Filters': { pre: () => put({ selFilter: 'face' }), expect: 'S.selFilter===null' } }
+      const journal = /^(Undo|Redo) to|^Pose/.test(name)       // (and the poses: Pose > Home puts the machine home, it is not the Home view)
+      const same = new Proxy({}, { get: (_, path) => { if (typeof path !== 'string') return undefined; const last = path.split(' > ').at(-1); return own[last] ?? (journal ? {} : menuSpec(last)) } })
       await testCtx(`toolbar > ${name}`, open, { sel: spec.sel ?? sel, specs: same, prep: async () => { await put({ workbench: wb }); await spec.pre?.() } })
       await spec.post?.()
       continue
@@ -952,7 +958,7 @@ async function useControl(h, c) {
   else await h.click()
 }
 /** Opens a panel with `open`, then uses each live control in it (the ones that close it last). */
-async function walkPanel(surface, root, open, { sel = 'none', fill, skip = () => false, ignore = () => false, expectFor = () => undefined, fresh = false, max = 90000, group = 'tasks' } = {}) {
+async function walkPanel(surface, root, open, { sel = 'none', fill, before, skip = () => false, ignore = () => false, expectFor = () => undefined, fresh = false, max = 90000, group = 'tasks' } = {}) {
   const reopen = async () => { await resetUI(sel); await open(); await settle({ min: 400, quiet: 500, max: 120000 }); await fill?.() }
   await reopen()
   const all = (await listControls(root)).filter((c) => !ignore(c))      // `ignore`: what the list picks up that is not a control (a read-only tree's rows)
@@ -970,6 +976,7 @@ async function walkPanel(surface, root, open, { sel = 'none', fill, skip = () =>
       return note(group, path, { ...meta, enabled: false }, 'N/A', why ? `disabled (${why})` : 'disabled until its fields are filled or its state allows it')
     }
     if (((c.type === 'radio' && c.checked) || c.current) && !again) { later.push({ c, n }); return }
+    await before?.()      // (a task an earlier click opened would make the next one that opens it look like it did nothing)
     // the panel may have closed or changed under the last click: open it again for this one
     let h = await controlHandle(root, c, n)
     if (!h || !(await h.evaluate((el) => el.isConnected).catch(() => false))) { await reopen(); h = await controlHandle(root, c, n) }
@@ -1392,7 +1399,7 @@ async function testStart() {
   await walkPanel('Start page (first start)', '.start-first', open, { fresh: true, group: 'start' })
   await put({}); await page.evaluate(() => localStorage.setItem('cadui.start.firstStart', 'false'))
   await openFresh()
-  await walkPanel('Start page', '.start', open, { fresh: true, group: 'start' })
+  await walkPanel('Start page', '.start', open, { fresh: true, group: 'start', before: () => put({ task: null }) })
 }
 async function testNotifications() {
   const warn = async () => { await page.evaluate(() => { window.__wcBlockOpen = true }); await clickMenuEntry(entryAt('File', 'Print')); await settle({ min: 600, quiet: 600 }) }
@@ -1629,7 +1636,7 @@ async function testExpression() {
   await opened()
   await F('Reset (leaves the value as it was)', () => page.locator('.expr-buttons .qbtn', { hasText: /^Reset$/ }).click(), `!document.querySelector('.expr-dlg')`)
   await opened()
-  await testCtx('expression editor > menu', async () => { await page.locator('.expr-text').click({ button: 'right' }) }, { specs: { 'Exact Match': { expect: 'true' } },
+  await testCtx('expression editor > menu', async () => { await page.locator('.expr-text').click({ button: 'right' }) }, { specs: { 'Select All': { pre: () => page.locator('.expr-text').press('End'), expect: `(()=>{const t=document.querySelector('.expr-text');return t.selectionStart===0&&t.selectionEnd===t.value.length&&t.value.length>0})()` }, 'Exact Match': { expect: 'true' } },
     prep: async () => { await resetUI('one'); await clickMenuEntry(entryAt('Edit', 'Placement')); await opened() } })
   await resetUI('none')
 }
