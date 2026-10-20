@@ -80,7 +80,9 @@ button, select, input { font: inherit; color: inherit; }
   background: linear-gradient(var(--btn-top), var(--btn-bottom)); }
 
 /* ── docks (dockview, styled as QDockWidget + QTabBar) ── */
-.dock { flex: 1; min-height: 0; position: relative; }
+/* isolation: dockview puts its floating (overlay) panels at z-index 999 + 2 per panel, which beat the menus' 1000 from the second panel on:
+   a menu opened over an overlay panel had that panel on top of it. The dock is one stacking context now, below everything drawn over it. */
+.dock { flex: 1; min-height: 0; position: relative; isolation: isolate; }
 .dock .dockview-theme-light {
   --dv-group-view-background-color: var(--primary);
   --dv-tabs-and-actions-container-background-color: var(--primary);
@@ -778,6 +780,9 @@ input[type=range]:disabled::-webkit-slider-runnable-track { background: var(--da
    dockview's .dv-resize-container). */
 .tree .ticon, .tree .teye .ico { width: var(--tree-icon, 16px); height: var(--tree-icon, 16px); }
 .tree .trow { min-height: calc(var(--tree-icon, 16px) + 2px); height: auto; }
+/* a list in a task (the Macros task's: name, then "3 lines · date") whose second column wraps in the narrow panel: its rows grow with the text
+   instead of spilling over the buttons below them, which then could not be clicked */
+.tform > .trow { height: auto; min-height: 18px; }
 .tree .thead span { position: relative; }
 .tgrip { position: absolute; top: 0; right: -3px; width: 6px; height: 100%; cursor: col-resize; z-index: 2; }
 .dv-resize-container .tree.ovl-nohead .thead { display: none; }

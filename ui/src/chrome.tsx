@@ -630,8 +630,9 @@ export function ContextMenu({ at, entries, onClose, onLeave }: { at: { x: number
   const h = entries.length * 25 + 8
   const style = { left: Math.max(0, Math.min(at.x, innerWidth - 250)), top: Math.max(0, Math.min(at.y, innerHeight - h)) }
   return createPortal(
-    // (drawn in a portal, so React would send a right click on the menu up to whatever opened it, which would open its menu as well)
-    <div className="mb-content ctx" style={style} onContextMenu={(e) => { e.preventDefault(); e.stopPropagation() }} onMouseLeave={onLeave}>
+    // (drawn in a portal, so React would send a click on the menu up to whatever opened it: a right click would open that one's menu as
+    // well, and a click on Select All in the console would be followed by the console's own click, which puts the focus in its input)
+    <div className="mb-content ctx" style={style} onContextMenu={(e) => { e.preventDefault(); e.stopPropagation() }} onClick={(e) => e.stopPropagation()} onMouseLeave={onLeave}>
       {entries.map((e, i) => <CtxEntry key={i} e={e} close={onClose} />)}
     </div>, document.body)
 }
