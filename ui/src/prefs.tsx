@@ -698,7 +698,8 @@ const page = (name: string): ReactNode => (name === 'Selection' ? <SelectionPage
 /** What Cancel puts back: the app's own saved settings and the store fields the pages edit. */
 const PREF_KEYS = ['nav', 'animate', 'cube', 'navPrefs', 'homeView', 'newDocCameraScale', 'units', 'corner', 'axes', 'axisColors',
   'showFPS', 'naviCube', 'cubePos', 'rotationCenter', 'disableTouchTilt', 'recordGuiCommands', 'guiAsComment', 'notifyPrefs', 'tree',
-  'background', 'treeEditColor', 'lights', 'selPrefs', 'treeUI', 'editorPrefs', 'overlayPrefs', 'shortcuts', 'shortcutTimeout', 'wbPrefs', 'scriptToPyConsole'] as const
+  'background', 'treeEditColor', 'lights', 'selPrefs', 'treeUI', 'editorPrefs', 'overlayPrefs', 'shortcuts', 'shortcutTimeout', 'wbPrefs', 'scriptToPyConsole',
+  'reportShow', 'reportTimecode'] as const
 function snapshot() {
   const s = getState() as unknown as Record<string, unknown>
   const saved: Record<string, string | null> = {}
@@ -714,6 +715,7 @@ function restore(snap: ReturnType<typeof snapshot>) {
   const { units, ...rest } = snap.state as Record<string, unknown>
   setState(rest as never)
   setUnits(units as never)
+  applyReportColors()      // the Report view's colours are CSS variables set from the saved setting
 }
 
 /** DlgPreferencesImp::onButtonResetClicked: Reset Page '…', Reset Group '…', Reset All (asks first). */

@@ -140,6 +140,8 @@ export function MacrosTask() {
   const load = () => api.macros().then((r) => setRows(r.macros)).catch((e) => report('err', `Macros: ${msg(e)}`))
   useEffect(() => { load() }, [])
   const one = rows.find((r) => r.name === sel) ?? null
+  // the name Duplicate offers: a macro's name is letters, digits, space, - and _ only (cad_agent/macro.py), so no "(copy)"; the first one not taken
+  const copyName = (name: string) => { let n = `${name}_copy`, i = 2; while (rows.some((r) => r.name === n)) n = `${name}_copy${i++}`; return n }
   const execute = async () => {
     if (!one) return
     await runMacroToConsole(one.name)
@@ -200,7 +202,7 @@ export function MacrosTask() {
             <button className="qbtn" disabled={!one || busy} onClick={del}>Delete</button>
             <button className="qbtn" disabled={!one} onClick={() => openTask('macroEdit', one!.name)}>Edit</button>
             <button className="qbtn" disabled={!one || busy} onClick={() => setPrompt({ kind: 'rename', value: one!.name })}>Rename</button>
-            <button className="qbtn" disabled={!one || busy} onClick={() => setPrompt({ kind: 'duplicate', value: `${one!.name} (copy)` })}>Duplicate</button>
+            <button className="qbtn" disabled={!one || busy} onClick={() => setPrompt({ kind: 'duplicate', value: copyName(one!.name) })}>Duplicate</button>
           </div>
         </div>
         {!slug && <p className="hint">Execute needs an open project (macros carry an explicit project name, but run against the one open here).</p>}

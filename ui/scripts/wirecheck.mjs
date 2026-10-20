@@ -24,8 +24,12 @@
 // What it does to a control: it puts the page in a known state (a selection, a quiet camera), clicks the control the way a person
 // does (a menu is opened, a sub-menu hovered, then the entry clicked), waits for the page to be quiet, and compares a fingerprint
 // of the page before and after: the store (selection, task, draw style, ...), the camera, the DOM, the Report view and console
-// lines, localStorage, the /api calls the page made, downloads, pop-ups and clipboard writes. An entry with an expectation
-// (the camera looks the way FreeCAD's Camera.cpp says a Front view does, the store has `drawStyle: wireframe`) must also meet it.
+// lines, localStorage, the /api calls the page made, downloads, pop-ups and clipboard writes, the values and selected text of the
+// fields, a link to another tab, the draws of a dialog's preview, the state the view keeps for itself (the NaviCube's movable flag,
+// the Transform dragger) and a menu entry's check mark flipping. An entry with an expectation (the camera looks the way FreeCAD's
+// Camera.cpp says a Front view does, the store has `drawStyle: wireframe`) must also meet it. A right click that opens two menus,
+// or the menu of the surface it sits in, is WRONG as well. Everything takes about an hour and a half on SwiftShader (the menus a
+// quarter of it, the task panels another quarter), so --only picks the part to look at; the sections do not depend on each other.
 //
 // Classes (the summary is at the end of the output; the exit code is 1 when there is a NO-OP, ERROR or WRONG):
 //   WORKS  it did what its label says (a camera turn, a store change, a task or dialog, a /api call, a download, a Report line)
@@ -814,10 +818,12 @@ const toolbarButton = async (b, nth = 0) => (await page.evaluateHandle(({ title,
 }, { title: b.title, text: b.text, cmd: b.cmd || '', drop: !!b.drop, nth })).asElement()
 const api = (path, body) => page.evaluate(async ([p, b]) => (await fetch(p, { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CAD': '1' }, body: JSON.stringify(b) })).json(), [path, body])
 /** An edit the journal can undo (a hand move through `cad place`, as the Placement task writes it). */
+let editSeq = 0
 async function makeEdit(n = 1) {
   const have = await getS('S.undo.length')
   let answer
-  for (let i = 0; i < n; i++) answer = await api('/api/place', { slug: PROJECT, body: 'hot_plate', move: [2 + i, 0, 0], turn: [0, 0, 0], about: [0, 0, 0] })
+  // a different move each time: a change that undoing just took back is not recorded again as a new step
+  for (let i = 0; i < n; i++) answer = await api('/api/place', { slug: PROJECT, body: 'hot_plate', move: [1 + 0.5 * ++editSeq, 0, 0], turn: [0, 0, 0], about: [0, 0, 0] })
   try { await page.waitForFunction((k) => window.cadui.getState().undo.length >= k, have + n, { timeout: 120000 }) } catch {
     throw new Error(`the journal did not grow in the page (it had ${have} steps; \`place\` answered exit ${answer?.exit} ${String(answer?.error ?? answer?.stderr ?? '').slice(0, 120)})`)
   }
@@ -1346,7 +1352,7 @@ async function testPrefs() {
   const opened = async () => { await open() }
   await resetUI()
   await testPrefButtons(open)
-  await clickOne('Preferences', 'search results (click a hit)', { enabled: true }, L('.pref-dlg .pref-hit'), { pre: async () => { await open(); await page.locator('.pref-dlg input[type=search]').fill('Navigation'); await sleep(300) }, expect: `document.querySelector('.pref-header').textContent!=='General'`, post: () => resetUI() })
+  await clickOne('Preferences', 'search results (click a hit)', { enabled: true }, L('.pref-dlg .pref-hit'), { pre: async () => { await open(); await page.locator('.pref-dlg input[type=search]').first().fill('Navigation'); await sleep(300) }, expect: `document.querySelector('.pref-header').textContent!=='General'`, post: () => resetUI() })
   await testCtx('Preferences > Reset menu', async () => { await page.locator('.pref-dlg .pref-side > .qbtn').click() }, { prep: opened, specs: {
     "Reset Page 'General'": { expect: 'true' }, "Reset Group 'General'": { expect: 'true' }, 'Reset All': { expect: `!!document.querySelector('.msgbox')` } } })
   await resetUI()
@@ -1536,11 +1542,11 @@ async function testMacros() {
   await F('Macro edit task > Save', { enabled: true }, () => taskButton('Save').click(), task('macros'))
   await open()
   await F('Macros task > Duplicate', { enabled: true }, async () => { await taskButton('Duplicate').click(); await taskButton('Duplicate').click() },
-    `document.body.innerText.includes('wc_macro (copy)')`)
-  await row('wc_macro (copy)').click()
+    `document.body.innerText.includes('wc_macro_copy')`)
+  await row('wc_macro_copy').click()
   await F('Macros task > Rename', { enabled: true }, async () => { await taskButton('Rename').click(); await page.locator('.taskview .hbox input').fill('wc_renamed'); await taskButton('Rename').click() },
-    `document.body.innerText.includes('wc_renamed')&&!document.body.innerText.includes('wc_macro (copy)')`)
-  await F('Macros task > Create', { enabled: true }, async () => { await taskButton('Create').click(); await page.locator('.taskview .hbox input').fill('wc_created'); await page.locator('.taskview .hbox .qbtn.default').click() }, task('macroEdit'))
+    `document.body.innerText.includes('wc_renamed')&&!document.body.innerText.includes('wc_macro_copy')`)
+  await F('Macros task > Create', { enabled: true }, async () => { await taskButton('Create').click(); await page.locator('.taskview .hbox input').fill('wc_created'); await page.locator('.taskview .hbox', { has: page.locator('input') }).locator('.qbtn.default').click() }, task('macroEdit'))
   await page.locator('.taskview .qbtn', { hasText: /^Close$/ }).first().click()   // back to the list
   // Delete asks first, and these are scratch macros, so Yes is safe here
   await row('wc_renamed').click()
