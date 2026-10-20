@@ -18,6 +18,7 @@ projects/*/.cad/
 
 # The live viewer's current export, and what a CI verify writes into fixtures
 tests/fixtures/*/out/
+tests/fixtures/.cad/
 tests/fixtures/*/.cad/
 tests/fixtures/*/checks.json
 tests/fixtures/*/verify.json
