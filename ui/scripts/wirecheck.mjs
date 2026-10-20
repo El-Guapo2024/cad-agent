@@ -8,8 +8,8 @@
 //
 //   node ui/scripts/wirecheck.mjs [URL PROJECTS_ROOT] [options]
 //     --only=menus,toolbars,docks,status,tree,properties,panels,view3d,customize,customizeflow,start,notifications,msgbox,
-//            expression,prefs,keyboard,tasks,macros,library,drawing,evals,shop,opendoc,newdoc,edits    (default: all)
-//     --top=File,Edit,...    only these menus (with --only=menus)         --task=TEXT   only the tasks whose menu path has TEXT
+//            expression,prefs,keyboard,tasks,params,macros,library,drawing,evals,shop,opendoc,newdoc,edits    (default: all)
+//     --top=File,Edit,...    only these menus (with --only=menus)         --task=A|B    only the tasks whose menu path has A or B
 //     --entry=A|B            only the menu entries whose path has A or B (with --only=menus)
 //     --forms                also the check boxes, radio buttons, combo boxes, colours and sliders of the panels (buttons only otherwise)
 //     --project=NAME         the project the page opens (mini_machine)    --viewport=1400x900
@@ -132,8 +132,12 @@ const page = await ctx.newPage()
 page.setDefaultTimeout(8000)
 page.on('pageerror', (e) => errs.push(`pageerror: ${e.message}`))
 page.on('console', (m) => { if (m.type() === 'error' && !/favicon|Failed to load resource/.test(m.text())) errs.push(`console: ${m.text()}`) })
-let dialogMode = 'dismiss', fileAnswer = []    // what a confirm() and a file chooser are told, set by the entry under test
-page.on('dialog', async (d) => { events.push(`dialog:${d.type()}`); await (dialogMode === 'accept' ? d.accept() : d.dismiss()).catch(() => {}) })
+let dialogMode = 'dismiss', fileAnswer = [], promptAnswers = []    // what a confirm(), a file chooser and (in order) a prompt() are told, set by the entry under test
+page.on('dialog', async (d) => {
+  events.push(`dialog:${d.type()}`)
+  if (d.type() === 'prompt' && promptAnswers.length) return d.accept(promptAnswers.shift()).catch(() => {})
+  await (dialogMode === 'accept' ? d.accept() : d.dismiss()).catch(() => {})
+})
 page.on('download', async (d) => { events.push(`download:${d.suggestedFilename()}`); try { await d.saveAs(join(OUT, d.suggestedFilename())) } catch { /* cancelled */ } })
 page.on('filechooser', async (fc) => { events.push('filechooser'); await fc.setFiles(fileAnswer).catch(() => {}) })
 ctx.on('page', (pg) => { if (pg !== page) { events.push('popup'); pg.close().catch(() => {}) } })
@@ -202,6 +206,7 @@ await page.addInitScript((keepHtml) => {
       store.checks = hash(JSON.stringify([S.checks?.written_utc, S.checks?.rows?.length ?? null]))
       store.status = hash(JSON.stringify(S.status ?? null))
       const v = window.cadui.getView?.(), pr = v?.probe?.()
+      store['view.cubeDraggable'] = String(!!v?.isCubeDraggable?.())      // held by the view, not the store: the NaviCube menu's Movable Navigation Cube
       const cam = pr ? hash(JSON.stringify([pr.ortho, pr.camera.map((x) => +x.toFixed(4)), pr.position.map((x) => +x.toFixed(2)), +pr.zoom.toFixed(3), pr.target.map((x) => +x.toFixed(2))])) : 0
       const c = document.body.cloneNode(true)
       c.querySelectorAll('.fc-tooltip, canvas').forEach((n) => n.remove())
@@ -213,6 +218,7 @@ await page.addInitScript((keepHtml) => {
       try { for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i); if (k.startsWith('cadui.')) ls[k.slice(6)] = hash(localStorage.getItem(k)) } } catch { /* no storage */ }
       const lines = document.body.innerText.split('\n').map((x) => x.trim()).filter(Boolean)
       return { store, cam, dom: hash(c.innerHTML + '|' + document.body.className + '|' + document.documentElement.className), html: window.__wcKeepHtml ? c.innerHTML : '', lines, ls, msgs: S.messages.length, cons: S.consoleLines.length, lastMsg: S.messages.at(-1)?.text ?? '',
+        fields: hash([...document.querySelectorAll('input, select, textarea')].map((el) => (el.type === 'checkbox' || el.type === 'radio' ? el.checked : el.value)).join('\u0001')),
         consTail: S.consoleLines.slice(-8).map((l) => l.text), url: location.href, fs: !!document.fullscreenElement, selText: (getSelection()?.toString() ?? '').length, wev: ev.length, task: S.task?.kind ?? null }
     },
     events(from) { return ev.slice(from) },
@@ -271,6 +277,7 @@ async function observe(act, opts = {}) {
   const real = added.filter((l) => !/^# cad gui run \S+ (Std|CADAgent|Start|Part)_\w+/.test(l))
   if (b.cons !== a.cons && real.length) fx.push(`console:${real.at(-1).slice(0, 70)}`)
   for (const k of new Set([...Object.keys(a.ls), ...Object.keys(b.ls)])) if (a.ls[k] !== b.ls[k]) fx.push(`saved:${k}`)
+  if (a.fields !== b.fields) fx.push('fields')
   if (a.url !== b.url) fx.push('url')
   if (a.fs !== b.fs) fx.push('fullscreen')
   if (a.selText !== b.selText) fx.push('text selection')      // Select All in the Report view or the console selects text, which changes no DOM
@@ -387,12 +394,14 @@ async function answerNo() {
 }
 /** Puts the page back the way a person leaves it between two clicks: menus, dialogs and tasks closed, then a selection. */
 async function resetUI(sel = 'none') {
+  promptAnswers.length = 0; dialogMode = 'dismiss'
   await closeMenus()
   await page.evaluate(() => document.activeElement?.blur?.())
   for (let i = 0; i < 5; i++) {
-    const open = await getS('({ p: S.prefsOpen, c: S.customizeOpen, t: !!S.task, m: document.querySelectorAll(".msgbox").length, w: document.body.classList.contains("whats-this-cursor"), b: !!document.querySelector(".box-select") })')
-    if (!open.p && !open.c && !open.t && !open.m && !open.w && !open.b) break
+    const open = await getS('({ p: S.prefsOpen, c: S.customizeOpen, t: !!S.task, m: document.querySelectorAll(".msgbox").length, w: document.body.classList.contains("whats-this-cursor"), b: !!document.querySelector(".box-select"), x: !!document.querySelector(".expr-dlg") })')
+    if (!open.p && !open.c && !open.t && !open.m && !open.w && !open.b && !open.x) break
     if (open.m) await answerNo()
+    else if (open.x) await page.locator('.expr-dlg .expr-buttons .qbtn', { hasText: /^Reset$/ }).click()      // the Expression Editor's way out without a value
     else if (open.p) await page.locator('.pref-dlg .pref-buttons .qbtn', { hasText: /^Cancel$/ }).click()
     else if (open.c) await page.locator('.cu-dlg .qbtn', { hasText: /^Close$/ }).click()
     else if (open.w || open.b) await page.keyboard.press('Escape')
@@ -402,15 +411,19 @@ async function resetUI(sel = 'none') {
     }
     await sleep(150)
   }
-  if (baseline) await page.evaluate(([base, selection]) => {
-    const S = window.cadui.getState(), V = window.cadui.getView()
-    if (S.pose) V?.setPose(null)
-    if (S.ortho !== base.ortho) V?.setOrtho(base.ortho)
-    if (window.__cam0 && V && V.getCamera() !== window.__cam0) V.setCamera(window.__cam0)
-    const { recordingMacro, ...rest } = base       // a macro being recorded is stopped through its own menu entry, not here
-    window.cadui.setState({ ...rest, ...selection })
-  }, [baseline, SELECTION[sel]])
-  else await put({ ...SELECTION[sel], treeFilter: null })
+  if (baseline) {
+    const turned = await page.evaluate(([base, selection]) => {
+      const S = window.cadui.getState(), V = window.cadui.getView()
+      let turned = false
+      if (S.pose) V?.setPose(null)
+      if (S.ortho !== base.ortho) V?.setOrtho(base.ortho)
+      if (window.__cam0 && V && V.getCamera() !== window.__cam0) { V.setCamera(window.__cam0); turned = true }
+      const { recordingMacro, ...rest } = base       // a macro being recorded is stopped through its own menu entry, not here
+      window.cadui.setState({ ...rest, ...selection })
+      return turned
+    }, [baseline, SELECTION[sel]])
+    if (turned) await page.evaluate(() => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r))))   // the picking reads the frame drawn last
+  } else await put({ ...SELECTION[sel], treeFilter: null })
 }
 
 // ── menus: reading them, walking to an entry, clicking it ───────────────────────────────────────────────────────────
@@ -731,9 +744,19 @@ async function clickCtxEntry(open, e) {
   await box.locator(':scope > *').nth(it.i).click()
 }
 /** Every entry of one right-click menu or drop-down, tested like a menu bar entry. `spec` is keyed by the entry's path. */
-async function testCtx(surface, open, { sel = 'none', specs = {}, prep } = {}) {
+async function testCtx(surface, open, { sel = 'none', specs = {}, prep, labels } = {}) {
   await resetUI(sel); await prep?.()
+  // one right click opens one menu: a portal's events go up to the surface it was opened from, which can open its own menu over it
+  await closeMenus(); await open(); await sleep(200)
+  const stacked = await page.locator('body > .ctx').count()
+  await closeMenus()
+  if (stacked > 1) note('context', surface, { enabled: true }, 'WRONG', `${stacked} menus open at once`)
   const inv = await inventoryCtx(open)
+  if (labels) {      // the menu must be this surface's own: a right click can open the menu of something it sits in
+    const top = inv.filter((e) => e.path.length === 1).map((e) => e.label)
+    const missing = labels.filter((l) => !top.includes(l)), extra = top.filter((l) => !labels.includes(l))
+    if (missing.length || extra.length) note('context', surface, { enabled: true }, 'WRONG', `the menu has ${top.join(', ') || 'no entries'}; expected ${labels.join(', ')}`)
+  }
   for (const e of inv) {
     const path = `${surface} > ${e.path.join(' > ')}`, meta = { cmd: e.cmd || null, enabled: !e.disabled }
     if (e.sub) { note('context', path, meta, e.disabled ? 'N/A' : 'WORKS', 'opens its sub-menu'); continue }
@@ -864,7 +887,9 @@ const listControls = (root) => page.evaluate(([rootSel, sel]) => {
   if (!r) return []
   return [...r.querySelectorAll(sel)].map((el) => ({ tag: el.tagName.toLowerCase(), role: el.getAttribute('role') || '', type: el.type || '', text: (el.textContent || '').trim().replace(/\s+/g, ' ').slice(0, 40),
     title: el.getAttribute('title') || el.getAttribute('data-fc-title') || el.closest('[title]')?.getAttribute('title') || '', disabled: el.disabled === true || el.getAttribute('aria-disabled') === 'true',
-    checked: el.checked ?? null, combo: el.getAttribute('role') === 'combobox', native: el.tagName === 'SELECT', label: el.closest('label')?.textContent?.trim().slice(0, 40) ?? '' }))
+    checked: el.checked ?? null, combo: el.getAttribute('role') === 'combobox', native: el.tagName === 'SELECT', label: el.closest('label')?.textContent?.trim().slice(0, 40) ?? '',
+    current: (el.getAttribute('role') === 'tab' || el.classList.contains('trow')) && (el.getAttribute('aria-selected') === 'true' || el.classList.contains('sel') || el.classList.contains('on')),
+    row: el.classList.contains('trow') }))
 }, [root, CONTROLS])
 const controlId = (c) => `${c.tag}${c.type ? ':' + c.type : ''}|${c.role}|${c.text}|${c.title}|${c.label}`
 /** The element of the n-th control with this identity (the panel's DOM changes as controls are used, so it is found again each time). */
@@ -893,10 +918,10 @@ async function useControl(h, c) {
   else await h.click()
 }
 /** Opens a panel with `open`, then uses each live control in it (the ones that close it last). */
-async function walkPanel(surface, root, open, { sel = 'none', fill, skip = () => false, expectFor = () => undefined, fresh = false, max = 90000, group = 'tasks' } = {}) {
+async function walkPanel(surface, root, open, { sel = 'none', fill, skip = () => false, ignore = () => false, expectFor = () => undefined, fresh = false, max = 90000, group = 'tasks' } = {}) {
   const reopen = async () => { await resetUI(sel); await open(); await settle({ min: 400, quiet: 500, max: 120000 }); await fill?.() }
   await reopen()
-  const all = await listControls(root)
+  const all = (await listControls(root)).filter((c) => !ignore(c))      // `ignore`: what the list picks up that is not a control (a read-only tree's rows)
   const counts = new Map(), plan = []
   for (const c of all) { const id = controlId(c), n = counts.get(id) ?? 0; counts.set(id, n + 1); plan.push({ c, n }) }
   // the ones that close the panel go last, so one visit shows the rest
@@ -909,12 +934,16 @@ async function walkPanel(surface, root, open, { sel = 'none', fill, skip = () =>
       const why = reasonFor(name, c.title)
       return note(group, path, { ...meta, enabled: false }, 'N/A', why ? `disabled (${why})` : 'disabled until its fields are filled or its state allows it')
     }
-    if (c.type === 'radio' && c.checked && !again) { later.push({ c, n }); return }
+    if (((c.type === 'radio' && c.checked) || c.current) && !again) { later.push({ c, n }); return }
     // the panel may have closed or changed under the last click: open it again for this one
     let h = await controlHandle(root, c, n)
-    if (!h) { await reopen(); h = await controlHandle(root, c, n) }
+    if (!h || !(await h.evaluate((el) => el.isConnected).catch(() => false))) { await reopen(); h = await controlHandle(root, c, n) }
     if (!h) return note(group, path, meta, 'N/A', 'not there any more after the earlier clicks')
-    const o = await observe(() => useControl(h, c), { max, restore: false })
+    let o = await observe(() => useControl(h, c), { max, restore: false })
+    if (o.threw && /not attached|detached/i.test(o.threw)) {      // the panel drew again between finding the control and clicking it
+      await reopen(); h = await controlHandle(root, c, n)
+      if (h) o = await observe(() => useControl(h, c), { max, restore: false })
+    }
     await judge(group, path, meta, o, expectFor(c))
     // never leave a question open: its answer is a person's
     await answerNo()
@@ -922,7 +951,7 @@ async function walkPanel(surface, root, open, { sel = 'none', fill, skip = () =>
   for (const item of plan) await one(item, false)
   for (const item of later) {
     const h = await controlHandle(root, item.c, item.n)
-    if (h && !(await h.evaluate((el) => el.checked))) await one(item, true)
+    if (h && !(await h.evaluate((el) => el.checked === true || el.classList.contains('sel') || el.getAttribute('aria-selected') === 'true'))) await one(item, true)
     else note(group, `${surface} > ${controlName(item.c)}`, { cmd: null, enabled: true }, 'N/A', 'the choice already made, and the only one of its group')
   }
   if (fresh) await openFresh()
@@ -1045,7 +1074,9 @@ async function testProperties() {
   await testCtx('properties > menu', open, { sel: 'one', prep: data,
     specs: { Copy: { expect: `FX.includes('clipboard')` },
       'Expand/Collapse Properties > Expand to Default': { pre: foldAll, expect: `document.querySelectorAll('.pgrid .prow').length>3` },
-      'Expand/Collapse Properties > Default Expand': { pre: sub('Auto Expand'), expect: `JSON.parse(localStorage.getItem('cadui.props.expandMode')||'"default"')==='default'` },
+      // Default Expand is the current choice until another is made: the click that makes another one is its set-up, and the page starts again without it
+      'Expand/Collapse Properties > Default Expand': { pre: sub('Auto Expand'), expect: `JSON.parse(localStorage.getItem('cadui.props.expandMode')||'"default"')==='default'`,
+        post: () => page.evaluate(() => localStorage.removeItem('cadui.props.expandMode')), fresh: true },
       'Expand/Collapse Properties > Auto Expand': { expect: `JSON.parse(localStorage.getItem('cadui.props.expandMode')||'"default"')==='auto-expand'` },
       'Expand/Collapse Properties > Auto Collapse': { expect: `JSON.parse(localStorage.getItem('cadui.props.expandMode')||'"default"')==='auto-collapse'` } } })
 }
@@ -1089,14 +1120,22 @@ async function testPanels() {
 const runConsoleLine = (line) => page.evaluate((l) => { window.cadui.setState({ consoleDraft: l }); return true }, line)
 
 // ── the navigation cube and the 3D view ─────────────────────────────────────────────────────────────────────────────────
-const bodyPoint = (name) => page.evaluate((n) => {
-  const v = window.cadui.getView(), r = document.querySelector('.view3d-host').getBoundingClientRect()
-  for (let gy = 0.2; gy < 0.9; gy += 0.04) for (let gx = 0.1; gx < 0.8; gx += 0.04) {
-    const x = r.left + r.width * gx, y = r.top + r.height * gy
-    if (v.picksAt({ x, y }, 1)[0]?.body === n) return [x, y]
+const bodyPoint = async (name) => {
+  for (let i = 0; i < 6; i++) {      // a frame or two after a view change, the picking still sees the one before
+    const at = await page.evaluate((n) => {
+      const v = window.cadui.getView(), r = document.querySelector('.view3d-host').getBoundingClientRect()
+      for (let gy = 0.2; gy < 0.9; gy += 0.04) for (let gx = 0.1; gx < 0.8; gx += 0.04) {
+        const x = r.left + r.width * gx, y = r.top + r.height * gy
+        const hit = v.picksAt({ x, y }, 1)[0]?.body
+        if (n ? hit === n : hit) return [x, y]
+      }
+      return null
+    }, name)
+    if (at) return at
+    await sleep(250)
   }
   return null
-}, name)
+}
 const emptyPoint = () => page.evaluate(() => {
   const v = window.cadui.getView(), r = document.querySelector('.view3d-host').getBoundingClientRect()
   for (const [gx, gy] of [[0.05, 0.9], [0.05, 0.5], [0.3, 0.92], [0.05, 0.2]]) {
@@ -1114,8 +1153,13 @@ async function testView3D() {
   await T('click on empty space clears the selection', { pre: () => put({ selected: ['hot_plate'] }), expect: 'S.selected.length===0' }, async () => { const [x, y] = await emptyPoint(); return { click: () => page.mouse.click(x, y) } })
   await T('double-click on a part edits it', { dbl: true, expect: `S.task?.kind==='params'||S.task?.kind==='transform'` }, atBody('hot_plate'))
   const menuOn = (name) => async () => {
-    const pt = name ? await bodyPoint(name) : await emptyPoint()
+    // an entry's set-up may have turned the view until the part is behind another: any part's menu has the same view entries
+    const pt = name ? (await bodyPoint(name)) ?? (await bodyPoint(null)) : await emptyPoint()
     if (!pt) throw new Error(`no spot on ${name ?? 'empty space'} to right-click`)
+    // FreeCAD opens the menu of the object preselected last (NavigationStyle::openPopupMenu), which a pointer that has just arrived has not changed yet
+    await page.mouse.move(pt[0] - 2, pt[1] - 2); await page.mouse.move(pt[0], pt[1])
+    await page.waitForFunction((n) => { const p = window.cadui.getState().preselected; return n ? !!p : !p }, name ?? null, { timeout: 4000 }).catch(() => {})
+    await sleep(100)
     await page.mouse.click(pt[0], pt[1], { button: 'right' })
   }
   const viewSpecs = {
@@ -1160,7 +1204,8 @@ const TASKS = [
   ['File > Export…', { sel: 'one' }],
   ['File > Document Information', {}],
   ['Edit > Transform', { sel: 'one' }],
-  ['Edit > Placement', { sel: 'one' }],
+  // Apply Axial moves the part along the axis by what the Axial field says, which is 0 until it is filled in
+  ['Edit > Placement', { sel: 'one', fill: async () => { const f = page.locator('.taskview label.tfield', { hasText: /^Axial/ }).locator('input').first(); await f.fill('5 mm'); await f.press('Tab') } }],
   ['Edit > Align To…', { sel: 'two' }],
   ['Edit > Toggle Edit Mode', { sel: 'one' }],
   ['View > Clipping View', {}],
@@ -1168,9 +1213,10 @@ const TASKS = [
   ['Tools > Measure', { sel: 'two' }],
   ['Tools > Mass Properties', { sel: 'one' }],
   ['Tools > Units Converter', {}],
-  ['Tools > Save Image…', {}],
+  // the Screen ratio sets the height from the width: it only shows once the height is something else
+  ['Tools > Save Image…', { fill: async () => { const f = page.locator('.taskview label.tfield', { hasText: /^Height/ }).locator('input').first(); await f.fill('111'); await f.press('Tab') } }],
   ['Tools > View Turntable', {}],
-  ['Tools > Scene Inspector', {}],
+  ['Tools > Scene Inspector', { ignore: (c) => c.row || c.text === 'Refresh' }],      // its rows only fold (the twisty is tried below); a click on the row itself selects nothing
   ['Tools > Dependency Graph', {}],
   ['Tools > Edit Parameters', {}],
   // Macro > Record Macro is in testMacros: its Record button starts a recording that has to be stopped from the Macro menu
@@ -1194,12 +1240,60 @@ const TASKS = [
 ]
 async function testTasks() {
   for (const [path, opts] of TASKS) {
-    if (ONLY_TASK && !path.includes(ONLY_TASK)) continue
+    if (ONLY_TASK && !ONLY_TASK.split('|').some((t) => path.includes(t))) continue
     const parts = path.split(' > ')
     await walkPanel(`task: ${parts.at(-1)}`, '.taskview', openByMenu(...parts), { ...opts, max: 120000 })
+    if (path === 'Tools > Scene Inspector') {
+      await clickOne('tasks', 'task: Scene Inspector > a node\'s twisty (folds it)', { enabled: true }, L('.taskview .trow .twisty.open'), { pre: openByMenu('Tools', 'Scene Inspector'), expect: `!!document.querySelector('.taskview .trow .twisty:not(.open)')` })
+      // the inspector reads the 3D scene when it opens and when Refresh is pressed: a measure line added meanwhile shows with Refresh
+      await clickOne('tasks', 'task: Scene Inspector > Refresh', { enabled: true }, L('.taskview .qbtn', { hasText: /^Refresh$/ }), {
+        pre: async () => {
+          await openByMenu('Tools', 'Scene Inspector')(); await settle({ min: 300, quiet: 300 })
+          await page.evaluate(() => { window.__rows0 = document.querySelectorAll('.taskview .trow').length; window.cadui.getView().showMeasure([[0, 0, 0], [50, 0, 0]]) })
+        },
+        expect: `document.querySelectorAll('.taskview .trow').length>window.__rows0`, post: () => page.evaluate(() => window.cadui.getView().showMeasure(null)) })
+    }
   }
 }
 const ONLY_TASK = flag('task', '')
+
+// ── Tools > Edit Parameters: its groups, items and their menus ────────────────────────────────────────────────────────────
+/** The editor shows the page's saved settings as groups and items. An item and a group made here (a "custom" one) can be renamed and removed;
+ *  the page's own settings cannot. `cadui.custom` is seeded with one of each, so that both kinds of entry are enabled for a click. */
+async function testParameterEditor() {
+  const seed = () => page.evaluate(() => localStorage.setItem('cadui.custom', JSON.stringify({ 'wcgroup/wcitem': { t: 'text', v: 'hello' } })))
+  const open = async () => { await resetUI('none'); await seed(); await clickMenuEntry(entryAt('Tools', 'Edit Parameters')); await page.locator('.taskview .tree .trow').first().waitFor() }
+  const rows = () => page.locator('.taskview .tree .trow')
+  const customRow = () => rows().filter({ hasText: 'wcgroup' }).first()
+  const leafRow = () => page.locator('.taskview .pgrid .prow', { hasText: 'wcitem' }).first()
+  const T = (path, locate, spec) => clickOne('parameter editor', path, { enabled: true }, locate, { pre: open, ...spec })
+  const gone = (what) => `![...document.querySelectorAll('.taskview .tree .trow, .taskview .pgrid .prow')].some((r)=>r.textContent.includes('${what}'))`
+  const has = (what) => `[...document.querySelectorAll('.taskview .tree .trow, .taskview .pgrid .prow')].some((r)=>r.textContent.includes('${what}'))`
+  const asks = { expect: `FX.includes('dialog:prompt')` }
+  await T('group (click selects it)', () => rows().nth(1), { expect: `document.querySelectorAll('.taskview .tree .trow')[1].classList.contains('sel')` })
+  await T('item value (click edits it)', L('.taskview .pgrid .pv.edit'), { expect: `!!document.querySelector('.taskview .pgrid input, .taskview .pgrid select')` })
+  // the group's menu, on the group made here (the page's own groups are greyed for Remove and Rename)
+  const onGroup = async () => { await customRow().click({ button: 'right' }) }
+  await testCtx('parameter editor > group menu', onGroup, { prep: open, specs: {
+    'Add Sub-Group': asks,
+    'Remove Group': { pre: async () => { dialogMode = 'accept' }, expect: `FX.includes('dialog:confirm')&&${gone('wcgroup')}` },
+    'Rename Group': { pre: async () => { promptAnswers.push('wcgroup2') }, expect: has('wcgroup2') } } })
+  const onLeaf = async () => { await customRow().click(); await leafRow().click({ button: 'right' }) }
+  await testCtx('parameter editor > item menu', onLeaf, { prep: open, specs: {
+    'Change Value': { expect: `!!document.querySelector('.taskview .pgrid input')` },
+    'Remove Key': { expect: gone('wcitem') },
+    'Rename Key': { pre: async () => { promptAnswers.push('wcitem2') }, expect: has('wcitem2') },
+    'New > New String Item': asks, 'New > New Float Item': asks, 'New > New Integer Item': asks, 'New > New Unsigned Item': asks, 'New > New Boolean Item': asks } })
+  // the item list's own menu (New)
+  const onList = async () => { await customRow().click(); await page.locator('.taskview .pgrid .phead').click({ button: 'right' }) }
+  await testCtx('parameter editor > list menu', onList, { prep: open, specs: {
+    'New String Item': asks, 'New Float Item': asks, 'New Integer Item': asks, 'New Unsigned Item': asks, 'New Boolean Item': asks } })
+  // a page's own item: Remove and Rename say why they are greyed out
+  const onOwn = async () => { await rows().first().click(); await page.locator('.taskview .pgrid .prow').first().click({ button: 'right' }) }
+  await testCtx('parameter editor > own item menu', onOwn, { prep: open, specs: { 'Change Value': { expect: `!!document.querySelector('.taskview .pgrid input, .taskview .pgrid select')` } } })
+  await page.evaluate(() => localStorage.removeItem('cadui.custom'))
+  await openFresh()
+}
 
 // ── Preferences ─────────────────────────────────────────────────────────────────────────────────────────────────────────
 async function testPrefs() {
@@ -1208,8 +1302,10 @@ async function testPrefs() {
   const pages = await page.locator('.pref-dlg .pref-item').allTextContents()
   await page.locator('.pref-dlg .pref-buttons .qbtn', { hasText: /^Cancel$/ }).click()
   console.log(`preferences: ${pages.length} pages: ${pages.join(', ')}`)
-  for (const pg of pages) {
-    await walkPanel(`Preferences > ${pg}`, '.pref-page', async () => { await open(); await page.locator('.pref-dlg .pref-item', { hasText: new RegExp(`^${esc(pg)}$`) }).click() }, { max: 60000, group: 'prefs' })
+  // two pages are called General (the Display group's and the Python one's): by position, and the second is told apart in the report
+  for (const [i, pg] of pages.entries()) {
+    const name = pages.indexOf(pg) === i ? pg : `${pg} (${pages.slice(0, i + 1).filter((x) => x === pg).length})`
+    await walkPanel(`Preferences > ${name}`, '.pref-page', async () => { await open(); await page.locator('.pref-dlg .pref-item').nth(i).click() }, { max: 60000, group: 'prefs' })
   }
   // the dialog's own buttons, search and Reset
   const opened = async () => { await open() }
@@ -1265,10 +1361,10 @@ async function testNotifications() {
   }
   await clickOne('notifications', 'list rows (click selects)', { enabled: true }, L('.notify-list .notify-row'), { pre: list, expect: `!!document.querySelector('.notify-row.sel')` })
   await testCtx('notifications > list menu', async () => { await list(); await page.locator('.notify-list').click({ button: 'right' }) },
-    { specs: { Delete: { pre: async () => { await list(); await page.locator('.notify-row').first().click() }, expect: `document.querySelectorAll('.notify-row').length===0` },
+    { labels: ['Delete', 'Delete User Notifications', 'Delete All'], specs: { Delete: { pre: async () => { await list(); await page.locator('.notify-row').first().click() }, expect: `document.querySelectorAll('.notify-row').length===0` },
       'Delete All': { expect: `document.querySelectorAll('.notify-row').length===0` } } })
   await testCtx('notifications > button menu', async () => { if (!(await getS('S.notifications.length'))) await warn(); await page.locator('.statusbar .notify-btn').click({ button: 'right' }) },
-    { specs: { 'Delete All': { expect: 'S.notifications.length===0' } } })
+    { labels: ['Delete User Notifications', 'Delete All'], specs: { 'Delete All': { expect: 'S.notifications.length===0' } } })
 }
 async function testMessageBox() {
   // File > Export… with nothing selected: a warning with OK
@@ -1286,7 +1382,8 @@ async function testCustomizeFlow() {
   const open = async (tab) => { await resetUI('none'); await clickMenuEntry(entryAt('Tools', 'Customize')); await page.locator('.cu-dlg').waitFor(); if (tab) await page.locator('.cu-dlg .cu-tab', { hasText: new RegExp(`^${tab}$`) }).click() }
   const dlg = page.locator('.cu-dlg')
   const btn = (t) => dlg.locator('.qbtn', { hasText: new RegExp(`^${esc(t)}$`) }).first()
-  const F = async (path, act, expect) => judge('customize', path, { enabled: true }, await observe(act, { max: 30000 }), expect)
+  // (every step saves a setting, and a step that does would have its setting put back and the page reloaded under the dialog: the settings are cleared at the end)
+  const F = async (path, act, expect) => judge('customize', path, { enabled: true }, await observe(act, { max: 30000, restore: false }), expect)
   const row = (side, text) => dlg.locator(`.cu-col:${side === 'left' ? 'first-child' : 'last-child'} .cu-row`, { hasText: text }).first()
   await open('Toolbars')
   await F('Toolbars page > New (asks for a name)', () => btn('New').click(), `!!document.querySelector('.cu-input')`)
@@ -1319,6 +1416,8 @@ async function testCustomizeFlow() {
   await F('Customize > Help (What\'s This?)', () => btn('Help').click(), `document.body.classList.contains('whats-this-cursor')`)
   await page.keyboard.press('Escape')
   await F('Customize > Close', () => btn('Close').click(), '!S.customizeOpen')
+  await page.evaluate(() => { for (const k of ['customToolbars', 'macroCommands', 'shortcuts']) localStorage.removeItem('cadui.' + k) })
+  await openFresh()
 }
 
 // ── Preferences > Keyboard: assign, clear and reset a shortcut ─────────────────────────────────────────────────────────
@@ -1326,7 +1425,7 @@ async function testKeyboardPage() {
   const open = async () => { await resetUI('none'); await clickMenuEntry(entryAt('Edit', 'Preferences')); await page.locator('.pref-dlg').waitFor(); await page.locator('.pref-dlg .pref-item', { hasText: /^Keyboard$/ }).click() }
   const page_ = page.locator('.pref-page')
   const btn = (t) => page_.locator('.qbtn', { hasText: new RegExp(`^${esc(t)}$`) }).first()
-  const F = async (path, act, expect) => judge('Preferences', `Keyboard > ${path}`, { enabled: true }, await observe(act, { max: 30000 }), expect)
+  const F = async (path, act, expect) => judge('Preferences', `Keyboard > ${path}`, { enabled: true }, await observe(act, { max: 30000, restore: false }), expect)
   await open()
   await page_.locator('input[type=search]').fill('Fit All')
   await F('a command in the list (click selects it)', () => page_.locator('.kb-list .kb-row:not(.kb-head)').first().click(), `!!document.querySelector('.kb-row.sel')`)
@@ -1337,6 +1436,8 @@ async function testKeyboardPage() {
   await F('Clear (no shortcut at all)', () => btn('Clear').click(), `Object.values(S.shortcuts).includes('')`)
   await F('Reset All', () => btn('Reset All').click(), `Object.keys(S.shortcuts).length===0`)
   await page.locator('.pref-dlg .pref-buttons .qbtn', { hasText: /^Cancel$/ }).click()
+  await page.evaluate(() => localStorage.removeItem('cadui.shortcuts'))
+  await openFresh()
 }
 
 // ── flows: the controls that only do something after something else was done ──────────────────────────────────────────────
@@ -1569,6 +1670,7 @@ async function main() {
   await section('keyboard', testKeyboardPage)
   // the ones that wait for a check or a rebuild come last
   await section('tasks', testTasks)
+  await section('params', testParameterEditor)
   await section('macros', testMacros)
   await section('library', testLibrary)
   await section('drawing', testDrawing)

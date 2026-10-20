@@ -630,7 +630,8 @@ export function ContextMenu({ at, entries, onClose, onLeave }: { at: { x: number
   const h = entries.length * 25 + 8
   const style = { left: Math.max(0, Math.min(at.x, innerWidth - 250)), top: Math.max(0, Math.min(at.y, innerHeight - h)) }
   return createPortal(
-    <div className="mb-content ctx" style={style} onContextMenu={(e) => e.preventDefault()} onMouseLeave={onLeave}>
+    // (drawn in a portal, so React would send a right click on the menu up to whatever opened it, which would open its menu as well)
+    <div className="mb-content ctx" style={style} onContextMenu={(e) => { e.preventDefault(); e.stopPropagation() }} onMouseLeave={onLeave}>
       {entries.map((e, i) => <CtxEntry key={i} e={e} close={onClose} />)}
     </div>, document.body)
 }

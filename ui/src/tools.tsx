@@ -206,6 +206,8 @@ function renameGroupCustom(g: PGroup, name: string, bump: () => void) {
   bump()
 }
 
+/** Why Remove and Rename are greyed out on the settings this UI reads by their name. */
+const FIXED_NA = 'n/a: this UI reads this setting by its name; only items made here can be removed or renamed'
 const newEntries = (g: PGroup, bump: () => void): Entry[] => [
   { label: 'New String Item', onSelect: () => createLeaf(g, 'text', bump) },
   { label: 'New Float Item', onSelect: () => createLeaf(g, 'float', bump) },
@@ -220,8 +222,8 @@ const newEntries = (g: PGroup, bump: () => void): Entry[] => [
 const leafEntries = (g: PGroup, leaf: PLeaf, startEdit: () => void, bump: () => void): Entry[] => [
   { label: 'Change Value', bold: true, onSelect: startEdit },
   'sep',
-  { label: 'Remove Key', disabled: !leaf.custom, onSelect: () => leaf.remove?.() },
-  { label: 'Rename Key', disabled: !leaf.custom, onSelect: () => {
+  { label: 'Remove Key', disabled: !leaf.custom, title: leaf.custom ? undefined : FIXED_NA, onSelect: () => leaf.remove?.() },
+  { label: 'Rename Key', disabled: !leaf.custom, title: leaf.custom ? undefined : FIXED_NA, onSelect: () => {
     const n = prompt('Rename Key\nEnter the name:', leaf.name)?.trim()
     if (n && n !== leaf.name && validName(n)) leaf.rename?.(n)
   } },
@@ -232,11 +234,11 @@ const leafEntries = (g: PGroup, leaf: PLeaf, startEdit: () => void, bump: () => 
  *  the fixed groups above — Units, View, … — same reasoning as Remove/Rename Key). Export/Import
  *  Parameter (to an .FCParam file) are dropped: n/a with no filesystem access from a browser. */
 const groupEntries = (g: PGroup, open: boolean, toggle: () => void, bump: () => void): Entry[] => [
-  { label: open ? 'Collapse' : 'Expand', disabled: !g.groups.length, onSelect: toggle },
+  { label: open ? 'Collapse' : 'Expand', disabled: !g.groups.length, title: g.groups.length ? undefined : 'n/a: this group has no sub-groups', onSelect: toggle },
   'sep',
   { label: 'Add Sub-Group', onSelect: () => addSubGroup(g, bump) },
-  { label: 'Remove Group', disabled: !g.custom, onSelect: () => removeGroupCustom(g, bump) },
-  { label: 'Rename Group', disabled: !g.custom, onSelect: () => {
+  { label: 'Remove Group', disabled: !g.custom, title: g.custom ? undefined : FIXED_NA, onSelect: () => removeGroupCustom(g, bump) },
+  { label: 'Rename Group', disabled: !g.custom, title: g.custom ? undefined : FIXED_NA, onSelect: () => {
     const n = prompt('Rename Group\nEnter the name:', g.name)?.trim()
     if (n && n !== g.name && validName(n)) renameGroupCustom(g, n, bump)
   } },
@@ -423,9 +425,9 @@ export function buildDependencyGraph(bodies: Body[]): DepGraph {
   return { nodes, edges, width: PAD * 2 + maxLayer * COL_W + NODE_W, height: PAD * 2 + (maxRows - 1) * ROW_H + NODE_H }
 }
 export function DependencyGraphTask() {
+  // drawn from the scene the page holds, and drawn again as that changes: there is nothing for a Refresh button to read again
   const scene = useStore((s) => s.scene)
-  const [tick, setTick] = useState(0)
-  const graph = useMemo(() => buildDependencyGraph(scene?.bodies ?? []), [scene, tick])
+  const graph = useMemo(() => buildDependencyGraph(scene?.bodies ?? []), [scene])
   const pos = new Map(graph.nodes.map((n) => [n.name, n]))
   return (
     <div className="tasks">
@@ -460,7 +462,6 @@ export function DependencyGraphTask() {
         )}
       </TaskBox>
       <div className="tbuttons">
-        <button className="qbtn" onClick={() => setTick((t) => t + 1)}>Refresh</button>
         <button className="qbtn" onClick={exportDependencyGraph}>Export…</button>
         <button className="qbtn default" onClick={closeTask}>Close</button>
       </div>

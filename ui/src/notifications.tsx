@@ -160,7 +160,8 @@ function NotifyList({ anchor, onClose }: { anchor: DOMRect; onClose(): void }) {
   const left = Math.max(4, Math.min(anchor.right - w, innerWidth - w - 4)), top = Math.max(4, Math.min(anchor.bottom + 2, innerHeight - h - 4))
   return createPortal(
     <div className="notify-list" style={{ left, top, width: w, maxHeight: h }}
-      onContextMenu={(e) => { e.preventDefault(); setMenu({ x: e.clientX, y: e.clientY }) }}>
+      // the list is drawn in a portal, and React sends its events up the status bar it was opened from: that menu must not open as well
+      onContextMenu={(e) => { e.preventDefault(); e.stopPropagation(); setMenu({ x: e.clientX, y: e.clientY }) }}>
       <div className="notify-head"><span /><span>Notifier</span><span>Message</span></div>
       <div className="notify-body">
         {!list.length && <div className="notify-empty">No notifications</div>}
