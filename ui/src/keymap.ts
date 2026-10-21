@@ -25,7 +25,9 @@ const BASE_ACCEL: Record<string, string> = {
   Std_DockOverlayToggleLeft: 'Ctrl+Left', Std_DockOverlayToggleRight: 'Ctrl+Right', Std_DockOverlayToggleTop: 'Ctrl+Up',
   Std_DockOverlayToggleBottom: 'Ctrl+Down', Std_ViewBoxZoom: 'Ctrl+B', Std_Export: 'Ctrl+E', Std_SetAppearance: 'Ctrl+D',
   Std_Import: 'Ctrl+Shift+I', Std_WhatsThis: 'Shift+F1', Std_DlgPreferences: 'Ctrl+,', Std_SendToPythonConsole: 'Ctrl+Shift+P',
-  Std_New: 'Ctrl+N', Std_Open: 'Ctrl+O', Std_Refresh: 'F5', Std_ViewZoomIn: 'Ctrl++', Std_ViewZoomOut: 'Ctrl+-',
+  // Std_Refresh has the sAccel QKeySequence::Refresh, which Qt binds to Ctrl+R on a Mac (the real FreeCAD shows it as ⌘R in Edit) and to
+  // F5 on Windows and X11 (defaultAccel() below).
+  Std_New: 'Ctrl+N', Std_Open: 'Ctrl+O', Std_Refresh: 'Ctrl+R', Std_ViewZoomIn: 'Ctrl++', Std_ViewZoomOut: 'Ctrl+-',
   Std_Properties: 'Alt+Return', Std_MainFullscreen: 'Alt+F11', Std_ViewFullscreen: 'F11',
   Std_ViewFitAll: 'V, F', Std_ViewFitSelection: 'V, S', Std_OrthographicCamera: 'V, O', Std_PerspectiveCamera: 'V, P',
   Std_ToggleTransparency: 'V, T', Std_AxisCross: 'A, C', Std_TreeSelection: 'T, G', Std_ClarifySelection: 'G, G',
@@ -37,9 +39,10 @@ const BASE_ACCEL: Record<string, string> = {
 let accel: Record<string, string> | null = null
 /** Built on first use: chrome.tsx (VIEWS, DRAW_STYLES) imports this module too. */
 export function defaultAccel(): Record<string, string> {
-  return accel ??= { ...BASE_ACCEL, ...Object.fromEntries(VIEWS.map(([, , k, cmd]) => [cmd, k])),
+  return accel ??= { ...BASE_ACCEL, ...(IS_MAC ? {} : { Std_Refresh: 'F5' }), ...Object.fromEntries(VIEWS.map(([, , k, cmd]) => [cmd, k])),
     ...Object.fromEntries(DRAW_STYLES.map(([, , k, , cmd]) => [cmd, k])) }
 }
+const IS_MAC = typeof navigator !== 'undefined' && /Mac|iPhone|iPad/.test(navigator.platform)
 
 const NAMED: Record<string, string> = {
   ' ': 'Space', Enter: 'Return', Escape: 'Esc', ArrowLeft: 'Left', ArrowRight: 'Right', ArrowUp: 'Up', ArrowDown: 'Down',

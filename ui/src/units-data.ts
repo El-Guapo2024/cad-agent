@@ -37,6 +37,7 @@ export const UNITS: Record<string, [number, Dims]> = {
   "A": [1.0, [0, 0, 0, 1, 0, 0, 0, 0]], // Ampere
   "nA": [1e-09, [0, 0, 0, 1, 0, 0, 0, 0]], // NanoAmpere
   "uA": [1e-06, [0, 0, 0, 1, 0, 0, 0, 0]], // MicroAmpere
+  "µA": [1e-06, [0, 0, 0, 1, 0, 0, 0, 0]], // MicroAmpere (Quantity.l writes it as "\xC2\xB5""A": two adjacent literals)
   "mA": [0.001, [0, 0, 0, 1, 0, 0, 0, 0]], // MilliAmpere
   "kA": [1000.0, [0, 0, 0, 1, 0, 0, 0, 0]], // KiloAmpere
   "MA": [1000000.0, [0, 0, 0, 1, 0, 0, 0, 0]], // MegaAmpere
