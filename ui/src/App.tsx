@@ -24,6 +24,7 @@ import { executeMacroDirect } from './macro'
 // needed here, just the module's side effect, so this file is the one place that loads it.
 import './cmdreg'
 import { overrideKey } from './keymap'
+import { isMac } from './nav'
 import { StartPanel } from './start'
 import { DrawingPanel } from './shopwb'
 
@@ -97,7 +98,8 @@ function useKeys() {
       if (mod && !e.shiftKey && k === 'c' && !getSelection()?.toString() && getState().selected.length) { e.preventDefault(); recordAndRun('Std_Copy', copySelection); return }
       if (mod && !e.shiftKey && /^[1-9]$/.test(e.key) && getState().frozenViews.length >= Number(e.key)) { e.preventDefault(); restoreView(Number(e.key) - 1); return }
       if (e.shiftKey && !mod && k === 'f') { e.preventDefault(); freezeView(); return } // Freeze View (Shift+F)
-      if (!mod && !e.shiftKey && !e.altKey && e.key === 'F5') { e.preventDefault(); recordAndRun('Std_Refresh', runCheck); return }
+      // Std_Refresh: QKeySequence::Refresh is Ctrl+R (⌘R) on a Mac and F5 elsewhere; the browser would reload the page on either.
+      if (isMac ? mod && !e.shiftKey && !e.altKey && k === 'r' : !mod && !e.shiftKey && !e.altKey && e.key === 'F5') { e.preventDefault(); recordAndRun('Std_Refresh', runCheck); return }
       if (!mod && !e.shiftKey && !e.altKey && e.key === 'F11') { e.preventDefault(); recordAndRun('Std_ViewFullscreen', viewFullscreen); return }
       if (mod && k === 'z') { e.preventDefault(); recordAndRun(e.shiftKey ? 'Std_Redo' : 'Std_Undo', e.shiftKey ? doRedo : doUndo); return }
       if (mod && k === 'y') { e.preventDefault(); recordAndRun('Std_Redo', doRedo); return } // not an sAccel FreeCAD defines; kept for Windows/Linux muscle memory

@@ -15,6 +15,7 @@
 //   src/Gui/OverlayManager.cpp: 2022 Zheng Lei (realthunder)
 //   src/Mod/Tux/NavigationIndicatorGui.py: 2016, 2017, 2018 triplus @ FreeCAD
 //   src/Gui/Selection/Selection.cpp: 2011 Jürgen Riegel; 2011 Werner Mayer
+//   src/Gui/Tree.cpp: 2004 Jürgen Riegel
 //   src/Gui/MainWindow.cpp: 2005 Werner Mayer
 //   No copyright line in the file: src/Gui/Stylesheets/FreeCAD.qss
 import * as M from '@radix-ui/react-menubar'
@@ -25,7 +26,7 @@ import { useEffect, useLayoutEffect, useMemo, useRef, useState, useSyncExternalS
 import { createPortal } from 'react-dom'
 import type { IDockviewHeaderActionsProps } from 'dockview-react'
 import { getState, report, saved, setState, useStore, viewOf, type DrawStyle, type EditMode, type NavStyle, type Workbench } from './store'
-import { NAV_STYLES, type OrbitStyle } from './nav'
+import { NAV_STYLES, isMac, type OrbitStyle } from './nav'
 import { Icon, type IconName } from './icons'
 import { api, type Body } from './api'
 import { cls } from './panels'
@@ -38,7 +39,7 @@ import {
   toggleVisibility, toggleBottomPanels, setTreeOption, selBack, selForward, overlayAll, overlayActive, overlayToggle, overlayTransparent, overlayBypass,
   setViewProps, AUTO_MODES, getAutoMode, isTransparentSide, overlaySide, setOverlayAutoMode, sideOfGroup, subscribeOverlay, toggleTransparentSide,
   recordAndRun, type OverlayAutoMode, type Side,
-  getDock, setPose, selectedPart, windowCount,
+  getDock, setPose, selectedPart, windowCount, closeAllWindows,
 } from './actions'
 import { poseNames, poseText } from './poses'
 import { plateParts } from './shopwb'
@@ -47,7 +48,7 @@ import { startPage } from './start'
 import { fileEntries } from './filemenu'
 import { dependencyGraph, editParameters, exportDependencyGraph, loadImage, sceneInspector } from './tools'
 import {
-  alignToSelection, boxElementSelection, boxSelection, boxZoom, canMeasure, clipping, fullscreen, preferences,
+  alignToSelection, canAlignToSelection, boxElementSelection, boxSelection, boxZoom, canMeasure, clipping, fullscreen, preferences,
   sendToConsole, setNav, gotoSelection, massProperties, measure, properties, randomColor, recallView, rotateLeft, rotateRight,
   saveImage, searchObjects, selectInstances, storeView, toggleAxisCross, toggleBoundingBox, toggleSelectability, toggleTransparency,
   viewDimetric, viewHome, viewTrimetric, zoomIn, zoomOut, unitsCalculator, demoMode, clarifySelection, setEditMode, alignment, setUnits,
@@ -161,7 +162,7 @@ const viewsSub = (): Entry[] => {
   return [
     { label: 'Fit All', kbd: 'V, F', icon: 'fit-all', cmd: 'Std_ViewFitAll', onSelect: () => getView()?.fitAll() },
     { label: 'Fit Selection', kbd: 'V, S', icon: 'fit-sel', cmd: 'Std_ViewFitSelection', disabled: !sel.length, onSelect: () => getView()?.fitAll(sel) },
-    { label: 'Align to Selection', icon: 'align', cmd: 'Std_AlignToSelection', disabled: !getState().subSel.some((r) => /\.Face\d+$/.test(r)), onSelect: alignToSelection },
+    { label: 'Align to Selection', icon: 'align', cmd: 'Std_AlignToSelection', disabled: !canAlignToSelection(), onSelect: alignToSelection },
     { label: 'Axonometric', icon: 'iso', sub: axonometric() },
     'sep',
     { label: 'Home', kbd: '↖', icon: 'home', cmd: 'Std_ViewHome', onSelect: viewHome },
@@ -205,7 +206,7 @@ export function objectEntries(): Entry[] {
     { label: 'Show Selection', icon: 'show-sel', disabled: !any, onSelect: showSelection },
     { label: 'Hide Selection', icon: 'hide', disabled: !any, onSelect: hideSelection },
     { label: 'Toggle Selectability', icon: 'unselectable', disabled: !any, onSelect: toggleSelectability },
-    { label: 'Select All Instances', disabled: !any, onSelect: selectInstances },
+    { label: 'Select All Instances', disabled: s.selected.length !== 1, onSelect: selectInstances },
     { label: 'Go to Selection', kbd: 'T, G', icon: 'goto-sel', disabled: !any, onSelect: gotoSelection },
     'sep',
     { label: 'Random Color', icon: 'random-color', disabled: !any, onSelect: randomColor },
@@ -224,28 +225,46 @@ export function objectEntries(): Entry[] {
     { label: 'Send to Console', kbd: '⇧⌘P', icon: 'console', disabled: !any, onSelect: sendToConsole },
   ]
 }
-/** The tree's menu (TreeWidget::contextMenuEvent): on an object, its own action first, the
- *  selection's commands (StdWorkbench::setupContextMenu "Tree"), Properties, then the tree's
- *  own; on the document, the document's actions. */
+/** Std_Expressions (the "Expression Actions" submenu of the tree's and the document's menus). Parameters here are plain numbers, so there are no
+ *  expressions to copy or paste. */
+const expressionActions = (): Entry => ({ label: 'Expression Actions', sub: ['Copy Selected', 'Copy Active Document', 'Copy All Documents', 'Paste'].map((label): Entry => (
+  { label, disabled: true, title: 'n/a: the parameters here are plain numbers; there are no expressions to copy or paste' })) })
+/** Workbench::createLinkMenu: "Link Actions" (Std_LinkMakeGroup with its three kinds, Std_LinkMake) — no App::Links here. */
+const linkActions = (): Entry => ({ label: 'Link Actions', sub: [
+  { label: 'Link Group', sub: ['Simple Group', 'Group With Links', 'Group With Transform Links'].map((label): Entry => ({ label, disabled: true, title: LINK_NA })) },
+  { label: 'Make Link', icon: 'link', disabled: true, title: LINK_NA }] })
+/** The tree's menu (TreeWidget::contextMenuEvent, Tree.cpp, as the real FreeCAD puts it up): on an object, its own action first, the
+ *  selection's commands (StdWorkbench::setupContextMenu "Tree"), Properties, Expression and Link Actions, then the tree's
+ *  own; on the document, the selection's commands (if any are selected), Properties and the two actions, then the document's own. What
+ *  has no meaning here is there but greyed out, with the reason on hover. */
 export function treeEntries(on: 'object' | 'document' = 'object'): Entry[] {
   const s = getState(), any = s.selected.length > 0
   const one = s.selected.length === 1 ? s.scene?.bodies.find((b) => b.name === s.selected[0]) : undefined
   const showHidden: Entry = { label: 'Show Items Hidden in Tree View', checked: s.treeShowHidden, onSelect: () => setState((x) => ({ treeShowHidden: !x.treeShowHidden })) }
+  // TreeWidget::retranslateUi: the action that opens the file's folder reads "Reveal in Finder" on a Mac and "Open File Location" elsewhere.
+  const reveal: Entry = isMac
+    ? { label: 'Reveal in Finder', icon: 'open', title: 'Reveals the current file location in Finder', onSelect: openFileLocation }
+    : { label: 'Open File Location', icon: 'open', title: 'Opens the current file location', onSelect: openFileLocation }
+  const markRecompute: Entry = { label: 'Mark to Recompute', icon: 'recompute', title: 'Marks this object to be recomputed', onSelect: runCheck }
   if (on === 'document') {
-    return [showHidden,
-      { label: 'Open File Location', icon: 'open', onSelect: openFileLocation },
-      { label: 'Search Objects', onSelect: searchObjects },
-      { label: 'Mark to Recompute', icon: 'recompute', onSelect: runCheck },
-      ...(any ? ['sep' as const, ...selectionTreeEntries(one)] : [])]
+    return [...(any ? [...selectionTreeEntries(one), 'sep' as const] : [{ label: 'Properties', kbd: '⌥↵', disabled: true, title: 'Shows the property view, which displays the properties of the selected object.' } as Entry, 'sep' as const]),
+      expressionActions(), linkActions(), showHidden, reveal,
+      { label: 'Search Objects', title: 'Searches for objects in the tree', onSelect: searchObjects },
+      { label: 'Close Document', title: "Closes the project's view, as File > Close All does", onSelect: closeAllWindows },
+      { label: 'Add Dependent Objects to Selection', disabled: true, title: 'n/a: the bodies of a project do not depend on one another' },
+      { label: 'Skip Recomputes', disabled: true, title: 'n/a: the checks run when asked; there is no recompute to skip' },
+      markRecompute,
+      { label: 'Create Group', disabled: true, title: 'n/a: there are no groups here' }]
   }
   const own: Entry[] = one ? [{ label: one.part && Object.values(one.params ?? {}).some((p) => p.editable) ? `Edit ${one.name}` : `Transform ${one.name}`, bold: true, onSelect: () => editDefault(one.name) }, 'sep'] : []
-  return [...own, ...selectionTreeEntries(one),
-    'sep', showHidden,
+  return [...own, ...selectionTreeEntries(one), 'sep', expressionActions(), linkActions(), showHidden,
     { label: 'Toggle Visibility in Tree View', disabled: !any, onSelect: () => setViewProps(s.selected, { showInTree: !viewOf(s, s.selected[0]).showInTree }) },
     'sep',
-    { label: 'Mark to Recompute', icon: 'recompute', onSelect: runCheck },
+    markRecompute,
     { label: 'Recompute Object', kbd: '⇧⌘R', icon: 'recompute', onSelect: runCheck },
-    'sep', { label: 'Open File Location', icon: 'open', onSelect: openFileLocation }]
+    'sep',
+    ...(s.selected.length === 1 ? [{ label: 'Rename', kbd: '↵', disabled: true, title: 'n/a: the names of the parts come from assembly.py' } as Entry, 'sep' as const] : []),
+    reveal]
 }
 function selectionTreeEntries(one: Body | undefined): Entry[] {
   return [
@@ -255,15 +274,18 @@ function selectionTreeEntries(one: Body | undefined): Entry[] {
     { label: 'Show Selection', icon: 'show-sel', onSelect: showSelection },
     { label: 'Hide Selection', icon: 'hide', onSelect: hideSelection },
     { label: 'Toggle Selectability', icon: 'unselectable', onSelect: toggleSelectability },
-    { label: 'Select All Instances', onSelect: selectInstances },
+    // Std_TreeSelectAllInstances::isActive asks for the selection of one object (getSelectionEx with single = true).
+    { label: 'Select All Instances', disabled: getState().selected.length !== 1, title: 'Selects all instances of the currently selected object (one selected part)', onSelect: selectInstances },
     'sep',
+    { label: 'Material', icon: 'material', disabled: true, title: "n/a: materials are set in the part's source" },
+    { label: 'Appearance', kbd: '⌘D', icon: 'appearance', cmd: 'Std_SetAppearance', disabled: !getState().selected.length, onSelect: () => openTask('appearance', ''), title: 'Sets the display properties of the selected object' },
     { label: 'Random Color', icon: 'random-color', onSelect: randomColor },
     { label: 'Toggle Transparency', kbd: 'V, T', icon: 'transparency', onSelect: toggleTransparency },
     'sep',
     { label: 'Cut', kbd: '⌘X', icon: 'edit-cut', disabled: true },
     { label: 'Copy', kbd: '⌘C', icon: 'edit-copy', onSelect: copySelection },
     { label: 'Paste', kbd: '⌘V', icon: 'edit-paste', disabled: true },
-    { label: 'Delete', kbd: '⌦', icon: 'edit-delete', disabled: true },
+    { label: 'Delete', kbd: '⌫', icon: 'edit-delete', disabled: true },
     { label: 'Send to Console', kbd: '⇧⌘P', icon: 'console', onSelect: sendToConsole },
     ...(one ? [{ label: 'Transform', icon: 'transform', onSelect: () => openTask('transform', one.name) } as Entry,
       { label: 'Placement', icon: 'placement', onSelect: () => openTask('placement', one.name) } as Entry, ...drawingEntry(one)] : []),
@@ -285,11 +307,11 @@ export function viewEntries(): Entry[] {
   const one = sel.length === 1 ? s.scene?.bodies.find((b) => b.name === sel[0]) : undefined
   return [
     // StdWorkbench::createLinkMenu: "Link Actions" (Std_LinkMakeGroup, Std_LinkMake) — no App::Links here.
-    { label: 'Link Actions', sub: [{ label: 'Make Link Group', disabled: true, title: LINK_NA }, { label: 'Make Link', icon: 'link', disabled: true, title: LINK_NA }] },
+    linkActions(),
     'sep',
     { label: 'Fit All', kbd: 'V, F', icon: 'fit-all', onSelect: () => getView()?.fitAll() },
     { label: 'Fit Selection', kbd: 'V, S', icon: 'fit-sel', disabled: !sel.length, onSelect: () => getView()?.fitAll(sel) },
-    { label: 'Align to Selection', icon: 'align', disabled: !s.subSel.some((r) => /\.Face\d+$/.test(r)), onSelect: alignToSelection },
+    { label: 'Align to Selection', icon: 'align', disabled: !canAlignToSelection(), onSelect: alignToSelection },
     { label: 'Draw Style', icon: 'ds-asis', sub: styleSub() },
     { label: 'Standard Views', icon: 'views', sub: [...axonometric().slice(0, 1), 'sep', { label: 'Home', kbd: '↖', icon: 'home', onSelect: viewHome },
       ...sixViews(), 'sep', { label: 'Rotate Left', kbd: '⇧←', icon: 'rot-left', onSelect: rotateLeft },
@@ -306,7 +328,7 @@ export function viewEntries(): Entry[] {
       { label: 'Random Color', icon: 'random-color', onSelect: randomColor } as Entry,
       { label: 'Toggle Transparency', kbd: 'V, T', icon: 'transparency', onSelect: toggleTransparency } as Entry,
       'sep' as const,
-      { label: 'Delete', kbd: '⌦', icon: 'edit-delete', disabled: true } as Entry,
+      { label: 'Delete', kbd: '⌫', icon: 'edit-delete', disabled: true } as Entry,
       { label: 'Send to Console', kbd: '⇧⌘P', icon: 'console', onSelect: sendToConsole } as Entry] : []),
     ...(one ? [{ label: 'Transform', icon: 'transform', onSelect: () => openTask('transform', one.name) } as Entry,
       { label: 'Placement', icon: 'placement', onSelect: () => openTask('placement', one.name) } as Entry] : []),
@@ -419,9 +441,9 @@ export function MenuBar() {
         { label: 'Copy', kbd: '⌘C', icon: 'edit-copy', cmd: 'Std_Copy', disabled: !selected.length, onSelect: copySelection, title: 'Copies the selection to the clipboard' },
         { label: 'Paste', kbd: '⌘V', icon: 'edit-paste', disabled: true, title: 'n/a: parts are source code; adding one is an edit to it' },
         { label: 'Duplicate Selection', icon: 'duplicate', disabled: true, title: 'n/a: parts are source code; duplicating one is an edit to it' },
-        { label: 'Delete', kbd: '⌦', icon: 'edit-delete', disabled: true, title: 'n/a: parts are source code; deleting one is an edit to it' },
+        { label: 'Delete', kbd: '⌫', icon: 'edit-delete', disabled: true, title: 'n/a: parts are source code; deleting one is an edit to it' },
         'sep',
-        { label: 'Recompute', kbd: 'F5', icon: 'recompute', cmd: 'Std_Refresh', onSelect: runCheck },
+        { label: 'Recompute', kbd: '⌘R', icon: 'recompute', cmd: 'Std_Refresh', onSelect: runCheck },
         { label: 'Box Selection', kbd: '⇧B', icon: 'box-select', cmd: 'Std_BoxSelection', onSelect: boxSelection },
         { label: 'Box Element Selection', kbd: '⇧E', icon: 'box-select', cmd: 'Std_BoxElementSelection', onSelect: boxElementSelection },
         { label: 'Select All', kbd: '⌘A', icon: 'select-all', cmd: 'Std_SelectAll', onSelect: selectAll },
@@ -775,7 +797,7 @@ export function ToolBar() {
         <Btn icon="fit-all" title="Fit all (V, F)" cmd="Std_ViewFitAll" onClick={() => getView()?.fitAll()} />
         <Btn icon="fit-sel" title="Fit selection (V, S)" cmd="Std_ViewFitSelection" disabled={!selected.length} onClick={() => getView()?.fitAll(selected)} />
         <DropButton icon="views" title="Standard Views" entries={() => [...axonometric(), 'sep', { label: 'Home', kbd: '↖', icon: 'home', cmd: 'Std_ViewHome', onSelect: viewHome }, ...sixViews()]} />
-        <Btn icon="align" title="Align to selection: look at the selected face" cmd="Std_AlignToSelection" disabled={!subSel.some((r) => /\.Face\d+$/.test(r))} onClick={alignToSelection} />
+        <Btn icon="align" title="Align to selection: look at the selected face" cmd="Std_AlignToSelection" disabled={!(selected.length || subSel.length)} onClick={alignToSelection} />
         <TSep />
         <DrawStyleButton />
         <SelectFilterButton />
@@ -895,7 +917,8 @@ export function OverlayTitleActions({ group, location }: IDockviewHeaderActionsP
  *  trailing spaces, or none when Compact), its menu: Settings (Orbit style, Compact, Tooltip),
  *  then every style. Tooltip on (the default) gives the Mouse Configuration hints. */
 const navIcon = (name: string) => `./freecad-icons/Navigation${name.replace(/[- ]/g, '')}_light.svg`
-const navLabel = (name: string) => name.replace('Maya-Gesture', 'MayaGesture')
+/** UserNavigationStyle::userFriendlyName: the class name without 'NavigationStyle' (MayaGesture, not Maya-Gesture). */
+const navLabel = (name: string) => name
 const ORBIT_STYLES: [string, OrbitStyle][] = [['Rounded Arcball', 4], ['Trackball', 1], ['Trackball Classic', 3], ['Free Turntable', 2], ['Turntable', 0]]
 function NavButton() {
   const nav = useStore((s) => s.nav), orbit = useStore((s) => s.navPrefs.orbit)

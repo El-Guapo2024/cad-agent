@@ -15,6 +15,10 @@
 //   src/Gui/CommandView.cpp: 2002 Jürgen Riegel
 //   src/Gui/ImageView.cpp: 2023 Werner Mayer
 //   src/Mod/Measure/Gui/QuickMeasure.cpp: 2023 Pierre-Louis Boyer
+//   src/Mod/Measure/App/Measurement.cpp: 2013 Luke Parry
+//   src/Mod/Part/App/PartFeature.cpp: 2002 Jürgen Riegel
+//   src/App/GeoFeature.cpp: 2002 Jürgen Riegel
+//   src/Base/Rotation.cpp: 2006 Werner Mayer
 import * as THREE from 'three'
 import { Display, Viewer, decodeInstancedFormat } from 'three-cad-viewer'
 import { TransformControls } from 'three/addons/controls/TransformControls.js'
@@ -25,6 +29,7 @@ import { LineSegments2 } from 'three/addons/lines/LineSegments2.js'
 import { LineSegmentsGeometry } from 'three/addons/lines/LineSegmentsGeometry.js'
 import { ViewportGizmo } from 'three-viewport-gizmo'
 import { Navigation, bindNavigation, type NavPrefs, type V2 } from './nav'
+import { doubleClickInterval } from './dblclick'
 import { AxisCross } from './axiscross'
 import { toNumber, userString } from './quantity'
 import { placementMatrix } from './placement'
@@ -920,8 +925,16 @@ export class CadView {
     this.orient(ROTATION[d])
   }
 
-  /** Std_ViewFitAll / Std_ViewFitSelection (View3DInventorViewer::viewAll): keep the
-   *  direction and frame the bounding sphere; with animations on, 10 steps of 20 ms. */
+  /** Std_ViewFitAll / Std_ViewFitSelection (View3DInventorViewer::viewAll / viewSelection): keep the
+   *  direction and frame the bounding sphere; with animations on, 10 steps of 20 ms. `names`, the selected
+   *  parts, is Fit Selection. It frames the whole of each part, as FreeCAD does at 3160daf1e2b6 whatever
+   *  elements of it are selected: ViewProvider::getBoundingBox(subname) gives the part's whole box for a
+   *  Face (SoBrepFaceSet::getBoundingBox is the inherited one) and, measured in the real FreeCAD, for an Edge and a
+   *  Vertex too (and, for a part that has a Placement, its box without the Placement: the camera lands away from
+   *  the part, which is not copied). FreeCAD's viewAll sets a perspective camera's heightAngle back to 45°
+   *  first; viewSelection leaves it as it is. A perspective camera stands where the sphere fits the view's
+   *  shorter side: R / tan(heightAngle / 2) from the centre (animatedViewAll, and what Coin's viewBoundingBox
+   *  gives in the real FreeCAD: 232.89 for R 96.468 at 45°), not R / sin. */
   fitAll(names?: string[], instant = false) {
     const p = this.cameraParts()
     if (!p) return
@@ -937,14 +950,14 @@ export class CadView {
     const dir = cam.position.clone().sub(controls.target).normalize()
     const ortho = (cam as THREE.OrthographicCamera).isOrthographicCamera
     const c = cam as any
-    // viewAll: a perspective camera's heightAngle always snaps back to 45° first.
-    if (!ortho) { c.fov = 45; c.updateProjectionMatrix() }
+    // viewAll: a perspective camera's heightAngle always snaps back to 45° first. viewSelection does not.
+    if (!ortho && !names?.length) { c.fov = 45; c.updateProjectionMatrix() }
     // SoCamera::viewBoundingBox: the sphere fills the shorter side.
     const aspect = ortho ? (c.right - c.left) / (c.top - c.bottom) : c.aspect
     const height = (2 * sphere.radius) / Math.min(1, aspect)
     const zoom1 = ortho ? (c.top - c.bottom) / height : cam.zoom
     const dist1 = ortho ? Math.max(sphere.radius * 6, cam.position.distanceTo(controls.target))
-      : sphere.radius / Math.sin(THREE.MathUtils.degToRad(c.fov) / 2) / Math.min(1, aspect)
+      : sphere.radius / Math.tan(THREE.MathUtils.degToRad(c.fov) / 2) / Math.min(1, aspect)
     const t0 = controls.target.clone(), d0 = cam.position.distanceTo(t0), z0 = cam.zoom
     const put = (k: number) => {
       const now = this.cameraParts() // not the pair from the start: a scene reload in between builds a new one
@@ -1871,14 +1884,117 @@ export class CadView {
     if (pre && pc !== null && !subs.includes(pre)) add(pre, pc)
   }
 
-  /** Std_AlignToSelection: look straight at a selected planar face. */
-  alignTo(ref: string): boolean {
-    const info = subInfo(this.subGeometry(ref))
+  /** Std_AlignToSelection (View3DInventorViewer::alignToSelection): `refs` are the selected elements ("part.Face3"),
+   *  `whole` the parts selected as a whole. The camera turns to look straight at the selection from the side it is
+   *  on, rolled to the quarter turn nearest its own roll, about the focal point (the view is not moved or zoomed).
+   *  False when nothing selected gives a direction. */
+  alignToSelection(refs: string[], whole: string[]): boolean {
     const p = this.cameraParts()
-    if (!info?.normal || !p) return false
-    const m = new THREE.Matrix4().lookAt(info.normal, new THREE.Vector3(), Math.abs(info.normal.z) > 0.99 ? new THREE.Vector3(0, 1, 0) : new THREE.Vector3(0, 0, 1))
-    this.animateTo(new THREE.Quaternion().setFromRotationMatrix(m), info.center)
+    const dir = p ? this.alignDirection(refs, whole) : null
+    if (!p || !dir) return false
+    const q = alignOrientation(p.cam.quaternion, dir.z, dir.x)
+    this.orient([q.x, q.y, q.z, q.w])
     return true
+  }
+
+  /** The directions the alignment asks for, as alignToSelection reads them: one element gives its own (a planar face's normal and
+   *  the direction of its longest straight edge, a straight edge's direction, the axis of a planar curve's plane); a part with several
+   *  elements gives the sum of its faces' normals, else its edges' plane or the sum of their directions; the parts' directions add up
+   *  and the camera's X is the one Base::Rotation(-Z, direction) gives. A curved face needs the surface's normal at the middle of its
+   *  (u, v) range, which the mesh does not have: it, a vertex and a whole part give nothing. */
+  private alignDirection(refs: string[], whole: string[]): { z: THREE.Vector3; x: THREE.Vector3 } | null {
+    const items = refs.length + whole.length
+    if (!items) return null
+    if (items === 1) {
+      const f = refs.length ? this.facingOf(refs[0]) : null
+      return f ? { z: f.z, x: f.x ?? rotateFromMinusZ(f.z) } : null
+    }
+    const byPart = new Map<string, string[]>()
+    for (const r of refs) { const b = r.slice(0, r.lastIndexOf('.')); byPart.set(b, [...(byPart.get(b) ?? []), r]) }
+    for (const b of whole) byPart.set(b, [...(byPart.get(b) ?? []), '']) // a part taken whole: an item whose sub name is empty
+    const sum = new THREE.Vector3()
+    let valid = 0
+    for (const subs of byPart.values()) {
+      const z = subs.length === 1 ? (subs[0] ? this.facingOf(subs[0])?.z ?? null : null) : this.groupFacing(subs)
+      if (z) { sum.add(z); valid++ }
+    }
+    if (!valid || sum.length() < 1e-9) return null
+    const z = sum.normalize()
+    return { z, x: rotateFromMinusZ(z) }
+  }
+
+  /** Part::Feature::getCameraAlignmentDirection(directionZ, subnames) for one part's elements. */
+  private groupFacing(subs: string[]): THREE.Vector3 | null {
+    const sum = (list: string[]) => {
+      const s = new THREE.Vector3()
+      let n = 0
+      for (const r of list) { const f = r ? this.facingOf(r) : null; if (f) { s.add(f.z); n++ } }
+      return n && s.length() > 1e-9 ? s.normalize() : null
+    }
+    const faces = subs.filter((r) => /\.Face\d+$/.test(r))
+    if (faces.length) return sum(faces)
+    const edges = subs.filter((r) => /\.Edge\d+$/.test(r))
+    if (edges.length === subs.length) { // only edges: if they lie in one plane, its axis
+      const axis = planeAxis(edges.flatMap((r) => { const g = this.subGeometry(r); return g?.kind === 'Edge' ? g.segs.flat() : [] }))
+      if (axis) return axis
+    }
+    return sum(subs)
+  }
+
+  /** getCameraAlignmentDirection for one element: `z` is the direction to look along, `x` (a face only) the direction of the
+   *  face's longest straight edge. */
+  private facingOf(ref: string): { z: THREE.Vector3; x?: THREE.Vector3 } | null {
+    const g = this.subGeometry(ref)
+    if (!g || g.kind === 'Vertex') return null
+    const info = subInfo(g)
+    if (!info) return null
+    if (g.kind === 'Face') {
+      if (!info.normal || (info.kind !== 'Plane' && info.kind !== 'Disc')) return null
+      return { z: info.normal.clone().normalize(), x: this.longestStraightEdge(ref.slice(0, ref.lastIndexOf('.')), g.tris, info.normal) }
+    }
+    if (info.kind === 'Line' && info.dir) return { z: info.dir.clone().normalize() }
+    const axis = planeAxis(g.segs.flat())
+    return axis ? { z: axis } : null
+  }
+
+  /** The longest straight edge of a planar face, by its direction: an edge of the same part that runs from one corner of the face to
+   *  another in the face's plane. The first of equal lengths wins, as in TopExp_Explorer's order. */
+  private longestStraightEdge(body: string, tris: THREE.Vector3[][], normal: THREE.Vector3): THREE.Vector3 | undefined {
+    const corners: THREE.Vector3[] = []
+    const seen = new Set<string>()
+    const box = new THREE.Box3()
+    for (const t of tris) for (const q of t) { box.expandByPoint(q); const k = `${q.x.toFixed(3)},${q.y.toFixed(3)},${q.z.toFixed(3)}`; if (!seen.has(k)) { seen.add(k); corners.push(q) } }
+    const tol = 1e-5 * box.min.distanceTo(box.max) + 1e-3, n = normal.clone().normalize(), o = tris[0][0]
+    const onFace = (q: THREE.Vector3) => Math.abs(q.clone().sub(o).dot(n)) <= tol && corners.some((c) => c.distanceTo(q) <= tol)
+    let best: { len: number; dir: THREE.Vector3 } | undefined
+    for (const e of this.straightEdges(body)) {
+      if (e.len < 1e-9 || !onFace(e.a) || !onFace(e.b)) continue
+      if (!best || e.len > best.len) best = { len: e.len, dir: e.b.clone().sub(e.a).divideScalar(e.len) }
+    }
+    return best?.dir
+  }
+
+  /** The straight edges of a part, in the order of their numbers, by their end points (world space), in one pass over the edge buffer. */
+  private straightEdges(body: string): { a: THREE.Vector3; b: THREE.Vector3; len: number }[] {
+    const line = (this.edges.get(body) ?? [])[0] as any
+    if (!line) return []
+    line.updateWorldMatrix(true, false)
+    const g = line.geometry, A = g.attributes.instanceStart, B = g.attributes.instanceEnd, comp = g.attributes.componentId
+    const by = new Map<number, { a: THREE.Vector3; b: THREE.Vector3; d?: THREE.Vector3; straight: boolean }>()
+    const p = new THREE.Vector3(), q = new THREE.Vector3(), d = new THREE.Vector3()
+    for (let i = 0; i < comp.count; i++) {
+      p.fromBufferAttribute(A, i).applyMatrix4(line.matrixWorld)
+      q.fromBufferAttribute(B, i).applyMatrix4(line.matrixWorld)
+      d.copy(q).sub(p)
+      const id = comp.getX(i), e = by.get(id)
+      if (!e) { by.set(id, { a: p.clone(), b: q.clone(), d: d.lengthSq() > 0 ? d.clone().normalize() : undefined, straight: true }); continue }
+      e.b.copy(q)
+      if (d.lengthSq() === 0) continue
+      d.normalize()
+      if (!e.d) e.d = d.clone()
+      else if (e.d.dot(d) <= 1 - 1e-9) e.straight = false
+    }
+    return [...by.values()].filter((e) => e.straight).map((e) => ({ a: e.a, b: e.b, len: e.a.distanceTo(e.b) }))
   }
 
   private index(sc: Scene) {
@@ -2251,7 +2367,8 @@ export class CadView {
       if (cancelled) return // a press that was taken away is not a click
       const key = pick.toArray().map(Math.round).join(','), now = performance.now()
       if (this.drawLog) this.drawLog.pick = key
-      const twice = !!this.cubeClick && this.cubeClick.key === key && now - this.cubeClick.t < 400
+      // NaviCube.cpp mouseReleased: clickTimer.elapsed() < QApplication::doubleClickInterval(), the system's (dblclick.ts).
+      const twice = !!this.cubeClick && this.cubeClick.key === key && now - this.cubeClick.t < doubleClickInterval() * 1000
       this.cubeClick = twice ? null : { key, t: now }
       const p = this.cameraParts(), std = faceRotation(pick)
       if (!p || !std) return
@@ -2454,7 +2571,12 @@ export function subInfo(g: Sub): SubInfo | null {
     }
     c.divideScalar(area || 1)
     const shape = faceType(g.tris, planar, n0, c)
-    if (shape) return { ...shape, text: `area ${qarea(area)}, ${shape.kind === 'Cylinder' || shape.kind === 'Disc' ? `diameter ${qlen(2 * shape.radius!)}` : `radius ${qlen(shape.radius!)}`}`, points: pts, area }
+    if (shape) {
+      // The mesh of a round face is inscribed in it: a disc's area is pi r squared, a whole cylinder's 2 pi r times its length along the axis.
+      if (shape.kind === 'Disc') area = Math.PI * shape.radius! ** 2
+      else if (shape.kind === 'Cylinder') { const h = pts.map((q) => q.dot(shape.dir!)); area = 2 * Math.PI * shape.radius! * (Math.max(...h) - Math.min(...h)) }
+      return { ...shape, text: `area ${qarea(area)}, ${shape.kind === 'Cylinder' || shape.kind === 'Disc' ? `diameter ${qlen(2 * shape.radius!)}` : `radius ${qlen(shape.radius!)}`}`, points: pts, area }
+    }
     return { kind: planar ? 'Plane' : 'Face', text: `area ${qarea(area)}${planar ? ', planar' : ''}`, points: pts, center: c, normal: planar ? n0 : undefined, area }
   }
   const pts = g.segs.flat(), len = g.segs.reduce((t, [a, b]) => t + a.distanceTo(b), 0)
@@ -2467,9 +2589,68 @@ export function subInfo(g: Sub): SubInfo | null {
   if (n.lengthSq() > 1e-12) {
     const cc = p.clone().add(ac.clone().multiplyScalar(ab.lengthSq()).sub(ab.clone().multiplyScalar(ac.lengthSq())).cross(n).divideScalar(2 * n.lengthSq()))
     const rad = cc.distanceTo(p)
-    if (pts.every((x) => Math.abs(x.distanceTo(cc) - rad) < rad * 0.01)) return { kind: 'Circle', text: `length ${qlen(len)}, radius ${qlen(rad)}`, points: pts, center: cc, radius: rad, length: len }
+    if (pts.every((x) => Math.abs(x.distanceTo(cc) - rad) < rad * 0.01)) {
+      // The curve's own length, not the polyline's: the chords' central angles add up to the arc's sweep (2 pi for a whole circle).
+      const exact = rad * g.segs.reduce((t, [a, b]) => t + 2 * Math.asin(Math.min(1, a.distanceTo(b) / (2 * rad))), 0)
+      return { kind: 'Circle', text: `length ${qlen(exact)}, radius ${qlen(rad)}`, points: pts, center: cc, radius: rad, length: exact }
+    }
   }
   return { kind: 'Curve', text: `length ${qlen(len)}`, points: pts, center, length: len }
+}
+
+// ── Std_AlignToSelection (View3DInventorViewer::alignToSelection) ─────────────
+/** Base::Rotation(-UnitZ, dir).multVec(UnitX): the screen's x direction when the selection gives none (no straight edge). Parallel
+ *  vectors are the constructor's special case: the same way is no turn, the opposite a half turn about -Z x X (or -Z x Y). */
+export function rotateFromMinusZ(dir: THREE.Vector3): THREE.Vector3 {
+  const u = new THREE.Vector3(0, 0, -1), v = dir.clone().normalize(), w = u.clone().cross(v), x = new THREE.Vector3(1, 0, 0)
+  if (w.length() === 0) {
+    if (u.dot(v) > 0) return x
+    let t = u.clone().cross(x)
+    if (t.length() < 1e-12) t = u.clone().cross(new THREE.Vector3(0, 1, 0))
+    return x.applyAxisAngle(t.normalize(), Math.PI)
+  }
+  return x.applyAxisAngle(w.normalize(), Math.acos(Math.min(1, Math.max(-1, u.dot(v)))))
+}
+/** The axis of the plane the points lie in (TopoShape::findPlane), or null: too few points, all on one line, or not flat. */
+function planeAxis(points: THREE.Vector3[]): THREE.Vector3 | null {
+  if (points.length < 3) return null
+  const c = points.reduce((t, p) => t.add(p), new THREE.Vector3()).divideScalar(points.length)
+  const M = [[0, 0, 0], [0, 0, 0], [0, 0, 0]]
+  for (const p of points) {
+    const d = [p.x - c.x, p.y - c.y, p.z - c.z]
+    for (let i = 0; i < 3; i++) for (let j = 0; j < 3; j++) M[i][j] += (d[i] * d[j]) / points.length
+  }
+  const { values, vectors } = eig3(M)
+  if (values[2] < 1e-18 || values[1] < 1e-8 * values[2] || Math.sqrt(Math.max(0, values[0])) > 1e-4 * Math.sqrt(values[2])) return null
+  return vectors[0].clone().normalize()
+}
+/** The camera's z axis, and its dot with a direction, in float32 as Coin's SbRotation::multVec and SbVec3f::dot work. For a camera exactly across
+ *  the face (a Front or Rear view and a top face) alignToSelection's choice of side, cameraZ.dot(directionZ) < 0, is decided by the rounding
+ *  of those quaternions: the Front view's z axis is 6e-8 above the horizontal in float32 (so a top face is met from above, a bottom face is
+ *  turned to be seen from above too). Rounding to float32 first makes the double the page holds and the float32 FreeCAD holds the same number. */
+const f32 = Math.fround
+const cameraZFloat32 = (q: THREE.Quaternion) => {
+  const x = f32(q.x), y = f32(q.y), z = f32(q.z), w = f32(q.w)
+  return new THREE.Vector3(f32(2 * f32(f32(x * z) + f32(w * y))), f32(2 * f32(f32(y * z) - f32(w * x))), f32(1 - f32(2 * f32(f32(x * x) + f32(y * y)))))
+}
+const dotFloat32 = (a: THREE.Vector3, b: THREE.Vector3) => f32(f32(f32(a.x * f32(b.x)) + f32(a.y * f32(b.y))) + f32(a.z * f32(b.z)))
+/** What alignToSelection does once it has the directions: `dirZ` is what the camera is to look along, `dirX` the direction wanted
+ *  along the screen's x. The camera stays on the side it is on (the direction is flipped when the camera's z is nearer the opposite),
+ *  turns by the least angle that gets there, and is then rolled about the direction to the quarter turn nearest its own roll from
+ *  dirX (the tolerance of 1e-5 rad makes ties go the same way each time), and the result is the camera's orientation. Coin's
+ *  `a * b` of rotations is a first, then b. */
+export function alignOrientation(cam: THREE.Quaternion, dirZ: THREE.Vector3, dirX: THREE.Vector3): THREE.Quaternion {
+  const z = dirZ.clone().normalize(), x = dirX.clone().normalize()
+  const camZ = new THREE.Vector3(0, 0, 1).applyQuaternion(cam)
+  if (dotFloat32(cameraZFloat32(cam), z) < 0) z.negate()
+  const inter = new THREE.Quaternion().setFromUnitVectors(camZ, z).multiply(cam)
+  const ix = new THREE.Vector3(1, 0, 0).applyQuaternion(inter)
+  let angle = Math.atan2(z.dot(x.clone().cross(ix)), x.dot(ix)) // about z, from dirX to the camera's x
+  if (angle < 0) angle += 2 * Math.PI
+  const pi = Math.PI, f = 0.00001
+  angle = angle <= pi / 4 + f ? 0 : angle <= (3 * pi) / 4 + f ? pi / 2 : angle < pi + pi / 4 - f ? pi : angle < pi + (3 * pi) / 4 - f ? pi + pi / 2 : 0
+  const X = x.applyAxisAngle(z, angle), Y = z.clone().cross(X)
+  return new THREE.Quaternion().setFromRotationMatrix(new THREE.Matrix4().makeBasis(X, Y, z))
 }
 
 /** Jacobi eigenvalues/vectors of a symmetric 3x3 matrix, smallest first. */
@@ -2609,7 +2790,36 @@ export function quickMeasure(infos: SubInfo[]): string {
   const verts = infos.filter((i) => i.kind === 'Vertex')
   const areaOf = (i: SubInfo) => i.area ?? 0, lengthOf = (i: SubInfo) => i.length ?? 0
   const full = (c: SubInfo) => c.kind === 'Circle' && c.radius !== undefined && Math.abs(lengthOf(c) - 2 * Math.PI * c.radius) < 0.02 * lengthOf(c)
-  const minDist = (a: SubInfo, b: SubInfo) => { let best = Infinity; for (const p of a.points) for (const q of b.points) best = Math.min(best, p.distanceToSquared(q)); return Math.sqrt(best) }
+  /** Measurement.cpp's BRepExtrema_DistShapeShape between a point and an edge (its segments) or a face (its triangles). */
+  const toEdge = (p: THREE.Vector3, e: SubInfo) => {
+    let best = Infinity
+    for (let i = 0; i + 1 < e.points.length; i += 2) {
+      const a = e.points[i], ab = e.points[i + 1].clone().sub(a), t = Math.max(0, Math.min(1, p.clone().sub(a).dot(ab) / (ab.lengthSq() || 1)))
+      best = Math.min(best, p.distanceTo(a.clone().addScaledVector(ab, t)))
+    }
+    return best
+  }
+  const toFace = (p: THREE.Vector3, f: SubInfo) => {
+    let best = Infinity
+    const near = new THREE.Vector3()
+    for (let i = 0; i + 2 < f.points.length; i += 3) best = Math.min(best, new THREE.Triangle(f.points[i], f.points[i + 1], f.points[i + 2]).closestPointToPoint(p, near).distanceTo(p))
+    return best
+  }
+  const circ = (i: SubInfo) => i.kind === 'Circle'
+  /** The point to a circle exactly (its plane's distance and the gap between the radius and the point's distance from the axis); an arc by its mesh. */
+  const toCircle = (p: THREE.Vector3, c: SubInfo) => {
+    if (!full(c)) return toEdge(p, c)
+    const n = axisOf(c), w = p.clone().sub(c.center), h = w.dot(n)
+    return Math.hypot(h, w.clone().addScaledVector(n, -h).length() - c.radius!)
+  }
+  /** gp_Circ::Axis: the points of the circle or arc run counter-clockwise about it, as the curve's parameter does. */
+  const axisOf = (c: SubInfo) => {
+    const n = new THREE.Vector3()
+    for (let i = 0; i + 1 < c.points.length; i += 2) n.add(c.points[i].clone().sub(c.center).cross(c.points[i + 1].clone().sub(c.center)))
+    return n.normalize()
+  }
+  const angleBetween = (a: THREE.Vector3, b: THREE.Vector3) => THREE.MathUtils.radToDeg(Math.acos(Math.min(1, Math.max(-1, a.dot(b)))))
+  const PARALLEL = 1e-4 // degrees: the axes of a circle and another circle or a cylinder come from meshes, not from the B-rep, which says exactly parallel
   if (!infos.length || faces.length + edges.length + verts.length !== infos.length) return ''
   if (faces.length === infos.length) {
     if (faces.length === 2 && faces.every((f) => f.normal) && Math.abs(faces[0].normal!.dot(faces[1].normal!)) > 0.9999) {
@@ -2645,18 +2855,35 @@ export function quickMeasure(infos: SubInfo[]): string {
       }
       return `Angle: ${ang(THREE.MathUtils.radToDeg(Math.acos(Math.min(1, cos))))}, Total length: ${len(lengthOf(a) + lengthOf(b))}` // TwoLines
     }
+    if (edges.length === 2 && edges.every(circ)) { // TwoCircles (circles or arcs): the length, the distance between the centres, the angle between the axes
+      const [a, b] = edges, angle = angleBetween(axisOf(a), axisOf(b)), head = `Total length: ${len(lengthOf(a) + lengthOf(b))}, Center distance: ${len(a.center.distanceTo(b.center))}`
+      return angle <= PARALLEL ? head : `${head}, Axis angle: ${ang(angle)}`
+    }
+    if (edges.length === 2 && edges.filter(circ).length === 1) { // CircleToEdge: the circle's centre to the other edge
+      const c = edges.find(circ)!, o = edges.find((e) => !circ(e))!
+      return `Total length: ${len(lengthOf(c) + lengthOf(o))}, Center distance: ${len(toEdge(c.center, o))}`
+    }
     return `Total length: ${len(edges.reduce((t, e) => t + lengthOf(e), 0))}` // Edges
+  }
+  if (faces.length === 1 && edges.length === 1 && infos.length === 2 && circ(edges[0])) {
+    const f = faces[0], c = edges[0]
+    if (cyl(f)) { // CircleToCylinder: the circle's centre to the cylinder's axis, and the angle between the two axes (a cylinder's axis has no sign here)
+      const w = c.center.clone().sub(f.center), off = w.clone().sub(f.dir!.clone().multiplyScalar(w.dot(f.dir!))).length(), angle = angleBetween(axisOf(c), f.dir!.clone().normalize())
+      const folded = Math.min(angle, 180 - angle)
+      return folded <= PARALLEL ? `Center axis distance: ${len(off)}` : `Center axis distance: ${len(off)}, Axis angle: ${ang(folded)}`
+    }
+    return `Center surface distance: ${len(toFace(c.center, f))}` // CircleToSurface
   }
   if (verts.length === 2 && infos.length === 2) return `Distance: ${len(verts[0].center.distanceTo(verts[1].center))}` // PointToPoint
   if (verts.length === 1 && infos.length === 2) {
     const v = verts[0], o = infos.find((i) => i !== v)!
-    if (o.kind === 'Circle' && full(o)) return `Minimum distance: ${len(minDist(v, o))}, Center distance: ${len(v.center.distanceTo(o.center))}` // PointToCircle
-    if (o.kind === 'Plane' || o.kind === 'Disc') return `Minimum distance: ${len(Math.abs(v.center.clone().sub(o.center).dot(o.normal!)))}` // PointToSurface
+    if (circ(o)) return `Minimum distance: ${len(toCircle(v.center, o))}, Center distance: ${len(v.center.distanceTo(o.center))}` // PointToCircle (a circle or an arc)
     if (cyl(o)) { // PointToCylinder: the distance to the axis too
       const w = v.center.clone().sub(o.center), off = w.clone().sub(o.dir!.clone().multiplyScalar(w.dot(o.dir!))).length()
-      return `Minimum distance: ${len(Math.abs(off - o.radius!))}, Axis distance: ${len(off)}`
+      return `Minimum distance: ${len(toFace(v.center, o))}, Axis distance: ${len(off)}`
     }
-    return `Minimum distance: ${len(minDist(v, o))}` // PointToEdge, PointToSurface
+    if (faces.includes(o)) return `Minimum distance: ${len(toFace(v.center, o))}` // PointToSurface: to the face, not to its plane
+    return `Minimum distance: ${len(toEdge(v.center, o))}` // PointToEdge
   }
   return ''
 }

@@ -89,9 +89,9 @@ export function mdiWindows() {
 export function windowsEntries(): Entry[] {
   const windows = mdiWindows()
   return [
-    // QKeySequence::NextChild / PreviousChild on macOS: Ctrl+} and Ctrl+{ (qplatformtheme.cpp).
+    // QKeySequence::NextChild / PreviousChild as the real FreeCAD binds them on macOS: Ctrl+} and Ctrl+Shift+} (⌘} and ⇧⌘}).
     { label: 'Next', kbd: '⌘}', icon: 'win-next', disabled: true },
-    { label: 'Previous', kbd: '⌘{', icon: 'win-prev', disabled: true },
+    { label: 'Previous', kbd: '⇧⌘}', icon: 'win-prev', disabled: true },
     'sep',
     { label: 'Tile', icon: 'win-tile', disabled: true },
     { label: 'Cascade', icon: 'win-cascade', disabled: true },

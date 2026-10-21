@@ -1080,7 +1080,8 @@ async function testTree() {
     'Toggle Visibility': { expect: `S.hidden.includes('hot_plate')` }, 'Hide Selection': { expect: `S.hidden.includes('hot_plate')` }, 'Show Selection': { pre: () => put({ hidden: ['hot_plate'] }), expect: `!S.hidden.includes('hot_plate')` },
     'Toggle Selectability': { expect: `S.unselectable.includes('hot_plate')` }, 'Random Color': { expect: `S.view['hot_plate']?.shapeColor!=null` }, 'Toggle Transparency': { expect: `S.view['hot_plate']?.transparency>0` },
     Copy: { expect: `FX.includes('clipboard')` }, 'Send to Console': { expect: `S.consoleDraft.includes('hot_plate')` }, Transform: { expect: task('transform') }, Placement: { expect: task('placement') },
-    'Drawing…': { expect: task('drawing') }, 'Mark to Recompute': { expect: sawReq('POST /api/check') }, 'Recompute Object': { expect: sawReq('POST /api/check') }, 'Open File Location': { expect: sawReq('POST /api/reveal') },
+    'Drawing…': { expect: task('drawing') }, 'Mark to Recompute': { expect: sawReq('POST /api/check') }, 'Recompute Object': { expect: sawReq('POST /api/check') }, 'Open File Location': { expect: sawReq('POST /api/reveal') }, 'Reveal in Finder': { expect: sawReq('POST /api/reveal') },
+    Appearance: { expect: task('appearance') },
     'Properties': { na: 'the Model tab it brings forward is the one the tree is in' },
     'Edit hot_plate': { expect: `S.task?.kind==='params'||S.task?.kind==='transform'` }, 'Transform hot_plate': { expect: task('transform') },
     'Tree Settings > Show Description': { expect: `!S.treeUI.hideColumn` }, 'Tree Settings > Show Internal Name': { expect: `!S.treeUI.hideInternalNames` },
@@ -1091,7 +1092,7 @@ async function testTree() {
   for (const s of Object.values(objectSpecs)) s.post = s.post ?? resetTree
   await testCtx('tree > object menu', async () => { await page.locator('.trow[data-name="hot_plate"]').click({ button: 'right' }) }, { specs: objectSpecs, sel: 'one' })
   await testCtx('tree > document menu', async () => { await page.locator('.trow.doc').click({ button: 'right' }) }, {
-    specs: { 'Open File Location': { expect: sawReq('POST /api/reveal') }, 'Search Objects': { expect: 'S.treeFilter!==null' }, 'Mark to Recompute': { expect: sawReq('POST /api/check') }, 'Show Items Hidden in Tree View': { expect: 'S.treeShowHidden', post: resetTree } } })
+    specs: { 'Open File Location': { expect: sawReq('POST /api/reveal') }, 'Reveal in Finder': { expect: sawReq('POST /api/reveal') }, 'Close Document': { fresh: true, expect: '!V' }, 'Search Objects': { expect: 'S.treeFilter!==null' }, 'Mark to Recompute': { expect: sawReq('POST /api/check') }, 'Show Items Hidden in Tree View': { expect: 'S.treeShowHidden', post: resetTree } } })
   await testCtx('tree > empty space menu', async () => {
     const box = await page.locator('.tree').boundingBox()
     await page.mouse.click(box.x + box.width / 2, box.y + box.height - 8, { button: 'right' })
