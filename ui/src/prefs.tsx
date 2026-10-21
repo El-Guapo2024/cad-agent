@@ -654,8 +654,10 @@ function resetPages(pages: string[]) {
   }
   applyReportColors()
 }
-/** DlgSettingsReportView.ui: Output, Colors, Python Interpreter. */
-const REPORT_COLORS = { msg: '#000000', log: '#0000ff', warn: '#ffaa00', err: '#ff0000' }
+/** DlgSettingsReportView.ui: Output, Colors, Python Interpreter. The colours start as FreeCAD Light's OutputWindow group
+ *  (colorText 0x212529, colorLogging 0x55aaff, colorWarning 0xfd7c62, colorError 0xff0000: PreferencePacks/FreeCAD Light), which
+ *  the Light theme's first start writes over ReportView.cpp's own black, blue, #ffaa00 and red. Same as freecad.css's --r-*. */
+const REPORT_COLORS = { msg: '#212529', log: '#55aaff', warn: '#fd7c62', err: '#ff0000' }
 export function applyReportColors() {
   const c = { ...REPORT_COLORS, ...saved.get<Partial<typeof REPORT_COLORS>>('report.colors', {}) }
   for (const [k, v] of Object.entries(c)) document.documentElement.style.setProperty(`--r-${k}`, v)

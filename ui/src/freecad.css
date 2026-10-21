@@ -1,19 +1,21 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later
    The "FreeCAD Light" look of FreeCAD main (nightly) at 3160daf1e2b6, 2026-09-29, ported from FreeCAD's
    src/Gui/Stylesheets/FreeCAD.qss and src/Gui/Stylesheets/parameters/FreeCAD Light.yaml.
-   Token names follow the yaml; darken/lighten are taken as HSL lightness steps. */
+   Token names follow the yaml. darken(c, n) / lighten(c, n) are Qt's QColor::darker / lighter(100 + n) (Gui/StyleParameters/
+   Parser.cpp: lightenOrDarken), which scale the HSV value; a colour is written as lround(v / 65535 * 255) (Base::Color::asHexString),
+   so #f0f0f0 darkened by 8 is #dedede (measured in FreeCAD's property view: its group rows) and by 20 is #c8c8c8 (its grid lines). */
 :root {
   --primary: #f0f0f0;           /* PrimaryColor */
-  --darken1: #e6e6e6;           /* PrimaryColorDarken1 (4) */
-  --darken2: #dcdcdc;           /* PrimaryColorDarken2 (8) */
-  --darken3: #d7d7d7;           /* PrimaryColorDarken3 (10) */
-  --darken4: #bdbdbd;           /* PrimaryColorDarken4 (20) */
+  --darken1: #e7e7e7;           /* PrimaryColorDarken1 (4) */
+  --darken2: #dedede;           /* PrimaryColorDarken2 (8) */
+  --darken3: #dadada;           /* PrimaryColorDarken3 (10) */
+  --darken4: #c8c8c8;           /* PrimaryColorDarken4 (20) */
   --lighten1: #f5f5f5;          /* PrimaryColorLighten1 (2) */
-  --lighten2: #f8f8f8;          /* PrimaryColorLighten2 (3) */
+  --lighten2: #f7f7f7;          /* PrimaryColorLighten2 (3) */
   --lighten3: #fafafa;          /* PrimaryColorLighten3 (4) */
-  --hover-bg: #ffffff;          /* GeneralBackgroundHoverColor (Lighten5) */
+  --hover-bg: #fefefe;          /* GeneralBackgroundHoverColor (Lighten5, 6) */
   --text: #000000;              /* TextForegroundColor */
-  --text-disabled: #8a8a8a;     /* TextDisabledColor (approximate) */
+  --text-disabled: #6f6f6f;     /* TextDisabledColor: darken(TabbarBackgroundColor = Darken4, 80) */
   --border: var(--darken4);     /* GeneralBorderColor */
   --header-bg: var(--darken2);  /* GeneralHeaderBackgroundColor */
   --menu-bg: var(--lighten1);   /* MenuBackgroundColor */
@@ -22,12 +24,14 @@
   --tab-active: #f7f7f7;        /* ActiveTabBackgroundColor = the 3D view background */
   --accent: #00abff;            /* ThemeAccentColor1 (FreeCAD Light.cfg) */
   --accent-bg: #60c7f9;         /* AccentBackgroundColor: blend(primary, accent, 60) */
-  --accent-hover: #b3e6ff;      /* AccentHoverColor: blend(hover, accent, 30) */
+  --accent-hover: #b2e5fe;      /* AccentHoverColor: blend(hover, accent, 30), hover being #fefefe */
   --radius: 3px;                /* InputFieldBorderRadius */
   --btn-top: var(--lighten3);   /* ButtonTopBackgroundColor */
   --btn-bottom: var(--darken1); /* ButtonBottomBackgroundColor */
   --url: #0061a7;               /* TextUrlColor */
-  --r-msg: #000000; --r-log: #0000ff; --r-warn: #ffaa00; --r-err: #ff0000; /* report view defaults */
+  /* Report view: OutputWindow's colorText / colorLogging / colorWarning / colorError of FreeCAD Light.cfg (its own compiled-in
+     defaults, black / blue / #ffaa00 / red, are what ReportView.cpp starts with and the Light theme replaces) */
+  --r-msg: #212529; --r-log: #55aaff; --r-warn: #fd7c62; --r-err: #ff0000;
   font: 13px/1.35 -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Ubuntu, sans-serif;
   color: var(--text);
   color-scheme: light;
@@ -64,12 +68,18 @@ button, select, input { font: inherit; color: inherit; }
 .tb-caret { font-size: 9px; color: #444; margin-left: 1px; }
 
 /* ── toolbar (QToolBar, QToolButton) ── */
-/* QToolBar:horizontal (FreeCAD.qss): padding-top/left 3px; ToolBarManager's ToolbarIconSize 24 gives
-   32x31 buttons (measured in the real FreeCAD), so 39px rows. */
-.toolbar { display: flex; align-items: center; gap: 0; padding: 3px 0 3px 3px; background: var(--primary);
-  border-top: 1px solid var(--darken2); border-bottom: 1px solid var(--darken2); flex-wrap: wrap; }
+/* QToolBar:horizontal (FreeCAD.qss): padding-top/left 3px; ToolBarManager's ToolbarIconSize 24 gives 33 x 33 buttons
+   (QToolButton::geometry in the real FreeCAD on the Mac's Qt platform: 33 x 33, Undo 45 x 33), and every toolbar is 39 px high
+   (QToolBar::geometry: File, Edit ... 0,0,115,39; the second row at y = 39), so a row is 39 px: 3 above the buttons, 3 below.
+   Each row ends in the 1 px line of QToolBar's gradient (GeneralBorderColor at stops 0 and 1, PrimaryColor from 0.01 to 0.97):
+   the bottom pixel row reads #d9d9d9 in the screenshots, the top one is not drawn (the first pixel's centre is past the 0.01
+   stop). The margins sit on the items, not on the container, so a row that wraps by itself is 39 px as well; the line break
+   (tb-break) stays 0. */
+.toolbar { display: flex; align-items: center; gap: 0; padding: 0 0 0 3px; flex-wrap: wrap;
+  background: repeating-linear-gradient(to bottom, var(--primary) 0 38px, #d9d9d9 38px 39px); }
+.toolbar > :not(.tb-break) { margin-top: 3px; margin-bottom: 3px; }
 .tb-sep { width: 1px; height: 21px; background: var(--border); margin: 0 5px; }
-.tb-btn { width: 32px; height: 31px; display: inline-flex; align-items: center; justify-content: center; padding: 2px;
+.tb-btn { width: 33px; height: 33px; display: inline-flex; align-items: center; justify-content: center; padding: 2px;
   border: 1px solid transparent; border-radius: var(--radius); background: transparent; }
 .tb-btn:hover { border-color: var(--border); background: linear-gradient(var(--btn-top), var(--btn-bottom)); }
 .tb-btn:active, .tb-btn.on { border-color: #9a9a9a; background: #d4d4d4; }
@@ -132,7 +142,8 @@ button, select, input { font: inherit; color: inherit; }
 .split-h { height: 5px; flex: none; cursor: row-resize; background: var(--primary); border-top: 1px solid var(--darken2);
   border-bottom: 1px solid var(--darken2); }
 .split-h:hover { background: var(--accent-hover); }
-.tree { flex: 1; overflow: auto; background: #fff; user-select: none; }
+/* the tree is a QTreeWidget, transparent like every QAbstractScrollArea (FreeCAD.qss): the dock's PrimaryColor shows through */
+.tree { flex: 1; overflow: auto; background: var(--primary); user-select: none; }
 .thead, .phead { display: grid; grid-template-columns: 1fr 1fr; position: sticky; top: 0; z-index: 1;
   background: var(--header-bg); border-bottom: 1px solid var(--border); }
 .thead span, .phead span { padding: 2px 6px; border-right: 1px solid var(--border); white-space: nowrap; overflow: hidden; }
@@ -157,22 +168,32 @@ button, select, input { font: inherit; color: inherit; }
 .twisty.open::before { left: 2px; top: 4px; border: 4px solid transparent; border-top: 5px solid #666; }
 
 /* ── property view (PropertyEditor) ── */
-.props { display: flex; flex-direction: column; height: 100%; background: #fff; }
+/* QAbstractScrollArea is transparent in FreeCAD.qss, so the property view shows the dock's PrimaryColor (#f0f0f0 in the screenshots),
+   and setAlternatingRowColors(true) shows nothing: GeneralAlternateBackgroundColor is PrimaryColor too. PropertyItemDelegate::paint
+   draws a grid in the style's SH_Table_GridLineColor (gridline-color: GeneralGridLinesColor = PrimaryColorDarken4, #c8c8c8): a line
+   under every row and one at the right edge of each cell, and fills a group row with groupBackground (GeneralHeaderBackgroundColor,
+   #dedede). A row is the text's 16 px + 5 (sizeHint) = 21 px with its line; the first column is the header's default 100 px. */
+.props { display: flex; flex-direction: column; height: 100%; background: var(--primary); }
 .pgrid { flex: 1; overflow: auto; }
-.pgroup { display: flex; align-items: center; gap: 2px; padding: 0 4px; height: 20px; box-sizing: border-box; background: var(--header-bg);
-  border-bottom: 1px solid var(--border); font-weight: bold; user-select: none; }
-.prow { display: grid; grid-template-columns: 45% 55%; min-height: 20px; box-sizing: border-box; border-bottom: 1px solid #ececec; }
-.prow:nth-of-type(even) { background: var(--primary); } /* GeneralAlternateBackgroundColor */
-.prow > span { display: flex; align-items: center; gap: 2px; padding: 0 6px; overflow: hidden; white-space: nowrap;
+.pgroup { display: flex; align-items: center; gap: 2px; padding: 0 2px; height: 21px; box-sizing: border-box; background: var(--header-bg);
+  border-bottom: 1px solid var(--border); border-right: 1px solid var(--border); font-weight: bold; user-select: none; }
+.prow { position: relative; display: grid; grid-template-columns: var(--pk-w, 100px) minmax(0, 1fr); min-height: 21px; box-sizing: border-box; }
+/* the delegate draws each line inside its own cell, which starts after the 12 px of indentation: no line under the branch gutter */
+.prow::after { content: ""; position: absolute; left: 12px; right: 0; bottom: 0; height: 1px; background: var(--border); pointer-events: none; }
+.prow > span { display: flex; align-items: center; gap: 2px; padding: 0 3px; overflow: hidden; white-space: nowrap;
   text-overflow: ellipsis; }
-.pk { border-right: 1px solid #ececec; }
-.prow.ro .pv { color: #555; }
+.pk, .pv { border-right: 1px solid var(--border); }
+/* a property that has children shows its branch arrow in the 12 px of indentation before the name (the name stays where the others are) */
+.pk > .twisty { margin: 0 0 0 -14px; } /* 12 px wide, then the row's 2 px gap: the name is where the others start */
+/* PropertyItemDelegate::paint clears State_Enabled on a read-only value: TextDisabledColor */
+.prow.ro .pv { color: var(--text-disabled); }
 .pv.edit { cursor: text; }
 .pv input, .pv select { width: 100%; height: 19px; border: 1px solid var(--accent); border-radius: 0; padding: 0 3px; background: #fff; }
 .pv select { border-color: var(--border); }
-.ptabs { display: flex; gap: 0; padding: 0 2px 2px; background: var(--primary); border-top: 1px solid var(--border); }
+/* QTabWidget::tab-bar { alignment: center }; QTabBar::tab { padding: 4px } with a 16 px line: the real tabs are 39 and 40 x 26 */
+.ptabs { display: flex; justify-content: center; gap: 0; padding: 0 2px 2px; background: var(--primary); border-top: 1px solid var(--border); }
 .ptabs button { border: 1px solid var(--border); border-top: none; border-radius: 0 0 3px 3px; background: var(--tab-inactive);
-  padding: 2px 12px; margin-right: -1px; }
+  padding: 4px; line-height: 16px; margin-right: -1px; }
 .ptabs button.on { background: var(--tab-active); font-weight: bold; }
 .swatch-row { display: inline-flex; align-items: center; gap: 6px; }
 .swatch { width: 22px; height: 12px; border: 1px solid #777; }
@@ -213,9 +234,12 @@ button, select, input { font: inherit; color: inherit; }
 
 /* ── report view, console, checks ── */
 .report, .console { height: 100%; overflow: auto; background: #fff; padding: 2px 4px; white-space: pre-wrap; user-select: text; }
-.report { font-size: 12.5px; }
+/* ReportOutput is a QTextEdit (ReportView.cpp, FreeCAD.qss): TextEditFieldBackgroundColor, the Editor group's font (the system
+   fixed font, Menlo, at FontSize 10 = 10 px on a Mac, 12 px lines), 4 px of text-edit padding and 4 of document margin (text at 9 px). */
+.report { background: var(--field-bg); padding: 6px 8px; font-family: var(--ed-font, Menlo, Consolas, "DejaVu Sans Mono", monospace);
+  font-size: var(--ed-size, 10px); line-height: 1.2; }
 .rl.msg { color: var(--r-msg); } .rl.log { color: var(--r-log); } .rl.warn { color: var(--r-warn); } .rl.err { color: var(--r-err); } .rl.critical { color: var(--r-msg); }
-.console { font-family: var(--ed-font, ui-monospace, Menlo, Consolas, monospace); font-size: var(--ed-size, 10pt); line-height: 1.4; color: var(--ed-text, #212529); tab-size: var(--ed-tab, 4); }
+.console { font-family: var(--ed-font, Menlo, Consolas, "DejaVu Sans Mono", monospace); font-size: var(--ed-size, 10px); line-height: 1.4; color: var(--ed-text, #212529); tab-size: var(--ed-tab, 4); }
 .console input { font: inherit; color: inherit; caret-shape: var(--ed-caret, auto); }
 .cprompt { color: #888; }
 .cout { color: var(--ed-out, #d9480f); padding-left: 28px; } /* Editor colours: Python output / Python error */
@@ -466,7 +490,7 @@ button, select, input { font: inherit; color: inherit; }
 .tree .thead, .tree .trow { grid-template-columns: var(--tree-cols, 1fr); }
 /* PropertyEditor.cpp: no header (setHeaderHidden(true)); the Property/Value boundary is dragged
    on any row and FirstColumnSize, set as --pk-w on .pgrid, persists. */
-.pgrid .prow { grid-template-columns: var(--pk-w, 45%) 1fr; }
+.pgrid .prow { grid-template-columns: var(--pk-w, 100px) minmax(0, 1fr); } /* the header's default section size: 100 px (QHeaderView) */
 /* CAD Agent workbench: the Render task's preview */
 .agent-render-img { max-width: 100%; display: block; margin-top: 6px; border: 1px solid var(--border); border-radius: var(--radius); }
 /* Macro editor (DlgMacroExecute > Edit) */
@@ -475,8 +499,8 @@ button, select, input { font: inherit; color: inherit; }
   min-height: 260px;
   margin-top: 4px;
   resize: vertical;
-  font-family: var(--ed-font, ui-monospace, Menlo, Consolas, monospace);
-  font-size: var(--ed-size, 10pt);
+  font-family: var(--ed-font, Menlo, Consolas, "DejaVu Sans Mono", monospace);
+  font-size: var(--ed-size, 10px);
   color: var(--ed-text, #212529);
   tab-size: var(--ed-tab, 4);
   caret-shape: var(--ed-caret, auto);
@@ -497,19 +521,22 @@ button, select, input { font: inherit; color: inherit; }
 .whats-this-cursor, .whats-this-cursor * { cursor: help !important; }
 .whats-this-box { position: fixed; z-index: 10000; max-width: 240px; background: #ffffe1; border: 1px solid #000;
   border-radius: 2px; padding: 4px 6px; font-size: 12px; line-height: 1.35; color: #000; box-shadow: 1px 2px 6px rgba(0, 0, 0, .3); }
-/* QToolTip (FreeCAD.qss): the theme's tooltips, drawn by src/tooltip.ts */
+/* QToolTip (FreeCAD.qss): the theme's tooltips, drawn by src/tooltip.ts. Measured in FreeCAD's own popup (a 188 x 70 grab of the Fit All
+   tooltip): the font is QToolTip::font(), 11 pt = 11 px with 13 px lines on a Mac; the QSS border of 1.5px is drawn 2 px wide; the
+   label's margin and the QSS padding (0 2px) leave the text 7 px in from the border across and 6 px down (ink from x = 10, y = 9); and
+   `font-weight: bolder` is not a QSS weight (normal, bold, 100-900), so Qt ignores it and the text is regular (FreeCAD's bold is
+   the <b> in the command's tooltip HTML). */
 .fc-tooltip { position: fixed; top: 0; left: 0; z-index: 10000; box-sizing: border-box; max-width: 420px;
-  background-color: var(--primary); border: 1.5px solid var(--border); border-radius: 5px; padding: 0 2px;
-  font: inherit; font-weight: bolder; color: var(--text); white-space: pre-line; line-height: 1.4;
+  background-color: var(--primary); border: 2px solid var(--border); border-radius: 5px; padding: 6px 7px;
+  font: inherit; font-size: 11px; font-weight: normal; color: var(--text); white-space: pre-line; line-height: 13px;
   pointer-events: none; user-select: none; }
-/* QStatusBar QToolTip: a thinner border, no padding, slightly see-through */
-.fc-tooltip--statusbar { border: 1px solid var(--border); padding: 0; opacity: 0.902; }
+/* QStatusBar QToolTip: a 1 px border (the rest of QToolTip's rule still applies), slightly see-through */
+.fc-tooltip--statusbar { border-width: 1px; opacity: 0.902; }
 
 /* ── FreeCAD.qss widget rules (FreeCAD Light), checked against the stylesheet at 3160daf1e2b6 ── */
 /* QMenuBar: MenuBackgroundColor; QMenu::separator: GroupboxBorderColor; QToolBar's edge stops: GeneralBorderColor */
 .menubar { background: var(--menu-bg); }
 .mb-sep { background: #c5c5c5; }
-.toolbar { border-top-color: var(--border); border-bottom-color: var(--border); }
 /* QPushButton / QToolButton: hover is solid GeneralBackgroundHoverColor; a pressed push button gets a
    GeneralBorderHoverColor (black) border over its idle gradient; a pressed tool button is inset on
    PrimaryColorDarken2; a checked one uses ToolButtonCheckedBackground / Border */
@@ -708,23 +735,29 @@ input[type=range]:disabled::-webkit-slider-runnable-track { background: var(--da
 
 /* QToolBar::handle:horizontal (FreeCAD.qss): an 8px grip at the start of each toolbar, the
    black icon on hover; none while Std_ToggleToolBarLock has the toolbars locked. */
-.tb-grip { flex: none; width: 8px; height: 31px; margin-right: 2px; background: url(/freecad-icons/qss-hmovetoolbar-lightgray.svg) center / 8px auto no-repeat; }
+.tb-grip { flex: none; width: 8px; height: 33px; margin-right: 2px; background: url(/freecad-icons/qss-hmovetoolbar-lightgray.svg) center / 8px auto no-repeat; }
 .tb-grip:hover { background-image: url(/freecad-icons/qss-hmovetoolbar-black.svg); }
 .toolbar.locked .tb-grip { display: none; }
 
 /* Start page (Mod/Start/Gui): StartView's scroll area, the New File row of NewFileButtons
    (48px icon, bold heading, 180px description, margins of half a line: 8/8/16/8), and the
    FileCardView of 128px thumbnails (margin 11, FileCardSpacing 15), then the footer. */
-.start { display: flex; flex-direction: column; height: 100%; background: var(--primary); }
+/* a line of the 13 px system font is 16 px in Qt (QFontMetrics::height: ascent 13 + descent 3), not 13 x 1.35 */
+.start { display: flex; flex-direction: column; height: 100%; background: var(--primary); line-height: 16px; }
 .start-scroll { flex: 1; overflow: auto; padding: 9px; }
-.start h1 { font-size: 26px; font-weight: 700; margin: 8px 0 12px; }
-.start h2 { font-size: 20px; font-weight: 700; margin: 14px 0 8px; }
+/* the headings (QLabel rich text, <h1>) keep the page's 1.35: they are 26 px tall glyphs on a 16 px line otherwise */
+.start h1 { font-size: 26px; font-weight: 700; margin: 8px 0 12px; line-height: 1.35; }
+.start h2 { font-size: 20px; font-weight: 700; margin: 14px 0 8px; line-height: 1.35; }
 .start-new { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 15px; }
-.qbtn.start-newbtn { height: auto; min-height: 62px; padding: 8px 16px 8px 8px; gap: 8px; justify-content: flex-start; text-align: left; }
+/* NewFileButton.cpp: the layout's margins are QFontMetrics(bold).height() / 2 = 8 (right 16) with 8 between the 48 px icon and the 180 px
+   description, so a button is 8 + 48 + 8 + 180 + 16 = 260 wide and max(48, heading + description lines) + 16 = 64 high: measured 260 x 64
+   in FreeCAD, 6 px apart. (1 px of the padding is the button's border.) */
+.qbtn.start-newbtn { width: 260px; height: 64px; min-height: 0; padding: 7px 15px 7px 7px; gap: 8px; justify-content: flex-start; text-align: left; }
 .start-newbtn > span { display: flex; flex-direction: column; }
 .start-desc { width: 180px; }
 .start-files { display: flex; flex-wrap: wrap; align-content: flex-start; gap: 15px; padding: 15px; min-height: 228px; border: 1px solid var(--border); background: var(--lighten1); margin-bottom: 15px; }
-.qbtn.start-card { width: 150px; height: auto; padding: 11px; flex-direction: column; align-items: flex-start; gap: 0; text-align: left; }
+/* FileCardDelegate::sizeHint: 128 + 2 x 11 wide, 128 + (2 + 2 lines of 16) + 3 x 11 = 195 high (the border is one px of the 11) */
+.qbtn.start-card { width: 150px; height: auto; padding: 10px; flex-direction: column; align-items: flex-start; gap: 0; text-align: left; }
 .start-thumb { width: 128px; height: 128px; display: flex; align-items: center; justify-content: center; margin-bottom: 11px; }
 .start-thumb img { max-width: 128px; max-height: 128px; }
 .start-name { max-width: 128px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-bottom: 2px; }
@@ -854,12 +887,23 @@ input[type=range]:disabled::-webkit-slider-runnable-track { background: var(--da
 .dv-groupview-header-top .dv-single-tab .dv-tab { flex: 1; justify-content: center; background: var(--primary) !important; }
 .dv-groupview-header-top .dv-single-tab .dv-scrollable { flex: 1 1 auto; min-width: 0; }
 .dv-groupview-header-top .dv-single-tab .dv-default-tab-content { flex: 1; text-align: center; }
-/* QTabBar::close-button (FreeCAD.qss) on the document tabs: close-lightgray, red on hover. Only on the MDI area's tabs (the 3D view,
-   the Start page, a drawing): the tabified docks close from their title bar, and the first rule of .dock hides every other tab's. */
-.dock .dv-groupview.mdi .dv-default-tab-action { display: flex !important; }
-.dv-groupview-header-bottom .dv-default-tab-action { background: url(/freecad-icons/qss-close-lightgray.svg) center / 10px no-repeat; }
-.dv-groupview-header-bottom .dv-default-tab-action:hover { background-image: url(/freecad-icons/qss-close-red.svg); }
-.dv-groupview-header-bottom .dv-default-tab-action svg { visibility: hidden; }
+/* QTabBar::close-button (FreeCAD.qss) on the document tabs: close-lightgray.svg, close-red.svg on hover, a 4 px margin, on every tab
+   (the real tabs: 'Start' is 65 x 30 with the glyph's last pixel 5 px from the edge). Only on the MDI area's tabs (the 3D view, the
+   Start page, a drawing): the tabified docks close from their title bar, and the first rule of .dock hides every other tab's.
+   dockview's own rule for the button is three classes deep (.dv-tab .dv-default-tab .dv-default-tab-action: background 0 0, padding 4,
+   and visibility: hidden on a tab that is not the active one until the pointer is over it), so these name the group and the tab as
+   well: with fewer classes the icon below never showed, and the button was a blank 19 px square. */
+.dock .dv-groupview.mdi .dv-tab .dv-default-tab .dv-default-tab-action { display: flex !important; visibility: visible; width: 22px; height: 22px; padding: 0;
+  margin-left: 2px; border-radius: 0; background: url(/freecad-icons/qss-close-lightgray.svg) center / 12px no-repeat; }
+.dock .dv-groupview.mdi .dv-tab .dv-default-tab .dv-default-tab-action:hover { background-color: transparent; background-image: url(/freecad-icons/qss-close-red.svg); }
+.dock .dv-groupview.mdi .dv-tab .dv-default-tab .dv-default-tab-action svg { display: none; }
+/* The document tabs are QTabBar::tab:bottom (FreeCAD.qss): 4 px of padding, a 1 px GeneralBorderColor border all round, the bottom corners
+   rounded, and on the selected one a top border in its own colour (ActiveTabBackgroundColor), so that it runs into the 3D view above
+   it. The real bar is 1014 x 30 (QTabBar#mdiAreaTabBar) with each tab 30 px high (a 'Start' tab is 0,0,64,30). */
+.dock .dv-groupview.mdi { --dv-tabs-and-actions-container-height: 30px; }
+.dock .dv-groupview.mdi .dv-tabs-and-actions-container { padding: 0; border-bottom: none; }
+.dock .dv-groupview.mdi .dv-tab { padding: 0 4px; border: 1px solid var(--border); border-radius: 0 0 3px 3px; margin-right: 0; }
+.dock .dv-groupview.mdi .dv-tab.dv-active-tab { border-top-color: var(--tab-active); }
 .tb-break { flex-basis: 100%; height: 0; }
 
 /* Tabified docks (QMainWindow): the current dock's title bar on top, the tabs at the bottom. */

@@ -1016,10 +1016,12 @@ export function setEditorPrefs(patch: Partial<State['editorPrefs']>) {
   setState((s) => { const editorPrefs = { ...s.editorPrefs, ...patch }; saved.set('editorPrefs', editorPrefs); return { editorPrefs } })
 }
 /** The Editor group's font (Font, FontSize in pt), Text colour, Python output/error colours and
- *  tab stops, as CSS variables for the console and the macro editor (PythonConsole and
- *  PythonEditor both follow the Editor group). */
+ *  tab stops, as CSS variables for the report view, the console and the macro editor (ReportOutput,
+ *  PythonConsole and PythonEditor all follow the Editor group). The system fixed font is Menlo, what
+ *  QFontDatabase::systemFont(FixedFont) is on a Mac, and a point is a pixel there (Qt draws a Mac at 72 dpi):
+ *  FreeCAD's default 10 is a 10 px font (measured: a 6 px advance, so 61 characters across 366 px). */
 export function editorStyle(p: State['editorPrefs'], console = false): Record<string, string> {
-  return { '--ed-font': `${p.font === 'ui-monospace' ? '' : `"${p.font}", `}ui-monospace, Menlo, Consolas, monospace`, '--ed-size': `${p.fontSize}pt`,
+  return { '--ed-font': `${p.font === 'ui-monospace' ? '' : `"${p.font}", `}Menlo, Consolas, "DejaVu Sans Mono", monospace`, '--ed-size': `${p.fontSize}px`,
     '--ed-text': p.colors.Text, '--ed-out': p.colors['Python output'], '--ed-err': p.colors['Python error'], '--ed-tab': String(p.tabSize),
     '--ed-caret': (console ? p.consoleBlock : p.blockCursor) ? 'block' : 'auto' } // PythonBlockCursor / EnableBlockCursor
 }

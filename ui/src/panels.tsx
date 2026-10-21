@@ -38,7 +38,9 @@ export const cls = (...a: (string | false | null | undefined)[]) => a.filter(Boo
 export const ruleText = (r: { check?: string; rule: string }) => (r.check ? `${r.check}/${r.rule}` : r.rule)
 const fmtNum = (n: number) => String(Math.round(n * 1000) / 1000)
 const fmtValue = (v: unknown) => (typeof v === 'number' ? fmtNum(v) : String(v))
-const pad = (depth: number) => ({ paddingLeft: 18 + depth * 14 })
+/** A property's name starts 12 px in, the tree's indentation (qproperty-indentation: 12), plus the 3 px text margin; each level of
+ *  children is another 12 px. (FreeCAD, measured: the name's first pixel is at x = 17 in a frame whose line is at 0.) */
+const pad = (depth: number) => ({ paddingLeft: 15 + depth * 12 })
 /** ReportView::onMessage: QTime::toString("hh:mm:ss  "), whatever the locale. */
 const clock = (t: number) => { const d = new Date(t); return [d.getHours(), d.getMinutes(), d.getSeconds()].map((n) => String(n).padStart(2, '0')).join(':') }
 
@@ -714,7 +716,8 @@ function ViewProps({ b, off }: { b: Body; off: boolean }) {
 }
 
 function Split({ top, bottom, storageKey }: { top: ReactNode; bottom: ReactNode; storageKey: string }) {
-  const [frac, setFrac] = useState(() => saved.get('split.' + storageKey, 0.55))
+  // ComboView's QSplitter of tree and property view starts at 308 : 356 px in the real FreeCAD (QSplitter::sizes()): 0.464 for the tree
+  const [frac, setFrac] = useState(() => saved.get('split.' + storageKey, 0.464))
   const ref = useRef<HTMLDivElement>(null)
   const last = useRef(frac)
   last.current = frac
@@ -1963,7 +1966,7 @@ const LEVEL_NAMES: Record<Level, string> = { msg: 'Normal Messages', log: 'Log M
 
 export function ReportView() {
   const messages = useStore((s) => s.messages), log = useStore((s) => s.log)
-  const show = useStore((s) => s.reportShow), cleared = useStore((s) => s.reportCleared)
+  const show = useStore((s) => s.reportShow), cleared = useStore((s) => s.reportCleared), ed = useStore((s) => s.editorPrefs)
   const [menu, setMenu] = useState<{ x: number; y: number } | null>(null)
   const lines = useMemo(() => [
     ...log.filter((e) => Date.parse(e.t) >= SESSION_START && (e.cmd !== 'scene' || e.exit !== 0)).slice(-200)
@@ -1989,7 +1992,7 @@ export function ReportView() {
   }, [messages])
   const text = () => lines.map((m) => `${clock(m.t)}  ${m.text}`).join('\n')
   return (
-    <div className="report" ref={ref} onContextMenu={(e) => { e.preventDefault(); setMenu({ x: e.clientX, y: e.clientY }) }}>
+    <div className="report" ref={ref} style={editorStyle(ed) as React.CSSProperties} onContextMenu={(e) => { e.preventDefault(); setMenu({ x: e.clientX, y: e.clientY }) }}>
       {lines.map((m, i) => <div key={i} className={'rl ' + m.level}>{timecode ? `${clock(m.t)}  ` : ''}{m.text}</div>)}
       {menu && <ContextMenu at={menu} onClose={() => setMenu(null)} entries={[
         // ReportOutput::contextMenuEvent: Options, then the edit actions.

@@ -641,9 +641,10 @@ export function ContextMenu({ at, entries, onClose, onLeave }: { at: { x: number
 /** `cmd`: this button's FreeCAD command id, for the same macro-recording hook as fireEntry (the
  *  toolbar's one choke point for it; most Btns here duplicate an already-tagged menu entry). */
 /** ToolBarManager::setToolBarIconSize: every toolbar's icons at General > Size of toolbar icons; the
- *  buttons keep FreeCAD.qss's padding around them (32x31 at 24px). */
+ *  buttons keep FreeCAD.qss's padding around them (33x33 at 24px: the icon, 2 + 1 px of padding and border
+ *  each side, and 3 the Mac style adds). */
 const useIconSize = () => useStore((s) => s.toolbarIconSize)
-const btnStyle = (n: number) => ({ width: n + 8, height: n + 7 })
+const btnStyle = (n: number) => ({ width: n + 9, height: n + 9 })
 function Btn({ icon, title, onClick, disabled, active, cmd }: { icon: IconName; title: string; onClick(): void; disabled?: boolean; active?: boolean; cmd?: string }) {
   const n = useIconSize()
   return <button className={cls('tb-btn', active && 'on')} style={btnStyle(n)} title={title} data-cmd={cmd} disabled={disabled} onClick={() => (cmd ? recordAndRun(cmd, onClick) : onClick())}><Icon name={icon} size={n} /></button>

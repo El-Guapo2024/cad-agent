@@ -153,6 +153,8 @@ const UNAPPLIED = { selected: null, preselected: null, hidden: null, style: null
  *  EnablePreselection is off (View3DSettings' SoFCEnableSelectionAction / SoFCEnablePreselectionAction
  *  stop the highlighting). */
 const selColor = () => { const p = getState().selPrefs; return p.enable ? new THREE.Color(p.color).getHex() : null }
+/** The intensity of a selected object's emissive colour (see applyTints): 2 reproduces Coin's saturated sum with three's linear one. */
+const SELECTED_EMISSIVE = 2
 const preColor = () => { const p = getState().selPrefs; return p.enablePre ? new THREE.Color(p.preColor).getHex() : null }
 
 const R2 = Math.SQRT1_2
@@ -1950,13 +1952,23 @@ export class CadView {
   /** FreeCAD colours a selected object in the selection colour and the one under the
    *  mouse in the preselection colour; SelectionStyle BoundBox shows a box instead. With
    *  OnTopWhenSelected, a selected object draws over the others (Enabled: always; Object:
-   *  when it is selected whole; Element: when one of its elements is). */
+   *  when it is selected whole; Element: when one of its elements is).
+   *
+   *  How the colour is applied differs between the two. A preselected object gets it as its diffuse colour only
+   *  (SoBrepFaceSet::overrideMaterialBinding: highlightColor for the whole shape), so it is lit like any other face: the top
+   *  of a box looks #19b5df for #0ac8ff in the iso view of FreeCAD 26.3 (#1ab4e3 on the chassis here). A selected one gets
+   *  it as the diffuse colour and as the EMISSIVE colour too (SoFCSelectionRoot's selAll: SoLazyElement::setEmissive, with
+   *  the same diffuse override), so Coin adds the colour to the lit colour in the encoded values and every face saturates:
+   *  #11ffff for #00abff on all of a box's visible faces, a cylinder and a sphere (four fifths of what it draws; the sphere's
+   *  highlight is the one gradient). three adds an emissive colour in linear light, which saturates far less (G 228 where
+   *  Coin has 255), so the emissive colour is taken twice (SELECTED_EMISSIVE): #15ffff on the chassis' top, the same view. */
   private applyTints(selected: string[], pre: string | null) {
     const s = getState()
     for (const [name, list] of this.meshes) {
       const vp = viewOf(s, name)
       const boxed = vp.selectionStyle === 'BoundBox'
-      const c = !boxed && selected.includes(name) ? selColor() : !boxed && name === pre ? preColor() : null
+      const isSel = !boxed && selected.includes(name)
+      const c = isSel ? selColor() : !boxed && name === pre ? preColor() : null
       const whole = s.selected.includes(name) && !s.subSel.some((r) => r.startsWith(name + '.'))
       const element = s.subSel.some((r) => r.startsWith(name + '.'))
       const top = vp.onTop === 'Enabled' ? whole || element : vp.onTop === 'Object' ? whole : vp.onTop === 'Element' ? element : false
@@ -1968,6 +1980,8 @@ export class CadView {
         done.add(mat)
         if (mat.userData.cadBase === undefined) mat.userData.cadBase = mat.color.getHex()
         mat.color.setHex(c ?? mat.userData.cadBase)
+        // the lit faces (MeshStandardMaterial); the back faces and the edges are flat colours and have none
+        if (mat.emissive) { mat.emissive.setHex(isSel && c !== null ? c : 0); mat.emissiveIntensity = isSel && c !== null ? SELECTED_EMISSIVE : 1 }
         if (mat.userData.cadDepthTest === undefined) mat.userData.cadDepthTest = mat.depthTest
         mat.depthTest = top ? false : mat.userData.cadDepthTest
       }

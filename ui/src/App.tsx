@@ -38,7 +38,8 @@ function onReady(e: DockviewReadyEvent) {
   const start = saved.get('start.showOnStartup', true)
   if (start) a.addPanel({ id: 'start', component: 'start', title: 'Start' })
   a.addPanel({ id: 'view3d', component: 'view3d', title: '3D view', ...(start ? { position: { referencePanel: 'start', direction: 'within' as const } } : {}) })
-  a.addPanel({ id: 'model', component: 'model', title: 'Model', position: { referencePanel: 'view3d', direction: 'left' }, initialWidth: 330 })
+  // The combo view's dock is 266 px wide in a fresh FreeCAD (the 3D view starts at x = 266 in the 1280 px window: fcshots.py), not 330.
+  a.addPanel({ id: 'model', component: 'model', title: 'Model', position: { referencePanel: 'view3d', direction: 'left' }, initialWidth: 266 })
   a.addPanel({ id: 'report', component: 'report', title: 'Report View', position: { referencePanel: 'view3d', direction: 'below' }, initialHeight: 170 })
   a.addPanel({ id: 'checks', component: 'checks', title: 'Checks', position: { referencePanel: 'report', direction: 'within' }, inactive: true })
   a.addPanel({ id: 'console', component: 'console', title: 'Console', position: { referencePanel: 'report', direction: 'within' }, inactive: true })
