@@ -4,7 +4,9 @@
 // Each shot starts in a fresh browser context, so no saved setting of an earlier one reaches the next. The shots: start,
 // start-cards (the first-start setup done), part (a part selected: the tree, the property view, the 3D view), navicube
 // (the cube cropped; --scale 3 for a close-up), treemenu (the tree's context menu on a part), prefs-<page> (the Preferences
-// dialog, cropped to the dialog, as FreeCAD's is its own window), report (the Report view with a message of each kind).
+// dialog, cropped to the dialog, as FreeCAD's is its own window), report (the Report view with a message of each kind), sel (the 3D
+// view in the isometric view, the part `chassis` unselected, preselected, selected, and both: ours-sel-<state>.png, to be read against
+// fcmeasure.py's freecad-sel-<state>.png: a face of a selected object is #11ffff there, a preselected one #19b5df).
 // Playwright drives the page with synthetic events: the pointer of the Mac is never moved.
 import { createRequire } from 'module'
 const require = createRequire(import.meta.url)
@@ -120,6 +122,25 @@ await step('report', async () => {
     { t: Date.now(), level: 'err', text: 'wheel_left was placed, but a fit check fails: overlap 469.841 mm^3' }] })))
   await p.waitForTimeout(800)
   await p.screenshot({ path: out('report') })
+  await ctx.close()
+})
+
+// the selection colours as the 3D view draws them: the same isometric view as fcmeasure_dump.py's, the 3D view only
+await step('sel', async () => {
+  const { ctx, p } = await open('#' + PROJECT)
+  await to3d(p)
+  await p.evaluate(() => cadui.getView().viewDir('iso'))
+  await p.waitForTimeout(1500)
+  await p.evaluate(() => cadui.getView().fitAll())
+  await p.waitForTimeout(1500)
+  const states = { none: { selected: [], preselected: null }, preselected: { selected: [], preselected: 'chassis' },
+    selected: { selected: ['chassis'], preselected: null }, 'selected-and-preselected': { selected: ['chassis'], preselected: 'chassis' } }
+  const view = await p.locator('canvas').first().boundingBox()
+  for (const [name, st] of Object.entries(states)) {
+    await p.evaluate((x) => cadui.setState(x), st)
+    await p.waitForTimeout(900)
+    await p.screenshot({ path: out(`sel-${name}`), clip: { x: view.x + 20, y: view.y + 20, width: view.width - 40, height: view.height - 40 } })
+  }
   await ctx.close()
 })
 

@@ -3,8 +3,9 @@
 # freecad-sel-<state>.png (the 3D view without its margins) for each state of the selection experiment.
 #
 #   widgets    the fonts (the application's, the fixed font, the tooltip's), the toolbars and their tool buttons, the docks and their
-#              size hints, the tree and the property view (row heights, columns), the tab bars and every tab's rectangle, the status
-#              bar, the 3D view and the Report view (its font, margins and background): QWidget::geometry, as FreeCAD lays them out
+#              size hints, the tree (row heights, how far the selection bar reaches for a short and a long label) and the property
+#              view, the tab bars and every tab's rectangle, the status bar, the 3D view and the Report view (its font, margins and
+#              background): QWidget::geometry, as FreeCAD lays them out
 #   prefs      what a fresh profile holds for the parameters the comparison cares about (NewDocumentCameraOrientation is unset)
 #   selection  a box, a cylinder and a sphere in the isometric view: none, all selected, one preselected, selected and preselected,
 #              and a face selected: the ten most common colours of each (the SelectionColor of a whole object is drawn as
@@ -85,6 +86,7 @@ cyl.Placement = App.Placement(App.Vector(160, 30, 0), App.Rotation())
 sph = doc.addObject("Part::Sphere", "Sph")
 sph.Radius = 30
 sph.Placement = App.Placement(App.Vector(60, -70, 30), App.Rotation())
+doc.addObject("Part::Box", "bracket_right_long_name")      # a long label, for the width of the selection bar in the tree
 doc.recompute()
 view = Gui.ActiveDocument.ActiveView
 view.setAnimationEnabled(False)
@@ -115,6 +117,29 @@ def tree():
 
 
 safe("tree", tree)
+
+
+def tree_selection():
+    """How far the tree's selection bar reaches for a short and a long label (x of the last pixel of the accent #60c7f9 in the row)."""
+    t = by_class(QtWidgets.QTreeWidget, "Gui::TreeWidget")[0]
+    d = t.topLevelItem(0)
+    out = {}
+    for i in range(d.childCount()):
+        item = d.child(i)
+        Gui.Selection.clearSelection()
+        Gui.Selection.addSelection(doc.Name, item.text(0))
+        pump(0.5)
+        img = t.viewport().grab().toImage()
+        y = t.visualItemRect(item).center().y()
+        xs = [x for x in range(img.width()) if (img.pixel(x, y) & 0xFFFFFF) == 0x60C7F9]
+        out[item.text(0)] = {"selectionBar": [min(xs), max(xs)] if xs else None, "itemRect": [t.visualItemRect(item).x(), t.visualItemRect(item).width()],
+                             "textWidth": QtGui.QFontMetrics(t.font()).horizontalAdvance(item.text(0))}
+    Gui.Selection.clearSelection()
+    pump(0.3)
+    return out
+
+
+safe("treeSelection", tree_selection)
 
 
 def props():
