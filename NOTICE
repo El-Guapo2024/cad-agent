@@ -1,0 +1,184 @@
+cad-agent: notices
+
+cad-agent is licensed under the MIT license (LICENSE), except for what is listed below. This file
+says which parts are MIT and which are not, which files derive from FreeCAD, and which third-party
+components the repository ships. The full licence texts those components ask to be kept are in
+THIRD_PARTY_LICENSES. The files derived from FreeCAD also carry their own notice in their header.
+
+FreeCAD (https://github.com/FreeCAD/FreeCAD) is distributed under the GNU Lesser General Public
+License, version 2 or superior (its CONTRIBUTING.md, section 4). Every FreeCAD file named here is
+cited at commit 3160daf1e2b62b0472854da4848255c6b3ad554c, and its copyright lines are quoted from
+that commit.
+
+
+1. Which parts are which
+
+  MIT                      Everything else: the cad_agent package, the tests, the evals, the plugin,
+                           the docs, the CLI in bin/.
+
+  LGPL-2.1-or-later        ui/ and its build, cad_agent/workbench/next/. The workbench UI is ported
+                           from FreeCAD and uses its icons, so like FreeCAD it is under the GNU
+                           Lesser General Public License, version 2.1 or (at your option) any later
+                           version. ui/LICENSE is the text, ui/NOTICE names the FreeCAD files and
+                           authors it follows, and every file in ui/src starts with an SPDX line.
+
+  LGPL-2.1-or-later        cad_agent/geom.py, the function mass_properties and what is inside it
+  (inside an MIT file)     (the rest of geom.py is MIT).
+
+  LGPL-2.0-or-later        cad_agent/appcache.py, all of it. It is distributed here under version
+                           2.1 of the licence, which "or any later version" allows; the text is in
+                           ui/LICENSE.
+
+  BSD-3-Clause and         cad_agent/dxf.py, the static sections of the DXF it writes (the rest of
+  LGPL-2.0-or-later        the file is MIT). See section 2.
+
+  CC-BY-3.0 and LGPL       The numbers and names from FreeCAD's material cards in
+                           cad_agent/materials.py. See section 4.
+
+  Their own licences       The third-party code and icons in section 3.
+
+
+2. Files derived from FreeCAD outside ui/
+
+  cad_agent/geom.py, mass_properties()
+      Derived from src/Mod/Measure/App/MassPropertiesResult.cpp (the three accumulators, the
+      principal axes and their reference vectors, the axis moment).
+      SPDX-License-Identifier: LGPL-2.1-or-later
+      SPDX-FileCopyrightText: 2026 Morten Vajhøj
+
+  cad_agent/appcache.py
+      Re-expresses src/Gui/PreferencePages/DlgSettingsCacheDirectory.cpp (class ApplicationCache)
+      function by function.
+      Copyright (c) 2021 Werner Mayer <wmayer[at]users.sourceforge.net>
+      "either version 2 of the License, or (at your option) any later version" (the GNU Library
+      General Public License), so LGPL-2.0-or-later.
+
+  cad_agent/dxf.py, the static sections of the file it writes (the HEADER variables, CLASSES,
+  TABLES, BLOCK_RECORD and BLOCKS, the closing OBJECTS, and the TEXT and SOLID entities) and
+  tests/golden/drawings/*.dxf, which are files it wrote
+      Follow src/Mod/Import/App/dxf/dxf.cpp (class CDxfWrite).
+      SPDX-License-Identifier: BSD-3-Clause
+      Copyright (c) 2009, Dan Heeks
+      "This program is released under the BSD license. See the file COPYING for details."
+      modified 2018 wandererfan
+      The BSD-3-Clause text is in THIRD_PARTY_LICENSES. The R14 templates src/Mod/Import/DxfPlate/
+      header14.rub, classes14.rub, tables114.rub, tables214.rub and objects14.rub, which the same
+      sections also follow, carry no notice of their own and so come under FreeCAD's licence,
+      LGPL-2.0-or-later. The entity conversion keeps the constants and the closed-circle test of
+      src/Mod/Import/App/dxf/ImpExpDxf.cpp, Copyright (c) 2015 Yorik van Havre (SPDX
+      LGPL-2.1-or-later; the Library General Public License, version 2 or later).
+
+  These are close translations or re-expressions and keep their code; each file says so in its
+  header. Other files credit FreeCAD in a comment (cad_agent/bom.py, subassembly.py, shop.py,
+  speckinds/shop.py, undo.py, gui.py, macro.py, userprefs.py, scene.py, serve.py, beam.py, and
+  cad_agent/drawing/) because they follow a FreeCAD command's behaviour, column names or option
+  names. docs/FREECAD_AUDIT.md (6.1) found them independent: facts such as those names, and no
+  FreeCAD code or text.
+
+
+3. Third-party components in the repository and the wheel
+
+  FreeCAD icons                 ui/public/freecad-icons/, copied unmodified into
+                                cad_agent/workbench/next/freecad-icons/: 201 SVG files from
+                                FreeCAD's src/Gui/Icons and src/Mod/*/Gui/Resources/icons, 16 style
+                                sheet indicators (qss-*.svg, from src/Gui/Stylesheets/
+                                images_classic/) and 9 overlay buttons (overlay-*.svg, from
+                                src/Gui/Stylesheets/overlay/icons/) among them. Each has the
+                                licence its own metadata states: mostly "FreeCAD LGPL2+"
+                                (LGPL-2.0-or-later), and the rest as below.
+                                ui/public/freecad-icons/README.md and LICENSE say the same.
+      CC-BY-SA 2.0 (Tango Desktop Project)   by Jakub Steiner: Std_ViewScreenShot, view-fullscreen,
+                                accessories-text-editor, applications-accessories; Tuomas
+                                Kuosmanen: help-browser; Andreas Nilsson: utilities-terminal;
+                                Martin Ruskov: zoom-selection, zoom-border, zoom-in, zoom-out;
+                                Lapo Calamandrei: media-playback-start, media-playback-stop (with
+                                contributions by Jakub Steiner and Andreas Nilsson where the file
+                                says so).
+      CC-BY-SA 4.0, also "FreeCAD LGPL2+"   by [bitacovir]: Std_UserEditModeDefault,
+                                Std_UserEditModeTransform, Std_UserEditModeCutting,
+                                Std_UserEditModeColor.
+      Public domain / CC0 1.0   by Jakub Steiner: accessories-calculator (CC0 1.0); Andreas
+                                Nilsson and Jakub Steiner: process-stop; Jakub Steiner and Tuomas
+                                Kuosmanen: internet-web-browser (public domain).
+      The icons are unmodified copies, so the CC-BY-SA terms ask for the credit above, the licence
+      (THIRD_PARTY_LICENSES) and that the icons stay under it; they do not reach the code around
+      them.
+
+  FreeCAD style sheets          ui/src/freecad.css ports FreeCAD's src/Gui/Stylesheets/FreeCAD.qss (its
+                                header: "Revised stylesheet based on the original from Pablo Gil
+                                Fernández made by MisterMaker"; no copyright line),
+                                src/Gui/Stylesheets/parameters/FreeCAD Light.yaml and the preference
+                                pack src/Gui/PreferencePacks/FreeCAD Light/FreeCAD Light.cfg, which
+                                ui/src/theme.ts reads its colours from. They carry no notice of their
+                                own and so come under FreeCAD's licence, LGPL-2.0-or-later. They are
+                                part of the LGPL-2.1-or-later UI (section 1).
+
+  npm packages in the workbench bundle (cad_agent/workbench/next/assets/)
+      React, ReactDOM and scheduler (MIT, Meta Platforms, Inc. and affiliates); three.js (MIT, the
+      three.js authors); three-cad-viewer 5.0.7 (MIT, Bernhard Walter), whose published build
+      contains postprocessing (Zlib, Raoul van Rüschen) and n8ao; dockview (MIT, mathuo);
+      three-viewport-gizmo (MIT, Fennec); Radix UI primitives (MIT, WorkOS); Floating UI (MIT, the
+      Floating UI contributors); react-remove-scroll and its siblings (MIT, Anton Korzunov);
+      tslib (0BSD, Microsoft); and the module helpers of Vite and Rolldown (MIT, VoidZero Inc.).
+      The build lists every package that is in the bundle, with the licence text it ships, in
+      cad_agent/workbench/next/THIRD_PARTY_LICENSES.txt (ui/scripts/licenses.mjs writes it; the
+      build also writes LICENSE and NOTICE there).
+
+  cad_agent/workbench/vendor/   Libraries copied from npm so the older workbench and the review page
+      run offline (its README.md): three.js r184 (three.module.min.js, three.core.min.js) and the
+      TransformControls example (MIT, the three.js authors), and three-cad-viewer 5.0.7 (its
+      esm.min.js and css; MIT, Bernhard Walter), whose build contains three.js, postprocessing
+      (Zlib) and n8ao.
+
+  Coin3D (BSD-3-Clause, Copyright (c) Kongsberg Oil & Gas Technologies AS)
+      ui/src/nav.ts follows its SbSphereSheetProjector for the sphere-sheet projection.
+
+  Open CASCADE Technology (Copyright (c) 2010-2014 OPEN CASCADE SAS; the GNU Lesser General Public
+  License version 2.1 with the OCCT exception)
+      ui/src/rotation.ts follows FreeCAD's Rotation.cpp, whose Euler-angle code is borrowed from
+      OCCT's gp_Quaternion.cxx.
+
+  No Python dependency is vendored: build123d, ocp-tessellate, ezdxf, trimesh and the others in
+  pyproject.toml are installed by pip with their own licences and are not part of this repository.
+
+
+4. Data under other licences
+
+  cad_agent/materials.py takes values from eight FreeCAD material cards (src/Mod/Material/
+  Resources/Materials/Standard/...), each under the licence it names:
+
+      Steel-Generic       Juergen Riegel      CC-BY-3.0
+      ABS                 Juergen Riegel      CC-BY-3.0
+      PLA                 Uwe Stöhr           CC-BY-3.0
+      Polyamide 6         Uwe Stöhr           CC-BY-3.0
+      Acrylic Glass       Przemo Firszt       CC-BY-3.0
+      Aluminum Generic    Uwe Stöhr           LGPL-2.1-or-later
+      Copper Generic      Uwe Stöhr           LGPL-2.1-or-later
+      X5CrNi18-10         M. Münch            LGPL-2.0-or-later
+
+  CC BY 3.0 (https://creativecommons.org/licenses/by/3.0/) asks for the author's name, the title of
+  the work, the licence and a credit for the use. materials.credit() writes them, and they are
+  printed wherever a value of one of those cards is: in each row of `cad tables materials`, as
+  `credits` in `cad tables` and `cad tables density`, and after the source of Young's modulus in a
+  [[deflection]] row. The licence text is in THIRD_PARTY_LICENSES. No card is copied: the numbers
+  are, as the card gives them and cited to the card.
+
+  The FreeCAD-library parts that `cad lib fetch` can download (CC-BY-3.0) and the ISO fasteners
+  drawn by bd_warehouse (Apache-2.0) are not in this repository or in the wheel. They are fetched
+  or installed on the user's side, and the library copies the credit the licence asks for into a
+  part's sidecar (`attribution`). The Apache-2.0 text is in THIRD_PARTY_LICENSES.
+
+
+5. Where the notices are
+
+  LICENSE                      the MIT text (the cad-agent code)
+  NOTICE                       this file
+  THIRD_PARTY_LICENSES         the BSD, MIT, Zlib, CC0, CC-BY, CC-BY-SA and Apache texts
+  ui/LICENSE                   the LGPL-2.1 text, and the statement for ui/
+  ui/NOTICE                    the FreeCAD authors and files the UI follows
+  cad_agent/workbench/next/    LICENSE, NOTICE and THIRD_PARTY_LICENSES.txt, written by the build
+                               of the UI, so the bundle carries its notices when it is copied
+
+  The wheel carries all of them: pyproject.toml lists the first five under license-files, which put
+  them in the wheel's .dist-info/licenses, and the three files of cad_agent/workbench/next/ in the
+  package data.

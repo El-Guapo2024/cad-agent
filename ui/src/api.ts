@@ -1,3 +1,7 @@
+// SPDX-License-Identifier: LGPL-2.1-or-later
+// Follows FreeCAD (https://github.com/FreeCAD/FreeCAD, commit 3160daf1e2b6), copyright of the files below (each is
+// LGPL-2.0-or-later or LGPL-2.1-or-later as it states; ui/NOTICE has them all):
+//   src/Gui/Dialogs/DlgUndoRedo.cpp: 2004 Werner Mayer
 // The `cad serve` API. Every POST carries X-CAD, which the server requires, so
 // other pages open in the browser can't drive it.
 import type { HistoryEntry, ViewProps } from './store'

@@ -1,3 +1,14 @@
+// SPDX-License-Identifier: LGPL-2.1-or-later
+// Follows FreeCAD (https://github.com/FreeCAD/FreeCAD, commit 3160daf1e2b6), copyright of the files below (each is
+// LGPL-2.0-or-later or LGPL-2.1-or-later as it states; ui/NOTICE has them all):
+//   src/Gui/CommandView.cpp: 2002 Jürgen Riegel
+//   src/Gui/CommandDoc.cpp: 2002 Jürgen Riegel
+//   src/Gui/CommandStd.cpp: 2002 Jürgen Riegel; 2023 FreeCAD Project Association
+//   src/Gui/OverlayWidgets.cpp: 2020 Zheng Lei (realthunder)
+//   src/Gui/CommandMacro.cpp: 2010 Werner Mayer
+//   src/Gui/CommandWindow.cpp: 2005 Werner Mayer
+//   src/Gui/Workbench.cpp: 2004 Werner Mayer
+//   src/Gui/NotificationArea.cpp: 2022 Abdullah Tahiri
 // FreeCAD 1.1.4's icons, copied into public/freecad-icons (licences in its
 // README). Placeholders until we draw our own.
 export const FILES = {

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: LGPL-2.1-or-later
 // QMessageBox: a modal box with a title, an icon, the text and its buttons. Return presses
 // the default (first) button; Esc the escape button (Cancel, No, or the only one).
 import { useEffect, useRef, useSyncExternalStore, type ReactElement } from 'react'

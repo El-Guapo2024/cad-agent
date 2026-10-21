@@ -1,3 +1,22 @@
+// SPDX-License-Identifier: LGPL-2.1-or-later
+// Follows FreeCAD (https://github.com/FreeCAD/FreeCAD, commit 3160daf1e2b6), copyright of the files below (each is
+// LGPL-2.0-or-later or LGPL-2.1-or-later as it states; ui/NOTICE has them all):
+//   src/Gui/CommandView.cpp: 2002 Jürgen Riegel
+//   src/Gui/CommandDoc.cpp: 2002 Jürgen Riegel
+//   src/Mod/PartDesign/Gui/Workbench.cpp: 2008 Werner Mayer
+//   src/Mod/Sketcher/Gui/Workbench.cpp: 2008 Jürgen Riegel
+//   src/Gui/CommandStd.cpp: 2002 Jürgen Riegel; 2023 FreeCAD Project Association
+//   src/Mod/Part/Gui/CommandFilter.cpp: 2002 Jürgen Riegel
+//   src/Gui/Action.cpp: 2004 Werner Mayer
+//   src/Gui/Dialogs/DlgUndoRedo.cpp: 2004 Werner Mayer
+//   src/Gui/Workbench.cpp: 2004 Werner Mayer
+//   src/Gui/OverlayWidgets.cpp: 2020 Zheng Lei (realthunder)
+//   src/Gui/OverlayWidgets.h: 2020 Zheng Lei (realthunder)
+//   src/Gui/OverlayManager.cpp: 2022 Zheng Lei (realthunder)
+//   src/Mod/Tux/NavigationIndicatorGui.py: 2016, 2017, 2018 triplus @ FreeCAD
+//   src/Gui/Selection/Selection.cpp: 2011 Jürgen Riegel; 2011 Werner Mayer
+//   src/Gui/MainWindow.cpp: 2005 Werner Mayer
+//   No copyright line in the file: src/Gui/Stylesheets/FreeCAD.qss
 import * as M from '@radix-ui/react-menubar'
 import { menuKbd } from './keymap'
 import { getCommand } from './cmdreg'

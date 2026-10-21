@@ -1,3 +1,13 @@
+// SPDX-License-Identifier: LGPL-2.1-or-later
+// Follows FreeCAD (https://github.com/FreeCAD/FreeCAD, commit 3160daf1e2b6), copyright of the files below (each is
+// LGPL-2.0-or-later or LGPL-2.1-or-later as it states; ui/NOTICE has them all):
+//   src/Gui/Workbench.cpp: 2004 Werner Mayer
+//   src/Gui/Dialogs/DlgParameterImp.cpp: 2002 Jürgen Riegel
+//   src/Gui/SceneInspector.cpp: 2008 Werner Mayer
+//   src/Gui/GraphvizView.cpp: 2014 Werner Mayer
+//   src/Gui/CommandDoc.cpp: 2002 Jürgen Riegel
+//   src/Gui/CommandView.cpp: 2002 Jürgen Riegel
+//   src/Gui/ImageView.cpp: 2023 Werner Mayer
 // Tools menu additions past Clarify Selection (src/Gui/Workbench.cpp's Tools menu at FreeCAD
 // main 3160daf1e2b6): Std_DlgParameter (Dialogs/DlgParameterImp.cpp), Std_SceneInspector
 // (SceneInspector.cpp), Std_DependencyGraph/Std_ExportDependencyGraph (GraphvizView.cpp,

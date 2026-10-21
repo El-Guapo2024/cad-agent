@@ -1,3 +1,10 @@
+// SPDX-License-Identifier: LGPL-2.1-or-later
+// Follows FreeCAD (https://github.com/FreeCAD/FreeCAD, commit 3160daf1e2b6), copyright of the files below (each is
+// LGPL-2.0-or-later or LGPL-2.1-or-later as it states; ui/NOTICE has them all):
+//   src/Gui/CommandMacro.cpp: 2010 Werner Mayer
+//   src/Gui/Workbench.cpp: 2004 Werner Mayer
+//   src/Gui/TextEdit.cpp: 2004 Werner Mayer
+//   No copyright line in the file: src/Gui/Dialogs/DlgMacroExecute.ui, src/Gui/PreferencePages/DlgSettingsMacro.ui
 // FreeCAD's Macro menu: CommandMacro.cpp's commands, Dialogs/DlgMacroRecordImp (+ .ui),
 // Dialogs/DlgMacroExecuteImp (+ .ui) and PreferencePages/DlgSettingsMacro (+ .ui). A macro here
 // is a text file of `cad` commands (see api.ts's /api/macro* calls), not Python, so the parts of
@@ -97,7 +104,7 @@ export function windowsEntries(): Entry[] {
   ]
 }
 
-// ── Std_DlgMacroRecord: DlgMacroRecordImp.ui (Macro Name, Macro Path, Record/Close) ──
+// ── Std_DlgMacroRecord: DlgMacroRecord.ui (Macro Name, Macro Path, Record/Close) ──
 export function MacroRecordTask() {
   const [name, setName] = useState('')
   const [dir, setDir] = useState('')
@@ -127,7 +134,7 @@ export function MacroRecordTask() {
   )
 }
 
-// ── Std_DlgMacroExecute: DlgMacroExecuteImp.ui's list, Execute/Close/Create/Delete/Edit/Rename/
+// ── Std_DlgMacroExecute: DlgMacroExecute.ui's list, Execute/Close/Create/Delete/Edit/Rename/
 // Duplicate buttons (that order, as the .ui lays them out); System macros tab, Find fields,
 // Toolbar and Download buttons are n/a (no Python editor, no Addon Manager here). ──
 type Prompt = { kind: 'create' | 'rename' | 'duplicate'; value: string }

@@ -24,7 +24,8 @@ Where the drawing comes from, and what is ported
 FreeCAD (https://github.com/FreeCAD/FreeCAD, commit 3160daf1e2b6, LGPL-2.1-or-later), src/Mod/TechDraw/App:
 
   GeometryObject.cpp   `projectShape` and `makeTDGeometry`: hidden line removal with OCCT's HLRBRep_Algo, the hard and
-                       outline edges visible solid and hidden dashed (hlr.py has the whole account)
+                       outline edges visible and hidden (hlr.py has the whole account). That file only classes the
+                       edges; the hidden ones are dashed in src/Mod/TechDraw/Gui/QGIViewPart.cpp:461-465
   DrawProjGroup.cpp    `ProjectionTypeEnums` and `getViewIndex`: first angle puts the view from the left to the right of the
                        front view, third angle the view from the right; the default, `Preferences::projectionAngle`, is
                        first angle, and so it is here, as it is in ISO 128-30

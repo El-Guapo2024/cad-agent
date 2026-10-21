@@ -37,7 +37,7 @@ CMDS = ("select", "clear", "show", "hide", "view", "fit", "say", "set", "run")
 VIEW_CAMERA = ("front", "rear", "top", "bottom", "left", "right", "iso",
                "dimetric", "trimetric", "home")
 VIEW_PROJECTION = ("ortho", "persp")
-# ... or a whole camera, as FreeCAD's "SetCamera" view message takes it and
+# ... or a whole camera, as FreeCAD's View3DInventor::setCamera (Gui.activeView().setCamera) takes it and
 # Std_ViewIvIssueCamPos prints it: an Inventor OrthographicCamera / PerspectiveCamera node.
 _CAMERA_NODE = re.compile(r"^\s*(?:#Inventor[^\n]*)?\s*(Orthographic|Perspective)Camera\s*\{[^{}]*\}\s*$", re.S)
 
@@ -67,7 +67,9 @@ DEVIATION_DEFAULT = 0.2
 ANGULAR_DEFLECTION_DEFAULT = 28.65
 
 # Per-body ViewObject properties (FreeCAD's GuiDocument.xml), keyed the way
-# the UI stores them; see FREECAD_PROP_NAMES for `cad gui set`'s own names.
+# the UI stores them; see FREECAD_PROP_NAMES for `cad gui set`'s own names. (A current GuiDocument.xml stores
+# ShapeAppearance, not ShapeColor: ViewProviderGeometryObject::handleChangedPropertyName reads an old ShapeColor
+# into ShapeAppearance's diffuse colour, ViewProviderGeometryObject.cpp:434-437. `shapeColor` is that colour.)
 VIEW_PROP_TYPES = {
     "displayMode": ("enum", ("Flat Lines", "Shaded", "Wireframe", "Points")),
     "shapeColor": ("color", None),
@@ -90,9 +92,9 @@ VIEW_PROP_TYPES = {
 # Changing either of these re-tessellates the body (see the block comment above).
 RETESSELLATE_PROPS = frozenset({"deviation", "angularDeflection"})
 
-# `cad gui set`'s own vocabulary: FreeCAD's ViewObject property names, mapped
-# to the keys above. Visibility/Selectable are not stored in view_props: they
-# fold into the top-level `hidden` / `unselectable` lists instead.
+# `cad gui set`'s own vocabulary: FreeCAD's ViewObject property names (ShapeColor being the older name of
+# ShapeAppearance's diffuse colour, which FreeCAD still reads), mapped to the keys above. Visibility/Selectable
+# are not stored in view_props: they fold into the top-level `hidden` / `unselectable` lists instead.
 FREECAD_PROP_NAMES = {
     "DisplayMode": "displayMode", "ShapeColor": "shapeColor", "Transparency": "transparency",
     "LineColor": "lineColor", "LineWidth": "lineWidth", "PointColor": "pointColor",
@@ -384,7 +386,7 @@ class GuiBoard:
                 persisted = True
             if "commands" in patch:
                 s["commands"] = _commands(patch["commands"])    # session-only: never persisted
-            if "camera_node" in patch:   # the UI's camera as "GetCamera" writes it (session-only)
+            if "camera_node" in patch:   # the UI's camera as View3DInventor::getCamera writes it (session-only)
                 v = patch["camera_node"]
                 if v is not None and not (isinstance(v, str) and camera_projection(v)):
                     raise GuiError("camera_node must be an Inventor camera node")

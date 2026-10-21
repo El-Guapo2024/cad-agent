@@ -1,3 +1,20 @@
+# SPDX-License-Identifier: MIT AND LGPL-2.1-or-later
+#
+# Two licences in one file. Everything here is MIT (../LICENSE) except mass_properties() (and the helpers inside
+# it), which is a close translation of FreeCAD's Measure module and keeps FreeCAD's licence, the GNU Lesser
+# General Public License, version 2.1 or (at your option) any later version.
+#
+#   Derived from: src/Mod/Measure/App/MassPropertiesResult.cpp
+#                 FreeCAD (https://github.com/FreeCAD/FreeCAD), commit 3160daf1e2b62b0472854da4848255c6b3ad554c
+#   SPDX-License-Identifier: LGPL-2.1-or-later
+#   SPDX-FileCopyrightText: 2026 Morten Vajhøj
+#   SPDX-FileNotice: Part of the FreeCAD project.
+#
+# FreeCAD is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General
+# Public License as published by the Free Software Foundation, either version 2.1 of the License, or (at your
+# option) any later version. FreeCAD is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+# without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser
+# General Public License for more details. The licence text is in ../ui/LICENSE; see also ../NOTICE.
 """Geometry queries that back the gates. Thin wrappers over OCCT."""
 from __future__ import annotations
 from OCP.BRepExtrema import BRepExtrema_DistShapeShape
@@ -118,6 +135,8 @@ def mass_g(a, material: str) -> float:
     return volume(a) / 1000.0 * DENSITY[key]
 
 
+# LGPL-2.1-or-later from here to the end of this function: derived from FreeCAD's MassPropertiesResult.cpp,
+# Copyright 2026 Morten Vajhøj (the header of this file has the rest of the notice).
 def mass_properties(items) -> dict:
     """FreeCAD's Mass Properties (Measure/App/MassPropertiesResult.cpp) for solids
     with densities in kg/mm^3: volume and surface area, mass, centres of gravity and

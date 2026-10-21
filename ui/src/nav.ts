@@ -1,3 +1,25 @@
+// SPDX-License-Identifier: LGPL-2.1-or-later
+// Follows FreeCAD (https://github.com/FreeCAD/FreeCAD, commit 3160daf1e2b6), copyright of the files below (each is
+// LGPL-2.0-or-later or LGPL-2.1-or-later as it states; ui/NOTICE has them all):
+//   src/Gui/Navigation/NavigationAnimation.cpp: 2023 Bas Ruigrok (Rexbas)
+//   src/Gui/SoTouchEvents.cpp: 2015 Victor Titov (DeepSOIC)
+//   src/Gui/Camera.cpp: 2023 Werner Mayer
+//   src/Gui/Navigation/GestureNavigationStyle.cpp: 2019 Victor Titov (DeepSOIC)
+//   src/Gui/Navigation/MayaGestureNavigationStyle.cpp: 2015 Victor Titov (DeepSOIC)
+//   src/Gui/Navigation/SiemensNXNavigationStyle.cpp: 2025 Werner Mayer
+//   src/Gui/Navigation/NavigationStyle.cpp: 2008 Werner Mayer
+//   src/Gui/Navigation/BlenderNavigationStyle.cpp: 2011 Werner Mayer
+//   src/Gui/Navigation/CADNavigationStyle.cpp: 2011 Werner Mayer
+//   src/Gui/Navigation/InventorNavigationStyle.cpp: 2011 Werner Mayer
+//   src/Gui/Navigation/OpenCascadeNavigationStyle.cpp: 2015 Kirill Gavrilov
+//   src/Gui/Navigation/OpenSCADNavigationStyle.cpp: 2021 Werner Mayer
+//   src/Gui/Navigation/RevitNavigationStyle.cpp: 2011 Werner Mayer
+//   src/Gui/Navigation/SolidWorksNavigationStyle.cpp: 2011 Werner Mayer
+//   src/Gui/Navigation/TinkerCADNavigationStyle.cpp: 2021 Werner Mayer
+//   src/Gui/Navigation/TouchpadNavigationStyle.cpp: 2012 Werner Mayer
+//   src/Gui/View3DInventorViewer.cpp: 2004 Jürgen Riegel; 2026 Joao Matos
+// Also follows Coin (https://github.com/coin3d/coin), src/projectors/SbSphereSheetProjector.cpp, for the sphere-sheet
+// projection: Copyright (c) Kongsberg Oil & Gas Technologies AS, BSD-3-Clause (THIRD_PARTY_LICENSES).
 // FreeCAD's mouse navigation, ported from src/Gui/Navigation/ at FreeCAD main
 // 3160daf1e2b6 (LGPL-2.1-or-later): NavigationStyle's pan, zoom and orbit with
 // FCSphereSheetProjector over Coin's SbSphereSheetProjector (BSD-3-Clause), the

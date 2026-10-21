@@ -1,3 +1,10 @@
+// SPDX-License-Identifier: LGPL-2.1-or-later
+// Follows FreeCAD (https://github.com/FreeCAD/FreeCAD, commit 3160daf1e2b6), copyright of the files below (each is
+// LGPL-2.0-or-later or LGPL-2.1-or-later as it states; ui/NOTICE has them all):
+//   src/Base/Quantity.l: 2013 Jürgen Riegel
+//   src/Base/Quantity.y: 2013 Jürgen Riegel
+//   src/Mod/Measure/Gui/TaskMassProperties.cpp: 2026 Morten Vajhøj
+//   No copyright line in the file: src/Base/Unit.h, src/Base/NumericFormatting.cpp
 // FreeCAD's quantities, ported from src/Base/ at FreeCAD main 3160daf1e2b6
 // (LGPL-2.1-or-later): the Quantity.l lexer and Quantity.y grammar, Unit::getString
 // and getTypeString, and UnitsSchema::translate with its special formatters.

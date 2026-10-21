@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: LGPL-2.1-or-later
 import { createRoot } from 'react-dom/client'
 import 'dockview-react/dist/styles/dockview.css'
 import 'three-cad-viewer/css'

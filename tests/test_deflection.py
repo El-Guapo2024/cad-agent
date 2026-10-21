@@ -454,6 +454,14 @@ def test_the_row_says_what_the_number_rests_on():
     assert um(row) == pytest.approx(want, abs=5e-4)
 
 
+def test_a_cc_by_card_is_credited_beside_the_modulus_it_gives_and_an_lgpl_card_is_not():
+    steel = one({"load_n": 5.0}, material="steel").measured
+    assert ('Steel-Generic.FCMat: YoungsModulus = 200000 MPa) ["Steel-Generic" by Juergen Riegel, CC-BY-3.0 '
+            "https://creativecommons.org/licenses/by/3.0/]; span/depth") in steel
+    aluminium = one({"load_n": 5.0}).measured                      # an LGPL card: the row is what it was
+    assert "Stöhr" not in aluminium and "CC-BY" not in aluminium
+
+
 def test_each_load_a_row_can_carry_adds_up():
     w = beam.weight_n(388.8)
     for entry, point, udl in (({"load_n": 5.0}, 5.0, 0.0), ({"load_g": 250}, beam.weight_n(250), 0.0),

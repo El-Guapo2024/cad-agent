@@ -26,6 +26,10 @@ COVERS = {
     "plugin/": ["test_hooks.py"],
     "bin/": ["test_cli.py", "test_warm.py"],
     "cad_agent/workbench/": ["test_workbench.py"],
+    "ui/": ["test_licenses.py", "test_workbench.py"],         # the headers and notices of ui/src; the bundle it builds
+    "NOTICE": ["test_licenses.py"],
+    "LICENSE": ["test_licenses.py"],
+    "THIRD_PARTY_LICENSES": ["test_licenses.py"],
     # Step 6. A rule, a spec kind or a command is a file of its own in a folder the tests reach through
     # the registry, and its name (heat.py, com.py) is not a word the tests that cover it say.
     "cad_agent/cmdbase.py": ["test_cmdbase.py", "test_cli.py"],

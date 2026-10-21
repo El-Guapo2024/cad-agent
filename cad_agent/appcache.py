@@ -1,3 +1,27 @@
+# SPDX-License-Identifier: LGPL-2.0-or-later
+#
+# This file is not MIT. It re-expresses FreeCAD's ApplicationCache function by function and keeps FreeCAD's
+# licence, the GNU Lesser General Public License (FreeCAD calls it the GNU Library General Public License),
+# version 2 or (at your option) any later version. It is distributed here under version 2.1 of that licence,
+# which "or any later version" allows; the text is in ../ui/LICENSE.
+#
+#   Derived from: src/Gui/PreferencePages/DlgSettingsCacheDirectory.cpp (class ApplicationCache: Period,
+#                 toString, toBytes, size, periodicCheckOfSize, clearDirectory)
+#                 FreeCAD (https://github.com/FreeCAD/FreeCAD), commit 3160daf1e2b62b0472854da4848255c6b3ad554c
+#
+#   Copyright (c) 2021 Werner Mayer <wmayer[at]users.sourceforge.net>
+#
+#   This file is part of the FreeCAD CAx development system.
+#
+#   This library is free software; you can redistribute it and/or modify it under the terms of the GNU Library
+#   General Public License as published by the Free Software Foundation; either version 2 of the License, or
+#   (at your option) any later version.
+#
+#   This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the
+#   implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Library General Public
+#   License for more details.
+#
+# See ../NOTICE.
 """The user cache: FreeCAD's ApplicationCache (Gui/PreferencePages/
 DlgSettingsCacheDirectory.cpp at 3160daf1e2b6) for this tool's cache directory,
 the warm worker's `~/.cache/cad-agent` (`CAD_WARM_DIR`): its size, the check

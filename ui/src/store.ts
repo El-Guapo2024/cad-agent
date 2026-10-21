@@ -1,3 +1,15 @@
+// SPDX-License-Identifier: LGPL-2.1-or-later
+// Follows FreeCAD (https://github.com/FreeCAD/FreeCAD, commit 3160daf1e2b6), copyright of the files below (each is
+// LGPL-2.0-or-later or LGPL-2.1-or-later as it states; ui/NOTICE has them all):
+//   src/Gui/TreeParams.py: 2022 Zheng Lei (realthunder)
+//   src/Gui/OverlayParams.py: 2022 Zheng Lei (realthunder)
+//   src/Gui/NotificationArea.cpp: 2022 Abdullah Tahiri
+//   src/Gui/Navigation/NavigationStyle.cpp: 2008 Werner Mayer
+//   src/Gui/View3DSettings.cpp: 2023 Werner Mayer
+//   src/Gui/NaviCube.cpp: 2017 Kustaa Nyholm; 2026 Joao Matos
+//   No copyright line in the file: src/Gui/PreferencePages/DlgSettingsWorkbenches.ui,
+//       src/Gui/PreferencePages/DlgSettingsSelection.ui, src/Gui/PreferencePages/DlgSettingsNotificationArea.ui,
+//       src/Gui/PreferencePages/DlgSettingsMacro.ui
 // One store for the whole UI. Panels read slices with useStore(selector);
 // selectors must return stored values, not build new objects.
 import { useSyncExternalStore } from 'react'
@@ -293,13 +305,13 @@ export type State = {
   treeCollapsed: boolean
   /** Std_SelBack / Std_SelForward: the recorded selections. */
   selHistory: { back: SelEntry[]; forward: SelEntry[] }
-  /** The camera as View3DInventorViewer's "GetCamera" writes it, published for `cad gui state`. */
+  /** The camera as View3DInventor::getCamera() writes it (View3DInventor.cpp:558), published for `cad gui state`. */
   cameraNode: string | null
   /** Part_SelectFilter: the selection gate (Vertex/Edge/Face Selection), or none. */
   selFilter: 'vertex' | 'edge' | 'face' | null
   /** SelectionSingleton's "Not allowed: …" when the gate refuses a preselection. */
   gateMsg: string | null
-  /** Std_FreezeViews: the frozen cameras ("GetCamera" text), Restore View 1…50. */
+  /** Std_FreezeViews: the frozen cameras (getCamera() text), Restore View 1…50. */
   frozenViews: string[]
   /** The last named Std_View (or Home) direction shown (`iso`, `front`, `dimetric`, …), for
    *  `cad gui`'s camera field; null until one is chosen, or stale after a free orbit. */

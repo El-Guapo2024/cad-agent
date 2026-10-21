@@ -63,14 +63,24 @@ is still the one cited to Zytel 101L, a PA66, because 1.14 is what every mass ha
 1.13, the card 1.15). The service temperature once cited that same PA66 sheet (190 C), which is a hotter
 polymer than the card describes.
 
+Credit
+------
 The FreeCAD cards (https://github.com/FreeCAD/FreeCAD, commit 3160daf1e2b6) are used under their own
-licences, which differ by card; CARDS lists each with its author, as CC-BY asks.
+licences, which differ by card: five are CC-BY-3.0 (Juergen Riegel, Uwe Stöhr and Przemo Firszt), two are
+LGPL-2.1-or-later (Uwe Stöhr) and one is LGPL-2.0-or-later (M. Münch). CARDS lists each with its author and
+licence, LICENCE_URLS has the URL of each licence, and `credit()` writes what CC BY 3.0 section 4 asks for when a
+value of the card is shown: the author's name, the title of the work, the licence's URL, where the card is, and
+that the value is the card's own. It is printed wherever a value of a CC-BY card is shown: in the rows of
+`cad tables materials` (and as `credits` in `cad tables`, `cad tables density` and `cad tables materials`) and
+in the E of a `[[deflection]]` row. The licence texts are in THIRD_PARTY_LICENSES and the card list is in NOTICE.
 """
 from __future__ import annotations
 
+import re
 from typing import NamedTuple
 
 FREECAD_COMMIT = "3160daf1e2b6"
+FREECAD_COMMIT_FULL = "3160daf1e2b62b0472854da4848255c6b3ad554c"
 FREECAD_DIR = "src/Mod/Material/Resources/Materials/"
 
 PROPERTIES = ("density_g_cm3", "youngs_modulus_mpa", "poisson_ratio", "yield_strength_mpa", "max_service_temp_c")
@@ -96,8 +106,14 @@ def ds(url: str, what: str) -> str:
     return f"{url}: {what}"
 
 
-# The cards below, with their author and licence as the card gives them.
-CARDS = {
+class Card(NamedTuple):
+    name: str           # the card's Name
+    author: str         # its Author
+    licence: str        # its License, as an SPDX identifier
+
+
+# The cards below, with their name, author and licence as the card gives them (General: Name, Author, License).
+CARDS = {path: Card(*fields) for path, fields in {
     "Standard/Metal/Aluminum/Aluminum-Generic.FCMat": ("Aluminum Generic", "Uwe Stöhr", "LGPL-2.1-or-later"),
     "Standard/Metal/Steel/Steel-Generic.FCMat": ("Steel-Generic", "Juergen Riegel", "CC-BY-3.0"),
     "Standard/Metal/Steel/Steel-X5CrNi18-10.FCMat": ("X5CrNi18-10", "M. Münch", "LGPL-2.0-or-later"),
@@ -106,7 +122,61 @@ CARDS = {
     "Standard/Thermoplast/ABS-Generic.FCMat": ("ABS", "Juergen Riegel", "CC-BY-3.0"),
     "Standard/Thermoplast/PA6-Generic.FCMat": ("Polyamide 6", "Uwe Stöhr", "CC-BY-3.0"),
     "Standard/Thermoplast/Acrylic-Glass-Generic.FCMat": ("Acrylic Glass", "Przemo Firszt", "CC-BY-3.0"),
+}.items()}
+
+# Where each licence's terms are. CC BY 3.0 section 4(a) wants a copy of the licence, or its URI, with every copy of the
+# work; the texts of the CC and BSD licences are in THIRD_PARTY_LICENSES, and the LGPL's is in ui/LICENSE.
+LICENCE_URLS = {
+    "CC-BY-3.0": "https://creativecommons.org/licenses/by/3.0/",
+    "LGPL-2.1-or-later": "https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html",
+    "LGPL-2.0-or-later": "https://www.gnu.org/licenses/old-licenses/lgpl-2.0.html",
 }
+_CARD_IN_SOURCE = re.compile(rf"^FreeCAD {FREECAD_COMMIT} {re.escape(FREECAD_DIR)}(?P<card>\S+\.FCMat): ")
+
+
+def card_url(card: str) -> str:
+    """Where a card is, at the pinned commit (the work's URI, for the credit)."""
+    return f"https://github.com/FreeCAD/FreeCAD/blob/{FREECAD_COMMIT_FULL}/{FREECAD_DIR}{card}"
+
+
+def card_of(source: str) -> str | None:
+    """The card a source cites (`fc()` builds those), or None for a datasheet."""
+    m = _CARD_IN_SOURCE.match(source or "")
+    return m["card"] if m else None
+
+
+def needs_credit(card: str) -> bool:
+    """Whether the card's licence asks for attribution wherever its values are shown: CC BY does, the LGPL does not."""
+    return CARDS[card].licence.startswith("CC-BY")
+
+
+def credit(card: str, short: bool = False) -> str:
+    """The attribution CC BY 3.0 section 4(b) asks for, for a card: the author, the title of the work, the licence's
+    URL and, in full, where the card is and that the value is the card's own. `short` is for a line of a report."""
+    c = CARDS[card]
+    if short:
+        return f'"{c.name}" by {c.author}, {c.licence} {LICENCE_URLS[c.licence]}'
+    return (f'"{c.name}", a FreeCAD material card by {c.author}, licensed {c.licence} ({LICENCE_URLS[c.licence]}): '
+            f"{card_url(card)}; the values taken from it are the card's own, in g/cm3 and MPa")
+
+
+def credit_suffix(source: str) -> str:
+    """What follows a source where it is shown beside a value: a CC-BY card's short credit in brackets, else nothing. The
+    source itself is never touched (tests/test_materials.py reads it back)."""
+    card = card_of(source)
+    return f" [{credit(card, short=True)}]" if card and needs_credit(card) else ""
+
+
+def credits(properties=None) -> list[str]:
+    """The credit of every CC-BY card behind the given properties of any material (all of them by default), once each."""
+    wanted = PROPERTIES if properties is None else tuple(properties)
+    cards = []
+    for material in MATERIALS.values():
+        for p in wanted:
+            card = card_of(material[p][1]) if material.get(p) else None
+            if card and needs_credit(card) and card not in cards:
+                cards.append(card)
+    return [credit(c) for c in cards]
 
 _AL = "Standard/Metal/Aluminum/Aluminum-Generic.FCMat"
 _STEEL = "Standard/Metal/Steel/Steel-Generic.FCMat"
@@ -321,13 +391,20 @@ def density_table() -> dict[str, float]:
 
 
 def table() -> dict:
-    """Every material for `cad tables materials`: the numbers, and the source of each one."""
+    """Every material for `cad tables materials`: the numbers, the source of each one and, for each FreeCAD card a
+    number comes from, its credit (author, licence and its URL)."""
     out = {}
     for name, material in MATERIALS.items():
         row = {"card": material["card"],
                "aliases": [a for a, target in ALIASES.items() if target == name]}
         row.update({p: (material[p][0] if material[p] else None) for p in PROPERTIES})
         row["sources"] = {p: material[p][1] for p in PROPERTIES if material[p]}
+        cards = []
+        for p in PROPERTIES:
+            card = card_of(material[p][1]) if material[p] else None
+            if card and card not in cards:
+                cards.append(card)
+        row["credit"] = [credit(c) for c in cards]
         if material["max_service_temp_c"]:
             row["max_service_temp_basis"] = material["max_service_temp_c"][2]
         out[name] = row

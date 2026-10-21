@@ -1,3 +1,8 @@
+// SPDX-License-Identifier: LGPL-2.1-or-later
+// Follows FreeCAD (https://github.com/FreeCAD/FreeCAD, commit 3160daf1e2b6), copyright of the files below (each is
+// LGPL-2.0-or-later or LGPL-2.1-or-later as it states; ui/NOTICE has them all):
+//   src/Gui/Dialogs/DlgExpressionInput.cpp: 2015 Eivind Kvedalen; 2025 Pieter Hijma
+//   src/Gui/ExpressionCompleter.cpp: 2015 Eivind Kvedalen
 // Gui::Dialog::DlgExpressionInput (Gui/Dialogs/DlgExpressionInput.cpp at FreeCAD main
 // 3160daf1e2b6, LGPL-2.1-or-later): typing "=" in a property's field opens it over the field.
 // The expression is checked as it is typed and its result shown; OK takes it, Reset

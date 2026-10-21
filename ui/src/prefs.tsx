@@ -1,3 +1,20 @@
+// SPDX-License-Identifier: LGPL-2.1-or-later
+// Follows FreeCAD (https://github.com/FreeCAD/FreeCAD, commit 3160daf1e2b6), copyright of the files below (each is
+// LGPL-2.0-or-later or LGPL-2.1-or-later as it states; ui/NOTICE has them all):
+//   src/Gui/Dialogs/DlgPreferencesImp.cpp: 2002 Jürgen Riegel; 2023 FreeCAD Project Association
+//   src/Gui/resource.cpp: 2004 Werner Mayer
+//   src/Gui/PreferencePages/DlgSettingsAdvanced.cpp: 2020 Zheng Lei (realthunder)
+//   src/Gui/OverlayParams.py: 2022 Zheng Lei (realthunder)
+//   src/Gui/Widgets.cpp: 2004 Werner Mayer
+//   src/Gui/Dialogs/DlgKeyboardImp.cpp: 2005 Werner Mayer
+//   src/Gui/PreferencePages/DlgSettingsWorkbenchesImp.cpp: 2020 Chris Hennes; 2023 FreeCAD Project Association
+//   No copyright line in the file: src/Gui/Dialogs/DlgPreferences.ui, src/Gui/PreferencePages/DlgSettingsSelection.ui,
+//       src/Gui/PreferencePages/DlgSettingsViewColor.ui, src/Gui/PreferencePages/DlgSettingsLightSources.ui,
+//       src/Gui/PreferencePages/DlgSettingsUI.ui, src/Gui/Stylesheets/FreeCAD.qss,
+//       src/Gui/PreferencePages/DlgSettingsDocument.ui, src/Gui/PreferencePages/DlgSettingsPythonConsole.ui,
+//       src/Gui/PreferencePages/DlgSettingsEditor.ui, src/Gui/Dialogs/DlgKeyboard.ui,
+//       src/Gui/PreferencePages/DlgSettingsCacheDirectory.ui, src/Gui/PreferencePages/DlgSettingsWorkbenches.ui,
+//       src/Gui/PreferencePages/DlgSettingsPDF.ui, src/Gui/PreferencePages/DlgSettingsReportView.ui
 // Std_DlgPreferences: DlgPreferences.ui / DlgPreferencesImp.cpp at FreeCAD main 3160daf1e2b6 — a
 // modal "Preferences" window: the groups and their pages in a tree on the left (24px icons) with
 // Reset under it, the page's title and "Search preferences…" over the page, OK / Apply / Cancel.

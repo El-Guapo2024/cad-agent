@@ -74,7 +74,9 @@ If it is missing, `cad lib use` says the exact command for the Python that runs 
 
 ## License
 
-MIT ([LICENSE](LICENSE)), except the workbench UI. [ui/](ui/) and its build in `cad_agent/workbench/next/` are ported from [FreeCAD](https://github.com/FreeCAD/FreeCAD) and use its icons, so like FreeCAD they're LGPL-2.1-or-later ([ui/LICENSE](ui/LICENSE)).
+MIT ([LICENSE](LICENSE)), except the workbench UI. [ui/](ui/) and its build in `cad_agent/workbench/next/` are ported from [FreeCAD](https://github.com/FreeCAD/FreeCAD) and use its icons, so like FreeCAD they're LGPL-2.1-or-later ([ui/LICENSE](ui/LICENSE); [ui/NOTICE](ui/NOTICE) names the FreeCAD files and authors).
+
+Three files outside `ui/` derive from FreeCAD and keep its licence in their headers: `geom.py` (`mass_properties`, LGPL-2.1-or-later), `dxf.py` (the static sections of the DXF it writes, BSD-3-Clause) and `appcache.py` (LGPL-2.0-or-later). The cards in `materials.py` are FreeCAD's (CC-BY-3.0 for five of them, credited wherever their values are printed). [NOTICE](NOTICE) says which part is under which licence and what third-party code the repo ships (React, three.js, three-cad-viewer and the rest of the UI bundle, FreeCAD's icons); [THIRD_PARTY_LICENSES](THIRD_PARTY_LICENSES) has the licence texts. The wheel carries all of them.
 
 ## Links
 

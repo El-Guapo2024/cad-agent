@@ -1,3 +1,7 @@
+// SPDX-License-Identifier: LGPL-2.1-or-later
+// Follows FreeCAD (https://github.com/FreeCAD/FreeCAD, commit 3160daf1e2b6), copyright of the files below (each is
+// LGPL-2.0-or-later or LGPL-2.1-or-later as it states; ui/NOTICE has them all):
+//   src/Mod/Assembly/CommandCreateBom.py: 2023 Ondsel
 // The CAD Agent workbench's shop commands: `cad bom`, `cad shop` and `cad drawing`, each a task panel that runs the
 // command the way an agent in a terminal does (POST /api/cad) and shows what it answers; the drawing also opens as
 // a tab beside the 3D view, the way TechDraw opens a page as an MDI view. Nothing here builds a thing itself, and

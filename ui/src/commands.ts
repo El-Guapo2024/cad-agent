@@ -1,3 +1,10 @@
+// SPDX-License-Identifier: LGPL-2.1-or-later
+// Follows FreeCAD (https://github.com/FreeCAD/FreeCAD, commit 3160daf1e2b6), copyright of the files below (each is
+// LGPL-2.0-or-later or LGPL-2.1-or-later as it states; ui/NOTICE has them all):
+//   src/Gui/Camera.cpp: 2023 Werner Mayer
+//   src/Gui/View3DPy.cpp: 2002 Jürgen Riegel
+//   src/Gui/CommandView.cpp: 2002 Jürgen Riegel
+//   src/Gui/NaviCube.cpp: 2017 Kustaa Nyholm; 2026 Joao Matos
 // FreeCAD's view, visibility and selection commands, named after their FreeCAD ids.
 import { consoleLog, getState, report, saved, setState, viewOf, type Corner, type EditMode, type HomeView, type NavStyle, type Units, type ViewProps } from './store'
 import { getView, guiSynced, onGuiEvent, openTask, place, placementOf, recordGui, muteEcho, setOrtho, setParams, setViewProps, showPanel } from './actions'
@@ -38,14 +45,14 @@ export function storeView() { // Std_StoreWorkingView
 }
 export const recallView = () => getView()?.recallView() // Std_RecallWorkingView
 
-/** "SetCamera" (View3DInventor::onMsg): switch to the node's projection, then take on its camera. */
+/** View3DInventor::setCamera() (View3DInventor.cpp:567-570): switch to the node's projection, then take on its camera. */
 export function applyCamera(text: string) {
   setOrtho(/\bOrthographicCamera\b/.test(text))
   getView()?.setCamera(text)
 }
-/** Std_ViewIvIssueCamPos: "GetCamera" without its #Inventor line, newlines as spaces, to the
- *  Report view; a recording macro gets the line that brings it back (FreeCAD adds
- *  Gui.SendMsgToActiveView("SetCamera …"); here `cad gui view PROJECT '<camera>'`). */
+/** Std_ViewIvIssueCamPos (CommandView.cpp:2551-2582): getCamera() without its #Inventor line, newlines as
+ *  spaces, to the Report view; a recording macro gets the line that brings it back (FreeCAD adds
+ *  Gui.activeView().setCamera("…"); here `cad gui view PROJECT '<camera>'`). */
 export function issueCameraPosition() {
   const cam = getView()?.getCamera()
   if (!cam) return

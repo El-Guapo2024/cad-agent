@@ -1,3 +1,33 @@
+# SPDX-License-Identifier: MIT AND BSD-3-Clause AND LGPL-2.0-or-later
+#
+# Three licences in one file. The code is MIT (../LICENSE) except the static text of the DXF it writes, which
+# follows FreeCAD's DXF writer and keeps FreeCAD's terms: the HEADER variables, the CLASSES, TABLES, BLOCK_RECORD
+# and BLOCKS sections and the closing OBJECTS section (DxfWriter.__init__, _table, _record and finish), and the
+# TEXT and SOLID entities (DxfWriter.text and solid), with their group codes, values and order. The entity
+# conversion (primitive and the functions it calls) is restructured, not translated; it keeps FreeCAD's
+# constants and its test for a closed circle, which is behaviour, and is covered by the same notice.
+#
+#   Follows: src/Mod/Import/App/dxf/dxf.cpp (class CDxfWrite) and dxf.h
+#            FreeCAD (https://github.com/FreeCAD/FreeCAD), commit 3160daf1e2b62b0472854da4848255c6b3ad554c
+#
+#   SPDX-License-Identifier: BSD-3-Clause
+#   dxf.cpp
+#   Copyright (c) 2009, Dan Heeks
+#   This program is released under the BSD license. See the file COPYING for details.
+#   modified 2018 wandererfan
+#
+#   The BSD-3-Clause text, with that copyright line, is in ../THIRD_PARTY_LICENSES. In short: redistributions of
+#   source code must retain the copyright notice, the list of conditions and the disclaimer; redistributions in
+#   binary form must reproduce them in the documentation; the name of the copyright holder may not be used to
+#   endorse derived products without permission.
+#
+# The R14 templates FreeCAD reads the same text from (src/Mod/Import/DxfPlate/header14.rub, classes14.rub,
+# tables114.rub, tables214.rub and objects14.rub) carry no notice of their own, so they are under FreeCAD's own
+# licence, the GNU Lesser General Public License, version 2 or (at your option) any later version (FreeCAD's
+# CONTRIBUTING.md, section 4: "LGPL2+"); that part is distributed here under version 2.1, whose text is in
+# ../ui/LICENSE. The entity conversion also follows src/Mod/Import/App/dxf/ImpExpDxf.cpp, which says
+# "Copyright (c) 2015 Yorik van Havre (yorik@uncreated.net)" and the same Library General Public License terms
+# (SPDX LGPL-2.1-or-later). See ../NOTICE.
 """Laser parts: a DXF of the part's outline, written the way FreeCAD's ImpExpDxf writes one, and read back.
 
 A laser cuts the outline of a flat part. The outline is the section of the solid by the plane half way through
@@ -8,21 +38,26 @@ corner of a sheet.
 
 What FreeCAD does, and what is kept
 -----------------------------------
-FreeCAD (https://github.com/FreeCAD/FreeCAD, commit 3160daf1e2b6, LGPL-2.1-or-later) writes a DXF from a
-shape in `ImpExpDxfWrite::exportShape` (src/Mod/Import/App/dxf/ImpExpDxf.cpp), through `CDxfWrite`
-(src/Mod/Import/App/dxf/dxf.cpp), and `Import.writeDXFShape` (src/Mod/Import/App/AppImportPy.cpp) calls it. It
-reads its options from the `Mod/Draft` group (`ImpExpDxfWrite::setOptions`), and this module takes each of
+FreeCAD (https://github.com/FreeCAD/FreeCAD, commit 3160daf1e2b6) writes a DXF from a shape in
+`ImpExpDxfWrite::exportShape` (src/Mod/Import/App/dxf/ImpExpDxf.cpp, LGPL-2.1-or-later, copyright Yorik van Havre),
+through `CDxfWrite` (src/Mod/Import/App/dxf/dxf.cpp, BSD-3-Clause, copyright Dan Heeks, modified 2018 wandererfan;
+the header of this file has the notice), and `Import.writeDXFShape` (src/Mod/Import/App/AppImportPy.cpp) calls it.
+It reads its options from the `Mod/Draft` group (`ImpExpDxfWrite::setOptions`), and this module takes each of
 them at FreeCAD's default:
 
-  DxfVersionOut        14  so the entities of release 14 are written: ELLIPSE and SPLINE as they are, LWPOLYLINE
-                           where a curve has no entity of its own. The file says AC1014 and declares
+  DxfVersionOut        14  so the entities of release 14 are written: ELLIPSE and SPLINE, LWPOLYLINE where a
+                           curve has no entity of its own here. The file says AC1014 and declares
                            millimetres in its header, as FreeCAD's header14.rub does. Release 12, the other
                            value there, is not offered
   DiscretizeEllipses   false  ellipses and splines stay ELLIPSE and SPLINE, so `maxsegmentlength` (5.0), the
                            length of the polyline segments FreeCAD makes where it does discretize, is not used.
-                           A curve with no entity (a rational or periodic spline, a Bezier, an offset curve)
-                           is cut into a polyline at FLATTEN_MM instead: FreeCAD drops a Bezier ("BCurve dxf
-                           export not yet supported"), and a laser must not lose an edge
+                           FreeCAD writes every B-spline edge as a SPLINE, a rational or periodic one too
+                           (flags 4 and 2), after re-fitting it (`exportBSpline`: Approx_Curve3d, tolerance 0.001,
+                           C0, at most 200 segments, degree 3); this module writes the edge's own knots and poles
+                           instead, with no re-fit, and cuts a rational or periodic spline, or an edge that is
+                           only part of its curve, into a polyline at FLATTEN_MM. FreeCAD drops a Bezier ("BCurve
+                           dxf export not yet supported") and an edge of a kind it does not know; a laser must
+                           not lose an edge, so this module cuts those into a polyline too
   ExportPoints         false  no POINT entities
 
 and the way `exportShape` maps an edge to an entity:
@@ -32,7 +67,7 @@ and the way `exportShape` maps an edge to an entity:
                                    CIRCLE
   circle, open                     ARC, counter-clockwise from its start angle to its end angle (`writeArc`)
   ellipse                          ELLIPSE: centre, major axis vector, ratio, start and end parameter
-  B-spline                         SPLINE: degree, knots, control points
+  B-spline                         SPLINE: degree, knots, control points (FreeCAD re-fits it first, see above)
 
 The layer is `none`, which is what `writeDXFShape` names it, and the group codes follow `CDxfWrite` for a
 version above 12 (owner handle 330, subclass markers 100). Where this differs from FreeCAD, and why:
@@ -43,10 +78,18 @@ version above 12 (owner handle 330, subclass markers 100). Where this differs fr
   order             FreeCAD walks the edges in the order the kernel's explorer gives them. These are put in
                     an order of their own: the holes first, by position, and the outline last, as a laser
                     should cut, and within a loop by kind and position
-  header            FreeCAD's comment line is its build ("FreeCAD v1.0 ..."); this one names the part, where
-                    the outline came from and the FreeCAD commit, and has no date. Its tables are the ones a
-                    laser reader needs: FreeCAD's DIMSTYLE record is left out
+  header            FreeCAD's comment line is its build (`CDxfWrite::writeHeaderSection`; the weekly build of the
+                    commit above writes "FreeCAD v26.3 20260929 (Git shallow)"); this one names the part,
+                    where the outline came from and the FreeCAD commit, and has no date. Its tables are the
+                    ones a laser reader needs: FreeCAD's DIMSTYLE record is left out
   line ends         "\\n", whatever machine writes it
+  also              against a file the weekly build wrote (FREECAD_AUDIT.md, 5.10): an ARC's angles are raw
+                    atan2, in (-180, 180], in dxf.cpp:764-765 and [0, 360) here; its HEADER has $DIMSTYLE,
+                    $DIMTXSTY, $PEXTMAX and $PEXTMIN where this one has $MEASUREMENT, $EXTMIN and $EXTMAX; its
+                    TABLES have two STYLE records, two APPID and a DIMSTYLE where this one has one, one and
+                    none; CLASSES has three entries and this one's has one; handles start at 0xA01 there and
+                    at 1 here; its last line is "EOF" with no newline. The geometry is the same and the same
+                    readers read both
 
 Where the outline comes from. For a part that passes `laser through-cut` (below), it is the boundary of the end
 face at the top of the part, which is the section exactly and is made of the curves the part was built from.

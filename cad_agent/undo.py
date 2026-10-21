@@ -38,8 +38,8 @@ MAX_STEPS = 20
 
 
 def max_steps() -> int:
-    """MaxUndoSize from the user preferences (App::Document::setUndoMode/
-    setMaxUndoStackSize take it from Preferences > Document; 0 keeps nothing)."""
+    """MaxUndoSize from the user preferences (Preferences > Document, default 20: Gui::Document's constructor reads it,
+    Gui/Document.cpp:572, and hands it to App::Document::setMaxUndoStackSize, App/Document.cpp:843; 0 keeps nothing)."""
     from . import userprefs
     return userprefs.get("MaxUndoSize")
 

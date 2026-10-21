@@ -48,7 +48,8 @@ from .. import dxf
 
 FREECAD_COMMIT = dxf.FREECAD_COMMIT
 SOURCE = (f"FreeCAD {FREECAD_COMMIT} src/Mod/TechDraw/App/GeometryObject.cpp GeometryObject::projectShape and makeTDGeometry "
-          "(HLRBRep_Algo, HLRAlgo_Projector, HLRBRep_HLRToShape: hard and outline edges, visible solid and hidden dashed)")
+          "(HLRBRep_Algo, HLRAlgo_Projector, HLRBRep_HLRToShape: hard and outline edges, visible and hidden; the hidden ones are "
+          "dashed by src/Mod/TechDraw/Gui/QGIViewPart.cpp:461-465, not by GeometryObject.cpp)")
 GRID = 10_000                   # 1e-4 mm
 ANGLE_GRID = 10_000             # 1e-4 degrees
 VIEW_FRAME = dxf.frame_at(2, 0.0)       # HLR's edges lie in the XY plane of the projector: the identity frame

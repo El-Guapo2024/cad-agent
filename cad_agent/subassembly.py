@@ -92,7 +92,10 @@ means the child acts as one body in the parent; otherwise its joints are taken i
 `synchronizeComponents` mirrors the child's objects into the link while `handleJointReference` points the
 copied joints at the link's own objects. Here the bodies stay rigid at home, the child's axes (its joints) are
 kept, and the pointing is a prefix on every name. FreeCAD's Placement is a base and a rotation applied to
-the linked object's frame, which is what `at` and `turn` are.
+the linked object's frame, which is what `at` and `turn` are. What FreeCAD does with that Placement is more than
+this keeps: a link that goes flexible has its Placement reset to the identity and baked into its children's
+(AssemblyLink.cpp:192-237), and a rigid one keeps every component's placement synchronized with its source
+(`updateContents`, 536-541). Neither file has a LinkTransform or a mirror.
 
 This module imports no CAD kernel until it needs one, so `cad done` can read the tree's files without it.
 """

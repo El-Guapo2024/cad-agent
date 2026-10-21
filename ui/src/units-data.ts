@@ -1,3 +1,9 @@
+// SPDX-License-Identifier: LGPL-2.1-or-later
+// Follows FreeCAD (https://github.com/FreeCAD/FreeCAD, commit 3160daf1e2b6), copyright of the files below (each is
+// LGPL-2.0-or-later or LGPL-2.1-or-later as it states; ui/NOTICE has them all):
+//   src/Base/Quantity.l: 2013 Jürgen Riegel
+//   src/Base/Quantity.cpp: 2013 Jürgen Riegel
+//   No copyright line in the file: src/Base/Unit.cpp, src/Base/UnitsConvData.h
 // FreeCAD's units, generated from src/Base/Quantity.l, Quantity.cpp, Unit.cpp and
 // UnitsConvData.h at FreeCAD main 3160daf1e2b6 (LGPL-2.1-or-later). Internal units are
 // FreeCAD's: mm, kg, s, A, K, mol, cd, degree. Dimensions are exponents of those eight.
