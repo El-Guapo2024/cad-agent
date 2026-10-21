@@ -109,6 +109,33 @@ for (const mac of [true, false]) {
     check(`${P} a drag box is no click candidate`, boxed && r.log.scene.join() === 'press1', `bands=${r.log.bands} scene=${r.log.scene.join()}`)
   }
 
+  // ── QApplication::doubleClickInterval is the system's: 500 ms by default on a Mac and on Windows, not a fixed 400 ──
+  {
+    N.resetDoubleClickInterval()
+    check(`${P} the double-click interval defaults to 500 ms`, N.doubleClickInterval() === 0.5, `${N.doubleClickInterval()}`)
+    const r = rig(N, { style: 'cad' })
+    const ev = (type, t, x = 400, y = 300) => r.nav.processEvent({ type, button: 1, pos: [x, y], t, ctrl: false, shift: false, alt: false })
+    ev('press', 0); ev('release', 0.05)
+    r.log.scene = []
+    ev('press', 0.47)
+    check(`${P} a press 0.47 s after the last is still a double-click candidate`, r.log.scene.length === 0, r.log.scene.join())
+    ev('release', 0.5)
+    r.log.scene = []
+    ev('press', 1.1); ev('release', 1.15)
+    check(`${P} a press 0.6 s after the held one goes at once`, r.log.scene.join() === 'press1,release1', r.log.scene.join())
+    // the browser's own click count (MouseEvent.detail) is what a page sees of the system's setting: a slow double click widens it
+    r.fire('mousedown', { timeStamp: 5000, clientX: 400, clientY: 300, button: 0, detail: 1 })
+    r.fire('mousedown', { timeStamp: 5800, clientX: 401, clientY: 300, button: 0, detail: 2 })
+    check(`${P} two presses 0.8 s apart that the system counted as a double click make the interval longer`, near(N.doubleClickInterval(), 0.88, 1e-9), `${N.doubleClickInterval()}`)
+    r.fire('mousedown', { timeStamp: 9000, clientX: 400, clientY: 300, button: 0, detail: 1 })
+    r.fire('mousedown', { timeStamp: 9100, clientX: 400, clientY: 300, button: 0, detail: 1 })
+    check(`${P} a pair the system did not count never shortens it`, near(N.doubleClickInterval(), 0.88, 1e-9), `${N.doubleClickInterval()}`)
+    r.fire('mousedown', { timeStamp: 12000, clientX: 400, clientY: 300, button: 0, detail: 1 })
+    r.fire('mousedown', { timeStamp: 14000, clientX: 480, clientY: 300, button: 0, detail: 2 })
+    check(`${P} a second press far from the first teaches nothing`, near(N.doubleClickInterval(), 0.88, 1e-9), `${N.doubleClickInterval()}`)
+    N.resetDoubleClickInterval()
+  }
+
   // ── a touchscreen: two fingers pinch (QPinchGesture) ──────────────────────
   {
     const r = rig(N, { style: 'cad' })
@@ -197,6 +224,13 @@ for (const mac of [true, false]) {
     r.fire('wheel', { clientX: 400, clientY: 300, deltaX: 0, deltaY: -100, deltaMode: 0, altKey: true, wheelDeltaY: 120 })
     check(`${P} alt+wheel: a notch away turns 15° clockwise`, near(turn(r.dir(), d1), -Math.PI / 12, 1e-4), `turned ${deg(turn(r.dir(), d1))}`)
   }
+}
+
+// Qt's own default is 400 ms on X11
+{
+  Object.defineProperty(globalThis, 'navigator', { value: { platform: 'Linux x86_64', userAgent: '' }, configurable: true, writable: true })
+  const X = await import(`${bundle}?linux`)
+  check('linux the double-click interval defaults to 400 ms', X.doubleClickInterval() === 0.4, `${X.doubleClickInterval()}`)
 }
 
 console.log(`navcheck: ${passes} passed, ${failures} failed`)

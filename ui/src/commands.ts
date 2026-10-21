@@ -170,11 +170,14 @@ export function searchObjects() { // the tree's Search Objects
 /** Std_Measure: the measurement task, which follows the selection (TaskMeasure). */
 export const measure = () => openTask('measure', '')
 export const canMeasure = () => !!getState().scene
-/** Std_AlignToSelection: look straight at the selected planar face. */
+/** Std_AlignToSelection: look straight at the selected elements (a planar face, a straight or planar edge, several of them). */
 export function alignToSelection() {
-  const ref = getState().subSel.find((r) => /\.Face\d+$/.test(r))
-  if (!ref || !getView()?.alignTo(ref)) report('warn', 'Align to selection: select a planar face')
+  const s = getState()
+  const whole = s.selected.filter((n) => !s.subSel.some((r) => r.startsWith(n + '.')))
+  if (!getView()?.alignToSelection(s.subSel, whole)) report('warn', 'Align to selection: select a planar face, a straight or planar edge, or several of them')
 }
+/** Std_AlignToSelection is greyed out while nothing is selected (FreeCAD's isActive is a 3D view; it does nothing then). */
+export const canAlignToSelection = () => getState().selected.length > 0 || getState().subSel.length > 0
 /** Std_MassProperties, for the selected parts. */
 export function massProperties() {
   if (selected().length) openTask('mass', selected()[0])

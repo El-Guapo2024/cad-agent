@@ -29,6 +29,8 @@
 // Coin's mouse buttons: 1 left, 2 right, 3 middle. Pixel positions count from the
 // bottom left. FreeCAD's Ctrl is Cmd on a Mac, as Qt maps it.
 import * as THREE from 'three'
+import { doubleClickInterval, observeMouseDown } from './dblclick'
+export { doubleClickInterval, resetDoubleClickInterval } from './dblclick'
 
 export type NavStyleId = 'blender' | 'cad' | 'gesture' | 'mayagesture' | 'opencascade' | 'openinventor'
   | 'openscad' | 'revit' | 'siemensnx' | 'solidworks' | 'tinkercad' | 'touchpad'
@@ -41,7 +43,7 @@ export const NAV_STYLES: { id: NavStyleId; name: string; hints: [string, string,
   { id: 'gesture', name: 'Gesture', hints: ['Tap OR click left mouse button.', 'Drag screen with two fingers OR press right mouse button.',
     'Drag screen with one finger OR press left mouse button. In Sketcher and other edit modes, hold Alt in addition.',
     'Pinch (place two fingers on the screen and drag them apart from or towards each other) OR scroll mouse wheel OR PgUp/PgDown on keyboard.'] },
-  { id: 'mayagesture', name: 'Maya-Gesture', hints: ['Tap OR click left mouse button.', 'Drag screen with two fingers OR press Alt + middle mouse button.',
+  { id: 'mayagesture', name: 'MayaGesture', hints: ['Tap OR click left mouse button.', 'Drag screen with two fingers OR press Alt + middle mouse button.',
     'Drag screen with one finger OR press Alt + left mouse button. In Sketcher and other edit modes, hold Alt in addition.',
     'Pinch (place two fingers on the screen and drag them apart from or towards each other) OR scroll mouse wheel OR press Alt + right mouse button OR PgUp/PgDown on keyboard.'] },
   { id: 'opencascade', name: 'OpenCascade', hints: ['Press left mouse button', 'Press Ctrl and middle mouse button', 'Press Ctrl and right mouse button', 'Press Ctrl and left mouse button'] },
@@ -151,7 +153,6 @@ export interface NavHost {
   prefs(): NavPrefs & { animate: boolean; disableTouchTilt: boolean }
 }
 
-const DCI = 0.4 // QApplication::doubleClickInterval, s
 const DRAG_DISTANCE = 10 // QApplication::startDragDistance, px
 const HOLD_TIMEOUT = 0.63 // QTapAndHoldGesture::timeout() * 0.9, s
 const SPHERE_RADIUS = 0.8 // FCSphereSheetProjector::defaultSphereRadius
@@ -773,7 +774,7 @@ export class Navigation {
     return processed
   }
   private isDoubleClickCandidate(ev: NavEvent) {
-    return this.lastClickCandidate !== null && ev.t - this.lastClickCandidate < DCI
+    return this.lastClickCandidate !== null && ev.t - this.lastClickCandidate < doubleClickInterval()
   }
   private deferMouseDownEvent(ev: NavEvent) { this.deferredPress = ev; this.lastClickCandidate = ev.t }
   private recordClickCandidate(ev: NavEvent) { this.deferredPress = null; this.lastClickCandidate = ev.t }
@@ -826,7 +827,7 @@ export class Navigation {
     let newmode: Mode = curmode
     this.syncModifierKeys(ev)
     const press = ev.type === 'press', release = ev.type === 'release', button = ev.type === 'press' || ev.type === 'release'
-    const quick = () => ev.t - this.centerTime < DCI
+    const quick = () => ev.t - this.centerTime < doubleClickInterval()
     const toDrag = () => { newmode = 'DRAGGING'; this.saveCursorPosition(ev.pos); this.centerTime = ev.t; processed = true }
     const dragged = () => this.hasDragged || this.hasPanned || this.hasZoomed
     /** The right click's menu, unless the button was navigating. */
@@ -1344,7 +1345,7 @@ export class Navigation {
           else if (isPress(1) && this.b3) enter('Zoom')
           else if (keyPress('Control')) { r.processed = true; enter('Zoom') }
           else if (isRelease(3) && none) {
-            if (ev.t - this.since < DCI) { r.processed = true; this.lookAtPoint(ev.pos) }
+            if (ev.t - this.since < doubleClickInterval()) { r.processed = true; this.lookAtPoint(ev.pos) }
             enter('Idle')
           }
           break
@@ -1609,6 +1610,9 @@ export function bindNavigation(nav: Navigation, el: HTMLElement, isCanvas: (t: E
   // The view takes every touch: no browser panning or zooming starts on it.
   const touchAction = el.style.touchAction
   el.style.touchAction = 'none'
+  // QApplication::doubleClickInterval() is the system's: the click count the browser puts on a press is what a page can see of it (dblclick.ts).
+  const onMouseDown = (e: MouseEvent) => observeMouseDown(e)
+  el.addEventListener('mousedown', onMouseDown, true)
   el.addEventListener('pointerdown', onPointer, true)
   el.addEventListener('pointermove', onPointer, true)
   el.addEventListener('pointerup', onPointer, true)
@@ -1622,6 +1626,7 @@ export function bindNavigation(nav: Navigation, el: HTMLElement, isCanvas: (t: E
   return () => {
     el.style.touchAction = touchAction
     endWheelPinch()
+    el.removeEventListener('mousedown', onMouseDown, true)
     el.removeEventListener('pointerdown', onPointer, true)
     el.removeEventListener('pointermove', onPointer, true)
     el.removeEventListener('pointerup', onPointer, true)

@@ -32,16 +32,16 @@ them carry.
       Gui/PreferencePages/DlgSettingsWorkbenchesImp.cpp
   Joao Matos: Gui/Inventor/SoFCBackgroundGradient.cpp, Gui/Inventor/SoNaviCube.cpp,
       Gui/NaviCube.cpp, Gui/View3DInventorViewer.cpp
-  Jürgen Riegel: App/Expression.l, App/Expression.y, Base/Quantity.cpp, Base/Quantity.l,
+  Jürgen Riegel: App/Expression.l, App/Expression.y, App/GeoFeature.cpp, Base/Quantity.cpp, Base/Quantity.l,
       Base/Quantity.y, Base/UnitsApi.cpp, Gui/Command.cpp, Gui/CommandDoc.cpp, Gui/CommandStd.cpp,
       Gui/CommandView.cpp, Gui/Dialogs/DlgParameterImp.cpp, Gui/Dialogs/DlgPreferencesImp.cpp,
       Gui/Dialogs/DlgUnitsCalculatorImp.cpp, Gui/Macro.cpp, Gui/Selection/Selection.cpp,
       Gui/Selection/SelectionView.cpp, Gui/Tree.cpp, Gui/View3DInventorViewer.cpp, Gui/View3DPy.cpp,
-      Mod/Part/Gui/CommandFilter.cpp, Mod/Sketcher/Gui/Workbench.cpp
+      Mod/Part/App/PartFeature.cpp, Mod/Part/Gui/CommandFilter.cpp, Mod/Sketcher/Gui/Workbench.cpp
   Kirill Gavrilov: Gui/Navigation/OpenCascadeNavigationStyle.cpp
   Kustaa Nyholm: Gui/NaviCube.cpp
   Loke S. Haugsnes: Mod/Measure/Gui/TaskMeasure.cpp
-  Luke Parry: Mod/Measure/App/AppMeasure.cpp
+  Luke Parry: Mod/Measure/App/AppMeasure.cpp, Mod/Measure/App/Measurement.cpp
   Morten Vajhøj: Mod/Measure/App/MassPropertiesResult.cpp, Mod/Measure/Gui/TaskMassProperties.cpp
   Ondsel: Mod/Assembly/CommandCreateBom.py
   Pablo Gil Fernández (the original of FreeCAD.qss) and MisterMaker (its revision):
@@ -94,6 +94,9 @@ src/App/Expression.y   [licence: LGPL-2.1-or-later]
     copyright 2010 Jürgen Riegel
     copyright 2015 Eivind Kvedalen
     followed by src/expr.ts
+src/App/GeoFeature.cpp   [licence: LGPL-2.1-or-later]
+    copyright 2002 Jürgen Riegel
+    followed by src/viewer.ts
 src/App/QuantityInput.cpp   [licence: LGPL-2.1-or-later]
     copyright: no line in the file
     followed by src/expr.ts, src/quantity-input.ts
@@ -111,7 +114,7 @@ src/Base/Quantity.y   [licence: LGPL-2.1-or-later]
     followed by src/quantity.ts
 src/Base/Rotation.cpp   [licence: LGPL-2.1-or-later]
     copyright 2006 Werner Mayer
-    followed by src/rotation.ts
+    followed by src/rotation.ts, src/viewer.ts
 src/Base/Tools.h   [licence: LGPL-2.1-or-later]
     copyright 2009 Werner Mayer
     followed by src/rotation.ts
@@ -236,7 +239,7 @@ src/Gui/ManualAlignment.cpp   [licence: LGPL-2.0-or-later]
 src/Gui/NaviCube.cpp   [licence: LGPL-2.1-or-later]
     copyright 2017 Kustaa Nyholm
     copyright 2026 Joao Matos
-    followed by src/commands.ts, src/navicube.tsx, src/store.ts, src/viewer.ts
+    followed by src/commands.ts, src/dblclick.ts, src/navicube.tsx, src/store.ts, src/viewer.ts
 src/Gui/Navigation/BlenderNavigationStyle.cpp   [licence: LGPL-2.1-or-later]
     copyright 2011 Werner Mayer
     followed by src/nav.ts
@@ -257,7 +260,7 @@ src/Gui/Navigation/NavigationAnimation.cpp   [licence: LGPL-2.1-or-later]
     followed by src/nav.ts
 src/Gui/Navigation/NavigationStyle.cpp   [licence: LGPL-2.1-or-later]
     copyright 2008 Werner Mayer
-    followed by src/nav.ts, src/store.ts
+    followed by src/dblclick.ts, src/nav.ts, src/store.ts
 src/Gui/Navigation/OpenCascadeNavigationStyle.cpp   [licence: LGPL-2.1-or-later]
     copyright 2015 Kirill Gavrilov
     followed by src/nav.ts
@@ -402,7 +405,7 @@ src/Gui/TextEdit.cpp   [licence: LGPL-2.0-or-later]
     followed by src/macro.tsx
 src/Gui/Tree.cpp   [licence: LGPL-2.0-or-later]
     copyright 2004 Jürgen Riegel
-    followed by src/App.tsx, src/freecad.css, src/panels.tsx
+    followed by src/App.tsx, src/chrome.tsx, src/freecad.css, src/panels.tsx
 src/Gui/TreeParams.py   [licence: LGPL-2.0-or-later]
     copyright 2022 Zheng Lei (realthunder)
     followed by src/freecad.css, src/panels.tsx, src/store.ts
@@ -444,6 +447,9 @@ src/Mod/Measure/App/AppMeasure.cpp   [licence: LGPL-2.1-or-later]
 src/Mod/Measure/App/MassPropertiesResult.cpp   [licence: LGPL-2.1-or-later]
     copyright 2026 Morten Vajhøj
     followed by src/measure.tsx
+src/Mod/Measure/App/Measurement.cpp   [licence: LGPL-2.1-or-later]
+    copyright 2013 Luke Parry
+    followed by src/viewer.ts
 src/Mod/Measure/App/Preferences.cpp   [licence: LGPL-2.1-or-later]
     copyright 2023 WandererFan
     followed by src/viewer.ts
@@ -468,6 +474,9 @@ src/Mod/Measure/Gui/ViewProviderMeasureDistance.cpp   [licence: LGPL-2.1-or-late
     copyright 2023 David Friedli
     copyright 2013 Thomas Anderson
     copyright 2008 Werner Mayer
+    followed by src/viewer.ts
+src/Mod/Part/App/PartFeature.cpp   [licence: LGPL-2.1-or-later]
+    copyright 2002 Jürgen Riegel
     followed by src/viewer.ts
 src/Mod/Part/Gui/CommandFilter.cpp   [licence: LGPL-2.1-or-later]
     copyright 2002 Jürgen Riegel

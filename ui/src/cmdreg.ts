@@ -35,7 +35,7 @@ import { poseNames } from './poses'
 import {
   viewHome, viewDimetric, viewTrimetric, rotateLeft, rotateRight, zoomIn, zoomOut, storeView, recallView, boxZoom,
   toggleAxisCross, toggleBoundingBox, toggleTransparency, toggleSelectability, randomColor, selectInstances, gotoSelection,
-  alignToSelection, massProperties, measure, canMeasure, clipping, sendToConsole, exportPart, documentInfo, unitsCalculator,
+  alignToSelection, canAlignToSelection, massProperties, measure, canMeasure, clipping, sendToConsole, exportPart, documentInfo, unitsCalculator,
   demoMode, preferences, boxSelection, boxElementSelection, clarifySelection, setEditMode, alignment, fullscreen, saveImage,
   onCommandRegistry, copySelection, issueCameraPosition, viewFullscreen, viewDocked,
 } from './commands'
@@ -72,7 +72,7 @@ const COMMANDS: Record<string, RegCommand> = {
   Std_ViewHome: reg('Home', () => viewHome()),
   Std_ViewFitAll: reg('Fit All', () => getView()?.fitAll()),
   Std_ViewFitSelection: reg('Fit Selection', () => getView()?.fitAll(sel()), () => sel().length > 0),
-  Std_AlignToSelection: reg('Align to Selection', alignToSelection, () => getState().subSel.some((r) => /\.Face\d+$/.test(r))),
+  Std_AlignToSelection: reg('Align to Selection', alignToSelection, canAlignToSelection),
   Std_ViewRotateLeft: reg('Rotate Left', rotateLeft),
   Std_ViewRotateRight: reg('Rotates Right', rotateRight),
   Std_StoreWorkingView: reg('Store Working View', storeView),
@@ -118,7 +118,7 @@ const COMMANDS: Record<string, RegCommand> = {
   Std_BoxElementSelection: reg('Box Element Selection', boxElementSelection),
   Std_SelectAll: reg('Select All', selectAll),
   Std_ClarifySelection: reg('Clarify Selection', clarifySelection),
-  Std_TreeSelectAllInstances: reg('Select All Instances', selectInstances, () => sel().length > 0),
+  Std_TreeSelectAllInstances: reg('Select All Instances', selectInstances, () => sel().length === 1),
   Std_TreeSelection: reg('Go to Selection', gotoSelection, () => sel().length > 0),
   Std_SelBack: reg('Selection Back', selBack, () => getState().selHistory.back.length > 0),
   Std_SelForward: reg('Selection Forward', selForward, () => getState().selHistory.forward.length > 0),

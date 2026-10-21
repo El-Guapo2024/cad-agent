@@ -37,6 +37,7 @@ from __future__ import annotations
 
 import os
 import time
+from datetime import date
 from pathlib import Path
 
 from . import userprefs
@@ -52,9 +53,28 @@ def directory() -> Path:
 
 
 def size() -> int:
-    """ApplicationCache::size: every file under the directory, in bytes."""
-    d = directory()
-    return sum(p.stat().st_size for p in d.rglob("*") if p.is_file()) if d.is_dir() else 0
+    """ApplicationCache::size, which is dirSize: the bytes of every file under the directory, but QDir's entryList is asked for
+    QDir::Files and QDir::Dirs without QDir::Hidden, so a dot file, a dot folder (and what is in it) and a socket count for nothing."""
+    return _dir_size(directory())
+
+
+def _dir_size(d: Path) -> int:
+    total = 0
+    try:
+        entries = list(d.iterdir())
+    except OSError:
+        return 0
+    for p in entries:
+        if p.name.startswith("."):
+            continue
+        try:
+            if p.is_dir():
+                total += _dir_size(p)
+            elif p.is_file():
+                total += p.stat().st_size
+        except OSError:
+            continue
+    return total
 
 
 def to_string(n: float) -> str:
@@ -99,13 +119,15 @@ def clear() -> int:
 
 def periodic_check_due() -> bool:
     """ApplicationCache::periodicCheckOfSize: whether CachePeriod has passed since the last
-    check (and if so, record this one)."""
+    check (and if so, record this one). The days are calendar days, as QDate::daysTo counts them (the check is stamped with
+    a date, not a time): one made at 23:00 is a day old at 01:00, and a Daily check made at 08:00 is due again the next
+    morning at 00:05; no stamp is FreeCAD's null date, 1000 days."""
     days = _DAYS[userprefs.get("CachePeriod")]
     if days is None:
         return False
     stamp = directory() / STAMP
-    last = stamp.stat().st_mtime if stamp.exists() else None
-    if last is not None and (time.time() - last) / 86400 < days:
+    elapsed = (date.today() - date.fromtimestamp(stamp.stat().st_mtime)).days if stamp.exists() else 1000
+    if elapsed < days:
         return False
     stamp.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
     stamp.touch()
