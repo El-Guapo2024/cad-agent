@@ -15,7 +15,7 @@ import { listCommands } from './cmdreg'
 import { allWorkbenches } from './chrome'
 import { Icon } from './icons'
 import { commandsByShortcut, defaultAccel, eventSeq, nativeText, resetAllShortcuts, setShortcut, shortcutOf } from './keymap'
-import { setUnits } from './commands'
+import { setHomeView, setUnits } from './commands'
 import { PrefsPage } from './panels'
 import { BACKGROUND_DEFAULTS, type BackgroundMode, type BackgroundPrefs } from './background'
 import { cls } from './panels'
@@ -633,7 +633,7 @@ const DEFAULTS: Record<string, Record<string, unknown>> = {
   '3D View': { corner: { show: true, size: 10 }, axes: false, axisColors: AXIS_COLOR_DEFAULTS, showFPS: false },
   'Light Sources': { lights: LIGHT_DEFAULTS },
   UI: { treeUI: TREE_UI_DEFAULTS },
-  Navigation: { nav: 'cad', animate: true, cube: true, navPrefs: NAV_DEFAULTS, homeView: 'Trimetric', newDocCameraScale: 100,
+  Navigation: { nav: 'cad', animate: true, cube: true, navPrefs: NAV_DEFAULTS, homeView: null, newDocCameraScale: 100,
     naviCube: NAVICUBE_DEFAULTS, cubePos: CORNER_POS[1], rotationCenter: { size: 5, color: '#ff0000', alpha: 0.2 }, disableTouchTilt: true },
   Colors: { background: BACKGROUND_DEFAULTS, treeEditColor: '#00abff' },
   Advanced: { overlayPrefs: OVERLAY_DEFAULTS },
@@ -648,7 +648,8 @@ function resetPages(pages: string[]) {
   for (const p of pages) for (const [k, v] of Object.entries(DEFAULTS[p] ?? {})) {
     if (k.startsWith('server:')) { setServerPref(k.slice(7), v as number); continue }
     if (k.startsWith('editor:')) { setEditorPrefs({ [k.slice(7)]: v }); continue } // the two pages share one setting
-    saved.set(k, v)
+    if (v === null) saved.remove(k) // a parameter that is unset by default (RemoveASCII): not stored as a value
+    else saved.set(k, v)
     if (k === 'units') setUnits(v as never)
     else if (k in getState()) setState({ [k]: v } as never) // the rest (snap, recentFilesSize) live in `saved` only
   }
@@ -718,6 +719,13 @@ function restore(snap: ReturnType<typeof snapshot>) {
   setState(rest as never)
   setUnits(units as never)
   applyReportColors()      // the Report view's colours are CSS variables set from the saved setting
+}
+
+/** DlgPreferencesImp::applyChanges: OK and Apply call saveSettings() on every page, so a page's parameter that nothing has set yet is
+ *  written with what the page shows. The one that matters here is the Navigation page's Default camera orientation
+ *  (NewDocumentCameraOrientation): unset it makes Home look from the Top, written it is what the combo shows, Trimetric. */
+function saveSettings() {
+  if (getState().homeView === null) setHomeView('Trimetric')
 }
 
 /** DlgPreferencesImp::onButtonResetClicked: Reset Page '…', Reset Group '…', Reset All (asks first). */
@@ -796,8 +804,8 @@ export function PreferencesDialog() {
           </div>
         </div>
         <div className="pref-buttons">
-          <button className="qbtn default" onClick={close}>OK</button>
-          <button className="qbtn" onClick={() => { snap.current = snapshot() }}>Apply</button>
+          <button className="qbtn default" onClick={() => { saveSettings(); close() }}>OK</button>
+          <button className="qbtn" onClick={() => { saveSettings(); snap.current = snapshot() }}>Apply</button>
           <button className="qbtn" onClick={() => { restore(snap.current!); close() }}>Cancel</button>
         </div>
         {/* The search index: every page rendered off screen. */}

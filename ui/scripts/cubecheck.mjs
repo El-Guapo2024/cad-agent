@@ -238,6 +238,29 @@ await step('setup', async () => {
   ok('and every pick but TOP and BOTTOM comes out upright (the world z up the screen)', Object.entries(PICK).filter(([k]) => k !== '0,0,1' && k !== '0,0,-1').every(([, v]) => qrot(v.q, [0, 1, 0])[2] > 0))
   ok('and every pick looks along its own direction', Object.entries(PICK).every(([k, v]) => angle3(qrot(v.q, [0, 0, 1]), k.split(',').map(Number)) < 1e-9))
 })
+// Home is Camera::defaultOrientation("Top") (View3DInventorViewer::viewHome) while a new view's is "Trimetric" (View3DInventorPy::
+// viewDefaultOrientation): the NewDocumentCameraOrientation parameter, or its caller's fallback while it is unset, which it is in a fresh profile
+// until the Preferences dialog has saved the Navigation page (its combo shows Trimetric, and every page saves on OK or Apply). So in a fresh page
+// Home looks from the top. Checked first; then the page does what a person does, OK in Preferences, and from there Home is the default
+// orientation, which is where every start below (startAt) and the Home button's expectation begin.
+await step('Home: the top view in a fresh profile, the default orientation once the Navigation page is saved', async () => {
+  ok('the Navigation page\'s Default camera orientation is unset in a fresh profile', await p.evaluate(() => cadui.getState().homeView === null))
+  await key('Home')
+  const top = await settle()
+  ok('Home looks from the top while it is unset', qangle(top.camera, STD.top) < ANGLE_TOL && consistency(top).length === 0, `${qangle(top.camera, STD.top).toFixed(4)} deg off; ${consistency(top).join('; ')}`)
+  await btn('rr'); await settle()
+  await btn('home')
+  const viaCube = await settle()
+  ok('and so does the cube\'s Home button', qangle(viaCube.camera, STD.top) < ANGLE_TOL, `${qangle(viaCube.camera, STD.top).toFixed(4)} deg off`)
+  await key('Meta+Comma')
+  await p.waitForSelector('.pref-dlg', { timeout: 10000 })
+  await p.locator('.pref-buttons .qbtn.default').click()      // OK, the Navigation page never touched
+  await p.waitForTimeout(300)
+  ok('OK in Preferences saves the page\'s Default camera orientation, Trimetric', await p.evaluate(() => cadui.getState().homeView === 'Trimetric'))
+  await key('Home')
+  const home = await settle()
+  ok('and Home then looks along Trimetric', qangle(home.camera, STD.trimetric) < ANGLE_TOL && consistency(home).length === 0, `${qangle(home.camera, STD.trimetric).toFixed(4)} deg off`)
+})
 // An animation of 150 ms is one or two frames: plenty for the bulk. The timing sections below use 500 ms.
 await prefs({ navPrefs: { duration: 150 } })
 

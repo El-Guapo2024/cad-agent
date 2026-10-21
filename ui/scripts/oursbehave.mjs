@@ -144,7 +144,8 @@ if (FC) {
   const f = (x) => (x == null ? '-' : Number(x).toFixed(4))
   console.log('view'.padEnd(24), 'angle diff (deg)', ' ours dir', '| FreeCAD dir')
   for (const k of [...Object.keys(viewNames), 'viewDefaultOrientation']) {
-    const o = k === 'viewDefaultOrientation' ? out.home : out.views[k], c = fc.views[k]
+    // viewDefaultOrientation() is what a new view looks along (the NewDocumentCameraOrientation or, unset, Trimetric); Home has its own fallback (Top)
+    const o = k === 'viewDefaultOrientation' ? out.initial : out.views[k], c = fc.views[k]
     if (!o || !c) continue
     console.log(k.padEnd(24), qd(o.q, c.q).toFixed(5).padStart(12), ' ', o.dir.map(f).join(' '), '|', c.dir.map(f).join(' '))
   }

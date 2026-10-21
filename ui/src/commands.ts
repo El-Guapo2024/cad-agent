@@ -17,11 +17,14 @@ const HOME: Record<HomeView, Parameters<NonNullable<ReturnType<typeof getView>>[
   Isometric: 'iso', Dimetric: 'dimetric', Trimetric: 'trimetric', Top: 'top', Front: 'front', Left: 'left', Right: 'right', Rear: 'rear', Bottom: 'bottom',
 }
 /** Std_ViewHome (View3DInventorViewer::viewHome): turn to the default camera orientation
- *  while moving to the middle of the model, then fit all. */
-export const viewHome = () => getView()?.home(HOME[getState().homeView])
-export function setHomeView(v: HomeView) {
+ *  while moving to the middle of the model, then fit all. The orientation is Camera::defaultOrientation("Top"): the
+ *  NewDocumentCameraOrientation parameter, or Top while it is unset, as it is until the Preferences dialog has saved the
+ *  Navigation page (a new view uses "Trimetric" as that fallback instead: viewer.ts). */
+export const viewHome = () => getView()?.home(HOME[getState().homeView ?? 'Top'])
+export function setHomeView(v: HomeView | null) {
   setState({ homeView: v })
-  saved.set('homeView', v)
+  if (v === null) saved.remove('homeView')
+  else saved.set('homeView', v)
 }
 // Same quaternions as viewDir('dimetric'/'trimetric') (FreeCAD src/Gui/Camera.cpp); going
 // through viewDir (not orient directly) is what lets attachView track the camera preset.

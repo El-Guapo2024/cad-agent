@@ -440,7 +440,7 @@ export class CadView {
     // A new view looks along the default camera orientation (viewDefaultOrientation), fitted.
     if (!cam) {
       this.viewer.presetCamera('iso')
-      this.jumpTo(new THREE.Quaternion(...ROTATION[HOME_DIR[getState().homeView]]))
+      this.jumpTo(new THREE.Quaternion(...ROTATION[HOME_DIR[getState().homeView ?? 'Trimetric']])) // viewDefaultOrientation(): fallback Trimetric
       // View3DInventorPy::setDefaultCameraHeight (Std_New): NewDocumentCameraScale places the
       // camera before there's anything to fit; fitAll below overrides it as soon as a body
       // exists (it no-ops on an empty scene), so this only matters for a genuinely empty doc.

@@ -1235,7 +1235,7 @@ export function PrefsPage({ page }: { page: string }) {
               <option value={0}>Window center</option><option value={1}>Drag at cursor</option><option value={2}>Object center</option>
             </QComboBox></label>
           <label className="tfield" title="Default camera orientation when creating a new document or selecting the home view"><span>Default camera orientation</span>
-            <QComboBox className="qselect-field" value={home} onChange={(e) => setHomeView(e.target.value as HomeView)}>
+            <QComboBox className="qselect-field" value={home ?? 'Trimetric'} onChange={(e) => setHomeView(e.target.value as HomeView)}>
               {['Isometric', 'Dimetric', 'Trimetric', 'Top', 'Front', 'Left', 'Right', 'Rear', 'Bottom'].map((v) => <option key={v}>{v}</option>)}
             </QComboBox></label>
           <label className="tfield" title="Sets camera zoom for new documents. The value is the diameter of the sphere to fit on the screen."><span>Camera zoom</span>

@@ -571,7 +571,8 @@ const SPEC = {
   'View > Standard Views > Axonometric > Isometric': viewSpec('iso'),
   'View > Standard Views > Axonometric > Dimetric': viewSpec('dimetric'),
   'View > Standard Views > Axonometric > Trimetric': viewSpec('trimetric'),
-  'View > Standard Views > Home': { pre: orbitFar, expect: `W.isView('trimetric')` },
+  // Std_ViewHome is Camera::defaultOrientation("Top"): the Top view while the Navigation page has never been saved, as in this fresh page
+  'View > Standard Views > Home': { pre: orbitFar, expect: `W.isView('top')` },
   'View > Standard Views > Front': viewSpec('front'),
   'View > Standard Views > Top': viewSpec('top'),
   'View > Standard Views > Right': viewSpec('right'),
