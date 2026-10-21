@@ -48,6 +48,34 @@ behaviour mismatches, is untouched. What changed:
   rotation.ts 7, shopwb.tsx 4, start.tsx 7, store.ts 12, superscript.ts 4, theme.ts 5, tools.tsx 10, tooltip.ts 4, units-data.ts 6,
   units-schemas.ts 4, viewer.ts 17. (The FreeCAD line numbers are unchanged.)
 
+## 0.2 Status, 2026-10-21: the behaviour mismatches of section 5
+
+Section 5 below is the record of 2026-10-14. Measured again in the real FreeCAD (`ui/scripts/fcbehave.py`, sections `fit`, `align`,
+`tree_menu`, `quickmeasure`, `dblclick` and the combo lists of `nav_page`; ours by `ui/scripts/oursselect.mjs`; the Mac's key bindings by
+`fcgui.py --platform cocoa`):
+
+- **5.2 Fit Selection: the audit was wrong for this build.** `viewObjects` does call `vp->getBoundingBox(subName)`, but the box it gets
+  back is the whole part's: `SoBrepFaceSet::getBoundingBox` has no partial box, and measured, an Edge and a Vertex give the whole box too
+  (`ViewObject.getBoundingBox("Face6")` equals the part's box). For a part with a Placement the box comes back without it, so the camera
+  lands away from the part. Fitting the whole part, as ours did, is what FreeCAD does; nothing was changed but the perspective distance.
+- **5.4 Perspective Fit All: fixed.** R / tan(heightAngle / 2) (232.893 for R 96.468 at 45°, 1 / min(1, aspect) times that in a tall
+  view), not R / sin; Fit Selection keeps the heightAngle, Fit All sets 45°. 36 of 36 cases agree.
+- **5.3 Align to Selection: fixed**, from `View3DInventorViewer::alignToSelection`, `Part::Feature::getCameraAlignmentDirection` and
+  `GeoFeature`: the camera turns about the focal point and is not moved; it stays on its side, takes the quarter-turn roll nearest its own
+  from the face's longest straight edge; straight and planar edges and several elements work. 254 of 264 cases agree; the 10 left are a
+  curved face (FreeCAD uses the surface normal at the middle of its (u, v) range). Whether a camera exactly across the face flips is
+  decided by Coin's float32 rounding; the same float32 arithmetic is used.
+- **5.7 `µA`: fixed**; `fcdiff.py parse` has four cases for it (210 cases, none differ).
+- **5.8 Double-click time: fixed**, as far as a page can: 500 ms by default on a Mac and Windows, 400 on X11, lengthened by the browser's
+  own click count (`dblclick.ts`).
+- **5.13 small ones**: `MayaGesture` and the appcache's calendar days and hidden files are fixed; QuickMeasure's circle types are
+  there (the audit listed two, `Measurement::findType` has four, and a point and an arc); the Custom default camera orientation is not
+  (it shares the Home view's lines).
+- **Also**: the Mac's Delete (⌫), Recompute (⌘R) and Previous Window (⇧⌘}); the tree menu's entries (Material, Appearance, Expression and
+  Link Actions, Rename, Close Document, ... as in the real menu, greyed out where they mean nothing here).
+- **Open**: 5.1 Home (under way elsewhere), 5.5 the NaviCube's look, 5.6 expressions, 5.9 arrow-key panning, 5.10 DXF, 5.11 BOM, 5.12
+  drawings.
+
 ## 1. How it was checked
 
 - Every cited FreeCAD file was fetched at the commit (raw.githubusercontent.com) and read; cited lines and functions compared with our comments.
