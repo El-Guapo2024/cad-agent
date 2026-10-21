@@ -3,6 +3,7 @@ size against Preferences' CacheLimit, clearing what's not in use, and the
 periodic start-up check."""
 from __future__ import annotations
 
+import datetime
 import os
 import socket
 import time
@@ -70,3 +71,47 @@ def test_periodic_check(tmp_path, monkeypatch):
     assert appcache.periodic_check_due()
     userprefs.set_value("CachePeriod", 5)         # Never
     assert not appcache.periodic_check_due()
+
+
+def test_periodic_check_counts_calendar_days(tmp_path, monkeypatch):
+    """ApplicationCache::periodicCheckOfSize stamps the check with a QDate and asks QDate::daysTo: calendar days, not 24 hours."""
+    d = _cache(tmp_path, monkeypatch)
+    today = datetime.date(2026, 10, 21)
+
+    class Day(datetime.date):
+        @classmethod
+        def today(cls):
+            return cls(today.year, today.month, today.day)
+
+    monkeypatch.setattr(appcache, "date", Day)
+    stamp = d / appcache.STAMP
+
+    def stamped(at: datetime.datetime):
+        stamp.touch()
+        os.utime(stamp, (at.timestamp(), at.timestamp()))
+
+    userprefs.set_value("CachePeriod", 1)         # Daily
+    stamped(datetime.datetime(2026, 10, 20, 23, 0))   # two hours ago, but yesterday's date: a day
+    assert appcache.periodic_check_due()
+    stamped(datetime.datetime(2026, 10, 21, 0, 1))    # earlier today: no days have passed
+    assert not appcache.periodic_check_due()
+    userprefs.set_value("CachePeriod", 2)         # Weekly: 7 calendar days, not 168 hours
+    stamped(datetime.datetime(2026, 10, 14, 23, 59))  # seven calendar days, though a minute short of 168 hours
+    assert appcache.periodic_check_due()
+    stamped(datetime.datetime(2026, 10, 14, 0, 0))    # seven calendar days
+    assert appcache.periodic_check_due()
+    stamped(datetime.datetime(2026, 10, 15, 0, 0))    # six
+    assert not appcache.periodic_check_due()
+
+
+def test_size_leaves_out_what_qdir_does_not_list(tmp_path, monkeypatch):
+    """dirSize asks QDir for Files and Dirs without QDir::Hidden: dot files and dot folders count for nothing."""
+    d = _cache(tmp_path, monkeypatch)
+    (d / "a.log").write_bytes(b"x" * 100)
+    (d / appcache.STAMP).write_bytes(b"x" * 50)
+    (d / ".hidden-dir").mkdir()
+    (d / ".hidden-dir" / "f").write_bytes(b"x" * 70)
+    (d / "sub").mkdir()
+    (d / "sub" / "b.log").write_bytes(b"x" * 10)
+    (d / "sub" / ".c").write_bytes(b"x" * 5)
+    assert appcache.size() == 110
