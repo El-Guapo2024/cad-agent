@@ -179,7 +179,7 @@ button, select, input { font: inherit; color: inherit; }
 .ticon { position: relative; display: inline-flex; width: 16px; height: 16px; flex: none; }
 .tov { position: absolute; right: -3px; bottom: -3px; }
 .tcheckbox { margin: 0 3px 0 0; flex: none; }
-.teye { flex: none; display: inline-flex; margin-right: 2px; line-height: 0; cursor: default; } /* + the label's 3px gap = FreeCAD's 5px */
+.teye { flex: none; display: inline-flex; margin-right: 3px; line-height: 0; cursor: default; } /* + the label's 3px gap = FreeCAD's 6px */
 .twisty { width: 12px; height: 12px; flex: none; display: inline-block; position: relative; cursor: default; }
 .twisty::before { content: ""; position: absolute; left: 3px; top: 2px; border: 4px solid transparent; border-left: 5px solid #666; }
 .twisty.open::before { left: 2px; top: 4px; border: 4px solid transparent; border-top: 5px solid #666; }
@@ -598,7 +598,7 @@ input[type=checkbox]:checked:disabled { background-image: url(/freecad-icons/qss
 /* QGroupBox: GroupboxBackgroundColor, GroupboxBorderColor, 5 px radius */
 .tgroup { background: var(--lighten2); border-color: #c5c5c5; border-radius: 5px; }
 /* QTreeView: indentation 12 */
-.tindent { width: 22px; }
+.tindent { width: 21px; }
 /* QScrollBar: a GeneralBorderColor-framed ScrollbarBackgroundColor track, the button gradient on
    the handle and the 12 px line buttons, white on hover; images_classic arrows, black on hover */
 ::-webkit-scrollbar { width: 14px; height: 14px; }
@@ -809,11 +809,13 @@ input[type=range]:disabled::-webkit-slider-runnable-track { background: var(--da
   clip-path: polygon(100% 0, 100% 100%, 0 100%); }
 
 /* Gui::TreeWidget, measured in the real FreeCAD: 18px rows (QStyledItemDelegate: max(icon 16,
-   font) + 2), children 22px further in, the eye 5px before the object's icon; with the
-   description column hidden (HideColumn), column 0 is as wide as its widest item, so the
-   selection and hover bars end there, not at the panel's edge. The active document is bold. */
-.tree.onecol { display: grid; grid-template-columns: max-content; align-content: start; }
-.tree.onecol > .trow { min-width: 0; padding-right: 6px; }
+   font) + 2), children 24 px in (the eye's box starts at 27), the eye 6 px before the object's icon and the label 6 px after
+   it (the document row's 3), the active document bold. With the description column hidden (HideColumn) the
+   selection and hover bars end 7 px after the item's own label, not at the widest item's and not at the panel's edge
+   (fcmeasure.py: a 22 px label's bar ends at x = 100, a 154 px label's at 231; ours were all as wide as the widest). */
+.tree.onecol { display: grid; grid-template-columns: max-content; justify-items: start; align-content: start; }
+.tree.onecol > .trow { min-width: 0; padding-right: 7px; }
+.trow:not(.doc) .tname { margin-left: 3px; }
 .trow.doc .tname { font-weight: 700; }
 
 /* DlgDisplayProperties' colour buttons: a push button with the colour as a chip in the middle. */
