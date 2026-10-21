@@ -2,7 +2,8 @@
 # real 3D view does, for the comparison with cadui.getView() (oursbehave.mjs measures ours the same way). Writes fcbehave.json
 # into FCGUI_OUT: the camera orientation after each standard view, the default orientation and Home, the zoom a wheel notch and
 # the zoom commands make, the navigation style and the settings the Navigation page shows (what its widgets hold, which the
-# parameters' defaults fill in).
+# parameters' defaults fill in), the double-click interval, Fit All and Fit Selection and Align to Selection for faces, edges and
+# vertices, the tree's context menu and QuickMeasure's messages. FCBEHAVE_ONLY=a,b (fcbehave.py --only) runs just those sections.
 import json
 import math
 import os
@@ -23,12 +24,12 @@ mw.resize(1280, 800)
 
 def bail():
     """A step that blocks (a dialog that never shows) ends the run with what was measured so far."""
-    res["errors"]["hung"] = "stopped after 150 s"
+    res["errors"]["hung"] = "stopped after 900 s"
     json.dump(res, open(os.path.join(OUT, "fcbehave.json"), "w"), indent=1)
     os._exit(0)
 
 
-QtCore.QTimer.singleShot(150000, bail)
+QtCore.QTimer.singleShot(900000, bail)
 
 
 def pump(sec=0.3):
@@ -38,7 +39,12 @@ def pump(sec=0.3):
         time.sleep(0.005)
 
 
+ONLY = set(filter(None, os.environ.get("FCBEHAVE_ONLY", "").split(",")))   # fcbehave.py --only a,b: just those sections
+
+
 def safe(name, fn):
+    if ONLY and name not in ONLY:
+        return
     try:
         res[name] = fn()
     except Exception:
@@ -288,6 +294,9 @@ def settings():
                 elif cn == "Gui::PrefQuantitySpinBox":
                     val = w.text()
                 out[name] = val
+            # the lists the page's combo boxes offer (the names the navigation styles and the default orientations go by)
+            out["_combos"] = {w.objectName(): [w.itemText(i) for i in range(w.count())]
+                              for w in nav.findChildren(QtWidgets.QComboBox) if w.objectName() and not w.property("doNotSearch")}
         except Exception:
             out["_error"] = traceback.format_exc()
         finally:
@@ -302,5 +311,361 @@ def settings():
 
 
 safe("nav_page", settings)
+
+
+# ── Qt's double-click interval: what NavigationStyle, the NaviCube and every style ask QApplication for ──
+def dblclick():
+    return {"doubleClickInterval_ms": QtWidgets.QApplication.doubleClickInterval(),
+            "startDragDistance_px": QtWidgets.QApplication.startDragDistance()}
+
+
+safe("dblclick", dblclick)
+
+
+# ── the shapes the element probes select: the same three as the scratch project "probe" that oursbehave.mjs opens ──
+OBJS = {}
+
+
+def probe_objects():
+    post = doc.addObject("Part::Cylinder", "post")
+    post.Radius, post.Height = 20, 60
+    post.Placement = App.Placement(App.Vector(300, 200, 10), App.Rotation())
+    tilted = doc.addObject("Part::Box", "tilted")
+    tilted.Length, tilted.Width, tilted.Height = 120, 70, 30
+    tilted.Placement = App.Placement(App.Vector(400, 0, 0), App.Rotation(App.Vector(1, 2, 3), 37))
+    doc.recompute()
+    pump(0.6)
+    return {"block": box, "post": post, "tilted": tilted}
+
+
+OBJS.update(probe_objects())
+
+
+def local(p):
+    """A point of the tilted box, given in its own frame, in the world."""
+    return list(OBJS["tilted"].Placement.multVec(App.Vector(*p)))
+
+
+def pick(body, kind, near):
+    """The Face, Edge or Vertex of the body whose middle is nearest `near`: (its name, its middle)."""
+    sh = OBJS[body].Shape
+    items = {"Face": sh.Faces, "Edge": sh.Edges, "Vertex": sh.Vertexes}[kind]
+    pt = App.Vector(*near)
+    mid = (lambda e: e.Point) if kind == "Vertex" else (lambda e: e.CenterOfMass)
+    best = min(range(len(items)), key=lambda i: (mid(items[i]) - pt).Length)
+    return "%s%d" % (kind, best + 1), items[best]
+
+
+def select(picks):
+    """Gui.Selection holds exactly these elements (a pick is (body, kind, near); kind None is the whole body)."""
+    Gui.Selection.clearSelection()
+    names = []
+    for body, kind, near in picks:
+        o = OBJS[body]
+        if kind is None:
+            Gui.Selection.addSelection(o)
+            names.append(o.Name)
+        else:
+            sub, _ = pick(body, kind, near)
+            Gui.Selection.addSelection(o, sub)
+            names.append("%s.%s" % (o.Name, sub))
+    pump(0.15)
+    return {"asked": names, "held": [[s.ObjectName] + list(s.SubElementNames) for s in Gui.Selection.getSelectionEx()]}
+
+
+def state2():
+    """state() plus the focal point (position + focal distance along the view) and the perspective angle."""
+    s = state()
+    c = cam()
+    s["target"] = [p + s["focal"] * d for p, d in zip(s["position"], s["dir"])]
+    s["heightAngle"] = c.get("heightAngle")
+    s["aspect"] = c.get("aspectRatio")
+    return s
+
+
+def bbox_of(picks):
+    """The box of the picked elements from FreeCAD's own shapes: a check on what the camera does with it."""
+    box3 = None
+    for body, kind, near in picks:
+        if kind is None:
+            sh = OBJS[body].Shape
+        else:
+            items = {"Face": OBJS[body].Shape.Faces, "Edge": OBJS[body].Shape.Edges, "Vertex": OBJS[body].Shape.Vertexes}[kind]
+            sh = items[int(pick(body, kind, near)[0][len(kind):]) - 1]
+        if box3 is None:
+            box3 = App.BoundBox(sh.BoundBox)
+        else:
+            box3.add(sh.BoundBox)
+    c = box3.Center
+    return {"min": [box3.XMin, box3.YMin, box3.ZMin], "max": [box3.XMax, box3.YMax, box3.ZMax], "center": [c.x, c.y, c.z],
+            "radius": 0.5 * math.sqrt(box3.XLength ** 2 + box3.YLength ** 2 + box3.ZLength ** 2)}
+
+
+def set_view(name, roll=0.0):
+    """A standard view, then turned about the viewing direction by `roll` degrees."""
+    getattr(view, name)()
+    pump(0.15)
+    if roll:
+        d = App.Vector(*view.getViewDirection())
+        view.setCameraOrientation(App.Rotation(d, roll).multiply(view.getCameraOrientation()))
+        pump(0.15)
+
+
+def resize_viewer(w, h):
+    """Resize the main window until the 3D viewer is about w x h; returns its size."""
+    mw.resize(1280 + (w - 1014), 800 + (h - 661))
+    pump(0.6)
+    for _ in range(3):
+        v = widget3d()
+        mw.resize(mw.width() + (w - v.width()), mw.height() + (h - v.height()))
+        pump(0.6)
+    v = widget3d()
+    return [v.width(), v.height()]
+
+
+FIT_CASES = [
+    ("fit all (no selection)", None),
+    ("block whole", [("block", None, None)]),
+    ("block +z face", [("block", "Face", (85, 41, 40))]),
+    ("block -x face", [("block", "Face", (0, 41, 20))]),
+    ("block vertical edge", [("block", "Edge", (0, 0, 20))]),
+    ("block corner vertex", [("block", "Vertex", (0, 0, 0))]),
+    ("block two faces +z +x", [("block", "Face", (85, 41, 40)), ("block", "Face", (170, 41, 20))]),
+    ("block opposite corners", [("block", "Vertex", (0, 0, 0)), ("block", "Vertex", (170, 82, 40))]),
+    ("post side face", [("post", "Face", (300, 200, 40))]),
+    ("post top circle", [("post", "Edge", (300, 200, 70))]),
+    ("block +z face and post whole", [("block", "Face", (85, 41, 40)), ("post", None, None)]),
+    ("block +z face and post top face", [("block", "Face", (85, 41, 40)), ("post", "Face", (300, 200, 70))]),
+    ("block whole and post vertex", [("block", None, None), ("post", "Vertex", (320, 200, 70))]),
+    ("tilted -w face", [("tilted", "Face", local((60, 35, 0)))]),
+]
+
+
+def fit_probe():
+    """Fit All and Fit Selection on a perspective and an orthographic camera, in a wide and a tall viewer."""
+    out = {}
+    for vsz in ((1014, 661), (420, 760)):
+        got = resize_viewer(*vsz)
+        k = "%dx%d" % tuple(got)
+        out[k] = {}
+        for ctype in ("Perspective", "Orthographic"):
+            view.setCameraType(ctype)
+            pump(0.3)
+            r = {}
+            for name, picks in FIT_CASES:
+                set_view("viewIsometric")
+                view.fitAll()
+                pump(0.3)
+                if picks is None:
+                    Gui.Selection.clearSelection()
+                    view.fitAll()
+                    pump(0.5)
+                    r[name] = {"state": state2()}
+                    continue
+                sel = select(picks)
+                before = state2()
+                Gui.runCommand("Std_ViewFitSelection", 0)
+                pump(0.4)
+                r[name] = {"selection": sel, "box": bbox_of(picks), "before": before, "state": state2()}
+            out[k][ctype] = r
+    view.setCameraType("Orthographic")
+    resize_viewer(1014, 661)
+    Gui.Selection.clearSelection()
+    return out
+
+
+safe("fit", fit_probe)
+
+
+def vp_bbox():
+    """What ViewProvider::getBoundingBox (the call View3DInventorViewer::viewObjects makes for each selected element) gives, beside
+    the element's own box from the shape: the call is the Python ViewObject.getBoundingBox(subname, transform)."""
+    out = {}
+    for name, picks in FIT_CASES:
+        if picks is None:
+            continue
+        r = []
+        for body, kind, near in picks:
+            vo = OBJS[body].ViewObject
+            sub = "" if kind is None else pick(body, kind, near)[0]
+            sh = OBJS[body].Shape if kind is None else {"Face": OBJS[body].Shape.Faces, "Edge": OBJS[body].Shape.Edges,
+                                                      "Vertex": OBJS[body].Shape.Vertexes}[kind][int(sub[len(kind):]) - 1]
+            box_of = lambda b: [round(v, 3) for v in (b.XMin, b.YMin, b.ZMin, b.XMax, b.YMax, b.ZMax)] if b.isValid() else None
+            args = [sub] if sub else []
+            r.append({"sub": sub or "(whole)", "viewprovider": box_of(vo.getBoundingBox(*args)),
+                      "viewprovider_untransformed": box_of(vo.getBoundingBox(*args, transform=False)), "shape": box_of(sh.BoundBox)})
+        out[name] = r
+    return out
+
+
+safe("vp_bbox", vp_bbox)
+
+
+# ── Align to Selection: the camera after Std_AlignToSelection, from many starting orientations ──
+ALIGN_CASES = [
+    ("block +z", [("block", "Face", (85, 41, 40))]),
+    ("block -z", [("block", "Face", (85, 41, 0))]),
+    ("block +x", [("block", "Face", (170, 41, 20))]),
+    ("block -x", [("block", "Face", (0, 41, 20))]),
+    ("block +y", [("block", "Face", (85, 82, 20))]),
+    ("block -y", [("block", "Face", (85, 0, 20))]),
+    ("tilted +u", [("tilted", "Face", local((120, 35, 15)))]),
+    ("tilted -u", [("tilted", "Face", local((0, 35, 15)))]),
+    ("tilted +v", [("tilted", "Face", local((60, 70, 15)))]),
+    ("tilted -v", [("tilted", "Face", local((60, 0, 15)))]),
+    ("tilted +w", [("tilted", "Face", local((60, 35, 30)))]),
+    ("tilted -w", [("tilted", "Face", local((60, 35, 0)))]),
+    ("post top disc", [("post", "Face", (300, 200, 70))]),
+    ("post bottom disc", [("post", "Face", (300, 200, 10))]),
+    ("post side", [("post", "Face", (300, 200, 40))]),
+    ("block vertical edge", [("block", "Edge", (0, 0, 20))]),
+    ("block top edge along x", [("block", "Edge", (85, 0, 40))]),
+    ("post top circle", [("post", "Edge", (300, 200, 70))]),
+    ("block +z and +x faces", [("block", "Face", (85, 41, 40)), ("block", "Face", (170, 41, 20))]),
+    ("block +z and post top", [("block", "Face", (85, 41, 40)), ("post", "Face", (300, 200, 70))]),
+    ("block corner vertex", [("block", "Vertex", (0, 0, 0))]),
+    ("block whole", [("block", None, None)]),
+]
+ALIGN_STARTS = [("front", "viewFront", 0), ("rear", "viewRear", 0), ("top", "viewTop", 0), ("bottom", "viewBottom", 0),
+                ("left", "viewLeft", 0), ("right", "viewRight", 0), ("iso", "viewIsometric", 0), ("iso roll 30", "viewIsometric", 30),
+                ("front roll 60", "viewFront", 60), ("top roll 100", "viewTop", 100), ("top roll -170", "viewTop", -170),
+                ("rear roll 20", "viewRear", 20)]
+
+
+def align_probe():
+    out = {}
+    view.setCameraType("Orthographic")
+    for name, picks in ALIGN_CASES:
+        out[name] = {}
+        for sname, v, roll in ALIGN_STARTS:
+            set_view(v, roll)
+            Gui.Selection.clearSelection()
+            view.fitAll()
+            pump(0.15)
+            sel = select(picks)
+            before = state2()
+            Gui.runCommand("Std_AlignToSelection", 0)
+            pump(0.15)
+            after = state2()
+            keep = ("q", "target", "focal", "height")
+            out[name][sname] = {"before": {k: before[k] for k in keep}, "after": {k: after[k] for k in keep}}
+            if sname == "front":
+                out[name]["selection"] = sel
+    Gui.Selection.clearSelection()
+    return out
+
+
+safe("align", align_probe)
+
+
+# ── the tree's context menu: what Gui::TreeWidget::contextMenuEvent puts up on a part, on two parts and on the document ──
+def dump_menu(m, depth=0):
+    out = []
+    for a in m.actions():
+        if a.isSeparator():
+            out.append({"sep": True})
+            continue
+        d = {"text": a.text(), "name": a.objectName(), "shortcut": a.shortcut().toString(), "enabled": a.isEnabled(),
+             "checkable": a.isCheckable(), "checked": a.isChecked(), "visible": a.isVisible(), "icon": not a.icon().isNull()}
+        sub = a.menu()
+        if sub is not None and depth < 4:
+            try:
+                sub.aboutToShow.emit()
+            except Exception:
+                pass
+            d["menu"] = dump_menu(sub, depth + 1)
+        out.append(d)
+    return out
+
+
+def tree_menu():
+    tree = [t for t in mw.findChildren(QtWidgets.QTreeWidget) if t.metaObject().className() == "Gui::TreeWidget"][0]
+    doc_item = tree.topLevelItem(0)
+    out = {"workbench": Gui.activeWorkbench().name()}
+
+    def at(item, selection):
+        Gui.Selection.clearSelection()
+        for n in selection:
+            Gui.Selection.addSelection(OBJS[n])
+        pump(0.5)
+        pos = tree.visualItemRect(item).center()
+        holder = {"polls": 0}
+
+        def grab():
+            holder["polls"] += 1
+            menus = [w for w in app.topLevelWidgets() if isinstance(w, QtWidgets.QMenu) and w.isVisible() and w.actions()]
+            if not menus:
+                if holder["polls"] > 40:
+                    holder["timer"].stop()
+                    QtWidgets.QApplication.sendEvent(tree, QtGui.QKeyEvent(QtCore.QEvent.KeyPress, QtCore.Qt.Key_Escape, QtCore.Qt.NoModifier))
+                return
+            holder["timer"].stop()
+            m = max(menus, key=lambda w: len(w.actions()))
+            holder["actions"] = dump_menu(m)
+            m.close()
+
+        holder["timer"] = QtCore.QTimer()
+        holder["timer"].timeout.connect(grab)
+        holder["timer"].start(150)
+        app.sendEvent(tree.viewport(), QtGui.QContextMenuEvent(QtGui.QContextMenuEvent.Mouse, pos, tree.viewport().mapToGlobal(pos)))
+        holder["timer"].stop()
+        pump(0.4)
+        return holder.get("actions", "no menu opened")
+
+    children = {doc_item.child(i).text(0): doc_item.child(i) for i in range(doc_item.childCount())}
+    out["part"] = at(children["Box"], ["block"])
+    out["two parts"] = at(children["Box"], ["block", "post"])
+    out["document"] = at(doc_item, [])
+    Gui.Selection.clearSelection()
+    return out
+
+
+safe("tree_menu", tree_menu)
+
+
+# ── QuickMeasure: the words in the status bar's right side for a selection (Measurement::findType and QuickMeasure::printResult) ──
+QM_CASES = [
+    ("circle", [("post", "Edge", (300, 200, 70))]),
+    ("disc face", [("post", "Face", (300, 200, 70))]),
+    ("cylinder face", [("post", "Face", (300, 200, 40))]),
+    ("two parallel edges", [("block", "Edge", (0, 0, 20)), ("block", "Edge", (170, 0, 20))]),
+    ("two circles, parallel axes", [("post", "Edge", (300, 200, 70)), ("post", "Edge", (300, 200, 10))]),
+    ("two circles, axes 30 degrees apart", [("post", "Edge", (300, 200, 70)), ("post2", "Edge", (500, 185, 35.98))]),
+    ("circle and a line", [("post", "Edge", (300, 200, 70)), ("block", "Edge", (0, 0, 20))]),
+    ("circle and a plane", [("post", "Edge", (300, 200, 70)), ("block", "Face", (85, 41, 40))]),
+    ("circle and its own cylinder", [("post", "Edge", (300, 200, 70)), ("post", "Face", (300, 200, 40))]),
+    ("circle and a cylinder 30 degrees off", [("post", "Edge", (300, 200, 70)), ("post2", "Face", (500, 192.5, 22.99))]),
+    ("point and a circle", [("block", "Vertex", (0, 0, 0)), ("post", "Edge", (300, 200, 70))]),
+    ("point and a cylinder", [("block", "Vertex", (0, 0, 0)), ("post", "Face", (300, 200, 40))]),
+    ("point and a plane", [("block", "Vertex", (170, 82, 40)), ("post", "Face", (300, 200, 70))]),
+]
+
+
+def quickmeasure():
+    post2 = doc.addObject("Part::Cylinder", "post2")
+    post2.Radius, post2.Height = 10, 30
+    post2.Placement = App.Placement(App.Vector(500, 200, 10), App.Rotation(App.Vector(1, 0, 0), 30))
+    doc.recompute()
+    pump(0.5)
+    OBJS["post2"] = post2
+    out = {}
+
+    def labels():
+        return {w.objectName() or ("#%d" % i): w.text() for i, w in enumerate(mw.statusBar().findChildren(QtWidgets.QLabel)) if w.text()}
+
+    Gui.Selection.clearSelection()
+    pump(0.6)
+    base = labels()
+    for name, picks in QM_CASES:
+        sel = select(picks)
+        pump(0.6)
+        now = labels()
+        out[name] = {"selection": sel["held"], "message": [t for k, t in now.items() if base.get(k) != t]}
+        Gui.Selection.clearSelection()
+        pump(0.4)
+    return out
+
+
+safe("quickmeasure", quickmeasure)
 json.dump(res, open(os.path.join(OUT, "fcbehave.json"), "w"), indent=1)
 os._exit(0)
