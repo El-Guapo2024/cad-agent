@@ -1,3 +1,16 @@
+// SPDX-License-Identifier: LGPL-2.1-or-later
+// Follows FreeCAD (https://github.com/FreeCAD/FreeCAD, commit 3160daf1e2b6), copyright of the files below (each is
+// LGPL-2.0-or-later or LGPL-2.1-or-later as it states; ui/NOTICE has them all):
+//   src/Gui/Macro.cpp: 2004 Jürgen Riegel
+//   src/Gui/Command.cpp: 2002 Jürgen Riegel
+//   src/Gui/OverlayWidgets.cpp: 2020 Zheng Lei (realthunder)
+//   src/Gui/OverlayParams.py: 2022 Zheng Lei (realthunder)
+//   src/Gui/OverlayWidgets.h: 2020 Zheng Lei (realthunder)
+//   src/Gui/OverlayManager.cpp: 2022 Zheng Lei (realthunder)
+//   src/Gui/Workbench.cpp: 2004 Werner Mayer
+//   src/Gui/Dialogs/DlgUndoRedo.cpp: 2004 Werner Mayer
+//   src/Mod/Part/Gui/CommandFilter.cpp: 2002 Jürgen Riegel
+//   No copyright line in the file: src/Gui/PreferencePages/DlgSettingsGeneral.ui
 import type { DockviewApi } from 'dockview-react'
 import { api, resultText, type Body, type CadResult, type GuiState, type Placement, type Vec3 } from './api'
 import { consoleLog, getState, report, saved, setState, subscribe, type DrawStyle, type SelEntry, type State, type Task, type ViewProps } from './store'

@@ -14,7 +14,7 @@ import pytest
 from build123d import Box
 
 from cad_agent import cli, geom, materials, verify
-from cad_agent.materials import CARDS, FREECAD_COMMIT, MATERIALS, MAX_TEMP_BASES, PROPERTIES, Prop
+from cad_agent.materials import CARDS, FREECAD_COMMIT, FREECAD_COMMIT_FULL, MATERIALS, MAX_TEMP_BASES, PROPERTIES, Prop
 
 # geom.DENSITY as it was before materials.py: g/cm^3, in this order (`cad tables density` prints it).
 LEGACY_DENSITY = {
@@ -217,7 +217,7 @@ def run(capsys, *argv):
 
 def test_cad_tables_materials_prints_every_value_with_its_source(capsys):
     code, out = run(capsys, "tables", "materials")
-    assert code == 0 and list(out["data"]) == ["materials"]
+    assert code == 0 and list(out["data"]) == ["materials", "credits"]         # the credit of the CC-BY cards follows the table
     table = out["data"]["materials"]
     assert list(table) == list(MATERIALS)
     al = table["aluminium"]
@@ -233,8 +233,68 @@ def test_cad_tables_materials_prints_every_value_with_its_source(capsys):
 
 def test_the_other_tables_are_unchanged_and_materials_joins_the_full_listing(capsys):
     code, out = run(capsys, "tables", "density")
-    assert code == 0 and out["data"] == {"density_g_cm3": LEGACY_DENSITY}
+    assert code == 0 and out["data"]["density_g_cm3"] == LEGACY_DENSITY       # plus the credit of the one CC-BY value in it
+    assert set(out["data"]) == {"density_g_cm3", "credits"}
     code, out = run(capsys, "tables")
     assert {"density_g_cm3", "materials", "clearance_hole_mm"} <= set(out["data"])
     code, out = run(capsys, "tables", "nope")
     assert code == 3 and "materials" in out["data"]["error"]
+
+
+# ─── The credit CC BY asks for ───────────────────────────────────────────────
+
+def test_every_licence_of_a_card_has_a_url_and_only_the_cc_by_cards_need_a_credit():
+    for path, card in CARDS.items():
+        assert materials.LICENCE_URLS[card.licence].startswith("https://"), path
+    cc_by = [path for path, card in CARDS.items() if card.licence == "CC-BY-3.0"]
+    assert len(cc_by) == 5 and all(materials.needs_credit(p) for p in cc_by)
+    assert not any(materials.needs_credit(p) for p in CARDS if p not in cc_by)
+    assert materials.LICENCE_URLS["CC-BY-3.0"] == "https://creativecommons.org/licenses/by/3.0/"
+
+
+def test_a_credit_has_the_author_the_title_the_licence_url_and_where_the_card_is():
+    for path, card in CARDS.items():
+        full, short = materials.credit(path), materials.credit(path, short=True)
+        assert card.author in full and f'"{card.name}"' in full and card.licence in full, path
+        assert materials.LICENCE_URLS[card.licence] in full and materials.card_url(path) in full, path
+        assert f'"{card.name}" by {card.author}, {card.licence} {materials.LICENCE_URLS[card.licence]}' == short, path
+        assert materials.card_url(path) == (f"https://github.com/FreeCAD/FreeCAD/blob/{FREECAD_COMMIT_FULL}/"
+                                            f"{materials.FREECAD_DIR}{path}")
+    assert FREECAD_COMMIT_FULL.startswith(FREECAD_COMMIT) and len(FREECAD_COMMIT_FULL) == 40
+
+
+def test_a_source_gets_its_credit_only_when_it_is_a_cc_by_card():
+    steel = materials.prop("steel", "youngs_modulus_mpa").source
+    assert materials.card_of(steel) == "Standard/Metal/Steel/Steel-Generic.FCMat"
+    assert materials.credit_suffix(steel) == f" [{materials.credit(materials.card_of(steel), short=True)}]"
+    assert "Juergen Riegel" in materials.credit_suffix(steel) and "CC-BY-3.0" in materials.credit_suffix(steel)
+    aluminium = materials.prop("aluminium", "youngs_modulus_mpa").source       # an LGPL card: nothing to add
+    assert materials.credit_suffix(aluminium) == ""
+    datasheet = materials.prop("steel", "density_g_cm3").source
+    assert materials.card_of(datasheet) is None and materials.credit_suffix(datasheet) == ""
+
+
+def test_credits_name_the_cc_by_cards_behind_the_values_asked_for_once_each():
+    every = materials.credits()
+    assert len(every) == 5 and len(set(every)) == 5
+    for who in ("Juergen Riegel", "Uwe Stöhr", "Przemo Firszt"):
+        assert any(who in c for c in every), who
+    only_density = materials.credits(("density_g_cm3",))                       # PLA's is the one density from a CC-BY card
+    assert len(only_density) == 1 and '"PLA"' in only_density[0] and "Uwe Stöhr" in only_density[0]
+
+
+def test_cad_tables_prints_the_credit_beside_the_values_it_shows(capsys):
+    code, out = run(capsys, "tables", "materials")
+    assert code == 0
+    table, credits = out["data"]["materials"], out["data"]["credits"]
+    assert credits == materials.credits() and all("CC-BY-3.0" in c for c in credits)
+    assert [c for c in table["steel"]["credit"] if "Juergen Riegel" in c] and "CC-BY-3.0" in table["steel"]["credit"][0]
+    assert "LGPL-2.1-or-later" in table["aluminium"]["credit"][0]              # every card is credited in its rows
+    assert "LGPL-2.0-or-later" in table["stainless"]["credit"][0]
+    assert table["petg"]["credit"] == table["fr4"]["credit"] == table["brass"]["credit"] == []     # datasheets only
+    assert all(materials.card_url(c) in row["credit"][0] for row in table.values() for c in CARDS
+               if row["card"] == CARDS[c].name)
+    code, out = run(capsys, "tables", "density")
+    assert [c for c in out["data"]["credits"] if "PLA" in c]
+    code, out = run(capsys, "tables", "views")
+    assert code == 0 and "credits" not in out["data"]

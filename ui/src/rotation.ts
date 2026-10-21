@@ -1,3 +1,10 @@
+// SPDX-License-Identifier: LGPL-2.1-or-later
+// Follows FreeCAD (https://github.com/FreeCAD/FreeCAD, commit 3160daf1e2b6), copyright of the files below (each is
+// LGPL-2.0-or-later or LGPL-2.1-or-later as it states; ui/NOTICE has them all):
+//   src/Base/Rotation.cpp: 2006 Werner Mayer
+//   src/Base/Tools.h: 2009 Werner Mayer
+// Its Euler code is borrowed in FreeCAD's Rotation.cpp from Open CASCADE Technology's gp_Quaternion.cxx:
+// Copyright (c) 2010-2014 OPEN CASCADE SAS, LGPL-2.1 with the OCCT exception (ui/NOTICE).
 // The rotation readouts the Placement and Transform task panels show: axis and angle, yaw,
 // pitch and roll, and Euler angles in a given sequence. Ported from Base::Rotation
 // (src/Base/Rotation.cpp at FreeCAD main 3160daf1e2b6, LGPL-2.1-or-later), whose Euler code is

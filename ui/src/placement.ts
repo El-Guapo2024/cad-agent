@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: LGPL-2.1-or-later
 import * as THREE from 'three'
 import type { Placement, Vec3 } from './api'
 

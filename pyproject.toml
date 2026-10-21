@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=68.0"]
+requires = ["setuptools>=77.0"]      # 77 reads the SPDX license expression and license-files of PEP 639
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -7,6 +7,11 @@ name = "cad-agent"
 version = "0.2.0"
 description = "Agent-driven mechanical CAD: parametric parts, deterministic gates, headless render"
 requires-python = ">=3.12"
+# The code is MIT; the workbench UI and its build are LGPL-2.1-or-later because they are ported from FreeCAD. What else the wheel
+# carries is under the other licences listed (NOTICE says where each applies, THIRD_PARTY_LICENSES has their texts).
+license = "MIT AND LGPL-2.1-or-later AND LGPL-2.0-or-later AND BSD-3-Clause AND Zlib AND ISC AND 0BSD AND CC0-1.0 AND CC-BY-3.0 AND CC-BY-SA-2.0 AND CC-BY-SA-4.0"
+# These go into the wheel's .dist-info/licenses. The three the UI build writes into workbench/next/ are package data, below.
+license-files = ["LICENSE", "NOTICE", "THIRD_PARTY_LICENSES", "ui/LICENSE", "ui/NOTICE"]
 dependencies = [
     "build123d>=0.9",   # OCCT B-rep kernel, STEP in/out, assemblies
     "numpy>=1.26",      # the fallback z-buffer rasteriser
@@ -39,4 +44,6 @@ include = ["cad_agent*"]
 
 [tool.setuptools.package-data]
 cad_agent = ["workbench/*", "workbench/vendor/*", "workbench/next/*", "workbench/next/assets/*", "workbench/next/freecad-icons/*",
+             # the notices of the UI bundle, which `npm run build` writes (ui/scripts/licenses.mjs); named so a change to the glob above cannot drop them
+             "workbench/next/LICENSE", "workbench/next/NOTICE", "workbench/next/THIRD_PARTY_LICENSES.txt",
              "library/*.toml"]       # the part library's catalog (step 6, piece A); its generators are Python packages

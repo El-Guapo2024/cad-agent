@@ -1,3 +1,7 @@
+// SPDX-License-Identifier: LGPL-2.1-or-later
+// Follows FreeCAD (https://github.com/FreeCAD/FreeCAD, commit 3160daf1e2b6), copyright of the files below (each is
+// LGPL-2.0-or-later or LGPL-2.1-or-later as it states; ui/NOTICE has them all):
+//   src/Gui/QuantitySpinBox.cpp: 2014 Werner Mayer
 // Gui::QuantitySpinBox (Gui/QuantitySpinBox.cpp at FreeCAD main 3160daf1e2b6, LGPL-2.1-or-later):
 // a value with its unit, written in the user's unit system. Typing commits each valid value
 // (keyboard tracking); a bare number takes the unit shown; Enter and leaving the box check the

@@ -202,8 +202,13 @@ The build lands in `cad_agent/workbench/next/`, so running it needs no Node:
     cd ui && npm install && npm run build   # after changing ui/src
     npm run dev                              # live-reloading dev server on :5173, API proxied to :8733
 
-Its colours and layout are ported from FreeCAD (LGPL-2.1-or-later; those files
-say so), and its icons are FreeCAD's for now (`ui/public/freecad-icons/README.md`).
+Its colours and layout are ported from FreeCAD (LGPL-2.1-or-later: every file in
+`ui/src` starts with an SPDX line, and the FreeCAD files each one follows, with
+their copyright holders, are in its header and in `ui/NOTICE`), and its icons are
+FreeCAD's for now (`ui/public/freecad-icons/README.md`). The licences of
+everything the repo derives or ships are in `NOTICE` and `THIRD_PARTY_LICENSES`;
+the build writes the notices of the npm packages in the bundle next to it
+(`cad_agent/workbench/next/THIRD_PARTY_LICENSES.txt`).
 
 ## Why build123d and not a GUI CAD
 
@@ -507,7 +512,9 @@ nobody states is unknown, and the row is UNCHECKED, naming the body and what it 
 
 **Materials** (`cad tables materials`) has 12 materials with density, Young's modulus, Poisson's
 ratio, yield strength and service temperature, each with the FreeCAD card or datasheet it came
-from. FreeCAD's cards have no service temperature, so that number is ours, with its basis: heat
+from. Five of the cards are CC-BY-3.0, so their credit (author, licence URL, where the card is)
+is printed with their values: `credit` in each row, `credits` in `cad tables`, and in the E of a
+`[[deflection]]` row. FreeCAD's cards have no service temperature, so that number is ours, with its basis: heat
 deflection temperature at 0.45 MPa (ISO 75-2 B) for the thermoplastics, the glass transition for
 polyimide, and a stated service limit for acrylic, FR4 and the metals (MakeItFrom.com's "Maximum
 Temperature: Mechanical" for the alloy the table stands for). At 250 C only steel (400),
@@ -622,8 +629,9 @@ Licence, Source, Mass (g) with its source, Shop file, Bodies and Notes. Two bodi
 they are the same kind from the same part and the same shape (volume and area to a millionth, the
 same faces) wherever they stand. A mirrored body has lost what it was, so it joins the made or
 bought line of its shape and name stem and says so in Notes. A mass is never filled in: the word is
-`unknown`, and the totals say how many bodies they leave out. `--only-parts` is FreeCAD's "Only
-parts" (made parts and sub-assemblies); `--flat` turns off its detailed sub-assemblies. It writes
+`unknown`, and the totals say how many bodies they leave out. `--only-parts` keeps the made parts and
+sub-assemblies (FreeCAD's "Only parts" keeps part containers and drops solids, another cut under the same
+name); `--flat` turns off its detailed sub-assemblies. It writes
 `out/bom.csv` and `out/bom.json`, and never exits 2: it judges nothing.
 
 **`cad shop`** writes `out/shop/` for the parts this project makes:

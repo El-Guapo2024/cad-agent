@@ -1,4 +1,9 @@
 // SPDX-License-Identifier: LGPL-2.1-or-later
+// Follows FreeCAD (https://github.com/FreeCAD/FreeCAD, commit 3160daf1e2b6), copyright of the files below (each is
+// LGPL-2.0-or-later or LGPL-2.1-or-later as it states; ui/NOTICE has them all):
+//   src/Gui/View3DSettings.cpp: 2023 Werner Mayer
+//   src/Gui/Inventor/SoFCBackgroundGradient.cpp: 2005 Werner Mayer; 2026 Joao Matos
+//   No copyright line in the file: src/Gui/PreferencePages/DlgSettingsViewColor.ui
 // The 3D view's background (Preferences > Display > Colors, DlgSettingsViewColor), ported from
 // FreeCAD main 3160daf1e2b6: View3DSettings.cpp picks a simple colour or SoFCBackgroundGradient
 // (src/Gui/Inventor/SoFCBackgroundGradient.cpp), a linear or radial gradient drawn as triangles

@@ -1,3 +1,12 @@
+// SPDX-License-Identifier: LGPL-2.1-or-later
+// Follows FreeCAD (https://github.com/FreeCAD/FreeCAD, commit 3160daf1e2b6), copyright of the files below (each is
+// LGPL-2.0-or-later or LGPL-2.1-or-later as it states; ui/NOTICE has them all):
+//   src/Mod/Measure/Gui/TaskMeasure.cpp: 2023 David Friedli; 2026 Loke S. Haugsnes
+//   src/Mod/Measure/Gui/TaskMassProperties.cpp: 2026 Morten Vajhøj
+//   src/Mod/Measure/App/AppMeasure.cpp: 2013 Luke Parry
+//   src/Mod/Measure/Gui/ViewProviderMeasureBase.cpp: 2023 David Friedli
+//   src/Mod/Measure/Gui/ViewProviderMeasureAngle.cpp: 2023 David Friedli; 2013 Thomas Anderson
+//   src/Mod/Measure/App/MassPropertiesResult.cpp: 2026 Morten Vajhøj
 // Std_Measure (Measure/Gui/TaskMeasure.cpp) and Std_MeasureMassProperties
 // (Measure/Gui/TaskMassProperties.cpp) at FreeCAD main 3160daf1e2b6 (LGPL-2.1-or-later).
 import { useEffect, useMemo, useRef, useState } from 'react'

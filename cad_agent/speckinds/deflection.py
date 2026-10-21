@@ -252,7 +252,7 @@ def _basis(r: _Request, modulus, span: float, ratio: float, planes: list, point,
             if used > 0 and case not in cases:
                 cases.append(case)
     text = (f"{r.support} span {span:g} mm, load {' + '.join(loads)}; I {', '.join(inertia)}; "
-            f"E {modulus.value:g} MPa ({modulus.source}); span/depth {ratio:.1f}; "
+            f"E {modulus.value:g} MPa ({modulus.source}){materials.credit_suffix(modulus.source)}; span/depth {ratio:.1f}; "
             f"Roark Table 8.1 case{'s' if len(cases) > 1 else ''} {', '.join(cases)}")
     if blank is not None:                                  # only reached with `solid = true`
         text += f"; a solid bar because the entry says `solid = true`, though a box of a {blank.kind}'s outer size"

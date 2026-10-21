@@ -1,3 +1,20 @@
+// SPDX-License-Identifier: LGPL-2.1-or-later
+// Follows FreeCAD (https://github.com/FreeCAD/FreeCAD, commit 3160daf1e2b6), copyright of the files below (each is
+// LGPL-2.0-or-later or LGPL-2.1-or-later as it states; ui/NOTICE has them all):
+//   src/Gui/View3DSettings.cpp: 2023 Werner Mayer
+//   src/Gui/NaviCube.cpp: 2017 Kustaa Nyholm; 2026 Joao Matos
+//   src/Gui/Inventor/SoNaviCube.cpp: 2025-2026 Joao Matos
+//   src/Gui/View3DInventorViewer.cpp: 2004 Jürgen Riegel; 2026 Joao Matos
+//   src/Gui/Camera.cpp: 2023 Werner Mayer
+//   src/Gui/SceneInspector.cpp: 2008 Werner Mayer
+//   src/Mod/Measure/App/Preferences.cpp: 2023 WandererFan
+//   src/Mod/Measure/Gui/ViewProviderMeasureAngle.cpp: 2023 David Friedli; 2013 Thomas Anderson
+//   src/Mod/Measure/Gui/ViewProviderMeasureBase.cpp: 2023 David Friedli
+//   src/Mod/Measure/Gui/ViewProviderMeasureDistance.cpp: 2023 David Friedli; 2013 Thomas Anderson; 2008 Werner Mayer
+//   src/Gui/View3DPy.cpp: 2002 Jürgen Riegel
+//   src/Gui/CommandView.cpp: 2002 Jürgen Riegel
+//   src/Gui/ImageView.cpp: 2023 Werner Mayer
+//   src/Mod/Measure/Gui/QuickMeasure.cpp: 2023 Pierre-Louis Boyer
 import * as THREE from 'three'
 import { Display, Viewer, decodeInstancedFormat } from 'three-cad-viewer'
 import { TransformControls } from 'three/addons/controls/TransformControls.js'
@@ -62,7 +79,7 @@ function cubeArea(w: number, h: number, size: number) {
   const bottom = Math.min(CUBE_OFFSET + 12 + size * 0.55, h / 2)
   return { left: x, right: x, top, bottom, areaW: Math.max(1, w - 2 * x), areaH: Math.max(1, h - top - bottom) }
 }
-/** NaviCubeImplementation::mousePressed/populateRenderParams (NaviCube.cpp:461-466): relPos
+/** NaviCubeImplementation::syncNodeState (NaviCube.cpp:461-466): relPos
  *  (here CubePos) scaled into the padded area gives the cube's on-screen centre. three-
  *  viewport-gizmo only has 9 fixed placements, not a continuous position, so we pick the
  *  nearest one (by thirds of the view) and set the offset from ITS anchor edge(s) to land the
@@ -221,9 +238,9 @@ const MARKER_PX = 9, ARROW_HEIGHT_PX = 18, ARROW_RADIUS_PX = 6
  *  ViewProviderMeasureAngle.cpp:644's default arc radius is the exact same "0.1*getViewScale()"
  *  expression, so measure.tsx reuses this one constant instead of a second magic number. */
 export const DIM_GAP_PX = 20
-/** ViewProviderMeasure::getTextPosition (ViewProviderMeasureBase.cpp ~752-766): the generic
+/** ViewProviderMeasure::getTextPosition (ViewProviderMeasureBase.cpp:769-788): the generic
  *  view providers' (Length/Position/Diameter/Radius/Area/Geometric Center) own label offset —
- *  a literal SbVec2s(30,30), screen pixels up-and-right of the anchor (Coin viewport space has
+ *  a literal SbVec2s(30.0, 30.0) (line 784), screen pixels up-and-right of the anchor (Coin viewport space has
  *  +y up) — unlike DIM_GAP_PX above, this one has no approximation involved. */
 const LABEL_OFFSET_PX = 30
 const CONE_UP = new THREE.Vector3(0, 1, 0)
@@ -1170,7 +1187,7 @@ export class CadView {
     this.settle()
   }
 
-  /** View3DInventorViewer's "GetCamera": the camera node as Coin writes it (SoWriteAction; floats
+  /** View3DInventor::getCamera() (View3DInventor.cpp:558-565): the camera node as Coin writes it (SoWriteAction; floats
    *  are float32 at %.8g, the orientation axis and angle as SbRotation::getValue gives them). */
   getCamera(): string | null {
     const p = this.cameraParts()
@@ -1199,7 +1216,7 @@ export class CadView {
       '', '}', ''].join('\n')
   }
 
-  /** "SetCamera": take on a camera node's position, orientation, focal distance and height (or
+  /** View3DInventor::setCamera() (View3DInventor.cpp:567-570): take on a camera node's position, orientation, focal distance and height (or
    *  height angle). The caller switches the projection first (commands.ts applyCamera). */
   setCamera(text: string): boolean {
     const p = this.cameraParts()
@@ -1490,7 +1507,7 @@ export class CadView {
       // ViewProviderMeasureBase.cpp:679-718 (ViewProviderMeasure, the generic view provider
       // used by every measure kind with no specialised one of its own — Length, Position,
       // Diameter, Radius, Area, Geometric Center): a single line from the anchor (pts[0]) out
-      // to the label (getTextPosition, ~752-766: 30px up-and-right of the anchor in screen
+      // to the label (getTextPosition, ViewProviderMeasureBase.cpp:769-788: 30px up-and-right of the anchor in screen
       // space) plus one CROSS marker at the anchor — previously this kind drew nothing at all.
       const p0 = pts[0]
       const right = new THREE.Vector3(), up = new THREE.Vector3(), fwd = new THREE.Vector3()

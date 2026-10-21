@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: LGPL-2.1-or-later
 // A machine's named poses (assembly.py's POSES) in the 3D view. A pose is a position in mm for each of some
 // axes (AXES); the machine at that pose is every body an axis carries slid along that axis's direction by its
 // position, the sums of all the axes that carry it. That is `cad_agent/motion.py`'s `pose` and

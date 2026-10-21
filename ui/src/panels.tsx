@@ -1,3 +1,20 @@
+// SPDX-License-Identifier: LGPL-2.1-or-later
+// Follows FreeCAD (https://github.com/FreeCAD/FreeCAD, commit 3160daf1e2b6), copyright of the files below (each is
+// LGPL-2.0-or-later or LGPL-2.1-or-later as it states; ui/NOTICE has them all):
+//   src/Gui/Selection/SelectionView.cpp: 2002 Jürgen Riegel
+//   src/Gui/Tree.cpp: 2004 Jürgen Riegel
+//   src/Gui/TreeParams.py: 2022 Zheng Lei (realthunder)
+//   src/Gui/propertyeditor/PropertyEditor.cpp: 2004 Werner Mayer
+//   src/Gui/Placement.cpp: 2008 Werner Mayer
+//   src/Gui/Dialogs/DlgUnitsCalculatorImp.cpp: 2013 Jürgen Riegel
+//   src/Gui/DemoMode.cpp: 2010 Werner Mayer
+//   src/Gui/ManualAlignment.cpp: 2012 Werner Mayer
+//   src/Gui/Clipping.cpp: 2013 Werner Mayer
+//   src/Gui/TaskTransform.cpp: 2015 Thomas Anderson
+//   src/Gui/PythonConsole.cpp: 2004 Werner Mayer
+//   No copyright line in the file: src/Mod/Material/Gui/DlgDisplayProperties.ui,
+//       src/Gui/PreferencePages/DlgSettingsGeneral.ui, src/Gui/PreferencePages/DlgSettingsNotificationArea.ui,
+//       src/Gui/PreferencePages/DlgSettings3DView.ui, src/Gui/PreferencePages/DlgSettingsMacro.ui, src/Gui/Clipping.ui
 import { Fragment, createContext, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { axisAngleOf, eulerOf as eulerOfSeq, quatOfEuler as quatOfEulerSeq, quatOfYpr, yprOfQuat, type EulerSeq } from './rotation'
 import type { Body, CheckRow, LogEntry, Placement, Vec3 } from './api'

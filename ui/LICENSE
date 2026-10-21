@@ -2,8 +2,10 @@ The workbench UI in this folder, and its build in cad_agent/workbench/next/,
 is ported from FreeCAD (https://github.com/FreeCAD/FreeCAD, commit
 3160daf1e2b6) and uses FreeCAD's icons. Like FreeCAD, it is licensed under
 the GNU Lesser General Public License, version 2.1 or (at your option) any
-later version, whose full text follows. The rest of cad-agent is under the
-MIT license in ../LICENSE.
+later version, whose full text follows. NOTICE, next to this file, names the
+FreeCAD files and authors it follows. The rest of cad-agent is under the MIT
+license (LICENSE at the top of the repository, where NOTICE says which parts
+are which).
 
 -------------------------------------------------------------------------------
 

@@ -1,8 +1,12 @@
+// SPDX-License-Identifier: LGPL-2.1-or-later
+// Follows FreeCAD (https://github.com/FreeCAD/FreeCAD, commit 3160daf1e2b6), copyright of the files below (each is
+// LGPL-2.0-or-later or LGPL-2.1-or-later as it states; ui/NOTICE has them all):
+//   No copyright line in the file: src/Gui/Stylesheets/FreeCAD.qss
 // Global QToolTip-style tooltip layer. Every element in this app that sets a native `title`
 // attribute (hundreds of call sites) currently gets the OS/browser's own tooltip bubble. FreeCAD
-// uses Qt's QToolTip, styled by FreeCAD.qss (see scratchpad/collab/tooltip.css for the CSS this
-// renders with — merge that into freecad.css; this file only renders classes, it sets no inline
-// colors). Rather than touching every call site, this module takes over `title` globally:
+// uses Qt's QToolTip, styled by FreeCAD.qss (freecad.css has the CSS this renders with, under
+// `.fc-tooltip`; this file only renders classes, it sets no inline colors). Rather than touching
+// every call site, this module takes over `title` globally:
 //
 //   - one delegated listener set on `document` (capture phase, so a library that calls
 //     stopPropagation — e.g. Radix's menus — can't hide events from us) tracks which element is

@@ -2,6 +2,7 @@
   "name": "cad-agent-ui",
   "private": true,
   "version": "0.1.0",
+  "license": "LGPL-2.1-or-later",
   "description": "The cad-agent workbench UI, modelled on FreeCAD's. Built into cad_agent/workbench/next and served by `cad serve`.",
   "type": "module",
   "scripts": {

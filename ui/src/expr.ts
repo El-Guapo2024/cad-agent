@@ -1,3 +1,10 @@
+// SPDX-License-Identifier: LGPL-2.1-or-later
+// Follows FreeCAD (https://github.com/FreeCAD/FreeCAD, commit 3160daf1e2b6), copyright of the files below (each is
+// LGPL-2.0-or-later or LGPL-2.1-or-later as it states; ui/NOTICE has them all):
+//   src/App/Expression.cpp: 2015 Eivind Kvedalen
+//   src/App/Expression.l: 2010 Jürgen Riegel; 2015 Eivind Kvedalen
+//   src/App/Expression.y: 2010 Jürgen Riegel; 2015 Eivind Kvedalen
+//   No copyright line in the file: src/App/QuantityInput.cpp
 // FreeCAD's expressions (App/ExpressionParser), the part the property editor and the
 // quantity boxes need: + - * / % ^, comparisons (== != < > <= >=) and the a?b:c conditional,
 // units (a number's unit binds tighter than * and /, so "10 mm^2" is ten square millimetres),

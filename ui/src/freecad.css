@@ -1,4 +1,21 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later
+   Follows FreeCAD (https://github.com/FreeCAD/FreeCAD, commit 3160daf1e2b6), copyright of the files below (each is
+   LGPL-2.0-or-later or LGPL-2.1-or-later as it states; ui/NOTICE has them all):
+     src/Gui/Selection/SelectionView.cpp: 2002 Jürgen Riegel
+     src/Gui/OverlayWidgets.cpp: 2020 Zheng Lei (realthunder)
+     src/Gui/OverlayParams.py: 2022 Zheng Lei (realthunder)
+     src/Gui/OverlayManager.cpp: 2022 Zheng Lei (realthunder)
+     src/Gui/Tree.cpp: 2004 Jürgen Riegel
+     src/Gui/propertyeditor/PropertyEditor.cpp: 2004 Werner Mayer
+     src/Gui/TreeParams.py: 2022 Zheng Lei (realthunder)
+     src/Gui/Action.cpp: 2004 Werner Mayer
+     src/Gui/NotificationArea.cpp: 2022 Abdullah Tahiri
+     src/Gui/NotificationBox.cpp: 2023 Abdullah Tahiri
+     src/Mod/Start/Gui/StartView.cpp: 2024 The FreeCAD Project Association AISBL
+     No copyright line in the file: src/Gui/Stylesheets/FreeCAD.qss, src/Gui/Placement.ui,
+         src/Gui/PreferencePages/DlgSettingsViewColor.ui, src/Gui/Dialogs/DlgPreferences.ui,
+         src/Gui/Stylesheets/parameters/FreeCAD Light.yaml
+     (FreeCAD.qss's own header: "Revised stylesheet based on the original from Pablo Gil Fernández made by MisterMaker".)
    The "FreeCAD Light" look of FreeCAD main (nightly) at 3160daf1e2b6, 2026-09-29, ported from FreeCAD's
    src/Gui/Stylesheets/FreeCAD.qss and src/Gui/Stylesheets/parameters/FreeCAD Light.yaml.
    Token names follow the yaml. darken(c, n) / lighten(c, n) are Qt's QColor::darker / lighter(100 + n) (Gui/StyleParameters/
@@ -370,7 +387,7 @@ button, select, input { font: inherit; color: inherit; }
 /* OverlayManager::createTitleBar (OverlayManager.cpp 1052-1078): the overlay panel's own title
    bar buttons (Transparent, auto mode, Overlay, Toggle-to-edge), rendered by chrome.tsx's
    OverlayTitleActions via DockviewReact's rightHeaderActionsComponent. Sized for
-   --dv-tabs-and-actions-container-height: 25px (freecad.css:85). */
+   --dv-tabs-and-actions-container-height: 25px (set near the top of this file). */
 .ovl-titlebtns { display: flex; align-items: center; gap: 1px; padding: 0 2px; }
 .ovl-tbtn { width: 20px; height: 20px; display: inline-flex; align-items: center; justify-content: center;
   padding: 0; border: 1px solid transparent; border-radius: var(--radius); background: transparent; }

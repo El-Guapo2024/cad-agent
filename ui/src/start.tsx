@@ -1,3 +1,10 @@
+// SPDX-License-Identifier: LGPL-2.1-or-later
+// Follows FreeCAD (https://github.com/FreeCAD/FreeCAD, commit 3160daf1e2b6), copyright of the files below (each is
+// LGPL-2.0-or-later or LGPL-2.1-or-later as it states; ui/NOTICE has them all):
+//   src/Mod/Start/Gui/StartView.cpp: 2024 The FreeCAD Project Association AISBL
+//   src/Mod/Start/Gui/NewFileButton.cpp: 2025 Alfredo Monclus
+//   src/Mod/Start/Gui/FileCardDelegate.cpp: 2024 The FreeCAD Project Association AISBL
+//   src/Mod/Start/Gui/FirstStartWidget.cpp: 2024 The FreeCAD Project Association AISBL
 // FreeCAD's Start page (src/Mod/Start/Gui at main 3160daf1e2b6: StartView.cpp, NewFileButton.cpp,
 // FileCardDelegate.cpp, FirstStartWidget.cpp), as a tab beside the 3D view. Recent Files are the
 // projects this browser opened last, each with its newest render as the thumbnail.

@@ -288,6 +288,10 @@ def cmd_tables(a) -> Result:
             raise UsageError(f"unknown table {a.section!r} "
                              f"(tables: {', '.join(TABLE_ALIASES)})")
         tables = {key: tables[key]}
+    if "materials" in tables or "density_g_cm3" in tables:      # the values of a CC-BY card are shown: so is its credit
+        credits = materials.credits(None if "materials" in tables else ("density_g_cm3",))
+        if credits:
+            tables["credits"] = credits
     return Result(OK, tables, json.dumps(tables, indent=1, default=str),
                   a.section or "all tables")
 

@@ -15,9 +15,11 @@ LGPL-2.1-or-later). This is that, for an assembly that is a dict of bodies:
               link to an object it has listed into that line and adds one), and the File Name is the file that
               defines the thing (FreeCAD: the document's)
   options     `detailSubAssemblies` (default on): a sub-assembly is a line and its parts follow it, indented one
-              level (`--flat` turns it off); `onlyParts` (default off): only made parts and sub-assemblies, the
-              solids of FreeCAD's "Only parts" being what is bought or stock here (`--only-parts`);
-              `detailParts` has nothing to do here, since a part of this harness is one solid
+              level (`--flat` turns it off); `onlyParts` (default off): FreeCAD's keeps the part containers and the
+              sub-assemblies and drops the solids (bodies, fasteners, primitives: BomObject.cpp:211, the checkbox's
+              tooltip in TaskAssemblyCreateBom.ui:56-61). A part of this harness is itself a solid, so `--only-parts`
+              is another cut under the same name: the parts made here and the sub-assemblies stay, what is bought
+              or stock goes; `detailParts` has nothing to do here, since a part of this harness is one solid
   mirrors     FreeCAD keeps a mirrored link on a line of its own. A body that `mirror()` made has lost what
               it was (bodies.py), so a stock body is joined to the made or bought line it has the shape and the
               name stem of (motor_right to motor_left, a tt_motor) and the line says so in Notes
@@ -444,7 +446,8 @@ def module_rows(slug: str, bom: Bom, solids: dict, rule: str = "shop file") -> l
 def add_bom_arguments(p) -> None:
     p.add_argument("slug")
     p.add_argument("--only-parts", action="store_true",
-                   help="only the parts made here and sub-assemblies, not what is bought or stock (FreeCAD's 'Only parts')")
+                   help="only the parts made here and sub-assemblies, not what is bought or stock (FreeCAD's 'Only parts' "
+                        "is another cut: part containers kept, solids dropped)")
     p.add_argument("--flat", action="store_true",
                    help="a sub-assembly is one line; its parts are not listed under it (FreeCAD's detailSubAssemblies off)")
     p.add_argument("--no-cache", action="store_true",

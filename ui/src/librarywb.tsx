@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: LGPL-2.1-or-later
 // The part library in the workbench: `cad lib ls|info|use|check|add`, the commands an agent runs, as one task panel with
 // three pages, Browse (the catalog, one entry's facts, and copying it into the open project), Check (the store's files and
 // the project's bought parts against the catalog's hashes) and Add (a vendor STEP the person downloaded and picks).

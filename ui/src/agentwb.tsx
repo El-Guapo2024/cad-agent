@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: LGPL-2.1-or-later
 // The CAD Agent workbench: task panels for the cad-agent CLI commands that had no UI yet
 // (status, done, rules, cutlist, tables, tool, bought, render, approve, page). chrome.tsx wires
 // the workbench's menu, toolbar and File entries onto these; this file is just their task panels

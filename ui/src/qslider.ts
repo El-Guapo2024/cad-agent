@@ -1,3 +1,7 @@
+// SPDX-License-Identifier: LGPL-2.1-or-later
+// Follows FreeCAD (https://github.com/FreeCAD/FreeCAD, commit 3160daf1e2b6), copyright of the files below (each is
+// LGPL-2.0-or-later or LGPL-2.1-or-later as it states; ui/NOTICE has them all):
+//   No copyright line in the file: src/Gui/Stylesheets/FreeCAD.qss
 // QSlider::sub-page (FreeCAD.qss): the groove left of the handle is AccentColor. WebKit has no
 // pseudo-element for that part, so every range input carries its filled fraction as --fill.
 function sync(el: HTMLInputElement) {

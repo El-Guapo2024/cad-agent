@@ -1,3 +1,7 @@
+// SPDX-License-Identifier: LGPL-2.1-or-later
+// Follows FreeCAD (https://github.com/FreeCAD/FreeCAD, commit 3160daf1e2b6), copyright of the files below (each is
+// LGPL-2.0-or-later or LGPL-2.1-or-later as it states; ui/NOTICE has them all):
+//   No copyright line in the file: src/Gui/CornerCrossLetters.h
 // FreeCAD's corner coordinate system, ported from View3DInventorViewer::drawAxisCross and
 // createAxisArrowGeometry at FreeCAD main 3160daf1e2b6 (LGPL-2.1-or-later). Three arrows in
 // the AxisX/Y/ZColor turned as the camera is, drawn at the bottom right in a square that is

@@ -1,3 +1,9 @@
+// SPDX-License-Identifier: LGPL-2.1-or-later
+// Follows FreeCAD (https://github.com/FreeCAD/FreeCAD, commit 3160daf1e2b6), copyright of the files below (each is
+// LGPL-2.0-or-later or LGPL-2.1-or-later as it states; ui/NOTICE has them all):
+//   src/Gui/CommandDoc.cpp: 2002 Jürgen Riegel
+//   src/Gui/CommandWindow.cpp: 2005 Werner Mayer
+//   src/Gui/Workbench.cpp: 2004 Werner Mayer
 // FreeCAD's File menu: CommandDoc.cpp's document commands plus CommandWindow.cpp's
 // Std_CloseActiveWindow/Std_CloseAllWindows (Workbench.cpp puts those two in File, not Windows, at
 // this commit). There's no local filesystem to open from a browser tab and no Save step (every
