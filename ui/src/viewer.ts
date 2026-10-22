@@ -982,6 +982,9 @@ export class CadView {
     const tf = this.tf?.t
     this.stopTransform(true)
     try { this.viewer.setOrtho(flag) } catch { return }
+    // three-cad-viewer gives the new camera its own up (z), as render() sees too: the up is the orientation's y axis here, as everything that turns the camera
+    // keeps it (without this it stood until the next frame of an animation or a fit set it, which a quick key press after a view key could outrun)
+    { const now = this.cameraParts(); if (now) now.cam.up.set(0, 1, 0).applyQuaternion(now.cam.quaternion) }
     if (getState().cube) this.attachGizmo()
     if (tf) this.startTransform(tf)
     this.redraw()
