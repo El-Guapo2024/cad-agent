@@ -27,7 +27,8 @@ Licences, as each file's metadata states:
 - CC-BY-SA 2.0 (Tango Desktop Project and derivatives): `Std_ViewScreenShot.svg`,
   `help-browser.svg`, `utilities-terminal.svg`, `zoom-selection.svg`, `view-fullscreen.svg`,
   `zoom-border.svg`, `zoom-in.svg`, `zoom-out.svg`, `accessories-text-editor.svg`,
-  `media-playback-start.svg`, `media-playback-stop.svg`, `applications-accessories.svg`.
+  `media-playback-start.svg`, `media-playback-stop.svg`, `applications-accessories.svg`, and
+  `button_sort.svg` (the Switch button of Preferences > Display > Colors; its metadata names the licence, no creator).
 - CC-BY-SA 4.0 as well as `FreeCAD LGPL2+` (both in the metadata): `Std_UserEditModeDefault.svg`,
   `Std_UserEditModeTransform.svg`, `Std_UserEditModeCutting.svg`, `Std_UserEditModeColor.svg`.
 - Public domain: `process-stop.svg`, `accessories-calculator.svg` (CC0 1.0, Jakub Steiner),
