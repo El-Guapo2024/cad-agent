@@ -9,7 +9,7 @@ const browser = await chromium.launch({ args: ['--use-angle=swiftshader', '--use
 const ctx = await browser.newContext({ viewport: { width: 1400, height: 1100 }, deviceScaleFactor: 1 })
 const p = await ctx.newPage()
 p.on('pageerror', (e) => console.log('pageerror', e.message))
-await p.goto(BASE.replace(/\/?$/, '/') + '#' + PROJECT, { waitUntil: 'load' })
+await p.goto(BASE.replace(/\/?$/, '/') + (PROJECT === '-' ? '' : '#' + PROJECT), { waitUntil: 'load' })
 await p.waitForTimeout(3000)
 await p.evaluate(() => cadui.setState({ prefsOpen: true }))
 await p.waitForSelector('.pref-dlg')

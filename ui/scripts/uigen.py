@@ -9,7 +9,7 @@ the widgets with their text, tool tips, ranges, suffixes, size policies and mini
 rows, columns and spans, boxes, spacers, margins, spacing, stretch). fcprefs.json adds, per widget, what FreeCAD itself shows in a fresh
 profile once the page's code has run (the values a settings page loads, the items its code puts in a combo box, the widgets it hides) and
 the widget's size hint (QWidget::sizeHint, which Qt's layouts distribute the space from). src/qtform.tsx lays the result out the way Qt does;
-the pages in src/prefs.tsx bind the widgets that do something here, and the rest show these values, greyed out. The generated file is not
+the pages in src/prefs-pages.tsx bind the widgets that do something here, and the rest show these values, greyed out. The generated file is not
 edited by hand: run this again after fcprefs.py.
 """
 import json
@@ -201,6 +201,8 @@ def fc_state(w: dict) -> dict:
         t = w.get("text", "")
         if not re.search(r"/(Users|private|var|tmp|home)/", t):
             out["t"] = t
+    if w.get("placeholder"):                              # what an empty line edit says in grey (the code sets it, or the .ui)
+        out["ph"] = w["placeholder"]
     if "headers" in w:
         out["hd"] = w["headers"]
     if "cells" in w and w["cells"]:
@@ -272,12 +274,24 @@ def main() -> int:
 // files above lay them out (widgets with their text, tool tips, ranges and size policies; layouts with their rows, columns, spans,
 // margins, spacing and spacers), with, under "fc", what the real FreeCAD 26.3 shows for the widget in a fresh profile (the values the
 // page's code loads, the items it puts in a combo box, whether it hides or disables the widget) and its size hint, as
-// ui/scripts/fcprefs.py measured them. src/qtform.tsx draws these; src/prefs.tsx binds the widgets that do something here.
+// ui/scripts/fcprefs.py measured them. src/qtform.tsx draws these; src/prefs-pages.tsx binds the widgets that do something here.
 """
     body = "export const FORMS: Record<string, UiForm> = {\n"
     for key, form in forms.items():
         body += f" {json.dumps(key)}: {compact(form, 1)},\n"
     body += "}\n"
+    # the Keyboard page's categories, as the real FreeCAD's Category box lists them, and the category each command is in
+    cats = (dump["pages"].get("keyboard") or {}).get("extras", {}).get("categories", {})
+    if cats:
+        order = [c for c in cats if c]
+        body += "\n/** The categories of the Keyboard page's Category box in FreeCAD 26.3, in its order, and the category of each command it lists. */\n"
+        body += f"export const KEYBOARD_CATEGORIES: string[] = {json.dumps(order, ensure_ascii=False)}\n"
+        body += "export const COMMAND_CATEGORY: Record<string, string> = {\n"
+        for c in order:
+            names = [r["name"] for r in cats[c]["rows"] if r["name"]] if c != "All" else []
+            for i in range(0, len(names), 3):
+                body += "  " + ", ".join(f"{json.dumps(n)}: {json.dumps(c)}" for n in names[i:i + 3]) + ",\n"
+        body += "}\n"
     types = """
 /** A widget of a Qt Designer form: class, object name, properties (Qt's names), the layout it holds, child widgets without one, the items
  *  of a combo box, list or menu, the columns of a table, and what the real FreeCAD shows for it (`fc`). */
@@ -293,10 +307,10 @@ export interface UiLayout {
 export interface UiItem { r?: number; c?: number; rs?: number; cs?: number; a?: string[]; w?: UiWidget; l?: UiLayout; s?: UiSpacer }
 export interface UiSpacer { o: 'h' | 'v'; t: string; w: number; h: number }
 /** What FreeCAD shows in a fresh profile: h size hint, pol size policy (horizontal, vertical: P Preferred, F Fixed, m Minimum, M Maximum,
- *  E Expanding, X MinimumExpanding, I Ignored), stretch factors, chk checked, v value, t text, ct and ci current text and index, it combo items, col colour (ARGB),
+ *  E Expanding, X MinimumExpanding, I Ignored), stretch factors, chk checked, v value, t text, ct and ci current text and index, it combo items, ph placeholder text, col colour (ARGB),
  *  hd table headers, rows table cells, dis disabled, hid hidden. */
 export interface UiState {
-  h: [number, number]; pol: string; stretch?: [number, number]; chk?: boolean; v?: number; t?: string; ct?: string; ci?: number; it?: string[]; col?: string; hd?: string[]; rows?: (string | null)[][]; dis?: 1; hid?: 1
+  h: [number, number]; pol: string; stretch?: [number, number]; chk?: boolean; v?: number; t?: string; ct?: string; ci?: number; it?: string[]; ph?: string; col?: string; hd?: string[]; rows?: (string | null)[][]; dis?: 1; hid?: 1
 }
 export interface UiForm { title: string; root: UiWidget; ld?: [number, number]; fc?: { min: [number, number]; hint: [number, number]; title: string } }
 """

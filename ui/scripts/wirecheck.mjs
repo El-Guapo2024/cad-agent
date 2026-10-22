@@ -1355,7 +1355,9 @@ async function testPrefs() {
   // two pages are called General (the Display group's and the Python one's): by position, and the second is told apart in the report
   for (const [i, pg] of pages.entries()) {
     const name = pages.indexOf(pg) === i ? pg : `${pg} (${pages.slice(0, i + 1).filter((x) => x === pg).length})`
-    await walkPanel(`Preferences > ${name}`, '.pref-page', async () => { await open(); await page.locator('.pref-dlg .pref-item').nth(i).click() }, { max: 60000, group: 'prefs' })
+    await walkPanel(`Preferences > ${name}`, '.pref-page', async () => { await open(); await page.locator('.pref-dlg .pref-item').nth(i).evaluate((e) => e.click()) }, { max: 60000, group: 'prefs',
+      // Clear acts on the selected command: FreeCAD leaves it enabled with none selected, and the Keyboard flow below clicks it with one
+      ignore: (c) => name === 'Keyboard' && c.text === 'Clear' }) // (a page of a collapsed group is hidden until it is chosen)
   }
   // the dialog's own buttons, search and Reset (the walk leaves the dialog open on the last page)
   const opened = async () => { await open() }
@@ -1372,7 +1374,7 @@ async function testPrefs() {
 async function testPrefButtons(open) {
   const box = () => page.locator('.pref-page label', { hasText: 'Include a timecode' }).locator('input')
   const btn = (t) => page.locator('.pref-dlg .pref-buttons .qbtn', { hasText: new RegExp(`^${t}$`) })
-  const go = async () => { await open(); await page.locator('.pref-dlg .pref-item', { hasText: /^Report View$/ }).click() }
+  const go = async () => { await open(); await page.locator('.pref-dlg .pref-item', { hasText: /^Report View$/ }).evaluate((e) => e.click()) }
   await go()
   await box().click()                                   // timecode off
   await btn('Apply').click()                            // keep it
@@ -1473,13 +1475,16 @@ async function testCustomizeFlow() {
 
 // ── Preferences > Keyboard: assign, clear and reset a shortcut ─────────────────────────────────────────────────────────
 async function testKeyboardPage() {
-  const open = async () => { await resetUI('none'); await clickMenuEntry(entryAt('Edit', 'Preferences')); await page.locator('.pref-dlg').waitFor(); await page.locator('.pref-dlg .pref-item', { hasText: /^Keyboard$/ }).click() }
+  const open = async () => { await resetUI('none'); await clickMenuEntry(entryAt('Edit', 'Preferences')); await page.locator('.pref-dlg').waitFor(); await page.locator('.pref-dlg .pref-item', { hasText: /^Keyboard$/ }).evaluate((e) => e.click()) }
   const page_ = page.locator('.pref-page')
-  const btn = (t) => page_.locator('.qbtn', { hasText: new RegExp(`^${esc(t)}$`) }).first()
+  const btn = (t) => page_.locator('.qf-btn', { hasText: new RegExp(`^${esc(t)}$`) }).first()
   const F = async (path, act, expect) => judge('Preferences', `Keyboard > ${path}`, { enabled: true }, await observe(act, { max: 30000, restore: false }), expect)
   await open()
-  await page_.locator('input[type=search]').fill('Fit All')
-  await F('a command in the list (click selects it)', () => page_.locator('.kb-list .kb-row:not(.kb-head)').first().click(), `!!document.querySelector('.kb-row.sel')`)
+  // the search field is a completer (CommandCompleter): from three characters on it lists the commands that have the text, and choosing one goes to its category and selects it
+  await F('search field (type, choose a command from the popup)', async () => {
+    await page_.locator('[data-qf=editCommand] input').fill('Fit All'); await page_.locator('.qf-comp-item').first().click()
+  }, `!!document.querySelector('.qf-tree-row.sel')`)
+  await F('a command in the list (click selects it)', () => page_.locator('.qf-tree.kb .qf-tree-row > span:nth-child(2)').first().click(), `!!document.querySelector('.qf-tree-row.sel')`)
   await page_.locator('.accel-edit').nth(1).focus()
   await page.keyboard.press('Control+Alt+k')
   await F('Assign (the new shortcut)', () => btn('Assign').click(), `Object.keys(S.shortcuts).length===1`)

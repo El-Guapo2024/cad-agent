@@ -233,6 +233,75 @@ def dump_page(page):
     return info
 
 
+def data_name(item, col):
+    v = item.data(col, QtCore.Qt.UserRole)
+    if v is None:
+        return ""
+    try:
+        return bytes(v).decode()
+    except Exception:
+        return str(v)
+
+
+def extras(key, page, dlg):
+    """What a page shows only after something is done to it, read the way a person would reach it: every category of the Keyboard page with
+    the commands it lists, the Colors page with a gradient chosen, the Available Workbenches rows with what each holds."""
+    out = {}
+    if key == "keyboard":
+        cb = page.findChild(QtWidgets.QComboBox, "categoryBox")
+        tree = page.findChild(QtWidgets.QTreeWidget, "commandTreeWidget")
+        cats = {}
+        for i in range(cb.count()):
+            cb.setCurrentIndex(i)
+            cb.activated.emit(i)
+            pump(0.25)
+            rows = []
+            for r in range(tree.topLevelItemCount()):
+                it = tree.topLevelItem(r)
+                rows.append({"name": data_name(it, 1), "text": it.text(1), "shortcut": it.text(2), "default": it.text(3), "icon": not it.icon(0).isNull()})
+            cats[cb.itemText(i)] = {"group": data_name_combo(cb, i), "rows": rows}
+        out["categories"] = cats
+        cb.setCurrentIndex(0)
+        cb.activated.emit(0)
+        pump(0.3)
+    elif key == "colors":
+        states = {}
+        for rb, tag, mid in (("radioButtonGradient", "gradient", False), ("rbRadialGradient", "radial", False), ("radioButtonGradient", "gradient-mid", True)):
+            btn = page.findChild(QtWidgets.QRadioButton, rb)
+            btn.setChecked(True)
+            page.findChild(QtWidgets.QCheckBox, "checkMidColor").setChecked(mid)
+            pump(0.5)
+            states[tag] = dump_page(page)
+        page.findChild(QtWidgets.QCheckBox, "checkMidColor").setChecked(False)
+        page.findChild(QtWidgets.QRadioButton, "radioButtonSimple").setChecked(True)
+        pump(0.3)
+        out["states"] = states
+    elif key == "workbenches":
+        lst = page.findChild(QtWidgets.QListWidget, "wbList")
+        rows = []
+        for r in range(lst.count()):
+            it = lst.item(r)
+            w = lst.itemWidget(it)
+            rr = lst.visualItemRect(it)
+            row = {"rect": [rr.x(), rr.y(), rr.width(), rr.height()], "hint": size(it.sizeHint())}
+            if w is not None:
+                row["children"] = [{"cls": cname(c), "name": c.objectName(), "rect": rect_in(c, w), "text": c.text() if hasattr(c, "text") else "", "checked": c.isChecked() if hasattr(c, "isChecked") else None,
+                                    "enabled": c.isEnabled(), "font": font_info(c.font()), "tip": c.toolTip()} for c in w.findChildren(QtWidgets.QWidget) if not c.objectName().startswith("qt_")]
+            rows.append(row)
+        out["rows"] = rows
+        combo = page.findChild(QtWidgets.QComboBox, "AutoloadModuleCombo")
+        out["autoload"] = [{"text": combo.itemText(i), "icon": not combo.itemIcon(i).isNull()} for i in range(combo.count())]
+    return out
+
+
+def data_name_combo(cb, i):
+    v = cb.itemData(i, QtCore.Qt.UserRole)
+    try:
+        return bytes(v).decode()
+    except Exception:
+        return str(v)
+
+
 def dump_dialog(dlg, tv):
     d = {"size": size(dlg.size()), "minimum": size(dlg.minimumSize()), "title": dlg.windowTitle(), "sizeGrip": dlg.isSizeGripEnabled()}
     sb = dlg.findChild(QtWidgets.QFrame, "sidebar")
@@ -326,6 +395,10 @@ def drive():
             pump(0.9)
             dlg.grab().save(os.path.join(OUT, "freecad-prefs-%s-tall.png" % key))
             info.update(group=gname, pageTitle=pname, key=key, header=dlg.findChild(QtWidgets.QLabel, "headerLabel").text())
+            try:
+                info["extras"] = extras(key, page, dlg)
+            except Exception:
+                res["errors"]["extras-" + key] = traceback.format_exc()
             sa = dlg.findChild(QtWidgets.QScrollArea, "scrollArea")
             info["scrollContent"] = size(sa.widget().size())
             info["pageInDialog"] = rect_in(page, dlg)

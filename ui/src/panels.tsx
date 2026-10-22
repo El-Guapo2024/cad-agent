@@ -12,19 +12,15 @@
 //   src/Gui/Clipping.cpp: 2013 Werner Mayer
 //   src/Gui/TaskTransform.cpp: 2015 Thomas Anderson
 //   src/Gui/PythonConsole.cpp: 2004 Werner Mayer
-//   No copyright line in the file: src/Mod/Material/Gui/DlgDisplayProperties.ui,
-//       src/Gui/PreferencePages/DlgSettingsGeneral.ui, src/Gui/PreferencePages/DlgSettingsNotificationArea.ui,
-//       src/Gui/PreferencePages/DlgSettings3DView.ui, src/Gui/PreferencePages/DlgSettingsMacro.ui, src/Gui/Clipping.ui
+//   No copyright line in the file: src/Mod/Material/Gui/DlgDisplayProperties.ui, src/Gui/Clipping.ui
 import { Fragment, createContext, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { axisAngleOf, eulerOf as eulerOfSeq, quatOfEuler as quatOfEulerSeq, quatOfYpr, yprOfQuat, type EulerSeq } from './rotation'
 import type { Body, CheckRow, LogEntry, Placement, Vec3 } from './api'
-import { CORNER_POS, getState, report, saved, saveNaviCube, setState, useStore, viewOf, type AxisColors, type ClipAxis, type ClipView, type HomeView, type NaviCubePrefs, type RotationCenterPrefs, type Level, type NavStyle, type ViewProps as ViewPropsT } from './store'
+import { getState, report, saved, setState, useStore, viewOf, type ClipAxis, type ClipView, type Level, type ViewProps as ViewPropsT } from './store'
 import { VIEW } from './theme'
-import { NAV_STYLES, ORBIT_STYLES, type NavPrefs, type OrbitStyle } from './nav'
 import { CadView, measurePair, subInfo, type TransformPhase } from './viewer'
 import { clarifyEntries, ContextMenu, navHint, popupEntries, treeEntries, type Entry } from './chrome'
-import { gotoSelection, navi, runConsole, setCorner, setHomeView, setNav, setUnits, viewHome } from './commands'
-import { setNotifyPrefs } from './notifications'
+import { gotoSelection, navi, runConsole, viewHome } from './commands'
 import { api, resultText } from './api'
 import { fromFreeCAD, placementMatrix, toFreeCAD, toPlacement } from './placement'
 import * as THREE from 'three'
@@ -45,7 +41,7 @@ import { NewDocumentTask, OpenDocumentTask, ExportTask } from './filemenu'
 import { DependencyGraphTask, ParameterEditorTask, SceneInspectorTask } from './tools'
 import {
   attachView, closeTask, editDefault, getView, place, placementOf, preselect, runCheck, runVerify, select, selectRange, setParams, setViewProps, showPanel,
-  setOrtho, toggleVisibility, setPose,
+  toggleVisibility, setPose,
   setTreeUI, setEditorPrefs, editorStyle,
 } from './actions'
 
@@ -1091,259 +1087,6 @@ function InfoTask() {
         </tbody></table>
       </TaskBox>
     </div>
-  )
-}
-
-/** Std_DlgPreferences, for what this UI has: navigation, display, Transform snap. */
-/** Std_DlgPreferences: the parts of FreeCAD's Navigation and 3D View pages that apply here. */
-/** The Preferences dialog's pages (DlgPreferencesImp's stacked pages), one at a time. */
-export function PrefsPage({ page }: { page: string }) {
-  const nav = useStore((s) => s.nav), animate = useStore((s) => s.animate), cube = useStore((s) => s.cube), ortho = useStore((s) => s.ortho)
-  const p = useStore((s) => s.navPrefs), home = useStore((s) => s.homeView), newDocScale = useStore((s) => s.newDocCameraScale)
-  const units = useStore((s) => s.units), corner = useStore((s) => s.corner)
-  const axes = useStore((s) => s.axes), axisColors = useStore((s) => s.axisColors), showFPS = useStore((s) => s.showFPS)
-  const nc = useStore((s) => s.naviCube), rc = useStore((s) => s.rotationCenter), noTilt = useStore((s) => s.disableTouchTilt)
-  const recordGui = useStore((s) => s.recordGuiCommands), guiAsComment = useStore((s) => s.guiAsComment), scriptToConsole = useStore((s) => s.scriptToPyConsole)
-  const np = useStore((s) => s.notifyPrefs)
-  const toolbarIconSize = useStore((s) => s.toolbarIconSize)
-  const [recentMacros, setRecentMacros] = useState(() => saved.get('recentMacrosSize', 12))
-  const [macroDir, setMacroDir] = useState('')
-  useEffect(() => { if (page === 'Macro') api.macros().then((r) => setMacroDir(r.dir)).catch(() => {}) }, [page])
-  const [recentSize, setRecentSize] = useState(() => saved.get('recentFilesSize', 4))
-  const [snap, setSnap] = useState(() => saved.get('snap', { mm: 1, deg: 5 }))
-  const set = (k: 'animate' | 'disableTouchTilt' | 'axes' | 'showFPS' | 'recordGuiCommands' | 'guiAsComment', v: boolean) => { setState({ [k]: v }); saved.set(k, v) }
-  const pref = (patch: Partial<NavPrefs>) => setState((s) => { const navPrefs = { ...s.navPrefs, ...patch }; saved.set('navPrefs', navPrefs); return { navPrefs } })
-  // CornerNaviCube moves the cube to that corner (and wherever a drag had left it).
-  const cubePref = (patch: Partial<NaviCubePrefs>) => setState((s) => {
-    const naviCube = { ...s.naviCube, ...patch }
-    saveNaviCube(naviCube)
-    if (patch.corner === undefined) return { naviCube }
-    // A corner picked here puts the cube back in it (CornerNaviCube; the drag position is cleared).
-    saved.set('cubePos', CORNER_POS[patch.corner])
-    return { naviCube, cubePlace: (['top-left', 'top-right', 'bottom-left', 'bottom-right'] as const)[patch.corner], cubePos: CORNER_POS[patch.corner] }
-  })
-  const rcPref = (patch: Partial<RotationCenterPrefs>) => setState((s) => { const rotationCenter = { ...s.rotationCenter, ...patch }; saved.set('rotationCenter', rotationCenter); return { rotationCenter } })
-  const setScale = (v: number) => { setState({ newDocCameraScale: v }); saved.set('newDocCameraScale', v) }
-  const setAxisColor = (k: keyof AxisColors, v: string) => setState((s) => { const axisColors = { ...s.axisColors, [k]: v }; saved.set('axisColors', axisColors); return { axisColors } })
-  const num = (v: string, lo: number, hi: number, d: number) => { const n = Number(v); return Number.isFinite(n) ? Math.min(hi, Math.max(lo, n)) : d }
-  // A checkable QGroupBox: its check box in the title turns the whole group on or off.
-  const checkGroup = (title: string, on: boolean, toggle: (on: boolean) => void, children: ReactNode) => (
-    <fieldset className="tgroup tg">
-      <legend><label className="tcheck"><input type="checkbox" checked={on} onChange={(e) => toggle(e.target.checked)} /> {title}</label></legend>
-      <fieldset className="tg-body" disabled={!on}>{children}</fieldset>
-    </fieldset>)
-  /** DlgSettingsNavigation::onMouseButtonClicked: the style's Selection, Panning, Rotation and Zooming. */
-  const mouseButtons = () => {
-    const n = NAV_STYLES.find((x) => x.id === nav)!
-    messageBox(null, 'Mouse Buttons', `Configuration ${n.name}\n\nSelection: ${n.hints[0]}\nPanning: ${n.hints[1]}\nRotation: ${n.hints[2]}\nZooming: ${n.hints[3]}`)
-  }
-  return (
-    <>
-      {/* DlgSettingsGeneral.ui: Language and Number Format, Application, Preference Packs — what
-          applies here works (units, toolbar icon size, recent file list); the rest shows, disabled. */}
-      {page === 'General' && <div className="pref-content">
-        <fieldset className="tgroup tg"><legend>Language and Number Format</legend>
-          <label className="tfield"><span>Language</span><QComboBox className="qselect-field" value="en" disabled onChange={() => {}}><option value="en">English</option></QComboBox></label>
-          <label className="tfield"><span>Default unit system</span>
-            <QComboBox className="qselect-field" value={units.schema} onChange={(e) => setUnits({ schema: Number(e.target.value) })}>
-              {quantity.SCHEMAS.map((x) => <option key={x.num} value={x.num}>{x.description}</option>)}
-            </QComboBox></label>
-          <label className="tfield"><span>Number of decimals</span>
-            <input type="number" min={1} max={12} value={units.decimals} onChange={(e) => setUnits({ decimals: Math.round(num(e.target.value, 1, 12, 2)) })} /></label>
-          <label className="tcheck" title="n/a: projects here carry no unit system of their own"><input type="checkbox" disabled />Ignore project unit system and use default</label>
-          <label className="tfield"><span>Minimum fractional inch</span>
-            <QComboBox className="qselect-field" value={units.denominator} disabled={!quantity.SCHEMAS.find((x) => x.num === units.schema)?.multLen} onChange={(e) => setUnits({ denominator: Number(e.target.value) })}>
-              {[2, 4, 8, 16, 32, 64, 128].map((d) => <option key={d} value={d}>1/{d}"</option>)}
-            </QComboBox></label>
-          <label className="tfield"><span>Number format</span><QComboBox className="qselect-field" value="os" disabled onChange={() => {}}>
-            <option value="os">Operating system</option><option value="lang">Selected language</option><option value="c">C/POSIX</option></QComboBox></label>
-          <label className="tcheck"><input type="checkbox" disabled />Substitute decimal separator</label>
-        </fieldset>
-        <fieldset className="tgroup tg"><legend>Application</legend>
-          <label className="tfield"><span>Theme</span><QComboBox className="qselect-field" value="light" disabled onChange={() => {}}><option value="light">FreeCAD Light</option></QComboBox></label>
-          <span className="hint">Looking for more themes? You can obtain them using the Addon Manager.</span>
-          <label className="tfield"><span>Size of toolbar icons</span>
-            <QComboBox className="qselect-field" value={toolbarIconSize} onChange={(e) => { const v = Number(e.target.value); setState({ toolbarIconSize: v }); saved.set('toolbarIconSize', v) }}>
-              {([['Small', 16], ['Medium', 24], ['Large', 32], ['Extra large', 48]] as const).map(([l, v]) => <option key={v} value={v}>{l} ({v}px)</option>)}
-            </QComboBox></label>
-          <label className="tfield"><span>Tree View and Property View mode</span><QComboBox className="qselect-field" value="combined" disabled onChange={() => {}}>
-            <option value="combined">Combined</option><option value="independent">Independent</option></QComboBox></label>
-          <label className="tfield"><span>Size of recent file list</span>
-            <input type="number" min={0} max={12} value={recentSize} onChange={(e) => { const v = Math.round(num(e.target.value, 0, 12, 4)); setRecentSize(v); saved.set('recentFilesSize', v) }} /></label>
-          {['Enable tiled background', 'Enable cursor blinking', 'Enable splash screen at start-up', 'Activate overlay panels', 'Ignore mouse wheel on hover focused input fields', 'Fine-grained recompute (experimental)'].map((t) => (
-            <label key={t} className="tcheck"><input type="checkbox" disabled />{t}</label>))}
-        </fieldset>
-        <fieldset className="tgroup tg"><legend>Preference Packs</legend>
-          <table className="pref-packs"><thead><tr><th>Name</th><th>Type</th><th>Load</th></tr></thead>
-            <tbody><tr><td>FreeCAD Light</td><td>Theme</td><td><button className="qbtn" disabled>Load</button></td></tr></tbody></table>
-          <div className="tbuttons">{['Import Configuration', 'Save as New', 'Manage', 'Revert'].map((t) => <button key={t} className="qbtn" disabled>{t}</button>)}</div>
-        </fieldset>
-      </div>}
-      {/* DlgSettingsNotificationArea.ui: NotificationAreaEnabled contains Additional Data Sources,
-          Notifications List and (nested) Enable Pop-Up Notifications, in that row order. */}
-      {page === 'Notification Area' && <div className="pref-content">
-        {checkGroup('Enable Notification Area', np.areaEnabled, (on) => setNotifyPrefs({ areaEnabled: on }), <>
-          <fieldset className="tgroup tg"><legend>Additional Data Sources</legend>
-            <label className="tcheck" title="Errors intended for developers will appear in the notification area">
-              <input type="checkbox" checked={np.developerErrors} onChange={(e) => setNotifyPrefs({ developerErrors: e.target.checked })} /> Debug errors</label>
-            <label className="tcheck" title="Warnings intended for developers will appear in the notification area">
-              <input type="checkbox" checked={np.developerWarnings} onChange={(e) => setNotifyPrefs({ developerWarnings: e.target.checked })} /> Debug warnings</label>
-          </fieldset>
-          <fieldset className="tgroup tg"><legend>Notifications List</legend>
-            <label className="tfield" title="Limits the number of notifications kept in the list (0 = no limit)"><span>Maximum notification count</span>
-              <input type="number" min={0} max={10000} value={np.maxWidgetMessages} onChange={(e) => setNotifyPrefs({ maxWidgetMessages: Math.round(num(e.target.value, 0, 10000, 1000)) })} /></label>
-            <label className="tcheck" title="Removes the user notifications from the list after the pop-up's maximum duration has lapsed">
-              <input type="checkbox" checked={np.autoRemoveUserNotifications} onChange={(e) => setNotifyPrefs({ autoRemoveUserNotifications: e.target.checked })} /> Auto-remove user notifications</label>
-          </fieldset>
-          {checkGroup('Enable Pop-Up Notifications', np.popupEnabled, (on) => setNotifyPrefs({ popupEnabled: on }), <>
-            <label className="tfield" title="Maximum amount of time the notification will be shown, unless dismissed by a click"><span>Maximum duration</span>
-              <span className="qsuffix"><input type="number" min={0} max={120} value={np.maxDuration} onChange={(e) => setNotifyPrefs({ maxDuration: Math.round(num(e.target.value, 0, 120, 20)) })} /><span className="unit">s</span></span></label>
-            <label className="tfield" title="Minimum amount of time the notification will be shown before an outside click can dismiss it"><span>Minimum duration</span>
-              <span className="qsuffix"><input type="number" min={0} max={120} value={np.minDuration} onChange={(e) => setNotifyPrefs({ minDuration: Math.round(num(e.target.value, 0, 120, 5)) })} /><span className="unit">s</span></span></label>
-            <label className="tfield" title="Maximum number of notifications that will be simultaneously present on the notification bubble"><span>Maximum concurrent notification count</span>
-              <input type="number" min={0} max={1000} value={np.maxOpenNotifications} onChange={(e) => setNotifyPrefs({ maxOpenNotifications: Math.round(num(e.target.value, 0, 1000, 15)) })} /></label>
-            <label className="tfield" title="Width of the pop-up notification bubble in pixels"><span>Notification bubble width</span>
-              <span className="qsuffix"><input type="number" min={300} max={10000} value={np.notificationWidth} onChange={(e) => setNotifyPrefs({ notificationWidth: Math.round(num(e.target.value, 300, 10000, 800)) })} /><span className="unit">px</span></span></label>
-            <label className="tcheck" title="Any open pop-up notifications will disappear when another window is activated">
-              <input type="checkbox" checked={np.hideWhenDeactivated} onChange={(e) => setNotifyPrefs({ hideWhenDeactivated: e.target.checked })} /> Hide when other window is activated</label>
-            <label className="tcheck" title="Prevent pop-up notifications from appearing when the FreeCAD window is not the active window">
-              <input type="checkbox" checked={np.preventWhenInactive} onChange={(e) => setNotifyPrefs({ preventWhenInactive: e.target.checked })} /> Do not show when window is inactive</label>
-          </>)}
-        </>)}
-      </div>}
-      {page === 'Navigation' && <div className="pref-content">
-        {checkGroup('Navigation Cube', cube, (on) => setState({ cube: on }), <>
-          <label className="tfield" title="Number of steps by turn when using arrows (default = 8 : step angle = 360/8 = 45 deg)"><span>Steps by turn</span>
-            <input type="number" min={4} max={36} value={nc.stepByTurn} onChange={(e) => cubePref({ stepByTurn: Math.round(num(e.target.value, 4, 36, 8)) })} /></label>
-          <label className="tfield" title="Corner where the navigation cube is displayed"><span>Corner</span>
-            <QComboBox className="qselect-field" value={nc.corner} onChange={(e) => cubePref({ corner: Number(e.target.value) as NaviCubePrefs['corner'] })}>
-              {['Top left', 'Top right', 'Bottom left', 'Bottom right'].map((c, i) => <option key={c} value={i}>{c}</option>)}
-            </QComboBox></label>
-          <label className="tcheck" title="Rotates to nearest possible state when clicking a cube face"><input type="checkbox" checked={nc.toNearest} onChange={(e) => cubePref({ toNearest: e.target.checked })} /> Rotate to nearest</label>
-          <label className="tfield" title="Font name of the navigation cube"><span>Font name</span>
-            <QComboBox className="qselect-field" value={nc.font} onChange={(e) => cubePref({ font: e.target.value })}>
-              <option value="">Default</option>{['Arial', 'Helvetica', 'Verdana', 'Tahoma', 'Trebuchet MS', 'Georgia', 'Times New Roman', 'Courier New'].map((f) => <option key={f}>{f}</option>)}
-            </QComboBox></label>
-          <label className="tfield" title="Size of the navigation cube"><span>Cube size</span>
-            <span className="qsuffix"><input type="number" min={10} max={1024} step={10} value={nc.size} onChange={(e) => cubePref({ size: Math.round(num(e.target.value, 10, 1024, 132)) })} /><span className="unit">px</span></span></label>
-          <label className="tfield" title="Opacity of the navigation cube when not focused"><span>Opacity when inactive</span>
-            <span className="qsuffix"><input type="number" min={1} max={100} value={nc.inactiveOpacity} onChange={(e) => cubePref({ inactiveOpacity: Math.round(num(e.target.value, 1, 100, 50)) })} /><span className="unit">%</span></span></label>
-          <label className="tfield" title="Base color for all elements"><span>Color</span><input type="color" value={nc.color} onChange={(e) => cubePref({ color: e.target.value })} /></label>
-        </>)}
-        {checkGroup('Rotation Center Indicator', p.showRotationCenter, (on) => pref({ showRotationCenter: on }), <>
-          <label className="tfield" title="The size of the rotation center indicator"><span>Sphere size</span>
-            <input type="number" min={1} max={100} step={0.5} value={rc.size} onChange={(e) => rcPref({ size: num(e.target.value, 1, 100, 5) })} /></label>
-          <label className="tfield" title="The color of the rotation center indicator"><span>Color and transparency</span>
-            <span className="hbox"><input type="color" value={rc.color} onChange={(e) => rcPref({ color: e.target.value })} />
-              <input type="range" min={0} max={1} step={0.05} value={rc.alpha} onChange={(e) => rcPref({ alpha: Number(e.target.value) })} /></span></label>
-        </>)}
-        <fieldset className="tgroup tg"><legend>Navigation</legend>
-          <label className="tfield" title="Navigation settings set"><span>3D navigation</span>
-            <QComboBox className="qselect-field" value={nav} onChange={(e) => setNav(e.target.value as NavStyle)}>
-              {NAV_STYLES.map((n) => <option key={n.id} value={n.id}>{n.name}</option>)}
-            </QComboBox></label>
-          <div className="tfield"><span /><button className="qbtn" title="Lists the mouse button configs for each chosen navigation setting" onClick={mouseButtons}>Mouse Configuration</button></div>
-          <label className="tfield"><span>Orbit style</span>
-            <QComboBox className="qselect-field" value={p.orbit} onChange={(e) => pref({ orbit: Number(e.target.value) as OrbitStyle })}>
-              {[4, 1, 3, 2, 0].map((o) => <option key={o} value={o}>{ORBIT_STYLES[o]}</option>)}
-            </QComboBox></label>
-          <label className="tfield"><span>Rotation mode</span>
-            <QComboBox className="qselect-field" value={p.rotationMode} onChange={(e) => pref({ rotationMode: Number(e.target.value) as 0 | 1 | 2 })}>
-              <option value={0}>Window center</option><option value={1}>Drag at cursor</option><option value={2}>Object center</option>
-            </QComboBox></label>
-          <label className="tfield" title="Default camera orientation when creating a new document or selecting the home view"><span>Default camera orientation</span>
-            <QComboBox className="qselect-field" value={home ?? 'Trimetric'} onChange={(e) => setHomeView(e.target.value as HomeView)}>
-              {['Isometric', 'Dimetric', 'Trimetric', 'Top', 'Front', 'Left', 'Right', 'Rear', 'Bottom'].map((v) => <option key={v}>{v}</option>)}
-            </QComboBox></label>
-          <label className="tfield" title="Sets camera zoom for new documents. The value is the diameter of the sphere to fit on the screen."><span>Camera zoom</span>
-            <QuantityBox value={newDocScale} dims={LENGTH} min={0.00001} max={10000000} onChange={setScale} /></label>
-          <label className="tcheck" title="Zoom operations will be performed at position of mouse pointer"><input type="checkbox" checked={p.zoomAtCursor} onChange={(e) => pref({ zoomAtCursor: e.target.checked })} /> Zoom at cursor</label>
-          <label className="tfield"><span>Zoom step</span>
-            <input type="number" min={0.01} max={1} step={0.05} value={p.zoomStep} onChange={(e) => pref({ zoomStep: num(e.target.value, 0.01, 1, 0.2) })} /></label>
-          <label className="tcheck" title="Direction of zoom operations will be inverted"><input type="checkbox" checked={p.invertZoom} onChange={(e) => pref({ invertZoom: e.target.checked })} /> Invert zoom</label>
-          <label className="tcheck" title="Prevents view tilting when pinch-zooming"><input type="checkbox" checked={noTilt} onChange={(e) => set('disableTouchTilt', e.target.checked)} /> Disable touchscreen tilt gesture</label>
-          <label className="tcheck" title="Two-finger scroll on a touchpad pans the view"><input type="checkbox" checked={p.touchpadScrollPans} onChange={(e) => pref({ touchpadScrollPans: e.target.checked })} /> Touchpad scroll pans instead of zooming</label>
-        </fieldset>
-        <fieldset className="tgroup tg"><legend>Space Mouse</legend>
-          <label className="tcheck" title="A browser can't talk to a 3D mouse's driver"><input type="checkbox" disabled /> Enable support of legacy SpaceMouse devices</label>
-        </fieldset>
-        {checkGroup('Animations', animate, (on) => set('animate', on), <>
-          <label className="tfield" title="The duration of navigation animations in milliseconds"><span>Animation duration</span>
-            <span className="qsuffix"><input type="number" min={100} max={10000} step={50} value={p.duration} onChange={(e) => pref({ duration: num(e.target.value, 100, 10000, 500) })} /><span className="unit">ms</span></span></label>
-          <label className="tcheck" title="Enable spinning animations that are used in some navigation styles after dragging"><input type="checkbox" checked={p.spinning} onChange={(e) => pref({ spinning: e.target.checked })} /> Enable spinning animations</label>
-        </>)}
-        <fieldset className="tgroup tg"><legend>Clarify Selection</legend>
-          <label className="tcheck" title="Enable Clarify Selection on long press of left mouse button"><input type="checkbox" checked={p.clarifyLongPress} onChange={(e) => pref({ clarifyLongPress: e.target.checked })} /> Enable long press clarify selection</label>
-          <label className="tfield" title="Duration in seconds to hold left mouse button before triggering Clarify Selection"><span>Long press timeout</span>
-            <span className="qsuffix"><input type="number" min={0.3} max={3} step={0.1} value={p.longPressTimeout} onChange={(e) => pref({ longPressTimeout: num(e.target.value, 0.3, 3, 1) })} /><span className="unit">s</span></span></label>
-        </fieldset>
-      </div>}
-      {page === '3D View' && <div className="pref-content">
-        <fieldset className="tgroup tg"><legend>General</legend>
-          <label className="tcheck" title="Main coordinate system will always be shown in the lower right corner within opened files">
-            <input type="checkbox" checked={corner.show} onChange={(e) => setCorner({ show: e.target.checked })} /> Show coordinate system in the corner</label>
-          <label className="tfield" title="Size of main coordinate system representation in the corner, in % of the height or width of the view"><span>Relative size</span>
-            <span className="qsuffix"><input type="number" min={2} max={100} disabled={!corner.show} value={corner.size} onChange={(e) => setCorner({ size: Math.round(num(e.target.value, 2, 100, 10)) })} /><span className="unit">%</span></span></label>
-          <label className="tfield" title="Axis letter and FPS counter color"><span>Letter color</span><input type="color" value={axisColors.letter} onChange={(e) => setAxisColor('letter', e.target.value)} /></label>
-          <label className="tfield"><span>X-axis color</span><input type="color" value={axisColors.x} onChange={(e) => setAxisColor('x', e.target.value)} /></label>
-          <label className="tfield"><span>Y-axis color</span><input type="color" value={axisColors.y} onChange={(e) => setAxisColor('y', e.target.value)} /></label>
-          <label className="tfield"><span>Z-axis color</span><input type="color" value={axisColors.z} onChange={(e) => setAxisColor('z', e.target.value)} /></label>
-          <label className="tcheck" title="Axis cross will be shown by default at file opening or creation"><input type="checkbox" checked={axes} onChange={(e) => set('axes', e.target.checked)} /> Show axis cross by default</label>
-          <label className="tcheck" title="Time needed for last operation and resulting frame rate will be shown at the lower left corner in opened files"><input type="checkbox" checked={showFPS} onChange={(e) => set('showFPS', e.target.checked)} /> Show counter of frames per second</label>
-        </fieldset>
-        {/* DlgSettings3DView.ui's Rendering group: OpenGL settings, fixed in a browser's WebGL. */}
-        <fieldset className="tgroup tg"><legend>Rendering</legend>
-          <label className="tcheck"><input type="checkbox" disabled /> Use software OpenGL</label>
-          <label className="tcheck"><input type="checkbox" disabled /> Force use of OpenGL VBO (Vertex Buffer Object)</label>
-          {([['Render cache', 'Auto', ['Auto', 'Distributed', 'Centralized']], ['Anti-aliasing', 'MSAA 4x', ['None', 'Line Smoothing', 'MSAA 2x', 'MSAA 4x', 'MSAA 6x', 'MSAA 8x']],
-            ['Transparent objects', 'One pass', ['One pass', 'Backface pass']], ['Marker size', '9px', ['5px', '7px', '9px', '11px', '13px', '15px']]] as const).map(([label, value, opts]) => (
-            <label key={label} className="tfield" title="n/a: set by the browser's WebGL"><span>{label}</span>
-              <QComboBox className="qselect-field" value={value} disabled onChange={() => {}}>{opts.map((o) => <option key={o} value={o}>{o}</option>)}</QComboBox></label>))}
-          <label className="tfield"><span>Eye to eye distance for stereo modes</span><input type="number" value={5} disabled /></label>
-          <label className="tfield"><span>Datum size</span><span className="qsuffix"><input type="number" value={100} disabled />%</span></label>
-          <label className="tfield" title="n/a: the browser redraws at the display's refresh rate"><span>Maximum frame rate</span><input readOnly value="Automatic" disabled /></label>
-        </fieldset>
-        <fieldset className="tgroup tg"><legend>Camera Type</legend>
-          <label className="tcheck" title="Objects will appear in a perspective projection"><input type="radio" checked={!ortho} onChange={() => setOrtho(false)} /> Perspective rendering</label>
-          <label className="tcheck" title="Objects will be in orthographic projection"><input type="radio" checked={ortho} onChange={() => setOrtho(true)} /> Orthographic rendering</label>
-        </fieldset>
-      </div>}
-      {page === 'Transform snap' && <div className="pref-content">
-        <div className="tform">
-          <label className="tfield"><span>Move</span><QuantityBox value={snap.mm} dims={LENGTH} min={0} max={2147483647} onChange={(mm) => setSnap((x) => { const v = { ...x, mm }; saved.set('snap', v); return v })} /></label>
-          <label className="tfield"><span>Rotate</span><QuantityBox value={snap.deg} dims={ANGLE} min={0} max={360} onChange={(deg) => setSnap((x) => { const v = { ...x, deg }; saved.set('snap', v); return v })} /></label>
-        </div>
-      </div>}
-      {/* DlgSettingsMacro.ui's "Gui Commands" group. */}
-      {/* DlgSettingsMacro.ui: General Macro Settings, Macro Recording Settings (Macro Path, Gui
-          Commands), Logging Commands, Recent Macros Menu. */}
-      {page === 'Macro' && <div className="pref-content">
-        <fieldset className="tgroup tg"><legend>General Macro Settings</legend>
-          <label className="tcheck" title="n/a: macros here are cad commands, each run in its own process"><input type="checkbox" checked disabled /> Run macros in local environment</label>
-        </fieldset>
-        <fieldset className="tgroup tg"><legend>Macro Recording Settings</legend>
-          <fieldset className="tgroup tg"><legend>Macro Path</legend>
-            <input className="pref-path" readOnly value={macroDir} title="Where macros are kept (CAD_MACRO_DIR overrides it)" />
-          </fieldset>
-          <fieldset className="tgroup tg"><legend>Gui Commands</legend>
-            <label className="tcheck" title="Recorded macros will also contain user interface commands">
-              <input type="checkbox" checked={recordGui} onChange={(e) => set('recordGuiCommands', e.target.checked)} /> Record GUI commands</label>
-            <label className="tcheck" title="Recorded macros will also contain user interface commands as comments">
-              <input type="checkbox" checked={guiAsComment} disabled={!recordGui} onChange={(e) => set('guiAsComment', e.target.checked)} /> Record as comment</label>
-          </fieldset>
-        </fieldset>
-        <fieldset className="tgroup tg"><legend>Logging Commands</legend>
-          <label className="tcheck" title="Commands executed by macro scripts are shown in Python console"><input type="checkbox" checked={scriptToConsole} onChange={(e) => { saved.set('scriptToPyConsole', e.target.checked); setState({ scriptToPyConsole: e.target.checked }) }} /> Show script commands in Python console</label>
-          <label className="tcheck" title="n/a: every command is already logged to the project's .cad/log.jsonl"><input type="checkbox" disabled /> Log all commands issued by menus to file</label>
-        </fieldset>
-        <fieldset className="tgroup tg"><legend>Recent Macros Menu</legend>
-          <label className="tfield"><span>Size of recent macro list</span>
-            <input type="number" min={0} max={20} value={recentMacros} onChange={(e) => { const v = Math.round(num(e.target.value, 0, 20, 12)); setRecentMacros(v); saved.set('recentMacrosSize', v) }} /></label>
-          <label className="tfield"><span>Keyboard shortcut count</span><input type="number" value={3} disabled /></label>
-          <label className="tfield"><span>Keyboard Modifiers</span><input readOnly value="Ctrl+Shift+" disabled /></label>
-        </fieldset>
-      </div>}
-    </>
   )
 }
 

@@ -1,0 +1,198 @@
+/* SPDX-License-Identifier: LGPL-2.1-or-later
+   Follows FreeCAD (https://github.com/FreeCAD/FreeCAD, commit 3160daf1e2b6), copyright of the files below (each is
+   LGPL-2.0-or-later or LGPL-2.1-or-later as it states; ui/NOTICE has them all):
+     No copyright line in the file: src/Gui/Stylesheets/FreeCAD.qss, src/Gui/Stylesheets/parameters/FreeCAD Light.yaml
+   The widgets of a Qt Designer form (qtform.tsx) as FreeCAD.qss paints them under FreeCAD Light, with the metrics the real
+   FreeCAD gives them on a Mac (ui/scripts/fcprefs.py): a QCheckBox is its text's 16 px and 2 + 2 of padding and border, its
+   indicator 12 px inside a 1 px border and 8 px before the text; a QSpinBox 23 px high, a QComboBox 24, a QPushButton 24 (3 px of
+   padding over a 16 px line, 12 at the sides, 80 wide at least). */
+.qf-form { display: flex; flex-direction: column; min-height: 100%; font: 13px/16px -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Ubuntu, sans-serif; }
+.qf-page { display: flex; flex-direction: column; flex: 1 1 auto; min-width: 0; }
+.qf-page > .qf-grid { flex: 1 1 auto; }
+.qf-grid { display: grid; box-sizing: border-box; }
+.qf-widget { display: flex; flex-direction: column; box-sizing: border-box; min-width: 0; }
+.qf-widget > .qf-grid { flex: 1 1 auto; }
+.qf-spacer { flex: none; min-width: 0; min-height: 0; }
+.qf-node { box-sizing: border-box; min-width: 0; }
+.qf-node.over, .qf-node.area { position: relative; }
+.qf-fill { position: absolute; inset: 0; display: flex; flex-direction: column; min-width: 0; min-height: 0; }
+.qf-fill > * { flex: 1 1 0; min-width: 0; min-height: 0; }
+.qf-over { position: absolute; inset: 0; pointer-events: none; }
+.qf-over button { pointer-events: auto; }
+
+/* QGroupBox { margin: 18px 0 2px 0; border: 1px solid GroupboxBorderColor (darken(GroupboxBackgroundColor, 20): #cecece); border-radius: 5px }
+   QGroupBox::title { top: -18px; left: 0 }: the title sits in the 18 px band above the frame; a checkable one has its indicator first */
+.qf-gb { position: relative; display: flex; flex-direction: column; box-sizing: border-box; padding: 18px 0 2px; min-width: 0; }
+.qf-gb-title { position: absolute; left: 0; top: 0; right: 0; height: 18px; display: flex; align-items: flex-start; padding-left: 2px; overflow: hidden; white-space: nowrap; }
+.qf-gb.off > .qf-gb-title { color: var(--text-disabled); }
+.qf-gb-frame { flex: 1 1 auto; box-sizing: border-box; min-width: 0; border: 1px solid #cecece; border-radius: 5px; background: var(--lighten2); }
+.qf-gb-title .qf-check { padding: 0; border: 0; }
+/* QRadioButton { border-style: none; spacing: 8px }: no padding, its 12 px indicator in a 1.1 px border (14.2 px) 2 px down */
+.qf-check.radio { padding: 0; border: 0; }
+.qf-check.radio > input { width: 14.2px; height: 14.2px; }
+
+/* QLabel: the text, vertically centred in whatever height the row gives it */
+.qf-label { display: flex; align-items: center; box-sizing: border-box; white-space: pre; line-height: 1.2307; }
+.qf-label.wrap { white-space: pre-wrap; min-width: 0; }
+.qf-label.right { justify-content: flex-end; text-align: right; }
+.qf-label.center { justify-content: center; text-align: center; }
+.qf-label.off { color: var(--text-disabled); }
+.qf-label a { color: var(--url); }
+.qf-label.off a { color: var(--text-disabled); }
+
+/* QCheckBox { padding: 1px; border: 1px solid transparent; spacing: 8px }, ::indicator { width: 12px; height: 12px; border: 1px; margin-top: 2px } */
+.qf-check { display: inline-flex; align-items: flex-start; gap: 8px; box-sizing: border-box; padding: 1px; border: 1px solid transparent; line-height: 16px; white-space: nowrap; cursor: default; }
+.qf-check > input { width: 14px; height: 14px; margin: 2px 0 0; flex: none; }
+.qf-check > span { padding-top: 0; }
+.qf-check.off { color: var(--text-disabled); }
+.qf-check:focus-within { border-color: var(--accent); }
+
+/* QPushButton { padding: 3px 12px; min-width: 80px }, a gradient from ButtonTopBackgroundColor to ButtonBottomBackgroundColor */
+.qf-btn { display: inline-flex; align-items: center; justify-content: center; box-sizing: border-box; height: 24px; min-width: 80px; padding: 3px 12px; line-height: 16px; white-space: nowrap;
+  border: 1px solid var(--border); border-radius: var(--radius); background: linear-gradient(var(--btn-top), var(--btn-bottom)); cursor: default; }
+.qf-btn:hover:not(:disabled) { background: var(--hover-bg); }
+.qf-btn:active:not(:disabled) { background: linear-gradient(var(--btn-top), var(--btn-bottom)); border-color: #000; }
+.qf-btn:focus-visible { outline: none; border-color: var(--accent); }
+.qf-btn:disabled { background: var(--darken3); color: var(--text-disabled); }
+.qf-btn.icon { gap: 4px; }
+.qf-btn:disabled img, .qf-tool:disabled img { opacity: .5; }
+.qf-tool { display: inline-flex; align-items: center; justify-content: center; box-sizing: border-box; padding: 3px; border: 1px solid var(--border); border-radius: var(--radius);
+  background: linear-gradient(var(--btn-top), var(--btn-bottom)); cursor: default; }
+.qf-tool:hover:not(:disabled) { background: var(--hover-bg); }
+
+/* QComboBox { border: 1px solid; border-radius: 3px; padding-left: 4px; padding-right: 18px; min-height: 22px }: 24 px with the borders */
+.qf-combo { height: 24px; min-height: 24px; box-sizing: border-box; padding: 0 18px 0 4px; line-height: 16px; background: linear-gradient(var(--btn-top), var(--btn-bottom)); min-width: 0; }
+.qf-combo:hover:not(:disabled) { background: var(--hover-bg); }
+
+/* QLineEdit: TextEditFieldBackgroundColor, a 1 px border, 3 px radius */
+.qf-edit { box-sizing: border-box; height: 24px; min-width: 0; padding: 0 4px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--field-bg); }
+.qf-edit:focus { outline: none; border-color: var(--accent); }
+.qf-edit:disabled { background: var(--darken3); color: var(--text-disabled); }
+.qf-node > .qf-edit { display: block; width: 100%; }
+.qf-edit[readonly]:not(:disabled) { background: var(--field-bg); }
+
+/* QAbstractSpinBox { border: 1px; padding-left: 4px; padding-right: 4px } with its two buttons (measured on the real one, 71 x 23: a 14 px column,
+   a 1 px line at its left, the up button 10 px, a 1 px line, the down button 10 px, each a gradient from #f9f9f9 to #f2f2f2 with a
+   lightgray 8 px arrow) */
+.qf-spin { position: relative; display: flex; box-sizing: border-box; height: 23px; min-width: 0; border: 1px solid var(--border); border-radius: var(--radius); background: var(--field-bg); }
+.qf-spin.focus { border-color: var(--accent); }
+.qf-spin.off { background: var(--darken3); color: var(--text-disabled); }
+.qf-spin > input { flex: 1 1 0; width: 0; min-width: 0; height: 100%; margin: 0; padding: 0 4px; border: 0; background: transparent; outline: none; font: inherit; color: inherit; text-align: right; }
+.qf-spin-btns { flex: none; display: flex; flex-direction: column; width: 14px; border-left: 1px solid var(--border); }
+.qf-spin-btns > button { display: block; box-sizing: border-box; flex: none; width: 100%; padding: 0; margin: 0; border: 0; border-radius: 0; cursor: default;
+  background-color: transparent; background-repeat: no-repeat; background-position: center, center; }
+.qf-spin-btns > button.up { height: 11px; border-bottom: 1px solid var(--border); border-top-right-radius: 2px; background-image: url(/freecad-icons/qss-arrow-up-lightgray.svg), linear-gradient(#f9f9f9, #f2f2f2); background-size: 8px 8px, 100% 100%; }
+.qf-spin-btns > button.down { height: 10px; border-bottom-right-radius: 2px; background-image: url(/freecad-icons/qss-arrow-down-lightgray.svg), linear-gradient(#f9f9f9, #f2f2f2); background-size: 8px 8px, 100% 100%; }
+.qf-spin-btns > button:hover:not(:disabled) { background-color: var(--hover-bg); background-blend-mode: normal; background-image: url(/freecad-icons/qss-arrow-up-black.svg); background-size: 8px 8px; }
+.qf-spin-btns > button.down:hover:not(:disabled) { background-image: url(/freecad-icons/qss-arrow-down-black.svg); }
+.qf-spin.off .qf-spin-btns > button { background-color: var(--darken3); background-image: url(/freecad-icons/qss-arrow-up-lightgray.svg); background-size: 8px 8px; }
+.qf-spin.off .qf-spin-btns > button.down { background-image: url(/freecad-icons/qss-arrow-down-lightgray.svg); }
+
+/* Gui::ColorButton: a push button with the colour in a framed swatch in its middle */
+.qf-color { position: relative; display: inline-flex; box-sizing: border-box; min-width: 0; }
+.qf-color > button { flex: 1 1 auto; display: flex; align-items: center; justify-content: center; box-sizing: border-box; height: 24px; min-width: 0; padding: 0; border: 1px solid var(--border);
+  border-radius: var(--radius); background: linear-gradient(var(--btn-top), var(--btn-bottom)); cursor: default; }
+.qf-color > button:hover:not(:disabled) { background: var(--hover-bg); }
+.qf-color > button:disabled { background: var(--darken3); }
+.qf-swatch { display: block; width: 25px; height: 12px; border: 1px solid #555; }
+.qf-color.off .qf-swatch { opacity: .6; }
+.qf-color > input[type=color] { position: absolute; inset: 0; opacity: 0; pointer-events: none; }
+.qf-color-pop { position: absolute; z-index: 20; left: 0; top: 100%; display: flex; flex-direction: column; gap: 4px; padding: 6px; background: var(--lighten3); border: 1px solid var(--border); box-shadow: 0 4px 12px rgba(0,0,0,.2); }
+
+/* Gui::FileChooser: a line edit and a "..." button, the button as wide as its text and padding (Gui--FileChooser QPushButton { min-width: 0 }) */
+.qf-chooser { display: flex; gap: 3px; box-sizing: border-box; min-width: 0; }
+.qf-chooser > input { flex: 1 1 0; width: 0; min-width: 0; height: 24px; box-sizing: border-box; padding: 0 4px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--field-bg); font: inherit; }
+.qf-chooser > input:disabled { background: var(--darken3); color: var(--text-disabled); }
+.qf-chooser > button { flex: none; height: 24px; box-sizing: border-box; padding: 3px 12px; line-height: 16px; border: 1px solid var(--border); border-radius: var(--radius);
+  background: linear-gradient(var(--btn-top), var(--btn-bottom)); cursor: default; }
+.qf-chooser > button:disabled { background: var(--darken3); color: var(--text-disabled); }
+
+/* QFrame::HLine: FreeCAD.qss draws no line, the 3 px are just space */
+.qf-line { height: 3px; align-self: stretch; }
+
+/* A tree, table or list: QHeaderView::section (the button gradient, 4 px of padding, a border all round) over rows */
+.qf-sheet { display: flex; flex-direction: column; box-sizing: border-box; min-width: 0; min-height: 31px; border: 1px solid var(--border); background: var(--primary); overflow: auto; }
+.qf-sheet-head { display: grid; background: linear-gradient(var(--btn-top), var(--btn-bottom)); border-bottom: 1px solid var(--border); }
+.qf-sheet-head > span { padding: 4px; border-right: 1px solid var(--border); font-weight: 700; }
+.qf-sheet-row { display: grid; }
+.qf-sheet-row > span { padding: 0 4px; line-height: 24px; }
+.qf-sheet.text { background: var(--field-bg); }
+
+/* Rich text (a QLabel's HTML): white space collapses, and paragraphs stand 12 px apart, with no space before the first or after the last */
+.qf-rich { display: block; white-space: normal; }
+.qf-rich p { margin: 12px 0; }
+.qf-rich p:first-child { margin-top: 0; }
+.qf-rich p:last-child { margin-bottom: 0; }
+
+/* Gui::QuantitySpinBox: the spin box 27 px high, its text 11 px in, a 14 px column of two buttons 12 px high (measured: the Light Sources angles, 118 x 27) */
+.qf-spin.q { height: 27px; }
+.qf-spin.q > input { padding-left: 11px; }
+.qf-spin.q .qf-spin-btns > button.up { height: 13px; }
+.qf-spin.q .qf-spin-btns > button.down { height: 12px; }
+/* the same for the QuantityBox a page puts in its cell (qsb.tsx, the unit-writing box the tasks use) */
+.qf-quantity { display: flex; }
+.qf-quantity .qsb { flex: 1 1 auto; box-sizing: border-box; height: 27px; min-width: 0; border: 1px solid var(--border); border-radius: var(--radius); background: var(--field-bg); }
+.qf-quantity .qsb:focus-within { border-color: var(--accent); }
+.qf-quantity .qsb input { box-sizing: border-box; height: 100%; padding: 0 4px 0 11px; border: 0; border-radius: 0; background: transparent; text-align: left; }
+.qf-quantity .qsb-btns { width: 14px; border-left: 1px solid var(--border); }
+.qf-quantity .qsb-btn { border: 0; border-radius: 0; font-size: 0; background-color: transparent; background-repeat: no-repeat; background-position: center, center; background-size: 8px 8px, 100% 100%; }
+.qf-quantity .qsb-btn:first-child { flex: none; height: 13px; border-bottom: 1px solid var(--border); background-image: url(/freecad-icons/qss-arrow-up-lightgray.svg), linear-gradient(#f9f9f9, #f2f2f2); }
+.qf-quantity .qsb-btn:last-child { flex: none; height: 12px; background-image: url(/freecad-icons/qss-arrow-down-lightgray.svg), linear-gradient(#f9f9f9, #f2f2f2); }
+.qf-quantity .qsb-btn:hover:not(:disabled) { background-color: var(--hover-bg); background-image: url(/freecad-icons/qss-arrow-up-black.svg); background-size: 8px 8px; }
+.qf-quantity .qsb-btn:last-child:hover:not(:disabled) { background-image: url(/freecad-icons/qss-arrow-down-black.svg); }
+
+/* A QTreeWidget that has no frame in FreeCAD (the Keyboard page's lists, the Editor's display items): the rows over the group, and a header 24 px high in the
+   button gradient (QHeaderView::section: 4 px of padding, a 1 px line between the sections) with the sort arrow */
+.qf-tree { display: flex; flex-direction: column; box-sizing: border-box; min-width: 0; overflow: auto; }
+.qf-tree-head { position: sticky; top: 0; z-index: 1; flex: none; display: grid; height: 24px; box-sizing: border-box; background: linear-gradient(var(--btn-top), var(--btn-bottom)); }
+.qf-tree-head > span { position: relative; box-sizing: border-box; padding: 4px; line-height: 16px; white-space: nowrap; overflow: hidden; border-right: 1px solid var(--border); cursor: default; }
+.qf-tree-head > span:last-child { border-right: 0; }
+.qf-tree-head > span.sorted::after { content: ""; position: absolute; right: 4px; top: 8px; width: 8px; height: 8px; background: url(/freecad-icons/qss-arrow-down-lightgray.svg) no-repeat center / 8px; }
+.qf-tree-head > span.sorted.up::after { background-image: url(/freecad-icons/qss-arrow-up-lightgray.svg); }
+.qf-tree-row { flex: none; display: grid; grid-template-columns: minmax(0, 1fr); align-items: center; height: 16px; cursor: default; }
+.qf-tree-row > span { box-sizing: border-box; padding: 0 3px; line-height: 16px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.qf-tree-row.sel { background: var(--accent-bg); }
+/* Keyboard (DlgKeyboardImp::initCommandList): the Icon column fits its 32 px icons (56), Command keeps the 100 px a section starts with, Shortcut fits what it shows
+   (QHeaderView::ResizeToContents), the last stretches; rows 32 px high. The list of commands that share a shortcut has no header and fits its two columns too. */
+.qf-tree.kb { display: grid; grid-template-columns: 56px 100px max-content minmax(0, 1fr); grid-template-rows: 24px; grid-auto-rows: 32px; align-content: start; }
+.qf-tree.kb > .qf-tree-head, .qf-tree.kb > .qf-tree-row { display: contents; }
+.qf-tree.kb .qf-tree-head > span { position: sticky; height: 24px; background: linear-gradient(var(--btn-top), var(--btn-bottom)); }
+.qf-tree.kb .qf-tree-row > span { display: block; height: 32px; line-height: 32px; }
+.qf-tree.kb .qf-tree-row.sel > span { background: var(--accent-bg); }
+.qf-tree.kb .qf-tree-row > .kb-icon { display: flex; align-items: center; padding-left: 4px; }
+.qf-tree.prio { display: grid; grid-template-columns: max-content minmax(0, 1fr); align-content: start; }
+.qf-tree.prio > .qf-tree-row { display: contents; }
+.qf-tree.prio .qf-tree-row > span { height: 16px; }
+.qf-tree.prio .qf-tree-row > span:first-child { padding-right: 12px; }
+.qf-tree.prio .qf-tree-row.alt > span { background: var(--darken1); }
+
+/* CommandCompleter's popup (a QListView under the line edit, 300 px wide at least, seven rows high) */
+.qf-comp { position: relative; display: block; }
+.qf-comp > .qf-edit { display: block; width: 100%; }
+.qf-comp-pop { position: absolute; z-index: 30; left: 0; top: 100%; min-width: 300px; max-height: 142px; box-sizing: border-box; overflow: auto; border: 1px solid var(--border); background: var(--field-bg); box-shadow: 0 4px 12px rgba(0, 0, 0, .2); }
+.qf-comp-item { display: flex; align-items: center; gap: 4px; height: 20px; padding: 0 4px; white-space: nowrap; cursor: default; }
+.qf-comp-item.sel { background: var(--accent-bg); }
+.qf-comp-ico { display: flex; width: 16px; height: 16px; flex: none; }
+
+/* The Editor's preview: a QTextEdit (a 1 px frame, 4 px of document margin inside 4 px of padding) in the editor's font, 10 px of it by default (a point is a pixel on a Mac), tabs 40 px apart (setTabStopDistance(40)) */
+.qf-preview { margin: 0; box-sizing: border-box; overflow: auto; padding: 6px 8px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--field-bg);
+  font-family: var(--ed-font); font-size: var(--ed-size); line-height: 1.2; color: var(--ed-text); tab-size: 40px; white-space: pre; }
+
+/* The Workbenches list: a QListWidget (a 1 px frame, the page's PrimaryColor) of rows 30 px high that hold the widgets DlgSettingsWorkbenchesImp's wbListItem puts in a
+   QHBoxLayout (margin 10 on the left, spacing 6), at the places FreeCAD measured: the check box 10, the icon (20 px, in a 25 px label with a 5 px margin) 47, the name (bold) 78 then
+   the shortcut, Auto-load 298, the Load button or Loaded 390 */
+.qf-wb { display: flex; flex-direction: column; box-sizing: border-box; overflow: auto; border: 1px solid var(--border); background: var(--primary); }
+.wb-row { position: relative; flex: none; height: 30px; cursor: grab; }
+.wb-row > * { position: absolute; }
+.wb-row .wb-on { left: 10px; top: 5px; }
+.wb-row .wb-ico { left: 52px; top: 0; width: 20px; height: 20px; display: flex; }
+.wb-row .wb-text { left: 78px; top: 0; height: 25px; display: flex; align-items: center; gap: 6px; white-space: nowrap; }
+.wb-row .wb-text > b { font-weight: 700; }
+.wb-row .wb-auto { left: 298px; top: 5px; }
+.wb-row .wb-loaded { left: 390px; top: 0; height: 30px; display: flex; align-items: center; white-space: nowrap; }
+.wb-row.off .wb-text, .wb-row.off .wb-auto, .wb-row.off .wb-loaded { color: var(--text-disabled); }
+.wb-row.off .wb-ico { opacity: .5; }
+
+/* The Light Sources preview: the viewer fills its widget */
+.light-view { box-sizing: border-box; overflow: hidden; }
+.light-view canvas { display: block; }

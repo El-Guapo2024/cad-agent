@@ -22,7 +22,7 @@
 // Focus never leaves the closed box (mousedown on a popup row calls preventDefault, same trick
 // Gui::ContextMenu-style popups in this codebase don't need since they never held focus to begin
 // with) — that's what lets aria-activedescendant point at the highlighted row the standard way.
-import { Children, isValidElement, useEffect, useId, useMemo, useRef, useState, type KeyboardEvent, type ReactNode, type WheelEvent } from 'react'
+import { Children, isValidElement, useEffect, useId, useMemo, useRef, useState, type CSSProperties, type KeyboardEvent, type ReactNode, type WheelEvent } from 'react'
 import { createPortal } from 'react-dom'
 
 const cls = (...a: (string | false | null | undefined)[]) => a.filter(Boolean).join(' ')
@@ -41,6 +41,9 @@ export interface QComboBoxProps {
   title?: string
   autoFocus?: boolean
   id?: string
+  /** The box's own style (a form lays it out in its cell), and its object name for the tests. */
+  style?: CSSProperties
+  'data-qf'?: string
   /** <option value=… disabled?>label</option>, optionally grouped in <optgroup label=…>. */
   children?: ReactNode
 }
@@ -82,7 +85,7 @@ function flatten(children: ReactNode): Item[] {
 const ITEM_H = 20 // .combo-item's min-height in combo.css — keep in sync
 const MAX_VISIBLE = 10 // QComboBox's default maxVisibleItems
 
-export function QComboBox({ value, defaultValue, onChange, onBlur, disabled, className, title, autoFocus, id, children }: QComboBoxProps) {
+export function QComboBox({ value, defaultValue, onChange, onBlur, disabled, className, title, autoFocus, id, style, 'data-qf': dataQf, children }: QComboBoxProps) {
   const items = useMemo(() => flatten(children), [children])
   const isControlled = value !== undefined
   const [inner, setInner] = useState(() => String(defaultValue ?? value ?? items.find((i) => !i.disabled)?.value ?? ''))
@@ -210,7 +213,7 @@ export function QComboBox({ value, defaultValue, onChange, onBlur, disabled, cla
 
   return (
     <>
-      <button type="button" ref={btnRef} id={id} title={title} disabled={disabled} autoFocus={autoFocus}
+      <button type="button" ref={btnRef} id={id} title={title} disabled={disabled} autoFocus={autoFocus} style={style} data-qf={dataQf}
         className={cls('qselect', className)} role="combobox" aria-haspopup="listbox" aria-expanded={open}
         aria-controls={open ? listId : undefined} aria-activedescendant={open && safeHighlight >= 0 ? `${listId}-${safeHighlight}` : undefined}
         onBlur={() => onBlur?.()} onKeyDown={onKeyDown} onWheel={onWheel}

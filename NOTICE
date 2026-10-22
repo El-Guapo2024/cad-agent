@@ -79,7 +79,7 @@ that commit.
 3. Third-party components in the repository and the wheel
 
   FreeCAD icons                 ui/public/freecad-icons/, copied unmodified into
-                                cad_agent/workbench/next/freecad-icons/: 201 SVG files from
+                                cad_agent/workbench/next/freecad-icons/: 202 SVG files from
                                 FreeCAD's src/Gui/Icons and src/Mod/*/Gui/Resources/icons, 16 style
                                 sheet indicators (qss-*.svg, from src/Gui/Stylesheets/
                                 images_classic/) and 9 overlay buttons (overlay-*.svg, from
@@ -93,7 +93,7 @@ that commit.
                                 Martin Ruskov: zoom-selection, zoom-border, zoom-in, zoom-out;
                                 Lapo Calamandrei: media-playback-start, media-playback-stop (with
                                 contributions by Jakub Steiner and Andreas Nilsson where the file
-                                says so).
+                                says so); button_sort (the file names no creator).
       CC-BY-SA 4.0, also "FreeCAD LGPL2+"   by [bitacovir]: Std_UserEditModeDefault,
                                 Std_UserEditModeTransform, Std_UserEditModeCutting,
                                 Std_UserEditModeColor.

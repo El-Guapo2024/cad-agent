@@ -16,7 +16,20 @@ import sys
 # widgets whose value is deliberately not FreeCAD's: object name -> why (PARITY.md says the same)
 DELIBERATE = {
     "naviCubeToNearest": "NaviRotateToNearest is off by default here (the owner's choice, PARITY.md, Mouse and navigation cube)",
+    # FreeCAD's Selection page draws these three unchecked in a fresh profile (the .ui gives them no `checked`) though TreeParams.py defaults them to true and
+    # the tree does what they say: the page here shows what the tree does
+    "checkBoxAutoSwitch": "FreeCAD draws it unchecked in a fresh profile, though TreeParams' SyncView is true: here it shows what the tree does (PARITY.md, Preferences)",
+    "checkBoxAutoExpand": "FreeCAD draws it unchecked in a fresh profile, though TreeParams' SyncSelection is true: here it shows what the tree does (PARITY.md, Preferences)",
+    "checkBoxRecord": "FreeCAD draws it unchecked in a fresh profile, though TreeParams' RecordSelection is true: here it shows what the tree does (PARITY.md, Preferences)",
+    "checkLogging": "log messages are recorded by default here, since the agent's activity is logged at that level (PARITY.md, Preferences)",
+    "AutoloadModuleCombo": "the workbench that starts is CAD Agent, not Part Design (PARITY.md, Preferences)",
 }
+
+
+def rgba(css):
+    """The first colour of a swatch's CSS background, as (r, g, b, alpha)."""
+    m = re.search(r"rgba?\((\d+), (\d+), (\d+)(?:, ([\d.]+))?\)", css or "")
+    return (int(m[1]), int(m[2]), int(m[3]), float(m[4]) if m[4] is not None else 1.0) if m else None
 
 
 def norm(s):
@@ -68,6 +81,18 @@ def main():
                     vals.append((n, f"value: FreeCAD {w['text']!r}, ours {v['text']!r}", why))
                 if v.get("kind") == "combo" and "currentText" in w and norm(w["currentText"]) != norm(v["text"]):
                     vals.append((n, f"selected: FreeCAD {w['currentText']!r}, ours {v['text']!r}", why))
+                # a line edit's text (the location, the date format, the licence URL, the shortcut modifiers)
+                if v.get("kind") == "edit" and w.get("text") is not None and not re.search(r"/(Users|private|var|tmp|home)/", w["text"]) and norm(w["text"]) != norm(v.get("text")):
+                    vals.append((n, f"text: FreeCAD {norm(w['text'])!r}, ours {norm(v.get('text'))!r}", why))
+                # a colour button's colour (FreeCAD's #aarrggbb against the swatch's background)
+                if v.get("kind") == "color" and w.get("color"):
+                    a = rgba(v.get("color", ""))
+                    want = (int(w["color"][3:5], 16), int(w["color"][5:7], 16), int(w["color"][7:9], 16), int(w["color"][1:3], 16) / 255)
+                    if a is None or a[:3] != want[:3] or abs(a[3] - want[3]) > 0.01:
+                        vals.append((n, f"colour: FreeCAD {w['color']}, ours {v.get('color')}", why))
+                # enabled here but not in FreeCAD (the other way, disabled here as n/a, is the point of those controls)
+                if w.get("enabled") is False and v.get("disabled") is False and v.get("kind") not in ("group", "other", "node", "sheet"):
+                    vals.append((n, "enabled: FreeCAD disabled, ours enabled", why))
         print(f"## {key}: {len(fw)} widgets in FreeCAD, {len(ow)} in ours; {len(missing)} missing, {len(extra)} extra, {len(moved)} moved by more than {tol} px, {len(vals)} values differ")
         for n in missing:
             print(f"  MISSING {n} {fw[n]['cls']} {fw[n]['rect']} {fw[n].get('text') or fw[n].get('title') or ''!r}")

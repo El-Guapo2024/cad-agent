@@ -1,6 +1,6 @@
 // Every Preferences page of the workbench, read off the page the way fcprefs.py reads the real FreeCAD's (fcprefsdiff.py compares the two).
 //   NODE_PATH=<folder with playwright> node ui/scripts/oursprefs.mjs URL PROJECT OUT_DIR [--only general,navigation] [--tall 1900] [--shots]
-// URL is a workbench serving SCRATCH copies only (`bin/cad --projects <scratch> serve --port <yours>`; never the owner's ports). A fresh
+// PROJECT is a project name, or - for none. URL is a workbench serving SCRATCH copies only (`bin/cad --projects <scratch> serve --port <yours>`; never the owner's ports). A fresh
 // browser context, so no saved setting reaches the page: the defaults it shows are the defaults of a first start. Writes OUT_DIR/oursprefs.json:
 // the dialog's metrics, and per page every widget that has an object name (data-qf: the form's widgets by the name FreeCAD's .ui gives
 // them) with its rectangle in the page's coordinates, text, state and value; --shots also writes ours-prefs-<page>.png (the dialog) and
@@ -32,7 +32,7 @@ const p = await ctx.newPage()
 const errs = []
 p.on('pageerror', (e) => errs.push(e.message))
 p.on('console', (m) => { if (m.type() === 'error' && !/favicon|Failed to load resource/.test(m.text())) errs.push('console: ' + m.text()) })
-await p.goto(url + '#' + PROJECT, { waitUntil: 'load' })
+await p.goto(url + (PROJECT === '-' ? '' : '#' + PROJECT), { waitUntil: 'load' })   // '-': no project (the Start page), which spares the CAD worker
 await p.waitForTimeout(3500)
 await p.evaluate(() => cadui.setState({ prefsOpen: true }))
 await p.waitForSelector('.pref-dlg', { timeout: 10000 })

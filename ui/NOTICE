@@ -19,7 +19,8 @@ them carry.
 1. The FreeCAD authors whose code this folder ports
 ---------------------------------------------------
 
-  Abdullah Tahiri: Gui/NotificationArea.cpp, Gui/NotificationBox.cpp
+  Abdullah Tahiri: Gui/NotificationArea.cpp, Gui/NotificationBox.cpp,
+      Gui/PreferencePages/DlgSettingsNotificationArea.cpp
   Alfredo Monclus: Mod/Start/Gui/NewFileButton.cpp
   Bas Ruigrok (Rexbas): Gui/Navigation/NavigationAnimation.cpp
   Chris Hennes: Gui/PreferencePages/DlgSettingsWorkbenchesImp.cpp
@@ -29,13 +30,15 @@ them carry.
       Gui/Dialogs/DlgExpressionInput.cpp, Gui/ExpressionCompleter.cpp
   FreeCAD contributors: Gui/Selection/SelectionColors.h
   FreeCAD Project Association: Gui/CommandStd.cpp, Gui/Dialogs/DlgPreferencesImp.cpp,
-      Gui/PreferencePages/DlgSettingsWorkbenchesImp.cpp
+      Gui/PreferencePages/DlgSettingsGeneral.cpp, Gui/PreferencePages/DlgSettingsWorkbenchesImp.cpp
   Joao Matos: Gui/Inventor/SoFCBackgroundGradient.cpp, Gui/Inventor/SoNaviCube.cpp,
       Gui/NaviCube.cpp, Gui/View3DInventorViewer.cpp
   Jürgen Riegel: App/Expression.l, App/Expression.y, App/GeoFeature.cpp, Base/Quantity.cpp, Base/Quantity.l,
       Base/Quantity.y, Base/UnitsApi.cpp, Gui/Command.cpp, Gui/CommandDoc.cpp, Gui/CommandStd.cpp,
       Gui/CommandView.cpp, Gui/Dialogs/DlgParameterImp.cpp, Gui/Dialogs/DlgPreferencesImp.cpp,
-      Gui/Dialogs/DlgUnitsCalculatorImp.cpp, Gui/Macro.cpp, Gui/Selection/Selection.cpp,
+      Gui/Dialogs/DlgUnitsCalculatorImp.cpp, Gui/Macro.cpp, Gui/PreferencePages/DlgSettings3DViewImp.cpp,
+      Gui/PreferencePages/DlgSettingsDocumentImp.cpp, Gui/PreferencePages/DlgSettingsMacroImp.cpp,
+      Gui/PreferencePages/DlgSettingsNavigation.cpp, Gui/Selection/Selection.cpp,
       Gui/Selection/SelectionView.cpp, Gui/Tree.cpp, Gui/View3DInventorViewer.cpp, Gui/View3DPy.cpp,
       Mod/Part/App/PartFeature.cpp, Mod/Part/Gui/CommandFilter.cpp, Mod/Sketcher/Gui/Workbench.cpp
   Kirill Gavrilov: Gui/Navigation/OpenCascadeNavigationStyle.cpp
@@ -57,23 +60,26 @@ them carry.
       Gui/Navigation/MayaGestureNavigationStyle.cpp, Gui/SoTouchEvents.cpp
   WandererFan: Mod/Measure/App/Preferences.cpp
   Werner Mayer: Base/Rotation.cpp, Base/Tools.h, Gui/Action.cpp, Gui/Camera.cpp, Gui/Clipping.cpp,
-      Gui/CommandMacro.cpp, Gui/CommandWindow.cpp, Gui/DemoMode.cpp,
-      Gui/Dialogs/DlgCustomizeImp.cpp, Gui/Dialogs/DlgKeyboardImp.cpp, Gui/Dialogs/DlgUndoRedo.cpp,
-      Gui/GraphvizView.cpp, Gui/ImageView.cpp, Gui/Inventor/SoFCBackgroundGradient.cpp,
-      Gui/MainWindow.cpp, Gui/ManualAlignment.cpp, Gui/Navigation/BlenderNavigationStyle.cpp,
-      Gui/Navigation/CADNavigationStyle.cpp, Gui/Navigation/InventorNavigationStyle.cpp,
-      Gui/Navigation/NavigationStyle.cpp, Gui/Navigation/OpenSCADNavigationStyle.cpp,
-      Gui/Navigation/RevitNavigationStyle.cpp, Gui/Navigation/SiemensNXNavigationStyle.cpp,
-      Gui/Navigation/SolidWorksNavigationStyle.cpp, Gui/Navigation/TinkerCADNavigationStyle.cpp,
-      Gui/Navigation/TouchpadNavigationStyle.cpp, Gui/Placement.cpp,
-      Gui/PreferencePages/DlgSettingsLightSources.cpp, Gui/PythonConsole.cpp,
-      Gui/QuantitySpinBox.cpp, Gui/SceneInspector.cpp, Gui/Selection/Selection.cpp,
-      Gui/TextEdit.cpp, Gui/View3DSettings.cpp, Gui/View3DSettings.h, Gui/Widgets.cpp,
-      Gui/Workbench.cpp, Gui/propertyeditor/PropertyEditor.cpp, Gui/resource.cpp,
+      Gui/CommandMacro.cpp, Gui/CommandWindow.cpp, Gui/DemoMode.cpp, Gui/Dialogs/DlgCustomizeImp.cpp,
+      Gui/Dialogs/DlgKeyboardImp.cpp, Gui/Dialogs/DlgUndoRedo.cpp, Gui/GraphvizView.cpp, Gui/ImageView.cpp,
+      Gui/Inventor/SoFCBackgroundGradient.cpp, Gui/MainWindow.cpp, Gui/ManualAlignment.cpp,
+      Gui/Navigation/BlenderNavigationStyle.cpp, Gui/Navigation/CADNavigationStyle.cpp,
+      Gui/Navigation/InventorNavigationStyle.cpp, Gui/Navigation/NavigationStyle.cpp,
+      Gui/Navigation/OpenSCADNavigationStyle.cpp, Gui/Navigation/RevitNavigationStyle.cpp,
+      Gui/Navigation/SiemensNXNavigationStyle.cpp, Gui/Navigation/SolidWorksNavigationStyle.cpp,
+      Gui/Navigation/TinkerCADNavigationStyle.cpp, Gui/Navigation/TouchpadNavigationStyle.cpp,
+      Gui/Placement.cpp, Gui/PrefWidgets.cpp, Gui/PreferencePages/DlgSettingsCacheDirectory.cpp,
+      Gui/PreferencePages/DlgSettingsEditor.cpp, Gui/PreferencePages/DlgSettingsGeneral.cpp,
+      Gui/PreferencePages/DlgSettingsLightSources.cpp, Gui/PreferencePages/DlgSettingsPythonConsole.cpp,
+      Gui/PreferencePages/DlgSettingsReportView.cpp, Gui/PreferencePages/DlgSettingsSelection.cpp,
+      Gui/PreferencePages/DlgSettingsUI.cpp, Gui/PreferencePages/DlgSettingsViewColor.cpp,
+      Gui/PythonConsole.cpp, Gui/QuantitySpinBox.cpp, Gui/SceneInspector.cpp, Gui/Selection/Selection.cpp,
+      Gui/TextEdit.cpp, Gui/View3DSettings.cpp, Gui/View3DSettings.h, Gui/Widgets.cpp, Gui/Workbench.cpp,
+      Gui/propertyeditor/PropertyEditor.cpp, Gui/resource.cpp,
       Mod/Measure/Gui/ViewProviderMeasureDistance.cpp, Mod/PartDesign/Gui/Workbench.cpp
-  Zheng Lei (realthunder): Gui/OverlayManager.cpp, Gui/OverlayParams.py, Gui/OverlayWidgets.cpp,
-      Gui/OverlayWidgets.h, Gui/PreferencePages/DlgSettingsAdvanced.cpp, Gui/ShortcutManager.cpp,
-      Gui/TreeParams.py
+  Zheng Lei (realthunder): Gui/CommandCompleter.cpp, Gui/OverlayManager.cpp, Gui/OverlayParams.py,
+      Gui/OverlayWidgets.cpp, Gui/OverlayWidgets.h, Gui/PreferencePages/DlgSettingsAdvanced.cpp,
+      Gui/ShortcutManager.cpp, Gui/TreeParams.py
 
 2. The FreeCAD files, their notices, and the files here that follow them
 ------------------------------------------------------------------------
@@ -148,6 +154,9 @@ src/Gui/Clipping.ui   [licence: none]
 src/Gui/Command.cpp   [licence: LGPL-2.0-or-later]
     copyright 2002 Jürgen Riegel
     followed by src/actions.ts, src/cmdreg.ts
+src/Gui/CommandCompleter.cpp   [licence: LGPL-2.0-or-later]
+    copyright 2022 Zheng Lei (realthunder)
+    followed by src/prefs-pages.tsx
 src/Gui/CommandDoc.cpp   [licence: LGPL-2.0-or-later]
     copyright 2002 Jürgen Riegel
     followed by src/chrome.tsx, src/cmdicons.ts, src/cmdreg.ts, src/filemenu.tsx, src/icons.tsx,
@@ -185,10 +194,10 @@ src/Gui/Dialogs/DlgExpressionInput.cpp   [licence: LGPL-2.1-or-later]
     followed by src/exprdialog.tsx
 src/Gui/Dialogs/DlgKeyboard.ui   [licence: none]
     copyright: no line in the file
-    followed by src/keymap.ts, src/prefs.tsx
+    followed by src/keymap.ts, src/prefs-pages.tsx, src/uiforms.ts
 src/Gui/Dialogs/DlgKeyboardImp.cpp   [licence: LGPL-2.1-or-later]
     copyright 2005 Werner Mayer
-    followed by src/keymap.ts, src/prefs.tsx
+    followed by src/keymap.ts, src/prefs-pages.tsx
 src/Gui/Dialogs/DlgMacroExecute.ui   [licence: none]
     copyright: no line in the file
     followed by src/macro.tsx
@@ -293,7 +302,7 @@ src/Gui/OverlayManager.cpp   [licence: LGPL-2.0-or-later]
     followed by src/actions.ts, src/chrome.tsx, src/freecad.css
 src/Gui/OverlayParams.py   [licence: LGPL-2.0-or-later]
     copyright 2022 Zheng Lei (realthunder)
-    followed by src/actions.ts, src/freecad.css, src/prefs.tsx, src/store.ts
+    followed by src/actions.ts, src/freecad.css, src/prefs-pages.tsx, src/store.ts
 src/Gui/OverlayWidgets.cpp   [licence: LGPL-2.0-or-later]
     copyright 2020 Zheng Lei (realthunder)
     followed by src/actions.ts, src/chrome.tsx, src/cmdreg.ts, src/freecad.css, src/icons.tsx
@@ -306,64 +315,113 @@ src/Gui/Placement.cpp   [licence: LGPL-2.0-or-later]
 src/Gui/Placement.ui   [licence: none]
     copyright: no line in the file
     followed by src/freecad.css
+src/Gui/PrefWidgets.cpp   [licence: LGPL-2.0-or-later]
+    copyright 2004 Werner Mayer
+    followed by src/qtform.tsx
 src/Gui/PreferencePacks/FreeCAD Light/FreeCAD Light.cfg   [licence: none]
     copyright: no line in the file
     followed by src/theme.ts
 src/Gui/PreferencePages/DlgSettings3DView.ui   [licence: none]
     copyright: no line in the file
-    followed by src/panels.tsx
+    followed by src/prefs-pages.tsx, src/uiforms.ts
+src/Gui/PreferencePages/DlgSettings3DViewImp.cpp   [licence: LGPL-2.0-or-later]
+    copyright 2002 Jürgen Riegel
+    followed by src/prefs-pages.tsx
 src/Gui/PreferencePages/DlgSettingsAdvanced.cpp   [licence: LGPL-2.0-or-later]
     copyright 2020 Zheng Lei (realthunder)
-    followed by src/prefs.tsx
+    followed by src/prefs-pages.tsx, src/qtform.tsx
+src/Gui/PreferencePages/DlgSettingsCacheDirectory.cpp   [licence: LGPL-2.0-or-later]
+    copyright 2021 Werner Mayer
+    followed by src/prefs-pages.tsx
 src/Gui/PreferencePages/DlgSettingsCacheDirectory.ui   [licence: none]
     copyright: no line in the file
-    followed by src/prefs.tsx
+    followed by src/prefs-pages.tsx, src/uiforms.ts
 src/Gui/PreferencePages/DlgSettingsDocument.ui   [licence: none]
     copyright: no line in the file
-    followed by src/prefs.tsx
+    followed by src/prefs-pages.tsx, src/uiforms.ts
+src/Gui/PreferencePages/DlgSettingsDocumentImp.cpp   [licence: LGPL-2.0-or-later]
+    copyright 2002 Jürgen Riegel
+    followed by src/prefs-pages.tsx
+src/Gui/PreferencePages/DlgSettingsEditor.cpp   [licence: LGPL-2.0-or-later]
+    copyright 2004 Werner Mayer
+    followed by src/prefs-pages.tsx
 src/Gui/PreferencePages/DlgSettingsEditor.ui   [licence: none]
     copyright: no line in the file
-    followed by src/prefs.tsx
+    followed by src/prefs-pages.tsx, src/uiforms.ts
+src/Gui/PreferencePages/DlgSettingsGeneral.cpp   [licence: LGPL-2.1-or-later]
+    copyright 2004 Werner Mayer
+    copyright 2023 FreeCAD Project Association
+    followed by src/prefs-pages.tsx
 src/Gui/PreferencePages/DlgSettingsGeneral.ui   [licence: none]
     copyright: no line in the file
-    followed by src/actions.ts, src/panels.tsx
+    followed by src/actions.ts, src/prefs-pages.tsx, src/uiforms.ts
 src/Gui/PreferencePages/DlgSettingsLightSources.cpp   [licence: LGPL-2.1-or-later]
     copyright 2023 Werner Mayer
-    followed by src/lights.ts
+    followed by src/lights.ts, src/prefs-pages.tsx
 src/Gui/PreferencePages/DlgSettingsLightSources.ui   [licence: none]
     copyright: no line in the file
-    followed by src/prefs.tsx
+    followed by src/prefs-pages.tsx, src/uiforms.ts
 src/Gui/PreferencePages/DlgSettingsMacro.ui   [licence: none]
     copyright: no line in the file
-    followed by src/macro.tsx, src/panels.tsx, src/store.ts
+    followed by src/macro.tsx, src/prefs-pages.tsx, src/store.ts, src/uiforms.ts
+src/Gui/PreferencePages/DlgSettingsMacroImp.cpp   [licence: LGPL-2.0-or-later]
+    copyright 2002 Jürgen Riegel
+    followed by src/prefs-pages.tsx
+src/Gui/PreferencePages/DlgSettingsNavigation.cpp   [licence: LGPL-2.0-or-later]
+    copyright 2002 Jürgen Riegel
+    followed by src/prefs-pages.tsx
+src/Gui/PreferencePages/DlgSettingsNavigation.ui   [licence: none]
+    copyright: no line in the file
+    followed by src/prefs-pages.tsx, src/uiforms.ts
+src/Gui/PreferencePages/DlgSettingsNotificationArea.cpp   [licence: LGPL-2.0-or-later]
+    copyright 2023 Abdullah Tahiri
+    followed by src/prefs-pages.tsx
 src/Gui/PreferencePages/DlgSettingsNotificationArea.ui   [licence: none]
     copyright: no line in the file
-    followed by src/panels.tsx, src/store.ts
+    followed by src/prefs-pages.tsx, src/store.ts, src/uiforms.ts
+src/Gui/PreferencePages/DlgSettingsPDF.cpp   [licence: none]
+    copyright: no line in the file
+    followed by src/prefs-pages.tsx
 src/Gui/PreferencePages/DlgSettingsPDF.ui   [licence: none]
     copyright: no line in the file
-    followed by src/prefs.tsx
+    followed by src/prefs-pages.tsx, src/uiforms.ts
+src/Gui/PreferencePages/DlgSettingsPythonConsole.cpp   [licence: LGPL-2.0-or-later]
+    copyright 2022 Werner Mayer
+    followed by src/prefs-pages.tsx
 src/Gui/PreferencePages/DlgSettingsPythonConsole.ui   [licence: none]
     copyright: no line in the file
-    followed by src/prefs.tsx
+    followed by src/prefs-pages.tsx, src/uiforms.ts
+src/Gui/PreferencePages/DlgSettingsReportView.cpp   [licence: LGPL-2.0-or-later]
+    copyright 2004 Werner Mayer
+    followed by src/prefs-pages.tsx
 src/Gui/PreferencePages/DlgSettingsReportView.ui   [licence: none]
     copyright: no line in the file
-    followed by src/prefs.tsx
+    followed by src/prefs-pages.tsx, src/uiforms.ts
+src/Gui/PreferencePages/DlgSettingsSelection.cpp   [licence: LGPL-2.0-or-later]
+    copyright 2021 Werner Mayer
+    followed by src/prefs-pages.tsx
 src/Gui/PreferencePages/DlgSettingsSelection.ui   [licence: none]
     copyright: no line in the file
-    followed by src/prefs.tsx, src/store.ts
+    followed by src/prefs-pages.tsx, src/store.ts, src/uiforms.ts
+src/Gui/PreferencePages/DlgSettingsUI.cpp   [licence: LGPL-2.0-or-later]
+    copyright 2009 Werner Mayer
+    followed by src/prefs-pages.tsx
 src/Gui/PreferencePages/DlgSettingsUI.ui   [licence: none]
     copyright: no line in the file
-    followed by src/prefs.tsx
+    followed by src/prefs-pages.tsx, src/uiforms.ts
+src/Gui/PreferencePages/DlgSettingsViewColor.cpp   [licence: LGPL-2.0-or-later]
+    copyright 2009 Werner Mayer
+    followed by src/prefs-pages.tsx
 src/Gui/PreferencePages/DlgSettingsViewColor.ui   [licence: none]
     copyright: no line in the file
-    followed by src/background.ts, src/freecad.css, src/prefs.tsx
+    followed by src/background.ts, src/freecad.css, src/prefs-pages.tsx, src/uiforms.ts
 src/Gui/PreferencePages/DlgSettingsWorkbenches.ui   [licence: none]
     copyright: no line in the file
-    followed by src/prefs.tsx, src/store.ts
+    followed by src/prefs-pages.tsx, src/store.ts, src/uiforms.ts
 src/Gui/PreferencePages/DlgSettingsWorkbenchesImp.cpp   [licence: LGPL-2.1-or-later]
     copyright 2020 Chris Hennes
     copyright 2023 FreeCAD Project Association
-    followed by src/prefs.tsx
+    followed by src/prefs-pages.tsx
 src/Gui/PythonConsole.cpp   [licence: LGPL-2.0-or-later]
     copyright 2004 Werner Mayer
     followed by src/panels.tsx
@@ -393,10 +451,10 @@ src/Gui/Stylesheets/FreeCAD.qss   [licence: none]
     copyright: no line in the file
     credit (from its header): Revised stylesheet based on the original from Pablo Gil Fernández made by MisterMaker
     followed by src/chrome.tsx, src/combo.tsx, src/freecad.css, src/prefs.tsx, src/qslider.ts,
-        src/tooltip.ts
+        src/qtform.css, src/qtform.tsx, src/tooltip.ts
 src/Gui/Stylesheets/parameters/FreeCAD Light.yaml   [licence: none]
     copyright: no line in the file
-    followed by src/freecad.css
+    followed by src/freecad.css, src/qtform.css
 src/Gui/TaskTransform.cpp   [licence: LGPL-2.0-or-later]
     copyright 2015 Thomas Anderson
     followed by src/panels.tsx
@@ -408,7 +466,7 @@ src/Gui/Tree.cpp   [licence: LGPL-2.0-or-later]
     followed by src/App.tsx, src/chrome.tsx, src/freecad.css, src/panels.tsx
 src/Gui/TreeParams.py   [licence: LGPL-2.0-or-later]
     copyright 2022 Zheng Lei (realthunder)
-    followed by src/freecad.css, src/panels.tsx, src/store.ts
+    followed by src/freecad.css, src/panels.tsx, src/prefs-pages.tsx, src/store.ts
 src/Gui/View3DInventorViewer.cpp   [licence: LGPL-2.1-or-later]
     copyright 2004 Jürgen Riegel
     copyright 2026 Joao Matos
@@ -424,7 +482,7 @@ src/Gui/View3DSettings.h   [licence: LGPL-2.0-or-later]
     followed by src/lights.ts
 src/Gui/Widgets.cpp   [licence: LGPL-2.0-or-later]
     copyright 2004 Werner Mayer
-    followed by src/prefs.tsx
+    followed by src/prefs-pages.tsx, src/qtform.tsx
 src/Gui/Workbench.cpp   [licence: LGPL-2.0-or-later]
     copyright 2004 Werner Mayer
     followed by src/actions.ts, src/chrome.tsx, src/cmdreg.ts, src/filemenu.tsx, src/icons.tsx,
@@ -520,7 +578,7 @@ under the LGPL, version 2.1 or later.
 4. Icons and style sheets
 -------------------------
 
-public/freecad-icons/ holds 201 icons copied unmodified from FreeCAD, plus the style sheet
+public/freecad-icons/ holds 202 icons copied unmodified from FreeCAD, plus the style sheet
 indicators (qss-*.svg) and the overlay buttons (overlay-*.svg). README.md in that folder says which
 licence each icon has, as its own metadata states it (mostly LGPL-2.0-or-later; a few are CC-BY-SA
 2.0 or 4.0 or public domain), and LICENSE is FreeCAD's. THIRD_PARTY_LICENSES at the top of the
