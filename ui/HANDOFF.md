@@ -26,16 +26,20 @@ Goal: the workbench UI in `ui/` looks and behaves like FreeCAD main 3160daf1e2b6
      Fit Selection already matched: FreeCAD fits the whole part, not the element.
   4. Preferences: every page is drawn from FreeCAD's own .ui files (`ui/src/qtform.tsx`; `ui/scripts/uigen.py` writes `ui/src/uiforms.ts`). Greyed settings show FreeCAD's defaults, and Reset All restores a fresh profile.
 
-## Open branches
-- `fc-formulas`, draft PR #2, is item 5: the formula engine against FreeCAD's.
+## The formula engine (item 5) and its open branch
+- On main: the differential run.
   - `ui/scripts/exprdiff_cases.py` builds 75,558 expressions from FreeCAD's grammar and tests.
   - `exprdiff_fc.py` ran them through FreeCAD 26.3, and the answers are stored in `ui/scripts/exprdiff/fc_answers.json.gz`.
   - `exprdiff.py` compares `ui/src/expr.ts` with those answers and needs no FreeCAD; `--record` reruns FreeCAD.
-  - Baseline, nothing fixed yet: with `--loose` (numbers and units), 12,736 differ: missing 7,972, accepted 3,907, value 610, dims 192, type 55. The strict run has 54,177, mostly Python types and error types.
   - Check: `cd ui && python3 scripts/exprdiff.py --loose`, with ui/node_modules installed.
+  - Baseline, nothing fixed yet: with `--loose` (numbers and units), 12,736 differ: missing 7,972, accepted 3,907, value 610, dims 192, type 55. The strict run has 54,177, mostly Python types and error types.
+- Branch `fc-formulas-rewrite-wip`, not merged and unreviewed: an unfinished rewrite of the engine, saved mid-way.
+  - It changes `expr.ts` and adds `expr-grammar.ts`, `expr-py.ts`, `tests/test_expr_parity.py` and a Node step in ci.yml.
+  - Its test expects `tests/golden/expr/` files the branch does not have yet. They are made by `exprdiff.py --emit-engine tests/golden/expr/engine.mjs --emit-fixture tests/golden/expr/cases.json`.
+  - Review it, measure it with `exprdiff.py`, then finish it or start again from main.
 
 ## Next, in order
-5. Formulas, on `fc-formulas`:
+5. Formulas (above):
    - fix `expr.ts` and its unit code until `exprdiff.py --loose` is clean;
    - list deliberate differences in PARITY.md;
    - add a fast CI test from a few hundred stored answers (`exprdiff.py --emit-engine/--emit-fixture`);
@@ -80,7 +84,7 @@ Goal: the workbench UI in `ui/` looks and behaves like FreeCAD main 3160daf1e2b6
 - The NaviCube: `NODE_PATH=<folder> node ui/scripts/cubecheck.mjs http://127.0.0.1:<port>/next/ [PROJECT]` (the same Playwright set-up as keycheck, against a scratch workbench on a copy of tests/fixtures; it only changes the view, and takes about seven minutes on SwiftShader). It runs every cube action from nine starting orientations (a face, edge and corner click, the arrows, both rolls, backside, home, double click, a drag, keys 0 to 6 and Rotate left and right), then the same on frames 170 ms apart, with no wait between actions, across a scene reload, a resize and a change of projection, in perspective, and for NaviRotateToNearest. The page reports itself through `CadView.probe()` (`cadui.getView().probe()`; it records draws only after `probe(true)`), and the expected orientations are written out from FreeCAD's NaviCube.cpp and Camera.cpp. Run it after any change to the cube, `nav.ts`'s animation or the draw hook.
 - The 3D view against the real FreeCAD (2026-10-21): `python3 ui/scripts/fcbehave.py OUT [--only fit,align,tree_menu,quickmeasure,...]` measures it (the camera after Fit All, Fit Selection and Align to Selection, the tree's context menu, QuickMeasure's messages, the double-click interval; `fcbehave_dump.py` is what runs inside it), then `NODE_PATH=<folder> node ui/scripts/oursselect.mjs URL PROJECTS_ROOT ours.json OUT/fcbehave.json` measures ours the same way on a scratch workbench (it adds the projects `probe` and `probeqm` to PROJECTS_ROOT) and prints where they differ; `--compare-only` compares files already written. Merge several `fcbehave.json` files into one for the comparison.
 - Every control: `NODE_PATH=<folder> node ui/scripts/wirecheck.mjs [URL] [--only=SECTION,...]` lists every menu entry, button and panel control and clicks each enabled one (it starts its own scratch workbench when given no URL, and sets CAD_RENDER_BACKEND=numpy); a full pass takes about 90 minutes.
-- Formulas: `cd ui && python3 scripts/exprdiff.py --loose` compares `src/expr.ts` with FreeCAD 26.3's stored answers to 75,558 expressions (branch `fc-formulas` until it lands; the script's docstring has every option).
+- Formulas: `cd ui && python3 scripts/exprdiff.py --loose` compares `src/expr.ts` with FreeCAD 26.3's stored answers to 75,558 expressions (the script's docstring has every option).
 - Preferences against FreeCAD: `node ui/scripts/prefdump.mjs URL dump.json`, then `python3 ui/scripts/prefdiff.py dump.json` (fetches the .ui files once).
 - Menus against FreeCAD: `python3 ui/scripts/fcgui.py` (FreeCAD's dump), `python3 ui/scripts/fcref.py <scratch project>`, then `node ui/scripts/menurun.mjs 'URL#<project>'`. 43 expected differences as of 2026-10-02 (PARITY.md's Menus note).
 - Side by side with the real FreeCAD (all of them start its GUI on the Mac's Qt platform with every window kept off the screen, and a temporary profile; one FreeCAD and one headless browser at a time): `fcshots.py OUT --scene <project>/out/scene.json` and `oursshots.mjs URL PROJECT OUT` take the same shots of both (the Start page, a part selected, the tree menu, the Report view, a tooltip, the Preferences pages); `fcbehave.py` and `oursbehave.mjs` compare the camera (standard views, Home, zoom, mouse drags); `fcmeasure.py` reads FreeCAD's own widget geometry (docks, toolbars, tabs, tree and property view, fonts, a fresh profile's parameters) and the colours of a selected, a preselected and a face-selected Part. The quick look pass of 2026-10-20 took its numbers from these and from FreeCAD's source at 3160daf1e2b6 (PARITY.md says which).
