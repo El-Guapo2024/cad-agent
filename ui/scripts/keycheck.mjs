@@ -29,6 +29,8 @@ await p.waitForTimeout(2500)
 await p.getByText(`${PROJECT} : 1`).click(); await p.waitForTimeout(1500)
 await p.getByText('Console', { exact: true }).first().click()
 const results = []
+// keymap.ts's defaultAccel(): off a Mac, Std_Refresh is F5 (QKeySequence::Refresh on Windows and X11).
+if (!/Mac|iPhone|iPad/.test(await p.evaluate(() => navigator.platform))) for (const row of table) if (row[0] === 'Std_Refresh') row[1] = 'F5'
 for (const [cmd, seq] of table) {
   await p.locator('.trow', { hasText: PART }).first().click()
   await p.evaluate(() => (document.activeElement)?.blur?.())
