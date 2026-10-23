@@ -71,7 +71,8 @@ max_mm = [560, 450, 200]
 [[clearance]]               # a gap two placed bodies must keep
 a = "x_carriage"
 b = "gantry_end_left"
-min_mm = 3.0                # min_mm and/or max_mm; max_mm = 0.3 is how "must grip" is written
+min_mm = 3.0                # min_mm and/or max_mm; both bound the closest approach only,
+                            # so max_mm = 0.05 is "touches somewhere"; a round part held all round is [[shaft_fit]]
 pose = "park"               # optional, here and on position and keepout: judged with the machine at that pose
 
 [[size]]                    # a placed body's own bounding box (min_mm and/or max_mm)
@@ -99,6 +100,19 @@ max_g = 400
 a = "syringe_clamp"
 b = "x_carriage"
 fastener = "M3"
+
+[[holes]]                   # how many holes a body has, read from its B-rep
+body = "bracket"
+count = 4                   # or min_count and/or max_count
+min_dia_mm = 3.2            # optional, with max_dia_mm: the size (narrowest bore)
+max_dia_mm = 3.6
+axis = "z"                  # optional: x, y, z or [x, y, z]; kind = "slot" or "any" counts slots
+
+[[shaft_fit]]               # a round shaft in the bores of another body
+shaft = "pin_1"
+bore = "carrier"
+min_mm = 0                  # bore minus shaft diameter, so "0.1 a side" is 0.2
+max_mm = 0.2                # min_mm and/or max_mm; below 0 is a press fit; tol_mm = 0.1 (axis offset), pose
 
 [[heat]]                    # every other body within radius_mm of the source must be rated for temp_c
 source = "hot_plate"        # a body, or at = [x, y, z]
@@ -137,6 +151,13 @@ the size), a teardrop's point, a D's flat or a slit leaves a bore a hole, a slot
 passes when the other body's hole sits on its centre line, and fillets are not
 holes. A fastener's clearance hole is anything from ISO 273's fine to coarse
 series (M3: 3.2 to 3.6 mm). `near_mm = 15` also asks for a hole within 15 mm of `b`.
+`[[holes]]` counts the same holes, but bores on one axis with air between them (the
+two cheeks of a fork) are one each. When the brief says how many holes, count them:
+an interface misses a hole left out of `b`.
+
+A `[[clearance]]` measures one number, where the two bodies come closest. For "grips
+the barrel" or "a pin locates in its hole" write `[[shaft_fit]]`: it reads the shaft's
+and the bore's diameters, so a loose bore fails wherever the shaft sits in it.
 
 Add `[[heat]]` when anything in the brief is hot, `[[deflection]]` for a beam that
 carries a load, `[[axis]]` and `[bodies]` when the brief names axes or a number of

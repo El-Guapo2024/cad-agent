@@ -1,6 +1,11 @@
 """[[clearance]]: a gap two placed bodies must keep (`min_mm`) or may not exceed (`max_mm`).
 
-The format is in cad_agent/spec.py. `pose = "park"` judges it with the machine at that pose of POSES instead of
+The format is in cad_agent/spec.py. Both limits bound one number, the closest approach: the exact B-rep
+distance between the two bodies, which is where they come nearest and nowhere else. So `max_mm` says that
+some point of `a` is within max_mm of `b`, with no overlap: "touches" (max_mm 0.05 on a part that lies on a
+plate) holds for a part tilted onto one edge, and "grips" holds for a loose bore with the barrel resting on
+one side. A round part in a bore is held all the way round by `[[shaft_fit]]`, whose limit is the
+difference of the diameters. `pose = "park"` judges it with the machine at that pose of POSES instead of
 at home (kit.posed): the row then says "at pose park".
 """
 from __future__ import annotations
@@ -11,7 +16,7 @@ from .kit import (Unusable as _Unusable, get_body as _body, posed as _posed, req
 
 @spec_kind("clearance", order=40)
 def clearance(entry: dict, ctx):
-    """The gap between two bodies against min_mm and/or max_mm; any overlap fails."""
+    """The closest approach of two bodies against min_mm and/or max_mm; any overlap fails."""
     from ..geom import intersection_volume, min_distance
     a, b = _need(entry, "a", "[[clearance]]"), _need(entry, "b", "[[clearance]]")
     if "min_mm" not in entry and "max_mm" not in entry:

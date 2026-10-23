@@ -116,7 +116,8 @@ Open a Claude Code session in this repo and it loads the harness from `.claude/`
 
 Each project states what it must do in `spec.toml` (envelope, clearances and how
 far apart a pair may be, the size and position of a body, tool keep-outs, mass
-budgets, bolt holes that must line up, hot zones, beam deflection, the axes and the
+budgets, bolt holes that must line up, how many holes a body has, how a shaft fits its
+bores, hot zones, beam deflection, the axes and the
 number of bodies a design must have, what goes to a shop), and the `spec` gate
 checks every entry. A project without one is UNCHECKED. See
 `cad_agent/spec.py` for the format (each section's own keys are in the docstring of

@@ -73,6 +73,11 @@ def holes(solid) -> list[dict]:
 
 def _concave_cylinders(solid) -> list[dict]:
     """Every cylinder face whose outward normal points toward its own axis."""
+    return _cylinders(solid, concave=True)
+
+
+def _cylinders(solid, concave: bool) -> list[dict]:
+    """Every cylinder face that is concave (a bore's wall) or, with concave=False, convex (a shaft's)."""
     from OCP.BRepAdaptor import BRepAdaptor_Surface
     from OCP.GeomAbs import GeomAbs_Cylinder
     found = []
@@ -87,8 +92,8 @@ def _concave_cylinders(solid) -> list[dict]:
         o, d = _vector(frame.Location()), _vector(frame.Direction()).normalized()
         p = f.position_at(0.5, 0.5)                    # a point on the face itself
         foot = o + d * ((p - o).dot(d))
-        if (foot - p).dot(f.normal_at(p)) <= 0:
-            continue                                   # a boss, not a hole
+        if ((foot - p).dot(f.normal_at(p)) > 0) != concave:
+            continue                                   # a boss when looking for holes, a hole for shafts
         v0, v1 = surf.FirstVParameter(), surf.LastVParameter()
         found.append({"point": o, "dir": d, "dia": 2 * cyl.Radius(), "face": f,
                       "x": _vector(frame.XDirection()), "y": _vector(frame.YDirection()),
@@ -135,7 +140,24 @@ def _hole(base, d, bores) -> dict:
     narrowest = min(bores, key=lambda same: same[0]["dia"])
     return {"kind": "hole", "point": point, "ends": (point, point), "dir": d,
             "dia": narrowest[0]["dia"], "bores": sorted(same[0]["dia"] for same in bores),
-            "face": narrowest[0]["face"]}
+            "face": narrowest[0]["face"], "runs": _runs(bores, d)}
+
+
+def _runs(bores, d) -> list[tuple[float, float, float]]:
+    """Where a hole's bores run along its axis d, as (start, end, narrowest dia) with air between runs.
+
+    A counterbore meets its through bore, so a stepped hole is one run. The two cheeks of a fork bored
+    on one axis are one hole to an interface but two runs: two bores a shaft passes, or a count counts.
+    """
+    spans = sorted((min(z), max(z), same[0]["dia"]) for same in bores for c in same
+                   for z in [[p.dot(d) for p in c["ends"]]])
+    runs = []
+    for lo, hi, dia in spans:
+        if runs and lo <= runs[-1][1] + 1e-3:
+            runs[-1] = [runs[-1][0], max(runs[-1][1], hi), min(runs[-1][2], dia)]
+        else:
+            runs.append([lo, hi, dia])
+    return [tuple(r) for r in runs]
 
 
 def _half(same, d, x, mid) -> dict:
