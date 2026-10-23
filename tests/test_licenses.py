@@ -137,7 +137,7 @@ def test_the_notice_files_exist_and_say_what_they_are_for():
     for needle in ("MIT", "LGPL-2.1-or-later", "cad_agent/geom.py", "cad_agent/dxf.py", "cad_agent/appcache.py",
                    "cad_agent/materials.py", "MassPropertiesResult.cpp", "dxf.cpp", "DlgSettingsCacheDirectory.cpp",
                    "Morten Vajhøj", "Dan Heeks", "wandererfan", "Werner Mayer", "CC-BY-3.0", "three-cad-viewer", "React",
-                   "dockview", "three-viewport-gizmo", "Coin3D", "freecad-icons", "THIRD_PARTY_LICENSES", "FreeCAD.qss",
+                   "dockview", "Coin3D", "freecad-icons", "THIRD_PARTY_LICENSES", "FreeCAD.qss",
                    "3160daf1e2b62b0472854da4848255c6b3ad554c"):
         assert needle in notice, needle
     third = (REPO / "THIRD_PARTY_LICENSES").read_text(encoding="utf-8")

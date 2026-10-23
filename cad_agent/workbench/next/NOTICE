@@ -610,7 +610,7 @@ src/freecad.css ports FreeCAD's src/Gui/Stylesheets/FreeCAD.qss and parameters/F
 5. Packages in the build
 ------------------------
 
-The build (npm run build) bundles React, three.js, three-cad-viewer, dockview, three-viewport-gizmo
+The build (npm run build) bundles React, three.js, three-cad-viewer, dockview
 and the Radix and Floating UI packages they use. It writes their licences, one by one with the texts
 their authors ship, into cad_agent/workbench/next/THIRD_PARTY_LICENSES.txt (scripts/licenses.mjs);
 the build also writes this file and LICENSE there.

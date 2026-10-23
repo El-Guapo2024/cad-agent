@@ -27,7 +27,7 @@ import { LineGeometry } from 'three/addons/lines/LineGeometry.js'
 import { LineMaterial } from 'three/addons/lines/LineMaterial.js'
 import { LineSegments2 } from 'three/addons/lines/LineSegments2.js'
 import { LineSegmentsGeometry } from 'three/addons/lines/LineSegmentsGeometry.js'
-import { ViewportGizmo } from 'three-viewport-gizmo'
+import { NaviCubeGL } from './navicube3d'
 import { Navigation, bindNavigation, type NavPrefs, type V2 } from './nav'
 import { doubleClickInterval } from './dblclick'
 import { AxisCross } from './axiscross'
@@ -71,93 +71,30 @@ const DISPLAY: Record<ViewProps['displayMode'], [number, number, boolean]> = {
  *  the ordinary highlight/selection colours (SoFCSelectionRoot::_renderPrivate) — there is no
  *  separate "bbox selection colour". */
 const BBOX_COLOR = 0x495057
-/** NaviCube.cpp's OffsetX/OffsetY (we don't expose them as a separate preference, so this is
- *  our own fixed stand-in for that 0-default); its size, corner and colours are preferences. */
-const CUBE_OFFSET = 10
+/** NaviCube.cpp's OffsetX/OffsetY: View3DSettings.cpp:607-609 reads them with a default of 0, and nothing
+ *  here sets them. */
+const CUBE_OFFSET = 0
 
-/** NaviCubeImplementation::handleResize (NaviCube.cpp:887-898): OffsetX/Y plus a margin of
- *  0.55 cube-radii on every side (so the cube can't clip the viewport edge) — clamped to half
- *  the view, like FreeCAD. The extra +12 at the bottom is this port's own menu-button row. */
+/** NaviCubeImplementation::handleResize (NaviCube.cpp:887-898): the travel area's base is OffsetX/Y plus 0.55 of the cube's size
+ *  (cast to int), no more than half the view; its size is what is left between the two bases. In CSS px (FreeCAD's are the
+ *  widget's physical ones, cubeWidgetSize times the devicePixelRatio, which comes to the same). */
 function cubeArea(w: number, h: number, size: number) {
-  const x = Math.min(CUBE_OFFSET + size * 0.55, w / 2)
-  const top = Math.min(CUBE_OFFSET + size * 0.55, h / 2)
-  const bottom = Math.min(CUBE_OFFSET + 12 + size * 0.55, h / 2)
-  return { left: x, right: x, top, bottom, areaW: Math.max(1, w - 2 * x), areaH: Math.max(1, h - top - bottom) }
+  const bx = Math.min(Math.trunc(CUBE_OFFSET + size * 0.55), Math.trunc(w / 2))
+  const by = Math.min(Math.trunc(CUBE_OFFSET + size * 0.55), Math.trunc(h / 2))
+  return { left: bx, right: bx, top: by, bottom: by, areaW: Math.max(1, w - 2 * bx), areaH: Math.max(1, h - 2 * by) }
 }
-/** NaviCubeImplementation::syncNodeState (NaviCube.cpp:461-466): relPos
- *  (here CubePos) scaled into the padded area gives the cube's on-screen centre. three-
- *  viewport-gizmo only has 9 fixed placements, not a continuous position, so we pick the
- *  nearest one (by thirds of the view) and set the offset from ITS anchor edge(s) to land the
- *  cube exactly on that centre — placement and offset keep in step as CubePos moves, so the
- *  cube reads as continuous even though it's technically re-anchored at each third crossed. */
+/** NaviCubeImplementation::syncNodeState (NaviCube.cpp:461-466): the cube's square, cubeWidgetSize across, at
+ *  posX = int(relPos.x * posAreaSize.x) + posAreaBase.x - size / 2 and the same in y, which Coin counts from the bottom (relPos.y 1
+ *  is the top; CubePos.y 0 is). `offset` is the square's distance from each edge of the view, `placement` the third of the view it
+ *  is in (what the Preferences page's corner keeps). */
 export function cubeLayout(pos: CubePos, w: number, h: number, size: number): { placement: CubePlace; offset: CubeOffset } {
-  const a = cubeArea(w, h, size)
-  const cx = a.left + pos.x * a.areaW, cy = a.top + pos.y * a.areaH
+  const a = cubeArea(w, h, size), half = Math.trunc(size / 2)
+  const left = Math.trunc(pos.x * a.areaW) + a.left - half
+  const bottom = Math.trunc((1 - pos.y) * a.areaH) + a.bottom - half
+  const top = h - bottom - size, cx = left + size / 2, cy = top + size / 2
   const hz = cx < w / 3 ? 'left' : cx > (2 * w) / 3 ? 'right' : 'center'
   const vz = cy < h / 3 ? 'top' : cy > (2 * h) / 3 ? 'bottom' : 'center'
-  return {
-    placement: `${vz}-${hz}` as CubePlace,
-    offset: {
-      left: hz === 'right' ? 0 : hz === 'center' ? cx - w / 2 : cx - size / 2,
-      right: hz === 'right' ? w - cx - size / 2 : 0,
-      top: vz === 'bottom' ? 0 : vz === 'center' ? cy - h / 2 : cy - size / 2,
-      bottom: vz === 'bottom' ? h - cy - size / 2 : 0,
-    },
-  }
-}
-/** SoNaviCube::buildAxisSection (Gui/Inventor/SoNaviCube.cpp:765-812): a small 3-axis tripod at
- *  one corner of the cube, colour AxisXColor/YColor/ZColor (axiscross.ts's AXIS_COLORS), shown
- *  when ShowCS is on (View3DSettings.cpp ShowCS, default true). Coordinates are the exact ones
- *  FreeCAD uses for its own ±1 cube; three-viewport-gizmo's cube faces also sit at exactly ±1
- *  (its face meshes are positioned at `±1` on their axis), so they carry over unscaled. Added as
- *  a child of the gizmo itself (a plain Object3D), so it turns with the cube for free — the
- *  library sets the gizmo's own quaternion to the camera's inverse every update, exactly like
- *  SoNaviCube's rootTransform.
- *  Each segment is a line plus a point at each of its 2 vertices (SoIndexedLineSet + SoPointSet
- *  sharing one vertex list), both sized `borderWidth * 2` (updateAxes, lines 1124-1126;
- *  BorderWidth default 1.1 -> ~2.2px) — a plain THREE.Line/LineBasicMaterial can't render a
- *  solid width in WebGL (clamped to 1px hairlines), so this uses three's fat-line materials
- *  (sized in screen pixels) for the line, and a round point sprite at the same pixel size
- *  standing in for SoPointSet's cap at each end. */
-const SHOWCS_WIDTH_PX = 2.2 // BorderWidth (NaviCube.cpp:148, default 1.1) * 2.0F
-let showCSDotTex: THREE.Texture | null = null
-/** The round point FreeCAD's SoPointSet draws at each ShowCS segment end (no canvas texture in
- *  Coin itself — GL_POINTS with pointSize there; a filled-circle sprite is the closest match a
- *  THREE.Points/PointsMaterial pairing can render at a literal pixel size). */
-function dotTexture() {
-  if (showCSDotTex) return showCSDotTex
-  const cv = document.createElement('canvas')
-  cv.width = cv.height = 16
-  const ctx = cv.getContext('2d')!
-  ctx.fillStyle = '#fff'
-  ctx.beginPath(); ctx.arc(8, 8, 7, 0, Math.PI * 2); ctx.fill()
-  showCSDotTex = new THREE.CanvasTexture(cv)
-  return showCSDotTex
-}
-function buildShowCS(resW: number, resH: number) {
-  const grp = new THREE.Group(), a = -1.1, b = -1.05, c = 0.5, ac = getState().axisColors
-  const segs: [THREE.Vector3, THREE.Vector3, string, 'x' | 'y' | 'z'][] = [
-    [new THREE.Vector3(b, a, a), new THREE.Vector3(c, a, a), ac.x, 'x'],
-    [new THREE.Vector3(a, b, a), new THREE.Vector3(a, c, a), ac.y, 'y'],
-    [new THREE.Vector3(a, a, b), new THREE.Vector3(a, a, c), ac.z, 'z'],
-  ]
-  for (const [p0, p1, color, axis] of segs) {
-    // regress3-viewer.md #3: buildAxisSection (SoNaviCube.cpp:765-812) adds no SoDepthBuffer
-    // override, so the tripod uses Coin's default depth test against the cube's own faces —
-    // unlike the corner cross, which explicitly disables it (View3DInventorViewer.cpp:607-609).
-    const lineMat = new LineMaterial({ color, transparent: true, linewidth: SHOWCS_WIDTH_PX })
-    lineMat.resolution.set(resW, resH)
-    const line = new Line2(new LineGeometry().setFromPoints([p0, p1]), lineMat)
-    line.renderOrder = 1000
-    line.userData.axis = axis
-    grp.add(line)
-    const caps = new THREE.Points(new THREE.BufferGeometry().setFromPoints([p0, p1]),
-      new THREE.PointsMaterial({ color, map: dotTexture(), size: SHOWCS_WIDTH_PX, sizeAttenuation: false, transparent: true }))
-    caps.renderOrder = 1000
-    caps.userData.axis = axis
-    grp.add(caps)
-  }
-  return grp
+  return { placement: `${vz}-${hz}` as CubePlace, offset: { left, top, right: w - left - size, bottom } }
 }
 const STYLE: Record<DrawStyle, [number, number]> = {
   asis: [1, 1], points: [0, 0], wireframe: [0, 1], hiddenline: [1, 1], noshading: [1, 1], shaded: [1, 0], flatlines: [1, 1],
@@ -286,7 +223,9 @@ function crossTexture() {
 export class CadView {
   readonly viewer: any
   private display: any
-  private gizmo: ViewportGizmo | null = null
+  /** The NaviCube (navicube3d.ts's SoNaviCube port), and the square of the view it is drawn in, which takes its presses. */
+  private gizmo: NaviCubeGL | null = null
+  private cubeEl: HTMLDivElement | null = null
   private cross = new AxisCross()
   private rendered = false
   private meshes = new Map<string, THREE.Mesh[]>() // each part's faces (front and back meshes)
@@ -335,12 +274,8 @@ export class CadView {
   private cubeDraggable = false
   /** mouseDown, for the opacity fade: true for the whole life of a cube press. */
   private cubeActive = false
-  /** The whole cube's last-applied opacity factor (mouseMoved's hovering ? 1 : InactiveOpacity). */
-  private cubeFade = 1
-  /** SoNaviCube's ShowCS tripod, a child of the gizmo so it turns with the cube for free. */
-  private cubeAxes: THREE.Group | null = null
-  /** AxisXColor/Y/Z live on the library's own AxesHelper (Std_AxisCross) and on cubeAxes'
-   *  materials too; cached (and, for the former, keyed to the helper instance, since the
+  /** AxisXColor/Y/Z live on the library's own AxesHelper (Std_AxisCross) and on the NaviCube's
+   *  ShowCS tripod too; cached (and, for the former, keyed to the helper instance, since the
    *  library rebuilds it with its own default colours on every show()) so re-applying them
    *  every frame in hookRender is normally a no-op. */
   private bigAxesRef: unknown = null
@@ -399,8 +334,8 @@ export class CadView {
     const track = (e: PointerEvent) => { if (this.onCanvas(e)) this.lastClient = { x: e.clientX, y: e.clientY } }
     host.addEventListener('pointermove', track, true)
     this.cleanup.push(() => host.removeEventListener('pointermove', track, true))
-    // NaviCube.cpp's mouseMoved hovering test: at the window level, since the cube's own
-    // (library-drawn) area may not be the element under the pointer.
+    // NaviCube.cpp's mouseMoved hovering test and its hilite: at the window level, since the buttons
+    // over the cube (navicube.tsx) are the elements under the pointer there, not the cube's square.
     const cubeFade = (e: PointerEvent) => this.updateCubeFade(e.clientX, e.clientY)
     addEventListener('pointermove', cubeFade)
     this.cleanup.push(() => removeEventListener('pointermove', cubeFade))
@@ -426,6 +361,7 @@ export class CadView {
     this.endCubePress?.()
     this.cleanup.forEach((f) => f())
     this.gizmo?.dispose()
+    this.cubeEl?.remove()
     this.cross.dispose()
     this.setImagePlane(null)
     if (this.fpsTimer) clearInterval(this.fpsTimer)
@@ -1009,12 +945,6 @@ export class CadView {
     // NaviCubeImplementation::handleResize runs every render: keep the cube at the same
     // CubePos as the container is resized, not a stale pixel margin from the old size.
     if (this.gizmo) this.applyCubeLayout(getState().cubePos)
-    // The ShowCS tripod's fat-line materials need the canvas size kept current too, or their
-    // linewidth (a screen-pixel size) drifts off 2.2px after a resize.
-    if (this.cubeAxes) {
-      const w = canvas.clientWidth || 1, h = canvas.clientHeight || 1
-      for (const o of this.cubeAxes.children) (o as any).material?.resolution?.set(w, h)
-    }
     this.emitSize()
     // Draw the moved cube now: a view first shown from behind another tab (the Start page) kept
     // the frame it last drew, with the cube where the old size put it, until the next redraw.
@@ -2043,7 +1973,7 @@ export class CadView {
     if (s.hidden !== this.applied.hidden || s.drawStyle !== this.applied.style || s.view !== this.applied.view) { this.applyHidden(s.hidden, s.drawStyle); dirty = true }
     if (s.cube !== this.applied.cube) {
       if (s.cube) this.attachGizmo()
-      else { this.gizmo?.dispose(); this.gizmo = null }
+      else { this.detachGizmo(); this.redraw() }
       dirty = true
     }
     let look = false
@@ -2147,68 +2077,60 @@ export class CadView {
     this.endCubePress?.() // a press on the cube being rebuilt has nothing to end on
     this.gizmo?.dispose()
     this.gizmo = null
-    this.cubeAxes = null
-    const cam = this.viewer.camera?.getCamera?.()
     const renderer = this.viewer.renderer
-    if (!cam || !renderer) return
-    // populateRenderParams: the whole cube's opacity is its BaseColor alpha (1, under
-    // FreeCAD Light) at rest; updateCubeFade fades it outside its own square.
+    if (!this.viewer.camera?.getCamera?.() || !renderer) return
+    // populateRenderParams (NaviCube.cpp:819-882): BaseColor (FreeCAD Light's #f2f2f2, opaque), HiliteColor, the font, ShowCS
+    // and the axis colours; EmphaseColor follows from BaseColor (navicube3d.ts). The labels are View3DSettings.cpp's defaults.
     const nc = getState().naviCube
-    const { placement, offset } = cubeLayout(getState().cubePos, this.host.clientWidth || 1, this.host.clientHeight || 1, nc.size)
-    const face = { color: new THREE.Color(nc.color).getHex(), opacity: 1, labelColor: 0x000000, hover: { color: VIEW.cubeHover, labelColor: 0x000000, opacity: 1 } }
-    const g = new ViewportGizmo(cam, renderer, {
-      type: 'cube', placement, size: nc.size, offset, container: this.host,
-      font: { family: nc.font || 'Arial', weight: 400 }, // FontString (empty: createCubeFaceTextures's Arial), FontWeight default 0 (normal)
-      background: { color: 0xffffff, opacity: 0, hover: { color: 0xffffff, opacity: 0 } },
-      corners: { color: 0xc9d1da, opacity: 1, hover: { color: VIEW.cubeHover, opacity: 1 } },
-      edges: { color: 0xd3dae2, opacity: 1, hover: { color: VIEW.cubeHover, opacity: 1 } },
-      x: { ...face, label: 'RIGHT' }, nx: { ...face, label: 'LEFT' },
-      y: { ...face, label: 'REAR' }, ny: { ...face, label: 'FRONT' },
-      z: { ...face, label: 'TOP' }, nz: { ...face, label: 'BOTTOM' },
-    } as any)
-    const controls = this.viewer.controls?.controls
-    if (controls) g.attachControls(controls)
-    g.addEventListener('change', () => this.redraw())
-    // FreeCAD's NaviCube instead of the gizmo's own click and drag (NaviCube.cpp).
-    ;(g as any)._onPointerDown = (e: PointerEvent) => this.cubePress(e)
-    if (nc.showCS) { this.cubeAxes = buildShowCS(renderer.domElement.clientWidth || this.host.clientWidth || 1, renderer.domElement.clientHeight || this.host.clientHeight || 1); g.add(this.cubeAxes) }
-    this.gizmo = g
-    this.cubeFade = 1 // fresh meshes start at the config opacity above; resync on the next pointer move
-    const st = getState() // only on a change: setState re-enters sync
-    if (st.cubePlace !== placement || JSON.stringify(st.cubeOffset) !== JSON.stringify(offset)) setState({ cubePlace: placement, cubeOffset: offset })
+    this.gizmo = new NaviCubeGL({
+      base: nc.color, hilite: '#' + VIEW.cubeHover.toString(16).padStart(6, '0'), font: nc.font, fontWeight: 0, showCS: nc.showCS, axis: getState().axisColors,
+      labels: { front: 'FRONT', top: 'TOP', right: 'RIGHT', rear: 'REAR', bottom: 'BOTTOM', left: 'LEFT' },
+    }, nc.size)
+    this.showCSColorKey = ''
+    // The cube's square: the element its presses land on (navicube.tsx's buttons sit above it).
+    if (!this.cubeEl) {
+      this.cubeEl = document.createElement('div')
+      this.cubeEl.className = 'navi-cube'
+      Object.assign(this.cubeEl.style, { position: 'absolute', zIndex: '4', touchAction: 'none' })
+      this.cubeEl.addEventListener('pointerdown', (e) => this.cubePress(e))
+      this.host.appendChild(this.cubeEl)
+    }
+    this.cubeEl.style.display = ''
+    Object.assign(this.cubeEl.style, { width: `${nc.size}px`, height: `${nc.size}px` })
+    this.gizmo.setOpacity(getState().naviCube.inactiveOpacity / 100) // hovering starts false: InactiveOpacity until the pointer comes
+    this.applyCubeLayout(getState().cubePos)
     this.hookRender()
     this.updateCube()
+    this.redraw()
+  }
+  private detachGizmo() {
+    this.endCubePress?.()
+    this.gizmo?.dispose()
+    this.gizmo = null
+    if (this.cubeEl) this.cubeEl.style.display = 'none'
   }
 
-  /** The cube is the camera seen from outside: it takes its orientation, and its place on the screen, from the camera it is drawn
-   *  for. Done for every draw (hookRender), so no frame can show a cube a step behind its camera, which the frame a controls'
-   *  change event drew first used to (new camera, old cube, then a second draw from cameraChanged). It does not use the
-   *  library's update(), which first runs the orbit controls' update(): that turns the camera by whatever drag the controls last saw. */
+  /** The cube is the camera seen from outside: it takes its orientation from the camera it is drawn for (rootTransform's rotation is
+   *  the camera's inverse, SoNaviCube.cpp:1035-1039). Done for every draw (hookRender), so no frame can show a cube a step behind
+   *  its camera. */
   private updateCube(camera?: THREE.Camera) {
     const g = this.gizmo, cam = camera ?? this.cameraParts()?.cam
     if (!g || !cam) return
-    g.camera = cam as THREE.OrthographicCamera | THREE.PerspectiveCamera
-    g.update(false)
+    g.quaternion.copy(cam.quaternion).invert()
   }
 
-  /** NaviCubeImplementation::mouseMoved: the whole cube (every face/edge/corner) fades to
-   *  InactiveOpacity outside its own square, and back to full while inside it or dragging it. */
+  /** NaviCubeImplementation::mouseMoved (NaviCube.cpp:1225-1243): the whole cube fades to InactiveOpacity unless the pointer is
+   *  within its square (or a press on it is under way), and the piece or button under the pointer is drawn in HiliteColor; during a
+   *  drag nothing is (dragStarted). */
+  private cubeDragging = false
   private updateCubeFade(x: number, y: number) {
-    const g = this.gizmo as any
-    if (!g?._domElement) return
-    const r = (g._domElement as HTMLElement).getBoundingClientRect()
-    const near = this.cubeActive || (x >= r.left && x <= r.right && y >= r.top && y <= r.bottom)
+    const g = this.gizmo, at = this.cubeXY(x, y)
+    if (!g || !at) return
+    const near = this.cubeActive || (at.x >= 0 && at.x <= 1 && at.y >= 0 && at.y <= 1)
     const factor = near ? 1 : getState().naviCube.inactiveOpacity / 100 // InactiveOpacity
-    if (factor === this.cubeFade) return
-    this.cubeFade = factor
-    for (const o of (g._intersections ?? []) as THREE.Object3D[]) {
-      const m = o as any
-      if (m.userData) m.userData.opacity = factor
-      if (m.material) m.material.opacity = factor
-    }
-    // updateAxes: the ShowCS tripod fades with the same factor (axisTr tracks currentOpacity).
-    for (const l of this.cubeAxes?.children ?? []) { const mat = (l as any).material; if (mat) mat.opacity = factor }
-    this.redraw()
+    const pick = this.cubeDragging || !(at.x >= 0 && at.x <= 1 && at.y >= 0 && at.y <= 1) ? null : g.pick(at.x, at.y, this.cubeOrtho())
+    const a = g.setOpacity(factor), b = g.setHilite(pick)
+    if (a || b) this.redraw()
   }
   isCubeDraggable() { return this.cubeDraggable }
   setCubeDraggable(on: boolean) { this.cubeDraggable = on }
@@ -2250,42 +2172,37 @@ export class CadView {
   }
   /** Test hook: where each pick of the cube (its 6 faces, 12 edges and 8 corners, by direction as "x,y,z") is on the
    *  screen, how squarely it faces the viewer (1 straight on, below 0 turned away), and whether a click there reaches the
-   *  cube (`open`: the NaviCube's buttons sit over the cube's rim, and take a click on a pick that lies under one). */
+   *  cube (`open`: the NaviCube's buttons are elements above the cube's square, and take a click on a pick that lies under one). */
   cubePicks(): Record<string, { x: number; y: number; facing: number; open: boolean }> {
-    const g = this.gizmo as any, out: Record<string, { x: number; y: number; facing: number; open: boolean }> = {}
-    if (!g?._camera || !g._domElement) return out
-    g.updateMatrixWorld(true)
-    const el = g._domElement as HTMLElement, r = el.getBoundingClientRect()
-    for (const o of g._intersections as THREE.Object3D[]) {
-      const dir = o.position.clone().normalize(), at = o.getWorldPosition(new THREE.Vector3()).project(g._camera)
-      const x = r.left + ((at.x + 1) / 2) * r.width, y = r.top + ((1 - at.y) / 2) * r.height, top = document.elementFromPoint(x, y)
-      out[dir.toArray().map(Math.round).join(',')] = { x, y, facing: dir.applyQuaternion(g.quaternion).z, open: !!top && el.contains(top) }
+    const g = this.gizmo, el = this.cubeEl, out: Record<string, { x: number; y: number; facing: number; open: boolean }> = {}
+    if (!g || !el) return out
+    this.updateCube()
+    const r = el.getBoundingClientRect(), ortho = this.cubeOrtho()
+    for (const pc of g.pieceList()) {
+      const at = g.project(pc.centre, ortho), x = r.left + at.x * r.width, y = r.top + at.y * r.height, top = document.elementFromPoint(x, y)
+      out[pc.dir.toArray().map(Math.round).join(',')] = { x, y, facing: pc.dir.clone().applyQuaternion(g.quaternion).z, open: !!top && el.contains(top) }
     }
     return out
   }
+  /** Test hook: the cube's square on the page. */
+  cubeRect() { return this.cubeEl?.getBoundingClientRect() ?? null }
 
-  /** Re-applies cubeLayout(pos, ...) to the live gizmo without rebuilding it: writes the
-   *  margin three-viewport-gizmo bakes into its DOM element at construction time directly
-   *  (confirmed in the library's own bundle: offset only ever becomes a CSS `margin`, nothing
-   *  else reads it after that), then goes through the `placement` setter — cheap, a DOM
-   *  reposition, not a geometry rebuild — so domUpdate() re-measures it for hit-testing. Mirrors
-   *  the result into cubePlace/cubeOffset so navicube.tsx's button box can follow along. */
+  /** Puts the cube's square where cubeLayout(pos, ...) has it, in the canvas (the GL viewport hookRender draws it in) and as the
+   *  element that takes its presses; mirrors the result into cubePlace/cubeOffset (the square's distance from each edge of the
+   *  3D view's host), which navicube.tsx places its buttons by. */
+  private cubeAt = { x: 0, y: 0 }
   private applyCubeLayout(pos: CubePos) {
-    const g = this.gizmo as any
-    if (!g) return
-    const { placement, offset } = cubeLayout(pos, this.host.clientWidth || 1, this.host.clientHeight || 1, getState().naviCube.size)
-    const el = g._domElement as HTMLElement | undefined
-    if (el) Object.assign(el.style, { marginLeft: `${offset.left}px`, marginRight: `${offset.right}px`, marginTop: `${offset.top}px`, marginBottom: `${offset.bottom}px` })
-    if (g.placement !== placement) g.placement = placement
-    // For a corner placement the library writes `transform: " "`, which the browser rejects as
-    // invalid and so keeps whatever was there: the translate(-50%) of a centre placement survives,
-    // and a cube that moved from the middle of a short view to the corner of a tall one sits half
-    // its size too high, cut off by the top of the view. Write it here ('' clears it).
-    const [vert, horiz] = placement.split('-')
-    if (el) el.style.transform = [horiz === 'center' ? 'translateX(-50%)' : '', vert === 'center' ? 'translateY(-50%)' : ''].filter(Boolean).join(' ')
-    g.domUpdate?.()
+    const canvas = this.viewer.renderer?.domElement as HTMLCanvasElement | undefined
+    if (!this.gizmo || !canvas || !this.cubeEl) return
+    const size = getState().naviCube.size, w = canvas.clientWidth || this.host.clientWidth || 1, h = canvas.clientHeight || this.host.clientHeight || 1
+    const { placement, offset } = cubeLayout(pos, w, h, size)
+    this.cubeAt = { x: offset.left, y: offset.bottom } // the viewport is counted from the canvas's bottom left
+    const cr = canvas.getBoundingClientRect(), hr = this.host.getBoundingClientRect()
+    const dx = cr.width ? cr.left - hr.left : 0, dy = cr.height ? cr.top - hr.top : 0
+    const off = { left: offset.left + dx, top: offset.top + dy, right: this.host.clientWidth - offset.left - dx - size, bottom: this.host.clientHeight - offset.top - dy - size }
+    Object.assign(this.cubeEl.style, { left: `${off.left}px`, top: `${off.top}px` })
     const s = getState()
-    if (s.cubePlace !== placement || JSON.stringify(s.cubeOffset) !== JSON.stringify(offset)) setState({ cubePlace: placement, cubeOffset: offset })
+    if (s.cubePlace !== placement || JSON.stringify(s.cubeOffset) !== JSON.stringify(off)) setState({ cubePlace: placement, cubeOffset: off })
   }
   /** NaviCube.cpp's MoveNaviCube branch (mouseMoved:1246-1262) together with processSoEvent's
    *  coordinate recentring (1331-1337). mouseMoved computes `dx = x - pressPos[0]` against the
@@ -2315,26 +2232,38 @@ export class CadView {
   }
 
   private cubeClick: { key: string; t: number } | null = null
-  /** The cube's pick under a pointer: the direction of the face, edge or corner. */
-  private cubePick(e: PointerEvent): THREE.Vector3 | null {
-    const g = this.gizmo as any
-    if (!g?._camera || !g._intersections) return null
-    const r = (g._domElement as HTMLElement).getBoundingClientRect()
-    const ray = new THREE.Raycaster()
-    ray.setFromCamera(new THREE.Vector2(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1), g._camera)
-    const hit = ray.intersectObjects(g._intersections.filter((o: THREE.Object3D) => o.visible), false)[0]
-    return hit ? hit.object.position.clone().normalize() : null
+  /** Where a pointer is in the cube's square: 0..1 across it, y down (processSoEvent's cube-centred coordinates, scaled). */
+  private cubeXY(x: number, y: number) {
+    const r = this.cubeEl?.getBoundingClientRect()
+    return r && r.width ? { x: (x - r.left) / r.width, y: (y - r.top) / r.height } : null
+  }
+  private cubeOrtho() { return (this.cameraParts()?.cam as THREE.OrthographicCamera | undefined)?.isOrthographicCamera !== false }
+  /** NaviCubeImplementation::pickFace (NaviCube.cpp:901-921): the cube's pick under a pointer, as the direction of the face, edge or
+   *  corner; null for none and for a button (those are navicube.tsx's elements, which take their own clicks). */
+  private cubePick(e: { clientX: number; clientY: number }): THREE.Vector3 | null {
+    const g = this.gizmo, at = this.cubeXY(e.clientX, e.clientY)
+    if (!g || !at || at.x < 0 || at.y < 0 || at.x > 1 || at.y > 1) return null
+    const key = g.pick(at.x, at.y, this.cubeOrtho())
+    return key && key.includes(',') ? new THREE.Vector3().fromArray(key.split(',').map(Number)).normalize() : null
   }
   /** NaviCube::mousePressed / mouseMoved / mouseReleased: a drag past 3 px orbits the
    *  model's bounding sphere (sensitivity 0.45), or moves the cube itself with the Movable
    *  Navigation Cube option on; a click turns to the face, edge or corner, upright (or, with
    *  NaviRotateToNearest on, to the nearest roll); clicking it twice centres too. */
   private cubePress(e: PointerEvent) {
-    const g = this.gizmo as any
-    if (!g || e.button !== 0) return
-    const el = g._domElement as HTMLElement, start = { x: e.clientX, y: e.clientY }
+    const g = this.gizmo, el = this.cubeEl
+    if (!g || !el || e.button !== 0) return
+    const start = { x: e.clientX, y: e.clientY }
     const pick = this.cubePick(e)
-    if (!pick) return // PickId::None: let the event fall through to ordinary 3D navigation
+    if (!pick) {
+      // Within the pick radius of a button's outline, just outside its element: that button, on the release (mouseReleased).
+      const at = this.cubeXY(e.clientX, e.clientY), k = at ? g.pick(at.x, at.y, this.cubeOrtho()) : null
+      if (k && !k.includes(',')) {
+        e.preventDefault()
+        el.addEventListener('pointerup', (u) => { const a = this.cubeXY(u.clientX, u.clientY); if (a && g.pick(a.x, a.y, this.cubeOrtho()) === k) (this.host.parentElement?.querySelector(`.navi.${k}`) as HTMLElement | null)?.click() }, { once: true })
+      }
+      return // PickId::None: let the event fall through to ordinary 3D navigation
+    }
     e.preventDefault()
     this.endCubePress?.() // a press that never got its release (the gizmo was rebuilt under it)
     this.cubeActive = true
@@ -2358,6 +2287,8 @@ export class CadView {
       if (!(ev.buttons & 1)) return end(ev, true) // released where no pointerup reached us (outside the window, say)
       if (!dragging && (ev.clientX - start.x) ** 2 + (ev.clientY - start.y) ** 2 >= dragThreshold * dragThreshold) {
         dragging = true
+        this.cubeDragging = true // dragStarted: setHilite(PickId::None) (NaviCube.cpp:1187, 1251)
+        if (g.setHilite(null)) this.redraw()
         if (!this.cubeDraggable) {
           const box = this.box()
           this.nav.beginOrbitDrag(box ? box.getBoundingSphere(new THREE.Sphere()) : null, 1.05, 0.45)
@@ -2379,7 +2310,9 @@ export class CadView {
       try { el.releasePointerCapture(e.pointerId) } catch { /* already released */ }
       this.endCubePress = null
       this.cubeActive = false
+      this.cubeDragging = false
       this.updateCubeFade(ev.clientX, ev.clientY)
+      if (g.setHilite(null)) this.redraw() // mouseReleased: setHilite(PickId::None) (NaviCube.cpp:1060), until the pointer moves again
       if (dragging) { if (!this.cubeDraggable) this.nav.endOrbitDrag(); this.cubeClick = null; return }
       if (cancelled) return // a press that was taken away is not a click
       const key = pick.toArray().map(Math.round).join(','), now = performance.now()
@@ -2485,22 +2418,19 @@ export class CadView {
             this.bigAxesColorKey = key
           }
         } catch { /* not rendered yet */ }
-        // SoNaviCube's ShowCS tripod (buildShowCS): same live colours, by the axis tag it set.
-        if (this.cubeAxes) {
+        // SoNaviCube's ShowCS tripod: the same live colours (NaviCube::updateColors).
+        if (this.gizmo) {
           const key = ac.x + ac.y + ac.z
-          if (key !== this.showCSColorKey) {
-            for (const o of this.cubeAxes.children) {
-              const axis = (o as any).userData?.axis as 'x' | 'y' | 'z' | undefined, mat = (o as any).material
-              if (mat?.color && axis) mat.color.set(ac[axis])
-            }
-            this.showCSColorKey = key
-          }
+          if (key !== this.showCSColorKey) { this.gizmo.setAxisColors(ac); this.showCSColorKey = key }
         }
         if (this.tf) this.placeDragLabels()
-        // The view may have been resized since the cube last measured itself, and
-        // the cube restores the viewport it saw then. Measure now, and always hand
-        // the next frame the whole canvas (else the model draws squeezed and off-centre).
-        if (this.gizmo) { this.updateCube(camera); this.gizmo.render(); if (this.drawLog) this.logDraw(camera) }
+        // The NaviCube last, over the model, in its own square (SoNaviCube::renderCoin), with the camera of this draw; then the
+        // next frame gets the whole canvas back.
+        if (this.gizmo) {
+          this.updateCube(camera)
+          this.gizmo.render(r, this.cubeAt.x, this.cubeAt.y, (camera as THREE.OrthographicCamera).isOrthographicCamera === true)
+          if (this.drawLog) this.logDraw(camera)
+        }
         const size = r.getSize(new THREE.Vector2())
         r.setViewport(0, 0, size.x, size.y)
       } finally {

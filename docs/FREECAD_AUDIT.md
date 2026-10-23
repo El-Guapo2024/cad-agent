@@ -84,13 +84,17 @@ Section 5 below is the record of 2026-10-14. Measured again in the real FreeCAD 
   FreeCAD never makes a "(mirrored)" line. `isObjMirrored` (BomObject.cpp:253-270) tests `static_cast<App::LinkElement*>(obj)`, which
   is never null, so the App::Link branch is dead and a mirrored link counts on its part's line, as bom.py already did: 6 of 6 the same.
   A port of the source's intent was tried and matched 1 of 6, so it was not kept.
-- **Open**: 5.1 Home (under way elsewhere), 5.5 the NaviCube's look, 5.9 arrow-key panning.
 - **5.10 DXF: fixed (2026-10-23).** The file around the entities is FreeCAD's R14 templates in `CDxfWrite::endRun`'s order, with
   their handles and FreeCAD's from 0xA01, "EOF" with no newline; arcs' angles are atan2's (-180, 180]; a whole ellipse ends at
   6.28318 (ImpExpDxf.cpp:1964-1966). `ui/scripts/dxfdiff.py` writes one part through both writers (FreeCAD on the Linux build
   of 3160daf1e2b6) and compares every line: only what dxf.py documents differs ($MEASUREMENT, $EXTMIN, $EXTMAX, four template
   counts and owners put right, the comment, 6 decimals, the order, atan2's sign of a half turn), and FreeCAD's Import.readDXF
   reads ours back to the same edges, cut length and box. The spline re-fit (4) stays a deliberate difference.
+- **5.5 The NaviCube's look: fixed, 2026-10-23.** `ui/src/navicube3d.ts` ports `SoNaviCube.cpp` (the chamfered pieces, outlines, labels,
+  ShowCS and the drawn buttons, in BaseColor, HiliteColor and EmphaseColor) and the look parts of `NaviCube.cpp`; OffsetX/Y is 0 and the
+  extra 12 px at the bottom are gone. `ui/scripts/navishots.py` compares it with FreeCAD 26.3 on Linux: in 24 shots the drawn box is the
+  same to the pixel and 0.4 to 1.4 % of the square differs (the label glyphs, mostly). PARITY.md's NaviCube note has the details.
+- **Open**: 5.1 Home (under way elsewhere), 5.9 arrow-key panning.
 
 ## 1. How it was checked
 

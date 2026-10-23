@@ -126,8 +126,8 @@ export type NaviCubePrefs = { stepByTurn: number; corner: 0 | 1 | 2 | 3; toNeare
 // click on a face, edge or corner lands on a roll that depends on the roll the view had, so the same click gives different views. Off, it
 // always gives that pick's standard upright view (getFaceRotation). It stays a preference: on, the roll is getNearestOrientation's.
 export const NAVICUBE_DEFAULTS: NaviCubePrefs = { stepByTurn: 8, corner: 1, toNearest: false, font: '', size: 132, inactiveOpacity: 50, color: '#f2f2f2', showCS: true }
-/** Where the cube sits: the nearest of three-viewport-gizmo's nine placements to cubePos
- *  (the corner, or whichever zone a drag with Movable Navigation Cube is currently over). */
+/** Which third of the view the cube's square is in (viewer.ts's cubeLayout): the corner, or wherever a drag with Movable
+ *  Navigation Cube has taken it. */
 export type CubePlace = `${'top' | 'center' | 'bottom'}-${'left' | 'center' | 'right'}`
 /** NaviCube.cpp's relPos: the cube's continuous position within its padded travel area, 0..1
  *  each axis (the MoveNaviCube drag branch in mouseMoved, NaviCube.cpp:1246-1262). Unlike Coin
@@ -136,8 +136,8 @@ export type CubePos = { x: number; y: number }
 /** CubePlace's four corners as a CubePos, for callers (e.g. the Preferences corner radio) that
  *  only pick a corner; cubeLayout (viewer.ts) turns any CubePos into the nearest CubePlace. */
 export const CORNER_POS: Record<0 | 1 | 2 | 3, CubePos> = { 0: { x: 0, y: 0 }, 1: { x: 1, y: 0 }, 2: { x: 0, y: 1 }, 3: { x: 1, y: 1 } }
-/** The cube's current on-screen offset in px from whichever of CubePlace's edges are active
- *  (viewer.ts's cubeLayout); mirrored into state only so navicube.tsx's button box can track
+/** The cube's square: its distance in px from each edge of the 3D view's host
+ *  (viewer.ts's applyCubeLayout); mirrored into state only so navicube.tsx's buttons can track
  *  the cube without redoing that layout math itself. */
 export type CubeOffset = { left: number; right: number; top: number; bottom: number }
 /** Rotation Center Indicator: sphere size and colour with transparency (View/RotationCenterSize, RotationCenterColor). */

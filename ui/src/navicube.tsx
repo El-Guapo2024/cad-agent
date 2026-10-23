@@ -2,40 +2,52 @@
 // Follows FreeCAD (https://github.com/FreeCAD/FreeCAD, commit 3160daf1e2b6), copyright of the files below (each is
 // LGPL-2.0-or-later or LGPL-2.1-or-later as it states; ui/NOTICE has them all):
 //   src/Gui/NaviCube.cpp: 2017 Kustaa Nyholm; 2026 Joao Matos
-// The NaviCube's buttons and menu around the cube (Gui/NaviCube.cpp at FreeCAD main
-// 3160daf1e2b6, LGPL-2.1-or-later). The cube itself is drawn and picked in viewer.ts.
+//   src/Gui/Inventor/SoNaviCube.cpp: 2025-2026 Joao Matos
+// The NaviCube's buttons and menu (Gui/NaviCube.cpp at FreeCAD main 3160daf1e2b6, LGPL-2.1-or-later). The cube and the
+// buttons' shapes are drawn in viewer.ts (navicube3d.ts); here each button is an element exactly over its drawn shape, which
+// takes its clicks.
 import { useState } from 'react'
 import { getState, useStore } from './store'
 import { getView, setOrtho } from './actions'
 import { alignToSelection, navi, viewHome } from './commands'
 import { ContextMenu } from './chrome'
+import { BUTTON_SHAPES, NAVI_BUTTONS, type NaviButton } from './navicube3d'
 
-/** The NaviCube's buttons around the cube (NaviCube.cpp): four 45° arrows, two
- *  rolls, the backside flip, home, and its menu. */
+/** What each button does (NaviCube.cpp mouseReleased): four arrows that turn the view by 360° / NaviStepByTurn, two rolls,
+ *  the backside flip, home, and the menu. FreeCAD's buttons carry no tooltip; the labels are for assistive technology only. */
+const ACTION: Record<Exclude<NaviButton, 'menu'>, [string, () => void]> = {
+  n: ['Rotate the view up', navi.north], s: ['Rotate the view down', navi.south], w: ['Rotate the view left', navi.west], e: ['Rotate the view right', navi.east],
+  rl: ['Roll left', navi.rollLeft], rr: ['Roll right', navi.rollRight], home: ['Home view', viewHome], back: ['Look from the other side', navi.backside],
+}
+
+/** Where a button's element goes in the cube's square (px), and the outline that clips it: pickAt (SoNaviCube.cpp:1400-1406)
+ *  takes the hit rectangle of the two buttons that have one (the menu and the backside, whose loops leave gaps), and for the
+ *  others what a ray meets, the drawn shape itself. */
+function buttonBox(id: NaviButton, size: number): React.CSSProperties {
+  const s = BUTTON_SHAPES[id]
+  const pts = s.loops.flat()
+  const r = s.hit ?? { left: Math.min(...pts.map((p) => p[0])), top: Math.min(...pts.map((p) => p[1])), right: Math.max(...pts.map((p) => p[0])), bottom: Math.max(...pts.map((p) => p[1])) }
+  const box: React.CSSProperties = { left: r.left * size, top: r.top * size, width: (r.right - r.left) * size, height: (r.bottom - r.top) * size }
+  if (!s.hit) {
+    const w = r.right - r.left, h = r.bottom - r.top
+    box.clipPath = `polygon(${s.loops[0].map(([x, y]) => `${(((x - r.left) / w) * 100).toFixed(2)}% ${(((y - r.top) / h) * 100).toFixed(2)}%`).join(', ')})`
+  }
+  return box
+}
+
 export function NaviButtons() {
-  const cube = useStore((s) => s.cube), size = useStore((s) => s.naviCube.size), place = useStore((s) => s.cubePlace)
+  const cube = useStore((s) => s.cube), size = useStore((s) => s.naviCube.size)
   const off = useStore((s) => s.cubeOffset)
   const [menu, setMenu] = useState<{ x: number; y: number } | null>(null)
   if (!cube) return null
-  // The buttons sit around the cube, wherever it is: a box the cube's size plus its 10 px
-  // offset on each side (and room below for the menu button), at viewer.ts's cubeLayout offset
-  // for the cube's current (continuous) position — not just its nearest placement's corner.
-  const w = size + 20, h = size + 32, [vert, horiz] = place.split('-')
-  const box: React.CSSProperties = { width: w, height: h,
-    ...(vert === 'top' ? { top: Math.max(0, off.top - 10) } : vert === 'bottom' ? { bottom: Math.max(0, off.bottom - 10) } : { top: `calc(50% - ${h / 2}px + ${off.top}px)` }),
-    ...(horiz === 'left' ? { left: Math.max(0, off.left - 10) } : horiz === 'right' ? { right: Math.max(0, off.right - 10) } : { left: `calc(50% - ${w / 2}px + ${off.left}px)` }) }
-  const at: Record<string, React.CSSProperties> = {
-    n: { top: 0, left: (w - 16) / 2 }, s: { top: h - 21, left: (w - 16) / 2 }, w: { top: (w - 16) / 2, left: 0 }, e: { top: (w - 16) / 2, left: w - 16 },
-    rl: { top: 4, left: 6 }, rr: { top: 4, left: w - 20 }, home: { top: h - 38, left: 6 }, back: { top: h - 38, left: w - 20 }, menu: { top: h - 18, left: w - 20 },
-  }
-  const b = (cls: string, title: string, text: string, f: () => void) => <button className={'navi ' + cls} style={at[cls]} title={title} onClick={f}>{text}</button>
+  // The buttons lie over the cube's square, wherever viewer.ts has put it (cubeLayout).
+  const box: React.CSSProperties = { left: off.left, top: off.top, width: size, height: size }
   return (
     <div className="navi-box" style={box}>
-      {b('n', 'Rotate the view up', '▲', navi.north)}{b('s', 'Rotate the view down', '▼', navi.south)}
-      {b('w', 'Rotate the view left', '◀', navi.west)}{b('e', 'Rotate the view right', '▶', navi.east)}
-      {b('rl', 'Roll left', '↺', navi.rollLeft)}{b('rr', 'Roll right', '↻', navi.rollRight)}
-      {b('home', 'Home view', '⌂', viewHome)}{b('back', 'Look from the other side', '⇄', navi.backside)}
-      <button className="navi menu" style={at.menu} title="View menu" onClick={(e) => setMenu({ x: e.clientX - 180, y: e.clientY + 8 })}>☰</button>
+      {NAVI_BUTTONS.map((id) => id === 'menu'
+        // handleMenu: menu->exec(QCursor::pos()), the menu at the pointer
+        ? <button key={id} className="navi menu" style={buttonBox(id, size)} aria-label="View menu" onClick={(e) => setMenu({ x: e.clientX, y: e.clientY })} />
+        : <button key={id} className={'navi ' + id} style={buttonBox(id, size)} aria-label={ACTION[id][0]} onClick={ACTION[id][1]} />)}
       {menu && <ContextMenu at={menu} onClose={() => setMenu(null)} entries={[
         { label: 'Orthographic View', checked: getState().ortho, onSelect: () => setOrtho(true) },
         { label: 'Perspective View', checked: !getState().ortho, onSelect: () => setOrtho(false) },
