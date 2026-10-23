@@ -28,6 +28,12 @@ b = "syringe_clamp"
 min_mm = 0.05
 max_mm = 0.35
 
+[[shaft_fit]]               # and is a bore on the barrel: 0.1 to 0.7 mm over it across the diameter, on its axis
+shaft = "syringe"
+bore = "syringe_clamp"
+min_mm = 0.1
+max_mm = 0.7
+
 [[clearance]]               # and lies on the plate
 a = "syringe_clamp"
 b = "carriage_plate"

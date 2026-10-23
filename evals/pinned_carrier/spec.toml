@@ -73,6 +73,15 @@ a = "carrier"
 b = "clamp_screw"
 min_mm = 0.5
 
+# The two pin holes go through the block: 4.0 to 4.2 mm, along z. (The relief pocket is wider.)
+[[holes]]
+body = "carrier"
+count = 2
+min_dia_mm = 4.0
+max_dia_mm = 4.2
+axis = "z"
+through = true
+
 # Coaxial holes: every round hole or pocket in the carrier that points at the base lines up
 # with a hole in the base (the two pin holes and the screw hole). No fastener: no size check.
 [[interface]]

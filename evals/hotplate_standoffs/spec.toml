@@ -111,3 +111,35 @@ near_mm = 15
 source = "hot_plate"
 temp_c = 250
 radius_mm = 15
+
+[[holes]]                     # one through bore, the M3 clearance hole, along z
+body = "standoff_1"
+count = 1
+min_dia_mm = 3.2
+max_dia_mm = 3.6
+axis = "z"
+through = true
+
+[[holes]]
+body = "standoff_2"
+count = 1
+min_dia_mm = 3.2
+max_dia_mm = 3.6
+axis = "z"
+through = true
+
+[[holes]]
+body = "standoff_3"
+count = 1
+min_dia_mm = 3.2
+max_dia_mm = 3.6
+axis = "z"
+through = true
+
+[[holes]]
+body = "standoff_4"
+count = 1
+min_dia_mm = 3.2
+max_dia_mm = 3.6
+axis = "z"
+through = true

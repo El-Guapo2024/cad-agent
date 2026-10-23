@@ -42,7 +42,9 @@ is why the grip below is a range. It is modelled from those figures, not a vendo
    (0, 3, 0) within 0.1 mm. `syringe` is 33 x 22 x 163 mm (+-0.1) with its center at
    (10, -16.2, 26.5) within 0.1 mm.
 2. **It holds the barrel.** The closest distance between `syringe` and `syringe_clamp` is between
-   0.05 and 0.35 mm: a printed bore a little over 16.0 mm. Overlapping fails.
+   0.05 and 0.35 mm: a printed bore a little over 16.0 mm. Overlapping fails. And the bore is a
+   fit on the barrel: across the diameter it is 0.1 to 0.7 mm bigger than the barrel, with its axis
+   within 0.1 mm of the barrel's, so a loose bore pushed against one side fails.
 3. **It sits on the plate.** The closest distance between `syringe_clamp` and `carriage_plate` is
    at most 0.05 mm. Touching counts; overlapping fails.
 4. **M3 bolts.** Every hole in the clamp that points into the plate (its axis meets the plate and
@@ -59,7 +61,7 @@ part rules for its `PROCESS` (`cad rules`).
 ## Working
 
 Write your own `spec.toml` first, with these requirements as `[[size]]`, `[[position]]`,
-`[[clearance]]` (`min_mm` and `max_mm` for a gap that has to stay in a range), `[[interface]]`,
+`[[clearance]]` (`min_mm` and `max_mm` for a gap that has to stay in a range), `[[shaft_fit]]`, `[[interface]]`,
 `[[mass]]` and `[[envelope]]` entries (`cad_agent/spec.py` has the format), then
 `parts/syringe_clamp.py` and `assembly.py`, then `cad check syringe_clamp`. Finish with a commit,
 `cad verify syringe_clamp` and `cad done syringe_clamp`.

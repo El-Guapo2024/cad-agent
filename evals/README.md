@@ -104,7 +104,7 @@ no `CAD_EVALS`.
   only holes that close to `b`.
 - `max_mm` on a clearance is the closest approach: a looser bore with the barrel resting on one side
   can pass "grips", and a part tilted onto one edge passes "touches". `[[shaft_fit]]` judges a round
-  part in its bore by the two diameters; no task uses it yet. `[[mass]]` uses the `MATERIAL` the part declares.
+  part in its bore by the two diameters and its axis, and `syringe_clamp` grades its bore with it. `[[mass]]` uses the `MATERIAL` the part declares.
 - The `kerf` row of a `laser_cut` part reads slots and the air between flat walls that face each
   other; a curved gap other than a slot's ends (a ring groove) is not read. `min hole` reads round
   holes, and on a `cnc` part slots too. A printed part has no hole floor.
@@ -167,10 +167,14 @@ does), `[bodies]` holds an exact body count and names (the four tasks whose brie
 the two new ones), `[[heat]]` is a heat rule (`hotplate_standoffs` and `dock_material`), and
 `cad export --format dxf` makes the DXF of a laser part.
 
-- ~~No hole-count option and no shaft-fit option~~: `[[holes]]` and `[[shaft_fit]]` exist now, and no
-  hidden spec uses them yet. Until one does, `idler_bracket` fits its 5.0 shaft through the
-  closest-approach range (0.1 to 0.5 mm), `pinned_carrier` and `syringe_clamp` grip with `max_mm`, and a
-  hole left out is caught only when the given body is `a`, as in `pcb_enclosure` and `endstop_bracket`.
+- ~~No hole-count option and no shaft-fit option~~: `[[holes]]` and `[[shaft_fit]]` exist now.
+  `pinned_carrier` counts its two pin holes and `hotplate_standoffs` each standoff's bore, through
+  (`through = true`: a hole drilled blind passed every other rule); `syringe_clamp`'s bore is a
+  `[[shaft_fit]]` on the barrel (a loose bore pushed to one side passed the closest approach).
+  `tests/test_eval.py` GAPS holds each of those designs. `idler_bracket` keeps the closest-approach
+  range (0.1 to 0.5 mm) for its shaft holes: their axes are held within 0.1 mm of the shaft's, which
+  bounds the hole already. A hole left out is still caught only when the given body is `a`, as in
+  `pcb_enclosure` and `endstop_bracket`, or where `[[holes]]` counts them.
 - A clearance `max_mm` bounds only the closest approach (said above; documented, and `[[shaft_fit]]`
   covers a round part). A flat face held flat on another ("seats flat") has no such rule, and there is
   no clearance to a sub-feature: "the pocket clears the screw head" is a distance between two bodies.

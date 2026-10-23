@@ -32,14 +32,15 @@ SPEC_RULES = {
     "nema17_mount": {"spec/envelope", "spec/size", "spec/position", "spec/clearance",
                      "spec/interface", "spec/mass"},
     "syringe_clamp": {"spec/envelope", "spec/size", "spec/position", "spec/clearance",
-                      "spec/interface", "spec/mass"},
+                      "spec/interface", "spec/mass", "spec/shaft_fit"},
     "galvo_mount": {"spec/envelope", "spec/size", "spec/position", "spec/clearance",
                     "spec/interface", "spec/mass", "spec/keepout"},
     "mgn12h_carriage": {"spec/size", "spec/position", "spec/clearance", "spec/interface", "spec/mass",
                         "spec/axis", "spec/bodies"},
     "hotplate_standoffs": {"spec/envelope", "spec/size", "spec/position", "spec/clearance",
-                           "spec/interface", "spec/bodies", "spec/heat"},
-    "pinned_carrier": {"spec/size", "spec/position", "spec/clearance", "spec/interface", "spec/bodies"},
+                           "spec/interface", "spec/bodies", "spec/heat", "spec/holes"},
+    "pinned_carrier": {"spec/size", "spec/position", "spec/clearance", "spec/interface", "spec/bodies",
+                       "spec/holes"},
     "laser_panel": {"spec/envelope", "spec/size", "spec/position", "spec/clearance", "spec/interface"},
     "pcb_enclosure": {"spec/envelope", "spec/size", "spec/position", "spec/clearance", "spec/interface"},
     "idler_bracket": {"spec/envelope", "spec/size", "spec/position", "spec/clearance", "spec/interface",
@@ -58,12 +59,12 @@ SPEC_RULES = {
 # several entries.
 BROKEN = {
     "nema17_mount": ("parts/bracket.py", '"motor_pitch": 31.0', '"motor_pitch": 30.0', "spec/interface"),
-    "syringe_clamp": ("parts/syringe_clamp.py", '"fit": 0.4', '"fit": 1.0', "spec/clearance"),
+    "syringe_clamp": ("parts/syringe_clamp.py", '"fit": 0.4', '"fit": 1.0', ("spec/clearance", "spec/shaft_fit")),
     "galvo_mount": ("parts/galvo_mount.py", '"column_x": 112.0', '"column_x": 80.0', "spec/keepout"),
     "mgn12h_carriage": ("parts/carriage_plate.py", '"bolt_pitch_y": 20.0', '"bolt_pitch_y": 15.0',
                         "spec/interface"),
     "hotplate_standoffs": ("parts/standoff.py", "CLEARANCE_HOLE[screw] / 2.0", "3.8 / 2.0",
-                           "spec/interface"),                       # a 3.8 mm bore is past M3's coarse 3.6
+                           ("spec/interface", "spec/holes")),       # a 3.8 mm bore is past M3's coarse 3.6
     "pinned_carrier": ("parts/carrier.py", '"pin_pitch": 50.0', '"pin_pitch": 50.2',
                        ("spec/interface", "spec/clearance", "interference")),
     "laser_panel": ("parts/panel.py", '"button_hole": 16.0', '"button_hole": 17.0', "spec/clearance",
@@ -78,6 +79,22 @@ BROKEN = {
     "beam_deflection": ("assembly.py", "Rot(90, 0, 0) * bought_solid", "bought_solid",           # the 2040 lies flat
                         "spec/deflection", "beam"),
 }
+
+# A design the brief rules out but every other rule passes, and the one rule that catches it:
+# [[holes]] `through` and [[shaft_fit]], which the specs did not have. (task, file, old, new, rule)
+GAPS = [
+    # the pin holes drilled blind from the underside, 11 of the block's 12 mm: the pins still fit
+    ("pinned_carrier", "parts/carrier.py",
+     "Pos(sx * pin_pitch / 2.0, 0, height / 2.0) * Cylinder(pin_hole / 2.0, height + 2.0)",
+     "Pos(sx * pin_pitch / 2.0, 0, 5.25) * Cylinder(pin_hole / 2.0, 11.5)", "spec/holes"),
+    # the bore drilled blind from the top, 3 mm of floor left: it still meets the plate's hole
+    ("hotplate_standoffs", "parts/standoff.py", "body -= Cylinder(CLEARANCE_HOLE[screw] / 2.0, height + 2.0)",
+     "body -= Cylinder(CLEARANCE_HOLE[screw] / 2.0, height - 2.0).translate((0, 0, 2.0))", "spec/holes"),
+    # a bore 1 mm over the barrel, pushed 0.3 mm toward the plate: 0.2 mm at its closest, in range
+    ("syringe_clamp", "parts/syringe_clamp.py", "body -= Pos(bore_x, bore_y, 0) * Cylinder(bore_r, height + 2.0)",
+     "bore_r = (barrel_dia + 1.0) / 2.0\n    body -= Pos(bore_x, bore_y + 0.3, 0) * Cylinder(bore_r, height + 2.0)",
+     "spec/shaft_fit"),
+]
 
 # One edit to a reference that its brief says is fine, and that must still score 100%: what the
 # briefs allow and what the grader accepts have to agree. (file, old, new)
@@ -237,6 +254,14 @@ def test_the_brief_states_everything_the_hidden_spec_checks(task):
         for key in ("span_mm", "load_n", "load_g", "max_um"):
             assert key not in e or round(e[key], 4) in nums, (key, e)
         assert e["support"] in brief and ("self_weight" not in e or "own weight" in brief), e
+    for e in spec.get("holes", []):                                    # how many, how big, and through or how deep
+        assert f"`{e['body']}`" in brief and e.get("count", 0) in nums | {0}, e
+        assert all(round(e[k], 4) in nums for k in ("min_dia_mm", "max_dia_mm", "depth_mm") if k in e), e
+        assert "through" not in e or re.search(r"\bthrough\b" if e["through"] else r"\bblind\b", brief), e
+    for e in spec.get("shaft_fit", []):                                # a diametral fit, in its own numbers
+        assert f"`{e['shaft']}`" in brief and f"`{e['bore']}`" in brief, e
+        assert all(round(e[k], 4) in nums for k in ("min_mm", "max_mm", "tol_mm") if k in e), e
+        assert "diameter" in brief, e
     if "count" in spec.get("bodies", {}):
         assert spec["bodies"]["count"] in nums, spec["bodies"]
     for e in spec.get("axis", []):                                     # an axis the design must declare
@@ -464,6 +489,17 @@ def test_a_small_edit_to_the_reference_fails_on_the_rule_it_should(worker, tmp_p
     assert all(x["state"] == "FAIL" for x in r["rows"])
     if subject:                                                  # and it is the entry that was meant
         assert subject[0] in {x["subject"] for x in r["rows"] if x["rule"] == rules[0]}
+
+
+@pytest.mark.parametrize("task, rel, old, new, rule", GAPS, ids=[g[0] for g in GAPS])
+def test_what_only_the_hole_and_fit_rules_catch_fails_on_them(worker, tmp_path, capsys, task, rel, old, new, rule):
+    design = copy_reference(task, tmp_path / "design")
+    text = (design / rel).read_text()
+    assert old in text
+    (design / rel).write_text(text.replace(old, new))
+    code, r = run(capsys, "eval", "score", task, str(design), "--evals", str(EVALS))
+    assert code == cli.FAIL and r["verdict"] == "FAIL"
+    assert {x["rule"] for x in r["rows"]} == {rule}, r["rows"]      # every other rule still passes it
 
 
 @pytest.mark.parametrize("task", PERMITTED)

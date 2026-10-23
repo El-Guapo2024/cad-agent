@@ -58,6 +58,8 @@ assembly gate still applies, so no two bodies may interfere.
   same for `pin_2`. Any overlap fails.
 - **Seats flat:** the closest distance between `carrier` and `base_plate` is at most 0.05 mm, with
   no overlap.
+- **Pin holes:** `carrier` has exactly 2 round holes 4.0 to 4.2 mm across along z, and both go through
+  the block, open at the top and the underside. A pin hole drilled blind from below fails.
 - **Relief pocket:** the closest distance between `carrier` and `clamp_screw` is at least 0.5 mm.
 - **Coaxial holes**, `carrier` against `base_plate`: every round hole or pocket in the carrier whose
   axis points at the base, and whose middle is within 15 mm of it, is coaxial with a hole in the

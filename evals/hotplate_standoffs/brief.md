@@ -54,6 +54,8 @@ no two bodies may interfere.
 - **Air gap:** the closest distance between `hot_plate` and `base_plate` is at least 20 mm.
 - **Seating:** every standoff is within 0.1 mm of `base_plate` and within 0.1 mm of `hot_plate`,
   with no overlap.
+- **Through bore:** each standoff has exactly 1 round hole 3.2 to 3.6 mm across along z, and it goes
+  through, open at both ends: the screw comes up from under the base. A bore drilled blind fails.
 - **M3 interface**, each standoff against `hot_plate`: every hole in the standoff whose axis
   points at the plate, and whose middle is within 15 mm of it, is coaxial with a plate hole to
   within 0.1 mm, and the pair is sized for M3: each hole is a clearance hole (3.2 to 3.6 mm), the

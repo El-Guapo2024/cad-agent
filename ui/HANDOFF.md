@@ -55,8 +55,9 @@ Also done later on 2026-10-23 (main cd8fa2c, CI green):
   and Placement sections clean locally. On Linux, wirecheck's "Cmd+click adds a part" fails by platform (Meta vs Ctrl), on old main too.
 
 ## Next (paused 2026-10-23)
-1. Hidden specs: no hidden eval spec uses `[[holes]]` `through`/`depth_mm` or `[[shaft_fit]]` `fit` yet; add them where a brief
-   says "through", gives a depth or a fit class.
+1. ~~Hidden specs~~ (done 2026-10-23): `pinned_carrier` and `hotplate_standoffs` count their holes `through`, and
+   `syringe_clamp` grades its bore with `[[shaft_fit]]`; tests/test_eval.py GAPS has the design each one catches.
+   No brief gives a blind depth or an ISO fit class to grade (pinned_carrier quotes H7/F7 for reference only).
 2. Grader choices left to Juan:
    - `through` filters the count ("4 through" fails when one of the four is blind). A separate rule judging every hole of the size is the other option.
    - ISO 286 c and s values are from the standard's rules, not checked against a published table (none at hand); JS/js are exactly ±IT/2.
