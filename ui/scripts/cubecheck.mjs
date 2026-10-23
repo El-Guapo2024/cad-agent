@@ -229,7 +229,7 @@ const STARTS = [
 ]
 
 await step('setup', async () => {
-  const dims = await p.evaluate(() => { const g = cadui.getView().gizmo, r = g._domElement.getBoundingClientRect(), c = cadui.getView().viewer.renderer.domElement.getBoundingClientRect(); return { cube: [r.left, r.top, r.width, r.height], canvas: [c.left, c.top, c.width, c.height] } })
+  const dims = await p.evaluate(() => { const r = cadui.getView().cubeRect(), c = cadui.getView().viewer.renderer.domElement.getBoundingClientRect(); return { cube: [r.left, r.top, r.width, r.height], canvas: [c.left, c.top, c.width, c.height] } })
   ok('the 3D view is tall and the cube sits in its top right corner', dims.canvas[3] > dims.canvas[2] && dims.cube[0] + dims.cube[2] > dims.canvas[0] + dims.canvas[2] - 30 && dims.cube[1] < dims.canvas[1] + 30, JSON.stringify(dims))
   const s = await settle()
   ok('the page starts in the default view (Trimetric) with the cube matching it', qangle(s.camera, STD.trimetric) < 1e-3 && consistency(s).length === 0, consistency(s).join('; '))
@@ -372,7 +372,7 @@ await step('actions with no wait between them end where the last one points', as
 // ── a cube drag that ends away from the cube ─────────────────────────────────────────────────────────
 await step('a cube drag ends where the button comes up: nothing follows the mouse afterwards', async () => {
   const home = STARTED[0]
-  const view = await p.evaluate(() => { const r = cadui.getView().viewer.renderer.domElement.getBoundingClientRect(), g = cadui.getView().gizmo._domElement.getBoundingClientRect(); return { x: r.left, y: r.top, w: r.width, h: r.height, cube: [g.left + g.width / 2, g.top + g.height / 2] } })
+  const view = await p.evaluate(() => { const r = cadui.getView().viewer.renderer.domElement.getBoundingClientRect(), g = cadui.getView().cubeRect(); return { x: r.left, y: r.top, w: r.width, h: r.height, cube: [g.left + g.width / 2, g.top + g.height / 2] } })
   const wander = [[view.x + view.w / 2, view.y + view.h / 2], [view.x + 150, view.y + 400], [view.x + view.w - 40, view.y + 600], view.cube, [view.cube[0] - 40, view.cube[1] + 30], [view.x + 300, view.y + view.h - 100]]
   // The drag lets go over the 3D view away from the cube (where the navigation stops the pointerup it takes for its own), over the
   // cube, and over the model tree beside the view.
@@ -467,7 +467,7 @@ await step('the view survives what the page does on its own: a scene reload, a r
   await watch()
   await p.setViewportSize({ width: 1000, height: 1100 })
   let s = await settle()
-  ok('a smaller window keeps the view, and the cube is still in the corner', unchanged(s, S).length === 0 && (await p.evaluate(() => { const c = cadui.getView().viewer.renderer.domElement.getBoundingClientRect(), g = cadui.getView().gizmo._domElement.getBoundingClientRect(); return g.right <= c.right + 1 && g.top >= c.top - 1 && g.top < c.top + 40 })), unchanged(s, S).join('; '))
+  ok('a smaller window keeps the view, and the cube is still in the corner', unchanged(s, S).length === 0 && (await p.evaluate(() => { const c = cadui.getView().viewer.renderer.domElement.getBoundingClientRect(), g = cadui.getView().cubeRect(); return g.right <= c.right + 1 && g.top >= c.top - 1 && g.top < c.top + 40 })), unchanged(s, S).join('; '))
   await p.setViewportSize(VIEWPORT)
   s = await settle()
   ok('and the window back again', unchanged(s, S).length === 0, unchanged(s, S).join('; '))

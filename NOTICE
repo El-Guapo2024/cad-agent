@@ -122,8 +122,8 @@ that commit.
   npm packages in the workbench bundle (cad_agent/workbench/next/assets/)
       React, ReactDOM and scheduler (MIT, Meta Platforms, Inc. and affiliates); three.js (MIT, the
       three.js authors); three-cad-viewer 5.0.7 (MIT, Bernhard Walter), whose published build
-      contains postprocessing (Zlib, Raoul van Rüschen) and n8ao; dockview (MIT, mathuo);
-      three-viewport-gizmo (MIT, Fennec); Radix UI primitives (MIT, WorkOS); Floating UI (MIT, the
+      contains postprocessing (Zlib, Raoul van Rüschen) and n8ao; dockview (MIT, mathuo); Radix UI
+      primitives (MIT, WorkOS); Floating UI (MIT, the
       Floating UI contributors); react-remove-scroll and its siblings (MIT, Anton Korzunov);
       tslib (0BSD, Microsoft); and the module helpers of Vite and Rolldown (MIT, VoidZero Inc.).
       The build lists every package that is in the bundle, with the licence text it ships, in

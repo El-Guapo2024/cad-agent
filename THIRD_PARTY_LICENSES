@@ -71,7 +71,6 @@ cad_agent/workbench/vendor/ (three.js r184, three-cad-viewer 5.0.7 with the thre
 contains, and three.js's TransformControls example) and to the packages in
 cad_agent/workbench/next/, the build of ui/. The permission notice is the same for all of them:
 
-Copyright (c) 2024 Fennec  [three-viewport-gizmo]
 Copyright 2021 Benrhard Walter  [three-cad-viewer]
 Copyright © 2010-2026 three.js authors  [three]
 Copyright (c) 2017 Anton Korzunov  [aria-hidden, react-remove-scroll, react-style-singleton,

@@ -73,7 +73,11 @@ Section 5 below is the record of 2026-10-14. Measured again in the real FreeCAD 
   (it shares the Home view's lines).
 - **Also**: the Mac's Delete (⌫), Recompute (⌘R) and Previous Window (⇧⌘}); the tree menu's entries (Material, Appearance, Expression and
   Link Actions, Rename, Close Document, ... as in the real menu, greyed out where they mean nothing here).
-- **Open**: 5.1 Home (under way elsewhere), 5.5 the NaviCube's look, 5.6 expressions, 5.9 arrow-key panning, 5.10 DXF, 5.11 BOM, 5.12
+- **5.5 The NaviCube's look: fixed, 2026-10-23.** `ui/src/navicube3d.ts` ports `SoNaviCube.cpp` (the chamfered pieces, outlines, labels,
+  ShowCS and the drawn buttons, in BaseColor, HiliteColor and EmphaseColor) and the look parts of `NaviCube.cpp`; OffsetX/Y is 0 and the
+  extra 12 px at the bottom are gone. `ui/scripts/navishots.py` compares it with FreeCAD 26.3 on Linux: in 24 shots the drawn box is the
+  same to the pixel and 0.4 to 1.4 % of the square differs (the label glyphs, mostly). PARITY.md's NaviCube note has the details.
+- **Open**: 5.1 Home (under way elsewhere), 5.6 expressions, 5.9 arrow-key panning, 5.10 DXF, 5.11 BOM, 5.12
   drawings.
 
 ## 1. How it was checked

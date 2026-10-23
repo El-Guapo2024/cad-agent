@@ -295,16 +295,11 @@ button, select, input { font: inherit; color: inherit; }
 /* three-cad-viewer: keep only the canvas; our panels replace its chrome */
 .view3d-host .tcv_cad_toolbar, .view3d-host .tcv_cad_navigation, .view3d-host .tcv_shape_filter, .view3d-host .tcv_status_line { display: none !important; }
 
-/* NaviCube buttons (arrows, rolls, backside, home, menu) around the cube */
+/* NaviCube buttons (arrows, rolls, backside, home, menu): drawn with the cube (navicube3d.ts); these are the clickable
+   areas over the drawn shapes, invisible, with no hover look of their own (the drawn shape takes HiliteColor). */
 .navi-box { position: absolute; pointer-events: none; z-index: 5; }
-.navi { position: absolute; width: 16px; height: 16px; padding: 0; border: 0; background: transparent; color: #7d8793;
-  font-size: 11px; line-height: 16px; text-align: center; cursor: default; pointer-events: auto; border-radius: 3px; }
-.navi:hover { color: #000; background: rgba(10, 200, 255, .35); }
-.navi.n { top: 0; left: 68px; } .navi.s { top: 143px; left: 68px; }
-.navi.w { top: 68px; left: 0; } .navi.e { top: 68px; left: 136px; }
-.navi.rl { top: 4px; left: 6px; } .navi.rr { top: 4px; left: 132px; }
-.navi.home { top: 126px; left: 6px; } .navi.back { top: 126px; left: 132px; }
-.navi.menu { top: 146px; left: 132px; }
+.navi { position: absolute; padding: 0; border: 0; margin: 0; background: transparent; cursor: default; pointer-events: auto; }
+.navi:focus-visible { outline: 1px dotted #000; }
 /* Box selection rubber band */
 .box-select { position: absolute; inset: 0; cursor: crosshair; z-index: 20; }
 .box-band { position: absolute; display: none; border: 1px dashed #00abff; background: rgba(0, 171, 255, .12); }
