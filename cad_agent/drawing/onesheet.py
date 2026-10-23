@@ -84,8 +84,8 @@ def make(part: str, solid, meta: dict, angle: str = "first", size: str | None = 
         return made
     made.seconds = {"face": face.seconds, "side": side.seconds}
     made.rows.append(check.row(part, "views", "PASS",
-                               f"face view {len(face.visible)} visible and {len(face.hidden)} hidden entities, side view "
-                               f"{len(side.visible)} and {len(side.hidden)}", "OCCT's hidden line removal gives both views", V.SOURCE))
+                               f"face view {len(face.visible)} visible, {len(face.hidden)} hidden and {len(face.smooth)} smooth entities, "
+                               f"side view {len(side.visible)}, {len(side.hidden)} and {len(side.smooth)}", "OCCT's hidden line removal gives both views", V.SOURCE))
     try:
         sheet = L.build(plate, face, side, meta, angle, size, scale)
     except L.DoesNotFit:
