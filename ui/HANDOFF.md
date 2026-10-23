@@ -47,7 +47,7 @@ Items 5 to 9 of the fix list are done, each checked against the real FreeCAD (th
 
 Left:
 - Status bar height and toolbar widths: these come from the Mac's Qt style, so measure them on a Mac.
-- 5.1 Home and 5.9 arrow-key panning (FREECAD_AUDIT.md).
+- 5.1 Home (FREECAD_AUDIT.md). 5.9 arrow-key panning is done (2026-10-23, measured in the real FreeCAD).
 - The spline re-fit in DXF export stays a deliberate difference.
 - Open questions on the grader:
   - Should a fit be the gap per side or the diameter difference (now the diameter)?

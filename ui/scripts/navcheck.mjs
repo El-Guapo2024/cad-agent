@@ -30,9 +30,8 @@ const near = (a, b, tol = 1e-5) => Math.abs(a - b) <= tol
 const turn = (a, b) => { const d = a - b; return d - 2 * Math.PI * Math.floor((d + Math.PI) / (2 * Math.PI)) }
 const deg = (r) => `${(r * 180 / Math.PI).toFixed(4)}°`
 
-const W = 800, H = 600
-function rig(N, { style = 'cad', tilt = true, prefs = {} } = {}) {
-  const cam = new THREE.OrthographicCamera(-4, 4, 3, -3, 0.1, 100)
+function rig(N, { style = 'cad', tilt = true, prefs = {}, size: [W, H] = [800, 600] } = {}) {
+  const cam = new THREE.OrthographicCamera(-3 * W / H, 3 * W / H, 3, -3, 0.1, 100)
   cam.position.set(0, 0, 10); cam.lookAt(0, 0, 0); cam.updateMatrixWorld()
   const tgt = new THREE.Vector3()
   const log = { scene: [], cleared: 0, popups: 0, bands: 0 }
@@ -224,6 +223,21 @@ for (const mac of [true, false]) {
     r.fire('wheel', { clientX: 400, clientY: 300, deltaX: 0, deltaY: -100, deltaMode: 0, altKey: true, wheelDeltaY: 120 })
     check(`${P} alt+wheel: a notch away turns 15° clockwise`, near(turn(r.dir(), d1), -Math.PI / 12, 1e-4), `turned ${deg(turn(r.dir(), d1))}`)
   }
+}
+
+// Arrow keys: the real FreeCAD's step (ui/scripts/arrowpan_fc.py, ortho and perspective alike),
+// as a fraction of the visible width and height, for a press of Right and of Up.
+for (const [w, h, rw, uh] of [[800, 600, 0.075, 0.1], [1000, 450, 0.09, 0.1], [1700, 800, 0.0941176, 0.1], [2100, 700, 0.1, 0.1],
+  [500, 800, 0.1, 0.0625], [300, 900, 0.1, 0.0333333], [600, 600, 0.1, 0.1]]) {
+  const N = await load(false)
+  const r = rig(N, { size: [w, h] })
+  const vw = 6 * w / h, vh = 6
+  r.nav.processEvent({ type: 'key', key: 'ArrowRight', down: true, pos: [0, 0], t: 0 })
+  const x = r.cam.position.x
+  r.nav.processEvent({ type: 'key', key: 'ArrowUp', down: true, pos: [0, 0], t: 0 })
+  const y = r.cam.position.y
+  check(`arrow keys at ${w}x${h}: Right steps ${rw} of the width, Up ${uh} of the height`,
+    near(Math.abs(x) / vw, rw, 1e-5) && near(Math.abs(y) / vh, uh, 1e-5), `${(Math.abs(x) / vw).toFixed(6)}, ${(Math.abs(y) / vh).toFixed(6)}`)
 }
 
 // Qt's own default is 400 ms on X11

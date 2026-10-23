@@ -97,7 +97,7 @@ Section 5 below is the record of 2026-10-14. Measured again in the real FreeCAD 
   ShowCS and the drawn buttons, in BaseColor, HiliteColor and EmphaseColor) and the look parts of `NaviCube.cpp`; OffsetX/Y is 0 and the
   extra 12 px at the bottom are gone. `ui/scripts/navishots.py` compares it with FreeCAD 26.3 on Linux: in 24 shots the drawn box is the
   same to the pixel and 0.4 to 1.4 % of the square differs (the label glyphs, mostly). PARITY.md's NaviCube note has the details.
-- **Open**: 5.1 Home (under way elsewhere), 5.9 arrow-key panning.
+- **Open**: 5.1 Home (under way elsewhere).
 
 ## 1. How it was checked
 
@@ -238,6 +238,9 @@ cad_agent:
    Windows by default; 400 ms is only Qt's X11 default. S.
 9. **Arrow-key panning**: FreeCAD builds the view volume with an integer-truncated aspect (`SoQTQuarterAdaptor.cpp:661`, `width() / height()` on ints), so left and right step 0.1 of the view's height in a view wider than
    tall; ours 0.1 of the true width. S, low.
+   [fixed, measured in the real FreeCAD under xvfb at seven sizes, ortho and perspective (`ui/scripts/arrowpan_fc.py`): a press steps 0.1 of the
+   shorter side, times trunc(w / h) across a wide view (0.3 of the height at 3:1); in a tall view the int aspect is 0, the camera's own, so
+   0.1 of the width both ways. nav.ts `moveCameraScreen`; navcheck holds the seven answers]
 10. [re-checked against a real FreeCAD file] **DXF files** (real FreeCAD file at hand): splines are re-fitted (4); angles are raw atan2 in (-180, 180] there and [0, 360) here (dxf.cpp:764-765); HEADER has $DIMSTYLE, $DIMTXSTY, $PEXTMAX, $PEXTMIN where ours has
     $MEASUREMENT, $EXTMIN, $EXTMAX; TABLES have 2 STYLE (txt and arial.ttf), 2 APPID, a DIMSTYLE where ours has 1, 1 and none; CLASSES has 3, ours 1; handles start at 0xA01, ours at 1; the file ends "EOF" with no newline.
     Only DIMSTYLE is in the docstring (dxf.py:48). Same geometry, readable by the same readers. S to document.

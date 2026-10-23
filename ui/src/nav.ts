@@ -649,8 +649,15 @@ export class Navigation {
   }
 
   /** moveCameraScreen: the camera moves by the focal-plane step from the view's centre to
-   *  the centre plus `d` (normalized, y up), backwards. */
-  moveCameraScreen(d: V2) { this.panCamera(this.focalPlane(), [0.5 + d[0], 0.5 + d[1]], [0.5, 0.5]) }
+   *  the centre plus `d` (normalized, y up), backwards. FreeCAD's view volume takes the aspect
+   *  as `width() / height()` on ints (SoQTQuarterAdaptor.cpp:661): truncated in a wide view, so
+   *  `d` is of the height times trunc(w / h) across; 0 in a tall one, which is the camera's own
+   *  aspect, so `d` is of the width both ways. Measured in the real FreeCAD at seven sizes. */
+  moveCameraScreen(d: V2) {
+    const [w, h] = this.host.size().map(Math.round)
+    const k: V2 = w >= h ? [Math.trunc(w / h) * h / w, 1] : [1, w / Math.max(h, 1)]
+    this.panCamera(this.focalPlane(), [0.5 + d[0] * k[0], 0.5 + d[1] * k[1]], [0.5, 0.5])
+  }
 
   /** The rubber band of a drag box selection (BoxSelectSelection). */
   private boxEvent(ev: NavEvent): boolean {
