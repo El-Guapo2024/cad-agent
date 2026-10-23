@@ -25,7 +25,8 @@ spec.toml is UNCHECKED too: nothing states what the design must do.
     a = "x_carriage"
     b = "gantry_end_left"
     min_mm = 3.0                # min_mm and/or max_mm, at least one; overlap always fails
-    max_mm = 20.0               # a small max_mm is how "must grip" or "must touch" is written
+    max_mm = 20.0               # both bound the closest approach only: a small max_mm says "touches
+                                # somewhere"; for a round part held all round, use [[shaft_fit]]
 
     [[keepout]]                 # a tool's volume the listed bodies must stay out of
     tool = "laser_cone"         # drill, end_mill, collet_nose, laser_cone, needle
@@ -43,6 +44,19 @@ spec.toml is UNCHECKED too: nothing states what the design must do.
     fastener = "M3"             # optional: hole sizes must suit it
     tol_mm = 0.1                # axis offset allowed; default 0.1
     near_mm = 15                # optional: also only holes of `a` this close to `b`
+
+    [[holes]]                   # how many holes a body has, of a size and along an axis
+    body = "bracket"
+    count = 4                   # or min_count and/or max_count
+    min_dia_mm = 3.2            # optional, with max_dia_mm: the hole's size, its narrowest bore
+    max_dia_mm = 3.6
+    axis = "z"                  # optional: x, y, z or [x, y, z]; also kind = "slot" or "any"
+
+    [[shaft_fit]]               # a round shaft in the bores of another body
+    shaft = "pin_1"
+    bore = "carrier"
+    min_mm = 0                  # bore minus shaft diameter (diametral, so 0.1 a side is 0.2)
+    max_mm = 0.2                # min_mm and/or max_mm; below 0 is a press fit; also tol_mm, pose
 
     [[heat]]                    # every other body within radius_mm of the source needs a rating of temp_c
     source = "hot_plate"        # a body, or at = [x, y, z]
@@ -86,7 +100,8 @@ Bodies are the names assembly.py places; parts in [[mass]] are part modules.
 Each section is a kind: a function registered with @spec_kind in its own module of
 cad_agent/speckinds/ (kit.py has what a kind uses), and check_spec runs whatever is registered. The
 seven there before step 6 are documented above in full. The five that came with it (heat, deflection, axis,
-bodies, shop) and the `bodies` and `moving` forms of mass are shown above in their shape only: each
+bodies, shop), the two added after it (holes, shaft_fit) and the `bodies` and `moving` forms of mass are
+shown above in their shape only: each
 module's docstring has every key, every case it calls UNCHECKED and what it does not model. A section
 nobody registered is UNCHECKED, like a malformed entry: the list of kinds is `spec.KINDS`.
 """

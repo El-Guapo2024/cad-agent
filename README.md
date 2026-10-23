@@ -20,7 +20,7 @@ More designs: the workbench inspector, and an Arduino car.
 ## What it does
 
 - **Parts and assemblies as code.** Each part is a Python module (build123d). Gates check fit, motion, wall thickness, what the process can make, and where every bought part's numbers came from.
-- **A spec as acceptance tests.** `spec.toml` states what the design must do: sizes, clearances, keep-outs, bolt holes that line up, mass budgets, hot zones (everything near a heater is rated for it), beam deflection, axes, how many bodies, what goes to a shop. What a rule can't measure says UNCHECKED, and UNCHECKED is not a pass.
+- **A spec as acceptance tests.** `spec.toml` states what the design must do: sizes, clearances, keep-outs, bolt holes that line up, hole counts, shaft fits, mass budgets, hot zones (everything near a heater is rated for it), beam deflection, axes, how many bodies, what goes to a shop. What a rule can't measure says UNCHECKED, and UNCHECKED is not a pass.
 - **A library of real parts.** MGN rails and carriages, 2020/2040/4040 extrusions, NEMA 8 and 17 motors, ISO fasteners, each with its source, mass and hash.
 - **Machines.** A machine is projects linked as sub-assemblies (a gantry, a head), with named poses. Each one stays a full project, and the machine is done only when every one is.
 - **Files for a shop.** STEP, DXF for laser parts, 3MF and STL for printed ones, dimensioned drawings of plates and a bill of materials, written only for a design that is done, with a manifest of hashes.

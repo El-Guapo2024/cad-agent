@@ -257,8 +257,8 @@ Each step ends with the tests green.
    - A second pass of fixes, 2026-10-07: `[[interface]]` reads a bore of 270 degrees or more as a hole (a teardrop, a D-bore, a slit bore) and judges a hole of `a` only when its axis lands on `b`'s material or in one of its holes, so `near_mm` is an explicit extra and `laser_panel` dropped its `near_mm = 6`; the part rules read `laser_cut`'s kerf (slots and gaps) and the minimum hole of `laser_cut` and `cnc`, a test holds every number in the process table to being read, and fdm's `min_hole_mm` is gone (a printed hole under 2 mm is drilled afterwards); every length compared to a limit allows 1e-6 mm (`registry.TOL_MM`), so a 5.0 mm stance patch stands; the tests that run `bin/cad` or the warm worker run their own Python whatever `CAD_PYTHON` a plugin session exports (`conftest.cad_env`); the 24 given STEPs were rewritten by `write_step`.
    - Known gaps, what the grader can't say yet (each task works round them; `evals/README.md` has the detail). Step 6 closed four, and hidden specs may use them now:
      - ~~no `[[axis]]` kind~~ (`[[axis]]`);
-     - no hole-count option and no shaft-fit option;
-     - a clearance `max_mm` bounds only the closest approach, and there is no clearance to a sub-feature;
+     - ~~no hole-count option and no shaft-fit option~~ (`[[holes]]`, `[[shaft_fit]]`; no hidden spec uses them yet);
+     - a clearance `max_mm` bounds only the closest approach (now said in its docstring; a round part's fit is `[[shaft_fit]]`, a flat seat has no rule), and there is no clearance to a sub-feature;
      - ~~there is no DXF export for laser parts~~ (`cad export --format dxf`, `cad shop`);
      - ~~no heat rule and no body count~~ (`[[heat]]`, `[bodies]`).
 8. First real job: the one-machine layout (frame, gantry, dock, laser keep-out). Not started: the harness comes first, and step 6 built only the harness.
