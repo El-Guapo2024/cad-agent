@@ -75,6 +75,12 @@ Section 5 below is the record of 2026-10-14. Measured again in the real FreeCAD 
   Link Actions, Rename, Close Document, ... as in the real menu, greyed out where they mean nothing here).
 - **Open**: 5.1 Home (under way elsewhere), 5.5 the NaviCube's look, 5.6 expressions, 5.9 arrow-key panning, 5.10 DXF, 5.11 BOM, 5.12
   drawings.
+- **5.10 DXF: fixed (2026-10-23).** The file around the entities is FreeCAD's R14 templates in `CDxfWrite::endRun`'s order, with
+  their handles and FreeCAD's from 0xA01, "EOF" with no newline; arcs' angles are atan2's (-180, 180]; a whole ellipse ends at
+  6.28318 (ImpExpDxf.cpp:1964-1966). `ui/scripts/dxfdiff.py` writes one part through both writers (FreeCAD on the Linux build
+  of 3160daf1e2b6) and compares every line: only what dxf.py documents differs ($MEASUREMENT, $EXTMIN, $EXTMAX, four template
+  counts and owners put right, the comment, 6 decimals, the order, atan2's sign of a half turn), and FreeCAD's Import.readDXF
+  reads ours back to the same edges, cut length and box. The spline re-fit (4) stays a deliberate difference.
 
 ## 1. How it was checked
 

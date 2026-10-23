@@ -198,7 +198,7 @@ def move_circle(text):
     ("a line gone", drop_line, "it was written with 2 circles, 4 arcs, 4 lines but the file holds 2 circles, 4 arcs, 3 lines"),
     ("a line twice", double_line, "the file holds 2 circles, 4 arcs, 5 lines"),
     ("a hole 0.5 mm out", move_circle, "the curves are 0.5000 mm from the section's at their worst, over 0.001 mm"),
-    ("inches", lambda t: t.replace(" 70\n4\n  9\n$EXTMIN", " 70\n1\n  9\n$EXTMIN"), "its units are code 1, not 4 (millimetres)"),
+    ("inches", lambda t: t.replace(" 70\n4\n  9\n$PEXTMAX", " 70\n1\n  9\n$PEXTMAX"), "its units are code 1, not 4 (millimetres)"),
     ("no units", lambda t: t.replace("  9\n$INSUNITS\n 70\n4\n", ""), "millimetres"),
     ("a point in the outline", lambda t: t.replace("  0\nENDSEC\n  0\nSECTION\n  2\nOBJECTS", "  0\nPOINT\n  5\nFFFE\n330\n11\n100\nAcDbEntity\n  8\nnone\n100\nAcDbPoint\n 10\n1.0\n 20\n1.0\n 30\n0.0\n  0\nENDSEC\n  0\nSECTION\n  2\nOBJECTS"),
      "the file also holds 1 point, which are not outline"),

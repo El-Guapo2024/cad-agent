@@ -147,11 +147,11 @@ PINNED = {
     ("plate", "step"): "7ca950f6e062bd6d31ac05b8cf71d6d9f9d82aa679b94142be00d1269e5d6b9e",
     ("plate", "stl"): "f5cd088af9256d7e9b6b351d08fa8af77b89f7ce673c138b963e9af1dfc4cc38",
     ("plate", "3mf"): "8c6840d1e86519f0f0ace81e66d7d7434287005c4a46970f105f72a97c98c147",
-    ("plate", "dxf"): "686fb27fe2d99fa83d27fdf47320ce982f67c04f3fd0da68d7e5112e52db0693",
+    ("plate", "dxf"): "960fedb4993416a215544d6255d1cae5325e19a91679df56744461c04f28ef29",
     ("placed", "step"): "70f82db32de16c5d106971cc661349091c9108e87046f69749247822814e0fdd",
     ("placed", "stl"): "b1c71ccdb5663c4ff96bb2a8718d4be120d7cd62bec070d08df73224b3d5f753",
     ("placed", "3mf"): "b8efe6eed0b291b83b270be62499587d89009fd06a36ecf17ed01717d5c27b4e",
-    ("placed", "dxf"): "99fa38f7ca079939e112d8b98a4e45a5be806be6766076f9e22c34ebcc4aa526",
+    ("placed", "dxf"): "8212d5b0381bf034ebc753c91c30814630e9585ce4d18f8bfa3b8f74af0b5f58",
 }
 
 
@@ -236,7 +236,7 @@ def test_a_dxf_holds_the_outline_in_millimetres_the_way_freecad_writes_it(rounde
     assert (circle.dxf.center.x, circle.dxf.center.y, circle.dxf.radius) == pytest.approx((-15, 0, 3))
     arcs = sorted((round(e.dxf.center.x), round(e.dxf.center.y), round(e.dxf.start_angle), round(e.dxf.end_angle))
                   for e in entities if e.dxftype() == "ARC")
-    assert arcs == [(-25, -10, 180, 270), (-25, 10, 90, 180), (25, -10, 270, 0), (25, 10, 0, 90)]       # counter-clockwise, 0 not 360
+    assert arcs == [(-25, -10, 180, -90), (-25, 10, 90, 180), (25, -10, -90, 0), (25, 10, 0, 90)]       # counter-clockwise, atan2's (-180, 180]
     assert all(round(e.dxf.radius) == 5 for e in entities if e.dxftype() == "ARC")
 
 

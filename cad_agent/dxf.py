@@ -66,7 +66,8 @@ and the way `exportShape` maps an edge to an entity:
   circle, closed (over 1 radian, ends within 0.03 mm)
                                    CIRCLE
   circle, open                     ARC, counter-clockwise from its start angle to its end angle (`writeArc`)
-  ellipse                          ELLIPSE: centre, major axis vector, ratio, start and end parameter
+  ellipse                          ELLIPSE: centre, major axis vector, ratio, start and end parameter (a whole
+                                   one from 0 to 6.28318, as exportEllipse writes it for LibreCAD's sake)
   B-spline                         SPLINE: degree, knots, control points (FreeCAD re-fits it first, see above)
 
 The layer is `none`, which is what `writeDXFShape` names it, and the group codes follow `CDxfWrite` for a
@@ -80,16 +81,17 @@ version above 12 (owner handle 330, subclass markers 100). Where this differs fr
                     should cut, and within a loop by kind and position
   header            FreeCAD's comment line is its build (`CDxfWrite::writeHeaderSection`; the weekly build of the
                     commit above writes "FreeCAD v26.3 20260929 (Git shallow)"); this one names the part,
-                    where the outline came from and the FreeCAD commit, and has no date. Its tables are the
-                    ones a laser reader needs: FreeCAD's DIMSTYLE record is left out
+                    where the outline came from and the FreeCAD commit, and has no date. The rest of the
+                    file around the entities is FreeCAD's: the HEADER, CLASSES, TABLES, BLOCKS and OBJECTS of
+                    its R14 templates, with their handles, in the order `CDxfWrite::endRun` puts them, handles
+                    from 0xA01 in FreeCAD's order, and "EOF" with no newline at the end. Against a file the
+                    weekly build wrote, only these differ there: $MEASUREMENT, $EXTMIN and $EXTMAX are added
+                    to the header, and the templates' four wrong table counts and owners are put right
+                    (DxfWriter says which)
+  angles            an ARC's start and end are atan2's, in (-180, 180], as `writeArc` writes them
+                    (dxf.cpp:764-765): an arc from 270 to 360 degrees is -90 to 0. A zero is 0, where FreeCAD
+                    may print atan2's -0, and the half turn is 180, never -180
   line ends         "\\n", whatever machine writes it
-  also              against a file the weekly build wrote (FREECAD_AUDIT.md, 5.10): an ARC's angles are raw
-                    atan2, in (-180, 180], in dxf.cpp:764-765 and [0, 360) here; its HEADER has $DIMSTYLE,
-                    $DIMTXSTY, $PEXTMAX and $PEXTMIN where this one has $MEASUREMENT, $EXTMIN and $EXTMAX; its
-                    TABLES have two STYLE records, two APPID and a DIMSTYLE where this one has one, one and
-                    none; CLASSES has three entries and this one's has one; handles start at 0xA01 there and
-                    at 1 here; its last line is "EOF" with no newline. The geometry is the same and the same
-                    readers read both
 
 Where the outline comes from. For a part that passes `laser through-cut` (below), it is the boundary of the end
 face at the top of the part, which is the section exactly and is made of the curves the part was built from.
@@ -225,6 +227,16 @@ def angle(deg: float) -> float:
     """An angle in degrees on the grid and in [0, 360): 359.9999999 is 0, not 360."""
     a = snap(deg % 360.0)
     return 0.0 if a >= 360.0 else a
+
+
+# exportEllipse writes a whole ellipse from 0 to this, not 2 pi (ImpExpDxf.cpp:1964-1966: "2*pi = 6.28319 is invalid
+# (doesn't display in LibreCAD), but 2PI = 6.28318 is valid!")
+FULL_ELLIPSE_END = 6.28318
+
+
+def atan2_range(deg: float) -> float:
+    """An angle of [0, 360) as writeArc writes it (dxf.cpp:764-765): straight from atan2, in (-180, 180]."""
+    return deg - 360.0 if deg > 180.0 else deg
 
 
 def num(v: float) -> str:
@@ -428,7 +440,7 @@ def primitive(edge, frame: Frame):
         major = (x[0] * el.MajorRadius(), x[1] * el.MajorRadius())
         ratio = el.MinorRadius() / el.MajorRadius()
         if abs(l - f) > CLOSED_SPAN and (start[0] - end[0]) ** 2 + (start[1] - end[1]) ** 2 < CLOSED_GAP_SQ:
-            t0, t1 = 0.0, 2.0 * math.pi
+            t0, t1 = 0.0, FULL_ELLIPSE_END
         elif ccw > 0:
             t0, t1 = f % (2.0 * math.pi), l % (2.0 * math.pi)
         else:                                                      # the parameter runs clockwise: counter-clockwise it is -l to -f
@@ -622,8 +634,13 @@ class Linetype(NamedTuple):
 
 
 class DxfWriter:
-    """An R14 DXF written section by section the way `write_dxf` always wrote one: the header, the tables, the two
-    empty block spaces, then the entities one at a time, and `finish`, which closes the file.
+    """An R14 DXF assembled the way `CDxfWrite::endRun` assembles one (dxf.cpp:139-158): the comment, the header,
+    classes and tables of FreeCAD's DxfPlate templates with the layer table between the two halves of the tables, the
+    two empty block spaces, the entities, the objects, and "EOF" with no newline after it. The entities are written as
+    they come, to a buffer of their own, so that the handles are given in FreeCAD's order: from 0xA01, the block
+    record table and its two records, then the four block ends (`init`), the entities, and last the layer table
+    (`makeLayerTable`, in endRun). The templates' own handles (20 to 25 and 70 to 79 in the tables, F000 and F001 in
+    the objects) are theirs.
 
     Piece D wrote an outline with it (one layer, one linetype) and piece E (drawing/) writes a whole sheet: more
     layers, dashed and chain linetypes, text and filled arrowheads. `layers` and `linetypes` are what the file
@@ -631,112 +648,41 @@ class DxfWriter:
     $INSUNITS as (name, [(group code, value), ...]). R14 has no lineweights, so a width is not in the file: the
     layer's colour stands for the pen, as it did before R2000. Every number goes through `num`, so a file is the same
     bytes whenever it is written. The entities are in model space.
+
+    Where this differs from the templates, on purpose: $MEASUREMENT (metric) and $EXTMIN/$EXTMAX (the drawing's real
+    extent) are in the header too, which header14.rub leaves out, so a reader that looks at them zooms to the part
+    and does not guess inches; and four slips of the templates are put right, so that a strict reader (AutoCAD's
+    AUDIT) has nothing to fix: the LTYPE table counts its records (tables114.rub says 1 for 3) and they belong to it
+    (tables114.rub names the VPORT record, 21), the DIMSTYLE table counts its one record (tables214.rub: 2), and the
+    BLOCK_RECORD table its two (makeBlockRecordTableHead: the blocks plus 5). Extra linetypes, which FreeCAD's
+    writer never declares, take the handles after the layers.
     """
 
+    FIRST_HANDLE = 0xA00    # m_handle(0xA00): "room for 2560 handles in boilerplate files"
+
     def __init__(self, comment: str, lo, hi, layers, linetypes=(), header=()):
-        self.out = out = _Out()
-        self._h = [0]
-        out.put(999, comment)
-
-        # HEADER
-        out.put(0, "SECTION"); out.put(2, "HEADER")
-        out.put(9, "$ACADVER"); out.put(1, "AC1014")
-        out.put(9, "$ACADMAINTVER"); out.put(70, 9)
-        out.put(9, "$DWGCODEPAGE"); out.put(3, "ANSI_1252")
-        out.put(9, "$TEXTSTYLE"); out.put(7, "STANDARD")
-        out.put(9, "$LUNITS"); out.put(70, 2)
-        out.put(9, "$MEASUREMENT"); out.put(70, 1)
-        out.put(9, "$INSUNITS"); out.put(70, 4)
-        for var, pairs in header:
-            out.put(9, var)
-            for code, value in pairs:
-                out.put(code, value)
-        out.put(9, "$EXTMIN"); out.point(10, lo[0], lo[1], 0.0)
-        out.put(9, "$EXTMAX"); out.point(10, hi[0], hi[1], 0.0)
-        out.put(9, "$HANDSEED"); self._seed_at = len(out.lines); out.put(5, "0")
-        out.put(0, "ENDSEC")
-
-        # CLASSES: the one an LWPOLYLINE needs
-        out.put(0, "SECTION"); out.put(2, "CLASSES")
-        out.put(0, "CLASS"); out.put(1, "LWPOLYLINE"); out.put(2, "AcDbPolyline"); out.put(3, "ObjectDBX Classes")
-        out.put(90, 0); out.put(280, 0); out.put(281, 1)
-        out.put(0, "ENDSEC")
-
-        # TABLES
-        out.put(0, "SECTION"); out.put(2, "TABLES")
-        owner = self._table("VPORT", 1)
-        self._record("VPORT", owner, "AcDbViewportTableRecord"); out.put(2, "*ACTIVE"); out.put(70, 0)
-        out.put(0, "ENDTAB")
-        owner = self._table("LTYPE", 3 + len(linetypes))
-        for lname, desc in (("BYBLOCK", ""), ("BYLAYER", ""), ("CONTINUOUS", "Solid line")):
-            self._record("LTYPE", owner, "AcDbLinetypeTableRecord")
-            out.put(2, lname); out.put(70, 0); out.put(3, desc); out.put(72, 65); out.put(73, 0); out.put(40, "0.0")
-        for lt in linetypes:
-            self._record("LTYPE", owner, "AcDbLinetypeTableRecord")
-            out.put(2, lt.name); out.put(70, 0); out.put(3, lt.description); out.put(72, 65)
-            out.put(73, len(lt.pattern)); out.put(40, num(sum(abs(d) for d in lt.pattern)))
-            for d in lt.pattern:
-                out.put(49, num(d)); out.put(74, 0)
-        out.put(0, "ENDTAB")
-        owner = self._table("LAYER", len(layers) + 1)
-        for layer in [Layer("0")] + list(layers):
-            self._record("LAYER", owner, "AcDbLayerTableRecord")
-            out.put(2, layer.name); out.put(70, 0); out.put(62, layer.colour); out.put(6, layer.linetype)
-        out.put(0, "ENDTAB")
-        owner = self._table("STYLE", 1)
-        self._record("STYLE", owner, "AcDbTextStyleTableRecord")
-        out.put(2, "STANDARD"); out.put(70, 0); out.put(40, "0.0"); out.put(41, "1.0"); out.put(50, "0.0"); out.put(71, 0)
-        out.put(42, "2.5"); out.put(3, "txt"); out.put(4, "")
-        out.put(0, "ENDTAB")
-        self._table("VIEW", 0); out.put(0, "ENDTAB")
-        self._table("UCS", 0); out.put(0, "ENDTAB")
-        owner = self._table("APPID", 1)
-        self._record("APPID", owner, "AcDbRegAppTableRecord"); out.put(2, "ACAD"); out.put(70, 0)
-        out.put(0, "ENDTAB")
-        owner = self._table("BLOCK_RECORD", 2)
+        self.comment, self.lo, self.hi = comment, lo, hi
+        self.layers, self.linetypes, self.header = list(layers), list(linetypes), list(header)
+        self._h = [self.FIRST_HANDLE]
+        # CDxfWrite::init: makeBlockRecordTableHead, then makeBlockSectionHead
+        self._record_table = self._handle()
         self._model = self._handle()
-        paper_record = self._handle()
-        for hd, bname in ((self._model, "*MODEL_SPACE"), (paper_record, "*PAPER_SPACE")):
-            out.put(0, "BLOCK_RECORD"); out.put(5, hd); out.put(330, owner)
-            out.put(100, "AcDbSymbolTableRecord"); out.put(100, "AcDbBlockTableRecord"); out.put(2, bname)
-        out.put(0, "ENDTAB")
-        out.put(0, "ENDSEC")
-
-        # BLOCKS: model and paper space, empty
-        out.put(0, "SECTION"); out.put(2, "BLOCKS")
-        for owner_record, bname, paper in ((self._model, "*MODEL_SPACE", False), (paper_record, "*PAPER_SPACE", True)):
-            out.put(0, "BLOCK"); out.put(5, self._handle()); out.put(330, owner_record)
-            out.put(100, "AcDbEntity")
-            if paper:
-                out.put(67, 1)
-            out.put(8, "0"); out.put(100, "AcDbBlockBegin"); out.put(2, bname); out.put(70, 0)
-            out.point(10, 0.0, 0.0, 0.0); out.put(3, bname); out.put(1, "")
-            out.put(0, "ENDBLK"); out.put(5, self._handle()); out.put(330, owner_record)
-            out.put(100, "AcDbEntity")
-            if paper:
-                out.put(67, 1)
-            out.put(8, "0"); out.put(100, "AcDbBlockEnd")
-        out.put(0, "ENDSEC")
-
-        out.put(0, "SECTION"); out.put(2, "ENTITIES")
+        self._paper = self._handle()
+        self._blocks = [self._handle() for _ in range(4)]
+        self.out = _Out()      # the entities (m_ssEntity)
 
     def _handle(self) -> str:
+        """CDxfWrite::getHandle: the next one, upper-case hex, at least two digits."""
         self._h[0] += 1
-        return f"{self._h[0]:X}"
+        return f"{self._h[0]:02X}"
 
-    def _table(self, tname: str, count: int) -> str:
-        owner = self._handle()
-        out = self.out
+    def _table(self, out: _Out, tname: str, owner: str, count: int) -> None:
         out.put(0, "TABLE"); out.put(2, tname); out.put(5, owner); out.put(330, 0)
-        out.put(100, "AcDbSymbolTable"); out.put(70, count)
-        return owner
+        out.put(100, "AcDbSymbolTable"); out.put(70, f"{count:6d}")
 
-    def _record(self, rname: str, owner: str, marker: str) -> str:
-        hd = self._handle()
-        out = self.out
+    def _record(self, out: _Out, rname: str, hd: str, owner: str, marker: str) -> None:
         out.put(0, rname); out.put(5, hd); out.put(330, owner)
         out.put(100, "AcDbSymbolTableRecord"); out.put(100, marker)
-        return hd
 
     def _head(self, etype: str, sub: str, layer: str) -> None:
         out = self.out
@@ -754,7 +700,7 @@ class DxfWriter:
             self._head("CIRCLE", "AcDbCircle", layer); out.point(10, p.c[0], p.c[1], 0.0); out.put(40, num(p.r))
         elif t is Arc:
             self._head("ARC", "AcDbCircle", layer); out.point(10, p.c[0], p.c[1], 0.0); out.put(40, num(p.r))
-            out.put(100, "AcDbArc"); out.put(50, num(p.a0)); out.put(51, num(p.a1))
+            out.put(100, "AcDbArc"); out.put(50, num(atan2_range(p.a0))); out.put(51, num(atan2_range(p.a1)))
         elif t is Ellipse:
             self._head("ELLIPSE", "AcDbEllipse", layer); out.point(10, p.c[0], p.c[1], 0.0)
             out.point(11, p.major[0], p.major[1], 0.0); out.put(40, num(p.ratio))
@@ -802,18 +748,137 @@ class DxfWriter:
         out.point(12, c[0], c[1], 0.0); out.point(13, d[0], d[1], 0.0)
 
     def finish(self) -> bytes:
-        """Close the entities, add the objects section FreeCAD's objects14.rub has, and give the bytes."""
-        out = self.out
+        """The file, in endRun's order (see the class), as bytes."""
+        entities = self.out
+        layer_table = self._handle()                                     # makeLayerTable, after the entities
+        layer_handles = [self._handle() for _ in range(len(self.layers) + 1)]
+        linetype_handles = [self._handle() for _ in self.linetypes]
+        # the objects of objects14.rub, F000 and F001, unless a very large file has used those handles already
+        root, groups = ("F000", "F001") if self._h[0] < 0xF000 else (self._handle(), self._handle())
+        seed = "FFFF" if self._h[0] < 0xFFFF else f"{self._h[0] + 1:X}"
+
+        out = _Out()
+        out.put(999, self.comment)
+
+        # HEADER: header14.rub, with $MEASUREMENT, the caller's variables and the extent
+        out.put(0, "SECTION"); out.put(2, "HEADER")
+        out.put(9, "$ACADVER"); out.put(1, "AC1014")
+        out.put(9, "$ACADMAINTVER"); out.put(70, "     9")
+        out.put(9, "$DWGCODEPAGE"); out.put(3, "ANSI_1252")
+        out.put(9, "$TEXTSTYLE"); out.put(7, "STANDARD")
+        out.put(9, "$DIMSTYLE"); out.put(2, "STANDARD")
+        out.put(9, "$DIMTXSTY"); out.put(7, "STANDARD")
+        out.put(9, "$LUNITS"); out.put(70, 2)
+        out.put(9, "$MEASUREMENT"); out.put(70, 1)
+        out.put(9, "$INSUNITS"); out.put(70, 4)
+        for var, pairs in self.header:
+            out.put(9, var)
+            for code, value in pairs:
+                out.put(code, value)
+        out.put(9, "$PEXTMAX"); out.put(10, 50); out.put(20, 50); out.put(30, 50)
+        out.put(9, "$PEXTMIN"); out.put(10, 0); out.put(20, 0); out.put(30, 0)
+        out.put(9, "$EXTMIN"); out.point(10, self.lo[0], self.lo[1], 0.0)
+        out.put(9, "$EXTMAX"); out.point(10, self.hi[0], self.hi[1], 0.0)
+        out.put(9, "$HANDSEED"); out.put(5, seed)
         out.put(0, "ENDSEC")
+
+        # CLASSES: classes14.rub
+        out.put(0, "SECTION"); out.put(2, "CLASSES")
+        for cname, cpp, proxy in (("ACDBDICTIONARYWDFLT", "AcDbDictionaryWithDefault", 0), ("XRECORD", "AcDbXrecord", 0),
+                                  ("LWPOLYLINE", "AcDbPolyline", 1)):
+            out.put(0, "CLASS"); out.put(1, cname); out.put(2, cpp); out.put(3, "ObjectDBX Classes")
+            out.put(90, "        0"); out.put(280, "     0"); out.put(281, f"     {proxy}")
+        out.put(0, "ENDSEC")
+
+        # TABLES: tables114.rub, the layers (makeLayerTable), tables214.rub, the block records
+        out.put(0, "SECTION"); out.put(2, "TABLES")
+        self._table(out, "VPORT", "20", 1)
+        self._record(out, "VPORT", "21", "20", "AcDbViewportTableRecord"); out.put(2, "*ACTIVE"); out.put(70, "     0")
+        out.put(0, "ENDTAB")
+        self._table(out, "LTYPE", "22", 3 + len(self.linetypes))
+        for hd, lname, desc in (("23", "BYBLOCK", ""), ("24", "BYLAYER", ""), ("25", "CONTINUOUS", "Solid line")):
+            self._record(out, "LTYPE", hd, "22", "AcDbLinetypeTableRecord")
+            out.put(2, lname); out.put(70, "     0"); out.put(3, desc); out.put(72, "    65"); out.put(73, "     0"); out.put(40, "0.0")
+        for hd, lt in zip(linetype_handles, self.linetypes):
+            self._record(out, "LTYPE", hd, "22", "AcDbLinetypeTableRecord")
+            out.put(2, lt.name); out.put(70, "     0"); out.put(3, lt.description); out.put(72, "    65")
+            out.put(73, f"{len(lt.pattern):6d}"); out.put(40, num(sum(abs(d) for d in lt.pattern)))
+            for d in lt.pattern:
+                out.put(49, num(d)); out.put(74, "     0")
+        out.put(0, "ENDTAB")
+        out.put(0, "TABLE"); out.put(2, "LAYER"); out.put(5, layer_table); out.put(330, 0)
+        out.put(100, "AcDbSymbolTable"); out.put(70, len(self.layers) + 1)
+        for i, (hd, layer) in enumerate(zip(layer_handles, [Layer("0")] + self.layers)):
+            pad = "   " if i == 0 else "    "                       # dxf.cpp:262-267 and 285-290
+            self._record(out, "LAYER", hd, layer_table, "AcDbLayerTableRecord")
+            out.put(2, layer.name); out.put(70, pad + "0"); out.put(62, pad + str(layer.colour)); out.put(6, layer.linetype)
+        out.put(0, "ENDTAB")
+        self._table(out, "STYLE", "70", 2)
+        for hd, sname in (("71", "STANDARD"), ("72", "ANNOTATIVE")):
+            self._record(out, "STYLE", hd, "70", "AcDbTextStyleTableRecord")
+            out.put(2, sname); out.put(70, "     0"); out.put(40, "0.0"); out.put(41, "1.0"); out.put(50, "0.0")
+            out.put(71, "     0"); out.put(42, "2.5"); out.put(3, "arial.ttf"); out.put(4, "")
+        out.put(0, "ENDTAB")
+        self._table(out, "VIEW", "73", 0); out.put(0, "ENDTAB")
+        self._table(out, "UCS", "74", 0); out.put(0, "ENDTAB")
+        self._table(out, "APPID", "75", 2)
+        for hd, aname in (("76", "ACAD"), ("77", "ACADANNOTATIVE")):
+            self._record(out, "APPID", hd, "75", "AcDbRegAppTableRecord"); out.put(2, aname); out.put(70, "     0")
+        out.put(0, "ENDTAB")
+        self._table(out, "DIMSTYLE", "78", 1)
+        out.put(0, "DIMSTYLE"); out.put(105, "79"); out.put(330, "78")
+        out.put(100, "AcDbSymbolTableRecord"); out.put(100, "AcDbDimStyleTableRecord"); out.put(2, "STANDARD")
+        for code, value in DIMSTYLE_STANDARD:
+            out.put(code, value)
+        out.put(0, "ENDTAB")
+        out.put(0, "TABLE"); out.put(2, "BLOCK_RECORD"); out.put(5, self._record_table); out.put(330, 0)
+        out.put(100, "AcDbSymbolTable"); out.lines += ["  70", "2"]             # makeBlockRecordTableHead's "  70"
+        for hd, bname in ((self._model, "*MODEL_SPACE"), (self._paper, "*PAPER_SPACE")):
+            self._record(out, "BLOCK_RECORD", hd, self._record_table, "AcDbBlockTableRecord"); out.put(2, bname)
+        out.put(0, "ENDTAB")
+        out.put(0, "ENDSEC")
+
+        # BLOCKS: model and paper space, empty (makeBlockSectionHead)
+        out.put(0, "SECTION"); out.put(2, "BLOCKS")
+        for (begin, end), owner_record, bname, paper in ((self._blocks[:2], self._model, "*MODEL_SPACE", False),
+                                                         (self._blocks[2:], self._paper, "*PAPER_SPACE", True)):
+            out.put(0, "BLOCK"); out.put(5, begin); out.put(330, owner_record)
+            out.put(100, "AcDbEntity")
+            if paper:
+                out.put(67, 1)
+            out.put(8, "0"); out.put(100, "AcDbBlockBegin"); out.put(2, bname); out.put(70, "   0")
+            out.put(10, 0); out.put(20, 0); out.put(30, 0); out.put(3, bname); out.put(1, " ")
+            out.put(0, "ENDBLK"); out.put(5, end); out.put(330, owner_record)
+            out.put(100, "AcDbEntity")
+            if paper:
+                out.put(67, "    1")
+            out.put(8, "0"); out.put(100, "AcDbBlockEnd")
+        out.put(0, "ENDSEC")
+
+        out.put(0, "SECTION"); out.put(2, "ENTITIES")
+        out.lines += entities.lines
+        out.put(0, "ENDSEC")
+
+        # OBJECTS: objects14.rub
         out.put(0, "SECTION"); out.put(2, "OBJECTS")
-        root, groups = self._handle(), self._handle()
         out.put(0, "DICTIONARY"); out.put(5, root); out.put(330, 0); out.put(100, "AcDbDictionary")
         out.put(3, "ACAD_GROUP"); out.put(350, groups)
         out.put(0, "DICTIONARY"); out.put(5, groups); out.put(330, root); out.put(100, "AcDbDictionary")
         out.put(0, "ENDSEC")
         out.put(0, "EOF")
-        out.lines[self._seed_at + 1] = f"{self._h[0] + 1:X}"
-        return out.text().encode("ascii", "replace")
+        return out.text()[:-1].encode("ascii", "replace")               # endRun: "EOF" with no newline after it
+
+
+# tables214.rub's DIMSTYLE record STANDARD, after its name
+DIMSTYLE_STANDARD = (
+    (70, "     0"), (3, ""), (4, ""), (5, ""), (6, ""), (7, ""), (40, "0.0"), (41, "2.5"), (42, "0.625"), (43, "3.75"),
+    (44, "1.25"), (45, "0.0"), (46, "0.0"), (47, "0.0"), (48, "0.0"), (140, "2.5"), (141, "2.5"), (142, "0.0"),
+    (143, "0.03937007874016"), (144, "1.0"), (145, "0.0"), (146, "1.0"), (147, "0.625"), (71, "     0"), (72, "     0"),
+    (73, "     0"), (74, "     0"), (75, "     0"), (76, "     0"), (77, "     1"), (78, "     8"), (170, "     0"),
+    (171, "     3"), (172, "     1"), (173, "     0"), (174, "     0"), (175, "     0"), (176, "     0"), (177, "     0"),
+    (178, "     0"), (270, "     2"), (271, "     2"), (272, "     2"), (273, "     2"), (274, "     3"), (340, "71"),
+    (275, "     0"), (280, "     0"), (281, "     0"), (282, "     0"), (283, "     0"), (284, "     8"), (285, "     0"),
+    (286, "     0"), (287, "     3"), (288, "     0"))
 
 
 def write_dxf(cut: Cut, name: str, stamp: str | None = None, loops: list | None = None) -> bytes:

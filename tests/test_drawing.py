@@ -602,13 +602,13 @@ def test_every_run_gives_the_same_bytes_in_this_process_and_in_a_fresh_one(tmp_p
 # tests/fixtures: CI runs `cad verify` on every folder there, as a project.
 GOLDEN = REPO / "tests" / "golden" / "drawings"
 PINNED = {
-    ("nema", "first", "dxf"): "d4a8833244a0d2e38a090a4033b6ef163934fe6bcbc6e5cd41271e227454f761",
+    ("nema", "first", "dxf"): "49fcd2f00df16fa7b3a159577a3c0fc6a3726fd129bf764c2e7a0baa0ef50318",
     ("nema", "first", "svg"): "a59a7a878a8c1bb3cdeee8a1ba055110e0ad5de458d6e9c75ec90148eaade85e",
     ("nema", "first", "pdf"): "c2660c12e93053e71da39a67c162f518df5ebb61cae703f808f5908d65d940af",
-    ("panel", "first", "dxf"): "b138c0027bb8dcbda71b485ef9f9ae43ac304c4f3716a2b5fc1da2ad7ca18912",
+    ("panel", "first", "dxf"): "80d7f58bb7bf53dd8786a7eba53721b7ce40e1bbcfd8e393d281244d805eb74b",
     ("panel", "first", "svg"): "8743934ea9447b27bb6c25ebf94f76686ed65aa2a214e54d7ff31abb279fcfd1",
     ("panel", "first", "pdf"): "0f1d407ae02cfa593c32ab495d1bd4b30a0c2b5144d3cf20c6ced611668ecf49",
-    ("panel", "third", "dxf"): "c388a1fee57520098b15bfb6ab6fafd8bd82bd857722c29a2ca79fb599f3acf4",
+    ("panel", "third", "dxf"): "a42e5b75a56b5eaf76dd9a740acadfbdf9704f4034896448a34c1dd92a27af6f",
     ("panel", "third", "svg"): "3d37a6dc35236f8a79af485b063aed8959426fdff0da12dc7bbe8ced3421758b",
     ("panel", "third", "pdf"): "6289ac7ba13cbc0d0a28b6d4c6fd10f8a20cf510fb88a4a54d2ef047523f38e2",
 }
