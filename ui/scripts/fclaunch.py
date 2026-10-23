@@ -25,6 +25,11 @@ Two Qt platforms:
   pack: left alone, FreeCAD picks its Dark theme when macOS is in dark mode. `scale` is QT_SCALE_FACTOR:
   0.5 on a Retina screen gives devicePixelRatio 1, so a 1280 x 800 window grabs as 1280 x 800 pixels (the
   size of the Playwright shots of the page); 1.5 gives 3.
+
+On Linux, FREECAD_APP is an unpacked AppImage (the folder holding usr/bin/freecad). "cocoa" then means the X11
+platform ("xcb": run under xvfb-run, so OpenGL works and nothing reaches a real screen), with the same hiding and the
+same Light pack, and `scale` is doubled (no Retina screen: devicePixelRatio 1 at QT_SCALE_FACTOR 1). Qt's style
+metrics differ from the Mac's there, so widget sizes measured on Linux are Linux numbers.
 """
 import os
 import subprocess
@@ -32,6 +37,8 @@ import sys
 from pathlib import Path
 
 APP = Path(os.environ.get("FREECAD_APP", "~/.cad-agent/freecad/FreeCAD.app")).expanduser()
+LINUX = (APP / "usr" / "bin" / "freecad").exists()     # an unpacked AppImage, not FreeCAD.app
+SHARE = APP / "usr" / "share" if LINUX else APP / "Contents" / "Resources" / "share"
 
 INITGUI = '''\
 # fclaunch.py's Mod: runs while FreeCAD's GUI starts, before the main window is shown. Nothing may reach the desktop.
@@ -59,11 +66,11 @@ if os.environ.get("FCSHOTS_HIDE") == "1":
 
 def light_pack() -> str:
     """FreeCAD's own "FreeCAD Light" preference pack: what a new user who picks the Light theme gets."""
-    return (APP / "Contents/Resources/share/Gui/PreferencePacks/FreeCAD Light/FreeCAD Light.cfg").read_text()
+    return (SHARE / "Gui/PreferencePacks/FreeCAD Light/FreeCAD Light.cfg").read_text()
 
 
 def freecad_exe() -> Path:
-    exe = APP / "Contents" / "MacOS" / "FreeCAD"
+    exe = APP / "usr" / "bin" / "freecad" if LINUX else APP / "Contents" / "MacOS" / "FreeCAD"
     if not exe.exists():
         sys.exit(f"fclaunch: no FreeCAD at {exe} (set FREECAD_APP)")
     return exe
@@ -73,13 +80,13 @@ def run_freecad(script: Path, out: Path, home: Path, platform: str = "offscreen"
                 timeout: int = 300, env: dict | None = None) -> subprocess.CompletedProcess:
     """Run `script` inside FreeCAD's GUI; the temporary user files are under `home` (an existing, empty folder)."""
     out.mkdir(parents=True, exist_ok=True)
-    e = {**os.environ, "FCGUI_OUT": str(out), "QT_QPA_PLATFORM": platform, "FREECAD_USER_HOME": str(home),
+    e = {**os.environ, "FCGUI_OUT": str(out), "QT_QPA_PLATFORM": "xcb" if LINUX and platform == "cocoa" else platform, "FREECAD_USER_HOME": str(home),
          "FREECAD_USER_DATA": str(home / "data"), "FREECAD_USER_TEMP": str(home / "tmp"), **(env or {})}
     if platform == "cocoa":
         (home / "data" / "Mod" / "fcshots").mkdir(parents=True)
         (home / "data" / "Mod" / "fcshots" / "InitGui.py").write_text(INITGUI)
         (home / "user.cfg").write_text(light_pack())
-        e.update(FCSHOTS_HIDE="1", QT_MAC_DISABLE_FOREGROUND_APPLICATION_TRANSFORM="1", QT_SCALE_FACTOR=str(scale))
+        e.update(FCSHOTS_HIDE="1", QT_MAC_DISABLE_FOREGROUND_APPLICATION_TRANSFORM="1", QT_SCALE_FACTOR=str(scale * 2 if LINUX else scale))
     p = subprocess.Popen([str(freecad_exe()), str(script)], env=e, stdin=subprocess.DEVNULL,
                          stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
     try:

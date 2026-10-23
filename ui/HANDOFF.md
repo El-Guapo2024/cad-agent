@@ -7,7 +7,7 @@ Goal: the workbench UI in `ui/` looks and behaves like FreeCAD main 3160daf1e2b6
   - the UI round: NaviCube placement, face clicks always upright, cube and camera in step, the view keys 0 to 6;
   - the wiring check: `ui/scripts/wirecheck.mjs` clicks all 920 controls; 802 work, 114 are greyed with a reason, 4 are human-only, 0 broken;
   - the approved renders of `tests/fixtures/mini_machine` and `mini_gantry`, so both fixtures verify PASS on CI.
-- The FreeCAD fix list, items 1 to 5 of 7, are done (5, formulas, below):
+- The FreeCAD fix list: items 1 to 4 below; 5 to 9 under "Done 2026-10-23":
   1. Licence notices: NOTICE, THIRD_PARTY_LICENSES and ui/NOTICE; an SPDX line on every ui/src file; notices for the ports outside ui/ (geom.py mass_properties, dxf.py, appcache.py); the bundle's own notices, written by `ui/scripts/licenses.mjs`; the CC-BY material credits. Guarded by tests/test_licenses.py.
   2. Look:
      - how a selected face is drawn (diffuse plus emissive, as FreeCAD does);
@@ -33,24 +33,35 @@ Goal: the workbench UI in `ui/` looks and behaves like FreeCAD main 3160daf1e2b6
 - Deliberate differences are in PARITY.md, "The formula engine": no Matrix/Placement/Rotation, no int32 cast (`QUIRKS.int32Cast`, on only in the comparison), size limits instead of a frozen tab.
 - The rewrite came from the branch `fc-formulas-rewrite-wip`. It was reviewed and fixed (the owner's name was passed through, int parameters became ints, size and depth guards were added, dead code removed) and merged as `fc-formulas-engine`. The old branch can be deleted.
 
-## Next, in order
-6. Shop outputs: the DXF header and angles, the BOM's mirrored line, smooth edges in drawings (FREECAD_AUDIT.md).
-7. The NaviCube redraw: done on `fc-navicube-look` (2026-10-23), a port of SoNaviCube in `ui/src/navicube3d.ts`; `ui/scripts/navishots.py` compares it with FreeCAD on Linux (PARITY.md, NaviCube).
-8. Leftovers:
-   - done 2026-10-23 (branch fc-look-leftovers; PARITY.md has each): tooltip content, Start page Examples, the tabs'
-     icons and "*", the lit selected face, the tree-hover preselection's edges on top; HeadlightColor needed nothing
-     (FreeCAD's headlight stays #ffffff: the pack's value is in a group View3DSettings does not read); status bar height
-     and toolbar widths are left (the Mac's Qt style);
-   - the custom default camera orientation, and Align to a curved face;
-   - two 6 px offsets in Preferences, and the Colors gradient columns.
-9. Grader gaps in the eval set: no hole count, no shaft fit, and a clearance max_mm bounds only the closest point.
+## Done 2026-10-23, and what is left
+Items 5 to 9 of the fix list are done, each checked against the real FreeCAD (the Linux build of 3160daf1e2b6, headless or under xvfb):
+- 5. Formulas: above.
+- 6. Shop outputs. The DXF around the entities is FreeCAD's (`ui/scripts/dxfdiff.py`). Drawings draw the visible smooth edges as TechDraw does (`ui/scripts/hlrdiff.py`: 65 of 65 edges in 15 views). The BOM's "mirrored line" finding was wrong for the build: FreeCAD's isObjMirrored never reads a link's Scale, and bom.py already matched (`ui/scripts/bomdiff.py`, 6 of 6).
+- 7. The NaviCube is drawn as SoNaviCube draws it (`ui/src/navicube3d.ts`; `ui/scripts/navishots.py`: the same pixels in 24 shots but the label font).
+- 8. Leftovers:
+  - Tooltip content (`ui/scripts/fctips.py` writes `ui/src/fctips.ts` from the running FreeCAD).
+  - Start page Examples, the tabs' icons and "*", the lit selected face, and tree-hover preselection on top. HeadlightColor needed nothing.
+  - The Custom default camera orientation (`ui/scripts/ourscamera.mjs`, 20 of 20). Align to a curved face (264 of 264).
+  - Qt's spare-room rules in Preferences.
+- 9. Grader gaps: `[[holes]]` and `[[shaft_fit]]`, and what a `[[clearance]]` `max_mm` bounds is now documented.
+
+Left:
+- Status bar height and toolbar widths: these come from the Mac's Qt style, so measure them on a Mac.
+- 5.1 Home and 5.9 arrow-key panning (FREECAD_AUDIT.md).
+- The spline re-fit in DXF export stays a deliberate difference.
+- Open questions on the grader:
+  - Should a fit be the gap per side or the diameter difference (now the diameter)?
+  - Should there be ISO 286 fit classes?
+  - Should `[[holes]]` tell through holes from blind ones?
+  - No hidden spec uses the new kinds yet.
 
 ## The FreeCAD oracle on a Linux box
 - Every comparison uses FreeCAD main 3160daf1e2b6, which is the weekly build `weekly-2026.09.30`.
 - To install it on Linux:
   1. Download `FreeCAD_weekly-2026.09.30-Linux-x86_64.AppImage` from the FreeCAD/FreeCAD GitHub release of that tag, and check it against the release's `-SHA256.txt`.
   2. Unpack it with `--appimage-extract`.
-  3. Run it headless with `squashfs-root/usr/bin/freecadcmd`; run the GUI tools under `xvfb-run`.
+  3. Run it headless with `squashfs-root/usr/bin/freecadcmd`; run the GUI tools under `xvfb-run -a -s "-screen 0 1600x1000x24"` with
+     FREECAD_APP set to the unpacked folder: `fclaunch.py` (fcbehave.py, fcprefs.py, ...) then starts its `usr/bin/freecad` on X11.
 - The look tools (`fcgui.py --platform cocoa`, `fcshots.py`, `fcmeasure.py`) read widget sizes from the Mac's Qt style. Qt's Linux style is not the same, so compare look on a Mac, or say which platform a number comes from.
 - The browser checks need Node 20.19 with `npm ci` in ui/, and Playwright 1.59.1 with Chromium (`npx playwright install --with-deps chromium`). Point NODE_PATH at the folder that holds `playwright`.
 

@@ -86,6 +86,17 @@ for (const [key, label, nth = 0] of PAGES) {
   // the rectangles are read at the natural size, as fcprefs.py reads the real dialog's
   res.pages[key] = await dump()
   res.pages[key].header = await p.locator('.pref-header').textContent()
+  if (key === 'colors') {
+    // the page with a gradient chosen, as fcprefs_dump.py's extras: Linear, Radial, and Linear with the middle colour (fcprefsdiff.py's colors.<state>)
+    const states = {}
+    const set = async (name, on) => p.evaluate(([n, v]) => { const i = document.querySelector(`.pref-page [data-qf="${n}"] input`); if (i && i.checked !== v) i.click() }, [name, on])
+    for (const [rb, tag, mid] of [['radioButtonGradient', 'gradient', false], ['rbRadialGradient', 'radial', false], ['radioButtonGradient', 'gradient-mid', true]]) {
+      await set(rb, true); await set('checkMidColor', mid); await p.waitForTimeout(500)
+      states[tag] = await dump()
+    }
+    await set('checkMidColor', false); await set('radioButtonSimple', true); await p.waitForTimeout(300)
+    res.pages[key].states = states
+  }
   await p.evaluate((h) => { const d = document.querySelector('.pref-dlg'); d.style.height = (h + 28) + 'px'; d.style.maxHeight = 'none' }, TALL)
   await p.waitForTimeout(500)
   if (SHOTS) await p.locator('.pref-dlg').screenshot({ path: `${OUT}/ours-prefs-${key}-tall.png` })

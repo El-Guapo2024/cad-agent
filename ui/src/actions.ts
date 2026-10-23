@@ -39,7 +39,7 @@ export function attachView(v: CadView | null) {
     const viewDir = v.viewDir.bind(v)
     v.viewDir = (d) => { viewDir(d); setState({ cameraPreset: d }); recordGui('view', d) }
     const home = v.home.bind(v)
-    v.home = (d) => { home(d); setState({ cameraPreset: d }); recordGui('view', 'home') }
+    v.home = (f) => { home(f); const h = getState().homeView ?? f; setState({ cameraPreset: h === 'Isometric' ? 'iso' : h.toLowerCase() }) /* viewer.ts HOME_DIR, or 'custom' */; recordGui('view', 'home') }
     // Std_ViewFitAll / Std_ViewFitSelection: same wrapping trick, for the macro recorder.
     const fitAll = v.fitAll.bind(v)
     // `instant` is the view's own fit (a new scene), not a command: not recorded or echoed.

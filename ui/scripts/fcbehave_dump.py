@@ -667,5 +667,164 @@ def quickmeasure():
 
 
 safe("quickmeasure", quickmeasure)
+
+
+# ── the Custom default camera orientation (Camera::rotation's "Custom", DlgSettingsNavigation's CameraDialog) ──
+CUSTOM_QS = [("near unit", (0.1, 0.2, 0.3, 0.9)), ("right", (0.5, 0.5, 0.5, 0.5)), ("not unit", (1.0, 1.0, 0.0, 0.0)),
+             ("zero", (0.0, 0.0, 0.0, 0.0)), ("negative w", (0.2, -0.3, 0.1, -0.9)), ("unset", None)]
+
+
+def custom_camera():
+    """Home, viewDefaultOrientation() and a new document's view with NewDocumentCameraOrientation "Custom" and the Q0..Q3 of
+    View/Custom; then the Camera Settings dialog the Navigation page opens when Custom is picked: its widgets, what it shows,
+    what Current View puts in it, and what OK and the page's save write."""
+    hv = App.ParamGet("User parameter:BaseApp/Preferences/View")
+    out = {"cases": {}}
+    for name, q in CUSTOM_QS:
+        hv.SetString("NewDocumentCameraOrientation", "Custom")
+        hc = hv.GetGroup("Custom")
+        for i in range(4):
+            if q is None:
+                hc.RemFloat("Q%d" % i)
+            else:
+                hc.SetFloat("Q%d" % i, q[i])
+        r = {}
+        view.viewFront()
+        pump(0.2)
+        Gui.runCommand("Std_ViewHome", 0)
+        pump(0.5)
+        r["home"] = state()["q"]
+        view.viewFront()
+        pump(0.2)
+        view.viewDefaultOrientation()
+        pump(0.3)
+        r["viewDefaultOrientation"] = state()["q"]
+        Gui.runCommand("Std_New", 0)
+        pump(1.0)
+        nv = Gui.ActiveDocument.ActiveView
+        qn = nv.getCameraOrientation().Q
+        r["new_document"] = [qn[0], qn[1], qn[2], qn[3]]
+        App.closeDocument(App.ActiveDocument.Name)
+        pump(0.5)
+        Gui.getDocument("behave").ActiveView  # back to the probe document
+        out["cases"][name] = r
+    # the dialog: the camera at Trimetric first, so Current View has something to copy
+    hv.SetString("NewDocumentCameraOrientation", "Top")
+    for i in range(4):
+        hv.GetGroup("Custom").RemFloat("Q%d" % i)
+    view.viewTrimetric()
+    pump(0.3)
+    out["camera_before_dialog"] = state()["q"]
+    holder = {"polls": 0, "cpolls": 0}
+    dlgout = {}
+
+    def widgets(d):
+        o = {"title": d.windowTitle(), "size": [d.width(), d.height()], "spin": [], "labels": [], "buttons": [], "groups": []}
+        for s in d.findChildren(QtWidgets.QDoubleSpinBox):
+            g = s.geometry()
+            o["spin"].append({"value": s.value(), "text": s.text(), "decimals": s.decimals(), "min": s.minimum(), "max": s.maximum(),
+                              "step": s.singleStep(), "rect": [g.x(), g.y(), g.width(), g.height()]})
+        for lab in d.findChildren(QtWidgets.QLabel):
+            g = lab.geometry()
+            o["labels"].append({"text": lab.text(), "rect": [g.x(), g.y(), g.width(), g.height()]})
+        for b in d.findChildren(QtWidgets.QPushButton):
+            g = b.geometry()
+            o["buttons"].append({"text": b.text(), "name": b.objectName(), "rect": [g.x(), g.y(), g.width(), g.height()],
+                                 "in": b.parent().metaObject().className()})
+        for gb in d.findChildren(QtWidgets.QGroupBox):
+            g = gb.geometry()
+            o["groups"].append({"title": gb.title(), "rect": [g.x(), g.y(), g.width(), g.height()]})
+        return o
+
+    def camdlg():
+        d = app.activeModalWidget()
+        holder["cpolls"] += 1
+        if d is None or d.metaObject().className() != "Gui::Dialog::CameraDialog":
+            if holder["cpolls"] > 60:
+                holder["ctimer"].stop()
+            return
+        holder["ctimer"].stop()
+        try:
+            dlgout["opened"] = widgets(d)
+            spins = d.findChildren(QtWidgets.QDoubleSpinBox)
+            spins[0].setValue(0.12345)
+            spins[1].setValue(-1.5)
+            dlgout["typed"] = [s.value() for s in spins]
+            [b for b in d.findChildren(QtWidgets.QPushButton) if b.objectName() == "currentView"][0].click()
+            pump(0.1)
+            dlgout["current_view"] = [s.value() for s in spins]
+            dlgout["current_view_text"] = [s.text() for s in spins]
+        except Exception:
+            dlgout["_error"] = traceback.format_exc()
+        finally:
+            d.accept()
+
+    def prefs():
+        dlg = app.activeModalWidget()
+        holder["polls"] += 1
+        if dlg is None:
+            if holder["polls"] > 60:
+                holder["timer"].stop()
+            return
+        holder["timer"].stop()
+        try:
+            tv = [t for t in dlg.findChildren(QtWidgets.QTreeView) if t.objectName() == "groupsTreeView"][0]
+            m = tv.model()
+            for r in range(m.rowCount()):
+                gi = m.index(r, 0)
+                if m.data(gi) == "Display":
+                    tv.expand(gi)
+                    for c in range(m.rowCount(gi)):
+                        pi = m.index(c, 0, gi)
+                        if m.data(pi) == "Navigation":
+                            tv.setCurrentIndex(pi)
+                            tv.clicked.emit(pi)
+            pump(0.6)
+            combo = [w for w in dlg.findChildren(QtWidgets.QComboBox) if w.objectName() == "comboNewDocView"][0]
+            dlgout["combo_before"] = combo.currentText()
+            holder["ctimer"] = QtCore.QTimer()
+            holder["ctimer"].timeout.connect(camdlg)
+            holder["ctimer"].start(200)
+            combo.setCurrentIndex(combo.findText("Custom"))      # opens the Camera Settings dialog (exec)
+            holder["ctimer"].stop()
+            dlgout["combo_after"] = combo.currentText()
+            # picking Custom again (it is already the current item) does not open the dialog
+            holder["cpolls"] = 0
+            holder["ctimer"].start(200)
+            combo.setCurrentIndex(combo.findText("Custom"))
+            pump(0.5)
+            holder["ctimer"].stop()
+            dlgout["reopened_on_same_item"] = "opened" in dlgout and holder["cpolls"] == 0
+            dlgout["params_before_ok"] = [hv.GetGroup("Custom").GetFloat("Q%d" % i, 99.0) for i in range(4)]
+            ok = [b for b in dlg.findChildren(QtWidgets.QPushButton) if b.text() in ("OK", "&OK")]
+            if ok:
+                ok[0].click()
+            else:
+                dlg.accept()
+        except Exception:
+            dlgout["_error"] = traceback.format_exc()
+            dlg.close()
+
+    holder["timer"] = QtCore.QTimer()
+    holder["timer"].timeout.connect(prefs)
+    holder["timer"].start(300)
+    Gui.showPreferences()
+    holder["timer"].stop()
+    pump(0.3)
+    dlgout["params_after_ok"] = {"orientation": hv.GetString("NewDocumentCameraOrientation"),
+                                 "q": [hv.GetGroup("Custom").GetFloat("Q%d" % i, 99.0) for i in range(4)]}
+    view.viewFront()
+    pump(0.2)
+    Gui.runCommand("Std_ViewHome", 0)
+    pump(0.5)
+    dlgout["home_after_ok"] = state()["q"]
+    out["dialog"] = dlgout
+    hv.RemString("NewDocumentCameraOrientation")
+    for i in range(4):
+        hv.GetGroup("Custom").RemFloat("Q%d" % i)
+    return out
+
+
+safe("custom_camera", custom_camera)
 json.dump(res, open(os.path.join(OUT, "fcbehave.json"), "w"), indent=1)
 os._exit(0)

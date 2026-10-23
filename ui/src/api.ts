@@ -23,6 +23,9 @@ export type Body = {
   placement: Partial<Placement> | null
   about: Vec3 | null
   used_by: string[] | null
+  /** The faces that are not flat, by number: the normal at the middle of the face's (u, v) range and the direction of its longest
+   *  straight edge (scene.py curved_faces, Part::Feature::getCameraAlignmentDirection), for Align to Selection. */
+  curved?: Record<string, [Vec3, Vec3 | null]>
 }
 /** An axis of assembly.py's AXES (motion.Axis): the bodies it carries slide along `direction` by its position. */
 export type Axis = { name: string; moves: string[]; direction: Vec3; travel: [number, number]; work: [number, number] | null }

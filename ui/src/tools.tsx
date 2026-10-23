@@ -71,7 +71,7 @@ const GROUP_RULES: Record<string, string[]> = {
   recordGuiCommands: ['Macro'], guiAsComment: ['Macro'], recentMacros: ['Macro'],
   recentFiles: ['RecentFiles'], statusBar: ['StatusBar'], toolbars: ['MainWindow', 'Toolbars'],
   showFPS: ['View'], disableTouchTilt: ['View'], newDocCameraScale: ['View'], axes: ['View'],
-  homeView: ['View'], animate: ['View'], nav: ['View'], placementRotationMethod: ['View'],
+  homeView: ['View'], customCamera: ['View', 'Custom'], animate: ['View'], nav: ['View'], placementRotationMethod: ['View'],
   corner: ['View', 'Corner'], axisColors: ['View', 'AxisColors'], rotationCenter: ['View', 'RotationCenter'],
   navPrefs: ['View', 'Navigation'], snap: ['View', 'Snap'],
   editMode: ['General'], slug: ['General'],

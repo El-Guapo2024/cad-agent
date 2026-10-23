@@ -20,14 +20,16 @@ const flip = (list: string[], items: string[]) => {
   return [...s]
 }
 
-const HOME: Record<HomeView, Parameters<NonNullable<ReturnType<typeof getView>>['viewDir']>[0]> = {
-  Isometric: 'iso', Dimetric: 'dimetric', Trimetric: 'trimetric', Top: 'top', Front: 'front', Left: 'left', Right: 'right', Rear: 'rear', Bottom: 'bottom',
-}
 /** Std_ViewHome (View3DInventorViewer::viewHome): turn to the default camera orientation
  *  while moving to the middle of the model, then fit all. The orientation is Camera::defaultOrientation("Top"): the
  *  NewDocumentCameraOrientation parameter, or Top while it is unset, as it is until the Preferences dialog has saved the
- *  Navigation page (a new view uses "Trimetric" as that fallback instead: viewer.ts). */
-export const viewHome = () => getView()?.home(HOME[getState().homeView ?? 'Top'])
+ *  Navigation page (a new view uses "Trimetric" as that fallback instead: viewer.ts). Custom is View/Custom's Q0..Q3. */
+export const viewHome = () => getView()?.home('Top')
+/** View/Custom's Q0..Q3 (DlgSettingsNavigation::saveSettings writes them while the orientation is Custom). */
+export function setCustomCamera(q: [number, number, number, number]) {
+  setState({ customCamera: q })
+  saved.set('customCamera', q)
+}
 export function setHomeView(v: HomeView | null) {
   setState({ homeView: v })
   if (v === null) saved.remove('homeView')

@@ -49,7 +49,7 @@ function labelSprite(text: string, color: string): THREE.Sprite {
 }
 
 import { toUnicodeSuperscript } from './superscript'
-import type { Scene, Vec3 } from './api'
+import type { Body, Scene, Vec3 } from './api'
 import { getState, saved, setState, subscribe, viewOf, type Clip, type Corner, type CubeOffset, type CubePlace, type CubePos, type DrawStyle, type HomeView, type NaviCubePrefs, type NavStyle, type ViewProps, type SelPrefs } from './store'
 import { VIEW } from './theme'
 import { gradientMesh, type BackgroundPrefs } from './background'
@@ -126,8 +126,19 @@ const ROTATION: Record<ViewDir, [number, number, number, number]> = {
   dimetric: [0.567952, 0.103751, 0.146726, 0.803205], trimetric: [0.446015, 0.119509, 0.229575, 0.856787],
 }
 const TRIMETRIC = ROTATION.trimetric
-const HOME_DIR: Record<HomeView, ViewDir> = {
+const HOME_DIR: Record<Exclude<HomeView, 'Custom'>, ViewDir> = {
   Isometric: 'iso', Dimetric: 'dimetric', Trimetric: 'trimetric', Top: 'top', Front: 'front', Left: 'left', Right: 'right', Rear: 'rear', Bottom: 'bottom',
+}
+/** Camera::defaultOrientation(fallback) (Camera.cpp:128-180): the NewDocumentCameraOrientation parameter's rotation, or `fallback`'s
+ *  while it is unset. "Custom" is View/Custom's Q0..Q3 (x, y, z, w; 0, 0, 0, 1 where unset) as float32, which SbRotation::setValue
+ *  normalizes (measured in FreeCAD 26.3: (1, 1, 0, 0) is (0.7071, 0.7071, 0, 0), and the sign of w is kept). All four zero, which
+ *  Coin keeps as a zero quaternion and draws as the Top view, is the Top view's unit quaternion here. */
+export function defaultOrientation(fallback: Exclude<HomeView, 'Custom'>): [number, number, number, number] {
+  const s = getState(), v = s.homeView ?? fallback
+  if (v !== 'Custom') return ROTATION[HOME_DIR[v]]
+  const f = Math.fround, q = (s.customCamera ?? [0, 0, 0, 1]).map(f)
+  const len = f(Math.sqrt(f(f(f(q[0] * q[0]) + f(q[1] * q[1])) + f(f(q[2] * q[2]) + f(q[3] * q[3])))))
+  return len > 0 ? q.map((x) => f(x / len)) as [number, number, number, number] : [0, 0, 0, 1]
 }
 
 export type ViewDir = 'iso' | 'dimetric' | 'trimetric' | 'front' | 'top' | 'right' | 'rear' | 'bottom' | 'left'
@@ -237,6 +248,9 @@ export class CadView {
   /** three-cad-viewer numbers faces, then edges, then vertices in one run; FreeCAD
    *  numbers each from 1. These are the offsets per part. */
   private bases = new Map<string, { Face: number; Edge: number; Vertex: number }>()
+  /** Per body, its curved faces' alignment directions (Body.curved) and the inverse of its faces' world matrix when the scene was
+   *  drawn, which is where scene.json's directions are: a pose or a drag since moves the group, and the directions with it. */
+  private curved = new Map<string, { faces: NonNullable<Body['curved']>; home: THREE.Matrix4 }>()
   private ray = new THREE.Raycaster()
   private applied: Applied = { ...UNAPPLIED, cube: true }
   private boxHelpers: THREE.Object3D[] = []
@@ -400,7 +414,7 @@ export class CadView {
     // A new view looks along the default camera orientation (viewDefaultOrientation), fitted.
     if (!cam) {
       this.viewer.presetCamera('iso')
-      this.jumpTo(new THREE.Quaternion(...ROTATION[HOME_DIR[getState().homeView ?? 'Trimetric']])) // viewDefaultOrientation(): fallback Trimetric
+      this.jumpTo(new THREE.Quaternion(...defaultOrientation('Trimetric'))) // viewDefaultOrientation(): fallback Trimetric
       // View3DInventorPy::setDefaultCameraHeight (Std_New): NewDocumentCameraScale places the
       // camera before there's anything to fit; fitAll below overrides it as soon as a body
       // exists (it no-ops on an empty scene), so this only matters for a genuinely empty doc.
@@ -753,10 +767,10 @@ export class CadView {
 
   /** Std_ViewHome (View3DInventorViewer::viewHome): turn to the default orientation while
    *  moving to the middle of the model, then fit all; already there, just fit. */
-  home(d: ViewDir) {
+  home(fallback: Exclude<HomeView, 'Custom'>) {
     const p = this.cameraParts()
     if (!p) return
-    const q = new THREE.Quaternion(...ROTATION[d])
+    const q = new THREE.Quaternion(...defaultOrientation(fallback))
     // The class's own fitAll, not attachView's recording wrapper: Home is one command, echoed as such.
     const fit = () => CadView.prototype.fitAll.call(this)
     if (Math.abs(q.dot(p.cam.quaternion)) > 1 - 1e-6) return fit()
@@ -1089,6 +1103,12 @@ export class CadView {
       out.x0 = Math.min(out.x0, p.x); out.x1 = Math.max(out.x1, p.x); out.y0 = Math.min(out.y0, p.y); out.y1 = Math.max(out.y1, p.y)
     }
     return out
+  }
+
+  /** The camera's orientation as Coin's (x, y, z, w): View3DInventorViewer::getCameraOrientation, for CameraDialog's Current View. */
+  cameraOrientation(): [number, number, number, number] | null {
+    const q = this.cameraParts()?.cam.quaternion
+    return q ? [q.x, q.y, q.z, q.w] : null
   }
 
   /** Look along a FreeCAD camera rotation (x, y, z, w; Camera.cpp), keeping the
@@ -1878,8 +1898,8 @@ export class CadView {
   /** The directions the alignment asks for, as alignToSelection reads them: one element gives its own (a planar face's normal and
    *  the direction of its longest straight edge, a straight edge's direction, the axis of a planar curve's plane); a part with several
    *  elements gives the sum of its faces' normals, else its edges' plane or the sum of their directions; the parts' directions add up
-   *  and the camera's X is the one Base::Rotation(-Z, direction) gives. A curved face needs the surface's normal at the middle of its
-   *  (u, v) range, which the mesh does not have: it, a vertex and a whole part give nothing. */
+   *  and the camera's X is the one Base::Rotation(-Z, direction) gives. A curved face gives the surface's normal at the middle of its
+   *  (u, v) range, which the mesh does not have: scene.json carries it (Body.curved). A vertex and a whole part give nothing. */
   private alignDirection(refs: string[], whole: string[]): { z: THREE.Vector3; x: THREE.Vector3 } | null {
     const items = refs.length + whole.length
     if (!items) return null
@@ -1927,12 +1947,28 @@ export class CadView {
     const info = subInfo(g)
     if (!info) return null
     if (g.kind === 'Face') {
+      const c = this.curvedFacing(ref)
+      if (c) return c
       if (!info.normal || (info.kind !== 'Plane' && info.kind !== 'Disc')) return null
       return { z: info.normal.clone().normalize(), x: this.longestStraightEdge(ref.slice(0, ref.lastIndexOf('.')), g.tris, info.normal) }
     }
     if (info.kind === 'Line' && info.dir) return { z: info.dir.clone().normalize() }
     const axis = planeAxis(g.segs.flat())
     return axis ? { z: axis } : null
+  }
+
+  /** A face that is not planar (PartFeature.cpp:1880-1933, the "Single non-planar face" branch of getCameraAlignmentDirection): the
+   *  normal at the middle of its (u, v) bounds and its longest straight edge's direction, as scene.py worked them out from the
+   *  shape, turned with the body's group since the scene was drawn. Null for a face scene.json does not list (a planar one). */
+  private curvedFacing(ref: string): { z: THREE.Vector3; x?: THREE.Vector3 } | null {
+    const dot = ref.lastIndexOf('.'), body = ref.slice(0, dot), c = this.curved.get(body), m = /^Face(\d+)$/.exec(ref.slice(dot + 1))
+    const e = m && c ? c.faces[m[1]] : undefined
+    const mesh = e ? this.front(body) : null
+    if (!e || !c || !mesh) return null
+    mesh.updateWorldMatrix(true, false)
+    const turn = new THREE.Matrix4().multiplyMatrices(mesh.matrixWorld, c.home)
+    const z = new THREE.Vector3(...e[0]).transformDirection(turn)
+    return { z, x: e[1] ? new THREE.Vector3(...e[1]).transformDirection(turn) : undefined }
   }
 
   /** The longest straight edge of a planar face, by its direction: an edge of the same part that runs from one corner of the face to
@@ -1978,6 +2014,7 @@ export class CadView {
   private index(sc: Scene) {
     this.meshes.clear()
     this.edges.clear()
+    this.curved.clear()
     const groups = this.viewer.nestedGroup?.groups ?? {}
     for (const b of sc.bodies) {
       const faces: THREE.Mesh[] = [], edges: THREE.Object3D[] = [], verts: THREE.Points[] = []
@@ -1998,6 +2035,8 @@ export class CadView {
         return Number.isFinite(m) ? m - 1 : 0
       }
       this.bases.set(b.name, { Face: lowest(faces[0]), Edge: lowest(edges[0]), Vertex: lowest(verts[0]) })
+      const front = this.front(b.name)
+      if (b.curved && front) { front.updateWorldMatrix(true, false); this.curved.set(b.name, { faces: b.curved, home: front.matrixWorld.clone().invert() }) }
     }
     this.applied = { ...UNAPPLIED, cube: getState().cube }
     this.boxHelpers = []

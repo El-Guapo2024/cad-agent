@@ -167,6 +167,22 @@ def test_scene_is_three_cad_viewer_data_plus_what_the_panels_need(demo, capsys):
     assert block["bbox"][1][0] == pytest.approx(15.0)
 
 
+def test_scene_carries_align_to_selections_directions_for_faces_that_are_not_flat():
+    """Part::Feature::getCameraAlignmentDirection's non-planar face: the normal at the middle of its (u, v) bounds, the face's orientation
+    applied, and its longest straight edge (a cylinder's seam); planar faces are left to the page."""
+    from build123d import Box, Cylinder, Pos
+    from cad_agent.scene import curved_faces
+    post = curved_faces(Pos(300, 200, 40) * Cylinder(20, 60))
+    assert list(post) == ["1"]
+    (n, x), = post.values()
+    assert n == pytest.approx([-1, 0, 0], abs=1e-12) and x == pytest.approx([0, 0, 1])
+    assert 0 < abs(n[1]) < 1e-15             # not rounded: the side seen from the Front view turns on it, as in FreeCAD
+    hole = curved_faces(Box(10, 10, 10) - Cylinder(2, 10))
+    (n, _), = hole.values()
+    assert n == pytest.approx([1, 0, 0], abs=1e-12)     # a hole's face is reversed: its normal points into the hole
+    assert curved_faces(Box(10, 10, 10)) == {}
+
+
 def test_scene_tessellates_each_body_with_its_own_deviation_and_angular_deflection(demo, capsys):
     """FreeCAD's own defaults (ViewProviderPartExt::loadParameter: 0.2 / 28.65 deg) apply until a
     body's out/gui.json view_props says otherwise, and then only that body is affected: plate has
