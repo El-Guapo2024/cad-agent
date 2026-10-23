@@ -4,8 +4,10 @@
 //   src/Gui/CommandView.cpp: 2002 Jürgen Riegel
 //   src/Gui/CommandStd.cpp: 2002 Jürgen Riegel; 2023 FreeCAD Project Association
 //   src/Gui/Tree.cpp: 2004 Jürgen Riegel
-import { useEffect, type FC } from 'react'
-import { DockviewReact, themeLight, type DockviewReadyEvent, type IDockviewPanelProps } from 'dockview-react'
+//   src/Gui/View3DInventor.cpp: 2004 Jürgen Riegel
+//   src/Gui/MainWindow.cpp: 2005 Werner Mayer
+import { useEffect, type CSSProperties, type FC } from 'react'
+import { DockviewDefaultTab, DockviewReact, themeLight, type DockviewReadyEvent, type IDockviewPanelHeaderProps, type IDockviewPanelProps } from 'dockview-react'
 import { DRAW_STYLES, MenuBar, OverlayTitleActions, StatusBar, ToolBar, VIEWS, whatsThis } from './chrome'
 import { ChecksView, ConsoleView, ModelPanel, ReportView, SelectionView, TasksPanel, View3D } from './panels'
 import { getState, saved, useStore } from './store'
@@ -31,6 +33,17 @@ import { DrawingPanel } from './shopwb'
 const components: Record<string, FC<IDockviewPanelProps<any>>> = {
   view3d: View3D, model: ModelPanel, tasks: TasksPanel, report: ReportView, checks: ChecksView, console: ConsoleView, selection: SelectionView,
   start: StartPanel, drawing: DrawingPanel,
+}
+
+/** MainWindow::addWindow gives a window's tab the view's window icon (QMdiSubWindow::setWindowIcon): a 3D view has
+ *  "Document" (View3DInventor's constructor), a TechDraw page "TechDraw_TreePage" (ViewProviderPage::showMDIViewPage).
+ *  FreeCAD's Start tab shows the application's own icon, its logo; the Start page here shows Start_Start's pixmap.
+ *  The docks' tabs have none. The URL is absolute: a url() in a custom property resolves against the style sheet
+ *  that uses it (the bundle's assets/), not the page. */
+const TAB_ICONS: Record<string, string> = { view3d: 'Document', start: 'StartCommandIcon' }
+const Tab: FC<IDockviewPanelHeaderProps> = (props) => {
+  const icon = TAB_ICONS[props.api.id] ?? (props.api.id.startsWith('drawing:') ? 'TechDraw_TreePage' : null)
+  return <DockviewDefaultTab {...props} {...(icon ? { 'data-icon': icon, style: { '--tab-icon': `url(${new URL(`freecad-icons/${icon}.svg`, document.baseURI).href})` } as CSSProperties } : {})} />
 }
 
 /** FreeCAD's default layout: the combo view (Model, Tasks) on the left, the 3D
@@ -185,7 +198,7 @@ export function App() {
     <div className="app">
       <MenuBar />
       <ToolBar />
-      <div className="dock"><DockviewReact components={components} onReady={onReady} theme={themeLight} rightHeaderActionsComponent={OverlayTitleActions} /></div>
+      <div className="dock"><DockviewReact components={components} defaultTabComponent={Tab} onReady={onReady} theme={themeLight} rightHeaderActionsComponent={OverlayTitleActions} /></div>
       {statusBar && <StatusBar />}
       <PreferencesDialog />
       <CustomizeDialog />

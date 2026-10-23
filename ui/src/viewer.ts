@@ -19,6 +19,8 @@
 //   src/Mod/Part/App/PartFeature.cpp: 2002 Jürgen Riegel
 //   src/App/GeoFeature.cpp: 2002 Jürgen Riegel
 //   src/Base/Rotation.cpp: 2006 Werner Mayer
+//   src/Mod/Part/Gui/SoBrepFaceSet.cpp: 2011 Werner Mayer; 2026 Joao Matos
+//   src/Gui/View3DInventorSelection.cpp: 2022 Zheng Lei (realthunder)
 import * as THREE from 'three'
 import { Display, Viewer, decodeInstancedFormat } from 'three-cad-viewer'
 import { TransformControls } from 'three/addons/controls/TransformControls.js'
@@ -1646,6 +1648,7 @@ export class CadView {
       for (const p of this.verts.get(name) ?? []) {
         const mat = p.material as THREE.PointsMaterial
         mat.size = Math.max(1, vp.pointSize)
+        mat.userData.cadBase = vp.pointColor
         mat.color.setHex(vp.pointColor)
         mat.needsUpdate = true
       }
@@ -1791,15 +1794,55 @@ export class CadView {
     return null
   }
 
-  /** Highlight sub-elements the way FreeCAD does: only the face, edge or vertex. */
+  /** Face n of a part as world-space triangles with the mesh's own normals, so it can be lit as the part is. */
+  private faceMesh(ref: string): { geo: THREE.BufferGeometry; mat: THREE.Material } | null {
+    const dot = ref.lastIndexOf('.'), body = ref.slice(0, dot), m = /^Face(\d+)$/.exec(ref.slice(dot + 1))
+    const mesh = m ? this.front(body) : undefined
+    if (!m || !mesh) return null
+    const id = Number(m[1]) + (this.bases.get(body)?.Face ?? 0)
+    mesh.updateWorldMatrix(true, false)
+    const g = mesh.geometry, idx = g.index!, pos = g.attributes.position, nor = g.attributes.normal, comp = g.attributes.componentId
+    const nm = new THREE.Matrix3().getNormalMatrix(mesh.matrixWorld), p = new THREE.Vector3(), n = new THREE.Vector3()
+    const ps: number[] = [], ns: number[] = []
+    for (let t = 0; t < idx.count; t += 3) {
+      if (comp.getX(idx.getX(t)) !== id) continue
+      for (let k = 0; k < 3; k++) {
+        const v = idx.getX(t + k)
+        p.fromBufferAttribute(pos, v).applyMatrix4(mesh.matrixWorld); ps.push(p.x, p.y, p.z)
+        if (nor) { n.fromBufferAttribute(nor, v).applyMatrix3(nm).normalize(); ns.push(n.x, n.y, n.z) }
+      }
+    }
+    if (!ps.length) return null
+    const geo = new THREE.BufferGeometry()
+    geo.setAttribute('position', new THREE.Float32BufferAttribute(ps, 3))
+    if (ns.length) geo.setAttribute('normal', new THREE.Float32BufferAttribute(ns, 3))
+    else geo.computeVertexNormals()
+    return { geo, mat: (mesh.userData.cadOrigMat ?? mesh.material) as THREE.Material }
+  }
+
+  /** Highlight sub-elements the way FreeCAD does: only the face, edge or vertex. A face takes the colour as its
+   *  diffuse colour and is lit as the part is (SoBrepFaceSet::overrideMaterialBinding gives the selected or
+   *  preselected part the colour in the per-face material index, no emissive colour): the top of a box in the
+   *  isometric view is #119ddf selected and #19b5df preselected for #00abff and #0ac8ff, in FreeCAD 26.3 on Linux and
+   *  on a Mac. Edges and vertices are flat colours, as SoBrepEdgeSet and SoBrepPointSet draw them. */
   private applySubs(pre: string | null, subs: string[]) {
-    for (const o of this.overlays) o.parent?.remove(o)
+    for (const o of this.overlays) { o.parent?.remove(o); (o as any).geometry?.dispose?.(); (o as any).material?.dispose?.() }
     this.overlays = []
     const add = (ref: string, color: number) => {
       const g = this.subGeometry(ref)
       if (!g || !this.viewer.scene) return
       let o: THREE.Object3D
-      if (g.kind === 'Face') {
+      const lit = g.kind === 'Face' ? this.faceMesh(ref) : null
+      if (lit) {
+        // the part's own material (three-cad-viewer's MeshStandardMaterial), in the colour, with nothing emitted
+        const mat = lit.mat.clone() as THREE.MeshStandardMaterial
+        mat.userData = {}
+        mat.color?.setHex(color)
+        mat.emissive?.setHex(0)
+        mat.map = null; mat.vertexColors = false; mat.transparent = false; mat.opacity = 1; mat.depthTest = true
+        Object.assign(mat, { side: THREE.DoubleSide, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2 })
+        o = new THREE.Mesh(lit.geo, mat)
+      } else if (g.kind === 'Face') {
         const geo = new THREE.BufferGeometry().setFromPoints(g.tris.flat())
         o = new THREE.Mesh(geo, new THREE.MeshBasicMaterial({ color, side: THREE.DoubleSide, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2 }))
       } else if (g.kind === 'Edge') {
@@ -2027,7 +2070,13 @@ export class CadView {
    *  the same diffuse override), so Coin adds the colour to the lit colour in the encoded values and every face saturates:
    *  #11ffff for #00abff on all of a box's visible faces, a cylinder and a sphere (four fifths of what it draws; the sphere's
    *  highlight is the one gradient). three adds an emissive colour in linear light, which saturates far less (G 228 where
-   *  Coin has 255), so the emissive colour is taken twice (SELECTED_EMISSIVE): #15ffff on the chassis' top, the same view. */
+   *  Coin has 255), so the emissive colour is taken twice (SELECTED_EMISSIVE): #15ffff on the chassis' top, the same view.
+   *
+   *  The vertices take the colour too, and an object preselected as a whole (from the tree, the selection view or a
+   *  macro; a hover in the 3D view preselects one element) has its edges and vertices drawn over everything, its faces
+   *  not: View3DInventorSelection::checkGroupOnTop puts it in pcGroupOnTopPreSel. FreeCAD 26.3 on Linux, two boxes, the
+   *  far one preselected from its tree row: its edges and vertices show through the near box in #0ac8ff, its faces only
+   *  where nothing is in front, lit (2026-10-23; the same with Gui.Selection.setPreselection, tp 1 or 2). */
   private applyTints(selected: string[], pre: string | null) {
     const s = getState()
     for (const [name, list] of this.meshes) {
@@ -2038,9 +2087,12 @@ export class CadView {
       const whole = s.selected.includes(name) && !s.subSel.some((r) => r.startsWith(name + '.'))
       const element = s.subSel.some((r) => r.startsWith(name + '.'))
       const top = vp.onTop === 'Enabled' ? whole || element : vp.onTop === 'Object' ? whole : vp.onTop === 'Element' ? element : false
+      const preTop = !isSel && c !== null && name === pre // pcGroupOnTopPreSel: the edges and vertices over everything
+      const lines = new Set<unknown>([...(this.edges.get(name) ?? []), ...(this.verts.get(name) ?? [])])
       const done = new Set<unknown>()
-      for (const m of [...list, ...(this.edges.get(name) ?? [])] as any[]) {
-        m.renderOrder = top ? 10 : 0
+      for (const m of [...list, ...lines] as any[]) {
+        const over = top || (preTop && lines.has(m))
+        m.renderOrder = over ? (top ? 10 : 20) : 0
         const mat = (m.userData.cadOrigMat ?? m.material) as any
         if (!mat?.color || done.has(mat)) continue
         done.add(mat)
@@ -2049,7 +2101,7 @@ export class CadView {
         // the lit faces (MeshStandardMaterial); the back faces and the edges are flat colours and have none
         if (mat.emissive) { mat.emissive.setHex(isSel && c !== null ? c : 0); mat.emissiveIntensity = isSel && c !== null ? SELECTED_EMISSIVE : 1 }
         if (mat.userData.cadDepthTest === undefined) mat.userData.cadDepthTest = mat.depthTest
-        mat.depthTest = top ? false : mat.userData.cadDepthTest
+        mat.depthTest = over ? false : mat.userData.cadDepthTest
       }
     }
   }

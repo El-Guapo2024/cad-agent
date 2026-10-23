@@ -810,7 +810,7 @@ async function testCtx(surface, open, { sel = 'none', specs = {}, prep, labels }
 // ── toolbars: every button, and every entry of its drop-down ────────────────────────────────────────────────────────────
 const toolbarList = () => page.evaluate(() => [...document.querySelectorAll('.toolbar button')].map((el) => ({
   title: el.getAttribute('title') || el.getAttribute('data-fc-title') || '', text: el.textContent.trim(), cmd: el.dataset.cmd || '', disabled: el.disabled,
-  drop: el.classList.contains('tb-drop'), combo: el.getAttribute('role') === 'combobox', tab: el.getAttribute('role') === 'tab' })))
+  head: el.getAttribute('data-tip-head') || '', drop: el.classList.contains('tb-drop'), combo: el.getAttribute('role') === 'combobox', tab: el.getAttribute('role') === 'tab' })))
 /** The n-th toolbar button with this command id (a tooltip such as "Undo Placement" follows the journal), else this title or text. */
 const toolbarButton = async (b, nth = 0) => (await page.evaluateHandle(({ title, text, cmd, drop, nth }) => {
   const all = [...document.querySelectorAll('.toolbar button')].filter((el) => (cmd
@@ -879,7 +879,8 @@ async function testToolbars() {
     }
   }
   for (const b of seen.values()) {
-    const name = (b.title || b.text).split(/ — |: /)[0].slice(0, 60), path = `toolbar > ${name}${b.drop ? ' (drop-down)' : ''}`, meta = { cmd: b.cmd || null, enabled: !b.disabled || b.enabledIn.length > 0 }
+    // a command's button is named by its tooltip's bold title (its menu text), others by their tooltip or text
+    const name = (b.head || b.title || b.text).split(/ — |: /)[0].slice(0, 60), path = `toolbar > ${name}${b.drop ? ' (drop-down)' : ''}`, meta = { cmd: b.cmd || null, enabled: !b.disabled || b.enabledIn.length > 0 }
     if (ONLY_TB && !ONLY_TB.split('|').some((t) => name.includes(t))) continue
     const spec = TB_SPEC[key(b, b.enabledIn[0]?.[0])] ?? {}
     if (!b.enabledIn.length && !spec.pre) {

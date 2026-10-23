@@ -5,9 +5,12 @@
 //   src/Mod/Start/Gui/NewFileButton.cpp: 2025 Alfredo Monclus
 //   src/Mod/Start/Gui/FileCardDelegate.cpp: 2024 The FreeCAD Project Association AISBL
 //   src/Mod/Start/Gui/FirstStartWidget.cpp: 2024 The FreeCAD Project Association AISBL
+//   src/Mod/Start/App/ExamplesModel.cpp: 2024 The FreeCAD Project Association AISBL
 // FreeCAD's Start page (src/Mod/Start/Gui at main 3160daf1e2b6: StartView.cpp, NewFileButton.cpp,
 // FileCardDelegate.cpp, FirstStartWidget.cpp), as a tab beside the 3D view. Recent Files are the
-// projects this browser opened last, each with its newest render as the thumbnail.
+// projects this browser opened last, each with its newest render as the thumbnail. Examples
+// (ExamplesModel: the files of FreeCAD's own examples folder, by name) are the projects the
+// workbench serves, by name: what there is to open before anything is recent.
 import { useState, type FC } from 'react'
 import type { IDockviewPanelProps } from 'dockview-react'
 import { getDock, openProject, openTask, recentFiles } from './actions'
@@ -72,6 +75,8 @@ export const StartPanel: FC<IDockviewPanelProps> = () => {
   const [first, setFirst] = useState(() => saved.get('start.firstStart', true))
   const [hide, setHide] = useState(() => !saved.get('start.showOnStartup', true))
   const recent = recentFiles().map((slug) => projects.find((p) => p.slug === slug)).filter((p): p is Project => !!p)
+  // ExamplesModel::loadExamples: QDir::entryList(Files | Readable, SortFlag::Name), a case-sensitive sort by name
+  const examples = [...projects].sort((a, b) => (a.slug < b.slug ? -1 : a.slug > b.slug ? 1 : 0))
   const newDoc = (wb?: 'design' | 'assembly') => { if (wb) setState({ workbench: wb }); openTask('newDocument', '') }
   return (
     <div className="start">
@@ -88,6 +93,9 @@ export const StartPanel: FC<IDockviewPanelProps> = () => {
           </div>
           <h1>Recent Files</h1>
           <div className="start-files">{recent.map((p) => <FileCard key={p.slug} p={p} />)}</div>
+          {/* StartView: Examples after Recent Files (and a custom folder), while Mod/Start ShowExamples is on, its default */}
+          <h1>Examples</h1>
+          <div className="start-files" id="Examples">{examples.map((p) => <FileCard key={p.slug} p={p} />)}</div>
         </>}
       </div>
       <div className="start-footer">

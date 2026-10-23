@@ -17,7 +17,9 @@ more, taken from `src/Mod/Assembly/Gui/Resources/icons` and `src/Mod/TechDraw/Gu
 at 3160daf1e2b6: `Assembly_BillOfMaterials.svg` (Assembly_CreateBom's own pixmap), `Assembly_InsertLink.svg`
 (Insert Component, for the library), `Assembly_ExplodedView.svg` (poses), `TechDraw_PageDefault.svg`
 (a drawing), `TechDraw_ExportPageDXF.svg` and `TechDraw_ExportPageSVG.svg`. The first and fourth carry no
-licence metadata, so FreeCAD's LGPL-2.1 applies; the other four say `FreeCAD LGPL2+`.
+licence metadata, so FreeCAD's LGPL-2.1 applies; the other four say `FreeCAD LGPL2+`. A drawing's tab
+shows `TechDraw_TreePage.svg` (`src/Mod/TechDraw/Gui/Resources/icons`, the icon ViewProviderPage gives its page's
+window; `FreeCAD LGPL2+`).
 
 Licences, as each file's metadata states:
 

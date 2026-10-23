@@ -37,10 +37,10 @@ Goal: the workbench UI in `ui/` looks and behaves like FreeCAD main 3160daf1e2b6
 6. Shop outputs: the DXF header and angles, the BOM's mirrored line, smooth edges in drawings (FREECAD_AUDIT.md).
 7. The NaviCube redraw: done on `fc-navicube-look` (2026-10-23), a port of SoNaviCube in `ui/src/navicube3d.ts`; `ui/scripts/navishots.py` compares it with FreeCAD on Linux (PARITY.md, NaviCube).
 8. Leftovers:
-   - tooltip content (bold title, accelerator, description, command id);
-   - Start page Examples, and the tab's document icon and "*";
-   - the lit selected face, and tree-hover preselection drawn on top;
-   - HeadlightColor, status bar height, toolbar widths;
+   - done 2026-10-23 (branch fc-look-leftovers; PARITY.md has each): tooltip content, Start page Examples, the tabs'
+     icons and "*", the lit selected face, the tree-hover preselection's edges on top; HeadlightColor needed nothing
+     (FreeCAD's headlight stays #ffffff: the pack's value is in a group View3DSettings does not read); status bar height
+     and toolbar widths are left (the Mac's Qt style);
    - the custom default camera orientation, and Align to a curved face;
    - two 6 px offsets in Preferences, and the Colors gradient columns.
 9. Grader gaps in the eval set: no hole count, no shaft fit, and a clearance max_mm bounds only the closest point.
@@ -79,6 +79,7 @@ Goal: the workbench UI in `ui/` looks and behaves like FreeCAD main 3160daf1e2b6
 - The laser DXF against FreeCAD: `FREECAD_APP=<FreeCAD> CAD_PYTHON=.venv/bin/python python3 ui/scripts/dxfdiff.py` (one part through both writers, every line compared, and FreeCAD reads ours back).
 - Preferences against FreeCAD: `node ui/scripts/prefdump.mjs URL dump.json`, then `python3 ui/scripts/prefdiff.py dump.json` (fetches the .ui files once).
 - Menus against FreeCAD: `python3 ui/scripts/fcgui.py` (FreeCAD's dump), `python3 ui/scripts/fcref.py <scratch project>`, then `node ui/scripts/menurun.mjs 'URL#<project>'`. 43 expected differences as of 2026-10-02 (PARITY.md's Menus note).
+- Toolbar tooltips: `python3 ui/scripts/fctips.py` runs FreeCAD (FREECAD_APP: an unpacked AppImage under xvfb-run, or FreeCAD.app) and rewrites `ui/src/fctips.ts`, every command's menu text and tooltip; run it when ui/src names a new FreeCAD command.
 - Side by side with the real FreeCAD (all of them start its GUI on the Mac's Qt platform with every window kept off the screen, and a temporary profile; one FreeCAD and one headless browser at a time): `fcshots.py OUT --scene <project>/out/scene.json` and `oursshots.mjs URL PROJECT OUT` take the same shots of both (the Start page, a part selected, the tree menu, the Report view, a tooltip, the Preferences pages); `fcbehave.py` and `oursbehave.mjs` compare the camera (standard views, Home, zoom, mouse drags); `fcmeasure.py` reads FreeCAD's own widget geometry (docks, toolbars, tabs, tree and property view, fonts, a fresh profile's parameters) and the colours of a selected, a preselected and a face-selected Part. The quick look pass of 2026-10-20 took its numbers from these and from FreeCAD's source at 3160daf1e2b6 (PARITY.md says which).
 - `python3 ui/scripts/fcdiff.py` and `fcgui.py` need FreeCAD's weekly build at `~/.cad-agent/freecad/FreeCAD.app`. That's only on the owner's Mac, not in the cloud.
 - To fetch FreeCAD sources: `https://raw.githubusercontent.com/FreeCAD/FreeCAD/3160daf1e2b6/<path>`.
