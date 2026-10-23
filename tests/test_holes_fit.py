@@ -75,19 +75,29 @@ def test_holes_through_and_blind(rig):
     # Through, blind 6 deep flat, blind 4 deep with a drill point, all dia 4.
     part = block_with(bore(-10, 5, -6, 4), bore(0, 5, -1, 4), bore(10, 5, 1, 4), drill_point(10, 1, 4))
     parts = bodies() | {"far": part}
-    row = holes_row(rig, "far", "count = 1\nthrough = true\n", parts)
-    assert row.state == "PASS", row.measured
-    assert row.measured.startswith("1 holes, through: hole dia 4.00, through at (-10.0, 0.0, 0.0)")
-    assert "not counted, 2 of the size and axis" in row.measured and "blind 6.00 deep" in row.measured
-    assert row.limit == "exactly 1 holes, through"
-    assert holes_row(rig, "far", "count = 2\nthrough = false\n", parts).state == "PASS"
-    assert holes_row(rig, "far", "count = 3\nthrough = true\n", parts).state == "FAIL"
+    # `through` holds every hole of the size, as a FreeCAD Hole's Depth Type does: two blind of three fail it.
+    row = holes_row(rig, "far", "count = 3\nthrough = true\n", parts)
+    assert row.state == "FAIL" and row.limit == "exactly 3 holes, through"
+    assert row.measured.startswith("3 holes, through: hole dia 4.00, through at (-10.0, 0.0, 0.0)"), row.measured
+    assert "; 2 not through: " in row.measured and "blind 6.00 deep" in row.measured
+    assert "1 not blind: hole dia 4.00, through" in holes_row(rig, "far", "count = 3\nthrough = false\n", parts).measured
+    # Asked for fewer than there are, it is the count that fails, not a filter that passes.
+    assert holes_row(rig, "far", "count = 1\nthrough = true\n", parts).state == "FAIL"
+    # One hole a block: the through one, and the blind ones by their depth.
+    one = lambda *cuts: bodies() | {"far": block_with(*cuts)}                     # noqa: E731
+    assert holes_row(rig, "far", "count = 1\nthrough = true\n", one(bore(-10, 5, -6, 4))).state == "PASS"
+    flat, point = one(bore(0, 5, -1, 4)), one(bore(10, 5, 1, 4), drill_point(10, 1, 4))
+    assert holes_row(rig, "far", "count = 1\nthrough = false\n", flat).state == "PASS"
     # The depth is to the shoulder, as FreeCAD's Depth: the drill point's cone is not counted.
-    deep = holes_row(rig, "far", "count = 1\ndepth_mm = 6\n", parts)
+    deep = holes_row(rig, "far", "count = 1\ndepth_mm = 6\n", flat)
     assert deep.state == "PASS" and deep.limit == "exactly 1 holes, blind 6 +-0.1 deep", deep.measured
-    assert holes_row(rig, "far", "count = 1\ndepth_mm = 4\n", parts).state == "PASS"
-    assert holes_row(rig, "far", "count = 1\ndepth_mm = 4.3\n", parts).state == "FAIL"
-    assert holes_row(rig, "far", "count = 1\ndepth_mm = 4.3\ndepth_tol_mm = 0.5\n", parts).state == "PASS"
+    assert holes_row(rig, "far", "count = 1\ndepth_mm = 4\n", point).state == "PASS"
+    assert holes_row(rig, "far", "count = 1\ndepth_mm = 4.3\n", point).state == "FAIL"
+    assert holes_row(rig, "far", "count = 1\ndepth_mm = 4.3\ndepth_tol_mm = 0.5\n", point).state == "PASS"
+    # Four through and a fifth of the size blind: five, and one blind, where a filter counted four.
+    five = one(*(bore(x, 5, -6, 4) for x in (-12, -6, 0, 6)), bore(12, 5, -1, 4))
+    row = holes_row(rig, "far", "count = 4\nthrough = true\n", five)
+    assert row.state == "FAIL" and row.measured.startswith("5 holes, through") and "1 not through" in row.measured
     # Without `through` or a depth, the row reads as it always did.
     assert holes_row(rig, "far", "count = 3\n", parts).measured.startswith("3 holes: hole dia 4.00 at")
 
@@ -95,16 +105,17 @@ def test_holes_through_and_blind(rig):
 def test_holes_through_and_blind_with_a_counterbore_or_countersink(rig):
     # A counterbored through hole, a blind counterbored hole 6 deep, a blind countersunk one 5 deep: all dia 3.4.
     sink = Pos(10, 0, 4.25) * Cone(1.45, 3.45, 2.0)         # 90 degrees, z 3.25 to 5.25: 6.4 across at the face
-    part = block_with(bore(-10, 5, -6, 3.4), bore(-10, 5, 3, 6.4), bore(0, 5, -1, 3.4), bore(0, 5, 3, 6.4),
-                      bore(10, 5, 0, 3.4), sink)
-    parts = bodies() | {"far": part}
+    cuts = {"cbore": (bore(-10, 5, -6, 3.4), bore(-10, 5, 3, 6.4)), "blind": (bore(0, 5, -1, 3.4), bore(0, 5, 3, 6.4)),
+            "sunk": (bore(10, 5, 0, 3.4), sink)}
+    parts = bodies() | {"far": block_with(*(c for cs in cuts.values() for c in cs))}
     assert holes_row(rig, "far", "count = 3\nmax_dia_mm = 3.6\n", parts).state == "PASS"
-    through = holes_row(rig, "far", "count = 1\nthrough = true\nmax_dia_mm = 3.6\n", parts)
-    assert through.state == "PASS" and "(-10.0, 0.0, 0.0)" in through.measured.split("not counted")[0]
-    assert holes_row(rig, "far", "count = 2\nthrough = false\n", parts).state == "PASS"
-    blind = holes_row(rig, "far", "count = 1\ndepth_mm = 6\n", parts)
+    mixed = holes_row(rig, "far", "count = 3\nthrough = true\nmax_dia_mm = 3.6\n", parts).measured
+    assert "2 not through" in mixed and "(-10.0, 0.0, 0.0)" in mixed.split("not through")[0], mixed
+    one = lambda name: bodies() | {"far": block_with(*cuts[name])}                # noqa: E731
+    assert holes_row(rig, "far", "count = 1\nthrough = true\nmax_dia_mm = 3.6\n", one("cbore")).state == "PASS"
+    blind = holes_row(rig, "far", "count = 1\ndepth_mm = 6\n", one("blind"))
     assert blind.state == "PASS" and "hole dia 3.40 (stepped, widest 6.40), blind 6.00 deep" in blind.measured
-    sunk = holes_row(rig, "far", "count = 1\ndepth_mm = 5\n", parts)        # from the face, past the countersink
+    sunk = holes_row(rig, "far", "count = 1\ndepth_mm = 5\n", one("sunk"))       # from the face, past the countersink
     assert sunk.state == "PASS", sunk.measured
     # A hole on its side opens on both faces, and both cheeks of a fork are through.
     assert holes_row(rig, "cheek", 'count = 2\naxis = "y"\nthrough = true\n', fit_parts(cheeks=2)).state == "PASS"

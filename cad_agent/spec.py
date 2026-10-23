@@ -51,7 +51,7 @@ spec.toml is UNCHECKED too: nothing states what the design must do.
     min_dia_mm = 3.2            # optional, with max_dia_mm: the hole's size, its narrowest bore
     max_dia_mm = 3.6
     axis = "z"                  # optional: x, y, z or [x, y, z]; also kind = "slot" or "any"
-    through = true              # optional: false is blind; depth_mm = 8 (to the drill point's shoulder),
+    through = true              # optional: every hole of the size through; false, all blind; depth_mm = 8 (to the drill point's shoulder),
                                 # depth_tol_mm (default 0.1)
 
     [[shaft_fit]]               # a round shaft in the bores of another body

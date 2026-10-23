@@ -107,7 +107,7 @@ count = 4                   # or min_count and/or max_count
 min_dia_mm = 3.2            # optional, with max_dia_mm: the size (narrowest bore)
 max_dia_mm = 3.6
 axis = "z"                  # optional: x, y, z or [x, y, z]; kind = "slot" or "any" counts slots
-through = true              # optional: only through holes; false, blind ones; depth_mm = 8 (to the
+through = true              # optional: every one of them through; false, all blind; depth_mm = 8 (to the
                             # drill point's shoulder, as FreeCAD's Depth) with depth_tol_mm = 0.1
 
 [[shaft_fit]]               # a round shaft in the bores of another body
@@ -164,7 +164,9 @@ and the bore's diameters, so a loose bore fails wherever the shaft sits in it. `
 "H7/g6"` takes the limits from ISO 286 at the nominal size, and judges the modelled
 gap: right for a print modelled at the gap it needs, while a machined part drawn at
 nominal (bore and shaft both 10.000) fails it by design, so give that one no `fit`.
-When the brief says "through" or gives a blind hole's depth, say so in `[[holes]]`.
+When the brief says "through" or gives a blind hole's depth, say so in `[[holes]]`: it holds every
+hole of the size and axis, as a FreeCAD Hole's Depth Type does, so holes of one size that end two
+ways are two entries told apart by size or axis.
 
 Add `[[heat]]` when anything in the brief is hot, `[[deflection]]` for a beam that
 carries a load, `[[axis]]` and `[bodies]` when the brief names axes or a number of

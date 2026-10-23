@@ -59,8 +59,10 @@ Also done later on 2026-10-23 (main cd8fa2c, CI green):
    `syringe_clamp` grades its bore with `[[shaft_fit]]`; tests/test_eval.py GAPS has the design each one catches.
    No brief gives a blind depth or an ISO fit class to grade (pinned_carrier quotes H7/F7 for reference only).
 2. Grader choices left to Juan:
-   - `through` filters the count ("4 through" fails when one of the four is blind). A separate rule judging every hole of the size is the other option.
-   - ISO 286 c and s values are from the standard's rules, not checked against a published table (none at hand); JS/js are exactly ±IT/2.
+   - ~~`through` as a count filter~~ (decided 2026-10-23): it holds every hole of the size and axis, as FreeCAD's Hole Depth Type does,
+     so "4 through" fails on a fifth blind hole too.
+   - ~~ISO 286 c and s unchecked~~: every class FreeCAD's TechDraw Hole/Shaft Fit tool offers is checked against it (tests/golden/iso286;
+     FreeCAD's own n6 is wrong over 160 mm, audit 5.14). JS/js are exactly ±IT/2.
 3. Status bar height and toolbar widths: they come from the Mac's Qt style, so measure them on a Mac.
 4. 5.1 Home (FREECAD_AUDIT.md): under way in another lane.
 - Stays a deliberate difference: the spline re-fit in DXF export.

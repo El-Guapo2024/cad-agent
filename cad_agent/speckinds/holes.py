@@ -10,8 +10,8 @@ the holes of `a` that land on `b`, so a hole left out of the body that is not `a
     max_dia_mm = 6.0
     axis = "y"                  # optional: only holes along this axis, "x", "y", "z" or [x, y, z], either sense
     kind = "hole"               # the default; "slot" counts slots, "any" both
-    through = true              # optional: only holes open at both ends; false, only blind ones
-    depth_mm = 8                # optional: only blind holes this deep (so through = false)
+    through = true              # optional: and every one of them open at both ends; false, every one blind
+    depth_mm = 8                # optional: and every one blind, this deep (so through = false)
     depth_tol_mm = 0.1          # optional: how far the depth may be off; default 0.1
 
 A hole is what `[[interface]]` reads (speckinds/interface.py `holes()`), from the body's B-rep: the concave
@@ -33,9 +33,12 @@ depth is from the face the hole opens on, and a counterbore is part of the hole,
 hole is as deep as its narrow bore's bottom. On a sloped face the depth starts where the bore's wall goes
 furthest, about the rim's high side (OCCT's bounds of the face, which can be a tenth of a mm long).
 
-PASS when the number of holes that match is the count asked for, FAIL otherwise, with the holes found.
-`through` and `depth_mm` filter as the size does, so four holes asked for "through" fail on a blind one, and
-the row then lists the holes of the size and axis it did not count, each with how it ends.
+PASS when the number of holes that match is the count asked for and each ends as asked, FAIL otherwise,
+with the holes found. `through` and `depth_mm` are not a filter: they hold every hole of the size and axis,
+as a FreeCAD PartDesign Hole's Depth Type ("Through all" or a depth) holds every hole of the feature. So
+"4 through" fails on four holes with one blind, and on four through holes and a fifth blind one (five,
+and one blind); the row names the holes that do not end as asked. Holes of one size that must end two
+ways are two entries told apart by size or axis, as FreeCAD's are two Hole features.
 UNCHECKED when the entry cannot be read: no `body`, a body that is not there, no count, a count that is
 not a whole number, a range that is upside down, an axis that is not a direction, a kind it does not know,
 a `through` that is not true or false, `depth_mm` with `through = true`, a depth that is not above 0, a
@@ -93,14 +96,13 @@ def holes_count(entry: dict, ctx):
         return along is None or abs(h["dir"].dot(Vector(*along))) >= math.cos(math.radians(AXIS_DEG))
 
     found = [h for h in _each_bore(holes(solid)) if wanted(h)]
-    left = []                                   # of the size and axis, but not open or deep as asked
+    wrong = []                                  # of the size and axis, but not open or deep as asked
     if through is not None:
         walls = _walls(solid)
         found = [h | _ends(solid, h, walls) for h in found]
-        left = [h for h in found if not _ends_as_asked(h, through, deep, slack)]
-        found = [h for h in found if _ends_as_asked(h, through, deep, slack)]
+        wrong = [h for h in found if not _ends_as_asked(h, through, deep, slack)]
     n = len(found)
-    ok = (low is None or n >= low) and (high is None or n <= high)
+    ok = (low is None or n >= low) and (high is None or n <= high) and not wrong
     what = {"hole": "holes", "slot": "slots", "any": "holes or slots"}[kind]
     size = (f" dia {small:g} to {big:g}" if small is not None and big is not None
             else f" dia >= {small:g}" if small is not None else f" dia <= {big:g}" if big is not None else "")
@@ -114,8 +116,8 @@ def holes_count(entry: dict, ctx):
         text = "; ".join(f"{_describe(h)}{_ending(h)} at {_xyz(h['point'])}" for h in some[:6])
         return text + (f" and {len(some) - 6} more" if len(some) > 6 else "")
     shown = listed(found)
-    if left:
-        shown += ("; " if shown else "") + f"not counted, {len(left)} of the size and axis: {listed(left)}"
+    if wrong:
+        shown += f"; {len(wrong)} not {ends[2:]}: {listed(wrong)}"
     yield _row(name, "holes", "PASS" if ok else "FAIL", f"{n} {what}{size}{way}{ends}"
                + (f": {shown}" if shown else ""), f"{want} {what}{size}{way}{ends}")
 
