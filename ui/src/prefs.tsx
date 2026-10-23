@@ -19,6 +19,7 @@ import { messageBox } from './msgbox'
 import { setEditorPrefs } from './actions'
 import { setHomeView, setUnits } from './commands'
 import { BACKGROUND_DEFAULTS } from './background'
+import { CameraDialogHost, loadCameraPage } from './camdialog'
 import { LIGHT_DEFAULTS } from './lights'
 import {
   AdvancedPage, CachePage, ColorsPage, DocumentPage, EditorPage, GeneralPage, getServerPrefs, KeyboardPage, LightSourcesPage, loadServerPrefs, MacroPage, NavigationPage,
@@ -48,7 +49,7 @@ const DEFAULTS: Record<string, Record<string, unknown>> = {
   '3D View': { corner: { show: true, size: 10 }, axes: false, axisColors: AXIS_COLOR_DEFAULTS, showFPS: false },
   'Light Sources': { lights: LIGHT_DEFAULTS },
   UI: { treeUI: TREE_UI_DEFAULTS },
-  Navigation: { nav: 'cad', animate: true, cube: true, navPrefs: NAV_DEFAULTS, homeView: null, newDocCameraScale: 100,
+  Navigation: { nav: 'cad', animate: true, cube: true, navPrefs: NAV_DEFAULTS, homeView: null, customCamera: null, newDocCameraScale: 100,
     naviCube: NAVICUBE_DEFAULTS, cubePos: CORNER_POS[1], rotationCenter: { size: 5, color: '#ff0000', alpha: 0.2 }, disableTouchTilt: true },
   Colors: { background: BACKGROUND_DEFAULTS, treeEditColor: '#00abff' },
   Advanced: { overlayPrefs: OVERLAY_DEFAULTS },
@@ -81,7 +82,7 @@ const PAGES: Record<string, () => ReactNode> = {
 const page = (name: string): ReactNode => PAGES[name]()
 
 /** What Cancel puts back: the app's own saved settings and the store fields the pages edit. */
-const PREF_KEYS = ['nav', 'animate', 'cube', 'navPrefs', 'homeView', 'newDocCameraScale', 'units', 'corner', 'axes', 'axisColors',
+const PREF_KEYS = ['nav', 'animate', 'cube', 'navPrefs', 'homeView', 'customCamera', 'newDocCameraScale', 'units', 'corner', 'axes', 'axisColors',
   'showFPS', 'naviCube', 'cubePos', 'rotationCenter', 'disableTouchTilt', 'recordGuiCommands', 'guiAsComment', 'notifyPrefs', 'tree',
   'background', 'treeEditColor', 'lights', 'selPrefs', 'treeUI', 'editorPrefs', 'overlayPrefs', 'shortcuts', 'shortcutTimeout', 'wbPrefs', 'scriptToPyConsole',
   'reportShow', 'reportTimecode'] as const
@@ -140,6 +141,7 @@ export function PreferencesDialog() {
   useEffect(() => {
     if (!open) return
     snap.current = snapshot(); setQuery('')
+    loadCameraPage()
     const mine = snap.current
     void loadServerPrefs().then((p) => { if (p && snap.current === mine) mine.server = { ...p } })
   }, [open])
@@ -202,6 +204,7 @@ export function PreferencesDialog() {
         </div>
         {/* The search index: every page rendered off screen. */}
         <div ref={index} className="pref-index" aria-hidden>{pages.map((p) => <div key={p} data-page={p}>{page(p)}</div>)}</div>
+        <CameraDialogHost />
       </div>
     </div>
   )

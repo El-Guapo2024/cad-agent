@@ -117,6 +117,80 @@ def placed_solids(slug: str) -> tuple[dict, dict]:
     return shown, materials
 
 
+def _linear_dir(edge):
+    """The direction of a straight edge as Part::Feature::getCameraAlignmentDirection reads it, or None for a curved one:
+    TopoShape::isLinearEdge (a line, or a B-spline or Bezier of degree 1 that is not C0: GeomCurve::isLinear's IsLinear,
+    Mod/Part/App/Geometry.cpp:749-769 at 3160daf1e2b6), then Geometry::fromShape(edge)->toLine()'s direction, the curve's
+    point at its last parameter less the one at its first (Geometry.cpp:817-831), whatever the edge's orientation."""
+    from OCP.BRepAdaptor import BRepAdaptor_Curve
+    from OCP.GeomAbs import GeomAbs_BezierCurve, GeomAbs_BSplineCurve, GeomAbs_C0, GeomAbs_Line
+    c = BRepAdaptor_Curve(edge)
+    t = c.GetType()
+    if not (t == GeomAbs_Line or (t in (GeomAbs_BSplineCurve, GeomAbs_BezierCurve) and c.Degree() == 1
+                                  and c.Continuity() != GeomAbs_C0)):
+        return None
+    a, b = c.Value(c.FirstParameter()), c.Value(c.LastParameter())
+    d = np.array([b.X() - a.X(), b.Y() - a.Y(), b.Z() - a.Z()])
+    n = float(np.linalg.norm(d))
+    return d / n if n > 0 else None
+
+
+def curved_faces(shape) -> dict:
+    """Std_AlignToSelection's directions for the faces that are not planar, which the mesh cannot give:
+    {"<face number>": [normal, direction of its longest straight edge or None]}, numbered as the viewer's FaceN
+    (TopExp::MapShapes' order, which ocp-tessellate numbers by too), in the coordinates `shape` is drawn in.
+    Part::Feature::getCameraAlignmentDirection (Mod/Part/App/PartFeature.cpp:1880-1933 at 3160daf1e2b6): the normal
+    BRepGProp_Face gives at the middle of the face's (u, v) bounds (the face's orientation applied), or at the first
+    corner of the bounds where it is not zero; the edge is the first longest straight one TopExp_Explorer meets
+    (BRepGProp::LinearProperties' length). Planar faces are left to the viewer (TopoShape::isPlanar: a plane, or a
+    surface GeomLib_IsPlanarSurface finds flat within 1e-7)."""
+    from OCP.BRep import BRep_Tool
+    from OCP.BRepAdaptor import BRepAdaptor_Surface
+    from OCP.BRepGProp import BRepGProp, BRepGProp_Face
+    from OCP.GeomAbs import GeomAbs_Plane
+    from OCP.GeomLib import GeomLib_IsPlanarSurface
+    from OCP.GProp import GProp_GProps
+    from OCP.gp import gp_Pnt, gp_Vec
+    from OCP.TopAbs import TopAbs_EDGE
+    from OCP.TopExp import TopExp_Explorer
+    from ocp_tessellate.ocp_utils.topology import downcast, get_faces
+    out = {}
+    for i, face in enumerate(get_faces(getattr(shape, "wrapped", shape)), 1):
+        if BRepAdaptor_Surface(face).GetType() == GeomAbs_Plane:
+            continue
+        surf = BRep_Tool.Surface_s(face)
+        if surf is None or GeomLib_IsPlanarSurface(surf, 1e-7).IsPlanar():
+            continue
+        prop = BRepGProp_Face(face)
+        u1, u2, v1, v2 = prop.Bounds()
+        p, n = gp_Pnt(), gp_Vec()
+        prop.Normal((u1 + u2) / 2, (v1 + v2) / 2, p, n)
+        if n.Magnitude() <= 1e-7:                    # Precision::Confusion
+            for u, v in ((u1, v1), (u2, v2), (u1, v2), (u2, v1)):
+                prop.Normal(u, v, p, n)
+                if n.Magnitude() > 1e-7:
+                    break
+            if n.Magnitude() <= 1e-7:
+                continue
+        n.Normalize()
+        best, best_len = None, None
+        ex = TopExp_Explorer(face, TopAbs_EDGE)
+        while ex.More():
+            edge = downcast(ex.Current())
+            ex.Next()
+            d = _linear_dir(edge)
+            if d is None:
+                continue
+            props = GProp_GProps()
+            BRepGProp.LinearProperties_s(edge, props)
+            if best_len is None or props.Mass() > best_len:
+                best, best_len = d, props.Mass()
+        # unrounded: a camera exactly across the face (Front and a cylinder's side, whose normal at u = pi is
+        # (-1, 1.2e-16, 0)) is turned to the side the last bits of the dot product give, as in FreeCAD
+        out[str(i)] = [[n.X(), n.Y(), n.Z()], [float(v) for v in best] if best is not None else None]
+    return out
+
+
 def _effective_tessellation(view_props: dict, name: str,
                             deviation: float | None, angular: float | None) -> tuple[float, float]:
     """One body's Deviation (percent of its bounding-box size) and AngularDeflection
@@ -252,6 +326,8 @@ def build_scene(slug: str, deviation: float | None = None, angular: float | None
             "placement": {k: list(v) for k, v in move.items()} if move else None,
             "about": list(move["about"]) if move else center,
             **({"project": info.project, "from_part": info.part} if child else {}),
+            # Align to Selection on a face that is not flat (viewer.ts alignDirection): drawn where `shown` puts it
+            "curved": curved_faces(shown[name]),
         })
 
     for b in bodies:                   # one part module can make several bodies

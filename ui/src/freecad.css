@@ -427,6 +427,11 @@ button, select, input { font: inherit; color: inherit; }
 .msgbox-icon { flex: none; }
 .msgbox-text { white-space: pre-wrap; padding-top: 6px; }
 .msgbox-buttons { display: flex; justify-content: flex-end; gap: 8px; padding: 8px 12px 12px; }
+/* DlgSettingsNavigation's CameraDialog: a QGridLayout of the Orientation group over the button box, 11 px margins and 6 px spacing
+   (measured in FreeCAD 26.3 on Linux: the group at (11, 11), the dialog 240 x 220), the box's buttons 6 px apart */
+.camdlg { min-width: 240px; }
+.camdlg-body { padding: 11px 11px 0; }
+.camdlg-buttons { gap: 6px; padding: 6px 11px 11px; }
 .taskview { height: 100%; }
 .qsb-row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px; min-width: 0; }
 

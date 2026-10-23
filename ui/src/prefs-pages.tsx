@@ -41,7 +41,8 @@ import { QtForm, cls, type Bindings } from './qtform'
 import { COMMAND_CATEGORY, FORMS, KEYBOARD_CATEGORIES, type UiForm, type UiItem } from './uiforms'
 import { NAV_STYLES, ORBIT_STYLES, type NavPrefs, type OrbitStyle } from './nav'
 import { CORNER_POS, EDITOR_COLORS, getState, saved, saveNaviCube, setState, useStore, type AxisColors, type HomeView, type NaviCubePrefs, type NavStyle, type OverlayPrefs, type RotationCenterPrefs, type WbPrefs } from './store'
-import { setCorner, setHomeView, setNav, setUnits } from './commands'
+import { setCorner, setCustomCamera, setHomeView, setNav, setUnits } from './commands'
+import { pickCustomCamera } from './camdialog'
 import { ANIMATION_CURVES, editorStyle, setEditorPrefs, setOrtho, setOverlayPrefs, setTreeOption, setTreeUI } from './actions'
 import { setNotifyPrefs } from './notifications'
 import { api, type CacheInfo } from './api'
@@ -153,7 +154,11 @@ export function NavigationPage() {
     mouseButton: { click: mouseButtons },
     comboOrbitStyle: { value: p.orbit, opts: ORBIT_ITEMS.map((o) => [o, ORBIT_STYLES[o]] as const), set: (v: number) => pref({ orbit: v as OrbitStyle }) },
     comboRotationMode: { value: p.rotationMode, opts: [[0, 'Window center'], [1, 'Drag at cursor'], [2, 'Object center']], set: (v: number) => pref({ rotationMode: v as 0 | 1 | 2 }) },
-    comboNewDocView: { value: home ?? 'Trimetric', opts: ['Isometric', 'Dimetric', 'Trimetric', 'Top', 'Front', 'Left', 'Right', 'Rear', 'Bottom'].map((v) => [v, v] as const), set: (v: string) => setHomeView(v as HomeView) },
+    // addOrientations (DlgSettingsNavigation.cpp:223-258); picking Custom opens the Camera Settings dialog (onNewDocViewChanged)
+    comboNewDocView: { value: home ?? 'Trimetric', opts: ['Isometric', 'Dimetric', 'Trimetric', 'Top', 'Front', 'Left', 'Right', 'Rear', 'Bottom', 'Custom'].map((v) => [v, v] as const), set: (v: string) => {
+      setHomeView(v as HomeView)
+      if (v === 'Custom') void pickCustomCamera().then(setCustomCamera)
+    } },
     qspinNewDocScale: { node: <QuantityBox value={newDocScale} dims={LENGTH} min={0.00001} max={10000000} onChange={(v) => { setState({ newDocCameraScale: v }); saved.set('newDocCameraScale', v) }} />, cls: 'qf-quantity' },
     checkBoxZoomAtCursor: { value: p.zoomAtCursor, set: (v: boolean) => pref({ zoomAtCursor: v }) },
     spinBoxZoomStep: { value: p.zoomStep, set: (v: number) => pref({ zoomStep: v }) },
