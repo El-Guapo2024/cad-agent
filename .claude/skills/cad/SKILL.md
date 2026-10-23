@@ -107,12 +107,15 @@ count = 4                   # or min_count and/or max_count
 min_dia_mm = 3.2            # optional, with max_dia_mm: the size (narrowest bore)
 max_dia_mm = 3.6
 axis = "z"                  # optional: x, y, z or [x, y, z]; kind = "slot" or "any" counts slots
+through = true              # optional: only through holes; false, blind ones; depth_mm = 8 (to the
+                            # drill point's shoulder, as FreeCAD's Depth) with depth_tol_mm = 0.1
 
 [[shaft_fit]]               # a round shaft in the bores of another body
 shaft = "pin_1"
 bore = "carrier"
 min_mm = 0                  # bore minus shaft diameter, so "0.1 a side" is 0.2
 max_mm = 0.2                # min_mm and/or max_mm; below 0 is a press fit; tol_mm = 0.1 (axis offset), pose
+                            # or fit = "H7/g6" (not with min_mm/max_mm), nominal_mm = 10 optional
 
 [[heat]]                    # every other body within radius_mm of the source must be rated for temp_c
 source = "hot_plate"        # a body, or at = [x, y, z]
@@ -157,7 +160,11 @@ an interface misses a hole left out of `b`.
 
 A `[[clearance]]` measures one number, where the two bodies come closest. For "grips
 the barrel" or "a pin locates in its hole" write `[[shaft_fit]]`: it reads the shaft's
-and the bore's diameters, so a loose bore fails wherever the shaft sits in it.
+and the bore's diameters, so a loose bore fails wherever the shaft sits in it. `fit =
+"H7/g6"` takes the limits from ISO 286 at the nominal size, and judges the modelled
+gap: right for a print modelled at the gap it needs, while a machined part drawn at
+nominal (bore and shaft both 10.000) fails it by design, so give that one no `fit`.
+When the brief says "through" or gives a blind hole's depth, say so in `[[holes]]`.
 
 Add `[[heat]]` when anything in the brief is hot, `[[deflection]]` for a beam that
 carries a load, `[[axis]]` and `[bodies]` when the brief names axes or a number of

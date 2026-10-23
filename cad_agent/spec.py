@@ -51,12 +51,15 @@ spec.toml is UNCHECKED too: nothing states what the design must do.
     min_dia_mm = 3.2            # optional, with max_dia_mm: the hole's size, its narrowest bore
     max_dia_mm = 3.6
     axis = "z"                  # optional: x, y, z or [x, y, z]; also kind = "slot" or "any"
+    through = true              # optional: false is blind; depth_mm = 8 (to the drill point's shoulder),
+                                # depth_tol_mm (default 0.1)
 
     [[shaft_fit]]               # a round shaft in the bores of another body
     shaft = "pin_1"
     bore = "carrier"
     min_mm = 0                  # bore minus shaft diameter (diametral, so 0.1 a side is 0.2)
     max_mm = 0.2                # min_mm and/or max_mm; below 0 is a press fit; also tol_mm, pose
+                                # or fit = "H7/g6" instead: ISO 286 limits for the modelled sizes, nominal_mm
 
     [[heat]]                    # every other body within radius_mm of the source needs a rating of temp_c
     source = "hot_plate"        # a body, or at = [x, y, z]

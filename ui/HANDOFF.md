@@ -51,8 +51,8 @@ Left:
 - The spline re-fit in DXF export stays a deliberate difference.
 - Open questions on the grader:
   - Should a fit be the gap per side or the diameter difference (now the diameter)?
-  - Should there be ISO 286 fit classes?
-  - Should `[[holes]]` tell through holes from blind ones?
+  - ~~ISO 286 fit classes~~: `[[shaft_fit]]` `fit = "H7/g6"` (branch `grader-holes-fits`, cad_agent/iso286.py).
+  - ~~Through holes and blind ones~~: `[[holes]]` `through`, `depth_mm` (same branch).
   - No hidden spec uses the new kinds yet.
 
 ## The FreeCAD oracle on a Linux box
