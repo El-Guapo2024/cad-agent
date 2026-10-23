@@ -277,11 +277,15 @@ def build(plate: Plate, face: View, side: View, meta: dict, angle: str = "first"
         sh.add("VISIBLE", place(p, ox, oy, s))
     for p in face.hidden:
         sh.add("HIDDEN", place(p, ox, oy, s))
+    for p in face.smooth:
+        sh.add("SMOOTH", place(p, ox, oy, s))
     side_ox = sx - side.box[0] * s
     for p in side.visible:
         sh.add("VISIBLE", place(p, side_ox, oy, s))
     for p in side.hidden:
         sh.add("HIDDEN", place(p, side_ox, oy, s))
+    for p in side.smooth:
+        sh.add("SMOOTH", place(p, side_ox, oy, s))
 
     # centre marks: a cross on each hole, the axis of each slot, the axis of each hole in the side view
     for f in feats:

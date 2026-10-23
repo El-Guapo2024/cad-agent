@@ -255,7 +255,7 @@ Solid line
   0
 LTYPE
   5
-AC8
+AC9
 330
 22
 100
@@ -285,7 +285,7 @@ ISO 128-20 type 02, dashed: 12d dash, 3d gap at d = 0.25
   0
 LTYPE
   5
-AC9
+ACA
 330
 22
 100
@@ -333,7 +333,7 @@ ABB
 100
 AcDbSymbolTable
  70
-12
+13
   0
 LAYER
   5
@@ -453,6 +453,24 @@ AcDbSymbolTableRecord
 100
 AcDbLayerTableRecord
   2
+SMOOTH
+ 70
+    0
+ 62
+    7
+  6
+CONTINUOUS
+  0
+LAYER
+  5
+AC3
+330
+ABB
+100
+AcDbSymbolTableRecord
+100
+AcDbLayerTableRecord
+  2
 CENTRE
  70
     0
@@ -463,7 +481,7 @@ CENTER
   0
 LAYER
   5
-AC3
+AC4
 330
 ABB
 100
@@ -481,7 +499,7 @@ CONTINUOUS
   0
 LAYER
   5
-AC4
+AC5
 330
 ABB
 100
@@ -499,7 +517,7 @@ CONTINUOUS
   0
 LAYER
   5
-AC5
+AC6
 330
 ABB
 100
@@ -517,7 +535,7 @@ CONTINUOUS
   0
 LAYER
   5
-AC6
+AC7
 330
 ABB
 100
@@ -535,7 +553,7 @@ CONTINUOUS
   0
 LAYER
   5
-AC7
+AC8
 330
 ABB
 100

@@ -15,13 +15,14 @@ TechDraw (FreeCAD commit 3160daf1e2b6, src/Mod/TechDraw/App/GeometryObject.cpp) 
      edges only with `HardHidden` (off by default, and it is what makes a drawing's hidden lines), the hidden smooth,
      seam and iso ones with their own (off)
 
-This does the same with the same OCCT classes: the visible lines are `VCompound` and `OutLineVCompound`, the hidden
-lines `HCompound` and `OutLineHCompound` (HardHidden on, since a drawing of a plate shows its holes through). Where it
-differs from TechDraw, and why:
+This does the same with the same OCCT classes: the visible lines are `VCompound` and `OutLineVCompound`, the visible
+smooth lines `Rg1LineVCompound` (SmoothVisible on, as TechDraw's default), the hidden lines `HCompound` and
+`OutLineHCompound` (HardHidden on, since a drawing of a plate shows its holes through). The hidden smooth lines stay off,
+as SmoothHidden's default has them. TechDraw draws a smooth line continuous and thin, the width of a hidden line and not
+of a visible one (src/Mod/TechDraw/Gui/QGIViewPart.cpp:468-473: `getLinePen(1, HiddenWidth)` for EdgeClass::SMOOTH),
+so here they are a View's `smooth` lines, which the sheet puts on a layer of their own (paper.LAYERS["SMOOTH"]). Where
+it differs from TechDraw, and why:
 
-  smooth edges    TechDraw's defaults draw the visible ones (`Rg1LineVCompound`). Here they are left out: the line where
-                  a fillet runs out tangent into a flat is not an edge of the part, and a mechanical drawing usually
-                  leaves it out
   centre, scale   TechDraw copies the shape, moves its centroid to the origin and scales it (`ShapeUtils::centerShape`,
                   `scaleShape`) before the projection, and flips y afterwards (`invertGeometry`) for Qt's downward
                   axis. A part is already near its own origin and the sheet's scale is applied to the lines, and
@@ -29,14 +30,15 @@ differs from TechDraw, and why:
   coincident      OCCT returns, for a plate seen face on, the edges of the bottom face as hidden lines under the
                   visible ones of the top, and for a hole seen edge-on its circle as a curve that goes along a
                   line and back. A drawing shows a hidden line only where nothing visible is drawn over it, so
-                  lines are joined where they lie on one another and the hidden ones are cut where a visible
-                  line covers them
+                  lines are joined where they lie on one another, the smooth ones are cut where a hard or outline
+                  line covers them and the hidden ones where any visible line does (TechDraw draws each class
+                  whole and lets them lie on one another)
   canonical       OCCT 7.9 and 8.0 give the same lines to about 1e-9 mm and in another order and split in other
                   places. Everything is put on a 1e-4 mm grid, joined where it touches, and sorted, so a view
                   is the same entities on either kernel and the same bytes in every run
 
 The result of a projection is a `View`: the entities of `dxf.py` (Line, Circle, Arc, ...) in the view's own x and y, in
-millimetres at scale 1:1, and how long OCCT's hidden line removal took.
+millimetres at scale 1:1, visible, hidden and smooth, and how long OCCT's hidden line removal took.
 """
 from __future__ import annotations
 
@@ -48,19 +50,22 @@ from .. import dxf
 
 FREECAD_COMMIT = dxf.FREECAD_COMMIT
 SOURCE = (f"FreeCAD {FREECAD_COMMIT} src/Mod/TechDraw/App/GeometryObject.cpp GeometryObject::projectShape and makeTDGeometry "
-          "(HLRBRep_Algo, HLRAlgo_Projector, HLRBRep_HLRToShape: hard and outline edges, visible and hidden; the hidden ones are "
-          "dashed by src/Mod/TechDraw/Gui/QGIViewPart.cpp:461-465, not by GeometryObject.cpp)")
+          "(HLRBRep_Algo, HLRAlgo_Projector, HLRBRep_HLRToShape: hard and outline edges, visible and hidden, and the visible smooth "
+          "ones; the hidden ones are dashed and the smooth ones thin by src/Mod/TechDraw/Gui/QGIViewPart.cpp:461-473, not by "
+          "GeometryObject.cpp)")
 GRID = 10_000                   # 1e-4 mm
 ANGLE_GRID = 10_000             # 1e-4 degrees
 VIEW_FRAME = dxf.frame_at(2, 0.0)       # HLR's edges lie in the XY plane of the projector: the identity frame
 VISIBLE = ("VCompound", "OutLineVCompound")
 HIDDEN = ("HCompound", "OutLineHCompound")
+SMOOTH = ("Rg1LineVCompound",)  # GeometryObject.cpp:264-266, SmoothVisible (DrawViewPart.cpp:134, "SmoothViz" true); SmoothHidden off (:143)
 
 
 class View(NamedTuple):
     name: str
     visible: list           # entities in the view's x and y
     hidden: list
+    smooth: list            # the visible smooth lines: where two faces meet tangent, drawn thin
     seconds: float          # OCCT's hidden line removal and the conversion of its edges
     box: tuple              # (x0, y0, x1, y1) of the visible lines
 
@@ -76,7 +81,7 @@ def compound_edges(comp) -> list:
 
 
 def hlr_edges(solid, z_dir, x_dir) -> tuple:
-    """(visible edges, hidden edges) of a solid looked at along -z_dir, with x_dir to the right (see the docstring)."""
+    """(visible edges, hidden edges, visible smooth edges) of a solid looked at along -z_dir, with x_dir to the right (see the docstring)."""
     from OCP.gp import gp_Ax2, gp_Dir, gp_Pnt
     from OCP.HLRAlgo import HLRAlgo_Projector
     from OCP.HLRBRep import HLRBRep_Algo, HLRBRep_HLRToShape
@@ -88,20 +93,22 @@ def hlr_edges(solid, z_dir, x_dir) -> tuple:
     shapes = HLRBRep_HLRToShape(algo)
     visible = [e for name in VISIBLE for e in compound_edges(getattr(shapes, name)())]
     hidden = [e for name in HIDDEN for e in compound_edges(getattr(shapes, name)())]
-    return visible, hidden
+    smooth = [e for name in SMOOTH for e in compound_edges(getattr(shapes, name)())]
+    return visible, hidden, smooth
 
 
 def project(solid, name: str, z_dir, x_dir) -> View:
     """One view of a solid: z_dir points at the viewer and x_dir is the sheet's horizontal (TechDraw's Direction and
     XDirection), y_dir = z_dir x x_dir is up."""
     t0 = time.perf_counter()
-    visible, hidden = hlr_edges(solid, z_dir, x_dir)
+    visible, hidden, smooth = hlr_edges(solid, z_dir, x_dir)
     vis = canonical([e for edge in visible for e in entities(edge)])
-    hid = cover(canonical([e for edge in hidden for e in entities(edge)]), vis)
+    smo = cover(canonical([e for edge in smooth for e in entities(edge)]), vis)
+    hid = cover(canonical([e for edge in hidden for e in entities(edge)]), vis + smo)
     seconds = time.perf_counter() - t0
     if not vis:
         raise ValueError(f"the {name} view has no visible lines")
-    return View(name, vis, hid, seconds, box_of(vis))
+    return View(name, vis, hid, smo, seconds, box_of(vis))
 
 
 def box_of(entities_) -> tuple:
@@ -254,7 +261,8 @@ def canonical(ents: list) -> list:
 
 
 def cover(hidden: list, visible: list) -> list:
-    """The hidden entities with what a visible entity is drawn over cut away."""
+    """The hidden entities with what a visible entity is drawn over cut away (and the smooth ones with what a hard or
+    outline one is: one line is drawn once, at the width of the line that is drawn)."""
     vis_lines: dict = {}
     vis_arcs: dict = {}
     for p in visible:

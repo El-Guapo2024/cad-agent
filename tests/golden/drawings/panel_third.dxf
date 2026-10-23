@@ -255,7 +255,7 @@ Solid line
   0
 LTYPE
   5
-AD8
+ADB
 330
 22
 100
@@ -285,7 +285,7 @@ ISO 128-20 type 02, dashed: 12d dash, 3d gap at d = 0.25
   0
 LTYPE
   5
-AD9
+ADC
 330
 22
 100
@@ -327,19 +327,19 @@ TABLE
   2
 LAYER
   5
-ACB
+ACD
 330
 0
 100
 AcDbSymbolTable
  70
-12
+13
   0
 LAYER
   5
-ACC
+ACE
 330
-ACB
+ACD
 100
 AcDbSymbolTableRecord
 100
@@ -355,9 +355,9 @@ CONTINUOUS
   0
 LAYER
   5
-ACD
+ACF
 330
-ACB
+ACD
 100
 AcDbSymbolTableRecord
 100
@@ -373,9 +373,9 @@ CONTINUOUS
   0
 LAYER
   5
-ACE
+AD0
 330
-ACB
+ACD
 100
 AcDbSymbolTableRecord
 100
@@ -391,9 +391,9 @@ CONTINUOUS
   0
 LAYER
   5
-ACF
+AD1
 330
-ACB
+ACD
 100
 AcDbSymbolTableRecord
 100
@@ -409,9 +409,9 @@ CONTINUOUS
   0
 LAYER
   5
-AD0
+AD2
 330
-ACB
+ACD
 100
 AcDbSymbolTableRecord
 100
@@ -427,9 +427,9 @@ CONTINUOUS
   0
 LAYER
   5
-AD1
+AD3
 330
-ACB
+ACD
 100
 AcDbSymbolTableRecord
 100
@@ -445,9 +445,27 @@ DASHED
   0
 LAYER
   5
-AD2
+AD4
 330
-ACB
+ACD
+100
+AcDbSymbolTableRecord
+100
+AcDbLayerTableRecord
+  2
+SMOOTH
+ 70
+    0
+ 62
+    7
+  6
+CONTINUOUS
+  0
+LAYER
+  5
+AD5
+330
+ACD
 100
 AcDbSymbolTableRecord
 100
@@ -463,9 +481,9 @@ CENTER
   0
 LAYER
   5
-AD3
+AD6
 330
-ACB
+ACD
 100
 AcDbSymbolTableRecord
 100
@@ -481,9 +499,9 @@ CONTINUOUS
   0
 LAYER
   5
-AD4
+AD7
 330
-ACB
+ACD
 100
 AcDbSymbolTableRecord
 100
@@ -499,9 +517,9 @@ CONTINUOUS
   0
 LAYER
   5
-AD5
+AD8
 330
-ACB
+ACD
 100
 AcDbSymbolTableRecord
 100
@@ -517,9 +535,9 @@ CONTINUOUS
   0
 LAYER
   5
-AD6
+AD9
 330
-ACB
+ACD
 100
 AcDbSymbolTableRecord
 100
@@ -535,9 +553,9 @@ CONTINUOUS
   0
 LAYER
   5
-AD7
+ADA
 330
-ACB
+ACD
 100
 AcDbSymbolTableRecord
 100
@@ -4197,6 +4215,54 @@ A02
 100
 AcDbEntity
   8
+SMOOTH
+100
+AcDbLine
+ 10
+216.946000
+ 20
+96.800000
+ 30
+0.000000
+ 11
+219.946000
+ 21
+96.800000
+ 31
+0.000000
+  0
+LINE
+  5
+A8D
+330
+A02
+100
+AcDbEntity
+  8
+SMOOTH
+100
+AcDbLine
+ 10
+216.946000
+ 20
+146.800000
+ 30
+0.000000
+ 11
+219.946000
+ 21
+146.800000
+ 31
+0.000000
+  0
+LINE
+  5
+A8E
+330
+A02
+100
+AcDbEntity
+  8
 CENTRE
 100
 AcDbLine
@@ -4215,7 +4281,7 @@ AcDbLine
   0
 LINE
   5
-A8D
+A8F
 330
 A02
 100
@@ -4239,7 +4305,7 @@ AcDbLine
   0
 LINE
   5
-A8E
+A90
 330
 A02
 100
@@ -4263,7 +4329,7 @@ AcDbLine
   0
 LINE
   5
-A8F
+A91
 330
 A02
 100
@@ -4287,7 +4353,7 @@ AcDbLine
   0
 LINE
   5
-A90
+A92
 330
 A02
 100
@@ -4311,7 +4377,7 @@ AcDbLine
   0
 LINE
   5
-A91
+A93
 330
 A02
 100
@@ -4335,7 +4401,7 @@ AcDbLine
   0
 LINE
   5
-A92
+A94
 330
 A02
 100
@@ -4359,7 +4425,7 @@ AcDbLine
   0
 LINE
   5
-A93
+A95
 330
 A02
 100
@@ -4383,7 +4449,7 @@ AcDbLine
   0
 LINE
   5
-A94
+A96
 330
 A02
 100
@@ -4407,7 +4473,7 @@ AcDbLine
   0
 LINE
   5
-A95
+A97
 330
 A02
 100
@@ -4431,7 +4497,7 @@ AcDbLine
   0
 LINE
   5
-A96
+A98
 330
 A02
 100
@@ -4455,55 +4521,55 @@ AcDbLine
   0
 LINE
   5
-A97
-330
-A02
-100
-AcDbEntity
-  8
-CENTRE
-100
-AcDbLine
- 10
-214.446000
- 20
-96.800000
- 30
-0.000000
- 11
-222.446000
- 21
-96.800000
- 31
-0.000000
-  0
-LINE
-  5
-A98
-330
-A02
-100
-AcDbEntity
-  8
-CENTRE
-100
-AcDbLine
- 10
-214.446000
- 20
-121.800000
- 30
-0.000000
- 11
-222.446000
- 21
-121.800000
- 31
-0.000000
-  0
-LINE
-  5
 A99
+330
+A02
+100
+AcDbEntity
+  8
+CENTRE
+100
+AcDbLine
+ 10
+214.446000
+ 20
+96.800000
+ 30
+0.000000
+ 11
+222.446000
+ 21
+96.800000
+ 31
+0.000000
+  0
+LINE
+  5
+A9A
+330
+A02
+100
+AcDbEntity
+  8
+CENTRE
+100
+AcDbLine
+ 10
+214.446000
+ 20
+121.800000
+ 30
+0.000000
+ 11
+222.446000
+ 21
+121.800000
+ 31
+0.000000
+  0
+LINE
+  5
+A9B
 330
 A02
 100
@@ -4527,7 +4593,7 @@ AcDbLine
   0
 TEXT
   5
-A9A
+A9C
 330
 A02
 100
@@ -4553,7 +4619,7 @@ AcDbText
   0
 TEXT
   5
-A9B
+A9D
 330
 A02
 100
@@ -4587,7 +4653,7 @@ AcDbText
   0
 TEXT
   5
-A9C
+A9E
 330
 A02
 100
@@ -4613,7 +4679,7 @@ AcDbText
   0
 TEXT
   5
-A9D
+A9F
 330
 A02
 100
@@ -4639,7 +4705,7 @@ AcDbText
   0
 TEXT
   5
-A9E
+AA0
 330
 A02
 100
@@ -4673,7 +4739,7 @@ AcDbText
   0
 TEXT
   5
-A9F
+AA1
 330
 A02
 100
@@ -4699,7 +4765,7 @@ AcDbText
   0
 TEXT
   5
-AA0
+AA2
 330
 A02
 100
@@ -4725,55 +4791,55 @@ AcDbText
   0
 LINE
   5
-AA1
-330
-A02
-100
-AcDbEntity
-  8
-DIMENSION
-100
-AcDbLine
- 10
-94.946000
- 20
-152.800000
- 30
-0.000000
- 11
-94.946000
- 21
-163.800000
- 31
-0.000000
-  0
-LINE
-  5
-AA2
-330
-A02
-100
-AcDbEntity
-  8
-DIMENSION
-100
-AcDbLine
- 10
-194.946000
- 20
-152.800000
- 30
-0.000000
- 11
-194.946000
- 21
-163.800000
- 31
-0.000000
-  0
-LINE
-  5
 AA3
+330
+A02
+100
+AcDbEntity
+  8
+DIMENSION
+100
+AcDbLine
+ 10
+94.946000
+ 20
+152.800000
+ 30
+0.000000
+ 11
+94.946000
+ 21
+163.800000
+ 31
+0.000000
+  0
+LINE
+  5
+AA4
+330
+A02
+100
+AcDbEntity
+  8
+DIMENSION
+100
+AcDbLine
+ 10
+194.946000
+ 20
+152.800000
+ 30
+0.000000
+ 11
+194.946000
+ 21
+163.800000
+ 31
+0.000000
+  0
+LINE
+  5
+AA5
 330
 A02
 100
@@ -4797,7 +4863,7 @@ AcDbLine
   0
 SOLID
   5
-AA4
+AA6
 330
 A02
 100
@@ -4833,7 +4899,7 @@ AcDbTrace
   0
 SOLID
   5
-AA5
+AA7
 330
 A02
 100
@@ -4869,7 +4935,7 @@ AcDbTrace
   0
 TEXT
   5
-AA6
+AA8
 330
 A02
 100
@@ -4903,55 +4969,55 @@ AcDbText
   0
 LINE
   5
-AA7
-330
-A02
-100
-AcDbEntity
-  8
-DIMENSION
-100
-AcDbLine
- 10
-195.946000
- 20
-91.800000
- 30
-0.000000
- 11
-206.946000
- 21
-91.800000
- 31
-0.000000
-  0
-LINE
-  5
-AA8
-330
-A02
-100
-AcDbEntity
-  8
-DIMENSION
-100
-AcDbLine
- 10
-195.946000
- 20
-151.800000
- 30
-0.000000
- 11
-206.946000
- 21
-151.800000
- 31
-0.000000
-  0
-LINE
-  5
 AA9
+330
+A02
+100
+AcDbEntity
+  8
+DIMENSION
+100
+AcDbLine
+ 10
+195.946000
+ 20
+91.800000
+ 30
+0.000000
+ 11
+206.946000
+ 21
+91.800000
+ 31
+0.000000
+  0
+LINE
+  5
+AAA
+330
+A02
+100
+AcDbEntity
+  8
+DIMENSION
+100
+AcDbLine
+ 10
+195.946000
+ 20
+151.800000
+ 30
+0.000000
+ 11
+206.946000
+ 21
+151.800000
+ 31
+0.000000
+  0
+LINE
+  5
+AAB
 330
 A02
 100
@@ -4975,7 +5041,7 @@ AcDbLine
   0
 SOLID
   5
-AAA
+AAC
 330
 A02
 100
@@ -5011,7 +5077,7 @@ AcDbTrace
   0
 SOLID
   5
-AAB
+AAD
 330
 A02
 100
@@ -5047,7 +5113,7 @@ AcDbTrace
   0
 TEXT
   5
-AAC
+AAE
 330
 A02
 100
@@ -5083,54 +5149,6 @@ AcDbText
   0
 LINE
   5
-AAD
-330
-A02
-100
-AcDbEntity
-  8
-DIMENSION
-100
-AcDbLine
- 10
-216.946000
- 20
-152.800000
- 30
-0.000000
- 11
-216.946000
- 21
-163.800000
- 31
-0.000000
-  0
-LINE
-  5
-AAE
-330
-A02
-100
-AcDbEntity
-  8
-DIMENSION
-100
-AcDbLine
- 10
-219.946000
- 20
-152.800000
- 30
-0.000000
- 11
-219.946000
- 21
-163.800000
- 31
-0.000000
-  0
-LINE
-  5
 AAF
 330
 A02
@@ -5143,6 +5161,54 @@ AcDbLine
  10
 216.946000
  20
+152.800000
+ 30
+0.000000
+ 11
+216.946000
+ 21
+163.800000
+ 31
+0.000000
+  0
+LINE
+  5
+AB0
+330
+A02
+100
+AcDbEntity
+  8
+DIMENSION
+100
+AcDbLine
+ 10
+219.946000
+ 20
+152.800000
+ 30
+0.000000
+ 11
+219.946000
+ 21
+163.800000
+ 31
+0.000000
+  0
+LINE
+  5
+AB1
+330
+A02
+100
+AcDbEntity
+  8
+DIMENSION
+100
+AcDbLine
+ 10
+216.946000
+ 20
 161.800000
  30
 0.000000
@@ -5155,7 +5221,7 @@ AcDbLine
   0
 LINE
   5
-AB0
+AB2
 330
 A02
 100
@@ -5179,7 +5245,7 @@ AcDbLine
   0
 LINE
   5
-AB1
+AB3
 330
 A02
 100
@@ -5203,7 +5269,7 @@ AcDbLine
   0
 SOLID
   5
-AB2
+AB4
 330
 A02
 100
@@ -5239,7 +5305,7 @@ AcDbTrace
   0
 SOLID
   5
-AB3
+AB5
 330
 A02
 100
@@ -5275,7 +5341,7 @@ AcDbTrace
   0
 TEXT
   5
-AB4
+AB6
 330
 A02
 100
@@ -5309,7 +5375,7 @@ AcDbText
   0
 LINE
   5
-AB5
+AB7
 330
 A02
 100
@@ -5333,7 +5399,7 @@ AcDbLine
   0
 TEXT
   5
-AB6
+AB8
 330
 A02
 100
@@ -5367,7 +5433,7 @@ AcDbText
   0
 LINE
   5
-AB7
+AB9
 330
 A02
 100
@@ -5391,7 +5457,7 @@ AcDbLine
   0
 TEXT
   5
-AB8
+ABA
 330
 A02
 100
@@ -5425,7 +5491,7 @@ AcDbText
   0
 LINE
   5
-AB9
+ABB
 330
 A02
 100
@@ -5449,7 +5515,7 @@ AcDbLine
   0
 TEXT
   5
-ABA
+ABC
 330
 A02
 100
@@ -5483,7 +5549,7 @@ AcDbText
   0
 LINE
   5
-ABB
+ABD
 330
 A02
 100
@@ -5507,7 +5573,7 @@ AcDbLine
   0
 TEXT
   5
-ABC
+ABE
 330
 A02
 100
@@ -5541,7 +5607,7 @@ AcDbText
   0
 LINE
   5
-ABD
+ABF
 330
 A02
 100
@@ -5565,7 +5631,7 @@ AcDbLine
   0
 TEXT
   5
-ABE
+AC0
 330
 A02
 100
@@ -5599,7 +5665,7 @@ AcDbText
   0
 LINE
   5
-ABF
+AC1
 330
 A02
 100
@@ -5623,7 +5689,7 @@ AcDbLine
   0
 TEXT
   5
-AC0
+AC2
 330
 A02
 100
@@ -5657,7 +5723,7 @@ AcDbText
   0
 LINE
   5
-AC1
+AC3
 330
 A02
 100
@@ -5681,7 +5747,7 @@ AcDbLine
   0
 TEXT
   5
-AC2
+AC4
 330
 A02
 100
@@ -5715,7 +5781,7 @@ AcDbText
   0
 LINE
   5
-AC3
+AC5
 330
 A02
 100
@@ -5739,7 +5805,7 @@ AcDbLine
   0
 TEXT
   5
-AC4
+AC6
 330
 A02
 100
@@ -5773,7 +5839,7 @@ AcDbText
   0
 LINE
   5
-AC5
+AC7
 330
 A02
 100
@@ -5797,7 +5863,7 @@ AcDbLine
   0
 TEXT
   5
-AC6
+AC8
 330
 A02
 100
@@ -5831,7 +5897,7 @@ AcDbText
   0
 LINE
   5
-AC7
+AC9
 330
 A02
 100
@@ -5855,7 +5921,7 @@ AcDbLine
   0
 TEXT
   5
-AC8
+ACA
 330
 A02
 100
@@ -5889,7 +5955,7 @@ AcDbText
   0
 LINE
   5
-AC9
+ACB
 330
 A02
 100
@@ -5913,7 +5979,7 @@ AcDbLine
   0
 TEXT
   5
-ACA
+ACC
 330
 A02
 100

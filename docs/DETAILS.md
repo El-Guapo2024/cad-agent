@@ -684,7 +684,8 @@ for this BOM, else FAIL naming the part's process). A file under `drawings/` in 
 the BOM cannot say which plates will be drawn. Anything a rule cannot measure is UNCHECKED, never PASS.
 
 **`cad drawing`** is a port of what TechDraw does for a plate: hidden-line removal with OCCT's
-`HLRBRep_Algo` (visible edges solid, hidden ones dashed), first angle projection by default
+`HLRBRep_Algo` (visible edges solid, hidden ones dashed, and the visible smooth edges where two faces
+meet tangent thin, as TechDraw draws them by default), first angle projection by default
 (ISO 128-30, TechDraw's default) or `--angle third`, an ISO 5457 frame (without the zone grid),
 and the plate's sizes from its B-rep: overall size, the position of every hole, slot and window from
 the lower-left corner, a letter and a callout for each size of cutout, and the general tolerance of

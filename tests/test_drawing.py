@@ -304,6 +304,20 @@ def test_the_thickness_view_shows_the_holes_dashed_and_the_outline_solid():
     assert side.seconds > 0 and face.seconds > 0
 
 
+def test_the_visible_smooth_edges_are_drawn_and_the_hidden_ones_are_not():
+    # TechDraw's defaults: SmoothVisible on, SmoothHidden off (DrawViewPart.cpp:134, 143; GeometryObject.cpp:264-279).
+    # The R5 corners of the panel meet its end face tangent 5 mm in from each side: two lines across the side view. The
+    # rounded window and slot meet their flats tangent behind the end face (hidden smooth), and the face view sees every
+    # tangent edge end on, as a point: neither is drawn
+    solid = panel()
+    face, side = draw.views_of(solid, P.analyse(solid), "first")
+    assert face.smooth == []
+    assert [(p.a, p.b) for p in side.smooth] == [((-1.5, -25.0), (1.5, -25.0)), ((-1.5, 25.0), (1.5, 25.0))]
+    assert not set(side.smooth) & set(side.visible)
+    plain = plate()
+    assert all(v.smooth == [] for v in draw.views_of(plain, P.analyse(plain), "first"))        # a box has no tangent faces
+
+
 def test_first_angle_looks_from_the_left_and_third_from_the_right():
     # TechDraw's DrawProjGroup::getViewIndex: the view from the left stands to the right of the front view in first angle,
     # the view from the right in third. A plate standing at z = 8 to 12 shows which way x runs in each
@@ -546,6 +560,8 @@ def test_the_svg_is_plain_xml_with_an_element_for_each_entity_and_the_stamp_in_r
     assert centre and all(el.get("stroke-dasharray") == "6 0.75 0.125 0.75" for el in centre)
     visible = [el for el in root if el.get("class") == "VISIBLE"]
     assert visible and {el.get("stroke-width") for el in visible} == {"0.5"}
+    smooth = [el for el in root if el.get("class") == "SMOOTH"]          # thin and continuous, as QGIViewPart.cpp:468-473
+    assert len(smooth) == 2 and {el.get("stroke-width") for el in smooth} == {"0.25"} and not any(el.get("stroke-dasharray") for el in smooth)
     texts = [el.text for el in root if el.tag == ns + "text"]
     assert "A  4X Ø3.4 THRU" in texts and "NOT VERIFIED" in texts and "%%c" not in got.files["svg"].decode()
     assert all(el.get("{http://www.w3.org/XML/1998/namespace}space") == "preserve" for el in root if el.tag == ns + "text")      # the two spaces after a letter stay
@@ -602,15 +618,15 @@ def test_every_run_gives_the_same_bytes_in_this_process_and_in_a_fresh_one(tmp_p
 # tests/fixtures: CI runs `cad verify` on every folder there, as a project.
 GOLDEN = REPO / "tests" / "golden" / "drawings"
 PINNED = {
-    ("nema", "first", "dxf"): "49fcd2f00df16fa7b3a159577a3c0fc6a3726fd129bf764c2e7a0baa0ef50318",
+    ("nema", "first", "dxf"): "23810bbebef2d1a5673fa6cfde2e2f1b20db89f5fcfa73197e43df056441ea90",
     ("nema", "first", "svg"): "a59a7a878a8c1bb3cdeee8a1ba055110e0ad5de458d6e9c75ec90148eaade85e",
     ("nema", "first", "pdf"): "c2660c12e93053e71da39a67c162f518df5ebb61cae703f808f5908d65d940af",
-    ("panel", "first", "dxf"): "80d7f58bb7bf53dd8786a7eba53721b7ce40e1bbcfd8e393d281244d805eb74b",
-    ("panel", "first", "svg"): "8743934ea9447b27bb6c25ebf94f76686ed65aa2a214e54d7ff31abb279fcfd1",
-    ("panel", "first", "pdf"): "0f1d407ae02cfa593c32ab495d1bd4b30a0c2b5144d3cf20c6ced611668ecf49",
-    ("panel", "third", "dxf"): "a42e5b75a56b5eaf76dd9a740acadfbdf9704f4034896448a34c1dd92a27af6f",
-    ("panel", "third", "svg"): "3d37a6dc35236f8a79af485b063aed8959426fdff0da12dc7bbe8ced3421758b",
-    ("panel", "third", "pdf"): "6289ac7ba13cbc0d0a28b6d4c6fd10f8a20cf510fb88a4a54d2ef047523f38e2",
+    ("panel", "first", "dxf"): "dc3333d54377cd03bc17c5531fe7b047631182bb2fb2042299d976eebe185a7b",
+    ("panel", "first", "svg"): "edbed6d5f11c6f3802e68b9a9c33ad2a6d7ad2f44314b51f497fe67e2b9f4c11",
+    ("panel", "first", "pdf"): "d9355d608685b591e24ec826cc83062002ca0e344ad5a9edb7f4883f5348e40e",
+    ("panel", "third", "dxf"): "c47c5b694a00ce640400f99c8607d9bd52f2fcb38ce14642f831e65728cd0d58",
+    ("panel", "third", "svg"): "8e9fc6767878d636dc3998ee9ccccc4f3dfce52671327b053fa1d41457f4655e",
+    ("panel", "third", "pdf"): "11df7db3012fe03094ec7b416f33e257a696a92ad4cae95d7fbdcfaced91220d",
 }
 
 

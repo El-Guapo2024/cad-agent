@@ -15,7 +15,9 @@ Standards followed, and where
                design is verified, and the general tolerance. There is no date: the same plate is the same bytes
   ISO 128-20   line types: visible edges continuous 0.5 mm (type 01.2), hidden edges dashed 0.25 mm (02.1, dash 12d and
                gap 3d at d = 0.25), centre lines long-dashed dotted 0.25 mm (04.1, dash 24d, gaps 3d, dot 0.5d),
-               dimension, extension and leader lines continuous 0.25 mm (01.1)
+               dimension, extension and leader lines continuous 0.25 mm (01.1), and the smooth edges, where two faces
+               meet tangent (a rounded corner seen from the side), continuous 0.25 mm (01.1): thin, as TechDraw draws
+               them (src/Mod/TechDraw/Gui/QGIViewPart.cpp:468-473, HiddenWidth, LineGroup.csv's "thin" of its group)
   ISO 128-30   first angle projection is the default: the view from the left stands to the right of the front view.
                Third angle (`angle="third"`) puts the view from the right there. It is the default because ISO's is, and so
                is TechDraw's (Preferences::projectionAngle: FirstAngle, FreeCAD commit 3160daf1e2b6), and the sheet
@@ -69,6 +71,7 @@ LAYERS = {
     "TITLE": Style(7, "CONTINUOUS", 0.35),
     "VISIBLE": Style(7, "CONTINUOUS", 0.5),
     "HIDDEN": Style(5, "DASHED", 0.25),
+    "SMOOTH": Style(7, "CONTINUOUS", 0.25),     # TechDraw's normal colour and continuous pen, at the hidden lines' width
     "CENTRE": Style(1, "CENTER", 0.25),
     "DIMENSION": Style(3, "CONTINUOUS", 0.25),
     "DIM_ORD": Style(3, "CONTINUOUS", 0.25),

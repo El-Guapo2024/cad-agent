@@ -68,13 +68,18 @@ Section 5 below is the record of 2026-10-14. Measured again in the real FreeCAD 
 - **5.7 `µA`: fixed**; `fcdiff.py parse` has four cases for it (210 cases, none differ).
 - **5.8 Double-click time: fixed**, as far as a page can: 500 ms by default on a Mac and Windows, 400 on X11, lengthened by the browser's
   own click count (`dblclick.ts`).
+- **5.12 Drawings: fixed.** The visible smooth edges (`Rg1LineVCompound`, SmoothVisible on by default, GeometryObject.cpp:264) are drawn,
+  continuous at the hidden lines' thin width as QGIViewPart.cpp:468-473 draws them, on a DXF layer SMOOTH of their own; the hidden smooth
+  edges stay off (SmoothHidden's default). A plate with rounded corners shows them across its side view. Checked against the real
+  FreeCAD 26.3 by `ui/scripts/hlrdiff.py` (a TechDraw DrawViewPart per view, SmoothVisible off and on): 15 of 15 views of the panel,
+  mini_machine's back_wall and base, a filleted cylinder and a filleted box agree, 65 of 65 smooth edges, end points and lengths
+  within 1e-6 mm.
 - **5.13 small ones**: `MayaGesture` and the appcache's calendar days and hidden files are fixed; QuickMeasure's circle types are
   there (the audit listed two, `Measurement::findType` has four, and a point and an arc); the Custom default camera orientation is not
   (it shares the Home view's lines).
 - **Also**: the Mac's Delete (⌫), Recompute (⌘R) and Previous Window (⇧⌘}); the tree menu's entries (Material, Appearance, Expression and
   Link Actions, Rename, Close Document, ... as in the real menu, greyed out where they mean nothing here).
-- **Open**: 5.1 Home (under way elsewhere), 5.5 the NaviCube's look, 5.6 expressions, 5.9 arrow-key panning, 5.10 DXF, 5.11 BOM, 5.12
-  drawings.
+- **Open**: 5.1 Home (under way elsewhere), 5.5 the NaviCube's look, 5.9 arrow-key panning, 5.11 BOM.
 - **5.10 DXF: fixed (2026-10-23).** The file around the entities is FreeCAD's R14 templates in `CDxfWrite::endRun`'s order, with
   their handles and FreeCAD's from 0xA01, "EOF" with no newline; arcs' angles are atan2's (-180, 180]; a whole ellipse ends at
   6.28318 (ImpExpDxf.cpp:1964-1966). `ui/scripts/dxfdiff.py` writes one part through both writers (FreeCAD on the Linux build
@@ -182,7 +187,8 @@ cad_agent:
   (AssemblyLink.cpp:192-237); rigid copies the components' placements (536-541). There is no LinkTransform and no mirror in FreeCAD's file or in ours.
 - [second reader] hlr.py:50, drawing/__init__.py:26: "hidden dashed" credited to GeometryObject.cpp; that file only classes visible and hidden, the dash is
   TechDraw/Gui/QGIViewPart.cpp:461-465. drawing/writers.py:40 (the 999 line of every drawing DXF) "views as FreeCAD projectShape": visible smooth edges
-  are dropped (hlr.py:22), no centring, scaling or inversion.
+  are dropped (hlr.py:22), no centring, scaling or inversion. [fixed: the visible smooth edges are drawn (5.12); centring, scaling and inversion are
+  still not done, hlr.py says why]
 - [re-checked in BomObject.cpp] bom.py:19, 447 "FreeCAD's 'Only parts'": FreeCAD's keeps part containers and drops solids such as bodies (BomObject.cpp:84-91, TaskAssemblyCreateBom.ui:56-61);
   ours keeps the parts made here and drops bought and stock ones, a different cut under the same name.
 - [second reader] gui.py:69, 96 GuiDocument.xml names: ShapeColor is not stored, ShapeAppearance is (ViewProviderGeometryObject.cpp:434-437).
@@ -225,6 +231,7 @@ cad_agent:
     Only DIMSTYLE is in the docstring (dxf.py:48). Same geometry, readable by the same readers. S to document.
 11. [second reader] **BOM**: a mirrored body is one line with quantity 2 where FreeCAD gives a second line "... (mirrored)" (BomObject.cpp:219-226, 283-290; documented, tests/test_bom.py:140, 188). M.
 12. [second reader] **Drawings** leave out the visible smooth edges that TechDraw draws by default (GeometryObject.cpp:264; documented hlr.py:22-24).
+    [fixed: `Rg1LineVCompound` is drawn, thin and continuous on a layer SMOOTH, as QGIViewPart.cpp:468-473 draws it; the hidden ones stay off, as SmoothHidden's default]
 13. Small: Preferences > Navigation shows "Maya-Gesture" (FreeCAD "MayaGesture", NavigationStyle.cpp:2846; the status bar is right); the Default camera orientation list lacks "Custom"
     (DlgSettingsNavigation.cpp:223-233); QuickMeasure lacks "Center surface distance" and "Center axis distance" (QuickMeasure.cpp:326-337); [second reader] appcache.py counts 24 h where FreeCAD counts calendar days
     (DlgSettingsCacheDirectory.cpp:216-220) and counts dotfiles QDir skips.
