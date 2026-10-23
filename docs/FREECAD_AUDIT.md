@@ -250,6 +250,11 @@ cad_agent:
 13. Small: Preferences > Navigation shows "Maya-Gesture" (FreeCAD "MayaGesture", NavigationStyle.cpp:2846; the status bar is right); the Default camera orientation list lacks "Custom"
     (DlgSettingsNavigation.cpp:223-233); QuickMeasure lacks "Center surface distance" and "Center axis distance" (QuickMeasure.cpp:326-337); [second reader] appcache.py counts 24 h where FreeCAD counts calendar days
     (DlgSettingsCacheDirectory.cpp:216-220) and counts dotfiles QDir skips.
+14. **ISO 286 fits** (`cad_agent/iso286.py`, the grader's `[[shaft_fit]]` `fit`) against TechDraw's Hole/Shaft Fit tool
+    (`TechDrawTools/TaskHoleShaftFit.py`, class ISO286), run on its own tables: every class it offers at 27 sizes, 540 answers
+    (`tests/golden/iso286/`). Ours had no D, E, R, S or r; [fixed: added]. 530 agree; the other 10 are a FreeCAD bug: its `nField`
+    has 23 entries for 25 size ranges, so from 160 mm n6 is the next range's (170 n6 +35/+60 where ISO 286 gives +27/+52) and over
+    400 mm `calculate` raises IndexError. Ours keeps ISO 286. Worth reporting upstream.
 
 ## 6. Licence
 

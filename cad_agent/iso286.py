@@ -6,15 +6,18 @@ the lower size, up to and including the upper. A class is a letter and a grade (
 deviations follow from those tables by ISO 286-1's rules, which is how ISO 286-2's class tables are made:
 
     a shaft a to h has its upper deviation es from Table 2 and ei = es - IT; js is +-IT/2; k to s have ei
-    a hole F to H is the shaft's mirror, EI = -es; JS is +-IT/2; K, N and P (to IT8, IT8 and IT7) have
-    ES = -ei of the shaft letter plus delta = IT(n) - IT(n-1), except up to 3 mm, where delta is 0
+    a hole D to H is the shaft's mirror, EI = -es; JS is +-IT/2; K, N, P, R and S (to IT8, IT8, IT7, IT7
+    and IT7) have ES = -ei of the shaft letter plus delta = IT(n) - IT(n-1), except up to 3 mm, where delta is 0
 
 tests/test_holes_fit.py checks the classes against published reproductions of the ISO 286-2 tables, over
 3 to 400 mm: H7, H11, F7, G7, JS7, K7, N7, P7, g6, f7, h11, js6, k6 and p6 from cadforum.cz/en/tolerance.asp
 and simplybearings.co.uk's ISO 286 page, d9 and e8 (and 400 to 500 mm) from Miki Pulley's JIS B 0401
 excerpt, which has ISO 286's numbers; and the usual examples: 10 H7 is 0/+15, 10 g6 -5/-14, 25 H7/g6 a
-clearance of 0.007 to 0.041 mm. c and s are from Table 2 alone (40 H11/c11 is 0.120 to 0.440, 20 s6
-+35/+48, 450 s6 +232/+272).
+clearance of 0.007 to 0.041 mm. It also checks every class FreeCAD's TechDraw Hole/Shaft Fit tool offers
+(TechDrawTools/TaskHoleShaftFit.py, class ISO286, at 3160daf1e2b6: c11 f7 h6 h7 h9 k6 n6 r6 s6, D10 E9 F8
+G7 H7 H8 H11 K7 N7 R7 S7) against a copy of that tool's tables at 27 sizes. They agree but for n6 over 160
+mm, where FreeCAD's n row is one entry short: from 160 mm it gives the next range's value (170 n6 +35/+60,
+which is +27/+52) and over 400 mm it raises IndexError.
 """
 from __future__ import annotations
 
@@ -45,20 +48,25 @@ LOWER = {
     "n": (4, 8, 10, 12, 15, 17, 20, 23, 27, 31, 34, 37, 40),
     "p": (6, 12, 15, 18, 22, 26, 32, 37, 43, 50, 56, 62, 68),
 }
-# c and s change inside some ranges, so they have finer ones (Table 2's subdivided rows).
+# c, r and s change inside some ranges, so they have finer ones (Table 2's subdivided rows).
 C_UPPER = ((3, -60), (6, -70), (10, -80), (18, -95), (30, -110), (40, -120), (50, -130), (65, -140),
            (80, -150), (100, -170), (120, -180), (140, -200), (160, -210), (180, -230), (200, -240),
            (225, -260), (250, -280), (280, -300), (315, -330), (355, -360), (400, -400), (450, -440),
            (500, -480))
+R_LOWER = ((3, 10), (6, 15), (10, 19), (18, 23), (30, 28), (50, 34), (65, 41), (80, 43), (100, 51),
+           (120, 54), (140, 63), (160, 65), (180, 68), (200, 77), (225, 80), (250, 84), (280, 94),
+           (315, 98), (355, 108), (400, 114), (450, 126), (500, 132))
 S_LOWER = ((3, 14), (6, 19), (10, 23), (18, 28), (30, 35), (50, 43), (65, 53), (80, 59), (100, 71),
            (120, 79), (140, 92), (160, 100), (180, 108), (200, 122), (225, 130), (250, 140), (280, 158),
            (315, 170), (355, 190), (400, 208), (450, 232), (500, 252))
 
 SHAFT_GRADES = {"c": range(6, 12), "d": range(6, 12), "e": range(6, 12), "f": range(6, 12),
                 "g": range(6, 12), "h": range(6, 12), "js": range(6, 12), "k": range(5, 8),
-                "m": range(5, 8), "n": range(5, 8), "p": range(5, 8), "s": range(5, 8)}
-HOLE_GRADES = {"F": range(6, 12), "G": range(6, 12), "H": range(6, 12), "JS": range(6, 12),
-               "K": range(6, 9), "N": range(6, 9), "P": range(6, 8)}
+                "m": range(5, 8), "n": range(5, 8), "p": range(5, 8), "r": range(5, 8), "s": range(5, 8)}
+HOLE_GRADES = {"D": range(6, 12), "E": range(6, 12), "F": range(6, 12), "G": range(6, 12), "H": range(6, 12),
+               "JS": range(6, 12), "K": range(6, 9), "N": range(6, 9), "P": range(6, 8), "R": range(6, 8),
+               "S": range(6, 8)}
+FINER = {"r": R_LOWER, "s": S_LOWER}
 CLASS = re.compile(r"([A-Za-z]{1,2})(\d{1,2})")
 
 
@@ -92,8 +100,12 @@ def shaft(cls: str, size: float) -> tuple[float, float]:
     if letter in UPPER or letter == "c":
         es = _finer(C_UPPER, size) if letter == "c" else UPPER[letter][i]
         return es - it, es
-    ei = _finer(S_LOWER, size) if letter == "s" else LOWER[letter][i]
-    return ei, ei + it
+    return _ei(letter, size, i), _ei(letter, size, i) + it
+
+
+def _ei(letter: str, size: float, i: int) -> int:
+    """The lower deviation of a shaft letter k to s, micrometres."""
+    return _finer(FINER[letter], size) if letter in FINER else LOWER[letter][i]
 
 
 def hole(cls: str, size: float) -> tuple[float, float]:
@@ -103,11 +115,11 @@ def hole(cls: str, size: float) -> tuple[float, float]:
     it = IT[grade][i]
     if letter == "JS":
         return -_half(it), _half(it)
-    if letter in ("F", "G", "H"):
+    if letter in ("D", "E", "F", "G", "H"):
         ei = -UPPER[letter.lower()][i]
         return ei, ei + it
     delta = 0 if size <= 3 else it - IT[grade - 1][i]
-    es = -LOWER[letter.lower()][i] + delta
+    es = -_ei(letter.lower(), size, i) + delta
     return es - it, es
 
 

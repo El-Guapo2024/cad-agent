@@ -23,8 +23,9 @@ the shaft's lower, from the ISO 286-1 tables at the nominal size (cad_agent/iso2
 they come from): 25 H7/g6 is 0.007 to 0.041 mm, 25 H7/p6 -0.035 to -0.001. The nominal size is `nominal_mm`,
 or else the mean of the bore's and the shaft's diameters to the nearest 0.1 mm, which is the size the two
 were drawn about; it is in the row's limit, and near a range's end (10 is in 6 to 10, 10.1 in 10 to 18) it
-is worth stating. The classes: holes F, G, H and JS 6 to 11, K and N 6 to 8, P 6 and 7; shafts c, d, e, f,
-g, h and js 6 to 11, k, m, n, p and s 5 to 7; sizes over 0 up to 500 mm.
+is worth stating. The classes: holes D, E, F, G, H and JS 6 to 11, K and N 6 to 8, P, R and S 6 and 7;
+shafts c, d, e, f, g, h and js 6 to 11, k, m, n, p, r and s 5 to 7; sizes over 0 up to 500 mm. That holds
+every class FreeCAD's TechDraw Hole/Shaft Fit tool offers (cad_agent/iso286.py).
 
 The model is one size, so a fit class judges the clearance that is modelled: right for a 3D print, where
 the modelled gap is the gap the printer is asked for. A machined part drawn at its nominal size, bore and

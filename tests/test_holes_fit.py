@@ -283,3 +283,22 @@ def test_iso_286_against_published_tables():
     assert iso286.clearance("H11/c11", 40) == (0.12, 0.44)
     assert iso286.shaft("s6", 20) == (35, 48) and iso286.shaft("s6", 450) == (232, 272)
     assert iso286.hole("K7", 2) == (-10, 0) and iso286.hole("N7", 2) == (-14, -4)       # no delta up to 3 mm
+
+
+def test_iso_286_matches_freecad_techdraw_but_its_short_n_row():
+    """Every class FreeCAD's TechDraw Hole/Shaft Fit tool offers, at 27 sizes (tests/golden/iso286/make.py ran
+    the tool's own tables). Its n row is one entry short, so from 160 mm its n6 is the next range's, and over
+    400 mm it raises: there ISO 286 is ours (170 n6 is +27/+52, ei 27 as for 120 to 180 mm)."""
+    import json
+    from pathlib import Path
+    from cad_agent import iso286
+    answers = json.loads((Path(__file__).parent / "golden" / "iso286" / "freecad.json").read_text())
+    assert len(answers) == 540
+    off = set()
+    for key, fc in answers.items():
+        cls, size = key.split()
+        ours = sorted((iso286.hole if cls[0].isupper() else iso286.shaft)(cls, float(size)))
+        if fc != ours:
+            off.add(key)
+    assert off == {f"n6 {s}" for s in (170, 210, 240, 260, 300, 330, 380, 420, 470, 499)}   # 190: the next value happens to be right
+    assert iso286.shaft("n6", 170) == (27, 52) and iso286.shaft("n6", 470) == (40, 80)
