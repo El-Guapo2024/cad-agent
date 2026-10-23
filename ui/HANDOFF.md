@@ -45,15 +45,26 @@ Items 5 to 9 of the fix list are done, each checked against the real FreeCAD (th
   - Qt's spare-room rules in Preferences.
 - 9. Grader gaps: `[[holes]]` and `[[shaft_fit]]`, and what a `[[clearance]]` `max_mm` bounds is now documented.
 
-Left:
-- Status bar height and toolbar widths: these come from the Mac's Qt style, so measure them on a Mac.
-- 5.1 Home (FREECAD_AUDIT.md). 5.9 arrow-key panning is done (2026-10-23, measured in the real FreeCAD).
-- The spline re-fit in DXF export stays a deliberate difference.
-- Open questions on the grader:
-  - Should a fit be the gap per side or the diameter difference (now the diameter)?
-  - ~~ISO 286 fit classes~~: `[[shaft_fit]]` `fit = "H7/g6"` (branch `grader-holes-fits`, cad_agent/iso286.py).
-  - ~~Through holes and blind ones~~: `[[holes]]` `through`, `depth_mm` (same branch).
-  - No hidden spec uses the new kinds yet.
+Also done later on 2026-10-23 (main cd8fa2c, CI green):
+- 5.9 Arrow-key panning: FreeCAD's int-truncated aspect, measured in the real FreeCAD at seven sizes (`ui/scripts/arrowpan_fc.py`; navcheck 92).
+- keycheck: 62 of 62 on Linux (it needs projects/arduino_car served, and presses F5 for Std_Refresh off a Mac).
+- Grader: `[[holes]]` `through`, `depth_mm`, `depth_tol_mm` (depth to the drill point's shoulder, as FreeCAD's Hole Depth);
+  `[[shaft_fit]]` `fit = "H7/g6"` and `nominal_mm` (cad_agent/iso286.py, IT5-IT11 up to 500 mm). A fit stays the diameter
+  difference, as ISO 286 and every CAD tool count it.
+- Browser checks on the merged code: cubecheck 378/378, navcheck 92/92, keycheck 62/62; wirecheck's customize, start, prefs
+  and Placement sections clean locally. On Linux, wirecheck's "Cmd+click adds a part" fails by platform (Meta vs Ctrl), on old main too.
+
+## Next (paused 2026-10-23)
+1. Hidden specs: no hidden eval spec uses `[[holes]]` `through`/`depth_mm` or `[[shaft_fit]]` `fit` yet; add them where a brief
+   says "through", gives a depth or a fit class.
+2. Grader choices left to Juan:
+   - `through` filters the count ("4 through" fails when one of the four is blind). A separate rule judging every hole of the size is the other option.
+   - ISO 286 c and s values are from the standard's rules, not checked against a published table (none at hand); JS/js are exactly ±IT/2.
+3. Status bar height and toolbar widths: they come from the Mac's Qt style, so measure them on a Mac.
+4. 5.1 Home (FREECAD_AUDIT.md): under way in another lane.
+- Stays a deliberate difference: the spline re-fit in DXF export.
+- VM checks: a full wirecheck on a spot n2-standard-4 runs past its 150 minutes with click timeouts (slowness, not code), and a
+  timed-out job uploads nothing. Run wirecheck by `--only=` sections, one job each, or locally; the VM is fine for cubecheck and navcheck.
 
 ## The FreeCAD oracle on a Linux box
 - Every comparison uses FreeCAD main 3160daf1e2b6, which is the weekly build `weekly-2026.09.30`.
