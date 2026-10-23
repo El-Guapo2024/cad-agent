@@ -70,7 +70,10 @@ Section 5 below is the record of 2026-10-14. Measured again in the real FreeCAD 
   own click count (`dblclick.ts`).
 - **5.12 Drawings: fixed.** The visible smooth edges (`Rg1LineVCompound`, SmoothVisible on by default, GeometryObject.cpp:264) are drawn,
   continuous at the hidden lines' thin width as QGIViewPart.cpp:468-473 draws them, on a DXF layer SMOOTH of their own; the hidden smooth
-  edges stay off (SmoothHidden's default). A plate with rounded corners shows them across its side view.
+  edges stay off (SmoothHidden's default). A plate with rounded corners shows them across its side view. Checked against the real
+  FreeCAD 26.3 by `ui/scripts/hlrdiff.py` (a TechDraw DrawViewPart per view, SmoothVisible off and on): 15 of 15 views of the panel,
+  mini_machine's back_wall and base, a filleted cylinder and a filleted box agree, 65 of 65 smooth edges, end points and lengths
+  within 1e-6 mm.
 - **5.13 small ones**: `MayaGesture` and the appcache's calendar days and hidden files are fixed; QuickMeasure's circle types are
   there (the audit listed two, `Measurement::findType` has four, and a point and an arc); the Custom default camera orientation is not
   (it shares the Home view's lines).
