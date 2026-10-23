@@ -41,8 +41,8 @@ Goal: the workbench UI in `ui/` looks and behaves like FreeCAD main 3160daf1e2b6
    - Start page Examples, and the tab's document icon and "*";
    - the lit selected face, and tree-hover preselection drawn on top;
    - HeadlightColor, status bar height, toolbar widths;
-   - the custom default camera orientation, and Align to a curved face;
-   - two 6 px offsets in Preferences, and the Colors gradient columns.
+   - done (branch `fc-camera-prefs`): the Custom default camera orientation (20 of 20 cases), Align to a curved face (264 of 264), and
+     Qt's spare-room rules in Preferences (the two 6 px offsets, the Colors gradient columns); PARITY.md has the numbers.
 9. Grader gaps in the eval set: no hole count, no shaft fit, and a clearance max_mm bounds only the closest point.
 
 ## The FreeCAD oracle on a Linux box
@@ -50,7 +50,8 @@ Goal: the workbench UI in `ui/` looks and behaves like FreeCAD main 3160daf1e2b6
 - To install it on Linux:
   1. Download `FreeCAD_weekly-2026.09.30-Linux-x86_64.AppImage` from the FreeCAD/FreeCAD GitHub release of that tag, and check it against the release's `-SHA256.txt`.
   2. Unpack it with `--appimage-extract`.
-  3. Run it headless with `squashfs-root/usr/bin/freecadcmd`; run the GUI tools under `xvfb-run`.
+  3. Run it headless with `squashfs-root/usr/bin/freecadcmd`; run the GUI tools under `xvfb-run -a -s "-screen 0 1600x1000x24"` with
+     FREECAD_APP set to the unpacked folder: `fclaunch.py` (fcbehave.py, fcprefs.py, ...) then starts its `usr/bin/freecad` on X11.
 - The look tools (`fcgui.py --platform cocoa`, `fcshots.py`, `fcmeasure.py`) read widget sizes from the Mac's Qt style. Qt's Linux style is not the same, so compare look on a Mac, or say which platform a number comes from.
 - The browser checks need Node 20.19 with `npm ci` in ui/, and Playwright 1.59.1 with Chromium (`npx playwright install --with-deps chromium`). Point NODE_PATH at the folder that holds `playwright`.
 

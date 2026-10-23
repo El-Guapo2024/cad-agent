@@ -16,7 +16,7 @@
 // (fc.h). A widget wider than the cell's room is held by its maximum size and sits at the cell's left; one that cannot grow
 // (Fixed) is as wide as its hint; one that cannot grow taller is centred in the row. A hidden widget leaves no row, no column and no
 // space. QGroupBox is FreeCAD.qss's: an 18 px band above for the title, a 1 px frame, 2 px under it.
-import { createContext, useContext, useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react'
+import { createContext, useContext, useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react'
 import { QComboBox } from './combo'
 import type { UiForm, UiItem, UiLayout, UiWidget } from './uiforms'
 import './qtform.css'
@@ -360,6 +360,8 @@ function atMax(items: UiItem[], axis: 'h' | 'v', bind: Bindings): boolean {
     } else if (it.s) {
       bhint = k === 0 ? it.s.w : it.s.h
       if (it.s.o === axis && (it.s.t === 'Fixed' || it.s.t === 'Maximum')) bmax = bhint
+    } else if (it.l && layoutAtMax(it.l, axis, bind)) {
+      bmax = 0 // a layout that cannot grow: its maximum is its hint (which is not known here, and is at least 0)
     }
     const bexp = expansive(it, axis, bind, true), bempty = !nonEmpty(it, bind)
     if (exp) { if (bexp) max = Math.max(max, bmax) }
@@ -372,6 +374,18 @@ function atMax(items: UiItem[], axis: 'h' | 'v', bind: Bindings): boolean {
   return max <= hint
 }
 
+/** Can a nested layout not grow along an axis (its maximum size there is its hint)? A box along its own axis adds up its items' maximum sizes
+ *  (QBoxLayoutPrivate::setupGeom, qboxlayout.cpp in Qt 6.8, :299-313), so it is at its largest when every item is, a spacer that can grow
+ *  (QSpacerItem::maximumSize) included; across, and a grid along either axis (every row or column of it), as `atMax` folds a track. */
+function layoutAtMax(l: UiLayout, axis: 'h' | 'v', bind: Bindings): boolean {
+  const shown = l.i.filter((it) => visible(it, bind))
+  if (!shown.length) return false
+  if (l.t !== 'G') return (l.t === 'H') === (axis === 'h') ? shown.every((it) => atMax([it], axis, bind)) : atMax(shown, axis, bind)
+  const at = (it: UiItem) => (axis === 'h' ? it.c : it.r) ?? 0, span = (it: UiItem) => (axis === 'h' ? it.cs : it.rs) ?? 1
+  const used = [...new Set(shown.map(at))]
+  return used.every((t) => { const one = shown.filter((it) => at(it) === t && span(it) === 1); return one.length > 0 && atMax(one, axis, bind) })
+}
+
 /** The tracks of a row or column of items, as qGeomCalc sizes them. An expanding track (one with an expanding item, or a stretch factor) takes all
  *  that is left, as CSS stretches `auto` tracks (the others being `max-content`); with none expanding the tracks share the room as equal totals,
  *  which is `1fr`, floored at the items' hints (their minimum widths). Between two tracks that are not empty goes one gap, as a track of its own
@@ -380,17 +394,78 @@ function tracks(list: number[], full: (t: number) => boolean, expandsOf: (t: num
   const anyExp = list.some((t) => expandsOf(t) || stretch(t) > 0)
   // Two columns or rows that expand, with no stretch factor, get equal totals (qGeomCalc's `ideal`), each as large as its hint at least: `1fr` with the hint as the floor.
   const share = !fit && !list.some((t) => stretch(t) > 0) && list.filter(expandsOf).length > 1
+  // qGeomCalc's first pass (qlayoutengine.cpp in Qt 6.8, :187-206) leaves at its hint a track that cannot grow (its maximum is its hint) and, unless
+  // every track is an empty one, a track of nothing but spacers that does not expand. When that is every track, none takes the room left over: it
+  // goes into the gaps instead, an equal part (extraspace / (spacerCount + 2), :285-293) before the first track and after each one that is not empty
+  // (after its spacing). Those parts are tracks of their own here with nothing in them, `1fr` each: CSS gives them what is left over when the box is
+  // larger than its content (a group box as tall as the one beside it, a box its layout stretches) and nothing otherwise (an empty flexible track
+  // is 0 under a max-content constraint), so they are there whether or not the box is sized by its content; `useShares` then cuts them to whole
+  // pixels as Qt does.
+  const allEmpty = list.every((t) => !full(t) && !expandsOf(t) && stretch(t) <= 0)
+  const fill = list.length > 0 && list.every((t) => fixed(t) || (!allEmpty && !full(t) && !expandsOf(t) && stretch(t) === 0))
+  const filler = 'minmax(0, 1fr)'
   const tmpl: string[] = [], css = new Map<number, number>()
+  // The tracks that share the room left over as equal totals but are `auto` here (rows, and the columns of a box as wide as its content): CSS would
+  // add an equal amount to each instead, so `useShares` sizes them once the box's size is known.
+  const shares: number[] = [], fillers: number[] = []
+  const pushFiller = () => { fillers.push(tmpl.length); tmpl.push(filler) }
+  if (fill) pushFiller()
   list.forEach((t, k) => {
     const st = stretch(t), f = floor?.get(t) ? `${Math.round(floor.get(t)!)}px` : ''
+    const shared = !(st > 0 || expandsOf(t) || anyExp || !full(t) || fixed(t) || (width && !fit))
+    if (shared) shares.push(tmpl.length)
     tmpl.push(st > 0 ? `minmax(${f || 'auto'}, ${st}fr)`
       : expandsOf(t) ? (share ? `minmax(${f || 'auto'}, 1fr)` : f ? `minmax(${f}, auto)` : 'auto')
       : anyExp || !full(t) || fixed(t) ? (f ? `minmax(${f}, max-content)` : 'max-content')
       : width && !fit ? `minmax(${f || 'auto'}, 1fr)` : f ? `minmax(${f}, auto)` : 'auto')
     css.set(t, tmpl.length)
     if (full(t) && list.slice(k + 1).some(full)) tmpl.push(`${gap}px`)
+    if (fill && full(t)) pushFiller()
   })
-  return { tmpl: tmpl.join(' '), arr: tmpl, css }
+  return { tmpl: tmpl.join(' '), arr: tmpl, css, shares, fillers }
+}
+
+/** qGeomCalc's equal totals for the `auto` tracks that share the room (tracks' `shares`), which CSS cannot say for a box whose size it only knows once
+ *  it has laid it out: with the tracks at their natural sizes (`align-content` / `justify-content: start`), what the box has beyond them is shared out
+ *  so that the sharing tracks end as large as one another, none below its natural size (`geom`), and the tracks are set to those sizes. The room
+ *  that goes into the gaps (tracks' `fillers`) is cut into whole pixels as qGeomCalc's `extra` is (the rest is left at the end). Again when the box or
+ *  what is in it changes size. */
+type Tracks = { tmpl: string; shares: number[]; fillers: number[] }
+function useShares(ref: { current: HTMLDivElement | null }, rows: Tracks, cols: Tracks) {
+  const key = `${rows.tmpl}|${rows.shares}|${rows.fillers}|${cols.tmpl}|${cols.shares}|${cols.fillers}`
+  useLayoutEffect(() => {
+    const el = ref.current
+    const axes = [
+      { t: rows, prop: 'gridTemplateRows', align: 'alignContent', size: () => el!.clientHeight - parseFloat(getComputedStyle(el!).paddingTop) - parseFloat(getComputedStyle(el!).paddingBottom) },
+      { t: cols, prop: 'gridTemplateColumns', align: 'justifyContent', size: () => el!.clientWidth - parseFloat(getComputedStyle(el!).paddingLeft) - parseFloat(getComputedStyle(el!).paddingRight) },
+    ].filter((a) => a.t.shares.length > 1 || a.t.fillers.length > 0) as { t: Tracks; prop: 'gridTemplateRows' | 'gridTemplateColumns'; align: 'alignContent' | 'justifyContent'; size: () => number }[]
+    if (!el || !axes.length) return
+    let busy = false
+    const run = () => {
+      if (busy) return
+      busy = true
+      for (const a of axes) {
+        const fills = new Set(a.t.fillers)
+        el.style[a.prop] = fills.size ? tmplWithout(a.t.tmpl, fills) : a.t.tmpl
+        el.style[a.align] = 'start'
+        const sizes = getComputedStyle(el)[a.prop].split(' ').map(parseFloat)
+        const extra = a.size() - sizes.reduce((n, x) => n + x, 0)
+        if (sizes.some((x) => !Number.isFinite(x)) || extra < 0.5) { el.style[a.align] = ''; continue }
+        if (fills.size) a.t.fillers.forEach((i) => { sizes[i] = Math.floor(extra / fills.size) })
+        else {
+          const got = geom(a.t.shares.map((i) => ({ hint: sizes[i], exp: false, st: 0 })), a.t.shares.reduce((n, i) => n + sizes[i], 0) + extra)
+          a.t.shares.forEach((i, k) => { sizes[i] = got[k] })
+        }
+        el.style[a.prop] = sizes.map((x) => `${x}px`).join(' ')
+      }
+      busy = false
+    }
+    const ro = new ResizeObserver(run)
+    ro.observe(el)
+    for (const c of el.children) ro.observe(c)
+    run()
+    return () => { ro.disconnect(); for (const a of axes) { el.style[a.prop] = a.t.tmpl; el.style[a.align] = '' } }
+  }, [key]) // eslint-disable-line react-hooks/exhaustive-deps
 }
 
 /** qGeomCalc for room beyond the hints (qlayoutengine.cpp): the items that expand, or have a stretch factor, share the space as equal totals (or in
@@ -470,14 +545,14 @@ function LayoutBox({ l, margins, className, nested = false, fit = false, slot, k
       return `${css.get(inside[0])} / ${css.get(inside[inside.length - 1])! + 1}`
     }
     return (
-      <div className={cls('qf-grid', className)} style={{ ...slot, padding, gridTemplateColumns: cT.tmpl, gridTemplateRows: rT.tmpl }}>
+      <Grid rows={rT} cols={cT} className={cls('qf-grid', className)} style={{ ...slot, padding, gridTemplateColumns: cT.tmpl, gridTemplateRows: rT.tmpl }}>
         {shown.map(({ it }, i) => render(it, i, {
           gridRow: line(rows, rT.css, it.r ?? 0, it.rs ?? 1),
           gridColumn: line(cols, cT.css, it.c ?? 0, it.cs ?? 1),
           // an item across columns does not size them (Qt shares what it needs out over the columns that are there): it is as wide as they are
           ...((it.cs ?? 1) > 1 && (it.w || it.l) ? { width: 0, minWidth: '100%', maxWidth: 'none' } : {}),
         }, !(cT.arr[(cT.css.get(it.c ?? 0) ?? 1) - 1] ?? '').includes('fr')))}
-      </div>)
+      </Grid>)
   }
   // A box layout is a row or a column of tracks, sized and spaced the same way
   const horiz = l.t === 'H'
@@ -488,9 +563,20 @@ function LayoutBox({ l, margins, className, nested = false, fit = false, slot, k
   const T = tracks(idx, (i) => nonEmpty(shown[i].it, bind), (i) => expansive(shown[i].it, axis, bind), stretchOf, (i) => atMax([shown[i].it], axis, bind), sp, horiz, fit)
   const across = horiz ? { gridTemplateRows: 'auto', gridTemplateColumns: T.tmpl } : { gridTemplateColumns: 'minmax(0, 1fr)', gridTemplateRows: T.tmpl }
   return (
-    <div className={cls('qf-grid', horiz ? 'h' : 'v', className)} style={{ ...slot, padding, ...across }}>
+    <Grid rows={horiz ? NO_SHARES : T} cols={horiz ? T : NO_SHARES} className={cls('qf-grid', horiz ? 'h' : 'v', className)} style={{ ...slot, padding, ...across }}>
       {at.map(({ it, i }) => render(it, i, horiz ? { gridColumn: T.css.get(i), gridRow: 1 } : { gridRow: T.css.get(i), gridColumn: 1 }, horiz ? !T.arr[T.css.get(i)! - 1].includes('fr') : fit))}
-    </div>)
+    </Grid>)
+}
+const NO_SHARES: Tracks = { tmpl: 'auto', shares: [], fillers: [] }
+/** The template with the given tracks at 0: the fillers, while the others are measured. */
+const tmplWithout = (tmpl: string, zero: Set<number>) => splitTracks(tmpl).map((t, i) => (zero.has(i) ? '0px' : t)).join(' ')
+/** A template's tracks (a `minmax(a, b)` is one). */
+const splitTracks = (tmpl: string) => tmpl.match(/minmax\([^)]*\)|\S+/g) ?? []
+/** A layout's grid element, its sharing tracks sized by `useShares`. */
+function Grid({ rows, cols, className, style, children }: { rows: Tracks; cols: Tracks; className: string; style: CSSProperties; children: ReactNode }) {
+  const ref = useRef<HTMLDivElement>(null)
+  useShares(ref, rows, cols)
+  return <div ref={ref} className={className} style={style}>{children}</div>
 }
 
 /** A form: its page, drawn from its layout with the page's bindings. */

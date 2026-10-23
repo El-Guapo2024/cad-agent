@@ -45,6 +45,13 @@ def main():
         args = [a for a in args if a != str(tol)]
     fc = json.load(open(args[0]))
     ours = json.load(open(args[1]))
+    # the Colors page with a gradient chosen (fcprefs_dump.py's extras, oursprefs.mjs's states): pages "colors.gradient", "colors.radial", "colors.gradient-mid"
+    for key, page in list(ours["pages"].items()):
+        for tag, st in (page.get("states") or {}).items():
+            ours["pages"][f"{key}.{tag}"] = st
+            f = (fc["pages"].get(key, {}).get("extras") or {}).get("states", {}).get(tag)
+            if f:
+                fc["pages"][f"{key}.{tag}"] = f
     pages = args[2:] or list(ours["pages"])
     bad = 0
     for key in pages:
