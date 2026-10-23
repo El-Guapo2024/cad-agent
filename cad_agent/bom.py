@@ -20,9 +20,12 @@ LGPL-2.1-or-later). This is that, for an assembly that is a dict of bodies:
               tooltip in TaskAssemblyCreateBom.ui:56-61). A part of this harness is itself a solid, so `--only-parts`
               is another cut under the same name: the parts made here and the sub-assemblies stay, what is bought
               or stock goes; `detailParts` has nothing to do here, since a part of this harness is one solid
-  mirrors     FreeCAD keeps a mirrored link on a line of its own. A body that `mirror()` made has lost what
-              it was (bodies.py), so a stock body is joined to the made or bought line it has the shape and the
-              name stem of (motor_right to motor_left, a tt_motor) and the line says so in Notes
+  mirrors     a mirrored body is on its part's line, as in FreeCAD's build: BomObject.cpp's isObjMirrored
+              (253-270) would give it a "(mirrored)" line of its own, but it tests static_cast<App::LinkElement*>,
+              never null, so an App::Link's negative Scale is never read (ui/scripts/bomdiff.py, 6 of 6 cases the
+              same as FreeCAD 26.3). A body that `mirror()` made has lost what it was (bodies.py), so a stock
+              body is joined to the made or bought line it has the shape and the name stem of (motor_right to
+              motor_left, a tt_motor) and the line says so in Notes
 
 and adds what a shop wants to know of each line, from the bodies (bodies.py) and the bought contract (bought.py):
 

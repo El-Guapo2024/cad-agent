@@ -79,7 +79,12 @@ Section 5 below is the record of 2026-10-14. Measured again in the real FreeCAD 
   (it shares the Home view's lines).
 - **Also**: the Mac's Delete (⌫), Recompute (⌘R) and Previous Window (⇧⌘}); the tree menu's entries (Material, Appearance, Expression and
   Link Actions, Rename, Close Document, ... as in the real menu, greyed out where they mean nothing here).
-- **Open**: 5.1 Home (under way elsewhere), 5.5 the NaviCube's look, 5.9 arrow-key panning, 5.11 BOM.
+- **5.11 BOM: the finding was wrong for the build (2026-10-23).** `ui/scripts/bomdiff.py` builds six cases in the real FreeCAD 26.3
+  (an Assembly of App::Link components, a mirror as Scale -1 or ScaleVector (-1, 1, 1), the BOM made as CommandCreateBom makes it):
+  FreeCAD never makes a "(mirrored)" line. `isObjMirrored` (BomObject.cpp:253-270) tests `static_cast<App::LinkElement*>(obj)`, which
+  is never null, so the App::Link branch is dead and a mirrored link counts on its part's line, as bom.py already did: 6 of 6 the same.
+  A port of the source's intent was tried and matched 1 of 6, so it was not kept.
+- **Open**: 5.1 Home (under way elsewhere), 5.5 the NaviCube's look, 5.9 arrow-key panning.
 - **5.10 DXF: fixed (2026-10-23).** The file around the entities is FreeCAD's R14 templates in `CDxfWrite::endRun`'s order, with
   their handles and FreeCAD's from 0xA01, "EOF" with no newline; arcs' angles are atan2's (-180, 180]; a whole ellipse ends at
   6.28318 (ImpExpDxf.cpp:1964-1966). `ui/scripts/dxfdiff.py` writes one part through both writers (FreeCAD on the Linux build
