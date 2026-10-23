@@ -24,8 +24,9 @@ them carry.
   Alfredo Monclus: Mod/Start/Gui/NewFileButton.cpp
   Bas Ruigrok (Rexbas): Gui/Navigation/NavigationAnimation.cpp
   Chris Hennes: Gui/PreferencePages/DlgSettingsWorkbenchesImp.cpp
-  David Friedli: Mod/Measure/Gui/TaskMeasure.cpp, Mod/Measure/Gui/ViewProviderMeasureAngle.cpp,
-      Mod/Measure/Gui/ViewProviderMeasureBase.cpp, Mod/Measure/Gui/ViewProviderMeasureDistance.cpp
+  David Friedli: Mod/Measure/Gui/Command.cpp, Mod/Measure/Gui/TaskMeasure.cpp,
+      Mod/Measure/Gui/ViewProviderMeasureAngle.cpp, Mod/Measure/Gui/ViewProviderMeasureBase.cpp,
+      Mod/Measure/Gui/ViewProviderMeasureDistance.cpp
   Eivind Kvedalen: App/Expression.cpp, App/Expression.l, App/Expression.y, App/ObjectIdentifier.cpp,
       Gui/Dialogs/DlgExpressionInput.cpp, Gui/ExpressionCompleter.cpp
   FreeCAD contributors: Gui/Selection/SelectionColors.h
@@ -33,15 +34,17 @@ them carry.
       Gui/PreferencePages/DlgSettingsGeneral.cpp, Gui/PreferencePages/DlgSettingsWorkbenchesImp.cpp
   Imetric 3D GmbH: Base/Vector3D.cpp
   Joao Matos: Gui/Inventor/SoFCBackgroundGradient.cpp, Gui/Inventor/SoNaviCube.cpp,
-      Gui/NaviCube.cpp, Gui/View3DInventorViewer.cpp
+      Gui/NaviCube.cpp, Gui/View3DInventorViewer.cpp, Mod/Part/Gui/SoBrepFaceSet.cpp
   Jürgen Riegel: App/Expression.l, App/Expression.y, App/GeoFeature.cpp, Base/Exception.cpp,
       Base/Quantity.cpp, Base/Quantity.l, Base/Quantity.y, Base/QuantityPyImp.cpp,
-      Base/UnitsApi.cpp, Gui/Command.cpp, Gui/CommandDoc.cpp, Gui/CommandStd.cpp,
-      Gui/CommandView.cpp, Gui/Dialogs/DlgParameterImp.cpp, Gui/Dialogs/DlgPreferencesImp.cpp,
-      Gui/Dialogs/DlgUnitsCalculatorImp.cpp, Gui/Macro.cpp,
-      Gui/PreferencePages/DlgSettings3DViewImp.cpp, Gui/PreferencePages/DlgSettingsDocumentImp.cpp,
-      Gui/PreferencePages/DlgSettingsMacroImp.cpp, Gui/PreferencePages/DlgSettingsNavigation.cpp,
-      Gui/Selection/Selection.cpp, Gui/Selection/SelectionView.cpp, Gui/Tree.cpp,
+      Base/UnitsApi.cpp, Gui/Command.cpp, Gui/CommandDoc.cpp, Gui/CommandFeat.cpp,
+      Gui/CommandStd.cpp, Gui/CommandTest.cpp, Gui/CommandView.cpp,
+      Gui/Dialogs/DlgParameterImp.cpp, Gui/Dialogs/DlgPreferencesImp.cpp,
+      Gui/Dialogs/DlgUnitsCalculatorImp.cpp, Gui/Document.cpp, Gui/Macro.cpp,
+      Gui/PreferencePages/DlgSettings3DViewImp.cpp,
+      Gui/PreferencePages/DlgSettingsDocumentImp.cpp, Gui/PreferencePages/DlgSettingsMacroImp.cpp,
+      Gui/PreferencePages/DlgSettingsNavigation.cpp, Gui/Selection/Selection.cpp,
+      Gui/Selection/SelectionView.cpp, Gui/Tree.cpp, Gui/View3DInventor.cpp,
       Gui/View3DInventorViewer.cpp, Gui/View3DPy.cpp, Mod/Part/App/PartFeature.cpp,
       Mod/Part/Gui/CommandFilter.cpp, Mod/Sketcher/Gui/Workbench.cpp
   Kirill Gavrilov: Gui/Navigation/OpenCascadeNavigationStyle.cpp
@@ -54,8 +57,10 @@ them carry.
       Gui/Stylesheets/FreeCAD.qss
   Pierre-Louis Boyer: Mod/Measure/Gui/QuickMeasure.cpp
   Pieter Hijma: Gui/Dialogs/DlgExpressionInput.cpp
-  The FreeCAD Project Association AISBL: Mod/Start/Gui/FileCardDelegate.cpp,
-      Mod/Start/Gui/FirstStartWidget.cpp, Mod/Start/Gui/StartView.cpp
+  Stefan Tröger: Gui/CommandStructure.cpp
+  The FreeCAD Project Association AISBL: Mod/Start/App/ExamplesModel.cpp,
+      Mod/Start/Gui/FileCardDelegate.cpp, Mod/Start/Gui/FirstStartWidget.cpp,
+      Mod/Start/Gui/StartView.cpp
   Thomas Anderson: Gui/TaskTransform.cpp, Mod/Measure/Gui/ViewProviderMeasureAngle.cpp,
       Mod/Measure/Gui/ViewProviderMeasureDistance.cpp
   triplus @ FreeCAD: Mod/Tux/NavigationIndicatorGui.py
@@ -66,13 +71,14 @@ them carry.
       Gui/Camera.cpp, Gui/Clipping.cpp, Gui/CommandMacro.cpp, Gui/CommandWindow.cpp,
       Gui/DemoMode.cpp, Gui/Dialogs/DlgCustomizeImp.cpp, Gui/Dialogs/DlgKeyboardImp.cpp,
       Gui/Dialogs/DlgUndoRedo.cpp, Gui/GraphvizView.cpp, Gui/ImageView.cpp,
-      Gui/Inventor/SoFCBackgroundGradient.cpp, Gui/MainWindow.cpp, Gui/ManualAlignment.cpp,
-      Gui/Navigation/BlenderNavigationStyle.cpp, Gui/Navigation/CADNavigationStyle.cpp,
-      Gui/Navigation/InventorNavigationStyle.cpp, Gui/Navigation/NavigationStyle.cpp,
-      Gui/Navigation/OpenSCADNavigationStyle.cpp, Gui/Navigation/RevitNavigationStyle.cpp,
-      Gui/Navigation/SiemensNXNavigationStyle.cpp, Gui/Navigation/SolidWorksNavigationStyle.cpp,
-      Gui/Navigation/TinkerCADNavigationStyle.cpp, Gui/Navigation/TouchpadNavigationStyle.cpp,
-      Gui/Placement.cpp, Gui/PrefWidgets.cpp, Gui/PreferencePages/DlgSettingsCacheDirectory.cpp,
+      Gui/Inventor/SoFCBackgroundGradient.cpp, Gui/MDIView.cpp, Gui/MainWindow.cpp,
+      Gui/ManualAlignment.cpp, Gui/Navigation/BlenderNavigationStyle.cpp,
+      Gui/Navigation/CADNavigationStyle.cpp, Gui/Navigation/InventorNavigationStyle.cpp,
+      Gui/Navigation/NavigationStyle.cpp, Gui/Navigation/OpenSCADNavigationStyle.cpp,
+      Gui/Navigation/RevitNavigationStyle.cpp, Gui/Navigation/SiemensNXNavigationStyle.cpp,
+      Gui/Navigation/SolidWorksNavigationStyle.cpp, Gui/Navigation/TinkerCADNavigationStyle.cpp,
+      Gui/Navigation/TouchpadNavigationStyle.cpp, Gui/Placement.cpp, Gui/PrefWidgets.cpp,
+      Gui/PreferencePages/DlgSettingsCacheDirectory.cpp,
       Gui/PreferencePages/DlgSettingsEditor.cpp, Gui/PreferencePages/DlgSettingsGeneral.cpp,
       Gui/PreferencePages/DlgSettingsLightSources.cpp,
       Gui/PreferencePages/DlgSettingsPythonConsole.cpp,
@@ -81,10 +87,12 @@ them carry.
       Gui/PythonConsole.cpp, Gui/QuantitySpinBox.cpp, Gui/SceneInspector.cpp,
       Gui/Selection/Selection.cpp, Gui/TextEdit.cpp, Gui/View3DSettings.cpp, Gui/View3DSettings.h,
       Gui/Widgets.cpp, Gui/Workbench.cpp, Gui/propertyeditor/PropertyEditor.cpp, Gui/resource.cpp,
-      Mod/Measure/Gui/ViewProviderMeasureDistance.cpp, Mod/PartDesign/Gui/Workbench.cpp
-  Zheng Lei (realthunder): Gui/CommandCompleter.cpp, Gui/OverlayManager.cpp, Gui/OverlayParams.py,
-      Gui/OverlayWidgets.cpp, Gui/OverlayWidgets.h, Gui/PreferencePages/DlgSettingsAdvanced.cpp,
-      Gui/ShortcutManager.cpp, Gui/TreeParams.py
+      Mod/Measure/Gui/ViewProviderMeasureDistance.cpp, Mod/Part/Gui/SoBrepFaceSet.cpp,
+      Mod/PartDesign/Gui/Workbench.cpp
+  Zheng Lei (realthunder): Gui/CommandCompleter.cpp, Gui/CommandLink.cpp, Gui/OverlayManager.cpp,
+      Gui/OverlayParams.py, Gui/OverlayWidgets.cpp, Gui/OverlayWidgets.h,
+      Gui/PreferencePages/DlgSettingsAdvanced.cpp, Gui/ShortcutManager.cpp, Gui/TreeParams.py,
+      Gui/View3DInventorSelection.cpp
 
 2. The FreeCAD files, their notices, and the files here that follow them
 ------------------------------------------------------------------------
@@ -161,7 +169,7 @@ src/Base/VectorPyImp.cpp   [licence: LGPL-2.1-or-later]
     followed by src/expr-py.ts
 src/Gui/Action.cpp   [licence: LGPL-2.0-or-later]
     copyright 2004 Werner Mayer
-    followed by src/chrome.tsx, src/freecad.css
+    followed by src/chrome.tsx, src/freecad.css, src/tooltip.ts
 src/Gui/Camera.cpp   [licence: LGPL-2.1-or-later]
     copyright 2023 Werner Mayer
     followed by src/commands.ts, src/nav.ts, src/viewer.ts
@@ -179,23 +187,35 @@ src/Gui/CommandCompleter.cpp   [licence: LGPL-2.0-or-later]
     followed by src/prefs-pages.tsx
 src/Gui/CommandDoc.cpp   [licence: LGPL-2.0-or-later]
     copyright 2002 Jürgen Riegel
-    followed by src/chrome.tsx, src/cmdicons.ts, src/cmdreg.ts, src/filemenu.tsx, src/icons.tsx,
-        src/keymap.ts, src/tools.tsx
+    followed by src/chrome.tsx, src/cmdicons.ts, src/cmdreg.ts, src/fctips.ts, src/filemenu.tsx,
+        src/icons.tsx, src/keymap.ts, src/tools.tsx
+src/Gui/CommandFeat.cpp   [licence: LGPL-2.0-or-later]
+    copyright 2002 Jürgen Riegel
+    followed by src/fctips.ts
+src/Gui/CommandLink.cpp   [licence: LGPL-2.0-or-later]
+    copyright 2017 Zheng Lei (realthunder)
+    followed by src/fctips.ts
 src/Gui/CommandMacro.cpp   [licence: LGPL-2.0-or-later]
     copyright 2010 Werner Mayer
-    followed by src/cmdicons.ts, src/cmdreg.ts, src/icons.tsx, src/macro.tsx
+    followed by src/cmdicons.ts, src/cmdreg.ts, src/fctips.ts, src/icons.tsx, src/macro.tsx
 src/Gui/CommandStd.cpp   [licence: LGPL-2.1-or-later]
     copyright 2002 Jürgen Riegel
     copyright 2023 FreeCAD Project Association
-    followed by src/App.tsx, src/chrome.tsx, src/cmdicons.ts, src/cmdreg.ts, src/icons.tsx,
-        src/keymap.ts
+    followed by src/App.tsx, src/chrome.tsx, src/cmdicons.ts, src/cmdreg.ts, src/fctips.ts,
+        src/icons.tsx, src/keymap.ts
+src/Gui/CommandStructure.cpp   [licence: LGPL-2.0-or-later]
+    copyright 2017 Stefan Tröger
+    followed by src/fctips.ts
+src/Gui/CommandTest.cpp   [licence: LGPL-2.0-or-later]
+    copyright 2002 Jürgen Riegel
+    followed by src/fctips.ts
 src/Gui/CommandView.cpp   [licence: LGPL-2.0-or-later]
     copyright 2002 Jürgen Riegel
     followed by src/App.tsx, src/chrome.tsx, src/cmdicons.ts, src/cmdreg.ts, src/commands.ts,
-        src/icons.tsx, src/keymap.ts, src/tools.tsx, src/viewer.ts
+        src/fctips.ts, src/icons.tsx, src/keymap.ts, src/tools.tsx, src/viewer.ts
 src/Gui/CommandWindow.cpp   [licence: LGPL-2.0-or-later]
     copyright 2005 Werner Mayer
-    followed by src/cmdicons.ts, src/filemenu.tsx, src/icons.tsx
+    followed by src/cmdicons.ts, src/fctips.ts, src/filemenu.tsx, src/icons.tsx
 src/Gui/CornerCrossLetters.h   [licence: none]
     copyright: no line in the file
     followed by src/axiscross.ts
@@ -240,6 +260,9 @@ src/Gui/Dialogs/DlgUndoRedo.cpp   [licence: LGPL-2.1-or-later]
 src/Gui/Dialogs/DlgUnitsCalculatorImp.cpp   [licence: LGPL-2.1-or-later]
     copyright 2013 Jürgen Riegel
     followed by src/panels.tsx
+src/Gui/Document.cpp   [licence: LGPL-2.0-or-later]
+    copyright 2004 Jürgen Riegel
+    followed by src/actions.ts
 src/Gui/ExpressionCompleter.cpp   [licence: LGPL-2.0-or-later]
     copyright 2015 Eivind Kvedalen
     followed by src/exprdialog.tsx
@@ -256,12 +279,15 @@ src/Gui/Inventor/SoFCBackgroundGradient.cpp   [licence: LGPL-2.1-or-later]
 src/Gui/Inventor/SoNaviCube.cpp   [licence: LGPL-2.1-or-later]
     copyright 2025-2026 Joao Matos
     followed by src/viewer.ts
+src/Gui/MDIView.cpp   [licence: LGPL-2.0-or-later]
+    copyright 2007 Werner Mayer
+    followed by src/actions.ts
 src/Gui/Macro.cpp   [licence: LGPL-2.0-or-later]
     copyright 2004 Jürgen Riegel
     followed by src/actions.ts
 src/Gui/MainWindow.cpp   [licence: LGPL-2.0-or-later]
     copyright 2005 Werner Mayer
-    followed by src/chrome.tsx
+    followed by src/App.tsx, src/chrome.tsx
 src/Gui/ManualAlignment.cpp   [licence: LGPL-2.0-or-later]
     copyright 2012 Werner Mayer
     followed by src/panels.tsx
@@ -487,6 +513,12 @@ src/Gui/Tree.cpp   [licence: LGPL-2.0-or-later]
 src/Gui/TreeParams.py   [licence: LGPL-2.0-or-later]
     copyright 2022 Zheng Lei (realthunder)
     followed by src/freecad.css, src/panels.tsx, src/prefs-pages.tsx, src/store.ts
+src/Gui/View3DInventor.cpp   [licence: LGPL-2.0-or-later]
+    copyright 2004 Jürgen Riegel
+    followed by src/App.tsx
+src/Gui/View3DInventorSelection.cpp   [licence: LGPL-2.0-or-later]
+    copyright 2022 Zheng Lei (realthunder)
+    followed by src/viewer.ts
 src/Gui/View3DInventorViewer.cpp   [licence: LGPL-2.1-or-later]
     copyright 2004 Jürgen Riegel
     copyright 2026 Joao Matos
@@ -531,6 +563,9 @@ src/Mod/Measure/App/Measurement.cpp   [licence: LGPL-2.1-or-later]
 src/Mod/Measure/App/Preferences.cpp   [licence: LGPL-2.1-or-later]
     copyright 2023 WandererFan
     followed by src/viewer.ts
+src/Mod/Measure/Gui/Command.cpp   [licence: LGPL-2.1-or-later]
+    copyright 2023 David Friedli
+    followed by src/fctips.ts
 src/Mod/Measure/Gui/QuickMeasure.cpp   [licence: LGPL-2.1-or-later]
     copyright 2023 Pierre-Louis Boyer
     followed by src/viewer.ts
@@ -558,13 +593,20 @@ src/Mod/Part/App/PartFeature.cpp   [licence: LGPL-2.1-or-later]
     followed by src/viewer.ts
 src/Mod/Part/Gui/CommandFilter.cpp   [licence: LGPL-2.1-or-later]
     copyright 2002 Jürgen Riegel
-    followed by src/actions.ts, src/chrome.tsx, src/cmdreg.ts
+    followed by src/actions.ts, src/chrome.tsx, src/cmdreg.ts, src/fctips.ts
+src/Mod/Part/Gui/SoBrepFaceSet.cpp   [licence: LGPL-2.1-or-later]
+    copyright 2011 Werner Mayer
+    copyright 2026 Joao Matos
+    followed by src/viewer.ts
 src/Mod/PartDesign/Gui/Workbench.cpp   [licence: LGPL-2.1-or-later]
     copyright 2008 Werner Mayer
     followed by src/chrome.tsx
 src/Mod/Sketcher/Gui/Workbench.cpp   [licence: LGPL-2.1-or-later]
     copyright 2008 Jürgen Riegel
     followed by src/chrome.tsx
+src/Mod/Start/App/ExamplesModel.cpp   [licence: LGPL-2.1-or-later]
+    copyright 2024 The FreeCAD Project Association AISBL
+    followed by src/start.tsx
 src/Mod/Start/Gui/FileCardDelegate.cpp   [licence: LGPL-2.1-or-later]
     copyright 2024 The FreeCAD Project Association AISBL
     followed by src/start.tsx

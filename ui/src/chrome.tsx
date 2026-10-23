@@ -19,7 +19,8 @@
 //   src/Gui/MainWindow.cpp: 2005 Werner Mayer
 //   No copyright line in the file: src/Gui/Stylesheets/FreeCAD.qss
 import * as M from '@radix-ui/react-menubar'
-import { menuKbd } from './keymap'
+import { defaultAccel, menuKbd, nativeText } from './keymap'
+import { FC_TIPS } from './fctips'
 import { getCommand } from './cmdreg'
 import { cmdIcon } from './cmdicons'
 import { useEffect, useLayoutEffect, useMemo, useRef, useState, useSyncExternalStore, type ReactNode } from 'react'
@@ -686,18 +687,34 @@ export function ContextMenu({ at, entries, onClose, onLeave }: { at: { x: number
  *  each side, and 3 the Mac style adds). */
 const useIconSize = () => useStore((s) => s.toolbarIconSize)
 const btnStyle = (n: number) => ({ width: n + 9, height: n + 9 })
-function Btn({ icon, title, onClick, disabled, active, cmd }: { icon: IconName; title: string; onClick(): void; disabled?: boolean; active?: boolean; cmd?: string }) {
+/** Shortcuts FreeCAD shows on commands that are disabled here (their keys are the browser's or do nothing). */
+const PARITY_KEYS: Record<string, string> = { Std_Save: 'Ctrl+S', Std_Cut: 'Ctrl+X', Std_Paste: 'Ctrl+V' }
+type TipOpts = { head?: string; shown?: string; key?: string }
+/** Action::setToolTip: a toolbar button's tooltip is createToolTip(help, menu text, shortcut, command), which
+ *  tooltip.ts draws from these attributes. The menu text and help are FreeCAD's own (fctips.ts), else the registry's
+ *  label and the help given here; `shown` is the name in italics (a group button names its default command, as
+ *  createToolTip does for a GroupCommand: "Std_ViewIsometric (Std_ViewGroup:0)"); `key` overrides the shortcut. */
+export function tipAttrs(cmd: string | undefined, help?: string, o: TipOpts = {}) {
+  const fc = cmd ? FC_TIPS[cmd] : undefined
+  const head = o.head ?? fc?.[0] ?? (cmd ? getCommand(cmd)?.label() : undefined)
+  if (!head || !(cmd || o.shown)) return { title: help ?? fc?.[1] }
+  const user = getState().shortcuts
+  const key = o.key ?? (cmd ? nativeText(cmd in user ? user[cmd] : defaultAccel()[cmd] ?? PARITY_KEYS[cmd] ?? '') : '')
+  return { title: help ?? fc?.[1] ?? '', 'data-tip-head': head, 'data-tip-key': key, 'data-tip-cmd': o.shown ?? cmd }
+}
+function Btn({ icon, title, onClick, disabled, active, cmd, tip }: { icon: IconName; title?: string; onClick(): void; disabled?: boolean; active?: boolean; cmd?: string; tip?: TipOpts }) {
   const n = useIconSize()
-  return <button className={cls('tb-btn', active && 'on')} style={btnStyle(n)} title={title} data-cmd={cmd} disabled={disabled} onClick={() => (cmd ? recordAndRun(cmd, onClick) : onClick())}><Icon name={icon} size={n} /></button>
+  useStore((s) => s.shortcuts)
+  return <button className={cls('tb-btn', active && 'on')} style={btnStyle(n)} {...tipAttrs(cmd, title, tip)} data-cmd={cmd} disabled={disabled} onClick={() => (cmd ? recordAndRun(cmd, onClick) : onClick())}><Icon name={icon} size={n} /></button>
 }
 const TSep = () => <span className="tb-sep" />
 
 /** A FreeCAD tool button with a drop-down list (Draw style, Standard views). */
-function DropButton({ icon, title, entries }: { icon: IconName; title: string; entries: () => Entry[] }) {
+function DropButton({ icon, title, entries, cmd, tip }: { icon: IconName; title?: string; entries: () => Entry[]; cmd?: string; tip?: TipOpts }) {
   const [at, setAt] = useState<{ x: number; y: number } | null>(null)
   return (
     <>
-      <button className="tb-btn tb-drop" title={title} onClick={(e) => {
+      <button className="tb-btn tb-drop" {...tipAttrs(cmd, title, tip)} onClick={(e) => {
         const r = e.currentTarget.getBoundingClientRect()
         setAt(at ? null : { x: r.left, y: r.bottom + 1 })
       }}><Icon name={icon} size={useIconSize()} /><span className="tb-caret">▾</span></button>
@@ -716,12 +733,12 @@ export const setSelFilter = (f: import('./store').State['selFilter']) => setStat
 function SelectFilterButton() {
   const f = useStore((s) => s.selFilter)
   const cur = SELECT_FILTERS.find(([k]) => k === f)!
-  return <DropButton icon={cur[2] as IconName} title="Selection Filter: changes the selection filter"
+  return <DropButton icon={cur[2] as IconName} cmd="Part_SelectFilter"
     entries={() => SELECT_FILTERS.map(([k, label, icon, cmd, tip]): Entry => ({ label, icon: icon as IconName, cmd, checked: k !== null && f === k, title: tip, onSelect: () => setSelFilter(k) }))} />
 }
 function DrawStyleButton() {
   const style = useStore((s) => s.drawStyle)
-  return <DropButton icon={DRAW_STYLES.find((d) => d[0] === style)![3]} title="Draw Style" entries={styleSub} />
+  return <DropButton icon={DRAW_STYLES.find((d) => d[0] === style)![3]} cmd="Std_DrawStyle" entries={styleSub} />
 }
 
 /** UndoAction / RedoAction (Action.cpp): a split tool button (QToolButton::MenuButtonPopup) —
@@ -731,12 +748,14 @@ function DrawStyleButton() {
 function UndoRedoButton({ kind }: { kind: 'undo' | 'redo' }) {
   const list = useStore((s) => s[kind])
   const [at, setAt] = useState<{ x: number; y: number } | null>(null)
-  const top = list[0], label = kind === 'undo' ? 'Undo' : 'Redo', kbd = kind === 'undo' ? '⌘Z' : '⇧⌘Z'
+  const top = list[0], label = kind === 'undo' ? 'Undo' : 'Redo'
   const run = kind === 'undo' ? doUndo : doRedo
-  const tip = `${top ? `${label} ${top.name}` : label} (${kbd})` + (top?.by === 'agent' ? ' — made by the agent' : '')
+  // FreeCAD's help text, and the step it would undo or redo (Std_Undo's own tooltip names none)
+  const cmd = kind === 'undo' ? 'Std_Undo' : 'Std_Redo'
+  const tip = top ? `${FC_TIPS[cmd][1]}: ${top.name}${top.by === 'agent' ? ', made by the agent' : ''}` : undefined
   return (
     <span className="tb-split">
-      <Btn icon={kind} title={tip} cmd={kind === 'undo' ? 'Std_Undo' : 'Std_Redo'} disabled={!list.length} onClick={() => run()} />
+      <Btn icon={kind} title={tip} cmd={cmd} disabled={!list.length} onClick={() => run()} />
       <button className="tb-btn tb-drop" title={`${label} to…`} disabled={!list.length} onClick={(e) => {
         const r = e.currentTarget.getBoundingClientRect()
         setAt(at ? null : { x: r.left, y: r.bottom + 1 })
@@ -757,7 +776,7 @@ const toolbarOn = (shown: Record<string, boolean>, name: string) => shown[name] 
 /** QToolBar::handle: the 8px grip each toolbar starts with (FreeCAD.qss), gone when locked. */
 const TGrip = () => <span className="tb-grip" />
 /** A toolbar button for a menu Entry (same icon, text, command and state). */
-const EntryBtn = ({ e }: { e: Entry }) => e === 'sep' ? <TSep /> : <Btn icon={e.icon ?? 'help'} title={e.title ?? e.label} cmd={e.cmd} disabled={e.disabled} onClick={() => e.onSelect?.()} />
+const EntryBtn = ({ e }: { e: Entry }) => e === 'sep' ? <TSep /> : <Btn icon={e.icon ?? 'help'} title={e.cmd && FC_TIPS[e.cmd] ? undefined : e.title ?? e.label} cmd={e.cmd} disabled={e.disabled} onClick={() => e.onSelect?.()} />
 export function ToolBar() {
   const wb = useStore((s) => s.workbench), wbPrefs = useStore((s) => s.wbPrefs), slug = useStore((s) => s.slug), lock = useStore((s) => s.toolbarLock)
   const selected = useStore((s) => s.selected), busy = useStore((s) => s.busy), subSel = useStore((s) => s.subSel), shown = useStore((s) => s.toolbars)
@@ -769,24 +788,24 @@ export function ToolBar() {
   return (
     <div className={cls('toolbar', lock && 'locked')}>
       {on('File') && <><TGrip />
-        <Btn icon="new" title="Creates a new empty document" cmd="Std_New" onClick={() => openTask('newDocument', '')} />
-        <Btn icon="open" title="Opens a document or imports files" cmd="Std_Open" onClick={() => openTask('openDocument', '')} />
-        <Btn icon="save" title="Saves the active document" cmd="Std_Save" disabled onClick={() => {}} /></>}
+        <Btn icon="new" cmd="Std_New" onClick={() => openTask('newDocument', '')} />
+        <Btn icon="open" cmd="Std_Open" onClick={() => openTask('openDocument', '')} />
+        <Btn icon="save" cmd="Std_Save" disabled onClick={() => {}} /></>}
       {on('Edit') && <><TGrip />
         <UndoRedoButton kind="undo" />
         <UndoRedoButton kind="redo" />
         <TSep />
-        <Btn icon="recompute" title="Refresh: re-run the checks" cmd="Std_Refresh" active={busy.includes('check')} onClick={runCheck} /></>}
+        <Btn icon="recompute" cmd="Std_Refresh" active={busy.includes('check')} onClick={runCheck} /></>}
       {on('Clipboard') && <><TGrip />
-        <Btn icon="edit-cut" title="Removes the selection and copies it to the clipboard" disabled onClick={() => {}} />
-        <Btn icon="edit-copy" title="Copies the selection to the clipboard" cmd="Std_Copy" disabled={!selected.length} onClick={copySelection} />
-        <Btn icon="edit-paste" title="Pastes the contents of the clipboard" disabled onClick={() => {}} /></>}
+        <Btn icon="edit-cut" title={FC_TIPS.Std_Cut[1]} tip={{ head: FC_TIPS.Std_Cut[0], shown: 'Std_Cut', key: nativeText(PARITY_KEYS.Std_Cut) }} disabled onClick={() => {}} />
+        <Btn icon="edit-copy" cmd="Std_Copy" disabled={!selected.length} onClick={copySelection} />
+        <Btn icon="edit-paste" title={FC_TIPS.Std_Paste[1]} tip={{ head: FC_TIPS.Std_Paste[0], shown: 'Std_Paste', key: nativeText(PARITY_KEYS.Std_Paste) }} disabled onClick={() => {}} /></>}
       {on('Workbench') && <><TGrip />{wbPrefs.selector === 'TabBar' ? (
         // WorkbenchTabWidget: one tab per workbench, styled by WorkbenchSelectorItem.
         <span className="wb-tabs" role="tablist">{workbenchList().map(([k, w], i) => (
           <button key={k} role="tab" className={cls('wb-tab', wb === k && 'sel')} title={`${w.label} (W, ${i + 1})`} onClick={() => setState({ workbench: k })}>
             {wbPrefs.itemStyle !== 2 && <Icon name={w.icon} size={16} />}{wbPrefs.itemStyle !== 1 && w.label}</button>))}</span>
-      ) : <label className="wb" title="Switch workbench">
+      ) : <label className="wb" title="Switches between workbenches">
         {wbPrefs.itemStyle !== 2 && <Icon name={WORKBENCHES[wb].icon} size={20} />}
         <QComboBox value={wb} onChange={(e) => setState({ workbench: e.target.value as Workbench })}>
           {workbenchList().map(([k, w]) => <option key={k} value={k}>{w.label}</option>)}
@@ -795,52 +814,54 @@ export function ToolBar() {
       {on('Macro') && <><TGrip />
         {macroEntries().filter((e) => e !== 'sep' && /^(Record Macro|Stop Macro Recording|Macros|Execute Macro)/.test(e.label)).map((e, i) => <EntryBtn key={i} e={e} />)}</>}
       {on('View') && <><TGrip />
-        <Btn icon="fit-all" title="Fit all (V, F)" cmd="Std_ViewFitAll" onClick={() => getView()?.fitAll()} />
-        <Btn icon="fit-sel" title="Fit selection (V, S)" cmd="Std_ViewFitSelection" disabled={!selected.length} onClick={() => getView()?.fitAll(selected)} />
-        <DropButton icon="views" title="Standard Views" entries={() => [...axonometric(), 'sep', { label: 'Home', kbd: '↖', icon: 'home', cmd: 'Std_ViewHome', onSelect: viewHome }, ...sixViews()]} />
-        <Btn icon="align" title="Align to selection: look at the selected face" cmd="Std_AlignToSelection" disabled={!(selected.length || subSel.length)} onClick={alignToSelection} />
+        <Btn icon="fit-all" cmd="Std_ViewFitAll" onClick={() => getView()?.fitAll()} />
+        <Btn icon="fit-sel" cmd="Std_ViewFitSelection" disabled={!selected.length} onClick={() => getView()?.fitAll(selected)} />
+        {/* Std_ViewGroup's button shows its default action, Isometric, without the shortcut (StdCmdViewGroup) */}
+        <DropButton icon="views" cmd="Std_ViewIsometric" tip={{ shown: 'Std_ViewIsometric (Std_ViewGroup:0)', key: '' }} entries={() => [...axonometric(), 'sep', { label: 'Home', kbd: '↖', icon: 'home', cmd: 'Std_ViewHome', onSelect: viewHome }, ...sixViews()]} />
+        <Btn icon="align" cmd="Std_AlignToSelection" disabled={!(selected.length || subSel.length)} onClick={alignToSelection} />
         <TSep />
         <DrawStyleButton />
         <SelectFilterButton />
         <TSep />
-        <Btn icon="measure" title="Measure: faces, edges, vertices, or two parts" cmd="Std_Measure" disabled={!canMeasure()} onClick={measure} />
-        <Btn icon="mass" title="Mass Properties" cmd="Std_MassProperties" disabled={!selected.length} onClick={massProperties} /></>}
+        <Btn icon="measure" cmd="Std_Measure" disabled={!canMeasure()} onClick={measure} />
+        <Btn icon="mass" cmd="Std_MassProperties" disabled={!selected.length} onClick={massProperties} /></>}
       {on('Individual Views') && <><TGrip />
-        {VIEWS.map(([d, label, key, cmd]) => <Btn key={d} icon={d} title={`${label} (${key})`} cmd={cmd} onClick={() => getView()?.viewDir(d)} />)}</>}
+        {VIEWS.map(([d, , , cmd]) => <Btn key={d} icon={d} cmd={cmd} onClick={() => getView()?.viewDir(d)} />)}</>}
       {on('Structure') && <><TGrip />
-        <Btn icon="std-part" title={`New Part — ${na}`} disabled onClick={() => {}} />
-        <Btn icon="std-group" title={`New Group — ${na}`} disabled onClick={() => {}} />
-        <Btn icon="link" title={`Link Actions — ${na}`} disabled onClick={() => {}} />
-        <Btn icon="varset" title={`Variable Set — ${na}`} disabled onClick={() => {}} /></>}
+        {/* FreeCAD's tooltips, with the reason they are off here after them; Link Actions shows its default, Make Link */}
+        <Btn icon="std-part" title={`${FC_TIPS.Std_Part[1]} — ${na}`} tip={{ head: FC_TIPS.Std_Part[0], shown: 'Std_Part' }} disabled onClick={() => {}} />
+        <Btn icon="std-group" title={`${FC_TIPS.Std_Group[1]} — ${na}`} tip={{ head: FC_TIPS.Std_Group[0], shown: 'Std_Group' }} disabled onClick={() => {}} />
+        <Btn icon="link" title={`${FC_TIPS.Std_LinkMake[1]} — ${na}`} tip={{ head: FC_TIPS.Std_LinkMake[0], shown: 'Std_LinkMake (Std_LinkActions:0)' }} disabled onClick={() => {}} />
+        <Btn icon="varset" title={`${FC_TIPS.Std_VarSet[1]} — ${na}`} tip={{ head: FC_TIPS.Std_VarSet[0], shown: 'Std_VarSet' }} disabled onClick={() => {}} /></>}
       {on('Help') && <><TGrip />
-        <Btn icon="whats-this" title="What's This?" cmd="Std_WhatsThis" onClick={whatsThis} /></>}
+        <Btn icon="whats-this" cmd="Std_WhatsThis" onClick={whatsThis} /></>}
       {/* ToolBarManager: the workbench's own toolbars start a new row (QMainWindow::addToolBarBreak). */}
       <span className="tb-break" />
       {wb === 'agent' && on('CAD Agent') && <><TGrip />
-        <Btn icon="recompute" title="Check: run every gate and write checks.json" cmd="CADAgent_Check" disabled={!slug} onClick={() => openTask('check', '')} />
-        <Btn icon="pass" title="Verify: rebuild from source in a fresh process and run every gate" cmd="CADAgent_Verify" disabled={!slug} onClick={() => openTask('verify', '')} />
-        <Btn icon="pending" title="Done gate: whether the last verify still stands" cmd="CADAgent_Done" disabled={!slug} onClick={() => openTask('done', '')} />
+        <Btn icon="recompute" title="Run every gate and write checks.json" cmd="CADAgent_Check" disabled={!slug} onClick={() => openTask('check', '')} />
+        <Btn icon="pass" title="Rebuild from source in a fresh process and run every gate" cmd="CADAgent_Verify" disabled={!slug} onClick={() => openTask('verify', '')} />
+        <Btn icon="pending" title="Whether the last verify still stands" cmd="CADAgent_Done" disabled={!slug} onClick={() => openTask('done', '')} />
         <TSep />
-        <Btn icon="report" title="Tables: hole sizes, tap drills, insert bores, extrusions, densities" cmd="CADAgent_Tables" onClick={() => openTask('tables', '')} />
-        <Btn icon="body" title="Tool envelope: generate a tool envelope and measure it" cmd="CADAgent_ToolEnvelope" onClick={() => openTask('tool', '')} />
-        <Btn icon="bought" title="Bought parts: vendor STEP or measured, always with a source" cmd="CADAgent_Bought" disabled={!slug} onClick={() => openTask('bought', '')} />
-        <Btn icon="library" title="Library: vendor and generated parts to copy into the project's bought/" cmd="CADAgent_Library" onClick={() => openTask('library', '')} />
+        <Btn icon="report" title="Hole sizes, tap drills, insert bores, extrusions, densities" cmd="CADAgent_Tables" onClick={() => openTask('tables', '')} />
+        <Btn icon="body" title="Generate a tool envelope and measure it" cmd="CADAgent_ToolEnvelope" onClick={() => openTask('tool', '')} />
+        <Btn icon="bought" title="Vendor STEP or measured, always with a source" cmd="CADAgent_Bought" disabled={!slug} onClick={() => openTask('bought', '')} />
+        <Btn icon="library" title="Vendor and generated parts to copy into the project's bought/" cmd="CADAgent_Library" onClick={() => openTask('library', '')} />
         <TSep />
-        <Btn icon="bom" title="Bill of Materials: kind, material, process, vendor, part number, mass" cmd="CADAgent_Bom" disabled={!slug} onClick={() => openTask('bom', '')} />
-        <Btn icon="export" title="Shop files: DXF, 3MF, STL, STEP, drawings and the BOM, in out/shop/" cmd="CADAgent_Shop" disabled={!slug} onClick={() => openTask('shop', '')} />
-        <Btn icon="drawing" title="Drawing: a dimensioned DXF, SVG and PDF of the selected plate" cmd="CADAgent_Drawing" disabled={!slug} onClick={() => openTask('drawing', selectedPart())} />
+        <Btn icon="bom" title="Kind, material, process, vendor, part number, mass" cmd="CADAgent_Bom" disabled={!slug} onClick={() => openTask('bom', '')} />
+        <Btn icon="export" title="DXF, 3MF, STL, STEP, drawings and the BOM, in out/shop/" cmd="CADAgent_Shop" disabled={!slug} onClick={() => openTask('shop', '')} />
+        <Btn icon="drawing" title="A dimensioned DXF, SVG and PDF of the selected plate" cmd="CADAgent_Drawing" disabled={!slug} onClick={() => openTask('drawing', selectedPart())} />
         <TSep />
         <Btn icon="shot" title="Render a part, or the assembly, to a PNG" cmd="CADAgent_Render" disabled={!slug} onClick={() => openTask('render', '')} />
-        <DropButton icon="pose" title="Pose: show the machine at one of assembly.py's POSES (the view only)" entries={poseEntries} />
+        <DropButton icon="pose" title="Show the machine at one of assembly.py's POSES (the view only)" cmd="CADAgent_Pose" tip={{ head: 'Pose' }} entries={poseEntries} />
         <TSep />
-        <Btn icon="help" title="Rules: every registered check and what it verifies" cmd="CADAgent_Rules" onClick={() => openTask('rules', '')} />
+        <Btn icon="help" title="Every registered check and what it verifies" cmd="CADAgent_Rules" onClick={() => openTask('rules', '')} />
       </>}
       {on('Part Tools') && <><TGrip />
-        <Btn icon="visibility" title="Toggle visibility (Space)" cmd="Std_ToggleVisibility" disabled={!selected.length} onClick={() => toggleVisibility()} />
-        {wb === 'design' && <Btn icon="body" title="Toggle edit mode: the part's parameters" cmd="Std_Edit" disabled={!one} onClick={() => one && editDefault(one)} />}
-        {wb !== 'inspection' && <Btn icon="transform" title="Transform: drag the part" cmd="Std_TransformManip" disabled={!one} onClick={() => one && openTask('transform', one)} />}
-        {wb !== 'inspection' && <Btn icon="placement" title="Placement: type the move" cmd="Std_Placement" disabled={!one} onClick={() => one && openTask('placement', one)} />}
-        {wb === 'inspection' && <Btn icon="pass" title="Verify (fresh rebuild)" cmd="CADAgent_Verify" active={busy.includes('verify')} onClick={runVerify} />}
+        <Btn icon="visibility" cmd="Std_ToggleVisibility" disabled={!selected.length} onClick={() => toggleVisibility()} />
+        {wb === 'design' && <Btn icon="body" cmd="Std_Edit" disabled={!one} onClick={() => one && editDefault(one)} />}
+        {wb !== 'inspection' && <Btn icon="transform" cmd="Std_TransformManip" disabled={!one} onClick={() => one && openTask('transform', one)} />}
+        {wb !== 'inspection' && <Btn icon="placement" cmd="Std_Placement" disabled={!one} onClick={() => one && openTask('placement', one)} />}
+        {wb === 'inspection' && <Btn icon="pass" title="Rebuild from source in a fresh process and run every gate" cmd="CADAgent_Verify" active={busy.includes('verify')} onClick={runVerify} />}
       </>}
       {/* Tools > Customize > Toolbars: the user's toolbars for this workbench and the Global ones. */}
       {customToolbars.filter((t) => t.active && (t.wb === 'Global' || t.wb === wb)).map((t, k) => (
@@ -850,8 +871,8 @@ export function ToolBar() {
           if (!cmd) return null
           const m = macroCommands.find((x) => x.name === c)
           const icon = m ? (m.pixmap as IconName) || null : cmdIcon(c)
-          const tip = m?.toolTip || cmd.label()
-          return icon ? <Btn key={i} icon={icon} title={tip} cmd={c} disabled={!cmd.isEnabled()} onClick={() => cmd.run([])} />
+          const tip = m ? m.toolTip || m.menuText : FC_TIPS[c]?.[1] ?? cmd.label()
+          return icon ? <Btn key={i} icon={icon} title={tip} cmd={c} tip={{ head: m?.menuText || cmd.label() }} disabled={!cmd.isEnabled()} onClick={() => cmd.run([])} />
             : <button key={i} className="tb-btn tb-text" title={tip} disabled={!cmd.isEnabled()} onClick={() => recordAndRun(c, () => cmd.run([]))}>{cmd.label()}</button>
         })}</span>))}
     </div>

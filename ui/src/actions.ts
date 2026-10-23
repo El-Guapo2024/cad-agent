@@ -10,6 +10,8 @@
 //   src/Gui/Workbench.cpp: 2004 Werner Mayer
 //   src/Gui/Dialogs/DlgUndoRedo.cpp: 2004 Werner Mayer
 //   src/Mod/Part/Gui/CommandFilter.cpp: 2002 Jürgen Riegel
+//   src/Gui/Document.cpp: 2004 Jürgen Riegel
+//   src/Gui/MDIView.cpp: 2007 Werner Mayer
 //   No copyright line in the file: src/Gui/PreferencePages/DlgSettingsGeneral.ui
 import type { DockviewApi } from 'dockview-react'
 import { api, resultText, type Body, type CadResult, type GuiState, type Placement, type Vec3 } from './api'
@@ -418,8 +420,16 @@ function titleView() {
   // as FreeCAD's own MDI area sits empty with no document open until one is opened again.
   if (dock && !dock.getPanel('view3d')) { dock.addPanel({ id: 'view3d', component: 'view3d', title: '3D view' }); windowChanged() }
   const slug = getState().slug
-  dock?.getPanel('view3d')?.api.setTitle(slug ? `${slug} : 1` : '3D view')
+  // Document::setModified → MDIView::setWindowModified: the title is "name : 1[*]" (Document.cpp's createView) and
+  // the tab shows "*" for the "[*]" while the document is modified. Every edit here is already in the files, so
+  // modified means what a FreeCAD Save would change: the design changed since `cad verify` recorded it.
+  const view = dock?.getPanel('view3d'), title = slug ? `${slug} : 1${isModified() ? '*' : ''}` : '3D view'
+  if (view && view.api.title !== title) view.api.setTitle(title)
 }
+/** The project's design changed since its last verify (verify.py's status reasons), FreeCAD's Document::isModified here. */
+export const isModified = () => !!getState().status?.reasons.includes('the design changed since it was verified')
+let lastStatus: unknown = null
+subscribe(() => { if (getState().status !== lastStatus) { lastStatus = getState().status; titleView() } })
 /** Windows menu (Workbench.cpp's "&Windows"): this UI has exactly one document window, the 3D
  *  view tab, so Std_ActivateNextWindow/PrevWindow/TileWindows/CascadeWindows (which need two or
  *  more) stay disabled; Close and Close All both just close that one tab, as FreeCAD closes the

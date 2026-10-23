@@ -538,6 +538,14 @@ button, select, input { font: inherit; color: inherit; }
   background-color: var(--primary); border: 2px solid var(--border); border-radius: 5px; padding: 6px 7px;
   font: inherit; font-size: 11px; font-weight: normal; color: var(--text); white-space: pre-line; line-height: 13px;
   pointer-events: none; user-select: none; }
+/* A command's tooltip, Action::createToolTip's rich text: <p style='white-space:pre; margin-bottom:0.5em;'><b>title</b>
+   (shortcut)</p>, the help text in a white-space:pre paragraph (a long one's rest after it, wrapping at the width the
+   paragraphs set), and <p style='white-space:pre; margin-top:0.5em;'><i>Std_Name</i></p> */
+.fc-tooltip--rich { white-space: normal; max-width: none; }
+.fc-tooltip--rich p { margin: 0; white-space: pre; }
+.fc-tooltip--rich .tt-head { margin-bottom: 0.5em; }
+.fc-tooltip--rich .tt-cmd { margin-top: 0.5em; }
+.fc-tooltip--rich .tt-rest { width: 0; min-width: 100%; }
 /* QStatusBar QToolTip: a 1 px border (the rest of QToolTip's rule still applies), slightly see-through */
 .fc-tooltip--statusbar { border-width: 1px; opacity: 0.902; }
 
@@ -878,6 +886,9 @@ input[type=range]:disabled::-webkit-slider-runnable-track { background: var(--da
 .dock .dv-groupview.mdi .dv-tabs-and-actions-container { padding: 0; border-bottom: none; }
 .dock .dv-groupview.mdi .dv-tab { padding: 0 4px; border: 1px solid var(--border); border-radius: 0 0 3px 3px; margin-right: 0; }
 .dock .dv-groupview.mdi .dv-tab.dv-active-tab { border-top-color: var(--tab-active); }
+/* The window's icon before its title (QTabBar::tabIcon, 16 px: App.tsx's Tab) */
+.dock .dv-groupview.mdi .dv-default-tab[data-icon]::before { content: ''; flex: none; width: 16px; height: 16px; margin-right: 4px;
+  background: var(--tab-icon) center / 16px no-repeat; }
 .tb-break { flex-basis: 100%; height: 0; }
 
 /* Tabified docks (QMainWindow): the current dock's title bar on top, the tabs at the bottom. */

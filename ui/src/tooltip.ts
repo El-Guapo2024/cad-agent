@@ -2,6 +2,7 @@
 // Follows FreeCAD (https://github.com/FreeCAD/FreeCAD, commit 3160daf1e2b6), copyright of the files below (each is
 // LGPL-2.0-or-later or LGPL-2.1-or-later as it states; ui/NOTICE has them all):
 //   No copyright line in the file: src/Gui/Stylesheets/FreeCAD.qss
+//   src/Gui/Action.cpp: 2004 Werner Mayer
 // Global QToolTip-style tooltip layer. Every element in this app that sets a native `title`
 // attribute (hundreds of call sites) currently gets the OS/browser's own tooltip bubble. FreeCAD
 // uses Qt's QToolTip, styled by FreeCAD.qss (freecad.css has the CSS this renders with, under
@@ -26,6 +27,10 @@
 //   - plain text, line breaks preserved, long lines still wrap;
 //   - auto-hides after 10000ms + 40ms per character beyond 100;
 //   - hidden on leaving the element, mouse press, wheel/scroll, or a key press.
+//
+// A command's tooltip (a host with `data-tip-head`, chrome.tsx's toolbar buttons) is Action::createToolTip's rich
+// text: the menu text in bold with the shortcut after it, the help text (its `title`), and the command's name in
+// italics, as the real toolbars show it (fctips.ts has FreeCAD's texts).
 //
 // `.statusbar` (chrome.tsx's <StatusBar>) gets the QStatusBar QToolTip variant (thinner border, no
 // padding override, slightly transparent) via the .fc-tooltip--statusbar modifier class.
@@ -90,6 +95,61 @@ function currentText(host: Element): string {
   return host.getAttribute(STOLEN_TITLE_ATTR) ?? ''
 }
 
+/** QFontMetrics(action->font()).horizontalAdvance: the width of `text` in the application font (body's). */
+let measureCtx: CanvasRenderingContext2D | null = null
+function advance(text: string): number {
+  measureCtx ??= document.createElement('canvas').getContext('2d')
+  if (!measureCtx) return 0
+  measureCtx.font = getComputedStyle(document.body).font
+  return measureCtx.measureText(text).width
+}
+
+/** Action::cleanTitle: a mnemonic's & dropped. */
+export const cleanTitle = (title: string) => title.replace(/&(.)/g, '$1')
+
+/** Action::createToolTip (Action.cpp 315-407): `<p style='white-space:pre; margin-bottom:0.5em;'><b>title</b> (shortcut)</p>`,
+ *  the help text, and `<p style='white-space:pre; margin-top:0.5em;'><i>Std_Name</i></p>`. The help text is one
+ *  non-wrapping paragraph when it is at most 400 px wide in the action's font; a longer one is cut at the first space
+ *  after its first 400 px' worth of characters, and what follows wraps at the width the paragraphs above set
+ *  (`.tt-rest`). Returns null when there is no title, and the tooltip is then the plain help text. */
+export function commandToolTip(helpText: string, title: string, shortCut: string, cmdName: string): DocumentFragment | null {
+  const text = cleanTitle(title)
+  if (!text) return null
+  const p = (cls: string, ...kids: (Node | string)[]) => { const e = document.createElement('p'); e.className = cls; e.append(...kids); return e }
+  const el = (tag: string, s: string) => { const e = document.createElement(tag); e.textContent = s; return e }
+  let help = helpText
+  if (shortCut && help.endsWith(shortCut)) help = help.slice(0, help.length - shortCut.length)
+  const shortcut = shortCut ? ` (${shortCut})` : ''
+  const out = document.createDocumentFragment()
+  out.append(p('tt-head', el('b', text), shortcut))
+  const cmd = cmdName ? p('tt-cmd', el('i', cmdName)) : null
+  if (!help || help === text || help === title) { if (cmd) out.append(cmd); return out }
+  if (help.includes('\n')) out.append(p('tt-pre', help))
+  else {
+    const tipWidth = 400, width = advance(help)
+    if (width <= tipWidth) out.append(p('tt-pre', help))
+    else {
+      let index = Math.trunc((tipWidth / width) * help.length)
+      for (let i = 0; i < 50 && index < help.length; ++i, ++index) if (help[index] === ' ') break
+      const rest = document.createElement('div')
+      rest.className = 'tt-rest'
+      rest.textContent = help.slice(index).trim()
+      out.append(p('tt-pre', help.slice(0, index)), rest)
+    }
+  }
+  if (cmd) out.append(cmd)
+  return out
+}
+
+/** Fills the tooltip with the host's text: a command's rich tooltip, or the plain `title`. */
+function fill(el: HTMLElement, host: Element, text: string) {
+  const head = host.getAttribute('data-tip-head')
+  const rich = head ? commandToolTip(text, head, host.getAttribute('data-tip-key') ?? '', host.getAttribute('data-tip-cmd') ?? '') : null
+  el.classList.toggle('fc-tooltip--rich', !!rich)
+  if (rich) el.replaceChildren(rich)
+  else el.textContent = text
+}
+
 function isStatusBar(host: Element): boolean {
   return host.closest('.statusbar') != null
 }
@@ -109,7 +169,7 @@ function onHostTitleMutated() {
     currentHost.setAttribute(STOLEN_TITLE_ATTR, fresh)
     currentHost.removeAttribute('title')
     if (tooltipEl && tooltipEl.style.display !== 'none') {
-      tooltipEl.textContent = fresh
+      fill(tooltipEl, currentHost, fresh)
       position()
       scheduleAutoHide(fresh)
     }
@@ -144,7 +204,7 @@ function show(host: Element) {
   const text = currentText(host)
   if (!text) { hide(); return }
   const el = ensureTooltipEl()
-  el.textContent = text
+  fill(el, host, text)
   el.classList.toggle('fc-tooltip--statusbar', isStatusBar(host))
   el.style.display = 'block'
   position()
