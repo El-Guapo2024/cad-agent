@@ -22,6 +22,12 @@ that commit.
                            version. ui/LICENSE is the text, ui/NOTICE names the FreeCAD files and
                            authors it follows, and every file in ui/src starts with an SPDX line.
 
+  LGPL-2.1-or-later        tests/golden/expr/engine.mjs: the formula engine of ui/src (expr.ts and
+  (a copy for a test)      what it uses) bundled for Node, so that tests/test_expr_parity.py can run
+                           without the UI's node_modules. It carries the SPDX line, and ui/NOTICE names
+                           the FreeCAD files it follows. tests/golden/expr/cases.json, the answers of
+                           the real FreeCAD to a sample of expressions, is data.
+
   LGPL-2.1-or-later        cad_agent/geom.py, the function mass_properties and what is inside it
   (inside an MIT file)     (the rest of geom.py is MIT).
 

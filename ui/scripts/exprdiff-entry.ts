@@ -1,28 +1,56 @@
 // SPDX-License-Identifier: LGPL-2.1-or-later
-// What scripts/exprdiff.py runs through Node: our evaluator on an expression, the answer written the way scripts/exprdiff_fc.py
-// writes FreeCAD's (exprdiff.py describes the form: {t:'quantity', v, dims}, {t:'int', v:'3'}, {t:'str', v}, {t:'list', v:[...]},
-// or {error, etype}; nan, inf and -0.0 as strings).
-//
-// This entry is for src/expr.ts as it stands: its answers are Quantities only, so run exprdiff.py with --loose (numbers and units;
-// an error where FreeCAD answers, or an answer where FreeCAD raises, still counts). Once the evaluator gives Python values (ints,
-// floats, strings, lists ...) make run() describe them all in that form, name the exception classes FreeCAD raises in etype, and
-// leave --loose out. The properties are those of exprdiff_cases.PROPERTIES (the answers file records them): the ones a Quantity holds.
-import { evaluate } from '../src/expr'
-import type { Dims } from '../src/units-data'
+// What scripts/exprdiff.py runs through Node: our evaluator on an expression, the answer written the way
+// scripts/exprdiff_fc.py writes FreeCAD's. The owner's properties are those exprdiff_cases.PROPERTIES lists (the answers file records them).
+import { evaluateValue, PyError, type PyVal } from '../src/expr'
+import { QUIRKS } from '../src/expr-py'
+import { QuantityError } from '../src/quantity'
 
-const Z: Dims = [0, 0, 0, 0, 0, 0, 0, 0]
-const L: Dims = [1, 0, 0, 0, 0, 0, 0, 0]
-const ENV = {
-  pLen: { value: 10, dims: L }, pWid: { value: 20, dims: L }, pAng: { value: 30, dims: [0, 0, 0, 0, 0, 0, 0, 1] as Dims },
-  pMass: { value: 2, dims: [0, 1, 0, 0, 0, 0, 0, 0] as Dims }, pCnt: { value: 3, dims: Z }, pRat: { value: 0.5, dims: Z },
+// FreeCAD's integer-valued numbers above 2^31 come out as -2147483648 (a cast in essentiallyInteger); the comparison
+// wants every other answer to agree, so it switches that on.
+QUIRKS.int32Cast = true
+
+const L = [1, 0, 0, 0, 0, 0, 0, 0] as const
+const env = {
+  vars: {
+    pLen: { t: 'qty', q: { value: 10, dims: [...L] } },
+    pWid: { t: 'qty', q: { value: 20, dims: [...L] } },
+    pAng: { t: 'qty', q: { value: 30, dims: [0, 0, 0, 0, 0, 0, 0, 1] } },
+    pMass: { t: 'qty', q: { value: 2, dims: [0, 1, 0, 0, 0, 0, 0, 0] } },
+    pCnt: { t: 'int', v: 3n },
+    pRat: { t: 'float', v: 0.5 },
+    pStr: { t: 'str', v: 'abc' },
+    pOn: { t: 'bool', v: true },
+    pLong: { t: 'str', v: 'abcdefghij' },
+    pList: { t: 'list', v: ['a', 'b', 'c', 'd', 'e', 'f'].map((v) => ({ t: 'str', v })) },
+  } as Record<string, PyVal>,
+  owner: 'Obj',
+  doc: 'T',
 }
-const enc = (x: number) => (Number.isNaN(x) ? 'nan' : x === Infinity ? 'inf' : x === -Infinity ? '-inf' : Object.is(x, -0) ? '-0.0' : x)
 
-export function run(text: string) {
+const enc = (x: number): number | string => (Number.isNaN(x) ? 'nan' : x === Infinity ? 'inf' : x === -Infinity ? '-inf' : Object.is(x, -0) ? '-0.0' : x)
+
+type Described = Record<string, unknown>
+export function describe(r: PyVal): Described {
+  switch (r.t) {
+    case 'none': return { t: 'none' }
+    case 'bool': return { t: 'bool', v: r.v }
+    case 'int': return { t: 'int', v: r.v.toString() }
+    case 'float': return { t: 'float', v: enc(r.v) }
+    case 'complex': return { t: 'complex', re: enc(r.re), im: enc(r.im) }
+    case 'str': return { t: 'str', v: r.v }
+    case 'qty': return { t: 'quantity', v: enc(r.q.value), dims: [...r.q.dims] }
+    case 'list': case 'tuple': return { t: r.t, v: r.v.map(describe) }
+    case 'obj': return { t: 'other', type: r.type, str: r.str }
+    case 'vector': return { t: 'vector', v: r.v.map(enc) }
+  }
+}
+
+export function run(text: string): Described {
   try {
-    const q = evaluate(text, ENV)
-    return { t: 'quantity', v: enc(q.value), dims: q.dims }
+    return describe(evaluateValue(text, env))
   } catch (e) {
-    return { error: (e as Error).message, etype: (e as Error).constructor.name }
+    if (e instanceof PyError) return { error: e.message, etype: e.etype }
+    if (e instanceof QuantityError) return { error: e.message, etype: 'QuantityError' }
+    return { error: `${(e as Error).name}: ${(e as Error).message}`, etype: 'Crash' }
   }
 }

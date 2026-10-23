@@ -26,21 +26,24 @@ them carry.
   Chris Hennes: Gui/PreferencePages/DlgSettingsWorkbenchesImp.cpp
   David Friedli: Mod/Measure/Gui/TaskMeasure.cpp, Mod/Measure/Gui/ViewProviderMeasureAngle.cpp,
       Mod/Measure/Gui/ViewProviderMeasureBase.cpp, Mod/Measure/Gui/ViewProviderMeasureDistance.cpp
-  Eivind Kvedalen: App/Expression.cpp, App/Expression.l, App/Expression.y,
+  Eivind Kvedalen: App/Expression.cpp, App/Expression.l, App/Expression.y, App/ObjectIdentifier.cpp,
       Gui/Dialogs/DlgExpressionInput.cpp, Gui/ExpressionCompleter.cpp
   FreeCAD contributors: Gui/Selection/SelectionColors.h
   FreeCAD Project Association: Gui/CommandStd.cpp, Gui/Dialogs/DlgPreferencesImp.cpp,
       Gui/PreferencePages/DlgSettingsGeneral.cpp, Gui/PreferencePages/DlgSettingsWorkbenchesImp.cpp
+  Imetric 3D GmbH: Base/Vector3D.cpp
   Joao Matos: Gui/Inventor/SoFCBackgroundGradient.cpp, Gui/Inventor/SoNaviCube.cpp,
       Gui/NaviCube.cpp, Gui/View3DInventorViewer.cpp
-  Jürgen Riegel: App/Expression.l, App/Expression.y, App/GeoFeature.cpp, Base/Quantity.cpp, Base/Quantity.l,
-      Base/Quantity.y, Base/UnitsApi.cpp, Gui/Command.cpp, Gui/CommandDoc.cpp, Gui/CommandStd.cpp,
+  Jürgen Riegel: App/Expression.l, App/Expression.y, App/GeoFeature.cpp, Base/Exception.cpp,
+      Base/Quantity.cpp, Base/Quantity.l, Base/Quantity.y, Base/QuantityPyImp.cpp,
+      Base/UnitsApi.cpp, Gui/Command.cpp, Gui/CommandDoc.cpp, Gui/CommandStd.cpp,
       Gui/CommandView.cpp, Gui/Dialogs/DlgParameterImp.cpp, Gui/Dialogs/DlgPreferencesImp.cpp,
-      Gui/Dialogs/DlgUnitsCalculatorImp.cpp, Gui/Macro.cpp, Gui/PreferencePages/DlgSettings3DViewImp.cpp,
-      Gui/PreferencePages/DlgSettingsDocumentImp.cpp, Gui/PreferencePages/DlgSettingsMacroImp.cpp,
-      Gui/PreferencePages/DlgSettingsNavigation.cpp, Gui/Selection/Selection.cpp,
-      Gui/Selection/SelectionView.cpp, Gui/Tree.cpp, Gui/View3DInventorViewer.cpp, Gui/View3DPy.cpp,
-      Mod/Part/App/PartFeature.cpp, Mod/Part/Gui/CommandFilter.cpp, Mod/Sketcher/Gui/Workbench.cpp
+      Gui/Dialogs/DlgUnitsCalculatorImp.cpp, Gui/Macro.cpp,
+      Gui/PreferencePages/DlgSettings3DViewImp.cpp, Gui/PreferencePages/DlgSettingsDocumentImp.cpp,
+      Gui/PreferencePages/DlgSettingsMacroImp.cpp, Gui/PreferencePages/DlgSettingsNavigation.cpp,
+      Gui/Selection/Selection.cpp, Gui/Selection/SelectionView.cpp, Gui/Tree.cpp,
+      Gui/View3DInventorViewer.cpp, Gui/View3DPy.cpp, Mod/Part/App/PartFeature.cpp,
+      Mod/Part/Gui/CommandFilter.cpp, Mod/Sketcher/Gui/Workbench.cpp
   Kirill Gavrilov: Gui/Navigation/OpenCascadeNavigationStyle.cpp
   Kustaa Nyholm: Gui/NaviCube.cpp
   Loke S. Haugsnes: Mod/Measure/Gui/TaskMeasure.cpp
@@ -59,9 +62,10 @@ them carry.
   Victor Titov (DeepSOIC): Gui/Navigation/GestureNavigationStyle.cpp,
       Gui/Navigation/MayaGestureNavigationStyle.cpp, Gui/SoTouchEvents.cpp
   WandererFan: Mod/Measure/App/Preferences.cpp
-  Werner Mayer: Base/Rotation.cpp, Base/Tools.h, Gui/Action.cpp, Gui/Camera.cpp, Gui/Clipping.cpp,
-      Gui/CommandMacro.cpp, Gui/CommandWindow.cpp, Gui/DemoMode.cpp, Gui/Dialogs/DlgCustomizeImp.cpp,
-      Gui/Dialogs/DlgKeyboardImp.cpp, Gui/Dialogs/DlgUndoRedo.cpp, Gui/GraphvizView.cpp, Gui/ImageView.cpp,
+  Werner Mayer: Base/Rotation.cpp, Base/Tools.h, Base/VectorPyImp.cpp, Gui/Action.cpp,
+      Gui/Camera.cpp, Gui/Clipping.cpp, Gui/CommandMacro.cpp, Gui/CommandWindow.cpp,
+      Gui/DemoMode.cpp, Gui/Dialogs/DlgCustomizeImp.cpp, Gui/Dialogs/DlgKeyboardImp.cpp,
+      Gui/Dialogs/DlgUndoRedo.cpp, Gui/GraphvizView.cpp, Gui/ImageView.cpp,
       Gui/Inventor/SoFCBackgroundGradient.cpp, Gui/MainWindow.cpp, Gui/ManualAlignment.cpp,
       Gui/Navigation/BlenderNavigationStyle.cpp, Gui/Navigation/CADNavigationStyle.cpp,
       Gui/Navigation/InventorNavigationStyle.cpp, Gui/Navigation/NavigationStyle.cpp,
@@ -70,12 +74,13 @@ them carry.
       Gui/Navigation/TinkerCADNavigationStyle.cpp, Gui/Navigation/TouchpadNavigationStyle.cpp,
       Gui/Placement.cpp, Gui/PrefWidgets.cpp, Gui/PreferencePages/DlgSettingsCacheDirectory.cpp,
       Gui/PreferencePages/DlgSettingsEditor.cpp, Gui/PreferencePages/DlgSettingsGeneral.cpp,
-      Gui/PreferencePages/DlgSettingsLightSources.cpp, Gui/PreferencePages/DlgSettingsPythonConsole.cpp,
+      Gui/PreferencePages/DlgSettingsLightSources.cpp,
+      Gui/PreferencePages/DlgSettingsPythonConsole.cpp,
       Gui/PreferencePages/DlgSettingsReportView.cpp, Gui/PreferencePages/DlgSettingsSelection.cpp,
       Gui/PreferencePages/DlgSettingsUI.cpp, Gui/PreferencePages/DlgSettingsViewColor.cpp,
-      Gui/PythonConsole.cpp, Gui/QuantitySpinBox.cpp, Gui/SceneInspector.cpp, Gui/Selection/Selection.cpp,
-      Gui/TextEdit.cpp, Gui/View3DSettings.cpp, Gui/View3DSettings.h, Gui/Widgets.cpp, Gui/Workbench.cpp,
-      Gui/propertyeditor/PropertyEditor.cpp, Gui/resource.cpp,
+      Gui/PythonConsole.cpp, Gui/QuantitySpinBox.cpp, Gui/SceneInspector.cpp,
+      Gui/Selection/Selection.cpp, Gui/TextEdit.cpp, Gui/View3DSettings.cpp, Gui/View3DSettings.h,
+      Gui/Widgets.cpp, Gui/Workbench.cpp, Gui/propertyeditor/PropertyEditor.cpp, Gui/resource.cpp,
       Mod/Measure/Gui/ViewProviderMeasureDistance.cpp, Mod/PartDesign/Gui/Workbench.cpp
   Zheng Lei (realthunder): Gui/CommandCompleter.cpp, Gui/OverlayManager.cpp, Gui/OverlayParams.py,
       Gui/OverlayWidgets.cpp, Gui/OverlayWidgets.h, Gui/PreferencePages/DlgSettingsAdvanced.cpp,
@@ -91,7 +96,7 @@ licence applies.
 
 src/App/Expression.cpp   [licence: LGPL-2.1-or-later]
     copyright 2015 Eivind Kvedalen
-    followed by src/expr.ts
+    followed by src/expr-py.ts, src/expr.ts
 src/App/Expression.l   [licence: LGPL-2.1-or-later]
     copyright 2010 Jürgen Riegel
     copyright 2015 Eivind Kvedalen
@@ -99,37 +104,46 @@ src/App/Expression.l   [licence: LGPL-2.1-or-later]
 src/App/Expression.y   [licence: LGPL-2.1-or-later]
     copyright 2010 Jürgen Riegel
     copyright 2015 Eivind Kvedalen
-    followed by src/expr.ts
+    followed by src/expr-grammar.ts, src/expr.ts
 src/App/GeoFeature.cpp   [licence: LGPL-2.1-or-later]
     copyright 2002 Jürgen Riegel
     followed by src/viewer.ts
+src/App/ObjectIdentifier.cpp   [licence: LGPL-2.1-or-later]
+    copyright 2015 Eivind Kvedalen
+    followed by src/expr.ts
 src/App/QuantityInput.cpp   [licence: LGPL-2.1-or-later]
     copyright: no line in the file
     followed by src/expr.ts, src/quantity-input.ts
+src/Base/Exception.cpp   [licence: LGPL-2.1-or-later]
+    copyright 2002 Jürgen Riegel
+    followed by src/expr-py.ts
 src/Base/NumericFormatting.cpp   [licence: LGPL-2.1-or-later]
     copyright: no line in the file
     followed by src/quantity.ts
 src/Base/Quantity.cpp   [licence: LGPL-2.1-or-later]
     copyright 2013 Jürgen Riegel
-    followed by src/units-data.ts
+    followed by src/expr-py.ts, src/units-data.ts
 src/Base/Quantity.l   [licence: LGPL-2.1-or-later]
     copyright 2013 Jürgen Riegel
     followed by src/quantity.ts, src/units-data.ts
 src/Base/Quantity.y   [licence: LGPL-2.1-or-later]
     copyright 2013 Jürgen Riegel
     followed by src/quantity.ts
+src/Base/QuantityPyImp.cpp   [licence: LGPL-2.1-or-later]
+    copyright 2013 Jürgen Riegel
+    followed by src/expr-py.ts
 src/Base/Rotation.cpp   [licence: LGPL-2.1-or-later]
     copyright 2006 Werner Mayer
     followed by src/rotation.ts, src/viewer.ts
 src/Base/Tools.h   [licence: LGPL-2.1-or-later]
     copyright 2009 Werner Mayer
-    followed by src/rotation.ts
+    followed by src/expr.ts, src/rotation.ts
 src/Base/Unit.cpp   [licence: LGPL-2.1-or-later]
     copyright: no line in the file
-    followed by src/units-data.ts
+    followed by src/expr-py.ts, src/units-data.ts
 src/Base/Unit.h   [licence: LGPL-2.1-or-later]
     copyright: no line in the file
-    followed by src/quantity.ts
+    followed by src/expr-py.ts, src/quantity.ts
 src/Base/UnitsApi.cpp   [licence: LGPL-2.1-or-later]
     copyright 2009 Jürgen Riegel
     followed by src/superscript.ts
@@ -139,6 +153,12 @@ src/Base/UnitsConvData.h   [licence: LGPL-2.1-or-later]
 src/Base/UnitsSchemasData.h   [licence: LGPL-2.1-or-later]
     copyright: no line in the file
     followed by src/units-schemas.ts
+src/Base/Vector3D.cpp   [licence: LGPL-2.1-or-later]
+    copyright 2005 Imetric 3D GmbH
+    followed by src/expr.ts
+src/Base/VectorPyImp.cpp   [licence: LGPL-2.1-or-later]
+    copyright 2008 Werner Mayer
+    followed by src/expr-py.ts
 src/Gui/Action.cpp   [licence: LGPL-2.0-or-later]
     copyright 2004 Werner Mayer
     followed by src/chrome.tsx, src/freecad.css

@@ -29,6 +29,11 @@ jobs:
           cache: pip
           cache-dependency-path: pyproject.toml
 
+      # tests/test_expr_parity.py runs the workbench's formula engine, bundled for Node, against FreeCAD's recorded answers
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
       - name: Install
         run: |
           python -m venv .venv

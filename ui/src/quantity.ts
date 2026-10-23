@@ -265,13 +265,19 @@ export function formatFixed(v: number, decimals: number): string {
   return sign(v) + pointed(roundHalfEven(digits, exp, decimals), decimals)
 }
 
-/** Quantity::toNumber: a std::stringstream at setprecision(precision), std::fixed for Fixed and the
- *  default float format for Default — printf's %.*f and %.*g, of the double's exact binary value,
- *  ties to even. */
-export function toNumber(v: number, format: 'Fixed' | 'Default', precision: number): string {
+/** Quantity::toNumber: a std::stringstream at setprecision(precision), std::fixed for Fixed, std::scientific for
+ *  Scientific and the default float format for Default — printf's %.*f, %.*e and %.*g, of the double's exact binary
+ *  value, ties to even. */
+export function toNumber(v: number, format: 'Fixed' | 'Scientific' | 'Default', precision: number): string {
   if (!Number.isFinite(v)) return Number.isNaN(v) ? 'nan' : v < 0 ? '-inf' : 'inf'
   const { digits, exp } = exactDigits(v)
   if (format === 'Fixed') return sign(v) + pointed(roundHalfEven(digits, exp, precision), precision)
+  if (format === 'Scientific') {
+    let n = roundHalfEven(digits, exp, precision - exp), X = exp
+    if (n.toString().length > precision + 1) { X = exp + 1; n /= 10n } // rounding carried into a new digit: 9.99 → 10.0
+    const m = n.toString().padStart(precision + 1, '0')
+    return `${sign(v)}${m[0]}${precision ? '.' + m.slice(1) : ''}e${X < 0 ? '-' : '+'}${String(Math.abs(X)).padStart(2, '0')}`
+  }
   // %g: P significant digits; style f with P - 1 - X decimals if P > X >= -4, where X is the
   // exponent of the value rounded to P digits, else style e; trailing zeros removed.
   const P = precision || 1

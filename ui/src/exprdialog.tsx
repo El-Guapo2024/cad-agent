@@ -13,7 +13,7 @@
 // Tab or a click takes it (Tab with none chosen takes the first), Esc closes the list.
 import { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
-import { evaluate } from './expr'
+import { asQuantity, evaluateValue, resultText, type PyVal } from './expr'
 import { ContextMenu } from './chrome'
 import { userString, type Quantity } from './quantity'
 import type { Dims } from './units-data'
@@ -25,7 +25,9 @@ type Props = {
   text: string
   /** The unit the property wants (impliedUnit), or null for a plain number. */
   dims: Dims | null
-  vars: Record<string, Quantity>
+  vars: Record<string, Quantity | PyVal>
+  /** The name of the part the field belongs to: the object that owns the expression (it is in the messages). */
+  owner?: string
   /** NumberRange::throwIfOutOfRange, in the field's own internal unit. */
   min?: number
   max?: number
@@ -33,7 +35,7 @@ type Props = {
   onCancel(): void
 }
 
-export function ExpressionDialog({ at, text, dims, vars, min, max, onOk, onCancel }: Props) {
+export function ExpressionDialog({ at, text, dims, vars, owner, min, max, onOk, onCancel }: Props) {
   const [expr, setExpr] = useState(text)
   const area = useRef<HTMLTextAreaElement>(null)
   const [exact, setExact] = useState(false)
@@ -63,7 +65,11 @@ export function ExpressionDialog({ at, text, dims, vars, min, max, onOk, onCance
   let msg = '', bad = false, value: number | null = null
   if (expr.trim()) {
     try {
-      const q = evaluate(expr, vars)
+      const result = evaluateValue(expr, { vars, owner })
+      // checkExpression: what is not a number (a string, None, a list ...) is shown as the expression it becomes
+      // (result->toString()); a quantity field has no way to take it, so OK stays off.
+      if (result.t !== 'qty' && result.t !== 'int' && result.t !== 'float' && result.t !== 'bool') throw new Error(resultText(result))
+      const q = asQuantity(result)
       if (!Number.isFinite(q.value)) throw new Error('Not a Number')
       const unitless = q.dims.every((d) => d === 0)
       msg = userString(q).text

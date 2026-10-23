@@ -439,7 +439,7 @@ button, select, input { font: inherit; color: inherit; }
 .expr-comp > div { padding: 0 6px; cursor: default; } .expr-comp > div:hover { background: var(--accent-hover); } .expr-comp > .sel { background: var(--accent); color: #fff; }
 .expr-result { display: flex; gap: 8px; margin: 6px 0; min-height: 18px; }
 .expr-result > span:first-child { font-weight: 600; }
-.expr-msg { word-break: break-word; }
+.expr-msg { word-break: break-word; white-space: pre-line; }
 .expr-msg.bad { color: #ff0000; }
 .expr-buttons { display: flex; justify-content: flex-end; gap: 8px; }
 /* The property editor's QuantitySpinBox: frameless in the row, as FreeCAD's delegate makes it. */

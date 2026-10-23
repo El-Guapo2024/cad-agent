@@ -8,7 +8,7 @@
 // takes the unit the box shows; "1 in" and "2 m 3 cm" are read as quantities; anything with
 // + or - between terms is read as an expression, whose bare terms take the box's unit.
 import { parseQuantity, userString, QuantityError, type Quantity } from './quantity'
-import { applyDefaultUnit, evalNode, hasAdditive, parseExpr, rewriteOwnerless, type Node } from './expr'
+import { applyDefaultUnit, evalNode, hasAdditive, parseExpr, PyError, rewriteOwnerless, type Node } from './expr'
 import type { Dims } from './units-data'
 
 export type InputKind = 'IncompleteNumber' | 'InvalidNumber' | 'ExpressionSyntax' | 'Evaluation' | 'IncompatibleUnit' | 'OutOfRange' | 'MalformedGrouping'
@@ -57,7 +57,9 @@ function scanNumber(text: string, at: number): 'ok' | 'incomplete' | 'none' {
   return 'ok'
 }
 
-export type InputOptions = { dims: Dims; display: DisplayUnit; min?: number; max?: number; phase: 'editing' | 'commit'; vars?: Record<string, Quantity> }
+export type InputOptions = { dims: Dims; display: DisplayUnit; min?: number; max?: number; phase: 'editing' | 'commit'; vars?: Record<string, Quantity>
+  /** the part the field belongs to (the expression's owner) */
+  owner?: string }
 
 /** QuantitySpinBoxPrivate::interpretInput: the quantity grammar first; if that fails as a
  *  syntax error, the expression grammar. */
@@ -78,7 +80,7 @@ export function interpretInput(text: string, o: InputOptions): InputResult {
   }
   // Quantity grammar (Base::Quantity::parseUserInput); sums go to the expression grammar.
   let additive = false
-  try { additive = hasAdditive(parseExpr(text, new Set(Object.keys(vars)))) } catch { additive = false }
+  try { additive = hasAdditive(parseExpr(text, new Set(Object.keys(vars)), o.owner)) } catch { additive = false }
   if (!additive) {
     try { return finish(parseQuantity(text)) } catch (e) {
       if (e instanceof QuantityError && e.kind === 'mismatch') return invalid('IncompatibleUnit')
@@ -87,11 +89,12 @@ export function interpretInput(text: string, o: InputOptions): InputResult {
   }
   // Expression grammar, with the field's unit given to its bare terms.
   let tree
-  try { tree = rewriteOwnerless(parseExpr(text, new Set(Object.keys(vars)))) } catch { return invalid('ExpressionSyntax', first) }
+  // a text the grammar refuses is a syntax error (Base::ParserError); other exceptions of the parser (a number too big, a call with the wrong number of arguments) are failures to evaluate
+  try { tree = rewriteOwnerless(parseExpr(text, new Set(Object.keys(vars)), o.owner)) } catch (e) { return invalid(e instanceof PyError && e.etype !== 'ParserError' ? 'Evaluation' : 'ExpressionSyntax', first) }
   const unit = o.display.scale
-  if (!dimensionless(unit)) tree = applyDefaultUnit(tree, unit, vars)
+  if (!dimensionless(unit)) tree = applyDefaultUnit(tree, unit, vars, o.display.symbol)
   try {
-    let q = evalNode(tree, vars)
+    let q = evalNode(tree, vars, o.owner)
     if (dimensionless(q) && !dimensionless(unit)) q = { value: q.value * unit.value, dims: unit.dims }
     if (!Number.isFinite(q.value)) return invalid('Evaluation')
     return finish(q)
@@ -101,14 +104,24 @@ export function interpretInput(text: string, o: InputOptions): InputResult {
 }
 
 /** QuantitySpinBox::isNormalized: the text is the value as the schema writes it, or a plain
- *  (signed) number with or without a unit, which Enter leaves as typed. */
+ *  (signed) number with or without a unit, which Enter leaves as typed. The checks are the C++'s on
+ *  the expression classes: a NumberExpression is a number or a constant, and UnitExpression is
+ *  what a unit, a number, an operator, a function and a name all derive from. */
 export function isNormalized(text: string, shown: string): boolean {
   if (text === shown) return true
   try {
+    const isNumber = (x: Node) => x.k === 'num' || x.k === 'const'
+    const isUnitExpression = (x: Node) => x.k !== 'str' && x.k !== 'cond' && x.k !== 'range'
+    const isSign = (x: Node): x is Extract<Node, { k: 'neg' | 'pos' }> => x.k === 'neg' || x.k === 'pos'
     const n = parseExpr(text)
-    const withUnit = (x: Node) => x.k === 'op' && x.op === 'unit' && x.r.k === 'unit' && (x.l.k === 'num' || (x.l.k === 'neg' && x.l.a.k === 'num'))
-    if (n.k === 'num' || withUnit(n)) return true
-    if (n.k === 'neg') return n.a.k === 'num' || withUnit(n.a)
+    if (isNumber(n)) return true // plain numbers
+    if (n.k === 'op' && n.op === 'unit' && isUnitExpression(n.r) && isNumber(n.l)) return true // numbers without a sign, with a unit
+    if (!isSign(n)) return false
+    if (isNumber(n.a)) return true // numbers with a sign, without a unit
+    const inner = n.a
+    if (inner.k !== 'op' || inner.op !== 'unit' || !isUnitExpression(inner.r)) return false
+    if (isNumber(inner.l)) return true // numbers with a sign and a unit
+    return isSign(inner.l) && isNumber(inner.l.a)
   } catch { /* not a plain number */ }
   return false
 }

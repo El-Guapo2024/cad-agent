@@ -36,8 +36,11 @@ minified into one file, and --emit-fixture writes a few hundred of the cases wit
 runs the one through the other without vite or FreeCAD (ENGINE_SOURCES below lists what the bundle is made of, so the test can
 tell that it is stale).
 
---record and --fc need FreeCAD.app (FREECAD_APP overrides ~/.cad-agent/freecad/FreeCAD.app); it runs headless with its user
-files in a temporary folder, one process at a time.
+--record and --fc need FreeCAD.app (FREECAD_APP overrides ~/.cad-agent/freecad/FreeCAD.app; on Linux, point it at an unpacked
+AppImage's squashfs-root); it runs headless with its user files in a temporary folder, one process at a time. The stored
+answers come from the Mac's build; the Linux build of the same commit differs from them only where a message carries C
+library text (glibc's "Numerical result out of range" and "-nan" for macOS's "Result too large" and "nan"), so record
+on one system.
 """
 import argparse
 import gzip
@@ -66,9 +69,10 @@ LOCAL_PATH = re.compile(r"/(?:Users|home|private|var/folders)/[\w.-]")   # the s
 
 def freecadcmd():
     for name in ("freecadcmd", "FreeCADCmd"):
-        p = APP / "Contents" / "Resources" / "bin" / name
-        if p.exists():
-            return p
+        for bin_dir in (APP / "Contents" / "Resources" / "bin", APP / "usr" / "bin", APP / "bin"):   # the Mac's app, an unpacked AppImage
+            p = bin_dir / name
+            if p.exists():
+                return p
     sys.exit(f"exprdiff: no freecadcmd in {APP} (set FREECAD_APP): --record and --fc need FreeCAD")
 
 
@@ -357,6 +361,10 @@ def answer_shape(f):
     return ("V", f["t"], tuple(f["dims"]) if f["t"] == "quantity" else None)
 
 
+# Cases the sample always holds: tests/test_expr_parity.py looks them up (Python's types: an int, a true division, a Quantity, a bool, a str).
+PINNED = ("1 + 2", "7 / 2", "sin(30)", "2+3==4", "<<a>> + <<b>>")
+
+
 def emit_fixture(path, cases, fc, n, sources, freecad=None):
     """A sample of the cases, with FreeCAD's answers: one or two of every kind of answer in each category, then cases spread
     evenly through each category up to `n` in all."""
@@ -365,6 +373,9 @@ def emit_fixture(path, cases, fc, n, sources, freecad=None):
         by_cat[cat].append((cat, text, f))
     total = sum(len(v) for v in by_cat.values())
     picked, taken = [], set()
+    for c, t, f in (x for items in by_cat.values() for x in items if x[1] in PINNED):
+        picked.append((c, t, f))
+        taken.add(t)
     for cat, items in by_cat.items():
         seen = defaultdict(int)
         for c, t, f in items:

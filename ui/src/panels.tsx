@@ -32,6 +32,7 @@ import { QComboBox } from './combo'
 import { messageBox } from './msgbox'
 import { NaviButtons } from './navicube'
 import { ExpressionDialog } from './exprdialog'
+import type { PyVal } from './expr'
 import { MassTask, MeasureTask } from './measure'
 import { BoughtTask, BuildTask, CutlistTask, EvalsTask, GateTask, RenderTask, RulesTask, TablesTask, ToolTask } from './agentwb'
 import { BomTask, DrawingTask, ShopTask } from './shopwb'
@@ -470,10 +471,15 @@ export function paramKind(name: string, type: string): QKind | null {
   if (type === 'int' || /ratio|scale|factor|count|frac|percent|(^|_)n($|_)/i.test(name)) return null
   return 'Length'
 }
-/** The names an expression may use: the part's numeric parameters, as the quantities they are. */
-function paramVars(b: Body): Record<string, quantity.Quantity> {
+/** The names an expression may use: the part's numeric parameters, as the properties they are (an int is a
+ *  PropertyInteger, a length or an angle a Quantity, any other float a PropertyFloat). */
+function paramVars(b: Body): Record<string, quantity.Quantity | PyVal> {
   return Object.fromEntries(Object.entries(b.params ?? {}).filter(([, p]) => typeof p.value === 'number')
-    .map(([n, p]) => { const kd = paramKind(n, p.type); return [n, { value: p.value as number, dims: kd ? QDIMS[kd] : [0, 0, 0, 0, 0, 0, 0, 0] }] }))
+    .map(([n, p]): [string, quantity.Quantity | PyVal] => {
+      const v = p.value as number, kd = paramKind(n, p.type)
+      if (p.type === 'int' && !kd && Number.isSafeInteger(v)) return [n, { t: 'int', v: BigInt(v) }]
+      return [n, { value: v, dims: kd ? QDIMS[kd] : [0, 0, 0, 0, 0, 0, 0, 0] }]
+    }))
 }
 /** A field's "=" (ExpressionSpinBox::openFormulaDialog): the Expression Editor over it, whose
  *  result becomes the field's value. */
@@ -484,8 +490,8 @@ const qText = (v: unknown, kind: QKind) => quantity.userString({ value: Number(v
  *  or angle is edited in a QuantitySpinBox (17 cm, 1/2 in, 90 °; arrows and the wheel step
  *  it), as FreeCAD's PropertyUnitItem is; "=" opens the Expression Editor over the part's
  *  other parameters (DlgExpressionInput). PARAMS keeps plain numbers, so OK writes the result. */
-function EditRow({ k, value, type, onCommit, depth = 0, unit, kind, vars }:
-  { k: string; value: unknown; type: string; onCommit(v: unknown): void; depth?: number; unit?: string; kind?: QKind | null; vars?: Record<string, quantity.Quantity> }) {
+function EditRow({ k, value, type, onCommit, depth = 0, unit, kind, vars, owner }:
+  { k: string; value: unknown; type: string; onCommit(v: unknown): void; depth?: number; unit?: string; kind?: QKind | null; vars?: Record<string, quantity.Quantity | PyVal>; owner?: string }) {
   const [editing, setEditing] = useState(false)
   const [expr, setExpr] = useState<{ text: string; at: { x: number; y: number } } | null>(null)
   const cancelled = useRef(false), pending = useRef<number | null>(null), cell = useRef<HTMLSpanElement>(null)
@@ -552,7 +558,7 @@ function EditRow({ k, value, type, onCommit, depth = 0, unit, kind, vars }:
                   if (e.key === 'Tab') { e.preventDefault(); e.currentTarget.blur(); tabTo(e.shiftKey) }
                 }} />}
       </span>
-      {expr && <ExpressionDialog at={expr.at} text={expr.text} dims={kind ? QDIMS[kind] : null} vars={vars ?? {}} onOk={fromExpr} onCancel={back} />}
+      {expr && <ExpressionDialog at={expr.at} text={expr.text} dims={kind ? QDIMS[kind] : null} vars={vars ?? {}} owner={owner} onOk={fromExpr} onCancel={back} />}
     </div>
   )
 }
@@ -560,7 +566,7 @@ function EditRow({ k, value, type, onCommit, depth = 0, unit, kind, vars }:
 /** PropertyVectorItem::toString ("[%1 %2 %3]", QLocale 'f' at lowPrec 2) and
  *  PropertyVectorDistanceItem::toString ("[{} {} {}]", each a Length user string). */
 const vecText = (v: Vec3, kind?: QKind) => `[${v.map((x) => (kind ? qText(x, kind) : x.toFixed(2))).join(' ')}]`
-function VecRows({ label, v, unit, onCommit, kind, vars, depth = 0 }: { label: string; v: Vec3; unit: string; onCommit(i: number, n: number): void; kind?: QKind; vars?: Record<string, quantity.Quantity>; depth?: number }) {
+function VecRows({ label, v, unit, onCommit, kind, vars, owner, depth = 0 }: { label: string; v: Vec3; unit: string; onCommit(i: number, n: number): void; kind?: QKind; vars?: Record<string, quantity.Quantity | PyVal>; owner?: string; depth?: number }) {
   const [open, setOpen] = useState(false)
   const ex = useContext(PropExpand)
   useEffect(() => { if (ex.gen) setOpen(ex.open ?? false) }, [ex.gen])
@@ -572,7 +578,7 @@ function VecRows({ label, v, unit, onCommit, kind, vars, depth = 0 }: { label: s
         <span className="pv">{vecText(v, kind)}</span>
       </div>
       {open && ['x', 'y', 'z'].map((ax, i) => (
-        <EditRow key={ax} k={ax} depth={depth + 1} value={v[i]} type="float" unit={unit} kind={kind} vars={vars} onCommit={(n) => onCommit(i, n as number)} />
+        <EditRow key={ax} k={ax} depth={depth + 1} value={v[i]} type="float" unit={unit} kind={kind} vars={vars} owner={owner} onCommit={(n) => onCommit(i, n as number)} />
       ))}
     </>
   )
@@ -581,7 +587,7 @@ function VecRows({ label, v, unit, onCommit, kind, vars, depth = 0 }: { label: s
 /** PropertyPlacementItem: one row under Base, "[(axis); angle; (x  y  z)]" (toString: the axis at
  *  lowPrec 2, the angle and the position as user strings, two spaces between the coordinates),
  *  opening onto its Angle, Axis and Position. */
-function PlacementRow({ fc, vars, onCommit }: { fc: { angle: number; axis: Vec3; position: Vec3 }; vars: Record<string, quantity.Quantity>; onCommit(angle: number, axis: Vec3, position: Vec3): void }) {
+function PlacementRow({ fc, vars, owner, onCommit }: { fc: { angle: number; axis: Vec3; position: Vec3 }; vars: Record<string, quantity.Quantity | PyVal>; owner: string; onCommit(angle: number, axis: Vec3, position: Vec3): void }) {
   const [open, setOpen] = useState(false)
   const ex = useContext(PropExpand)
   useEffect(() => { if (ex.gen) setOpen(ex.open ?? false) }, [ex.gen])
@@ -593,9 +599,9 @@ function PlacementRow({ fc, vars, onCommit }: { fc: { angle: number; axis: Vec3;
         <span className="pk" style={pad(0)}><Twisty open={open} />Placement</span><span className="pv">{text}</span>
       </div>
       {open && <>
-        <EditRow k="Angle" depth={1} value={fc.angle} type="float" kind="Angle" vars={vars} onCommit={(v) => onCommit(v as number, fc.axis, fc.position)} />
-        <VecRows label="Axis" depth={1} v={fc.axis} unit="" vars={vars} onCommit={(i, n) => onCommit(fc.angle, at(fc.axis, i, n), fc.position)} />
-        <VecRows label="Position" depth={1} v={fc.position} unit="mm" kind="Length" vars={vars} onCommit={(i, n) => onCommit(fc.angle, fc.axis, at(fc.position, i, n))} />
+        <EditRow k="Angle" depth={1} value={fc.angle} type="float" kind="Angle" vars={vars} owner={owner} onCommit={(v) => onCommit(v as number, fc.axis, fc.position)} />
+        <VecRows label="Axis" depth={1} v={fc.axis} unit="" vars={vars} owner={owner} onCommit={(i, n) => onCommit(fc.angle, at(fc.axis, i, n), fc.position)} />
+        <VecRows label="Position" depth={1} v={fc.position} unit="mm" kind="Length" vars={vars} owner={owner} onCommit={(i, n) => onCommit(fc.angle, fc.axis, at(fc.position, i, n))} />
       </>}
     </>
   )
@@ -656,7 +662,7 @@ function DataProps({ b }: { b: Body }) {
   return (
     <>
       <Group title="Base">
-        <PlacementRow fc={fc} vars={vars} onCommit={setFC} />
+        <PlacementRow fc={fc} vars={vars} owner={b.name} onCommit={setFC} />
         <Row k="Label" v={b.name} />
         <Row k="Part" v={b.part ?? '-'} />
         <Row k="Kind" v={b.kind} />
@@ -665,7 +671,7 @@ function DataProps({ b }: { b: Body }) {
       {params.length > 0 && b.part && (
         <Group title="Parameters">
           {params.map(([k, p]) => (p.editable
-            ? <EditRow key={k} k={k} value={p.value} type={p.type} kind={paramKind(k, p.type)} vars={vars} onCommit={(v) => setParams(b.part!, { [k]: p.value }, { [k]: v })} />
+            ? <EditRow key={k} k={k} value={p.value} type={p.type} kind={paramKind(k, p.type)} vars={vars} owner={b.name} onCommit={(v) => setParams(b.part!, { [k]: p.value }, { [k]: v })} />
             : <Row key={k} k={<span title="Not a plain literal in the part file, so it can't be edited here">{k}</span>} v={fmtValue(p.value)} />))}
         </Group>
       )}
@@ -1054,7 +1060,7 @@ function PlacementTask({ b }: { b: Body }) {
         </div>
         {b.placement && <div className="tbuttons"><button className="qbtn" onClick={async () => { getView()?.previewPlacement(b.name, null); if (await place(b.name, cur, null)) closeTask() }}>Reset to the code's position</button></div>}
       </TaskBox>
-      {ask && <ExpressionDialog at={ask.at} text={ask.text} dims={ask.dims} vars={paramVars(b)} onOk={(v) => { ask.apply(v); setAsk(null) }} onCancel={() => setAsk(null)} />}
+      {ask && <ExpressionDialog at={ask.at} text={ask.text} dims={ask.dims} vars={paramVars(b)} owner={b.name} onOk={(v) => { ask.apply(v); setAsk(null) }} onCancel={() => setAsk(null)} />}
       {/* TaskPlacement: ButtonPosition South. */}
       <TaskButtons onApply={apply} onOk={async () => { if (await apply()) closeTask() }} />
       <p className="hint">{b.name}: a rigid move on top of assembly.py, kept in placements.toml. The agent folds it into the code.</p>
@@ -1696,7 +1702,7 @@ function TransformTask({ b }: { b: Body }) {
           <button className="qbtn" onClick={flip}>Flip</button>
         </fieldset>
       </TaskBox>
-      {ask && <ExpressionDialog at={ask.at} text={ask.text} dims={ask.dims} vars={paramVars(b)} onOk={(v) => { ask.apply(v); setAsk(null) }} onCancel={() => setAsk(null)} />}
+      {ask && <ExpressionDialog at={ask.at} text={ask.text} dims={ask.dims} vars={paramVars(b)} owner={b.name} onOk={(v) => { ask.apply(v); setAsk(null) }} onCancel={() => setAsk(null)} />}
       <p className="hint">OK writes the move to placements.toml; Cancel puts the part back.</p>
     </div>
   )
