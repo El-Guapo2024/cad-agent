@@ -98,6 +98,7 @@ to_freecad() can build it there.
 from __future__ import annotations
 
 import ast
+import importlib
 import math
 import operator
 
@@ -496,8 +497,8 @@ def _solve(sketch: dict, reason: str = "") -> dict:
     radians), and returns {"status": "solved" | "failed" | "conflicting" | "redundant" | "malformed",
     "geometry": [the same form], "dof", "conflicting", "redundant", "partially_redundant", "malformed"}
     (constraint indices from 0). Anything but "solved" is reported as SketchObject::execute words it."""
-    try:
-        from . import planegcs
+    try:                    # by name, so a stand-in in sys.modules wins over an already imported module
+        planegcs = importlib.import_module("cad_agent.planegcs")
     except ImportError as e:
         raise FeatureError(
             f"Sketch {sketch.get('name')}: its stored geometry does not satisfy its constraints "
