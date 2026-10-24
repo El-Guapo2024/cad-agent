@@ -1,0 +1,29 @@
+# feature_plate: what the feature-built plate must be. Axes: x across, y along, z up; z = 0 its underside.
+
+[bodies]
+count = 1
+names = ["plate"]
+
+[envelope]
+max_mm = [60.1, 40.1, 10.1]
+
+[[size]]                    # 60 x 40, 6 thick, and the boss 4 above it
+body = "plate"
+min_mm = [59.99, 39.99, 9.99]
+max_mm = [60.01, 40.01, 10.01]
+
+[[holes]]                   # the four M4 clearance holes the pocket cuts through all
+body = "plate"
+count = 4
+min_dia_mm = 4.4
+max_dia_mm = 4.6
+axis = "z"
+through = true
+
+[[holes]]                   # the boss's 8 mm bore, 6 deep: blind
+body = "plate"
+count = 1
+min_dia_mm = 7.9
+max_dia_mm = 8.1
+axis = "z"
+through = false

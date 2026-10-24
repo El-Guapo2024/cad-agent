@@ -1482,17 +1482,21 @@ def _extrude(feat: _Extrude, sketch: Sketch, base, shapes, params):
 
 # ── the body ──────────────────────────────────────────────────────────────────────────────────────────
 
-def evaluate(features, params: dict | None = None, base=None) -> dict:
-    """{name: shape} for every feature in order, each a TopoDS_Shape (a sketch's is its profile face, or
-    None when it has no closed profile), and "BaseFeature" for the base. The UI's tree reads this."""
+def evaluate(features, params: dict | None = None, base=None, tip: str | None = None) -> dict:
+    """{name: TopoDS_Shape} of every Pad and Pocket in order, up to and including tip (all of them when
+    tip is None), with "BaseFeature" for the base, "Tip" for the tip's solid and "_sketches" holding each
+    sketch solved. The UI's tree reads this."""
     params = dict(params or {})
+    names = [getattr(f, "name", None) for f in features]
+    if tip is not None and tip not in names and tip != "BaseFeature":
+        raise FeatureError(f"the tip {tip!r} is not a feature of the Body")
     shapes: dict = {}
     sketches: dict = {}
-    tip = None
+    solid = None
     if base is not None:
-        tip = getattr(base, "wrapped", base)
-        shapes["BaseFeature"] = tip
-    for f in features:
+        solid = getattr(base, "wrapped", base)
+        shapes["BaseFeature"] = solid
+    for f in ([] if tip == "BaseFeature" else features):
         name = getattr(f, "name", None)
         if not isinstance(f, (Sketch, _Extrude)):
             raise FeatureError(f"FEATURES holds {f!r}, not a Sketch, Pad or Pocket")
@@ -1500,25 +1504,29 @@ def evaluate(features, params: dict | None = None, base=None) -> dict:
             raise FeatureError(f"two features are named {name!r}")
         if isinstance(f, Sketch):
             sketches[name] = f.solved(params)
-            continue
-        if f.profile not in sketches:
-            raise FeatureError(f"{name}: no sketch {f.profile!r} before it" if f.profile not in shapes
-                               else f"{name}: profile {f.profile!r} is not a sketch")
-        tip = _extrude(f, sketches[f.profile], tip, shapes, params)
-        shapes[name] = tip
-    shapes["Tip"] = tip
+        else:
+            if f.profile not in sketches:
+                raise FeatureError(f"{name}: no sketch {f.profile!r} before it" if f.profile not in shapes
+                                   else f"{name}: profile {f.profile!r} is not a sketch")
+            solid = _extrude(f, sketches[f.profile], solid, shapes, params)
+            shapes[name] = solid
+        if name == tip:
+            break
+    shapes["Tip"] = solid
     shapes["_sketches"] = sketches
     return shapes
 
 
-def Body(features, params: dict | None = None, base=None):
+def Body(features, params: dict | None = None, base=None, tip: str | None = None):
     """PartDesign::Body: the tip's solid, as a build123d Part. base is the BaseFeature, a hand-built solid
-    (a build123d shape or a TopoDS_Shape) that the first feature adds to or cuts from."""
+    (a build123d shape or a TopoDS_Shape) that the first feature adds to or cuts from. tip is Body.Tip, the
+    feature whose solid the Body is (None: the last); the features after it are not built, and a sketch
+    as the tip leaves the solid before it, as in FreeCAD."""
     from build123d import Compound, Part, Solid
-    tip = evaluate(features, params, base)["Tip"]
-    if tip is None:
-        raise FeatureError("the Body has no solid: FEATURES has no Pad and there is no base")
-    solids = [Solid(s) for s in _subs(tip, TopAbs_SOLID)]
+    solid = evaluate(features, params, base, tip)["Tip"]
+    if solid is None:
+        raise FeatureError("the Body has no solid: FEATURES has no Pad before its tip and there is no base")
+    solids = [Solid(s) for s in _subs(solid, TopAbs_SOLID)]
     if not solids:
         raise FeatureError("the Body's tip is not a solid")
     return Part(Compound(solids).wrapped)
