@@ -17,12 +17,16 @@ import * as S from './sketcher'
 import * as OPS from './sketchops'
 import { DefaultHandler, DrawSketchHandler, type AutoConstraint } from './sketchtools'
 import { report } from './store'
+import { runOp, KernelError } from './sketchkernel'
+import './sketchkernelapi'
 
 const LMB = 'LMB'
 /** The coordinates as the tool's Python command writes them ("%f": six decimals). */
 const f6 = (v: number) => Number(v.toFixed(6))
 const at6 = (p: XY): XY => [f6(p[0]), f6(p[1])]
 const doc = (): OPS.Doc => ({ geometry: S.getGeometry().map((g) => ({ ...g })), constraints: S.getConstraints().map((c) => ({ ...c })) })
+/** A copy of a snapshot, for an operation that may run again once the sketch kernel has answered (runOp). */
+const copy = (d: OPS.Doc): OPS.Doc => ({ geometry: d.geometry.map((g) => ({ ...g })), constraints: d.constraints.map((c) => ({ ...c })) })
 function apply(d: OPS.Doc) { S.setGeometry(d.geometry); S.setConstraints(d.constraints) }
 /** SketchObject::moveGeometry(..., updateGeoBeforeMoving=true), through the solver. */
 const mover: OPS.Mover = (d, geo, pos, to) => {
@@ -72,15 +76,15 @@ export class TrimmingHandler extends DefaultHandler {
     const g = this.geoIdToTrim
     this.geoIdToTrim = GEO_UNDEF
     S.setPreselection(null)
-    S.openCommand('Trim edge')
-    try {
-      const d = doc()
-      OPS.trim(d, g, at6(this.trimPos), this.includeAxes)
+    const base = doc(), at = at6(this.trimPos), axes = this.includeAxes
+    // a B-spline's cuts are OCCT's (the sketch kernel): the trim waits for them
+    runOp((k) => { const d = copy(base); OPS.trim(d, g, at, axes, k); return d }, (d) => {
+      S.openCommand('Trim edge')
       apply(d)
       S.commitCommand()
-    } catch (e) { report('err', `Failed to trim edge: ${e instanceof Error ? e.message : String(e)}`); S.abortCommand() }
-    S.clearSelection()
-    S.solve()
+      S.clearSelection()
+      S.solve()
+    }, (e) => { report('err', `Failed to trim edge: ${e instanceof Error ? e.message : String(e)}`); S.clearSelection(); S.solve() })
   }
 }
 
@@ -95,14 +99,13 @@ export class SplittingHandler extends DrawSketchHandler {
   releaseButton(p: XY) {
     const id = preselectedCurve((g) => g.type !== 'Point' && g.type !== 'ArcOfCircle' ? true : g.type === 'ArcOfCircle')
     if (id < 0) { this.quit(); return true }
-    S.openCommand('Split edge')
-    try {
-      const d = doc()
-      OPS.split(d, id, at6(p))
+    const base = doc(), at = at6(p)
+    runOp((k) => { const d = copy(base); OPS.split(d, id, at, k); return d }, (d) => {
+      S.openCommand('Split edge')
       apply(d)
       S.commitCommand()
-    } catch (e) { report('err', `Failed to add edge: ${e instanceof Error ? e.message : String(e)}`); S.abortCommand() }
-    S.solve()
+      S.solve()
+    }, (e) => { report('err', `Failed to add edge: ${e instanceof Error ? e.message : String(e)}`); S.solve() })
     return true
   }
 }
@@ -278,13 +281,23 @@ export class FilletHandler extends DefaultHandler {
         if (radius < 0) return
       }
       const filletGeoId = S.highestCurveIndex() + (chamfer ? 2 : 1)
-      S.openCommand('Create fillet')
-      try {
-        OPS.fillet(d, this.geoId1, this.geoId2, at6(this.firstPos), at6(this.secondPos), f6(radius), true, this.preserveCorner, chamfer, mover)
-        if (construction && d.geometry[filletGeoId]) d.geometry[filletGeoId] = { ...d.geometry[filletGeoId], construction: !d.geometry[filletGeoId].construction }
-        apply(d)
+      const g1id = this.geoId1, g2id = this.geoId2, r1 = at6(this.firstPos), r2 = at6(this.secondPos), corner = this.preserveCorner
+      // between curves other than two lines the fillet is OCCT's (the sketch kernel's offset curves): it waits for it
+      runOp((k) => {
+        const e = copy(d)
+        if (!OPS.fillet(e, g1id, g2id, r1, r2, f6(radius), true, corner, chamfer, mover, k)) {
+          // SketchObjectPy::fillet's ValueError (the points as C++ streams them, six significant digits)
+          const v = (p: XY) => `(${p.map((x) => Number(x.toPrecision(6))).join(', ')}, 0)`
+          throw new Error(`Not able to fillet curves with ids : (${g1id}, ${g2id}) and points ${v(r1)} & ${v(r2)}`)
+        }
+        return e
+      }, (e) => {
+        if (construction && e.geometry[filletGeoId]) e.geometry[filletGeoId] = { ...e.geometry[filletGeoId], construction: !e.geometry[filletGeoId].construction }
+        S.openCommand('Create fillet')
+        apply(e)
         S.commitCommand()
-      } catch (e) { report('err', `CAD Kernel Error: ${e instanceof Error ? e.message : String(e)}`); S.abortCommand() }
+        S.solve()
+      }, (e) => { report('err', `${e instanceof KernelError ? 'CAD Kernel Error' : 'Value Error'}: ${e instanceof Error ? e.message : String(e)}`); S.clearSelection(); S.solve() })
       S.clearSelection()
     }
   }

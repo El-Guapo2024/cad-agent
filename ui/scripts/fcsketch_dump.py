@@ -296,6 +296,9 @@ def run_case(doc, case, k):
             geo = Part.LineSegment(V(g["start"]), V(g["end"]))
         elif t == "Circle":
             geo = Part.Circle(V(g["center"]), App.Vector(0, 0, 1), g["radius"])
+        elif t == "BSplineCurve":
+            geo = Part.BSplineCurve([V(q) for q in g["poles"]], g["mults"], g["knots"], g.get("periodic", False), g["degree"],
+                                    g.get("weights"))
         else:
             geo = Part.ArcOfCircle(Part.Circle(V(g["center"]), App.Vector(0, 0, 1), g["radius"]), g["start_angle"], g["end_angle"])
         sk.addGeometry(geo, bool(g.get("construction")))
@@ -441,7 +444,7 @@ def params():
             "FullyConstrainedColor", "InvalidSketchColor", "ConstrainedDimColor", "ConstrainedIcoColor", "NonDrivingConstrDimColor",
             "ExprBasedConstrDimColor", "DeactivatedConstrDimColor", "ExternalColor", "ExternalDefiningColor", "HighlightColor",
             "SelectionColor", "CursorTextColor", "CursorCrosshairColor", "CreateLineColor", "AxisXColor", "AxisYColor",
-            "MarkerSize", "EditSketcherFontSize", "ConstraintSymbolSize", "DefaultShapePointSize"],
+            "MarkerSize", "EditSketcherFontSize", "ConstraintSymbolSize", "DefaultShapePointSize", "InformationColor"],
         "User parameter:BaseApp/Preferences/Mod/Sketcher/General": ["GridLineColor", "GridDivLineColor", "ShowGrid", "GridSize",
             "AxisTransparency"],
         "User parameter:BaseApp/Preferences/Mod/Sketcher/View": ["EdgeWidth", "ConstructionWidth", "ExternalWidth", "AxisLineWidth"],

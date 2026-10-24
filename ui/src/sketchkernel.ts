@@ -59,6 +59,17 @@ export async function withKernel<T>(fn: (k: Kernel) => T, fetch: Fetch = serverF
   }
   throw new Error('the sketch kernel was asked too many times')
 }
+/** An operation the page runs at once when the kernel's answers it needs are at hand (any but a B-spline's, usually),
+ *  else as soon as they are: done(result) or fail(error) either way. fn must start from its inputs each time. */
+export function runOp<T>(fn: (k: Kernel) => T, done: (r: T) => void, fail: (e: unknown) => void, cache: KCache = shared) {
+  let r: T
+  try { r = fn(cached(cache)) } catch (e) {
+    if (!(e instanceof KernelNeeded)) { fail(e); return }
+    withKernel(fn, serverFetch, cache).then(done, fail)
+    return
+  }
+  done(r)
+}
 /** fn run without waiting: its result, or null when it needs an answer it has not got (the request is then sent, and
  *  then() runs once it is in: a preview drawn on the next mouse move, say). */
 export function tryKernel<T>(fn: (k: Kernel) => T, then?: () => void, cache: KCache = shared): T | null {
@@ -81,4 +92,7 @@ const shared: KCache = new Map()
 let server: Fetch = async () => { throw new Error('no sketch kernel') }
 /** How the page reaches `cad feature sketchkernel` (sketchkernelapi.ts sets it). */
 export function setKernelFetch(f: Fetch) { server = f }
-const serverFetch: Fetch = (reqs) => server(reqs)
+let inFlight = 0
+/** The requests on their way (a check waits for none before it reads the sketch). */
+export const kernelBusy = () => inFlight
+const serverFetch: Fetch = async (reqs) => { inFlight++; try { return await server(reqs) } finally { inFlight-- } }

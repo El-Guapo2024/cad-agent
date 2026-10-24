@@ -63,8 +63,15 @@ export function replaceGeometries(d: Doc, oldIds: number[], newGeos: Geo[]) {
 // ── convertToNURBS ───────────────────────────────────────────────────────────────────────────────────────────────
 /** SketchObject::convertToNURBS(GeoId): the curve replaced by its B-spline (a new geometry: not construction), its
  *  constraints other than coincidences gone, and the coincidences on its centre. */
-export function convertToNURBS(d: Doc, geoId: number, k: Kernel): boolean {
-  if (geoId > highest(d) || geoId < 0) return false
+export function convertToNURBS(d: Doc, geoId: number, k: Kernel, external?: (g: number) => Geo | undefined): boolean {
+  if (geoId > highest(d) || geoId === -1 || geoId === -2) return false
+  if (geoId < 0) {
+    // external geometry: its B-spline is added to the sketch's own (newVals.push_back)
+    const ext = external?.(geoId)
+    if (!ext || ext.type === 'Point') return false
+    d.geometry = [...d.geometry, k({ op: 'nurbs', geo: plain(ext) }).geo!]
+    return true
+  }
   const geo = d.geometry[geoId]
   if (!geo || geo.type === 'Point') return false
   const bsp = k({ op: 'nurbs', geo: plain(geo) }).geo!

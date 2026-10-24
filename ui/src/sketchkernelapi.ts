@@ -3,7 +3,7 @@
 // project in the page.
 import { api, resultText } from './api'
 import { getState } from './store'
-import { setKernelFetch, type KAnswer } from './sketchkernel'
+import { setKernelFetch, kernelBusy, type KAnswer } from './sketchkernel'
 
 setKernelFetch(async (reqs) => {
   const slug = getState().slug
@@ -12,3 +12,5 @@ setKernelFetch(async (reqs) => {
   if (r.exit !== 0 || !r.data) throw new Error(`sketch kernel: ${resultText(r)}`)
   return (r.data.answers ?? []) as KAnswer[]
 })
+// for the checks (sketchcheck.mjs): how many kernel requests are on their way
+;(globalThis as { cadKernelBusy?: () => number }).cadKernelBusy = kernelBusy

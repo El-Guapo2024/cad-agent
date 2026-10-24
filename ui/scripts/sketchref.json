@@ -438,7 +438,8 @@
   "EdgeWidth": null,
   "ConstructionWidth": null,
   "ExternalWidth": null,
-  "AxisLineWidth": null
+  "AxisLineWidth": null,
+  "InformationColor": null
  },
  "message_empty": {
   "status": "Empty sketch",
@@ -4921,6 +4922,4536 @@
      "Edge7"
     ]
    ]
+  },
+  "bspline-knots": {
+   "geometry": [
+    {
+     "type": "Point",
+     "at": [
+      8.074530775990747,
+      10.062108896037016
+     ],
+     "construction": true
+    },
+    {
+     "type": "Point",
+     "at": [
+      13.97094947435567,
+      15.963004548759919
+     ],
+     "construction": true
+    },
+    {
+     "type": "Point",
+     "at": [
+      22.04410354562296,
+      13.01289639127259
+     ],
+     "construction": true
+    },
+    {
+     "type": "Point",
+     "at": [
+      27.946705690774174,
+      17.979247829030946
+     ],
+     "construction": true
+    },
+    {
+     "type": "Point",
+     "at": [
+      34.00621037870985,
+      13.944099741336418
+     ],
+     "construction": true
+    },
+    {
+     "type": "BSplineCurve",
+     "poles": [
+      [
+       8.074530775990747,
+       10.062108896037016
+      ],
+      [
+       9.332582984367972,
+       15.42201351929257
+      ],
+      [
+       13.63688692381901,
+       17.961789491494923
+      ],
+      [
+       22.288805041204935,
+       9.89501192421921
+      ],
+      [
+       27.68026411602598,
+       19.913022416396235
+      ],
+      [
+       31.737039245525896,
+       18.27675353970788
+      ],
+      [
+       34.00621037870985,
+       13.944099741336418
+      ]
+     ],
+     "weights": [
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0
+     ],
+     "knots": [
+      0.0,
+      8.344758043760168,
+      16.941374839918993,
+      24.65552037652899,
+      31.9338248562825
+     ],
+     "mults": [
+      4,
+      1,
+      1,
+      1,
+      4
+     ],
+     "degree": 3,
+     "periodic": false
+    },
+    {
+     "type": "Circle",
+     "center": [
+      8.074530775990747,
+      10.062108896037016
+     ],
+     "radius": 1.0,
+     "construction": true
+    },
+    {
+     "type": "Circle",
+     "center": [
+      9.332582984367972,
+      15.42201351929257
+     ],
+     "radius": 1.0,
+     "construction": true
+    },
+    {
+     "type": "Circle",
+     "center": [
+      13.63688692381901,
+      17.961789491494923
+     ],
+     "radius": 1.0,
+     "construction": true
+    },
+    {
+     "type": "Circle",
+     "center": [
+      22.288805041204935,
+      9.89501192421921
+     ],
+     "radius": 1.0,
+     "construction": true
+    },
+    {
+     "type": "Circle",
+     "center": [
+      27.68026411602598,
+      19.913022416396235
+     ],
+     "radius": 1.0,
+     "construction": true
+    },
+    {
+     "type": "Circle",
+     "center": [
+      31.737039245525896,
+      18.27675353970788
+     ],
+     "radius": 1.0,
+     "construction": true
+    },
+    {
+     "type": "Circle",
+     "center": [
+      34.00621037870985,
+      13.944099741336418
+     ],
+     "radius": 1.0,
+     "construction": true
+    }
+   ],
+   "constraints": [
+    {
+     "type": "InternalAlignment:BSplineKnotPoint",
+     "args": [
+      0,
+      1,
+      5,
+      0
+     ]
+    },
+    {
+     "type": "InternalAlignment:BSplineKnotPoint",
+     "args": [
+      1,
+      1,
+      5,
+      1
+     ]
+    },
+    {
+     "type": "InternalAlignment:BSplineKnotPoint",
+     "args": [
+      2,
+      1,
+      5,
+      2
+     ]
+    },
+    {
+     "type": "InternalAlignment:BSplineKnotPoint",
+     "args": [
+      3,
+      1,
+      5,
+      3
+     ]
+    },
+    {
+     "type": "InternalAlignment:BSplineKnotPoint",
+     "args": [
+      4,
+      1,
+      5,
+      4
+     ]
+    },
+    {
+     "type": "InternalAlignment:BSplineControlPoint",
+     "args": [
+      6,
+      3,
+      5,
+      0
+     ]
+    },
+    {
+     "type": "Weight",
+     "args": [
+      6
+     ],
+     "value": 1.0
+    },
+    {
+     "type": "InternalAlignment:BSplineControlPoint",
+     "args": [
+      7,
+      3,
+      5,
+      1
+     ]
+    },
+    {
+     "type": "Equal",
+     "args": [
+      7,
+      6
+     ]
+    },
+    {
+     "type": "InternalAlignment:BSplineControlPoint",
+     "args": [
+      8,
+      3,
+      5,
+      2
+     ]
+    },
+    {
+     "type": "Equal",
+     "args": [
+      8,
+      6
+     ]
+    },
+    {
+     "type": "InternalAlignment:BSplineControlPoint",
+     "args": [
+      9,
+      3,
+      5,
+      3
+     ]
+    },
+    {
+     "type": "Equal",
+     "args": [
+      9,
+      6
+     ]
+    },
+    {
+     "type": "InternalAlignment:BSplineControlPoint",
+     "args": [
+      10,
+      3,
+      5,
+      4
+     ]
+    },
+    {
+     "type": "Equal",
+     "args": [
+      10,
+      6
+     ]
+    },
+    {
+     "type": "InternalAlignment:BSplineControlPoint",
+     "args": [
+      11,
+      3,
+      5,
+      5
+     ]
+    },
+    {
+     "type": "Equal",
+     "args": [
+      11,
+      6
+     ]
+    },
+    {
+     "type": "InternalAlignment:BSplineControlPoint",
+     "args": [
+      12,
+      3,
+      5,
+      6
+     ]
+    },
+    {
+     "type": "Equal",
+     "args": [
+      12,
+      6
+     ]
+    }
+   ],
+   "message": {
+    "status": "Under-constrained: ",
+    "link": "14 Degrees of Freedom"
+   }
+  },
+  "bspline-knots-periodic": {
+   "geometry": [
+    {
+     "type": "Point",
+     "at": [
+      18.0124,
+      15.962699999999998
+     ],
+     "construction": true
+    },
+    {
+     "type": "Point",
+     "at": [
+      24.0683,
+      13.9441
+     ],
+     "construction": true
+    },
+    {
+     "type": "Point",
+     "at": [
+      29.0373,
+      19.0683
+     ],
+     "construction": true
+    },
+    {
+     "type": "Point",
+     "at": [
+      24.0683,
+      24.9689
+     ],
+     "construction": true
+    },
+    {
+     "type": "Point",
+     "at": [
+      18.0124,
+      22.950299999999995
+     ],
+     "construction": true
+    },
+    {
+     "type": "BSplineCurve",
+     "poles": [
+      [
+       16.202565712658274,
+       18.530481146206487
+      ],
+      [
+       19.665760275315208,
+       13.616923166985709
+      ],
+      [
+       24.376812885989903,
+       12.864732208483284
+      ],
+      [
+       31.45369102422775,
+       18.99333090874858
+      ],
+      [
+       24.761253723273875,
+       26.61565736146612
+      ],
+      [
+       16.74956013579672,
+       23.572403949312143
+      ]
+     ],
+     "weights": [
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0
+     ],
+     "knots": [
+      0.0,
+      6.383468553224024,
+      13.521282409020486,
+      21.235427945630484,
+      27.618896498854507,
+      34.606496498854504
+     ],
+     "mults": [
+      2,
+      1,
+      1,
+      1,
+      1,
+      2
+     ],
+     "degree": 3,
+     "periodic": true
+    },
+    {
+     "type": "Circle",
+     "center": [
+      16.202565712658274,
+      18.530481146206487
+     ],
+     "radius": 1.0,
+     "construction": true
+    },
+    {
+     "type": "Circle",
+     "center": [
+      19.665760275315208,
+      13.616923166985709
+     ],
+     "radius": 1.0,
+     "construction": true
+    },
+    {
+     "type": "Circle",
+     "center": [
+      24.376812885989903,
+      12.864732208483284
+     ],
+     "radius": 1.0,
+     "construction": true
+    },
+    {
+     "type": "Circle",
+     "center": [
+      31.45369102422775,
+      18.99333090874858
+     ],
+     "radius": 1.0,
+     "construction": true
+    },
+    {
+     "type": "Circle",
+     "center": [
+      24.761253723273875,
+      26.61565736146612
+     ],
+     "radius": 1.0,
+     "construction": true
+    },
+    {
+     "type": "Circle",
+     "center": [
+      16.74956013579672,
+      23.572403949312143
+     ],
+     "radius": 1.0,
+     "construction": true
+    },
+    {
+     "type": "Point",
+     "at": [
+      18.0124,
+      15.9627
+     ],
+     "construction": true
+    }
+   ],
+   "constraints": [
+    {
+     "type": "InternalAlignment:BSplineKnotPoint",
+     "args": [
+      0,
+      1,
+      5,
+      0
+     ]
+    },
+    {
+     "type": "InternalAlignment:BSplineKnotPoint",
+     "args": [
+      1,
+      1,
+      5,
+      1
+     ]
+    },
+    {
+     "type": "InternalAlignment:BSplineKnotPoint",
+     "args": [
+      2,
+      1,
+      5,
+      2
+     ]
+    },
+    {
+     "type": "InternalAlignment:BSplineKnotPoint",
+     "args": [
+      3,
+      1,
+      5,
+      3
+     ]
+    },
+    {
+     "type": "InternalAlignment:BSplineKnotPoint",
+     "args": [
+      4,
+      1,
+      5,
+      4
+     ]
+    },
+    {
+     "type": "InternalAlignment:BSplineControlPoint",
+     "args": [
+      6,
+      3,
+      5,
+      0
+     ]
+    },
+    {
+     "type": "Weight",
+     "args": [
+      6
+     ],
+     "value": 1.0
+    },
+    {
+     "type": "InternalAlignment:BSplineControlPoint",
+     "args": [
+      7,
+      3,
+      5,
+      1
+     ]
+    },
+    {
+     "type": "Equal",
+     "args": [
+      7,
+      6
+     ]
+    },
+    {
+     "type": "InternalAlignment:BSplineControlPoint",
+     "args": [
+      8,
+      3,
+      5,
+      2
+     ]
+    },
+    {
+     "type": "Equal",
+     "args": [
+      8,
+      6
+     ]
+    },
+    {
+     "type": "InternalAlignment:BSplineControlPoint",
+     "args": [
+      9,
+      3,
+      5,
+      3
+     ]
+    },
+    {
+     "type": "Equal",
+     "args": [
+      9,
+      6
+     ]
+    },
+    {
+     "type": "InternalAlignment:BSplineControlPoint",
+     "args": [
+      10,
+      3,
+      5,
+      4
+     ]
+    },
+    {
+     "type": "Equal",
+     "args": [
+      10,
+      6
+     ]
+    },
+    {
+     "type": "InternalAlignment:BSplineControlPoint",
+     "args": [
+      11,
+      3,
+      5,
+      5
+     ]
+    },
+    {
+     "type": "Equal",
+     "args": [
+      11,
+      6
+     ]
+    },
+    {
+     "type": "InternalAlignment:BSplineKnotPoint",
+     "args": [
+      12,
+      1,
+      5,
+      5
+     ]
+    }
+   ],
+   "message": {
+    "status": "Under-constrained: ",
+    "link": "12 Degrees of Freedom"
+   }
+  },
+  "bspline-knots-three": {
+   "geometry": [
+    {
+     "type": "Point",
+     "at": [
+      4.968944,
+      10.062112
+     ],
+     "construction": true
+    },
+    {
+     "type": "Point",
+     "at": [
+      25.000000500011307,
+      35.06210300000001
+     ],
+     "construction": true
+    },
+    {
+     "type": "Point",
+     "at": [
+      45.0311,
+      10.062112
+     ],
+     "construction": true
+    },
+    {
+     "type": "BSplineCurve",
+     "poles": [
+      [
+       4.968944,
+       10.062112
+      ],
+      [
+       18.322977092883722,
+       43.39543333333842
+      ],
+      [
+       31.67703042621706,
+       43.39543333333842
+      ],
+      [
+       45.0311,
+       10.062112
+      ]
+     ],
+     "weights": [
+      1.0,
+      1.0,
+      1.0,
+      1.0
+     ],
+     "knots": [
+      0.0,
+      64.07009180473034
+     ],
+     "mults": [
+      4,
+      4
+     ],
+     "degree": 3,
+     "periodic": false
+    },
+    {
+     "type": "Circle",
+     "center": [
+      4.968944,
+      10.062112
+     ],
+     "radius": 1.0,
+     "construction": true
+    },
+    {
+     "type": "Circle",
+     "center": [
+      18.322977092883722,
+      43.39543333333842
+     ],
+     "radius": 1.0,
+     "construction": true
+    },
+    {
+     "type": "Circle",
+     "center": [
+      31.67703042621706,
+      43.39543333333842
+     ],
+     "radius": 1.0,
+     "construction": true
+    },
+    {
+     "type": "Circle",
+     "center": [
+      45.0311,
+      10.062112
+     ],
+     "radius": 1.0,
+     "construction": true
+    }
+   ],
+   "constraints": [
+    {
+     "type": "InternalAlignment:BSplineKnotPoint",
+     "args": [
+      0,
+      1,
+      3,
+      0
+     ]
+    },
+    {
+     "type": "PointOnObject",
+     "args": [
+      1,
+      1,
+      3
+     ]
+    },
+    {
+     "type": "InternalAlignment:BSplineKnotPoint",
+     "args": [
+      2,
+      1,
+      3,
+      1
+     ]
+    },
+    {
+     "type": "InternalAlignment:BSplineControlPoint",
+     "args": [
+      4,
+      3,
+      3,
+      0
+     ]
+    },
+    {
+     "type": "Weight",
+     "args": [
+      4
+     ],
+     "value": 1.0
+    },
+    {
+     "type": "InternalAlignment:BSplineControlPoint",
+     "args": [
+      5,
+      3,
+      3,
+      1
+     ]
+    },
+    {
+     "type": "Equal",
+     "args": [
+      5,
+      4
+     ]
+    },
+    {
+     "type": "InternalAlignment:BSplineControlPoint",
+     "args": [
+      6,
+      3,
+      3,
+      2
+     ]
+    },
+    {
+     "type": "Equal",
+     "args": [
+      6,
+      4
+     ]
+    },
+    {
+     "type": "InternalAlignment:BSplineControlPoint",
+     "args": [
+      7,
+      3,
+      3,
+      3
+     ]
+    },
+    {
+     "type": "Equal",
+     "args": [
+      7,
+      4
+     ]
+    }
+   ],
+   "message": {
+    "status": "Under-constrained: ",
+    "link": "9 Degrees of Freedom"
+   }
+  },
+  "bspline-convert": {
+   "geometry": [
+    {
+     "type": "BSplineCurve",
+     "poles": [
+      [
+       5.0,
+       5.0
+      ],
+      [
+       40.0,
+       10.0
+      ]
+     ],
+     "weights": [
+      1.0,
+      1.0
+     ],
+     "knots": [
+      0.0,
+      35.35533905932738
+     ],
+     "mults": [
+      2,
+      2
+     ],
+     "degree": 1,
+     "periodic": false
+    },
+    {
+     "type": "BSplineCurve",
+     "poles": [
+      [
+       34.55336489125606,
+       27.955202066613396
+      ],
+      [
+       28.747103091756216,
+       46.72526799592896
+      ],
+      [
+       16.988563844530663,
+       30.984721441039564
+      ]
+     ],
+     "weights": [
+      1.0,
+      0.4535961214255773,
+      1.0
+     ],
+     "knots": [
+      0.3,
+      2.5
+     ],
+     "mults": [
+      3,
+      3
+     ],
+     "degree": 2,
+     "periodic": false
+    },
+    {
+     "type": "Circle",
+     "center": [
+      5.0,
+      5.0
+     ],
+     "radius": 1.0,
+     "construction": true
+    },
+    {
+     "type": "Circle",
+     "center": [
+      40.0,
+      10.0
+     ],
+     "radius": 1.0,
+     "construction": true
+    },
+    {
+     "type": "Point",
+     "at": [
+      5.0,
+      5.0
+     ],
+     "construction": true
+    },
+    {
+     "type": "Point",
+     "at": [
+      40.0,
+      10.0
+     ],
+     "construction": true
+    },
+    {
+     "type": "Circle",
+     "center": [
+      34.55336489125606,
+      27.955202066613396
+     ],
+     "radius": 1.0,
+     "construction": true
+    },
+    {
+     "type": "Circle",
+     "center": [
+      28.747103091756216,
+      46.72526799592896
+     ],
+     "radius": 0.4535961214255773,
+     "construction": true
+    },
+    {
+     "type": "Circle",
+     "center": [
+      16.988563844530663,
+      30.984721441039564
+     ],
+     "radius": 1.0,
+     "construction": true
+    },
+    {
+     "type": "Point",
+     "at": [
+      34.55336489125606,
+      27.955202066613396
+     ],
+     "construction": true
+    },
+    {
+     "type": "Point",
+     "at": [
+      16.988563844530663,
+      30.984721441039564
+     ],
+     "construction": true
+    }
+   ],
+   "constraints": [
+    {
+     "type": "InternalAlignment:BSplineControlPoint",
+     "args": [
+      2,
+      3,
+      0,
+      0
+     ]
+    },
+    {
+     "type": "Weight",
+     "args": [
+      2
+     ],
+     "value": 1.0
+    },
+    {
+     "type": "InternalAlignment:BSplineControlPoint",
+     "args": [
+      3,
+      3,
+      0,
+      1
+     ]
+    },
+    {
+     "type": "Equal",
+     "args": [
+      3,
+      2
+     ]
+    },
+    {
+     "type": "InternalAlignment:BSplineKnotPoint",
+     "args": [
+      4,
+      1,
+      0,
+      0
+     ]
+    },
+    {
+     "type": "InternalAlignment:BSplineKnotPoint",
+     "args": [
+      5,
+      1,
+      0,
+      1
+     ]
+    },
+    {
+     "type": "InternalAlignment:BSplineControlPoint",
+     "args": [
+      6,
+      3,
+      1,
+      0
+     ]
+    },
+    {
+     "type": "Weight",
+     "args": [
+      6
+     ],
+     "value": 1.0
+    },
+    {
+     "type": "InternalAlignment:BSplineControlPoint",
+     "args": [
+      7,
+      3,
+      1,
+      1
+     ]
+    },
+    {
+     "type": "InternalAlignment:BSplineControlPoint",
+     "args": [
+      8,
+      3,
+      1,
+      2
+     ]
+    },
+    {
+     "type": "Equal",
+     "args": [
+      8,
+      6
+     ]
+    },
+    {
+     "type": "InternalAlignment:BSplineKnotPoint",
+     "args": [
+      9,
+      1,
+      1,
+      0
+     ]
+    },
+    {
+     "type": "InternalAlignment:BSplineKnotPoint",
+     "args": [
+      10,
+      1,
+      1,
+      1
+     ]
+    }
+   ],
+   "message": {
+    "status": "Under-constrained: ",
+    "link": "11 Degrees of Freedom"
+   }
+  },
+  "bspline-convert-circle": {
+   "geometry": [
+    {
+     "type": "BSplineCurve",
+     "poles": [
+      [
+       37.0,
+       20.0
+      ],
+      [
+       37.0,
+       44.0
+      ],
+      [
+       13.0,
+       44.0
+      ],
+      [
+       13.0,
+       20.0
+      ],
+      [
+       13.0,
+       -4.0
+      ],
+      [
+       37.0,
+       -4.0
+      ],
+      [
+       37.0,
+       20.0
+      ]
+     ],
+     "weights": [
+      3.0,
+      1.0,
+      1.0,
+      3.0,
+      1.0,
+      1.0,
+      3.0
+     ],
+     "knots": [
+      0.0,
+      3.141592653589793,
+      6.283185307179586
+     ],
+     "mults": [
+      4,
+      3,
+      4
+     ],
+     "degree": 3,
+     "periodic": false
+    },
+    {
+     "type": "Circle",
+     "center": [
+      37.0,
+      20.0
+     ],
+     "radius": 3.0,
+     "construction": true
+    },
+    {
+     "type": "Circle",
+     "center": [
+      37.0,
+      44.0
+     ],
+     "radius": 1.0,
+     "construction": true
+    },
+    {
+     "type": "Circle",
+     "center": [
+      13.0,
+      44.0
+     ],
+     "radius": 1.0,
+     "construction": true
+    },
+    {
+     "type": "Circle",
+     "center": [
+      13.0,
+      20.0
+     ],
+     "radius": 3.0,
+     "construction": true
+    },
+    {
+     "type": "Circle",
+     "center": [
+      13.0,
+      -4.0
+     ],
+     "radius": 1.0,
+     "construction": true
+    },
+    {
+     "type": "Circle",
+     "center": [
+      37.0,
+      -4.0
+     ],
+     "radius": 1.0,
+     "construction": true
+    },
+    {
+     "type": "Circle",
+     "center": [
+      37.0,
+      20.0
+     ],
+     "radius": 3.0,
+     "construction": true
+    },
+    {
+     "type": "Point",
+     "at": [
+      37.0,
+      20.0
+     ],
+     "construction": true
+    },
+    {
+     "type": "Point",
+     "at": [
+      13.0,
+      20.0
+     ],
+     "construction": true
+    },
+    {
+     "type": "Point",
+     "at": [
+      37.0,
+      20.0
+     ],
+     "construction": true
+    }
+   ],
+   "constraints": [
+    {
+     "type": "InternalAlignment:BSplineControlPoint",
+     "args": [
+      1,
+      3,
+      0,
+      0
+     ]
+    },
+    {
+     "type": "InternalAlignment:BSplineControlPoint",
+     "args": [
+      2,
+      3,
+      0,
+      1
+     ]
+    },
+    {
+     "type": "InternalAlignment:BSplineControlPoint",
+     "args": [
+      3,
+      3,
+      0,
+      2
+     ]
+    },
+    {
+     "type": "InternalAlignment:BSplineControlPoint",
+     "args": [
+      4,
+      3,
+      0,
+      3
+     ]
+    },
+    {
+     "type": "InternalAlignment:BSplineControlPoint",
+     "args": [
+      5,
+      3,
+      0,
+      4
+     ]
+    },
+    {
+     "type": "InternalAlignment:BSplineControlPoint",
+     "args": [
+      6,
+      3,
+      0,
+      5
+     ]
+    },
+    {
+     "type": "InternalAlignment:BSplineControlPoint",
+     "args": [
+      7,
+      3,
+      0,
+      6
+     ]
+    },
+    {
+     "type": "InternalAlignment:BSplineKnotPoint",
+     "args": [
+      8,
+      1,
+      0,
+      0
+     ]
+    },
+    {
+     "type": "InternalAlignment:BSplineKnotPoint",
+     "args": [
+      9,
+      1,
+      0,
+      1
+     ]
+    },
+    {
+     "type": "InternalAlignment:BSplineKnotPoint",
+     "args": [
+      10,
+      1,
+      0,
+      2
+     ]
+    }
+   ],
+   "message": {
+    "status": "Under-constrained: ",
+    "link": "21 Degrees of Freedom"
+   }
+  },
+  "bspline-degree-up": {
+   "geometry": [
+    {
+     "type": "BSplineCurve",
+     "poles": [
+      [
+       5.0,
+       5.0
+      ],
+      [
+       12.5,
+       23.75
+      ],
+      [
+       22.5,
+       17.5
+      ],
+      [
+       33.75,
+       11.25
+      ],
+      [
+       45.0,
+       30.0
+      ]
+     ],
+     "weights": [
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0
+     ],
+     "knots": [
+      0.0,
+      1.0
+     ],
+     "mults": [
+      5,
+      5
+     ],
+     "degree": 4,
+     "periodic": false
+    },
+    {
+     "type": "Circle",
+     "center": [
+      5.0,
+      5.0
+     ],
+     "radius": 1.0,
+     "construction": true
+    },
+    {
+     "type": "Circle",
+     "center": [
+      12.5,
+      23.75
+     ],
+     "radius": 1.0,
+     "construction": true
+    },
+    {
+     "type": "Circle",
+     "center": [
+      22.5,
+      17.5
+     ],
+     "radius": 1.0,
+     "construction": true
+    },
+    {
+     "type": "Circle",
+     "center": [
+      33.75,
+      11.25
+     ],
+     "radius": 1.0,
+     "construction": true
+    },
+    {
+     "type": "Circle",
+     "center": [
+      45.0,
+      30.0
+     ],
+     "radius": 1.0,
+     "construction": true
+    },
+    {
+     "type": "Point",
+     "at": [
+      5.0,
+      5.0
+     ],
+     "construction": true
+    },
+    {
+     "type": "Point",
+     "at": [
+      45.0,
+      30.0
+     ],
+     "construction": true
+    }
+   ],
+   "constraints": [
+    {
+     "type": "InternalAlignment:BSplineControlPoint",
+     "args": [
+      1,
+      3,
+      0,
+      0
+     ]
+    },
+    {
+     "type": "Weight",
+     "args": [
+      1
+     ],
+     "value": 1.0
+    },
+    {
+     "type": "InternalAlignment:BSplineControlPoint",
+     "args": [
+      2,
+      3,
+      0,
+      1
+     ]
+    },
+    {
+     "type": "Equal",
+     "args": [
+      2,
+      1
+     ]
+    },
+    {
+     "type": "InternalAlignment:BSplineControlPoint",
+     "args": [
+      3,
+      3,
+      0,
+      2
+     ]
+    },
+    {
+     "type": "Equal",
+     "args": [
+      3,
+      1
+     ]
+    },
+    {
+     "type": "InternalAlignment:BSplineControlPoint",
+     "args": [
+      4,
+      3,
+      0,
+      3
+     ]
+    },
+    {
+     "type": "Equal",
+     "args": [
+      4,
+      1
+     ]
+    },
+    {
+     "type": "InternalAlignment:BSplineControlPoint",
+     "args": [
+      5,
+      3,
+      0,
+      4
+     ]
+    },
+    {
+     "type": "Equal",
+     "args": [
+      5,
+      1
+     ]
+    },
+    {
+     "type": "InternalAlignment:BSplineKnotPoint",
+     "args": [
+      6,
+      1,
+      0,
+      0
+     ]
+    },
+    {
+     "type": "InternalAlignment:BSplineKnotPoint",
+     "args": [
+      7,
+      1,
+      0,
+      1
+     ]
+    }
+   ],
+   "message": {
+    "status": "Under-constrained: ",
+    "link": "10 Degrees of Freedom"
+   }
+  },
+  "bspline-degree-down": {
+   "geometry": [
+    {
+     "type": "BSplineCurve",
+     "poles": [
+      [
+       5.0,
+       5.0
+      ],
+      [
+       5.029296884313226,
+       5.073242001235485
+      ],
+      [
+       5.058650933206081,
+       5.145912915468216
+      ],
+      [
+       5.088004982098937,
+       5.218583829700947
+      ],
+      [
+       5.117416083812714,
+       5.2906858921051025
+      ],
+      [
+       5.14682718552649,
+       5.362787954509258
+      ],
+      [
+       5.176295228302479,
+       5.434323400259018
+      ],
+      [
+       5.205763271078467,
+       5.505858846008778
+      ],
+      [
+       5.235288143157959,
+       5.57682991027832
+      ],
+      [
+       5.264813015237451,
+       5.647800974547861
+      ],
+      [
+       5.294394604861736,
+       5.718209892511368
+      ],
+      [
+       5.323976194486022,
+       5.788618810474873
+      ],
+      [
+       5.353614389896393,
+       5.8584678173065186
+      ],
+      [
+       5.383252585306764,
+       5.9283168241381645
+      ],
+      [
+       5.412947274744511,
+       5.997608155012131
+      ],
+      [
+       5.442641964182258,
+       6.066899485886097
+      ],
+      [
+       5.472393035888672,
+       6.1356353759765625
+      ],
+      [
+       5.502144107595086,
+       6.204371266067028
+      ],
+      [
+       5.531951449811459,
+       6.272553950548172
+      ],
+      [
+       5.561758792027831,
+       6.340736635029316
+      ],
+      [
+       5.591622292995453,
+       6.408368349075317
+      ],
+      [
+       5.621485793963075,
+       6.476000063121319
+      ],
+      [
+       5.651405341923237,
+       6.543083041906357
+      ],
+      [
+       5.681324889883399,
+       6.610166020691395
+      ],
+      [
+       5.711300373077393,
+       6.676702499389648
+      ],
+      [
+       5.741275856271386,
+       6.743238978087902
+      ],
+      [
+       5.771307162940502,
+       6.80923119187355
+      ],
+      [
+       5.801338469609618,
+       6.875223405659199
+      ],
+      [
+       5.831425487995148,
+       6.940673589706421
+      ],
+      [
+       5.891599580645561,
+       7.071572840213776
+      ],
+      [
+       5.951995849609375,
+       7.2003173828125
+      ],
+      [
+       6.435203552246094,
+       8.229522705078125
+      ],
+      [
+       6.932373046875,
+       9.1259765625
+      ],
+      [
+       7.92694091796875,
+       10.914306640625
+      ],
+      [
+       8.974609375,
+       12.2265625
+      ],
+      [
+       11.07177734375,
+       14.814453125
+      ],
+      [
+       13.359375,
+       15.9375
+      ],
+      [
+       17.94921875,
+       17.890625
+      ],
+      [
+       23.125,
+       17.5
+      ],
+      [
+       33.59375,
+       14.375
+      ],
+      [
+       45.0,
+       30.0
+      ]
+     ],
+     "weights": [
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0
+     ],
+     "knots": [
+      0.0,
+      0.001953125,
+      0.00390625,
+      0.005859375,
+      0.0078125,
+      0.009765625,
+      0.01171875,
+      0.013671875,
+      0.015625,
+      0.017578125,
+      0.01953125,
+      0.021484375,
+      0.0234375,
+      0.025390625,
+      0.02734375,
+      0.03125,
+      0.0625,
+      0.125,
+      0.25,
+      0.5,
+      1.0
+     ],
+     "mults": [
+      3,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      3
+     ],
+     "degree": 2,
+     "periodic": false
+    },
+    {
+     "type": "Circle",
+     "center": [
+      5.0,
+      5.0
+     ],
+     "radius": 1.0,
+     "construction": true
+    },
+    {
+     "type": "Circle",
+     "center": [
+      5.029296884313226,
+      5.073242001235485
+     ],
+     "radius": 1.0,
+     "construction": true
+    },
+    {
+     "type": "Circle",
+     "center": [
+      5.058650933206081,
+      5.145912915468216
+     ],
+     "radius": 1.0,
+     "construction": true
+    },
+    {
+     "type": "Circle",
+     "center": [
+      5.088004982098937,
+      5.218583829700947
+     ],
+     "radius": 1.0,
+     "construction": true
+    },
+    {
+     "type": "Circle",
+     "center": [
+      5.117416083812714,
+      5.2906858921051025
+     ],
+     "radius": 1.0,
+     "construction": true
+    },
+    {
+     "type": "Circle",
+     "center": [
+      5.14682718552649,
+      5.362787954509258
+     ],
+     "radius": 1.0,
+     "construction": true
+    },
+    {
+     "type": "Circle",
+     "center": [
+      5.176295228302479,
+      5.434323400259018
+     ],
+     "radius": 1.0,
+     "construction": true
+    },
+    {
+     "type": "Circle",
+     "center": [
+      5.205763271078467,
+      5.505858846008778
+     ],
+     "radius": 1.0,
+     "construction": true
+    },
+    {
+     "type": "Circle",
+     "center": [
+      5.235288143157959,
+      5.57682991027832
+     ],
+     "radius": 1.0,
+     "construction": true
+    },
+    {
+     "type": "Circle",
+     "center": [
+      5.264813015237451,
+      5.647800974547861
+     ],
+     "radius": 1.0,
+     "construction": true
+    },
+    {
+     "type": "Circle",
+     "center": [
+      5.294394604861736,
+      5.718209892511368
+     ],
+     "radius": 1.0,
+     "construction": true
+    },
+    {
+     "type": "Circle",
+     "center": [
+      5.323976194486022,
+      5.788618810474873
+     ],
+     "radius": 1.0,
+     "construction": true
+    },
+    {
+     "type": "Circle",
+     "center": [
+      5.353614389896393,
+      5.8584678173065186
+     ],
+     "radius": 1.0,
+     "construction": true
+    },
+    {
+     "type": "Circle",
+     "center": [
+      5.383252585306764,
+      5.9283168241381645
+     ],
+     "radius": 1.0,
+     "construction": true
+    },
+    {
+     "type": "Circle",
+     "center": [
+      5.412947274744511,
+      5.997608155012131
+     ],
+     "radius": 1.0,
+     "construction": true
+    },
+    {
+     "type": "Circle",
+     "center": [
+      5.442641964182258,
+      6.066899485886097
+     ],
+     "radius": 1.0,
+     "construction": true
+    },
+    {
+     "type": "Circle",
+     "center": [
+      5.472393035888672,
+      6.1356353759765625
+     ],
+     "radius": 1.0,
+     "construction": true
+    },
+    {
+     "type": "Circle",
+     "center": [
+      5.502144107595086,
+      6.204371266067028
+     ],
+     "radius": 1.0,
+     "construction": true
+    },
+    {
+     "type": "Circle",
+     "center": [
+      5.531951449811459,
+      6.272553950548172
+     ],
+     "radius": 1.0,
+     "construction": true
+    },
+    {
+     "type": "Circle",
+     "center": [
+      5.561758792027831,
+      6.340736635029316
+     ],
+     "radius": 1.0,
+     "construction": true
+    },
+    {
+     "type": "Circle",
+     "center": [
+      5.591622292995453,
+      6.408368349075317
+     ],
+     "radius": 1.0,
+     "construction": true
+    },
+    {
+     "type": "Circle",
+     "center": [
+      5.621485793963075,
+      6.476000063121319
+     ],
+     "radius": 1.0,
+     "construction": true
+    },
+    {
+     "type": "Circle",
+     "center": [
+      5.651405341923237,
+      6.543083041906357
+     ],
+     "radius": 1.0,
+     "construction": true
+    },
+    {
+     "type": "Circle",
+     "center": [
+      5.681324889883399,
+      6.610166020691395
+     ],
+     "radius": 1.0,
+     "construction": true
+    },
+    {
+     "type": "Circle",
+     "center": [
+      5.711300373077393,
+      6.676702499389648
+     ],
+     "radius": 1.0,
+     "construction": true
+    },
+    {
+     "type": "Circle",
+     "center": [
+      5.741275856271386,
+      6.743238978087902
+     ],
+     "radius": 1.0,
+     "construction": true
+    },
+    {
+     "type": "Circle",
+     "center": [
+      5.771307162940502,
+      6.80923119187355
+     ],
+     "radius": 1.0,
+     "construction": true
+    },
+    {
+     "type": "Circle",
+     "center": [
+      5.801338469609618,
+      6.875223405659199
+     ],
+     "radius": 1.0,
+     "construction": true
+    },
+    {
+     "type": "Circle",
+     "center": [
+      5.831425487995148,
+      6.940673589706421
+     ],
+     "radius": 1.0,
+     "construction": true
+    },
+    {
+     "type": "Circle",
+     "center": [
+      5.891599580645561,
+      7.071572840213776
+     ],
+     "radius": 1.0,
+     "construction": true
+    },
+    {
+     "type": "Circle",
+     "center": [
+      5.951995849609375,
+      7.2003173828125
+     ],
+     "radius": 1.0,
+     "construction": true
+    },
+    {
+     "type": "Circle",
+     "center": [
+      6.435203552246094,
+      8.229522705078125
+     ],
+     "radius": 1.0,
+     "construction": true
+    },
+    {
+     "type": "Circle",
+     "center": [
+      6.932373046875,
+      9.1259765625
+     ],
+     "radius": 1.0,
+     "construction": true
+    },
+    {
+     "type": "Circle",
+     "center": [
+      7.92694091796875,
+      10.914306640625
+     ],
+     "radius": 1.0,
+     "construction": true
+    },
+    {
+     "type": "Circle",
+     "center": [
+      8.974609375,
+      12.2265625
+     ],
+     "radius": 1.0,
+     "construction": true
+    },
+    {
+     "type": "Circle",
+     "center": [
+      11.07177734375,
+      14.814453125
+     ],
+     "radius": 1.0,
+     "construction": true
+    },
+    {
+     "type": "Circle",
+     "center": [
+      13.359375,
+      15.9375
+     ],
+     "radius": 1.0,
+     "construction": true
+    },
+    {
+     "type": "Circle",
+     "center": [
+      17.94921875,
+      17.890625
+     ],
+     "radius": 1.0,
+     "construction": true
+    },
+    {
+     "type": "Circle",
+     "center": [
+      23.125,
+      17.5
+     ],
+     "radius": 1.0,
+     "construction": true
+    },
+    {
+     "type": "Circle",
+     "center": [
+      33.59375,
+      14.375
+     ],
+     "radius": 1.0,
+     "construction": true
+    },
+    {
+     "type": "Circle",
+     "center": [
+      45.0,
+      30.0
+     ],
+     "radius": 1.0,
+     "construction": true
+    },
+    {
+     "type": "Point",
+     "at": [
+      5.0,
+      5.0
+     ],
+     "construction": true
+    },
+    {
+     "type": "Point",
+     "at": [
+      5.058650933206081,
+      5.145912915468216
+     ],
+     "construction": true
+    },
+    {
+     "type": "Point",
+     "at": [
+      5.117416083812714,
+      5.2906858921051025
+     ],
+     "construction": true
+    },
+    {
+     "type": "Point",
+     "at": [
+      5.176295228302479,
+      5.434323400259018
+     ],
+     "construction": true
+    },
+    {
+     "type": "Point",
+     "at": [
+      5.235288143157959,
+      5.57682991027832
+     ],
+     "construction": true
+    },
+    {
+     "type": "Point",
+     "at": [
+      5.294394604861736,
+      5.718209892511368
+     ],
+     "construction": true
+    },
+    {
+     "type": "Point",
+     "at": [
+      5.353614389896393,
+      5.8584678173065186
+     ],
+     "construction": true
+    },
+    {
+     "type": "Point",
+     "at": [
+      5.412947274744511,
+      5.997608155012131
+     ],
+     "construction": true
+    },
+    {
+     "type": "Point",
+     "at": [
+      5.472393035888672,
+      6.1356353759765625
+     ],
+     "construction": true
+    },
+    {
+     "type": "Point",
+     "at": [
+      5.531951449811459,
+      6.272553950548172
+     ],
+     "construction": true
+    },
+    {
+     "type": "Point",
+     "at": [
+      5.591622292995453,
+      6.408368349075317
+     ],
+     "construction": true
+    },
+    {
+     "type": "Point",
+     "at": [
+      5.651405341923237,
+      6.543083041906357
+     ],
+     "construction": true
+    },
+    {
+     "type": "Point",
+     "at": [
+      5.711300373077393,
+      6.676702499389648
+     ],
+     "construction": true
+    },
+    {
+     "type": "Point",
+     "at": [
+      5.771307162940502,
+      6.80923119187355
+     ],
+     "construction": true
+    },
+    {
+     "type": "Point",
+     "at": [
+      5.831425487995148,
+      6.940673589706421
+     ],
+     "construction": true
+    },
+    {
+     "type": "Point",
+     "at": [
+      5.951995849609375,
+      7.2003173828125
+     ],
+     "construction": true
+    },
+    {
+     "type": "Point",
+     "at": [
+      6.932373046875,
+      9.1259765625
+     ],
+     "construction": true
+    },
+    {
+     "type": "Point",
+     "at": [
+      8.974609375,
+      12.2265625
+     ],
+     "construction": true
+    },
+    {
+     "type": "Point",
+     "at": [
+      13.359375,
+      15.9375
+     ],
+     "construction": true
+    },
+    {
+     "type": "Point",
+     "at": [
+      23.125,
+      17.5
+     ],
+     "construction": true
+    },
+    {
+     "type": "Point",
+     "at": [
+      45.0,
+      30.0
+     ],
+     "construction": true
+    }
+   ],
+   "constraints": [
+    {
+     "type": "InternalAlignment:BSplineControlPoint",
+     "args": [
+      1,
+      3,
+      0,
+      0
+     ]
+    },
+    {
+     "type": "Weight",
+     "args": [
+      1
+     ],
+     "value": 1.0
+    },
+    {
+     "type": "InternalAlignment:BSplineControlPoint",
+     "args": [
+      2,
+      3,
+      0,
+      1
+     ]
+    },
+    {
+     "type": "Equal",
+     "args": [
+      2,
+      1
+     ]
+    },
+    {
+     "type": "InternalAlignment:BSplineControlPoint",
+     "args": [
+      3,
+      3,
+      0,
+      2
+     ]
+    },
+    {
+     "type": "Equal",
+     "args": [
+      3,
+      1
+     ]
+    },
+    {
+     "type": "InternalAlignment:BSplineControlPoint",
+     "args": [
+      4,
+      3,
+      0,
+      3
+     ]
+    },
+    {
+     "type": "Equal",
+     "args": [
+      4,
+      1
+     ]
+    },
+    {
+     "type": "InternalAlignment:BSplineControlPoint",
+     "args": [
+      5,
+      3,
+      0,
+      4
+     ]
+    },
+    {
+     "type": "Equal",
+     "args": [
+      5,
+      1
+     ]
+    },
+    {
+     "type": "InternalAlignment:BSplineControlPoint",
+     "args": [
+      6,
+      3,
+      0,
+      5
+     ]
+    },
+    {
+     "type": "Equal",
+     "args": [
+      6,
+      1
+     ]
+    },
+    {
+     "type": "InternalAlignment:BSplineControlPoint",
+     "args": [
+      7,
+      3,
+      0,
+      6
+     ]
+    },
+    {
+     "type": "Equal",
+     "args": [
+      7,
+      1
+     ]
+    },
+    {
+     "type": "InternalAlignment:BSplineControlPoint",
+     "args": [
+      8,
+      3,
+      0,
+      7
+     ]
+    },
+    {
+     "type": "Equal",
+     "args": [
+      8,
+      1
+     ]
+    },
+    {
+     "type": "InternalAlignment:BSplineControlPoint",
+     "args": [
+      9,
+      3,
+      0,
+      8
+     ]
+    },
+    {
+     "type": "Equal",
+     "args": [
+      9,
+      1
+     ]
+    },
+    {
+     "type": "InternalAlignment:BSplineControlPoint",
+     "args": [
+      10,
+      3,
+      0,
+      9
+     ]
+    },
+    {
+     "type": "Equal",
+     "args": [
+      10,
+      1
+     ]
+    },
+    {
+     "type": "InternalAlignment:BSplineControlPoint",
+     "args": [
+      11,
+      3,
+      0,
+      10
+     ]
+    },
+    {
+     "type": "Equal",
+     "args": [
+      11,
+      1
+     ]
+    },
+    {
+     "type": "InternalAlignment:BSplineControlPoint",
+     "args": [
+      12,
+      3,
+      0,
+      11
+     ]
+    },
+    {
+     "type": "Equal",
+     "args": [
+      12,
+      1
+     ]
+    },
+    {
+     "type": "InternalAlignment:BSplineControlPoint",
+     "args": [
+      13,
+      3,
+      0,
+      12
+     ]
+    },
+    {
+     "type": "Equal",
+     "args": [
+      13,
+      1
+     ]
+    },
+    {
+     "type": "InternalAlignment:BSplineControlPoint",
+     "args": [
+      14,
+      3,
+      0,
+      13
+     ]
+    },
+    {
+     "type": "Equal",
+     "args": [
+      14,
+      1
+     ]
+    },
+    {
+     "type": "InternalAlignment:BSplineControlPoint",
+     "args": [
+      15,
+      3,
+      0,
+      14
+     ]
+    },
+    {
+     "type": "Equal",
+     "args": [
+      15,
+      1
+     ]
+    },
+    {
+     "type": "InternalAlignment:BSplineControlPoint",
+     "args": [
+      16,
+      3,
+      0,
+      15
+     ]
+    },
+    {
+     "type": "Equal",
+     "args": [
+      16,
+      1
+     ]
+    },
+    {
+     "type": "InternalAlignment:BSplineControlPoint",
+     "args": [
+      17,
+      3,
+      0,
+      16
+     ]
+    },
+    {
+     "type": "Equal",
+     "args": [
+      17,
+      1
+     ]
+    },
+    {
+     "type": "InternalAlignment:BSplineControlPoint",
+     "args": [
+      18,
+      3,
+      0,
+      17
+     ]
+    },
+    {
+     "type": "Equal",
+     "args": [
+      18,
+      1
+     ]
+    },
+    {
+     "type": "InternalAlignment:BSplineControlPoint",
+     "args": [
+      19,
+      3,
+      0,
+      18
+     ]
+    },
+    {
+     "type": "Equal",
+     "args": [
+      19,
+      1
+     ]
+    },
+    {
+     "type": "InternalAlignment:BSplineControlPoint",
+     "args": [
+      20,
+      3,
+      0,
+      19
+     ]
+    },
+    {
+     "type": "Equal",
+     "args": [
+      20,
+      1
+     ]
+    },
+    {
+     "type": "InternalAlignment:BSplineControlPoint",
+     "args": [
+      21,
+      3,
+      0,
+      20
+     ]
+    },
+    {
+     "type": "Equal",
+     "args": [
+      21,
+      1
+     ]
+    },
+    {
+     "type": "InternalAlignment:BSplineControlPoint",
+     "args": [
+      22,
+      3,
+      0,
+      21
+     ]
+    },
+    {
+     "type": "Equal",
+     "args": [
+      22,
+      1
+     ]
+    },
+    {
+     "type": "InternalAlignment:BSplineControlPoint",
+     "args": [
+      23,
+      3,
+      0,
+      22
+     ]
+    },
+    {
+     "type": "Equal",
+     "args": [
+      23,
+      1
+     ]
+    },
+    {
+     "type": "InternalAlignment:BSplineControlPoint",
+     "args": [
+      24,
+      3,
+      0,
+      23
+     ]
+    },
+    {
+     "type": "Equal",
+     "args": [
+      24,
+      1
+     ]
+    },
+    {
+     "type": "InternalAlignment:BSplineControlPoint",
+     "args": [
+      25,
+      3,
+      0,
+      24
+     ]
+    },
+    {
+     "type": "Equal",
+     "args": [
+      25,
+      1
+     ]
+    },
+    {
+     "type": "InternalAlignment:BSplineControlPoint",
+     "args": [
+      26,
+      3,
+      0,
+      25
+     ]
+    },
+    {
+     "type": "Equal",
+     "args": [
+      26,
+      1
+     ]
+    },
+    {
+     "type": "InternalAlignment:BSplineControlPoint",
+     "args": [
+      27,
+      3,
+      0,
+      26
+     ]
+    },
+    {
+     "type": "Equal",
+     "args": [
+      27,
+      1
+     ]
+    },
+    {
+     "type": "InternalAlignment:BSplineControlPoint",
+     "args": [
+      28,
+      3,
+      0,
+      27
+     ]
+    },
+    {
+     "type": "Equal",
+     "args": [
+      28,
+      1
+     ]
+    },
+    {
+     "type": "InternalAlignment:BSplineControlPoint",
+     "args": [
+      29,
+      3,
+      0,
+      28
+     ]
+    },
+    {
+     "type": "Equal",
+     "args": [
+      29,
+      1
+     ]
+    },
+    {
+     "type": "InternalAlignment:BSplineControlPoint",
+     "args": [
+      30,
+      3,
+      0,
+      29
+     ]
+    },
+    {
+     "type": "Equal",
+     "args": [
+      30,
+      1
+     ]
+    },
+    {
+     "type": "InternalAlignment:BSplineControlPoint",
+     "args": [
+      31,
+      3,
+      0,
+      30
+     ]
+    },
+    {
+     "type": "Equal",
+     "args": [
+      31,
+      1
+     ]
+    },
+    {
+     "type": "InternalAlignment:BSplineControlPoint",
+     "args": [
+      32,
+      3,
+      0,
+      31
+     ]
+    },
+    {
+     "type": "Equal",
+     "args": [
+      32,
+      1
+     ]
+    },
+    {
+     "type": "InternalAlignment:BSplineControlPoint",
+     "args": [
+      33,
+      3,
+      0,
+      32
+     ]
+    },
+    {
+     "type": "Equal",
+     "args": [
+      33,
+      1
+     ]
+    },
+    {
+     "type": "InternalAlignment:BSplineControlPoint",
+     "args": [
+      34,
+      3,
+      0,
+      33
+     ]
+    },
+    {
+     "type": "Equal",
+     "args": [
+      34,
+      1
+     ]
+    },
+    {
+     "type": "InternalAlignment:BSplineControlPoint",
+     "args": [
+      35,
+      3,
+      0,
+      34
+     ]
+    },
+    {
+     "type": "Equal",
+     "args": [
+      35,
+      1
+     ]
+    },
+    {
+     "type": "InternalAlignment:BSplineControlPoint",
+     "args": [
+      36,
+      3,
+      0,
+      35
+     ]
+    },
+    {
+     "type": "Equal",
+     "args": [
+      36,
+      1
+     ]
+    },
+    {
+     "type": "InternalAlignment:BSplineControlPoint",
+     "args": [
+      37,
+      3,
+      0,
+      36
+     ]
+    },
+    {
+     "type": "Equal",
+     "args": [
+      37,
+      1
+     ]
+    },
+    {
+     "type": "InternalAlignment:BSplineControlPoint",
+     "args": [
+      38,
+      3,
+      0,
+      37
+     ]
+    },
+    {
+     "type": "Equal",
+     "args": [
+      38,
+      1
+     ]
+    },
+    {
+     "type": "InternalAlignment:BSplineControlPoint",
+     "args": [
+      39,
+      3,
+      0,
+      38
+     ]
+    },
+    {
+     "type": "Equal",
+     "args": [
+      39,
+      1
+     ]
+    },
+    {
+     "type": "InternalAlignment:BSplineControlPoint",
+     "args": [
+      40,
+      3,
+      0,
+      39
+     ]
+    },
+    {
+     "type": "Equal",
+     "args": [
+      40,
+      1
+     ]
+    },
+    {
+     "type": "InternalAlignment:BSplineControlPoint",
+     "args": [
+      41,
+      3,
+      0,
+      40
+     ]
+    },
+    {
+     "type": "Equal",
+     "args": [
+      41,
+      1
+     ]
+    },
+    {
+     "type": "InternalAlignment:BSplineKnotPoint",
+     "args": [
+      42,
+      1,
+      0,
+      0
+     ]
+    },
+    {
+     "type": "InternalAlignment:BSplineKnotPoint",
+     "args": [
+      43,
+      1,
+      0,
+      1
+     ]
+    },
+    {
+     "type": "InternalAlignment:BSplineKnotPoint",
+     "args": [
+      44,
+      1,
+      0,
+      2
+     ]
+    },
+    {
+     "type": "InternalAlignment:BSplineKnotPoint",
+     "args": [
+      45,
+      1,
+      0,
+      3
+     ]
+    },
+    {
+     "type": "InternalAlignment:BSplineKnotPoint",
+     "args": [
+      46,
+      1,
+      0,
+      4
+     ]
+    },
+    {
+     "type": "InternalAlignment:BSplineKnotPoint",
+     "args": [
+      47,
+      1,
+      0,
+      5
+     ]
+    },
+    {
+     "type": "InternalAlignment:BSplineKnotPoint",
+     "args": [
+      48,
+      1,
+      0,
+      6
+     ]
+    },
+    {
+     "type": "InternalAlignment:BSplineKnotPoint",
+     "args": [
+      49,
+      1,
+      0,
+      7
+     ]
+    },
+    {
+     "type": "InternalAlignment:BSplineKnotPoint",
+     "args": [
+      50,
+      1,
+      0,
+      8
+     ]
+    },
+    {
+     "type": "InternalAlignment:BSplineKnotPoint",
+     "args": [
+      51,
+      1,
+      0,
+      9
+     ]
+    },
+    {
+     "type": "InternalAlignment:BSplineKnotPoint",
+     "args": [
+      52,
+      1,
+      0,
+      10
+     ]
+    },
+    {
+     "type": "InternalAlignment:BSplineKnotPoint",
+     "args": [
+      53,
+      1,
+      0,
+      11
+     ]
+    },
+    {
+     "type": "InternalAlignment:BSplineKnotPoint",
+     "args": [
+      54,
+      1,
+      0,
+      12
+     ]
+    },
+    {
+     "type": "InternalAlignment:BSplineKnotPoint",
+     "args": [
+      55,
+      1,
+      0,
+      13
+     ]
+    },
+    {
+     "type": "InternalAlignment:BSplineKnotPoint",
+     "args": [
+      56,
+      1,
+      0,
+      14
+     ]
+    },
+    {
+     "type": "InternalAlignment:BSplineKnotPoint",
+     "args": [
+      57,
+      1,
+      0,
+      15
+     ]
+    },
+    {
+     "type": "InternalAlignment:BSplineKnotPoint",
+     "args": [
+      58,
+      1,
+      0,
+      16
+     ]
+    },
+    {
+     "type": "InternalAlignment:BSplineKnotPoint",
+     "args": [
+      59,
+      1,
+      0,
+      17
+     ]
+    },
+    {
+     "type": "InternalAlignment:BSplineKnotPoint",
+     "args": [
+      60,
+      1,
+      0,
+      18
+     ]
+    },
+    {
+     "type": "InternalAlignment:BSplineKnotPoint",
+     "args": [
+      61,
+      1,
+      0,
+      19
+     ]
+    },
+    {
+     "type": "InternalAlignment:BSplineKnotPoint",
+     "args": [
+      62,
+      1,
+      0,
+      20
+     ]
+    }
+   ],
+   "message": {
+    "status": "Under-constrained: ",
+    "link": "82 Degrees of Freedom"
+   }
+  },
+  "bspline-knot-up": {
+   "geometry": [
+    {
+     "type": "BSplineCurve",
+     "poles": [
+      [
+       5.0,
+       5.0
+      ],
+      [
+       12.0,
+       30.000000000000014
+      ],
+      [
+       18.5,
+       17.50000000000002
+      ],
+      [
+       31.5,
+       17.50000000000002
+      ],
+      [
+       38.0,
+       30.000000000000014
+      ],
+      [
+       45.0,
+       8.0
+      ]
+     ],
+     "weights": [
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0
+     ],
+     "knots": [
+      0.0,
+      1.0,
+      2.0
+     ],
+     "mults": [
+      4,
+      2,
+      4
+     ],
+     "degree": 3,
+     "periodic": false
+    },
+    {
+     "type": "Circle",
+     "center": [
+      5.0,
+      5.0
+     ],
+     "radius": 1.0,
+     "construction": true
+    },
+    {
+     "type": "Circle",
+     "center": [
+      12.0,
+      30.000000000000014
+     ],
+     "radius": 1.0,
+     "construction": true
+    },
+    {
+     "type": "Circle",
+     "center": [
+      38.0,
+      30.000000000000014
+     ],
+     "radius": 1.0,
+     "construction": true
+    },
+    {
+     "type": "Circle",
+     "center": [
+      45.0,
+      8.0
+     ],
+     "radius": 1.0,
+     "construction": true
+    },
+    {
+     "type": "Point",
+     "at": [
+      5.0,
+      5.0
+     ],
+     "construction": true
+    },
+    {
+     "type": "Point",
+     "at": [
+      25.0,
+      17.49999999999994
+     ],
+     "construction": true
+    },
+    {
+     "type": "Point",
+     "at": [
+      45.0,
+      8.0
+     ],
+     "construction": true
+    },
+    {
+     "type": "Circle",
+     "center": [
+      18.5,
+      17.50000000000002
+     ],
+     "radius": 1.0,
+     "construction": true
+    },
+    {
+     "type": "Circle",
+     "center": [
+      31.5,
+      17.50000000000002
+     ],
+     "radius": 1.0,
+     "construction": true
+    }
+   ],
+   "constraints": [
+    {
+     "type": "InternalAlignment:BSplineControlPoint",
+     "args": [
+      1,
+      3,
+      0,
+      0
+     ]
+    },
+    {
+     "type": "Weight",
+     "args": [
+      1
+     ],
+     "value": 1.0
+    },
+    {
+     "type": "InternalAlignment:BSplineControlPoint",
+     "args": [
+      2,
+      3,
+      0,
+      1
+     ]
+    },
+    {
+     "type": "Equal",
+     "args": [
+      2,
+      1
+     ]
+    },
+    {
+     "type": "InternalAlignment:BSplineControlPoint",
+     "args": [
+      3,
+      3,
+      0,
+      4
+     ]
+    },
+    {
+     "type": "Equal",
+     "args": [
+      3,
+      1
+     ]
+    },
+    {
+     "type": "InternalAlignment:BSplineControlPoint",
+     "args": [
+      4,
+      3,
+      0,
+      5
+     ]
+    },
+    {
+     "type": "Equal",
+     "args": [
+      4,
+      1
+     ]
+    },
+    {
+     "type": "InternalAlignment:BSplineKnotPoint",
+     "args": [
+      5,
+      1,
+      0,
+      0
+     ]
+    },
+    {
+     "type": "InternalAlignment:BSplineKnotPoint",
+     "args": [
+      6,
+      1,
+      0,
+      1
+     ]
+    },
+    {
+     "type": "InternalAlignment:BSplineKnotPoint",
+     "args": [
+      7,
+      1,
+      0,
+      2
+     ]
+    },
+    {
+     "type": "InternalAlignment:BSplineControlPoint",
+     "args": [
+      8,
+      3,
+      0,
+      2
+     ]
+    },
+    {
+     "type": "Equal",
+     "args": [
+      8,
+      1
+     ]
+    },
+    {
+     "type": "InternalAlignment:BSplineControlPoint",
+     "args": [
+      9,
+      3,
+      0,
+      3
+     ]
+    },
+    {
+     "type": "Equal",
+     "args": [
+      9,
+      1
+     ]
+    }
+   ],
+   "message": {
+    "status": "Under-constrained: ",
+    "link": "12 Degrees of Freedom"
+   }
+  },
+  "bspline-knot-down": {
+   "geometry": [
+    {
+     "type": "BSplineCurve",
+     "poles": [
+      [
+       5.0,
+       5.0
+      ],
+      [
+       19.0,
+       55.0
+      ],
+      [
+       31.0,
+       3.5
+      ],
+      [
+       45.0,
+       8.0
+      ]
+     ],
+     "weights": [
+      1.0,
+      1.0,
+      1.0,
+      1.0
+     ],
+     "knots": [
+      0.0,
+      2.0
+     ],
+     "mults": [
+      4,
+      4
+     ],
+     "degree": 3,
+     "periodic": false
+    },
+    {
+     "type": "Circle",
+     "center": [
+      5.0,
+      5.0
+     ],
+     "radius": 1.0,
+     "construction": true
+    },
+    {
+     "type": "Circle",
+     "center": [
+      45.0,
+      8.0
+     ],
+     "radius": 1.0,
+     "construction": true
+    },
+    {
+     "type": "Point",
+     "at": [
+      5.0,
+      5.0
+     ],
+     "construction": true
+    },
+    {
+     "type": "Point",
+     "at": [
+      45.0,
+      8.0
+     ],
+     "construction": true
+    },
+    {
+     "type": "Circle",
+     "center": [
+      19.0,
+      55.0
+     ],
+     "radius": 1.0,
+     "construction": true
+    },
+    {
+     "type": "Circle",
+     "center": [
+      31.0,
+      3.5
+     ],
+     "radius": 1.0,
+     "construction": true
+    }
+   ],
+   "constraints": [
+    {
+     "type": "InternalAlignment:BSplineControlPoint",
+     "args": [
+      1,
+      3,
+      0,
+      0
+     ]
+    },
+    {
+     "type": "Weight",
+     "args": [
+      1
+     ],
+     "value": 1.0
+    },
+    {
+     "type": "InternalAlignment:BSplineControlPoint",
+     "args": [
+      2,
+      3,
+      0,
+      3
+     ]
+    },
+    {
+     "type": "Equal",
+     "args": [
+      2,
+      1
+     ]
+    },
+    {
+     "type": "InternalAlignment:BSplineKnotPoint",
+     "args": [
+      3,
+      1,
+      0,
+      0
+     ]
+    },
+    {
+     "type": "InternalAlignment:BSplineKnotPoint",
+     "args": [
+      4,
+      1,
+      0,
+      1
+     ]
+    },
+    {
+     "type": "InternalAlignment:BSplineControlPoint",
+     "args": [
+      5,
+      3,
+      0,
+      1
+     ]
+    },
+    {
+     "type": "Equal",
+     "args": [
+      5,
+      1
+     ]
+    },
+    {
+     "type": "InternalAlignment:BSplineControlPoint",
+     "args": [
+      6,
+      3,
+      0,
+      2
+     ]
+    },
+    {
+     "type": "Equal",
+     "args": [
+      6,
+      1
+     ]
+    }
+   ],
+   "message": {
+    "status": "Under-constrained: ",
+    "link": "8 Degrees of Freedom"
+   }
+  },
+  "bspline-knot-end": {
+   "geometry": [
+    {
+     "type": "BSplineCurve",
+     "poles": [
+      [
+       5.0,
+       5.0
+      ],
+      [
+       15.0,
+       30.0
+      ],
+      [
+       30.0,
+       5.0
+      ],
+      [
+       45.0,
+       30.0
+      ]
+     ],
+     "weights": [
+      1.0,
+      1.0,
+      1.0,
+      1.0
+     ],
+     "knots": [
+      0.0,
+      1.0
+     ],
+     "mults": [
+      4,
+      4
+     ],
+     "degree": 3,
+     "periodic": false
+    }
+   ],
+   "constraints": [],
+   "message": {
+    "status": "Under-constrained: ",
+    "link": "12 Degrees of Freedom"
+   }
+  },
+  "bspline-insert-knot": {
+   "geometry": [
+    {
+     "type": "BSplineCurve",
+     "poles": [
+      [
+       5.0,
+       5.0
+      ],
+      [
+       9.00412,
+       15.010299999999999
+      ],
+      [
+       21.00618,
+       19.9897
+      ],
+      [
+       36.00618,
+       15.010299999999999
+      ],
+      [
+       45.0,
+       30.0
+      ]
+     ],
+     "weights": [
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0
+     ],
+     "knots": [
+      0.0,
+      0.400412,
+      1.0
+     ],
+     "mults": [
+      4,
+      1,
+      4
+     ],
+     "degree": 3,
+     "periodic": false
+    },
+    {
+     "type": "Circle",
+     "center": [
+      5.0,
+      5.0
+     ],
+     "radius": 1.0,
+     "construction": true
+    },
+    {
+     "type": "Circle",
+     "center": [
+      9.00412,
+      15.010299999999999
+     ],
+     "radius": 1.0,
+     "construction": true
+    },
+    {
+     "type": "Circle",
+     "center": [
+      21.00618,
+      19.9897
+     ],
+     "radius": 1.0,
+     "construction": true
+    },
+    {
+     "type": "Circle",
+     "center": [
+      36.00618,
+      15.010299999999999
+     ],
+     "radius": 1.0,
+     "construction": true
+    },
+    {
+     "type": "Circle",
+     "center": [
+      45.0,
+      30.0
+     ],
+     "radius": 1.0,
+     "construction": true
+    },
+    {
+     "type": "Point",
+     "at": [
+      5.0,
+      5.0
+     ],
+     "construction": true
+    },
+    {
+     "type": "Point",
+     "at": [
+      19.096316727346327,
+      17.40123091467345
+     ],
+     "construction": true
+    },
+    {
+     "type": "Point",
+     "at": [
+      45.0,
+      30.0
+     ],
+     "construction": true
+    }
+   ],
+   "constraints": [
+    {
+     "type": "InternalAlignment:BSplineControlPoint",
+     "args": [
+      1,
+      3,
+      0,
+      0
+     ]
+    },
+    {
+     "type": "Weight",
+     "args": [
+      1
+     ],
+     "value": 1.0
+    },
+    {
+     "type": "InternalAlignment:BSplineControlPoint",
+     "args": [
+      2,
+      3,
+      0,
+      1
+     ]
+    },
+    {
+     "type": "Equal",
+     "args": [
+      2,
+      1
+     ]
+    },
+    {
+     "type": "InternalAlignment:BSplineControlPoint",
+     "args": [
+      3,
+      3,
+      0,
+      2
+     ]
+    },
+    {
+     "type": "Equal",
+     "args": [
+      3,
+      1
+     ]
+    },
+    {
+     "type": "InternalAlignment:BSplineControlPoint",
+     "args": [
+      4,
+      3,
+      0,
+      3
+     ]
+    },
+    {
+     "type": "Equal",
+     "args": [
+      4,
+      1
+     ]
+    },
+    {
+     "type": "InternalAlignment:BSplineControlPoint",
+     "args": [
+      5,
+      3,
+      0,
+      4
+     ]
+    },
+    {
+     "type": "Equal",
+     "args": [
+      5,
+      1
+     ]
+    },
+    {
+     "type": "InternalAlignment:BSplineKnotPoint",
+     "args": [
+      6,
+      1,
+      0,
+      0
+     ]
+    },
+    {
+     "type": "InternalAlignment:BSplineKnotPoint",
+     "args": [
+      7,
+      1,
+      0,
+      1
+     ]
+    },
+    {
+     "type": "InternalAlignment:BSplineKnotPoint",
+     "args": [
+      8,
+      1,
+      0,
+      2
+     ]
+    }
+   ],
+   "message": {
+    "status": "Under-constrained: ",
+    "link": "10 Degrees of Freedom"
+   }
+  },
+  "bspline-join": {
+   "geometry": [
+    {
+     "type": "BSplineCurve",
+     "poles": [
+      [
+       5.0,
+       5.0
+      ],
+      [
+       10.0,
+       25.0
+      ],
+      [
+       15.0,
+       5.0
+      ],
+      [
+       20.0,
+       10.0
+      ],
+      [
+       26.0,
+       22.0
+      ],
+      [
+       34.0,
+       4.0
+      ],
+      [
+       45.0,
+       16.0
+      ]
+     ],
+     "weights": [
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0
+     ],
+     "knots": [
+      0.0,
+      1.0,
+      2.0
+     ],
+     "mults": [
+      4,
+      3,
+      4
+     ],
+     "degree": 3,
+     "periodic": false
+    },
+    {
+     "type": "Circle",
+     "center": [
+      5.0,
+      5.0
+     ],
+     "radius": 1.0,
+     "construction": true
+    },
+    {
+     "type": "Circle",
+     "center": [
+      10.0,
+      25.0
+     ],
+     "radius": 1.0,
+     "construction": true
+    },
+    {
+     "type": "Circle",
+     "center": [
+      15.0,
+      5.0
+     ],
+     "radius": 1.0,
+     "construction": true
+    },
+    {
+     "type": "Circle",
+     "center": [
+      20.0,
+      10.0
+     ],
+     "radius": 1.0,
+     "construction": true
+    },
+    {
+     "type": "Circle",
+     "center": [
+      26.0,
+      22.0
+     ],
+     "radius": 1.0,
+     "construction": true
+    },
+    {
+     "type": "Circle",
+     "center": [
+      34.0,
+      4.0
+     ],
+     "radius": 1.0,
+     "construction": true
+    },
+    {
+     "type": "Circle",
+     "center": [
+      45.0,
+      16.0
+     ],
+     "radius": 1.0,
+     "construction": true
+    },
+    {
+     "type": "Point",
+     "at": [
+      5.0,
+      5.0
+     ],
+     "construction": true
+    },
+    {
+     "type": "Point",
+     "at": [
+      20.0,
+      10.0
+     ],
+     "construction": true
+    },
+    {
+     "type": "Point",
+     "at": [
+      45.0,
+      16.0
+     ],
+     "construction": true
+    }
+   ],
+   "constraints": [
+    {
+     "type": "InternalAlignment:BSplineControlPoint",
+     "args": [
+      1,
+      3,
+      0,
+      0
+     ]
+    },
+    {
+     "type": "Weight",
+     "args": [
+      1
+     ],
+     "value": 1.0
+    },
+    {
+     "type": "InternalAlignment:BSplineControlPoint",
+     "args": [
+      2,
+      3,
+      0,
+      1
+     ]
+    },
+    {
+     "type": "Equal",
+     "args": [
+      2,
+      1
+     ]
+    },
+    {
+     "type": "InternalAlignment:BSplineControlPoint",
+     "args": [
+      3,
+      3,
+      0,
+      2
+     ]
+    },
+    {
+     "type": "Equal",
+     "args": [
+      3,
+      1
+     ]
+    },
+    {
+     "type": "InternalAlignment:BSplineControlPoint",
+     "args": [
+      4,
+      3,
+      0,
+      3
+     ]
+    },
+    {
+     "type": "Equal",
+     "args": [
+      4,
+      1
+     ]
+    },
+    {
+     "type": "InternalAlignment:BSplineControlPoint",
+     "args": [
+      5,
+      3,
+      0,
+      4
+     ]
+    },
+    {
+     "type": "Equal",
+     "args": [
+      5,
+      1
+     ]
+    },
+    {
+     "type": "InternalAlignment:BSplineControlPoint",
+     "args": [
+      6,
+      3,
+      0,
+      5
+     ]
+    },
+    {
+     "type": "Equal",
+     "args": [
+      6,
+      1
+     ]
+    },
+    {
+     "type": "InternalAlignment:BSplineControlPoint",
+     "args": [
+      7,
+      3,
+      0,
+      6
+     ]
+    },
+    {
+     "type": "Equal",
+     "args": [
+      7,
+      1
+     ]
+    },
+    {
+     "type": "InternalAlignment:BSplineKnotPoint",
+     "args": [
+      8,
+      1,
+      0,
+      0
+     ]
+    },
+    {
+     "type": "InternalAlignment:BSplineKnotPoint",
+     "args": [
+      9,
+      1,
+      0,
+      1
+     ]
+    },
+    {
+     "type": "InternalAlignment:BSplineKnotPoint",
+     "args": [
+      10,
+      1,
+      0,
+      2
+     ]
+    }
+   ],
+   "message": {
+    "status": "Under-constrained: ",
+    "link": "14 Degrees of Freedom"
+   }
+  },
+  "bspline-trim": {
+   "geometry": [
+    {
+     "type": "BSplineCurve",
+     "poles": [
+      [
+       5.0,
+       5.0
+      ],
+      [
+       8.07010594522482,
+       12.675264863062047
+      ],
+      [
+       11.611489416194878,
+       15.637754468671703
+      ],
+      [
+       15.479463219546044,
+       16.781212684111573
+      ]
+     ],
+     "weights": [
+      1.0,
+      1.0,
+      1.0,
+      1.0
+     ],
+     "knots": [
+      0.0,
+      0.30701059452248186
+     ],
+     "mults": [
+      4,
+      4
+     ],
+     "degree": 3,
+     "periodic": false
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      15.0,
+      0.0
+     ],
+     "end": [
+      16.0,
+      35.0
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      30.0,
+      0.0
+     ],
+     "end": [
+      29.0,
+      35.0
+     ]
+    },
+    {
+     "type": "BSplineCurve",
+     "poles": [
+      [
+       29.490241114939916,
+       17.841560977102937
+      ],
+      [
+       34.51797687636393,
+       18.634006391964398
+      ],
+      [
+       39.758988438181966,
+       21.26498073030327
+      ],
+      [
+       45.0,
+       30.0
+      ]
+     ],
+     "weights": [
+      1.0,
+      1.0,
+      1.0,
+      1.0
+     ],
+     "knots": [
+      0.650599229212131,
+      1.0
+     ],
+     "mults": [
+      4,
+      4
+     ],
+     "degree": 3,
+     "periodic": false
+    }
+   ],
+   "constraints": [
+    {
+     "type": "PointOnObject",
+     "args": [
+      0,
+      2,
+      1
+     ]
+    },
+    {
+     "type": "PointOnObject",
+     "args": [
+      3,
+      1,
+      2
+     ]
+    }
+   ],
+   "message": {
+    "status": "Under-constrained: ",
+    "link": "30 Degrees of Freedom"
+   }
+  },
+  "bspline-split": {
+   "geometry": [
+    {
+     "type": "BSplineCurve",
+     "poles": [
+      [
+       5.0,
+       5.0
+      ],
+      [
+       10.0,
+       17.5
+      ],
+      [
+       16.25,
+       17.5
+      ],
+      [
+       23.125,
+       17.5
+      ]
+     ],
+     "weights": [
+      1.0,
+      1.0,
+      1.0,
+      1.0
+     ],
+     "knots": [
+      0.0,
+      0.5
+     ],
+     "mults": [
+      4,
+      4
+     ],
+     "degree": 3,
+     "periodic": false
+    },
+    {
+     "type": "BSplineCurve",
+     "poles": [
+      [
+       23.125,
+       17.5
+      ],
+      [
+       30.0,
+       17.5
+      ],
+      [
+       37.5,
+       17.5
+      ],
+      [
+       45.0,
+       30.0
+      ]
+     ],
+     "weights": [
+      1.0,
+      1.0,
+      1.0,
+      1.0
+     ],
+     "knots": [
+      0.5,
+      1.0
+     ],
+     "mults": [
+      4,
+      4
+     ],
+     "degree": 3,
+     "periodic": false
+    }
+   ],
+   "constraints": [
+    {
+     "type": "Tangent",
+     "args": [
+      0,
+      2,
+      1,
+      1
+     ]
+    }
+   ],
+   "message": {
+    "status": "Under-constrained: ",
+    "link": "21 Degrees of Freedom"
+   }
+  },
+  "fillet-line-arc": {
+   "geometry": [
+    {
+     "type": "LineSegment",
+     "start": [
+      2.0,
+      10.0
+     ],
+     "end": [
+      20.0,
+      9.999999999999998
+     ]
+    },
+    {
+     "type": "ArcOfCircle",
+     "center": [
+      12.93798659293585,
+      19.70195684583508
+     ],
+     "radius": 12.0,
+     "start_angle": 5.341592653589793,
+     "end_angle": 6.241592653589794
+    }
+   ],
+   "constraints": [
+    {
+     "type": "Coincident",
+     "args": [
+      0,
+      2,
+      1,
+      1
+     ]
+    }
+   ],
+   "message": {
+    "status": "Under-constrained: ",
+    "link": "7 Degrees of Freedom"
+   }
+  },
+  "fillet-line-bspline": {
+   "geometry": [
+    {
+     "type": "LineSegment",
+     "start": [
+      2.0,
+      4.0
+     ],
+     "end": [
+      20.0,
+      10.0
+     ]
+    },
+    {
+     "type": "BSplineCurve",
+     "poles": [
+      [
+       20.0,
+       10.0
+      ],
+      [
+       26.0,
+       22.0
+      ],
+      [
+       34.0,
+       4.0
+      ],
+      [
+       45.0,
+       16.0
+      ]
+     ],
+     "weights": [
+      1.0,
+      1.0,
+      1.0,
+      1.0
+     ],
+     "knots": [
+      0.0,
+      1.0
+     ],
+     "mults": [
+      4,
+      4
+     ],
+     "degree": 3,
+     "periodic": false
+    }
+   ],
+   "constraints": [
+    {
+     "type": "Coincident",
+     "args": [
+      0,
+      2,
+      1,
+      1
+     ]
+    }
+   ],
+   "message": {
+    "status": "Under-constrained: ",
+    "link": "14 Degrees of Freedom"
+   }
   }
  }
 }
