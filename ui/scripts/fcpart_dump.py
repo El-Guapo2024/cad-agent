@@ -260,9 +260,10 @@ def props_of(name):
         if p in ("Shape", "Proxy", "ExpressionEngine", "Label2"):
             continue
         try:
-            out[p] = {"value": str(getattr(o, p)), "group": o.getGroupOfProperty(p), "type": o.getTypeIdOfProperty(p),
+            val = "<Material>" if p == "ShapeMaterial" else str(getattr(o, p))     # no memory address in the dump
+            out[p] = {"value": val, "group": o.getGroupOfProperty(p), "type": o.getTypeIdOfProperty(p),
                       "mode": o.getEditorMode(p)}
-            if o.getTypeIdOfProperty(p) == "App::PropertyEnumeration":
+            if o.getTypeIdOfProperty(p) == "App::PropertyEnumeration" and p not in ("MapMode", "AttacherEngine"):
                 out[p]["enums"] = o.getEnumerationsOfProperty(p)
         except Exception as e:  # noqa: BLE001
             out[p] = {"error": str(e)}
@@ -492,6 +493,21 @@ def main():
         return {"dialogs": holder.get("dialogs", []), "still_there": doc.getObject("BoxA") is not None}
     safe("delete_used", delete_used)
     safe("undo_names", lambda: list(doc.UndoNames))
+
+    def types():
+        """A fresh object of each type no command above made: its properties, groups, types and editor modes."""
+        out = {}
+        for tid, name in (("Part::Fillet", "Fillet"), ("Part::Chamfer", "Chamfer"), ("Part::Loft", "Loft"),
+                          ("Part::Sweep", "Sweep"), ("Part::Fuse", "Fuse"), ("Part::Common", "CommonBT"),
+                          ("Part::Polygon", "Polygon")):
+            o = doc.addObject(tid, name)
+            out[tid] = props_of(o.Name)
+        from BOPTools import JoinFeatures
+        for fn, tid in ((JoinFeatures.makeEmbed, "Part::Embed"), (JoinFeatures.makeCutout, "Part::Cutout")):
+            o = fn(tid.split("::")[1])
+            out[tid] = props_of(o.Name)
+        return out
+    safe("types", types)
     save()
     os._exit(0)
 

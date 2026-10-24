@@ -277,6 +277,8 @@ def read_src(src: str, part: str = "") -> dict:
     out = {"part": part, "params": P.read_src(src), "base": base, "tip": tip, "features": feats}
     if objs is not None:
         out.update(body=lst is not None, objects=[_feature_dict(call, src) for _, call in objects])
+        from . import feature_edit_part as _P
+        out["object_tree"] = _P.tree_info(out)          # the tree's rows and what is shown (feature_edit_part.py)
     return out
 
 

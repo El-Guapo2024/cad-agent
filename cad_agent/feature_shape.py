@@ -86,6 +86,10 @@ def shapes_after(path: Path, ops: list, name: str | None):
     new = E.apply_src(src, ops) if ops else src
     new = E.follow_src(src, new, path)
     doc = E.read_src(new, path.stem)
+    if name and name in [o["name"] for o in doc.get("objects") or []]:     # a Part object (feature_edit_part.py)
+        from .feature_edit_part import object_shape
+        shape, error = object_shape(new, path, name)
+        return doc, name, None, shape, None, error
     feats, params, base = E._run(new, path)
     target = name or doc.get("tip") or (doc["features"][-1]["name"] if doc["features"] else None)
     names = [f["name"] for f in doc["features"]]

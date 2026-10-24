@@ -4218,6 +4218,17 @@
   }
  },
  "defaults": {
+  "Part::BooleanFragments": {
+   "Label": "BooleanFragments",
+   "Mode": "Standard",
+   "Objects": [],
+   "Placement": "Placement [Pos=(0,0,0), Yaw-Pitch-Roll=(0,0,0)]",
+   "Proxy": "<BOPTools.SplitFeatures.FeatureBooleanFragments object at 0x7dbd3e783770>",
+   "ShapeMaterial": "<Material at 0x58bac6784580>",
+   "Tolerance": 0.0,
+   "_ElementMapVersion": "",
+   "_TypeId": "Part::FeaturePython"
+  },
   "Part::Box": {
    "AttacherEngine": "Engine 3D",
    "AttacherType": "Attacher::AttachEngine3D",
@@ -4230,7 +4241,7 @@
    "MapPathParameter": 0.0,
    "MapReversed": false,
    "Placement": "Placement [Pos=(0,0,0), Yaw-Pitch-Roll=(0,0,0)]",
-   "ShapeMaterial": "<Material at 0x5c60144b8620>",
+   "ShapeMaterial": "<Material at 0x58bac6784580>",
    "Width": 10.0,
    "_ElementMapVersion": ""
   },
@@ -4240,7 +4251,7 @@
    "Edges": [],
    "Label": "Chamfer",
    "Placement": "Placement [Pos=(0,0,0), Yaw-Pitch-Roll=(0,0,0)]",
-   "ShapeMaterial": "<Material at 0x5c60144b8620>",
+   "ShapeMaterial": "<Material at 0x58bac6784580>",
    "_ElementMapVersion": ""
   },
   "Part::Circle": {
@@ -4256,7 +4267,7 @@
    "MapReversed": false,
    "Placement": "Placement [Pos=(0,0,0), Yaw-Pitch-Roll=(0,0,0)]",
    "Radius": 2.0,
-   "ShapeMaterial": "<Material at 0x5c60144b8620>",
+   "ShapeMaterial": "<Material at 0x58bac6784580>",
    "_ElementMapVersion": ""
   },
   "Part::Common": {
@@ -4264,7 +4275,7 @@
    "Label": "Common",
    "Placement": "Placement [Pos=(0,0,0), Yaw-Pitch-Roll=(0,0,0)]",
    "Refine": true,
-   "ShapeMaterial": "<Material at 0x5c60144b8620>",
+   "ShapeMaterial": "<Material at 0x58bac6784580>",
    "Tool": null,
    "_ElementMapVersion": ""
   },
@@ -4272,8 +4283,24 @@
    "Label": "Compound",
    "Links": [],
    "Placement": "Placement [Pos=(0,0,0), Yaw-Pitch-Roll=(0,0,0)]",
-   "ShapeMaterial": "<Material at 0x5c60144b8620>",
+   "ShapeMaterial": "<Material at 0x58bac6784580>",
    "_ElementMapVersion": ""
+  },
+  "Part::CompoundFilter": {
+   "Base": null,
+   "FilterType": "bypass",
+   "Invert": false,
+   "Label": "CompoundFilter",
+   "OverrideMaxVal": 0.0,
+   "Placement": "Placement [Pos=(0,0,0), Yaw-Pitch-Roll=(0,0,0)]",
+   "Proxy": "<CompoundTools.CompoundFilter._CompoundFilter object at 0x7dbd3e7838c0>",
+   "ShapeMaterial": "<Material at 0x58bac6784580>",
+   "Stencil": null,
+   "WindowFrom": 80.0,
+   "WindowTo": 100.0,
+   "_ElementMapVersion": "",
+   "items": "",
+   "_TypeId": "Part::FeaturePython"
   },
   "Part::Cone": {
    "Angle": 360.0,
@@ -4289,17 +4316,40 @@
    "Placement": "Placement [Pos=(0,0,0), Yaw-Pitch-Roll=(0,0,0)]",
    "Radius1": 2.0,
    "Radius2": 4.0,
-   "ShapeMaterial": "<Material at 0x5c60144b8620>",
+   "ShapeMaterial": "<Material at 0x58bac6784580>",
    "_ElementMapVersion": ""
+  },
+  "Part::Connect": {
+   "Label": "Connect",
+   "Objects": [],
+   "Placement": "Placement [Pos=(0,0,0), Yaw-Pitch-Roll=(0,0,0)]",
+   "Proxy": "<BOPTools.JoinFeatures.FeatureConnect object at 0x7dbd3e783b60>",
+   "Refine": false,
+   "ShapeMaterial": "<Material at 0x58bac6784580>",
+   "Tolerance": 0.0,
+   "_ElementMapVersion": "",
+   "_TypeId": "Part::FeaturePython"
   },
   "Part::Cut": {
    "Base": null,
    "Label": "Cut",
    "Placement": "Placement [Pos=(0,0,0), Yaw-Pitch-Roll=(0,0,0)]",
    "Refine": true,
-   "ShapeMaterial": "<Material at 0x5c60144b8620>",
+   "ShapeMaterial": "<Material at 0x58bac6784580>",
    "Tool": null,
    "_ElementMapVersion": ""
+  },
+  "Part::Cutout": {
+   "Base": null,
+   "Label": "Cutout",
+   "Placement": "Placement [Pos=(0,0,0), Yaw-Pitch-Roll=(0,0,0)]",
+   "Proxy": "<BOPTools.JoinFeatures.FeatureCutout object at 0x7dbd3e783cb0>",
+   "Refine": false,
+   "ShapeMaterial": "<Material at 0x58bac6784580>",
+   "Tolerance": 0.0,
+   "Tool": null,
+   "_ElementMapVersion": "",
+   "_TypeId": "Part::FeaturePython"
   },
   "Part::Cylinder": {
    "Angle": 360.0,
@@ -4316,7 +4366,7 @@
    "Placement": "Placement [Pos=(0,0,0), Yaw-Pitch-Roll=(0,0,0)]",
    "Radius": 2.0,
    "SecondAngle": 0.0,
-   "ShapeMaterial": "<Material at 0x5c60144b8620>",
+   "ShapeMaterial": "<Material at 0x58bac6784580>",
    "_ElementMapVersion": ""
   },
   "Part::Ellipse": {
@@ -4333,7 +4383,7 @@
    "MapReversed": false,
    "MinorRadius": 4.0,
    "Placement": "Placement [Pos=(0,0,0), Yaw-Pitch-Roll=(0,0,0)]",
-   "ShapeMaterial": "<Material at 0x5c60144b8620>",
+   "ShapeMaterial": "<Material at 0x58bac6784580>",
    "_ElementMapVersion": ""
   },
   "Part::Ellipsoid": {
@@ -4352,8 +4402,20 @@
    "Radius1": 2.0,
    "Radius2": 4.0,
    "Radius3": 0.0,
-   "ShapeMaterial": "<Material at 0x5c60144b8620>",
+   "ShapeMaterial": "<Material at 0x58bac6784580>",
    "_ElementMapVersion": ""
+  },
+  "Part::Embed": {
+   "Base": null,
+   "Label": "Embed",
+   "Placement": "Placement [Pos=(0,0,0), Yaw-Pitch-Roll=(0,0,0)]",
+   "Proxy": "<BOPTools.JoinFeatures.FeatureEmbed object at 0x7dbd3e783e00>",
+   "Refine": false,
+   "ShapeMaterial": "<Material at 0x58bac6784580>",
+   "Tolerance": 0.0,
+   "Tool": null,
+   "_ElementMapVersion": "",
+   "_TypeId": "Part::FeaturePython"
   },
   "Part::Extrusion": {
    "Base": null,
@@ -4372,7 +4434,7 @@
    "LengthRev": 0.0,
    "Placement": "Placement [Pos=(0,0,0), Yaw-Pitch-Roll=(0,0,0)]",
    "Reversed": false,
-   "ShapeMaterial": "<Material at 0x5c60144b8620>",
+   "ShapeMaterial": "<Material at 0x58bac6784580>",
    "Solid": false,
    "Symmetric": false,
    "TaperAngle": 0.0,
@@ -4385,7 +4447,7 @@
    "Edges": [],
    "Label": "Fillet",
    "Placement": "Placement [Pos=(0,0,0), Yaw-Pitch-Roll=(0,0,0)]",
-   "ShapeMaterial": "<Material at 0x5c60144b8620>",
+   "ShapeMaterial": "<Material at 0x58bac6784580>",
    "_ElementMapVersion": ""
   },
   "Part::Fuse": {
@@ -4393,7 +4455,7 @@
    "Label": "Fuse",
    "Placement": "Placement [Pos=(0,0,0), Yaw-Pitch-Roll=(0,0,0)]",
    "Refine": true,
-   "ShapeMaterial": "<Material at 0x5c60144b8620>",
+   "ShapeMaterial": "<Material at 0x58bac6784580>",
    "Tool": null,
    "_ElementMapVersion": ""
   },
@@ -4414,7 +4476,7 @@
    "Placement": "Placement [Pos=(0,0,0), Yaw-Pitch-Roll=(0,0,0)]",
    "Radius": 1.0,
    "SegmentLength": 0.0,
-   "ShapeMaterial": "<Material at 0x5c60144b8620>",
+   "ShapeMaterial": "<Material at 0x58bac6784580>",
    "Style": "Old style",
    "_ElementMapVersion": ""
   },
@@ -4428,13 +4490,25 @@
    "MapPathParameter": 0.0,
    "MapReversed": false,
    "Placement": "Placement [Pos=(0,0,0), Yaw-Pitch-Roll=(0,0,0)]",
-   "ShapeMaterial": "<Material at 0x5c60144b8620>",
+   "ShapeMaterial": "<Material at 0x58bac6784580>",
    "X1": 0.0,
    "X2": 0.0,
    "Y1": 0.0,
    "Y2": 0.0,
    "Z1": 0.0,
    "Z2": 1.0,
+   "_ElementMapVersion": ""
+  },
+  "Part::Loft": {
+   "Closed": false,
+   "Label": "Loft",
+   "Linearize": false,
+   "MaxDegree": 5,
+   "Placement": "Placement [Pos=(0,0,0), Yaw-Pitch-Roll=(0,0,0)]",
+   "Ruled": false,
+   "Sections": [],
+   "ShapeMaterial": "<Material at 0x58bac6784580>",
+   "Solid": true,
    "_ElementMapVersion": ""
   },
   "Part::Mirroring": {
@@ -4451,7 +4525,7 @@
     1.0
    ],
    "Placement": "Placement [Pos=(0,0,0), Yaw-Pitch-Roll=(0,0,0)]",
-   "ShapeMaterial": "<Material at 0x5c60144b8620>",
+   "ShapeMaterial": "<Material at 0x58bac6784580>",
    "Source": null,
    "_ElementMapVersion": ""
   },
@@ -4460,7 +4534,7 @@
    "Label": "MultiCommon",
    "Placement": "Placement [Pos=(0,0,0), Yaw-Pitch-Roll=(0,0,0)]",
    "Refine": true,
-   "ShapeMaterial": "<Material at 0x5c60144b8620>",
+   "ShapeMaterial": "<Material at 0x58bac6784580>",
    "Shapes": [],
    "_ElementMapVersion": ""
   },
@@ -4468,8 +4542,34 @@
    "Label": "MultiFuse",
    "Placement": "Placement [Pos=(0,0,0), Yaw-Pitch-Roll=(0,0,0)]",
    "Refine": true,
-   "ShapeMaterial": "<Material at 0x5c60144b8620>",
+   "ShapeMaterial": "<Material at 0x58bac6784580>",
    "Shapes": [],
+   "_ElementMapVersion": ""
+  },
+  "Part::Offset": {
+   "Fill": false,
+   "Intersection": false,
+   "Join": "Arc",
+   "Label": "Offset",
+   "Mode": "Skin",
+   "Placement": "Placement [Pos=(0,0,0), Yaw-Pitch-Roll=(0,0,0)]",
+   "SelfIntersection": false,
+   "ShapeMaterial": "<Material at 0x58bac6784580>",
+   "Source": null,
+   "Value": 1.0,
+   "_ElementMapVersion": ""
+  },
+  "Part::Offset2D": {
+   "Fill": false,
+   "Intersection": false,
+   "Join": "Arc",
+   "Label": "Offset2D",
+   "Mode": "Pipe",
+   "Placement": "Placement [Pos=(0,0,0), Yaw-Pitch-Roll=(0,0,0)]",
+   "SelfIntersection": false,
+   "ShapeMaterial": "<Material at 0x58bac6784580>",
+   "Source": null,
+   "Value": 1.0,
    "_ElementMapVersion": ""
   },
   "Part::Plane": {
@@ -4483,7 +4583,7 @@
    "MapPathParameter": 0.0,
    "MapReversed": false,
    "Placement": "Placement [Pos=(0,0,0), Yaw-Pitch-Roll=(0,0,0)]",
-   "ShapeMaterial": "<Material at 0x5c60144b8620>",
+   "ShapeMaterial": "<Material at 0x58bac6784580>",
    "Width": 100.0,
    "_ElementMapVersion": ""
   },
@@ -4498,7 +4598,7 @@
     ]
    ],
    "Placement": "Placement [Pos=(0,0,0), Yaw-Pitch-Roll=(0,0,0)]",
-   "ShapeMaterial": "<Material at 0x5c60144b8620>",
+   "ShapeMaterial": "<Material at 0x58bac6784580>",
    "_ElementMapVersion": ""
   },
   "Part::Prism": {
@@ -4516,13 +4616,29 @@
    "Placement": "Placement [Pos=(0,0,0), Yaw-Pitch-Roll=(0,0,0)]",
    "Polygon": 6,
    "SecondAngle": 0.0,
-   "ShapeMaterial": "<Material at 0x5c60144b8620>",
+   "ShapeMaterial": "<Material at 0x58bac6784580>",
+   "_ElementMapVersion": ""
+  },
+  "Part::ProjectOnSurface": {
+   "Direction": [
+    0.0,
+    0.0,
+    1.0
+   ],
+   "Height": 0.0,
+   "Label": "ProjectOnSurface",
+   "Mode": "All",
+   "Offset": 0.0,
+   "Placement": "Placement [Pos=(0,0,0), Yaw-Pitch-Roll=(0,0,0)]",
+   "Projection": [],
+   "ShapeMaterial": "<Material at 0x58bac6784580>",
+   "SupportFace": null,
    "_ElementMapVersion": ""
   },
   "Part::Refine": {
    "Label": "Refine",
    "Placement": "Placement [Pos=(0,0,0), Yaw-Pitch-Roll=(0,0,0)]",
-   "ShapeMaterial": "<Material at 0x5c60144b8620>",
+   "ShapeMaterial": "<Material at 0x58bac6784580>",
    "Source": null,
    "_ElementMapVersion": ""
   },
@@ -4538,7 +4654,7 @@
    "MapReversed": false,
    "Placement": "Placement [Pos=(0,0,0), Yaw-Pitch-Roll=(0,0,0)]",
    "Polygon": 6,
-   "ShapeMaterial": "<Material at 0x5c60144b8620>",
+   "ShapeMaterial": "<Material at 0x58bac6784580>",
    "_ElementMapVersion": ""
   },
   "Part::Revolution": {
@@ -4557,7 +4673,7 @@
    "FaceMakerClass": "Part::FaceMakerUnified",
    "Label": "Revolution",
    "Placement": "Placement [Pos=(0,0,0), Yaw-Pitch-Roll=(0,0,0)]",
-   "ShapeMaterial": "<Material at 0x5c60144b8620>",
+   "ShapeMaterial": "<Material at 0x58bac6784580>",
    "Solid": false,
    "Source": null,
    "Symmetric": false,
@@ -4569,9 +4685,21 @@
    "Label": "Section",
    "Placement": "Placement [Pos=(0,0,0), Yaw-Pitch-Roll=(0,0,0)]",
    "Refine": true,
-   "ShapeMaterial": "<Material at 0x5c60144b8620>",
+   "ShapeMaterial": "<Material at 0x58bac6784580>",
    "Tool": null,
    "_ElementMapVersion": ""
+  },
+  "Part::Slice": {
+   "Base": null,
+   "Label": "Slice",
+   "Mode": "Standard",
+   "Placement": "Placement [Pos=(0,0,0), Yaw-Pitch-Roll=(0,0,0)]",
+   "Proxy": "<BOPTools.SplitFeatures.FeatureSlice object at 0x7dbd391c0050>",
+   "ShapeMaterial": "<Material at 0x58bac6784580>",
+   "Tolerance": 0.0,
+   "Tools": [],
+   "_ElementMapVersion": "",
+   "_TypeId": "Part::FeaturePython"
   },
   "Part::Sphere": {
    "Angle1": -90.0,
@@ -4587,7 +4715,7 @@
    "MapReversed": false,
    "Placement": "Placement [Pos=(0,0,0), Yaw-Pitch-Roll=(0,0,0)]",
    "Radius": 5.0,
-   "ShapeMaterial": "<Material at 0x5c60144b8620>",
+   "ShapeMaterial": "<Material at 0x58bac6784580>",
    "_ElementMapVersion": ""
   },
   "Part::Spiral": {
@@ -4605,7 +4733,31 @@
    "Radius": 1.0,
    "Rotations": 2.0,
    "SegmentLength": 1.0,
-   "ShapeMaterial": "<Material at 0x5c60144b8620>",
+   "ShapeMaterial": "<Material at 0x58bac6784580>",
+   "_ElementMapVersion": ""
+  },
+  "Part::Sweep": {
+   "Frenet": true,
+   "Label": "Sweep",
+   "Linearize": false,
+   "Placement": "Placement [Pos=(0,0,0), Yaw-Pitch-Roll=(0,0,0)]",
+   "Sections": [],
+   "ShapeMaterial": "<Material at 0x58bac6784580>",
+   "Solid": true,
+   "Spine": null,
+   "Transition": "Right corner",
+   "_ElementMapVersion": ""
+  },
+  "Part::Thickness": {
+   "Faces": null,
+   "Intersection": false,
+   "Join": "Arc",
+   "Label": "Thickness",
+   "Mode": "Skin",
+   "Placement": "Placement [Pos=(0,0,0), Yaw-Pitch-Roll=(0,0,0)]",
+   "SelfIntersection": false,
+   "ShapeMaterial": "<Material at 0x58bac6784580>",
+   "Value": 1.0,
    "_ElementMapVersion": ""
   },
   "Part::Torus": {
@@ -4623,7 +4775,7 @@
    "Placement": "Placement [Pos=(0,0,0), Yaw-Pitch-Roll=(0,0,0)]",
    "Radius1": 10.0,
    "Radius2": 2.0,
-   "ShapeMaterial": "<Material at 0x5c60144b8620>",
+   "ShapeMaterial": "<Material at 0x58bac6784580>",
    "_ElementMapVersion": ""
   },
   "Part::Tube": {
@@ -4639,8 +4791,8 @@
    "MapReversed": false,
    "OuterRadius": 5.0,
    "Placement": "Placement [Pos=(0,0,0), Yaw-Pitch-Roll=(0,0,0)]",
-   "Proxy": "<BasicShapes.Shapes.TubeFeature object at 0x768d1d63de80>",
-   "ShapeMaterial": "<Material at 0x5c60144b8620>",
+   "Proxy": "<BasicShapes.Shapes.TubeFeature object at 0x7dbd3e7830e0>",
+   "ShapeMaterial": "<Material at 0x58bac6784580>",
    "_ElementMapVersion": "",
    "_TypeId": "Part::FeaturePython"
   },
@@ -4654,7 +4806,7 @@
    "MapPathParameter": 0.0,
    "MapReversed": false,
    "Placement": "Placement [Pos=(0,0,0), Yaw-Pitch-Roll=(0,0,0)]",
-   "ShapeMaterial": "<Material at 0x5c60144b8620>",
+   "ShapeMaterial": "<Material at 0x58bac6784580>",
    "X": 0.0,
    "Y": 0.0,
    "Z": 0.0,
@@ -4670,7 +4822,7 @@
    "MapPathParameter": 0.0,
    "MapReversed": false,
    "Placement": "Placement [Pos=(0,0,0), Yaw-Pitch-Roll=(0,0,0)]",
-   "ShapeMaterial": "<Material at 0x5c60144b8620>",
+   "ShapeMaterial": "<Material at 0x58bac6784580>",
    "X2max": 8.0,
    "X2min": 2.0,
    "Xmax": 10.0,
@@ -4682,6 +4834,16 @@
    "Zmax": 10.0,
    "Zmin": 0.0,
    "_ElementMapVersion": ""
+  },
+  "Part::XOR": {
+   "Label": "XOR",
+   "Objects": [],
+   "Placement": "Placement [Pos=(0,0,0), Yaw-Pitch-Roll=(0,0,0)]",
+   "Proxy": "<BOPTools.SplitFeatures.FeatureXOR object at 0x7dbd391c02f0>",
+   "ShapeMaterial": "<Material at 0x58bac6784580>",
+   "Tolerance": 0.0,
+   "_ElementMapVersion": "",
+   "_TypeId": "Part::FeaturePython"
   }
  }
 }

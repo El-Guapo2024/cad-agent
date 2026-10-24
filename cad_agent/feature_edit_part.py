@@ -185,5 +185,48 @@ def check(src: str, d: dict):
         seen.add(n)
 
 
+def tree_info(d: dict) -> dict:
+    """What the tree shows of a document, from read()'s dicts: {"children": {name: the objects shown under it
+    (claimChildren)}, "top": the rows at the top (what nothing claims, the Body first when it has FEATURES), "shown": the
+    objects FreeCAD shows (feature_part.visible), "hidden": the rest}. An object that does not build as one is a plain
+    row."""
+    from . import feature_part as Part
+    objs = []
+    for f in d.get("objects", []):
+        kind = E.KINDS.get(f["type"])
+        try:
+            if kind == "Sketch":
+                objs.append(F.Sketch(f["name"], f.get("support") or "XY"))
+            else:
+                objs.append(KW.kw_class(kind).from_dict(f))
+        except (TypeError, KeyError, F.FeatureError, AttributeError):
+            continue
+    children = {o.name: o.inputs() for o in objs if isinstance(o, Part.PartObject)}
+    claimed = {c for cs in children.values() for c in cs}
+    body = bool(d.get("body"))
+    top = (["Body"] if body and "Body" not in claimed else []) + [o.name for o in objs if o.name not in claimed]
+    shown = Part.visible(objs, [] if body else None)
+    names = [o.name for o in objs if not isinstance(o, F.Sketch)] + (["Body"] if body else [])
+    return {"children": children, "top": top, "shown": shown, "hidden": [n for n in names if n not in shown]}
+
+
+def object_shape(src: str, path, name: str):
+    """(the shape of the object named name, FreeCAD's message or None) for the part module src at path, each object built
+    as a recompute builds it (a failed one has no shape)."""
+    import types
+    from . import feature_part as Part
+    mod = types.ModuleType(f"_cad_{getattr(path, 'stem', 'part')}")
+    mod.__file__ = str(path)
+    exec(compile(src, str(path), "exec"), mod.__dict__)
+    params = dict(getattr(mod, "PARAMS", {}) or {})
+    feats = getattr(mod, "FEATURES", None)
+    base = mod.build_base(**params) if hasattr(mod, "build_base") else None
+    tip = getattr(mod, "TIP", None)
+    shapes = Part.evaluate(getattr(mod, "OBJECTS", []), params, feats, base, tip, keep_going=True)
+    if name in shapes["_errors"]:
+        return None, shapes["_errors"][name]
+    return shapes.get(name), None
+
+
 def new_document(part: str, material: str, process: str) -> str:
     return DOCUMENT_TEMPLATE.format(part=part, material=material, process=process)
