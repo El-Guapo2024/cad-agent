@@ -341,14 +341,15 @@ class Bench:
         # a read, so no busy flag for the page to show: straight to the runner
         return self.run(self.root_of(slug), ["--actor", "ui", "feature", "list", slug, *([part] if part else [])])
 
-    def features_post(self, slug: str, part: str, ops) -> dict:
+    def features_post(self, slug: str, part: str, ops, name=None) -> dict:
         """POST /api/<slug>/features/<part> {ops: [...]}: `cad feature apply`, one undo step. The part is built
         and its gates run, as for `cad set`; the file watcher then reloads the scene, and a full check follows."""
         self.root_of(slug)
         if not isinstance(ops, list) or not ops:
             raise ValueError("ops must be a non-empty list")
         r = self.cad(slug, "feature", ["--with-text", "feature", "apply", slug, part,
-                                        "--ops", json.dumps(ops, separators=(",", ":"))])
+                                        "--ops", json.dumps(ops, separators=(",", ":")),
+                                        *(["--name", str(name)] if name else [])])
         if r["exit"] in (0, 1, 2) and not r["data"].get("error"):
             self.schedule(slug, "check")
             self.broadcast({"type": "features", "slug": slug, "part": part})
@@ -842,7 +843,7 @@ def make_handler(bench: Bench):
                 try:
                     if not m.group(2):
                         return self._json({"error": "POST /api/<slug>/features/<part>: name the part"}, 400)
-                    return self._json(bench.features_post(m.group(1), m.group(2), body.get("ops")))
+                    return self._json(bench.features_post(m.group(1), m.group(2), body.get("ops"), body.get("name")))
                 except KeyError:
                     return self._json({"error": f"no project {m.group(1)!r}"}, 404)
                 except (TypeError, ValueError) as e:

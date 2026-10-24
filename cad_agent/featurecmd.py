@@ -68,7 +68,10 @@ def layer():
 
 
 def _camel(key: str) -> str:
-    """FreeCAD's property name for a snake_case key: up_to_face -> UpToFace, length2 -> Length2."""
+    """FreeCAD's property name for a snake_case key: up_to_face -> UpToFace, length2 -> Length2; type1 is the Type
+    property (feature_edit.py's dicts keep `type` for the TypeId)."""
+    if key == "type1":
+        return "Type"
     return "".join(w[:1].upper() + w[1:] for w in key.split("_"))
 
 
@@ -134,7 +137,7 @@ def name_of(ops: list, doc_before: dict) -> str:
     return "Edit features"
 
 
-def apply_ops(a, ops: list, cmd: str) -> Result:
+def apply_ops(a, ops: list, cmd: str, step: str | None = None) -> Result:
     """Apply ops to a part's feature list as one undo step, build it, then run its part gates (as `cad set`)."""
     if not isinstance(ops, list) or not ops or not all(isinstance(o, dict) and o.get("op") for o in ops):
         raise UsageError('ops is a list of {"op": "add"|"set"|"delete"|"rename"|"move"|"tip", ...}')
@@ -156,7 +159,7 @@ def apply_ops(a, ops: list, cmd: str) -> Result:
             path.write_text(before_text)          # a change that breaks the Body does not stay
             raise BuildFailed(f"{e}; {a.part} is as it was") from None
     after_text = path.read_text()
-    name = name_of(ops, before_doc)
+    name = step or name_of(ops, before_doc)
     from . import undo as un
     un.record(pdir, name, cmd, [{"path": path.relative_to(pdir).as_posix(), "before": before_text,
                                  "after": after_text}], by=actor(a))
@@ -233,7 +236,10 @@ def cmd_feature_add(a) -> Result:
     kind = _type(a.type)
     feature = {"name": a.name, "type": kind, **pairs(a.props, "cad feature add")}
     words = [a.type, a.name, *a.props] + (["--after", a.after] if a.after else [])
-    return apply_ops(a, [{"op": "add", "feature": feature, "after": a.after}], _cmd(a, *words))
+    op = {"op": "add", "feature": feature}
+    if a.after:                       # no "after": at the end (feature_edit's apply); "after": None would put it first
+        op["after"] = a.after
+    return apply_ops(a, [op], _cmd(a, *words))
 
 
 def cmd_feature_set(a) -> Result:
@@ -270,7 +276,8 @@ def cmd_feature_apply(a) -> Result:
         ops = json.loads(text)
     except ValueError as e:
         raise UsageError(f"--ops is JSON: {e}") from None
-    return apply_ops(a, ops, _cmd(a, "--ops", json.dumps(ops, separators=(",", ":"))))
+    words = ["--ops", json.dumps(ops, separators=(",", ":"))] + (["--name", a.name] if a.name else [])
+    return apply_ops(a, ops, _cmd(a, *words), a.name)
 
 
 def add_parsers(add, sub) -> None:
@@ -295,8 +302,8 @@ def add_parsers(add, sub) -> None:
     sp.add_argument("type", help=", ".join(TYPES))
     sp.add_argument("name")
     sp.add_argument("props", nargs="*", metavar="KEY=VALUE")
-    sp.add_argument("--after", help="the feature it goes after (default: after the Tip, as FreeCAD adds)")
-    sp = one("set", cmd_feature_set, "change a feature's properties (length=8 type=ThroughAll profile=Sketch001)")
+    sp.add_argument("--after", help="the feature it goes after (default: at the end)")
+    sp = one("set", cmd_feature_set, "change a feature's properties (length=8 type1=ThroughAll profile=Sketch001; type1 is the Type property)")
     sp.add_argument("name")
     sp.add_argument("props", nargs="+", metavar="KEY=VALUE")
     sp = one("delete", cmd_feature_delete, "delete features (the layer refuses one another feature still uses)")
@@ -313,3 +320,5 @@ def add_parsers(add, sub) -> None:
     sp = one("apply", cmd_feature_apply, "several ops as one undo step: --ops '[{\"op\": \"set\", ...}]' "
              "(or --ops @file.json)")
     sp.add_argument("--ops", required=True, metavar="JSON")
+    sp.add_argument("--name", help="the undo step's name (default: FreeCAD's for the ops, as \"Make Pad\"); a task panel "
+                    "that edits a feature says \"Edit Pad\", as FreeCAD's double-click does")

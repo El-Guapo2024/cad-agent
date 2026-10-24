@@ -79,8 +79,10 @@ class FakeLayer:
                     raise self.Error(f"there is already a feature named {f['name']}")
                 if f["type"] != SKETCH and f.get("profile") not in names():
                     raise self.Error(f"{f['name']}: no sketch {f.get('profile')!r} before it")
-                after = op.get("after")
-                at = names().index(after) + 1 if after in names() else len(feats)
+                if "after" not in op:           # feature_edit: no "after" appends, "after": None goes first
+                    at = len(feats)
+                else:
+                    at = names().index(op["after"]) + 1 if op["after"] in names() else 0
                 feats.insert(at, f)
             elif kind == "set":
                 f = next((f for f in feats if f["name"] == op["name"]), None)
@@ -189,7 +191,7 @@ def test_rename_move_tip_and_delete(body, demo, capsys):
     _sketch_and_pad(capsys)
     run(capsys, "feature", "add", "demo", "body", "Sketch", "Sketch001", "support=XZ")
     code, data = run(capsys, "feature", "add", "demo", "body", "Pocket", "Pocket", "profile=Sketch001",
-                     "type=ThroughAll", "--after", "Sketch001")
+                     "type1=ThroughAll", "--after", "Sketch001")
     assert [f["name"] for f in data["doc"]["features"]] == ["Sketch", "Pad", "Sketch001", "Pocket"]
     code, data = run(capsys, "feature", "rename", "demo", "body", "Sketch001", "Profile")
     assert data["doc"]["features"][3]["profile"] == "Profile"
@@ -207,7 +209,7 @@ def test_rename_move_tip_and_delete(body, demo, capsys):
 
 
 def test_apply_runs_several_ops_as_one_step_and_undo_takes_them_back(body, demo, capsys):
-    ops = [{"op": "add", "feature": {"name": "Sketch", "type": SKETCH, "support": "XY"}, "after": None},
+    ops = [{"op": "add", "feature": {"name": "Sketch", "type": SKETCH, "support": "XY"}},
            {"op": "add", "feature": {"name": "Pad", "type": PAD, "profile": "Sketch", "length": 4.0}, "after": "Sketch"}]
     code, data = run(capsys, "feature", "apply", "demo", "body", "--ops", json.dumps(ops))
     assert data["step"] == "Make Pad" and len(un.load(demo)["undo"]) == 1
@@ -215,6 +217,9 @@ def test_apply_runs_several_ops_as_one_step_and_undo_takes_them_back(body, demo,
     assert code == cli.OK and FakeLayer().read(body)["features"] == []
     code, _ = run(capsys, "redo", "demo")
     assert [f["name"] for f in FakeLayer().read(body)["features"]] == ["Sketch", "Pad"]
+    code, data = run(capsys, "feature", "apply", "demo", "body", "--name", "Edit Pad", "--ops",
+                     json.dumps([{"op": "set", "name": "Pad", "props": {"length": 7.0}}]))
+    assert data["step"] == "Edit Pad" and un.load(demo)["undo"][-1]["name"] == "Edit Pad"
     code, data = run(capsys, "feature", "apply", "demo", "body", "--ops", "not json")
     assert code == cli.USAGE and "JSON" in data["error"]
 
@@ -244,7 +249,7 @@ def test_without_the_layer_the_commands_say_not_built(demo, capsys, monkeypatch)
 def test_step_names_follow_freecads_transactions():
     assert featurecmd.name_of([{"op": "add", "feature": {"type": POCKET}}], {}) == "Make Pocket"
     assert featurecmd.name_of([{"op": "set", "name": "Pad", "props": {"up_to_face": "x"}}], {}) == "Edit Pad.UpToFace"
-    assert featurecmd._camel("length2") == "Length2"
+    assert featurecmd._camel("length2") == "Length2" and featurecmd._camel("type1") == "Type"
 
 
 # ── the server ───────────────────────────────────────────────────────────────────────────────────
@@ -273,7 +278,7 @@ def test_get_features_of_one_part_and_of_all(server, body):
 
 def test_post_features_is_one_undo_step_marked_ui_then_a_check(server, body, demo):
     call, scheduled, events = server
-    ops = [{"op": "add", "feature": {"name": "Sketch", "type": SKETCH, "support": "XY"}, "after": None},
+    ops = [{"op": "add", "feature": {"name": "Sketch", "type": SKETCH, "support": "XY"}},
            {"op": "add", "feature": {"name": "Pad", "type": PAD, "profile": "Sketch", "length": 5.0}, "after": "Sketch"}]
     code, raw = call("/api/demo/features/body", {"ops": ops})
     r = json.loads(raw)
@@ -307,3 +312,11 @@ def test_an_empty_body_is_left_out_of_the_scene_of_a_project_without_assembly(de
     assert run(capsys, "feature", "new", "demo", "bracket")[0] == cli.OK
     code, data = run(capsys, "scene", "demo")
     assert code == cli.OK and data["bodies"] == ["plate"], data
+
+
+def test_the_scene_says_where_each_part_is_drawn(demo, capsys):
+    code, _ = run(capsys, "scene", "demo")
+    scene = json.loads((demo / "out" / "scene.json").read_text())
+    for b in scene["bodies"]:
+        m = b["matrix"]
+        assert len(m) == 16 and m[12:] == [0.0, 0.0, 0.0, 1.0]

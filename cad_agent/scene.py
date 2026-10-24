@@ -251,6 +251,15 @@ def _tessellate_bodies(shown: dict, colors: dict, view_props: dict,
     return combined_inst, shapes
 
 
+def _matrix(shape) -> list | None:
+    """The shape's location as a row-major 4x4: part coordinates to where the scene draws them (None if it has none)."""
+    try:
+        t = shape.location.wrapped.Transformation()
+        return [round(t.Value(r, c), 9) + 0.0 for r in (1, 2, 3) for c in (1, 2, 3, 4)] + [0.0, 0.0, 0.0, 1.0]
+    except Exception:
+        return None
+
+
 def _empty_body(path: Path) -> bool:
     """A part module whose FEATURES (cad_agent/feature.py) holds no Pad or Pocket yet and builds on no base: a
     Body as `cad feature new` makes it, before its first Pad. It has no solid, so the scene leaves it out."""
@@ -350,6 +359,9 @@ def build_scene(slug: str, deviation: float | None = None, angular: float | None
             **({"project": info.project, "from_part": info.part} if child else {}),
             # Align to Selection on a face that is not flat (viewer.ts alignDirection): drawn where `shown` puts it
             "curved": curved_faces(shown[name]),
+            # where the part's own coordinates are drawn (its location), for what the page draws in them: a PartDesign
+            # sketch, the preview of a Pad
+            "matrix": _matrix(shown[name]),
         })
 
     for b in bodies:                   # one part module can make several bodies
