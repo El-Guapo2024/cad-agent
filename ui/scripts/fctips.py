@@ -96,6 +96,11 @@ def main() -> None:
 //   src/Gui/CommandTest.cpp: 2002 Jürgen Riegel
 //   src/Mod/Part/Gui/CommandFilter.cpp: 2002 Jürgen Riegel
 //   src/Mod/Measure/Gui/Command.cpp: 2023 David Friedli
+//   src/Mod/PartDesign/Gui/Command.cpp: 2008 Jürgen Riegel
+//   src/Mod/PartDesign/Gui/CommandBody.cpp: 2015 Alexander Golubev (Fat-Zer)
+//   src/Mod/PartDesign/Gui/CommandPrimitive.cpp: 2015 Stefan Tröger
+//   src/Mod/Sketcher/Gui/Command.cpp: 2008 Jürgen Riegel
+//   src/Mod/Part/Gui/Command.cpp: 2002 Jürgen Riegel
 // Written by ui/scripts/fctips.py from the running FreeCAD: each command's menu text (sMenuText, its & dropped as
 // Action::cleanTitle does) and tooltip (sToolTipText), for every FreeCAD command id ui/src names. tooltip.ts draws a
 // command's tooltip from these as Action::createToolTip does. Do not edit by hand.

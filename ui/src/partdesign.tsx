@@ -8,15 +8,15 @@
 //   src/Mod/PartDesign/Gui/TaskExtrudeParameters.cpp: 2021 Werner Mayer
 //   src/Mod/PartDesign/Gui/TaskPadParameters.cpp: 2011 Juergen Riegel
 //   src/Mod/PartDesign/Gui/TaskPocketParameters.cpp: 2011 Juergen Riegel
-//   src/Mod/PartDesign/Gui/ViewProvider.cpp: 2008 Jürgen Riegel
+//   src/Mod/PartDesign/Gui/ViewProvider.cpp: 2011 Juergen Riegel
 //   src/Mod/PartDesign/Gui/ViewProviderSketchBased.cpp: 2015 Alexander Golubev (Fat-Zer)
 //   src/Mod/PartDesign/Gui/StyleParameters.h: 2025 Kacper Donat
-//   src/Mod/Part/Gui/TaskAttacher.cpp: 2013 Jan Rheinlaender; 2015 Victor Titov (DeepSOIC)
-//   src/Mod/Part/Gui/ViewProviderAttachExtension.cpp: 2017 Stefan Tröger
-//   src/Mod/Sketcher/Gui/ViewProviderSketch.cpp: 2009 Jürgen Riegel
+//   src/Mod/Part/Gui/TaskAttacher.cpp: 2013 Jan Rheinländer
+//   src/Mod/Part/Gui/ViewProviderAttachExtension.cpp: 2016 Stefan Tröger
+//   src/Mod/Sketcher/Gui/ViewProviderSketch.cpp: 2009 Juergen Riegel
 //   src/Gui/Tree.cpp: 2004 Jürgen Riegel
 //   src/Gui/CommandDoc.cpp: 2002 Jürgen Riegel
-//   src/Gui/ViewProviderPlane.cpp: 2012 Jürgen Riegel
+//   src/Gui/ViewProviderPlane.cpp: 2012 Jürgen Riegel; 2015 Alexander Golubev (Fat-Zer)
 //   src/Gui/propertyeditor/PropertyEditor.cpp: 2004 Werner Mayer
 //   No copyright line in the file: src/Mod/PartDesign/Gui/TaskPadPocketParameters.ui, src/Mod/Part/Gui/TaskAttacher.ui
 // PartDesign for parts whose shape is a FEATURES list (cad_agent/feature.py): the tree's Body with its Origin, BaseFeature
