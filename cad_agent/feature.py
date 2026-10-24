@@ -25,16 +25,23 @@ FreeCAD user reads it as their tree and the same lines can be fed to FreeCAD (to
                ]),
         Pad("Pad", "Sketch", length="thick"),
     ]
+    TIP = "Pad"                      # optional: Body.Tip; without it, the last feature
 
 
     def build(**p):
-        return Body(FEATURES, p)
+        return Body(FEATURES, p, tip=TIP)
+
+A part that also has hand-written build123d keeps it as build_base(**p), and the Body takes its solid as
+FreeCAD's BaseFeature: `return Body(FEATURES, p, base=build_base(**p), tip=TIP)`. feature_edit converts a
+hand-written part to that form on its first added feature.
 
 One list, not SKETCHES and FEATURES apart: FreeCAD's Body is one ordered Group in which a sketch sits
 before the features that use it, and an up-to-face or a later sketch can only name what comes before it.
 The order is the history, so it is kept in one place. Every entry is a call whose first argument is its
-name, so an agent and cad_agent/feature_edit.py (which rewrites the literals in place, as params.py does
-for PARAMS) both find an entry by its name.
+name, so an agent and cad_agent/feature_edit.py both find an entry by its name. feature_edit is what the
+app's server calls: read(part_path) gives the tree as JSON-ready dicts and apply(part_path, ops) adds,
+sets, deletes, renames, moves and sets the tip, rewriting only the literals it changes (its docstring has
+the dict format).
 
 The vocabulary, as FreeCAD's Python API has it:
 
