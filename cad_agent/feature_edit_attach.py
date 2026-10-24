@@ -8,9 +8,9 @@ None), FreeCAD's whole attachment and its external geometry:
     {"attachment_support": [["Pad", "Face6"]], "map_mode": "FlatFace", "attachment_offset": None,
      "map_reversed": False, "map_path_parameter": 0.0, "placement": None, "external_geometry": [["Pad", "Edge3"]]}
 
-and a datum {"name": "DatumPlane", "type": "Part::DatumPlane", the same attachment keys} (a PartDesign::Plane
-also "resize_mode", "length", "width"; a PartDesign::Line "resize_mode", "length"). A sketch on an origin plane with FlatFace and
-nothing else is written support="XY", as before; any other attachment is written with FreeCAD's keywords.
+A sketch on an origin plane with FlatFace and nothing else is written support="XY", as before; any other attachment
+is written with FreeCAD's keywords. The datums (feature_attach._Datum) are feature_kw.KwFeatures, read and edited as
+feature_edit reads and edits every one; referenced() serves their order check too.
 """
 from __future__ import annotations
 
@@ -163,43 +163,10 @@ def attach_kw(d: dict, kind: str) -> list[str]:
     return out
 
 
-# ── datums ─────────────────────────────────────────────────────────────────────────────────────────────
-
-def datum_dict(call, src, lit, arg) -> dict:
-    kind = call.func.id if isinstance(call.func, ast.Name) else call.func.attr
-    cls = DATUMS[kind]
-    name = lit(arg(call, ("name",), "name"), src)
-    kw = {k.arg: lit(k.value, src) for k in call.keywords}
-    unknown = set(kw) - set(ATTACH_KEYS) - set(SIZE_KEYS[kind])
-    if unknown:
-        raise _E()(f"{name}: {', '.join(sorted(unknown))} is not a property of a {kind}")
-    try:
-        cls(name, **kw)                                 # FreeCAD's checks on the values
-    except (TypeError, F.FeatureError) as e:
-        raise _E()(str(e)) from None
-    d = {"name": name, "type": cls.type_id, **attach_dict(name, kw, cls.engine)}
-    for k in SIZE_KEYS[kind]:
-        d[k] = kw.get(k, SIZE_DEFAULTS[k])
-    return d
-
-
-def datum_src(d: dict, kind: str) -> str:
-    name = d.get("name")
-    unknown = set(d) - {"name", "type"} - set(ATTACH_KEYS) - set(SIZE_KEYS[kind])
-    if unknown:
-        raise _E()(f"{name}: {', '.join(sorted(unknown))} is not a property of a {kind}")
-    parts = [json.dumps(name)] + attach_kw(d, kind)
-    from .feature_edit import lit
-    for k in SIZE_KEYS[kind]:
-        if k in d and d[k] != SIZE_DEFAULTS[k]:
-            parts.append(f"{k}={lit(d[k])}")
-    return f"{kind}({', '.join(parts)})"
-
-
 # ── edits ──────────────────────────────────────────────────────────────────────────────────────────────
 
 def set_attachment(t, call, kind, current: dict, props: dict, spans, set_arg, drop_kw, arg, pos_names):
-    """Rewrite a sketch's or datum's attachment keywords for props (any of SKETCH_KEYS / ATTACH_KEYS), in
+    """Rewrite a sketch's attachment keywords for props (any of SKETCH_KEYS / ATTACH_KEYS), in
     place: the keywords that change are set or dropped, the rest of the call is left as it is."""
     new = merged_sketch({**current, **props}) if kind == "Sketch" else {**current, **props}
     if kind == "Sketch" and "support" in props and "attachment_support" not in props:
@@ -236,17 +203,6 @@ def set_attachment(t, call, kind, current: dict, props: dict, spans, set_arg, dr
             drop_kw(t, call, "plane", spans)
 
 
-def set_datum_size(t, call, kind, props, spans, set_arg, drop_kw):
-    from .feature_edit import lit
-    for k, v in props.items():
-        if k not in SIZE_KEYS[kind]:
-            raise _E()(f"{k} is not a property of a {kind}")
-        if v == SIZE_DEFAULTS[k]:
-            drop_kw(t, call, k, spans)
-        else:
-            set_arg(t, call, (), k, lit(v), spans)
-
-
 def ref_nodes(call, kind) -> list:
     """The string constants of a sketch's or datum's attachment and external geometry that name features:
     (node, name), for rename and for the delete check."""
@@ -273,13 +229,8 @@ def referenced(d: dict) -> list[str]:
     return [n.split(".")[0] for n in names if n not in ORIGIN]
 
 
-def build(d: dict, kind: str):
-    """The feature object for a read() dict, so a bad value is refused as feature.py refuses it."""
+def build(d: dict, kind: str = "Sketch") -> dict:
+    """A sketch dict's attachment keywords for feature.Sketch, so a bad value is refused as feature.py refuses it."""
     kw = {k: d[k] for k in ATTACH_KEYS if k in d}
     kw["attachment_support"] = [tuple(r) for r in kw.get("attachment_support") or []] or None
-    if kind == "Sketch":
-        return kw
-    for k in SIZE_KEYS[kind]:
-        if k in d:
-            kw[k] = d[k]
-    return DATUMS[kind](d["name"], **kw)
+    return kw

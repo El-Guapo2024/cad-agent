@@ -81,6 +81,8 @@ def projectless(argv: list[str]) -> bool:
 
 # /api/<slug>/features and /api/<slug>/features/<part>: a part's PartDesign feature list (`cad feature`).
 FEATURES_PATH = re.compile(r"^/api/([A-Za-z0-9_][A-Za-z0-9_-]{0,63})/features(?:/([A-Za-z0-9_]+))?/?$")
+# POST /api/<slug>/features/<part>/shape: `cad feature shape`, a feature built after ops, nothing written.
+FEATURE_SHAPE_PATH = re.compile(r"^/api/([A-Za-z0-9_][A-Za-z0-9_-]{0,63})/features/([A-Za-z0-9_]+)/shape/?$")
 
 
 def feature_layer():
@@ -354,6 +356,15 @@ class Bench:
             self.schedule(slug, "check")
             self.broadcast({"type": "features", "slug": slug, "part": part})
         return r
+
+    def features_shape(self, slug: str, part: str, ops, feature=None) -> dict:
+        """POST /api/<slug>/features/<part>/shape {ops, feature}: `cad feature shape`, what a dress-up's task panel
+        shows and picks from (cad_agent/feature_shape.py). A read: nothing is written, no undo step."""
+        if not isinstance(ops, list):
+            raise ValueError("ops must be a list")
+        return self.run(self.root_of(slug), ["--actor", "ui", "feature", "shape", slug, part,
+                                             "--ops", json.dumps(ops, separators=(",", ":")),
+                                             *(["--feature", str(feature)] if feature else [])])
 
     # ── gui: the shared selection, visibility and view (FreeCADGui's job) ──────
     def gui_get(self, slug: str) -> dict:
@@ -838,6 +849,15 @@ def make_handler(bench: Bench):
             except ValueError:
                 return self._json({"error": "body must be JSON"}, 400)
             slug = body.get("slug", "")
+            m = FEATURE_SHAPE_PATH.match(path)
+            if m:
+                try:
+                    return self._json(bench.features_shape(m.group(1), m.group(2), body.get("ops") or [],
+                                                           body.get("feature")))
+                except KeyError:
+                    return self._json({"error": f"no project {m.group(1)!r}"}, 404)
+                except (TypeError, ValueError) as e:
+                    return self._json({"error": f"bad request: {e}"}, 400)
             m = FEATURES_PATH.match(path)
             if m:
                 try:

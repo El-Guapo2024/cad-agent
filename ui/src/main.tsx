@@ -14,6 +14,8 @@ import { initTooltips } from './tooltip'
 import { initSliders } from './qslider'
 import { newSketch, pdMenus } from './partdesign'
 import { createDatum, editAttachment } from './pd_attach'
+import { panelFields } from './pd_revolve'
+import { loadFeatures } from './actions'
 
 createRoot(document.getElementById('root')!).render(<App />)
 start()
@@ -23,3 +25,4 @@ initSliders()
 Object.assign(window, { cadui: { getState, setState, getView, getDock, showPanel, getCommand, placement, quantity, quantityInput, pd: pdMenus,
   // attachcheck.mjs: the 3D selection, New Sketch, Edit > Create > Datums, Edit Attachment
   select, newSketch, createDatum, editAttachment } })
+Object.assign((window as unknown as { cadui: object }).cadui, { pdPanel: panelFields, loadFeatures })   // revolvecheck.mjs

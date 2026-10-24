@@ -64,6 +64,8 @@ def as_dict(f) -> dict:
             for k in SIZE_KEYS[f.kind]:
                 d[k] = getattr(f, k)
         return d
+    if hasattr(f, "DEFAULTS"):                      # a feature_kw.KwFeature (an attached primitive)
+        return _j(f.as_dict())
     d = {"name": f.name, "type": f"PartDesign::{f.kind}", "profile": f.profile}
     for key, attr in E.EXTRUDE_PROPS.items():
         v = getattr(f, attr)
@@ -296,3 +298,25 @@ def test_cad_feature_add_a_sketch_on_a_face_and_a_datum(demo, capsys):
     assert ext == [{"type": "LineSegment", "start": [0.0, 0.0], "end": [40.0, 0.0], "construction": True}]
     assert run(capsys, "undo", "demo")[0] == cli.OK
     assert "external_geometry" not in (demo / "parts" / "Body.py").read_text()
+
+
+def test_a_primitive_is_attached_edited_and_followed(plate):
+    """A PartDesign primitive's AttachExtension (engine 3D): added on a face, its mode and offset set in place, the
+    Pad renamed under it, and the face it is attached to kept from being deleted."""
+    E.apply(plate, [{"op": "add", "feature": {"name": "Box", "type": "PartDesign::AdditiveBox", "length": 6.0,
+                                              "attachment_support": [["Pad", "Face2"]], "map_mode": "FlatFace"},
+                     "after": "Pad"}])
+    box = _sketch(E.read(plate), "Box")
+    assert box["attachment_support"] == [["Pad", "Face2"]] and box["map_mode"] == "FlatFace"
+    E.apply(plate, [{"op": "set", "name": "Box", "props": {"attachment_offset": [[2.0, 1.0, 0.0], [15.0, 0.0, 0.0]],
+                                                            "map_reversed": True}}])
+    box = _sketch(E.read(plate), "Box")
+    assert box["attachment_offset"] == [[2.0, 1.0, 0.0], [15.0, 0.0, 0.0]] and box["map_reversed"] is True
+    mod = st._load_module(plate)
+    pl = F.evaluate(mod.FEATURES, mod.PARAMS)["_attach"].placements["Box"]
+    (pos, q) = FREECAD["primitive_on_side_face"]["objects"]["Box"]["placement"]    # the same attachment, unflipped
+    assert pl.pos[0] == pytest.approx(pos[0]) and pl.pos != pytest.approx(pos)     # on Face2; Flip sides moved it
+    E.apply(plate, [{"op": "rename", "name": "Pad", "to": "Plate"}])
+    assert '("Plate", "Face2")' in plate.read_text()
+    with pytest.raises(E.FeatureEditError, match="Box"):
+        E.apply(plate, [{"op": "delete", "name": "Plate"}])

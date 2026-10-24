@@ -485,13 +485,52 @@ export class CadView {
     const r = canvas.getBoundingClientRect()
     cam.updateMatrixWorld()
     this.ray.setFromCamera(new THREE.Vector2(((e.x - r.left) / r.width) * 2 - 1, -((e.y - r.top) / r.height) * 2 + 1), cam)
-    for (const hit of this.ray.intersectObjects([...this.helpers.values()], true)) {
-      for (let o: THREE.Object3D | null = hit.object; o; o = o.parent) if (o.userData.pickName) return o.userData.pickName as string
+    // a helper line (a dress-up's base edges) within the pick radius, as hitAt picks the model's
+    const perPx = this.worldPerPixel(cam, r.height), radius = getState().selPrefs.pickRadius
+    this.ray.params.Line = { threshold: perPx * radius }
+    const named = (o: THREE.Object3D | null) => { for (; o; o = o.parent) if (o.userData.pickName) return o; return null }
+    const hits = this.ray.intersectObjects([...this.helpers.values()], true).map((h) => ({ h, o: named(h.object) })).filter((x) => x.o)
+    if (!hits.length) return null
+    // userData.pickPriority: an edge over the face it bounds, within closeToFirst's 0.2 slack (hitAt's rule)
+    const near = hits.filter((x) => !(x.h.distance > hits[0].h.distance + 0.2))
+    near.sort((a, b) => ((b.o!.userData.pickPriority as number) ?? 0) - ((a.o!.userData.pickPriority as number) ?? 0))
+    return near[0].o!.userData.pickName as string
+  }
+  /** For scripts (dressupcheck.mjs): a client point where a click hits the helper element named pickName (a face's triangle
+   *  centre or an edge's segment middle that helperAt resolves to that name), or null when none is in view. */
+  helperPoint(key: string, pickName: string): { x: number; y: number } | null {
+    const root = this.helpers.get(key), cam = this.viewer.camera?.getCamera?.()
+    if (!root || !cam) return null
+    root.updateMatrixWorld(true)
+    const toScreen = this.screenOf(cam), v = new THREE.Vector3(), w = new THREE.Vector3(), u = new THREE.Vector3()
+    const cands: { x: number; y: number }[] = []
+    root.traverse((o) => {
+      if (o.userData.pickName !== pickName) return
+      const g = (o as THREE.Mesh).geometry as THREE.BufferGeometry | undefined
+      const pos = g?.attributes.position
+      if (!pos) return
+      if ((o as THREE.Mesh).isMesh && g!.index) {
+        const idx = g!.index
+        for (let t = 0; t + 2 < idx.count; t += 3) {
+          v.fromBufferAttribute(pos, idx.getX(t)).add(w.fromBufferAttribute(pos, idx.getX(t + 1))).add(u.fromBufferAttribute(pos, idx.getX(t + 2))).multiplyScalar(1 / 3)
+          cands.push(toScreen(v.applyMatrix4(o.matrixWorld)))
+        }
+      } else for (let i = 0; i + 1 < pos.count; i++) {
+        v.fromBufferAttribute(pos, i).add(w.fromBufferAttribute(pos, i + 1)).multiplyScalar(0.5)
+        cands.push(toScreen(v.applyMatrix4(o.matrixWorld)))
+      }
+    })
+    const r = (this.viewer.renderer?.domElement as HTMLCanvasElement | undefined)?.getBoundingClientRect()
+    for (const c of cands) {
+      if (r && (c.x < r.left + 2 || c.x > r.right - 2 || c.y < r.top + 2 || c.y > r.bottom - 2 || (c.x > r.right - 170 && c.y < r.top + 170))) continue // and not under the NaviCube
+      if (this.helperAt(c) === pickName) return c
     }
     return null
   }
   /** The scene's box, for what is sized to the model (a Through all preview, the Origin's planes). */
   modelBox(): THREE.Box3 | null { return this.box() }
+  /** A body's face meshes as the view draws them (pd_transform.tsx copies them for a Transform body preview). */
+  bodyMeshes(body: string): THREE.Mesh[] { return this.meshes.get(body) ?? [] }
 
   /** three-cad-viewer's orbit controls: kept for their target, never for input. */
   private lockControls() {

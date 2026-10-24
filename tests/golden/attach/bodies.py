@@ -17,6 +17,7 @@ from cases import base_pad, rect, rect_constraints  # noqa: E402
 from cad_agent.feature import (Circle, Constraint, DatumLine, DatumPlane, DatumPoint,  # noqa: E402
                                LineSegment, LocalCoordinateSystem, Pad, PartDesignCoordinateSystem,
                                PartDesignLine, PartDesignPlane, PartDesignPoint, Pocket, Sketch)
+from cad_agent.feature import AdditiveBox, SubtractiveCylinder  # noqa: E402
 
 
 def on(name, support, geometry, constraints=(), **kw):
@@ -184,4 +185,16 @@ CASES = {
            [Constraint("Coincident", 0, 3, -3, 1), Constraint("Radius", 0, 3.0)],
            external_geometry=[("DatumPoint", ""), ("Y_Axis", "")]),
         Pocket("Pocket", "Sketch001", length=1.0)]},
+    # PartDesign primitives attached (FeaturePrimitive's AttachExtension, engine 3D): the shape in the attached frame
+    "primitive_on_side_face": {"features": base_pad() + [
+        AdditiveBox("Box", length=6.0, width=4.0, height=3.0, attachment_support=[("Pad", "Face2")],
+                    map_mode="FlatFace", attachment_offset=((2.0, 1.0, 0.0), (15.0, 0.0, 0.0)))]},
+    "primitive_cut_top": {"features": base_pad() + [
+        SubtractiveCylinder("Cylinder", radius=3.0, height=4.0, attachment_support=[("Pad", "Face6")],
+                            map_mode="FlatFace", attachment_offset=((5.0, 5.0, -4.0), (0.0, 0.0, 0.0)))]},
+    "primitive_on_datum": {"features": base_pad() + [
+        DatumPlane("DatumPlane", attachment_support=[("Pad", "Edge7")], map_mode="NormalToEdge",
+                   map_path_parameter=0.25),
+        AdditiveBox("Box", length=2.0, width=2.0, height=2.0, attachment_support=[("DatumPlane", "")],
+                    map_mode="ObjectXY", map_reversed=True)]},
 }

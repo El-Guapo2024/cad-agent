@@ -38,13 +38,18 @@ import { messageBox } from './msgbox'
 import { evaluate } from './expr'
 import * as quantity from './quantity'
 import type { Entry } from './chrome'
+import { editRevolveFeature, RevolveProps, revolveEntries, REVOLVE_ICONS, REVOLVE_KINDS } from './pd_revolve'
+import { DressUpProps, dressUpEntries, dressUpUses, editDressUp, isDressUp } from './pd_dressup'
+import { editPdx, findFeature, isPdx, pdxChildren, pdxDeleteOps, pdxIcon, pdxKind, PdxProps, pdxUses, primitiveMenu, transformMenu } from './pd_transform'
 import './partdesign.css'
 import { attachedOf, DATUM_TYPES, isDatum, placementMatrix, withAttached } from './attached'
 import { attachmentRows, editAttachment, sketchOnSelection } from './pd_attach'
 
 export const SKETCH = 'Sketcher::SketchObject', PAD = 'PartDesign::Pad', POCKET = 'PartDesign::Pocket'
-const ICON_OF: Record<string, IconName> = { [SKETCH]: 'pd-sketch', [PAD]: 'pd-pad', [POCKET]: 'pd-pocket' }
-const KIND: Record<string, string> = { [SKETCH]: 'Sketch', [PAD]: 'Pad', [POCKET]: 'Pocket' }
+const ICON_OF: Record<string, IconName> = { [SKETCH]: 'pd-sketch', [PAD]: 'pd-pad', [POCKET]: 'pd-pocket',
+  'PartDesign::Fillet': 'pd-fillet', 'PartDesign::Chamfer': 'pd-chamfer', 'PartDesign::Draft': 'pd-draft', 'PartDesign::Thickness': 'pd-thickness', ...REVOLVE_ICONS }
+const KIND: Record<string, string> = { [SKETCH]: 'Sketch', [PAD]: 'Pad', [POCKET]: 'Pocket',
+  'PartDesign::Fillet': 'Fillet', 'PartDesign::Chamfer': 'Chamfer', 'PartDesign::Draft': 'Draft', 'PartDesign::Thickness': 'Thickness', ...REVOLVE_KINDS }
 for (const [t, d] of Object.entries(DATUM_TYPES)) { ICON_OF[t] = d.icon as IconName; KIND[t] = t } // the datums (pd_attach.tsx)
 /** App::Origin's features, as FreeCAD names (Name) and labels (Label) them, with their ViewProviders' icons. */
 export const ORIGIN: [string, string, IconName][] = [
@@ -228,11 +233,14 @@ export async function padOrPocket(kind: 'pad' | 'pocket') {
 export function editFeature(ref: string) {
   const [part, name] = splitRef(ref)
   const doc = getState().features[part]
-  const f = doc?.features.find((x) => x.name === name)
+  const f = findFeature(doc, name)
   if (!f) return
+  if (isPdx(f.type)) return editPdx(part, name)
   if (f.type === SKETCH) return editSketch(part, name)
   if (f.type === PAD || f.type === POCKET) { setState({ task: { kind: f.type === PAD ? 'pad' : 'pocket', body: part, other: name, edit: true } }); showPanel('tasks'); return }
   if (isDatum(f.type)) return editAttachment(part, name)   // ViewProviderDatum::doubleClicked: the attachment editor
+  if (editRevolveFeature(part, f)) return
+  if (isDressUp(f.type)) return editDressUp(part, f)
   report('warn', `${name}: a ${f.type} has no task panel here yet`)
 }
 export function toggleActiveBody(part: string) {
@@ -325,12 +333,13 @@ export async function deleteFeatures(refs = getState().featSel) {
   }
   for (const [part, names] of byPart) {
     const doc = getState().features[part]
-    const users = doc.features.filter((f) => !names.includes(f.name) && typeof f.profile === 'string' && names.includes(f.profile)).map((f) => f.name)
+    const { top, ops } = pdxDeleteOps(doc, names)
+    const users = doc.features.filter((f) => !top.includes(f.name) && ((typeof f.profile === 'string' && top.includes(f.profile)) || pdxUses(f, top) || dressUpUses(f, top))).map((f) => f.name)
     if (users.length) {
       const answer = await messageBox('warning', 'Object Dependencies', `The following referencing objects might break.\n\nContinue?\n\n${users.join('\n')}`, ['Yes', 'No'])
       if (answer !== 'Yes') return
     }
-    const done = await applyOps(part, names.map((name) => ({ op: 'delete', name })), { name: 'Delete', line: `cad feature delete ${getState().slug} ${part} ${names.join(' ')}` })
+    const done = await applyOps(part, ops, { name: 'Delete', line: `cad feature delete ${getState().slug} ${part} ${names.join(' ')}` })
     if (done) setState((s) => ({ featSel: s.featSel.filter((r) => !names.includes(splitRef(r)[1])) }))
   }
 }
@@ -445,7 +454,7 @@ export function PdBodyRows({ ctx, part, body, bodyRow }: { ctx: TreeCtx; part: s
   const tipOverlay = <img className="tov tov-br" src="./freecad-icons/PartDesign_Overlay_Tip.svg" width={10} height={10} alt="" draggable={false} />
   const featureRow = (f: Feature, depth: number): ReactNode => {
     const r = refOf(part, f.name)
-    const kids = f.type !== SKETCH && typeof f.profile === 'string' ? doc.features.filter((x) => x.name === f.profile && x.type === SKETCH) : []
+    const kids = f.type !== SKETCH && typeof f.profile === 'string' ? doc.features.filter((x) => x.name === f.profile && x.type === SKETCH) : pdxChildren(f)
     const after = solidNames(doc).indexOf(f.name) > solidNames(doc).indexOf(doc.tip ?? '') && f.type !== SKETCH
     const lcs = f.type === 'Part::LocalCoordinateSystem'
     const lcsIndex = (name: string) => doc.features.filter((x) => x.type === 'Part::LocalCoordinateSystem').findIndex((x) => x.name === name)
@@ -454,10 +463,10 @@ export function PdBodyRows({ ctx, part, body, bodyRow }: { ctx: TreeCtx; part: s
       {f.type === SKETCH && f.fully_constrained === false && <img className="tov tov-br" src="./freecad-icons/Sketcher_NotFullyConstrained.svg" width={10} height={10} alt="" draggable={false} />}
       {f.type === SKETCH && !f.support && !(f.attachment_support as unknown[] | undefined)?.length && <img className="tov tov-bl" src="./freecad-icons/Part_Detached.svg" width={10} height={10} alt="" draggable={false} />}
     </>
-    const desc = [KIND[f.type] ?? f.type, f.type !== SKETCH && f.profile ? `profile ${f.profile}` : null, after ? 'after the Tip: not built' : null].filter(Boolean).join(' · ')
+    const desc = [KIND[f.type] ?? pdxKind(f.type) ?? f.type, f.type !== SKETCH && f.profile ? `profile ${f.profile}` : null, after ? 'after the Tip: not built' : null].filter(Boolean).join(' · ')
     return (
       <div key={r} className="pdgroup">
-        <PdRow ctx={ctx} depth={depth} refKey={r} icon={ICON_OF[f.type] ?? 'part'} label={f.name} internal={f.name} desc={desc}
+        <PdRow ctx={ctx} depth={depth} refKey={r} icon={ICON_OF[f.type] ?? pdxIcon(f.type) ?? 'part'} label={f.name} internal={f.name} desc={desc}
           hidden={!featureVisible(s, part, f)} kids={kids.length > 0 || lcs} dflt={false} overlays={overlays} onDouble={() => editFeature(r)}
           title={after ? `${f.name} comes after the Tip (${doc.tip}): it is kept, not built` : undefined} />
         {kids.length > 0 && isOpen(r, false) && kids.map((k) => featureRow(k, depth + 1))}
@@ -595,7 +604,7 @@ export function FeatureProps({ refKey }: { refKey: string }) {
   const [part, name] = splitRef(refKey)
   const doc = s.features[part]
   if (!doc) return null
-  const f = doc.features.find((x) => x.name === name)
+  const f = findFeature(doc, name)
   const vars = Object.fromEntries(Object.entries(doc.params).filter(([, v]) => typeof v === 'number').map(([k, v]) => [k, { value: v as number, dims: [0, 0, 0, 0, 0, 0, 0, 0] as quantity.Quantity['dims'] }]))
   const set = (props: Record<string, unknown>) => {
     const k = Object.keys(props)[0]
@@ -641,6 +650,9 @@ export function FeatureProps({ refKey }: { refKey: string }) {
       {sz.length > 0 && <Group title="Size">{sz.map((k) => <Row key={k} k={human(k.split('_').map((w) => w[0].toUpperCase() + w.slice(1)).join(''))} v={String(f[k])} />)}</Group>}
     </>
   }
+  if (REVOLVE_KINDS[f.type]) return <RevolveProps part={part} f={f} set={set} finishRename={(v) => void finishRename(refKey, v)} />
+  if (isDressUp(f.type)) return <DressUpProps part={part} f={f} set={set} onRename={(n) => void finishRename(refKey, n)} />
+  if (isPdx(f.type)) return <PdxProps part={part} name={name} />
   if (f.type !== PAD && f.type !== POCKET) return <Group title="Base"><Row k="Label" v={f.name} /><Row k="Type" v={f.type} /></Group>
   const sketches = doc.features.filter((x) => x.type === SKETCH).map((x) => x.name)
   const value = (d: PropDef) => (d.key === 'name' ? f.name : d.key === 'type1' ? extrudeType(f) : d.key === 'side_type' ? sideType(f) : d.key === 'length' ? (f.length ?? LENGTH_DEFAULT[f.type]) : d.key === 'length2' ? (f.length2 ?? LENGTH_DEFAULT[f.type]) : f[d.key] ?? DEFAULTS[d.key])
@@ -1015,6 +1027,7 @@ export function sketchMenu(): Entry[] {
  *  module is, as it is in the Linux build). */
 export function partDesignMenu(): Entry[] {
   const doc = hasDoc()
+  const rv = revolveEntries(doc)
   return [
     { label: 'New Body', icon: 'body', cmd: 'PartDesign_Body', onSelect: () => void createBody() },
     'sep',
@@ -1022,21 +1035,19 @@ export function partDesignMenu(): Entry[] {
     'sep',
     { label: 'Additive Features', sub: [
       { label: 'Pad', icon: 'pd-pad', cmd: 'PartDesign_Pad', disabled: !doc, onSelect: () => void padOrPocket('pad') },
-      soon('Revolve', 'pd-revolution', 'PartDesign_Revolution'), soon('Additive Loft', 'pd-add-loft', 'PartDesign_AdditiveLoft'),
+      rv.revolve, soon('Additive Loft', 'pd-add-loft', 'PartDesign_AdditiveLoft'),
       soon('Additive Pipe', 'pd-add-pipe', 'PartDesign_AdditivePipe'), soon('Additive Helix', 'pd-add-helix', 'PartDesign_AdditiveHelix')] },
-    { label: 'Additive Primitive', icon: 'pd-add-box', sub: ['Box', 'Cylinder', 'Sphere', 'Cone', 'Ellipsoid', 'Torus', 'Prism', 'Wedge'].map((x) => ({ label: `Additive ${x}`, disabled: true, title: later })) },
+    { label: 'Additive Primitive', icon: 'pd-add-box', sub: primitiveMenu('Additive') },
     'sep',
     { label: 'Subtractive Features', sub: [
       { label: 'Pocket', icon: 'pd-pocket', cmd: 'PartDesign_Pocket', disabled: !doc, onSelect: () => void padOrPocket('pocket') },
-      soon('Hole', 'pd-hole', 'PartDesign_Hole'), soon('Groove', 'pd-groove', 'PartDesign_Groove'), soon('Subtractive Loft', 'pd-sub-loft', 'PartDesign_SubtractiveLoft'),
+      rv.hole, rv.groove, soon('Subtractive Loft', 'pd-sub-loft', 'PartDesign_SubtractiveLoft'),
       soon('Subtractive Pipe', 'pd-sub-pipe', 'PartDesign_SubtractivePipe'), soon('Subtractive Helix', 'pd-sub-helix', 'PartDesign_SubtractiveHelix')] },
-    { label: 'Subtractive Primitive', icon: 'pd-sub-box', sub: ['Box', 'Cylinder', 'Sphere', 'Cone', 'Ellipsoid', 'Torus', 'Prism', 'Wedge'].map((x) => ({ label: `Subtractive ${x}`, disabled: true, title: later })) },
+    { label: 'Subtractive Primitive', icon: 'pd-sub-box', sub: primitiveMenu('Subtractive') },
     'sep',
-    { label: 'Dress-Up Features', sub: [soon('Fillet', 'pd-fillet', 'PartDesign_Fillet'), soon('Chamfer', 'pd-chamfer', 'PartDesign_Chamfer'), soon('Draft', 'pd-draft', 'PartDesign_Draft'),
-      soon('Thickness', 'pd-thickness', 'PartDesign_Thickness'), soon('Defeaturing', 'pd-defeaturing', 'PartDesign_Defeaturing')] },
+    { label: 'Dress-Up Features', sub: [...dressUpEntries(doc), soon('Defeaturing', 'pd-defeaturing', 'PartDesign_Defeaturing')] },
     'sep',
-    { label: 'Transformation Features', sub: [soon('Mirror', 'pd-mirrored', 'PartDesign_Mirrored'), soon('Linear Pattern', 'pd-linear-pattern', 'PartDesign_LinearPattern'),
-      soon('Polar Pattern', 'pd-polar-pattern', 'PartDesign_PolarPattern'), soon('Multi-Transform', 'pd-multi-transform', 'PartDesign_MultiTransform')] },
+    { label: 'Transformation Features', sub: transformMenu() },
     'sep',
     soon('Boolean Operation', 'pd-boolean', 'PartDesign_Boolean'),
     'sep',
@@ -1061,8 +1072,8 @@ export function pdToolbars(): [string, Entry[]][] {
   return [
     ['Part Design Helper Features', [byLabel(m, 'New Body'), { ...byLabel(sk, 'New Sketch'), cmd: 'PartDesign_CompSketches' }, byLabel(sk, 'Validate Sketch'),
       byLabel(m, 'Check Geometry'), byLabel(m, 'Sub-Shape Binder'), byLabel(m, 'Clone')]],
-    ['Part Design Modeling Features', [...pad, { label: 'Additive Primitive', icon: 'pd-add-box', cmd: 'PartDesign_CompPrimitiveAdditive', disabled: true, title: later }, 'sep',
-      ...pocket, { label: 'Subtractive Primitive', icon: 'pd-sub-box', cmd: 'PartDesign_CompPrimitiveSubtractive', disabled: true, title: later }, 'sep',
+    ['Part Design Modeling Features', [...pad, { label: 'Additive Primitive', icon: 'pd-add-box', cmd: 'PartDesign_CompPrimitiveAdditive', disabled: !doc, sub: primitiveMenu('Additive') }, 'sep',
+      ...pocket, { label: 'Subtractive Primitive', icon: 'pd-sub-box', cmd: 'PartDesign_CompPrimitiveSubtractive', disabled: !doc, sub: primitiveMenu('Subtractive') }, 'sep',
       soon('Boolean Operation', 'pd-boolean', 'PartDesign_Boolean')]],
     ['Part Design Dress-Up Features', sub('Dress-Up Features')],
     ['Part Design Transformation Features', sub('Transformation Features')],

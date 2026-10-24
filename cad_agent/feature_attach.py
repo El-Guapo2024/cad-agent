@@ -125,6 +125,9 @@ def placement_of(where: str, value, what: str = "placement") -> A.Placement:
             from None
 
 
+from .feature_kw import KwFeature  # noqa: E402
+
+
 class Attachable:
     """AttachExtension's properties on a feature: set by init_attachment() from the part file's keywords."""
     engine = "Plane"
@@ -166,30 +169,66 @@ class Attachable:
 
 # ── datum features ────────────────────────────────────────────────────────────────────────────────────
 
-class _Datum(Attachable):
+ATTACH_DEFAULTS = {"attachment_support": (), "map_mode": None, "attachment_offset": None, "map_reversed": False,
+                   "map_path_parameter": 0.0, "placement": None}
+
+
+class _Datum(KwFeature, Attachable):
     """A datum: reference geometry placed by its attachment, its shape moved to its Placement. SIZE are the
-    properties only its view uses (PartDesign::Plane's ResizeMode, Length, Width)."""
+    properties only its view uses (PartDesign::Plane's ResizeMode, Length, Width).
+
+    A feature_kw.KwFeature: its properties are AttachExtension's (ATTACH_DEFAULTS; map_mode None is the best fit
+    for its references, as UnifiedDatumCommand picks it) and SIZE, which feature_edit reads, writes and edits as it
+    does every KwFeature's."""
     kind = ""
     is_datum = True
     SIZE: dict = {}
+    REFS = ("attachment_support",)
     plane = False                       # an App::Plane (MidPoint's special case, the plane flag of a reference)
 
-    def __init__(self, name: str, *, attachment_support=None, map_mode=None, attachment_offset=None,
-                 map_reversed=False, map_path_parameter=0.0, placement=None, **size):
-        self.name = name
-        self.init_attachment(name, attachment_support, map_mode, attachment_offset, map_reversed,
-                             map_path_parameter, placement)
-        unknown = set(size) - set(self.SIZE)
-        if unknown:
-            raise FeatureError(f"{name}: {', '.join(sorted(unknown))} is not a property of a {self.type_id}")
-        for k, default in self.SIZE.items():
-            v = size.get(k, default)
+    def __init_subclass__(cls, **kw):
+        super().__init_subclass__(**kw)
+        if getattr(cls, "type_id", None):
+            cls.TYPE_ID = cls.type_id
+            cls.DEFAULTS = {**ATTACH_DEFAULTS, **cls.SIZE}
+
+    def normalize(self, key, v):
+        if key == "attachment_support":
+            v = support_list(self.name, v)
+        elif key in ("map_mode", "attachment_offset", "placement", "map_path_parameter"):
+            return v
+        return super().normalize(key, v)
+
+    def validate(self):
+        mode = self.map_mode
+        self.init_attachment(self.name, list(self.attachment_support), mode, self.attachment_offset,
+                             self.map_reversed, self.map_path_parameter, self.placement)
+        self.attachment_support = tuple(self.attachment_support)
+        for k in self.SIZE:
+            v = getattr(self, k)
             if k == "resize_mode":
                 if v not in ("Automatic", "Manual"):
-                    raise FeatureError(f"{name}: resize_mode {v!r} is not Automatic or Manual")
+                    raise FeatureError(f"{self.name}: resize_mode {v!r} is not Automatic or Manual")
             else:
-                v = float(v)
-            setattr(self, k, v)
+                try:
+                    setattr(self, k, float(v))
+                except (TypeError, ValueError):
+                    raise FeatureError(f"{self.name}: {k} {v!r} is not a number") from None
+
+    def source_value(self, key, v=None):
+        v = getattr(self, key) if v is None else v
+        if key in ("attachment_offset", "placement") and isinstance(v, (list, tuple)):    # ((x, y, z), (y, p, r))
+            return tuple(tuple(x) if isinstance(x, (list, tuple)) else x for x in v)
+        return super().source_value(key, v)
+
+    def source_props(self) -> list[str]:
+        """What the part file writes: what is not FreeCAD's default (an unattached datum's Deactivated is implied)."""
+        return [k for k in self.DEFAULTS if not self.is_default(k)
+                and not (k == "map_mode" and self.map_mode == "Deactivated" and not self.attachment_support)]
+
+    def references(self) -> list[str]:
+        """The features it is attached to; the Body's origin features left out (an LCS's role is the LCS's)."""
+        return [n for n in Attachable.references(self) if n not in ORIGIN]
 
     def local_shape(self):
         raise NotImplementedError
@@ -223,6 +262,7 @@ def _line_edge(direction=(0, 0, 1)):
 class DatumPlane(_Datum):
     """Part::DatumPlane (Part_DatumPlane, Datum Plane): an App::Plane, an infinite face on its placement's XY."""
     kind = "DatumPlane"
+    TRANSACTION = "Add datum plane"
     type_id = "Part::DatumPlane"
     engine = "Plane"
     plane = True
@@ -234,6 +274,7 @@ class DatumPlane(_Datum):
 class DatumLine(_Datum):
     """Part::DatumLine (Part_DatumLine, Datum Line): an App::Line whose base direction is Z, an infinite edge."""
     kind = "DatumLine"
+    TRANSACTION = "Add datum line"
     type_id = "Part::DatumLine"
     engine = "Line"
 
@@ -244,6 +285,7 @@ class DatumLine(_Datum):
 class DatumPoint(_Datum):
     """Part::DatumPoint (Part_DatumPoint, Datum Point): an App::Point, a vertex at its placement."""
     kind = "DatumPoint"
+    TRANSACTION = "Add datum point"
     type_id = "Part::DatumPoint"
     engine = "Point"
 
@@ -257,6 +299,7 @@ class LocalCoordinateSystem(_Datum):
     origin's features by role, X_Axis, Y_Axis, Z_Axis, XY_Plane, XZ_Plane, YZ_Plane and Origin, placed as the
     Body's origin is (LocalCoordinateSystem::getSetupData), in the LCS's frame."""
     kind = "LocalCoordinateSystem"
+    TRANSACTION = "Add coordinate system"
     type_id = "Part::LocalCoordinateSystem"
     engine = "3D"
 
@@ -283,6 +326,7 @@ class PartDesignPlane(_Datum):
     """PartDesign::Plane: an infinite face on its placement's XY. ResizeMode, Length and Width (20 x 20) are how
     its view draws it."""
     kind = "PartDesignPlane"
+    TRANSACTION = "Create DatumPlane"
     type_id = "PartDesign::Plane"
     engine = "Plane"
     SIZE = {"resize_mode": "Automatic", "length": 20.0, "width": 20.0}
@@ -294,6 +338,7 @@ class PartDesignPlane(_Datum):
 class PartDesignLine(_Datum):
     """PartDesign::Line: an infinite edge along its placement's Z."""
     kind = "PartDesignLine"
+    TRANSACTION = "Create DatumLine"
     type_id = "PartDesign::Line"
     engine = "Line"
     SIZE = {"resize_mode": "Automatic", "length": 20.0}
@@ -305,6 +350,7 @@ class PartDesignLine(_Datum):
 class PartDesignPoint(_Datum):
     """PartDesign::Point: a vertex at its placement."""
     kind = "PartDesignPoint"
+    TRANSACTION = "Create DatumPoint"
     type_id = "PartDesign::Point"
     engine = "Point"
 
@@ -316,6 +362,7 @@ class PartDesignCoordinateSystem(_Datum):
     """PartDesign::CoordinateSystem (Local_CS): placed by the 3D engine; its shape is the XY plane's face
     (DatumCS.cpp), its elements X, Y and Z the planes normal to those axes (getSubObject)."""
     kind = "PartDesignCoordinateSystem"
+    TRANSACTION = "Create Local_CS"
     type_id = "PartDesign::CoordinateSystem"
     engine = "3D"
 
@@ -385,6 +432,16 @@ class Context:
         if sup and sup[0][0] in self.placements and self.kinds.get(sup[0][0]) != "sketch":
             return self.placements[sup[0][0]]
         return self.placements.get(sketch.name, A.Placement())
+
+    def own_placement(self, f) -> A.Placement:
+        """A feature's own Placement: where its attachment put it (attach_feature), else its placement keyword."""
+        pl = getattr(f, "_attached_pl", None)
+        if pl is not None:
+            return pl
+        try:
+            return placement_of(f.name, getattr(f, "placement", None))
+        except FeatureError:
+            return A.Placement()
 
     def origin_shape(self, role):
         return _moved(_origin_local(ORIGIN[role][0]), self.placements[role])

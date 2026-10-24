@@ -73,7 +73,8 @@ const modeTip = (engine: Engine, m: string) => {
 }
 const ENGINE_OF_SKETCH: Engine = 'Plane'
 /** The engine of a feature: a sketch's Plane, a datum's own. */
-export const engineOf = (type: string): Engine => (type === SKETCH ? ENGINE_OF_SKETCH : DATUM_TYPES[type]?.engine ?? 'Plane')
+export const engineOf = (type: string): Engine => (type === SKETCH ? ENGINE_OF_SKETCH : /^PartDesign::(Additive|Subtractive)/.test(type) ? '3D'
+  : DATUM_TYPES[type]?.engine ?? 'Plane')       // a PartDesign primitive's FeaturePrimitive: AttachEngine3D
 
 /** The Body's object a click names, as a reference: a tree row ("part/Name"), or the 3D selection of the Body's shape
  *  ("body.Face6", the Tip feature's element). TaskAttacher::addToReference drops the sub-element of a datum or an
@@ -135,7 +136,8 @@ const PANEL_TITLE = 'Attachment'
 /** The Attachment panel (TaskAttacher + TaskDlgAttacher): as FreeCAD fills it from the object's properties, keeps the
  *  references, the mode and the offset as the user changes them, previews the result, and on OK writes
  *  AttachmentSupport, MapMode, AttachmentOffset and MapReversed (TaskDlgAttacher::accept). */
-export function AttachTask({ target }: { target: AttachTarget }) {
+export type AttachEmbed = { onChange: (props: ReturnType<typeof attachmentProps> | null, placement: PlacementData | null) => void }
+export function AttachTask({ target, embed }: { target: AttachTarget; embed?: AttachEmbed }) {
   const s = useStore((x) => x)
   const doc = s.features[target.part]
   const existing = target.name ? doc?.features.find((f) => f.name === target.name) : undefined
@@ -159,6 +161,7 @@ export function AttachTask({ target }: { target: AttachTarget }) {
     return { refs, mode: mode ?? first ?? 'Deactivated', offset: o, flip: existing?.map_reversed === true }
   }
   const [v, setV] = useState(init)
+  const initialV = useRef(JSON.stringify(v))
   const [ans, setAns] = useState<Answer>({})
   // only a new object starts with a reference button active; it moves on after the selection's references (autoNext)
   const [active, setActive] = useState<number>(existing ? -1 : Math.min(v.refs.length, 3))
@@ -179,11 +182,17 @@ export function AttachTask({ target }: { target: AttachTarget }) {
     return () => window.clearTimeout(t)
   }, [JSON.stringify(v), target.part])
   // the references come from clicks in the tree and the 3D view (TaskAttacher::onSelectionChanged)
-  const add = (refs: Ref[]) => setV((x) => {
-    if (active < 0 || !refs.length) return x
-    let list = [...x.refs], i = active
+  // v and the active button as they are now, for the clicks that come before React renders (the tree's selection and its
+  // attachPicker both report one pick): each add sees the one before it
+  const cur = useRef({ v, active })
+  cur.current = { v, active }
+  const add = (refs: Ref[]) => {
+    const x = cur.current.v
+    let i = cur.current.active
+    if (i < 0 || !refs.length) return
+    let list = [...x.refs]
     const fresh = refs.filter((r) => !(target.name && r[0] === target.name) && !list.some((q) => q[0] === r[0] && q[1] === r[1]))
-    if (!fresh.length) return x                                               // itself, or a duplicate selection
+    if (!fresh.length) return                                                 // itself, or a duplicate selection
     for (const r of fresh) {
       if (autoNext.current && i > 0 && i === list.length && list[i - 1][0] === r[0] && list[i - 1][1] && !r[1]) i--
       if (i < list.length) list[i] = r; else list.push(r)
@@ -191,13 +200,17 @@ export function AttachTask({ target }: { target: AttachTarget }) {
     }
     list = list.slice(0, 4)
     userSelected.current = false
-    window.setTimeout(() => setActive(i), 0)
     // updateListOfModes then getActiveMapMode: the mode chosen before while it still fits, else the best fit
     const lt = doc ? localTypes(doc, list) : null
-    if (!lt) return { ...x, refs: list }
-    const sg = suggest(engine, lt)
-    return { ...x, refs: list, mode: x.mode !== 'Deactivated' && sg.all.includes(x.mode) ? x.mode : sg.message === 'OK' ? sg.best : 'Deactivated' }
-  })
+    let next = { ...x, refs: list }
+    if (lt) {
+      const sg = suggest(engine, lt)
+      next = { ...next, mode: x.mode !== 'Deactivated' && sg.all.includes(x.mode) ? x.mode : sg.message === 'OK' ? sg.best : 'Deactivated' }
+    }
+    cur.current = { v: next, active: i }
+    setV(next)
+    setActive(i)
+  }
   useEffect(() => {
     let last = JSON.stringify([getState().subSel, getState().featSel, getState().selected])
     const unsub = subscribe(() => {
@@ -225,10 +238,17 @@ export function AttachTask({ target }: { target: AttachTarget }) {
       const w = getView(); if (w) { w.setHelper('pd-origin', null); w.setHelper('pd-attach-preview', null); w.helperPicker = null }
     }
   }, [target.part, active])
+  // a panel this box is part of (a primitive's, pd_transform.tsx) previews and writes the attachment itself
+  useEffect(() => {
+    if (!embed || JSON.stringify(v) === initialV.current && !ans.placement) return
+    const live = v.mode !== 'Deactivated' && v.refs.length > 0 && ans.key === JSON.stringify(v) && ans.placement ? ans.placement : null
+    if (JSON.stringify(v) !== initialV.current) embed.onChange(attachmentProps(v), live)
+    else embed.onChange(null, live)
+  }, [JSON.stringify(v), ans.key, JSON.stringify(ans.placement)])
   // the object where the attachment puts it (the panel's updatePreview moves the object itself)
   useEffect(() => {
     const view = getView()
-    if (!view) return
+    if (!view || embed) return
     const pl = ans.placement
     view.setHelper('pd-attach-preview', pl ? previewOf(target.type, pl, bodyOfPart(getState(), target.part)) : null)
     view.rescaleHelpers()
@@ -289,9 +309,7 @@ export function AttachTask({ target }: { target: AttachTarget }) {
     const done = await applyOps(target.part, [{ op: 'add', feature: { name, type: target.type, ...props } }]   /* appended, as Body::addObject puts a datum */, { name: t.txn })
     if (done) setState({ featSel: [refOf(target.part, name)], selected: [] })
   }
-  return (
-    <div className="tasks">
-      <div className="tbuttons pd-buttons"><button className="qbtn default" onClick={() => void ok()}>OK</button><button className="qbtn" onClick={cancel}>Cancel</button></div>
+  const box = (
       <TaskBox title={PANEL_TITLE} icon="pd-attach">
         <p className="pd-attach-msg" style={{ color: failed ? 'red' : attached ? 'green' : undefined }}>
           {failed ? `Attachment mode failed: ${ans.error}` : attached ? `Attached with mode ${modeCaption(engine, v.mode)}` : 'Not attached'}</p>
@@ -310,7 +328,12 @@ export function AttachTask({ target }: { target: AttachTarget }) {
           {field(3, 'Around X-axis', ANGLE)}{field(4, 'Around Y-axis', ANGLE)}{field(5, 'Around Z-axis', ANGLE)}
         </fieldset>
         <label className="tcheck"><input type="checkbox" checked={v.flip} onChange={(e) => setV((x) => ({ ...x, flip: e.target.checked }))} /> Flip sides</label>
-      </TaskBox>
+      </TaskBox>)
+  if (embed) return box
+  return (
+    <div className="tasks">
+      <div className="tbuttons pd-buttons"><button className="qbtn default" onClick={() => void ok()}>OK</button><button className="qbtn" onClick={cancel}>Cancel</button></div>
+      {box}
     </div>
   )
 }

@@ -1,0 +1,6652 @@
+{
+ "errors": {},
+ "menu": {
+  "menu": [
+   {
+    "text": "Fillet",
+    "name": "PartDesign_Fillet",
+    "enabled": false
+   },
+   {
+    "text": "Chamfer",
+    "name": "PartDesign_Chamfer",
+    "enabled": false
+   },
+   {
+    "text": "Draft",
+    "name": "PartDesign_Draft",
+    "enabled": false
+   },
+   {
+    "text": "Thickness",
+    "name": "PartDesign_Thickness",
+    "enabled": false
+   },
+   {
+    "text": "Defeaturing",
+    "name": "PartDesign_Defeaturing",
+    "enabled": false
+   }
+  ],
+  "toolbar": [
+   {
+    "name": "PartDesign_Fillet",
+    "text": "Fillet",
+    "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Fillet</b></p><p style='white-space:pre; margin:0;'>Applies a fillet to the selected edges or faces</p><p style='white-space:pre; margin-top:0.5em;'><i>PartDesign_Fillet</i></p>",
+    "enabled": false
+   },
+   {
+    "name": "PartDesign_Chamfer",
+    "text": "Chamfer",
+    "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Chamfer</b></p><p style='white-space:pre; margin:0;'>Applies a chamfer to the selected edges or faces</p><p style='white-space:pre; margin-top:0.5em;'><i>PartDesign_Chamfer</i></p>",
+    "enabled": false
+   },
+   {
+    "name": "PartDesign_Draft",
+    "text": "Draft",
+    "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Draft</b></p><p style='white-space:pre; margin:0;'>Applies a draft to the selected faces</p><p style='white-space:pre; margin-top:0.5em;'><i>PartDesign_Draft</i></p>",
+    "enabled": false
+   },
+   {
+    "name": "PartDesign_Thickness",
+    "text": "Thickness",
+    "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Thickness</b></p><p style='white-space:pre; margin:0;'>Applies thickness and removes the selected faces</p><p style='white-space:pre; margin-top:0.5em;'><i>PartDesign_Thickness</i></p>",
+    "enabled": false
+   },
+   {
+    "name": "PartDesign_Defeaturing",
+    "text": "Defeaturing",
+    "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Defeaturing</b></p><p style='white-space:pre; margin:0;'>Removes selected faces from a solid</p><p style='white-space:pre; margin-top:0.5em;'><i>PartDesign_Defeaturing</i></p>",
+    "enabled": false
+   }
+  ]
+ },
+ "fillet": {
+  "task": [
+   [
+    {
+     "class": "QPushButton",
+     "name": "",
+     "y": 9,
+     "x": 137,
+     "enabled": true,
+     "text": "OK"
+    },
+    {
+     "class": "QPushButton",
+     "name": "",
+     "y": 9,
+     "x": 249,
+     "enabled": true,
+     "text": "Cancel"
+    },
+    {
+     "class": "QSint::TaskHeader",
+     "name": "",
+     "y": 50,
+     "x": 4,
+     "enabled": true,
+     "text": ""
+    },
+    {
+     "class": "QSint::ActionLabel",
+     "name": "",
+     "y": 53,
+     "x": 9,
+     "enabled": true,
+     "text": "Fillet Parameters"
+    },
+    {
+     "class": "QToolButton",
+     "name": "buttonRefSel",
+     "y": 85,
+     "x": 18,
+     "enabled": true,
+     "tip": "Toggles between selection and preview mode",
+     "text": "Select",
+     "checked": false
+    },
+    {
+     "class": "QListWidget",
+     "name": "listWidgetReferences",
+     "y": 113,
+     "x": 18,
+     "enabled": true,
+     "tip": "- select an item to highlight it\n- double-click on an item to see the fillets",
+     "items": [
+      "Edge1"
+     ],
+     "actions": [
+      "Remove\tDel",
+      "Add All Edges\tCtrl+Shift+A"
+     ]
+    },
+    {
+     "class": "QLabel",
+     "name": "label",
+     "y": 310,
+     "x": 18,
+     "enabled": true,
+     "text": "Radius"
+    },
+    {
+     "class": "Gui::QuantitySpinBox",
+     "name": "filletRadius",
+     "y": 310,
+     "x": 249,
+     "enabled": true,
+     "text": "1.00 mm"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 311,
+     "x": 254,
+     "enabled": true,
+     "text": "1.00 mm"
+    },
+    {
+     "class": "QCheckBox",
+     "name": "checkBoxUseAllEdges",
+     "y": 341,
+     "x": 18,
+     "enabled": true,
+     "text": "Use all edges",
+     "checked": false
+    },
+    {
+     "class": "QSint::TaskHeader",
+     "name": "",
+     "y": 383,
+     "x": 4,
+     "enabled": true,
+     "text": ""
+    },
+    {
+     "class": "QSint::ActionLabel",
+     "name": "",
+     "y": 386,
+     "x": 9,
+     "enabled": true,
+     "text": "Preview"
+    },
+    {
+     "class": "QCheckBox",
+     "name": "showFinalCheckBox",
+     "y": 418,
+     "x": 18,
+     "enabled": true,
+     "text": "Show final result",
+     "checked": false
+    },
+    {
+     "class": "QCheckBox",
+     "name": "showTransparentPreviewCheckBox",
+     "y": 444,
+     "x": 18,
+     "enabled": true,
+     "text": "Show preview overlay",
+     "checked": true
+    }
+   ]
+  ],
+  "in_edit": "Fillet",
+  "undo_names": [
+   "Make Fillet",
+   "Add a Body"
+  ],
+  "undo_count_change": 1,
+  "base": [
+   "Pad",
+   [
+    "Edge1"
+   ]
+  ],
+  "props": {
+   "values": {
+    "AddSubShape": "<Shape object at 0x64757aac7870>",
+    "Base": "(<PartDesign::Pad>, ['Edge1'])",
+    "BaseFeature": "<PartDesign::Pad>",
+    "ExpressionEngine": "[]",
+    "FuzzyTolerance": "0.0",
+    "Label": "Fillet",
+    "Label2": "",
+    "Operation": "Union",
+    "Placement": "Placement [Pos=(0,0,0), Yaw-Pitch-Roll=(0,0,0)]",
+    "PreviewShape": "<Compound object at 0x64757aac7870>",
+    "Radius": "1.0 mm",
+    "Refine": "True",
+    "Shape": "<Compound object at 0x64757aac7870>",
+    "ShapeMaterial": "<Material at 0x64757aadde00>",
+    "SupportTransform": "False",
+    "Suppressed": "False",
+    "SuppressedShape": "<Shape object at 0x64757aac7870>",
+    "UseAllEdges": "False",
+    "Visibility": "False",
+    "_Body": "<body object>",
+    "_ElementMapVersion": "15.70200.5"
+   },
+   "groups": {
+    "AddSubShape": "",
+    "Base": "",
+    "BaseFeature": "",
+    "ExpressionEngine": "Base",
+    "FuzzyTolerance": "Part Design",
+    "Label": "Base",
+    "Label2": "Base",
+    "Operation": "Part Design",
+    "Placement": "",
+    "PreviewShape": "",
+    "Radius": "Fillet",
+    "Refine": "Part Design",
+    "Shape": "",
+    "ShapeMaterial": "",
+    "SupportTransform": "Base",
+    "Suppressed": "Base",
+    "SuppressedShape": "",
+    "UseAllEdges": "Fillet",
+    "Visibility": "",
+    "_Body": "Base",
+    "_ElementMapVersion": "Base"
+   },
+   "types": {
+    "AddSubShape": "Part::PropertyPartShape",
+    "Base": "App::PropertyLinkSub",
+    "BaseFeature": "App::PropertyLink",
+    "ExpressionEngine": "App::PropertyExpressionEngine",
+    "FuzzyTolerance": "App::PropertyFloatConstraint",
+    "Label": "App::PropertyString",
+    "Label2": "App::PropertyString",
+    "Operation": "App::PropertyEnumeration",
+    "Placement": "App::PropertyPlacement",
+    "PreviewShape": "Part::PropertyPartShape",
+    "Radius": "App::PropertyQuantityConstraint",
+    "Refine": "App::PropertyBool",
+    "Shape": "Part::PropertyPartShape",
+    "ShapeMaterial": "Materials::PropertyMaterial",
+    "SupportTransform": "App::PropertyBool",
+    "Suppressed": "App::PropertyBool",
+    "SuppressedShape": "Part::PropertyPartShape",
+    "UseAllEdges": "App::PropertyBool",
+    "Visibility": "App::PropertyBool",
+    "_Body": "App::PropertyLinkHidden",
+    "_ElementMapVersion": "App::PropertyString"
+   },
+   "modes": {
+    "AddSubShape": [],
+    "Base": [],
+    "BaseFeature": [
+     "Hidden"
+    ],
+    "ExpressionEngine": [
+     "Hidden"
+    ],
+    "FuzzyTolerance": [],
+    "Label": [],
+    "Label2": [
+     "Hidden"
+    ],
+    "Operation": [
+     "Hidden"
+    ],
+    "Placement": [
+     "ReadOnly",
+     "Hidden"
+    ],
+    "PreviewShape": [
+     "Hidden"
+    ],
+    "Radius": [],
+    "Refine": [],
+    "Shape": [],
+    "ShapeMaterial": [],
+    "SupportTransform": [],
+    "Suppressed": [],
+    "SuppressedShape": [],
+    "UseAllEdges": [],
+    "Visibility": [
+     "Hidden"
+    ],
+    "_Body": [
+     "ReadOnly",
+     "Hidden"
+    ],
+    "_ElementMapVersion": [
+     "Hidden"
+    ]
+   },
+   "enums": {
+    "Operation": [
+     "Union",
+     "Subtraction",
+     "Common"
+    ]
+   }
+  },
+  "visible_during": {
+   "Sketch": true,
+   "Pad": true,
+   "Fillet": false
+  },
+  "task_select": [
+   [
+    {
+     "class": "QPushButton",
+     "name": "",
+     "y": 9,
+     "x": 137,
+     "enabled": true,
+     "text": "OK"
+    },
+    {
+     "class": "QPushButton",
+     "name": "",
+     "y": 9,
+     "x": 249,
+     "enabled": true,
+     "text": "Cancel"
+    },
+    {
+     "class": "QSint::TaskHeader",
+     "name": "",
+     "y": 50,
+     "x": 4,
+     "enabled": true,
+     "text": ""
+    },
+    {
+     "class": "QSint::ActionLabel",
+     "name": "",
+     "y": 53,
+     "x": 9,
+     "enabled": true,
+     "text": "Fillet Parameters"
+    },
+    {
+     "class": "QToolButton",
+     "name": "buttonRefSel",
+     "y": 85,
+     "x": 18,
+     "enabled": true,
+     "tip": "Toggles between selection and preview mode",
+     "text": "Confirm Selection",
+     "checked": true
+    },
+    {
+     "class": "QListWidget",
+     "name": "listWidgetReferences",
+     "y": 113,
+     "x": 18,
+     "enabled": true,
+     "tip": "- select an item to highlight it\n- double-click on an item to see the fillets",
+     "items": [
+      "Edge1"
+     ],
+     "actions": [
+      "Remove\tDel",
+      "Add All Edges\tCtrl+Shift+A"
+     ]
+    },
+    {
+     "class": "QLabel",
+     "name": "label",
+     "y": 310,
+     "x": 18,
+     "enabled": true,
+     "text": "Radius"
+    },
+    {
+     "class": "Gui::QuantitySpinBox",
+     "name": "filletRadius",
+     "y": 310,
+     "x": 249,
+     "enabled": true,
+     "text": "1.00 mm"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 311,
+     "x": 254,
+     "enabled": true,
+     "text": "1.00 mm"
+    },
+    {
+     "class": "QCheckBox",
+     "name": "checkBoxUseAllEdges",
+     "y": 341,
+     "x": 18,
+     "enabled": true,
+     "text": "Use all edges",
+     "checked": false
+    },
+    {
+     "class": "QSint::TaskHeader",
+     "name": "",
+     "y": 383,
+     "x": 4,
+     "enabled": true,
+     "text": ""
+    },
+    {
+     "class": "QSint::ActionLabel",
+     "name": "",
+     "y": 386,
+     "x": 9,
+     "enabled": true,
+     "text": "Preview"
+    },
+    {
+     "class": "QCheckBox",
+     "name": "showFinalCheckBox",
+     "y": 418,
+     "x": 18,
+     "enabled": true,
+     "text": "Show final result",
+     "checked": false
+    },
+    {
+     "class": "QCheckBox",
+     "name": "showTransparentPreviewCheckBox",
+     "y": 444,
+     "x": 18,
+     "enabled": true,
+     "text": "Show preview overlay",
+     "checked": true
+    }
+   ]
+  ],
+  "visible_selecting": {
+   "Sketch": true,
+   "Pad": true,
+   "Fillet": false
+  },
+  "picked": [
+   "Pad",
+   [
+    "Edge1",
+    "Edge2"
+   ]
+  ],
+  "task_picked": [
+   [
+    {
+     "class": "QPushButton",
+     "name": "",
+     "y": 9,
+     "x": 137,
+     "enabled": true,
+     "text": "OK"
+    },
+    {
+     "class": "QPushButton",
+     "name": "",
+     "y": 9,
+     "x": 249,
+     "enabled": true,
+     "text": "Cancel"
+    },
+    {
+     "class": "QSint::TaskHeader",
+     "name": "",
+     "y": 50,
+     "x": 4,
+     "enabled": true,
+     "text": ""
+    },
+    {
+     "class": "QSint::ActionLabel",
+     "name": "",
+     "y": 53,
+     "x": 9,
+     "enabled": true,
+     "text": "Fillet Parameters"
+    },
+    {
+     "class": "QToolButton",
+     "name": "buttonRefSel",
+     "y": 85,
+     "x": 18,
+     "enabled": true,
+     "tip": "Toggles between selection and preview mode",
+     "text": "Confirm Selection",
+     "checked": true
+    },
+    {
+     "class": "QListWidget",
+     "name": "listWidgetReferences",
+     "y": 113,
+     "x": 18,
+     "enabled": true,
+     "tip": "- select an item to highlight it\n- double-click on an item to see the fillets",
+     "items": [
+      "Edge1",
+      "Edge2"
+     ],
+     "actions": [
+      "Remove\tDel",
+      "Add All Edges\tCtrl+Shift+A"
+     ]
+    },
+    {
+     "class": "QLabel",
+     "name": "label",
+     "y": 310,
+     "x": 18,
+     "enabled": true,
+     "text": "Radius"
+    },
+    {
+     "class": "Gui::QuantitySpinBox",
+     "name": "filletRadius",
+     "y": 310,
+     "x": 249,
+     "enabled": true,
+     "text": "1.00 mm"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 311,
+     "x": 254,
+     "enabled": true,
+     "text": "1.00 mm"
+    },
+    {
+     "class": "QCheckBox",
+     "name": "checkBoxUseAllEdges",
+     "y": 341,
+     "x": 18,
+     "enabled": true,
+     "text": "Use all edges",
+     "checked": false
+    },
+    {
+     "class": "QSint::TaskHeader",
+     "name": "",
+     "y": 383,
+     "x": 4,
+     "enabled": true,
+     "text": ""
+    },
+    {
+     "class": "QSint::ActionLabel",
+     "name": "",
+     "y": 386,
+     "x": 9,
+     "enabled": true,
+     "text": "Preview"
+    },
+    {
+     "class": "QCheckBox",
+     "name": "showFinalCheckBox",
+     "y": 418,
+     "x": 18,
+     "enabled": true,
+     "text": "Show final result",
+     "checked": false
+    },
+    {
+     "class": "QCheckBox",
+     "name": "showTransparentPreviewCheckBox",
+     "y": 444,
+     "x": 18,
+     "enabled": true,
+     "text": "Show preview overlay",
+     "checked": true
+    }
+   ]
+  ],
+  "picked_twice": [
+   "Pad",
+   [
+    "Edge1"
+   ]
+  ],
+  "task_confirmed": [
+   [
+    {
+     "class": "QPushButton",
+     "name": "",
+     "y": 9,
+     "x": 137,
+     "enabled": true,
+     "text": "OK"
+    },
+    {
+     "class": "QPushButton",
+     "name": "",
+     "y": 9,
+     "x": 249,
+     "enabled": true,
+     "text": "Cancel"
+    },
+    {
+     "class": "QSint::TaskHeader",
+     "name": "",
+     "y": 50,
+     "x": 4,
+     "enabled": true,
+     "text": ""
+    },
+    {
+     "class": "QSint::ActionLabel",
+     "name": "",
+     "y": 53,
+     "x": 9,
+     "enabled": true,
+     "text": "Fillet Parameters"
+    },
+    {
+     "class": "QToolButton",
+     "name": "buttonRefSel",
+     "y": 85,
+     "x": 18,
+     "enabled": true,
+     "tip": "Toggles between selection and preview mode",
+     "text": "Select",
+     "checked": false
+    },
+    {
+     "class": "QListWidget",
+     "name": "listWidgetReferences",
+     "y": 113,
+     "x": 18,
+     "enabled": true,
+     "tip": "- select an item to highlight it\n- double-click on an item to see the fillets",
+     "items": [
+      "Edge1",
+      "Edge2"
+     ],
+     "actions": [
+      "Remove\tDel",
+      "Add All Edges\tCtrl+Shift+A"
+     ]
+    },
+    {
+     "class": "QLabel",
+     "name": "label",
+     "y": 310,
+     "x": 18,
+     "enabled": true,
+     "text": "Radius"
+    },
+    {
+     "class": "Gui::QuantitySpinBox",
+     "name": "filletRadius",
+     "y": 310,
+     "x": 249,
+     "enabled": true,
+     "text": "1.00 mm"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 311,
+     "x": 254,
+     "enabled": true,
+     "text": "1.00 mm"
+    },
+    {
+     "class": "QCheckBox",
+     "name": "checkBoxUseAllEdges",
+     "y": 341,
+     "x": 18,
+     "enabled": true,
+     "text": "Use all edges",
+     "checked": false
+    },
+    {
+     "class": "QSint::TaskHeader",
+     "name": "",
+     "y": 383,
+     "x": 4,
+     "enabled": true,
+     "text": ""
+    },
+    {
+     "class": "QSint::ActionLabel",
+     "name": "",
+     "y": 386,
+     "x": 9,
+     "enabled": true,
+     "text": "Preview"
+    },
+    {
+     "class": "QCheckBox",
+     "name": "showFinalCheckBox",
+     "y": 418,
+     "x": 18,
+     "enabled": true,
+     "text": "Show final result",
+     "checked": false
+    },
+    {
+     "class": "QCheckBox",
+     "name": "showTransparentPreviewCheckBox",
+     "y": 444,
+     "x": 18,
+     "enabled": true,
+     "text": "Show preview overlay",
+     "checked": true
+    }
+   ]
+  ],
+  "ok": true,
+  "after": {
+   "base": [
+    "Pad",
+    [
+     "Edge1",
+     "Edge2"
+    ]
+   ],
+   "valid": true,
+   "status": "Valid",
+   "volume": 3997.853982,
+   "tip": "Fillet"
+  },
+  "undo_names_after": [
+   "Make Fillet",
+   "Add a Body"
+  ],
+  "tree": [
+   {
+    "text": "DocFillet",
+    "depth": 0,
+    "bold": true,
+    "fg": "#000000"
+   },
+   {
+    "text": "Body",
+    "depth": 1,
+    "bold": true,
+    "fg": "#000000"
+   },
+   {
+    "text": "Origin",
+    "depth": 2,
+    "bold": false,
+    "fg": "#6f6f6f"
+   },
+   {
+    "text": "X-axis",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "Y-axis",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "Z-axis",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "XY-plane",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "XZ-plane",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "YZ-plane",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "Origin-Point",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "Pad",
+    "depth": 2,
+    "bold": false,
+    "fg": "#6f6f6f"
+   },
+   {
+    "text": "Sketch",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "Fillet",
+    "depth": 2,
+    "bold": false,
+    "fg": "#000000"
+   }
+  ],
+  "property_view": [
+   [
+    {
+     "depth": 0,
+     "name": "Base",
+     "value": null,
+     "group": false,
+     "editable": false
+    },
+    {
+     "depth": 1,
+     "name": "Base",
+     "value": "Pad [Edge1, Edge2]",
+     "group": false,
+     "editable": true
+    },
+    {
+     "depth": 1,
+     "name": "Support Transform",
+     "value": "false",
+     "group": false,
+     "editable": true
+    },
+    {
+     "depth": 1,
+     "name": "Label",
+     "value": "Fillet",
+     "group": false,
+     "editable": true
+    },
+    {
+     "depth": 1,
+     "name": "Suppressed",
+     "value": "false",
+     "group": false,
+     "editable": true
+    },
+    {
+     "depth": 0,
+     "name": "Fillet",
+     "value": null,
+     "group": false,
+     "editable": false
+    },
+    {
+     "depth": 1,
+     "name": "Radius",
+     "value": "1.00 mm",
+     "group": false,
+     "editable": true
+    },
+    {
+     "depth": 1,
+     "name": "Use All Edges",
+     "value": "false",
+     "group": false,
+     "editable": true
+    },
+    {
+     "depth": 0,
+     "name": "Pad",
+     "value": null,
+     "group": false,
+     "editable": false
+    },
+    {
+     "depth": 0,
+     "name": "Part Design",
+     "value": null,
+     "group": false,
+     "editable": false
+    },
+    {
+     "depth": 1,
+     "name": "Refine",
+     "value": "true",
+     "group": false,
+     "editable": true
+    },
+    {
+     "depth": 1,
+     "name": "Fuzzy Tolerance",
+     "value": "0",
+     "group": false,
+     "editable": true
+    },
+    {
+     "depth": 0,
+     "name": "Side1",
+     "value": null,
+     "group": false,
+     "editable": false
+    },
+    {
+     "depth": 0,
+     "name": "Side2",
+     "value": null,
+     "group": false,
+     "editable": false
+    },
+    {
+     "depth": 0,
+     "name": "Sketch Based",
+     "value": null,
+     "group": false,
+     "editable": false
+    },
+    {
+     "depth": 0,
+     "name": "Start",
+     "value": null,
+     "group": false,
+     "editable": false
+    }
+   ]
+  ]
+ },
+ "fillet_all": {
+  "task": [
+   [
+    {
+     "class": "QPushButton",
+     "name": "",
+     "y": 9,
+     "x": 137,
+     "enabled": true,
+     "text": "OK"
+    },
+    {
+     "class": "QPushButton",
+     "name": "",
+     "y": 9,
+     "x": 249,
+     "enabled": true,
+     "text": "Cancel"
+    },
+    {
+     "class": "QSint::TaskHeader",
+     "name": "",
+     "y": 50,
+     "x": 4,
+     "enabled": true,
+     "text": ""
+    },
+    {
+     "class": "QSint::ActionLabel",
+     "name": "",
+     "y": 53,
+     "x": 9,
+     "enabled": true,
+     "text": "Fillet Parameters"
+    },
+    {
+     "class": "QToolButton",
+     "name": "buttonRefSel",
+     "y": 85,
+     "x": 18,
+     "enabled": false,
+     "tip": "Toggles between selection and preview mode",
+     "text": "Select",
+     "checked": false
+    },
+    {
+     "class": "QListWidget",
+     "name": "listWidgetReferences",
+     "y": 113,
+     "x": 18,
+     "enabled": false,
+     "tip": "- select an item to highlight it\n- double-click on an item to see the fillets",
+     "items": [
+      "Edge1",
+      "Edge2",
+      "Edge3",
+      "Edge4",
+      "Edge5",
+      "Edge6",
+      "Edge7",
+      "Edge8",
+      "Edge9",
+      "Edge10",
+      "Edge11",
+      "Edge12"
+     ],
+     "actions": [
+      "Remove\tDel",
+      "Add All Edges\tCtrl+Shift+A"
+     ]
+    },
+    {
+     "class": "QLabel",
+     "name": "label",
+     "y": 310,
+     "x": 18,
+     "enabled": true,
+     "text": "Radius"
+    },
+    {
+     "class": "Gui::QuantitySpinBox",
+     "name": "filletRadius",
+     "y": 310,
+     "x": 249,
+     "enabled": true,
+     "text": "1.00 mm"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 311,
+     "x": 254,
+     "enabled": true,
+     "text": "1.00 mm"
+    },
+    {
+     "class": "QCheckBox",
+     "name": "checkBoxUseAllEdges",
+     "y": 341,
+     "x": 18,
+     "enabled": true,
+     "text": "Use all edges",
+     "checked": true
+    },
+    {
+     "class": "QSint::TaskHeader",
+     "name": "",
+     "y": 383,
+     "x": 4,
+     "enabled": true,
+     "text": ""
+    },
+    {
+     "class": "QSint::ActionLabel",
+     "name": "",
+     "y": 386,
+     "x": 9,
+     "enabled": true,
+     "text": "Preview"
+    },
+    {
+     "class": "QCheckBox",
+     "name": "showFinalCheckBox",
+     "y": 418,
+     "x": 18,
+     "enabled": true,
+     "text": "Show final result",
+     "checked": false
+    },
+    {
+     "class": "QCheckBox",
+     "name": "showTransparentPreviewCheckBox",
+     "y": 444,
+     "x": 18,
+     "enabled": true,
+     "text": "Show preview overlay",
+     "checked": true
+    }
+   ]
+  ],
+  "in_edit": "Fillet",
+  "undo_names": [
+   "Make Fillet",
+   "Add a Body"
+  ],
+  "undo_count_change": 1,
+  "base": [
+   "Pad",
+   [
+    "Edge1",
+    "Edge2",
+    "Edge3",
+    "Edge4",
+    "Edge5",
+    "Edge6",
+    "Edge7",
+    "Edge8",
+    "Edge9",
+    "Edge10",
+    "Edge11",
+    "Edge12"
+   ]
+  ],
+  "props": {
+   "values": {
+    "AddSubShape": "<Shape object at 0x64757e992ad0>",
+    "Base": "(<PartDesign::Pad>, ['Edge1', 'Edge2', 'Edge3', 'Edge4', 'Edge5', 'Edge6', 'Edge7', 'Edge8', 'Edge9', 'Edge10', 'Edge11', 'Edge12'])",
+    "BaseFeature": "<PartDesign::Pad>",
+    "ExpressionEngine": "[]",
+    "FuzzyTolerance": "0.0",
+    "Label": "Fillet",
+    "Label2": "",
+    "Operation": "Union",
+    "Placement": "Placement [Pos=(0,0,0), Yaw-Pitch-Roll=(0,0,0)]",
+    "PreviewShape": "<Compound object at 0x64757e992ad0>",
+    "Radius": "1.0 mm",
+    "Refine": "True",
+    "Shape": "<Compound object at 0x64757e992ad0>",
+    "ShapeMaterial": "<Material at 0x64757ecd30e0>",
+    "SupportTransform": "False",
+    "Suppressed": "False",
+    "SuppressedShape": "<Shape object at 0x64757e992ad0>",
+    "UseAllEdges": "True",
+    "Visibility": "False",
+    "_Body": "<body object>",
+    "_ElementMapVersion": "15.70200.5"
+   },
+   "groups": {
+    "AddSubShape": "",
+    "Base": "",
+    "BaseFeature": "",
+    "ExpressionEngine": "Base",
+    "FuzzyTolerance": "Part Design",
+    "Label": "Base",
+    "Label2": "Base",
+    "Operation": "Part Design",
+    "Placement": "",
+    "PreviewShape": "",
+    "Radius": "Fillet",
+    "Refine": "Part Design",
+    "Shape": "",
+    "ShapeMaterial": "",
+    "SupportTransform": "Base",
+    "Suppressed": "Base",
+    "SuppressedShape": "",
+    "UseAllEdges": "Fillet",
+    "Visibility": "",
+    "_Body": "Base",
+    "_ElementMapVersion": "Base"
+   },
+   "types": {
+    "AddSubShape": "Part::PropertyPartShape",
+    "Base": "App::PropertyLinkSub",
+    "BaseFeature": "App::PropertyLink",
+    "ExpressionEngine": "App::PropertyExpressionEngine",
+    "FuzzyTolerance": "App::PropertyFloatConstraint",
+    "Label": "App::PropertyString",
+    "Label2": "App::PropertyString",
+    "Operation": "App::PropertyEnumeration",
+    "Placement": "App::PropertyPlacement",
+    "PreviewShape": "Part::PropertyPartShape",
+    "Radius": "App::PropertyQuantityConstraint",
+    "Refine": "App::PropertyBool",
+    "Shape": "Part::PropertyPartShape",
+    "ShapeMaterial": "Materials::PropertyMaterial",
+    "SupportTransform": "App::PropertyBool",
+    "Suppressed": "App::PropertyBool",
+    "SuppressedShape": "Part::PropertyPartShape",
+    "UseAllEdges": "App::PropertyBool",
+    "Visibility": "App::PropertyBool",
+    "_Body": "App::PropertyLinkHidden",
+    "_ElementMapVersion": "App::PropertyString"
+   },
+   "modes": {
+    "AddSubShape": [],
+    "Base": [],
+    "BaseFeature": [
+     "Hidden"
+    ],
+    "ExpressionEngine": [
+     "Hidden"
+    ],
+    "FuzzyTolerance": [],
+    "Label": [],
+    "Label2": [
+     "Hidden"
+    ],
+    "Operation": [
+     "Hidden"
+    ],
+    "Placement": [
+     "ReadOnly",
+     "Hidden"
+    ],
+    "PreviewShape": [
+     "Hidden"
+    ],
+    "Radius": [],
+    "Refine": [],
+    "Shape": [],
+    "ShapeMaterial": [],
+    "SupportTransform": [],
+    "Suppressed": [],
+    "SuppressedShape": [],
+    "UseAllEdges": [],
+    "Visibility": [
+     "Hidden"
+    ],
+    "_Body": [
+     "ReadOnly",
+     "Hidden"
+    ],
+    "_ElementMapVersion": [
+     "Hidden"
+    ]
+   },
+   "enums": {
+    "Operation": [
+     "Union",
+     "Subtraction",
+     "Common"
+    ]
+   }
+  },
+  "visible_during": {
+   "Sketch": true,
+   "Pad": true,
+   "Fillet": false
+  },
+  "ok": true,
+  "after": {
+   "base": [
+    "Pad",
+    [
+     "Edge1",
+     "Edge2",
+     "Edge3",
+     "Edge4",
+     "Edge5",
+     "Edge6",
+     "Edge7",
+     "Edge8",
+     "Edge9",
+     "Edge10",
+     "Edge11",
+     "Edge12"
+    ]
+   ],
+   "valid": true,
+   "status": "Valid",
+   "volume": 3945.542757,
+   "tip": "Fillet"
+  },
+  "undo_names_after": [
+   "Make Fillet",
+   "Add a Body"
+  ],
+  "tree": [
+   {
+    "text": "DocFillet",
+    "depth": 0,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "Body",
+    "depth": 1,
+    "bold": true,
+    "fg": "#000000"
+   },
+   {
+    "text": "Origin",
+    "depth": 2,
+    "bold": false,
+    "fg": "#6f6f6f"
+   },
+   {
+    "text": "X-axis",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "Y-axis",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "Z-axis",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "XY-plane",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "XZ-plane",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "YZ-plane",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "Origin-Point",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "Pad",
+    "depth": 2,
+    "bold": false,
+    "fg": "#6f6f6f"
+   },
+   {
+    "text": "Sketch",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "Fillet",
+    "depth": 2,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "DocFillet1",
+    "depth": 0,
+    "bold": true,
+    "fg": "#000000"
+   },
+   {
+    "text": "Body",
+    "depth": 1,
+    "bold": true,
+    "fg": "#000000"
+   },
+   {
+    "text": "Origin",
+    "depth": 2,
+    "bold": false,
+    "fg": "#6f6f6f"
+   },
+   {
+    "text": "X-axis",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "Y-axis",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "Z-axis",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "XY-plane",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "XZ-plane",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "YZ-plane",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "Origin-Point",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "Pad",
+    "depth": 2,
+    "bold": false,
+    "fg": "#6f6f6f"
+   },
+   {
+    "text": "Sketch",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "Fillet",
+    "depth": 2,
+    "bold": false,
+    "fg": "#000000"
+   }
+  ],
+  "property_view": [
+   [
+    {
+     "depth": 0,
+     "name": "Base",
+     "value": null,
+     "group": false,
+     "editable": false
+    },
+    {
+     "depth": 1,
+     "name": "Base",
+     "value": "Pad [Edge1, Edge2, Edge3 ...]",
+     "group": false,
+     "editable": true
+    },
+    {
+     "depth": 1,
+     "name": "Support Transform",
+     "value": "false",
+     "group": false,
+     "editable": true
+    },
+    {
+     "depth": 1,
+     "name": "Label",
+     "value": "Fillet",
+     "group": false,
+     "editable": true
+    },
+    {
+     "depth": 1,
+     "name": "Suppressed",
+     "value": "false",
+     "group": false,
+     "editable": true
+    },
+    {
+     "depth": 0,
+     "name": "Fillet",
+     "value": null,
+     "group": false,
+     "editable": false
+    },
+    {
+     "depth": 1,
+     "name": "Radius",
+     "value": "1.00 mm",
+     "group": false,
+     "editable": true
+    },
+    {
+     "depth": 1,
+     "name": "Use All Edges",
+     "value": "true",
+     "group": false,
+     "editable": true
+    },
+    {
+     "depth": 0,
+     "name": "Pad",
+     "value": null,
+     "group": false,
+     "editable": false
+    },
+    {
+     "depth": 0,
+     "name": "Part Design",
+     "value": null,
+     "group": false,
+     "editable": false
+    },
+    {
+     "depth": 1,
+     "name": "Refine",
+     "value": "true",
+     "group": false,
+     "editable": true
+    },
+    {
+     "depth": 1,
+     "name": "Fuzzy Tolerance",
+     "value": "0",
+     "group": false,
+     "editable": true
+    },
+    {
+     "depth": 0,
+     "name": "Side1",
+     "value": null,
+     "group": false,
+     "editable": false
+    },
+    {
+     "depth": 0,
+     "name": "Side2",
+     "value": null,
+     "group": false,
+     "editable": false
+    },
+    {
+     "depth": 0,
+     "name": "Sketch Based",
+     "value": null,
+     "group": false,
+     "editable": false
+    },
+    {
+     "depth": 0,
+     "name": "Start",
+     "value": null,
+     "group": false,
+     "editable": false
+    }
+   ]
+  ]
+ },
+ "chamfer": {
+  "task": [
+   [
+    {
+     "class": "QPushButton",
+     "name": "",
+     "y": 9,
+     "x": 137,
+     "enabled": true,
+     "text": "OK"
+    },
+    {
+     "class": "QPushButton",
+     "name": "",
+     "y": 9,
+     "x": 249,
+     "enabled": true,
+     "text": "Cancel"
+    },
+    {
+     "class": "QSint::TaskHeader",
+     "name": "",
+     "y": 50,
+     "x": 4,
+     "enabled": true,
+     "text": ""
+    },
+    {
+     "class": "QSint::ActionLabel",
+     "name": "",
+     "y": 53,
+     "x": 9,
+     "enabled": true,
+     "text": "Chamfer Parameters"
+    },
+    {
+     "class": "QToolButton",
+     "name": "buttonRefSel",
+     "y": 85,
+     "x": 18,
+     "enabled": true,
+     "tip": "Toggles between selection and preview mode",
+     "text": "Select",
+     "checked": false
+    },
+    {
+     "class": "QListWidget",
+     "name": "listWidgetReferences",
+     "y": 111,
+     "x": 18,
+     "enabled": true,
+     "tip": "- select an item to highlight it\n- double-click on an item to see the chamfers",
+     "items": [
+      "Edge4"
+     ],
+     "actions": [
+      "Remove\tDel",
+      "Add All Edges\tCtrl+Shift+A"
+     ]
+    },
+    {
+     "class": "QLabel",
+     "name": "typeLabel",
+     "y": 249,
+     "x": 18,
+     "enabled": true,
+     "text": "Type"
+    },
+    {
+     "class": "QComboBox",
+     "name": "chamferType",
+     "y": 249,
+     "x": 58,
+     "enabled": true,
+     "items": [
+      "Equal distance",
+      "Two distances",
+      "Distance and angle"
+     ],
+     "current": "Equal distance"
+    },
+    {
+     "class": "QToolButton",
+     "name": "flipDirection",
+     "y": 249,
+     "x": 450,
+     "enabled": false,
+     "tip": "Flips the direction",
+     "text": "",
+     "checked": false
+    },
+    {
+     "class": "QLabel",
+     "name": "sizeLabel",
+     "y": 279,
+     "x": 18,
+     "enabled": true,
+     "text": "Size"
+    },
+    {
+     "class": "Gui::QuantitySpinBox",
+     "name": "chamferSize",
+     "y": 279,
+     "x": 58,
+     "enabled": true,
+     "text": "1.00 mm"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 280,
+     "x": 63,
+     "enabled": true,
+     "text": "1.00 mm"
+    },
+    {
+     "class": "QCheckBox",
+     "name": "checkBoxUseAllEdges",
+     "y": 310,
+     "x": 18,
+     "enabled": true,
+     "text": "Use all edges",
+     "checked": false
+    },
+    {
+     "class": "QSint::TaskHeader",
+     "name": "",
+     "y": 383,
+     "x": 4,
+     "enabled": true,
+     "text": ""
+    },
+    {
+     "class": "QSint::ActionLabel",
+     "name": "",
+     "y": 386,
+     "x": 9,
+     "enabled": true,
+     "text": "Preview"
+    },
+    {
+     "class": "QCheckBox",
+     "name": "showFinalCheckBox",
+     "y": 418,
+     "x": 18,
+     "enabled": true,
+     "text": "Show final result",
+     "checked": false
+    },
+    {
+     "class": "QCheckBox",
+     "name": "showTransparentPreviewCheckBox",
+     "y": 444,
+     "x": 18,
+     "enabled": true,
+     "text": "Show preview overlay",
+     "checked": true
+    }
+   ]
+  ],
+  "in_edit": "Chamfer",
+  "undo_names": [
+   "Make Chamfer",
+   "Add a Body"
+  ],
+  "undo_count_change": 1,
+  "base": [
+   "Pad",
+   [
+    "Edge4"
+   ]
+  ],
+  "props": {
+   "values": {
+    "AddSubShape": "<Shape object at 0x647571d8ed00>",
+    "Angle": "45.0 deg",
+    "Base": "(<PartDesign::Pad>, ['Edge4'])",
+    "BaseFeature": "<PartDesign::Pad>",
+    "ChamferType": "Equal distance",
+    "ExpressionEngine": "[]",
+    "FlipDirection": "False",
+    "FuzzyTolerance": "0.0",
+    "Label": "Chamfer",
+    "Label2": "",
+    "Operation": "Union",
+    "Placement": "Placement [Pos=(0,0,0), Yaw-Pitch-Roll=(0,0,0)]",
+    "PreviewShape": "<Compound object at 0x647571d8ed00>",
+    "Refine": "True",
+    "Shape": "<Compound object at 0x647571d8ed00>",
+    "ShapeMaterial": "<Material at 0x64757e598120>",
+    "Size": "1.0 mm",
+    "Size2": "1.0 mm",
+    "SupportTransform": "False",
+    "Suppressed": "False",
+    "SuppressedShape": "<Shape object at 0x647571d8ed00>",
+    "UseAllEdges": "False",
+    "Visibility": "False",
+    "_Body": "<body object>",
+    "_ElementMapVersion": "15.70200.5"
+   },
+   "groups": {
+    "AddSubShape": "",
+    "Angle": "Chamfer",
+    "Base": "",
+    "BaseFeature": "",
+    "ChamferType": "Chamfer",
+    "ExpressionEngine": "Base",
+    "FlipDirection": "Chamfer",
+    "FuzzyTolerance": "Part Design",
+    "Label": "Base",
+    "Label2": "Base",
+    "Operation": "Part Design",
+    "Placement": "",
+    "PreviewShape": "",
+    "Refine": "Part Design",
+    "Shape": "",
+    "ShapeMaterial": "",
+    "Size": "Chamfer",
+    "Size2": "Chamfer",
+    "SupportTransform": "Base",
+    "Suppressed": "Base",
+    "SuppressedShape": "",
+    "UseAllEdges": "Chamfer",
+    "Visibility": "",
+    "_Body": "Base",
+    "_ElementMapVersion": "Base"
+   },
+   "types": {
+    "AddSubShape": "Part::PropertyPartShape",
+    "Angle": "App::PropertyAngle",
+    "Base": "App::PropertyLinkSub",
+    "BaseFeature": "App::PropertyLink",
+    "ChamferType": "App::PropertyEnumeration",
+    "ExpressionEngine": "App::PropertyExpressionEngine",
+    "FlipDirection": "App::PropertyBool",
+    "FuzzyTolerance": "App::PropertyFloatConstraint",
+    "Label": "App::PropertyString",
+    "Label2": "App::PropertyString",
+    "Operation": "App::PropertyEnumeration",
+    "Placement": "App::PropertyPlacement",
+    "PreviewShape": "Part::PropertyPartShape",
+    "Refine": "App::PropertyBool",
+    "Shape": "Part::PropertyPartShape",
+    "ShapeMaterial": "Materials::PropertyMaterial",
+    "Size": "App::PropertyQuantityConstraint",
+    "Size2": "App::PropertyQuantityConstraint",
+    "SupportTransform": "App::PropertyBool",
+    "Suppressed": "App::PropertyBool",
+    "SuppressedShape": "Part::PropertyPartShape",
+    "UseAllEdges": "App::PropertyBool",
+    "Visibility": "App::PropertyBool",
+    "_Body": "App::PropertyLinkHidden",
+    "_ElementMapVersion": "App::PropertyString"
+   },
+   "modes": {
+    "AddSubShape": [],
+    "Angle": [
+     "ReadOnly"
+    ],
+    "Base": [],
+    "BaseFeature": [
+     "Hidden"
+    ],
+    "ChamferType": [],
+    "ExpressionEngine": [
+     "Hidden"
+    ],
+    "FlipDirection": [],
+    "FuzzyTolerance": [],
+    "Label": [],
+    "Label2": [
+     "Hidden"
+    ],
+    "Operation": [
+     "Hidden"
+    ],
+    "Placement": [
+     "ReadOnly",
+     "Hidden"
+    ],
+    "PreviewShape": [
+     "Hidden"
+    ],
+    "Refine": [],
+    "Shape": [],
+    "ShapeMaterial": [],
+    "Size": [],
+    "Size2": [
+     "ReadOnly"
+    ],
+    "SupportTransform": [],
+    "Suppressed": [],
+    "SuppressedShape": [],
+    "UseAllEdges": [],
+    "Visibility": [
+     "Hidden"
+    ],
+    "_Body": [
+     "ReadOnly",
+     "Hidden"
+    ],
+    "_ElementMapVersion": [
+     "Hidden"
+    ]
+   },
+   "enums": {
+    "ChamferType": [
+     "Equal distance",
+     "Two distances",
+     "Distance and Angle"
+    ],
+    "Operation": [
+     "Union",
+     "Subtraction",
+     "Common"
+    ]
+   }
+  },
+  "visible_during": {
+   "Sketch": true,
+   "Pad": true,
+   "Chamfer": false
+  },
+  "task_select": [
+   [
+    {
+     "class": "QPushButton",
+     "name": "",
+     "y": 9,
+     "x": 137,
+     "enabled": true,
+     "text": "OK"
+    },
+    {
+     "class": "QPushButton",
+     "name": "",
+     "y": 9,
+     "x": 249,
+     "enabled": true,
+     "text": "Cancel"
+    },
+    {
+     "class": "QSint::TaskHeader",
+     "name": "",
+     "y": 50,
+     "x": 4,
+     "enabled": true,
+     "text": ""
+    },
+    {
+     "class": "QSint::ActionLabel",
+     "name": "",
+     "y": 53,
+     "x": 9,
+     "enabled": true,
+     "text": "Chamfer Parameters"
+    },
+    {
+     "class": "QToolButton",
+     "name": "buttonRefSel",
+     "y": 85,
+     "x": 18,
+     "enabled": true,
+     "tip": "Toggles between selection and preview mode",
+     "text": "Confirm Selection",
+     "checked": true
+    },
+    {
+     "class": "QListWidget",
+     "name": "listWidgetReferences",
+     "y": 111,
+     "x": 18,
+     "enabled": true,
+     "tip": "- select an item to highlight it\n- double-click on an item to see the chamfers",
+     "items": [
+      "Edge4"
+     ],
+     "actions": [
+      "Remove\tDel",
+      "Add All Edges\tCtrl+Shift+A"
+     ]
+    },
+    {
+     "class": "QLabel",
+     "name": "typeLabel",
+     "y": 249,
+     "x": 18,
+     "enabled": true,
+     "text": "Type"
+    },
+    {
+     "class": "QComboBox",
+     "name": "chamferType",
+     "y": 249,
+     "x": 58,
+     "enabled": true,
+     "items": [
+      "Equal distance",
+      "Two distances",
+      "Distance and angle"
+     ],
+     "current": "Equal distance"
+    },
+    {
+     "class": "QToolButton",
+     "name": "flipDirection",
+     "y": 249,
+     "x": 450,
+     "enabled": false,
+     "tip": "Flips the direction",
+     "text": "",
+     "checked": false
+    },
+    {
+     "class": "QLabel",
+     "name": "sizeLabel",
+     "y": 279,
+     "x": 18,
+     "enabled": true,
+     "text": "Size"
+    },
+    {
+     "class": "Gui::QuantitySpinBox",
+     "name": "chamferSize",
+     "y": 279,
+     "x": 58,
+     "enabled": true,
+     "text": "1.00 mm"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 280,
+     "x": 63,
+     "enabled": true,
+     "text": "1.00 mm"
+    },
+    {
+     "class": "QCheckBox",
+     "name": "checkBoxUseAllEdges",
+     "y": 310,
+     "x": 18,
+     "enabled": true,
+     "text": "Use all edges",
+     "checked": false
+    },
+    {
+     "class": "QSint::TaskHeader",
+     "name": "",
+     "y": 383,
+     "x": 4,
+     "enabled": true,
+     "text": ""
+    },
+    {
+     "class": "QSint::ActionLabel",
+     "name": "",
+     "y": 386,
+     "x": 9,
+     "enabled": true,
+     "text": "Preview"
+    },
+    {
+     "class": "QCheckBox",
+     "name": "showFinalCheckBox",
+     "y": 418,
+     "x": 18,
+     "enabled": true,
+     "text": "Show final result",
+     "checked": false
+    },
+    {
+     "class": "QCheckBox",
+     "name": "showTransparentPreviewCheckBox",
+     "y": 444,
+     "x": 18,
+     "enabled": true,
+     "text": "Show preview overlay",
+     "checked": true
+    }
+   ]
+  ],
+  "visible_selecting": {
+   "Sketch": true,
+   "Pad": true,
+   "Chamfer": false
+  },
+  "picked": [
+   "Pad",
+   [
+    "Edge4",
+    "Edge7"
+   ]
+  ],
+  "task_picked": [
+   [
+    {
+     "class": "QPushButton",
+     "name": "",
+     "y": 9,
+     "x": 137,
+     "enabled": true,
+     "text": "OK"
+    },
+    {
+     "class": "QPushButton",
+     "name": "",
+     "y": 9,
+     "x": 249,
+     "enabled": true,
+     "text": "Cancel"
+    },
+    {
+     "class": "QSint::TaskHeader",
+     "name": "",
+     "y": 50,
+     "x": 4,
+     "enabled": true,
+     "text": ""
+    },
+    {
+     "class": "QSint::ActionLabel",
+     "name": "",
+     "y": 53,
+     "x": 9,
+     "enabled": true,
+     "text": "Chamfer Parameters"
+    },
+    {
+     "class": "QToolButton",
+     "name": "buttonRefSel",
+     "y": 85,
+     "x": 18,
+     "enabled": true,
+     "tip": "Toggles between selection and preview mode",
+     "text": "Confirm Selection",
+     "checked": true
+    },
+    {
+     "class": "QListWidget",
+     "name": "listWidgetReferences",
+     "y": 111,
+     "x": 18,
+     "enabled": true,
+     "tip": "- select an item to highlight it\n- double-click on an item to see the chamfers",
+     "items": [
+      "Edge4",
+      "Edge7"
+     ],
+     "actions": [
+      "Remove\tDel",
+      "Add All Edges\tCtrl+Shift+A"
+     ]
+    },
+    {
+     "class": "QLabel",
+     "name": "typeLabel",
+     "y": 249,
+     "x": 18,
+     "enabled": true,
+     "text": "Type"
+    },
+    {
+     "class": "QComboBox",
+     "name": "chamferType",
+     "y": 249,
+     "x": 58,
+     "enabled": true,
+     "items": [
+      "Equal distance",
+      "Two distances",
+      "Distance and angle"
+     ],
+     "current": "Equal distance"
+    },
+    {
+     "class": "QToolButton",
+     "name": "flipDirection",
+     "y": 249,
+     "x": 450,
+     "enabled": false,
+     "tip": "Flips the direction",
+     "text": "",
+     "checked": false
+    },
+    {
+     "class": "QLabel",
+     "name": "sizeLabel",
+     "y": 279,
+     "x": 18,
+     "enabled": true,
+     "text": "Size"
+    },
+    {
+     "class": "Gui::QuantitySpinBox",
+     "name": "chamferSize",
+     "y": 279,
+     "x": 58,
+     "enabled": true,
+     "text": "1.00 mm"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 280,
+     "x": 63,
+     "enabled": true,
+     "text": "1.00 mm"
+    },
+    {
+     "class": "QCheckBox",
+     "name": "checkBoxUseAllEdges",
+     "y": 310,
+     "x": 18,
+     "enabled": true,
+     "text": "Use all edges",
+     "checked": false
+    },
+    {
+     "class": "QSint::TaskHeader",
+     "name": "",
+     "y": 383,
+     "x": 4,
+     "enabled": true,
+     "text": ""
+    },
+    {
+     "class": "QSint::ActionLabel",
+     "name": "",
+     "y": 386,
+     "x": 9,
+     "enabled": true,
+     "text": "Preview"
+    },
+    {
+     "class": "QCheckBox",
+     "name": "showFinalCheckBox",
+     "y": 418,
+     "x": 18,
+     "enabled": true,
+     "text": "Show final result",
+     "checked": false
+    },
+    {
+     "class": "QCheckBox",
+     "name": "showTransparentPreviewCheckBox",
+     "y": 444,
+     "x": 18,
+     "enabled": true,
+     "text": "Show preview overlay",
+     "checked": true
+    }
+   ]
+  ],
+  "picked_twice": [
+   "Pad",
+   [
+    "Edge4"
+   ]
+  ],
+  "task_confirmed": [
+   [
+    {
+     "class": "QPushButton",
+     "name": "",
+     "y": 9,
+     "x": 137,
+     "enabled": true,
+     "text": "OK"
+    },
+    {
+     "class": "QPushButton",
+     "name": "",
+     "y": 9,
+     "x": 249,
+     "enabled": true,
+     "text": "Cancel"
+    },
+    {
+     "class": "QSint::TaskHeader",
+     "name": "",
+     "y": 50,
+     "x": 4,
+     "enabled": true,
+     "text": ""
+    },
+    {
+     "class": "QSint::ActionLabel",
+     "name": "",
+     "y": 53,
+     "x": 9,
+     "enabled": true,
+     "text": "Chamfer Parameters"
+    },
+    {
+     "class": "QToolButton",
+     "name": "buttonRefSel",
+     "y": 85,
+     "x": 18,
+     "enabled": true,
+     "tip": "Toggles between selection and preview mode",
+     "text": "Select",
+     "checked": false
+    },
+    {
+     "class": "QListWidget",
+     "name": "listWidgetReferences",
+     "y": 111,
+     "x": 18,
+     "enabled": true,
+     "tip": "- select an item to highlight it\n- double-click on an item to see the chamfers",
+     "items": [
+      "Edge4",
+      "Edge7"
+     ],
+     "actions": [
+      "Remove\tDel",
+      "Add All Edges\tCtrl+Shift+A"
+     ]
+    },
+    {
+     "class": "QLabel",
+     "name": "typeLabel",
+     "y": 249,
+     "x": 18,
+     "enabled": true,
+     "text": "Type"
+    },
+    {
+     "class": "QComboBox",
+     "name": "chamferType",
+     "y": 249,
+     "x": 58,
+     "enabled": true,
+     "items": [
+      "Equal distance",
+      "Two distances",
+      "Distance and angle"
+     ],
+     "current": "Equal distance"
+    },
+    {
+     "class": "QToolButton",
+     "name": "flipDirection",
+     "y": 249,
+     "x": 450,
+     "enabled": false,
+     "tip": "Flips the direction",
+     "text": "",
+     "checked": false
+    },
+    {
+     "class": "QLabel",
+     "name": "sizeLabel",
+     "y": 279,
+     "x": 18,
+     "enabled": true,
+     "text": "Size"
+    },
+    {
+     "class": "Gui::QuantitySpinBox",
+     "name": "chamferSize",
+     "y": 279,
+     "x": 58,
+     "enabled": true,
+     "text": "1.00 mm"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 280,
+     "x": 63,
+     "enabled": true,
+     "text": "1.00 mm"
+    },
+    {
+     "class": "QCheckBox",
+     "name": "checkBoxUseAllEdges",
+     "y": 310,
+     "x": 18,
+     "enabled": true,
+     "text": "Use all edges",
+     "checked": false
+    },
+    {
+     "class": "QSint::TaskHeader",
+     "name": "",
+     "y": 383,
+     "x": 4,
+     "enabled": true,
+     "text": ""
+    },
+    {
+     "class": "QSint::ActionLabel",
+     "name": "",
+     "y": 386,
+     "x": 9,
+     "enabled": true,
+     "text": "Preview"
+    },
+    {
+     "class": "QCheckBox",
+     "name": "showFinalCheckBox",
+     "y": 418,
+     "x": 18,
+     "enabled": true,
+     "text": "Show final result",
+     "checked": false
+    },
+    {
+     "class": "QCheckBox",
+     "name": "showTransparentPreviewCheckBox",
+     "y": 444,
+     "x": 18,
+     "enabled": true,
+     "text": "Show preview overlay",
+     "checked": true
+    }
+   ]
+  ],
+  "ok": true,
+  "after": {
+   "base": [
+    "Pad",
+    [
+     "Edge4",
+     "Edge7"
+    ]
+   ],
+   "valid": true,
+   "status": "Valid",
+   "volume": 3970.333333,
+   "tip": "Chamfer"
+  },
+  "undo_names_after": [
+   "Make Chamfer",
+   "Add a Body"
+  ],
+  "tree": [
+   {
+    "text": "DocFillet",
+    "depth": 0,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "Body",
+    "depth": 1,
+    "bold": true,
+    "fg": "#000000"
+   },
+   {
+    "text": "Origin",
+    "depth": 2,
+    "bold": false,
+    "fg": "#6f6f6f"
+   },
+   {
+    "text": "X-axis",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "Y-axis",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "Z-axis",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "XY-plane",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "XZ-plane",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "YZ-plane",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "Origin-Point",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "Pad",
+    "depth": 2,
+    "bold": false,
+    "fg": "#6f6f6f"
+   },
+   {
+    "text": "Sketch",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "Fillet",
+    "depth": 2,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "DocFillet1",
+    "depth": 0,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "Body",
+    "depth": 1,
+    "bold": true,
+    "fg": "#000000"
+   },
+   {
+    "text": "Origin",
+    "depth": 2,
+    "bold": false,
+    "fg": "#6f6f6f"
+   },
+   {
+    "text": "X-axis",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "Y-axis",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "Z-axis",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "XY-plane",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "XZ-plane",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "YZ-plane",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "Origin-Point",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "Pad",
+    "depth": 2,
+    "bold": false,
+    "fg": "#6f6f6f"
+   },
+   {
+    "text": "Sketch",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "Fillet",
+    "depth": 2,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "DocChamfer",
+    "depth": 0,
+    "bold": true,
+    "fg": "#000000"
+   },
+   {
+    "text": "Body",
+    "depth": 1,
+    "bold": true,
+    "fg": "#000000"
+   },
+   {
+    "text": "Origin",
+    "depth": 2,
+    "bold": false,
+    "fg": "#6f6f6f"
+   },
+   {
+    "text": "X-axis",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "Y-axis",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "Z-axis",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "XY-plane",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "XZ-plane",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "YZ-plane",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "Origin-Point",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "Pad",
+    "depth": 2,
+    "bold": false,
+    "fg": "#6f6f6f"
+   },
+   {
+    "text": "Sketch",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "Chamfer",
+    "depth": 2,
+    "bold": false,
+    "fg": "#000000"
+   }
+  ],
+  "property_view": [
+   [
+    {
+     "depth": 0,
+     "name": "Base",
+     "value": null,
+     "group": false,
+     "editable": false
+    },
+    {
+     "depth": 1,
+     "name": "Base",
+     "value": "Pad [Edge4, Edge7]",
+     "group": false,
+     "editable": true
+    },
+    {
+     "depth": 1,
+     "name": "Support Transform",
+     "value": "false",
+     "group": false,
+     "editable": true
+    },
+    {
+     "depth": 1,
+     "name": "Label",
+     "value": "Chamfer",
+     "group": false,
+     "editable": true
+    },
+    {
+     "depth": 1,
+     "name": "Suppressed",
+     "value": "false",
+     "group": false,
+     "editable": true
+    },
+    {
+     "depth": 0,
+     "name": "Chamfer",
+     "value": null,
+     "group": false,
+     "editable": false
+    },
+    {
+     "depth": 1,
+     "name": "Chamfer Type",
+     "value": "Equal distance",
+     "group": false,
+     "editable": true
+    },
+    {
+     "depth": 1,
+     "name": "Size",
+     "value": "1.00 mm",
+     "group": false,
+     "editable": true
+    },
+    {
+     "depth": 1,
+     "name": "Size2",
+     "value": "1.00 mm",
+     "group": false,
+     "editable": false
+    },
+    {
+     "depth": 1,
+     "name": "Angle",
+     "value": "45.00\u00b0",
+     "group": false,
+     "editable": false
+    },
+    {
+     "depth": 1,
+     "name": "Flip Direction",
+     "value": "false",
+     "group": false,
+     "editable": true
+    },
+    {
+     "depth": 1,
+     "name": "Use All Edges",
+     "value": "false",
+     "group": false,
+     "editable": true
+    },
+    {
+     "depth": 0,
+     "name": "Fillet",
+     "value": null,
+     "group": false,
+     "editable": false
+    },
+    {
+     "depth": 0,
+     "name": "Pad",
+     "value": null,
+     "group": false,
+     "editable": false
+    },
+    {
+     "depth": 0,
+     "name": "Part Design",
+     "value": null,
+     "group": false,
+     "editable": false
+    },
+    {
+     "depth": 1,
+     "name": "Refine",
+     "value": "true",
+     "group": false,
+     "editable": true
+    },
+    {
+     "depth": 1,
+     "name": "Fuzzy Tolerance",
+     "value": "0",
+     "group": false,
+     "editable": true
+    },
+    {
+     "depth": 0,
+     "name": "Side1",
+     "value": null,
+     "group": false,
+     "editable": false
+    },
+    {
+     "depth": 0,
+     "name": "Side2",
+     "value": null,
+     "group": false,
+     "editable": false
+    },
+    {
+     "depth": 0,
+     "name": "Sketch Based",
+     "value": null,
+     "group": false,
+     "editable": false
+    },
+    {
+     "depth": 0,
+     "name": "Start",
+     "value": null,
+     "group": false,
+     "editable": false
+    }
+   ]
+  ]
+ },
+ "draft": {
+  "task": [
+   [
+    {
+     "class": "QPushButton",
+     "name": "",
+     "y": 9,
+     "x": 137,
+     "enabled": true,
+     "text": "OK"
+    },
+    {
+     "class": "QPushButton",
+     "name": "",
+     "y": 9,
+     "x": 249,
+     "enabled": true,
+     "text": "Cancel"
+    },
+    {
+     "class": "QSint::TaskHeader",
+     "name": "",
+     "y": 50,
+     "x": 4,
+     "enabled": true,
+     "text": ""
+    },
+    {
+     "class": "QSint::ActionLabel",
+     "name": "",
+     "y": 53,
+     "x": 9,
+     "enabled": true,
+     "text": "Draft Parameters"
+    },
+    {
+     "class": "QToolButton",
+     "name": "buttonRefSel",
+     "y": 85,
+     "x": 18,
+     "enabled": true,
+     "tip": "Toggles between selection and preview mode",
+     "text": "Confirm Selection",
+     "checked": true
+    },
+    {
+     "class": "QListWidget",
+     "name": "listWidgetReferences",
+     "y": 111,
+     "x": 18,
+     "enabled": true,
+     "tip": "- select an item to highlight it\n- double-click on an item to see the drafts",
+     "items": [
+      "Face1"
+     ],
+     "actions": [
+      "Remove\tDel"
+     ]
+    },
+    {
+     "class": "QLabel",
+     "name": "label",
+     "y": 254,
+     "x": 18,
+     "enabled": true,
+     "text": "Draft angle"
+    },
+    {
+     "class": "Gui::QuantitySpinBox",
+     "name": "draftAngle",
+     "y": 254,
+     "x": 249,
+     "enabled": true,
+     "text": "1.50\u00b0"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 255,
+     "x": 254,
+     "enabled": true,
+     "text": "1.50\u00b0"
+    },
+    {
+     "class": "QToolButton",
+     "name": "buttonPlane",
+     "y": 285,
+     "x": 18,
+     "enabled": true,
+     "text": "Neutral Plane",
+     "checked": false
+    },
+    {
+     "class": "QLineEdit",
+     "name": "linePlane",
+     "y": 285,
+     "x": 102,
+     "enabled": true,
+     "text": ""
+    },
+    {
+     "class": "QToolButton",
+     "name": "buttonLine",
+     "y": 313,
+     "x": 18,
+     "enabled": true,
+     "text": "Pull Direction",
+     "checked": false
+    },
+    {
+     "class": "QLineEdit",
+     "name": "lineLine",
+     "y": 313,
+     "x": 103,
+     "enabled": true,
+     "text": ""
+    },
+    {
+     "class": "QCheckBox",
+     "name": "checkReverse",
+     "y": 341,
+     "x": 18,
+     "enabled": true,
+     "text": "Reverse pull direction",
+     "checked": false
+    },
+    {
+     "class": "QSint::TaskHeader",
+     "name": "",
+     "y": 383,
+     "x": 4,
+     "enabled": true,
+     "text": ""
+    },
+    {
+     "class": "QSint::ActionLabel",
+     "name": "",
+     "y": 386,
+     "x": 9,
+     "enabled": true,
+     "text": "Preview"
+    },
+    {
+     "class": "QCheckBox",
+     "name": "showFinalCheckBox",
+     "y": 418,
+     "x": 18,
+     "enabled": true,
+     "text": "Show final result",
+     "checked": false
+    },
+    {
+     "class": "QCheckBox",
+     "name": "showTransparentPreviewCheckBox",
+     "y": 444,
+     "x": 18,
+     "enabled": true,
+     "text": "Show preview overlay",
+     "checked": true
+    }
+   ]
+  ],
+  "in_edit": "Draft",
+  "undo_names": [
+   "Make Draft",
+   "Add a Body"
+  ],
+  "undo_count_change": 1,
+  "base": [
+   "Pad",
+   [
+    "Face1"
+   ]
+  ],
+  "props": {
+   "values": {
+    "AddSubShape": "<Shape object at 0x64758183c880>",
+    "Angle": "1.5 deg",
+    "Base": "(<PartDesign::Pad>, ['Face1'])",
+    "BaseFeature": "<PartDesign::Pad>",
+    "ExpressionEngine": "[]",
+    "FuzzyTolerance": "0.0",
+    "Label": "Draft",
+    "Label2": "",
+    "NeutralPlane": "None",
+    "Operation": "Union",
+    "Placement": "Placement [Pos=(0,0,0), Yaw-Pitch-Roll=(0,0,0)]",
+    "PreviewShape": "<Compound object at 0x64758183c880>",
+    "PullDirection": "None",
+    "Refine": "True",
+    "Reversed": "False",
+    "Shape": "<Solid object at 0x64758183c880>",
+    "ShapeMaterial": "<Material at 0x6475819af3b0>",
+    "SupportTransform": "False",
+    "Suppressed": "False",
+    "SuppressedShape": "<Shape object at 0x64758183c880>",
+    "Visibility": "False",
+    "_Body": "<body object>",
+    "_ElementMapVersion": "15.70200.5"
+   },
+   "groups": {
+    "AddSubShape": "",
+    "Angle": "",
+    "Base": "",
+    "BaseFeature": "",
+    "ExpressionEngine": "Base",
+    "FuzzyTolerance": "Part Design",
+    "Label": "Base",
+    "Label2": "Base",
+    "NeutralPlane": "Draft",
+    "Operation": "Part Design",
+    "Placement": "",
+    "PreviewShape": "",
+    "PullDirection": "Draft",
+    "Refine": "Part Design",
+    "Reversed": "",
+    "Shape": "",
+    "ShapeMaterial": "",
+    "SupportTransform": "Base",
+    "Suppressed": "Base",
+    "SuppressedShape": "",
+    "Visibility": "",
+    "_Body": "Base",
+    "_ElementMapVersion": "Base"
+   },
+   "types": {
+    "AddSubShape": "Part::PropertyPartShape",
+    "Angle": "App::PropertyAngle",
+    "Base": "App::PropertyLinkSub",
+    "BaseFeature": "App::PropertyLink",
+    "ExpressionEngine": "App::PropertyExpressionEngine",
+    "FuzzyTolerance": "App::PropertyFloatConstraint",
+    "Label": "App::PropertyString",
+    "Label2": "App::PropertyString",
+    "NeutralPlane": "App::PropertyLinkSub",
+    "Operation": "App::PropertyEnumeration",
+    "Placement": "App::PropertyPlacement",
+    "PreviewShape": "Part::PropertyPartShape",
+    "PullDirection": "App::PropertyLinkSub",
+    "Refine": "App::PropertyBool",
+    "Reversed": "App::PropertyBool",
+    "Shape": "Part::PropertyPartShape",
+    "ShapeMaterial": "Materials::PropertyMaterial",
+    "SupportTransform": "App::PropertyBool",
+    "Suppressed": "App::PropertyBool",
+    "SuppressedShape": "Part::PropertyPartShape",
+    "Visibility": "App::PropertyBool",
+    "_Body": "App::PropertyLinkHidden",
+    "_ElementMapVersion": "App::PropertyString"
+   },
+   "modes": {
+    "AddSubShape": [],
+    "Angle": [],
+    "Base": [],
+    "BaseFeature": [
+     "Hidden"
+    ],
+    "ExpressionEngine": [
+     "Hidden"
+    ],
+    "FuzzyTolerance": [],
+    "Label": [],
+    "Label2": [
+     "Hidden"
+    ],
+    "NeutralPlane": [],
+    "Operation": [
+     "Hidden"
+    ],
+    "Placement": [
+     "ReadOnly",
+     "Hidden"
+    ],
+    "PreviewShape": [
+     "Hidden"
+    ],
+    "PullDirection": [],
+    "Refine": [],
+    "Reversed": [],
+    "Shape": [],
+    "ShapeMaterial": [],
+    "SupportTransform": [],
+    "Suppressed": [],
+    "SuppressedShape": [],
+    "Visibility": [
+     "Hidden"
+    ],
+    "_Body": [
+     "ReadOnly",
+     "Hidden"
+    ],
+    "_ElementMapVersion": [
+     "Hidden"
+    ]
+   },
+   "enums": {
+    "Operation": [
+     "Union",
+     "Subtraction",
+     "Common"
+    ]
+   }
+  },
+  "visible_during": {
+   "Sketch": true,
+   "Pad": true,
+   "Draft": false
+  },
+  "task_select": [
+   [
+    {
+     "class": "QPushButton",
+     "name": "",
+     "y": 9,
+     "x": 137,
+     "enabled": true,
+     "text": "OK"
+    },
+    {
+     "class": "QPushButton",
+     "name": "",
+     "y": 9,
+     "x": 249,
+     "enabled": true,
+     "text": "Cancel"
+    },
+    {
+     "class": "QSint::TaskHeader",
+     "name": "",
+     "y": 50,
+     "x": 4,
+     "enabled": true,
+     "text": ""
+    },
+    {
+     "class": "QSint::ActionLabel",
+     "name": "",
+     "y": 53,
+     "x": 9,
+     "enabled": true,
+     "text": "Draft Parameters"
+    },
+    {
+     "class": "QToolButton",
+     "name": "buttonRefSel",
+     "y": 85,
+     "x": 18,
+     "enabled": true,
+     "tip": "Toggles between selection and preview mode",
+     "text": "Confirm Selection",
+     "checked": true
+    },
+    {
+     "class": "QListWidget",
+     "name": "listWidgetReferences",
+     "y": 111,
+     "x": 18,
+     "enabled": true,
+     "tip": "- select an item to highlight it\n- double-click on an item to see the drafts",
+     "items": [
+      "Face1"
+     ],
+     "actions": [
+      "Remove\tDel"
+     ]
+    },
+    {
+     "class": "QLabel",
+     "name": "label",
+     "y": 254,
+     "x": 18,
+     "enabled": true,
+     "text": "Draft angle"
+    },
+    {
+     "class": "Gui::QuantitySpinBox",
+     "name": "draftAngle",
+     "y": 254,
+     "x": 249,
+     "enabled": true,
+     "text": "1.50\u00b0"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 255,
+     "x": 254,
+     "enabled": true,
+     "text": "1.50\u00b0"
+    },
+    {
+     "class": "QToolButton",
+     "name": "buttonPlane",
+     "y": 285,
+     "x": 18,
+     "enabled": true,
+     "text": "Neutral Plane",
+     "checked": false
+    },
+    {
+     "class": "QLineEdit",
+     "name": "linePlane",
+     "y": 285,
+     "x": 102,
+     "enabled": true,
+     "text": ""
+    },
+    {
+     "class": "QToolButton",
+     "name": "buttonLine",
+     "y": 313,
+     "x": 18,
+     "enabled": true,
+     "text": "Pull Direction",
+     "checked": false
+    },
+    {
+     "class": "QLineEdit",
+     "name": "lineLine",
+     "y": 313,
+     "x": 103,
+     "enabled": true,
+     "text": ""
+    },
+    {
+     "class": "QCheckBox",
+     "name": "checkReverse",
+     "y": 341,
+     "x": 18,
+     "enabled": true,
+     "text": "Reverse pull direction",
+     "checked": false
+    },
+    {
+     "class": "QSint::TaskHeader",
+     "name": "",
+     "y": 383,
+     "x": 4,
+     "enabled": true,
+     "text": ""
+    },
+    {
+     "class": "QSint::ActionLabel",
+     "name": "",
+     "y": 386,
+     "x": 9,
+     "enabled": true,
+     "text": "Preview"
+    },
+    {
+     "class": "QCheckBox",
+     "name": "showFinalCheckBox",
+     "y": 418,
+     "x": 18,
+     "enabled": true,
+     "text": "Show final result",
+     "checked": false
+    },
+    {
+     "class": "QCheckBox",
+     "name": "showTransparentPreviewCheckBox",
+     "y": 444,
+     "x": 18,
+     "enabled": true,
+     "text": "Show preview overlay",
+     "checked": true
+    }
+   ]
+  ],
+  "visible_selecting": {
+   "Sketch": true,
+   "Pad": true,
+   "Draft": false
+  },
+  "picked": [
+   "Pad",
+   [
+    "Face1",
+    "Face2"
+   ]
+  ],
+  "task_picked": [
+   [
+    {
+     "class": "QPushButton",
+     "name": "",
+     "y": 9,
+     "x": 137,
+     "enabled": true,
+     "text": "OK"
+    },
+    {
+     "class": "QPushButton",
+     "name": "",
+     "y": 9,
+     "x": 249,
+     "enabled": true,
+     "text": "Cancel"
+    },
+    {
+     "class": "QSint::TaskHeader",
+     "name": "",
+     "y": 50,
+     "x": 4,
+     "enabled": true,
+     "text": ""
+    },
+    {
+     "class": "QSint::ActionLabel",
+     "name": "",
+     "y": 53,
+     "x": 9,
+     "enabled": true,
+     "text": "Draft Parameters"
+    },
+    {
+     "class": "QToolButton",
+     "name": "buttonRefSel",
+     "y": 85,
+     "x": 18,
+     "enabled": true,
+     "tip": "Toggles between selection and preview mode",
+     "text": "Confirm Selection",
+     "checked": true
+    },
+    {
+     "class": "QListWidget",
+     "name": "listWidgetReferences",
+     "y": 111,
+     "x": 18,
+     "enabled": true,
+     "tip": "- select an item to highlight it\n- double-click on an item to see the drafts",
+     "items": [
+      "Face1",
+      "Face2"
+     ],
+     "actions": [
+      "Remove\tDel"
+     ]
+    },
+    {
+     "class": "QLabel",
+     "name": "label",
+     "y": 254,
+     "x": 18,
+     "enabled": true,
+     "text": "Draft angle"
+    },
+    {
+     "class": "Gui::QuantitySpinBox",
+     "name": "draftAngle",
+     "y": 254,
+     "x": 249,
+     "enabled": true,
+     "text": "1.50\u00b0"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 255,
+     "x": 254,
+     "enabled": true,
+     "text": "1.50\u00b0"
+    },
+    {
+     "class": "QToolButton",
+     "name": "buttonPlane",
+     "y": 285,
+     "x": 18,
+     "enabled": true,
+     "text": "Neutral Plane",
+     "checked": false
+    },
+    {
+     "class": "QLineEdit",
+     "name": "linePlane",
+     "y": 285,
+     "x": 102,
+     "enabled": true,
+     "text": ""
+    },
+    {
+     "class": "QToolButton",
+     "name": "buttonLine",
+     "y": 313,
+     "x": 18,
+     "enabled": true,
+     "text": "Pull Direction",
+     "checked": false
+    },
+    {
+     "class": "QLineEdit",
+     "name": "lineLine",
+     "y": 313,
+     "x": 103,
+     "enabled": true,
+     "text": ""
+    },
+    {
+     "class": "QCheckBox",
+     "name": "checkReverse",
+     "y": 341,
+     "x": 18,
+     "enabled": true,
+     "text": "Reverse pull direction",
+     "checked": false
+    },
+    {
+     "class": "QSint::TaskHeader",
+     "name": "",
+     "y": 383,
+     "x": 4,
+     "enabled": true,
+     "text": ""
+    },
+    {
+     "class": "QSint::ActionLabel",
+     "name": "",
+     "y": 386,
+     "x": 9,
+     "enabled": true,
+     "text": "Preview"
+    },
+    {
+     "class": "QCheckBox",
+     "name": "showFinalCheckBox",
+     "y": 418,
+     "x": 18,
+     "enabled": true,
+     "text": "Show final result",
+     "checked": false
+    },
+    {
+     "class": "QCheckBox",
+     "name": "showTransparentPreviewCheckBox",
+     "y": 444,
+     "x": 18,
+     "enabled": true,
+     "text": "Show preview overlay",
+     "checked": true
+    }
+   ]
+  ],
+  "picked_twice": [
+   "Pad",
+   [
+    "Face1"
+   ]
+  ],
+  "task_confirmed": [
+   [
+    {
+     "class": "QPushButton",
+     "name": "",
+     "y": 9,
+     "x": 137,
+     "enabled": true,
+     "text": "OK"
+    },
+    {
+     "class": "QPushButton",
+     "name": "",
+     "y": 9,
+     "x": 249,
+     "enabled": true,
+     "text": "Cancel"
+    },
+    {
+     "class": "QSint::TaskHeader",
+     "name": "",
+     "y": 50,
+     "x": 4,
+     "enabled": true,
+     "text": ""
+    },
+    {
+     "class": "QSint::ActionLabel",
+     "name": "",
+     "y": 53,
+     "x": 9,
+     "enabled": true,
+     "text": "Draft Parameters"
+    },
+    {
+     "class": "QToolButton",
+     "name": "buttonRefSel",
+     "y": 85,
+     "x": 18,
+     "enabled": true,
+     "tip": "Toggles between selection and preview mode",
+     "text": "Select",
+     "checked": false
+    },
+    {
+     "class": "QListWidget",
+     "name": "listWidgetReferences",
+     "y": 111,
+     "x": 18,
+     "enabled": true,
+     "tip": "- select an item to highlight it\n- double-click on an item to see the drafts",
+     "items": [
+      "Face1",
+      "Face2"
+     ],
+     "actions": [
+      "Remove\tDel"
+     ]
+    },
+    {
+     "class": "QLabel",
+     "name": "label",
+     "y": 254,
+     "x": 18,
+     "enabled": true,
+     "text": "Draft angle"
+    },
+    {
+     "class": "Gui::QuantitySpinBox",
+     "name": "draftAngle",
+     "y": 254,
+     "x": 249,
+     "enabled": true,
+     "text": "1.50\u00b0"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 255,
+     "x": 254,
+     "enabled": true,
+     "text": "1.50\u00b0"
+    },
+    {
+     "class": "QToolButton",
+     "name": "buttonPlane",
+     "y": 285,
+     "x": 18,
+     "enabled": true,
+     "text": "Neutral Plane",
+     "checked": false
+    },
+    {
+     "class": "QLineEdit",
+     "name": "linePlane",
+     "y": 285,
+     "x": 102,
+     "enabled": true,
+     "text": ""
+    },
+    {
+     "class": "QToolButton",
+     "name": "buttonLine",
+     "y": 313,
+     "x": 18,
+     "enabled": true,
+     "text": "Pull Direction",
+     "checked": false
+    },
+    {
+     "class": "QLineEdit",
+     "name": "lineLine",
+     "y": 313,
+     "x": 103,
+     "enabled": true,
+     "text": ""
+    },
+    {
+     "class": "QCheckBox",
+     "name": "checkReverse",
+     "y": 341,
+     "x": 18,
+     "enabled": true,
+     "text": "Reverse pull direction",
+     "checked": false
+    },
+    {
+     "class": "QSint::TaskHeader",
+     "name": "",
+     "y": 383,
+     "x": 4,
+     "enabled": true,
+     "text": ""
+    },
+    {
+     "class": "QSint::ActionLabel",
+     "name": "",
+     "y": 386,
+     "x": 9,
+     "enabled": true,
+     "text": "Preview"
+    },
+    {
+     "class": "QCheckBox",
+     "name": "showFinalCheckBox",
+     "y": 418,
+     "x": 18,
+     "enabled": true,
+     "text": "Show final result",
+     "checked": false
+    },
+    {
+     "class": "QCheckBox",
+     "name": "showTransparentPreviewCheckBox",
+     "y": 444,
+     "x": 18,
+     "enabled": true,
+     "text": "Show preview overlay",
+     "checked": true
+    }
+   ]
+  ],
+  "ok": true,
+  "after": {
+   "base": [
+    "Pad",
+    [
+     "Face1",
+     "Face2"
+    ]
+   ],
+   "valid": false,
+   "status": "",
+   "volume": 4104.743686,
+   "tip": "Draft"
+  },
+  "undo_names_after": [
+   "Make Draft",
+   "Add a Body"
+  ],
+  "tree": [
+   {
+    "text": "DocFillet",
+    "depth": 0,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "Body",
+    "depth": 1,
+    "bold": true,
+    "fg": "#000000"
+   },
+   {
+    "text": "Origin",
+    "depth": 2,
+    "bold": false,
+    "fg": "#6f6f6f"
+   },
+   {
+    "text": "X-axis",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "Y-axis",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "Z-axis",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "XY-plane",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "XZ-plane",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "YZ-plane",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "Origin-Point",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "Pad",
+    "depth": 2,
+    "bold": false,
+    "fg": "#6f6f6f"
+   },
+   {
+    "text": "Sketch",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "Fillet",
+    "depth": 2,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "DocFillet1",
+    "depth": 0,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "Body",
+    "depth": 1,
+    "bold": true,
+    "fg": "#000000"
+   },
+   {
+    "text": "Origin",
+    "depth": 2,
+    "bold": false,
+    "fg": "#6f6f6f"
+   },
+   {
+    "text": "X-axis",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "Y-axis",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "Z-axis",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "XY-plane",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "XZ-plane",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "YZ-plane",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "Origin-Point",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "Pad",
+    "depth": 2,
+    "bold": false,
+    "fg": "#6f6f6f"
+   },
+   {
+    "text": "Sketch",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "Fillet",
+    "depth": 2,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "DocChamfer",
+    "depth": 0,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "Body",
+    "depth": 1,
+    "bold": true,
+    "fg": "#000000"
+   },
+   {
+    "text": "Origin",
+    "depth": 2,
+    "bold": false,
+    "fg": "#6f6f6f"
+   },
+   {
+    "text": "X-axis",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "Y-axis",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "Z-axis",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "XY-plane",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "XZ-plane",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "YZ-plane",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "Origin-Point",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "Pad",
+    "depth": 2,
+    "bold": false,
+    "fg": "#6f6f6f"
+   },
+   {
+    "text": "Sketch",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "Chamfer",
+    "depth": 2,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "DocDraft",
+    "depth": 0,
+    "bold": true,
+    "fg": "#000000"
+   },
+   {
+    "text": "Body",
+    "depth": 1,
+    "bold": true,
+    "fg": "#000000"
+   },
+   {
+    "text": "Origin",
+    "depth": 2,
+    "bold": false,
+    "fg": "#6f6f6f"
+   },
+   {
+    "text": "X-axis",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "Y-axis",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "Z-axis",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "XY-plane",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "XZ-plane",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "YZ-plane",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "Origin-Point",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "Pad",
+    "depth": 2,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "Sketch",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "Draft",
+    "depth": 2,
+    "bold": false,
+    "fg": "#6f6f6f"
+   }
+  ],
+  "property_view": [
+   [
+    {
+     "depth": 0,
+     "name": "Base",
+     "value": null,
+     "group": false,
+     "editable": false
+    },
+    {
+     "depth": 1,
+     "name": "Angle",
+     "value": "1.50\u00b0",
+     "group": false,
+     "editable": true
+    },
+    {
+     "depth": 1,
+     "name": "Reversed",
+     "value": "false",
+     "group": false,
+     "editable": true
+    },
+    {
+     "depth": 1,
+     "name": "Base",
+     "value": "Pad [Face1, Face2]",
+     "group": false,
+     "editable": true
+    },
+    {
+     "depth": 1,
+     "name": "Support Transform",
+     "value": "false",
+     "group": false,
+     "editable": true
+    },
+    {
+     "depth": 1,
+     "name": "Label",
+     "value": "Draft",
+     "group": false,
+     "editable": true
+    },
+    {
+     "depth": 1,
+     "name": "Suppressed",
+     "value": "false",
+     "group": false,
+     "editable": true
+    },
+    {
+     "depth": 0,
+     "name": "Chamfer",
+     "value": null,
+     "group": false,
+     "editable": false
+    },
+    {
+     "depth": 0,
+     "name": "Draft",
+     "value": null,
+     "group": false,
+     "editable": false
+    },
+    {
+     "depth": 1,
+     "name": "Neutral Plane",
+     "value": "",
+     "group": false,
+     "editable": true
+    },
+    {
+     "depth": 1,
+     "name": "Pull Direction",
+     "value": "",
+     "group": false,
+     "editable": true
+    },
+    {
+     "depth": 0,
+     "name": "Fillet",
+     "value": null,
+     "group": false,
+     "editable": false
+    },
+    {
+     "depth": 0,
+     "name": "Pad",
+     "value": null,
+     "group": false,
+     "editable": false
+    },
+    {
+     "depth": 0,
+     "name": "Part Design",
+     "value": null,
+     "group": false,
+     "editable": false
+    },
+    {
+     "depth": 1,
+     "name": "Refine",
+     "value": "true",
+     "group": false,
+     "editable": true
+    },
+    {
+     "depth": 1,
+     "name": "Fuzzy Tolerance",
+     "value": "0",
+     "group": false,
+     "editable": true
+    },
+    {
+     "depth": 0,
+     "name": "Side1",
+     "value": null,
+     "group": false,
+     "editable": false
+    },
+    {
+     "depth": 0,
+     "name": "Side2",
+     "value": null,
+     "group": false,
+     "editable": false
+    },
+    {
+     "depth": 0,
+     "name": "Sketch Based",
+     "value": null,
+     "group": false,
+     "editable": false
+    },
+    {
+     "depth": 0,
+     "name": "Start",
+     "value": null,
+     "group": false,
+     "editable": false
+    }
+   ]
+  ]
+ },
+ "thickness": {
+  "task": [
+   [
+    {
+     "class": "QPushButton",
+     "name": "",
+     "y": 9,
+     "x": 137,
+     "enabled": true,
+     "text": "OK"
+    },
+    {
+     "class": "QPushButton",
+     "name": "",
+     "y": 9,
+     "x": 249,
+     "enabled": true,
+     "text": "Cancel"
+    },
+    {
+     "class": "QSint::TaskHeader",
+     "name": "",
+     "y": 50,
+     "x": 4,
+     "enabled": true,
+     "text": ""
+    },
+    {
+     "class": "QSint::ActionLabel",
+     "name": "",
+     "y": 53,
+     "x": 9,
+     "enabled": true,
+     "text": "Thickness Parameters"
+    },
+    {
+     "class": "QToolButton",
+     "name": "buttonRefSel",
+     "y": 85,
+     "x": 18,
+     "enabled": true,
+     "tip": "Toggles between selection and preview mode",
+     "text": "Select",
+     "checked": false
+    },
+    {
+     "class": "QListWidget",
+     "name": "listWidgetReferences",
+     "y": 111,
+     "x": 18,
+     "enabled": true,
+     "tip": "- select an item to highlight it\n- double-click on an item to see the features",
+     "items": [
+      "Face6"
+     ],
+     "actions": [
+      "Remove\tDel"
+     ]
+    },
+    {
+     "class": "QLabel",
+     "name": "label",
+     "y": 224,
+     "x": 18,
+     "enabled": true,
+     "text": "Thickness"
+    },
+    {
+     "class": "Gui::QuantitySpinBox",
+     "name": "Value",
+     "y": 224,
+     "x": 249,
+     "enabled": true,
+     "text": "1.00 mm"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 225,
+     "x": 254,
+     "enabled": true,
+     "text": "1.00 mm"
+    },
+    {
+     "class": "QLabel",
+     "name": "label_2",
+     "y": 255,
+     "x": 18,
+     "enabled": true,
+     "text": "Mode"
+    },
+    {
+     "class": "QComboBox",
+     "name": "modeComboBox",
+     "y": 255,
+     "x": 249,
+     "enabled": true,
+     "items": [
+      "Skin",
+      "Recto verso"
+     ],
+     "current": "Skin"
+    },
+    {
+     "class": "QLabel",
+     "name": "label_3",
+     "y": 285,
+     "x": 18,
+     "enabled": true,
+     "text": "Join type"
+    },
+    {
+     "class": "QComboBox",
+     "name": "joinComboBox",
+     "y": 285,
+     "x": 249,
+     "enabled": true,
+     "items": [
+      "Arc",
+      "Intersection"
+     ],
+     "current": "Arc"
+    },
+    {
+     "class": "QCheckBox",
+     "name": "checkIntersection",
+     "y": 315,
+     "x": 18,
+     "enabled": true,
+     "text": "Intersection",
+     "checked": false
+    },
+    {
+     "class": "QCheckBox",
+     "name": "checkReverse",
+     "y": 341,
+     "x": 18,
+     "enabled": true,
+     "text": "Make thickness inwards",
+     "checked": true
+    },
+    {
+     "class": "QSint::TaskHeader",
+     "name": "",
+     "y": 383,
+     "x": 4,
+     "enabled": true,
+     "text": ""
+    },
+    {
+     "class": "QSint::ActionLabel",
+     "name": "",
+     "y": 386,
+     "x": 9,
+     "enabled": true,
+     "text": "Preview"
+    },
+    {
+     "class": "QCheckBox",
+     "name": "showFinalCheckBox",
+     "y": 418,
+     "x": 18,
+     "enabled": true,
+     "text": "Show final result",
+     "checked": false
+    },
+    {
+     "class": "QCheckBox",
+     "name": "showTransparentPreviewCheckBox",
+     "y": 444,
+     "x": 18,
+     "enabled": true,
+     "text": "Show preview overlay",
+     "checked": true
+    }
+   ]
+  ],
+  "in_edit": "Thickness",
+  "undo_names": [
+   "Make Thickness",
+   "Add a Body"
+  ],
+  "undo_count_change": 1,
+  "base": [
+   "Pad",
+   [
+    "Face6"
+   ]
+  ],
+  "props": {
+   "values": {
+    "AddSubShape": "<Shape object at 0x647584431910>",
+    "Base": "(<PartDesign::Pad>, ['Face6'])",
+    "BaseFeature": "<PartDesign::Pad>",
+    "ExpressionEngine": "[]",
+    "FuzzyTolerance": "0.0",
+    "Intersection": "False",
+    "Join": "Arc",
+    "Label": "Thickness",
+    "Label2": "",
+    "Mode": "Skin",
+    "Operation": "Union",
+    "Placement": "Placement [Pos=(0,0,0), Yaw-Pitch-Roll=(0,0,0)]",
+    "PreviewShape": "<Compound object at 0x647584431910>",
+    "Refine": "True",
+    "Reversed": "True",
+    "Shape": "<Solid object at 0x647584431910>",
+    "ShapeMaterial": "<Material at 0x647584682710>",
+    "SupportTransform": "False",
+    "Suppressed": "False",
+    "SuppressedShape": "<Shape object at 0x647584431910>",
+    "Value": "1.0 mm",
+    "Visibility": "False",
+    "_Body": "<body object>",
+    "_ElementMapVersion": "15.70200.5"
+   },
+   "groups": {
+    "AddSubShape": "",
+    "Base": "",
+    "BaseFeature": "",
+    "ExpressionEngine": "Base",
+    "FuzzyTolerance": "Part Design",
+    "Intersection": "Thickness",
+    "Join": "Thickness",
+    "Label": "Base",
+    "Label2": "Base",
+    "Mode": "Thickness",
+    "Operation": "Part Design",
+    "Placement": "",
+    "PreviewShape": "",
+    "Refine": "Part Design",
+    "Reversed": "Thickness",
+    "Shape": "",
+    "ShapeMaterial": "",
+    "SupportTransform": "Base",
+    "Suppressed": "Base",
+    "SuppressedShape": "",
+    "Value": "Thickness",
+    "Visibility": "",
+    "_Body": "Base",
+    "_ElementMapVersion": "Base"
+   },
+   "types": {
+    "AddSubShape": "Part::PropertyPartShape",
+    "Base": "App::PropertyLinkSub",
+    "BaseFeature": "App::PropertyLink",
+    "ExpressionEngine": "App::PropertyExpressionEngine",
+    "FuzzyTolerance": "App::PropertyFloatConstraint",
+    "Intersection": "App::PropertyBool",
+    "Join": "App::PropertyEnumeration",
+    "Label": "App::PropertyString",
+    "Label2": "App::PropertyString",
+    "Mode": "App::PropertyEnumeration",
+    "Operation": "App::PropertyEnumeration",
+    "Placement": "App::PropertyPlacement",
+    "PreviewShape": "Part::PropertyPartShape",
+    "Refine": "App::PropertyBool",
+    "Reversed": "App::PropertyBool",
+    "Shape": "Part::PropertyPartShape",
+    "ShapeMaterial": "Materials::PropertyMaterial",
+    "SupportTransform": "App::PropertyBool",
+    "Suppressed": "App::PropertyBool",
+    "SuppressedShape": "Part::PropertyPartShape",
+    "Value": "App::PropertyLength",
+    "Visibility": "App::PropertyBool",
+    "_Body": "App::PropertyLinkHidden",
+    "_ElementMapVersion": "App::PropertyString"
+   },
+   "modes": {
+    "AddSubShape": [],
+    "Base": [],
+    "BaseFeature": [
+     "Hidden"
+    ],
+    "ExpressionEngine": [
+     "Hidden"
+    ],
+    "FuzzyTolerance": [],
+    "Intersection": [],
+    "Join": [],
+    "Label": [],
+    "Label2": [
+     "Hidden"
+    ],
+    "Mode": [],
+    "Operation": [
+     "Hidden"
+    ],
+    "Placement": [
+     "ReadOnly",
+     "Hidden"
+    ],
+    "PreviewShape": [
+     "Hidden"
+    ],
+    "Refine": [],
+    "Reversed": [],
+    "Shape": [],
+    "ShapeMaterial": [],
+    "SupportTransform": [],
+    "Suppressed": [],
+    "SuppressedShape": [],
+    "Value": [],
+    "Visibility": [
+     "Hidden"
+    ],
+    "_Body": [
+     "ReadOnly",
+     "Hidden"
+    ],
+    "_ElementMapVersion": [
+     "Hidden"
+    ]
+   },
+   "enums": {
+    "Join": [
+     "Arc",
+     "Intersection"
+    ],
+    "Mode": [
+     "Skin",
+     "Pipe",
+     "RectoVerso"
+    ],
+    "Operation": [
+     "Union",
+     "Subtraction",
+     "Common"
+    ]
+   }
+  },
+  "visible_during": {
+   "Sketch": true,
+   "Pad": true,
+   "Thickness": false
+  },
+  "task_select": [
+   [
+    {
+     "class": "QPushButton",
+     "name": "",
+     "y": 9,
+     "x": 137,
+     "enabled": true,
+     "text": "OK"
+    },
+    {
+     "class": "QPushButton",
+     "name": "",
+     "y": 9,
+     "x": 249,
+     "enabled": true,
+     "text": "Cancel"
+    },
+    {
+     "class": "QSint::TaskHeader",
+     "name": "",
+     "y": 50,
+     "x": 4,
+     "enabled": true,
+     "text": ""
+    },
+    {
+     "class": "QSint::ActionLabel",
+     "name": "",
+     "y": 53,
+     "x": 9,
+     "enabled": true,
+     "text": "Thickness Parameters"
+    },
+    {
+     "class": "QToolButton",
+     "name": "buttonRefSel",
+     "y": 85,
+     "x": 18,
+     "enabled": true,
+     "tip": "Toggles between selection and preview mode",
+     "text": "Confirm Selection",
+     "checked": true
+    },
+    {
+     "class": "QListWidget",
+     "name": "listWidgetReferences",
+     "y": 111,
+     "x": 18,
+     "enabled": true,
+     "tip": "- select an item to highlight it\n- double-click on an item to see the features",
+     "items": [
+      "Face6"
+     ],
+     "actions": [
+      "Remove\tDel"
+     ]
+    },
+    {
+     "class": "QLabel",
+     "name": "label",
+     "y": 224,
+     "x": 18,
+     "enabled": true,
+     "text": "Thickness"
+    },
+    {
+     "class": "Gui::QuantitySpinBox",
+     "name": "Value",
+     "y": 224,
+     "x": 249,
+     "enabled": true,
+     "text": "1.00 mm"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 225,
+     "x": 254,
+     "enabled": true,
+     "text": "1.00 mm"
+    },
+    {
+     "class": "QLabel",
+     "name": "label_2",
+     "y": 255,
+     "x": 18,
+     "enabled": true,
+     "text": "Mode"
+    },
+    {
+     "class": "QComboBox",
+     "name": "modeComboBox",
+     "y": 255,
+     "x": 249,
+     "enabled": true,
+     "items": [
+      "Skin",
+      "Recto verso"
+     ],
+     "current": "Skin"
+    },
+    {
+     "class": "QLabel",
+     "name": "label_3",
+     "y": 285,
+     "x": 18,
+     "enabled": true,
+     "text": "Join type"
+    },
+    {
+     "class": "QComboBox",
+     "name": "joinComboBox",
+     "y": 285,
+     "x": 249,
+     "enabled": true,
+     "items": [
+      "Arc",
+      "Intersection"
+     ],
+     "current": "Arc"
+    },
+    {
+     "class": "QCheckBox",
+     "name": "checkIntersection",
+     "y": 315,
+     "x": 18,
+     "enabled": true,
+     "text": "Intersection",
+     "checked": false
+    },
+    {
+     "class": "QCheckBox",
+     "name": "checkReverse",
+     "y": 341,
+     "x": 18,
+     "enabled": true,
+     "text": "Make thickness inwards",
+     "checked": true
+    },
+    {
+     "class": "QSint::TaskHeader",
+     "name": "",
+     "y": 383,
+     "x": 4,
+     "enabled": true,
+     "text": ""
+    },
+    {
+     "class": "QSint::ActionLabel",
+     "name": "",
+     "y": 386,
+     "x": 9,
+     "enabled": true,
+     "text": "Preview"
+    },
+    {
+     "class": "QCheckBox",
+     "name": "showFinalCheckBox",
+     "y": 418,
+     "x": 18,
+     "enabled": true,
+     "text": "Show final result",
+     "checked": false
+    },
+    {
+     "class": "QCheckBox",
+     "name": "showTransparentPreviewCheckBox",
+     "y": 444,
+     "x": 18,
+     "enabled": true,
+     "text": "Show preview overlay",
+     "checked": true
+    }
+   ]
+  ],
+  "visible_selecting": {
+   "Sketch": true,
+   "Pad": true,
+   "Thickness": false
+  },
+  "picked": [
+   "Pad",
+   [
+    "Face6",
+    "Face1"
+   ]
+  ],
+  "task_picked": [
+   [
+    {
+     "class": "QPushButton",
+     "name": "",
+     "y": 9,
+     "x": 137,
+     "enabled": true,
+     "text": "OK"
+    },
+    {
+     "class": "QPushButton",
+     "name": "",
+     "y": 9,
+     "x": 249,
+     "enabled": true,
+     "text": "Cancel"
+    },
+    {
+     "class": "QSint::TaskHeader",
+     "name": "",
+     "y": 50,
+     "x": 4,
+     "enabled": true,
+     "text": ""
+    },
+    {
+     "class": "QSint::ActionLabel",
+     "name": "",
+     "y": 53,
+     "x": 9,
+     "enabled": true,
+     "text": "Thickness Parameters"
+    },
+    {
+     "class": "QToolButton",
+     "name": "buttonRefSel",
+     "y": 85,
+     "x": 18,
+     "enabled": true,
+     "tip": "Toggles between selection and preview mode",
+     "text": "Confirm Selection",
+     "checked": true
+    },
+    {
+     "class": "QListWidget",
+     "name": "listWidgetReferences",
+     "y": 111,
+     "x": 18,
+     "enabled": true,
+     "tip": "- select an item to highlight it\n- double-click on an item to see the features",
+     "items": [
+      "Face6",
+      "Face1"
+     ],
+     "actions": [
+      "Remove\tDel"
+     ]
+    },
+    {
+     "class": "QLabel",
+     "name": "label",
+     "y": 224,
+     "x": 18,
+     "enabled": true,
+     "text": "Thickness"
+    },
+    {
+     "class": "Gui::QuantitySpinBox",
+     "name": "Value",
+     "y": 224,
+     "x": 249,
+     "enabled": true,
+     "text": "1.00 mm"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 225,
+     "x": 254,
+     "enabled": true,
+     "text": "1.00 mm"
+    },
+    {
+     "class": "QLabel",
+     "name": "label_2",
+     "y": 255,
+     "x": 18,
+     "enabled": true,
+     "text": "Mode"
+    },
+    {
+     "class": "QComboBox",
+     "name": "modeComboBox",
+     "y": 255,
+     "x": 249,
+     "enabled": true,
+     "items": [
+      "Skin",
+      "Recto verso"
+     ],
+     "current": "Skin"
+    },
+    {
+     "class": "QLabel",
+     "name": "label_3",
+     "y": 285,
+     "x": 18,
+     "enabled": true,
+     "text": "Join type"
+    },
+    {
+     "class": "QComboBox",
+     "name": "joinComboBox",
+     "y": 285,
+     "x": 249,
+     "enabled": true,
+     "items": [
+      "Arc",
+      "Intersection"
+     ],
+     "current": "Arc"
+    },
+    {
+     "class": "QCheckBox",
+     "name": "checkIntersection",
+     "y": 315,
+     "x": 18,
+     "enabled": true,
+     "text": "Intersection",
+     "checked": false
+    },
+    {
+     "class": "QCheckBox",
+     "name": "checkReverse",
+     "y": 341,
+     "x": 18,
+     "enabled": true,
+     "text": "Make thickness inwards",
+     "checked": true
+    },
+    {
+     "class": "QSint::TaskHeader",
+     "name": "",
+     "y": 383,
+     "x": 4,
+     "enabled": true,
+     "text": ""
+    },
+    {
+     "class": "QSint::ActionLabel",
+     "name": "",
+     "y": 386,
+     "x": 9,
+     "enabled": true,
+     "text": "Preview"
+    },
+    {
+     "class": "QCheckBox",
+     "name": "showFinalCheckBox",
+     "y": 418,
+     "x": 18,
+     "enabled": true,
+     "text": "Show final result",
+     "checked": false
+    },
+    {
+     "class": "QCheckBox",
+     "name": "showTransparentPreviewCheckBox",
+     "y": 444,
+     "x": 18,
+     "enabled": true,
+     "text": "Show preview overlay",
+     "checked": true
+    }
+   ]
+  ],
+  "picked_twice": [
+   "Pad",
+   [
+    "Face6"
+   ]
+  ],
+  "task_confirmed": [
+   [
+    {
+     "class": "QPushButton",
+     "name": "",
+     "y": 9,
+     "x": 137,
+     "enabled": true,
+     "text": "OK"
+    },
+    {
+     "class": "QPushButton",
+     "name": "",
+     "y": 9,
+     "x": 249,
+     "enabled": true,
+     "text": "Cancel"
+    },
+    {
+     "class": "QSint::TaskHeader",
+     "name": "",
+     "y": 50,
+     "x": 4,
+     "enabled": true,
+     "text": ""
+    },
+    {
+     "class": "QSint::ActionLabel",
+     "name": "",
+     "y": 53,
+     "x": 9,
+     "enabled": true,
+     "text": "Thickness Parameters"
+    },
+    {
+     "class": "QToolButton",
+     "name": "buttonRefSel",
+     "y": 85,
+     "x": 18,
+     "enabled": true,
+     "tip": "Toggles between selection and preview mode",
+     "text": "Select",
+     "checked": false
+    },
+    {
+     "class": "QListWidget",
+     "name": "listWidgetReferences",
+     "y": 111,
+     "x": 18,
+     "enabled": true,
+     "tip": "- select an item to highlight it\n- double-click on an item to see the features",
+     "items": [
+      "Face6",
+      "Face1"
+     ],
+     "actions": [
+      "Remove\tDel"
+     ]
+    },
+    {
+     "class": "QLabel",
+     "name": "label",
+     "y": 224,
+     "x": 18,
+     "enabled": true,
+     "text": "Thickness"
+    },
+    {
+     "class": "Gui::QuantitySpinBox",
+     "name": "Value",
+     "y": 224,
+     "x": 249,
+     "enabled": true,
+     "text": "1.00 mm"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 225,
+     "x": 254,
+     "enabled": true,
+     "text": "1.00 mm"
+    },
+    {
+     "class": "QLabel",
+     "name": "label_2",
+     "y": 255,
+     "x": 18,
+     "enabled": true,
+     "text": "Mode"
+    },
+    {
+     "class": "QComboBox",
+     "name": "modeComboBox",
+     "y": 255,
+     "x": 249,
+     "enabled": true,
+     "items": [
+      "Skin",
+      "Recto verso"
+     ],
+     "current": "Skin"
+    },
+    {
+     "class": "QLabel",
+     "name": "label_3",
+     "y": 285,
+     "x": 18,
+     "enabled": true,
+     "text": "Join type"
+    },
+    {
+     "class": "QComboBox",
+     "name": "joinComboBox",
+     "y": 285,
+     "x": 249,
+     "enabled": true,
+     "items": [
+      "Arc",
+      "Intersection"
+     ],
+     "current": "Arc"
+    },
+    {
+     "class": "QCheckBox",
+     "name": "checkIntersection",
+     "y": 315,
+     "x": 18,
+     "enabled": true,
+     "text": "Intersection",
+     "checked": false
+    },
+    {
+     "class": "QCheckBox",
+     "name": "checkReverse",
+     "y": 341,
+     "x": 18,
+     "enabled": true,
+     "text": "Make thickness inwards",
+     "checked": true
+    },
+    {
+     "class": "QSint::TaskHeader",
+     "name": "",
+     "y": 383,
+     "x": 4,
+     "enabled": true,
+     "text": ""
+    },
+    {
+     "class": "QSint::ActionLabel",
+     "name": "",
+     "y": 386,
+     "x": 9,
+     "enabled": true,
+     "text": "Preview"
+    },
+    {
+     "class": "QCheckBox",
+     "name": "showFinalCheckBox",
+     "y": 418,
+     "x": 18,
+     "enabled": true,
+     "text": "Show final result",
+     "checked": false
+    },
+    {
+     "class": "QCheckBox",
+     "name": "showTransparentPreviewCheckBox",
+     "y": 444,
+     "x": 18,
+     "enabled": true,
+     "text": "Show preview overlay",
+     "checked": true
+    }
+   ]
+  ],
+  "ok": true,
+  "after": {
+   "base": [
+    "Pad",
+    [
+     "Face6",
+     "Face1"
+    ]
+   ],
+   "valid": true,
+   "status": "Valid",
+   "volume": 1112.0,
+   "tip": "Thickness"
+  },
+  "undo_names_after": [
+   "Make Thickness",
+   "Add a Body"
+  ],
+  "tree": [
+   {
+    "text": "DocFillet",
+    "depth": 0,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "Body",
+    "depth": 1,
+    "bold": true,
+    "fg": "#000000"
+   },
+   {
+    "text": "Origin",
+    "depth": 2,
+    "bold": false,
+    "fg": "#6f6f6f"
+   },
+   {
+    "text": "X-axis",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "Y-axis",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "Z-axis",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "XY-plane",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "XZ-plane",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "YZ-plane",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "Origin-Point",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "Pad",
+    "depth": 2,
+    "bold": false,
+    "fg": "#6f6f6f"
+   },
+   {
+    "text": "Sketch",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "Fillet",
+    "depth": 2,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "DocFillet1",
+    "depth": 0,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "Body",
+    "depth": 1,
+    "bold": true,
+    "fg": "#000000"
+   },
+   {
+    "text": "Origin",
+    "depth": 2,
+    "bold": false,
+    "fg": "#6f6f6f"
+   },
+   {
+    "text": "X-axis",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "Y-axis",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "Z-axis",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "XY-plane",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "XZ-plane",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "YZ-plane",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "Origin-Point",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "Pad",
+    "depth": 2,
+    "bold": false,
+    "fg": "#6f6f6f"
+   },
+   {
+    "text": "Sketch",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "Fillet",
+    "depth": 2,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "DocChamfer",
+    "depth": 0,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "Body",
+    "depth": 1,
+    "bold": true,
+    "fg": "#000000"
+   },
+   {
+    "text": "Origin",
+    "depth": 2,
+    "bold": false,
+    "fg": "#6f6f6f"
+   },
+   {
+    "text": "X-axis",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "Y-axis",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "Z-axis",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "XY-plane",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "XZ-plane",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "YZ-plane",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "Origin-Point",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "Pad",
+    "depth": 2,
+    "bold": false,
+    "fg": "#6f6f6f"
+   },
+   {
+    "text": "Sketch",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "Chamfer",
+    "depth": 2,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "DocDraft",
+    "depth": 0,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "Body",
+    "depth": 1,
+    "bold": true,
+    "fg": "#000000"
+   },
+   {
+    "text": "Origin",
+    "depth": 2,
+    "bold": false,
+    "fg": "#6f6f6f"
+   },
+   {
+    "text": "X-axis",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "Y-axis",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "Z-axis",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "XY-plane",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "XZ-plane",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "YZ-plane",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "Origin-Point",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "Pad",
+    "depth": 2,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "Sketch",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "Draft",
+    "depth": 2,
+    "bold": false,
+    "fg": "#6f6f6f"
+   },
+   {
+    "text": "DocThickness",
+    "depth": 0,
+    "bold": true,
+    "fg": "#000000"
+   },
+   {
+    "text": "Body",
+    "depth": 1,
+    "bold": true,
+    "fg": "#000000"
+   },
+   {
+    "text": "Origin",
+    "depth": 2,
+    "bold": false,
+    "fg": "#6f6f6f"
+   },
+   {
+    "text": "X-axis",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "Y-axis",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "Z-axis",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "XY-plane",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "XZ-plane",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "YZ-plane",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "Origin-Point",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "Pad",
+    "depth": 2,
+    "bold": false,
+    "fg": "#6f6f6f"
+   },
+   {
+    "text": "Sketch",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "Thickness",
+    "depth": 2,
+    "bold": false,
+    "fg": "#000000"
+   }
+  ],
+  "property_view": [
+   [
+    {
+     "depth": 0,
+     "name": "Base",
+     "value": null,
+     "group": false,
+     "editable": false
+    },
+    {
+     "depth": 1,
+     "name": "Base",
+     "value": "Pad [Face6, Face1]",
+     "group": false,
+     "editable": true
+    },
+    {
+     "depth": 1,
+     "name": "Support Transform",
+     "value": "false",
+     "group": false,
+     "editable": true
+    },
+    {
+     "depth": 1,
+     "name": "Label",
+     "value": "Thickness",
+     "group": false,
+     "editable": true
+    },
+    {
+     "depth": 1,
+     "name": "Suppressed",
+     "value": "false",
+     "group": false,
+     "editable": true
+    },
+    {
+     "depth": 0,
+     "name": "Chamfer",
+     "value": null,
+     "group": false,
+     "editable": false
+    },
+    {
+     "depth": 0,
+     "name": "Draft",
+     "value": null,
+     "group": false,
+     "editable": false
+    },
+    {
+     "depth": 0,
+     "name": "Fillet",
+     "value": null,
+     "group": false,
+     "editable": false
+    },
+    {
+     "depth": 0,
+     "name": "Pad",
+     "value": null,
+     "group": false,
+     "editable": false
+    },
+    {
+     "depth": 0,
+     "name": "Part Design",
+     "value": null,
+     "group": false,
+     "editable": false
+    },
+    {
+     "depth": 1,
+     "name": "Refine",
+     "value": "true",
+     "group": false,
+     "editable": true
+    },
+    {
+     "depth": 1,
+     "name": "Fuzzy Tolerance",
+     "value": "0",
+     "group": false,
+     "editable": true
+    },
+    {
+     "depth": 0,
+     "name": "Side1",
+     "value": null,
+     "group": false,
+     "editable": false
+    },
+    {
+     "depth": 0,
+     "name": "Side2",
+     "value": null,
+     "group": false,
+     "editable": false
+    },
+    {
+     "depth": 0,
+     "name": "Sketch Based",
+     "value": null,
+     "group": false,
+     "editable": false
+    },
+    {
+     "depth": 0,
+     "name": "Start",
+     "value": null,
+     "group": false,
+     "editable": false
+    },
+    {
+     "depth": 0,
+     "name": "Thickness",
+     "value": null,
+     "group": false,
+     "editable": false
+    },
+    {
+     "depth": 1,
+     "name": "Value",
+     "value": "1.00 mm",
+     "group": false,
+     "editable": true
+    },
+    {
+     "depth": 1,
+     "name": "Mode",
+     "value": "Skin",
+     "group": false,
+     "editable": true
+    },
+    {
+     "depth": 1,
+     "name": "Join",
+     "value": "Arc",
+     "group": false,
+     "editable": true
+    },
+    {
+     "depth": 1,
+     "name": "Reversed",
+     "value": "true",
+     "group": false,
+     "editable": true
+    },
+    {
+     "depth": 1,
+     "name": "Intersection",
+     "value": "false",
+     "group": false,
+     "editable": true
+    }
+   ]
+  ]
+ },
+ "none_fillet": {
+  "task": [
+   [
+    {
+     "class": "QPushButton",
+     "name": "",
+     "y": 9,
+     "x": 137,
+     "enabled": true,
+     "text": "OK"
+    },
+    {
+     "class": "QPushButton",
+     "name": "",
+     "y": 9,
+     "x": 249,
+     "enabled": true,
+     "text": "Cancel"
+    },
+    {
+     "class": "QSint::TaskHeader",
+     "name": "",
+     "y": 50,
+     "x": 4,
+     "enabled": true,
+     "text": ""
+    },
+    {
+     "class": "QSint::ActionLabel",
+     "name": "",
+     "y": 53,
+     "x": 9,
+     "enabled": true,
+     "text": "Fillet Parameters"
+    },
+    {
+     "class": "QToolButton",
+     "name": "buttonRefSel",
+     "y": 85,
+     "x": 18,
+     "enabled": true,
+     "tip": "Toggles between selection and preview mode",
+     "text": "Confirm Selection",
+     "checked": true
+    },
+    {
+     "class": "QListWidget",
+     "name": "listWidgetReferences",
+     "y": 113,
+     "x": 18,
+     "enabled": true,
+     "tip": "- select an item to highlight it\n- double-click on an item to see the fillets",
+     "items": [],
+     "actions": [
+      "Remove\tDel",
+      "Add All Edges\tCtrl+Shift+A"
+     ]
+    },
+    {
+     "class": "QLabel",
+     "name": "label",
+     "y": 310,
+     "x": 18,
+     "enabled": true,
+     "text": "Radius"
+    },
+    {
+     "class": "Gui::QuantitySpinBox",
+     "name": "filletRadius",
+     "y": 310,
+     "x": 249,
+     "enabled": true,
+     "text": "1.00 mm"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 311,
+     "x": 254,
+     "enabled": true,
+     "text": "1.00 mm"
+    },
+    {
+     "class": "QCheckBox",
+     "name": "checkBoxUseAllEdges",
+     "y": 341,
+     "x": 18,
+     "enabled": true,
+     "text": "Use all edges",
+     "checked": false
+    },
+    {
+     "class": "QSint::TaskHeader",
+     "name": "",
+     "y": 383,
+     "x": 4,
+     "enabled": true,
+     "text": ""
+    },
+    {
+     "class": "QSint::ActionLabel",
+     "name": "",
+     "y": 386,
+     "x": 9,
+     "enabled": true,
+     "text": "Preview"
+    },
+    {
+     "class": "QCheckBox",
+     "name": "showFinalCheckBox",
+     "y": 418,
+     "x": 18,
+     "enabled": true,
+     "text": "Show final result",
+     "checked": false
+    },
+    {
+     "class": "QCheckBox",
+     "name": "showTransparentPreviewCheckBox",
+     "y": 444,
+     "x": 18,
+     "enabled": true,
+     "text": "Show preview overlay",
+     "checked": true
+    }
+   ]
+  ],
+  "in_edit": "Fillet",
+  "undo_names": [
+   "Make Fillet",
+   "Add a Body"
+  ],
+  "undo_count_change": 1,
+  "base": [
+   "Pad",
+   []
+  ],
+  "props": {
+   "values": {
+    "AddSubShape": "<Shape object at 0x64758701fb10>",
+    "Base": "(<PartDesign::Pad>, [])",
+    "BaseFeature": "<PartDesign::Pad>",
+    "ExpressionEngine": "[]",
+    "FuzzyTolerance": "0.0",
+    "Label": "Fillet",
+    "Label2": "",
+    "Operation": "Union",
+    "Placement": "Placement [Pos=(0,0,0), Yaw-Pitch-Roll=(0,0,0)]",
+    "PreviewShape": "<Shape object at 0x64758701fb10>",
+    "Radius": "1.0 mm",
+    "Refine": "True",
+    "Shape": "<Shape object at 0x64758701fb10>",
+    "ShapeMaterial": "<Material at 0x64758724a6c0>",
+    "SupportTransform": "False",
+    "Suppressed": "False",
+    "SuppressedShape": "<Shape object at 0x64758701fb10>",
+    "UseAllEdges": "False",
+    "Visibility": "False",
+    "_Body": "<body object>",
+    "_ElementMapVersion": ""
+   },
+   "groups": {
+    "AddSubShape": "",
+    "Base": "",
+    "BaseFeature": "",
+    "ExpressionEngine": "Base",
+    "FuzzyTolerance": "Part Design",
+    "Label": "Base",
+    "Label2": "Base",
+    "Operation": "Part Design",
+    "Placement": "",
+    "PreviewShape": "",
+    "Radius": "Fillet",
+    "Refine": "Part Design",
+    "Shape": "",
+    "ShapeMaterial": "",
+    "SupportTransform": "Base",
+    "Suppressed": "Base",
+    "SuppressedShape": "",
+    "UseAllEdges": "Fillet",
+    "Visibility": "",
+    "_Body": "Base",
+    "_ElementMapVersion": "Base"
+   },
+   "types": {
+    "AddSubShape": "Part::PropertyPartShape",
+    "Base": "App::PropertyLinkSub",
+    "BaseFeature": "App::PropertyLink",
+    "ExpressionEngine": "App::PropertyExpressionEngine",
+    "FuzzyTolerance": "App::PropertyFloatConstraint",
+    "Label": "App::PropertyString",
+    "Label2": "App::PropertyString",
+    "Operation": "App::PropertyEnumeration",
+    "Placement": "App::PropertyPlacement",
+    "PreviewShape": "Part::PropertyPartShape",
+    "Radius": "App::PropertyQuantityConstraint",
+    "Refine": "App::PropertyBool",
+    "Shape": "Part::PropertyPartShape",
+    "ShapeMaterial": "Materials::PropertyMaterial",
+    "SupportTransform": "App::PropertyBool",
+    "Suppressed": "App::PropertyBool",
+    "SuppressedShape": "Part::PropertyPartShape",
+    "UseAllEdges": "App::PropertyBool",
+    "Visibility": "App::PropertyBool",
+    "_Body": "App::PropertyLinkHidden",
+    "_ElementMapVersion": "App::PropertyString"
+   },
+   "modes": {
+    "AddSubShape": [],
+    "Base": [],
+    "BaseFeature": [
+     "Hidden"
+    ],
+    "ExpressionEngine": [
+     "Hidden"
+    ],
+    "FuzzyTolerance": [],
+    "Label": [],
+    "Label2": [
+     "Hidden"
+    ],
+    "Operation": [
+     "Hidden"
+    ],
+    "Placement": [
+     "ReadOnly",
+     "Hidden"
+    ],
+    "PreviewShape": [
+     "Hidden"
+    ],
+    "Radius": [],
+    "Refine": [],
+    "Shape": [],
+    "ShapeMaterial": [],
+    "SupportTransform": [],
+    "Suppressed": [],
+    "SuppressedShape": [],
+    "UseAllEdges": [],
+    "Visibility": [
+     "Hidden"
+    ],
+    "_Body": [
+     "ReadOnly",
+     "Hidden"
+    ],
+    "_ElementMapVersion": [
+     "Hidden"
+    ]
+   },
+   "enums": {
+    "Operation": [
+     "Union",
+     "Subtraction",
+     "Common"
+    ]
+   }
+  },
+  "visible_during": {
+   "Sketch": true,
+   "Pad": true,
+   "Fillet": false
+  },
+  "task_select": [
+   [
+    {
+     "class": "QPushButton",
+     "name": "",
+     "y": 9,
+     "x": 137,
+     "enabled": true,
+     "text": "OK"
+    },
+    {
+     "class": "QPushButton",
+     "name": "",
+     "y": 9,
+     "x": 249,
+     "enabled": true,
+     "text": "Cancel"
+    },
+    {
+     "class": "QSint::TaskHeader",
+     "name": "",
+     "y": 50,
+     "x": 4,
+     "enabled": true,
+     "text": ""
+    },
+    {
+     "class": "QSint::ActionLabel",
+     "name": "",
+     "y": 53,
+     "x": 9,
+     "enabled": true,
+     "text": "Fillet Parameters"
+    },
+    {
+     "class": "QToolButton",
+     "name": "buttonRefSel",
+     "y": 85,
+     "x": 18,
+     "enabled": true,
+     "tip": "Toggles between selection and preview mode",
+     "text": "Confirm Selection",
+     "checked": true
+    },
+    {
+     "class": "QListWidget",
+     "name": "listWidgetReferences",
+     "y": 113,
+     "x": 18,
+     "enabled": true,
+     "tip": "- select an item to highlight it\n- double-click on an item to see the fillets",
+     "items": [],
+     "actions": [
+      "Remove\tDel",
+      "Add All Edges\tCtrl+Shift+A"
+     ]
+    },
+    {
+     "class": "QLabel",
+     "name": "label",
+     "y": 310,
+     "x": 18,
+     "enabled": true,
+     "text": "Radius"
+    },
+    {
+     "class": "Gui::QuantitySpinBox",
+     "name": "filletRadius",
+     "y": 310,
+     "x": 249,
+     "enabled": true,
+     "text": "1.00 mm"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 311,
+     "x": 254,
+     "enabled": true,
+     "text": "1.00 mm"
+    },
+    {
+     "class": "QCheckBox",
+     "name": "checkBoxUseAllEdges",
+     "y": 341,
+     "x": 18,
+     "enabled": true,
+     "text": "Use all edges",
+     "checked": false
+    },
+    {
+     "class": "QSint::TaskHeader",
+     "name": "",
+     "y": 383,
+     "x": 4,
+     "enabled": true,
+     "text": ""
+    },
+    {
+     "class": "QSint::ActionLabel",
+     "name": "",
+     "y": 386,
+     "x": 9,
+     "enabled": true,
+     "text": "Preview"
+    },
+    {
+     "class": "QCheckBox",
+     "name": "showFinalCheckBox",
+     "y": 418,
+     "x": 18,
+     "enabled": true,
+     "text": "Show final result",
+     "checked": false
+    },
+    {
+     "class": "QCheckBox",
+     "name": "showTransparentPreviewCheckBox",
+     "y": 444,
+     "x": 18,
+     "enabled": true,
+     "text": "Show preview overlay",
+     "checked": true
+    }
+   ]
+  ],
+  "visible_selecting": {
+   "Sketch": true,
+   "Pad": true,
+   "Fillet": false
+  },
+  "task_confirmed": [
+   [
+    {
+     "class": "QPushButton",
+     "name": "",
+     "y": 9,
+     "x": 137,
+     "enabled": true,
+     "text": "OK"
+    },
+    {
+     "class": "QPushButton",
+     "name": "",
+     "y": 9,
+     "x": 249,
+     "enabled": true,
+     "text": "Cancel"
+    },
+    {
+     "class": "QSint::TaskHeader",
+     "name": "",
+     "y": 50,
+     "x": 4,
+     "enabled": true,
+     "text": ""
+    },
+    {
+     "class": "QSint::ActionLabel",
+     "name": "",
+     "y": 53,
+     "x": 9,
+     "enabled": true,
+     "text": "Fillet Parameters"
+    },
+    {
+     "class": "QToolButton",
+     "name": "buttonRefSel",
+     "y": 85,
+     "x": 18,
+     "enabled": true,
+     "tip": "Toggles between selection and preview mode",
+     "text": "Select",
+     "checked": false
+    },
+    {
+     "class": "QListWidget",
+     "name": "listWidgetReferences",
+     "y": 113,
+     "x": 18,
+     "enabled": true,
+     "tip": "- select an item to highlight it\n- double-click on an item to see the fillets",
+     "items": [],
+     "actions": [
+      "Remove\tDel",
+      "Add All Edges\tCtrl+Shift+A"
+     ]
+    },
+    {
+     "class": "QLabel",
+     "name": "label",
+     "y": 310,
+     "x": 18,
+     "enabled": true,
+     "text": "Radius"
+    },
+    {
+     "class": "Gui::QuantitySpinBox",
+     "name": "filletRadius",
+     "y": 310,
+     "x": 249,
+     "enabled": true,
+     "text": "1.00 mm"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 311,
+     "x": 254,
+     "enabled": true,
+     "text": "1.00 mm"
+    },
+    {
+     "class": "QCheckBox",
+     "name": "checkBoxUseAllEdges",
+     "y": 341,
+     "x": 18,
+     "enabled": true,
+     "text": "Use all edges",
+     "checked": false
+    },
+    {
+     "class": "QSint::TaskHeader",
+     "name": "",
+     "y": 383,
+     "x": 4,
+     "enabled": true,
+     "text": ""
+    },
+    {
+     "class": "QSint::ActionLabel",
+     "name": "",
+     "y": 386,
+     "x": 9,
+     "enabled": true,
+     "text": "Preview"
+    },
+    {
+     "class": "QCheckBox",
+     "name": "showFinalCheckBox",
+     "y": 418,
+     "x": 18,
+     "enabled": true,
+     "text": "Show final result",
+     "checked": false
+    },
+    {
+     "class": "QCheckBox",
+     "name": "showTransparentPreviewCheckBox",
+     "y": 444,
+     "x": 18,
+     "enabled": true,
+     "text": "Show preview overlay",
+     "checked": true
+    }
+   ]
+  ],
+  "ok": true,
+  "after": {
+   "base": [
+    "Pad",
+    []
+   ],
+   "valid": false,
+   "status": "Fillet not possible on selected shapes",
+   "volume": null,
+   "tip": "Fillet"
+  },
+  "undo_names_after": [
+   "Make Fillet",
+   "Add a Body"
+  ],
+  "tree": [
+   {
+    "text": "DocFillet",
+    "depth": 0,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "Body",
+    "depth": 1,
+    "bold": true,
+    "fg": "#000000"
+   },
+   {
+    "text": "Origin",
+    "depth": 2,
+    "bold": false,
+    "fg": "#6f6f6f"
+   },
+   {
+    "text": "X-axis",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "Y-axis",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "Z-axis",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "XY-plane",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "XZ-plane",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "YZ-plane",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "Origin-Point",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "Pad",
+    "depth": 2,
+    "bold": false,
+    "fg": "#6f6f6f"
+   },
+   {
+    "text": "Sketch",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "Fillet",
+    "depth": 2,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "DocFillet1",
+    "depth": 0,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "Body",
+    "depth": 1,
+    "bold": true,
+    "fg": "#000000"
+   },
+   {
+    "text": "Origin",
+    "depth": 2,
+    "bold": false,
+    "fg": "#6f6f6f"
+   },
+   {
+    "text": "X-axis",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "Y-axis",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "Z-axis",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "XY-plane",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "XZ-plane",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "YZ-plane",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "Origin-Point",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "Pad",
+    "depth": 2,
+    "bold": false,
+    "fg": "#6f6f6f"
+   },
+   {
+    "text": "Sketch",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "Fillet",
+    "depth": 2,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "DocChamfer",
+    "depth": 0,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "Body",
+    "depth": 1,
+    "bold": true,
+    "fg": "#000000"
+   },
+   {
+    "text": "Origin",
+    "depth": 2,
+    "bold": false,
+    "fg": "#6f6f6f"
+   },
+   {
+    "text": "X-axis",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "Y-axis",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "Z-axis",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "XY-plane",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "XZ-plane",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "YZ-plane",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "Origin-Point",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "Pad",
+    "depth": 2,
+    "bold": false,
+    "fg": "#6f6f6f"
+   },
+   {
+    "text": "Sketch",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "Chamfer",
+    "depth": 2,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "DocDraft",
+    "depth": 0,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "Body",
+    "depth": 1,
+    "bold": true,
+    "fg": "#000000"
+   },
+   {
+    "text": "Origin",
+    "depth": 2,
+    "bold": false,
+    "fg": "#6f6f6f"
+   },
+   {
+    "text": "X-axis",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "Y-axis",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "Z-axis",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "XY-plane",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "XZ-plane",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "YZ-plane",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "Origin-Point",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "Pad",
+    "depth": 2,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "Sketch",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "Draft",
+    "depth": 2,
+    "bold": false,
+    "fg": "#6f6f6f"
+   },
+   {
+    "text": "DocThickness",
+    "depth": 0,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "Body",
+    "depth": 1,
+    "bold": true,
+    "fg": "#000000"
+   },
+   {
+    "text": "Origin",
+    "depth": 2,
+    "bold": false,
+    "fg": "#6f6f6f"
+   },
+   {
+    "text": "X-axis",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "Y-axis",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "Z-axis",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "XY-plane",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "XZ-plane",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "YZ-plane",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "Origin-Point",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "Pad",
+    "depth": 2,
+    "bold": false,
+    "fg": "#6f6f6f"
+   },
+   {
+    "text": "Sketch",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "Thickness",
+    "depth": 2,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "DocFillet2",
+    "depth": 0,
+    "bold": true,
+    "fg": "#000000"
+   },
+   {
+    "text": "Body",
+    "depth": 1,
+    "bold": true,
+    "fg": "#000000"
+   },
+   {
+    "text": "Origin",
+    "depth": 2,
+    "bold": false,
+    "fg": "#6f6f6f"
+   },
+   {
+    "text": "X-axis",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "Y-axis",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "Z-axis",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "XY-plane",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "XZ-plane",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "YZ-plane",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "Origin-Point",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "Pad",
+    "depth": 2,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "Sketch",
+    "depth": 3,
+    "bold": false,
+    "fg": "#000000"
+   },
+   {
+    "text": "Fillet",
+    "depth": 2,
+    "bold": false,
+    "fg": "#6f6f6f"
+   }
+  ],
+  "property_view": [
+   [
+    {
+     "depth": 0,
+     "name": "Base",
+     "value": null,
+     "group": false,
+     "editable": false
+    },
+    {
+     "depth": 1,
+     "name": "Base",
+     "value": "Pad",
+     "group": false,
+     "editable": true
+    },
+    {
+     "depth": 1,
+     "name": "Support Transform",
+     "value": "false",
+     "group": false,
+     "editable": true
+    },
+    {
+     "depth": 1,
+     "name": "Label",
+     "value": "Fillet",
+     "group": false,
+     "editable": true
+    },
+    {
+     "depth": 1,
+     "name": "Suppressed",
+     "value": "false",
+     "group": false,
+     "editable": true
+    },
+    {
+     "depth": 0,
+     "name": "Chamfer",
+     "value": null,
+     "group": false,
+     "editable": false
+    },
+    {
+     "depth": 0,
+     "name": "Draft",
+     "value": null,
+     "group": false,
+     "editable": false
+    },
+    {
+     "depth": 0,
+     "name": "Fillet",
+     "value": null,
+     "group": false,
+     "editable": false
+    },
+    {
+     "depth": 1,
+     "name": "Radius",
+     "value": "1.00 mm",
+     "group": false,
+     "editable": true
+    },
+    {
+     "depth": 1,
+     "name": "Use All Edges",
+     "value": "false",
+     "group": false,
+     "editable": true
+    },
+    {
+     "depth": 0,
+     "name": "Pad",
+     "value": null,
+     "group": false,
+     "editable": false
+    },
+    {
+     "depth": 0,
+     "name": "Part Design",
+     "value": null,
+     "group": false,
+     "editable": false
+    },
+    {
+     "depth": 1,
+     "name": "Refine",
+     "value": "true",
+     "group": false,
+     "editable": true
+    },
+    {
+     "depth": 1,
+     "name": "Fuzzy Tolerance",
+     "value": "0",
+     "group": false,
+     "editable": true
+    },
+    {
+     "depth": 0,
+     "name": "Side1",
+     "value": null,
+     "group": false,
+     "editable": false
+    },
+    {
+     "depth": 0,
+     "name": "Side2",
+     "value": null,
+     "group": false,
+     "editable": false
+    },
+    {
+     "depth": 0,
+     "name": "Sketch Based",
+     "value": null,
+     "group": false,
+     "editable": false
+    },
+    {
+     "depth": 0,
+     "name": "Start",
+     "value": null,
+     "group": false,
+     "editable": false
+    },
+    {
+     "depth": 0,
+     "name": "Thickness",
+     "value": null,
+     "group": false,
+     "editable": false
+    }
+   ]
+  ]
+ }
+}

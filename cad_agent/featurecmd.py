@@ -14,6 +14,11 @@ reach only through `serve.feature_layer()`, the one seam the tests replace with 
     cad feature move   SLUG PART NAME (--after NAME | --first)
     cad feature tip    SLUG PART NAME                  PartDesign_MoveTip
     cad feature apply  SLUG PART --ops JSON            several ops as one step (what the workbench sends)
+    cad feature shape  SLUG PART [--ops JSON] [--feature NAME]   a feature's solid after ops, nothing written
+                                                       (cad_agent/feature_shape.py; a dress-up's task panel)
+
+A dress-up's Base is (feature, sub-elements), as FreeCAD's Python writes it: base='["Pad", ["Edge1", "Face6"]]',
+or base=Pad:Edge1,Face6 for short (Fillet, Chamfer, Draft, Thickness: cad_agent/feature_dressup.py).
 
 Each change is one step of the shared undo journal (undo.py), named as FreeCAD names the transaction ("Make
 Pad", "Edit Pad.Length", "Move tip to selected feature", ...), so `cad undo` and the page's Edit > Undo take it
@@ -44,10 +49,14 @@ DATUMS = {"DatumPlane": "Part::DatumPlane", "DatumLine": "Part::DatumLine", "Dat
           "PartDesignLine": "PartDesign::Line", "PartDesignPoint": "PartDesign::Point",
           "PartDesignCoordinateSystem": "PartDesign::CoordinateSystem"}
 TYPES.update(DATUMS)
-ADD_NAMES.update({"Part::DatumPlane": "Add datum plane", "Part::DatumLine": "Add datum line",
-                  "Part::DatumPoint": "Add datum point", "Part::LocalCoordinateSystem": "Add coordinate system",
-                  "PartDesign::Plane": "Create DatumPlane", "PartDesign::Line": "Create DatumLine",
-                  "PartDesign::Point": "Create DatumPoint", "PartDesign::CoordinateSystem": "Create Local_CS"})
+
+
+def _kw_types() -> dict:
+    """The features feature_kw.py declares (Mirrored, LinearPattern, ..., AdditiveBox, ...): {short name: TypeId} and
+    {TypeId: FreeCAD's transaction}. Looked up when a command needs them, so `cad` starts without the kernel."""
+    from .feature_kw import classes
+    cs = classes().values()
+    return {c.kind: c.TYPE_ID for c in cs}, {c.TYPE_ID: c.TRANSACTION for c in cs}
 
 TEMPLATE = '''"""{part}: a PartDesign Body made in the workbench (cad feature new).
 
@@ -88,11 +97,12 @@ def _camel(key: str) -> str:
 
 
 def _type(text: str) -> str:
-    if text in TYPES:
-        return TYPES[text]
-    if text in TYPES.values():
+    types = {**TYPES, **_kw_types()[0]}
+    if text in types:
+        return types[text]
+    if text in types.values():
         return text
-    raise UsageError(f"feature type {text!r}: one of {', '.join(TYPES)} (or {', '.join(TYPES.values())})")
+    raise UsageError(f"feature type {text!r}: one of {', '.join(types)} (or {', '.join(types.values())})")
 
 
 def _read(path: Path) -> dict:
@@ -116,7 +126,8 @@ def _tree_text(part_name: str, doc: dict) -> list[str]:
     after_tip = False
     for f in doc.get("features", []):
         mark = "  <- Tip" if f["name"] == tip else ""
-        extra = f" profile {f['profile']}" if f.get("profile") else ""
+        extra = f" profile {f['profile']}" if f.get("profile") else \
+            f" base {f['base'][0]} {','.join(f['base'][1])}" if isinstance(f.get("base"), list) else ""
         lines.append(f"  {'(' if after_tip else ''}{f['name']}  {f.get('type', '?')}{extra}{')' if after_tip else ''}{mark}")
         if f["name"] == tip:
             after_tip = True
@@ -131,7 +142,7 @@ def name_of(ops: list, doc_before: dict) -> str:
         op = ops[0]
         kind = op.get("op")
         if kind == "add":
-            return ADD_NAMES.get(op.get("feature", {}).get("type"), "Add feature")
+            return {**ADD_NAMES, **_kw_types()[1]}.get(op.get("feature", {}).get("type"), "Add feature")
         if kind == "set":
             props = list(op.get("props") or {})
             first = _camel(props[0]) if props else "property"
@@ -146,7 +157,7 @@ def name_of(ops: list, doc_before: dict) -> str:
             return "Move tip to selected feature"
     adds = [o for o in ops if o.get("op") == "add"]
     if adds:   # a task panel's OK: the feature it made, with the edits that came with it
-        return ADD_NAMES.get(adds[-1].get("feature", {}).get("type"), "Add feature")
+        return {**ADD_NAMES, **_kw_types()[1]}.get(adds[-1].get("feature", {}).get("type"), "Add feature")
     return "Edit features"
 
 
@@ -255,9 +266,20 @@ def st_name_ok(name: str) -> bool:
     return name.isidentifier() and not name.startswith("_") and name.isascii()
 
 
+def _links(props: dict) -> dict:
+    """base=Pad:Edge1,Face6 (and neutral_plane=Pad:Face5, pull_direction=Pad:Edge2) as the lists they stand for."""
+    for k in ("base", "neutral_plane", "pull_direction"):
+        v = props.get(k)
+        if isinstance(v, str) and ":" in v:
+            obj, _, subs = v.partition(":")
+            names = [x for x in subs.split(",") if x]
+            props[k] = [obj, names] if k == "base" else [obj, names[0] if names else ""]
+    return props
+
+
 def cmd_feature_add(a) -> Result:
     kind = _type(a.type)
-    feature = {"name": a.name, "type": kind, **pairs(a.props, "cad feature add")}
+    feature = {"name": a.name, "type": kind, **_links(pairs(a.props, "cad feature add"))}
     words = [a.type, a.name, *a.props] + (["--after", a.after] if a.after else [])
     op = {"op": "add", "feature": feature}
     if a.after:                       # no "after": at the end (feature_edit's apply); "after": None would put it first
@@ -266,7 +288,7 @@ def cmd_feature_add(a) -> Result:
 
 
 def cmd_feature_set(a) -> Result:
-    props = pairs(a.props, "cad feature set")
+    props = _links(pairs(a.props, "cad feature set"))
     if not props:
         raise UsageError("say what to change: cad feature set SLUG PART NAME key=value ...")
     return apply_ops(a, [{"op": "set", "name": a.name, "props": props}], _cmd(a, a.name, *a.props))
@@ -343,11 +365,30 @@ def cmd_feature_project(a) -> Result:
              for r, g, e in zip(a.ref or [], out["external"], out["errors"])]
     return Result(OK, {"project": a.slug, "part": a.part, "sketch": a.sketch, **out}, "\n".join(lines) or "no references",
                   f"external geometry for {a.sketch}")
+def cmd_feature_resolve(a) -> Result:
+    """A feature's properties as FreeCAD's would hold them, from what a task panel has chosen (read-only, no step)."""
+    path = part(a.slug, a.part)
+    text = Path(a.feature[1:]).read_text() if a.feature.startswith("@") else a.feature
+    try:
+        feature = json.loads(text)
+    except ValueError as e:
+        raise UsageError(f"--feature is JSON: {e}") from None
+    fn = getattr(layer(), "resolve_feature", None)
+    if fn is None:
+        raise NotBuilt("not built yet: the part-file layer has no resolve_feature")
+    try:
+        out = fn(path, feature, a.through_all)
+    except ValueError as e:
+        raise UsageError(str(e)) from None
+    lines = [f"{a.slug}/{a.part}: {out.get('name')} ({out.get('type')})"]
+    lines += [f"  {k} = {v!r}" for k, v in out.items() if k not in ("name", "type", "enums", "read_only")]
+    return Result(OK, {"project": a.slug, "part": a.part, "feature": out}, "\n".join(lines),
+                  f"{a.part}: {out.get('name')} resolved")
 
 
 def add_parsers(add, sub) -> None:
     """cli.py's build_parser hands its `add` and the subparsers here, so the arguments live with the commands."""
-    fp = add("feature", None, "a part's PartDesign feature list (Body, Sketch, Pad, Pocket): list, new, add, "
+    fp = add("feature", None, "a part's PartDesign feature list (Body, Sketch, Pad, Pocket, Fillet, Chamfer, Draft, Thickness): list, new, add, "
              "set, delete, rename, move, tip; each change one undo step")
     from .cmdbase import Parser
     fsub = fp.add_subparsers(dest="feature_cmd", metavar="<action>", parser_class=Parser)
@@ -363,8 +404,11 @@ def add_parsers(add, sub) -> None:
     sp = one("new", cmd_feature_new, "a new part module with an empty Body (FreeCAD's Create body)")
     sp.add_argument("--material", default="petg", help="MATERIAL of the new part (default petg)")
     sp.add_argument("--process", default="fdm", help="PROCESS of the new part (default fdm)")
-    sp = one("add", cmd_feature_add, "add a Sketch, Pad or Pocket (FreeCAD's property names in snake_case)")
-    sp.add_argument("type", help=", ".join(TYPES))
+    sp = one("add", cmd_feature_add, "add a Sketch, Pad, Pocket, Mirrored, LinearPattern, PolarPattern, "
+             "MultiTransform, an Additive/Subtractive primitive, Fillet, Chamfer, Draft or Thickness (FreeCAD's "
+             "property names in snake_case; a dress-up's base=Pad:Edge1,Face6)")
+    sp.add_argument("type", help=", ".join(TYPES) + ", Mirrored, LinearPattern, PolarPattern, MultiTransform, "
+                    "AdditiveBox ... SubtractiveWedge, Fillet, Chamfer, Draft, Thickness")
     sp.add_argument("name")
     sp.add_argument("props", nargs="*", metavar="KEY=VALUE")
     sp.add_argument("--after", help="the feature it goes after (default: at the end)")
@@ -402,5 +446,12 @@ def add_parsers(add, sub) -> None:
     sp = one("apply", cmd_feature_apply, "several ops as one undo step: --ops '[{\"op\": \"set\", ...}]' "
              "(or --ops @file.json)")
     sp.add_argument("--ops", required=True, metavar="JSON")
+    from .feature_shape import add_parser as shape_parser
+    shape_parser(add, fsub)
+    sp = fsub.choices["apply"]
     sp.add_argument("--name", help="the undo step's name (default: FreeCAD's for the ops, as \"Make Pad\"); a task panel "
                     "that edits a feature says \"Edit Pad\", as FreeCAD's double-click does")
+    sp = one("resolve", cmd_feature_resolve, "a feature's every property as FreeCAD's would be, from the ones chosen "
+             "(a Hole's diameter from its thread; read-only, writes nothing)")
+    sp.add_argument("--feature", required=True, metavar="JSON", help='{"type": "PartDesign::Hole", "profile": ..., ...}')
+    sp.add_argument("--through-all", type=float, default=None, help="the Body's through-all length, if known")

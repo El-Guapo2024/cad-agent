@@ -736,7 +736,7 @@ function DropButton({ icon, title, entries, cmd, tip }: { icon: IconName; title?
   const [at, setAt] = useState<{ x: number; y: number } | null>(null)
   return (
     <>
-      <button className="tb-btn tb-drop" {...tipAttrs(cmd, title, tip)} onClick={(e) => {
+      <button className="tb-btn tb-drop" {...tipAttrs(cmd, title, tip)} data-cmd={cmd} onClick={(e) => {
         const r = e.currentTarget.getBoundingClientRect()
         setAt(at ? null : { x: r.left, y: r.bottom + 1 })
       }}><Icon name={icon} size={useIconSize()} /><span className="tb-caret">▾</span></button>
@@ -803,7 +803,7 @@ const toolbarOn = (shown: Record<string, boolean>, name: string) => shown[name] 
 /** QToolBar::handle: the 8px grip each toolbar starts with (FreeCAD.qss), gone when locked. */
 const TGrip = () => <span className="tb-grip" />
 /** A toolbar button for a menu Entry (same icon, text, command and state). */
-const EntryBtn = ({ e }: { e: Entry }) => e === 'sep' ? <TSep /> : <Btn icon={e.icon ?? 'help'} title={e.cmd && FC_TIPS[e.cmd] ? undefined : e.title ?? e.label} cmd={e.cmd} disabled={e.disabled} onClick={() => e.onSelect?.()} />
+const EntryBtn = ({ e }: { e: Entry }) => e === 'sep' ? <TSep /> : e.sub ? <DropButton icon={e.icon ?? 'help'} cmd={e.cmd} entries={() => e.sub!} /> : <Btn icon={e.icon ?? 'help'} title={e.cmd && FC_TIPS[e.cmd] ? undefined : e.title ?? e.label} cmd={e.cmd} disabled={e.disabled} onClick={() => e.onSelect?.()} />
 export function ToolBar() {
   const wb = useStore((s) => s.workbench), wbPrefs = useStore((s) => s.wbPrefs), slug = useStore((s) => s.slug), lock = useStore((s) => s.toolbarLock)
   const selected = useStore((s) => s.selected), busy = useStore((s) => s.busy), subSel = useStore((s) => s.subSel), shown = useStore((s) => s.toolbars)
