@@ -100,6 +100,8 @@ export type Task = { kind: 'params' | 'placement' | 'transform' | 'measure' | 'm
   // PartDesign (partdesign.tsx): New Sketch's attachment panel, Pad and Pocket, each made or edited in `body` (the part
   // module); `other` is the feature being edited, or the profile sketch of a new one.
   | 'sketchAttach' | 'pad' | 'pocket'
+  // pd_transform.tsx: a transformed feature's panel and a primitive's; `other` is the feature edited, or what a new one is
+  | 'pdTransform' | 'pdPrimitive'
   // The Sketcher's edit mode (sketcher.ts, sketchui.tsx): TaskDlgEditSketch.
   | 'sketch'; body: string; other?: string; edit?: boolean }
 /** GET /api/history: one entry of the backend's Document undo/redo journal, shared with an

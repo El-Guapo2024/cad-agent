@@ -1,9 +1,9 @@
 # SPDX-License-Identifier: LGPL-2.1-or-later
 # A port of FreeCAD's PartDesign primitives (https://github.com/FreeCAD/FreeCAD, commit 3160daf1e2b6), each file
 # LGPL-2.1-or-later as it states:
-#   src/Mod/PartDesign/App/FeaturePrimitive.cpp: Copyright (c) 2015 Stefan Tröger <stefantroeger@gmx.net>
-#   src/Mod/Part/App/PrismExtension.cpp: Copyright (c) 2021 Werner Mayer <wmayer[at]users.sourceforge.net>
-#   src/Mod/Part/App/TopoShape.cpp (makeTorus): Copyright (c) 2002 Jürgen Riegel <juergen.riegel@web.de>
+#   src/Mod/PartDesign/App/FeaturePrimitive.cpp: Copyright (c) 2015 Stefan Tröger
+#   src/Mod/Part/App/PrismExtension.cpp: Copyright (c) 2021 Werner Mayer
+#   src/Mod/Part/App/TopoShape.cpp (makeTorus): Copyright (c) 2002 Jürgen Riegel
 """PartDesign's additive and subtractive primitives in a FEATURES list: Box, Cylinder, Sphere, Cone, Ellipsoid, Torus,
 Prism and Wedge, each as PartDesign::Additive<Shape> and PartDesign::Subtractive<Shape>.
 

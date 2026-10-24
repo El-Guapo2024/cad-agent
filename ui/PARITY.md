@@ -382,7 +382,7 @@ A part whose shape is a FEATURES list (cad_agent/feature.py) is FreeCAD's PartDe
 "Make Pad", "Edit Pad", "Edit Pad.Length", "Move tip to selected feature", "Move a feature inside body", "Delete", "Rename Pad.Label"),
 and the part is built (a change that breaks it is put back), its gates run, the scene reloads and a check follows, as after `cad set`.
 `scripts/editcheck.mjs` holds the page to the real FreeCAD 26.3 (`scripts/fcedit.py` writes `scripts/fcedit.json` from its GUI):
-57 checks pass (2026-10-24); its 46 "known" lines are the commands greyed "not yet" and the console's "Send to Console".
+59 checks pass (2026-10-24, with the patterns and primitives built); its 26 "known" lines are the commands greyed "not yet" and the console's "Send to Console".
 
 | FreeCAD | Ours |
 |---|---|
@@ -424,6 +424,38 @@ sketchcheck, 2026-10-24: 56 of 57 cases give FreeCAD's geometry, constraints and
 - Long-press Clarify Selection is off while a sketch is in edit (the Sketcher keeps the presses).
 - Settings menu of the Messages box (auto-update, grid spacing, snapping, rendering order) is not there; Display grid is a check box in the box.
 
+## PartDesign transformed features and primitives, 2026-10-24
+
+Mirror, Linear Pattern, Polar Pattern and Multi-Transform (PartDesign::Mirrored, LinearPattern, PolarPattern, MultiTransform) and
+the 16 additive and subtractive primitives (PartDesign::AdditiveBox … SubtractiveWedge) at 3160daf1e2b6, in a FEATURES list:
+`cad_agent/feature_transform.py` and `feature_primitive.py` build them (ports of FeatureTransformed.cpp, FeatureMirrored.cpp,
+FeatureLinearPattern.cpp, FeaturePolarPattern.cpp, FeatureMultiTransform.cpp, Part's LinearPatternExtension.cpp and
+PolarPatternExtension.cpp, FeaturePrimitive.cpp, PrismExtension.cpp), `cad_agent/feature_kw.py` lets feature_edit.py read, write
+and edit them in place, `cad feature add/set` takes them, and `src/pd_transform.tsx` is their commands, task panels, preview,
+property view, tree icons and menu entries. `tests/golden/transform` holds 102 bodies FreeCAD built from the same lines
+(`make.py` in freecadcmd): the 95 it builds give FreeCAD's volume, area, box and centre, 91 its faces too, and the 7 it refuses
+are refused with its message. `scripts/transformcheck.mjs` holds the page to the real FreeCAD's GUI (`scripts/fctransform.py` writes
+`scripts/fctransform.json`): 174 checks pass, 3 known (2026-10-24).
+
+| FreeCAD | Ours |
+|---|---|
+| PartDesign_Mirrored, _LinearPattern, _PolarPattern | done as prepareTransformed and the commands' workers do: the selected features of the active Body are the Originals (none: Transform body, TransformMode "Whole shape"); the plane, direction or axis from the first original's sketch (V_Axis; H_Axis and V_Axis; N_Axis), else the Origin's (XY-plane; X and Y axes; Z axis); Length 100 and Occurrences 2, Angle 360 and Occurrences 2; the panel opens on the new feature, OK writes "Make Mirrored" (… "Make PolarPattern") and makes it the Tip, Cancel writes nothing; double-click opens it again ("Edit Mirrored") |
+| The panels | done: TaskTransformedParameters (Transform body / Transform tool shapes, Add Feature / Remove Feature as toggles that take the next feature clicked in the tree, the originals list), TaskMirroredParameters' Plane, PatternParametersWidget's Direction (reverse button, the combo with the sketch's axes and construction lines, the Origin's, Select reference…), Mode (Extent / Spacing; Total Angle / Angular Spacing), Length or Spacing, Total Angle or Angular Spacing, Occurrences, Direction 2's check box and group; Recompute on change; Preview's Show preview overlay. The combo items, current items, labels and starting values are FreeCAD's (transformcheck) |
+| PartDesign_MultiTransform | done: the Transformations list ("Right-click to add a transformation") and its context menu (Edit, Delete, Add Mirror Transformation, Add Linear Pattern, Add Polar Pattern, Add Scale Transformation, Move Up, Move Down), each transformation's fields under the list with its OK, FreeCAD's names (Mirror, Linear_Pattern, Polar_Pattern); with a Mirrored, LinearPattern or PolarPattern selected it converts it ("Convert to Multi-Transform feature"). In the tree the MultiTransform claims its transformations |
+| Preview overlay | done as ViewProviderTransformed::updatePreview: the originals' tools (a Pad's or Pocket's profile extruded in the browser, a primitive's shape) placed under every transformation but the suppressed ones, in the preview colours; in Transform body mode the Body's own mesh |
+| PartDesign_CompPrimitiveAdditive / _Subtractive | done: the eight shapes of each group in the menus and as the toolbars' drop-downs; the panel (TaskPrimitiveParameters: the shape's fields with FreeCAD's labels and defaults, a subtractive one's Operation, then the Attachment panel as TaskAttacher shows it unattached, then Preview), OK writes "Make additive Box" with FreeCAD's names (Box, Box001, …) and makes it the Tip; an additive primitive in a document with no Body makes one |
+| Property view | done: each type's groups and rows in FreeCAD's order (Base: Originals, Transform Mode, Label, Suppressed; Mirrored; Direction 1 / Direction 2; Polar Pattern; Transformation; Attachment; the shape's group and Prism; Part Design), editable ones through `cad feature set` ("Edit LinearPattern.Occurrences"), a pattern's Offset and Length shown synced as FreeCAD keeps them (syncLengthAndOffset) |
+| An occurrence that misses the support | as FreeCAD with the Body's AllowCompound on (its default): an added occurrence clear of the solid stays a solid of its own, a subtracted one removes nothing, and neither is an error (FreeCAD's "transformed shapes do not intersect the support" warning only comes with AllowCompound off) |
+
+Deliberately or knowingly different:
+- Faces after the refine: in 4 of the 95 bodies (two holes that touch along a line, a hole touching the plate's side) FreeCAD's BRepBuilderAPI_RefineModel joins faces that OCCT's UnifySameDomain leaves split, as for Pad and Pocket. The solid is the same.
+- A MultiTransform with no transformations shows the Body before it, as FreeCAD's command leaves it (CmdPartDesignMultiTransform copies the Tip's shape in); built from a script, FreeCAD's has no shape.
+- Add Feature takes a feature clicked in the tree, not a face clicked in the 3D view (FreeCAD finds the feature that made the face). Select reference… takes an Origin axis or plane from the tree, or a face or edge of the shown Tip in the 3D view; a sketch's edge (Edge1) as a pattern's direction or axis, and datum planes and lines (no datums yet), are not references here.
+- The preview needs references the browser can place: a sketch's axes and construction lines, the Origin's, and a face or edge of the shown Tip; for others it is not drawn. A primitive's preview leaves out the skew angles and a sphere's or torus's V range. Show final result is greyed: the result is built when OK writes it.
+- Add Scale Transformation is greyed: PartDesign::Scaled is not built yet. The pattern's per-occurrence spacing rows (ExperimentalFeatures) and PatternInstanceControls' suppressed-occurrence toggles are not in the panel; Spacings, Spacing Pattern and Suppressed Indices are edited in the property view.
+- A primitive is placed by its Placement: the Attachment panel is FreeCAD's but only Deactivated can be chosen until an Attacher comes (feature_primitive.placement_of() is the one function it replaces), and Placement shows in the property view's Base group, where FreeCAD hides it.
+- The toolbars' primitive groups open their list on a click; FreeCAD's button runs the last one used and its arrow opens the list.
+
 ## Still missing
 
-- Nothing from FreeCAD's standard menus, toolbars, context menus, keys or panels that applies to these projects. What is left is n/a (no FreeCAD document) or listed as n/a above; PartDesign's features after Pad and Pocket come with docs/EDITING_PLAN.md step 5; the Sketcher's tools still to come are listed above.
+- Nothing from FreeCAD's standard menus, toolbars, context menus, keys or panels that applies to these projects. What is left is n/a (no FreeCAD document) or listed as n/a above; PartDesign's features after Pad and Pocket come with docs/EDITING_PLAN.md step 5 (the patterns, Mirror and the primitives are above); the Sketcher's tools still to come are listed above.

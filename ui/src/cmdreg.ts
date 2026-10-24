@@ -49,6 +49,7 @@ import { SKETCH_CMD_INFO } from './sketchcmdinfo'
 import { isEnabled as sketchEnabled, isImplemented as isSketchCommand, runSketchCommand } from './sketchcmds'
 import * as Sketcher from './sketcher'
 import { createBody, deleteFeatures, moveFeatureAfter, newSketch, padOrPocket, setTip } from './partdesign'
+import { pdxCommands } from './pd_transform'
 
 export type RegCommand = { label(): string; run(args: string[]): void; isEnabled(): boolean }
 export type CommandInfo = { name: string; label: string; enabled: boolean }
@@ -216,6 +217,8 @@ const COMMANDS: Record<string, RegCommand> = {
   PartDesign_MoveTip: reg('Set Tip', () => void setTip(), () => getState().featSel.length === 1),
   PartDesign_MoveFeatureInTree: reg('Move Feature After…', moveFeatureAfter, () => getState().featSel.length > 0),
   Std_Delete: reg('Delete', () => void deleteFeatures(), () => getState().featSel.length > 0),
+  // pd_transform.tsx: Mirror, Linear/Polar Pattern, Multi-Transform (Command.cpp), the primitives (CommandPrimitive.cpp)
+  ...Object.fromEntries(pdxCommands().map(([c, label, run]) => [c, reg(label, run, () => !!getState().slug)])),
 
   // ── CAD Agent workbench (chrome.tsx's agentEntries/agentwb.tsx: no FreeCAD equivalent) ──
   CADAgent_Check: reg('Check', () => openTask('check', ''), () => !!getState().slug),

@@ -2,7 +2,7 @@
 # A port of FreeCAD's PartDesign transformed features (https://github.com/FreeCAD/FreeCAD, commit 3160daf1e2b6), each file
 # LGPL-2.1-or-later as it states:
 #   src/Mod/PartDesign/App/FeatureTransformed.cpp, FeatureMirrored.cpp, FeatureLinearPattern.cpp, FeaturePolarPattern.cpp,
-#   FeatureMultiTransform.cpp: Copyright (c) 2012 Jan Rheinländer <jrheinlaender@users.sourceforge.net>
+#   FeatureMultiTransform.cpp: Copyright (c) 2012 Jan Rheinländer
 #   src/Mod/Part/App/LinearPatternExtension.cpp, PolarPatternExtension.cpp: Copyright (c) 2012 Jan Rheinländer
 #   src/Mod/Part/App/TopoShapeExpansion.cpp (makeElementBoolean, makeElementTransform): Copyright (c) 2022 Zheng, Lei
 """PartDesign's transformed features: Mirrored, LinearPattern, PolarPattern and MultiTransform, in a FEATURES list.

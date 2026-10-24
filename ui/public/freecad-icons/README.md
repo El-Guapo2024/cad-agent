@@ -59,3 +59,6 @@ renamed `PartDesign_WizardShaft.svg` here. Their metadata says `FreeCAD LGPL2+`,
 (CC-BY-SA 4.0, Alexander Gryson) and `Sketcher_ValidateSketch.svg` (`FreeCAD CC-BY-SA 4.0`); `PartDesign_Clone.svg` (an empty
 licence link, `FreeCAD LGPL2+` in its rights), `Std_CoordinateSystem.svg` and `Std_ToggleFreeze.svg` (no licence metadata), which
 come under FreeCAD's LGPL-2.1.
+The additive and subtractive primitives (ui/src/pd_transform.tsx) use 14 more from `src/Mod/PartDesign/Gui/Resources/icons` at
+3160daf1e2b6, `PartDesign_Additive{Cylinder,Sphere,Cone,Ellipsoid,Torus,Prism,Wedge}.svg` and their `Subtractive` twins
+(Box's two were there already); their metadata says `FreeCAD LGPL2+`.

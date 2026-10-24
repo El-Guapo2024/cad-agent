@@ -73,6 +73,10 @@ The vocabulary, as FreeCAD's Python API has it:
                  Two sides).
     Body         Body(FEATURES, params, base=None) builds the tip's solid; base is a hand-built solid,
                  FreeCAD's BaseFeature, which the first feature adds to or cuts from.
+    Mirrored, LinearPattern, PolarPattern, MultiTransform
+                 PartDesign's transformed features (feature_transform.py has their properties)
+    AdditiveBox ... SubtractiveWedge
+                 the 16 primitives (feature_primitive.py); both written as feature_kw.KwFeature calls
 
 What is built is the solid FreeCAD would build, because the same OCCT calls build it in the same order:
 the sketch's edges are joined to wires as TopoShape::makeElementWires joins them, the face is made as
