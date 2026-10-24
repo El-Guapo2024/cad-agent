@@ -46,3 +46,6 @@ evals/**/out/
 evals/**/checks.json
 evals/**/verify.json
 .claude/worktrees/
+
+# The native build of the sketch solver (ui/planegcs/build.sh native)
+ui/planegcs/build/
