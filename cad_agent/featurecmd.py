@@ -37,6 +37,10 @@ TYPES = {"Sketch": SKETCH, "Pad": "PartDesign::Pad", "Pocket": "PartDesign::Pock
 # The transaction FreeCAD opens for each (PartDesign/Gui/Command.cpp's "Make " + which, SketchWorkflow.cpp's
 # "New Sketch", CommandBody.cpp, Gui/CommandDoc.cpp's "Delete", Tree.cpp's "Rename <obj>.Label").
 ADD_NAMES = {SKETCH: "New Sketch", "PartDesign::Pad": "Make Pad", "PartDesign::Pocket": "Make Pocket"}
+TYPES["Revolution"] = "PartDesign::Revolution"           # cad_agent/feature_revolve.py
+ADD_NAMES["PartDesign::Revolution"] = "Make Revolution"
+TYPES["Groove"] = "PartDesign::Groove"
+ADD_NAMES["PartDesign::Groove"] = "Make Groove"
 
 TEMPLATE = '''"""{part}: a PartDesign Body made in the workbench (cad feature new).
 

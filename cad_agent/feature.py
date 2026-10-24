@@ -1506,12 +1506,15 @@ def evaluate(features, params: dict | None = None, base=None, tip: str | None = 
         shapes["BaseFeature"] = solid
     for f in ([] if tip == "BaseFeature" else features):
         name = getattr(f, "name", None)
-        if not isinstance(f, (Sketch, _Extrude)):
+        if not isinstance(f, (Sketch, _Extrude)) and not hasattr(f, "build"):
             raise FeatureError(f"FEATURES holds {f!r}, not a Sketch, Pad or Pocket")
         if name in shapes or name in sketches:
             raise FeatureError(f"two features are named {name!r}")
         if isinstance(f, Sketch):
             sketches[name] = f.solved(params)
+        elif hasattr(f, "build"):       # a feature module's own (feature_revolve.py, ...): build(sketches, base, shapes, params)
+            solid = f.build(sketches, solid, shapes, params)
+            shapes[name] = solid
         else:
             if f.profile not in sketches:
                 raise FeatureError(f"{name}: no sketch {f.profile!r} before it" if f.profile not in shapes
@@ -1623,6 +1626,9 @@ def to_freecad(features, params: dict | None = None, doc=None, name: str = "Body
                     sk.setExpression(f"Constraints[{i}]", e + (" * 1 deg" if c.type == "Angle" else ""))
             made[f.name] = sk
             continue
+        if hasattr(f, "to_freecad"):    # a feature module's own: to_freecad(body, made, planes, setv, ref)
+            made[f.name] = f.to_freecad(body, made, planes, setv, ref)
+            continue
         obj = body.newObject(f"PartDesign::{f.kind}", f.name)
         obj.Profile = made[f.profile]
         obj.Refine = f.refine
@@ -1649,3 +1655,8 @@ def to_freecad(features, params: dict | None = None, doc=None, name: str = "Body
                 setattr(obj, prop, [ref(r) for r in rs])
         made[f.name] = obj
     return body
+
+
+# The features of other modules, registered here so a part file imports them all from cad_agent.feature.
+from .feature_revolve import Groove, Revolution  # noqa: E402  PartDesign::Revolution, PartDesign::Groove
+FEATURES.update(Revolution=Revolution, Groove=Groove)
