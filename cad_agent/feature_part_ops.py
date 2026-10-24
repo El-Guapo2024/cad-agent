@@ -448,7 +448,8 @@ class Refine(PartObject):
     kind, TYPE_ID, TRANSACTION = "Part.Refine", "Part::Refine", "Refine shape"
     POS = ("source",)
     REFS = ("source",)
-    INPUTS = ("source",)
+    INPUTS = ()                     # no claimChildren: the tree shows its source beside it, hidden (Part_RefineShape)
+    HIDES = ("source",)
     DEFAULTS = {"source": None, **PartObject.COMMON}
 
     def shape(self, ctx, params):

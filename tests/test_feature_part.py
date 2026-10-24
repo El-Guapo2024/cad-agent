@@ -150,7 +150,7 @@ def test_defaults_are_freecads(kind, cls):
     fc = FC["defaults"][cls.TYPE_ID]
     assert "error" not in fc, fc
     for key, d in cls.DEFAULTS.items():
-        if key == "label":
+        if key in ("label", "visibility"):          # the Label, and the ViewObject's Visibility
             continue
         if key == "placement":
             assert "Placement" in fc

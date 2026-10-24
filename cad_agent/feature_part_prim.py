@@ -70,7 +70,7 @@ class Primitive(Placed):
     def validate(self):
         super().validate()
         for k in self.DEFAULTS:
-            if k in ("placement", "label") or k in self.ENUMS:
+            if k in ("placement", "label", "visibility") or k in self.ENUMS:
                 continue
             val = getattr(self, k)
             if isinstance(val, bool) or not isinstance(val, (int, float, str)):

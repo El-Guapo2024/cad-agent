@@ -32,13 +32,16 @@ were made in, each one after the objects it links), with FreeCAD's Python vocabu
   (LengthFwd -> length_fwd), with FreeCAD's defaults, which the file leaves out. A link is the linked object's Name,
   a link with sub-elements (name, "Edge3") or (name, ["Edge1", "Edge2"]) as FreeCAD's Python writes PropertyLinkSub.
   label= is FreeCAD's Label when it is not the Name (Part_Box names its object Box and labels it "Cube").
+  visibility= is the object's ViewObject.Visibility once someone toggled it; left out, an object is shown unless an
+  object that links it hides it, as that object's FreeCAD command does (a Cut hides its Base and Tool, a Mirror leaves
+  its source shown).
 - A sketch outside a Body is a Sketcher::SketchObject in the document (Part workbench's Sketcher_NewSketch), the
   same Sketch(...) call as in FEATURES. Its Shape is its wires, as SketchObject::buildShape makes them.
 - A part file with a PartDesign Body keeps it as FEATURES and TIP; the Body is named "Body" and an object links it
   by that name (Part.Cut("Cut", "Body", "Cylinder")), or links a feature of it by the feature's name. build() is
   then `return Part.Document(OBJECTS, p, FEATURES, tip=TIP)` (and base=build_base(**p) for a hand-written base).
-- The part's shape, what build() returns, is what FreeCAD shows: every object no other object links (FreeCAD's
-  commands hide the inputs of a Cut, a Fusion, an Extrude, ...), and the Body when nothing links it, as one compound.
+- The part's shape, what build() returns, is what FreeCAD shows: every visible object (and the Body, unless an object
+  that hides its input links it), as one compound. Sketches are left out, as a Body's are: they are drawn, not built.
 
 Why the namespace: a hand-written part imports build123d's Box, Cylinder, Sphere, Plane, ... and a part file that
 gets Part objects on top must keep those working. `Part` is not a name any part file binds (FreeCAD's own scripts
@@ -103,17 +106,19 @@ class PartObject(KwFeature):
 
     A subclass declares, besides KwFeature's kind, TYPE_ID, POS, DEFAULTS and REFS:
         LABEL       the Label FreeCAD's command gives it when that is not its Name ("Cube" for Part_Box), or None
-        INPUTS      the link properties whose objects the command hides and the tree shows under it (claimChildren)
+        INPUTS      the link properties whose objects the tree shows under it (its ViewProvider's claimChildren)
+        HIDES       the link properties whose objects its command hides (None: INPUTS; a Mirror hides none)
         PROPS       {key: FreeCAD's property name} where camel(key) is not the name
         and shape(ctx, params): the TopoDS_Shape it makes, in the document's frame; ctx.shape(link) is a linked
         object's shape (or its sub-element's), ctx.obj(name) the object itself.
     """
     LABEL = None
     INPUTS: tuple = ()
+    HIDES: tuple | None = None
     PROPS: dict = {}
     ENUMS: dict = {}                 # {key: FreeCAD's enumeration}, checked on construction
     RANGES: dict = {}                # {key: (lo, hi)}: FreeCAD's constraint, a value clamped to it
-    COMMON = {"label": None}
+    COMMON = {"label": None, "visibility": None}
 
     @classmethod
     def prop_name(cls, key):
@@ -142,6 +147,18 @@ class PartObject(KwFeature):
                     out.append(n)
         return out
 
+    def hidden_inputs(self) -> list[str]:
+        """The objects its command hides (HIDES, INPUTS when it says nothing)."""
+        keys = self.INPUTS if self.HIDES is None else self.HIDES
+        out = []
+        for k in keys:
+            val = getattr(self, k)
+            for r in (val if self.is_ref_list(k) else [val]):
+                n = ref_name(r)
+                if n and n not in out:
+                    out.append(n)
+        return out
+
     def shape(self, ctx, params):
         raise NotImplementedError
 
@@ -149,7 +166,7 @@ class PartObject(KwFeature):
     def fc_props(self):
         """(FreeCAD property, value) for each property to set on the object, links left to fc_links."""
         for k in self.DEFAULTS:
-            if k in self.REFS or k in ("label", "placement"):
+            if k in self.REFS or k in ("label", "placement", "visibility"):
                 continue
             yield self.prop_name(k), k, getattr(self, k)
 
@@ -181,7 +198,7 @@ class PartObject(KwFeature):
 class Placed(PartObject):
     """A primitive: its shape made at the origin and moved by its Placement (Part::Primitive, AttachExtension with
     MapMode Deactivated, as the commands leave it). placement is ((x, y, z), (yaw, pitch, roll)), mm and degrees."""
-    COMMON = {"placement": None, "label": None}
+    COMMON = {"placement": None, "label": None, "visibility": None}
 
     def normalize(self, key, v):
         if key == "placement":
@@ -364,9 +381,32 @@ def evaluate(objects, params=None, features=None, base=None, tip=None, upto=None
     return out
 
 
+def hidden_by(objects) -> set:
+    """The names the objects' commands hide: what each object that links them hides (HIDES)."""
+    out = set()
+    for o in objects:
+        if isinstance(o, PartObject):
+            out |= set(o.hidden_inputs())
+    return out
+
+
+def visible(objects, features=None) -> list[str]:
+    """What FreeCAD shows, in order: "Body" first when the part has one, then every object, each unless its
+    visibility says False or (left out) an object that links it hides it. Sketches are drawn, not built."""
+    hid = hidden_by(objects)
+    by = {o.name: o for o in objects}
+    out = [BODY] if features is not None and BODY not in hid else []
+    for o in objects:
+        if isinstance(o, F.Sketch):
+            continue
+        v = getattr(o, "visibility", None)
+        if v is True or (v is None and o.name not in hid):
+            out.append(o.name)
+    return [n for n in out if n == BODY or n in by]
+
+
 def roots(objects, features=None) -> list[str]:
-    """The objects no other object links, in order, and "Body" first when the part has one and nothing links it: what
-    FreeCAD shows once the commands have hidden their inputs."""
+    """The objects no other object links (the tree's top level), and "Body" first when nothing links it."""
     used = set()
     for o in objects:
         if isinstance(o, PartObject):
@@ -382,7 +422,7 @@ def Document(objects, params=None, features=None, base=None, tip=None):
     from build123d import Compound, Part
     shapes = evaluate(objects, params, features, base, tip)
     shown = []
-    for n in roots(objects, features):
+    for n in visible(objects, features):
         s = shapes.get(n)
         if s is not None and not s.IsNull():
             shown.append(s)
@@ -502,3 +542,9 @@ from . import feature_part_bool  # noqa: E402,F401  Cut, Fuse, Common, Section, 
 from . import feature_part_ops  # noqa: E402,F401  Extrusion, Revolution, Mirroring, Fillet, ..., Compound, Refine
 from . import feature_part_split  # noqa: E402,F401  BooleanFragments, Slice, XOR, Connect, Embed, Cutout, CompoundFilter
 from . import feature_part_sweep  # noqa: E402,F401  Loft, Sweep, Offset, Offset2D, Thickness, ProjectOnSurface
+
+# What each command hides, where it is not what the tree shows under the object (Gui/Command.cpp, TaskLoft.cpp,
+# TaskSweep.cpp, TaskOffset.cpp, DlgProjectionOnSurface.cpp, Mirroring.cpp: they leave their inputs shown).
+for _kind in ("Part.Loft", "Part.Sweep", "Part.Offset", "Part.Offset2D", "Part.ProjectOnSurface", "Part.Mirroring"):
+    if _kind in OBJECTS:
+        OBJECTS[_kind].HIDES = ()
