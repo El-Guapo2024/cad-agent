@@ -145,15 +145,26 @@ function sameGeo(a, b) {
   const P = (u, v) => near(u[0], v[0], 0.25) && near(u[1], v[1], 0.25)
   if (a.type === 'Point') return P(a.at, b.at)
   if (a.type === 'LineSegment') return P(a.start, b.start) && P(a.end, b.end)
-  if (!P(a.center, b.center) || !near(a.radius, b.radius, 0.25)) return false
-  if (a.type === 'Circle') return true
   const d = (x, y) => Math.abs(Math.atan2(Math.sin(x - y), Math.cos(x - y)))
-  return d(a.start_angle, b.start_angle) < 0.02 && d(a.end_angle, b.end_angle) < 0.02
+  const range = () => a.start_angle === undefined || (d(a.start_angle, b.start_angle) < 0.02 && d(a.end_angle, b.end_angle) < 0.02)
+  if (a.type === 'BSplineCurve') {
+    const all = (u, v, f) => u.length === v.length && u.every((x, i) => f(x, v[i]))
+    return a.degree === b.degree && !!a.periodic === !!b.periodic && all(a.poles, b.poles, P) && all(a.mults, b.mults, (x, y) => x === y)
+      && all(a.weights, b.weights, (x, y) => near(x, y, 0.25)) && all(a.knots, b.knots, (x, y) => near(x, y, 1e-6))
+  }
+  if (a.type === 'Ellipse' || a.type.startsWith('ArcOf') && a.type !== 'ArcOfCircle') {
+    const r = a.type === 'ArcOfParabola' ? near(a.focal, b.focal, 0.25) : near(a.major_radius, b.major_radius, 0.25) && near(a.minor_radius, b.minor_radius, 0.25)
+    return P(a.center, b.center) && r && d(Math.atan2(a.x_axis[1], a.x_axis[0]), Math.atan2(b.x_axis[1], b.x_axis[0])) < 0.02 && range()
+  }
+  if (!P(a.center, b.center) || !near(a.radius, b.radius, 0.25)) return false
+  return a.type === 'Circle' || range()
 }
 const sameCons = (a, b) => a.type === b.type && a.args.join() === b.args.join()
   && (b.value === undefined || near(a.value ?? NaN, b.value, a.type === 'Angle' ? 0.01 : 0.3))
 const fmtC = (c) => `${c.type}(${c.args.join(',')}${c.value !== undefined ? `=${+c.value.toFixed(4)}` : ''})`
 const fmtG = (g) => g.type === 'Point' ? `Point(${g.at.map((v) => v.toFixed(2))})` : g.type === 'LineSegment' ? `Line(${g.start.map((v) => v.toFixed(2))} ${g.end.map((v) => v.toFixed(2))})`
+  : g.type === 'BSplineCurve' ? `BSpline(d${g.degree}${g.periodic ? ' periodic' : ''} ${g.poles.map((q) => q.map((v) => v.toFixed(2)).join(',')).join(' ')} w${g.weights.map((v) => +v.toFixed(3)).join(',')} k${g.knots.map((v) => +v.toFixed(3)).join(',')} m${g.mults.join(',')})`
+  : g.x_axis ? `${g.type}(${g.center.map((v) => v.toFixed(2))} ${g.focal !== undefined ? `f${g.focal.toFixed(2)}` : `r${g.major_radius.toFixed(2)},${g.minor_radius.toFixed(2)}`} x${g.x_axis.map((v) => v.toFixed(3))}${g.start_angle !== undefined ? ` ${g.start_angle.toFixed(3)}..${g.end_angle.toFixed(3)}` : ''})`
   : `${g.type}(${g.center.map((v) => v.toFixed(2))} r${g.radius.toFixed(2)}${g.start_angle !== undefined ? ` ${g.start_angle.toFixed(3)}..${g.end_angle.toFixed(3)}` : ''})`
 if (shots) mkdirSync(shots, { recursive: true })
 let passed = 0, run = 0, known = 0
@@ -199,6 +210,7 @@ for (const [k, c] of CASES.cases.entries()) {
     else if (st.select) { await gui('select', st.select); await p.waitForTimeout(80) }
     else if ('clear' in st) { await gui('clear', []); await p.waitForTimeout(80) }
     await dialog()
+    await p.evaluate(() => new Promise((r) => requestAnimationFrame(() => r(0)))) // the page has handled the step (a frame) before the next
     if (process.env.SKETCHCHECK_TRACE) console.log('  trace', JSON.stringify(st), JSON.stringify((await api(`/api/gui?slug=${PROJECT}`)).sketch?.geometry), JSON.stringify(await p.evaluate(() => window.cadui.getState().hints)), await p.evaluate(() => [...document.querySelectorAll('.ctx, .mb-content, .msgbox-back')].map((e) => e.className + ':' + e.textContent.slice(0, 120)).join() + ' / ' + document.activeElement?.tagName + '.' + document.activeElement?.className))
   }
   await p.waitForTimeout(250)

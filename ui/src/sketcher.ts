@@ -226,7 +226,7 @@ function publishSketch() {
     if (!slug) return
     const sketch = s ? {
       name: s.ref.name, part: s.ref.part, geometry: s.geometry,
-      constraints: s.constraints.map((c) => ({ type: c.type, args: SK.toArgs(c), ...(SK.isDimensional(c) ? { value: c.value } : {}), ...(c.driving ? {} : { driving: false }), ...(c.name ? { name: c.name } : {}) })),
+      constraints: s.constraints.map(SK.toCons),
       message: { state: s.message.state, status: s.message.text, link: s.message.linkText },
     } : null
     api.setGui(slug, { sketch }).catch(() => { /* best effort, as publishGui */ })

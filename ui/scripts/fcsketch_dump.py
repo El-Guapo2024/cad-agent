@@ -133,6 +133,19 @@ def geo_out(sk):
             x0 = math.atan2(g.XAxis.y, g.XAxis.x)
             d = {"type": "ArcOfCircle", "center": [g.Center.x, g.Center.y], "radius": g.Radius,
                  "start_angle": g.FirstParameter + x0, "end_angle": g.LastParameter + x0}
+        elif t in ("Ellipse", "ArcOfEllipse", "ArcOfHyperbola", "ArcOfParabola"):
+            d = {"type": t, "center": [g.Location.x, g.Location.y]}
+            if t == "ArcOfParabola":
+                d["focal"] = g.Focal
+            else:
+                d["major_radius"], d["minor_radius"] = g.MajorRadius, g.MinorRadius
+            d["x_axis"] = [g.XAxis.x, g.XAxis.y]
+            if t != "Ellipse":
+                d["start_angle"], d["end_angle"] = g.FirstParameter, g.LastParameter
+        elif t == "BSplineCurve":
+            d = {"type": t, "poles": [[q.x, q.y] for q in g.getPoles()], "weights": list(g.getWeights()),
+                 "knots": list(g.getKnots()), "mults": list(g.getMultiplicities()), "degree": g.Degree,
+                 "periodic": g.isPeriodic()}
         else:
             d = {"type": t}
         if c:
@@ -166,7 +179,7 @@ def cons_args(c):
         if sp == 0:
             return [f, fp, s]
         return [f, fp, s, sp]
-    if t in ("Radius", "Diameter", "Block"):
+    if t in ("Radius", "Diameter", "Block", "Weight"):
         return [f]
     if t == "Angle":
         if s == GEO_UNDEF:
@@ -179,11 +192,24 @@ def cons_args(c):
     return [f, fp, s, sp, th, tp]
 
 
+ALIGNMENTS = {1: "EllipseMajorDiameter", 2: "EllipseMinorDiameter", 3: "EllipseFocus1", 4: "EllipseFocus2",
+              5: "HyperbolaMajor", 6: "HyperbolaMinor", 7: "HyperbolaFocus", 8: "ParabolaFocus",
+              9: "BSplineControlPoint", 10: "BSplineKnotPoint", 11: "ParabolaFocalAxis"}
+
+
 def cons_out(sk):
+    import re
     out = []
     for c in sk.Constraints:
+        if c.Type == "InternalAlignment":
+            a = dict(re.findall(r'(\w+)="([^"]*)"', c.Content))
+            kind = int(a.get("InternalAlignmentType", 0))
+            args = [c.First, c.Second] if kind in (1, 2, 5, 6, 11) else [c.First, c.FirstPos, c.Second] if kind in (3, 4, 7, 8) \
+                else [c.First, c.FirstPos, c.Second, int(a.get("InternalAlignmentIndex", -1))]
+            out.append({"type": "InternalAlignment:" + ALIGNMENTS.get(kind, "Undef"), "args": args})
+            continue
         d = {"type": c.Type, "args": cons_args(c)}
-        if c.Type in ("Distance", "DistanceX", "DistanceY", "Radius", "Diameter", "Angle"):
+        if c.Type in ("Distance", "DistanceX", "DistanceY", "Radius", "Diameter", "Angle", "Weight"):
             d["value"] = c.Value
             if not c.Driving:
                 d["driving"] = False
