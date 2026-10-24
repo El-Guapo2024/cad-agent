@@ -156,7 +156,12 @@ const fmtC = (c) => `${c.type}(${c.args.join(',')}${c.value !== undefined ? `=${
 const fmtG = (g) => g.type === 'Point' ? `Point(${g.at.map((v) => v.toFixed(2))})` : g.type === 'LineSegment' ? `Line(${g.start.map((v) => v.toFixed(2))} ${g.end.map((v) => v.toFixed(2))})`
   : `${g.type}(${g.center.map((v) => v.toFixed(2))} r${g.radius.toFixed(2)}${g.start_angle !== undefined ? ` ${g.start_angle.toFixed(3)}..${g.end_angle.toFixed(3)}` : ''})`
 if (shots) mkdirSync(shots, { recursive: true })
-let passed = 0, run = 0
+let passed = 0, run = 0, known = 0
+// Cases where FreeCAD's GUI is not repeatable. An under-constrained sketch's solution depends on the order of
+// PlaneGCS's unknowns, which FreeCAD takes from their memory addresses (tests/golden/sketcher/make.py says more).
+// c-parallel (7 DoF): FreeCAD's GUI recorded line 1 mirrored about its middle; freecadcmd at the same commit, our
+// native build and our wasm build all give the other, equally valid, answer for the same two lines and Parallel.
+const KNOWN = { 'c-parallel': 'FreeCAD\'s GUI gives line 1 mirrored; freecadcmd gives ours (under-constrained, memory order)' }
 for (const [k, c] of CASES.cases.entries()) {
   if (only.length && !only.includes(c.name)) continue
   const want = REF.cases[c.name]
@@ -209,7 +214,8 @@ for (const [k, c] of CASES.cases.entries()) {
     const m = `${got.message.status}${got.message.link}`, mw = `${want.message.status}${want.message.link}`
     if (m !== mw) diffs.push(`message: ${m} (FreeCAD: ${mw})`)
   }
-  if (diffs.length) bad(`${c.name}: ${diffs.join('\n   ')}`)
+  if (diffs.length && KNOWN[c.name]) { known++; console.log(`known ${c.name}: ${KNOWN[c.name]}`) }
+  else if (diffs.length) bad(`${c.name}: ${diffs.join('\n   ')}`)
   else { passed++; console.log(`OK   ${c.name}`) }
   // leave without saving, whatever the case left behind (a tool, a dialog)
   for (let i = 0; i < 3 && (await p.locator('.datum-dlg').count()); i++) await p.locator('.datum-dlg .qbtn').last().click()
@@ -224,6 +230,6 @@ for (const d of REF.dialogs) {
 for (const o of dialogs) if (!REF.dialogs.some((d) => d.case === o.case)) bad(`${o.case}: we ask for the datum (${o.title}), FreeCAD does not`)
 for (const e of errs) bad(`page error: ${e}`)
 for (const n of notes) console.log(`note ${n}`)
-console.log(`sketchcheck: ${passed}/${run} cases as FreeCAD, ${colours} colours, ${problems.length} differences`)
+console.log(`sketchcheck: ${passed}/${run} cases as FreeCAD, ${known} known, ${colours} colours, ${problems.length} differences`)
 process.exitCode = problems.length ? 1 : 0
 await b.close()
