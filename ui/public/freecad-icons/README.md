@@ -59,3 +59,6 @@ renamed `PartDesign_WizardShaft.svg` here. Their metadata says `FreeCAD LGPL2+`,
 (CC-BY-SA 4.0, Alexander Gryson) and `Sketcher_ValidateSketch.svg` (`FreeCAD CC-BY-SA 4.0`); `PartDesign_Clone.svg` (an empty
 licence link, `FreeCAD LGPL2+` in its rights), `Std_CoordinateSystem.svg` and `Std_ToggleFreeze.svg` (no licence metadata), which
 come under FreeCAD's LGPL-2.1.
+The dress-up features' panels (ui/src/pd_dressup.tsx) add `PartDesign_Flip_Direction.svg` (`src/Mod/PartDesign/Gui/Resources/icons`
+at 3160daf1e2b6, the Chamfer panel's Flip direction button): its work's licence link is empty, and its metadata carries a
+CC-BY-SA 2.0 licence block with no creator (THIRD_PARTY_LICENSES has the licence).

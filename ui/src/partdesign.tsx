@@ -38,11 +38,14 @@ import { messageBox } from './msgbox'
 import { evaluate } from './expr'
 import * as quantity from './quantity'
 import type { Entry } from './chrome'
+import { DressUpProps, dressUpEntries, editDressUp, isDressUp } from './pd_dressup'
 import './partdesign.css'
 
 export const SKETCH = 'Sketcher::SketchObject', PAD = 'PartDesign::Pad', POCKET = 'PartDesign::Pocket'
-const ICON_OF: Record<string, IconName> = { [SKETCH]: 'pd-sketch', [PAD]: 'pd-pad', [POCKET]: 'pd-pocket' }
-const KIND: Record<string, string> = { [SKETCH]: 'Sketch', [PAD]: 'Pad', [POCKET]: 'Pocket' }
+const ICON_OF: Record<string, IconName> = { [SKETCH]: 'pd-sketch', [PAD]: 'pd-pad', [POCKET]: 'pd-pocket',
+  'PartDesign::Fillet': 'pd-fillet', 'PartDesign::Chamfer': 'pd-chamfer', 'PartDesign::Draft': 'pd-draft', 'PartDesign::Thickness': 'pd-thickness' }
+const KIND: Record<string, string> = { [SKETCH]: 'Sketch', [PAD]: 'Pad', [POCKET]: 'Pocket',
+  'PartDesign::Fillet': 'Fillet', 'PartDesign::Chamfer': 'Chamfer', 'PartDesign::Draft': 'Draft', 'PartDesign::Thickness': 'Thickness' }
 /** App::Origin's features, as FreeCAD names (Name) and labels (Label) them, with their ViewProviders' icons. */
 export const ORIGIN: [string, string, IconName][] = [
   ['X_Axis', 'X-axis', 'std-axis'], ['Y_Axis', 'Y-axis', 'std-axis'], ['Z_Axis', 'Z-axis', 'std-axis'],
@@ -228,6 +231,7 @@ export function editFeature(ref: string) {
   if (!f) return
   if (f.type === SKETCH) return editSketch(part, name)
   if (f.type === PAD || f.type === POCKET) { setState({ task: { kind: f.type === PAD ? 'pad' : 'pocket', body: part, other: name, edit: true } }); showPanel('tasks'); return }
+  if (isDressUp(f.type)) return editDressUp(part, f)
   report('warn', `${name}: a ${f.type} has no task panel here yet`)
 }
 export function toggleActiveBody(part: string) {
@@ -621,6 +625,7 @@ export function FeatureProps({ refKey }: { refKey: string }) {
       </Group>
     </>
   }
+  if (isDressUp(f.type)) return <DressUpProps part={part} f={f} set={set} onRename={(n) => void finishRename(refKey, n)} />
   if (f.type !== PAD && f.type !== POCKET) return <Group title="Base"><Row k="Label" v={f.name} /><Row k="Type" v={f.type} /></Group>
   const sketches = doc.features.filter((x) => x.type === SKETCH).map((x) => x.name)
   const value = (d: PropDef) => (d.key === 'name' ? f.name : d.key === 'type1' ? extrudeType(f) : d.key === 'side_type' ? sideType(f) : d.key === 'length' ? (f.length ?? LENGTH_DEFAULT[f.type]) : d.key === 'length2' ? (f.length2 ?? LENGTH_DEFAULT[f.type]) : f[d.key] ?? DEFAULTS[d.key])
@@ -1074,8 +1079,7 @@ export function partDesignMenu(): Entry[] {
       soon('Subtractive Pipe', 'pd-sub-pipe', 'PartDesign_SubtractivePipe'), soon('Subtractive Helix', 'pd-sub-helix', 'PartDesign_SubtractiveHelix')] },
     { label: 'Subtractive Primitive', icon: 'pd-sub-box', sub: ['Box', 'Cylinder', 'Sphere', 'Cone', 'Ellipsoid', 'Torus', 'Prism', 'Wedge'].map((x) => ({ label: `Subtractive ${x}`, disabled: true, title: later })) },
     'sep',
-    { label: 'Dress-Up Features', sub: [soon('Fillet', 'pd-fillet', 'PartDesign_Fillet'), soon('Chamfer', 'pd-chamfer', 'PartDesign_Chamfer'), soon('Draft', 'pd-draft', 'PartDesign_Draft'),
-      soon('Thickness', 'pd-thickness', 'PartDesign_Thickness'), soon('Defeaturing', 'pd-defeaturing', 'PartDesign_Defeaturing')] },
+    { label: 'Dress-Up Features', sub: [...dressUpEntries(doc), soon('Defeaturing', 'pd-defeaturing', 'PartDesign_Defeaturing')] },
     'sep',
     { label: 'Transformation Features', sub: [soon('Mirror', 'pd-mirrored', 'PartDesign_Mirrored'), soon('Linear Pattern', 'pd-linear-pattern', 'PartDesign_LinearPattern'),
       soon('Polar Pattern', 'pd-polar-pattern', 'PartDesign_PolarPattern'), soon('Multi-Transform', 'pd-multi-transform', 'PartDesign_MultiTransform')] },

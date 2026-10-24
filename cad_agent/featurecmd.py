@@ -14,6 +14,11 @@ reach only through `serve.feature_layer()`, the one seam the tests replace with 
     cad feature move   SLUG PART NAME (--after NAME | --first)
     cad feature tip    SLUG PART NAME                  PartDesign_MoveTip
     cad feature apply  SLUG PART --ops JSON            several ops as one step (what the workbench sends)
+    cad feature shape  SLUG PART [--ops JSON] [--feature NAME]   a feature's solid after ops, nothing written
+                                                       (cad_agent/feature_shape.py; a dress-up's task panel)
+
+A dress-up's Base is (feature, sub-elements), as FreeCAD's Python writes it: base='["Pad", ["Edge1", "Face6"]]',
+or base=Pad:Edge1,Face6 for short (Fillet, Chamfer, Draft, Thickness: cad_agent/feature_dressup.py).
 
 Each change is one step of the shared undo journal (undo.py), named as FreeCAD names the transaction ("Make
 Pad", "Edit Pad.Length", "Move tip to selected feature", ...), so `cad undo` and the page's Edit > Undo take it
@@ -34,9 +39,11 @@ from .cmdbase import (OK, BuildFailed, NotBuilt, Result, UsageError, actor, buil
 SKETCH = "Sketcher::SketchObject"
 # What `cad feature add` takes for TYPE: FreeCAD's short names, or the type itself.
 TYPES = {"Sketch": SKETCH, "Pad": "PartDesign::Pad", "Pocket": "PartDesign::Pocket"}
+TYPES.update({k: f"PartDesign::{k}" for k in ("Fillet", "Chamfer", "Draft", "Thickness")})  # feature_dressup.py
 # The transaction FreeCAD opens for each (PartDesign/Gui/Command.cpp's "Make " + which, SketchWorkflow.cpp's
 # "New Sketch", CommandBody.cpp, Gui/CommandDoc.cpp's "Delete", Tree.cpp's "Rename <obj>.Label").
 ADD_NAMES = {SKETCH: "New Sketch", "PartDesign::Pad": "Make Pad", "PartDesign::Pocket": "Make Pocket"}
+ADD_NAMES.update({f"PartDesign::{k}": f"Make {k}" for k in ("Fillet", "Chamfer", "Draft", "Thickness")})  # finishDressupFeature
 
 TEMPLATE = '''"""{part}: a PartDesign Body made in the workbench (cad feature new).
 
@@ -104,7 +111,8 @@ def _tree_text(part_name: str, doc: dict) -> list[str]:
     after_tip = False
     for f in doc.get("features", []):
         mark = "  <- Tip" if f["name"] == tip else ""
-        extra = f" profile {f['profile']}" if f.get("profile") else ""
+        extra = f" profile {f['profile']}" if f.get("profile") else \
+            f" base {f['base'][0]} {','.join(f['base'][1])}" if isinstance(f.get("base"), list) else ""
         lines.append(f"  {'(' if after_tip else ''}{f['name']}  {f.get('type', '?')}{extra}{')' if after_tip else ''}{mark}")
         if f["name"] == tip:
             after_tip = True
@@ -233,9 +241,20 @@ def st_name_ok(name: str) -> bool:
     return name.isidentifier() and not name.startswith("_") and name.isascii()
 
 
+def _links(props: dict) -> dict:
+    """base=Pad:Edge1,Face6 (and neutral_plane=Pad:Face5, pull_direction=Pad:Edge2) as the lists they stand for."""
+    for k in ("base", "neutral_plane", "pull_direction"):
+        v = props.get(k)
+        if isinstance(v, str) and ":" in v:
+            obj, _, subs = v.partition(":")
+            names = [x for x in subs.split(",") if x]
+            props[k] = [obj, names] if k == "base" else [obj, names[0] if names else ""]
+    return props
+
+
 def cmd_feature_add(a) -> Result:
     kind = _type(a.type)
-    feature = {"name": a.name, "type": kind, **pairs(a.props, "cad feature add")}
+    feature = {"name": a.name, "type": kind, **_links(pairs(a.props, "cad feature add"))}
     words = [a.type, a.name, *a.props] + (["--after", a.after] if a.after else [])
     op = {"op": "add", "feature": feature}
     if a.after:                       # no "after": at the end (feature_edit's apply); "after": None would put it first
@@ -244,7 +263,7 @@ def cmd_feature_add(a) -> Result:
 
 
 def cmd_feature_set(a) -> Result:
-    props = pairs(a.props, "cad feature set")
+    props = _links(pairs(a.props, "cad feature set"))
     if not props:
         raise UsageError("say what to change: cad feature set SLUG PART NAME key=value ...")
     return apply_ops(a, [{"op": "set", "name": a.name, "props": props}], _cmd(a, a.name, *a.props))
@@ -283,7 +302,7 @@ def cmd_feature_apply(a) -> Result:
 
 def add_parsers(add, sub) -> None:
     """cli.py's build_parser hands its `add` and the subparsers here, so the arguments live with the commands."""
-    fp = add("feature", None, "a part's PartDesign feature list (Body, Sketch, Pad, Pocket): list, new, add, "
+    fp = add("feature", None, "a part's PartDesign feature list (Body, Sketch, Pad, Pocket, Fillet, Chamfer, Draft, Thickness): list, new, add, "
              "set, delete, rename, move, tip; each change one undo step")
     from .cmdbase import Parser
     fsub = fp.add_subparsers(dest="feature_cmd", metavar="<action>", parser_class=Parser)
@@ -299,7 +318,7 @@ def add_parsers(add, sub) -> None:
     sp = one("new", cmd_feature_new, "a new part module with an empty Body (FreeCAD's Create body)")
     sp.add_argument("--material", default="petg", help="MATERIAL of the new part (default petg)")
     sp.add_argument("--process", default="fdm", help="PROCESS of the new part (default fdm)")
-    sp = one("add", cmd_feature_add, "add a Sketch, Pad or Pocket (FreeCAD's property names in snake_case)")
+    sp = one("add", cmd_feature_add, "add a Sketch, Pad, Pocket, Fillet, Chamfer, Draft or Thickness (FreeCAD's property names in snake_case; a dress-up's base=Pad:Edge1,Face6)")
     sp.add_argument("type", help=", ".join(TYPES))
     sp.add_argument("name")
     sp.add_argument("props", nargs="*", metavar="KEY=VALUE")
@@ -321,5 +340,8 @@ def add_parsers(add, sub) -> None:
     sp = one("apply", cmd_feature_apply, "several ops as one undo step: --ops '[{\"op\": \"set\", ...}]' "
              "(or --ops @file.json)")
     sp.add_argument("--ops", required=True, metavar="JSON")
+    from .feature_shape import add_parser as shape_parser
+    shape_parser(add, fsub)
+    sp = fsub.choices["apply"]
     sp.add_argument("--name", help="the undo step's name (default: FreeCAD's for the ops, as \"Make Pad\"); a task panel "
                     "that edits a feature says \"Edit Pad\", as FreeCAD's double-click does")

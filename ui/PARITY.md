@@ -424,6 +424,59 @@ sketchcheck, 2026-10-24: 56 of 57 cases give FreeCAD's geometry, constraints and
 - Long-press Clarify Selection is off while a sketch is in edit (the Sketcher keeps the presses).
 - Settings menu of the Messages box (auto-update, grid spacing, snapping, rendering order) is not there; Display grid is a check box in the box.
 
+## PartDesign dress-up features: Fillet, Chamfer, Draft, Thickness, 2026-10-24
+
+FeatureDressUp.cpp, FeatureFillet.cpp, FeatureChamfer.cpp, FeatureDraft.cpp, FeatureThickness.cpp and their TopoShape calls in
+`cad_agent/feature_dressup.py`; the commands, task panels and property view in `src/pd_dressup.tsx`. A Base is written as FreeCAD's
+Python writes it, `Fillet("Fillet", ("Pad", ["Edge1", "Face6"]), radius=2.0)`, with every property in snake_case and FreeCAD's
+defaults (Radius 1; ChamferType Equal distance, Size 1, Size2 1, Angle 45; Draft Angle 1.5; Thickness Value 1, Reversed true, Mode
+Skin, Join Arc; Refine true). `cad feature add SLUG PART Fillet Fillet base=Pad:Edge1,Face6 radius=2`, `cad feature set`, and
+`cad feature shape` (a feature built after ops, nothing written: what the panels draw) take them.
+
+Checked against the real FreeCAD 26.3:
+- `tests/golden/dressup` (freecadcmd, `make.py`): 51 bodies, 45 of them built (fillets of edges, faces, all edges, on holes, steps,
+  arcs and cylinders, one after another and under a Pad; the three chamfer types with Flip direction; drafts with a guessed, an origin
+  and a face neutral plane, an axis and an edge pull direction, reversed and negative; thickness Skin, Recto verso, Pipe, inwards and
+  out, Arc and Intersection joins, several faces) and 6 that FreeCAD refuses, each refused here with FreeCAD's words. Volume, area,
+  box, centre of mass and the solid, face and edge counts are FreeCAD's in all 45; faces and edges come in FreeCAD's order (its
+  Face1… and Edge1…) in 43, and every base feature of every case is numbered as FreeCAD numbers it, so a Base written ("Pad",
+  ["Edge3"]) names FreeCAD's Edge3.
+- `scripts/dressupcheck.mjs` against `scripts/fcdressup.json` (`scripts/fcdressup.py` drives FreeCAD's GUI): 115 checks pass. The
+  menu entries and the Dress-Up toolbar; for Fillet on Edge1, Fillet with the Body selected whole (Use all edges, the list of all 12
+  edges, Select and the list greyed), Chamfer on Edge4, Draft on Face1, Thickness on Face6 and Fillet with nothing selected: the
+  panel's boxes, Select's text (FreeCAD starts in Confirm Selection when the list is empty, and a Draft does until it has a pull
+  direction), the list and its actions, every field, check box and default; a real click on the base in the 3D view while selecting
+  adds the element as FreeCAD's pick does, a second click takes it off; OK gives FreeCAD's Base, Tip, undo step ("Make Fillet") and
+  volume; the property view's groups and rows; a double-click edits ("Edit Fillet") and Undo takes it back.
+
+Topological naming: FreeCAD keeps a Base's element names alive across edits (each sub-name has a history name; after the sketch's
+lines are reordered, a Fillet on the Pad's Edge7 is a Fillet on Edge4, and FreeCAD writes Edge4 back; a hole added to the sketch
+moves the top face from Face6 to Face7). The part file has only the numbers, so every edit runs `follow()`: each element named in a
+dress-up's Base is found again in its base after the edit, by its vertices and centre (relinkToMatchingSubelements' match), else as
+the one element on the same line, circle, plane or cylinder, and the number is rewritten; a feature put between the base and the
+dress-up makes that feature the Base, its elements found the same way (onBaseFeatureRerouted). The five edits of
+`dressup_cases.FOLLOW` give FreeCAD's names. Different: an element whose geometry changed and that has no unique twin (a face that
+grew and is no longer the only one on its plane) keeps its old number, which may now be another element; FreeCAD follows its
+history instead.
+
+Deliberately or knowingly different:
+- A dress-up that does not build (an empty Fillet: "Fillet not possible on selected shapes"; a Draft whose faces OCCT cannot draft
+  together) is kept by FreeCAD in error; here OK is refused with the same message and the panel stays, as a part file only takes a
+  Body that builds. FreeCAD's message for the failed Draft is empty (StdFail_NotDone); ours is OCCT's "BRep_API: command not done".
+- Refine merges faces with OCCT's UnifySameDomain, as for Pad (see above); an outward Thickness with arc joins, and so Recto verso,
+  is numbered by BRepOffset's maps, which follow memory addresses: FreeCAD gives two face orders for the same body in one session.
+  The two cases have FreeCAD's solid and their faces, in another order.
+- The panels draw the base feature and the preview overlay (PreviewDressUpColor, the generated faces) from `cad feature shape`'s
+  meshes, built on the server after every change, while the Body's own shape is hidden; the generated faces are matched by area and
+  centre, not by the shape's history. The base's elements are not preselected (highlighted) under the pointer.
+- Draft's Neutral Plane and Pull Direction take a face or an edge of the base in the 3D view; an origin plane or axis is written in
+  the part file (`neutral_plane="XY_Plane"`, `pull_direction="Z_Axis"`) or with `cad feature set`. A Draft command keeps the selected
+  faces whatever their surface (FreeCAD drops one that is not a plane, cylinder or cone; the build then says why).
+- Thickness's Mode lists Skin and Recto verso, as FreeCAD's panel does; Pipe is there in the part file and the property view.
+- Support Transform, Suppressed and Fuzzy Tolerance show read-only (no patterns yet; FEATURES has no suppressed state); the Base and
+  Draft's references are read-only in the property view and edited in the panel. A Solid reference (SolidN) is not offered.
+- Moving or deleting a feature relinks a dress-up only through `follow()`; FreeCAD's Move Feature After… does the same rerouting.
+
 ## Still missing
 
-- Nothing from FreeCAD's standard menus, toolbars, context menus, keys or panels that applies to these projects. What is left is n/a (no FreeCAD document) or listed as n/a above; PartDesign's features after Pad and Pocket come with docs/EDITING_PLAN.md step 5; the Sketcher's tools still to come are listed above.
+- Nothing from FreeCAD's standard menus, toolbars, context menus, keys or panels that applies to these projects. What is left is n/a (no FreeCAD document) or listed as n/a above; PartDesign's features after Pad, Pocket and the dress-ups (Fillet, Chamfer, Draft, Thickness; Defeaturing is not there yet) come with docs/EDITING_PLAN.md step 5; the Sketcher's tools still to come are listed above.

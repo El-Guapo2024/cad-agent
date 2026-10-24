@@ -151,7 +151,7 @@ class _DressUp:
         return (self.base_name, list(self.subs))
 
     def as_dict(self) -> dict:
-        d = {"name": self.name, "type": self.type_id, "base": self.base}
+        d = {"name": self.name, "type": self.type_id, "base": None if self.base is None else list(self.base)}
         for key in self.PROPS:
             if key == "base":
                 continue

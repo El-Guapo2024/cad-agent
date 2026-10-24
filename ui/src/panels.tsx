@@ -20,6 +20,7 @@ import { getState, report, saved, setState, useStore, viewOf, type ClipAxis, typ
 import { VIEW } from './theme'
 import { CadView, measurePair, subInfo, type TransformPhase } from './viewer'
 import { clarifyEntries, ContextMenu, expressionActions, linkActions, navHint, popupEntries, treeEntries, type Entry } from './chrome'
+import { DressUpTask } from './pd_dressup'
 import { ExtrudeTask, FeatureProps, featureTreeEntries, isBodyDoc, PdBodyRows, refOf, SketchAttachTask, toggleActiveBody, type TreeCtx } from './partdesign'
 import { gotoSelection, navi, properties, runConsole, viewHome } from './commands'
 import { api, resultText } from './api'
@@ -865,6 +866,7 @@ function TaskContent() {
   if (task?.kind === 'sketch') return <SketchTask />
   // PartDesign (partdesign.tsx): New Sketch's attachment panel, Pad and Pocket; `body` is the part module.
   if (task?.kind === 'sketchAttach') return <SketchAttachTask key={task.body} part={task.body} />
+  if (task && (task.kind === 'fillet' || task.kind === 'chamfer' || task.kind === 'draft' || task.kind === 'thickness')) return <DressUpTask key={`${task.kind}:${task.body}:${task.other}`} kind={task.kind} part={task.body} name={task.other ?? ''} edit={!!task.edit} />
   if (task?.kind === 'pad' || task?.kind === 'pocket') return <ExtrudeTask key={`${task.kind}:${task.body}:${task.other}`} kind={task.kind} part={task.body} name={task.other ?? ''} edit={!!task.edit} />
   const b = task && scene?.bodies.find((x) => x.name === task.body)
   if (!task || !b) {
