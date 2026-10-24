@@ -167,6 +167,21 @@ def test_add_set_round_trip(tmp_path):
         feature_edit.apply(p, [{"op": "set", "name": "Hole", "props": {"thread_size": "M99"}}])
 
 
+def test_resolve_feature_is_what_the_panel_shows(tmp_path):
+    p = tmp_path / "Plate.py"
+    p.write_text(TEMPLATE)
+    r = feature_edit.resolve_feature(p, {"name": "Hole", "type": "PartDesign::Hole", "profile": "Holes",
+                                         "thread_type": "ISOMetricProfile", "thread_size": "M6x1.0",
+                                         "depth_type": "ThroughAll"}, through_all=92.57)
+    assert (r["diameter"], r["depth"], r["thread_diameter"]) == (6.6, 92.57, 6.0)
+    assert "diameter" in r["read_only"] and "depth" in r["read_only"] and r["enums"]["thread_fit"] == ["Medium", "Fine", "Coarse"]
+    assert r["minimal"] == {"thread_type": "ISOMetricProfile", "thread_size": "M6x1.0", "depth_type": "ThroughAll"}
+    assert p.read_text() == TEMPLATE                      # nothing written
+    # a new Revolution: what CmdPartDesignRevolution sets
+    rv = feature_edit.resolve_feature(p, {"name": "Revolution", "type": "PartDesign::Revolution", "profile": "Holes"})
+    assert rv["reference_axis"] == ["Holes", "V_Axis"] and rv["angle"] == 360.0
+
+
 def test_hole_is_a_type_of_the_cli():
     from cad_agent import featurecmd
     assert featurecmd.TYPES["Hole"] == "PartDesign::Hole"
