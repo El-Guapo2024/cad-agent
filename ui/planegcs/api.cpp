@@ -80,13 +80,14 @@ struct Json
     long long integer = 0;
     std::string str;
     std::vector<Json> items;
-    std::vector<std::pair<std::string, Json>> members;
+    std::vector<std::string> keys;  // an object's keys, and its values in values
+    std::vector<Json> values;
 
     const Json* get(const char* key) const
     {
-        for (auto& m : members) {
-            if (m.first == key) {
-                return &m.second;
+        for (size_t k = 0; k < keys.size(); ++k) {
+            if (keys[k] == key) {
+                return &values[k];
             }
         }
         return nullptr;
@@ -182,7 +183,8 @@ struct Parser
                     fail("expected ':'");
                 }
                 ++i;
-                v.members.emplace_back(key, value());
+                v.keys.push_back(key);
+                v.values.push_back(value());
                 ws();
                 if (i < n && s[i] == ',') {
                     ++i;
@@ -1202,8 +1204,8 @@ void writeGeometry(Writer& w, const Sketcher::Geometry& g)
             w.num(g.getRadius());
             break;
         case Sketcher::Geometry::ArcOfCircle: {
-            double u, v;
-            g.getRange(u, v);
+            // as FreeCAD stores (and Python reads) them: the trim range after Geom_TrimmedCurve::SetTrim
+            double u = g.getFirstParameter(), v = g.getLastParameter();
             w.key("type");
             w.str("ArcOfCircle");
             w.key("center");

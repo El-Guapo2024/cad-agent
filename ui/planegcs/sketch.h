@@ -202,6 +202,15 @@ public:
     }
     // ArcOfCircle, as GeomArcOfCircle::getRange/setRange with emulateCCWXY on a +Z circle.
     void getRange(double& u, double& v) const;
+    // The trim range as stored (Geom_TrimmedCurve's First/LastParameter, what Python reads)
+    double getFirstParameter() const
+    {
+        return u1;
+    }
+    double getLastParameter() const
+    {
+        return u2;
+    }
     void setRange(double u, double v);
 
 private:
