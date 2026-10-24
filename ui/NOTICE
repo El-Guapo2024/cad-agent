@@ -601,6 +601,12 @@ src/Mod/Part/Gui/SoBrepFaceSet.cpp   [licence: LGPL-2.1-or-later]
 src/Mod/PartDesign/Gui/Workbench.cpp   [licence: LGPL-2.1-or-later]
     copyright 2008 Werner Mayer
     followed by src/chrome.tsx
+src/Mod/Sketcher/App/Sketch.cpp   [licence: LGPL-2.0-or-later]
+    copyright 2010 Jürgen Riegel
+    followed by src/planegcs.ts, planegcs/sketch.cpp, planegcs/sketch.h, planegcs/api.cpp
+src/Mod/Sketcher/App/SketchObject.cpp   [licence: LGPL-2.1-or-later]
+    copyright 2008 Jürgen Riegel
+    followed by src/planegcs.ts, planegcs/sketch.cpp, planegcs/sketch.h
 src/Mod/Sketcher/Gui/Workbench.cpp   [licence: LGPL-2.1-or-later]
     copyright 2008 Jürgen Riegel
     followed by src/chrome.tsx
@@ -636,6 +642,15 @@ CASCADE Technology's gp/gp_Quaternion.cxx (an algorithm by Ken Shoemake, Graphic
 Copyright (c) 2010-2014 OPEN CASCADE SAS; the GNU Lesser General Public License version 2.1 with the
 OCCT exception (OCCT_LGPL_EXCEPTION.txt), or Open CASCADE's commercial licence. It is used here
 under the LGPL, version 2.1 or later.
+
+planegcs/: FreeCAD's sketch solver, src/Mod/Sketcher/App/planegcs at the commit above, copied
+unchanged into planegcs/freecad (LGPL-2.1-or-later; copyright 2011 Konstantinos Poulios and FreeCAD's
+contributors), with stand-ins for the FreeCAD headers it includes (planegcs/shim). planegcs/sketch.cpp
+ports Sketch.cpp and the parts of SketchObject.cpp, SketchObjectConstraints.cpp and
+SketchObjectOperations.cpp that drive it (see section 2); planegcs/dist is that code built to
+WebAssembly. That build includes code from Eigen 5.0.0 (MPL-2.0, source at
+https://gitlab.com/libeigen/eigen/-/archive/5.0.0/eigen-5.0.0.tar.gz, licence at
+https://mozilla.org/MPL/2.0/) and Boost's graph headers (BSL-1.0, https://www.boost.org/LICENSE_1_0.txt).
 
 4. Icons and style sheets
 -------------------------

@@ -39,6 +39,14 @@ jobs:
           python -m venv .venv
           .venv/bin/pip install -e ".[dev,embree]"
 
+      # tests/test_planegcs.py builds the Sketcher's solver (ui/planegcs/build.sh native) and holds it to
+      # FreeCAD's recorded answers. It needs Boost's headers and Eigen 5.0.0, the Eigen FreeCAD is built with.
+      - name: Sketch solver build dependencies
+        run: |
+          sudo apt-get install -y --no-install-recommends libboost-dev
+          curl -sfL https://gitlab.com/libeigen/eigen/-/archive/5.0.0/eigen-5.0.0.tar.gz | tar xz -C "$RUNNER_TEMP"
+          echo "EIGEN_DIR=$RUNNER_TEMP/eigen-5.0.0" >> "$GITHUB_ENV"
+
       - name: Tests
         env:
           CAD_RENDER_BACKEND: numpy
