@@ -156,6 +156,10 @@ export const api = {
   renameMacro: (name: string, to: string) => http<{ ok?: boolean }>('POST', '/api/macro/rename', { name, to }),
   duplicateMacro: (name: string, to: string) => http<{ ok?: boolean }>('POST', '/api/macro/duplicate', { name, to }),
   runMacro: (name: string, slug: string) => http<MacroRunResult>('POST', '/api/macro/run', { name, slug }),
+  /** cad_agent/feature_edit.py `apply`: edits to a part module's feature list, e.g. {op: "set", name, props} for a
+   *  sketch's geometry and constraints (sketcher.ts saveSketch). */
+  features: (slug: string, part: string, ops: Record<string, unknown>[]) =>
+    http<Record<string, unknown>>('POST', `/api/${encodeURIComponent(slug)}/features/${encodeURIComponent(part)}`, { ops }),
 }
 
 /** What a cad call said when it didn't pass, for the report view. A verdict (exit 1 or 2) has no

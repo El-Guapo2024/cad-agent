@@ -42,3 +42,9 @@ Licences, as each file's metadata states:
 Credit: the FreeCAD project and the icon authors named in each file's metadata.
 
 qss-*.svg: FreeCAD's stylesheet indicator and scroll-bar arrow images, src/Gui/Stylesheets/images_classic/ at 3160daf1e2b6 (LGPL-2.1-or-later).
+
+The Sketcher's icons are in `sketcher/`: every SVG of `src/Mod/Sketcher/Gui/Resources/icons` (its `constraints/`,
+`elements/`, `general/`, `geometry/`, `overlay/`, `pointers/`, `splines/`, `tools/` and `dialogs/` folders, flattened) at
+3160daf1e2b6, unmodified. They are FreeCAD LGPL2+ as their metadata states, or carry no licence and come under FreeCAD's
+LGPL-2.1, but for `Sketcher_ValidateSketch.svg` and `Sketcher_ReorientSketch.svg`, whose metadata names CC-BY-SA 4.0 and [vocx] as the creator (the
+NOTICE at the top of the repository credits them, and THIRD_PARTY_LICENSES has the licence).

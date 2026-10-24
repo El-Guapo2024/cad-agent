@@ -981,7 +981,14 @@ export async function place(body: string, before: Placement | null, after: Place
  *  terminal — this UI no longer replays changes itself, just asks the server to step the journal
  *  and waits for the `history` SSE event (and `design`/`scene`) to show the result. `steps` > 1 is
  *  the toolbar dropdown (UndoAction, DlgUndoRedo.cpp): picking an entry walks back to it. */
+/** While something is in edit (the Sketcher), Std_Undo and Std_Redo work on its own stacks: it registers them here. */
+let editUndo: { undo(steps?: number): void; redo(steps?: number): void } | null = null
+export function setEditHistory(h: State['editHistory'], handlers?: { undo(steps?: number): void; redo(steps?: number): void }) {
+  editUndo = h ? (handlers ?? editUndo) : null
+  setState({ editHistory: h })
+}
 export async function doUndo(steps?: number) {
+  if (getState().editHistory && editUndo) { editUndo.undo(steps); return }
   const slug = getState().slug
   if (!slug || !getState().undo.length) return
   try {
@@ -992,6 +999,7 @@ export async function doUndo(steps?: number) {
 }
 /** Std_Redo: see doUndo above (RedoAction/RedoDialog is its mirror). */
 export async function doRedo(steps?: number) {
+  if (getState().editHistory && editUndo) { editUndo.redo(steps); return }
   const slug = getState().slug
   if (!slug || !getState().redo.length) return
   try {

@@ -14,6 +14,8 @@
 export const FILES = {
   document: 'Document', group: 'Group', part: 'Part_Feature', bought: 'Part_FeatureImport', body: 'PartDesign_Body',
   'wb-design': 'PartDesignWorkbench', 'wb-assembly': 'AssemblyWorkbench', 'wb-inspection': 'InspectionWorkbench',
+  // the Sketcher's (public/freecad-icons/sketcher, from src/Mod/Sketcher/Gui/Resources/icons)
+  'wb-sketcher': 'sketcher/SketcherWorkbench',
   iso: 'view-isometric', front: 'view-front', top: 'view-top', right: 'view-right', rear: 'view-rear', bottom: 'view-bottom',
   left: 'view-left', views: 'view-axonometric', 'fit-all': 'zoom-all', 'fit-sel': 'zoom-selection',
   perspective: 'view-perspective', ortho: 'view-isometric', undo: 'edit-undo', redo: 'edit-redo', recompute: 'view-refresh',

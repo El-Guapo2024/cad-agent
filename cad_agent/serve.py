@@ -55,7 +55,7 @@ STATIC = PKG / "workbench"
 SCENE_FORMAT = "cad-scene/3"        # scene.FORMAT; an older scene.json is rebuilt
 TYPES = {".html": "text/html; charset=utf-8", ".js": "text/javascript; charset=utf-8",
          ".css": "text/css; charset=utf-8", ".png": "image/png", ".svg": "image/svg+xml",
-         ".json": "application/json"}
+         ".json": "application/json", ".wasm": "application/wasm"}   # the sketch solver (ui/planegcs) streams in
 
 # What GET /api/file hands out of a project's out/ or baseline/: the renders the page shows, and what the
 # commands write for a person to take (export, bom, shop, drawing). Never a script or a page.

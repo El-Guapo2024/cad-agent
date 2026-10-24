@@ -16,6 +16,9 @@ import { boxElementSelection, boxSelection, boxZoom, clarifySelection, exportPar
 import { workbenchList } from './chrome'
 import { setState } from './store'
 import { MessageBoxHost } from './msgbox'
+import { SketchHost } from './sketchui'
+import { sketchShortcut } from './sketchcmds'
+import * as Sketcher from './sketcher'
 import { PreferencesDialog, applyReportColors, checkCache } from './prefs'
 import { CustomizeDialog } from './customize'
 import { api } from './api'
@@ -186,8 +189,20 @@ function useKeys() {
       if (e.key === ' ') { e.preventDefault(); recordAndRun('Std_ToggleVisibility', () => toggleVisibility()); return }
       if (e.key === 'Escape') { if (getState().task) closeTask(); else if (getState().treeFilter !== null) setState({ treeFilter: null }); else select(null) }
     }
+    // While a sketch is in edit, its keys come first (ViewProviderSketch::keyPressed: Esc, Delete, a tool's own keys),
+    // then the Sketcher's shortcuts (G, L; C; K, D …), which the workbench's commands own only in edit mode.
+    const onSketchKey = (e: KeyboardEvent) => {
+      if (!Sketcher.isEditing()) return
+      const t = e.target as HTMLElement | null
+      if (t?.closest?.('input, textarea, select, [contenteditable="true"], .msgbox-back')) return
+      const down = e.type === 'keydown'
+      if (Sketcher.handleKey(e, down)) { e.preventDefault(); e.stopImmediatePropagation(); return }
+      if (down && sketchShortcut(e)) e.stopImmediatePropagation()
+    }
+    addEventListener('keydown', onSketchKey, true)
+    addEventListener('keyup', onSketchKey, true)
     addEventListener('keydown', onKey)
-    return () => removeEventListener('keydown', onKey)
+    return () => { removeEventListener('keydown', onKey); removeEventListener('keydown', onSketchKey, true); removeEventListener('keyup', onSketchKey, true) }
   }, [])
 }
 
@@ -203,6 +218,7 @@ export function App() {
       <PreferencesDialog />
       <CustomizeDialog />
       <MessageBoxHost />
+      <SketchHost />
     </div>
   )
 }

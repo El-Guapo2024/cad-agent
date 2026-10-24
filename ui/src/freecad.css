@@ -963,3 +963,17 @@ pre.hint.pre { white-space: pre-wrap; overflow-wrap: anywhere; font: 11.5px/1.35
 .drawing-sheet { position: relative; flex: 1; overflow: hidden; cursor: grab; touch-action: none; }
 .drawing-sheet:active { cursor: grabbing; }
 .drawing-sheet img { position: absolute; left: 0; top: 0; max-width: none; transform-origin: 0 0; background: #fff; box-shadow: 0 1px 6px rgba(0, 0, 0, 0.35); user-select: none; }
+
+/* The Sketcher's task panel (sketchui.tsx): TaskSketcherMessages' status line, and the constraints' and elements'
+   QListWidgets (one row per item, the icon before the text, the check box of a constraint's visibility). */
+.sk-msg { margin-bottom: 4px; }
+.sk-link { color: var(--url); }
+.sk-list { list-style: none; margin: 0; padding: 0; max-height: 320px; overflow: auto; background: var(--field-bg); border: 1px solid var(--border); }
+.sk-list li { display: flex; gap: 4px; align-items: center; padding: 1px 4px; white-space: nowrap; cursor: default; }
+.sk-list li:hover { background: var(--accent-hover); }
+.sk-list li.sel { background: var(--accent-bg); }
+.sk-list li.bad { color: #ff0000; }
+.sk-list li.off { color: var(--text-disabled); }
+.sk-list li input { margin: 0; }
+.datum-dlg { min-width: 300px; }
+.datum-body { display: flex; flex-direction: column; gap: 6px; padding: 12px 14px 4px; }

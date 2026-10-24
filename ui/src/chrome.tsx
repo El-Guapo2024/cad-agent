@@ -47,6 +47,7 @@ import { plateParts } from './shopwb'
 import { macroEntries, windowsEntries } from './macro'
 import { startPage } from './start'
 import { fileEntries } from './filemenu'
+import { SketchToolbars, sketchMenuEntries } from './sketchui'
 import { dependencyGraph, editParameters, exportDependencyGraph, loadImage, sceneInspector } from './tools'
 import {
   alignToSelection, canAlignToSelection, boxElementSelection, boxSelection, boxZoom, canMeasure, clipping, fullscreen, preferences,
@@ -85,6 +86,7 @@ const WORKBENCHES: Record<Workbench, { label: string; icon: IconName; name: stri
   design: { label: 'Part Design', icon: 'wb-design', name: 'PartDesignWorkbench' },
   assembly: { label: 'Assembly', icon: 'wb-assembly', name: 'AssemblyWorkbench' },
   inspection: { label: 'Inspection', icon: 'wb-inspection', name: 'InspectionWorkbench' },
+  sketcher: { label: 'Sketcher', icon: 'wb-sketcher', name: 'SketcherWorkbench' },
 }
 /** WorkbenchGroup::refreshWorkbenchList: the workbenches in the order of their internal names
  *  (Gui.listWorkbenches()), the first nine on W, 1 … W, 9. */
@@ -416,7 +418,10 @@ function Menu({ label, entries }: { label: string; entries: Entry[] }) {
 export function MenuBar() {
   // Re-render when anything the menus show changes.
   const slug = useStore((s) => s.slug), selected = useStore((s) => s.selected)
+  // while a sketch is in edit, Undo and Redo work on its own steps (actions.ts setEditHistory)
+  const editHistory = useStore((s) => s.editHistory)
   const undo = useStore((s) => s.undo), redo = useStore((s) => s.redo)
+  const undoList = editHistory?.undo ?? undo, redoList = editHistory?.redo ?? redo
   useStore((s) => s.ortho); useStore((s) => s.drawStyle); useStore((s) => s.cube); useStore((s) => s.hidden)
   useStore((s) => s.selBoxes); useStore((s) => s.axes); useStore((s) => s.clip); useStore((s) => s.subSel)
   useStore((s) => s.recordingMacro); useStore((s) => s.task); useStore((s) => s.pose); useStore((s) => s.scene)
@@ -431,10 +436,10 @@ export function MenuBar() {
       <Menu label="File" entries={fileEntries()} />
       <Menu label="Edit" entries={[
         // Std_Undo / Std_Redo keep their own text ("&Undo"); the steps' names are in the toolbar dropdown.
-        { label: 'Undo', kbd: '⌘Z', icon: 'undo', cmd: 'Std_Undo', disabled: !undo.length,
-          title: undo[0] ? `Undoes the previous action (${undo[0].name}${undo[0].by === 'agent' ? ', by the agent' : ''})` : 'Undoes the previous action', onSelect: () => doUndo() },
-        { label: 'Redo', kbd: '⇧⌘Z', icon: 'redo', cmd: 'Std_Redo', disabled: !redo.length,
-          title: redo[0] ? `Redoes a previously undone action (${redo[0].name}${redo[0].by === 'agent' ? ', by the agent' : ''})` : 'Redoes a previously undone action', onSelect: () => doRedo() },
+        { label: 'Undo', kbd: '⌘Z', icon: 'undo', cmd: 'Std_Undo', disabled: !undoList.length,
+          title: undoList[0] ? `Undoes the previous action (${undoList[0].name}${undoList[0].by === 'agent' ? ', by the agent' : ''})` : 'Undoes the previous action', onSelect: () => doUndo() },
+        { label: 'Redo', kbd: '⇧⌘Z', icon: 'redo', cmd: 'Std_Redo', disabled: !redoList.length,
+          title: redoList[0] ? `Redoes a previously undone action (${redoList[0].name}${redoList[0].by === 'agent' ? ', by the agent' : ''})` : 'Redoes a previously undone action', onSelect: () => doRedo() },
         'sep',
         // The clipboard group. The model is source code, so only Copy has a meaning here: the
         // selection's names, as text (commands.ts copySelection).
@@ -571,6 +576,8 @@ export function MenuBar() {
           (confirmed in both PartDesign/Gui/Workbench.cpp and Sketcher/Gui/Workbench.cpp at this
           commit). Shown only while CAD Agent is the active workbench, like any FreeCAD addon's. */}
       {wb === 'agent' && <Menu label="CAD Agent" entries={agentEntries(slug)} />}
+      {/* Sketcher's Workbench::setupMenuBar: "S&ketch", inserted before Windows the same way. */}
+      {wb === 'sketcher' && <Menu label="Sketch" entries={sketchMenuEntries()} />}
       <Menu label="Windows" entries={windowsEntries()} />
       <Menu label="Help" entries={[
         { label: "What's This?", kbd: '⇧F1', icon: 'whats-this', onSelect: whatsThis },
@@ -746,7 +753,8 @@ function DrawStyleButton() {
  *  only the caret opens the stack (UndoDialog/RedoDialog, DlgUndoRedo.cpp); picking an entry there
  *  walks back/forward to it, `steps` being its 1-based depth in the newest-first list. */
 function UndoRedoButton({ kind }: { kind: 'undo' | 'redo' }) {
-  const list = useStore((s) => s[kind])
+  const journal = useStore((s) => s[kind]), edit = useStore((s) => s.editHistory)
+  const list = edit ? edit[kind] : journal
   const [at, setAt] = useState<{ x: number; y: number } | null>(null)
   const top = list[0], label = kind === 'undo' ? 'Undo' : 'Redo'
   const run = kind === 'undo' ? doUndo : doRedo
@@ -837,6 +845,7 @@ export function ToolBar() {
         <Btn icon="whats-this" cmd="Std_WhatsThis" onClick={whatsThis} /></>}
       {/* ToolBarManager: the workbench's own toolbars start a new row (QMainWindow::addToolBarBreak). */}
       <span className="tb-break" />
+      {wb === 'sketcher' && <SketchToolbars />}
       {wb === 'agent' && on('CAD Agent') && <><TGrip />
         <Btn icon="recompute" title="Run every gate and write checks.json" cmd="CADAgent_Check" disabled={!slug} onClick={() => openTask('check', '')} />
         <Btn icon="pass" title="Rebuild from source in a fresh process and run every gate" cmd="CADAgent_Verify" disabled={!slug} onClick={() => openTask('verify', '')} />

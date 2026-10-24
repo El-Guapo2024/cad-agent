@@ -40,6 +40,7 @@ import { LibraryTask } from './librarywb'
 import { MacroEditTask, MacroRecordTask, MacrosTask, WindowsTask } from './macro'
 import { NewDocumentTask, OpenDocumentTask, ExportTask } from './filemenu'
 import { DependencyGraphTask, ParameterEditorTask, SceneInspectorTask } from './tools'
+import { SketchTask } from './sketchui'
 import {
   attachView, closeTask, editDefault, getView, place, placementOf, preselect, runCheck, runVerify, select, selectRange, setParams, setViewProps, showPanel,
   toggleVisibility, setPose,
@@ -821,6 +822,8 @@ function TaskContent() {
   if (task?.kind === 'parameterEditor') return <ParameterEditorTask />
   if (task?.kind === 'sceneInspector') return <SceneInspectorTask />
   if (task?.kind === 'dependencyGraph') return <DependencyGraphTask />
+  // The Sketcher's edit mode (sketchui.tsx): TaskDlgEditSketch.
+  if (task?.kind === 'sketch') return <SketchTask />
   const b = task && scene?.bodies.find((x) => x.name === task.body)
   if (!task || !b) {
     return (

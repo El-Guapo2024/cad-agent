@@ -30,7 +30,7 @@ import { LineMaterial } from 'three/addons/lines/LineMaterial.js'
 import { LineSegments2 } from 'three/addons/lines/LineSegments2.js'
 import { LineSegmentsGeometry } from 'three/addons/lines/LineSegmentsGeometry.js'
 import { NaviCubeGL } from './navicube3d'
-import { Navigation, bindNavigation, type NavPrefs, type V2 } from './nav'
+import { Navigation, bindNavigation, type NavEvent, type NavPrefs, type V2 } from './nav'
 import { doubleClickInterval } from './dblclick'
 import { AxisCross } from './axiscross'
 import { toNumber, userString } from './quantity'
@@ -173,6 +173,17 @@ type Handlers = {
   picked?(picks: { body: string; sub: string | null }[]): void
 }
 
+/** The Sketcher's edit mode (sketcher.ts): while it is set, the 3D view's events go to it first, as Coin hands them to
+ *  the view provider in edit (ViewProviderSketch's mouseButtonPressed, mouseMove, keyPressed), and it draws its overlay
+ *  after every frame. */
+export type SketchHook = {
+  event(ev: NavEvent): boolean
+  key(e: KeyboardEvent, down: boolean): boolean
+  draw(ctx: CanvasRenderingContext2D, vp: { cam: THREE.Camera; w: number; h: number; hole: { x: number; y: number; w: number; h: number } | null; target: THREE.Vector3 }): void
+  /** The right click's menu: the Sketcher's own, or none while a tool runs. */
+  popup(): 'sketch' | 'none'
+}
+
 /** Drawn, so pickable: three-cad-viewer hides faces and edges through material.visible. */
 const shown = (o: THREE.Object3D | null) => {
   const m = (o as any)?.material
@@ -306,6 +317,10 @@ export class CadView {
   private fpsFrameTime = 0
   private fpsLastEnd = 0
   private fpsColor = ''
+  private sketchHook: SketchHook | null = null
+  private sketchCanvas: HTMLCanvasElement | null = null
+  /** The Sketcher's context menu (ViewProviderSketch::generateContextMenu), shown by panels.tsx. */
+  onSketchMenu: ((x: number, y: number) => void) | null = null
 
   constructor(private host: HTMLElement, private on: Handlers) {
     host.replaceChildren()            // a remount (hot reload) must not stack a second viewer
@@ -337,7 +352,11 @@ export class CadView {
       scene: (ev) => this.sceneEvent(ev),
       clearSelection: () => this.on.pick(null, false, null),
       // openPopupMenu: the last-preselected object, not a fresh pick at the click point.
-      popup: (pos) => { const c = this.client(pos); this.on.menu?.(c.x, c.y, getState().preselected ?? this.hitAt(c)?.body ?? null) },
+      popup: (pos) => {
+        const c = this.client(pos)
+        if (this.sketchHook) { if (this.sketchHook.popup() === 'sketch') this.onSketchMenu?.(c.x, c.y); return }
+        this.on.menu?.(c.x, c.y, getState().preselected ?? this.hitAt(c)?.body ?? null)
+      },
       band: (a, b) => this.drawBand(a, b),
       boxSelect: (a, b, additive) => this.on.box?.(this.bodiesIn(this.client(a), this.client(b)), additive),
       clarify: (pos) => { const c = this.client(pos); this.on.clarify?.(c.x, c.y, this.picksAt(c)) },
@@ -358,6 +377,7 @@ export class CadView {
     this.cleanup.push(bindNavigation(this.nav, host, (t) => t === this.viewer.renderer?.domElement,
       () => this.viewer.renderer?.domElement ?? null, () => this.tcs.some((tc) => (tc as any).axis)))
     add('dblclick', (e) => {
+      if (this.sketchHook) return // the Sketcher times its own double clicks (ViewProviderSketch's DoubleClick)
       const h = this.onCanvas(e) ? this.hitAt({ x: e.clientX, y: e.clientY }) : null
       if (h) this.on.open(h.body)
     })
@@ -481,6 +501,7 @@ export class CadView {
   /** What the scene graph does with an event the navigation passes on: hovering
    *  preselects, a left release selects (SoFCUnifiedSelection), Ctrl toggles. */
   private sceneEvent(ev: { type: string; button?: number; pos: V2; ctrl: boolean }): boolean {
+    if (this.sketchHook && ev.type !== 'key' && ev.type !== 'gesture') return this.sketchHook.event(ev as NavEvent)
     if (this.nav.interact) return ev.type !== 'move'
     if (ev.type === 'move') {
       cancelAnimationFrame(this.hoverFrame)
@@ -2524,11 +2545,87 @@ export class CadView {
         }
         const size = r.getSize(new THREE.Vector2())
         r.setViewport(0, 0, size.x, size.y)
+        if (this.sketchHook) this.drawSketchOverlay(camera)
       } finally {
         inside = false
         this.addFrametime((performance.now() - fpsStart) / 1000)
       }
     }
+  }
+
+  // ── the Sketcher's edit mode (sketcher.ts) ─────────────────────────────────────────────────────────────────────
+  /** Puts the Sketcher in charge of the view's events and overlay, or (null) takes it out again. */
+  setSketchHook(h: SketchHook | null) {
+    this.sketchHook = h
+    if (h && !this.sketchCanvas) {
+      const c = document.createElement('canvas')
+      c.className = 'sketch-overlay'
+      Object.assign(c.style, { position: 'absolute', pointerEvents: 'none', zIndex: '3', left: '0px', top: '0px' })
+      this.host.appendChild(c)
+      this.sketchCanvas = c
+    }
+    if (!h && this.sketchCanvas) { this.sketchCanvas.remove(); this.sketchCanvas = null }
+    this.redraw()
+  }
+  get sketchKeys() { return this.sketchHook?.key ?? null }
+  /** The camera and the canvas's size, for the Sketcher's projections. */
+  sketchViewport() {
+    const p = this.cameraParts(), c = this.viewer.renderer?.domElement as HTMLCanvasElement | undefined
+    if (!p || !c) return null
+    const cr = c.getBoundingClientRect(), q = this.cubeEl?.style.display !== 'none' ? this.cubeEl?.getBoundingClientRect() : null
+    return { cam: p.cam as THREE.Camera, w: c.clientWidth, h: c.clientHeight, target: p.controls.target.clone(),
+      hole: q && q.width ? { x: q.left - cr.left, y: q.top - cr.top, w: q.width, h: q.height } : null }
+  }
+  /** The tool's cursor over the view (DrawSketchHandler's crosshair), '' for the default. */
+  setSketchCursor(css: string) {
+    const c = this.viewer.renderer?.domElement as HTMLElement | undefined
+    if (c) c.style.cursor = css
+  }
+  private drawSketchOverlay(camera: THREE.Camera) {
+    const cv = this.sketchCanvas, gl = this.viewer.renderer?.domElement as HTMLCanvasElement | undefined, p = this.cameraParts()
+    if (!cv || !gl || !p || !this.sketchHook) return
+    const hr = this.host.getBoundingClientRect(), r = gl.getBoundingClientRect(), dpr = devicePixelRatio || 1
+    const w = Math.round(r.width), h = Math.round(r.height)
+    if (cv.width !== Math.round(w * dpr) || cv.height !== Math.round(h * dpr)) { cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr) }
+    Object.assign(cv.style, { left: `${r.left - hr.left}px`, top: `${r.top - hr.top}px`, width: `${w}px`, height: `${h}px` })
+    const ctx = cv.getContext('2d')
+    if (!ctx) return
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
+    const vp = this.sketchViewport()
+    if (vp) this.sketchHook.draw(ctx, { ...vp, cam: camera })
+  }
+  /** ViewProviderSketch::setEditViewer: the focal point onto the sketch's origin along the view, then the camera turned to
+   *  the sketch (setCameraOrientation, animated as every view change), and fitted to the sketch when it has geometry
+   *  (viewObjects). */
+  lookAtSketch(q: [number, number, number, number], origin: THREE.Vector3, box: THREE.Box3 | null) {
+    const p = this.cameraParts()
+    if (!p) return
+    const dir = new THREE.Vector3(0, 0, -1).applyQuaternion(p.cam.quaternion), fd = p.cam.position.distanceTo(p.controls.target)
+    p.controls.target.copy(origin)
+    p.cam.position.copy(origin).addScaledVector(dir, -fd)
+    p.cam.updateMatrixWorld()
+    this.cameraChanged()
+    const fit = () => { if (box && !box.isEmpty()) this.fitBox(box) }
+    const target = new THREE.Quaternion(...q)
+    if (Math.abs(target.dot(p.cam.quaternion)) > 1 - 1e-9) { fit(); return }
+    this.nav.startAnimation(target, origin.clone(), new THREE.Vector3(), fit)
+  }
+  /** View3DInventorViewer::viewBoundingBox for a box in the world: the direction kept, the box's sphere fitted. */
+  fitBox(box: THREE.Box3) {
+    const p = this.cameraParts()
+    if (!p) return
+    const sphere = box.getBoundingSphere(new THREE.Sphere()), cam = p.cam as any
+    const dir = cam.position.clone().sub(p.controls.target).normalize()
+    const ortho = cam.isOrthographicCamera
+    const aspect = ortho ? (cam.right - cam.left) / (cam.top - cam.bottom) : cam.aspect
+    const r = Math.max(sphere.radius, 1e-3)
+    p.controls.target.copy(sphere.center)
+    if (ortho) {
+      cam.zoom = (cam.top - cam.bottom) / ((2 * r) / Math.min(1, aspect))
+      cam.position.copy(sphere.center).addScaledVector(dir, Math.max(r * 6, cam.position.distanceTo(p.controls.target)))
+      cam.updateProjectionMatrix()
+    } else cam.position.copy(sphere.center).addScaledVector(dir, r / Math.tan(THREE.MathUtils.degToRad(cam.fov) / 2) / Math.min(1, aspect))
+    this.cameraChanged()
   }
 
   // ── Std_ViewLoadImage (CommandView.cpp/ImageView.cpp): an image in the 3D view ──────────────

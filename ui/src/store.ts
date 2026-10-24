@@ -96,11 +96,13 @@ export type Task = { kind: 'params' | 'placement' | 'transform' | 'measure' | 'm
   // Tools menu (tools.tsx): Std_DlgParameter, Std_SceneInspector, Std_DependencyGraph. All three
   // are QDialogs/an MDI view in FreeCAD; here, like Std_UnitsCalculator and Std_DlgPreferences
   // above, they go through the one Tasks panel this UI has.
-  | 'parameterEditor' | 'sceneInspector' | 'dependencyGraph'; body: string; other?: string }
+  | 'parameterEditor' | 'sceneInspector' | 'dependencyGraph'
+  // The Sketcher's edit mode (sketcher.ts, sketchpanel.tsx): TaskDlgEditSketch.
+  | 'sketch'; body: string; other?: string }
 /** GET /api/history: one entry of the backend's Document undo/redo journal, shared with an
  *  agent in a terminal — replaces a UI-local undo stack (actions.ts no longer replays changes). */
 export type HistoryEntry = { id: string; name: string; by: 'ui' | 'agent'; t: number }
-export type Workbench = 'design' | 'assembly' | 'inspection' | 'agent'
+export type Workbench = 'design' | 'assembly' | 'inspection' | 'agent' | 'sketcher'
 /** FreeCAD's draw styles that the viewer can show faithfully. */
 export type DrawStyle = 'asis' | 'points' | 'wireframe' | 'hiddenline' | 'noshading' | 'shaded' | 'flatlines'
 export type ClipAxis = { on: boolean; offset: number; flip: boolean }
@@ -332,6 +334,11 @@ export type State = {
    *  Record as comment (GuiAsComment), both on by default, so `cad gui …` lines go in as comments. */
   recordGuiCommands: boolean
   guiAsComment: boolean
+  /** The sketch in edit (sketcher.ts), or null: the Sketcher's toolbars and menus show while it is set. */
+  sketchEditing: { part: string | null; name: string } | null
+  /** While something is in edit, its own undo and redo stacks (Gui::Document's transactions of the edit), which
+   *  Std_Undo and Std_Redo work on instead of the project's journal. */
+  editHistory: { undo: HistoryEntry[]; redo: HistoryEntry[] } | null
 }
 export type SelEntry = { selected: string[]; subSel: string[] }
 
@@ -373,6 +380,7 @@ let state: State = {
   tree: { syncView: true, syncSelection: true, preSelection: true, recordSelection: true, checkBoxes: false, ...saved.get('tree', {}) }, selHistory: { back: [], forward: [] }, toolbarIconSize: saved.get('toolbarIconSize', 24), prefsOpen: false, cameraNode: null, selFilter: null, gateMsg: null, frozenViews: [], treeCollapsed: false,
   cameraPreset: null, pose: null,
   recordingMacro: null, recordGuiCommands: saved.get('recordGuiCommands', true), guiAsComment: saved.get('guiAsComment', true),
+  sketchEditing: null, editHistory: null,
 }
 const subs = new Set<() => void>()
 // Quantities are written in the user's unit system wherever they show (UnitsApi).
