@@ -234,7 +234,115 @@ def task_message():
     return None
 
 
-KEYS = {"Escape": QtCore.Qt.Key_Escape, "Delete": QtCore.Qt.Key_Delete, "Return": QtCore.Qt.Key_Return, "Tab": QtCore.Qt.Key_Tab}
+KEYS = {"Escape": QtCore.Qt.Key_Escape, "Delete": QtCore.Qt.Key_Delete, "Return": QtCore.Qt.Key_Return, "Tab": QtCore.Qt.Key_Tab,
+        "Backspace": QtCore.Qt.Key_Backspace}
+
+
+def char_key(ch):
+    """The Qt key of a typed character."""
+    named = {".": QtCore.Qt.Key_Period, "-": QtCore.Qt.Key_Minus, ",": QtCore.Qt.Key_Comma, " ": QtCore.Qt.Key_Space,
+             "+": QtCore.Qt.Key_Plus, "*": QtCore.Qt.Key_Asterisk, "/": QtCore.Qt.Key_Slash, "(": QtCore.Qt.Key_ParenLeft,
+             ")": QtCore.Qt.Key_ParenRight, "=": QtCore.Qt.Key_Equal}
+    if ch in named:
+        return named[ch]
+    if ch.isdigit():
+        return getattr(QtCore.Qt, "Key_" + ch)
+    return getattr(QtCore.Qt, "Key_" + ch.upper())
+
+
+def tool_widget():
+    for w in mw.findChildren(QtWidgets.QWidget):
+        if w.metaObject().className() == "SketcherGui::SketcherToolDefaultWidget" and w.isVisible():
+            return w
+    return None
+
+
+def set_tool_widget(spec):
+    """{"name": "checkBoxTS1", "checked": true} | {"name": "comboBox1", "index": 2} | {"name": "parameterOne", "value": 4}."""
+    tw = tool_widget()
+    if tw is None:
+        raise RuntimeError("no tool widget for %r" % (spec,))
+    c = tw.findChild(QtWidgets.QWidget, spec["name"])
+    if c is None:
+        raise RuntimeError("no %s in the tool widget" % spec["name"])
+    if "checked" in spec:
+        if c.isChecked() != bool(spec["checked"]):
+            c.click()
+    elif "index" in spec:
+        c.setCurrentIndex(int(spec["index"]))
+    elif "value" in spec:
+        c.setFocus()
+        le = c.findChild(QtWidgets.QLineEdit)
+        le.selectAll()
+        for ch in str(spec["value"]):
+            for t in (QtCore.QEvent.KeyPress, QtCore.QEvent.KeyRelease):
+                QtWidgets.QApplication.sendEvent(c, QtGui.QKeyEvent(t, char_key(ch), QtCore.Qt.NoModifier, ch))
+        for t in (QtCore.QEvent.KeyPress, QtCore.QEvent.KeyRelease):
+            QtWidgets.QApplication.sendEvent(c, QtGui.QKeyEvent(t, QtCore.Qt.Key_Return, QtCore.Qt.NoModifier, "\r"))
+
+
+def tool_widget_out():
+    """What the Tool Parameters box shows: its title and each visible control (label, state)."""
+    tw = tool_widget()
+    if tw is None:
+        return None
+    out = []
+    for c in tw.findChildren(QtWidgets.QWidget):
+        if not c.isVisibleTo(tw):
+            continue
+        n = c.objectName()
+        if n.startswith("checkBoxTS"):
+            out.append({"name": n, "text": c.text(), "checked": c.isChecked()})
+        elif n.startswith("comboBox"):
+            out.append({"name": n, "items": [c.itemText(i) for i in range(c.count())], "index": c.currentIndex()})
+        elif n.startswith("parameter") and c.metaObject().className() == "Gui::PrefQuantitySpinBox":
+            out.append({"name": n, "value": c.rawValue()})
+    box = tw.parentWidget()
+    while box is not None and box.metaObject().className() != "Gui::TaskView::TaskBox":
+        box = box.parentWidget()
+    return {"title": box.findChild(QtWidgets.QLabel).text() if box is not None and box.findChild(QtWidgets.QLabel) else "", "controls": out}
+
+
+def ovp_out():
+    """The on-view parameters shown at the end of the steps: each spin box over the 3D view and its text."""
+    out = []
+    for w in mw.findChildren(QtWidgets.QAbstractSpinBox):
+        if w.metaObject().className() == "Gui::QuantitySpinBox" and w.isVisible() and w.parentWidget() is not None \
+                and w.parentWidget().metaObject().className() != "SketcherGui::SketcherToolDefaultWidget":
+            le = w.findChild(QtWidgets.QLineEdit)
+            out.append({"text": le.text() if le else "", "focus": w.hasFocus()})
+    return out
+
+
+def set_params(params, restore=None):
+    """A case's "params": {"Mod/Sketcher/Tools/OnViewParameterVisibility": 2, ...} (ints, bools, floats)."""
+    old = {}
+    for k, v in params.items():
+        path, name = k.rsplit("/", 1)
+        g = App.ParamGet("User parameter:BaseApp/Preferences/" + path)
+        if isinstance(v, bool):
+            old[k] = g.GetBool(name, False) if name in [x[1] for x in g.GetContents() or []] else None
+            g.SetBool(name, v)
+        elif isinstance(v, int):
+            old[k] = g.GetInt(name) if name in [x[1] for x in g.GetContents() or []] else None
+            g.SetInt(name, v)
+        else:
+            old[k] = g.GetFloat(name) if name in [x[1] for x in g.GetContents() or []] else None
+            g.SetFloat(name, float(v))
+    return old
+
+
+def unset_params(old):
+    for k, v in old.items():
+        path, name = k.rsplit("/", 1)
+        g = App.ParamGet("User parameter:BaseApp/Preferences/" + path)
+        for rm in (g.RemBool, g.RemInt, g.RemFloat):
+            try:
+                rm(name)
+            except Exception:
+                pass
+        if v is not None:
+            (g.SetBool if isinstance(v, bool) else g.SetInt if isinstance(v, int) else g.SetFloat)(name, v)
 
 
 def plate_sketch(name):
@@ -303,6 +411,7 @@ def run_case(doc, case, k):
         args = list(c["args"]) + ([c["value"]] if "value" in c else [])
         sk.addConstraint(Sketcher.Constraint(c["type"], *args))
     doc.recompute()
+    old_params = set_params(case.get("params") or {})
     Gui.ActiveDocument.setEdit(sk)
     pump(20)
     view = Gui.ActiveDocument.ActiveView
@@ -373,6 +482,31 @@ def run_case(doc, case, k):
             for t in (QtCore.QEvent.KeyPress, QtCore.QEvent.KeyRelease):
                 QtWidgets.QApplication.sendEvent(vp, QtGui.QKeyEvent(t, qk, QtCore.Qt.NoModifier, key if len(key) == 1 else ""))
             wait(60)
+        elif "type" in st:
+            # text typed where the keyboard focus is: an on-view parameter's spin box takes digits, '-', '.' and ','
+            # (DrawSketchKeyboardManager), and passes other keys on to the 3D view
+            for ch in st["type"]:
+                w = app.focusWidget() or vp
+                for t in (QtCore.QEvent.KeyPress, QtCore.QEvent.KeyRelease):
+                    QtWidgets.QApplication.sendEvent(w, QtGui.QKeyEvent(t, char_key(ch), QtCore.Qt.NoModifier, ch))
+                wait(40)
+            wait(80)
+        elif "fkey" in st:
+            # a key to the focus widget (Return, Tab, Escape, Backspace in an on-view parameter), with "ctrl": true
+            # for Ctrl+Return (finishEditingOnAllOVPs)
+            key = st["fkey"]
+            qk = KEYS.get(key) or getattr(QtCore.Qt, "Key_" + key.upper())
+            mod = QtCore.Qt.ControlModifier if st.get("ctrl") else QtCore.Qt.NoModifier
+            text = {"Return": "\r", "Tab": "\t", "Escape": "\x1b", "Backspace": "\b"}.get(key, key if len(key) == 1 else "")
+            w = app.focusWidget() or vp
+            for t in (QtCore.QEvent.KeyPress, QtCore.QEvent.KeyRelease):
+                QtWidgets.QApplication.sendEvent(w, QtGui.QKeyEvent(t, qk, mod, text))
+            wait(100)
+        elif "widget" in st:
+            # a control of the tool's widget (SketcherToolDefaultWidget, in the Tool Parameters box): checkBoxTS1..4,
+            # comboBox1..3, parameterOne..Ten, set as a click or an entry there sets it
+            set_tool_widget(st["widget"])
+            wait(120)
         elif "select" in st:
             for sub in st["select"]:
                 Gui.Selection.addSelection(doc.Name, "Body", sk.Name + "." + sub)
@@ -392,8 +526,13 @@ def run_case(doc, case, k):
     if case.get("plate"):
         ext, refs = ext_out(sk)
         res["cases"][case["name"]].update({"external": ext, "external_geometry": refs})
+    tw = tool_widget_out()
+    if tw is not None:
+        res["cases"][case["name"]]["tool_widget"] = tw
+    res["cases"][case["name"]]["ovp"] = ovp_out()
     Gui.ActiveDocument.resetEdit()
     pump(6)
+    unset_params(old_params)
 
 
 def chrome_and_cases():

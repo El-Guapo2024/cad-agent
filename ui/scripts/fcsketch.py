@@ -7,7 +7,8 @@ Starts FreeCAD's GUI (fclaunch.py: a temporary profile holding the FreeCAD Light
 the screen; on Linux the X11 platform, so run it under xvfb-run as above) and writes OUT_DIR/fcsketch.json: the toolbars,
 menus and task panel of a sketch in edit mode, the drawing parameters a fresh profile has, and, for each case of
 ui/scripts/sketchcases.json, the sketch FreeCAD makes from the case's clicks, keys and selections (fcsketch_dump.py).
---only runs only the named cases. --ref also writes the part sketchcheck.mjs compares with, ui/scripts/sketchref.json:
+--only runs only the named cases; --cases names another case file (ui/scripts/sketchcases-AREA.json, whose answers go
+to sketchref-AREA.json beside it). --ref also writes the part sketchcheck.mjs compares with, ui/scripts/sketchref.json:
 the toolbars' and the Sketch menu's commands in order, the colour parameters, each case's geometry, constraints and
 solver message, and the datum dialogs' titles (--ref without OUT_DIR's run: `--ref --from OUT_DIR/fcsketch.json`).
 """
@@ -60,9 +61,16 @@ def write_ref(res: dict) -> Path:
            "sketch_menu": menu(sketch["menu"]), "params": res["params"], "message_empty": res["message_empty"],
            "dialogs": [{"case": d["case"], "title": d["title"]} for d in res["dialogs"]],
            "cases": {k: {"geometry": v["geometry"], "constraints": v["constraints"], "message": v["message"],
-                         **({"external": v["external"], "external_geometry": v["external_geometry"]} if "external" in v else {})}
+                         **({"external": v["external"], "external_geometry": v["external_geometry"]} if "external" in v else {}),
+                         **({"tool_widget": v["tool_widget"]} if v.get("tool_widget") else {}),
+                         **({"ovp": v["ovp"]} if v.get("ovp") else {})}
                      for k, v in res["cases"].items()}}
-    path = Path(__file__).with_name("sketchref.json")
+    cases_file = Path(a.cases).name
+    if cases_file != "sketchcases.json":
+        # sketchcases-AREA.json: its answers only (the toolbars, menu and colours are sketchref.json's)
+        ref = {"about": ref["about"].replace("sketchcases.json", cases_file), "viewport": ref["viewport"],
+               "dialogs": ref["dialogs"], "cases": ref["cases"]}
+    path = Path(a.cases).resolve().with_name(cases_file.replace("sketchcases", "sketchref"))
     path.write_text(json.dumps(ref, indent=1, ensure_ascii=False) + "\n", encoding="utf-8")
     return path
 

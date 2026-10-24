@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: LGPL-2.1-or-later
 // The workbench's Sketcher against the real FreeCAD's: ui/scripts/sketchref.json is what FreeCAD 26.3 does
 // (fcsketch.py --ref), and this does the same in a running workbench and says where the two differ.
-//   node ui/scripts/sketchcheck.mjs [URL] [PROJECT] [--only CASE,...] [--shots DIR]
+//   node ui/scripts/sketchcheck.mjs [URL] [PROJECT] [--only CASE,...] [--suite main,AREA,...] [--no-chrome] [--shots DIR]
 // It checks the edit mode's toolbars (each command and group, in order) and the Sketch menu, the colours sketchdraw.ts
 // draws with against FreeCAD's parameters, the datum dialogs' titles, and for every case of sketchcases.json the
 // geometry (to a quarter of a millimetre: one pixel of the view is 0.16 mm), the constraints (type and arguments; a
@@ -11,7 +11,7 @@
 // Point it at a workbench serving a SCRATCH copy of the project: it opens and leaves sketches there.
 // Needs Playwright (npm i -g playwright, or NODE_PATH to one) with a Chromium.
 import { createRequire } from 'module'
-import { readFileSync, mkdirSync } from 'fs'
+import { readFileSync, mkdirSync, readdirSync } from 'fs'
 import { fileURLToPath } from 'url'
 const require = createRequire(import.meta.url)
 let chromium
@@ -19,12 +19,23 @@ try { ({ chromium } = require('playwright')) } catch { ({ chromium } = createReq
 const argv = process.argv.slice(2)
 const flag = (name) => { const i = argv.indexOf(name); if (i < 0) return null; const v = argv[i + 1]; argv.splice(i, 2); return v }
 const only = (flag('--only') ?? '').split(',').filter(Boolean), shots = flag('--shots')
+const suites = (flag('--suite') ?? '').split(',').filter(Boolean)
+const noChrome = argv.includes('--no-chrome'); if (noChrome) argv.splice(argv.indexOf('--no-chrome'), 1)
 const [BASE = 'http://127.0.0.1:8733/next/', PROJECT = 'arduino_car'] = argv
 const here = (f) => fileURLToPath(new URL(f, import.meta.url))
 const REF = JSON.parse(readFileSync(here('sketchref.json'), 'utf8'))
-const CASES = JSON.parse(readFileSync(here('sketchcases.json'), 'utf8'))
 const origin = new URL(BASE).origin
 const problems = [], notes = []
+// The case files: sketchcases.json (FreeCAD's answers in sketchref.json, with the toolbars, menu and colours) and
+// sketchcases-AREA.json (answers in sketchref-AREA.json), each with its own camera; --suite AREA,... runs only those.
+const SUITES = readdirSync(here('.')).filter((f) => /^sketchcases(-[\w-]+)?\.json$/.test(f)).sort()
+  .filter((f) => !suites.length || suites.includes(f === 'sketchcases.json' ? 'main' : f.slice('sketchcases-'.length, -5)))
+  .map((f) => {
+    const refFile = f.replace('sketchcases', 'sketchref')
+    let ref = { cases: {}, dialogs: [] }
+    try { ref = JSON.parse(readFileSync(here(refFile), 'utf8')) } catch { notes.push(`${f}: no ${refFile} yet (fcsketch.py --cases ${f} --ref)`) }
+    return { file: f, refFile, cases: JSON.parse(readFileSync(here(f), 'utf8')), ref }
+  })
 const bad = (what) => { problems.push(what); console.log(`DIFF ${what}`) }
 
 const b = await chromium.launch({ args: ['--use-angle=swiftshader', '--use-gl=angle', '--enable-unsafe-swiftshader'] })
@@ -53,6 +64,8 @@ for (let i = 0, size = { width: 1400, height: 900 }; i < 4 && (Math.round(box.w)
 }
 notes.push(`3D view ${Math.round(box.w)}x${Math.round(box.h)} (FreeCAD's ${vw}x${vh})`)
 
+let colours = 0
+if (!noChrome) {
 // ── the Sketcher workbench, a sketch in edit: toolbars and menu ──────────────────────────────────────────────────
 await gui('run', ['Sketcher_EditSketch', 'Sketch', '{}'])
 await p.waitForSelector('.sketch-task', { timeout: 10000 })
@@ -125,7 +138,6 @@ const COLOR_KEYS = { EditedEdgeColor: 'curve', ConstructionColor: 'construction'
   ConstrainedIcoColor: 'constrIco', NonDrivingConstrDimColor: 'nonDriving', DeactivatedConstrDimColor: 'deactivated', ExprBasedConstrDimColor: 'exprBased',
   ExternalColor: 'external', HighlightColor: 'preselect', SelectionColor: 'select', CursorTextColor: 'cursorText', CursorCrosshairColor: 'crosshair',
   GridLineColor: 'grid', GridDivLineColor: 'gridDiv' }
-let colours = 0
 for (const [param, key] of Object.entries(COLOR_KEYS)) {
   const fc = REF.params[param]
   if (fc == null) continue
@@ -133,11 +145,10 @@ for (const [param, key] of Object.entries(COLOR_KEYS)) {
   const want = fc >>> 8, got = ourColor(key)
   if (got !== want) bad(`colour ${param}: ours #${(got ?? 0).toString(16).padStart(6, '0')}, FreeCAD #${want.toString(16).padStart(6, '0')}`)
 }
+} // !noChrome
 
 // ── the cases ────────────────────────────────────────────────────────────────────────────────────────────────────
-const [cx, cy] = CASES.camera.center, H = CASES.camera.height
-const camera = `#Inventor V2.1 ascii\nOrthographicCamera {\n viewportMapping ADJUST_CAMERA\n position ${cx} ${cy} 100\n orientation 0 0 1 0\n nearDistance 0\n farDistance 200\n aspectRatio 1\n focalDistance 100\n height ${H}\n}\n`
-const KEY = { Escape: 'Escape', Delete: 'Delete', Return: 'Enter', M: 'm', Tab: 'Tab' }
+const KEY = { Escape: 'Escape', Delete: 'Delete', Return: 'Enter', M: 'm', Tab: 'Tab', Backspace: 'Backspace' }
 const dialogs = []
 const near = (a, b, tol) => Math.abs(a - b) <= tol
 function sameGeo(a, b) {
@@ -172,12 +183,20 @@ let passed = 0, run = 0, known = 0
 // PlaneGCS's unknowns, which FreeCAD takes from their memory addresses (tests/golden/sketcher/make.py says more).
 // c-parallel (7 DoF): FreeCAD's GUI recorded line 1 mirrored about its middle; freecadcmd at the same commit, our
 // native build and our wasm build all give the other, equally valid, answer for the same two lines and Parallel.
+// A case may say why it is known to differ ("known": "reason") in its case file too.
 const KNOWN = { 'c-parallel': 'FreeCAD\'s GUI gives line 1 mirrored; freecadcmd gives ours (under-constrained, memory order)' }
+for (const suite of SUITES) {
+const { cases: CASES, ref: SREF, file: SFILE, refFile: RFILE } = suite
+const [cx, cy] = CASES.camera.center, H = CASES.camera.height
+const camera = `#Inventor V2.1 ascii\nOrthographicCamera {\n viewportMapping ADJUST_CAMERA\n position ${cx} ${cy} 100\n orientation 0 0 1 0\n nearDistance 0\n farDistance 200\n aspectRatio 1\n focalDistance 100\n height ${H}\n}\n`
 for (const [k, c] of CASES.cases.entries()) {
   if (only.length && !only.includes(c.name)) continue
-  const want = REF.cases[c.name]
-  if (!want) { notes.push(`${c.name}: no FreeCAD answer in sketchref.json`); continue }
+  if (c.known) KNOWN[c.name] = c.known
+  const want = SREF.cases[c.name]
+  if (!want) { notes.push(`${c.name}: no FreeCAD answer in ${RFILE} (${SFILE})`); continue }
   run++
+  // the case's preferences ("params", as fcsketch_dump.py's set_params sets FreeCAD's), put back after it
+  const oldParams = c.params ? await p.evaluate((ps) => window.cadui.setSketcherParams?.(ps) ?? null, c.params) : null
   let name = `S${k}`, off = [0, 0] // where the sketch's origin sits in the scene (a plate part's placement)
   if (c.plate) {
     // a Body part of its own: the 40 x 20 x 5 plate (a rectangle on XY, padded 5 mm) and the case's sketch S on its top
@@ -235,6 +254,16 @@ for (const [k, c] of CASES.cases.entries()) {
       for (let i = 1; i <= 6; i++) await move([a[0] + (z[0] - a[0]) * i / 6, a[1] + (z[1] - a[1]) * i / 6])
       await p.mouse.up(); await p.waitForTimeout(120)
     } else if (st.key) { await p.keyboard.press(KEY[st.key] ?? st.key); await p.waitForTimeout(80) }
+    // typed where the focus is: an on-view parameter's box takes digits (fcsketch_dump.py's "type" and "fkey")
+    else if (st.type) { await p.keyboard.type(st.type, { delay: 40 }); await p.waitForTimeout(80) }
+    else if (st.fkey) { await p.keyboard.press((st.ctrl ? 'Control+' : '') + (KEY[st.fkey] ?? st.fkey)); await p.waitForTimeout(100) }
+    else if (st.widget) { // a control of the Tool Parameters box, by its name in SketcherToolDefaultWidget.ui
+      const w = p.locator(`[data-tool-widget="${st.widget.name}"]`).first()
+      if ('checked' in st.widget) { if ((await w.isChecked()) !== !!st.widget.checked) await w.click() }
+      else if ('index' in st.widget) await w.selectOption({ index: st.widget.index })
+      else if ('value' in st.widget) { await w.click(); await w.press('Control+a'); await w.type(String(st.widget.value)); await w.press('Enter') }
+      await p.waitForTimeout(120)
+    }
     else if (st.select) { await gui('select', st.select); await p.waitForTimeout(80) }
     else if (st.pick) { await gui('select', [st.pick]); await p.waitForTimeout(1500) } // a model element: the projection is the server's
     else if ('clear' in st) { await gui('clear', []); await p.waitForTimeout(80) }
@@ -261,6 +290,19 @@ for (const [k, c] of CASES.cases.entries()) {
       if (r !== rw) diffs.push(`external references: ${r} (FreeCAD: ${rw})`)
     }
   }
+  // "check": ["widget", "ovp"]: the Tool Parameters box (title, each control's label, items, state) and the on-view
+  // parameters' texts and which has the focus, as FreeCAD showed them at the end of the steps
+  if (c.check?.includes('widget')) {
+    const tw = await p.evaluate(() => window.cadui.sketchToolWidget?.() ?? null), tww = want.tool_widget ?? null
+    const norm = (w) => w && JSON.stringify({ title: w.title, controls: w.controls.map((x) => ({ ...x, value: x.value === undefined ? undefined : +x.value.toFixed(4) })) })
+    if (norm(tw) !== norm(tww)) diffs.push(`tool widget\n     ours     ${norm(tw)}\n     FreeCAD  ${norm(tww)}`)
+  }
+  if (c.check?.includes('ovp')) {
+    const o = await p.evaluate(() => window.cadui.sketchOvps?.() ?? []), ow = want.ovp ?? []
+    const norm = (l) => JSON.stringify(l.map((x) => `${x.text}${x.focus ? '*' : ''}`).sort())
+    if (norm(o) !== norm(ow)) diffs.push(`on-view parameters: ${norm(o)} (FreeCAD: ${norm(ow)})`)
+  }
+  if (oldParams) await p.evaluate((ps) => window.cadui.setSketcherParams?.(ps), oldParams)
   if (diffs.length && KNOWN[c.name]) { known++; console.log(`known ${c.name}: ${KNOWN[c.name]}`) }
   else if (diffs.length) bad(`${c.name}: ${diffs.join('\n   ')}`)
   else { passed++; console.log(`OK   ${c.name}`) }
@@ -268,13 +310,15 @@ for (const [k, c] of CASES.cases.entries()) {
   for (let i = 0; i < 3 && (await p.locator('.datum-dlg').count()); i++) await p.locator('.datum-dlg .qbtn').last().click()
   await gui('run', ['Sketcher_CancelSketch']); await p.waitForTimeout(300)
 }
-for (const d of REF.dialogs) {
+for (const d of SREF.dialogs ?? []) {
   if (only.length && !only.includes(d.case)) continue
   const o = dialogs.find((x) => x.case === d.case)
   if (!o) bad(`${d.case}: FreeCAD asks for the datum (${d.title}), we do not`)
   else if (o.title !== d.title) bad(`${d.case}: datum dialog "${o.title}" (FreeCAD: "${d.title}")`)
 }
-for (const o of dialogs) if (!REF.dialogs.some((d) => d.case === o.case)) bad(`${o.case}: we ask for the datum (${o.title}), FreeCAD does not`)
+}
+const allDialogs = SUITES.flatMap((s) => s.ref.dialogs ?? [])
+for (const o of dialogs) if (!allDialogs.some((d) => d.case === o.case)) bad(`${o.case}: we ask for the datum (${o.title}), FreeCAD does not`)
 for (const e of errs) bad(`page error: ${e}`)
 for (const n of notes) console.log(`note ${n}`)
 console.log(`sketchcheck: ${passed}/${run} cases as FreeCAD, ${known} known, ${colours} colours, ${problems.length} differences`)
