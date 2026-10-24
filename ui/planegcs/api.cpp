@@ -1668,7 +1668,12 @@ const char* pgcs_solve(const char* json)
     return guarded([&]() {
         Json sketch = Parser(json).parse();
         auto h = build(sketch);
-        doSolve(*h);
+        // "solve": false moves the geometry as it is, without solving first (SketchObject's
+        // programmatic moves, as fillet() and extend() make them)
+        const Json* first = sketch.get("solve");
+        if (!(first && first->kind == Json::Bool && !first->b)) {
+            doSolve(*h);
+        }
         if (const Json* drags = sketch.get("drags")) {
             for (const auto& d : drags->items) {
                 const Json* geo = d.get("geo");
@@ -1676,6 +1681,12 @@ const char* pgcs_solve(const char* json)
                 const Json* to = d.get("to");
                 if (!geo || !pos || !to) {
                     throw std::invalid_argument("a drag needs \"geo\", \"pos\" and \"to\"");
+                }
+                // "update_geometry": moveGeometry(..., updateGeoBeforeMoving=true): the solver
+                // set up again from the sketch's geometry before this move
+                const Json* upd = d.get("update_geometry");
+                if (upd && upd->kind == Json::Bool && upd->b) {
+                    h->doc.solverNeedsUpdate = true;
                 }
                 const Json* rel = d.get("relative");
                 std::vector<GeoElementId> elts {GeoElementId {geo->asInt(), toPos(pos->asInt())}};

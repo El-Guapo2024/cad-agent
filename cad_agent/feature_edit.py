@@ -76,8 +76,9 @@ EXTRUDE_PROPS = {"side_type": "side_type", "type1": "type", "type2": "type2", "l
                  "up_to_shape2": "up_to_shape2", "use_custom_vector": "use_custom_vector",
                  "direction": "direction", "along_sketch_normal": "along_sketch_normal",
                  "start_type": "start_type", "start_offset": "start_offset", "refine": "refine"}
-IMPORT = ("from cad_agent.feature import (ArcOfCircle, Body, Circle, Constraint, LineSegment, Pad, Pocket, "
-          "Point,\n                               Sketch)\n")
+IMPORT = ("from cad_agent.feature import (ArcOfCircle, ArcOfEllipse, ArcOfHyperbola, ArcOfParabola, Body, "
+          "BSplineCurve,\n                               Circle, Constraint, Ellipse, LineSegment, Pad, Pocket, "
+          "Point, Sketch)\n")
 NAME = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*$")
 
 
@@ -294,8 +295,12 @@ def geometry_src(g: dict) -> str:
                     f"{_num(float(g['start_angle']))}, {_num(float(g['end_angle']))}{c})")
         if kind == "Point":
             return f"Point({_pt(g['at'] if 'at' in g else g['point'])}{c})"
+        if kind in F._curves.GEOMETRY:             # the conics and B-splines (feature_curves.py)
+            return F._curves.source(g, _num)
     except (KeyError, TypeError, IndexError):
         raise FeatureEditError(f"geometry {g!r} is missing a coordinate") from None
+    except F.FeatureError as e:
+        raise FeatureEditError(str(e)) from None
     raise FeatureEditError(f"geometry type {kind!r} is not LineSegment, Circle, ArcOfCircle or Point")
 
 
@@ -312,6 +317,33 @@ def constraint_src(c: dict) -> str:
     if c.get("driving") is False:
         args.append("driving=False")
     return f"Constraint({', '.join(args)})"
+
+
+def _ensure_import(src: str) -> str:
+    """The part file's `from cad_agent.feature import (...)` with every geometry kind its FEATURES call,
+    so a sketch given an Ellipse or a BSplineCurve still imports."""
+    tree = ast.parse(src)
+    imp = next((n for n in tree.body if isinstance(n, ast.ImportFrom) and n.module == "cad_agent.feature"
+                and not any(a.asname for a in n.names)), None)
+    if imp is None or any(a.name == "*" for a in imp.names):
+        return src
+    have = {a.name for a in imp.names}
+    used = {n.func.id for n in ast.walk(tree) if isinstance(n, ast.Call) and isinstance(n.func, ast.Name)
+            and n.func.id in F.GEOMETRY}
+    if used <= have:
+        return src
+    names = sorted(have | used, key=str.lower)
+    head, pad = "from cad_agent.feature import (", " " * len("from cad_agent.feature import (")
+    lines, line = [], head
+    for k, n in enumerate(names):
+        piece = n + (", " if k < len(names) - 1 else ")")
+        if len(line) + len(piece.rstrip()) > 110 and line.strip() not in (head.strip(), ""):
+            lines.append(line.rstrip())
+            line = pad
+        line += piece
+    lines.append(line)
+    t = _Text(src)
+    return t.edit([(t.a(imp), t.b(imp), "\n".join(lines))])
 
 
 def _list_src(items, indent):
@@ -758,6 +790,7 @@ def apply_src(src: str, ops: list) -> str:
         else:
             raise FeatureEditError(f"{kind!r} is not an edit (add, set, delete, rename, move, tip)")
         _check(src)
+    src = _ensure_import(src)
     _check(src)
     return src
 

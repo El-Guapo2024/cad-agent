@@ -627,6 +627,12 @@ src/Mod/Measure/Gui/ViewProviderMeasureDistance.cpp   [licence: LGPL-2.1-or-late
     copyright 2013 Thomas Anderson
     copyright 2008 Werner Mayer
     followed by src/viewer.ts
+src/Mod/Part/App/Geometry.cpp   [licence: LGPL-2.1-or-later]
+    copyright 2008 Werner Mayer
+    followed by src/sketchcurves.ts, src/sketchops.ts
+src/Mod/Part/App/Part2DObject.cpp   [licence: LGPL-2.1-or-later]
+    copyright 2008 Jürgen Riegel
+    followed by src/sketchops.ts
 src/Mod/Part/App/PartFeature.cpp   [licence: LGPL-2.1-or-later]
     copyright 2002 Jürgen Riegel
     followed by src/viewer.ts
@@ -691,6 +697,7 @@ src/Mod/PartDesign/Gui/Workbench.cpp   [licence: LGPL-2.1-or-later]
 src/Mod/Sketcher/App/Constraint.cpp   [licence: LGPL-2.1-or-later]
     copyright 2008 Jürgen Riegel
     followed by src/sketch.ts
+    followed by src/sketchops.ts
 src/Mod/Sketcher/App/ConstraintPyImp.cpp   [licence: LGPL-2.1-or-later]
     copyright 2010 Jürgen Riegel
     followed by src/sketch.ts
@@ -698,10 +705,25 @@ src/Mod/Sketcher/App/Sketch.cpp   [licence: LGPL-2.0-or-later]
     copyright 2010 Jürgen Riegel
     followed by src/planegcs.ts, src/solver.ts, planegcs/sketch.cpp, planegcs/sketch.h,
         planegcs/api.cpp
+src/Mod/Sketcher/App/SketchGeometry.cpp   [licence: LGPL-2.1-or-later]
+    copyright 2025 Werner Mayer
+    followed by src/sketchcurves.ts
 src/Mod/Sketcher/App/SketchObject.cpp   [licence: LGPL-2.1-or-later]
     copyright 2008 Jürgen Riegel
     followed by src/planegcs.ts, src/sketch.ts, src/sketcher.ts, planegcs/sketch.cpp,
         planegcs/sketch.h
+src/Mod/Sketcher/App/SketchObjectConstraints.cpp   [licence: LGPL-2.1-or-later]
+    copyright 2008 Jürgen Riegel
+    followed by src/sketchops.ts
+src/Mod/Sketcher/App/SketchObjectGeometry.cpp   [licence: LGPL-2.1-or-later]
+    copyright 2008 Jürgen Riegel
+    followed by src/sketchcurves.ts, src/sketchgeo.ts, src/sketchops.ts
+src/Mod/Sketcher/App/SketchObjectOperations.cpp   [licence: LGPL-2.1-or-later]
+    copyright 2008 Jürgen Riegel
+    followed by src/sketchops.ts
+src/Mod/Sketcher/App/planegcs/Geo.cpp   [licence: LGPL-2.1-or-later]
+    copyright 2014 Victor Titov (DeepSOIC)
+    followed by src/sketchcurves.ts
 src/Mod/Sketcher/Gui/Command.cpp   [licence: LGPL-2.1-or-later]
     copyright 2008 Jürgen Riegel
     followed by src/cmdreg.ts, src/fctips.ts, src/sketchcmdinfo.ts, src/sketchcmds.ts
@@ -723,15 +745,37 @@ src/Mod/Sketcher/Gui/DrawSketchController.h   [licence: LGPL-2.1-or-later]
 src/Mod/Sketcher/Gui/DrawSketchDefaultHandler.h   [licence: LGPL-2.1-or-later]
     copyright 2022 Abdullah Tahiri
     followed by src/sketchtools.ts
+    followed by src/sketchgeo.ts
 src/Mod/Sketcher/Gui/DrawSketchHandler.cpp   [licence: LGPL-2.1-or-later]
     copyright 2010 Jürgen Riegel
     followed by src/sketchtools.ts
 src/Mod/Sketcher/Gui/DrawSketchHandlerArc.h   [licence: LGPL-2.1-or-later]
     copyright 2022 Abdullah Tahiri
     followed by src/sketchtools.ts
+src/Mod/Sketcher/Gui/DrawSketchHandlerArcOfEllipse.h   [licence: LGPL-2.1-or-later]
+    copyright 2022 Abdullah Tahiri
+    followed by src/sketchgeo.ts
+src/Mod/Sketcher/Gui/DrawSketchHandlerArcOfHyperbola.h   [licence: LGPL-2.1-or-later]
+    copyright 2022 Abdullah Tahiri
+    followed by src/sketchgeo.ts
+src/Mod/Sketcher/Gui/DrawSketchHandlerArcOfParabola.h   [licence: LGPL-2.1-or-later]
+    copyright 2022 Abdullah Tahiri
+    followed by src/sketchgeo.ts
+src/Mod/Sketcher/Gui/DrawSketchHandlerBSpline.h   [licence: LGPL-2.1-or-later]
+    copyright 2022 Abdullah Tahiri
+    followed by src/sketchgeo.ts
 src/Mod/Sketcher/Gui/DrawSketchHandlerCircle.h   [licence: LGPL-2.1-or-later]
     copyright 2022 Abdullah Tahiri
     followed by src/sketchtools.ts
+src/Mod/Sketcher/Gui/DrawSketchHandlerEllipse.h   [licence: LGPL-2.1-or-later]
+    copyright 2022 Abdullah Tahiri
+    followed by src/sketchgeo.ts
+src/Mod/Sketcher/Gui/DrawSketchHandlerExtend.h   [licence: LGPL-2.1-or-later]
+    copyright 2022 Abdullah Tahiri
+    followed by src/sketchedit.ts
+src/Mod/Sketcher/Gui/DrawSketchHandlerFillet.h   [licence: LGPL-2.1-or-later]
+    copyright 2022 Abdullah Tahiri
+    followed by src/sketchedit.ts
 src/Mod/Sketcher/Gui/DrawSketchHandlerLine.h   [licence: LGPL-2.1-or-later]
     copyright 2022 Abdullah Tahiri
     followed by src/sketchtools.ts
@@ -750,6 +794,12 @@ src/Mod/Sketcher/Gui/DrawSketchHandlerRectangle.h   [licence: LGPL-2.1-or-later]
 src/Mod/Sketcher/Gui/DrawSketchHandlerSlot.h   [licence: LGPL-2.1-or-later]
     copyright 2022 Abdullah Tahiri
     followed by src/sketchtools.ts
+src/Mod/Sketcher/Gui/DrawSketchHandlerSplitting.h   [licence: LGPL-2.1-or-later]
+    copyright 2022 Abdullah Tahiri
+    followed by src/sketchedit.ts
+src/Mod/Sketcher/Gui/DrawSketchHandlerTrimming.h   [licence: LGPL-2.1-or-later]
+    copyright 2022 Abdullah Tahiri
+    followed by src/sketchedit.ts
 src/Mod/Sketcher/Gui/EditDatumDialog.cpp   [licence: LGPL-2.1-or-later]
     copyright 2011 Werner Mayer
     followed by src/sketchui.tsx
@@ -762,6 +812,9 @@ src/Mod/Sketcher/Gui/EditModeCoinManagerParameters.cpp   [licence: LGPL-2.1-or-l
 src/Mod/Sketcher/Gui/EditModeConstraintCoinManager.cpp   [licence: LGPL-2.1-or-later]
     copyright 2021 Abdullah Tahiri
     followed by src/sketch.ts, src/sketchdraw.ts
+src/Mod/Sketcher/Gui/EditModeGeometryCoinConverter.cpp   [licence: LGPL-2.1-or-later]
+    copyright 2021 Abdullah Tahiri
+    followed by src/sketchcurves.ts
 src/Mod/Sketcher/Gui/EditModeGeometryCoinManager.cpp   [licence: LGPL-2.1-or-later]
     copyright 2021 Abdullah Tahiri
     followed by src/sketchdraw.ts

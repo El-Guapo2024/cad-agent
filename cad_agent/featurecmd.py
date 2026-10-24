@@ -43,8 +43,8 @@ TEMPLATE = '''"""{part}: a PartDesign Body made in the workbench (cad feature ne
 Its shape is FEATURES, the Body's tree in FreeCAD's order (cad_agent/feature.py). The workbench edits the
 lists in place; so can you.
 """
-from cad_agent.feature import (ArcOfCircle, Body, Circle, Constraint, LineSegment, Pad, Pocket, Point,
-                               Sketch)
+from cad_agent.feature import (ArcOfCircle, ArcOfEllipse, ArcOfHyperbola, ArcOfParabola, Body, BSplineCurve,
+                               Circle, Constraint, Ellipse, LineSegment, Pad, Pocket, Point, Sketch)
 
 MATERIAL = {material!r}
 PROCESS = {process!r}

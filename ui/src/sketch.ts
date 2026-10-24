@@ -13,6 +13,7 @@
 // dimension measures, its presentation string.
 import type { Cons, Geo, XY } from './solver'
 import { toNumber, userString, type Quantity } from './quantity'
+import * as CV from './sketchcurves'
 
 export type { Geo, XY }
 /** Sketcher::PointPos. */
@@ -38,6 +39,9 @@ export type Constraint = {
   labelPosition: number
   /** Constraint::isInVirtualSpace. */
   virtual: boolean
+  /** An InternalAlignment's Constraint::AlignmentType and InternalAlignmentIndex (a pole's or a knot's, else -1). */
+  alignment?: CV.Alignment
+  alignmentIndex?: number
 }
 export type SketchData = { geometry: Geo[]; constraints: Constraint[] }
 
@@ -79,7 +83,22 @@ export function toArgs(c: Constraint): number[] {
     default: return [f, fp, s, sp, th, tp]
   }
 }
+/** The forms ConstraintPy::PyInit takes an InternalAlignment in: (Geo, Geo) for an axis, (Geo, Pos, Geo) for a focus,
+ *  (Geo, Pos, Geo, index) for a pole or a knot. */
+const ALIGN_TWO: CV.Alignment[] = ['EllipseMajorDiameter', 'EllipseMinorDiameter', 'HyperbolaMajor', 'HyperbolaMinor', 'ParabolaFocalAxis']
+const ALIGN_INDEXED: CV.Alignment[] = ['BSplineControlPoint', 'BSplineKnotPoint']
+function alignmentArgs(c: Constraint): number[] {
+  const a = c.alignment!
+  if (ALIGN_TWO.includes(a)) return [c.first, c.second]
+  if (ALIGN_INDEXED.includes(a)) return [c.first, c.firstPos, c.second, c.alignmentIndex ?? -1]
+  return [c.first, c.firstPos, c.second]
+}
+/** Sketcher::Constraint for an InternalAlignment. */
+export function alignmentConstraint(alignment: CV.Alignment, first: number, firstPos: PointPos, second: number, index = -1): Constraint {
+  return { ...constraint('InternalAlignment', first, firstPos, second), alignment, alignmentIndex: index }
+}
 export function toCons(c: Constraint): Cons {
+  if (c.type === 'InternalAlignment' && c.alignment) return { type: `InternalAlignment:${c.alignment}`, args: alignmentArgs(c) }
   const out: Cons = { type: c.type, args: toArgs(c) }
   if (isDimensional(c)) out.value = c.value
   if (!c.driving) out.driving = false
@@ -88,6 +107,12 @@ export function toCons(c: Constraint): Cons {
 }
 /** ConstraintPy::PyInit's parsing, for the forms toArgs writes (an int argument where the value would be a GeoId). */
 export function fromCons(k: Cons): Constraint {
+  if (k.type.startsWith('InternalAlignment:')) {
+    const al = k.type.slice('InternalAlignment:'.length) as CV.Alignment, a = k.args
+    if (ALIGN_TWO.includes(al)) return alignmentConstraint(al, a[0], NONE, a[1])
+    if (ALIGN_INDEXED.includes(al)) return alignmentConstraint(al, a[0], a[1] as PointPos, a[2], a[3] ?? -1)
+    return alignmentConstraint(al, a[0], a[1] as PointPos, a[2])
+  }
   const t = k.type as ConstraintType, a = k.args, v = k.value ?? 0, P = (n: number) => n as PointPos
   let c: Constraint
   const hasValue = k.value !== undefined
@@ -121,6 +146,17 @@ export function getPoint(geo: Geo[], g: number, pos: PointPos): XY | null {
       if (pos === START) return [e.center[0] + e.radius * Math.cos(e.start_angle), e.center[1] + e.radius * Math.sin(e.start_angle)]
       if (pos === END) return [e.center[0] + e.radius * Math.cos(e.end_angle), e.center[1] + e.radius * Math.sin(e.end_angle)]
       return null
+    // SketchGeometry.cpp: an ellipse has its centre; a conic's arc its ends and centre (vertex); a B-spline its ends
+    case 'Ellipse': return pos === MID ? e.center : null
+    case 'ArcOfEllipse': case 'ArcOfHyperbola': case 'ArcOfParabola':
+      if (pos === MID) return e.center
+      if (pos === START) return CV.conicValue(e, e.start_angle)
+      if (pos === END) return CV.conicValue(e, e.end_angle)
+      return null
+    case 'BSplineCurve':
+      if (pos === START) return CV.bsplineStart(e)
+      if (pos === END) return CV.bsplineEnd(e)
+      return null
   }
 }
 /** SketchObject::rebuildVertexIndex: every point of every geometry, in order. */
@@ -129,7 +165,8 @@ export function vertices(geo: Geo[]): [number, PointPos][] {
   geo.forEach((g, i) => {
     if (g.type === 'Point') out.push([i, START])
     else if (g.type === 'LineSegment') out.push([i, START], [i, END])
-    else if (g.type === 'Circle') out.push([i, MID])
+    else if (g.type === 'Circle' || g.type === 'Ellipse') out.push([i, MID])
+    else if (g.type === 'BSplineCurve') out.push([i, START], [i, END])
     else out.push([i, START], [i, END], [i, MID])
   })
   return out
@@ -162,6 +199,7 @@ export const isCircular = (g: Geo | undefined) => isCircle(g) || isArc(g)
 export function polyline(g: Geo, segments = 50): XY[] {
   if (g.type === 'Point') return [g.at]
   if (g.type === 'LineSegment') return [g.start, g.end]
+  if (g.type !== 'Circle' && g.type !== 'ArcOfCircle') return CV.curvePolyline(g, segments) ?? []
   if (g.type === 'Circle') return Array.from({ length: segments + 1 }, (_, i) => { const t = (2 * Math.PI * i) / segments; return [g.center[0] + g.radius * Math.cos(t), g.center[1] + g.radius * Math.sin(t)] as XY })
   const range = g.end_angle - g.start_angle, n = Math.max(2, Math.ceil((segments * Math.abs(range)) / (2 * Math.PI)))
   return Array.from({ length: n + 1 }, (_, i) => { const t = g.start_angle + (range * i) / n; return [g.center[0] + g.radius * Math.cos(t), g.center[1] + g.radius * Math.sin(t)] as XY })
@@ -169,6 +207,7 @@ export function polyline(g: Geo, segments = 50): XY[] {
 /** Part::GeomCurve::closestParameter then pointAtParameter, for the curves here. */
 export function closestOnCurve(g: Geo, p: XY): XY {
   if (g.type === 'Point') return g.at
+  if (CV.isConic(g) || CV.isBSpline(g)) { const c = CV.parameterised(g)!, u = CV.closestParameter(g, p)!; return c.at(u) }
   if (g.type === 'LineSegment') {
     const d: XY = [g.end[0] - g.start[0], g.end[1] - g.start[1]], l2 = d[0] * d[0] + d[1] * d[1]
     const t = l2 ? Math.max(0, Math.min(1, ((p[0] - g.start[0]) * d[0] + (p[1] - g.start[1]) * d[1]) / l2)) : 0
@@ -250,9 +289,10 @@ export function listIcon(c: Constraint): string {
   }
 }
 /** TaskSketcherElements' label: "N-Line", "-Construction" when the naming box is on. */
+const ELEMENT_NAMES: Record<Geo['type'], string> = { Point: 'Point', LineSegment: 'Line', Circle: 'Circle', ArcOfCircle: 'Arc', Ellipse: 'Ellipse',
+  ArcOfEllipse: 'Elliptical Arc', ArcOfHyperbola: 'Hyperbolic Arc', ArcOfParabola: 'Parabolic arc', BSplineCurve: 'B-spline' }
 export function elementText(g: Geo, i: number): string {
-  const base = g.type === 'Point' ? 'Point' : g.type === 'LineSegment' ? 'Line' : g.type === 'Circle' ? 'Circle' : 'Arc'
-  return `${i + 1}-${base}`
+  return `${i + 1}-${ELEMENT_NAMES[g.type] ?? 'Other'}`
 }
 
 // ── what a dimension measures ───────────────────────────────────────────────

@@ -232,6 +232,11 @@ function publishSketch() {
     api.setGui(slug, { sketch }).catch(() => { /* best effort, as publishGui */ })
   }, 30)
 }
+/** The solver on a sketch other than the session's (with planegcs' extras: "solve": false, "drags"), for the editing
+ *  operations' moves (sketchops.ts's Mover); null before the solver is loaded. */
+export function solveRaw(s: Sketch & { solve?: boolean; drags?: { geo: number; pos: number; to: XY; update_geometry?: boolean }[] }) {
+  return solver ? solver.solve(s) : null
+}
 /** SketchObject::diagnoseAdditionalConstraints: the solver's verdict with extra constraints, the sketch unchanged. */
 export function diagnoseWith(extra: Constraint[]) {
   const s = session
@@ -312,6 +317,8 @@ export function setConstraint(i: number, c: Constraint) { const s = session!; s.
 export function delGeometries(ids: number[]) {
   const s = session!
   const gone = new Set(ids.filter((g) => g >= 0))
+  // a geometry with internal geometry takes it along (SketchObject::delGeometries)
+  for (const c of s.constraints) if (c.type === 'InternalAlignment' && gone.has(c.second)) gone.add(c.first)
   const map = (g: number) => (g < 0 || g === GEO_UNDEF ? g : g - [...gone].filter((x) => x < g).length)
   s.constraints = s.constraints.filter((c) => !gone.has(c.first) && !gone.has(c.second) && !gone.has(c.third))
     .map((c) => ({ ...c, first: map(c.first), second: map(c.second), third: map(c.third) }))
@@ -815,6 +822,7 @@ function translateGeo(g: Geo, v: XY, pos: PointPos): Geo {
   const t = (q: XY): XY => [q[0] + v[0], q[1] + v[1]]
   if (g.type === 'Point') return { ...g, at: t(g.at) }
   if (g.type === 'LineSegment') return pos === START ? { ...g, start: t(g.start) } : pos === END ? { ...g, end: t(g.end) } : { ...g, start: t(g.start), end: t(g.end) }
+  if (g.type === 'BSplineCurve') return { ...g, poles: g.poles.map(t) }
   return { ...g, center: t(g.center) }
 }
 function commitDragMove(p: XY) {
@@ -950,9 +958,10 @@ function doBoxSelection(a: [number, number], b: [number, number], additive: bool
     }
     const pts = SK.polyline(g, 50)
     const curveIn = () => { if (touch) return pts.some((p) => inside(p)); return pts.every((p) => inside(p)) }
-    if (g.type === 'Circle') { const c = vert(g.center); if ((c || touch) && curveIn()) out.push(SK.edgeName(i)); return }
+    if (g.type === 'Circle' || g.type === 'Ellipse') { const c = vert(g.center); if ((c || touch) && curveIn()) out.push(SK.edgeName(i)); return }
     const s0 = SK.getPoint(s.geometry, i, START)!, e0 = SK.getPoint(s.geometry, i, END)!
-    const ins = vert(s0), ine = vert(e0); vert(g.center)
+    const ins = vert(s0), ine = vert(e0)
+    if (g.type !== 'BSplineCurve') vert(g.center)
     if ((ins && ine) || touch) { if (curveIn()) out.push(SK.edgeName(i)) }
   })
   if (inside([0, 0])) out.push('RootPoint')

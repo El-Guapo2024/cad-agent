@@ -47,7 +47,9 @@ The vocabulary, as FreeCAD's Python API has it:
 
     geometry     LineSegment((x1, y1), (x2, y2)), Circle((cx, cy), r),
                  ArcOfCircle((cx, cy), r, start_angle, end_angle)  (radians, counter-clockwise, as
-                 Part.ArcOfCircle(circle, a0, a1)), Point((x, y)), each with construction=False
+                 Part.ArcOfCircle(circle, a0, a1)), Point((x, y)), each with construction=False;
+                 the conics and B-splines Ellipse, ArcOfEllipse, ArcOfHyperbola, ArcOfParabola and
+                 BSplineCurve are cad_agent/feature_curves.py's (its docstring has their arguments)
     constraints  Constraint(type, *args) with Sketcher.Constraint's argument lists: geometry indices
                  from 0 in list order, -1 the sketch's H axis, -2 its V axis (point 1 of -1 is the
                  origin); point positions 1 start, 2 end, 3 centre. A value (the last argument of a
@@ -286,6 +288,14 @@ class Point(_Geometry):
 
 GEOMETRY = {g.kind: g for g in (LineSegment, Circle, ArcOfCircle, Point)}
 
+# The conics and B-splines (Part.Ellipse, ArcOfEllipse, ArcOfHyperbola, ArcOfParabola, BSplineCurve) live in
+# feature_curves.py, which adds them to GEOMETRY; _curves is its seam into the checks and the kernel below.
+from . import feature_curves as _curves  # noqa: E402
+try:
+    from .feature_curves import ArcOfEllipse, ArcOfHyperbola, ArcOfParabola, BSplineCurve, Ellipse  # noqa: E402,F401
+except ImportError:                     # feature_curves was imported first: it adds these names itself
+    pass
+
 
 def geometry_from_dict(d: dict) -> _Geometry:
     """The inverse of as_dict(), for what a solver hands back."""
@@ -299,6 +309,8 @@ def geometry_from_dict(d: dict) -> _Geometry:
         return ArcOfCircle(d["center"], d["radius"], d["start_angle"], d["end_angle"], c)
     if kind == "Point":
         return Point(d["at"] if "at" in d else d["point"], c)
+    if kind in _curves.GEOMETRY:
+        return _curves.from_dict(d)
     raise FeatureError(f"unknown geometry type {kind!r}")
 
 
@@ -317,10 +329,11 @@ class Constraint:
     name and driving are SketchObject's Name and Driving (a reference dimension has driving=False)."""
 
     def __init__(self, type: str, *args, name: str | None = None, driving: bool = True):
-        if type not in DIMENSIONAL and type not in GEOMETRIC:
+        aligned = _curves.alignment_counts(type)          # "InternalAlignment:EllipseMajorDiameter", ...
+        if type not in DIMENSIONAL and type not in GEOMETRIC and aligned is None:
             raise FeatureError(f"Constraint type {type!r} is not one of "
                                f"{', '.join(sorted({**DIMENSIONAL, **GEOMETRIC}))}")
-        counts = DIMENSIONAL.get(type) or GEOMETRIC[type]
+        counts = DIMENSIONAL.get(type) or GEOMETRIC.get(type) or aligned
         if len(args) not in counts:
             raise FeatureError(f"Constraint {type!r} takes {' or '.join(map(str, counts))} arguments, "
                                f"not {len(args)}: {args!r}")
@@ -460,6 +473,8 @@ class Sketch:
                 why = "cannot be checked without the solver" if unchecked else ""
             if why:
                 out.append(f"constraint {i} ({c.type}): {why}")
+        if unchecked:
+            out += _curves.unsolved(self)           # geometry FreeCAD's solve changes before it solves
         return out
 
     def solved(self, params=None) -> "Sketch":
@@ -568,6 +583,8 @@ def _tangent_at(g, pos):
     if isinstance(g, ArcOfCircle):
         a = g.start_angle if pos == 1 else g.end_angle
         return (-math.sin(a), math.cos(a))
+    if isinstance(g, _curves.CURVES):
+        return _curves.tangent_at(g, pos)
     return None
 
 
@@ -578,6 +595,9 @@ def _residual(sk: Sketch, c: Constraint, v, tol) -> str:
         return "" if abs(measured - wanted) <= tol else f"is {measured:.9g} {unit}, wants {wanted:.9g}"
 
     try:
+        why = _curves.residual(sk, c, v, tol, _geo, _pt)    # conics, B-splines, internal alignments
+        if why is not None:
+            return why
         if t == "Coincident":
             p, q = _pt(sk, a[0], a[1]), _pt(sk, a[2], a[3])
             return off(math.dist(p, q), 0.0)
@@ -803,6 +823,8 @@ def _trsf(sketch: Sketch):
 def _edge(g):
     """Part::Geometry::toShape(): the edge of a sketch geometry, in the sketch's own plane."""
     z = gp_Dir(0, 0, 1)
+    if isinstance(g, _curves.CURVES):
+        return _curves.edge(g)
     if isinstance(g, LineSegment):
         return BRepBuilderAPI_MakeEdge(gp_Pnt(*g.start, 0), gp_Pnt(*g.end, 0)).Edge()
     circ = Geom_Circle(gp_Ax2(gp_Pnt(*g.center, 0), z, gp_Dir(1, 0, 0)), g.radius)
@@ -992,6 +1014,8 @@ def _on_seg(g, p, eps=1e-9):
 def _intersections(g1, g2):
     """The points where two sketch curves meet (tangent contacts too), or OVERLAP when they share a
     stretch of curve."""
+    if isinstance(g1, _curves.CURVES) or isinstance(g2, _curves.CURVES):
+        return _curves.intersections(g1, g2, _edge, OVERLAP)
     if isinstance(g1, LineSegment) and isinstance(g2, LineSegment):
         p, r = g1.start, (g1.end[0] - g1.start[0], g1.end[1] - g1.start[1])
         q, s = g2.start, (g2.end[0] - g2.start[0], g2.end[1] - g2.start[1])
@@ -1046,6 +1070,8 @@ def _crossing(sketch: Sketch, edges: list[int]):
     """The first two edges that cross, overlap, or touch anywhere but at an end point they share."""
     geos = sketch.geometry
     for i, a in enumerate(edges):
+        if isinstance(geos[a], _curves.BSplineCurve) and _curves.intersections(geos[a], None, _edge, OVERLAP):
+            return a, a                    # a B-spline that crosses itself
         for b in edges[i + 1:]:
             ga, gb = geos[a], geos[b]
             hits = _intersections(ga, gb)
@@ -1608,6 +1634,8 @@ def to_freecad(features, params: dict | None = None, doc=None, name: str = "Body
                 elif isinstance(g, ArcOfCircle):
                     pg = Part.ArcOfCircle(Part.Circle(V(*g.center, 0), V(0, 0, 1), g.radius),
                                           g.start_angle, g.end_angle)
+                elif isinstance(g, _curves.CURVES):
+                    pg = _curves.part_geometry(g, Part, V)
                 else:
                     pg = Part.Point(V(*g.point, 0))
                 sk.addGeometry(pg, g.construction)

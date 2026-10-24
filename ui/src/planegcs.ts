@@ -19,6 +19,14 @@ export type Geo =
   | { type: 'LineSegment'; start: XY; end: XY; construction?: boolean }
   | { type: 'Circle'; center: XY; radius: number; construction?: boolean }
   | { type: 'ArcOfCircle'; center: XY; radius: number; start_angle: number; end_angle: number; construction?: boolean }
+  // the conics: x_axis is Part's XAxis (the major axis, towards the first focus; a parabola's axis, towards its focus),
+  // the angles the conic's own trim parameters (FirstParameter, LastParameter); a parabola's center is its vertex
+  | { type: 'Ellipse'; center: XY; major_radius: number; minor_radius: number; x_axis: XY; construction?: boolean }
+  | { type: 'ArcOfEllipse'; center: XY; major_radius: number; minor_radius: number; x_axis: XY; start_angle: number; end_angle: number; construction?: boolean; start_point?: XY; end_point?: XY }
+  | { type: 'ArcOfHyperbola'; center: XY; major_radius: number; minor_radius: number; x_axis: XY; start_angle: number; end_angle: number; construction?: boolean; start_point?: XY; end_point?: XY }
+  | { type: 'ArcOfParabola'; center: XY; focal: number; x_axis: XY; start_angle: number; end_angle: number; construction?: boolean; start_point?: XY; end_point?: XY }
+  // Part.BSplineCurve(poles, mults, knots, periodic, degree, weights); weights all 1 while not rational
+  | { type: 'BSplineCurve'; poles: XY[]; weights?: number[]; knots: number[]; mults: number[]; degree: number; periodic: boolean; construction?: boolean }
 // FreeCAD's Sketcher.Constraint argument list after the type, value last when it has one, e.g.
 // { type: 'DistanceX', args: [0, 1, 0, 2], value: 40 }; driving false = reference constraint.
 // Extensions: active false switches a constraint off (Sketcher.Constraint's activated argument);

@@ -15,6 +15,8 @@ import { SKETCH_CMD_INFO } from './sketchcmdinfo'
 import * as S from './sketcher'
 import { ArcHandler, CircleHandler, LineHandler, PointHandler, PolygonHandler, PolylineHandler, RectangleHandler, SlotHandler, toggleConstruction } from './sketchtools'
 import { runConstraint, isConstraintCommand, toggleDriving, toggleActive, idOf } from './sketchcons'
+import { ArcOfEllipseHandler, ArcOfHyperbolaHandler, ArcOfParabolaHandler, BSplineHandler, EllipseHandler } from './sketchgeo'
+import { ExtendHandler, FilletHandler, SplittingHandler, TrimmingHandler } from './sketchedit'
 import * as SK from './sketch'
 import { getState, report } from './store'
 import { recordAndRun } from './actions'
@@ -115,6 +117,18 @@ const RUN: Record<string, () => void> = {
   Sketcher_CreateHeptagon: tool(() => new PolygonHandler(7)),
   Sketcher_CreateOctagon: tool(() => new PolygonHandler(8)),
   Sketcher_CreateRegularPolygon: tool(() => new PolygonHandler(6)),
+  Sketcher_CreateEllipseByCenter: tool(() => new EllipseHandler(0)),
+  Sketcher_CreateEllipseBy3Points: tool(() => new EllipseHandler(1)),
+  Sketcher_CreateArcOfEllipse: tool(() => new ArcOfEllipseHandler()),
+  Sketcher_CreateArcOfHyperbola: tool(() => new ArcOfHyperbolaHandler()),
+  Sketcher_CreateArcOfParabola: tool(() => new ArcOfParabolaHandler()),
+  Sketcher_CreateBSpline: tool(() => new BSplineHandler(false)),
+  Sketcher_CreatePeriodicBSpline: tool(() => new BSplineHandler(true)),
+  Sketcher_Trimming: tool(() => new TrimmingHandler()),
+  Sketcher_Split: tool(() => new SplittingHandler()),
+  Sketcher_Extend: tool(() => new ExtendHandler()),
+  Sketcher_CreateFillet: tool(() => new FilletHandler(0)),
+  Sketcher_CreateChamfer: tool(() => new FilletHandler(1)),
   Sketcher_ToggleConstruction: toggleConstruction,
   Sketcher_LeaveSketch: () => void S.closeEdit(true),
   Sketcher_CancelSketch: () => void S.closeEdit(false),
