@@ -44,8 +44,14 @@ NOT_HERE = {"Std_AddonMgr", "Std_AddonMgrPip", "Std_SetAppearance", "Std_SetMate
 PART = {"Part_SelectFilter", "Part_VertexSelection", "Part_EdgeSelection", "Part_FaceSelection", "Part_RemoveSelectionGate"}
 
 
+# PartDesign's and the Sketcher's C++ commands (Mod/PartDesign/Gui/Command*.cpp, Mod/Sketcher/Gui/Command.cpp), and Part's Check
+# Geometry (Mod/Part/Gui/Command.cpp); the gears and the shaft wizard are Python modules of their own.
+PY_COMMANDS = {"PartDesign_InvoluteGear", "PartDesign_Sprocket", "PartDesign_WizardShaft"}
+
+
 def wanted(name: str) -> bool:
-    return (name.startswith("Std_") and name not in NOT_HERE) or name in PART
+    return ((name.startswith("Std_") and name not in NOT_HERE) or name in PART or name == "Part_CheckGeometry"
+            or (name.startswith(("PartDesign_", "Sketcher_")) and name not in PY_COMMANDS))
 
 
 def clean(title: str) -> str:
@@ -69,7 +75,7 @@ def main() -> None:
     used = set()
     for f in sorted(SRC.glob("*.ts*")):
         if f.name != "fctips.ts":
-            used |= set(re.findall(r"\b(?:Std|Part)_[A-Za-z0-9]+\b", f.read_text()))
+            used |= set(re.findall(r"\b(?:Std|Part|PartDesign|Sketcher)_[A-Za-z0-9]+\b", f.read_text()))
     rows = []
     for name in sorted(used):
         c = cmds.get(name)

@@ -540,13 +540,49 @@ function foundServer() {
 /** After a reconnect: everything may have changed while we weren't listening. */
 function refreshAll() {
   loadProjects()
-  if (getState().slug) { loadScene(); loadChecks(); loadStatus(); loadLog(); loadHistory() }
+  if (getState().slug) { loadScene(); loadChecks(); loadStatus(); loadLog(); loadHistory(); loadFeatures() }
+}
+
+/** GET /api/<slug>/features (`cad feature list`): every part's PartDesign feature list, for the tree's Bodies
+ *  (partdesign.tsx). Read again whenever a design file changes (an edit, an undo, the agent's own edit). */
+export async function loadFeatures() {
+  const slug = getState().slug
+  if (!slug) return
+  try {
+    const r = await api.features(slug)
+    if (slug !== getState().slug) return
+    if (r.exit !== 0) {
+      // the part-file layer is not there yet (exit 3, "not built"): every part shows as it was
+      if (!r.data?.not_built) report('warn', `Feature lists: ${resultText(r)}`)
+      return
+    }
+    const features = r.data?.parts ?? {}
+    setState((s) => ({ features, featSel: s.featSel.filter((ref) => !!featureOf(features, ref)),
+      activeBody: s.activeBody && features[s.activeBody] ? s.activeBody : null }))
+    for (const [part, why] of Object.entries(r.data?.errors ?? {})) report('warn', `${part}: ${why}`)
+  } catch { /* the server will say so when the scene loads */ }
+}
+/** A tree row's reference "part/Name" to the feature it names (Origin's rows and the Body itself are not features). */
+export function featureOf(features: State['features'], ref: string) {
+  const [part, name] = ref.split('/')
+  const doc = features[part]
+  return doc ? (name === undefined ? doc : doc.features.find((f) => f.name === name) ?? (ORIGIN_NAMES.includes(name) ? doc : null)) : null
+}
+/** The rows of a Body's Origin (App::Origin's OriginFeatures, by internal name; FreeCAD labels them X-axis … Origin-Point). */
+export const ORIGIN_NAMES = ['Origin', 'X_Axis', 'Y_Axis', 'Z_Axis', 'XY_Plane', 'XZ_Plane', 'YZ_Plane', 'Origin001', 'BaseFeature']
+
+/** Std_Edit on a sketch (ViewProviderSketch::setEdit): the Sketcher opens on it. The Sketcher's UI is its own piece
+ *  (branch sketcher-ui), which puts its edit mode here; until then this says so in the Report view. */
+export function editSketch(part: string, name: string) {
+  report('warn', `Edit Sketch: the Sketcher is not in this build yet, so ${part}/${name} cannot be edited here. Its geometry and `
+    + `constraints are in parts/${part}.py; \`cad feature set ${getState().slug ?? ''} ${part} ${name} ...\` changes them from the console.`)
 }
 
 export async function openProject(slug: string) {
   if (slug !== getState().slug) closeDrawings() // a drawing belongs to its project, as a TechDraw page to its document
   setState({ slug, scene: null, sceneError: null, checks: null, status: null, log: [], selected: [], preselected: null,
-    prePoint: null, hidden: [], task: null, undo: [], redo: [], unselectable: [], view: {}, treeFilter: null, pose: null })
+    prePoint: null, hidden: [], task: null, undo: [], redo: [], unselectable: [], view: {}, treeFilter: null, pose: null,
+    features: {}, featSel: [], activeBody: null, sketchShown: [] })
   saved.set('slug', slug)
   pushRecentFile(slug)
   history.replaceState(null, '', '#' + encodeURIComponent(slug))
@@ -555,7 +591,7 @@ export async function openProject(slug: string) {
   report('msg', `Opened ${slug}`)
   lastGui = {}
   guiReady = false
-  await Promise.all([loadScene(true), loadChecks(), loadStatus(), loadLog(), loadGui(), loadHistory()])
+  await Promise.all([loadScene(true), loadChecks(), loadStatus(), loadLog(), loadGui(), loadHistory(), loadFeatures()])
   publishGui() // also once on open, even if nothing above changed from the defaults
 }
 
@@ -652,8 +688,9 @@ function connect() {
     switch (ev.type) {
       case 'design':
         clearTimeout(designTimer)
-        designTimer = window.setTimeout(() => { loadScene(); loadStatus() }, 250)
+        designTimer = window.setTimeout(() => { loadScene(); loadStatus(); loadFeatures() }, 250)
         break
+      case 'features': loadFeatures(); break // POST /api/<slug>/features from this page or another one
       case 'scene': loadScene(); break
       case 'checks': loadChecks(); break
       case 'verify': loadStatus(); break
@@ -761,6 +798,7 @@ const gateAllows = (name: string, sub: string | null) => {
 }
 export function select(name: string | null, additive = false, sub: string | null = null, point: number[] | null = null) {
   if (name && !gateAllows(name, sub)) return
+  if (getState().featSel.length && !additive) setState({ featSel: [] }) // a Body's tree rows (partdesign.tsx) give way
   if (name) anchor = name
   if (name && sub && point) setState((s) => ({ subPts: { ...s.subPts, [`${name}.${sub}`]: point } }))
   const before = getState()

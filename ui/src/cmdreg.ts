@@ -44,6 +44,7 @@ import { approveRenders, exportPage } from './agentwb'
 import { exportCommand } from './filemenu'
 import { startPage } from './start'
 import { setSelFilter, whatsThis } from './chrome'
+import { createBody, deleteFeatures, moveFeatureAfter, newSketch, padOrPocket, setTip } from './partdesign'
 
 export type RegCommand = { label(): string; run(args: string[]): void; isEnabled(): boolean }
 export type CommandInfo = { name: string; label: string; enabled: boolean }
@@ -202,6 +203,15 @@ const COMMANDS: Record<string, RegCommand> = {
   // ── Help (CommandStd.cpp; only the two confirmed ids — see file header) ──
   Std_WhatsThis: reg("What's This?", whatsThis),
   Std_FreeCADWebsite: reg('FreeCAD Website', () => { window.open('https://www.freecad.org', '_blank', 'noopener') }),
+
+  // ── PartDesign (partdesign.tsx: Mod/PartDesign/Gui/CommandBody.cpp, Command.cpp; Gui/CommandDoc.cpp's Std_Delete) ──
+  PartDesign_Body: reg('New Body', () => void createBody()),
+  PartDesign_NewSketch: reg('New Sketch', () => void newSketch(), () => !!getState().slug),
+  PartDesign_Pad: reg('Pad', () => void padOrPocket('pad'), () => !!getState().slug),
+  PartDesign_Pocket: reg('Pocket', () => void padOrPocket('pocket'), () => !!getState().slug),
+  PartDesign_MoveTip: reg('Set Tip', () => void setTip(), () => getState().featSel.length === 1),
+  PartDesign_MoveFeatureInTree: reg('Move Feature After…', moveFeatureAfter, () => getState().featSel.length > 0),
+  Std_Delete: reg('Delete', () => void deleteFeatures(), () => getState().featSel.length > 0),
 
   // ── CAD Agent workbench (chrome.tsx's agentEntries/agentwb.tsx: no FreeCAD equivalent) ──
   CADAgent_Check: reg('Check', () => openTask('check', ''), () => !!getState().slug),

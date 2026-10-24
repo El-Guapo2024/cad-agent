@@ -73,6 +73,22 @@ export const FILES = {
   'std-part': 'Geofeaturegroup', 'std-group': 'folder', varset: 'VarSet', link: 'Link',
   // Part_SelectFilter's gates.
   'vertex-selection': 'vertex-selection', 'edge-selection': 'edge-selection', 'face-selection': 'face-selection', 'clear-selection': 'clear-selection',
+  // PartDesign (partdesign.tsx): the tree's objects (their ViewProviders' sPixmap) and the workbench's commands (sPixmap in
+  // Mod/PartDesign/Gui/Command*.cpp, Mod/Sketcher/Gui/Command.cpp, Mod/Part/Gui/CommandSimple.cpp).
+  'pd-sketch': 'Sketcher_Sketch', 'pd-pad': 'PartDesign_Pad', 'pd-pocket': 'PartDesign_Pocket', 'std-origin': 'Std_CoordinateSystem',
+  'std-axis': 'Std_Axis', 'std-plane': 'Std_Plane', 'std-point': 'Std_Point', 'pd-tip': 'PartDesign_Overlay_Tip',
+  'pd-new-sketch': 'Sketcher_NewSketch', 'pd-edit-sketch': 'Sketcher_EditSketch', 'pd-map-sketch': 'Sketcher_MapSketch', 'pd-attach': 'Sketcher_MapSketch',
+  'pd-reorient-sketch': 'Sketcher_ReorientSketch', 'pd-validate-sketch': 'Sketcher_ValidateSketch', 'pd-merge-sketch': 'Sketcher_MergeSketch',
+  'pd-mirror-sketch': 'Sketcher_MirrorSketch', 'pd-shape-binder': 'PartDesign_ShapeBinder', 'pd-subshape-binder': 'PartDesign_SubShapeBinder',
+  'pd-clone': 'PartDesign_Clone', 'pd-revolution': 'PartDesign_Revolution', 'pd-add-loft': 'PartDesign_AdditiveLoft', 'pd-add-pipe': 'PartDesign_AdditivePipe',
+  'pd-add-helix': 'PartDesign_AdditiveHelix', 'pd-add-box': 'PartDesign_AdditiveBox', 'pd-hole': 'PartDesign_Hole', 'pd-groove': 'PartDesign_Groove',
+  'pd-sub-loft': 'PartDesign_SubtractiveLoft', 'pd-sub-pipe': 'PartDesign_SubtractivePipe', 'pd-sub-helix': 'PartDesign_SubtractiveHelix',
+  'pd-sub-box': 'PartDesign_SubtractiveBox', 'pd-fillet': 'PartDesign_Fillet', 'pd-chamfer': 'PartDesign_Chamfer', 'pd-draft': 'PartDesign_Draft',
+  'pd-thickness': 'PartDesign_Thickness', 'pd-defeaturing': 'PartDesign_Defeaturing', 'pd-mirrored': 'PartDesign_Mirrored',
+  'pd-linear-pattern': 'PartDesign_LinearPattern', 'pd-polar-pattern': 'PartDesign_PolarPattern', 'pd-multi-transform': 'PartDesign_MultiTransform',
+  'pd-boolean': 'PartDesign_Boolean', 'pd-check-geometry': 'Part_CheckGeometry', 'pd-gear': 'PartDesign_InternalExternalGear', 'pd-sprocket': 'PartDesign_Sprocket',
+  'pd-wizard-shaft': 'PartDesign_WizardShaft', 'pd-move-tip': 'PartDesign_MoveTip', 'pd-move-feature': 'PartDesign_MoveFeature',
+  'pd-move-in-tree': 'PartDesign_MoveFeatureInTree', 'pd-color-face': 'Part_ColorFace', freeze: 'Std_ToggleFreeze',
 } as const
 
 export type IconName = keyof typeof FILES

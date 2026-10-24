@@ -432,7 +432,44 @@ export class CadView {
     // same as the transform proxy (stopTransform/startTransform); re-add so an edit elsewhere
     // doesn't silently lose the image. Still session-only: nothing here is ever saved.
     if (this.imagePlane) this.viewer.scene?.add(this.imagePlane)
+    for (const o of this.helpers.values()) this.viewer.scene?.add(o)
   }
+
+  /** What the page draws over the model and never picks (partdesign.tsx: the sketches shown, the Origin's planes while
+   *  New Sketch picks one, a Pad's preview), by key; null removes and disposes it. Kept across a scene reload. */
+  private helpers = new Map<string, THREE.Object3D>()
+  setHelper(key: string, obj: THREE.Object3D | null) {
+    const old = this.helpers.get(key)
+    if (old) {
+      this.viewer.scene?.remove(old)
+      old.traverse((o) => { const m = o as THREE.Mesh; m.geometry?.dispose(); const mat = m.material as THREE.Material | THREE.Material[] | undefined; (Array.isArray(mat) ? mat : mat ? [mat] : []).forEach((x) => x.dispose()) })
+      this.helpers.delete(key)
+    }
+    if (obj) {
+      obj.userData.cadHelper = true
+      // only what names itself for helperPicker (userData.pickName) can be hit
+      obj.traverse((o) => { if (!o.userData.pickName) o.raycast = () => {} })
+      this.helpers.set(key, obj)
+      this.viewer.scene?.add(obj)
+    }
+    this.redraw()
+  }
+  /** While set, a left click on a helper that has a userData.pickName hands that name here. */
+  helperPicker: ((name: string) => void) | null = null
+  private helperAt(e: { x: number; y: number }): string | null {
+    const canvas = this.viewer.renderer?.domElement as HTMLCanvasElement | undefined
+    const cam = this.viewer.camera?.getCamera?.()
+    if (!canvas || !cam || !this.helpers.size) return null
+    const r = canvas.getBoundingClientRect()
+    cam.updateMatrixWorld()
+    this.ray.setFromCamera(new THREE.Vector2(((e.x - r.left) / r.width) * 2 - 1, -((e.y - r.top) / r.height) * 2 + 1), cam)
+    for (const hit of this.ray.intersectObjects([...this.helpers.values()], true)) {
+      for (let o: THREE.Object3D | null = hit.object; o; o = o.parent) if (o.userData.pickName) return o.userData.pickName as string
+    }
+    return null
+  }
+  /** The scene's box, for what is sized to the model (a Through all preview, the Origin's planes). */
+  modelBox(): THREE.Box3 | null { return this.box() }
 
   /** three-cad-viewer's orbit controls: kept for their target, never for input. */
   private lockControls() {
@@ -490,6 +527,11 @@ export class CadView {
         this.on.hover(h?.body ?? null, h ? h.point.toArray() : null, h?.sub ?? null)
       })
       return false
+    }
+    if (ev.type === 'release' && ev.button === 1 && this.helperPicker) {
+      // A pickable helper (an Origin plane New Sketch offers) takes the click before the model does.
+      const name = this.helperAt(this.client(ev.pos))
+      if (name) { this.helperPicker(name); return true }
     }
     if (ev.type === 'release' && ev.button === 1 && this.pointPicker) {
       // Manual alignment takes clicks as picked points (ManualAlignment::probePickedCallback).

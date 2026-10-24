@@ -4,7 +4,7 @@
 //   src/Gui/Dialogs/DlgUndoRedo.cpp: 2004 Werner Mayer
 // The `cad serve` API. Every POST carries X-CAD, which the server requires, so
 // other pages open in the browser can't drive it.
-import type { HistoryEntry, ViewProps } from './store'
+import type { FeatureDoc, HistoryEntry, ViewProps } from './store'
 
 export type Param = { value: unknown; type: string; editable: boolean }
 export type Vec3 = [number, number, number]
@@ -26,6 +26,8 @@ export type Body = {
   /** The faces that are not flat, by number: the normal at the middle of the face's (u, v) range and the direction of its longest
    *  straight edge (scene.py curved_faces, Part::Feature::getCameraAlignmentDirection), for Align to Selection. */
   curved?: Record<string, [Vec3, Vec3 | null]>
+  /** Where the part's own coordinates are drawn, row-major 4x4 (scene.py _matrix): for a PartDesign sketch or a Pad's preview. */
+  matrix?: number[] | null
 }
 /** An axis of assembly.py's AXES (motion.Axis): the bodies it carries slide along `direction` by its position. */
 export type Axis = { name: string; moves: string[]; direction: Vec3; travel: [number, number]; work: [number, number] | null }
@@ -111,6 +113,12 @@ export const api = {
     http<CadResult>('POST', '/api/place', p ? { slug, body, ...p } : { slug, body, reset: true }),
   /** Rewrites PARAMS literals in the part file (`cad set`). */
   set: (slug: string, part: string, values: Record<string, unknown>) => http<CadResult>('POST', '/api/set', { slug, part, values }),
+  /** `cad feature list`: every part's PartDesign feature list (GET /api/<slug>/features), data.parts by part. */
+  features: (slug: string) => http<CadResult & { data?: { parts?: Record<string, FeatureDoc>; errors?: Record<string, string> } }>('GET', `/api/${encodeURIComponent(slug)}/features`),
+  /** `cad feature apply`: ops on one part's feature list as one undo step (POST /api/<slug>/features/<part>); `name` is the
+   *  step's name when the ops are a task panel's (FreeCAD's "Edit Pad"). data.doc is the list after. */
+  applyFeatures: (slug: string, part: string, ops: FeatureOp[], name?: string) =>
+    http<CadResult>('POST', `/api/${encodeURIComponent(slug)}/features/${encodeURIComponent(part)}`, name ? { ops, name } : { ops }),
   /** Minimum distance between two placed parts, and the closest points (`cad measure --posed`). */
   measure: (slug: string, a: string, b: string) => http<CadResult>('POST', '/api/measure', { slug, a, b }),
   mass: (slug: string, bodies: string[]) => http<CadResult>('POST', '/api/mass', { slug, bodies }),
@@ -157,6 +165,16 @@ export const api = {
   duplicateMacro: (name: string, to: string) => http<{ ok?: boolean }>('POST', '/api/macro/duplicate', { name, to }),
   runMacro: (name: string, slug: string) => http<MacroRunResult>('POST', '/api/macro/run', { name, slug }),
 }
+
+/** One edit of a feature list (cad_agent/feature_edit.py's apply): all of a POST's ops are one undo step. */
+export type FeatureOp =
+  /** after: the feature it goes after; null puts it first; left out, it goes at the end */
+  | { op: 'add'; feature: Record<string, unknown>; after?: string | null }
+  | { op: 'set'; name: string; props: Record<string, unknown> }
+  | { op: 'delete'; name: string }
+  | { op: 'rename'; name: string; to: string }
+  | { op: 'move'; name: string; after: string | null }
+  | { op: 'tip'; name: string }
 
 /** What a cad call said when it didn't pass, for the report view. A verdict (exit 1 or 2) has no
  *  error: the answer is the command's own text, whose first line says it ("arduino_car  NOT DONE"). */
