@@ -54,6 +54,16 @@ Also done later on 2026-10-23 (main cd8fa2c, CI green):
 - Browser checks on the merged code: cubecheck 378/378, navcheck 92/92, keycheck 62/62; wirecheck's customize, start, prefs
   and Placement sections clean locally. On Linux, wirecheck's "Cmd+click adds a part" fails by platform (Meta vs Ctrl), on old main too.
 
+## Now (2026-10-24): editing in the app, as FreeCAD does
+Juan's call: the app should edit like FreeCAD, edits written back as Python, Sketcher and Pad/Pocket first.
+The plan and its order are docs/EDITING_PLAN.md (branch `editing-plan`). FreeCAD's solver PlaneGCS is vendored
+unchanged in ui/planegcs/. Under way, each on its own branch off `editing-plan`:
+- `sketch-solver`: the port of Sketch.cpp's mapping onto PlaneGCS, a C API, a native build for Python
+  (cad_agent/planegcs.py) and a WebAssembly build for the page, checked against freecadcmd's solves.
+- `feature-list`: cad_agent/feature.py (Sketch, Pad, Pocket, Body in FreeCAD's Python vocabulary), the
+  in-place editor for those literals, checked against freecadcmd's PartDesign volumes and boxes.
+Then the Sketcher UI (step 3) and object editing (step 4).
+
 ## Next (paused 2026-10-23)
 1. ~~Hidden specs~~ (done 2026-10-23): `pinned_carrier` and `hotplate_standoffs` count their holes `through`, and
    `syringe_clamp` grades its bore with `[[shaft_fit]]`; tests/test_eval.py GAPS has the design each one catches.
