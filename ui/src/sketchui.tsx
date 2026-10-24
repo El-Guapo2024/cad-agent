@@ -78,7 +78,7 @@ export function SketchToolbars() {
 // ── the Sketch menu ──────────────────────────────────────────────────────────────────────────────────────────────
 function cmdEntry(name: string): Entry {
   const i = cmdInfo(name)
-  return { label: i.menu, img: pixmapOf(name) ? sketcherIcon(pixmapOf(name)) : undefined, kbd: i.accel || undefined, disabled: !isEnabled(name),
+  return { label: i.menu, cmd: name, img: pixmapOf(name) ? sketcherIcon(pixmapOf(name)) : undefined, kbd: i.accel || undefined, disabled: !isEnabled(name),
     title: why(name) ? `${i.tip} (${why(name)})` : i.tip, onSelect: () => runSketchCommand(name) }
 }
 const menuEntry = (m: MenuItem): Entry => (m === 'sep' ? 'sep' : typeof m === 'string' ? cmdEntry(m) : { label: m.menu, sub: m.items.map(menuEntry) })

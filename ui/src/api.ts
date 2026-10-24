@@ -76,7 +76,10 @@ export type ExportFormat = 'step' | 'stl' | '3mf' | 'dxf'
  *  entry per body (same keys as the store's `view` record), keyed by body name. */
 export type GuiView = { camera: string | null; projection: 'ortho' | 'persp' | null }
 /** `view` is the camera; `view_props` the per-body ViewProvider properties (FreeCAD's GuiDocument). */
-export type GuiState = { selected: string[]; preselected: string | null; hidden: string[]; task: string | null; view: GuiView; view_props: Record<string, Partial<ViewProps>>; unselectable: string[] }
+/** The sketch in edit (sketcher.ts publishSketch): its geometry and its constraints as Sketcher.Constraint's arguments. */
+export type GuiSketch = { name: string; part: string | null; geometry: unknown[]; constraints: { type: string; args: number[]; value?: number; driving?: boolean; name?: string }[]
+  message: { state: string; status: string; link: string } }
+export type GuiState = { selected: string[]; preselected: string | null; hidden: string[]; task: string | null; view: GuiView; view_props: Record<string, Partial<ViewProps>>; unselectable: string[]; sketch?: GuiSketch | null }
 export type GuiStatus = GuiState & { slug: string; connected: boolean; updated: string }
 
 async function http<T>(method: 'GET' | 'POST', path: string, body?: unknown, params?: Record<string, string | number>): Promise<T> {

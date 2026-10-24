@@ -102,7 +102,8 @@ def test_default_gui_state_is_empty_and_disconnected(server, demo):
     assert code == 200
     assert data == {"slug": "demo", "connected": False, "selected": [], "preselected": None,
                     "hidden": [], "task": None, "view": {"camera": None, "projection": None},
-                    "view_props": {}, "unselectable": [], "commands": [], "camera_node": None, "updated": None}
+                    "view_props": {}, "unselectable": [], "commands": [], "camera_node": None, "sketch": None,
+                    "updated": None}
 
 
 def test_get_gui_404s_for_an_unknown_project(server):
@@ -300,6 +301,17 @@ def test_post_gui_camera_node_round_trips_and_is_validated(server, demo):
     assert json.loads(call("/api/gui?slug=demo")[1])["camera_node"] == cam
     code, _ = call("/api/gui", {"slug": "demo", "state": {"camera_node": "not a camera"}})
     assert code == 400
+
+
+def test_post_gui_sketch_round_trips_and_is_validated(server, demo):
+    call, _, _ = server
+    sketch = {"name": "Sketch", "part": None, "geometry": [{"type": "Point", "at": [1, 2]}], "constraints": [],
+              "message": "Under-constrained: 2 Degrees of Freedom"}
+    assert call("/api/gui", {"slug": "demo", "state": {"sketch": sketch}})[0] == 200
+    assert json.loads(call("/api/gui?slug=demo")[1])["sketch"] == sketch
+    assert call("/api/gui", {"slug": "demo", "state": {"sketch": None}})[0] == 200
+    assert json.loads(call("/api/gui?slug=demo")[1])["sketch"] is None
+    assert call("/api/gui", {"slug": "demo", "state": {"sketch": "Sketch"}})[0] == 400
 
 
 def test_gui_do_run_broadcasts_and_passes_through_extra_args(server, demo):

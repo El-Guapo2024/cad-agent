@@ -213,7 +213,23 @@ export function solve() {
   s.constraints = s.constraints.map((c) => (!c.driving && SK.isDimensional(c) ? { ...c, value: SK.measure(s.geometry, c) } : c))
   s.message = messageOf(s)
   changed()
+  publishSketch()
   return r
+}
+/** The sketch in edit, for `cad gui` (GET /api/gui's "sketch"): what an agent, or ui/scripts/sketchcheck.mjs, reads back. */
+let publishTimer = 0
+function publishSketch() {
+  clearTimeout(publishTimer)
+  publishTimer = window.setTimeout(() => {
+    const slug = getState().slug, s = session
+    if (!slug) return
+    const sketch = s ? {
+      name: s.ref.name, part: s.ref.part, geometry: s.geometry,
+      constraints: s.constraints.map((c) => ({ type: c.type, args: SK.toArgs(c), ...(SK.isDimensional(c) ? { value: c.value } : {}), ...(c.driving ? {} : { driving: false }), ...(c.name ? { name: c.name } : {}) })),
+      message: { state: s.message.state, status: s.message.text, link: s.message.linkText },
+    } : null
+    api.setGui(slug, { sketch }).catch(() => { /* best effort, as publishGui */ })
+  }, 30)
 }
 /** SketchObject::diagnoseAdditionalConstraints: the solver's verdict with extra constraints, the sketch unchanged. */
 export function diagnoseWith(extra: Constraint[]) {
@@ -1054,6 +1070,8 @@ export async function closeEdit(accept: boolean) {
   if (s.before.camera) view?.setCamera(s.before.camera) // TempoVis.restore: RestoreCamera
   setEditHistory(null)
   changed()
+  publishSketch()
+  lastClosed = { ...s.ref, placement: s.placement, sketch: result }
   if (accept && changedSketch) await saveSketch(s.ref.part, s.ref.name, result)
   closed.forEach((f) => f({ ref: s.ref, sketch: result, accepted: accept }))
 }
@@ -1078,6 +1096,9 @@ export async function saveSketch(part: string | null, name: string, sketch: Sket
     return false
   }
 }
+/** The sketch that was last in edit, as it was left: what Sketcher_EditSketch opens again while the tree has no sketches. */
+let lastClosed: SketchRef | null = null
+export const lastSketch = () => lastClosed
 /** Sketches edited here and not saved (no part, no endpoint): what a re-edit starts from. */
 const pending = new Map<string, Sketch>()
 export const unsavedSketch = (name: string) => pending.get(name) ?? null

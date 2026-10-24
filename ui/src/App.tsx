@@ -187,6 +187,8 @@ function useKeys() {
       if (e.shiftKey && k === 'e') { e.preventDefault(); recordAndRun('Std_BoxElementSelection', boxElementSelection); return }
       if (keyViews[e.key]) { recordAndRun(keyCmds[e.key], () => v?.viewDir(keyViews[e.key])); e.preventDefault(); return }
       if (e.key === ' ') { e.preventDefault(); recordAndRun('Std_ToggleVisibility', () => toggleVisibility()); return }
+      // (a sketch in edit takes its own Esc, above: a menu's Esc must not close its task panel)
+      if (e.key === 'Escape' && Sketcher.isEditing()) return
       if (e.key === 'Escape') { if (getState().task) closeTask(); else if (getState().treeFilter !== null) setState({ treeFilter: null }); else select(null) }
     }
     // While a sketch is in edit, its keys come first (ViewProviderSketch::keyPressed: Esc, Delete, a tool's own keys),
@@ -195,6 +197,8 @@ function useKeys() {
       if (!Sketcher.isEditing()) return
       const t = e.target as HTMLElement | null
       if (t?.closest?.('input, textarea, select, [contenteditable="true"], .msgbox-back')) return
+      // an open menu (a toolbar's drop-down, the menu bar's, a context menu) takes Esc and the arrows itself
+      if (document.querySelector('.ctx, .mb-content, .msgbox-back')) return
       const down = e.type === 'keydown'
       if (Sketcher.handleKey(e, down)) { e.preventDefault(); e.stopImmediatePropagation(); return }
       if (down && sketchShortcut(e)) e.stopImmediatePropagation()

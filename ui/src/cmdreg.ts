@@ -9,6 +9,7 @@
 //   src/Gui/Workbench.cpp: 2004 Werner Mayer
 //   src/Gui/CommandDoc.cpp: 2002 Jürgen Riegel
 //   src/Gui/CommandStd.cpp: 2002 Jürgen Riegel; 2023 FreeCAD Project Association
+//   src/Mod/Sketcher/Gui/Command.cpp: 2008 Jürgen Riegel
 // FreeCAD's command registry (Gui::CommandManager, src/Gui/Command.cpp): every Std_*/CADAgent_*
 // command this UI implements, keyed by its FreeCAD id, so an agent can run any of them by name
 // (`cad gui run PROJECT COMMAND`; api.ts's GuiState gains "commands", published below) the way
@@ -44,6 +45,9 @@ import { approveRenders, exportPage } from './agentwb'
 import { exportCommand } from './filemenu'
 import { startPage } from './start'
 import { setSelFilter, whatsThis } from './chrome'
+import { SKETCH_CMD_INFO } from './sketchcmdinfo'
+import { isEnabled as sketchEnabled, isImplemented as isSketchCommand, runSketchCommand } from './sketchcmds'
+import * as Sketcher from './sketcher'
 
 export type RegCommand = { label(): string; run(args: string[]): void; isEnabled(): boolean }
 export type CommandInfo = { name: string; label: string; enabled: boolean }
@@ -225,6 +229,14 @@ const COMMANDS: Record<string, RegCommand> = {
   CADAgent_Pose: reg(() => (getState().pose ? `Pose: ${getState().pose}` : 'Pose'), (args) => { setPose(!args[0] || args[0] === 'home' ? null : args[0]) },
     () => poseNames(getState().scene).length > 0 || !!getState().pose),
   CADAgent_ExportReviewPage: reg('Review page (*.html)', () => exportPage(), () => !!getState().slug),
+}
+
+// The Sketcher's (sketchcmds.ts): each command it implements, by its FreeCAD id. Sketcher_EditSketch takes the sketch's
+// name and its geometry and constraints as JSON (`cad gui run P Sketcher_EditSketch Sketch '{"geometry": …}'`).
+for (const name of Object.keys(SKETCH_CMD_INFO)) {
+  if (!isSketchCommand(name)) continue
+  COMMANDS[name] = reg(SKETCH_CMD_INFO[name][0], (args) => runSketchCommand(name, args),
+    name === 'Sketcher_EditSketch' ? () => !!getState().slug && !Sketcher.isEditing() : () => sketchEnabled(name))
 }
 
 export const getCommand = (name: string): RegCommand | undefined => COMMANDS[name]

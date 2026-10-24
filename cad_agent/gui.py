@@ -314,7 +314,7 @@ def _default(pdir: Path) -> dict:
     return {"selected": [], "preselected": None, "hidden": p["hidden"], "task": None,
             "view": {"camera": None, "projection": None},
             "view_props": p["view_props"], "unselectable": p["unselectable"], "commands": [],
-            "camera_node": None, "updated": None}
+            "camera_node": None, "sketch": None, "updated": None}
 
 
 class GuiBoard:
@@ -344,7 +344,7 @@ class GuiBoard:
                     "view_props": {b: dict(p) for b, p in s["view_props"].items()},
                     "unselectable": list(s["unselectable"]),
                     "commands": [dict(c) for c in s["commands"]], "camera_node": s.get("camera_node"),
-                    "updated": s["updated"]}
+                    "sketch": s.get("sketch"), "updated": s["updated"]}
 
     def post(self, slug: str, pdir: Path, patch: dict) -> None:
         """A UI pushing its own live state. Partial: only given keys change."""
@@ -391,6 +391,11 @@ class GuiBoard:
                 if v is not None and not (isinstance(v, str) and camera_projection(v)):
                     raise GuiError("camera_node must be an Inventor camera node")
                 s["camera_node"] = v
+            if "sketch" in patch:        # the sketch in edit (the UI's Sketcher): name, part, geometry, constraints, solver message
+                v = patch["sketch"]
+                if v is not None and not isinstance(v, dict):
+                    raise GuiError("sketch must be an object or null")
+                s["sketch"] = v
             if persisted:
                 save_persisted(pdir, s["hidden"], s["view_props"], s["unselectable"])
             s["updated"] = _now()

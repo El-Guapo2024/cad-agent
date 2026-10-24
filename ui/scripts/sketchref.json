@@ -1,0 +1,3279 @@
+{
+ "about": "What FreeCAD 26.3 (3160daf1e2b6) does for ui/scripts/sketchcases.json, written by fcsketch.py --ref; ui/scripts/sketchcheck.mjs compares the workbench with it.",
+ "viewport": [
+  1014,
+  644
+ ],
+ "toolbars": [
+  {
+   "title": "File",
+   "items": [
+    "Std_New",
+    "Std_Open",
+    "Std_Save"
+   ]
+  },
+  {
+   "title": "Edit",
+   "items": [
+    "",
+    "",
+    "sep",
+    "Std_Refresh"
+   ]
+  },
+  {
+   "title": "Workbench",
+   "items": [
+    ""
+   ]
+  },
+  {
+   "title": "View",
+   "items": [
+    "Std_ViewFitAll",
+    "Std_ViewFitSelection",
+    "Std_ViewGroup",
+    "Std_AlignToSelection",
+    "sep",
+    "Std_DrawStyle",
+    "Part_SelectFilter",
+    "sep",
+    "Std_Measure",
+    "Std_MassProperties"
+   ]
+  },
+  {
+   "title": "Structure",
+   "items": [
+    "Std_Part",
+    "Part_Datums",
+    "Std_Group",
+    "Std_LinkActions",
+    "Std_VarSet"
+   ]
+  },
+  {
+   "title": "Help",
+   "items": [
+    "Std_WhatsThis"
+   ]
+  },
+  {
+   "title": "Edit Mode",
+   "items": [
+    "Sketcher_LeaveSketch",
+    "Sketcher_ViewSketch",
+    "Sketcher_ViewSection"
+   ]
+  },
+  {
+   "title": "Geometries",
+   "items": [
+    "Sketcher_CreatePoint",
+    {
+     "group": "Sketcher_CompLine",
+     "items": [
+      "Sketcher_CreatePolyline",
+      "Sketcher_CreateLine"
+     ]
+    },
+    {
+     "group": "Sketcher_CompCreateArc",
+     "items": [
+      "Sketcher_CreateArc",
+      "Sketcher_Create3PointArc",
+      "Sketcher_CreateArcOfEllipse",
+      "Sketcher_CreateArcOfHyperbola",
+      "Sketcher_CreateArcOfParabola"
+     ]
+    },
+    {
+     "group": "Sketcher_CompCreateConic",
+     "items": [
+      "Sketcher_CreateCircle",
+      "Sketcher_Create3PointCircle",
+      "Sketcher_CreateEllipseByCenter",
+      "Sketcher_CreateEllipseBy3Points"
+     ]
+    },
+    {
+     "group": "Sketcher_CompCreateRectangles",
+     "items": [
+      "Sketcher_CreateRectangle",
+      "Sketcher_CreateRectangle_Center",
+      "Sketcher_CreateOblong"
+     ]
+    },
+    {
+     "group": "Sketcher_CompCreateRegularPolygon",
+     "items": [
+      "Sketcher_CreateTriangle",
+      "Sketcher_CreateSquare",
+      "Sketcher_CreatePentagon",
+      "Sketcher_CreateHexagon",
+      "Sketcher_CreateHeptagon",
+      "Sketcher_CreateOctagon",
+      "Sketcher_CreateRegularPolygon"
+     ]
+    },
+    {
+     "group": "Sketcher_CompSlot",
+     "items": [
+      "Sketcher_CreateSlot",
+      "Sketcher_CreateArcSlot"
+     ]
+    },
+    {
+     "group": "Sketcher_CompCreateBSpline",
+     "items": [
+      "Sketcher_CreateBSpline",
+      "Sketcher_CreatePeriodicBSpline",
+      "Sketcher_CreateBSplineByInterpolation",
+      "Sketcher_CreatePeriodicBSplineByInterpolation"
+     ]
+    },
+    "Sketcher_CreateText",
+    "sep",
+    "Sketcher_ToggleConstruction"
+   ]
+  },
+  {
+   "title": "Constraints",
+   "items": [
+    {
+     "group": "Sketcher_CompDimensionTools",
+     "items": [
+      "Sketcher_Dimension",
+      "sep",
+      "Sketcher_ConstrainDistanceX",
+      "Sketcher_ConstrainDistanceY",
+      "Sketcher_ConstrainDistance",
+      "Sketcher_ConstrainRadiam",
+      "Sketcher_ConstrainRadius",
+      "Sketcher_ConstrainDiameter",
+      "Sketcher_ConstrainAngle",
+      "Sketcher_ConstrainLock"
+     ]
+    },
+    "sep",
+    "Sketcher_ConstrainCoincidentUnified",
+    {
+     "group": "Sketcher_CompHorVer",
+     "items": [
+      "Sketcher_ConstrainHorVer",
+      "Sketcher_ConstrainHorizontal",
+      "Sketcher_ConstrainVertical"
+     ]
+    },
+    "Sketcher_ConstrainParallel",
+    "Sketcher_ConstrainPerpendicular",
+    "Sketcher_ConstrainTangent",
+    "Sketcher_ConstrainEqual",
+    "Sketcher_ConstrainSymmetric",
+    "Sketcher_ConstrainBlock",
+    "sep",
+    {
+     "group": "Sketcher_CompToggleConstraints",
+     "items": [
+      "Sketcher_ToggleDrivingConstraint",
+      "Sketcher_ToggleActiveConstraint"
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Sketcher Tools",
+   "items": [
+    {
+     "group": "Sketcher_CompCreateFillets",
+     "items": [
+      "Sketcher_CreateFillet",
+      "Sketcher_CreateChamfer"
+     ]
+    },
+    {
+     "group": "Sketcher_CompCurveEdition",
+     "items": [
+      "Sketcher_Trimming",
+      "Sketcher_Split",
+      "Sketcher_Extend"
+     ]
+    },
+    {
+     "group": "Sketcher_CompExternal",
+     "items": [
+      "Sketcher_Projection",
+      "Sketcher_Intersection"
+     ]
+    },
+    "Sketcher_CarbonCopy",
+    "sep",
+    "Sketcher_Translate",
+    "Sketcher_Rotate",
+    "Sketcher_Scale",
+    "Sketcher_Offset",
+    "Sketcher_Symmetry",
+    "Sketcher_RemoveAxesAlignment"
+   ]
+  },
+  {
+   "title": "B-Spline Tools",
+   "items": [
+    "Sketcher_BSplineConvertToNURBS",
+    "Sketcher_BSplineIncreaseDegree",
+    "Sketcher_BSplineDecreaseDegree",
+    {
+     "group": "Sketcher_CompModifyKnotMultiplicity",
+     "items": [
+      "",
+      ""
+     ]
+    },
+    "Sketcher_BSplineInsertKnot",
+    "Sketcher_JoinCurves"
+   ]
+  },
+  {
+   "title": "Visual Helpers",
+   "items": [
+    "Sketcher_SelectConstraints",
+    "Sketcher_SelectElementsAssociatedWithConstraints",
+    "sep",
+    "Sketcher_ArcOverlay",
+    {
+     "group": "Sketcher_CompBSplineShowHideGeometryInformation",
+     "items": [
+      "",
+      "",
+      "",
+      "",
+      ""
+     ]
+    },
+    "Sketcher_RestoreInternalAlignmentGeometry",
+    "Sketcher_SwitchVirtualSpace"
+   ]
+  }
+ ],
+ "sketch_menu": [
+  "Sketcher_NewSketch",
+  "Sketcher_EditSketch",
+  "Sketcher_MapSketch",
+  "Sketcher_ReorientSketch",
+  "Sketcher_ValidateSketch",
+  "Sketcher_MergeSketches",
+  "Sketcher_MirrorSketch",
+  "Sketcher_LeaveSketch",
+  "Sketcher_CancelSketch",
+  "Sketcher_ViewSketch",
+  "Sketcher_ViewSection",
+  "Sketcher_StopOperation",
+  {
+   "menu": "Geometries",
+   "items": [
+    "Sketcher_CreatePoint",
+    "Sketcher_CreatePolyline",
+    "Sketcher_CreateLine",
+    "Sketcher_CreateArc",
+    "Sketcher_Create3PointArc",
+    "Sketcher_CreateArcOfEllipse",
+    "Sketcher_CreateArcOfHyperbola",
+    "Sketcher_CreateArcOfParabola",
+    "Sketcher_CreateCircle",
+    "Sketcher_Create3PointCircle",
+    "Sketcher_CreateEllipseByCenter",
+    "Sketcher_CreateEllipseBy3Points",
+    "Sketcher_CreateRectangle",
+    "Sketcher_CreateRectangle_Center",
+    "Sketcher_CreateOblong",
+    "Sketcher_CreateTriangle",
+    "Sketcher_CreateSquare",
+    "Sketcher_CreatePentagon",
+    "Sketcher_CreateHexagon",
+    "Sketcher_CreateHeptagon",
+    "Sketcher_CreateOctagon",
+    "Sketcher_CreateRegularPolygon",
+    "Sketcher_CreateSlot",
+    "Sketcher_CreateArcSlot",
+    "Sketcher_CreateBSpline",
+    "Sketcher_CreatePeriodicBSpline",
+    "Sketcher_CreateBSplineByInterpolation",
+    "Sketcher_CreatePeriodicBSplineByInterpolation",
+    "Sketcher_CreateText",
+    "sep",
+    "Sketcher_ToggleConstruction"
+   ]
+  },
+  {
+   "menu": "Constraints",
+   "items": [
+    "Sketcher_ConstrainCoincidentUnified",
+    "Sketcher_ConstrainHorVer",
+    "Sketcher_ConstrainHorizontal",
+    "Sketcher_ConstrainVertical",
+    "Sketcher_ConstrainParallel",
+    "Sketcher_ConstrainPerpendicular",
+    "Sketcher_ConstrainTangent",
+    "Sketcher_ConstrainEqual",
+    "Sketcher_ConstrainSymmetric",
+    "Sketcher_ConstrainBlock",
+    "sep",
+    "Sketcher_Dimension",
+    "Sketcher_ConstrainDistanceX",
+    "Sketcher_ConstrainDistanceY",
+    "Sketcher_ConstrainDistance",
+    "Sketcher_ConstrainRadiam",
+    "Sketcher_ConstrainRadius",
+    "Sketcher_ConstrainDiameter",
+    "Sketcher_ConstrainAngle",
+    "Sketcher_ConstrainLock",
+    "Sketcher_ConstrainSnellsLaw",
+    "sep",
+    "Sketcher_ToggleDrivingConstraint",
+    "Sketcher_ToggleActiveConstraint"
+   ]
+  },
+  {
+   "menu": "Sketcher Tools",
+   "items": [
+    "Sketcher_CreateFillet",
+    "Sketcher_CreateChamfer",
+    "Sketcher_Trimming",
+    "Sketcher_Extend",
+    "Sketcher_Split",
+    "Sketcher_Projection",
+    "Sketcher_Intersection",
+    "Sketcher_CarbonCopy",
+    "sep",
+    "Sketcher_SelectOrigin",
+    "Sketcher_SelectHorizontalAxis",
+    "Sketcher_SelectVerticalAxis",
+    "sep",
+    "Sketcher_Translate",
+    "Sketcher_Rotate",
+    "Sketcher_Scale",
+    "Sketcher_Offset",
+    "Sketcher_Symmetry",
+    "Sketcher_RemoveAxesAlignment",
+    "sep",
+    "Sketcher_DeleteAllGeometry",
+    "Sketcher_DeleteAllConstraints",
+    "sep",
+    "Sketcher_CopyClipboard",
+    "Sketcher_Cut",
+    "Sketcher_Paste"
+   ]
+  },
+  {
+   "menu": "B-Spline Tools",
+   "items": [
+    "Sketcher_BSplineConvertToNURBS",
+    "Sketcher_BSplineIncreaseDegree",
+    "Sketcher_BSplineDecreaseDegree",
+    "Sketcher_BSplineIncreaseKnotMultiplicity",
+    "Sketcher_BSplineDecreaseKnotMultiplicity",
+    "Sketcher_BSplineInsertKnot",
+    "Sketcher_JoinCurves"
+   ]
+  },
+  {
+   "menu": "Visual Helpers",
+   "items": [
+    "Sketcher_SelectElementsWithDoFs",
+    "Sketcher_SelectConstraints",
+    "Sketcher_SelectElementsAssociatedWithConstraints",
+    "Sketcher_SelectRedundantConstraints",
+    "Sketcher_SelectConflictingConstraints",
+    "sep",
+    "Sketcher_ArcOverlay",
+    "Sketcher_RestoreInternalAlignmentGeometry",
+    "Sketcher_SwitchVirtualSpace",
+    {
+     "menu": "Toggle B-Spline Information Layer",
+     "items": [
+      "",
+      "",
+      "",
+      "",
+      ""
+     ]
+    }
+   ]
+  }
+ ],
+ "params": {
+  "EditedEdgeColor": 1230002175,
+  "EditedVertexColor": 556083711,
+  "ConstructionColor": 995875839,
+  "InternalAlignedGeoColor": 995875839,
+  "FullyConstraintElementColor": 798901503,
+  "FullyConstraintConstructionElementColor": 2443706367,
+  "FullyConstraintInternalAlignmentColor": 2443706367,
+  "FullyConstrainedColor": 798901503,
+  "InvalidSketchColor": 4285333759,
+  "ConstrainedDimColor": 3761320447,
+  "ConstrainedIcoColor": 3761320447,
+  "NonDrivingConstrDimColor": 2257491711,
+  "ExprBasedConstrDimColor": 3761320447,
+  "DeactivatedConstrDimColor": 2257491711,
+  "ExternalColor": 2923350527,
+  "ExternalDefiningColor": null,
+  "HighlightColor": 180944895,
+  "SelectionColor": 11272191,
+  "CursorTextColor": 556083711,
+  "CursorCrosshairColor": 556083711,
+  "CreateLineColor": 556083711,
+  "AxisXColor": null,
+  "AxisYColor": null,
+  "MarkerSize": null,
+  "EditSketcherFontSize": null,
+  "ConstraintSymbolSize": null,
+  "DefaultShapePointSize": null,
+  "GridLineColor": 3082800383,
+  "GridDivLineColor": 3082800383,
+  "ShowGrid": null,
+  "GridSize": null,
+  "AxisTransparency": null,
+  "EdgeWidth": null,
+  "ConstructionWidth": null,
+  "ExternalWidth": null,
+  "AxisLineWidth": null
+ },
+ "message_empty": {
+  "status": "Empty sketch",
+  "link": ""
+ },
+ "dialogs": [
+  {
+   "case": "c-distance-line",
+   "title": "Insert Length"
+  },
+  {
+   "case": "c-distancex-line",
+   "title": "Insert Length"
+  },
+  {
+   "case": "c-distancey-points",
+   "title": "Insert Length"
+  },
+  {
+   "case": "c-radius",
+   "title": "Insert Radius"
+  },
+  {
+   "case": "c-diameter",
+   "title": "Insert Diameter"
+  },
+  {
+   "case": "c-angle",
+   "title": "Insert Angle"
+  }
+ ],
+ "cases": {
+  "point": {
+   "geometry": [
+    {
+     "type": "Point",
+     "at": [
+      9.937888,
+      11.925467
+     ]
+    }
+   ],
+   "constraints": [],
+   "message": {
+    "status": "Under-constrained: ",
+    "link": "2 Degrees of Freedom"
+   }
+  },
+  "point-on-origin": {
+   "geometry": [
+    {
+     "type": "Point",
+     "at": [
+      0.0,
+      0.0
+     ]
+    }
+   ],
+   "constraints": [
+    {
+     "type": "Coincident",
+     "args": [
+      0,
+      1,
+      -1,
+      1
+     ]
+    }
+   ],
+   "message": {
+    "status": "Fully constrained",
+    "link": ""
+   }
+  },
+  "line-free": {
+   "geometry": [
+    {
+     "type": "LineSegment",
+     "start": [
+      9.93788815,
+      10.06211185
+     ],
+     "end": [
+      40.0621109,
+      29.9378891
+     ]
+    }
+   ],
+   "constraints": [],
+   "message": {
+    "status": "Under-constrained: ",
+    "link": "4 Degrees of Freedom"
+   }
+  },
+  "line-horizontal": {
+   "geometry": [
+    {
+     "type": "LineSegment",
+     "start": [
+      9.93788815,
+      10.06211185
+     ],
+     "end": [
+      40.0621109,
+      10.06211185
+     ]
+    }
+   ],
+   "constraints": [
+    {
+     "type": "Horizontal",
+     "args": [
+      0
+     ]
+    }
+   ],
+   "message": {
+    "status": "Under-constrained: ",
+    "link": "3 Degrees of Freedom"
+   }
+  },
+  "line-vertical": {
+   "geometry": [
+    {
+     "type": "LineSegment",
+     "start": [
+      9.93788815,
+      10.06211185
+     ],
+     "end": [
+      9.93788815,
+      40.03105927
+     ]
+    }
+   ],
+   "constraints": [
+    {
+     "type": "Vertical",
+     "args": [
+      0
+     ]
+    }
+   ],
+   "message": {
+    "status": "Under-constrained: ",
+    "link": "3 Degrees of Freedom"
+   }
+  },
+  "line-from-origin": {
+   "geometry": [
+    {
+     "type": "LineSegment",
+     "start": [
+      0.0,
+      0.0
+     ],
+     "end": [
+      29.96894073,
+      22.0186367
+     ]
+    }
+   ],
+   "constraints": [
+    {
+     "type": "Coincident",
+     "args": [
+      0,
+      1,
+      -1,
+      1
+     ]
+    }
+   ],
+   "message": {
+    "status": "Under-constrained: ",
+    "link": "2 Degrees of Freedom"
+   }
+  },
+  "line-on-axes": {
+   "geometry": [
+    {
+     "type": "LineSegment",
+     "start": [
+      20.03105545,
+      0.0
+     ],
+     "end": [
+      0.0,
+      29.9378891
+     ]
+    }
+   ],
+   "constraints": [
+    {
+     "type": "PointOnObject",
+     "args": [
+      0,
+      1,
+      -1
+     ]
+    },
+    {
+     "type": "PointOnObject",
+     "args": [
+      0,
+      2,
+      -2
+     ]
+    }
+   ],
+   "message": {
+    "status": "Under-constrained: ",
+    "link": "2 Degrees of Freedom"
+   }
+  },
+  "line-to-line-end": {
+   "geometry": [
+    {
+     "type": "LineSegment",
+     "start": [
+      5.0,
+      5.0
+     ],
+     "end": [
+      35.0,
+      15.0
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      35.0,
+      15.0
+     ],
+     "end": [
+      45.03105927,
+      40.03105927
+     ]
+    }
+   ],
+   "constraints": [
+    {
+     "type": "Coincident",
+     "args": [
+      1,
+      1,
+      0,
+      2
+     ]
+    }
+   ],
+   "message": {
+    "status": "Under-constrained: ",
+    "link": "6 Degrees of Freedom"
+   }
+  },
+  "line-onto-edge": {
+   "geometry": [
+    {
+     "type": "LineSegment",
+     "start": [
+      5.0,
+      5.0
+     ],
+     "end": [
+      45.0,
+      5.0
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      15.06211185,
+      35.0621109
+     ],
+     "end": [
+      29.961240769999996,
+      5.0
+     ]
+    }
+   ],
+   "constraints": [
+    {
+     "type": "PointOnObject",
+     "args": [
+      1,
+      2,
+      0
+     ]
+    }
+   ],
+   "message": {
+    "status": "Under-constrained: ",
+    "link": "7 Degrees of Freedom"
+   }
+  },
+  "line-to-midpoint": {
+   "geometry": [
+    {
+     "type": "LineSegment",
+     "start": [
+      5.0,
+      5.0
+     ],
+     "end": [
+      45.0,
+      5.0
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      11.95652199,
+      35.0621109
+     ],
+     "end": [
+      25.0,
+      5.0
+     ]
+    }
+   ],
+   "constraints": [
+    {
+     "type": "Symmetric",
+     "args": [
+      0,
+      1,
+      0,
+      2,
+      1,
+      2
+     ]
+    }
+   ],
+   "message": {
+    "status": "Under-constrained: ",
+    "link": "6 Degrees of Freedom"
+   }
+  },
+  "line-continuous": {
+   "geometry": [
+    {
+     "type": "LineSegment",
+     "start": [
+      9.93788815,
+      10.06211185
+     ],
+     "end": [
+      29.96894073,
+      29.9378891
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      29.96894073,
+      29.9378891
+     ],
+     "end": [
+      50.0,
+      11.925466540000002
+     ]
+    }
+   ],
+   "constraints": [
+    {
+     "type": "Coincident",
+     "args": [
+      1,
+      1,
+      0,
+      2
+     ]
+    }
+   ],
+   "message": {
+    "status": "Under-constrained: ",
+    "link": "6 Degrees of Freedom"
+   }
+  },
+  "line-esc-midway": {
+   "geometry": [
+    {
+     "type": "LineSegment",
+     "start": [
+      20.03105545,
+      20.0
+     ],
+     "end": [
+      34.9378891,
+      40.96273422
+     ]
+    }
+   ],
+   "constraints": [],
+   "message": {
+    "status": "Under-constrained: ",
+    "link": "4 Degrees of Freedom"
+   }
+  },
+  "polyline": {
+   "geometry": [
+    {
+     "type": "LineSegment",
+     "start": [
+      9.93788815,
+      10.06211185
+     ],
+     "end": [
+      40.0621109,
+      10.06211185
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      40.0621109,
+      10.06211185
+     ],
+     "end": [
+      40.0621109,
+      35.0621109
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      40.0621109,
+      35.0621109
+     ],
+     "end": [
+      15.06211185,
+      29.9378891
+     ]
+    }
+   ],
+   "constraints": [
+    {
+     "type": "Horizontal",
+     "args": [
+      0
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      0,
+      2,
+      1,
+      1
+     ]
+    },
+    {
+     "type": "Vertical",
+     "args": [
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      1,
+      2,
+      2,
+      1
+     ]
+    }
+   ],
+   "message": {
+    "status": "Under-constrained: ",
+    "link": "6 Degrees of Freedom"
+   }
+  },
+  "polyline-closed": {
+   "geometry": [
+    {
+     "type": "LineSegment",
+     "start": [
+      9.937888149999997,
+      10.06211185
+     ],
+     "end": [
+      40.0621109,
+      10.06211185
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      40.0621109,
+      10.06211185
+     ],
+     "end": [
+      25.0,
+      35.0621109
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      25.0,
+      35.0621109
+     ],
+     "end": [
+      9.937888149999997,
+      10.06211185
+     ]
+    }
+   ],
+   "constraints": [
+    {
+     "type": "Horizontal",
+     "args": [
+      0
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      0,
+      2,
+      1,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      1,
+      2,
+      2,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      2,
+      2,
+      0,
+      1
+     ]
+    }
+   ],
+   "message": {
+    "status": "Under-constrained: ",
+    "link": "5 Degrees of Freedom"
+   }
+  },
+  "polyline-arc": {
+   "geometry": [
+    {
+     "type": "LineSegment",
+     "start": [
+      9.93788815,
+      10.06211185
+     ],
+     "end": [
+      29.96894073,
+      10.06211185
+     ]
+    },
+    {
+     "type": "ArcOfCircle",
+     "center": [
+      6.086174762895719e+16,
+      -13834365.81733145
+     ],
+     "radius": 6.086174762895716e+16,
+     "start_angle": 3.14159265,
+     "end_angle": 3.141592652820414
+    }
+   ],
+   "constraints": [
+    {
+     "type": "Horizontal",
+     "args": [
+      0
+     ]
+    },
+    {
+     "type": "Perpendicular",
+     "args": [
+      0,
+      2,
+      1,
+      2
+     ]
+    }
+   ],
+   "message": {
+    "status": "Over-constrained: ",
+    "link": "(2)"
+   }
+  },
+  "arc-center": {
+   "geometry": [
+    {
+     "type": "ArcOfCircle",
+     "center": [
+      20.03105545,
+      15.03105545
+     ],
+     "radius": 14.91006827,
+     "start_angle": 0.02083027,
+     "end_angle": 1.57079633
+    }
+   ],
+   "constraints": [],
+   "message": {
+    "status": "Under-constrained: ",
+    "link": "5 Degrees of Freedom"
+   }
+  },
+  "arc-3point": {
+   "geometry": [
+    {
+     "type": "ArcOfCircle",
+     "center": [
+      25.07176985,
+      9.83350262
+     ],
+     "radius": 15.13560827,
+     "start_angle": 0.13865861,
+     "end_angle": 3.12648801
+    }
+   ],
+   "constraints": [],
+   "message": {
+    "status": "Under-constrained: ",
+    "link": "5 Degrees of Freedom"
+   }
+  },
+  "arc-center-origin": {
+   "geometry": [
+    {
+     "type": "ArcOfCircle",
+     "center": [
+      -2.465190328815662e-32,
+      -2.465190336716852e-32
+     ],
+     "radius": 20.03105545,
+     "start_angle": 1.2306841957830296e-33,
+     "end_angle": 1.5707963267948966
+    }
+   ],
+   "constraints": [
+    {
+     "type": "Coincident",
+     "args": [
+      0,
+      3,
+      -1,
+      1
+     ]
+    },
+    {
+     "type": "PointOnObject",
+     "args": [
+      0,
+      1,
+      -1
+     ]
+    },
+    {
+     "type": "PointOnObject",
+     "args": [
+      0,
+      2,
+      -2
+     ]
+    }
+   ],
+   "message": {
+    "status": "Under-constrained: ",
+    "link": "1 Degrees of Freedom"
+   }
+  },
+  "circle-center": {
+   "geometry": [
+    {
+     "type": "Circle",
+     "center": [
+      20.03105545,
+      15.03105545
+     ],
+     "radius": 13.84863567
+    }
+   ],
+   "constraints": [],
+   "message": {
+    "status": "Under-constrained: ",
+    "link": "3 Degrees of Freedom"
+   }
+  },
+  "circle-on-origin": {
+   "geometry": [
+    {
+     "type": "Circle",
+     "center": [
+      0.0,
+      0.0
+     ],
+     "radius": 14.95031181
+    }
+   ],
+   "constraints": [
+    {
+     "type": "Coincident",
+     "args": [
+      0,
+      3,
+      -1,
+      1
+     ]
+    }
+   ],
+   "message": {
+    "status": "Under-constrained: ",
+    "link": "1 Degrees of Freedom"
+   }
+  },
+  "circle-3point": {
+   "geometry": [
+    {
+     "type": "Circle",
+     "center": [
+      19.3032259,
+      17.98331243
+     ],
+     "radius": 12.26600871
+    }
+   ],
+   "constraints": [],
+   "message": {
+    "status": "Under-constrained: ",
+    "link": "3 Degrees of Freedom"
+   }
+  },
+  "circle-tangent-line": {
+   "geometry": [
+    {
+     "type": "LineSegment",
+     "start": [
+      -10.0,
+      4.965994538451097
+     ],
+     "end": [
+      55.0,
+      4.970796376198379
+     ]
+    },
+    {
+     "type": "Circle",
+     "center": [
+      20.03105545,
+      20.063209085350522
+     ],
+     "radius": 15.094995978699469
+    }
+   ],
+   "constraints": [
+    {
+     "type": "Tangent",
+     "args": [
+      1,
+      0
+     ]
+    }
+   ],
+   "message": {
+    "status": "Under-constrained: ",
+    "link": "6 Degrees of Freedom"
+   }
+  },
+  "rectangle": {
+   "geometry": [
+    {
+     "type": "LineSegment",
+     "start": [
+      9.93788815,
+      10.06211185
+     ],
+     "end": [
+      40.0621109,
+      10.06211185
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      40.0621109,
+      10.06211185
+     ],
+     "end": [
+      40.0621109,
+      29.9378891
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      40.0621109,
+      29.9378891
+     ],
+     "end": [
+      9.93788815,
+      29.9378891
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      9.93788815,
+      29.9378891
+     ],
+     "end": [
+      9.93788815,
+      10.06211185
+     ]
+    }
+   ],
+   "constraints": [
+    {
+     "type": "Coincident",
+     "args": [
+      0,
+      2,
+      1,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      1,
+      2,
+      2,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      2,
+      2,
+      3,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      3,
+      2,
+      0,
+      1
+     ]
+    },
+    {
+     "type": "Horizontal",
+     "args": [
+      0
+     ]
+    },
+    {
+     "type": "Horizontal",
+     "args": [
+      2
+     ]
+    },
+    {
+     "type": "Vertical",
+     "args": [
+      1
+     ]
+    },
+    {
+     "type": "Vertical",
+     "args": [
+      3
+     ]
+    }
+   ],
+   "message": {
+    "status": "Under-constrained: ",
+    "link": "4 Degrees of Freedom"
+   }
+  },
+  "rectangle-origin": {
+   "geometry": [
+    {
+     "type": "LineSegment",
+     "start": [
+      0.0,
+      0.0
+     ],
+     "end": [
+      29.96894073,
+      0.0
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      29.96894073,
+      0.0
+     ],
+     "end": [
+      29.96894073,
+      20.0
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      29.96894073,
+      20.0
+     ],
+     "end": [
+      0.0,
+      20.0
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      0.0,
+      20.0
+     ],
+     "end": [
+      0.0,
+      0.0
+     ]
+    }
+   ],
+   "constraints": [
+    {
+     "type": "Coincident",
+     "args": [
+      0,
+      2,
+      1,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      1,
+      2,
+      2,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      2,
+      2,
+      3,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      3,
+      2,
+      0,
+      1
+     ]
+    },
+    {
+     "type": "Horizontal",
+     "args": [
+      0
+     ]
+    },
+    {
+     "type": "Horizontal",
+     "args": [
+      2
+     ]
+    },
+    {
+     "type": "Vertical",
+     "args": [
+      1
+     ]
+    },
+    {
+     "type": "Vertical",
+     "args": [
+      3
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      0,
+      1,
+      -1,
+      1
+     ]
+    }
+   ],
+   "message": {
+    "status": "Under-constrained: ",
+    "link": "2 Degrees of Freedom"
+   }
+  },
+  "rectangle-center": {
+   "geometry": [
+    {
+     "type": "LineSegment",
+     "start": [
+      9.9378891,
+      10.0621109
+     ],
+     "end": [
+      40.0621109,
+      10.0621109
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      40.0621109,
+      10.0621109
+     ],
+     "end": [
+      40.0621109,
+      29.9378891
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      40.0621109,
+      29.9378891
+     ],
+     "end": [
+      9.9378891,
+      29.9378891
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      9.9378891,
+      29.9378891
+     ],
+     "end": [
+      9.9378891,
+      10.0621109
+     ]
+    },
+    {
+     "type": "Point",
+     "at": [
+      25.0,
+      20.0
+     ],
+     "construction": true
+    }
+   ],
+   "constraints": [
+    {
+     "type": "Coincident",
+     "args": [
+      0,
+      2,
+      1,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      1,
+      2,
+      2,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      2,
+      2,
+      3,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      3,
+      2,
+      0,
+      1
+     ]
+    },
+    {
+     "type": "Horizontal",
+     "args": [
+      0
+     ]
+    },
+    {
+     "type": "Horizontal",
+     "args": [
+      2
+     ]
+    },
+    {
+     "type": "Vertical",
+     "args": [
+      1
+     ]
+    },
+    {
+     "type": "Vertical",
+     "args": [
+      3
+     ]
+    },
+    {
+     "type": "Symmetric",
+     "args": [
+      2,
+      1,
+      0,
+      1,
+      4,
+      1
+     ]
+    }
+   ],
+   "message": {
+    "status": "Under-constrained: ",
+    "link": "4 Degrees of Freedom"
+   }
+  },
+  "rectangle-center-origin": {
+   "geometry": [
+    {
+     "type": "LineSegment",
+     "start": [
+      -20.03105545,
+      -11.92546654
+     ],
+     "end": [
+      20.03105545,
+      -11.92546654
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      20.03105545,
+      -11.92546654
+     ],
+     "end": [
+      20.03105545,
+      11.92546654
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      20.03105545,
+      11.92546654
+     ],
+     "end": [
+      -20.03105545,
+      11.92546654
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      -20.03105545,
+      11.92546654
+     ],
+     "end": [
+      -20.03105545,
+      -11.92546654
+     ]
+    },
+    {
+     "type": "Point",
+     "at": [
+      0.0,
+      0.0
+     ],
+     "construction": true
+    }
+   ],
+   "constraints": [
+    {
+     "type": "Coincident",
+     "args": [
+      0,
+      2,
+      1,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      1,
+      2,
+      2,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      2,
+      2,
+      3,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      3,
+      2,
+      0,
+      1
+     ]
+    },
+    {
+     "type": "Horizontal",
+     "args": [
+      0
+     ]
+    },
+    {
+     "type": "Horizontal",
+     "args": [
+      2
+     ]
+    },
+    {
+     "type": "Vertical",
+     "args": [
+      1
+     ]
+    },
+    {
+     "type": "Vertical",
+     "args": [
+      3
+     ]
+    },
+    {
+     "type": "Symmetric",
+     "args": [
+      2,
+      1,
+      0,
+      1,
+      4,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      4,
+      1,
+      -1,
+      1
+     ]
+    }
+   ],
+   "message": {
+    "status": "Under-constrained: ",
+    "link": "2 Degrees of Freedom"
+   }
+  },
+  "rectangle-rounded": {
+   "geometry": [
+    {
+     "type": "LineSegment",
+     "start": [
+      11.956521996469936,
+      10.062111853530064
+     ],
+     "end": [
+      38.04347705353007,
+      10.062111853530064
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      40.06211090000001,
+      12.0807457
+     ],
+     "end": [
+      40.06211090000001,
+      27.91925526
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      38.04347705353007,
+      29.937889106469935
+     ],
+     "end": [
+      11.956521996469935,
+      29.937889106469935
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      9.93788815,
+      27.91925526
+     ],
+     "end": [
+      9.93788815,
+      12.0807457
+     ]
+    },
+    {
+     "type": "ArcOfCircle",
+     "center": [
+      11.956521996469935,
+      12.0807457
+     ],
+     "radius": 2.018633846469936,
+     "start_angle": 3.141592653589793,
+     "end_angle": 4.712388980384691
+    },
+    {
+     "type": "ArcOfCircle",
+     "center": [
+      38.04347705353007,
+      12.0807457
+     ],
+     "radius": 2.018633846469936,
+     "start_angle": 4.712388980384689,
+     "end_angle": 6.283185307179586
+    },
+    {
+     "type": "ArcOfCircle",
+     "center": [
+      38.04347705353007,
+      27.91925526
+     ],
+     "radius": 2.018633846469936,
+     "start_angle": 1.8808702738680041e-25,
+     "end_angle": 1.5707963267948957
+    },
+    {
+     "type": "ArcOfCircle",
+     "center": [
+      11.956521996469935,
+      27.91925526
+     ],
+     "radius": 2.018633846469936,
+     "start_angle": 1.5707963267948966,
+     "end_angle": 3.141592653589793
+    },
+    {
+     "type": "Point",
+     "at": [
+      9.93788815,
+      10.06211185353006
+     ],
+     "construction": true
+    },
+    {
+     "type": "Point",
+     "at": [
+      40.0621109,
+      29.937889106469935
+     ],
+     "construction": true
+    }
+   ],
+   "constraints": [
+    {
+     "type": "Tangent",
+     "args": [
+      0,
+      1,
+      4,
+      2
+     ]
+    },
+    {
+     "type": "Tangent",
+     "args": [
+      0,
+      2,
+      5,
+      1
+     ]
+    },
+    {
+     "type": "Tangent",
+     "args": [
+      1,
+      1,
+      5,
+      2
+     ]
+    },
+    {
+     "type": "Tangent",
+     "args": [
+      1,
+      2,
+      6,
+      1
+     ]
+    },
+    {
+     "type": "Tangent",
+     "args": [
+      2,
+      1,
+      6,
+      2
+     ]
+    },
+    {
+     "type": "Tangent",
+     "args": [
+      2,
+      2,
+      7,
+      1
+     ]
+    },
+    {
+     "type": "Tangent",
+     "args": [
+      3,
+      1,
+      7,
+      2
+     ]
+    },
+    {
+     "type": "Tangent",
+     "args": [
+      3,
+      2,
+      4,
+      1
+     ]
+    },
+    {
+     "type": "Horizontal",
+     "args": [
+      0
+     ]
+    },
+    {
+     "type": "Horizontal",
+     "args": [
+      2
+     ]
+    },
+    {
+     "type": "Vertical",
+     "args": [
+      1
+     ]
+    },
+    {
+     "type": "Vertical",
+     "args": [
+      3
+     ]
+    },
+    {
+     "type": "Equal",
+     "args": [
+      4,
+      5
+     ]
+    },
+    {
+     "type": "Equal",
+     "args": [
+      5,
+      6
+     ]
+    },
+    {
+     "type": "Equal",
+     "args": [
+      6,
+      7
+     ]
+    },
+    {
+     "type": "PointOnObject",
+     "args": [
+      8,
+      1,
+      0
+     ]
+    },
+    {
+     "type": "PointOnObject",
+     "args": [
+      8,
+      1,
+      3
+     ]
+    },
+    {
+     "type": "PointOnObject",
+     "args": [
+      9,
+      1,
+      1
+     ]
+    },
+    {
+     "type": "PointOnObject",
+     "args": [
+      9,
+      1,
+      2
+     ]
+    }
+   ],
+   "message": {
+    "status": "Under-constrained: ",
+    "link": "5 Degrees of Freedom"
+   }
+  },
+  "slot": {
+   "geometry": [
+    {
+     "type": "ArcOfCircle",
+     "center": [
+      9.956290814395249,
+      15.215310409563235
+     ],
+     "radius": 6.550364823836987,
+     "start_angle": 1.5707963267948968,
+     "end_angle": 4.71238898038469
+    },
+    {
+     "type": "ArcOfCircle",
+     "center": [
+      39.993301816297446,
+      15.215310409563237
+     ],
+     "radius": 6.550364823836987,
+     "start_angle": 4.71238898038469,
+     "end_angle": 7.853981633974483
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      9.956290814395247,
+      21.765675233400223
+     ],
+     "end": [
+      39.993301816297446,
+      21.765675233400223
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      9.956290814395249,
+      8.664945585726247
+     ],
+     "end": [
+      39.993301816297446,
+      8.664945585726251
+     ]
+    }
+   ],
+   "constraints": [
+    {
+     "type": "Tangent",
+     "args": [
+      0,
+      1,
+      2,
+      1
+     ]
+    },
+    {
+     "type": "Tangent",
+     "args": [
+      0,
+      2,
+      3,
+      1
+     ]
+    },
+    {
+     "type": "Tangent",
+     "args": [
+      1,
+      2,
+      2,
+      2
+     ]
+    },
+    {
+     "type": "Tangent",
+     "args": [
+      1,
+      1,
+      3,
+      2
+     ]
+    },
+    {
+     "type": "Equal",
+     "args": [
+      0,
+      1
+     ]
+    },
+    {
+     "type": "Horizontal",
+     "args": [
+      2
+     ]
+    }
+   ],
+   "message": {
+    "status": "Under-constrained: ",
+    "link": "4 Degrees of Freedom"
+   }
+  },
+  "hexagon": {
+   "geometry": [
+    {
+     "type": "LineSegment",
+     "start": [
+      36.95652,
+      20.155281
+     ],
+     "end": [
+      30.843782709274947,
+      30.432290560856714
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      30.843782709274947,
+      30.432290560856714
+     ],
+     "end": [
+      18.887262709274953,
+      30.277009560856715
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      18.887262709274953,
+      30.277009560856715
+     ],
+     "end": [
+      13.043480000000002,
+      19.844719
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      13.043480000000002,
+      19.844719
+     ],
+     "end": [
+      19.156217290725046,
+      9.56770943914329
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      19.156217290725046,
+      9.56770943914329
+     ],
+     "end": [
+      31.112737290725043,
+      9.722990439143281
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      31.112737290725043,
+      9.722990439143281
+     ],
+     "end": [
+      36.95652,
+      20.155281
+     ]
+    },
+    {
+     "type": "Circle",
+     "center": [
+      25.0,
+      20.0
+     ],
+     "radius": 11.957528285534638,
+     "construction": true
+    }
+   ],
+   "constraints": [
+    {
+     "type": "Coincident",
+     "args": [
+      0,
+      2,
+      1,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      1,
+      2,
+      2,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      2,
+      2,
+      3,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      3,
+      2,
+      4,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      4,
+      2,
+      5,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      5,
+      2,
+      0,
+      1
+     ]
+    },
+    {
+     "type": "Equal",
+     "args": [
+      0,
+      1
+     ]
+    },
+    {
+     "type": "Equal",
+     "args": [
+      0,
+      2
+     ]
+    },
+    {
+     "type": "Equal",
+     "args": [
+      0,
+      3
+     ]
+    },
+    {
+     "type": "Equal",
+     "args": [
+      0,
+      4
+     ]
+    },
+    {
+     "type": "Equal",
+     "args": [
+      0,
+      5
+     ]
+    },
+    {
+     "type": "PointOnObject",
+     "args": [
+      0,
+      2,
+      6
+     ]
+    },
+    {
+     "type": "PointOnObject",
+     "args": [
+      1,
+      2,
+      6
+     ]
+    },
+    {
+     "type": "PointOnObject",
+     "args": [
+      2,
+      2,
+      6
+     ]
+    },
+    {
+     "type": "PointOnObject",
+     "args": [
+      3,
+      2,
+      6
+     ]
+    },
+    {
+     "type": "PointOnObject",
+     "args": [
+      4,
+      2,
+      6
+     ]
+    },
+    {
+     "type": "PointOnObject",
+     "args": [
+      5,
+      2,
+      6
+     ]
+    }
+   ],
+   "message": {
+    "status": "Under-constrained: ",
+    "link": "4 Degrees of Freedom"
+   }
+  },
+  "triangle": {
+   "geometry": [
+    {
+     "type": "LineSegment",
+     "start": [
+      29.968941,
+      35.062111
+     ],
+     "end": [
+      9.471358739378964,
+      16.772173635906057
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      9.471358739378964,
+      16.772173635906057
+     ],
+     "end": [
+      35.55970026062103,
+      8.165715364093941
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      35.55970026062103,
+      8.165715364093941
+     ],
+     "end": [
+      29.968941,
+      35.062111
+     ]
+    },
+    {
+     "type": "Circle",
+     "center": [
+      25.0,
+      20.0
+     ],
+     "radius": 15.86056627103213,
+     "construction": true
+    }
+   ],
+   "constraints": [
+    {
+     "type": "Coincident",
+     "args": [
+      0,
+      2,
+      1,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      1,
+      2,
+      2,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      2,
+      2,
+      0,
+      1
+     ]
+    },
+    {
+     "type": "Equal",
+     "args": [
+      0,
+      1
+     ]
+    },
+    {
+     "type": "Equal",
+     "args": [
+      0,
+      2
+     ]
+    },
+    {
+     "type": "PointOnObject",
+     "args": [
+      0,
+      2,
+      3
+     ]
+    },
+    {
+     "type": "PointOnObject",
+     "args": [
+      1,
+      2,
+      3
+     ]
+    },
+    {
+     "type": "PointOnObject",
+     "args": [
+      2,
+      2,
+      3
+     ]
+    }
+   ],
+   "message": {
+    "status": "Under-constrained: ",
+    "link": "4 Degrees of Freedom"
+   }
+  },
+  "construction-line": {
+   "geometry": [
+    {
+     "type": "LineSegment",
+     "start": [
+      9.93788815,
+      10.06211185
+     ],
+     "end": [
+      40.0621109,
+      29.9378891
+     ],
+     "construction": true
+    }
+   ],
+   "constraints": [],
+   "message": {
+    "status": "Under-constrained: ",
+    "link": "4 Degrees of Freedom"
+   }
+  },
+  "toggle-construction-selected": {
+   "geometry": [
+    {
+     "type": "LineSegment",
+     "start": [
+      5.0,
+      5.0
+     ],
+     "end": [
+      35.0,
+      15.0
+     ]
+    },
+    {
+     "type": "Circle",
+     "center": [
+      20.0,
+      25.0
+     ],
+     "radius": 6.0,
+     "construction": true
+    }
+   ],
+   "constraints": [],
+   "message": {
+    "status": "Under-constrained: ",
+    "link": "7 Degrees of Freedom"
+   }
+  },
+  "c-horizontal": {
+   "geometry": [
+    {
+     "type": "LineSegment",
+     "start": [
+      5.0,
+      5.0
+     ],
+     "end": [
+      35.0,
+      5.0
+     ]
+    }
+   ],
+   "constraints": [
+    {
+     "type": "Horizontal",
+     "args": [
+      0
+     ]
+    }
+   ],
+   "message": {
+    "status": "Under-constrained: ",
+    "link": "3 Degrees of Freedom"
+   }
+  },
+  "c-vertical": {
+   "geometry": [
+    {
+     "type": "LineSegment",
+     "start": [
+      5.0,
+      5.0
+     ],
+     "end": [
+      5.0,
+      35.0
+     ]
+    }
+   ],
+   "constraints": [
+    {
+     "type": "Vertical",
+     "args": [
+      0
+     ]
+    }
+   ],
+   "message": {
+    "status": "Under-constrained: ",
+    "link": "3 Degrees of Freedom"
+   }
+  },
+  "c-horver": {
+   "geometry": [
+    {
+     "type": "LineSegment",
+     "start": [
+      5.0,
+      5.0
+     ],
+     "end": [
+      5.0,
+      35.0
+     ]
+    }
+   ],
+   "constraints": [
+    {
+     "type": "Vertical",
+     "args": [
+      0
+     ]
+    }
+   ],
+   "message": {
+    "status": "Under-constrained: ",
+    "link": "3 Degrees of Freedom"
+   }
+  },
+  "c-horizontal-points": {
+   "geometry": [
+    {
+     "type": "LineSegment",
+     "start": [
+      5.0,
+      5.0
+     ],
+     "end": [
+      15.0,
+      35.0
+     ]
+    },
+    {
+     "type": "Point",
+     "at": [
+      30.0,
+      5.0
+     ]
+    }
+   ],
+   "constraints": [
+    {
+     "type": "Horizontal",
+     "args": [
+      0,
+      1,
+      1,
+      1
+     ]
+    }
+   ],
+   "message": {
+    "status": "Under-constrained: ",
+    "link": "5 Degrees of Freedom"
+   }
+  },
+  "c-coincident": {
+   "geometry": [
+    {
+     "type": "LineSegment",
+     "start": [
+      5.0,
+      5.0
+     ],
+     "end": [
+      15.0,
+      35.0
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      15.0,
+      35.0
+     ],
+     "end": [
+      40.0,
+      10.0
+     ]
+    }
+   ],
+   "constraints": [
+    {
+     "type": "Coincident",
+     "args": [
+      0,
+      2,
+      1,
+      1
+     ]
+    }
+   ],
+   "message": {
+    "status": "Under-constrained: ",
+    "link": "6 Degrees of Freedom"
+   }
+  },
+  "c-point-on-object": {
+   "geometry": [
+    {
+     "type": "LineSegment",
+     "start": [
+      5.000995406137488,
+      5.656727559962118
+     ],
+     "end": [
+      45.000596806642335,
+      5.3938060339314
+     ]
+    },
+    {
+     "type": "Point",
+     "at": [
+      19.998407787220188,
+      5.558148013874527
+     ]
+    }
+   ],
+   "constraints": [
+    {
+     "type": "PointOnObject",
+     "args": [
+      1,
+      1,
+      0
+     ]
+    }
+   ],
+   "message": {
+    "status": "Under-constrained: ",
+    "link": "5 Degrees of Freedom"
+   }
+  },
+  "c-parallel": {
+   "geometry": [
+    {
+     "type": "LineSegment",
+     "start": [
+      5.2026387840949715,
+      4.141557402472566
+     ],
+     "end": [
+      44.79736121590503,
+      12.309062518825954
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      4.902592670360411,
+      20.85435464352703
+     ],
+     "end": [
+      45.097407329639594,
+      29.14564535647297
+     ]
+    }
+   ],
+   "constraints": [
+    {
+     "type": "Parallel",
+     "args": [
+      0,
+      1
+     ]
+    }
+   ],
+   "message": {
+    "status": "Under-constrained: ",
+    "link": "7 Degrees of Freedom"
+   }
+  },
+  "c-perpendicular": {
+   "geometry": [
+    {
+     "type": "LineSegment",
+     "start": [
+      5.145655666220299,
+      6.245090214816384
+     ],
+     "end": [
+      44.8543443337797,
+      7.7549097851836155
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      22.942521316776098,
+      15.166066782131246
+     ],
+     "end": [
+      22.00458987774803,
+      39.833933217868754
+     ]
+    }
+   ],
+   "constraints": [
+    {
+     "type": "Perpendicular",
+     "args": [
+      1,
+      0
+     ]
+    }
+   ],
+   "message": {
+    "status": "Under-constrained: ",
+    "link": "7 Degrees of Freedom"
+   }
+  },
+  "c-tangent-line-circle": {
+   "geometry": [
+    {
+     "type": "LineSegment",
+     "start": [
+      4.955884441120601,
+      5.439225464391982
+     ],
+     "end": [
+      44.94978852033919,
+      9.499917148020906
+     ]
+    },
+    {
+     "type": "Circle",
+     "center": [
+      25.094327038540207,
+      19.060857387587113
+     ],
+     "radius": 11.517704925105708
+    }
+   ],
+   "constraints": [
+    {
+     "type": "Tangent",
+     "args": [
+      0,
+      1
+     ]
+    }
+   ],
+   "message": {
+    "status": "Under-constrained: ",
+    "link": "6 Degrees of Freedom"
+   }
+  },
+  "c-equal": {
+   "geometry": [
+    {
+     "type": "Circle",
+     "center": [
+      10.0,
+      20.0
+     ],
+     "radius": 5.0
+    },
+    {
+     "type": "Circle",
+     "center": [
+      35.0,
+      20.0
+     ],
+     "radius": 5.0
+    }
+   ],
+   "constraints": [
+    {
+     "type": "Equal",
+     "args": [
+      0,
+      1
+     ]
+    }
+   ],
+   "message": {
+    "status": "Under-constrained: ",
+    "link": "5 Degrees of Freedom"
+   }
+  },
+  "c-symmetric": {
+   "geometry": [
+    {
+     "type": "LineSegment",
+     "start": [
+      5.249525572246994,
+      6.933481622268227
+     ],
+     "end": [
+      45.2870986285087,
+      10.547022410505718
+     ]
+    },
+    {
+     "type": "Point",
+     "at": [
+      25.268312100377848,
+      8.740252016386973
+     ]
+    }
+   ],
+   "constraints": [
+    {
+     "type": "Symmetric",
+     "args": [
+      0,
+      1,
+      0,
+      2,
+      1,
+      1
+     ]
+    }
+   ],
+   "message": {
+    "status": "Under-constrained: ",
+    "link": "4 Degrees of Freedom"
+   }
+  },
+  "c-block": {
+   "geometry": [
+    {
+     "type": "Circle",
+     "center": [
+      10.0,
+      20.0
+     ],
+     "radius": 5.0
+    }
+   ],
+   "constraints": [
+    {
+     "type": "Block",
+     "args": [
+      0
+     ]
+    }
+   ],
+   "message": {
+    "status": "Fully constrained",
+    "link": ""
+   }
+  },
+  "c-lock": {
+   "geometry": [
+    {
+     "type": "Point",
+     "at": [
+      12.0,
+      18.0
+     ]
+    }
+   ],
+   "constraints": [
+    {
+     "type": "DistanceX",
+     "args": [
+      0,
+      1
+     ],
+     "value": 12.0
+    },
+    {
+     "type": "DistanceY",
+     "args": [
+      0,
+      1
+     ],
+     "value": 18.0
+    }
+   ],
+   "message": {
+    "status": "Fully constrained",
+    "link": ""
+   }
+  },
+  "c-distance-line": {
+   "geometry": [
+    {
+     "type": "LineSegment",
+     "start": [
+      5.0,
+      5.0
+     ],
+     "end": [
+      35.00000029488615,
+      25.0
+     ]
+    }
+   ],
+   "constraints": [
+    {
+     "type": "Distance",
+     "args": [
+      0
+     ],
+     "value": 36.055513
+    }
+   ],
+   "message": {
+    "status": "Under-constrained: ",
+    "link": "3 Degrees of Freedom"
+   }
+  },
+  "c-distancex-line": {
+   "geometry": [
+    {
+     "type": "LineSegment",
+     "start": [
+      5.0,
+      5.0
+     ],
+     "end": [
+      35.0,
+      25.0
+     ]
+    }
+   ],
+   "constraints": [
+    {
+     "type": "DistanceX",
+     "args": [
+      0,
+      1,
+      0,
+      2
+     ],
+     "value": 30.0
+    }
+   ],
+   "message": {
+    "status": "Under-constrained: ",
+    "link": "3 Degrees of Freedom"
+   }
+  },
+  "c-distancey-points": {
+   "geometry": [
+    {
+     "type": "Point",
+     "at": [
+      5.0,
+      5.0
+     ]
+    },
+    {
+     "type": "Point",
+     "at": [
+      30.0,
+      25.0
+     ]
+    }
+   ],
+   "constraints": [
+    {
+     "type": "DistanceY",
+     "args": [
+      0,
+      1,
+      1,
+      1
+     ],
+     "value": 20.0
+    }
+   ],
+   "message": {
+    "status": "Under-constrained: ",
+    "link": "3 Degrees of Freedom"
+   }
+  },
+  "c-radius": {
+   "geometry": [
+    {
+     "type": "Circle",
+     "center": [
+      10.0,
+      20.0
+     ],
+     "radius": 5.0
+    }
+   ],
+   "constraints": [
+    {
+     "type": "Radius",
+     "args": [
+      0
+     ],
+     "value": 5.0
+    }
+   ],
+   "message": {
+    "status": "Under-constrained: ",
+    "link": "2 Degrees of Freedom"
+   }
+  },
+  "c-diameter": {
+   "geometry": [
+    {
+     "type": "Circle",
+     "center": [
+      10.0,
+      20.0
+     ],
+     "radius": 5.0
+    }
+   ],
+   "constraints": [
+    {
+     "type": "Diameter",
+     "args": [
+      0
+     ],
+     "value": 10.0
+    }
+   ],
+   "message": {
+    "status": "Under-constrained: ",
+    "link": "2 Degrees of Freedom"
+   }
+  },
+  "c-angle": {
+   "geometry": [
+    {
+     "type": "LineSegment",
+     "start": [
+      5.0,
+      5.0
+     ],
+     "end": [
+      45.0,
+      9.0
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      5.000000213747307,
+      5.0
+     ],
+     "end": [
+      19.999998698859816,
+      35.0
+     ]
+    }
+   ],
+   "constraints": [
+    {
+     "type": "Angle",
+     "args": [
+      0,
+      1,
+      1,
+      1
+     ],
+     "value": 1.007480105699929
+    }
+   ],
+   "message": {
+    "status": "Under-constrained: ",
+    "link": "7 Degrees of Freedom"
+   }
+  },
+  "c-toggle-driving": {
+   "geometry": [
+    {
+     "type": "Circle",
+     "center": [
+      10.0,
+      20.0
+     ],
+     "radius": 5.0
+    }
+   ],
+   "constraints": [
+    {
+     "type": "Radius",
+     "args": [
+      0
+     ],
+     "value": 5.0,
+     "driving": false
+    }
+   ],
+   "message": {
+    "status": "Under-constrained: ",
+    "link": "3 Degrees of Freedom"
+   }
+  },
+  "c-conflict": {
+   "geometry": [
+    {
+     "type": "LineSegment",
+     "start": [
+      5.0,
+      5.0
+     ],
+     "end": [
+      35.0,
+      5.0
+     ]
+    }
+   ],
+   "constraints": [
+    {
+     "type": "Horizontal",
+     "args": [
+      0
+     ]
+    }
+   ],
+   "message": {
+    "status": "Under-constrained: ",
+    "link": "3 Degrees of Freedom"
+   }
+  },
+  "msg-fully": {
+   "geometry": [
+    {
+     "type": "LineSegment",
+     "start": [
+      0.0,
+      0.0
+     ],
+     "end": [
+      30.0,
+      0.0
+     ]
+    }
+   ],
+   "constraints": [
+    {
+     "type": "Coincident",
+     "args": [
+      0,
+      1,
+      -1,
+      1
+     ]
+    },
+    {
+     "type": "Horizontal",
+     "args": [
+      0
+     ]
+    },
+    {
+     "type": "Distance",
+     "args": [
+      0
+     ],
+     "value": 30.0
+    }
+   ],
+   "message": {
+    "status": "Fully constrained",
+    "link": ""
+   }
+  },
+  "msg-redundant": {
+   "geometry": [
+    {
+     "type": "LineSegment",
+     "start": [
+      0.0,
+      0.0
+     ],
+     "end": [
+      30.0,
+      0.0
+     ]
+    }
+   ],
+   "constraints": [
+    {
+     "type": "Horizontal",
+     "args": [
+      0
+     ]
+    },
+    {
+     "type": "DistanceY",
+     "args": [
+      0
+     ],
+     "value": 0.0
+    }
+   ],
+   "message": {
+    "status": "Redundant constraints: ",
+    "link": "(2)"
+   }
+  },
+  "drag-point": {
+   "geometry": [
+    {
+     "type": "LineSegment",
+     "start": [
+      10.0,
+      10.0
+     ],
+     "end": [
+      40.0,
+      10.0
+     ]
+    }
+   ],
+   "constraints": [
+    {
+     "type": "Horizontal",
+     "args": [
+      0,
+      1,
+      0,
+      2
+     ]
+    }
+   ],
+   "message": {
+    "status": "Under-constrained: ",
+    "link": "3 Degrees of Freedom"
+   }
+  },
+  "box-select-delete": {
+   "geometry": [
+    {
+     "type": "Circle",
+     "center": [
+      40.0,
+      30.0
+     ],
+     "radius": 4.0
+    }
+   ],
+   "constraints": [],
+   "message": {
+    "status": "Under-constrained: ",
+    "link": "3 Degrees of Freedom"
+   }
+  }
+ }
+}

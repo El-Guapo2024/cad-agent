@@ -134,15 +134,17 @@ const RUN: Record<string, () => void> = {
   Sketcher_DeleteAllConstraints: () => { if (!confirm('Are you really sure you want to delete all the constraints?')) return; S.openCommand('Delete All Constraints'); S.setConstraints([]); S.commitCommand(); S.clearSelection(); S.solve() },
 }
 /** Commands that work only while a sketch is in edit (eType ForEdit, isSketchInEdit). */
-const OUT_OF_EDIT = new Set(['Sketcher_NewSketch', 'Sketcher_EditSketch', 'Sketcher_MapSketch', 'Sketcher_ReorientSketch', 'Sketcher_ValidateSketch', 'Sketcher_MergeSketches', 'Sketcher_MirrorSketch'])
+const OUT_OF_EDIT = new Set(['Sketcher_NewSketch', 'Sketcher_MapSketch', 'Sketcher_ReorientSketch', 'Sketcher_ValidateSketch', 'Sketcher_MergeSketches', 'Sketcher_MirrorSketch'])
 let newSketchHook: (() => void) | null = null
 /** Sketcher_NewSketch's dialog (SketchOrientationDialog, sketchui.tsx) registers here. */
 export function onNewSketch(f: () => void) { newSketchHook = f }
-export function isImplemented(name: string) { return name in RUN || isConstraintCommand(name) || name === 'Sketcher_NewSketch' }
+export function isImplemented(name: string) { return name in RUN || isConstraintCommand(name) || name === 'Sketcher_NewSketch' || name === 'Sketcher_EditSketch' }
 /** Command::isActive. */
 export function isEnabled(name: string): boolean {
   const editing = S.isEditing()
   if (name === 'Sketcher_NewSketch') return !editing && !!getState().slug
+  // CmdSketcherEditSketch: a sketch selected in the tree; until the tree has sketches, the one last in edit
+  if (name === 'Sketcher_EditSketch') return !editing && !!getState().slug && !!S.lastSketch()
   if (OUT_OF_EDIT.has(name)) return false
   if (!editing || !isImplemented(name)) return false
   const sel = S.getSelection()
@@ -158,10 +160,27 @@ export function why(name: string) {
   if (OUT_OF_EDIT.has(name)) return 'Works on sketch objects, which the tree shows (not yet)'
   return ''
 }
+/** Sketcher_EditSketch: the sketch named, with the geometry and constraints given as JSON (`cad gui run PROJECT
+ *  Sketcher_EditSketch NAME '{"geometry": [...], "constraints": [...]}' [PART]`, the form feature_edit.py saves), or
+ *  without arguments the one last in edit. */
+export function editSketchCommand(args: string[]) {
+  if (S.isEditing()) return
+  if (!args.length) { const last = S.lastSketch(); if (last) void S.editSketch(last); return }
+  const [name, json, part] = args
+  let sketch: { geometry: SK.Geo[]; constraints: import('./solver').Cons[] } = { geometry: [], constraints: [] }
+  if (json) {
+    try {
+      const j = JSON.parse(json)
+      sketch = { geometry: j.geometry ?? [], constraints: j.constraints ?? [] }
+    } catch (e) { report('err', `Sketcher_EditSketch: ${e instanceof Error ? e.message : String(e)}`); return }
+  }
+  void S.editSketch({ part: part ?? null, name, sketch: S.unsavedSketch(name) && !json ? S.unsavedSketch(name)! : sketch })
+}
 /** Runs a Sketcher command by id, as Gui.runCommand does. */
-export function runSketchCommand(name: string) {
+export function runSketchCommand(name: string, args: string[] = []) {
   for (const tb of EDIT_TOOLBARS) for (const it of tb.items) if (typeof it === 'object' && it.items.includes(name)) lastOfGroup.set(it.group, name)
   if (name === 'Sketcher_NewSketch') { newSketchHook?.(); return }
+  if (name === 'Sketcher_EditSketch') { recordAndRun(name, () => editSketchCommand(args), args); return }
   if (!isEnabled(name)) { report('warn', `${cmdInfo(name).menu || name}: not available now`); return }
   recordAndRun(name, () => {
     if (isConstraintCommand(name)) { S.purgeHandler(); runConstraint(name); return }
