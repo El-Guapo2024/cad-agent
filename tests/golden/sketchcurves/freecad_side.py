@@ -3,6 +3,7 @@ tools, done as the tool's command does it in a Sketcher::SketchObject (CommandSk
 DrawSketchHandlerBSpline.h, the Trim, Split and Fillet tools); writes the geometry and constraints after it to
 $SKETCHCURVES_ANSWERS. Not a test; make.py starts it."""
 import json
+import math
 import os
 import re
 import sys
@@ -17,6 +18,21 @@ sys.path.insert(0, os.path.join(HERE, "..", "sketcher"))
 from freecad_side_geo import ALIGNMENTS, part, read  # noqa: E402  (the sketcher golden's builders)
 
 V = FreeCAD.Vector
+TWO_PI = 2 * math.pi
+
+
+def read_ccw(g):
+    """read(), an arc of circle's angles as the Sketcher reads them (GeomArcOfCircle::getRange with emulateCCWXY):
+    counter-clockwise about +Z from +X, its start in [0, 2pi), whatever the circle's own X axis and normal."""
+    d = read(g)
+    if type(g).__name__ == "ArcOfCircle":
+        a, b = (g.StartPoint, g.EndPoint) if g.Axis.z > 0 else (g.EndPoint, g.StartPoint)
+        c = g.Center
+        a1 = math.atan2(a.y - c.y, a.x - c.x)
+        a1 -= math.floor(a1 / TWO_PI) * TWO_PI
+        d.update({"start_angle": a1, "end_angle": a1 + (g.LastParameter - g.FirstParameter),
+                  "start_point": [a.x, a.y], "end_point": [b.x, b.y]})
+    return d
 
 
 def constraint_out(c):
@@ -130,6 +146,19 @@ def run_op(sk, op, args):
         sk.fillet(g1, g2, V(r1[0], r1[1], 0), V(r2[0], r2[1], 0), radius, trim, corner, chamfer)
     elif op == "bspline_by_knots":
         bspline_by_knots(sk, *args)
+    elif op == "carbon_copy":
+        geometry, constraints, self_pl, src_pl, construction = args
+        P = lambda pl: FreeCAD.Placement(V(*pl["base"]), FreeCAD.Rotation(*pl["rotation"]))  # noqa: E731
+        sk.Placement = P(self_pl)
+        src = sk.Document.addObject("Sketcher::SketchObject", "Source")
+        src.Placement = P(src_pl)
+        for g in geometry:
+            src.addGeometry(part(g), bool(g.get("construction", False)))
+        if constraints:
+            src.addConstraint([Sketcher.Constraint(*python_args(c)) for c in constraints])
+        # CarbonCopySelection::allow without Ctrl or Alt held: neither another body nor unaligned sketches
+        sk.setAllowUnaligned(False)
+        sk.carbonCopy("Source", construction)
     else:
         raise ValueError(op)
 
@@ -150,7 +179,7 @@ def run(case):
             ok = True
         except Exception as e:  # FreeCAD refuses the operation
             ok = f"{type(e).__name__}: {e}"
-        return {"ok": ok, "geometry": [read(g) for g in sk.Geometry],
+        return {"ok": ok, "geometry": [read_ccw(g) for g in sk.Geometry],
                 "constructions": [sk.getConstruction(i) for i in range(sk.GeometryCount)],
                 "constraints": [constraint_out(c) for c in sk.Constraints]}
     finally:

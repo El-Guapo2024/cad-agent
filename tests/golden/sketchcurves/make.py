@@ -255,6 +255,32 @@ def generate() -> list[dict]:
         g.add("fillet two crossing arcs", [a5, a6], [],
               ["fillet", [0, 1, SO.at_circle(a5, 0.2), SO.at_circle(a6, pi - 0.2), 0.0, True, False, False]])
 
+    # Carbon copy: another sketch (placed as given) copied into this one, mirrored when its axes run the other way
+    s45 = math.sqrt(0.5)
+    placements = [("parallel above", [0, 0, 10], [0, 0, 0, 1]), ("turned over X (yinv)", [0, 0, 10], [1, 0, 0, 0]),
+                  ("turned over Y (xinv)", [0, 0, -5], [0, 1, 0, 0]), ("turned about Z (xinv, yinv)", [0, 0, 7], [0, 0, 1, 0]),
+                  ("same place", [0, 0, 0], [0, 0, 0, 1]), ("not parallel (refused)", [0, 0, 10], [s45, 0, 0, s45]),
+                  ("origin aside (refused)", [5, 0, 10], [0, 0, 0, 1]), ("axes turned 90 (refused)", [0, 0, 10], [0, 0, s45, s45])]
+    for k in range(2):
+        src_geo = [L((2 + j(1), 3 + j(1)), (20 + j(2), 5 + j(2))), L((20, 5), (24 + j(1), 18 + j(1))),
+                   A((10 + j(1), 15 + j(1)), 4 + j(0.5), 0.3, 2.4), C((30 + j(1), 20 + j(1)), 3 + j(0.5)),
+                   {"type": "Point", "at": [6.0, 22.0]}, B([(30, 0), (35, 6), (40, 2), (45, 8)])]
+        src_geo[1]["start"] = list(src_geo[0]["end"])
+        src_cons = [["Coincident", 0, 2, 1, 1], ["DistanceX", 0, 1, 0, 2, 18.0], ["DistanceY", 1, 1, 1, 2, 12.0],
+                    ["DistanceX", 0, 1, 1, 2, 22.0], ["Angle", 0, 0.1], ["Angle", 0, 1, 1.2], ["Radius", 2, 4.0],
+                    ["PointOnObject", 4, 1, -2], ["Diameter", 3, 6.0]]
+        target = [L((-10, -10), (-2, -12))]
+        for name, base, q in placements:
+            for constr in (False, True) if name == "parallel above" else (False,):
+                g.add(f"carbon copy, {name}{' (construction)' if constr else ''}", target, [["Horizontal", 0]] if k else [],
+                      ["carbon_copy", [src_geo, src_cons, {"base": [0, 0, 0], "rotation": [0, 0, 0, 1]},
+                                       {"base": base, "rotation": q}, constr]])
+    # a target sketch placed elsewhere (on XZ, its own axes), the source on a parallel plane
+    for name, base, q in (("on XZ", [0, 8, 0], [s45, 0, 0, s45]), ("on XZ, turned over", [0, -8, 0], [0, s45, s45, 0])):
+        g.add(f"carbon copy onto a sketch {name}", [L((0, 0), (5, 5))], [],
+              ["carbon_copy", [[L((1, 1), (9, 3)), A((5, 5), 3, 0.5, 2.0)], [["DistanceX", 0, 1, 0, 2, 8.0]],
+                               {"base": [0, 0, 0], "rotation": [s45, 0, 0, s45]}, {"base": base, "rotation": q}, False]])
+
     # B-spline by knots
     for k in range(8):
         n = 3 + g.r.randrange(5)

@@ -1,10 +1,11 @@
 """The Sketcher's curve tools (ui/src/sketchbspline.ts, the B-spline and curve-fillet paths of ui/src/sketchops.ts, with
 the sketch kernel cad_agent/sketch_kernel.py) against FreeCAD.
 
-tests/golden/sketchcurves/freecad.json holds what FreeCAD 26.3's Sketcher (3160daf1e2b6) makes of 391 sketches for one
+tests/golden/sketchcurves/freecad.json holds what FreeCAD 26.3's Sketcher (3160daf1e2b6) makes of 408 sketches for one
 curve tool each, done as the tool's command calls SketchObject (tests/golden/sketchcurves/make.py wrote it with
 freecadcmd): Geometry to B-spline, Increase/Decrease B-spline degree, Increase/Decrease knot multiplicity, Insert knot,
-Join curves, Trim and Split on B-splines, Fillet between curves other than two lines, B-spline by knots. The port,
+Join curves, Trim and Split on B-splines, Fillet between curves other than two lines, B-spline by knots, and Carbon
+copy (another sketch placed parallel, turned over or refused, as CarbonCopySelection lets it through). The port,
 bundled as tests/golden/sketchcurves/engine.mjs (ui/scripts/sketchcurves-bundle.sh), runs the same cases under node,
 the kernel's answers given by cad_agent/sketch_kernel.py on the same OCCT as FreeCAD's. Geometry must agree to 1e-9 and
 constraints exactly; a fillet's curves, moved by the solver to the fillet's ends in an under-constrained sketch, to
@@ -42,7 +43,7 @@ def test_curve_tools_agree_with_freecad():
     assert not bad, f"{len(bad)} of {len(cases)} operations differ from FreeCAD:\n" + "\n".join(bad[:15])
     ops = {c["op"][0] for c in cases}
     assert ops == {"convert", "degree_up", "degree_down", "knot_mult", "insert_knot", "join", "trim", "split", "fillet",
-                   "bspline_by_knots"}
+                   "bspline_by_knots", "carbon_copy"}
     # FreeCAD does each of them somewhere (not only refusals)
     done = {c["op"][0] for c in cases if c["freecad"]["ok"] is True}
     assert done == ops

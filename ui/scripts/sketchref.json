@@ -9452,6 +9452,1800 @@
     "status": "Under-constrained: ",
     "link": "14 Degrees of Freedom"
    }
+  },
+  "offset-rect-out": {
+   "geometry": [
+    {
+     "type": "LineSegment",
+     "start": [
+      5.0,
+      5.0
+     ],
+     "end": [
+      30.0,
+      5.0
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      30.0,
+      5.0
+     ],
+     "end": [
+      30.0,
+      25.0
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      30.0,
+      25.0
+     ],
+     "end": [
+      5.0,
+      25.0
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      5.0,
+      25.0
+     ],
+     "end": [
+      5.0,
+      5.0
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      0.06211090087890625,
+      25.0
+     ],
+     "end": [
+      0.06211090087890625,
+      5.0
+     ]
+    },
+    {
+     "type": "ArcOfCircle",
+     "center": [
+      5.0,
+      5.0
+     ],
+     "radius": 4.937889099121094,
+     "start_angle": 3.141592653589793,
+     "end_angle": 4.71238898038469
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      5.0,
+      0.06211090087890625
+     ],
+     "end": [
+      30.0,
+      0.06211090087890625
+     ]
+    },
+    {
+     "type": "ArcOfCircle",
+     "center": [
+      30.0,
+      5.0
+     ],
+     "radius": 4.937889099121094,
+     "start_angle": 4.71238898038469,
+     "end_angle": 6.283185307179586
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      34.937889099121094,
+      5.0
+     ],
+     "end": [
+      34.937889099121094,
+      25.0
+     ]
+    },
+    {
+     "type": "ArcOfCircle",
+     "center": [
+      30.0,
+      25.0
+     ],
+     "radius": 4.937889099121094,
+     "start_angle": 6.283185307179586,
+     "end_angle": 7.853981633974483
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      30.0,
+      29.937889099121094
+     ],
+     "end": [
+      5.0,
+      29.937889099121094
+     ]
+    },
+    {
+     "type": "ArcOfCircle",
+     "center": [
+      5.0,
+      25.0
+     ],
+     "radius": 4.937889099121094,
+     "start_angle": 1.5707963267948966,
+     "end_angle": 3.141592653589793
+    }
+   ],
+   "constraints": [
+    {
+     "type": "Coincident",
+     "args": [
+      0,
+      2,
+      1,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      1,
+      2,
+      2,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      2,
+      2,
+      3,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      3,
+      2,
+      0,
+      1
+     ]
+    },
+    {
+     "type": "Horizontal",
+     "args": [
+      0
+     ]
+    },
+    {
+     "type": "Horizontal",
+     "args": [
+      2
+     ]
+    },
+    {
+     "type": "Vertical",
+     "args": [
+      1
+     ]
+    },
+    {
+     "type": "Vertical",
+     "args": [
+      3
+     ]
+    },
+    {
+     "type": "Tangent",
+     "args": [
+      4,
+      2,
+      5,
+      1
+     ]
+    },
+    {
+     "type": "Tangent",
+     "args": [
+      4,
+      1,
+      11,
+      2
+     ]
+    },
+    {
+     "type": "Tangent",
+     "args": [
+      5,
+      2,
+      6,
+      1
+     ]
+    },
+    {
+     "type": "Tangent",
+     "args": [
+      6,
+      2,
+      7,
+      1
+     ]
+    },
+    {
+     "type": "Tangent",
+     "args": [
+      7,
+      2,
+      8,
+      1
+     ]
+    },
+    {
+     "type": "Tangent",
+     "args": [
+      8,
+      2,
+      9,
+      1
+     ]
+    },
+    {
+     "type": "Tangent",
+     "args": [
+      9,
+      2,
+      10,
+      1
+     ]
+    },
+    {
+     "type": "Tangent",
+     "args": [
+      10,
+      2,
+      11,
+      1
+     ]
+    }
+   ],
+   "message": {
+    "status": "Under-constrained: ",
+    "link": "16 Degrees of Freedom"
+   }
+  },
+  "offset-rect-in": {
+   "geometry": [
+    {
+     "type": "LineSegment",
+     "start": [
+      5.0,
+      5.0
+     ],
+     "end": [
+      30.0,
+      5.0
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      30.0,
+      5.0
+     ],
+     "end": [
+      30.0,
+      25.0
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      30.0,
+      25.0
+     ],
+     "end": [
+      5.0,
+      25.0
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      5.0,
+      25.0
+     ],
+     "end": [
+      5.0,
+      5.0
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      9.937888145446777,
+      20.062111854553223
+     ],
+     "end": [
+      9.937888145446777,
+      9.937888145446777
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      9.937888145446777,
+      9.937888145446777
+     ],
+     "end": [
+      25.062111854553223,
+      9.937888145446777
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      25.062111854553223,
+      9.937888145446777
+     ],
+     "end": [
+      25.062111854553223,
+      20.062111854553223
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      25.062111854553223,
+      20.062111854553223
+     ],
+     "end": [
+      9.937888145446777,
+      20.062111854553223
+     ]
+    }
+   ],
+   "constraints": [
+    {
+     "type": "Coincident",
+     "args": [
+      0,
+      2,
+      1,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      1,
+      2,
+      2,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      2,
+      2,
+      3,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      3,
+      2,
+      0,
+      1
+     ]
+    },
+    {
+     "type": "Horizontal",
+     "args": [
+      0
+     ]
+    },
+    {
+     "type": "Horizontal",
+     "args": [
+      2
+     ]
+    },
+    {
+     "type": "Vertical",
+     "args": [
+      1
+     ]
+    },
+    {
+     "type": "Vertical",
+     "args": [
+      3
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      4,
+      2,
+      5,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      4,
+      1,
+      7,
+      2
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      5,
+      2,
+      6,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      6,
+      2,
+      7,
+      1
+     ]
+    }
+   ],
+   "message": {
+    "status": "Under-constrained: ",
+    "link": "12 Degrees of Freedom"
+   }
+  },
+  "offset-rect-constraint": {
+   "geometry": [
+    {
+     "type": "LineSegment",
+     "start": [
+      5.0,
+      5.000000900878907
+     ],
+     "end": [
+      29.999999099121094,
+      5.000000900878907
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      29.999999099121094,
+      5.000000900878907
+     ],
+     "end": [
+      29.999999099121094,
+      25.0
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      29.999999099121094,
+      25.0
+     ],
+     "end": [
+      5.0,
+      25.0
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      5.0,
+      25.0
+     ],
+     "end": [
+      5.0,
+      5.000000900878906
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      0.062109999999999665,
+      25.0
+     ],
+     "end": [
+      0.062109999999999665,
+      5.000000900878906
+     ]
+    },
+    {
+     "type": "ArcOfCircle",
+     "center": [
+      5.0,
+      5.000000900878907
+     ],
+     "radius": 4.93789,
+     "start_angle": 3.141592653589793,
+     "end_angle": 4.71238898038469
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      5.0,
+      0.06211090087890625
+     ],
+     "end": [
+      29.999999099121094,
+      0.06211090087890625
+     ]
+    },
+    {
+     "type": "ArcOfCircle",
+     "center": [
+      29.999999099121094,
+      5.000000900878907
+     ],
+     "radius": 4.93789,
+     "start_angle": 4.71238898038469,
+     "end_angle": 6.283185307179586
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      34.937889099121094,
+      5.000000900878906
+     ],
+     "end": [
+      34.937889099121094,
+      25.0
+     ]
+    },
+    {
+     "type": "ArcOfCircle",
+     "center": [
+      29.999999099121094,
+      25.0
+     ],
+     "radius": 4.93789,
+     "start_angle": 6.283185307179586,
+     "end_angle": 7.853981633974483
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      29.999999099121094,
+      29.93789
+     ],
+     "end": [
+      5.0,
+      29.93789
+     ]
+    },
+    {
+     "type": "ArcOfCircle",
+     "center": [
+      5.0,
+      25.0
+     ],
+     "radius": 4.93789,
+     "start_angle": 1.5707963267948966,
+     "end_angle": 3.141592653589793
+    }
+   ],
+   "constraints": [
+    {
+     "type": "Coincident",
+     "args": [
+      0,
+      2,
+      1,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      1,
+      2,
+      2,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      2,
+      2,
+      3,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      3,
+      2,
+      0,
+      1
+     ]
+    },
+    {
+     "type": "Horizontal",
+     "args": [
+      0
+     ]
+    },
+    {
+     "type": "Horizontal",
+     "args": [
+      2
+     ]
+    },
+    {
+     "type": "Vertical",
+     "args": [
+      1
+     ]
+    },
+    {
+     "type": "Vertical",
+     "args": [
+      3
+     ]
+    },
+    {
+     "type": "Tangent",
+     "args": [
+      4,
+      2,
+      5,
+      1
+     ]
+    },
+    {
+     "type": "Tangent",
+     "args": [
+      4,
+      1,
+      11,
+      2
+     ]
+    },
+    {
+     "type": "Tangent",
+     "args": [
+      5,
+      2,
+      6,
+      1
+     ]
+    },
+    {
+     "type": "Tangent",
+     "args": [
+      6,
+      2,
+      7,
+      1
+     ]
+    },
+    {
+     "type": "Tangent",
+     "args": [
+      7,
+      2,
+      8,
+      1
+     ]
+    },
+    {
+     "type": "Tangent",
+     "args": [
+      8,
+      2,
+      9,
+      1
+     ]
+    },
+    {
+     "type": "Tangent",
+     "args": [
+      9,
+      2,
+      10,
+      1
+     ]
+    },
+    {
+     "type": "Tangent",
+     "args": [
+      10,
+      2,
+      11,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      11,
+      3,
+      2,
+      2
+     ]
+    },
+    {
+     "type": "Parallel",
+     "args": [
+      4,
+      3
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      5,
+      3,
+      0,
+      1
+     ]
+    },
+    {
+     "type": "Parallel",
+     "args": [
+      6,
+      0
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      7,
+      3,
+      0,
+      2
+     ]
+    },
+    {
+     "type": "Parallel",
+     "args": [
+      8,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      9,
+      3,
+      1,
+      2
+     ]
+    },
+    {
+     "type": "Distance",
+     "args": [
+      10,
+      1,
+      2
+     ],
+     "value": 4.93789
+    }
+   ],
+   "message": {
+    "status": "Under-constrained: ",
+    "link": "4 Degrees of Freedom"
+   }
+  },
+  "offset-rect-delete": {
+   "geometry": [
+    {
+     "type": "LineSegment",
+     "start": [
+      0.06211090087890625,
+      25.0
+     ],
+     "end": [
+      0.06211090087890625,
+      5.0
+     ]
+    },
+    {
+     "type": "ArcOfCircle",
+     "center": [
+      5.0,
+      5.0
+     ],
+     "radius": 4.937889099121094,
+     "start_angle": 3.141592653589793,
+     "end_angle": 4.71238898038469
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      4.999999999999999,
+      0.06211090087890625
+     ],
+     "end": [
+      30.0,
+      0.06211090087890625
+     ]
+    },
+    {
+     "type": "ArcOfCircle",
+     "center": [
+      30.0,
+      5.0
+     ],
+     "radius": 4.937889099121094,
+     "start_angle": 4.71238898038469,
+     "end_angle": 6.283185307179586
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      34.937889099121094,
+      4.999999999999999
+     ],
+     "end": [
+      34.937889099121094,
+      25.0
+     ]
+    },
+    {
+     "type": "ArcOfCircle",
+     "center": [
+      30.0,
+      25.0
+     ],
+     "radius": 4.937889099121094,
+     "start_angle": 6.283185307179586,
+     "end_angle": 7.853981633974483
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      30.0,
+      29.937889099121094
+     ],
+     "end": [
+      5.0,
+      29.937889099121094
+     ]
+    },
+    {
+     "type": "ArcOfCircle",
+     "center": [
+      5.0,
+      25.0
+     ],
+     "radius": 4.937889099121094,
+     "start_angle": 1.5707963267948966,
+     "end_angle": 3.141592653589793
+    }
+   ],
+   "constraints": [
+    {
+     "type": "Tangent",
+     "args": [
+      0,
+      2,
+      1,
+      1
+     ]
+    },
+    {
+     "type": "Tangent",
+     "args": [
+      0,
+      1,
+      7,
+      2
+     ]
+    },
+    {
+     "type": "Tangent",
+     "args": [
+      1,
+      2,
+      2,
+      1
+     ]
+    },
+    {
+     "type": "Tangent",
+     "args": [
+      2,
+      2,
+      3,
+      1
+     ]
+    },
+    {
+     "type": "Tangent",
+     "args": [
+      3,
+      2,
+      4,
+      1
+     ]
+    },
+    {
+     "type": "Tangent",
+     "args": [
+      4,
+      2,
+      5,
+      1
+     ]
+    },
+    {
+     "type": "Tangent",
+     "args": [
+      5,
+      2,
+      6,
+      1
+     ]
+    },
+    {
+     "type": "Tangent",
+     "args": [
+      6,
+      2,
+      7,
+      1
+     ]
+    }
+   ],
+   "message": {
+    "status": "Under-constrained: ",
+    "link": "12 Degrees of Freedom"
+   }
+  },
+  "offset-rect-intersection": {
+   "geometry": [
+    {
+     "type": "LineSegment",
+     "start": [
+      5.0,
+      5.0
+     ],
+     "end": [
+      30.0,
+      5.0
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      30.0,
+      5.0
+     ],
+     "end": [
+      30.0,
+      25.0
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      30.0,
+      25.0
+     ],
+     "end": [
+      5.0,
+      25.0
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      5.0,
+      25.0
+     ],
+     "end": [
+      5.0,
+      5.0
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      0.06211090087890625,
+      29.937889099121094
+     ],
+     "end": [
+      0.06211090087890625,
+      0.06211090087890625
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      0.06211090087890625,
+      0.06211090087890625
+     ],
+     "end": [
+      34.937889099121094,
+      0.06211090087890625
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      34.937889099121094,
+      0.06211090087890625
+     ],
+     "end": [
+      34.937889099121094,
+      29.937889099121094
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      34.937889099121094,
+      29.937889099121094
+     ],
+     "end": [
+      0.06211090087890625,
+      29.937889099121094
+     ]
+    }
+   ],
+   "constraints": [
+    {
+     "type": "Coincident",
+     "args": [
+      0,
+      2,
+      1,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      1,
+      2,
+      2,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      2,
+      2,
+      3,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      3,
+      2,
+      0,
+      1
+     ]
+    },
+    {
+     "type": "Horizontal",
+     "args": [
+      0
+     ]
+    },
+    {
+     "type": "Horizontal",
+     "args": [
+      2
+     ]
+    },
+    {
+     "type": "Vertical",
+     "args": [
+      1
+     ]
+    },
+    {
+     "type": "Vertical",
+     "args": [
+      3
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      4,
+      2,
+      5,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      4,
+      1,
+      7,
+      2
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      5,
+      2,
+      6,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      6,
+      2,
+      7,
+      1
+     ]
+    }
+   ],
+   "message": {
+    "status": "Under-constrained: ",
+    "link": "12 Degrees of Freedom"
+   }
+  },
+  "offset-circle": {
+   "geometry": [
+    {
+     "type": "Circle",
+     "center": [
+      25.0,
+      20.0
+     ],
+     "radius": 8.0
+    },
+    {
+     "type": "Circle",
+     "center": [
+      25.0,
+      20.0
+     ],
+     "radius": 11.956520080566406
+    }
+   ],
+   "constraints": [],
+   "message": {
+    "status": "Under-constrained: ",
+    "link": "6 Degrees of Freedom"
+   }
+  },
+  "offset-circle-constraint": {
+   "geometry": [
+    {
+     "type": "Circle",
+     "center": [
+      25.0,
+      20.0
+     ],
+     "radius": 8.000000080566407
+    },
+    {
+     "type": "Circle",
+     "center": [
+      25.0,
+      20.0
+     ],
+     "radius": 11.956520080566406
+    }
+   ],
+   "constraints": [
+    {
+     "type": "Coincident",
+     "args": [
+      1,
+      3,
+      0,
+      3
+     ]
+    },
+    {
+     "type": "Distance",
+     "args": [
+      1,
+      0
+     ],
+     "value": 3.95652
+    }
+   ],
+   "message": {
+    "status": "Under-constrained: ",
+    "link": "3 Degrees of Freedom"
+   }
+  },
+  "offset-line": {
+   "geometry": [
+    {
+     "type": "LineSegment",
+     "start": [
+      5.0,
+      10.0
+     ],
+     "end": [
+      40.0,
+      15.0
+     ]
+    },
+    {
+     "type": "ArcOfCircle",
+     "center": [
+      5.0,
+      10.0
+     ],
+     "radius": 7.7737826891323145,
+     "start_angle": 1.7126933813990606,
+     "end_angle": 4.854286034988854
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      3.900621109008789,
+      17.69565223693848
+     ],
+     "end": [
+      15.567287775675458,
+      19.362318903605146
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      15.567287775675458,
+      19.362318903605146
+     ],
+     "end": [
+      38.90062110900879,
+      22.69565223693848
+     ]
+    },
+    {
+     "type": "ArcOfCircle",
+     "center": [
+      40.0,
+      15.0
+     ],
+     "radius": 7.7737826891323145,
+     "start_angle": -1.4288992721907325,
+     "end_angle": 1.7126933813990606
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      17.766045557657883,
+      3.97101442972819
+     ],
+     "end": [
+      41.09937889099121,
+      7.304347763061523
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      6.099378890991211,
+      2.3043477630615232
+     ],
+     "end": [
+      17.766045557657883,
+      3.97101442972819
+     ]
+    }
+   ],
+   "constraints": [
+    {
+     "type": "Tangent",
+     "args": [
+      1,
+      1,
+      2,
+      1
+     ]
+    },
+    {
+     "type": "Tangent",
+     "args": [
+      1,
+      2,
+      6,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      2,
+      2,
+      3,
+      1
+     ]
+    },
+    {
+     "type": "Tangent",
+     "args": [
+      3,
+      2,
+      4,
+      2
+     ]
+    },
+    {
+     "type": "Tangent",
+     "args": [
+      4,
+      1,
+      5,
+      2
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      5,
+      1,
+      6,
+      2
+     ]
+    }
+   ],
+   "message": {
+    "status": "Under-constrained: ",
+    "link": "14 Degrees of Freedom"
+   }
+  },
+  "offset-line-constraint": {
+   "geometry": [
+    {
+     "type": "LineSegment",
+     "start": [
+      5.0,
+      10.0
+     ],
+     "end": [
+      40.0,
+      15.0
+     ]
+    },
+    {
+     "type": "ArcOfCircle",
+     "center": [
+      5.0,
+      10.0
+     ],
+     "radius": 7.7737826891323145,
+     "start_angle": 1.7126933813990606,
+     "end_angle": 4.854286034988854
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      3.900621109008789,
+      17.69565223693848
+     ],
+     "end": [
+      15.567287775675458,
+      19.362318903605146
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      15.567287775675458,
+      19.362318903605146
+     ],
+     "end": [
+      38.90062110900879,
+      22.69565223693848
+     ]
+    },
+    {
+     "type": "ArcOfCircle",
+     "center": [
+      40.0,
+      15.0
+     ],
+     "radius": 7.7737826891323145,
+     "start_angle": -1.4288992721907325,
+     "end_angle": 1.7126933813990606
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      17.766045557657883,
+      3.97101442972819
+     ],
+     "end": [
+      41.09937889099121,
+      7.304347763061524
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      6.099378890991211,
+      2.3043477630615232
+     ],
+     "end": [
+      17.766045557657883,
+      3.97101442972819
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      15.567287775675458,
+      19.362318903605146
+     ],
+     "end": [
+      16.66666666666667,
+      11.666666666666668
+     ],
+     "construction": true
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      6.099378890991211,
+      2.3043477630615232
+     ],
+     "end": [
+      5.0,
+      10.0
+     ],
+     "construction": true
+    }
+   ],
+   "constraints": [
+    {
+     "type": "Tangent",
+     "args": [
+      1,
+      1,
+      2,
+      1
+     ]
+    },
+    {
+     "type": "Tangent",
+     "args": [
+      1,
+      2,
+      6,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      2,
+      2,
+      3,
+      1
+     ]
+    },
+    {
+     "type": "Tangent",
+     "args": [
+      3,
+      2,
+      4,
+      2
+     ]
+    },
+    {
+     "type": "Tangent",
+     "args": [
+      4,
+      1,
+      5,
+      2
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      5,
+      1,
+      6,
+      2
+     ]
+    },
+    {
+     "type": "Perpendicular",
+     "args": [
+      7,
+      3
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      7,
+      1,
+      3,
+      1
+     ]
+    },
+    {
+     "type": "PointOnObject",
+     "args": [
+      7,
+      2,
+      0
+     ]
+    },
+    {
+     "type": "Perpendicular",
+     "args": [
+      8,
+      6
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      8,
+      1,
+      6,
+      1
+     ]
+    },
+    {
+     "type": "PointOnObject",
+     "args": [
+      8,
+      2,
+      0
+     ]
+    },
+    {
+     "type": "Parallel",
+     "args": [
+      6,
+      0
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      1,
+      3,
+      0,
+      1
+     ]
+    },
+    {
+     "type": "Parallel",
+     "args": [
+      2,
+      0
+     ]
+    },
+    {
+     "type": "Parallel",
+     "args": [
+      3,
+      0
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      4,
+      3,
+      0,
+      2
+     ]
+    },
+    {
+     "type": "Parallel",
+     "args": [
+      5,
+      0
+     ]
+    },
+    {
+     "type": "Equal",
+     "args": [
+      8,
+      7
+     ]
+    },
+    {
+     "type": "Distance",
+     "args": [
+      7
+     ],
+     "value": 7.77378
+    }
+   ],
+   "message": {
+    "status": "Redundant constraints: ",
+    "link": "(19)"
+   }
+  },
+  "offset-arc-line": {
+   "geometry": [
+    {
+     "type": "LineSegment",
+     "start": [
+      5.0,
+      10.0
+     ],
+     "end": [
+      25.0,
+      10.0
+     ]
+    },
+    {
+     "type": "ArcOfCircle",
+     "center": [
+      25.0,
+      18.0
+     ],
+     "radius": 8.0,
+     "start_angle": 4.71238898038469,
+     "end_angle": 6.783185307179586
+    },
+    {
+     "type": "ArcOfCircle",
+     "center": [
+      32.02066049512298,
+      21.835404308833624
+     ],
+     "radius": 3.9751553535461426,
+     "start_angle": 0.4999999999999998,
+     "end_angle": 3.641592653589793
+    },
+    {
+     "type": "ArcOfCircle",
+     "center": [
+      25.0,
+      18.0
+     ],
+     "radius": 11.975155353546143,
+     "start_angle": 4.71238898038469,
+     "end_angle": 6.783185307179586
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      4.999999999999999,
+      6.024844646453857
+     ],
+     "end": [
+      24.999999999999996,
+      6.024844646453857
+     ]
+    },
+    {
+     "type": "ArcOfCircle",
+     "center": [
+      5.0,
+      10.0
+     ],
+     "radius": 3.9751553535461426,
+     "start_angle": 1.5707963267948966,
+     "end_angle": 4.71238898038469
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      5.0,
+      13.975155353546143
+     ],
+     "end": [
+      25.0,
+      13.975155353546143
+     ]
+    },
+    {
+     "type": "ArcOfCircle",
+     "center": [
+      25.0,
+      18.0
+     ],
+     "radius": 4.024844646453857,
+     "start_angle": 4.71238898038469,
+     "end_angle": 6.783185307179586
+    }
+   ],
+   "constraints": [
+    {
+     "type": "Coincident",
+     "args": [
+      0,
+      2,
+      1,
+      1
+     ]
+    },
+    {
+     "type": "Tangent",
+     "args": [
+      2,
+      1,
+      3,
+      2
+     ]
+    },
+    {
+     "type": "Tangent",
+     "args": [
+      2,
+      2,
+      7,
+      2
+     ]
+    },
+    {
+     "type": "Tangent",
+     "args": [
+      3,
+      1,
+      4,
+      2
+     ]
+    },
+    {
+     "type": "Tangent",
+     "args": [
+      4,
+      1,
+      5,
+      2
+     ]
+    },
+    {
+     "type": "Tangent",
+     "args": [
+      5,
+      1,
+      6,
+      1
+     ]
+    },
+    {
+     "type": "Tangent",
+     "args": [
+      6,
+      2,
+      7,
+      1
+     ]
+    }
+   ],
+   "message": {
+    "status": "Under-constrained: ",
+    "link": "17 Degrees of Freedom"
+   }
   }
  }
 }

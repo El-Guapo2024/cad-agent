@@ -176,6 +176,8 @@ def cons_args(c):
     if t in ("Distance", "DistanceX", "DistanceY"):
         if s == GEO_UNDEF:
             return [f] if fp == 0 else [f, fp]
+        if fp == 0 and sp == 0:     # between two edges: Constraint('Distance', GeoId1, GeoId2, value)
+            return [f, s]
         if sp == 0:
             return [f, fp, s]
         return [f, fp, s, sp]

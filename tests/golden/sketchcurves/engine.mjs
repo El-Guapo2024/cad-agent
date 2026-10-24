@@ -4177,9 +4177,9 @@ function coincidentPoints(cons, g, pos) {
 }
 //#endregion
 //#region ui/src/sketchops.ts
-const CONFUSION = 1e-7;
+const CONFUSION$1 = 1e-7;
 const PAPPROXIMATION = 1e-8;
-const TWO_PI = 2 * Math.PI;
+const TWO_PI$1 = 2 * Math.PI;
 const sub = (a, b) => [a[0] - b[0], a[1] - b[1]];
 const add = (a, b) => [a[0] + b[0], a[1] + b[1]];
 const mul = (a, k) => [a[0] * k, a[1] * k];
@@ -4261,11 +4261,11 @@ function closestParam(g, p) {
 }
 /** ElCLib::AdjustPeriodic with Geom_TrimmedCurve::SetTrim's precision: a periodic trim in [0, 2π). */
 function setTrimPeriodic(u1, u2) {
-	const preci = Math.min(Math.abs(u2 - u1) / 2, CONFUSION * .01);
-	u1 -= Math.floor(u1 / TWO_PI) * TWO_PI;
-	if (TWO_PI - u1 < preci) u1 -= TWO_PI;
-	u2 -= Math.floor((u2 - u1) / TWO_PI) * TWO_PI;
-	if (u2 - u1 < preci) u2 += TWO_PI;
+	const preci = Math.min(Math.abs(u2 - u1) / 2, CONFUSION$1 * .01);
+	u1 -= Math.floor(u1 / TWO_PI$1) * TWO_PI$1;
+	if (TWO_PI$1 - u1 < preci) u1 -= TWO_PI$1;
+	u2 -= Math.floor((u2 - u1) / TWO_PI$1) * TWO_PI$1;
+	if (u2 - u1 < preci) u2 += TWO_PI$1;
 	return [u1, u2];
 }
 /** GeomCurve::createArc(first, last): the same curve trimmed (a circle or an ellipse becomes its arc). */
@@ -4357,8 +4357,8 @@ const inRange = (c, u, tol = 1e-9) => u >= c.range[0] - tol && u <= c.range[1] +
 function angleIn(c, q) {
 	let a = Math.atan2(q[1] - c.circle.c[1], q[0] - c.circle.c[0]);
 	const [u0, u1] = c.range;
-	while (a < u0 - 1e-12) a += TWO_PI;
-	while (a > u0 + TWO_PI) a -= TWO_PI;
+	while (a < u0 - 1e-12) a += TWO_PI$1;
+	while (a > u0 + TWO_PI$1) a -= TWO_PI$1;
 	return a <= u1 + 1e-12 ? a : null;
 }
 /** The points where two curves meet, overlaps given by their ends (IntRes2d's segments' first and last points). */
@@ -4404,7 +4404,7 @@ function intersect(a, b) {
 			const ends = [];
 			for (const [x, y] of [[a, b], [b, a]]) for (const u of x.range) {
 				const q = x.at(u);
-				if (angleIn(y, q) !== null && Math.abs(x.range[1] - x.range[0] - TWO_PI) > 1e-12) ends.push(q);
+				if (angleIn(y, q) !== null && Math.abs(x.range[1] - x.range[0] - TWO_PI$1) > 1e-12) ends.push(q);
 			}
 			return ends;
 		}
@@ -4483,7 +4483,7 @@ function seekTrimPoints(d, geoId, point, includeSketchAxes = false) {
 	const primary = curveOf(g);
 	if (!primary) return null;
 	const periodic = g.type === "Circle" || g.type === "Ellipse" || g.type === "BSplineCurve" && g.periodic;
-	const period = g.type === "BSplineCurve" ? range(g)[1] - range(g)[0] : TWO_PI;
+	const period = g.type === "BSplineCurve" ? range(g)[1] - range(g)[0] : TWO_PI$1;
 	const project = (p) => {
 		const u = closestParameter(g, p);
 		return {
@@ -4523,7 +4523,7 @@ function seekTrimPoints(d, geoId, point, includeSketchAxes = false) {
 		pts.push(...intersect(primary, o.curve));
 		for (const p of pts) {
 			const pr = project(p);
-			if (pr.d > CONFUSION) continue;
+			if (pr.d > CONFUSION$1) continue;
 			let param = pr.u;
 			if (periodic) {
 				param = param - period * Math.ceil((param - picked) / period);
@@ -4707,7 +4707,7 @@ function delConstraints(d, ids) {
 }
 const isPointAtPosition = (d, g, pos, p) => {
 	const q = getPoint(d.geometry, g, pos);
-	return !!q && dist(p, q) < 500 * CONFUSION;
+	return !!q && dist(p, q) < 500 * CONFUSION$1;
 };
 function transformPreexistingForTrim(d, c, geoId, cutting, cut, newId, newPos) {
 	if (cutting === -2e3 || !involvesGeoId(c, cutting) || !involvesGeoIdAndPosId(c, geoId, 0)) return null;
@@ -4888,7 +4888,7 @@ function trimIt(d, geoId, point, includeSketchAxes) {
 	if (!closed && Math.abs(last - c1) < PAPPROXIMATION) cutting[1] = GEO_UNDEF;
 	const undefs = cutting.filter((g) => g === GEO_UNDEF).length;
 	let params;
-	if (undefs === 0 && dist(cuts[0], cuts[1]) < 500 * CONFUSION) params = [];
+	if (undefs === 0 && dist(cuts[0], cuts[1]) < 500 * CONFUSION$1) params = [];
 	else {
 		params = Array.from({ length: 2 - undefs }, () => [first, last]);
 		if (params.length && closed) params.pop();
@@ -5035,8 +5035,8 @@ function lineFilletArc(l1, l2, center, radius) {
 	const span = Math.atan2(-r1[1] * r2[0] + r1[0] * r2[1], r1[0] * r2[0] + r1[1] * r2[1]);
 	let end = start + span;
 	if (end < start) [start, end] = [end, start];
-	if (end > TWO_PI) end -= TWO_PI;
-	if (start < 0) end += TWO_PI;
+	if (end > TWO_PI$1) end -= TWO_PI$1;
+	if (start < 0) end += TWO_PI$1;
 	const [a, b] = setTrimPeriodic(start, end);
 	return {
 		type: "ArcOfCircle",
@@ -5244,8 +5244,17 @@ function replaceGeometries(d, oldIds, newGeos) {
 }
 /** SketchObject::convertToNURBS(GeoId): the curve replaced by its B-spline (a new geometry: not construction), its
 *  constraints other than coincidences gone, and the coincidences on its centre. */
-function convertToNURBS(d, geoId, k) {
-	if (geoId > highest(d) || geoId < 0) return false;
+function convertToNURBS(d, geoId, k, external) {
+	if (geoId > highest(d) || geoId === -1 || geoId === -2) return false;
+	if (geoId < 0) {
+		const ext = external?.(geoId);
+		if (!ext || ext.type === "Point") return false;
+		d.geometry = [...d.geometry, k({
+			op: "nurbs",
+			geo: plain(ext)
+		}).geo];
+		return true;
+	}
 	const geo = d.geometry[geoId];
 	if (!geo || geo.type === "Point") return false;
 	const bsp = k({
@@ -5505,6 +5514,210 @@ function cached(cache) {
 	};
 }
 //#endregion
+//#region ui/src/sketchcarbon.ts
+const CONFUSION = 1e-7;
+const dot3 = (a, b) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
+const sub3 = (a, b) => [
+	a[0] - b[0],
+	a[1] - b[1],
+	a[2] - b[2]
+];
+/** Base::Rotation::multVec (the quaternion x, y, z, w). */
+function multVec(q, v) {
+	const [x, y, z, w] = q;
+	const x2 = x * x, y2 = y * y, z2 = z * z, w2 = w * w;
+	return [
+		(x2 + w2 - y2 - z2) * v[0] + 2 * (x * y - z * w) * v[1] + 2 * (x * z + y * w) * v[2],
+		2 * (x * y + z * w) * v[0] + (w2 - x2 + y2 - z2) * v[1] + 2 * (y * z - x * w) * v[2],
+		2 * (x * z - y * w) * v[0] + 2 * (x * w + y * z) * v[1] + (w2 - x2 - y2 + z2) * v[2]
+	];
+}
+const normalize3 = (v) => {
+	const l = Math.hypot(...v);
+	return l ? [
+		v[0] / l,
+		v[1] / l,
+		v[2] / l
+	] : v;
+};
+/** isCarbonCopyAllowed's placement checks (the sketch of the source, `src`, onto this one): the planes parallel, the
+*  axes aligned, the origins on one normal; xinv / yinv when the X / Y axes run opposite. */
+function carbonCopyAllowed(self, src, allowUnaligned = false) {
+	const sn = multVec(src.rotation, [
+		0,
+		0,
+		1
+	]), sx = multVec(src.rotation, [
+		1,
+		0,
+		0
+	]), sy = multVec(src.rotation, [
+		0,
+		1,
+		0
+	]);
+	const ln = multVec(self.rotation, [
+		0,
+		0,
+		1
+	]), lx = multVec(self.rotation, [
+		1,
+		0,
+		0
+	]), ly = multVec(self.rotation, [
+		0,
+		1,
+		0
+	]);
+	const d = dot3(sn, ln), dx = dot3(sx, lx), dy = dot3(sy, ly);
+	if (!allowUnaligned && Math.abs(Math.abs(d) - 1) > CONFUSION) return { reason: "rlNonParallel" };
+	if (!allowUnaligned && (Math.abs(Math.abs(dx) - 1) > CONFUSION || Math.abs(Math.abs(dy) - 1) > CONFUSION)) return { reason: "rlAxesMisaligned" };
+	const same = src.base[0] === self.base[0] && src.base[1] === self.base[1] && src.base[2] === self.base[2];
+	const ddir = normalize3(sub3(src.base, self.base));
+	if (!allowUnaligned && Math.abs(Math.abs(dot3(ddir, ln)) - 1) > CONFUSION && !same) return { reason: "rlOriginsMisaligned" };
+	return {
+		xinv: allowUnaligned ? false : Math.abs(dx - 1) > CONFUSION,
+		yinv: allowUnaligned ? false : Math.abs(dy - 1) > CONFUSION
+	};
+}
+/** gp_Pnt::Mirror(gp_Ax1): the point turned half a turn about the axis through o along d; the sketch keeps x and y. */
+function mirrorPoint(p, o, d) {
+	const v = [
+		p[0] - o[0],
+		p[1] - o[1],
+		-o[2]
+	];
+	const t = dot3(v, d);
+	return [2 * (o[0] + d[0] * t) - p[0], 2 * (o[1] + d[1] * t) - p[1]];
+}
+/** gp_Dir::Mirror(gp_Ax1) of a direction in the plane. */
+function mirrorDir(v, d) {
+	const t = v[0] * d[0] + v[1] * d[1];
+	return [2 * d[0] * t - v[0], 2 * d[1] * t - v[1]];
+}
+const TWO_PI = 2 * Math.PI;
+const norm0 = (a) => a - Math.floor(a / TWO_PI) * TWO_PI;
+/** A sketch curve turned half a turn about an axis (Part::Geometry::mirror(point, dir), the axis in global terms as
+*  carbonCopy gives it): about an axis in the plane it is mirrored, its normal goes to -Z and the Sketcher reads an arc
+*  counter-clockwise from its other end; about an axis along the normal it is only turned in the plane. */
+function mirrorGeo(g, o, d) {
+	const P = (p) => mirrorPoint(p, o, d);
+	const reversed = 2 * d[2] * d[2] - 1 < 0;
+	switch (g.type) {
+		case "Point": return {
+			...g,
+			at: P(g.at)
+		};
+		case "LineSegment": return {
+			...g,
+			start: P(g.start),
+			end: P(g.end)
+		};
+		case "Circle": return {
+			...g,
+			center: P(g.center)
+		};
+		case "ArcOfCircle": {
+			const ang = reversed ? g.end_angle : g.start_angle;
+			const c = P(g.center), e = P([g.center[0] + g.radius * Math.cos(ang), g.center[1] + g.radius * Math.sin(ang)]);
+			const a1 = norm0(Math.atan2(e[1] - c[1], e[0] - c[0]));
+			return {
+				...g,
+				center: c,
+				start_angle: a1,
+				end_angle: a1 + (g.end_angle - g.start_angle)
+			};
+		}
+		case "Ellipse": return {
+			...g,
+			center: P(g.center),
+			x_axis: mirrorDir(g.x_axis, d)
+		};
+		case "ArcOfEllipse":
+		case "ArcOfHyperbola":
+		case "ArcOfParabola": {
+			const { start_point: _s, end_point: _e, ...rest } = g;
+			const [u1, u2] = reversed ? [-g.end_angle, -g.start_angle] : [g.start_angle, g.end_angle];
+			return {
+				...rest,
+				center: P(g.center),
+				x_axis: mirrorDir(g.x_axis, d),
+				start_angle: u1,
+				end_angle: u2
+			};
+		}
+		case "BSplineCurve": return {
+			...g,
+			poles: g.poles.map(P)
+		};
+	}
+}
+/** The constraint corrections for flipped geometry (applyConstraintFlipCorrection). */
+function flipConstraint(c, xinv, yinv) {
+	if (!xinv && !yinv) return c;
+	const n = { ...c };
+	if (xinv && n.type === "DistanceX" || yinv && n.type === "DistanceY") {
+		if (n.first === n.second) [n.firstPos, n.secondPos] = [n.secondPos, n.firstPos];
+		else n.value = -n.value;
+	}
+	if (n.type === "Angle") {
+		const na = (a) => {
+			while (a > Math.PI) a -= Math.PI * 2;
+			while (a <= -Math.PI) a += Math.PI * 2;
+			return a;
+		};
+		if (xinv && yinv) {
+			if (n.first === -1 || n.second === -1 || n.first === -2 || n.second === -2 || n.second === -2e3) n.value = na(n.value + Math.PI);
+		} else if (xinv) {
+			if (n.first === -1 || n.second === -1 || n.second === -2e3) n.value = na(Math.PI - n.value);
+			else n.value = na(-n.value);
+		} else if (yinv) {
+			if (n.first === -2 || n.second === -2) n.value = na(Math.PI - n.value);
+			else n.value = na(-n.value);
+		}
+	}
+	return n;
+}
+/** SketchObject::carbonCopy's geometry and constraints: src's geometry after this sketch's (mirrored for xinv / yinv about
+*  this sketch's own axes through its origin, as FreeCAD gives Part::Geometry::mirror this Placement's position and
+*  axes), construction when asked (but points), src's constraints with their GeoIds moved (its own past ours, its
+*  external ones past our externalCount, axes included as getExternalGeometryCount counts them). */
+function carbonCopy(d, src, self, xinv, yinv, construction, externalCount) {
+	const next = d.geometry.length;
+	const o = self.base, axisH = multVec(self.rotation, [
+		1,
+		0,
+		0
+	]), axisV = multVec(self.rotation, [
+		0,
+		1,
+		0
+	]);
+	const geos = src.geometry.map((g0) => {
+		let g = { ...g0 };
+		if (xinv) g = mirrorGeo(g, o, axisV);
+		if (yinv) g = mirrorGeo(g, o, axisH);
+		if (construction && g.type !== "Point") g = {
+			...g,
+			construction: true
+		};
+		return g;
+	});
+	const cons = src.constraints.map((c0) => {
+		const c = { ...c0 };
+		for (const k of [
+			"first",
+			"second",
+			"third"
+		]) if (c0[k] >= 0) c[k] = c0[k] + next;
+		else if (c0[k] < -2 && c0[k] !== -2e3) c[k] = c0[k] - (externalCount - 2);
+		return flipConstraint(c, xinv, yinv);
+	});
+	d.geometry = [...d.geometry, ...geos];
+	d.constraints = [...d.constraints, ...cons];
+	return src.geometry.length;
+}
+//#endregion
 //#region ui/scripts/sketchcurves-entry.ts
 const DIMENSIONAL = [
 	"Distance",
@@ -5604,6 +5817,21 @@ function runCase(c, solve, answers) {
 			const first = doc.geometry.length;
 			doc.geometry = [...doc.geometry, ...pts.map(knotPoint)];
 			bsplineByKnots(doc, first, pts, mults, periodic, construction, k);
+		} else if (op === "carbon_copy") {
+			const [geometry, constraints, selfPl, srcPl, construction] = args;
+			const ok = carbonCopyAllowed(selfPl, srcPl);
+			if ("reason" in ok) done = false;
+			else {
+				carbonCopy(doc, {
+					geometry: geometry.map((g) => ({ ...g })),
+					constraints: constraints.map(toConstraint)
+				}, selfPl, ok.xinv, ok.yinv, construction, 2);
+				const r = solve(JSON.stringify({
+					geometry: doc.geometry,
+					constraints: doc.constraints.map(toCons)
+				}));
+				if (r.status_code === 0) doc.geometry = r.stored_geometry;
+			}
 		} else throw new Error(`unknown op ${op}`);
 		if (!done) ok = "refused";
 	} catch (e) {
@@ -5614,6 +5842,14 @@ function runCase(c, solve, answers) {
 		ok,
 		geometry: doc.geometry.map((g) => {
 			const { construction: _c, ...rest } = g;
+			if (rest.type === "ArcOfCircle") {
+				const a1 = rest.start_angle - Math.floor(rest.start_angle / (2 * Math.PI)) * 2 * Math.PI;
+				return {
+					...rest,
+					start_angle: a1,
+					end_angle: a1 + (rest.end_angle - rest.start_angle)
+				};
+			}
 			return rest.type === "BSplineCurve" && !rest.weights ? {
 				...rest,
 				weights: rest.poles.map(() => 1)

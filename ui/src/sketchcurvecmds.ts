@@ -24,6 +24,8 @@ import { runOp, withKernel, tryKernel, KernelError, type Kernel } from './sketch
 import './sketchkernelapi'
 import { LAYERS, toggleLayer, onLayerToggled, type LayerCommand } from './sketchbsplineinfo'
 import { report } from './store'
+import { runOffset } from './sketchoffset'
+import { CarbonCopyHandler } from './sketchcarbontool'
 
 const LMB = 'LMB', RMB = 'RMB'
 const CONFUSION = 1e-7
@@ -417,6 +419,8 @@ export const CURVE_RUN: Record<string, () => void> = {
   Sketcher_BSplineDecreaseKnotMultiplicity: () => modifyKnot(-1),
   Sketcher_BSplineInsertKnot: insertKnot,
   Sketcher_JoinCurves: joinCurves,
+  Sketcher_Offset: runOffset,
+  Sketcher_CarbonCopy: tool(() => new CarbonCopyHandler()),
   Sketcher_CreateBSplineByInterpolation: tool(() => new BSplineKnotsHandler(false)),
   Sketcher_CreatePeriodicBSplineByInterpolation: tool(() => new BSplineKnotsHandler(true)),
   ...Object.fromEntries((Object.keys(LAYERS) as LayerCommand[]).map((c) => [c, () => toggleLayer(c)])),
@@ -424,7 +428,7 @@ export const CURVE_RUN: Record<string, () => void> = {
 /** Command::isActive for the curve commands; undefined for the others. */
 export function curveEnabled(name: string): boolean | undefined {
   switch (name) {
-    case 'Sketcher_BSplineConvertToNURBS': return geometrySelected()
+    case 'Sketcher_BSplineConvertToNURBS': case 'Sketcher_Offset': return geometrySelected()
     case 'Sketcher_BSplineIncreaseDegree': case 'Sketcher_BSplineDecreaseDegree': case 'Sketcher_BSplineInsertKnot': case 'Sketcher_JoinCurves':
       return bsplineSelected()
     case 'Sketcher_BSplineIncreaseKnotMultiplicity': case 'Sketcher_BSplineDecreaseKnotMultiplicity': return knotSelected()

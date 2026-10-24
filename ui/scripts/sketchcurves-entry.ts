@@ -9,6 +9,7 @@ import * as SK from '../src/sketch'
 import * as OPS from '../src/sketchops'
 import * as BS from '../src/sketchbspline'
 import { cached, KernelNeeded, type KAnswer, type KReq } from '../src/sketchkernel'
+import * as CC from '../src/sketchcarbon'
 
 type Case = { geometry: Geo[]; constraints: (unknown[])[]; expose?: number[]; op: [string, unknown[]] }
 type SolveFn = (json: string) => { status_code: number; stored_geometry: Geo[] }
@@ -70,6 +71,16 @@ export function runCase(c: Case, solve: SolveFn, answers: Map<string, KAnswer>):
       const first = doc.geometry.length
       doc.geometry = [...doc.geometry, ...pts.map(BS.knotPoint)]
       BS.bsplineByKnots(doc, first, pts, mults, periodic, construction, k)
+    } else if (op === 'carbon_copy') {
+      // isCarbonCopyAllowed's placement checks, carbonCopy, then its solve()
+      const [geometry, constraints, selfPl, srcPl, construction] = args as [Geo[], unknown[][], CC.Placement, CC.Placement, boolean]
+      const ok = CC.carbonCopyAllowed(selfPl, srcPl)
+      if ('reason' in ok) done = false
+      else {
+        CC.carbonCopy(doc, { geometry: geometry.map((g) => ({ ...g })), constraints: constraints.map(toConstraint) }, selfPl, ok.xinv, ok.yinv, construction, 2)
+        const r = solve(JSON.stringify({ geometry: doc.geometry, constraints: doc.constraints.map(SK.toCons) }))
+        if (r.status_code === 0) doc.geometry = r.stored_geometry
+      }
     } else throw new Error(`unknown op ${op}`)
     if (!done) ok = 'refused'
   } catch (e) {
@@ -82,6 +93,11 @@ export function runCase(c: Case, solve: SolveFn, answers: Map<string, KAnswer>):
     geometry: doc.geometry.map((g) => {
       const { construction: _c, ...rest } = g as Geo & { construction?: boolean }
       void _c
+      if (rest.type === 'ArcOfCircle') {
+        // as freecad_side.py's read_ccw: the start in [0, 2pi)
+        const a1 = rest.start_angle - Math.floor(rest.start_angle / (2 * Math.PI)) * 2 * Math.PI
+        return { ...rest, start_angle: a1, end_angle: a1 + (rest.end_angle - rest.start_angle) }
+      }
       return rest.type === 'BSplineCurve' && !rest.weights ? { ...rest, weights: rest.poles.map(() => 1) } : rest
     }),
     constructions: doc.geometry.map((g) => !!g.construction),
