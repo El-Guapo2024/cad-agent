@@ -144,14 +144,15 @@ def test_the_notice_files_exist_and_say_what_they_are_for():
     for needle in ("Copyright (c) 2009, Dan Heeks", "Kongsberg Oil & Gas Technologies AS", "Permission is hereby granted",
                    "Neither the name of the copyright holder", "Apache License", "Attribution 3.0 Unported",
                    "Creative Commons Attribution-ShareAlike 2.0", "Creative Commons Attribution-ShareAlike 4.0",
-                   "provided 'as-is'", "CC0 1.0 Universal", "Permission to use, copy, modify, and/or distribute"):
+                   "provided 'as-is'", "CC0 1.0 Universal", "Permission to use, copy, modify, and/or distribute",
+                   "Mozilla Public License Version 2.0", "Boost Software License - Version 1.0"):
         assert needle in third, needle
 
 
 def test_pyproject_ships_the_notice_files_in_the_wheel():
     project = pyproject()["project"]
     assert project["license-files"] == list(NOTICE_FILES)
-    for licence in ("MIT", "LGPL-2.1-or-later", "LGPL-2.0-or-later", "BSD-3-Clause", "CC-BY-3.0", "CC-BY-SA-4.0"):
+    for licence in ("MIT", "LGPL-2.1-or-later", "LGPL-2.0-or-later", "BSD-3-Clause", "CC-BY-3.0", "CC-BY-SA-4.0", "MPL-2.0", "BSL-1.0"):
         assert licence in project["license"].split(" AND "), licence
     assert pyproject()["build-system"]["requires"][0].startswith("setuptools>=77"), "PEP 639 metadata needs setuptools 77"
     data = pyproject()["tool"]["setuptools"]["package-data"]["cad_agent"]
