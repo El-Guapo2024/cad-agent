@@ -850,6 +850,36 @@ def apply_src(src: str, ops: list) -> str:
     return src
 
 
+def resolve_feature(part_path, feature: dict, through_all: float | None = None) -> dict:
+    """A feature dict (as read() gives one, or the properties a task panel has chosen so far) with every property as
+    FreeCAD's would hold it: what FreeCAD's command sets on a new one (CmdPartDesignRevolution's axis and Reversed),
+    and the values that follow from the others (a Hole's diameter from its thread). Writes nothing. through_all is
+    ProfileBased::getThroughAllLength when the caller knows it (a Hole's ThroughAll depth)."""
+    src = Path(part_path).read_text()
+    kind = KINDS.get(feature.get("type"), feature.get("type"))
+    cls = F.FEATURES.get(kind)
+    if cls is None or kind == "Sketch":
+        raise FeatureEditError(f"a feature of type {feature.get('type')!r} has nothing to resolve")
+    feat = dict(feature)
+    names = [f["name"] for f in read_src(src)["features"]]
+    if feat.get("name") not in names and hasattr(cls, "command_defaults"):
+        feat = cls.command_defaults(feat, _sketch_of(src, feat.get("profile")))
+    if hasattr(cls, "resolved"):
+        return {"name": feat.get("name"), "type": TYPE_IDS[kind], "profile": feat.get("profile"),
+                **cls.resolved(feat, through_all)}
+    props, _, _ = _spec(kind)
+    kw = {kwname: _tuples(key, feat[key]) for key, kwname in props.items() if key in feat}
+    try:
+        obj = cls(feat.get("name") or kind, feat.get("profile"), **kw)
+    except (TypeError, F.FeatureError) as e:
+        raise FeatureEditError(str(e)) from None
+    out = {"name": feat.get("name"), "type": TYPE_IDS[kind], "profile": feat.get("profile")}
+    for key, attr in props.items():
+        v = getattr(obj, attr)
+        out[key] = list(v) if isinstance(v, tuple) else v
+    return out
+
+
 def apply(part_path, ops: list) -> dict:
     """Apply the ops to the part file, all or nothing, and return read() of the result."""
     path = Path(part_path)

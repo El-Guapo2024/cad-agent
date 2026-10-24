@@ -49,6 +49,7 @@ import { SKETCH_CMD_INFO } from './sketchcmdinfo'
 import { isEnabled as sketchEnabled, isImplemented as isSketchCommand, runSketchCommand } from './sketchcmds'
 import * as Sketcher from './sketcher'
 import { createBody, deleteFeatures, moveFeatureAfter, newSketch, padOrPocket, setTip } from './partdesign'
+import { profileCommand } from './pd_revolve'
 
 export type RegCommand = { label(): string; run(args: string[]): void; isEnabled(): boolean }
 export type CommandInfo = { name: string; label: string; enabled: boolean }
@@ -213,6 +214,9 @@ const COMMANDS: Record<string, RegCommand> = {
   PartDesign_NewSketch: reg('New Sketch', () => void newSketch(), () => !!getState().slug),
   PartDesign_Pad: reg('Pad', () => void padOrPocket('pad'), () => !!getState().slug),
   PartDesign_Pocket: reg('Pocket', () => void padOrPocket('pocket'), () => !!getState().slug),
+  PartDesign_Revolution: reg('Revolve', () => void profileCommand('revolution'), () => !!getState().slug),   // pd_revolve.tsx
+  PartDesign_Groove: reg('Groove', () => void profileCommand('groove'), () => !!getState().slug),
+  PartDesign_Hole: reg('Hole', () => void profileCommand('hole'), () => !!getState().slug),
   PartDesign_MoveTip: reg('Set Tip', () => void setTip(), () => getState().featSel.length === 1),
   PartDesign_MoveFeatureInTree: reg('Move Feature After…', moveFeatureAfter, () => getState().featSel.length > 0),
   Std_Delete: reg('Delete', () => void deleteFeatures(), () => getState().featSel.length > 0),

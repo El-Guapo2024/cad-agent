@@ -53,7 +53,6 @@ from __future__ import annotations
 import math
 
 try:                                    # the kernel; FreeCAD's Python reads the vocabulary without it
-    from OCP.BRep import BRep_Tool
     from OCP.BRepAdaptor import BRepAdaptor_Curve, BRepAdaptor_Surface
     from OCP.BRepBuilderAPI import BRepBuilderAPI_MakeEdge, BRepBuilderAPI_Transform
     from OCP.BRepExtrema import BRepExtrema_DistShapeShape, BRepExtrema_IsOnEdge, BRepExtrema_IsVertex
@@ -67,7 +66,7 @@ try:                                    # the kernel; FreeCAD's Python reads the
     from OCP.GeomAdaptor import GeomAdaptor_Curve, GeomAdaptor_Surface
     from OCP.Geom import Geom_Circle
     from OCP.ShapeAnalysis import ShapeAnalysis
-    from OCP.TopAbs import TopAbs_EDGE, TopAbs_FACE, TopAbs_SOLID, TopAbs_VERTEX, TopAbs_WIRE
+    from OCP.TopAbs import TopAbs_EDGE, TopAbs_FACE, TopAbs_SOLID, TopAbs_VERTEX
     from OCP.TopExp import TopExp
     from OCP.TopLoc import TopLoc_Location
     from OCP.TopoDS import TopoDS, TopoDS_Face
@@ -552,11 +551,8 @@ def _revolve(feat: _Revolved, sketch, base, shapes, sketches, params):
     if abs(angle2_deg) > 360.0:
         raise FeatureError("Angle of revolution too large")
     angle2 = math.radians(angle2_deg)
-    if not feat.additive and base is None:
-        # Groove with nothing to cut: getBaseTopoShape fails and FreeCAD's tryGetBaseShape leaves it null, so the
-        # groove is the tool alone, as a Groove first in a Body is in FreeCAD.
-        pass
-
+    # A Groove with nothing before it: tryGetBaseShape leaves the base null and setResult keeps the tool alone, as
+    # FreeCAD does for a Groove first in a Body (PartDesign_Groove refuses to make one; a script can).
     sketchshape = F.profile_face(sketch)
     pnt, dirv = get_axis(feat, sketch, shapes, sketches)
     if feat.project_axis and dirv.Magnitude() > 0:

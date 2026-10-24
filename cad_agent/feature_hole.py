@@ -52,7 +52,7 @@ import math
 from . import feature_hole_tables as T
 
 try:                                    # the kernel; FreeCAD's Python reads the vocabulary without it
-    from OCP.BRep import BRep_Builder, BRep_Tool
+    from OCP.BRep import BRep_Builder
     from OCP.BRepAdaptor import BRepAdaptor_Curve
     from OCP.BRepBuilderAPI import (BRepBuilderAPI_MakeEdge, BRepBuilderAPI_MakeFace, BRepBuilderAPI_MakeSolid,
                                     BRepBuilderAPI_MakeWire, BRepBuilderAPI_Sewing, BRepBuilderAPI_Transformed)
@@ -69,7 +69,7 @@ try:                                    # the kernel; FreeCAD's Python reads the
     from OCP.Geom import Geom_ConicalSurface, Geom_CylindricalSurface
     from OCP.Geom2d import Geom2d_Line
     from OCP.GeomAbs import GeomAbs_Circle
-    from OCP.TopAbs import TopAbs_EDGE, TopAbs_IN, TopAbs_SOLID
+    from OCP.TopAbs import TopAbs_IN, TopAbs_SOLID
     from OCP.TopLoc import TopLoc_Location
     from OCP.TopoDS import TopoDS, TopoDS_Compound
     from OCP.gp import gp, gp_Ax1, gp_Ax2, gp_Ax2d, gp_Ax3, gp_Dir, gp_Dir2d, gp_Pnt, gp_Pnt2d, gp_Trsf, gp_Vec
@@ -700,7 +700,7 @@ class Hole:
     additive = False
     EDIT_PROPS = {k: k for k in EDIT_KEYS}
     EDIT_EXTRA: set = set()
-    EDIT_DERIVED = ("thread_diameter", "read_only", "enums", "through_all_unknown")
+    EDIT_DERIVED = ("thread_diameter", "read_only", "enums", "through_all_unknown", "minimal")
     REF_KEYS: tuple = ()
 
     def __init__(self, name: str, profile: str, **props):
@@ -722,9 +722,15 @@ class Hole:
 
     # feature_edit
     def edit_extra(self):
-        st = self._state
-        return {"thread_diameter": st["ThreadDiameter"], "read_only": sorted(SNAKE.get(p, snake(p)) for p in st.ro),
-                "enums": {SNAKE[p]: list(st.e[p].items) for p in ENUM_PROPS}}
+        return _extra(self._state)
+
+    @staticmethod
+    def resolved(feature: dict, through_all=None) -> dict:
+        """feature_edit.resolve_feature: the chosen properties of a task panel, every property as FreeCAD's would then
+        be, what is read-only, each enumeration's list, and the choices the part file would keep."""
+        given = {k: feature[k] for k in EDIT_KEYS if feature.get(k) is not None}
+        st = resolve({k: v for k, v in given.items() if not (isinstance(v, str) and k not in _TEXT)}, through_all)
+        return {**st.values(), **_extra(st), "minimal": Hole.minimal(given)}
 
     @staticmethod
     def minimal(given: dict) -> dict:
@@ -1173,7 +1179,13 @@ def _cheese_face(wire):
     return fx.Shape()
 
 
-__all__ = ["Hole", "HoleState", "resolve", "ORDER", "SNAKE", "BRep_Tool", "TopAbs_EDGE"]
+__all__ = ["Hole", "HoleState", "resolve", "ORDER", "SNAKE"]
+
+def _extra(st: HoleState) -> dict:
+    """What read() reports of a Hole beyond its keywords: ThreadDiameter, the read-only properties, the enumerations."""
+    return {"thread_diameter": st["ThreadDiameter"], "read_only": sorted(SNAKE.get(p, snake(p)) for p in st.ro),
+            "enums": {SNAKE[p]: list(st.e[p].items) for p in ENUM_PROPS}, "through_all_unknown": st.unknown}
+
 
 # Last, so that importing this module first works: feature.py imports it back at its end, and finds it complete.
 from . import feature as F  # noqa: E402

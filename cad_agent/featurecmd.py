@@ -287,6 +287,27 @@ def cmd_feature_apply(a) -> Result:
     return apply_ops(a, ops, _cmd(a, *words), a.name)
 
 
+def cmd_feature_resolve(a) -> Result:
+    """A feature's properties as FreeCAD's would hold them, from what a task panel has chosen (read-only, no step)."""
+    path = part(a.slug, a.part)
+    text = Path(a.feature[1:]).read_text() if a.feature.startswith("@") else a.feature
+    try:
+        feature = json.loads(text)
+    except ValueError as e:
+        raise UsageError(f"--feature is JSON: {e}") from None
+    fn = getattr(layer(), "resolve_feature", None)
+    if fn is None:
+        raise NotBuilt("not built yet: the part-file layer has no resolve_feature")
+    try:
+        out = fn(path, feature, a.through_all)
+    except ValueError as e:
+        raise UsageError(str(e)) from None
+    lines = [f"{a.slug}/{a.part}: {out.get('name')} ({out.get('type')})"]
+    lines += [f"  {k} = {v!r}" for k, v in out.items() if k not in ("name", "type", "enums", "read_only")]
+    return Result(OK, {"project": a.slug, "part": a.part, "feature": out}, "\n".join(lines),
+                  f"{a.part}: {out.get('name')} resolved")
+
+
 def add_parsers(add, sub) -> None:
     """cli.py's build_parser hands its `add` and the subparsers here, so the arguments live with the commands."""
     fp = add("feature", None, "a part's PartDesign feature list (Body, Sketch, Pad, Pocket): list, new, add, "
@@ -329,3 +350,7 @@ def add_parsers(add, sub) -> None:
     sp.add_argument("--ops", required=True, metavar="JSON")
     sp.add_argument("--name", help="the undo step's name (default: FreeCAD's for the ops, as \"Make Pad\"); a task panel "
                     "that edits a feature says \"Edit Pad\", as FreeCAD's double-click does")
+    sp = one("resolve", cmd_feature_resolve, "a feature's every property as FreeCAD's would be, from the ones chosen "
+             "(a Hole's diameter from its thread; read-only, writes nothing)")
+    sp.add_argument("--feature", required=True, metavar="JSON", help='{"type": "PartDesign::Hole", "profile": ..., ...}')
+    sp.add_argument("--through-all", type=float, default=None, help="the Body's through-all length, if known")

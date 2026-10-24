@@ -13,6 +13,8 @@ import * as quantityInput from './quantity-input'
 import { initTooltips } from './tooltip'
 import { initSliders } from './qslider'
 import { pdMenus } from './partdesign'
+import { panelFields } from './pd_revolve'
+import { loadFeatures } from './actions'
 
 createRoot(document.getElementById('root')!).render(<App />)
 start()
@@ -20,3 +22,4 @@ initTooltips()
 initSliders()
 // For debugging from the console: cadui.getState(), cadui.getView(), cadui.getCommand('Std_ViewHome').run([])
 Object.assign(window, { cadui: { getState, setState, getView, getDock, showPanel, getCommand, placement, quantity, quantityInput, pd: pdMenus } })
+Object.assign((window as unknown as { cadui: object }).cadui, { pdPanel: panelFields, loadFeatures })   // revolvecheck.mjs

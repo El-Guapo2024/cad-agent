@@ -38,11 +38,12 @@ import { messageBox } from './msgbox'
 import { evaluate } from './expr'
 import * as quantity from './quantity'
 import type { Entry } from './chrome'
+import { editRevolveFeature, RevolveProps, revolveEntries, REVOLVE_ICONS, REVOLVE_KINDS } from './pd_revolve'
 import './partdesign.css'
 
 export const SKETCH = 'Sketcher::SketchObject', PAD = 'PartDesign::Pad', POCKET = 'PartDesign::Pocket'
-const ICON_OF: Record<string, IconName> = { [SKETCH]: 'pd-sketch', [PAD]: 'pd-pad', [POCKET]: 'pd-pocket' }
-const KIND: Record<string, string> = { [SKETCH]: 'Sketch', [PAD]: 'Pad', [POCKET]: 'Pocket' }
+const ICON_OF: Record<string, IconName> = { [SKETCH]: 'pd-sketch', [PAD]: 'pd-pad', [POCKET]: 'pd-pocket', ...REVOLVE_ICONS }
+const KIND: Record<string, string> = { [SKETCH]: 'Sketch', [PAD]: 'Pad', [POCKET]: 'Pocket', ...REVOLVE_KINDS }
 /** App::Origin's features, as FreeCAD names (Name) and labels (Label) them, with their ViewProviders' icons. */
 export const ORIGIN: [string, string, IconName][] = [
   ['X_Axis', 'X-axis', 'std-axis'], ['Y_Axis', 'Y-axis', 'std-axis'], ['Z_Axis', 'Z-axis', 'std-axis'],
@@ -228,6 +229,7 @@ export function editFeature(ref: string) {
   if (!f) return
   if (f.type === SKETCH) return editSketch(part, name)
   if (f.type === PAD || f.type === POCKET) { setState({ task: { kind: f.type === PAD ? 'pad' : 'pocket', body: part, other: name, edit: true } }); showPanel('tasks'); return }
+  if (editRevolveFeature(part, f)) return
   report('warn', `${name}: a ${f.type} has no task panel here yet`)
 }
 export function toggleActiveBody(part: string) {
@@ -621,6 +623,7 @@ export function FeatureProps({ refKey }: { refKey: string }) {
       </Group>
     </>
   }
+  if (REVOLVE_KINDS[f.type]) return <RevolveProps part={part} f={f} set={set} finishRename={(v) => void finishRename(refKey, v)} />
   if (f.type !== PAD && f.type !== POCKET) return <Group title="Base"><Row k="Label" v={f.name} /><Row k="Type" v={f.type} /></Group>
   const sketches = doc.features.filter((x) => x.type === SKETCH).map((x) => x.name)
   const value = (d: PropDef) => (d.key === 'name' ? f.name : d.key === 'type1' ? extrudeType(f) : d.key === 'side_type' ? sideType(f) : d.key === 'length' ? (f.length ?? LENGTH_DEFAULT[f.type]) : d.key === 'length2' ? (f.length2 ?? LENGTH_DEFAULT[f.type]) : f[d.key] ?? DEFAULTS[d.key])
@@ -1057,6 +1060,7 @@ export function sketchMenu(): Entry[] {
  *  module is, as it is in the Linux build). */
 export function partDesignMenu(): Entry[] {
   const doc = hasDoc()
+  const rv = revolveEntries(doc)
   return [
     { label: 'New Body', icon: 'body', cmd: 'PartDesign_Body', onSelect: () => void createBody() },
     'sep',
@@ -1064,13 +1068,13 @@ export function partDesignMenu(): Entry[] {
     'sep',
     { label: 'Additive Features', sub: [
       { label: 'Pad', icon: 'pd-pad', cmd: 'PartDesign_Pad', disabled: !doc, onSelect: () => void padOrPocket('pad') },
-      soon('Revolve', 'pd-revolution', 'PartDesign_Revolution'), soon('Additive Loft', 'pd-add-loft', 'PartDesign_AdditiveLoft'),
+      rv.revolve, soon('Additive Loft', 'pd-add-loft', 'PartDesign_AdditiveLoft'),
       soon('Additive Pipe', 'pd-add-pipe', 'PartDesign_AdditivePipe'), soon('Additive Helix', 'pd-add-helix', 'PartDesign_AdditiveHelix')] },
     { label: 'Additive Primitive', icon: 'pd-add-box', sub: ['Box', 'Cylinder', 'Sphere', 'Cone', 'Ellipsoid', 'Torus', 'Prism', 'Wedge'].map((x) => ({ label: `Additive ${x}`, disabled: true, title: later })) },
     'sep',
     { label: 'Subtractive Features', sub: [
       { label: 'Pocket', icon: 'pd-pocket', cmd: 'PartDesign_Pocket', disabled: !doc, onSelect: () => void padOrPocket('pocket') },
-      soon('Hole', 'pd-hole', 'PartDesign_Hole'), soon('Groove', 'pd-groove', 'PartDesign_Groove'), soon('Subtractive Loft', 'pd-sub-loft', 'PartDesign_SubtractiveLoft'),
+      rv.hole, rv.groove, soon('Subtractive Loft', 'pd-sub-loft', 'PartDesign_SubtractiveLoft'),
       soon('Subtractive Pipe', 'pd-sub-pipe', 'PartDesign_SubtractivePipe'), soon('Subtractive Helix', 'pd-sub-helix', 'PartDesign_SubtractiveHelix')] },
     { label: 'Subtractive Primitive', icon: 'pd-sub-box', sub: ['Box', 'Cylinder', 'Sphere', 'Cone', 'Ellipsoid', 'Torus', 'Prism', 'Wedge'].map((x) => ({ label: `Subtractive ${x}`, disabled: true, title: later })) },
     'sep',

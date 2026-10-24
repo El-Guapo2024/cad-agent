@@ -57,7 +57,8 @@ def _measure(part):
         fc = fp.CentreOfMass()
         faces.append([fp.Mass(), fc.X(), fc.Y(), fc.Z()])
     return {"volume": part.volume, "area": part.area, "bbox": [lo.X(), lo.Y(), lo.Z(), hi.X(), hi.Y(), hi.Z()],
-            "center_of_mass": [x / vol for x in com], "solids": len(part.solids()), "faces": len(faces),
+            "center_of_mass": [x / vol for x in com] if abs(vol) > 1e-9 else None, "solids": len(part.solids()),
+            "faces": len(faces),
             "face_list": faces}
 
 
@@ -74,7 +75,9 @@ def test_every_case_has_freecads_answer():
 
 # Where the refine differs (FreeCAD's BRepBuilderAPI_RefineModel against OCCT's UnifySameDomain; feature.py's _refine):
 # the same solid, the faces counted otherwise.
-REFINE_DIFFERS: dict = {}
+# rev_n_axis: a revolution about the sketch's normal is flat (no volume); UnifySameDomain merges its coplanar faces
+# into 2, FreeCAD's refine leaves 6.
+REFINE_DIFFERS = {"rev_n_axis": 2}
 
 
 @pytest.mark.parametrize("name", sorted(CASES))
@@ -85,7 +88,8 @@ def test_same_solid_as_freecad(name):
     assert got["area"] == pytest.approx(want["area"], rel=1e-6)
     size = math.dist(want["bbox"][:3], want["bbox"][3:])
     assert got["bbox"] == pytest.approx(want["bbox"], abs=1e-6 * size)
-    assert got["center_of_mass"] == pytest.approx(want["center_of_mass"], abs=1e-6 * size)
+    if abs(want["volume"]) > 1e-9:            # rev_n_axis turns the face in its own plane: no volume, no centre
+        assert got["center_of_mass"] == pytest.approx(want["center_of_mass"], abs=1e-6 * size)
     if name in REFINE_DIFFERS:
         assert (got["solids"], got["faces"]) == (want["solids"], REFINE_DIFFERS[name])
         return
@@ -96,7 +100,7 @@ def test_same_solid_as_freecad(name):
 
 # Mostly the faces come in FreeCAD's order too, so an up_to_face written ("Revolution", "Face3") names the face
 # FreeCAD's Face3 is. These have the same faces in another order.
-ORDER_DIFFERS = {"rev_on_plate", "rev_symmetric_up_to_first", "groove_up_to_first"}
+ORDER_DIFFERS = {"rev_on_plate", "rev_symmetric_up_to_first", "groove_up_to_first"} | set(REFINE_DIFFERS)
 
 
 def test_face_names_differ_only_where_known():

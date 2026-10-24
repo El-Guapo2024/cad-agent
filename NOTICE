@@ -31,6 +31,10 @@ that commit.
   LGPL-2.1-or-later        cad_agent/geom.py, the function mass_properties and what is inside it
   (inside an MIT file)     (the rest of geom.py is MIT).
 
+  LGPL-2.1-or-later        cad_agent/feature_revolve.py, cad_agent/feature_hole.py and
+                           cad_agent/feature_hole_tables.py, all of them (PartDesign Revolution,
+                           Groove and Hole; the hole tables are FreeCAD's data). See section 2.
+
   LGPL-2.0-or-later        cad_agent/appcache.py, all of it. It is distributed here under version
                            2.1 of the licence, which "or any later version" allows; the text is in
                            ui/LICENSE.
@@ -51,6 +55,23 @@ that commit.
       principal axes and their reference vectors, the axis moment).
       SPDX-License-Identifier: LGPL-2.1-or-later
       SPDX-FileCopyrightText: 2026 Morten Vajhøj
+
+  cad_agent/feature_revolve.py
+      Re-expresses src/Mod/PartDesign/App/FeatureRevolved.cpp, FeatureRevolution.cpp and
+      FeatureGroove.cpp, with what they call in FeatureSketchBased.cpp, src/Mod/Part/App/PartFeature.cpp,
+      TopoShapeExpansion.cpp and src/Mod/Sketcher/App/SketchObjectGeometry.cpp.
+      Copyright (c) 2010 Juergen Riegel; FeatureGroove.cpp Copyright (c) 2012 Jan Rheinländer;
+      PartFeature.cpp Copyright (c) 2002 Jürgen Riegel; TopoShapeExpansion.cpp Copyright (c) 2022
+      Zheng, Lei. SPDX-License-Identifier: LGPL-2.1-or-later
+
+  cad_agent/feature_hole.py and cad_agent/feature_hole_tables.py
+      Re-express src/Mod/PartDesign/App/FeatureHole.cpp (the properties, onChanged, execute,
+      makeThread) and copy its tables and src/Mod/PartDesign/Resources/Hole/*.json (written by
+      tests/golden/hole/gen_tables.py); makeLongHelix follows src/Mod/Part/App/TopoShape.cpp and the
+      end faces src/Mod/Part/App/FaceMakerCheese.cpp.
+      Copyright (c) 2011 Juergen Riegel; TopoShape.cpp Copyright (c) 2002 Jürgen Riegel;
+      FaceMakerCheese.cpp Copyright (c) 2016 Victor Titov (DeepSOIC).
+      SPDX-License-Identifier: LGPL-2.1-or-later
 
   cad_agent/appcache.py
       Re-expresses src/Gui/PreferencePages/DlgSettingsCacheDirectory.cpp (class ApplicationCache)

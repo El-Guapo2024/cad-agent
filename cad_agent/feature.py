@@ -71,6 +71,9 @@ The vocabulary, as FreeCAD's Python API has it:
                  "Offset") and start_offset, refine (FreeCAD's default, True), and the deprecated forms
                  FreeCAD still reads: midplane=True (SideType Symmetric) and type="TwoLengths" (SideType
                  Two sides).
+    Revolution, Groove, Hole
+                 PartDesign::Revolution, ::Groove and ::Hole, in their own modules (feature_revolve.py,
+                 feature_hole.py, whose docstrings list their properties) and imported from here too.
     Body         Body(FEATURES, params, base=None) builds the tip's solid; base is a hand-built solid,
                  FreeCAD's BaseFeature, which the first feature adds to or cuts from.
 

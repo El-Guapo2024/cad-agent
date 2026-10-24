@@ -61,6 +61,9 @@ CASES = {
         LineSegment((-5.0, 0.0), (-5.0, 10.0), construction=True)] + rect(5, 0, 15, 10) + [
         LineSegment((0.0, -3.0), (10.0, -3.0), construction=True)]),
         Revolution("Revolution", "Sketch", reference_axis=("Sketch", "Axis1"), angle=270.0)]),
+    # the sketch's normal through its origin: the face turns in its own plane, a solid of no thickness, as FreeCAD makes
+    "rev_n_axis": dict(features=[ring(), Revolution("Revolution", "Sketch", reference_axis=("Sketch", "N_Axis"),
+                                                    angle=90.0)]),
     "rev_origin_z": dict(features=[ring(), Revolution("Revolution", "Sketch", reference_axis="Z_Axis", angle=90.0)]),
     "rev_origin_x": dict(features=[Sketch("Sketch", "XY", rect(0, 5, 10, 15)),
                                    Revolution("Revolution", "Sketch", reference_axis="X_Axis", angle=90.0)]),
