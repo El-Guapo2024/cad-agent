@@ -24,6 +24,7 @@ them carry.
       Mod/Part/Gui/ViewProviderGridExtension.cpp, Mod/Sketcher/Gui/CommandSketcherTools.cpp,
       Mod/Sketcher/Gui/DrawSketchControllableHandler.h, Mod/Sketcher/Gui/DrawSketchController.h,
       Mod/Sketcher/Gui/DrawSketchDefaultHandler.h, Mod/Sketcher/Gui/DrawSketchHandlerArc.h,
+      Mod/Sketcher/Gui/DrawSketchHandlerExternal.h,
       Mod/Sketcher/Gui/DrawSketchHandlerCircle.h, Mod/Sketcher/Gui/DrawSketchHandlerLine.h,
       Mod/Sketcher/Gui/DrawSketchHandlerLineSet.h, Mod/Sketcher/Gui/DrawSketchHandlerPoint.h,
       Mod/Sketcher/Gui/DrawSketchHandlerPolygon.h, Mod/Sketcher/Gui/DrawSketchHandlerRectangle.h,
@@ -65,7 +66,7 @@ them carry.
       Gui/ViewProviderPlane.cpp, Mod/Part/App/PartFeature.cpp, Mod/Part/Gui/Command.cpp,
       Mod/Part/Gui/CommandFilter.cpp, Mod/PartDesign/Gui/Command.cpp,
       Mod/Sketcher/App/Constraint.cpp, Mod/Sketcher/App/ConstraintPyImp.cpp,
-      Mod/Sketcher/Gui/Command.cpp, Mod/Sketcher/Gui/CommandConstraints.cpp,
+      Mod/Sketcher/App/SketchObjectExternal.cpp, Mod/Sketcher/Gui/Command.cpp, Mod/Sketcher/Gui/CommandConstraints.cpp,
       Mod/Sketcher/Gui/CommandCreateGeo.cpp, Mod/Sketcher/Gui/DrawSketchHandler.cpp,
       Mod/Sketcher/Gui/SketchOrientationDialog.cpp, Mod/Sketcher/Gui/TaskDlgEditSketch.cpp,
       Mod/Sketcher/Gui/TaskSketcherConstraints.cpp, Mod/Sketcher/Gui/TaskSketcherMessages.cpp,
@@ -90,7 +91,8 @@ them carry.
       Mod/Measure/Gui/ViewProviderMeasureDistance.cpp
   triplus @ FreeCAD: Mod/Tux/NavigationIndicatorGui.py
   Victor Titov (DeepSOIC): Gui/Navigation/GestureNavigationStyle.cpp,
-      Gui/Navigation/MayaGestureNavigationStyle.cpp, Gui/SoTouchEvents.cpp
+      Gui/Navigation/MayaGestureNavigationStyle.cpp, Gui/SoTouchEvents.cpp, Mod/Part/App/AttachExtension.cpp,
+      Mod/Part/App/Attacher.cpp, Mod/Part/Gui/AttacherTexts.cpp
   WandererFan: Mod/Measure/App/Preferences.cpp
   Werner Mayer: Base/Rotation.cpp, Base/Tools.h, Base/VectorPyImp.cpp, Gui/Action.cpp,
       Gui/Camera.cpp, Gui/Clipping.cpp, Gui/CommandMacro.cpp, Gui/CommandWindow.cpp,
@@ -115,7 +117,7 @@ them carry.
       Mod/PartDesign/Gui/SketchWorkflow.cpp, Mod/PartDesign/Gui/TaskExtrudeParameters.cpp,
       Mod/PartDesign/Gui/Workbench.cpp, Mod/Sketcher/Gui/EditDatumDialog.cpp,
       Mod/Sketcher/Gui/SoZoomTranslation.cpp
-  Zheng Lei (realthunder): Gui/CommandCompleter.cpp, Gui/CommandLink.cpp, Gui/OverlayManager.cpp,
+  Zheng Lei (realthunder): Gui/ViewParams.cpp, Gui/CommandCompleter.cpp, Gui/CommandLink.cpp, Gui/OverlayManager.cpp,
       Gui/OverlayParams.py, Gui/OverlayWidgets.cpp, Gui/OverlayWidgets.h,
       Gui/PreferencePages/DlgSettingsAdvanced.cpp, Gui/ShortcutManager.cpp, Gui/TreeParams.py,
       Gui/View3DInventorSelection.cpp
@@ -567,10 +569,28 @@ src/Gui/View3DSettings.cpp   [licence: LGPL-2.0-or-later]
 src/Gui/View3DSettings.h   [licence: LGPL-2.0-or-later]
     copyright 2023 Werner Mayer
     followed by src/lights.ts
+src/Gui/ViewParams.cpp   [licence: LGPL-2.0-or-later]
+    copyright 2018 Zheng Lei (realthunder)
+    followed by src/pd_attach.tsx
+src/Gui/ViewProviderCoordinateSystem.cpp   [licence: LGPL-2.0-or-later]
+    copyright 2015 Stefan Tröger
+    copyright 2015 Alexander Golubev (Fat-Zer)
+    followed by src/pd_attach.tsx
+src/Gui/ViewProviderDatum.cpp   [licence: LGPL-2.0-or-later]
+    copyright 2015 Alexander Golubev (Fat-Zer)
+    followed by src/pd_attach.tsx
+src/Gui/ViewProviderLine.cpp   [licence: LGPL-2.1-or-later]
+    copyright 2012 Jürgen Riegel
+    copyright 2015 Alexander Golubev (Fat-Zer)
+    copyright 2026 Joao Matos
+    followed by src/pd_attach.tsx
 src/Gui/ViewProviderPlane.cpp   [licence: LGPL-2.0-or-later]
     copyright 2012 Jürgen Riegel
     copyright 2015 Alexander Golubev (Fat-Zer)
     followed by src/partdesign.tsx
+src/Gui/ViewProviderPoint.cpp   [licence: LGPL-2.1-or-later]
+    copyright 2024 Ondsel (PL Boyer)
+    followed by src/pd_attach.tsx
 src/Gui/Widgets.cpp   [licence: LGPL-2.0-or-later]
     copyright 2004 Werner Mayer
     followed by src/prefs-pages.tsx, src/qtform.tsx
@@ -627,9 +647,18 @@ src/Mod/Measure/Gui/ViewProviderMeasureDistance.cpp   [licence: LGPL-2.1-or-late
     copyright 2013 Thomas Anderson
     copyright 2008 Werner Mayer
     followed by src/viewer.ts
+src/Mod/Part/App/AttachExtension.cpp   [licence: LGPL-2.1-or-later]
+    copyright 2015 Victor Titov (DeepSOIC)
+    followed by src/attached.ts
+src/Mod/Part/App/Attacher.cpp   [licence: LGPL-2.1-or-later]
+    copyright 2015 Victor Titov (DeepSOIC)
+    followed by src/attachmodes.ts, src/attachsuggest.ts
 src/Mod/Part/App/PartFeature.cpp   [licence: LGPL-2.1-or-later]
     copyright 2002 Jürgen Riegel
     followed by src/viewer.ts
+src/Mod/Part/Gui/AttacherTexts.cpp   [licence: LGPL-2.1-or-later]
+    copyright 2016 Victor Titov (DeepSOIC)
+    followed by src/attachertexts.ts, src/pd_attach.tsx
 src/Mod/Part/Gui/Command.cpp   [licence: LGPL-2.1-or-later]
     copyright 2002 Jürgen Riegel
     followed by src/fctips.ts
@@ -702,6 +731,9 @@ src/Mod/Sketcher/App/SketchObject.cpp   [licence: LGPL-2.1-or-later]
     copyright 2008 Jürgen Riegel
     followed by src/planegcs.ts, src/sketch.ts, src/sketcher.ts, planegcs/sketch.cpp,
         planegcs/sketch.h
+src/Mod/Sketcher/App/SketchObjectExternal.cpp   [licence: LGPL-2.1-or-later]
+    copyright 2008 Jürgen Riegel
+    followed by src/attached.ts, src/sketchexternal.ts
 src/Mod/Sketcher/Gui/Command.cpp   [licence: LGPL-2.1-or-later]
     copyright 2008 Jürgen Riegel
     followed by src/cmdreg.ts, src/fctips.ts, src/sketchcmdinfo.ts, src/sketchcmds.ts
@@ -732,6 +764,9 @@ src/Mod/Sketcher/Gui/DrawSketchHandlerArc.h   [licence: LGPL-2.1-or-later]
 src/Mod/Sketcher/Gui/DrawSketchHandlerCircle.h   [licence: LGPL-2.1-or-later]
     copyright 2022 Abdullah Tahiri
     followed by src/sketchtools.ts
+src/Mod/Sketcher/Gui/DrawSketchHandlerExternal.h   [licence: LGPL-2.1-or-later]
+    copyright 2022 Abdullah Tahiri
+    followed by src/sketchexternal.ts
 src/Mod/Sketcher/Gui/DrawSketchHandlerLine.h   [licence: LGPL-2.1-or-later]
     copyright 2022 Abdullah Tahiri
     followed by src/sketchtools.ts

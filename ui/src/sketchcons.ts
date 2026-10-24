@@ -22,6 +22,7 @@ const isAxis = (s: SelId) => (s.geoId === H_AXIS || s.geoId === V_AXIS) && s.pos
 /** getIdsFromName. */
 export function idOf(name: string): SelId | null {
   if (name === 'RootPoint') return { geoId: -1, pos: START }
+  if (name.startsWith('ExternalEdge')) return { geoId: SK.edgeId(name)!, pos: NONE }
   if (name === 'H_Axis') return { geoId: H_AXIS, pos: NONE }
   if (name === 'V_Axis') return { geoId: V_AXIS, pos: NONE }
   if (name.startsWith('Edge')) return { geoId: Number(name.slice(4)) - 1, pos: NONE }
@@ -97,7 +98,7 @@ function angularLabelPosition(c: Constraint): XY | null {
 
 // ── the commands ─────────────────────────────────────────────────────────────────────────────────────────────────
 type Cmd = { name: string; sequences: string[][]; run(sel: SelId[], fromTool?: number): void; hints?: string[] }
-const lineOK = (g: number) => g < 0 ? g === H_AXIS || g === V_AXIS : SK.isLine(geo(g))
+const lineOK = (g: number) => SK.isAxisId(g) || SK.isLine(geo(g))
 
 /** canHorVerBlock. */
 function canHorVerBlock(g: number) {
@@ -207,7 +208,7 @@ const COMMANDS: Record<string, Cmd> = {
       const ids: number[] = []
       let lines = 0, circles = 0, ext = false
       for (const s of sel) {
-        if (!isEdge(s) || s.geoId < 0) continue
+        if (!isEdge(s) || SK.isAxisId(s.geoId)) continue
         if (isFixed(s.geoId)) { if (ext) { noFixed(); return } ext = true }
         const g = geo(s.geoId)
         if (SK.isLine(g)) lines++; else if (SK.isCircular(g)) circles++; else { warn('Wrong selection', 'Select two or more edges of similar type.'); return }
@@ -301,7 +302,7 @@ function distance(sel: SelId[]) {
   }
   if ((isVertex(a) && isEdge(b)) || (isEdge(a) && isVertex(b))) {
     if (isVertex(b)) [a, b] = [b, a]
-    const p = P(a), g = b.geoId < 0 ? (b.geoId === H_AXIS ? { start: [0, 0] as XY, end: [1, 0] as XY } : { start: [0, 0] as XY, end: [0, 1] as XY }) : geo(b.geoId)
+    const p = P(a), g = SK.isAxisId(b.geoId) ? (b.geoId === H_AXIS ? { start: [0, 0] as XY, end: [1, 0] as XY } : { start: [0, 0] as XY, end: [0, 1] as XY }) : geo(b.geoId)
     if ('start' in g) {
       S.openCommand('Add point to line distance constraint')
       S.addConstraint(constraint('Distance', a.geoId, a.pos, b.geoId, NONE, GEO_UNDEF, NONE, g8(SK.distToLine(p, g.start, g.end))))
@@ -314,7 +315,7 @@ function distance(sel: SelId[]) {
       finishDatum(fixed || creationMode === 'Reference'); return
     }
   }
-  if (isEdge(a) && isEdge(b) && a.geoId >= 0 && b.geoId >= 0) {
+  if (isEdge(a) && isEdge(b) && !SK.isAxisId(a.geoId) && !SK.isAxisId(b.geoId)) {
     const g1 = geo(a.geoId), g2 = geo(b.geoId)
     if (SK.isCircular(g1) && SK.isCircular(g2)) {
       S.openCommand('Add circle to circle distance constraint')
@@ -330,7 +331,7 @@ function distance(sel: SelId[]) {
     warn('Wrong selection', 'Select exactly one line or one point and one line or two points or two circles from the sketch.'); return
   }
   if (isEdge(a) && b.geoId === GEO_UNDEF) {
-    if (a.geoId < 0) return
+    if (SK.isAxisId(a.geoId)) return
     const g = geo(a.geoId)
     if (SK.isLine(g)) {
       S.openCommand('Add length constraint')
@@ -354,7 +355,7 @@ function coordinateDistance(sel: SelId[], horizontal: boolean) {
   if (a.geoId === (horizontal ? H_AXIS : V_AXIS) && a.pos === NONE) a = { geoId: GEO_UNDEF, pos: NONE }
   else if (a.geoId === (horizontal ? V_AXIS : H_AXIS) && a.pos === NONE) a = { geoId: H_AXIS, pos: START }
   if (isEdge(a) && b.geoId === GEO_UNDEF) {
-    if (a.geoId < 0) return
+    if (SK.isAxisId(a.geoId)) return
     fixed = isFixed(a.geoId)
     if (SK.isLine(geo(a.geoId))) { b = { geoId: a.geoId, pos: END }; a = { geoId: a.geoId, pos: START } }
   }
@@ -413,7 +414,7 @@ function perpTangent(T: 'Perpendicular' | 'Tangent', sel: SelId[]) {
     finish(); return
   }
   if (isEdge(a) && isEdge(b)) {
-    const g1 = a.geoId < 0 ? { type: 'LineSegment' } : geo(a.geoId), g2 = b.geoId < 0 ? { type: 'LineSegment' } : geo(b.geoId)
+    const g1 = SK.isAxisId(a.geoId) ? { type: 'LineSegment' } : geo(a.geoId), g2 = SK.isAxisId(b.geoId) ? { type: 'LineSegment' } : geo(b.geoId)
     if (T === 'Perpendicular') {
       if (g1.type !== 'LineSegment' && g2.type !== 'LineSegment') { warn('Wrong selection', 'One of the selected edges should be a line.'); return }
       if (g1.type === 'LineSegment') [a, b] = [b, a]
@@ -427,7 +428,7 @@ function perpTangent(T: 'Perpendicular' | 'Tangent', sel: SelId[]) {
 }
 /** activateRadialDimension: radius, diameter, or (Radiam) a diameter for a circle and a radius for an arc. */
 function radial(sel: SelId[], kind: 'Radius' | 'Diameter' | 'Radiam') {
-  const items = sel.filter((s) => isEdge(s) && s.geoId >= 0 && SK.isCircular(geo(s.geoId)))
+  const items = sel.filter((s) => isEdge(s) && !SK.isAxisId(s.geoId) && SK.isCircular(geo(s.geoId)))
   if (!items.length || items.length !== sel.length) { warn('Wrong selection', 'Select one or more arcs or circles from the sketch.'); return }
   S.openCommand(kind === 'Radius' ? 'Add radius constraint' : kind === 'Diameter' ? 'Add diameter constraint' : 'Add radiam constraint')
   for (const s of items) {
@@ -470,16 +471,16 @@ function angle(sel: SelId[]) {
     finishDatum(bothFixed(g1, g2) || creationMode === 'Reference'); return
   }
   if (isEdge(a)) {
-    if (a.geoId < 0) return
+    if (SK.isAxisId(a.geoId)) return
     const g = geo(a.geoId)
-    if (SK.isLine(g)) { S.openCommand('Add angle constraint'); S.addConstraint(constraint('Angle', a.geoId, NONE, GEO_UNDEF, NONE, GEO_UNDEF, NONE, g8(Math.atan2(g.end[1] - g.start[1], g.end[0] - g.start[0])))); finishDatum(creationMode === 'Reference'); return }
-    if (SK.isArc(g)) { S.openCommand('Add angle constraint'); S.addConstraint(constraint('Angle', a.geoId, NONE, GEO_UNDEF, NONE, GEO_UNDEF, NONE, g8(g.end_angle - g.start_angle))); finishDatum(creationMode === 'Reference') }
+    if (SK.isLine(g)) { S.openCommand('Add angle constraint'); S.addConstraint(constraint('Angle', a.geoId, NONE, GEO_UNDEF, NONE, GEO_UNDEF, NONE, g8(Math.atan2(g.end[1] - g.start[1], g.end[0] - g.start[0])))); finishDatum(SK.isExternalId(a.geoId) || creationMode === 'Reference'); return }
+    if (SK.isArc(g)) { S.openCommand('Add angle constraint'); S.addConstraint(constraint('Angle', a.geoId, NONE, GEO_UNDEF, NONE, GEO_UNDEF, NONE, g8(g.end_angle - g.start_angle))); finishDatum(SK.isExternalId(a.geoId) || creationMode === 'Reference') }
   }
 }
 /** Sketcher_Dimension with a selection: the dimension the selection calls for (a line's length, a circle's diameter or
  *  an arc's radius, two points' distance, a point and a line, two lines' angle). */
 function dimension(sel: SelId[]) {
-  if (sel.length === 1 && isEdge(sel[0]) && sel[0].geoId >= 0 && SK.isCircular(geo(sel[0].geoId))) return radial(sel, 'Radiam')
+  if (sel.length === 1 && isEdge(sel[0]) && !SK.isAxisId(sel[0].geoId) && SK.isCircular(geo(sel[0].geoId))) return radial(sel, 'Radiam')
   if (sel.length === 2 && isEdge(sel[0]) && isEdge(sel[1]) && lineOK(sel[0].geoId) && lineOK(sel[1].geoId)) return angle(sel)
   return distance(sel)
 }
@@ -525,7 +526,7 @@ function selType(s: SelId): string[] {
   if (isRoot(s)) return ['Root', 'VertexOrRoot']
   if (isVertex(s)) return ['Vertex', 'VertexOrRoot']
   if (isAxis(s)) return ['EdgeOrAxis', s.geoId === H_AXIS ? 'HAxis' : 'VAxis']
-  if (isEdge(s) && s.geoId >= 0) return ['Edge', 'EdgeOrAxis']
+  if (isEdge(s) && !SK.isAxisId(s.geoId)) return ['Edge', 'EdgeOrAxis'] // an ExternalEdge too
   return []
 }
 class GenConstraintHandler implements S.Handler {

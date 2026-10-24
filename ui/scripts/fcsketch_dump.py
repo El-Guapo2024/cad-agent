@@ -211,10 +211,54 @@ def task_message():
 KEYS = {"Escape": QtCore.Qt.Key_Escape, "Delete": QtCore.Qt.Key_Delete, "Return": QtCore.Qt.Key_Return, "Tab": QtCore.Qt.Key_Tab}
 
 
+def plate_sketch(name):
+    """A case with "plate": a document of its own holding a Body with the 40 x 20 x 5 plate (a rectangle on XY padded
+    5 mm), and the case's sketch on the plate's top face (Pad.Face6, FlatFace), after the Pad."""
+    import Part
+    doc = App.newDocument("P_" + name.replace("-", "_"))
+    body = doc.addObject("PartDesign::Body", "Body")
+    base = body.newObject("Sketcher::SketchObject", "Sketch")
+    base.AttachmentSupport = (body.Origin.OriginFeatures[3], [""])
+    base.MapMode = "FlatFace"
+    pts = [App.Vector(0, 0, 0), App.Vector(40, 0, 0), App.Vector(40, 20, 0), App.Vector(0, 20, 0)]
+    for i in range(4):
+        base.addGeometry(Part.LineSegment(pts[i], pts[(i + 1) % 4]))
+    pad = body.newObject("PartDesign::Pad", "Pad")
+    pad.Profile = base
+    pad.Length = 5
+    doc.recompute()
+    base.Visibility = False
+    sk = body.newObject("Sketcher::SketchObject", "S")
+    sk.AttachmentSupport = (pad, ["Face6"])
+    sk.MapMode = "FlatFace"
+    doc.recompute()
+    return doc, sk
+
+
+def ext_out(sk):
+    """The external geometry after the two axes (ExternalGeo[2:]), in the solver's form, and the references."""
+    out = []
+    for g in sk.ExternalGeo[2:]:
+        t = type(g).__name__
+        if t == "Point":
+            out.append({"type": "Point", "at": [g.X, g.Y]})
+        elif t == "LineSegment":
+            out.append({"type": "LineSegment", "start": [g.StartPoint.x, g.StartPoint.y], "end": [g.EndPoint.x, g.EndPoint.y]})
+        elif t == "Circle":
+            out.append({"type": "Circle", "center": [g.Center.x, g.Center.y], "radius": g.Radius})
+        else:
+            out.append({"type": t})
+    refs = [[o.Name, s] for o, subs in sk.ExternalGeometry for s in (subs if isinstance(subs, (list, tuple)) else [subs])]
+    return out, refs
+
+
 def run_case(doc, case, k):
     current["case"] = case["name"]
     report_at = len(report_text())
-    sk = new_sketch(doc, "S%d" % k)
+    if case.get("plate"):
+        doc, sk = plate_sketch(case["name"])
+    else:
+        sk = new_sketch(doc, "S%d" % k)
     setup = case.get("setup") or {}
     import Part, Sketcher
     for g in setup.get("geometry", []):
@@ -307,11 +351,21 @@ def run_case(doc, case, k):
             for sub in st["select"]:
                 Gui.Selection.addSelection(doc.Name, "Body", sk.Name + "." + sub)
             pump(3)
+        elif "pick" in st:
+            # an element of the model selected, as a click on it in the 3D view selects it (the External tool takes
+            # it from the selection: DrawSketchHandlerExternal::onSelectionChanged)
+            obj, sub = st["pick"].split(".", 1)
+            Gui.Selection.addSelection(doc.Name, obj, sub)
+            pump(6)
+            wait(100)
         elif "clear" in st:
             Gui.Selection.clearSelection()
     pump(6)
     res["cases"][case["name"]] = {"geometry": geo_out(sk), "constraints": cons_out(sk), "message": task_message(),
                                   "report": report_text()[report_at:]}
+    if case.get("plate"):
+        ext, refs = ext_out(sk)
+        res["cases"][case["name"]].update({"external": ext, "external_geometry": refs})
     Gui.ActiveDocument.resetEdit()
     pump(6)
 

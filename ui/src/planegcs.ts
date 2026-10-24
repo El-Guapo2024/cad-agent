@@ -28,7 +28,9 @@ export type Cons = {
   type: string; args: number[]; value?: number; driving?: boolean; name?: string
   active?: boolean; orientation?: number
 }
-export type Sketch = { geometry: Geo[]; constraints: Cons[] }
+// external: the sketch's external geometry (SketchObject's ExternalGeo after the H and V axes), GeoId -3, -4, … in
+// order, fixed for the solver (SketchObject.cpp / SketchObjectExternal.cpp; api.cpp's "external").
+export type Sketch = { geometry: Geo[]; constraints: Cons[]; external?: Geo[] }
 export type Status = 'solved' | 'failed' | 'conflicting' | 'redundant' | 'malformed'
 // Constraint indices are 0-based (FreeCAD's messages count from 1).
 export interface SolveResult {

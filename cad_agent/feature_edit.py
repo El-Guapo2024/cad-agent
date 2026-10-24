@@ -242,7 +242,8 @@ def read_src(src: str, part: str = "") -> dict:
     body = _body_call(tree)
     base = lst is None or (body is not None and any(k.arg == "base" for k in body.keywords))
     if tip is None and feats:
-        tip = feats[-1]["name"]
+        # the last feature; a datum is never a Body's Tip (Body::insertObject leaves the Tip where it was)
+        tip = next((f["name"] for f in reversed(feats) if KINDS.get(f["type"]) not in _attach.DATUM_KINDS), None)
     return {"part": part, "params": P.read_src(src), "base": base, "tip": tip, "features": feats}
 
 

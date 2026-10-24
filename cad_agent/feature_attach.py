@@ -773,7 +773,8 @@ def project_query(path, sketch: str, refs) -> dict:
 
 
 def attach_query(path, support, engine: str = "Plane", mode: str | None = None, offset=None,
-                 reversed: bool = False, parameter: float = 0.0, before: str | None = None) -> dict:
+                 reversed: bool = False, parameter: float = 0.0, before: str | None = None,
+                 prefer: str | None = None) -> dict:
     """What FreeCAD's Attachment panel shows for a set of references (TaskAttacher::updatePreview): their types,
     suggestMapModes' answer, and the Placement of the mode (the best fit when none is given). The references
     resolve in the Body as it stands before `before` (the feature being edited), or with all of it."""
@@ -793,7 +794,8 @@ def attach_query(path, support, engine: str = "Plane", mode: str | None = None, 
         return out
     sug = A.suggest(engine, [r.type() for r in resolved])
     out.update({"types": sug["types"], "suggestion": sug, "message": sug["message"]})
-    use = mode or (sug["best"] if sug["message"] == "OK" else "Deactivated")
+    # TaskAttacher::addToReference: the mode chosen before stays while it still fits, else the best fit
+    use = mode or (prefer if prefer in sug["all"] else sug["best"] if sug["message"] == "OK" else "Deactivated")
     out["mode"] = use
     out["placement"] = None
     if use == "Deactivated" or not resolved:

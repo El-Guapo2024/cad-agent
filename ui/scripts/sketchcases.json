@@ -64,6 +64,17 @@
     { "name": "msg-fully", "setup": { "geometry": [{ "type": "LineSegment", "start": [0, 0], "end": [30, 0] }], "constraints": [{ "type": "Coincident", "args": [0, 1, -1, 1] }, { "type": "Horizontal", "args": [0] }, { "type": "Distance", "args": [0], "value": 30 }] }, "steps": [] },
     { "name": "msg-redundant", "setup": { "geometry": [{ "type": "LineSegment", "start": [0, 0], "end": [30, 0] }], "constraints": [{ "type": "Horizontal", "args": [0] }, { "type": "DistanceY", "args": [0], "value": 0 }] }, "steps": [] },
     { "name": "drag-point", "setup": { "geometry": [{ "type": "LineSegment", "start": [10, 10], "end": [40, 30] }], "constraints": [{ "type": "Horizontal", "args": [0, 1, 0, 2] }] }, "steps": [{ "drag": [[40, 30], [44, 40]] }] },
-    { "name": "box-select-delete", "setup": { "geometry": [{ "type": "LineSegment", "start": [10, 10], "end": [20, 15] }, { "type": "Circle", "center": [40, 30], "radius": 4 }] }, "steps": [{ "drag": [[5, 5], [25, 20]] }, { "key": "Delete" }] }
+    { "name": "box-select-delete", "setup": { "geometry": [{ "type": "LineSegment", "start": [10, 10], "end": [20, 15] }, { "type": "Circle", "center": [40, 30], "radius": 4 }] }, "steps": [{ "drag": [[5, 5], [25, 20]] }, { "key": "Delete" }] },
+    { "name": "external-edge-vertex", "plate": true, "about": "A sketch on the plate's top face (Pad.Face6): External Projection of an edge and a vertex (construction mode on, so they are reference geometry, as the part file has them), a line, its start coincident with the projected vertex (Vertex3: the external points come after the sketch's, the last external first) and its end on the projected edge.",
+      "steps": [{ "cmd": "Sketcher_ToggleConstruction" }, { "cmd": "Sketcher_Projection" }, { "pick": "Pad.Edge4" }, { "pick": "Pad.Vertex6" }, { "key": "Escape" }, { "cmd": "Sketcher_ToggleConstruction" },
+        { "cmd": "Sketcher_CreateLine" }, { "click": [25, 12] }, { "click": [12, 6] }, { "key": "Escape" },
+        { "select": ["Vertex1", "Vertex3"] }, { "cmd": "Sketcher_ConstrainCoincidentUnified" }, { "clear": true },
+        { "select": ["Vertex2", "ExternalEdge1"] }, { "cmd": "Sketcher_ConstrainCoincidentUnified" }, { "clear": true }] },
+    { "name": "external-delete", "plate": true, "about": "Two projected edges, a dimension to the second (a point to line distance), then the first deleted: its constraints go and the second's GeoId moves from -4 to -3.",
+      "steps": [{ "cmd": "Sketcher_ToggleConstruction" }, { "cmd": "Sketcher_Projection" }, { "pick": "Pad.Edge4" }, { "pick": "Pad.Edge7" }, { "key": "Escape" }, { "cmd": "Sketcher_ToggleConstruction" },
+        { "cmd": "Sketcher_CreatePoint" }, { "click": [30, 8] }, { "key": "Escape" },
+        { "select": ["Vertex1", "ExternalEdge2"] }, { "cmd": "Sketcher_ConstrainDistance" }, { "clear": true },
+        { "select": ["Vertex1", "ExternalEdge1"] }, { "cmd": "Sketcher_ConstrainCoincidentUnified" }, { "clear": true },
+        { "select": ["ExternalEdge1"] }, { "key": "Delete" }] }
   ]
 }

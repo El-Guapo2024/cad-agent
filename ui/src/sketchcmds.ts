@@ -15,6 +15,7 @@ import { SKETCH_CMD_INFO } from './sketchcmdinfo'
 import * as S from './sketcher'
 import { ArcHandler, CircleHandler, LineHandler, PointHandler, PolygonHandler, PolylineHandler, RectangleHandler, SlotHandler, toggleConstruction } from './sketchtools'
 import { runConstraint, isConstraintCommand, toggleDriving, toggleActive, idOf } from './sketchcons'
+import { ExternalHandler } from './sketchexternal'
 import * as SK from './sketch'
 import { getState, report } from './store'
 import { recordAndRun } from './actions'
@@ -115,6 +116,7 @@ const RUN: Record<string, () => void> = {
   Sketcher_CreateHeptagon: tool(() => new PolygonHandler(7)),
   Sketcher_CreateOctagon: tool(() => new PolygonHandler(8)),
   Sketcher_CreateRegularPolygon: tool(() => new PolygonHandler(6)),
+  Sketcher_Projection: tool(() => new ExternalHandler()),
   Sketcher_ToggleConstruction: toggleConstruction,
   Sketcher_LeaveSketch: () => void S.closeEdit(true),
   Sketcher_CancelSketch: () => void S.closeEdit(false),
@@ -217,7 +219,7 @@ function selectAssociatedGeometry() {
       if (g === SK.GEO_UNDEF) continue
       if (p === 0) out.push(SK.edgeName(g))
       else if (g === -1 && p === 1) out.push('RootPoint')
-      else if (g >= 0) out.push(SK.vertexName(S.vertexIndexOf(g, p)))
+      else if (g >= 0 || SK.isExternalId(g)) out.push(SK.vertexName(S.vertexIndexOf(g, p)))
     }
   }
   S.setSelection(out)

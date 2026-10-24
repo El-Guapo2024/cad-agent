@@ -311,7 +311,8 @@ def cmd_feature_attach(a) -> Result:
     path = part(a.slug, a.part)
     try:
         offset = json.loads(a.offset) if a.offset else None
-        out = attach_query(path, a.support or [], a.engine, a.mode, offset, a.reversed, a.parameter, a.before)
+        out = attach_query(path, a.support or [], a.engine, a.mode, offset, a.reversed, a.parameter, a.before,
+                           a.prefer)
     except (FeatureError, ValueError) as e:
         raise UsageError(str(e)) from None
     refs = ", ".join(".".join(x for x in r if x) for r in out.get("references", []))
@@ -388,6 +389,7 @@ def add_parsers(add, sub) -> None:
     sp.add_argument("--engine", default="Plane", choices=("Plane", "Line", "Point", "3D"),
                     help="AttacherType: Plane (sketch, datum plane), Line, Point, 3D (coordinate system)")
     sp.add_argument("--mode", help="MapMode (default: the best fit)")
+    sp.add_argument("--prefer", metavar="MODE", help="the mode to keep if it fits the references (else the best fit)")
     sp.add_argument("--offset", help="AttachmentOffset, JSON: [[x, y, z], [yaw, pitch, roll]]")
     sp.add_argument("--reversed", action="store_true", help="MapReversed (Flip sides)")
     sp.add_argument("--parameter", type=float, default=0.0, help="MapPathParameter (0 to 1 along an edge)")

@@ -119,7 +119,7 @@ try {
   check(await st('cadui.getState().activeBody === "Body"'), 'New Body: Body is the active body')
   check(await st('cadui.getState().undo[0]?.name === "Add a Body"'), 'New Body: one undo step, "Add a Body"')
   await page.click('.tb-btn[data-cmd="PartDesign_CompSketches"]')
-  await until('cadui.getState().task?.kind === "sketchAttach"', 'New Sketch\'s panel')
+  await until('cadui.getState().task?.kind === "attach"', 'New Sketch\'s panel')
   const attach = await st('[...document.querySelectorAll(".taskview .pd-mode")].map((e) => e.textContent)')
   const fcModes = FC.pick.task[0].find((w) => w.name === 'listOfModes').items
   check(JSON.stringify(attach) === JSON.stringify(fcModes), 'New Sketch: the attachment modes with nothing picked', `${attach}`)

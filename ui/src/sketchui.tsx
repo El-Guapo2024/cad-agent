@@ -26,6 +26,8 @@ import { getState, report, useStore } from './store'
 import { getView, onEditSketch } from './actions'
 import { onSketchSelection } from './commands'
 import { bodyOfPart, sketchMatrix } from './partdesign'
+import { attachedOf } from './attached'
+import { ExternalHandler, projectRefs } from './sketchexternal'
 import * as THREE from 'three'
 import { ContextMenu, tipAttrs, type Entry } from './chrome'
 import { QuantityBox } from './qsb'
@@ -155,12 +157,13 @@ function ElementsList() {
   return (
     <Box title="Elements" icon="Sketcher_CreateLine" id="elements">
       <ul className="sk-list" onMouseLeave={() => S.setPreselection(null)}>
-        {geo.map((g, i) => (
-          <li key={i} className={cls(sel.has(nameOf(i)) && 'sel', g.construction && 'constr')} data-element={i}
+        {[...geo.map((g, i) => [g, i] as const), ...S.getExternal().geometry.map((g, k) => [g, SK.REF_EXT - k] as const)].map(([g, i], row) => (
+          <li key={i} className={cls(sel.has(nameOf(i)) && 'sel', (g.construction || i < 0) && 'constr', i < 0 && 'external')} data-element={i}
             onMouseEnter={() => S.setPreselection(g.type === 'Point' ? { point: S.vertexIndexOf(i, SK.START) } : { curve: i })}
             onClick={(e) => { const n = nameOf(i); if (e.ctrlKey || e.metaKey) { if (sel.has(n)) S.rmvSelection(n); else S.addSelection(n) } else S.setSelection([n]) }}>
             <Img name={ELEMENT_ICON[g.type] ?? 'Sketcher_Element_SelectionTypeInvalid'} size={16} />
-            <span>{SK.elementText(g, i)}</span>
+            {/* TaskSketcherElements: the external geometry after the sketch's own, numbered on from it */}
+            <span>{SK.elementText(g, row)}</span>
           </li>
         ))}
       </ul>
@@ -352,15 +355,31 @@ onEditSketch((part, name) => {
   const pos = new THREE.Vector3(), q = new THREE.Quaternion(), sc = new THREE.Vector3()
   m.decompose(pos, q, sc)
   const sketch = S.unsavedSketch(name) ?? { geometry: (f.geometry ?? []) as SK.Geo[], constraints: (f.constraints ?? []) as import('./solver').Cons[] }
-  void S.editSketch({ part, name, placement: { base: [pos.x, pos.y, pos.z], rotation: [q.x, q.y, q.z, q.w] }, sketch })
+  void externalOf(f, part).then((external) => S.editSketch({ part, name, placement: { base: [pos.x, pos.y, pos.z], rotation: [q.x, q.y, q.z, q.w] }, sketch, external }))
 })
+/** The sketch's external geometry as the Body projected it (attached.external, after its build), and which of its
+ *  references each came from: one geometry per edge or vertex; a face's are asked for again (`cad feature project`). */
+async function externalOf(f: import('./store').Feature, part: string): Promise<S.External> {
+  const refs = ((f.external_geometry ?? []) as unknown[]).map((r) => (Array.isArray(r) ? [String(r[0]), String(r[1] ?? '')] : String(r).split('.', 2)) as [string, string])
+  const geometry = (attachedOf(f)?.external ?? []) as SK.Geo[]
+  if (!refs.length) return { refs: [], geometry: [], owner: [] }
+  if (geometry.length === refs.length && !refs.some((r) => r[1].startsWith('Face'))) return { refs, geometry, owner: refs.map((_, i) => i) }
+  const p = await projectRefs(refs, part, f.name).catch(() => null)
+  if (!p) return { refs, geometry, owner: geometry.map((_, i) => Math.min(i, refs.length - 1)) }
+  return { refs, geometry: p.external.flat(), owner: p.external.flatMap((g, i) => g.map(() => i)) }
+}
 
 // `cad gui select PROJECT Edge1 Vertex2 …` and `cad gui clear` while the sketch is in edit: "Edge1", "Vertex2",
 // "Constraint3", "RootPoint", "H_Axis", "V_Axis", with or without the sketch's name before them.
 onSketchSelection((cmd, args) => {
   if (!S.isEditing()) return false
   if (cmd === 'clear') S.clearSelection()
-  else for (const a of args) S.addSelection(a.includes('.') ? a.slice(a.lastIndexOf('.') + 1) : a)
+  else for (const a of args) {
+    // "Pad.Edge4" while External Projection is on: an element of the model, which the tool takes from the selection
+    const h = S.getHandler(), dot = a.indexOf('.')
+    if (h instanceof ExternalHandler && dot > 0 && a.slice(0, dot) !== S.getSession()?.ref.name && h.pickNamed(a.slice(0, dot), a.slice(dot + 1))) continue
+    S.addSelection(a.includes('.') ? a.slice(a.lastIndexOf('.') + 1) : a)
+  }
   return true
 })
 
