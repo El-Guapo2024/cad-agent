@@ -83,7 +83,7 @@ except ImportError:                     # pragma: no cover - only FreeCAD's Pyth
 from .feature_kw import KwFeature  # noqa: E402  (feature_kw imports feature.py, which imports this module last)
 
 CONFUSION = 1e-7          # Precision::Confusion()
-START_TYPES = ("Profile plane", "Offset")              # ProfileBased::StartTypesEnums, but Reference
+START_TYPES = ("Profile plane", "Offset", "Reference")  # ProfileBased::StartTypesEnums
 ANGULAR = 1e-12
 E = T.ENUMS
 THREAD_TYPES = E["ThreadTypeEnums"]
@@ -106,11 +106,11 @@ ORDER = ["ThreadType", "ThreadSize", "Threaded", "ModelThread", "CosmeticThread"
          "ThreadDirection", "UseCustomThreadClearance", "CustomThreadClearance", "Diameter", "DepthType", "Depth",
          "ThreadDepthType", "ThreadDepth", "HoleCutType", "HoleCutCustomValues", "HoleCutDiameter", "HoleCutDepth",
          "HoleCutCountersinkAngle", "DrillPoint", "DrillPointAngle", "DrillForDepth", "Tapered", "TaperedAngle",
-         "BaseProfileType", "Reversed", "StartType", "StartOffset", "Refine"]
+         "BaseProfileType", "Reversed", "StartType", "StartOffset", "Operation", "Refine"]
 KIND = {"Threaded": bool, "ModelThread": bool, "CosmeticThread": bool, "HoleCutCustomValues": bool, "DrillForDepth": bool,
         "Tapered": bool, "UseCustomThreadClearance": bool, "Reversed": bool, "Refine": bool, "BaseProfileType": int}
 ENUM_PROPS = ("ThreadType", "ThreadSize", "ThreadClass", "ThreadFit", "ThreadDirection", "HoleCutType", "DepthType",
-              "ThreadDepthType", "DrillPoint", "StartType")
+              "ThreadDepthType", "DrillPoint", "StartType", "Operation")
 LENGTHS = ("Diameter", "ThreadDiameter", "HoleCutDiameter", "HoleCutDepth", "Depth", "ThreadDepth",
            "CustomThreadClearance", "StartOffset")
 ANGLES = ("HoleCutCountersinkAngle", "DrillPointAngle", "TaperedAngle")
@@ -182,10 +182,11 @@ class HoleState:
                   "ThreadDirection": _Enum(E["ThreadDirectionEnums"]),
                   "HoleCutType": _Enum(E["HoleCutType_None_Enums"]), "DepthType": _Enum(E["DepthTypeEnums"]),
                   "ThreadDepthType": _Enum(E["ThreadDepthTypeEnums"]), "DrillPoint": _Enum(E["DrillPointEnums"], 1),
-                  "StartType": _Enum(START_TYPES + ("Reference",))}
+                  "StartType": _Enum(START_TYPES),
+                  "Operation": _Enum(("Subtraction", "Common"))}           # FeatureAddSub::defineSubtractive
         # ReadOnly as a new Hole has it (the constructor's setReadOnly calls)
         self.ro = {"ThreadDiameter", "ThreadDirection", "HoleCutCustomValues", "HoleCutDiameter", "HoleCutDepth",
-                   "HoleCutCountersinkAngle"}
+                   "HoleCutCountersinkAngle", "StartReference"}
 
     # ── App::Property: get, set (which calls onChanged), setEnums, setReadOnly ──
     def __getitem__(self, p):
@@ -236,6 +237,8 @@ class HoleState:
                 x = min(max(x, FLOAT_ANGLE[0]), FLOAT_ANGLE[1])
             elif p == "Diameter":
                 x = max(x, DIAMETER_MIN)
+            elif p in LENGTHS:
+                x = max(x, 0.0)          # App::PropertyLength's LengthStandard {0, max}: a negative one set is 0
             self.set(p, x)
 
     # ── Hole's helpers ──
@@ -525,6 +528,7 @@ class HoleState:
         if p == "StartType":
             has_offset = self["StartType"] != "Profile plane"
             self.read_only("StartOffset", not has_offset)
+            self.read_only("StartReference", self["StartType"] != "Reference")
         elif p == "ThreadType":
             kind = ""
             if self.e["ThreadType"].valid():
@@ -706,8 +710,9 @@ class Hole(KwFeature):
     TRANSACTION = "Make Hole"
     additive = False
     POS = ("profile",)
-    DEFAULTS = {"profile": None, **{k: v for k, v in HoleState().values().items() if k != "thread_diameter"}}
-    REFS = ("profile",)
+    DEFAULTS = {"profile": None, **{k: v for k, v in HoleState().values().items() if k != "thread_diameter"},
+                "start_reference": None}      # StartReference: a link, outside Hole::onChanged's state
+    REFS = ("profile", "start_reference")
 
     def __init__(self, name: str, *args, **kw):
         self.given = {k: v for k, v in kw.items() if k in EDIT_KEYS and v is not None}
@@ -735,7 +740,7 @@ class Hole(KwFeature):
         return super().from_dict({k: v for k, v in d.items() if k not in DERIVED})
 
     def source_props(self):
-        return ["profile", *Hole.minimal(self.given)]
+        return ["profile", *Hole.minimal(self.given), *(["start_reference"] if self.start_reference is not None else [])]
 
     @classmethod
     def set_props(cls, have: dict, props: dict):
@@ -791,7 +796,7 @@ class Hole(KwFeature):
             raise FeatureError(f"{self.name}: no sketch {self.profile!r} before it" if self.profile not in shapes
                                else f"{self.name}: profile {self.profile!r} is not a sketch")
         out: dict = {}
-        result = _hole(self, sketches[self.profile], solid, params, out)
+        result = _hole(self, sketches[self.profile], solid, params, out, shapes)
         shapes.setdefault("_addsub", {})[self.name] = (out.get("addsub"), False)        # AddSubShape, for patterns
         return result
 
@@ -810,6 +815,9 @@ class Hole(KwFeature):
                 ctx.setv(obj, p, v)
             else:
                 setattr(obj, p, v)
+        if self.start_reference is not None:
+            o, subs = ctx.ref(self.start_reference)
+            obj.StartReference = (o, subs)
         return obj
 
 
@@ -891,7 +899,7 @@ def _profile_points(sketch, base_profile_type):
     return out
 
 
-def _hole(feat: Hole, sketch, base, params, out=None):
+def _hole(feat: Hole, sketch, base, params, out=None, shapes=None):
     if base is None:
         raise FeatureError("The requested feature cannot be created. The reason may be that:\n"
                            "  - the active Body does not contain a base shape, so there is no\n"
@@ -911,6 +919,10 @@ def _hole(feat: Hole, sketch, base, params, out=None):
     x = _perpendicular(z)
     hole_dir = gp_Dir(z).Reversed()
     start = st.v["StartOffset"] if st["StartType"] == "Offset" else 0.0
+    if st["StartType"] == "Reference":                 # ProfileBased::getStartReferenceOffset on the sketch's shape
+        from .feature_startref import extrude_offset, sketch_shape
+        start = extrude_offset(sketch_shape(sketch), feat.start_reference, hole_dir, st.v["StartOffset"],
+                               shapes or {}, feat.name)
     if method == "Dimension":
         length = st.v["Depth"]
     elif method == "ThroughAll":
@@ -1011,17 +1023,18 @@ def _hole(feat: Hole, sketch, base, params, out=None):
         b.Add(comp, h)
     if out is not None:
         out["addsub"] = comp                 # the AddSubShape: the holes' compound
+    maker = "common" if st["Operation"] == "Common" else "cut"         # getBooleanMaker
     try:
-        # TopoShape::makeElementBoolean expands a compound tool of a cut into what it holds (expandCompound), so a
-        # threaded hole's two solids, the drill and the thread, are two tools
-        result = F._bool("cut", base, _expand(comp), 0.0)              # FuzzyTolerance
+        # makeElementBoolean(getBooleanMaker(), {base, compound}, FuzzyTolerance) expands the compound tool of a cut
+        # or common into what it holds (expandCompound), so a threaded hole's drill and thread are two tools
+        result = F._bool(maker, base, [comp], 0.0)
         if not F._count(result, TopAbs_SOLID):
             raise FeatureError("Resulting shape is not a solid")
     except Exception:                        # one at a time, as FreeCAD retries
         result = base
         for i, h in enumerate(holes, 1):
             try:
-                result = F._bool("cut", result, _expand(h), 0.0)
+                result = F._bool(maker, result, [h], 0.0)
             except Exception:
                 raise FeatureError(f"Boolean operation failed on profile Edge{i}") from None
             if not F._count(result, TopAbs_SOLID):
@@ -1029,20 +1042,6 @@ def _hole(feat: Hole, sketch, base, params, out=None):
     if st.v["Refine"]:
         result = F._refine(result)
     return result
-
-
-def _expand(shape):
-    """TopoShape::expandCompound: a compound's shapes, compounds within it opened too."""
-    from OCP.TopAbs import TopAbs_COMPOUND
-    from OCP.TopoDS import TopoDS_Iterator
-    if shape.ShapeType() != TopAbs_COMPOUND:
-        return [shape]
-    out = []
-    it = TopoDS_Iterator(shape)
-    while it.More():
-        out += _expand(it.Value())
-        it.Next()
-    return out
 
 
 # ── Hole::makeThread ─────────────────────────────────────────────────────────────────────────────────────
