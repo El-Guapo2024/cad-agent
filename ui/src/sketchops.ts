@@ -617,6 +617,18 @@ function lineFilletArc(l1: Line, l2: Line, center: XY, radius: number): Extract<
   const [a, b] = setTrimPeriodic(start, end)
   return { type: 'ArcOfCircle', center, radius, start_angle: a, end_angle: b }
 }
+/** Part::createFilletGeometry for two lines: the fillet's arc and whether it runs from the second line to the first
+ *  (reverse), or null. The polyline's fillet preview draws it. */
+export function createFilletGeometry(l1: Line, l2: Line, ref1: XY, ref2: XY, radius: number): { arc: Extract<Geo, { type: 'ArcOfCircle' }>; reverse: boolean } | null {
+  const center = filletCenter(l1, l2, radius, ref1, ref2)
+  if (!center) return null
+  const arc = lineFilletArc(l1, l2, center, radius)
+  const corner = segIntersection(l1, l2)
+  if (!arc || !corner) return null
+  const p1a = valueAt(arc, arc.start_angle)
+  const dist1 = projectToLine(sub(p1a, corner), sub(l1.end, l1.start)), dist2 = projectToLine(sub(p1a, corner), sub(l2.end, l2.start))
+  return { arc, reverse: len(dist1) < len(dist2) }
+}
 /** suggestFilletRadius: the radius the fillet tool picks for two lines and where they were picked, or -1. */
 export function suggestFilletRadius(l1: Line, l2: Line, ref1: XY, ref2: XY): number {
   const corner = segIntersection(l1, l2)

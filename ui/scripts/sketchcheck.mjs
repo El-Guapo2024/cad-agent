@@ -227,7 +227,7 @@ for (const [k, c] of CASES.cases.entries()) {
     await p.dblclick(`.trow[data-ref="${part}/S"] .tname`)
     await p.evaluate(() => window.cadui.showPanel('view3d'))
   } else await gui('run', ['Sketcher_EditSketch', name, JSON.stringify(c.setup ?? {})])
-  await p.waitForSelector('.sketch-task', { timeout: 10000 })
+  try { await p.waitForSelector('.sketch-task', { timeout: 30000 }) } catch (e) { console.log('page errors:', errs.join(' / '), 'editing:', await p.evaluate(() => JSON.stringify(window.cadui.getState().sketchEditing))); throw e }
   await p.waitForTimeout(800) // the view turning to the sketch (an animation, then the fit)
   // the camera FreeCAD's had, set again until it stays (the turn's animation may still be running)
   for (let i = 0; i < 20; i++) {
@@ -298,9 +298,14 @@ for (const [k, c] of CASES.cases.entries()) {
     if (norm(tw) !== norm(tww)) diffs.push(`tool widget\n     ours     ${norm(tw)}\n     FreeCAD  ${norm(tww)}`)
   }
   if (c.check?.includes('ovp')) {
+    // the boxes as a set (Qt lists them in the order they were made), each number to 0.3 (a pixel of the cursor is 0.16
+    // mm), the unit and which one has the focus exactly
     const o = await p.evaluate(() => window.cadui.sketchOvps?.() ?? []), ow = want.ovp ?? []
-    const norm = (l) => JSON.stringify(l.map((x) => `${x.text}${x.focus ? '*' : ''}`).sort())
-    if (norm(o) !== norm(ow)) diffs.push(`on-view parameters: ${norm(o)} (FreeCAD: ${norm(ow)})`)
+    const parse = (x) => { const m = /^(-?[\d.]+)\s*(.*)$/.exec(x.text.trim()); return { v: m ? +m[1] : NaN, u: m ? m[2] : x.text, f: !!x.focus } }
+    const left = ow.map(parse)
+    const ok = o.length === ow.length && o.map(parse).every((a) => { const k = left.findIndex((b) => b.u === a.u && b.f === a.f && Math.abs(b.v - a.v) <= 0.3); if (k < 0) return false; left.splice(k, 1); return true })
+    const show = (l) => l.map((x) => `${x.text}${x.focus ? '*' : ''}`).join(', ')
+    if (!ok) diffs.push(`on-view parameters: ${show(o)} (FreeCAD: ${show(ow)})`)
   }
   if (oldParams) await p.evaluate((ps) => window.cadui.setSketcherParams?.(ps), oldParams)
   if (diffs.length && KNOWN[c.name]) { known++; console.log(`known ${c.name}: ${KNOWN[c.name]}`) }

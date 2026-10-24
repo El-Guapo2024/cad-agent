@@ -298,17 +298,47 @@ def tool_widget_out():
         elif n.startswith("parameter") and c.metaObject().className() == "Gui::PrefQuantitySpinBox":
             out.append({"name": n, "value": c.rawValue()})
     box = tw.parentWidget()
-    while box is not None and box.metaObject().className() != "Gui::TaskView::TaskBox":
+    while box is not None and not box.inherits("Gui::TaskView::TaskBox"):
         box = box.parentWidget()
-    return {"title": box.findChild(QtWidgets.QLabel).text() if box is not None and box.findChild(QtWidgets.QLabel) else "", "controls": out}
+    title = ""
+    if box is not None:  # the TaskBox's header (QSint::TaskHeader) holds the title on a button
+        for h in box.findChildren(QtWidgets.QWidget):
+            if "TaskHeader" in h.metaObject().className():
+                for b in h.findChildren(QtWidgets.QAbstractButton):
+                    if b.text():
+                        title = b.text()
+                        break
+                if not title:
+                    for b in h.findChildren(QtWidgets.QLabel):
+                        if b.text():
+                            title = b.text()
+                            break
+                break
+    return {"title": title, "controls": out}
 
 
-def ovp_out():
+def cpp(w):
+    import shiboken6
+    return shiboken6.getCppPointer(w)[0]
+
+
+def ovp_boxes():
+    """The on-view parameters' spin boxes over the 3D views (EditableDatumLabel::startEdit parents them to the MDI view)."""
+    def in_mdi(w):
+        while w is not None:
+            if w.metaObject().className() == "QMdiArea":
+                return True
+            w = w.parentWidget()
+        return False
+    return [w for w in mw.findChildren(QtWidgets.QAbstractSpinBox)
+            if w.metaObject().className() == "Gui::QuantitySpinBox" and in_mdi(w)]
+
+
+def ovp_out(before=()):
     """The on-view parameters shown at the end of the steps: each spin box over the 3D view and its text."""
     out = []
-    for w in mw.findChildren(QtWidgets.QAbstractSpinBox):
-        if w.metaObject().className() == "Gui::QuantitySpinBox" and w.isVisible() and w.parentWidget() is not None \
-                and w.parentWidget().metaObject().className() != "SketcherGui::SketcherToolDefaultWidget":
+    for w in ovp_boxes():
+        if w.isVisible() and cpp(w) not in before:
             le = w.findChild(QtWidgets.QLineEdit)
             out.append({"text": le.text() if le else "", "focus": w.hasFocus()})
     return out
@@ -388,6 +418,8 @@ def ext_out(sk):
 
 def run_case(doc, case, k):
     current["case"] = case["name"]
+    QtCore.QCoreApplication.sendPostedEvents(None, QtCore.QEvent.DeferredDelete)  # the last case's spin boxes
+    ovp_before = {cpp(w) for w in ovp_boxes()}
     report_at = len(report_text())
     if case.get("plate"):
         doc, sk = plate_sketch(case["name"])
@@ -529,7 +561,14 @@ def run_case(doc, case, k):
     tw = tool_widget_out()
     if tw is not None:
         res["cases"][case["name"]]["tool_widget"] = tw
-    res["cases"][case["name"]]["ovp"] = ovp_out()
+    res["cases"][case["name"]]["ovp"] = ovp_out(ovp_before)
+    if os.environ.get("FCSKETCH_DEBUG"):
+        res["cases"][case["name"]]["debug"] = {
+            "focus": [app.focusWidget().metaObject().className() if app.focusWidget() else None,
+                      app.focusWidget().parentWidget().metaObject().className() if app.focusWidget() and app.focusWidget().parentWidget() else None],
+            "spinboxes": [[w.metaObject().className(), w.parentWidget().metaObject().className() if w.parentWidget() else None,
+                           w.isVisible(), w.hasFocus(), (w.findChild(QtWidgets.QLineEdit).text() if w.findChild(QtWidgets.QLineEdit) else "")]
+                          for w in mw.findChildren(QtWidgets.QAbstractSpinBox) if w.isVisible()]}
     Gui.ActiveDocument.resetEdit()
     pump(6)
     unset_params(old_params)
@@ -538,6 +577,9 @@ def run_case(doc, case, k):
 def chrome_and_cases():
     mw.resize(1280, 800)
     mw.show()
+    # the window active, so that widgets take the keyboard focus (fcsketch.py maps it on the xvfb screen)
+    mw.activateWindow()
+    mw.raise_()
     pump(10)
     Gui.activateWorkbench("PartDesignWorkbench")
     doc = App.newDocument("T")

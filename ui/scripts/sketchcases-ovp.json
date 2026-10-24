@@ -1,0 +1,18 @@
+{
+ "about": "On-view parameters and the Tool Parameters box of the Sketcher's creation tools (DrawSketchController, DrawSketchDefaultWidgetController): values typed while drawing, Tab and Enter, the constraints set values make, the tool widget's options. fcsketch.py --cases ui/scripts/sketchcases-ovp.json --ref records FreeCAD's answers in sketchref-ovp.json; sketchcheck.mjs --suite ovp compares.",
+ "camera": {"center": [25, 20], "height": 100},
+ "cases": [
+  {"name": "ovp-line-length-angle", "check": ["ovp", "widget"], "steps": [{"cmd": "Sketcher_CreateLine"}, {"click": [0, 0]}, {"move": [20, 15]}, {"type": "30"}, {"fkey": "Tab"}, {"type": "45"}, {"fkey": "Tab"}, {"move": [30, 30]}]},
+  {"name": "ovp-line-tab-cycle", "check": ["ovp"], "steps": [{"cmd": "Sketcher_CreateLine"}, {"click": [10, 10]}, {"move": [40, 30]}, {"fkey": "Tab"}, {"move": [41, 31]}]},
+  {"name": "ovp-line-enter-locks", "steps": [{"cmd": "Sketcher_CreateLine"}, {"click": [10, 10]}, {"move": [40, 10]}, {"fkey": "Return"}, {"move": [30, 40]}, {"fkey": "Return"}, {"move": [35, 35]}]},
+  {"name": "ovp-line-type-click", "steps": [{"cmd": "Sketcher_CreateLine"}, {"click": [5, 5]}, {"move": [30, 20]}, {"type": "25"}, {"move": [30, 40]}, {"click": [30, 40]}]},
+  {"name": "ovp-line-escape", "check": ["ovp"], "steps": [{"cmd": "Sketcher_CreateLine"}, {"click": [5, 5]}, {"move": [30, 20]}, {"type": "25"}, {"fkey": "Escape"}, {"move": [31, 21]}]},
+  {"name": "ovp-line-ctrl-enter", "steps": [{"cmd": "Sketcher_CreateLine"}, {"click": [5, 5]}, {"move": [30, 25]}, {"type": "40"}, {"fkey": "Return", "ctrl": true}, {"move": [31, 26]}]},
+  {"name": "ovp-line-width-height", "check": ["widget"], "steps": [{"cmd": "Sketcher_CreateLine"}, {"key": "M"}, {"click": [5, 5]}, {"move": [30, 25]}, {"type": "20"}, {"fkey": "Tab"}, {"type": "10"}, {"fkey": "Tab"}, {"move": [31, 26]}]},
+  {"name": "ovp-line-positions", "params": {"Mod/Sketcher/Tools/OnViewParameterVisibility": 2}, "check": ["ovp"], "steps": [{"cmd": "Sketcher_CreateLine"}, {"move": [7, 6]}, {"type": "10"}, {"fkey": "Tab"}, {"type": "5"}, {"fkey": "Tab"}, {"move": [30, 30]}, {"type": "20"}, {"fkey": "Tab"}, {"type": "0"}, {"fkey": "Tab"}, {"move": [31, 31]}]},
+  {"name": "ovp-point-positions", "params": {"Mod/Sketcher/Tools/OnViewParameterVisibility": 2}, "steps": [{"cmd": "Sketcher_CreatePoint"}, {"move": [5, 5]}, {"type": "12"}, {"fkey": "Tab"}, {"type": "7"}, {"fkey": "Tab"}, {"move": [6, 6]}]},
+  {"name": "ovp-point-hidden", "params": {"Mod/Sketcher/Tools/OnViewParameterVisibility": 0}, "check": ["ovp"], "steps": [{"cmd": "Sketcher_CreatePoint"}, {"move": [5, 5]}, {"type": "12"}, {"click": [8, 9]}]},
+  {"name": "ovp-circle-radius", "check": ["ovp", "widget"], "steps": [{"cmd": "Sketcher_CreateCircle"}, {"click": [20, 20]}, {"move": [30, 25]}, {"type": "8"}, {"fkey": "Return"}, {"move": [31, 26]}]},
+  {"name": "ovp-rectangle-sizes", "check": ["widget"], "steps": [{"cmd": "Sketcher_CreateRectangle"}, {"click": [0, 0]}, {"move": [30, 20]}, {"type": "30"}, {"fkey": "Tab"}, {"type": "20"}, {"fkey": "Tab"}, {"move": [31, 21]}]}
+ ]
+}

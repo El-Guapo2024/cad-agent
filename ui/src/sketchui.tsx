@@ -32,6 +32,7 @@ import * as THREE from 'three'
 import { ContextMenu, tipAttrs, type Entry } from './chrome'
 import { QuantityBox } from './qsb'
 import { cls } from './panels'
+import { ToolParametersBox } from './sketchtoolbox'
 
 const useSketch = () => useSyncExternalStore(S.subscribeSketch, S.sketchVersion)
 /** A command's icon file; geometry tools show their construction variant in construction mode. */
@@ -181,6 +182,7 @@ export function SketchTask() {
         <button className="qbtn" onClick={() => void S.closeEdit(false)}>Cancel</button>
       </div>
       <Messages />
+      <ToolParametersBox />
       <ConstraintsList />
       <ElementsList />
     </div>

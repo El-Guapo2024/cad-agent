@@ -77,8 +77,10 @@ def freecad_exe() -> Path:
 
 
 def run_freecad(script: Path, out: Path, home: Path, platform: str = "offscreen", scale: float = 0.5,
-                timeout: int = 300, env: dict | None = None) -> subprocess.CompletedProcess:
-    """Run `script` inside FreeCAD's GUI; the temporary user files are under `home` (an existing, empty folder)."""
+                timeout: int = 300, env: dict | None = None, show: bool = False) -> subprocess.CompletedProcess:
+    """Run `script` inside FreeCAD's GUI; the temporary user files are under `home` (an existing, empty folder).
+    `show` (Linux, under xvfb-run only): the windows are mapped on the virtual X screen instead of kept off it, so that
+    the main window becomes active and widgets take the keyboard focus (an on-view parameter's spin box does)."""
     out.mkdir(parents=True, exist_ok=True)
     e = {**os.environ, "FCGUI_OUT": str(out), "QT_QPA_PLATFORM": "xcb" if LINUX and platform == "cocoa" else platform, "FREECAD_USER_HOME": str(home),
          "FREECAD_USER_DATA": str(home / "data"), "FREECAD_USER_TEMP": str(home / "tmp"), **(env or {})}
@@ -86,7 +88,7 @@ def run_freecad(script: Path, out: Path, home: Path, platform: str = "offscreen"
         (home / "data" / "Mod" / "fcshots").mkdir(parents=True)
         (home / "data" / "Mod" / "fcshots" / "InitGui.py").write_text(INITGUI)
         (home / "user.cfg").write_text(light_pack())
-        e.update(FCSHOTS_HIDE="1", QT_MAC_DISABLE_FOREGROUND_APPLICATION_TRANSFORM="1", QT_SCALE_FACTOR=str(scale * 2 if LINUX else scale))
+        e.update(FCSHOTS_HIDE="0" if show and LINUX else "1", QT_MAC_DISABLE_FOREGROUND_APPLICATION_TRANSFORM="1", QT_SCALE_FACTOR=str(scale * 2 if LINUX else scale))
     p = subprocess.Popen([str(freecad_exe()), str(script)], env=e, stdin=subprocess.DEVNULL,
                          stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
     try:
