@@ -25,12 +25,17 @@ from cad_agent import feature_part as Part
 
 GOLDEN = Path(__file__).parent / "golden" / "part"
 sys.path.insert(0, str(GOLDEN))
-_spec = importlib.util.spec_from_file_location("part_cases", GOLDEN / "cases.py")
-_cases = importlib.util.module_from_spec(_spec)
-_spec.loader.exec_module(_cases)
-CASES = _cases.CASES
+CASES, FREECAD = {}, {}
+for _p in sorted(GOLDEN.glob("cases*.py")):          # cases.py, and each area's cases_<area>.py
+    _spec = importlib.util.spec_from_file_location(f"part_{_p.stem}", _p)
+    _cases = importlib.util.module_from_spec(_spec)
+    _spec.loader.exec_module(_cases)
+    _json = GOLDEN / ("freecad.json" if _p.stem == "cases" else f"freecad_{_p.stem[6:]}.json")
+    _fc = json.loads(_json.read_text()) if _json.exists() else {"cases": {}}
+    assert not set(_cases.CASES) & set(CASES), f"two areas name a case the same: {set(_cases.CASES) & set(CASES)}"
+    CASES.update(_cases.CASES)
+    FREECAD.update(_fc["cases"])
 FC = json.loads((GOLDEN / "freecad.json").read_text())
-FREECAD = FC["cases"]
 TYPES = {"TopAbs_COMPOUND": "Compound", "TopAbs_COMPSOLID": "CompSolid", "TopAbs_SOLID": "Solid",
          "TopAbs_SHELL": "Shell", "TopAbs_FACE": "Face", "TopAbs_WIRE": "Wire", "TopAbs_EDGE": "Edge",
          "TopAbs_VERTEX": "Vertex"}
@@ -40,6 +45,11 @@ TYPES = {"TopAbs_COMPOUND": "Compound", "TopAbs_COMPSOLID": "CompSolid", "TopAbs
 # In a cut through a cut, UnifySameDomain also joins the edges the second cut split on the first one's faces, where
 # FreeCAD's refine (faces only) leaves them: two edges fewer, the same faces and solid.
 KNOWN: dict = {("cut_chain", "Cut001"): ("edges", "vertices"), ("cut_compound_tool", "Cut"): ("edges", "vertices")}
+for _p in sorted(GOLDEN.glob("cases_*.py")):
+    _spec = importlib.util.spec_from_file_location(f"part_known_{_p.stem}", _p)
+    _m = importlib.util.module_from_spec(_spec)
+    _spec.loader.exec_module(_m)
+    KNOWN.update(getattr(_m, "KNOWN", {}))
 
 
 def _props(shape, fn):

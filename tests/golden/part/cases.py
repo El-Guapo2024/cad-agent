@@ -1,11 +1,10 @@
 """Part workbench documents, each built by FreeCAD (make.py, freecadcmd) and by cad_agent/feature_part*.py
 (tests/test_feature_part.py), every object's shape compared.
 
-Each case is {"objects": OBJECTS, "params": PARAMS, "features": FEATURES (a Body) or absent}. More cases come from
-the modules of their own: cases_<area>.py files next to this one add theirs (CASES.update).
+Each case is {"objects": OBJECTS, "params": PARAMS, "features": FEATURES (a Body) or absent}. An area of its own keeps
+its cases in cases_<area>.py next to this one (a CASES dict there too, names unique across the areas) and its answers
+in freecad_<area>.json (make.py AREA).
 """
-import importlib
-import sys
 from pathlib import Path
 
 from cad_agent import feature_part as Part
@@ -176,7 +175,3 @@ CASES["body_extrude_sketch"] = {"features": BODY, "objects": [
     Part.Extrusion("Extrude", "Sketch", length_fwd=3, reversed=True, solid=True),
     Part.MultiFuse("Fusion", ["Body", "Extrude"])]}
 
-# the areas' cases, each in a cases_<area>.py of its own
-for p in sorted(HERE.glob("cases_*.py")):
-    sys.path.insert(0, str(HERE))
-    CASES.update(importlib.import_module(p.stem).CASES)

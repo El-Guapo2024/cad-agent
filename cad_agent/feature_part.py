@@ -499,3 +499,5 @@ def _sketch_to_freecad(f, params, doc, fc):
 from . import feature_part_prim  # noqa: E402,F401  Box ... Vertex, Polygon, Tube
 from . import feature_part_bool  # noqa: E402,F401  Cut, Fuse, Common, Section, BooleanFragments, Slice, XOR, joins
 from . import feature_part_ops  # noqa: E402,F401  Extrusion, Revolution, Mirroring, Fillet, ..., Compound, Refine
+from . import feature_part_split  # noqa: E402,F401  BooleanFragments, Slice, XOR, Connect, Embed, Cutout, CompoundFilter
+from . import feature_part_sweep  # noqa: E402,F401  Loft, Sweep, Offset, Offset2D, Thickness, ProjectOnSurface

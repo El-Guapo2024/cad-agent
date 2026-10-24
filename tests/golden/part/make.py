@@ -1,7 +1,10 @@
 """Writes freecad.json: what FreeCAD's Part workbench builds from each document of cases.py, for tests/test_feature_part.py
 to hold cad_agent/feature_part*.py to.
 
-    $FREECAD/freecadcmd tests/golden/part/make.py [CASE]      (FREECAD: FreeCAD's bin folder, 26.3 at 3160daf1e2b6)
+    $FREECAD/freecadcmd tests/golden/part/make.py [AREA] [CASE]   (FREECAD: FreeCAD's bin folder, 26.3 at 3160daf1e2b6)
+
+AREA picks the cases: none (or "base") is cases.py into freecad.json, "split" is cases_split.py into
+freecad_split.json, and so on; CASE remakes that one case and keeps the rest of the file.
 
 Run it from the repository's root. Each case's OBJECTS (and FEATURES, a Body) go to FreeCAD through
 cad_agent.feature_part.to_freecad, into a fresh document, which is recomputed; every object's shape is recorded
@@ -23,7 +26,13 @@ sys.path.insert(0, str(ROOT / "tests" / "golden" / "part"))
 import FreeCAD as App  # noqa: E402
 
 from cad_agent import feature_part as Part  # noqa: E402
-from cases import CASES  # noqa: E402
+import importlib  # noqa: E402
+
+args = [a for a in sys.argv[1:] if not a.endswith(".py")]
+AREA = args[0] if args and (Path(__file__).with_name(f"cases_{args[0]}.py").exists() or args[0] == "base") else "base"
+if args and args[0] == AREA:
+    args = args[1:]
+CASES = importlib.import_module("cases" if AREA == "base" else f"cases_{AREA}").CASES
 
 
 def r(x):
@@ -84,12 +93,12 @@ def defaults():
     return out
 
 
-only = sys.argv[-1] if len(sys.argv) > 1 and sys.argv[-1] in CASES else None
-path = ROOT / "tests" / "golden" / "part" / "freecad.json"
+only = args[0] if args and args[0] in CASES else None
+path = ROOT / "tests" / "golden" / "part" / ("freecad.json" if AREA == "base" else f"freecad_{AREA}.json")
 out = {"freecad": ".".join(App.Version()[:3]) + " " + App.Version()[3], "cases": {}}
 if only and path.exists():
     out = json.loads(path.read_text())
-else:
+elif AREA == "base":
     out["defaults"] = defaults()
 for name, case in CASES.items():
     if only and name != only:
