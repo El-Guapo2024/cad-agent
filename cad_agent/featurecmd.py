@@ -41,6 +41,8 @@ TYPES["Revolution"] = "PartDesign::Revolution"           # cad_agent/feature_rev
 ADD_NAMES["PartDesign::Revolution"] = "Make Revolution"
 TYPES["Groove"] = "PartDesign::Groove"
 ADD_NAMES["PartDesign::Groove"] = "Make Groove"
+TYPES["Hole"] = "PartDesign::Hole"                       # cad_agent/feature_hole.py
+ADD_NAMES["PartDesign::Hole"] = "Make Hole"
 
 TEMPLATE = '''"""{part}: a PartDesign Body made in the workbench (cad feature new).
 

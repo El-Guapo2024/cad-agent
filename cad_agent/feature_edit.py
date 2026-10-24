@@ -67,6 +67,7 @@ from . import params as P
 TYPE_IDS = {"Sketch": "Sketcher::SketchObject", "Pad": "PartDesign::Pad", "Pocket": "PartDesign::Pocket"}
 TYPE_IDS["Revolution"] = "PartDesign::Revolution"           # cad_agent/feature_revolve.py
 TYPE_IDS["Groove"] = "PartDesign::Groove"
+TYPE_IDS["Hole"] = "PartDesign::Hole"                       # cad_agent/feature_hole.py
 KINDS = {v: k for k, v in TYPE_IDS.items()}
 SKETCH_POS = ("name", "support", "geometry", "constraints")
 SKETCH_KW = ("support", "attachment_offset", "map_mode", "geometry", "constraints")

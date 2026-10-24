@@ -1660,3 +1660,5 @@ def to_freecad(features, params: dict | None = None, doc=None, name: str = "Body
 # The features of other modules, registered here so a part file imports them all from cad_agent.feature.
 from .feature_revolve import Groove, Revolution  # noqa: E402  PartDesign::Revolution, PartDesign::Groove
 FEATURES.update(Revolution=Revolution, Groove=Groove)
+from .feature_hole import Hole  # noqa: E402  PartDesign::Hole
+FEATURES.update(Hole=Hole)

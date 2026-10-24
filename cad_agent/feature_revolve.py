@@ -52,9 +52,6 @@ from __future__ import annotations
 
 import math
 
-from . import feature as F
-from .feature import FeatureError, value
-
 try:                                    # the kernel; FreeCAD's Python reads the vocabulary without it
     from OCP.BRep import BRep_Tool
     from OCP.BRepAdaptor import BRepAdaptor_Curve, BRepAdaptor_Surface
@@ -86,7 +83,7 @@ except ImportError:                     # pragma: no cover - only FreeCAD's Pyth
     pass
 
 ANGULAR = 1e-12           # Precision::Angular()
-CONFUSION = F.CONFUSION
+CONFUSION = 1e-7          # Precision::Confusion()
 SIDE_TYPES = ("One side", "Two sides", "Symmetric")    # Revolved::SideTypesEnums
 START_TYPES = ("Profile plane", "Offset")              # ProfileBased::StartTypesEnums, but Reference
 ORIGIN_AXES = {"X_Axis": (1.0, 0.0, 0.0), "Y_Axis": (0.0, 1.0, 0.0), "Z_Axis": (0.0, 0.0, 1.0)}
@@ -687,5 +684,9 @@ def command_defaults(feature: dict, sketch=None) -> dict:
 
 
 _Revolved.command_defaults = staticmethod(command_defaults)      # feature_edit's add calls it
+
+# Last, so that importing this module first works: feature.py imports it back at its end, and finds it complete.
+from . import feature as F  # noqa: E402
+from .feature import FeatureError, value  # noqa: E402
 
 __all__ = ["Revolution", "Groove", "get_axis", "suggest_reversed", "command_defaults", "check_line_crosses_face"]
