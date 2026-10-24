@@ -50,7 +50,6 @@ try:                                     # the kernel; FreeCAD's Python reads th
     from OCP.BRep import BRep_Tool
     from OCP.BRepAdaptor import BRepAdaptor_Curve, BRepAdaptor_Surface
     from OCP.BRepAlgo import BRepAlgo
-    from OCP.BRepAlgoAPI import BRepAlgoAPI_Fuse
     from OCP.BRepCheck import BRepCheck_Analyzer
     from OCP.BRepFilletAPI import BRepFilletAPI_MakeChamfer, BRepFilletAPI_MakeFillet
     from OCP.BRepGProp import BRepGProp
@@ -655,16 +654,11 @@ def _recto_verso(solid, faces, thickness, tol, intersection, join):
     verso = _thick_solid(oriented, faces, -d, tol, intersection, BRepOffset_Skin, join)
     _valid_wall(recto, "Recto-verso positive-side wall is invalid")
     _valid_wall(verso, "Recto-verso negative-side wall is invalid")
-    args, tools = TopTools_ListOfShape(), TopTools_ListOfShape()
-    args.Append(recto)
-    tools.Append(verso)
-    mk = BRepAlgoAPI_Fuse()
-    mk.SetRunParallel(True)
-    mk.SetArguments(args)
-    mk.SetTools(tools)
-    mk.SetFuzzyValue(tol)
-    mk.Build()
-    result = mk.Shape() if mk.IsDone() else None
+    from .topo_boolean import BooleanError, element_boolean
+    try:                                                     # result.makeElementFuse({recto, verso}, ..., tolerance)
+        result = element_boolean("fuse", [recto, verso], tol)
+    except BooleanError:
+        result = None
     if result is None or result.IsNull() or not BRepCheck_Analyzer(result).IsValid() \
             or F._count(result, TopAbs_SOLID) != 1:
         raise FeatureError("Recto-verso thickness produced an invalid solid")

@@ -657,7 +657,8 @@ def _set_result(feat, base, revolved, out=None):
     if out is not None:
         out["addsub"] = result
     if base is not None:
-        result = F._bool("fuse" if feat.additive else "cut", base, [result])
+        # Revolution: base.makeElementFuse(revolve), the default tolerance; Groove: FuzzyTolerance
+        result = F._bool("fuse" if feat.additive else "cut", base, [result], -1.0 if feat.additive else 0.0)
         result = refine(result)
     if not F._count(result, TopAbs_SOLID):
         raise FeatureError("Resulting shape is not a solid")

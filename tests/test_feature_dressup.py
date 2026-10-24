@@ -95,10 +95,11 @@ def test_same_solid_as_freecad(name):
     assert (got["solids"], got["faces"], got["edges"]) == (want["solids"], want["faces"], want["edges"])
 
 
-# The same faces and edges, in another order (ui/PARITY.md, PartDesign). An outward Thickness with arc joins
-# (and so RectoVerso) is numbered by BRepOffset's maps, which follow memory addresses: FreeCAD itself gives
-# two orders for the same body built four times in one session, and Part.makeThickness on the same Pad too.
-ORDER_DIFFERS = {"thickness_outwards", "thickness_recto_verso"}
+# The same faces and edges, in another order (ui/PARITY.md, PartDesign). An outward Thickness with arc joins is
+# numbered by BRepOffset's maps, which follow memory addresses: FreeCAD itself gives two orders for the same body
+# built four times in one session, and Part.makeThickness on the same Pad too. (RectoVerso, two of them fused,
+# gives FreeCAD's order since the fuse takes FreeCAD's tolerance.)
+ORDER_DIFFERS = {"thickness_outwards"}
 
 
 @pytest.mark.parametrize("name", sorted(n for n in CASES if "error" not in FREECAD[n] and n not in ORDER_DIFFERS))

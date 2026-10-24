@@ -115,7 +115,6 @@ import operator
 try:                                    # the kernel; FreeCAD's Python reads the vocabulary without it
     from OCP.BRep import BRep_Builder, BRep_Tool
     from OCP.BRepAdaptor import BRepAdaptor_Surface
-    from OCP.BRepAlgoAPI import BRepAlgoAPI_Common, BRepAlgoAPI_Cut, BRepAlgoAPI_Fuse
     from OCP.BRepBndLib import BRepBndLib
     from OCP.BRepBuilderAPI import (BRepBuilderAPI_Copy, BRepBuilderAPI_DisconnectedWire,
                                     BRepBuilderAPI_MakeEdge, BRepBuilderAPI_MakeFace,
@@ -137,7 +136,6 @@ try:                                    # the kernel; FreeCAD's Python reads the
     from OCP.GeomAdaptor import GeomAdaptor_Surface
     from OCP.Geom import Geom_Circle, Geom_Plane, Geom_TrimmedCurve
     from OCP.ShapeFix import ShapeFix_Shape, ShapeFix_ShapeTolerance
-    from OCP.ShapeUpgrade import ShapeUpgrade_UnifySameDomain
     from OCP.TopAbs import (TopAbs_COMPOUND, TopAbs_FACE, TopAbs_IN, TopAbs_ON,
                             TopAbs_OUT, TopAbs_SHAPE, TopAbs_SOLID, TopAbs_VERTEX, TopAbs_WIRE)
     from OCP.TopExp import TopExp
@@ -1203,36 +1201,23 @@ def _faces_cut_by(shape, face, d):
     return out
 
 
-def _bool(kind, base, tools):
-    """TopoShape::makeElementBoolean: base the argument, the tools (compounds expanded) the tools."""
-    args, tls = TopTools_ListOfShape(), TopTools_ListOfShape()
-    args.Append(base)
-    for t in tools:
-        if t.ShapeType() == TopAbs_COMPOUND and kind == "fuse":
-            it = TopoDS_Iterator(t)
-            while it.More():
-                tls.Append(it.Value())
-                it.Next()
-        else:
-            tls.Append(t)
-    mk = {"fuse": BRepAlgoAPI_Fuse, "cut": BRepAlgoAPI_Cut, "common": BRepAlgoAPI_Common}[kind]()
-    mk.SetRunParallel(True)
-    mk.SetArguments(args)
-    mk.SetTools(tls)
-    mk.Build()
-    if not mk.IsDone():
+def _bool(kind, base, tools, fuzzy=-1.0):
+    """TopoShape::makeElementBoolean(kind, {base, *tools}, tol) (cad_agent/topo_boolean.py); fuzzy -1 is FreeCAD's
+    default tolerance (the auto fuzzy value), 0 a feature's FuzzyTolerance."""
+    from .topo_boolean import BooleanError, element_boolean
+    try:
+        out = element_boolean(kind, [base, *tools], fuzzy)
+    except BooleanError as e:
+        raise FeatureError(str(e)) from None
+    if out is None:
         raise FeatureError(f"Boolean {kind} failed")
-    return mk.Shape()
+    return out
 
 
 def _refine(shape):
-    """FreeCAD refines with BRepBuilderAPI_RefineModel (its own); OCCT's UnifySameDomain merges the same
-    coplanar and co-cylindrical faces, so the solid, its volume and area are the same."""
-    u = ShapeUpgrade_UnifySameDomain(shape, True, True, False)
-    u.AllowInternalEdges(False)
-    u.Build()
-    out = u.Shape()
-    return out if _count(out, TopAbs_SOLID) == _count(shape, TopAbs_SOLID) else shape
+    """FeatureRefine::refineShapeIfActive: FreeCAD's own refine, BRepBuilderAPI_RefineModel (cad_agent/refine.py)."""
+    from .refine import refine
+    return refine(shape)
 
 
 def _through_all(base, profile) -> float:
@@ -1571,10 +1556,11 @@ def _extrude(feat: _Extrude, sketch: Sketch, base, shapes, params, out: dict | N
         raise FeatureError("No extrusion geometry was generated.")
     prism = prisms[0] if len(prisms) == 1 else _xor(prisms)
     refine = _refine if feat.refine else (lambda s: s)
+    prism = refine(prism)                           # buildExtrusion: the boolean takes the refined prism
     if out is not None:
-        out["addsub"] = refine(prism)
+        out["addsub"] = prism
     if base is not None:
-        result = _bool("fuse" if additive else "cut", base, [prism])
+        result = _bool("fuse" if additive else "cut", base, [prism], 0.0)      # FuzzyTolerance
         if not _count(result, TopAbs_SOLID):
             raise FeatureError("Resulting shape is not a solid")
         return refine(result)

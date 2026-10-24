@@ -1014,14 +1014,14 @@ def _hole(feat: Hole, sketch, base, params, out=None):
     try:
         # TopoShape::makeElementBoolean expands a compound tool of a cut into what it holds (expandCompound), so a
         # threaded hole's two solids, the drill and the thread, are two tools
-        result = F._bool("cut", base, _expand(comp))
+        result = F._bool("cut", base, _expand(comp), 0.0)              # FuzzyTolerance
         if not F._count(result, TopAbs_SOLID):
             raise FeatureError("Resulting shape is not a solid")
     except Exception:                        # one at a time, as FreeCAD retries
         result = base
         for i, h in enumerate(holes, 1):
             try:
-                result = F._bool("cut", result, _expand(h))
+                result = F._bool("cut", result, _expand(h), 0.0)
             except Exception:
                 raise FeatureError(f"Boolean operation failed on profile Edge{i}") from None
             if not F._count(result, TopAbs_SOLID):

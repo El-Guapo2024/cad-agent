@@ -48,7 +48,6 @@ from .feature_kw import ORIGIN, KwFeature, ref_name
 try:
     from OCP.BRep import BRep_Tool
     from OCP.BRepAdaptor import BRepAdaptor_Curve, BRepAdaptor_Surface
-    from OCP.BRepAlgoAPI import BRepAlgoAPI_Common, BRepAlgoAPI_Cut, BRepAlgoAPI_Fuse
     from OCP.BRepBuilderAPI import BRepBuilderAPI_Transform
     from OCP.GeomAbs import GeomAbs_Circle, GeomAbs_Line, GeomAbs_Plane
     from OCP.TopAbs import TopAbs_COMPOUND, TopAbs_EDGE, TopAbs_FACE, TopAbs_VERTEX
@@ -72,7 +71,7 @@ def transformed(shape, trsf):
     copy = trsf.ScaleFactor() * trsf.HVectorialPart().Determinant() < 0.0 \
         or abs(abs(trsf.ScaleFactor()) - 1) > CONFUSION
     if copy:
-        return BRepBuilderAPI_Transform(shape, trsf, True).Shape()
+        return BRepBuilderAPI_Transform(shape, trsf, True).Shape().Moved(TopLoc_Location(gp_Trsf()))
     return shape.Moved(TopLoc_Location(trsf))
 
 
@@ -86,53 +85,14 @@ def _expand(shape, out):
         it.Next()
 
 
-def element_boolean(maker: str, shapes: list):
-    """TopoShape::makeElementBoolean for "fuse", "cut" and "common": compounds expanded (for a fuse the first shape's
-    too), the first shape the argument and the rest the tools; one shape left is the result."""
-    if not shapes:
-        raise F.FeatureError("Null shape")
-    _shapes: list = []
-    if maker == "fuse":
-        for i, s in enumerate(shapes):
-            if s is None or s.IsNull():
-                if i == 0:
-                    return None
-                raise F.FeatureError("Null input shape")
-            if s.ShapeType() == TopAbs_COMPOUND:
-                if not _shapes:
-                    _shapes += shapes[:i]
-                _expand(s, _shapes)
-            elif _shapes:
-                _shapes.append(s)
-    else:
-        for i in range(1, len(shapes)):
-            s = shapes[i]
-            if s is None or s.IsNull():
-                raise F.FeatureError("Null input shape")
-            if s.ShapeType() == TopAbs_COMPOUND:
-                if not _shapes:
-                    _shapes += shapes[:i]
-                before = len(_shapes)
-                _expand(s, _shapes)
-                if maker == "common" and len(_shapes) == before:
-                    _shapes.append(s)
-            elif _shapes:
-                _shapes.append(s)
-    inputs = _shapes or shapes
-    if len(inputs) == 1:
-        return inputs[0]
-    args, tools = F.TopTools_ListOfShape(), F.TopTools_ListOfShape()
-    args.Append(inputs[0])
-    for s in inputs[1:]:
-        tools.Append(s)
-    mk = {"fuse": BRepAlgoAPI_Fuse, "cut": BRepAlgoAPI_Cut, "common": BRepAlgoAPI_Common}[maker]()
-    mk.SetRunParallel(True)
-    mk.SetArguments(args)
-    mk.SetTools(tools)
-    mk.Build()
-    if not mk.IsDone():
-        raise F.FeatureError(f"Boolean {maker} failed")
-    return mk.Shape()
+def element_boolean(maker: str, shapes: list, fuzzy: float = -1.0):
+    """TopoShape::makeElementBoolean for "fuse", "cut" and "common" (cad_agent/topo_boolean.py)."""
+    from .topo_boolean import BooleanError
+    from .topo_boolean import element_boolean as boolean
+    try:
+        return boolean(maker, shapes, fuzzy)
+    except BooleanError as e:
+        raise F.FeatureError(str(e)) from None
 
 
 # ── references ────────────────────────────────────────────────────────────────────────────────────────────────────
