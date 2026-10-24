@@ -12,10 +12,11 @@ import * as quantity from './quantity'
 import * as quantityInput from './quantity-input'
 import { initTooltips } from './tooltip'
 import { initSliders } from './qslider'
+import { pdMenus } from './partdesign'
 
 createRoot(document.getElementById('root')!).render(<App />)
 start()
 initTooltips()
 initSliders()
 // For debugging from the console: cadui.getState(), cadui.getView(), cadui.getCommand('Std_ViewHome').run([])
-Object.assign(window, { cadui: { getState, setState, getView, getDock, showPanel, getCommand, placement, quantity, quantityInput } })
+Object.assign(window, { cadui: { getState, setState, getView, getDock, showPanel, getCommand, placement, quantity, quantityInput, pd: pdMenus } })

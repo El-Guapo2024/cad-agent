@@ -459,7 +459,7 @@ export function PdBodyRows({ ctx, part, body, bodyRow }: { ctx: TreeCtx; part: s
   const children = opened ? <>
     <PdRow ctx={ctx} depth={2} refKey={originRef} icon="std-origin" label="Origin" internal="Origin" hidden kids dflt={false} />
     {isOpen(originRef, false) && ORIGIN.map(([n, label, icon]) =>
-      <PdRow key={n} ctx={ctx} depth={3} refKey={refOf(part, n)} icon={icon} label={label} internal={n} hidden={!attachShowsPlanes(part)} kids={false} dflt={false} />)}
+      <PdRow key={n} ctx={ctx} depth={3} refKey={refOf(part, n)} icon={icon} label={label} internal={n} hidden={false} kids={false} dflt={false} />)}
     {doc.base && <PdRow ctx={ctx} depth={2} refKey={refOf(part, 'BaseFeature')} icon="part" label="BaseFeature" internal="BaseFeature"
       desc={`the solid parts/${part}.py builds`} hidden={!featureVisible(s, part, 'BaseFeature')} kids={false} dflt={false}
       overlays={!doc.tip ? tipOverlay : undefined} />}
@@ -512,7 +512,7 @@ export function featureTreeEntries(common: { expressionActions: Entry; linkActio
     'sep',
     common.expressionActions, common.linkActions, common.showHidden,
     na('Toggle Visibility in Tree View', 'a Body\'s rows always show'),
-    ...(f?.type === SKETCH ? [] : [na('Add Dependent Objects to Selection', 'the features that use one show under it')]),
+    na('Add Dependent Objects to Selection', 'the features that use one show under it'),
     'sep',
     { label: 'Mark to Recompute', icon: 'recompute', onSelect: () => void loadFeatures() },
     { label: 'Recompute Object', kbd: '⇧⌘R', icon: 'recompute', onSelect: () => void loadFeatures() },
@@ -849,7 +849,6 @@ subscribe(() => {
 /** While New Sketch's panel is open, a click on an Origin plane (in the 3D view or the tree) is its reference. */
 let attachPicker: ((ref: string) => void) | null = null
 let attachPart: string | null = null
-const attachShowsPlanes = (part: string) => attachPart === part
 function TaskHead({ title, icon, children }: { title: string; icon: IconName; children: ReactNode }) {
   return <TaskBox title={title} icon={icon}>{children}</TaskBox>
 }
@@ -1083,10 +1082,10 @@ export function partDesignMenu(): Entry[] {
     'sep',
     soon('Boolean Operation', 'pd-boolean', 'PartDesign_Boolean'),
     'sep',
-    { label: 'Inspect Appearance', icon: 'material', disabled: true, title: 'n/a: materials are set in the part\'s source' },
-    { label: 'Inspect Material', icon: 'material', disabled: true, title: 'n/a: materials are set in the part\'s source' },
+    { label: 'Inspect Appearance', icon: 'material', cmd: 'Materials_InspectAppearance', disabled: true, title: 'n/a: materials are set in the part\'s source' },
+    { label: 'Inspect Material', icon: 'material', cmd: 'Materials_InspectMaterial', disabled: true, title: 'n/a: materials are set in the part\'s source' },
     'sep',
-    { label: 'Check Geometry', icon: 'pd-check-geometry', disabled: true, title: 'n/a: the checks (Recompute) judge the geometry here' },
+    { label: 'Check Geometry', icon: 'pd-check-geometry', cmd: 'Part_CheckGeometry', disabled: true, title: 'n/a: the checks (Recompute) judge the geometry here' },
     'sep',
     soon('Involute Gear', 'pd-gear', 'PartDesign_InvoluteGear'), soon('Sprocket', 'pd-sprocket', 'PartDesign_Sprocket'),
     'sep',
@@ -1124,6 +1123,13 @@ export function featureKey(e: KeyboardEvent): boolean {
   if (e.key === ' ') { toggleFeatureVisibility(); return true }
   if (e.key === 'Enter' && s.featSel.length === 1) { editFeature(s.featSel[0]); return true }
   return false
+}
+
+/** The Sketch and Part Design menus and the workbench's toolbars as plain data (labels, commands, greyed or not, submenus):
+ *  what ui/scripts/editcheck.mjs holds to FreeCAD's (cadui.pd() in the page). */
+export function pdMenus() {
+  const plain = (es: Entry[]): unknown[] => es.map((e) => (e === 'sep' ? { sep: true } : { text: e.label, cmd: e.cmd ?? null, enabled: !e.disabled, ...(e.sub ? { menu: plain(e.sub) } : {}) }))
+  return { sketch: plain(sketchMenu()), partDesign: plain(partDesignMenu()), toolbars: pdToolbars().map(([title, es]) => ({ title, buttons: plain(es) })) }
 }
 
 void select
