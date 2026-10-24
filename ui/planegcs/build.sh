@@ -10,33 +10,41 @@
 #                                     pthreads), which ui/src/planegcs.ts loads; committed
 #   ui/planegcs/build.sh all      ->  both
 #
-# It needs Eigen 3.4 and Boost (graph, headers only) and, for wasm, Emscripten. Say where:
-#   EIGEN_DIR   Eigen's source tree (the directory holding Eigen/), e.g. a download of eigen-3.4.0
+# It needs Eigen 5.0.0 and Boost (graph, headers only) and, for wasm, Emscripten. Say where:
+#   EIGEN_DIR   Eigen's source tree (the directory holding Eigen/): eigen-5.0.0 from
+#               https://gitlab.com/libeigen/eigen/-/archive/5.0.0/eigen-5.0.0.tar.gz
 #   BOOST_DIR   Boost's headers (the directory holding boost/), e.g. boost_1_86_0
 #   EMSDK       an activated emsdk (emsdk 4.0.10 was used for dist/); or have emcc on PATH
-# or PLANEGCS_TOOLCHAIN, a directory holding eigen-3.4.0/, boost_1_86_0/ and emsdk/ (on the
-# machine dist/ was built on this was ~/work/research/toolchain). Without them, the system's
-# /usr/include/eigen3 and /usr/include (apt install libeigen3-dev libboost-dev) are tried.
+# or PLANEGCS_TOOLCHAIN, a directory holding eigen-5.0.0/, boost_1_86_0/ and emsdk/ (on the
+# machine dist/ was built on this was ~/work/research/toolchain). Without BOOST_DIR the system's
+# /usr/include (apt install libboost-dev) is tried.
 # CXX picks the native compiler (default c++).
 #
-# PlaneGCS starts its QR diagnoses with std::async. A wasm build without pthreads cannot start a
-# thread; libc++ then runs the task deferred (std::launch::async | deferred, the default policy,
-# falls back to deferred when a thread cannot be made), which is what FreeCAD's own comment there
-# allows. The vendored files are not changed.
+# Why Eigen 5.0.0: FreeCAD 26.3 (3160daf1e2b6) is built with it, and with it the port agrees with
+# FreeCAD bit for bit on every case of tests/golden/sketcher. Eigen 3.4.0 builds too, but its
+# vectorised kernels round differently in the last bit, and the solver's fallbacks and the drags
+# (SQP with BFGS updates) amplify that: about 50 of those cases then differ beyond 1e-9.
+#
+# PlaneGCS starts one of its QR diagnoses with std::async. Without pthreads (the page cannot be
+# cross-origin isolated) libc++'s std::async never returns, so the wasm build force-includes
+# shim/deferred_async.h into GCS.cpp, which makes that call std::launch::deferred, as FreeCAD's own
+# comment there allows. The vendored files are not changed.
 set -euo pipefail
 
 here="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 target="${1:-native}"
 
 tc="${PLANEGCS_TOOLCHAIN:-}"
-eigen="${EIGEN_DIR:-${tc:+$tc/eigen-3.4.0}}"
+eigen="${EIGEN_DIR:-${tc:+$tc/eigen-5.0.0}}"
 boost="${BOOST_DIR:-${tc:+$tc/boost_1_86_0}}"
 emsdk="${EMSDK:-${tc:+$tc/emsdk}}"
-if [[ -z "$eigen" && -d /usr/include/eigen3/Eigen ]]; then eigen=/usr/include/eigen3; fi
 if [[ -z "$boost" && -d /usr/include/boost/graph ]]; then boost=/usr/include; fi
 if [[ -z "$eigen" || ! -d "$eigen/Eigen" ]]; then
-    echo "build.sh: Eigen not found: set EIGEN_DIR (or PLANEGCS_TOOLCHAIN), or apt install libeigen3-dev" >&2
+    echo "build.sh: Eigen not found: set EIGEN_DIR (or PLANEGCS_TOOLCHAIN) to eigen-5.0.0" >&2
     exit 2
+fi
+if ! grep -q 'EIGEN_VERSION_STRING "5.0.0"' "$eigen/Eigen/Version" 2>/dev/null; then
+    echo "build.sh: warning: $eigen is not Eigen 5.0.0, FreeCAD's; results will differ from FreeCAD's in the last bits" >&2
 fi
 if [[ -z "$boost" || ! -d "$boost/boost/graph" ]]; then
     echo "build.sh: Boost not found: set BOOST_DIR (or PLANEGCS_TOOLCHAIN), or apt install libboost-dev" >&2
@@ -93,7 +101,9 @@ build_wasm() {
     for src in "${sources[@]}"; do
         local obj="$tmp/$(basename "${src%.cpp}").o"
         objs+=("$obj")
-        emcc "${common[@]}" -fwasm-exceptions "${includes[@]}" -c "$src" -o "$obj" &
+        local extra=()
+        if [[ "$(basename "$src")" == GCS.cpp ]]; then extra=(-include "$here/shim/deferred_async.h"); fi
+        emcc "${common[@]}" -fwasm-exceptions -msimd128 -msse3 "${includes[@]}" "${extra[@]}" -c "$src" -o "$obj" &
         pids+=($!)
     done
     for pid in "${pids[@]}"; do wait "$pid"; done
