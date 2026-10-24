@@ -18,6 +18,7 @@ import { runConstraint, isConstraintCommand, toggleDriving, toggleActive, idOf }
 import { ArcOfEllipseHandler, ArcOfHyperbolaHandler, ArcOfParabolaHandler, BSplineHandler, EllipseHandler } from './sketchgeo'
 import { ExtendHandler, FilletHandler, SplittingHandler, TrimmingHandler } from './sketchedit'
 import { ExternalHandler } from './sketchexternal'
+import * as XT from './sketchxformtools'
 import * as SK from './sketch'
 import { getState, report } from './store'
 import { recordAndRun } from './actions'
@@ -131,6 +132,11 @@ const RUN: Record<string, () => void> = {
   Sketcher_CreateFillet: tool(() => new FilletHandler(0)),
   Sketcher_CreateChamfer: tool(() => new FilletHandler(1)),
   Sketcher_Projection: tool(() => new ExternalHandler()),
+  Sketcher_Copy: () => XT.copyCommand('copy'),
+  Sketcher_Clone: () => XT.copyCommand('clone'),
+  Sketcher_Move: () => XT.copyCommand('move'),
+  Sketcher_RectangularArray: () => void XT.rectangularArrayCommand(),
+  Sketcher_RemoveAxesAlignment: XT.removeAxesAlignmentCommand,
   Sketcher_ToggleConstruction: toggleConstruction,
   Sketcher_LeaveSketch: () => void S.closeEdit(true),
   Sketcher_CancelSketch: () => void S.closeEdit(false),
@@ -168,6 +174,8 @@ export function isEnabled(name: string): boolean {
     case 'Sketcher_SelectConstraints': case 'Sketcher_SelectElementsAssociatedWithConstraints': case 'Sketcher_ToggleActiveConstraint':
       return sel.length > 0
     case 'Sketcher_StopOperation': return true
+    case 'Sketcher_Copy': case 'Sketcher_Clone': case 'Sketcher_Move': case 'Sketcher_RectangularArray': case 'Sketcher_RemoveAxesAlignment':
+      return XT.isCommandNeedingGeometryActive()
     default: return true
   }
 }

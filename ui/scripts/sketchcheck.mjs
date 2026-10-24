@@ -245,7 +245,18 @@ for (const [k, c] of CASES.cases.entries()) {
     if (await d.count()) { dialogs.push({ case: c.name, title: await d.locator('.msgbox-title').innerText() }); await d.locator('.qbtn.default').click(); await p.waitForTimeout(120) }
   }
   for (const st of c.steps) {
-    if (st.cmd) { await gui('run', [st.cmd]); await p.waitForTimeout(120) }
+    if (st.cmd) {
+      await gui('run', [st.cmd]); await p.waitForTimeout(120)
+      // the step's "dialog": the named fields of the dialog the command opens, set before it is accepted
+      if (st.dialog) {
+        for (let i = 0; i < 20 && !(await p.locator('.datum-dlg').count()); i++) await p.waitForTimeout(100)
+        for (const [name, v] of Object.entries(st.dialog)) {
+          const f = p.locator(`.datum-dlg [data-qf="${name}"]`).first()
+          if (typeof v === 'boolean') { if ((await f.isChecked()) !== v) await f.click() }
+          else { const t = f.locator('input'); await t.click(); await t.press('Control+a'); await t.type(String(v)); await t.press('Tab') }
+        }
+      }
+    }
     else if (st.move) await move(st.move)
     else if (st.click) { await move([st.click[0] + 0.7, st.click[1] + 0.4]); await move(st.click); await p.mouse.down(); await p.waitForTimeout(60); await p.mouse.up(); await p.waitForTimeout(120) }
     else if (st.drag) {

@@ -31,8 +31,8 @@ them carry.
       Mod/Sketcher/Gui/DrawSketchHandlerSlot.h, Mod/Sketcher/Gui/EditModeCoinManager.cpp,
       Mod/Sketcher/Gui/EditModeCoinManagerParameters.cpp,
       Mod/Sketcher/Gui/EditModeConstraintCoinManager.cpp,
-      Mod/Sketcher/Gui/EditModeGeometryCoinManager.cpp, Mod/Sketcher/Gui/TaskSketcherElements.cpp,
-      Mod/Sketcher/Gui/Utils.cpp
+      Mod/Sketcher/Gui/EditModeGeometryCoinManager.cpp, Mod/Sketcher/Gui/SketchRectangularArrayDialog.cpp,
+      Mod/Sketcher/Gui/TaskSketcherElements.cpp, Mod/Sketcher/Gui/Utils.cpp
   Alexander Golubev (Fat-Zer): Gui/ViewProviderPlane.cpp, Mod/PartDesign/Gui/CommandBody.cpp,
       Mod/PartDesign/Gui/ViewProviderSketchBased.cpp
   Alfredo Monclus: Mod/Start/Gui/NewFileButton.cpp
@@ -74,7 +74,8 @@ them carry.
       Gui/ViewProviderPlane.cpp, Mod/Part/App/PartFeature.cpp, Mod/Part/Gui/Command.cpp,
       Mod/Part/Gui/CommandFilter.cpp, Mod/PartDesign/Gui/Command.cpp,
       Mod/Sketcher/App/Constraint.cpp, Mod/Sketcher/App/ConstraintPyImp.cpp,
-      Mod/Sketcher/App/SketchObjectExternal.cpp, Mod/Sketcher/Gui/Command.cpp, Mod/Sketcher/Gui/CommandConstraints.cpp,
+      Mod/Sketcher/App/SketchObjectExternal.cpp, Mod/Sketcher/App/SketchObjectPyImp.cpp,
+      Mod/Sketcher/Gui/Command.cpp, Mod/Sketcher/Gui/CommandConstraints.cpp,
       Mod/Sketcher/Gui/CommandCreateGeo.cpp, Mod/Sketcher/Gui/DrawSketchHandler.cpp,
       Mod/Sketcher/Gui/SketchOrientationDialog.cpp, Mod/Sketcher/Gui/TaskDlgEditSketch.cpp,
       Mod/Sketcher/Gui/TaskSketcherConstraints.cpp, Mod/Sketcher/Gui/TaskSketcherMessages.cpp,
@@ -201,7 +202,7 @@ src/Base/UnitsSchemasData.h   [licence: LGPL-2.1-or-later]
     followed by src/units-schemas.ts
 src/Base/Vector3D.cpp   [licence: LGPL-2.1-or-later]
     copyright 2005 Imetric 3D GmbH
-    followed by src/expr.ts
+    followed by src/expr.ts, src/sketchxform.ts
 src/Base/VectorPyImp.cpp   [licence: LGPL-2.1-or-later]
     copyright 2008 Werner Mayer
     followed by src/expr-py.ts
@@ -665,7 +666,7 @@ src/Mod/Part/App/Attacher.cpp   [licence: LGPL-2.1-or-later]
     followed by src/attachmodes.ts, src/attachsuggest.ts
 src/Mod/Part/App/Geometry.cpp   [licence: LGPL-2.1-or-later]
     copyright 2008 Werner Mayer
-    followed by src/sketchcurves.ts, src/sketchops.ts
+    followed by src/sketchcurves.ts, src/sketchops.ts, src/sketchxform.ts
 src/Mod/Part/App/Part2DObject.cpp   [licence: LGPL-2.1-or-later]
     copyright 2008 Jürgen Riegel
     followed by src/sketchops.ts
@@ -841,7 +842,7 @@ src/Mod/Sketcher/App/SketchObject.cpp   [licence: LGPL-2.1-or-later]
         planegcs/sketch.h
 src/Mod/Sketcher/App/SketchObjectConstraints.cpp   [licence: LGPL-2.1-or-later]
     copyright 2008 Jürgen Riegel
-    followed by src/sketchops.ts
+    followed by src/sketchops.ts, src/sketchxform.ts
 src/Mod/Sketcher/App/SketchObjectExternal.cpp   [licence: LGPL-2.1-or-later]
     copyright 2008 Jürgen Riegel
     followed by src/attached.ts, src/sketchexternal.ts
@@ -850,7 +851,10 @@ src/Mod/Sketcher/App/SketchObjectGeometry.cpp   [licence: LGPL-2.1-or-later]
     followed by src/sketchcurves.ts, src/sketchgeo.ts, src/sketchops.ts
 src/Mod/Sketcher/App/SketchObjectOperations.cpp   [licence: LGPL-2.1-or-later]
     copyright 2008 Jürgen Riegel
-    followed by src/sketchops.ts
+    followed by src/sketchops.ts, src/sketchxform.ts
+src/Mod/Sketcher/App/SketchObjectPyImp.cpp   [licence: LGPL-2.1-or-later]
+    copyright 2010 Jürgen Riegel
+    followed by src/sketchxform.ts
 src/Mod/Sketcher/App/planegcs/Geo.cpp   [licence: LGPL-2.1-or-later]
     copyright 2014 Victor Titov (DeepSOIC)
     followed by src/sketchcurves.ts
@@ -865,7 +869,7 @@ src/Mod/Sketcher/Gui/CommandCreateGeo.cpp   [licence: LGPL-2.1-or-later]
     followed by src/sketchcmdinfo.ts, src/sketchcmds.ts
 src/Mod/Sketcher/Gui/CommandSketcherTools.cpp   [licence: LGPL-2.1-or-later]
     copyright 2014 Abdullah Tahiri
-    followed by src/sketchcmdinfo.ts, src/sketchcmds.ts
+    followed by src/sketchcmdinfo.ts, src/sketchcmds.ts, src/sketchxformtools.tsx
 src/Mod/Sketcher/Gui/DrawSketchControllableHandler.h   [licence: LGPL-2.1-or-later]
     copyright 2023 Abdullah Tahiri
     followed by src/sketchtools.ts
@@ -954,6 +958,12 @@ src/Mod/Sketcher/Gui/EditModeGeometryCoinManager.cpp   [licence: LGPL-2.1-or-lat
 src/Mod/Sketcher/Gui/SketchOrientationDialog.cpp   [licence: LGPL-2.1-or-later]
     copyright 2011 Jürgen Riegel
     followed by src/sketchui.tsx
+src/Mod/Sketcher/Gui/SketchRectangularArrayDialog.cpp   [licence: LGPL-2.1-or-later]
+    copyright 2015 Abdullah Tahiri
+    followed by src/sketchxformtools.tsx
+src/Mod/Sketcher/Gui/SketchRectangularArrayDialog.ui   [licence: none]
+    copyright: no line in the file
+    followed by src/sketchxformtools.tsx
 src/Mod/Sketcher/Gui/SnapManager.cpp   [licence: LGPL-2.1-or-later]
     copyright 2023 Pierre-Louis Boyer
     followed by src/sketcher.ts
@@ -974,7 +984,7 @@ src/Mod/Sketcher/Gui/TaskSketcherMessages.cpp   [licence: LGPL-2.1-or-later]
     followed by src/sketcher.ts, src/sketchui.tsx
 src/Mod/Sketcher/Gui/Utils.cpp   [licence: LGPL-2.1-or-later]
     copyright 2021 Abdullah Tahiri
-    followed by src/sketcher.ts, src/sketchtools.ts
+    followed by src/sketcher.ts, src/sketchtools.ts, src/sketchxformtools.tsx
 src/Mod/Sketcher/Gui/ViewProviderSketch.cpp   [licence: LGPL-2.1-or-later]
     copyright 2009 Juergen Riegel
     followed by src/partdesign.tsx, src/sketchcons.ts, src/sketchdraw.ts, src/sketcher.ts,
@@ -1029,7 +1039,10 @@ https://mozilla.org/MPL/2.0/) and Boost's graph headers (BSL-1.0, https://www.bo
 
 public/freecad-icons/ holds 202 icons copied unmodified from FreeCAD, plus the style sheet
 indicators (qss-*.svg) and the overlay buttons (overlay-*.svg); public/freecad-icons/sketcher/ holds
-the Sketcher's 286 icons (src/Mod/Sketcher/Gui/Resources/icons), unmodified. Among the first are the 16 of the
+the Sketcher's 286 icons (src/Mod/Sketcher/Gui/Resources/icons), unmodified, and two cursors drawn pixel for pixel
+from the XPM ones in src/Mod/Sketcher/Gui/CommandSketcherTools.cpp (Sketcher_Pointer_Create_Copy.svg from
+cursor_createcopy, Sketcher_Pointer_Create_RectangularArray.svg from cursor_createrectangulararray; LGPL-2.1-or-later,
+2014 Abdullah Tahiri). Among the first are the 16 of the
 PartDesign primitives (PartDesign_Additive*.svg, PartDesign_Subtractive*.svg). README.md in that folder says which
 licence each icon has, as its own metadata states it (mostly LGPL-2.0-or-later; a few are CC-BY-SA
 2.0 or 4.0 or public domain), and LICENSE is FreeCAD's. THIRD_PARTY_LICENSES at the top of the
