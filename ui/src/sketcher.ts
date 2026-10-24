@@ -34,8 +34,14 @@ import { isMac } from './nav'
 export type Placement = { base: [number, number, number]; rotation: [number, number, number, number] }
 /** A sketch to edit: the part module it is saved into (null for one not yet in a part), its name in that module's
  *  SKETCHES, where it lies, and its geometry and constraints in the solver's form. */
-export type SketchRef = { part: string | null; name: string; placement?: Placement; sketch?: Sketch }
-type Snapshot = { geometry: Geo[]; constraints: Constraint[] }
+export type SketchRef = { part: string | null; name: string; placement?: Placement; sketch?: Sketch; external?: External }
+/** The sketch's external geometry (SketchObject's ExternalGeometry and ExternalGeo after the axes): the references as
+ *  the part file names them ([object, element]), the geometry they project to (GeoId -3, -4, …), and for each
+ *  geometry the reference it comes from (a face gives several). */
+export type External = { refs: [string, string][]; geometry: Geo[]; owner: number[] }
+type Snapshot = { geometry: Geo[]; constraints: Constraint[]; external: External }
+const noExternal = (): External => ({ refs: [], geometry: [], owner: [] })
+const copyExternal = (e: External): External => ({ refs: e.refs.map((r) => [...r] as [string, string]), geometry: e.geometry.map((g) => ({ ...g })), owner: [...e.owner] })
 /** ViewProviderSketch::Mode (SketchMode). */
 export type Mode = 'none' | 'selectPoint' | 'selectEdge' | 'selectCross' | 'selectConstraint' | 'selectWire' | 'drag' | 'dragConstraint'
   | 'useHandler' | 'startRubber' | 'rubber'
@@ -73,6 +79,7 @@ type Session = {
   placement: Placement
   geometry: Geo[]
   constraints: Constraint[]
+  external: External
   result: SolveResult | null
   message: SolverMessage
   backup: Snapshot
@@ -120,7 +127,9 @@ export const isEditing = () => !!session
 // ── geometry helpers on the session ──────────────────────────────────────────────────────────────────────────────
 const sel = () => session?.selection ?? []
 export const selectedPoints = () => new Set(sel().filter((n) => n.startsWith('Vertex') || n === 'RootPoint').map((n) => (n === 'RootPoint' ? -1 : Number(n.slice(6)) - 1)))
-export const selectedCurves = () => new Set(sel().filter((n) => n.startsWith('Edge') || n.endsWith('_Axis')).map((n) => (n === 'H_Axis' ? H_AXIS : n === 'V_Axis' ? V_AXIS : Number(n.slice(4)) - 1)))
+export const selectedCurves = () => new Set(sel().map(SK.edgeId).filter((g): g is number => g !== null))
+/** getCompleteGeometry: the geometry, with the external geometry at its negative GeoIds (SK.withExternal). */
+const geoAll = (): Geo[] => (session ? SK.withExternal(session.geometry, session.external.geometry) : [])
 export const selectedConstraints = () => new Set(sel().filter((n) => n.startsWith('Constraint')).map((n) => Number(n.slice(10)) - 1))
 
 /** ViewProviderSketch::getEditingPlacement as a matrix (sketch to world). */
@@ -174,7 +183,7 @@ function drawState(): DrawState {
   const s = session!
   const r = s.result
   return {
-    geometry: s.geometry, constraints: s.constraints, fully: !!r && (r.fully_constrained ?? (r.dof === 0 && r.status === 'solved')) && s.geometry.length > 0,
+    geometry: geoAll(), external: s.external.geometry, constraints: s.constraints, fully: !!r && (r.fully_constrained ?? (r.dof === 0 && r.status === 'solved')) && s.geometry.length > 0,
     // SolverGeometryExtension::FullyConstraint: a geometry none of whose parameters is still free
     fullyElements: new Set(r?.dependent ? s.geometry.map((_, i) => i).filter((i) => !r.dependent!.some(([g]) => g === i)) : []),
     invalid: false, preselect: s.pre,
@@ -186,7 +195,9 @@ function drawState(): DrawState {
 }
 
 // ── solving and the solver's messages ────────────────────────────────────────────────────────────────────────────
-export const toSketch = (s: Snapshot): Sketch => ({ geometry: s.geometry, constraints: s.constraints.map(SK.toCons) })
+/** The solver's sketch: geometry, constraints, and the external geometry as fixed geometry (Sketch::setUpSketch). */
+export const toSketch = (s: Snapshot): Sketch => ({ geometry: s.geometry, constraints: s.constraints.map(SK.toCons),
+  ...(s.external.geometry.length ? { external: s.external.geometry } : {}) })
 /** intListHelper, of the constraints' numbers as FreeCAD's messages give them: from 1 (the solver's are 0-based). */
 const intList = (zero: number[]) => { const ints = zero.map((i) => i + 1); return ints.length < 8 ? ints.join(', ') : `${ints.slice(0, 3).join(', ')}, and ${ints.length - 3} more` }
 /** ViewProviderSketch::UpdateSolverInformation. */
@@ -211,7 +222,7 @@ export function solve() {
   // SketchObject keeps the solved geometry only when the solve succeeds (stored_geometry)
   s.geometry = r.stored_geometry ?? (r.status === 'solved' || r.status === 'redundant' ? r.geometry : s.geometry)
   // SketchObject::updateNonDrivingConstraints
-  s.constraints = s.constraints.map((c) => (!c.driving && SK.isDimensional(c) ? { ...c, value: SK.measure(s.geometry, c) } : c))
+  s.constraints = s.constraints.map((c) => (!c.driving && SK.isDimensional(c) ? { ...c, value: SK.measure(geoAll(), c) } : c))
   s.message = messageOf(s)
   changed()
   publishSketch()
@@ -226,6 +237,7 @@ function publishSketch() {
     if (!slug) return
     const sketch = s ? {
       name: s.ref.name, part: s.ref.part, geometry: s.geometry,
+      ...(s.external.refs.length ? { external: s.external.geometry, external_geometry: s.external.refs } : {}),
       constraints: s.constraints.map(SK.toCons),
       message: { state: s.message.state, status: s.message.text, link: s.message.linkText },
     } : null
@@ -241,11 +253,12 @@ export function solveRaw(s: Sketch & { solve?: boolean; drags?: { geo: number; p
 export function diagnoseWith(extra: Constraint[]) {
   const s = session
   if (!s || !solver) return null
-  return solver.solve({ geometry: s.geometry, constraints: [...s.constraints, ...extra].map(SK.toCons) })
+  return solver.solve(toSketch({ geometry: s.geometry, constraints: [...s.constraints, ...extra], external: s.external }))
 }
 
 // ── commands and undo (Gui::Document's transactions while the sketch is in edit) ────────────────────────────────
-const snap = (): Snapshot => ({ geometry: session!.geometry.map((g) => ({ ...g })), constraints: session!.constraints.map((c) => ({ ...c })) })
+const snap = (): Snapshot => ({ geometry: session!.geometry.map((g) => ({ ...g })), constraints: session!.constraints.map((c) => ({ ...c })),
+  external: copyExternal(session!.external) })
 const same = (a: Snapshot, b: Snapshot) => JSON.stringify(a) === JSON.stringify(b)
 export function openCommand(name: string) { if (session) session.command = { name, before: snap() } }
 export function commitCommand() {
@@ -258,7 +271,7 @@ export function commitCommand() {
 export function abortCommand() {
   const s = session
   if (!s?.command) return
-  s.geometry = s.command.before.geometry; s.constraints = s.command.before.constraints
+  s.geometry = s.command.before.geometry; s.constraints = s.command.before.constraints; s.external = s.command.before.external
   s.command = null
   solve()
 }
@@ -274,7 +287,7 @@ export function undo(steps = 1) {
   for (let i = 0; i < steps && s.undo.length; i++) {
     const u = s.undo.shift()!
     s.redo.unshift({ ...snap(), name: u.name })
-    s.geometry = u.geometry; s.constraints = u.constraints
+    s.geometry = u.geometry; s.constraints = u.constraints; s.external = u.external
   }
   clearSelection(); solve(); publishHistory()
 }
@@ -284,13 +297,15 @@ export function redo(steps = 1) {
   for (let i = 0; i < steps && s.redo.length; i++) {
     const r = s.redo.shift()!
     s.undo.unshift({ ...snap(), name: r.name })
-    s.geometry = r.geometry; s.constraints = r.constraints
+    s.geometry = r.geometry; s.constraints = r.constraints; s.external = r.external
   }
   clearSelection(); solve(); publishHistory()
 }
 
 // ── geometry and constraints (SketchObject's addGeometry, addConstraint, delGeometries, delConstraints) ─────────
-export function getGeometry() { return session?.geometry ?? [] }
+/** The geometry, with the external geometry reachable at its GeoIds (-3, -4, …) as getCompleteGeometry has it. */
+export function getGeometry() { return geoAll() }
+export const getExternal = (): External => session?.external ?? noExternal()
 export function getConstraints() { return session?.constraints ?? [] }
 /** The highest GeoId (SketchObject::getHighestCurveIndex). */
 export const highestCurveIndex = () => (session ? session.geometry.length - 1 : -1)
@@ -348,6 +363,30 @@ export function toggleConstruction(g: number) {
   const s = session!
   s.geometry = s.geometry.map((e, i) => (i === g ? withConstruction(e, !e.construction) : e))
 }
+/** SketchObject::addExternal: a reference and the geometry it projects to (rebuildExternalGeometry's), after the
+ *  others. Refused as FreeCAD refuses a reference the sketch has already ("Duplicated external reference"). */
+export function addExternal(ref: [string, string], geometry: Geo[]): boolean {
+  const s = session!
+  if (s.external.refs.some((r) => r[0] === ref[0] && r[1] === ref[1])) return false
+  const i = s.external.refs.length
+  s.external = { refs: [...s.external.refs, ref], geometry: [...s.external.geometry, ...geometry], owner: [...s.external.owner, ...geometry.map(() => i)] }
+  return true
+}
+/** SketchObject::delExternal (delExternalPrivate with removeRef): the external geometries' references go, with every
+ *  geometry those references made and the constraints on any of them; the GeoIds after them move up. */
+export function delExternal(geoIds: number[]) {
+  const s = session!, e = s.external
+  const refs = new Set(geoIds.filter(SK.isExternalId).map((g) => e.owner[SK.REF_EXT - g]).filter((r) => r !== undefined))
+  if (!refs.size) return
+  const gone = new Set(e.owner.map((r, k) => (refs.has(r) ? SK.REF_EXT - k : null)).filter((g): g is number => g !== null))
+  const map = (g: number) => (SK.isExternalId(g) ? g + [...gone].filter((x) => x > g).length : g) // changeConstraintAfterDeletingGeo
+  s.constraints = s.constraints.filter((c) => !gone.has(c.first) && !gone.has(c.second) && !gone.has(c.third))
+    .map((c) => ({ ...c, first: map(c.first), second: map(c.second), third: map(c.third) }))
+  const keep = e.owner.map((r) => !refs.has(r))
+  const renumber = new Map([...new Set(e.owner.filter((r) => !refs.has(r)))].map((r, k) => [r, k]))
+  s.external = { refs: e.refs.filter((_, r) => !refs.has(r)), geometry: e.geometry.filter((_, k) => keep[k]),
+    owner: e.owner.filter((_, k) => keep[k]).map((r) => renumber.get(r)!) }
+}
 
 // ── selection (Gui::Selection, as ViewProviderSketch::onSelectionChanged reads it) ───────────────────────────────
 export function addSelection(name: string) { const s = session; if (s && !s.selection.includes(name)) { s.selection = [...s.selection, name]; changed() } }
@@ -358,9 +397,9 @@ export function setSelection(names: string[]) { const s = session; if (s) { s.se
 export function getSelection() { return [...sel()] }
 
 // ── the solver's view of points (SketchObject::getPoint, getGeoVertexIndex) ──────────────────────────────────────
-export const getPoint = (g: number, pos: PointPos) => SK.getPoint(session?.geometry ?? [], g, pos)
-export const geoVertexIndex = (v: number): [number, PointPos] => SK.vertices(session?.geometry ?? [])[v] ?? [GEO_UNDEF, NONE]
-export const vertexIndexOf = (g: number, pos: PointPos) => SK.vertexOf(session?.geometry ?? [], g, pos)
+export const getPoint = (g: number, pos: PointPos) => SK.getPoint(geoAll(), g, pos)
+export const geoVertexIndex = (v: number): [number, PointPos] => SK.vertices(geoAll())[v] ?? [GEO_UNDEF, NONE]
+export const vertexIndexOf = (g: number, pos: PointPos) => SK.vertexOf(geoAll(), g, pos)
 
 // ── preselection (EditModeCoinManager::detectPreselection, its screen-space policy) ──────────────────────────────
 type Hit = { kind: 'point' | 'edge' | 'axis' | 'constraint'; point?: number; geo?: number; cross?: number; constraints?: number[]; cKind?: 'icon' | 'presentation' | 'annotation' }
@@ -401,29 +440,32 @@ function detect(x: number, y: number, hovered: number): Hit | null {
   }
   // geometry: a point near enough (hit radius: marker extent / 2 + 5 px, +2 px at an end of a curve, +2 px hysteresis
   // for the point already under the cursor), else an edge within its hit radius or the pick radius
-  const verts = SK.vertices(s.geometry)
+  const all = geoAll()
+  const verts = SK.vertices(all)
   let best: Hit | null = null, bestD = Infinity
   verts.forEach(([g, pos], v) => {
-    const p = SK.getPoint(s.geometry, g, pos)
+    const p = SK.getPoint(all, g, pos)
     if (!p) return
     const [px, py] = sc.toScreen(p)
     const d2 = (px - x) ** 2 + (py - y) ** 2
-    const end = s.geometry[g].type !== 'Point' && (pos === START || pos === END)
+    const end = all[g].type !== 'Point' && (pos === START || pos === END)
     const r = Math.max(SIZES.marker, SIZES.pointSize) * 0.5 + 5 + (end ? 2 : 0) + (v === hovered ? 2 : 0)
     if (d2 <= r * r && d2 <= bestD) { bestD = d2; best = { kind: 'point', point: v } }
   })
   if (!best) {
     let bestE = Infinity
-    s.geometry.forEach((g, i) => {
+    const edge = (g: Geo, i: number) => {
       if (g.type === 'Point') return
       const pts = SK.polyline(g).map((p) => sc.toScreen(p))
-      const lw = g.construction ? SIZES.construction : SIZES.curve
+      const lw = SK.isExternalId(i) ? SIZES.external : g.construction ? SIZES.construction : SIZES.curve
       const r = Math.max(3, lw * 0.5 + 2, pickRadius())
       for (let k = 1; k < pts.length; k++) {
         const d2 = segDist2(cur, pts[k - 1], pts[k])
         if (d2 <= r * r && d2 < bestE) { bestE = d2; best = { kind: 'edge', geo: i } }
       }
-    })
+    }
+    s.geometry.forEach(edge)
+    s.external.geometry.forEach((g, k) => edge(g, SK.REF_EXT - k)) // the external curves (curvesExternal)
   }
   if (best) cands.push(best)
   // the axes and the root point
@@ -481,17 +523,18 @@ export function snapPosition(p: XY): XY {
   if (SNAP.objects) {
     const pre = s.pre
     if (pre.cross === 0) return [0, 0]
-    if (pre.point >= 0) { const [g, pos] = geoVertexIndex(pre.point); const q = SK.getPoint(s.geometry, g, pos); if (q) return q }
+    const all = geoAll()
+    if (pre.point >= 0) { const [g, pos] = geoVertexIndex(pre.point); const q = SK.getPoint(all, g, pos); if (q) return q }
     if (pre.cross === 1) out = [out[0], 0]
     else if (pre.cross === 2) out = [0, out[1]]
-    else if (pre.curve !== null && pre.curve >= 0) {
-      const g = s.geometry[pre.curve]
+    else if (pre.curve !== null && !SK.isAxisId(pre.curve) && all[pre.curve]) {
+      const g = all[pre.curve]
       let q = SK.closestOnCurve(g, p)
       if (SK.isLine(g)) { // snapToLineMiddle
         const mid: XY = [(g.start[0] + g.end[0]) / 2, (g.start[1] + g.end[1]) / 2], l = Math.hypot(g.end[0] - g.start[0], g.end[1] - g.start[1])
         if (Math.hypot(q[0] - mid[0], q[1] - mid[1]) < l * 0.05) q = mid
       } else if (SK.isArc(g)) { // snapToArcMiddle
-        const sp = SK.getPoint(s.geometry, pre.curve, START)!, ep = SK.getPoint(s.geometry, pre.curve, END)!
+        const sp = SK.getPoint(all, pre.curve, START)!, ep = SK.getPoint(all, pre.curve, END)!
         const sv: XY = [sp[0] - g.center[0], sp[1] - g.center[1]]
         let mv: XY = [sv[0] + ep[0] - g.center[0], sv[1] + ep[1] - g.center[1]]
         const ml = Math.hypot(mv[0], mv[1])
@@ -808,7 +851,7 @@ function doDragStep(p: XY) {
       if (!ds.length) return g
       return translateGeo(g, vec, ds.some(([, ps]) => ps === NONE) ? NONE : ds[0][1])
     })
-    r = solver.solve({ geometry: moved, constraints: d.start.constraints.map(SK.toCons) })
+    r = solver.solve(toSketch({ geometry: moved, constraints: d.start.constraints, external: d.start.external }))
   }
   if (r.status === 'solved' || r.status === 'redundant') {
     s.geometry = r.geometry
@@ -840,7 +883,7 @@ function commitDragMove(p: XY) {
 export function moveConstraint(id: number, to: XY) {
   const s = session!
   const c = { ...s.constraints[id] }
-  const geo = s.geometry, P = (g: number, pos: PointPos) => SK.getPoint(geo, g, pos)!
+  const geo = geoAll(), P = (g: number, pos: PointPos) => SK.getPoint(geo, g, pos)!
   const n2 = (v: XY): XY => { const l = Math.hypot(v[0], v[1]) || 1; return [v[0] / l, v[1] / l] }
   if (c.type === 'Distance' || c.type === 'DistanceX' || c.type === 'DistanceY' || c.type === 'Radius' || c.type === 'Diameter') {
     let p1: XY = [0, 0], p2: XY = [0, 0]
@@ -925,7 +968,7 @@ function commitConstraintDrag(p: XY) {
   const s = session!, d = s.dragConstraints
   if (!d) return
   for (const id of d.ids) moveConstraint(id, p)
-  s.command = { name: 'Drag Constraint', before: { geometry: s.geometry, constraints: d.start } }
+  s.command = { name: 'Drag Constraint', before: { geometry: s.geometry, constraints: d.start, external: s.external } }
   commitCommand()
   s.pre = { ...s.pre, constraints: d.ids }
   s.dragConstraints = null
@@ -947,7 +990,12 @@ function doBoxSelection(a: [number, number], b: [number, number], additive: bool
   }
   const out: string[] = additive ? [...sel()] : [...sel()]
   let v = -1
-  s.geometry.forEach((g, i) => {
+  const all = geoAll()
+  // getCompleteGeometry's order, as the vertex index has it: the sketch's geometry, then the external geometry
+  // from the last one to the first
+  const items: [Geo, number][] = [...s.geometry.map((g, i) => [g, i] as [Geo, number]),
+    ...s.external.geometry.map((g, k) => [g, SK.REF_EXT - k] as [Geo, number]).reverse()]
+  items.forEach(([g, i]) => {
     const vert = (p: XY) => { v++; if (inside(p)) { out.push(SK.vertexName(v)); return true } return false }
     if (g.type === 'Point') { vert(g.at); return }
     if (g.type === 'LineSegment') {
@@ -959,7 +1007,7 @@ function doBoxSelection(a: [number, number], b: [number, number], additive: bool
     const pts = SK.polyline(g, 50)
     const curveIn = () => { if (touch) return pts.some((p) => inside(p)); return pts.every((p) => inside(p)) }
     if (g.type === 'Circle' || g.type === 'Ellipse') { const c = vert(g.center); if ((c || touch) && curveIn()) out.push(SK.edgeName(i)); return }
-    const s0 = SK.getPoint(s.geometry, i, START)!, e0 = SK.getPoint(s.geometry, i, END)!
+    const s0 = SK.getPoint(all, i, START)!, e0 = SK.getPoint(all, i, END)!
     const ins = vert(s0), ine = vert(e0)
     if (g.type !== 'BSplineCurve') vert(g.center)
     if ((ins && ine) || touch) { if (curveIn()) out.push(SK.edgeName(i)) }
@@ -1001,15 +1049,19 @@ export function deleteSelected() {
   openCommand('Delete')
   const cons = [...selectedConstraints()].sort((a, b) => b - a)
   const curves = [...selectedCurves()].filter((g) => g >= 0)
+  const externals = [...selectedCurves()].filter(SK.isExternalId)
   const points = [...selectedPoints()].filter((v) => v >= 0).map(geoVertexIndex)
   delConstraints(cons)
-  // a point of a curve that goes too: nothing to do; a point on its own (Part::GeomPoint) is geometry
+  // a point of a curve that goes too: nothing to do; a point on its own (Part::GeomPoint) is geometry; an external
+  // point (a projected vertex) is its external geometry
   for (const [g, pos] of points) {
-    if (curves.includes(g)) continue
+    if (curves.includes(g) || externals.includes(g)) continue
+    if (SK.isExternalId(g)) { if (geoAll()[g]?.type === 'Point') externals.push(g); else delConstraintOnPoint(g, pos); continue }
     if (s.geometry[g]?.type === 'Point') curves.push(g)
     else delConstraintOnPoint(g, pos)
   }
   if (curves.length) delGeometries([...new Set(curves)])
+  if (externals.length) delExternal(externals) // ViewProviderSketch::onDelete: delExternal on the ExternalEdges
   clearSelection()
   commitCommand()
   solve()
@@ -1025,11 +1077,12 @@ export async function editSketch(ref: SketchRef) {
   const placement = ref.placement ?? { base: [0, 0, 0], rotation: [0, 0, 0, 1] }
   const sk = ref.sketch ?? { geometry: [], constraints: [] }
   const geometry = sk.geometry.map((g) => ({ ...g })), constraints = sk.constraints.map(SK.fromCons)
+  const external = copyExternal(ref.external ?? noExternal())
   const st = getState(), view = getView()
-  const dependents = (st.scene?.bodies ?? []).filter((b) => ref.part && b.part === ref.part).map((b) => b.name)
+  const dependents = (st.scene?.bodies ?? []).filter((b) => ref.part && b.part === ref.part && dependsOnSketch(ref.part, ref.name)).map((b) => b.name)
   session = {
-    ref, placement, geometry, constraints, result: null, message: { state: 'empty', text: 'Empty sketch', link: '', linkText: '' },
-    backup: { geometry: geometry.map((g) => ({ ...g })), constraints: constraints.map((c) => ({ ...c })) }, undo: [], redo: [], selection: [],
+    ref, placement, geometry, constraints, external, result: null, message: { state: 'empty', text: 'Empty sketch', link: '', linkText: '' },
+    backup: { geometry: geometry.map((g) => ({ ...g })), constraints: constraints.map((c) => ({ ...c })), external: copyExternal(external) }, undo: [], redo: [], selection: [],
     pre: { point: -1, curve: null, cross: null, constraints: [] }, mode: 'none', handler: null, construction: false, edit: emptyEdit(),
     rubber: null, drag: null, dragConstraints: null, hiddenConstraints: new Set(),
     before: { hidden: st.hidden, camera: view?.getCamera() ?? null, workbench: st.workbench }, command: null,
@@ -1047,6 +1100,41 @@ export async function editSketch(ref: SketchRef) {
   view?.lookAtSketch(q, base, box)
   publishHistory()
   solve()
+}
+/** HideDependent (TaskSketcherGeneral, on): ViewProviderSketch::setEdit hides the objects that depend on the sketch
+ *  (getInListRecursive). The 3D view draws a Body as its Tip's solid, so the Body hides when its Tip depends on the
+ *  sketch: the Tip takes it as its profile, or comes after a feature that does or that is attached to, or projects,
+ *  something that does. A sketch after the Tip (a new sketch on a face) leaves the Body shown, to be picked from. */
+export function dependsOnSketch(part: string, sketch: string, target?: string): boolean {
+  const doc = getState().features[part]
+  if (!doc) return true
+  target ??= shownSolid(part) ?? undefined
+  if (!target) return false
+  const names = new Set([sketch])
+  const refsOf = (f: Record<string, unknown>): string[] => {
+    const out: string[] = []
+    if (typeof f.profile === 'string') out.push(f.profile)
+    for (const k of ['attachment_support', 'external_geometry', 'up_to_shape', 'up_to_shape2']) for (const r of (Array.isArray(f[k]) ? f[k] as unknown[] : [])) out.push(String(Array.isArray(r) ? r[0] : r))
+    for (const k of ['up_to_face', 'up_to_face2']) { const r = f[k]; if (Array.isArray(r)) out.push(String(r[0])); else if (typeof r === 'string') out.push(r) }
+    return out
+  }
+  let solidDepends = false
+  for (const f of doc.features) {
+    const solid = typeof f.profile === 'string' // a Pad or Pocket: its base is the solid before it (getBaseObject)
+    if (refsOf(f).some((r) => names.has(r)) || (solid && solidDepends)) { names.add(f.name); if (solid) solidDepends = true }
+    if (f.name === (target ?? doc.tip)) break
+  }
+  const t = target ?? doc.tip
+  return !!t && names.has(t)
+}
+/** The feature whose solid the 3D view draws for a Body: its Tip, or (a sketch as the Tip leaves the solid before it)
+ *  the last solid feature before it, else the BaseFeature. */
+export function shownSolid(part: string): string | null {
+  const doc = getState().features[part]
+  if (!doc) return null
+  const upto = doc.tip ? doc.features.findIndex((f) => f.name === doc.tip) : doc.features.length - 1
+  for (let i = upto; i >= 0; i--) if (typeof doc.features[i].profile === 'string') return doc.features[i].name
+  return doc.base ? 'BaseFeature' : null
 }
 /** The sketch's bounding box in the world, to fit the view to (viewObjects). */
 function sketchBox(): THREE.Box3 | null {
@@ -1082,8 +1170,10 @@ export async function closeEdit(accept: boolean) {
   setEditHistory(null)
   changed()
   publishSketch()
-  lastClosed = { ...s.ref, placement: s.placement, sketch: result }
-  if (accept && changedSketch) await saveSketch(s.ref.part, s.ref.name, result)
+  const ext = accept ? s.external : s.backup.external
+  lastClosed = { ...s.ref, placement: s.placement, sketch: result, external: ext }
+  const refsChanged = JSON.stringify(s.backup.external.refs) !== JSON.stringify(s.external.refs)
+  if (accept && changedSketch) await saveSketch(s.ref.part, s.ref.name, result, refsChanged ? s.external.refs : undefined)
   closed.forEach((f) => f({ ref: s.ref, sketch: result, accepted: accept }))
 }
 const closed = new Set<(e: { ref: SketchRef; sketch: Sketch; accepted: boolean }) => void>()
@@ -1093,13 +1183,15 @@ export function onSketchClosed(f: (e: { ref: SketchRef; sketch: Sketch; accepted
 /** Saves a sketch into its part module (cad_agent/feature_edit.py `apply`, op "set" on the sketch's geometry and
  *  constraints): POST /api/<slug>/features/<part> {ops}. Without a part, or without the endpoint, the sketch stays as
  *  it is in memory and the Report view says why, as FreeCAD's report does when a recompute fails. */
-export async function saveSketch(part: string | null, name: string, sketch: Sketch): Promise<boolean> {
+export async function saveSketch(part: string | null, name: string, sketch: Sketch, externalRefs?: [string, string][]): Promise<boolean> {
   const slug = getState().slug
   pending.set(name, sketch)
   if (!slug || !part) { report('err', `${name}: the sketch is in no part yet, so it was not saved. It is kept in memory until this page closes.`); return false }
   // partdesign.tsx applyOps: one undo step ("Edit Sketch"), the part rebuilt before the edit is kept; it says in the
-  // Report view what went wrong, and then the edit stays in memory
-  const doc = await applyOps(part, [{ op: 'set', name, props: { geometry: sketch.geometry, constraints: sketch.constraints } }], { name: 'Edit Sketch' })
+  // Report view what went wrong, and then the edit stays in memory. ExternalGeometry goes with it when it changed.
+  const props: Record<string, unknown> = { geometry: sketch.geometry, constraints: sketch.constraints }
+  if (externalRefs) props.external_geometry = externalRefs
+  const doc = await applyOps(part, [{ op: 'set', name, props }], { name: 'Edit Sketch' })
   if (!doc) { report('err', `${name}: the sketch was not saved into parts/${part}.py; the edit is kept in memory.`); return false }
   pending.delete(name)
   return true

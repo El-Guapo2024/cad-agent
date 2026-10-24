@@ -59,7 +59,9 @@ def write_ref(res: dict) -> Path:
            "toolbars": [{"title": t["title"], "items": acts(t["actions"])} for t in res["chrome"]["toolbars"]],
            "sketch_menu": menu(sketch["menu"]), "params": res["params"], "message_empty": res["message_empty"],
            "dialogs": [{"case": d["case"], "title": d["title"]} for d in res["dialogs"]],
-           "cases": {k: {"geometry": v["geometry"], "constraints": v["constraints"], "message": v["message"]} for k, v in res["cases"].items()}}
+           "cases": {k: {"geometry": v["geometry"], "constraints": v["constraints"], "message": v["message"],
+                         **({"external": v["external"], "external_geometry": v["external_geometry"]} if "external" in v else {})}
+                     for k, v in res["cases"].items()}}
     path = Path(__file__).with_name("sketchref.json")
     path.write_text(json.dumps(ref, indent=1, ensure_ascii=False) + "\n", encoding="utf-8")
     return path

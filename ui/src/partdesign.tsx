@@ -42,12 +42,15 @@ import { editRevolveFeature, RevolveProps, revolveEntries, REVOLVE_ICONS, REVOLV
 import { DressUpProps, dressUpEntries, dressUpUses, editDressUp, isDressUp } from './pd_dressup'
 import { editPdx, findFeature, isPdx, pdxChildren, pdxDeleteOps, pdxIcon, pdxKind, PdxProps, pdxUses, primitiveMenu, transformMenu } from './pd_transform'
 import './partdesign.css'
+import { attachedOf, DATUM_TYPES, isDatum, placementMatrix, withAttached } from './attached'
+import { attachmentRows, editAttachment, sketchOnSelection } from './pd_attach'
 
 export const SKETCH = 'Sketcher::SketchObject', PAD = 'PartDesign::Pad', POCKET = 'PartDesign::Pocket'
 const ICON_OF: Record<string, IconName> = { [SKETCH]: 'pd-sketch', [PAD]: 'pd-pad', [POCKET]: 'pd-pocket',
   'PartDesign::Fillet': 'pd-fillet', 'PartDesign::Chamfer': 'pd-chamfer', 'PartDesign::Draft': 'pd-draft', 'PartDesign::Thickness': 'pd-thickness', ...REVOLVE_ICONS }
 const KIND: Record<string, string> = { [SKETCH]: 'Sketch', [PAD]: 'Pad', [POCKET]: 'Pocket',
   'PartDesign::Fillet': 'Fillet', 'PartDesign::Chamfer': 'Chamfer', 'PartDesign::Draft': 'Draft', 'PartDesign::Thickness': 'Thickness', ...REVOLVE_KINDS }
+for (const [t, d] of Object.entries(DATUM_TYPES)) { ICON_OF[t] = d.icon as IconName; KIND[t] = t } // the datums (pd_attach.tsx)
 /** App::Origin's features, as FreeCAD names (Name) and labels (Label) them, with their ViewProviders' icons. */
 export const ORIGIN: [string, string, IconName][] = [
   ['X_Axis', 'X-axis', 'std-axis'], ['Y_Axis', 'Y-axis', 'std-axis'], ['Z_Axis', 'Z-axis', 'std-axis'],
@@ -71,7 +74,7 @@ function consumers(doc: FeatureDoc): Record<string, string[]> {
 }
 /** The Body's own Group in order, minus the sketches a feature claims (they show under it). */
 const topLevel = (doc: FeatureDoc) => { const c = consumers(doc); return doc.features.filter((f) => f.type !== SKETCH || !c[f.name]?.length) }
-const solidNames = (doc: FeatureDoc) => doc.features.filter((f) => f.type !== SKETCH).map((f) => f.name)
+const solidNames = (doc: FeatureDoc) => doc.features.filter((f) => f.type !== SKETCH && !isDatum(f.type)).map((f) => f.name)
 
 /** A value as FEATURES keeps it: a number, or the name of a PARAMS entry or an expression over them (feature.py's value()). */
 export function numberOf(v: unknown, params: Record<string, unknown>): number | null {
@@ -92,6 +95,7 @@ export function featureVisible(s: State, part: string, f: Feature | string): boo
   const bodyShown = !body || !s.hidden.includes(body.name)
   if (!feat) return name === 'BaseFeature' ? bodyShown && !doc.tip : false
   if (feat.type === SKETCH) return !consumers(doc)[name]?.length !== s.sketchShown.includes(refOf(part, name))
+  if (isDatum(feat.type)) return bodyShown && !s.sketchShown.includes(refOf(part, name)) // shown, as a new datum is
   return bodyShown && doc.tip === name
 }
 
@@ -108,7 +112,7 @@ export async function applyOps(part: string, ops: FeatureOp[], opts: { name?: st
     const r = await api.applyFeatures(slug, part, ops, opts.name)
     const d = r.data ?? {}
     if (r.exit > 2 || d.error || !d.doc) { report('err', `${opts.name ?? 'Edit'}: ${resultText(r)}`); return null }
-    const doc = d.doc as FeatureDoc
+    const doc = withAttached(d.doc as FeatureDoc)
     setState((s) => ({ features: { ...s.features, [part]: doc } }))
     const fails = Number(d.failing ?? 0)
     report(fails ? 'warn' : 'msg', `${part}: ${d.step}${d.built ? (fails ? `, ${fails} part gate${fails > 1 ? 's' : ''} not passing` : ', part gates pass') : ''}`)
@@ -182,8 +186,8 @@ export async function newSketch() {
   }
   const plane = s.featSel.map(splitRef).find(([p, n]) => p === part && PLANE_OF[n])
   if (plane) return addSketch(part, PLANE_OF[plane[1]], [0, 0, 0, 0, 0, 0])
-  if (s.subSel.length) report('warn', 'New Sketch: a face cannot be the support of a sketch here yet; pick one of the Body\'s planes')
-  openTask('sketchAttach', part)
+  if (await sketchOnSelection(part)) return       // a face, a datum plane or a sketch selected (pd_attach.tsx)
+  openTask('attach', part, `new:${SKETCH}`)
 }
 const nextName = (doc: FeatureDoc, base: string) => {
   const names = new Set(doc.features.map((f) => f.name))
@@ -234,6 +238,7 @@ export function editFeature(ref: string) {
   if (isPdx(f.type)) return editPdx(part, name)
   if (f.type === SKETCH) return editSketch(part, name)
   if (f.type === PAD || f.type === POCKET) { setState({ task: { kind: f.type === PAD ? 'pad' : 'pocket', body: part, other: name, edit: true } }); showPanel('tasks'); return }
+  if (isDatum(f.type)) return editAttachment(part, name)   // ViewProviderDatum::doubleClicked: the attachment editor
   if (editRevolveFeature(part, f)) return
   if (isDressUp(f.type)) return editDressUp(part, f)
   report('warn', `${name}: a ${f.type} has no task panel here yet`)
@@ -350,7 +355,7 @@ export function toggleFeatureVisibility(refs = getState().featSel) {
     const f = doc?.features.find((x) => x.name === name)
     const body = bodyOfPart(s, part)
     if (!name || (f && f.name === doc.tip) || (name === 'BaseFeature' && !doc.tip)) { if (body) toggleVisibility([body.name]); continue }
-    if (f?.type === SKETCH) { flip.push(r); continue }
+    if (f?.type === SKETCH || isDatum(f?.type)) { flip.push(r); continue }
     if (f) report('warn', `${name} is not the Tip: the 3D view shows the Body at its Tip. Set Tip on ${name} shows the Body up to it.`)
   }
   if (flip.length) setState((x) => ({ sketchShown: [...x.sketchShown.filter((r) => !flip.includes(r)), ...flip.filter((r) => !x.sketchShown.includes(r))] }))
@@ -389,6 +394,8 @@ const open = new Map<string, boolean>() // DocumentObjectItem's expanded state, 
 const openSubs = new Set<() => void>()
 const isOpen = (ref: string, dflt: boolean) => open.get(ref) ?? dflt
 const setOpen = (ref: string, v: boolean) => { open.set(ref, v); openSubs.forEach((f) => f()) }
+/** The Body's Origin unfolded in the tree (TaskAttacher's visibilityAutomation shows it to pick from). */
+export const openOrigin = (part: string) => setOpen(refOf(part, 'Origin'), true)
 
 /** Picking a row: it alone, or added with Cmd/Ctrl; the 3D selection gives way (actions.ts select() clears this one back). */
 function pickRow(ref: string, additive: boolean) {
@@ -449,18 +456,26 @@ export function PdBodyRows({ ctx, part, body, bodyRow }: { ctx: TreeCtx; part: s
     const r = refOf(part, f.name)
     const kids = f.type !== SKETCH && typeof f.profile === 'string' ? doc.features.filter((x) => x.name === f.profile && x.type === SKETCH) : pdxChildren(f)
     const after = solidNames(doc).indexOf(f.name) > solidNames(doc).indexOf(doc.tip ?? '') && f.type !== SKETCH
+    const lcs = f.type === 'Part::LocalCoordinateSystem'
+    const lcsIndex = (name: string) => doc.features.filter((x) => x.type === 'Part::LocalCoordinateSystem').findIndex((x) => x.name === name)
     const overlays = <>
       {f.name === doc.tip && f.type !== SKETCH && tipOverlay}
       {f.type === SKETCH && f.fully_constrained === false && <img className="tov tov-br" src="./freecad-icons/Sketcher_NotFullyConstrained.svg" width={10} height={10} alt="" draggable={false} />}
-      {f.type === SKETCH && !f.support && <img className="tov tov-bl" src="./freecad-icons/Part_Detached.svg" width={10} height={10} alt="" draggable={false} />}
+      {f.type === SKETCH && !f.support && !(f.attachment_support as unknown[] | undefined)?.length && <img className="tov tov-bl" src="./freecad-icons/Part_Detached.svg" width={10} height={10} alt="" draggable={false} />}
     </>
     const desc = [KIND[f.type] ?? pdxKind(f.type) ?? f.type, f.type !== SKETCH && f.profile ? `profile ${f.profile}` : null, after ? 'after the Tip: not built' : null].filter(Boolean).join(' · ')
     return (
       <div key={r} className="pdgroup">
         <PdRow ctx={ctx} depth={depth} refKey={r} icon={ICON_OF[f.type] ?? pdxIcon(f.type) ?? 'part'} label={f.name} internal={f.name} desc={desc}
-          hidden={!featureVisible(s, part, f)} kids={kids.length > 0} dflt={false} overlays={overlays} onDouble={() => editFeature(r)}
+          hidden={!featureVisible(s, part, f)} kids={kids.length > 0 || lcs} dflt={false} overlays={overlays} onDouble={() => editFeature(r)}
           title={after ? `${f.name} comes after the Tip (${doc.tip}): it is kept, not built` : undefined} />
         {kids.length > 0 && isOpen(r, false) && kids.map((k) => featureRow(k, depth + 1))}
+        {lcs && isOpen(r, false) && ORIGIN.map(([n, label, icon]) => {
+          // ViewProviderCoordinateSystem::claimChildren: its origin's features, labelled as FreeCAD's unique labels them
+          const role = n === 'Origin001' ? 'Origin' : n, k = lcsIndex(f.name) + 1
+          return <PdRow key={n} ctx={ctx} depth={depth + 1} refKey={`${r}/${role}`} icon={icon} label={`${label}${String(k).padStart(3, '0')}`}
+            internal={`${role}${String(k + (role === 'Origin' ? 1 : 0)).padStart(3, '0')}`} hidden={!featureVisible(s, part, f)} kids={false} dflt={false} />
+        })}
       </div>
     )
   }
@@ -488,10 +503,11 @@ export function featureTreeEntries(common: { expressionActions: Entry; linkActio
   const isBody = !!one && !name
   const na = (label: string, why: string, extra: Partial<Exclude<Entry, 'sep'>> = {}): Entry => ({ label, disabled: true, title: `n/a: ${why}`, ...extra })
   const own: Entry[] = []
-  if (f && f.type !== SKETCH) own.push({ label: `Edit ${f.name}`, bold: true, onSelect: () => editFeature(one!) }, na('Set Face Colors', 'face colours are the material\'s here', { icon: 'pd-color-face' }), 'sep',
+  if (f && f.type !== SKETCH && !isDatum(f.type)) own.push({ label: `Edit ${f.name}`, bold: true, onSelect: () => editFeature(one!) }, na('Set Face Colors', 'face colours are the material\'s here', { icon: 'pd-color-face' }), 'sep',
     { label: 'Set Tip', icon: 'pd-move-tip', cmd: 'PartDesign_MoveTip', onSelect: () => void setTip() })
   if (f?.type === SKETCH) own.push({ label: 'Edit Sketch', bold: true, onSelect: () => editFeature(one!) },
-    { label: 'Edit Attachment', onSelect: () => report('warn', 'Edit Attachment: change the sketch\'s support with `cad feature set` (support=XY|XZ|YZ, attachment_offset=...)') }, 'sep')
+    { label: 'Edit Attachment', onSelect: () => editAttachment(part, name) }, 'sep')
+  if (f && isDatum(f.type)) own.push({ label: 'Edit Attachment', onSelect: () => editAttachment(part, name) }, 'sep')
   if (isBody) own.push({ label: 'Active Body', checked: s.activeBody === part, onSelect: () => toggleActiveBody(part) }, 'sep')
   if (f) own.push(na('Move Object To…', 'a feature belongs to its part module', { icon: 'pd-move-feature' }),
     { label: 'Move Feature After…', icon: 'pd-move-in-tree', cmd: 'PartDesign_MoveFeatureInTree', onSelect: moveFeatureAfter }, 'sep')
@@ -614,20 +630,24 @@ export function FeatureProps({ refKey }: { refKey: string }) {
     return <Group title="Base"><Row k="Label" v={o?.[1] ?? name} /><Row k="Placement" v={name === 'XZ_Plane' ? '[(1.00 0.00 0.00); 90.00°; (0.00 mm  0.00 mm  0.00 mm)]' : name === 'YZ_Plane' ? '[(0.58 0.58 0.58); 120.00°; (0.00 mm  0.00 mm  0.00 mm)]' : '[(0.00 0.00 1.00); 0.00°; (0.00 mm  0.00 mm  0.00 mm)]'} /></Group>
   }
   if (f.type === SKETCH) {
-    const off = f.attachment_offset as unknown
     return <>
-      <Group title="Attachment">
-        <Row k="Attacher Engine" v="Engine Plane" />
-        <Row k="Attachment Support" v={f.support ? `Origin [${planeOf(f.support) ?? String(f.support)}_Plane.]` : ''} />
-        <Row k="Map Mode" v={f.support ? 'FlatFace' : 'Deactivated'} />
-        <Row k="Map Reversed" v="false" />
-        <Row k="Attachment Offset" v={off ? JSON.stringify(off) : '[(0.00 0.00 1.00); 0.00°; (0.00 mm  0.00 mm  0.00 mm)]'} />
-      </Group>
+      <Group title="Attachment">{attachmentRows(f).map(([k, x]) => <Row key={k} k={k} v={x} />)}</Group>
       <Group title="Base"><EditRow k="Label" value={f.name} type="str" onCommit={(v) => set({ name: v })} /></Group>
       <Group title="Sketch">
         <Row k="Constraints" v={`[${(f.constraints ?? []).length} constraints]`} />
         <Row k="Geometry" v={`[${(f.geometry ?? []).length} elements]`} />
       </Group>
+    </>
+  }
+  if (isDatum(f.type)) {
+    // a datum: AttachExtension's properties, then its Base (Label, Placement), and PartDesign::Plane's Size
+    const pl = attachedOf(f)?.placement
+    const sz = ['resize_mode', 'length', 'width'].filter((k) => k in f)
+    return <>
+      <Group title="Attachment">{attachmentRows(f).map(([k, x]) => <Row key={k} k={k} v={x} />)}</Group>
+      <Group title="Base"><EditRow k="Label" value={f.name} type="str" onCommit={(x) => set({ name: x })} />
+        <Row k="Placement" v={pl ? `[Pos=(${pl.position.map((x) => x.toFixed(2)).join(', ')}), Yaw-Pitch-Roll=(${pl.ypr.map((x) => x.toFixed(2)).join(', ')})]` : ''} /></Group>
+      {sz.length > 0 && <Group title="Size">{sz.map((k) => <Row key={k} k={human(k.split('_').map((w) => w[0].toUpperCase() + w.slice(1)).join(''))} v={String(f[k])} />)}</Group>}
     </>
   }
   if (REVOLVE_KINDS[f.type]) return <RevolveProps part={part} f={f} set={set} finishRename={(v) => void finishRename(refKey, v)} />
@@ -698,6 +718,8 @@ export function curveOf(g: unknown): Curve | null {
 /** The sketch's placement in the part (feature.py's planes: XZ has x along X, y along Z and the normal -Y; YZ has x along Y,
  *  y along Z, the normal +X), times its AttachmentOffset: (x, y, z) or ((x, y, z), (yaw, pitch, roll)) in degrees. */
 export function sketchMatrix(f: Feature): THREE.Matrix4 {
+  const att = attachedOf(f)
+  if (att?.placement) return placementMatrix(att.placement) // attached by the Body (a face, a datum, …): the server's
   const plane = planeOf(f.support) ?? 'XY'
   const m = new THREE.Matrix4()
   if (plane === 'XZ') m.makeBasis(new THREE.Vector3(1, 0, 0), new THREE.Vector3(0, 0, 1), new THREE.Vector3(0, -1, 0))
@@ -818,7 +840,7 @@ export function previewObject(spec: ExtrudeSpec, sketch: Feature, body: Body | u
 /** The Origin's planes while New Sketch asks for one (setOriginTemporaryVisibility, ViewProviderPlane): a quad from 8 to
  *  DatumPlaneSize (62) in its first quadrant, coloured by the axis it is normal to (AxisZColor for XY, …), 0.85 transparent,
  *  with its label; each can be clicked. */
-function originPlanes(body: Body | undefined): THREE.Object3D {
+export function originPlanes(body: Body | undefined, temporary = false): THREE.Object3D {
   const g = new THREE.Group(), size = 62, off = 8
   const colors = getState().axisColors
   for (const [name, label, color] of [['XY_Plane', 'XY-plane', colors.z], ['XZ_Plane', 'XZ-plane', colors.y], ['YZ_Plane', 'YZ-plane', colors.x]] as const) {
@@ -836,6 +858,7 @@ function originPlanes(body: Body | undefined): THREE.Object3D {
     sprite.position.set(size / 2 - 2 - 12, size / 2 - 6, 0.01)
     quad.add(sprite)
     quad.applyMatrix4(sketchMatrix({ name, type: SKETCH, support: PLANE_OF[name] }))
+    quad.userData.shapeScale = temporary ? 2 : 1   // DatumPlaneSize in pixels; DatumTemporaryScaleFactor while picking
     g.add(quad)
   }
   g.applyMatrix4(partMatrix(body))
@@ -860,79 +883,14 @@ subscribe(() => {
 // ── task panels ──────────────────────────────────────────────────────────────
 /** While New Sketch's panel is open, a click on an Origin plane (in the 3D view or the tree) is its reference. */
 let attachPicker: ((ref: string) => void) | null = null
-let attachPart: string | null = null
+/** pd_attach.tsx's Attachment panel takes the tree's clicks as references while it is open. */
+export function setAttachPicker(f: ((ref: string) => void) | null) { attachPicker = f }
 function TaskHead({ title, icon, children }: { title: string; icon: IconName; children: ReactNode }) {
   return <TaskBox title={title} icon={icon}>{children}</TaskBox>
 }
 function OkCancel({ onOk, onCancel, okDisabled }: { onOk(): void; onCancel(): void; okDisabled?: boolean }) {
   return <div className="tbuttons pd-buttons"><button className="qbtn default" disabled={okDisabled} onClick={onOk}>OK</button><button className="qbtn" onClick={onCancel}>Cancel</button></div>
 }
-/** Attacher's modes for one plane reference, as TaskAttacher lists them after an Origin plane is picked (the real FreeCAD:
- *  ui/scripts/fcedit.json): only Plane face (FlatFace, the suggested one) and Deactivated are what feature.py attaches with. */
-const MODES_PICKED = ['Deactivated', "Object's XY", "Object's XZ", "Object's YZ", 'Plane face', 'Inertia 2-3', 'Tangent to surface (add Vertex)',
-  'XY parallel to plane (add more references)', 'Midplane between faces (add Plane)']
-const MODES_NONE = ['Deactivated', 'Translate origin', "Object's XY", "Object's XZ", "Object's YZ", 'Plane face', 'Tangent to surface', 'Normal to edge',
-  'Frenet NB', 'Frenet TN', 'Frenet TB', 'Concentric', 'Revolution Section', 'Plane by 3 points', 'Normal to 3 points', 'Folding', 'Inertia 2-3',
-  'Align O-N-X', 'Align O-N-Y', 'Align O-X-Y', 'Align O-X-N', 'Align O-Y-N', 'Align O-Y-X', 'XY parallel to plane', 'Midplane between faces']
-
-/** New Sketch's attachment panel (TaskAttacher.ui, as SketchRequestSelection shows it with nothing selected): the Body's
- *  Origin shows, Reference 1 waits for a plane, the mode list, the offset in the sketch's own frame, Flip sides. OK makes
- *  the sketch ("New Sketch") and opens the Sketcher; Cancel makes nothing. */
-export function SketchAttachTask({ part }: { part: string }) {
-  const s = useStore((x) => x)
-  const body = bodyOfPart(s, part)
-  const [ref, setRef] = useState<string | null>(null)
-  const [mode, setMode] = useState<string>('Deactivated')
-  const [off, setOff] = useState([0, 0, 0, 0, 0, 0]) // x, y, z, roll, pitch, yaw
-  useEffect(() => {
-    attachPart = part
-    const pick = (name: string) => { if (PLANE_OF[name]) { setRef(name); setMode('Plane face') } }
-    attachPicker = (r) => { const [p, n] = splitRef(r); if (p === part) pick(n) }
-    const v = getView()
-    if (v) { v.setHelper('pd-origin', originPlanes(body)); v.helperPicker = pick }
-    setOpen(refOf(part, 'Origin'), true)
-    return () => { attachPart = null; attachPicker = null; const w = getView(); if (w) { w.setHelper('pd-origin', null); w.helperPicker = null } }
-  }, [part])
-  const attached = !!ref && mode === 'Plane face'
-  const cancel = () => closeTask()
-  const ok = async () => {
-    if (!attached) { await messageBox('warning', 'New Sketch', 'Pick one of the Body\'s planes (XY, XZ or YZ) in the 3D view or the tree: a sketch here is attached to one.'); return }
-    closeTask()
-    await addSketch(part, PLANE_OF[ref!], off)
-  }
-  const field = (i: number, label: string, dims: quantity.Quantity['dims']) => (
-    <label className="tfield" key={label}><span>{label}</span>
-      <QuantityBox value={off[i]} dims={dims} disabled={!attached} onChange={(v) => setOff((o) => o.map((x, j) => (j === i ? v : x)))} /></label>)
-  const modes = ref ? MODES_PICKED : MODES_NONE
-  return (
-    <div className="tasks">
-      <OkCancel onOk={() => void ok()} onCancel={cancel} />
-      <TaskHead title="Attachment" icon="pd-attach">
-        <p className="pd-attach-msg" style={{ color: attached ? 'green' : undefined }}>{attached ? 'Attached with mode Plane face' : 'Not attached'}</p>
-        {[0, 1, 2, 3].map((i) => (
-          <div className="tfield" key={i}>
-            <button className={cls('qbtn', i === (ref ? 1 : 0) && 'on')} disabled={i > (ref ? 1 : 0)} title={i === 0 ? 'Click an Origin plane in the 3D view or the tree' : undefined}>
-              {i === 0 ? (ref ? 'Plane' : 'Selecting…') : i === 1 && ref ? 'Selecting…' : `Reference${i + 1}`}</button>
-            <input readOnly value={i === 0 && ref ? `Origin:${ref}.` : 'No reference selected'} />
-          </div>))}
-        <div className="tlabel">Attachment Mode</div>
-        <div className="pd-modes" role="listbox">
-          {modes.map((m) => {
-            const usable = m === 'Deactivated' || (m === 'Plane face' && !!ref)
-            return <div key={m} role="option" aria-selected={mode === m} className={cls('pd-mode', mode === m && 'sel', !usable && 'off', ref && m === 'Plane face' && 'best')}
-              title={usable ? undefined : 'not yet: a sketch here is attached with Plane face'} onClick={() => usable && setMode(m)}>{m}</div>
-          })}
-        </div>
-        <fieldset className="tgroup" disabled={!attached}><legend>{attached ? 'Attachment Offset (in its local coordinate system):' : 'Attachment Offset (inactive - not attached):'}</legend>
-          {field(0, 'In X-direction', LENGTH)}{field(1, 'In Y-direction', LENGTH)}{field(2, 'In Z-direction', LENGTH)}
-          {field(3, 'Around X-axis', ANGLE)}{field(4, 'Around Y-axis', ANGLE)}{field(5, 'Around Z-axis', ANGLE)}
-        </fieldset>
-        <label className="tcheck" title="n/a: feature.py attaches a sketch with its plane's own normal"><input type="checkbox" disabled /> Flip sides</label>
-      </TaskHead>
-    </div>
-  )
-}
-
 /** Pad and Pocket's task panel (TaskPadPocketParameters.ui, laid out by TaskExtrudeParameters::updateWholeUI/updateSideUI):
  *  Start, Direction, Type, Length or Offset to face, Taper angle, the second side's, Reversed, the Direction group,
  *  Operation (a Pocket's), Recompute on change, then Preview. A new feature has FreeCAD's defaults (Pad 10 mm, Pocket 5 mm).

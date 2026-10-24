@@ -22,8 +22,9 @@ import { CadView, measurePair, subInfo, type TransformPhase } from './viewer'
 import { clarifyEntries, ContextMenu, expressionActions, linkActions, navHint, popupEntries, treeEntries, type Entry } from './chrome'
 import { DressUpTask } from './pd_dressup'
 import { PdxTask } from './pd_transform'
-import { ExtrudeTask, FeatureProps, featureTreeEntries, isBodyDoc, PdBodyRows, refOf, SketchAttachTask, toggleActiveBody, type TreeCtx } from './partdesign'
+import { ExtrudeTask, FeatureProps, featureTreeEntries, isBodyDoc, PdBodyRows, refOf, toggleActiveBody, type TreeCtx } from './partdesign'
 import { HoleTask, RevolveTask } from './pd_revolve'
+import { AttachTask, attachTarget } from './pd_attach'
 import { gotoSelection, navi, properties, runConsole, viewHome } from './commands'
 import { api, resultText } from './api'
 import { fromFreeCAD, placementMatrix, toFreeCAD, toPlacement } from './placement'
@@ -867,7 +868,7 @@ function TaskContent() {
   // The Sketcher's edit mode (sketchui.tsx): TaskDlgEditSketch.
   if (task?.kind === 'sketch') return <SketchTask />
   // PartDesign (partdesign.tsx): New Sketch's attachment panel, Pad and Pocket; `body` is the part module.
-  if (task?.kind === 'sketchAttach') return <SketchAttachTask key={task.body} part={task.body} />
+  if (task?.kind === 'attach') return <AttachTask key={`${task.body}:${task.other}`} target={attachTarget(task.body, task.other ?? '')} />
   if (task && (task.kind === 'fillet' || task.kind === 'chamfer' || task.kind === 'draft' || task.kind === 'thickness')) return <DressUpTask key={`${task.kind}:${task.body}:${task.other}`} kind={task.kind} part={task.body} name={task.other ?? ''} edit={!!task.edit} />
   if (task?.kind === 'pdTransform' || task?.kind === 'pdPrimitive') return <PdxTask kind={task.kind} part={task.body} other={task.other ?? ''} edit={!!task.edit} />
   if (task?.kind === 'pad' || task?.kind === 'pocket') return <ExtrudeTask key={`${task.kind}:${task.body}:${task.other}`} kind={task.kind} part={task.body} name={task.other ?? ''} edit={!!task.edit} />

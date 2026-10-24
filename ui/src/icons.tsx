@@ -79,6 +79,7 @@ export const FILES = {
   // Mod/PartDesign/Gui/Command*.cpp, Mod/Sketcher/Gui/Command.cpp, Mod/Part/Gui/CommandSimple.cpp).
   'pd-sketch': 'Sketcher_Sketch', 'pd-pad': 'PartDesign_Pad', 'pd-pocket': 'PartDesign_Pocket', 'std-origin': 'Std_CoordinateSystem',
   'std-axis': 'Std_Axis', 'std-plane': 'Std_Plane', 'std-point': 'Std_Point', 'pd-tip': 'PartDesign_Overlay_Tip',
+  'pd-datum-plane': 'PartDesign_Plane', 'pd-datum-line': 'PartDesign_Line', 'pd-datum-point': 'PartDesign_Point', 'pd-datum-cs': 'PartDesign_CoordinateSystem',
   'pd-new-sketch': 'Sketcher_NewSketch', 'pd-edit-sketch': 'Sketcher_EditSketch', 'pd-map-sketch': 'Sketcher_MapSketch', 'pd-attach': 'Sketcher_MapSketch',
   'pd-reorient-sketch': 'Sketcher_ReorientSketch', 'pd-validate-sketch': 'Sketcher_ValidateSketch', 'pd-merge-sketch': 'Sketcher_MergeSketch',
   'pd-mirror-sketch': 'Sketcher_MirrorSketch', 'pd-shape-binder': 'PartDesign_ShapeBinder', 'pd-subshape-binder': 'PartDesign_SubShapeBinder',

@@ -21,6 +21,10 @@ export type PointPos = 0 | 1 | 2 | 3
 export const NONE = 0, START = 1, END = 2, MID = 3
 /** Sketcher::GeoEnum: GeoUndef, and the axes (the horizontal one's start is the root point). */
 export const GEO_UNDEF = -2000, H_AXIS = -1, V_AXIS = -2, RT_PNT = -1
+/** GeoEnum::RefExt: the first external geometry; -4, -5, … the ones after it. */
+export const REF_EXT = -3
+export const isExternalId = (g: number) => g <= REF_EXT && g !== GEO_UNDEF
+export const isAxisId = (g: number) => g === H_AXIS || g === V_AXIS
 export type ConstraintType = 'Coincident' | 'Horizontal' | 'Vertical' | 'Parallel' | 'Tangent' | 'Distance' | 'DistanceX' | 'DistanceY'
   | 'Angle' | 'Perpendicular' | 'Radius' | 'Equal' | 'PointOnObject' | 'Symmetric' | 'InternalAlignment' | 'SnellsLaw' | 'Block'
   | 'Diameter' | 'Weight' | 'Group' | 'Text'
@@ -159,18 +163,35 @@ export function getPoint(geo: Geo[], g: number, pos: PointPos): XY | null {
       return null
   }
 }
-/** SketchObject::rebuildVertexIndex: every point of every geometry, in order. */
-export function vertices(geo: Geo[]): [number, PointPos][] {
+/** SketchObject::rebuildVertexIndex: every point of every geometry, in order; then the external geometry's, from the
+ *  last one (GeoId -2 - n) up to the first (-3), as getCompleteGeometry lists the ExternalGeo reversed. */
+export function vertices(geo: Geo[], ext: Geo[] = externalOf(geo)): [number, PointPos][] {
   const out: [number, PointPos][] = []
-  geo.forEach((g, i) => {
+  const add = (g: Geo, i: number) => {
     if (g.type === 'Point') out.push([i, START])
     else if (g.type === 'LineSegment') out.push([i, START], [i, END])
     else if (g.type === 'Circle' || g.type === 'Ellipse') out.push([i, MID])
     else if (g.type === 'BSplineCurve') out.push([i, START], [i, END])
     else out.push([i, START], [i, END], [i, MID])
-  })
+  }
+  geo.forEach(add)
+  for (let k = ext.length - 1; k >= 0; k--) add(ext[k], REF_EXT - k)
   return out
 }
+/** SketchObject::getCompleteGeometry as the UI indexes it: the sketch's geometry array with the external geometry
+ *  reachable at its GeoIds (geo[-3], geo[-4], …: properties that copies, JSON and iteration leave out). */
+const EXT = Symbol('external')
+type Carrier = Geo[] & { [EXT]?: Geo[] }
+export function withExternal(geo: Geo[], ext: Geo[]): Geo[] {
+  const a = geo as Carrier, old = a[EXT]
+  if (old === ext) return a
+  if (old) for (let k = 0; k < old.length; k++) delete (a as unknown as Record<number, Geo>)[REF_EXT - k]
+  Object.defineProperty(a, EXT, { value: ext, configurable: true, enumerable: false, writable: true })
+  ext.forEach((g, k) => Object.defineProperty(a, REF_EXT - k, { value: g, configurable: true, enumerable: false, writable: true }))
+  return a
+}
+/** The external geometry an array carries (withExternal), else none. */
+export const externalOf = (geo: Geo[]): Geo[] => (geo as Carrier)[EXT] ?? []
 /** SketchObject::getVertexIndexGeoPos. */
 export function vertexOf(geo: Geo[], g: number, pos: PointPos): number {
   return vertices(geo).findIndex(([a, b]) => a === g && b === pos)
@@ -236,7 +257,16 @@ export function normalArc(center: XY, radius: number, a0: number, a1: number, co
 /** PropertyConstraintList::getConstraintName. */
 export const constraintName = (c: Constraint, i: number) => c.name || `Constraint${i + 1}`
 /** ViewProviderSketch's sub-element names. */
-export const edgeName = (g: number) => (g === H_AXIS ? 'H_Axis' : g === V_AXIS ? 'V_Axis' : `Edge${g + 1}`)
+export const edgeName = (g: number) => (g === H_AXIS ? 'H_Axis' : g === V_AXIS ? 'V_Axis'
+  : g <= REF_EXT ? `ExternalEdge${REF_EXT + 1 - g}` : `Edge${g + 1}`)
+/** getIdsFromName's edges: "Edge3" is 2, "ExternalEdge1" is -3, the axes theirs. */
+export function edgeId(name: string): number | null {
+  if (name === 'H_Axis') return H_AXIS
+  if (name === 'V_Axis') return V_AXIS
+  if (name.startsWith('ExternalEdge')) return REF_EXT + 1 - Number(name.slice(12))
+  if (name.startsWith('Edge')) return Number(name.slice(4)) - 1
+  return null
+}
 export const vertexName = (v: number) => (v < 0 ? 'RootPoint' : `Vertex${v + 1}`)
 
 const TYPE_NAMES: Partial<Record<ConstraintType, string>> = {

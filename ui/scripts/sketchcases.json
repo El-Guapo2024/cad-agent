@@ -80,6 +80,17 @@
     { "name": "extend-line", "setup": { "geometry": [{ "type": "LineSegment", "start": [5, 10], "end": [30, 20] }] }, "steps": [{ "cmd": "Sketcher_Extend" }, { "click": [27.5, 19] }, { "click": [42, 25] }, { "key": "Escape" }] },
     { "name": "fillet-lines", "setup": { "geometry": [{ "type": "LineSegment", "start": [10, 10], "end": [45, 10] }, { "type": "LineSegment", "start": [10, 10], "end": [14, 38] }], "constraints": [{ "type": "Coincident", "args": [0, 1, 1, 1] }] }, "steps": [{ "cmd": "Sketcher_CreateFillet" }, { "click": [30, 10] }, { "click": [12.3, 26.1] }, { "key": "Escape" }] },
     { "name": "fillet-corner", "setup": { "geometry": [{ "type": "LineSegment", "start": [10, 10], "end": [45, 10] }, { "type": "LineSegment", "start": [10, 10], "end": [14, 38] }], "constraints": [{ "type": "Coincident", "args": [0, 1, 1, 1] }] }, "steps": [{ "cmd": "Sketcher_CreateFillet" }, { "click": [10, 10] }, { "key": "Escape" }] },
-    { "name": "chamfer-corner", "setup": { "geometry": [{ "type": "LineSegment", "start": [10, 10], "end": [45, 10] }, { "type": "LineSegment", "start": [10, 10], "end": [14, 38] }], "constraints": [{ "type": "Coincident", "args": [0, 1, 1, 1] }] }, "steps": [{ "cmd": "Sketcher_CreateChamfer" }, { "click": [10, 10] }, { "key": "Escape" }] }
+    { "name": "chamfer-corner", "setup": { "geometry": [{ "type": "LineSegment", "start": [10, 10], "end": [45, 10] }, { "type": "LineSegment", "start": [10, 10], "end": [14, 38] }], "constraints": [{ "type": "Coincident", "args": [0, 1, 1, 1] }] }, "steps": [{ "cmd": "Sketcher_CreateChamfer" }, { "click": [10, 10] }, { "key": "Escape" }] },
+    { "name": "external-edge-vertex", "plate": true, "about": "A sketch on the plate's top face (Pad.Face6): External Projection of an edge and a vertex (construction mode on, so they are reference geometry, as the part file has them), a line, its start coincident with the projected vertex (Vertex3: the external points come after the sketch's, the last external first) and its end on the projected edge.",
+      "steps": [{ "cmd": "Sketcher_ToggleConstruction" }, { "cmd": "Sketcher_Projection" }, { "pick": "Pad.Edge4" }, { "pick": "Pad.Vertex6" }, { "key": "Escape" }, { "cmd": "Sketcher_ToggleConstruction" },
+        { "cmd": "Sketcher_CreateLine" }, { "click": [25, 12] }, { "click": [12, 6] }, { "key": "Escape" },
+        { "select": ["Vertex1", "Vertex3"] }, { "cmd": "Sketcher_ConstrainCoincidentUnified" }, { "clear": true },
+        { "select": ["Vertex2", "ExternalEdge1"] }, { "cmd": "Sketcher_ConstrainCoincidentUnified" }, { "clear": true }] },
+    { "name": "external-delete", "plate": true, "about": "Two projected edges, a dimension to the second (a point to line distance), then the first deleted: its constraints go and the second's GeoId moves from -4 to -3.",
+      "steps": [{ "cmd": "Sketcher_ToggleConstruction" }, { "cmd": "Sketcher_Projection" }, { "pick": "Pad.Edge4" }, { "pick": "Pad.Edge7" }, { "key": "Escape" }, { "cmd": "Sketcher_ToggleConstruction" },
+        { "cmd": "Sketcher_CreatePoint" }, { "click": [30, 8] }, { "key": "Escape" },
+        { "select": ["Vertex1", "ExternalEdge2"] }, { "cmd": "Sketcher_ConstrainDistance" }, { "clear": true },
+        { "select": ["Vertex1", "ExternalEdge1"] }, { "cmd": "Sketcher_ConstrainCoincidentUnified" }, { "clear": true },
+        { "select": ["ExternalEdge1"] }, { "key": "Delete" }] }
   ]
 }

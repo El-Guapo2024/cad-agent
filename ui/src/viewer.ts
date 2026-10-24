@@ -1704,7 +1704,13 @@ export class CadView {
     const cam = this.viewer.camera?.getCamera?.(), c = this.viewer.renderer?.domElement as HTMLCanvasElement | undefined
     if (!cam || !c || !c.clientHeight) return // hidden (another tab in front): sized when it shows
     for (const g of this.placementHelpers) g.scale.setScalar(40 * this.worldPerPixel(cam, c.clientHeight))
+    // A helper's parts in an SoShapeScale (userData.shapeScale: pixels per unit, the node's scaleFactor), as the
+    // datums are (Gui/ViewProviderDatum.cpp): the same size on screen at any zoom.
+    const wpp = this.worldPerPixel(cam, c.clientHeight)
+    for (const h of this.helpers.values()) h.traverse((o) => { if (typeof o.userData.shapeScale === 'number') o.scale.setScalar(o.userData.shapeScale * wpp) })
   }
+  /** Size the SoShapeScale helpers now (a helper set after the last camera change). */
+  rescaleHelpers() { this.scalePlacementIndicators(); this.redraw() }
 
   private applyBoxes(selected: string[], preselected: string | null, selBoxes: boolean) {
     for (const h of this.boxHelpers) this.viewer.scene?.remove(h)
@@ -1786,6 +1792,15 @@ export class CadView {
 
   private onCanvas(e: Event) {
     return e.target === this.viewer.renderer?.domElement
+  }
+
+  /** What the model has at a point of the canvas (CSS pixels from its top left): the Sketcher's External Projection
+   *  tool picks the Body's faces, edges and vertices while the sketch in edit takes the mouse. */
+  sceneHitAt(x: number, y: number): { body: string; sub: string | null } | null {
+    const r = (this.viewer.renderer?.domElement as HTMLCanvasElement | undefined)?.getBoundingClientRect()
+    if (!r) return null
+    const h = this.hitAt({ x: r.left + x, y: r.top + y })
+    return h ? { body: h.body, sub: h.sub } : null
   }
 
   /** What is under the pointer: the part, the point, and the sub-element. Like

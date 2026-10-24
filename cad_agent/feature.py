@@ -107,6 +107,7 @@ to_freecad() can build it there.
 from __future__ import annotations
 
 import ast
+import copy
 import importlib
 import math
 import operator
@@ -412,17 +413,38 @@ def _matvec(a, v):
 
 
 class Sketch:
-    """Sketcher::SketchObject attached FlatFace to an origin plane. geometry holds the solved coordinates,
-    as the SketchObject's Geometry property does."""
+    """Sketcher::SketchObject. geometry holds the solved coordinates, as the SketchObject's Geometry property
+    does. It is attached as AttachExtension attaches it (cad_agent/feature_attach.py): support="XY" (or "XZ",
+    "YZ") is FlatFace on that origin plane, the form every sketch had before faces could be supports;
+    attachment_support=[("Pad", "Face6")] with map_mode, attachment_offset, map_reversed and map_path_parameter is
+    FreeCAD's whole set, and map_mode="Deactivated" with placement=((x, y, z), (yaw, pitch, roll)) a sketch placed
+    by hand. external_geometry=[("Pad", "Edge3"), ...] is ExternalGeometry: the edges and vertices projected onto
+    the sketch, GeoId -3, -4, ... in its constraints."""
     kind = "Sketch"
+    engine = "Plane"
 
-    def __init__(self, name: str, support: str = "XY", geometry=(), constraints=(), *,
-                 attachment_offset=None, map_mode: str = "FlatFace", plane: str | None = None):
+    def __init__(self, name: str, support: str | None = None, geometry=(), constraints=(), *,
+                 attachment_offset=None, map_mode: str | None = None, plane: str | None = None,
+                 attachment_support=None, map_reversed: bool = False, map_path_parameter=0.0,
+                 placement=None, external_geometry=None):
+        from .feature_attach import Attachable, external_list
         self.name = name
-        self.support = _plane_key(plane if plane is not None else support)
-        if map_mode != "FlatFace":
-            raise FeatureError(f"Sketch {name}: map_mode {map_mode!r} is not supported, only FlatFace")
-        self.map_mode = map_mode
+        sup = plane if plane is not None else support
+        if sup is not None and attachment_support is not None:
+            raise FeatureError(f"Sketch {name}: give support or attachment_support, not both")
+        if sup is None and attachment_support is None and map_mode in (None, "FlatFace"):
+            sup = "XY"                                  # Sketch(name): on the XY plane, as before
+        if sup is not None:
+            attachment_support = [(_plane_key(sup) + "_Plane", "")]
+        Attachable.init_attachment(self, f"Sketch {name}", attachment_support, map_mode, attachment_offset,
+                                   map_reversed, map_path_parameter, placement, default_mode="FlatFace")
+        # support: the origin plane of a plain FlatFace sketch (the form PLANES places without the engine)
+        one = self.attachment_support[0] if len(self.attachment_support) == 1 else None
+        self.support = one[0][:-6] if (one and one[1] == "" and one[0][:-6] in PLANES and one[0].endswith("_Plane")
+                                       and self.map_mode == "FlatFace" and not self.map_reversed) else None
+        self.external_geometry = external_list(f"Sketch {name}", external_geometry)
+        self._placed = None                             # the Placement the Body attached it at (attacher.Placement)
+        self._external = []                             # ExternalGeo after the axes, as geometry dicts
         self.geometry = list(geometry)
         self.constraints = list(constraints)
         for i, g in enumerate(self.geometry):
@@ -448,7 +470,15 @@ class Sketch:
                                "((x, y, z), (yaw, pitch, roll))") from None
 
     def placement(self):
-        """(origin, 3x3 rotation whose columns are the sketch's x, y and normal) in global coordinates."""
+        """(origin, 3x3 rotation whose columns are the sketch's x, y and normal) in global coordinates: where the
+        Body attached it, or, for a plain sketch on an origin plane, where that plane puts it."""
+        if self._placed is not None:
+            return self._placed.pos, self._placed.rot.matrix()
+        if self.support is None:
+            if self.map_mode == "Deactivated" or not self.attachment_support:
+                return self._own_pl.pos, self._own_pl.rot.matrix()
+            raise FeatureError(f"Sketch {self.name}: its placement comes from {self.attachment_support[0][0]}, "
+                               "so it is known once the Body is built")
         ex, ey, ez = PLANES[self.support]
         base = tuple(tuple(col[i] for col in (ex, ey, ez)) for i in range(3))
         pos, ypr = self._offset
@@ -457,15 +487,25 @@ class Sketch:
     def normal(self):
         return tuple(r[2] for r in self.placement()[1])
 
+    def placed(self, placement, external=()) -> "Sketch":
+        """This sketch where the Body attached it (an attacher.Placement), with its external geometry."""
+        s = copy.copy(self)
+        s._placed = placement
+        s._external = list(external)
+        return s
+
     def as_dict(self, params=None) -> dict:
         """The sketch as cad_agent.planegcs.solve() takes it: geometry as stored, constraints with their
-        values resolved to mm and radians."""
-        return {"name": self.name,
-                "geometry": [g.as_dict() for g in self.geometry],
-                "constraints": [{"type": c.type, "args": list(c.args),
-                                 **({"value": c.resolved(params)} if c.dimensional else {}),
-                                 "driving": c.driving, "name": c.name or ""}
-                                for c in self.constraints]}
+        values resolved to mm and radians, and the external geometry after the axes."""
+        out = {"name": self.name,
+               "geometry": [g.as_dict() for g in self.geometry],
+               "constraints": [{"type": c.type, "args": list(c.args),
+                                **({"value": c.resolved(params)} if c.dimensional else {}),
+                                "driving": c.driving, "name": c.name or ""}
+                               for c in self.constraints]}
+        if self._external:
+            out["external"] = list(self._external)
+        return out
 
     def unsatisfied(self, params=None, tol: float = 1e-7, unchecked: bool = True) -> list[str]:
         """The constraints the stored geometry does not satisfy, as 'constraint i (type): why'; empty
@@ -495,13 +535,17 @@ class Sketch:
         if len(geometry) != len(self.geometry):
             raise FeatureError(f"Sketch {self.name}: the solver returned {len(geometry)} geometries "
                                f"for {len(self.geometry)}")
-        s = Sketch(self.name, self.support, geometry, self.constraints,
-                   attachment_offset=self.attachment_offset)
+        s = copy.copy(self)                         # the same attachment, placement and external geometry
+        s.geometry = geometry
         still = s.unsatisfied(params, tol=1e-6, unchecked=False)
         if still:
             raise FeatureError(f"Sketch {self.name}: the solver's result still misses "
                                + "; ".join(still))
         return s
+
+    def references(self) -> list[str]:
+        """The objects it is attached to and takes external geometry from."""
+        return [o for o, _ in self.attachment_support] + [o for o, _ in self.external_geometry]
 
     def __repr__(self):
         return f"Sketch({self.name!r}, support={self.support!r}, {len(self.geometry)} geometries, " \
@@ -546,8 +590,13 @@ def _pt(sk: Sketch, g: int, pos: int):
         if pos != 1:
             raise FeatureError("the H axis (-1) has only point 1, the origin")
         return (0.0, 0.0)
+    if g <= -3:
+        try:
+            return _external(sk, g).points()[pos]
+        except KeyError:
+            raise FeatureError(f"Sketch {sk.name}: external geometry {g} has no point {pos}") from None
     if g < 0:
-        raise FeatureError(f"geometry {g} (external geometry) is not supported")
+        raise FeatureError(f"geometry {g} has no point {pos}")
     try:
         return sk.geometry[g].points()[pos]
     except IndexError:
@@ -557,12 +606,24 @@ def _pt(sk: Sketch, g: int, pos: int):
                            f"{pos}") from None
 
 
+def _external(sk: Sketch, g: int):
+    """External geometry -3, -4, ...: the projections the Body made for the sketch (Sketch.placed)."""
+    i = -g - 3
+    ext = getattr(sk, "_external", None) or []
+    if i >= len(ext):
+        raise FeatureError(f"Sketch {sk.name}: there is no external geometry {g} (it has {len(ext)}"
+                           + ("" if ext else "; external geometry is projected when the Body is built") + ")")
+    return geometry_from_dict(ext[i])
+
+
 def _geo(sk: Sketch, g: int):
     """A LineSegment, Circle, ArcOfCircle or Point; the axes as infinite lines through the origin."""
     if g == -1:
         return LineSegment((0.0, 0.0), (1.0, 0.0))
     if g == -2:
         return LineSegment((0.0, 0.0), (0.0, 1.0))
+    if g <= -3:
+        return _external(sk, g)
     if g < 0 or g >= len(sk.geometry):
         raise FeatureError(f"Sketch {sk.name}: there is no geometry {g}")
     return sk.geometry[g]
@@ -1535,7 +1596,11 @@ def evaluate(features, params: dict | None = None, base=None, tip: str | None = 
     the features' names, which the transformed features (feature_transform.py) read.
 
     A feature that is not a Sketch, Pad or Pocket builds itself: its execute(solid, shapes, params) returns
-    the Body's solid after it (feature_kw.py, feature_transform.py, feature_primitive.py)."""
+    the Body's solid after it (feature_kw.py, feature_transform.py, feature_primitive.py).
+    "_attach" is the Body as attachment sees it (feature_attach.Context): each object's shape and Placement,
+    which a sketch, a datum and an attached primitive resolve their references in."""
+    from .feature_attach import Context                 # attachment, datums (cad_agent/feature_attach.py)
+
     params = dict(params or {})
     names = [getattr(f, "name", None) for f in features]
     if tip is not None and tip not in names and tip != "BaseFeature":
@@ -1546,18 +1611,32 @@ def evaluate(features, params: dict | None = None, base=None, tip: str | None = 
     if base is not None:
         solid = getattr(base, "wrapped", base)
         shapes["BaseFeature"] = solid
+    ctx = Context(solid)
+    shapes["_attach"] = ctx
+    previous = "BaseFeature" if solid is not None else None     # the solid feature before (getBaseObject)
     for f in ([] if tip == "BaseFeature" else features):
         name = getattr(f, "name", None)
-        if not isinstance(f, (Sketch, _Extrude)) and not hasattr(f, "execute"):
+        if not isinstance(f, (Sketch, _Extrude)) and not hasattr(f, "execute") and not getattr(f, "is_datum", False):
             raise FeatureError(f"FEATURES holds {f!r}, not a Sketch, Pad or Pocket")
-        if name in shapes or name in sketches:
-            raise FeatureError(f"two features are named {name!r}")
+        if name in shapes or name in sketches or name in ctx.kinds:
+            raise FeatureError(f"two features are named {name!r}" if name not in ctx.placements or
+                               ctx.kinds.get(name) in ("solid", "sketch", "datum")
+                               else f"{name!r} is the name of the Body's origin {ctx.kinds[name]}")
         if isinstance(f, Sketch):
-            sketches[name] = f.solved(params)
+            sketches[name] = _place_sketch(f, ctx, params)
+        elif getattr(f, "is_datum", False):
+            ctx.add_datum(f)
         elif not isinstance(f, _Extrude):
             shapes["_before"][name] = solid
             solid = f.execute(solid, shapes, params)
             shapes[name] = solid
+            # positionByPrevious: the solid before's Placement, or the profile's support's for a first profile feature
+            prof = sketches.get(getattr(f, "profile", None)) if isinstance(getattr(f, "profile", None), str) else None
+            # a primitive keeps its own (attached) Placement (FeaturePrimitive)
+            ctx.add_solid(name, solid, ctx.own_placement(f) if getattr(f, "PRIMITIVE", "") else
+                          ctx.placements[previous] if previous else
+                          ctx.first_placement(prof) if prof is not None else ctx.own_placement(f))
+            previous = name
         else:
             if f.profile not in sketches:
                 raise FeatureError(f"{name}: no sketch {f.profile!r} before it" if f.profile not in shapes
@@ -1567,11 +1646,33 @@ def evaluate(features, params: dict | None = None, base=None, tip: str | None = 
             solid = _extrude(f, sketches[f.profile], solid, shapes, params, out)
             shapes["_addsub"][name] = (out.get("addsub"), isinstance(f, Pad))
             shapes[name] = solid
+            # ProfileBased::positionByPrevious: the Placement of the solid before, or of the first one's support
+            ctx.add_solid(name, solid, ctx.placements[previous] if previous else
+                          ctx.first_placement(sketches[f.profile]))
+            previous = name
         if name == tip:
             break
     shapes["Tip"] = solid
     shapes["_sketches"] = sketches
+    shapes["_attach"] = ctx
     return shapes
+
+
+def _place_sketch(f: Sketch, ctx, params) -> Sketch:
+    """SketchObject::execute's order: positionBySupport, rebuildExternalGeometry, then the solve."""
+    from . import attacher as A
+    from .feature_attach import external_geometry
+    if f.support is not None and not f.external_geometry:
+        pos, rot = f.placement()                  # a plain sketch on an origin plane, as PLANES places it
+        pl = A.Placement(pos, A.Rotation.from_matrix(rot))
+        s = f
+    else:
+        pl = ctx.attach(f, f"Sketch {f.name}", orig=f._own_pl)
+        pl = pl if pl is not None else f._own_pl
+        s = f.placed(pl, external_geometry(f, pl, ctx))
+    s = s.solved(params)
+    ctx.add_sketch(s, pl)
+    return s
 
 
 def Body(features, params: dict | None = None, base=None, tip: str | None = None):
@@ -1642,21 +1743,52 @@ def to_freecad(features, params: dict | None = None, doc=None, name: str = "Body
         obj, sub = r
         return made[obj], ([sub] if isinstance(sub, str) else list(sub))
 
+    def obj_of(name):
+        return planes[name] if name in planes else made[name]
+
+    def attach(obj, f):
+        """AttachExtension's properties, as feature_attach.Attachable holds them."""
+        sup = [(obj_of(o), sb) for o, sb in f.attachment_support]
+        if sup:
+            obj.AttachmentSupport = sup
+        mode = f.map_mode
+        if mode is None:                          # UnifiedDatumCommand: the mode FreeCAD suggests
+            doc.recompute()                       # for the references as built, as in the GUI
+            eng = Part.AttachEngine(obj.AttacherType)
+            eng.References = sup
+            mode = eng.suggestModes()["bestFitMode"]
+        obj.MapMode = mode
+        off = f._offset_pl
+        obj.AttachmentOffset = App.Placement(V(*off.pos), App.Rotation(*off.rot.q))
+        obj.MapReversed = f.map_reversed
+        obj.MapPathParameter = f.map_path_parameter
+        if mode == "Deactivated" or not sup:
+            own = f._own_pl
+            obj.Placement = App.Placement(V(*own.pos), App.Rotation(*own.rot.q))
+
     import types
     ctx = types.SimpleNamespace(App=App, doc=doc, body=body, made=made, params=params, setv=setv, ref=ref,
                                 origin={o.Role: o for o in body.Origin.OriginFeatures},
                                 setint=lambda obj, prop, v: (setattr(obj, prop, int(round(value(v, params, prop)))),
                                                              isinstance(v, str) and obj.setExpression(prop, expr(v))))
+    ctx.attach = attach                             # AttachExtension's properties, for a feature that has them
     for f in features:
+        if getattr(f, "is_datum", False):
+            obj = body.newObject(f.type_id, f.name)
+            attach(obj, f)
+            if hasattr(obj, "ResizeMode"):
+                obj.ResizeMode = f.resize_mode
+                obj.Length = f.length
+                if hasattr(obj, "Width"):
+                    obj.Width = f.width
+            made[f.name] = obj
+            continue
         if hasattr(f, "to_freecad"):                # a feature that writes itself (feature_kw.py)
             made[f.name] = f.to_freecad(ctx)
             continue
         if isinstance(f, Sketch):
             sk = body.newObject("Sketcher::SketchObject", f.name)
-            sk.AttachmentSupport = [(planes[f.support + "_Plane"], "")]
-            sk.MapMode = "FlatFace"
-            pos, ypr = f._offset
-            sk.AttachmentOffset = App.Placement(V(*pos), App.Rotation(*ypr))
+            attach(sk, f)
             for g in f.geometry:
                 if isinstance(g, LineSegment):
                     pg = Part.LineSegment(V(*g.start, 0), V(*g.end, 0))
@@ -1670,6 +1802,10 @@ def to_freecad(features, params: dict | None = None, doc=None, name: str = "Body
                 else:
                     pg = Part.Point(V(*g.point, 0))
                 sk.addGeometry(pg, g.construction)
+            if f.external_geometry:                  # what it projects must be built first, as in the GUI
+                doc.recompute()
+            for o, sb in f.external_geometry:        # Sketcher_External: GeoId -3, -4, ... in this order
+                sk.addExternal(obj_of(o).Name, sb)
             for i, c in enumerate(f.constraints):
                 args = list(c.args) + ([c.resolved(params)] if c.dimensional else [])
                 sk.addConstraint(Sketcher.Constraint(c.type, *args))
@@ -1725,3 +1861,10 @@ from .feature_revolve import Groove, Revolution  # noqa: E402  PartDesign::Revol
 FEATURES.update(Revolution=Revolution, Groove=Groove)
 from .feature_hole import Hole  # noqa: E402  PartDesign::Hole
 FEATURES.update(Hole=Hole)
+# The datum features (Part::DatumPlane, DatumLine, DatumPoint, LocalCoordinateSystem, and PartDesign::Plane, ...)
+# live with the attachment that places them, and are part of this vocabulary: `from cad_agent.feature import DatumPlane`.
+from .feature_attach import (DatumLine, DatumPlane, DatumPoint, LocalCoordinateSystem,  # noqa: E402,F401
+                             PartDesignCoordinateSystem, PartDesignLine, PartDesignPlane, PartDesignPoint)
+from .feature_attach import DATUMS as _DATUMS  # noqa: E402
+
+FEATURES.update(_DATUMS)

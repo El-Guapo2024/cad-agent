@@ -178,16 +178,44 @@ for (const [k, c] of CASES.cases.entries()) {
   const want = REF.cases[c.name]
   if (!want) { notes.push(`${c.name}: no FreeCAD answer in sketchref.json`); continue }
   run++
-  const name = `S${k}`
-  await gui('run', ['Sketcher_EditSketch', name, JSON.stringify(c.setup ?? {})])
+  let name = `S${k}`, off = [0, 0] // where the sketch's origin sits in the scene (a plate part's placement)
+  if (c.plate) {
+    // a Body part of its own: the 40 x 20 x 5 plate (a rectangle on XY, padded 5 mm) and the case's sketch S on its top
+    // face (Pad.Face6, FlatFace), as fcsketch_dump.py's plate_sketch makes it; opened from the tree, as a double-click
+    // opens a Body's sketch
+    name = 'S'
+    const part = `Plate${k}x${Date.now().toString(36)}` // a part of its own each run
+    await api('/api/cad', { slug: PROJECT, argv: ['feature', 'new', PROJECT, part] })
+    const L = (a, b) => ({ type: 'LineSegment', start: a, end: b, construction: false })
+    const ops = [
+      { op: 'add', feature: { name: 'Sketch', type: 'Sketcher::SketchObject', support: 'XY', geometry: [L([0, 0], [40, 0]), L([40, 0], [40, 20]), L([40, 20], [0, 20]), L([0, 20], [0, 0])], constraints: [] } },
+      { op: 'add', feature: { name: 'Pad', type: 'PartDesign::Pad', profile: 'Sketch', length: 5 } },
+      { op: 'add', feature: { name: 'S', type: 'Sketcher::SketchObject', attachment_support: [['Pad', 'Face6']], map_mode: 'FlatFace', geometry: [], constraints: [] } }]
+    const r = await api(`/api/${encodeURIComponent(PROJECT)}/features/${part}`, { ops })
+    if (r.exit > 2) { bad(`${c.name}: the plate was not made: ${JSON.stringify(r).slice(0, 300)}`); continue }
+    for (let i = 0; i < 80 && !(await p.evaluate((pt) => !!window.cadui.getState().features[pt]?.features.find((f) => f.name === 'S')?.attached
+      && !!window.cadui.getState().scene?.bodies.some((b) => b.part === pt), part)); i++) await p.waitForTimeout(250)
+    // the server checks the new part and the scene reloads: wait until that has settled, or it moves the camera later
+    for (let i = 0, last = '', same = 0; i < 120 && same < 8; i++) {
+      const now = await p.evaluate(() => JSON.stringify([window.cadui.getState().scene?.source_hash, window.cadui.getState().scene?.bodies.length, window.cadui.getState().busy]))
+      same = now === last ? same + 1 : 0; last = now; await p.waitForTimeout(250)
+    }
+    await p.evaluate(() => window.cadui.showPanel('model')); await p.waitForTimeout(300)
+    const row = p.locator(`[data-ref="${part}/S"]`)
+    if (!(await row.count())) { const pad = p.locator(`[data-ref="${part}/Pad"] .twisty`); if (await pad.count()) await pad.first().click() }
+    const m = await p.evaluate((pt) => window.cadui.getState().scene?.bodies.find((b) => b.part === pt)?.matrix ?? null, part)
+    if (m?.length === 16) off = [m[3], m[7]] // the project lays its parts out side by side; the sketch's camera follows
+    await p.dblclick(`.trow[data-ref="${part}/S"] .tname`)
+    await p.evaluate(() => window.cadui.showPanel('view3d'))
+  } else await gui('run', ['Sketcher_EditSketch', name, JSON.stringify(c.setup ?? {})])
   await p.waitForSelector('.sketch-task', { timeout: 10000 })
   await p.waitForTimeout(800) // the view turning to the sketch (an animation, then the fit)
   // the camera FreeCAD's had, set again until it stays (the turn's animation may still be running)
   for (let i = 0; i < 20; i++) {
-    await gui('view', [camera]); await p.waitForTimeout(300)
+    await gui('view', [camera.replace(`position ${cx} ${cy} 100`, `position ${cx + off[0]} ${cy + off[1]} 100`)]); await p.waitForTimeout(300)
     const cam = await p.evaluate(() => window.cadui.getView()?.getCamera() ?? '')
     const pos = /position\s+(\S+)\s+(\S+)/.exec(cam), h = /height\s+(\S+)/.exec(cam)
-    if (pos && h && Math.abs(+pos[1] - cx) < 1e-3 && Math.abs(+pos[2] - cy) < 1e-3 && Math.abs(+h[1] - H) < 1e-3) break
+    if (pos && h && Math.abs(+pos[1] - cx - off[0]) < 1e-3 && Math.abs(+pos[2] - cy - off[1]) < 1e-3 && Math.abs(+h[1] - H) < 1e-3) break
   }
   box = await gl()
   const s = box.h / H
@@ -208,6 +236,7 @@ for (const [k, c] of CASES.cases.entries()) {
       await p.mouse.up(); await p.waitForTimeout(120)
     } else if (st.key) { await p.keyboard.press(KEY[st.key] ?? st.key); await p.waitForTimeout(80) }
     else if (st.select) { await gui('select', st.select); await p.waitForTimeout(80) }
+    else if (st.pick) { await gui('select', [st.pick]); await p.waitForTimeout(1500) } // a model element: the projection is the server's
     else if ('clear' in st) { await gui('clear', []); await p.waitForTimeout(80) }
     await dialog()
     await p.evaluate(() => new Promise((r) => requestAnimationFrame(() => r(0)))) // the page has handled the step (a frame) before the next
@@ -225,6 +254,12 @@ for (const [k, c] of CASES.cases.entries()) {
     if (cs.length !== cw.length || !cs.every((x, i) => sameCons(x, cw[i]))) diffs.push(`constraints\n     ours     ${cs.map(fmtC).join(' ')}\n     FreeCAD  ${cw.map(fmtC).join(' ')}`)
     const m = `${got.message.status}${got.message.link}`, mw = `${want.message.status}${want.message.link}`
     if (m !== mw) diffs.push(`message: ${m} (FreeCAD: ${mw})`)
+    if (want.external) { // ExternalGeo after the axes, and ExternalGeometry's references
+      const e = (got.external ?? []).map((x) => ({ ...x, construction: undefined })), ew = want.external
+      if (e.length !== ew.length || !e.every((x, i) => sameGeo(x, ew[i]))) diffs.push(`external geometry\n     ours     ${e.map(fmtG).join(' ')}\n     FreeCAD  ${ew.map(fmtG).join(' ')}`)
+      const r = JSON.stringify(got.external_geometry ?? []), rw = JSON.stringify(want.external_geometry)
+      if (r !== rw) diffs.push(`external references: ${r} (FreeCAD: ${rw})`)
+    }
   }
   if (diffs.length && KNOWN[c.name]) { known++; console.log(`known ${c.name}: ${KNOWN[c.name]}`) }
   else if (diffs.length) bad(`${c.name}: ${diffs.join('\n   ')}`)

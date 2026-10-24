@@ -100,6 +100,8 @@ export type Task = { kind: 'params' | 'placement' | 'transform' | 'measure' | 'm
   // PartDesign (partdesign.tsx): New Sketch's attachment panel, Pad and Pocket, each made or edited in `body` (the part
   // module); `other` is the feature being edited, or the profile sketch of a new one.
   | 'sketchAttach' | 'pad' | 'pocket'
+  // the Attachment panel (pd_attach.tsx): `other` is the sketch or datum, or "new:<TypeId>" for one OK makes
+  | 'attach'
   | 'revolution' | 'groove' | 'hole'     // pd_revolve.tsx
   // and the dress-ups (pd_dressup.tsx); `other` is the feature's name, new or edited
   | 'fillet' | 'chamfer' | 'draft' | 'thickness'

@@ -86,7 +86,10 @@ export const scaleFactor = (s: Screen) => (0.1 * s.visibleHeight) / 3
 const zoomScale = (s: Screen) => (0.1 * s.visibleHeight) / 5
 
 export type DrawState = {
+  /** The geometry, its external geometry reachable at GeoIds -3, -4, … (sketch.ts withExternal). */
   geometry: Geo[]
+  /** The external geometry (ExternalGeo after the axes), GeoId -3 first. */
+  external?: Geo[]
   constraints: Constraint[]
   /** Solver result: the sketch is fully constrained (dof 0, no conflicts), or invalid. */
   fully: boolean
@@ -173,6 +176,8 @@ function pointColor(st: DrawState, vertex: number, g: number, pos: PointPos): st
   const sel = st.selection.points.has(vertex), pre = st.preselect.point === vertex
   if (sel) return pre ? COLORS.preselectSelected : COLORS.select
   if (pre) return COLORS.preselect
+  // an external point: ConstrIcoColor when coincident with something (and the sketch valid), else ExternalColor
+  if (g <= -3) return isCoincident(st.constraints, g, pos) && !st.invalid ? COLORS.constrIco : COLORS.external
   if (st.invalid) return COLORS.invalid
   if (st.fully) return COLORS.fully
   const geo = st.geometry[g]
@@ -184,6 +189,7 @@ function pointColor(st: DrawState, vertex: number, g: number, pos: PointPos): st
 function curveColor(st: DrawState, g: number): string {
   const sel = st.selection.curves.has(g), pre = st.preselect.curve === g
   if (sel || pre) return sel ? (pre ? COLORS.preselectSelected : COLORS.select) : COLORS.preselect
+  if (g <= -3) return COLORS.external // CurveExternalColor (a reference external; a defining one has its own)
   if (st.invalid) return COLORS.invalid
   if (st.geometry[g].construction) return st.fullyElements.has(g) ? COLORS.fullyConstruction : COLORS.construction
   return st.fully ? COLORS.fully : st.fullyElements.has(g) ? COLORS.fullyElement : COLORS.curve
@@ -703,6 +709,11 @@ export function drawSketch(ctx: Ctx, s: Screen, st: DrawState, camCenter: XY): H
     if (g.type === 'Point') return
     const color = curveColor(st, i), cons = g.construction
     strokePoly(ctx, s, polyline(g), color, cons ? SIZES.construction : SIZES.curve, cons ? DASH : [])
+  })
+  // the external geometry: ExternalWidth, ExternalPattern (CurvesExternalDrawStyle)
+  ;(st.external ?? []).forEach((g, k) => {
+    if (g.type === 'Point') return
+    strokePoly(ctx, s, polyline(g), curveColor(st, -3 - k), SIZES.external, DASH)
   })
   // constraints: datum labels, then icons over them
   const font = labelFont()

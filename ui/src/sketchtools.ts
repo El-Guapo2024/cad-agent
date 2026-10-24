@@ -92,7 +92,7 @@ export abstract class DrawSketchHandler implements S.Handler {
     const pre = S.getPreselection(), geo = S.getGeometry()
     const out = { geoId: GEO_UNDEF, posId: NONE as PointPos, hitDir: [0, 0] as XY, isLine: false }
     if (pre.point >= 0) { const [g, p] = S.geoVertexIndex(pre.point); out.geoId = g; out.posId = p }
-    else if (pre.curve !== null && pre.curve >= 0) {
+    else if (pre.curve !== null && !SK.isAxisId(pre.curve)) { // an edge of the sketch or an external one
       out.geoId = pre.curve
       const g = geo[pre.curve]
       if (SK.isLine(g)) { out.hitDir = sub(g.end, g.start); out.isLine = true }

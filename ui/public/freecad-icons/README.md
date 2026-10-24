@@ -21,6 +21,10 @@ licence metadata, so FreeCAD's LGPL-2.1 applies; the other four say `FreeCAD LGP
 shows `TechDraw_TreePage.svg` (`src/Mod/TechDraw/Gui/Resources/icons`, the icon ViewProviderPage gives its page's
 window; `FreeCAD LGPL2+`).
 
+The PartDesign datums' own icons, `PartDesign_Plane.svg`, `PartDesign_Line.svg`, `PartDesign_Point.svg` and
+`PartDesign_CoordinateSystem.svg` (src/Mod/PartDesign/Gui/Resources/icons at 3160daf1e2b6, for PartDesign::Plane and its
+neighbours in the tree), were added with attachment; they say `FreeCAD LGPL2+`.
+
 Licences, as each file's metadata states:
 
 - Most are LGPL-2.0-or-later (`FreeCAD LGPL2+`). Files with no licence in their

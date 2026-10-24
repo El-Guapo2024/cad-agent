@@ -44,6 +44,10 @@ that commit.
                            2.1 of the licence, which "or any later version" allows; the text is in
                            ui/LICENSE.
 
+  LGPL-2.0-or-later        cad_agent/attacher.py, all of it (FreeCAD's attachment engine), under
+                           version 2.1 as appcache.py is. tests/golden/attach/ is data: the real
+                           FreeCAD's answers, and the shapes they were asked about.
+
   BSD-3-Clause and         cad_agent/dxf.py, the static sections of the DXF it writes (the rest of
   LGPL-2.0-or-later        the file is MIT). See section 2.
 
@@ -109,6 +113,14 @@ that commit.
       Copyright (c) 2021 Werner Mayer <wmayer[at]users.sourceforge.net>
       "either version 2 of the License, or (at your option) any later version" (the GNU Library
       General Public License), so LGPL-2.0-or-later.
+
+  cad_agent/attacher.py
+      Re-expresses src/Mod/Part/App/Attacher.cpp (AttachEngine and its four engines), with the parts
+      of AttachExtension.cpp, Tools.cpp (getNormal), src/Base/Rotation.cpp and Placement.cpp it uses,
+      function by function.
+      Copyright (c) 2015 Victor Titov (DeepSOIC) <vv.titov@gmail.com>; Base: Copyright (c) 2011
+      Juergen Riegel. "either version 2 of the License, or (at your option) any later version" (the
+      GNU Library General Public License), so LGPL-2.0-or-later.
 
   cad_agent/dxf.py, the static sections of the file it writes (the HEADER variables, CLASSES,
   TABLES, BLOCK_RECORD and BLOCKS, the closing OBJECTS, and the TEXT and SOLID entities) and

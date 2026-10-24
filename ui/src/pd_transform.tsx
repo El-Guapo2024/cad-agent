@@ -31,6 +31,8 @@ import { messageBox } from './msgbox'
 import { ContextMenu, type Entry } from './chrome'
 import * as quantity from './quantity'
 import './pd_transform.css'
+import { AttachTask } from './pd_attach'
+import type { PlacementData } from './attached'
 import { applyOps, bodyOfPart, createBody, isBodyDoc, numberOf, PAD, POCKET, previewObject, refOf, SKETCH, sketchMatrix, splitRef, targetBody,
   type ExtrudeSpec } from './partdesign'
 
@@ -646,10 +648,6 @@ const PRIM_DEFAULTS: Record<Shape, Record<string, unknown>> = {
   Prism: { polygon: 6, circumradius: 2, height: 10, first_angle: 0, second_angle: 0 },
   Wedge: { xmin: 0, ymin: 0, zmin: 0, x2min: 2, z2min: 2, xmax: 10, ymax: 10, zmax: 10, x2max: 8, z2max: 8 },
 }
-/** Attacher's 3D modes as TaskAttacher lists them with no reference (the real FreeCAD: ui/scripts/fctransform.json). */
-const MODES_3D = ['Deactivated', 'Translate origin', "Object's X Y Z", "Object's X Z Y", "Object's Y Z X", 'XY on plane', 'XY tangent to surface', 'Z tangent to edge',
-  'Frenet NBT', 'Frenet TNB', 'Frenet TBN', 'Concentric', 'Revolution Section', 'XY-plane by 3 points', 'XZ-plane by 3 points', 'Folding', 'Inertial CS',
-  'Align O-Z-X', 'Align O-Z-Y', 'Align O-X-Y', 'Align O-X-Z', 'Align O-Y-Z', 'Align O-Y-X', 'XY parallel to plane', 'Midplane between faces']
 function PrimitiveTask({ part, other, edit }: { part: string; other: string; edit: boolean }) {
   const s = useStore((x) => x)
   const doc = s.features[part]
@@ -663,8 +661,13 @@ function PrimitiveTask({ part, other, edit }: { part: string; other: string; edi
   }, [part, other, edit])
   const [f, setF] = useState<Feature | null>(initial)
   const [overlay, setOverlay] = useState(true)
+  const [attached, setAttached] = useState<PlacementData | null>(null)       // where the Attachment box puts it
   const set = (patch: Partial<Feature>) => setF((x) => (x ? { ...x, ...patch } : x))
-  useEffect(() => { if (doc && f) getView()?.setHelper('pd-preview', overlay ? (() => { const o = primitiveObject(doc, f); if (o) o.applyMatrix4(partMatrix(doc)); return o })() : null) }, [f, overlay])
+  useEffect(() => {
+    if (!doc || !f) return
+    const at = attached ? { ...f, placement: [attached.position, attached.ypr] } : f
+    getView()?.setHelper('pd-preview', overlay ? (() => { const o = primitiveObject(doc, at); if (o) o.applyMatrix4(partMatrix(doc)); return o })() : null)
+  }, [f, overlay, attached])
   useEffect(() => () => { getView()?.setHelper('pd-preview', null) }, [])
   if (!doc || !f || !p) return <div className="tasks"><p className="hint">{part}: no feature {other}</p></div>
   const [side, shape] = p
@@ -695,25 +698,11 @@ function PrimitiveTask({ part, other, edit }: { part: string; other: string; edi
             onChange={(e) => set({ operation: e.target.value })}><option>Subtraction</option><option>Common</option></QComboBox></label>}
         </div>
       </TaskBox>
-      <TaskBox title="Attachment" icon="pd-attach">
-        <p className="pd-attach-msg">Not attached</p>
-        {[0, 1, 2, 3].map((i) => (
-          <div className="tfield" key={i}>
-            <button className={cls('qbtn', i === 0 && 'on')} disabled={i > 0} title="not yet: a primitive is placed by its Placement here (the property view); attaching comes with the Attacher">
-              {i === 0 ? 'Selecting…' : `Reference${i + 1}`}</button>
-            <input readOnly value="No reference selected" />
-          </div>))}
-        <div className="tlabel">Attachment Mode</div>
-        <div className="pd-modes" role="listbox">
-          {MODES_3D.map((m) => <div key={m} role="option" aria-selected={m === 'Deactivated'} className={cls('pd-mode', m === 'Deactivated' && 'sel', m !== 'Deactivated' && 'off')}
-            title={m === 'Deactivated' ? undefined : 'not yet: comes with the Attacher'}>{m}</div>)}
-        </div>
-        <fieldset className="tgroup" disabled><legend>Attachment Offset (inactive - not attached):</legend>
-          {['In X-direction', 'In Y-direction', 'In Z-direction'].map((l) => <label key={l} className="tfield"><span>{l}</span><QuantityBox value={0} dims={LENGTH} disabled onChange={() => {}} /></label>)}
-          {['Around X-axis', 'Around Y-axis', 'Around Z-axis'].map((l) => <label key={l} className="tfield"><span>{l}</span><QuantityBox value={0} dims={ANGLE} disabled onChange={() => {}} /></label>)}
-        </fieldset>
-        <label className="tcheck"><input type="checkbox" disabled /> Flip sides</label>
-      </TaskBox>
+      {/* TaskFeaturePrimitive's TaskAttacher (pd_attach.tsx): references, mode, offset; OK writes them with the shape */}
+      <AttachTask target={{ part, name: existing?.name ?? null, type }} embed={{ onChange: (props, pl) => {
+        if (props) set(props)
+        setAttached(pl)
+      } }} />
       <TaskBox title="Preview" icon={primIcon(side, shape)}>
         <label className="tcheck" title="n/a: the result is built when OK writes it; the preview shows the primitive"><input type="checkbox" disabled /> Show final result</label>
         <label className="tcheck"><input type="checkbox" checked={overlay} onChange={(e) => setOverlay(e.target.checked)} /> Show preview overlay</label>
@@ -766,9 +755,10 @@ function propGroups(f: Feature): [string, PropDef[]][] {
     const dims = Object.keys(PRIM_DEFAULTS[p[1]])
     const skew = ['first_angle', 'second_angle']
     const def = (k: string): PropDef => ({ key: k, name: k.split('_').map((w) => w[0].toUpperCase() + w.slice(1)).join(' '), kind: k === 'polygon' ? 'int' : /angle/.test(k) ? 'angle' : 'length' })
-    const att: PropDef[] = [{ key: 'attacher_engine', name: 'Attacher Engine', kind: 'text', ro: () => 'Engine 3D; attaching comes with the Attacher' },
-      { key: 'attachment_support', name: 'Attachment Support', kind: 'text', ro: () => 'not yet: comes with the Attacher' },
-      { key: 'map_mode', name: 'Map Mode', kind: 'text', ro: () => 'not yet: comes with the Attacher' }]
+    const inPanel = () => 'set in the Attachment box of its task panel (double-click it)'
+    const att: PropDef[] = [{ key: 'attacher_engine', name: 'Attacher Engine', kind: 'text', ro: () => 'Engine 3D' },
+      { key: 'attachment_support', name: 'Attachment Support', kind: 'text', ro: inPanel },
+      { key: 'map_mode', name: 'Map Mode', kind: 'text', ro: inPanel }]
     out.unshift(['Attachment', att])
     out.push([p[1], dims.filter((k) => p[1] !== 'Cylinder' || !skew.includes(k)).map(def)])
     if (p[1] === 'Cylinder') out.push(['Prism', skew.map(def)])
@@ -802,6 +792,7 @@ export function PdxProps({ part, name }: { part: string; name: string }) {
     if (d.kind === 'ref') return refText((v ?? null) as Ref)
     if (d.key === 'transformations') return `[${pdxChildren(f).map((t) => t.name).join(', ')}]`
     if (d.key === 'originals') return ((v as string[]) ?? []).join(', ')
+    if (d.key === 'attachment_support') return ((v as [string, string][]) || []).map(([n, e]) => (e ? `${n}:${e}` : n)).join(', ')
     if (d.key === 'placement') { const m = placementMatrix(v); const p = new THREE.Vector3().setFromMatrixPosition(m); return Array.isArray(v) ? `[${JSON.stringify((v as number[][])[1])} ypr; (${p.x.toFixed(2)} mm  ${p.y.toFixed(2)} mm  ${p.z.toFixed(2)} mm)]` : '[(0.00 0.00 1.00); 0.00°; (0.00 mm  0.00 mm  0.00 mm)]' }
     if (d.kind === 'list') return `[${((v as number[]) ?? []).map((x) => Number(x).toFixed(2)).join(', ')}]`
     if (d.kind === 'length' || d.kind === 'angle') { const n = numberOf(v, doc.params); return n === null ? '?' : quantity.userString({ value: n, dims: d.kind === 'length' ? LENGTH : ANGLE }).text + (typeof v === 'string' ? `  (= ${v})` : '') }

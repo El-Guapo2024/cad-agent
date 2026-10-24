@@ -17,6 +17,7 @@ import { ArcHandler, CircleHandler, LineHandler, PointHandler, PolygonHandler, P
 import { runConstraint, isConstraintCommand, toggleDriving, toggleActive, idOf } from './sketchcons'
 import { ArcOfEllipseHandler, ArcOfHyperbolaHandler, ArcOfParabolaHandler, BSplineHandler, EllipseHandler } from './sketchgeo'
 import { ExtendHandler, FilletHandler, SplittingHandler, TrimmingHandler } from './sketchedit'
+import { ExternalHandler } from './sketchexternal'
 import * as SK from './sketch'
 import { getState, report } from './store'
 import { recordAndRun } from './actions'
@@ -129,6 +130,7 @@ const RUN: Record<string, () => void> = {
   Sketcher_Extend: tool(() => new ExtendHandler()),
   Sketcher_CreateFillet: tool(() => new FilletHandler(0)),
   Sketcher_CreateChamfer: tool(() => new FilletHandler(1)),
+  Sketcher_Projection: tool(() => new ExternalHandler()),
   Sketcher_ToggleConstruction: toggleConstruction,
   Sketcher_LeaveSketch: () => void S.closeEdit(true),
   Sketcher_CancelSketch: () => void S.closeEdit(false),
@@ -231,7 +233,7 @@ function selectAssociatedGeometry() {
       if (g === SK.GEO_UNDEF) continue
       if (p === 0) out.push(SK.edgeName(g))
       else if (g === -1 && p === 1) out.push('RootPoint')
-      else if (g >= 0) out.push(SK.vertexName(S.vertexIndexOf(g, p)))
+      else if (g >= 0 || SK.isExternalId(g)) out.push(SK.vertexName(S.vertexIndexOf(g, p)))
     }
   }
   S.setSelection(out)

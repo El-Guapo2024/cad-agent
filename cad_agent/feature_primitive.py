@@ -56,9 +56,36 @@ SKEW = (-89.99999, 89.99999)             # PrismExtension's angleConstraint
 OPERATIONS = ("Subtraction", "Common")
 
 
+ATTACH_KEYS = ("attachment_support", "map_mode", "attachment_offset", "map_reversed", "map_path_parameter")
+
+
+class _Attached:
+    """A primitive's AttachExtension properties as feature_attach.Context.attach() and feature.to_freecad's attach()
+    read them (engine 3D, Attacher::AttachEngine3D)."""
+    engine = "3D"
+
+    def __init__(self, feat):
+        from .feature_attach import placement_of as pl_of
+        self.name = feat.name
+        self.attachment_support = list(feat.attachment_support)
+        self.map_mode = feat.map_mode
+        self._offset_pl = pl_of(feat.name, feat.attachment_offset, "attachment_offset")
+        self._own_pl = pl_of(feat.name, feat.placement)
+        self.map_reversed = feat.map_reversed
+        self.map_path_parameter = float(feat.map_path_parameter)
+
+
 def placement_of(feat, shapes):
-    """The primitive's placement as a gp_Trsf in the Body's frame. Today its Placement; with an attachment engine,
-    Attacher's placement from the support times AttachmentOffset (FeatureAddSub::execute positions it so)."""
+    """The primitive's placement as a gp_Trsf in the Body's frame: its Placement, or when it is attached, Attacher's
+    placement from the support times AttachmentOffset (FeatureAddSub::execute positions it so; feature_attach.py)."""
+    feat._attached_pl = None
+    ctx = shapes.get("_attach") if isinstance(shapes, dict) else None
+    if feat.attachment_support and feat.map_mode != "Deactivated" and ctx is not None:
+        a = _Attached(feat)
+        pl = ctx.attach(a, orig=a._own_pl)
+        if pl is not None:
+            feat._attached_pl = pl
+            return pl.trsf()
     pos, ypr = feat.placement or ((0.0, 0.0, 0.0), (0.0, 0.0, 0.0))
     r = F._ypr(*ypr)
     t = gp_Trsf()
@@ -78,9 +105,16 @@ class Primitive(KwFeature):
     ADDITIVE = True
     POS = ()
     RANGES: dict = {}
-    COMMON = {"placement": None, "refine": True}
+    REFS = ("attachment_support",)
+    COMMON = {"placement": None, "refine": True, "attachment_support": (), "map_mode": "Deactivated",
+              "attachment_offset": None, "map_reversed": False, "map_path_parameter": 0.0}
 
     def normalize(self, key, v):
+        if key == "attachment_support":
+            from .feature_attach import support_list
+            v = support_list(self.name, v)
+        if key in ("map_mode", "attachment_offset", "map_path_parameter"):
+            return v
         if key == "placement":
             if v is None:
                 return None
@@ -98,7 +132,7 @@ class Primitive(KwFeature):
         if not self.ADDITIVE and self.operation not in OPERATIONS:
             raise F.FeatureError(f"{self.name}: operation {self.operation!r} is not one of {', '.join(OPERATIONS)}")
         for k in self.DEFAULTS:
-            if k not in ("placement", "refine", "operation") and not isinstance(getattr(self, k), (int, float, str)):
+            if k not in ("placement", "refine", "operation", *ATTACH_KEYS) and not isinstance(getattr(self, k), (int, float, str)):
                 raise F.FeatureError(f"{self.name}: {k} is {getattr(self, k)!r}, not a number or a PARAMS expression")
 
     def v(self, key, params):
@@ -131,7 +165,7 @@ class Primitive(KwFeature):
         obj = ctx.doc.addObject(self.TYPE_ID, self.name)     # CmdPrimtiveCompAdditive: addObject, then the Body's
         ctx.body.addObject(obj)
         for k in self.DEFAULTS:
-            if k in ("placement", "refine", "operation"):
+            if k in ("placement", "refine", "operation", *ATTACH_KEYS):
                 continue
             prop = "".join(w[:1].upper() + w[1:] for w in k.split("_"))
             if k == "polygon":
@@ -141,6 +175,9 @@ class Primitive(KwFeature):
         if self.placement is not None:
             (x, y, z), ypr = self.placement
             obj.Placement = ctx.App.Placement(ctx.App.Vector(x, y, z), ctx.App.Rotation(*ypr))
+        if self.attachment_support and getattr(ctx, "attach", None):
+            ctx.doc.recompute()                          # the support's shape, as the GUI has it when one picks it
+            ctx.attach(obj, _Attached(self))             # AttachmentSupport, MapMode, AttachmentOffset, ...
         if not self.ADDITIVE:
             obj.Operation = self.operation
         obj.Refine = self.refine

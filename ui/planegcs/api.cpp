@@ -40,6 +40,8 @@
 //   type: ["InternalAlignment:EllipseMajorDiameter", line, ellipse], ["InternalAlignment:
 //   EllipseFocus1", point, 1, ellipse], ["InternalAlignment:BSplineControlPoint", circle, 3,
 //   spline, index]; and "Weight" (a pole circle's weight) as ["Weight", circle, w].
+// "external": [G, ...] is the sketch's external geometry (SketchObject's ExternalGeo after the H and V
+//   axes): GeoId -3, -4, ... in that order, fixed for the solver as Sketch::setUpSketch makes it.
 // options: {"solver": "DogLeg"|"LevenbergMarquardt"|"BFGS",
 //           "recalculate_initial_solution_while_moving_point": bool}
 //
@@ -1275,6 +1277,13 @@ std::unique_ptr<Handle> build(const Json& sketch)
     if (const Json* geos = sketch.get("geometry")) {
         for (const auto& g : geos->items) {
             h->doc.addGeometry(parseGeometry(g));
+        }
+    }
+    // External geometry (SketchObject's ExternalGeo after the H and V axes, as rebuildExternalGeometry leaves
+    // it): GeoId -3, -4, ... in this order, which setUpSketch hands the solver as fixed geometry.
+    if (const Json* ext = sketch.get("external")) {
+        for (const auto& g : ext->items) {
+            h->doc.externalGeo.push_back(parseGeometry(g));
         }
     }
     if (const Json* opts = sketch.get("options")) {

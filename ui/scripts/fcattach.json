@@ -1,0 +1,3489 @@
+{
+ "errors": {},
+ "sketch_on_face": {
+  "made": [
+   {
+    "name": "Sketch001",
+    "label": "Sketch001",
+    "type": "Sketcher::SketchObject",
+    "map_mode": "FlatFace",
+    "support": [
+     [
+      "Pad",
+      [
+       "Face6"
+      ]
+     ]
+    ],
+    "placement": [
+     [
+      0.0,
+      0.0,
+      5.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0,
+      1.0
+     ]
+    ],
+    "reversed": false
+   }
+  ],
+  "undo": [
+   "Sketch on Face"
+  ],
+  "in_edit": "Sketch001"
+ },
+ "datum_plane_face": {
+  "task": [
+   [
+    {
+     "class": "QPushButton",
+     "name": "",
+     "y": 9,
+     "x": 137,
+     "enabled": true,
+     "text": "OK"
+    },
+    {
+     "class": "QPushButton",
+     "name": "",
+     "y": 9,
+     "x": 249,
+     "enabled": true,
+     "text": "Cancel"
+    },
+    {
+     "class": "QSint::TaskHeader",
+     "name": "",
+     "y": 50,
+     "x": 4,
+     "enabled": true,
+     "text": ""
+    },
+    {
+     "class": "QSint::ActionLabel",
+     "name": "",
+     "y": 53,
+     "x": 9,
+     "enabled": true,
+     "text": "Attachment"
+    },
+    {
+     "class": "QLabel",
+     "name": "message",
+     "y": 85,
+     "x": 18,
+     "enabled": true,
+     "text": "Attached with mode Plane face"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "lineRef1",
+     "y": 103,
+     "x": 110,
+     "enabled": true,
+     "text": "Pad:Face2"
+    },
+    {
+     "class": "QPushButton",
+     "name": "buttonRef1",
+     "y": 105,
+     "x": 18,
+     "enabled": true,
+     "text": "Plane",
+     "checked": false
+    },
+    {
+     "class": "QLineEdit",
+     "name": "lineRef2",
+     "y": 131,
+     "x": 110,
+     "enabled": true,
+     "text": "No reference selected"
+    },
+    {
+     "class": "QPushButton",
+     "name": "buttonRef2",
+     "y": 133,
+     "x": 18,
+     "enabled": true,
+     "text": "Selecting\u2026",
+     "checked": true
+    },
+    {
+     "class": "QLineEdit",
+     "name": "lineRef3",
+     "y": 159,
+     "x": 110,
+     "enabled": true,
+     "text": "No reference selected"
+    },
+    {
+     "class": "QPushButton",
+     "name": "buttonRef3",
+     "y": 161,
+     "x": 18,
+     "enabled": false,
+     "text": "Reference3",
+     "checked": false
+    },
+    {
+     "class": "QLineEdit",
+     "name": "lineRef4",
+     "y": 187,
+     "x": 110,
+     "enabled": true,
+     "text": "No reference selected"
+    },
+    {
+     "class": "QPushButton",
+     "name": "buttonRef4",
+     "y": 189,
+     "x": 18,
+     "enabled": false,
+     "text": "Reference4",
+     "checked": false
+    },
+    {
+     "class": "QLabel",
+     "name": "label",
+     "y": 215,
+     "x": 18,
+     "enabled": true,
+     "text": "Attachment Mode"
+    },
+    {
+     "class": "QListWidget",
+     "name": "listOfModes",
+     "y": 233,
+     "x": 18,
+     "enabled": true,
+     "items": [
+      "Deactivated",
+      "Plane face",
+      "Inertia 2-3",
+      "Tangent to surface (add Vertex)",
+      "Midplane between faces (add Plane)"
+     ]
+    },
+    {
+     "class": "QLabel",
+     "name": "labelOffsetX",
+     "y": 459,
+     "x": 28,
+     "enabled": true,
+     "text": "In X-direction"
+    },
+    {
+     "class": "Gui::PrefQuantitySpinBox",
+     "name": "attachmentOffsetX",
+     "y": 459,
+     "x": 105,
+     "enabled": true,
+     "text": "0.00 mm"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 460,
+     "x": 110,
+     "enabled": true,
+     "text": "0.00 mm"
+    },
+    {
+     "class": "QLabel",
+     "name": "labelOffsetY",
+     "y": 490,
+     "x": 28,
+     "enabled": true,
+     "text": "In Y-direction"
+    },
+    {
+     "class": "Gui::PrefQuantitySpinBox",
+     "name": "attachmentOffsetY",
+     "y": 490,
+     "x": 105,
+     "enabled": true,
+     "text": "0.00 mm"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 491,
+     "x": 110,
+     "enabled": true,
+     "text": "0.00 mm"
+    },
+    {
+     "class": "QLabel",
+     "name": "labelOffsetZ",
+     "y": 521,
+     "x": 28,
+     "enabled": true,
+     "text": "In Z-direction"
+    },
+    {
+     "class": "Gui::PrefQuantitySpinBox",
+     "name": "attachmentOffsetZ",
+     "y": 521,
+     "x": 105,
+     "enabled": true,
+     "text": "0.00 mm"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 522,
+     "x": 110,
+     "enabled": true,
+     "text": "0.00 mm"
+    },
+    {
+     "class": "QLabel",
+     "name": "labelRoll",
+     "y": 552,
+     "x": 28,
+     "enabled": true,
+     "text": "Around X-axis"
+    },
+    {
+     "class": "Gui::QuantitySpinBox",
+     "name": "attachmentOffsetRoll",
+     "y": 552,
+     "x": 105,
+     "enabled": true,
+     "text": "0.00\u00b0"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 553,
+     "x": 110,
+     "enabled": true,
+     "text": "0.00\u00b0"
+    },
+    {
+     "class": "QLabel",
+     "name": "labelPitch",
+     "y": 583,
+     "x": 28,
+     "enabled": true,
+     "text": "Around Y-axis"
+    },
+    {
+     "class": "Gui::QuantitySpinBox",
+     "name": "attachmentOffsetPitch",
+     "y": 583,
+     "x": 105,
+     "enabled": true,
+     "text": "0.00\u00b0"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 584,
+     "x": 110,
+     "enabled": true,
+     "text": "0.00\u00b0"
+    },
+    {
+     "class": "QLabel",
+     "name": "labelYaw",
+     "y": 614,
+     "x": 28,
+     "enabled": true,
+     "text": "Around Z-axis"
+    },
+    {
+     "class": "Gui::QuantitySpinBox",
+     "name": "attachmentOffsetYaw",
+     "y": 614,
+     "x": 105,
+     "enabled": true,
+     "text": "0.00\u00b0"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 615,
+     "x": 110,
+     "enabled": true,
+     "text": "0.00\u00b0"
+    },
+    {
+     "class": "QCheckBox",
+     "name": "checkBoxFlip",
+     "y": 657,
+     "x": 18,
+     "enabled": true,
+     "text": "Flip sides",
+     "checked": false
+    }
+   ]
+  ],
+  "clicked": true,
+  "made": [
+   {
+    "name": "DatumPlane",
+    "label": "DatumPlane",
+    "type": "Part::DatumPlane",
+    "map_mode": "FlatFace",
+    "support": [
+     [
+      "Pad",
+      [
+       "Face2"
+      ]
+     ]
+    ],
+    "placement": [
+     [
+      40.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.5,
+      0.5,
+      0.5,
+      0.5
+     ]
+    ],
+    "reversed": false
+   }
+  ],
+  "undo": [
+   "Add datum plane"
+  ]
+ },
+ "datum_plane_pick": {
+  "task": [
+   [
+    {
+     "class": "QPushButton",
+     "name": "",
+     "y": 9,
+     "x": 137,
+     "enabled": true,
+     "text": "OK"
+    },
+    {
+     "class": "QPushButton",
+     "name": "",
+     "y": 9,
+     "x": 249,
+     "enabled": true,
+     "text": "Cancel"
+    },
+    {
+     "class": "QSint::TaskHeader",
+     "name": "",
+     "y": 50,
+     "x": 4,
+     "enabled": true,
+     "text": ""
+    },
+    {
+     "class": "QSint::ActionLabel",
+     "name": "",
+     "y": 53,
+     "x": 9,
+     "enabled": true,
+     "text": "Attachment"
+    },
+    {
+     "class": "QLabel",
+     "name": "message",
+     "y": 85,
+     "x": 18,
+     "enabled": true,
+     "text": "Not attached"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "lineRef1",
+     "y": 103,
+     "x": 110,
+     "enabled": true,
+     "text": "No reference selected"
+    },
+    {
+     "class": "QPushButton",
+     "name": "buttonRef1",
+     "y": 105,
+     "x": 18,
+     "enabled": true,
+     "text": "Selecting\u2026",
+     "checked": true
+    },
+    {
+     "class": "QLineEdit",
+     "name": "lineRef2",
+     "y": 131,
+     "x": 110,
+     "enabled": true,
+     "text": "No reference selected"
+    },
+    {
+     "class": "QPushButton",
+     "name": "buttonRef2",
+     "y": 133,
+     "x": 18,
+     "enabled": false,
+     "text": "Reference2",
+     "checked": false
+    },
+    {
+     "class": "QLineEdit",
+     "name": "lineRef3",
+     "y": 159,
+     "x": 110,
+     "enabled": true,
+     "text": "No reference selected"
+    },
+    {
+     "class": "QPushButton",
+     "name": "buttonRef3",
+     "y": 161,
+     "x": 18,
+     "enabled": false,
+     "text": "Reference3",
+     "checked": false
+    },
+    {
+     "class": "QLineEdit",
+     "name": "lineRef4",
+     "y": 187,
+     "x": 110,
+     "enabled": true,
+     "text": "No reference selected"
+    },
+    {
+     "class": "QPushButton",
+     "name": "buttonRef4",
+     "y": 189,
+     "x": 18,
+     "enabled": false,
+     "text": "Reference4",
+     "checked": false
+    },
+    {
+     "class": "QLabel",
+     "name": "label",
+     "y": 215,
+     "x": 18,
+     "enabled": true,
+     "text": "Attachment Mode"
+    },
+    {
+     "class": "QListWidget",
+     "name": "listOfModes",
+     "y": 233,
+     "x": 18,
+     "enabled": true,
+     "items": [
+      "Deactivated",
+      "Translate origin",
+      "Object's XY",
+      "Object's XZ",
+      "Object's YZ",
+      "Plane face",
+      "Tangent to surface",
+      "Normal to edge",
+      "Frenet NB",
+      "Frenet TN",
+      "Frenet TB",
+      "Concentric",
+      "Revolution Section",
+      "Plane by 3 points",
+      "Normal to 3 points",
+      "Folding",
+      "Inertia 2-3",
+      "Align O-N-X",
+      "Align O-N-Y",
+      "Align O-X-Y",
+      "Align O-X-N",
+      "Align O-Y-N",
+      "Align O-Y-X",
+      "XY parallel to plane",
+      "Midplane between faces"
+     ]
+    },
+    {
+     "class": "QLabel",
+     "name": "labelOffsetX",
+     "y": 459,
+     "x": 28,
+     "enabled": false,
+     "text": "In X-direction"
+    },
+    {
+     "class": "Gui::PrefQuantitySpinBox",
+     "name": "attachmentOffsetX",
+     "y": 459,
+     "x": 105,
+     "enabled": false,
+     "text": "0.00 mm"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 460,
+     "x": 110,
+     "enabled": false,
+     "text": "0.00 mm"
+    },
+    {
+     "class": "QLabel",
+     "name": "labelOffsetY",
+     "y": 490,
+     "x": 28,
+     "enabled": false,
+     "text": "In Y-direction"
+    },
+    {
+     "class": "Gui::PrefQuantitySpinBox",
+     "name": "attachmentOffsetY",
+     "y": 490,
+     "x": 105,
+     "enabled": false,
+     "text": "0.00 mm"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 491,
+     "x": 110,
+     "enabled": false,
+     "text": "0.00 mm"
+    },
+    {
+     "class": "QLabel",
+     "name": "labelOffsetZ",
+     "y": 521,
+     "x": 28,
+     "enabled": false,
+     "text": "In Z-direction"
+    },
+    {
+     "class": "Gui::PrefQuantitySpinBox",
+     "name": "attachmentOffsetZ",
+     "y": 521,
+     "x": 105,
+     "enabled": false,
+     "text": "0.00 mm"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 522,
+     "x": 110,
+     "enabled": false,
+     "text": "0.00 mm"
+    },
+    {
+     "class": "QLabel",
+     "name": "labelRoll",
+     "y": 552,
+     "x": 28,
+     "enabled": false,
+     "text": "Around X-axis"
+    },
+    {
+     "class": "Gui::QuantitySpinBox",
+     "name": "attachmentOffsetRoll",
+     "y": 552,
+     "x": 105,
+     "enabled": false,
+     "text": "0.00\u00b0"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 553,
+     "x": 110,
+     "enabled": false,
+     "text": "0.00\u00b0"
+    },
+    {
+     "class": "QLabel",
+     "name": "labelPitch",
+     "y": 583,
+     "x": 28,
+     "enabled": false,
+     "text": "Around Y-axis"
+    },
+    {
+     "class": "Gui::QuantitySpinBox",
+     "name": "attachmentOffsetPitch",
+     "y": 583,
+     "x": 105,
+     "enabled": false,
+     "text": "0.00\u00b0"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 584,
+     "x": 110,
+     "enabled": false,
+     "text": "0.00\u00b0"
+    },
+    {
+     "class": "QLabel",
+     "name": "labelYaw",
+     "y": 614,
+     "x": 28,
+     "enabled": false,
+     "text": "Around Z-axis"
+    },
+    {
+     "class": "Gui::QuantitySpinBox",
+     "name": "attachmentOffsetYaw",
+     "y": 614,
+     "x": 105,
+     "enabled": false,
+     "text": "0.00\u00b0"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 615,
+     "x": 110,
+     "enabled": false,
+     "text": "0.00\u00b0"
+    },
+    {
+     "class": "QCheckBox",
+     "name": "checkBoxFlip",
+     "y": 657,
+     "x": 18,
+     "enabled": true,
+     "text": "Flip sides",
+     "checked": false
+    }
+   ]
+  ],
+  "task_picked": [
+   [
+    {
+     "class": "QPushButton",
+     "name": "",
+     "y": 9,
+     "x": 137,
+     "enabled": true,
+     "text": "OK"
+    },
+    {
+     "class": "QPushButton",
+     "name": "",
+     "y": 9,
+     "x": 249,
+     "enabled": true,
+     "text": "Cancel"
+    },
+    {
+     "class": "QSint::TaskHeader",
+     "name": "",
+     "y": 50,
+     "x": 4,
+     "enabled": true,
+     "text": ""
+    },
+    {
+     "class": "QSint::ActionLabel",
+     "name": "",
+     "y": 53,
+     "x": 9,
+     "enabled": true,
+     "text": "Attachment"
+    },
+    {
+     "class": "QLabel",
+     "name": "message",
+     "y": 85,
+     "x": 18,
+     "enabled": true,
+     "text": "Attached with mode Plane face"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "lineRef1",
+     "y": 103,
+     "x": 110,
+     "enabled": true,
+     "text": "Origin:XY_Plane."
+    },
+    {
+     "class": "QPushButton",
+     "name": "buttonRef1",
+     "y": 105,
+     "x": 18,
+     "enabled": true,
+     "text": "Plane",
+     "checked": false
+    },
+    {
+     "class": "QLineEdit",
+     "name": "lineRef2",
+     "y": 131,
+     "x": 110,
+     "enabled": true,
+     "text": "No reference selected"
+    },
+    {
+     "class": "QPushButton",
+     "name": "buttonRef2",
+     "y": 133,
+     "x": 18,
+     "enabled": true,
+     "text": "Selecting\u2026",
+     "checked": true
+    },
+    {
+     "class": "QLineEdit",
+     "name": "lineRef3",
+     "y": 159,
+     "x": 110,
+     "enabled": true,
+     "text": "No reference selected"
+    },
+    {
+     "class": "QPushButton",
+     "name": "buttonRef3",
+     "y": 161,
+     "x": 18,
+     "enabled": false,
+     "text": "Reference3",
+     "checked": false
+    },
+    {
+     "class": "QLineEdit",
+     "name": "lineRef4",
+     "y": 187,
+     "x": 110,
+     "enabled": true,
+     "text": "No reference selected"
+    },
+    {
+     "class": "QPushButton",
+     "name": "buttonRef4",
+     "y": 189,
+     "x": 18,
+     "enabled": false,
+     "text": "Reference4",
+     "checked": false
+    },
+    {
+     "class": "QLabel",
+     "name": "label",
+     "y": 215,
+     "x": 18,
+     "enabled": true,
+     "text": "Attachment Mode"
+    },
+    {
+     "class": "QListWidget",
+     "name": "listOfModes",
+     "y": 233,
+     "x": 18,
+     "enabled": true,
+     "items": [
+      "Deactivated",
+      "Object's XY",
+      "Object's XZ",
+      "Object's YZ",
+      "Plane face",
+      "Inertia 2-3",
+      "Tangent to surface (add Vertex)",
+      "XY parallel to plane (add more references)",
+      "Midplane between faces (add Plane)"
+     ]
+    },
+    {
+     "class": "QLabel",
+     "name": "labelOffsetX",
+     "y": 459,
+     "x": 28,
+     "enabled": true,
+     "text": "In X-direction"
+    },
+    {
+     "class": "Gui::PrefQuantitySpinBox",
+     "name": "attachmentOffsetX",
+     "y": 459,
+     "x": 105,
+     "enabled": true,
+     "text": "0.00 mm"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 460,
+     "x": 110,
+     "enabled": true,
+     "text": "0.00 mm"
+    },
+    {
+     "class": "QLabel",
+     "name": "labelOffsetY",
+     "y": 490,
+     "x": 28,
+     "enabled": true,
+     "text": "In Y-direction"
+    },
+    {
+     "class": "Gui::PrefQuantitySpinBox",
+     "name": "attachmentOffsetY",
+     "y": 490,
+     "x": 105,
+     "enabled": true,
+     "text": "0.00 mm"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 491,
+     "x": 110,
+     "enabled": true,
+     "text": "0.00 mm"
+    },
+    {
+     "class": "QLabel",
+     "name": "labelOffsetZ",
+     "y": 521,
+     "x": 28,
+     "enabled": true,
+     "text": "In Z-direction"
+    },
+    {
+     "class": "Gui::PrefQuantitySpinBox",
+     "name": "attachmentOffsetZ",
+     "y": 521,
+     "x": 105,
+     "enabled": true,
+     "text": "0.00 mm"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 522,
+     "x": 110,
+     "enabled": true,
+     "text": "0.00 mm"
+    },
+    {
+     "class": "QLabel",
+     "name": "labelRoll",
+     "y": 552,
+     "x": 28,
+     "enabled": true,
+     "text": "Around X-axis"
+    },
+    {
+     "class": "Gui::QuantitySpinBox",
+     "name": "attachmentOffsetRoll",
+     "y": 552,
+     "x": 105,
+     "enabled": true,
+     "text": "0.00\u00b0"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 553,
+     "x": 110,
+     "enabled": true,
+     "text": "0.00\u00b0"
+    },
+    {
+     "class": "QLabel",
+     "name": "labelPitch",
+     "y": 583,
+     "x": 28,
+     "enabled": true,
+     "text": "Around Y-axis"
+    },
+    {
+     "class": "Gui::QuantitySpinBox",
+     "name": "attachmentOffsetPitch",
+     "y": 583,
+     "x": 105,
+     "enabled": true,
+     "text": "0.00\u00b0"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 584,
+     "x": 110,
+     "enabled": true,
+     "text": "0.00\u00b0"
+    },
+    {
+     "class": "QLabel",
+     "name": "labelYaw",
+     "y": 614,
+     "x": 28,
+     "enabled": true,
+     "text": "Around Z-axis"
+    },
+    {
+     "class": "Gui::QuantitySpinBox",
+     "name": "attachmentOffsetYaw",
+     "y": 614,
+     "x": 105,
+     "enabled": true,
+     "text": "0.00\u00b0"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 615,
+     "x": 110,
+     "enabled": true,
+     "text": "0.00\u00b0"
+    },
+    {
+     "class": "QCheckBox",
+     "name": "checkBoxFlip",
+     "y": 657,
+     "x": 18,
+     "enabled": true,
+     "text": "Flip sides",
+     "checked": false
+    }
+   ]
+  ],
+  "task_flipped": [
+   [
+    {
+     "class": "QPushButton",
+     "name": "",
+     "y": 9,
+     "x": 137,
+     "enabled": true,
+     "text": "OK"
+    },
+    {
+     "class": "QPushButton",
+     "name": "",
+     "y": 9,
+     "x": 249,
+     "enabled": true,
+     "text": "Cancel"
+    },
+    {
+     "class": "QSint::TaskHeader",
+     "name": "",
+     "y": 50,
+     "x": 4,
+     "enabled": true,
+     "text": ""
+    },
+    {
+     "class": "QSint::ActionLabel",
+     "name": "",
+     "y": 53,
+     "x": 9,
+     "enabled": true,
+     "text": "Attachment"
+    },
+    {
+     "class": "QLabel",
+     "name": "message",
+     "y": 85,
+     "x": 18,
+     "enabled": true,
+     "text": "Attached with mode Plane face"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "lineRef1",
+     "y": 103,
+     "x": 110,
+     "enabled": true,
+     "text": "Origin:XY_Plane."
+    },
+    {
+     "class": "QPushButton",
+     "name": "buttonRef1",
+     "y": 105,
+     "x": 18,
+     "enabled": true,
+     "text": "Plane",
+     "checked": false
+    },
+    {
+     "class": "QLineEdit",
+     "name": "lineRef2",
+     "y": 131,
+     "x": 110,
+     "enabled": true,
+     "text": "No reference selected"
+    },
+    {
+     "class": "QPushButton",
+     "name": "buttonRef2",
+     "y": 133,
+     "x": 18,
+     "enabled": true,
+     "text": "Selecting\u2026",
+     "checked": true
+    },
+    {
+     "class": "QLineEdit",
+     "name": "lineRef3",
+     "y": 159,
+     "x": 110,
+     "enabled": true,
+     "text": "No reference selected"
+    },
+    {
+     "class": "QPushButton",
+     "name": "buttonRef3",
+     "y": 161,
+     "x": 18,
+     "enabled": false,
+     "text": "Reference3",
+     "checked": false
+    },
+    {
+     "class": "QLineEdit",
+     "name": "lineRef4",
+     "y": 187,
+     "x": 110,
+     "enabled": true,
+     "text": "No reference selected"
+    },
+    {
+     "class": "QPushButton",
+     "name": "buttonRef4",
+     "y": 189,
+     "x": 18,
+     "enabled": false,
+     "text": "Reference4",
+     "checked": false
+    },
+    {
+     "class": "QLabel",
+     "name": "label",
+     "y": 215,
+     "x": 18,
+     "enabled": true,
+     "text": "Attachment Mode"
+    },
+    {
+     "class": "QListWidget",
+     "name": "listOfModes",
+     "y": 233,
+     "x": 18,
+     "enabled": true,
+     "items": [
+      "Deactivated",
+      "Object's XY",
+      "Object's XZ",
+      "Object's YZ",
+      "Plane face",
+      "Inertia 2-3",
+      "Tangent to surface (add Vertex)",
+      "XY parallel to plane (add more references)",
+      "Midplane between faces (add Plane)"
+     ]
+    },
+    {
+     "class": "QLabel",
+     "name": "labelOffsetX",
+     "y": 459,
+     "x": 28,
+     "enabled": true,
+     "text": "In X-direction"
+    },
+    {
+     "class": "Gui::PrefQuantitySpinBox",
+     "name": "attachmentOffsetX",
+     "y": 459,
+     "x": 105,
+     "enabled": true,
+     "text": "0.00 mm"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 460,
+     "x": 110,
+     "enabled": true,
+     "text": "0.00 mm"
+    },
+    {
+     "class": "QLabel",
+     "name": "labelOffsetY",
+     "y": 490,
+     "x": 28,
+     "enabled": true,
+     "text": "In Y-direction"
+    },
+    {
+     "class": "Gui::PrefQuantitySpinBox",
+     "name": "attachmentOffsetY",
+     "y": 490,
+     "x": 105,
+     "enabled": true,
+     "text": "0.00 mm"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 491,
+     "x": 110,
+     "enabled": true,
+     "text": "0.00 mm"
+    },
+    {
+     "class": "QLabel",
+     "name": "labelOffsetZ",
+     "y": 521,
+     "x": 28,
+     "enabled": true,
+     "text": "In Z-direction"
+    },
+    {
+     "class": "Gui::PrefQuantitySpinBox",
+     "name": "attachmentOffsetZ",
+     "y": 521,
+     "x": 105,
+     "enabled": true,
+     "text": "0.00 mm"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 522,
+     "x": 110,
+     "enabled": true,
+     "text": "0.00 mm"
+    },
+    {
+     "class": "QLabel",
+     "name": "labelRoll",
+     "y": 552,
+     "x": 28,
+     "enabled": true,
+     "text": "Around X-axis"
+    },
+    {
+     "class": "Gui::QuantitySpinBox",
+     "name": "attachmentOffsetRoll",
+     "y": 552,
+     "x": 105,
+     "enabled": true,
+     "text": "0.00\u00b0"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 553,
+     "x": 110,
+     "enabled": true,
+     "text": "0.00\u00b0"
+    },
+    {
+     "class": "QLabel",
+     "name": "labelPitch",
+     "y": 583,
+     "x": 28,
+     "enabled": true,
+     "text": "Around Y-axis"
+    },
+    {
+     "class": "Gui::QuantitySpinBox",
+     "name": "attachmentOffsetPitch",
+     "y": 583,
+     "x": 105,
+     "enabled": true,
+     "text": "0.00\u00b0"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 584,
+     "x": 110,
+     "enabled": true,
+     "text": "0.00\u00b0"
+    },
+    {
+     "class": "QLabel",
+     "name": "labelYaw",
+     "y": 614,
+     "x": 28,
+     "enabled": true,
+     "text": "Around Z-axis"
+    },
+    {
+     "class": "Gui::QuantitySpinBox",
+     "name": "attachmentOffsetYaw",
+     "y": 614,
+     "x": 105,
+     "enabled": true,
+     "text": "0.00\u00b0"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 615,
+     "x": 110,
+     "enabled": true,
+     "text": "0.00\u00b0"
+    },
+    {
+     "class": "QCheckBox",
+     "name": "checkBoxFlip",
+     "y": 657,
+     "x": 18,
+     "enabled": true,
+     "text": "Flip sides",
+     "checked": true
+    }
+   ]
+  ],
+  "clicked": true,
+  "made": [
+   {
+    "name": "DatumPlane001",
+    "label": "DatumPlane001",
+    "type": "Part::DatumPlane",
+    "map_mode": "FlatFace",
+    "support": [
+     [
+      "Origin",
+      [
+       "XY_Plane."
+      ]
+     ]
+    ],
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      1.0,
+      0.0,
+      0.0
+     ]
+    ],
+    "reversed": true
+   }
+  ],
+  "undo": [
+   "Add datum plane"
+  ]
+ },
+ "datum_line_vertices": {
+  "task": [
+   [
+    {
+     "class": "QPushButton",
+     "name": "",
+     "y": 9,
+     "x": 137,
+     "enabled": true,
+     "text": "OK"
+    },
+    {
+     "class": "QPushButton",
+     "name": "",
+     "y": 9,
+     "x": 249,
+     "enabled": true,
+     "text": "Cancel"
+    },
+    {
+     "class": "QSint::TaskHeader",
+     "name": "",
+     "y": 50,
+     "x": 4,
+     "enabled": true,
+     "text": ""
+    },
+    {
+     "class": "QSint::ActionLabel",
+     "name": "",
+     "y": 53,
+     "x": 9,
+     "enabled": true,
+     "text": "Attachment"
+    },
+    {
+     "class": "QLabel",
+     "name": "message",
+     "y": 85,
+     "x": 18,
+     "enabled": true,
+     "text": "Attached with mode Through two points"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "lineRef1",
+     "y": 103,
+     "x": 110,
+     "enabled": true,
+     "text": "Pad:Vertex1"
+    },
+    {
+     "class": "QPushButton",
+     "name": "buttonRef1",
+     "y": 105,
+     "x": 18,
+     "enabled": true,
+     "text": "Vertex",
+     "checked": false
+    },
+    {
+     "class": "QLineEdit",
+     "name": "lineRef2",
+     "y": 131,
+     "x": 110,
+     "enabled": true,
+     "text": "Pad:Vertex6"
+    },
+    {
+     "class": "QPushButton",
+     "name": "buttonRef2",
+     "y": 133,
+     "x": 18,
+     "enabled": true,
+     "text": "Vertex",
+     "checked": false
+    },
+    {
+     "class": "QLineEdit",
+     "name": "lineRef3",
+     "y": 159,
+     "x": 110,
+     "enabled": true,
+     "text": "No reference selected"
+    },
+    {
+     "class": "QPushButton",
+     "name": "buttonRef3",
+     "y": 161,
+     "x": 18,
+     "enabled": true,
+     "text": "Selecting\u2026",
+     "checked": true
+    },
+    {
+     "class": "QLineEdit",
+     "name": "lineRef4",
+     "y": 187,
+     "x": 110,
+     "enabled": true,
+     "text": "No reference selected"
+    },
+    {
+     "class": "QPushButton",
+     "name": "buttonRef4",
+     "y": 189,
+     "x": 18,
+     "enabled": false,
+     "text": "Reference4",
+     "checked": false
+    },
+    {
+     "class": "QLabel",
+     "name": "label",
+     "y": 215,
+     "x": 18,
+     "enabled": true,
+     "text": "Attachment Mode"
+    },
+    {
+     "class": "QListWidget",
+     "name": "listOfModes",
+     "y": 233,
+     "x": 18,
+     "enabled": true,
+     "items": [
+      "Deactivated",
+      "Through two points",
+      "Proximity line",
+      "1st principal axis",
+      "2nd principal axis",
+      "3rd principal axis"
+     ]
+    },
+    {
+     "class": "QLabel",
+     "name": "labelOffsetX",
+     "y": 459,
+     "x": 28,
+     "enabled": true,
+     "text": "In X-direction"
+    },
+    {
+     "class": "Gui::PrefQuantitySpinBox",
+     "name": "attachmentOffsetX",
+     "y": 459,
+     "x": 105,
+     "enabled": true,
+     "text": "0.00 mm"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 460,
+     "x": 110,
+     "enabled": true,
+     "text": "0.00 mm"
+    },
+    {
+     "class": "QLabel",
+     "name": "labelOffsetY",
+     "y": 490,
+     "x": 28,
+     "enabled": true,
+     "text": "In Y-direction"
+    },
+    {
+     "class": "Gui::PrefQuantitySpinBox",
+     "name": "attachmentOffsetY",
+     "y": 490,
+     "x": 105,
+     "enabled": true,
+     "text": "0.00 mm"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 491,
+     "x": 110,
+     "enabled": true,
+     "text": "0.00 mm"
+    },
+    {
+     "class": "QLabel",
+     "name": "labelOffsetZ",
+     "y": 521,
+     "x": 28,
+     "enabled": true,
+     "text": "In Z-direction"
+    },
+    {
+     "class": "Gui::PrefQuantitySpinBox",
+     "name": "attachmentOffsetZ",
+     "y": 521,
+     "x": 105,
+     "enabled": true,
+     "text": "0.00 mm"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 522,
+     "x": 110,
+     "enabled": true,
+     "text": "0.00 mm"
+    },
+    {
+     "class": "QLabel",
+     "name": "labelRoll",
+     "y": 552,
+     "x": 28,
+     "enabled": true,
+     "text": "Around X-axis"
+    },
+    {
+     "class": "Gui::QuantitySpinBox",
+     "name": "attachmentOffsetRoll",
+     "y": 552,
+     "x": 105,
+     "enabled": true,
+     "text": "0.00\u00b0"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 553,
+     "x": 110,
+     "enabled": true,
+     "text": "0.00\u00b0"
+    },
+    {
+     "class": "QLabel",
+     "name": "labelPitch",
+     "y": 583,
+     "x": 28,
+     "enabled": true,
+     "text": "Around Y-axis"
+    },
+    {
+     "class": "Gui::QuantitySpinBox",
+     "name": "attachmentOffsetPitch",
+     "y": 583,
+     "x": 105,
+     "enabled": true,
+     "text": "0.00\u00b0"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 584,
+     "x": 110,
+     "enabled": true,
+     "text": "0.00\u00b0"
+    },
+    {
+     "class": "QLabel",
+     "name": "labelYaw",
+     "y": 614,
+     "x": 28,
+     "enabled": true,
+     "text": "Around Z-axis"
+    },
+    {
+     "class": "Gui::QuantitySpinBox",
+     "name": "attachmentOffsetYaw",
+     "y": 614,
+     "x": 105,
+     "enabled": true,
+     "text": "0.00\u00b0"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 615,
+     "x": 110,
+     "enabled": true,
+     "text": "0.00\u00b0"
+    },
+    {
+     "class": "QCheckBox",
+     "name": "checkBoxFlip",
+     "y": 657,
+     "x": 18,
+     "enabled": true,
+     "text": "Flip sides",
+     "checked": false
+    }
+   ]
+  ],
+  "clicked": true,
+  "made": [
+   {
+    "name": "DatumLine",
+    "label": "DatumLine",
+    "type": "Part::DatumLine",
+    "map_mode": "TwoPointLine",
+    "support": [
+     [
+      "Pad",
+      [
+       "Vertex1",
+       "Vertex6"
+      ]
+     ]
+    ],
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.3504874080794224,
+      0.56710053890136,
+      0.6340376775301025,
+      0.39185683486164874
+     ]
+    ],
+    "reversed": false
+   }
+  ],
+  "undo": [
+   "Add datum line"
+  ]
+ },
+ "datum_point_edge": {
+  "task": [
+   [
+    {
+     "class": "QPushButton",
+     "name": "",
+     "y": 9,
+     "x": 137,
+     "enabled": true,
+     "text": "OK"
+    },
+    {
+     "class": "QPushButton",
+     "name": "",
+     "y": 9,
+     "x": 249,
+     "enabled": true,
+     "text": "Cancel"
+    },
+    {
+     "class": "QSint::TaskHeader",
+     "name": "",
+     "y": 50,
+     "x": 4,
+     "enabled": true,
+     "text": ""
+    },
+    {
+     "class": "QSint::ActionLabel",
+     "name": "",
+     "y": 53,
+     "x": 9,
+     "enabled": true,
+     "text": "Attachment"
+    },
+    {
+     "class": "QLabel",
+     "name": "message",
+     "y": 85,
+     "x": 18,
+     "enabled": true,
+     "text": "Attached with mode Vertex"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "lineRef1",
+     "y": 103,
+     "x": 110,
+     "enabled": true,
+     "text": "Pad:Edge4"
+    },
+    {
+     "class": "QPushButton",
+     "name": "buttonRef1",
+     "y": 105,
+     "x": 18,
+     "enabled": true,
+     "text": "Line",
+     "checked": false
+    },
+    {
+     "class": "QLineEdit",
+     "name": "lineRef2",
+     "y": 131,
+     "x": 110,
+     "enabled": true,
+     "text": "No reference selected"
+    },
+    {
+     "class": "QPushButton",
+     "name": "buttonRef2",
+     "y": 133,
+     "x": 18,
+     "enabled": true,
+     "text": "Selecting\u2026",
+     "checked": true
+    },
+    {
+     "class": "QLineEdit",
+     "name": "lineRef3",
+     "y": 159,
+     "x": 110,
+     "enabled": true,
+     "text": "No reference selected"
+    },
+    {
+     "class": "QPushButton",
+     "name": "buttonRef3",
+     "y": 161,
+     "x": 18,
+     "enabled": false,
+     "text": "Reference3",
+     "checked": false
+    },
+    {
+     "class": "QLineEdit",
+     "name": "lineRef4",
+     "y": 187,
+     "x": 110,
+     "enabled": true,
+     "text": "No reference selected"
+    },
+    {
+     "class": "QPushButton",
+     "name": "buttonRef4",
+     "y": 189,
+     "x": 18,
+     "enabled": false,
+     "text": "Reference4",
+     "checked": false
+    },
+    {
+     "class": "QLabel",
+     "name": "label",
+     "y": 215,
+     "x": 18,
+     "enabled": true,
+     "text": "Attachment Mode"
+    },
+    {
+     "class": "QListWidget",
+     "name": "listOfModes",
+     "y": 233,
+     "x": 18,
+     "enabled": true,
+     "items": [
+      "Deactivated",
+      "On edge",
+      "Center of mass",
+      "Vertex",
+      "Proximity point 1 (add Any)",
+      "Proximity point 2 (add Any)"
+     ]
+    },
+    {
+     "class": "QLabel",
+     "name": "labelOffsetX",
+     "y": 459,
+     "x": 28,
+     "enabled": true,
+     "text": "In X-direction"
+    },
+    {
+     "class": "Gui::PrefQuantitySpinBox",
+     "name": "attachmentOffsetX",
+     "y": 459,
+     "x": 105,
+     "enabled": true,
+     "text": "0.00 mm"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 460,
+     "x": 110,
+     "enabled": true,
+     "text": "0.00 mm"
+    },
+    {
+     "class": "QLabel",
+     "name": "labelOffsetY",
+     "y": 490,
+     "x": 28,
+     "enabled": true,
+     "text": "In Y-direction"
+    },
+    {
+     "class": "Gui::PrefQuantitySpinBox",
+     "name": "attachmentOffsetY",
+     "y": 490,
+     "x": 105,
+     "enabled": true,
+     "text": "0.00 mm"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 491,
+     "x": 110,
+     "enabled": true,
+     "text": "0.00 mm"
+    },
+    {
+     "class": "QLabel",
+     "name": "labelOffsetZ",
+     "y": 521,
+     "x": 28,
+     "enabled": true,
+     "text": "In Z-direction"
+    },
+    {
+     "class": "Gui::PrefQuantitySpinBox",
+     "name": "attachmentOffsetZ",
+     "y": 521,
+     "x": 105,
+     "enabled": true,
+     "text": "0.00 mm"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 522,
+     "x": 110,
+     "enabled": true,
+     "text": "0.00 mm"
+    },
+    {
+     "class": "QLabel",
+     "name": "labelRoll",
+     "y": 552,
+     "x": 28,
+     "enabled": true,
+     "text": "Around X-axis"
+    },
+    {
+     "class": "Gui::QuantitySpinBox",
+     "name": "attachmentOffsetRoll",
+     "y": 552,
+     "x": 105,
+     "enabled": true,
+     "text": "0.00\u00b0"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 553,
+     "x": 110,
+     "enabled": true,
+     "text": "0.00\u00b0"
+    },
+    {
+     "class": "QLabel",
+     "name": "labelPitch",
+     "y": 583,
+     "x": 28,
+     "enabled": true,
+     "text": "Around Y-axis"
+    },
+    {
+     "class": "Gui::QuantitySpinBox",
+     "name": "attachmentOffsetPitch",
+     "y": 583,
+     "x": 105,
+     "enabled": true,
+     "text": "0.00\u00b0"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 584,
+     "x": 110,
+     "enabled": true,
+     "text": "0.00\u00b0"
+    },
+    {
+     "class": "QLabel",
+     "name": "labelYaw",
+     "y": 614,
+     "x": 28,
+     "enabled": true,
+     "text": "Around Z-axis"
+    },
+    {
+     "class": "Gui::QuantitySpinBox",
+     "name": "attachmentOffsetYaw",
+     "y": 614,
+     "x": 105,
+     "enabled": true,
+     "text": "0.00\u00b0"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 615,
+     "x": 110,
+     "enabled": true,
+     "text": "0.00\u00b0"
+    },
+    {
+     "class": "QCheckBox",
+     "name": "checkBoxFlip",
+     "y": 657,
+     "x": 18,
+     "enabled": true,
+     "text": "Flip sides",
+     "checked": false
+    }
+   ]
+  ],
+  "clicked": true,
+  "made": [
+   {
+    "name": "DatumPoint",
+    "label": "DatumPoint",
+    "type": "Part::DatumPoint",
+    "map_mode": "Vertex",
+    "support": [
+     [
+      "Pad",
+      [
+       "Edge4"
+      ]
+     ]
+    ],
+    "placement": [
+     [
+      0.0,
+      0.0,
+      5.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0,
+      1.0
+     ]
+    ],
+    "reversed": false
+   }
+  ],
+  "undo": [
+   "Add datum point"
+  ]
+ },
+ "lcs_pick": {
+  "task": [
+   [
+    {
+     "class": "QPushButton",
+     "name": "",
+     "y": 9,
+     "x": 137,
+     "enabled": true,
+     "text": "OK"
+    },
+    {
+     "class": "QPushButton",
+     "name": "",
+     "y": 9,
+     "x": 249,
+     "enabled": true,
+     "text": "Cancel"
+    },
+    {
+     "class": "QSint::TaskHeader",
+     "name": "",
+     "y": 50,
+     "x": 4,
+     "enabled": true,
+     "text": ""
+    },
+    {
+     "class": "QSint::ActionLabel",
+     "name": "",
+     "y": 53,
+     "x": 9,
+     "enabled": true,
+     "text": "Attachment"
+    },
+    {
+     "class": "QLabel",
+     "name": "message",
+     "y": 85,
+     "x": 18,
+     "enabled": true,
+     "text": "Not attached"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "lineRef1",
+     "y": 103,
+     "x": 110,
+     "enabled": true,
+     "text": "No reference selected"
+    },
+    {
+     "class": "QPushButton",
+     "name": "buttonRef1",
+     "y": 105,
+     "x": 18,
+     "enabled": true,
+     "text": "Selecting\u2026",
+     "checked": true
+    },
+    {
+     "class": "QLineEdit",
+     "name": "lineRef2",
+     "y": 131,
+     "x": 110,
+     "enabled": true,
+     "text": "No reference selected"
+    },
+    {
+     "class": "QPushButton",
+     "name": "buttonRef2",
+     "y": 133,
+     "x": 18,
+     "enabled": false,
+     "text": "Reference2",
+     "checked": false
+    },
+    {
+     "class": "QLineEdit",
+     "name": "lineRef3",
+     "y": 159,
+     "x": 110,
+     "enabled": true,
+     "text": "No reference selected"
+    },
+    {
+     "class": "QPushButton",
+     "name": "buttonRef3",
+     "y": 161,
+     "x": 18,
+     "enabled": false,
+     "text": "Reference3",
+     "checked": false
+    },
+    {
+     "class": "QLineEdit",
+     "name": "lineRef4",
+     "y": 187,
+     "x": 110,
+     "enabled": true,
+     "text": "No reference selected"
+    },
+    {
+     "class": "QPushButton",
+     "name": "buttonRef4",
+     "y": 189,
+     "x": 18,
+     "enabled": false,
+     "text": "Reference4",
+     "checked": false
+    },
+    {
+     "class": "QLabel",
+     "name": "label",
+     "y": 215,
+     "x": 18,
+     "enabled": true,
+     "text": "Attachment Mode"
+    },
+    {
+     "class": "QListWidget",
+     "name": "listOfModes",
+     "y": 233,
+     "x": 18,
+     "enabled": true,
+     "items": [
+      "Deactivated",
+      "Translate origin",
+      "Object's X Y Z",
+      "Object's X Z Y",
+      "Object's Y Z X",
+      "XY on plane",
+      "XY tangent to surface",
+      "Z tangent to edge",
+      "Frenet NBT",
+      "Frenet TNB",
+      "Frenet TBN",
+      "Concentric",
+      "Revolution Section",
+      "XY-plane by 3 points",
+      "XZ-plane by 3 points",
+      "Folding",
+      "Inertial CS",
+      "Align O-Z-X",
+      "Align O-Z-Y",
+      "Align O-X-Y",
+      "Align O-X-Z",
+      "Align O-Y-Z",
+      "Align O-Y-X",
+      "XY parallel to plane",
+      "Midplane between faces"
+     ]
+    },
+    {
+     "class": "QLabel",
+     "name": "labelOffsetX",
+     "y": 459,
+     "x": 28,
+     "enabled": false,
+     "text": "In X-direction"
+    },
+    {
+     "class": "Gui::PrefQuantitySpinBox",
+     "name": "attachmentOffsetX",
+     "y": 459,
+     "x": 105,
+     "enabled": false,
+     "text": "0.00 mm"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 460,
+     "x": 110,
+     "enabled": false,
+     "text": "0.00 mm"
+    },
+    {
+     "class": "QLabel",
+     "name": "labelOffsetY",
+     "y": 490,
+     "x": 28,
+     "enabled": false,
+     "text": "In Y-direction"
+    },
+    {
+     "class": "Gui::PrefQuantitySpinBox",
+     "name": "attachmentOffsetY",
+     "y": 490,
+     "x": 105,
+     "enabled": false,
+     "text": "0.00 mm"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 491,
+     "x": 110,
+     "enabled": false,
+     "text": "0.00 mm"
+    },
+    {
+     "class": "QLabel",
+     "name": "labelOffsetZ",
+     "y": 521,
+     "x": 28,
+     "enabled": false,
+     "text": "In Z-direction"
+    },
+    {
+     "class": "Gui::PrefQuantitySpinBox",
+     "name": "attachmentOffsetZ",
+     "y": 521,
+     "x": 105,
+     "enabled": false,
+     "text": "0.00 mm"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 522,
+     "x": 110,
+     "enabled": false,
+     "text": "0.00 mm"
+    },
+    {
+     "class": "QLabel",
+     "name": "labelRoll",
+     "y": 552,
+     "x": 28,
+     "enabled": false,
+     "text": "Around X-axis"
+    },
+    {
+     "class": "Gui::QuantitySpinBox",
+     "name": "attachmentOffsetRoll",
+     "y": 552,
+     "x": 105,
+     "enabled": false,
+     "text": "0.00\u00b0"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 553,
+     "x": 110,
+     "enabled": false,
+     "text": "0.00\u00b0"
+    },
+    {
+     "class": "QLabel",
+     "name": "labelPitch",
+     "y": 583,
+     "x": 28,
+     "enabled": false,
+     "text": "Around Y-axis"
+    },
+    {
+     "class": "Gui::QuantitySpinBox",
+     "name": "attachmentOffsetPitch",
+     "y": 583,
+     "x": 105,
+     "enabled": false,
+     "text": "0.00\u00b0"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 584,
+     "x": 110,
+     "enabled": false,
+     "text": "0.00\u00b0"
+    },
+    {
+     "class": "QLabel",
+     "name": "labelYaw",
+     "y": 614,
+     "x": 28,
+     "enabled": false,
+     "text": "Around Z-axis"
+    },
+    {
+     "class": "Gui::QuantitySpinBox",
+     "name": "attachmentOffsetYaw",
+     "y": 614,
+     "x": 105,
+     "enabled": false,
+     "text": "0.00\u00b0"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 615,
+     "x": 110,
+     "enabled": false,
+     "text": "0.00\u00b0"
+    },
+    {
+     "class": "QCheckBox",
+     "name": "checkBoxFlip",
+     "y": 657,
+     "x": 18,
+     "enabled": true,
+     "text": "Flip sides",
+     "checked": false
+    }
+   ]
+  ],
+  "task_picked": [
+   [
+    {
+     "class": "QPushButton",
+     "name": "",
+     "y": 9,
+     "x": 137,
+     "enabled": true,
+     "text": "OK"
+    },
+    {
+     "class": "QPushButton",
+     "name": "",
+     "y": 9,
+     "x": 249,
+     "enabled": true,
+     "text": "Cancel"
+    },
+    {
+     "class": "QSint::TaskHeader",
+     "name": "",
+     "y": 50,
+     "x": 4,
+     "enabled": true,
+     "text": ""
+    },
+    {
+     "class": "QSint::ActionLabel",
+     "name": "",
+     "y": 53,
+     "x": 9,
+     "enabled": true,
+     "text": "Attachment"
+    },
+    {
+     "class": "QLabel",
+     "name": "message",
+     "y": 85,
+     "x": 18,
+     "enabled": true,
+     "text": "Attached with mode Translate origin"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "lineRef1",
+     "y": 103,
+     "x": 110,
+     "enabled": true,
+     "text": "Pad:Vertex6"
+    },
+    {
+     "class": "QPushButton",
+     "name": "buttonRef1",
+     "y": 105,
+     "x": 18,
+     "enabled": true,
+     "text": "Vertex",
+     "checked": false
+    },
+    {
+     "class": "QLineEdit",
+     "name": "lineRef2",
+     "y": 131,
+     "x": 110,
+     "enabled": true,
+     "text": "No reference selected"
+    },
+    {
+     "class": "QPushButton",
+     "name": "buttonRef2",
+     "y": 133,
+     "x": 18,
+     "enabled": true,
+     "text": "Selecting\u2026",
+     "checked": true
+    },
+    {
+     "class": "QLineEdit",
+     "name": "lineRef3",
+     "y": 159,
+     "x": 110,
+     "enabled": true,
+     "text": "No reference selected"
+    },
+    {
+     "class": "QPushButton",
+     "name": "buttonRef3",
+     "y": 161,
+     "x": 18,
+     "enabled": false,
+     "text": "Reference3",
+     "checked": false
+    },
+    {
+     "class": "QLineEdit",
+     "name": "lineRef4",
+     "y": 187,
+     "x": 110,
+     "enabled": true,
+     "text": "No reference selected"
+    },
+    {
+     "class": "QPushButton",
+     "name": "buttonRef4",
+     "y": 189,
+     "x": 18,
+     "enabled": false,
+     "text": "Reference4",
+     "checked": false
+    },
+    {
+     "class": "QLabel",
+     "name": "label",
+     "y": 215,
+     "x": 18,
+     "enabled": true,
+     "text": "Attachment Mode"
+    },
+    {
+     "class": "QListWidget",
+     "name": "listOfModes",
+     "y": 233,
+     "x": 18,
+     "enabled": true,
+     "items": [
+      "Deactivated",
+      "Translate origin",
+      "Inertial CS",
+      "XY tangent to surface (add Face)",
+      "Z tangent to edge (add Edge)",
+      "Frenet NBT (add Curve)",
+      "Frenet TNB (add Curve)",
+      "Frenet TBN (add Curve)",
+      "Concentric (add more references)",
+      "Revolution Section (add more references)",
+      "XY-plane by 3 points (add more references)",
+      "XZ-plane by 3 points (add more references)",
+      "Align O-Z-X (add more references)",
+      "Align O-Z-Y (add more references)",
+      "Align O-X-Y (add more references)",
+      "Align O-X-Z (add more references)",
+      "Align O-Y-Z (add more references)",
+      "Align O-Y-X (add more references)"
+     ]
+    },
+    {
+     "class": "QLabel",
+     "name": "labelOffsetX",
+     "y": 459,
+     "x": 28,
+     "enabled": true,
+     "text": "In X-direction"
+    },
+    {
+     "class": "Gui::PrefQuantitySpinBox",
+     "name": "attachmentOffsetX",
+     "y": 459,
+     "x": 105,
+     "enabled": true,
+     "text": "0.00 mm"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 460,
+     "x": 110,
+     "enabled": true,
+     "text": "0.00 mm"
+    },
+    {
+     "class": "QLabel",
+     "name": "labelOffsetY",
+     "y": 490,
+     "x": 28,
+     "enabled": true,
+     "text": "In Y-direction"
+    },
+    {
+     "class": "Gui::PrefQuantitySpinBox",
+     "name": "attachmentOffsetY",
+     "y": 490,
+     "x": 105,
+     "enabled": true,
+     "text": "0.00 mm"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 491,
+     "x": 110,
+     "enabled": true,
+     "text": "0.00 mm"
+    },
+    {
+     "class": "QLabel",
+     "name": "labelOffsetZ",
+     "y": 521,
+     "x": 28,
+     "enabled": true,
+     "text": "In Z-direction"
+    },
+    {
+     "class": "Gui::PrefQuantitySpinBox",
+     "name": "attachmentOffsetZ",
+     "y": 521,
+     "x": 105,
+     "enabled": true,
+     "text": "0.00 mm"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 522,
+     "x": 110,
+     "enabled": true,
+     "text": "0.00 mm"
+    },
+    {
+     "class": "QLabel",
+     "name": "labelRoll",
+     "y": 552,
+     "x": 28,
+     "enabled": true,
+     "text": "Around X-axis"
+    },
+    {
+     "class": "Gui::QuantitySpinBox",
+     "name": "attachmentOffsetRoll",
+     "y": 552,
+     "x": 105,
+     "enabled": true,
+     "text": "0.00\u00b0"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 553,
+     "x": 110,
+     "enabled": true,
+     "text": "0.00\u00b0"
+    },
+    {
+     "class": "QLabel",
+     "name": "labelPitch",
+     "y": 583,
+     "x": 28,
+     "enabled": true,
+     "text": "Around Y-axis"
+    },
+    {
+     "class": "Gui::QuantitySpinBox",
+     "name": "attachmentOffsetPitch",
+     "y": 583,
+     "x": 105,
+     "enabled": true,
+     "text": "0.00\u00b0"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 584,
+     "x": 110,
+     "enabled": true,
+     "text": "0.00\u00b0"
+    },
+    {
+     "class": "QLabel",
+     "name": "labelYaw",
+     "y": 614,
+     "x": 28,
+     "enabled": true,
+     "text": "Around Z-axis"
+    },
+    {
+     "class": "Gui::QuantitySpinBox",
+     "name": "attachmentOffsetYaw",
+     "y": 614,
+     "x": 105,
+     "enabled": true,
+     "text": "0.00\u00b0"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 615,
+     "x": 110,
+     "enabled": true,
+     "text": "0.00\u00b0"
+    },
+    {
+     "class": "QCheckBox",
+     "name": "checkBoxFlip",
+     "y": 657,
+     "x": 18,
+     "enabled": true,
+     "text": "Flip sides",
+     "checked": false
+    }
+   ]
+  ],
+  "clicked": true,
+  "made": [
+   {
+    "name": "LCS",
+    "label": "LCS",
+    "type": "Part::LocalCoordinateSystem",
+    "map_mode": "Translate",
+    "support": [
+     [
+      "Pad",
+      [
+       "Vertex6"
+      ]
+     ]
+    ],
+    "placement": [
+     [
+      40.0,
+      20.0,
+      5.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0,
+      1.0
+     ]
+    ],
+    "reversed": false
+   }
+  ],
+  "undo": [
+   "Add coordinate system"
+  ]
+ },
+ "cancel": {
+  "task": [
+   [
+    {
+     "class": "QPushButton",
+     "name": "",
+     "y": 9,
+     "x": 137,
+     "enabled": true,
+     "text": "OK"
+    },
+    {
+     "class": "QPushButton",
+     "name": "",
+     "y": 9,
+     "x": 249,
+     "enabled": true,
+     "text": "Cancel"
+    },
+    {
+     "class": "QSint::TaskHeader",
+     "name": "",
+     "y": 50,
+     "x": 4,
+     "enabled": true,
+     "text": ""
+    },
+    {
+     "class": "QSint::ActionLabel",
+     "name": "",
+     "y": 53,
+     "x": 9,
+     "enabled": true,
+     "text": "Attachment"
+    },
+    {
+     "class": "QLabel",
+     "name": "message",
+     "y": 85,
+     "x": 18,
+     "enabled": true,
+     "text": "Attached with mode Plane face"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "lineRef1",
+     "y": 103,
+     "x": 110,
+     "enabled": true,
+     "text": "Pad:Face1"
+    },
+    {
+     "class": "QPushButton",
+     "name": "buttonRef1",
+     "y": 105,
+     "x": 18,
+     "enabled": true,
+     "text": "Plane",
+     "checked": false
+    },
+    {
+     "class": "QLineEdit",
+     "name": "lineRef2",
+     "y": 131,
+     "x": 110,
+     "enabled": true,
+     "text": "No reference selected"
+    },
+    {
+     "class": "QPushButton",
+     "name": "buttonRef2",
+     "y": 133,
+     "x": 18,
+     "enabled": true,
+     "text": "Selecting\u2026",
+     "checked": true
+    },
+    {
+     "class": "QLineEdit",
+     "name": "lineRef3",
+     "y": 159,
+     "x": 110,
+     "enabled": true,
+     "text": "No reference selected"
+    },
+    {
+     "class": "QPushButton",
+     "name": "buttonRef3",
+     "y": 161,
+     "x": 18,
+     "enabled": false,
+     "text": "Reference3",
+     "checked": false
+    },
+    {
+     "class": "QLineEdit",
+     "name": "lineRef4",
+     "y": 187,
+     "x": 110,
+     "enabled": true,
+     "text": "No reference selected"
+    },
+    {
+     "class": "QPushButton",
+     "name": "buttonRef4",
+     "y": 189,
+     "x": 18,
+     "enabled": false,
+     "text": "Reference4",
+     "checked": false
+    },
+    {
+     "class": "QLabel",
+     "name": "label",
+     "y": 215,
+     "x": 18,
+     "enabled": true,
+     "text": "Attachment Mode"
+    },
+    {
+     "class": "QListWidget",
+     "name": "listOfModes",
+     "y": 233,
+     "x": 18,
+     "enabled": true,
+     "items": [
+      "Deactivated",
+      "Plane face",
+      "Inertia 2-3",
+      "Tangent to surface (add Vertex)",
+      "Midplane between faces (add Plane)"
+     ]
+    },
+    {
+     "class": "QLabel",
+     "name": "labelOffsetX",
+     "y": 459,
+     "x": 28,
+     "enabled": true,
+     "text": "In X-direction"
+    },
+    {
+     "class": "Gui::PrefQuantitySpinBox",
+     "name": "attachmentOffsetX",
+     "y": 459,
+     "x": 105,
+     "enabled": true,
+     "text": "0.00 mm"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 460,
+     "x": 110,
+     "enabled": true,
+     "text": "0.00 mm"
+    },
+    {
+     "class": "QLabel",
+     "name": "labelOffsetY",
+     "y": 490,
+     "x": 28,
+     "enabled": true,
+     "text": "In Y-direction"
+    },
+    {
+     "class": "Gui::PrefQuantitySpinBox",
+     "name": "attachmentOffsetY",
+     "y": 490,
+     "x": 105,
+     "enabled": true,
+     "text": "0.00 mm"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 491,
+     "x": 110,
+     "enabled": true,
+     "text": "0.00 mm"
+    },
+    {
+     "class": "QLabel",
+     "name": "labelOffsetZ",
+     "y": 521,
+     "x": 28,
+     "enabled": true,
+     "text": "In Z-direction"
+    },
+    {
+     "class": "Gui::PrefQuantitySpinBox",
+     "name": "attachmentOffsetZ",
+     "y": 521,
+     "x": 105,
+     "enabled": true,
+     "text": "0.00 mm"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 522,
+     "x": 110,
+     "enabled": true,
+     "text": "0.00 mm"
+    },
+    {
+     "class": "QLabel",
+     "name": "labelRoll",
+     "y": 552,
+     "x": 28,
+     "enabled": true,
+     "text": "Around X-axis"
+    },
+    {
+     "class": "Gui::QuantitySpinBox",
+     "name": "attachmentOffsetRoll",
+     "y": 552,
+     "x": 105,
+     "enabled": true,
+     "text": "0.00\u00b0"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 553,
+     "x": 110,
+     "enabled": true,
+     "text": "0.00\u00b0"
+    },
+    {
+     "class": "QLabel",
+     "name": "labelPitch",
+     "y": 583,
+     "x": 28,
+     "enabled": true,
+     "text": "Around Y-axis"
+    },
+    {
+     "class": "Gui::QuantitySpinBox",
+     "name": "attachmentOffsetPitch",
+     "y": 583,
+     "x": 105,
+     "enabled": true,
+     "text": "0.00\u00b0"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 584,
+     "x": 110,
+     "enabled": true,
+     "text": "0.00\u00b0"
+    },
+    {
+     "class": "QLabel",
+     "name": "labelYaw",
+     "y": 614,
+     "x": 28,
+     "enabled": true,
+     "text": "Around Z-axis"
+    },
+    {
+     "class": "Gui::QuantitySpinBox",
+     "name": "attachmentOffsetYaw",
+     "y": 614,
+     "x": 105,
+     "enabled": true,
+     "text": "0.00\u00b0"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 615,
+     "x": 110,
+     "enabled": true,
+     "text": "0.00\u00b0"
+    },
+    {
+     "class": "QCheckBox",
+     "name": "checkBoxFlip",
+     "y": 657,
+     "x": 18,
+     "enabled": true,
+     "text": "Flip sides",
+     "checked": false
+    }
+   ]
+  ],
+  "clicked": true,
+  "made": [],
+  "undo": [
+   "Add coordinate system"
+  ]
+ },
+ "edit": {
+  "task": [
+   [
+    {
+     "class": "QPushButton",
+     "name": "",
+     "y": 9,
+     "x": 137,
+     "enabled": true,
+     "text": "OK"
+    },
+    {
+     "class": "QPushButton",
+     "name": "",
+     "y": 9,
+     "x": 249,
+     "enabled": true,
+     "text": "Cancel"
+    },
+    {
+     "class": "QSint::TaskHeader",
+     "name": "",
+     "y": 50,
+     "x": 4,
+     "enabled": true,
+     "text": ""
+    },
+    {
+     "class": "QSint::ActionLabel",
+     "name": "",
+     "y": 53,
+     "x": 9,
+     "enabled": true,
+     "text": "Attachment"
+    },
+    {
+     "class": "QLabel",
+     "name": "message",
+     "y": 85,
+     "x": 18,
+     "enabled": true,
+     "text": "Attached with mode Plane face"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "lineRef1",
+     "y": 103,
+     "x": 110,
+     "enabled": true,
+     "text": "Pad:Face2"
+    },
+    {
+     "class": "QPushButton",
+     "name": "buttonRef1",
+     "y": 105,
+     "x": 18,
+     "enabled": true,
+     "text": "Plane",
+     "checked": false
+    },
+    {
+     "class": "QLineEdit",
+     "name": "lineRef2",
+     "y": 131,
+     "x": 110,
+     "enabled": true,
+     "text": "No reference selected"
+    },
+    {
+     "class": "QPushButton",
+     "name": "buttonRef2",
+     "y": 133,
+     "x": 18,
+     "enabled": true,
+     "text": "Reference2",
+     "checked": false
+    },
+    {
+     "class": "QLineEdit",
+     "name": "lineRef3",
+     "y": 159,
+     "x": 110,
+     "enabled": true,
+     "text": "No reference selected"
+    },
+    {
+     "class": "QPushButton",
+     "name": "buttonRef3",
+     "y": 161,
+     "x": 18,
+     "enabled": false,
+     "text": "Reference3",
+     "checked": false
+    },
+    {
+     "class": "QLineEdit",
+     "name": "lineRef4",
+     "y": 187,
+     "x": 110,
+     "enabled": true,
+     "text": "No reference selected"
+    },
+    {
+     "class": "QPushButton",
+     "name": "buttonRef4",
+     "y": 189,
+     "x": 18,
+     "enabled": false,
+     "text": "Reference4",
+     "checked": false
+    },
+    {
+     "class": "QLabel",
+     "name": "label",
+     "y": 215,
+     "x": 18,
+     "enabled": true,
+     "text": "Attachment Mode"
+    },
+    {
+     "class": "QListWidget",
+     "name": "listOfModes",
+     "y": 233,
+     "x": 18,
+     "enabled": true,
+     "items": [
+      "Deactivated",
+      "Plane face",
+      "Inertia 2-3",
+      "Tangent to surface (add Vertex)",
+      "Midplane between faces (add Plane)"
+     ]
+    },
+    {
+     "class": "QLabel",
+     "name": "labelOffsetX",
+     "y": 459,
+     "x": 28,
+     "enabled": true,
+     "text": "In X-direction"
+    },
+    {
+     "class": "Gui::PrefQuantitySpinBox",
+     "name": "attachmentOffsetX",
+     "y": 459,
+     "x": 105,
+     "enabled": true,
+     "text": "0.00 mm"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 460,
+     "x": 110,
+     "enabled": true,
+     "text": "0.00 mm"
+    },
+    {
+     "class": "QLabel",
+     "name": "labelOffsetY",
+     "y": 490,
+     "x": 28,
+     "enabled": true,
+     "text": "In Y-direction"
+    },
+    {
+     "class": "Gui::PrefQuantitySpinBox",
+     "name": "attachmentOffsetY",
+     "y": 490,
+     "x": 105,
+     "enabled": true,
+     "text": "0.00 mm"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 491,
+     "x": 110,
+     "enabled": true,
+     "text": "0.00 mm"
+    },
+    {
+     "class": "QLabel",
+     "name": "labelOffsetZ",
+     "y": 521,
+     "x": 28,
+     "enabled": true,
+     "text": "In Z-direction"
+    },
+    {
+     "class": "Gui::PrefQuantitySpinBox",
+     "name": "attachmentOffsetZ",
+     "y": 521,
+     "x": 105,
+     "enabled": true,
+     "text": "0.00 mm"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 522,
+     "x": 110,
+     "enabled": true,
+     "text": "0.00 mm"
+    },
+    {
+     "class": "QLabel",
+     "name": "labelRoll",
+     "y": 552,
+     "x": 28,
+     "enabled": true,
+     "text": "Around X-axis"
+    },
+    {
+     "class": "Gui::QuantitySpinBox",
+     "name": "attachmentOffsetRoll",
+     "y": 552,
+     "x": 105,
+     "enabled": true,
+     "text": "0.00\u00b0"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 553,
+     "x": 110,
+     "enabled": true,
+     "text": "0.00\u00b0"
+    },
+    {
+     "class": "QLabel",
+     "name": "labelPitch",
+     "y": 583,
+     "x": 28,
+     "enabled": true,
+     "text": "Around Y-axis"
+    },
+    {
+     "class": "Gui::QuantitySpinBox",
+     "name": "attachmentOffsetPitch",
+     "y": 583,
+     "x": 105,
+     "enabled": true,
+     "text": "0.00\u00b0"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 584,
+     "x": 110,
+     "enabled": true,
+     "text": "0.00\u00b0"
+    },
+    {
+     "class": "QLabel",
+     "name": "labelYaw",
+     "y": 614,
+     "x": 28,
+     "enabled": true,
+     "text": "Around Z-axis"
+    },
+    {
+     "class": "Gui::QuantitySpinBox",
+     "name": "attachmentOffsetYaw",
+     "y": 614,
+     "x": 105,
+     "enabled": true,
+     "text": "0.00\u00b0"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 615,
+     "x": 110,
+     "enabled": true,
+     "text": "0.00\u00b0"
+    },
+    {
+     "class": "QCheckBox",
+     "name": "checkBoxFlip",
+     "y": 657,
+     "x": 18,
+     "enabled": true,
+     "text": "Flip sides",
+     "checked": false
+    }
+   ]
+  ]
+ },
+ "tree": [
+  {
+   "text": "attach",
+   "depth": 0,
+   "bold": true,
+   "italic": false,
+   "underline": false,
+   "fg": "#000000",
+   "icon": "icon0.png",
+   "expanded": true,
+   "children": 1,
+   "tip": "",
+   "checkable": false
+  },
+  {
+   "text": "Body",
+   "depth": 1,
+   "bold": true,
+   "italic": false,
+   "underline": false,
+   "fg": "#000000",
+   "icon": "icon1.png",
+   "expanded": true,
+   "children": 8,
+   "tip": "",
+   "checkable": true
+  },
+  {
+   "text": "Origin",
+   "depth": 2,
+   "bold": false,
+   "italic": false,
+   "underline": false,
+   "fg": "#6f6f6f",
+   "icon": "icon2.png",
+   "expanded": true,
+   "children": 7,
+   "tip": "",
+   "checkable": true
+  },
+  {
+   "text": "X-axis",
+   "depth": 3,
+   "bold": false,
+   "italic": false,
+   "underline": false,
+   "fg": "#000000",
+   "icon": "icon3.png",
+   "expanded": true,
+   "children": 0,
+   "tip": "",
+   "checkable": true
+  },
+  {
+   "text": "Y-axis",
+   "depth": 3,
+   "bold": false,
+   "italic": false,
+   "underline": false,
+   "fg": "#000000",
+   "icon": "icon4.png",
+   "expanded": true,
+   "children": 0,
+   "tip": "",
+   "checkable": true
+  },
+  {
+   "text": "Z-axis",
+   "depth": 3,
+   "bold": false,
+   "italic": false,
+   "underline": false,
+   "fg": "#000000",
+   "icon": "icon5.png",
+   "expanded": true,
+   "children": 0,
+   "tip": "",
+   "checkable": true
+  },
+  {
+   "text": "XY-plane",
+   "depth": 3,
+   "bold": false,
+   "italic": false,
+   "underline": false,
+   "fg": "#000000",
+   "icon": "icon6.png",
+   "expanded": true,
+   "children": 0,
+   "tip": "",
+   "checkable": true
+  },
+  {
+   "text": "XZ-plane",
+   "depth": 3,
+   "bold": false,
+   "italic": false,
+   "underline": false,
+   "fg": "#000000",
+   "icon": "icon7.png",
+   "expanded": true,
+   "children": 0,
+   "tip": "",
+   "checkable": true
+  },
+  {
+   "text": "YZ-plane",
+   "depth": 3,
+   "bold": false,
+   "italic": false,
+   "underline": false,
+   "fg": "#000000",
+   "icon": "icon8.png",
+   "expanded": true,
+   "children": 0,
+   "tip": "",
+   "checkable": true
+  },
+  {
+   "text": "Origin-Point",
+   "depth": 3,
+   "bold": false,
+   "italic": false,
+   "underline": false,
+   "fg": "#000000",
+   "icon": "icon9.png",
+   "expanded": true,
+   "children": 0,
+   "tip": "",
+   "checkable": true
+  },
+  {
+   "text": "Pad",
+   "depth": 2,
+   "bold": false,
+   "italic": false,
+   "underline": false,
+   "fg": "#000000",
+   "icon": "icon10.png",
+   "expanded": true,
+   "children": 1,
+   "tip": "",
+   "checkable": true
+  },
+  {
+   "text": "Sketch",
+   "depth": 3,
+   "bold": false,
+   "italic": false,
+   "underline": false,
+   "fg": "#000000",
+   "icon": "icon11.png",
+   "expanded": true,
+   "children": 0,
+   "tip": "",
+   "checkable": true
+  },
+  {
+   "text": "Sketch001",
+   "depth": 2,
+   "bold": false,
+   "italic": false,
+   "underline": false,
+   "fg": "#000000",
+   "icon": "icon12.png",
+   "expanded": true,
+   "children": 0,
+   "tip": "",
+   "checkable": true
+  },
+  {
+   "text": "DatumPlane",
+   "depth": 2,
+   "bold": false,
+   "italic": false,
+   "underline": false,
+   "fg": "#000000",
+   "icon": "icon13.png",
+   "expanded": true,
+   "children": 0,
+   "tip": "",
+   "checkable": true
+  },
+  {
+   "text": "DatumPlane001",
+   "depth": 2,
+   "bold": false,
+   "italic": false,
+   "underline": false,
+   "fg": "#000000",
+   "icon": "icon14.png",
+   "expanded": true,
+   "children": 0,
+   "tip": "",
+   "checkable": true
+  },
+  {
+   "text": "DatumLine",
+   "depth": 2,
+   "bold": false,
+   "italic": false,
+   "underline": false,
+   "fg": "#000000",
+   "icon": "icon15.png",
+   "expanded": true,
+   "children": 0,
+   "tip": "",
+   "checkable": true
+  },
+  {
+   "text": "DatumPoint",
+   "depth": 2,
+   "bold": false,
+   "italic": false,
+   "underline": false,
+   "fg": "#000000",
+   "icon": "icon16.png",
+   "expanded": true,
+   "children": 0,
+   "tip": "",
+   "checkable": true
+  },
+  {
+   "text": "LCS",
+   "depth": 2,
+   "bold": false,
+   "italic": false,
+   "underline": false,
+   "fg": "#000000",
+   "icon": "icon17.png",
+   "expanded": true,
+   "children": 7,
+   "tip": "",
+   "checkable": true
+  },
+  {
+   "text": "X-axis001",
+   "depth": 3,
+   "bold": false,
+   "italic": false,
+   "underline": false,
+   "fg": "#000000",
+   "icon": "icon18.png",
+   "expanded": true,
+   "children": 0,
+   "tip": "",
+   "checkable": true
+  },
+  {
+   "text": "Y-axis001",
+   "depth": 3,
+   "bold": false,
+   "italic": false,
+   "underline": false,
+   "fg": "#000000",
+   "icon": "icon19.png",
+   "expanded": true,
+   "children": 0,
+   "tip": "",
+   "checkable": true
+  },
+  {
+   "text": "Z-axis001",
+   "depth": 3,
+   "bold": false,
+   "italic": false,
+   "underline": false,
+   "fg": "#000000",
+   "icon": "icon20.png",
+   "expanded": true,
+   "children": 0,
+   "tip": "",
+   "checkable": true
+  },
+  {
+   "text": "XY-plane001",
+   "depth": 3,
+   "bold": false,
+   "italic": false,
+   "underline": false,
+   "fg": "#000000",
+   "icon": "icon21.png",
+   "expanded": true,
+   "children": 0,
+   "tip": "",
+   "checkable": true
+  },
+  {
+   "text": "XZ-plane001",
+   "depth": 3,
+   "bold": false,
+   "italic": false,
+   "underline": false,
+   "fg": "#000000",
+   "icon": "icon22.png",
+   "expanded": true,
+   "children": 0,
+   "tip": "",
+   "checkable": true
+  },
+  {
+   "text": "YZ-plane001",
+   "depth": 3,
+   "bold": false,
+   "italic": false,
+   "underline": false,
+   "fg": "#000000",
+   "icon": "icon23.png",
+   "expanded": true,
+   "children": 0,
+   "tip": "",
+   "checkable": true
+  },
+  {
+   "text": "Origin-Point001",
+   "depth": 3,
+   "bold": false,
+   "italic": false,
+   "underline": false,
+   "fg": "#000000",
+   "icon": "icon24.png",
+   "expanded": true,
+   "children": 0,
+   "tip": "",
+   "checkable": true
+  }
+ ]
+}

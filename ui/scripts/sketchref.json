@@ -468,6 +468,10 @@
   {
    "case": "c-angle",
    "title": "Insert Angle"
+  },
+  {
+   "case": "external-delete",
+   "title": "Insert Length"
   }
  ],
  "cases": {
@@ -4804,6 +4808,119 @@
     "status": "Under-constrained: ",
     "link": "7 Degrees of Freedom"
    }
+  },
+  "external-edge-vertex": {
+   "geometry": [
+    {
+     "type": "LineSegment",
+     "start": [
+      40.0,
+      20.0
+     ],
+     "end": [
+      11.956521989999999,
+      0.0
+     ]
+    }
+   ],
+   "constraints": [
+    {
+     "type": "Coincident",
+     "args": [
+      0,
+      1,
+      -4,
+      1
+     ]
+    },
+    {
+     "type": "PointOnObject",
+     "args": [
+      0,
+      2,
+      -3
+     ]
+    }
+   ],
+   "message": {
+    "status": "Under-constrained: ",
+    "link": "1 Degrees of Freedom"
+   },
+   "external": [
+    {
+     "type": "LineSegment",
+     "start": [
+      0.0,
+      0.0
+     ],
+     "end": [
+      40.0,
+      0.0
+     ]
+    },
+    {
+     "type": "Point",
+     "at": [
+      40.0,
+      20.0
+     ]
+    }
+   ],
+   "external_geometry": [
+    [
+     "Pad",
+     "Edge4"
+    ],
+    [
+     "Pad",
+     "Vertex6"
+    ]
+   ]
+  },
+  "external-delete": {
+   "geometry": [
+    {
+     "type": "Point",
+     "at": [
+      29.968941,
+      0.0
+     ]
+    }
+   ],
+   "constraints": [
+    {
+     "type": "Distance",
+     "args": [
+      0,
+      1,
+      -3
+     ],
+     "value": 10.031059
+    }
+   ],
+   "message": {
+    "status": "Under-constrained: ",
+    "link": "1 Degrees of Freedom"
+   },
+   "external": [
+    {
+     "type": "LineSegment",
+     "start": [
+      40.0,
+      0.0
+     ],
+     "end": [
+      40.0,
+      20.0
+     ]
+    }
+   ],
+   "external_geometry": [
+    [
+     "Pad",
+     "Edge7"
+    ]
+   ]
   }
  }
 }

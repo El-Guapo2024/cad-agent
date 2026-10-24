@@ -59,6 +59,9 @@ import {
 import { SCHEMAS, userString } from './quantity'
 import { approveRenders } from './agentwb'
 import { deleteFeatures, partDesignMenu, pdToolbars, sketchMenu } from './partdesign'
+import { createDatum, datumsMenu } from './pd_attach'
+/** Edit > Create's entries other than Datums: a project's parts are its modules here, not document objects. */
+const CREATE_NA = 'n/a: a project\'s parts are its part modules; there is no document to add this to'
 
 /** FreeCAD's standard views and their keys (CommandView.cpp), plus each one's own command id
  *  (StdCmdViewFront etc. are separate commands, not one parameterised command) for cmdreg.ts and
@@ -469,6 +472,12 @@ export function MenuBar() {
         { label: 'Edit Mode', icon: EDIT_MODES.find((m) => m[0] === editMode)![2], sub: EDIT_MODES.map(([m, label, icon, tip, cmd]): Entry => ({ label, icon, cmd, checked: editMode === m, onSelect: () => setEditMode(m), title: tip })) },
         'sep',
         { label: 'Preferences', kbd: '⌘,', cmd: 'Std_DlgPreferences', onSelect: preferences },
+        // Edit > Create (StdWorkbench): only the Datums (pd_attach.tsx) make something here
+        { label: 'Create', sub: [{ label: 'New Part', icon: 'std-part', cmd: 'Std_Part', disabled: true, title: CREATE_NA },
+          { label: 'New Group', icon: 'std-group', cmd: 'Std_Group', disabled: true, title: CREATE_NA },
+          { label: 'Variable Set', icon: 'varset', cmd: 'Std_VarSet', disabled: true, title: CREATE_NA },
+          { label: 'Annotation Label', cmd: 'Std_AnnotationLabel', disabled: true, title: CREATE_NA }, datumsMenu(),
+          { label: 'Link Actions', disabled: true, title: CREATE_NA }] },
       ]} />
       <Menu label="View" entries={[
         { label: 'New 3D View', icon: 'window-new', disabled: true, title: 'n/a: one 3D view per project here' },
@@ -848,6 +857,8 @@ export function ToolBar() {
       {on('Structure') && <><TGrip />
         {/* FreeCAD's tooltips, with the reason they are off here after them; Link Actions shows its default, Make Link */}
         <Btn icon="std-part" title={`${FC_TIPS.Std_Part[1]} — ${na}`} tip={{ head: FC_TIPS.Std_Part[0], shown: 'Std_Part' }} disabled onClick={() => {}} />
+        {/* Part_Datums: the group's default, Coordinate System; Edit > Create > Datums has the four */}
+        <Btn icon="std-origin" cmd="Part_CoordinateSystem" title="Datums: creates a datum object (coordinate system, plane, line, or point) that can be attached to other objects" disabled={!slug} onClick={() => void createDatum('Part::LocalCoordinateSystem')} />
         <Btn icon="std-group" title={`${FC_TIPS.Std_Group[1]} — ${na}`} tip={{ head: FC_TIPS.Std_Group[0], shown: 'Std_Group' }} disabled onClick={() => {}} />
         <Btn icon="link" title={`${FC_TIPS.Std_LinkMake[1]} — ${na}`} tip={{ head: FC_TIPS.Std_LinkMake[0], shown: 'Std_LinkMake (Std_LinkActions:0)' }} disabled onClick={() => {}} />
         <Btn icon="varset" title={`${FC_TIPS.Std_VarSet[1]} — ${na}`} tip={{ head: FC_TIPS.Std_VarSet[0], shown: 'Std_VarSet' }} disabled onClick={() => {}} /></>}

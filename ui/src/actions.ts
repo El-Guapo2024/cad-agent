@@ -14,6 +14,7 @@
 //   src/Gui/MDIView.cpp: 2007 Werner Mayer
 //   No copyright line in the file: src/Gui/PreferencePages/DlgSettingsGeneral.ui
 import type { DockviewApi } from 'dockview-react'
+import { withAttachedAll } from './attached'
 import { api, resultText, type Body, type CadResult, type GuiState, type Placement, type Vec3 } from './api'
 import { consoleLog, getState, report, saved, setState, subscribe, type DrawStyle, type SelEntry, type State, type Task, type ViewProps } from './store'
 import type { CadView } from './viewer'
@@ -556,7 +557,7 @@ export async function loadFeatures() {
       if (!r.data?.not_built) report('warn', `Feature lists: ${resultText(r)}`)
       return
     }
-    const features = r.data?.parts ?? {}
+    const features = withAttachedAll(r.data?.parts ?? {})       // where the Body attaches each object (attached.ts)
     setState((s) => ({ features, featSel: s.featSel.filter((ref) => !!featureOf(features, ref)),
       activeBody: s.activeBody && features[s.activeBody] ? s.activeBody : null }))
     for (const [part, why] of Object.entries(r.data?.errors ?? {})) report('warn', `${part}: ${why}`)
