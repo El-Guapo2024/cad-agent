@@ -441,8 +441,8 @@ export function PdBodyRows({ ctx, part, body, bodyRow }: { ctx: TreeCtx; part: s
     const kids = f.type !== SKETCH && typeof f.profile === 'string' ? doc.features.filter((x) => x.name === f.profile && x.type === SKETCH) : []
     const after = solidNames(doc).indexOf(f.name) > solidNames(doc).indexOf(doc.tip ?? '') && f.type !== SKETCH
     const overlays = <>
-      {f.name === doc.tip && tipOverlay}
-      {f.type === SKETCH && f.fully_constrained !== true && <img className="tov tov-br" src="./freecad-icons/Sketcher_NotFullyConstrained.svg" width={10} height={10} alt="" draggable={false} />}
+      {f.name === doc.tip && f.type !== SKETCH && tipOverlay}
+      {f.type === SKETCH && f.fully_constrained === false && <img className="tov tov-br" src="./freecad-icons/Sketcher_NotFullyConstrained.svg" width={10} height={10} alt="" draggable={false} />}
       {f.type === SKETCH && !f.support && <img className="tov tov-bl" src="./freecad-icons/Part_Detached.svg" width={10} height={10} alt="" draggable={false} />}
     </>
     const desc = [KIND[f.type] ?? f.type, f.type !== SKETCH && f.profile ? `profile ${f.profile}` : null, after ? 'after the Tip: not built' : null].filter(Boolean).join(' · ')
@@ -625,7 +625,16 @@ export function FeatureProps({ refKey }: { refKey: string }) {
   const sketches = doc.features.filter((x) => x.type === SKETCH).map((x) => x.name)
   const value = (d: PropDef) => (d.key === 'name' ? f.name : d.key === 'type1' ? extrudeType(f) : d.key === 'side_type' ? sideType(f) : d.key === 'length' ? (f.length ?? LENGTH_DEFAULT[f.type]) : d.key === 'length2' ? (f.length2 ?? LENGTH_DEFAULT[f.type]) : f[d.key] ?? DEFAULTS[d.key])
   const row = (d: PropDef): ReactNode => {
-    const v = value(d), why = d.ro?.(f) ?? null
+    let v = value(d)
+    const why = d.ro?.(f) ?? null
+    if (d.key === 'direction' && !f.use_custom_vector) {
+      // FeatureExtrude::computeDirection: without a custom vector, Direction is the sketch's normal, away from the material
+      // for a Pocket, flipped by Reversed (FreeCAD shows [0 0 1] for a Pad on XY, [0 0 -1] for a Pocket)
+      const sk = doc.features.find((x) => x.name === f.profile)
+      const n = sk ? new THREE.Vector3(0, 0, 1).transformDirection(sketchMatrix(sk)) : new THREE.Vector3(0, 0, 1)
+      n.multiplyScalar((f.type === POCKET ? -1 : 1) * (f.reversed ? -1 : 1))
+      v = n.toArray().map((x) => Math.round(x * 1e9) / 1e9 + 0)
+    }
     const shown = (x: unknown) => (d.kind === 'length' ? qtext(numberOf(x, doc.params), LENGTH) + (typeof x === 'string' ? `  (= ${x})` : '')
       : d.kind === 'angle' ? qtext(numberOf(x, doc.params), ANGLE) : d.kind === 'vector' ? `[${(Array.isArray(x) ? x : [0, 0, 1]).map((n) => Number(n).toFixed(2)).join(' ')}]` : String(x ?? ''))
     if (why) return <Row key={d.key} k={<span title={`Read-only: ${why}`}>{d.name}</span>} v={shown(v)} />

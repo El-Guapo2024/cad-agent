@@ -102,6 +102,7 @@ export function View3D() {
     attachView(v)
     return () => { attachView(null); v.dispose() }
   }, [])
+  const hasBodies = useStore((s) => Object.keys(s.features).some((p) => isBodyDoc(s.features[p]))) // a PartDesign Body is a part, built or not
   const waiting = offline ? `Can't reach cad serve at ${location.host}. Retrying every 2 seconds…`
     : !slug ? 'No project open' : err ? `${slug} did not build: ${err}`
     : building ? 'Building the scene. The first one starts the CAD kernel, about 30 seconds.' : ''
@@ -110,7 +111,7 @@ export function View3D() {
       <div ref={ref} className="view3d-host" />
       {!scene && waiting && <div className="view-overlay">{waiting}</div>}
       {/* Not in FreeCAD, whose empty view is just empty: here parts come from code, so say where they come from. */}
-      {scene && !scene.bodies.length && !err && !building && <div className="view-overlay">
+      {scene && !scene.bodies.length && !err && !building && !hasBodies && <div className="view-overlay">
         {slug} has no parts yet. Ask Claude for one in the chat, or add parts/&lt;name&gt;.py. It appears here as soon as it's saved.</div>}
       {scene && err && <div className="view-banner">Rebuild failed, showing the last good scene. {err}</div>}
       {/* CADAgent_Pose: the machine is drawn somewhere else than assembly.py has it; the chip says so and goes home. */}
