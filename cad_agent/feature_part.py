@@ -389,7 +389,8 @@ def Document(objects, params=None, features=None, base=None, tip=None):
     if not shown:
         raise F.FeatureError("the document has no shape: OBJECTS is empty" if not objects else
                              "the document shows no shape")
-    return Part(Compound(compound(shown)).wrapped) if len(shown) > 1 else Part(shown[0])
+    one = shown[0] if len(shown) == 1 and shown[0].ShapeType() == TopAbs_COMPOUND else compound(shown)
+    return Part(Compound(one).wrapped)          # a compound always, as feature.Body returns its solids
 
 
 # ── the same lines, fed to FreeCAD ───────────────────────────────────────────────────────────────────────────────

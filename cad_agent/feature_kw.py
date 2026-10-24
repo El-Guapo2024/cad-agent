@@ -21,7 +21,6 @@ This module imports without build123d or OCP, as feature.py does.
 """
 from __future__ import annotations
 
-from . import feature as F
 
 # The Body's Origin, by the names FreeCAD gives its features (App::Origin's X_Axis ... YZ_Plane, Origin as the point).
 ORIGIN = ("X_Axis", "Y_Axis", "Z_Axis", "XY_Plane", "XZ_Plane", "YZ_Plane")
@@ -218,3 +217,8 @@ def bare(cls, name: str = "x"):
     obj = object.__new__(cls)
     obj.name = name
     return obj
+
+
+# feature.py imports this module (through feature_transform.py) while it is loading; importing it here, last, lets either
+# be imported first. Every use of F above is at call time.
+from . import feature as F  # noqa: E402
