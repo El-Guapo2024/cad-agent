@@ -161,7 +161,7 @@ class Attachable:
                 "map_path_parameter": self.map_path_parameter, "placement": self.own_placement}
 
     def references(self) -> list[str]:
-        return [o for o, _ in self.attachment_support]
+        return [o.split(".")[0] for o, _ in self.attachment_support]
 
 
 # ── datum features ────────────────────────────────────────────────────────────────────────────────────
@@ -270,7 +270,10 @@ class LocalCoordinateSystem(_Datum):
         kind, q = ORIGIN[role]
         child = pl * A.Placement((0, 0, 0), A.Rotation(q, normalize=False))
         shape = _origin_local(kind)
-        return _moved(shape, child), child, False, False        # an element: Vertex, Line, Plane (no Placement flag)
+        # "XY_Plane" is an element (typed Plane); "XY_Plane." (what the GUI's TaskAttacher stores, with FreeCAD's
+        # own name XY_Plane001.) is the sub-object itself (Plane|Placement), placed through the LCS
+        whole = sub.endswith(".")
+        return _moved(shape, child), child, whole, False
 
 
 # The PartDesign workbench's own datums (Mod/PartDesign/App/DatumPlane.cpp and its neighbours): FreeCAD 26.3 still
@@ -709,6 +712,18 @@ def _evaluate_upto(features, params, base):
     return evaluate([], params, base), err
 
 
+def needs_body(doc: dict) -> bool:
+    """Whether a feature list (feature_edit.read()) has something only the built Body places: a datum, a sketch
+    attached to anything but an origin plane with FlatFace, or a sketch with external geometry."""
+    datum_types = {c.type_id for c in DATUMS.values()}
+    for f in doc.get("features") or []:
+        if f.get("type") in datum_types:
+            return True
+        if f.get("type") == "Sketcher::SketchObject" and (not f.get("support") or f.get("external_geometry")):
+            return True
+    return False
+
+
 def body_info(path) -> dict:
     """Every object's Placement as the Body attaches it, each attached object's MapMode, and each sketch's
     external geometry: {"objects": {name: {"placement": ..., "map_mode": ..., "external": [...]}}, "error"}.
@@ -731,6 +746,30 @@ def body_info(path) -> dict:
             rec["external"] = list(sk._external)
         objects[name] = rec
     return {"objects": objects, "error": err}
+
+
+def project_query(path, sketch: str, refs) -> dict:
+    """What Sketcher_External adds for references picked while a sketch is in edit: each one projected onto the
+    sketch as the Body places it (rebuildExternalGeometry), resolved in the Body before the sketch.
+    {"placement": the sketch's, "external": [[geometry, ...] per reference], "errors": [message or None, ...]}"""
+    _, features, params, base = _load(path)
+    names = [getattr(f, "name", None) for f in features]
+    if sketch not in names:
+        raise FeatureError(f"there is no sketch {sketch!r}")
+    f = features[names.index(sketch)]
+    shapes, err = _evaluate_upto(features[:names.index(sketch)], params, base)
+    ctx = shapes["_attach"]
+    pl = ctx.attach(f, f"Sketch {sketch}", orig=f._own_pl) or f._own_pl     # as feature._place_sketch places it
+    out = {"placement": pl.as_dict(), "external": [], "errors": [], "build_error": err}
+    for r in external_list(f"Sketch {sketch}", refs):
+        where = f"{sketch}: external geometry {r[0]}.{r[1]}" if r[1] else f"{sketch}: external geometry {r[0]}"
+        try:
+            out["external"].append(project(pl, ctx.external_shape(r[0], r[1], where), where))
+            out["errors"].append(None)
+        except FeatureError as e:
+            out["external"].append([])
+            out["errors"].append(str(e))
+    return out
 
 
 def attach_query(path, support, engine: str = "Plane", mode: str | None = None, offset=None,

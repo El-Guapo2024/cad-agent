@@ -146,6 +146,14 @@ CASES = {
         DatumLine("DatumLine", attachment_support=[("LCS", "Y_Axis")], map_mode="TwoPointLine"),
         DatumPoint("DatumPoint", attachment_support=[("LCS", "Origin")]),
         DatumPlane("DatumPlane", attachment_support=[("LCS", "XZ_Plane")])]},
+    # a sketch on an LCS's plane picked as FreeCAD's TaskAttacher takes it: the plane object itself
+    "lcs_plane_sketch": {"features": [
+        LocalCoordinateSystem("LCS", attachment_support=[("XY_Plane", "")], map_mode="FlatFace",
+                              attachment_offset=((5.0, 5.0, 2.0), (30.0, 0.0, 0.0))),
+        on("Sketch", [("LCS", "XZ_Plane.")], rect(0, 0, 12, 6), map_mode="FlatFace"),
+        Pad("Pad", "Sketch", length=4.0),
+        on("Sketch001", [("Pad", "Face6")], [Circle((6.0, 3.0), 1.5)]),
+        Pocket("Pocket", "Sketch001", type="ThroughAll")]},
     # external geometry: projected, fixed, constrained to, then padded or pocketed
     "external_top_edges": {"features": base_pad() + [
         on("Sketch001", [("Pad", "Face6")], triangle((1.0, 1.0), (39.0, 9.0), (39.0, 19.0)), [

@@ -186,6 +186,7 @@ def apply_ops(a, ops: list, cmd: str, step: str | None = None) -> Result:
     if not built:
         lines.append("  nothing to build yet: the Body has no Pad and no BaseFeature")
     lines += rows_text(rows, False)
+    _attached(a.slug, a.part, doc)
     data = {"project": a.slug, "part": a.part, "step": name, "doc": doc, "built": built,
             "failing": sum(1 for x in rows if x["state"] == "FAIL"), "file": str(path)}
     return Result(code, data, "\n".join(lines), f"{a.part}: {name}", [str(path)])
@@ -213,14 +214,20 @@ def cmd_feature_list(a) -> Result:
     lines = []
     for n, doc in docs.items():
         lines += _tree_text(n, doc) if (doc.get("features") or not doc.get("base")) else [f"{n}  (hand-written)"]
+        _attached(a.slug, n, doc)
     lines += [f"{n}  (does not parse: {e})" for n, e in errors.items()]
     data = {"project": a.slug, "parts": docs, "errors": errors}
     if a.part:
         data = {"project": a.slug, "part": a.part, **docs[a.part]}
-        if docs[a.part].get("features"):                # where each sketch and datum sits, as the Body attaches it
-            from .feature_attach import body_info
-            data["attached"] = body_info(part(a.slug, a.part))
     return Result(OK, data, "\n".join(lines) or "no parts", f"features of {a.part or a.slug}")
+
+
+def _attached(slug: str, name: str, doc: dict) -> None:
+    """doc["attached"]: where each sketch and datum sits as the Body attaches it, and each sketch's external
+    geometry (feature_attach.body_info), for a Body with something that only the built Body places."""
+    from .feature_attach import body_info, needs_body
+    if needs_body(doc):
+        doc["attached"] = body_info(part(slug, name))
 
 
 def cmd_feature_new(a) -> Result:
@@ -322,6 +329,21 @@ def cmd_feature_attach(a) -> Result:
     return Result(OK, {"project": a.slug, "part": a.part, **out}, "\n".join(lines), f"attachment in {a.part}")
 
 
+def cmd_feature_project(a) -> Result:
+    """What Sketcher_External adds: references projected onto a sketch as the Body places it."""
+    from .feature import FeatureError
+    from .feature_attach import project_query
+    path = part(a.slug, a.part)
+    try:
+        out = project_query(path, a.sketch, a.ref or [])
+    except (FeatureError, ValueError) as e:
+        raise UsageError(str(e)) from None
+    lines = [f"{r}: {len(g)} geometr{'y' if len(g) == 1 else 'ies'}" + (f" ({e})" if e else "")
+             for r, g, e in zip(a.ref or [], out["external"], out["errors"])]
+    return Result(OK, {"project": a.slug, "part": a.part, "sketch": a.sketch, **out}, "\n".join(lines) or "no references",
+                  f"external geometry for {a.sketch}")
+
+
 def add_parsers(add, sub) -> None:
     """cli.py's build_parser hands its `add` and the subparsers here, so the arguments live with the commands."""
     fp = add("feature", None, "a part's PartDesign feature list (Body, Sketch, Pad, Pocket): list, new, add, "
@@ -371,6 +393,10 @@ def add_parsers(add, sub) -> None:
     sp.add_argument("--parameter", type=float, default=0.0, help="MapPathParameter (0 to 1 along an edge)")
     sp.add_argument("--before", metavar="FEATURE", help="resolve in the Body before this feature (the one being "
                     "edited); default: all of it")
+    sp = one("project", cmd_feature_project, "external geometry: references projected onto a sketch as the Body "
+             "places it (Sketcher_External), --ref Pad.Edge3")
+    sp.add_argument("sketch")
+    sp.add_argument("--ref", action="append", metavar="OBJ.ELEMENT", help="an edge, vertex or face (Pad.Edge3)")
     sp = one("apply", cmd_feature_apply, "several ops as one undo step: --ops '[{\"op\": \"set\", ...}]' "
              "(or --ops @file.json)")
     sp.add_argument("--ops", required=True, metavar="JSON")

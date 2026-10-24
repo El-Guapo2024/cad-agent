@@ -263,14 +263,14 @@ def ref_nodes(call, kind) -> list:
             first = e.elts[0] if isinstance(e, (ast.Tuple, ast.List)) and e.elts else e
             if isinstance(first, ast.Constant) and isinstance(first.value, str) and first.value not in ORIGIN \
                     and first.value not in SHORT:
-                out.append((first, first.value))
+                out.append((first, first.value.split(".")[0]))      # "LCS.XY_Plane" is the LCS's
     return out
 
 
 def referenced(d: dict) -> list[str]:
     """The features a sketch or datum dict names (its support and external geometry), origin left out."""
     names = [r[0] for r in d.get("attachment_support") or []] + [r[0] for r in d.get("external_geometry") or []]
-    return [n for n in names if n not in ORIGIN]
+    return [n.split(".")[0] for n in names if n not in ORIGIN]
 
 
 def build(d: dict, kind: str):

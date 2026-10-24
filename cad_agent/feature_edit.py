@@ -767,7 +767,8 @@ def apply_src(src: str, ops: list) -> str:
             t, lst, i, call = _entry(src, name)
             spans = [(t.a(_arg(call, SKETCH_POS, "name")), t.b(_arg(call, SKETCH_POS, "name")), json.dumps(to))]
             for _, c in _entries(t.tree)[1]:
-                spans += [(t.a(nd), t.b(nd), json.dumps(to)) for nd, r in _refs(c) if r == name]
+                spans += [(t.a(nd), t.b(nd), json.dumps(to + nd.value[len(r):]))   # "LCS.XY_Plane" keeps its role
+                          for nd, r in _refs(c) if r == name]
             tip = _top_assign(t.tree, "TIP")
             if tip is not None and isinstance(tip.value, ast.Constant) and tip.value.value == name:
                 spans.append((t.a(tip.value), t.b(tip.value), json.dumps(to)))
