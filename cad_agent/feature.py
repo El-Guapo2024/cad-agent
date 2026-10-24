@@ -1775,6 +1775,7 @@ def to_freecad(features, params: dict | None = None, doc=None, name: str = "Body
     return body
 
 
-# The datum features (PartDesign::Plane, Line, Point, CoordinateSystem) live with the attachment that places them,
-# and are part of this vocabulary: `from cad_agent.feature import DatumPlane`.
-from .feature_attach import CoordinateSystem, DatumLine, DatumPlane, DatumPoint  # noqa: E402,F401
+# The datum features (Part::DatumPlane, DatumLine, DatumPoint, LocalCoordinateSystem, and PartDesign::Plane, ...)
+# live with the attachment that places them, and are part of this vocabulary: `from cad_agent.feature import DatumPlane`.
+from .feature_attach import (DatumLine, DatumPlane, DatumPoint, LocalCoordinateSystem,  # noqa: E402,F401
+                             PartDesignCoordinateSystem, PartDesignLine, PartDesignPlane, PartDesignPoint)

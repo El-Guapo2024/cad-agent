@@ -37,6 +37,17 @@ TYPES = {"Sketch": SKETCH, "Pad": "PartDesign::Pad", "Pocket": "PartDesign::Pock
 # The transaction FreeCAD opens for each (PartDesign/Gui/Command.cpp's "Make " + which, SketchWorkflow.cpp's
 # "New Sketch", CommandBody.cpp, Gui/CommandDoc.cpp's "Delete", Tree.cpp's "Rename <obj>.Label").
 ADD_NAMES = {SKETCH: "New Sketch", "PartDesign::Pad": "Make Pad", "PartDesign::Pocket": "Make Pocket"}
+# The datums: Part's, which FreeCAD 26.3's Edit > Datums makes (Part/Gui/Command.cpp: "Add datum plane", ...), and
+# PartDesign's own (PartDesign/Gui/Command.cpp's UnifiedDatumCommand: "Create " + the default name)
+DATUMS = {"DatumPlane": "Part::DatumPlane", "DatumLine": "Part::DatumLine", "DatumPoint": "Part::DatumPoint",
+          "LocalCoordinateSystem": "Part::LocalCoordinateSystem", "PartDesignPlane": "PartDesign::Plane",
+          "PartDesignLine": "PartDesign::Line", "PartDesignPoint": "PartDesign::Point",
+          "PartDesignCoordinateSystem": "PartDesign::CoordinateSystem"}
+TYPES.update(DATUMS)
+ADD_NAMES.update({"Part::DatumPlane": "Add datum plane", "Part::DatumLine": "Add datum line",
+                  "Part::DatumPoint": "Add datum point", "Part::LocalCoordinateSystem": "Add coordinate system",
+                  "PartDesign::Plane": "Create DatumPlane", "PartDesign::Line": "Create DatumLine",
+                  "PartDesign::Point": "Create DatumPoint", "PartDesign::CoordinateSystem": "Create Local_CS"})
 
 TEMPLATE = '''"""{part}: a PartDesign Body made in the workbench (cad feature new).
 
@@ -95,7 +106,8 @@ def _read(path: Path) -> dict:
 
 def _builds_anything(doc: dict) -> bool:
     """Whether the Body has a solid to build: a BaseFeature, or a feature that is not a sketch."""
-    return bool(doc.get("base")) or any(f.get("type") != SKETCH for f in doc.get("features", []))
+    return bool(doc.get("base")) or any(f.get("type") not in (SKETCH, *DATUMS.values())
+                                         for f in doc.get("features", []))
 
 
 def _tree_text(part_name: str, doc: dict) -> list[str]:
@@ -205,6 +217,9 @@ def cmd_feature_list(a) -> Result:
     data = {"project": a.slug, "parts": docs, "errors": errors}
     if a.part:
         data = {"project": a.slug, "part": a.part, **docs[a.part]}
+        if docs[a.part].get("features"):                # where each sketch and datum sits, as the Body attaches it
+            from .feature_attach import body_info
+            data["attached"] = body_info(part(a.slug, a.part))
     return Result(OK, data, "\n".join(lines) or "no parts", f"features of {a.part or a.slug}")
 
 
@@ -281,6 +296,32 @@ def cmd_feature_apply(a) -> Result:
     return apply_ops(a, ops, _cmd(a, *words), a.name)
 
 
+def cmd_feature_attach(a) -> Result:
+    """What FreeCAD's Attachment panel shows for references: their types, the modes that fit and the best one
+    (suggestMapModes), and the Placement of the chosen mode, resolved in the Body before --before."""
+    from .feature import FeatureError
+    from .feature_attach import attach_query
+    path = part(a.slug, a.part)
+    try:
+        offset = json.loads(a.offset) if a.offset else None
+        out = attach_query(path, a.support or [], a.engine, a.mode, offset, a.reversed, a.parameter, a.before)
+    except (FeatureError, ValueError) as e:
+        raise UsageError(str(e)) from None
+    refs = ", ".join(".".join(x for x in r if x) for r in out.get("references", []))
+    lines = [f"references: {refs or 'none'}"]
+    if out.get("types"):
+        lines.append(f"types: {', '.join(out['types'])}")
+    if out.get("suggestion"):
+        sug = out["suggestion"]
+        lines.append(f"{sug['message']}: best {sug['best']}; fit: {', '.join(sug['all']) or 'none'}")
+    if out.get("placement"):
+        pl = out["placement"]
+        lines.append(f"{out['mode']}: position {pl['position']}, yaw-pitch-roll {pl['ypr']}")
+    if out.get("error"):
+        lines.append(f"error: {out['error']}")
+    return Result(OK, {"project": a.slug, "part": a.part, **out}, "\n".join(lines), f"attachment in {a.part}")
+
+
 def add_parsers(add, sub) -> None:
     """cli.py's build_parser hands its `add` and the subparsers here, so the arguments live with the commands."""
     fp = add("feature", None, "a part's PartDesign feature list (Body, Sketch, Pad, Pocket): list, new, add, "
@@ -318,6 +359,18 @@ def add_parsers(add, sub) -> None:
     sp.add_argument("--first", action="store_true", help="to the start of the Body")
     sp = one("tip", cmd_feature_tip, "set the Body's Tip (PartDesign_MoveTip): what comes after it is not built")
     sp.add_argument("name")
+    sp = one("attach", cmd_feature_attach, "the Attachment panel's answer for references: their types, FreeCAD's "
+             "mode suggestion and the placement (--support Pad.Face6 --mode FlatFace)")
+    sp.add_argument("--support", action="append", metavar="OBJ.ELEMENT",
+                    help="a reference, as FreeCAD names it (Pad.Face6, XY_Plane, DatumLine); up to four")
+    sp.add_argument("--engine", default="Plane", choices=("Plane", "Line", "Point", "3D"),
+                    help="AttacherType: Plane (sketch, datum plane), Line, Point, 3D (coordinate system)")
+    sp.add_argument("--mode", help="MapMode (default: the best fit)")
+    sp.add_argument("--offset", help="AttachmentOffset, JSON: [[x, y, z], [yaw, pitch, roll]]")
+    sp.add_argument("--reversed", action="store_true", help="MapReversed (Flip sides)")
+    sp.add_argument("--parameter", type=float, default=0.0, help="MapPathParameter (0 to 1 along an edge)")
+    sp.add_argument("--before", metavar="FEATURE", help="resolve in the Body before this feature (the one being "
+                    "edited); default: all of it")
     sp = one("apply", cmd_feature_apply, "several ops as one undo step: --ops '[{\"op\": \"set\", ...}]' "
              "(or --ops @file.json)")
     sp.add_argument("--ops", required=True, metavar="JSON")

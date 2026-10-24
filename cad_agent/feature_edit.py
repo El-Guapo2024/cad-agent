@@ -62,9 +62,11 @@ import re
 from pathlib import Path
 
 from . import feature as F
+from . import feature_edit_attach as _attach
 from . import params as P
 
 TYPE_IDS = {"Sketch": "Sketcher::SketchObject", "Pad": "PartDesign::Pad", "Pocket": "PartDesign::Pocket"}
+TYPE_IDS.update({k: c.type_id for k, c in _attach.DATUMS.items()})     # DatumPlane, ... (feature_edit_attach.py)
 KINDS = {v: k for k, v in TYPE_IDS.items()}
 SKETCH_POS = ("name", "support", "geometry", "constraints")
 SKETCH_KW = ("support", "attachment_offset", "map_mode", "geometry", "constraints")
@@ -199,12 +201,11 @@ def _entries(tree):
 
 def _feature_dict(call, src):
     kind = _fname(call)
+    if kind in _attach.DATUM_KINDS:
+        return _attach.datum_dict(call, src, _lit, _arg)
     if kind == "Sketch":
         d = {"name": _lit(_arg(call, SKETCH_POS, "name"), src), "type": TYPE_IDS[kind]}
-        sup = _arg(call, SKETCH_POS, "support") or _arg(call, (), "plane")
-        d["support"] = F._plane_key(_lit(sup, src)) if sup is not None else "XY"
-        off = _arg(call, (), "attachment_offset")
-        d["attachment_offset"] = _lit(off, src) if off is not None else None
+        d.update(_attach.sketch_dict(call, src, _lit, _arg))   # support, attachment, external geometry
         g = _arg(call, SKETCH_POS, "geometry")
         c = _arg(call, SKETCH_POS, "constraints")
         d["geometry"] = _lit(g, src) if g is not None else []
@@ -328,17 +329,17 @@ def feature_src(d: dict, indent: int = 4) -> str:
     name = d.get("name")
     if not (isinstance(name, str) and name):
         raise FeatureEditError("a feature needs a name")
+    if kind in _attach.DATUM_KINDS:
+        return _attach.datum_src(d, kind)
     if kind == "Sketch":
-        parts = [json.dumps(name), f"support={json.dumps(d.get('support') or 'XY')}"]
-        if d.get("attachment_offset") is not None:
-            parts.append(f"attachment_offset={lit(_tuples('attachment_offset', d['attachment_offset']))}")
+        parts = [json.dumps(name)] + _attach.attach_kw(_attach.merged_sketch(d), "Sketch")
         g = [geometry_src(x) for x in d.get("geometry", [])]
         c = [constraint_src(x) for x in d.get("constraints", [])]
         parts.append(f"geometry={_list_src(g, indent + 7)}")
         parts.append(f"constraints={_list_src(c, indent + 7)}")
         return "Sketch(" + (",\n" + " " * (indent + 7)).join(parts) + ")"
     if kind not in ("Pad", "Pocket"):
-        raise FeatureEditError(f"a feature of type {d.get('type')!r} is not a Sketch, Pad or Pocket")
+        raise FeatureEditError(f"a feature of type {d.get('type')!r} is not a Sketch, Pad or Pocket, or a datum")
     default = getattr(F, kind)("x", "y")
     parts = [json.dumps(name), json.dumps(d.get("profile"))]
     for key, kwname in EXTRUDE_PROPS.items():
@@ -537,6 +538,15 @@ def _op_set(src, name, props):
     props.pop("name", None)
     if "type" in props and props.pop("type") != TYPE_IDS[kind]:
         raise FeatureEditError(f"{name} is a {kind}; its type cannot be changed")
+    if kind in _attach.DATUM_KINDS or kind == "Sketch":
+        keys = _attach.SKETCH_KEYS if kind == "Sketch" else _attach.ATTACH_KEYS
+        att = {k: props.pop(k) for k in list(props) if k in keys}
+        if att:
+            _attach.set_attachment(t, call, kind, _feature_dict(call, t.src), att, spans, _set_arg, _drop_kw,
+                                   _arg, SKETCH_POS)
+    if kind in _attach.DATUM_KINDS:
+        _attach.set_datum_size(t, call, kind, props, spans, _set_arg, _drop_kw)
+        return t.edit(spans)
     if kind == "Sketch":
         ind = call.col_offset + 7
         for key, val in props.items():
@@ -548,14 +558,6 @@ def _op_set(src, name, props):
                 text = [constraint_src(c) for c in val]
                 if not _set_list(t, _arg(call, SKETCH_POS, "constraints"), text, spans, ind):
                     _set_arg(t, call, (), "constraints", _list_src(text, ind), spans)
-            elif key == "support":
-                F._plane_key(val)
-                _set_arg(t, call, SKETCH_POS, "support", json.dumps(val), spans)
-            elif key == "attachment_offset":
-                if val is None:
-                    _drop_kw(t, call, "attachment_offset", spans)
-                else:
-                    _set_arg(t, call, (), "attachment_offset", lit(_tuples(key, val)), spans)
             else:
                 raise FeatureEditError(f"{key} is not a property of a Sketch")
         return t.edit(spans)
@@ -575,8 +577,8 @@ def _op_set(src, name, props):
 def _refs(call):
     """The string constants of a Pad or Pocket that name other features: (node, name)."""
     out = []
-    if _fname(call) == "Sketch":
-        return out
+    if _fname(call) == "Sketch" or _fname(call) in _attach.DATUM_KINDS:
+        return _attach.ref_nodes(call, _fname(call))
     p = _arg(call, EXTRUDE_POS, "profile")
     if isinstance(p, ast.Constant):
         out.append((p, p.value))
@@ -650,6 +652,30 @@ def _convert(src):
     return out.rstrip("\n") + "\n" + tail if end else tail
 
 
+def _ensure_import(src: str, kind) -> str:
+    """The part file's `from cad_agent.feature import (...)` with kind in it, when kind is a name it lacks (a
+    datum added to a file written before datums were)."""
+    tree = ast.parse(src)
+    for node in tree.body:
+        if isinstance(node, ast.ImportFrom) and node.module == "cad_agent.feature" and node.level == 0:
+            names = [a.name for a in node.names]
+            if kind in names or "*" in names or kind not in _attach.DATUM_KINDS:
+                return src
+            names = sorted(set(names) | {kind}, key=str.lower)
+            head = "from cad_agent.feature import ("
+            lines, line = [], head
+            for i, n in enumerate(names):
+                piece = n + (", " if i < len(names) - 1 else ")")
+                if len(line) + len(piece.rstrip()) > 110:
+                    lines.append(line.rstrip())
+                    line = " " * len(head)
+                line += piece
+            lines.append(line)
+            t = _Text(src)
+            return t.edit([(t.a(node), t.b(node), "\n".join(lines))])
+    return src
+
+
 def _check(src):
     """The edited source read back, every feature built as an object, the order and references sound."""
     try:
@@ -666,11 +692,18 @@ def _check(src):
         if n in kinds or n == "BaseFeature":
             raise FeatureEditError(f"two features are named {n!r}")
         try:
-            if f["type"] == TYPE_IDS["Sketch"]:
-                F.Sketch(n, f["support"], [F.geometry_from_dict(g) for g in f["geometry"]],
+            if KINDS[f["type"]] in _attach.DATUM_KINDS or f["type"] == TYPE_IDS["Sketch"]:
+                for r in _attach.referenced(f):
+                    if r not in seen:
+                        raise FeatureEditError(f"{n}: it is attached to or projects {r!r}, which is not before it")
+            if KINDS[f["type"]] in _attach.DATUM_KINDS:
+                _attach.build(f, KINDS[f["type"]])
+            elif f["type"] == TYPE_IDS["Sketch"]:
+                F.Sketch(n, None, [F.geometry_from_dict(g) for g in f["geometry"]],
                          [F.Constraint(c["type"], *c["args"], *([c["value"]] if "value" in c else []),
                                        name=c.get("name") or None, driving=c.get("driving", True))
-                          for c in f["constraints"]], attachment_offset=f["attachment_offset"])
+                          for c in f["constraints"]], **_attach.build(f, "Sketch"),
+                         external_geometry=[tuple(r) for r in f.get("external_geometry") or []])
             else:
                 if kinds.get(f["profile"]) != "Sketch":
                     raise FeatureEditError(f"{n}: its profile {f['profile']!r} is not a sketch before it")
@@ -706,6 +739,7 @@ def apply_src(src: str, ops: list) -> str:
             if feat.get("name") in [f["name"] for f in read_src(src)["features"]]:
                 raise FeatureEditError(f"there is already a feature {feat.get('name')!r}")
             src = _insert(src, feature_src(feat, 0), op.get("after"), "after" not in op)
+            src = _ensure_import(src, KINDS.get(feat.get("type"), feat.get("type")))
             continue
         if not has_list:
             raise FeatureEditError("the part has no feature list yet: add a feature first")

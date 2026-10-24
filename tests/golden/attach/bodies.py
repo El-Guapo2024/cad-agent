@@ -14,8 +14,9 @@ sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."
 
 from cases import base_pad, rect, rect_constraints  # noqa: E402
 
-from cad_agent.feature import (Circle, Constraint, CoordinateSystem, DatumLine, DatumPlane,  # noqa: E402
-                               DatumPoint, LineSegment, Pad, Pocket, Sketch)
+from cad_agent.feature import (Circle, Constraint, DatumLine, DatumPlane, DatumPoint,  # noqa: E402
+                               LineSegment, LocalCoordinateSystem, Pad, PartDesignCoordinateSystem,
+                               PartDesignLine, PartDesignPlane, PartDesignPoint, Pocket, Sketch)
 
 
 def on(name, support, geometry, constraints=(), **kw):
@@ -105,10 +106,23 @@ CASES = {
         on("Sketch001", [("XY_Plane", "")], rect(5, 1, 12, 4), map_mode="ObjectXZ"),
         Pad("Pad001", "Sketch001", length=3.0)]},
     "local_cs_sketch": {"features": base_pad() + [
-        CoordinateSystem("Local_CS", attachment_support=[("Pad", "Vertex6"), ("Pad", "Edge5"), ("Pad", "Edge10")],
-                         map_mode="OXY"),
-        on("Sketch001", [("Local_CS", "")], [Circle((-2.5, 10.0), 2.0)], map_mode="ObjectXZ"),
-        Pad("Pad001", "Sketch001", length=4.0)]},
+        LocalCoordinateSystem("LCS", attachment_support=[("Pad", "Vertex6"), ("Pad", "Edge5"), ("Pad", "Edge10")],
+                              map_mode="OXY"),
+        on("Sketch001", [("LCS", "")], [Circle((-2.5, 10.0), 2.0)], map_mode="ObjectXZ"),
+        Pad("Pad001", "Sketch001", length=4.0),
+        on("Sketch002", [("LCS", "YZ_Plane")], rect(1, 1, 3, 2)),
+        Pad("Pad002", "Sketch002", length=1.0, side_type="Symmetric")]},
+    "partdesign_datums": {"features": base_pad() + [
+        PartDesignPlane("DatumPlane", attachment_support=[("Pad", "Face6")], map_mode="FlatFace",
+                        attachment_offset=((5.0, 0.0, 3.0), (0.0, 0.0, 0.0)), resize_mode="Manual", length=30.0),
+        on("Sketch001", [("DatumPlane", "")], [Circle((15.0, 10.0), 2.0)]),
+        Pad("Pad001", "Sketch001", length=2.0, reversed=True),
+        PartDesignLine("DatumLine", attachment_support=[("Pad", "Edge7")]),
+        PartDesignPoint("DatumPoint", attachment_support=[("DatumLine", ""), ("Pad", "Face1")],
+                        map_mode="ProximityPoint1"),
+        PartDesignCoordinateSystem("Local_CS", attachment_support=[("DatumPoint", "")], map_mode="Translate"),
+        on("Sketch002", [("Local_CS", "X")], [Circle((2.0, 2.0), 1.0)]),
+        Pocket("Pocket", "Sketch002", type="ThroughAll", side_type="Symmetric")]},
     # datum lines and points: their placements
     "datum_lines_points": {"features": base_pad() + [
         DatumLine("DatumLine", attachment_support=[("Pad", "Vertex1"), ("Pad", "Vertex6")],
@@ -124,8 +138,14 @@ CASES = {
         DatumPoint("DatumPoint003", placement=(3.0, 4.0, 5.0)),
         DatumPlane("DatumPlane", attachment_support=[("DatumPoint001", ""), ("DatumLine001", "")],
                    map_mode="ThreePointsPlane"),
-        CoordinateSystem("Local_CS", attachment_support=[("Pad", "Face2")], map_mode="FlatFace",
-                         attachment_offset=((1.0, 2.0, 3.0), (10.0, 20.0, 30.0)))]},
+        ]},
+    # an LCS's elements (its origin's features by role); in a case of its own, see make_bodies.py on App::Line
+    "lcs_elements": {"features": base_pad() + [
+        LocalCoordinateSystem("LCS", attachment_support=[("Pad", "Face2")], map_mode="FlatFace",
+                              attachment_offset=((1.0, 2.0, 3.0), (10.0, 20.0, 30.0))),
+        DatumLine("DatumLine", attachment_support=[("LCS", "Y_Axis")], map_mode="TwoPointLine"),
+        DatumPoint("DatumPoint", attachment_support=[("LCS", "Origin")]),
+        DatumPlane("DatumPlane", attachment_support=[("LCS", "XZ_Plane")])]},
     # external geometry: projected, fixed, constrained to, then padded or pocketed
     "external_top_edges": {"features": base_pad() + [
         on("Sketch001", [("Pad", "Face6")], triangle((1.0, 1.0), (39.0, 9.0), (39.0, 19.0)), [

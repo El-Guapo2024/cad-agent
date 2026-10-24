@@ -2046,7 +2046,7 @@
    ],
    "objects": {
     "DatumPlane": {
-     "type": "PartDesign::Plane",
+     "type": "Part::DatumPlane",
      "placement": [
       [
        0.0,
@@ -2342,7 +2342,7 @@
      ]
     },
     "DatumPlane": {
-     "type": "PartDesign::Plane",
+     "type": "Part::DatumPlane",
      "placement": [
       [
        13.333333333333332,
@@ -2527,7 +2527,7 @@
      ]
     },
     "DatumPlane": {
-     "type": "PartDesign::Plane",
+     "type": "Part::DatumPlane",
      "placement": [
       [
        5.0,
@@ -2784,7 +2784,7 @@
      ]
     },
     "DatumPlane": {
-     "type": "PartDesign::Plane",
+     "type": "Part::DatumPlane",
      "placement": [
       [
        20.0,
@@ -2993,7 +2993,7 @@
      ]
     },
     "DatumPlane": {
-     "type": "PartDesign::Plane",
+     "type": "Part::DatumPlane",
      "placement": [
       [
        10.0,
@@ -3226,7 +3226,7 @@
      ]
     },
     "DatumPlane": {
-     "type": "PartDesign::Plane",
+     "type": "Part::DatumPlane",
      "placement": [
       [
        40.0,
@@ -3782,23 +3782,23 @@
    }
   },
   "local_cs_sketch": {
-   "volume": 4050.265482457,
-   "area": 2250.265482457,
+   "volume": 4051.265482457,
+   "area": 2253.265482457,
    "bbox": [
     0.0,
     0.0,
     0.0,
     44.0,
     20.0,
-    5.0
+    5.5
    ],
    "center_of_mass": [
-    20.273029168,
-    10.0,
-    2.5
+    20.27740483,
+    10.00209811,
+    2.5006788
    ],
    "solids": 1,
-   "faces": 8,
+   "faces": 13,
    "valid": true,
    "face_list": [
     [
@@ -3826,9 +3826,9 @@
      0.0
     ],
     [
-     800.0,
-     20.0,
-     10.0,
+     798.0,
+     19.954887218,
+     9.978696742,
      5.0
     ],
     [
@@ -3844,10 +3844,40 @@
      2.5
     ],
     [
+     0.5,
+     37.0,
+     18.5,
+     5.25
+    ],
+    [
+     1.0,
+     38.0,
+     18.0,
+     5.25
+    ],
+    [
+     0.5,
+     39.0,
+     18.5,
+     5.25
+    ],
+    [
+     1.0,
+     38.0,
+     19.0,
+     5.25
+    ],
+    [
      12.566370614,
      44.0,
      10.0,
      2.5
+    ],
+    [
+     2.0,
+     38.0,
+     18.5,
+     5.5
     ]
    ],
    "objects": {
@@ -3932,8 +3962,8 @@
       ]
      ]
     },
-    "Local_CS": {
-     "type": "PartDesign::CoordinateSystem",
+    "LCS": {
+     "type": "Part::LocalCoordinateSystem",
      "placement": [
       [
        40.0,
@@ -3980,6 +4010,404 @@
     },
     "Pad001": {
      "type": "PartDesign::Pad",
+     "placement": [
+      [
+       0.0,
+       0.0,
+       0.0
+      ],
+      [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     ]
+    },
+    "Sketch002": {
+     "type": "Sketcher::SketchObject",
+     "placement": [
+      [
+       40.0,
+       20.0,
+       5.0
+      ],
+      [
+       0.0,
+       0.0,
+       1.0,
+       0.0
+      ]
+     ],
+     "map_mode": "FlatFace",
+     "external": [],
+     "geometry": [
+      {
+       "type": "LineSegment",
+       "start": [
+        1.0,
+        1.0
+       ],
+       "end": [
+        3.0,
+        1.0
+       ]
+      },
+      {
+       "type": "LineSegment",
+       "start": [
+        3.0,
+        1.0
+       ],
+       "end": [
+        3.0,
+        2.0
+       ]
+      },
+      {
+       "type": "LineSegment",
+       "start": [
+        3.0,
+        2.0
+       ],
+       "end": [
+        1.0,
+        2.0
+       ]
+      },
+      {
+       "type": "LineSegment",
+       "start": [
+        1.0,
+        2.0
+       ],
+       "end": [
+        1.0,
+        1.0
+       ]
+      }
+     ],
+     "dof": 0
+    },
+    "Pad002": {
+     "type": "PartDesign::Pad",
+     "placement": [
+      [
+       0.0,
+       0.0,
+       0.0
+      ],
+      [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     ]
+    }
+   }
+  },
+  "partdesign_datums": {
+   "volume": 4025.132741229,
+   "area": 2250.265482457,
+   "bbox": [
+    0.0,
+    0.0,
+    0.0,
+    40.0,
+    20.0,
+    8.0
+   ],
+   "center_of_mass": [
+    20.0,
+    10.0,
+    2.52809779
+   ],
+   "solids": 2,
+   "faces": 9,
+   "valid": true,
+   "face_list": [
+    [
+     200.0,
+     20.0,
+     0.0,
+     2.5
+    ],
+    [
+     100.0,
+     40.0,
+     10.0,
+     2.5
+    ],
+    [
+     200.0,
+     20.0,
+     20.0,
+     2.5
+    ],
+    [
+     100.0,
+     0.0,
+     10.0,
+     2.5
+    ],
+    [
+     800.0,
+     20.0,
+     10.0,
+     0.0
+    ],
+    [
+     800.0,
+     20.0,
+     10.0,
+     5.0
+    ],
+    [
+     25.132741229,
+     20.0,
+     10.0,
+     7.0
+    ],
+    [
+     12.566370614,
+     20.0,
+     10.0,
+     8.0
+    ],
+    [
+     12.566370614,
+     20.0,
+     10.0,
+     6.0
+    ]
+   ],
+   "objects": {
+    "Sketch": {
+     "type": "Sketcher::SketchObject",
+     "placement": [
+      [
+       0.0,
+       0.0,
+       0.0
+      ],
+      [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     ],
+     "map_mode": "FlatFace",
+     "external": [],
+     "geometry": [
+      {
+       "type": "LineSegment",
+       "start": [
+        0.0,
+        0.0
+       ],
+       "end": [
+        40.0,
+        0.0
+       ]
+      },
+      {
+       "type": "LineSegment",
+       "start": [
+        40.0,
+        0.0
+       ],
+       "end": [
+        40.0,
+        20.0
+       ]
+      },
+      {
+       "type": "LineSegment",
+       "start": [
+        40.0,
+        20.0
+       ],
+       "end": [
+        0.0,
+        20.0
+       ]
+      },
+      {
+       "type": "LineSegment",
+       "start": [
+        0.0,
+        20.0
+       ],
+       "end": [
+        0.0,
+        0.0
+       ]
+      }
+     ],
+     "dof": 0
+    },
+    "Pad": {
+     "type": "PartDesign::Pad",
+     "placement": [
+      [
+       0.0,
+       0.0,
+       0.0
+      ],
+      [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     ]
+    },
+    "DatumPlane": {
+     "type": "PartDesign::Plane",
+     "placement": [
+      [
+       5.0,
+       0.0,
+       8.0
+      ],
+      [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     ],
+     "map_mode": "FlatFace"
+    },
+    "Sketch001": {
+     "type": "Sketcher::SketchObject",
+     "placement": [
+      [
+       5.0,
+       0.0,
+       8.0
+      ],
+      [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     ],
+     "map_mode": "FlatFace",
+     "external": [],
+     "geometry": [
+      {
+       "type": "Circle",
+       "center": [
+        15.0,
+        10.0
+       ],
+       "radius": 2.0
+      }
+     ],
+     "dof": 0
+    },
+    "Pad001": {
+     "type": "PartDesign::Pad",
+     "placement": [
+      [
+       0.0,
+       0.0,
+       0.0
+      ],
+      [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     ]
+    },
+    "DatumLine": {
+     "type": "PartDesign::Line",
+     "placement": [
+      [
+       40.0,
+       0.0,
+       5.0
+      ],
+      [
+       0.0,
+       0.7071067811865476,
+       0.7071067811865475,
+       0.0
+      ]
+     ],
+     "map_mode": "TwoPointLine"
+    },
+    "DatumPoint": {
+     "type": "PartDesign::Point",
+     "placement": [
+      [
+       40.0,
+       0.0,
+       5.0
+      ],
+      [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     ],
+     "map_mode": "ProximityPoint1"
+    },
+    "Local_CS": {
+     "type": "PartDesign::CoordinateSystem",
+     "placement": [
+      [
+       40.0,
+       0.0,
+       5.0
+      ],
+      [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     ],
+     "map_mode": "Translate"
+    },
+    "Sketch002": {
+     "type": "Sketcher::SketchObject",
+     "placement": [
+      [
+       40.0,
+       0.0,
+       5.0
+      ],
+      [
+       0.5,
+       0.5,
+       0.5,
+       0.5
+      ]
+     ],
+     "map_mode": "FlatFace",
+     "external": [],
+     "geometry": [
+      {
+       "type": "Circle",
+       "center": [
+        2.0,
+        2.0
+       ],
+       "radius": 1.0
+      }
+     ],
+     "dof": 0
+    },
+    "Pocket": {
+     "type": "PartDesign::Pocket",
      "placement": [
       [
        0.0,
@@ -4136,7 +4564,7 @@
      ]
     },
     "DatumLine": {
-     "type": "PartDesign::Line",
+     "type": "Part::DatumLine",
      "placement": [
       [
        0.0,
@@ -4153,7 +4581,7 @@
      "map_mode": "TwoPointLine"
     },
     "DatumLine001": {
-     "type": "PartDesign::Line",
+     "type": "Part::DatumLine",
      "placement": [
       [
        40.0,
@@ -4170,7 +4598,7 @@
      "map_mode": "IntersectionLine"
     },
     "DatumLine002": {
-     "type": "PartDesign::Line",
+     "type": "Part::DatumLine",
      "placement": [
       [
        0.0,
@@ -4187,7 +4615,7 @@
      "map_mode": "TwoPointLine"
     },
     "DatumPoint": {
-     "type": "PartDesign::Point",
+     "type": "Part::DatumPoint",
      "placement": [
       [
        10.0,
@@ -4204,7 +4632,7 @@
      "map_mode": "OnEdge"
     },
     "DatumPoint001": {
-     "type": "PartDesign::Point",
+     "type": "Part::DatumPoint",
      "placement": [
       [
        20.0,
@@ -4221,7 +4649,7 @@
      "map_mode": "CenterOfMass"
     },
     "DatumPoint002": {
-     "type": "PartDesign::Point",
+     "type": "Part::DatumPoint",
      "placement": [
       [
        40.0,
@@ -4238,7 +4666,7 @@
      "map_mode": "ProximityPoint1"
     },
     "DatumPoint003": {
-     "type": "PartDesign::Point",
+     "type": "Part::DatumPoint",
      "placement": [
       [
        3.0,
@@ -4255,7 +4683,7 @@
      "map_mode": "Deactivated"
     },
     "DatumPlane": {
-     "type": "PartDesign::Plane",
+     "type": "Part::DatumPlane",
      "placement": [
       [
        33.33333333333333,
@@ -4270,9 +4698,150 @@
       ]
      ],
      "map_mode": "ThreePointsPlane"
+    }
+   }
+  },
+  "lcs_elements": {
+   "volume": 4000.0,
+   "area": 2200.0,
+   "bbox": [
+    0.0,
+    0.0,
+    0.0,
+    40.0,
+    20.0,
+    5.0
+   ],
+   "center_of_mass": [
+    20.0,
+    10.0,
+    2.5
+   ],
+   "solids": 1,
+   "faces": 6,
+   "valid": true,
+   "face_list": [
+    [
+     200.0,
+     20.0,
+     0.0,
+     2.5
+    ],
+    [
+     100.0,
+     40.0,
+     10.0,
+     2.5
+    ],
+    [
+     200.0,
+     20.0,
+     20.0,
+     2.5
+    ],
+    [
+     100.0,
+     0.0,
+     10.0,
+     2.5
+    ],
+    [
+     800.0,
+     20.0,
+     10.0,
+     0.0
+    ],
+    [
+     800.0,
+     20.0,
+     10.0,
+     5.0
+    ]
+   ],
+   "objects": {
+    "Sketch": {
+     "type": "Sketcher::SketchObject",
+     "placement": [
+      [
+       0.0,
+       0.0,
+       0.0
+      ],
+      [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     ],
+     "map_mode": "FlatFace",
+     "external": [],
+     "geometry": [
+      {
+       "type": "LineSegment",
+       "start": [
+        0.0,
+        0.0
+       ],
+       "end": [
+        40.0,
+        0.0
+       ]
+      },
+      {
+       "type": "LineSegment",
+       "start": [
+        40.0,
+        0.0
+       ],
+       "end": [
+        40.0,
+        20.0
+       ]
+      },
+      {
+       "type": "LineSegment",
+       "start": [
+        40.0,
+        20.0
+       ],
+       "end": [
+        0.0,
+        20.0
+       ]
+      },
+      {
+       "type": "LineSegment",
+       "start": [
+        0.0,
+        20.0
+       ],
+       "end": [
+        0.0,
+        0.0
+       ]
+      }
+     ],
+     "dof": 0
     },
-    "Local_CS": {
-     "type": "PartDesign::CoordinateSystem",
+    "Pad": {
+     "type": "PartDesign::Pad",
+     "placement": [
+      [
+       0.0,
+       0.0,
+       0.0
+      ],
+      [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     ]
+    },
+    "LCS": {
+     "type": "Part::LocalCoordinateSystem",
      "placement": [
       [
        43.0,
@@ -4284,6 +4853,57 @@
        0.6710100716628344,
        0.4698463103929542,
        0.2424038765061041
+      ]
+     ],
+     "map_mode": "FlatFace"
+    },
+    "DatumLine": {
+     "type": "Part::DatumLine",
+     "placement": [
+      [
+       43.00000000000001,
+       1.0000000000000002,
+       2.0
+      ],
+      [
+       0.16802760372496836,
+       0.17459858177188012,
+       0.6990611958645927,
+       0.6727521862216866
+      ]
+     ],
+     "map_mode": "TwoPointLine"
+    },
+    "DatumPoint": {
+     "type": "Part::DatumPoint",
+     "placement": [
+      [
+       43.0,
+       1.0,
+       2.0
+      ],
+      [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     ],
+     "map_mode": "CenterOfMass"
+    },
+    "DatumPlane": {
+     "type": "Part::DatumPlane",
+     "placement": [
+      [
+       43.0,
+       0.9999999999999967,
+       2.0000000000000036
+      ],
+      [
+       0.5389855446957563,
+       0.8067072841115988,
+       -0.14224425972292418,
+       -0.1961746949690111
       ]
      ],
      "map_mode": "FlatFace"
@@ -5395,7 +6015,7 @@
      ]
     },
     "DatumPoint": {
-     "type": "PartDesign::Point",
+     "type": "Part::DatumPoint",
      "placement": [
       [
        40.0,

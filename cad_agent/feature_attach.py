@@ -10,7 +10,7 @@ AttachExtension's properties, which the part file writes in snake_case (cad_agen
                attachment_offset=((0, 0, 12), (0, 0, 0)))
     DatumLine("DatumLine", attachment_support=[("Pad", "Vertex1"), ("Pad", "Vertex7")], map_mode="TwoPointLine")
     DatumPoint("DatumPoint", attachment_support=[("Pad", "Edge2")], map_mode="OnEdge", map_path_parameter=0.25)
-    CoordinateSystem("Local_CS", attachment_support=[("Pad", "Vertex3"), ("Pad", "Edge1")], map_mode="OXY")
+    LocalCoordinateSystem("LCS", attachment_support=[("Pad", "Vertex3"), ("Pad", "Edge1")], map_mode="OXY")
     DatumPlane("DatumPlane001", placement=((0, 0, 30), (0, 45, 0)))     # MapMode Deactivated: placed by hand
 
 attachment_support is AttachmentSupport: a list of (object, element) pairs, the object a feature before it (a
@@ -85,19 +85,21 @@ def sub_shape(shape, sub: str):
 
 def support_list(where: str, sup) -> list[tuple[str, str]]:
     """AttachmentSupport as a part file writes it, normalised to [(object, element), ...]: a name alone is
-    (name, ""), (name, [e1, e2]) is two references, and the old "XY" is ("XY_Plane", "")."""
+    (name, ""), "Pad.Face6" is ("Pad", "Face6"), (name, [e1, e2]) is two references, and the old "XY" is
+    ("XY_Plane", "")."""
     if sup is None:
         return []
     if isinstance(sup, str):
         sup = [sup]
-    if isinstance(sup, tuple) and len(sup) == 2 and isinstance(sup[0], str) and \
-            (isinstance(sup[1], (str, list, tuple))) and not isinstance(sup[1], tuple):
-        sup = [sup]
+    if isinstance(sup, (tuple, list)) and len(sup) == 2 and isinstance(sup[0], str) and "." not in sup[0] and (
+            (isinstance(sup[1], str) and (sup[1] == "" or ELEMENT.match(sup[1])))
+            or (isinstance(sup[1], list) and all(isinstance(x, str) for x in sup[1]))):
+        sup = [tuple(sup)]                              # one reference: ("Pad", "Face6") or ("Pad", ["Face6", ...])
     out = []
     for r in sup:
         if isinstance(r, str):
-            out.append((SHORT.get(r, r), ""))
-            continue
+            obj, _, sub = r.partition(".")              # "Pad.Face6", FreeCAD's subname, or a whole object
+            r = (obj, sub)
         try:
             obj, sub = r
         except (TypeError, ValueError):
@@ -106,8 +108,9 @@ def support_list(where: str, sup) -> list[tuple[str, str]]:
             raise FeatureError(f"{where}: attachment reference {r!r}: the object is a name")
         subs = [sub] if isinstance(sub, str) or sub is None else list(sub)
         for s in subs or [""]:
-            if s and not ELEMENT.match(s) and s not in ("X", "Y", "Z"):
-                raise FeatureError(f"{where}: {s!r} is not an element name (Face1, Edge1, Vertex1, ...)")
+            if s and not ELEMENT.match(s) and s not in ("X", "Y", "Z") and not any(s.startswith(r) for r in ORIGIN):
+                raise FeatureError(f"{where}: {s!r} is not an element name (Face1, Edge1, Vertex1, ..., or an LCS's "
+                                   "XY_Plane, X_Axis, ..., Origin)")
             out.append((SHORT.get(obj, obj), s or ""))
     if len(out) > 4:
         raise FeatureError(f"{where}: an attachment takes at most four references (FreeCAD's Reference 1 to 4)")
@@ -164,24 +167,37 @@ class Attachable:
 # ── datum features ────────────────────────────────────────────────────────────────────────────────────
 
 class _Datum(Attachable):
-    """Part::Datum: a reference geometry placed by its attachment. Its shape, as DatumPlane.cpp and its
-    neighbours make it, moved to its Placement."""
+    """A datum: reference geometry placed by its attachment, its shape moved to its Placement. SIZE are the
+    properties only its view uses (PartDesign::Plane's ResizeMode, Length, Width)."""
     kind = ""
     is_datum = True
-    SIZE = ()
+    SIZE: dict = {}
+    plane = False                       # an App::Plane (MidPoint's special case, the plane flag of a reference)
 
     def __init__(self, name: str, *, attachment_support=None, map_mode=None, attachment_offset=None,
-                 map_reversed=False, map_path_parameter=0.0, placement=None, resize_mode="Automatic",
-                 length=20.0, width=20.0):
+                 map_reversed=False, map_path_parameter=0.0, placement=None, **size):
         self.name = name
         self.init_attachment(name, attachment_support, map_mode, attachment_offset, map_reversed,
                              map_path_parameter, placement)
-        if resize_mode not in ("Automatic", "Manual"):
-            raise FeatureError(f"{name}: resize_mode {resize_mode!r} is not Automatic or Manual")
-        self.resize_mode, self.length, self.width = resize_mode, float(length), float(width)
+        unknown = set(size) - set(self.SIZE)
+        if unknown:
+            raise FeatureError(f"{name}: {', '.join(sorted(unknown))} is not a property of a {self.type_id}")
+        for k, default in self.SIZE.items():
+            v = size.get(k, default)
+            if k == "resize_mode":
+                if v not in ("Automatic", "Manual"):
+                    raise FeatureError(f"{name}: resize_mode {v!r} is not Automatic or Manual")
+            else:
+                v = float(v)
+            setattr(self, k, v)
 
     def local_shape(self):
         raise NotImplementedError
+
+    def element(self, sub, pl: A.Placement):
+        """(shape, placement, whole, plane) of one of its elements; a datum has its shape's own Face1, Edge1,
+        Vertex1."""
+        return sub_shape(_moved(self.local_shape(), pl), sub), pl, False, False
 
     def __repr__(self):
         return f"{self.kind}({self.name!r}, map_mode={self.map_mode!r}, support={self.attachment_support!r})"
@@ -192,30 +208,100 @@ def _infinite(shape):
     return shape
 
 
+def _plane_face(normal=(0, 0, 1)):
+    return BRepBuilderAPI_MakeFace(gp_Pln(gp_Pnt(0, 0, 0), gp_Dir(*normal))).Shape()
+
+
+def _line_edge(direction=(0, 0, 1)):
+    return BRepBuilderAPI_MakeEdge(gp_Lin(gp_Pnt(0, 0, 0), gp_Dir(*direction))).Shape()
+
+
+# What FreeCAD 26.3's Edit > Datums (the Structure toolbar's Part_Datums) makes, in the active Body: Part's datums,
+# App::Plane, App::Line and App::Point with AttachExtension (Mod/Part/App/Datums.cpp), shaped as
+# Part::Feature::getTopoShape shapes an App datum (PartFeature.cpp).
+
 class DatumPlane(_Datum):
-    """PartDesign::Plane (Datum Plane): an infinite face, its normal the placement's Z. ResizeMode, Length and
-    Width (20 x 20) are how the view draws it."""
+    """Part::DatumPlane (Part_DatumPlane, Datum Plane): an App::Plane, an infinite face on its placement's XY."""
     kind = "DatumPlane"
-    type_id = "PartDesign::Plane"
+    type_id = "Part::DatumPlane"
     engine = "Plane"
+    plane = True
 
     def local_shape(self):
-        return _infinite(BRepBuilderAPI_MakeFace(gp_Pln(gp_Pnt(0, 0, 0), gp_Dir(0, 0, 1))).Shape())
+        return _infinite(_plane_face())
 
 
 class DatumLine(_Datum):
-    """PartDesign::Line (Datum Line): an infinite edge along the placement's Z."""
+    """Part::DatumLine (Part_DatumLine, Datum Line): an App::Line whose base direction is Z, an infinite edge."""
     kind = "DatumLine"
-    type_id = "PartDesign::Line"
+    type_id = "Part::DatumLine"
     engine = "Line"
 
     def local_shape(self):
-        return _infinite(BRepBuilderAPI_MakeEdge(gp_Lin(gp_Pnt(0, 0, 0), gp_Dir(0, 0, 1))).Shape())
+        return _infinite(_line_edge())
 
 
 class DatumPoint(_Datum):
-    """PartDesign::Point (Datum Point): a vertex at the placement's origin."""
+    """Part::DatumPoint (Part_DatumPoint, Datum Point): an App::Point, a vertex at its placement."""
     kind = "DatumPoint"
+    type_id = "Part::DatumPoint"
+    engine = "Point"
+
+    def local_shape(self):
+        return BRepBuilderAPI_MakeVertex(gp_Pnt(0, 0, 0)).Shape()
+
+
+class LocalCoordinateSystem(_Datum):
+    """Part::LocalCoordinateSystem (Part_CoordinateSystem, Coordinate System; FreeCAD names it LCS): an
+    App::LocalCoordinateSystem placed by the 3D engine. It has no shape of its own; its elements are its
+    origin's features by role, X_Axis, Y_Axis, Z_Axis, XY_Plane, XZ_Plane, YZ_Plane and Origin, placed as the
+    Body's origin is (LocalCoordinateSystem::getSetupData), in the LCS's frame."""
+    kind = "LocalCoordinateSystem"
+    type_id = "Part::LocalCoordinateSystem"
+    engine = "3D"
+
+    def local_shape(self):
+        return None
+
+    def element(self, sub, pl: A.Placement):
+        role = next((r for r in ORIGIN if sub.startswith(r)), None)    # extensionGetSubObject: XY_Plane001 too
+        if role is None:
+            raise FeatureError(f"LocalCoordinateSystem \"{self.name}\" doesn't contain feature with role \"{sub}\"")
+        kind, q = ORIGIN[role]
+        child = pl * A.Placement((0, 0, 0), A.Rotation(q, normalize=False))
+        shape = _origin_local(kind)
+        return _moved(shape, child), child, False, False        # an element: Vertex, Line, Plane (no Placement flag)
+
+
+# The PartDesign workbench's own datums (Mod/PartDesign/App/DatumPlane.cpp and its neighbours): FreeCAD 26.3 still
+# has them (PartDesign_Plane, ...: no longer in its menus, and in every file made before Part's datums).
+
+class PartDesignPlane(_Datum):
+    """PartDesign::Plane: an infinite face on its placement's XY. ResizeMode, Length and Width (20 x 20) are how
+    its view draws it."""
+    kind = "PartDesignPlane"
+    type_id = "PartDesign::Plane"
+    engine = "Plane"
+    SIZE = {"resize_mode": "Automatic", "length": 20.0, "width": 20.0}
+
+    def local_shape(self):
+        return _infinite(_plane_face())
+
+
+class PartDesignLine(_Datum):
+    """PartDesign::Line: an infinite edge along its placement's Z."""
+    kind = "PartDesignLine"
+    type_id = "PartDesign::Line"
+    engine = "Line"
+    SIZE = {"resize_mode": "Automatic", "length": 20.0}
+
+    def local_shape(self):
+        return _infinite(_line_edge())
+
+
+class PartDesignPoint(_Datum):
+    """PartDesign::Point: a vertex at its placement."""
+    kind = "PartDesignPoint"
     type_id = "PartDesign::Point"
     engine = "Point"
 
@@ -223,19 +309,36 @@ class DatumPoint(_Datum):
         return BRepBuilderAPI_MakeVertex(gp_Pnt(0, 0, 0)).Shape()
 
 
-class CoordinateSystem(_Datum):
-    """PartDesign::CoordinateSystem (Local Coordinate System, Local_CS): placed by the 3D engine; its shape is
-    the XY plane's face (DatumCS.cpp), its X, Y and Z the planes normal to them."""
-    kind = "CoordinateSystem"
+class PartDesignCoordinateSystem(_Datum):
+    """PartDesign::CoordinateSystem (Local_CS): placed by the 3D engine; its shape is the XY plane's face
+    (DatumCS.cpp), its elements X, Y and Z the planes normal to those axes (getSubObject)."""
+    kind = "PartDesignCoordinateSystem"
     type_id = "PartDesign::CoordinateSystem"
     engine = "3D"
 
     def local_shape(self, axis: str = ""):
-        d = {"X": (1, 0, 0), "Y": (0, 1, 0)}.get(axis, (0, 0, 1))
-        return BRepBuilderAPI_MakeFace(gp_Pln(gp_Pnt(0, 0, 0), gp_Dir(*d))).Shape()
+        return _plane_face({"X": (1, 0, 0), "Y": (0, 1, 0)}.get(axis, (0, 0, 1)))
+
+    def element(self, sub, pl: A.Placement):
+        if sub in ("X", "Y", "Z"):
+            return _moved(self.local_shape(sub), pl), pl, False, False
+        return super().element(sub, pl)
 
 
-DATUMS = {c.kind: c for c in (DatumPlane, DatumLine, DatumPoint, CoordinateSystem)}
+DATUMS = {c.kind: c for c in (DatumPlane, DatumLine, DatumPoint, LocalCoordinateSystem, PartDesignPlane,
+                              PartDesignLine, PartDesignPoint, PartDesignCoordinateSystem)}
+# FreeCAD's default object name for each (getUniqueObjectName's base): Part_DatumPlane's DatumPlane, ...
+DEFAULT_NAMES = {"DatumPlane": "DatumPlane", "DatumLine": "DatumLine", "DatumPoint": "DatumPoint",
+                 "LocalCoordinateSystem": "LCS", "PartDesignPlane": "DatumPlane", "PartDesignLine": "DatumLine",
+                 "PartDesignPoint": "DatumPoint", "PartDesignCoordinateSystem": "Local_CS"}
+
+
+def _origin_local(kind):
+    if kind == "App::Plane":
+        return _infinite(_plane_face())
+    if kind == "App::Line":
+        return _infinite(_line_edge((1, 0, 0)))
+    return BRepBuilderAPI_MakeVertex(gp_Pnt(0, 0, 0)).Shape()
 
 
 # ── the Body's objects, as references resolve them ────────────────────────────────────────────────────
@@ -281,14 +384,7 @@ class Context:
         return self.placements.get(sketch.name, A.Placement())
 
     def origin_shape(self, role):
-        kind, _ = ORIGIN[role]
-        if kind == "App::Plane":
-            s = _infinite(BRepBuilderAPI_MakeFace(gp_Pln(gp_Pnt(0, 0, 0), gp_Dir(0, 0, 1))).Shape())
-        elif kind == "App::Line":
-            s = _infinite(BRepBuilderAPI_MakeEdge(gp_Lin(gp_Pnt(0, 0, 0), gp_Dir(1, 0, 0))).Shape())
-        else:
-            s = BRepBuilderAPI_MakeVertex(gp_Pnt(0, 0, 0)).Shape()
-        return _moved(s, self.placements[role])
+        return _moved(_origin_local(ORIGIN[role][0]), self.placements[role])
 
     def sketch_shape(self, name, sub=""):
         """A sketch's Shape: its non-construction edges, placed; EdgeN is its geometry N-1."""
@@ -312,35 +408,36 @@ class Context:
             b.Add(comp, e)
         return comp
 
-    def element(self, obj, sub, where):
-        """The shape a reference names, as extractSubShape finds it (None for an object with no shape)."""
+    def resolve(self, obj, sub, where):
+        """(shape, placement, whole, plane) of a reference, as readLinks finds them: the shape extractSubShape
+        gives (None for an object with no shape), the Placement getGlobalPlacement gives, whether it names an
+        object rather than an element (rtFlagHasPlacement), and whether that object is an App::Plane."""
         if obj in ORIGIN:
             if sub:
                 raise FeatureError(f"{where}: the origin's {obj} has no element {sub!r}")
-            return self.origin_shape(obj)
+            return self.origin_shape(obj), self.placements[obj], True, ORIGIN[obj][0] == "App::Plane"
         kind = self.kinds.get(obj)
         if kind is None:
             raise FeatureError(f"{where}: no {obj!r} before it (a feature, a datum, or the Body's origin: "
                                f"{', '.join(ORIGIN)})")
-        if kind == "sketch":
-            return self.sketch_shape(obj, sub)
-        if kind == "datum":
-            d = self.datums[obj]
-            if isinstance(d, CoordinateSystem) and sub in ("X", "Y", "Z"):
-                return _moved(d.local_shape(sub), self.placements[obj])
-            if sub:
-                return sub_shape(self.shapes[obj], sub)
-            return self.shapes[obj]
-        if not sub:
-            return self.shapes[obj]
+        pl = self.placements[obj]
         try:
-            return sub_shape(self.shapes[obj], sub)
+            if kind == "sketch":
+                return self.sketch_shape(obj, sub), pl, not sub, False
+            if kind == "datum":
+                d = self.datums[obj]
+                return d.element(sub, pl) if sub else (self.shapes[obj], pl, True, d.plane)
+            return (sub_shape(self.shapes[obj], sub) if sub else self.shapes[obj]), pl, not sub, False
         except FeatureError as e:
             raise FeatureError(f"{where}: {obj}.{sub}: {e}") from None
 
+    def element(self, obj, sub, where):
+        """The shape a reference names (None for an object with no shape)."""
+        return self.resolve(obj, sub, where)[0]
+
     def ref(self, obj, sub, where) -> A.Ref:
-        shape = self.element(obj, sub, where)
-        return A.Ref(shape, self.placements[obj], whole=not sub, plane=self.kinds.get(obj) == "App::Plane")
+        shape, pl, whole, plane = self.resolve(obj, sub, where)
+        return A.Ref(shape, pl, whole=whole, plane=plane)
 
     def attach(self, f, where=None, orig: A.Placement | None = None) -> A.Placement | None:
         """f's Placement by its attachment, or None when it is not attached (Deactivated, no support)."""
@@ -370,7 +467,8 @@ class Context:
         self.datums[d.name] = d
         self.placements[d.name] = pl
         self.kinds[d.name] = "datum"
-        self.shapes[d.name] = _moved(d.local_shape(), pl)
+        local = d.local_shape()
+        self.shapes[d.name] = _moved(local, pl) if local is not None else None
         return pl
 
     def external_shape(self, obj, sub, where):
@@ -571,6 +669,8 @@ def external_list(where: str, ext) -> list[tuple[str, str]]:
         return []
     out = []
     for r in ext:
+        if isinstance(r, str):
+            r = tuple(r.partition(".")[::2])            # "Pad.Edge3"
         try:
             obj, sub = r
         except (TypeError, ValueError):
@@ -578,4 +678,91 @@ def external_list(where: str, ext) -> list[tuple[str, str]]:
         if not isinstance(obj, str) or not isinstance(sub, str) or (sub and not ELEMENT.match(sub)):
             raise FeatureError(f"{where}: external geometry {r!r} is not (object, 'Edge1' / 'Vertex1' / 'Face1')")
         out.append((SHORT.get(obj, obj), sub))
+    return out
+
+
+# ── a part's Body, for `cad feature list` and `cad feature attach` ─────────────────────────────────────
+
+def _load(path):
+    from . import state
+    mod = state._load_module(path)
+    if not hasattr(mod, "FEATURES"):
+        raise FeatureError("the part has no FEATURES")
+    params = dict(getattr(mod, "PARAMS", {}) or {})
+    base = mod.build_base(**params) if hasattr(mod, "build_base") else None
+    return mod, list(mod.FEATURES), params, base
+
+
+def _evaluate_upto(features, params, base):
+    """feature.evaluate of the features, and the first error if one stops it: (shapes, error or None). What
+    builds before the error is kept, as FreeCAD's tree keeps it."""
+    from .feature import evaluate
+    try:
+        return evaluate(features, params, base), None
+    except FeatureError as e:
+        err = str(e)
+    for i in range(len(features) - 1, -1, -1):          # the longest prefix that builds
+        try:
+            return evaluate(features[:i], params, base), err
+        except FeatureError:
+            continue
+    return evaluate([], params, base), err
+
+
+def body_info(path) -> dict:
+    """Every object's Placement as the Body attaches it, each attached object's MapMode, and each sketch's
+    external geometry: {"objects": {name: {"placement": ..., "map_mode": ..., "external": [...]}}, "error"}.
+    Built past the Tip, as FreeCAD recomputes every feature of a Body."""
+    try:
+        _, features, params, base = _load(path)
+    except Exception as e:                              # a part that does not load says why; the tree still shows
+        return {"objects": {}, "error": f"{type(e).__name__}: {e}"}
+    shapes, err = _evaluate_upto(features, params, base)
+    ctx = shapes["_attach"]
+    objects = {}
+    for name, pl in ctx.placements.items():
+        if name in ORIGIN:
+            continue
+        rec = {"placement": pl.as_dict()}
+        if name in ctx.modes:
+            rec["map_mode"] = ctx.modes[name]
+        sk = shapes["_sketches"].get(name)
+        if sk is not None:
+            rec["external"] = list(sk._external)
+        objects[name] = rec
+    return {"objects": objects, "error": err}
+
+
+def attach_query(path, support, engine: str = "Plane", mode: str | None = None, offset=None,
+                 reversed: bool = False, parameter: float = 0.0, before: str | None = None) -> dict:
+    """What FreeCAD's Attachment panel shows for a set of references (TaskAttacher::updatePreview): their types,
+    suggestMapModes' answer, and the Placement of the mode (the best fit when none is given). The references
+    resolve in the Body as it stands before `before` (the feature being edited), or with all of it."""
+    _, features, params, base = _load(path)
+    names = [getattr(f, "name", None) for f in features]
+    if before is not None and before in names:
+        features = features[:names.index(before)]
+    shapes, err = _evaluate_upto(features, params, base)
+    ctx = shapes["_attach"]
+    out = {"engine": engine, "build_error": err}
+    try:
+        refs = support_list("attachment", support)
+        out["references"] = [list(r) for r in refs]
+        resolved = [ctx.ref(o, s, "attachment") for o, s in refs]
+    except FeatureError as e:
+        out.update({"message": "LinkBroken", "error": str(e)})
+        return out
+    sug = A.suggest(engine, [r.type() for r in resolved])
+    out.update({"types": sug["types"], "suggestion": sug, "message": sug["message"]})
+    use = mode or (sug["best"] if sug["message"] == "OK" else "Deactivated")
+    out["mode"] = use
+    out["placement"] = None
+    if use == "Deactivated" or not resolved:
+        return out
+    try:
+        pl = A.attach(engine, use, resolved, offset=placement_of("attachment", offset, "attachment_offset"),
+                      reversed=reversed, parameter=parameter)
+        out["placement"] = pl.as_dict() if pl is not None else None
+    except (A.AttachError, FeatureError) as e:
+        out["error"] = str(e)
     return out

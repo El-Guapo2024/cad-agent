@@ -7,6 +7,11 @@ a part file holds) and is recomputed. Recorded: the Body's shape as tests/golden
 each sketch's Placement (AttachExtension's result), its ExternalGeo after the two axes and its Geometry after
 FreeCAD's solve; each datum's Placement. A placement is its position and quaternion. A case FreeCAD refuses is
 recorded with its error.
+
+Each case runs in a freecadcmd of its own (this script starts one per case, ATTACH_CASE naming it):
+Part::Feature::getTopoShape (PartFeature.cpp) keeps one shape for every App::Line in a static, made from the
+first App::Line it is asked for, so a Part::DatumLine (along Z) and an origin's or a local coordinate system's
+axis (along X) shaped in one session share an edge, and the later one's answer depends on what came first.
 """
 import json
 import os
@@ -65,8 +70,27 @@ def geo(g):
     return {"type": t}
 
 
-out = {"freecad": ".".join(App.Version()[:3]) + " " + App.Version()[3], "cases": {}}
-for name, case in CASES.items():
+ONLY = os.environ.get("ATTACH_CASE")
+if not ONLY:
+    import subprocess
+    import tempfile
+    exe = os.path.join(App.getHomePath(), "bin", "freecadcmd")
+    out = {"freecad": ".".join(App.Version()[:3]) + " " + App.Version()[3], "cases": {}}
+    with tempfile.TemporaryDirectory() as tmp:
+        for name in CASES:
+            part = os.path.join(tmp, name + ".json")
+            subprocess.run([exe, __file__], env={**os.environ, "ATTACH_CASE": name, "ATTACH_OUT": part},
+                           check=True, capture_output=True)
+            out["cases"][name] = json.loads(Path(part).read_text())
+            rec = out["cases"][name]
+            print(name, rec.get("volume", rec.get("error")))
+    (HERE / "bodies.json").write_text(json.dumps(out, indent=1) + "\n")
+    print(len(out["cases"]), "cases")
+    sys.stdout.flush()
+    sys.exit(0)
+
+out = {"cases": {}}
+for name, case in [(ONLY, CASES[ONLY])]:
     doc = App.newDocument(name)
     body = feature.to_freecad(case["features"], case.get("params"), doc=doc)
     doc.recompute()
@@ -82,9 +106,5 @@ for name, case in CASES.items():
             ob["geometry"] = [geo(g) for g in o.Geometry]
             ob["dof"] = o.solve() if not bad else None
         rec["objects"][o.Name] = ob
-    out["cases"][name] = rec
-    print(name, rec.get("volume", rec.get("error")))
     App.closeDocument(doc.Name)
-
-(HERE / "bodies.json").write_text(json.dumps(out, indent=1) + "\n")
-print(len(out["cases"]), "cases")
+    Path(os.environ["ATTACH_OUT"]).write_text(json.dumps(rec))
