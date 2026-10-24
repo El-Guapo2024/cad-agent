@@ -320,3 +320,33 @@ def test_the_scene_says_where_each_part_is_drawn(demo, capsys):
     for b in scene["bodies"]:
         m = b["matrix"]
         assert len(m) == 16 and m[12:] == [0.0, 0.0, 0.0, 1.0]
+
+
+# ── the real part-file layer (cad_agent/feature_edit.py) behind the same seam ───────────────────
+
+def test_a_body_from_nothing_through_the_real_layer(demo, capsys):
+    """New Body, a sketch, a Pad, a Pocket, the Tip and undo, with feature_edit.py and feature.py doing the work."""
+    assert run(capsys, "feature", "new", "demo", "Body")[0] == cli.OK
+    rect = [{"type": "LineSegment", "start": a, "end": b, "construction": False}
+            for a, b in [([0, 0], [40, 0]), ([40, 0], [40, 20]), ([40, 20], [0, 20]), ([0, 20], [0, 0])]]
+    ops = [{"op": "add", "feature": {"name": "Sketch", "type": SKETCH, "support": "XY", "geometry": rect, "constraints": []}},
+           {"op": "add", "feature": {"name": "Pad", "type": PAD, "profile": "Sketch", "length": 5.0}}]
+    code, data = run(capsys, "feature", "apply", "demo", "Body", "--ops", json.dumps(ops))
+    assert data.get("built") is True, data
+    assert [f["name"] for f in data["doc"]["features"]] == ["Sketch", "Pad"]
+    circle = [{"type": "Circle", "center": [20, 10], "radius": 4, "construction": False}]
+    ops = [{"op": "add", "feature": {"name": "Sketch001", "type": SKETCH, "support": "XY", "attachment_offset": [0, 0, 5],
+                                     "geometry": circle, "constraints": []}},
+           {"op": "add", "feature": {"name": "Pocket", "type": POCKET, "profile": "Sketch001", "type1": "ThroughAll"}}]
+    code, data = run(capsys, "feature", "apply", "demo", "Body", "--ops", json.dumps(ops))
+    assert data.get("built") is True, data
+    assert data["doc"]["features"][-1]["type1"] == "ThroughAll" and data["doc"]["tip"] == "Pocket"
+    code, data = run(capsys, "feature", "set", "demo", "Body", "Pad", "length=8")
+    assert data["doc"]["features"][1]["length"] == 8 and un.load(demo)["undo"][-1]["name"] == "Edit Pad.Length"
+    code, data = run(capsys, "feature", "tip", "demo", "Body", "Pad")
+    assert data["doc"]["tip"] == "Pad"
+    before = (demo / "parts" / "Body.py").read_text()
+    code, data = run(capsys, "feature", "set", "demo", "Body", "Pad", "length=0")
+    assert code in (cli.FAIL, cli.USAGE) and (demo / "parts" / "Body.py").read_text() == before
+    assert run(capsys, "undo", "demo")[0] == cli.OK              # the Tip back on the Pocket
+    assert run(capsys, "feature", "list", "demo", "Body")[1]["tip"] == "Pocket"
