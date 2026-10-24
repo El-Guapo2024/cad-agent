@@ -70,8 +70,22 @@ The plan and its order are docs/EDITING_PLAN.md. Steps 1 to 4 are in main (4e73c
 - Sketcher UI: edit mode, geometry and constraint tools, drag, solver messages (sketchcheck 56/57 vs
   ui/scripts/sketchref.json; c-parallel is FreeCAD's GUI not repeating itself).
 Each check's known differences are in ui/PARITY.md (PartDesign, Sketcher).
-Next: step 5 of the plan (Revolution, Groove, Hole, Fillet, Chamfer, ...), sketches on faces and attachment
-modes, external geometry, trim/extend/split, conics and B-splines, on-view parameters.
+Step 5, round 2 (five parallel branches, paused 2026-10-24 at the session limit):
+- In main (d64e05c, CI green, 2471 passed), all on one seam, cad_agent/feature_kw.py's KwFeature:
+  pd-transform (Mirrored, Linear/PolarPattern, MultiTransform, 16 primitives; transformcheck 174 ok),
+  pd-dressup (Fillet, Chamfer, Draft, Thickness, edge/face picking, renumbering follow-up; dressupcheck 115 ok),
+  pd-revolve (Revolution, Groove, Hole with FreeCAD's tables; revolvecheck 258 ok). editcheck 59 ok, 19 known.
+- origin/sketcher-geom (5728607, on 67943c7): ellipses, conic arcs, B-splines in PlaneGCS/feature.py/Sketcher, Trim,
+  Split, Extend, sketch Fillet/Chamfer; 522 conic goldens, 362 sketchops goldens, sketchcheck 72/73. Its merge of
+  main was under way (uncommitted, in its agent worktree, editcheck 59 ok there): redo `git merge origin/main`,
+  use feature_edit's ensure_import, rebuild bundle + sketchops engine, run its tests and sketchcheck, then merge.
+- origin/pd-attach (4237a63, on 67943c7, report never written): Attacher (cad_agent/feature_attach.py), sketches on
+  faces/datums, datum Plane/Line/Point/LCS, external geometry, Attachment panel. Not reviewed. Merge it after
+  sketcher-geom (both touch ui/planegcs/sketch.cpp), move its datums onto KwFeature, wire
+  feature_primitive.placement_of() to the attacher. Its attachcheck was failing on one pick when stopped.
+- Left after that: Scaled, RefineModel port, B-spline interpolation and tools, Offset, fillet between curves,
+  3D picking for Up to face / axis edges, Hole Up to first, Common, on-view parameters; then Part workbench, Assembly.
+- Browser checks must use scratch projects only (a check once wrote a Plate part into projects/arduino_car).
 
 ## Next (paused 2026-10-23)
 1. ~~Hidden specs~~ (done 2026-10-23): `pinned_carrier` and `hotplate_standoffs` count their holes `through`, and
