@@ -767,6 +767,7 @@ class Pocket(_Extrude):
 
 
 FEATURES = {"Sketch": Sketch, "Pad": Pad, "Pocket": Pocket}
+# More features register themselves at the end of this file, one module per area.
 
 
 # ── the kernel: what FreeCAD's C++ does, in the same OCCT calls ───────────────────────────────────────
@@ -1501,23 +1502,30 @@ def evaluate(features, params: dict | None = None, base=None, tip: str | None = 
     shapes: dict = {}
     sketches: dict = {}
     solid = None
+    prev = None                         # the solid feature before the one being built (its BaseFeature)
     if base is not None:
         solid = getattr(base, "wrapped", base)
         shapes["BaseFeature"] = solid
+        prev = "BaseFeature"
     for f in ([] if tip == "BaseFeature" else features):
         name = getattr(f, "name", None)
-        if not isinstance(f, (Sketch, _Extrude)):
+        if not isinstance(f, (Sketch, _Extrude)) and not hasattr(f, "build_shape"):
             raise FeatureError(f"FEATURES holds {f!r}, not a Sketch, Pad or Pocket")
         if name in shapes or name in sketches:
             raise FeatureError(f"two features are named {name!r}")
         if isinstance(f, Sketch):
             sketches[name] = f.solved(params)
+        elif hasattr(f, "build_shape"):    # a feature that builds itself from the solid before it
+            solid = f.build_shape(solid, shapes, params, prev)
+            shapes[name] = solid
+            prev = name
         else:
             if f.profile not in sketches:
                 raise FeatureError(f"{name}: no sketch {f.profile!r} before it" if f.profile not in shapes
                                    else f"{name}: profile {f.profile!r} is not a sketch")
             solid = _extrude(f, sketches[f.profile], solid, shapes, params)
             shapes[name] = solid
+            prev = name
         if name == tip:
             break
     shapes["Tip"] = solid
@@ -1623,6 +1631,9 @@ def to_freecad(features, params: dict | None = None, doc=None, name: str = "Body
                     sk.setExpression(f"Constraints[{i}]", e + (" * 1 deg" if c.type == "Angle" else ""))
             made[f.name] = sk
             continue
+        if hasattr(f, "to_freecad"):        # a feature that writes itself
+            made[f.name] = f.to_freecad(body, made, planes, setv)
+            continue
         obj = body.newObject(f"PartDesign::{f.kind}", f.name)
         obj.Profile = made[f.profile]
         obj.Refine = f.refine
@@ -1649,3 +1660,9 @@ def to_freecad(features, params: dict | None = None, doc=None, name: str = "Body
                 setattr(obj, prop, [ref(r) for r in rs])
         made[f.name] = obj
     return body
+
+
+# ── the other features, each area in its own module ──────────────────────────────────────────────────
+from .feature_dressup import Chamfer, Draft, Fillet, Thickness  # noqa: E402  (PartDesign's dress-ups)
+
+FEATURES.update({"Fillet": Fillet, "Chamfer": Chamfer, "Draft": Draft, "Thickness": Thickness})
