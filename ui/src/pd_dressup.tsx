@@ -45,6 +45,11 @@ export const DRESS: Record<DressKind, Info> = {
 }
 export const kindOfType = (t: string): DressKind | null => (Object.keys(DRESS) as DressKind[]).find((k) => DRESS[k].type === t) ?? null
 export const isDressUp = (t: string) => kindOfType(t) !== null
+/** Whether a dress-up references one of names: its Base, a Draft's Neutral Plane or Pull Direction (Std_Delete's warning). */
+export function dressUpUses(f: Feature, names: string[]): boolean {
+  if (!isDressUp(f.type)) return false
+  return ['base', 'neutral_plane', 'pull_direction'].some((k) => { const r = f[k]; const n = Array.isArray(r) ? r[0] : r; return typeof n === 'string' && names.includes(n) })
+}
 const CHAMFER_TYPES: [string, string][] = [['Equal distance', 'Equal distance'], ['Two distances', 'Two distances'], ['Distance and Angle', 'Distance and angle']]
 /** Each kind's own properties and FreeCAD's defaults (FeatureFillet.cpp, FeatureChamfer.cpp, FeatureDraft.cpp, FeatureThickness.cpp). */
 const DEFAULTS: Record<DressKind, Record<string, unknown>> = {

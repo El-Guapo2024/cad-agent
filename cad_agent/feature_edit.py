@@ -62,11 +62,11 @@ import re
 from pathlib import Path
 
 from . import feature as F
+from . import feature_kw as KW
 from . import params as P
 
 TYPE_IDS = {"Sketch": "Sketcher::SketchObject", "Pad": "PartDesign::Pad", "Pocket": "PartDesign::Pocket"}
-# Features that describe themselves (type_id, POS, PROPS, REFS on the class; see "generic features" below).
-TYPE_IDS.update({k: c.type_id for k, c in F.FEATURES.items() if getattr(c, "PROPS", None)})
+TYPE_IDS.update(KW.type_ids())          # every feature_kw.KwFeature: Mirrored, AdditiveBox, ... (read and written below)
 KINDS = {v: k for k, v in TYPE_IDS.items()}
 SKETCH_POS = ("name", "support", "geometry", "constraints")
 SKETCH_KW = ("support", "attachment_offset", "map_mode", "geometry", "constraints")
@@ -199,10 +199,30 @@ def _entries(tree):
     return node.value, out
 
 
+def _kw_obj(call, src):
+    """A feature_kw.KwFeature entry built from its call (its nested feature calls too)."""
+    cls = KW.kw_class(_fname(call))
+    args = [_lit(a, src) for a in call.args]
+    kw = {}
+    for k in call.keywords:
+        if k.arg in cls.NESTED:
+            elts = k.value.elts if isinstance(k.value, (ast.List, ast.Tuple)) else None
+            if elts is None or not all(isinstance(e, ast.Call) and KW.kw_class(_fname(e)) for e in elts):
+                raise FeatureEditError(f"{ast.get_source_segment(src, k.value)[:60]!r}: {k.arg} is a list of "
+                                       "feature calls")
+            kw[k.arg] = [_kw_obj(e, src) for e in elts]
+        else:
+            kw[k.arg] = _lit(k.value, src)
+    try:
+        return cls(*args, **kw)
+    except (TypeError, F.FeatureError) as e:
+        raise FeatureEditError(str(e)) from None
+
+
 def _feature_dict(call, src):
     kind = _fname(call)
-    if _generic(kind):
-        return _generic_dict(kind, call, src)
+    if KW.kw_class(kind):
+        return _kw_obj(call, src).as_dict()
     if kind == "Sketch":
         d = {"name": _lit(_arg(call, SKETCH_POS, "name"), src), "type": TYPE_IDS[kind]}
         sup = _arg(call, SKETCH_POS, "support") or _arg(call, (), "plane")
@@ -332,6 +352,11 @@ def feature_src(d: dict, indent: int = 4) -> str:
     name = d.get("name")
     if not (isinstance(name, str) and name):
         raise FeatureEditError("a feature needs a name")
+    if KW.kw_class(kind):
+        try:
+            return kw_src(KW.kw_class(kind).from_dict(d), indent)
+        except (TypeError, F.FeatureError) as e:
+            raise FeatureEditError(str(e)) from None
     if kind == "Sketch":
         parts = [json.dumps(name), f"support={json.dumps(d.get('support') or 'XY')}"]
         if d.get("attachment_offset") is not None:
@@ -341,8 +366,6 @@ def feature_src(d: dict, indent: int = 4) -> str:
         parts.append(f"geometry={_list_src(g, indent + 7)}")
         parts.append(f"constraints={_list_src(c, indent + 7)}")
         return "Sketch(" + (",\n" + " " * (indent + 7)).join(parts) + ")"
-    if _generic(kind):
-        return _generic_src(kind, d)
     if kind not in ("Pad", "Pocket"):
         raise FeatureEditError(f"a feature of type {d.get('type')!r} is not a Sketch, Pad or Pocket")
     default = getattr(F, kind)("x", "y")
@@ -359,6 +382,24 @@ def feature_src(d: dict, indent: int = 4) -> str:
     if unknown:
         raise FeatureEditError(f"{name}: {', '.join(sorted(unknown))} is not a property of a {kind}")
     return f"{kind}({', '.join(parts)})"
+
+
+def kw_src(obj, indent: int = 4) -> str:
+    """A KwFeature's call: its name, its positional properties and the keywords that are not FreeCAD's defaults; a
+    nested list (MultiTransform's transformations) one call a line."""
+    parts = [json.dumps(obj.name)]
+    for k in obj.POS:
+        if obj.is_default(k):
+            break
+        parts.append(lit(obj.source_value(k)))
+    for k in obj.DEFAULTS:
+        if (k in obj.POS and len(parts) > 1 + obj.POS.index(k)) or obj.is_default(k):
+            continue
+        if k in obj.NESTED:
+            parts.append(f"{k}={_list_src([kw_src(x, indent + 4) for x in getattr(obj, k)], indent)}")
+        else:
+            parts.append(f"{k}={lit(obj.source_value(k))}")
+    return f"{obj.kind}({', '.join(parts)})"
 
 
 def _tuples(key, v):
@@ -543,8 +584,8 @@ def _op_set(src, name, props):
     props.pop("name", None)
     if "type" in props and props.pop("type") != TYPE_IDS[kind]:
         raise FeatureEditError(f"{name} is a {kind}; its type cannot be changed")
-    if _generic(kind):
-        return _generic_set(t, call, kind, props, spans)
+    if KW.kw_class(kind):
+        return _kw_set(t, call, name, props, spans)
     if kind == "Sketch":
         ind = call.col_offset + 7
         for key, val in props.items():
@@ -580,12 +621,51 @@ def _op_set(src, name, props):
     return t.edit(spans)
 
 
+def _kw_set(t, call, name, props, spans):
+    """set on a KwFeature: each property rewritten in place, added when it was left out, and left out again when it
+    goes back to FreeCAD's default."""
+    cls = KW.kw_class(_fname(call))
+    pos = ("name",) + cls.POS
+    bare = KW.bare(cls, name)
+    for key, val in props.items():
+        if key not in cls.DEFAULTS:
+            raise FeatureEditError(f"{key} is not a property of a {cls.kind}")
+        try:
+            v = bare.normalize(key, [KW.nested_from_dict(x) for x in val or []] if key in cls.NESTED else val)
+            default = bare.normalize(key, cls.DEFAULTS[key])
+        except F.FeatureError as e:
+            raise FeatureEditError(str(e)) from None
+        node = _arg(call, pos, key)
+        if v == default and key not in cls.POS:
+            if node is not None:
+                _drop_kw(t, call, key, spans)
+        elif key in cls.NESTED:
+            _set_arg(t, call, pos, key, _list_src([kw_src(x, call.col_offset + 4) for x in v], call.col_offset),
+                     spans)
+        else:
+            _set_arg(t, call, pos, key, lit(bare.source_value(key, v)), spans)
+    return t.edit(spans)
+
+
 def _refs(call):
     """The string constants of a Pad or Pocket that name other features: (node, name)."""
     out = []
-    if _generic(_fname(call)):
-        return _generic_refs(call)
     if _fname(call) == "Sketch":
+        return out
+    if KW.kw_class(_fname(call)):
+        cls = KW.kw_class(_fname(call))
+        for key in cls.REFS:
+            v = _arg(call, ("name",) + cls.POS, key)
+            for e in (v.elts if isinstance(v, ast.List) or (isinstance(v, ast.Tuple) and cls.is_ref_list(key))
+                      else [v] if v is not None else []):
+                e = e.elts[0] if isinstance(e, (ast.Tuple, ast.List)) and e.elts else e
+                if isinstance(e, ast.Constant) and isinstance(e.value, str):
+                    out.append((e, e.value))
+        for key in cls.NESTED:
+            v = _arg(call, ("name",) + cls.POS, key)
+            for e in (v.elts if isinstance(v, (ast.List, ast.Tuple)) else []):
+                if isinstance(e, ast.Call):
+                    out += _refs(e)
         return out
     p = _arg(call, EXTRUDE_POS, "profile")
     if isinstance(p, ast.Constant):
@@ -625,6 +705,49 @@ def _set_tip(src, name):
     if body is not None and not any(k.arg == "tip" for k in body.keywords):
         _set_arg(t, body, (), "tip", "TIP", spans)
     return t.edit(spans)
+
+
+def _kinds_of(d: dict) -> set:
+    """The cad_agent.feature names a feature dict's source calls (its nested features' too)."""
+    kind = KINDS.get(d.get("type"), d.get("type"))
+    out = {kind} if kind in F.FEATURES else set()
+    cls = KW.kw_class(kind)
+    for key in (cls.NESTED if cls else ()):
+        for x in d.get(key) or []:
+            out |= _kinds_of(x.as_dict() if isinstance(x, KW.KwFeature) else x)
+    return out
+
+
+def ensure_import(src: str, names) -> str:
+    """src with `from cad_agent.feature import (...)` naming every one of names: the import rewritten in sorted order
+    when one is missing, or added after the module's docstring and imports when the file has none."""
+    tree = ast.parse(src)
+    node = next((n for n in tree.body if isinstance(n, ast.ImportFrom) and n.module == "cad_agent.feature"
+                 and n.level == 0 and not any(a.asname for a in n.names)), None)
+    have = {a.name for a in node.names} if node is not None else set()
+    if set(names) <= have or "*" in have:
+        return src
+    want = sorted(have | set(names), key=lambda x: (x.lower(), x))
+    head = "from cad_agent.feature import ("
+    lines, line = [], head
+    for i, n in enumerate(want):
+        piece = n + (", " if i < len(want) - 1 else ")")
+        if len(line) + len(piece.rstrip()) > 120:
+            lines.append(line.rstrip())
+            line = " " * len(head)
+        line += piece
+    text = "\n".join(lines + [line]) + "\n"
+    t = _Text(src)
+    if node is not None:
+        return t.edit([(t.line_start(t.a(node)), t.line_end(t.b(node)), text)])
+    pos = 0
+    for n in tree.body:
+        if isinstance(n, (ast.Import, ast.ImportFrom)) or (n is tree.body[0] and isinstance(n, ast.Expr)
+                                                            and isinstance(n.value, ast.Constant)):
+            pos = t.line_end(t.b(n))
+        else:
+            break
+    return t.edit([(pos, pos, text)])
 
 
 def _convert(src):
@@ -676,8 +799,16 @@ def _check(src):
         if n in kinds or n == "BaseFeature":
             raise FeatureEditError(f"two features are named {n!r}")
         try:
-            if _generic(KINDS[f["type"]]):
-                _generic_check(f, seen)
+            if KW.kw_class(KINDS.get(f["type"])):
+                obj = KW.kw_class(KINDS[f["type"]]).from_dict(f)
+                for r in obj.references():
+                    if r not in seen and r not in KW.ORIGIN:
+                        raise FeatureEditError(f"{n}: it references {r!r}, which is not before it")
+                for sub in obj.nested_names():
+                    if sub in kinds or sub == n or sub in seen or not NAME.match(sub):
+                        raise FeatureEditError(f"{n}: {sub!r} is not a name its transformation can take "
+                                               "(two features are named so, or it is not letters, digits and _)")
+                    kinds[sub] = "nested"
             elif f["type"] == TYPE_IDS["Sketch"]:
                 F.Sketch(n, f["support"], [F.geometry_from_dict(g) for g in f["geometry"]],
                          [F.Constraint(c["type"], *c["args"], *([c["value"]] if "value" in c else []),
@@ -704,121 +835,6 @@ def _check(src):
     return d
 
 
-# ── generic features: a class that says how it is written ──────────────────────────────────────────────
-# A feature class of cad_agent.feature.FEATURES with type_id (FreeCAD's TypeId), POS (the names of its positional
-# arguments, the name first), PROPS ({read() key: the part file's keyword}, defaults from the class) and REFS (the
-# arguments that name other features: a name, or (name, subs) whose first item is one) is read and written here
-# without code of its own.
-
-def _generic(kind) -> bool:
-    return kind in F.FEATURES and bool(getattr(F.FEATURES[kind], "PROPS", None))
-
-
-def _generic_obj(kind, name, kw):
-    try:
-        return F.FEATURES[kind](name, **kw)
-    except (TypeError, F.FeatureError) as e:
-        raise FeatureEditError(str(e)) from None
-
-
-def _generic_dict(kind, call, src):
-    cls = F.FEATURES[kind]
-    name = _lit(_arg(call, cls.POS, "name"), src)
-    kw = {}
-    for i, a in enumerate(call.args[1:], 1):
-        if i >= len(cls.POS):
-            raise FeatureEditError(f"{name}: too many arguments for a {kind}")
-        kw[cls.POS[i]] = _lit(a, src)
-    kw.update({k.arg: _lit(k.value, src) for k in call.keywords})
-    unknown = set(kw) - set(cls.PROPS.values())
-    if unknown:
-        raise FeatureEditError(f"{name}: {', '.join(sorted(unknown))} is not a property of a {kind}")
-    obj = _generic_obj(kind, name, kw)
-    d = obj.as_dict()
-    d["type"] = cls.type_id
-    return d
-
-
-def _generic_value(cls, key, v):
-    """A JSON value as the part file writes it: a reference as a tuple (name, subs), lists of points as tuples."""
-    if key in cls.REFS and isinstance(v, list) and len(v) == 2 and isinstance(v[0], str):
-        return (v[0], list(v[1]) if isinstance(v[1], (list, tuple)) else v[1])
-    return tuple(v) if isinstance(v, list) and key not in cls.REFS else v
-
-
-def _generic_src(kind, d):
-    cls = F.FEATURES[kind]
-    name = d.get("name")
-    unknown = set(d) - set(cls.PROPS) - {"name", "type"}
-    if unknown:
-        raise FeatureEditError(f"{name}: {', '.join(sorted(unknown))} is not a property of a {kind}")
-    kw = {cls.PROPS[k]: _generic_value(cls, k, v) for k, v in d.items() if k in cls.PROPS}
-    _generic_obj(kind, name, kw)                                 # refused here when it is not one
-    default = cls(name).as_dict()
-    parts = [json.dumps(name)]
-    positional = True
-    for k in cls.POS[1:]:
-        key = next(r for r, w in cls.PROPS.items() if w == k)
-        if positional and d.get(key) is not None:
-            parts.append(lit(_generic_value(cls, key, d[key])))
-        else:
-            positional = False
-    for key, kwname in cls.PROPS.items():
-        if kwname in cls.POS or key not in d:
-            continue
-        if default.get(key) == d[key]:
-            continue
-        parts.append(f"{kwname}={lit(_generic_value(cls, key, d[key]))}")
-    return f"{kind}({', '.join(parts)})"
-
-
-def _generic_set(t, call, kind, props, spans):
-    cls = F.FEATURES[kind]
-    for key, val in props.items():
-        if key not in cls.PROPS:
-            raise FeatureEditError(f"{key} is not a property of a {kind}")
-        _set_arg(t, call, cls.POS, cls.PROPS[key], lit(_generic_value(cls, key, val)), spans)
-    return t.edit(spans)
-
-
-def _generic_refs(call):
-    cls = F.FEATURES[_fname(call)]
-    out = []
-    for kw in cls.REFS:
-        v = _arg(call, cls.POS, kw)
-        if isinstance(v, ast.Constant) and isinstance(v.value, str):
-            out.append((v, v.value))
-        elif isinstance(v, (ast.Tuple, ast.List)) and v.elts and isinstance(v.elts[0], ast.Constant) \
-                and isinstance(v.elts[0].value, str):
-            out.append((v.elts[0], v.elts[0].value))
-    return out
-
-
-def _generic_check(f, seen):
-    kind = KINDS[f["type"]]
-    cls = F.FEATURES[kind]
-    obj = _generic_obj(kind, f["name"], {cls.PROPS[k]: _generic_value(cls, k, v) for k, v in f.items()
-                                         if k in cls.PROPS})
-    for key in cls.REFS:
-        r = getattr(obj, key, None) if key != "base" else obj.base
-        r0 = r if isinstance(r, str) else r[0] if r else None
-        if r0 and r0 not in seen and not r0.endswith(("_Plane", "_Axis")):
-            raise FeatureEditError(f"{f['name']}: its {key} names {r0!r}, which is not before it")
-
-
-def _ensure_import(src, kind):
-    """The part file imports kind from cad_agent.feature (a file written before kind existed does not)."""
-    if not _generic(kind):
-        return src
-    tree = ast.parse(src)
-    froms = [n for n in tree.body if isinstance(n, ast.ImportFrom) and n.module == "cad_agent.feature"]
-    if any(a.name in (kind, "*") for n in froms for a in n.names):
-        return src
-    t = _Text(src)
-    pos = t.line_end(t.b(froms[-1])) if froms else 0
-    return t.edit([(pos, pos, f"from cad_agent.feature import {kind}\n")])
-
-
 def apply_src(src: str, ops: list) -> str:
     for k, op in enumerate(ops):
         if not isinstance(op, dict) or "op" not in op:
@@ -833,7 +849,7 @@ def apply_src(src: str, ops: list) -> str:
             if feat.get("name") in [f["name"] for f in read_src(src)["features"]]:
                 raise FeatureEditError(f"there is already a feature {feat.get('name')!r}")
             src = _insert(src, feature_src(feat, 0), op.get("after"), "after" not in op)
-            src = _ensure_import(src, KINDS.get(feat.get("type"), feat.get("type")))
+            src = ensure_import(src, _kinds_of(feat))
             continue
         if not has_list:
             raise FeatureEditError("the part has no feature list yet: add a feature first")
@@ -926,7 +942,7 @@ def follow_src(before: str, after: str, path) -> str:
     except FeatureEditError:
         return after
     from . import feature_dressup as D
-    if not kinds & {c.type_id for c in D.DRESSUPS.values()}:
+    if not kinds & {c.TYPE_ID for c in D.DRESSUPS.values()}:
         return after
     try:
         fb, pb, bb = _run(before, Path(path))

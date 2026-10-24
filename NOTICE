@@ -33,6 +33,9 @@ that commit.
 
   LGPL-2.1-or-later        cad_agent/feature_dressup.py, all of it: PartDesign's dress-up features.
 
+  LGPL-2.1-or-later        cad_agent/feature_transform.py and cad_agent/feature_primitive.py, all of them
+                           (PartDesign's transformed features and primitives). See section 2.
+
   LGPL-2.0-or-later        cad_agent/appcache.py, all of it. It is distributed here under version
                            2.1 of the licence, which "or any later version" allows; the text is in
                            ui/LICENSE.
@@ -65,6 +68,19 @@ that commit.
       Copyright (c) 2008 Werner Mayer (FeatureFillet.cpp), Copyright (c) 2012 Jan Rheinländer
       (FeatureDraft.cpp), Copyright (c) 2015 Stefan Tröger (FeatureThickness.cpp),
       Copyright (c) 2022 Zheng, Lei (TopoShapeExpansion.cpp)
+
+  cad_agent/feature_transform.py
+      Ports src/Mod/PartDesign/App/FeatureTransformed.cpp, FeatureMirrored.cpp, FeatureLinearPattern.cpp,
+      FeaturePolarPattern.cpp and FeatureMultiTransform.cpp, src/Mod/Part/App/LinearPatternExtension.cpp and
+      PolarPatternExtension.cpp (Copyright (c) 2012 Jan Rheinländer), and TopoShape::makeElementBoolean and
+      makeElementTransform from src/Mod/Part/App/TopoShapeExpansion.cpp (Copyright (c) 2022 Zheng, Lei).
+      SPDX-License-Identifier: LGPL-2.1-or-later
+
+  cad_agent/feature_primitive.py
+      Ports src/Mod/PartDesign/App/FeaturePrimitive.cpp (Copyright (c) 2015 Stefan Tröger),
+      src/Mod/Part/App/PrismExtension.cpp (Copyright (c) 2021 Werner Mayer) and TopoShape::makeTorus from
+      src/Mod/Part/App/TopoShape.cpp (Copyright (c) 2002 Jürgen Riegel).
+      SPDX-License-Identifier: LGPL-2.1-or-later
 
   cad_agent/appcache.py
       Re-expresses src/Gui/PreferencePages/DlgSettingsCacheDirectory.cpp (class ApplicationCache)

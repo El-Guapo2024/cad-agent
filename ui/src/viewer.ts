@@ -529,6 +529,8 @@ export class CadView {
   }
   /** The scene's box, for what is sized to the model (a Through all preview, the Origin's planes). */
   modelBox(): THREE.Box3 | null { return this.box() }
+  /** A body's face meshes as the view draws them (pd_transform.tsx copies them for a Transform body preview). */
+  bodyMeshes(body: string): THREE.Mesh[] { return this.meshes.get(body) ?? [] }
 
   /** three-cad-viewer's orbit controls: kept for their target, never for input. */
   private lockControls() {

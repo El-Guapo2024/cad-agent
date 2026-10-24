@@ -72,9 +72,10 @@ def test_add_round_trips(part, feat):
         assert got[k] == v, k
     kind = feat["type"].split("::")[1]
     src = part.read_text()
-    assert f"from cad_agent.feature import {kind}\n" in src        # the old import did not have it
-    added = [ln for ln in _diff(before, src) if ln.startswith("+")]
-    assert len(added) == 2, added                                   # the import and the entry, nothing else
+    imp = next(n for n in __import__("ast").parse(src).body if getattr(n, "module", None) == "cad_agent.feature")
+    assert kind in {a.name for a in imp.names}                     # the old import did not have it
+    entry = [ln for ln in _diff(before, src) if ln.startswith("+") and f'{kind}("' in ln]
+    assert len(entry) == 1, _diff(before, src)                      # the entry; the import line rewritten
     assert E.read(part)["features"][-1] == got
     assert _build(part).volume > 0
 
@@ -147,8 +148,9 @@ def test_cad_feature_add_takes_them(tmp_path, monkeypatch):
     """`cad feature add` parses a dress-up's TYPE and its key=value props (base as JSON)."""
     from cad_agent import featurecmd as C
     assert C._type("Fillet") == "PartDesign::Fillet" and C._type("PartDesign::Thickness") == "PartDesign::Thickness"
+    types, names = C._kw_types()
     for k in ("Fillet", "Chamfer", "Draft", "Thickness"):
-        assert C.ADD_NAMES[C.TYPES[k]] == f"Make {k}"
+        assert names[types[k]] == f"Make {k}"                      # finishDressupFeature's transaction
 
 
 def test_links_shorthand():

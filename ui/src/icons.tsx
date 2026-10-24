@@ -91,6 +91,12 @@ export const FILES = {
   'pd-boolean': 'PartDesign_Boolean', 'pd-check-geometry': 'Part_CheckGeometry', 'pd-gear': 'PartDesign_InternalExternalGear', 'pd-sprocket': 'PartDesign_Sprocket',
   'pd-wizard-shaft': 'PartDesign_WizardShaft', 'pd-move-tip': 'PartDesign_MoveTip', 'pd-move-feature': 'PartDesign_MoveFeature',
   'pd-move-in-tree': 'PartDesign_MoveFeatureInTree', 'pd-color-face': 'Part_ColorFace', freeze: 'Std_ToggleFreeze',
+  // pd_transform.tsx: the primitives' commands and tree icons (ViewProviderPrimitive), Box's two being above.
+  'pd-add-cylinder': 'PartDesign_AdditiveCylinder', 'pd-add-sphere': 'PartDesign_AdditiveSphere', 'pd-add-cone': 'PartDesign_AdditiveCone',
+  'pd-add-ellipsoid': 'PartDesign_AdditiveEllipsoid', 'pd-add-torus': 'PartDesign_AdditiveTorus', 'pd-add-prism': 'PartDesign_AdditivePrism',
+  'pd-add-wedge': 'PartDesign_AdditiveWedge', 'pd-sub-cylinder': 'PartDesign_SubtractiveCylinder', 'pd-sub-sphere': 'PartDesign_SubtractiveSphere',
+  'pd-sub-cone': 'PartDesign_SubtractiveCone', 'pd-sub-ellipsoid': 'PartDesign_SubtractiveEllipsoid', 'pd-sub-torus': 'PartDesign_SubtractiveTorus',
+  'pd-sub-prism': 'PartDesign_SubtractivePrism', 'pd-sub-wedge': 'PartDesign_SubtractiveWedge',
 } as const
 
 export type IconName = keyof typeof FILES

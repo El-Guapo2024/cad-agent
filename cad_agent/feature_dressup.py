@@ -43,6 +43,7 @@ from __future__ import annotations
 import math
 
 from . import feature as F
+from . import feature_kw as KW
 from .feature import FeatureError, value
 
 try:                                     # the kernel; FreeCAD's Python reads the vocabulary without it
@@ -130,39 +131,43 @@ def _ref(r, where, prop, kinds):
     return (obj, sub)
 
 
-class _DressUp:
-    """PartDesign::DressUp: Base (feature, subs) and Refine (FeatureRefine's, FreeCAD's default True)."""
+class _DressUp(KW.KwFeature):
+    """PartDesign::DressUp, a feature_kw.KwFeature: Base (feature, [sub-elements]) by position, Refine (FeatureRefine's,
+    FreeCAD's default True), and each kind's own properties in DEFAULTS. Base is one link with several sub-elements
+    (PropertyLinkSub), which normalize() keeps as (name, [subs]); the part file writes it so, ("Pad", ["Edge1"])."""
     kind = ""
-    type_id = ""
-    POS = ("name", "base")
-    # The properties read() gives and the part file's keyword for each (here the same snake_case names).
-    PROPS: dict = {}
+    TYPE_ID = ""
+    POS = ("base",)
     REFS = ("base",)
+    TRANSACTION = ""
+    DEFAULTS: dict = {"base": None, "refine": True}
 
-    def __init__(self, name: str, base=None, *, refine: bool = True):
-        self.name = name
-        self.base_name, self.subs = parse_base(base, name)
-        self.refine = bool(refine)
+    def normalize(self, key, v):
+        if key == "base":
+            name, subs = parse_base(v, self.name)
+            return None if name is None else (name, subs)
+        if key in ("neutral_plane", "pull_direction"):
+            return _ref(v, self.name, key, ("Face", "Edge") if key == "neutral_plane" else ("Edge",))
+        return super().normalize(key, v)
 
     @property
-    def base(self):
-        if self.base_name is None:
-            return None
-        return (self.base_name, list(self.subs))
+    def base_name(self):
+        return self.base[0] if self.base else None
 
-    def as_dict(self) -> dict:
-        d = {"name": self.name, "type": self.type_id, "base": None if self.base is None else list(self.base)}
-        for key in self.PROPS:
-            if key == "base":
-                continue
-            v = getattr(self, key)
-            d[key] = list(v) if isinstance(v, tuple) else v
-        return d
+    @property
+    def subs(self):
+        return list(self.base[1]) if self.base else []
 
     def __repr__(self):
         return f"{self.kind}({self.name!r}, {self.base!r})"
 
     # ── evaluate() calls this: the solid before it (FreeCAD's BaseFeature) to its own ──
+    def execute(self, solid, shapes, params):
+        order = shapes.get("_order") or []
+        i = order.index(self.name) if self.name in order else len(order)
+        prev = next((n for n in reversed(order[:i]) if n in shapes), "BaseFeature" if "BaseFeature" in shapes else None)
+        return self.build_shape(solid, shapes, params, prev)
+
     def build_shape(self, solid, shapes, params, prev: str | None):
         where = self.name
         if solid is None:
@@ -183,10 +188,10 @@ class _DressUp:
         return F._refine(shape) if self.refine else shape
 
     # ── to_freecad: the same object in a FreeCAD Body ──
-    def to_freecad(self, body, made, planes, setv):
-        obj = body.newObject(self.type_id, self.name)
+    def to_freecad(self, ctx):
+        obj = ctx.body.newObject(self.TYPE_ID, self.name)
         if self.base_name is not None:
-            obj.Base = (made[self.base_name], list(self.subs))
+            obj.Base = (ctx.made[self.base_name], list(self.subs))
         obj.Refine = self.refine
         return obj
 
@@ -283,12 +288,9 @@ def _all_edges(shape):
 class Fillet(_DressUp):
     """PartDesign::Fillet (FeatureFillet.cpp): Radius 1 mm, UseAllEdges False."""
     kind = "Fillet"
-    type_id = "PartDesign::Fillet"
-    PROPS = {"base": "base", "radius": "radius", "use_all_edges": "use_all_edges", "refine": "refine"}
-
-    def __init__(self, name, base=None, *, radius=1.0, use_all_edges: bool = False, refine: bool = True):
-        super().__init__(name, base, refine=refine)
-        self.radius, self.use_all_edges = radius, bool(use_all_edges)
+    TYPE_ID = "PartDesign::Fillet"
+    TRANSACTION = "Make Fillet"
+    DEFAULTS = {"base": None, "radius": 1.0, "use_all_edges": False, "refine": True}
 
     def _make(self, base, shapes, params):
         edges = _all_edges(base) if self.use_all_edges else continuous_edges(self, base)
@@ -314,8 +316,9 @@ class Fillet(_DressUp):
         _limit_tolerance(base, shape)
         return self._refined(shape)
 
-    def to_freecad(self, body, made, planes, setv):
-        obj = super().to_freecad(body, made, planes, setv)
+    def to_freecad(self, ctx):
+        obj = super().to_freecad(ctx)
+        setv = ctx.setv
         setv(obj, "Radius", self.radius)
         obj.UseAllEdges = self.use_all_edges
         return obj
@@ -327,17 +330,15 @@ class Chamfer(_DressUp):
     """PartDesign::Chamfer (FeatureChamfer.cpp): ChamferType Equal distance, Size 1 mm, Size2 1 mm,
     Angle 45 degrees, FlipDirection False, UseAllEdges False."""
     kind = "Chamfer"
-    type_id = "PartDesign::Chamfer"
-    PROPS = {"base": "base", "chamfer_type": "chamfer_type", "size": "size", "size2": "size2", "angle": "angle",
-             "flip_direction": "flip_direction", "use_all_edges": "use_all_edges", "refine": "refine"}
+    TYPE_ID = "PartDesign::Chamfer"
+    TRANSACTION = "Make Chamfer"
+    DEFAULTS = {"base": None, "chamfer_type": "Equal distance", "size": 1.0, "size2": 1.0, "angle": 45.0,
+                "flip_direction": False, "use_all_edges": False, "refine": True}
 
-    def __init__(self, name, base=None, *, chamfer_type: str = "Equal distance", size=1.0, size2=1.0,
-                 angle=45.0, flip_direction: bool = False, use_all_edges: bool = False, refine: bool = True):
-        super().__init__(name, base, refine=refine)
-        if chamfer_type not in CHAMFER_TYPES:
-            raise FeatureError(f"{name}: chamfer_type {chamfer_type!r} is not one of {', '.join(CHAMFER_TYPES)}")
-        self.chamfer_type, self.size, self.size2, self.angle = chamfer_type, size, size2, angle
-        self.flip_direction, self.use_all_edges = bool(flip_direction), bool(use_all_edges)
+    def validate(self):
+        if self.chamfer_type not in CHAMFER_TYPES:
+            raise FeatureError(f"{self.name}: chamfer_type {self.chamfer_type!r} is not one of "
+                               f"{', '.join(CHAMFER_TYPES)}")
 
     def _make(self, base, shapes, params):
         edges = _all_edges(base) if self.use_all_edges else continuous_edges(self, base)
@@ -383,8 +384,9 @@ class Chamfer(_DressUp):
         _limit_tolerance(base, shape)
         return self._refined(shape)
 
-    def to_freecad(self, body, made, planes, setv):
-        obj = super().to_freecad(body, made, planes, setv)
+    def to_freecad(self, ctx):
+        obj = super().to_freecad(ctx)
+        setv = ctx.setv
         obj.ChamferType = self.chamfer_type
         setv(obj, "Size", self.size)
         setv(obj, "Size2", self.size2)
@@ -400,21 +402,17 @@ class Draft(_DressUp):
     """PartDesign::Draft (FeatureDraft.cpp): Angle 1.5 degrees, NeutralPlane and PullDirection empty (guessed
     from the first face), Reversed False. FreeCAD's Draft has a Refine property but never refines."""
     kind = "Draft"
-    type_id = "PartDesign::Draft"
-    PROPS = {"base": "base", "angle": "angle", "neutral_plane": "neutral_plane",
-             "pull_direction": "pull_direction", "reversed": "reversed", "refine": "refine"}
+    TYPE_ID = "PartDesign::Draft"
+    TRANSACTION = "Make Draft"
     REFS = ("base", "neutral_plane", "pull_direction")
+    DEFAULTS = {"base": None, "angle": 1.5, "neutral_plane": None, "pull_direction": None, "reversed": False,
+                "refine": True}
 
-    def __init__(self, name, base=None, *, angle=1.5, neutral_plane=None, pull_direction=None,
-                 reversed: bool = False, refine: bool = True):
-        super().__init__(name, base, refine=refine)
-        self.angle, self.reversed = angle, bool(reversed)
-        self.neutral_plane = _ref(neutral_plane, name, "neutral_plane", ("Face", "Edge"))
-        self.pull_direction = _ref(pull_direction, name, "pull_direction", ("Edge",))
+    def validate(self):
         if isinstance(self.neutral_plane, str) and self.neutral_plane in ORIGIN_AXES:
-            raise FeatureError(f"{name}: Neutral plane reference must be face of a feature or a datum plane")
+            raise FeatureError(f"{self.name}: Neutral plane reference must be face of a feature or a datum plane")
         if isinstance(self.pull_direction, str) and self.pull_direction in ORIGIN_PLANES:
-            raise FeatureError(f"{name}: Pull direction reference must be an edge of a feature or a datum line")
+            raise FeatureError(f"{self.name}: Pull direction reference must be an edge of a feature or a datum line")
 
     def _ref_shape(self, r, shapes):
         obj, sub = r
@@ -527,11 +525,12 @@ class Draft(_DressUp):
                 return gp_Pln(pm, curve.Lin().Direction())
         raise FeatureError("No neutral plane specified and none can be guessed")
 
-    def to_freecad(self, body, made, planes, setv):
-        obj = super().to_freecad(body, made, planes, setv)
+    def to_freecad(self, ctx):
+        obj = super().to_freecad(ctx)
+        setv = ctx.setv
         setv(obj, "Angle", self.angle)
         obj.Reversed = self.reversed
-        axes = {o.Role: o for o in body.Origin.OriginFeatures}
+        axes, made = ctx.origin, ctx.made
         for prop, r in (("NeutralPlane", self.neutral_plane), ("PullDirection", self.pull_direction)):
             if r is None:
                 continue
@@ -548,19 +547,16 @@ class Thickness(_DressUp):
     """PartDesign::Thickness (FeatureThickness.cpp): Value 1 mm, Reversed True (inwards), Mode Skin, Join Arc,
     Intersection False."""
     kind = "Thickness"
-    type_id = "PartDesign::Thickness"
-    PROPS = {"base": "base", "value": "value", "reversed": "reversed", "mode": "mode", "join": "join",
-             "intersection": "intersection", "refine": "refine"}
+    TYPE_ID = "PartDesign::Thickness"
+    TRANSACTION = "Make Thickness"
+    DEFAULTS = {"base": None, "value": 1.0, "reversed": True, "mode": "Skin", "join": "Arc", "intersection": False,
+                "refine": True}
 
-    def __init__(self, name, base=None, *, value=1.0, reversed: bool = True, mode: str = "Skin",
-                 join: str = "Arc", intersection: bool = False, refine: bool = True):
-        super().__init__(name, base, refine=refine)
-        if mode not in THICKNESS_MODES:
-            raise FeatureError(f"{name}: mode {mode!r} is not one of {', '.join(THICKNESS_MODES)}")
-        if join not in THICKNESS_JOINS:
-            raise FeatureError(f"{name}: join {join!r} is not one of {', '.join(THICKNESS_JOINS)}")
-        self.value, self.reversed, self.mode, self.join = value, bool(reversed), mode, join
-        self.intersection = bool(intersection)
+    def validate(self):
+        if self.mode not in THICKNESS_MODES:
+            raise FeatureError(f"{self.name}: mode {self.mode!r} is not one of {', '.join(THICKNESS_MODES)}")
+        if self.join not in THICKNESS_JOINS:
+            raise FeatureError(f"{self.name}: join {self.join!r} is not one of {', '.join(THICKNESS_JOINS)}")
 
     def _make(self, base, shapes, params):
         if not self.subs:                      # no sub-elements: a copy of the base
@@ -612,8 +608,9 @@ class Thickness(_DressUp):
             result = out[0]
         return self._refined(result)
 
-    def to_freecad(self, body, made, planes, setv):
-        obj = super().to_freecad(body, made, planes, setv)
+    def to_freecad(self, ctx):
+        obj = super().to_freecad(ctx)
+        setv = ctx.setv
         setv(obj, "Value", self.value)
         obj.Reversed = self.reversed
         obj.Mode = self.mode
@@ -674,7 +671,7 @@ def _recto_verso(solid, faces, thickness, tol, intersection, join):
     return result
 
 
-DRESSUPS = {c.kind: c for c in (Fillet, Chamfer, Draft, Thickness)}
+DRESSUPS = {c.kind: c for c in (Fillet, Chamfer, Draft, Thickness)}  # feature.FEATURES.update(DRESSUPS)
 
 
 # ── following renumbered elements (FreeCAD's topological naming, by geometry) ─────────────────────────
@@ -800,7 +797,7 @@ def _solid_before(features, name):
 def _with_base(f, base_name, subs):
     g = type(f).__new__(type(f))
     g.__dict__.update(f.__dict__)
-    g.base_name, g.subs = base_name, list(subs)
+    g.base = (base_name, list(subs))
     return g
 
 
@@ -819,8 +816,11 @@ def follow(features_before, features_after, params_before=None, params_after=Non
     params = dict(params_after or {})
     solid = getattr(base_after, "wrapped", base_after) if base_after is not None else None
     prev = "BaseFeature" if solid is not None else None
-    shapes = {"BaseFeature": solid} if solid is not None else {}
     sketches, out = {}, {}
+    shapes = {"_addsub": {}, "_before": {}, "_order": [getattr(f, "name", None) for f in features_after],
+              "_sketches": sketches}                 # as evaluate() keeps them, for the features that read them
+    if solid is not None:
+        shapes["BaseFeature"] = solid
     for f in features_after:
         name = getattr(f, "name", None)
         if isinstance(f, F.Sketch):
@@ -840,10 +840,17 @@ def follow(features_before, features_after, params_before=None, params_after=Non
                 out[name] = (prev, subs)
                 f = _with_base(f, prev, subs)
         try:
-            if hasattr(f, "build_shape"):
+            shapes["_before"][name] = solid
+            if isinstance(f, _DressUp):
                 solid = f.build_shape(solid, shapes, params, prev)
-            elif hasattr(f, "profile") and f.profile in sketches:
-                solid = F._extrude(f, sketches[f.profile], solid, shapes, params)
+            elif isinstance(f, F._Extrude):
+                if f.profile not in sketches:
+                    return out
+                addsub: dict = {}
+                solid = F._extrude(f, sketches[f.profile], solid, shapes, params, addsub)
+                shapes["_addsub"][name] = (addsub.get("addsub"), isinstance(f, F.Pad))
+            elif hasattr(f, "execute"):
+                solid = f.execute(solid, shapes, params)
             else:
                 return out
         except Exception:

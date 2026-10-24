@@ -39,11 +39,17 @@ from .cmdbase import (OK, BuildFailed, NotBuilt, Result, UsageError, actor, buil
 SKETCH = "Sketcher::SketchObject"
 # What `cad feature add` takes for TYPE: FreeCAD's short names, or the type itself.
 TYPES = {"Sketch": SKETCH, "Pad": "PartDesign::Pad", "Pocket": "PartDesign::Pocket"}
-TYPES.update({k: f"PartDesign::{k}" for k in ("Fillet", "Chamfer", "Draft", "Thickness")})  # feature_dressup.py
 # The transaction FreeCAD opens for each (PartDesign/Gui/Command.cpp's "Make " + which, SketchWorkflow.cpp's
 # "New Sketch", CommandBody.cpp, Gui/CommandDoc.cpp's "Delete", Tree.cpp's "Rename <obj>.Label").
 ADD_NAMES = {SKETCH: "New Sketch", "PartDesign::Pad": "Make Pad", "PartDesign::Pocket": "Make Pocket"}
-ADD_NAMES.update({f"PartDesign::{k}": f"Make {k}" for k in ("Fillet", "Chamfer", "Draft", "Thickness")})  # finishDressupFeature
+
+
+def _kw_types() -> dict:
+    """The features feature_kw.py declares (Mirrored, LinearPattern, ..., AdditiveBox, ...): {short name: TypeId} and
+    {TypeId: FreeCAD's transaction}. Looked up when a command needs them, so `cad` starts without the kernel."""
+    from .feature_kw import classes
+    cs = classes().values()
+    return {c.kind: c.TYPE_ID for c in cs}, {c.TYPE_ID: c.TRANSACTION for c in cs}
 
 TEMPLATE = '''"""{part}: a PartDesign Body made in the workbench (cad feature new).
 
@@ -84,11 +90,12 @@ def _camel(key: str) -> str:
 
 
 def _type(text: str) -> str:
-    if text in TYPES:
-        return TYPES[text]
-    if text in TYPES.values():
+    types = {**TYPES, **_kw_types()[0]}
+    if text in types:
+        return types[text]
+    if text in types.values():
         return text
-    raise UsageError(f"feature type {text!r}: one of {', '.join(TYPES)} (or {', '.join(TYPES.values())})")
+    raise UsageError(f"feature type {text!r}: one of {', '.join(types)} (or {', '.join(types.values())})")
 
 
 def _read(path: Path) -> dict:
@@ -127,7 +134,7 @@ def name_of(ops: list, doc_before: dict) -> str:
         op = ops[0]
         kind = op.get("op")
         if kind == "add":
-            return ADD_NAMES.get(op.get("feature", {}).get("type"), "Add feature")
+            return {**ADD_NAMES, **_kw_types()[1]}.get(op.get("feature", {}).get("type"), "Add feature")
         if kind == "set":
             props = list(op.get("props") or {})
             first = _camel(props[0]) if props else "property"
@@ -142,7 +149,7 @@ def name_of(ops: list, doc_before: dict) -> str:
             return "Move tip to selected feature"
     adds = [o for o in ops if o.get("op") == "add"]
     if adds:   # a task panel's OK: the feature it made, with the edits that came with it
-        return ADD_NAMES.get(adds[-1].get("feature", {}).get("type"), "Add feature")
+        return {**ADD_NAMES, **_kw_types()[1]}.get(adds[-1].get("feature", {}).get("type"), "Add feature")
     return "Edit features"
 
 
@@ -318,8 +325,11 @@ def add_parsers(add, sub) -> None:
     sp = one("new", cmd_feature_new, "a new part module with an empty Body (FreeCAD's Create body)")
     sp.add_argument("--material", default="petg", help="MATERIAL of the new part (default petg)")
     sp.add_argument("--process", default="fdm", help="PROCESS of the new part (default fdm)")
-    sp = one("add", cmd_feature_add, "add a Sketch, Pad, Pocket, Fillet, Chamfer, Draft or Thickness (FreeCAD's property names in snake_case; a dress-up's base=Pad:Edge1,Face6)")
-    sp.add_argument("type", help=", ".join(TYPES))
+    sp = one("add", cmd_feature_add, "add a Sketch, Pad, Pocket, Mirrored, LinearPattern, PolarPattern, "
+             "MultiTransform, an Additive/Subtractive primitive, Fillet, Chamfer, Draft or Thickness (FreeCAD's "
+             "property names in snake_case; a dress-up's base=Pad:Edge1,Face6)")
+    sp.add_argument("type", help=", ".join(TYPES) + ", Mirrored, LinearPattern, PolarPattern, MultiTransform, "
+                    "AdditiveBox ... SubtractiveWedge, Fillet, Chamfer, Draft, Thickness")
     sp.add_argument("name")
     sp.add_argument("props", nargs="*", metavar="KEY=VALUE")
     sp.add_argument("--after", help="the feature it goes after (default: at the end)")
