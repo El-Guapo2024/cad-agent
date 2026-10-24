@@ -241,16 +241,12 @@ void Sketch::clear()
     Circles.clear();
     resolveAfterGeometryUpdated = false;
 
-    // deleting the doubles allocated with new
-    for (auto param : Parameters) {
-        delete param;
-    }
+    // (FreeCAD deletes the doubles allocated with new; here they live in paramPool, see newParam)
     Parameters.clear();
     DrivenParameters.clear();
-    for (auto fixParam : FixParameters) {
-        delete fixParam;
-    }
     FixParameters.clear();
+    paramPool.clear();
+    paramPoolUsed = paramPoolSize = 0;
 
     param2geoelement.clear();
     pDependencyGroups.clear();
@@ -317,6 +313,23 @@ bool Sketch::analyseBlockedGeometry(
     return doesBlockAffectOtherConstraints;
 }
 
+double* Sketch::newParam(double value)
+{
+    if (paramPoolUsed == paramPoolSize) {
+        reserveParams(256);
+    }
+    double* p = &paramPool.back()[paramPoolUsed++];
+    *p = value;
+    return p;
+}
+
+void Sketch::reserveParams(size_t count)
+{
+    paramPool.push_back(std::make_unique<double[]>(count));
+    paramPoolUsed = 0;
+    paramPoolSize = count;
+}
+
 int Sketch::setUpSketch(
     const std::vector<Geometry>& GeoList,
     const std::vector<Constraint*>& ConstraintList,
@@ -324,6 +337,9 @@ int Sketch::setUpSketch(
 )
 {
     clear();
+
+    // All parameters in one block, in the order they are made (see newParam).
+    reserveParams(9 * GeoList.size() + ConstraintList.size() + 16);
 
     // (Group and Text constraints, whose geometry the solver ignores, are not ported.)
 
@@ -651,8 +667,8 @@ int Sketch::addPoint(const Geometry& point, bool fixed)
     def.type = Point;
 
     // set the parameter for the solver
-    params.push_back(new double(point.getPoint().x));
-    params.push_back(new double(point.getPoint().y));
+    params.push_back(newParam(point.getPoint().x));
+    params.push_back(newParam(point.getPoint().y));
 
     // set the points for later constraints
     GCS::Point p1;
@@ -699,13 +715,13 @@ int Sketch::addLineSegment(const Geometry& lineSegment, bool fixed)
     // the points for later constraints
     GCS::Point p1, p2;
 
-    params.push_back(new double(start.x));
-    params.push_back(new double(start.y));
+    params.push_back(newParam(start.x));
+    params.push_back(newParam(start.y));
     p1.x = params[params.size() - 2];
     p1.y = params[params.size() - 1];
 
-    params.push_back(new double(end.x));
-    params.push_back(new double(end.y));
+    params.push_back(newParam(end.x));
+    params.push_back(newParam(end.y));
     p2.x = params[params.size() - 2];
     p2.y = params[params.size() - 1];
 
@@ -770,18 +786,18 @@ int Sketch::addArc(const Geometry& circleSegment, bool fixed)
 
     GCS::Point p1, p2, p3;
 
-    params.push_back(new double(startPnt.x));
-    params.push_back(new double(startPnt.y));
+    params.push_back(newParam(startPnt.x));
+    params.push_back(newParam(startPnt.y));
     p1.x = params[params.size() - 2];
     p1.y = params[params.size() - 1];
 
-    params.push_back(new double(endPnt.x));
-    params.push_back(new double(endPnt.y));
+    params.push_back(newParam(endPnt.x));
+    params.push_back(newParam(endPnt.y));
     p2.x = params[params.size() - 2];
     p2.y = params[params.size() - 1];
 
-    params.push_back(new double(center.x));
-    params.push_back(new double(center.y));
+    params.push_back(newParam(center.x));
+    params.push_back(newParam(center.y));
     p3.x = params[params.size() - 2];
     p3.y = params[params.size() - 1];
 
@@ -792,11 +808,11 @@ int Sketch::addArc(const Geometry& circleSegment, bool fixed)
     def.midPointId = Points.size();
     Points.push_back(p3);
 
-    params.push_back(new double(radius));
+    params.push_back(newParam(radius));
     double* r = params[params.size() - 1];
-    params.push_back(new double(startAngle));
+    params.push_back(newParam(startAngle));
     double* a1 = params[params.size() - 1];
-    params.push_back(new double(endAngle));
+    params.push_back(newParam(endAngle));
     double* a2 = params[params.size() - 1];
 
     // set the arc for later constraints
@@ -884,12 +900,12 @@ int Sketch::addCircle(const Geometry& cir, bool fixed)
 
     GCS::Point p1;
 
-    params.push_back(new double(center.x));
-    params.push_back(new double(center.y));
+    params.push_back(newParam(center.x));
+    params.push_back(newParam(center.y));
     p1.x = params[params.size() - 2];
     p1.y = params[params.size() - 1];
 
-    params.push_back(new double(radius));
+    params.push_back(newParam(radius));
 
     def.midPointId = Points.size();
     Points.push_back(p1);
@@ -989,7 +1005,7 @@ int Sketch::addConstraint(const Constraint* constraint)
 
     // the datum of a dimensional constraint: a fixed parameter when driving, else a driven one
     auto newValue = [&]() {
-        c.value = new double(constraint->getValue());
+        c.value = newParam(constraint->getValue());
         if (c.driving) {
             FixParameters.push_back(c.value);
         }

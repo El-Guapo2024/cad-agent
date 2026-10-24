@@ -16,6 +16,7 @@
 #pragma once
 
 #include <map>
+#include <memory>
 #include <set>
 #include <stdexcept>
 #include <string>
@@ -193,6 +194,10 @@ public:
     }
     void setRadius(double radius)
     {
+        // gp_Circ::SetRadius
+        if (radius < 0.0) {
+            throw GeometryError("gp_Circ::SetRadius() - radius should be positive number");
+        }
         r = radius;
     }
     // ArcOfCircle, as GeomArcOfCircle::getRange/setRange with emulateCCWXY on a +Z circle.
@@ -406,6 +411,16 @@ private:
     std::vector<double*> pDependentParametersList;
     std::vector<std::set<std::pair<int, PointPos>>> pDependencyGroups;
     std::map<double*, std::tuple<int, PointPos, int>> param2geoelement;
+
+    // PlaneGCS orders a subsystem's unknowns by their addresses (std::set<double*> in
+    // SubSystem::initialize), and with FullPivLU's Gauss step an under-constrained sketch's
+    // solution depends on that order. FreeCAD allocates each parameter with new, so its order is
+    // whatever the heap gives; on a fresh heap that is the order of creation. Here the parameters
+    // are taken from one block in the order they are made, so the order is always that one.
+    std::vector<std::unique_ptr<double[]>> paramPool;
+    size_t paramPoolUsed = 0, paramPoolSize = 0;
+    double* newParam(double value);
+    void reserveParams(size_t count);
 
     std::vector<double*> Parameters;        // with memory allocation
     std::vector<double*> DrivenParameters;  // with memory allocation
