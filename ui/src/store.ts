@@ -107,6 +107,7 @@ export type Task = { kind: 'params' | 'placement' | 'transform' | 'measure' | 'm
   | 'fillet' | 'chamfer' | 'draft' | 'thickness'
   // pd_transform.tsx: a transformed feature's panel and a primitive's; `other` is the feature edited, or what a new one is
   | 'pdTransform' | 'pdPrimitive'
+  | 'pdSweep'     // pd_sweep.tsx: a Loft, Pipe or Helix; `other` is the feature edited, or "new:<TypeId>"
   // The Sketcher's edit mode (sketcher.ts, sketchui.tsx): TaskDlgEditSketch.
   | 'sketch'; body: string; other?: string; edit?: boolean }
 /** GET /api/history: one entry of the backend's Document undo/redo journal, shared with an

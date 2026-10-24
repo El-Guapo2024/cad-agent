@@ -40,6 +40,9 @@ that commit.
                            cad_agent/feature_hole_tables.py, all of them (PartDesign Revolution,
                            Groove and Hole; the hole tables are FreeCAD's data). See section 2.
 
+  LGPL-2.1-or-later        cad_agent/feature_sweep.py, all of it (PartDesign's Additive and
+                           Subtractive Loft, Pipe and Helix). See section 2.
+
   LGPL-2.0-or-later        cad_agent/appcache.py, all of it. It is distributed here under version
                            2.1 of the licence, which "or any later version" allows; the text is in
                            ui/LICENSE.
@@ -97,6 +100,17 @@ that commit.
       Copyright (c) 2010 Juergen Riegel; FeatureGroove.cpp Copyright (c) 2012 Jan Rheinländer;
       PartFeature.cpp Copyright (c) 2002 Jürgen Riegel; TopoShapeExpansion.cpp Copyright (c) 2022
       Zheng, Lei. SPDX-License-Identifier: LGPL-2.1-or-later
+
+  cad_agent/feature_sweep.py
+      Re-expresses src/Mod/PartDesign/App/FeatureLoft.cpp, FeaturePipe.cpp and FeatureHelix.cpp, with
+      what they call in FeatureAddSub.cpp, src/Mod/Part/App/TopoShape.cpp (makeSpiralHelix),
+      TopoShapeExpansion.cpp (makeElementLoft, makeElementSolid) and FaceMakerCheese.cpp (isInside), and
+      the face order of src/Mod/Part/App/modelRefine.cpp. FeatureLoft.cpp and FeaturePipe.cpp
+      Copyright (c) 2015 Stefan Tröger; FeatureHelix.cpp Copyright (c) 2010 Juergen Riegel;
+      FeatureAddSub.cpp Copyright (c) 2011 Juergen Riegel; TopoShape.cpp Copyright (c) 2002 Jürgen
+      Riegel; TopoShapeExpansion.cpp Copyright (c) 2022 Zheng, Lei; FaceMakerCheese.cpp Copyright (c)
+      2016 Victor Titov (DeepSOIC); modelRefine.cpp Copyright (c) 2011 Thomas Anderson.
+      SPDX-License-Identifier: LGPL-2.1-or-later
 
   cad_agent/feature_hole.py and cad_agent/feature_hole_tables.py
       Re-express src/Mod/PartDesign/App/FeatureHole.cpp (the properties, onChanged, execute,

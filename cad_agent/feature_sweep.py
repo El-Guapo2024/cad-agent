@@ -7,8 +7,9 @@
 #   Derived from: src/Mod/PartDesign/App/FeatureLoft.cpp (Copyright (c) 2015 Stefan Tröger <stefantroeger@gmx.net>),
 #                 src/Mod/PartDesign/App/FeaturePipe.cpp (Copyright (c) 2015 Stefan Tröger <stefantroeger@gmx.net>),
 #                 src/Mod/PartDesign/App/FeatureHelix.cpp (Copyright (c) 2010 Juergen Riegel
-#                 <FreeCAD@juergen-riegel.net>, (c) 2021 Werner Mayer), src/Mod/PartDesign/App/FeatureAddSub.cpp
-#                 (Operation; Copyright (c) 2010 Juergen Riegel), src/Mod/Part/App/TopoShape.cpp (makeSpiralHelix;
+#                 <FreeCAD@juergen-riegel.net>), src/Mod/PartDesign/App/FeatureAddSub.cpp
+#                 (Operation; Copyright (c) 2011 Juergen Riegel), src/Mod/Part/App/modelRefine.cpp (the refine's
+#                 face order; Copyright (c) 2011 Thomas Anderson), src/Mod/Part/App/TopoShape.cpp (makeSpiralHelix;
 #                 Copyright (c) 2002 Jürgen Riegel), src/Mod/Part/App/TopoShapeExpansion.cpp (makeElementLoft,
 #                 prepareProfiles, makeElementSolid; Copyright (c) 2022 Zheng, Lei), src/Mod/Part/App/FaceMakerCheese.cpp
 #                 (isInside; Copyright (c) 2016 Victor Titov (DeepSOIC)) and src/Mod/PartDesign/Gui/Command.cpp
@@ -247,10 +248,8 @@ def refine(shape):
                 sew.Perform()
                 sewn = sew.SewedShape()
                 shell = TopoDS.Shell(sewn) if sewn.ShapeType() == TopAbs_SHELL else shell
-            shell.Orientation(sh.Orientation())
             b.Add(solid, shell)
             it.Next()
-        solid.Orientation(so.Orientation())
         solids.append(solid)
     return _one(solids) if out.ShapeType() != TopAbs_SOLID else solids[0]
 
