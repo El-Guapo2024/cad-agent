@@ -240,6 +240,20 @@ try {
   await until('cadui.getState().features.Body?.tip === "Pocket"', 'Undo of Set Tip')
   ok('Undo puts the Tip back on the Pocket')
 
+  // ── Move Feature After… ──────────────────────────────────────────────────────────────────────────────────────────
+  console.log('move')
+  if (!await st('document.querySelector(\'.trow[data-ref="Body/Pocket"] .twisty.open\')')) await page.click('.trow[data-ref="Body/Pocket"] .twisty')
+  await page.click('.trow[data-ref="Body/Sketch001"]', { button: 'right' })
+  await page.click('.ctx .mb-item:has-text("Move Feature After")')
+  await until('!!document.querySelector(".pd-getitem")', 'QInputDialog::getItem')
+  const items = await st('document.querySelector(".pd-getitem .combo-label")?.textContent')
+  check(items === 'Beginning of the body', 'Move Feature After…: the list starts at "Beginning of the body"', items)
+  await page.click('.pd-getitem .qbtn.default')
+  await until('cadui.getState().features.Body.features[0].name === "Sketch001"', 'Sketch001 first')
+  if (await until('cadui.getState().undo[0]?.name === "Move a feature inside body"', 'the step', 20000)) ok('Move Feature After…: one step, "Move a feature inside body"')
+  await page.click('.tb-btn[data-cmd="Std_Undo"]')
+  await until('cadui.getState().features.Body.features[0].name === "Sketch"', 'Undo of the move')
+
   // ── double-click edits, F2 renames ─────────────────────────────────────────────────────────────────────────────────
   console.log('edit')
   await page.dblclick('.trow[data-ref="Body/Pad"] .tname')
