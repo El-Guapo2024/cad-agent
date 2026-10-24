@@ -1393,9 +1393,10 @@ def _xor(prisms):
     return result
 
 
-def _extrude(feat: _Extrude, sketch: Sketch, base, shapes, params):
+def _extrude(feat: _Extrude, sketch: Sketch, base, shapes, params, out: dict | None = None):
     """FeatureExtrude::buildExtrusion, in the global frame (FreeCAD works in the feature's own placement
-    and moves the result back, which is the same solid)."""
+    and moves the result back, which is the same solid). out, when given, gets "addsub": the refined prism,
+    FreeCAD's AddSubShape, which a pattern of this feature moves."""
     where = feat.name
     additive = isinstance(feat, Pad)
     side, method, method2 = feat.side_type, feat.type, feat.type2
@@ -1475,6 +1476,8 @@ def _extrude(feat: _Extrude, sketch: Sketch, base, shapes, params):
         raise FeatureError("No extrusion geometry was generated.")
     prism = prisms[0] if len(prisms) == 1 else _xor(prisms)
     refine = _refine if feat.refine else (lambda s: s)
+    if out is not None:
+        out["addsub"] = refine(prism)
     if base is not None:
         result = _bool("fuse" if additive else "cut", base, [prism])
         if not _count(result, TopAbs_SOLID):
@@ -1493,30 +1496,42 @@ def _extrude(feat: _Extrude, sketch: Sketch, base, shapes, params):
 def evaluate(features, params: dict | None = None, base=None, tip: str | None = None) -> dict:
     """{name: TopoDS_Shape} of every Pad and Pocket in order, up to and including tip (all of them when
     tip is None), with "BaseFeature" for the base, "Tip" for the tip's solid and "_sketches" holding each
-    sketch solved. The UI's tree reads this."""
+    sketch solved. The UI's tree reads this. "_addsub" holds each additive or subtractive feature's tool
+    ({name: (shape, additive)}, FreeCAD's AddSubShape), "_before" the solid before each feature and "_order"
+    the features' names, which the transformed features (feature_transform.py) read.
+
+    A feature that is not a Sketch, Pad or Pocket builds itself: its execute(solid, shapes, params) returns
+    the Body's solid after it (feature_kw.py, feature_transform.py, feature_primitive.py)."""
     params = dict(params or {})
     names = [getattr(f, "name", None) for f in features]
     if tip is not None and tip not in names and tip != "BaseFeature":
         raise FeatureError(f"the tip {tip!r} is not a feature of the Body")
-    shapes: dict = {}
     sketches: dict = {}
+    shapes: dict = {"_addsub": {}, "_before": {}, "_order": names, "_sketches": sketches}
     solid = None
     if base is not None:
         solid = getattr(base, "wrapped", base)
         shapes["BaseFeature"] = solid
     for f in ([] if tip == "BaseFeature" else features):
         name = getattr(f, "name", None)
-        if not isinstance(f, (Sketch, _Extrude)):
+        if not isinstance(f, (Sketch, _Extrude)) and not hasattr(f, "execute"):
             raise FeatureError(f"FEATURES holds {f!r}, not a Sketch, Pad or Pocket")
         if name in shapes or name in sketches:
             raise FeatureError(f"two features are named {name!r}")
         if isinstance(f, Sketch):
             sketches[name] = f.solved(params)
+        elif not isinstance(f, _Extrude):
+            shapes["_before"][name] = solid
+            solid = f.execute(solid, shapes, params)
+            shapes[name] = solid
         else:
             if f.profile not in sketches:
                 raise FeatureError(f"{name}: no sketch {f.profile!r} before it" if f.profile not in shapes
                                    else f"{name}: profile {f.profile!r} is not a sketch")
-            solid = _extrude(f, sketches[f.profile], solid, shapes, params)
+            shapes["_before"][name] = solid
+            out: dict = {}
+            solid = _extrude(f, sketches[f.profile], solid, shapes, params, out)
+            shapes["_addsub"][name] = (out.get("addsub"), isinstance(f, Pad))
             shapes[name] = solid
         if name == tip:
             break
@@ -1593,7 +1608,15 @@ def to_freecad(features, params: dict | None = None, doc=None, name: str = "Body
         obj, sub = r
         return made[obj], ([sub] if isinstance(sub, str) else list(sub))
 
+    import types
+    ctx = types.SimpleNamespace(App=App, doc=doc, body=body, made=made, params=params, setv=setv, ref=ref,
+                                origin={o.Role: o for o in body.Origin.OriginFeatures},
+                                setint=lambda obj, prop, v: (setattr(obj, prop, int(round(value(v, params, prop)))),
+                                                             isinstance(v, str) and obj.setExpression(prop, expr(v))))
     for f in features:
+        if hasattr(f, "to_freecad"):                # a feature that writes itself (feature_kw.py)
+            made[f.name] = f.to_freecad(ctx)
+            continue
         if isinstance(f, Sketch):
             sk = body.newObject("Sketcher::SketchObject", f.name)
             sk.AttachmentSupport = [(planes[f.support + "_Plane"], "")]
@@ -1649,3 +1672,13 @@ def to_freecad(features, params: dict | None = None, doc=None, name: str = "Body
                 setattr(obj, prop, [ref(r) for r in rs])
         made[f.name] = obj
     return body
+
+
+# ── the features in modules of their own ──────────────────────────────────────────────────────────────────────────
+from .feature_transform import LinearPattern, Mirrored, MultiTransform, PolarPattern, TRANSFORMED  # noqa: E402
+
+FEATURES.update(TRANSFORMED)
+from .feature_primitive import PRIMITIVES  # noqa: E402  AdditiveBox ... SubtractiveWedge
+
+FEATURES.update(PRIMITIVES)
+globals().update(PRIMITIVES)
