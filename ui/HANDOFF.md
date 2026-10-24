@@ -70,21 +70,20 @@ The plan and its order are docs/EDITING_PLAN.md. Steps 1 to 4 are in main (4e73c
 - Sketcher UI: edit mode, geometry and constraint tools, drag, solver messages (sketchcheck 56/57 vs
   ui/scripts/sketchref.json; c-parallel is FreeCAD's GUI not repeating itself).
 Each check's known differences are in ui/PARITY.md (PartDesign, Sketcher).
-Step 5, round 2 (five parallel branches, paused 2026-10-24 at the session limit):
-- In main (d64e05c, CI green, 2471 passed), all on one seam, cad_agent/feature_kw.py's KwFeature:
-  pd-transform (Mirrored, Linear/PolarPattern, MultiTransform, 16 primitives; transformcheck 174 ok),
-  pd-dressup (Fillet, Chamfer, Draft, Thickness, edge/face picking, renumbering follow-up; dressupcheck 115 ok),
-  pd-revolve (Revolution, Groove, Hole with FreeCAD's tables; revolvecheck 258 ok). editcheck 59 ok, 19 known.
-- origin/sketcher-geom (5728607, on 67943c7): ellipses, conic arcs, B-splines in PlaneGCS/feature.py/Sketcher, Trim,
-  Split, Extend, sketch Fillet/Chamfer; 522 conic goldens, 362 sketchops goldens, sketchcheck 72/73. Its merge of
-  main was under way (uncommitted, in its agent worktree, editcheck 59 ok there): redo `git merge origin/main`,
-  use feature_edit's ensure_import, rebuild bundle + sketchops engine, run its tests and sketchcheck, then merge.
-- origin/pd-attach (4237a63, on 67943c7, report never written): Attacher (cad_agent/feature_attach.py), sketches on
-  faces/datums, datum Plane/Line/Point/LCS, external geometry, Attachment panel. Not reviewed. Merge it after
-  sketcher-geom (both touch ui/planegcs/sketch.cpp), move its datums onto KwFeature, wire
-  feature_primitive.placement_of() to the attacher. Its attachcheck was failing on one pick when stopped.
-- Left after that: Scaled, RefineModel port, B-spline interpolation and tools, Offset, fillet between curves,
-  3D picking for Up to face / axis edges, Hole Up to first, Common, on-view parameters; then Part workbench, Assembly.
+Step 5, round 2 (five parallel branches) is all in main (95ad35c, CI green, 5026 passed), on one seam,
+cad_agent/feature_kw.py's KwFeature:
+- pd-transform: Mirrored, Linear/PolarPattern, MultiTransform, 16 primitives (transformcheck 174 ok, 3 known).
+- pd-dressup: Fillet, Chamfer, Draft, Thickness, edge/face picking, renumbering follow-up (dressupcheck 115 ok, 4 known).
+- pd-revolve: Revolution, Groove, Hole with FreeCAD's tables (revolvecheck 258 ok, 1 known).
+- pd-attach: Attacher (cad_agent/attacher.py, 1818 placements = FreeCAD), sketches on faces/datums, Part datums,
+  external geometry, attached primitives (attachcheck 89 ok).
+- sketcher-geom: ellipses, conic arcs, B-splines in PlaneGCS/feature.py/Sketcher; Trim, Split, Extend, sketch
+  Fillet/Chamfer (522 conic and 362 sketchops goldens; sketchcheck 74/75, c-parallel known). editcheck 59 ok, 19 known.
+- CI builds ui/planegcs native before the tests (feature tests solve sketches before test_planegcs did).
+  Locally, rebuild it (`ui/planegcs/build.sh native`) after a merge that changes api.cpp/sketch.cpp.
+- Left: Scaled, RefineModel port, B-spline interpolation and tools, Offset, fillet between curves, trim/split
+  on B-splines, 3D picking for Up to face / axis edges / datums, Hole Up to first, Common, PartDesign:: datum
+  commands, Carbon copy, projecting conics, on-view parameters; then the Part workbench and Assembly joints.
 - Browser checks must use scratch projects only (a check once wrote a Plate part into projects/arduino_car).
 
 ## Next (paused 2026-10-23)
