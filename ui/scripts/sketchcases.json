@@ -19,7 +19,7 @@
     { "name": "line-esc-midway", "steps": [{ "cmd": "Sketcher_CreateLine" }, { "click": [10, 10] }, { "key": "Escape" }, { "click": [20, 20] }, { "click": [35, 41] }, { "key": "Escape" }] },
     { "name": "polyline", "steps": [{ "cmd": "Sketcher_CreatePolyline" }, { "click": [10, 10] }, { "click": [40, 10.3] }, { "click": [40.2, 35] }, { "click": [15, 30] }, { "key": "Escape" }, { "key": "Escape" }] },
     { "name": "polyline-closed", "steps": [{ "cmd": "Sketcher_CreatePolyline" }, { "click": [10, 10] }, { "click": [40, 10.3] }, { "click": [25, 35] }, { "click": [10, 10] }, { "key": "Escape" }] },
-    { "name": "polyline-arc", "steps": [{ "cmd": "Sketcher_CreatePolyline" }, { "click": [10, 10] }, { "click": [30, 10.3] }, { "key": "M" }, { "move": [33, 12] }, { "move": [35, 18] }, { "click": [30, 25] }, { "key": "Escape" }, { "key": "Escape" }] },
+    { "name": "polyline-arc", "steps": [{ "cmd": "Sketcher_CreatePolyline" }, { "click": [10, 10] }, { "click": [30, 10.3] }, { "key": "M" }, { "move": [32, 14] }, { "move": [37, 18] }, { "click": [40, 20] }, { "key": "Escape" }, { "key": "Escape" }] },
     { "name": "arc-center", "steps": [{ "cmd": "Sketcher_CreateArc" }, { "click": [20, 15] }, { "click": [35, 15.3] }, { "move": [30, 26] }, { "click": [20, 30] }, { "key": "Escape" }] },
     { "name": "arc-3point", "steps": [{ "cmd": "Sketcher_Create3PointArc" }, { "click": [10, 10] }, { "click": [40, 12] }, { "click": [25, 25] }, { "key": "Escape" }] },
     { "name": "arc-center-origin", "steps": [{ "cmd": "Sketcher_CreateArc" }, { "click": [0, 0] }, { "click": [20, 0] }, { "move": [15, 15] }, { "click": [0, 20] }, { "key": "Escape" }] },

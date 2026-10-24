@@ -348,7 +348,9 @@ export class CadView {
       changed: () => this.cameraChanged(),
       scenePoint: (pos) => this.hitAt(this.client(pos))?.point ?? null,
       sceneBox: () => this.box(),
-      draggerUnderCursor: () => this.tcs.some((tc) => (tc as any).axis),
+      // (a sketch in edit counts as one: its presses are the Sketcher's, which keeps no long press for Clarify Selection —
+      // the Sketcher takes the release, so the long press's timer would open the menu over a tool's next click)
+      draggerUnderCursor: () => !!this.sketchHook || this.tcs.some((tc) => (tc as any).axis),
       scene: (ev) => this.sceneEvent(ev),
       clearSelection: () => this.on.pick(null, false, null),
       // openPopupMenu: the last-preselected object, not a fresh pick at the click point.

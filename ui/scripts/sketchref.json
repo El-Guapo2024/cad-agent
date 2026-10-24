@@ -994,22 +994,22 @@
      "type": "LineSegment",
      "start": [
       9.93788815,
-      10.06211185
+      10.062111850000003
      ],
      "end": [
-      29.96894073,
-      10.06211185
+      29.968940730000003,
+      10.062111850000003
      ]
     },
     {
      "type": "ArcOfCircle",
      "center": [
-      6.086174762895719e+16,
-      -13834365.81733145
+      39.90802338,
+      10.06211185
      ],
-     "radius": 6.086174762895716e+16,
-     "start_angle": 3.14159265,
-     "end_angle": 3.141592652820414
+     "radius": 9.93908265,
+     "start_angle": 1.5552925099999995,
+     "end_angle": 3.141592653589793
     }
    ],
    "constraints": [
@@ -1030,8 +1030,8 @@
     }
    ],
    "message": {
-    "status": "Over-constrained: ",
-    "link": "(2)"
+    "status": "Under-constrained: ",
+    "link": "5 Degrees of Freedom"
    }
   },
   "arc-center": {

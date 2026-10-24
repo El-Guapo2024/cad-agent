@@ -24,6 +24,7 @@ import { onDatumDialog } from './sketchcons'
 import { CONSTR_ICONS } from './sketchcmdinfo'
 import { getState, report, useStore } from './store'
 import { getView, onEditSketch } from './actions'
+import { onSketchSelection } from './commands'
 import { bodyOfPart, sketchMatrix } from './partdesign'
 import * as THREE from 'three'
 import { ContextMenu, tipAttrs, type Entry } from './chrome'
@@ -352,6 +353,15 @@ onEditSketch((part, name) => {
   m.decompose(pos, q, sc)
   const sketch = S.unsavedSketch(name) ?? { geometry: (f.geometry ?? []) as SK.Geo[], constraints: (f.constraints ?? []) as import('./solver').Cons[] }
   void S.editSketch({ part, name, placement: { base: [pos.x, pos.y, pos.z], rotation: [q.x, q.y, q.z, q.w] }, sketch })
+})
+
+// `cad gui select PROJECT Edge1 Vertex2 …` and `cad gui clear` while the sketch is in edit: "Edge1", "Vertex2",
+// "Constraint3", "RootPoint", "H_Axis", "V_Axis", with or without the sketch's name before them.
+onSketchSelection((cmd, args) => {
+  if (!S.isEditing()) return false
+  if (cmd === 'clear') S.clearSelection()
+  else for (const a of args) S.addSelection(a.includes('.') ? a.slice(a.lastIndexOf('.') + 1) : a)
+  return true
 })
 
 /** The dialogs and the context menu, mounted once (App.tsx). */

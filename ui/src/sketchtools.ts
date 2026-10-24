@@ -433,13 +433,17 @@ export abstract class DefaultHandler extends DrawSketchHandler {
   protected continuousMode = true
   protected get isLast() { return this.state >= this.states }
 
+  /** DrawSketchController's prevCursorPosition: where the cursor was last. */
+  protected cursorPos: XY = [0, 0]
   activated() { this.applyMode() }
   /** mouseMove: the hints' snapping, then the state's update. */
   mouseMove(p: XY) {
+    this.cursorPos = p
     const q = this.snapToTangentHint(p) ?? this.snapToParPerpHint(p) ?? p
     this.update(q)
   }
   pressButton(p: XY) {
+    this.cursorPos = p
     const q = this.snapToTangentHint(p) ?? this.snapToParPerpHint(p) ?? p
     this.update(q)
     this.onButtonPressed(q)
@@ -460,6 +464,8 @@ export abstract class DefaultHandler extends DrawSketchHandler {
     this.onMethodChanged()
     S.applyCursor(); S.updateHints()
     if (this.resetOnMethodChange()) this.reset()
+    // DrawSketchController::onConstructionMethodChanged: the new method drawn at once, where the cursor was
+    this.mouseMove(this.cursorPos)
   }
   protected onMethodChanged() {}
   protected resetOnMethodChange() { return true }

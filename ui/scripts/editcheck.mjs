@@ -134,6 +134,10 @@ try {
   await page.click('.taskview .pd-buttons .qbtn.default')
   await until('cadui.getState().features.Body?.features.some((f) => f.name === "Sketch")', 'the sketch')
   check(await st('cadui.getState().features.Body.features[0].support === "XY"'), 'New Sketch: on XY')
+  // the new sketch opens in the Sketcher (SketchWorkflow: setEdit), which OK leaves unchanged, back in Part Design
+  check(await until('!!document.querySelector(".sketch-task") && cadui.getState().workbench === "sketcher"', 'the Sketcher on the new sketch'), 'New Sketch: opens in the Sketcher')
+  await page.click('.sketch-task .tbuttons .qbtn.default')
+  check(await until('!document.querySelector(".sketch-task") && cadui.getState().workbench === "design"', 'Part Design again'), 'New Sketch: OK in the Sketcher goes back to Part Design')
   const rect = [[0, 0, 40, 0], [40, 0, 40, 20], [40, 20, 0, 20], [0, 20, 0, 0]].map(([a, b, c, d]) => ({ type: 'LineSegment', start: [a, b], end: [c, d], construction: false }))
   await post('/api/edit/features/Body', { ops: [{ op: 'set', name: 'Sketch', props: { geometry: rect } }] })
   await until('cadui.getState().features.Body.features[0].geometry.length === 4', 'the rectangle')

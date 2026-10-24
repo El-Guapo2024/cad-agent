@@ -12,7 +12,6 @@ import { api, resultText, type CadResult, type ExportFormat, type Vec3 } from '.
 // Type-only: cmdreg.ts imports this file for its commands' functions, so this stays a type import
 // (erased at build) rather than a real one, the same way actions.ts avoids importing this file back.
 import type { RegCommand } from './cmdreg'
-import * as Sketcher from './sketcher'
 
 const selected = () => getState().selected
 const flip = (list: string[], items: string[]) => {
@@ -390,13 +389,13 @@ function applySet(body: string, props: Record<string, unknown>) {
   guiLog(`set ${body} ${Object.entries(props).map(fmtProp).join(' ')}`)
 }
 
+/** While a sketch is in edit, `cad gui select`/`clear` work on its elements (sketcher.ts registers this; true when it took
+ *  them), as Gui.Selection.addSelection(doc, obj, "Sketch.Edge1") does in FreeCAD. */
+let sketchSelection: ((cmd: 'select' | 'clear', args: string[]) => boolean) | null = null
+export function onSketchSelection(f: typeof sketchSelection) { sketchSelection = f }
 function applyGuiEvent(ev: GuiEvent) {
   const { cmd, args } = ev
-  if ((cmd === 'select' || cmd === 'clear') && Sketcher.isEditing()) {
-    // While a sketch is in edit, Gui.Selection.addSelection(doc, obj, "Sketch.Edge1") picks the sketch's own elements:
-    // "Edge1", "Vertex2", "Constraint3", "RootPoint", "H_Axis", "V_Axis", with or without the sketch's name before them.
-    if (cmd === 'clear') Sketcher.clearSelection()
-    else for (const a of args) Sketcher.addSelection(a.includes('.') ? a.slice(a.lastIndexOf('.') + 1) : a)
+  if ((cmd === 'select' || cmd === 'clear') && sketchSelection?.(cmd, args)) {
     guiLog(cmd === 'clear' ? 'clear' : `select ${args.join(' ')}`)
   } else if (cmd === 'select') {
     // Gui.Selection.addSelection: adds whole objects, or "body.Face3"-style sub-elements.

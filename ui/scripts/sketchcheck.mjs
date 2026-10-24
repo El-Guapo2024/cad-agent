@@ -35,9 +35,10 @@ const api = async (path, body) => {
   return r.json()
 }
 const gui = (cmd, args) => api('/api/gui/do', { slug: PROJECT, cmd, args })
-await p.goto(BASE, { waitUntil: 'load' })
-await p.waitForTimeout(2500)
-await p.getByText(`${PROJECT} : 1`).click(); await p.waitForTimeout(2500)
+await p.goto(`${BASE}#${encodeURIComponent(PROJECT)}`, { waitUntil: 'load' })
+for (let i = 0; i < 240 && !(await p.evaluate((slug) => !!window.cadui && window.cadui.getState().slug === slug && !!window.cadui.getState().scene, PROJECT)); i++) await p.waitForTimeout(250)
+await p.evaluate(() => window.cadui.showPanel('view3d')) // the 3D view in front of the Start page
+await p.waitForTimeout(500)
 // the 3D view as large as FreeCAD's was (fcsketch_dump.py measured its viewport)
 const gl = async () => p.evaluate(() => {
   const c = [...document.querySelectorAll('canvas')].sort((a, b) => b.clientWidth * b.clientHeight - a.clientWidth * a.clientHeight)[0]
@@ -45,9 +46,11 @@ const gl = async () => p.evaluate(() => {
 })
 let box = await gl()
 const [vw, vh] = REF.viewport
-await p.setViewportSize({ width: Math.round(1400 + vw - box.w), height: Math.round(900 + vh - box.h) })
-await p.waitForTimeout(800)
-box = await gl()
+for (let i = 0, size = { width: 1400, height: 900 }; i < 4 && (Math.round(box.w) !== vw || Math.round(box.h) !== vh); i++) {
+  size = { width: Math.round(size.width + vw - box.w), height: Math.round(size.height + vh - box.h) }
+  await p.setViewportSize(size); await p.waitForTimeout(800)
+  box = await gl()
+}
 notes.push(`3D view ${Math.round(box.w)}x${Math.round(box.h)} (FreeCAD's ${vw}x${vh})`)
 
 // ── the Sketcher workbench, a sketch in edit: toolbars and menu ──────────────────────────────────────────────────
@@ -162,8 +165,14 @@ for (const [k, c] of CASES.cases.entries()) {
   const name = `S${k}`
   await gui('run', ['Sketcher_EditSketch', name, JSON.stringify(c.setup ?? {})])
   await p.waitForSelector('.sketch-task', { timeout: 10000 })
-  await p.waitForTimeout(1600) // the view turning to the sketch (an animation, then the fit)
-  await gui('view', [camera]); await p.waitForTimeout(300)
+  await p.waitForTimeout(800) // the view turning to the sketch (an animation, then the fit)
+  // the camera FreeCAD's had, set again until it stays (the turn's animation may still be running)
+  for (let i = 0; i < 20; i++) {
+    await gui('view', [camera]); await p.waitForTimeout(300)
+    const cam = await p.evaluate(() => window.cadui.getView()?.getCamera() ?? '')
+    const pos = /position\s+(\S+)\s+(\S+)/.exec(cam), h = /height\s+(\S+)/.exec(cam)
+    if (pos && h && Math.abs(+pos[1] - cx) < 1e-3 && Math.abs(+pos[2] - cy) < 1e-3 && Math.abs(+h[1] - H) < 1e-3) break
+  }
   box = await gl()
   const s = box.h / H
   const scr = ([x, y]) => [box.x + box.w / 2 + (x - cx) * s, box.y + box.h / 2 - (y - cy) * s]
@@ -185,6 +194,7 @@ for (const [k, c] of CASES.cases.entries()) {
     else if (st.select) { await gui('select', st.select); await p.waitForTimeout(80) }
     else if ('clear' in st) { await gui('clear', []); await p.waitForTimeout(80) }
     await dialog()
+    if (process.env.SKETCHCHECK_TRACE) console.log('  trace', JSON.stringify(st), JSON.stringify((await api(`/api/gui?slug=${PROJECT}`)).sketch?.geometry), JSON.stringify(await p.evaluate(() => window.cadui.getState().hints)), await p.evaluate(() => [...document.querySelectorAll('.ctx, .mb-content, .msgbox-back')].map((e) => e.className + ':' + e.textContent.slice(0, 120)).join() + ' / ' + document.activeElement?.tagName + '.' + document.activeElement?.className))
   }
   await p.waitForTimeout(250)
   if (shots) await p.screenshot({ path: `${shots}/${c.name}.png` })

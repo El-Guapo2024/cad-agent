@@ -199,7 +199,7 @@ function messageOf(s: Session): SolverMessage {
   if (r.redundant.length) return { state: 'redundant_constraints', text: 'Redundant constraints: ', link: '#redundant', linkText: `(${intList(r.redundant)})` }
   if (r.partially_redundant.length) return { state: 'partially_redundant_constraints', text: 'Partially redundant: ', link: '#partiallyredundant', linkText: `(${intList(r.partially_redundant)})` }
   if (r.status === 'failed') return { state: 'solver_failed', text: 'Solver failed to converge', link: '', linkText: '' }
-  if (r.dof > 0) return { state: 'under_constrained', text: 'Under-constrained: ', link: '#dofs', linkText: `${r.dof} ${r.dof === 1 ? 'Degree' : 'Degrees'} of Freedom` }
+  if (r.dof > 0) return { state: 'under_constrained', text: 'Under-constrained: ', link: '#dofs', linkText: `${r.dof} Degrees of Freedom` /* tr("%n Degrees of Freedom", "", dofs): with no English plural forms loaded, FreeCAD 26.3 says "1 Degrees" too */ }
   return { state: 'fully_constrained', text: 'Fully constrained', link: '', linkText: '' }
 }
 /** SketchObject::solve: geometry moves to the solution; a reference dimension takes the value it measures. */
@@ -1029,6 +1029,7 @@ export async function editSketch(ref: SketchRef) {
   }
   setState({ hidden: [...new Set([...st.hidden, ...dependents])], workbench: 'sketcher', selected: [], subSel: [], sketchEditing: { part: ref.part, name: ref.name },
     task: { kind: 'sketch', body: ref.name } })
+  showPanel('view3d') // the sketch's 3D view in front (setEditViewer)
   showPanel('tasks')
   iconsLoaded(() => getView()?.redraw())
   view?.setSketchHook({ event: handleEvent, key: handleKey, draw: drawOverlay, popup: wantsPopup })
