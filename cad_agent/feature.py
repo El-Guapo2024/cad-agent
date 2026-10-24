@@ -76,6 +76,10 @@ The vocabulary, as FreeCAD's Python API has it:
                  feature_hole.py, whose docstrings list their properties) and imported from here too.
     Body         Body(FEATURES, params, base=None) builds the tip's solid; base is a hand-built solid,
                  FreeCAD's BaseFeature, which the first feature adds to or cuts from.
+    Mirrored, LinearPattern, PolarPattern, MultiTransform
+                 PartDesign's transformed features (feature_transform.py has their properties)
+    AdditiveBox ... SubtractiveWedge
+                 the 16 primitives (feature_primitive.py); both written as feature_kw.KwFeature calls
 
 What is built is the solid FreeCAD would build, because the same OCCT calls build it in the same order:
 the sketch's edges are joined to wires as TopoShape::makeElementWires joins them, the face is made as
@@ -770,6 +774,7 @@ class Pocket(_Extrude):
 
 
 FEATURES = {"Sketch": Sketch, "Pad": Pad, "Pocket": Pocket}
+# More features register themselves at the end of this file, one module per area.
 
 
 # ── the kernel: what FreeCAD's C++ does, in the same OCCT calls ───────────────────────────────────────
@@ -1396,9 +1401,10 @@ def _xor(prisms):
     return result
 
 
-def _extrude(feat: _Extrude, sketch: Sketch, base, shapes, params):
+def _extrude(feat: _Extrude, sketch: Sketch, base, shapes, params, out: dict | None = None):
     """FeatureExtrude::buildExtrusion, in the global frame (FreeCAD works in the feature's own placement
-    and moves the result back, which is the same solid)."""
+    and moves the result back, which is the same solid). out, when given, gets "addsub": the refined prism,
+    FreeCAD's AddSubShape, which a pattern of this feature moves."""
     where = feat.name
     additive = isinstance(feat, Pad)
     side, method, method2 = feat.side_type, feat.type, feat.type2
@@ -1478,6 +1484,8 @@ def _extrude(feat: _Extrude, sketch: Sketch, base, shapes, params):
         raise FeatureError("No extrusion geometry was generated.")
     prism = prisms[0] if len(prisms) == 1 else _xor(prisms)
     refine = _refine if feat.refine else (lambda s: s)
+    if out is not None:
+        out["addsub"] = refine(prism)
     if base is not None:
         result = _bool("fuse" if additive else "cut", base, [prism])
         if not _count(result, TopAbs_SOLID):
@@ -1496,33 +1504,42 @@ def _extrude(feat: _Extrude, sketch: Sketch, base, shapes, params):
 def evaluate(features, params: dict | None = None, base=None, tip: str | None = None) -> dict:
     """{name: TopoDS_Shape} of every Pad and Pocket in order, up to and including tip (all of them when
     tip is None), with "BaseFeature" for the base, "Tip" for the tip's solid and "_sketches" holding each
-    sketch solved. The UI's tree reads this."""
+    sketch solved. The UI's tree reads this. "_addsub" holds each additive or subtractive feature's tool
+    ({name: (shape, additive)}, FreeCAD's AddSubShape), "_before" the solid before each feature and "_order"
+    the features' names, which the transformed features (feature_transform.py) read.
+
+    A feature that is not a Sketch, Pad or Pocket builds itself: its execute(solid, shapes, params) returns
+    the Body's solid after it (feature_kw.py, feature_transform.py, feature_primitive.py)."""
     params = dict(params or {})
     names = [getattr(f, "name", None) for f in features]
     if tip is not None and tip not in names and tip != "BaseFeature":
         raise FeatureError(f"the tip {tip!r} is not a feature of the Body")
-    shapes: dict = {}
     sketches: dict = {}
+    shapes: dict = {"_addsub": {}, "_before": {}, "_order": names, "_sketches": sketches}
     solid = None
     if base is not None:
         solid = getattr(base, "wrapped", base)
         shapes["BaseFeature"] = solid
     for f in ([] if tip == "BaseFeature" else features):
         name = getattr(f, "name", None)
-        if not isinstance(f, (Sketch, _Extrude)) and not hasattr(f, "build"):
+        if not isinstance(f, (Sketch, _Extrude)) and not hasattr(f, "execute"):
             raise FeatureError(f"FEATURES holds {f!r}, not a Sketch, Pad or Pocket")
         if name in shapes or name in sketches:
             raise FeatureError(f"two features are named {name!r}")
         if isinstance(f, Sketch):
             sketches[name] = f.solved(params)
-        elif hasattr(f, "build"):       # a feature module's own (feature_revolve.py, ...): build(sketches, base, shapes, params)
-            solid = f.build(sketches, solid, shapes, params)
+        elif not isinstance(f, _Extrude):
+            shapes["_before"][name] = solid
+            solid = f.execute(solid, shapes, params)
             shapes[name] = solid
         else:
             if f.profile not in sketches:
                 raise FeatureError(f"{name}: no sketch {f.profile!r} before it" if f.profile not in shapes
                                    else f"{name}: profile {f.profile!r} is not a sketch")
-            solid = _extrude(f, sketches[f.profile], solid, shapes, params)
+            shapes["_before"][name] = solid
+            out: dict = {}
+            solid = _extrude(f, sketches[f.profile], solid, shapes, params, out)
+            shapes["_addsub"][name] = (out.get("addsub"), isinstance(f, Pad))
             shapes[name] = solid
         if name == tip:
             break
@@ -1599,7 +1616,15 @@ def to_freecad(features, params: dict | None = None, doc=None, name: str = "Body
         obj, sub = r
         return made[obj], ([sub] if isinstance(sub, str) else list(sub))
 
+    import types
+    ctx = types.SimpleNamespace(App=App, doc=doc, body=body, made=made, params=params, setv=setv, ref=ref,
+                                origin={o.Role: o for o in body.Origin.OriginFeatures},
+                                setint=lambda obj, prop, v: (setattr(obj, prop, int(round(value(v, params, prop)))),
+                                                             isinstance(v, str) and obj.setExpression(prop, expr(v))))
     for f in features:
+        if hasattr(f, "to_freecad"):                # a feature that writes itself (feature_kw.py)
+            made[f.name] = f.to_freecad(ctx)
+            continue
         if isinstance(f, Sketch):
             sk = body.newObject("Sketcher::SketchObject", f.name)
             sk.AttachmentSupport = [(planes[f.support + "_Plane"], "")]
@@ -1629,9 +1654,6 @@ def to_freecad(features, params: dict | None = None, doc=None, name: str = "Body
                     sk.setExpression(f"Constraints[{i}]", e + (" * 1 deg" if c.type == "Angle" else ""))
             made[f.name] = sk
             continue
-        if hasattr(f, "to_freecad"):    # a feature module's own: to_freecad(body, made, planes, setv, ref)
-            made[f.name] = f.to_freecad(body, made, planes, setv, ref)
-            continue
         obj = body.newObject(f"PartDesign::{f.kind}", f.name)
         obj.Profile = made[f.profile]
         obj.Refine = f.refine
@@ -1660,7 +1682,17 @@ def to_freecad(features, params: dict | None = None, doc=None, name: str = "Body
     return body
 
 
-# The features of other modules, registered here so a part file imports them all from cad_agent.feature.
+# ── the features in modules of their own ──────────────────────────────────────────────────────────────────────────
+from .feature_transform import LinearPattern, Mirrored, MultiTransform, PolarPattern, TRANSFORMED  # noqa: E402
+
+FEATURES.update(TRANSFORMED)
+from .feature_primitive import PRIMITIVES  # noqa: E402  AdditiveBox ... SubtractiveWedge
+
+FEATURES.update(PRIMITIVES)
+globals().update(PRIMITIVES)
+from .feature_dressup import DRESSUPS, Chamfer, Draft, Fillet, Thickness  # noqa: E402  (PartDesign's dress-ups)
+
+FEATURES.update(DRESSUPS)
 from .feature_revolve import Groove, Revolution  # noqa: E402  PartDesign::Revolution, PartDesign::Groove
 FEATURES.update(Revolution=Revolution, Groove=Groove)
 from .feature_hole import Hole  # noqa: E402  PartDesign::Hole

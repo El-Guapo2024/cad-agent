@@ -1,0 +1,15 @@
+/* SPDX-License-Identifier: LGPL-2.1-or-later */
+/* pd_transform.tsx's task panels: the feature list and its buttons, a pattern's direction row, a Multi-Transform's list of
+   transformations and its sub-panel, a wedge's min/max pairs. */
+.pdx-buttons { display: flex; gap: 6px; margin: 4px 0; }
+.pdx-buttons .qbtn { flex: 1; }
+.pdx-list { border: 1px solid var(--border); background: #fff; min-height: 48px; max-height: 120px; overflow: auto; margin-bottom: 6px; }
+.pdx-list.off { background: #f2f2f2; }
+.pdx-item { padding: 1px 4px; cursor: default; }
+.pdx-item.sel { background: var(--accent-bg); }
+.pdx-item.hint { color: #8a8a8a; }
+.pdx-dir { grid-template-columns: auto minmax(0, 1fr); }
+.pdx-rev { min-width: 24px; padding: 0 4px; }
+.pdx-int { height: 22px; border: 1px solid var(--border); border-radius: var(--radius); padding: 0 4px; width: 100%; box-sizing: border-box; }
+.pdx-pair { grid-template-columns: minmax(56px, 30%) minmax(0, 1fr) minmax(0, 1fr); }
+.pdx-sub { border-top: 1px solid var(--border); margin-top: 4px; padding-top: 4px; }

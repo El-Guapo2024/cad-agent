@@ -184,5 +184,5 @@ def test_resolve_feature_is_what_the_panel_shows(tmp_path):
 
 def test_hole_is_a_type_of_the_cli():
     from cad_agent import featurecmd
-    assert featurecmd.TYPES["Hole"] == "PartDesign::Hole"
+    assert featurecmd._kw_types()[0]["Hole"] == "PartDesign::Hole"
     assert featurecmd.name_of([{"op": "add", "feature": {"type": "PartDesign::Hole"}}], {}) == "Make Hole"

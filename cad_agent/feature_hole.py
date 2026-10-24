@@ -80,6 +80,8 @@ try:                                    # the kernel; FreeCAD's Python reads the
 except ImportError:                     # pragma: no cover - only FreeCAD's Python lands here
     pass
 
+from .feature_kw import KwFeature  # noqa: E402  (feature_kw imports feature.py, which imports this module last)
+
 CONFUSION = 1e-7          # Precision::Confusion()
 START_TYPES = ("Profile plane", "Offset")              # ProfileBased::StartTypesEnums, but Reference
 ANGULAR = 1e-12
@@ -691,53 +693,76 @@ def resolve(given: dict, through_all=None) -> HoleState:
 # ── the feature ──────────────────────────────────────────────────────────────────────────────────────────
 
 EDIT_KEYS = [SNAKE[p] for p in ORDER]
+DERIVED = ("thread_diameter", "read_only", "enums", "through_all_unknown", "minimal")
 
 
-class Hole:
-    """PartDesign::Hole. The keywords are the properties chosen; every property's value (what FreeCAD's would hold) is
-    an attribute of the same name. A value given as a PARAMS name or expression is resolved when the body is built."""
+class Hole(KwFeature):
+    """PartDesign::Hole, a feature_kw.KwFeature. The keywords are the properties chosen (self.given); every property's
+    value, as FreeCAD's would hold it after they are set, is an attribute of the same name. A value given as a PARAMS
+    name or expression is resolved when the body is built. feature_edit writes what was chosen (source_props) and a
+    set leaves out what the others give (set_props)."""
     kind = "Hole"
+    TYPE_ID = "PartDesign::Hole"
+    TRANSACTION = "Make Hole"
     additive = False
-    EDIT_PROPS = {k: k for k in EDIT_KEYS}
-    EDIT_EXTRA: set = set()
-    EDIT_DERIVED = ("thread_diameter", "read_only", "enums", "through_all_unknown", "minimal")
-    REF_KEYS: tuple = ()
+    POS = ("profile",)
+    DEFAULTS = {"profile": None, **{k: v for k, v in HoleState().values().items() if k != "thread_diameter"}}
+    REFS = ("profile",)
 
-    def __init__(self, name: str, profile: str, **props):
-        self.name, self.profile = name, profile
-        unknown = set(props) - set(EDIT_KEYS)
-        if unknown:
-            raise FeatureError(f"{name}: {', '.join(sorted(unknown))} is not a property of a Hole")
-        if props.get("start_type", "Profile plane") not in START_TYPES:
-            raise FeatureError(f"{name}: start_type {props['start_type']!r} is not supported, only "
+    def __init__(self, name: str, *args, **kw):
+        self.given = {k: v for k, v in kw.items() if k in EDIT_KEYS and v is not None}
+        super().__init__(name, *args, **kw)
+
+    def validate(self):
+        name = self.name
+        if self.given.get("start_type", "Profile plane") not in START_TYPES:
+            raise FeatureError(f"{name}: start_type {self.given['start_type']!r} is not supported, only "
                                f"{', '.join(START_TYPES)}")
-        self.given = {k: v for k, v in props.items() if v is not None}
-        state = resolve({k: (0.0 if isinstance(v, str) and k not in _TEXT else v) for k, v in self.given.items()})
+        state = resolve({k: (0.0 if _expr(k, v) else v) for k, v in self.given.items()})
         self._state = state
         for k, v in state.values().items():
-            setattr(self, k, self.given.get(k, v) if isinstance(self.given.get(k), str) and k not in _TEXT else v)
+            setattr(self, k, self.given[k] if _expr(k, self.given.get(k)) else v)
 
     def __repr__(self):
         return f"Hole({self.name!r}, {self.profile!r}, {', '.join(f'{k}={v!r}' for k, v in self.given.items())})"
 
-    # feature_edit
-    def edit_extra(self):
-        return _extra(self._state)
+    # ── feature_kw / feature_edit ──
+    def as_dict(self) -> dict:
+        return {**super().as_dict(), **_extra(self._state)}
+
+    @classmethod
+    def from_dict(cls, d: dict) -> "Hole":
+        return super().from_dict({k: v for k, v in d.items() if k not in DERIVED})
+
+    def source_props(self):
+        return ["profile", *Hole.minimal(self.given)]
+
+    @classmethod
+    def set_props(cls, have: dict, props: dict):
+        bad = [k for k in props if k in DERIVED]
+        if bad:
+            raise FeatureError(f"Hole.{bad[0]} follows from its other properties (read-only in FreeCAD)")
+        given = {**{k: v for k, v in have.items() if k in EDIT_KEYS}, **{k: v for k, v in props.items() if k in EDIT_KEYS}}
+        resolve({k: (0.0 if _expr(k, v) else v) for k, v in given.items()})        # a bad value is refused here
+        keep = Hole.minimal(given)
+        write = {k: v for k, v in props.items() if k == "profile" or k in keep or k not in EDIT_KEYS}
+        drop = [k for k in props if k in EDIT_KEYS and k not in keep and k in have]
+        return write, drop
 
     @staticmethod
     def resolved(feature: dict, through_all=None) -> dict:
         """feature_edit.resolve_feature: the chosen properties of a task panel, every property as FreeCAD's would then
         be, what is read-only, each enumeration's list, and the choices the part file would keep."""
         given = {k: feature[k] for k in EDIT_KEYS if feature.get(k) is not None}
-        st = resolve({k: v for k, v in given.items() if not (isinstance(v, str) and k not in _TEXT)}, through_all)
+        st = resolve({k: v for k, v in given.items() if not _expr(k, v)}, through_all)
         return {**st.values(), **_extra(st), "minimal": Hole.minimal(given)}
 
     @staticmethod
     def minimal(given: dict) -> dict:
         """The given properties less those whose value the others give anyway: what the part file needs to say."""
         given = {k: v for k, v in given.items() if k in EDIT_KEYS and v is not None}
-        if any(isinstance(v, str) and k not in _TEXT for k, v in given.items()):
-            exprs = {k: v for k, v in given.items() if isinstance(v, str) and k not in _TEXT}
+        if any(_expr(k, v) for k, v in given.items()):
+            exprs = {k: v for k, v in given.items() if _expr(k, v)}
             rest = Hole.minimal({k: v for k, v in given.items() if k not in exprs})
             return {**rest, **exprs}
         try:
@@ -757,33 +782,43 @@ class Hole:
                         keep, changed = trial, True
                 except FeatureError:
                     pass
-        return keep
+        return {k: keep[k] for k in EDIT_KEYS if k in keep}
 
-    def build(self, sketches, base, shapes, params):
+    # ── feature.py's evaluate() and to_freecad() ──
+    def execute(self, solid, shapes, params):
+        sketches = shapes.get("_sketches", {})
         if self.profile not in sketches:
             raise FeatureError(f"{self.name}: no sketch {self.profile!r} before it" if self.profile not in shapes
                                else f"{self.name}: profile {self.profile!r} is not a sketch")
-        return _hole(self, sketches[self.profile], base, params)
+        out: dict = {}
+        result = _hole(self, sketches[self.profile], solid, params, out)
+        shapes.setdefault("_addsub", {})[self.name] = (out.get("addsub"), False)        # AddSubShape, for patterns
+        return result
 
-    def to_freecad(self, body, made, planes, setv, ref):
+    def to_freecad(self, ctx):
         """The same Hole in a FreeCAD Body: made by PartDesign_Hole's way (newObject in the Body, Profile, a recompute
         so the base and through-all length are there), then the chosen properties set in ORDER."""
-        obj = body.newObject("PartDesign::Hole", self.name)
-        obj.Profile = made[self.profile]
-        body.Document.recompute()
+        obj = ctx.body.newObject(self.TYPE_ID, self.name)
+        obj.Profile = ctx.made[self.profile]
+        ctx.body.Document.recompute()
         for p in ORDER:
             k = SNAKE[p]
             if k not in self.given:
                 continue
             v = self.given[k]
-            if isinstance(v, str) and k not in _TEXT:
-                setv(obj, p, v)
+            if _expr(k, v):
+                ctx.setv(obj, p, v)
             else:
                 setattr(obj, p, v)
         return obj
 
 
 _TEXT = {SNAKE[p] for p in ENUM_PROPS}
+
+
+def _expr(key, v) -> bool:
+    """A number property given as a PARAMS name or expression."""
+    return isinstance(v, str) and key not in _TEXT
 
 
 # ── Hole::execute ────────────────────────────────────────────────────────────────────────────────────────
@@ -856,7 +891,7 @@ def _profile_points(sketch, base_profile_type):
     return out
 
 
-def _hole(feat: Hole, sketch, base, params):
+def _hole(feat: Hole, sketch, base, params, out=None):
     if base is None:
         raise FeatureError("The requested feature cannot be created. The reason may be that:\n"
                            "  - the active Body does not contain a base shape, so there is no\n"
@@ -974,6 +1009,8 @@ def _hole(feat: Hole, sketch, base, params):
     b.MakeCompound(comp)
     for h in holes:
         b.Add(comp, h)
+    if out is not None:
+        out["addsub"] = comp                 # the AddSubShape: the holes' compound
     try:
         # TopoShape::makeElementBoolean expands a compound tool of a cut into what it holds (expandCompound), so a
         # threaded hole's two solids, the drill and the thread, are two tools

@@ -81,6 +81,8 @@ try:                                    # the kernel; FreeCAD's Python reads the
 except ImportError:                     # pragma: no cover - only FreeCAD's Python lands here
     pass
 
+from .feature_kw import KwFeature  # noqa: E402  (feature_kw imports feature.py, which imports this module last)
+
 ANGULAR = 1e-12           # Precision::Angular()
 CONFUSION = 1e-7          # Precision::Confusion()
 SIDE_TYPES = ("One side", "Two sides", "Symmetric")    # Revolved::SideTypesEnums
@@ -89,82 +91,77 @@ ORIGIN_AXES = {"X_Axis": (1.0, 0.0, 0.0), "Y_Axis": (0.0, 1.0, 0.0), "Z_Axis": (
 SKETCH_AXES = ("V_Axis", "H_Axis", "N_Axis")
 
 
-class _Revolved:
-    """PartDesign::Revolved: what Revolution and Groove share."""
-    kind = ""
+class _Revolved(KwFeature):
+    """PartDesign::Revolved: what Revolution and Groove share. A feature_kw.KwFeature: feature_edit reads, writes, sets
+    and renames it from these declarations."""
     TYPES: tuple = ()
     additive = True
-    # feature_edit.py: the properties as read() names them and the part file's keyword for each, and the keywords that
-    # name other features (for rename, delete and the order check).
-    EDIT_PROPS = {"reference_axis": "reference_axis", "angle": "angle", "angle2": "angle2", "side_type": "side_type",
-                  "type1": "type", "type2": "type2", "reversed": "reversed", "up_to_face": "up_to_face",
-                  "up_to_face2": "up_to_face2", "project_axis": "project_axis", "start_type": "start_type",
-                  "start_offset": "start_offset", "refine": "refine"}
-    EDIT_EXTRA = {"midplane"}
-    REF_KEYS = ("reference_axis", "up_to_face", "up_to_face2")
+    POS = ("profile",)
+    DEFAULTS = {"profile": None, "reference_axis": None, "angle": 360.0, "angle2": 0.0, "side_type": "One side",
+                "type": "Angle", "type2": "Angle", "midplane": False, "reversed": False, "up_to_face": None,
+                "up_to_face2": None, "project_axis": False, "start_type": "Profile plane", "start_offset": 0.0,
+                "refine": True}
+    REFS = ("profile", "reference_axis", "up_to_face", "up_to_face2")
+    DICT_KEYS = {"type": "type1"}            # read()'s dicts keep "type" for the TypeId, as for a Pad
+    SET_DROPS = {"side_type": ("midplane",)}  # setting SideType leaves out the deprecated Midplane
 
-    def __init__(self, name: str, profile: str, *, reference_axis=None, angle=360.0, angle2=0.0,
-                 side_type: str = "One side", type: str = "Angle", type2: str = "Angle", midplane: bool = False,
-                 reversed: bool = False, up_to_face=None, up_to_face2=None, project_axis: bool = False,
-                 start_type: str = "Profile plane", start_offset=0.0, refine: bool = True):
-        self.name, self.profile = name, profile
-        if type in ("TwoAngles", "?TwoAngles"):
+    def validate(self):
+        name = self.name
+        if self.type in ("TwoAngles", "?TwoAngles"):
             # Revolved::onDocumentRestored: the deprecated TwoAngles is SideType "Two sides", both types Angle
-            type, type2, side_type = "Angle", "Angle", "Two sides"
-        if type2 in ("TwoAngles", "?TwoAngles"):
-            type2 = "Angle"
-        if midplane:
-            side_type = "Symmetric"              # Revolved::onChanged: Midplane is SideType Symmetric
-        if side_type not in SIDE_TYPES:
-            raise FeatureError(f"{name}: side_type {side_type!r} is not one of {', '.join(SIDE_TYPES)}")
-        for k, t in (("type", type), ("type2", type2)):
+            self.type, self.type2, self.side_type = "Angle", "Angle", "Two sides"
+        if self.type2 in ("TwoAngles", "?TwoAngles"):
+            self.type2 = "Angle"
+        if self.midplane:
+            self.side_type = "Symmetric"         # Revolved::onChanged: Midplane is SideType Symmetric
+            self.midplane = False
+        if self.side_type not in SIDE_TYPES:
+            raise FeatureError(f"{name}: side_type {self.side_type!r} is not one of {', '.join(SIDE_TYPES)}")
+        for k, t in (("type", self.type), ("type2", self.type2)):
             if t not in self.TYPES:
                 raise FeatureError(f"{name}: {k} {t!r} is not one of {', '.join(self.TYPES)} "
                                    f"(PartDesign::{self.kind}'s Type)")
-        if start_type not in START_TYPES:
-            raise FeatureError(f"{name}: start_type {start_type!r} is not supported, only {', '.join(START_TYPES)}")
-        self.reference_axis = (profile, "V_Axis") if reference_axis is None else _axis_ref(reference_axis, name)
-        self.angle, self.angle2 = angle, angle2
-        self.side_type, self.type, self.type2 = side_type, type, type2
-        self.midplane = side_type == "Symmetric"
-        self.reversed, self.project_axis = bool(reversed), bool(project_axis)
-        self.up_to_face, self.up_to_face2 = up_to_face, up_to_face2
-        self.start_type, self.start_offset = start_type, start_offset
-        self.refine = bool(refine)
+        if self.start_type not in START_TYPES:
+            raise FeatureError(f"{name}: start_type {self.start_type!r} is not supported, only "
+                               f"{', '.join(START_TYPES)}")
+        # left out, the axis is what PartDesign_Revolution sets: the profile's V_Axis
+        self.reference_axis = (self.profile, "V_Axis") if self.reference_axis is None \
+            else _axis_ref(self.reference_axis, name)
 
     def __repr__(self):
         return f"{self.kind}({self.name!r}, {self.profile!r}, reference_axis={self.reference_axis!r}, " \
                f"type={self.type!r}, angle={self.angle!r})"
 
     # ── feature.py's evaluate() and to_freecad() call these ──
-    def build(self, sketches, base, shapes, params):
+    def execute(self, solid, shapes, params):
+        sketches = shapes.get("_sketches", {})
         if self.profile not in sketches:
             raise FeatureError(f"{self.name}: no sketch {self.profile!r} before it" if self.profile not in shapes
                                else f"{self.name}: profile {self.profile!r} is not a sketch")
-        return _revolve(self, sketches[self.profile], base, shapes, sketches, params)
+        out: dict = {}
+        result = _revolve(self, sketches[self.profile], solid, shapes, sketches, params, out)
+        shapes.setdefault("_addsub", {})[self.name] = (out.get("addsub"), self.additive)   # AddSubShape, for patterns
+        return result
 
-    def to_freecad(self, body, made, planes, setv, ref):
+    def to_freecad(self, ctx):
         """The same feature in a FreeCAD Body, as CmdPartDesignRevolution leaves it with these properties set."""
-        obj = body.newObject(f"PartDesign::{self.kind}", self.name)
-        obj.Profile = made[self.profile]
+        obj = ctx.body.newObject(self.TYPE_ID, self.name)
+        obj.Profile = ctx.made[self.profile]
         r = self.reference_axis
-        if isinstance(r, str):
-            obj.ReferenceAxis = (planes[r], [""])
-        else:
-            obj.ReferenceAxis = (made[r[0]], [r[1]])
+        obj.ReferenceAxis = (ctx.origin[r], [""]) if isinstance(r, str) else (ctx.made[r[0]], [r[1]])
         obj.Refine = self.refine
         obj.SideType = self.side_type
         obj.Type = self.type
         obj.Type2 = self.type2
-        setv(obj, "Angle", self.angle)
-        setv(obj, "Angle2", self.angle2)
+        ctx.setv(obj, "Angle", self.angle)
+        ctx.setv(obj, "Angle2", self.angle2)
         obj.Reversed = self.reversed
         obj.ProjectAxis = self.project_axis
         obj.StartType = self.start_type
-        setv(obj, "StartOffset", self.start_offset)
+        ctx.setv(obj, "StartOffset", self.start_offset)
         for prop, rr in (("UpToFace", self.up_to_face), ("UpToFace2", self.up_to_face2)):
             if rr is not None:
-                o, subs = ref(rr)
+                o, subs = ctx.ref(rr)
                 setattr(obj, prop, (o, subs))
         return obj
 
@@ -172,6 +169,8 @@ class _Revolved:
 class Revolution(_Revolved):
     """PartDesign::Revolution: revolves the profile about the reference axis and adds it to the body."""
     kind = "Revolution"
+    TYPE_ID = "PartDesign::Revolution"
+    TRANSACTION = "Make Revolution"
     TYPES = ("Angle", "UpToLast", "UpToFirst", "UpToFace")          # Revolution::TypeEnums, without ?TwoAngles
     additive = True
 
@@ -179,9 +178,10 @@ class Revolution(_Revolved):
 class Groove(_Revolved):
     """PartDesign::Groove: revolves the profile about the reference axis and removes it from the body."""
     kind = "Groove"
+    TYPE_ID = "PartDesign::Groove"
+    TRANSACTION = "Make Groove"
     TYPES = ("Angle", "ThroughAll", "UpToFirst", "UpToFace")        # Groove::TypeEnums, without ?TwoAngles
     additive = False
-
 
 def _axis_ref(r, where):
     if isinstance(r, str):
@@ -535,7 +535,7 @@ def _clamp(deg, lo=-360.0, hi=360.0):
     return hi if deg > hi else lo if deg < lo else deg
 
 
-def _revolve(feat: _Revolved, sketch, base, shapes, sketches, params):
+def _revolve(feat: _Revolved, sketch, base, shapes, sketches, params, out=None):
     where = feat.name
     revol_mode = FUSE if feat.additive else CUT
     side, method, method2 = feat.side_type, feat.type, feat.type2
@@ -644,16 +644,18 @@ def _revolve(feat: _Revolved, sketch, base, shapes, sketches, params):
         result = F._bool("fuse", revolutions[0], revolutions[1:])
     else:
         result = F._xor(revolutions)
-    return _set_result(feat, base, result)
+    return _set_result(feat, base, result, out)
 
 
-def _set_result(feat, base, revolved):
-    """Revolved::setResult: the tool refined, then fused to (Revolution, BaseFirst) or cut from (Groove) the base and
-    refined again."""
+def _set_result(feat, base, revolved, out=None):
+    """Revolved::setResult: the tool refined (its AddSubShape, into out["addsub"]), then fused to (Revolution,
+    BaseFirst) or cut from (Groove) the base and refined again."""
     if revolved is None or revolved.IsNull():
         raise FeatureError("Could not revolve the sketch!")
     refine = F._refine if feat.refine else (lambda s: s)
     result = refine(revolved)
+    if out is not None:
+        out["addsub"] = result
     if base is not None:
         result = F._bool("fuse" if feat.additive else "cut", base, [result])
         result = refine(result)

@@ -17,3 +17,13 @@
 .pd-line { border: none; border-top: 1px solid var(--border); margin: 6px 0; }
 .pd-form .tfield { margin-bottom: 3px; }
 .pd-getitem-body { display: flex; flex-direction: column; gap: 6px; min-width: 260px; }
+/* the dress-ups' panels (pd_dressup.tsx): Select, the references' list and its context menu (Remove, Add All Edges) */
+.pd-refsel { margin-bottom: 3px; }
+.pd-refsel.on, .pd-flip.on { background: var(--accent-bg); }
+.pd-reflist { border: 1px solid var(--border); background: #fff; min-height: 60px; max-height: 160px; overflow: auto; margin-bottom: 6px; }
+.pd-reflist.off { color: #8a8a8a; background: #f4f4f4; }
+.pd-flip { margin-left: 4px; padding: 1px 3px; }
+.pd-ctx { position: fixed; z-index: 1000; background: #fff; border: 1px solid var(--border); box-shadow: 0 2px 6px rgba(0,0,0,.2); padding: 2px 0; }
+.pd-ctx-item { display: flex; gap: 24px; justify-content: space-between; padding: 3px 12px; cursor: default; }
+.pd-ctx-item:hover { background: var(--accent-bg); }
+.pd-error { color: #c00; margin: 4px 0; }

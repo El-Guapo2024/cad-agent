@@ -189,8 +189,8 @@ def test_add_revolution_writes_the_import_and_the_commands_defaults(tmp_path):
     doc = feature_edit.apply(p, [{"op": "add", "feature": {"name": "Revolution", "type": "PartDesign::Revolution",
                                                            "profile": "Sketch"}}])
     src = p.read_text()
-    assert "from cad_agent.feature import (ArcOfCircle, Body, Circle, Constraint, LineSegment, Pad, Pocket, Point,\n" \
-           "                               Revolution, Sketch)\n" in src
+    imports = src.split("from cad_agent.feature import (", 1)[1].split(")", 1)[0]
+    assert "Revolution" in [x.strip() for x in imports.split(",")]
     rev = doc["features"][1]
     assert rev["reference_axis"] == ["Sketch", "V_Axis"] and rev["angle"] == 360.0 and rev["reversed"] is True
     # the axis is always written (FreeCAD's ReferenceAxis has no default the feature builds with); 360 is the default
@@ -220,8 +220,8 @@ def test_set_rename_delete_round_trip(tmp_path):
 
 def test_groove_is_a_type_of_the_cli():
     from cad_agent import featurecmd
-    assert featurecmd.TYPES["Revolution"] == "PartDesign::Revolution"
-    assert featurecmd.TYPES["Groove"] == "PartDesign::Groove"
+    assert featurecmd._kw_types()[0]["Revolution"] == "PartDesign::Revolution"
+    assert featurecmd._kw_types()[0]["Groove"] == "PartDesign::Groove"
     assert featurecmd.name_of([{"op": "add", "feature": {"type": "PartDesign::Groove"}}], {}) == "Make Groove"
     assert featurecmd.name_of([{"op": "set", "name": "Revolution", "props": {"angle": 5}}], {}) == \
         "Edit Revolution.Angle"

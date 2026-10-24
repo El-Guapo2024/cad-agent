@@ -62,12 +62,11 @@ import re
 from pathlib import Path
 
 from . import feature as F
+from . import feature_kw as KW
 from . import params as P
 
 TYPE_IDS = {"Sketch": "Sketcher::SketchObject", "Pad": "PartDesign::Pad", "Pocket": "PartDesign::Pocket"}
-TYPE_IDS["Revolution"] = "PartDesign::Revolution"           # cad_agent/feature_revolve.py
-TYPE_IDS["Groove"] = "PartDesign::Groove"
-TYPE_IDS["Hole"] = "PartDesign::Hole"                       # cad_agent/feature_hole.py
+TYPE_IDS.update(KW.type_ids())          # every feature_kw.KwFeature: Mirrored, AdditiveBox, ... (read and written below)
 KINDS = {v: k for k, v in TYPE_IDS.items()}
 SKETCH_POS = ("name", "support", "geometry", "constraints")
 SKETCH_KW = ("support", "attachment_offset", "map_mode", "geometry", "constraints")
@@ -81,16 +80,6 @@ EXTRUDE_PROPS = {"side_type": "side_type", "type1": "type", "type2": "type2", "l
                  "start_type": "start_type", "start_offset": "start_offset", "refine": "refine"}
 IMPORT = ("from cad_agent.feature import (ArcOfCircle, Body, Circle, Constraint, LineSegment, Pad, Pocket, "
           "Point,\n                               Sketch)\n")
-UP_TO_KEYS = ("up_to_face", "up_to_face2", "up_to_shape", "up_to_shape2")
-
-
-def _spec(kind):
-    """A feature kind's (props, extra keywords, keywords naming other features): Pad's and Pocket's are here, another
-    module's feature class says its own (EDIT_PROPS, EDIT_EXTRA, REF_KEYS), so this file needs no change per kind."""
-    if kind in ("Pad", "Pocket"):
-        return EXTRUDE_PROPS, {"midplane", "taper_angle", "taper_angle2"}, UP_TO_KEYS
-    cls = F.FEATURES[kind]
-    return cls.EDIT_PROPS, set(getattr(cls, "EDIT_EXTRA", ())), tuple(getattr(cls, "REF_KEYS", ()))
 NAME = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*$")
 
 
@@ -210,8 +199,30 @@ def _entries(tree):
     return node.value, out
 
 
+def _kw_obj(call, src):
+    """A feature_kw.KwFeature entry built from its call (its nested feature calls too)."""
+    cls = KW.kw_class(_fname(call))
+    args = [_lit(a, src) for a in call.args]
+    kw = {}
+    for k in call.keywords:
+        if k.arg in cls.NESTED:
+            elts = k.value.elts if isinstance(k.value, (ast.List, ast.Tuple)) else None
+            if elts is None or not all(isinstance(e, ast.Call) and KW.kw_class(_fname(e)) for e in elts):
+                raise FeatureEditError(f"{ast.get_source_segment(src, k.value)[:60]!r}: {k.arg} is a list of "
+                                       "feature calls")
+            kw[k.arg] = [_kw_obj(e, src) for e in elts]
+        else:
+            kw[k.arg] = _lit(k.value, src)
+    try:
+        return cls(*args, **kw)
+    except (TypeError, F.FeatureError) as e:
+        raise FeatureEditError(str(e)) from None
+
+
 def _feature_dict(call, src):
     kind = _fname(call)
+    if KW.kw_class(kind):
+        return _kw_obj(call, src).as_dict()
     if kind == "Sketch":
         d = {"name": _lit(_arg(call, SKETCH_POS, "name"), src), "type": TYPE_IDS[kind]}
         sup = _arg(call, SKETCH_POS, "support") or _arg(call, (), "plane")
@@ -226,22 +237,19 @@ def _feature_dict(call, src):
     d = {"name": _lit(_arg(call, EXTRUDE_POS, "name"), src), "type": TYPE_IDS[kind],
          "profile": _lit(_arg(call, EXTRUDE_POS, "profile"), src)}
     kw = {k.arg: _lit(k.value, src) for k in call.keywords if k.arg != "profile"}
-    props, extra, refs = _spec(kind)
-    unknown = set(kw) - set(props.values()) - extra
+    unknown = set(kw) - set(EXTRUDE_PROPS.values()) - {"midplane", "taper_angle", "taper_angle2"}
     if unknown:
         raise FeatureEditError(f"{d['name']}: {', '.join(sorted(unknown))} is not a property of a {kind}")
     try:
         obj = getattr(F, kind)(d["name"], d["profile"], **kw)     # defaults, and the deprecated forms
     except (TypeError, F.FeatureError) as e:
         raise FeatureEditError(str(e)) from None
-    for key, attr in props.items():
+    for key, attr in EXTRUDE_PROPS.items():
         v = getattr(obj, attr)
         d[key] = list(v) if isinstance(v, tuple) else v
-    for key in refs:
+    for key in ("up_to_face", "up_to_face2", "up_to_shape", "up_to_shape2"):
         if key in kw:
             d[key] = kw[key]
-    if hasattr(obj, "edit_extra"):              # what a kind reports beyond its keywords (a Hole's derived values)
-        d.update(obj.edit_extra())
     return d
 
 
@@ -344,6 +352,11 @@ def feature_src(d: dict, indent: int = 4) -> str:
     name = d.get("name")
     if not (isinstance(name, str) and name):
         raise FeatureEditError("a feature needs a name")
+    if KW.kw_class(kind):
+        try:
+            return kw_src(KW.kw_class(kind).from_dict(d), indent)
+        except (TypeError, F.FeatureError) as e:
+            raise FeatureEditError(str(e)) from None
     if kind == "Sketch":
         parts = [json.dumps(name), f"support={json.dumps(d.get('support') or 'XY')}"]
         if d.get("attachment_offset") is not None:
@@ -353,29 +366,42 @@ def feature_src(d: dict, indent: int = 4) -> str:
         parts.append(f"geometry={_list_src(g, indent + 7)}")
         parts.append(f"constraints={_list_src(c, indent + 7)}")
         return "Sketch(" + (",\n" + " " * (indent + 7)).join(parts) + ")"
-    if kind not in TYPE_IDS or kind == "Sketch":
-        others = [k for k in TYPE_IDS if k not in ("Sketch", "Pad", "Pocket")]
-        raise FeatureEditError(f"a feature of type {d.get('type')!r} is not a Sketch, Pad or Pocket"
-                               + (f" (nor {', '.join(others)})" if others else ""))
-    props, _, _ = _spec(kind)
-    cls = getattr(F, kind)
-    derived = set(getattr(cls, "EDIT_DERIVED", ()))
-    if hasattr(cls, "minimal"):                 # a kind whose properties follow from each other (a Hole)
-        d = {**{k: v for k, v in d.items() if k not in props}, **cls.minimal({k: d[k] for k in props if k in d})}
-    default = cls("x", "y")
+    if kind not in ("Pad", "Pocket"):
+        raise FeatureEditError(f"a feature of type {d.get('type')!r} is not a Sketch, Pad or Pocket")
+    default = getattr(F, kind)("x", "y")
     parts = [json.dumps(name), json.dumps(d.get("profile"))]
-    for key, kwname in props.items():
+    for key, kwname in EXTRUDE_PROPS.items():
         if key not in d:
             continue
         v = d[key]
         dv = getattr(default, kwname)
-        if (list(dv) if isinstance(dv, tuple) else dv) == v and not hasattr(cls, "minimal"):
+        if (list(dv) if isinstance(dv, tuple) else dv) == v:
             continue
         parts.append(f"{kwname}={lit(_tuples(key, v))}")
-    unknown = set(d) - set(props) - {"name", "type", "profile"} - derived
+    unknown = set(d) - set(EXTRUDE_PROPS) - {"name", "type", "profile"}
     if unknown:
         raise FeatureEditError(f"{name}: {', '.join(sorted(unknown))} is not a property of a {kind}")
     return f"{kind}({', '.join(parts)})"
+
+
+def kw_src(obj, indent: int = 4) -> str:
+    """A KwFeature's call: its name, its positional properties and the keywords that are not FreeCAD's defaults; a
+    nested list (MultiTransform's transformations) one call a line."""
+    parts = [json.dumps(obj.name)]
+    keep = set(obj.source_props()) if hasattr(obj, "source_props") else None   # a Hole: what was chosen
+    skip = (lambda k: k not in keep) if keep is not None else obj.is_default
+    for k in obj.POS:
+        if skip(k):
+            break
+        parts.append(lit(obj.source_value(k)))
+    for k in obj.DEFAULTS:
+        if (k in obj.POS and len(parts) > 1 + obj.POS.index(k)) or skip(k):
+            continue
+        if k in obj.NESTED:
+            parts.append(f"{k}={_list_src([kw_src(x, indent + 4) for x in getattr(obj, k)], indent)}")
+        else:
+            parts.append(f"{k}={lit(obj.source_value(k))}")
+    return f"{obj.kind}({', '.join(parts)})"
 
 
 def _tuples(key, v):
@@ -383,7 +409,7 @@ def _tuples(key, v):
     ("Pad", "Face6") as a tuple, up_to_shape a list of names or (name, [faces]) tuples."""
     if key in ("attachment_offset", "direction") and isinstance(v, list):
         return tuple(tuple(x) if isinstance(x, list) else x for x in v)
-    if key in ("up_to_face", "up_to_face2", "reference_axis") and isinstance(v, list):
+    if key in ("up_to_face", "up_to_face2") and isinstance(v, list):
         return tuple(v)
     if key in ("up_to_shape", "up_to_shape2") and isinstance(v, list):
         return [tuple(r) if isinstance(r, list) else r for r in v]
@@ -560,6 +586,8 @@ def _op_set(src, name, props):
     props.pop("name", None)
     if "type" in props and props.pop("type") != TYPE_IDS[kind]:
         raise FeatureEditError(f"{name} is a {kind}; its type cannot be changed")
+    if KW.kw_class(kind):
+        return _kw_set(t, call, name, props, spans)
     if kind == "Sketch":
         ind = call.col_offset + 7
         for key, val in props.items():
@@ -582,28 +610,55 @@ def _op_set(src, name, props):
             else:
                 raise FeatureEditError(f"{key} is not a property of a Sketch")
         return t.edit(spans)
-    spec, _, _ = _spec(kind)
-    cls = getattr(F, kind)
-    if hasattr(cls, "minimal"):                 # a Hole: a value its other properties give is not written
-        inv = {kw: key for key, kw in spec.items()}
-        given = {inv[k.arg]: _lit(k.value, t.src) for k in call.keywords if k.arg in inv}
-        given.update({k: v for k, v in props.items() if k in spec})
-        keep = cls.minimal(given)
-        for key in [k for k in props if k in spec and k not in keep]:
-            props.pop(key)
-            _drop_kw(t, call, spec[key], spans)
     for key, val in props.items():
         if key == "profile":
             _set_arg(t, call, EXTRUDE_POS, "profile", json.dumps(val), spans)
             continue
-        if key not in spec:
-            if key in getattr(cls, "EDIT_DERIVED", ()):
-                raise FeatureEditError(f"{name}.{key} follows from its other properties (read-only in FreeCAD)")
+        if key not in EXTRUDE_PROPS:
             raise FeatureEditError(f"{key} is not a property of a {kind}")
-        kw = spec[key]
+        kw = EXTRUDE_PROPS[key]
         if key == "side_type":
             _drop_kw(t, call, "midplane", spans)
         _set_arg(t, call, (), kw, lit(_tuples(key, val)), spans)
+    return t.edit(spans)
+
+
+def _kw_set(t, call, name, props, spans):
+    """set on a KwFeature: each property rewritten in place, added when it was left out, and left out again when it
+    goes back to FreeCAD's default."""
+    cls = KW.kw_class(_fname(call))
+    pos = ("name",) + cls.POS
+    bare = KW.bare(cls, name)
+    props = {cls.prop_of(k): v for k, v in props.items()}
+    keep_defaults = hasattr(cls, "set_props")
+    if keep_defaults:                           # a Hole: a value the others give is left out, a chosen one stays
+        have = {k.arg: _lit(k.value, t.src) for k in call.keywords}
+        try:
+            props, drop = cls.set_props(have, props)
+        except F.FeatureError as e:
+            raise FeatureEditError(str(e)) from None
+        for key in drop:
+            _drop_kw(t, call, key, spans)
+    for key in props:
+        for d in cls.SET_DROPS.get(key, ()):
+            _drop_kw(t, call, d, spans)
+    for key, val in props.items():
+        if key not in cls.DEFAULTS:
+            raise FeatureEditError(f"{key} is not a property of a {cls.kind}")
+        try:
+            v = bare.normalize(key, [KW.nested_from_dict(x) for x in val or []] if key in cls.NESTED else val)
+            default = bare.normalize(key, cls.DEFAULTS[key])
+        except F.FeatureError as e:
+            raise FeatureEditError(str(e)) from None
+        node = _arg(call, pos, key)
+        if v == default and key not in cls.POS and not keep_defaults:
+            if node is not None:
+                _drop_kw(t, call, key, spans)
+        elif key in cls.NESTED:
+            _set_arg(t, call, pos, key, _list_src([kw_src(x, call.col_offset + 4) for x in v], call.col_offset),
+                     spans)
+        else:
+            _set_arg(t, call, pos, key, lit(bare.source_value(key, v)), spans)
     return t.edit(spans)
 
 
@@ -612,12 +667,26 @@ def _refs(call):
     out = []
     if _fname(call) == "Sketch":
         return out
+    if KW.kw_class(_fname(call)):
+        cls = KW.kw_class(_fname(call))
+        for key in cls.REFS:
+            v = _arg(call, ("name",) + cls.POS, key)
+            for e in (v.elts if isinstance(v, ast.List) or (isinstance(v, ast.Tuple) and cls.is_ref_list(key))
+                      else [v] if v is not None else []):
+                e = e.elts[0] if isinstance(e, (ast.Tuple, ast.List)) and e.elts else e
+                if isinstance(e, ast.Constant) and isinstance(e.value, str):
+                    out.append((e, e.value))
+        for key in cls.NESTED:
+            v = _arg(call, ("name",) + cls.POS, key)
+            for e in (v.elts if isinstance(v, (ast.List, ast.Tuple)) else []):
+                if isinstance(e, ast.Call):
+                    out += _refs(e)
+        return out
     p = _arg(call, EXTRUDE_POS, "profile")
     if isinstance(p, ast.Constant):
         out.append((p, p.value))
-    keys = _spec(_fname(call))[2]
     for k in call.keywords:
-        if k.arg in keys:
+        if k.arg in ("up_to_face", "up_to_face2", "up_to_shape", "up_to_shape2"):
             v = k.value
             if isinstance(v, ast.Constant):
                 out.append((v, v.value))
@@ -651,6 +720,49 @@ def _set_tip(src, name):
     if body is not None and not any(k.arg == "tip" for k in body.keywords):
         _set_arg(t, body, (), "tip", "TIP", spans)
     return t.edit(spans)
+
+
+def _kinds_of(d: dict) -> set:
+    """The cad_agent.feature names a feature dict's source calls (its nested features' too)."""
+    kind = KINDS.get(d.get("type"), d.get("type"))
+    out = {kind} if kind in F.FEATURES else set()
+    cls = KW.kw_class(kind)
+    for key in (cls.NESTED if cls else ()):
+        for x in d.get(key) or []:
+            out |= _kinds_of(x.as_dict() if isinstance(x, KW.KwFeature) else x)
+    return out
+
+
+def ensure_import(src: str, names) -> str:
+    """src with `from cad_agent.feature import (...)` naming every one of names: the import rewritten in sorted order
+    when one is missing, or added after the module's docstring and imports when the file has none."""
+    tree = ast.parse(src)
+    node = next((n for n in tree.body if isinstance(n, ast.ImportFrom) and n.module == "cad_agent.feature"
+                 and n.level == 0 and not any(a.asname for a in n.names)), None)
+    have = {a.name for a in node.names} if node is not None else set()
+    if set(names) <= have or "*" in have:
+        return src
+    want = sorted(have | set(names), key=lambda x: (x.lower(), x))
+    head = "from cad_agent.feature import ("
+    lines, line = [], head
+    for i, n in enumerate(want):
+        piece = n + (", " if i < len(want) - 1 else ")")
+        if len(line) + len(piece.rstrip()) > 120:
+            lines.append(line.rstrip())
+            line = " " * len(head)
+        line += piece
+    text = "\n".join(lines + [line]) + "\n"
+    t = _Text(src)
+    if node is not None:
+        return t.edit([(t.line_start(t.a(node)), t.line_end(t.b(node)), text)])
+    pos = 0
+    for n in tree.body:
+        if isinstance(n, (ast.Import, ast.ImportFrom)) or (n is tree.body[0] and isinstance(n, ast.Expr)
+                                                            and isinstance(n.value, ast.Constant)):
+            pos = t.line_end(t.b(n))
+        else:
+            break
+    return t.edit([(pos, pos, text)])
 
 
 def _convert(src):
@@ -702,7 +814,17 @@ def _check(src):
         if n in kinds or n == "BaseFeature":
             raise FeatureEditError(f"two features are named {n!r}")
         try:
-            if f["type"] == TYPE_IDS["Sketch"]:
+            if KW.kw_class(KINDS.get(f["type"])):
+                obj = KW.kw_class(KINDS[f["type"]]).from_dict(f)
+                for r in obj.references():
+                    if r not in seen and r not in KW.ORIGIN:
+                        raise FeatureEditError(f"{n}: it references {r!r}, which is not before it")
+                for sub in obj.nested_names():
+                    if sub in kinds or sub == n or sub in seen or not NAME.match(sub):
+                        raise FeatureEditError(f"{n}: {sub!r} is not a name its transformation can take "
+                                               "(two features are named so, or it is not letters, digits and _)")
+                    kinds[sub] = "nested"
+            elif f["type"] == TYPE_IDS["Sketch"]:
                 F.Sketch(n, f["support"], [F.geometry_from_dict(g) for g in f["geometry"]],
                          [F.Constraint(c["type"], *c["args"], *([c["value"]] if "value" in c else []),
                                        name=c.get("name") or None, driving=c.get("driving", True))
@@ -710,7 +832,7 @@ def _check(src):
             else:
                 if kinds.get(f["profile"]) != "Sketch":
                     raise FeatureEditError(f"{n}: its profile {f['profile']!r} is not a sketch before it")
-                for key in ("up_to_face", "up_to_face2", "reference_axis"):
+                for key in ("up_to_face", "up_to_face2"):
                     r = f.get(key)
                     if isinstance(r, list) and r and r[0] not in seen:
                         raise FeatureEditError(f"{n}: its {key} names {r[0]!r}, which is not before it")
@@ -728,41 +850,6 @@ def _check(src):
     return d
 
 
-def _ensure_import(src: str, name: str) -> str:
-    """src with `name` in its `from cad_agent.feature import (...)`, so a feature kind added to a file written before that
-    kind existed (or by an older template) is defined when the file runs."""
-    if not (isinstance(name, str) and NAME.match(name)):
-        return src
-    tree = ast.parse(src)
-    imps = [n for n in tree.body if isinstance(n, ast.ImportFrom) and n.module == "cad_agent.feature"]
-    if any(a.name in (name, "*") for n in imps for a in n.names):
-        return src
-    t = _Text(src)
-    if not imps:
-        pos = 0
-        for node in tree.body:
-            if isinstance(node, (ast.Import, ast.ImportFrom)) or (
-                    isinstance(node, ast.Expr) and isinstance(node.value, ast.Constant) and node is tree.body[0]):
-                pos = t.line_end(t.b(node))
-            else:
-                break
-        return t.edit([(pos, pos, f"from cad_agent.feature import {name}\n")])
-    node = imps[0]
-    names = sorted({a.name if not a.asname else f"{a.name} as {a.asname}" for a in node.names} | {name},
-                   key=lambda x: x.lower())
-    head = "from cad_agent.feature import ("
-    lines, line = [], head
-    for i, n in enumerate(names):
-        piece = n + (", " if i < len(names) - 1 else ")")
-        if len(line) + len(piece.rstrip()) > 110 and line.strip() != head.strip():
-            lines.append(line.rstrip())
-            line = " " * len(head) + piece
-        else:
-            line += piece
-    lines.append(line)
-    return t.edit([(t.a(node), t.b(node), "\n".join(lines))])
-
-
 def _sketch_of(src: str, name):
     """The feature.Sketch named `name` in src's FEATURES, or None."""
     for f in read_src(src)["features"]:
@@ -773,6 +860,27 @@ def _sketch_of(src: str, name):
             except (TypeError, KeyError, F.FeatureError):
                 return None
     return None
+
+
+def resolve_feature(part_path, feature: dict, through_all: float | None = None) -> dict:
+    """A feature dict (as read() gives one, or the properties a task panel has chosen so far) with every property as
+    FreeCAD's would hold it: what FreeCAD's command sets on a new one (CmdPartDesignRevolution's axis and Reversed),
+    and the values that follow from the others (a Hole's diameter from its thread). Writes nothing. through_all is
+    ProfileBased::getThroughAllLength when the caller knows it (a Hole's ThroughAll depth)."""
+    src = Path(part_path).read_text()
+    cls = KW.kw_class(KINDS.get(feature.get("type"), feature.get("type")))
+    if cls is None:
+        raise FeatureEditError(f"a feature of type {feature.get('type')!r} has nothing to resolve")
+    feat = dict(feature)
+    if feat.get("name") not in [f["name"] for f in read_src(src)["features"]] and hasattr(cls, "command_defaults"):
+        feat = cls.command_defaults(feat, _sketch_of(src, feat.get("profile")))
+    try:
+        if hasattr(cls, "resolved"):
+            return {"name": feat.get("name"), "type": cls.TYPE_ID, "profile": feat.get("profile"),
+                    **cls.resolved(feat, through_all)}
+        return cls.from_dict({**feat, "name": feat.get("name") or cls.kind}).as_dict()
+    except (TypeError, F.FeatureError) as e:
+        raise FeatureEditError(str(e)) from None
 
 
 def apply_src(src: str, ops: list) -> str:
@@ -788,12 +896,11 @@ def apply_src(src: str, ops: list) -> str:
                 src = _convert(src)
             if feat.get("name") in [f["name"] for f in read_src(src)["features"]]:
                 raise FeatureEditError(f"there is already a feature {feat.get('name')!r}")
-            kind = KINDS.get(feat.get("type"), feat.get("type"))
-            cls = F.FEATURES.get(kind)
+            cls = KW.kw_class(KINDS.get(feat.get("type"), feat.get("type")))
             if hasattr(cls, "command_defaults"):    # what FreeCAD's command sets on a new one (CmdPartDesignRevolution)
                 feat = cls.command_defaults(feat, _sketch_of(src, feat.get("profile")))
             src = _insert(src, feature_src(feat, 0), op.get("after"), "after" not in op)
-            src = _ensure_import(src, kind)
+            src = ensure_import(src, _kinds_of(feat))
             continue
         if not has_list:
             raise FeatureEditError("the part has no feature list yet: add a feature first")
@@ -850,42 +957,52 @@ def apply_src(src: str, ops: list) -> str:
     return src
 
 
-def resolve_feature(part_path, feature: dict, through_all: float | None = None) -> dict:
-    """A feature dict (as read() gives one, or the properties a task panel has chosen so far) with every property as
-    FreeCAD's would hold it: what FreeCAD's command sets on a new one (CmdPartDesignRevolution's axis and Reversed),
-    and the values that follow from the others (a Hole's diameter from its thread). Writes nothing. through_all is
-    ProfileBased::getThroughAllLength when the caller knows it (a Hole's ThroughAll depth)."""
-    src = Path(part_path).read_text()
-    kind = KINDS.get(feature.get("type"), feature.get("type"))
-    cls = F.FEATURES.get(kind)
-    if cls is None or kind == "Sketch":
-        raise FeatureEditError(f"a feature of type {feature.get('type')!r} has nothing to resolve")
-    feat = dict(feature)
-    names = [f["name"] for f in read_src(src)["features"]]
-    if feat.get("name") not in names and hasattr(cls, "command_defaults"):
-        feat = cls.command_defaults(feat, _sketch_of(src, feat.get("profile")))
-    if hasattr(cls, "resolved"):
-        return {"name": feat.get("name"), "type": TYPE_IDS[kind], "profile": feat.get("profile"),
-                **cls.resolved(feat, through_all)}
-    props, _, _ = _spec(kind)
-    kw = {kwname: _tuples(key, feat[key]) for key, kwname in props.items() if key in feat}
-    try:
-        obj = cls(feat.get("name") or kind, feat.get("profile"), **kw)
-    except (TypeError, F.FeatureError) as e:
-        raise FeatureEditError(str(e)) from None
-    out = {"name": feat.get("name"), "type": TYPE_IDS[kind], "profile": feat.get("profile")}
-    for key, attr in props.items():
-        v = getattr(obj, attr)
-        out[key] = list(v) if isinstance(v, tuple) else v
-    return out
-
-
 def apply(part_path, ops: list) -> dict:
     """Apply the ops to the part file, all or nothing, and return read() of the result."""
     path = Path(part_path)
     src = path.read_text()
     new = apply_src(src, list(ops))
+    new = follow_src(src, new, path)
     out = read_src(new, path.stem)
     if new != src:
         path.write_text(new)
     return out
+
+
+# ── names that an edit renumbered, followed (FreeCAD's topological naming) ─────────────────────────────
+
+def _run(src: str, path: Path):
+    """The part module's FEATURES, PARAMS and BaseFeature solid, run from src as state._load_module runs it."""
+    import types
+    mod = types.ModuleType(f"_cad_{path.stem}")
+    mod.__file__ = str(path)
+    exec(compile(src, str(path), "exec"), mod.__dict__)
+    params = dict(getattr(mod, "PARAMS", {}) or {})
+    base = mod.build_base(**params) if hasattr(mod, "build_base") else None
+    return list(getattr(mod, "FEATURES", []) or []), params, base
+
+
+def follow_src(before: str, after: str, path) -> str:
+    """after, with each dress-up's Base renamed where the edit renumbered its base's elements or moved the
+    solid before it (cad_agent.feature_dressup.follow). The source is unchanged when there is no dress-up, or
+    when either side does not run."""
+    if before == after:
+        return after
+    try:
+        kinds = {f["type"] for f in read_src(after)["features"]}
+    except FeatureEditError:
+        return after
+    from . import feature_dressup as D
+    if not kinds & {c.TYPE_ID for c in D.DRESSUPS.values()}:
+        return after
+    try:
+        fb, pb, bb = _run(before, Path(path))
+        fa, pa, ba = _run(after, Path(path))
+        moved = D.follow(fb, fa, pb, pa, bb, ba)
+    except Exception:              # a part that does not run: its build says why, not this
+        return after
+    for name, (obj, subs) in moved.items():
+        after = _op_set(after, name, {"base": [obj, subs]})
+    if moved:
+        _check(after)
+    return after
