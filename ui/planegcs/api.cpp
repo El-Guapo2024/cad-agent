@@ -8,7 +8,21 @@
 //     | {"type": "LineSegment", "start": [x, y], "end": [x, y]}
 //     | {"type": "Circle", "center": [x, y], "radius": r}
 //     | {"type": "ArcOfCircle", "center": [x, y], "radius": r, "start_angle": a1, "end_angle": a2}
-//   each with "construction": true|false (default false). Arcs run counter-clockwise from
+//     | {"type": "Ellipse", "center": [x, y], "major_radius": a, "minor_radius": b, "x_axis": [dx, dy]}
+//     | {"type": "ArcOfEllipse", ...the Ellipse's keys, "start_angle": u1, "end_angle": u2}
+//     | {"type": "ArcOfHyperbola", ...the same keys as ArcOfEllipse}
+//     | {"type": "ArcOfParabola", "center": [x, y] (the vertex), "focal": f, "x_axis": [dx, dy],
+//        "start_angle": u1, "end_angle": u2}
+//     | {"type": "BSplineCurve", "poles": [[x, y], ...], "weights": [w, ...] (default 1),
+//        "knots": [k, ...], "mults": [m, ...], "degree": d, "periodic": false}
+//   each with "construction": true|false (default false). A conic's x_axis is Part's XAxis (the
+//   major axis, towards the first focus; a parabola's axis, towards its focus), and its angles are
+//   the trim parameters of the conic (FirstParameter, LastParameter), as Part.ArcOfEllipse(ellipse,
+//   u1, u2) takes them; the conics are built as Part's Python makes them (Part.Ellipse(center, a,
+//   b) then .XAxis; Part.Hyperbola() and Part.Parabola() then .Center, the radii or .Focal, and
+//   .XAxis). A B-spline is Part.BSplineCurve(poles, mults, knots, periodic, degree, weights); its
+//   weights are written back only while they differ (Geom_BSplineCurve's rational flag), else 1.
+//   The conic arcs are written with "start_point" and "end_point" as well. Arcs run counter-clockwise from
 //   start_angle to end_angle (radians), as FreeCAD's sketch arcs do. Part's Python constructor
 //   arguments are accepted too: {"type": "LineSegment", "args": [[x1, y1], [x2, y2]]},
 //   {"type": "Circle", "args": [[cx, cy], [0, 0, 1], r]}, {"type": "ArcOfCircle",
@@ -22,6 +36,10 @@
 //   Without "value", "args" is the whole Python list, written as an array ["Distance", 0, 5.0]
 //   or as {"type", "args"}: integers (no '.' or exponent) are Python ints, the rest floats, and
 //   trailing booleans are activated/driving, dispatched exactly as ConstraintPy::PyInit does.
+//   InternalAlignment constraints are written as Python writes them, with the alignment in the
+//   type: ["InternalAlignment:EllipseMajorDiameter", line, ellipse], ["InternalAlignment:
+//   EllipseFocus1", point, 1, ellipse], ["InternalAlignment:BSplineControlPoint", circle, 3,
+//   spline, index]; and "Weight" (a pole circle's weight) as ["Weight", circle, w].
 // options: {"solver": "DogLeg"|"LevenbergMarquardt"|"BFGS",
 //           "recalculate_initial_solution_while_moving_point": bool}
 //
@@ -444,6 +462,18 @@ const Json* need(const Json& j, const char* key)
     return v;
 }
 
+std::vector<double> doubles(const Json& j, const char* what)
+{
+    if (j.kind != Json::Array) {
+        throw std::invalid_argument(std::string(what) + " must be a list of numbers");
+    }
+    std::vector<double> out;
+    for (const auto& v : j.items) {
+        out.push_back(v.asDouble());
+    }
+    return out;
+}
+
 Sketcher::Geometry parseGeometry(const Json& j)
 {
     if (j.kind != Json::Object) {
@@ -516,6 +546,51 @@ Sketcher::Geometry parseGeometry(const Json& j)
             a2 = need(j, "end_angle")->asDouble();
         }
         g = Sketcher::Geometry::makeArcOfCircle(c, r, a1, a2);
+    }
+    else if (t == "Ellipse" || t == "ArcOfEllipse" || t == "ArcOfHyperbola") {
+        Vec c = toVec(*need(j, "center"));
+        double a = need(j, "major_radius")->asDouble();
+        double b = need(j, "minor_radius")->asDouble();
+        Vec x = j.get("x_axis") ? toVec(*j.get("x_axis")) : Vec {1.0, 0.0};
+        if (t == "Ellipse") {
+            g = Sketcher::Geometry::makeEllipse(c, a, b, x);
+        }
+        else {
+            double u1 = need(j, "start_angle")->asDouble();
+            double u2 = need(j, "end_angle")->asDouble();
+            g = t == "ArcOfEllipse" ? Sketcher::Geometry::makeArcOfEllipse(c, a, b, x, u1, u2)
+                                    : Sketcher::Geometry::makeArcOfHyperbola(c, a, b, x, u1, u2);
+        }
+    }
+    else if (t == "ArcOfParabola") {
+        Vec c = toVec(*need(j, "center"));
+        double f = need(j, "focal")->asDouble();
+        Vec x = j.get("x_axis") ? toVec(*j.get("x_axis")) : Vec {1.0, 0.0};
+        double u1 = need(j, "start_angle")->asDouble();
+        double u2 = need(j, "end_angle")->asDouble();
+        g = Sketcher::Geometry::makeArcOfParabola(c, f, x, u1, u2);
+    }
+    else if (t == "BSplineCurve") {
+        BSplineData d;
+        const Json* poles = need(j, "poles");
+        if (poles->kind != Json::Array) {
+            throw std::invalid_argument("BSplineCurve poles must be a list of points");
+        }
+        for (const auto& pt : poles->items) {
+            d.poles.push_back(toVec(pt));
+        }
+        if (const Json* w = j.get("weights")) {
+            d.weights = doubles(*w, "BSplineCurve weights");
+        }
+        d.knots = doubles(*need(j, "knots"), "BSplineCurve knots");
+        for (double m : doubles(*need(j, "mults"), "BSplineCurve mults")) {
+            d.mults.push_back(int(m));
+        }
+        d.degree = need(j, "degree")->asInt();
+        if (const Json* per = j.get("periodic")) {
+            d.periodic = per->kind == Json::Bool && per->b;
+        }
+        g = Sketcher::Geometry::makeBSpline(std::move(d));
     }
     else {
         throw std::invalid_argument("unsupported geometry type: " + t);
@@ -629,6 +704,30 @@ Constraint parseConstraintArgs(const std::string& type, const std::vector<Json>&
                 constraint->Type = Equal;
                 valid = true;
             }
+            else if (strstr(ConstraintType, "InternalAlignment")) {
+                constraint->Type = InternalAlignment;
+
+                valid = true;
+                if (strstr(ConstraintType, "EllipseMajorDiameter")) {
+                    constraint->AlignmentType = EllipseMajorDiameter;
+                }
+                else if (strstr(ConstraintType, "EllipseMinorDiameter")) {
+                    constraint->AlignmentType = EllipseMinorDiameter;
+                }
+                else if (strstr(ConstraintType, "HyperbolaMajor")) {
+                    constraint->AlignmentType = HyperbolaMajor;
+                }
+                else if (strstr(ConstraintType, "HyperbolaMinor")) {
+                    constraint->AlignmentType = HyperbolaMinor;
+                }
+                else if (strstr(ConstraintType, "ParabolaFocalAxis")) {
+                    constraint->AlignmentType = ParabolaFocalAxis;
+                }
+                else {
+                    constraint->AlignmentType = Undef;
+                    valid = false;
+                }
+            }
             if (valid) {
                 constraint->First = FirstIndex;
                 constraint->Second = SecondIndex;
@@ -655,6 +754,9 @@ Constraint parseConstraintArgs(const std::string& type, const std::vector<Json>&
             }
             else if (strcmp("Diameter", ConstraintType) == 0) {
                 constraint->Type = Diameter;
+            }
+            else if (strcmp("Weight", ConstraintType) == 0) {
+                constraint->Type = Weight;
             }
             else {
                 return false;
@@ -713,6 +815,28 @@ Constraint parseConstraintArgs(const std::string& type, const std::vector<Json>&
             else if (strcmp("PointOnObject", ConstraintType) == 0) {
                 constraint->Type = PointOnObject;
                 valid = true;
+            }
+            else if (strstr(ConstraintType, "InternalAlignment")) {
+                constraint->Type = InternalAlignment;
+
+                valid = true;
+
+                if (strstr(ConstraintType, "EllipseFocus1")) {
+                    constraint->AlignmentType = EllipseFocus1;
+                }
+                else if (strstr(ConstraintType, "EllipseFocus2")) {
+                    constraint->AlignmentType = EllipseFocus2;
+                }
+                else if (strstr(ConstraintType, "HyperbolaFocus")) {
+                    constraint->AlignmentType = HyperbolaFocus;
+                }
+                else if (strstr(ConstraintType, "ParabolaFocus")) {
+                    constraint->AlignmentType = ParabolaFocus;
+                }
+                else {
+                    constraint->AlignmentType = Undef;
+                    valid = false;
+                }
             }
             if (valid) {
                 constraint->First = FirstIndex;
@@ -824,6 +948,31 @@ Constraint parseConstraintArgs(const std::string& type, const std::vector<Json>&
                 constraint->Third = intArg3;
                 constraint->ThirdPos = static_cast<PointPos>(intArg4);
                 return true;
+            }
+            else if (strstr(ConstraintType, "InternalAlignment")) {
+                // InteralAlignment with InternalElementIndex argument
+                constraint->Type = InternalAlignment;
+
+                valid = true;
+
+                if (strstr(ConstraintType, "BSplineControlPoint")) {
+                    constraint->AlignmentType = BSplineControlPoint;
+                }
+                else if (strstr(ConstraintType, "BSplineKnotPoint")) {
+                    constraint->AlignmentType = BSplineKnotPoint;
+                }
+                else {
+                    constraint->AlignmentType = Undef;
+                    valid = false;
+                }
+
+                if (valid) {
+                    constraint->First = intArg1;
+                    constraint->FirstPos = static_cast<PointPos>(intArg2);
+                    constraint->Second = intArg3;
+                    constraint->InternalAlignmentIndex = intArg4;
+                    return true;
+                }
             }
             if (valid) {
                 constraint->First = intArg1;
@@ -972,6 +1121,20 @@ Constraint parseConstraintArgs(const std::string& type, const std::vector<Json>&
                 constraint->SecondPos = static_cast<PointPos>(SecondPos);
                 constraint->Third = ThirdIndex;
                 constraint->ThirdPos = static_cast<PointPos>(ThirdPos);
+                return true;
+            }
+        }
+        if (index_or_value->isNumber()) {  // can be float or int
+            Value = index_or_value->asDouble();
+            if (strcmp("SnellsLaw", ConstraintType) == 0) {
+                constraint->Type = SnellsLaw;
+                constraint->First = FirstIndex;
+                constraint->FirstPos = static_cast<PointPos>(FirstPos);
+                constraint->Second = SecondIndex;
+                constraint->SecondPos = static_cast<PointPos>(SecondPos);
+                constraint->Third = ThirdIndex;
+                constraint->ThirdPos = PointPos::none;
+                constraint->setValue(Value);
                 return true;
             }
         }
@@ -1177,10 +1340,80 @@ const char* typeName(ConstraintType t)
     return (t >= 0 && t < NumConstraintTypes) ? names[t] : "None";
 }
 
+void writeDoubles(Writer& w, const std::vector<double>& v)
+{
+    w.out += '[';
+    for (size_t k = 0; k < v.size(); ++k) {
+        if (k) {
+            w.out += ',';
+        }
+        w.num(v[k]);
+    }
+    w.out += ']';
+}
+
 void writeGeometry(Writer& w, const Sketcher::Geometry& g)
 {
     w.out += '{';
     switch (g.kind) {
+        case Sketcher::Geometry::Ellipse:
+        case Sketcher::Geometry::ArcOfEllipse:
+        case Sketcher::Geometry::ArcOfHyperbola:
+        case Sketcher::Geometry::ArcOfParabola: {
+            static const char* names[] = {"Ellipse", "ArcOfEllipse", "ArcOfHyperbola", "ArcOfParabola"};
+            w.key("type");
+            w.str(names[g.kind - Sketcher::Geometry::Ellipse]);
+            w.key("center");
+            w.vec(g.getCenter());
+            if (g.kind == Sketcher::Geometry::ArcOfParabola) {
+                w.key("focal");
+                w.num(g.getFocal());
+            }
+            else {
+                w.key("major_radius");
+                w.num(g.getMajorRadius());
+                w.key("minor_radius");
+                w.num(g.getMinorRadius());
+            }
+            w.key("x_axis");
+            w.vec(g.getMajorAxisDir());
+            if (g.kind != Sketcher::Geometry::Ellipse) {
+                w.key("start_angle");
+                w.num(g.getFirstParameter());
+                w.key("end_angle");
+                w.num(g.getLastParameter());
+                w.key("start_point");
+                w.vec(g.getStartPoint());
+                w.key("end_point");
+                w.vec(g.getEndPoint());
+            }
+            break;
+        }
+        case Sketcher::Geometry::BSplineCurve: {
+            const auto& b = g.bspline();
+            w.key("type");
+            w.str("BSplineCurve");
+            w.key("poles");
+            w.out += '[';
+            for (size_t k = 0; k < b.poles.size(); ++k) {
+                if (k) {
+                    w.out += ',';
+                }
+                w.vec(b.poles[k]);
+            }
+            w.out += ']';
+            w.key("weights");
+            writeDoubles(w, g.getWeights());
+            w.key("knots");
+            writeDoubles(w, b.knots);
+            w.key("mults");
+            w.ints(b.mults);
+            w.key("degree");
+            w.integer(b.degree);
+            w.key("periodic");
+            w.out += b.periodic ? "true" : "false";
+            break;
+        }
         case Sketcher::Geometry::Point:
             w.key("type");
             w.str("Point");

@@ -2,6 +2,7 @@
 and writes FreeCAD's answers to $SKETCHER_ANSWERS. Not a test; make.py starts it."""
 import json
 import os
+import re
 import traceback
 
 import FreeCAD
@@ -34,6 +35,26 @@ def part(g):
     if t == "ArcOfCircle":
         circle = Part.Circle(V(*g["center"], 0), V(0, 0, 1), g["radius"])
         return Part.ArcOfCircle(circle, g["start_angle"], g["end_angle"])
+    if t in ("Ellipse", "ArcOfEllipse"):
+        e = Part.Ellipse(V(*g["center"], 0), g["major_radius"], g["minor_radius"])
+        e.XAxis = V(*g.get("x_axis", [1, 0]), 0)
+        return e if t == "Ellipse" else Part.ArcOfEllipse(e, g["start_angle"], g["end_angle"])
+    if t == "ArcOfHyperbola":
+        h = Part.Hyperbola()
+        h.Location = V(*g["center"], 0)
+        h.MajorRadius = g["major_radius"]
+        h.MinorRadius = g["minor_radius"]
+        h.XAxis = V(*g.get("x_axis", [1, 0]), 0)
+        return Part.ArcOfHyperbola(h, g["start_angle"], g["end_angle"])
+    if t == "ArcOfParabola":
+        p = Part.Parabola()
+        p.Location = V(*g["center"], 0)
+        p.Focal = g["focal"]
+        p.XAxis = V(*g.get("x_axis", [1, 0]), 0)
+        return Part.ArcOfParabola(p, g["start_angle"], g["end_angle"])
+    if t == "BSplineCurve":
+        return Part.BSplineCurve([V(*q, 0) for q in g["poles"]], g["mults"], g["knots"], g.get("periodic", False),
+                                 g["degree"], g.get("weights"))
     raise ValueError(t)
 
 
@@ -53,7 +74,45 @@ def read(g):
         return {"type": "ArcOfCircle", "center": xy(g.Center), "radius": g.Radius,
                 "start_angle": g.FirstParameter, "end_angle": g.LastParameter,
                 "start_point": xy(g.StartPoint), "end_point": xy(g.EndPoint)}
+    if t in ("Ellipse", "ArcOfEllipse", "ArcOfHyperbola", "ArcOfParabola"):
+        d = {"type": t, "center": xy(g.Location)}
+        if t == "ArcOfParabola":
+            d["focal"] = g.Focal
+        else:
+            d["major_radius"], d["minor_radius"] = g.MajorRadius, g.MinorRadius
+        d["x_axis"] = xy(g.XAxis)
+        if t != "Ellipse":
+            d.update({"start_angle": g.FirstParameter, "end_angle": g.LastParameter,
+                      "start_point": xy(g.StartPoint), "end_point": xy(g.EndPoint)})
+        return d
+    if t == "BSplineCurve":
+        return {"type": t, "poles": [xy(q) for q in g.getPoles()], "weights": list(g.getWeights()),
+                "knots": list(g.getKnots()), "mults": list(g.getMultiplicities()), "degree": g.Degree,
+                "periodic": g.isPeriodic()}
     return {"type": t}
+
+
+ALIGNMENTS = {1: "EllipseMajorDiameter", 2: "EllipseMinorDiameter", 3: "EllipseFocus1", 4: "EllipseFocus2",
+              5: "HyperbolaMajor", 6: "HyperbolaMinor", 7: "HyperbolaFocus", 8: "ParabolaFocus",
+              9: "BSplineControlPoint", 10: "BSplineKnotPoint", 11: "ParabolaFocalAxis"}
+
+
+def constraint_args(c):
+    """A constraint FreeCAD made (exposeInternalGeometry) as Sketcher.Constraint's argument list."""
+    attrs = dict(re.findall(r'(\w+)="([^"]*)"', c.Content))
+    if c.Type == "InternalAlignment":
+        kind = int(attrs["InternalAlignmentType"])
+        name = "InternalAlignment:" + ALIGNMENTS[kind]
+        if kind in (1, 2, 5, 6, 11):
+            return [name, c.First, c.Second]
+        if kind in (3, 4, 7, 8):
+            return [name, c.First, c.FirstPos, c.Second]
+        return [name, c.First, c.FirstPos, c.Second, int(attrs["InternalAlignmentIndex"])]
+    if c.Type == "Equal":
+        return ["Equal", c.First, c.Second]
+    if c.Type == "Weight":
+        return ["Weight", c.First, c.Value]
+    raise ValueError(f"constraint {c.Type} from exposeInternalGeometry")
 
 
 def state(sk):
@@ -70,6 +129,14 @@ def run(case):
         sk = doc.addObject("Sketcher::SketchObject", "Sketch")
         for g in case["geometry"]:
             sk.addGeometry(part(g), bool(g.get("construction", False)))
+        if "expose" in case:
+            # make.py's first pass: the internal geometry exposeInternalGeometry adds, as the
+            # Sketcher's tools add it, written back as a case
+            for geo in case["expose"]:
+                sk.exposeInternalGeometry(geo)
+            return {"geometry": [{**read(g), "construction": sk.getConstruction(i)}
+                                 for i, g in enumerate(sk.Geometry)],
+                    "constraints": [constraint_args(c) for c in sk.Constraints]}
         try:
             sk.addConstraint([Sketcher.Constraint(*python_args(c)) for c in case["constraints"]])
         except Exception as e:  # invalid indices or arguments

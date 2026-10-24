@@ -3,6 +3,7 @@ hold the port of the Sketcher's solver (ui/planegcs, cad_agent/planegcs.py) to.
 
     python3 tests/golden/sketcher/make.py <freecadcmd>          # writes freecad.json
     python3 tests/golden/sketcher/make.py <freecadcmd> --check  # and compares with the native build
+    python3 tests/golden/sketcher/make.py <freecadcmd> --set=conics   # freecad_conics.json: conics and B-splines
 
 <freecadcmd> may also come from $FREECADCMD (FreeCAD 26.3, weekly-2026.09.30 at 3160daf1e2b6, was
 used: its AppImage extracted, squashfs-root/usr/bin/freecadcmd). Each case is made in a
@@ -336,6 +337,344 @@ def generate() -> list[dict]:
     return g.cases
 
 
+# ─── conics and B-splines (freecad_conics.json) ─────────────────────────────
+#
+# Each case names the curves whose internal geometry FreeCAD's exposeInternalGeometry adds (the
+# axes and foci of a conic, a B-spline's pole circles, first weight, equalities and knot points, as
+# the Sketcher's tools add them). make.py asks freecadcmd for that geometry first and writes the
+# case with it, so both sides start from FreeCAD's own numbers; the case's constraints come after.
+
+def _ax(angle):
+    return [math.cos(angle), math.sin(angle)]
+
+
+def E(c, a, b, ang=0.0, cons=False):
+    return {"type": "Ellipse", "center": [float(c[0]), float(c[1])], "major_radius": float(a),
+            "minor_radius": float(b), "x_axis": _ax(ang), **({"construction": True} if cons else {})}
+
+
+def AE(c, a, b, ang, u1, u2):
+    return {**E(c, a, b, ang), "type": "ArcOfEllipse", "start_angle": float(u1), "end_angle": float(u2)}
+
+
+def AH(c, a, b, ang, u1, u2):
+    return {**E(c, a, b, ang), "type": "ArcOfHyperbola", "start_angle": float(u1), "end_angle": float(u2)}
+
+
+def AP(v, f, ang, u1, u2):
+    return {"type": "ArcOfParabola", "center": [float(v[0]), float(v[1])], "focal": float(f), "x_axis": _ax(ang),
+            "start_angle": float(u1), "end_angle": float(u2)}
+
+
+def BS(poles, degree=3, periodic=False, weights=None):
+    """A B-spline as the Sketcher's B-spline tool makes one: uniform knots, clamped unless periodic."""
+    n = len(poles)
+    if periodic:
+        knots, mults = [float(k) for k in range(n + 1)], [1] * (n + 1)
+    else:
+        spans = n - degree
+        knots = [k / spans for k in range(spans + 1)]
+        mults = [degree + 1] + [1] * (spans - 1) + [degree + 1]
+    d = {"type": "BSplineCurve", "poles": [[float(p[0]), float(p[1])] for p in poles], "knots": knots,
+         "mults": mults, "degree": degree, "periodic": periodic}
+    if weights:
+        d["weights"] = [float(w) for w in weights]
+    return d
+
+
+INTERNAL = {"Ellipse": 4, "ArcOfEllipse": 4, "ArcOfHyperbola": 3, "ArcOfParabola": 2}
+
+
+def internal_count(g):
+    if g["type"] == "BSplineCurve":
+        return len(g["poles"]) + len(g["knots"])
+    return INTERNAL[g["type"]]
+
+
+def internal_start(geometry, expose):
+    """{geoId: the index of its first internal element} once every curve of expose is exposed in turn."""
+    at, out = len(geometry), {}
+    for gid in expose:
+        out[gid] = at
+        at += internal_count(geometry[gid])
+    return out
+
+
+DRAG_POS = {"Point": [1], "LineSegment": [0, 1, 2], "Circle": [0, 3], "ArcOfCircle": [0, 1, 2, 3],
+            "Ellipse": [0, 3], "ArcOfEllipse": [0, 1, 2, 3], "ArcOfHyperbola": [0, 1, 2, 3],
+            "ArcOfParabola": [0, 1, 2, 3], "BSplineCurve": [0, 1, 2]}
+
+
+class ConicGen(Gen):
+    def __init__(self):
+        super().__init__(seed=20261025)
+
+    def add(self, name, geometry, constraints, drags=(), expose=(), drop_equal=(), weight=None):
+        self.cases.append({"name": f"c{len(self.cases):03d} {name}", "geometry": geometry,
+                           "expose": list(expose), "drop_equal": list(drop_equal), "weight": weight,
+                           "constraints": constraints, "drags": list(drags)})
+
+    def drag(self, geo_count, gid, pos, scale=30.0):
+        rel = self.r.random() < 0.3
+        to = [self.j(3), self.j(3)] if rel else [self.j(scale), self.j(scale)]
+        return {"geo": gid, "pos": pos, "to": to, "relative": rel}
+
+    def drags_of(self, geometry, ids, n=2):
+        out = []
+        for _ in range(n):
+            gid = self.r.choice(ids)
+            out.append(self.drag(len(geometry), gid, self.r.choice(DRAG_POS[geometry[gid]["type"]])))
+        return out
+
+
+def generate_conics() -> list[dict]:
+    g = ConicGen()
+    pi = math.pi
+
+    # Ellipses with their internal geometry: free, fully constrained, on and tangent to other curves
+    for k in range(12):
+        a = g.r.uniform(6, 30)
+        b = a * g.r.uniform(0.2, 0.9)
+        ang = g.r.uniform(-pi, pi)
+        e = E(g.jp((0, 0), 10), a, b, ang)
+        s = internal_start([e], [0])[0]  # major, minor, focus1, focus2
+        g.add("ellipse, internal geometry, free", [e], [], expose=[0],
+              drags=[g.drag(5, 0, 3), g.drag(5, s, 1), g.drag(5, s + 2, 1), g.drag(5, 0, 0)])
+        g.add("ellipse, fully constrained", [e],
+              [["Coincident", 0, 3, -1, 1], ["Horizontal", s], ["Distance", s, 2 * a + 1.0], ["Distance", s + 1, 2 * b]],
+              expose=[0])
+        g.add("ellipse, angle of the major axis, focus on the V axis", [e],
+              [["Angle", s, g.r.uniform(-1.5, 1.5)], ["PointOnObject", s + 2, 1, -2], ["Distance", s + 1, b * 1.5]],
+              expose=[0], drags=[g.drag(5, 0, 3)])
+        p, line = P(g.jp((a, 0), 3)), L(g.jp((-40, -a - 5), 3), g.jp((40, -a - 3), 3))
+        geo = [e, p, line]
+        s = internal_start(geo, [0])[0]
+        g.add("ellipse, point on it, tangent line", geo, [["PointOnObject", 1, 1, 0], ["Tangent", 2, 0]], expose=[0],
+              drags=g.drags_of(geo, [0, 1, 2], 3))
+        g.add("ellipse, line end tangent to it (endpoint to curve)", [e, line],
+              [["Tangent", 1, 1, 0], ["Coincident", 0, 3, -1, 1]], expose=[0], drags=g.drags_of([e, line], [1], 2))
+        g.add("ellipse without internal geometry", [e], [["PointOnObject", -1, 1, 0]], drags=g.drags_of([e], [0], 2))
+        e2 = E(g.jp((40, 10), 8), a * g.r.uniform(0.6, 1.4), b * g.r.uniform(0.6, 1.0), g.r.uniform(-pi, pi))
+        if e2["minor_radius"] > e2["major_radius"]:
+            e2["minor_radius"] = e2["major_radius"] * 0.5
+        g.add("equal ellipses", [e, e2], [["Equal", 0, 1]], expose=[0, 1], drags=g.drags_of([e, e2], [0, 1], 2))
+        c = C(g.jp((a + 8, 0), 3), g.r.uniform(2, 8))
+        g.add("malformed: circle tangent to ellipse", [e, c], [["Tangent", 1, 0]], expose=[0])
+        geo = [e, c, P(g.jp((a, 0), 2))]
+        g.add("circle tangent to ellipse via a point", geo,
+              [["PointOnObject", 2, 1, 0], ["PointOnObject", 2, 1, 1], ["TangentViaPoint", 1, 0, 2, 1]],
+              expose=[0], drags=g.drags_of(geo, [1, 2], 2))
+        g.add("malformed: perpendicular line and ellipse, radius of ellipse", [e, line],
+              [["Perpendicular", 1, 0], ["Radius", 0, 4.0]], expose=[0])
+
+    # Arcs of ellipse
+    for k in range(12):
+        a = g.r.uniform(6, 30)
+        b = a * g.r.uniform(0.2, 0.9)
+        ang = g.r.uniform(-pi, pi)
+        u1 = g.r.uniform(-3, 3)
+        u2 = u1 + g.r.uniform(0.5, 5.5)
+        ae = AE(g.jp((0, 0), 10), a, b, ang, u1, u2)
+        s = internal_start([ae], [0])[0]
+        g.add("arc of ellipse, internal geometry, free", [ae], [], expose=[0],
+              drags=[g.drag(5, 0, 1), g.drag(5, 0, 2), g.drag(5, 0, 3), g.drag(5, s, 2)])
+        g.add("arc of ellipse, fully constrained", [ae],
+              [["Coincident", 0, 3, -1, 1], ["Horizontal", s], ["Distance", s, 2 * a], ["Distance", s + 1, 2 * b],
+               ["Distance", 0, 1, 0, 2, a * 0.8], ["PointOnObject", 0, 1, -1]], expose=[0])
+        geo = [ae, L(g.jp((0, 0), 30), g.jp((0, 0), 30))]
+        g.add("arc of ellipse closed by a line", geo, [["Coincident", 0, 1, 1, 2], ["Coincident", 0, 2, 1, 1]],
+              expose=[0], drags=g.drags_of(geo, [0, 1], 3))
+        g.add("arc of ellipse tangent to a line at its end", geo,
+              [["Tangent", 0, 2, 1, 1], ["Distance", 1, 12.0]], expose=[0], drags=g.drags_of(geo, [1], 2))
+        ae2 = AE(g.jp((40, 0), 10), a * 0.7, b * 0.6, g.r.uniform(-pi, pi), 0.5, 2.5)
+        g.add("equal arcs of ellipse, ellipse and arc", [ae, ae2, E(g.jp((0, 50), 5), a, b, 0.3)],
+              [["Equal", 0, 1], ["Equal", 2, 0]], expose=[0, 1, 2])
+        g.add("arc of ellipse ends symmetric about its major axis", [ae],
+              [["Symmetric", 0, 1, 0, 2, s]], expose=[0], drags=[g.drag(5, 0, 3)])
+        g.add("point on an arc of ellipse, block", [ae, P(g.jp((0, 0), 20))],
+              [["PointOnObject", 1, 1, 0], ["Block", 0]], expose=[0], drags=[g.drag(6, 1, 1)])
+        g.add("malformed: angle of an arc of ellipse", [ae], [["Angle", 0, 1.0]], expose=[0])
+
+    # Arcs of hyperbola
+    for k in range(10):
+        a = g.r.uniform(3, 15)
+        b = g.r.uniform(2, 15)
+        ang = g.r.uniform(-pi, pi)
+        u1 = g.r.uniform(-2, 0.5)
+        u2 = u1 + g.r.uniform(0.4, 2.5)
+        ah = AH(g.jp((0, 0), 10), a, b, ang, u1, u2)
+        s = internal_start([ah], [0])[0]  # major, minor, focus
+        g.add("arc of hyperbola, internal geometry, free", [ah], [], expose=[0],
+              drags=[g.drag(4, 0, 1), g.drag(4, 0, 2), g.drag(4, 0, 3), g.drag(4, s + 2, 1)])
+        g.add("arc of hyperbola, constrained", [ah],
+              [["Coincident", 0, 3, -1, 1], ["Horizontal", s], ["Distance", s, a], ["Distance", s + 1, 2 * b],
+               ["DistanceY", 0, 1, -1, 1, -b]], expose=[0])
+        geo = [ah, L(g.jp((0, 0), 20), g.jp((0, 0), 20))]
+        g.add("arc of hyperbola closed by a line, a point on it", geo + [P(g.jp((a, 0), 3))],
+              [["Coincident", 0, 1, 1, 2], ["Coincident", 0, 2, 1, 1], ["PointOnObject", 2, 1, 0]],
+              expose=[0], drags=g.drags_of(geo, [0, 1], 3))
+        g.add("arc of hyperbola tangent to a line at its start", geo,
+              [["Tangent", 0, 1, 1, 2]], expose=[0], drags=g.drags_of(geo, [0, 1], 2))
+        g.add("equal arcs of hyperbola", [ah, AH(g.jp((40, 0), 5), a + 2, b * 0.8, 0.4, -1.0, 1.0)],
+              [["Equal", 0, 1]], expose=[0, 1])
+
+    # Arcs of parabola
+    for k in range(10):
+        f = g.r.uniform(1, 10)
+        ang = g.r.uniform(-pi, pi)
+        u1 = g.r.uniform(-12, 2)
+        u2 = u1 + g.r.uniform(3, 15)
+        ap = AP(g.jp((0, 0), 10), f, ang, u1, u2)
+        s = internal_start([ap], [0])[0]  # focus point, focal axis line
+        g.add("arc of parabola, internal geometry, free", [ap], [], expose=[0],
+              drags=[g.drag(3, 0, 1), g.drag(3, 0, 2), g.drag(3, 0, 3), g.drag(3, s, 1)])
+        g.add("arc of parabola, constrained", [ap],
+              [["Coincident", 0, 3, -1, 1], ["Vertical", s + 1], ["Distance", s + 1, f + 1.0],
+               ["Distance", 0, 1, 0, 2, 15.0], ["Horizontal", 0, 1, 0, 2]], expose=[0])
+        geo = [ap, L(g.jp((0, 0), 20), g.jp((0, 0), 20))]
+        g.add("arc of parabola closed by a line", geo, [["Coincident", 0, 1, 1, 2], ["Coincident", 0, 2, 1, 1]],
+              expose=[0], drags=g.drags_of(geo, [0, 1], 3))
+        g.add("point on an arc of parabola, tangent line", geo + [P(g.jp((0, 0), 10))],
+              [["PointOnObject", 2, 1, 0], ["Tangent", 1, 2, 0]], expose=[0], drags=g.drags_of(geo, [1], 2))
+        g.add("equal arcs of parabola", [ap, AP(g.jp((30, 0), 5), f * 1.5, 0.2, -5, 5)], [["Equal", 0, 1]],
+              expose=[0, 1])
+
+    # B-splines by control points, clamped, as the B-spline tool makes them (pole circles, the first
+    # weight, equal weights, knot points)
+    for k in range(14):
+        degree = [2, 3, 3, 4][k % 4]
+        n = degree + 1 + g.r.randint(0, 4)
+        pts = [(10.0 * i + g.j(3), g.j(15)) for i in range(n)]
+        bs = BS(pts, degree)
+        s = internal_start([bs], [0])[0]  # n circles, then the knot points
+        knots = len(bs["knots"])
+        g.add(f"B-spline degree {degree}, {n} poles, free", [bs], [], expose=[0],
+              drags=[g.drag(1, s, 3), g.drag(1, s + n - 1, 3), g.drag(1, 0, 0), g.drag(1, 0, 1)])
+        cons = [["DistanceX", s + i, 3, -1, 1, pts[i][0]] for i in range(n)]
+        cons += [["DistanceY", s + i, 3, -1, 1, pts[i][1] + 1.0] for i in range(n)]
+        g.add(f"B-spline degree {degree}, poles placed", [bs], cons, expose=[0])
+        g.add(f"B-spline degree {degree}, rational (weights set)", [bs],
+              [["Weight", s + 1, 2.5], ["Weight", s + n - 2, 0.5]], expose=[0], drop_equal=[s + 1, s + n - 2],
+              drags=[g.drag(1, s + 1, 3)])
+        g.add(f"B-spline degree {degree}, first weight changed (all equal)", [bs], [], expose=[0], weight=2.0,
+              drags=[g.drag(1, s, 0)])
+        line = L(g.jp((pts[0][0] - 15, pts[0][1] - 5), 2), g.jp(pts[0], 2))
+        geo = [bs, line]
+        s = internal_start(geo, [0])[0]
+        g.add(f"B-spline degree {degree}, line tangent at its start", geo,
+              [["Coincident", 1, 2, 0, 1], ["Tangent", 1, 2, 0, 1]], expose=[0], drags=g.drags_of(geo, [1], 2))
+        g.add(f"B-spline degree {degree}, closed by a line", geo,
+              [["Coincident", 1, 2, 0, 1], ["Coincident", 1, 1, 0, 2]], expose=[0], drags=g.drags_of(geo, [0, 1], 2))
+        geo = [bs, P(g.jp(pts[n // 2], 4))]
+        g.add(f"B-spline degree {degree}, point on it", geo, [["PointOnObject", 1, 1, 0]], expose=[0],
+              drags=[g.drag(2, 1, 1)])
+        if knots > 2:
+            kp = s + n + 1  # the second knot point (an interior knot of multiplicity 1)
+            line = L(g.jp(pts[1], 6), g.jp(pts[2], 6))
+            geo = [bs, line]
+            s2 = internal_start(geo, [0])[0]
+            g.add(f"B-spline degree {degree}, line tangent at a knot", geo,
+                  [["Tangent", s2 + n + 1, 1, 1]], expose=[0], drags=g.drags_of(geo, [1], 2))
+        geo = [bs, L(g.jp(pts[-1], 2), g.jp((pts[-1][0] + 10, pts[-1][1]), 2)), P(g.jp(pts[-1], 1))]
+        g.add(f"B-spline degree {degree}, tangent via point", geo,
+              [["PointOnObject", 2, 1, 0], ["PointOnObject", 2, 1, 1], ["TangentViaPoint", 1, 0, 2, 1]],
+              expose=[0])
+        bs2 = BS([(pts[-1][0] + 10.0 * i + g.j(2), g.j(10)) for i in range(degree + 1)], degree)
+        g.add(f"two B-splines tangent end to end", [bs, bs2], [["Tangent", 0, 2, 1, 1]], expose=[0, 1],
+              drags=g.drags_of([bs, bs2], [0, 1], 2))
+        g.add(f"malformed: line tangent to a B-spline", [bs, line], [["Tangent", 1, 0]], expose=[0])
+
+    # Periodic B-splines
+    for k in range(8):
+        degree = [2, 3][k % 2]
+        n = degree + 2 + g.r.randint(0, 4)
+        rad = g.r.uniform(8, 25)
+        pts = [(rad * math.cos(2 * pi * i / n) + g.j(2), rad * math.sin(2 * pi * i / n) + g.j(2)) for i in range(n)]
+        bs = BS(pts, degree, periodic=True)
+        s = internal_start([bs], [0])[0]
+        g.add(f"periodic B-spline degree {degree}, {n} poles, free", [bs], [], expose=[0],
+              drags=[g.drag(1, s, 3), g.drag(1, 0, 0), g.drag(1, s + n, 1)])
+        g.add(f"periodic B-spline degree {degree}, a point on it, a pole placed", [bs, P(g.jp((rad, 0), 3))],
+              [["PointOnObject", 1, 1, 0], ["Coincident", s + 1, 3, -1, 1]], expose=[0], drags=[g.drag(2, 1, 1)])
+        g.add(f"periodic B-spline degree {degree}, without internal geometry", [bs], [], drags=[g.drag(1, 0, 0)])
+
+    # Random sketches mixing the new curves with lines and circles
+    pool = ["Coincident", "PointOnObject", "Tangent", "Equal", "Distance", "Horizontal", "Vertical"]
+    for k in range(30):
+        geo = []
+        for _ in range(g.r.randint(2, 4)):
+            t = g.r.random()
+            c0 = g.jp((0, 0), 30)
+            if t < 0.3:
+                geo.append(L(c0, g.jp((0, 0), 30)))
+            elif t < 0.45:
+                a = g.r.uniform(4, 15)
+                geo.append(E(c0, a, a * g.r.uniform(0.3, 0.9), g.r.uniform(-pi, pi)))
+            elif t < 0.6:
+                a = g.r.uniform(4, 15)
+                u1 = g.r.uniform(-3, 3)
+                geo.append(AE(c0, a, a * g.r.uniform(0.3, 0.9), g.r.uniform(-pi, pi), u1, u1 + g.r.uniform(1, 4)))
+            elif t < 0.7:
+                geo.append(AH(c0, g.r.uniform(3, 10), g.r.uniform(3, 10), g.r.uniform(-pi, pi), -1.0, g.r.uniform(0, 1.5)))
+            elif t < 0.8:
+                geo.append(AP(c0, g.r.uniform(1, 6), g.r.uniform(-pi, pi), -g.r.uniform(2, 8), g.r.uniform(2, 8)))
+            elif t < 0.9:
+                geo.append(BS([g.jp((10.0 * i, 0), 5) for i in range(4)], 3))
+            else:
+                geo.append(C(c0, g.r.uniform(2, 10)))
+        expose = [i for i, x in enumerate(geo) if x["type"] in INTERNAL or x["type"] == "BSplineCurve"
+                  if g.r.random() < 0.6]
+        ends = lambda n: [1, 2] if geo[n]["type"] in ("LineSegment", "ArcOfEllipse", "ArcOfHyperbola",
+                                                       "ArcOfParabola", "BSplineCurve") else [3]
+        cons = []
+        for _ in range(g.r.randint(1, 5)):
+            t = g.r.choice(pool)
+            i, jx = g.r.randrange(len(geo)), g.r.randrange(len(geo))
+            if i == jx:
+                continue
+            if t == "Coincident":
+                cons.append(["Coincident", i, g.r.choice(ends(i)), jx, g.r.choice(ends(jx))])
+            elif t == "PointOnObject":
+                cons.append(["PointOnObject", i, g.r.choice(ends(i)), jx])
+            elif t == "Tangent":
+                if g.r.random() < 0.5:
+                    cons.append(["Tangent", i, jx])
+                else:
+                    cons.append(["Tangent", i, g.r.choice(ends(i)), jx, g.r.choice(ends(jx))])
+            elif t == "Equal":
+                cons.append(["Equal", i, jx])
+            elif t == "Distance":
+                cons.append(["Distance", i, g.r.choice(ends(i)), jx, g.r.choice(ends(jx)), g.r.uniform(2, 20)])
+            elif geo[i]["type"] == "LineSegment":
+                cons.append([t, i])
+        g.add("random conics", geo, cons, expose=expose, drags=g.drags_of(geo, list(range(len(geo))), 2))
+    return g.cases
+
+
+def expand(freecadcmd: str, cases: list[dict]) -> list[dict]:
+    """The cases with the internal geometry FreeCAD exposes: geometry and constraints as FreeCAD made
+    them, then the case's own constraints."""
+    todo = [{"geometry": c["geometry"], "constraints": [], "expose": c["expose"]} for c in cases]
+    built = run_freecad(freecadcmd, todo)
+    out = []
+    for c, b in zip(cases, built):
+        if "error" in b:
+            raise RuntimeError(f"{c['name']}: {b['error']}")
+        geometry = []
+        for x in b["geometry"]:
+            x = {k: v for k, v in x.items() if k not in ("start_point", "end_point")}
+            if not x.get("construction"):
+                x.pop("construction", None)
+            geometry.append(x)
+        drop = set(c["drop_equal"])
+        cons = [k for k in b["constraints"] if not (k[0] == "Equal" and k[1] in drop)]
+        if c["weight"] is not None:
+            cons = [[*k[:2], c["weight"]] if k[0] == "Weight" else k for k in cons]
+        out.append({"name": c["name"], "geometry": geometry, "constraints": cons + c["constraints"],
+                    "drags": c["drags"]})
+    return out
+
+
 # ─── running FreeCAD, and comparing ─────────────────────────────────────────
 
 def run_freecad(freecadcmd: str, cases: list[dict], preload: bool = True) -> list[dict]:
@@ -385,6 +724,12 @@ def ours(case: dict) -> dict:
     return out
 
 
+def _flat(v) -> list:
+    if isinstance(v, list):
+        return [x for item in v for x in _flat(item)]
+    return [v]
+
+
 def diff_geometry(fc: list, me: list, where: str, tol: float) -> list[str]:
     if len(fc) != len(me):
         return [f"{where}: {len(me)} geometries, FreeCAD {len(fc)}"]
@@ -394,12 +739,11 @@ def diff_geometry(fc: list, me: list, where: str, tol: float) -> list[str]:
             out.append(f"{where} geo {i}: {b['type']}, FreeCAD {a['type']}")
             continue
         for key, va in a.items():
-            if key in ("type", "start_point", "end_point"):
+            if key == "type" or (key in ("start_point", "end_point") and key not in b):
                 continue
             vb = b[key]
-            pa = va if isinstance(va, list) else [va]
-            pb = vb if isinstance(vb, list) else [vb]
-            if not all(close(x, y, tol) for x, y in zip(pa, pb)):
+            pa, pb = _flat(va), _flat(vb)
+            if len(pa) != len(pb) or not all(close(x, y, tol) for x, y in zip(pa, pb)):
                 out.append(f"{where} geo {i} {key}: {vb}, FreeCAD {va}")
     return out
 
@@ -438,12 +782,18 @@ def nudged(x, to=math.inf):
     return x
 
 
+SETS = {"": "freecad.json", "conics": "freecad_conics.json"}
+
+
 def main(argv):
     args = [a for a in argv if not a.startswith("--")]
     freecadcmd = args[0] if args else os.environ.get("FREECADCMD")
     if not freecadcmd:
-        sys.exit("usage: make.py <freecadcmd> [--check]   (or set FREECADCMD)")
-    cases = generate()
+        sys.exit("usage: make.py <freecadcmd> [--check] [--set=conics]   (or set FREECADCMD)")
+    which = next((a.split("=", 1)[1] for a in argv if a.startswith("--set=")), "")
+    if which not in SETS:
+        sys.exit(f"--set must be one of {', '.join(k for k in SETS if k)}")
+    cases = expand(freecadcmd, generate_conics()) if which == "conics" else generate()
     n = len(cases)
     answers = run_freecad(freecadcmd, cases + [nudged(c) for c in cases] + [nudged(c, -math.inf) for c in cases])
     # A case whose answer moves by more than TOL when its input moves by one ulp is sensitive to
@@ -452,7 +802,7 @@ def main(argv):
     golden = [{**c, "freecad": answers[i],
                "rounding_sensitive": bool(compare(c, answers[i], answers[n + i]) or compare(c, answers[i], answers[2 * n + i]))}
               for i, c in enumerate(cases)]
-    (HERE / "freecad.json").write_text(
+    (HERE / SETS[which]).write_text(
         "[\n" + ",\n".join(json.dumps(c, separators=(",", ":")) for c in golden) + "\n]\n")
     print(len(golden), "cases,", sum(c["rounding_sensitive"] for c in golden), "sensitive to rounding")
     if "--check" in argv:

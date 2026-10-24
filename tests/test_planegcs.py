@@ -1,7 +1,9 @@
 """The Sketcher's solver (ui/planegcs: FreeCAD's PlaneGCS and a port of its Sketch.cpp) against FreeCAD.
 
-tests/golden/sketcher/freecad.json holds FreeCAD 26.3's answers (3160daf1e2b6) for 971 sketches, made by
-tests/golden/sketcher/make.py in a Sketcher::SketchObject: solve()'s status, the DoF, the conflicting,
+tests/golden/sketcher/freecad.json holds FreeCAD 26.3's answers (3160daf1e2b6) for 971 sketches of lines,
+circles, arcs and points, and freecad_conics.json for 522 of ellipses, arcs of ellipse, hyperbola and
+parabola and B-splines (clamped, rational, periodic) with the internal geometry FreeCAD exposes for them,
+made by tests/golden/sketcher/make.py (--set=conics for the second) in a Sketcher::SketchObject: solve()'s status, the DoF, the conflicting,
 redundant, partially redundant and malformed constraints, the geometry and every constraint's value
 after solving and after each drag (moveGeometry). Both builds are held to them:
 
@@ -37,7 +39,8 @@ spec = importlib.util.spec_from_file_location("sketcher_make", GOLDEN / "make.py
 make = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(make)
 
-CASES = json.loads((GOLDEN / "freecad.json").read_text())
+SETS = {"lines and arcs": "freecad.json", "conics and B-splines": "freecad_conics.json"}
+GOLDENS = {name: json.loads((GOLDEN / file).read_text()) for name, file in SETS.items()}
 DIAGNOSIS = ("status", "dof", "conflicting", "redundant", "partially_redundant", "malformed")
 
 
@@ -62,39 +65,59 @@ def native():
     return lib
 
 
-def check(answers, label):
-    bad, diagnosis = [], []
-    for case, me in zip(CASES, answers):
+def check(cases, answers, label, free_share=0.0):
+    """Every case to FreeCAD's answer, but the rounding-sensitive ones to its diagnosis only. With
+    free_share, up to that share of the cases may also land elsewhere where FreeCAD's sketch is
+    under-constrained (DoF > 0), its diagnosis the same: there the point the solver stops at along
+    the free motion depends on its path, which a last-bit difference in sin and cos changes."""
+    bad, diagnosis, free = [], [], []
+    for case, me in zip(cases, answers):
         fc = case["freecad"]
         diffs = make.compare(case, fc, me)
         if not diffs:
             continue
-        if case["rounding_sensitive"] and "error" not in fc and "error" not in me:
+        if "error" not in fc and "error" not in me:
             d = [k for k in DIAGNOSIS if fc[k] != me[k]]
             if d:
                 diagnosis.append(f"{case['name']}: {d}")
-            continue
+                continue
+            if case["rounding_sensitive"]:
+                continue
+            if free_share and fc["dof"] > 0:
+                free.append(case["name"])
+                continue
         bad.append(case["name"] + "\n    " + "\n    ".join(diffs[:6]))
     assert not bad, f"{label}: {len(bad)} sketches differ from FreeCAD:\n" + "\n".join(bad[:20])
     assert not diagnosis, f"{label}: diagnosis differs:\n" + "\n".join(diagnosis[:20])
+    assert len(free) <= free_share * len(cases), (
+        f"{label}: {len(free)} under-constrained sketches land elsewhere than FreeCAD's:\n" + "\n".join(free))
 
 
-def test_native_agrees_with_freecad(native):
-    check([make.ours(case) for case in CASES], "native")
+@pytest.mark.parametrize("which", SETS)
+def test_native_agrees_with_freecad(native, which):
+    cases = GOLDENS[which]
+    check(cases, [make.ours(case) for case in cases], f"native, {which}")
 
 
-def test_native_is_exact_where_it_can_be(native):
+@pytest.mark.parametrize("which, share", [("lines and arcs", 0.75), ("conics and B-splines", 0.5)])
+def test_native_is_exact_where_it_can_be(native, which, share):
     # With Eigen 5.0.0 and glibc, FreeCAD's own build, every answer is FreeCAD's to the bit. Another libm
-    # or CPU may round sin, cos and atan2 differently in the last bit, so this one only counts.
-    exact = sum(not make.compare(c, c["freecad"], make.ours(c), tol=0.0) for c in CASES)
-    assert exact >= len(CASES) * 0.75, f"only {exact} of {len(CASES)} sketches agree with FreeCAD bit for bit"
+    # or CPU may round sin, cos and atan2 differently in the last bit, so this one only counts. A
+    # B-spline's points are OpenCascade's de Boor evaluation in FreeCAD and GCS's here, and a projection
+    # onto it (closestParameter) is found by another method, so fewer of those agree to the bit.
+    cases = GOLDENS[which]
+    exact = sum(not make.compare(c, c["freecad"], make.ours(c), tol=0.0) for c in cases)
+    assert exact >= len(cases) * share, f"only {exact} of {len(cases)} sketches agree with FreeCAD bit for bit"
 
 
 @pytest.mark.skipif(not shutil.which("node"), reason="node is not installed: the WebAssembly build is not checked")
-def test_wasm_agrees_with_freecad():
-    r = subprocess.run(["node", str(GOLDEN / "ours_wasm.mjs"), str(GOLDEN / "freecad.json")],
+@pytest.mark.parametrize("which", SETS)
+def test_wasm_agrees_with_freecad(which):
+    r = subprocess.run(["node", str(GOLDEN / "ours_wasm.mjs"), str(GOLDEN / SETS[which])],
                        capture_output=True, text=True, check=True, cwd=ROOT)
-    check(json.loads(r.stdout), "wasm")
+    # the conics' arithmetic (ElCLib, GCS's derivatives) calls sin, cos, sinh and cosh far more than
+    # lines and arcs do, and musl's (the wasm build's) round differently from glibc's
+    check(GOLDENS[which], json.loads(r.stdout), f"wasm, {which}", free_share=0.02 if "conics" in which else 0.0)
 
 
 def test_wasm_size():
@@ -163,7 +186,7 @@ def test_errors(native):
     with pytest.raises(ValueError, match="invalid index"):
         native.solve({"geometry": [{"type": "Point", "at": [0, 0]}], "constraints": [["Horizontal", 5]]})
     with pytest.raises(ValueError, match="unsupported geometry"):
-        native.solve({"geometry": [{"type": "Ellipse"}], "constraints": []})
+        native.solve({"geometry": [{"type": "Hyperbola"}], "constraints": []})
     r = native.solve({"geometry": [{"type": "LineSegment", "start": [0, 0], "end": [1, 0]}],
                       "constraints": [{"type": "Radius", "args": [0], "value": 2.0}]})
     assert r["status"] == "malformed" and r["malformed"] == [0]

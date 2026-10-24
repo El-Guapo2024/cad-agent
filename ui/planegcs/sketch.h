@@ -9,10 +9,14 @@
 // What changes from FreeCAD: Part::Geometry (OpenCascade) is replaced by Sketcher::Geometry, which
 // keeps the same numbers OpenCascade would (a line segment is a point, a unit direction and a
 // trim range; an arc's trim range is normalised as Geom_TrimmedCurve::SetTrim does), and
-// Base::Console logging is dropped. Scope: Point, LineSegment, Circle, ArcOfCircle; constraints
-// Coincident, Horizontal, Vertical, Parallel, Perpendicular, Tangent, Distance, DistanceX,
-// DistanceY, Radius, Diameter, Angle, Equal, PointOnObject, Symmetric, Block, driving or not.
-// Ellipses, conics, B-splines, internal alignment, Snell's law, groups and text are not ported.
+// Base::Console logging is dropped. Scope: Point, LineSegment, Circle, ArcOfCircle, Ellipse,
+// ArcOfEllipse, ArcOfHyperbola, ArcOfParabola and BSplineCurve (OpenCascade's numbers for the
+// conics: gp_Ax2's directions, ElCLib's values, Geom_TrimmedCurve's trims and reversal; for the
+// B-spline: Geom_BSplineCurve's poles, weights (rational only while they differ), knots and
+// multiplicities); constraints Coincident, Horizontal, Vertical, Parallel, Perpendicular, Tangent
+// (with B-spline knot tangency), Distance, DistanceX, DistanceY, Radius, Diameter, Weight, Angle,
+// Equal, PointOnObject (B-splines too), Symmetric, SnellsLaw, InternalAlignment (every alignment
+// type), Block, driving or not. Groups and text are not ported.
 #pragma once
 
 #include <map>
@@ -100,6 +104,46 @@ struct ConstraintOrientation
     }
 };
 
+// Constraint.h
+enum InternalAlignmentType : int
+{
+    Undef = 0,
+    EllipseMajorDiameter = 1,
+    EllipseMinorDiameter = 2,
+    EllipseFocus1 = 3,
+    EllipseFocus2 = 4,
+    HyperbolaMajor = 5,
+    HyperbolaMinor = 6,
+    HyperbolaFocus = 7,
+    ParabolaFocus = 8,
+    BSplineControlPoint = 9,
+    BSplineKnotPoint = 10,
+    ParabolaFocalAxis = 11,
+    NumInternalAlignmentType  // must be the last item!
+};
+
+// SketchGeometryExtension.h: the internal type a geometry gets from its InternalAlignment
+// constraint (SketchObject::addGeometryState), with the same numbers as InternalAlignmentType.
+namespace InternalType
+{
+enum InternalType : int
+{
+    None = 0,
+    EllipseMajorDiameter = 1,
+    EllipseMinorDiameter = 2,
+    EllipseFocus1 = 3,
+    EllipseFocus2 = 4,
+    HyperbolaMajor = 5,
+    HyperbolaMinor = 6,
+    HyperbolaFocus = 7,
+    ParabolaFocus = 8,
+    BSplineControlPoint = 9,
+    BSplineKnotPoint = 10,
+    ParabolaFocalAxis = 11,
+    NumInternalGeometryType  // Must be the last
+};
+}  // namespace InternalType
+
 struct Constraint
 {
     ConstraintType Type = None;
@@ -114,6 +158,8 @@ struct Constraint
     PointPos ThirdPos = PointPos::none;
     bool isDriving = true;
     bool isActive = true;
+    InternalAlignmentType AlignmentType = Undef;
+    int InternalAlignmentIndex = -1;
 
     void setValue(double v)
     {
@@ -137,11 +183,47 @@ struct GeometryError: std::runtime_error
     using std::runtime_error::runtime_error;
 };
 
-// Stand-in for Part::GeomPoint / GeomLineSegment / GeomCircle / GeomArcOfCircle in the sketch's
-// XY plane, with the arithmetic OpenCascade uses for them (gp_Lin, gp_Circ, Geom_TrimmedCurve).
+// Stand-in for Part::GeomPoint / GeomLineSegment / GeomCircle / GeomArcOfCircle / GeomEllipse /
+// GeomArcOfEllipse / GeomArcOfHyperbola / GeomArcOfParabola / GeomBSplineCurve in the sketch's XY
+// plane, with the arithmetic OpenCascade uses for them (gp_Lin, gp_Circ, gp_Elips, gp_Hypr,
+// gp_Parab, gp_Ax2, ElCLib, Geom_TrimmedCurve, Geom_BSplineCurve).
 struct Vec
 {
     double x = 0.0, y = 0.0;
+};
+
+// gp_XYZ, for gp_Dir and gp_Ax2: the conics' in-plane directions come from cross products with
+// their normal, as OpenCascade computes them.
+struct V3
+{
+    double x = 0.0, y = 0.0, z = 0.0;
+};
+
+// gp_Ax2: location, main direction (the normal) and X and Y directions, as gp_Ax2() makes them.
+struct Ax2
+{
+    V3 loc;
+    V3 n {0.0, 0.0, 1.0};
+    V3 vx {1.0, 0.0, 0.0};
+    V3 vy {0.0, 1.0, 0.0};
+    void setXDirection(const V3& dir);  // gp_Ax2::SetXDirection (dir is a gp_Dir)
+    void setDirection(const V3& dir);   // gp_Ax2::SetDirection (dir is a gp_Dir)
+};
+
+// gp_Dir(x, y, z): the vector normalised; GeometryError where OpenCascade raises
+// Standard_ConstructionError (a null vector).
+V3 makeDir(double x, double y, double z);
+
+// The B-spline's data as Geom_BSplineCurve keeps it: weights is empty while the curve is not
+// rational (Weights() then reads 1.0 for every pole).
+struct BSplineData
+{
+    std::vector<Vec> poles;
+    std::vector<double> weights;
+    std::vector<double> knots;
+    std::vector<int> mults;
+    int degree = 0;
+    bool periodic = false;
 };
 
 class Geometry
@@ -152,7 +234,12 @@ public:
         Point,
         LineSegment,
         Circle,
-        ArcOfCircle
+        ArcOfCircle,
+        Ellipse,
+        ArcOfEllipse,
+        ArcOfHyperbola,
+        ArcOfParabola,
+        BSplineCurve
     };
 
     static Geometry makePoint(Vec p);
@@ -161,10 +248,31 @@ public:
     static Geometry makeCircle(Vec center, double radius);
     // Geom_TrimmedCurve(circle, u1, u2): the range is normalised as SetTrim does.
     static Geometry makeArcOfCircle(Vec center, double radius, double u1, double u2);
+    // Part.Ellipse(center, major, minor) (gp_Ax2(center, +Z)), then .XAxis = xaxis
+    static Geometry makeEllipse(Vec center, double major, double minor, Vec xaxis);
+    // Part.ArcOfEllipse(that ellipse, u1, u2)
+    static Geometry makeArcOfEllipse(Vec center, double major, double minor, Vec xaxis, double u1, double u2);
+    // Part.Hyperbola() with .Center, .MajorRadius, .MinorRadius, .XAxis set in that order, then
+    // Part.ArcOfHyperbola(it, u1, u2)
+    static Geometry makeArcOfHyperbola(Vec center, double major, double minor, Vec xaxis, double u1, double u2);
+    // Part.Parabola() with .Center (its vertex), .Focal, .XAxis, then Part.ArcOfParabola(it, u1, u2)
+    static Geometry makeArcOfParabola(Vec vertex, double focal, Vec xaxis, double u1, double u2);
+    // Part.BSplineCurve(poles, mults, knots, periodic, degree, weights) (Geom_BSplineCurve's checks)
+    static Geometry makeBSpline(BSplineData data);
 
     Kind kind = Point;
     bool construction = false;
     bool blocked = false;  // GeometryFacade::getBlocked (set by a Block constraint)
+    InternalType::InternalType internalType = InternalType::None;  // GeometryFacade::getInternalType
+
+    bool isConic() const
+    {
+        return kind == Ellipse || kind == ArcOfEllipse || kind == ArcOfHyperbola || kind == ArcOfParabola;
+    }
+    bool isTrimmedConic() const
+    {
+        return kind == ArcOfEllipse || kind == ArcOfHyperbola || kind == ArcOfParabola;
+    }
 
     // Point
     Vec getPoint() const
@@ -175,17 +283,25 @@ public:
     {
         p = v;
     }
-    // LineSegment / ArcOfCircle
-    Vec getStartPoint() const;
-    Vec getEndPoint() const;
+    // LineSegment / the arcs / BSplineCurve (GeomBoundedCurve::getStartPoint); emulateCCWXY as
+    // GeomArcOfConic's (the arc's normal is +Z here unless OpenCascade reversed it)
+    Vec getStartPoint(bool emulateCCWXY = false) const;
+    Vec getEndPoint(bool emulateCCWXY = false) const;
     void setPoints(Vec start, Vec end);  // GeomLineSegment::setPoints
-    // Circle / ArcOfCircle
+    // Circle / ArcOfCircle; for the conics their location (GeomConic::getCenter, a parabola's vertex)
     Vec getCenter() const
     {
+        if (isConic()) {
+            return {pos.loc.x, pos.loc.y};
+        }
         return p;
     }
     void setCenter(Vec c)
     {
+        if (isConic()) {
+            pos.loc = V3 {c.x, c.y, 0.0};  // Geom_Conic::SetLocation
+            return;
+        }
         p = c;
     }
     double getRadius() const
@@ -213,11 +329,74 @@ public:
     }
     void setRange(double u, double v);
 
+    // Ellipse / ArcOfEllipse / ArcOfHyperbola
+    double getMajorRadius() const
+    {
+        return majR;
+    }
+    double getMinorRadius() const
+    {
+        return minR;
+    }
+    void setMajorRadius(double radius);  // gp_Elips / gp_Hypr::SetMajorRadius
+    void setMinorRadius(double radius);  // gp_Elips / gp_Hypr::SetMinorRadius
+    // the X direction (major axis, or towards a parabola's focus)
+    Vec getMajorAxisDir() const
+    {
+        return {pos.vx.x, pos.vx.y};
+    }
+    const Ax2& getPosition() const
+    {
+        return pos;
+    }
+    // GeomEllipse::setMajorAxisDir / GeomArcOfConic::setXAxisDir (a null vector keeps the axis)
+    void setMajorAxisDir(Vec dir);
+    // ArcOfParabola
+    double getFocal() const
+    {
+        return focal;
+    }
+    void setFocal(double f);  // gp_Parab::SetFocal
+    Vec getFocus() const;     // Geom_Parabola::Focus
+    // the conic arcs' getRange/setRange(u, v, emulateCCWXY=true); for a hyperbola or a parabola
+    // these may reverse the basis curve, as GeomArcOfHyperbola/Parabola's do
+    void getConicRange(double& u, double& v);
+    void setConicRange(double u, double v);
+    bool isReversed() const
+    {
+        return pos.n.z < 0;
+    }
+    // ElCLib's value of the basis conic at u
+    Vec conicValue(double u) const;
+
+    // BSplineCurve
+    const BSplineData& bspline() const
+    {
+        return bsp;
+    }
+    std::vector<double> getWeights() const;  // Geom_BSplineCurve::Weights
+    // GeomBSplineCurve::setPoles(poles, weights), workAroundOCCTBug included
+    void setPoles(const std::vector<Vec>& poles, const std::vector<double>& weights);
+    Vec bsplineValue(double u) const;
+    void bsplineD1(double u, Vec& value, Vec& tangent) const;
+    double bsplineFirstParameter() const;
+    double bsplineLastParameter() const;
+    // GeomCurve::closestParameter (GeomAPI_ProjectPointOnCurve's lowest-distance parameter)
+    double closestParameter(Vec point) const;
+
 private:
     Vec p;         // point, line location, circle centre
     Vec dir;       // line direction (unit)
     double r = 0;  // radius
     double u1 = 0, u2 = 0;  // trim parameters of a line or arc
+    Ax2 pos;                // a conic's position
+    double majR = 0, minR = 0, focal = 0;
+    BSplineData bsp;
+
+    void setWeight(int index, double w);  // Geom_BSplineCurve::SetWeight (index from 0)
+    void setTrimConic(double U1, double U2, bool sense, bool adjustPeriodic);  // Geom_TrimmedCurve::SetTrim
+    void reverseTrimmed();  // Geom_TrimmedCurve::Reverse
+    void reverseBasis();    // Geom_Conic::Reverse
 };
 
 class Sketch
@@ -361,8 +540,38 @@ public:
     int addPointOnObjectConstraint(int geoId1, PointPos pos1, int geoId2, bool driving = true);
     int addSymmetricConstraint(int geoId1, PointPos pos1, int geoId2, PointPos pos2, int geoId3);
     int addSymmetricConstraint(int geoId1, PointPos pos1, int geoId2, PointPos pos2, int geoId3, PointPos pos3);
+    int addPointOnObjectConstraint(int geoId1, PointPos pos1, int geoId2, double* pointparam, bool driving = true);
+    int addTangentLineAtBSplineKnotConstraint(int checkedlinegeoId, int checkedbsplinegeoId, int checkedknotgeoid);
+    int addTangentLineEndpointAtBSplineKnotConstraint(
+        int checkedlinegeoId,
+        PointPos endpointPos,
+        int checkedbsplinegeoId,
+        int checkedknotgeoid
+    );
+    int addSnellsLawConstraint(
+        int geoIdRay1,
+        PointPos posRay1,
+        int geoIdRay2,
+        PointPos posRay2,
+        int geoIdBnd,
+        double* value,
+        double* second,
+        bool driving = true
+    );
+    int addInternalAlignmentEllipseMajorDiameter(int geoId1, int geoId2);
+    int addInternalAlignmentEllipseMinorDiameter(int geoId1, int geoId2);
+    int addInternalAlignmentEllipseFocus1(int geoId1, int geoId2);
+    int addInternalAlignmentEllipseFocus2(int geoId1, int geoId2);
+    int addInternalAlignmentHyperbolaMajorDiameter(int geoId1, int geoId2);
+    int addInternalAlignmentHyperbolaMinorDiameter(int geoId1, int geoId2);
+    int addInternalAlignmentHyperbolaFocus(int geoId1, int geoId2);
+    int addInternalAlignmentParabolaFocus(int geoId1, int geoId2);
+    int addInternalAlignmentParabolaFocalDistance(int geoId1, int geoId2);
+    int addInternalAlignmentBSplineControlPoint(int geoId1, int geoId2, int poleindex);
+    int addInternalAlignmentKnotPoint(int geoId1, int geoId2, int knotindex);
 
     double calculateAngleViaPoint(int geoId1, int geoId2, double px, double py);
+    double calculateAngleViaParams(int geoId1, int geoId2, double param1, double param2);
 
     int getGeometrySize() const
     {
@@ -372,10 +581,16 @@ public:
     enum GeoType
     {
         None = 0,
-        Point = 1,   // 1 Point(start), 2 Parameters(x,y)
-        Line = 2,    // 2 Points(start,end), 4 Parameters(x1,y1,x2,y2)
-        Arc = 3,     // 3 Points(start,end,mid), (4)+5 Parameters((x1,y1,x2,y2),x,y,r,a1,a2)
-        Circle = 4,  // 1 Point(mid), 3 Parameters(x,y,r)
+        Point = 1,    // 1 Point(start), 2 Parameters(x,y)
+        Line = 2,     // 2 Points(start,end), 4 Parameters(x1,y1,x2,y2)
+        Arc = 3,      // 3 Points(start,end,mid), (4)+5 Parameters((x1,y1,x2,y2),x,y,r,a1,a2)
+        Circle = 4,   // 1 Point(mid), 3 Parameters(x,y,r)
+        Ellipse = 5,  // 1 Point(mid), 5 Parameters(x,y,r1,r2,phi)
+                      // phi=angle xaxis of ellipse with respect of sketch xaxis
+        ArcOfEllipse = 6,
+        ArcOfHyperbola = 7,
+        ArcOfParabola = 8,
+        BSpline = 9
     };
 
     GCS::Algorithm defaultSolver;
@@ -441,6 +656,15 @@ private:
     std::vector<GCS::Line> Lines;
     std::vector<GCS::Arc> Arcs;
     std::vector<GCS::Circle> Circles;
+    std::vector<GCS::Ellipse> Ellipses;
+    std::vector<GCS::ArcOfEllipse> ArcsOfEllipse;
+    std::vector<GCS::ArcOfHyperbola> ArcsOfHyperbola;
+    std::vector<GCS::ArcOfParabola> ArcsOfParabola;
+    std::vector<GCS::BSpline> BSplines;
+
+    // InternalAlignment constraints: the aligned geometry's geoId -> its parent's geoId
+    std::map<int, int> internalAlignmentGeometryMap;
+    void buildInternalAlignmentGeometryMap(const std::vector<Constraint*>& constraintList);
 
     bool isInitMove;
     Vec initToPoint;
@@ -454,6 +678,11 @@ private:
     void updateLineSegment(GeoDef&);
     void updateArcOfCircle(GeoDef&);
     void updateCircle(GeoDef&);
+    void updateArcOfEllipse(GeoDef&);
+    void updateArcOfHyperbola(GeoDef&);
+    void updateArcOfParabola(GeoDef&);
+    void updateEllipse(GeoDef&);
+    void updateBSpline(GeoDef&);
     bool updateNonDrivingConstraints();
     void calculateDependentParametersElements();
     void clearTemporaryConstraints();
@@ -466,6 +695,11 @@ private:
     int addLineSegment(const Geometry& lineSegment, bool fixed = false);
     int addArc(const Geometry& circleSegment, bool fixed = false);
     int addCircle(const Geometry& circle, bool fixed = false);
+    int addEllipse(const Geometry& ellipse, bool fixed = false);
+    int addArcOfEllipse(const Geometry& ellipseSegment, bool fixed = false);
+    int addArcOfHyperbola(const Geometry& hyperbolaSegment, bool fixed = false);
+    int addArcOfParabola(const Geometry& parabolaSegment, bool fixed = false);
+    int addBSpline(const Geometry& spline, bool fixed = false);
 
     bool analyseBlockedGeometry(
         const std::vector<Geometry>& internalGeoList,
