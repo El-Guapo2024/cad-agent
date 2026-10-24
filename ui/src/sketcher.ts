@@ -24,6 +24,7 @@ import { drawSketch, type DrawState, type HitRegions, type Screen, SIZES, iconsL
 import { getState, setState, report, saved, type Workbench } from './store'
 import { getView, showPanel, closeTask, setEditHistory } from './actions'
 import { api } from './api'
+import { applyOps } from './partdesign'
 import { userString } from './quantity'
 import type { NavEvent, V2 } from './nav'
 import { isMac } from './nav'
@@ -1086,15 +1087,12 @@ export async function saveSketch(part: string | null, name: string, sketch: Sket
   const slug = getState().slug
   pending.set(name, sketch)
   if (!slug || !part) { report('err', `${name}: the sketch is in no part yet, so it was not saved. It is kept in memory until this page closes.`); return false }
-  try {
-    await api.features(slug, part, [{ op: 'set', name, props: { geometry: sketch.geometry, constraints: sketch.constraints } }])
-    pending.delete(name)
-    report('msg', `${name} saved in parts/${part}.py`)
-    return true
-  } catch (e) {
-    report('err', `Recompute failed! Please check report view.\n${name}: could not save into parts/${part}.py: ${e instanceof Error ? e.message : String(e)}. The edit is kept in memory.`)
-    return false
-  }
+  // partdesign.tsx applyOps: one undo step ("Edit Sketch"), the part rebuilt before the edit is kept; it says in the
+  // Report view what went wrong, and then the edit stays in memory
+  const doc = await applyOps(part, [{ op: 'set', name, props: { geometry: sketch.geometry, constraints: sketch.constraints } }], { name: 'Edit Sketch' })
+  if (!doc) { report('err', `${name}: the sketch was not saved into parts/${part}.py; the edit is kept in memory.`); return false }
+  pending.delete(name)
+  return true
 }
 /** The sketch that was last in edit, as it was left: what Sketcher_EditSketch opens again while the tree has no sketches. */
 let lastClosed: SketchRef | null = null

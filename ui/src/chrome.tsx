@@ -58,6 +58,7 @@ import {
 } from './commands'
 import { SCHEMAS, userString } from './quantity'
 import { approveRenders } from './agentwb'
+import { deleteFeatures, partDesignMenu, pdToolbars, sketchMenu } from './partdesign'
 
 /** FreeCAD's standard views and their keys (CommandView.cpp), plus each one's own command id
  *  (StdCmdViewFront etc. are separate commands, not one parameterised command) for cmdreg.ts and
@@ -230,10 +231,10 @@ export function objectEntries(): Entry[] {
 }
 /** Std_Expressions (the "Expression Actions" submenu of the tree's and the document's menus). Parameters here are plain numbers, so there are no
  *  expressions to copy or paste. */
-const expressionActions = (): Entry => ({ label: 'Expression Actions', sub: ['Copy Selected', 'Copy Active Document', 'Copy All Documents', 'Paste'].map((label): Entry => (
+export const expressionActions = (): Entry => ({ label: 'Expression Actions', sub: ['Copy Selected', 'Copy Active Document', 'Copy All Documents', 'Paste'].map((label): Entry => (
   { label, disabled: true, title: 'n/a: the parameters here are plain numbers; there are no expressions to copy or paste' })) })
 /** Workbench::createLinkMenu: "Link Actions" (Std_LinkMakeGroup with its three kinds, Std_LinkMake) — no App::Links here. */
-const linkActions = (): Entry => ({ label: 'Link Actions', sub: [
+export const linkActions = (): Entry => ({ label: 'Link Actions', sub: [
   { label: 'Link Group', sub: ['Simple Group', 'Group With Links', 'Group With Transform Links'].map((label): Entry => ({ label, disabled: true, title: LINK_NA })) },
   { label: 'Make Link', icon: 'link', disabled: true, title: LINK_NA }] })
 /** The tree's menu (TreeWidget::contextMenuEvent, Tree.cpp, as the real FreeCAD puts it up): on an object, its own action first, the
@@ -420,6 +421,7 @@ export function MenuBar() {
   const slug = useStore((s) => s.slug), selected = useStore((s) => s.selected)
   // while a sketch is in edit, Undo and Redo work on its own steps (actions.ts setEditHistory)
   const editHistory = useStore((s) => s.editHistory)
+  useStore((s) => s.featSel); useStore((s) => s.features); useStore((s) => s.activeBody)
   const undo = useStore((s) => s.undo), redo = useStore((s) => s.redo)
   const undoList = editHistory?.undo ?? undo, redoList = editHistory?.redo ?? redo
   useStore((s) => s.ortho); useStore((s) => s.drawStyle); useStore((s) => s.cube); useStore((s) => s.hidden)
@@ -447,7 +449,9 @@ export function MenuBar() {
         { label: 'Copy', kbd: '⌘C', icon: 'edit-copy', cmd: 'Std_Copy', disabled: !selected.length, onSelect: copySelection, title: 'Copies the selection to the clipboard' },
         { label: 'Paste', kbd: '⌘V', icon: 'edit-paste', disabled: true, title: 'n/a: parts are source code; adding one is an edit to it' },
         { label: 'Duplicate Selection', icon: 'duplicate', disabled: true, title: 'n/a: parts are source code; duplicating one is an edit to it' },
-        { label: 'Delete', kbd: '⌫', icon: 'edit-delete', disabled: true, title: 'n/a: parts are source code; deleting one is an edit to it' },
+        // Std_Delete: a Body's features (partdesign.tsx), with FreeCAD's dependency warning; a part is its source code
+        getState().featSel.length ? { label: 'Delete', kbd: '⌫', icon: 'edit-delete', cmd: 'Std_Delete', onSelect: () => void deleteFeatures() }
+          : { label: 'Delete', kbd: '⌫', icon: 'edit-delete', disabled: true, title: 'n/a: parts are source code; deleting one is an edit to it' },
         'sep',
         { label: 'Recompute', kbd: '⌘R', icon: 'recompute', cmd: 'Std_Refresh', onSelect: runCheck },
         { label: 'Box Selection', kbd: '⇧B', icon: 'box-select', cmd: 'Std_BoxSelection', onSelect: boxSelection },
@@ -504,7 +508,7 @@ export function MenuBar() {
         'sep',
         // StdCmdWorkbench: the enabled workbenches by menu text, W, 1 … W, 9 for the first nine.
         { label: 'Workbench', sub: workbenchList().map(([k, w], i): Entry => ({ label: w.label, icon: w.icon, kbd: i < 9 ? `W, ${i + 1}` : undefined, checked: wb === k, onSelect: () => setState({ workbench: k }) })) },
-        { label: 'Toolbars', sub: [...TOOLBARS.filter((t) => t !== 'CAD Agent' || wb === 'agent').map((t): Entry => ({ label: t, checked: toolbarOn(toolbars, t), onSelect: () => setToolbar(t, !toolbarOn(toolbars, t)) })),
+        { label: 'Toolbars', sub: [...TOOLBARS.filter((t) => !WB_TOOLBARS[t] || WB_TOOLBARS[t] === wb).map((t): Entry => ({ label: t, checked: toolbarOn(toolbars, t), onSelect: () => setToolbar(t, !toolbarOn(toolbars, t)) })),
           ...getState().customToolbars.map((t, k) => [t, k] as const).filter(([t]) => t.wb === 'Global' || t.wb === wb).map(([t, k]): Entry => ({ label: t.name, checked: t.active, onSelect: () => { const customToolbars = getState().customToolbars.map((x, j) => (j === k ? { ...x, active: !x.active } : x)); saved.set('customToolbars', customToolbars); setState({ customToolbars }) } })),
           'sep', { label: 'Lock Toolbars', cmd: 'Std_ToggleToolBarLock', checked: getState().toolbarLock, onSelect: () => { const v = !getState().toolbarLock; setState({ toolbarLock: v }); saved.set('toolbarLock', v) } }] },
         { label: 'Panels', sub: PANELS.map(([id, label]): Entry => ({ label, onSelect: () => showPanel(id) })) },
@@ -578,6 +582,8 @@ export function MenuBar() {
       {wb === 'agent' && <Menu label="CAD Agent" entries={agentEntries(slug)} />}
       {/* Sketcher's Workbench::setupMenuBar: "S&ketch", inserted before Windows the same way. */}
       {wb === 'sketcher' && <Menu label="Sketch" entries={sketchMenuEntries()} />}
+      {/* PartDesignGui::Workbench::setupMenuBar: "&Sketch" then "&Part Design", inserted before Windows */}
+      {wb === 'design' && <><Menu label="Sketch" entries={sketchMenu()} /><Menu label="Part Design" entries={partDesignMenu()} /></>}
       <Menu label="Windows" entries={windowsEntries()} />
       <Menu label="Help" entries={[
         { label: "What's This?", kbd: '⇧F1', icon: 'whats-this', onSelect: whatsThis },
@@ -778,7 +784,11 @@ function UndoRedoButton({ kind }: { kind: 'undo' | 'redo' }) {
  *  Individual Views, Structure, Help), each shown per View > Toolbars. */
 /** StdWorkbench::setupToolBars, then the workbench's own (Workbench.cpp; the dump in
  *  scripts/fcgui.py): Clipboard, Macro and Individual Views start hidden (DefaultVisibility::Hidden). */
-export const TOOLBARS = ['File', 'Edit', 'Clipboard', 'Workbench', 'Macro', 'View', 'Individual Views', 'Structure', 'Help', 'CAD Agent', 'Part Tools'] as const
+export const TOOLBARS = ['File', 'Edit', 'Clipboard', 'Workbench', 'Macro', 'View', 'Individual Views', 'Structure', 'Help', 'CAD Agent', 'Part Tools',
+  'Part Design Helper Features', 'Part Design Modeling Features', 'Part Design Dress-Up Features', 'Part Design Transformation Features'] as const
+/** A workbench's own toolbars, listed in View > Toolbars only while it is active. */
+const WB_TOOLBARS: Record<string, string> = { 'CAD Agent': 'agent', 'Part Design Helper Features': 'design', 'Part Design Modeling Features': 'design',
+  'Part Design Dress-Up Features': 'design', 'Part Design Transformation Features': 'design' }
 const HIDDEN_TOOLBARS: readonly string[] = ['Clipboard', 'Macro', 'Individual Views']
 const toolbarOn = (shown: Record<string, boolean>, name: string) => shown[name] ?? !HIDDEN_TOOLBARS.includes(name)
 /** QToolBar::handle: the 8px grip each toolbar starts with (FreeCAD.qss), gone when locked. */
@@ -788,7 +798,7 @@ const EntryBtn = ({ e }: { e: Entry }) => e === 'sep' ? <TSep /> : <Btn icon={e.
 export function ToolBar() {
   const wb = useStore((s) => s.workbench), wbPrefs = useStore((s) => s.wbPrefs), slug = useStore((s) => s.slug), lock = useStore((s) => s.toolbarLock)
   const selected = useStore((s) => s.selected), busy = useStore((s) => s.busy), subSel = useStore((s) => s.subSel), shown = useStore((s) => s.toolbars)
-  useStore((s) => s.recordingMacro)
+  useStore((s) => s.recordingMacro); useStore((s) => s.featSel); useStore((s) => s.features)
   const customToolbars = useStore((s) => s.customToolbars), macroCommands = useStore((s) => s.macroCommands)
   const one = selected.length === 1 ? selected[0] : null
   const on = (name: (typeof TOOLBARS)[number]) => toolbarOn(shown, name)
@@ -865,6 +875,9 @@ export function ToolBar() {
         <TSep />
         <Btn icon="help" title="Every registered check and what it verifies" cmd="CADAgent_Rules" onClick={() => openTask('rules', '')} />
       </>}
+      {/* PartDesignGui::Workbench::setupToolBars: its four toolbars, button by button */}
+      {wb === 'design' && pdToolbars().filter(([t]) => on(t as (typeof TOOLBARS)[number])).map(([t, es]) => (
+        <span key={t} className="tb-group" title={t}><TGrip />{es.map((e, i) => <EntryBtn key={i} e={e} />)}</span>))}
       {on('Part Tools') && <><TGrip />
         <Btn icon="visibility" cmd="Std_ToggleVisibility" disabled={!selected.length} onClick={() => toggleVisibility()} />
         {wb === 'design' && <Btn icon="body" cmd="Std_Edit" disabled={!one} onClick={() => one && editDefault(one)} />}

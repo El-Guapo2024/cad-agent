@@ -46,5 +46,16 @@ qss-*.svg: FreeCAD's stylesheet indicator and scroll-bar arrow images, src/Gui/S
 The Sketcher's icons are in `sketcher/`: every SVG of `src/Mod/Sketcher/Gui/Resources/icons` (its `constraints/`,
 `elements/`, `general/`, `geometry/`, `overlay/`, `pointers/`, `splines/`, `tools/` and `dialogs/` folders, flattened) at
 3160daf1e2b6, unmodified. They are FreeCAD LGPL2+ as their metadata states, or carry no licence and come under FreeCAD's
-LGPL-2.1, but for `Sketcher_ValidateSketch.svg` and `Sketcher_ReorientSketch.svg`, whose metadata names CC-BY-SA 4.0 and [vocx] as the creator (the
+LGPL-2.1, but for `Sketcher_ValidateSketch.svg` and `Sketcher_ReorientSketch.svg`, whose metadata names CC-BY-SA 4.0, [vocx] as the creator and [agryson] Alexander Gryson as a contributor (the
 NOTICE at the top of the repository credits them, and THIRD_PARTY_LICENSES has the licence).
+The PartDesign workbench's tree and commands (ui/src/partdesign.tsx) use 50 more, taken at 3160daf1e2b6 from
+`src/Mod/PartDesign/Gui/Resources/icons` (`PartDesign_*.svg`, the Tip's overlay `PartDesign_Overlay_Tip.svg`),
+`src/Mod/Sketcher/Gui/Resources/icons` (`Sketcher_Sketch.svg`, `Sketcher_NotFullyConstrained.svg`, and from its `general/`
+folder `Sketcher_NewSketch`, `Sketcher_EditSketch`, `Sketcher_MapSketch`, `Sketcher_ReorientSketch`, `Sketcher_ValidateSketch`,
+`Sketcher_MergeSketch`, `Sketcher_MirrorSketch`), `src/Mod/Part/Gui/Resources/icons` (`Part_Detached.svg`,
+`booleans/Part_CheckGeometry.svg`, `tools/Part_ColorFace.svg`), `src/Gui/Icons` (the Origin's `Std_CoordinateSystem.svg`,
+`Std_Axis.svg`, `Std_Plane.svg`, `Std_Point.svg`, and `Std_ToggleFreeze.svg`) and `src/Mod/PartDesign/WizardShaft/WizardShaft.svg`,
+renamed `PartDesign_WizardShaft.svg` here. Their metadata says `FreeCAD LGPL2+`, except: `Sketcher_ReorientSketch.svg`
+(CC-BY-SA 4.0, Alexander Gryson) and `Sketcher_ValidateSketch.svg` (`FreeCAD CC-BY-SA 4.0`); `PartDesign_Clone.svg` (an empty
+licence link, `FreeCAD LGPL2+` in its rights), `Std_CoordinateSystem.svg` and `Std_ToggleFreeze.svg` (no licence metadata), which
+come under FreeCAD's LGPL-2.1.

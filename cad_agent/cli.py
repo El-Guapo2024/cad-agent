@@ -1572,6 +1572,9 @@ def build_parser() -> argparse.ArgumentParser:
     sp.add_argument("roots", nargs="*", metavar="DIR", help="projects directories to show")
     sp.add_argument("--port", type=int, default=8733)
 
+    from .featurecmd import add_parsers as feature_parsers      # cad feature list|new|add|set|delete|...
+    feature_parsers(add, sub)
+
     bp = add("bought", None, "bought parts: vendor STEP or measured, always with a source")
     bsub = bp.add_subparsers(dest="bought_cmd", metavar="<action>", parser_class=_Parser)
 

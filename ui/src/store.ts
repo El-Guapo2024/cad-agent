@@ -97,8 +97,11 @@ export type Task = { kind: 'params' | 'placement' | 'transform' | 'measure' | 'm
   // are QDialogs/an MDI view in FreeCAD; here, like Std_UnitsCalculator and Std_DlgPreferences
   // above, they go through the one Tasks panel this UI has.
   | 'parameterEditor' | 'sceneInspector' | 'dependencyGraph'
-  // The Sketcher's edit mode (sketcher.ts, sketchpanel.tsx): TaskDlgEditSketch.
-  | 'sketch'; body: string; other?: string }
+  // PartDesign (partdesign.tsx): New Sketch's attachment panel, Pad and Pocket, each made or edited in `body` (the part
+  // module); `other` is the feature being edited, or the profile sketch of a new one.
+  | 'sketchAttach' | 'pad' | 'pocket'
+  // The Sketcher's edit mode (sketcher.ts, sketchui.tsx): TaskDlgEditSketch.
+  | 'sketch'; body: string; other?: string; edit?: boolean }
 /** GET /api/history: one entry of the backend's Document undo/redo journal, shared with an
  *  agent in a terminal — replaces a UI-local undo stack (actions.ts no longer replays changes). */
 export type HistoryEntry = { id: string; name: string; by: 'ui' | 'agent'; t: number }
@@ -339,8 +342,21 @@ export type State = {
   /** While something is in edit, its own undo and redo stacks (Gui::Document's transactions of the edit), which
    *  Std_Undo and Std_Redo work on instead of the project's journal. */
   editHistory: { undo: HistoryEntry[]; redo: HistoryEntry[] } | null
+  /** PartDesign: each part module's feature list (partdesign.tsx), by part. */
+  features: Record<string, FeatureDoc>
+  /** The tree's selected rows of a Body (its features, Origin, its planes and axes), as "part/Name". The 3D selection
+   *  (`selected`) is kept empty while these are selected. */
+  featSel: string[]
+  /** PartDesign's active Body (Gui::ActiveObjects "pdbody"): the part module new features go into. */
+  activeBody: string | null
+  /** Sketches shown in the 3D view, as "part/Sketch" (a sketch a feature uses starts hidden, as FreeCAD hides it). */
+  sketchShown: string[]
 }
 export type SelEntry = { selected: string[]; subSel: string[] }
+/** One part module's PartDesign feature list (GET /api/<slug>/features, `cad feature list`): cad_agent/feature_edit.py's
+ *  read(). A hand-written part has no features and `base` true; a Body made in the app has `base` false. */
+export type Feature = { name: string; type: string; profile?: string; support?: unknown; geometry?: unknown[]; constraints?: unknown[]; [prop: string]: unknown }
+export type FeatureDoc = { part: string; params: Record<string, unknown>; base: boolean; features: Feature[]; tip: string | null }
 
 export const saved = {
   get<T>(k: string, d: T): T {
@@ -381,6 +397,7 @@ let state: State = {
   cameraPreset: null, pose: null,
   recordingMacro: null, recordGuiCommands: saved.get('recordGuiCommands', true), guiAsComment: saved.get('guiAsComment', true),
   sketchEditing: null, editHistory: null,
+  features: {}, featSel: [], activeBody: null, sketchShown: [],
 }
 const subs = new Set<() => void>()
 // Quantities are written in the user's unit system wherever they show (UnitsApi).

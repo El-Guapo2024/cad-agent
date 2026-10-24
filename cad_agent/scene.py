@@ -99,6 +99,8 @@ def placed_solids(slug: str) -> tuple[dict, dict]:
         from build123d import Pos
         base, x = {}, 0.0
         for name in part_names:
+            if _empty_body(st.project_dir(slug) / "parts" / f"{name}.py"):
+                continue      # a Body with nothing to build yet (FreeCAD shows it empty): the tree lists it
             solid, metas[name] = st.build_part(slug, name)
             lo, hi = bbox(solid)
             base[name] = Pos(x - lo[0], 0, 0) * solid
@@ -249,6 +251,33 @@ def _tessellate_bodies(shown: dict, colors: dict, view_props: dict,
     return combined_inst, shapes
 
 
+def _matrix(shape) -> list | None:
+    """The shape's location as a row-major 4x4: part coordinates to where the scene draws them (None if it has none)."""
+    try:
+        t = shape.location.wrapped.Transformation()
+        return [round(t.Value(r, c), 9) + 0.0 for r in (1, 2, 3) for c in (1, 2, 3, 4)] + [0.0, 0.0, 0.0, 1.0]
+    except Exception:
+        return None
+
+
+def _empty_body(path: Path) -> bool:
+    """A part module whose FEATURES (cad_agent/feature.py) holds no Pad or Pocket yet and builds on no base: a
+    Body as `cad feature new` makes it, before its first Pad. It has no solid, so the scene leaves it out."""
+    import ast
+    try:
+        tree = ast.parse(path.read_text())
+    except (OSError, SyntaxError, ValueError):
+        return False
+    feats = next((n.value for n in tree.body if isinstance(n, ast.Assign)
+                  and any(isinstance(t, ast.Name) and t.id == "FEATURES" for t in n.targets)), None)
+    if not isinstance(feats, ast.List):
+        return False
+    if any(isinstance(k, ast.keyword) and k.arg == "base" for n in ast.walk(tree) if isinstance(n, ast.Call)
+           and getattr(n.func, "id", None) == "Body" for k in n.keywords):
+        return False
+    return all(isinstance(e, ast.Call) and getattr(e.func, "id", None) == "Sketch" for e in feats.elts)
+
+
 def build_scene(slug: str, deviation: float | None = None, angular: float | None = None) -> dict:
     from .geom import bbox, mass_g
     from .verify import source_hash
@@ -266,6 +295,8 @@ def build_scene(slug: str, deviation: float | None = None, angular: float | None
         from build123d import Pos
         base, x = {}, 0.0
         for name in part_names:
+            if _empty_body(pdir / "parts" / f"{name}.py"):
+                continue
             solid, metas[name] = st.build_part(slug, name)
             lo, hi = bbox(solid)
             base[name] = Pos(x - lo[0], 0, 0) * solid
@@ -328,6 +359,9 @@ def build_scene(slug: str, deviation: float | None = None, angular: float | None
             **({"project": info.project, "from_part": info.part} if child else {}),
             # Align to Selection on a face that is not flat (viewer.ts alignDirection): drawn where `shown` puts it
             "curved": curved_faces(shown[name]),
+            # where the part's own coordinates are drawn (its location), for what the page draws in them: a PartDesign
+            # sketch, the preview of a Pad
+            "matrix": _matrix(shown[name]),
         })
 
     for b in bodies:                   # one part module can make several bodies

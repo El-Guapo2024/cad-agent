@@ -103,7 +103,7 @@ that commit.
       CC-BY-SA 4.0, also "FreeCAD LGPL2+"   by [bitacovir]: Std_UserEditModeDefault,
                                 Std_UserEditModeTransform, Std_UserEditModeCutting,
                                 Std_UserEditModeColor.
-      CC-BY-SA 4.0                          by [vocx]: Sketcher_ValidateSketch,
+      CC-BY-SA 4.0                          by [vocx], with Alexander Gryson: Sketcher_ValidateSketch,
                                 Sketcher_ReorientSketch (in ui/public/freecad-icons/sketcher/).
       Public domain / CC0 1.0   by Jakub Steiner: accessories-calculator (CC0 1.0); Andreas
                                 Nilsson and Jakub Steiner: process-stop; Jakub Steiner and Tuomas

@@ -23,7 +23,9 @@ import { EDIT_TOOLBARS, SKETCHER_TOOLBAR, SKETCH_MENU, cmdInfo, groupDefault, ic
 import { onDatumDialog } from './sketchcons'
 import { CONSTR_ICONS } from './sketchcmdinfo'
 import { getState, report, useStore } from './store'
-import { getView } from './actions'
+import { getView, onEditSketch } from './actions'
+import { bodyOfPart, sketchMatrix } from './partdesign'
+import * as THREE from 'three'
 import { ContextMenu, tipAttrs, type Entry } from './chrome'
 import { QuantityBox } from './qsb'
 import { cls } from './panels'
@@ -337,6 +339,20 @@ function SketchMenu() {
   })
   return at ? <ContextMenu at={at} entries={contextEntries()} onClose={() => setAt(null)} /> : null
 }
+
+// ── a Body's sketch opened from the tree (Std_Edit, a double-click: ViewProviderSketch::setEdit) ──────────────────
+/** The sketch where its part sits: the part's matrix (scene.py) times the sketch's support and attachment offset. */
+onEditSketch((part, name) => {
+  const st = getState(), f = st.features[part]?.features.find((x) => x.name === name)
+  if (!f) { report('err', `Edit Sketch: ${part}/${name} is not in the part's feature list`); return }
+  const m = new THREE.Matrix4(), b = bodyOfPart(st, part)
+  if (b?.matrix?.length === 16) m.fromArray(b.matrix).transpose()
+  m.multiply(sketchMatrix(f))
+  const pos = new THREE.Vector3(), q = new THREE.Quaternion(), sc = new THREE.Vector3()
+  m.decompose(pos, q, sc)
+  const sketch = S.unsavedSketch(name) ?? { geometry: (f.geometry ?? []) as SK.Geo[], constraints: (f.constraints ?? []) as import('./solver').Cons[] }
+  void S.editSketch({ part, name, placement: { base: [pos.x, pos.y, pos.z], rotation: [q.x, q.y, q.z, q.w] }, sketch })
+})
 
 /** The dialogs and the context menu, mounted once (App.tsx). */
 export function SketchHost() {

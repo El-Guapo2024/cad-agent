@@ -9,10 +9,11 @@ Every row marked done was checked in the page, by the tests run on 2026-09-29 an
 
 Legend: **done**, **partial** (says what differs), **missing**, **n/a** (and why).
 
-Why most n/a rows are n/a: the UI shows parts built from Python. There is no FreeCAD document,
-no save, no feature tree and no sketcher. Edits are `cad set` (a part's PARAMS) and
-`cad place` (a rigid move in placements.toml). Creating or deleting objects is the agent's
-job, in the code.
+Why most n/a rows are n/a: the UI shows parts built from Python. There is no FreeCAD document
+and no save. Edits are `cad set` (a part's PARAMS), `cad place` (a rigid move in placements.toml)
+and, for a part made of a PartDesign feature list (cad_agent/feature.py), `cad feature` (its Body's
+sketches, pads and pockets: see "PartDesign", below). Creating or deleting a hand-written part is the
+agent's job, in the code.
 
 ## Edit menu
 
@@ -20,7 +21,8 @@ job, in the code.
 |---|---|---|
 | Undo / Redo | ⌘Z / ⇧⌘Z | done (our edits: parameters and placements) |
 | Copy (Std_Copy) | ⌘C | done: copies the selected objects' and elements' names, one per line (a FreeCAD copy carries the objects themselves) |
-| Cut, Paste, Duplicate, Delete | ⌫ (Delete) | n/a (objects come from code). Delete's key reads ⌫ in every menu, as the real FreeCAD on macOS binds it (QKeySequence::Delete is Backspace there; `scripts/fcgui.py --platform cocoa`), not ⌦ |
+| Delete (Std_Delete) | ⌫ (Delete) | done for a Body's features (PartDesign, below): FreeCAD's "Object Dependencies" warning when another feature uses one, then one undo step "Delete"; a part itself is its source code (n/a) |
+| Cut, Paste, Duplicate | | n/a (objects come from code). Delete's key reads ⌫ in every menu, as the real FreeCAD on macOS binds it (QKeySequence::Delete is Backspace there; `scripts/fcgui.py --platform cocoa`), not ⌦ |
 | Recompute (Std_Refresh) | ⌘R (F5 on Windows and Linux) | done: re-runs the checks. QKeySequence::Refresh is Ctrl+R on a Mac and F5 elsewhere, and the real FreeCAD on macOS shows ⌘R (`fcgui.py --platform cocoa`): the page takes ⌘R from the browser's reload on a Mac and F5 only off a Mac |
 | Box selection | ⇧B | done: left to right, parts inside or centred in the box; right to left, parts crossing it (`applyBoxSelection`); Esc cancels |
 | Box element selection | ⇧E | done: vertices inside; faces and edges by the same two rules; a part wholly inside is taken whole |
@@ -110,6 +112,7 @@ job, in the code.
 | View: Mass properties | done |
 | Individual views: Isometric … Left | done |
 | File, Clipboard, Macro, Structure | n/a |
+| Part Design Helper / Modeling / Dress-Up / Transformation Features | done, button by button as PartDesignGui::Workbench::setupToolBars (`scripts/editcheck.mjs` against the real FreeCAD): New Body, New Sketch (Create Datum's group shows its default), Pad and Pocket work; the rest is greyed "not yet" (docs/EDITING_PLAN.md step 5) |
 
 We add our own workbench toolbar: Toggle visibility, Edit parameters, Transform, Placement (Verify in Inspection).
 
@@ -133,6 +136,7 @@ We add our own workbench toolbar: Toggle visibility, Edit parameters, Transform,
   - The selection's commands: Toggle freeze, Toggle visibility, Show and Hide selection, Toggle selectability, Select all instances (enabled for one object only, as `Std_TreeSelectAllInstances::isActive`), Material and Appearance (⌘D), Random color, Toggle transparency, Cut, Copy, Paste, Delete (⌫), Send to console, Transform and Placement (one object), Properties.
   - Then Expression Actions and Link Actions (submenus), Show items hidden in tree view, Toggle visibility in tree view (Show In Tree), Mark to recompute and Recompute object (both re-run the checks), Rename (one object), and Tree Settings; ours adds Open file location (Reveal in Finder on a Mac, as `TreeWidget::retranslateUi` words it).
 - On the document: the selection's commands when some are selected, else a greyed Properties; Expression and Link Actions, Show items hidden in tree view, Reveal in Finder, Search objects, Close Document (the same as File > Close All), Add Dependent Objects to Selection, Skip Recomputes, Mark to recompute, Create Group, Tree Settings.
+- On a Body's rows (PartDesign, below): FreeCAD's PartDesign menus, entry by entry as the real FreeCAD 26.3 shows them on a Pad, a Sketch and the Body (`scripts/fcedit.py`, held by `scripts/editcheck.mjs`): Edit Pad / Edit Sketch (bold), Set Face Colors, Set Tip, Move Object To…, Move Feature After…, Toggle Suppressed, Toggle Freeze, the selection's commands, Delete, Properties, the Expression and Link Actions, Rename (F2), Tree Settings; Active Body on the Body.
 - Greyed out, with the reason on hover: Toggle Freeze, Material, Cut/Paste/Delete, Rename (names come from assembly.py), the Expression and Link Actions, Add Dependent Objects, Skip Recomputes, Create Group. This is the entry list of the real tree menu (`scripts/fcbehave.py --only tree_menu`, compared by `scripts/oursselect.mjs`, 2026-10-21) but for what is Part or PartDesign's own (Edit Attachment, Appearance per Face) and the labels the console keeps (Send to Console).
 
 ## Keyboard (sAccel)
@@ -370,6 +374,34 @@ Measured in the real FreeCAD 26.3 (3160daf1e2b6) with `scripts/fcbehave.py` (new
 - A string, list or tuple longer than 10 million items, or a % field wider than that, raises MemoryError ("result too large to compute here") where Python would build it, and an integer power over 4 million bits likewise; nesting deeper than the JavaScript stack raises RecursionError. A browser tab would freeze or crash first.
 - The object and document an expression may name are the part the field belongs to; a part's int parameter is an int (PropertyInteger), a length or angle a Quantity, any other number a float (PropertyFloat). Other objects and documents are not found, as there is no FreeCAD document here.
 
+## PartDesign, 2026-10-24
+
+A part whose shape is a FEATURES list (cad_agent/feature.py) is FreeCAD's PartDesign Body here (`src/partdesign.tsx`). Every edit is
+`cad feature` (cad_agent/featurecmd.py, through cad_agent/feature_edit.py), so the agent's CLI and the page do the same things: POST
+/api/<slug>/features/<part> is one step of the shared undo journal, named as FreeCAD names the transaction ("Add a Body", "New Sketch",
+"Make Pad", "Edit Pad", "Edit Pad.Length", "Move tip to selected feature", "Move a feature inside body", "Delete", "Rename Pad.Label"),
+and the part is built (a change that breaks it is put back), its gates run, the scene reloads and a check follows, as after `cad set`.
+`scripts/editcheck.mjs` holds the page to the real FreeCAD 26.3 (`scripts/fcedit.py` writes `scripts/fcedit.json` from its GUI):
+57 checks pass (2026-10-24); its 46 "known" lines are the commands greyed "not yet" and the console's "Send to Console".
+
+| FreeCAD | Ours |
+|---|---|
+| The tree's Body | done: the Body row (PartDesign_Body, bold while it is the active one; double-click toggles that), Origin with its axes, planes and Origin-Point (folded, as FreeCAD), BaseFeature for a hand-written part with features on top, the features in order with ViewProvider's icons, a sketch under the feature that takes it as its profile (claimChildren), the Tip with PartDesign_Overlay_Tip, what is hidden greyed (Tree.cpp's Disabled text and icon): every solid but the Tip, and the sketches in use, as FreeCAD hides them; a sketch with no support carries Part_Detached. The rows of a Body with Sketch, Pad, Sketch001 and Pocket, and after Set Tip on the Pad, match FreeCAD's. A Body the scene does not draw yet (no Pad) still has its row |
+| Property view | done: a Pad's and a Pocket's properties under FreeCAD's groups and names, in the order the real property view lists them (Base, Pad/Pocket, Part Design, Side1, Side2, Sketch Based, Start); editable ones write through `cad feature set` ("Edit Pad.Length"), a value bound to a PARAMS name shows it (`6.00 mm (= thick)`) and the Expression Editor writes the expression; read-only ones say why (FreeCAD's ReadOnly by mode, or not in feature.py yet: Taper Angle, Suppressed, Up To Face/Shape picked in 3D, Fuzzy Tolerance, Common). A sketch's Attachment, Base and Sketch groups; the Body's Base group |
+| PartDesign_Body (New Body) | done: `cad feature new` writes parts/Body.py (Body, Body001, … as FreeCAD names them) with an empty FEATURES, and makes it active. With a hand-written part selected, that part becomes the active Body (its solid the BaseFeature its first feature adds to) instead of a new Body based on it |
+| PartDesign_NewSketch | done as SketchWorkflow does at this commit: an Origin plane selected puts the sketch straight on it; otherwise the attachment panel (TaskAttacher: Not attached, Reference 1 "Selecting…", the mode list, the offset group, Flip sides) with the Origin's planes shown (ViewProviderPlane's quads and labels); picking a plane in the 3D view or the tree gives "Attached with mode Plane face" and FreeCAD's mode list for a plane. OK makes the sketch ("New Sketch") and opens it in the Sketcher (`editSketch`, which the Sketcher's branch fills in; until then a Report line). Different: only Plane face (and Deactivated) can be chosen, a face of a solid is not a support yet, and Flip sides is greyed: feature.py attaches a sketch to the Body's planes with an offset |
+| PartDesign_Pad / PartDesign_Pocket | done: TaskPadPocketParameters.ui's fields as updateWholeUI/updateSideUI show them (Start and its Offset, Direction One sided/Two sided/Symmetric, Type with FreeCAD's lists: Pad Dimension/To last/To first/Up to face/Up to shape, Pocket Dimension/Through all/…, Length or Offset to face, Taper angle, Side 2, Reversed, the Direction group, a Pocket's Operation, Recompute on change, Preview), FreeCAD's defaults (Pad 10 mm, Pocket 5 mm, Dimension back to 5 mm when there is no length), the preview overlay (SoPreviewShape's colours: PreviewAdditiveColor, PreviewSubtractiveColor, transparency 0.8) following every change; OK writes "Make Pad", Cancel writes nothing; double-click opens the panel on the feature ("Edit Pad"). Different: the preview is the profile extruded in the browser (Up to … and Through all run to the model's box), not the feature's own shape; Show final result, Taper angle, Select reference…/Custom direction, Up to face/shape picking and Common are greyed |
+| PartDesign_MoveTip, PartDesign_MoveFeatureInTree | done: Set Tip (FreeCAD's selection errors, "already the tip"), Move Feature After… (QInputDialog's list, "Beginning of the body", and the Move Tip question when the feature lands after the Tip) |
+| Std_Delete, Rename (F2), Std_ToggleVisibility | done on a Body's rows: Delete with the Object Dependencies warning (FreeCAD's words), F2 edits the row in place, Space shows or hides the Body (its Tip) or a sketch, which is then drawn over the model in SketchEdgeColor |
+| Undo / Redo | done: the shared journal; Edit > Undo after any of the above, in the page or `cad undo` in a terminal, and the tree follows |
+| Sketch and Part Design menus | done, entry by entry as the real FreeCAD's (editcheck); what step 5 builds later is greyed "not yet" |
+
+Deliberately different:
+- Rename changes the feature's name (and every reference to it), where FreeCAD changes the Label and keeps the internal Name: FEATURES names a feature once.
+- A solid feature before the Tip has no shape of its own here (the scene draws the Body at its Tip), so Space on it says so and Set Tip shows it.
+- Sketch's "not fully constrained" overlay shows only when the part-file layer says so (`fully_constrained: false`); read() does not report it yet.
+- Move Object To…, Set Face Colors, Toggle Suppressed and Toggle Freeze are greyed: a feature belongs to its part module, colours are the material's, FEATURES has no suppressed state, parts rebuild from source.
+
 ## Still missing
 
-- Nothing from FreeCAD's standard menus, toolbars, context menus, keys or panels that applies to these projects. What is left is n/a (no FreeCAD document, sketcher or feature tree) or listed as n/a above.
+- Nothing from FreeCAD's standard menus, toolbars, context menus, keys or panels that applies to these projects. What is left is n/a (no FreeCAD document) or listed as n/a above; PartDesign's features after Pad and Pocket come with docs/EDITING_PLAN.md step 5, and the Sketcher with step 3.

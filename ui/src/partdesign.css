@@ -1,0 +1,19 @@
+/* SPDX-License-Identifier: LGPL-2.1-or-later */
+/* PartDesign (partdesign.tsx): a Body's rows in the tree and its task panels. */
+/* a Body's rows indent 12 px a level (QTreeView indentation), the branch indicator in the last 12 */
+.pdindent { flex: none; display: inline-block; }
+.twisty-none { width: 12px; height: 12px; flex: none; display: inline-block; }
+.tov.tov-br { right: -3px; bottom: -3px; left: auto; }
+.tov.tov-bl { left: -3px; bottom: -3px; right: auto; }
+.trename { height: 16px; font: inherit; padding: 0 2px; border: 1px solid var(--accent); min-width: 60px; }
+/* TaskAttacher's mode list: the suggested mode bold, the ones more references would reach greyed */
+.pd-modes { border: 1px solid var(--border); background: #fff; max-height: 160px; overflow: auto; margin-bottom: 6px; }
+.pd-mode { padding: 1px 4px; cursor: default; }
+.pd-mode.sel { background: var(--accent-bg); }
+.pd-mode.off { color: #8a8a8a; }
+.pd-mode.best { font-weight: 700; }
+.pd-attach-msg { margin: 2px 0 6px; }
+.pd-side { font-weight: 600; margin: 6px 0 2px; }
+.pd-line { border: none; border-top: 1px solid var(--border); margin: 6px 0; }
+.pd-form .tfield { margin-bottom: 3px; }
+.pd-getitem-body { display: flex; flex-direction: column; gap: 6px; min-width: 260px; }

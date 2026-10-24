@@ -44,8 +44,14 @@ NOT_HERE = {"Std_AddonMgr", "Std_AddonMgrPip", "Std_SetAppearance", "Std_SetMate
 PART = {"Part_SelectFilter", "Part_VertexSelection", "Part_EdgeSelection", "Part_FaceSelection", "Part_RemoveSelectionGate"}
 
 
+# PartDesign's and the Sketcher's C++ commands (Mod/PartDesign/Gui/Command*.cpp, Mod/Sketcher/Gui/Command.cpp), and Part's Check
+# Geometry (Mod/Part/Gui/Command.cpp); the gears and the shaft wizard are Python modules of their own.
+PY_COMMANDS = {"PartDesign_InvoluteGear", "PartDesign_Sprocket", "PartDesign_WizardShaft"}
+
+
 def wanted(name: str) -> bool:
-    return (name.startswith("Std_") and name not in NOT_HERE) or name in PART
+    return ((name.startswith("Std_") and name not in NOT_HERE) or name in PART or name == "Part_CheckGeometry"
+            or (name.startswith(("PartDesign_", "Sketcher_")) and name not in PY_COMMANDS))
 
 
 def clean(title: str) -> str:
@@ -69,7 +75,7 @@ def main() -> None:
     used = set()
     for f in sorted(SRC.glob("*.ts*")):
         if f.name != "fctips.ts":
-            used |= set(re.findall(r"\b(?:Std|Part)_[A-Za-z0-9]+\b", f.read_text()))
+            used |= set(re.findall(r"\b(?:Std|Part|PartDesign|Sketcher)_[A-Za-z0-9]+\b", f.read_text()))
     rows = []
     for name in sorted(used):
         c = cmds.get(name)
@@ -90,6 +96,11 @@ def main() -> None:
 //   src/Gui/CommandTest.cpp: 2002 Jürgen Riegel
 //   src/Mod/Part/Gui/CommandFilter.cpp: 2002 Jürgen Riegel
 //   src/Mod/Measure/Gui/Command.cpp: 2023 David Friedli
+//   src/Mod/PartDesign/Gui/Command.cpp: 2008 Jürgen Riegel
+//   src/Mod/PartDesign/Gui/CommandBody.cpp: 2015 Alexander Golubev (Fat-Zer)
+//   src/Mod/PartDesign/Gui/CommandPrimitive.cpp: 2015 Stefan Tröger
+//   src/Mod/Sketcher/Gui/Command.cpp: 2008 Jürgen Riegel
+//   src/Mod/Part/Gui/Command.cpp: 2002 Jürgen Riegel
 // Written by ui/scripts/fctips.py from the running FreeCAD: each command's menu text (sMenuText, its & dropped as
 // Action::cleanTitle does) and tooltip (sToolTipText), for every FreeCAD command id ui/src names. tooltip.ts draws a
 // command's tooltip from these as Action::createToolTip does. Do not edit by hand.

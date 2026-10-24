@@ -19,8 +19,9 @@ import type { Body, CheckRow, LogEntry, Placement, Vec3 } from './api'
 import { getState, report, saved, setState, useStore, viewOf, type ClipAxis, type ClipView, type Level, type ViewProps as ViewPropsT } from './store'
 import { VIEW } from './theme'
 import { CadView, measurePair, subInfo, type TransformPhase } from './viewer'
-import { clarifyEntries, ContextMenu, navHint, popupEntries, treeEntries, type Entry } from './chrome'
-import { gotoSelection, navi, runConsole, viewHome } from './commands'
+import { clarifyEntries, ContextMenu, expressionActions, linkActions, navHint, popupEntries, treeEntries, type Entry } from './chrome'
+import { ExtrudeTask, FeatureProps, featureTreeEntries, isBodyDoc, PdBodyRows, refOf, SketchAttachTask, toggleActiveBody, type TreeCtx } from './partdesign'
+import { gotoSelection, navi, properties, runConsole, viewHome } from './commands'
 import { api, resultText } from './api'
 import { fromFreeCAD, placementMatrix, toFreeCAD, toPlacement } from './placement'
 import * as THREE from 'three'
@@ -56,6 +57,7 @@ const fmtValue = (v: unknown) => (typeof v === 'number' ? fmtNum(v) : String(v))
 /** A property's name starts 12 px in, the tree's indentation (qproperty-indentation: 12), plus the 3 px text margin; each level of
  *  children is another 12 px. (FreeCAD, measured: the name's first pixel is at x = 17 in a frame whose line is at 0.) */
 const pad = (depth: number) => ({ paddingLeft: 15 + depth * 12 })
+export const propPad = pad
 /** ReportView::onMessage: QTime::toString("hh:mm:ss  "), whatever the locale. */
 const clock = (t: number) => { const d = new Date(t); return [d.getHours(), d.getMinutes(), d.getSeconds()].map((n) => String(n).padStart(2, '0')).join(':') }
 
@@ -68,7 +70,7 @@ function parse(text: string, type: string): unknown {
   return text
 }
 
-function Twisty({ open, onClick }: { open: boolean; onClick?: () => void }) {
+export function Twisty({ open, onClick }: { open: boolean; onClick?: () => void }) {
   return <span className={cls('twisty', open && 'open')} onClick={(e) => { if (onClick) { e.stopPropagation(); onClick() } }} />
 }
 
@@ -101,6 +103,7 @@ export function View3D() {
     attachView(v)
     return () => { attachView(null); v.dispose() }
   }, [])
+  const hasBodies = useStore((s) => Object.keys(s.features).some((p) => isBodyDoc(s.features[p]))) // a PartDesign Body is a part, built or not
   const waiting = offline ? `Can't reach cad serve at ${location.host}. Retrying every 2 seconds…`
     : !slug ? 'No project open' : err ? `${slug} did not build: ${err}`
     : building ? 'Building the scene. The first one starts the CAD kernel, about 30 seconds.' : ''
@@ -109,7 +112,7 @@ export function View3D() {
       <div ref={ref} className="view3d-host" />
       {!scene && waiting && <div className="view-overlay">{waiting}</div>}
       {/* Not in FreeCAD, whose empty view is just empty: here parts come from code, so say where they come from. */}
-      {scene && !scene.bodies.length && !err && !building && <div className="view-overlay">
+      {scene && !scene.bodies.length && !err && !building && !hasBodies && <div className="view-overlay">
         {slug} has no parts yet. Ask Claude for one in the chat, or add parts/&lt;name&gt;.py. It appears here as soon as it's saved.</div>}
       {scene && err && <div className="view-banner">Rebuild failed, showing the last good scene. {err}</div>}
       {/* CADAgent_Pose: the machine is drawn somewhere else than assembly.py has it; the chip says so and goes home. */}
@@ -215,6 +218,8 @@ function ModelTree() {
     requestAnimationFrame(() => document.querySelector('.trow.sel')?.scrollIntoView({ block: 'nearest' }))
   }, [selected, treeOpts.syncSelection])
   const [menu, setMenu] = useState<{ x: number; y: number } | null>(null)
+  const [fmenu, setFmenu] = useState<{ x: number; y: number } | null>(null)
+  const features = useStore((s) => s.features), featSel = useStore((s) => s.featSel), activeBody = useStore((s) => s.activeBody)
   const states = useMemo(() => statesByBody(checks?.rows, scene?.bodies ?? []), [checks, scene])
   // The object in edit (Gui::Document::getInEdit): the default edit (its parameters) or Transform.
   // TreeWidget paints it in Colors' "Object being edited" colour.
@@ -273,12 +278,16 @@ function ModelTree() {
     if (performance.now() - preselectTime.current < 700) firePreselect()
     else { preselect(null, null); preselectTimer.current = window.setTimeout(firePreselect, 500) }
   }
+  const pdCtx: TreeCtx = { iconSize, showDesc, showInternal, eyes: tui.visibilityIcon, checkBoxes: treeOpts.checkBoxes, editColor,
+    enter: onEnter, cancelPreselect: cancelPreselectTimer, menu: (at) => setFmenu(at) }
   return (
     <div className={cls('tree', cols === 1 && 'onecol', tui.hideHeader && 'ovl-nohead', tui.hideScrollBar && 'ovl-noscroll')} tabIndex={-1}
       style={{ '--tree-cols': template, '--tree-icon': `${iconSize}px`, ...(tui.fontSize > 0 ? { fontSize: `${Math.max(8, tui.fontSize)}pt` } : {}) } as React.CSSProperties}
       onMouseLeave={() => { hoverRef.current = null; if (!treeOpts.preSelection) return; cancelPreselectTimer(); preselect(null, null) }}
       onContextMenu={(e) => { if (e.target !== e.currentTarget) return; e.preventDefault(); setEmptyMenu({ x: e.clientX, y: e.clientY }) }}>
       {menu && <ContextMenu at={menu} entries={[...treeEntries('object'), 'sep', settingsMenu]} onClose={() => setMenu(null)} />}
+      {fmenu && <ContextMenu at={fmenu} entries={[...featureTreeEntries({ expressionActions: expressionActions(), linkActions: linkActions(), properties,
+        showHidden: { label: 'Show Items Hidden in Tree View', checked: showHidden, onSelect: () => setState((x) => ({ treeShowHidden: !x.treeShowHidden })) } }), 'sep', settingsMenu]} onClose={() => setFmenu(null)} />}
       {docMenu && <ContextMenu at={docMenu} entries={[...treeEntries('document'), 'sep', settingsMenu]} onClose={() => setDocMenu(null)} />}
       {emptyMenu && <ContextMenu at={emptyMenu} entries={[settingsMenu]} onClose={() => setEmptyMenu(null)} />}
       {filter !== null && (() => {
@@ -321,14 +330,20 @@ function ModelTree() {
         const st = states.get(b.name), off = hidden.includes(b.name)
         const desc = [b.part && b.part !== b.name ? b.part : null, b.kind === 'bought' ? 'bought' : null,
           b.placement ? 'moved by hand' : null, st && st !== 'PASS' ? st : null].filter(Boolean).join(' · ')
-        return (
+        // A part with a feature list is FreeCAD's PartDesign Body (partdesign.tsx): its row opens onto its features.
+        const pd = b.part && isBodyDoc(features[b.part]) && (b.used_by?.[0] ?? b.name) === b.name ? b.part : null
+        const row = (twisty: ReactNode) => (
           <div key={b.name} data-name={b.name} className={cls('trow', selected.includes(b.name) && 'sel', pre === b.name && 'pre', off && 'hid')}
             style={editing === b.name && !selected.includes(b.name) && pre !== b.name ? { background: editColor } : undefined}
-            onClick={(e) => { cancelPreselectTimer(); if (e.shiftKey) selectRange(b.name); else select(b.name, e.metaKey || e.ctrlKey) }} onDoubleClick={() => editDefault(b.name)}
+            onClick={(e) => { cancelPreselectTimer(); if (e.shiftKey) selectRange(b.name); else select(b.name, e.metaKey || e.ctrlKey); if (pd) setState({ featSel: [refOf(pd, '')] }) }}
+            onDoubleClick={() => (pd ? toggleActiveBody(pd) : editDefault(b.name))}
             onMouseEnter={() => onEnter(b.name)}
-            onContextMenu={(e) => { e.preventDefault(); if (!getState().selected.includes(b.name)) select(b.name); setMenu({ x: e.clientX, y: e.clientY }) }}>
+            onContextMenu={(e) => {
+              e.preventDefault(); if (!getState().selected.includes(b.name)) select(b.name)
+              if (pd) { setState({ featSel: [refOf(pd, '')] }); setFmenu({ x: e.clientX, y: e.clientY }) } else setMenu({ x: e.clientX, y: e.clientY })
+            }}>
             <span className="tlab">
-              <span className="tindent" />
+              {twisty ? <><span className="pdindent" style={{ width: 6 }} />{twisty}</> : <span className="tindent" />}
               {/* TreeParams CheckBoxesSelection (DocumentObjectItem::setCheckState, TreeWidget::onItemChanged):
                   a check box before the icons, ticked while the object is selected; ticking it
                   adds the object to the selection, unticking takes it out, no modifier keys needed. */}
@@ -339,16 +354,31 @@ function ModelTree() {
               {tui.visibilityIcon && <span className="teye" title="Toggle visibility (Space)" onClick={(e) => { e.stopPropagation(); toggleVisibility([b.name]) }}
                 onDoubleClick={(e) => e.stopPropagation()}><Icon name={off ? 'eye-off' : 'eye'} size={iconSize} /></span>}
               <span className="ticon">
-                <Icon name={b.kind === 'bought' ? 'bought' : 'part'} size={iconSize} />
+                <Icon name={pd ? 'body' : b.kind === 'bought' ? 'bought' : 'part'} size={iconSize} />
                 {st === 'FAIL' && <Icon name="ov-error" className="tov" size={10} />}
               </span>
-              <span className="tname">{b.name}</span>
+              {/* the active Body is drawn bold, as the real FreeCAD draws it (fcedit.json) */}
+              <span className="tname" style={pd && activeBody === pd ? { fontWeight: 700 } : undefined}>{b.name}</span>
             </span>
             {showDesc && <span className={cls('tdesc', st === 'FAIL' && 'fail')}>{desc}</span>}
             {showInternal && <span className="tdesc">{b.name}</span>}
           </div>
         )
+        return pd ? <PdBodyRows key={b.name} ctx={pdCtx} part={pd} body={b} bodyRow={row} /> : row(null)
       })}
+      {/* A Body the scene does not draw (nothing built yet, or not in assembly.py): its own row, as FreeCAD lists every Body */}
+      {open && Object.keys(features).filter((p) => isBodyDoc(features[p]) && !scene?.bodies.some((b) => b.part === p)).map((p) => (
+        <PdBodyRows key={'pd:' + p} ctx={pdCtx} part={p} body={undefined} bodyRow={(twisty) => (
+          <div className={cls('trow', featSel.includes(refOf(p, '')) && 'sel')} data-ref={refOf(p, '')}
+            onClick={() => { cancelPreselectTimer(); select(null); setState({ featSel: [refOf(p, '')] }) }} onDoubleClick={() => toggleActiveBody(p)}
+            onContextMenu={(e) => { e.preventDefault(); select(null); setState({ featSel: [refOf(p, '')] }); setFmenu({ x: e.clientX, y: e.clientY }) }}>
+            <span className="tlab"><span className="pdindent" style={{ width: 6 }} />{twisty}
+              {tui.visibilityIcon && <span className="teye"><Icon name="eye" size={iconSize} /></span>}
+              <span className="ticon"><Icon name="body" size={iconSize} /></span>
+              <span className="tname" style={activeBody === p ? { fontWeight: 700 } : undefined}>{p}</span></span>
+            {showDesc && <span className="tdesc">nothing built yet</span>}
+            {showInternal && <span className="tdesc">{p}</span>}
+          </div>)} />))}
     </div>
   )
 }
@@ -395,6 +425,8 @@ function PropertyView() {
     addEventListener('pointerup', up)
   }
   const b = scene?.bodies.find((x) => x.name === selected[selected.length - 1])
+  const lastFeat = useStore((s) => s.featSel[s.featSel.length - 1])
+  const feat = lastFeat && (!lastFeat.endsWith('/') || !b) ? lastFeat : null
   // Auto Expand / Auto Collapse: a new object opens with everything expanded or collapsed.
   useEffect(() => { if (mode !== 'default') setExpand((e) => ({ gen: e.gen + 1, open: mode === 'auto-expand' })) }, [b?.name, mode])
   const bump = (open: boolean | null) => setExpand((e) => ({ gen: e.gen + 1, open }))
@@ -418,7 +450,9 @@ function PropertyView() {
         setMenu({ x: e.clientX, y: e.clientY, value: pv ? (box ? String(box.checked) : pv.textContent ?? '') : null })
       }}>
         <PropExpand.Provider value={expand}>
-          {b && (tab === 'data' ? <DataProps key={b.name + scene!.source_hash} b={b} />
+          {/* a Body's feature, sketch or Origin row (partdesign.tsx); the Body's own row shows its part's properties */}
+          {feat && (tab === 'data' ? <FeatureProps key={feat} refKey={feat} /> : <Row k="Visibility" v="the Body shows its Tip" />)}
+          {!feat && b && (tab === 'data' ? <DataProps key={b.name + scene!.source_hash} b={b} />
             : <ViewProps b={b} off={hidden.includes(b.name)} />)}
         </PropExpand.Provider>
       </div>
@@ -445,7 +479,7 @@ function PropertyView() {
   )
 }
 
-function Group({ title, children }: { title: string; children: ReactNode }) {
+export function Group({ title, children }: { title: string; children: ReactNode }) {
   const [open, setOpen] = useState(true)
   const ex = useContext(PropExpand)
   useEffect(() => { if (ex.gen) setOpen(ex.open ?? true) }, [ex.gen])
@@ -458,7 +492,7 @@ function Group({ title, children }: { title: string; children: ReactNode }) {
   )
 }
 
-function Row({ k, v, depth = 0 }: { k: ReactNode; v: ReactNode; depth?: number }) {
+export function Row({ k, v, depth = 0 }: { k: ReactNode; v: ReactNode; depth?: number }) {
   return <div className="prow ro"><span className="pk" style={pad(depth)}>{k}</span><span className="pv">{v}</span></div>
 }
 
@@ -491,8 +525,12 @@ const qText = (v: unknown, kind: QKind) => quantity.userString({ value: Number(v
  *  or angle is edited in a QuantitySpinBox (17 cm, 1/2 in, 90 °; arrows and the wheel step
  *  it), as FreeCAD's PropertyUnitItem is; "=" opens the Expression Editor over the part's
  *  other parameters (DlgExpressionInput). PARAMS keeps plain numbers, so OK writes the result. */
-function EditRow({ k, value, type, onCommit, depth = 0, unit, kind, vars, owner }:
-  { k: string; value: unknown; type: string; onCommit(v: unknown): void; depth?: number; unit?: string; kind?: QKind | null; vars?: Record<string, quantity.Quantity | PyVal>; owner?: string }) {
+export function EditRow({ k, value, type, onCommit, depth = 0, unit, kind, vars, owner, onExpr, note }:
+  { k: string; value: unknown; type: string; onCommit(v: unknown): void; depth?: number; unit?: string; kind?: QKind | null; vars?: Record<string, quantity.Quantity | PyVal>; owner?: string
+    /** The Expression Editor's text is written instead of its value (a FEATURES value may be a PARAMS expression). */
+    onExpr?(text: string): void
+    /** Shown after the value: the expression it is bound to. */
+    note?: string }) {
   const [editing, setEditing] = useState(false)
   const [expr, setExpr] = useState<{ text: string; at: { x: number; y: number } } | null>(null)
   const cancelled = useRef(false), pending = useRef<number | null>(null), cell = useRef<HTMLSpanElement>(null)
@@ -519,6 +557,7 @@ function EditRow({ k, value, type, onCommit, depth = 0, unit, kind, vars, owner 
     const n = asType(v)
     setExpr(null)
     setEditing(false)
+    if (onExpr) { onExpr(text.replace(/^=/, '').trim()); return }
     report('msg', `${k} = ${text} = ${kind ? qText(n, kind) : fmtValue(n)}. PARAMS keeps plain numbers, so the value is written, not the expression.`)
     write(n)
   }
@@ -539,7 +578,7 @@ function EditRow({ k, value, type, onCommit, depth = 0, unit, kind, vars, owner 
     <div className="prow" tabIndex={0}>
       <span className="pk" style={pad(depth)}>{k}</span>
       <span ref={cell} className="pv edit" onClick={() => { if (!editing) { cancelled.current = false; pending.current = null; setEditing(true) } }}>
-        {!editing ? shown
+        {!editing ? (note ? `${shown}  (${note})` : shown)
           : kind || type === 'float'
             // PropertyUnitItem / PropertyFloatItem: a spin box (QuantitySpinBox, DoubleSpinBox).
             ? <span className="pedit" onKeyDown={(e) => {
@@ -824,6 +863,9 @@ function TaskContent() {
   if (task?.kind === 'dependencyGraph') return <DependencyGraphTask />
   // The Sketcher's edit mode (sketchui.tsx): TaskDlgEditSketch.
   if (task?.kind === 'sketch') return <SketchTask />
+  // PartDesign (partdesign.tsx): New Sketch's attachment panel, Pad and Pocket; `body` is the part module.
+  if (task?.kind === 'sketchAttach') return <SketchAttachTask key={task.body} part={task.body} />
+  if (task?.kind === 'pad' || task?.kind === 'pocket') return <ExtrudeTask key={`${task.kind}:${task.body}:${task.other}`} kind={task.kind} part={task.body} name={task.other ?? ''} edit={!!task.edit} />
   const b = task && scene?.bodies.find((x) => x.name === task.body)
   if (!task || !b) {
     return (
