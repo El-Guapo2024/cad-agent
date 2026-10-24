@@ -79,6 +79,19 @@ def projectless(argv: list[str]) -> bool:
     return argv[0] in PROJECTLESS or (len(argv) > 1 and argv[1] in PROJECTLESS_SUB.get(argv[0], ()))
 
 
+# /api/<slug>/features and /api/<slug>/features/<part>: a part's PartDesign feature list (`cad feature`).
+FEATURES_PATH = re.compile(r"^/api/([A-Za-z0-9_][A-Za-z0-9_-]{0,63})/features(?:/([A-Za-z0-9_]+))?/?$")
+
+
+def feature_layer():
+    """The part-file layer for PartDesign feature lists (cad_agent/feature_edit.py): `read(part_path) -> dict`
+    and `apply(part_path, ops) -> dict`. The one seam everything else reaches it through (`cad feature`, and so
+    /api/<slug>/features): the tests put a fake here. Imported when first used, as the rest of this module
+    keeps the CAD kernel out of the server's own process."""
+    from . import feature_edit
+    return feature_edit
+
+
 def _config_path() -> Path:
     d = Path(os.environ.get("CAD_WARM_DIR") or Path.home() / ".cache" / "cad-agent")
     return d / "workbench.json"
@@ -321,6 +334,25 @@ class Bench:
             return self.run(root, ["--actor", "ui", *args])
         finally:
             self.set_busy(slug, what, False)
+
+    # ── features: a part's PartDesign feature list (`cad feature`, through serve.feature_layer) ──────
+    def features_get(self, slug: str, part: str | None) -> dict:
+        """GET /api/<slug>/features[/<part>]: `cad feature list` — one part's read(), or {"parts": {...}} for all."""
+        # a read, so no busy flag for the page to show: straight to the runner
+        return self.run(self.root_of(slug), ["--actor", "ui", "feature", "list", slug, *([part] if part else [])])
+
+    def features_post(self, slug: str, part: str, ops) -> dict:
+        """POST /api/<slug>/features/<part> {ops: [...]}: `cad feature apply`, one undo step. The part is built
+        and its gates run, as for `cad set`; the file watcher then reloads the scene, and a full check follows."""
+        self.root_of(slug)
+        if not isinstance(ops, list) or not ops:
+            raise ValueError("ops must be a non-empty list")
+        r = self.cad(slug, "feature", ["--with-text", "feature", "apply", slug, part,
+                                        "--ops", json.dumps(ops, separators=(",", ":"))])
+        if r["exit"] in (0, 1, 2) and not r["data"].get("error"):
+            self.schedule(slug, "check")
+            self.broadcast({"type": "features", "slug": slug, "part": part})
+        return r
 
     # ── gui: the shared selection, visibility and view (FreeCADGui's job) ──────
     def gui_get(self, slug: str) -> dict:
@@ -676,6 +708,12 @@ def make_handler(bench: Bench):
                 if path == "/api/macro":
                     name = q.get("name", "")
                     return self._json({"name": name, "text": macro.read_macro(name)})
+                m = FEATURES_PATH.match(path)
+                if m:
+                    try:
+                        return self._json(bench.features_get(m.group(1), m.group(2)))
+                    except KeyError:
+                        return self._json({"error": f"no project {m.group(1)!r}"}, 404)
                 return self._static(path)
             except FileNotFoundError as e:
                 return self._json({"error": str(e)}, 404)
@@ -799,6 +837,16 @@ def make_handler(bench: Bench):
             except ValueError:
                 return self._json({"error": "body must be JSON"}, 400)
             slug = body.get("slug", "")
+            m = FEATURES_PATH.match(path)
+            if m:
+                try:
+                    if not m.group(2):
+                        return self._json({"error": "POST /api/<slug>/features/<part>: name the part"}, 400)
+                    return self._json(bench.features_post(m.group(1), m.group(2), body.get("ops")))
+                except KeyError:
+                    return self._json({"error": f"no project {m.group(1)!r}"}, 404)
+                except (TypeError, ValueError) as e:
+                    return self._json({"error": f"bad request: {e}"}, 400)
             try:
                 if path == "/api/roots":
                     added = bench.add_root(Path(str(body.get("path", ""))))

@@ -99,6 +99,8 @@ def placed_solids(slug: str) -> tuple[dict, dict]:
         from build123d import Pos
         base, x = {}, 0.0
         for name in part_names:
+            if _empty_body(st.project_dir(slug) / "parts" / f"{name}.py"):
+                continue      # a Body with nothing to build yet (FreeCAD shows it empty): the tree lists it
             solid, metas[name] = st.build_part(slug, name)
             lo, hi = bbox(solid)
             base[name] = Pos(x - lo[0], 0, 0) * solid
@@ -249,6 +251,24 @@ def _tessellate_bodies(shown: dict, colors: dict, view_props: dict,
     return combined_inst, shapes
 
 
+def _empty_body(path: Path) -> bool:
+    """A part module whose FEATURES (cad_agent/feature.py) holds no Pad or Pocket yet and builds on no base: a
+    Body as `cad feature new` makes it, before its first Pad. It has no solid, so the scene leaves it out."""
+    import ast
+    try:
+        tree = ast.parse(path.read_text())
+    except (OSError, SyntaxError, ValueError):
+        return False
+    feats = next((n.value for n in tree.body if isinstance(n, ast.Assign)
+                  and any(isinstance(t, ast.Name) and t.id == "FEATURES" for t in n.targets)), None)
+    if not isinstance(feats, ast.List):
+        return False
+    if any(isinstance(k, ast.keyword) and k.arg == "base" for n in ast.walk(tree) if isinstance(n, ast.Call)
+           and getattr(n.func, "id", None) == "Body" for k in n.keywords):
+        return False
+    return all(isinstance(e, ast.Call) and getattr(e.func, "id", None) == "Sketch" for e in feats.elts)
+
+
 def build_scene(slug: str, deviation: float | None = None, angular: float | None = None) -> dict:
     from .geom import bbox, mass_g
     from .verify import source_hash
@@ -266,6 +286,8 @@ def build_scene(slug: str, deviation: float | None = None, angular: float | None
         from build123d import Pos
         base, x = {}, 0.0
         for name in part_names:
+            if _empty_body(pdir / "parts" / f"{name}.py"):
+                continue
             solid, metas[name] = st.build_part(slug, name)
             lo, hi = bbox(solid)
             base[name] = Pos(x - lo[0], 0, 0) * solid
