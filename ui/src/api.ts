@@ -120,6 +120,9 @@ export const api = {
   features: (slug: string) => http<CadResult & { data?: { parts?: Record<string, FeatureDoc>; errors?: Record<string, string> } }>('GET', `/api/${encodeURIComponent(slug)}/features`),
   /** `cad feature apply`: ops on one part's feature list as one undo step (POST /api/<slug>/features/<part>); `name` is the
    *  step's name when the ops are a task panel's (FreeCAD's "Edit Pad"). data.doc is the list after. */
+  /** POST /api/<slug>/features/<part>/shape: `cad feature shape`, a feature built after ops (nothing written). */
+  featureShape: (slug: string, part: string, ops: FeatureOp[], feature?: string) =>
+    http<CadResult>('POST', `/api/${encodeURIComponent(slug)}/features/${encodeURIComponent(part)}/shape`, { ops, feature }),
   applyFeatures: (slug: string, part: string, ops: FeatureOp[], name?: string) =>
     http<CadResult>('POST', `/api/${encodeURIComponent(slug)}/features/${encodeURIComponent(part)}`, name ? { ops, name } : { ops }),
   /** Minimum distance between two placed parts, and the closest points (`cad measure --posed`). */

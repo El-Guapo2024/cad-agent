@@ -147,7 +147,7 @@ def test_move_refused_is_all_or_nothing(plate):
     ([{"op": "rename", "name": "Pad", "to": "Boss"}], "already a feature 'Boss'"),
     ([{"op": "rename", "name": "Pad", "to": "a b"}], "not a name FreeCAD takes"),
     ([{"op": "tip", "name": "Nope"}], "there is no feature"),
-    ([{"op": "add", "feature": {"name": "X", "type": "PartDesign::Fillet"}}], "not a Sketch, Pad or Pocket"),
+    ([{"op": "add", "feature": {"name": "X", "type": "PartDesign::Frobnicate"}}], "not a Sketch, Pad or Pocket"),
     ([{"op": "frobnicate"}], "is not an edit"),
     ([{"op": "set", "name": "Holes", "props": {"geometry": [{"type": "Spline"}]}}], "not LineSegment"),
 ])
