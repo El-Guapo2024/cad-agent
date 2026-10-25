@@ -152,15 +152,21 @@ const RUN: Record<string, () => void> = {
 /** Commands that work only while a sketch is in edit (eType ForEdit, isSketchInEdit). */
 const OUT_OF_EDIT = new Set(['Sketcher_NewSketch', 'Sketcher_MapSketch', 'Sketcher_ReorientSketch', 'Sketcher_ValidateSketch', 'Sketcher_MergeSketches', 'Sketcher_MirrorSketch'])
 let newSketchHook: (() => void) | null = null
+type ObjectCommands = { names: string[]; enabled(name: string): boolean; run(name: string, args: string[]): void }
+let objectCommands: ObjectCommands | null = null
+/** The commands on sketch objects (Map, Reorient, Validate, Merge, Mirror: sketchobjcmds.tsx) register here. */
+export function onSketchObjectCommands(h: ObjectCommands) { objectCommands = h }
+const isObjectCommand = (name: string) => !!objectCommands?.names.includes(name)
 /** Sketcher_NewSketch's dialog (SketchOrientationDialog, sketchui.tsx) registers here. */
 export function onNewSketch(f: () => void) { newSketchHook = f }
-export function isImplemented(name: string) { return name in RUN || isConstraintCommand(name) || name === 'Sketcher_NewSketch' || name === 'Sketcher_EditSketch' }
+export function isImplemented(name: string) { return name in RUN || isConstraintCommand(name) || name === 'Sketcher_NewSketch' || name === 'Sketcher_EditSketch' || isObjectCommand(name) }
 /** Command::isActive. */
 export function isEnabled(name: string): boolean {
   const editing = S.isEditing()
   if (name === 'Sketcher_NewSketch') return !editing && !!getState().slug
   // CmdSketcherEditSketch: a sketch selected in the tree; until the tree has sketches, the one last in edit
   if (name === 'Sketcher_EditSketch') return !editing && !!getState().slug && !!S.lastSketch()
+  if (isObjectCommand(name)) return objectCommands!.enabled(name)
   if (OUT_OF_EDIT.has(name)) return false
   if (!editing || !isImplemented(name)) return false
   const sel = S.getSelection()
@@ -173,7 +179,7 @@ export function isEnabled(name: string): boolean {
 }
 export function why(name: string) {
   if (!isImplemented(name)) return 'Not in this workbench yet'
-  if (OUT_OF_EDIT.has(name)) return 'Works on sketch objects, which the tree shows (not yet)'
+  if (OUT_OF_EDIT.has(name) && !isObjectCommand(name)) return 'Works on sketch objects, which the tree shows (not yet)'
   return ''
 }
 /** Sketcher_EditSketch: the sketch named, with the geometry and constraints given as JSON (`cad gui run PROJECT
@@ -198,6 +204,7 @@ export function runSketchCommand(name: string, args: string[] = []) {
   if (name === 'Sketcher_NewSketch') { newSketchHook?.(); return }
   if (name === 'Sketcher_EditSketch') { recordAndRun(name, () => editSketchCommand(args), args); return }
   if (!isEnabled(name)) { report('warn', `${cmdInfo(name).menu || name}: not available now`); return }
+  if (isObjectCommand(name)) { recordAndRun(name, () => objectCommands!.run(name, args), args); return }
   recordAndRun(name, () => {
     if (isConstraintCommand(name)) { S.purgeHandler(); runConstraint(name); return }
     RUN[name]?.()

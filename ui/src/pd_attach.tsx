@@ -96,7 +96,7 @@ function tipFeature(doc: FeatureDoc): string | null {
   return solids.length ? solids[solids.length - 1].name : doc.base ? 'BaseFeature' : null
 }
 /** The 3D selection's sub-elements of this part's Body, as references to its Tip feature. */
-function refsOfSelection(part: string): Ref[] {
+export function refsOfSelection(part: string): Ref[] {
   const s = getState(), body = bodyOfPart(s, part), doc = s.features[part]
   if (!doc) return []
   const out: Ref[] = []
