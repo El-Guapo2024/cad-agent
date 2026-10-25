@@ -822,12 +822,22 @@ def refine(shape):
     whether it is closed."""
     if shape is None or shape.IsNull():
         return shape
+    from OCP.BRepBuilderAPI import BRepBuilderAPI_Copy
+    from OCP.BRepCheck import BRepCheck_Analyzer
     closed = is_closed(shape)
+    # Not FreeCAD's: a refine that leaves a valid shape invalid is not kept. RefineModel's cylinder uniter is sensitive to
+    # the last digits of its input (a helix fused to a cylinder whose edges differ from FreeCAD's by 1e-12 in tolerance:
+    # FreeCAD's own removeSplitter makes the same invalid face from it), and the unrefined shape is FreeCAD's there. The
+    # refine runs on a copy then, since its ShapeFix calls change the edges they fix in place.
+    valid = BRepCheck_Analyzer(shape).IsValid()
+    work = BRepBuilderAPI_Copy(shape).Shape() if valid else shape
     try:
-        out = refine_model(shape)
+        out = refine_model(work)
     except (RefineFailed, Standard_Failure):
         return shape
     out, _ = fix_solid_orientation(out)
-    if is_closed(out) == closed:
-        return out
-    return shape
+    if is_closed(out) != closed:
+        return shape
+    if valid and not BRepCheck_Analyzer(out).IsValid():
+        return shape
+    return out
