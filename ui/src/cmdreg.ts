@@ -53,6 +53,7 @@ import { profileCommand } from './pd_revolve'
 import { pdxCommands } from './pd_transform'
 import { pdDatumCommands } from './pd_datum'
 import { dressUpEntries } from './pd_dressup'
+import { sweepCommands } from './pd_sweep'
 
 export type RegCommand = { label(): string; run(args: string[]): void; isEnabled(): boolean }
 export type CommandInfo = { name: string; label: string; enabled: boolean }
@@ -227,6 +228,7 @@ const COMMANDS: Record<string, RegCommand> = {
   ...Object.fromEntries(pdxCommands().map(([c, label, run]) => [c, reg(label, run, () => !!getState().slug)])),
   ...pdDatumCommands(reg),                    // pd_datum.tsx: PartDesign_Plane, _Line, _Point, _CoordinateSystem
   ...Object.fromEntries(dressUpEntries(true).flatMap((e) => (e === 'sep' || !e.cmd ? [] : [[e.cmd, reg(e.label, () => e.onSelect?.(), () => !!getState().slug)]]))),  // pd_dressup.tsx
+  ...Object.fromEntries(sweepCommands().map(([c, label, run]) => [c, reg(label, run, () => !!getState().slug)])),   // pd_sweep.tsx
 
   // ── CAD Agent workbench (chrome.tsx's agentEntries/agentwb.tsx: no FreeCAD equivalent) ──
   CADAgent_Check: reg('Check', () => openTask('check', ''), () => !!getState().slug),
