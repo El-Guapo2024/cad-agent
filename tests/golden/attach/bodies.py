@@ -18,6 +18,7 @@ from cad_agent.feature import (Circle, Constraint, DatumLine, DatumPlane, DatumP
                                LineSegment, LocalCoordinateSystem, Pad, PartDesignCoordinateSystem,
                                PartDesignLine, PartDesignPlane, PartDesignPoint, Pocket, Sketch)
 from cad_agent.feature import AdditiveBox, SubtractiveCylinder  # noqa: E402
+from cad_agent.feature import ArcOfCircle, BSplineCurve, Ellipse  # noqa: E402
 
 
 def on(name, support, geometry, constraints=(), **kw):
@@ -32,6 +33,31 @@ def cylinder():
 
 def triangle(p0, p1, p2):
     return [LineSegment(p0, p1), LineSegment(p1, p2), LineSegment(p2, p0)]
+
+
+def padded(geometry, constraints=(), length=5.0):
+    """A Body of one sketch on XY padded: the side face(s) first, then the bottom, then the top."""
+    return [Sketch("Sketch", "XY", geometry, list(constraints)), Pad("Pad", "Sketch", length=length)]
+
+
+def d_shape():
+    """A half disc (r 5): its arc and its diameter."""
+    import math
+    return padded([ArcOfCircle((0.0, 0.0), 5.0, 0.0, round(math.pi, 9)), LineSegment((-5.0, 0.0), (5.0, 0.0))],
+                  (), 6.0)                       # the ends meet within 2e-9 (the part file writes pi as 3.141592654)
+
+
+def ring_bspline():
+    import math
+    poles = [(round(8.0 * math.cos(2 * math.pi * i / 6) + (1.5 if i % 2 else 0.0), 6), round(6.0 * math.sin(2 * math.pi * i / 6), 6))
+             for i in range(6)]                     # rounded: the part file writes 9 decimals
+    return padded([BSplineCurve(poles, [1] * 7, [float(i) for i in range(7)], periodic=True, degree=3)], length=4.0)
+
+
+def tilted(name, refs, pitch=30.0, z=14.0):
+    """A sketch on XY lifted and tilted about Y (AttachmentOffset), external geometry of refs."""
+    return on(name, [("XY_Plane", "")], [Circle((0.0, 0.0), 1.0)], attachment_offset=((0.0, 0.0, z), (0.0, pitch, 0.0)),
+              external_geometry=refs)
 
 
 CASES = {
@@ -186,6 +212,19 @@ CASES = {
            external_geometry=[("DatumPoint", ""), ("Y_Axis", "")]),
         Pocket("Pocket", "Sketch001", length=1.0)]},
     # PartDesign primitives attached (FeaturePrimitive's AttachExtension, engine 3D): the shape in the attached frame
+    # external geometry of curves the sketch's plane does not hold as they are: a circle at an angle (an ellipse), an
+    # ellipse, a B-spline (moved onto a parallel sketch, normal-projected onto a tilted one, a line edge-on)
+    "external_oblique_circle": {"features": cylinder() + [tilted("Sketch001", [("Pad", "Edge3")])]},
+    "external_oblique_arc": {"features": d_shape() + [tilted("Sketch001", [("Pad", "Face4")], pitch=40.0)]},
+    "external_ellipse": {"features": padded([Ellipse((0.0, 0.0), 6.0, 3.0, (0.6, 0.8))]) + [
+        tilted("Sketch001", [("Pad", "Edge3")], pitch=35.0),
+        on("Sketch002", [("XY_Plane", "")], [Circle((0.0, 0.0), 1.0)], attachment_offset=((1.0, 2.0, 9.0), (15.0, 0.0, 0.0)),
+           external_geometry=[("Pad", "Edge3")])]},
+    "external_bspline": {"features": ring_bspline() + [
+        on("Sketch001", [("XY_Plane", "")], [Circle((0.0, 0.0), 1.0)], attachment_offset=((0.0, 0.0, 10.0), (0.0, 0.0, 0.0)),
+           external_geometry=[("Pad", "Edge3")]),
+        tilted("Sketch002", [("Pad", "Edge3")], pitch=25.0),
+        Sketch("Sketch003", "XZ", [Circle((0.0, 20.0), 1.0)], external_geometry=[("Pad", "Edge3")])]},
     "primitive_on_side_face": {"features": base_pad() + [
         AdditiveBox("Box", length=6.0, width=4.0, height=3.0, attachment_support=[("Pad", "Face2")],
                     map_mode="FlatFace", attachment_offset=((2.0, 1.0, 0.0), (15.0, 0.0, 0.0)))]},

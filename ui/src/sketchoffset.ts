@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: LGPL-2.1-or-later
 // Follows FreeCAD (https://github.com/FreeCAD/FreeCAD, commit 3160daf1e2b6), copyright of the files below (each is
 // LGPL-2.0-or-later or LGPL-2.1-or-later as it states; ui/NOTICE has them all):
-//   src/Mod/Sketcher/Gui/DrawSketchHandlerOffset.h: 2023 Pierre-Louis Boyer
+//   src/Mod/Sketcher/Gui/DrawSketchHandlerOffset.h: 2022 Boyer Pierre-Louis
 //   src/Mod/Sketcher/Gui/CommandSketcherTools.cpp: 2014 Abdullah Tahiri
 // Sketcher_Offset (Z, T): the selected lines, arcs and circles grouped into continuous curves (generatevCC), their
 // offset by OCCT's BRepOffsetAPI_MakeOffset at the cursor's distance (the sketch kernel: cad_agent/sketch_offset.py),
@@ -290,7 +290,7 @@ export class OffsetHandler extends DefaultHandler {
   protected update(p: XY) {
     this.endpoint = p
     const req = request(this.chains, this.method === 0 ? 0 : 2, { point: [p[0], p[1]] })
-    const made = tryKernel((k) => k(req) as unknown as Made, () => { if (this.state === 0) this.update(this.endpoint) })
+    const made = tryKernel((k) => k(req) as unknown as Made, () => { if (this.state === 0) this.update(this.endpoint) }, 'offset-preview')
     if (made) this.made = made
     const geos = (this.made?.geometry ?? []).filter((g): g is Geo => !!g)
     S.setEdit({ curves: this.made && Math.abs(this.made.length) > CONFUSION ? geos.map((g) => SK.polyline(g)) : [], construction: false })

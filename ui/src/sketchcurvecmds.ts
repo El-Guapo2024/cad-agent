@@ -2,7 +2,7 @@
 // Follows FreeCAD (https://github.com/FreeCAD/FreeCAD, commit 3160daf1e2b6), copyright of the files below (each is
 // LGPL-2.0-or-later or LGPL-2.1-or-later as it states; ui/NOTICE has them all):
 //   src/Mod/Sketcher/Gui/CommandSketcherBSpline.cpp: 2017 Abdullah Tahiri
-//   src/Mod/Sketcher/Gui/CommandSketcherOverlay.cpp: 2017 Abdullah Tahiri
+//   src/Mod/Sketcher/Gui/CommandSketcherOverlay.cpp: 2023 Florian Foinant-Willig
 //   src/Mod/Sketcher/Gui/DrawSketchHandlerBSpline.h: 2022 Abdullah Tahiri
 //   src/Mod/Sketcher/Gui/Utils.cpp: 2021 Abdullah Tahiri
 // The Sketcher's curve commands: the B-Spline Tools toolbar (Geometry to B-Spline, Increase/Decrease B-Spline Degree,
@@ -167,7 +167,7 @@ export class InsertKnotHandler extends DrawSketchHandler {
     const text = ` ${this.guessParam.toFixed(3)}`
     // GeomCurve::closestParameter (OCCT's, from the kernel; the port's own while the answer is on its way)
     const geo = BS.plain(b!)
-    this.guessParam = tryKernel((k) => k({ op: 'closest', geo, p }).u!, () => {}) ?? CV.closestParameter(b!, p)!
+    this.guessParam = tryKernel((k) => k({ op: 'closest', geo, p }).u!, undefined, 'insert-knot') ?? CV.closestParameter(b!, p)!
     const on = CV.bsplineValue(b!, this.guessParam)
     S.setEdit({ positionText: { at: on, text }, markers: [on] })
   }
@@ -359,7 +359,7 @@ export class BSplineKnotsHandler extends DefaultHandler {
     if (onlyOutline && (!pts.length || l >= CONFUSION)) pts.push(this.prevCursor)
     if (pts.length < 2) return
     const periodic = this.periodic
-    const g = tryKernel((k) => k({ op: 'interpolate', points: pts, periodic, degree: null }).geo!, () => { if (this.state === 1) this.drawShape() })
+    const g = tryKernel((k) => k({ op: 'interpolate', points: pts, periodic, degree: null }).geo!, () => { if (this.state === 1) this.drawShape() }, 'knots-preview')
     if (g) this.preview = g
     if (this.preview) this.shapeGeometry.push(this.isConstructionMode() ? { ...this.preview, construction: true } : this.preview)
   }

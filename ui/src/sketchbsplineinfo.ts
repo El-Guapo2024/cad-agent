@@ -4,7 +4,7 @@
 //   src/Mod/Sketcher/Gui/EditModeInformationOverlayCoinConverter.cpp: 2021 Abdullah Tahiri
 //   src/Mod/Sketcher/Gui/EditModeGeometryCoinConverter.cpp: 2021 Abdullah Tahiri
 //   src/Mod/Sketcher/Gui/EditModeCoinManager.cpp: 2021 Abdullah Tahiri
-//   src/Mod/Sketcher/Gui/CommandSketcherOverlay.cpp: 2017 Abdullah Tahiri
+//   src/Mod/Sketcher/Gui/CommandSketcherOverlay.cpp: 2023 Florian Foinant-Willig
 // The edit mode's information layer: for each B-spline its degree (at the poles' centre of mass), its control polygon,
 // its curvature comb, the multiplicity of each knot ("(4)") and the weight of each pole ("[1.00]", a line below), in
 // InformationColor; for each arc of circle its whole circle (the circular helper). Sketcher_BSplineDegree,

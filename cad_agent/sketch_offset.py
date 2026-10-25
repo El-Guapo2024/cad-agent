@@ -1,5 +1,5 @@
-"""The OpenCascade side of Sketcher_Offset (DrawSketchHandlerOffset.h, Mod/Sketcher/Gui at 3160daf1e2b6, 2023 Pierre-Louis
-Boyer, LGPL-2.1-or-later), for the sketch kernel (cad_agent/sketch_kernel.py): the request
+"""The OpenCascade side of Sketcher_Offset (DrawSketchHandlerOffset.h, Mod/Sketcher/Gui at 3160daf1e2b6, 2022 Boyer
+Pierre-Louis, LGPL-2.1-or-later), for the sketch kernel (cad_agent/sketch_kernel.py): the request
 
     {"op": "offset", "curves": [[geo, ...], ...], "join": 0 | 2, "point": [x, y] or "length": d}
 

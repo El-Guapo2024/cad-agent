@@ -72,10 +72,11 @@ export function runOp<T>(fn: (k: Kernel) => T, done: (r: T) => void, fail: (e: u
 }
 /** fn run without waiting: its result, or null when it needs an answer it has not got (the request is then sent, and
  *  then() runs once it is in: a preview drawn on the next mouse move, say). */
-export function tryKernel<T>(fn: (k: Kernel) => T, then?: () => void, cache: KCache = shared): T | null {
+export function tryKernel<T>(fn: (k: Kernel) => T, then?: () => void, channel?: string, cache: KCache = shared): T | null {
   try { return fn(cached(cache)) } catch (e) {
     if (!(e instanceof KernelNeeded)) throw e
-    const key = keyOf(e.reqs[0])
+    const key = channel ?? keyOf(e.reqs[0])
+    // one request at a time on a channel (a preview's): the newest is asked for once it is back (then)
     if (!pending.has(key)) {
       pending.add(key)
       void serverFetch(e.reqs).then((answers) => {

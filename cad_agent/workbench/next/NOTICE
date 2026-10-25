@@ -21,17 +21,19 @@ them carry.
 
   Abdullah Tahiri: Gui/NotificationArea.cpp, Gui/NotificationBox.cpp,
       Gui/PreferencePages/DlgSettingsNotificationArea.cpp,
-      Mod/Part/Gui/ViewProviderGridExtension.cpp, Mod/Sketcher/Gui/CommandSketcherTools.cpp,
-      Mod/Sketcher/Gui/DrawSketchControllableHandler.h, Mod/Sketcher/Gui/DrawSketchController.h,
-      Mod/Sketcher/Gui/DrawSketchDefaultHandler.h, Mod/Sketcher/Gui/DrawSketchHandlerArc.h,
-      Mod/Sketcher/Gui/DrawSketchHandlerExternal.h,
+      Mod/Part/Gui/ViewProviderGridExtension.cpp, Mod/Sketcher/Gui/CommandSketcherBSpline.cpp,
+      Mod/Sketcher/Gui/CommandSketcherTools.cpp, Mod/Sketcher/Gui/DrawSketchControllableHandler.h,
+      Mod/Sketcher/Gui/DrawSketchController.h, Mod/Sketcher/Gui/DrawSketchDefaultHandler.h,
+      Mod/Sketcher/Gui/DrawSketchHandlerArc.h,
+      Mod/Sketcher/Gui/DrawSketchHandlerCarbonCopy.h, Mod/Sketcher/Gui/DrawSketchHandlerExternal.h,
       Mod/Sketcher/Gui/DrawSketchHandlerCircle.h, Mod/Sketcher/Gui/DrawSketchHandlerLine.h,
       Mod/Sketcher/Gui/DrawSketchHandlerLineSet.h, Mod/Sketcher/Gui/DrawSketchHandlerPoint.h,
       Mod/Sketcher/Gui/DrawSketchHandlerPolygon.h, Mod/Sketcher/Gui/DrawSketchHandlerRectangle.h,
       Mod/Sketcher/Gui/DrawSketchHandlerSlot.h, Mod/Sketcher/Gui/EditModeCoinManager.cpp,
       Mod/Sketcher/Gui/EditModeCoinManagerParameters.cpp,
       Mod/Sketcher/Gui/EditModeConstraintCoinManager.cpp,
-      Mod/Sketcher/Gui/EditModeGeometryCoinManager.cpp, Mod/Sketcher/Gui/TaskSketcherElements.cpp,
+      Mod/Sketcher/Gui/EditModeGeometryCoinManager.cpp,
+      Mod/Sketcher/Gui/EditModeInformationOverlayCoinConverter.cpp, Mod/Sketcher/Gui/TaskSketcherElements.cpp,
       Mod/Sketcher/Gui/Utils.cpp
   Alexander Golubev (Fat-Zer): Gui/ViewProviderPlane.cpp, Mod/PartDesign/Gui/CommandBody.cpp,
       Mod/PartDesign/Gui/ViewProviderSketchBased.cpp
@@ -44,6 +46,7 @@ them carry.
       Mod/Measure/Gui/ViewProviderMeasureDistance.cpp
   Eivind Kvedalen: App/Expression.cpp, App/Expression.l, App/Expression.y, App/ObjectIdentifier.cpp,
       Gui/Dialogs/DlgExpressionInput.cpp, Gui/ExpressionCompleter.cpp
+  Florian Foinant-Willig: Mod/Sketcher/Gui/CommandSketcherOverlay.cpp
   FreeCAD contributors: Gui/Selection/SelectionColors.h
   FreeCAD Project Association: Gui/CommandStd.cpp, Gui/Dialogs/DlgPreferencesImp.cpp,
       Gui/PreferencePages/DlgSettingsGeneral.cpp, Gui/PreferencePages/DlgSettingsWorkbenchesImp.cpp
@@ -88,7 +91,8 @@ them carry.
   Ondsel: Mod/Assembly/CommandCreateBom.py
   Pablo Gil Fernández (the original of FreeCAD.qss) and MisterMaker (its revision):
       Gui/Stylesheets/FreeCAD.qss
-  Pierre-Louis Boyer: Mod/Measure/Gui/QuickMeasure.cpp, Mod/Sketcher/Gui/SnapManager.cpp
+  Pierre-Louis Boyer: Mod/Measure/Gui/QuickMeasure.cpp, Mod/Sketcher/Gui/DrawSketchHandlerOffset.h,
+      Mod/Sketcher/Gui/SnapManager.cpp
   Pieter Hijma: Gui/Dialogs/DlgExpressionInput.cpp
   Stefan Tröger: Gui/CommandStructure.cpp, Mod/Part/Gui/ViewProviderAttachExtension.cpp,
       Mod/PartDesign/Gui/CommandPrimitive.cpp, Mod/PartDesign/Gui/TaskPrimitiveParameters.cpp,
@@ -863,6 +867,12 @@ src/Mod/Sketcher/Gui/CommandConstraints.cpp   [licence: LGPL-2.1-or-later]
 src/Mod/Sketcher/Gui/CommandCreateGeo.cpp   [licence: LGPL-2.1-or-later]
     copyright 2010 Jürgen Riegel
     followed by src/sketchcmdinfo.ts, src/sketchcmds.ts
+src/Mod/Sketcher/Gui/CommandSketcherBSpline.cpp   [licence: LGPL-2.1-or-later]
+    copyright 2017 Abdullah Tahiri
+    followed by src/sketchbspline.ts, src/sketchcurvecmds.ts
+src/Mod/Sketcher/Gui/CommandSketcherOverlay.cpp   [licence: LGPL-2.1-or-later]
+    copyright 2023 Florian Foinant-Willig
+    followed by src/sketchbsplineinfo.ts, src/sketchcurvecmds.ts
 src/Mod/Sketcher/Gui/CommandSketcherTools.cpp   [licence: LGPL-2.1-or-later]
     copyright 2014 Abdullah Tahiri
     followed by src/sketchcmdinfo.ts, src/sketchcmds.ts
@@ -894,6 +904,9 @@ src/Mod/Sketcher/Gui/DrawSketchHandlerArcOfParabola.h   [licence: LGPL-2.1-or-la
 src/Mod/Sketcher/Gui/DrawSketchHandlerBSpline.h   [licence: LGPL-2.1-or-later]
     copyright 2022 Abdullah Tahiri
     followed by src/sketchgeo.ts
+src/Mod/Sketcher/Gui/DrawSketchHandlerCarbonCopy.h   [licence: LGPL-2.1-or-later]
+    copyright 2022 Abdullah Tahiri
+    followed by src/sketchcarbon.ts, src/sketchcarbontool.ts
 src/Mod/Sketcher/Gui/DrawSketchHandlerCircle.h   [licence: LGPL-2.1-or-later]
     copyright 2022 Abdullah Tahiri
     followed by src/sketchtools.ts
@@ -915,6 +928,9 @@ src/Mod/Sketcher/Gui/DrawSketchHandlerLine.h   [licence: LGPL-2.1-or-later]
 src/Mod/Sketcher/Gui/DrawSketchHandlerLineSet.h   [licence: LGPL-2.1-or-later]
     copyright 2022 Abdullah Tahiri
     followed by src/sketchtools.ts
+src/Mod/Sketcher/Gui/DrawSketchHandlerOffset.h   [licence: LGPL-2.1-or-later]
+    copyright 2022 Boyer Pierre-Louis
+    followed by src/sketchoffset.ts
 src/Mod/Sketcher/Gui/DrawSketchHandlerPoint.h   [licence: LGPL-2.1-or-later]
     copyright 2022 Abdullah Tahiri
     followed by src/sketchtools.ts
@@ -951,6 +967,9 @@ src/Mod/Sketcher/Gui/EditModeGeometryCoinConverter.cpp   [licence: LGPL-2.1-or-l
 src/Mod/Sketcher/Gui/EditModeGeometryCoinManager.cpp   [licence: LGPL-2.1-or-later]
     copyright 2021 Abdullah Tahiri
     followed by src/sketchdraw.ts
+src/Mod/Sketcher/Gui/EditModeInformationOverlayCoinConverter.cpp   [licence: LGPL-2.1-or-later]
+    copyright 2021 Abdullah Tahiri
+    followed by src/sketchbsplineinfo.ts
 src/Mod/Sketcher/Gui/SketchOrientationDialog.cpp   [licence: LGPL-2.1-or-later]
     copyright 2011 Jürgen Riegel
     followed by src/sketchui.tsx
