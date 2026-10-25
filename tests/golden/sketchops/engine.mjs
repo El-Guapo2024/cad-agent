@@ -3968,28 +3968,43 @@ function alignmentConstraint(alignment, first, firstPos, second, index = -1) {
 	};
 }
 function toCons(c) {
-	if (c.type === "InternalAlignment" && c.alignment) return {
+	const out = c.type === "InternalAlignment" && c.alignment ? {
 		type: `InternalAlignment:${c.alignment}`,
 		args: alignmentArgs(c)
-	};
-	const out = {
+	} : {
 		type: c.type,
 		args: toArgs(c)
 	};
-	if (isDimensional(c)) out.value = c.value;
-	if (!c.driving) out.driving = false;
-	if (c.name) out.name = c.name;
+	if (c.type !== "InternalAlignment") {
+		if (isDimensional(c)) out.value = c.value;
+		if (!c.driving) out.driving = false;
+		if (c.name) out.name = c.name;
+		if (c.expr && isDimensional(c)) out.expr = c.expr;
+	}
+	if (!c.active) out.active = false;
+	if (c.virtual) out.virtual_space = true;
 	return out;
 }
 /** ConstraintPy::PyInit's parsing, for the forms toArgs writes (an int argument where the value would be a GeoId). */
 function fromCons(k) {
+	const c = fromConsOnly(k);
+	if (k.active === false) c.active = false;
+	if (k.virtual_space) c.virtual = true;
+	const e = typeof k.value === "string" ? k.value : k.expr;
+	if (e && isDimensional(c)) {
+		c.expr = e;
+		if (typeof k.value === "string") c.value = NaN;
+	}
+	return c;
+}
+function fromConsOnly(k) {
 	if (k.type.startsWith("InternalAlignment:")) {
 		const al = k.type.slice(18), a = k.args;
 		if (ALIGN_TWO.includes(al)) return alignmentConstraint(al, a[0], 0, a[1]);
 		if (ALIGN_INDEXED.includes(al)) return alignmentConstraint(al, a[0], a[1], a[2], a[3] ?? -1);
 		return alignmentConstraint(al, a[0], a[1], a[2]);
 	}
-	const t = k.type, a = k.args, v = k.value ?? 0, P = (n) => n;
+	const t = k.type, a = k.args, v = typeof k.value === "number" ? k.value : 0, P = (n) => n;
 	let c;
 	const hasValue = k.value !== void 0;
 	if (t === "Coincident") c = constraint(t, a[0], P(a[1]), a[2], P(a[3]));
@@ -4011,7 +4026,7 @@ function getPoint(geo, g, pos) {
 	const e = geo[g];
 	if (!e) return null;
 	switch (e.type) {
-		case "Point": return pos === 1 ? e.at : null;
+		case "Point": return pos === 1 || pos === 3 || pos === 2 ? e.at : null;
 		case "LineSegment": return pos === 1 ? e.start : pos === 2 ? e.end : null;
 		case "Circle": return pos === 3 ? e.center : null;
 		case "ArcOfCircle":

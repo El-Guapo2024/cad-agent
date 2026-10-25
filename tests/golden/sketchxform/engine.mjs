@@ -3714,7 +3714,7 @@ function getPoint(geo, g, pos) {
 	const e = geo[g];
 	if (!e) return null;
 	switch (e.type) {
-		case "Point": return pos === 1 ? e.at : null;
+		case "Point": return pos === 1 || pos === 3 || pos === 2 ? e.at : null;
 		case "LineSegment": return pos === 1 ? e.start : pos === 2 ? e.end : null;
 		case "Circle": return pos === 3 ? e.center : null;
 		case "ArcOfCircle":
