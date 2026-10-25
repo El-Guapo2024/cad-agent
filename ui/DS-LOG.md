@@ -139,3 +139,81 @@ Unsure / questions:
 - A support object is shown as its own mesh only when the server can mesh it (`cad feature shape`: a solid, a sketch,
   a binder); a datum's plane is infinite and an Origin feature is drawn by the Origin, so those show only the binder.
 - `TraceSupport` stays a no-op inside one Body (above), and cross-Body support has no vocabulary yet (above).
+
+## 3. Part's 3D picking and attachment (PARITY.md leftover) — done
+
+### What was done
+
+Tests written with the work (they fail without it): `tests/golden/part/cases_attach.py`, 12 documents attaching Part
+objects (`attach_flat_face`, `attach_flip`, `attach_side`, `attach_object_xy`, `attach_chain`, `attach_deactivated`,
+`attach_cut`, `attach_polygon`, `attach_circle_edge`, `attach_fuse_placement`, `attach_body_face`,
+`attach_origin_plane`) with their answers recorded from FreeCAD 26.3 by `tests/golden/part/make.py attach` into
+`tests/golden/part/freecad_attach.json`, together with AttachExtension's property values on a fresh object of every
+Part type; `tests/test_feature_part.py` now checks each case's Placement against FreeCAD's and each type's
+AttachExtension defaults; `tests/test_feature_edit_attach.py::test_cad_feature_attach_and_list_a_part_object` drives
+`cad feature attach --before` and `cad feature list` on a part of Part objects; and
+`tests/test_feature_edit_part.py::test_an_attachment_follows_a_rename_and_holds_a_delete` holds the support to the
+edit rules. `ui/scripts/partcheck.mjs`'s attach section (17 checks) failed first: Part's Attachment entry was greyed.
+
+- Backend, `cad_agent/feature_part.py`: `PartObject` holds AttachExtension — `COMMON`'s attachment_support, map_mode,
+  attachment_offset, map_reversed and map_path_parameter, `engine = "3D"` (AttachEngine3D), `ATTACH` and `REFS`
+  (a rename follows the support, a delete of a used object is refused, a move before the object it links is refused),
+  `normalize`/`support_list` for the references, and `fc_attach` in `to_freecad`: AttachmentSupport, MapMode,
+  AttachmentOffset, MapReversed and MapPathParameter, adding `Part::AttachExtensionPython` when the type lacks the
+  extension (as `TaskAttachmentEditor.__init__` does). `Context.attach` gives an object the Placement its mode makes
+  (`attacher.attach`), else its `placement=` when Deactivated or unsupported; `Context.resolve`/`ref` see the objects
+  already built and the Body's attach Context.
+- Backend, `cad_agent/feature_attach.py`: `_load` returns OBJECTS as well as FEATURES (a part of Part objects, of a
+  Body, or both); `body_info`/`_part_info` place every object (and the Body) for `cad feature list`; `needs_body` is
+  true when a Part object is attached; `attach_query` uses the Part object's own engine and resolves among the objects
+  before it. `feature_part_prim.py`'s validation skips the AttachExtension keys.
+- The page, `ui/src/pd_attach.tsx`: the Attachment panel on a Part object (it is found in `doc.objects`, engine 3D),
+  its own shape previewed with the attachment taken off and moved to the answer's Placement (as TaskAttachmentEditor
+  moves the object itself), the scene's joined Body giving way while it is open, faces and edges picked through
+  `part_pick.tsx`, a click on the object itself ignored ("Ignored. Can't attach object to itself!"). The starting active
+  button follows FreeCAD's two editors: TaskAttachmentEditor (references exist: none; none: the first, auto_next) and
+  TaskAttacher with take_selection (a new datum or sketch starts the button after the selection's references, as
+  `handleInitialSelection` + `addToReference` leave it).
+- `ui/src/part_pick.tsx` (new): `cad feature shape`'s meshes with FreeCAD's FaceN/EdgeN names as view helpers, the
+  document's shown objects and the Body's Tip from their own shapes, an `allow`/`onPick` per panel, a target drawn at a
+  Placement; `parsePartPick` turns "@Base.Face6" back into the part file's reference.
+- `ui/src/part_tasks.tsx`: Fillet and Chamfer pick edges over the chosen shape (a click checks/unchecks EdgeN),
+  Thickness its faces tinted over the shape while armed, Project on surface its projection surface and the projected
+  faces, wires or edges (the pick ends the arming).
+- `ui/src/part_wb.tsx`: Part's Attachment entry (exactly one selected Part object, not a sketch) opens the panel; the
+  Data tab shows the attached Placement, Map Mode and Attachment Support ("Base:Face6") and "Engine 3D".
+  `ui/src/attached.ts` marks `doc.objects` with their attachments.
+- `ui/NOTICE`: `Mod/Part/AttachmentEditor/Commands.py` and `TaskAttachmentEditor.py` for `src/pd_attach.tsx`, and
+  `TaskAttacher.cpp`/`ViewProviderAttachExtension.cpp` are cited there too. `ui/PARITY.md`: the Part workbench's
+  Attachment, its knowing differences, the four picking rows and the `part_pick.tsx` paragraph, and partcheck's count
+  (406 checks pass, 21 known). Bundle rebuilt (`cad_agent/workbench/next/`, NOTICE included).
+
+### Commit
+
+`254f466` Part: the Attachment panel on a Part object, and picks in the 3D view
+
+### Tests run
+
+- `pytest` (whole suite) — 7,062 passed, 23 skipped (0:11:50).
+- `pytest tests/test_licenses.py -q` — 244 passed (the new citations are in ui/NOTICE; the bundle's copy matches).
+- `ui/scripts/attachcheck.mjs` — 89 ok, 0 failing, 0 known differences.
+- `ui/scripts/partcheck.mjs` — 406 ok, 0 FAIL, 21 known (full run; the attach section is 17 of the 406).
+- `npx tsc -b --noEmit` — clean; `npm run build` — built, bundle committed.
+
+### Unsure / questions
+
+- **Import order.** Importing `cad_agent.feature_attach` before `cad_agent.feature` raises a circular ImportError
+  (`DatumLine`): feature_attach.py imports feature at module scope and feature.py imports feature_attach. It is
+  pre-existing on origin/main (the same lines); the tests import `cad_agent.feature` first. Nothing changed here.
+- **The Attachment menu's gate.** FreeCAD's Part_EditAttachment IsActive is "exactly one selected object with a
+  Placement", which a Body's features have too; Part's menu here enables it for exactly one selected Part object that
+  is not a sketch, and a Body feature's attachment stays with PartDesign's panel. Written in PARITY.md.
+- **Vertices.** The 3D picking draws faces and edges only, so a mode that needs a vertex cannot be picked here. (FreeCAD
+  reaches such a mode by typing the reference into a line; the page's lines accept only being cleared, not a typed
+  reference.) Noted in PARITY.md; no test covers it.
+- **A forward reference** is refused only when the attacher answers ("LinkBroken", "... no object 'Box' before it"),
+  because a part file is in order. Same PARITY bullet.
+- **Test paths.** Running `tests/test_feature_part.py` and `tests/test_feature_edit_attach.py` in one pytest command
+  makes the latter fail to import: test_feature_part puts `tests/golden/part` on `sys.path`, and attach's `bodies.py`
+  imports `cases`, which then resolves to part/cases.py (no `base_pad`). The full suite passes because
+  test_feature_attach imports `cases` first. Pre-existing ordering fragility, not changed here.
