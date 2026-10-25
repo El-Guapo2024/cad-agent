@@ -148,7 +148,8 @@ class _Revolved(KwFeature):
         obj = ctx.body.newObject(self.TYPE_ID, self.name)
         obj.Profile = ctx.made[self.profile]
         r = self.reference_axis
-        obj.ReferenceAxis = (ctx.origin[r], [""]) if isinstance(r, str) else (ctx.made[r[0]], [r[1]])
+        from .feature_refs import freecad_ref
+        obj.ReferenceAxis = freecad_ref(r, ctx)
         obj.Refine = self.refine
         obj.SideType = self.side_type
         obj.Type = self.type
@@ -185,9 +186,9 @@ class Groove(_Revolved):
 
 def _axis_ref(r, where):
     if isinstance(r, str):
-        if r not in ORIGIN_AXES:
+        if not r:
             raise FeatureError(f"{where}: reference_axis {r!r} is not X_Axis, Y_Axis, Z_Axis or (feature, sub)")
-        return r
+        return r                                         # an Origin axis, or a datum line (checked when built)
     try:
         obj, sub = r
     except (TypeError, ValueError):
@@ -226,17 +227,31 @@ def _axis_from_edge(edge):
     raise FeatureError("Edge must be a straight line, circle or arc of circle")
 
 
-def get_axis(feat, sketch, shapes, sketches):
+def get_axis(feat, sketch, shapes, sketches, forbid: str = "parallel"):
     """(base, dir) as gp_Pnt and gp_Vec (dir unnormalised, as Base::Axis keeps it) in the body's frame, or raises with
-    FreeCAD's words. ForbiddenAxis::NotParallelWithNormal unless project_axis (Revolved::updateAxis)."""
+    FreeCAD's words. ForbiddenAxis::NotParallelWithNormal unless project_axis (Revolved::updateAxis); forbid
+    "perpendicular" is NotPerpendicularWithNormal (FeatureExtrude::computeDirection's, for a Pad's ReferenceAxis)."""
+    from .feature_refs import base_and_direction, datum_type
     r = feat.reference_axis
     origin, rot = sketch.placement()
     normal = gp_Dir(*sketch.normal())
 
     def verify(d):
-        if not feat.project_axis and normal.IsParallel(gp_Dir(d), ANGULAR):
+        if forbid == "perpendicular":
+            if normal.IsNormal(gp_Dir(d), ANGULAR):
+                raise FeatureError("Axis must not be parallel to the sketch plane")
+        elif not getattr(feat, "project_axis", False) and normal.IsParallel(gp_Dir(d), ANGULAR):
             raise FeatureError("Axis must not be perpendicular to the sketch plane")
 
+    t = datum_type(shapes, r)
+    if t in ("PartDesign::Line", "App::Line"):          # PartDesign::Line, then App::Line: getBasePoint, getDirection
+        b, d = base_and_direction(shapes, r)
+        verify(gp_Vec(*d))
+        return gp_Pnt(*b), gp_Vec(*d)
+    if t is not None:       # a datum plane or point: not a line, and its whole shape (sub "") is not an edge
+        raise FeatureError("Unsupported geometry type to get reference axis")
+    if isinstance(r, str) and r not in ORIGIN_AXES:
+        raise FeatureError(f"{feat.name}: reference_axis names {r!r}, which is not before it")
     if isinstance(r, str):                               # App::Line of the Body's Origin
         d = gp_Vec(*ORIGIN_AXES[r])
         verify(d)

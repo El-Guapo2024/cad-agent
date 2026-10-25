@@ -147,6 +147,16 @@ def _split(r):
     return (r, "") if isinstance(r, str) else r
 
 
+def datum_type(shapes, r):
+    from .feature_refs import datum_type as t
+    return t(shapes, r)
+
+
+def base_and_direction(shapes, r):
+    from .feature_refs import base_and_direction as b
+    return b(shapes, r)
+
+
 def _sketch_of(name, shapes):
     return shapes.get("_sketches", {}).get(name)
 
@@ -328,9 +338,8 @@ class Transformed(KwFeature):
 
 def freecad_link(r, ctx):
     """A reference as FreeCAD's PropertyLinkSub value: (object, [sub])."""
-    name, sub = _split(r)
-    obj = ctx.origin[name] if name in ORIGIN else ctx.made[name]
-    return (obj, [sub])
+    from .feature_refs import freecad_ref                  # a datum, an LCS's feature: their objects
+    return freecad_ref(r, ctx)
 
 
 class Mirrored(Transformed):
@@ -348,6 +357,13 @@ class Mirrored(Transformed):
         if r is None:
             raise F.FeatureError("No mirror plane reference specified")
         name, sub = _split(r)
+        t = datum_type(shapes, r)                          # axisOfDatumPlane, axisOfPlane (cad_agent/feature_refs.py)
+        if t in ("PartDesign::Plane", "App::Plane") and name not in ORIGIN:
+            return base_and_direction(shapes, r)
+        if t is not None and t.startswith("PartDesign::"):    # axisOfPlanarShape: a Part::Feature, no sub-element
+            raise F.FeatureError("No direction reference specified")
+        if t is not None and name not in ORIGIN:
+            raise F.FeatureError("Mirror plane reference must be a sketch axis, a face of a feature or a datum plane")
         sk = _sketch_of(name, shapes)
         if sk is not None:                                 # axisOfSketch
             if not sub:
@@ -436,6 +452,14 @@ class LinearPattern(_Pattern):
     def direction_of(self, r, shapes):
         """LinearPatternExtension::getDirectionFromProperty: a global direction."""
         name, sub = _split(r)
+        # PartDesign::LinearPattern's override (PartDesign::Plane, Line), then App::Plane, App::Line (feature_refs.py)
+        t = datum_type(shapes, r)
+        if t in ("PartDesign::Plane", "PartDesign::Line", "App::Plane", "App::Line") and name not in ORIGIN:
+            return _dir(base_and_direction(shapes, r)[1])
+        if t is not None and t.startswith("PartDesign::"):    # a Part::Feature with no sub-element
+            raise F.FeatureError("No direction reference specified")
+        if t is not None and name not in ORIGIN:
+            raise F.FeatureError("Direction reference must be edge/face of a feature or a datum line/plane")
         sk = _sketch_of(name, shapes)
         if sk is not None:
             if sub in SKETCH_AXES:
@@ -572,7 +596,15 @@ class PolarPattern(_Pattern):
             return (0.0, 0.0, 0.0), (0.0, 0.0, 1.0)     # gp_Ax2()
         name, sub = _split(r)
         sk = _sketch_of(name, shapes)
-        if sk is not None:
+        t = datum_type(shapes, r)              # PartDesign::PolarPattern's PartDesign::Line, App::Line (feature_refs.py)
+        if t is not None and name not in ORIGIN:
+            if t in ("PartDesign::Line", "App::Line"):
+                base, d = base_and_direction(shapes, r)
+            elif t.startswith("PartDesign::"):            # a Part::Feature with no sub-element
+                raise F.FeatureError("No axis reference specified")
+            else:
+                raise F.FeatureError("Axis reference must be edge of a feature or datum line")
+        elif sk is not None:
             if sub in SKETCH_AXES:
                 base, d = _placed(sk, (0.0, 0.0, 0.0), SKETCH_AXES[sub])
             elif sub.startswith("Axis"):

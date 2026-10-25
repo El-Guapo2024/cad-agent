@@ -149,6 +149,8 @@ const LINK_NA = 'n/a: the assembly\'s structure comes from its source'
 export type Entry = { label: string; kbd?: string; icon?: IconName; /** an icon outside icons.tsx (a URL) */ img?: string; checked?: boolean; disabled?: boolean; onSelect?: () => void; sub?: Entry[]
   /** The menu's default action, drawn bold (QMenu::setDefaultAction). */
   bold?: boolean
+  /** A toolbar group as a split button (QToolButton::MenuButtonPopup): the icon runs onSelect, the arrow lists sub. */
+  split?: boolean
   /** Hovering the entry (SelectionMenu::onHover preselects). */
   onHover?: () => void
   title?: string
@@ -744,6 +746,19 @@ function DropButton({ icon, title, entries, cmd, tip }: { icon: IconName; title?
     </>
   )
 }
+/** A GroupCommand's tool button in MenuButtonPopup mode (Gui::ActionGroup with a drop-down): the icon is the command the
+ *  group last ran and a click runs it again; the arrow lists them all. */
+function SplitButton({ e }: { e: Exclude<Entry, 'sep'> }) {
+  const [at, setAt] = useState<{ x: number; y: number } | null>(null)
+  const size = useIconSize()
+  return (
+    <span className="tb-split" data-split={e.cmd}>
+      <button className="tb-btn" {...tipAttrs(e.cmd, e.title ?? e.label)} data-cmd={e.cmd} disabled={e.disabled} onClick={() => e.onSelect?.()}><Icon name={e.icon ?? 'help'} size={size} /></button>
+      <button className="tb-btn tb-drop" disabled={e.disabled} data-group-menu={e.cmd} onClick={(ev) => { const r = ev.currentTarget.getBoundingClientRect(); setAt(at ? null : { x: r.left, y: r.bottom + 1 }) }}><span className="tb-caret">▾</span></button>
+      {at && <ContextMenu at={at} entries={e.sub!} onClose={() => setAt(null)} />}
+    </span>
+  )
+}
 /** Part_SelectFilter (CommandFilter.cpp): a drop-down of the selection gates, showing the active one. */
 const SELECT_FILTERS: [Exclude<import('./store').State['selFilter'], null> | null, string, string, string, string][] = [
   ['vertex', 'Vertex Selection', 'vertex-selection', 'Part_VertexSelection', 'Only allows the selection of vertices'],
@@ -803,11 +818,12 @@ const toolbarOn = (shown: Record<string, boolean>, name: string) => shown[name] 
 /** QToolBar::handle: the 8px grip each toolbar starts with (FreeCAD.qss), gone when locked. */
 const TGrip = () => <span className="tb-grip" />
 /** A toolbar button for a menu Entry (same icon, text, command and state). */
-const EntryBtn = ({ e }: { e: Entry }) => e === 'sep' ? <TSep /> : e.sub ? <DropButton icon={e.icon ?? 'help'} cmd={e.cmd} entries={() => e.sub!} /> : <Btn icon={e.icon ?? 'help'} title={e.cmd && FC_TIPS[e.cmd] ? undefined : e.title ?? e.label} cmd={e.cmd} disabled={e.disabled} onClick={() => e.onSelect?.()} />
+const EntryBtn = ({ e }: { e: Entry }) => e === 'sep' ? <TSep /> : e.sub && e.split ? <SplitButton e={e} /> : e.sub ? <DropButton icon={e.icon ?? 'help'} cmd={e.cmd} entries={() => e.sub!} /> : <Btn icon={e.icon ?? 'help'} title={e.cmd && FC_TIPS[e.cmd] ? undefined : e.title ?? e.label} cmd={e.cmd} disabled={e.disabled} onClick={() => e.onSelect?.()} />
 export function ToolBar() {
   const wb = useStore((s) => s.workbench), wbPrefs = useStore((s) => s.wbPrefs), slug = useStore((s) => s.slug), lock = useStore((s) => s.toolbarLock)
   const selected = useStore((s) => s.selected), busy = useStore((s) => s.busy), subSel = useStore((s) => s.subSel), shown = useStore((s) => s.toolbars)
   useStore((s) => s.recordingMacro); useStore((s) => s.featSel); useStore((s) => s.features)
+  useStore((s) => s.task)          // a group button shows the command it last ran (the primitives' split buttons)
   const customToolbars = useStore((s) => s.customToolbars), macroCommands = useStore((s) => s.macroCommands)
   const one = selected.length === 1 ? selected[0] : null
   const on = (name: (typeof TOOLBARS)[number]) => toolbarOn(shown, name)

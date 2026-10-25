@@ -29,9 +29,10 @@ import { EditRow, Group, Row, TaskBox, cls, propPad } from './panels'
 import { QuantityBox, LENGTH, ANGLE } from './qsb'
 import { QComboBox } from './combo'
 import { messageBox } from './msgbox'
-import { applyOps, bodyOfPart, numberOf, refOf, SKETCH, targetBody } from './partdesign'
+import { applyOps, bodyOfPart, numberOf, refOf, setAttachPicker, SKETCH, targetBody, tempHidden } from './partdesign'
 import * as quantity from './quantity'
 import type { Entry } from './chrome'
+import { allows, axisRefText, datumHover, parsePick, parseRow, type Allow, type Picked, type Ref } from './pd_pick'
 import './partdesign.css'
 
 export type DressKind = 'fillet' | 'chamfer' | 'draft' | 'thickness'
@@ -111,7 +112,7 @@ export function editDressUp(part: string, f: Feature) {
 }
 
 // ── the shapes the server builds, drawn and picked here ──────────────────────
-type Mesh = { faces: { name: string; points: number[]; index: number[] }[]; edges: { name: string; points: number[] }[] }
+type Mesh = { faces: { name: string; points: number[]; index: number[]; kind?: string }[]; edges: { name: string; points: number[]; kind?: string | null }[] }
 type Built = { shape: Mesh | null; base: Mesh | null; base_name: string | null; error: string | null }
 const partMatrix = (b: Body | undefined) => { const m = new THREE.Matrix4(); if (b?.matrix?.length === 16) m.fromArray(b.matrix).transpose(); return m }
 const MAGENTA = new THREE.Color(1, 0, 1) // ReferenceHighlighter's elementColor and PreviewDressUpColor
@@ -231,8 +232,8 @@ export function DressUpTask({ kind, part, name, edit }: { kind: DressKind; part:
     const b = body?.name
     if (!b) return
     const was = getState().hidden.includes(b)
-    if (!was) setState((x) => ({ hidden: [...x.hidden, b] }))
-    return () => { if (!was) setState((x) => ({ hidden: x.hidden.filter((n) => n !== b) })) }
+    if (!was) { tempHidden.add(b); setState((x) => ({ hidden: [...x.hidden, b] })) }     // its datums stay shown
+    return () => { if (!was) { setState((x) => ({ hidden: x.hidden.filter((n) => n !== b) })); tempHidden.delete(b) } }
   }, [body?.name])
   useEffect(() => {
     const view = getView()
@@ -256,25 +257,50 @@ export function DressUpTask({ kind, part, name, edit }: { kind: DressKind; part:
   }, [built, mode, refs, current, showFinal, overlay, body?.matrix])
   useEffect(() => () => { const w = getView(); if (w) { w.setHelper('pd-dressup', null); w.helperPicker = null } }, [])
 
-  // picking: TaskDressUpParameters::referenceSelected toggles the element; Draft's Neutral Plane and Pull Direction take one
+  // picking: TaskDressUpParameters::referenceSelected toggles the element; Draft's Neutral Plane and Pull Direction take one,
+  // a datum or an LCS's feature too. The gate is setSelectionMode's ReferenceSelection (pd_pick.tsx): refSel the kind's edges
+  // and faces; Neutral Plane EDGE | FACE | PLANAR, Pull Direction EDGE | PLANAR (TaskDraftParameters)
   useEffect(() => {
     const view = getView()
     if (!view) return
-    view.helperPicker = mode === 'none' ? null : (sub: string) => {
+    const kinds: Record<string, string | null | undefined> = {}
+    for (const f of built?.base?.faces ?? []) kinds[f.name] = f.kind
+    for (const e of built?.base?.edges ?? []) kinds[e.name] = e.kind
+    const allow: Allow = mode === 'refSel' ? { edge: info.edges, face: info.faces } : mode === 'plane' ? { edge: true, face: true, planar: true } : { edge: true, planar: true }
+    const parse = (name: string): Picked | null => (/^(Face|Edge|Vertex)\d+$/.test(name) ? { obj: baseName, sub: name, kind: 'element', type: kinds[name] ?? '', ref: [baseName, name] }
+      : parsePick(part, name))
+    const slug = getState().slug ?? 'Unnamed'
+    view.helperGate = mode === 'none' ? null : (name) => {
+      const p = parse(name)
+      if (p && (mode !== 'refSel' || p.kind === 'element') && allows(p, allow)) return true
+      return `Not allowed: ${slug}.${part}.${p ? (p.sub ? `${p.obj}.${p.sub}` : p.obj) : name} `
+    }
+    view.helperPicker = mode === 'none' ? null : (name: string) => {
+      const p = parse(name)
+      if (!p) return
       if (mode === 'refSel') {
-        if ((sub.startsWith('Edge') && !info.edges) || (sub.startsWith('Face') && !info.faces) || sub.startsWith('Vertex')) return
+        const sub = p.sub
         setRefs((r) => (r.includes(sub) ? r.filter((x) => x !== sub) : [...r, sub]))
         setCurrent([])
       } else if (mode === 'plane') {
-        set({ neutral_plane: [baseName, sub] })
-        setMode('none')
-      } else if (mode === 'line' && sub.startsWith('Edge')) {
-        set({ pull_direction: [baseName, sub] })
-        setMode('none')
+        set({ neutral_plane: p.ref })
+        // TaskDraftParameters::onSelectionChanged: the button stays down, a later pick replaces it
+      } else if (mode === 'line') {
+        set({ pull_direction: p.ref })
       }
     }
-    return () => { const w = getView(); if (w) w.helperPicker = null }
-  }, [mode, baseName])
+    // the tree's rows through the same gate (an Origin plane or axis, a datum: the panel does not show the Origin)
+    setAttachPicker(mode === 'plane' || mode === 'line' ? (row) => {
+      const p = parseRow(part, row)
+      if (!p || !allows(p, allow)) { setState({ gateMsg: 'Selection not allowed by filter' }); return }
+      set(mode === 'plane' ? { neutral_plane: p.ref } : { pull_direction: p.ref })
+    } : null)
+    view.helperHover = mode === 'none' ? datumHover : (name, refused) => {
+      const p = name ? parse(name) : null
+      setState({ gateMsg: refused, preselected: p ? part : null, preSub: p ? `${part}.${p.sub ? `${p.obj}.${p.sub}` : p.obj}` : null, prePoint: null })
+    }
+    return () => { const w = getView(); if (w) { w.helperPicker = null; w.helperGate = null; w.helperHover = datumHover } setAttachPicker(null); setState({ gateMsg: null }) }
+  }, [mode, baseName, built?.base])
 
   if (!doc) return <div className="tasks"><p className="hint">{part}: no feature list</p></div>
   const removeSelected = () => { setRefs((r) => r.filter((x) => !current.includes(x))); setCurrent([]) }
@@ -339,9 +365,9 @@ export function DressUpTask({ kind, part, name, edit }: { kind: DressKind; part:
           {kind === 'draft' && <>
             {angleBox('angle', 'Draft angle', -90, 90)}
             <div className="tfield"><button className={cls('qbtn', mode === 'plane' && 'on')} aria-pressed={mode === 'plane'} onClick={() => setMode(mode === 'plane' ? 'none' : 'plane')}
-              title="A planar face, or an edge normal to the pull direction, of the base">Neutral Plane</button><input readOnly value={refText(v.neutral_plane)} /></div>
+              title="A planar face, or an edge normal to the pull direction, of the base">Neutral Plane</button><input readOnly data-qf="linePlane" value={axisRefText(doc, v.neutral_plane as Ref)} /></div>
             <div className="tfield"><button className={cls('qbtn', mode === 'line' && 'on')} aria-pressed={mode === 'line'} onClick={() => setMode(mode === 'line' ? 'none' : 'line')}
-              title="A straight edge of the base">Pull Direction</button><input readOnly value={refText(v.pull_direction)} /></div>
+              title="A straight edge of the base">Pull Direction</button><input readOnly data-qf="lineLine" value={axisRefText(doc, v.pull_direction as Ref)} /></div>
             <label className="tcheck"><input type="checkbox" checked={v.reversed === true} onChange={(e) => set({ reversed: e.target.checked })} /> Reverse pull direction</label>
           </>}
           {kind === 'thickness' && <>

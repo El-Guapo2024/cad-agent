@@ -168,5 +168,5 @@ def test_bad_values_are_refused():
         D.Thickness("T", ("Pad", ["Face1"]), mode="Skinny")
     with pytest.raises(FeatureError, match="Base"):
         D.Fillet("F", ("Pad", ["Edge0"]))
-    with pytest.raises(FeatureError, match="neutral_plane"):
-        D.Draft("D", ("Pad", ["Face1"]), neutral_plane="XY")
+    with pytest.raises(FeatureError, match="neutral_plane"):    # a name: an origin plane or a datum, when built
+        Body(CASES["fillet_edge"]["features"][:2] + [D.Draft("D", ("Pad", ["Face1"]), neutral_plane="XY")])

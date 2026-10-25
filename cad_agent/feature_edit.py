@@ -78,7 +78,8 @@ EXTRUDE_PROPS = {"side_type": "side_type", "type1": "type", "type2": "type2", "l
                  "up_to_face": "up_to_face", "up_to_face2": "up_to_face2", "up_to_shape": "up_to_shape",
                  "up_to_shape2": "up_to_shape2", "use_custom_vector": "use_custom_vector",
                  "direction": "direction", "along_sketch_normal": "along_sketch_normal",
-                 "start_type": "start_type", "start_offset": "start_offset", "refine": "refine"}
+                 "start_type": "start_type", "start_offset": "start_offset", "refine": "refine",
+                 "reference_axis": "reference_axis"}
 IMPORT = ("from cad_agent.feature import (ArcOfCircle, ArcOfEllipse, ArcOfHyperbola, ArcOfParabola, Body, "
           "BSplineCurve,\n                               Circle, Constraint, Ellipse, LineSegment, Pad, Pocket, "
           "Point, Sketch)\n")
@@ -246,7 +247,7 @@ def _feature_dict(call, src):
     for key, attr in EXTRUDE_PROPS.items():
         v = getattr(obj, attr)
         d[key] = list(v) if isinstance(v, tuple) else v
-    for key in ("up_to_face", "up_to_face2", "up_to_shape", "up_to_shape2"):
+    for key in ("up_to_face", "up_to_face2", "up_to_shape", "up_to_shape2", "reference_axis"):
         if key in kw:
             d[key] = kw[key]
     return d
@@ -411,7 +412,7 @@ def _tuples(key, v):
     ("Pad", "Face6") as a tuple, up_to_shape a list of names or (name, [faces]) tuples."""
     if key in ("attachment_offset", "direction") and isinstance(v, list):
         return tuple(tuple(x) if isinstance(x, list) else x for x in v)
-    if key in ("up_to_face", "up_to_face2") and isinstance(v, list):
+    if key in ("up_to_face", "up_to_face2", "reference_axis") and isinstance(v, list):
         return tuple(v)
     if key in ("up_to_shape", "up_to_shape2") and isinstance(v, list):
         return [tuple(r) if isinstance(r, list) else r for r in v]
@@ -685,7 +686,7 @@ def _refs(call):
     if isinstance(p, ast.Constant):
         out.append((p, p.value))
     for k in call.keywords:
-        if k.arg in ("up_to_face", "up_to_face2", "up_to_shape", "up_to_shape2"):
+        if k.arg in ("up_to_face", "up_to_face2", "up_to_shape", "up_to_shape2", "reference_axis"):
             v = k.value
             if isinstance(v, ast.Constant):
                 out.append((v, v.value))
@@ -836,7 +837,7 @@ def _check(src):
             else:
                 if kinds.get(f["profile"]) != "Sketch":
                     raise FeatureEditError(f"{n}: its profile {f['profile']!r} is not a sketch before it")
-                for key in ("up_to_face", "up_to_face2"):
+                for key in ("up_to_face", "up_to_face2", "reference_axis"):
                     r = f.get(key)
                     if isinstance(r, list) and r and r[0] not in seen:
                         raise FeatureEditError(f"{n}: its {key} names {r[0]!r}, which is not before it")
@@ -912,6 +913,9 @@ def apply_src(src: str, ops: list) -> str:
         if kind == "set":
             src = _op_set(src, name, op.get("props") or {})
         elif kind == "delete":
+            if op.get("break"):              # Std_Delete answered Yes: links break as FreeCAD's (feature_delete.py)
+                from .feature_delete import break_links
+                src = break_links(src, name)
             users = _users(src, name)
             if users:
                 raise FeatureEditError(f"{name} cannot be deleted: {', '.join(users)} uses it")

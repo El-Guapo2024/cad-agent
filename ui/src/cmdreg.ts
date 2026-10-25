@@ -51,6 +51,7 @@ import * as Sketcher from './sketcher'
 import { createBody, deleteFeatures, moveFeatureAfter, newSketch, padOrPocket, setTip } from './partdesign'
 import { profileCommand } from './pd_revolve'
 import { pdxCommands } from './pd_transform'
+import { pdDatumCommands } from './pd_datum'
 
 export type RegCommand = { label(): string; run(args: string[]): void; isEnabled(): boolean }
 export type CommandInfo = { name: string; label: string; enabled: boolean }
@@ -223,6 +224,7 @@ const COMMANDS: Record<string, RegCommand> = {
   Std_Delete: reg('Delete', () => void deleteFeatures(), () => getState().featSel.length > 0),
   // pd_transform.tsx: Mirror, Linear/Polar Pattern, Multi-Transform (Command.cpp), the primitives (CommandPrimitive.cpp)
   ...Object.fromEntries(pdxCommands().map(([c, label, run]) => [c, reg(label, run, () => !!getState().slug)])),
+  ...pdDatumCommands(reg),                    // pd_datum.tsx: PartDesign_Plane, _Line, _Point, _CoordinateSystem
 
   // ── CAD Agent workbench (chrome.tsx's agentEntries/agentwb.tsx: no FreeCAD equivalent) ──
   CADAgent_Check: reg('Check', () => openTask('check', ''), () => !!getState().slug),

@@ -801,7 +801,7 @@ class _Extrude:
                  up_to_shape=None, up_to_shape2=None, use_custom_vector: bool = False,
                  direction=(1.0, 1.0, 1.0), along_sketch_normal: bool = True,
                  start_type: str = "Profile plane", start_offset=0.0, taper_angle=0.0, taper_angle2=0.0,
-                 refine: bool = True):
+                 refine: bool = True, reference_axis=None):
         self.name, self.profile = name, profile
         if type == "TwoLengths":
             # FeatureExtrude::onDocumentRestored: the deprecated TwoLengths is SideType "Two sides".
@@ -828,6 +828,9 @@ class _Extrude:
         self.up_to_shape, self.up_to_shape2 = up_to_shape, up_to_shape2
         self.use_custom_vector, self.direction = bool(use_custom_vector), tuple(direction)
         self.along_sketch_normal = bool(along_sketch_normal)
+        # ReferenceAxis (TaskPadPocketParameters' Direction/edge): an edge, an Origin axis or a datum line the
+        # direction follows unless use_custom_vector (FeatureExtrude::computeDirection)
+        self.reference_axis = tuple(reference_axis) if isinstance(reference_axis, list) else reference_axis
         self.start_type, self.start_offset = start_type, start_offset
         if taper_angle or taper_angle2:
             raise FeatureError(f"{name}: a taper angle is not supported yet")
@@ -1329,6 +1332,11 @@ def _plane_face(name):
 
 def _ref_face(ref, shapes, where):
     """("Pad", "Face6") or "XY_Plane": the face an UpToFace names."""
+    if not (isinstance(ref, str) and ref.endswith("_Plane")):
+        from .feature_refs import plane_face      # a datum plane, an LCS's plane (cad_agent/feature_refs.py)
+        face = plane_face(shapes, ref)
+        if face is not None:
+            return face
     if isinstance(ref, str):
         return _plane_face(ref)
     try:
@@ -1519,6 +1527,13 @@ def _extrude(feat: _Extrude, sketch: Sketch, base, shapes, params, out: dict | N
     if feat.use_custom_vector:
         dv = feat.direction
         d = normal if all(abs(c) < CONFUSION for c in dv) else gp_Dir(*dv)
+    elif feat.reference_axis is not None:
+        # computeDirection: getAxis(ReferenceAxis, NotPerpendicularWithNormal); a Pocket goes against it
+        from .feature_revolve import get_axis
+        _, ax = get_axis(feat, sketch, shapes, shapes.get("_sketches", {}), forbid="perpendicular")
+        if ax.Magnitude() < 1e-300:
+            raise FeatureError("gp_Dir() - input vector has zero norm")
+        d = gp_Dir(ax) if additive else gp_Dir(ax).Reversed()
     else:
         d = normal
     factor = abs(d.Dot(normal))
@@ -1741,6 +1756,9 @@ def to_freecad(features, params: dict | None = None, doc=None, name: str = "Body
                 return planes[_plane_key(r) + "_Plane"], [""]
             return made[r], [""]
         obj, sub = r
+        if made[obj].TypeId == "Part::LocalCoordinateSystem":     # an LCS's plane: the App::Plane it holds
+            from .feature_refs import freecad_ref
+            return freecad_ref(r, types.SimpleNamespace(origin=planes, made=made), lcs_sub=True)
         return made[obj], ([sub] if isinstance(sub, str) else list(sub))
 
     def obj_of(name):
@@ -1832,6 +1850,9 @@ def to_freecad(features, params: dict | None = None, doc=None, name: str = "Body
         obj.UseCustomVector = f.use_custom_vector
         obj.Direction = V(*f.direction)
         obj.AlongSketchNormal = f.along_sketch_normal
+        if f.reference_axis is not None:
+            from .feature_refs import freecad_ref
+            obj.ReferenceAxis = freecad_ref(f.reference_axis, types.SimpleNamespace(origin=planes, made=made))
         obj.StartType = f.start_type
         setv(obj, "StartOffset", f.start_offset)
         for prop, r in (("UpToFace", f.up_to_face), ("UpToFace2", f.up_to_face2)):

@@ -463,6 +463,7 @@ export class CadView {
   setHelper(key: string, obj: THREE.Object3D | null) {
     const old = this.helpers.get(key)
     if (old) {
+      if (this.hovered) { let had = false; old.traverse((o) => { if (o.userData.pickName === this.hovered) had = true }); if (had) this.hovered = null }
       this.viewer.scene?.remove(old)
       old.traverse((o) => { const m = o as THREE.Mesh; m.geometry?.dispose(); const mat = m.material as THREE.Material | THREE.Material[] | undefined; (Array.isArray(mat) ? mat : mat ? [mat] : []).forEach((x) => x.dispose()) })
       this.helpers.delete(key)
@@ -478,7 +479,66 @@ export class CadView {
   }
   /** While set, a left click on a helper that has a userData.pickName hands that name here. */
   helperPicker: ((name: string) => void) | null = null
+  /** A task panel's selection gate (pd_pick.tsx: ReferenceSelection::allow): which named helpers may be preselected and
+   *  picked; a refused one gets FreeCAD's "Not allowed:" message and the forbidden cursor (SelectionSingleton::setPreselect). */
+  helperGate: ((name: string) => true | string) | null = null
+  /** With no picker set: a click on a named helper that asks for it (userData.selectable, a datum shown in the view)
+   *  selects it, as a click on a datum does in FreeCAD; additive with Ctrl. */
+  helperSelect: ((name: string, additive: boolean) => void) | null = null
+  /** The helper under the pointer as it is preselected (drawn in the preselection colour), and what the status bar says. */
+  helperHover: ((name: string | null, refused: string | null) => void) | null = null
+  private hovered: string | null = null
+  /** Preselection of a named helper (SoFCUnifiedSelection's preselect highlight): every object of that name in the
+   *  preselection colour (Preferences > Display > Colors' Preselected), its own colour back when the pointer leaves. */
+  private setHovered(name: string | null) {
+    if (name === this.hovered) return
+    const paint = (n: string | null, on: boolean) => {
+      if (!n) return
+      const color = new THREE.Color(getState().selPrefs.preColor)
+      for (const root of this.helpers.values()) root.traverse((o) => {
+        if (o.userData.pickName !== n || o.userData.preselect === false) return
+        const mat = (o as THREE.Mesh).material as (THREE.Material & { color?: THREE.Color }) | undefined
+        if (!mat?.color) return
+        if (on) { if (!o.userData.baseColor) o.userData.baseColor = mat.color.clone(); mat.color.copy(color) }
+        else if (o.userData.baseColor) { mat.color.copy(o.userData.baseColor); delete o.userData.baseColor }
+      })
+    }
+    paint(this.hovered, false)
+    this.hovered = name
+    paint(name, true)
+    this.redraw()
+  }
+  /** For scripts (pickcheck.mjs): the helper preselected now. */
+  hoveredHelper(): string | null { return this.hovered }
+  /** The named helper the pointer hovers, and whether the gate takes it; the preselection follows. False when no named
+   *  helper is there (the model's own preselection goes on). */
+  private hoverHelpers(c: { x: number; y: number }): boolean {
+    const hit = this.helperPicker || this.helperSelect ? this.helperHit(c) : null
+    const canvas = this.viewer.renderer?.domElement as HTMLElement | undefined
+    const model = hit && !this.helperPicker ? this.hitAt(c) : null
+    const cam = this.viewer.camera?.getCamera?.()
+    const unforbid = () => { if (canvas && canvas.dataset.forbid) { canvas.style.cursor = ''; delete canvas.dataset.forbid } }
+    if (!hit || (model && cam && cam.position.distanceTo(model.point) < hit.distance - 0.2) || (!this.helperPicker && !hit.selectable)) {
+      if (this.hovered) { this.setHovered(null); this.helperHover?.(null, null) }
+      unforbid()
+      return false
+    }
+    const ok = this.helperPicker && this.helperGate ? this.helperGate(hit.name) : true
+    if (ok === true) {
+      this.setHovered(hit.name)
+      this.helperHover?.(hit.name, null)
+      unforbid()
+    } else {
+      this.setHovered(null)
+      this.helperHover?.(null, ok)
+      if (canvas) { canvas.style.cursor = 'not-allowed'; canvas.dataset.forbid = '1' }
+    }
+    return true
+  }
   private helperAt(e: { x: number; y: number }): string | null {
+    return this.helperHit(e)?.name ?? null
+  }
+  private helperHit(e: { x: number; y: number }): { name: string; distance: number; selectable: boolean } | null {
     const canvas = this.viewer.renderer?.domElement as HTMLCanvasElement | undefined
     const cam = this.viewer.camera?.getCamera?.()
     if (!canvas || !cam || !this.helpers.size) return null
@@ -494,7 +554,10 @@ export class CadView {
     // userData.pickPriority: an edge over the face it bounds, within closeToFirst's 0.2 slack (hitAt's rule)
     const near = hits.filter((x) => !(x.h.distance > hits[0].h.distance + 0.2))
     near.sort((a, b) => ((b.o!.userData.pickPriority as number) ?? 0) - ((a.o!.userData.pickPriority as number) ?? 0))
-    return near[0].o!.userData.pickName as string
+    const o = near[0].o!
+    let selectable = false
+    for (let x: THREE.Object3D | null = o; x; x = x.parent) if (x.userData.selectable) selectable = true
+    return { name: o.userData.pickName as string, distance: near[0].h.distance, selectable }
   }
   /** For scripts (dressupcheck.mjs): a client point where a click hits the helper element named pickName (a face's triangle
    *  centre or an edge's segment middle that helperAt resolves to that name), or null when none is in view. */
@@ -516,14 +579,19 @@ export class CadView {
           cands.push(toScreen(v.applyMatrix4(o.matrixWorld)))
         }
       } else for (let i = 0; i + 1 < pos.count; i++) {
-        v.fromBufferAttribute(pos, i).add(w.fromBufferAttribute(pos, i + 1)).multiplyScalar(0.5)
-        cands.push(toScreen(v.applyMatrix4(o.matrixWorld)))
+        // points along the segment (a datum line is one long segment, partly in front of the model)
+        for (let k = 1; k < 20; k++) {
+          const t = k % 2 ? 0.5 + (k >> 1) * 0.05 : 0.5 - (k >> 1) * 0.05      // from the middle out
+          v.fromBufferAttribute(pos, i).lerp(w.fromBufferAttribute(pos, i + 1), t)
+          cands.push(toScreen(v.applyMatrix4(o.matrixWorld)))
+        }
       }
     })
     const r = (this.viewer.renderer?.domElement as HTMLCanvasElement | undefined)?.getBoundingClientRect()
     for (const c of cands) {
       if (r && (c.x < r.left + 2 || c.x > r.right - 2 || c.y < r.top + 2 || c.y > r.bottom - 2 || (c.x > r.right - 170 && c.y < r.top + 170))) continue // and not under the NaviCube
-      if (this.helperAt(c) === pickName) return c
+      // the same element a couple of pixels around it too (a click lands on whole pixels; an edge's pick radius is near)
+      if ([[0, 0], [1.5, 0], [-1.5, 0], [0, 1.5], [0, -1.5]].every(([dx, dy]) => this.helperAt({ x: c.x + dx, y: c.y + dy }) === pickName)) return c
     }
     return null
   }
@@ -585,15 +653,31 @@ export class CadView {
       cancelAnimationFrame(this.hoverFrame)
       const c = this.client(ev.pos)
       this.hoverFrame = requestAnimationFrame(() => {
+        if (this.hoverHelpers(c)) { this.on.hover(null, null, null); return }
         const h = this.hitAt(c)
         this.on.hover(h?.body ?? null, h ? h.point.toArray() : null, h?.sub ?? null)
       })
       return false
     }
     if (ev.type === 'release' && ev.button === 1 && this.helperPicker) {
-      // A pickable helper (an Origin plane New Sketch offers) takes the click before the model does.
+      // A pickable helper (an Origin plane New Sketch offers) takes the click before the model does; one the panel's
+      // gate refuses is not picked ("Selection not allowed by filter", SelectionSingleton::addSelection)
       const name = this.helperAt(this.client(ev.pos))
-      if (name) { this.helperPicker(name); return true }
+      if (name) {
+        const ok = this.helperGate ? this.helperGate(name) : true
+        if (ok === true) this.helperPicker(name)
+        else this.helperHover?.(null, 'Selection not allowed by filter')
+        return true
+      }
+    }
+    if (ev.type === 'release' && ev.button === 1 && !this.helperPicker && this.helperSelect) {
+      // A datum shown in the view: a click on it selects it (when nothing of the model is in front of it)
+      const c = this.client(ev.pos), hit = this.helperHit(c), model = hit?.selectable ? this.hitAt(c) : null
+      const cam = this.viewer.camera?.getCamera?.()
+      if (hit?.selectable && !(model && cam && cam.position.distanceTo(model.point) < hit.distance - 0.2)) {
+        this.helperSelect(hit.name, ev.ctrl)
+        return true
+      }
     }
     if (ev.type === 'release' && ev.button === 1 && this.pointPicker) {
       // Manual alignment takes clicks as picked points (ManualAlignment::probePickedCallback).

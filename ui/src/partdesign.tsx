@@ -40,10 +40,12 @@ import * as quantity from './quantity'
 import type { Entry } from './chrome'
 import { editRevolveFeature, RevolveProps, revolveEntries, REVOLVE_ICONS, REVOLVE_KINDS } from './pd_revolve'
 import { DressUpProps, dressUpEntries, dressUpUses, editDressUp, isDressUp } from './pd_dressup'
-import { editPdx, findFeature, isPdx, pdxChildren, pdxDeleteOps, pdxIcon, pdxKind, PdxProps, pdxUses, primitiveMenu, transformMenu } from './pd_transform'
+import { editPdx, findFeature, isPdx, pdxChildren, pdxDeleteOps, pdxIcon, pdxKind, PdxProps, pdxUses, primitiveGroup, primitiveMenu, transformMenu, transformTreeEntries } from './pd_transform'
 import './partdesign.css'
 import { attachedOf, DATUM_TYPES, isDatum, placementMatrix, withAttached } from './attached'
 import { attachmentRows, editAttachment, sketchOnSelection } from './pd_attach'
+import { DirectionGroup, FaceRow, ShapeRows, shapeFaces, shapeFromDoc, shapeToDoc, useExtrudePick, type ExtrudeRefs, type ExtrudeSel } from './pd_extrude'
+import type { Ref } from './pd_pick'
 
 export const SKETCH = 'Sketcher::SketchObject', PAD = 'PartDesign::Pad', POCKET = 'PartDesign::Pocket'
 const ICON_OF: Record<string, IconName> = { [SKETCH]: 'pd-sketch', [PAD]: 'pd-pad', [POCKET]: 'pd-pocket',
@@ -84,6 +86,10 @@ export function numberOf(v: unknown, params: Record<string, unknown>): number | 
   for (const [k, x] of Object.entries(params)) if (typeof x === 'number') vars[k] = { value: x, dims: [0, 0, 0, 0, 0, 0, 0, 0] }
   try { return evaluate(v, vars).value } catch { return null }
 }
+/** The scene bodies a task panel hides for the moment (the shown feature while a reference is picked, a dress-up's while
+ *  its base shows: TaskSketchBasedParameters::startReferenceSelection hides that feature alone): their datums and
+ *  sketches stay shown. Added to before the hidden list changes, taken off after. */
+export const tempHidden = new Set<string>()
 /** Whether a feature is shown: a Body shows its Tip (ViewProvider::onChanged hides every other feature when one is shown);
  *  a sketch is shown until a feature takes it as its profile, which hides it, and Space flips that. */
 export function featureVisible(s: State, part: string, f: Feature | string): boolean {
@@ -92,7 +98,7 @@ export function featureVisible(s: State, part: string, f: Feature | string): boo
   const name = typeof f === 'string' ? f : f.name
   const feat = doc.features.find((x) => x.name === name)
   const body = bodyOfPart(s, part)
-  const bodyShown = !body || !s.hidden.includes(body.name)
+  const bodyShown = !body || !s.hidden.includes(body.name) || tempHidden.has(body.name)
   if (!feat) return name === 'BaseFeature' ? bodyShown && !doc.tip : false
   if (feat.type === SKETCH) return !consumers(doc)[name]?.length !== s.sketchShown.includes(refOf(part, name))
   if (isDatum(feat.type)) return bodyShown && !s.sketchShown.includes(refOf(part, name)) // shown, as a new datum is
@@ -318,6 +324,21 @@ export function PickItemHost() {
   )
 }
 
+/** The objects StdCmdDelete names before deleting `names` (its affectedLabels, a sorted set): each feature that links one of
+ *  them (a profile, a Base, an attachment, external geometry, an Up to face, an axis, a pattern's originals or direction,
+ *  a Draft's planes), and the solid after a deleted solid, whose BaseFeature it is. */
+export function dependents(doc: FeatureDoc, names: string[]): string[] {
+  const KEYS = ['profile', 'base', 'originals', 'attachment_support', 'external_geometry', 'up_to_face', 'up_to_face2', 'up_to_shape', 'up_to_shape2',
+    'reference_axis', 'mirror_plane', 'direction', 'direction2', 'axis', 'neutral_plane', 'pull_direction']
+  const first = (v: unknown): string[] => (v == null ? [] : typeof v === 'string' ? [v]
+    : Array.isArray(v) ? (typeof v[0] === 'string' && (v.length === 2 && (typeof v[1] === 'string' || Array.isArray(v[1]))) ? [v[0]] : v.flatMap(first)) : [])
+  const links = (f: Feature): string[] => [...KEYS.flatMap((k) => first(f[k])), ...pdxChildren(f).flatMap(links)]
+  const out = new Set<string>()
+  for (const f of doc.features) if (!names.includes(f.name) && links(f).some((n) => names.includes(n))) out.add(f.name)
+  const solids = solidNames(doc)
+  for (const n of names) { const i = solids.indexOf(n); const next = solids.slice(i + 1).find((x) => !names.includes(x)); if (i >= 0 && next) out.add(next) }
+  return [...out].sort()
+}
 /** Std_Delete on a Body's rows (StdCmdDelete::activated): FreeCAD asks before deleting what others use ("Object
  *  Dependencies"), then deletes them in one transaction. The Origin and the BaseFeature are not deletable. */
 export async function deleteFeatures(refs = getState().featSel) {
@@ -334,12 +355,14 @@ export async function deleteFeatures(refs = getState().featSel) {
   for (const [part, names] of byPart) {
     const doc = getState().features[part]
     const { top, ops } = pdxDeleteOps(doc, names)
-    const users = doc.features.filter((f) => !top.includes(f.name) && ((typeof f.profile === 'string' && top.includes(f.profile)) || pdxUses(f, top) || dressUpUses(f, top))).map((f) => f.name)
+    const users = dependents(doc, top)
     if (users.length) {
       const answer = await messageBox('warning', 'Object Dependencies', `The following referencing objects might break.\n\nContinue?\n\n${users.join('\n')}`, ['Yes', 'No'])
       if (answer !== 'Yes') return
     }
-    const done = await applyOps(part, ops, { name: 'Delete', line: `cad feature delete ${getState().slug} ${part} ${names.join(' ')}` })
+    // Yes: the links to it break as FreeCAD breaks them (cad_agent/feature_delete.py); what cannot do without it refuses
+    const brk = users.length ? ops.map((o) => (o.op === 'delete' ? { ...o, break: true } : o)) : ops
+    const done = await applyOps(part, brk, { name: 'Delete', line: `cad feature delete ${getState().slug} ${part} ${names.join(' ')}${users.length ? ' --break' : ''}` })
     if (done) setState((s) => ({ featSel: s.featSel.filter((r) => !names.includes(splitRef(r)[1])) }))
   }
 }
@@ -510,7 +533,9 @@ export function featureTreeEntries(common: { expressionActions: Entry; linkActio
   if (f && isDatum(f.type)) own.push({ label: 'Edit Attachment', onSelect: () => editAttachment(part, name) }, 'sep')
   if (isBody) own.push({ label: 'Active Body', checked: s.activeBody === part, onSelect: () => toggleActiveBody(part) }, 'sep')
   if (f) own.push(na('Move Object To…', 'a feature belongs to its part module', { icon: 'pd-move-feature' }),
-    { label: 'Move Feature After…', icon: 'pd-move-in-tree', cmd: 'PartDesign_MoveFeatureInTree', onSelect: moveFeatureAfter }, 'sep')
+    { label: 'Move Feature After…', icon: 'pd-move-in-tree', cmd: 'PartDesign_MoveFeatureInTree', onSelect: moveFeatureAfter },
+    // Workbench::setupContextMenu: one Mirrored, LinearPattern or PolarPattern selected (MultiTransforms left out) converts
+    ...transformTreeEntries(refs), 'sep')
   if (f && f.type !== SKETCH) own.push(na('Toggle Suppressed', 'FEATURES has no suppressed state'))
   own.push(na('Toggle Freeze', 'parts rebuild from source; there is no recompute to freeze', { icon: 'freeze' }), 'sep')
   const appearance = 'the Body shows its Tip with the part\'s colours; set them on the part\'s row of a hand-written part'
@@ -566,13 +591,13 @@ const sideType = (f: Feature) => (f.side_type as string) ?? (f.midplane ? 'Symme
 function extrudeGroups(kind: 'Pad' | 'Pocket'): [string, PropDef[]][] {
   const two = (f: Feature) => (sideType(f) === 'Two sides' ? null : 'Side Type is not Two sides')
   const upto = (k: string) => (f: Feature) => (/^UpTo/.test(k === 'type1' ? extrudeType(f) : String(f[k] ?? 'Length')) ? null : 'only for an Up to … type')
-  const noSel = () => 'a face or shape is picked in the task panel in FreeCAD; FEATURES names it in the code'
+  const noSel = () => 'picked in the task panel (Select Face, Select Shape) or written in the code'
   const noTaper = () => 'feature.py does not taper yet'
   const groups: [string, PropDef[]][] = [
     ['Base', [{ key: 'name', name: 'Label', kind: 'text' }, { key: 'suppressed', name: 'Suppressed', kind: 'bool', ro: () => 'FEATURES has no suppressed state' }]],
     [kind, [{ key: 'side_type', name: 'Side Type', kind: 'enum', items: SIDES }, { key: 'use_custom_vector', name: 'Use Custom Vector', kind: 'bool' },
       { key: 'direction', name: 'Direction', kind: 'vector', ro: (f) => (f.use_custom_vector ? null : 'Use Custom Vector is off') },
-      { key: 'reference_axis', name: 'Reference Axis', kind: 'text', ro: () => 'the sketch\'s normal; an edge is picked in FreeCAD' },
+      { key: 'reference_axis', name: 'Reference Axis', kind: 'text', ro: () => 'picked in the task panel (Direction/edge: Select reference…) or written in the code' },
       { key: 'along_sketch_normal', name: 'Along Sketch Normal', kind: 'bool' }]],
     ['Part Design', [...(kind === 'Pocket' ? [{ key: 'operation', name: 'Operation', kind: 'enum' as const, items: ['Subtraction', 'Common'], ro: () => 'feature.py cuts; Common is not there yet' }] : []),
       { key: 'refine', name: 'Refine', kind: 'bool' }, { key: 'fuzzy_tolerance', name: 'Fuzzy Tolerance', kind: 'text', ro: () => 'the booleans run at OCCT\'s own tolerance' }]],
@@ -590,9 +615,9 @@ function extrudeGroups(kind: 'Pad' | 'Pocket'): [string, PropDef[]][] {
   return groups
 }
 /** FeatureExtrude's defaults (FeatureExtrude.cpp, FeaturePad.cpp, FeaturePocket.cpp): what a property shows that FEATURES leaves out. */
-const DEFAULTS: Record<string, unknown> = { side_type: 'One side', use_custom_vector: false, direction: [0, 0, 1], reference_axis: '', along_sketch_normal: true,
-  operation: 'Subtraction', refine: true, fuzzy_tolerance: 0, type1: 'Length', length2: 10, up_to_face: '', up_to_shape: '', offset: 0, taper_angle: 0,
-  type2: 'Length', up_to_face2: '', up_to_shape2: '', offset2: 0, taper_angle2: 0, midplane: false, reversed: false, allow_multi_face: true,
+const DEFAULTS: Record<string, unknown> = { side_type: 'One side', use_custom_vector: false, direction: [0, 0, 1], reference_axis: null, along_sketch_normal: true,
+  operation: 'Subtraction', refine: true, fuzzy_tolerance: 0, type1: 'Length', length2: 10, up_to_face: null, up_to_shape: null, offset: 0, taper_angle: 0,
+  type2: 'Length', up_to_face2: null, up_to_shape2: null, offset2: 0, taper_angle2: 0, midplane: false, reversed: false, allow_multi_face: true,
   start_type: 'Profile plane', start_offset: 0, start_reference: '', suppressed: false }
 const LENGTH_DEFAULT: Record<string, number> = { [PAD]: 10, [POCKET]: 5 }
 
@@ -913,7 +938,34 @@ export function ExtrudeTask({ kind, part, name, edit }: { kind: 'pad' | 'pocket'
   const [v, setV] = useState(initial)
   const [update, setUpdate] = useState(true)
   const [overlay, setOverlay] = useState(true)
-  const set = (patch: Partial<typeof v>) => setV((x) => ({ ...x, ...patch }))
+  // the references the panel picks in the 3D view (pd_extrude.tsx) and its selection mode (TaskExtrudeParameters::SelectionMode)
+  const initialRefs = useMemo((): ExtrudeRefs => {
+    const s1 = shapeFromDoc(existing?.up_to_shape), s2 = shapeFromDoc(existing?.up_to_shape2)
+    return { up_to_face: (existing?.up_to_face as Ref) ?? null, up_to_face2: (existing?.up_to_face2 as Ref) ?? null, up_to_shape: s1, up_to_shape2: s2,
+      all_faces: !shapeFaces(s1).length, all_faces2: !shapeFaces(s2).length, reference_axis: (existing?.reference_axis as Ref) ?? null,
+      use_custom_vector: existing?.use_custom_vector === true, direction: (Array.isArray(existing?.direction) ? existing!.direction : [0, 0, 1]) as [number, number, number],
+      along_sketch_normal: existing?.along_sketch_normal !== false, axis_items: existing?.reference_axis ? [existing.reference_axis as Ref] : [], axis_dir: null }
+  }, [part, name, edit])
+  const [refs, setRefs] = useState(initialRefs)
+  const [sel, setSel] = useState<ExtrudeSel>(null)
+  const setR = (p: Partial<ExtrudeRefs>) => setRefs((x) => ({ ...x, ...p }))
+  // FeatureExtrude::computeDirection without a custom vector: the sketch's normal (a Pocket's against it)
+  const sketchNormal = useMemo(() => (sketch ? new THREE.Vector3(0, 0, 1).transformDirection(sketchMatrix(sketch)).multiplyScalar(kind === 'pocket' ? -1 : 1)
+    .toArray().map((x) => Math.round(x * 1e9) / 1e9 + 0) : [0, 0, 1]) as [number, number, number], [sketch, kind])
+  useExtrudePick(part, existing?.name ?? null, sel, setSel, refs, setR, sketchNormal)
+  const set = (patch: Partial<typeof v>) => {
+    setV((x) => {
+      const n = { ...x, ...patch }
+      // updateSideUI: a side turned to Up to face with no face yet selects one; Up to shape with its faces asked, them
+      for (const [k, side] of [['type', 1], ['type2', 2]] as const) {
+        if (!(k in patch) || patch[k] === x[k]) continue
+        if (patch[k] === 'UpToFace' && !(side === 1 ? refs.up_to_face : refs.up_to_face2)) setSel({ mode: 'face', side })
+        else if (patch[k] === 'UpToShape' && !(side === 1 ? refs.all_faces : refs.all_faces2)) setSel({ mode: 'shapeFaces', side })
+        else if (sel?.side === side && sel.mode !== 'axis') setSel(null)
+      }
+      return n
+    })
+  }
   const types = kind === 'pad' ? [['Length', 'Dimension'], ['UpToLast', 'To last'], ['UpToFirst', 'To first'], ['UpToFace', 'Up to face'], ['UpToShape', 'Up to shape']]
     : [['Length', 'Dimension'], ['ThroughAll', 'Through all'], ['UpToFirst', 'To first'], ['UpToFace', 'Up to face'], ['UpToShape', 'Up to shape']]
   const sides: [string, string][] = [['One side', 'One sided'], ['Two sides', 'Two sided'], ['Symmetric', 'Symmetric']]
@@ -934,6 +986,19 @@ export function ExtrudeTask({ kind, part, name, edit }: { kind: 'pad' | 'pocket'
     if (v.type !== 'Length') out.offset = v.offset
     if (v.side_type === 'Two sides') { out.type2 = v.type2; out.length2 = v.length2; if (v.type2 !== 'Length') out.offset2 = v.offset2 }
     if (v.start_type !== 'Profile plane') { out.start_type = v.start_type; out.start_offset = v.start_offset }
+    // the references picked in the 3D view, where their type uses them (FreeCAD keeps them all; the file only what builds)
+    const two = v.side_type === 'Two sides'
+    if (v.type === 'UpToFace' && refs.up_to_face) out.up_to_face = refs.up_to_face
+    if (two && v.type2 === 'UpToFace' && refs.up_to_face2) out.up_to_face2 = refs.up_to_face2
+    if (v.type === 'UpToShape' && refs.up_to_shape.length) out.up_to_shape = shapeToDoc(refs.up_to_shape)
+    if (two && v.type2 === 'UpToShape' && refs.up_to_shape2.length) out.up_to_shape2 = shapeToDoc(refs.up_to_shape2)
+    if (refs.use_custom_vector) { out.use_custom_vector = true; out.direction = refs.direction }
+    else if (refs.reference_axis) out.reference_axis = refs.reference_axis
+    if (refs.use_custom_vector || refs.reference_axis) out.along_sketch_normal = refs.along_sketch_normal
+    if (existing) {          // a reference taken off again
+      for (const k of ['up_to_face', 'up_to_face2', 'up_to_shape', 'up_to_shape2', 'reference_axis'] as const) if (existing[k] != null && !(k in out)) out[k] = null
+      if (existing.use_custom_vector && !out.use_custom_vector) out.use_custom_vector = false
+    }
     return out
   }
   const ok = async () => {
@@ -959,8 +1024,9 @@ export function ExtrudeTask({ kind, part, name, edit }: { kind: 'pad' | 'pocket'
       {t === 'Length' && lengthBox(which === 1 ? 'length' : 'length2', 'Length')}
       {((t === 'UpToLast' && kind === 'pad') || t === 'UpToFirst' || t === 'UpToFace') && lengthBox(which === 1 ? 'offset' : 'offset2', 'Offset to face')}
       {(t === 'Length' || (t === 'ThroughAll' && kind === 'pocket')) && <label className="tfield" title="n/a: feature.py does not taper yet"><span>Taper angle</span><QuantityBox value={0} dims={ANGLE} disabled onChange={() => {}} /></label>}
-      {t === 'UpToFace' && <div className="tfield"><input readOnly placeholder="No face selected" title="Name the face in the code: up_to_face=(&quot;Pad&quot;, &quot;Face6&quot;)" /><button className="qbtn" disabled>Select Face</button></div>}
-      {t === 'UpToShape' && <div className="tfield"><input readOnly placeholder="No shape selected" /><button className="qbtn" disabled>Select Shape</button></div>}
+      {t === 'UpToFace' && <FaceRow doc={doc} value={which === 1 ? refs.up_to_face : refs.up_to_face2} side={which} sel={sel} setSel={setSel} />}
+      {t === 'UpToShape' && <ShapeRows list={which === 1 ? refs.up_to_shape : refs.up_to_shape2} allFaces={which === 1 ? refs.all_faces : refs.all_faces2} side={which}
+        sel={sel} setSel={setSel} set={setR} feature={existing?.name ?? null} />}
     </>
   )
   return (
@@ -968,13 +1034,13 @@ export function ExtrudeTask({ kind, part, name, edit }: { kind: 'pad' | 'pocket'
       <OkCancel onOk={() => void ok()} onCancel={closeTask} />
       <TaskHead title={`${label} Parameters`} icon={kind === 'pad' ? 'pd-pad' : 'pd-pocket'}>
         <div className="pd-form">
-          <label className="tfield"><span>Start</span><QComboBox value={v.start_type} onChange={(e) => set({ start_type: e.target.value })}>
+          <label className="tfield"><span>Start</span><QComboBox data-qf="startMode" value={v.start_type} onChange={(e) => set({ start_type: e.target.value })}>
             {STARTS.map((x) => <option key={x} value={x} disabled={x === 'Reference'}>{x}</option>)}</QComboBox></label>
           {v.start_type !== 'Profile plane' && lengthBox('start_offset', 'Offset')}
-          <label className="tfield"><span>Direction</span><QComboBox value={v.side_type} onChange={(e) => set({ side_type: e.target.value })}>
+          <label className="tfield"><span>Direction</span><QComboBox data-qf="sidesMode" value={v.side_type} onChange={(e) => set({ side_type: e.target.value })}>
             {sides.map(([k, t]) => <option key={k} value={k}>{t}</option>)}</QComboBox></label>
           {v.side_type === 'Two sides' && <div className="pd-side">Side 1</div>}
-          <label className="tfield"><span>Type</span><QComboBox value={v.type} onChange={(e) => {
+          <label className="tfield"><span>Type</span><QComboBox data-qf="changeMode" value={v.type} onChange={(e) => {
             const t = e.target.value
             // onModeChanged: back to Dimension with no length at all takes 5 mm
             set({ type: t, ...(t === 'Length' && v.length + (v.side_type === 'Two sides' ? v.length2 : 0) < 1e-7 ? { length: 5 } : {}) })
@@ -982,17 +1048,17 @@ export function ExtrudeTask({ kind, part, name, edit }: { kind: 'pad' | 'pocket'
           {side(v.type, 1)}
           {v.side_type === 'Two sides' && <>
             <div className="pd-side">Side 2</div>
-            <label className="tfield"><span>Type</span><QComboBox value={v.type2} onChange={(e) => set({ type2: e.target.value })}>
+            <label className="tfield"><span>Type</span><QComboBox data-qf="changeMode2" value={v.type2} onChange={(e) => set({ type2: e.target.value })}>
               {types.map(([k, t]) => <option key={k} value={k}>{t}</option>)}</QComboBox></label>
             {side(v.type2, 2)}
           </>}
           <hr className="pd-line" />
           <label className="tcheck"><input type="checkbox" checked={v.reversed} disabled={v.side_type === 'Symmetric' && v.type === 'Length'} onChange={(e) => set({ reversed: e.target.checked })} /> Reversed</label>
-          <fieldset className="tgroup"><legend>Direction</legend>
-            <label className="tfield"><span>Direction/edge</span><QComboBox value="normal" onChange={() => {}}>
-              <option value="normal">Sketch normal</option><option value="select" disabled>Select reference…</option><option value="custom" disabled>Custom direction</option></QComboBox></label>
-            <label className="tcheck" title="If unchecked, the length will be measured along the specified direction"><input type="checkbox" checked={v.along_sketch_normal} disabled onChange={(e) => set({ along_sketch_normal: e.target.checked })} /> Length along sketch normal</label>
-          </fieldset>
+          <DirectionGroup doc={doc} refs={refs} set={setR} sel={sel} setSel={setSel} normal={(() => {
+            // FeatureExtrude::computeDirection without a custom vector: the sketch's normal (a Pocket's against it)
+            const n = new THREE.Vector3(0, 0, 1).transformDirection(sketchMatrix(sketch)).multiplyScalar(kind === 'pocket' ? -1 : 1)
+            return n.toArray().map((x) => Math.round(x * 1e9) / 1e9 + 0) as [number, number, number]
+          })()} />
           {kind === 'pocket' && <label className="tfield"><span>Operation</span><QComboBox value="Subtraction" onChange={() => {}}>
             <option>Subtraction</option><option disabled>Common</option></QComboBox></label>}
           <label className="tcheck"><input type="checkbox" checked={update} onChange={(e) => setUpdate(e.target.checked)} /> Recompute on change</label>
@@ -1072,8 +1138,8 @@ export function pdToolbars(): [string, Entry[]][] {
   return [
     ['Part Design Helper Features', [byLabel(m, 'New Body'), { ...byLabel(sk, 'New Sketch'), cmd: 'PartDesign_CompSketches' }, byLabel(sk, 'Validate Sketch'),
       byLabel(m, 'Check Geometry'), byLabel(m, 'Sub-Shape Binder'), byLabel(m, 'Clone')]],
-    ['Part Design Modeling Features', [...pad, { label: 'Additive Primitive', icon: 'pd-add-box', cmd: 'PartDesign_CompPrimitiveAdditive', disabled: !doc, sub: primitiveMenu('Additive') }, 'sep',
-      ...pocket, { label: 'Subtractive Primitive', icon: 'pd-sub-box', cmd: 'PartDesign_CompPrimitiveSubtractive', disabled: !doc, sub: primitiveMenu('Subtractive') }, 'sep',
+    ['Part Design Modeling Features', [...pad, primitiveGroup('Additive'), 'sep',
+      ...pocket, primitiveGroup('Subtractive'), 'sep',
       soon('Boolean Operation', 'pd-boolean', 'PartDesign_Boolean')]],
     ['Part Design Dress-Up Features', sub('Dress-Up Features')],
     ['Part Design Transformation Features', sub('Transformation Features')],

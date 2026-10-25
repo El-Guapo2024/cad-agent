@@ -295,7 +295,8 @@ def cmd_feature_set(a) -> Result:
 
 
 def cmd_feature_delete(a) -> Result:
-    return apply_ops(a, [{"op": "delete", "name": n} for n in a.names], _cmd(a, *a.names))
+    brk = {"break": True} if getattr(a, "break_links", False) else {}    # Std_Delete answered Yes (feature_delete.py)
+    return apply_ops(a, [{"op": "delete", "name": n, **brk} for n in a.names], _cmd(a, *a.names))
 
 
 def cmd_feature_rename(a) -> Result:
@@ -417,6 +418,9 @@ def add_parsers(add, sub) -> None:
     sp.add_argument("props", nargs="+", metavar="KEY=VALUE")
     sp = one("delete", cmd_feature_delete, "delete features (the layer refuses one another feature still uses)")
     sp.add_argument("names", nargs="+", metavar="NAME")
+    sp.add_argument("--break", dest="break_links", action="store_true",
+                    help="break the links to them as FreeCAD's Std_Delete does after its question (attachments keep "
+                         "their place, a dress-up follows to the solid before); what cannot do without them still refuses")
     sp = one("rename", cmd_feature_rename, "rename a feature, and every reference to it")
     sp.add_argument("name")
     sp.add_argument("to")

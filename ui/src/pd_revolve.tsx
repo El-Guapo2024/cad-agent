@@ -17,13 +17,14 @@ import * as THREE from 'three'
 import { api, type FeatureOp } from './api'
 import { getState, setState, useStore, type Feature, type FeatureDoc } from './store'
 import { closeTask, getView, showPanel } from './actions'
-import { EditRow, Group, Row, TaskBox, propPad } from './panels'
+import { cls, EditRow, Group, Row, TaskBox, propPad } from './panels'
 import { QuantityBox, LENGTH, ANGLE } from './qsb'
 import { QComboBox } from './combo'
 import { messageBox } from './msgbox'
 import * as quantity from './quantity'
 import type { Entry } from './chrome'
 import { applyOps, bodyOfPart, curveOf, numberOf, profileLoops, refOf, sketchMatrix, splitRef, targetBody, SKETCH } from './partdesign'
+import { axisRefText, refText as pickText, useOriginShown, useRefPick, type Ref } from './pd_pick'
 
 export const REVOLUTION = 'PartDesign::Revolution', GROOVE = 'PartDesign::Groove', HOLE = 'PartDesign::Hole'
 export const REVOLVE_KINDS: Record<string, string> = { [REVOLUTION]: 'Revolution', [GROOVE]: 'Groove', [HOLE]: 'Hole' }
@@ -117,8 +118,8 @@ function Check({ label, checked, onChange, disabled, title, hidden }: { label: s
   if (hidden) return null
   return <label className="tcheck" title={title}><input type="checkbox" checked={checked} disabled={disabled} onChange={(e) => onChange(e.target.checked)} /> {label}</label>
 }
-function Combo({ value, items, onChange, disabled }: { value: string; items: [string, string][]; onChange(v: string): void; disabled?: boolean | ((v: string) => boolean) }) {
-  return <QComboBox value={value} disabled={disabled === true} onChange={(e) => onChange(e.target.value)}>
+function Combo({ value, items, onChange, disabled, qf }: { value: string; items: [string, string][]; onChange(v: string): void; disabled?: boolean | ((v: string) => boolean); qf?: string }) {
+  return <QComboBox data-qf={qf} value={value} disabled={disabled === true} onChange={(e) => onChange(e.target.value)}>
     {items.map(([k, t]) => <option key={k} value={k} disabled={typeof disabled === 'function' && disabled(k)}>{t}</option>)}</QComboBox>
 }
 const STARTS: [string, string][] = [['Profile plane', 'Profile plane'], ['Offset', 'Offset'], ['Reference', 'Reference']]
@@ -128,7 +129,7 @@ const SIDES: [string, string][] = [['One side', 'One sided'], ['Two sides', 'Two
 /** The axis combo (TaskRevolutionParameters::fillAxisCombo): the sketch's V and H axes, its construction lines, the Body's
  *  X, Y and Z axes, "Select reference…" (greyed: an edge is named in the code), and the current link when it is none of
  *  those. Each item's value is the reference_axis it stands for. */
-function axisItems(sketch: Feature | undefined, current: unknown): [string, string][] {
+function axisItems(sketch: Feature | undefined, current: unknown, doc?: FeatureDoc, picked: unknown[] = []): [string, string][] {
   const items: [string, string][] = []
   if (sketch) {
     items.push([JSON.stringify([sketch.name, 'V_Axis']), 'Vertical sketch axis'], [JSON.stringify([sketch.name, 'H_Axis']), 'Horizontal sketch axis'])
@@ -139,9 +140,12 @@ function axisItems(sketch: Feature | undefined, current: unknown): [string, stri
     }
   }
   items.push([JSON.stringify('X_Axis'), 'Base X-axis'], [JSON.stringify('Y_Axis'), 'Base Y-axis'], [JSON.stringify('Z_Axis'), 'Base Z-axis'])
-  const cur = JSON.stringify(current)
-  if (current != null && !items.some(([k]) => k === cur)) items.push([cur, Array.isArray(current) ? `${current[0]}:${current[1]}` : String(current)])
+  // "Select reference…", then each link picked or set (addAxisToCombo appends them after it, as FreeCAD's list grows)
   items.push(['select', 'Select reference…'])
+  for (const r of [...picked, current]) {
+    const k = JSON.stringify(r)
+    if (r != null && !items.some(([x]) => x === k)) items.push([k, axisRefText(doc, r as Ref)])
+  }
   return items
 }
 
@@ -242,7 +246,26 @@ export function RevolveTask({ kind, part, name, edit }: { kind: 'revolution' | '
     up_to_face: (existing?.up_to_face ?? null) as unknown, up_to_face2: (existing?.up_to_face2 ?? null) as unknown,
   }), [part, name, edit])
   const [v, setV] = useState(initial)
-  const set = (patch: Partial<typeof v>) => setV((x) => ({ ...x, ...patch }))
+  // TaskRevolutionParameters::setSelectionMode: the axis (EDGE | PLANAR | CIRCLE) or a side's face (FACE), picked in the 3D
+  // view or the tree through pd_pick.tsx's gate; the Origin's axes shown while the panel is open
+  const [sel, setSel] = useState<{ mode: 'axis' } | { mode: 'face'; side: 1 | 2 } | null>(null)
+  const [picked, setPicked] = useState<unknown[]>([])            // the axes picked this session (the combo keeps them)
+  useRefPick(sel !== null, { part, feature: existing?.name ?? null, allow: sel?.mode === 'axis' ? { edge: true, planar: true, circle: true } : { face: true },
+    onPick: (p) => {
+      if (sel?.mode === 'axis') { set({ reference_axis: p.ref }); setPicked((x) => (x.some((r) => JSON.stringify(r) === JSON.stringify(p.ref)) ? x : [...x, p.ref])) }
+      else if (sel?.mode === 'face') set(sel.side === 1 ? { up_to_face: p.ref } : { up_to_face2: p.ref })
+      setSel(null)
+    } })
+  useOriginShown(part, 'axes')
+  const set = (patch: Partial<typeof v>) => setV((x) => {
+    // setSelectionMode(Face) when a side turns to Up to face with no face yet (updateUI's focus), None when it turns away
+    for (const [k, side] of [['type', 1], ['type2', 2]] as const) {
+      if (!(k in patch) || patch[k] === x[k]) continue
+      if (patch[k] === 'UpToFace' && !(side === 1 ? x.up_to_face : x.up_to_face2)) setSel({ mode: 'face', side })
+      else if (sel?.mode === 'face' && sel.side === side) setSel(null)
+    }
+    return { ...x, ...patch }
+  })
   const [update, setUpdate] = useState(true)
   const [overlay, setOverlay] = useState(true)
   // a new one: what CmdPartDesignRevolution / CmdPartDesignGroove set (the V axis, 360°, suggestReversed)
@@ -291,12 +314,15 @@ export function RevolveTask({ kind, part, name, edit }: { kind: 'revolution' | '
     const t = which === 1 ? v.type : v.type2
     return <>
       {v.side_type === 'Two sides' && <div className="pd-side">{`Side ${which}`}</div>}
-      <Field label="Type"><Combo value={t} items={types} onChange={(x) => set(which === 1 ? { type: x } : { type2: x })} /></Field>
+      <Field label="Type"><Combo qf={which === 1 ? "changeMode" : "changeMode2"} value={t} items={types} onChange={(x) => set(which === 1 ? { type: x } : { type2: x })} /></Field>
       <Field label="Angle" hidden={t !== 'Angle'}><QuantityBox value={which === 1 ? v.angle : v.angle2} dims={ANGLE} min={-360} max={360} onChange={(x) => set(which === 1 ? { angle: x } : { angle2: x })} /></Field>
-      {t === 'UpToFace' && <div className="tfield">
-        <button className="qbtn" disabled title="Name the face here (Pad:Face6), or in the code: up_to_face=(&quot;Pad&quot;, &quot;Face6&quot;)">Select Face</button>
-        <input placeholder="No face selected" defaultValue={faceText(which === 1 ? v.up_to_face : v.up_to_face2)}
-          onChange={(e) => set(which === 1 ? { up_to_face: parseFace(e.target.value) } : { up_to_face2: parseFace(e.target.value) })} /></div>}
+      {t === 'UpToFace' && (() => {
+        const on = sel?.mode === 'face' && sel.side === which
+        return <div className="tfield pd-pickrow">
+          <button className={cls('qbtn', on && 'on')} aria-pressed={on} data-qf={which === 1 ? 'buttonFace' : 'buttonFace2'} onClick={() => setSel(on ? null : { mode: 'face', side: which })}>Select Face</button>
+          <input readOnly data-qf={which === 1 ? 'lineFaceName' : 'lineFaceName2'} placeholder={on ? 'Face selection active' : 'No face selected'}
+            value={pickText(doc, (which === 1 ? v.up_to_face : v.up_to_face2) as Ref | null)} /></div>
+      })()}
     </>
   }
   const symmetricAngleLike = v.side_type === 'Symmetric' && (v.type === 'Angle' || (kind === 'groove' && v.type === 'ThroughAll'))
@@ -308,8 +334,8 @@ export function RevolveTask({ kind, part, name, edit }: { kind: 'revolution' | '
           <Field label="Start"><Combo value={v.start_type} items={STARTS} disabled={(x) => x === 'Reference'} onChange={(x) => set({ start_type: x })} /></Field>
           <Field label="Offset" hidden={v.start_type === 'Profile plane'}><QuantityBox value={v.start_offset} dims={ANGLE} min={-360} max={360} onChange={(x) => set({ start_offset: x })} /></Field>
           <Field label="Direction"><Combo value={v.side_type} items={SIDES} onChange={(x) => set({ side_type: x })} /></Field>
-          <Field label="Axis"><Combo value={JSON.stringify(v.reference_axis)} items={axisItems(sketch, v.reference_axis)} disabled={(x) => x === 'select'}
-            onChange={(x) => { if (x !== 'select') set({ reference_axis: JSON.parse(x) }) }} /></Field>
+          <Field label="Axis"><Combo qf="axis" value={sel?.mode === 'axis' ? 'select' : JSON.stringify(v.reference_axis)} items={axisItems(sketch, v.reference_axis, doc, picked)}
+            onChange={(x) => { if (x === 'select') setSel({ mode: 'axis' }); else { setSel(null); set({ reference_axis: JSON.parse(x) }) } }} /></Field>
           {side(1)}
           {v.side_type === 'Two sides' && side(2)}
           <Check label="Project selected axis to profile plane" checked={v.project_axis} onChange={(x) => set({ project_axis: x })} />

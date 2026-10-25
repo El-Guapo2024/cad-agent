@@ -10,9 +10,11 @@ the module is run and its feature list evaluated, and the data carries, in the p
      "shape": {...} the feature's solid, "base": {...} the solid before it, "error": FreeCAD's message or None,
      "doc": read() of the edited source}
 
-each shape as {"faces": [{"name": "Face1", "points": [x, y, z, ...], "index": [i, j, k, ...]}, ...],
-"edges": [{"name": "Edge1", "points": [x, y, z, ...]}, ...]}, the faces and edges named as FreeCAD names them
-(TopExp::MapShapes order), so the page picks a sub-element of the base by the name the feature's Base takes.
+each shape as {"faces": [{"name": "Face1", "points": [x, y, z, ...], "index": [i, j, k, ...], "kind": "Plane"}, ...],
+"edges": [{"name": "Edge1", "points": [x, y, z, ...], "kind": "Line"}, ...]}, the faces and edges named as FreeCAD names
+them (TopExp::MapShapes order), so the page picks a sub-element of the base by the name the feature's Base takes; kind is
+the surface's or curve's GeomAbs type (Plane, Cylinder, ...; Line, Circle, ...), what ReferenceSelection's PLANAR and
+CIRCLE gates test.
 NAME defaults to the Tip.
 """
 from __future__ import annotations
@@ -27,7 +29,7 @@ def mesh(shape, deflection: float | None = None) -> dict:
     """Faces as triangles and edges as polylines, by FreeCAD's names."""
     from OCP.Bnd import Bnd_Box
     from OCP.BRep import BRep_Tool
-    from OCP.BRepAdaptor import BRepAdaptor_Curve
+    from OCP.BRepAdaptor import BRepAdaptor_Curve, BRepAdaptor_Surface
     from OCP.BRepBndLib import BRepBndLib
     from OCP.BRepMesh import BRepMesh_IncrementalMesh
     from OCP.GCPnts import GCPnts_TangentialDeflection
@@ -63,19 +65,25 @@ def mesh(shape, deflection: float | None = None) -> dict:
             for k in range(1, tri.NbTriangles() + 1):
                 a, b, c = tri.Triangle(k).Get()
                 idx += [a - 1, c - 1, b - 1] if rev else [a - 1, b - 1, c - 1]
-        faces.append({"name": f"Face{i}", "points": pts, "index": idx})
+        faces.append({"name": f"Face{i}", "points": pts, "index": idx, "kind": _kind(BRepAdaptor_Surface(f).GetType())})
     edges = []
     for i, e in enumerate(F._subs(shape, TopAbs_EDGE), 1):
         edge = TopoDS.Edge(e)
-        pts = []
+        pts, kind = [], None
         if not BRep_Tool.Degenerated_s(edge):
             c = BRepAdaptor_Curve(edge)
+            kind = _kind(c.GetType())
             d = GCPnts_TangentialDeflection(c, 0.2, deflection)
             for k in range(1, d.NbPoints() + 1):
                 p = d.Value(k)
                 pts += [r(p.X()), r(p.Y()), r(p.Z())]
-        edges.append({"name": f"Edge{i}", "points": pts})
+        edges.append({"name": f"Edge{i}", "points": pts, "kind": kind})
     return {"faces": faces, "edges": edges}
+
+
+def _kind(t) -> str:
+    """GeomAbs_Plane -> "Plane", GeomAbs_Line -> "Line", ..."""
+    return str(t.name if hasattr(t, "name") else t).replace("GeomAbs_", "")
 
 
 def shapes_after(path: Path, ops: list, name: str | None):

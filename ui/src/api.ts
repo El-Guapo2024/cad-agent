@@ -177,7 +177,7 @@ export type FeatureOp =
   /** after: the feature it goes after; null puts it first; left out, it goes at the end */
   | { op: 'add'; feature: Record<string, unknown>; after?: string | null }
   | { op: 'set'; name: string; props: Record<string, unknown> }
-  | { op: 'delete'; name: string }
+  | { op: 'delete'; name: string; break?: boolean }
   | { op: 'rename'; name: string; to: string }
   | { op: 'move'; name: string; after: string | null }
   | { op: 'tip'; name: string }
