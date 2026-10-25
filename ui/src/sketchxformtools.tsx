@@ -43,12 +43,15 @@ function idsFromName(name: string): [number, PointPos] {
   if (isVertexName(name)) return S.geoVertexIndex(vertexIdOf(name))
   return [GEO_UNDEF, NONE]
 }
-/** SketcherGui::isCommandNeedingGeometryActive: in edit with no tool or a tool running, and some geometry selected. */
-export function isCommandNeedingGeometryActive(): boolean {
+/** SketcherGui::isCommandActive: in edit with no tool or a tool running. */
+export function isCommandActive(): boolean {
   if (!S.isEditing()) return false
   const mode = S.getMode()
-  if (mode !== 'none' && mode !== 'useHandler') return false
-  return S.getSelection().some((n) => idsFromName(n)[0] !== GEO_UNDEF)
+  return mode === 'none' || mode === 'useHandler'
+}
+/** SketcherGui::isCommandNeedingGeometryActive: isCommandActive, and some geometry selected. */
+export function isCommandNeedingGeometryActive(): boolean {
+  return isCommandActive() && S.getSelection().some((n) => idsFromName(n)[0] !== GEO_UNDEF)
 }
 
 type CopySelection = { list: number[]; lastGeoId: number; lastPos: PointPos }
@@ -210,6 +213,210 @@ function ArrayDialogBody({ d }: { d: NonNullable<ArrayDlg> }) {
         </div>
       </div>
     </div>, document.body)
+}
+
+// ── Sketcher_CopyClipboard, Sketcher_Cut, Sketcher_Paste ─────────────────────────────────────────────────────────
+/** SketcherGui::getListOfSelectedGeoIds(forceInternalSelection): the selected edges (external ones too) and points of
+ *  their own, then the internal geometry of a selected conic or B-spline. */
+function selectedGeoIds(): number[] {
+  const out: number[] = []
+  for (const n of S.getSelection()) {
+    if (isEdgeName(n)) out.push(edgeIdOf(n))
+    else if (n.length > 12 && n.startsWith('ExternalEdge')) out.push(REF_EXT + 1 - Number(n.slice(12)))
+    else if (isVertexName(n)) { const [g] = S.geoVertexIndex(vertexIdOf(n)); if (geometryAt(g)?.type === 'Point' && g >= 0) out.push(g) }
+  }
+  const cs = S.getConstraints()
+  for (const g of [...out]) {
+    const t = geometryAt(g)?.type
+    if (t === 'Ellipse' || t === 'ArcOfEllipse' || t === 'ArcOfHyperbola' || t === 'ArcOfParabola' || t === 'BSplineCurve')
+      for (const c of cs) if (c.type === 'InternalAlignment' && c.second === g && !out.includes(c.first)) out.push(c.first)
+  }
+  if (!out.length) report('err', 'Invalid selection: Selection has no valid geometries.')
+  return out
+}
+const e8 = (v: number) => v.toFixed(8)
+const v3 = (p: XY) => `App.Vector(${e8(p[0])}, ${e8(p[1])}, ${e8(0)})`
+/** PythonConverter::process(geometry): the Part constructor FreeCAD writes for it ("%.8f"). */
+function geometryPython(g: SK.Geo): string {
+  switch (g.type) {
+    case 'LineSegment': return `Part.LineSegment(${v3(g.start)},${v3(g.end)})`
+    case 'ArcOfCircle': return `Part.ArcOfCircle(Part.Circle(${v3(g.center)}, App.Vector(${e8(0)}, ${e8(0)}, ${e8(1)}), ${e8(g.radius)}), ${e8(g.start_angle)}, ${e8(g.end_angle)})`
+    case 'Point': return `Part.Point(${v3(g.at)})`
+    case 'Circle': return `Part.Circle(${v3(g.center)}, App.Vector(${e8(0)}, ${e8(0)}, ${e8(1)}), ${e8(g.radius)})`
+    case 'Ellipse': case 'ArcOfEllipse': case 'ArcOfHyperbola': {
+      const ax = g.x_axis, l = Math.hypot(ax[0], ax[1]) || 1, X: XY = [ax[0] / l, ax[1] / l], Y: XY = [-X[1], X[0]]
+      const maj: XY = [g.center[0] + X[0] * g.major_radius, g.center[1] + X[1] * g.major_radius]
+      const min: XY = [g.center[0] + Y[0] * g.minor_radius, g.center[1] + Y[1] * g.minor_radius]
+      if (g.type === 'Ellipse') return `Part.Ellipse(${v3(maj)}, ${v3(min)}, ${v3(g.center)})`
+      if (g.type === 'ArcOfEllipse') return `Part.ArcOfEllipse(Part.Ellipse(${v3(maj)}, ${v3(min)}, ${v3(g.center)}), ${e8(g.start_angle)}, ${e8(g.end_angle)})`
+      return `Part.ArcOfHyperbola(Part.Hyperbola(${v3(maj)}, ${v3(min)}, ${v3(g.center)}), ${e8(g.start_angle)}, ${e8(g.end_angle)})`
+    }
+    case 'ArcOfParabola': {
+      const ax = g.x_axis, l = Math.hypot(ax[0], ax[1]) || 1
+      const focus: XY = [g.center[0] + (ax[0] / l) * g.focal, g.center[1] + (ax[1] / l) * g.focal]
+      return `Part.ArcOfParabola(Part.Parabola(${v3(focus)}, ${v3(g.center)}, App.Vector(0, 0, 1)), ${e8(g.start_angle)}, ${e8(g.end_angle)})`
+    }
+    case 'BSplineCurve': {
+      const list = (a: string[]) => `[${a.join(', ')}]`
+      const weights = g.weights ?? g.poles.map(() => 1)
+      return `Part.BSplineCurve(${list(g.poles.map((p) => `App.Vector(${e8(p[0])}, ${e8(p[1])})`))}, ${list(g.mults.map(e8))}, ${list(g.knots.map(e8))}, ${g.periodic ? 'True' : 'False'}, ${g.degree}, ${list(weights.map(e8))}, False)`
+    }
+  }
+}
+/** PythonConverter::process(constraint, AddLastGeoIdToGeoIds): Sketcher.Constraint(...) with "lastGeoId + n" for the
+ *  copied geometry, the value as std::to_string writes it ("%f"). */
+function constraintPython(c: SK.Constraint): string {
+  const id = (g: number) => (g >= 0 ? `lastGeoId + ${g}` : String(g))
+  const i1 = id(c.first), i2 = id(c.second), i3 = id(c.third), ip1 = `${i1}, ${c.firstPos}`, ip2 = `${i2}, ${c.secondPos}`
+  const val = c.value.toFixed(6)
+  const secondUndef = c.second === GEO_UNDEF, thirdUndef = c.third === GEO_UNDEF, e1 = c.firstPos === NONE, e2 = c.secondPos === NONE, e3 = c.thirdPos === NONE
+  let r: string
+  switch (c.type) {
+    case 'Coincident': r = `Coincident', ${ip1}, ${ip2}`; break
+    case 'Horizontal': case 'Vertical': r = secondUndef ? `${c.type}', ${i1}` : `${c.type}', ${ip1}, ${ip2}`; break
+    case 'Block': r = `Block', ${i1}`; break
+    case 'Tangent': case 'Perpendicular': r = e1 ? `${c.type}', ${i1}, ${i2}` : e2 ? `${c.type}', ${ip1}, ${i2}` : `${c.type}', ${ip1}, ${ip2}`; break
+    case 'Parallel': case 'Equal': r = `${c.type}', ${i1}, ${i2}`; break
+    case 'Distance': r = secondUndef ? `Distance', ${i1}, ${val}` : e1 ? `Distance', ${i1}, ${i2}, ${val}` : e2 ? `Distance', ${ip1}, ${i2}, ${val}` : `Distance', ${ip1}, ${ip2}, ${val}`; break
+    case 'Angle': r = secondUndef ? `Angle', ${i1}, ${val}` : thirdUndef ? (e2 ? `Angle', ${i1}, ${i2}, ${val}` : `Angle', ${ip1}, ${ip2}, ${val}`) : `AngleViaPoint', ${i1}, ${i2}, ${i3}, ${c.thirdPos}, ${val}`; break
+    case 'DistanceX': case 'DistanceY': r = e1 && secondUndef ? `${c.type}', ${i1}, ${val}` : e2 ? `${c.type}', ${ip1}, ${val}` : `${c.type}', ${ip1}, ${ip2}, ${val}`; break
+    case 'Radius': case 'Diameter': case 'Weight': r = `${c.type}', ${i1}, ${val}`; break
+    case 'PointOnObject': r = `PointOnObject', ${ip1}, ${i2}`; break
+    case 'Symmetric': r = e3 ? `Symmetric', ${ip1}, ${ip2}, ${i3}` : `Symmetric', ${ip1}, ${ip2}, ${i3}, ${c.thirdPos}`; break
+    case 'SnellsLaw': r = `SnellsLaw', ${ip1}, ${ip2}, ${i3}, ${val}`; break
+    case 'InternalAlignment': {
+      const a = c.alignment!
+      if (['EllipseMajorDiameter', 'EllipseMinorDiameter', 'HyperbolaMajor', 'HyperbolaMinor', 'ParabolaFocalAxis'].includes(a)) r = `InternalAlignment:${a}', ${i1}, ${i2}`
+      else if (a === 'BSplineControlPoint') r = `InternalAlignment:${a}', ${ip1}, ${i2}, ${c.alignmentIndex ?? -1}`
+      else if (a === 'BSplineKnotPoint') r = `InternalAlignment:${a}', ${i1}, 1, ${i2}, ${c.alignmentIndex ?? -1}`
+      else r = `InternalAlignment:${a}', ${ip1}, ${i2}`
+      break
+    }
+    default: throw new Error('PythonConverter: Constraint Type not supported')
+  }
+  if (!c.active || !c.driving) r += (c.active ? ', True' : ', False') + (SK.isDimensional(c) ? (c.driving ? ', True' : ', False') : '')
+  return `Sketcher.Constraint('${r})`
+}
+/** PythonConverter::convert(doc, geometries, OmitInternalGeometry): runs of construction and normal geometry. */
+function geometriesPython(doc: string, geos: SK.Geo[]): string {
+  if (!geos.length) return ''
+  let command = 'lastGeoId = len(ActiveSketch.Geometry)\n', list = '', n = 0, construction = !!geos[0].construction
+  const flush = () => {
+    if (!n) return
+    command += '\n' + (construction ? `constrGeoList = []\n${list}${doc}.addGeometry(constrGeoList,True)\ndel constrGeoList\n` : `geoList = []\n${list}${doc}.addGeometry(geoList,False)\ndel geoList\n`)
+  }
+  for (const g of geos) {
+    if (!!g.construction !== construction) { flush(); list = ''; n = 0; construction = !!g.construction }
+    list += `${construction ? 'constrGeoList' : 'geoList'}.append(${geometryPython(g)})\n`
+    n++
+  }
+  flush()
+  return command
+}
+function constraintsPython(doc: string, cs: SK.Constraint[]): string {
+  if (cs.length === 1) return `${doc}.addConstraint(${constraintPython(cs[0])})\n\n`
+  let list = 'constraintList = []'
+  for (const c of cs) list += `\nconstraintList.append(${constraintPython(c)})`
+  return cs.length ? `${list}\n${doc}.addConstraint(constraintList)\ndel constraintList\n` : list
+}
+let clipboardText = ''
+/** copySelectionToClipboard: the selected geometry (sorted, without repeats) and the constraints among it (or with the
+ *  axes and the root) as FreeCAD's Python, on the clipboard. */
+function copySelectionToClipboard(): boolean {
+  const ids = [...new Set(selectedGeoIds())].sort((a, b) => a - b)
+  if (!ids.length) return false
+  const geos = ids.map((g) => geometryAt(g)!)
+  const index = new Map(ids.map((g, j) => [g, j]))
+  const ok = (g: number) => ids.includes(g) || g === GEO_UNDEF || g === RT_PNT || g === V_AXIS || g === H_AXIS
+  const cons = S.getConstraints().filter((c) => ok(c.first) && ok(c.second) && ok(c.third))
+    .map((c) => ({ ...c, first: index.get(c.first) ?? c.first, second: index.get(c.second) ?? c.second, third: index.get(c.third) ?? c.third }))
+  const ref = S.getSession()?.ref
+  const objectCmd = `App.getDocument('${ref?.part ?? 'Unnamed'}').getObject('${ref?.name ?? 'Sketch'}')`
+  let text = `# Copied from sketcher. From:\n#objectStr = ${objectCmd}\n${geometriesPython('objectStr', geos)}\n`
+  try { text += constraintsPython('objectStr', cons) } catch (e) { report('err', String(e instanceof Error ? e.message : e)); return false }
+  clipboardText = text
+  void navigator.clipboard?.writeText(text).catch(() => {})
+  return true
+}
+export function copyClipboardCommand() { copySelectionToClipboard() }
+export function cutCommand() {
+  if (!copySelectionToClipboard()) return
+  // "Cut in Sketcher": ViewProviderSketch::deleteSelected
+  S.deleteSelected()
+}
+// ── pasting: the Python copySelectionToClipboard writes, read back ──
+const NUM = String.raw`-?\d+(?:\.\d+)?(?:e[-+]?\d+)?`
+const vec = (s: string): XY => { const m = s.match(new RegExp(`App\\.Vector\\((${NUM}), (${NUM})`)); return [Number(m![1]), Number(m![2])] }
+const nums = (s: string) => [...s.matchAll(new RegExp(NUM, 'g'))].map((m) => Number(m[0]))
+function parseGeometry(src: string, construction: boolean): SK.Geo | null {
+  const c = construction ? { construction: true } : {}
+  const vs = [...src.matchAll(/App\.Vector\(([^)]*)\)/g)].map((m) => nums(m[1]) as number[])
+  const tail = nums(src.replace(/App\.Vector\([^)]*\)/g, ''))
+  if (src.startsWith('Part.LineSegment(')) return { type: 'LineSegment', start: [vs[0][0], vs[0][1]], end: [vs[1][0], vs[1][1]], ...c }
+  if (src.startsWith('Part.Point(')) return { type: 'Point', at: [vs[0][0], vs[0][1]], ...c }
+  if (src.startsWith('Part.Circle(')) return { type: 'Circle', center: [vs[0][0], vs[0][1]], radius: tail[0], ...c }
+  if (src.startsWith('Part.ArcOfCircle(')) return { type: 'ArcOfCircle', center: [vs[0][0], vs[0][1]], radius: tail[0], start_angle: tail[1], end_angle: tail[2], ...c }
+  const conic = (): { center: XY; major_radius: number; minor_radius: number; x_axis: XY } => {
+    const [maj, min, ctr] = vs, center: XY = [ctr[0], ctr[1]]
+    const A = Math.hypot(maj[0] - ctr[0], maj[1] - ctr[1]), B = Math.hypot(min[0] - ctr[0], min[1] - ctr[1])
+    return { center, major_radius: A, minor_radius: B, x_axis: [(maj[0] - ctr[0]) / A, (maj[1] - ctr[1]) / A] }
+  }
+  if (src.startsWith('Part.Ellipse(')) return { type: 'Ellipse', ...conic(), ...c }
+  if (src.startsWith('Part.ArcOfEllipse(')) return { type: 'ArcOfEllipse', ...conic(), start_angle: tail[0], end_angle: tail[1], ...c }
+  if (src.startsWith('Part.ArcOfHyperbola(')) return { type: 'ArcOfHyperbola', ...conic(), start_angle: tail[0], end_angle: tail[1], ...c }
+  if (src.startsWith('Part.ArcOfParabola(')) {
+    const [f, v] = vs, focal = Math.hypot(f[0] - v[0], f[1] - v[1])
+    return { type: 'ArcOfParabola', center: [v[0], v[1]], focal, x_axis: [(f[0] - v[0]) / focal, (f[1] - v[1]) / focal], start_angle: tail[0], end_angle: tail[1], ...c }
+  }
+  if (src.startsWith('Part.BSplineCurve(')) {
+    const lists = [...src.matchAll(/\[([^\]]*)\]/g)].map((m) => m[1])
+    const poles = [...lists[0].matchAll(/App\.Vector\(([^)]*)\)/g)].map((m) => nums(m[1]) as number[]).map((p): XY => [p[0], p[1]])
+    const after = src.slice(src.indexOf(lists[2]) + lists[2].length + 1)
+    const m = after.match(/^,\s*(True|False),\s*(\d+)/)
+    return { type: 'BSplineCurve', poles, mults: nums(lists[1]).map(Math.round), knots: nums(lists[2]), periodic: m?.[1] === 'True', degree: Number(m?.[2] ?? 3), weights: nums(lists[3]), ...c }
+  }
+  return null
+}
+/** Sketcher.Constraint(...) as ConstraintPy::PyInit reads the forms PythonConverter writes. */
+function parseConstraint(src: string, lastGeoId: number): SK.Constraint | null {
+  const m = src.match(/^Sketcher\.Constraint\('([^']+)',\s*(.*)\)$/)
+  if (!m) return null
+  let type = m[1]
+  const args = m[2].split(',').map((a) => a.trim())
+  const flags: boolean[] = []
+  while (args.length && (args[args.length - 1] === 'True' || args[args.length - 1] === 'False')) flags.unshift(args.pop() === 'True')
+  const vals = args.map((a) => { const k = a.match(/^lastGeoId \+ (\d+)$/); return k ? lastGeoId + Number(k[1]) : Number(a) })
+  let c: SK.Constraint
+  if (type.startsWith('InternalAlignment:')) c = SK.fromCons({ type, args: vals })
+  else {
+    if (type === 'AngleViaPoint') type = 'Angle'
+    const dims = ['Distance', 'DistanceX', 'DistanceY', 'Radius', 'Diameter', 'Angle', 'Weight', 'SnellsLaw']
+    const dim = dims.includes(type)
+    if (m[1] === 'AngleViaPoint') c = SK.constraint('Angle', vals[0], NONE, vals[1], NONE, vals[2], vals[3] as PointPos, vals[4])
+    else c = SK.fromCons(dim ? { type, args: vals.slice(0, -1), value: vals[vals.length - 1] } : { type, args: vals })
+  }
+  if (flags.length) { c.active = flags[0]; if (flags.length > 1) c.driving = flags[1] }
+  return c
+}
+/** CmdSketcherPaste: the clipboard's Python run on the sketch (when it is a Sketcher copy), then a solve. */
+export async function pasteCommand() {
+  let data = ''
+  try { data = (await navigator.clipboard?.readText()) ?? '' } catch { data = '' }
+  if (!data.includes('# Copied from sketcher.')) data = clipboardText
+  if (!data.includes('# Copied from sketcher.') || !S.isEditing()) return
+  const lastGeoId = S.getGeometry().length
+  const geos: SK.Geo[] = [], cons: SK.Constraint[] = []
+  for (const line of data.split('\n')) {
+    const g = line.match(/^(constrGeoList|geoList)\.append\((.*)\)$/)
+    if (g) { const x = parseGeometry(g[2], g[1] === 'constrGeoList'); if (x) geos.push(x); continue }
+    const c = line.match(/^constraintList\.append\((.*)\)$/) ?? line.match(/^objectStr\.addConstraint\((Sketcher\.Constraint\(.*\))\)$/)
+    if (c) { const x = parseConstraint(c[1], lastGeoId); if (x) cons.push(x) }
+  }
+  S.openCommand('Paste in Sketcher')
+  if (geos.length) S.addGeometry(geos)
+  if (cons.length) S.addConstraint(cons)
+  S.solve()
+  S.commitCommand()
 }
 
 // ── Sketcher_RemoveAxesAlignment ─────────────────────────────────────────────────────────────────────────────────

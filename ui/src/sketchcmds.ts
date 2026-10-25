@@ -137,6 +137,9 @@ const RUN: Record<string, () => void> = {
   Sketcher_Move: () => XT.copyCommand('move'),
   Sketcher_RectangularArray: () => void XT.rectangularArrayCommand(),
   Sketcher_RemoveAxesAlignment: XT.removeAxesAlignmentCommand,
+  Sketcher_CopyClipboard: XT.copyClipboardCommand,
+  Sketcher_Cut: XT.cutCommand,
+  Sketcher_Paste: () => void XT.pasteCommand(),
   Sketcher_ToggleConstruction: toggleConstruction,
   Sketcher_LeaveSketch: () => void S.closeEdit(true),
   Sketcher_CancelSketch: () => void S.closeEdit(false),
@@ -175,7 +178,9 @@ export function isEnabled(name: string): boolean {
       return sel.length > 0
     case 'Sketcher_StopOperation': return true
     case 'Sketcher_Copy': case 'Sketcher_Clone': case 'Sketcher_Move': case 'Sketcher_RectangularArray': case 'Sketcher_RemoveAxesAlignment':
+    case 'Sketcher_CopyClipboard': case 'Sketcher_Cut':
       return XT.isCommandNeedingGeometryActive()
+    case 'Sketcher_Paste': return XT.isCommandActive()
     default: return true
   }
 }

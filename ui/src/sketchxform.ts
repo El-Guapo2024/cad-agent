@@ -357,6 +357,8 @@ export function addCopy(d: Doc, geoIdList: number[], displacement: XY, moveonly 
     if (!constraindisplacement) geoIdMap.clear()
     // the construction line from the previous copy's reference point to this one's
     const sp = add(pointOf(original, refgeoid, refposId), x === 0 ? add(mul(displacement, x), mul(perp, y - 1)) : add(mul(displacement, x - 1), mul(perp, y)))
+    // GeomLineSegment::setPoints refuses a line of no length (gp::Resolution)
+    if (sp[0] === iterfirstpoint[0] && sp[1] === iterfirstpoint[1]) throw new XformError('Both points are equal')
     newgeoVals.push({ type: 'LineSegment', start: sp, end: iterfirstpoint, construction: true })
     if (x === 0) {
       newconstrVals.push(constraint('Coincident', prevrowstartfirstgeoid, refposId, cgeoid, START))

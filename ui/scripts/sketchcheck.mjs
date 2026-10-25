@@ -226,7 +226,13 @@ for (const [k, c] of CASES.cases.entries()) {
     if (m?.length === 16) off = [m[3], m[7]] // the project lays its parts out side by side; the sketch's camera follows
     await p.dblclick(`.trow[data-ref="${part}/S"] .tname`)
     await p.evaluate(() => window.cadui.showPanel('view3d'))
-  } else await gui('run', ['Sketcher_EditSketch', name, JSON.stringify(c.setup ?? {})])
+  } else {
+    await gui('run', ['Sketcher_EditSketch', name, JSON.stringify(c.setup ?? {})])
+    // on a loaded machine the command can come while the last case is still leaving: once more
+    if (!(await p.locator('.sketch-task').count())) {
+      await p.waitForSelector('.sketch-task', { timeout: 5000 }).catch(() => gui('run', ['Sketcher_EditSketch', name, JSON.stringify(c.setup ?? {})]))
+    }
+  }
   await p.waitForSelector('.sketch-task', { timeout: 10000 })
   await p.waitForTimeout(800) // the view turning to the sketch (an animation, then the fit)
   // the camera FreeCAD's had, set again until it stays (the turn's animation may still be running)
@@ -320,6 +326,8 @@ for (const [k, c] of CASES.cases.entries()) {
   // leave without saving, whatever the case left behind (a tool, a dialog)
   for (let i = 0; i < 3 && (await p.locator('.datum-dlg').count()); i++) await p.locator('.datum-dlg .qbtn').last().click()
   await gui('run', ['Sketcher_CancelSketch']); await p.waitForTimeout(300)
+  // leaving takes longer after a big sketch: the next case's Edit Sketch is ignored while this one is still in edit
+  for (let i = 0; i < 50 && (await p.locator('.sketch-task').count()); i++) await p.waitForTimeout(100)
 }
 for (const d of SREF.dialogs ?? []) {
   if (only.length && !only.includes(d.case)) continue

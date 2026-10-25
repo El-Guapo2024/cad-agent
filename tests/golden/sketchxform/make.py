@@ -310,6 +310,11 @@ def generate() -> list[dict]:
         internal = len(s.geo)  # the first internal element, once exposed
         op = ["copy", [[internal, 1], [5.0, 3.0], False]] if k % 2 else ["array", [[internal, e[0]], [5.0, 3.0], True, 2, 2, False, 1.0]]
         add("internal geometry first (refused)" if k % 2 else "internal geometry first, with its ellipse", s, op)
+    # no displacement: the construction line has no length (refused)
+    for k in range(2):
+        s, groups = scene(r)
+        op = ["copy", [pick(r, s, groups), [0.0, 0.0], False]] if k == 0 else ["array", [pick(r, s, groups), [0.0, 0.0], False, 2, 2, False, 1.0]]
+        add("no displacement (refused)", s, op)
     # everything (an empty list)
     for k in range(4):
         s, groups = scene(r)

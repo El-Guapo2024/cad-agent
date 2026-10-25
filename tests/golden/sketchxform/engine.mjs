@@ -4335,6 +4335,7 @@ function addCopy(d, geoIdList, displacement, moveonly = false, clone = false, cs
 		}
 		if (!constraindisplacement) geoIdMap.clear();
 		const sp = add(pointOf(original, refgeoid, refposId), x === 0 ? add(mul(displacement, x), mul(perp, y - 1)) : add(mul(displacement, x - 1), mul(perp, y)));
+		if (sp[0] === iterfirstpoint[0] && sp[1] === iterfirstpoint[1]) throw new XformError("Both points are equal");
 		newgeoVals.push({
 			type: "LineSegment",
 			start: sp,
