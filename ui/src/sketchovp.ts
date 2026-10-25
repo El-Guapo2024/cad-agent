@@ -54,7 +54,9 @@ export type LabelType = 'DISTANCE' | 'DISTANCEX' | 'DISTANCEY' | 'RADIUS' | 'DIA
 /** EditableDatumLabel::Function: a coordinate (Positioning), a dimension (Dimensioning), always shown (Forced). */
 export type LabelFunction = 'Positioning' | 'Dimensioning' | 'Forced'
 export type Unit = 'Length' | 'Angle'
-const DIMS: Record<Unit, Dims> = { Length: [1, 0, 0, 0, 0, 0, 0, 0], Angle: [0, 0, 0, 0, 0, 0, 0, 1] }
+/** A value's unit: a length, an angle, or None (Base::Unit(): a plain number, a count or a scale factor). */
+export type ValueUnit = Unit | 'None'
+const DIMS: Record<ValueUnit, Dims> = { Length: [1, 0, 0, 0, 0, 0, 0, 0], Angle: [0, 0, 0, 0, 0, 0, 0, 1], None: [0, 0, 0, 0, 0, 0, 0, 0] }
 const CONFUSION = 1e-7
 
 /** The labels shown now (an active label is drawn; one in edit has its box), for the drawing and the checks. */
@@ -111,7 +113,7 @@ export class EditableDatumLabel {
   private active = false
   /** label->string: the text drawn when no box is on it (" " while editing). */
   private text = ' '
-  private unit: Unit = 'Length'
+  private unit: ValueUnit = 'Length'
   private locked = false
   box: HTMLInputElement | null = null
   private display: DisplayUnit | null = null
@@ -253,7 +255,7 @@ export class EditableDatumLabel {
     if (this.hasFinishedEditing) this.resetLockedState()
     e.stopPropagation() // the box's own keys (the global shortcuts never see them: QLineEdit's ShortcutOverride)
   }
-  setSpinboxValue(val: number, unit: Unit = 'Length') {
+  setSpinboxValue(val: number, unit: ValueUnit = 'Length') {
     this.value = val
     this.unit = unit
     if (!this.box) { this.text = shownText({ value: val, dims: DIMS[unit] }).text; publishLabels(); return }
@@ -361,7 +363,7 @@ S.onOverlayDrawn(repositionBoxes)
 export function ovpStates() { return [...shown].map((l) => l.state()).filter((x): x is { text: string; focus: boolean } => !!x) }
 
 // ── the tool's widget (SketcherToolDefaultWidget) ───────────────────────────────────────────────────────────────
-export type WidgetParameter = { label: string; value: number; unit: Unit; visible: boolean; enabled: boolean; isSet: boolean; min?: number; max?: number; decimals?: number }
+export type WidgetParameter = { label: string; value: number; unit: ValueUnit; visible: boolean; enabled: boolean; isSet: boolean; min?: number; max?: number; decimals?: number }
 export type WidgetCheckbox = { label: string; checked: boolean; visible: boolean; toolTip: string; icon?: string; prefEntry: string }
 export type WidgetCombobox = { label: string; items: { text: string; icon?: string }[]; index: number; visible: boolean; prefEntry: string }
 export type ToolWidget = {
@@ -602,7 +604,7 @@ export class Controller {
     p.setDeactivatedColor()
     p.setLockedAppearance(false)
   }
-  setOnViewParameterValue(i: number, val: number, unit: Unit = 'Length') {
+  setOnViewParameterValue(i: number, val: number, unit: ValueUnit = 'Length') {
     if (this.isOnViewParameterVisible(i)) this.onViewParameters[i].setSpinboxValue(val, unit)
   }
   /** setModeOnViewParameters: the current state's parameters in edit (the first last, so that it keeps the focus). */
@@ -714,14 +716,14 @@ export class Controller {
   setParameter(i: number, v: number) { const p = this.toolWidget?.parameters[i]; if (p) { p.value = v; p.isSet = true; widgetChanged(); this.toolWidget!.onParameter(i, v) } }
   setParameterWithoutPassingFocus(i: number, v: number) { this.setParameter(i, v) }
   configureParameterInitialValue(i: number, v: number) { const p = this.toolWidget?.parameters[i]; if (p) { p.value = v; widgetChanged() } }
-  configureParameterUnit(i: number, u: Unit) { const p = this.toolWidget?.parameters[i]; if (p) { p.unit = u; widgetChanged() } }
+  configureParameterUnit(i: number, u: ValueUnit) { const p = this.toolWidget?.parameters[i]; if (p) { p.unit = u; widgetChanged() } }
   configureParameterMin(i: number, v: number) { const p = this.toolWidget?.parameters[i]; if (p) p.min = v }
   configureParameterMax(i: number, v: number) { const p = this.toolWidget?.parameters[i]; if (p) p.max = v }
   configureParameterDecimals(i: number, v: number) { const p = this.toolWidget?.parameters[i]; if (p) p.decimals = v }
   setParameterEnabled(i: number, on: boolean) { const p = this.toolWidget?.parameters[i]; if (p) { p.enabled = on; widgetChanged() } }
   getParameter(i: number) { return this.toolWidget?.parameters[i]?.value ?? 0 }
   isParameterSet(i: number) { return !!this.toolWidget?.parameters[i]?.isSet }
-  updateVisualValue(i: number, v: number, u: Unit = 'Length') { const p = this.toolWidget?.parameters[i]; if (p) { p.value = v; p.unit = u; widgetChanged() } }
+  updateVisualValue(i: number, v: number, u: ValueUnit = 'Length') { const p = this.toolWidget?.parameters[i]; if (p) { p.value = v; p.unit = u; widgetChanged() } }
   setCheckboxLabel(i: number, s: string) { const c = this.toolWidget?.checkboxes[i]; if (c) { c.label = s; widgetChanged() } }
   setCheckboxToolTip(i: number, s: string) { const c = this.toolWidget?.checkboxes[i]; if (c) c.toolTip = s }
   setCheckboxIcon(i: number, icon: string) { const c = this.toolWidget?.checkboxes[i]; if (c) c.icon = icon }

@@ -133,7 +133,7 @@ const images = new Map<string, HTMLImageElement>()
 let onIconLoad: () => void = () => {}
 export function iconsLoaded(f: () => void) { onIconLoad = f }
 /** Sketcher icon file (public/freecad-icons/sketcher). */
-export const sketcherIcon = (name: string) => `./freecad-icons/sketcher/${name}.svg`
+export const sketcherIcon = (name: string) => (name.startsWith('edit-') ? `./freecad-icons/${name}.svg` : `./freecad-icons/sketcher/${name}.svg`) // edit-copy …: Gui's icons
 export function iconImage(name: string): HTMLImageElement | null {
   let img = images.get(name)
   if (!img) {

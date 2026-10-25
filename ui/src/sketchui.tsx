@@ -32,6 +32,7 @@ import * as THREE from 'three'
 import { ContextMenu, tipAttrs, type Entry } from './chrome'
 import { QuantityBox } from './qsb'
 import { cls } from './panels'
+import { ArrayDialog } from './sketchxformtools'
 import { ToolParametersBox } from './sketchtoolbox'
 
 const useSketch = () => useSyncExternalStore(S.subscribeSketch, S.sketchVersion)
@@ -387,5 +388,5 @@ onSketchSelection((cmd, args) => {
 
 /** The dialogs and the context menu, mounted once (App.tsx). */
 export function SketchHost() {
-  return <><DatumDialog /><OrientationDialog /><SketchMenu /></>
+  return <><DatumDialog /><OrientationDialog /><ArrayDialog /><SketchMenu /></>
 }

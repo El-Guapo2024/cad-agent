@@ -226,7 +226,13 @@ for (const [k, c] of CASES.cases.entries()) {
     if (m?.length === 16) off = [m[3], m[7]] // the project lays its parts out side by side; the sketch's camera follows
     await p.dblclick(`.trow[data-ref="${part}/S"] .tname`)
     await p.evaluate(() => window.cadui.showPanel('view3d'))
-  } else await gui('run', ['Sketcher_EditSketch', name, JSON.stringify(c.setup ?? {})])
+  } else {
+    await gui('run', ['Sketcher_EditSketch', name, JSON.stringify(c.setup ?? {})])
+    // on a loaded machine the command can come while the last case is still leaving: once more
+    if (!(await p.locator('.sketch-task').count())) {
+      await p.waitForSelector('.sketch-task', { timeout: 5000 }).catch(() => gui('run', ['Sketcher_EditSketch', name, JSON.stringify(c.setup ?? {})]))
+    }
+  }
   try { await p.waitForSelector('.sketch-task', { timeout: 30000 }) } catch (e) { if (await p.evaluate(() => window.cadui.sketcher.isEditing())) { notes.push(`${c.name}: the task panel was not in front (shown again)`); console.log('panel not in front; messages:', JSON.stringify(await p.evaluate(() => (window.cadui.getState().messages ?? []).slice(-4)))); await p.evaluate(() => window.cadui.showPanel('tasks')); await p.waitForSelector('.sketch-task', { timeout: 15000 }) } else { console.log('page errors:', errs.join(' / '), 'editing:', await p.evaluate(async () => { const S = window.cadui.sketcher, s = S.getSession(); const info = { mode: s?.mode, tool: s?.handler?.toolName, state: s?.handler?.state, msgs: (window.cadui.getState().messages ?? []).slice(-4) }; try { await S.closeEdit(false); info.closed = !S.isEditing() } catch (e) { info.error = String(e) + ' ' + e.stack } return JSON.stringify(info) })); throw e } }
   await p.waitForTimeout(800) // the view turning to the sketch (an animation, then the fit)
   // the camera FreeCAD's had, set again until it stays (the turn's animation may still be running)
@@ -245,7 +251,18 @@ for (const [k, c] of CASES.cases.entries()) {
     if (await d.count()) { dialogs.push({ case: c.name, title: await d.locator('.msgbox-title').innerText() }); await d.locator('.qbtn.default').click(); await p.waitForTimeout(120) }
   }
   for (const st of c.steps) {
-    if (st.cmd) { await gui('run', [st.cmd]); await p.waitForTimeout(120) }
+    if (st.cmd) {
+      await gui('run', [st.cmd]); await p.waitForTimeout(120)
+      // the step's "dialog": the named fields of the dialog the command opens, set before it is accepted
+      if (st.dialog) {
+        for (let i = 0; i < 20 && !(await p.locator('.datum-dlg').count()); i++) await p.waitForTimeout(100)
+        for (const [name, v] of Object.entries(st.dialog)) {
+          const f = p.locator(`.datum-dlg [data-qf="${name}"]`).first()
+          if (typeof v === 'boolean') { if ((await f.isChecked()) !== v) await f.click() }
+          else { const t = f.locator('input'); await t.click(); await t.press('Control+a'); await t.type(String(v)); await t.press('Tab') }
+        }
+      }
+    }
     else if (st.move) await move(st.move)
     else if (st.click) { await move([st.click[0] + 0.7, st.click[1] + 0.4]); await move(st.click); await p.mouse.down(); await p.waitForTimeout(60); await p.mouse.up(); await p.waitForTimeout(120) }
     else if (st.drag) {
@@ -314,6 +331,8 @@ for (const [k, c] of CASES.cases.entries()) {
   // leave without saving, whatever the case left behind (a tool, a dialog)
   for (let i = 0; i < 3 && (await p.locator('.datum-dlg').count()); i++) await p.locator('.datum-dlg .qbtn').last().click()
   await gui('run', ['Sketcher_CancelSketch']); await p.waitForTimeout(300)
+  // leaving takes longer after a big sketch: the next case's Edit Sketch is ignored while this one is still in edit
+  for (let i = 0; i < 50 && (await p.locator('.sketch-task').count()); i++) await p.waitForTimeout(100)
   for (let i = 0; i < 3 && (await p.locator('.sketch-task').count()); i++) { notes.push(`${c.name}: Cancel sent again (the sketch was still in edit)`); await p.waitForTimeout(1000); await gui('run', ['Sketcher_CancelSketch']); await p.waitForTimeout(500) }
 }
 for (const d of SREF.dialogs ?? []) {

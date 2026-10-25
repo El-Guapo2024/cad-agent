@@ -1,0 +1,854 @@
+{
+ "about": "What FreeCAD 26.3 (3160daf1e2b6) does for ui/scripts/sketchcases-xformovp.json, written by fcsketch.py --ref; ui/scripts/sketchcheck.mjs compares the workbench with it.",
+ "viewport": [
+  1014,
+  644
+ ],
+ "dialogs": [],
+ "cases": {
+  "symmetry-line-about-the-v-axis": {
+   "geometry": [
+    {
+     "type": "LineSegment",
+     "start": [
+      5.0,
+      5.0
+     ],
+     "end": [
+      25.0,
+      15.0
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      -5.0,
+      5.0
+     ],
+     "end": [
+      -25.0,
+      15.0
+     ]
+    }
+   ],
+   "constraints": [
+    {
+     "type": "Distance",
+     "args": [
+      0
+     ],
+     "value": 22.360679774997898
+    },
+    {
+     "type": "Symmetric",
+     "args": [
+      0,
+      1,
+      1,
+      1,
+      -2
+     ]
+    },
+    {
+     "type": "Symmetric",
+     "args": [
+      0,
+      2,
+      1,
+      2,
+      -2
+     ]
+    }
+   ],
+   "message": {
+    "status": "Under-constrained: ",
+    "link": "3 Degrees of Freedom"
+   }
+  },
+  "symmetry-polyline-about-a-line": {
+   "geometry": [
+    {
+     "type": "LineSegment",
+     "start": [
+      5.0,
+      5.0
+     ],
+     "end": [
+      15.0,
+      5.0
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      15.0,
+      5.0
+     ],
+     "end": [
+      10.0,
+      25.0
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      30.0,
+      -10.0
+     ],
+     "end": [
+      30.0,
+      40.0
+     ],
+     "construction": true
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      55.0,
+      5.0
+     ],
+     "end": [
+      45.0,
+      5.0
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      45.0,
+      5.0
+     ],
+     "end": [
+      50.0,
+      25.0
+     ]
+    }
+   ],
+   "constraints": [
+    {
+     "type": "Coincident",
+     "args": [
+      0,
+      2,
+      1,
+      1
+     ]
+    },
+    {
+     "type": "Horizontal",
+     "args": [
+      0,
+      1,
+      0,
+      2
+     ]
+    },
+    {
+     "type": "Vertical",
+     "args": [
+      2
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      3,
+      2,
+      4,
+      1
+     ]
+    },
+    {
+     "type": "Symmetric",
+     "args": [
+      0,
+      1,
+      3,
+      1,
+      2
+     ]
+    },
+    {
+     "type": "Symmetric",
+     "args": [
+      0,
+      2,
+      3,
+      2,
+      2
+     ]
+    },
+    {
+     "type": "Symmetric",
+     "args": [
+      1,
+      2,
+      4,
+      2,
+      2
+     ]
+    }
+   ],
+   "message": {
+    "status": "Under-constrained: ",
+    "link": "8 Degrees of Freedom"
+   }
+  },
+  "symmetry-arc-about-the-h-axis": {
+   "geometry": [
+    {
+     "type": "ArcOfCircle",
+     "center": [
+      20.0,
+      15.0
+     ],
+     "radius": 8.0,
+     "start_angle": 0.3,
+     "end_angle": 2.4
+    },
+    {
+     "type": "ArcOfCircle",
+     "center": [
+      20.0,
+      -15.0
+     ],
+     "radius": 8.0,
+     "start_angle": 3.8831853071805864,
+     "end_angle": 5.983185307179586
+    }
+   ],
+   "constraints": [
+    {
+     "type": "Radius",
+     "args": [
+      0
+     ],
+     "value": 8.0
+    },
+    {
+     "type": "Equal",
+     "args": [
+      0,
+      1
+     ]
+    },
+    {
+     "type": "Symmetric",
+     "args": [
+      0,
+      1,
+      1,
+      2,
+      -1
+     ]
+    },
+    {
+     "type": "Symmetric",
+     "args": [
+      0,
+      2,
+      1,
+      1,
+      -1
+     ]
+    }
+   ],
+   "message": {
+    "status": "Under-constrained: ",
+    "link": "4 Degrees of Freedom"
+   }
+  },
+  "symmetry-about-a-point-delete-original": {
+   "geometry": [
+    {
+     "type": "Point",
+     "at": [
+      25.0,
+      20.0
+     ]
+    },
+    {
+     "type": "Circle",
+     "center": [
+      40.0,
+      30.0
+     ],
+     "radius": 4.0
+    }
+   ],
+   "constraints": [
+    {
+     "type": "Radius",
+     "args": [
+      1
+     ],
+     "value": 4.0
+    }
+   ],
+   "message": {
+    "status": "Under-constrained: ",
+    "link": "4 Degrees of Freedom"
+   }
+  },
+  "translate-move-rectangle": {
+   "geometry": [
+    {
+     "type": "LineSegment",
+     "start": [
+      18.04348183,
+      11.98757935
+     ],
+     "end": [
+      33.04348183,
+      11.98757935
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      33.04348183,
+      11.98757935
+     ],
+     "end": [
+      33.04348183,
+      21.98757935
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      33.04348183,
+      21.98757935
+     ],
+     "end": [
+      18.04348183,
+      21.98757935
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      18.04348183,
+      21.98757935
+     ],
+     "end": [
+      18.04348183,
+      11.98757935
+     ]
+    }
+   ],
+   "constraints": [
+    {
+     "type": "Coincident",
+     "args": [
+      0,
+      2,
+      1,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      1,
+      2,
+      2,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      2,
+      2,
+      3,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      3,
+      2,
+      0,
+      1
+     ]
+    },
+    {
+     "type": "Horizontal",
+     "args": [
+      0
+     ]
+    },
+    {
+     "type": "Horizontal",
+     "args": [
+      2
+     ]
+    },
+    {
+     "type": "Vertical",
+     "args": [
+      1
+     ]
+    },
+    {
+     "type": "Vertical",
+     "args": [
+      3
+     ]
+    },
+    {
+     "type": "DistanceX",
+     "args": [
+      0,
+      1,
+      0,
+      2
+     ],
+     "value": 15.0
+    },
+    {
+     "type": "DistanceY",
+     "args": [
+      1,
+      1,
+      1,
+      2
+     ],
+     "value": 10.0
+    }
+   ],
+   "message": {
+    "status": "Under-constrained: ",
+    "link": "2 Degrees of Freedom"
+   }
+  },
+  "translate-three-elements-clone": {
+   "geometry": [
+    {
+     "type": "Circle",
+     "center": [
+      5.0,
+      5.0
+     ],
+     "radius": 3.0
+    },
+    {
+     "type": "Circle",
+     "center": [
+      15.83288528,
+      6.91012995
+     ],
+     "radius": 3.0
+    },
+    {
+     "type": "Circle",
+     "center": [
+      26.66577057,
+      8.82025991
+     ],
+     "radius": 3.0
+    }
+   ],
+   "constraints": [
+    {
+     "type": "Radius",
+     "args": [
+      0
+     ],
+     "value": 3.0
+    },
+    {
+     "type": "Equal",
+     "args": [
+      0,
+      1
+     ]
+    },
+    {
+     "type": "Equal",
+     "args": [
+      0,
+      2
+     ]
+    }
+   ],
+   "message": {
+    "status": "Under-constrained: ",
+    "link": "6 Degrees of Freedom"
+   }
+  },
+  "translate-rows": {
+   "geometry": [
+    {
+     "type": "LineSegment",
+     "start": [
+      0.0,
+      0.0
+     ],
+     "end": [
+      6.0,
+      0.0
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      10.86956024,
+      0.0
+     ],
+     "end": [
+      16.86956024,
+      0.0
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      0.0,
+      11.02484512
+     ],
+     "end": [
+      6.0,
+      11.02484512
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      10.86956024,
+      11.02484512
+     ],
+     "end": [
+      16.86956024,
+      11.02484512
+     ]
+    }
+   ],
+   "constraints": [
+    {
+     "type": "Horizontal",
+     "args": [
+      0
+     ]
+    },
+    {
+     "type": "Horizontal",
+     "args": [
+      1
+     ]
+    },
+    {
+     "type": "Horizontal",
+     "args": [
+      2
+     ]
+    },
+    {
+     "type": "Horizontal",
+     "args": [
+      3
+     ]
+    }
+   ],
+   "message": {
+    "status": "Under-constrained: ",
+    "link": "12 Degrees of Freedom"
+   }
+  },
+  "translate-typed-vector": {
+   "geometry": [
+    {
+     "type": "Point",
+     "at": [
+      22.32050808,
+      15.0
+     ]
+    }
+   ],
+   "constraints": [],
+   "message": {
+    "status": "Under-constrained: ",
+    "link": "2 Degrees of Freedom"
+   }
+  },
+  "rotate-line": {
+   "geometry": [
+    {
+     "type": "LineSegment",
+     "start": [
+      24.93788815,
+      20.06211185
+     ],
+     "end": [
+      24.93788815,
+      40.06211185
+     ]
+    }
+   ],
+   "constraints": [
+    {
+     "type": "Distance",
+     "args": [
+      0
+     ],
+     "value": 20.0
+    }
+   ],
+   "message": {
+    "status": "Under-constrained: ",
+    "link": "3 Degrees of Freedom"
+   }
+  },
+  "rotate-three-symmetric": {
+   "geometry": [
+    {
+     "type": "Circle",
+     "center": [
+      30.0,
+      20.0
+     ],
+     "radius": 3.0
+    },
+    {
+     "type": "Circle",
+     "center": [
+      20.21322734,
+      37.23095286
+     ],
+     "radius": 3.0
+    },
+    {
+     "type": "Circle",
+     "center": [
+      20.21322734,
+      2.76904714
+     ],
+     "radius": 3.0
+    }
+   ],
+   "constraints": [
+    {
+     "type": "Radius",
+     "args": [
+      0
+     ],
+     "value": 3.0
+    },
+    {
+     "type": "Radius",
+     "args": [
+      1
+     ],
+     "value": 3.0
+    },
+    {
+     "type": "Radius",
+     "args": [
+      2
+     ],
+     "value": 3.0
+    }
+   ],
+   "message": {
+    "status": "Under-constrained: ",
+    "link": "6 Degrees of Freedom"
+   }
+  },
+  "rotate-typed-angle": {
+   "geometry": [
+    {
+     "type": "LineSegment",
+     "start": [
+      15.0,
+      20.12422371
+     ],
+     "end": [
+      15.0,
+      35.12422371
+     ]
+    }
+   ],
+   "constraints": [],
+   "message": {
+    "status": "Under-constrained: ",
+    "link": "4 Degrees of Freedom"
+   }
+  },
+  "scale-rectangle": {
+   "geometry": [
+    {
+     "type": "LineSegment",
+     "start": [
+      -29.96894073,
+      -29.9378891
+     ],
+     "end": [
+      0.031059270000000083,
+      -29.9378891
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      0.031059270000000083,
+      -29.9378891
+     ],
+     "end": [
+      0.031059270000000083,
+      -9.9378891
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      0.031059270000000083,
+      -9.9378891
+     ],
+     "end": [
+      -29.96894073,
+      -9.9378891
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      -29.96894073,
+      -9.9378891
+     ],
+     "end": [
+      -29.96894073,
+      -29.9378891
+     ]
+    }
+   ],
+   "constraints": [
+    {
+     "type": "Coincident",
+     "args": [
+      0,
+      2,
+      1,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      1,
+      2,
+      2,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      2,
+      2,
+      3,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      3,
+      2,
+      0,
+      1
+     ]
+    },
+    {
+     "type": "Horizontal",
+     "args": [
+      0
+     ]
+    },
+    {
+     "type": "Horizontal",
+     "args": [
+      2
+     ]
+    },
+    {
+     "type": "Vertical",
+     "args": [
+      1
+     ]
+    },
+    {
+     "type": "Vertical",
+     "args": [
+      3
+     ]
+    },
+    {
+     "type": "DistanceX",
+     "args": [
+      0,
+      1,
+      0,
+      2
+     ],
+     "value": 30.0
+    },
+    {
+     "type": "DistanceY",
+     "args": [
+      1,
+      1,
+      1,
+      2
+     ],
+     "value": 20.0
+    }
+   ],
+   "message": {
+    "status": "Under-constrained: ",
+    "link": "2 Degrees of Freedom"
+   }
+  },
+  "scale-circle-keep-original": {
+   "geometry": [
+    {
+     "type": "Circle",
+     "center": [
+      10.0,
+      10.0
+     ],
+     "radius": 4.0
+    },
+    {
+     "type": "Circle",
+     "center": [
+      -9.96894073,
+      -9.9378891
+     ],
+     "radius": 8.0
+    }
+   ],
+   "constraints": [
+    {
+     "type": "Radius",
+     "args": [
+      0
+     ],
+     "value": 4.0
+    },
+    {
+     "type": "Radius",
+     "args": [
+      1
+     ],
+     "value": 8.0
+    }
+   ],
+   "message": {
+    "status": "Under-constrained: ",
+    "link": "4 Degrees of Freedom"
+   }
+  }
+ }
+}

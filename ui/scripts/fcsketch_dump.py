@@ -30,6 +30,14 @@ def accept_modal():
         return
     d = {"case": current["case"], "title": w.windowTitle(), "widgets": widgets(w)}
     res["dialogs"].append(d)
+    # a "cmd" step's "dialog": the named fields set first (a spin box's value, a check box's state)
+    for name, v in (current.get("dialog") or {}).items():
+        c = w.findChild(QtWidgets.QWidget, name)
+        if isinstance(c, QtWidgets.QAbstractButton):
+            c.setChecked(bool(v))
+        elif c is not None:
+            c.setValue(v)
+    current["dialog"] = None
     if isinstance(w, QtWidgets.QDialog):
         w.accept()
     else:
@@ -480,6 +488,7 @@ def run_case(doc, case, k):
 
     for st in case["steps"]:
         if "cmd" in st:
+            current["dialog"] = st.get("dialog")
             Gui.runCommand(st["cmd"], 0)
             pump(6)
         elif "move" in st:
