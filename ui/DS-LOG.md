@@ -314,3 +314,75 @@ harness.
   `cases` module can be the one `cases` resolves to (tests/golden/feature/cases.py has `rect` but no `P`), so `P` is
   spelled out in cases_misc.py; `rect` still comes from `cases`, as cases_attach.py's does, and both rects are the same
   four line segments. This is the item 3 note's path fragility, reached by the new file.
+
+## 5. Pattern spacing labels (PARITY.md leftover) — done
+
+### What was done
+
+Tests written with the work (they failed first, with no `pd-spacing` helper drawn at all):
+`ui/scripts/pickcheck.mjs`'s new `spacing` section (21 checks), held to the real FreeCAD's labels recorded through
+`ui/scripts/fcpick_dump.py`, run under the FreeCAD GUI (`ui/scripts/fcpick.py`):
+
+- `fcpick_dump.py` gained `datum_labels()` (walks the 3D view's Coin scene graph for the switched-on `SoDatumLabel`s,
+  each with its text, its points in world coordinates through the node transforms, its colour, its datum type and an
+  ANGLE's radius/start/range), `spacing()` (a LinearPattern: open, Occurrences 4, Mode Spacing, Spacings 20) and
+  `polar_spacing_labels()` (a PolarPattern: open, Occurrences 4, Angular Spacing, Spacings 30), with
+  `snap(..., labels=True)` recording them; `ui/scripts/fcpick.json` gained the resulting `spacing` key.
+- The panel, `ui/src/pd_transform.tsx` (`TransformedTask`): `spacingLabels()` as TaskPatternParameters::
+  updatePatternSpacingLabels computes the labels (one at the Extent; occurrences − 1 in Spacing, a `Spacings` entry of
+  -1 at the global offset in EditableDatumLabel's deactivated #868E96 and an override in its activated #E03131), the
+  points from TaskPatternParameters::getStartPoint (the originals' tools' combined bounding box centre, moved by the
+  Body's placement), polar labels at the projected oriented start angle about the axis and the full 3D radius;
+  `spacingSprite()`/`spacingOverlay()` draw each dimension (a line, or an arc sampled about the axis) and its text at
+  EditableDatumLabel's 17 px; a click opens the label's spinbox (QDoubleSpinBox: text selected, Enter/Tab write,
+  Escape and the focus leaving cancel, an unedited Enter committing the spinbox's own double — "33.33 mm" is its
+  rounded text — and a value equal to the global offset going back to -1); a right click on an override offers
+  "Reset spacing" (onSpacingLabelRightClicked), a -1 label leaving the view's own menu.
+- The view, `ui/src/viewer.ts`: `labelPick`/`labelMenu`, the left-release branch for `spacing:` names, the popup's
+  label menu, sprites in `helperPoint` (world position: a label has no mesh to sample), aspect-preserving
+  `shapeScale` sizing, and the sprite map's disposal in `setHelper`. **`helperHit` lets a named sprite win outright**:
+  the labels lie on the Body's top face and the Part/LCS datum planes are drawn in front of them, so nearest-wins
+  picked the plane; Coin's dragger under an SoAnnotation takes the click on the text whatever is behind it. That was
+  the last failure (the polar half's three checks; the linear half had already passed).
+- `ui/PARITY.md`: the labels are in the panels row now, and the MultiTransform sub-patterns' missing labels are a
+  recorded difference (TaskMultiTransformParameters' embedded TaskPatternParameters calls updatePatternSpacingLabels
+  too).
+- Bundle rebuilt (`cad_agent/workbench/next/`).
+
+### Commit
+
+`cd39bd5` PartDesign: the patterns' on-view spacing labels, as PatternParametersWidget draws them
+
+### Tests run
+
+- `ui/scripts/pickcheck.mjs --only=spacing` — 21 ok, 0 FAIL, 0 known. The first run, before the `helperHit` fix,
+  failed the polar half's three checks (19 ok, 3 FAIL); the run after it, and the rerun once the diagnostics were
+  removed, are 21/0/0.
+- `ui/scripts/pickcheck.mjs --only=linear,polar,spacing,select` — 94 ok, 0 FAIL, 4 known (the two known datum-line
+  rows in each of linear and polar). `select` because `helperHit` changed.
+- `pytest tests/test_licenses.py -q` — 244 passed (the two `src/Gui` files `pd_transform.tsx` now cites are in
+  `ui/NOTICE` already).
+- `pytest $(tests/affected.py origin/main --list) -q` — 5,614 passed, 3 skipped (exit 0).
+- `npx tsc --noEmit` — clean; `npm run build` — built, bundle committed (the hash did not change after the last
+  comment-only edit, so the checked bundle is the built one).
+
+### Unsure / questions
+
+- **The golden was merged in by hand.** A full `fcpick_dump.py` regeneration from the real FreeCAD GUI exited 0 with no
+  errors, but it also rewrites other sections with FreeCAD's nondeterministic bits (the `delete` section's heap names
+  and message-box order) and adds empty `message_boxes` keys to sections that had none. The committed file is HEAD's
+  JSON with only the `spacing` key inserted (`json.dumps(indent=1)`), so the diff is purely additive (2206 insertions,
+  no other key changed — verified against HEAD).
+- **The named-sprite precedence is a viewer-wide rule**, not a spacing-label special case: any future helper that makes
+  a sprite pickable will win over the model geometry behind it. Stated in its comment; only the spacing labels are
+  named sprites today.
+- **The Sketcher's own `EditableDatumLabel` (`sketchovp.ts`) is not reused**: it works in the sketch's 2D coordinate
+  system and reports into the Sketcher's draw state. The 3D view's labels have a small local sprite and box, with the
+  same `.ovp-box` styling.
+- **FreeCAD's DISTANCE labels' `param1`/`param2` are left out of the comparison**: they are EditableDatumLabel's own
+  text offsets from the dimension's midpoint (a text placement detail), while `labels` carries the dimension's two
+  points. Our text sits at the midpoint; the golden compares text, points, colour, and an ANGLE's radius and start
+  angle.
+- **The labels' text is drawn in the browser at a constant 17 px** with the label's colour, not through Coin's font
+  rendering; the checks compare what the overlay records (`userData.labels`) and the label's click behaviour, not the
+  pixels.
