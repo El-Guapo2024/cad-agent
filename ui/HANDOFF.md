@@ -81,9 +81,19 @@ cad_agent/feature_kw.py's KwFeature:
   Fillet/Chamfer (522 conic and 362 sketchops goldens; sketchcheck 74/75, c-parallel known). editcheck 59 ok, 19 known.
 - CI builds ui/planegcs native before the tests (feature tests solve sketches before test_planegcs did).
   Locally, rebuild it (`ui/planegcs/build.sh native`) after a merge that changes api.cpp/sketch.cpp.
-- Left: Scaled, RefineModel port, B-spline interpolation and tools, Offset, fillet between curves, trim/split
-  on B-splines, Hole Up to first, Common, Start Reference, Carbon copy, projecting conics, on-view parameters
-  (the patterns' spacing labels too), ShapeBinder/SubShapeBinder; then the Part workbench and Assembly joints.
+Step 5, round 3 (six branches) is all in main (7526c0c, CI green, 6977 passed, 2026-10-25):
+- pd-sweep: Additive/Subtractive Loft, Pipe, Helix (71 goldens; sweepcheck 302 ok).
+- pd-kernel: FreeCAD's RefineModel (cad_agent/refine.py) and booleans (topo_boolean.py) for every feature, closing
+  the face-count/order differences; taper, Common, Scaled, Start Reference (kernelcheck 38 ok). Left: Mirrored puts
+  the copy's faces first in 5 transform goldens; refine.py merges 2 edges more than FreeCAD in 2 Part cuts.
+- sketcher-curves: B-spline by knots and its tools, trim/split on B-splines, fillet between curves, Offset, Carbon
+  Copy, projected conics/B-splines; OCCT's numbers via `cad feature sketchkernel` (408 goldens). Left: solver fails to
+  converge on wide B-splines by knots; Carbon Copy copies values, not expressions.
+- sketcher-ovp: on-view parameters and the Tool Parameters box, Symmetry/Translate/Rotate/Scale/Array/Clone/Copy,
+  Constraints/Elements panels, Preferences > Sketcher; sketchcheck in 9 suites, 313/317 (4 known). The unfinished
+  out-of-edit commands (Validate/Map/Reorient/Mirror/Merge sketches) are on origin/sketcher-outofedit-wip, not merged.
+- Next: Assembly joints (Assembly workbench, its solver), then the leftovers in PARITY.md (ShapeBinder, Part's 3D
+  picking and attachment, Part Scale/Face/Ruled/Reverse, pattern spacing labels, Sketcher text and visual layers).
 - pd-pick (2026-10-25): every panel's reference picks in the 3D view through FreeCAD's gates (src/pd_pick.tsx), datums
   as references everywhere (cad_agent/feature_refs.py, tests/golden/pick), Pad ReferenceAxis, Std_Delete that breaks
   links as FreeCAD (feature_delete.py), PartDesign_Plane/Line/Point/CoordinateSystem, the split primitive buttons,
