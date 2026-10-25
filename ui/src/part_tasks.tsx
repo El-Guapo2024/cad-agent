@@ -36,6 +36,7 @@ import { QComboBox } from './combo'
 import { messageBox } from './msgbox'
 import { applyOps, numberOf, refOf, SKETCH } from './partdesign'
 import { addObject, labelOf, objectOf, partIcon, selectedObjects, setObjectPicker, uniqueLabel, uniqueName } from './part_wb'
+import './part_tasks.css'
 
 // ── pieces ───────────────────────────────────────────────────────────────────────────────────────────────────────
 function Buttons({ items }: { items: [string, () => void, boolean?][] }) {
@@ -54,9 +55,9 @@ function Legend({ title, children }: { title: string; children: ReactNode }) {
   return <fieldset className="tgroup"><legend>{title}</legend>{children}</fieldset>
 }
 /** A Gui::QuantitySpinBox of the dialog: a length, an angle, or a plain number. */
-function Q({ label, value, dims = LENGTH, onChange, min, max, disabled, name, step }: { label?: string; value: number; dims?: number[]; onChange(v: number): void
-  min?: number; max?: number; disabled?: boolean; name?: string; step?: number }) {
-  const box = <span data-qf={name}><QuantityBox key={`${name}:${value}`} value={value} dims={dims as typeof LENGTH} min={min} max={max} step={step} disabled={disabled} onChange={onChange} /></span>
+function Q({ label, value, dims = LENGTH, onChange, min, max, disabled, name, step, decimals }: { label?: string; value: number; dims?: number[]; onChange(v: number): void
+  min?: number; max?: number; disabled?: boolean; name?: string; step?: number; decimals?: number }) {
+  const box = <span data-qf={name}><QuantityBox key={`${name}:${value}`} value={value} dims={dims as typeof LENGTH} min={min} max={max} step={step} disabled={disabled} decimals={decimals} onChange={onChange} /></span>
   return label ? <Field label={label}>{box}</Field> : box
 }
 /** A QTreeWidget of objects, by Label with their icons; click picks one (or toggles one, multi). */
@@ -214,7 +215,7 @@ function PrimitivesTask({ part, edit }: { part: string; edit?: string }) {
     if (Object.keys(changed).length) await applyOps(part, [{ op: 'set', name: existing.name, props: changed }], { name: `Edit ${P.item}` })
   }
   const field = ([label, k, dims, , min, max]: PField) => (
-    <Q key={k} label={label} name={widgetName(P.type, k)} dims={dims} value={num(doc, vals[k], 0)} min={min} max={max} step={dims === A ? 1 : dims === N ? 1 : 1}
+    <Q key={k} label={label} name={widgetName(P.type, k)} dims={dims} value={num(doc, vals[k], 0)} min={min} max={max} step={1} decimals={k === 'polygon' ? 0 : undefined}
       onChange={(v) => setVals((x) => ({ ...x, [k]: v }))} />)
   return (
     <div className="tasks pt-task" data-task="primitives">
@@ -318,7 +319,7 @@ function ExtrudeTask({ part, edit }: { part: string; edit?: string }) {
           <div className="tfield"><input className="qline" data-qf="txtLink" disabled={mode !== 'Edge'} readOnly value={link ? (Array.isArray(link) ? `${link[0]}:${link[1]}` : String(link)) : ''} />
             <button className={cls('qbtn', picking && 'on')} onClick={() => setPicking(!picking)}>{picking ? 'Cancel' : 'Select'}</button></div>
           <Radio name="rbDirModeCustom" label="Custom direction" checked={mode === 'Custom'} onChange={() => setMode('Custom')} />
-          {(['X', 'Y', 'Z'] as const).map((a, i) => <div key={a} className="tfield"><button className="qbtn" onClick={axisBtn(i)}>{a}</button>
+          {(['X', 'Y', 'Z'] as const).map((a, i) => <div key={a} className="pt-row"><button className="qbtn" onClick={axisBtn(i)}>{a}</button>
             <Q name={`dir${a}`} dims={NUMBER} value={dir[i]} disabled={mode !== 'Custom'} onChange={(x) => { const d = [...dir]; d[i] = x; setDir(d) }} /></div>)}
         </Legend>
         <Legend title="Length">
@@ -371,7 +372,7 @@ function RevolveTask({ part, edit }: { part: string; edit?: string }) {
         <ObjList name="treeWidget" header="Shape" doc={doc} names={existing ? [String(existing.source)] : list} picked={shapes} onPick={setShapes} multi />
         <Legend title="Revolution Axis">
           {(['X', 'Y', 'Z'] as const).map((a, i) => <Q key={a} label={`Center ${a}`} name={`${a.toLowerCase()}Pos`} value={base[i]} disabled={!!link} onChange={(x) => { const b = [...base]; b[i] = x; setBase(b) }} />)}
-          {(['X', 'Y', 'Z'] as const).map((a, i) => <div key={a} className="tfield"><Q name={`${a.toLowerCase()}Dir`} dims={NUMBER} value={axis[i]} disabled={!!link} onChange={(x) => { const d = [...axis]; d[i] = x; setAxis(d) }} />
+          {(['X', 'Y', 'Z'] as const).map((a, i) => <div key={a} className="pt-row"><Q name={`${a.toLowerCase()}Dir`} dims={NUMBER} value={axis[i]} disabled={!!link} onChange={(x) => { const d = [...axis]; d[i] = x; setAxis(d) }} />
             <button className="qbtn" onClick={() => { setLink(null); setAxis([0, 1, 2].map((j) => (j === i ? 1 : 0))) }}>{a}-Direction</button></div>)}
           <div className="tfield"><button className={cls('qbtn', picking && 'on')} onClick={() => setPicking(!picking)}>{picking ? 'Cancel' : 'Select Reference'}</button>
             <input className="qline" data-qf="txtAxisLink" readOnly value={link ? `${(link as string[])[0]}:${(link as string[])[1]}` : ''} onDoubleClick={() => setLink(null)} /></div>
@@ -482,7 +483,7 @@ function FilletTask({ part, edit, kind }: { part: string; edit?: string; kind: '
         <Legend title={kind === 'Fillet' ? 'Fillet parameter' : 'Chamfer parameters'}>
           <Legend title="Selection">
             <Radio name="selectEdges" label="Select edges" checked onChange={() => {}} />
-            <label className="tcheck" title="faces pick their edges in FreeCAD's 3D view; here pick the edges in the list"><input type="radio" disabled /> Select faces</label>
+            <label className="tcheck" data-qf="selectFaces" title="faces pick their edges in FreeCAD's 3D view; here pick the edges in the list"><input type="radio" disabled /> Select faces</label>
             <button className="qbtn" onClick={() => all(true)}>All</button><button className="qbtn" onClick={() => all(false)}>None</button>
           </Legend>
           <Field label={kind === 'Fillet' ? 'Fillet type' : 'Chamfer type'}><QComboBox value={variable ? '1' : '0'} onChange={(e) => setVariable(e.target.value === '1')}>
@@ -713,7 +714,7 @@ function ProjectionTask({ part, edit }: { part: string; edit?: string }) {
         <Q label="Solid depth" name="doubleSpinBoxSolidDepth" dims={NUMBER} value={offset} onChange={setOffset} />
         <Legend title="Direction">
           <button className="qbtn" disabled title="the camera's direction is not read from the view yet">Get Current Camera Direction</button>
-          {(['X', 'Y', 'Z'] as const).map((a, i) => <div key={a} className="tfield"><button className="qbtn" onClick={() => setDir([0, 1, 2].map((j) => (j === i ? 1 : 0)))}>{a}</button>
+          {(['X', 'Y', 'Z'] as const).map((a, i) => <div key={a} className="pt-row"><button className="qbtn" onClick={() => setDir([0, 1, 2].map((j) => (j === i ? 1 : 0)))}>{a}</button>
             <Q name={`doubleSpinBoxDir${a}`} dims={NUMBER} value={dir[i]} disabled onChange={() => {}} /></div>)}
         </Legend>
       </TaskBox>

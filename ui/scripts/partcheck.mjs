@@ -2,7 +2,7 @@
 // partcheck: the Part workbench in the page, held to the real FreeCAD's (ui/scripts/fcpart.json, written by fcpart.py from
 // FreeCAD 26.3 at 3160daf1e2b6), then driven end to end on a scratch project.
 //
-//   NODE_PATH=<folder with playwright> node ui/scripts/partcheck.mjs [--fc=ui/scripts/fcpart.json] [--keep] [--verbose]
+//   NODE_PATH=<folder with playwright> node ui/scripts/partcheck.mjs [--fc=ui/scripts/fcpart.json] [--only=SECTION,...] [--keep] [--verbose]
 //
 // It starts a scratch workbench of its own (as transformcheck.mjs does) and, in Chromium on SwiftShader:
 //   workbench  the switcher has Part; the menu bar puts &Part before Windows
@@ -43,6 +43,8 @@ const bad = (what, detail = '') => { fail++; console.log(`  FAIL  ${what}${detai
 const note = (what) => { known++; console.log(`  known ${what}`) }
 const check = (cond, what, detail) => (cond ? ok(what) : bad(what, detail))
 const same = (a, b, what) => check(JSON.stringify(a) === JSON.stringify(b), what, `\n        FreeCAD ${JSON.stringify(b)}\n        ours    ${JSON.stringify(a)}`)
+const ONLY = flag('only', '').split(',').filter(Boolean)
+const want = (section) => !ONLY.length || ONLY.includes(section)
 const clean = (t) => String(t ?? '').replace(/&(.)/g, '$1').replace(/…$/, '').trim()
 
 // What is deliberately different (PARITY.md, "Part workbench"), by the FreeCAD command or widget
@@ -146,7 +148,12 @@ try {
   await page.goto(`${BASE}/next/#pc`)
   await until('!!window.cadui && cadui.getState().slug === "pc" && !!cadui.getState().scene', 'the project to open')
 
+  const ours = await st('cadui.part()')
+  if (!want('workbench')) { await st('cadui.setState({ workbench: "part" })'); await sleep(400) }
+  if (!want('solids')) { await runCmd('Part_Box'); await objectsAt(1, 'the document, made by Cube') }   // the sections after it work in it
+
   // ── workbench, menus, toolbars ──────────────────────────────────────────────────────────────────────────────────
+  if (want('workbench')) {
   console.log('workbench')
   const wbs = await comboItems('.toolbar .wb button.qselect') ?? []
   check(wbs.includes('Part'), 'the workbench switcher lists Part', JSON.stringify(wbs))
@@ -157,20 +164,24 @@ try {
   const i = bar.indexOf('Part')
   check(i > 0 && bar[i - 1] === 'Macro' && bar[i + 1] === 'Windows', 'Part sits after Macro, before Windows, as in FreeCAD', `ours ${JSON.stringify(bar)} FreeCAD ${JSON.stringify(fcBar)}`)
 
+  }
+  if (want('menus')) {
   console.log('menus')
-  const ours = await st('cadui.part()')
   const flat = (es, depth = 0) => es.flatMap((e) => (e.sep ? [{ sep: true, depth }] : [{ text: clean(e.text), cmd: e.cmd ?? e.name ?? null, depth }, ...(e.menu ? flat(e.menu, depth + 1) : [])]))
   const fcMenu = flat(FC.menus['&Part'].map((e) => ({ ...e, cmd: e.name })))
   const ourMenu = flat(ours.part)
   same(ourMenu.map((e) => (e.sep ? '----' : e.text)), fcMenu.map((e) => (e.sep ? '----' : e.text)), 'the Part menu: FreeCAD\'s entries in order')
-  for (const e of fcMenu.filter((x) => !x.sep && x.cmd && x.cmd.includes('_'))) {
-    const o = ourMenu.find((x) => x.text === e.text)
-    if (!o) continue
+  for (const [k, e] of fcMenu.entries()) {
+    if (e.sep || !e.cmd || !e.cmd.includes('_')) continue
+    const o = ourMenu[k]
+    if (!o || o.text !== e.text) continue
     if (o.cmd !== e.cmd) bad(`menu ${e.text}: command`, `FreeCAD ${e.cmd} ours ${o.cmd}`)
     else ok(`menu ${e.text}: ${e.cmd}`)
   }
   for (const c of NOT_PORTED) if (ourMenu.some((x) => x.cmd === c)) note(`menu ${c}: greyed (not ported, PARITY.md)`)
 
+  }
+  if (want('toolbars')) {
   console.log('toolbars')
   for (const title of ['Solids', 'Part Tools', 'Boolean Tools']) {
     const fc = FC.toolbars.find((t) => t.title === title)
@@ -180,6 +191,8 @@ try {
   }
 
   // ── Solids: the five toolbar primitives and Tube ───────────────────────────────────────────────────────────────
+  }
+  if (want('solids')) {
   console.log('solids')
   const SOLIDS = ['Part_Box', 'Part_Cylinder', 'Part_Sphere', 'Part_Cone', 'Part_Torus']
   for (const [k, cmd] of SOLIDS.entries()) {
@@ -202,6 +215,8 @@ try {
   }
 
   // ── the Primitives dialog ──────────────────────────────────────────────────────────────────────────────────────
+  }
+  if (want('primitives')) {
   console.log('primitives')
   await page.click('.tb-btn[data-cmd="Part_Primitives"]')
   await until('cadui.getState().task?.other === "primitives"', 'the Primitives dialog')
@@ -224,6 +239,8 @@ try {
   await clickButton('Close')
 
   // ── booleans and compound tools on tree selections ─────────────────────────────────────────────────────────────
+  }
+  if (want('booleans')) {
   console.log('booleans')
   const addTwo = async (a, b) => {
     const n = await count()
@@ -247,6 +264,7 @@ try {
     const t = await tree()
     same([a, b].filter((x) => !t.shown.includes(x)), fc.hidden, `${cmd}: hides what FreeCAD hides`)
     same(t.children[o.name] ?? [], [a, b], `${cmd}: the tree shows ${a} and ${b} under ${o.name}`)
+    if (JSON.stringify(t.children[o.name] ?? []) !== JSON.stringify([a, b])) console.log(`        ${o.name}: ${JSON.stringify(o)}`)
     const greyed = await st(`[...document.querySelectorAll('.ptrow.hid')].map((e) => e.dataset.ref)`)
     check(fc.hidden.every((h) => greyed.includes(`${DOC}/${h}`)), `${cmd}: the hidden inputs are greyed`, JSON.stringify(greyed))
   }
@@ -268,6 +286,8 @@ try {
     } }
 
   // ── task panels ────────────────────────────────────────────────────────────────────────────────────────────────
+  }
+  if (want('panels')) {
   console.log('panels')
   const post = (ops) => st(`fetch('/api/pc/features/${DOC}', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CAD': '1' }, body: JSON.stringify({ ops: ${JSON.stringify(ops)} }) }).then(() => cadui.loadFeatures())`)
   const rect = (x0, y0, x1, y1) => [[x0, y0, x1, y0], [x1, y0, x1, y1], [x1, y1, x0, y1], [x0, y1, x0, y0]].map(([a, b, c, d]) => ({ type: 'LineSegment', start: [a, b], end: [c, d], construction: false }))
@@ -320,6 +340,8 @@ try {
   if (await until('cadui.getState().task?.other === "boolean"', 'the Boolean panel', 20000)) { await comparePanel(FC.cmd_Part_Boolean.task, 'Part_Boolean'); await clickButton('Close') }
 
   // ── the property view ────────────────────────────────────────────────────────────────────────────────────────
+  }
+  if (want('props')) {
   console.log('props')
   for (const [name, fcKey] of [['Box', 'props_Box'], ['Cut', 'props_Cut'], ['Extrude', 'props_Extrude']]) {
     await selectRows([name])
@@ -331,10 +353,13 @@ try {
   }
 
   // ── undo ─────────────────────────────────────────────────────────────────────────────────────────────────────
+  }
+  if (want('undo')) {
   console.log('undo')
   const n = await count()
   await runCmd('Std_Undo')
   await until(`(cadui.getState().features[${JSON.stringify(DOC)}]?.objects ?? []).length === ${n - 1}`, 'Std_Undo takes the last object back', 60000) && ok('Std_Undo takes the last object back')
+  }
 } catch (e) {
   bad('partcheck stopped', e.stack ?? String(e))
 } finally {
