@@ -36,6 +36,7 @@ import FreeCAD as App
 import FreeCADGui as Gui
 import Part
 import Sketcher
+import pivy.coin as coin  # noqa: F401  (getSceneGraph hands out Coin nodes only once pivy is loaded)
 from PySide6 import QtCore, QtGui, QtWidgets
 
 OUT = os.environ["FCGUI_OUT"]
@@ -195,10 +196,95 @@ def selected():
     return [[s.ObjectName, list(s.SubElementNames)] for s in Gui.Selection.getSelectionEx()]
 
 
-def snap(step, f, props=()):
+# ── the on-view spacing labels (PartGui::PatternParametersWidget's EditableDatumLabels) ────────────────────────────────
+IDENTITY = [[1.0 if r == c else 0.0 for c in range(4)] for r in range(4)]
+
+
+def mat_mul(a, b):
+    return [[sum(a[r][k] * b[k][c] for k in range(4)) for c in range(4)] for r in range(4)]
+
+
+def node_transform(n, m):
+    """m times the node's own transform (Coin names them Transform, Translation, Rotation and Scale; FreeCAD's labels are
+    placed by a Transform holding a Base::Placement)."""
+    cls = str(n.getTypeId().getName())
+    if cls not in ("Transform", "SoTransform", "Translation", "SoTranslation", "Rotation", "SoRotation", "Scale", "SoScale"):
+        return m
+    tr, q, sc = [0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 1.0], [1.0, 1.0, 1.0]
+    try:
+        if cls in ("Transform", "SoTransform", "Translation", "SoTranslation"):
+            tr = [float(x) for x in n.getField("translation").getValue()]
+        if cls in ("Transform", "SoTransform", "Rotation", "SoRotation"):
+            rot = n.getField("rotation").getValue()
+            try:            # SbRotation is a 4-tuple to index (its getValue() returns None in this pivy)
+                q = [float(rot[i]) for i in range(4)]
+            except Exception:
+                q = [float(x) for x in rot.getValue()]
+        if cls in ("Transform", "SoTransform", "Scale", "SoScale"):
+            sc = [float(x) for x in n.getField("scaleFactor").getValue()]
+    except Exception:
+        return m
+    x, y, z, w = q
+    r = [[1 - 2 * (y * y + z * z), 2 * (x * y - z * w), 2 * (x * z + y * w)],
+         [2 * (x * y + z * w), 1 - 2 * (x * x + z * z), 2 * (y * z - x * w)],
+         [2 * (x * z - y * w), 2 * (y * z + x * w), 1 - 2 * (x * x + y * y)]]
+    t = [[r[i][0] * sc[0], r[i][1] * sc[1], r[i][2] * sc[2], tr[i]] for i in range(3)] + [[0.0, 0.0, 0.0, 1.0]]
+    return mat_mul(m, t)
+
+
+def datum_labels():
+    """The spacing labels drawn now: each SoDatumLabel of the 3D view's scene graph that is switched on (EditableDatumLabel
+    deactivate only sets its root SoSwitch to SO_SWITCH_NONE), with its text, its points in world coordinates, its angle
+    params and its colour."""
+    view = Gui.ActiveDocument.ActiveView if Gui.ActiveDocument else None
+    if not view:
+        return []
+    out = []
+
+    def walk(n, m):
+        cls = str(n.getTypeId().getName())
+        if cls in ("Switch", "SoSwitch"):
+            try:
+                if int(n.whichChild.getValue()) < 0:
+                    return node_transform(n, m)      # off: none of its children, its own transform still applies
+            except Exception:
+                pass
+        m2 = node_transform(n, m)
+        if cls == "SoDatumLabel":
+            try:
+                pnts = [[float(x) for x in p] for p in n.pnts.getValues()]
+                col = [float(x) for x in n.textColor.getValue()]
+                d = {"text": [str(s) for s in n.string.getValues()],
+                     "points": [[round(sum(m2[r][c] * p[c] for c in range(3)) + m2[r][3], 6) for r in range(3)] for p in pnts],
+                     "color": [round(x, 4) for x in col], "type": int(n.datumtype.getValue()), "size": int(n.size.getValue())}
+                for k in (1, 2, 3):
+                    try:
+                        d[f"param{k}"] = round(float(n.getField(f"param{k}").getValue()), 6)
+                    except Exception:
+                        pass
+                out.append(d)
+            except Exception:
+                pass
+        try:
+            children = n.getChildren() or []
+        except Exception:
+            children = []
+        run = m2                         # a Transform applies to the siblings after it, not to the next group
+        for c in children:
+            run = walk(c, run)
+        return m2
+
+    walk(view.getSceneGraph(), IDENTITY)
+    return out
+
+
+def snap(step, f, props=(), labels=False):
     pump(0.3)
-    return {"step": step, "task": task_widgets(), "props": {p: link(getattr(f, p)) for p in props if hasattr(f, p)},
-            "visible": body_visible(), "selected": selected()}
+    d = {"step": step, "task": task_widgets(), "props": {p: link(getattr(f, p)) for p in props if hasattr(f, p)},
+         "visible": body_visible(), "selected": selected()}
+    if labels:
+        d["labels"] = datum_labels()
+    return d
 
 
 def pick(obj, sub=""):
@@ -527,6 +613,55 @@ def polar():
     return out
 
 
+def polar_spacing_labels():
+    out = {"setup": with_pocket()}
+    f = run("PartDesign_PolarPattern", "Pocket")
+    P = ("Axis", "Mode", "Angle", "Offset", "Occurrences", "Spacings")
+    out["open"] = snap("open", f, P, labels=True)
+    out["steps"] = []
+    f.Occurrences = 4                       # (the UIntSpinBox's setValue from Python lands at its maximum)
+    doc.recompute()
+    pump(0.6)
+    out["steps"].append(snap("Occurrences 4", f, P, labels=True))
+    choose("comboMode", "Angular Spacing")
+    out["steps"].append(snap("Angular Spacing", f, P, labels=True))
+    f.Spacings = [30.0, -1.0, -1.0]
+    doc.recompute()
+    pump(0.5)
+    # the label refresh a widget change makes (updatePatternSpacingLabels), with the override now in the property
+    choose("comboMode", "Total Angle")
+    choose("comboMode", "Angular Spacing")
+    out["steps"].append(snap("Spacings 30", f, P, labels=True))
+    out["finish"] = finish(f, P)
+    return out
+
+
+def spacing():
+    """PatternParametersWidget's on-view spacing labels: Extent one, Spacing occurrences - 1, the deactivated colour for
+    -1 (the global offset), an override's own colour, and the linear and polar geometries."""
+    out = {}
+    out["setup"] = with_pocket(second=True)
+    f = run("PartDesign_LinearPattern", "Pocket001")
+    P = ("Originals", "Direction", "Mode", "Length", "Offset", "Occurrences", "Spacings")
+    out["open"] = snap("open", f, P, labels=True)
+    out["steps"] = []
+    f.Occurrences = 4
+    doc.recompute()
+    pump(0.6)
+    out["steps"].append(snap("Occurrences 4", f, P, labels=True))
+    choose("comboMode", "Spacing")
+    out["steps"].append(snap("Mode Spacing", f, P, labels=True))
+    f.Spacings = [20.0, -1.0, -1.0]
+    doc.recompute()
+    pump(0.5)
+    choose("comboMode", "Extent")
+    choose("comboMode", "Spacing")
+    out["steps"].append(snap("Spacings 20", f, P, labels=True))
+    out["linear_finish"] = finish(f, P)
+    out["polar"] = polar_spacing_labels()
+    return out
+
+
 def draft():
     out = {"setup": setup()}
     f = run("PartDesign_Draft", ("Pad", "Face1"))
@@ -683,7 +818,8 @@ _boxes.timeout.connect(answer_boxes)
 _boxes.start(200)
 ONLY = [c for c in os.environ.get("FCPICK_ONLY", "").split(",") if c]
 for _n, _f in (("pad_face", pad_face), ("pad_shape", pad_shape), ("pad_direction", pad_direction), ("revolution", revolution),
-               ("mirrored", mirrored), ("linear", linear), ("linear_exp", linear_exp), ("polar", polar), ("draft", draft),
+               ("mirrored", mirrored), ("linear", linear), ("linear_exp", linear_exp), ("polar", polar), ("spacing", spacing),
+               ("draft", draft),
                ("primitive", primitive), ("datums", datums), ("delete", delete)):
     if ONLY and _n not in ONLY:
         continue

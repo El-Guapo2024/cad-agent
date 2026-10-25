@@ -20,6 +20,8 @@
 //   linear        Direction: picks kept in the combo with the pattern's "object:" text; Add Feature by a click on the base,
 //                 Remove Feature; Mode Spacing (Length synced); the tree's context menu has Multi-Transform
 //   polar         Axis: a face and a datum plane refused; a circle and datum lines taken
+//   spacing       PatternParametersWidget's on-view labels: Extent one, Spacing occurrences - 1, the -1 entries deactivated;
+//                 a click edits one (Escape cancels, the global offset goes back to -1), a right click resets an override
 //   draft         Neutral Plane and Pull Direction: the Origin's (tree), datums, an LCS's plane, an edge; refused ones
 //   primitive     the Additive and Subtractive Primitive split buttons follow the last primitive started
 //   datums        PartDesign_Plane, _Line, _Point, _CoordinateSystem: their panels, Incompatible Reference Set, OK's steps
@@ -466,6 +468,116 @@ try {
     await okTask()
     await until('cadui.getState().features.Body.features.some((f) => f.name === "PolarPattern")', 'the PolarPattern')
     same((await feature('PolarPattern'))?.axis, FC.polar.finish.props.Axis[0], 'polar: OK writes FreeCAD\'s Axis')
+  }
+
+  // ── the patterns' on-view spacing labels (PatternParametersWidget's EditableDatumLabels) ─────────────────────────
+  if (want('spacing')) {
+    console.log('spacing')
+    const labelState = () => st(`(() => { const g = cadui.getView()?.helpers?.get?.('pd-spacing'); return g ? JSON.parse(JSON.stringify(g.userData.labels)) : null })()`)
+    const hex = (h) => [1, 3, 5].map((i) => Math.round((parseInt(h.slice(i, i + 2), 16) / 255) * 1e4) / 1e4)
+    const r4 = (x) => (typeof x === 'number' ? Math.round(x * 1e4) / 1e4 : x)
+    /** Ours against FreeCAD's SoDatumLabels: text, points and colour; an ANGLE's radius and start angle too (a DISTANCE's
+     *  param1/2 are EditableDatumLabel's own text offsets). */
+    const sameLabels = (ours, fcl, what) => same(
+      (ours ?? []).map((l) => ({ text: l.text, points: l.points.map((p) => p.map(r4)), color: hex(l.color), kind: l.kind,
+        radius: l.kind === 'ANGLE' ? r4(l.radius) : undefined, start: l.kind === 'ANGLE' ? r4(l.start) : undefined })),
+      fcl.map((l) => ({ text: l.text[0], points: l.points.map((p) => p.map(r4)), color: l.color, kind: l.type === 1 ? 'DISTANCE' : 'ANGLE',
+        radius: l.type === 0 ? r4(l.param1) : undefined, start: l.type === 0 ? r4(l.param2) : undefined })), what)
+    /** The labels run on past the body (a 100 mm pattern on a 40 mm Body), off the canvas after a Fit All: zoom out
+     *  about the view's middle until the first two are there to click, as a person would. */
+    const showLabels = async () => {
+      const c = await st(`(() => { const r = cadui.getView().viewer.renderer.domElement.getBoundingClientRect(); return { x: Math.round(r.left + r.width / 2), y: Math.round(r.top + r.height / 2) } })()`)
+      await page.mouse.move(c.x, c.y)
+      for (let k = 0; k < 16; k++) {
+        if (await st('!!cadui.getView().helperPoint("pd-spacing", "spacing:0") && !!cadui.getView().helperPoint("pd-spacing", "spacing:1")')) return true
+        await page.mouse.wheel(0, 120); await sleep(350)
+      }
+      return bad('spacing: the labels never came into the view to click')
+    }
+    const openLabel = async (i) => {
+      const p = await st(`cadui.getView().helperPoint('pd-spacing', 'spacing:${i}')`)
+      if (!p) { bad(`spacing: no point in the view clicks label ${i}`); return null }
+      await page.mouse.click(p.x, p.y); await sleep(400)
+      return page.locator('body > .ovp-box')
+    }
+    const noBox = () => st('!document.querySelector("body > .ovp-box")')
+
+    await setup(pocket(true))
+    await run('PartDesign_LinearPattern', ['Body/Pocket001'])
+    await until('!!cadui.getView().helpers?.get?.("pd-spacing")', 'the linear spacing labels', 20000)
+    sameLabels(await labelState(), FC.spacing.open.labels, 'spacing: open: FreeCAD\'s one Extent label')
+    const occ = page.locator('.taskview .tfield:has(> span:text-is("Occurrences")) input').first()
+    await occ.fill('4'); await sleep(600)
+    sameLabels(await labelState(), fcStep('spacing', 'Occurrences 4').labels, 'spacing: Occurrences 4: still the Extent label')
+    await choose('comboMode', 'Spacing')
+    sameLabels(await labelState(), fcStep('spacing', 'Mode Spacing').labels, 'spacing: Mode Spacing: occurrences - 1 labels at the global offset')
+    await showLabels()
+    // a click on a label edits it: EditableDatumLabel's spinbox opens with the label's text, Enter writes it
+    let box = await openLabel(0)
+    if (box && await box.count()) {
+      check(await box.inputValue() === '33.33 mm', 'spacing: the spinbox opens with the label\'s "33.33 mm"', await box.inputValue())
+      check(await st('document.activeElement === document.querySelector("body > .ovp-box")'), 'spacing: the spinbox takes the focus')
+      await box.fill('20 mm'); await page.keyboard.press('Enter'); await sleep(700)
+      check(await noBox(), 'spacing: Enter closes the spinbox')
+      sameLabels(await labelState(), fcStep('spacing', 'Spacings 20').labels, 'spacing: 20 mm: its own spacing, the others after it')
+    } else bad('spacing: a click on a label opens EditableDatumLabel\'s spinbox')
+    // Escape (the focus leaving does too) cancels: nothing is written
+    box = await openLabel(1)
+    if (box && await box.count()) {
+      await box.fill('50 mm'); await page.keyboard.press('Escape'); await sleep(400)
+      check(await noBox(), 'spacing: Escape closes the spinbox')
+      sameLabels(await labelState(), fcStep('spacing', 'Spacings 20').labels, 'spacing: Escape writes nothing')
+    } else bad('spacing: a click on the second label opens its spinbox')
+    // onSpacingLabelRightClicked: "Reset spacing" on an override only; a -1 label keeps the view's own menu
+    const menu = async (i) => {
+      const p = await st(`cadui.getView().helperPoint('pd-spacing', 'spacing:${i}')`)
+      if (!p) { bad(`spacing: no point in the view right-clicks label ${i}`); return [] }
+      await page.mouse.click(p.x, p.y, { button: 'right' }); await sleep(500)
+      return st('[...document.querySelectorAll(".ctx .ctx-item")].map((e) => e.textContent.trim())')
+    }
+    let items = await menu(0)
+    check(items.includes('Reset spacing'), 'spacing: a right click on a label with an override offers "Reset spacing"', JSON.stringify(items))
+    if (items.includes('Reset spacing')) {
+      await page.locator('.ctx .ctx-item', { hasText: 'Reset spacing' }).first().click(); await sleep(600)
+      sameLabels(await labelState(), fcStep('spacing', 'Mode Spacing').labels, 'spacing: "Reset spacing" puts the global offset back')
+    }
+    items = await menu(1)
+    check(!items.includes('Reset spacing'), 'spacing: a right click on a label at the global offset offers no reset', JSON.stringify(items))
+    await page.keyboard.press('Escape'); await sleep(200)
+    // an entered spacing equal to the global offset is -1 again (onSpacingLabelClicked's editingFinished)
+    const sp = page.locator('.taskview .tfield:has(> span:text-is("Spacing")) input').first()
+    await sp.fill('25 mm'); await sleep(700)
+    sameLabels(await labelState(), [
+      { text: ['25.00 mm'], points: [[30, 10, 2.5], [55, 10, 2.5]], color: [0.5255, 0.5569, 0.5882], type: 1 },
+      { text: ['25.00 mm'], points: [[55, 10, 2.5], [80, 10, 2.5]], color: [0.5255, 0.5569, 0.5882], type: 1 },
+      { text: ['25.00 mm'], points: [[80, 10, 2.5], [105, 10, 2.5]], color: [0.5255, 0.5569, 0.5882], type: 1 },
+    ], 'spacing: a global offset of 25 mm redraws the labels')
+    box = await openLabel(0)
+    if (box && await box.count()) {
+      await box.fill('25 mm'); await page.keyboard.press('Enter'); await sleep(700)
+      const l = await labelState()
+      check(l?.[0]?.color === '#868e96', 'spacing: 25 mm, the global offset, keeps the label at -1', JSON.stringify(l?.[0]))
+    } else bad('spacing: a click on a label at the global offset opens its spinbox')
+    await closeTask()
+    // the polar pattern: an ANGLE label per gap, at the projected start angle about the axis
+    await setup(pocket(false))
+    await run('PartDesign_PolarPattern', ['Body/Pocket'])
+    await until('!!cadui.getView().helpers?.get?.("pd-spacing")', 'the polar spacing labels', 20000)
+    sameLabels(await labelState(), FC.spacing.polar.open.labels, 'spacing: polar open: FreeCAD\'s Extent label')
+    const pocc = page.locator('.taskview .tfield:has(> span:text-is("Occurrences")) input').first()
+    await pocc.fill('4'); await sleep(600)
+    const polarStep = (name) => FC.spacing.polar.steps.find((x) => x.step === name)
+    sameLabels(await labelState(), polarStep('Occurrences 4').labels, 'spacing: polar Occurrences 4: still the Extent label')
+    await choose('comboMode', 'Angular Spacing')
+    sameLabels(await labelState(), polarStep('Angular Spacing').labels, 'spacing: Angular Spacing: occurrences - 1 labels at the global angle')
+    await showLabels()
+    box = await openLabel(0)
+    if (box && await box.count()) {
+      check(await box.inputValue() === '120.00°', 'spacing: polar: the spinbox opens with "120.00°"', await box.inputValue())
+      await box.fill('30°'); await page.keyboard.press('Enter'); await sleep(700)
+      sameLabels(await labelState(), polarStep('Spacings 30').labels, 'spacing: polar 30°: its own angle, the others after it')
+    } else bad('spacing: a click on a polar label opens its spinbox')
+    await closeTask()
   }
 
   // ── Draft: neutral plane, pull direction ───────────────────────────────────────────────────────────────────────
