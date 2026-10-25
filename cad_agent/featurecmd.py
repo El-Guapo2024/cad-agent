@@ -435,6 +435,12 @@ def cmd_feature_resolve(a) -> Result:
                   f"{a.part}: {out.get('name')} resolved")
 
 
+def cmd_sketchkernel(a) -> Result:
+    # sketch_kernel imports OCP at its top, so it is loaded when the command runs, not when the parser is built
+    from .sketch_kernel import cmd_sketchkernel as run
+    return run(a)
+
+
 def add_parsers(add, sub) -> None:
     """cli.py's build_parser hands its `add` and the subparsers here, so the arguments live with the commands."""
     fp = add("feature", None, "a part's PartDesign feature list (Body, Sketch, Pad, Pocket, Fillet, Chamfer, Draft, Thickness): list, new, add, "
@@ -499,8 +505,12 @@ def add_parsers(add, sub) -> None:
     sp.add_argument("--ops", required=True, metavar="JSON")
     from .feature_shape import add_parser as shape_parser
     shape_parser(add, fsub)
-    from .sketch_kernel import add_parser as sketchkernel_parser
-    sketchkernel_parser(add, fsub)
+    sp = add("sketchkernel", cmd_sketchkernel, "OCCT's answers for the Sketcher's curve tools (B-spline degree, knots, "
+             "conversion, trim of a B-spline, fillet between curves, offset): --req JSON, a list of requests",
+             parent=fsub)
+    sp.set_defaults(cmd_name="feature sketchkernel", feature_cmd="sketchkernel")
+    sp.add_argument("slug", nargs="?")
+    sp.add_argument("--req", required=True, metavar="JSON", help="the requests (or @file.json)")
     sp = fsub.choices["apply"]
     sp.add_argument("--name", help="the undo step's name (default: FreeCAD's for the ops, as \"Make Pad\"); a task panel "
                     "that edits a feature says \"Edit Pad\", as FreeCAD's double-click does")
