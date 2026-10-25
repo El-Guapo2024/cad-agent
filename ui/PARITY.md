@@ -586,7 +586,7 @@ the page's. `tests/golden/part` holds 211 documents freecadcmd built from the sa
 `make.py sweep`): every object of them, 1,368 checks with the round trips, gives FreeCAD's volume, area, length, box, centre,
 shape type and counts of solids, shells, faces, wires, edges and vertices, or fails with FreeCAD's message; three are known
 (below). Every type's defaults are a fresh FreeCAD object's. `scripts/partcheck.mjs` holds the page to the real FreeCAD's GUI
-(`scripts/fcpart.py` writes `scripts/fcpart.json`).
+(`scripts/fcpart.py` writes `scripts/fcpart.json`): 392 checks pass, 21 known, 1 open (2026-10-25).
 
 | FreeCAD | Ours |
 |---|---|
