@@ -175,6 +175,62 @@ def test_part_file_refuses_a_binder_of_a_later_feature(tmp_path):
             "feature": {"name": "Binder", "type": "PartDesign::ShapeBinder", "support": [["Boss", "Face1"]]}}])
 
 
+BINDER_PART = '''"""binder_shape: a Body with a datum and a binder between two solids."""
+from cad_agent.feature import (Body, Constraint, DatumPlane, LineSegment, Pad, Pocket, ShapeBinder,
+                               Sketch)
+
+FEATURES = [
+    Sketch("Base", support="XY",
+           geometry=[LineSegment((0.0, 0.0), (40.0, 0.0)), LineSegment((40.0, 0.0), (40.0, 20.0)),
+                     LineSegment((40.0, 20.0), (0.0, 20.0)), LineSegment((0.0, 20.0), (0.0, 0.0))],
+           constraints=[]),
+    Pad("Pad", "Base", length=5.0),
+    DatumPlane("Datum", attachment_support=[("Pad", "Face6")], map_mode="FlatFace"),
+    ShapeBinder("Binder", support=[("Pad", "Face6")]),
+    Sketch("Cutter", support="XY", attachment_offset=(0.0, 0.0, 5.0),
+           geometry=[LineSegment((10.0, 5.0), (20.0, 5.0)), LineSegment((20.0, 5.0), (20.0, 15.0)),
+                     LineSegment((20.0, 15.0), (10.0, 15.0)), LineSegment((10.0, 15.0), (10.0, 5.0))],
+           constraints=[]),
+    Pocket("Pocket", "Cutter", length=2.0),
+]
+TIP = "Pocket"
+
+
+def build(**p):
+    return Body(FEATURES, p, tip=TIP)
+'''
+
+
+def test_feature_shape_meshes_a_binder(tmp_path):
+    """`cad feature shape --feature Binder` answers the binder's shape (it is in the Body's Context, not among the
+    solids), and the solid before it as its base."""
+    from cad_agent import feature_shape as S
+    p = tmp_path / "binder_shape.py"
+    p.write_text(BINDER_PART)
+    doc, target, base_name, solid, base, error = S.shapes_after(p, [], "Binder")
+    assert (target, base_name, error) == ("Binder", "Pad", None)
+    m = S.mesh(solid)
+    # Face6 of the Pad is its top face: 40 x 20 at z = 5, four edges, nothing else
+    assert len(m["faces"]) == 1 and len(m["edges"]) == 4
+    xs = [p for f in m["faces"] for p in f["points"][0::3]]
+    ys = [p for f in m["faces"] for p in f["points"][1::3]]
+    zs = [p for f in m["faces"] for p in f["points"][2::3]]
+    assert (min(xs), max(xs), min(ys), max(ys), min(zs), max(zs)) == (0.0, 40.0, 0.0, 20.0, 5.0, 5.0)
+    assert base is not None
+
+
+def test_feature_shape_base_skips_datums_binders_and_sketches(tmp_path):
+    """The base a panel shows is the solid before the feature (Body::isSolidFeature): a datum, a binder and a sketch
+    between it and the feature are not solids."""
+    from cad_agent import feature_shape as S
+    p = tmp_path / "binder_shape.py"
+    p.write_text(BINDER_PART)
+    _, target, base_name, solid, base, error = S.shapes_after(p, [], "Pocket")
+    assert (target, base_name, error) == ("Pocket", "Pad", None)
+    assert solid is not None and base is not None
+    assert len(S.mesh(base)["faces"]) == 6          # the Pad's box
+
+
 def test_binder_support_is_a_reference_list(tmp_path):
     """The binder's support is FreeCAD's PropertyLinkSubList: several elements of one object, and its references()
     names that object once, for feature_edit's order check."""
