@@ -133,6 +133,12 @@ def geo_out(sk):
             x0 = math.atan2(g.XAxis.y, g.XAxis.x)
             d = {"type": "ArcOfCircle", "center": [g.Center.x, g.Center.y], "radius": g.Radius,
                  "start_angle": g.FirstParameter + x0, "end_angle": g.LastParameter + x0}
+            if g.Axis.z < 0:
+                # a reversed arc (a mirrored copy): the Sketcher reads it counter-clockwise about +Z from its end
+                # (getRange with emulateCCWXY)
+                e = g.EndPoint
+                a1 = math.atan2(e.y - g.Center.y, e.x - g.Center.x)
+                d.update({"start_angle": a1, "end_angle": a1 + (g.LastParameter - g.FirstParameter)})
         elif t in ("Ellipse", "ArcOfEllipse", "ArcOfHyperbola", "ArcOfParabola"):
             d = {"type": t, "center": [g.Location.x, g.Location.y]}
             if t == "ArcOfParabola":
@@ -176,6 +182,8 @@ def cons_args(c):
     if t in ("Distance", "DistanceX", "DistanceY"):
         if s == GEO_UNDEF:
             return [f] if fp == 0 else [f, fp]
+        if fp == 0 and sp == 0:     # between two edges: Constraint('Distance', GeoId1, GeoId2, value)
+            return [f, s]
         if sp == 0:
             return [f, fp, s]
         return [f, fp, s, sp]
@@ -237,10 +245,12 @@ def task_message():
 KEYS = {"Escape": QtCore.Qt.Key_Escape, "Delete": QtCore.Qt.Key_Delete, "Return": QtCore.Qt.Key_Return, "Tab": QtCore.Qt.Key_Tab}
 
 
-def plate_sketch(name):
+def plate_sketch(name, case=None):
     """A case with "plate": a document of its own holding a Body with the 40 x 20 x 5 plate (a rectangle on XY padded
-    5 mm), and the case's sketch on the plate's top face (Pad.Face6, FlatFace), after the Pad."""
+    5 mm), and the case's sketch on the plate's top face (Pad.Face6, FlatFace), after the Pad; the case's "sources"
+    (other sketches: name, support [[object, element]], map_mode, geometry, constraints) between the two."""
     import Part
+    import Sketcher
     doc = App.newDocument("P_" + name.replace("-", "_"))
     body = doc.addObject("PartDesign::Body", "Body")
     base = body.newObject("Sketcher::SketchObject", "Sketch")
@@ -254,6 +264,24 @@ def plate_sketch(name):
     pad.Length = 5
     doc.recompute()
     base.Visibility = False
+    for src in (case or {}).get("sources", []):
+        o = body.newObject("Sketcher::SketchObject", src["name"])
+        roles = {f.Role: f for f in body.Origin.OriginFeatures}
+        o.AttachmentSupport = [(roles[obj] if obj in roles else doc.getObject(obj), [sub]) for obj, sub in src["support"]]
+        o.MapMode = src.get("map_mode", "FlatFace")
+        for g in src.get("geometry", []):
+            V = lambda q: App.Vector(q[0], q[1], 0)  # noqa: E731
+            if g["type"] == "LineSegment":
+                o.addGeometry(Part.LineSegment(V(g["start"]), V(g["end"])), bool(g.get("construction")))
+            elif g["type"] == "Circle":
+                o.addGeometry(Part.Circle(V(g["center"]), App.Vector(0, 0, 1), g["radius"]), bool(g.get("construction")))
+            elif g["type"] == "ArcOfCircle":
+                o.addGeometry(Part.ArcOfCircle(Part.Circle(V(g["center"]), App.Vector(0, 0, 1), g["radius"]), g["start_angle"],
+                                               g["end_angle"]), bool(g.get("construction")))
+        for c in src.get("constraints", []):
+            o.addConstraint(Sketcher.Constraint(c["type"], *(list(c["args"]) + ([c["value"]] if "value" in c else []))))
+        doc.recompute()
+        o.Visibility = False
     sk = body.newObject("Sketcher::SketchObject", "S")
     sk.AttachmentSupport = (pad, ["Face6"])
     sk.MapMode = "FlatFace"
@@ -282,7 +310,7 @@ def run_case(doc, case, k):
     current["case"] = case["name"]
     report_at = len(report_text())
     if case.get("plate"):
-        doc, sk = plate_sketch(case["name"])
+        doc, sk = plate_sketch(case["name"], case)
     else:
         sk = new_sketch(doc, "S%d" % k)
     setup = case.get("setup") or {}
@@ -296,6 +324,9 @@ def run_case(doc, case, k):
             geo = Part.LineSegment(V(g["start"]), V(g["end"]))
         elif t == "Circle":
             geo = Part.Circle(V(g["center"]), App.Vector(0, 0, 1), g["radius"])
+        elif t == "BSplineCurve":
+            geo = Part.BSplineCurve([V(q) for q in g["poles"]], g["mults"], g["knots"], g.get("periodic", False), g["degree"],
+                                    g.get("weights"))
         else:
             geo = Part.ArcOfCircle(Part.Circle(V(g["center"]), App.Vector(0, 0, 1), g["radius"]), g["start_angle"], g["end_angle"])
         sk.addGeometry(geo, bool(g.get("construction")))
@@ -441,7 +472,7 @@ def params():
             "FullyConstrainedColor", "InvalidSketchColor", "ConstrainedDimColor", "ConstrainedIcoColor", "NonDrivingConstrDimColor",
             "ExprBasedConstrDimColor", "DeactivatedConstrDimColor", "ExternalColor", "ExternalDefiningColor", "HighlightColor",
             "SelectionColor", "CursorTextColor", "CursorCrosshairColor", "CreateLineColor", "AxisXColor", "AxisYColor",
-            "MarkerSize", "EditSketcherFontSize", "ConstraintSymbolSize", "DefaultShapePointSize"],
+            "MarkerSize", "EditSketcherFontSize", "ConstraintSymbolSize", "DefaultShapePointSize", "InformationColor"],
         "User parameter:BaseApp/Preferences/Mod/Sketcher/General": ["GridLineColor", "GridDivLineColor", "ShowGrid", "GridSize",
             "AxisTransparency"],
         "User parameter:BaseApp/Preferences/Mod/Sketcher/View": ["EdgeWidth", "ConstructionWidth", "ExternalWidth", "AxisLineWidth"],

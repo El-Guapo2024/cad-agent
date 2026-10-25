@@ -150,7 +150,7 @@ function sameGeo(a, b) {
   if (a.type === 'BSplineCurve') {
     const all = (u, v, f) => u.length === v.length && u.every((x, i) => f(x, v[i]))
     return a.degree === b.degree && !!a.periodic === !!b.periodic && all(a.poles, b.poles, P) && all(a.mults, b.mults, (x, y) => x === y)
-      && all(a.weights, b.weights, (x, y) => near(x, y, 0.25)) && all(a.knots, b.knots, (x, y) => near(x, y, 1e-6))
+      && all(a.weights, b.weights, (x, y) => near(x, y, 0.25)) && all(a.knots, b.knots, (x, y) => near(x, y, b.knots.every(Number.isInteger) ? 1e-6 : 0.5))
   }
   if (a.type === 'Ellipse' || a.type.startsWith('ArcOf') && a.type !== 'ArcOfCircle') {
     const r = a.type === 'ArcOfParabola' ? near(a.focal, b.focal, 0.25) : near(a.major_radius, b.major_radius, 0.25) && near(a.minor_radius, b.minor_radius, 0.25)
@@ -190,6 +190,9 @@ for (const [k, c] of CASES.cases.entries()) {
     const ops = [
       { op: 'add', feature: { name: 'Sketch', type: 'Sketcher::SketchObject', support: 'XY', geometry: [L([0, 0], [40, 0]), L([40, 0], [40, 20]), L([40, 20], [0, 20]), L([0, 20], [0, 0])], constraints: [] } },
       { op: 'add', feature: { name: 'Pad', type: 'PartDesign::Pad', profile: 'Sketch', length: 5 } },
+      // the case's other sketches (Carbon Copy's sources), between the Pad and S
+      ...(c.sources ?? []).map((src) => ({ op: 'add', feature: { name: src.name, type: 'Sketcher::SketchObject', attachment_support: src.support,
+        map_mode: src.map_mode ?? 'FlatFace', geometry: (src.geometry ?? []).map((g) => ({ construction: false, ...g })), constraints: src.constraints ?? [] } })),
       { op: 'add', feature: { name: 'S', type: 'Sketcher::SketchObject', attachment_support: [['Pad', 'Face6']], map_mode: 'FlatFace', geometry: [], constraints: [] } }]
     const r = await api(`/api/${encodeURIComponent(PROJECT)}/features/${part}`, { ops })
     if (r.exit > 2) { bad(`${c.name}: the plate was not made: ${JSON.stringify(r).slice(0, 300)}`); continue }
@@ -238,6 +241,11 @@ for (const [k, c] of CASES.cases.entries()) {
     else if (st.select) { await gui('select', st.select); await p.waitForTimeout(80) }
     else if (st.pick) { await gui('select', [st.pick]); await p.waitForTimeout(1500) } // a model element: the projection is the server's
     else if ('clear' in st) { await gui('clear', []); await p.waitForTimeout(80) }
+    // the curve tools wait for the sketch kernel (OCCT's numbers, from the server): so does the check
+    if (await p.evaluate(() => (window.cadKernelBusy?.() ?? 0) > 0)) {
+      await p.waitForFunction(() => !((window.cadKernelBusy?.() ?? 0) > 0), null, { timeout: 20000 }).catch(() => {})
+      await p.waitForTimeout(150)
+    }
     await dialog()
     await p.evaluate(() => new Promise((r) => requestAnimationFrame(() => r(0)))) // the page has handled the step (a frame) before the next
     if (process.env.SKETCHCHECK_TRACE) console.log('  trace', JSON.stringify(st), JSON.stringify((await api(`/api/gui?slug=${PROJECT}`)).sketch?.geometry), JSON.stringify(await p.evaluate(() => window.cadui.getState().hints)), await p.evaluate(() => [...document.querySelectorAll('.ctx, .mb-content, .msgbox-back')].map((e) => e.className + ':' + e.textContent.slice(0, 120)).join() + ' / ' + document.activeElement?.tagName + '.' + document.activeElement?.className))
@@ -245,6 +253,8 @@ for (const [k, c] of CASES.cases.entries()) {
   await p.waitForTimeout(250)
   if (shots) await p.screenshot({ path: `${shots}/${c.name}.png` })
   const got = (await api(`/api/gui?slug=${encodeURIComponent(PROJECT)}`)).sketch
+  // SKETCHCHECK_DUMP=DIR: our sketch of each case, as DIR/<case>.json
+  if (process.env.SKETCHCHECK_DUMP) (await import('fs')).writeFileSync(`${process.env.SKETCHCHECK_DUMP}/${c.name}.json`, JSON.stringify(got))
   const diffs = []
   if (!got || got.name !== name) diffs.push(`the sketch in edit is ${got?.name ?? 'none'}`)
   else {

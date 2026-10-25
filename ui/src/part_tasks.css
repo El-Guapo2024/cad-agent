@@ -1,0 +1,21 @@
+/* SPDX-License-Identifier: LGPL-2.1-or-later */
+/* part_tasks.tsx's task panels: the object lists (QTreeWidget, QListWidget), Loft's and Sweep's two lists with the arrow
+   buttons between, rows of a button and a box (Extrude's X/Y/Z), the group boxes. pd_transform.css's look. */
+.pt-list { border: 1px solid var(--border); background: #fff; min-height: 48px; max-height: 160px; overflow: auto; margin: 4px 0 6px; }
+.pt-list-head { display: flex; gap: 8px; padding: 1px 4px; background: #f2f2f2; border-bottom: 1px solid var(--border); color: #444; }
+.pt-list-head > span { flex: 1; }
+.pt-item { display: flex; align-items: center; gap: 4px; padding: 1px 4px; cursor: default; white-space: nowrap; }
+.pt-item.sel { background: var(--accent-bg); }
+.pt-item > span { flex: 1; text-align: right; color: #444; }
+.pt-edges .pt-item { justify-content: flex-start; }
+.pt-profiles { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); gap: 4px; align-items: start; }
+.pt-arrows { display: flex; flex-direction: column; gap: 4px; margin-top: 22px; }
+.pt-arrows .qbtn { min-width: 26px; padding: 0 4px; }
+.pt-row { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 6px; align-items: center; margin: 2px 0; }
+.pt-row > .qbtn { min-width: 26px; }
+.pt-line-head { grid-template-columns: minmax(56px, 30%) minmax(0, 1fr) minmax(0, 1fr); }
+.pt-task .tgroup { border: 1px solid var(--border); border-radius: var(--radius); margin: 6px 0; padding: 4px 6px 6px; }
+.pt-task .tgroup > legend { padding: 0 4px; }
+.pt-task .qline { height: 22px; border: 1px solid var(--border); border-radius: var(--radius); padding: 0 4px; min-width: 0; }
+.pt-pick { border-top: 1px solid var(--border); margin-top: 4px; padding-top: 4px; }
+.qbtn.on { background: var(--accent-bg); }

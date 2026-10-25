@@ -59,6 +59,7 @@ import {
 import { SCHEMAS, userString } from './quantity'
 import { approveRenders } from './agentwb'
 import { deleteFeatures, partDesignMenu, pdToolbars, sketchMenu } from './partdesign'
+import { partMenu, partToolbars } from './part_wb'
 import { createDatum, datumsMenu } from './pd_attach'
 /** Edit > Create's entries other than Datums: a project's parts are its modules here, not document objects. */
 const CREATE_NA = 'n/a: a project\'s parts are its part modules; there is no document to add this to'
@@ -91,6 +92,7 @@ const WORKBENCHES: Record<Workbench, { label: string; icon: IconName; name: stri
   assembly: { label: 'Assembly', icon: 'wb-assembly', name: 'AssemblyWorkbench' },
   inspection: { label: 'Inspection', icon: 'wb-inspection', name: 'InspectionWorkbench' },
   sketcher: { label: 'Sketcher', icon: 'wb-sketcher', name: 'SketcherWorkbench' },
+  part: { label: 'Part', icon: 'wb-part', name: 'PartWorkbench' },
 }
 /** WorkbenchGroup::refreshWorkbenchList: the workbenches in the order of their internal names
  *  (Gui.listWorkbenches()), the first nine on W, 1 … W, 9. */
@@ -595,6 +597,8 @@ export function MenuBar() {
       {wb === 'sketcher' && <Menu label="Sketch" entries={sketchMenuEntries()} />}
       {/* PartDesignGui::Workbench::setupMenuBar: "&Sketch" then "&Part Design", inserted before Windows */}
       {wb === 'design' && <><Menu label="Sketch" entries={sketchMenu()} /><Menu label="Part Design" entries={partDesignMenu()} /></>}
+      {/* PartGui::Workbench::setupMenuBar: "&Part", inserted before Windows (part_wb.tsx) */}
+      {wb === 'part' && <Menu label="Part" entries={partMenu()} />}
       <Menu label="Windows" entries={windowsEntries()} />
       <Menu label="Help" entries={[
         { label: "What's This?", kbd: '⇧F1', icon: 'whats-this', onSelect: whatsThis },
@@ -809,9 +813,9 @@ function UndoRedoButton({ kind }: { kind: 'undo' | 'redo' }) {
 /** StdWorkbench::setupToolBars, then the workbench's own (Workbench.cpp; the dump in
  *  scripts/fcgui.py): Clipboard, Macro and Individual Views start hidden (DefaultVisibility::Hidden). */
 export const TOOLBARS = ['File', 'Edit', 'Clipboard', 'Workbench', 'Macro', 'View', 'Individual Views', 'Structure', 'Help', 'CAD Agent', 'Part Tools',
-  'Part Design Helper Features', 'Part Design Modeling Features', 'Part Design Dress-Up Features', 'Part Design Transformation Features'] as const
+  'Solids', 'Boolean Tools', 'Part Design Helper Features', 'Part Design Modeling Features', 'Part Design Dress-Up Features', 'Part Design Transformation Features'] as const
 /** A workbench's own toolbars, listed in View > Toolbars only while it is active. */
-const WB_TOOLBARS: Record<string, string> = { 'CAD Agent': 'agent', 'Part Design Helper Features': 'design', 'Part Design Modeling Features': 'design',
+const WB_TOOLBARS: Record<string, string> = { 'CAD Agent': 'agent', Solids: 'part', 'Boolean Tools': 'part', 'Part Design Helper Features': 'design', 'Part Design Modeling Features': 'design',
   'Part Design Dress-Up Features': 'design', 'Part Design Transformation Features': 'design' }
 const HIDDEN_TOOLBARS: readonly string[] = ['Clipboard', 'Macro', 'Individual Views']
 const toolbarOn = (shown: Record<string, boolean>, name: string) => shown[name] ?? !HIDDEN_TOOLBARS.includes(name)
@@ -905,7 +909,10 @@ export function ToolBar() {
       {/* PartDesignGui::Workbench::setupToolBars: its four toolbars, button by button */}
       {wb === 'design' && pdToolbars().filter(([t]) => on(t as (typeof TOOLBARS)[number])).map(([t, es]) => (
         <span key={t} className="tb-group" title={t}><TGrip />{es.map((e, i) => <EntryBtn key={i} e={e} />)}</span>))}
-      {on('Part Tools') && <><TGrip />
+      {/* PartGui::Workbench::setupToolBars: Solids, Part Tools and Boolean Tools, button by button (part_wb.tsx) */}
+      {wb === 'part' && partToolbars().filter(([t]) => on(t as (typeof TOOLBARS)[number])).map(([t, es]) => (
+        <span key={t} className="tb-group" title={t}><TGrip />{es.map((e, i) => <EntryBtn key={i} e={e} />)}</span>))}
+      {wb !== 'part' && on('Part Tools') && <><TGrip />
         <Btn icon="visibility" cmd="Std_ToggleVisibility" disabled={!selected.length} onClick={() => toggleVisibility()} />
         {wb === 'design' && <Btn icon="body" cmd="Std_Edit" disabled={!one} onClick={() => one && editDefault(one)} />}
         {wb !== 'inspection' && <Btn icon="transform" cmd="Std_TransformManip" disabled={!one} onClick={() => one && openTask('transform', one)} />}

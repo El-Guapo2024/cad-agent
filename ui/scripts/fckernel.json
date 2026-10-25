@@ -1,0 +1,2717 @@
+{
+ "errors": {},
+ "pocket": {
+  "task": {
+   "labelStart": {
+    "class": "QLabel",
+    "enabled": true,
+    "text": "Start"
+   },
+   "startMode": {
+    "class": "QComboBox",
+    "enabled": true,
+    "items": [
+     "Profile plane",
+     "Offset",
+     "Reference"
+    ],
+    "current": "Profile plane"
+   },
+   "sidesLabel": {
+    "class": "QLabel",
+    "enabled": true,
+    "text": "Direction"
+   },
+   "sidesMode": {
+    "class": "QComboBox",
+    "enabled": true,
+    "items": [
+     "One sided",
+     "Two sided",
+     "Symmetric"
+    ],
+    "current": "One sided"
+   },
+   "textLabel1": {
+    "class": "QLabel",
+    "enabled": true,
+    "text": "Type"
+   },
+   "changeMode": {
+    "class": "QComboBox",
+    "enabled": true,
+    "items": [
+     "Dimension",
+     "Through all",
+     "To first",
+     "Up to face",
+     "Up to shape"
+    ],
+    "current": "Dimension"
+   },
+   "labelLength": {
+    "class": "QLabel",
+    "enabled": true,
+    "text": "Length"
+   },
+   "lengthEdit": {
+    "class": "Gui::PrefQuantitySpinBox",
+    "enabled": true,
+    "text": "5.00 mm"
+   },
+   "labelTaperAngle": {
+    "class": "QLabel",
+    "enabled": true,
+    "text": "Taper angle"
+   },
+   "taperEdit": {
+    "class": "Gui::PrefQuantitySpinBox",
+    "enabled": true,
+    "text": "0.00\u00b0"
+   },
+   "checkBoxReversed": {
+    "class": "QCheckBox",
+    "enabled": true,
+    "text": "Reversed",
+    "checked": false
+   },
+   "labelEdge": {
+    "class": "QLabel",
+    "enabled": true,
+    "text": "Direction/edge"
+   },
+   "directionCB": {
+    "class": "QComboBox",
+    "enabled": true,
+    "items": [
+     "Sketch normal",
+     "Select reference\u2026",
+     "Custom direction"
+    ],
+    "current": "Sketch normal"
+   },
+   "labelOperation": {
+    "class": "QLabel",
+    "enabled": true,
+    "text": "Operation"
+   },
+   "comboOperation": {
+    "class": "QComboBox",
+    "enabled": true,
+    "items": [
+     "Subtraction",
+     "Common"
+    ],
+    "current": "Subtraction"
+   },
+   "checkBoxUpdateView": {
+    "class": "QCheckBox",
+    "enabled": true,
+    "text": "Recompute on change",
+    "checked": true
+   },
+   "showFinalCheckBox": {
+    "class": "QCheckBox",
+    "enabled": true,
+    "text": "Show final result",
+    "checked": false
+   },
+   "showTransparentPreviewCheckBox": {
+    "class": "QCheckBox",
+    "enabled": true,
+    "text": "Show preview overlay",
+    "checked": true
+   }
+  },
+  "props": {
+   "StartType": {
+    "value": "Profile plane",
+    "mode": [],
+    "enums": [
+     "Profile plane",
+     "Offset",
+     "Reference"
+    ]
+   },
+   "StartOffset": {
+    "value": 0.0,
+    "mode": [
+     "ReadOnly"
+    ]
+   },
+   "StartReference": {
+    "value": null,
+    "mode": [
+     "ReadOnly"
+    ]
+   },
+   "TaperAngle": {
+    "value": 0.0,
+    "mode": []
+   },
+   "TaperAngle2": {
+    "value": 0.0,
+    "mode": [
+     "ReadOnly"
+    ]
+   },
+   "Operation": {
+    "value": "Subtraction",
+    "mode": [],
+    "enums": [
+     "Subtraction",
+     "Common"
+    ]
+   },
+   "Type": {
+    "value": "Length",
+    "mode": [],
+    "enums": [
+     "Length",
+     "ThroughAll",
+     "UpToFirst",
+     "UpToFace",
+     "?TwoLengths",
+     "UpToShape"
+    ]
+   },
+   "Type2": {
+    "value": "Length",
+    "mode": [
+     "ReadOnly"
+    ],
+    "enums": [
+     "Length",
+     "ThroughAll",
+     "UpToFirst",
+     "UpToFace",
+     "?TwoLengths",
+     "UpToShape"
+    ]
+   },
+   "SideType": {
+    "value": "One side",
+    "mode": [],
+    "enums": [
+     "One side",
+     "Two sides",
+     "Symmetric"
+    ]
+   }
+  },
+  "task_reference": {
+   "labelStart": {
+    "class": "QLabel",
+    "enabled": true,
+    "text": "Start"
+   },
+   "startMode": {
+    "class": "QComboBox",
+    "enabled": true,
+    "items": [
+     "Profile plane",
+     "Offset",
+     "Reference"
+    ],
+    "current": "Reference"
+   },
+   "labelStartReference": {
+    "class": "QLabel",
+    "enabled": true,
+    "text": "Reference"
+   },
+   "lineStartReference": {
+    "class": "QLineEdit",
+    "enabled": true,
+    "text": "",
+    "placeholder": "Select face, plane..."
+   },
+   "buttonStartReference": {
+    "class": "QPushButton",
+    "enabled": true,
+    "text": "Cancel",
+    "checked": true
+   },
+   "labelStartOffset": {
+    "class": "QLabel",
+    "enabled": true,
+    "text": "Offset"
+   },
+   "startOffsetEdit": {
+    "class": "Gui::PrefQuantitySpinBox",
+    "enabled": true,
+    "text": "0.00 mm"
+   },
+   "sidesLabel": {
+    "class": "QLabel",
+    "enabled": true,
+    "text": "Direction"
+   },
+   "sidesMode": {
+    "class": "QComboBox",
+    "enabled": true,
+    "items": [
+     "One sided",
+     "Two sided",
+     "Symmetric"
+    ],
+    "current": "One sided"
+   },
+   "textLabel1": {
+    "class": "QLabel",
+    "enabled": true,
+    "text": "Type"
+   },
+   "changeMode": {
+    "class": "QComboBox",
+    "enabled": true,
+    "items": [
+     "Dimension",
+     "Through all",
+     "To first",
+     "Up to face",
+     "Up to shape"
+    ],
+    "current": "Dimension"
+   },
+   "labelLength": {
+    "class": "QLabel",
+    "enabled": true,
+    "text": "Length"
+   },
+   "lengthEdit": {
+    "class": "Gui::PrefQuantitySpinBox",
+    "enabled": true,
+    "text": "5.00 mm"
+   },
+   "labelTaperAngle": {
+    "class": "QLabel",
+    "enabled": true,
+    "text": "Taper angle"
+   },
+   "taperEdit": {
+    "class": "Gui::PrefQuantitySpinBox",
+    "enabled": true,
+    "text": "0.00\u00b0"
+   },
+   "checkBoxReversed": {
+    "class": "QCheckBox",
+    "enabled": true,
+    "text": "Reversed",
+    "checked": false
+   },
+   "labelEdge": {
+    "class": "QLabel",
+    "enabled": true,
+    "text": "Direction/edge"
+   },
+   "directionCB": {
+    "class": "QComboBox",
+    "enabled": true,
+    "items": [
+     "Sketch normal",
+     "Select reference\u2026",
+     "Custom direction"
+    ],
+    "current": "Sketch normal"
+   },
+   "labelOperation": {
+    "class": "QLabel",
+    "enabled": true,
+    "text": "Operation"
+   },
+   "comboOperation": {
+    "class": "QComboBox",
+    "enabled": true,
+    "items": [
+     "Subtraction",
+     "Common"
+    ],
+    "current": "Subtraction"
+   },
+   "checkBoxUpdateView": {
+    "class": "QCheckBox",
+    "enabled": true,
+    "text": "Recompute on change",
+    "checked": true
+   },
+   "showFinalCheckBox": {
+    "class": "QCheckBox",
+    "enabled": true,
+    "text": "Show final result",
+    "checked": false
+   },
+   "showTransparentPreviewCheckBox": {
+    "class": "QCheckBox",
+    "enabled": true,
+    "text": "Show preview overlay",
+    "checked": true
+   }
+  },
+  "props_reference": {
+   "StartType": {
+    "value": "Reference",
+    "mode": [],
+    "enums": [
+     "Profile plane",
+     "Offset",
+     "Reference"
+    ]
+   },
+   "StartOffset": {
+    "value": 0.0,
+    "mode": []
+   },
+   "StartReference": {
+    "value": null,
+    "mode": []
+   },
+   "TaperAngle": {
+    "value": 0.0,
+    "mode": []
+   },
+   "TaperAngle2": {
+    "value": 0.0,
+    "mode": [
+     "ReadOnly"
+    ]
+   },
+   "Operation": {
+    "value": "Subtraction",
+    "mode": [],
+    "enums": [
+     "Subtraction",
+     "Common"
+    ]
+   },
+   "Type": {
+    "value": "Length",
+    "mode": [],
+    "enums": [
+     "Length",
+     "ThroughAll",
+     "UpToFirst",
+     "UpToFace",
+     "?TwoLengths",
+     "UpToShape"
+    ]
+   },
+   "Type2": {
+    "value": "Length",
+    "mode": [
+     "ReadOnly"
+    ],
+    "enums": [
+     "Length",
+     "ThroughAll",
+     "UpToFirst",
+     "UpToFace",
+     "?TwoLengths",
+     "UpToShape"
+    ]
+   },
+   "SideType": {
+    "value": "One side",
+    "mode": [],
+    "enums": [
+     "One side",
+     "Two sides",
+     "Symmetric"
+    ]
+   }
+  },
+  "task_pick": {
+   "labelStart": {
+    "class": "QLabel",
+    "enabled": true,
+    "text": "Start"
+   },
+   "startMode": {
+    "class": "QComboBox",
+    "enabled": true,
+    "items": [
+     "Profile plane",
+     "Offset",
+     "Reference"
+    ],
+    "current": "Reference"
+   },
+   "labelStartReference": {
+    "class": "QLabel",
+    "enabled": true,
+    "text": "Reference"
+   },
+   "lineStartReference": {
+    "class": "QLineEdit",
+    "enabled": true,
+    "text": "Pad:Face6",
+    "placeholder": "No start reference selected"
+   },
+   "buttonStartReference": {
+    "class": "QPushButton",
+    "enabled": true,
+    "text": "Pick Reference",
+    "checked": false
+   },
+   "labelStartOffset": {
+    "class": "QLabel",
+    "enabled": true,
+    "text": "Offset"
+   },
+   "startOffsetEdit": {
+    "class": "Gui::PrefQuantitySpinBox",
+    "enabled": true,
+    "text": "0.00 mm"
+   },
+   "sidesLabel": {
+    "class": "QLabel",
+    "enabled": true,
+    "text": "Direction"
+   },
+   "sidesMode": {
+    "class": "QComboBox",
+    "enabled": true,
+    "items": [
+     "One sided",
+     "Two sided",
+     "Symmetric"
+    ],
+    "current": "One sided"
+   },
+   "textLabel1": {
+    "class": "QLabel",
+    "enabled": true,
+    "text": "Type"
+   },
+   "changeMode": {
+    "class": "QComboBox",
+    "enabled": true,
+    "items": [
+     "Dimension",
+     "Through all",
+     "To first",
+     "Up to face",
+     "Up to shape"
+    ],
+    "current": "Dimension"
+   },
+   "labelLength": {
+    "class": "QLabel",
+    "enabled": true,
+    "text": "Length"
+   },
+   "lengthEdit": {
+    "class": "Gui::PrefQuantitySpinBox",
+    "enabled": true,
+    "text": "5.00 mm"
+   },
+   "labelTaperAngle": {
+    "class": "QLabel",
+    "enabled": true,
+    "text": "Taper angle"
+   },
+   "taperEdit": {
+    "class": "Gui::PrefQuantitySpinBox",
+    "enabled": true,
+    "text": "0.00\u00b0"
+   },
+   "checkBoxReversed": {
+    "class": "QCheckBox",
+    "enabled": true,
+    "text": "Reversed",
+    "checked": false
+   },
+   "labelEdge": {
+    "class": "QLabel",
+    "enabled": true,
+    "text": "Direction/edge"
+   },
+   "directionCB": {
+    "class": "QComboBox",
+    "enabled": true,
+    "items": [
+     "Sketch normal",
+     "Select reference\u2026",
+     "Custom direction"
+    ],
+    "current": "Sketch normal"
+   },
+   "labelOperation": {
+    "class": "QLabel",
+    "enabled": true,
+    "text": "Operation"
+   },
+   "comboOperation": {
+    "class": "QComboBox",
+    "enabled": true,
+    "items": [
+     "Subtraction",
+     "Common"
+    ],
+    "current": "Subtraction"
+   },
+   "checkBoxUpdateView": {
+    "class": "QCheckBox",
+    "enabled": true,
+    "text": "Recompute on change",
+    "checked": true
+   },
+   "showFinalCheckBox": {
+    "class": "QCheckBox",
+    "enabled": true,
+    "text": "Show final result",
+    "checked": false
+   },
+   "showTransparentPreviewCheckBox": {
+    "class": "QCheckBox",
+    "enabled": true,
+    "text": "Show preview overlay",
+    "checked": true
+   }
+  },
+  "props_pick": {
+   "StartType": {
+    "value": "Reference",
+    "mode": [],
+    "enums": [
+     "Profile plane",
+     "Offset",
+     "Reference"
+    ]
+   },
+   "StartOffset": {
+    "value": 0.0,
+    "mode": []
+   },
+   "StartReference": {
+    "value": [
+     "Pad",
+     [
+      "Face6"
+     ]
+    ],
+    "mode": []
+   },
+   "TaperAngle": {
+    "value": 0.0,
+    "mode": []
+   },
+   "TaperAngle2": {
+    "value": 0.0,
+    "mode": [
+     "ReadOnly"
+    ]
+   },
+   "Operation": {
+    "value": "Subtraction",
+    "mode": [],
+    "enums": [
+     "Subtraction",
+     "Common"
+    ]
+   },
+   "Type": {
+    "value": "Length",
+    "mode": [],
+    "enums": [
+     "Length",
+     "ThroughAll",
+     "UpToFirst",
+     "UpToFace",
+     "?TwoLengths",
+     "UpToShape"
+    ]
+   },
+   "Type2": {
+    "value": "Length",
+    "mode": [
+     "ReadOnly"
+    ],
+    "enums": [
+     "Length",
+     "ThroughAll",
+     "UpToFirst",
+     "UpToFace",
+     "?TwoLengths",
+     "UpToShape"
+    ]
+   },
+   "SideType": {
+    "value": "One side",
+    "mode": [],
+    "enums": [
+     "One side",
+     "Two sides",
+     "Symmetric"
+    ]
+   }
+  },
+  "task_taper": {
+   "labelStart": {
+    "class": "QLabel",
+    "enabled": true,
+    "text": "Start"
+   },
+   "startMode": {
+    "class": "QComboBox",
+    "enabled": true,
+    "items": [
+     "Profile plane",
+     "Offset",
+     "Reference"
+    ],
+    "current": "Reference"
+   },
+   "labelStartReference": {
+    "class": "QLabel",
+    "enabled": true,
+    "text": "Reference"
+   },
+   "lineStartReference": {
+    "class": "QLineEdit",
+    "enabled": true,
+    "text": "Pad:Face6",
+    "placeholder": "No start reference selected"
+   },
+   "buttonStartReference": {
+    "class": "QPushButton",
+    "enabled": true,
+    "text": "Pick Reference",
+    "checked": false
+   },
+   "labelStartOffset": {
+    "class": "QLabel",
+    "enabled": true,
+    "text": "Offset"
+   },
+   "startOffsetEdit": {
+    "class": "Gui::PrefQuantitySpinBox",
+    "enabled": true,
+    "text": "0.00 mm"
+   },
+   "sidesLabel": {
+    "class": "QLabel",
+    "enabled": true,
+    "text": "Direction"
+   },
+   "sidesMode": {
+    "class": "QComboBox",
+    "enabled": true,
+    "items": [
+     "One sided",
+     "Two sided",
+     "Symmetric"
+    ],
+    "current": "One sided"
+   },
+   "textLabel1": {
+    "class": "QLabel",
+    "enabled": true,
+    "text": "Type"
+   },
+   "changeMode": {
+    "class": "QComboBox",
+    "enabled": true,
+    "items": [
+     "Dimension",
+     "Through all",
+     "To first",
+     "Up to face",
+     "Up to shape"
+    ],
+    "current": "Dimension"
+   },
+   "labelLength": {
+    "class": "QLabel",
+    "enabled": true,
+    "text": "Length"
+   },
+   "lengthEdit": {
+    "class": "Gui::PrefQuantitySpinBox",
+    "enabled": true,
+    "text": "5.00 mm"
+   },
+   "labelTaperAngle": {
+    "class": "QLabel",
+    "enabled": true,
+    "text": "Taper angle"
+   },
+   "taperEdit": {
+    "class": "Gui::PrefQuantitySpinBox",
+    "enabled": true,
+    "text": "10.00\u00b0"
+   },
+   "checkBoxReversed": {
+    "class": "QCheckBox",
+    "enabled": true,
+    "text": "Reversed",
+    "checked": false
+   },
+   "labelEdge": {
+    "class": "QLabel",
+    "enabled": true,
+    "text": "Direction/edge"
+   },
+   "directionCB": {
+    "class": "QComboBox",
+    "enabled": true,
+    "items": [
+     "Sketch normal",
+     "Select reference\u2026",
+     "Custom direction"
+    ],
+    "current": "Sketch normal"
+   },
+   "labelOperation": {
+    "class": "QLabel",
+    "enabled": true,
+    "text": "Operation"
+   },
+   "comboOperation": {
+    "class": "QComboBox",
+    "enabled": true,
+    "items": [
+     "Subtraction",
+     "Common"
+    ],
+    "current": "Subtraction"
+   },
+   "checkBoxUpdateView": {
+    "class": "QCheckBox",
+    "enabled": true,
+    "text": "Recompute on change",
+    "checked": true
+   },
+   "showFinalCheckBox": {
+    "class": "QCheckBox",
+    "enabled": true,
+    "text": "Show final result",
+    "checked": false
+   },
+   "showTransparentPreviewCheckBox": {
+    "class": "QCheckBox",
+    "enabled": true,
+    "text": "Show preview overlay",
+    "checked": true
+   }
+  },
+  "props_taper": {
+   "StartType": {
+    "value": "Reference",
+    "mode": [],
+    "enums": [
+     "Profile plane",
+     "Offset",
+     "Reference"
+    ]
+   },
+   "StartOffset": {
+    "value": 0.0,
+    "mode": []
+   },
+   "StartReference": {
+    "value": [
+     "Pad",
+     [
+      "Face6"
+     ]
+    ],
+    "mode": []
+   },
+   "TaperAngle": {
+    "value": 10.0,
+    "mode": []
+   },
+   "TaperAngle2": {
+    "value": 0.0,
+    "mode": [
+     "ReadOnly"
+    ]
+   },
+   "Operation": {
+    "value": "Subtraction",
+    "mode": [],
+    "enums": [
+     "Subtraction",
+     "Common"
+    ]
+   },
+   "Type": {
+    "value": "Length",
+    "mode": [],
+    "enums": [
+     "Length",
+     "ThroughAll",
+     "UpToFirst",
+     "UpToFace",
+     "?TwoLengths",
+     "UpToShape"
+    ]
+   },
+   "Type2": {
+    "value": "Length",
+    "mode": [
+     "ReadOnly"
+    ],
+    "enums": [
+     "Length",
+     "ThroughAll",
+     "UpToFirst",
+     "UpToFace",
+     "?TwoLengths",
+     "UpToShape"
+    ]
+   },
+   "SideType": {
+    "value": "One side",
+    "mode": [],
+    "enums": [
+     "One side",
+     "Two sides",
+     "Symmetric"
+    ]
+   }
+  },
+  "task_common": {
+   "labelStart": {
+    "class": "QLabel",
+    "enabled": true,
+    "text": "Start"
+   },
+   "startMode": {
+    "class": "QComboBox",
+    "enabled": true,
+    "items": [
+     "Profile plane",
+     "Offset",
+     "Reference"
+    ],
+    "current": "Reference"
+   },
+   "labelStartReference": {
+    "class": "QLabel",
+    "enabled": true,
+    "text": "Reference"
+   },
+   "lineStartReference": {
+    "class": "QLineEdit",
+    "enabled": true,
+    "text": "Pad:Face6",
+    "placeholder": "No start reference selected"
+   },
+   "buttonStartReference": {
+    "class": "QPushButton",
+    "enabled": true,
+    "text": "Pick Reference",
+    "checked": false
+   },
+   "labelStartOffset": {
+    "class": "QLabel",
+    "enabled": true,
+    "text": "Offset"
+   },
+   "startOffsetEdit": {
+    "class": "Gui::PrefQuantitySpinBox",
+    "enabled": true,
+    "text": "0.00 mm"
+   },
+   "sidesLabel": {
+    "class": "QLabel",
+    "enabled": true,
+    "text": "Direction"
+   },
+   "sidesMode": {
+    "class": "QComboBox",
+    "enabled": true,
+    "items": [
+     "One sided",
+     "Two sided",
+     "Symmetric"
+    ],
+    "current": "One sided"
+   },
+   "textLabel1": {
+    "class": "QLabel",
+    "enabled": true,
+    "text": "Type"
+   },
+   "changeMode": {
+    "class": "QComboBox",
+    "enabled": true,
+    "items": [
+     "Dimension",
+     "Through all",
+     "To first",
+     "Up to face",
+     "Up to shape"
+    ],
+    "current": "Dimension"
+   },
+   "labelLength": {
+    "class": "QLabel",
+    "enabled": true,
+    "text": "Length"
+   },
+   "lengthEdit": {
+    "class": "Gui::PrefQuantitySpinBox",
+    "enabled": true,
+    "text": "5.00 mm"
+   },
+   "labelTaperAngle": {
+    "class": "QLabel",
+    "enabled": true,
+    "text": "Taper angle"
+   },
+   "taperEdit": {
+    "class": "Gui::PrefQuantitySpinBox",
+    "enabled": true,
+    "text": "10.00\u00b0"
+   },
+   "checkBoxReversed": {
+    "class": "QCheckBox",
+    "enabled": true,
+    "text": "Reversed",
+    "checked": false
+   },
+   "labelEdge": {
+    "class": "QLabel",
+    "enabled": true,
+    "text": "Direction/edge"
+   },
+   "directionCB": {
+    "class": "QComboBox",
+    "enabled": true,
+    "items": [
+     "Sketch normal",
+     "Select reference\u2026",
+     "Custom direction"
+    ],
+    "current": "Sketch normal"
+   },
+   "labelOperation": {
+    "class": "QLabel",
+    "enabled": true,
+    "text": "Operation"
+   },
+   "comboOperation": {
+    "class": "QComboBox",
+    "enabled": true,
+    "items": [
+     "Subtraction",
+     "Common"
+    ],
+    "current": "Common"
+   },
+   "checkBoxUpdateView": {
+    "class": "QCheckBox",
+    "enabled": true,
+    "text": "Recompute on change",
+    "checked": true
+   },
+   "showFinalCheckBox": {
+    "class": "QCheckBox",
+    "enabled": true,
+    "text": "Show final result",
+    "checked": false
+   },
+   "showTransparentPreviewCheckBox": {
+    "class": "QCheckBox",
+    "enabled": true,
+    "text": "Show preview overlay",
+    "checked": true
+   }
+  },
+  "props_common": {
+   "StartType": {
+    "value": "Reference",
+    "mode": [],
+    "enums": [
+     "Profile plane",
+     "Offset",
+     "Reference"
+    ]
+   },
+   "StartOffset": {
+    "value": 0.0,
+    "mode": []
+   },
+   "StartReference": {
+    "value": [
+     "Pad",
+     [
+      "Face6"
+     ]
+    ],
+    "mode": []
+   },
+   "TaperAngle": {
+    "value": 10.0,
+    "mode": []
+   },
+   "TaperAngle2": {
+    "value": 0.0,
+    "mode": [
+     "ReadOnly"
+    ]
+   },
+   "Operation": {
+    "value": "Common",
+    "mode": [],
+    "enums": [
+     "Subtraction",
+     "Common"
+    ]
+   },
+   "Type": {
+    "value": "Length",
+    "mode": [],
+    "enums": [
+     "Length",
+     "ThroughAll",
+     "UpToFirst",
+     "UpToFace",
+     "?TwoLengths",
+     "UpToShape"
+    ]
+   },
+   "Type2": {
+    "value": "Length",
+    "mode": [
+     "ReadOnly"
+    ],
+    "enums": [
+     "Length",
+     "ThroughAll",
+     "UpToFirst",
+     "UpToFace",
+     "?TwoLengths",
+     "UpToShape"
+    ]
+   },
+   "SideType": {
+    "value": "One side",
+    "mode": [],
+    "enums": [
+     "One side",
+     "Two sides",
+     "Symmetric"
+    ]
+   }
+  },
+  "task_through_all": {
+   "labelStart": {
+    "class": "QLabel",
+    "enabled": true,
+    "text": "Start"
+   },
+   "startMode": {
+    "class": "QComboBox",
+    "enabled": true,
+    "items": [
+     "Profile plane",
+     "Offset",
+     "Reference"
+    ],
+    "current": "Reference"
+   },
+   "labelStartReference": {
+    "class": "QLabel",
+    "enabled": true,
+    "text": "Reference"
+   },
+   "lineStartReference": {
+    "class": "QLineEdit",
+    "enabled": true,
+    "text": "Pad:Face6",
+    "placeholder": "No start reference selected"
+   },
+   "buttonStartReference": {
+    "class": "QPushButton",
+    "enabled": true,
+    "text": "Pick Reference",
+    "checked": false
+   },
+   "labelStartOffset": {
+    "class": "QLabel",
+    "enabled": true,
+    "text": "Offset"
+   },
+   "startOffsetEdit": {
+    "class": "Gui::PrefQuantitySpinBox",
+    "enabled": true,
+    "text": "0.00 mm"
+   },
+   "sidesLabel": {
+    "class": "QLabel",
+    "enabled": true,
+    "text": "Direction"
+   },
+   "sidesMode": {
+    "class": "QComboBox",
+    "enabled": true,
+    "items": [
+     "One sided",
+     "Two sided",
+     "Symmetric"
+    ],
+    "current": "One sided"
+   },
+   "textLabel1": {
+    "class": "QLabel",
+    "enabled": true,
+    "text": "Type"
+   },
+   "changeMode": {
+    "class": "QComboBox",
+    "enabled": true,
+    "items": [
+     "Dimension",
+     "Through all",
+     "To first",
+     "Up to face",
+     "Up to shape"
+    ],
+    "current": "Through all"
+   },
+   "labelTaperAngle": {
+    "class": "QLabel",
+    "enabled": true,
+    "text": "Taper angle"
+   },
+   "taperEdit": {
+    "class": "Gui::PrefQuantitySpinBox",
+    "enabled": true,
+    "text": "10.00\u00b0"
+   },
+   "checkBoxReversed": {
+    "class": "QCheckBox",
+    "enabled": true,
+    "text": "Reversed",
+    "checked": false
+   },
+   "labelEdge": {
+    "class": "QLabel",
+    "enabled": true,
+    "text": "Direction/edge"
+   },
+   "directionCB": {
+    "class": "QComboBox",
+    "enabled": true,
+    "items": [
+     "Sketch normal",
+     "Select reference\u2026",
+     "Custom direction"
+    ],
+    "current": "Sketch normal"
+   },
+   "labelOperation": {
+    "class": "QLabel",
+    "enabled": true,
+    "text": "Operation"
+   },
+   "comboOperation": {
+    "class": "QComboBox",
+    "enabled": true,
+    "items": [
+     "Subtraction",
+     "Common"
+    ],
+    "current": "Common"
+   },
+   "checkBoxUpdateView": {
+    "class": "QCheckBox",
+    "enabled": true,
+    "text": "Recompute on change",
+    "checked": true
+   },
+   "showFinalCheckBox": {
+    "class": "QCheckBox",
+    "enabled": true,
+    "text": "Show final result",
+    "checked": false
+   },
+   "showTransparentPreviewCheckBox": {
+    "class": "QCheckBox",
+    "enabled": true,
+    "text": "Show preview overlay",
+    "checked": true
+   }
+  },
+  "props_through_all": {
+   "StartType": {
+    "value": "Reference",
+    "mode": [],
+    "enums": [
+     "Profile plane",
+     "Offset",
+     "Reference"
+    ]
+   },
+   "StartOffset": {
+    "value": 0.0,
+    "mode": []
+   },
+   "StartReference": {
+    "value": [
+     "Pad",
+     [
+      "Face6"
+     ]
+    ],
+    "mode": []
+   },
+   "TaperAngle": {
+    "value": 10.0,
+    "mode": []
+   },
+   "TaperAngle2": {
+    "value": 0.0,
+    "mode": [
+     "ReadOnly"
+    ]
+   },
+   "Operation": {
+    "value": "Common",
+    "mode": [],
+    "enums": [
+     "Subtraction",
+     "Common"
+    ]
+   },
+   "Type": {
+    "value": "ThroughAll",
+    "mode": [],
+    "enums": [
+     "Length",
+     "ThroughAll",
+     "UpToFirst",
+     "UpToFace",
+     "?TwoLengths",
+     "UpToShape"
+    ]
+   },
+   "Type2": {
+    "value": "Length",
+    "mode": [
+     "ReadOnly"
+    ],
+    "enums": [
+     "Length",
+     "ThroughAll",
+     "UpToFirst",
+     "UpToFace",
+     "?TwoLengths",
+     "UpToShape"
+    ]
+   },
+   "SideType": {
+    "value": "One side",
+    "mode": [],
+    "enums": [
+     "One side",
+     "Two sides",
+     "Symmetric"
+    ]
+   }
+  },
+  "task_two_sided": {
+   "labelStart": {
+    "class": "QLabel",
+    "enabled": true,
+    "text": "Start"
+   },
+   "startMode": {
+    "class": "QComboBox",
+    "enabled": true,
+    "items": [
+     "Profile plane",
+     "Offset",
+     "Reference"
+    ],
+    "current": "Reference"
+   },
+   "labelStartReference": {
+    "class": "QLabel",
+    "enabled": true,
+    "text": "Reference"
+   },
+   "lineStartReference": {
+    "class": "QLineEdit",
+    "enabled": true,
+    "text": "Pad:Face6",
+    "placeholder": "No start reference selected"
+   },
+   "buttonStartReference": {
+    "class": "QPushButton",
+    "enabled": true,
+    "text": "Pick Reference",
+    "checked": false
+   },
+   "labelStartOffset": {
+    "class": "QLabel",
+    "enabled": true,
+    "text": "Offset"
+   },
+   "startOffsetEdit": {
+    "class": "Gui::PrefQuantitySpinBox",
+    "enabled": true,
+    "text": "0.00 mm"
+   },
+   "sidesLabel": {
+    "class": "QLabel",
+    "enabled": true,
+    "text": "Direction"
+   },
+   "sidesMode": {
+    "class": "QComboBox",
+    "enabled": true,
+    "items": [
+     "One sided",
+     "Two sided",
+     "Symmetric"
+    ],
+    "current": "Two sided"
+   },
+   "side1Label": {
+    "class": "QLabel",
+    "enabled": true,
+    "text": "Side 1"
+   },
+   "textLabel1": {
+    "class": "QLabel",
+    "enabled": true,
+    "text": "Type"
+   },
+   "changeMode": {
+    "class": "QComboBox",
+    "enabled": true,
+    "items": [
+     "Dimension",
+     "Through all",
+     "To first",
+     "Up to face",
+     "Up to shape"
+    ],
+    "current": "Through all"
+   },
+   "labelTaperAngle": {
+    "class": "QLabel",
+    "enabled": true,
+    "text": "Taper angle"
+   },
+   "taperEdit": {
+    "class": "Gui::PrefQuantitySpinBox",
+    "enabled": true,
+    "text": "10.00\u00b0"
+   },
+   "side2Label": {
+    "class": "QLabel",
+    "enabled": true,
+    "text": "Side 2"
+   },
+   "typeLabel2": {
+    "class": "QLabel",
+    "enabled": true,
+    "text": "Type"
+   },
+   "changeMode2": {
+    "class": "QComboBox",
+    "enabled": true,
+    "items": [
+     "Dimension",
+     "Through all",
+     "To first",
+     "Up to face",
+     "Up to shape"
+    ],
+    "current": "Dimension"
+   },
+   "labelLength2": {
+    "class": "QLabel",
+    "enabled": true,
+    "text": "Length"
+   },
+   "lengthEdit2": {
+    "class": "Gui::PrefQuantitySpinBox",
+    "enabled": true,
+    "text": "5.00 mm"
+   },
+   "labelTaperAngle2": {
+    "class": "QLabel",
+    "enabled": true,
+    "text": "Taper angle"
+   },
+   "taperEdit2": {
+    "class": "Gui::PrefQuantitySpinBox",
+    "enabled": true,
+    "text": "0.00\u00b0"
+   },
+   "checkBoxReversed": {
+    "class": "QCheckBox",
+    "enabled": true,
+    "text": "Reversed",
+    "checked": false
+   },
+   "labelEdge": {
+    "class": "QLabel",
+    "enabled": true,
+    "text": "Direction/edge"
+   },
+   "directionCB": {
+    "class": "QComboBox",
+    "enabled": true,
+    "items": [
+     "Sketch normal",
+     "Select reference\u2026",
+     "Custom direction"
+    ],
+    "current": "Sketch normal"
+   },
+   "labelOperation": {
+    "class": "QLabel",
+    "enabled": true,
+    "text": "Operation"
+   },
+   "comboOperation": {
+    "class": "QComboBox",
+    "enabled": true,
+    "items": [
+     "Subtraction",
+     "Common"
+    ],
+    "current": "Common"
+   },
+   "checkBoxUpdateView": {
+    "class": "QCheckBox",
+    "enabled": true,
+    "text": "Recompute on change",
+    "checked": true
+   },
+   "showFinalCheckBox": {
+    "class": "QCheckBox",
+    "enabled": true,
+    "text": "Show final result",
+    "checked": false
+   },
+   "showTransparentPreviewCheckBox": {
+    "class": "QCheckBox",
+    "enabled": true,
+    "text": "Show preview overlay",
+    "checked": true
+   }
+  },
+  "props_two_sided": {
+   "StartType": {
+    "value": "Reference",
+    "mode": [],
+    "enums": [
+     "Profile plane",
+     "Offset",
+     "Reference"
+    ]
+   },
+   "StartOffset": {
+    "value": 0.0,
+    "mode": []
+   },
+   "StartReference": {
+    "value": [
+     "Pad",
+     [
+      "Face6"
+     ]
+    ],
+    "mode": []
+   },
+   "TaperAngle": {
+    "value": 10.0,
+    "mode": []
+   },
+   "TaperAngle2": {
+    "value": 0.0,
+    "mode": []
+   },
+   "Operation": {
+    "value": "Common",
+    "mode": [],
+    "enums": [
+     "Subtraction",
+     "Common"
+    ]
+   },
+   "Type": {
+    "value": "ThroughAll",
+    "mode": [],
+    "enums": [
+     "Length",
+     "ThroughAll",
+     "UpToFirst",
+     "UpToFace",
+     "?TwoLengths",
+     "UpToShape"
+    ]
+   },
+   "Type2": {
+    "value": "Length",
+    "mode": [],
+    "enums": [
+     "Length",
+     "ThroughAll",
+     "UpToFirst",
+     "UpToFace",
+     "?TwoLengths",
+     "UpToShape"
+    ]
+   },
+   "SideType": {
+    "value": "Two sides",
+    "mode": [],
+    "enums": [
+     "One side",
+     "Two sides",
+     "Symmetric"
+    ]
+   }
+  },
+  "task_dimension2": {
+   "labelStart": {
+    "class": "QLabel",
+    "enabled": true,
+    "text": "Start"
+   },
+   "startMode": {
+    "class": "QComboBox",
+    "enabled": true,
+    "items": [
+     "Profile plane",
+     "Offset",
+     "Reference"
+    ],
+    "current": "Reference"
+   },
+   "labelStartReference": {
+    "class": "QLabel",
+    "enabled": true,
+    "text": "Reference"
+   },
+   "lineStartReference": {
+    "class": "QLineEdit",
+    "enabled": true,
+    "text": "Pad:Face6",
+    "placeholder": "No start reference selected"
+   },
+   "buttonStartReference": {
+    "class": "QPushButton",
+    "enabled": true,
+    "text": "Pick Reference",
+    "checked": false
+   },
+   "labelStartOffset": {
+    "class": "QLabel",
+    "enabled": true,
+    "text": "Offset"
+   },
+   "startOffsetEdit": {
+    "class": "Gui::PrefQuantitySpinBox",
+    "enabled": true,
+    "text": "0.00 mm"
+   },
+   "sidesLabel": {
+    "class": "QLabel",
+    "enabled": true,
+    "text": "Direction"
+   },
+   "sidesMode": {
+    "class": "QComboBox",
+    "enabled": true,
+    "items": [
+     "One sided",
+     "Two sided",
+     "Symmetric"
+    ],
+    "current": "Two sided"
+   },
+   "side1Label": {
+    "class": "QLabel",
+    "enabled": true,
+    "text": "Side 1"
+   },
+   "textLabel1": {
+    "class": "QLabel",
+    "enabled": true,
+    "text": "Type"
+   },
+   "changeMode": {
+    "class": "QComboBox",
+    "enabled": true,
+    "items": [
+     "Dimension",
+     "Through all",
+     "To first",
+     "Up to face",
+     "Up to shape"
+    ],
+    "current": "Through all"
+   },
+   "labelTaperAngle": {
+    "class": "QLabel",
+    "enabled": true,
+    "text": "Taper angle"
+   },
+   "taperEdit": {
+    "class": "Gui::PrefQuantitySpinBox",
+    "enabled": true,
+    "text": "10.00\u00b0"
+   },
+   "side2Label": {
+    "class": "QLabel",
+    "enabled": true,
+    "text": "Side 2"
+   },
+   "typeLabel2": {
+    "class": "QLabel",
+    "enabled": true,
+    "text": "Type"
+   },
+   "changeMode2": {
+    "class": "QComboBox",
+    "enabled": true,
+    "items": [
+     "Dimension",
+     "Through all",
+     "To first",
+     "Up to face",
+     "Up to shape"
+    ],
+    "current": "Dimension"
+   },
+   "labelLength2": {
+    "class": "QLabel",
+    "enabled": true,
+    "text": "Length"
+   },
+   "lengthEdit2": {
+    "class": "Gui::PrefQuantitySpinBox",
+    "enabled": true,
+    "text": "5.00 mm"
+   },
+   "labelTaperAngle2": {
+    "class": "QLabel",
+    "enabled": true,
+    "text": "Taper angle"
+   },
+   "taperEdit2": {
+    "class": "Gui::PrefQuantitySpinBox",
+    "enabled": true,
+    "text": "0.00\u00b0"
+   },
+   "checkBoxReversed": {
+    "class": "QCheckBox",
+    "enabled": true,
+    "text": "Reversed",
+    "checked": false
+   },
+   "labelEdge": {
+    "class": "QLabel",
+    "enabled": true,
+    "text": "Direction/edge"
+   },
+   "directionCB": {
+    "class": "QComboBox",
+    "enabled": true,
+    "items": [
+     "Sketch normal",
+     "Select reference\u2026",
+     "Custom direction"
+    ],
+    "current": "Sketch normal"
+   },
+   "labelOperation": {
+    "class": "QLabel",
+    "enabled": true,
+    "text": "Operation"
+   },
+   "comboOperation": {
+    "class": "QComboBox",
+    "enabled": true,
+    "items": [
+     "Subtraction",
+     "Common"
+    ],
+    "current": "Common"
+   },
+   "checkBoxUpdateView": {
+    "class": "QCheckBox",
+    "enabled": true,
+    "text": "Recompute on change",
+    "checked": true
+   },
+   "showFinalCheckBox": {
+    "class": "QCheckBox",
+    "enabled": true,
+    "text": "Show final result",
+    "checked": false
+   },
+   "showTransparentPreviewCheckBox": {
+    "class": "QCheckBox",
+    "enabled": true,
+    "text": "Show preview overlay",
+    "checked": true
+   }
+  },
+  "props_dimension2": {
+   "StartType": {
+    "value": "Reference",
+    "mode": [],
+    "enums": [
+     "Profile plane",
+     "Offset",
+     "Reference"
+    ]
+   },
+   "StartOffset": {
+    "value": 0.0,
+    "mode": []
+   },
+   "StartReference": {
+    "value": [
+     "Pad",
+     [
+      "Face6"
+     ]
+    ],
+    "mode": []
+   },
+   "TaperAngle": {
+    "value": 10.0,
+    "mode": []
+   },
+   "TaperAngle2": {
+    "value": 0.0,
+    "mode": []
+   },
+   "Operation": {
+    "value": "Common",
+    "mode": [],
+    "enums": [
+     "Subtraction",
+     "Common"
+    ]
+   },
+   "Type": {
+    "value": "ThroughAll",
+    "mode": [],
+    "enums": [
+     "Length",
+     "ThroughAll",
+     "UpToFirst",
+     "UpToFace",
+     "?TwoLengths",
+     "UpToShape"
+    ]
+   },
+   "Type2": {
+    "value": "Length",
+    "mode": [],
+    "enums": [
+     "Length",
+     "ThroughAll",
+     "UpToFirst",
+     "UpToFace",
+     "?TwoLengths",
+     "UpToShape"
+    ]
+   },
+   "SideType": {
+    "value": "Two sides",
+    "mode": [],
+    "enums": [
+     "One side",
+     "Two sides",
+     "Symmetric"
+    ]
+   }
+  },
+  "task_one_sided": {
+   "labelStart": {
+    "class": "QLabel",
+    "enabled": true,
+    "text": "Start"
+   },
+   "startMode": {
+    "class": "QComboBox",
+    "enabled": true,
+    "items": [
+     "Profile plane",
+     "Offset",
+     "Reference"
+    ],
+    "current": "Reference"
+   },
+   "labelStartReference": {
+    "class": "QLabel",
+    "enabled": true,
+    "text": "Reference"
+   },
+   "lineStartReference": {
+    "class": "QLineEdit",
+    "enabled": true,
+    "text": "Pad:Face6",
+    "placeholder": "No start reference selected"
+   },
+   "buttonStartReference": {
+    "class": "QPushButton",
+    "enabled": true,
+    "text": "Pick Reference",
+    "checked": false
+   },
+   "labelStartOffset": {
+    "class": "QLabel",
+    "enabled": true,
+    "text": "Offset"
+   },
+   "startOffsetEdit": {
+    "class": "Gui::PrefQuantitySpinBox",
+    "enabled": true,
+    "text": "0.00 mm"
+   },
+   "sidesLabel": {
+    "class": "QLabel",
+    "enabled": true,
+    "text": "Direction"
+   },
+   "sidesMode": {
+    "class": "QComboBox",
+    "enabled": true,
+    "items": [
+     "One sided",
+     "Two sided",
+     "Symmetric"
+    ],
+    "current": "One sided"
+   },
+   "textLabel1": {
+    "class": "QLabel",
+    "enabled": true,
+    "text": "Type"
+   },
+   "changeMode": {
+    "class": "QComboBox",
+    "enabled": true,
+    "items": [
+     "Dimension",
+     "Through all",
+     "To first",
+     "Up to face",
+     "Up to shape"
+    ],
+    "current": "Through all"
+   },
+   "labelTaperAngle": {
+    "class": "QLabel",
+    "enabled": true,
+    "text": "Taper angle"
+   },
+   "taperEdit": {
+    "class": "Gui::PrefQuantitySpinBox",
+    "enabled": true,
+    "text": "10.00\u00b0"
+   },
+   "checkBoxReversed": {
+    "class": "QCheckBox",
+    "enabled": true,
+    "text": "Reversed",
+    "checked": false
+   },
+   "labelEdge": {
+    "class": "QLabel",
+    "enabled": true,
+    "text": "Direction/edge"
+   },
+   "directionCB": {
+    "class": "QComboBox",
+    "enabled": true,
+    "items": [
+     "Sketch normal",
+     "Select reference\u2026",
+     "Custom direction"
+    ],
+    "current": "Sketch normal"
+   },
+   "labelOperation": {
+    "class": "QLabel",
+    "enabled": true,
+    "text": "Operation"
+   },
+   "comboOperation": {
+    "class": "QComboBox",
+    "enabled": true,
+    "items": [
+     "Subtraction",
+     "Common"
+    ],
+    "current": "Common"
+   },
+   "checkBoxUpdateView": {
+    "class": "QCheckBox",
+    "enabled": true,
+    "text": "Recompute on change",
+    "checked": true
+   },
+   "showFinalCheckBox": {
+    "class": "QCheckBox",
+    "enabled": true,
+    "text": "Show final result",
+    "checked": false
+   },
+   "showTransparentPreviewCheckBox": {
+    "class": "QCheckBox",
+    "enabled": true,
+    "text": "Show preview overlay",
+    "checked": true
+   }
+  },
+  "props_one_sided": {
+   "StartType": {
+    "value": "Reference",
+    "mode": [],
+    "enums": [
+     "Profile plane",
+     "Offset",
+     "Reference"
+    ]
+   },
+   "StartOffset": {
+    "value": 0.0,
+    "mode": []
+   },
+   "StartReference": {
+    "value": [
+     "Pad",
+     [
+      "Face6"
+     ]
+    ],
+    "mode": []
+   },
+   "TaperAngle": {
+    "value": 10.0,
+    "mode": []
+   },
+   "TaperAngle2": {
+    "value": 0.0,
+    "mode": [
+     "ReadOnly"
+    ]
+   },
+   "Operation": {
+    "value": "Common",
+    "mode": [],
+    "enums": [
+     "Subtraction",
+     "Common"
+    ]
+   },
+   "Type": {
+    "value": "ThroughAll",
+    "mode": [],
+    "enums": [
+     "Length",
+     "ThroughAll",
+     "UpToFirst",
+     "UpToFace",
+     "?TwoLengths",
+     "UpToShape"
+    ]
+   },
+   "Type2": {
+    "value": "Length",
+    "mode": [
+     "ReadOnly"
+    ],
+    "enums": [
+     "Length",
+     "ThroughAll",
+     "UpToFirst",
+     "UpToFace",
+     "?TwoLengths",
+     "UpToShape"
+    ]
+   },
+   "SideType": {
+    "value": "One side",
+    "mode": [],
+    "enums": [
+     "One side",
+     "Two sides",
+     "Symmetric"
+    ]
+   }
+  },
+  "ok": true,
+  "props_after": {
+   "StartType": {
+    "value": "Reference",
+    "mode": [],
+    "enums": [
+     "Profile plane",
+     "Offset",
+     "Reference"
+    ]
+   },
+   "StartOffset": {
+    "value": 0.0,
+    "mode": []
+   },
+   "StartReference": {
+    "value": [
+     "Pad",
+     [
+      "Face6"
+     ]
+    ],
+    "mode": []
+   },
+   "TaperAngle": {
+    "value": 10.0,
+    "mode": []
+   },
+   "TaperAngle2": {
+    "value": 0.0,
+    "mode": [
+     "ReadOnly"
+    ]
+   },
+   "Operation": {
+    "value": "Common",
+    "mode": [],
+    "enums": [
+     "Subtraction",
+     "Common"
+    ]
+   },
+   "Type": {
+    "value": "ThroughAll",
+    "mode": [],
+    "enums": [
+     "Length",
+     "ThroughAll",
+     "UpToFirst",
+     "UpToFace",
+     "?TwoLengths",
+     "UpToShape"
+    ]
+   },
+   "Type2": {
+    "value": "Length",
+    "mode": [
+     "ReadOnly"
+    ],
+    "enums": [
+     "Length",
+     "ThroughAll",
+     "UpToFirst",
+     "UpToFace",
+     "?TwoLengths",
+     "UpToShape"
+    ]
+   },
+   "SideType": {
+    "value": "One side",
+    "mode": [],
+    "enums": [
+     "One side",
+     "Two sides",
+     "Symmetric"
+    ]
+   }
+  },
+  "name": "Pocket"
+ },
+ "multi": {
+  "actions": [
+   {
+    "text": "Edit",
+    "enabled": true,
+    "separator": false
+   },
+   {
+    "text": "Delete",
+    "enabled": true,
+    "separator": false
+   },
+   {
+    "text": "Add Mirror Transformation",
+    "enabled": true,
+    "separator": false
+   },
+   {
+    "text": "Add Linear Pattern",
+    "enabled": true,
+    "separator": false
+   },
+   {
+    "text": "Add Polar Pattern",
+    "enabled": true,
+    "separator": false
+   },
+   {
+    "text": "Add Scale Transformation",
+    "enabled": true,
+    "separator": false
+   },
+   {
+    "text": "Move Up",
+    "enabled": true,
+    "separator": false
+   },
+   {
+    "text": "Move Down",
+    "enabled": true,
+    "separator": false
+   }
+  ],
+  "new": [
+   [
+    "Scale",
+    "PartDesign::Scaled"
+   ]
+  ],
+  "task": {
+   "radioTransformBody": {
+    "class": "QRadioButton",
+    "enabled": true,
+    "text": "Transform body",
+    "checked": false
+   },
+   "radioTransformToolShapes": {
+    "class": "QRadioButton",
+    "enabled": true,
+    "text": "Transform tool shapes",
+    "checked": true
+   },
+   "buttonAddFeature": {
+    "class": "QPushButton",
+    "enabled": true,
+    "text": "Add Feature",
+    "checked": false
+   },
+   "buttonRemoveFeature": {
+    "class": "QPushButton",
+    "enabled": true,
+    "text": "Remove Feature",
+    "checked": false
+   },
+   "label": {
+    "class": "QLabel",
+    "enabled": true,
+    "text": "Occurrences"
+   },
+   "label_2": {
+    "class": "QLabel",
+    "enabled": true,
+    "text": "Factor"
+   },
+   "spinFactor": {
+    "class": "Gui::QuantitySpinBox",
+    "enabled": true,
+    "text": "2.00"
+   },
+   "spinOccurrences": {
+    "class": "Gui::UIntSpinBox",
+    "enabled": true,
+    "text": "2"
+   },
+   "buttonOK": {
+    "class": "QPushButton",
+    "enabled": true,
+    "text": "OK"
+   },
+   "checkBoxUpdateView": {
+    "class": "QCheckBox",
+    "enabled": true,
+    "text": "Recompute on change",
+    "checked": true
+   },
+   "showFinalCheckBox": {
+    "class": "QCheckBox",
+    "enabled": true,
+    "text": "Show final result",
+    "checked": false
+   },
+   "showTransparentPreviewCheckBox": {
+    "class": "QCheckBox",
+    "enabled": true,
+    "text": "Show preview overlay",
+    "checked": true
+   }
+  },
+  "transformations": [
+   "Scale"
+  ],
+  "props_scale": {
+   "Factor": {
+    "value": 2.0,
+    "mode": []
+   },
+   "Occurrences": {
+    "value": 2,
+    "mode": []
+   },
+   "Originals": {
+    "value": [],
+    "mode": []
+   },
+   "TransformMode": {
+    "value": "Features",
+    "mode": [],
+    "enums": [
+     "Features",
+     "Whole shape"
+    ]
+   },
+   "Refine": {
+    "value": true,
+    "mode": []
+   }
+  },
+  "ok": true,
+  "valid": true,
+  "name": "MultiTransform"
+ },
+ "props_Pocket": [
+  [
+   {
+    "depth": 0,
+    "name": "Attachment",
+    "value": null,
+    "group": false,
+    "editable": false
+   },
+   {
+    "depth": 0,
+    "name": "Base",
+    "value": null,
+    "group": false,
+    "editable": false
+   },
+   {
+    "depth": 1,
+    "name": "Label",
+    "value": "Pocket",
+    "group": false,
+    "editable": true
+   },
+   {
+    "depth": 1,
+    "name": "Suppressed",
+    "value": "false",
+    "group": false,
+    "editable": true
+   },
+   {
+    "depth": 0,
+    "name": "Internal Geometry",
+    "value": null,
+    "group": false,
+    "editable": false
+   },
+   {
+    "depth": 0,
+    "name": "Pad",
+    "value": null,
+    "group": false,
+    "editable": false
+   },
+   {
+    "depth": 0,
+    "name": "Part Design",
+    "value": null,
+    "group": false,
+    "editable": false
+   },
+   {
+    "depth": 1,
+    "name": "Operation",
+    "value": "Common",
+    "group": false,
+    "editable": true
+   },
+   {
+    "depth": 1,
+    "name": "Refine",
+    "value": "true",
+    "group": false,
+    "editable": true
+   },
+   {
+    "depth": 1,
+    "name": "Fuzzy Tolerance",
+    "value": "0",
+    "group": false,
+    "editable": true
+   },
+   {
+    "depth": 0,
+    "name": "Pocket",
+    "value": null,
+    "group": false,
+    "editable": false
+   },
+   {
+    "depth": 1,
+    "name": "Side Type",
+    "value": "One side",
+    "group": false,
+    "editable": true
+   },
+   {
+    "depth": 1,
+    "name": "Use Custom Vector",
+    "value": "false",
+    "group": false,
+    "editable": true
+   },
+   {
+    "depth": 1,
+    "name": "Direction",
+    "value": "[0.00 0.00 -1.00]",
+    "group": false,
+    "editable": false
+   },
+   {
+    "depth": 1,
+    "name": "Reference Axis",
+    "value": "Sketch001 [N_Axis]",
+    "group": false,
+    "editable": true
+   },
+   {
+    "depth": 1,
+    "name": "Along Sketch Normal",
+    "value": "true",
+    "group": false,
+    "editable": false
+   },
+   {
+    "depth": 0,
+    "name": "Side1",
+    "value": null,
+    "group": false,
+    "editable": false
+   },
+   {
+    "depth": 1,
+    "name": "Type",
+    "value": "ThroughAll",
+    "group": false,
+    "editable": true
+   },
+   {
+    "depth": 1,
+    "name": "Length",
+    "value": "5.00 mm",
+    "group": false,
+    "editable": false
+   },
+   {
+    "depth": 1,
+    "name": "Up To Face",
+    "value": "",
+    "group": false,
+    "editable": false
+   },
+   {
+    "depth": 1,
+    "name": "Up To Shape",
+    "value": "",
+    "group": false,
+    "editable": false
+   },
+   {
+    "depth": 1,
+    "name": "Offset",
+    "value": "0.00 mm",
+    "group": false,
+    "editable": false
+   },
+   {
+    "depth": 1,
+    "name": "Taper Angle",
+    "value": "10.00\u00b0",
+    "group": false,
+    "editable": true
+   },
+   {
+    "depth": 0,
+    "name": "Side2",
+    "value": null,
+    "group": false,
+    "editable": false
+   },
+   {
+    "depth": 1,
+    "name": "Type2",
+    "value": "Length",
+    "group": false,
+    "editable": false
+   },
+   {
+    "depth": 1,
+    "name": "Length2",
+    "value": "5.00 mm",
+    "group": false,
+    "editable": false
+   },
+   {
+    "depth": 1,
+    "name": "Up To Face2",
+    "value": "",
+    "group": false,
+    "editable": false
+   },
+   {
+    "depth": 1,
+    "name": "Up To Shape2",
+    "value": "",
+    "group": false,
+    "editable": false
+   },
+   {
+    "depth": 1,
+    "name": "Offset2",
+    "value": "0.00 mm",
+    "group": false,
+    "editable": false
+   },
+   {
+    "depth": 1,
+    "name": "Taper Angle2",
+    "value": "0.00\u00b0",
+    "group": false,
+    "editable": false
+   },
+   {
+    "depth": 0,
+    "name": "Sketch",
+    "value": null,
+    "group": false,
+    "editable": false
+   },
+   {
+    "depth": 0,
+    "name": "Sketch Based",
+    "value": null,
+    "group": false,
+    "editable": false
+   },
+   {
+    "depth": 1,
+    "name": "Profile",
+    "value": "Sketch001",
+    "group": false,
+    "editable": true
+   },
+   {
+    "depth": 1,
+    "name": "Midplane",
+    "value": "false",
+    "group": false,
+    "editable": true
+   },
+   {
+    "depth": 1,
+    "name": "Reversed",
+    "value": "false",
+    "group": false,
+    "editable": true
+   },
+   {
+    "depth": 1,
+    "name": "Allow Multi Face",
+    "value": "true",
+    "group": false,
+    "editable": true
+   },
+   {
+    "depth": 0,
+    "name": "Start",
+    "value": null,
+    "group": false,
+    "editable": false
+   },
+   {
+    "depth": 1,
+    "name": "Start Type",
+    "value": "Reference",
+    "group": false,
+    "editable": true
+   },
+   {
+    "depth": 1,
+    "name": "Start Offset",
+    "value": "0.00 mm",
+    "group": false,
+    "editable": true
+   },
+   {
+    "depth": 1,
+    "name": "Start Reference",
+    "value": "Pad [Face6]",
+    "group": false,
+    "editable": true
+   }
+  ]
+ ],
+ "props_Scale": [
+  [
+   {
+    "depth": 0,
+    "name": "Attachment",
+    "value": null,
+    "group": false,
+    "editable": false
+   },
+   {
+    "depth": 0,
+    "name": "Base",
+    "value": null,
+    "group": false,
+    "editable": false
+   },
+   {
+    "depth": 1,
+    "name": "Factor",
+    "value": "2",
+    "group": false,
+    "editable": true
+   },
+   {
+    "depth": 1,
+    "name": "Occurrences",
+    "value": "2",
+    "group": false,
+    "editable": true
+   },
+   {
+    "depth": 1,
+    "name": "Originals",
+    "value": "",
+    "group": false,
+    "editable": true
+   },
+   {
+    "depth": 1,
+    "name": "Transform Mode",
+    "value": "Features",
+    "group": false,
+    "editable": true
+   },
+   {
+    "depth": 1,
+    "name": "Label",
+    "value": "Scale",
+    "group": false,
+    "editable": true
+   },
+   {
+    "depth": 1,
+    "name": "Suppressed",
+    "value": "false",
+    "group": false,
+    "editable": true
+   },
+   {
+    "depth": 0,
+    "name": "Internal Geometry",
+    "value": null,
+    "group": false,
+    "editable": false
+   },
+   {
+    "depth": 0,
+    "name": "Pad",
+    "value": null,
+    "group": false,
+    "editable": false
+   },
+   {
+    "depth": 0,
+    "name": "Part Design",
+    "value": null,
+    "group": false,
+    "editable": false
+   },
+   {
+    "depth": 1,
+    "name": "Refine",
+    "value": "true",
+    "group": false,
+    "editable": true
+   },
+   {
+    "depth": 1,
+    "name": "Fuzzy Tolerance",
+    "value": "0",
+    "group": false,
+    "editable": true
+   },
+   {
+    "depth": 0,
+    "name": "Pocket",
+    "value": null,
+    "group": false,
+    "editable": false
+   },
+   {
+    "depth": 0,
+    "name": "Side1",
+    "value": null,
+    "group": false,
+    "editable": false
+   },
+   {
+    "depth": 0,
+    "name": "Side2",
+    "value": null,
+    "group": false,
+    "editable": false
+   },
+   {
+    "depth": 0,
+    "name": "Sketch",
+    "value": null,
+    "group": false,
+    "editable": false
+   },
+   {
+    "depth": 0,
+    "name": "Sketch Based",
+    "value": null,
+    "group": false,
+    "editable": false
+   },
+   {
+    "depth": 0,
+    "name": "Start",
+    "value": null,
+    "group": false,
+    "editable": false
+   },
+   {
+    "depth": 0,
+    "name": "Transformation",
+    "value": null,
+    "group": false,
+    "editable": false
+   },
+   {
+    "depth": 1,
+    "name": "Suppressed Indices",
+    "value": "[]",
+    "group": false,
+    "editable": true
+   }
+  ]
+ ]
+}

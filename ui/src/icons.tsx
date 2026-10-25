@@ -11,6 +11,7 @@
 //   src/Gui/NotificationArea.cpp: 2022 Abdullah Tahiri
 // FreeCAD 1.1.4's icons, copied into public/freecad-icons (licences in its
 // README). Placeholders until we draw our own.
+import { PART_FILES } from './part_icons'
 export const FILES = {
   document: 'Document', group: 'Group', part: 'Part_Feature', bought: 'Part_FeatureImport', body: 'PartDesign_Body',
   'wb-design': 'PartDesignWorkbench', 'wb-assembly': 'AssemblyWorkbench', 'wb-inspection': 'InspectionWorkbench',
@@ -88,7 +89,7 @@ export const FILES = {
   'pd-sub-loft': 'PartDesign_SubtractiveLoft', 'pd-sub-pipe': 'PartDesign_SubtractivePipe', 'pd-sub-helix': 'PartDesign_SubtractiveHelix',
   'pd-sub-box': 'PartDesign_SubtractiveBox', 'pd-fillet': 'PartDesign_Fillet', 'pd-chamfer': 'PartDesign_Chamfer', 'pd-draft': 'PartDesign_Draft',
   'pd-thickness': 'PartDesign_Thickness', 'pd-flip': 'PartDesign_Flip_Direction', 'pd-defeaturing': 'PartDesign_Defeaturing', 'pd-mirrored': 'PartDesign_Mirrored',
-  'pd-linear-pattern': 'PartDesign_LinearPattern', 'pd-polar-pattern': 'PartDesign_PolarPattern', 'pd-multi-transform': 'PartDesign_MultiTransform',
+  'pd-linear-pattern': 'PartDesign_LinearPattern', 'pd-polar-pattern': 'PartDesign_PolarPattern', 'pd-multi-transform': 'PartDesign_MultiTransform', 'pd-scaled': 'PartDesign_Scaled',
   'pd-boolean': 'PartDesign_Boolean', 'pd-check-geometry': 'Part_CheckGeometry', 'pd-gear': 'PartDesign_InternalExternalGear', 'pd-sprocket': 'PartDesign_Sprocket',
   'pd-wizard-shaft': 'PartDesign_WizardShaft', 'pd-move-tip': 'PartDesign_MoveTip', 'pd-move-feature': 'PartDesign_MoveFeature',
   'pd-move-in-tree': 'PartDesign_MoveFeatureInTree', 'pd-color-face': 'Part_ColorFace', freeze: 'Std_ToggleFreeze',
@@ -98,6 +99,7 @@ export const FILES = {
   'pd-add-wedge': 'PartDesign_AdditiveWedge', 'pd-sub-cylinder': 'PartDesign_SubtractiveCylinder', 'pd-sub-sphere': 'PartDesign_SubtractiveSphere',
   'pd-sub-cone': 'PartDesign_SubtractiveCone', 'pd-sub-ellipsoid': 'PartDesign_SubtractiveEllipsoid', 'pd-sub-torus': 'PartDesign_SubtractiveTorus',
   'pd-sub-prism': 'PartDesign_SubtractivePrism', 'pd-sub-wedge': 'PartDesign_SubtractiveWedge',
+  ...PART_FILES, // the Part workbench's (part_icons.ts, public/freecad-icons/part)
 } as const
 
 export type IconName = keyof typeof FILES

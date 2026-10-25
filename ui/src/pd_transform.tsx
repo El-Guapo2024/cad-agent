@@ -7,6 +7,8 @@
 //   src/Mod/PartDesign/Gui/TaskMirroredParameters.cpp: 2012 Jan Rheinländer
 //   src/Mod/PartDesign/Gui/TaskPatternParameters.cpp: 2012 Jan Rheinländer
 //   src/Mod/PartDesign/Gui/TaskMultiTransformParameters.cpp: 2012 Jan Rheinländer
+//   src/Mod/PartDesign/Gui/TaskScaledParameters.cpp, ViewProviderScaled.cpp: 2012 Jan Rheinländer
+//   src/Mod/PartDesign/App/FeatureScaled.cpp, FeatureMultiTransform.cpp: 2012 Jan Rheinländer (the preview's scalings)
 //   src/Mod/PartDesign/Gui/ViewProviderTransformed.cpp: 2012 Jan Rheinländer
 //   src/Mod/PartDesign/Gui/TaskPrimitiveParameters.cpp: 2015 Stefan Tröger
 //   src/Mod/Part/Gui/PatternParametersWidget.cpp: 2025 AstoCAD
@@ -39,6 +41,9 @@ import { applyOps, bodyOfPart, createBody, isBodyDoc, numberOf, PAD, POCKET, pre
 
 // ── the types ────────────────────────────────────────────────────────────────
 export const MIRRORED = 'PartDesign::Mirrored', LINEAR = 'PartDesign::LinearPattern', POLAR = 'PartDesign::PolarPattern', MULTI = 'PartDesign::MultiTransform'
+/** PartDesign::Scaled (cad_agent/feature_scaled.py). FreeCAD 26.3 does not register PartDesign_Scaled (Command.cpp has it
+ *  commented out): a Scaled comes from Multi-Transform's Add Scale Transformation, or from the code. */
+export const SCALED = 'PartDesign::Scaled'
 /** Each transformed feature: its kind (the part file's call), the command's menu text and pixmap, the name FreeCAD gives a new
  *  one (getUniqueObjectName(which)) and a MultiTransform's transformation of the kind (onTransformAdd…'s names). */
 const TRANSFORMED: Record<string, { kind: string; label: string; icon: IconName; cmd: string; sub: string; panel: string }> = {
@@ -46,6 +51,7 @@ const TRANSFORMED: Record<string, { kind: string; label: string; icon: IconName;
   [LINEAR]: { kind: 'LinearPattern', label: 'Linear Pattern', icon: 'pd-linear-pattern', cmd: 'PartDesign_LinearPattern', sub: 'Linear_Pattern', panel: 'Linear Pattern Parameters' },
   [POLAR]: { kind: 'PolarPattern', label: 'Polar Pattern', icon: 'pd-polar-pattern', cmd: 'PartDesign_PolarPattern', sub: 'Polar_Pattern', panel: 'Polar Pattern Parameters' },
   [MULTI]: { kind: 'MultiTransform', label: 'Multi-Transform', icon: 'pd-multi-transform', cmd: 'PartDesign_MultiTransform', sub: 'MultiTransform', panel: 'Multi-Transform Parameters' },
+  [SCALED]: { kind: 'Scaled', label: 'Scale', icon: 'pd-scaled', cmd: 'PartDesign_Scaled', sub: 'Scale', panel: 'Scale Parameters' },
 }
 export const SHAPES = ['Box', 'Cylinder', 'Sphere', 'Cone', 'Ellipsoid', 'Torus', 'Prism', 'Wedge'] as const
 type Shape = (typeof SHAPES)[number]
@@ -147,6 +153,7 @@ function newTransformed(doc: FeatureDoc, type: string, originals: string[]): Fea
   if (type === LINEAR) Object.assign(f, LINEAR_DEFAULTS, { direction: sk ? [sk.name, 'H_Axis'] : 'X_Axis', direction2: sk ? [sk.name, 'V_Axis'] : 'Y_Axis', length: 100, occurrences: 2, offset: 100 })
   if (type === POLAR) Object.assign(f, POLAR_DEFAULTS, { axis: sk ? [sk.name, 'N_Axis'] : 'Z_Axis', angle: 360, occurrences: 2 })
   if (type === MULTI) f.transformations = []
+  if (type === SCALED) Object.assign(f, { factor: 2, occurrences: 2 })     // onTransformAddScaled: Factor = 2, Occurrences = 2
   return f
 }
 const LINEAR_DEFAULTS = { direction: null, reversed: false, mode: 'Extent', length: 100, offset: 10, spacings: [-1], spacing_pattern: [0], occurrences: 2,
@@ -272,8 +279,20 @@ function refAxis(doc: FeatureDoc, r: Ref, plane: boolean): Axis | null {
   return n === doc.tip ? elementAxis(sub) : null
 }
 const num = (doc: FeatureDoc, v: unknown, d: number) => numberOf(v, doc.params) ?? d
-/** Transformed::getTransformations in the browser, for the preview: null when a reference cannot be resolved here. */
-function transformsOf(doc: FeatureDoc, f: Feature): THREE.Matrix4[] | null {
+/** Scaled::getTransformations: the identity, then the scalings about centre by 1 + i (Factor - 1) / (Occurrences - 1). */
+function scalings(doc: FeatureDoc, f: Feature, centre: THREE.Vector3): THREE.Matrix4[] {
+  const factor = num(doc, f.factor, 2), occ = Math.round(num(doc, f.occurrences, 2))
+  if (factor < 1e-7 || occ < 2) return [new THREE.Matrix4()]
+  const step = (factor - 1) / (occ - 1)
+  return Array.from({ length: occ }, (_, i) => scaleAbout(centre, 1 + i * step))
+}
+const scaleAbout = (c: THREE.Vector3, k: number) => new THREE.Matrix4().makeTranslation(c.x, c.y, c.z)
+  .multiply(new THREE.Matrix4().makeScale(k, k, k)).multiply(new THREE.Matrix4().makeTranslation(-c.x, -c.y, -c.z))
+/** Transformed::getTransformations in the browser, for the preview: null when a reference cannot be resolved here. centre is
+ *  the first original's centre (the centre of its tool's box here; FreeCAD takes its centre of mass), which a Scaled scales
+ *  about. */
+function transformsOf(doc: FeatureDoc, f: Feature, centre = new THREE.Vector3()): THREE.Matrix4[] | null {
+  if (f.type === SCALED) return scalings(doc, f, centre)
   if (f.type === MIRRORED) {
     const a = refAxis(doc, f.mirror_plane as Ref, true)
     if (!a) return null
@@ -328,13 +347,27 @@ function transformsOf(doc: FeatureDoc, f: Feature): THREE.Matrix4[] | null {
     return out
   }
   if (f.type === MULTI) {
-    let inst: THREE.Matrix4[] | null = null
+    // MultiTransform::getTransformations: each occurrence keeps its centre; a Scaled scales each slice of them about its own
+    let inst: { m: THREE.Matrix4; c: THREE.Vector3 }[] | null = null
     for (const t of pdxChildren(f)) {
-      const ts = transformsOf(doc, t)
+      const ts = transformsOf(doc, t, centre)
       if (!ts) return null
-      inst = inst === null ? ts : ts.flatMap((x) => inst!.map((o) => x.clone().multiply(o)))
+      if (inst === null) { inst = ts.map((m) => ({ m, c: centre.clone().applyMatrix4(m) })); continue }
+      if (!inst.length) continue
+      if (t.type === SCALED) {
+        if (inst.length % ts.length) return null       // "Number of occurrences must be a divisor of previous number of occurrences"
+        const step: number = inst.length / ts.length
+        const old: { m: THREE.Matrix4; c: THREE.Vector3 }[] = inst
+        inst = ts.flatMap((m, i) => old.slice(i * step, (i + 1) * step).map((o): { m: THREE.Matrix4; c: THREE.Vector3 } => {
+          const k = new THREE.Vector3().setFromMatrixScale(m).x
+          return { m: scaleAbout(o.c, k).multiply(o.m), c: o.c }
+        }))
+        continue
+      }
+      const old: { m: THREE.Matrix4; c: THREE.Vector3 }[] = inst
+      inst = ts.flatMap((x) => old.map((o) => ({ m: x.clone().multiply(o.m), c: o.c.clone().applyMatrix4(x) })))
     }
-    return inst ?? []
+    return inst ? inst.map((x) => x.m) : []
   }
   return null
 }
@@ -409,7 +442,10 @@ function primitiveObject(doc: FeatureDoc, f: Feature): THREE.Object3D | null {
 /** The overlay: the originals' tools (or, in Transform body mode, the Body as the 3D view draws it) under each of the
  *  feature's transformations but the suppressed ones, as ViewProviderTransformed::updatePreview places its preview shape. */
 function transformedPreview(doc: FeatureDoc, f: Feature): THREE.Object3D | null {
-  const ts = transformsOf(doc, f)
+  const first = findFeature(doc, String((f.originals as string[] | undefined)?.[0] ?? ''))
+  const firstTool = first ? toolObject(doc, first) : null
+  const centre = firstTool ? new THREE.Box3().setFromObject(firstTool).getCenter(new THREE.Vector3()) : new THREE.Vector3()
+  const ts = transformsOf(doc, f, centre)
   if (!ts) return null
   const toPart = partMatrix(doc)
   const base = new THREE.Group()
@@ -436,8 +472,8 @@ function OkCancel({ onOk, onCancel }: { onOk(): void; onCancel(): void }) {
   return <div className="tbuttons pd-buttons"><button className="qbtn default" onClick={onOk}>OK</button><button className="qbtn" onClick={onCancel}>Cancel</button></div>
 }
 /** Gui::UIntSpinBox: a whole number from min. */
-function IntBox({ value, min, onChange, disabled }: { value: number; min: number; onChange(v: number): void; disabled?: boolean }) {
-  return <input className="pdx-int" type="number" min={min} step={1} value={value} disabled={disabled}
+function IntBox({ value, min, onChange, disabled, name }: { value: number; min: number; onChange(v: number): void; disabled?: boolean; name?: string }) {
+  return <input className="pdx-int" data-qf={name} type="number" min={min} step={1} value={value} disabled={disabled}
     onChange={(e) => { const n = Math.round(Number(e.target.value)); if (Number.isFinite(n) && n >= min) onChange(n) }} />
 }
 /** A reference combo (ComboLinks): its items, the current reference shown even when it is none of them (as "Pad:Face6"), and
@@ -469,6 +505,14 @@ type Picking = { key: string; what: 'plane' | 'axis' | 'direction' } | null
  *  Occurrences (TaskMirroredParameters.ui, PatternParametersWidget.ui as TaskPatternParameters lays it out). */
 function TransformFields({ doc, f, sketch, set: setRaw, picking, setPicking, picked = {} }: { doc: FeatureDoc; f: Feature; sketch: Feature | undefined; set(p: Partial<Feature>): void
   picking: Picking; setPicking(p: Picking): void; picked?: Record<string, Ref[]> }) {
+  if (f.type === SCALED) {
+    // TaskScaledParameters.ui: Factor (spinFactor, a plain number), Occurrences (spinOccurrences)
+    return <>
+      <label className="tfield"><span>Factor</span><input className="pdx-int" data-qf="spinFactor" type="number" step={0.1} value={num(doc, f.factor, 2)}
+        onChange={(e) => { const n = Number(e.target.value); if (Number.isFinite(n)) setRaw({ factor: n }) }} /></label>
+      <label className="tfield"><span>Occurrences</span><IntBox name="spinOccurrences" value={Math.round(num(doc, f.occurrences, 2))} min={0} onChange={(x) => setRaw({ occurrences: x })} /></label>
+    </>
+  }
   if (f.type === MIRRORED) {
     return <label className="tfield"><span>Plane</span>
       <RefCombo name="comboPlane" items={planeItems(sketch)} value={(f.mirror_plane ?? null) as Ref} onChange={(r) => setRaw({ mirror_plane: r })} extra={picked.mirror_plane}
@@ -597,7 +641,7 @@ function TransformedTask({ part, other, edit }: { part: string; other: string; e
   const originals = (f.originals as string[]) ?? []
   const ok = async () => {
     const out = whole ? { ...f, originals: [] } : f
-    if (!whole && !originals.length) { await messageBox('warning', info.label, info.kind === 'Mirrored' ? 'No features selected to be mirrored.' : 'No features selected to be patterned.'); return }
+    if (!whole && !originals.length) { await messageBox('warning', info.label, info.kind === 'Mirrored' ? 'No features selected to be mirrored.' : info.kind === 'Scaled' ? 'No features selected to be transformed.' : 'No features selected to be patterned.'); return }
     closeTask()
     if (existing) {
       const changed = Object.fromEntries(Object.entries(out).filter(([k, x]) => k !== 'name' && k !== 'type' && JSON.stringify(x) !== JSON.stringify(existing[k])))
@@ -629,7 +673,7 @@ function TransformedTask({ part, other, edit }: { part: string; other: string; e
     { label: 'Add Mirror Transformation', onSelect: () => addSub(MIRRORED) },
     { label: 'Add Linear Pattern', onSelect: () => addSub(LINEAR) },
     { label: 'Add Polar Pattern', onSelect: () => addSub(POLAR) },
-    { label: 'Add Scale Transformation', disabled: true, title: 'not yet: PartDesign::Scaled is not in feature_transform.py' },
+    { label: 'Add Scale Transformation', onSelect: () => addSub(SCALED) },
     'sep',
     { label: 'Move Up', disabled: sub === null || sub === 0, onSelect: () => sub !== null && move(sub, -1) },
     { label: 'Move Down', disabled: sub === null || sub === subs.length - 1, onSelect: () => sub !== null && move(sub, 1) },
@@ -762,9 +806,11 @@ export function PdxTask({ kind, part, other, edit }: { kind: 'pdTransform' | 'pd
 }
 
 // ── the property view (PropertyEditor: groups in name order, properties in the order FreeCAD adds them) ──
-type PropDef = { key: string; name: string; kind: 'length' | 'angle' | 'bool' | 'enum' | 'int' | 'text' | 'list' | 'ref'; items?: string[]; ro?: (f: Feature) => string | null }
+type PropDef = { key: string; name: string; kind: 'length' | 'angle' | 'bool' | 'enum' | 'int' | 'float' | 'text' | 'list' | 'ref'; items?: string[]; ro?: (f: Feature) => string | null }
 const pick = 'picked in the task panel (Select reference…), or written in the code'
 const baseGroup = (f: Feature): PropDef[] => [
+  // Scaled's own, added with ADD_PROPERTY (no group: Base), which FreeCAD's property view lists first
+  ...(f.type === SCALED ? [{ key: 'factor', name: 'Factor', kind: 'float' as const }, { key: 'occurrences', name: 'Occurrences', kind: 'int' as const }] : []),
   ...(f.type === MULTI ? [{ key: 'transformations', name: 'Transformations', kind: 'text' as const, ro: () => 'edited in the Multi-Transform panel' }] : []),
   ...(isTransformed(f.type) ? [{ key: 'originals', name: 'Originals', kind: 'text' as const, ro: () => 'Add Feature / Remove Feature in the task panel' },
     { key: 'transform_mode', name: 'Transform Mode', kind: 'enum' as const, items: ['Features', 'Whole shape'] }] : []),
@@ -866,6 +912,7 @@ export function PdxProps({ part, name }: { part: string; name: string }) {
         onCommit={(x) => set({ [d.key]: x })} onExpr={(text) => set({ [d.key]: text })} note={typeof v === 'string' ? `= ${v}` : undefined} />
     }
     if (d.kind === 'int') return <EditRow key={d.key} k={d.name} value={Math.round(numberOf(v, doc.params) ?? 0)} type="int" onCommit={(x) => set({ [d.key]: x })} />
+    if (d.kind === 'float') return <EditRow key={d.key} k={d.name} value={numberOf(v, doc.params) ?? 0} type="float" onCommit={(x) => set({ [d.key]: x })} />
     if (d.kind === 'list') return <EditRow key={d.key} k={d.name} value={JSON.stringify(v ?? [])} type="str" onCommit={(x) => { try { const l = JSON.parse(String(x)); if (Array.isArray(l)) set({ [d.key]: l }) } catch { report('err', `${d.name}: a list such as [5, -1, 10]`) } }} />
     if (d.key === 'name') return <EditRow key={d.key} k={d.name} value={f.name} type="str" onCommit={(x) => holder ? report('warn', 'a transformation is renamed in the code') : void applyOps(part, [{ op: 'rename', name, to: String(x) }], { name: `Rename ${name}.Label` })} />
     if (d.key === 'placement') return <EditRow key={d.key} k={d.name} value={JSON.stringify(v ?? [[0, 0, 0], [0, 0, 0]])} type="str"

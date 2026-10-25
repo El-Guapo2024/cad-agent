@@ -100,7 +100,7 @@ def break_links(src: str, name: str) -> str:
                 elif KW.ref_name(v if isinstance(v, str) else tuple(v)) == name:
                     props[dk] = None
         elif f.get("type") in (E.TYPE_IDS["Pad"], E.TYPE_IDS["Pocket"]):
-            for key in ("up_to_face", "up_to_face2", "reference_axis"):
+            for key in ("up_to_face", "up_to_face2", "reference_axis", "start_reference"):
                 v = f.get(key)
                 if v is not None and (v == name or (isinstance(v, list) and v and v[0] == name)):
                     props[key] = None

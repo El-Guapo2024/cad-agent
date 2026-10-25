@@ -80,7 +80,7 @@ export const engineOf = (type: string): Engine => (type === SKETCH ? ENGINE_OF_S
 /** The Body's object a click names, as a reference: a tree row ("part/Name"), or the 3D selection of the Body's shape
  *  ("body.Face6", the Tip feature's element). TaskAttacher::addToReference drops the sub-element of a datum or an
  *  origin feature. */
-function refOfRow(part: string, row: string): Ref | null {
+export function refOfRow(part: string, row: string): Ref | null {
   const [p, n] = splitRef(row)
   if (p !== part || !n) return null
   if (n === 'Origin001') return ['Origin', '']
@@ -97,7 +97,7 @@ function tipFeature(doc: FeatureDoc): string | null {
   return solids.length ? solids[solids.length - 1].name : doc.base ? 'BaseFeature' : null
 }
 /** The 3D selection's sub-elements of this part's Body, as references to its Tip feature. */
-function refsOfSelection(part: string): Ref[] {
+export function refsOfSelection(part: string): Ref[] {
   const s = getState(), body = bodyOfPart(s, part), doc = s.features[part]
   if (!doc) return []
   const out: Ref[] = []

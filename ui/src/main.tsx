@@ -13,6 +13,7 @@ import * as quantityInput from './quantity-input'
 import { initTooltips } from './tooltip'
 import { initSliders } from './qslider'
 import { newSketch, pdMenus } from './partdesign'
+import { partMenus } from './part_wb'
 import { createDatum, editAttachment } from './pd_attach'
 import { panelFields } from './pd_revolve'
 import { loadFeatures } from './actions'
@@ -26,3 +27,4 @@ Object.assign(window, { cadui: { getState, setState, getView, getDock, showPanel
   // attachcheck.mjs: the 3D selection, New Sketch, Edit > Create > Datums, Edit Attachment
   select, newSketch, createDatum, editAttachment } })
 Object.assign((window as unknown as { cadui: object }).cadui, { pdPanel: panelFields, loadFeatures })   // revolvecheck.mjs
+Object.assign((window as unknown as { cadui: object }).cadui, { part: partMenus })   // partcheck.mjs

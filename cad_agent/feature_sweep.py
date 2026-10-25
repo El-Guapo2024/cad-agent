@@ -86,7 +86,7 @@ try:                                    # the kernel; FreeCAD's Python reads the
     from OCP.GProp import GProp_GProps
     from OCP.Geom import Geom_BezierCurve, Geom_Plane, Geom_SurfaceOfRevolution
     from OCP.Geom2d import Geom2d_Line, Geom2d_TrimmedCurve
-    from OCP.GeomAbs import GeomAbs_BSplineSurface, GeomAbs_C1, GeomAbs_Cylinder, GeomAbs_Plane
+    from OCP.GeomAbs import GeomAbs_C1, GeomAbs_Plane
     from OCP.GeomFill import GeomFill_IsFrenet
     from OCP.IntTools import IntTools_FClass2d
     from OCP.ShapeAnalysis import ShapeAnalysis, ShapeAnalysis_Surface
@@ -95,8 +95,7 @@ try:                                    # the kernel; FreeCAD's Python reads the
                             TopAbs_VERTEX, TopAbs_WIRE)
     from OCP.TopExp import TopExp_Explorer
     from OCP.TopLoc import TopLoc_Location
-    from OCP.ShapeUpgrade import ShapeUpgrade_UnifySameDomain
-    from OCP.TopoDS import TopoDS, TopoDS_Compound, TopoDS_Iterator, TopoDS_Shell, TopoDS_Solid
+    from OCP.TopoDS import TopoDS, TopoDS_Compound, TopoDS_Iterator
     from OCP.gp import gp_Ax1, gp_Ax2, gp_Ax3, gp_Dir, gp_Dir2d, gp_Lin2d, gp_Pnt, gp_Pnt2d, gp_Trsf, gp_Vec, gp_Vec2d
     try:
         from OCP.TColgp import TColgp_Array1OfPnt
@@ -187,71 +186,8 @@ class _AddSub(KwFeature):
 
 
 def refine(shape):
-    """FeatureRefine's refine, BRepBuilderAPI_RefineModel (FreeCAD's modelRefine.cpp), as feature.py's _refine makes it
-    (OCCT's UnifySameDomain: the same merged faces where both merge them) with the faces in RefineModel's order:
-    FaceUniter::process removes the faces it merges from the shell and sews the new faces after what is left, planes
-    first, then cylinders, then B-spline surfaces, each in the order of the first face it took in."""
-    u = ShapeUpgrade_UnifySameDomain(shape, True, True, False)
-    u.AllowInternalEdges(False)
-    u.Build()
-    out = u.Shape()
-    if F._count(out, TopAbs_SOLID) != F._count(shape, TopAbs_SOLID):
-        return shape
-    hist = u.History()
-    firsts, sizes, news = [], [], []           # per new face: the index of its first original, how many it took in
-    for i, f in enumerate(F._faces(shape)):
-        mods = hist.Modified(f)
-        if hist.IsRemoved(f) and mods.Extent() == 0:
-            continue
-        nf = mods.First() if mods.Extent() else f
-        for k, n in enumerate(news):
-            if n.IsSame(nf):
-                sizes[k] += 1
-                break
-        else:
-            news.append(nf)
-            firsts.append(i)
-            sizes.append(1)
-
-    def rank(face):
-        for k, n in enumerate(news):
-            if n.IsSame(face):
-                if sizes[k] == 1:
-                    return (0, 0, firsts[k])
-                t = BRepAdaptor_Surface(TopoDS.Face(face)).GetType()
-                return (1, {GeomAbs_Plane: 0, GeomAbs_Cylinder: 1, GeomAbs_BSplineSurface: 2}.get(t, 3), firsts[k])
-        return (0, 0, len(news))
-
-    b = BRep_Builder()
-    solids = []
-    for so in F._subs(out, TopAbs_SOLID):
-        solid = TopoDS_Solid()
-        b.MakeSolid(solid)
-        it = TopoDS_Iterator(so)
-        while it.More():
-            sh = it.Value()
-            faces, fit = [], TopoDS_Iterator(sh)
-            while fit.More():
-                faces.append(fit.Value())
-                fit.Next()
-            keep = [f for f in faces if rank(f)[0] == 0]
-            merged = sorted((f for f in faces if rank(f)[0] == 1), key=rank)
-            shell = TopoDS_Shell()
-            b.MakeShell(shell)
-            for f in keep:
-                b.Add(shell, f)
-            if merged:                         # FaceUniter: sew the new faces to what is left of the shell
-                sew = BRepBuilderAPI_Sewing()
-                sew.Add(shell)
-                for f in merged:
-                    sew.Add(f)
-                sew.Perform()
-                sewn = sew.SewedShape()
-                shell = TopoDS.Shell(sewn) if sewn.ShapeType() == TopAbs_SHELL else shell
-            b.Add(solid, shell)
-            it.Next()
-        solids.append(solid)
-    return _one(solids) if out.ShapeType() != TopAbs_SOLID else solids[0]
+    """FeatureRefine's refine, BRepBuilderAPI_RefineModel (FreeCAD's modelRefine.cpp): cad_agent/refine.py."""
+    return F._refine(shape)
 
 
 # ── the shapes a link names (Part::Feature::getTopoShape with a sub-element) ────────────────────────────────

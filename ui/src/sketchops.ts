@@ -16,6 +16,7 @@
 import type { Geo, XY } from './solver'
 import { type Constraint, type PointPos, NONE, START, END, MID, GEO_UNDEF, H_AXIS, V_AXIS, constraint, getPoint, coincidentPoints } from './sketch'
 import * as CV from './sketchcurves'
+import type { Kernel } from './sketchkernel'
 
 export type Doc = { geometry: Geo[]; constraints: Constraint[] }
 /** SketchObject::moveGeometry(geoId, pos, to, relative=false, updateGeoBeforeMoving=true): the geometry after the
@@ -55,6 +56,28 @@ const constraintIndices = (d: Doc, g: number) => d.constraints.map((c, i) => (in
 const isClosedCurve = (g: Geo) => g.type === 'Circle' || g.type === 'Ellipse' || (g.type === 'BSplineCurve' && g.periodic)
 function range(g: Geo): [number, number] { return CV.parameterised(g)!.range }
 const valueAt = (g: Geo, u: number) => CV.parameterised(g)!.at(u)
+// ── B-splines: OCCT's answers (the sketch kernel, sketchkernel.ts) while an operation runs ──────────────────────
+/** The kernel of the operation running (trim, split, fillet), for the B-spline steps; without one a B-spline is refused. */
+let kernel: Kernel | null = null
+function withOpKernel<T>(k: Kernel | undefined, f: () => T): T {
+  const prev = kernel
+  kernel = k ?? null
+  try { return f() } finally { kernel = prev }
+}
+function needKernel(what: string): Kernel {
+  if (!kernel) throw new Error(`${what} a B-spline needs the sketch kernel`)
+  return kernel
+}
+const plainGeo = (g: Geo): Geo => {
+  const { construction: _c, start_point: _s, end_point: _e, ...rest } = g as Geo & { construction?: boolean; start_point?: XY; end_point?: XY }
+  void _c; void _s; void _e
+  return rest as Geo
+}
+/** GeomCurve::closestParameter: OCCT's for a B-spline (GeomAPI_ProjectPointOnCurve), the port's for the others. */
+function closestParam(g: Geo, p: XY): number {
+  if (g.type === 'BSplineCurve') return needKernel('Cutting')({ op: 'closest', geo: plainGeo(g), p }).u!
+  return CV.closestParameter(g, p)!
+}
 /** ElCLib::AdjustPeriodic with Geom_TrimmedCurve::SetTrim's precision: a periodic trim in [0, 2π). */
 function setTrimPeriodic(u1: number, u2: number): [number, number] {
   const preci = Math.min(Math.abs(u2 - u1) / 2, CONFUSION * 0.01)
@@ -78,6 +101,11 @@ function createArc(g: Geo, u1: number, u2: number): Geo {
       const { start_point: _s, end_point: _e, ...rest } = g
       void _s; void _e
       return { ...rest, start_angle: Math.min(u1, u2), end_angle: Math.max(u1, u2) } as Geo
+    }
+    case 'BSplineCurve': {
+      // GeomBSplineCurve::createArc: a copy, Trim(first, last) (GeomConvert::SplitBSplineCurve)
+      const t = needKernel('Cutting')({ op: 'trim', geo: plainGeo(g), u: u1, v: u2 }).geo!
+      return { ...t, ...c } as Geo
     }
     default: throw new Error(`${g.type} cannot be cut here yet`)
   }
@@ -186,6 +214,14 @@ function intersectNumeric(a: Curve, b: Curve): XY[] {
 export function seekTrimPoints(d: Doc, geoId: number, point: XY, includeSketchAxes = false): { ids: [number, number]; points: [XY, XY] } | null {
   const g = d.geometry[geoId]
   if (!g) return null
+  if (kernel && d.geometry.some((x) => x.type === 'BSplineCurve')) {
+    // Part2DObject::seekTrimPoints with OCCT's intersector and projector, when a B-spline is among the curves
+    const r = kernel({ op: 'seek', geometry: d.geometry.map(plainGeo), id: geoId, p: point, axes: includeSketchAxes }).seek as { ids: [number, number]; points: [XY, XY] } | null
+    if (!r) return null
+    const n = d.geometry.length
+    const idOf = (i: number) => (i < 0 ? GEO_UNDEF : includeSketchAxes && i === n ? H_AXIS : includeSketchAxes && i === n + 1 ? V_AXIS : i)
+    return { ids: [idOf(r.ids[0]), idOf(r.ids[1])], points: r.points }
+  }
   const primary = curveOf(g)
   if (!primary) return null
   // GeomAPI::To2d of a trimmed curve is not periodic (FreeCAD's answers say so): only full circles, ellipses and
@@ -368,7 +404,7 @@ function newConstraintAtTrimCut(d: Doc, cutting: number, cutGeo: number, cutPos:
 }
 /** findPieceContainingPoint. */
 function pieceContaining(d: Doc, geo: Geo, p: XY, newGeos: Geo[]): number | null {
-  let u = CV.closestParameter(geo, p)!
+  let u = closestParam(geo, p)
   for (let i = 0; i < newGeos.length; i++) {
     const [f, l] = range(newGeos[i])
     if (f - u > PAPPROXIMATION && isClosedCurve(geo)) u += range(geo)[1] - range(geo)[0]
@@ -419,7 +455,7 @@ function deriveConstraintsForPieces(d: Doc, oldId: number, newIds: number[], new
       if (conId === GEO_UNDEF) return false
       const cp = getPoint(d.geometry, conId, conPos)
       if (!cp) return false
-      let u = CV.closestParameter(geo, cp)!
+      let u = closestParam(geo, cp)
       for (let i = 0; i < newIds.length; i++) {
         const [f, l] = range(newGeos[i])
         if (f - u > PAPPROXIMATION && isClosedCurve(geo)) u += range(geo)[1] - range(geo)[0]
@@ -441,17 +477,19 @@ function deriveConstraintsForPieces(d: Doc, oldId: number, newIds: number[], new
   return true
 }
 /** SketchObject::trim(GeoId, point, includeSketchAxes): true when done. */
-export function trim(d: Doc, geoId: number, point: XY, includeSketchAxes = false): boolean {
+export function trim(d: Doc, geoId: number, point: XY, includeSketchAxes = false, k?: Kernel): boolean {
+  return withOpKernel(k, () => trimIt(d, geoId, point, includeSketchAxes))
+}
+function trimIt(d: Doc, geoId: number, point: XY, includeSketchAxes: boolean): boolean {
   const geo = d.geometry[geoId]
   if (!geo || geo.type === 'Point' || d.constraints.some((c) => c.type === 'InternalAlignment' && c.first === geoId)) return false
-  if (geo.type === 'BSplineCurve') throw new Error('Trimming a B-spline is not in this workbench yet')
   const construction = !!geo.construction, closed = isClosedCurve(geo)
   const seek = seekTrimPoints(d, geoId, point, includeSketchAxes)
   if (!seek) { delGeometry(d, geoId, true); return true }
   const cutting: [number, number] = [...seek.ids], cuts = seek.points
   // getParamLimitsOfNewGeosForTrim
   const [first, last] = range(geo)
-  const c0 = CV.closestParameter(geo, cuts[0])!, c1 = CV.closestParameter(geo, cuts[1])!
+  const c0 = closestParam(geo, cuts[0]), c1 = closestParam(geo, cuts[1])
   if (!closed && Math.abs(first - c0) < PAPPROXIMATION) cutting[0] = GEO_UNDEF
   if (!closed && Math.abs(last - c1) < PAPPROXIMATION) cutting[1] = GEO_UNDEF
   const undefs = cutting.filter((g) => g === GEO_UNDEF).length
@@ -523,12 +561,14 @@ export function trim(d: Doc, geoId: number, point: XY, includeSketchAxes = false
 function withoutConstruction(g: Geo): Geo { const { construction: _c, ...rest } = g as Geo & { construction?: boolean }; void _c; return rest as Geo }
 
 // ── split (SketchObject::split) ──────────────────────────────────────────────────────────────────────────────────
-export function split(d: Doc, geoId: number, point: XY): boolean {
+export function split(d: Doc, geoId: number, point: XY, k?: Kernel): boolean {
+  return withOpKernel(k ?? kernel ?? undefined, () => splitIt(d, geoId, point))
+}
+function splitIt(d: Doc, geoId: number, point: XY): boolean {
   const geo = d.geometry[geoId]
   if (!geo || geo.type === 'Point') return false
-  if (geo.type === 'BSplineCurve') throw new Error('Splitting a B-spline is not in this workbench yet')
   const closed = isClosedCurve(geo)
-  const u = CV.closestParameter(geo, point)!
+  const u = closestParam(geo, point)
   const [first, last] = range(geo)
   const params: [number, number][] = closed ? [[u, u + last - first]] : [[first, u], [u, last]]
   const newIds = params.length === 1 ? [geoId] : [geoId, d.geometry.length]
@@ -544,7 +584,7 @@ export function split(d: Doc, geoId: number, point: XY): boolean {
   let joint: Constraint | null = null
   if (!closed && newIds.length > 1) { joint = constraint('Coincident', newIds[0], END, newIds[newIds.length - 1], START); newCons.push(joint) }
   if (hasMid(geo) && newIds.length > 1) newCons.push(constraint('Coincident', newIds[0], MID, newIds[newIds.length - 1], MID))
-  else if (joint && geo.type === 'LineSegment') joint.type = 'Tangent'
+  else if (joint && (geo.type === 'LineSegment' || geo.type === 'BSplineCurve')) joint.type = 'Tangent'
   if (hasMid(geo)) transferConstraints(d, geoId, MID, newIds[0], MID)
   delConstraints(d, oldIds)
   d.geometry = [...d.geometry]
@@ -654,32 +694,49 @@ export function cornerFilletRadius(d: Doc, g: number, pos: PointPos): number {
   return Math.min(len(d1), len(d2)) * 0.2 * Math.sin(angle / 2)
 }
 /** SketchObject::fillet(GeoId, PosId, radius, trim, createCorner, chamfer): at a corner of two lines. */
-export function filletAtPoint(d: Doc, g: number, pos: PointPos, radius: number, trimIt: boolean, createCorner: boolean, chamfer: boolean, move: Mover): boolean {
+export function filletAtPoint(d: Doc, g: number, pos: PointPos, radius: number, trimIt: boolean, createCorner: boolean, chamfer: boolean, move: Mover, k?: Kernel): boolean {
   const list = chooseFilletEdges(d, directlyCoincident(d, g, pos))
   if (list.length !== 2 || list[0][0] < 0 || list[1][0] < 0) return false
   const a = d.geometry[list[0][0]], b = d.geometry[list[1][0]]
   if (a.type !== 'LineSegment' || b.type !== 'LineSegment') return false
   const m1 = mul(add(a.start, a.end), 0.5), m2 = mul(add(b.start, b.end), 0.5)
-  return fillet(d, list[0][0], list[1][0], m1, m2, radius, trimIt, createCorner, chamfer, move)
+  return fillet(d, list[0][0], list[1][0], m1, m2, radius, trimIt, createCorner, chamfer, move, k)
 }
-/** SketchObject::fillet(GeoId1, GeoId2, refPnt1, refPnt2, radius, trim, createCorner, chamfer), for two lines. */
-export function fillet(d: Doc, geoId1: number, geoId2: number, ref1: XY, ref2: XY, radius: number, trimIt: boolean, createCorner: boolean, chamfer: boolean, move: Mover): boolean {
-  if (!d.geometry[geoId1] || !d.geometry[geoId2]) return false
-  // two geometries can only get filleted if they have a coincident point
-  if (!d.constraints.some((c) => c.type === 'Coincident' && involvesGeoId(c, geoId1) && involvesGeoId(c, geoId2))) return false
-  const l1 = d.geometry[geoId1], l2 = d.geometry[geoId2]
-  if (l1.type !== 'LineSegment' || l2.type !== 'LineSegment') throw new Error('A fillet between curves other than two lines is not in this workbench yet')
+type FilletArc = { arc: Extract<Geo, { type: 'ArcOfCircle' }>; pos1: PointPos; pos2: PointPos; reverse: boolean }
+/** createFilletGeometry for two lines. */
+function lineFillet(l1: Line, l2: Line, ref1: XY, ref2: XY, radius: number): FilletArc | null {
   const center = filletCenter(l1, l2, radius, ref1, ref2)
-  if (!center) return false
+  if (!center) return null
   const arc = lineFilletArc(l1, l2, center, radius)
-  if (!arc) return false
+  if (!arc) return null
   const corner = segIntersection(l1, l2)!
   const p1a = valueAt(arc, arc.start_angle)
   const dir1 = sub(l1.end, l1.start), dir2 = sub(l2.end, l2.start)
   const dist1 = projectToLine(sub(p1a, corner), dir1), dist2 = projectToLine(sub(p1a, corner), dir2)
   const pos1: PointPos = dot(sub(center, corner), dir1) > 0 ? START : END
   const pos2: PointPos = dot(sub(center, corner), dir2) > 0 ? START : END
-  const reverse = len(dist1) < len(dist2)
+  return { arc, pos1, pos2, reverse: len(dist1) < len(dist2) }
+}
+/** SketchObject::fillet(GeoId1, GeoId2, refPnt1, refPnt2, radius, trim, createCorner, chamfer): two lines here, two
+ *  other bounded curves through the kernel (createFilletGeometry's offset curves, OCCT's extrema). */
+export function fillet(d: Doc, geoId1: number, geoId2: number, ref1: XY, ref2: XY, radius: number, trimIt: boolean, createCorner: boolean, chamfer: boolean, move: Mover, k?: Kernel): boolean {
+  return withOpKernel(k, () => filletIt(d, geoId1, geoId2, ref1, ref2, radius, trimIt, createCorner, chamfer, move))
+}
+const BOUNDED = ['LineSegment', 'ArcOfCircle', 'ArcOfEllipse', 'ArcOfHyperbola', 'ArcOfParabola', 'BSplineCurve']
+function filletIt(d: Doc, geoId1: number, geoId2: number, ref1: XY, ref2: XY, radius: number, trimIt: boolean, createCorner: boolean, chamfer: boolean, move: Mover): boolean {
+  if (!d.geometry[geoId1] || !d.geometry[geoId2]) return false
+  // two geometries can only get filleted if they have a coincident point
+  if (!d.constraints.some((c) => c.type === 'Coincident' && involvesGeoId(c, geoId1) && involvesGeoId(c, geoId2))) return false
+  const l1 = d.geometry[geoId1], l2 = d.geometry[geoId2]
+  let made: FilletArc | null
+  if (l1.type === 'LineSegment' && l2.type === 'LineSegment') made = lineFillet(l1, l2, ref1, ref2, radius)
+  else if (BOUNDED.includes(l1.type) && BOUNDED.includes(l2.type)) {
+    const r = needKernel('A fillet between curves other than two lines')({ op: 'fillet', geo1: plainGeo(l1), geo2: plainGeo(l2), ref1, ref2, radius }).fillet as
+      { arc: FilletArc['arc']; pos1: number; pos2: number; reverse: boolean } | null
+    made = r && { arc: r.arc, pos1: r.pos1 as PointPos, pos2: r.pos2 as PointPos, reverse: r.reverse }
+  } else made = null
+  if (!made) return false
+  const { arc, pos1, pos2, reverse } = made
   const filletId = d.geometry.length
   d.geometry = [...d.geometry, arc]
   let p1 = valueAt(arc, arc.start_angle), p2 = valueAt(arc, arc.end_angle)

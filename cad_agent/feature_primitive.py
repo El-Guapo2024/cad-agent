@@ -154,7 +154,7 @@ class Primitive(KwFeature):
             raise F.FeatureError("Cannot subtract primitive feature without base feature")
         maker = "fuse" if self.ADDITIVE else "cut" if self.operation == "Subtraction" else "common"
         try:
-            result = element_boolean(maker, [solid, prim])
+            result = element_boolean(maker, [solid, prim], 0.0)          # FuzzyTolerance
         except F.FeatureError:
             raise F.FeatureError("Failed to perform boolean operation") from None
         if result is None or result.IsNull():

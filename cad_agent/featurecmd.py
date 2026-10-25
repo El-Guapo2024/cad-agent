@@ -7,6 +7,7 @@ reach only through `serve.feature_layer()`, the one seam the tests replace with 
 
     cad feature list   SLUG [PART]                     the Body's tree: Origin, BaseFeature, features, Tip
     cad feature new    SLUG PART                       a new part module with an empty Body (PartDesign_Body)
+    cad feature new    SLUG PART --document            a new part module of Part workbench objects, OBJECTS
     cad feature add    SLUG PART TYPE NAME [k=v ...] [--after NAME]
     cad feature set    SLUG PART NAME k=v ...          FreeCAD's property names in snake_case (length=8)
     cad feature delete SLUG PART NAME ...
@@ -54,6 +55,7 @@ TYPES.update(DATUMS)
 def _kw_types() -> dict:
     """The features feature_kw.py declares (Mirrored, LinearPattern, ..., AdditiveBox, ...): {short name: TypeId} and
     {TypeId: FreeCAD's transaction}. Looked up when a command needs them, so `cad` starts without the kernel."""
+    from . import feature_part  # noqa: F401  the Part workbench's objects (Part.Box, ...) register themselves
     from .feature_kw import classes
     cs = classes().values()
     return {c.kind: c.TYPE_ID for c in cs}, {c.TYPE_ID: c.TRANSACTION for c in cs}
@@ -115,12 +117,51 @@ def _read(path: Path) -> dict:
 
 
 def _builds_anything(doc: dict) -> bool:
-    """Whether the Body has a solid to build: a BaseFeature, or a feature that is not a sketch."""
+    """Whether the Body has a solid to build: a BaseFeature, or a feature that is not a sketch; or the document a
+    Part object (feature_part.py)."""
     return bool(doc.get("base")) or any(f.get("type") not in (SKETCH, *DATUMS.values())
-                                         for f in doc.get("features", []))
+                                         for f in doc.get("features", [])) or \
+        any(f.get("type") != SKETCH for f in doc.get("objects") or [])
+
+
+def _objects_text(part_name: str, doc: dict) -> list[str]:
+    """A document's Part objects as FreeCAD's tree has them: the ones nothing uses at the top, each object's inputs
+    (claimChildren, feature_part.PartObject.INPUTS) under it."""
+    from .feature_kw import kw_class
+    objs = {o["name"]: o for o in doc.get("objects") or []}
+    kids = {}
+    for o in objs.values():
+        cls = kw_class(o["type"].replace("::", ".")) if o["type"] != SKETCH else None
+        if cls is not None:
+            kids[o["name"]] = cls.from_dict(o).inputs()
+    used = {k for ks in kids.values() for k in ks}
+    lines = [f"{part_name}  (document{', Body' if doc.get('body') else ''})"]
+
+    def row(name, depth):
+        o = objs.get(name)
+        what = o["type"] if o else "PartDesign::Body" if name == "Body" else "feature of Body"
+        label = f" \"{o['label']}\"" if o and o.get("label") else ""
+        lines.append(f"{'  ' * depth}{name}{label}  {what}")
+        for k in kids.get(name, []):
+            row(k, depth + 1)
+    if doc.get("body") and "Body" not in used:
+        lines.append("  Body  PartDesign::Body")
+    for n in objs:
+        if n not in used:
+            row(n, 1)
+    if not objs:
+        lines.append("  (no objects)")
+    return lines
 
 
 def _tree_text(part_name: str, doc: dict) -> list[str]:
+    if "objects" in doc:
+        return _objects_text(part_name, doc) + (["  Body:"] + ["  " + x for x in _body_text(part_name, doc)[1:]]
+                                                if doc.get("body") else [])
+    return _body_text(part_name, doc)
+
+
+def _body_text(part_name: str, doc: dict) -> list[str]:
     tip = doc.get("tip")
     lines = [f"{part_name}  (Body{', BaseFeature' if doc.get('base') else ''})"]
     after_tip = False
@@ -195,7 +236,8 @@ def apply_ops(a, ops: list, cmd: str, step: str | None = None) -> Result:
         code = verdict(x["state"] for x in rows)
     lines = [f"{a.slug}/{a.part}: {name}"] + _tree_text(a.part, doc)[1:]
     if not built:
-        lines.append("  nothing to build yet: the Body has no Pad and no BaseFeature")
+        lines.append("  nothing to build yet: " + ("the document has no object" if "objects" in doc else
+                                                  "the Body has no Pad and no BaseFeature"))
     lines += rows_text(rows, False)
     _attached(a.slug, a.part, doc)
     data = {"project": a.slug, "part": a.part, "step": name, "doc": doc, "built": built,
@@ -224,7 +266,8 @@ def cmd_feature_list(a) -> Result:
             errors[n] = str(e)
     lines = []
     for n, doc in docs.items():
-        lines += _tree_text(n, doc) if (doc.get("features") or not doc.get("base")) else [f"{n}  (hand-written)"]
+        lines += _tree_text(n, doc) if (doc.get("features") or not doc.get("base") or "objects" in doc) \
+            else [f"{n}  (hand-written)"]
         _attached(a.slug, n, doc)
     lines += [f"{n}  (does not parse: {e})" for n, e in errors.items()]
     data = {"project": a.slug, "parts": docs, "errors": errors}
@@ -249,9 +292,15 @@ def cmd_feature_new(a) -> Result:
     if path.exists():
         raise UsageError(f"{a.slug} already has a part {a.part!r} ({path})")
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(TEMPLATE.format(part=a.part, material=a.material, process=a.process))
+    if getattr(a, "document", False):            # a part of Part workbench objects (feature_edit_part.py)
+        from .feature_edit_part import new_document
+        path.write_text(new_document(a.part, a.material, a.process))
+    else:
+        path.write_text(TEMPLATE.format(part=a.part, material=a.material, process=a.process))
     from . import undo as un
-    un.record(pdir, "Add a Body", shlex.join(["cad", "feature", "new", a.slug, a.part]),
+    un.record(pdir, "New document" if getattr(a, "document", False) else "Add a Body",
+              shlex.join(["cad", "feature", "new", a.slug, a.part] + (["--document"] if getattr(a, "document", False)
+                                                                     else [])),
               [{"path": path.relative_to(pdir).as_posix(), "before": None, "after": path.read_text()}],
               by=actor(a))
     try:
@@ -387,6 +436,12 @@ def cmd_feature_resolve(a) -> Result:
                   f"{a.part}: {out.get('name')} resolved")
 
 
+def cmd_sketchkernel(a) -> Result:
+    # sketch_kernel imports OCP at its top, so it is loaded when the command runs, not when the parser is built
+    from .sketch_kernel import cmd_sketchkernel as run
+    return run(a)
+
+
 def add_parsers(add, sub) -> None:
     """cli.py's build_parser hands its `add` and the subparsers here, so the arguments live with the commands."""
     fp = add("feature", None, "a part's PartDesign feature list (Body, Sketch, Pad, Pocket, Fillet, Chamfer, Draft, Thickness): list, new, add, "
@@ -405,6 +460,8 @@ def add_parsers(add, sub) -> None:
     sp = one("new", cmd_feature_new, "a new part module with an empty Body (FreeCAD's Create body)")
     sp.add_argument("--material", default="petg", help="MATERIAL of the new part (default petg)")
     sp.add_argument("--process", default="fdm", help="PROCESS of the new part (default fdm)")
+    sp.add_argument("--document", action="store_true", help="a part of Part workbench objects (OBJECTS: Part.Box, "
+                    "Part.Cut, ...) instead of a Body")
     sp = one("add", cmd_feature_add, "add a Sketch, Pad, Pocket, Mirrored, LinearPattern, PolarPattern, "
              "MultiTransform, an Additive/Subtractive primitive, Fillet, Chamfer, Draft or Thickness (FreeCAD's "
              "property names in snake_case; a dress-up's base=Pad:Edge1,Face6)")
@@ -452,6 +509,12 @@ def add_parsers(add, sub) -> None:
     sp.add_argument("--ops", required=True, metavar="JSON")
     from .feature_shape import add_parser as shape_parser
     shape_parser(add, fsub)
+    sp = add("sketchkernel", cmd_sketchkernel, "OCCT's answers for the Sketcher's curve tools (B-spline degree, knots, "
+             "conversion, trim of a B-spline, fillet between curves, offset): --req JSON, a list of requests",
+             parent=fsub)
+    sp.set_defaults(cmd_name="feature sketchkernel", feature_cmd="sketchkernel")
+    sp.add_argument("slug", nargs="?")
+    sp.add_argument("--req", required=True, metavar="JSON", help="the requests (or @file.json)")
     sp = fsub.choices["apply"]
     sp.add_argument("--name", help="the undo step's name (default: FreeCAD's for the ops, as \"Make Pad\"); a task panel "
                     "that edits a feature says \"Edit Pad\", as FreeCAD's double-click does")

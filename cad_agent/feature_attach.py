@@ -40,7 +40,7 @@ try:                                    # the kernel; FreeCAD's Python reads the
     from OCP.BRepAdaptor import BRepAdaptor_Curve, BRepAdaptor_Surface
     from OCP.BRepBuilderAPI import BRepBuilderAPI_MakeEdge, BRepBuilderAPI_MakeFace, BRepBuilderAPI_MakeVertex
     from OCP.Geom import Geom_Line, Geom_Plane
-    from OCP.GeomAbs import GeomAbs_Circle, GeomAbs_Line, GeomAbs_Plane
+    from OCP.GeomAbs import GeomAbs_Circle, GeomAbs_Ellipse, GeomAbs_Line, GeomAbs_Plane
     from OCP.GeomAPI import GeomAPI_ProjectPointOnSurf
     from OCP.TopAbs import TopAbs_EDGE, TopAbs_FACE, TopAbs_VERTEX
     from OCP.TopExp import TopExp_Explorer
@@ -592,13 +592,15 @@ def _project_line(curve, pr: _Proj):
 def _process_edge(edge, pr: _Proj, where):
     """processEdge, for the curves the sketch has (lines and circles); an ellipse, a B-spline and the other
     curves FreeCAD projects are not sketch geometry here yet."""
+    from . import feature_attach_curves as FAC         # the other curves' branches of processEdge
     curve = BRepAdaptor_Curve(edge)
     t = curve.GetType()
     if t == GeomAbs_Line:
         return [_project_line(curve, pr)]
+    if t == GeomAbs_Ellipse:
+        return FAC.ellipse(edge, pr)
     if t != GeomAbs_Circle:
-        raise FeatureError(f"{where}: external geometry of this kind of edge (not a line or a circle) is not "
-                           "supported yet")
+        return FAC.other(edge, pr)
     vec1 = pr.plane.Axis().Direction()
     circ = curve.Circle()
     vec2 = circ.Axis().Direction()
@@ -662,8 +664,7 @@ def _process_edge(edge, pr: _Proj, where):
                 elif endA < 3 * pi:
                     P2 = X(end)
         return [_segment(pr.local(P1), pr.local(P2))]
-    raise FeatureError(f"{where}: a circle at an angle to the sketch projects to an ellipse, which the sketch "
-                       "cannot hold yet")
+    return FAC.oblique_circle(edge, pr)                  # the general case: an ellipse
 
 
 def project(pl: A.Placement, shape, where: str = "external geometry") -> list[dict]:
