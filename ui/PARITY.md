@@ -737,7 +737,7 @@ What every PartDesign feature shares, ported from FreeCAD at 3160daf1e2b6 and he
 `tests/golden/pdkernel` holds 56 bodies freecadcmd built from the same lines (50 built, 6 refused with FreeCAD's message); all give
 FreeCAD's solid and faces in FreeCAD's order (tests/test_feature_pdkernel.py), and the part file reads and writes them without loss
 (tests/test_feature_pdkernel_edit.py, test_featurecmd_pdkernel.py). `scripts/kernelcheck.mjs` holds the page to the real FreeCAD's GUI
-(`scripts/fckernel.py` writes `scripts/fckernel.json`): 37 checks pass, 1 known (2026-10-25): the Pocket panel's Start list, the
+(`scripts/fckernel.py` writes `scripts/fckernel.json`): 38 checks pass, 1 known (2026-10-25, after pd-pick: the face is a real click on the base the picker shows): the Pocket panel's Start list, the
 Reference row ("Cancel" / "Select face, plane..." as it opens, "Pad:Face6" and "Pick Reference" after a click on a face), the Taper
 angle boxes as the type and sides change, Operation Common, the feature written as FreeCAD's after OK, the property view's Taper Angle,
 Taper Angle2 (read-only), Operation and Start Reference ("Pad [Face6]"); Multi-Transform's context menu and Add Scale Transformation

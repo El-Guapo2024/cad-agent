@@ -583,7 +583,10 @@ export class CadView {
         const idx = g!.index
         for (let t = 0; t + 2 < idx.count; t += 3) {
           v.fromBufferAttribute(pos, idx.getX(t)).add(w.fromBufferAttribute(pos, idx.getX(t + 1))).add(u.fromBufferAttribute(pos, idx.getX(t + 2))).multiplyScalar(1 / 3)
+          const c0 = v.clone()
           cands.push(toScreen(v.applyMatrix4(o.matrixWorld)))
+          // and toward each corner (a large face meshed as a couple of triangles may have its centres covered)
+          for (let k = 0; k < 3; k++) cands.push(toScreen(new THREE.Vector3().fromBufferAttribute(pos, idx.getX(t + k)).lerp(c0, 0.4).applyMatrix4(o.matrixWorld)))
         }
       } else for (let i = 0; i + 1 < pos.count; i++) {
         // points along the segment (a datum line is one long segment, partly in front of the model)

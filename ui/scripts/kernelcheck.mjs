@@ -137,10 +137,19 @@ try {
     same(btn?.text, fc.buttonStartReference.text, `Pocket, ${step}: the button says "${fc.buttonStartReference.text}"`)
     check(!!(await qf('startOffset')) || (await st('[...document.querySelectorAll(".taskview .tfield > span")].some((e) => e.textContent === "Offset")')), `Pocket, ${step}: Offset shows too, as FreeCAD`)
   }
-  // a click on the plate's top face in the 3D view (the Tip is the Pad)
-  const bodyName = await st('cadui.getState().scene.bodies.find((b) => b.part === "Plate").name')
-  await st(`cadui.setState({ subSel: ["${bodyName}.Face6"], selected: [] })`)
-  await sleep(500)
+  // a click on the plate's top face in the 3D view: while Pick Reference is down the Pocket's base (the Pad) is shown in the
+  // Body's place to pick from (pd_pick.tsx, TaskSketchBasedParameters::startReferenceSelection)
+  await page.click(".dv-tab:has-text(\"kern\")").catch(() => {})
+  await until('!!cadui.getView().helpers?.get?.("pd-pick")', 'the base shown to pick from')
+  let at = null
+  for (const v of [null, 'Std_ViewIsometric', 'Std_ViewTop']) {
+    if (v) { await st(`cadui.getCommand(${JSON.stringify(v)})?.run([])`); await sleep(400); await st('cadui.getCommand("Std_ViewFitAll")?.run([])'); await sleep(600) }
+    at = await st('cadui.getView().helperPoint("pd-pick", "@Pad.Face6")')
+    if (at) break
+  }
+  check(!!at, 'Pocket: the Pad\'s Face6 is shown to click', await st('(() => { const v = cadui.getView(), h = v.helpers.get("pd-pick"), n = []; h?.traverse((o) => { if (o.userData.pickName) n.push(o.userData.pickName) }); return n.slice(0, 8).join(" ") + " canvas " + JSON.stringify(v.viewer.renderer.domElement.getBoundingClientRect()) })()'))
+  if (at) { await page.mouse.move(at.x, at.y); await sleep(300); await page.mouse.click(at.x, at.y) }
+  await sleep(800)
   {
     const line = await qf('lineStartReference'), btn = await qf('buttonStartReference')
     same([line?.text, line?.placeholder], [P.task_pick.lineStartReference.text, P.task_pick.lineStartReference.placeholder], 'Pocket: the picked face is "Pad:Face6"')
