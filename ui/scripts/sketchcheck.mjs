@@ -227,13 +227,21 @@ for (const [k, c] of CASES.cases.entries()) {
     await p.dblclick(`.trow[data-ref="${part}/S"] .tname`)
     await p.evaluate(() => window.cadui.showPanel('view3d'))
   } else {
+    // the last case's sketch is closed first (a CancelSketch the page has not taken yet)
+    for (let t = 0; t < 20 && (await p.locator('.sketch-task').count()); t++) { if (t % 5 === 0) await gui('run', ['Sketcher_CancelSketch']); await p.waitForTimeout(300) }
     await gui('run', ['Sketcher_EditSketch', name, JSON.stringify(c.setup ?? {})])
-    // on a loaded machine the command can come while the last case is still leaving: once more
-    if (!(await p.locator('.sketch-task').count())) {
-      await p.waitForSelector('.sketch-task', { timeout: 5000 }).catch(() => gui('run', ['Sketcher_EditSketch', name, JSON.stringify(c.setup ?? {})]))
-    }
   }
-  try { await p.waitForSelector('.sketch-task', { timeout: 30000 }) } catch (e) { if (await p.evaluate(() => window.cadui.sketcher.isEditing())) { notes.push(`${c.name}: the task panel was not in front (shown again)`); console.log('panel not in front; messages:', JSON.stringify(await p.evaluate(() => (window.cadui.getState().messages ?? []).slice(-4)))); await p.evaluate(() => window.cadui.showPanel('tasks')); await p.waitForSelector('.sketch-task', { timeout: 15000 }) } else { console.log('page errors:', errs.join(' / '), 'editing:', await p.evaluate(async () => { const S = window.cadui.sketcher, s = S.getSession(); const info = { mode: s?.mode, tool: s?.handler?.toolName, state: s?.handler?.state, msgs: (window.cadui.getState().messages ?? []).slice(-4) }; try { await S.closeEdit(false); info.closed = !S.isEditing() } catch (e) { info.error = String(e) + ' ' + e.stack } return JSON.stringify(info) })); throw e } }
+  try { await p.waitForSelector('.sketch-task', { timeout: 10000 }) } catch {
+    // once more (a command the page had not taken yet), then the case is a difference rather than the end of the run
+    if (process.env.SKETCHCHECK_TRACE) console.log('  retry', JSON.stringify((await api(`/api/gui?slug=${PROJECT}`)).sketch?.name), await p.evaluate(() => [...document.querySelectorAll('.ctx, .mb-content, .msgbox-back')].map((e) => e.className).join()))
+    let open = c.plate ? await p.waitForSelector('.sketch-task', { timeout: 20000 }).then(() => true, () => false) : false
+    for (let t = 0; t < 3 && !open && !c.plate; t++) {
+      await gui('run', ['Sketcher_CancelSketch']); await p.waitForTimeout(1000)
+      await gui('run', ['Sketcher_EditSketch', name, JSON.stringify(c.setup ?? {})])
+      open = await p.waitForSelector('.sketch-task', { timeout: 20000 }).then(() => true, () => false)
+    }
+    if (!open) { bad(`${c.name}: the sketch did not open`); continue }
+  }
   await p.waitForTimeout(800) // the view turning to the sketch (an animation, then the fit)
   // the camera FreeCAD's had, set again until it stays (the turn's animation may still be running)
   for (let i = 0; i < 20; i++) {
@@ -249,6 +257,76 @@ for (const [k, c] of CASES.cases.entries()) {
   const dialog = async () => {
     const d = p.locator('.datum-dlg')
     if (await d.count()) { dialogs.push({ case: c.name, title: await d.locator('.msgbox-title').innerText() }); await d.locator('.qbtn.default').click(); await p.waitForTimeout(120) }
+    // a case's "msgbox": the question's button of that text (fcsketch_dump.py presses FreeCAD's)
+    const q = p.locator('.msgbox[role="alertdialog"]')
+    if (c.msgbox && await q.count()) {
+      dialogs.push({ case: c.name, title: await q.locator('.msgbox-title').innerText() })
+      await q.locator('.msgbox-buttons button', { hasText: new RegExp(`^${c.msgbox}$`) }).click(); await p.waitForTimeout(150)
+    }
+  }
+  // ── the task panel's lists ("panel" steps: sketchcases-panels.json says what each does) ──
+  const panelRecord = {}, stepErrors = []
+  const ctxEntries = () => p.evaluate(() => [...document.querySelectorAll('.ctx > *')].map((e) => e.classList.contains('mb-sep') ? 'sep'
+    : { text: [...e.childNodes].filter((n) => n.nodeType === 3).map((n) => n.textContent).join('').trim(), enabled: !e.hasAttribute('data-disabled'),
+      bold: e.classList.contains('bold'), checked: !!e.querySelector('.mb-check') }))
+  const pickCtx = async (label) => {
+    const i = (await ctxEntries()).findIndex((e) => e !== 'sep' && e.text === label)
+    if (i < 0) throw new Error(`no menu entry ${label}`)
+    await clickAt(p.locator('.ctx > *').nth(i))
+  }
+  // a pointer click at the element's middle, with modifier keys held (Playwright's own click waits for the layout to
+  // stand still, which the docked panels' relayouts may not give it)
+  const clickAt = async (loc, { button = 'left', modifiers = [], count = 1 } = {}) => {
+    const b = await loc.boundingBox()
+    if (!b) throw new Error('not visible')
+    for (const m of modifiers) await p.keyboard.down(m)
+    await p.mouse.move(b.x + b.width / 2, b.y + b.height / 2); await p.waitForTimeout(30)
+    if (count === 2) await p.mouse.dblclick(b.x + b.width / 2, b.y + b.height / 2, { button })
+    else await p.mouse.click(b.x + b.width / 2, b.y + b.height / 2, { button })
+    for (const m of modifiers) await p.keyboard.up(m)
+  }
+  const panelStep = async (st) => {
+    const box = p.locator(`.sketch-task [data-box="${st.panel}"]`), list = box.locator('[data-list]')
+    const modifiers = st.mod === 'ctrl' ? ['Control'] : st.mod === 'shift' ? ['Shift'] : []
+    if ('row' in st) {
+      const row = list.locator(`li[data-row="${st.row}"]`)
+      await row.evaluate((e) => e.scrollIntoView({ block: 'nearest' }))
+      const target = st.panel === 'elements' && st.sub && st.sub !== 'label' ? row.locator(`[data-sub="${st.sub}"]`) : row.locator('.skp-text')
+      const editing = async () => (await row.locator('[data-rename]').count()) > 0
+      if ('check' in st) { const cb = row.locator('input[data-check]'); if ((await cb.isChecked()) !== st.check) await clickAt(cb) }
+      else if ('menu' in st) {
+        await clickAt(target, { button: 'right', modifiers }); await p.waitForTimeout(120)
+        if (st.record) (panelRecord.menus ??= []).push(await ctxEntries())
+        if (st.menu) await pickCtx(st.menu)
+        else await p.keyboard.press('Escape')
+        await p.waitForTimeout(150)
+      } else if (st.dblclick) { await clickAt(target, { modifiers, count: 2 }); await p.waitForTimeout(150) }
+      else if (!(await editing())) { await clickAt(target, { modifiers }); await p.waitForTimeout(100) }
+      if ('rename' in st) {
+        if (!(await editing())) { await list.press('F2'); await p.waitForTimeout(100) }
+        const ed = row.locator('[data-rename]')
+        await ed.fill(st.rename); await ed.press('Enter'); await p.waitForTimeout(120)
+      }
+    } else if (st.empty) {
+      const b = await list.boundingBox()
+      await p.mouse.click(b.x + b.width / 2, b.y + b.height - 3); await p.waitForTimeout(100)
+    } else if ('filter' in st) {
+      await clickAt(box.locator('[data-panel-filter]')); await p.waitForTimeout(100)
+      const cb = p.locator(`[data-filter-popup="${st.panel}"] [data-filter-item="${st.filter}"] input`)
+      const want = st.checked ?? !(await cb.isChecked())
+      if ((await cb.isChecked()) !== want) await clickAt(cb)
+      await p.keyboard.press('Escape'); await p.waitForTimeout(100)
+    } else if ('filterBox' in st) {
+      const cb = box.locator('[data-panel-filterbox]')
+      if ((await cb.isChecked()) !== !!st.filterBox) await clickAt(cb)
+      await p.waitForTimeout(100)
+    } else if ('setting' in st) {
+      await clickAt(box.locator('[data-panel-settings]')); await p.waitForTimeout(100)
+      const e = (await ctxEntries()).find((x) => x !== 'sep' && x.text === st.setting)
+      if (e && (st.checked === undefined || e.checked !== !!st.checked)) await pickCtx(st.setting)
+      else await p.keyboard.press('Escape')
+      await p.waitForTimeout(100)
+    } else if (st.button) { await clickAt(box.locator({ showHideButton: '[data-panel-showhide]' }[st.button])); await p.waitForTimeout(120) }
   }
   for (const st of c.steps) {
     if (st.cmd) {
@@ -284,6 +362,7 @@ for (const [k, c] of CASES.cases.entries()) {
     else if (st.select) { await gui('select', st.select); await p.waitForTimeout(80) }
     else if (st.pick) { await gui('select', [st.pick]); await p.waitForTimeout(1500) } // a model element: the projection is the server's
     else if ('clear' in st) { await gui('clear', []); await p.waitForTimeout(80) }
+    else if (st.panel) { try { await panelStep(st) } catch (e) { if (process.env.SKETCHCHECK_TRACE) console.log('  at', await p.evaluate((r) => { const li = document.querySelector(`.sketch-task [data-box="${r.panel}"] li[data-row="${r.row}"]`); if (!li) return 'no row'; const b = li.getBoundingClientRect(); const t = document.elementFromPoint(b.x + b.width / 2, b.y + b.height / 2); return JSON.stringify(b) + ' ' + (t?.outerHTML.slice(0, 200)) }, st)); stepErrors.push(`${JSON.stringify(st)}: ${String(e.message).split('\n').filter((l, i) => i === 0 || /intercepts|not stable|not visible|outside/.test(l)).slice(0, 3).join(' ')}`) } }
     await dialog()
     await p.evaluate(() => new Promise((r) => requestAnimationFrame(() => r(0)))) // the page has handled the step (a frame) before the next
     if (process.env.SKETCHCHECK_TRACE) console.log('  trace', JSON.stringify(st), JSON.stringify((await api(`/api/gui?slug=${PROJECT}`)).sketch?.geometry), JSON.stringify(await p.evaluate(() => window.cadui.getState().hints)), await p.evaluate(() => [...document.querySelectorAll('.ctx, .mb-content, .msgbox-back')].map((e) => e.className + ':' + e.textContent.slice(0, 120)).join() + ' / ' + document.activeElement?.tagName + '.' + document.activeElement?.className))
@@ -324,6 +403,30 @@ for (const [k, c] of CASES.cases.entries()) {
     const show = (l) => l.map((x) => `${x.text}${x.focus ? '*' : ''}`).join(', ')
     if (!ok) diffs.push(`on-view parameters: ${show(o)} (FreeCAD: ${show(ow)})`)
   }
+  // "check": ["panel", "state"]: what the task panel's lists show (each constraint row's text, hidden, checked, selected
+  // and tooltip; each element row's GeoId, hidden and selected), the selection, the context menus a step recorded; and
+  // each constraint's name, driving, active and virtual space states and its expression
+  for (const e of stepErrors) diffs.push(`step ${e}`)
+  if (c.check?.includes('panel')) {
+    const o = await p.evaluate(() => window.cadui.sketchPanel?.() ?? null), w = want.panel ?? {}
+    if (!o) diffs.push('no panel')
+    else {
+      const rowsC = (l) => JSON.stringify((l ?? []).map((r) => ({ text: r.text, hidden: r.hidden, checked: r.checked, selected: r.selected, tip: r.tip })))
+      if (w.constraints && rowsC(o.constraints) !== rowsC(w.constraints)) diffs.push(`constraints list\n     ours     ${rowsC(o.constraints)}\n     FreeCAD  ${rowsC(w.constraints)}`)
+      const rowsE = (l) => JSON.stringify((l ?? []).map((r) => ({ id: r.id, hidden: r.hidden, selected: r.selected })))
+      if (w.elements && rowsE(o.elements) !== rowsE(w.elements)) diffs.push(`elements list\n     ours     ${rowsE(o.elements)}\n     FreeCAD  ${rowsE(w.elements)}`)
+      // (FreeCAD names an element the Elements list selected in lower case, as SketchObject::convertSubName gives it)
+      const selN = (l) => JSON.stringify((l ?? []).map((x) => x.toLowerCase()).sort())
+      if (selN(o.selection) !== selN(w.selection)) diffs.push(`selection: ${JSON.stringify(o.selection)} (FreeCAD: ${JSON.stringify(w.selection ?? [])})`)
+      const menu = (m) => JSON.stringify((m ?? []).map((l) => l.map((e) => (e === 'sep' ? e : `${e.text}${e.enabled ? '' : ' (off)'}${e.bold ? ' (bold)' : ''}`))))
+      if (w.menus && menu(panelRecord.menus) !== menu(w.menus)) diffs.push(`context menus\n     ours     ${menu(panelRecord.menus)}\n     FreeCAD  ${menu(w.menus)}`)
+    }
+  }
+  if (c.check?.includes('state') && got) {
+    const st = (l) => JSON.stringify(l.map((k) => ({ name: k.name ?? '', driving: k.driving !== false, active: k.active !== false, virtual: !!k.virtual_space, expr: k.expr ?? '' })))
+    if (st(got.constraints) !== st(want.constraints)) diffs.push(`constraint states\n     ours     ${st(got.constraints)}\n     FreeCAD  ${st(want.constraints)}`)
+  }
+  if (c.check?.length) await p.evaluate(() => window.cadui.sketchPanelReset?.())
   if (oldParams) await p.evaluate((ps) => window.cadui.setSketcherParams?.(ps), oldParams)
   if (diffs.length && KNOWN[c.name]) { known++; console.log(`known ${c.name}: ${KNOWN[c.name]}`) }
   else if (diffs.length) bad(`${c.name}: ${diffs.join('\n   ')}`)

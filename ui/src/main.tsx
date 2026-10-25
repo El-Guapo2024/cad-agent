@@ -30,3 +30,5 @@ Object.assign(window, { cadui: { getState, setState, getView, getDock, showPanel
 Object.assign((window as unknown as { cadui: object }).cadui, { pdPanel: panelFields, loadFeatures })   // revolvecheck.mjs
 // sketchcheck.mjs: the Sketcher's preferences for a case, the on-view parameters' boxes, the Tool Parameters box
 Object.assign((window as unknown as { cadui: object }).cadui, { setSketcherParams, sketchOvps: ovpStates, sketchToolWidget: toolWidgetState, sketcher: Sketcher })
+import { panelState as sketchPanel, resetPanelParams as sketchPanelReset } from './sketchpanels'
+Object.assign((window as unknown as { cadui: object }).cadui, { sketchPanel, sketchPanelReset })   // sketchcheck.mjs: the Sketcher's task panel

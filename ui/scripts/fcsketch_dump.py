@@ -30,6 +30,12 @@ def accept_modal():
         return
     d = {"case": current["case"], "title": w.windowTitle(), "widgets": widgets(w)}
     res["dialogs"].append(d)
+    if isinstance(w, QtWidgets.QMessageBox) and current.get("msgbox"):
+        # a case's "msgbox": the button of that text is pressed (QMessageBox::question's Yes, Cancel ...)
+        for b in w.buttons():
+            if b.text().replace("&", "") == current["msgbox"]:
+                b.click()
+                return
     # a "cmd" step's "dialog": the named fields set first (a spin box's value, a check box's state)
     for name, v in (current.get("dialog") or {}).items():
         c = w.findChild(QtWidgets.QWidget, name)
@@ -223,7 +229,20 @@ def cons_out(sk):
                 d["driving"] = False
         if c.Name:
             d["name"] = c.Name
+        if not c.IsActive:
+            d["active"] = False
+        if c.InVirtualSpace:
+            d["virtual_space"] = True
         out.append(d)
+    # SketchObject's ExpressionEngine: ".Constraints[3]" or ".Constraints.name" bound to an expression
+    import re as _re
+    for path, e in sk.ExpressionEngine:
+        m = _re.match(r"^\.?Constraints(?:\[(\d+)\]|\.(\w+))$", path)
+        if not m:
+            continue
+        i = int(m.group(1)) if m.group(1) else next((k for k, c in enumerate(sk.Constraints) if c.Name == m.group(2)), -1)
+        if 0 <= i < len(out):
+            out[i]["expr"] = e
     return out
 
 
@@ -384,6 +403,230 @@ def unset_params(old):
             (g.SetBool if isinstance(v, bool) else g.SetInt if isinstance(v, int) else g.SetFloat)(name, v)
 
 
+# ── the task panel's Constraints and Elements boxes (TaskSketcherConstraints, TaskSketcherElements) ──
+PANEL_PARAMS = {"Mod/Sketcher/General": ["ConstraintFilterEnabled", "SelectedConstraintFilters", "ElementFilterEnabled", "ElementFilterState"],
+                "Mod/Sketcher": ["VisualisationTrackingFilter", "ExtendedConstraintInformation", "HideInternalAlignment", "AutoRemoveRedundants"],
+                "Mod/Sketcher/Elements": ["ExtendedNaming"]}
+
+
+def reset_panel_params():
+    """The panel's parameters back to their defaults (a step may have changed them; the next case starts afresh)."""
+    for path, names in PANEL_PARAMS.items():
+        g = App.ParamGet("User parameter:BaseApp/Preferences/" + path)
+        for n in names:
+            for rm in (g.RemBool, g.RemInt):
+                try:
+                    rm(n)
+                except Exception:
+                    pass
+
+
+def panel_list(which):
+    name = {"constraints": "listWidgetConstraints", "elements": "listWidgetElements"}[which]
+    import gc, shiboken6
+    gc.collect()   # wrappers of an earlier edit's widgets, which a new one may reuse the address of
+    for w in mw.findChildren(QtWidgets.QListWidget):
+        if shiboken6.isValid(w) and w.objectName() == name and w.isVisible():
+            return w
+    raise RuntimeError("no %s list in the task panel" % which)
+
+
+def panel_child(which, name):
+    lw = panel_list(which)
+    # (findChild may hand back the wrapper of a deleted widget of an earlier edit at the same address)
+    import shiboken6
+    w = next((x for x in mw.findChildren(QtWidgets.QWidget) if shiboken6.isValid(x) and x.objectName() == name
+              and lw.parentWidget().isAncestorOf(x)), None)
+    if w is None:
+        raise RuntimeError("no %s beside the %s list" % (name, which))
+    return w
+
+
+def filter_list(which):
+    """The filter button's check list (ConstraintFilterList / ElementFilterList, the QWidgetAction's default widget)."""
+    import gc, shiboken6
+    gc.collect()
+    cls = {"constraints": "SketcherGui::ConstraintFilterList", "elements": "SketcherGui::ElementFilterList"}[which]
+    found = [w for w in app.allWidgets() if shiboken6.isValid(w) and w.metaObject().className() == cls]
+    if os.environ.get("FCSKETCH_TRACE"):
+        with open(os.path.join(OUT, "trace.log"), "a") as f:
+            f.write("  %d %s\n" % (len(found), cls))
+    if not found:
+        raise RuntimeError("no %s" % cls)
+    return found[-1]
+
+
+class _Probe(QtWidgets.QStyledItemDelegate):
+    """TaskSketcherElements' ElementItemDelegate::subControlRect, measured with the list's own style and options."""
+    def rect(self, lw, row, sub):
+        item = lw.item(row)
+        opt = QtWidgets.QStyleOptionViewItem()
+        opt.initFrom(lw)
+        opt.rect = lw.visualItemRect(item)
+        opt.decorationSize = lw.iconSize()
+        opt.showDecorationSelected = True
+        self.initStyleOption(opt, lw.model().index(row, 0))
+        st = lw.style()
+        cb = st.subElementRect(QtWidgets.QStyle.SE_CheckBoxIndicator, opt, lw)
+        cb.moveTo(4, opt.rect.top() + (opt.rect.height() - cb.height()) // 2)
+        if sub == "check":
+            return cb
+        dec = st.subElementRect(QtWidgets.QStyle.SE_ItemViewItemDecoration, opt, lw).translated(cb.right() + 4, 0)
+        k = ["edge", "start", "end", "mid", "label"].index(sub)
+        r = dec.translated((dec.width() + 4) * k, 0)
+        if sub == "label":
+            r.setRight(opt.rect.right())
+        return r
+
+
+_probe = _Probe()
+MODS = {"ctrl": QtCore.Qt.ControlModifier, "shift": QtCore.Qt.ShiftModifier, None: QtCore.Qt.NoModifier}
+
+
+def menu_entries(m):
+    out = []
+    for a in m.actions():
+        if a.isSeparator():
+            out.append("sep")
+        else:
+            out.append({"text": a.text(), "enabled": a.isEnabled(), "bold": m.defaultAction() is a, "shortcut": a.shortcut().toString(),
+                        **({"sub": menu_entries(a.menu())} if a.menu() else {})})
+    return out
+
+
+def run_menu(pick, record):
+    """The context menu the list pops up (QMenu::exec): what it holds, then the entry named `pick` (or none)."""
+    state = {"done": False}
+
+    def handle():
+        m = app.activePopupWidget()
+        if not isinstance(m, QtWidgets.QMenu):
+            m = next((w for w in app.topLevelWidgets() if isinstance(w, QtWidgets.QMenu) and w.isVisible()), None)
+        if m is None:
+            state["tries"] = state.get("tries", 0) + 1
+            if state["tries"] < 100:
+                QtCore.QTimer.singleShot(50, handle)
+            return
+        state["done"] = True
+        if record is not None:
+            record.append(menu_entries(m))
+        act = next((a for a in m.actions() if not a.isSeparator() and a.text() == pick), None) if pick else None
+        m.hide()
+        if act is not None and act.isEnabled():
+            act.trigger()
+    QtCore.QTimer.singleShot(50, handle)
+    return state
+
+
+def panel_step(st, panel_record):
+    which = st["panel"]
+    lw = panel_list(which) if "row" in st or "menu" in st or "empty" in st else None
+    mod = MODS[st.get("mod")]
+    if "row" in st:
+        row = st["row"]
+        item = lw.item(row)
+        lw.scrollToItem(item)
+        pump(2)
+        vp = lw.viewport()
+        if which == "elements":
+            pos = _probe.rect(lw, row, st.get("sub", "label")).center()
+        else:
+            pos = lw.visualItemRect(item).center()
+        if "check" in st:                     # the row's check box (a constraint's virtual space)
+            item.setCheckState(QtCore.Qt.Checked if st["check"] else QtCore.Qt.Unchecked)
+        elif "menu" in st:                    # a right click on the row, and an entry of its context menu
+            from PySide6.QtTest import QTest
+            # the menu is handled from a timer: QMenu::exec runs its own event loop
+            state = run_menu(st["menu"], panel_record.setdefault("menus", []) if st.get("record") else None)
+            QTest.mousePress(vp, QtCore.Qt.RightButton, mod, pos)
+            QTest.mouseRelease(vp, QtCore.Qt.RightButton, mod, pos)
+            wait(150)
+            if not state["done"]:
+                ev = QtGui.QContextMenuEvent(QtGui.QContextMenuEvent.Mouse, pos, vp.mapToGlobal(pos))
+                QtWidgets.QApplication.sendEvent(vp, ev)
+            wait(250)
+        elif st.get("dblclick"):
+            from PySide6.QtTest import QTest
+            QTest.mouseDClick(vp, QtCore.Qt.LeftButton, mod, pos)
+            wait(250)
+        else:
+            from PySide6.QtTest import QTest
+            # the pointer moves onto the row first, as a real one does (TaskSketcherElements' itemEntered: focusItemIndex)
+            QTest.mouseMove(vp, pos)
+            wait(60)
+            QTest.mouseClick(vp, QtCore.Qt.LeftButton, mod, pos)
+            wait(120)
+        if "rename" in st:                    # F2 (or the editor a double click opened), the text, Return
+            if not any(isinstance(w, QtWidgets.QLineEdit) and w.isVisible() for w in lw.viewport().findChildren(QtWidgets.QLineEdit)):
+                lw.setCurrentItem(item)
+                for t in (QtCore.QEvent.KeyPress, QtCore.QEvent.KeyRelease):
+                    QtWidgets.QApplication.sendEvent(lw, QtGui.QKeyEvent(t, QtCore.Qt.Key_F2, QtCore.Qt.NoModifier, ""))
+                wait(120)
+            ed = next((w for w in lw.viewport().findChildren(QtWidgets.QLineEdit) if w.isVisible()), None)
+            if ed is None:
+                raise RuntimeError("no editor for row %d" % row)
+            ed.selectAll()
+            ed.insert(st["rename"])
+            for t in (QtCore.QEvent.KeyPress, QtCore.QEvent.KeyRelease):
+                QtWidgets.QApplication.sendEvent(ed, QtGui.QKeyEvent(t, QtCore.Qt.Key_Return, QtCore.Qt.NoModifier, "\r"))
+            wait(150)
+    elif "empty" in st:                       # a click on the list's empty part
+        from PySide6.QtTest import QTest
+        vp = lw.viewport()
+        QTest.mouseClick(vp, QtCore.Qt.LeftButton, mod, QtCore.QPoint(vp.width() // 2, vp.height() - 3))
+        wait(120)
+    elif "filter" in st:                      # an item of the filter's check list
+        fl = filter_list(which)
+        for i in range(fl.count()):
+            if fl.item(i).text().strip().lstrip("- ") == st["filter"]:
+                it = fl.item(i)
+                # a user's click: Checked becomes Unchecked, anything else Checked
+                want = st.get("checked")
+                if want is None:
+                    want = it.checkState() != QtCore.Qt.Checked
+                it.setCheckState(QtCore.Qt.Checked if want else QtCore.Qt.Unchecked)
+                break
+        else:
+            raise RuntimeError("no filter %r" % st["filter"])
+        wait(120)
+    elif "filterBox" in st:
+        b = panel_child(which, "filterBox")
+        if b.isChecked() != bool(st["filterBox"]):
+            b.click()
+        wait(120)
+    elif "setting" in st:                     # an action of the Settings button's menu
+        acts = panel_child(which, "settingsButton").actions()
+        a = next(a for a in acts if a.text() == st["setting"])
+        if st.get("checked") is None or a.isChecked() != bool(st["checked"]):
+            a.trigger()
+        wait(120)
+    elif "button" in st:                      # showHideButton
+        panel_child(which, st["button"]).click()
+        wait(150)
+
+
+def panel_out(doc):
+    out = {}
+    try:
+        lc = panel_list("constraints")
+        out["constraints"] = [{"text": lc.item(i).text(), "hidden": lc.item(i).isHidden(), "checked": lc.item(i).checkState() == QtCore.Qt.Checked,
+                               "selected": lc.item(i).isSelected(), "tip": lc.item(i).toolTip() or ""} for i in range(lc.count())]
+    except RuntimeError:
+        pass
+    try:
+        le = panel_list("elements")
+        out["elements"] = [{"id": le.item(i).data(QtCore.Qt.UserRole), "hidden": le.item(i).isHidden(), "selected": le.item(i).isSelected()}
+                           for i in range(le.count())]
+    except RuntimeError:
+        pass
+    sel = []
+    for o in Gui.Selection.getSelectionEx(doc.Name, 0):
+        for n in o.SubElementNames:
+            sel.append(n.split(".")[-1])
+    out["selection"] = sorted(sel)
+    return out
+
+
 def plate_sketch(name):
     """A case with "plate": a document of its own holding a Body with the 40 x 20 x 5 plate (a rectangle on XY padded
     5 mm), and the case's sketch on the plate's top face (Pad.Face6, FlatFace), after the Pad."""
@@ -450,7 +693,19 @@ def run_case(doc, case, k):
         sk.addGeometry(geo, bool(g.get("construction")))
     for c in setup.get("constraints", []):
         args = list(c["args"]) + ([c["value"]] if "value" in c else [])
-        sk.addConstraint(Sketcher.Constraint(c["type"], *args))
+        i = sk.addConstraint(Sketcher.Constraint(c["type"], *args))
+        # a setup constraint's states, as the part file writes them (name=, driving=False, active=False,
+        # virtual_space=True, a value bound to an expression)
+        if c.get("name"):
+            sk.renameConstraint(i, c["name"])
+        if c.get("driving") is False:
+            sk.setDriving(i, False)
+        if c.get("active") is False:
+            sk.setActive(i, False)
+        if c.get("virtual_space"):
+            sk.setVirtualSpace(i, True)
+        if c.get("expr"):
+            sk.setExpression("Constraints[%d]" % i, c["expr"])
     doc.recompute()
     old_params = set_params(case.get("params") or {})
     Gui.ActiveDocument.setEdit(sk)
@@ -487,7 +742,12 @@ def run_case(doc, case, k):
         send(kind, scr(p), button)
         wait(80 if kind == "move" else 60)
 
+    panel_record = {}
+    current["msgbox"] = case.get("msgbox")
     for st in case["steps"]:
+        if os.environ.get("FCSKETCH_TRACE"):
+            with open(os.path.join(OUT, "trace.log"), "a") as f:
+                f.write("%s %s\n" % (case["name"], json.dumps(st)))
         if "cmd" in st:
             current["dialog"] = st.get("dialog")
             Gui.runCommand(st["cmd"], 0)
@@ -562,6 +822,9 @@ def run_case(doc, case, k):
             wait(100)
         elif "clear" in st:
             Gui.Selection.clearSelection()
+        elif "panel" in st:
+            # the task panel's lists, filters and settings (sketchcases-panels.json)
+            panel_step(st, panel_record)
     pump(6)
     res["cases"][case["name"]] = {"geometry": geo_out(sk), "constraints": cons_out(sk), "message": task_message(),
                                   "report": report_text()[report_at:]}
@@ -579,9 +842,12 @@ def run_case(doc, case, k):
             "spinboxes": [[w.metaObject().className(), w.parentWidget().metaObject().className() if w.parentWidget() else None,
                            w.isVisible(), w.hasFocus(), (w.findChild(QtWidgets.QLineEdit).text() if w.findChild(QtWidgets.QLineEdit) else "")]
                           for w in mw.findChildren(QtWidgets.QAbstractSpinBox) if w.isVisible()]}
+    if any("panel" in st for st in case["steps"]) or "panel" in (case.get("check") or []):
+        res["cases"][case["name"]]["panel"] = {**panel_out(doc), **panel_record}
     Gui.ActiveDocument.resetEdit()
     pump(6)
     unset_params(old_params)
+    reset_panel_params()
 
 
 def chrome_and_cases():

@@ -63,7 +63,8 @@ def write_ref(res: dict) -> Path:
            "cases": {k: {"geometry": v["geometry"], "constraints": v["constraints"], "message": v["message"],
                          **({"external": v["external"], "external_geometry": v["external_geometry"]} if "external" in v else {}),
                          **({"tool_widget": v["tool_widget"]} if v.get("tool_widget") else {}),
-                         **({"ovp": v["ovp"]} if v.get("ovp") else {})}
+                         **({"ovp": v["ovp"]} if v.get("ovp") else {}),
+                         **({"panel": v["panel"]} if v.get("panel") else {})}
                      for k, v in res["cases"].items()}}
     cases_file = Path(a.cases).name
     if cases_file != "sketchcases.json":

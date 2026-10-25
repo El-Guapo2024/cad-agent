@@ -1600,8 +1600,11 @@ export class CadView {
   /** Clipping's SoClipPlanes. Coin keeps the side the normal points to (n·p ≥ d), so Clipping X
    *  at c keeps x ≥ c, and Flip keeps x ≤ c. The custom plane's normal is its Direction, the
    *  view direction after View, or the view direction as it turns (Adjust to view direction). */
+  /** Sketcher_ViewSection (TempoVis.sketchClipPlane): the sketch's own clipping plane, beside Clipping's. */
+  private sectionPlane: THREE.Plane | null = null
+  setSectionPlane(plane: THREE.Plane | null) { this.sectionPlane = plane; this.applyClip(getState().clip); this.redraw() }
   private applyClip(clip: Clip | null) {
-    const planes: THREE.Plane[] = []
+    const planes: THREE.Plane[] = this.sectionPlane ? [this.sectionPlane] : []
     if (clip) {
       ;(['x', 'y', 'z'] as const).forEach((ax, i) => {
         const c = clip[ax]

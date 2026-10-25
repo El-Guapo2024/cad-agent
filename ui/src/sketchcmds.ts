@@ -13,7 +13,8 @@
 // while the sketch is in edit (ShortcutManager's sequences, with its timeout for a prefix of a longer one).
 import { SKETCH_CMD_INFO } from './sketchcmdinfo'
 import * as S from './sketcher'
-import { ArcHandler, ArcSlotHandler, CircleHandler, LineHandler, PointHandler, PolygonHandler, PolylineHandler, RectangleHandler, SlotHandler, toggleConstruction } from './sketchtools'
+import { ArcHandler, ArcSlotHandler, CircleHandler, LineHandler, PointHandler, PolygonHandler, PolylineHandler, RectangleHandler, SlotHandler } from './sketchtools'
+import * as PC from './sketchpanelcmds'
 import { runConstraint, isConstraintCommand, toggleDriving, toggleActive, idOf } from './sketchcons'
 import { ArcOfEllipseHandler, ArcOfHyperbolaHandler, ArcOfParabolaHandler, BSplineHandler, EllipseHandler } from './sketchgeo'
 import { ExtendHandler, FilletHandler, SplittingHandler, TrimmingHandler } from './sketchedit'
@@ -148,23 +149,27 @@ const RUN: Record<string, () => void> = {
   Sketcher_CopyClipboard: XT.copyClipboardCommand,
   Sketcher_Cut: XT.cutCommand,
   Sketcher_Paste: () => void XT.pasteCommand(),
-  Sketcher_ToggleConstruction: toggleConstruction,
+  Sketcher_ToggleConstruction: PC.toggleConstruction,
   Sketcher_LeaveSketch: () => void S.closeEdit(true),
   Sketcher_CancelSketch: () => void S.closeEdit(false),
   Sketcher_ViewSketch: S.viewSketch,
   Sketcher_StopOperation: () => S.purgeHandler(),
   Sketcher_ToggleDrivingConstraint: toggleDriving,
   Sketcher_ToggleActiveConstraint: toggleActive,
-  Sketcher_SelectOrigin: () => S.setSelection([...S.getSelection(), 'RootPoint']),
-  Sketcher_SelectHorizontalAxis: () => S.setSelection([...S.getSelection(), 'H_Axis']),
-  Sketcher_SelectVerticalAxis: () => S.setSelection([...S.getSelection(), 'V_Axis']),
-  Sketcher_SelectConflictingConstraints: () => selectConstraintList(S.getResult()?.conflicting ?? []),
-  Sketcher_SelectRedundantConstraints: () => selectConstraintList(S.getResult()?.redundant ?? []),
+  Sketcher_SelectOrigin: () => PC.toggleSelected('RootPoint'),
+  Sketcher_SelectHorizontalAxis: () => PC.toggleSelected('H_Axis'),
+  Sketcher_SelectVerticalAxis: () => PC.toggleSelected('V_Axis'),
+  Sketcher_SelectConflictingConstraints: () => PC.selectSolverList(S.getResult()?.conflicting ?? []),
+  Sketcher_SelectRedundantConstraints: () => PC.selectSolverList(S.getResult()?.redundant ?? []),
+  Sketcher_SelectMalformedConstraints: () => PC.selectSolverList(S.getResult()?.malformed ?? []),
+  Sketcher_SelectPartiallyRedundantConstraints: () => PC.selectSolverList(S.getResult()?.partially_redundant ?? []),
   Sketcher_SelectElementsWithDoFs: selectElementsWithDoFs,
-  Sketcher_SelectConstraints: selectAssociatedConstraints,
-  Sketcher_SelectElementsAssociatedWithConstraints: selectAssociatedGeometry,
-  Sketcher_DeleteAllGeometry: () => { if (!confirm('Are you really sure you want to delete all geometry and constraints?')) return; S.openCommand('Delete all geometry'); S.setGeometry([]); S.setConstraints([]); S.commitCommand(); S.clearSelection(); S.solve() },
-  Sketcher_DeleteAllConstraints: () => { if (!confirm('Are you really sure you want to delete all the constraints?')) return; S.openCommand('Delete All Constraints'); S.setConstraints([]); S.commitCommand(); S.clearSelection(); S.solve() },
+  Sketcher_SelectConstraints: PC.selectAssociatedConstraints,
+  Sketcher_SelectElementsAssociatedWithConstraints: PC.selectAssociatedElements,
+  Sketcher_DeleteAllGeometry: () => void PC.deleteAllGeometry(),
+  Sketcher_DeleteAllConstraints: () => void PC.deleteAllConstraints(),
+  Sketcher_SwitchVirtualSpace: PC.switchVirtualSpace,
+  Sketcher_ViewSection: PC.viewSection,
 }
 /** Commands that work only while a sketch is in edit (eType ForEdit, isSketchInEdit). */
 const OUT_OF_EDIT = new Set(['Sketcher_NewSketch', 'Sketcher_MapSketch', 'Sketcher_ReorientSketch', 'Sketcher_ValidateSketch', 'Sketcher_MergeSketches', 'Sketcher_MirrorSketch'])
@@ -180,11 +185,16 @@ export function isEnabled(name: string): boolean {
   if (name === 'Sketcher_EditSketch') return !editing && !!getState().slug && !!S.lastSketch()
   if (OUT_OF_EDIT.has(name)) return false
   if (!editing || !isImplemented(name)) return false
-  const sel = S.getSelection()
+  // each command's isActive (CommandSketcherTools.cpp, CommandConstraints.cpp, CommandSketcherVirtualSpace.cpp)
   switch (name) {
-    case 'Sketcher_SelectConstraints': case 'Sketcher_SelectElementsAssociatedWithConstraints': case 'Sketcher_ToggleActiveConstraint':
-      return sel.length > 0
-    case 'Sketcher_StopOperation': return true
+    case 'Sketcher_SelectConstraints': return PC.hasGeometrySelected()
+    case 'Sketcher_SelectElementsAssociatedWithConstraints': return PC.hasConstraintSelected()
+    case 'Sketcher_ToggleActiveConstraint': return PC.isStatusNone(true)
+    case 'Sketcher_SwitchVirtualSpace': return PC.isStatusNone()
+    case 'Sketcher_ToggleDrivingConstraint': case 'Sketcher_SelectOrigin': case 'Sketcher_SelectHorizontalAxis': case 'Sketcher_SelectVerticalAxis':
+    case 'Sketcher_SelectConflictingConstraints': case 'Sketcher_SelectRedundantConstraints': case 'Sketcher_SelectMalformedConstraints':
+    case 'Sketcher_SelectPartiallyRedundantConstraints': case 'Sketcher_SelectElementsWithDoFs': case 'Sketcher_DeleteAllGeometry': case 'Sketcher_DeleteAllConstraints':
+      return PC.isCommandActive()
     case 'Sketcher_Copy': case 'Sketcher_Clone': case 'Sketcher_Move': case 'Sketcher_RectangularArray': case 'Sketcher_RemoveAxesAlignment':
     case 'Sketcher_CopyClipboard': case 'Sketcher_Cut':
     case 'Sketcher_Symmetry': case 'Sketcher_Translate': case 'Sketcher_Rotate': case 'Sketcher_Scale':
@@ -225,7 +235,6 @@ export function runSketchCommand(name: string, args: string[] = []) {
     RUN[name]?.()
   })
 }
-function selectConstraintList(ids: number[]) { S.setSelection(ids.map((i) => SK.constraintName(S.getConstraints()[i], i))) }
 /** Sketcher_SelectElementsWithDoFs: the geometry still free to move (the solver's dependent parameters). */
 function selectElementsWithDoFs() {
   const r = S.getResult()
@@ -237,30 +246,6 @@ function selectElementsWithDoFs() {
   }
   S.setSelection([...names])
 }
-/** Sketcher_SelectConstraints: the constraints on the selected geometry. */
-function selectAssociatedConstraints() {
-  const cs = S.getConstraints(), ids = S.getSelection().map(idOf).filter((x): x is { geoId: number; pos: SK.PointPos } => !!x)
-  const out: string[] = []
-  cs.forEach((c, i) => {
-    if (ids.some((s) => (s.pos === 0 ? [c.first, c.second, c.third].includes(s.geoId) : (c.first === s.geoId && c.firstPos === s.pos) || (c.second === s.geoId && c.secondPos === s.pos) || (c.third === s.geoId && c.thirdPos === s.pos)))) out.push(SK.constraintName(c, i))
-  })
-  S.setSelection(out)
-}
-/** Sketcher_SelectElementsAssociatedWithConstraints. */
-function selectAssociatedGeometry() {
-  const cs = S.getConstraints(), out: string[] = []
-  for (const i of S.selectedConstraints()) {
-    const c = cs[i]
-    for (const [g, p] of [[c.first, c.firstPos], [c.second, c.secondPos], [c.third, c.thirdPos]] as [number, SK.PointPos][]) {
-      if (g === SK.GEO_UNDEF) continue
-      if (p === 0) out.push(SK.edgeName(g))
-      else if (g === -1 && p === 1) out.push('RootPoint')
-      else if (g >= 0 || SK.isExternalId(g)) out.push(SK.vertexName(S.vertexIndexOf(g, p)))
-    }
-  }
-  S.setSelection(out)
-}
-
 // ── shortcuts while editing (ShortcutManager's sequences) ────────────────────────────────────────────────────────
 const SHORTCUT_TIMEOUT = () => getState().shortcutTimeout || 300
 let pending: { keys: string[]; timer: number } | null = null

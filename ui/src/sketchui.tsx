@@ -20,7 +20,9 @@ import * as S from './sketcher'
 import * as SK from './sketch'
 import { sketcherIcon } from './sketchdraw'
 import { EDIT_TOOLBARS, SKETCHER_TOOLBAR, SKETCH_MENU, cmdInfo, groupDefault, iconOf, isEnabled, isImplemented, runSketchCommand, onNewSketch, why, type MenuItem, type ToolItem } from './sketchcmds'
-import { onDatumDialog } from './sketchcons'
+import { onDatumDialog, constraintCreationMode } from './sketchcons'
+import { ConstraintsList, ElementsList, onOpenDatum, resolveExpressions, evaluateExpression, paramVars, checkConstraintName, renameConstraint } from './sketchpanels'
+import { ExpressionDialog } from './exprdialog'
 import { CONSTR_ICONS } from './sketchcmdinfo'
 import { getState, report, useStore } from './store'
 import { getView, onEditSketch } from './actions'
@@ -37,9 +39,14 @@ import { ToolParametersBox } from './sketchtoolbox'
 import { RegularPolygonDialog } from './sketchpolydlg'
 
 const useSketch = () => useSyncExternalStore(S.subscribeSketch, S.sketchVersion)
+/** The commands of the ToggleDrivingConstraint mode (CmdSketcherToggleDrivingConstraint's addCommandMode): their
+ *  updateAction shows the icon's _Driven variant while new dimensions are reference ones. */
+const DRIVEN_ICONS = new Set(['Constraint_Lock', 'Constraint_Length', 'Constraint_HorizontalDistance', 'Constraint_VerticalDistance', 'Constraint_Radius',
+  'Constraint_Diameter', 'Constraint_Radiam', 'Constraint_InternalAngle', 'Constraint_Dimension', 'Sketcher_ToggleConstraint'])
 /** A command's icon file; geometry tools show their construction variant in construction mode. */
 function pixmapOf(name: string) {
   const p = iconOf(name)
+  if (p && constraintCreationMode() === 'Reference' && DRIVEN_ICONS.has(p)) return `${p}_Driven`
   return p && S.isConstructionMode() && CONSTR_ICONS.has(p) ? `${p}_Constr` : p
 }
 const keyText = (accel: string) => accel
@@ -113,7 +120,8 @@ const LINK_TIP: Record<string, string> = {
   '#dofs': 'The sketch has unconstrained elements giving rise to those Degrees Of Freedom. Selects these unconstrained elements.',
   '#malformed': 'Selects these malformed constraints', '#partiallyredundant': 'Some constraints in combination are partially redundant. Selects these partially redundant constraints.',
 }
-const LINK_CMD: Record<string, string> = { '#conflicting': 'Sketcher_SelectConflictingConstraints', '#redundant': 'Sketcher_SelectRedundantConstraints', '#dofs': 'Sketcher_SelectElementsWithDoFs' }
+const LINK_CMD: Record<string, string> = { '#conflicting': 'Sketcher_SelectConflictingConstraints', '#redundant': 'Sketcher_SelectRedundantConstraints', '#dofs': 'Sketcher_SelectElementsWithDoFs',
+  '#malformed': 'Sketcher_SelectMalformedConstraints', '#partiallyredundant': 'Sketcher_SelectPartiallyRedundantConstraints' }
 function Messages() {
   const m = S.getMessage()
   const grid = S.showGrid()
@@ -122,54 +130,9 @@ function Messages() {
     <Box title="Sketch Edit" icon="Sketcher_Sketch" id="messages">
       <div className="sk-msg">
         <span className="sk-status" data-state={m.state} style={{ color: STATE_COLOR[m.state] }}>{m.text}</span>
-        {m.link && <a href={m.link} className="sk-link" title={LINK_TIP[m.link]} onClick={(e) => { e.preventDefault(); const c = LINK_CMD[m.link]; if (c) runSketchCommand(c); else if (m.link === '#malformed') S.setSelection((S.getResult()?.malformed ?? []).map((i) => SK.constraintName(S.getConstraints()[i], i))) }}>{m.linkText}</a>}
+        {m.link && <a href={m.link} className="sk-link" title={LINK_TIP[m.link]} onClick={(e) => { e.preventDefault(); const c = LINK_CMD[m.link]; if (c) runSketchCommand(c) }}>{m.linkText}</a>}
       </div>
       <label className="tcheck"><input type="checkbox" checked={grid} onChange={(e) => S.setShowGrid(e.target.checked)} /> Display grid</label>
-    </Box>
-  )
-}
-function ConstraintsList() {
-  const cs = S.getConstraints(), sel = new Set(S.getSelection()), hidden = S.hiddenConstraints()
-  const r = S.getResult()
-  const bad = new Set([...(r?.conflicting ?? []), ...(r?.redundant ?? [])])
-  const pick = (i: number, e: React.MouseEvent) => {
-    const name = SK.constraintName(cs[i], i)
-    if (e.ctrlKey || e.metaKey) { if (sel.has(name)) S.rmvSelection(name); else S.addSelection(name) }
-    else S.setSelection([name])
-  }
-  return (
-    <Box title="Constraints" icon="Sketcher_ToggleConstraint" id="constraints">
-      <ul className="sk-list" onMouseLeave={() => S.setPreselection(null)}>
-        {cs.map((c, i) => (
-          <li key={i} className={cls(sel.has(SK.constraintName(c, i)) && 'sel', bad.has(i) && 'bad', !c.active && 'off')} data-constraint={i}
-            onMouseEnter={() => S.setPreselection({ constraints: [i] })} onClick={(e) => pick(i, e)}
-            onDoubleClick={() => { if (SK.isDimensional(c)) openDatum(i, false) }}>
-            <input type="checkbox" checked={!hidden.has(i)} title="Shows or hides the constraint in the 3D view" onClick={(e) => e.stopPropagation()} onChange={(e) => S.setConstraintHidden(i, !e.target.checked)} />
-            <Img name={SK.listIcon(c)} size={16} />
-            <span>{SK.listText(c, i)}</span>
-          </li>
-        ))}
-      </ul>
-    </Box>
-  )
-}
-const ELEMENT_ICON: Record<string, string> = { Point: 'Sketcher_Element_Point_StartingPoint', LineSegment: 'Sketcher_Element_Line_Edge', Circle: 'Sketcher_Element_Circle_Edge', ArcOfCircle: 'Sketcher_Element_Arc_Edge' }
-function ElementsList() {
-  const geo = S.getGeometry(), sel = new Set(S.getSelection())
-  const nameOf = (i: number) => (geo[i].type === 'Point' ? SK.vertexName(S.vertexIndexOf(i, SK.START)) : SK.edgeName(i))
-  return (
-    <Box title="Elements" icon="Sketcher_CreateLine" id="elements">
-      <ul className="sk-list" onMouseLeave={() => S.setPreselection(null)}>
-        {[...geo.map((g, i) => [g, i] as const), ...S.getExternal().geometry.map((g, k) => [g, SK.REF_EXT - k] as const)].map(([g, i], row) => (
-          <li key={i} className={cls(sel.has(nameOf(i)) && 'sel', (g.construction || i < 0) && 'constr', i < 0 && 'external')} data-element={i}
-            onMouseEnter={() => S.setPreselection(g.type === 'Point' ? { point: S.vertexIndexOf(i, SK.START) } : { curve: i })}
-            onClick={(e) => { const n = nameOf(i); if (e.ctrlKey || e.metaKey) { if (sel.has(n)) S.rmvSelection(n); else S.addSelection(n) } else S.setSelection([n]) }}>
-            <Img name={ELEMENT_ICON[g.type] ?? 'Sketcher_Element_SelectionTypeInvalid'} size={16} />
-            {/* TaskSketcherElements: the external geometry after the sketch's own, numbered on from it */}
-            <span>{SK.elementText(g, row)}</span>
-          </li>
-        ))}
-      </ul>
     </Box>
   )
 }
@@ -205,6 +168,7 @@ function openDatum(id: number, isNew: boolean, done?: (ok: boolean) => void) {
   setDatum({ id, isNew, done })
 }
 S.onEditDatum((id) => openDatum(id, false))
+onOpenDatum((id) => openDatum(id, false))
 onDatumDialog((id, done) => openDatum(id, true, done))
 const TITLES: Partial<Record<SK.ConstraintType, [string, string]>> = { Angle: ['Insert Angle', 'Angle'], Radius: ['Insert Radius', 'Radius'], Diameter: ['Insert Diameter', 'Diameter'] }
 const LEN: [number, number, number, number, number, number, number, number] = [1, 0, 0, 0, 0, 0, 0, 0], DEG: typeof LEN = [0, 0, 0, 0, 0, 0, 0, 1]
@@ -215,26 +179,36 @@ function DatumDialog() {
   const [name, setName] = useState('')
   const [reference, setReference] = useState(false)
   const [radius, setRadius] = useState(true)
+  // labelEdit->bind(Constraints[i]): the expression the value is bound to, and the Expression Editor over the box
+  const [expr, setExpr] = useState('')
+  const [exprAt, setExprAt] = useState<{ x: number; y: number; text: string } | null>(null)
   const okRef = useRef<HTMLButtonElement>(null)
   useEffect(() => {
     if (!c0) return
     setVal(c0.type === 'Angle' ? (c0.value * 180) / Math.PI : c0.value); setName(c0.name ?? ''); setReference(!c0.driving); setRadius(c0.type !== 'Diameter')
+    setExpr(c0.expr ?? ''); setExprAt(null)
   }, [d]) // eslint-disable-line react-hooks/exhaustive-deps
   if (!d || !c0) return null
   const [title, label] = TITLES[c0.type] ?? ['Insert Length', 'Length']
+  const part = S.getSession()?.ref.part ?? null
   const finish = (ok: boolean) => { setDatum(null); d.done?.(ok) }
+  /** EditDatumDialog::accepted. */
   const accept = () => {
     const cs = S.getConstraints(), c = { ...cs[d.id] }
     if (c.type === 'Radius' && !radius) c.type = 'Diameter'
     else if (c.type === 'Diameter' && radius) c.type = 'Radius'
-    if (!reference) c.value = c.type === 'Angle' ? (val * Math.PI) / 180 : val
-    const nm = name.trim()
-    if (nm !== (c.name ?? '')) {
-      // SketcherGui::checkConstraintName: no clash with another, and a valid identifier
-      if (nm && (!/^[A-Za-z_][A-Za-z0-9_]*$/.test(nm) || cs.some((x, k) => k !== d.id && x.name === nm))) report('warn', `Value Error: the constraint name '${nm}' is not valid or is taken`)
-      else c.name = nm
+    if (!reference) {
+      // labelEdit->apply() for a bound value (the expression's result), else setDatum
+      if (expr) { const v = evaluateExpression(c, expr, part); c.expr = expr; if (v !== null) c.value = v }
+      else { delete c.expr; c.value = c.type === 'Angle' ? (val * Math.PI) / 180 : val }
     }
     S.setConstraint(d.id, c)
+    const nm = name.trim()
+    if (nm !== (c.name ?? '') && checkConstraintName(nm)) {
+      // renameConstraint raises on a name another constraint has: the whole edit is aborted (NotifyUserError)
+      const err = renameConstraint(d.id, nm)
+      if (err) { report('err', `Value Error: ${err}`); S.abortCommand(); finish(false); return }
+    }
     const r = S.solve()
     if (!r || r.status === 'failed' || r.conflicting.length) {
       report('err', `Value Error: the datum ${presentation(c)} cannot be set: the solver fails or finds conflicting constraints`)
@@ -245,15 +219,22 @@ function DatumDialog() {
     finish(true)
   }
   const reject = () => { S.abortCommand(); finish(false) }
+  /** drivingToggled: SketchObject::setDriving (a reference dimension loses its expression). */
   const toggleReference = (on: boolean) => {
     setReference(on)
-    const cs = S.getConstraints()
-    S.setConstraint(d.id, { ...cs[d.id], driving: !on })
+    const cs = S.getConstraints(), next = { ...cs[d.id], driving: !on }
+    if (on) { delete next.expr; setExpr('') }
+    S.setConstraint(d.id, next)
     S.solve()
     if (on) setVal(c0.type === 'Angle' ? (S.getConstraints()[d.id].value * 180) / Math.PI : S.getConstraints()[d.id].value)
   }
+  const dims = c0.type === 'Angle' ? DEG : LEN
+  /** showFormulaDialog: the editor opens on the box; formEditorOpened unchecks Reference. */
+  const openExpr = (at: { x: number; y: number }) => { if (reference) toggleReference(false); setExprAt({ ...at, text: expr || String(+val.toPrecision(10)) }) }
+  const vars = Object.fromEntries(Object.entries(paramVars(part)).map(([k, v]) => [k, { value: v, dims: [0, 0, 0, 0, 0, 0, 0, 0] as typeof LEN }]))
   return createPortal(
     <div className="msgbox-back" onKeyDown={(e) => {
+      if (exprAt) return
       e.stopPropagation()
       if (e.key === 'Escape') { e.preventDefault(); reject() }
       if (e.key === 'Enter') { e.preventDefault(); accept() }
@@ -262,7 +243,11 @@ function DatumDialog() {
         <div className="msgbox-title">{title}</div>
         <div className="datum-body">
           <div className="hbox fill"><span>{label}</span>
-            <QuantityBox value={val} dims={c0.type === 'Angle' ? DEG : LEN} disabled={reference} autoFocus onChange={(v) => { setVal(v); setReference(false) }} onFinish={() => okRef.current?.focus()} /></div>
+            <QuantityBox value={val} dims={dims} disabled={reference || !!expr} autoFocus onChange={(v) => { setVal(v); setReference(false) }} onFinish={() => okRef.current?.focus()}
+              onEquals={(_, at) => openExpr(at)} title={expr || undefined} />
+            {/* ExpressionSpinBox: the bound-expression icon; a click opens the editor */}
+            <button className="datum-fx" data-datum-fx title={expr || 'Enter an expression...'} onClick={(e) => { const r = e.currentTarget.getBoundingClientRect(); openExpr({ x: r.left - 250, y: r.top }) }}>
+              <img src="./freecad-icons/bound-expression.svg" width={14} height={14} alt="" draggable={false} style={{ opacity: expr ? 1 : 0.35 }} /></button></div>
           {(c0.type === 'Radius' || c0.type === 'Diameter') && <div className="hbox">
             <label className="tcheck"><input type="radio" checked={radius} onChange={() => setRadius(true)} /> Radius</label>
             <label className="tcheck"><input type="radio" checked={!radius} onChange={() => setRadius(false)} /> Diameter</label></div>}
@@ -274,6 +259,8 @@ function DatumDialog() {
           <button className="qbtn" onClick={reject}>Cancel</button>
         </div>
       </div>
+      {exprAt && <ExpressionDialog at={exprAt} text={exprAt.text} dims={dims} vars={vars} owner={part ?? undefined}
+        onOk={(v, text) => { setExprAt(null); setExpr(text); setVal(v); setReference(false) }} onCancel={() => setExprAt(null)} />}
     </div>, document.body)
 }
 const presentation = (c: SK.Constraint) => SK.presentationValue(c)
@@ -358,7 +345,8 @@ onEditSketch((part, name) => {
   m.multiply(sketchMatrix(f))
   const pos = new THREE.Vector3(), q = new THREE.Quaternion(), sc = new THREE.Vector3()
   m.decompose(pos, q, sc)
-  const sketch = S.unsavedSketch(name) ?? { geometry: (f.geometry ?? []) as SK.Geo[], constraints: (f.constraints ?? []) as import('./solver').Cons[] }
+  // a value bound to an expression (the part file's string value) is what the expression gives over the part's PARAMS
+  const sketch = S.unsavedSketch(name) ?? { geometry: (f.geometry ?? []) as SK.Geo[], constraints: resolveExpressions((f.constraints ?? []) as import('./solver').Cons[], part) }
   void externalOf(f, part).then((external) => S.editSketch({ part, name, placement: { base: [pos.x, pos.y, pos.z], rotation: [q.x, q.y, q.z, q.w] }, sketch, external }))
 })
 /** The sketch's external geometry as the Body projected it (attached.external, after its build), and which of its

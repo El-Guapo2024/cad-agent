@@ -97,8 +97,10 @@ type Session = {
   rubber: { a: [number, number]; b: [number, number] } | null
   drag: DragState | null
   dragConstraints: { ids: number[]; xInit: number; yInit: number; start: Constraint[] } | null
-  /** TaskSketcherConstraints' check boxes: constraints the view leaves out. */
+  /** Constraint::isVisible off (TaskSketcherConstraints' Display only filtered constraints): constraints the view leaves out. */
   hiddenConstraints: Set<number>
+  /** ViewProviderSketch::isShownVirtualSpace: the view shows the constraints in the other virtual space (Sketcher_SwitchVirtualSpace). */
+  shownVirtualSpace: boolean
   before: { hidden: string[]; camera: string | null; workbench: Workbench }
   /** An open command (Gui::Document::openCommand): its name and the sketch before it. */
   command: { name: string; before: Snapshot } | null
@@ -190,7 +192,8 @@ function drawState(): DrawState {
     selection: { points: selectedPoints(), curves: selectedCurves(), constraints: selectedConstraints() },
     editCurves: s.edit.curves, editConstruction: s.edit.construction, editMarkers: s.edit.markers, extensionHint: s.edit.extensionHint,
     directionHints: s.edit.directionHints, positionText: s.edit.positionText, ovps: s.edit.ovps, rubber: s.rubber, showGrid: s.showGrid,
-    gridSize: 10, hiddenConstraints: s.hiddenConstraints,
+    // a constraint shows when it is visible and in the virtual space the view shows (EditModeConstraintCoinManager)
+    gridSize: 10, hiddenConstraints: new Set([...s.hiddenConstraints, ...s.constraints.flatMap((c, i) => (c.virtual !== s.shownVirtualSpace ? [i] : []))]),
   }
 }
 
@@ -693,7 +696,7 @@ function leftButton(ev: NavEvent, h: number): boolean {
     case 'selectEdge': if (s.pre.curve !== null) preselectToSelection(SK.edgeName(s.pre.curve), ev.ctrl); s.mode = 'none'; changed(); return true
     case 'selectCross': if (s.pre.cross !== null) preselectToSelection(['RootPoint', 'H_Axis', 'V_Axis'][s.pre.cross], ev.ctrl); s.mode = 'none'; changed(); return true
     case 'selectWire': toggleWireSelection(s.pre.curve); s.mode = 'none'; changed(); return true
-    case 'selectConstraint': for (const id of s.pre.constraints) preselectToSelection(SK.constraintName(s.constraints[id], id), ev.ctrl, true); s.mode = 'none'; changed(); return true
+    case 'selectConstraint': for (const id of s.pre.constraints) preselectToSelection(SK.constraintSelName(id), ev.ctrl, true); s.mode = 'none'; changed(); return true
     case 'drag': commitDragMove(p); s.mode = 'none'; changed(); return true
     case 'dragConstraint': commitConstraintDrag(p); s.mode = 'none'; changed(); return true
     case 'startRubber': if (!ev.ctrl) clearSelection(); s.mode = 'none'; changed(); return true
@@ -1085,7 +1088,7 @@ export async function editSketch(ref: SketchRef) {
     ref, placement, geometry, constraints, external, result: null, message: { state: 'empty', text: 'Empty sketch', link: '', linkText: '' },
     backup: { geometry: geometry.map((g) => ({ ...g })), constraints: constraints.map((c) => ({ ...c })), external: copyExternal(external) }, undo: [], redo: [], selection: [],
     pre: { point: -1, curve: null, cross: null, constraints: [] }, mode: 'none', handler: null, construction: false, edit: emptyEdit(),
-    rubber: null, drag: null, dragConstraints: null, hiddenConstraints: new Set(),
+    rubber: null, drag: null, dragConstraints: null, hiddenConstraints: new Set(), shownVirtualSpace: false,
     before: { hidden: st.hidden, camera: view?.getCamera() ?? null, workbench: st.workbench }, command: null,
     hits: { icons: [], labels: [], datumLines: [] }, click: { pos: [-16000, -16000], t: 0, cursor: [0, 0] },
     showGrid: saved.get('sketcher.showGrid', true), angleSnap: { on: false, ref: [0, 0], last: 0 }, saving: false,
@@ -1228,6 +1231,14 @@ export function setShowGrid(on: boolean) { const s = session; saved.set('sketche
 export const showGrid = () => session?.showGrid ?? saved.get('sketcher.showGrid', true)
 export function setConstraintHidden(i: number, hidden: boolean) { const s = session; if (!s) return; const h = new Set(s.hiddenConstraints); if (hidden) h.add(i); else h.delete(i); s.hiddenConstraints = h; changed() }
 export const hiddenConstraints = () => session?.hiddenConstraints ?? new Set<number>()
+/** Where the last draw put the constraints' icons and labels (screen pixels), and a pixel in sketch coordinates. */
+export const hitRegions = () => session?.hits ?? null
+/** The panel and the toolbars redraw (a mode that is no sketch data changed: the constraint creation mode). */
+export const notifyChanged = () => changed()
+export const screenToSketch = (x: number, y: number) => screen()?.toSketch(x, y) ?? null
+/** ViewProviderSketch::getIsShownVirtualSpace / setIsShownVirtualSpace. */
+export const isShownVirtualSpace = () => !!session?.shownVirtualSpace
+export function setShownVirtualSpace(on: boolean) { const s = session; if (s && s.shownVirtualSpace !== on) { s.shownVirtualSpace = on; changed() } }
 /** Sketcher_ViewSketch: look at the sketch again. */
 export function viewSketch() {
   const s = session

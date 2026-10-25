@@ -468,7 +468,8 @@ function arcRange(g: Extract<Geo, { type: 'ArcOfCircle' }>): [number, number] {
 function datumOf(geo: Geo[], c: Constraint): Datum | null {
   const P = (g: number, p: PointPos) => getPoint(geo, g, p)
   const label = (prefix = '') => {
-    const v = prefix + presentationValue(c)
+    // getPresentationString: " (ƒ𝑥)" after a value bound to an expression
+    const v = prefix + presentationValue(c) + (c.expr ? ' (ƒ𝑥)' : '')
     return c.driving ? v : `(${v})`
   }
   if (c.type === 'Distance' || c.type === 'DistanceX' || c.type === 'DistanceY') {
@@ -723,7 +724,7 @@ export function drawSketch(ctx: Ctx, s: Screen, st: DrawState, camCenter: XY): H
     const d = datumOf(st.geometry, c)
     if (!d) return
     const color = st.preselect.constraints.includes(i) ? COLORS.preselect : st.selection.constraints.has(i) ? COLORS.select
-      : !c.active ? COLORS.deactivated : !c.driving ? COLORS.nonDriving : COLORS.constrDim
+      : !c.active ? COLORS.deactivated : c.expr ? COLORS.exprBased : !c.driving ? COLORS.nonDriving : COLORS.constrDim
     drawDatum(ctx, s, d, color, c.type === 'Symmetric' ? 1 : SIZES.dimension, font, hits, i, { strike: !c.active })
   })
   drawIcons(ctx, s, st, hits)
