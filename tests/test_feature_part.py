@@ -197,3 +197,11 @@ def test_defaults_are_freecads(kind, cls):
             assert ours == pytest.approx(v), (prop, ours, v)
         else:
             assert ours == v, (prop, ours, v)
+
+
+def test_a_reverse_without_a_source_fails_as_its_execute_does():
+    """FreeCAD's recompute never runs Reverse::execute on a fresh, source-less Part::Reverse: it stays Valid with a null
+    Shape and no message. A part file is a document to build, so the object fails with the message execute returns
+    (Reverse::execute: "No part object linked."); no golden case can record FreeCAD's side of it."""
+    built = Part.evaluate([Part.Reverse("Reverse")], keep_going=True)
+    assert "No part object linked." in built["_errors"]["Reverse"]

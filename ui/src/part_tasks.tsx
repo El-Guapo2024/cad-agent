@@ -12,13 +12,14 @@
 //   src/Mod/Part/Gui/TaskThickness.cpp: 2012 Werner Mayer
 //   src/Mod/Part/Gui/DlgBooleanOperation.cpp: 2007 Werner Mayer
 //   src/Mod/Part/Gui/DlgProjectionOnSurface.cpp: 2019 Manuel Apeltauer, direkt cnc-systeme GmbH
+//   src/Mod/Part/Gui/DlgScale.cpp: 2023 Wanderer Fan
 //   src/Mod/Part/BasicShapes/CommandShapes.py: 2020 Werner Mayer
 //   src/Mod/Sketcher/Gui/SketchOrientationDialog.cpp: 2011 Jürgen Riegel
 //   No copyright line in the file: src/Mod/Part/Gui/DlgPrimitives.ui, src/Mod/Part/Gui/Location.ui, src/Mod/Part/BasicShapes/TaskTube.ui,
 //       src/Mod/Part/Gui/DlgExtrusion.ui, src/Mod/Part/Gui/DlgRevolution.ui, src/Mod/Part/Gui/Mirroring.ui,
 //       src/Mod/Part/Gui/DlgFilletEdges.ui, src/Mod/Part/Gui/TaskLoft.ui, src/Mod/Part/Gui/TaskSweep.ui,
 //       src/Mod/Part/Gui/TaskOffset.ui, src/Mod/Part/Gui/DlgBooleanOperation.ui, src/Mod/Part/Gui/DlgProjectionOnSurface.ui,
-//       src/Mod/Sketcher/Gui/SketchOrientationDialog.ui
+//       src/Mod/Part/Gui/DlgScale.ui, src/Mod/Sketcher/Gui/SketchOrientationDialog.ui
 // The Part workbench's task panels, each laid out as its .ui lays out the dialog, with the dialog's own defaults (the
 // values FreeCAD's dialog starts from, ui/scripts/fcpart.json, which are not always the property's: the Primitives dialog
 // starts a Plane at 10 mm, a Line at (10, 10, 10)). OK (or Create, Apply) writes the object as the dialog's Python does, in
@@ -68,7 +69,7 @@ function ObjList({ doc, names, picked, onPick, header, multi, name }: { doc: Fea
     <div className="pt-list" data-qf={name}>
       {header && <div className="pt-list-head">{header}</div>}
       {names.map((n) => {
-        const o = objectOf(doc, n)
+        const o = objectOf(doc, n) ?? doc.features?.find((f) => f.name === n)
         const on = picked.includes(n)
         return <div key={n} className={cls('pt-item', on && 'sel')} onClick={() => onPick(multi ? (on ? picked.filter((x) => x !== n) : [...picked, n]) : [n])}>
           <Icon name={o ? partIcon(o.type) : 'part'} size={14} /> {o ? labelOf(o) : n}</div>
@@ -433,6 +434,72 @@ function MirrorTask({ part, edit }: { part: string; edit?: string }) {
   )
 }
 
+// ── Scale (DlgScale: the uniform or per-axis factors, the shapes to scale) ────────────────────────────────────────────
+/** DlgScale::findShapes and canScale: every document object with a shape that can be scaled (not a vertex, not an empty
+ *  compound), by name. A Body's features are document objects of it too, and the Body, whose shape is its Tip's. */
+export function scalableList(doc: FeatureDoc): string[] {
+  const out: string[] = []
+  const add = (n: string, type?: string, links?: unknown) => {
+    if (type === 'Part::Vertex') return
+    if (type === 'Part::Compound' && !(Array.isArray(links) && links.length)) return
+    if (!out.includes(n)) out.push(n)
+  }
+  for (const o of doc.objects ?? []) add(o.name, o.type, o.links)
+  for (const f of doc.features ?? []) add(f.name, f.type)
+  if (doc.body && doc.tip) add('Body')
+  return out
+}
+const r7 = (x: number) => Number(x.toFixed(7))       // DlgScale::writeParametersToFeature's "%.7f"
+function ScaleTask({ part }: { part: string }) {
+  const doc = useStore((s) => s.features[part])
+  // findShapes runs once, as the dialog is built: an Apply's new Scale objects do not join the list
+  const [list] = useState<string[]>(() => (doc ? scalableList(doc) : []))
+  const [shapes, setShapes] = useState<string[]>(() => selectedObjects(part).filter((n) => list.includes(n)))
+  const [uniform, setUniform] = useState(true)
+  const [factor, setFactor] = useState(1)
+  const [xyz, setXyz] = useState<[number, number, number]>([1, 1, 1])
+  if (!doc) return null
+  const apply = async (close: boolean) => {
+    if (!shapes.length) {
+      // DlgScale::accept: the message, then QDialog::accept() — OK closes anyway; Apply does not
+      await messageBox('critical', 'Scale', 'No scalable shapes selected')
+      if (close) closeTask()
+      return
+    }
+    let d = getState().features[part]
+    const props = { uniform, uniform_scale: r7(factor), x_scale: r7(xyz[0]), y_scale: r7(xyz[1]), z_scale: r7(xyz[2]) }
+    const ops: FeatureOp[] = []
+    for (const s of shapes) {
+      const name = uniqueName(d, 'Scale')
+      ops.push({ op: 'add', feature: { name, type: 'Part::Scale', base: s, ...props } })
+      d = { ...d, objects: [...(d.objects ?? []), { name, type: 'Part::Scale' }] }
+    }
+    if (close) closeTask()
+    // one "Scale" transaction; DlgScale::apply hides each source it scaled (Part::Scale's HIDES does)
+    await applyOps(part, ops, { name: 'Scale' })
+  }
+  const axis = (i: 0 | 1 | 2) => (x: number) => setXyz((v) => v.map((y, j) => (j === i ? x : y)) as typeof v)
+  return (
+    <div className="tasks pt-task" data-task="scale">
+      {/* TaskScale::getStandardButtons: Ok | Apply | Close */}
+      <Buttons items={[['OK', () => void apply(true), true], ['Close', closeTask], ['Apply', () => void apply(false)]]} />
+      <TaskBox title="Scale" icon="pt-scale">
+        <Radio name="rbUniform" label="Uniform scaling" checked={uniform} onChange={() => setUniform(true)} />
+        <Q label="Factor" name="dsbUniformScale" dims={NUMBER} value={factor} min={-2147480000} max={2147480000}
+          disabled={!uniform} onChange={setFactor} />
+        <Radio name="rbNonUniform" label="Non-uniform scaling" checked={!uniform} onChange={() => setUniform(false)} />
+        <Q label="X-factor" name="dsbXScale" dims={NUMBER} value={xyz[0]} min={-2147480000} max={2147480000}
+          disabled={uniform} onChange={axis(0)} />
+        <Q label="Y-factor" name="dsbYScale" dims={NUMBER} value={xyz[1]} min={-2147480000} max={2147480000}
+          disabled={uniform} onChange={axis(1)} />
+        <Q label="Z-factor" name="dsbZScale" dims={NUMBER} value={xyz[2]} min={-2147480000} max={2147480000}
+          disabled={uniform} onChange={axis(2)} />
+        <ObjList name="treeWidget" header="Shape" doc={doc} names={list} picked={shapes} onPick={setShapes} multi />
+      </TaskBox>
+    </div>
+  )
+}
+
 // ── Fillet and Chamfer (DlgFilletEdges: the shape, its edges with their radii, "Fillet" / "Chamfer") ─────────────────
 /** The shape of an object as the server builds it (cad feature shape), its faces and edges by FreeCAD's names: the
  *  lists the dialogs show, and what the 3D view picks (part_pick.tsx's helpers). */
@@ -784,6 +851,7 @@ export function PartTask({ part, other }: { part: string; other: string }) {
     case 'extrude': return <ExtrudeTask key={key} part={part} edit={edit} />
     case 'revolve': return <RevolveTask key={key} part={part} edit={edit} />
     case 'mirror': return <MirrorTask key={key} part={part} edit={edit} />
+    case 'scale': return <ScaleTask key={key} part={part} />
     case 'fillet': return <FilletTask key={key} part={part} edit={edit} kind="Fillet" />
     case 'chamfer': return <FilletTask key={key} part={part} edit={edit} kind="Chamfer" />
     case 'loft': return <LoftTask key={key} part={part} edit={edit} />

@@ -1317,6 +1317,24 @@
    "MapReversed": false,
    "MapPathParameter": 0.0
   },
+  "Part::Face": {
+   "AttachmentSupport": [],
+   "MapMode": "Deactivated",
+   "AttachmentOffset": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ],
+   "MapReversed": false,
+   "MapPathParameter": 0.0
+  },
   "Part::Fillet": {
    "AttachmentSupport": [],
    "MapMode": "Deactivated",
@@ -1605,7 +1623,61 @@
    "MapReversed": false,
    "MapPathParameter": 0.0
   },
+  "Part::Reverse": {
+   "AttachmentSupport": [],
+   "MapMode": "Deactivated",
+   "AttachmentOffset": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ],
+   "MapReversed": false,
+   "MapPathParameter": 0.0
+  },
   "Part::Revolution": {
+   "AttachmentSupport": [],
+   "MapMode": "Deactivated",
+   "AttachmentOffset": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ],
+   "MapReversed": false,
+   "MapPathParameter": 0.0
+  },
+  "Part::RuledSurface": {
+   "AttachmentSupport": [],
+   "MapMode": "Deactivated",
+   "AttachmentOffset": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ],
+   "MapReversed": false,
+   "MapPathParameter": 0.0
+  },
+  "Part::Scale": {
    "AttachmentSupport": [],
    "MapMode": "Deactivated",
    "AttachmentOffset": [

@@ -616,33 +616,44 @@ FreeCAD's Part workbench at 3160daf1e2b6, for part files of Part objects: OBJECT
 objects as a graph (docs/EDITING_PLAN.md, "Part workbench objects in a part file"). `cad_agent/feature_part*.py` build them,
 ports of PrimitiveFeature.cpp, FeaturePartBox/Circle/Polygon.cpp, FeaturePartBoolean/Cut/Fuse/Common/Section.cpp,
 FCBRepAlgoAPI_*.cpp, FeatureExtrusion.cpp and ExtrusionHelper.cpp, FeatureRevolution.cpp, FeatureMirroring.cpp,
-FeatureFillet/Chamfer.cpp, FeatureCompound.cpp, PartFeatures.cpp (Loft, Sweep, Thickness, Refine), FeatureOffset.cpp,
+FeatureFillet/Chamfer.cpp, FeatureCompound.cpp, PartFeatures.cpp (Loft, Sweep, Thickness, Refine, Reverse, RuledSurface),
+FeatureScale.cpp, FeatureFace.cpp, FeatureOffset.cpp,
 FeatureProjectOnSurface.cpp, the face makers (FaceMaker*.cpp, Unified the new Extrude's), TopoShapeExpansion.cpp's
 makeElement* they call, and the Python features (BasicShapes' Tube, BOPTools' BooleanFragments, Slice, XOR, Connect, Embed,
 Cutout with GeneralFuseResult, ShapeMerge, SplitAPI, JoinAPI; CompoundTools' CompoundFilter and Explode).
 `cad_agent/feature_edit_part.py` and feature_edit.py read and edit OBJECTS in place, `cad feature new --document` and `add`/`set`
 take them, and `src/part_wb.tsx` (commands, menu, toolbars, tree, property view, keys) and `src/part_tasks.tsx` (task panels) are
 the page's; `src/pd_attach.tsx` is the Attachment panel for a Part object too (AttacherEngine3D), and `src/part_pick.tsx` draws
-the objects' own shapes as the faces and edges their panels pick in the 3D view. `tests/golden/part` holds 211 documents freecadcmd built from the same lines (`make.py`, `make.py split`,
-`make.py sweep`): every object of them, 1,368 checks with the round trips, gives FreeCAD's volume, area, length, box, centre,
-shape type and counts of solids, shells, faces, wires, edges and vertices, or fails with FreeCAD's message; three are known
-(below). Every type's defaults are a fresh FreeCAD object's. `scripts/partcheck.mjs` holds the page to the real FreeCAD's GUI
-(`scripts/fcpart.py` writes `scripts/fcpart.json`): 406 checks pass, 21 known (2026-10-25), the attach section's 17 among
+the objects' own shapes as the faces and edges their panels pick in the 3D view. `tests/golden/part` holds 247 documents freecadcmd built
+from the same lines (`make.py`, `make.py split`, `make.py sweep`, `make.py attach`, `make.py misc`): their 803 objects each
+give FreeCAD's volume, area, length, box, centre, shape type and counts of solids, shells, faces, wires, edges and vertices,
+or fail with FreeCAD's message; three are known (below). Every type's defaults are a fresh FreeCAD object's. `scripts/partcheck.mjs` holds the page to the real FreeCAD's GUI
+(`scripts/fcpart.py` writes `scripts/fcpart.json`): 441 checks pass, 17 known (2026-10-25), the attach section's 17 among
 them (the Attachment panel on a Part object, a face picked in the 3D view, the properties and the Placement written, the
-property view's rows, the panel reopened on them, Cancel writing nothing).
+property view's rows, the panel reopened on them, Cancel writing nothing), and the standalone section's 35 (Reverse, Scale,
+Face from wires and Ruled surface: the object each makes, its undo step, the inputs it hides or keeps shown, the Scale
+panel's labels, factors, list and dialogs).
 
 | FreeCAD | Ours |
 |---|---|
-| The objects | done: Box, Cylinder, Sphere, Cone, Torus, Tube, Prism, Wedge, Helix, Spiral, Ellipsoid, Plane, Circle, Ellipse, Line, Vertex (Point), RegularPolygon, Polygon; Cut, Fuse, MultiFuse, Common, MultiCommon, Section; BooleanFragments, Slice (and Slice apart), XOR, Connect, Embed, Cutout, Compound, CompoundFilter (and Explode compound), Refine; Extrusion (tapered too, every face maker), Revolution, Mirroring, Fillet, Chamfer, Loft, Sweep, Offset, Offset2D, Thickness, ProjectOnSurface. A sketch outside a Body is a Sketch in OBJECTS; a Body in the same file is the object "Body" |
+| The objects | done: Box, Cylinder, Sphere, Cone, Torus, Tube, Prism, Wedge, Helix, Spiral, Ellipsoid, Plane, Circle, Ellipse, Line, Vertex (Point), RegularPolygon, Polygon; Cut, Fuse, MultiFuse, Common, MultiCommon, Section; BooleanFragments, Slice (and Slice apart), XOR, Connect, Embed, Cutout, Compound, CompoundFilter (and Explode compound), Refine; Extrusion (tapered too, every face maker), Revolution, Mirroring, Fillet, Chamfer, Loft, Sweep, Offset, Offset2D, Thickness, ProjectOnSurface, Reverse, Scale, Face, RuledSurface. A sketch outside a Body is a Sketch in OBJECTS; a Body in the same file is the object "Body" |
 | Part menu, Solids / Part Tools / Boolean Tools toolbars | done: FreeCAD's entries in its order with its commands and icons (fcpart.json), the dropdown groups (Part_CompCompoundTools, _CompJoinFeatures, _CompSplitFeatures, _CompOffset) |
-| The commands on a selection | done as Command.cpp, CommandParametric.cpp, BOPFeatures.py and the BOPTools/CompoundTools commands do: FreeCAD's names (Box labelled Cube, Fusion, Common, Part__Mirroring labelled "<Label> (Mirror #n)", a Refine named after its source, Compound_child0 labelled "Compound.0"), the undo step's name ("Cube", "Part Cut", "Fusion", "Create Boolean Fragments", "Explode", …), the inputs each hides, its warnings |
+| The commands on a selection | done as Command.cpp, CommandParametric.cpp, BOPFeatures.py and the BOPTools/CompoundTools commands do: FreeCAD's names (Box labelled Cube, Fusion, Common, Part__Mirroring labelled "<Label> (Mirror #n)", a Refine named after its source, Compound_child0 labelled "Compound.0", a Reverse "<Label> (Rev)", the Ruled Surface's Name and Label "Ruled_Surface"), the undo step's name ("Cube", "Part Cut", "Fusion", "Create Boolean Fragments", "Explode", "Reverse", "Make face", "Create ruled surface", …), the inputs each hides, its warnings |
 | Primitives dialog, Tube | done: the type list, each page's labels and the values the dialog starts from (a Plane 10 × 10 mm, a Line to (10, 10, 10), an Ellipsoid's Radius 3 at 4), the Location panel (position, rotation axis and angle, written with the dialog's two decimals), Create ("Create Box") and Close; a double-click on a primitive opens its page to edit, OK writes "Edit Box" |
-| Task panels | done: Extrude (DlgExtrusion: Along normal / edge / custom, Reversed, lengths, Symmetric, taper angles, Create solid, the shape list; OK, Close, Apply), Revolve, Mirror, Fillet and Chamfer (the shape, its edges with their radii, constant or variable; its edges also picked in the 3D view over the shape), Loft and Sweep (available and selected profiles, the path), Offset, 2D Offset, Thickness (faces picked in the 3D view, tinted), Project on surface (its support and projection picked in the 3D view), Boolean Operation, the new sketch's orientation |
+| Task panels | done: Extrude (DlgExtrusion: Along normal / edge / custom, Reversed, lengths, Symmetric, taper angles, Create solid, the shape list; OK, Close, Apply), Revolve, Mirror, Scale (DlgScale: Uniform scaling with its Factor, Non-uniform scaling with X-, Y- and Z-factor, the shape list; OK, Close, Apply), Fillet and Chamfer (the shape, its edges with their radii, constant or variable; its edges also picked in the 3D view over the shape), Loft and Sweep (available and selected profiles, the path), Offset, 2D Offset, Thickness (faces picked in the 3D view, tinted), Project on surface (its support and projection picked in the 3D view), Boolean Operation, the new sketch's orientation |
 | Tree | done: a document's objects with what each claims under it (ViewProvider::claimChildren), the hidden greyed, the eye; Space writes visibility=, F2 the Label, Delete, double-click edits |
 | Property view | done: each type's groups and rows in FreeCAD's order (`src/part_props.ts`, written by `scripts/partprops.py` from FreeCAD's objects), editable where the part file holds the value |
 
 Deliberately or knowingly different:
-- Shape builder (Part_Builder), Cross-sections, Simple / Transformed / Element copy, Convert to solid and Defeaturing are greyed: they make a Part::Feature holding a fixed copy of a shape, which a part file of parametric objects cannot hold. Scale, Face from wires, Ruled surface, Reverse shapes and Set tolerance are not ported yet; Shape from mesh and Points from shape have no meshes to work on; Box selection, Persistent section cut, Check geometry and Appearance per face are greyed with their reasons.
+- Shape builder (Part_Builder), Cross-sections, Simple / Transformed / Element copy, Convert to solid and Defeaturing are greyed: they make a Part::Feature holding a fixed copy of a shape, which a part file of parametric objects cannot hold. Set tolerance is not ported yet; Shape from mesh and Points from shape have no meshes to work on; Box selection, Persistent section cut, Check geometry and Appearance per face are greyed with their reasons.
+- Ruled surface takes one or two whole objects selected in the tree, not an edge or a wire picked in the 3D view (FreeCAD's
+  getSelectionEx carries sub-elements, a tree row here does not); with whole shapes it makes what FreeCAD's command makes
+  (Curve1 and Curve2 are whole-shape links: FreeCAD's `(obj, [''])`, the part file's bare name), and a surface that does not
+  build is put back, as every failing change is
+  (FreeCAD keeps it in error). Face from wires and Reverse likewise take whole objects.
+- The Scale panel's list is the part file's objects by type (a Vertex and an empty Compound left out), where FreeCAD's is the
+  objects whose built shape canScale takes: an object that failed to build is listed here and not there. The factors are the
+  numbers the part file writes (DlgScale's "%.7f").
 - A Part object is placed by its Placement (AttachExtension with MapMode Deactivated, as the commands leave it), or by its
   attachment: Part_EditAttachment opens `src/pd_attach.tsx` with AttacherEngine3D on exactly one selected Part object (not a
   sketch), with the reference buttons, the engine 3D modes, the offset and Flip sides; the references are resolved among the

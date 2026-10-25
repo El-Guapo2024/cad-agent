@@ -61,6 +61,9 @@ const TYPES: Record<string, [IconName, string]> = {
   'Part::ProjectOnSurface': ['pt-projection', 'ProjectOnSurface'], 'Part::BooleanFragments': ['pt-fragments', 'BooleanFragments'],
   'Part::Slice': ['pt-slice', 'Slice'], 'Part::XOR': ['pt-xor', 'XOR'], 'Part::Connect': ['pt-connect', 'Connect'],
   'Part::Embed': ['pt-embed', 'Embed'], 'Part::Cutout': ['pt-cutout', 'Cutout'], 'Part::CompoundFilter': ['pt-compound-filter', 'CompoundFilter'],
+  // ViewProviderReverse and ViewProviderFace set no pixmap of their own (the generic Part icon); the other two do
+  'Part::Reverse': ['pt-feature', 'Reverse'], 'Part::Scale': ['pt-scale', 'Scale'], 'Part::Face': ['pt-feature', 'Face'],
+  'Part::RuledSurface': ['pt-ruled', 'RuledSurface'],
   [SKETCH]: ['pd-sketch', 'Sketch'],
 }
 export const partIcon = (type: string): IconName => TYPES[type]?.[0] ?? 'pt-feature'
@@ -206,6 +209,45 @@ async function fromSelection(cmd: string) {
       return explode(part!, sel[0], 'Explode')
   }
 }
+/** Part_ReverseShape (CmdPartReverseShape::activated): a Part::Reverse for each selected object with a shape, named
+ *  "<name>_rev", labelled "<Label> (Rev)", in one "Reverse" step; the sources stay shown. */
+async function reverseShapes() {
+  const part = activeDoc()
+  const sel = part ? selectedObjects(part) : []
+  if (!part || !sel.length) return
+  const doc = getState().features[part]
+  const any = (n: string) => objectOf(doc, n) ?? doc?.features?.find((f) => f.name === n)
+  let d = doc
+  const ops: FeatureOp[] = []
+  for (const s of sel) {
+    const o = any(s)
+    const name = uniqueName(d, `${s}_rev`)
+    ops.push({ op: 'add', feature: { name, type: 'Part::Reverse', source: s, label: `${o ? labelOf(o) : s} (Rev)` } })
+    d = { ...d, objects: [...(d.objects ?? []), { name, type: 'Part::Reverse' }] }
+  }
+  await applyOps(part, ops, { name: 'Reverse' })
+}
+/** Part_MakeFace (CmdPartMakeFace::activated): one "Face" whose Sources are the selected objects, "Make face". */
+async function makeFace() {
+  const part = activeDoc()
+  const sel = part ? selectedObjects(part) : []
+  if (!part || !sel.length) return
+  await addObject(part, { name: uniqueName(getState().features[part], 'Face'), type: 'Part::Face', sources: sel }, 'Make face')
+}
+/** Part_RuledSurface (CmdPartRuledSurface::activated): one or two whole selected objects become Curve1 and Curve2
+ *  (the second the first when only one is selected) in "Create ruled surface". CmdPartRuledSurface's checks only ever
+ *  turn its `ok` on, so a whole shape that is not an edge or a wire still makes the object, which then fails to build
+ *  (the C++ never rejects it); with no selection, or more than two, it warns. The page's tree selects whole objects; a
+ *  sub-element pick is not part of its selection, and FreeCAD's own sub-element paths there leave Curve1 unset. */
+async function ruledSurface() {
+  const part = activeDoc()
+  if (!part) return
+  const sel = selectedObjects(part)
+  if (sel.length < 1 || sel.length > 2) return warn('Wrong Selection', 'Select either 2 edges or 2 wires.')
+  const doc = getState().features[part]
+  await addObject(part, { name: uniqueName(doc, 'Ruled_Surface'), type: 'Part::RuledSurface', curve1: sel[0], curve2: sel[1] ?? sel[0] },
+    'Create ruled surface')
+}
 /** CompoundTools.Explode.explodeCompound: a CompoundFilter for each child, "specific items" with its index, labelled
  *  "<Label>.<i>" (FreeCAD also groups them in "Exploded <Label>"; a part file has no groups). */
 async function explode(part: string, name: string, tx: string) {
@@ -244,7 +286,7 @@ export function partMenu(): Entry[] {
     NA('Shape From Mesh', 'pt-shape-from-mesh', 'Part_ShapeFromMesh', MESH),
     NA('Points From Shape', 'pt-points-from-mesh', 'Part_PointsFromMesh', MESH),
     NA('Convert to Solid', 'pt-make-solid', 'Part_MakeSolid', STATIC),
-    NA('Reverse Shapes', 'pt-reverse', 'Part_ReverseShape', 'Part::Reverse is not ported yet'),
+    { label: 'Reverse Shapes', icon: 'pt-reverse', cmd: 'Part_ReverseShape', disabled: !n, onSelect: () => void reverseShapes() },
     { label: 'Copy', sub: [
       NA('Simple Copy', 'pt-feature', 'Part_SimpleCopy', STATIC), NA('Transformed Copy', 'pt-transformed-copy', 'Part_TransformedCopy', STATIC),
       NA('Shape Element Copy', 'pt-element-copy', 'Part_ElementCopy', STATIC),
@@ -316,11 +358,11 @@ function toolEntries(): Entry[] {
     { label: 'Extrude', icon: 'pt-extrude', cmd: 'Part_Extrude', disabled: !doc, onSelect: () => void openPart('extrude') },
     { label: 'Revolve', icon: 'pt-revolve', cmd: 'Part_Revolve', disabled: !doc, onSelect: () => void openPart('revolve') },
     { label: 'Mirror', icon: 'pt-mirror', cmd: 'Part_Mirror', disabled: !doc, onSelect: () => void openPart('mirror') },
-    NA('Scale', 'pt-scale', 'Part_Scale', 'Part::Scale is not ported yet'),
+    { label: 'Scale', icon: 'pt-scale', cmd: 'Part_Scale', disabled: !doc, onSelect: () => void openPart('scale') },
     { label: 'Fillet', icon: 'pt-fillet', cmd: 'Part_Fillet', disabled: !doc, onSelect: () => void openPart('fillet') },
     { label: 'Chamfer', icon: 'pt-chamfer', cmd: 'Part_Chamfer', disabled: !doc, onSelect: () => void openPart('chamfer') },
-    NA('Face From Wires', 'pt-make-face', 'Part_MakeFace', 'Part::Face is not ported yet'),
-    NA('Ruled Surface', 'pt-ruled', 'Part_RuledSurface', 'Part::RuledSurface is not ported yet'),
+    { label: 'Face From Wires', icon: 'pt-make-face', cmd: 'Part_MakeFace', disabled: !n, onSelect: () => void makeFace() },
+    { label: 'Ruled Surface', icon: 'pt-ruled', cmd: 'Part_RuledSurface', disabled: !doc, onSelect: () => void ruledSurface() },
     { label: 'Loft', icon: 'pt-loft', cmd: 'Part_Loft', disabled: !doc, onSelect: () => void openPart('loft') },
     { label: 'Sweep', icon: 'pt-sweep', cmd: 'Part_Sweep', disabled: !doc, onSelect: () => void openPart('sweep') },
     { label: 'Section', icon: 'pt-section', cmd: 'Part_Section', disabled: n !== 2, onSelect: () => void booleanOf('section') },
@@ -631,6 +673,9 @@ export function PartObjectProps({ refKey }: { refKey: string }) {
     const label = human(r.p)
     if (r.p === 'Label') return <EditRow key={r.p} k="Label" value={labelOf(o)} type="str" onCommit={(x) => set({ label: String(x) === name ? null : x })} />
     if (r.p === 'Placement') return <Row key={r.p} k={label} v={placementText(att ? [att.placement.position, att.placement.ypr] : v ?? [[0, 0, 0], [0, 0, 0]])} />
+    // AttachmentSupport is a PropertyLinkSubList but FreeCAD's view shows it as "Base:Face6", and it is written by the
+    // Attachment panel rather than by hand
+    if (r.p === 'AttachmentSupport') return <Row key={r.p} k={<span title="the attachment's references: change them in the Attachment panel">{label}</span>} v={refsText} />
     if (!r.k || r.ro) return <Row key={r.p} k={<span title={r.k ? 'Read-only' : 'not held by the part file: FreeCAD\'s value'}>{label}</span>}
       v={r.k ? String(v ?? '') : r.p === 'MapMode' ? String(att?.map_mode ?? o.map_mode ?? 'Deactivated') : r.p === 'AttacherEngine' ? 'Engine 3D'
         : r.p === 'AttachmentSupport' ? refsText : ''} />

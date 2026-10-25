@@ -217,6 +217,12 @@ class PartObject(KwFeature):
         """The object's shape before its Placement: its own, built from its links (evaluate places it)."""
         return self.shape(ctx, params)
 
+    def base_placement(self, ctx, params):
+        """The Placement the object sits at before its attachment: its placement=, or its Source's (a Reverse's, as
+        Reverse::execute leaves the source's Placement on the object)."""
+        from . import attacher as A
+        return A.Placement.from_offset(getattr(self, "placement", None))
+
     # ── freecadcmd, for the goldens ──
     def fc_props(self):
         """(FreeCAD property, value) for each property to set on the object, links left to fc_links."""
@@ -401,7 +407,7 @@ class Context:
             self.placements[o.name] = self.sketch_placement(o)
             return self.shapes[o.name]
         local = o.built_shape(self, params)
-        orig = A.Placement.from_offset(getattr(o, "placement", None))
+        orig = o.base_placement(self, params)
         pl = self.attach(o, f"{o.name}: attachment", orig=orig)
         if pl is None:
             pl = orig
@@ -687,6 +693,7 @@ from . import feature_part_bool  # noqa: E402,F401  Cut, Fuse, Common, Section, 
 from . import feature_part_ops  # noqa: E402,F401  Extrusion, Revolution, Mirroring, Fillet, ..., Compound, Refine
 from . import feature_part_split  # noqa: E402,F401  BooleanFragments, Slice, XOR, Connect, Embed, Cutout, CompoundFilter
 from . import feature_part_sweep  # noqa: E402,F401  Loft, Sweep, Offset, Offset2D, Thickness, ProjectOnSurface
+from . import feature_part_misc  # noqa: E402,F401  Reverse, Scale, Face, RuledSurface
 
 # What each command hides, where it is not what the tree shows under the object (Gui/Command.cpp, TaskLoft.cpp,
 # TaskSweep.cpp, TaskOffset.cpp, DlgProjectionOnSurface.cpp, Mirroring.cpp: they leave their inputs shown).
