@@ -1,0 +1,15 @@
+/* SPDX-License-Identifier: LGPL-2.1-or-later */
+/* The Sketcher's on-view parameters (Gui::EditableDatumLabel's QuantitySpinBox over the 3D view: no buttons, as wide
+   as its text, the lock icon (Constraint_Lock) at its right once a value is finished) and the Tool Parameters box. */
+.ovp-box {
+  position: fixed; z-index: 5; box-sizing: content-box; height: 18px; padding: 1px 3px; margin: 0;
+  font: 13px var(--font, system-ui, sans-serif); color: #000; background: #fff; border: 1px solid #7a7a7a; border-radius: 2px;
+  outline: none; text-align: left;
+}
+.ovp-box:focus { border-color: #3d8ee6; }
+.ovp-box.locked {
+  padding-right: 20px; background-color: #fff; background-repeat: no-repeat; background-position: right 3px center; background-size: 14px 14px;
+}
+.sk-tool .hbox > span:first-child { min-width: 80px; }
+.sk-tool .qcombo { flex: 1; min-width: 0; }
+.sk-notice { white-space: pre-wrap; margin-top: 4px; }

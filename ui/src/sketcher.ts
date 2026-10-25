@@ -737,6 +737,7 @@ export function wantsPopup(): 'sketch' | 'none' {
 function mouseMove(ev: NavEvent, h: number): boolean {
   const s = session!
   const [x, y] = toTopLeft(ev.pos, h)
+  cursorPx = [x, y]
   // Shift makes constraints unselectable while nothing else goes on (setConstraintSelectability)
   if (['none', 'selectPoint', 'selectEdge', 'selectCross', 'selectConstraint', 'selectWire'].includes(s.mode)) constraintsSelectable = !ev.shift
   if (['selectPoint', 'selectEdge', 'selectConstraint', 'startRubber'].includes(s.mode)) {
@@ -1149,7 +1150,23 @@ function drawOverlay(ctx: CanvasRenderingContext2D, vp: Viewport) {
   if (!s) return
   lastScreen = screenOf(vp, s.placement)
   s.hits = drawSketch(ctx, lastScreen, drawState(), lastScreen.center)
+  for (const f of overlayDrawn) f()
 }
+const overlayDrawn = new Set<() => void>()
+/** After each drawing of the overlay (the camera may have moved): the on-view parameters' boxes follow their labels. */
+export function onOverlayDrawn(f: () => void) { overlayDrawn.add(f); return () => { overlayDrawn.delete(f) } }
+/** The 3D view's canvas in the page (client pixels) and its size, for the boxes over it. */
+export function viewSize(): { w: number; h: number; left: number; top: number } | null {
+  const vp = getView()?.sketchViewport(), c = document.querySelector('canvas.sketch-overlay') as HTMLElement | null
+  if (!vp || !c) return null
+  const r = c.getBoundingClientRect()
+  return { w: vp.w, h: vp.h, left: r.left, top: r.top }
+}
+/** The cursor over the 3D view (pixels from its top left), where it was last moved. */
+export const cursorScreen = () => cursorPx
+let cursorPx: [number, number] | null = null
+/** View3DInventorViewer::getDimensions: the view's width and height in sketch units. */
+export function viewDimensions(): [number, number] | null { const s = screen(); return s ? [(s.visibleHeight * s.w) / s.h, s.visibleHeight] : null }
 
 /** TaskDlgEditSketch::accept (OK, Sketcher_LeaveSketch) and reject (Cancel, Sketcher_CancelSketch): leave the edit,
  *  saving the sketch into its part, or putting it back as it was. */

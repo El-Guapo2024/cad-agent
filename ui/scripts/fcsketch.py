@@ -80,7 +80,7 @@ if a.ref and a.src:
     sys.exit(0)
 with tempfile.TemporaryDirectory(prefix="fcsketch") as tmp:
     (Path(tmp) / "home").mkdir()
-    r = run_freecad(Path(__file__).with_name("fcsketch_dump.py"), out, Path(tmp) / "home", platform="cocoa", scale=0.5, timeout=1200,
+    r = run_freecad(Path(__file__).with_name("fcsketch_dump.py"), out, Path(tmp) / "home", platform="cocoa", scale=0.5, timeout=1200, show=True,
                     env={"FCSKETCH_ONLY": a.only, "FCSKETCH_CASES": str(Path(a.cases).resolve())})
 if not (out / "fcsketch.json").exists():
     sys.exit(f"fcsketch: FreeCAD wrote nothing (exit {r.returncode})\n{r.stdout[-4000:]}")

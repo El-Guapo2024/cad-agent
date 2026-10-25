@@ -23,6 +23,9 @@ import type { Geo, XY } from './solver'
 import * as SK from './sketch'
 import { type Constraint, type ConstraintType, type PointPos, NONE, START, END, MID, GEO_UNDEF, H_AXIS, V_AXIS, RT_PNT, constraint } from './sketch'
 import * as S from './sketcher'
+import { Controller, OVP, sketcherParam, ovpVisibilityPref, f6, constraintToAttachment, constraintLineByAngle, constraint2LinesByAngle, ensureViewFocus, RT_PNT_ID, V_AXIS_ID, H_AXIS_ID, type OvpSpec, type OvpTool } from './sketchovp'
+import * as OPS from './sketchops'
+import { report } from './store'
 
 /** AutoConstraint: a suggested constraint, to an element (GeoId and PointPos). */
 export type AutoConstraint = { type: ConstraintType; geoId: number; posId: PointPos }
@@ -417,56 +420,91 @@ function removeRedundantHorizontalVertical(sug1: AutoConstraint[], sug2: AutoCon
 }
 
 /** DrawSketchDefaultHandler + DrawSketchControllableHandler: a state machine of clicks, the shape built from them
- *  (ShapeGeometry, ShapeConstraints), the auto-constraints made at the end, continuous mode. */
-export abstract class DefaultHandler extends DrawSketchHandler {
+ *  (ShapeGeometry, ShapeConstraints), the auto-constraints made at the end, continuous mode; and the controller
+ *  (sketchovp.ts) of the tool's on-view parameters and Tool Parameters box, whose specialisations a tool overrides
+ *  (ovpSpec, ovpState, configureToolWidget, doEnforceControlParameters, adaptParameters, …). A tool that has none keeps
+ *  the defaults, and then the controller does nothing. */
+export abstract class DefaultHandler extends DrawSketchHandler implements OvpTool {
   protected state = 0
   /** The number of clicks (SelectModeT's states before End). */
   protected abstract readonly states: number
   protected method = 0
   protected readonly methods: number = 1
   protected sug: AutoConstraint[][] = [[], [], [], [], []]
+  /** PAutoConstraintSize: no auto-constraints at all when 0 (finish leaves them out). */
+  protected readonly autoConstraintSize: number = 5
   protected autos: Constraint[] = []
   protected shapeGeometry: Geo[] = []
   protected shapeConstraints: Constraint[] = []
   protected avoidRedundants = true
   /** Sketcher's ContinuousCreationMode (on). */
-  protected continuousMode = true
+  continuousMode = true
   protected get isLast() { return this.state >= this.states }
+  private nextMode: number | null = null
+  /** The tool's controller (toolWidgetManager). */
+  readonly ctl: Controller = new Controller(this)
 
   /** DrawSketchController's prevCursorPosition: where the cursor was last. */
   protected cursorPos: XY = [0, 0]
-  activated() { this.applyMode() }
-  /** mouseMove: the hints' snapping, then the state's update. */
+  /** DrawSketchHandler::activate: the controls made (TaskSketcherTool's toolChanged), then activated(). */
+  activated() {
+    this.ctl.initControls()
+    this.continuousMode = sketcherParam<boolean>('Mod/Sketcher/ContinuousCreationMode')
+    this.applyMode()
+  }
+  deactivated() { this.ctl.dispose(); super.deactivated() }
+  /** DrawSketchControllableHandler::mouseMove: the hints' snapping, the parameters set enforced, the state's update,
+   *  then the parameters follow the cursor. */
   mouseMove(p: XY) {
     this.cursorPos = p
     const q = this.snapToTangentHint(p) ?? this.snapToParPerpHint(p) ?? p
-    this.update(q)
+    this.ctl.mouseMoved(q)
+    const e = this.ctl.enforceControlParameters(q)
+    if (!e) return
+    this.update(e)
+    this.ctl.adaptParameters(e)
   }
   pressButton(p: XY) {
     this.cursorPos = p
     const q = this.snapToTangentHint(p) ?? this.snapToParPerpHint(p) ?? p
-    this.update(q)
-    this.onButtonPressed(q)
+    this.ctl.mouseMoved(q)
+    const e = this.ctl.enforceControlParameters(q)
+    if (!e) return false
+    this.update(e)
+    this.ctl.adaptParameters(e)
+    this.onButtonPressed(e)
     return true
   }
   releaseButton(_p: XY) { this.finish(); return true }
+  /** DrawSketchDefaultHandler::registerPressedKey (M: the next construction method, Esc) and the controllable
+   *  handler's U, J, R, F (the widget's check boxes, or the tool's own) and Tab (the next parameter). */
   registerPressedKey(pressed: boolean, key: string): boolean {
-    if (key === 'M' && pressed && !this.isLast) { this.nextMethod(); return true }
-    if (key === 'Escape' && pressed) { this.cancelCurrentAction(); return true }
-    return key === 'Escape'
+    let used = false
+    if (key === 'M' && pressed && !this.isLast) { this.iterateToNextConstructionMethod(); used = true }
+    else if (key === 'Escape' && pressed) { this.cancelCurrentAction(); used = true }
+    if (!pressed && !this.isLast) {
+      if (key === 'U') { this.ctl.firstKeyShortcut(); used = true }
+      if (key === 'J') { this.ctl.secondKeyShortcut(); used = true }
+      if (key === 'R') { this.ctl.thirdKeyShortcut(); used = true }
+      if (key === 'F') { this.ctl.fourthKeyShortcut(); used = true }
+    }
+    if (key === 'Tab' && !pressed) { this.ctl.tabShortcut(); used = true }
+    return used || key === 'Escape' || key === 'Tab'
   }
   pressRightButton() { this.cancelCurrentAction() }
   cancelCurrentAction() { this.rightButtonOrEsc() }
   rightButtonOrEsc() { if (this.state === 0) this.quit(); else this.handleContinuousMode() }
-  protected nextMethod() {
-    if (this.methods <= 1) return
-    this.method = (this.method + 1) % this.methods
+  /** ConstructionMethodMachine::iterateToNextConstructionMethod. */
+  protected iterateToNextConstructionMethod() { if (this.methods > 1) this.setConstructionMethod((this.method + 1) % this.methods) }
+  /** setConstructionMethod, then DrawSketchControllableHandler::onConstructionMethodChanged: the hints, and the
+   *  controller's (the cursor, a reset, the new method drawn at once where the cursor was). */
+  setConstructionMethod(m: number) {
+    this.method = m
     this.onMethodChanged()
-    S.applyCursor(); S.updateHints()
-    if (this.resetOnMethodChange()) this.reset()
-    // DrawSketchController::onConstructionMethodChanged: the new method drawn at once, where the cursor was
-    this.mouseMove(this.cursorPos)
+    S.updateHints()
+    this.ctl.onConstructionMethodChanged()
   }
+  /** The tool's own reaction to a new construction method, before the controller's. */
   protected onMethodChanged() {}
   protected resetOnMethodChange() { return true }
   protected canGoToNextMode() { return true }
@@ -478,44 +516,95 @@ export abstract class DefaultHandler extends DrawSketchHandler {
     this.state = st
     this.onModeChanged()
   }
-  /** onModeChanged: the end makes the shape (finish); otherwise the new state is drawn at once. */
+  /** DrawSketchControllableHandler::onModeChanged: the cursor text and hints, the parameters of the new state, then
+   *  DrawSketchDefaultHandler's (the angle snapping; at the end the shape is made: finish); if the tool goes on, the
+   *  new state is drawn at once where the cursor was. */
   protected onModeChanged() {
     S.setEdit({ positionText: null })
     S.updateHints()
+    this.ctl.onHandlerModeChanged()
     this.applyMode()
-    if (!this.finish()) this.afterModeChanged()
+    if (!this.finish()) { this.afterModeChanged(); this.ctl.afterHandlerModeChanged() }
   }
   protected applyMode() { this.angleSnappingControl() }
   protected afterModeChanged() {}
   protected angleSnappingControl() { S.setAngleSnapping(false) }
-  /** finish: at the end, the commands, the auto-constraints, a solve, then continuous mode. */
+  /** finish: at the end, the commands, the parameters' constraints (beforeCreateAutoConstraints), the
+   *  auto-constraints, a solve, then continuous mode. */
   protected finish(): boolean {
     if (!this.isLast) return false
     S.setEdit({ positionText: null })
     try {
       this.executeCommands()
-      this.generateAutoConstraints(); this.createAutoConstraints()
-    } catch (e) { console.error(e) }
+      if (this.autoConstraintSize > 0) {
+        this.beforeCreateAutoConstraints()
+        this.generateAutoConstraints(); this.createAutoConstraints()
+      }
+    } catch (e) { console.error(e); report('err', e instanceof Error ? e.message : String(e)) }
     S.solve()
     return this.handleContinuousMode()
   }
+  /** DrawSketchControllableHandler::beforeCreateAutoConstraints: the controls' constraints first. */
+  protected beforeCreateAutoConstraints() { this.addConstraints(this.ctl) }
   protected handleContinuousMode(): boolean {
     if (this.continuousMode) { this.reset(); return false }
     S.purgeHandler()
     return true
   }
+  /** DrawSketchDefaultHandler::reset: the edit cleared, the tool's own reset (onReset, then the controls'), back to the
+   *  first state. */
   reset() {
     S.setEdit({ curves: [], markers: [], positionText: null, extensionHint: null })
     this.resetParPerpHint()
     for (const s of this.sug) s.length = 0
     this.autos = []; this.shapeGeometry = []; this.shapeConstraints = []
     this.onReset()
-    this.state = 0
-    this.applyMode()
+    if (!this.resetsOwnControls) this.ctl.resetControls()
+    this.nextMode = null
+    if (this.state !== 0) this.setState(0)
+    else this.applyMode()
     this.cursorTail = []
     S.applyCursor(); S.updateHints()
   }
   protected onReset() {}
+  /** A tool whose onReset resets the controls itself, where FreeCAD's does (the polyline: before it sets the construction
+   *  method back). */
+  protected readonly resetsOwnControls: boolean = false
+
+  // ── what the controller asks of the handler (OvpTool) ──
+  currentState() { return this.state }
+  get endState() { return this.states }
+  isLastState() { return this.isLast }
+  constructionMethod() { return this.method }
+  get constructionMethodsCount() { return this.methods }
+  setNextState(s: number | null) { this.nextMode = s }
+  getNextState() { return this.nextMode }
+  applyNextState() { if (this.nextMode !== null) { const n = this.nextMode; this.nextMode = null; this.setState(n) } }
+  updateCursor() { S.applyCursor() }
+  resetControls() { this.ctl.resetControls() }
+  preselectAtPoint(p: XY) { S.preselectAtPoint(p) }
+  updateDataAndDrawToPosition(p: XY) { this.update(p) }
+  /** createWidget/isWidgetVisible: the Tool Parameters box shows for the tools that say so (most: unless the on-view
+   *  parameters are off), with getToolWidgetText and getToolIcon as its header. */
+  isWidgetVisible() { return false }
+  toolWidgetText() { return '' }
+  toolIcon() { return '' }
+  ovpSpec(): OvpSpec { return { ovps: 0, widget: null, firstComboIsMethod: false } }
+  ovpState(_i: number) { return 0 }
+  configureOnViewParameters(_c: Controller) {}
+  configureToolWidget(_c: Controller) {}
+  doEnforceControlParameters(_c: Controller, p: XY): XY { return p }
+  adaptParameters(_c: Controller, _p: XY) {}
+  computeNextDrawSketchHandlerMode(_c: Controller) {}
+  addConstraints(_c: Controller) {}
+  addStepConstraints(_c: Controller) {}
+  adaptDrawingToOnViewParameterChange(_c: Controller, _i: number, _v: number) {}
+  adaptDrawingToParameterChange(_c: Controller, _i: number, _v: number) {}
+  adaptDrawingToCheckboxChange(_c: Controller, _i: number, _v: boolean) {}
+  /** True when the tool handled it; otherwise the first combo box sets the construction method. */
+  adaptDrawingToComboboxChange(_c: Controller, _i: number, _v: number) { return false }
+  doConstructionMethodChanged(_c: Controller) {}
+  resetOnConstructionMethodChanged() { return this.resetOnMethodChange() }
   protected abstract update(p: XY): void
   protected executeCommands() {}
   protected generateAutoConstraints() {}
@@ -552,18 +641,35 @@ export abstract class DefaultHandler extends DrawSketchHandler {
     S.setEdit({ curves: this.shapeGeometry.map((g) => SK.polyline(g)), construction: this.isConstructionMode() })
   }
   protected createShape(_onlyOutline: boolean) {}
-  protected drawPositionAtCursor(p: XY) { S.setEdit({ positionText: { at: p, text: S.positionString(p) } }) }
-  /** drawDirectionAtCursor, drawDoubleAtCursor and drawWidthHeightAtCursor draw only when the on-view parameters are
-   *  hidden (OnViewParameterVisibility 0; the default 1 shows the dimensional ones instead). */
+  /** DrawSketchHandler::drawPositionAtCursor. A tool calls the controller's (this.ctl.drawPositionAtCursor), which
+   *  leaves it out when the on-view parameters show the position (OnViewParameterVisibility 2). */
+  drawPositionAtCursor(p: XY) { S.setEdit({ positionText: { at: p, text: S.positionString(p) } }) }
+  /** drawDirectionAtCursor, drawWidthHeightAtCursor and drawDoubleAtCursor: only while the on-view parameters are
+   *  off (the controller's check them; ShowCursorCoords). The length and angle as lengthToDisplayFormat writes them. */
+  drawDirectionAtCursor(p: XY, origin: XY) {
+    if (!sketcherParam<boolean>('Mod/Sketcher/General/ShowCursorCoords')) return
+    const d = sub(p, origin), angle = getAngle(d, [1, 0])
+    S.setEdit({ positionText: { at: p, text: ` (${S.lengthString(len(d))}, ${S.angleString((angle * 180) / Math.PI)})` } })
+  }
+  drawWidthHeightAtCursor(p: XY, a: number, b: number) {
+    if (!sketcherParam<boolean>('Mod/Sketcher/General/ShowCursorCoords')) return
+    S.setEdit({ positionText: { at: p, text: ` (${S.lengthString(a)} x ${S.lengthString(b)})` } })
+  }
+  drawDoubleAtCursor(p: XY, v: number, unit: 'Length' | 'Angle' = 'Length') {
+    if (!sketcherParam<boolean>('Mod/Sketcher/General/ShowCursorCoords')) return
+    S.setEdit({ positionText: { at: p, text: ` (${unit === 'Length' ? S.lengthString(v) : S.angleString((v * 180) / Math.PI)})` } })
+  }
   protected clearCursorText() { S.setEdit({ positionText: null }) }
   hint(message: string, keys: string[]) { return { message, keys } }
 }
 const LMB = 'LMB', RMB = 'RMB'
 
 // ── Point (DrawSketchHandlerPoint.h) ─────────────────────────────────────────────────────────────────────────────
+/** DSHPointController: a DrawSketchController with two on-view parameters, the point's X and Y (positioning). */
 export class PointHandler extends DefaultHandler {
   readonly toolName = 'DSH_Point'
   protected readonly states = 1
+  protected readonly autoConstraintSize = 1
   private editPoint: XY = [0, 0]
   crosshair() { return 'Sketcher_Pointer_Create_Point' }
   hints() { return [this.hint('%1 place a point', [LMB])] }
@@ -571,27 +677,73 @@ export class PointHandler extends DefaultHandler {
     if (this.state !== 0) return
     this.seekAndRender(this.sug[0], p, [0, 0])
     this.editPoint = this.lineExtensionSnapPoint() ?? p
-    this.drawPositionAtCursor(this.editPoint)
+    this.ctl.drawPositionAtCursor(this.editPoint)
   }
   protected executeCommands() {
     S.openCommand('Add sketch point')
-    S.addGeometry(this.point(this.editPoint))
+    S.addGeometry(this.point([f6(this.editPoint[0]), f6(this.editPoint[1])]))
     S.commitCommand()
   }
   protected createAutoConstraints() {
     if (this.sug[0].length) { this.createAutoConstraintsDirect(this.sug[0], S.highestCurveIndex(), START); this.sug[0].length = 0 }
   }
+  ovpSpec(): OvpSpec { return { ovps: 2, widget: null, firstComboIsMethod: false } }
+  ovpState(_i: number) { return 0 }
+  configureOnViewParameters(c: Controller) {
+    c.onViewParameters[OVP.First].setLabelType('DISTANCEX')
+    c.onViewParameters[OVP.Second].setLabelType('DISTANCEY')
+  }
+  adaptDrawingToOnViewParameterChange(c: Controller, i: number, v: number) {
+    if (i === OVP.First) this.editPoint = [v, this.editPoint[1]]
+    else if (i === OVP.Second) this.editPoint = [this.editPoint[0], v]
+    c.onViewParameters[OVP.First].setPoints([0, 0], this.editPoint)
+    c.onViewParameters[OVP.Second].setPoints([0, 0], this.editPoint)
+  }
+  doEnforceControlParameters(c: Controller, p: XY): XY {
+    if (this.state !== 0) return p
+    const [a, b] = c.onViewParameters
+    return [a.isSet ? a.getValue() : p[0], b.isSet ? b.getValue() : p[1]]
+  }
+  adaptParameters(c: Controller, p: XY) {
+    if (this.state !== 0) return
+    const [a, b] = c.onViewParameters
+    if (!a.isSet) c.setOnViewParameterValue(OVP.First, p[0])
+    if (!b.isSet) c.setOnViewParameterValue(OVP.Second, p[1])
+    const sameSign = p[0] * p[1] > 0
+    a.setLabelAutoDistanceReverse(!sameSign); b.setLabelAutoDistanceReverse(sameSign)
+    a.setPoints([0, 0], p); b.setPoints([0, 0], p)
+  }
+  computeNextDrawSketchHandlerMode(c: Controller) {
+    if (this.state === 0 && c.onViewParameters[OVP.First].hasFinishedEditing && c.onViewParameters[OVP.Second].hasFinishedEditing) this.setNextState(this.states)
+  }
+  addConstraints(c: Controller) {
+    const firstCurve = S.highestCurveIndex()
+    const [a, b] = c.onViewParameters, x0 = a.getValue(), y0 = b.getValue()
+    if (a.isSet && b.isSet && x0 === 0 && y0 === 0) constraintToAttachment([firstCurve, START], RT_PNT_ID, x0)
+    else {
+      if (a.isSet) constraintToAttachment([firstCurve, START], V_AXIS_ID, x0)
+      if (b.isSet) constraintToAttachment([firstCurve, START], H_AXIS_ID, y0)
+    }
+  }
 }
 
 // ── Line (DrawSketchHandlerLine.h) ───────────────────────────────────────────────────────────────────────────────
-/** LineConstructionMethod: OnePointLengthAngle (the default), OnePointWidthHeight, TwoPoints. */
+/** LineConstructionMethod: OnePointLengthAngle (the default), OnePointWidthHeight, TwoPoints. DSHLineController: four
+ *  on-view parameters (the start's X and Y; then length and angle, width and height, or the end's X and Y) and the
+ *  widget's construction method combo box. */
 export class LineHandler extends DefaultHandler {
   readonly toolName = 'DSH_Line'
   protected readonly states = 2
   protected readonly methods = 3
+  protected readonly autoConstraintSize = 2
   private startPoint: XY = [0, 0]
   private endPoint: XY = [0, 0]
   private length = 0
+  /** The direction signs taken when an on-view parameter is first set, so the mouse does not flip them. */
+  private lengthSign = 0
+  private widthSign = 0
+  private capturedDirection: XY = [0, 0]
+  constructor(method = 0) { super(); this.method = method }
   crosshair() { return this.method === 0 ? 'Sketcher_Pointer_Create_Line_Polar' : 'Sketcher_Pointer_Create_Line' }
   hints() { return [this.hint(this.state === 0 ? '%1 pick first point' : '%1 pick second point', [LMB]), this.hint('%1 switch mode', ['M'])] }
   getStartPointOfCurrentSegment() { return this.state === 1 ? this.startPoint : null }
@@ -599,10 +751,11 @@ export class LineHandler extends DefaultHandler {
     if (this.state === 0) {
       this.seekAndRender(this.sug[0], p, [0, 0])
       this.startPoint = this.lineExtensionSnapPoint() ?? p
-      this.drawPositionAtCursor(this.startPoint)
+      this.ctl.drawPositionAtCursor(this.startPoint)
     } else if (this.state === 1) {
       this.seekAndRender(this.sug[1], p, sub(p, this.startPoint))
       this.endPoint = this.lineExtensionSnapPoint() ?? p
+      this.ctl.drawDirectionAtCursor(this.endPoint, this.startPoint)
       this.drawShape()
     }
   }
@@ -613,6 +766,7 @@ export class LineHandler extends DefaultHandler {
   }
   protected canGoToNextMode() { return !(this.state === 1 && this.length < CONFUSION) }
   protected angleSnappingControl() { if (this.state === 1) S.setAngleSnapping(true, this.startPoint); else S.setAngleSnapping(false) }
+  protected onReset() { this.lengthSign = 0; this.widthSign = 0; this.capturedDirection = [0, 0] }
   protected executeCommands() {
     this.createShape()
     S.openCommand('Add sketch line')
@@ -627,24 +781,171 @@ export class LineHandler extends DefaultHandler {
     this.removeRedundantAutoConstraints()
   }
   protected createAutoConstraints() { this.createGeneratedAutoConstraints(true); this.sug[0].length = 0; this.sug[1].length = 0 }
+  // the controller's specialisations
+  isWidgetVisible() { return ovpVisibilityPref() !== 0 }
+  toolWidgetText() { return 'Line Parameters' }
+  toolIcon() { return 'Sketcher_CreateLine' }
+  ovpSpec(): OvpSpec { return { ovps: 4, widget: { parameters: 0, checkboxes: 0, comboboxes: 1, lineEdits: 0 }, firstComboIsMethod: true } }
+  ovpState(i: number) { return i < 2 ? 0 : 1 }
+  configureToolWidget(c: Controller) {
+    if (!c.init) {
+      c.setComboboxElements(0, ['Point, length, angle', 'Point, width, height', '2 points'])
+      const k = this.isConstructionMode() ? '_Constr' : ''
+      c.setComboboxItemIcon(0, 0, `Sketcher_CreateLineAngleLength${k}`); c.setComboboxItemIcon(0, 1, `Sketcher_CreateLineLengthWidth${k}`); c.setComboboxItemIcon(0, 2, `Sketcher_CreateLine${k}`)
+    }
+    const o = c.onViewParameters
+    o[OVP.First].setLabelType('DISTANCEX'); o[OVP.Second].setLabelType('DISTANCEY')
+    if (this.method === 0) { o[OVP.Third].setLabelType('DISTANCE', 'Dimensioning'); o[OVP.Fourth].setLabelType('ANGLE', 'Dimensioning') }
+    else if (this.method === 2) { o[OVP.Third].setLabelType('DISTANCEX', 'Positioning'); o[OVP.Fourth].setLabelType('DISTANCEY', 'Positioning') }
+    else { o[OVP.Third].setLabelType('DISTANCEX', 'Dimensioning'); o[OVP.Fourth].setLabelType('DISTANCEY', 'Dimensioning') }
+  }
+  doEnforceControlParameters(c: Controller, p: XY): XY {
+    const o = c.onViewParameters
+    let [x, y] = p
+    if (this.state === 0) {
+      if (o[OVP.First].isSet) x = o[OVP.First].getValue()
+      if (o[OVP.Second].isSet) y = o[OVP.Second].getValue()
+      return [x, y]
+    }
+    if (this.state !== 1) return p
+    const third = o[OVP.Third], fourth = o[OVP.Fourth]
+    if (this.method === 1) {
+      if (third.isSet) {
+        const length = third.getValue()
+        if (Math.abs(length) < CONFUSION && fourth.isSet && Math.abs(fourth.getValue()) < CONFUSION && fourth.hasFinishedEditing) {
+          c.unsetOnViewParameter(third); this.lengthSign = 0; return [x, y]
+        }
+        if (this.lengthSign === 0) this.lengthSign = x - this.startPoint[0] >= 0 ? 1 : -1
+        x = this.startPoint[0] + this.lengthSign * length
+      }
+      if (fourth.isSet) {
+        const width = fourth.getValue()
+        if (Math.abs(width) < CONFUSION && third.isSet && Math.abs(third.getValue()) < CONFUSION && third.hasFinishedEditing) {
+          c.unsetOnViewParameter(fourth); this.widthSign = 0; return [x, y]
+        }
+        if (this.widthSign === 0) this.widthSign = y - this.startPoint[1] >= 0 ? 1 : -1
+        y = this.startPoint[1] + this.widthSign * width
+      }
+    } else if (this.method === 0) {
+      let dir = sub([x, y], this.startPoint)
+      if (len(dir) < CONFUSION) dir = [1, dir[1]] // a null direction defaults to (1, 0)
+      if (fourth.isSet) { const a = (fourth.getValue() * Math.PI) / 180; this.capturedDirection = [Math.cos(a), Math.sin(a)] }
+      else this.capturedDirection = normalize(dir)
+      if (third.isSet) {
+        const length = third.getValue()
+        if (length < CONFUSION && third.hasFinishedEditing) { c.unsetOnViewParameter(third); this.capturedDirection = [0, 0]; return [x, y] }
+        ;[x, y] = add(this.startPoint, mul(this.capturedDirection, length))
+      } else if (fourth.isSet) [x, y] = add(this.startPoint, project(sub([x, y], this.startPoint), this.capturedDirection)) // the angle only
+    } else {
+      if (third.isSet) x = third.getValue()
+      if (fourth.isSet) y = fourth.getValue()
+    }
+    if (third.hasFinishedEditing && fourth.hasFinishedEditing && len(sub([x, y], this.startPoint)) < CONFUSION) {
+      c.unsetOnViewParameter(third); c.unsetOnViewParameter(fourth); this.lengthSign = 0; this.widthSign = 0
+    }
+    return [x, y]
+  }
+  adaptParameters(c: Controller, p: XY) {
+    const o = c.onViewParameters
+    if (this.state === 0) {
+      if (!o[OVP.First].isSet) c.setOnViewParameterValue(OVP.First, p[0])
+      if (!o[OVP.Second].isSet) c.setOnViewParameterValue(OVP.Second, p[1])
+      const sameSign = p[0] * p[1] > 0
+      o[OVP.First].setLabelAutoDistanceReverse(!sameSign); o[OVP.Second].setLabelAutoDistanceReverse(sameSign)
+      o[OVP.First].setPoints([0, 0], p); o[OVP.Second].setPoints([0, 0], p)
+      return
+    }
+    if (this.state !== 1) return
+    const third = o[OVP.Third], fourth = o[OVP.Fourth], vec = sub(this.endPoint, this.startPoint)
+    if (this.method === 1) {
+      if (!third.isSet) c.setOnViewParameterValue(OVP.Third, Math.abs(vec[0]))
+      if (!fourth.isSet) c.setOnViewParameterValue(OVP.Fourth, Math.abs(vec[1]))
+      const sameSign = vec[0] * vec[1] > 0
+      third.setLabelAutoDistanceReverse(!sameSign); fourth.setLabelAutoDistanceReverse(sameSign)
+      third.setPoints(this.startPoint, this.endPoint); fourth.setPoints(this.startPoint, this.endPoint)
+    } else if (this.method === 0) {
+      if (!third.isSet) c.setOnViewParameterValue(OVP.Third, len(vec))
+      const range = angleOf(vec)
+      if (!fourth.isSet) c.setOnViewParameterValue(OVP.Fourth, (range * 180) / Math.PI, 'Angle')
+      else if (fourth.hasFinishedEditing && len(vec) > CONFUSION) {
+        const ovpRange = (fourth.getValue() * Math.PI) / 180
+        if (Math.abs(range - ovpRange) > CONFUSION) c.setOnViewParameterValue(OVP.Fourth, (range * 180) / Math.PI, 'Angle')
+      }
+      third.setPoints(this.startPoint, this.endPoint)
+      fourth.setPoints(this.startPoint, [0, 0])
+      fourth.setLabelRange(range)
+    } else {
+      if (!third.isSet) c.setOnViewParameterValue(OVP.Third, p[0])
+      if (!fourth.isSet) c.setOnViewParameterValue(OVP.Fourth, p[1])
+      const sameSign = p[0] * p[1] > 0
+      third.setLabelAutoDistanceReverse(!sameSign); fourth.setLabelAutoDistanceReverse(sameSign)
+      third.setPoints([0, 0], p); fourth.setPoints([0, 0], p)
+    }
+  }
+  computeNextDrawSketchHandlerMode(c: Controller) {
+    const o = c.onViewParameters
+    if (this.state === 0 && o[OVP.First].hasFinishedEditing && o[OVP.Second].hasFinishedEditing) this.setNextState(1)
+    else if (this.state === 1 && o[OVP.Third].hasFinishedEditing && o[OVP.Fourth].hasFinishedEditing) this.setNextState(this.states)
+  }
+  /** DSHLineController::addConstraints, with no auto-constraints diagnosed yet (they come after): each parameter set. */
+  addConstraints(c: Controller) {
+    const firstCurve = S.highestCurveIndex(), o = c.onViewParameters
+    const x0 = o[OVP.First].getValue(), y0 = o[OVP.Second].getValue(), p3 = o[OVP.Third].getValue(), p4 = o[OVP.Fourth].getValue()
+    const x0set = o[OVP.First].isSet, y0set = o[OVP.Second].isSet, p3set = o[OVP.Third].isSet, p4set = o[OVP.Fourth].isSet
+    if (x0set && y0set && x0 === 0 && y0 === 0) constraintToAttachment([firstCurve, START], RT_PNT_ID, x0)
+    else {
+      if (x0set) constraintToAttachment([firstCurve, START], V_AXIS_ID, x0)
+      if (y0set) constraintToAttachment([firstCurve, START], H_AXIS_ID, y0)
+    }
+    if (this.method === 1) {
+      if (p3set) {
+        if (Math.abs(p3) < CONFUSION) S.addConstraint(constraint('Vertical', firstCurve))
+        else { const rev = this.endPoint[0] - this.startPoint[0] < 0; S.addConstraint(constraint('DistanceX', firstCurve, rev ? END : START, firstCurve, rev ? START : END, GEO_UNDEF, NONE, f6(Math.abs(p3)))) }
+      }
+      if (p4set) {
+        if (Math.abs(p4) < CONFUSION) S.addConstraint(constraint('Horizontal', firstCurve))
+        else { const rev = this.endPoint[1] - this.startPoint[1] < 0; S.addConstraint(constraint('DistanceY', firstCurve, rev ? END : START, firstCurve, rev ? START : END, GEO_UNDEF, NONE, f6(Math.abs(p4)))) }
+      }
+    } else if (this.method === 0) {
+      if (p3set) S.addConstraint(constraint('Distance', firstCurve, NONE, GEO_UNDEF, NONE, GEO_UNDEF, NONE, f6(Math.abs(p3))))
+      if (p4set) constraintLineByAngle(firstCurve, (p4 * Math.PI) / 180)
+    } else {
+      if (p3set) constraintToAttachment([firstCurve, END], V_AXIS_ID, p3)
+      if (p4set) constraintToAttachment([firstCurve, END], H_AXIS_ID, p4)
+    }
+  }
 }
-
 // ── Polyline (DrawSketchHandlerPolyLine in DrawSketchHandlerLineSet.h) ──────────────────────────────────────────
-/** PolyLineConstructionMethod: Line, Arc (M switches; the first segment is always a line). R takes back the last
- *  point, F toggles the fillet; Esc or the right button ends the polyline, a second Esc the tool. */
+/** PolyLineConstructionMethod: Line, Arc (M switches; the first segment is always a line). Each click adds a segment
+ *  at once; R takes back the last point, F (or the box) toggles a fillet at each corner; Esc or the right button ends
+ *  the polyline, a second Esc the tool. DSHPolyLineController: the first point's X and Y; then each segment's length and
+ *  angle (to the previous segment), or an arc's radius, sweep and angle to the previous segment; their constraints go
+ *  in as each segment is made (addStepConstraints). */
+const polylineDoc = (): OPS.Doc => ({ geometry: S.getGeometry().map((g) => ({ ...g })), constraints: S.getConstraints().map((c) => ({ ...c })) })
+const polylineMover: OPS.Mover = (d, geo, pos, to) => {
+  const r = S.solveRaw({ geometry: d.geometry, constraints: d.constraints.map(SK.toCons), solve: false, drags: [{ geo, pos, to, update_geometry: true }] })
+  return r && r.status_code === 0 && r.stored_geometry ? r.stored_geometry : null
+}
 export class PolylineHandler extends DefaultHandler {
   readonly toolName = 'DSH_PolyLine'
   protected readonly states = 2
   protected readonly methods = 2
+  protected readonly autoConstraintSize = 2
+  protected readonly resetsOwnControls = true
   private prevCursorPos: XY = [0, 0]
+  private center: XY = [0, 0]
   private points: XY[] = []
   private geoEltIds: [number, PointPos][] = []
+  private resetSeekSecond = false
   private resetEdge = true
+  private fillet = false
   private previousDirectionAngle = 0
   private dirChangeAngle = 0
+  private startAngle = 0
+  private range = 0
   private angleToPrevious = 0
   private pos: PointPos = END
-  private center: XY = [0, 0]
+  private capturedDirection: XY = [0, 0]
   crosshair() { return 'Sketcher_Pointer_Create_Lineset' }
   hints() {
     if (this.state === 0) return [this.hint('%1 pick first point', [LMB])]
@@ -656,19 +957,16 @@ export class PolylineHandler extends DefaultHandler {
   private last(): XY { return this.points.length ? this.points[this.points.length - 1] : [0, 0] }
   protected update(p: XY) {
     this.prevCursorPos = p
-    if (this.state === 0) { this.drawPositionAtCursor(p); this.seekAndRender(this.sug[0], p, [0, 0]) }
+    if (this.state === 0) { this.ctl.drawPositionAtCursor(p); this.seekAndRender(this.sug[0], p, [0, 0]) }
     else if (this.state === 1) {
+      this.ctl.drawDirectionAtCursor(p, this.last())
       const a1 = angleOf(sub(p, this.last())) - this.previousDirectionAngle, a2 = a1 + (a1 < 0 ? 2 : -2) * Math.PI
       this.dirChangeAngle = Math.abs(a1 - this.dirChangeAngle) < Math.abs(a2 - this.dirChangeAngle) ? a1 : a2
       this.drawShape()
       this.seekAndRender(this.sug[1], p, this.method === 0 ? sub(p, this.last()) : [0, 0])
     }
   }
-  protected onMethodChanged() {
-    // the first segment cannot be an arc
-    if (this.method === 1) { if (!this.geoEltIds.length) { this.method = 0; return } this.resetEdge = true }
-  }
-  protected resetOnMethodChange() { return false }
+  /** getPreviousDirection: the direction at the end of the last segment (along an arc, its tangent). */
   private previousDirection(): XY {
     if (this.points.length <= 1) return [1, 0]
     const [g, pos] = this.geoEltIds[this.geoEltIds.length - 1]
@@ -684,15 +982,40 @@ export class PolylineHandler extends DefaultHandler {
     const d = this.previousDirection(), a = this.angleToPrevious
     return [d[0] * Math.cos(a) - d[1] * Math.sin(a), d[0] * Math.sin(a) + d[1] * Math.cos(a)]
   }
-  private arcCenter(p: XY): number {
+  private isPreviousArc() { return !!this.geoEltIds.length && SK.isArc(S.getGeometry()[this.geoEltIds[this.geoEltIds.length - 1][0]]) }
+  /** getArcCenter: the arc from the last point, tangent to the current initial direction, through p; its signed radius. */
+  private arcCenter(p: XY): { radius: number; center: XY } {
     const lp = this.last(), t = this.currentInitialDirection()
     const theta = getAngle(t, sub(p, lp))
     let radius = len(sub(p, lp)) / (2 * Math.sin(theta))
     const [x1, y1] = lp, x2 = x1 + t[0], y2 = y1 + t[1], [x3, y3] = p
     if ((x2 * y3 - x3 * y2) - (x1 * y3 - x3 * y1) + (x1 * y2 - x2 * y1) > 0) radius *= -1
     if (!Number.isFinite(radius)) radius = 0
-    this.center = add(lp, [radius * t[1], -radius * t[0]])
-    return radius
+    return { radius, center: add(lp, [radius * t[1], -radius * t[0]]) }
+  }
+  /** getFilletData: where the fillet at the last corner is picked on both segments, and its radius. */
+  private filletData(newGeo: Geo, prevGeo: Geo, newGeoPos: PointPos, prevGeoPos: PointPos): { ref1: XY; ref2: XY; radius: number } {
+    const lastPoint = this.last(), lastButOne = this.points[this.points.length - 2]
+    let radius = Math.min(len(sub(this.prevCursorPos, lastPoint)) * 0.3, len(sub(lastButOne, lastPoint)) * 0.3)
+    let ref1 = add(lastPoint, mul(normalize(sub(this.prevCursorPos, lastPoint)), radius))
+    let ref2 = add(lastPoint, mul(normalize(sub(lastButOne, lastPoint)), radius))
+    if (newGeo.type === 'LineSegment' && prevGeo.type === 'LineSegment') radius = OPS.suggestFilletRadius(newGeo, prevGeo, ref1, ref2)
+    const devAngle = 0.3 // about 15°
+    const onArc = (arc: Extract<Geo, { type: 'ArcOfCircle' }>, pos: PointPos): XY => {
+      let s = arc.start_angle % (2 * Math.PI); if (s < 0) s += 2 * Math.PI
+      const e = s + (arc.end_angle - arc.start_angle), span = e - s
+      const a = pos === END ? e - Math.min(span, devAngle) : s + Math.min(span, devAngle)
+      return [arc.center[0] + arc.radius * Math.cos(a), arc.center[1] + arc.radius * Math.sin(a)]
+    }
+    if (newGeo.type === 'ArcOfCircle') {
+      ref1 = onArc(newGeo, newGeoPos)
+      if (prevGeo.type === 'LineSegment') ref2 = add(lastPoint, mul(normalize(sub(ref2, lastPoint)), len(sub(lastPoint, ref1))))
+    }
+    if (prevGeo.type === 'ArcOfCircle') {
+      ref2 = onArc(prevGeo, prevGeoPos)
+      if (newGeo.type === 'LineSegment') ref1 = add(lastPoint, mul(normalize(sub(ref1, lastPoint)), len(sub(lastPoint, ref2))))
+    }
+    return { ref1, ref2, radius }
   }
   protected createShape(onlyOutline: boolean) {
     this.shapeGeometry = []; this.shapeConstraints = []
@@ -702,7 +1025,8 @@ export class PolylineHandler extends DefaultHandler {
     this.pos = END
     let posId: PointPos = START
     const prevDir = this.previousDirection()
-    if (this.method === 0) this.shapeGeometry.push(this.line(lp, this.prevCursorPos))
+    let newGeo: Geo
+    if (this.method === 0) newGeo = this.line(lp, this.prevCursorPos)
     else {
       if (this.resetEdge) {
         this.resetEdge = false
@@ -710,18 +1034,34 @@ export class PolylineHandler extends DefaultHandler {
         this.angleToPrevious = sign * (getAngle(cd, prevDir) - Math.PI)
         this.angleToPrevious = Math.round(this.angleToPrevious / (Math.PI / 2)) * (Math.PI / 2)
       }
-      const radius = this.arcCenter(this.prevCursorPos)
+      const { radius, center } = this.arcCenter(this.prevCursorPos)
+      this.center = center
       if (radius === 0) return
-      const rx = lp[0] - this.center[0], ry = lp[1] - this.center[1]
-      const startAngle = Math.atan2(ry, rx)
-      const rxe = this.prevCursorPos[0] - this.center[0], rye = this.prevCursorPos[1] - this.center[1]
+      const rx = lp[0] - center[0], ry = lp[1] - center[1]
+      this.startAngle = Math.atan2(ry, rx)
+      const rxe = this.prevCursorPos[0] - center[0], rye = this.prevCursorPos[1] - center[1]
       let range = Math.atan2(-rxe * ry + rye * rx, rxe * rx + rye * ry)
       if (!Number.isFinite(range)) range = 0
       if (radius >= 0 && range > 0) range -= 2 * Math.PI
       if (radius < 0 && range < 0) range += 2 * Math.PI
-      let s = startAngle, e = startAngle + range
+      let s = this.startAngle, e = this.startAngle + range
       if (radius < 0) { [s, e] = [e, s]; posId = END; this.pos = START }
-      this.shapeGeometry.push(this.arc(this.center, s, e, Math.abs(radius)))
+      newGeo = this.arc(center, s, e, Math.abs(radius))
+      this.range = radius < 0 ? -2 * Math.PI + range : 2 * Math.PI + range
+    }
+    this.shapeGeometry.push(newGeo)
+    if (onlyOutline && this.geoEltIds.length && this.fillet) {
+      // the fillet as it would be made, drawn with the segment cut back to it
+      const prevGeo = S.getGeometry()[this.geoEltIds[this.geoEltIds.length - 1][0]]
+      const { ref1, ref2, radius } = this.filletData(newGeo, prevGeo, posId, this.geoEltIds[this.geoEltIds.length - 1][1])
+      if (newGeo.type === 'LineSegment' && prevGeo?.type === 'LineSegment') {
+        const f = OPS.createFilletGeometry(newGeo, prevGeo, ref1, ref2, radius)
+        if (f) {
+          const s = SK.getPoint([f.arc], 0, START)!, e = SK.getPoint([f.arc], 0, END)!
+          this.shapeGeometry[0] = { ...newGeo, start: f.reverse ? s : e }
+          this.shapeGeometry.push(this.isConstructionMode() ? { ...f.arc, construction: true } : f.arc)
+        }
+      }
     }
     if (!onlyOutline && this.geoEltIds.length) {
       const [geoId, lastPos] = this.geoEltIds[this.geoEltIds.length - 1], geoId2 = S.highestCurveIndex() + 1
@@ -736,15 +1076,19 @@ export class PolylineHandler extends DefaultHandler {
       }
     }
   }
+  /** canGoToNextMode: the first click takes the first point; each next one makes its segment at once (with the
+   *  parameters' constraints, the auto-constraints and a fillet at the corner); the polyline stays in this state until
+   *  it closes. */
   protected canGoToNextMode() {
     if (this.state === 0) { this.points.push(this.prevCursorPos); return true }
-    // each click adds a segment at once; the polyline stays in this state until it closes
+    if (this.state !== 1) return true
     this.createShape(false)
     if (!this.shapeGeometry.length) return false
     this.resetParPerpHint()
     this.addShape()
     const geoId = S.highestCurveIndex()
     this.geoEltIds.push([geoId, this.pos])
+    this.addStepConstraints(this.ctl)
     let closed = false
     const ac1Pos = this.pos
     if (this.geoEltIds.length === 1) this.onElement(this.sug[0], geoId, START)
@@ -759,16 +1103,28 @@ export class PolylineHandler extends DefaultHandler {
     this.sug[1].length = 0
     this.removeRedundantAutoConstraints()
     this.createGeneratedAutoConstraints(false)
-    this.sug[0].length = 0
-    this.sug[1].length = 0
+    this.sug[0].length = 0; this.sug[1].length = 0; this.autos = []
     S.solve()
+    if (this.fillet && this.geoEltIds.length > 1) {
+      const n = this.geoEltIds.length, geoId1 = this.geoEltIds[n - 1][0], geoId2 = this.geoEltIds[n - 2][0]
+      const geo = S.getGeometry(), newGeo = geo[geoId1], prevGeo = geo[geoId2]
+      const newGeoPos = this.geoEltIds[n - 1][1] === START ? END : START, prevGeoPos = this.geoEltIds[n - 2][1]
+      const { ref1, ref2, radius } = this.filletData(newGeo, prevGeo, newGeoPos, prevGeoPos)
+      const d = polylineDoc()
+      try {
+        if (OPS.fillet(d, geoId1, geoId2, ref1, ref2, radius, true, true, false, polylineMover)) { S.setGeometry(d.geometry); S.setConstraints(d.constraints) }
+      } catch (e) { report('err', e instanceof Error ? e.message : String(e)) }
+      S.solve()
+      if (this.isConstructionMode() && S.getGeometry()[geoId + 1]) S.toggleConstruction(geoId + 1)
+    }
     const [lg, lpos] = this.geoEltIds[this.geoEltIds.length - 1]
     this.points.push(S.getPoint(lg, lpos)!)
     this.previousDirectionAngle = angleOf(this.previousDirection())
     if (!closed) {
       S.setAngleSnapping(true, this.last())
+      this.resetSeekSecond = true
       this.resetEdge = true
-      this.update(this.prevCursorPos)
+      this.mouseMove(this.prevCursorPos)
     }
     return closed
   }
@@ -782,30 +1138,214 @@ export class PolylineHandler extends DefaultHandler {
     this.setState(2)
   }
   rightButtonOrEsc() { this.quit() }
-  registerPressedKey(pressed: boolean, key: string): boolean {
-    if (key === 'R' && !pressed && this.state === 1) { this.undoLastPoint(); return true }
-    return super.registerPressedKey(pressed, key)
-  }
+  /** undoLastPoint: the last segment goes (and a fillet made with it, the previous segment put back to the corner). */
   private undoLastPoint() {
+    if (this.state !== 1) return
     if (!this.geoEltIds.length) { this.quit(); return }
-    const [del] = this.geoEltIds.pop()!
-    this.points.pop()
-    S.delGeometries([del])
+    const [delGeoId] = this.geoEltIds[this.geoEltIds.length - 1], lastGeoId = S.highestCurveIndex()
+    const filletWasCreated = delGeoId < lastGeoId, pointWasCreated = delGeoId + 2 === lastGeoId
+    this.geoEltIds.pop(); this.points.pop()
+    if (filletWasCreated) {
+      S.delGeometries([delGeoId, delGeoId + 1])
+      if (this.geoEltIds.length) {
+        S.solve()
+        const [prevGeoId, prevPos] = this.geoEltIds[this.geoEltIds.length - 1]
+        const moved = polylineMover(polylineDoc(), prevGeoId, prevPos, [f6(this.last()[0]), f6(this.last()[1])])
+        if (moved) S.setGeometry(moved)
+        if (pointWasCreated) {
+          const pointGeoId = S.highestCurveIndex(), cs = S.getConstraints()
+          for (let i = cs.length - 1; i >= 0; i--) {
+            const c = cs[i]
+            if (c.type !== 'PointOnObject') continue
+            if ((c.first === pointGeoId && c.second === prevGeoId) || (c.first === prevGeoId && c.second === pointGeoId)) { S.delConstraints([i]); break }
+          }
+          const d = polylineDoc()
+          OPS.transferConstraints(d, pointGeoId, START, prevGeoId, prevPos)
+          S.setConstraints(d.constraints)
+          S.delGeometries([delGeoId])
+        }
+      }
+    } else S.delGeometries([delGeoId])
     S.solve()
     this.previousDirectionAngle = angleOf(this.previousDirection())
     S.setAngleSnapping(true, this.last())
-    this.update(this.prevCursorPos)
+    this.mouseMove(this.prevCursorPos)
   }
   protected onReset() {
     S.abortCommand()
     S.openCommand('Add sketch polyline')
     this.geoEltIds = []; this.points = []
-    this.previousDirectionAngle = 0; this.dirChangeAngle = 0; this.angleToPrevious = 0; this.pos = END
-    this.method = 0
+    this.previousDirectionAngle = 0; this.dirChangeAngle = 0; this.angleToPrevious = 0; this.pos = END; this.capturedDirection = [0, 0]
+    this.ctl.resetControls()
+    this.setConstructionMethod(0)
+    ensureViewFocus()
   }
   deactivated() { super.deactivated(); S.abortCommand() }
+  // the controller's specialisations
+  isWidgetVisible() { return true }
+  toolWidgetText() { return 'Polyline Parameters' }
+  toolIcon() { return 'Sketcher_CreatePolyline' }
+  ovpSpec(): OvpSpec { return { ovps: this.method === 0 ? 4 : 5, widget: { parameters: 0, checkboxes: 1, comboboxes: 1, lineEdits: 0 }, firstComboIsMethod: true } }
+  ovpState(i: number) { return i < 2 ? 0 : 1 }
+  thirdKeyShortcut() { this.undoLastPoint(); return true }
+  fourthKeyShortcut(c: Controller) { c.setCheckboxChecked(0, !c.getCheckboxChecked(0)); return true }
+  configureToolWidget(c: Controller) {
+    const k = this.isConstructionMode() ? '_Constr' : ''
+    if (!c.init) {
+      c.setComboboxElements(0, ['Line', 'Arc'])
+      c.setCheckboxLabel(0, 'Fillet (F)')
+      c.setCheckboxToolTip(0, 'Adds a fillet between the current and previous line')
+      c.syncCheckboxToHandler(0, this.fillet)
+      c.setComboboxItemIcon(0, 0, `Sketcher_CreateLine${k}`); c.setComboboxItemIcon(0, 1, `Sketcher_CreateArc${k}`)
+      c.setCheckboxIcon(0, `Sketcher_CreateFillet${k}`)
+    }
+    const o = c.onViewParameters
+    o[OVP.First].setLabelType('DISTANCEX'); o[OVP.Second].setLabelType('DISTANCEY')
+    o[OVP.Third].setLabelType(this.method === 0 ? 'DISTANCE' : 'RADIUS', 'Dimensioning')
+    o[OVP.Fourth].setLabelType('ANGLE', 'Dimensioning')
+    if (this.method === 1) o[OVP.Fifth].setLabelType('ANGLE', 'Dimensioning')
+    c.setCheckboxChecked(0, this.fillet)
+  }
+  adaptDrawingToCheckboxChange(_c: Controller, i: number, v: boolean) { if (i === 0) this.fillet = v; this.updateCursor() }
+  doEnforceControlParameters(c: Controller, p: XY): XY {
+    const o = c.onViewParameters
+    let [x, y] = p
+    if (this.state === 0) {
+      if (o[OVP.First].isSet) x = o[OVP.First].getValue()
+      if (o[OVP.Second].isSet) y = o[OVP.Second].getValue()
+      return [x, y]
+    }
+    if (this.state !== 1) return p
+    const third = o[OVP.Third], fourth = o[OVP.Fourth]
+    if (this.resetSeekSecond) {
+      // a new segment: its parameters start again, the focus on the first
+      this.resetSeekSecond = false
+      c.unsetOnViewParameter(third); c.unsetOnViewParameter(fourth)
+      if (this.method === 1) c.unsetOnViewParameter(o[OVP.Fifth])
+      c.keyManager.mode = 'ViewProvider'
+      c.setFocusToOnViewParameter(OVP.Third)
+      return [x, y]
+    }
+    const prevPoint = this.last()
+    if (this.method === 0) {
+      let dir = sub([x, y], prevPoint)
+      if (fourth.isSet) { const a = this.previousDirectionAngle + (fourth.getValue() * Math.PI) / 180; this.capturedDirection = [Math.cos(a), Math.sin(a)] }
+      else this.capturedDirection = normalize(dir)
+      if (third.isSet) {
+        if (len(dir) < CONFUSION) dir = [1, dir[1]]
+        const length = third.getValue()
+        if (length < CONFUSION && third.hasFinishedEditing) { c.unsetOnViewParameter(third); this.capturedDirection = [0, 0]; return [x, y] }
+        ;[x, y] = add(prevPoint, mul(this.capturedDirection, length))
+      } else if (fourth.isSet) [x, y] = add(prevPoint, project(sub([x, y], prevPoint), this.capturedDirection))
+      if (third.hasFinishedEditing && fourth.hasFinishedEditing && len(sub([x, y], prevPoint)) < CONFUSION) {
+        c.unsetOnViewParameter(third); c.unsetOnViewParameter(fourth); this.capturedDirection = [0, 0]
+      }
+    } else {
+      if (third.isSet) {
+        const radius = third.getValue()
+        if (radius < CONFUSION) { c.unsetOnViewParameter(third); return [x, y] }
+        const d0 = this.previousDirection(), a = this.angleToPrevious
+        const dir: XY = [d0[0] * Math.cos(a) - d0[1] * Math.sin(a), d0[0] * Math.sin(a) + d0[1] * Math.cos(a)]
+        const sign = dir[0] * (y - prevPoint[1]) - dir[1] * (x - prevPoint[0]) > 0 ? 1 : -1
+        const normal: XY = [sign * -dir[1], sign * dir[0]]
+        const center = add(prevPoint, mul(normalize(normal), radius))
+        ;[x, y] = add(center, mul(normalize(sub([x, y], center)), radius))
+      }
+      if (fourth.isSet) {
+        const ac = this.arcCenter([x, y]), sign = ac.radius < 0 ? -1 : 1, radius = Math.abs(ac.radius)
+        const a = this.startAngle + sign * (fourth.getValue() * Math.PI) / 180
+        ;[x, y] = add(ac.center, [Math.cos(a) * radius, Math.sin(a) * radius])
+      }
+      if (o[OVP.Fifth].isSet) {
+        const a = (o[OVP.Fifth].getValue() * Math.PI) / 180
+        if (this.angleToPrevious !== a) this.angleToPrevious = a
+      }
+    }
+    return [x, y]
+  }
+  adaptParameters(c: Controller, p: XY) {
+    const o = c.onViewParameters
+    if (this.state === 0) {
+      if (!o[OVP.First].isSet) c.setOnViewParameterValue(OVP.First, p[0])
+      if (!o[OVP.Second].isSet) c.setOnViewParameterValue(OVP.Second, p[1])
+      const sameSign = p[0] * p[1] > 0
+      o[OVP.First].setLabelAutoDistanceReverse(!sameSign); o[OVP.Second].setLabelAutoDistanceReverse(sameSign)
+      o[OVP.First].setPoints([0, 0], p); o[OVP.Second].setPoints([0, 0], p)
+      return
+    }
+    if (this.state !== 1) return
+    const third = o[OVP.Third], fourth = o[OVP.Fourth], prevPoint: XY = this.points.length ? this.last() : [0, 0]
+    if (this.method === 0) {
+      const vec = sub(p, prevPoint)
+      if (!third.isSet) c.setOnViewParameterValue(OVP.Third, len(vec))
+      const range = (this.dirChangeAngle * 180) / Math.PI
+      if (!fourth.isSet) c.setOnViewParameterValue(OVP.Fourth, range, 'Angle')
+      else if (fourth.hasFinishedEditing && len(vec) > CONFUSION && Math.abs(range - fourth.getValue()) > CONFUSION) c.setOnViewParameterValue(OVP.Fourth, range, 'Angle')
+      third.setPoints(prevPoint, p)
+      fourth.setPoints(prevPoint, [0, 0])
+      fourth.setLabelStartAngle(this.previousDirectionAngle)
+      fourth.setLabelRange(this.dirChangeAngle)
+    } else {
+      const fifth = o[OVP.Fifth], vec = sub(p, this.center)
+      if (!third.isSet) c.setOnViewParameterValue(OVP.Third, len(vec))
+      if (!fourth.isSet) c.setOnViewParameterValue(OVP.Fourth, (this.range * 180) / Math.PI, 'Angle')
+      if (!fifth.isSet) c.setOnViewParameterValue(OVP.Fifth, (this.angleToPrevious * 180) / Math.PI, 'Angle')
+      third.setPoints(this.center, p)
+      fourth.setPoints(this.center, [0, 0])
+      fourth.setLabelStartAngle(this.startAngle)
+      fourth.setLabelRange(this.range)
+      fifth.setPoints(prevPoint, [0, 0])
+      fifth.setLabelStartAngle(this.previousDirectionAngle)
+      fifth.setLabelRange(this.angleToPrevious)
+    }
+  }
+  computeNextDrawSketchHandlerMode(c: Controller) {
+    const o = c.onViewParameters
+    if (this.state === 0) {
+      if (o[OVP.First].hasFinishedEditing && o[OVP.Second].hasFinishedEditing) this.onButtonPressed([o[OVP.First].getValue(), o[OVP.Second].getValue()])
+    } else if (this.state === 1 && o[OVP.Third].hasFinishedEditing && o[OVP.Fourth].hasFinishedEditing) {
+      this.canGoToNextMode() // the segment, without leaving this state
+      c.unsetOnViewParameter(o[OVP.Third]); c.unsetOnViewParameter(o[OVP.Fourth])
+      if (this.method === 1) c.unsetOnViewParameter(o[OVP.Fifth])
+    }
+  }
+  doConstructionMethodChanged(c: Controller) {
+    if (this.method === 1) {
+      if (!this.geoEltIds.length) { this.setConstructionMethod(0); return } // the first segment is a line
+      this.resetEdge = true
+    }
+    c.resetOnViewParameters()
+    this.configureToolWidget(c)
+    c.setModeOnViewParameters()
+    c.syncConstructionMethodComboboxToHandler()
+  }
+  resetOnConstructionMethodChanged() { return false }
+  /** addStepConstraints: the first point's position with the first segment, then each segment's length and angle (to
+   *  the previous line, or the H axis), or radius and sweep. */
+  addStepConstraints(c: Controller) {
+    const lastCurve = S.highestCurveIndex(), o = c.onViewParameters
+    if (this.geoEltIds.length === 1) {
+      const x0 = o[OVP.First].getValue(), y0 = o[OVP.Second].getValue(), x0set = o[OVP.First].isSet, y0set = o[OVP.Second].isSet
+      if (x0set && y0set && x0 === 0 && y0 === 0) constraintToAttachment([lastCurve, START], RT_PNT_ID, x0)
+      else {
+        if (x0set) constraintToAttachment([lastCurve, START], V_AXIS_ID, x0)
+        if (y0set) constraintToAttachment([lastCurve, START], H_AXIS_ID, y0)
+      }
+      c.deactivateOnViewParameter(OVP.First); c.deactivateOnViewParameter(OVP.Second)
+    }
+    const p3 = o[OVP.Third].getValue(), p4 = o[OVP.Fourth].getValue(), p3set = o[OVP.Third].isSet, p4set = o[OVP.Fourth].isSet
+    if (this.method === 0) {
+      if (p3set) S.addConstraint(constraint('Distance', lastCurve, NONE, GEO_UNDEF, NONE, GEO_UNDEF, NONE, f6(Math.abs(p3))))
+      if (p4set) {
+        if (this.geoEltIds.length > 1) { if (!this.isPreviousArc()) constraint2LinesByAngle(this.geoEltIds[this.geoEltIds.length - 2][0], lastCurve, (p4 * Math.PI) / 180) }
+        else constraintLineByAngle(lastCurve, (p4 * Math.PI) / 180)
+      }
+    } else {
+      if (p3set) S.addConstraint(constraint('Radius', lastCurve, NONE, GEO_UNDEF, NONE, GEO_UNDEF, NONE, f6(Math.abs(p3))))
+      if (p4set) S.addConstraint(constraint('Angle', lastCurve, NONE, GEO_UNDEF, NONE, GEO_UNDEF, NONE, f6(Math.abs((p4 * Math.PI) / 180))))
+    }
+  }
 }
-
 // ── Arc (DrawSketchHandlerArc.h) ─────────────────────────────────────────────────────────────────────────────────
 /** CircleEllipseConstructionMethod: Center (centre, start, end) and ThreeRim (two ends, then a point on the arc). */
 export class ArcHandler extends DefaultHandler {
@@ -823,7 +1363,7 @@ export class ArcHandler extends DefaultHandler {
   }
   protected update(p: XY) {
     if (this.state === 0) {
-      this.drawPositionAtCursor(p)
+      this.ctl.drawPositionAtCursor(p)
       if (this.method === 0) this.centerPoint = p; else this.firstPoint = p
       this.seekAndRender(this.sug[0], p, [0, 0])
     } else if (this.state === 1) {
@@ -831,7 +1371,7 @@ export class ArcHandler extends DefaultHandler {
       else { this.centerPoint = add(mul(sub(p, this.firstPoint), 0.5), this.firstPoint); this.secondPoint = p }
       this.radius = len(sub(p, this.centerPoint))
       this.drawShape()
-      if (this.method === 0) this.clearCursorText(); else this.drawPositionAtCursor(p)
+      if (this.method === 0) this.ctl.drawDirectionAtCursor(p, this.centerPoint); else this.ctl.drawPositionAtCursor(p)
       this.seekAndRender(this.sug[1], p, [0, 0])
     } else if (this.state === 2) {
       const backup = this.startAngle
@@ -855,8 +1395,8 @@ export class ArcHandler extends DefaultHandler {
         }
       }
       this.drawShape()
-      if (this.method === 0) { this.startAngle = backup; this.clearCursorText(); this.seekAndRender(this.sug[2], p, [0, 0]) }
-      else { this.drawPositionAtCursor(p); this.seekAndRender(this.sug[2], p, [0, 0], 'curve') }
+      if (this.method === 0) { this.startAngle = backup; this.ctl.drawDoubleAtCursor(p, this.arcAngle, "Angle"); this.seekAndRender(this.sug[2], p, [0, 0]) }
+      else { this.ctl.drawPositionAtCursor(p); this.seekAndRender(this.sug[2], p, [0, 0], 'curve') }
     }
   }
   protected createShape(onlyOutline: boolean) {
@@ -903,14 +1443,139 @@ export class ArcHandler extends DefaultHandler {
     }
     this.removeRedundantAutoConstraints()
   }
+  // DSHArcController: the centre's X and Y, the radius and start angle, the arc's angle; or three rim points' X and Y
+  isWidgetVisible() { return true }
+  toolWidgetText() { return 'Arc Parameters' }
+  toolIcon() { return 'Sketcher_CreateArc' }
+  ovpSpec(): OvpSpec { return { ovps: this.method === 0 ? 5 : 6, widget: { parameters: 0, checkboxes: 0, comboboxes: 1, lineEdits: 0 }, firstComboIsMethod: true } }
+  ovpState(i: number) { return Math.trunc(i / 2) }
+  configureToolWidget(c: Controller) {
+    if (!c.init) {
+      c.setComboboxElements(0, ['Center', '3 rim points'])
+      const k = this.isConstructionMode() ? '_Constr' : ''
+      c.setComboboxItemIcon(0, 0, `Sketcher_CreateArc${k}`); c.setComboboxItemIcon(0, 1, `Sketcher_Create3PointArc${k}`)
+    }
+    const o = c.onViewParameters
+    o[OVP.First].setLabelType('DISTANCEX'); o[OVP.Second].setLabelType('DISTANCEY')
+    if (this.method === 1) {
+      o[OVP.Third].setLabelType('DISTANCEX'); o[OVP.Fourth].setLabelType('DISTANCEY')
+      o[OVP.Fifth].setLabelType('DISTANCEX'); o[OVP.Sixth].setLabelType('DISTANCEY')
+    } else {
+      o[OVP.Third].setLabelType('RADIUS', 'Dimensioning'); o[OVP.Fourth].setLabelType('ANGLE', 'Dimensioning'); o[OVP.Fifth].setLabelType('ANGLE', 'Dimensioning')
+    }
+  }
+  doEnforceControlParameters(c: Controller, p: XY): XY {
+    const o = c.onViewParameters
+    let [x, y] = p
+    if (this.state === 0) {
+      if (o[OVP.First].isSet) x = o[OVP.First].getValue()
+      if (o[OVP.Second].isSet) y = o[OVP.Second].getValue()
+    } else if (this.state === 1) {
+      const third = o[OVP.Third], fourth = o[OVP.Fourth]
+      if (this.method === 0) {
+        let dir = sub([x, y], this.centerPoint)
+        if (len(dir) < CONFUSION) dir = [1, dir[1]]
+        let radius = len(dir)
+        if (third.isSet) {
+          radius = third.getValue()
+          if (radius < CONFUSION && third.hasFinishedEditing) { c.unsetOnViewParameter(third); return [x, y] }
+          ;[x, y] = add(this.centerPoint, mul(normalize(dir), radius))
+        }
+        if (fourth.isSet) { const a = (fourth.getValue() * Math.PI) / 180; x = this.centerPoint[0] + Math.cos(a) * radius; y = this.centerPoint[1] + Math.sin(a) * radius }
+      } else {
+        if (third.isSet) x = third.getValue()
+        if (fourth.isSet) y = fourth.getValue()
+        if (third.hasFinishedEditing && fourth.hasFinishedEditing && len(sub([x, y], this.firstPoint)) < CONFUSION) { c.unsetOnViewParameter(third); c.unsetOnViewParameter(fourth) }
+      }
+    } else if (this.state === 2) {
+      const fifth = o[OVP.Fifth]
+      if (this.method === 0) {
+        if (fifth.isSet) {
+          const arcAngle = (fifth.getValue() * Math.PI) / 180
+          if (Math.abs(arcAngle) % (2 * Math.PI) < CONFUSION && fifth.hasFinishedEditing) { c.unsetOnViewParameter(fifth); return [x, y] }
+          this.arcAngle = arcAngle
+          const a = this.startAngle + arcAngle
+          x = this.centerPoint[0] + Math.cos(a) * this.radius; y = this.centerPoint[1] + Math.sin(a) * this.radius
+        }
+      } else {
+        const sixth = o[OVP.Sixth]
+        if (fifth.isSet) x = fifth.getValue()
+        if (sixth.isSet) y = sixth.getValue()
+      }
+    }
+    return [x, y]
+  }
+  adaptParameters(c: Controller, p: XY) {
+    const o = c.onViewParameters
+    const xy = (a: number, b: number) => {
+      if (!o[a].isSet) c.setOnViewParameterValue(a, p[0])
+      if (!o[b].isSet) c.setOnViewParameterValue(b, p[1])
+      const sameSign = p[0] * p[1] > 0
+      o[a].setLabelAutoDistanceReverse(!sameSign); o[b].setLabelAutoDistanceReverse(sameSign)
+      o[a].setPoints([0, 0], p); o[b].setPoints([0, 0], p)
+    }
+    if (this.state === 0) xy(OVP.First, OVP.Second)
+    else if (this.state === 1) {
+      if (this.method === 0) {
+        if (!o[OVP.Third].isSet) c.setOnViewParameterValue(OVP.Third, this.radius)
+        if (!o[OVP.Fourth].isSet) c.setOnViewParameterValue(OVP.Fourth, (this.startAngle * 180) / Math.PI, 'Angle')
+        o[OVP.Third].setPoints(this.centerPoint, p)
+        o[OVP.Fourth].setPoints(this.centerPoint, [0, 0])
+        o[OVP.Fourth].setLabelRange(this.startAngle)
+      } else xy(OVP.Third, OVP.Fourth)
+    } else if (this.state === 2) {
+      if (this.method === 0) {
+        if (!o[OVP.Fifth].isSet) c.setOnViewParameterValue(OVP.Fifth, (this.arcAngle * 180) / Math.PI, 'Angle')
+        o[OVP.Fifth].setPoints(this.centerPoint, [0, 0])
+        o[OVP.Fifth].setLabelStartAngle(this.startAngle)
+        o[OVP.Fifth].setLabelRange(this.arcAngle)
+      } else xy(OVP.Fifth, OVP.Sixth)
+    }
+  }
+  computeNextDrawSketchHandlerMode(c: Controller) {
+    const o = c.onViewParameters
+    if (this.state === 0) { if (o[OVP.First].hasFinishedEditing && o[OVP.Second].hasFinishedEditing) this.setNextState(1) }
+    else if (this.state === 1) { if (o[OVP.Third].hasFinishedEditing && o[OVP.Fourth].hasFinishedEditing) this.setNextState(2) }
+    else if (this.state === 2) {
+      if (this.method === 0) { if (o[OVP.Fifth].hasFinishedEditing) this.setNextState(this.states) }
+      else if (o[OVP.Fifth].hasFinishedEditing && o[OVP.Sixth].hasFinishedEditing) this.setNextState(this.states)
+    }
+  }
+  doConstructionMethodChanged() { S.updateHints() }
+  addConstraints(c: Controller) {
+    const firstCurve = S.highestCurveIndex(), o = c.onViewParameters
+    const x0 = o[OVP.First].getValue(), y0 = o[OVP.Second].getValue(), p3 = o[OVP.Third].getValue(), p4 = o[OVP.Fourth].getValue()
+    const x0set = o[OVP.First].isSet, y0set = o[OVP.Second].isSet, p3set = o[OVP.Third].isSet, p4set = o[OVP.Fourth].isSet, p5set = o[OVP.Fifth].isSet
+    const pos1 = this.method === 0 ? MID : this.arcPos1
+    if (x0set && y0set && x0 === 0 && y0 === 0) constraintToAttachment([firstCurve, pos1], RT_PNT_ID, 0)
+    else {
+      if (x0set) constraintToAttachment([firstCurve, pos1], V_AXIS_ID, x0)
+      if (y0set) constraintToAttachment([firstCurve, pos1], H_AXIS_ID, y0)
+    }
+    if (this.method === 0) {
+      if (p3set) S.addConstraint(constraint('Radius', firstCurve, NONE, GEO_UNDEF, NONE, GEO_UNDEF, NONE, f6(Math.abs(p3))))
+      if (p5set) S.addConstraint(constraint('Angle', firstCurve, NONE, GEO_UNDEF, NONE, GEO_UNDEF, NONE, f6(Math.abs(this.arcAngle))))
+    } else if (p3set && p4set && p3 === 0 && p4 === 0) constraintToAttachment([firstCurve, this.arcPos2], RT_PNT_ID, 0)
+    else {
+      if (p3set) constraintToAttachment([firstCurve, this.arcPos2], V_AXIS_ID, p3)
+      if (p4set) constraintToAttachment([firstCurve, this.arcPos2], H_AXIS_ID, p4)
+    }
+  }
 }
 
 // ── Circle (DrawSketchHandlerCircle.h) ───────────────────────────────────────────────────────────────────────────
+/** Mod/Sketcher/dimensioning's DimensioningDiameter and DimensioningRadius (both on): a circle's dimension is its
+ *  diameter unless only the radius is asked for. */
+const useRadius = () => sketcherParam<boolean>('Mod/Sketcher/dimensioning/DimensioningRadius', true) && !sketcherParam<boolean>('Mod/Sketcher/dimensioning/DimensioningDiameter', true)
+/** CircleEllipseConstructionMethod: Center, ThreeRim. DSHCircleController: the centre's X and Y, then the diameter (or
+ *  radius); or the three rim points' X and Y. */
 export class CircleHandler extends DefaultHandler {
   readonly toolName = 'DSH_Circle'
   protected readonly states = 3
   protected readonly methods = 2
+  protected readonly autoConstraintSize = 3
   private centerPoint: XY = [0, 0]; private firstPoint: XY = [0, 0]; private secondPoint: XY = [0, 0]; private radius = 0
+  private isDiameter = true
   constructor(method = 0) { super(); this.method = method }
   crosshair() { return this.method === 0 ? 'Sketcher_Pointer_Create_Circle' : 'Sketcher_Pointer_Create_3PointCircle' }
   hints() {
@@ -919,7 +1584,7 @@ export class CircleHandler extends DefaultHandler {
   }
   protected update(p: XY) {
     if (this.state === 0) {
-      this.drawPositionAtCursor(p)
+      this.ctl.drawPositionAtCursor(p)
       if (this.method === 0) { this.centerPoint = p; this.seekAndRender(this.sug[0], p, [0, 0]) }
       else { this.firstPoint = p; this.seekAndRender(this.sug[0], p, [0, 0], 'curve') }
     } else if (this.state === 1) {
@@ -927,13 +1592,13 @@ export class CircleHandler extends DefaultHandler {
       this.secondPoint = p
       this.radius = len(sub(p, this.centerPoint))
       this.drawShape()
-      if (this.method === 0) this.clearCursorText(); else this.drawPositionAtCursor(p)
+      if (this.method === 0) this.ctl.drawDoubleAtCursor(p, this.radius); else this.ctl.drawPositionAtCursor(p)
       this.seekAndRender(this.sug[1], p, this.method === 0 ? sub(p, this.centerPoint) : [0, 0], 'curve')
     } else if (this.state === 2) {
       if (areCollinear(this.firstPoint, this.secondPoint, p)) return
       this.centerPoint = circleCenter(this.firstPoint, this.secondPoint, p)
       this.radius = len(sub(p, this.centerPoint))
-      this.drawPositionAtCursor(p)
+      this.ctl.drawPositionAtCursor(p)
       this.drawShape()
       this.seekAndRender(this.sug[2], p, [0, 0], 'curve')
     }
@@ -953,8 +1618,96 @@ export class CircleHandler extends DefaultHandler {
     else for (const s of this.sug.slice(0, 3)) this.onElement(s, id, NONE)
     this.removeRedundantAutoConstraints()
   }
+  protected createAutoConstraints() { this.createGeneratedAutoConstraints(true); for (const s of this.sug.slice(0, 3)) s.length = 0 }
+  isWidgetVisible() { return true }
+  toolWidgetText() { return 'Circle Parameters' }
+  toolIcon() { return 'Sketcher_CreateCircle' }
+  ovpSpec(): OvpSpec { return { ovps: this.method === 0 ? 3 : 6, widget: { parameters: 0, checkboxes: 0, comboboxes: 1, lineEdits: 0 }, firstComboIsMethod: true } }
+  ovpState(i: number) { return this.method === 0 ? (i < 2 ? 0 : 1) : Math.trunc(i / 2) }
+  configureToolWidget(c: Controller) {
+    if (!c.init) {
+      c.setComboboxElements(0, ['Center', '3 rim points'])
+      const k = this.isConstructionMode() ? '_Constr' : ''
+      c.setComboboxItemIcon(0, 0, `Sketcher_CreateCircle${k}`); c.setComboboxItemIcon(0, 1, `Sketcher_Create3PointCircle${k}`)
+      if (useRadius()) this.isDiameter = false
+    }
+    const o = c.onViewParameters
+    o[OVP.First].setLabelType('DISTANCEX'); o[OVP.Second].setLabelType('DISTANCEY')
+    if (this.method === 1) {
+      o[OVP.Third].setLabelType('DISTANCEX'); o[OVP.Fourth].setLabelType('DISTANCEY')
+      o[OVP.Fifth].setLabelType('DISTANCEX'); o[OVP.Sixth].setLabelType('DISTANCEY')
+    } else o[OVP.Third].setLabelType(useRadius() ? 'RADIUS' : 'DIAMETER', 'Dimensioning')
+  }
+  doEnforceControlParameters(c: Controller, p: XY): XY {
+    const o = c.onViewParameters
+    let [x, y] = p
+    if (this.state === 0) {
+      if (o[OVP.First].isSet) x = o[OVP.First].getValue()
+      if (o[OVP.Second].isSet) y = o[OVP.Second].getValue()
+    } else if (this.state === 1) {
+      const third = o[OVP.Third]
+      if (this.method === 0) {
+        if (third.isSet) {
+          const radius = (this.isDiameter ? 0.5 : 1) * third.getValue()
+          if (radius < CONFUSION && third.hasFinishedEditing) { c.unsetOnViewParameter(third); return [x, y] }
+          let dir = sub([x, y], this.centerPoint)
+          if (len(dir) < CONFUSION) dir = [1, dir[1]]
+          ;[x, y] = add(this.centerPoint, mul(normalize(dir), radius))
+        }
+      } else {
+        const fourth = o[OVP.Fourth]
+        if (third.isSet) x = third.getValue()
+        if (fourth.isSet) y = fourth.getValue()
+        if (third.hasFinishedEditing && fourth.hasFinishedEditing && len(sub([x, y], this.firstPoint)) < CONFUSION) { c.unsetOnViewParameter(third); c.unsetOnViewParameter(fourth) }
+      }
+    } else if (this.state === 2) {
+      const fifth = o[OVP.Fifth], sixth = o[OVP.Sixth]
+      if (fifth.isSet) x = fifth.getValue()
+      if (sixth.isSet) y = sixth.getValue()
+      if (fifth.hasFinishedEditing && sixth.hasFinishedEditing && areCollinear(this.firstPoint, this.secondPoint, [x, y])) { c.unsetOnViewParameter(fifth); c.unsetOnViewParameter(sixth) }
+    }
+    return [x, y]
+  }
+  adaptParameters(c: Controller, p: XY) {
+    const o = c.onViewParameters
+    const xy = (a: number, b: number) => {
+      if (!o[a].isSet) c.setOnViewParameterValue(a, p[0])
+      if (!o[b].isSet) c.setOnViewParameterValue(b, p[1])
+      const sameSign = p[0] * p[1] > 0
+      o[a].setLabelAutoDistanceReverse(!sameSign); o[b].setLabelAutoDistanceReverse(sameSign)
+      o[a].setPoints([0, 0], p); o[b].setPoints([0, 0], p)
+    }
+    if (this.state === 0) xy(OVP.First, OVP.Second)
+    else if (this.state === 1) {
+      if (this.method === 0) {
+        const r = useRadius()
+        if (!o[OVP.Third].isSet) c.setOnViewParameterValue(OVP.Third, this.radius * (r ? 1 : 2))
+        const start = r ? this.centerPoint : sub(this.centerPoint, sub(p, this.centerPoint))
+        o[OVP.Third].setPoints(start, p)
+      } else xy(OVP.Third, OVP.Fourth)
+    } else if (this.state === 2) xy(OVP.Fifth, OVP.Sixth)
+  }
+  computeNextDrawSketchHandlerMode(c: Controller) {
+    const o = c.onViewParameters
+    if (this.state === 0) { if (o[OVP.First].hasFinishedEditing && o[OVP.Second].hasFinishedEditing) this.setNextState(1) }
+    else if (this.state === 1) {
+      if (o[OVP.Third].hasFinishedEditing && this.method === 0) this.setNextState(this.states)
+      else if (o.length > 3 && (o[OVP.Third].hasFinishedEditing || o[OVP.Fourth].hasFinishedEditing) && this.method === 1) this.setNextState(2)
+    } else if (this.state === 2) { if (o[OVP.Fifth].hasFinishedEditing && o[OVP.Sixth].hasFinishedEditing) this.setNextState(this.states) }
+  }
+  doConstructionMethodChanged() { S.updateHints() }
+  addConstraints(c: Controller) {
+    if (this.method !== 0) return // no constraint for a circle by three rim points
+    const firstCurve = S.highestCurveIndex(), o = c.onViewParameters
+    if (o[OVP.First].isSet) constraintToAttachment([firstCurve, MID], V_AXIS_ID, o[OVP.First].getValue())
+    if (o[OVP.Second].isSet) constraintToAttachment([firstCurve, MID], H_AXIS_ID, o[OVP.Second].getValue())
+    if (o[OVP.Third].isSet) {
+      S.addConstraint(this.isDiameter ? constraint('Diameter', firstCurve, NONE, GEO_UNDEF, NONE, GEO_UNDEF, NONE, f6(this.radius * 2))
+        : constraint('Radius', firstCurve, NONE, GEO_UNDEF, NONE, GEO_UNDEF, NONE, f6(this.radius)))
+      S.moveConstraint(S.getConstraints().length - 1, c.prevCursorPosition)
+    }
+  }
 }
-
 // ── Rectangle (DrawSketchHandlerRectangle.h), Diagonal and CenterAndCorner, with rounded corners ────────────────
 export class RectangleHandler extends DefaultHandler {
   readonly toolName = 'DSH_Rectangle'
