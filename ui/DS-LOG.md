@@ -457,6 +457,9 @@ The full-suite run also caught a harness regression from the Layer work: the new
   — 5/5 cases as FreeCAD, 0 known, 19 colours, 0 differences.
 - `sketchcheck.mjs --suite panels` on the final bundle — 92/93 cases as FreeCAD, 1 known (el-shift),
   19 colours, 0 differences.
+- `sketchcheck.mjs` every suite on the final bundle — 316/320 cases as FreeCAD, 4 known (c-parallel,
+  el-shift, ovp-polyline-lengths, ovp-polyline-arc), 19 colours, 0 differences. (PARITY's
+  every-suite sentence was still the pre-layer run's 313/317; refreshed in `1a70eac`.)
 - `npx tsc --noEmit` clean; `npm run build` OK.
 - `pytest tests/test_feature.py tests/test_feature_edit.py -q` — 151 passed.
 - `pytest tests/test_licenses.py -q` — 244 passed.
@@ -487,3 +490,55 @@ The full-suite run also caught a harness regression from the Layer work: the new
 - **The external geometry's check box is drawn disabled rather than left out**, because FreeCAD's
   delegate draws it with `State_Enabled` false (`canBeHidden`); Toggle Construction on external
   geometry still does nothing.
+
+## 6b. Sketcher text — skipped, needs Juan
+
+The last of the handoff's PARITY leftovers; PARITY's "not built yet, shown greyed" line for
+Sketcher_CreateText still holds. What it is, read from FreeCAD main 3160daf1e2b6:
+
+- `DrawSketchHandlerText` (`src/Mod/Sketcher/Gui/DrawSketchHandlerText.h`): two construction methods,
+  Width and Height (M switches them), four on-view parameters (the handle line's start x and y, its
+  length, its angle), a tool widget with a Text line edit and a Font combo box, and a two-click
+  handle line (construction geometry in construction mode). `executeCommands` adds the handle
+  (`Part.LineSegment`, construction), a `Sketcher.Constraint('Text', [handle, 0], text, fontPath,
+  isHeight)` holding only the handle, then calls `setTextAndFont`.
+- `SketchObject::setTextAndFont` (`SketchObject.cpp:710`) deletes the old text geometries, builds
+  glyph wires with `Part::makeTextWires(text, fontFile)` (`Part/App/Geometry.cpp:7628`: FreeType's
+  `FT_Outline_Decompose` for the outlines, HarfBuzz's `hb_shape` for the positions), transforms them
+  onto the handle line (`Part::transformAndConvertToGeometry`, `Geometry.cpp:~7500`: scale by the
+  handle's length or height, rotate, translate; each edge becomes a line, a circle, an arc, a conic
+  or a B-spline), adds them as ordinary sketch geometry, and rebuilds the Text constraint over the
+  handle and every new geometry, with Text, Font and IsTextHeight.
+- The Font combo lists the font files installed on the machine (`FontProvider::findAvailableFontFiles`:
+  the TechDraw resource fonts plus fontconfig's list on Linux), preferring `osifont-lgpl3fe`, then
+  `DejaVu Sans`, then `Arial`; the constraint keeps the family name, `EditTextDialog` maps it back to
+  a path to regenerate, and a double click on a Text constraint opens that dialog.
+- The text geometry is ordinary sketch geometry (lines and B-splines), so a FreeCAD file with text
+  draws without any font; only creating or editing the text needs one.
+
+**Why it is blocked.** The font pipeline is a design decision, not a port:
+
+- **Font source.** FreeCAD reads the host's font files. A browser cannot: its Canvas has no
+  glyph-outline API and no font directory to scan. The choices are (a) ship one free font with the
+  workbench (DejaVu Sans, Bitstream Vera licence, 760 KB; FreeCAD's default preferences are
+  osifont-lgpl3fe then DejaVu Sans) and make it the only family, (b) have the Python server read the
+  host's fonts as FreeCAD does — `fontTools` (present in the dev venv only as another package's
+  transitive dependency) is pure Python and can read outlines and advances — with a new server call
+  from inside the sketch editor, which is otherwise entirely client-side (planegcs wasm), or (c) a
+  JS font parser (e.g. opentype.js, MIT) over a shipped font, another vendored dependency.
+- **Shaping.** FreeCAD positions glyphs with HarfBuzz (kerning, ligatures, complex scripts).
+  `fontTools` reads outlines and hmtx advances but does not shape, and no FreeType or HarfBuzz
+  binding is installed here (no `freetype`, no `uharfbuzz`; OCP's `Font` module exposes no
+  `Font_BRepFont`). An advances-only model would differ from FreeCAD wherever the font kerns: the
+  oracle would have to document that difference, or its cases avoid kerning pairs.
+- **Part-file vocabulary.** A Text constraint (FreeCAD's `Constraint::Text`, 21) holds the handle's
+  GeoId and every generated geometry's GeoId plus Text, Font and IsTextHeight; the solver skips it
+  (it is not a solver constraint). The part file's constraint vocabulary has no such type, and the
+  FreeCAD export (`feature_part._sketch_to_freecad`) could not write one. This half is independent
+  of the font question and could be done first if that is wanted.
+
+**Question for Juan:** which font source (and so which dependency) should sketch text use — a free
+font shipped with the workbench, the host's fonts server-side through fontTools, or a JS font parser
+— and is text that does not match FreeCAD's HarfBuzz shaping acceptable as a documented difference,
+or must the oracle compare it glyph for glyph? Moved on; this was the last item on the handoff's Next
+list (Assembly joints was logged as a question in item 1, and everything else there is done).
