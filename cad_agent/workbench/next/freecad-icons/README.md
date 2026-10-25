@@ -69,3 +69,6 @@ CC-BY-SA 2.0 licence block with no creator (THIRD_PARTY_LICENSES has the licence
 The additive and subtractive primitives (ui/src/pd_transform.tsx) use 14 more from `src/Mod/PartDesign/Gui/Resources/icons` at
 3160daf1e2b6, `PartDesign_Additive{Cylinder,Sphere,Cone,Ellipsoid,Torus,Prism,Wedge}.svg` and their `Subtractive` twins
 (Box's two were there already); their metadata says `FreeCAD LGPL2+`.
+The Sketcher's Constraints list and datum dialog (ui/src/sketchpanels.tsx, sketchui.tsx) add `bound-expression.svg`
+(`src/Gui/Icons` at 3160daf1e2b6, the icon ExpressionDelegate paints beside a datum bound to an expression; Alfredo Monclus,
+`FreeCAD LGPL2+`).

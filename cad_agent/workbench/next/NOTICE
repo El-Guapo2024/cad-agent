@@ -23,7 +23,8 @@ them carry.
       Gui/PreferencePages/DlgSettingsNotificationArea.cpp,
       Mod/Part/Gui/ViewProviderGridExtension.cpp, Mod/Sketcher/Gui/CommandSketcherTools.cpp,
       Mod/Sketcher/Gui/DrawSketchControllableHandler.h, Mod/Sketcher/Gui/DrawSketchController.h,
-      Mod/Sketcher/Gui/DrawSketchDefaultHandler.h, Mod/Sketcher/Gui/DrawSketchHandlerArc.h,
+      Mod/Sketcher/Gui/DrawSketchDefaultHandler.h, Mod/Sketcher/Gui/DrawSketchDefaultWidgetController.h,
+      Mod/Sketcher/Gui/DrawSketchKeyboardManager.cpp, Mod/Sketcher/Gui/DrawSketchHandlerArc.h,
       Mod/Sketcher/Gui/DrawSketchHandlerExternal.h,
       Mod/Sketcher/Gui/DrawSketchHandlerCircle.h, Mod/Sketcher/Gui/DrawSketchHandlerLine.h,
       Mod/Sketcher/Gui/DrawSketchHandlerLineSet.h, Mod/Sketcher/Gui/DrawSketchHandlerPoint.h,
@@ -31,7 +32,9 @@ them carry.
       Mod/Sketcher/Gui/DrawSketchHandlerSlot.h, Mod/Sketcher/Gui/EditModeCoinManager.cpp,
       Mod/Sketcher/Gui/EditModeCoinManagerParameters.cpp,
       Mod/Sketcher/Gui/EditModeConstraintCoinManager.cpp,
-      Mod/Sketcher/Gui/EditModeGeometryCoinManager.cpp, Mod/Sketcher/Gui/TaskSketcherElements.cpp,
+      Mod/Sketcher/Gui/CommandSketcherVirtualSpace.cpp, Mod/Sketcher/Gui/ConstraintFilters.h,
+      Mod/Sketcher/Gui/EditModeGeometryCoinManager.cpp, Mod/Sketcher/Gui/SketchRectangularArrayDialog.cpp,
+      Mod/Sketcher/Gui/SketcherRegularPolygonDialog.cpp, Mod/Sketcher/Gui/TaskSketcherElements.cpp,
       Mod/Sketcher/Gui/Utils.cpp
   Alexander Golubev (Fat-Zer): Gui/ViewProviderPlane.cpp, Mod/PartDesign/Gui/CommandBody.cpp,
       Mod/PartDesign/Gui/ViewProviderSketchBased.cpp
@@ -56,11 +59,12 @@ them carry.
   Joao Matos: Gui/Inventor/SoFCBackgroundGradient.cpp, Gui/Inventor/SoNaviCube.cpp,
       Gui/NaviCube.cpp, Gui/SoDatumLabel.cpp, Gui/View3DInventorViewer.cpp,
       Mod/Part/Gui/SoBrepFaceSet.cpp
+  Johan Kristensen: Mod/Sketcher/ProfileLib/RegularPolygon.py
   Juergen Riegel: Mod/PartDesign/App/FeatureHole.cpp, Mod/PartDesign/Gui/TaskChamferParameters.cpp,
       Mod/PartDesign/Gui/TaskFilletParameters.cpp, Mod/PartDesign/Gui/TaskHoleParameters.cpp,
       Mod/PartDesign/Gui/TaskPadParameters.cpp, Mod/PartDesign/Gui/TaskPocketParameters.cpp,
       Mod/PartDesign/Gui/TaskRevolutionParameters.cpp, Mod/PartDesign/Gui/ViewProvider.cpp,
-      Mod/Sketcher/Gui/ViewProviderSketch.cpp
+      Mod/Sketcher/Gui/ViewProviderSketch.cpp, Mod/Sketcher/ProfileLib/RegularPolygon.py
   Jürgen Riegel: App/Expression.l, App/Expression.y, App/GeoFeature.cpp, Base/Exception.cpp,
       Base/Quantity.cpp, Base/Quantity.l, Base/Quantity.y, Base/QuantityPyImp.cpp,
       Base/UnitsApi.cpp, Gui/Command.cpp, Gui/CommandDoc.cpp, Gui/CommandFeat.cpp,
@@ -74,21 +78,26 @@ them carry.
       Gui/ViewProviderPlane.cpp, Mod/Part/App/PartFeature.cpp, Mod/Part/Gui/Command.cpp,
       Mod/Part/Gui/CommandFilter.cpp, Mod/PartDesign/Gui/Command.cpp,
       Mod/Sketcher/App/Constraint.cpp, Mod/Sketcher/App/ConstraintPyImp.cpp,
-      Mod/Sketcher/App/SketchObjectExternal.cpp, Mod/Sketcher/Gui/Command.cpp, Mod/Sketcher/Gui/CommandConstraints.cpp,
+      Mod/Sketcher/App/SketchObjectExternal.cpp, Mod/Sketcher/App/SketchObjectPyImp.cpp,
+      Mod/Sketcher/Gui/Command.cpp, Mod/Sketcher/Gui/CommandConstraints.cpp,
       Mod/Sketcher/Gui/CommandCreateGeo.cpp, Mod/Sketcher/Gui/DrawSketchHandler.cpp,
       Mod/Sketcher/Gui/SketchOrientationDialog.cpp, Mod/Sketcher/Gui/TaskDlgEditSketch.cpp,
       Mod/Sketcher/Gui/TaskSketcherConstraints.cpp, Mod/Sketcher/Gui/TaskSketcherMessages.cpp,
-      Mod/Sketcher/Gui/Workbench.cpp
+      Mod/Sketcher/Gui/Workbench.cpp,
+      Mod/Sketcher/App/SketchObjectPyImp.cpp, Mod/Sketcher/Gui/CommandAlterGeometry.cpp
   Kacper Donat: Mod/PartDesign/Gui/StyleParameters.h
   Kirill Gavrilov: Gui/Navigation/OpenCascadeNavigationStyle.cpp
   Kustaa Nyholm: Gui/NaviCube.cpp
   Loke S. Haugsnes: Mod/Measure/Gui/TaskMeasure.cpp
   Luke Parry: Gui/SoDatumLabel.cpp, Mod/Measure/App/AppMeasure.cpp, Mod/Measure/App/Measurement.cpp
   Morten Vajhøj: Mod/Measure/App/MassPropertiesResult.cpp, Mod/Measure/Gui/TaskMassProperties.cpp
-  Ondsel: Mod/Assembly/CommandCreateBom.py
+  Ondsel: Gui/EditableDatumLabel.cpp, Mod/Assembly/CommandCreateBom.py, Mod/Sketcher/Gui/DrawSketchHandlerArcSlot.h
   Pablo Gil Fernández (the original of FreeCAD.qss) and MisterMaker (its revision):
       Gui/Stylesheets/FreeCAD.qss
-  Pierre-Louis Boyer: Mod/Measure/Gui/QuickMeasure.cpp, Mod/Sketcher/Gui/SnapManager.cpp
+  Pierre-Louis Boyer: Mod/Measure/Gui/QuickMeasure.cpp, Mod/Sketcher/Gui/DrawSketchHandlerRotate.h,
+      Mod/Sketcher/Gui/DrawSketchHandlerScale.h, Mod/Sketcher/Gui/DrawSketchHandlerSymmetry.h,
+      Mod/Sketcher/Gui/DrawSketchHandlerTranslate.h, Mod/Sketcher/Gui/SketcherToolDefaultWidget.cpp,
+      Mod/Sketcher/Gui/SnapManager.cpp, Mod/Sketcher/Gui/TaskSketcherTool.cpp
   Pieter Hijma: Gui/Dialogs/DlgExpressionInput.cpp
   Stefan Tröger: Gui/CommandStructure.cpp, Mod/Part/Gui/ViewProviderAttachExtension.cpp,
       Mod/PartDesign/Gui/CommandPrimitive.cpp, Mod/PartDesign/Gui/TaskPrimitiveParameters.cpp,
@@ -101,7 +110,8 @@ them carry.
   triplus @ FreeCAD: Mod/Tux/NavigationIndicatorGui.py
   Victor Titov (DeepSOIC): Gui/Navigation/GestureNavigationStyle.cpp,
       Gui/Navigation/MayaGestureNavigationStyle.cpp, Gui/SoTouchEvents.cpp, Mod/Part/App/AttachExtension.cpp,
-      Mod/Part/App/Attacher.cpp, Mod/Part/Gui/AttacherTexts.cpp
+      Mod/Part/App/Attacher.cpp, Mod/Part/Gui/AttacherTexts.cpp, Mod/Sketcher/Gui/AppSketcherGui.cpp,
+      Mod/Show/mTempoVis.py
   WandererFan: Mod/Measure/App/Preferences.cpp
   Werner Mayer: Base/Rotation.cpp, Base/Tools.h, Base/VectorPyImp.cpp, Gui/Action.cpp,
       Gui/Camera.cpp, Gui/Clipping.cpp, Gui/CommandMacro.cpp, Gui/CommandWindow.cpp,
@@ -126,7 +136,8 @@ them carry.
       Mod/Part/Gui/SoBrepFaceSet.cpp,
       Mod/PartDesign/Gui/SketchWorkflow.cpp, Mod/PartDesign/Gui/TaskExtrudeParameters.cpp,
       Mod/PartDesign/Gui/Workbench.cpp, Mod/Sketcher/Gui/EditDatumDialog.cpp,
-      Mod/Sketcher/Gui/SoZoomTranslation.cpp
+      Mod/Sketcher/Gui/SoZoomTranslation.cpp, Mod/Sketcher/Gui/SketcherSettings.cpp,
+      Base/Tools.cpp
   Zheng Lei (realthunder): Gui/ViewParams.cpp, Gui/CommandCompleter.cpp, Gui/CommandLink.cpp, Gui/OverlayManager.cpp,
       Gui/OverlayParams.py, Gui/OverlayWidgets.cpp, Gui/OverlayWidgets.h,
       Gui/PreferencePages/DlgSettingsAdvanced.cpp, Gui/ShortcutManager.cpp, Gui/TreeParams.py,
@@ -181,6 +192,9 @@ src/Base/QuantityPyImp.cpp   [licence: LGPL-2.1-or-later]
 src/Base/Rotation.cpp   [licence: LGPL-2.1-or-later]
     copyright 2006 Werner Mayer
     followed by src/rotation.ts, src/viewer.ts
+src/Base/Tools.cpp   [licence: LGPL-2.1-or-later]
+    copyright 2009 Werner Mayer
+    followed by src/sketchpanels.tsx
 src/Base/Tools.h   [licence: LGPL-2.1-or-later]
     copyright 2009 Werner Mayer
     followed by src/expr.ts, src/rotation.ts
@@ -201,7 +215,7 @@ src/Base/UnitsSchemasData.h   [licence: LGPL-2.1-or-later]
     followed by src/units-schemas.ts
 src/Base/Vector3D.cpp   [licence: LGPL-2.1-or-later]
     copyright 2005 Imetric 3D GmbH
-    followed by src/expr.ts
+    followed by src/expr.ts, src/sketchxform.ts
 src/Base/VectorPyImp.cpp   [licence: LGPL-2.1-or-later]
     copyright 2008 Werner Mayer
     followed by src/expr-py.ts
@@ -301,6 +315,9 @@ src/Gui/Dialogs/DlgUnitsCalculatorImp.cpp   [licence: LGPL-2.1-or-later]
 src/Gui/Document.cpp   [licence: LGPL-2.0-or-later]
     copyright 2004 Jürgen Riegel
     followed by src/actions.ts
+src/Gui/EditableDatumLabel.cpp   [licence: LGPL-2.1-or-later]
+    copyright 2023 Ondsel
+    followed by src/sketchovp.ts
 src/Gui/ExpressionCompleter.cpp   [licence: LGPL-2.0-or-later]
     copyright 2015 Eivind Kvedalen
     followed by src/exprdialog.tsx
@@ -568,7 +585,7 @@ src/Gui/View3DInventorSelection.cpp   [licence: LGPL-2.0-or-later]
 src/Gui/View3DInventorViewer.cpp   [licence: LGPL-2.1-or-later]
     copyright 2004 Jürgen Riegel
     copyright 2026 Joao Matos
-    followed by src/lights.ts, src/nav.ts, src/viewer.ts
+    followed by src/lights.ts, src/nav.ts, src/sketchpanelcmds.ts, src/viewer.ts
 src/Gui/View3DPy.cpp   [licence: LGPL-2.0-or-later]
     copyright 2002 Jürgen Riegel
     followed by src/commands.ts, src/viewer.ts
@@ -665,7 +682,7 @@ src/Mod/Part/App/Attacher.cpp   [licence: LGPL-2.1-or-later]
     followed by src/attachmodes.ts, src/attachsuggest.ts
 src/Mod/Part/App/Geometry.cpp   [licence: LGPL-2.1-or-later]
     copyright 2008 Werner Mayer
-    followed by src/sketchcurves.ts, src/sketchops.ts
+    followed by src/sketchcurves.ts, src/sketchops.ts, src/sketchxform.ts
 src/Mod/Part/App/Part2DObject.cpp   [licence: LGPL-2.1-or-later]
     copyright 2008 Jürgen Riegel
     followed by src/sketchops.ts
@@ -857,6 +874,9 @@ src/Mod/PartDesign/Gui/ViewProviderTransformed.cpp   [licence: LGPL-2.1-or-later
 src/Mod/PartDesign/Gui/Workbench.cpp   [licence: LGPL-2.1-or-later]
     copyright 2008 Werner Mayer
     followed by src/chrome.tsx, src/partdesign.tsx
+src/Mod/Show/mTempoVis.py   [licence: LGPL-2.1-or-later]
+    copyright 2016 Victor Titov (DeepSOIC)
+    followed by src/sketchpanelcmds.ts
 src/Mod/Sketcher/App/Constraint.cpp   [licence: LGPL-2.1-or-later]
     copyright 2008 Jürgen Riegel
     followed by src/sketch.ts
@@ -877,22 +897,32 @@ src/Mod/Sketcher/App/SketchObject.cpp   [licence: LGPL-2.1-or-later]
         planegcs/sketch.h
 src/Mod/Sketcher/App/SketchObjectConstraints.cpp   [licence: LGPL-2.1-or-later]
     copyright 2008 Jürgen Riegel
-    followed by src/sketchops.ts
+    followed by src/sketchops.ts, src/sketchpanelcmds.ts, src/sketchxform.ts
 src/Mod/Sketcher/App/SketchObjectExternal.cpp   [licence: LGPL-2.1-or-later]
     copyright 2008 Jürgen Riegel
     followed by src/attached.ts, src/sketchexternal.ts
 src/Mod/Sketcher/App/SketchObjectGeometry.cpp   [licence: LGPL-2.1-or-later]
     copyright 2008 Jürgen Riegel
-    followed by src/sketchcurves.ts, src/sketchgeo.ts, src/sketchops.ts
+    followed by src/sketchcurves.ts, src/sketchgeo.ts, src/sketchops.ts, src/sketchpanelcmds.ts
 src/Mod/Sketcher/App/SketchObjectOperations.cpp   [licence: LGPL-2.1-or-later]
     copyright 2008 Jürgen Riegel
-    followed by src/sketchops.ts
+    followed by src/sketchops.ts, src/sketchxform.ts
+src/Mod/Sketcher/App/SketchObjectPyImp.cpp   [licence: LGPL-2.1-or-later]
+    copyright 2010 Jürgen Riegel
+    followed by src/sketchpanels.tsx, src/sketchxform.ts
 src/Mod/Sketcher/App/planegcs/Geo.cpp   [licence: LGPL-2.1-or-later]
     copyright 2014 Victor Titov (DeepSOIC)
     followed by src/sketchcurves.ts
+src/Mod/Sketcher/Gui/AppSketcherGui.cpp   [licence: LGPL-2.1-or-later]
+    copyright 2008 Jürgen Riegel
+    followed by src/prefs-sketcher.tsx
 src/Mod/Sketcher/Gui/Command.cpp   [licence: LGPL-2.1-or-later]
     copyright 2008 Jürgen Riegel
-    followed by src/cmdreg.ts, src/fctips.ts, src/sketchcmdinfo.ts, src/sketchcmds.ts
+    followed by src/cmdreg.ts, src/fctips.ts, src/sketchcmdinfo.ts, src/sketchcmds.ts,
+        src/sketchpanelcmds.ts
+src/Mod/Sketcher/Gui/CommandAlterGeometry.cpp   [licence: LGPL-2.1-or-later]
+    copyright 2011 Jürgen Riegel
+    followed by src/sketchpanelcmds.ts
 src/Mod/Sketcher/Gui/CommandConstraints.cpp   [licence: LGPL-2.1-or-later]
     copyright 2010 Jürgen Riegel
     followed by src/sketchcmdinfo.ts, src/sketchcmds.ts, src/sketchcons.ts
@@ -901,7 +931,13 @@ src/Mod/Sketcher/Gui/CommandCreateGeo.cpp   [licence: LGPL-2.1-or-later]
     followed by src/sketchcmdinfo.ts, src/sketchcmds.ts
 src/Mod/Sketcher/Gui/CommandSketcherTools.cpp   [licence: LGPL-2.1-or-later]
     copyright 2014 Abdullah Tahiri
-    followed by src/sketchcmdinfo.ts, src/sketchcmds.ts
+    followed by src/sketchcmdinfo.ts, src/sketchcmds.ts, src/sketchpanelcmds.ts, src/sketchxformovp.ts, src/sketchxformtools.tsx
+src/Mod/Sketcher/Gui/CommandSketcherVirtualSpace.cpp   [licence: LGPL-2.1-or-later]
+    copyright 2017 Abdullah Tahiri
+    followed by src/sketchpanelcmds.ts
+src/Mod/Sketcher/Gui/ConstraintFilters.h   [licence: LGPL-2.1-or-later]
+    copyright 2021 Abdullah Tahiri
+    followed by src/sketchpanels.tsx
 src/Mod/Sketcher/Gui/DrawSketchControllableHandler.h   [licence: LGPL-2.1-or-later]
     copyright 2023 Abdullah Tahiri
     followed by src/sketchtools.ts
@@ -912,6 +948,9 @@ src/Mod/Sketcher/Gui/DrawSketchDefaultHandler.h   [licence: LGPL-2.1-or-later]
     copyright 2022 Abdullah Tahiri
     followed by src/sketchtools.ts
     followed by src/sketchgeo.ts
+src/Mod/Sketcher/Gui/DrawSketchDefaultWidgetController.h   [licence: LGPL-2.1-or-later]
+    copyright 2023 Abdullah Tahiri
+    followed by src/sketchedit.ts, src/sketchgeo.ts, src/sketchovp.ts
 src/Mod/Sketcher/Gui/DrawSketchHandler.cpp   [licence: LGPL-2.1-or-later]
     copyright 2010 Jürgen Riegel
     followed by src/sketchtools.ts
@@ -927,6 +966,9 @@ src/Mod/Sketcher/Gui/DrawSketchHandlerArcOfHyperbola.h   [licence: LGPL-2.1-or-l
 src/Mod/Sketcher/Gui/DrawSketchHandlerArcOfParabola.h   [licence: LGPL-2.1-or-later]
     copyright 2022 Abdullah Tahiri
     followed by src/sketchgeo.ts
+src/Mod/Sketcher/Gui/DrawSketchHandlerArcSlot.h   [licence: LGPL-2.1-or-later]
+    copyright 2023 Ondsel
+    followed by src/sketchtools.ts
 src/Mod/Sketcher/Gui/DrawSketchHandlerBSpline.h   [licence: LGPL-2.1-or-later]
     copyright 2022 Abdullah Tahiri
     followed by src/sketchgeo.ts
@@ -960,18 +1002,33 @@ src/Mod/Sketcher/Gui/DrawSketchHandlerPolygon.h   [licence: LGPL-2.1-or-later]
 src/Mod/Sketcher/Gui/DrawSketchHandlerRectangle.h   [licence: LGPL-2.1-or-later]
     copyright 2022 Abdullah Tahiri
     followed by src/sketchtools.ts
+src/Mod/Sketcher/Gui/DrawSketchHandlerRotate.h   [licence: LGPL-2.1-or-later]
+    copyright 2022 Boyer Pierre-Louis
+    followed by src/sketchxform.ts, src/sketchxformovp.ts
+src/Mod/Sketcher/Gui/DrawSketchHandlerScale.h   [licence: LGPL-2.1-or-later]
+    copyright 2022 Boyer Pierre-Louis
+    followed by src/sketchxform.ts, src/sketchxformovp.ts
 src/Mod/Sketcher/Gui/DrawSketchHandlerSlot.h   [licence: LGPL-2.1-or-later]
     copyright 2022 Abdullah Tahiri
     followed by src/sketchtools.ts
 src/Mod/Sketcher/Gui/DrawSketchHandlerSplitting.h   [licence: LGPL-2.1-or-later]
     copyright 2022 Abdullah Tahiri
     followed by src/sketchedit.ts
+src/Mod/Sketcher/Gui/DrawSketchHandlerSymmetry.h   [licence: LGPL-2.1-or-later]
+    copyright 2022 Boyer Pierre-Louis
+    followed by src/sketchxformovp.ts
+src/Mod/Sketcher/Gui/DrawSketchHandlerTranslate.h   [licence: LGPL-2.1-or-later]
+    copyright 2022 Boyer Pierre-Louis
+    followed by src/sketchxform.ts, src/sketchxformovp.ts
 src/Mod/Sketcher/Gui/DrawSketchHandlerTrimming.h   [licence: LGPL-2.1-or-later]
     copyright 2022 Abdullah Tahiri
     followed by src/sketchedit.ts
+src/Mod/Sketcher/Gui/DrawSketchKeyboardManager.cpp   [licence: LGPL-2.1-or-later]
+    copyright 2023 Abdullah Tahiri
+    followed by src/sketchovp.ts
 src/Mod/Sketcher/Gui/EditDatumDialog.cpp   [licence: LGPL-2.1-or-later]
     copyright 2011 Werner Mayer
-    followed by src/sketchui.tsx
+    followed by src/sketchpanels.tsx, src/sketchui.tsx
 src/Mod/Sketcher/Gui/EditModeCoinManager.cpp   [licence: LGPL-2.1-or-later]
     copyright 2021 Abdullah Tahiri
     followed by src/sketchdraw.ts, src/sketcher.ts
@@ -987,34 +1044,76 @@ src/Mod/Sketcher/Gui/EditModeGeometryCoinConverter.cpp   [licence: LGPL-2.1-or-l
 src/Mod/Sketcher/Gui/EditModeGeometryCoinManager.cpp   [licence: LGPL-2.1-or-later]
     copyright 2021 Abdullah Tahiri
     followed by src/sketchdraw.ts
+src/Mod/Sketcher/Gui/SketcherRegularPolygonDialog.cpp   [licence: LGPL-2.1-or-later]
+    copyright 2017 Abdullah Tahiri
+    followed by src/sketchpolydlg.tsx
+src/Mod/Sketcher/Gui/SketcherRegularPolygonDialog.ui   [licence: LGPL-2.1-or-later]
+    copyright 2017 Abdullah Tahiri
+    followed by src/sketchpolydlg.tsx
 src/Mod/Sketcher/Gui/SketchOrientationDialog.cpp   [licence: LGPL-2.1-or-later]
     copyright 2011 Jürgen Riegel
     followed by src/sketchui.tsx
+src/Mod/Sketcher/Gui/SketchRectangularArrayDialog.cpp   [licence: LGPL-2.1-or-later]
+    copyright 2015 Abdullah Tahiri
+    followed by src/sketchxformtools.tsx
+src/Mod/Sketcher/Gui/SketchRectangularArrayDialog.ui   [licence: none]
+    copyright: no line in the file
+    followed by src/sketchxformtools.tsx
+src/Mod/Sketcher/Gui/SketcherSettings.cpp   [licence: LGPL-2.1-or-later]
+    copyright 2014 Werner Mayer
+    followed by src/prefs-sketcher.tsx
+src/Mod/Sketcher/Gui/SketcherSettings.ui   [licence: none]
+    copyright: no line in the file
+    followed by src/prefs-sketcher.tsx, src/uiforms-sketcher.ts
+src/Mod/Sketcher/Gui/SketcherSettingsAppearance.ui   [licence: none]
+    copyright: no line in the file
+    followed by src/prefs-sketcher.tsx, src/uiforms-sketcher.ts
+src/Mod/Sketcher/Gui/SketcherSettingsDisplay.ui   [licence: none]
+    copyright: no line in the file
+    followed by src/prefs-sketcher.tsx, src/uiforms-sketcher.ts
+src/Mod/Sketcher/Gui/SketcherSettingsGrid.ui   [licence: none]
+    copyright: no line in the file
+    followed by src/prefs-sketcher.tsx, src/uiforms-sketcher.ts
+src/Mod/Sketcher/Gui/SketcherToolDefaultWidget.cpp   [licence: LGPL-2.1-or-later]
+    copyright 2022 Pierre-Louis Boyer
+    followed by src/sketchovp.ts, src/sketchtoolbox.tsx
 src/Mod/Sketcher/Gui/SnapManager.cpp   [licence: LGPL-2.1-or-later]
     copyright 2023 Pierre-Louis Boyer
     followed by src/sketcher.ts
 src/Mod/Sketcher/Gui/SoZoomTranslation.cpp   [licence: LGPL-2.1-or-later]
     copyright 2011 Werner Mayer
     followed by src/sketchdraw.ts
+src/Mod/Sketcher/ProfileLib/RegularPolygon.py   [licence: LGPL-2.1-or-later]
+    copyright 2014 Johan Kristensen, Juergen Riegel
+    followed by src/sketchtools.ts
 src/Mod/Sketcher/Gui/TaskDlgEditSketch.cpp   [licence: LGPL-2.1-or-later]
     copyright 2009 Jürgen Riegel
     followed by src/sketcher.ts, src/sketchui.tsx
 src/Mod/Sketcher/Gui/TaskSketcherConstraints.cpp   [licence: LGPL-2.1-or-later]
     copyright 2009 Juergen Riegel
-    followed by src/sketch.ts, src/sketchui.tsx
+    followed by src/sketch.ts, src/sketchpanels.tsx, src/sketchui.tsx
+src/Mod/Sketcher/Gui/TaskSketcherConstraints.ui   [licence: none]
+    copyright: no line in the file
+    followed by src/sketchpanels.tsx
 src/Mod/Sketcher/Gui/TaskSketcherElements.cpp   [licence: LGPL-2.1-or-later]
     copyright 2014 Abdullah Tahiri
-    followed by src/sketch.ts, src/sketchui.tsx
+    followed by src/sketch.ts, src/sketchpanels.tsx, src/sketchui.tsx
+src/Mod/Sketcher/Gui/TaskSketcherElements.ui   [licence: none]
+    copyright: no line in the file
+    followed by src/sketchpanels.tsx
 src/Mod/Sketcher/Gui/TaskSketcherMessages.cpp   [licence: LGPL-2.1-or-later]
     copyright 2011 Jürgen Riegel
     followed by src/sketcher.ts, src/sketchui.tsx
+src/Mod/Sketcher/Gui/TaskSketcherTool.cpp   [licence: LGPL-2.1-or-later]
+    copyright 2022 Pierre-Louis Boyer
+    followed by src/sketchtoolbox.tsx
 src/Mod/Sketcher/Gui/Utils.cpp   [licence: LGPL-2.1-or-later]
     copyright 2021 Abdullah Tahiri
-    followed by src/sketcher.ts, src/sketchtools.ts
+    followed by src/sketcher.ts, src/sketchpanelcmds.ts, src/sketchtools.ts, src/sketchxformtools.tsx
 src/Mod/Sketcher/Gui/ViewProviderSketch.cpp   [licence: LGPL-2.1-or-later]
     copyright 2009 Juergen Riegel
     followed by src/partdesign.tsx, src/sketchcons.ts, src/sketchdraw.ts, src/sketcher.ts,
-        src/sketchui.tsx
+        src/sketchpanelcmds.ts, src/sketchui.tsx
 src/Mod/Sketcher/Gui/Workbench.cpp   [licence: LGPL-2.1-or-later]
     copyright 2008 Jürgen Riegel
     followed by src/chrome.tsx, src/sketchcmds.ts, src/sketcher.ts
@@ -1065,7 +1164,10 @@ https://mozilla.org/MPL/2.0/) and Boost's graph headers (BSL-1.0, https://www.bo
 
 public/freecad-icons/ holds 202 icons copied unmodified from FreeCAD, plus the style sheet
 indicators (qss-*.svg) and the overlay buttons (overlay-*.svg); public/freecad-icons/sketcher/ holds
-the Sketcher's 286 icons (src/Mod/Sketcher/Gui/Resources/icons), unmodified. Among the first are the 16 of the
+the Sketcher's 286 icons (src/Mod/Sketcher/Gui/Resources/icons), unmodified, and two cursors drawn pixel for pixel
+from the XPM ones in src/Mod/Sketcher/Gui/CommandSketcherTools.cpp (Sketcher_Pointer_Create_Copy.svg from
+cursor_createcopy, Sketcher_Pointer_Create_RectangularArray.svg from cursor_createrectangulararray; LGPL-2.1-or-later,
+2014 Abdullah Tahiri). Among the first are the 16 of the
 PartDesign primitives (PartDesign_Additive*.svg, PartDesign_Subtractive*.svg). README.md in that folder says which
 licence each icon has, as its own metadata states it (mostly LGPL-2.0-or-later; a few are CC-BY-SA
 2.0 or 4.0 or public domain), and LICENSE is FreeCAD's. THIRD_PARTY_LICENSES at the top of the
