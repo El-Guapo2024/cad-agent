@@ -13,13 +13,14 @@
 // while the sketch is in edit (ShortcutManager's sequences, with its timeout for a prefix of a longer one).
 import { SKETCH_CMD_INFO } from './sketchcmdinfo'
 import * as S from './sketcher'
-import { ArcHandler, CircleHandler, LineHandler, PointHandler, PolygonHandler, PolylineHandler, RectangleHandler, SlotHandler, toggleConstruction } from './sketchtools'
+import { ArcHandler, ArcSlotHandler, CircleHandler, LineHandler, PointHandler, PolygonHandler, PolylineHandler, RectangleHandler, SlotHandler, toggleConstruction } from './sketchtools'
 import { runConstraint, isConstraintCommand, toggleDriving, toggleActive, idOf } from './sketchcons'
 import { ArcOfEllipseHandler, ArcOfHyperbolaHandler, ArcOfParabolaHandler, BSplineHandler, EllipseHandler } from './sketchgeo'
 import { ExtendHandler, FilletHandler, SplittingHandler, TrimmingHandler } from './sketchedit'
 import { ExternalHandler } from './sketchexternal'
 import * as SK from './sketch'
 import { getState, report } from './store'
+import { askPolygonSides } from './sketchpolydlg'
 import { recordAndRun } from './actions'
 
 export type ToolItem = string | 'sep' | { group: string; items: string[] }
@@ -111,13 +112,15 @@ const RUN: Record<string, () => void> = {
   Sketcher_CreateRectangle_Center: tool(() => new RectangleHandler(1)),
   Sketcher_CreateOblong: tool(() => new RectangleHandler(0, true)),
   Sketcher_CreateSlot: tool(() => new SlotHandler()),
+  Sketcher_CreateArcSlot: tool(() => new ArcSlotHandler()),
   Sketcher_CreateTriangle: tool(() => new PolygonHandler(3)),
   Sketcher_CreateSquare: tool(() => new PolygonHandler(4)),
   Sketcher_CreatePentagon: tool(() => new PolygonHandler(5)),
   Sketcher_CreateHexagon: tool(() => new PolygonHandler(6)),
   Sketcher_CreateHeptagon: tool(() => new PolygonHandler(7)),
   Sketcher_CreateOctagon: tool(() => new PolygonHandler(8)),
-  Sketcher_CreateRegularPolygon: tool(() => new PolygonHandler(6)),
+  // CmdSketcherCreateRegularPolygon: SketcherRegularPolygonDialog asks the sides first; Cancel starts nothing
+  Sketcher_CreateRegularPolygon: () => void askPolygonSides().then((n) => { if (n !== null) S.activateHandler(new PolygonHandler(n)) }),
   Sketcher_CreateEllipseByCenter: tool(() => new EllipseHandler(0)),
   Sketcher_CreateEllipseBy3Points: tool(() => new EllipseHandler(1)),
   Sketcher_CreateArcOfEllipse: tool(() => new ArcOfEllipseHandler()),

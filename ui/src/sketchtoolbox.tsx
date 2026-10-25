@@ -15,6 +15,7 @@ import { cls } from './panels'
 import './sketchovp.css'
 
 const PARAM_NAMES = ['parameterOne', 'parameterTwo', 'parameterThree', 'parameterFour', 'parameterFive', 'parameterSix', 'parameterSeven', 'parameterEight', 'parameterNine', 'parameterTen']
+const NO_UNIT: typeof LENGTH = [0, 0, 0, 0, 0, 0, 0, 0]
 const icon = (name: string) => (name === 'document-new' ? './freecad-icons/document-new.svg' : sketcherIcon(name))
 
 export function ToolParametersBox() {
@@ -45,7 +46,7 @@ export function ToolParametersBox() {
           <div key={`p${i}`} className="hbox fill" data-tool-widget={PARAM_NAMES[i]}
             onKeyDown={(e) => { if (e.key === 'Tab' || e.key === 'Enter') { e.preventDefault(); e.stopPropagation(); w.onParameterTab(i) } }}>
             <span>{p.label}</span>
-            <QuantityBox value={p.value} dims={p.unit === 'Angle' ? ANGLE : LENGTH} disabled={!p.enabled} min={p.min} max={p.max} decimals={p.decimals}
+            <QuantityBox value={p.value} dims={p.unit === 'Angle' ? ANGLE : p.unit === 'None' ? NO_UNIT : LENGTH} disabled={!p.enabled} min={p.min} max={p.max} decimals={p.decimals}
               onChange={(v) => { p.value = v; p.isSet = true; w.onParameter(i, v) }} />
           </div>))}
         {w.checkboxes.map((c, i) => c.visible && (

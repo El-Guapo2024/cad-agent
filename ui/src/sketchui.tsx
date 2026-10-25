@@ -33,6 +33,7 @@ import { ContextMenu, tipAttrs, type Entry } from './chrome'
 import { QuantityBox } from './qsb'
 import { cls } from './panels'
 import { ToolParametersBox } from './sketchtoolbox'
+import { RegularPolygonDialog } from './sketchpolydlg'
 
 const useSketch = () => useSyncExternalStore(S.subscribeSketch, S.sketchVersion)
 /** A command's icon file; geometry tools show their construction variant in construction mode. */
@@ -387,5 +388,5 @@ onSketchSelection((cmd, args) => {
 
 /** The dialogs and the context menu, mounted once (App.tsx). */
 export function SketchHost() {
-  return <><DatumDialog /><OrientationDialog /><SketchMenu /></>
+  return <><DatumDialog /><OrientationDialog /><RegularPolygonDialog /><SketchMenu /></>
 }

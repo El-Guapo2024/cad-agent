@@ -1,0 +1,8931 @@
+{
+ "about": "What FreeCAD 26.3 (3160daf1e2b6) does for ui/scripts/sketchcases-shapes.json, written by fcsketch.py --ref; ui/scripts/sketchcheck.mjs compares the workbench with it.",
+ "viewport": [
+  1014,
+  644
+ ],
+ "dialogs": [
+  {
+   "case": "shp-polygon-dialog",
+   "title": "Create Regular Polygon"
+  }
+ ],
+ "cases": {
+  "shp-rect-diagonal-typed": {
+   "geometry": [
+    {
+     "type": "LineSegment",
+     "start": [
+      4.968944069999999,
+      4.937888149999999
+     ],
+     "end": [
+      34.96894407,
+      4.937888149999999
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      34.96894407,
+      4.937888149999999
+     ],
+     "end": [
+      34.96894407,
+      24.93788815
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      34.96894407,
+      24.93788815
+     ],
+     "end": [
+      4.968944069999999,
+      24.93788815
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      4.968944069999999,
+      24.93788815
+     ],
+     "end": [
+      4.968944069999999,
+      4.937888149999999
+     ]
+    }
+   ],
+   "constraints": [
+    {
+     "type": "Coincident",
+     "args": [
+      0,
+      2,
+      1,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      1,
+      2,
+      2,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      2,
+      2,
+      3,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      3,
+      2,
+      0,
+      1
+     ]
+    },
+    {
+     "type": "Horizontal",
+     "args": [
+      0
+     ]
+    },
+    {
+     "type": "Horizontal",
+     "args": [
+      2
+     ]
+    },
+    {
+     "type": "Vertical",
+     "args": [
+      1
+     ]
+    },
+    {
+     "type": "Vertical",
+     "args": [
+      3
+     ]
+    },
+    {
+     "type": "Distance",
+     "args": [
+      1,
+      1,
+      3,
+      2
+     ],
+     "value": 30.0
+    },
+    {
+     "type": "Distance",
+     "args": [
+      0,
+      1,
+      2,
+      2
+     ],
+     "value": 20.0
+    }
+   ],
+   "message": {
+    "status": "Under-constrained: ",
+    "link": "2 Degrees of Freedom"
+   },
+   "tool_widget": {
+    "title": "Rectangle Parameters",
+    "controls": [
+     {
+      "name": "comboBox1",
+      "items": [
+       "Corner, width, height",
+       "Center, width, height",
+       "3 corners",
+       "Center, 2 corners"
+      ],
+      "index": 0
+     },
+     {
+      "name": "checkBoxTS1",
+      "text": "Rounded corners (U)",
+      "checked": false
+     },
+     {
+      "name": "checkBoxTS2",
+      "text": "Frame (J)",
+      "checked": false
+     }
+    ]
+   }
+  },
+  "shp-rect-diagonal-reversed": {
+   "geometry": [
+    {
+     "type": "LineSegment",
+     "start": [
+      34.9378891,
+      4.937888149999999
+     ],
+     "end": [
+      34.9378891,
+      18.93788815
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      34.9378891,
+      18.93788815
+     ],
+     "end": [
+      12.9378891,
+      18.93788815
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      12.9378891,
+      18.93788815
+     ],
+     "end": [
+      12.9378891,
+      4.937888149999999
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      12.9378891,
+      4.937888149999999
+     ],
+     "end": [
+      34.9378891,
+      4.937888149999999
+     ]
+    }
+   ],
+   "constraints": [
+    {
+     "type": "Coincident",
+     "args": [
+      0,
+      2,
+      1,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      1,
+      2,
+      2,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      2,
+      2,
+      3,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      3,
+      2,
+      0,
+      1
+     ]
+    },
+    {
+     "type": "Vertical",
+     "args": [
+      0
+     ]
+    },
+    {
+     "type": "Vertical",
+     "args": [
+      2
+     ]
+    },
+    {
+     "type": "Horizontal",
+     "args": [
+      1
+     ]
+    },
+    {
+     "type": "Horizontal",
+     "args": [
+      3
+     ]
+    },
+    {
+     "type": "Distance",
+     "args": [
+      0,
+      1,
+      2,
+      2
+     ],
+     "value": 22.0
+    },
+    {
+     "type": "Distance",
+     "args": [
+      1,
+      1,
+      3,
+      2
+     ],
+     "value": 14.0
+    }
+   ],
+   "message": {
+    "status": "Under-constrained: ",
+    "link": "2 Degrees of Freedom"
+   },
+   "tool_widget": {
+    "title": "Rectangle Parameters",
+    "controls": [
+     {
+      "name": "comboBox1",
+      "items": [
+       "Corner, width, height",
+       "Center, width, height",
+       "3 corners",
+       "Center, 2 corners"
+      ],
+      "index": 0
+     },
+     {
+      "name": "checkBoxTS1",
+      "text": "Rounded corners (U)",
+      "checked": false
+     },
+     {
+      "name": "checkBoxTS2",
+      "text": "Frame (J)",
+      "checked": false
+     }
+    ]
+   }
+  },
+  "shp-rect-center-typed": {
+   "geometry": [
+    {
+     "type": "LineSegment",
+     "start": [
+      15.0,
+      15.0
+     ],
+     "end": [
+      35.0,
+      15.0
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      35.0,
+      15.0
+     ],
+     "end": [
+      35.0,
+      25.0
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      35.0,
+      25.0
+     ],
+     "end": [
+      15.0,
+      25.0
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      15.0,
+      25.0
+     ],
+     "end": [
+      15.0,
+      15.0
+     ]
+    },
+    {
+     "type": "Point",
+     "at": [
+      25.0,
+      20.0
+     ],
+     "construction": true
+    }
+   ],
+   "constraints": [
+    {
+     "type": "Coincident",
+     "args": [
+      0,
+      2,
+      1,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      1,
+      2,
+      2,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      2,
+      2,
+      3,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      3,
+      2,
+      0,
+      1
+     ]
+    },
+    {
+     "type": "Horizontal",
+     "args": [
+      0
+     ]
+    },
+    {
+     "type": "Horizontal",
+     "args": [
+      2
+     ]
+    },
+    {
+     "type": "Vertical",
+     "args": [
+      1
+     ]
+    },
+    {
+     "type": "Vertical",
+     "args": [
+      3
+     ]
+    },
+    {
+     "type": "Symmetric",
+     "args": [
+      2,
+      1,
+      0,
+      1,
+      4,
+      1
+     ]
+    },
+    {
+     "type": "Distance",
+     "args": [
+      1,
+      1,
+      3,
+      2
+     ],
+     "value": 20.0
+    },
+    {
+     "type": "Distance",
+     "args": [
+      0,
+      1,
+      2,
+      2
+     ],
+     "value": 10.0
+    }
+   ],
+   "message": {
+    "status": "Under-constrained: ",
+    "link": "2 Degrees of Freedom"
+   },
+   "tool_widget": {
+    "title": "Rectangle Parameters",
+    "controls": [
+     {
+      "name": "comboBox1",
+      "items": [
+       "Corner, width, height",
+       "Center, width, height",
+       "3 corners",
+       "Center, 2 corners"
+      ],
+      "index": 1
+     },
+     {
+      "name": "checkBoxTS1",
+      "text": "Rounded corners (U)",
+      "checked": false
+     },
+     {
+      "name": "checkBoxTS2",
+      "text": "Frame (J)",
+      "checked": false
+     }
+    ]
+   }
+  },
+  "shp-rect-3points": {
+   "geometry": [
+    {
+     "type": "LineSegment",
+     "start": [
+      4.96894407,
+      4.937888149999999
+     ],
+     "end": [
+      34.9378891,
+      11.92546654
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      34.9378891,
+      11.92546654
+     ],
+     "end": [
+      31.05590439,
+      31.956518170000002
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      31.05590439,
+      31.95651817
+     ],
+     "end": [
+      1.0869593600000016,
+      24.96893978
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      1.08695936,
+      24.96893978
+     ],
+     "end": [
+      4.96894407,
+      4.937888149999999
+     ]
+    }
+   ],
+   "constraints": [
+    {
+     "type": "Coincident",
+     "args": [
+      0,
+      2,
+      1,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      1,
+      2,
+      2,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      2,
+      2,
+      3,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      3,
+      2,
+      0,
+      1
+     ]
+    },
+    {
+     "type": "Parallel",
+     "args": [
+      0,
+      2
+     ]
+    },
+    {
+     "type": "Parallel",
+     "args": [
+      1,
+      3
+     ]
+    }
+   ],
+   "message": {
+    "status": "Under-constrained: ",
+    "link": "6 Degrees of Freedom"
+   },
+   "tool_widget": {
+    "title": "Rectangle Parameters",
+    "controls": [
+     {
+      "name": "comboBox1",
+      "items": [
+       "Corner, width, height",
+       "Center, width, height",
+       "3 corners",
+       "Center, 2 corners"
+      ],
+      "index": 2
+     },
+     {
+      "name": "checkBoxTS1",
+      "text": "Rounded corners (U)",
+      "checked": false
+     },
+     {
+      "name": "checkBoxTS2",
+      "text": "Frame (J)",
+      "checked": false
+     }
+    ]
+   }
+  },
+  "shp-rect-3points-reversed": {
+   "geometry": [
+    {
+     "type": "LineSegment",
+     "start": [
+      4.968944069999999,
+      29.9378891
+     ],
+     "end": [
+      -4.289999999684824e-06,
+      8.043482310000002
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      -4.289999999684824e-06,
+      8.043482310000002
+     ],
+     "end": [
+      29.96894074,
+      3.0745339400000002
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      29.96894074,
+      3.0745339400000002
+     ],
+     "end": [
+      34.9378891,
+      24.96894073
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      34.9378891,
+      24.96894073
+     ],
+     "end": [
+      4.968944069999999,
+      29.9378891
+     ]
+    }
+   ],
+   "constraints": [
+    {
+     "type": "Coincident",
+     "args": [
+      0,
+      2,
+      1,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      1,
+      2,
+      2,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      2,
+      2,
+      3,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      3,
+      2,
+      0,
+      1
+     ]
+    },
+    {
+     "type": "Parallel",
+     "args": [
+      0,
+      2
+     ]
+    },
+    {
+     "type": "Parallel",
+     "args": [
+      1,
+      3
+     ]
+    }
+   ],
+   "message": {
+    "status": "Under-constrained: ",
+    "link": "6 Degrees of Freedom"
+   }
+  },
+  "shp-rect-3points-typed": {
+   "geometry": [
+    {
+     "type": "LineSegment",
+     "start": [
+      4.968941714461031,
+      4.937897577448485
+     ],
+     "end": [
+      29.117089880931058,
+      11.408364340380672
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      29.117089880931058,
+      11.408364340380672
+     ],
+     "end": [
+      24.04567058999818,
+      22.284057714853578
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      24.04567058999818,
+      22.284057714853578
+     ],
+     "end": [
+      -0.10247757647184486,
+      15.813590951921391
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      -0.10247757647184486,
+      15.813590951921391
+     ],
+     "end": [
+      4.968941714461031,
+      4.937897577448485
+     ]
+    }
+   ],
+   "constraints": [
+    {
+     "type": "Coincident",
+     "args": [
+      0,
+      2,
+      1,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      1,
+      2,
+      2,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      2,
+      2,
+      3,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      3,
+      2,
+      0,
+      1
+     ]
+    },
+    {
+     "type": "Parallel",
+     "args": [
+      0,
+      2
+     ]
+    },
+    {
+     "type": "Parallel",
+     "args": [
+      1,
+      3
+     ]
+    },
+    {
+     "type": "Distance",
+     "args": [
+      1,
+      1,
+      3,
+      2
+     ],
+     "value": 25.0
+    },
+    {
+     "type": "Distance",
+     "args": [
+      0,
+      1,
+      2,
+      2
+     ],
+     "value": 12.0
+    },
+    {
+     "type": "Angle",
+     "args": [
+      -1,
+      0
+     ],
+     "value": 0.261799
+    },
+    {
+     "type": "Angle",
+     "args": [
+      1,
+      1,
+      0,
+      2
+     ],
+     "value": 1.396263
+    }
+   ],
+   "message": {
+    "status": "Under-constrained: ",
+    "link": "2 Degrees of Freedom"
+   },
+   "tool_widget": {
+    "title": "Rectangle Parameters",
+    "controls": [
+     {
+      "name": "comboBox1",
+      "items": [
+       "Corner, width, height",
+       "Center, width, height",
+       "3 corners",
+       "Center, 2 corners"
+      ],
+      "index": 2
+     },
+     {
+      "name": "checkBoxTS1",
+      "text": "Rounded corners (U)",
+      "checked": false
+     },
+     {
+      "name": "checkBoxTS2",
+      "text": "Frame (J)",
+      "checked": false
+     }
+    ]
+   }
+  },
+  "shp-rect-3points-square": {
+   "geometry": [
+    {
+     "type": "LineSegment",
+     "start": [
+      4.968944069999999,
+      4.937888149999999
+     ],
+     "end": [
+      24.96894407,
+      4.937888149999999
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      24.96894407,
+      4.937888149999999
+     ],
+     "end": [
+      24.96894407,
+      14.93788815
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      24.96894407,
+      14.93788815
+     ],
+     "end": [
+      4.968944069999999,
+      14.93788815
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      4.968944069999999,
+      14.93788815
+     ],
+     "end": [
+      4.968944069999999,
+      4.937888149999999
+     ]
+    }
+   ],
+   "constraints": [
+    {
+     "type": "Coincident",
+     "args": [
+      0,
+      2,
+      1,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      1,
+      2,
+      2,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      2,
+      2,
+      3,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      3,
+      2,
+      0,
+      1
+     ]
+    },
+    {
+     "type": "Horizontal",
+     "args": [
+      0
+     ]
+    },
+    {
+     "type": "Horizontal",
+     "args": [
+      2
+     ]
+    },
+    {
+     "type": "Vertical",
+     "args": [
+      1
+     ]
+    },
+    {
+     "type": "Vertical",
+     "args": [
+      3
+     ]
+    },
+    {
+     "type": "Distance",
+     "args": [
+      1,
+      1,
+      3,
+      2
+     ],
+     "value": 20.0
+    },
+    {
+     "type": "Distance",
+     "args": [
+      0,
+      1,
+      2,
+      2
+     ],
+     "value": 10.0
+    },
+    {
+     "type": "Horizontal",
+     "args": [
+      0
+     ]
+    }
+   ],
+   "message": {
+    "status": "Redundant constraints: ",
+    "link": "(11)"
+   },
+   "tool_widget": {
+    "title": "Rectangle Parameters",
+    "controls": [
+     {
+      "name": "comboBox1",
+      "items": [
+       "Corner, width, height",
+       "Center, width, height",
+       "3 corners",
+       "Center, 2 corners"
+      ],
+      "index": 2
+     },
+     {
+      "name": "checkBoxTS1",
+      "text": "Rounded corners (U)",
+      "checked": false
+     },
+     {
+      "name": "checkBoxTS2",
+      "text": "Frame (J)",
+      "checked": false
+     }
+    ]
+   }
+  },
+  "shp-rect-center3": {
+   "geometry": [
+    {
+     "type": "LineSegment",
+     "start": [
+      9.93788815,
+      10.06211185
+     ],
+     "end": [
+      33.07453537,
+      8.97515488
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      33.07453537,
+      8.97515488
+     ],
+     "end": [
+      40.06211185,
+      29.93788815
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      40.06211185,
+      29.93788815
+     ],
+     "end": [
+      16.92546463,
+      31.02484512
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      16.92546463,
+      31.02484512
+     ],
+     "end": [
+      9.93788815,
+      10.06211185
+     ]
+    },
+    {
+     "type": "Point",
+     "at": [
+      25.0,
+      20.0
+     ],
+     "construction": true
+    }
+   ],
+   "constraints": [
+    {
+     "type": "Coincident",
+     "args": [
+      0,
+      2,
+      1,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      1,
+      2,
+      2,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      2,
+      2,
+      3,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      3,
+      2,
+      0,
+      1
+     ]
+    },
+    {
+     "type": "Parallel",
+     "args": [
+      0,
+      2
+     ]
+    },
+    {
+     "type": "Parallel",
+     "args": [
+      1,
+      3
+     ]
+    },
+    {
+     "type": "Symmetric",
+     "args": [
+      2,
+      1,
+      0,
+      1,
+      4,
+      1
+     ]
+    }
+   ],
+   "message": {
+    "status": "Under-constrained: ",
+    "link": "6 Degrees of Freedom"
+   }
+  },
+  "shp-rect-center3-typed": {
+   "geometry": [
+    {
+     "type": "LineSegment",
+     "start": [
+      9.93788815,
+      10.062103368975121
+     ],
+     "end": [
+      27.733836050689902,
+      7.35946793
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      27.733836050689902,
+      7.35946793
+     ],
+     "end": [
+      40.0621131406899,
+      29.93788815
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      40.0621131406899,
+      29.93788815
+     ],
+     "end": [
+      22.26616524,
+      32.64052358897512
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      22.26616524,
+      32.64052358897512
+     ],
+     "end": [
+      9.93788815,
+      10.062103368975123
+     ]
+    },
+    {
+     "type": "Point",
+     "at": [
+      25.00000064534495,
+      19.99999575948756
+     ],
+     "construction": true
+    }
+   ],
+   "constraints": [
+    {
+     "type": "Coincident",
+     "args": [
+      0,
+      2,
+      1,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      1,
+      2,
+      2,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      2,
+      2,
+      3,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      3,
+      2,
+      0,
+      1
+     ]
+    },
+    {
+     "type": "Parallel",
+     "args": [
+      0,
+      2
+     ]
+    },
+    {
+     "type": "Parallel",
+     "args": [
+      1,
+      3
+     ]
+    },
+    {
+     "type": "Symmetric",
+     "args": [
+      2,
+      1,
+      0,
+      1,
+      4,
+      1
+     ]
+    },
+    {
+     "type": "Distance",
+     "args": [
+      1,
+      1,
+      3,
+      2
+     ],
+     "value": 18.0
+    },
+    {
+     "type": "Angle",
+     "args": [
+      0,
+      1,
+      3,
+      2
+     ],
+     "value": 1.22173
+    }
+   ],
+   "message": {
+    "status": "Under-constrained: ",
+    "link": "4 Degrees of Freedom"
+   },
+   "tool_widget": {
+    "title": "Rectangle Parameters",
+    "controls": [
+     {
+      "name": "comboBox1",
+      "items": [
+       "Corner, width, height",
+       "Center, width, height",
+       "3 corners",
+       "Center, 2 corners"
+      ],
+      "index": 3
+     },
+     {
+      "name": "checkBoxTS1",
+      "text": "Rounded corners (U)",
+      "checked": false
+     },
+     {
+      "name": "checkBoxTS2",
+      "text": "Frame (J)",
+      "checked": false
+     }
+    ]
+   }
+  },
+  "shp-rect-rounded-check": {
+   "geometry": [
+    {
+     "type": "LineSegment",
+     "start": [
+      8.07453346,
+      4.937888148805312
+     ],
+     "end": [
+      31.832299700046264,
+      4.937888148805312
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      34.9378891,
+      8.043477548759046
+     ],
+     "end": [
+      34.9378891,
+      21.86335136114842
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      31.832299700046267,
+      24.968940761102154
+     ],
+     "end": [
+      8.074533460000001,
+      24.968940761102154
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      4.968944060046265,
+      21.86335136114842
+     ],
+     "end": [
+      4.968944060046265,
+      8.043477548759046
+     ]
+    },
+    {
+     "type": "ArcOfCircle",
+     "center": [
+      8.07453346,
+      8.043477548759046
+     ],
+     "radius": 3.105589399953734,
+     "start_angle": 3.141592653589793,
+     "end_angle": 4.71238898038469
+    },
+    {
+     "type": "ArcOfCircle",
+     "center": [
+      31.832299700046267,
+      8.043477548759046
+     ],
+     "radius": 3.105589399953734,
+     "start_angle": 4.71238898038469,
+     "end_angle": 6.283185307179586
+    },
+    {
+     "type": "ArcOfCircle",
+     "center": [
+      31.832299700046267,
+      21.86335136114842
+     ],
+     "radius": 3.105589399953734,
+     "start_angle": 0.0,
+     "end_angle": 1.570796326794897
+    },
+    {
+     "type": "ArcOfCircle",
+     "center": [
+      8.07453346,
+      21.86335136114842
+     ],
+     "radius": 3.105589399953734,
+     "start_angle": 1.5707963267948966,
+     "end_angle": 3.141592653589793
+    },
+    {
+     "type": "Point",
+     "at": [
+      4.968944060046265,
+      4.937888148805312
+     ],
+     "construction": true
+    },
+    {
+     "type": "Point",
+     "at": [
+      34.9378891,
+      24.96894076110215
+     ],
+     "construction": true
+    }
+   ],
+   "constraints": [
+    {
+     "type": "Tangent",
+     "args": [
+      0,
+      1,
+      4,
+      2
+     ]
+    },
+    {
+     "type": "Tangent",
+     "args": [
+      0,
+      2,
+      5,
+      1
+     ]
+    },
+    {
+     "type": "Tangent",
+     "args": [
+      1,
+      1,
+      5,
+      2
+     ]
+    },
+    {
+     "type": "Tangent",
+     "args": [
+      1,
+      2,
+      6,
+      1
+     ]
+    },
+    {
+     "type": "Tangent",
+     "args": [
+      2,
+      1,
+      6,
+      2
+     ]
+    },
+    {
+     "type": "Tangent",
+     "args": [
+      2,
+      2,
+      7,
+      1
+     ]
+    },
+    {
+     "type": "Tangent",
+     "args": [
+      3,
+      1,
+      7,
+      2
+     ]
+    },
+    {
+     "type": "Tangent",
+     "args": [
+      3,
+      2,
+      4,
+      1
+     ]
+    },
+    {
+     "type": "Horizontal",
+     "args": [
+      0
+     ]
+    },
+    {
+     "type": "Horizontal",
+     "args": [
+      2
+     ]
+    },
+    {
+     "type": "Vertical",
+     "args": [
+      1
+     ]
+    },
+    {
+     "type": "Vertical",
+     "args": [
+      3
+     ]
+    },
+    {
+     "type": "Equal",
+     "args": [
+      4,
+      5
+     ]
+    },
+    {
+     "type": "Equal",
+     "args": [
+      5,
+      6
+     ]
+    },
+    {
+     "type": "Equal",
+     "args": [
+      6,
+      7
+     ]
+    },
+    {
+     "type": "PointOnObject",
+     "args": [
+      8,
+      1,
+      0
+     ]
+    },
+    {
+     "type": "PointOnObject",
+     "args": [
+      8,
+      1,
+      3
+     ]
+    },
+    {
+     "type": "PointOnObject",
+     "args": [
+      9,
+      1,
+      1
+     ]
+    },
+    {
+     "type": "PointOnObject",
+     "args": [
+      9,
+      1,
+      2
+     ]
+    }
+   ],
+   "message": {
+    "status": "Under-constrained: ",
+    "link": "5 Degrees of Freedom"
+   },
+   "tool_widget": {
+    "title": "Rectangle Parameters",
+    "controls": [
+     {
+      "name": "comboBox1",
+      "items": [
+       "Corner, width, height",
+       "Center, width, height",
+       "3 corners",
+       "Center, 2 corners"
+      ],
+      "index": 0
+     },
+     {
+      "name": "checkBoxTS1",
+      "text": "Rounded corners (U)",
+      "checked": true
+     },
+     {
+      "name": "checkBoxTS2",
+      "text": "Frame (J)",
+      "checked": false
+     }
+    ]
+   }
+  },
+  "shp-oblong-typed": {
+   "geometry": [
+    {
+     "type": "LineSegment",
+     "start": [
+      7.968944069999999,
+      4.937888149999999
+     ],
+     "end": [
+      31.93788909884593,
+      4.937888149999999
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      34.93788909884593,
+      7.937888149999998
+     ],
+     "end": [
+      34.93788909884593,
+      21.96894073
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      31.93788909884593,
+      24.96894073
+     ],
+     "end": [
+      7.968944069999999,
+      24.96894073
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      4.96894407,
+      21.96894073
+     ],
+     "end": [
+      4.96894407,
+      7.937888149999999
+     ]
+    },
+    {
+     "type": "ArcOfCircle",
+     "center": [
+      7.96894407,
+      7.937888149999999
+     ],
+     "radius": 3.0,
+     "start_angle": 3.141592653589793,
+     "end_angle": 4.71238898038469
+    },
+    {
+     "type": "ArcOfCircle",
+     "center": [
+      31.93788909884593,
+      7.937888149999999
+     ],
+     "radius": 3.0,
+     "start_angle": 4.712388980384691,
+     "end_angle": 6.283185307179586
+    },
+    {
+     "type": "ArcOfCircle",
+     "center": [
+      31.93788909884593,
+      21.96894073
+     ],
+     "radius": 3.0,
+     "start_angle": 5.777791057634989e-34,
+     "end_angle": 1.570796326794897
+    },
+    {
+     "type": "ArcOfCircle",
+     "center": [
+      7.96894407,
+      21.96894073
+     ],
+     "radius": 3.0,
+     "start_angle": 1.5707963267948966,
+     "end_angle": 3.1415926535897936
+    },
+    {
+     "type": "Point",
+     "at": [
+      4.96894407,
+      4.93788815
+     ],
+     "construction": true
+    },
+    {
+     "type": "Point",
+     "at": [
+      34.93788909884593,
+      24.96894073
+     ],
+     "construction": true
+    }
+   ],
+   "constraints": [
+    {
+     "type": "Tangent",
+     "args": [
+      0,
+      1,
+      4,
+      2
+     ]
+    },
+    {
+     "type": "Tangent",
+     "args": [
+      0,
+      2,
+      5,
+      1
+     ]
+    },
+    {
+     "type": "Tangent",
+     "args": [
+      1,
+      1,
+      5,
+      2
+     ]
+    },
+    {
+     "type": "Tangent",
+     "args": [
+      1,
+      2,
+      6,
+      1
+     ]
+    },
+    {
+     "type": "Tangent",
+     "args": [
+      2,
+      1,
+      6,
+      2
+     ]
+    },
+    {
+     "type": "Tangent",
+     "args": [
+      2,
+      2,
+      7,
+      1
+     ]
+    },
+    {
+     "type": "Tangent",
+     "args": [
+      3,
+      1,
+      7,
+      2
+     ]
+    },
+    {
+     "type": "Tangent",
+     "args": [
+      3,
+      2,
+      4,
+      1
+     ]
+    },
+    {
+     "type": "Horizontal",
+     "args": [
+      0
+     ]
+    },
+    {
+     "type": "Horizontal",
+     "args": [
+      2
+     ]
+    },
+    {
+     "type": "Vertical",
+     "args": [
+      1
+     ]
+    },
+    {
+     "type": "Vertical",
+     "args": [
+      3
+     ]
+    },
+    {
+     "type": "Equal",
+     "args": [
+      4,
+      5
+     ]
+    },
+    {
+     "type": "Equal",
+     "args": [
+      5,
+      6
+     ]
+    },
+    {
+     "type": "Equal",
+     "args": [
+      6,
+      7
+     ]
+    },
+    {
+     "type": "PointOnObject",
+     "args": [
+      8,
+      1,
+      0
+     ]
+    },
+    {
+     "type": "PointOnObject",
+     "args": [
+      8,
+      1,
+      3
+     ]
+    },
+    {
+     "type": "PointOnObject",
+     "args": [
+      9,
+      1,
+      1
+     ]
+    },
+    {
+     "type": "PointOnObject",
+     "args": [
+      9,
+      1,
+      2
+     ]
+    },
+    {
+     "type": "Radius",
+     "args": [
+      5
+     ],
+     "value": 3.0
+    }
+   ],
+   "message": {
+    "status": "Under-constrained: ",
+    "link": "4 Degrees of Freedom"
+   },
+   "tool_widget": {
+    "title": "Rectangle Parameters",
+    "controls": [
+     {
+      "name": "comboBox1",
+      "items": [
+       "Corner, width, height",
+       "Center, width, height",
+       "3 corners",
+       "Center, 2 corners"
+      ],
+      "index": 0
+     },
+     {
+      "name": "checkBoxTS1",
+      "text": "Rounded corners (U)",
+      "checked": true
+     },
+     {
+      "name": "checkBoxTS2",
+      "text": "Frame (J)",
+      "checked": false
+     }
+    ]
+   }
+  },
+  "shp-rect-frame": {
+   "geometry": [
+    {
+     "type": "LineSegment",
+     "start": [
+      4.968944080000001,
+      4.93788815
+     ],
+     "end": [
+      34.93788909,
+      4.93788815
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      34.93788909,
+      4.93788815
+     ],
+     "end": [
+      34.93788909,
+      24.96894073
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      34.93788909,
+      24.96894073
+     ],
+     "end": [
+      4.96894408,
+      24.96894073
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      4.968944080000001,
+      24.96894073
+     ],
+     "end": [
+      4.968944080000001,
+      4.937888149999999
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      8.07453394,
+      8.04347801
+     ],
+     "end": [
+      31.832299230000004,
+      8.04347801
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      31.83229923,
+      8.04347801
+     ],
+     "end": [
+      31.83229923,
+      21.86335087
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      31.83229923,
+      21.86335087
+     ],
+     "end": [
+      8.074533939999998,
+      21.86335087
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      8.07453394,
+      21.86335087
+     ],
+     "end": [
+      8.07453394,
+      8.04347801
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      4.968944080000001,
+      4.93788815
+     ],
+     "end": [
+      8.07453394,
+      8.04347801
+     ],
+     "construction": true
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      34.93788909,
+      4.93788815
+     ],
+     "end": [
+      31.83229923,
+      8.04347801
+     ],
+     "construction": true
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      34.93788909,
+      24.96894073
+     ],
+     "end": [
+      31.83229923,
+      21.86335087
+     ],
+     "construction": true
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      4.968944080000001,
+      24.96894073
+     ],
+     "end": [
+      8.07453394,
+      21.86335087
+     ],
+     "construction": true
+    }
+   ],
+   "constraints": [
+    {
+     "type": "Coincident",
+     "args": [
+      0,
+      2,
+      1,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      1,
+      2,
+      2,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      2,
+      2,
+      3,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      3,
+      2,
+      0,
+      1
+     ]
+    },
+    {
+     "type": "Horizontal",
+     "args": [
+      0
+     ]
+    },
+    {
+     "type": "Horizontal",
+     "args": [
+      2
+     ]
+    },
+    {
+     "type": "Vertical",
+     "args": [
+      1
+     ]
+    },
+    {
+     "type": "Vertical",
+     "args": [
+      3
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      4,
+      2,
+      5,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      5,
+      2,
+      6,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      6,
+      2,
+      7,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      7,
+      2,
+      4,
+      1
+     ]
+    },
+    {
+     "type": "Horizontal",
+     "args": [
+      4
+     ]
+    },
+    {
+     "type": "Horizontal",
+     "args": [
+      6
+     ]
+    },
+    {
+     "type": "Vertical",
+     "args": [
+      5
+     ]
+    },
+    {
+     "type": "Vertical",
+     "args": [
+      7
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      8,
+      1,
+      0,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      8,
+      2,
+      4,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      9,
+      1,
+      1,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      9,
+      2,
+      5,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      10,
+      1,
+      2,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      10,
+      2,
+      6,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      11,
+      1,
+      3,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      11,
+      2,
+      7,
+      1
+     ]
+    },
+    {
+     "type": "Perpendicular",
+     "args": [
+      8,
+      9
+     ]
+    },
+    {
+     "type": "Perpendicular",
+     "args": [
+      9,
+      10
+     ]
+    },
+    {
+     "type": "Perpendicular",
+     "args": [
+      10,
+      11
+     ]
+    }
+   ],
+   "message": {
+    "status": "Under-constrained: ",
+    "link": "5 Degrees of Freedom"
+   }
+  },
+  "shp-rect-frame-typed": {
+   "geometry": [
+    {
+     "type": "LineSegment",
+     "start": [
+      4.96894407,
+      4.93788815
+     ],
+     "end": [
+      34.9378891,
+      4.93788815
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      34.9378891,
+      4.93788815
+     ],
+     "end": [
+      34.9378891,
+      24.96894073
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      34.9378891,
+      24.96894073
+     ],
+     "end": [
+      4.968944069999999,
+      24.96894073
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      4.96894407,
+      24.96894073
+     ],
+     "end": [
+      4.96894407,
+      4.937888149999999
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      2.96894407,
+      2.93788815
+     ],
+     "end": [
+      36.9378891,
+      2.93788815
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      36.9378891,
+      2.93788815
+     ],
+     "end": [
+      36.9378891,
+      26.96894073
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      36.9378891,
+      26.96894073
+     ],
+     "end": [
+      2.968944069999999,
+      26.96894073
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      2.96894407,
+      26.96894073
+     ],
+     "end": [
+      2.96894407,
+      2.937888149999999
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      4.96894407,
+      4.93788815
+     ],
+     "end": [
+      2.96894407,
+      2.93788815
+     ],
+     "construction": true
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      34.9378891,
+      4.93788815
+     ],
+     "end": [
+      36.9378891,
+      2.93788815
+     ],
+     "construction": true
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      34.9378891,
+      24.96894073
+     ],
+     "end": [
+      36.9378891,
+      26.96894073
+     ],
+     "construction": true
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      4.96894407,
+      24.96894073
+     ],
+     "end": [
+      2.96894407,
+      26.96894073
+     ],
+     "construction": true
+    }
+   ],
+   "constraints": [
+    {
+     "type": "Coincident",
+     "args": [
+      0,
+      2,
+      1,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      1,
+      2,
+      2,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      2,
+      2,
+      3,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      3,
+      2,
+      0,
+      1
+     ]
+    },
+    {
+     "type": "Horizontal",
+     "args": [
+      0
+     ]
+    },
+    {
+     "type": "Horizontal",
+     "args": [
+      2
+     ]
+    },
+    {
+     "type": "Vertical",
+     "args": [
+      1
+     ]
+    },
+    {
+     "type": "Vertical",
+     "args": [
+      3
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      4,
+      2,
+      5,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      5,
+      2,
+      6,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      6,
+      2,
+      7,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      7,
+      2,
+      4,
+      1
+     ]
+    },
+    {
+     "type": "Horizontal",
+     "args": [
+      4
+     ]
+    },
+    {
+     "type": "Horizontal",
+     "args": [
+      6
+     ]
+    },
+    {
+     "type": "Vertical",
+     "args": [
+      5
+     ]
+    },
+    {
+     "type": "Vertical",
+     "args": [
+      7
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      8,
+      1,
+      0,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      8,
+      2,
+      4,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      9,
+      1,
+      1,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      9,
+      2,
+      5,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      10,
+      1,
+      2,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      10,
+      2,
+      6,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      11,
+      1,
+      3,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      11,
+      2,
+      7,
+      1
+     ]
+    },
+    {
+     "type": "Perpendicular",
+     "args": [
+      8,
+      9
+     ]
+    },
+    {
+     "type": "Perpendicular",
+     "args": [
+      9,
+      10
+     ]
+    },
+    {
+     "type": "Perpendicular",
+     "args": [
+      10,
+      11
+     ]
+    },
+    {
+     "type": "Distance",
+     "args": [
+      4,
+      1,
+      0
+     ],
+     "value": 2.0
+    }
+   ],
+   "message": {
+    "status": "Under-constrained: ",
+    "link": "4 Degrees of Freedom"
+   },
+   "tool_widget": {
+    "title": "Rectangle Parameters",
+    "controls": [
+     {
+      "name": "comboBox1",
+      "items": [
+       "Corner, width, height",
+       "Center, width, height",
+       "3 corners",
+       "Center, 2 corners"
+      ],
+      "index": 0
+     },
+     {
+      "name": "checkBoxTS1",
+      "text": "Rounded corners (U)",
+      "checked": false
+     },
+     {
+      "name": "checkBoxTS2",
+      "text": "Frame (J)",
+      "checked": true
+     }
+    ]
+   }
+  },
+  "shp-rect-center-frame": {
+   "geometry": [
+    {
+     "type": "LineSegment",
+     "start": [
+      9.9378891,
+      10.0621109
+     ],
+     "end": [
+      40.0621109,
+      10.0621109
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      40.0621109,
+      10.0621109
+     ],
+     "end": [
+      40.0621109,
+      29.9378891
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      40.0621109,
+      29.9378891
+     ],
+     "end": [
+      9.9378891,
+      29.9378891
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      9.9378891,
+      29.9378891
+     ],
+     "end": [
+      9.9378891,
+      10.0621109
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      6.83229828,
+      6.95652008
+     ],
+     "end": [
+      43.16770172,
+      6.95652008
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      43.16770172,
+      6.95652008
+     ],
+     "end": [
+      43.16770172,
+      33.04347992
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      43.16770172,
+      33.04347992
+     ],
+     "end": [
+      6.832298280000003,
+      33.04347992
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      6.83229828,
+      33.04347992
+     ],
+     "end": [
+      6.83229828,
+      6.956520080000001
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      9.9378891,
+      10.0621109
+     ],
+     "end": [
+      6.83229828,
+      6.95652008
+     ],
+     "construction": true
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      40.0621109,
+      10.0621109
+     ],
+     "end": [
+      43.16770172,
+      6.95652008
+     ],
+     "construction": true
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      40.0621109,
+      29.9378891
+     ],
+     "end": [
+      43.16770172,
+      33.04347992
+     ],
+     "construction": true
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      9.9378891,
+      29.9378891
+     ],
+     "end": [
+      6.83229828,
+      33.04347992
+     ],
+     "construction": true
+    },
+    {
+     "type": "Point",
+     "at": [
+      25.0,
+      20.0
+     ],
+     "construction": true
+    }
+   ],
+   "constraints": [
+    {
+     "type": "Coincident",
+     "args": [
+      0,
+      2,
+      1,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      1,
+      2,
+      2,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      2,
+      2,
+      3,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      3,
+      2,
+      0,
+      1
+     ]
+    },
+    {
+     "type": "Horizontal",
+     "args": [
+      0
+     ]
+    },
+    {
+     "type": "Horizontal",
+     "args": [
+      2
+     ]
+    },
+    {
+     "type": "Vertical",
+     "args": [
+      1
+     ]
+    },
+    {
+     "type": "Vertical",
+     "args": [
+      3
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      4,
+      2,
+      5,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      5,
+      2,
+      6,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      6,
+      2,
+      7,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      7,
+      2,
+      4,
+      1
+     ]
+    },
+    {
+     "type": "Horizontal",
+     "args": [
+      4
+     ]
+    },
+    {
+     "type": "Horizontal",
+     "args": [
+      6
+     ]
+    },
+    {
+     "type": "Vertical",
+     "args": [
+      5
+     ]
+    },
+    {
+     "type": "Vertical",
+     "args": [
+      7
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      8,
+      1,
+      0,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      8,
+      2,
+      4,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      9,
+      1,
+      1,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      9,
+      2,
+      5,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      10,
+      1,
+      2,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      10,
+      2,
+      6,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      11,
+      1,
+      3,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      11,
+      2,
+      7,
+      1
+     ]
+    },
+    {
+     "type": "Perpendicular",
+     "args": [
+      8,
+      9
+     ]
+    },
+    {
+     "type": "Perpendicular",
+     "args": [
+      9,
+      10
+     ]
+    },
+    {
+     "type": "Perpendicular",
+     "args": [
+      10,
+      11
+     ]
+    },
+    {
+     "type": "Symmetric",
+     "args": [
+      2,
+      1,
+      0,
+      1,
+      12,
+      1
+     ]
+    }
+   ],
+   "message": {
+    "status": "Under-constrained: ",
+    "link": "5 Degrees of Freedom"
+   }
+  },
+  "shp-oblong-frame": {
+   "geometry": [
+    {
+     "type": "LineSegment",
+     "start": [
+      14.974454835016026,
+      4.93788814
+     ],
+     "end": [
+      24.932378329999995,
+      4.93788814
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      34.93788914650873,
+      14.943398956508732
+     ],
+     "end": [
+      34.93788914650873,
+      14.96342997
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      24.93237833,
+      24.968940786508732
+     ],
+     "end": [
+      14.974454835016028,
+      24.968940786508732
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      4.968944018507294,
+      14.963429970000002
+     ],
+     "end": [
+      4.968944018507294,
+      14.943398956508736
+     ]
+    },
+    {
+     "type": "ArcOfCircle",
+     "center": [
+      14.974454835016028,
+      14.943398956508734
+     ],
+     "radius": 10.005510816508734,
+     "start_angle": 3.141592653589793,
+     "end_angle": 4.71238898038469
+    },
+    {
+     "type": "ArcOfCircle",
+     "center": [
+      24.93237833,
+      14.943398956508734
+     ],
+     "radius": 10.005510816508734,
+     "start_angle": 4.71238898038469,
+     "end_angle": 6.283185307179586
+    },
+    {
+     "type": "ArcOfCircle",
+     "center": [
+      24.93237833,
+      14.96342997
+     ],
+     "radius": 10.005510816508734,
+     "start_angle": 0.0,
+     "end_angle": 1.5707963267948966
+    },
+    {
+     "type": "ArcOfCircle",
+     "center": [
+      14.974454835016028,
+      14.96342997
+     ],
+     "radius": 10.005510816508734,
+     "start_angle": 1.5707963267948966,
+     "end_angle": 3.141592653589793
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      14.974454835016028,
+      1.9875777165087323
+     ],
+     "end": [
+      24.93237833,
+      1.9875777165087323
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      37.88819957,
+      14.943398956508734
+     ],
+     "end": [
+      37.88819957,
+      14.96342997
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      24.93237833,
+      27.91925121
+     ],
+     "end": [
+      14.974454835016028,
+      27.91925121
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      2.018633595016027,
+      14.963429969999984
+     ],
+     "end": [
+      2.018633595016027,
+      14.943398956508718
+     ]
+    },
+    {
+     "type": "ArcOfCircle",
+     "center": [
+      14.974454835016028,
+      14.943398956508734
+     ],
+     "radius": 12.95582124,
+     "start_angle": 3.1415926535897944,
+     "end_angle": 4.71238898038469
+    },
+    {
+     "type": "ArcOfCircle",
+     "center": [
+      24.93237833,
+      14.943398956508734
+     ],
+     "radius": 12.95582124,
+     "start_angle": 4.71238898038469,
+     "end_angle": 6.283185307179586
+    },
+    {
+     "type": "ArcOfCircle",
+     "center": [
+      24.93237833,
+      14.96342997
+     ],
+     "radius": 12.95582124,
+     "start_angle": 0.0,
+     "end_angle": 1.5707963267948968
+    },
+    {
+     "type": "ArcOfCircle",
+     "center": [
+      14.974454835016028,
+      14.96342997
+     ],
+     "radius": 12.95582124,
+     "start_angle": 1.5707963267948966,
+     "end_angle": 3.1415926535897944
+    },
+    {
+     "type": "Point",
+     "at": [
+      4.968944018507296,
+      4.937888140000001
+     ],
+     "construction": true
+    },
+    {
+     "type": "Point",
+     "at": [
+      34.93788914650305,
+      24.968940786508735
+     ],
+     "construction": true
+    }
+   ],
+   "constraints": [
+    {
+     "type": "Tangent",
+     "args": [
+      0,
+      1,
+      4,
+      2
+     ]
+    },
+    {
+     "type": "Tangent",
+     "args": [
+      0,
+      2,
+      5,
+      1
+     ]
+    },
+    {
+     "type": "Tangent",
+     "args": [
+      1,
+      1,
+      5,
+      2
+     ]
+    },
+    {
+     "type": "Tangent",
+     "args": [
+      1,
+      2,
+      6,
+      1
+     ]
+    },
+    {
+     "type": "Tangent",
+     "args": [
+      2,
+      1,
+      6,
+      2
+     ]
+    },
+    {
+     "type": "Tangent",
+     "args": [
+      2,
+      2,
+      7,
+      1
+     ]
+    },
+    {
+     "type": "Tangent",
+     "args": [
+      3,
+      1,
+      7,
+      2
+     ]
+    },
+    {
+     "type": "Tangent",
+     "args": [
+      3,
+      2,
+      4,
+      1
+     ]
+    },
+    {
+     "type": "Horizontal",
+     "args": [
+      0
+     ]
+    },
+    {
+     "type": "Horizontal",
+     "args": [
+      2
+     ]
+    },
+    {
+     "type": "Vertical",
+     "args": [
+      1
+     ]
+    },
+    {
+     "type": "Vertical",
+     "args": [
+      3
+     ]
+    },
+    {
+     "type": "Equal",
+     "args": [
+      4,
+      5
+     ]
+    },
+    {
+     "type": "Equal",
+     "args": [
+      5,
+      6
+     ]
+    },
+    {
+     "type": "Equal",
+     "args": [
+      6,
+      7
+     ]
+    },
+    {
+     "type": "Tangent",
+     "args": [
+      8,
+      1,
+      12,
+      2
+     ]
+    },
+    {
+     "type": "Tangent",
+     "args": [
+      8,
+      2,
+      13,
+      1
+     ]
+    },
+    {
+     "type": "Tangent",
+     "args": [
+      9,
+      1,
+      13,
+      2
+     ]
+    },
+    {
+     "type": "Tangent",
+     "args": [
+      9,
+      2,
+      14,
+      1
+     ]
+    },
+    {
+     "type": "Tangent",
+     "args": [
+      10,
+      1,
+      14,
+      2
+     ]
+    },
+    {
+     "type": "Tangent",
+     "args": [
+      10,
+      2,
+      15,
+      1
+     ]
+    },
+    {
+     "type": "Tangent",
+     "args": [
+      11,
+      1,
+      15,
+      2
+     ]
+    },
+    {
+     "type": "Tangent",
+     "args": [
+      11,
+      2,
+      12,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      4,
+      3,
+      12,
+      3
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      5,
+      3,
+      13,
+      3
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      6,
+      3,
+      14,
+      3
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      7,
+      3,
+      15,
+      3
+     ]
+    },
+    {
+     "type": "Horizontal",
+     "args": [
+      8
+     ]
+    },
+    {
+     "type": "Horizontal",
+     "args": [
+      10
+     ]
+    },
+    {
+     "type": "Vertical",
+     "args": [
+      9
+     ]
+    },
+    {
+     "type": "PointOnObject",
+     "args": [
+      16,
+      1,
+      0
+     ]
+    },
+    {
+     "type": "PointOnObject",
+     "args": [
+      16,
+      1,
+      3
+     ]
+    },
+    {
+     "type": "PointOnObject",
+     "args": [
+      17,
+      1,
+      1
+     ]
+    },
+    {
+     "type": "PointOnObject",
+     "args": [
+      17,
+      1,
+      2
+     ]
+    }
+   ],
+   "message": {
+    "status": "Under-constrained: ",
+    "link": "6 Degrees of Freedom"
+   }
+  },
+  "shp-oblong-frame-inner": {
+   "geometry": [
+    {
+     "type": "LineSegment",
+     "start": [
+      8.968944078461242,
+      4.9378881584612415
+     ],
+     "end": [
+      30.93788909846124,
+      4.9378881584612415
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      34.93788909846124,
+      8.937888158461242
+     ],
+     "end": [
+      34.93788909846124,
+      20.968940744359173
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      30.93788909846124,
+      24.968940744359173
+     ],
+     "end": [
+      8.968944078461242,
+      24.968940744359173
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      4.9689440784612415,
+      20.968940744359173
+     ],
+     "end": [
+      4.9689440784612415,
+      8.937888158461242
+     ]
+    },
+    {
+     "type": "ArcOfCircle",
+     "center": [
+      8.968944078461242,
+      8.937888158461242
+     ],
+     "radius": 4.0,
+     "start_angle": 3.141592653589793,
+     "end_angle": 4.71238898038469
+    },
+    {
+     "type": "ArcOfCircle",
+     "center": [
+      30.93788909846124,
+      8.937888158461242
+     ],
+     "radius": 4.0,
+     "start_angle": 4.71238898038469,
+     "end_angle": 6.283185307179586
+    },
+    {
+     "type": "ArcOfCircle",
+     "center": [
+      30.93788909846124,
+      20.968940744359173
+     ],
+     "radius": 4.0,
+     "start_angle": 7.218593788051597e-25,
+     "end_angle": 1.5707963267948963
+    },
+    {
+     "type": "ArcOfCircle",
+     "center": [
+      8.968944078461242,
+      20.968940744359173
+     ],
+     "radius": 4.0,
+     "start_angle": 1.5707963267948968,
+     "end_angle": 3.1415926535897936
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      8.968944078461242,
+      5.9378881584612415
+     ],
+     "end": [
+      30.93788909846124,
+      5.9378881584612415
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      33.93788909846124,
+      8.937888158461242
+     ],
+     "end": [
+      33.93788909846124,
+      20.968940744359173
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      30.93788909846124,
+      23.968940744359173
+     ],
+     "end": [
+      8.968944078461242,
+      23.968940744359173
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      5.9689440784612415,
+      20.968940744359173
+     ],
+     "end": [
+      5.9689440784612415,
+      8.937888158461242
+     ]
+    },
+    {
+     "type": "ArcOfCircle",
+     "center": [
+      8.968944078461242,
+      8.937888158461242
+     ],
+     "radius": 3.0,
+     "start_angle": 3.141592653589793,
+     "end_angle": 4.71238898038469
+    },
+    {
+     "type": "ArcOfCircle",
+     "center": [
+      30.93788909846124,
+      8.937888158461242
+     ],
+     "radius": 3.0,
+     "start_angle": 4.71238898038469,
+     "end_angle": 6.283185307179586
+    },
+    {
+     "type": "ArcOfCircle",
+     "center": [
+      30.93788909846124,
+      20.968940744359173
+     ],
+     "radius": 3.0,
+     "start_angle": 0.0,
+     "end_angle": 1.570796326794897
+    },
+    {
+     "type": "ArcOfCircle",
+     "center": [
+      8.968944078461242,
+      20.968940744359173
+     ],
+     "radius": 3.0,
+     "start_angle": 1.5707963267948963,
+     "end_angle": 3.1415926535897936
+    },
+    {
+     "type": "Point",
+     "at": [
+      4.968944078461241,
+      4.9378881584612415
+     ],
+     "construction": true
+    },
+    {
+     "type": "Point",
+     "at": [
+      34.93788909846124,
+      24.96894074435917
+     ],
+     "construction": true
+    }
+   ],
+   "constraints": [
+    {
+     "type": "Tangent",
+     "args": [
+      0,
+      1,
+      4,
+      2
+     ]
+    },
+    {
+     "type": "Tangent",
+     "args": [
+      0,
+      2,
+      5,
+      1
+     ]
+    },
+    {
+     "type": "Tangent",
+     "args": [
+      1,
+      1,
+      5,
+      2
+     ]
+    },
+    {
+     "type": "Tangent",
+     "args": [
+      1,
+      2,
+      6,
+      1
+     ]
+    },
+    {
+     "type": "Tangent",
+     "args": [
+      2,
+      1,
+      6,
+      2
+     ]
+    },
+    {
+     "type": "Tangent",
+     "args": [
+      2,
+      2,
+      7,
+      1
+     ]
+    },
+    {
+     "type": "Tangent",
+     "args": [
+      3,
+      1,
+      7,
+      2
+     ]
+    },
+    {
+     "type": "Tangent",
+     "args": [
+      3,
+      2,
+      4,
+      1
+     ]
+    },
+    {
+     "type": "Horizontal",
+     "args": [
+      0
+     ]
+    },
+    {
+     "type": "Horizontal",
+     "args": [
+      2
+     ]
+    },
+    {
+     "type": "Vertical",
+     "args": [
+      1
+     ]
+    },
+    {
+     "type": "Vertical",
+     "args": [
+      3
+     ]
+    },
+    {
+     "type": "Equal",
+     "args": [
+      4,
+      5
+     ]
+    },
+    {
+     "type": "Equal",
+     "args": [
+      5,
+      6
+     ]
+    },
+    {
+     "type": "Equal",
+     "args": [
+      6,
+      7
+     ]
+    },
+    {
+     "type": "Tangent",
+     "args": [
+      8,
+      1,
+      12,
+      2
+     ]
+    },
+    {
+     "type": "Tangent",
+     "args": [
+      8,
+      2,
+      13,
+      1
+     ]
+    },
+    {
+     "type": "Tangent",
+     "args": [
+      9,
+      1,
+      13,
+      2
+     ]
+    },
+    {
+     "type": "Tangent",
+     "args": [
+      9,
+      2,
+      14,
+      1
+     ]
+    },
+    {
+     "type": "Tangent",
+     "args": [
+      10,
+      1,
+      14,
+      2
+     ]
+    },
+    {
+     "type": "Tangent",
+     "args": [
+      10,
+      2,
+      15,
+      1
+     ]
+    },
+    {
+     "type": "Tangent",
+     "args": [
+      11,
+      1,
+      15,
+      2
+     ]
+    },
+    {
+     "type": "Tangent",
+     "args": [
+      11,
+      2,
+      12,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      4,
+      3,
+      12,
+      3
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      5,
+      3,
+      13,
+      3
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      6,
+      3,
+      14,
+      3
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      7,
+      3,
+      15,
+      3
+     ]
+    },
+    {
+     "type": "Horizontal",
+     "args": [
+      8
+     ]
+    },
+    {
+     "type": "Horizontal",
+     "args": [
+      10
+     ]
+    },
+    {
+     "type": "Vertical",
+     "args": [
+      9
+     ]
+    },
+    {
+     "type": "PointOnObject",
+     "args": [
+      16,
+      1,
+      0
+     ]
+    },
+    {
+     "type": "PointOnObject",
+     "args": [
+      16,
+      1,
+      3
+     ]
+    },
+    {
+     "type": "PointOnObject",
+     "args": [
+      17,
+      1,
+      1
+     ]
+    },
+    {
+     "type": "PointOnObject",
+     "args": [
+      17,
+      1,
+      2
+     ]
+    },
+    {
+     "type": "Radius",
+     "args": [
+      5
+     ],
+     "value": 4.0
+    },
+    {
+     "type": "Distance",
+     "args": [
+      8,
+      1,
+      0
+     ],
+     "value": 1.0
+    }
+   ],
+   "message": {
+    "status": "Under-constrained: ",
+    "link": "4 Degrees of Freedom"
+   },
+   "tool_widget": {
+    "title": "Rectangle Parameters",
+    "controls": [
+     {
+      "name": "comboBox1",
+      "items": [
+       "Corner, width, height",
+       "Center, width, height",
+       "3 corners",
+       "Center, 2 corners"
+      ],
+      "index": 0
+     },
+     {
+      "name": "checkBoxTS1",
+      "text": "Rounded corners (U)",
+      "checked": true
+     },
+     {
+      "name": "checkBoxTS2",
+      "text": "Frame (J)",
+      "checked": true
+     }
+    ]
+   }
+  },
+  "shp-oblong-frame-negeq": {
+   "geometry": [
+    {
+     "type": "LineSegment",
+     "start": [
+      7.96894407,
+      4.937888149999999
+     ],
+     "end": [
+      31.937889100000003,
+      4.937888149999999
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      34.9378891,
+      7.937888149999998
+     ],
+     "end": [
+      34.9378891,
+      21.96894073
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      31.9378891,
+      24.96894073
+     ],
+     "end": [
+      7.968944069999999,
+      24.96894073
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      4.96894407,
+      21.96894073
+     ],
+     "end": [
+      4.96894407,
+      7.937888149999999
+     ]
+    },
+    {
+     "type": "ArcOfCircle",
+     "center": [
+      7.96894407,
+      7.937888149999999
+     ],
+     "radius": 3.0,
+     "start_angle": 3.141592653589793,
+     "end_angle": 4.71238898038469
+    },
+    {
+     "type": "ArcOfCircle",
+     "center": [
+      31.9378891,
+      7.937888149999999
+     ],
+     "radius": 3.0,
+     "start_angle": 4.712388980384691,
+     "end_angle": 6.283185307179586
+    },
+    {
+     "type": "ArcOfCircle",
+     "center": [
+      31.9378891,
+      21.96894073
+     ],
+     "radius": 3.0,
+     "start_angle": 0.0,
+     "end_angle": 1.570796326794897
+    },
+    {
+     "type": "ArcOfCircle",
+     "center": [
+      7.968944069999999,
+      21.96894073
+     ],
+     "radius": 3.0,
+     "start_angle": 1.5707963267948966,
+     "end_angle": 3.1415926535897936
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      7.96894407,
+      7.937888149999999
+     ],
+     "end": [
+      31.9378891,
+      7.937888149999999
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      31.9378891,
+      7.937888149999999
+     ],
+     "end": [
+      31.9378891,
+      21.96894073
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      31.9378891,
+      21.96894073
+     ],
+     "end": [
+      7.968944069999999,
+      21.96894073
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      7.968944069999999,
+      21.96894073
+     ],
+     "end": [
+      7.96894407,
+      7.937888149999999
+     ]
+    },
+    {
+     "type": "Point",
+     "at": [
+      4.968944069999999,
+      4.937888149999999
+     ],
+     "construction": true
+    },
+    {
+     "type": "Point",
+     "at": [
+      34.9378891,
+      24.96894073
+     ],
+     "construction": true
+    }
+   ],
+   "constraints": [
+    {
+     "type": "Tangent",
+     "args": [
+      0,
+      1,
+      4,
+      2
+     ]
+    },
+    {
+     "type": "Tangent",
+     "args": [
+      0,
+      2,
+      5,
+      1
+     ]
+    },
+    {
+     "type": "Tangent",
+     "args": [
+      1,
+      1,
+      5,
+      2
+     ]
+    },
+    {
+     "type": "Tangent",
+     "args": [
+      1,
+      2,
+      6,
+      1
+     ]
+    },
+    {
+     "type": "Tangent",
+     "args": [
+      2,
+      1,
+      6,
+      2
+     ]
+    },
+    {
+     "type": "Tangent",
+     "args": [
+      2,
+      2,
+      7,
+      1
+     ]
+    },
+    {
+     "type": "Tangent",
+     "args": [
+      3,
+      1,
+      7,
+      2
+     ]
+    },
+    {
+     "type": "Tangent",
+     "args": [
+      3,
+      2,
+      4,
+      1
+     ]
+    },
+    {
+     "type": "Horizontal",
+     "args": [
+      0
+     ]
+    },
+    {
+     "type": "Horizontal",
+     "args": [
+      2
+     ]
+    },
+    {
+     "type": "Vertical",
+     "args": [
+      1
+     ]
+    },
+    {
+     "type": "Vertical",
+     "args": [
+      3
+     ]
+    },
+    {
+     "type": "Equal",
+     "args": [
+      4,
+      5
+     ]
+    },
+    {
+     "type": "Equal",
+     "args": [
+      5,
+      6
+     ]
+    },
+    {
+     "type": "Equal",
+     "args": [
+      6,
+      7
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      8,
+      2,
+      9,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      9,
+      2,
+      10,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      10,
+      2,
+      11,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      11,
+      2,
+      8,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      8,
+      1,
+      4,
+      3
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      9,
+      1,
+      5,
+      3
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      10,
+      1,
+      6,
+      3
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      11,
+      1,
+      7,
+      3
+     ]
+    },
+    {
+     "type": "PointOnObject",
+     "args": [
+      12,
+      1,
+      0
+     ]
+    },
+    {
+     "type": "PointOnObject",
+     "args": [
+      12,
+      1,
+      3
+     ]
+    },
+    {
+     "type": "PointOnObject",
+     "args": [
+      13,
+      1,
+      1
+     ]
+    },
+    {
+     "type": "PointOnObject",
+     "args": [
+      13,
+      1,
+      2
+     ]
+    },
+    {
+     "type": "Radius",
+     "args": [
+      5
+     ],
+     "value": 3.0
+    }
+   ],
+   "message": {
+    "status": "Under-constrained: ",
+    "link": "4 Degrees of Freedom"
+   },
+   "tool_widget": {
+    "title": "Rectangle Parameters",
+    "controls": [
+     {
+      "name": "comboBox1",
+      "items": [
+       "Corner, width, height",
+       "Center, width, height",
+       "3 corners",
+       "Center, 2 corners"
+      ],
+      "index": 0
+     },
+     {
+      "name": "checkBoxTS1",
+      "text": "Rounded corners (U)",
+      "checked": true
+     },
+     {
+      "name": "checkBoxTS2",
+      "text": "Frame (J)",
+      "checked": true
+     }
+    ]
+   }
+  },
+  "shp-oblong-frame-square": {
+   "geometry": [
+    {
+     "type": "LineSegment",
+     "start": [
+      6.96894407,
+      4.937888155640827
+     ],
+     "end": [
+      32.9378891,
+      4.937888155640827
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      34.9378891,
+      6.937888155640827
+     ],
+     "end": [
+      34.9378891,
+      22.96894073
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      32.9378891,
+      24.96894073
+     ],
+     "end": [
+      6.968944069999999,
+      24.96894073
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      4.96894407,
+      22.96894073
+     ],
+     "end": [
+      4.96894407,
+      6.937888155640827
+     ]
+    },
+    {
+     "type": "ArcOfCircle",
+     "center": [
+      6.96894407,
+      6.937888155640827
+     ],
+     "radius": 2.0,
+     "start_angle": 3.141592653589793,
+     "end_angle": 4.71238898038469
+    },
+    {
+     "type": "ArcOfCircle",
+     "center": [
+      32.9378891,
+      6.937888155640827
+     ],
+     "radius": 2.0,
+     "start_angle": 4.7123889803846915,
+     "end_angle": 6.283185307179586
+    },
+    {
+     "type": "ArcOfCircle",
+     "center": [
+      32.9378891,
+      22.96894073
+     ],
+     "radius": 2.0,
+     "start_angle": 0.0,
+     "end_angle": 1.5707963267948981
+    },
+    {
+     "type": "ArcOfCircle",
+     "center": [
+      6.96894407,
+      22.96894073
+     ],
+     "radius": 2.0,
+     "start_angle": 1.5707963267948968,
+     "end_angle": 3.1415926535897936
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      8.96894407,
+      8.937888155640826
+     ],
+     "end": [
+      30.9378891,
+      8.937888155640826
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      30.9378891,
+      8.937888155640826
+     ],
+     "end": [
+      30.9378891,
+      20.96894073
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      30.9378891,
+      20.96894073
+     ],
+     "end": [
+      8.96894407,
+      20.96894073
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      8.96894407,
+      20.96894073
+     ],
+     "end": [
+      8.96894407,
+      8.937888155640826
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      6.96894407,
+      6.937888155640827
+     ],
+     "end": [
+      8.96894407,
+      8.937888155640826
+     ],
+     "construction": true
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      32.9378891,
+      6.937888155640827
+     ],
+     "end": [
+      30.9378891,
+      8.937888155640826
+     ],
+     "construction": true
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      32.9378891,
+      22.96894073
+     ],
+     "end": [
+      30.9378891,
+      20.96894073
+     ],
+     "construction": true
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      6.96894407,
+      22.96894073
+     ],
+     "end": [
+      8.96894407,
+      20.96894073
+     ],
+     "construction": true
+    },
+    {
+     "type": "Point",
+     "at": [
+      4.968944070000001,
+      4.9378881556408265
+     ],
+     "construction": true
+    },
+    {
+     "type": "Point",
+     "at": [
+      34.9378891,
+      24.96894073
+     ],
+     "construction": true
+    }
+   ],
+   "constraints": [
+    {
+     "type": "Tangent",
+     "args": [
+      0,
+      1,
+      4,
+      2
+     ]
+    },
+    {
+     "type": "Tangent",
+     "args": [
+      0,
+      2,
+      5,
+      1
+     ]
+    },
+    {
+     "type": "Tangent",
+     "args": [
+      1,
+      1,
+      5,
+      2
+     ]
+    },
+    {
+     "type": "Tangent",
+     "args": [
+      1,
+      2,
+      6,
+      1
+     ]
+    },
+    {
+     "type": "Tangent",
+     "args": [
+      2,
+      1,
+      6,
+      2
+     ]
+    },
+    {
+     "type": "Tangent",
+     "args": [
+      2,
+      2,
+      7,
+      1
+     ]
+    },
+    {
+     "type": "Tangent",
+     "args": [
+      3,
+      1,
+      7,
+      2
+     ]
+    },
+    {
+     "type": "Tangent",
+     "args": [
+      3,
+      2,
+      4,
+      1
+     ]
+    },
+    {
+     "type": "Horizontal",
+     "args": [
+      0
+     ]
+    },
+    {
+     "type": "Horizontal",
+     "args": [
+      2
+     ]
+    },
+    {
+     "type": "Vertical",
+     "args": [
+      1
+     ]
+    },
+    {
+     "type": "Vertical",
+     "args": [
+      3
+     ]
+    },
+    {
+     "type": "Equal",
+     "args": [
+      4,
+      5
+     ]
+    },
+    {
+     "type": "Equal",
+     "args": [
+      5,
+      6
+     ]
+    },
+    {
+     "type": "Equal",
+     "args": [
+      6,
+      7
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      8,
+      2,
+      9,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      9,
+      2,
+      10,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      10,
+      2,
+      11,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      11,
+      2,
+      8,
+      1
+     ]
+    },
+    {
+     "type": "Horizontal",
+     "args": [
+      8
+     ]
+    },
+    {
+     "type": "Horizontal",
+     "args": [
+      10
+     ]
+    },
+    {
+     "type": "Vertical",
+     "args": [
+      9
+     ]
+    },
+    {
+     "type": "Vertical",
+     "args": [
+      11
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      12,
+      1,
+      4,
+      3
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      12,
+      2,
+      8,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      13,
+      1,
+      5,
+      3
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      13,
+      2,
+      9,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      14,
+      1,
+      6,
+      3
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      14,
+      2,
+      10,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      15,
+      1,
+      7,
+      3
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      15,
+      2,
+      11,
+      1
+     ]
+    },
+    {
+     "type": "Perpendicular",
+     "args": [
+      12,
+      13
+     ]
+    },
+    {
+     "type": "Perpendicular",
+     "args": [
+      13,
+      14
+     ]
+    },
+    {
+     "type": "Perpendicular",
+     "args": [
+      14,
+      15
+     ]
+    },
+    {
+     "type": "PointOnObject",
+     "args": [
+      16,
+      1,
+      0
+     ]
+    },
+    {
+     "type": "PointOnObject",
+     "args": [
+      16,
+      1,
+      3
+     ]
+    },
+    {
+     "type": "PointOnObject",
+     "args": [
+      17,
+      1,
+      1
+     ]
+    },
+    {
+     "type": "PointOnObject",
+     "args": [
+      17,
+      1,
+      2
+     ]
+    },
+    {
+     "type": "Radius",
+     "args": [
+      5
+     ],
+     "value": 2.0
+    },
+    {
+     "type": "Distance",
+     "args": [
+      8,
+      1,
+      0
+     ],
+     "value": 4.0
+    }
+   ],
+   "message": {
+    "status": "Under-constrained: ",
+    "link": "4 Degrees of Freedom"
+   },
+   "tool_widget": {
+    "title": "Rectangle Parameters",
+    "controls": [
+     {
+      "name": "comboBox1",
+      "items": [
+       "Corner, width, height",
+       "Center, width, height",
+       "3 corners",
+       "Center, 2 corners"
+      ],
+      "index": 0
+     },
+     {
+      "name": "checkBoxTS1",
+      "text": "Rounded corners (U)",
+      "checked": true
+     },
+     {
+      "name": "checkBoxTS2",
+      "text": "Frame (J)",
+      "checked": true
+     }
+    ]
+   }
+  },
+  "shp-rect-3points-rounded": {
+   "geometry": [
+    {
+     "type": "LineSegment",
+     "start": [
+      15.26792548497338,
+      7.339205238015561
+     ],
+     "end": [
+      25.385973917413413,
+      9.698335881268674
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      33.071811772318426,
+      21.55443068126034
+     ],
+     "end": [
+      33.06792978216374,
+      21.574461760851932
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      20.756922997129347,
+      29.55520108325312
+     ],
+     "end": [
+      10.638874564689281,
+      27.19607044
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      2.9530367097858896,
+      15.33997564
+     ],
+     "end": [
+      2.956918699940603,
+      15.319944560408418
+     ]
+    },
+    {
+     "type": "ArcOfCircle",
+     "center": [
+      12.955341019908689,
+      17.257622299211988
+     ],
+     "radius": 10.184451085252013,
+     "start_angle": 3.3330180382015078,
+     "end_angle": 4.941457130346843
+    },
+    {
+     "type": "ArcOfCircle",
+     "center": [
+      23.07338945234872,
+      19.6167529424651
+     ],
+     "radius": 10.184451085252013,
+     "start_angle": 4.941457130346843,
+     "end_angle": 6.474610691790468
+    },
+    {
+     "type": "ArcOfCircle",
+     "center": [
+      23.06950746219404,
+      19.636784022056695
+     ],
+     "radius": 10.184451085252013,
+     "start_angle": 0.19142538461088096,
+     "end_angle": 1.7998644767570502
+    },
+    {
+     "type": "ArcOfCircle",
+     "center": [
+      12.951459029753973,
+      17.27765337880357
+     ],
+     "radius": 10.184451085252013,
+     "start_angle": 1.7998644767570502,
+     "end_angle": 3.3330180382015078
+    },
+    {
+     "type": "Point",
+     "at": [
+      4.96894409211437,
+      4.93788815
+     ],
+     "construction": true
+    },
+    {
+     "type": "Point",
+     "at": [
+      34.93788912603542,
+      11.92546654
+     ],
+     "construction": true
+    },
+    {
+     "type": "Point",
+     "at": [
+      31.05590439,
+      31.9565181712714
+     ],
+     "construction": true
+    }
+   ],
+   "constraints": [
+    {
+     "type": "Tangent",
+     "args": [
+      0,
+      1,
+      4,
+      2
+     ]
+    },
+    {
+     "type": "Tangent",
+     "args": [
+      0,
+      2,
+      5,
+      1
+     ]
+    },
+    {
+     "type": "Tangent",
+     "args": [
+      1,
+      1,
+      5,
+      2
+     ]
+    },
+    {
+     "type": "Tangent",
+     "args": [
+      1,
+      2,
+      6,
+      1
+     ]
+    },
+    {
+     "type": "Tangent",
+     "args": [
+      2,
+      1,
+      6,
+      2
+     ]
+    },
+    {
+     "type": "Tangent",
+     "args": [
+      2,
+      2,
+      7,
+      1
+     ]
+    },
+    {
+     "type": "Tangent",
+     "args": [
+      3,
+      1,
+      7,
+      2
+     ]
+    },
+    {
+     "type": "Tangent",
+     "args": [
+      3,
+      2,
+      4,
+      1
+     ]
+    },
+    {
+     "type": "Parallel",
+     "args": [
+      0,
+      2
+     ]
+    },
+    {
+     "type": "Parallel",
+     "args": [
+      1,
+      3
+     ]
+    },
+    {
+     "type": "Equal",
+     "args": [
+      4,
+      5
+     ]
+    },
+    {
+     "type": "Equal",
+     "args": [
+      5,
+      6
+     ]
+    },
+    {
+     "type": "Equal",
+     "args": [
+      6,
+      7
+     ]
+    },
+    {
+     "type": "PointOnObject",
+     "args": [
+      9,
+      1,
+      0
+     ]
+    },
+    {
+     "type": "PointOnObject",
+     "args": [
+      9,
+      1,
+      1
+     ]
+    },
+    {
+     "type": "PointOnObject",
+     "args": [
+      8,
+      1,
+      0
+     ]
+    },
+    {
+     "type": "PointOnObject",
+     "args": [
+      8,
+      1,
+      3
+     ]
+    },
+    {
+     "type": "PointOnObject",
+     "args": [
+      10,
+      1,
+      1
+     ]
+    },
+    {
+     "type": "PointOnObject",
+     "args": [
+      10,
+      1,
+      2
+     ]
+    }
+   ],
+   "message": {
+    "status": "Under-constrained: ",
+    "link": "7 Degrees of Freedom"
+   }
+  },
+  "shp-rect-3points-frame": {
+   "geometry": [
+    {
+     "type": "LineSegment",
+     "start": [
+      4.96894407,
+      4.937888149999998
+     ],
+     "end": [
+      34.9378891,
+      11.925466537153536
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      34.9378891,
+      11.925466537153536
+     ],
+     "end": [
+      31.055904394317604,
+      31.95651817
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      31.055904394317604,
+      31.95651817
+     ],
+     "end": [
+      1.0869593643176074,
+      24.968939782846462
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      1.0869593643176074,
+      24.968939782846462
+     ],
+     "end": [
+      4.968944070000001,
+      4.937888149999999
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      8.163383414317606,
+      9.865597574827712
+     ],
+     "end": [
+      30.192266664317607,
+      15.00186608
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      30.192266664317607,
+      15.00186608
+     ],
+     "end": [
+      27.86146505,
+      27.028808745172288
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      27.86146505,
+      27.028808745172288
+     ],
+     "end": [
+      5.8325818,
+      21.89254024
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      5.8325818,
+      21.89254024
+     ],
+     "end": [
+      8.163383414317606,
+      9.865597574827712
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      4.96894407,
+      4.937888149999998
+     ],
+     "end": [
+      8.163383414317606,
+      9.865597574827712
+     ],
+     "construction": true
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      34.9378891,
+      11.925466537153536
+     ],
+     "end": [
+      30.192266664317607,
+      15.00186608
+     ],
+     "construction": true
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      31.055904394317604,
+      31.95651817
+     ],
+     "end": [
+      27.86146505,
+      27.028808745172288
+     ],
+     "construction": true
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      1.0869593643176074,
+      24.968939782846462
+     ],
+     "end": [
+      5.8325818,
+      21.89254024
+     ],
+     "construction": true
+    }
+   ],
+   "constraints": [
+    {
+     "type": "Coincident",
+     "args": [
+      0,
+      2,
+      1,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      1,
+      2,
+      2,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      2,
+      2,
+      3,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      3,
+      2,
+      0,
+      1
+     ]
+    },
+    {
+     "type": "Parallel",
+     "args": [
+      0,
+      2
+     ]
+    },
+    {
+     "type": "Parallel",
+     "args": [
+      1,
+      3
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      4,
+      2,
+      5,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      5,
+      2,
+      6,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      6,
+      2,
+      7,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      7,
+      2,
+      4,
+      1
+     ]
+    },
+    {
+     "type": "Parallel",
+     "args": [
+      4,
+      6
+     ]
+    },
+    {
+     "type": "Parallel",
+     "args": [
+      5,
+      7
+     ]
+    },
+    {
+     "type": "Parallel",
+     "args": [
+      0,
+      4
+     ]
+    },
+    {
+     "type": "Parallel",
+     "args": [
+      1,
+      5
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      8,
+      1,
+      0,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      8,
+      2,
+      4,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      9,
+      1,
+      1,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      9,
+      2,
+      5,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      10,
+      1,
+      2,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      10,
+      2,
+      6,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      11,
+      1,
+      3,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      11,
+      2,
+      7,
+      1
+     ]
+    },
+    {
+     "type": "Perpendicular",
+     "args": [
+      8,
+      9
+     ]
+    },
+    {
+     "type": "Perpendicular",
+     "args": [
+      9,
+      10
+     ]
+    },
+    {
+     "type": "Perpendicular",
+     "args": [
+      10,
+      11
+     ]
+    }
+   ],
+   "message": {
+    "status": "Under-constrained: ",
+    "link": "7 Degrees of Freedom"
+   }
+  },
+  "shp-rect-center3-rounded-frame": {
+   "geometry": [
+    {
+     "type": "LineSegment",
+     "start": [
+      9.93788815,
+      10.06211185
+     ],
+     "end": [
+      33.07453537,
+      8.97515488
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      33.07453537,
+      8.97515488
+     ],
+     "end": [
+      40.06211185,
+      29.93788815
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      40.06211185,
+      29.93788815
+     ],
+     "end": [
+      16.92546463,
+      31.02484512
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      16.92546463,
+      31.02484512
+     ],
+     "end": [
+      9.93788815,
+      10.06211185
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      8.57149239,
+      9.12520202
+     ],
+     "end": [
+      33.78381962,
+      7.94072984
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      33.78381962,
+      7.94072984
+     ],
+     "end": [
+      41.42850761,
+      30.87479798
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      41.42850761,
+      30.87479798
+     ],
+     "end": [
+      16.21618038,
+      32.05927016
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      16.21618038,
+      32.05927016
+     ],
+     "end": [
+      8.57149239,
+      9.12520202
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      9.93788815,
+      10.06211185
+     ],
+     "end": [
+      8.57149239,
+      9.12520202
+     ],
+     "construction": true
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      33.07453537,
+      8.97515488
+     ],
+     "end": [
+      33.78381962,
+      7.94072984
+     ],
+     "construction": true
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      40.06211185,
+      29.93788815
+     ],
+     "end": [
+      41.42850761,
+      30.87479798
+     ],
+     "construction": true
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      16.92546463,
+      31.02484512
+     ],
+     "end": [
+      16.21618038,
+      32.05927016
+     ],
+     "construction": true
+    },
+    {
+     "type": "Point",
+     "at": [
+      25.0,
+      20.0
+     ],
+     "construction": true
+    }
+   ],
+   "constraints": [
+    {
+     "type": "Coincident",
+     "args": [
+      0,
+      2,
+      1,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      1,
+      2,
+      2,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      2,
+      2,
+      3,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      3,
+      2,
+      0,
+      1
+     ]
+    },
+    {
+     "type": "Parallel",
+     "args": [
+      0,
+      2
+     ]
+    },
+    {
+     "type": "Parallel",
+     "args": [
+      1,
+      3
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      4,
+      2,
+      5,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      5,
+      2,
+      6,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      6,
+      2,
+      7,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      7,
+      2,
+      4,
+      1
+     ]
+    },
+    {
+     "type": "Parallel",
+     "args": [
+      4,
+      6
+     ]
+    },
+    {
+     "type": "Parallel",
+     "args": [
+      5,
+      7
+     ]
+    },
+    {
+     "type": "Parallel",
+     "args": [
+      0,
+      4
+     ]
+    },
+    {
+     "type": "Parallel",
+     "args": [
+      1,
+      5
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      8,
+      1,
+      0,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      8,
+      2,
+      4,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      9,
+      1,
+      1,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      9,
+      2,
+      5,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      10,
+      1,
+      2,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      10,
+      2,
+      6,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      11,
+      1,
+      3,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      11,
+      2,
+      7,
+      1
+     ]
+    },
+    {
+     "type": "Perpendicular",
+     "args": [
+      8,
+      9
+     ]
+    },
+    {
+     "type": "Perpendicular",
+     "args": [
+      9,
+      10
+     ]
+    },
+    {
+     "type": "Perpendicular",
+     "args": [
+      10,
+      11
+     ]
+    },
+    {
+     "type": "Symmetric",
+     "args": [
+      2,
+      1,
+      0,
+      1,
+      12,
+      1
+     ]
+    },
+    {
+     "type": "Radius",
+     "args": [
+      5
+     ],
+     "value": 2.0
+    },
+    {
+     "type": "Distance",
+     "args": [
+      8,
+      1,
+      0
+     ],
+     "value": 1.0
+    }
+   ],
+   "message": {
+    "status": "Over-constrained: ",
+    "link": "(15, 27)"
+   },
+   "tool_widget": {
+    "title": "Rectangle Parameters",
+    "controls": [
+     {
+      "name": "comboBox1",
+      "items": [
+       "Corner, width, height",
+       "Center, width, height",
+       "3 corners",
+       "Center, 2 corners"
+      ],
+      "index": 3
+     },
+     {
+      "name": "checkBoxTS1",
+      "text": "Rounded corners (U)",
+      "checked": true
+     },
+     {
+      "name": "checkBoxTS2",
+      "text": "Frame (J)",
+      "checked": true
+     }
+    ]
+   }
+  },
+  "shp-rect-keys-widget": {
+   "geometry": [],
+   "constraints": [],
+   "message": {
+    "status": "Empty sketch",
+    "link": ""
+   },
+   "tool_widget": {
+    "title": "Rectangle Parameters",
+    "controls": [
+     {
+      "name": "comboBox1",
+      "items": [
+       "Corner, width, height",
+       "Center, width, height",
+       "3 corners",
+       "Center, 2 corners"
+      ],
+      "index": 1
+     },
+     {
+      "name": "checkBoxTS1",
+      "text": "Rounded corners (U)",
+      "checked": true
+     },
+     {
+      "name": "checkBoxTS2",
+      "text": "Frame (J)",
+      "checked": true
+     }
+    ]
+   }
+  },
+  "shp-rect-auto-origin": {
+   "geometry": [
+    {
+     "type": "LineSegment",
+     "start": [
+      0.0,
+      0.0
+     ],
+     "end": [
+      29.96893883,
+      0.0
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      29.96893883,
+      0.0
+     ],
+     "end": [
+      29.96893883,
+      15.03105545
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      29.96893883,
+      15.03105545
+     ],
+     "end": [
+      0.0,
+      15.03105545
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      0.0,
+      15.03105545
+     ],
+     "end": [
+      0.0,
+      0.0
+     ]
+    }
+   ],
+   "constraints": [
+    {
+     "type": "Coincident",
+     "args": [
+      0,
+      2,
+      1,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      1,
+      2,
+      2,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      2,
+      2,
+      3,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      3,
+      2,
+      0,
+      1
+     ]
+    },
+    {
+     "type": "Horizontal",
+     "args": [
+      0
+     ]
+    },
+    {
+     "type": "Horizontal",
+     "args": [
+      2
+     ]
+    },
+    {
+     "type": "Vertical",
+     "args": [
+      1
+     ]
+    },
+    {
+     "type": "Vertical",
+     "args": [
+      3
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      0,
+      1,
+      -1,
+      1
+     ]
+    }
+   ],
+   "message": {
+    "status": "Under-constrained: ",
+    "link": "2 Degrees of Freedom"
+   }
+  },
+  "shp-polygon-typed": {
+   "geometry": [
+    {
+     "type": "LineSegment",
+     "start": [
+      33.66025183167175,
+      25.00000003277419
+     ],
+     "end": [
+      24.999996671818863,
+      29.99999808939845
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      24.999996671818863,
+      29.99999808939845
+     ],
+     "end": [
+      16.339743755982983,
+      24.999996146022713
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      16.339743755982983,
+      24.999996146022713
+     ],
+     "end": [
+      16.339745999999995,
+      14.999996146022717
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      16.339745999999995,
+      14.999996146022717
+     ],
+     "end": [
+      25.000001159852882,
+      9.999998089398456
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      25.000001159852882,
+      9.999998089398456
+     ],
+     "end": [
+      33.66025407568876,
+      15.000000032774192
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      33.66025407568876,
+      15.000000032774192
+     ],
+     "end": [
+      33.66025183167175,
+      25.00000003277419
+     ]
+    },
+    {
+     "type": "Circle",
+     "center": [
+      24.999998915835874,
+      19.999998089398453
+     ],
+     "radius": 10.0,
+     "construction": true
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      24.999998915835874,
+      19.999998089398453
+     ],
+     "end": [
+      33.66025183167175,
+      25.00000003277419
+     ],
+     "construction": true
+    }
+   ],
+   "constraints": [
+    {
+     "type": "Coincident",
+     "args": [
+      0,
+      2,
+      1,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      1,
+      2,
+      2,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      2,
+      2,
+      3,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      3,
+      2,
+      4,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      4,
+      2,
+      5,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      5,
+      2,
+      0,
+      1
+     ]
+    },
+    {
+     "type": "Equal",
+     "args": [
+      0,
+      1
+     ]
+    },
+    {
+     "type": "Equal",
+     "args": [
+      0,
+      2
+     ]
+    },
+    {
+     "type": "Equal",
+     "args": [
+      0,
+      3
+     ]
+    },
+    {
+     "type": "Equal",
+     "args": [
+      0,
+      4
+     ]
+    },
+    {
+     "type": "Equal",
+     "args": [
+      0,
+      5
+     ]
+    },
+    {
+     "type": "PointOnObject",
+     "args": [
+      0,
+      2,
+      6
+     ]
+    },
+    {
+     "type": "PointOnObject",
+     "args": [
+      1,
+      2,
+      6
+     ]
+    },
+    {
+     "type": "PointOnObject",
+     "args": [
+      2,
+      2,
+      6
+     ]
+    },
+    {
+     "type": "PointOnObject",
+     "args": [
+      3,
+      2,
+      6
+     ]
+    },
+    {
+     "type": "PointOnObject",
+     "args": [
+      4,
+      2,
+      6
+     ]
+    },
+    {
+     "type": "PointOnObject",
+     "args": [
+      5,
+      2,
+      6
+     ]
+    },
+    {
+     "type": "Radius",
+     "args": [
+      6
+     ],
+     "value": 10.0
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      7,
+      1,
+      6,
+      3
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      7,
+      2,
+      5,
+      2
+     ]
+    },
+    {
+     "type": "Angle",
+     "args": [
+      7
+     ],
+     "value": 0.523599
+    }
+   ],
+   "message": {
+    "status": "Under-constrained: ",
+    "link": "2 Degrees of Freedom"
+   },
+   "tool_widget": {
+    "title": "Polygon Parameters",
+    "controls": [
+     {
+      "name": "parameterOne",
+      "value": 6.0
+     }
+    ]
+   }
+  },
+  "shp-polygon-angle0": {
+   "geometry": [
+    {
+     "type": "LineSegment",
+     "start": [
+      37.0,
+      20.0
+     ],
+     "end": [
+      31.0,
+      30.392304845413264
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      31.0,
+      30.392304845413264
+     ],
+     "end": [
+      19.000000000000004,
+      30.392304845413264
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      19.000000000000004,
+      30.392304845413264
+     ],
+     "end": [
+      13.0,
+      20.0
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      13.0,
+      20.0
+     ],
+     "end": [
+      18.999999999999993,
+      9.60769515458674
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      18.999999999999993,
+      9.60769515458674
+     ],
+     "end": [
+      30.999999999999993,
+      9.607695154586732
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      30.999999999999993,
+      9.607695154586732
+     ],
+     "end": [
+      37.0,
+      20.0
+     ]
+    },
+    {
+     "type": "Circle",
+     "center": [
+      25.0,
+      20.0
+     ],
+     "radius": 12.0,
+     "construction": true
+    }
+   ],
+   "constraints": [
+    {
+     "type": "Coincident",
+     "args": [
+      0,
+      2,
+      1,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      1,
+      2,
+      2,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      2,
+      2,
+      3,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      3,
+      2,
+      4,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      4,
+      2,
+      5,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      5,
+      2,
+      0,
+      1
+     ]
+    },
+    {
+     "type": "Equal",
+     "args": [
+      0,
+      1
+     ]
+    },
+    {
+     "type": "Equal",
+     "args": [
+      0,
+      2
+     ]
+    },
+    {
+     "type": "Equal",
+     "args": [
+      0,
+      3
+     ]
+    },
+    {
+     "type": "Equal",
+     "args": [
+      0,
+      4
+     ]
+    },
+    {
+     "type": "Equal",
+     "args": [
+      0,
+      5
+     ]
+    },
+    {
+     "type": "PointOnObject",
+     "args": [
+      0,
+      2,
+      6
+     ]
+    },
+    {
+     "type": "PointOnObject",
+     "args": [
+      1,
+      2,
+      6
+     ]
+    },
+    {
+     "type": "PointOnObject",
+     "args": [
+      2,
+      2,
+      6
+     ]
+    },
+    {
+     "type": "PointOnObject",
+     "args": [
+      3,
+      2,
+      6
+     ]
+    },
+    {
+     "type": "PointOnObject",
+     "args": [
+      4,
+      2,
+      6
+     ]
+    },
+    {
+     "type": "PointOnObject",
+     "args": [
+      5,
+      2,
+      6
+     ]
+    },
+    {
+     "type": "Radius",
+     "args": [
+      6
+     ],
+     "value": 12.0
+    },
+    {
+     "type": "Horizontal",
+     "args": [
+      6,
+      3,
+      5,
+      2
+     ]
+    }
+   ],
+   "message": {
+    "status": "Under-constrained: ",
+    "link": "2 Degrees of Freedom"
+   },
+   "tool_widget": {
+    "title": "Polygon Parameters",
+    "controls": [
+     {
+      "name": "parameterOne",
+      "value": 6.0
+     }
+    ]
+   }
+  },
+  "shp-polygon-angle90": {
+   "geometry": [
+    {
+     "type": "LineSegment",
+     "start": [
+      25.0,
+      29.0
+     ],
+     "end": [
+      16.0,
+      20.0
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      16.0,
+      20.0
+     ],
+     "end": [
+      25.0,
+      11.0
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      25.0,
+      11.0
+     ],
+     "end": [
+      34.0,
+      20.0
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      34.0,
+      20.0
+     ],
+     "end": [
+      25.0,
+      29.0
+     ]
+    },
+    {
+     "type": "Circle",
+     "center": [
+      25.0,
+      20.0
+     ],
+     "radius": 9.0,
+     "construction": true
+    }
+   ],
+   "constraints": [
+    {
+     "type": "Coincident",
+     "args": [
+      0,
+      2,
+      1,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      1,
+      2,
+      2,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      2,
+      2,
+      3,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      3,
+      2,
+      0,
+      1
+     ]
+    },
+    {
+     "type": "Equal",
+     "args": [
+      0,
+      1
+     ]
+    },
+    {
+     "type": "Equal",
+     "args": [
+      0,
+      2
+     ]
+    },
+    {
+     "type": "Equal",
+     "args": [
+      0,
+      3
+     ]
+    },
+    {
+     "type": "PointOnObject",
+     "args": [
+      0,
+      2,
+      4
+     ]
+    },
+    {
+     "type": "PointOnObject",
+     "args": [
+      1,
+      2,
+      4
+     ]
+    },
+    {
+     "type": "PointOnObject",
+     "args": [
+      2,
+      2,
+      4
+     ]
+    },
+    {
+     "type": "PointOnObject",
+     "args": [
+      3,
+      2,
+      4
+     ]
+    },
+    {
+     "type": "Radius",
+     "args": [
+      4
+     ],
+     "value": 9.0
+    },
+    {
+     "type": "Vertical",
+     "args": [
+      4,
+      3,
+      3,
+      2
+     ]
+    }
+   ],
+   "message": {
+    "status": "Under-constrained: ",
+    "link": "2 Degrees of Freedom"
+   },
+   "tool_widget": {
+    "title": "Polygon Parameters",
+    "controls": [
+     {
+      "name": "parameterOne",
+      "value": 4.0
+     }
+    ]
+   }
+  },
+  "shp-polygon-sides-keys": {
+   "geometry": [
+    {
+     "type": "LineSegment",
+     "start": [
+      33.074535,
+      26.987577
+     ],
+     "end": [
+      22.98584830710014,
+      30.486540933746582
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      22.98584830710014,
+      30.486540933746582
+     ],
+     "end": [
+      14.911313307100144,
+      23.49896393374658
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      14.911313307100144,
+      23.49896393374658
+     ],
+     "end": [
+      16.925465000000003,
+      13.012422999999998
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      16.925465000000003,
+      13.012422999999998
+     ],
+     "end": [
+      27.014151692899855,
+      9.513459066253418
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      27.014151692899855,
+      9.513459066253418
+     ],
+     "end": [
+      35.088686692899856,
+      16.501036066253413
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      35.088686692899856,
+      16.501036066253413
+     ],
+     "end": [
+      33.074535,
+      26.987577
+     ]
+    },
+    {
+     "type": "Circle",
+     "center": [
+      25.0,
+      20.0
+     ],
+     "radius": 10.678218381226054,
+     "construction": true
+    }
+   ],
+   "constraints": [
+    {
+     "type": "Coincident",
+     "args": [
+      0,
+      2,
+      1,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      1,
+      2,
+      2,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      2,
+      2,
+      3,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      3,
+      2,
+      4,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      4,
+      2,
+      5,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      5,
+      2,
+      0,
+      1
+     ]
+    },
+    {
+     "type": "Equal",
+     "args": [
+      0,
+      1
+     ]
+    },
+    {
+     "type": "Equal",
+     "args": [
+      0,
+      2
+     ]
+    },
+    {
+     "type": "Equal",
+     "args": [
+      0,
+      3
+     ]
+    },
+    {
+     "type": "Equal",
+     "args": [
+      0,
+      4
+     ]
+    },
+    {
+     "type": "Equal",
+     "args": [
+      0,
+      5
+     ]
+    },
+    {
+     "type": "PointOnObject",
+     "args": [
+      0,
+      2,
+      6
+     ]
+    },
+    {
+     "type": "PointOnObject",
+     "args": [
+      1,
+      2,
+      6
+     ]
+    },
+    {
+     "type": "PointOnObject",
+     "args": [
+      2,
+      2,
+      6
+     ]
+    },
+    {
+     "type": "PointOnObject",
+     "args": [
+      3,
+      2,
+      6
+     ]
+    },
+    {
+     "type": "PointOnObject",
+     "args": [
+      4,
+      2,
+      6
+     ]
+    },
+    {
+     "type": "PointOnObject",
+     "args": [
+      5,
+      2,
+      6
+     ]
+    }
+   ],
+   "message": {
+    "status": "Under-constrained: ",
+    "link": "4 Degrees of Freedom"
+   },
+   "tool_widget": {
+    "title": "Polygon Parameters",
+    "controls": [
+     {
+      "name": "parameterOne",
+      "value": 6.0
+     }
+    ]
+   }
+  },
+  "shp-polygon-sides-widget": {
+   "geometry": [
+    {
+     "type": "LineSegment",
+     "start": [
+      33.074535,
+      26.987577
+     ],
+     "end": [
+      18.012423,
+      28.074534999999997
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      18.012423,
+      28.074534999999997
+     ],
+     "end": [
+      16.925465000000003,
+      13.012422999999998
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      16.925465000000003,
+      13.012422999999998
+     ],
+     "end": [
+      31.987577,
+      11.925465
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      31.987577,
+      11.925465
+     ],
+     "end": [
+      33.074535,
+      26.987577
+     ]
+    },
+    {
+     "type": "Circle",
+     "center": [
+      25.0,
+      20.0
+     ],
+     "radius": 10.678218381226054,
+     "construction": true
+    }
+   ],
+   "constraints": [
+    {
+     "type": "Coincident",
+     "args": [
+      0,
+      2,
+      1,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      1,
+      2,
+      2,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      2,
+      2,
+      3,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      3,
+      2,
+      0,
+      1
+     ]
+    },
+    {
+     "type": "Equal",
+     "args": [
+      0,
+      1
+     ]
+    },
+    {
+     "type": "Equal",
+     "args": [
+      0,
+      2
+     ]
+    },
+    {
+     "type": "Equal",
+     "args": [
+      0,
+      3
+     ]
+    },
+    {
+     "type": "PointOnObject",
+     "args": [
+      0,
+      2,
+      4
+     ]
+    },
+    {
+     "type": "PointOnObject",
+     "args": [
+      1,
+      2,
+      4
+     ]
+    },
+    {
+     "type": "PointOnObject",
+     "args": [
+      2,
+      2,
+      4
+     ]
+    },
+    {
+     "type": "PointOnObject",
+     "args": [
+      3,
+      2,
+      4
+     ]
+    }
+   ],
+   "message": {
+    "status": "Under-constrained: ",
+    "link": "4 Degrees of Freedom"
+   },
+   "tool_widget": {
+    "title": "Polygon Parameters",
+    "controls": [
+     {
+      "name": "parameterOne",
+      "value": 4.0
+     }
+    ]
+   }
+  },
+  "shp-polygon-position": {
+   "geometry": [
+    {
+     "type": "LineSegment",
+     "start": [
+      20.031055,
+      8.975155
+     ],
+     "end": [
+      4.139963497372587,
+      16.19957095675891
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      4.139963497372587,
+      16.19957095675891
+     ],
+     "end": [
+      5.828981502627411,
+      -1.174725956758909
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      5.828981502627411,
+      -1.174725956758909
+     ],
+     "end": [
+      20.031055,
+      8.975155
+     ]
+    },
+    {
+     "type": "Circle",
+     "center": [
+      10.0,
+      8.0
+     ],
+     "radius": 10.0783427053782,
+     "construction": true
+    }
+   ],
+   "constraints": [
+    {
+     "type": "Coincident",
+     "args": [
+      0,
+      2,
+      1,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      1,
+      2,
+      2,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      2,
+      2,
+      0,
+      1
+     ]
+    },
+    {
+     "type": "Equal",
+     "args": [
+      0,
+      1
+     ]
+    },
+    {
+     "type": "Equal",
+     "args": [
+      0,
+      2
+     ]
+    },
+    {
+     "type": "PointOnObject",
+     "args": [
+      0,
+      2,
+      3
+     ]
+    },
+    {
+     "type": "PointOnObject",
+     "args": [
+      1,
+      2,
+      3
+     ]
+    },
+    {
+     "type": "PointOnObject",
+     "args": [
+      2,
+      2,
+      3
+     ]
+    },
+    {
+     "type": "DistanceX",
+     "args": [
+      3,
+      3
+     ],
+     "value": 10.0
+    },
+    {
+     "type": "DistanceY",
+     "args": [
+      3,
+      3
+     ],
+     "value": 8.0
+    }
+   ],
+   "message": {
+    "status": "Under-constrained: ",
+    "link": "2 Degrees of Freedom"
+   }
+  },
+  "shp-slot-typed": {
+   "geometry": [
+    {
+     "type": "ArcOfCircle",
+     "center": [
+      9.937888870047455,
+      15.03105319015965
+     ],
+     "radius": 4.0,
+     "start_angle": 1.745329326794897,
+     "end_angle": 4.88692198038469
+    },
+    {
+     "type": "ArcOfCircle",
+     "center": [
+      39.48212107074415,
+      20.240500730092894
+     ],
+     "radius": 4.0,
+     "start_angle": 4.88692198038469,
+     "end_angle": 8.028514633974483
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      9.24329586472302,
+      18.970284150252542
+     ],
+     "end": [
+      38.787528065419714,
+      24.17973169018579
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      10.632481875371889,
+      11.091822230066755
+     ],
+     "end": [
+      40.176714076068585,
+      16.30126977
+     ]
+    }
+   ],
+   "constraints": [
+    {
+     "type": "Tangent",
+     "args": [
+      0,
+      1,
+      2,
+      1
+     ]
+    },
+    {
+     "type": "Tangent",
+     "args": [
+      0,
+      2,
+      3,
+      1
+     ]
+    },
+    {
+     "type": "Tangent",
+     "args": [
+      1,
+      2,
+      2,
+      2
+     ]
+    },
+    {
+     "type": "Tangent",
+     "args": [
+      1,
+      1,
+      3,
+      2
+     ]
+    },
+    {
+     "type": "Equal",
+     "args": [
+      0,
+      1
+     ]
+    },
+    {
+     "type": "Distance",
+     "args": [
+      0,
+      3,
+      1,
+      3
+     ],
+     "value": 30.0
+    },
+    {
+     "type": "Angle",
+     "args": [
+      -1,
+      2
+     ],
+     "value": 0.174533
+    },
+    {
+     "type": "Radius",
+     "args": [
+      0
+     ],
+     "value": 4.0
+    }
+   ],
+   "message": {
+    "status": "Under-constrained: ",
+    "link": "2 Degrees of Freedom"
+   }
+  },
+  "shp-slot-horizontal": {
+   "geometry": [
+    {
+     "type": "ArcOfCircle",
+     "center": [
+      9.93788815,
+      15.03105545
+     ],
+     "radius": 7.13779159,
+     "start_angle": 1.5707963267948968,
+     "end_angle": 4.71238898038469
+    },
+    {
+     "type": "ArcOfCircle",
+     "center": [
+      34.93788815,
+      15.03105545
+     ],
+     "radius": 7.13779159,
+     "start_angle": 4.71238898038469,
+     "end_angle": 7.853981633974483
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      9.937888149999997,
+      22.16884704
+     ],
+     "end": [
+      34.93788815,
+      22.16884704
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      9.937888149999997,
+      7.89326386
+     ],
+     "end": [
+      34.93788815,
+      7.89326386
+     ]
+    }
+   ],
+   "constraints": [
+    {
+     "type": "Tangent",
+     "args": [
+      0,
+      1,
+      2,
+      1
+     ]
+    },
+    {
+     "type": "Tangent",
+     "args": [
+      0,
+      2,
+      3,
+      1
+     ]
+    },
+    {
+     "type": "Tangent",
+     "args": [
+      1,
+      2,
+      2,
+      2
+     ]
+    },
+    {
+     "type": "Tangent",
+     "args": [
+      1,
+      1,
+      3,
+      2
+     ]
+    },
+    {
+     "type": "Equal",
+     "args": [
+      0,
+      1
+     ]
+    },
+    {
+     "type": "Distance",
+     "args": [
+      0,
+      3,
+      1,
+      3
+     ],
+     "value": 25.0
+    },
+    {
+     "type": "Horizontal",
+     "args": [
+      2
+     ]
+    }
+   ],
+   "message": {
+    "status": "Under-constrained: ",
+    "link": "3 Degrees of Freedom"
+   }
+  },
+  "shp-slot-mid": {
+   "geometry": [],
+   "constraints": [],
+   "message": {
+    "status": "Empty sketch",
+    "link": ""
+   },
+   "ovp": [
+    {
+     "text": "26.44°",
+     "focus": false
+    },
+    {
+     "text": "31.39 mm",
+     "focus": true
+    }
+   ]
+  },
+  "shp-slot-origin": {
+   "geometry": [
+    {
+     "type": "ArcOfCircle",
+     "center": [
+      0.0,
+      0.0
+     ],
+     "radius": 3.881987572121077,
+     "start_angle": 1.894721501570876,
+     "end_angle": 5.036314155160669
+    },
+    {
+     "type": "ArcOfCircle",
+     "center": [
+      29.968940726076696,
+      10.06211185
+     ],
+     "radius": 3.881987572121077,
+     "start_angle": 5.036314155160669,
+     "end_angle": 8.177906808750462
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      -1.2355979901231264,
+      3.6800985199999987
+     ],
+     "end": [
+      28.73334273595357,
+      13.742210369999999
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      1.235597990123126,
+      -3.680098519999999
+     ],
+     "end": [
+      31.20453871619982,
+      6.382013330000001
+     ]
+    }
+   ],
+   "constraints": [
+    {
+     "type": "Tangent",
+     "args": [
+      0,
+      1,
+      2,
+      1
+     ]
+    },
+    {
+     "type": "Tangent",
+     "args": [
+      0,
+      2,
+      3,
+      1
+     ]
+    },
+    {
+     "type": "Tangent",
+     "args": [
+      1,
+      2,
+      2,
+      2
+     ]
+    },
+    {
+     "type": "Tangent",
+     "args": [
+      1,
+      1,
+      3,
+      2
+     ]
+    },
+    {
+     "type": "Equal",
+     "args": [
+      0,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      0,
+      3,
+      -1,
+      1
+     ]
+    }
+   ],
+   "message": {
+    "status": "Under-constrained: ",
+    "link": "3 Degrees of Freedom"
+   }
+  },
+  "shp-arcslot": {
+   "geometry": [
+    {
+     "type": "ArcOfCircle",
+     "center": [
+      25.0,
+      20.0
+     ],
+     "radius": 18.96699186,
+     "start_angle": 0.06177683,
+     "end_angle": 1.628983
+    },
+    {
+     "type": "ArcOfCircle",
+     "center": [
+      40.06211090097454,
+      20.93167497378856
+     ],
+     "radius": 3.8760938399999985,
+     "start_angle": 3.2033694835897926,
+     "end_angle": 6.344962137179587
+    },
+    {
+     "type": "ArcOfCircle",
+     "center": [
+      24.122406254121366,
+      35.06535868365684
+     ],
+     "radius": 3.8760938399999967,
+     "start_angle": 1.6289830000000003,
+     "end_angle": 4.770575653589794
+    },
+    {
+     "type": "ArcOfCircle",
+     "center": [
+      25.0,
+      20.0
+     ],
+     "radius": 11.21480418,
+     "start_angle": 0.06177683000000018,
+     "end_angle": 1.628983
+    }
+   ],
+   "constraints": [
+    {
+     "type": "Coincident",
+     "args": [
+      0,
+      3,
+      3,
+      3
+     ]
+    },
+    {
+     "type": "Tangent",
+     "args": [
+      3,
+      2,
+      2,
+      2
+     ]
+    },
+    {
+     "type": "Tangent",
+     "args": [
+      3,
+      1,
+      1,
+      1
+     ]
+    },
+    {
+     "type": "Tangent",
+     "args": [
+      0,
+      2,
+      2,
+      1
+     ]
+    },
+    {
+     "type": "Tangent",
+     "args": [
+      0,
+      1,
+      1,
+      2
+     ]
+    }
+   ],
+   "message": {
+    "status": "Under-constrained: ",
+    "link": "6 Degrees of Freedom"
+   }
+  },
+  "shp-arcslot-reversed": {
+   "geometry": [
+    {
+     "type": "ArcOfCircle",
+     "center": [
+      25.0,
+      19.999999996544844
+     ],
+     "radius": 16.17561934655083,
+     "start_angle": 4.770575522904347,
+     "end_angle": 6.344962136552729
+    },
+    {
+     "type": "ArcOfCircle",
+     "center": [
+      40.06211089895878,
+      20.9316749607308
+     ],
+     "radius": 1.0847213291555873,
+     "start_angle": 0.06177682937314185,
+     "end_angle": 3.2033694829629358
+    },
+    {
+     "type": "ArcOfCircle",
+     "center": [
+      25.87759177690403,
+      4.934641200799747
+     ],
+     "radius": 1.0847213291555855,
+     "start_angle": 1.628982869314555,
+     "end_angle": 4.7705755229043465
+    },
+    {
+     "type": "ArcOfCircle",
+     "center": [
+      25.0,
+      19.999999996544844
+     ],
+     "radius": 14.006176688239659,
+     "start_angle": 4.770575522904347,
+     "end_angle": 6.344962136552729
+    }
+   ],
+   "constraints": [
+    {
+     "type": "Coincident",
+     "args": [
+      0,
+      3,
+      3,
+      3
+     ]
+    },
+    {
+     "type": "Tangent",
+     "args": [
+      3,
+      1,
+      2,
+      1
+     ]
+    },
+    {
+     "type": "Tangent",
+     "args": [
+      3,
+      2,
+      1,
+      2
+     ]
+    },
+    {
+     "type": "Tangent",
+     "args": [
+      0,
+      1,
+      2,
+      2
+     ]
+    },
+    {
+     "type": "Tangent",
+     "args": [
+      0,
+      2,
+      1,
+      1
+     ]
+    }
+   ],
+   "message": {
+    "status": "Under-constrained: ",
+    "link": "6 Degrees of Freedom"
+   }
+  },
+  "shp-arcslot-flat": {
+   "geometry": [
+    {
+     "type": "ArcOfCircle",
+     "center": [
+      25.0,
+      20.0
+     ],
+     "radius": 15.09089802,
+     "start_angle": 0.06177683,
+     "end_angle": 1.6289830000000003
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      40.06211090097454,
+      20.93167497378856
+     ],
+     "end": [
+      45.014462271351015,
+      21.23800533236325
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      24.122406254121362,
+      35.06535868365684
+     ],
+     "end": [
+      23.83385754945377,
+      40.01877790973583
+     ]
+    },
+    {
+     "type": "ArcOfCircle",
+     "center": [
+      25.0,
+      20.0
+     ],
+     "radius": 20.05271446,
+     "start_angle": 0.06177683,
+     "end_angle": 1.628983
+    }
+   ],
+   "constraints": [
+    {
+     "type": "Perpendicular",
+     "args": [
+      0,
+      1
+     ]
+    },
+    {
+     "type": "Perpendicular",
+     "args": [
+      0,
+      2
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      0,
+      1,
+      1,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      0,
+      2,
+      2,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      0,
+      3,
+      3,
+      3
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      3,
+      1,
+      1,
+      2
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      3,
+      2,
+      2,
+      2
+     ]
+    }
+   ],
+   "message": {
+    "status": "Under-constrained: ",
+    "link": "6 Degrees of Freedom"
+   }
+  },
+  "shp-arcslot-flat-inner": {
+   "geometry": [
+    {
+     "type": "ArcOfCircle",
+     "center": [
+      24.99999999769733,
+      20.0
+     ],
+     "radius": 15.090898022298278,
+     "start_angle": 0.061776829990579665,
+     "end_angle": 2.490515879548336
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      40.06211090097454,
+      20.93167497378856
+     ],
+     "end": [
+      30.35309505,
+      20.33111857458549
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      12.996221508023682,
+      29.14573699
+     ],
+     "end": [
+      20.733840516158246,
+      23.250407578673332
+     ]
+    },
+    {
+     "type": "ArcOfCircle",
+     "center": [
+      24.99999999769733,
+      20.0
+     ],
+     "radius": 5.363326034227535,
+     "start_angle": 0.06177682999057896,
+     "end_angle": 2.4905158795483375
+    }
+   ],
+   "constraints": [
+    {
+     "type": "Perpendicular",
+     "args": [
+      0,
+      1
+     ]
+    },
+    {
+     "type": "Perpendicular",
+     "args": [
+      0,
+      2
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      0,
+      1,
+      1,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      0,
+      2,
+      2,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      0,
+      3,
+      3,
+      3
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      3,
+      1,
+      1,
+      2
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      3,
+      2,
+      2,
+      2
+     ]
+    }
+   ],
+   "message": {
+    "status": "Under-constrained: ",
+    "link": "6 Degrees of Freedom"
+   }
+  },
+  "shp-arcslot-typed": {
+   "geometry": [
+    {
+     "type": "ArcOfCircle",
+     "center": [
+      25.00000009951355,
+      19.999999355571216
+     ],
+     "radius": 16.999999999999993,
+     "start_angle": 0.17453296371032812,
+     "end_angle": 1.7453289637103282
+    },
+    {
+     "type": "ArcOfCircle",
+     "center": [
+      39.77211629438646,
+      22.604722589462593
+     ],
+     "radius": 1.99999999999999,
+     "start_angle": 3.316125617300121,
+     "end_angle": 6.457718270889915
+    },
+    {
+     "type": "ArcOfCircle",
+     "center": [
+      22.395281693074498,
+      34.7721164016536
+     ],
+     "radius": 2.0,
+     "start_angle": 1.7453289637103289,
+     "end_angle": 4.88692161730012
+    },
+    {
+     "type": "ArcOfCircle",
+     "center": [
+      25.00000009951355,
+      19.999999355571216
+     ],
+     "radius": 13.000000000000004,
+     "start_angle": 0.17453296371032823,
+     "end_angle": 1.7453289637103282
+    }
+   ],
+   "constraints": [
+    {
+     "type": "Coincident",
+     "args": [
+      0,
+      3,
+      3,
+      3
+     ]
+    },
+    {
+     "type": "Tangent",
+     "args": [
+      3,
+      2,
+      2,
+      2
+     ]
+    },
+    {
+     "type": "Tangent",
+     "args": [
+      3,
+      1,
+      1,
+      1
+     ]
+    },
+    {
+     "type": "Tangent",
+     "args": [
+      0,
+      2,
+      2,
+      1
+     ]
+    },
+    {
+     "type": "Tangent",
+     "args": [
+      0,
+      1,
+      1,
+      2
+     ]
+    },
+    {
+     "type": "Distance",
+     "args": [
+      0,
+      3,
+      2,
+      3
+     ],
+     "value": 15.0
+    },
+    {
+     "type": "Angle",
+     "args": [
+      0
+     ],
+     "value": 1.570796
+    },
+    {
+     "type": "Radius",
+     "args": [
+      2
+     ],
+     "value": 2.0
+    }
+   ],
+   "message": {
+    "status": "Under-constrained: ",
+    "link": "3 Degrees of Freedom"
+   },
+   "tool_widget": {
+    "title": "Arc Slot Parameters",
+    "controls": [
+     {
+      "name": "comboBox1",
+      "items": [
+       "Arc ends",
+       "Flat ends"
+      ],
+      "index": 0
+     }
+    ]
+   }
+  },
+  "shp-arcslot-flat-typed": {
+   "geometry": [
+    {
+     "type": "ArcOfCircle",
+     "center": [
+      24.999999133974576,
+      19.999999500000023
+     ],
+     "radius": 12.0,
+     "start_angle": 3.3333333006030387e-08,
+     "end_angle": 2.094395033333333
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      36.999999133974576,
+      19.99999990000002
+     ],
+     "end": [
+      39.99999913397457,
+      20.00000000000002
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      18.999999851665734,
+      30.392304759772436
+     ],
+     "end": [
+      17.50000003108852,
+      32.99038107471554
+     ]
+    },
+    {
+     "type": "ArcOfCircle",
+     "center": [
+      24.999999133974576,
+      19.999999500000023
+     ],
+     "radius": 14.999999999999996,
+     "start_angle": 3.3333333637624004e-08,
+     "end_angle": 2.0943950333333334
+    }
+   ],
+   "constraints": [
+    {
+     "type": "Perpendicular",
+     "args": [
+      0,
+      1
+     ]
+    },
+    {
+     "type": "Perpendicular",
+     "args": [
+      0,
+      2
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      0,
+      1,
+      1,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      0,
+      2,
+      2,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      0,
+      3,
+      3,
+      3
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      3,
+      1,
+      1,
+      2
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      3,
+      2,
+      2,
+      2
+     ]
+    },
+    {
+     "type": "Radius",
+     "args": [
+      0
+     ],
+     "value": 12.0
+    },
+    {
+     "type": "Angle",
+     "args": [
+      0
+     ],
+     "value": 2.094395
+    },
+    {
+     "type": "Distance",
+     "args": [
+      2
+     ],
+     "value": 3.0
+    }
+   ],
+   "message": {
+    "status": "Under-constrained: ",
+    "link": "3 Degrees of Freedom"
+   },
+   "tool_widget": {
+    "title": "Arc Slot Parameters",
+    "controls": [
+     {
+      "name": "comboBox1",
+      "items": [
+       "Arc ends",
+       "Flat ends"
+      ],
+      "index": 1
+     }
+    ]
+   }
+  },
+  "shp-arcslot-states": {
+   "geometry": [],
+   "constraints": [],
+   "message": {
+    "status": "Empty sketch",
+    "link": ""
+   },
+   "tool_widget": {
+    "title": "Arc Slot Parameters",
+    "controls": [
+     {
+      "name": "comboBox1",
+      "items": [
+       "Arc ends",
+       "Flat ends"
+      ],
+      "index": 0
+     }
+    ]
+   },
+   "ovp": [
+    {
+     "text": "99.90°",
+     "focus": true
+    }
+   ]
+  },
+  "shp-arcslot-origin": {
+   "geometry": [
+    {
+     "type": "ArcOfCircle",
+     "center": [
+      0.0,
+      0.0
+     ],
+     "radius": 22.969212876502745,
+     "start_angle": 0.05266443000802602,
+     "end_angle": 1.524246118487871
+    },
+    {
+     "type": "ArcOfCircle",
+     "center": [
+      20.0310554463259,
+      1.0559004929433127
+     ],
+     "radius": 2.9103468032477426,
+     "start_angle": 3.1942570835978192,
+     "end_angle": 6.335849737187613
+    },
+    {
+     "type": "ArcOfCircle",
+     "center": [
+      0.9334072054528191,
+      20.03713699942158
+     ],
+     "radius": 2.9103468032477418,
+     "start_angle": 1.5242461184878708,
+     "end_angle": 4.665838772077664
+    },
+    {
+     "type": "ArcOfCircle",
+     "center": [
+      0.0,
+      0.0
+     ],
+     "radius": 17.148519270007256,
+     "start_angle": 0.05266443000802605,
+     "end_angle": 1.524246118487871
+    }
+   ],
+   "constraints": [
+    {
+     "type": "Coincident",
+     "args": [
+      0,
+      3,
+      3,
+      3
+     ]
+    },
+    {
+     "type": "Tangent",
+     "args": [
+      3,
+      2,
+      2,
+      2
+     ]
+    },
+    {
+     "type": "Tangent",
+     "args": [
+      3,
+      1,
+      1,
+      1
+     ]
+    },
+    {
+     "type": "Tangent",
+     "args": [
+      0,
+      2,
+      2,
+      1
+     ]
+    },
+    {
+     "type": "Tangent",
+     "args": [
+      0,
+      1,
+      1,
+      2
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      0,
+      3,
+      -1,
+      1
+     ]
+    }
+   ],
+   "message": {
+    "status": "Under-constrained: ",
+    "link": "4 Degrees of Freedom"
+   }
+  },
+  "shp-polygon-dialog": {
+   "geometry": [
+    {
+     "type": "LineSegment",
+     "start": [
+      34.937889,
+      20.155281
+     ],
+     "end": [
+      32.51305194196348,
+      26.506904062812108
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      32.51305194196348,
+      26.506904062812108
+     ],
+     "end": [
+      26.572774382010746,
+      29.813874398451034
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      26.572774382010746,
+      29.813874398451034
+     ],
+     "end": [
+      19.896578209274953,
+      28.528823833989932
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      19.896578209274953,
+      28.528823833989932
+     ],
+     "end": [
+      15.608329810634798,
+      23.253041810286334
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      15.608329810634798,
+      23.253041810286334
+     ],
+     "end": [
+      15.714548270386304,
+      16.455125370017157
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      15.714548270386304,
+      16.455125370017157
+     ],
+     "end": [
+      20.165532790725045,
+      11.315895166010074
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      20.165532790725045,
+      11.315895166010074
+     ],
+     "end": [
+      26.878618247401715,
+      10.24005412690156
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      26.878618247401715,
+      10.24005412690156
+     ],
+     "end": [
+      32.71267734760295,
+      13.731000231531802
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      32.71267734760295,
+      13.731000231531802
+     ],
+     "end": [
+      34.937889,
+      20.155281
+     ]
+    },
+    {
+     "type": "Circle",
+     "center": [
+      25.0,
+      20.0
+     ],
+     "radius": 9.939102070372453,
+     "construction": true
+    }
+   ],
+   "constraints": [
+    {
+     "type": "Coincident",
+     "args": [
+      0,
+      2,
+      1,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      1,
+      2,
+      2,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      2,
+      2,
+      3,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      3,
+      2,
+      4,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      4,
+      2,
+      5,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      5,
+      2,
+      6,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      6,
+      2,
+      7,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      7,
+      2,
+      8,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      8,
+      2,
+      0,
+      1
+     ]
+    },
+    {
+     "type": "Equal",
+     "args": [
+      0,
+      1
+     ]
+    },
+    {
+     "type": "Equal",
+     "args": [
+      0,
+      2
+     ]
+    },
+    {
+     "type": "Equal",
+     "args": [
+      0,
+      3
+     ]
+    },
+    {
+     "type": "Equal",
+     "args": [
+      0,
+      4
+     ]
+    },
+    {
+     "type": "Equal",
+     "args": [
+      0,
+      5
+     ]
+    },
+    {
+     "type": "Equal",
+     "args": [
+      0,
+      6
+     ]
+    },
+    {
+     "type": "Equal",
+     "args": [
+      0,
+      7
+     ]
+    },
+    {
+     "type": "Equal",
+     "args": [
+      0,
+      8
+     ]
+    },
+    {
+     "type": "PointOnObject",
+     "args": [
+      0,
+      2,
+      9
+     ]
+    },
+    {
+     "type": "PointOnObject",
+     "args": [
+      1,
+      2,
+      9
+     ]
+    },
+    {
+     "type": "PointOnObject",
+     "args": [
+      2,
+      2,
+      9
+     ]
+    },
+    {
+     "type": "PointOnObject",
+     "args": [
+      3,
+      2,
+      9
+     ]
+    },
+    {
+     "type": "PointOnObject",
+     "args": [
+      4,
+      2,
+      9
+     ]
+    },
+    {
+     "type": "PointOnObject",
+     "args": [
+      5,
+      2,
+      9
+     ]
+    },
+    {
+     "type": "PointOnObject",
+     "args": [
+      6,
+      2,
+      9
+     ]
+    },
+    {
+     "type": "PointOnObject",
+     "args": [
+      7,
+      2,
+      9
+     ]
+    },
+    {
+     "type": "PointOnObject",
+     "args": [
+      8,
+      2,
+      9
+     ]
+    }
+   ],
+   "message": {
+    "status": "Under-constrained: ",
+    "link": "4 Degrees of Freedom"
+   },
+   "tool_widget": {
+    "title": "Polygon Parameters",
+    "controls": [
+     {
+      "name": "parameterOne",
+      "value": 9.0
+     }
+    ]
+   }
+  }
+ }
+}

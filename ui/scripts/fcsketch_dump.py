@@ -296,7 +296,8 @@ def tool_widget_out():
         elif n.startswith("comboBox"):
             out.append({"name": n, "items": [c.itemText(i) for i in range(c.count())], "index": c.currentIndex()})
         elif n.startswith("parameter") and c.metaObject().className() == "Gui::PrefQuantitySpinBox":
-            out.append({"name": n, "value": c.rawValue()})
+            # PySide may hand the box back as a QAbstractSpinBox (no rawValue method): the Q_PROPERTY then
+            out.append({"name": n, "value": c.rawValue() if hasattr(c, "rawValue") else c.property("rawValue")})
     box = tw.parentWidget()
     while box is not None and not box.inherits("Gui::TaskView::TaskBox"):
         box = box.parentWidget()
