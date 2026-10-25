@@ -1,0 +1,12 @@
+/* SPDX-License-Identifier: LGPL-2.1-or-later */
+/* pd_sweep.tsx's task panels (Loft, Pipe, Helix): the QListWidget of sections and edges, the checkable QToolButtons that
+   start a selection, the Object line, and the Helix's Status line. */
+.pd-list { border: 1px solid var(--border); background: #fff; min-height: 48px; max-height: 120px; overflow: auto; margin: 3px 0 6px; outline: none; }
+.pd-list-row { padding: 1px 4px; cursor: default; user-select: none; }
+.pd-list-row.cur { background: var(--accent-bg); }
+.qbtn.ptool { min-width: 0; padding: 0 8px; }
+.qbtn.ptool.on { background: var(--accent-bg); border-color: var(--accent); box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.2); }
+.pd-object { display: flex; gap: 4px; align-items: center; }
+.pd-object input { flex: 1 1 auto; min-width: 0; height: 22px; border: 1px solid var(--border); border-radius: var(--radius); padding: 0 4px; background: var(--field-bg); }
+.pd-status .pd-message { color: #a05a00; min-height: 1em; }
+.pd-label { margin: 3px 0; white-space: normal; }

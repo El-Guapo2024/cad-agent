@@ -82,6 +82,8 @@ The vocabulary, as FreeCAD's Python API has it:
                  PartDesign's transformed features (feature_transform.py has their properties)
     AdditiveBox ... SubtractiveWedge
                  the 16 primitives (feature_primitive.py); both written as feature_kw.KwFeature calls
+    AdditiveLoft, SubtractiveLoft, AdditivePipe, SubtractivePipe, AdditiveHelix, SubtractiveHelix
+                 PartDesign's Loft, Pipe and Helix (feature_sweep.py has their properties)
 
 What is built is the solid FreeCAD would build, because the same OCCT calls build it in the same order:
 the sketch's edges are joined to wires as TopoShape::makeElementWires joins them, the face is made as
@@ -1631,7 +1633,9 @@ def evaluate(features, params: dict | None = None, base=None, tip: str | None = 
             solid = f.execute(solid, shapes, params)
             shapes[name] = solid
             # positionByPrevious: the solid before's Placement, or the profile's support's for a first profile feature
-            prof = sketches.get(getattr(f, "profile", None)) if isinstance(getattr(f, "profile", None), str) else None
+            pn = getattr(f, "profile", None)
+            pn = pn[0] if isinstance(pn, tuple) and pn else pn     # a Loft's (sketch, "Vertex1")
+            prof = sketches.get(pn) if isinstance(pn, str) else None
             # a primitive keeps its own (attached) Placement (FeaturePrimitive)
             ctx.add_solid(name, solid, ctx.own_placement(f) if getattr(f, "PRIMITIVE", "") else
                           ctx.placements[previous] if previous else
@@ -1861,6 +1865,10 @@ from .feature_revolve import Groove, Revolution  # noqa: E402  PartDesign::Revol
 FEATURES.update(Revolution=Revolution, Groove=Groove)
 from .feature_hole import Hole  # noqa: E402  PartDesign::Hole
 FEATURES.update(Hole=Hole)
+from .feature_sweep import SWEEPS  # noqa: E402  PartDesign's Additive/Subtractive Loft, Pipe and Helix
+
+FEATURES.update(SWEEPS)
+globals().update(SWEEPS)
 # The datum features (Part::DatumPlane, DatumLine, DatumPoint, LocalCoordinateSystem, and PartDesign::Plane, ...)
 # live with the attachment that places them, and are part of this vocabulary: `from cad_agent.feature import DatumPlane`.
 from .feature_attach import (DatumLine, DatumPlane, DatumPoint, LocalCoordinateSystem,  # noqa: E402,F401

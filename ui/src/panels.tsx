@@ -24,6 +24,7 @@ import { DressUpTask } from './pd_dressup'
 import { PdxTask } from './pd_transform'
 import { ExtrudeTask, FeatureProps, featureTreeEntries, isBodyDoc, PdBodyRows, refOf, toggleActiveBody, type TreeCtx } from './partdesign'
 import { HoleTask, RevolveTask } from './pd_revolve'
+import { SweepTask } from './pd_sweep'
 import { AttachTask, attachTarget } from './pd_attach'
 import { gotoSelection, navi, properties, runConsole, viewHome } from './commands'
 import { api, resultText } from './api'
@@ -873,6 +874,7 @@ function TaskContent() {
   if (task?.kind === 'pdTransform' || task?.kind === 'pdPrimitive') return <PdxTask kind={task.kind} part={task.body} other={task.other ?? ''} edit={!!task.edit} />
   if (task?.kind === 'pad' || task?.kind === 'pocket') return <ExtrudeTask key={`${task.kind}:${task.body}:${task.other}`} kind={task.kind} part={task.body} name={task.other ?? ''} edit={!!task.edit} />
   if (task?.kind === 'revolution' || task?.kind === 'groove') return <RevolveTask key={`${task.kind}:${task.body}:${task.other}`} kind={task.kind} part={task.body} name={task.other ?? ''} edit={!!task.edit} />
+  if (task?.kind === 'pdSweep') return <SweepTask key={`sweep:${task.body}:${task.other}`} part={task.body} other={task.other ?? ''} edit={!!task.edit} />
   if (task?.kind === 'hole') return <HoleTask key={`hole:${task.body}:${task.other}`} part={task.body} name={task.other ?? ''} edit={!!task.edit} />
   const b = task && scene?.bodies.find((x) => x.name === task.body)
   if (!task || !b) {
