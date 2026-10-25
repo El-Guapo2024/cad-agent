@@ -570,6 +570,46 @@ Deliberately or knowingly different:
 - A primitive is attached as FreeCAD attaches it (feature_primitive.placement_of() asks feature_attach's Context, engine 3D; three bodies of tests/golden/attach/bodies.py give FreeCAD's solid and Placement), or placed by its Placement when Deactivated; Placement shows in the property view's Base group, where FreeCAD hides it, and an attached one's shows the part file's placement, not the attached one.
 - The toolbars' primitive groups open their list on a click; FreeCAD's button runs the last one used and its arrow opens the list.
 
+## Part workbench, 2026-10-25
+
+FreeCAD's Part workbench at 3160daf1e2b6, for part files of Part objects: OBJECTS beside a Body's FEATURES, a document's
+objects as a graph (docs/EDITING_PLAN.md, "Part workbench objects in a part file"). `cad_agent/feature_part*.py` build them,
+ports of PrimitiveFeature.cpp, FeaturePartBox/Circle/Polygon.cpp, FeaturePartBoolean/Cut/Fuse/Common/Section.cpp,
+FCBRepAlgoAPI_*.cpp, FeatureExtrusion.cpp and ExtrusionHelper.cpp, FeatureRevolution.cpp, FeatureMirroring.cpp,
+FeatureFillet/Chamfer.cpp, FeatureCompound.cpp, PartFeatures.cpp (Loft, Sweep, Thickness, Refine), FeatureOffset.cpp,
+FeatureProjectOnSurface.cpp, the face makers (FaceMaker*.cpp, Unified the new Extrude's), TopoShapeExpansion.cpp's
+makeElement* they call, and the Python features (BasicShapes' Tube, BOPTools' BooleanFragments, Slice, XOR, Connect, Embed,
+Cutout with GeneralFuseResult, ShapeMerge, SplitAPI, JoinAPI; CompoundTools' CompoundFilter and Explode).
+`cad_agent/feature_edit_part.py` and feature_edit.py read and edit OBJECTS in place, `cad feature new --document` and `add`/`set`
+take them, and `src/part_wb.tsx` (commands, menu, toolbars, tree, property view, keys) and `src/part_tasks.tsx` (task panels) are
+the page's. `tests/golden/part` holds 211 documents freecadcmd built from the same lines (`make.py`, `make.py split`,
+`make.py sweep`): every object of them, 1,368 checks with the round trips, gives FreeCAD's volume, area, length, box, centre,
+shape type and counts of solids, shells, faces, wires, edges and vertices, or fails with FreeCAD's message; three are known
+(below). Every type's defaults are a fresh FreeCAD object's. `scripts/partcheck.mjs` holds the page to the real FreeCAD's GUI
+(`scripts/fcpart.py` writes `scripts/fcpart.json`).
+
+| FreeCAD | Ours |
+|---|---|
+| The objects | done: Box, Cylinder, Sphere, Cone, Torus, Tube, Prism, Wedge, Helix, Spiral, Ellipsoid, Plane, Circle, Ellipse, Line, Vertex (Point), RegularPolygon, Polygon; Cut, Fuse, MultiFuse, Common, MultiCommon, Section; BooleanFragments, Slice (and Slice apart), XOR, Connect, Embed, Cutout, Compound, CompoundFilter (and Explode compound), Refine; Extrusion (tapered too, every face maker), Revolution, Mirroring, Fillet, Chamfer, Loft, Sweep, Offset, Offset2D, Thickness, ProjectOnSurface. A sketch outside a Body is a Sketch in OBJECTS; a Body in the same file is the object "Body" |
+| Part menu, Solids / Part Tools / Boolean Tools toolbars | done: FreeCAD's entries in its order with its commands and icons (fcpart.json), the dropdown groups (Part_CompCompoundTools, _CompJoinFeatures, _CompSplitFeatures, _CompOffset) |
+| The commands on a selection | done as Command.cpp, CommandParametric.cpp, BOPFeatures.py and the BOPTools/CompoundTools commands do: FreeCAD's names (Box labelled Cube, Fusion, Common, Part__Mirroring labelled "<Label> (Mirror #n)", a Refine named after its source, Compound_child0 labelled "Compound.0"), the undo step's name ("Cube", "Part Cut", "Fusion", "Create Boolean Fragments", "Explode", …), the inputs each hides, its warnings |
+| Primitives dialog, Tube | done: the type list, each page's labels and the values the dialog starts from (a Plane 10 × 10 mm, a Line to (10, 10, 10), an Ellipsoid's Radius 3 at 4), the Location panel (position, rotation axis and angle, written with the dialog's two decimals), Create ("Create Box") and Close; a double-click on a primitive opens its page to edit, OK writes "Edit Box" |
+| Task panels | done: Extrude (DlgExtrusion: Along normal / edge / custom, Reversed, lengths, Symmetric, taper angles, Create solid, the shape list; OK, Close, Apply), Revolve, Mirror, Fillet and Chamfer (the shape, its edges with their radii, constant or variable), Loft and Sweep (available and selected profiles, the path), Offset, 2D Offset, Thickness, Project on surface, Boolean Operation, the new sketch's orientation |
+| Tree | done: a document's objects with what each claims under it (ViewProvider::claimChildren), the hidden greyed, the eye; Space writes visibility=, F2 the Label, Delete, double-click edits |
+| Property view | done: each type's groups and rows in FreeCAD's order (`src/part_props.ts`, written by `scripts/partprops.py` from FreeCAD's objects), editable where the part file holds the value |
+
+Deliberately or knowingly different:
+- Shape builder (Part_Builder), Cross-sections, Simple / Transformed / Element copy, Convert to solid and Defeaturing are greyed: they make a Part::Feature holding a fixed copy of a shape, which a part file of parametric objects cannot hold. Scale, Face from wires, Ruled surface, Reverse shapes and Set tolerance are not ported yet; Shape from mesh and Points from shape have no meshes to work on; Box selection, Persistent section cut, Check geometry, Attachment and Appearance per face are greyed with their reasons.
+- A Part primitive is placed by its Placement (AttachExtension with MapMode Deactivated, as the commands leave it); attaching one is not ported. A sketch outside a Body sits on the XY, XZ or YZ plane with an offset.
+- Visibility is written in the part file (visibility=), so Space is an undo step ("Toggle visibility") and rebuilds the part; FreeCAD keeps it in the GUI document, outside undo. A sketch's visibility stays in the page, as a Body's sketches do.
+- Delete refuses an object another uses, after FreeCAD's "Object Dependencies" question: a part file has no broken links.
+- Rename (F2) writes the Label, as FreeCAD does; the Name stays. Labels are made unique as FreeCAD makes them.
+- Explode compound's group ("Exploded Compound", an App::DocumentObjectGroup) is not made: a part file has no groups; the filters are.
+- The Python objects' TypeId is Part:: and the Proxy's name (Part::Tube, Part::BooleanFragments, …), FreeCAD's being Part::FeaturePython.
+- The refine is OCCT's UnifySameDomain, not FreeCAD's BRepBuilderAPI_RefineModel: in a cut through a cut it also joins two edges FreeCAD leaves split (2 known cases, the same faces and solid). An open sketch's 2D offset splits one edge fewer: FreeCAD's sketch shape carries plane curves from FaceMakerBuildFace that OCCT's offset follows (1 known case).
+- The lists a panel offers (Extrude's shapes, Fillet's solids, Loft's profiles) are told apart by the objects' types, not their built shapes; Fillet and Chamfer pick edges in their list, Thickness its faces, Project on surface its face, wires and edges, from lists rather than in the 3D view; the Primitives dialog's Pick Position and Circle From 3 Points, Project on surface's camera direction are greyed.
+- The new sketch's orientation is a task panel, FreeCAD's a modal dialog.
+
 ## Still missing
 
 - Nothing from FreeCAD's standard menus, toolbars, context menus, keys or panels that applies to these projects. What is left is n/a (no FreeCAD document) or listed as n/a above; PartDesign's features after Pad and Pocket come with docs/EDITING_PLAN.md step 5 (Revolution, Groove, Hole, the patterns, Mirror, the primitives and the dress-ups Fillet, Chamfer, Draft and Thickness are above; Defeaturing is not there yet); the Sketcher's tools still to come are listed above.

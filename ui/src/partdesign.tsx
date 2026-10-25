@@ -44,6 +44,7 @@ import { editPdx, findFeature, isPdx, pdxChildren, pdxDeleteOps, pdxIcon, pdxKin
 import './partdesign.css'
 import { attachedOf, DATUM_TYPES, isDatum, placementMatrix, withAttached } from './attached'
 import { attachmentRows, editAttachment, sketchOnSelection } from './pd_attach'
+import { deleteObjects, isObjectRef, partKey } from './part_wb'
 
 export const SKETCH = 'Sketcher::SketchObject', PAD = 'PartDesign::Pad', POCKET = 'PartDesign::Pocket'
 const ICON_OF: Record<string, IconName> = { [SKETCH]: 'pd-sketch', [PAD]: 'pd-pad', [POCKET]: 'pd-pocket',
@@ -61,7 +62,7 @@ const PLANE_OF: Record<string, 'XY' | 'XZ' | 'YZ'> = { XY_Plane: 'XY', XZ_Plane:
 // ── the model ────────────────────────────────────────────────────────────────
 /** A part shows as a PartDesign Body when it has a feature list (a Body made in the app, or a hand-written part with
  *  features on top of its solid, the BaseFeature). A hand-written part with none is a plain Part::Feature, as before. */
-export const isBodyDoc = (d: FeatureDoc | undefined | null): d is FeatureDoc => !!d && (d.features.length > 0 || !d.base)
+export const isBodyDoc = (d: FeatureDoc | undefined | null): d is FeatureDoc => !!d && d.body !== false && (d.features.length > 0 || !d.base)
 export const refOf = (part: string, name: string) => `${part}/${name}`
 export const splitRef = (ref: string) => { const i = ref.indexOf('/'); return [ref.slice(0, i), ref.slice(i + 1)] as const }
 /** The scene's body made from this part module, if the scene draws it. */
@@ -321,6 +322,7 @@ export function PickItemHost() {
 /** Std_Delete on a Body's rows (StdCmdDelete::activated): FreeCAD asks before deleting what others use ("Object
  *  Dependencies"), then deletes them in one transaction. The Origin and the BaseFeature are not deletable. */
 export async function deleteFeatures(refs = getState().featSel) {
+  if (refs.length && refs.every((r) => isObjectRef(getState(), r))) return deleteObjects(refs)   // Part objects (part_wb.tsx)
   const byPart = new Map<string, string[]>()
   for (const r of refs) {
     const [part, name] = splitRef(r)
@@ -785,7 +787,7 @@ function shapesOf(loops: THREE.Vector2[][]): THREE.Shape[] {
   return [...new Set(shapes.filter((s) => s.depth % 2 === 0).map((s) => s.shape))]
 }
 /** A sketch drawn over the model, in SketchEdgeColor (FreeCAD Light: #212529) and 2 px (DefaultShapeLineWidth). */
-function sketchObject(f: Feature, body: Body | undefined): THREE.Object3D | null {
+export function sketchObject(f: Feature, body: Body | undefined): THREE.Object3D | null {
   const curves = (f.geometry ?? []).map(curveOf).filter((c): c is Curve => !!c)
   if (!curves.length) return null
   const g = new THREE.Group()
@@ -1083,6 +1085,7 @@ export function pdToolbars(): [string, Entry[]][] {
 // ── keys on a Body's rows (Tree.cpp: F2 renames; Std_Delete; Space) ─────────────────────────
 /** App.tsx's key handler asks here first: true when a Body's rows were selected and the key was theirs. */
 export function featureKey(e: KeyboardEvent): boolean {
+  if (partKey(e)) return true   // a Part object's rows (part_wb.tsx)
   const s = getState()
   if (!s.featSel.length) return false
   const t = e.target as HTMLElement | null

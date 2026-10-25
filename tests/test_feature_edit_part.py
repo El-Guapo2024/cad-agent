@@ -195,6 +195,32 @@ def test_a_sketch_outside_the_body_and_its_extrusion(tmp_path):
     assert _run(p).volume == pytest.approx(3.141592653589793 * 16 * 10)
 
 
+def test_the_tree_shows_and_hides_as_freecads(tmp_path):
+    """read()'s object_tree, as the real FreeCAD's tree has it after its commands (ui/scripts/fcpart.json's tree): a Cut
+    claims and hides its Base and Tool, an Extrude its sketch, a Mirror claims its source and leaves it shown, a Refine
+    claims nothing and hides its source, and Space's visibility= overrides."""
+    p = _doc(tmp_path)
+    sk = {"name": "Sketch", "type": "Sketcher::SketchObject", "support": "XY", "constraints": [],
+          "geometry": [{"type": "Circle", "center": [0, 0], "radius": 3, "construction": False}]}
+    d = E.apply(p, [{"op": "add", "feature": {"name": n, "type": t, **kw}} for n, t, kw in (
+        ("BoxA", "Part::Box", {}), ("CylA", "Part::Cylinder", {}), ("Cut", "Part::Cut", {"base": "BoxA", "tool": "CylA"}),
+        ("BoxM", "Part::Box", {}), ("Part__Mirroring", "Part::Mirroring", {"source": "BoxM", "label": "BoxM (Mirror #1)"}),
+        ("BoxB", "Part::Box", {}), ("CylB", "Part::Cylinder", {}), ("Fusion", "Part::MultiFuse", {"shapes": ["BoxB", "CylB"]}),
+        ("Fusion001", "Part::Refine", {"source": "Fusion"}))] +
+        [{"op": "add", "feature": sk, "list": "OBJECTS"},
+         {"op": "add", "feature": {"name": "Extrude", "type": "Part::Extrusion", "base": "Sketch", "solid": True}}])
+    t = d["object_tree"]
+    assert t["children"]["Cut"] == ["BoxA", "CylA"] and t["children"]["Part__Mirroring"] == ["BoxM"]
+    assert t["children"]["Fusion001"] == [] and t["children"]["Extrude"] == ["Sketch"]
+    assert t["top"] == ["Cut", "Part__Mirroring", "Fusion", "Fusion001", "Extrude"]
+    assert set(t["hidden"]) == {"BoxA", "CylA", "BoxB", "CylB", "Fusion"} and "BoxM" in t["shown"]
+    assert t["sketches_shown"] == []
+    t = E.apply(p, [{"op": "set", "name": "BoxA", "props": {"visibility": True}},
+                    {"op": "set", "name": "BoxM", "props": {"visibility": False}}])["object_tree"]
+    assert "BoxA" in t["shown"] and "BoxM" in t["hidden"]
+    assert "visibility=True" in p.read_text()
+
+
 def test_the_cli_takes_part_types(tmp_path):
     from cad_agent import featurecmd as FC
     assert FC._type("Part.Box") == "Part::Box" and FC._type("Part::MultiFuse") == "Part::MultiFuse"

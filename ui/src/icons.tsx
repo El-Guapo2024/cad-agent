@@ -11,6 +11,7 @@
 //   src/Gui/NotificationArea.cpp: 2022 Abdullah Tahiri
 // FreeCAD 1.1.4's icons, copied into public/freecad-icons (licences in its
 // README). Placeholders until we draw our own.
+import { PART_FILES } from './part_icons'
 export const FILES = {
   document: 'Document', group: 'Group', part: 'Part_Feature', bought: 'Part_FeatureImport', body: 'PartDesign_Body',
   'wb-design': 'PartDesignWorkbench', 'wb-assembly': 'AssemblyWorkbench', 'wb-inspection': 'InspectionWorkbench',
@@ -98,6 +99,7 @@ export const FILES = {
   'pd-add-wedge': 'PartDesign_AdditiveWedge', 'pd-sub-cylinder': 'PartDesign_SubtractiveCylinder', 'pd-sub-sphere': 'PartDesign_SubtractiveSphere',
   'pd-sub-cone': 'PartDesign_SubtractiveCone', 'pd-sub-ellipsoid': 'PartDesign_SubtractiveEllipsoid', 'pd-sub-torus': 'PartDesign_SubtractiveTorus',
   'pd-sub-prism': 'PartDesign_SubtractivePrism', 'pd-sub-wedge': 'PartDesign_SubtractiveWedge',
+  ...PART_FILES, // the Part workbench's (part_icons.ts, public/freecad-icons/part)
 } as const
 
 export type IconName = keyof typeof FILES

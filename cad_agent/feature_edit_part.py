@@ -207,7 +207,10 @@ def tree_info(d: dict) -> dict:
     top = (["Body"] if body and "Body" not in claimed else []) + [o.name for o in objs if o.name not in claimed]
     shown = Part.visible(objs, [] if body else None)
     names = [o.name for o in objs if not isinstance(o, F.Sketch)] + (["Body"] if body else [])
-    return {"children": children, "top": top, "shown": shown, "hidden": [n for n in names if n not in shown]}
+    hid = Part.hidden_by(objs)
+    sketches = [o.name for o in objs if isinstance(o, F.Sketch) and o.name not in hid]   # shown until a user hides them
+    return {"children": children, "top": top, "shown": shown, "hidden": [n for n in names if n not in shown],
+            "sketches_shown": sketches}
 
 
 def object_shape(src: str, path, name: str):

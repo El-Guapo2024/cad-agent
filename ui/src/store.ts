@@ -103,6 +103,7 @@ export type Task = { kind: 'params' | 'placement' | 'transform' | 'measure' | 'm
   // the Attachment panel (pd_attach.tsx): `other` is the sketch or datum, or "new:<TypeId>" for one OK makes
   | 'attach'
   | 'revolution' | 'groove' | 'hole'     // pd_revolve.tsx
+  | 'part'                               // the Part workbench's task panels (part_tasks.tsx): other says which
   // and the dress-ups (pd_dressup.tsx); `other` is the feature's name, new or edited
   | 'fillet' | 'chamfer' | 'draft' | 'thickness'
   // pd_transform.tsx: a transformed feature's panel and a primitive's; `other` is the feature edited, or what a new one is
@@ -112,7 +113,7 @@ export type Task = { kind: 'params' | 'placement' | 'transform' | 'measure' | 'm
 /** GET /api/history: one entry of the backend's Document undo/redo journal, shared with an
  *  agent in a terminal — replaces a UI-local undo stack (actions.ts no longer replays changes). */
 export type HistoryEntry = { id: string; name: string; by: 'ui' | 'agent'; t: number }
-export type Workbench = 'design' | 'assembly' | 'inspection' | 'agent' | 'sketcher'
+export type Workbench = 'design' | 'assembly' | 'inspection' | 'agent' | 'sketcher' | 'part'
 /** FreeCAD's draw styles that the viewer can show faithfully. */
 export type DrawStyle = 'asis' | 'points' | 'wireframe' | 'hiddenline' | 'noshading' | 'shaded' | 'flatlines'
 export type ClipAxis = { on: boolean; offset: number; flip: boolean }
@@ -363,7 +364,9 @@ export type SelEntry = { selected: string[]; subSel: string[] }
 /** One part module's PartDesign feature list (GET /api/<slug>/features, `cad feature list`): cad_agent/feature_edit.py's
  *  read(). A hand-written part has no features and `base` true; a Body made in the app has `base` false. */
 export type Feature = { name: string; type: string; profile?: string; support?: unknown; geometry?: unknown[]; constraints?: unknown[]; [prop: string]: unknown }
-export type FeatureDoc = { part: string; params: Record<string, unknown>; base: boolean; features: Feature[]; tip: string | null }
+export type FeatureDoc = { part: string; params: Record<string, unknown>; base: boolean; features: Feature[]; tip: string | null
+  /** A part of Part workbench objects (feature_edit_part.py): OBJECTS, whether it has a Body, and its tree. */
+  objects?: Feature[]; body?: boolean; object_tree?: { children: Record<string, string[]>; top: string[]; shown: string[]; hidden: string[]; sketches_shown?: string[] } }
 
 export const saved = {
   get<T>(k: string, d: T): T {

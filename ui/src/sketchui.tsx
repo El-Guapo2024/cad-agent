@@ -347,7 +347,7 @@ function SketchMenu() {
 // ── a Body's sketch opened from the tree (Std_Edit, a double-click: ViewProviderSketch::setEdit) ──────────────────
 /** The sketch where its part sits: the part's matrix (scene.py) times the sketch's support and attachment offset. */
 onEditSketch((part, name) => {
-  const st = getState(), f = st.features[part]?.features.find((x) => x.name === name)
+  const st = getState(), f = st.features[part]?.features.find((x) => x.name === name) ?? st.features[part]?.objects?.find((x) => x.name === name) // a document's sketch (part_wb.tsx)
   if (!f) { report('err', `Edit Sketch: ${part}/${name} is not in the part's feature list`); return }
   const m = new THREE.Matrix4(), b = bodyOfPart(st, part)
   if (b?.matrix?.length === 16) m.fromArray(b.matrix).transpose()

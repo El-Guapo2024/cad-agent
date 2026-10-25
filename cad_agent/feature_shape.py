@@ -112,6 +112,21 @@ def shapes_after(path: Path, ops: list, name: str | None):
     return doc, target, base_name, shapes.get(target), shapes.get(base_name) if base_name else None, error
 
 
+def _children(shape) -> int:
+    """The shapes a compound holds at its first level (Part_Fuse of one compound, Part_ExplodeCompound), 0 for another."""
+    if shape is None or shape.IsNull():
+        return 0
+    from OCP.TopAbs import TopAbs_COMPOUND
+    from OCP.TopoDS import TopoDS_Iterator
+    if shape.ShapeType() != TopAbs_COMPOUND:
+        return 0
+    n, it = 0, TopoDS_Iterator(shape)
+    while it.More():
+        n += 1
+        it.Next()
+    return n
+
+
 def cmd_feature_shape(a) -> Result:
     project(a.slug)
     path = part(a.slug, a.part)
@@ -128,7 +143,8 @@ def cmd_feature_shape(a) -> Result:
         raise UsageError(str(e)) from None
     data = {"project": a.slug, "part": a.part, "feature": target, "base_name": base_name,
             "shape": mesh(solid) if solid is not None and not error else None,
-            "base": mesh(base) if base is not None else None, "error": error, "doc": doc}
+            "base": mesh(base) if base is not None else None, "error": error, "doc": doc,
+            "children": _children(solid)}
     text = f"{a.part}/{target}: " + (error or f"{len(data['shape']['faces'])} faces") + \
         (f"; base {base_name}" if base_name else "")
     return Result(OK, data, text, f"{a.part}/{target} shape")
