@@ -23,6 +23,8 @@ import { clarifyEntries, ContextMenu, expressionActions, linkActions, navHint, p
 import { DressUpTask } from './pd_dressup'
 import { PdxTask } from './pd_transform'
 import { ExtrudeTask, FeatureProps, featureTreeEntries, isBodyDoc, PdBodyRows, refOf, toggleActiveBody, type TreeCtx } from './partdesign'
+import { isObjectRef, isPartDoc, PartDocRows, PartObjectProps, partTreeEntries } from './part_wb'
+import { PartTask } from './part_tasks'
 import { HoleTask, RevolveTask } from './pd_revolve'
 import { SweepTask } from './pd_sweep'
 import { AttachTask, attachTarget } from './pd_attach'
@@ -285,13 +287,24 @@ function ModelTree() {
   }
   const pdCtx: TreeCtx = { iconSize, showDesc, showInternal, eyes: tui.visibilityIcon, checkBoxes: treeOpts.checkBoxes, editColor,
     enter: onEnter, cancelPreselect: cancelPreselectTimer, menu: (at) => setFmenu(at) }
+  /** A Part document's Body (part_wb.tsx's PartDocRows): its row, as FreeCAD lists a Body among the document's objects. */
+  const bodyRowOf = (p: string, depth: number, twisty: ReactNode) => (
+    <div className={cls('trow', 'pdrow', featSel.includes(refOf(p, '')) && 'sel')} data-ref={refOf(p, '')}
+      onClick={() => { cancelPreselectTimer(); select(null); setState({ featSel: [refOf(p, '')] }) }} onDoubleClick={() => toggleActiveBody(p)}
+      onContextMenu={(e) => { e.preventDefault(); select(null); setState({ featSel: [refOf(p, '')] }); setFmenu({ x: e.clientX, y: e.clientY }) }}>
+      <span className="tlab"><span className="pdindent" style={{ width: 6 + 12 * (depth - 1) }} />{twisty}
+        <span className="ticon"><Icon name="body" size={iconSize} /></span>
+        <span className="tname" style={activeBody === p ? { fontWeight: 700 } : undefined}>Body</span></span>
+      {showDesc && <span className="tdesc">PartDesign Body</span>}
+      {showInternal && <span className="tdesc">Body</span>}
+    </div>)
   return (
     <div className={cls('tree', cols === 1 && 'onecol', tui.hideHeader && 'ovl-nohead', tui.hideScrollBar && 'ovl-noscroll')} tabIndex={-1}
       style={{ '--tree-cols': template, '--tree-icon': `${iconSize}px`, ...(tui.fontSize > 0 ? { fontSize: `${Math.max(8, tui.fontSize)}pt` } : {}) } as React.CSSProperties}
       onMouseLeave={() => { hoverRef.current = null; if (!treeOpts.preSelection) return; cancelPreselectTimer(); preselect(null, null) }}
       onContextMenu={(e) => { if (e.target !== e.currentTarget) return; e.preventDefault(); setEmptyMenu({ x: e.clientX, y: e.clientY }) }}>
       {menu && <ContextMenu at={menu} entries={[...treeEntries('object'), 'sep', settingsMenu]} onClose={() => setMenu(null)} />}
-      {fmenu && <ContextMenu at={fmenu} entries={[...featureTreeEntries({ expressionActions: expressionActions(), linkActions: linkActions(), properties,
+      {fmenu && <ContextMenu at={fmenu} entries={[...(getState().featSel.some((r) => isObjectRef(getState(), r)) ? partTreeEntries : featureTreeEntries)({ expressionActions: expressionActions(), linkActions: linkActions(), properties,
         showHidden: { label: 'Show Items Hidden in Tree View', checked: showHidden, onSelect: () => setState((x) => ({ treeShowHidden: !x.treeShowHidden })) } }), 'sep', settingsMenu]} onClose={() => setFmenu(null)} />}
       {docMenu && <ContextMenu at={docMenu} entries={[...treeEntries('document'), 'sep', settingsMenu]} onClose={() => setDocMenu(null)} />}
       {emptyMenu && <ContextMenu at={emptyMenu} entries={[settingsMenu]} onClose={() => setEmptyMenu(null)} />}
@@ -337,6 +350,7 @@ function ModelTree() {
           b.placement ? 'moved by hand' : null, st && st !== 'PASS' ? st : null].filter(Boolean).join(' · ')
         // A part with a feature list is FreeCAD's PartDesign Body (partdesign.tsx): its row opens onto its features.
         const pd = b.part && isBodyDoc(features[b.part]) && (b.used_by?.[0] ?? b.name) === b.name ? b.part : null
+        const pdoc = b.part && isPartDoc(features[b.part]) && (b.used_by?.[0] ?? b.name) === b.name ? b.part : null   // Part objects (part_wb.tsx)
         const row = (twisty: ReactNode) => (
           <div key={b.name} data-name={b.name} className={cls('trow', selected.includes(b.name) && 'sel', pre === b.name && 'pre', off && 'hid')}
             style={editing === b.name && !selected.includes(b.name) && pre !== b.name ? { background: editColor } : undefined}
@@ -369,10 +383,20 @@ function ModelTree() {
             {showInternal && <span className="tdesc">{b.name}</span>}
           </div>
         )
+        if (pdoc) return <PartDocRows key={b.name} ctx={pdCtx} part={pdoc} row={row} bodyRows={(depth) => <PdBodyRows ctx={pdCtx} part={pdoc} body={b} bodyRow={(tw) => bodyRowOf(pdoc, depth, tw)} />} />
         return pd ? <PdBodyRows key={b.name} ctx={pdCtx} part={pd} body={b} bodyRow={row} /> : row(null)
       })}
       {/* A Body the scene does not draw (nothing built yet, or not in assembly.py): its own row, as FreeCAD lists every Body */}
-      {open && Object.keys(features).filter((p) => isBodyDoc(features[p]) && !scene?.bodies.some((b) => b.part === p)).map((p) => (
+      {open && Object.keys(features).filter((p) => isPartDoc(features[p]) && !scene?.bodies.some((b) => b.part === p)).map((p) => (
+        <PartDocRows key={'pt:' + p} ctx={pdCtx} part={p} bodyRows={(depth) => <PdBodyRows ctx={pdCtx} part={p} body={undefined} bodyRow={(tw) => bodyRowOf(p, depth, tw)} />} row={(twisty) => (
+          <div className={cls('trow', featSel.includes(refOf(p, '')) && 'sel')} data-ref={refOf(p, '')}
+            onClick={() => { cancelPreselectTimer(); select(null); setState({ featSel: [refOf(p, '')] }) }}>
+            <span className="tlab"><span className="pdindent" style={{ width: 6 }} />{twisty}
+              <span className="ticon"><Icon name="part" size={iconSize} /></span><span className="tname">{p}</span></span>
+            {showDesc && <span className="tdesc">nothing shown</span>}
+            {showInternal && <span className="tdesc">{p}</span>}
+          </div>)} />))}
+      {open && Object.keys(features).filter((p) => isBodyDoc(features[p]) && !isPartDoc(features[p]) && !scene?.bodies.some((b) => b.part === p)).map((p) => (
         <PdBodyRows key={'pd:' + p} ctx={pdCtx} part={p} body={undefined} bodyRow={(twisty) => (
           <div className={cls('trow', featSel.includes(refOf(p, '')) && 'sel')} data-ref={refOf(p, '')}
             onClick={() => { cancelPreselectTimer(); select(null); setState({ featSel: [refOf(p, '')] }) }} onDoubleClick={() => toggleActiveBody(p)}
@@ -456,7 +480,8 @@ function PropertyView() {
       }}>
         <PropExpand.Provider value={expand}>
           {/* a Body's feature, sketch or Origin row (partdesign.tsx); the Body's own row shows its part's properties */}
-          {feat && (tab === 'data' ? <FeatureProps key={feat} refKey={feat} /> : <Row k="Visibility" v="the Body shows its Tip" />)}
+          {feat && isObjectRef(getState(), feat) && (tab === 'data' ? <PartObjectProps key={feat} refKey={feat} /> : <Row k="Visibility" v="Space toggles it (the part file's visibility=)" />)}
+          {feat && !isObjectRef(getState(), feat) && (tab === 'data' ? <FeatureProps key={feat} refKey={feat} /> : <Row k="Visibility" v="the Body shows its Tip" />)}
           {!feat && b && (tab === 'data' ? <DataProps key={b.name + scene!.source_hash} b={b} />
             : <ViewProps b={b} off={hidden.includes(b.name)} />)}
         </PropExpand.Provider>
@@ -874,6 +899,7 @@ function TaskContent() {
   if (task?.kind === 'pdTransform' || task?.kind === 'pdPrimitive') return <PdxTask kind={task.kind} part={task.body} other={task.other ?? ''} edit={!!task.edit} />
   if (task?.kind === 'pad' || task?.kind === 'pocket') return <ExtrudeTask key={`${task.kind}:${task.body}:${task.other}`} kind={task.kind} part={task.body} name={task.other ?? ''} edit={!!task.edit} />
   if (task?.kind === 'revolution' || task?.kind === 'groove') return <RevolveTask key={`${task.kind}:${task.body}:${task.other}`} kind={task.kind} part={task.body} name={task.other ?? ''} edit={!!task.edit} />
+  if (task?.kind === 'part') return <PartTask part={task.body} other={task.other ?? ''} />   // the Part workbench's (part_tasks.tsx)
   if (task?.kind === 'pdSweep') return <SweepTask key={`sweep:${task.body}:${task.other}`} part={task.body} other={task.other ?? ''} edit={!!task.edit} />
   if (task?.kind === 'hole') return <HoleTask key={`hole:${task.body}:${task.other}`} part={task.body} name={task.other ?? ''} edit={!!task.edit} />
   const b = task && scene?.bodies.find((x) => x.name === task.body)

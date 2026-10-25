@@ -30,6 +30,7 @@ import { onSketchSelection } from './commands'
 import { bodyOfPart, sketchMatrix } from './partdesign'
 import { attachedOf } from './attached'
 import { ExternalHandler, projectRefs } from './sketchexternal'
+import { CarbonCopyHandler, setCarbonSources } from './sketchcarbontool'
 import * as THREE from 'three'
 import { ContextMenu, tipAttrs, type Entry } from './chrome'
 import { QuantityBox } from './qsb'
@@ -338,7 +339,7 @@ function SketchMenu() {
 // ── a Body's sketch opened from the tree (Std_Edit, a double-click: ViewProviderSketch::setEdit) ──────────────────
 /** The sketch where its part sits: the part's matrix (scene.py) times the sketch's support and attachment offset. */
 onEditSketch((part, name) => {
-  const st = getState(), f = st.features[part]?.features.find((x) => x.name === name)
+  const st = getState(), f = st.features[part]?.features.find((x) => x.name === name) ?? st.features[part]?.objects?.find((x) => x.name === name) // a document's sketch (part_wb.tsx)
   if (!f) { report('err', `Edit Sketch: ${part}/${name} is not in the part's feature list`); return }
   const m = new THREE.Matrix4(), b = bodyOfPart(st, part)
   if (b?.matrix?.length === 16) m.fromArray(b.matrix).transpose()
@@ -349,6 +350,19 @@ onEditSketch((part, name) => {
   const sketch = S.unsavedSketch(name) ?? { geometry: (f.geometry ?? []) as SK.Geo[], constraints: resolveExpressions((f.constraints ?? []) as import('./solver').Cons[], part) }
   void externalOf(f, part).then((external) => S.editSketch({ part, name, placement: { base: [pos.x, pos.y, pos.z], rotation: [q.x, q.y, q.z, q.w] }, sketch, external }))
 })
+// Carbon Copy's sources: a Body's sketch as the Sketcher would open it, and the projection onto the sketch in edit
+setCarbonSources((part, name) => {
+  const st = getState(), f = st.features[part]?.features.find((x) => x.name === name)
+  if (!f) return null
+  const m = new THREE.Matrix4(), b = bodyOfPart(st, part)
+  if (b?.matrix?.length === 16) m.fromArray(b.matrix).transpose()
+  m.multiply(sketchMatrix(f))
+  const pos = new THREE.Vector3(), q = new THREE.Quaternion(), sc = new THREE.Vector3()
+  m.decompose(pos, q, sc)
+  const refs = ((f.external_geometry ?? []) as unknown[]).map((r) => (Array.isArray(r) ? [String(r[0]), String(r[1] ?? '')] : String(r).split('.', 2)) as [string, string])
+  return { doc: { geometry: ((f.geometry ?? []) as SK.Geo[]).map((g) => ({ ...g })), constraints: ((f.constraints ?? []) as import('./solver').Cons[]).map(SK.fromCons) },
+    refs, placement: { base: [pos.x, pos.y, pos.z], rotation: [q.x, q.y, q.z, q.w] } }
+}, (refs) => projectRefs(refs))
 /** The sketch's external geometry as the Body projected it (attached.external, after its build), and which of its
  *  references each came from: one geometry per edge or vertex; a face's are asked for again (`cad feature project`). */
 async function externalOf(f: import('./store').Feature, part: string): Promise<S.External> {
@@ -368,8 +382,10 @@ onSketchSelection((cmd, args) => {
   if (cmd === 'clear') S.clearSelection()
   else for (const a of args) {
     // "Pad.Edge4" while External Projection is on: an element of the model, which the tool takes from the selection
-    const h = S.getHandler(), dot = a.indexOf('.')
-    if (h instanceof ExternalHandler && dot > 0 && a.slice(0, dot) !== S.getSession()?.ref.name && h.pickNamed(a.slice(0, dot), a.slice(dot + 1))) continue
+    // (and a sketch while Carbon Copy is on: CarbonCopyHandler.pickNamed)
+    const h = S.getHandler() as (S.Handler & { pickNamed?: (obj: string, sub: string) => boolean }) | null, dot = a.indexOf('.')
+    const obj = dot > 0 ? a.slice(0, dot) : a, sub = dot > 0 ? a.slice(dot + 1) : ''
+    if (h?.pickNamed && obj !== S.getSession()?.ref.name && (dot > 0 || h instanceof CarbonCopyHandler) && h.pickNamed(obj, sub)) continue
     S.addSelection(a.includes('.') ? a.slice(a.lastIndexOf('.') + 1) : a)
   }
   return true

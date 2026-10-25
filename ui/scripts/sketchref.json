@@ -438,7 +438,8 @@
   "EdgeWidth": null,
   "ConstructionWidth": null,
   "ExternalWidth": null,
-  "AxisLineWidth": null
+  "AxisLineWidth": null,
+  "InformationColor": null
  },
  "message_empty": {
   "status": "Empty sketch",

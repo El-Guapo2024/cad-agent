@@ -1,0 +1,6383 @@
+{
+ "freecad": "26.3.0 20260929 (Git shallow)",
+ "cases": {
+  "sweep_taper_pos": {
+   "Sketch": {
+    "type": "Wire",
+    "valid": true,
+    "volume": 0.0,
+    "area": 0.0,
+    "length": 80.0,
+    "bbox": [
+     0.0,
+     0.0,
+     0.0,
+     20.0,
+     20.0,
+     0.0
+    ],
+    "center_of_mass": [
+     10.0,
+     10.0,
+     0.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 0,
+    "wires": 1,
+    "edges": 4,
+    "vertices": 4
+   },
+   "Extrude": {
+    "type": "Solid",
+    "valid": true,
+    "volume": 3672.621999297,
+    "area": 1616.517707319,
+    "length": 408.529683308,
+    "bbox": [
+     -1.410615946,
+     -1.410615946,
+     -1e-07,
+     21.410615946,
+     21.410615946,
+     8.0000001
+    ],
+    "center_of_mass": [
+     10.0,
+     10.0,
+     4.175436682
+    ],
+    "solids": 1,
+    "shells": 1,
+    "faces": 6,
+    "wires": 6,
+    "edges": 12,
+    "vertices": 8
+   }
+  },
+  "sweep_taper_neg": {
+   "Sketch": {
+    "type": "Wire",
+    "valid": true,
+    "volume": 0.0,
+    "area": 0.0,
+    "length": 80.0,
+    "bbox": [
+     0.0,
+     0.0,
+     0.0,
+     20.0,
+     20.0,
+     0.0
+    ],
+    "center_of_mass": [
+     10.0,
+     10.0,
+     0.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 0,
+    "wires": 1,
+    "edges": 4,
+    "vertices": 4
+   },
+   "Extrude": {
+    "type": "Solid",
+    "valid": true,
+    "volume": 2686.698281401,
+    "area": 1274.197804338,
+    "length": 359.621772902,
+    "bbox": [
+     -1e-07,
+     -1e-07,
+     -1e-07,
+     20.0000001,
+     20.0000001,
+     8.0000001
+    ],
+    "center_of_mass": [
+     10.0,
+     10.0,
+     3.75291597
+    ],
+    "solids": 1,
+    "shells": 1,
+    "faces": 6,
+    "wires": 6,
+    "edges": 12,
+    "vertices": 8
+   }
+  },
+  "sweep_taper_rev": {
+   "Sketch": {
+    "type": "Wire",
+    "valid": true,
+    "volume": 0.0,
+    "area": 0.0,
+    "length": 80.0,
+    "bbox": [
+     0.0,
+     0.0,
+     0.0,
+     20.0,
+     20.0,
+     0.0
+    ],
+    "center_of_mass": [
+     10.0,
+     10.0,
+     0.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 0,
+    "wires": 1,
+    "edges": 4,
+    "vertices": 4
+   },
+   "Extrude": {
+    "type": "Solid",
+    "valid": true,
+    "volume": 5144.698674789,
+    "area": 1917.689585626,
+    "length": 599.95140303,
+    "bbox": [
+     -0.705308023,
+     -0.705308023,
+     -4.0000001,
+     20.705308023,
+     20.705308023,
+     8.0000001
+    ],
+    "center_of_mass": [
+     10.0,
+     10.0,
+     2.044234988
+    ],
+    "solids": 1,
+    "shells": 1,
+    "faces": 10,
+    "wires": 10,
+    "edges": 20,
+    "vertices": 12
+   }
+  },
+  "sweep_taper_rev_only": {
+   "Sketch": {
+    "type": "Wire",
+    "valid": true,
+    "volume": 0.0,
+    "area": 0.0,
+    "length": 80.0,
+    "bbox": [
+     0.0,
+     0.0,
+     0.0,
+     20.0,
+     20.0,
+     0.0
+    ],
+    "center_of_mass": [
+     10.0,
+     10.0,
+     0.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 0,
+    "wires": 1,
+    "edges": 4,
+    "vertices": 4
+   },
+   "Extrude": {
+    "type": "Solid",
+    "valid": true,
+    "volume": 3550.116361651,
+    "area": 1484.230686862,
+    "length": 545.723490043,
+    "bbox": [
+     -1e-07,
+     -1e-07,
+     -3.0000001,
+     20.0000001,
+     20.0000001,
+     6.0000001
+    ],
+    "center_of_mass": [
+     10.0,
+     10.0,
+     1.549129367
+    ],
+    "solids": 1,
+    "shells": 1,
+    "faces": 10,
+    "wires": 10,
+    "edges": 20,
+    "vertices": 12
+   }
+  },
+  "sweep_taper_symmetric": {
+   "Sketch": {
+    "type": "Wire",
+    "valid": true,
+    "volume": 0.0,
+    "area": 0.0,
+    "length": 80.0,
+    "bbox": [
+     0.0,
+     0.0,
+     0.0,
+     20.0,
+     20.0,
+     0.0
+    ],
+    "center_of_mass": [
+     10.0,
+     10.0,
+     0.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 0,
+    "wires": 1,
+    "edges": 4,
+    "vertices": 4
+   },
+   "Extrude": {
+    "type": "Solid",
+    "valid": true,
+    "volume": 4005.025349465,
+    "area": 1609.023070046,
+    "length": 561.197126916,
+    "bbox": [
+     -0.613922905,
+     -0.613922905,
+     -5.0000001,
+     20.613922905,
+     20.613922905,
+     5.0000001
+    ],
+    "center_of_mass": [
+     10.0,
+     10.0,
+     0.204384159
+    ],
+    "solids": 1,
+    "shells": 1,
+    "faces": 10,
+    "wires": 10,
+    "edges": 20,
+    "vertices": 12
+   }
+  },
+  "sweep_taper_reversed": {
+   "Sketch": {
+    "type": "Wire",
+    "valid": true,
+    "volume": 0.0,
+    "area": 0.0,
+    "length": 80.0,
+    "bbox": [
+     0.0,
+     0.0,
+     0.0,
+     20.0,
+     20.0,
+     0.0
+    ],
+    "center_of_mass": [
+     10.0,
+     10.0,
+     0.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 0,
+    "wires": 1,
+    "edges": 4,
+    "vertices": 4
+   },
+   "Extrude": {
+    "type": "Solid",
+    "valid": true,
+    "volume": 2279.915320719,
+    "area": 1356.209967757,
+    "length": 384.211508601,
+    "bbox": [
+     -1.339746062,
+     -1.339746062,
+     -5.0000001,
+     21.339746062,
+     21.339746062,
+     1e-07
+    ],
+    "center_of_mass": [
+     10.0,
+     10.0,
+     -2.604498905
+    ],
+    "solids": 1,
+    "shells": 1,
+    "faces": 6,
+    "wires": 6,
+    "edges": 12,
+    "vertices": 8
+   }
+  },
+  "sweep_taper_holes_inverted": {
+   "Sketch": {
+    "type": "Compound",
+    "valid": true,
+    "volume": 0.0,
+    "area": 0.0,
+    "length": 143.98229715,
+    "bbox": [
+     0.0,
+     0.0,
+     0.0,
+     30.0,
+     20.0,
+     0.0
+    ],
+    "center_of_mass": [
+     15.043638596,
+     10.0,
+     0.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 0,
+    "wires": 3,
+    "edges": 6,
+    "vertices": 6
+   },
+   "Extrude": {
+    "type": "Compound",
+    "valid": true,
+    "volume": 3489.751188712,
+    "area": 2023.427762802,
+    "length": 641.402812106,
+    "bbox": [
+     -0.843245108,
+     -0.843245108,
+     -1e-07,
+     30.843245108,
+     20.843245108,
+     6.0000001
+    ],
+    "center_of_mass": [
+     15.093818085,
+     10.0,
+     3.102977714
+    ],
+    "solids": 1,
+    "shells": 1,
+    "faces": 8,
+    "wires": 12,
+    "edges": 18,
+    "vertices": 12
+   }
+  },
+  "sweep_taper_polyhole_inverted": {
+   "Sketch": {
+    "type": "Compound",
+    "valid": true,
+    "volume": 0.0,
+    "area": 0.0,
+    "length": 160.0,
+    "bbox": [
+     0.0,
+     0.0,
+     0.0,
+     30.0,
+     30.0,
+     0.0
+    ],
+    "center_of_mass": [
+     15.0,
+     15.0,
+     0.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 0,
+    "wires": 2,
+    "edges": 8,
+    "vertices": 8
+   },
+   "Extrude": {
+    "type": "Compound",
+    "valid": true,
+    "volume": 5412.168109291,
+    "area": 2663.481222646,
+    "length": 1073.035015444,
+    "bbox": [
+     -0.139853724,
+     -0.139853724,
+     -2.0000001,
+     30.139853724,
+     30.139853724,
+     5.0000001
+    ],
+    "center_of_mass": [
+     15.0,
+     15.0,
+     1.417078979
+    ],
+    "solids": 1,
+    "shells": 1,
+    "faces": 18,
+    "wires": 20,
+    "edges": 40,
+    "vertices": 24
+   }
+  },
+  "sweep_taper_holes_sameasouter": {
+   "Sketch": {
+    "type": "Compound",
+    "valid": true,
+    "volume": 0.0,
+    "area": 0.0,
+    "length": 143.98229715,
+    "bbox": [
+     0.0,
+     0.0,
+     0.0,
+     30.0,
+     20.0,
+     0.0
+    ],
+    "center_of_mass": [
+     15.043638596,
+     10.0,
+     0.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 0,
+    "wires": 3,
+    "edges": 6,
+    "vertices": 6
+   },
+   "Extrude": {
+    "type": "Compound",
+    "valid": true,
+    "volume": 3267.224073582,
+    "area": 2013.456062471,
+    "length": 683.788929273,
+    "bbox": [
+     -0.843245108,
+     -0.843245108,
+     -1e-07,
+     30.843245108,
+     20.843245108,
+     6.0000001
+    ],
+    "center_of_mass": [
+     15.090478088,
+     10.0,
+     3.041882492
+    ],
+    "solids": 1,
+    "shells": 1,
+    "faces": 8,
+    "wires": 12,
+    "edges": 18,
+    "vertices": 12
+   }
+  },
+  "sweep_taper_polyhole_sameasouter": {
+   "Sketch": {
+    "type": "Compound",
+    "valid": true,
+    "volume": 0.0,
+    "area": 0.0,
+    "length": 160.0,
+    "bbox": [
+     0.0,
+     0.0,
+     0.0,
+     30.0,
+     30.0,
+     0.0
+    ],
+    "center_of_mass": [
+     15.0,
+     15.0,
+     0.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 0,
+    "wires": 2,
+    "edges": 8,
+    "vertices": 8
+   },
+   "Extrude": {
+    "type": "Compound",
+    "valid": true,
+    "volume": 5506.084054645,
+    "area": 2675.441113201,
+    "length": 1060.693653766,
+    "bbox": [
+     -0.139853724,
+     -0.139853724,
+     -2.0000001,
+     30.139853724,
+     30.139853724,
+     5.0000001
+    ],
+    "center_of_mass": [
+     15.0,
+     15.0,
+     1.459246671
+    ],
+    "solids": 1,
+    "shells": 1,
+    "faces": 18,
+    "wires": 20,
+    "edges": 40,
+    "vertices": 24
+   }
+  },
+  "sweep_taper_shell": {
+   "Sketch": {
+    "type": "Wire",
+    "valid": true,
+    "volume": 0.0,
+    "area": 0.0,
+    "length": 80.0,
+    "bbox": [
+     0.0,
+     0.0,
+     0.0,
+     20.0,
+     20.0,
+     0.0
+    ],
+    "center_of_mass": [
+     10.0,
+     10.0,
+     0.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 0,
+    "wires": 1,
+    "edges": 4,
+    "vertices": 4
+   },
+   "Extrude": {
+    "type": "Shell",
+    "valid": true,
+    "volume": 2444.877178084,
+    "area": 695.70909141,
+    "length": 237.244756542,
+    "bbox": [
+     -1.410615946,
+     -1.410615946,
+     -1e-07,
+     21.410615946,
+     21.410615946,
+     8.0000001
+    ],
+    "center_of_mass": [
+     10.0,
+     10.0,
+     4.087845261
+    ],
+    "solids": 0,
+    "shells": 1,
+    "faces": 4,
+    "wires": 4,
+    "edges": 12,
+    "vertices": 8
+   }
+  },
+  "sweep_taper_shell_holes": {
+   "Sketch": {
+    "type": "Compound",
+    "valid": true,
+    "volume": 0.0,
+    "area": 0.0,
+    "length": 143.98229715,
+    "bbox": [
+     0.0,
+     0.0,
+     0.0,
+     30.0,
+     20.0,
+     0.0
+    ],
+    "center_of_mass": [
+     15.043638596,
+     10.0,
+     0.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 0,
+    "wires": 3,
+    "edges": 6,
+    "vertices": 6
+   },
+   "Extrude": {
+    "type": "Compound",
+    "valid": true,
+    "volume": 2868.154658923,
+    "area": 899.705270098,
+    "length": 371.218225407,
+    "bbox": [
+     -0.524932081,
+     -0.524932081,
+     -1e-07,
+     30.524932081,
+     20.524932081,
+     6.0000001
+    ],
+    "center_of_mass": [
+     15.064141203,
+     10.0,
+     3.036135782
+    ],
+    "solids": 0,
+    "shells": 3,
+    "faces": 6,
+    "wires": 6,
+    "edges": 18,
+    "vertices": 12
+   }
+  },
+  "sweep_taper_open": {
+   "Sketch": {
+    "type": "Wire",
+    "valid": true,
+    "volume": 0.0,
+    "area": 0.0,
+    "length": 18.0,
+    "bbox": [
+     0.0,
+     0.0,
+     0.0,
+     10.0,
+     8.0,
+     0.0
+    ],
+    "center_of_mass": [
+     7.222222222,
+     1.777777778,
+     0.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 0,
+    "wires": 1,
+    "edges": 2,
+    "vertices": 3
+   },
+   "Extrude": {
+    "error": "BRep_API: command not done"
+   }
+  },
+  "sweep_taper_circle": {
+   "Circle": {
+    "type": "Edge",
+    "valid": true,
+    "volume": 0.0,
+    "area": 0.0,
+    "length": 31.415926536,
+    "bbox": [
+     -2.0,
+     -1.0,
+     1.0,
+     8.0,
+     9.0,
+     1.0
+    ],
+    "center_of_mass": [
+     3.0,
+     4.0,
+     1.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 0,
+    "wires": 0,
+    "edges": 1,
+    "vertices": 1
+   },
+   "Extrude": {
+    "type": "Solid",
+    "valid": true,
+    "volume": 378.561004228,
+    "area": 298.512768323,
+    "length": 124.554084353,
+    "bbox": [
+     -2.0000001,
+     -1.0000001,
+     0.9999999,
+     8.0000001,
+     9.0000001,
+     7.0000001
+    ],
+    "center_of_mass": [
+     3.0,
+     4.0,
+     3.764472409
+    ],
+    "solids": 1,
+    "shells": 1,
+    "faces": 3,
+    "wires": 3,
+    "edges": 3,
+    "vertices": 2
+   }
+  },
+  "sweep_taper_face": {
+   "Plane": {
+    "type": "Face",
+    "valid": true,
+    "volume": 0.0,
+    "area": 60.0,
+    "length": 32.0,
+    "bbox": [
+     0.0,
+     0.0,
+     0.0,
+     10.0,
+     6.0,
+     0.0
+    ],
+    "center_of_mass": [
+     5.0,
+     3.0,
+     0.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 1,
+    "wires": 1,
+    "edges": 4,
+    "vertices": 4
+   },
+   "Extrude": {
+    "type": "Shell",
+    "valid": true,
+    "volume": 227.769824789,
+    "area": 161.003812998,
+    "length": 111.637427194,
+    "bbox": [
+     -1.455881037,
+     -1.455881037,
+     -1e-07,
+     11.455881037,
+     7.455881037,
+     4.0000001
+    ],
+    "center_of_mass": [
+     5.0,
+     3.0,
+     2.102643772
+    ],
+    "solids": 0,
+    "shells": 1,
+    "faces": 4,
+    "wires": 4,
+    "edges": 12,
+    "vertices": 8
+   }
+  },
+  "sweep_taper_params": {
+   "Sketch": {
+    "type": "Wire",
+    "valid": true,
+    "volume": 0.0,
+    "area": 0.0,
+    "length": 80.0,
+    "bbox": [
+     0.0,
+     0.0,
+     0.0,
+     20.0,
+     20.0,
+     0.0
+    ],
+    "center_of_mass": [
+     10.0,
+     10.0,
+     0.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 0,
+    "wires": 1,
+    "edges": 4,
+    "vertices": 4
+   },
+   "Extrude": {
+    "type": "Solid",
+    "valid": true,
+    "volume": 4360.18685603,
+    "area": 1692.298058554,
+    "length": 570.80870722,
+    "bbox": [
+     -0.735729747,
+     -0.735729747,
+     -3.5000001,
+     20.735729747,
+     20.735729747,
+     7.0000001
+    ],
+    "center_of_mass": [
+     10.0,
+     10.0,
+     1.939455519
+    ],
+    "solids": 1,
+    "shells": 1,
+    "faces": 10,
+    "wires": 10,
+    "edges": 20,
+    "vertices": 12
+   }
+  },
+  "sweep_taper_too_much": {
+   "Sketch": {
+    "type": "Wire",
+    "valid": true,
+    "volume": 0.0,
+    "area": 0.0,
+    "length": 80.0,
+    "bbox": [
+     0.0,
+     0.0,
+     0.0,
+     20.0,
+     20.0,
+     0.0
+    ],
+    "center_of_mass": [
+     10.0,
+     10.0,
+     0.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 0,
+    "wires": 1,
+    "edges": 4,
+    "vertices": 4
+   },
+   "Extrude": {
+    "error": "BRep_API: command not done"
+   }
+  },
+  "sweep_loft": {
+   "Sketch": {
+    "type": "Wire",
+    "valid": true,
+    "volume": 0.0,
+    "area": 0.0,
+    "length": 80.0,
+    "bbox": [
+     -10.0,
+     -10.0,
+     0.0,
+     10.0,
+     10.0,
+     0.0
+    ],
+    "center_of_mass": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 0,
+    "wires": 1,
+    "edges": 4,
+    "vertices": 4
+   },
+   "Sketch001": {
+    "type": "Wire",
+    "valid": true,
+    "volume": 0.0,
+    "area": 0.0,
+    "length": 37.699111843,
+    "bbox": [
+     -6.0,
+     -6.0,
+     10.0,
+     6.0,
+     6.0,
+     10.0
+    ],
+    "center_of_mass": [
+     0.0,
+     0.0,
+     10.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 0,
+    "wires": 1,
+    "edges": 1,
+    "vertices": 1
+   },
+   "Sketch002": {
+    "type": "Wire",
+    "valid": true,
+    "volume": 0.0,
+    "area": 0.0,
+    "length": 32.0,
+    "bbox": [
+     -4.464101615,
+     -3.464101615,
+     20.0,
+     6.464101615,
+     7.464101615,
+     20.0
+    ],
+    "center_of_mass": [
+     1.0,
+     2.0,
+     20.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 0,
+    "wires": 1,
+    "edges": 4,
+    "vertices": 4
+   },
+   "Loft": {
+    "type": "Solid",
+    "valid": true,
+    "volume": 3011.549613499,
+    "area": 1422.945128763,
+    "length": 625.167289501,
+    "bbox": [
+     -10.0000001,
+     -10.0000001,
+     -1e-07,
+     10.0000001,
+     10.0000001,
+     20.0000001
+    ],
+    "center_of_mass": [
+     0.029915929,
+     0.057498573,
+     6.702167095
+    ],
+    "solids": 1,
+    "shells": 1,
+    "faces": 11,
+    "wires": 11,
+    "edges": 27,
+    "vertices": 18
+   }
+  },
+  "sweep_loft_ruled": {
+   "Sketch": {
+    "type": "Wire",
+    "valid": true,
+    "volume": 0.0,
+    "area": 0.0,
+    "length": 80.0,
+    "bbox": [
+     -10.0,
+     -10.0,
+     0.0,
+     10.0,
+     10.0,
+     0.0
+    ],
+    "center_of_mass": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 0,
+    "wires": 1,
+    "edges": 4,
+    "vertices": 4
+   },
+   "Sketch001": {
+    "type": "Wire",
+    "valid": true,
+    "volume": 0.0,
+    "area": 0.0,
+    "length": 37.699111843,
+    "bbox": [
+     -6.0,
+     -6.0,
+     10.0,
+     6.0,
+     6.0,
+     10.0
+    ],
+    "center_of_mass": [
+     0.0,
+     0.0,
+     10.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 0,
+    "wires": 1,
+    "edges": 1,
+    "vertices": 1
+   },
+   "Sketch002": {
+    "type": "Wire",
+    "valid": true,
+    "volume": 0.0,
+    "area": 0.0,
+    "length": 32.0,
+    "bbox": [
+     -4.464101615,
+     -3.464101615,
+     20.0,
+     6.464101615,
+     7.464101615,
+     20.0
+    ],
+    "center_of_mass": [
+     1.0,
+     2.0,
+     20.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 0,
+    "wires": 1,
+    "edges": 4,
+    "vertices": 4
+   },
+   "Loft": {
+    "type": "Solid",
+    "valid": true,
+    "volume": 3305.405419338,
+    "area": 1462.84090393,
+    "length": 697.066833922,
+    "bbox": [
+     -10.0000001,
+     -10.0000001,
+     -1e-07,
+     10.0000001,
+     10.0000001,
+     20.0000001
+    ],
+    "center_of_mass": [
+     0.118085476,
+     0.239991903,
+     6.806111088
+    ],
+    "solids": 1,
+    "shells": 1,
+    "faces": 20,
+    "wires": 20,
+    "edges": 45,
+    "vertices": 27
+   }
+  },
+  "sweep_loft_shell": {
+   "Sketch": {
+    "type": "Wire",
+    "valid": true,
+    "volume": 0.0,
+    "area": 0.0,
+    "length": 80.0,
+    "bbox": [
+     -10.0,
+     -10.0,
+     0.0,
+     10.0,
+     10.0,
+     0.0
+    ],
+    "center_of_mass": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 0,
+    "wires": 1,
+    "edges": 4,
+    "vertices": 4
+   },
+   "Sketch001": {
+    "type": "Wire",
+    "valid": true,
+    "volume": 0.0,
+    "area": 0.0,
+    "length": 37.699111843,
+    "bbox": [
+     -6.0,
+     -6.0,
+     10.0,
+     6.0,
+     6.0,
+     10.0
+    ],
+    "center_of_mass": [
+     0.0,
+     0.0,
+     10.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 0,
+    "wires": 1,
+    "edges": 1,
+    "vertices": 1
+   },
+   "Sketch002": {
+    "type": "Wire",
+    "valid": true,
+    "volume": 0.0,
+    "area": 0.0,
+    "length": 32.0,
+    "bbox": [
+     -4.464101615,
+     -3.464101615,
+     20.0,
+     6.464101615,
+     7.464101615,
+     20.0
+    ],
+    "center_of_mass": [
+     1.0,
+     2.0,
+     20.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 0,
+    "wires": 1,
+    "edges": 4,
+    "vertices": 4
+   },
+   "Loft": {
+    "type": "Shell",
+    "valid": true,
+    "volume": 1464.882946833,
+    "area": 958.945128763,
+    "length": 513.167289501,
+    "bbox": [
+     -10.0000001,
+     -10.0000001,
+     -1e-07,
+     10.0000001,
+     10.0000001,
+     20.0000001
+    ],
+    "center_of_mass": [
+     0.090602016,
+     0.181515009,
+     7.95745816
+    ],
+    "solids": 0,
+    "shells": 1,
+    "faces": 9,
+    "wires": 9,
+    "edges": 27,
+    "vertices": 18
+   }
+  },
+  "sweep_loft_degree": {
+   "Sketch": {
+    "type": "Wire",
+    "valid": true,
+    "volume": 0.0,
+    "area": 0.0,
+    "length": 80.0,
+    "bbox": [
+     -10.0,
+     -10.0,
+     0.0,
+     10.0,
+     10.0,
+     0.0
+    ],
+    "center_of_mass": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 0,
+    "wires": 1,
+    "edges": 4,
+    "vertices": 4
+   },
+   "Sketch001": {
+    "type": "Wire",
+    "valid": true,
+    "volume": 0.0,
+    "area": 0.0,
+    "length": 37.699111843,
+    "bbox": [
+     -6.0,
+     -6.0,
+     10.0,
+     6.0,
+     6.0,
+     10.0
+    ],
+    "center_of_mass": [
+     0.0,
+     0.0,
+     10.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 0,
+    "wires": 1,
+    "edges": 1,
+    "vertices": 1
+   },
+   "Sketch002": {
+    "type": "Wire",
+    "valid": true,
+    "volume": 0.0,
+    "area": 0.0,
+    "length": 32.0,
+    "bbox": [
+     -4.464101615,
+     -3.464101615,
+     20.0,
+     6.464101615,
+     7.464101615,
+     20.0
+    ],
+    "center_of_mass": [
+     1.0,
+     2.0,
+     20.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 0,
+    "wires": 1,
+    "edges": 4,
+    "vertices": 4
+   },
+   "Loft": {
+    "type": "Solid",
+    "valid": true,
+    "volume": 3011.549613499,
+    "area": 1422.945128763,
+    "length": 625.167289501,
+    "bbox": [
+     -10.0000001,
+     -10.0000001,
+     -1e-07,
+     10.0000001,
+     10.0000001,
+     20.0000001
+    ],
+    "center_of_mass": [
+     0.029915929,
+     0.057498573,
+     6.702167095
+    ],
+    "solids": 1,
+    "shells": 1,
+    "faces": 11,
+    "wires": 11,
+    "edges": 27,
+    "vertices": 18
+   }
+  },
+  "sweep_loft_degree_clamped": {
+   "Sketch": {
+    "type": "Wire",
+    "valid": true,
+    "volume": 0.0,
+    "area": 0.0,
+    "length": 80.0,
+    "bbox": [
+     -10.0,
+     -10.0,
+     0.0,
+     10.0,
+     10.0,
+     0.0
+    ],
+    "center_of_mass": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 0,
+    "wires": 1,
+    "edges": 4,
+    "vertices": 4
+   },
+   "Sketch001": {
+    "type": "Wire",
+    "valid": true,
+    "volume": 0.0,
+    "area": 0.0,
+    "length": 37.699111843,
+    "bbox": [
+     -6.0,
+     -6.0,
+     10.0,
+     6.0,
+     6.0,
+     10.0
+    ],
+    "center_of_mass": [
+     0.0,
+     0.0,
+     10.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 0,
+    "wires": 1,
+    "edges": 1,
+    "vertices": 1
+   },
+   "Sketch002": {
+    "type": "Wire",
+    "valid": true,
+    "volume": 0.0,
+    "area": 0.0,
+    "length": 32.0,
+    "bbox": [
+     -4.464101615,
+     -3.464101615,
+     20.0,
+     6.464101615,
+     7.464101615,
+     20.0
+    ],
+    "center_of_mass": [
+     1.0,
+     2.0,
+     20.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 0,
+    "wires": 1,
+    "edges": 4,
+    "vertices": 4
+   },
+   "Loft": {
+    "type": "Solid",
+    "valid": true,
+    "volume": 2430.5775047,
+    "area": 1161.48492929,
+    "length": 360.103023201,
+    "bbox": [
+     -10.0000001,
+     -10.0000001,
+     -1e-07,
+     10.0000001,
+     10.0000001,
+     10.0000001
+    ],
+    "center_of_mass": [
+     0.0,
+     -0.0,
+     4.016342605
+    ],
+    "solids": 1,
+    "shells": 1,
+    "faces": 7,
+    "wires": 7,
+    "edges": 15,
+    "vertices": 10
+   }
+  },
+  "sweep_loft_apex": {
+   "Sketch": {
+    "type": "Wire",
+    "valid": true,
+    "volume": 0.0,
+    "area": 0.0,
+    "length": 80.0,
+    "bbox": [
+     -10.0,
+     -10.0,
+     0.0,
+     10.0,
+     10.0,
+     0.0
+    ],
+    "center_of_mass": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 0,
+    "wires": 1,
+    "edges": 4,
+    "vertices": 4
+   },
+   "Vertex": {
+    "type": "Vertex",
+    "valid": true,
+    "volume": 0.0,
+    "area": 0.0,
+    "length": 0.0,
+    "bbox": [
+     2.0,
+     1.0,
+     15.0,
+     2.0,
+     1.0,
+     15.0
+    ],
+    "center_of_mass": [
+     2.0,
+     1.0,
+     15.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 0,
+    "wires": 0,
+    "edges": 0,
+    "vertices": 1
+   },
+   "Loft": {
+    "type": "Solid",
+    "valid": true,
+    "volume": 2000.0,
+    "area": 1123.033036346,
+    "length": 325.6659757,
+    "bbox": [
+     -10.0000001,
+     -10.0000001,
+     -1e-07,
+     10.0000001,
+     10.0000001,
+     15.0000001
+    ],
+    "center_of_mass": [
+     0.5,
+     0.25,
+     3.75
+    ],
+    "solids": 1,
+    "shells": 1,
+    "faces": 5,
+    "wires": 5,
+    "edges": 8,
+    "vertices": 5
+   }
+  },
+  "sweep_loft_apex_both": {
+   "Vertex": {
+    "type": "Vertex",
+    "valid": true,
+    "volume": 0.0,
+    "area": 0.0,
+    "length": 0.0,
+    "bbox": [
+     0.0,
+     0.0,
+     -8.0,
+     0.0,
+     0.0,
+     -8.0
+    ],
+    "center_of_mass": [
+     0.0,
+     0.0,
+     -8.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 0,
+    "wires": 0,
+    "edges": 0,
+    "vertices": 1
+   },
+   "Sketch001": {
+    "type": "Wire",
+    "valid": true,
+    "volume": 0.0,
+    "area": 0.0,
+    "length": 37.699111843,
+    "bbox": [
+     -6.0,
+     -6.0,
+     10.0,
+     6.0,
+     6.0,
+     10.0
+    ],
+    "center_of_mass": [
+     0.0,
+     0.0,
+     10.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 0,
+    "wires": 1,
+    "edges": 1,
+    "vertices": 1
+   },
+   "Vertex001": {
+    "type": "Vertex",
+    "valid": true,
+    "volume": 0.0,
+    "area": 0.0,
+    "length": 0.0,
+    "bbox": [
+     0.0,
+     0.0,
+     25.0,
+     0.0,
+     0.0,
+     25.0
+    ],
+    "center_of_mass": [
+     0.0,
+     0.0,
+     25.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 0,
+    "wires": 0,
+    "edges": 0,
+    "vertices": 1
+   },
+   "Loft": {
+    "type": "Solid",
+    "valid": true,
+    "volume": 2012.794291497,
+    "area": 876.389501896,
+    "length": 71.485771615,
+    "bbox": [
+     -6.033487706,
+     -6.033487698,
+     -8.0000001,
+     6.033487707,
+     6.033487698,
+     25.0000001
+    ],
+    "center_of_mass": [
+     2e-09,
+     0.0,
+     8.655575235
+    ],
+    "solids": 1,
+    "shells": 1,
+    "faces": 1,
+    "wires": 1,
+    "edges": 3,
+    "vertices": 2
+   }
+  },
+  "sweep_loft_two_wires": {
+   "Sketch": {
+    "type": "Wire",
+    "valid": true,
+    "volume": 0.0,
+    "area": 0.0,
+    "length": 80.0,
+    "bbox": [
+     -10.0,
+     -10.0,
+     0.0,
+     10.0,
+     10.0,
+     0.0
+    ],
+    "center_of_mass": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 0,
+    "wires": 1,
+    "edges": 4,
+    "vertices": 4
+   },
+   "Sketch001": {
+    "type": "Wire",
+    "valid": true,
+    "volume": 0.0,
+    "area": 0.0,
+    "length": 80.0,
+    "bbox": [
+     -10.0,
+     -10.0,
+     12.0,
+     10.0,
+     10.0,
+     12.0
+    ],
+    "center_of_mass": [
+     0.0,
+     0.0,
+     12.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 0,
+    "wires": 1,
+    "edges": 4,
+    "vertices": 4
+   },
+   "Loft": {
+    "type": "Solid",
+    "valid": true,
+    "volume": 4800.0,
+    "area": 1760.0,
+    "length": 416.0,
+    "bbox": [
+     -10.0000001,
+     -10.0000001,
+     -1e-07,
+     10.0000001,
+     10.0000001,
+     12.0000001
+    ],
+    "center_of_mass": [
+     0.0,
+     0.0,
+     6.0
+    ],
+    "solids": 1,
+    "shells": 1,
+    "faces": 6,
+    "wires": 6,
+    "edges": 12,
+    "vertices": 8
+   }
+  },
+  "sweep_loft_two_wires_curved": {
+   "Sketch": {
+    "type": "Wire",
+    "valid": true,
+    "volume": 0.0,
+    "area": 0.0,
+    "length": 80.0,
+    "bbox": [
+     -10.0,
+     -10.0,
+     0.0,
+     10.0,
+     10.0,
+     0.0
+    ],
+    "center_of_mass": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 0,
+    "wires": 1,
+    "edges": 4,
+    "vertices": 4
+   },
+   "Sketch001": {
+    "type": "Wire",
+    "valid": true,
+    "volume": 0.0,
+    "area": 0.0,
+    "length": 80.0,
+    "bbox": [
+     -10.0,
+     -10.0,
+     12.0,
+     10.0,
+     10.0,
+     12.0
+    ],
+    "center_of_mass": [
+     0.0,
+     0.0,
+     12.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 0,
+    "wires": 1,
+    "edges": 4,
+    "vertices": 4
+   },
+   "Loft": {
+    "type": "Solid",
+    "valid": true,
+    "volume": 4800.0,
+    "area": 1760.0,
+    "length": 416.0,
+    "bbox": [
+     -10.0000001,
+     -10.0000001,
+     -1e-07,
+     10.0000001,
+     10.0000001,
+     12.0000001
+    ],
+    "center_of_mass": [
+     0.0,
+     0.0,
+     6.0
+    ],
+    "solids": 1,
+    "shells": 1,
+    "faces": 6,
+    "wires": 6,
+    "edges": 12,
+    "vertices": 8
+   }
+  },
+  "sweep_loft_closed": {
+   "Circle0": {
+    "type": "Edge",
+    "valid": true,
+    "volume": 0.0,
+    "area": 0.0,
+    "length": 12.566370614,
+    "bbox": [
+     8.0,
+     -0.0,
+     -2.0,
+     12.0,
+     0.0,
+     2.0
+    ],
+    "center_of_mass": [
+     10.0,
+     0.0,
+     -0.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 0,
+    "wires": 0,
+    "edges": 1,
+    "vertices": 1
+   },
+   "Circle1": {
+    "type": "Edge",
+    "valid": true,
+    "volume": 0.0,
+    "area": 0.0,
+    "length": 12.566370614,
+    "bbox": [
+     -0.0,
+     8.0,
+     -2.0,
+     0.0,
+     12.0,
+     2.0
+    ],
+    "center_of_mass": [
+     0.0,
+     10.0,
+     -0.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 0,
+    "wires": 0,
+    "edges": 1,
+    "vertices": 1
+   },
+   "Circle2": {
+    "type": "Edge",
+    "valid": true,
+    "volume": 0.0,
+    "area": 0.0,
+    "length": 12.566370614,
+    "bbox": [
+     -12.0,
+     -0.0,
+     -2.0,
+     -8.0,
+     0.0,
+     2.0
+    ],
+    "center_of_mass": [
+     -10.0,
+     0.0,
+     -0.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 0,
+    "wires": 0,
+    "edges": 1,
+    "vertices": 1
+   },
+   "Circle3": {
+    "type": "Edge",
+    "valid": true,
+    "volume": 0.0,
+    "area": 0.0,
+    "length": 12.566370614,
+    "bbox": [
+     -0.0,
+     -12.0,
+     -2.0,
+     0.0,
+     -8.0,
+     2.0
+    ],
+    "center_of_mass": [
+     -0.0,
+     -10.0,
+     -0.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 0,
+    "wires": 0,
+    "edges": 1,
+    "vertices": 1
+   },
+   "Loft": {
+    "type": "Solid",
+    "valid": true,
+    "volume": 851.055784735,
+    "area": 840.530318563,
+    "length": 183.519252185,
+    "bbox": [
+     -12.0000001,
+     -12.316805843,
+     -2.000000097,
+     12.5000001,
+     12.316805843,
+     2.000000097
+    ],
+    "center_of_mass": [
+     1.389514401,
+     -0.0,
+     -0.0
+    ],
+    "solids": 1,
+    "shells": 1,
+    "faces": 1,
+    "wires": 1,
+    "edges": 2,
+    "vertices": 1
+   }
+  },
+  "sweep_loft_closed_ruled": {
+   "Circle0": {
+    "type": "Edge",
+    "valid": true,
+    "volume": 0.0,
+    "area": 0.0,
+    "length": 12.566370614,
+    "bbox": [
+     8.0,
+     -0.0,
+     -2.0,
+     12.0,
+     0.0,
+     2.0
+    ],
+    "center_of_mass": [
+     10.0,
+     0.0,
+     -0.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 0,
+    "wires": 0,
+    "edges": 1,
+    "vertices": 1
+   },
+   "Circle1": {
+    "type": "Edge",
+    "valid": true,
+    "volume": 0.0,
+    "area": 0.0,
+    "length": 12.566370614,
+    "bbox": [
+     -0.0,
+     8.0,
+     -2.0,
+     0.0,
+     12.0,
+     2.0
+    ],
+    "center_of_mass": [
+     0.0,
+     10.0,
+     -0.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 0,
+    "wires": 0,
+    "edges": 1,
+    "vertices": 1
+   },
+   "Circle2": {
+    "type": "Edge",
+    "valid": true,
+    "volume": 0.0,
+    "area": 0.0,
+    "length": 12.566370614,
+    "bbox": [
+     -12.0,
+     -0.0,
+     -2.0,
+     -8.0,
+     0.0,
+     2.0
+    ],
+    "center_of_mass": [
+     -10.0,
+     0.0,
+     -0.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 0,
+    "wires": 0,
+    "edges": 1,
+    "vertices": 1
+   },
+   "Circle3": {
+    "type": "Edge",
+    "valid": true,
+    "volume": 0.0,
+    "area": 0.0,
+    "length": 12.566370614,
+    "bbox": [
+     -0.0,
+     -12.0,
+     -2.0,
+     0.0,
+     -8.0,
+     2.0
+    ],
+    "center_of_mass": [
+     -0.0,
+     -10.0,
+     -0.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 0,
+    "wires": 0,
+    "edges": 1,
+    "vertices": 1
+   },
+   "Loft": {
+    "type": "Solid",
+    "valid": true,
+    "volume": 502.654189909,
+    "area": 611.231645155,
+    "length": 236.295466903,
+    "bbox": [
+     -12.0000001,
+     -12.0000001,
+     -2.0000001,
+     12.0000001,
+     12.0000001,
+     2.0000001
+    ],
+    "center_of_mass": [
+     -0.0,
+     0.0,
+     0.0
+    ],
+    "solids": 1,
+    "shells": 1,
+    "faces": 4,
+    "wires": 4,
+    "edges": 8,
+    "vertices": 4
+   }
+  },
+  "sweep_loft_face_edge": {
+   "Plane": {
+    "type": "Face",
+    "valid": true,
+    "volume": 0.0,
+    "area": 60.0,
+    "length": 32.0,
+    "bbox": [
+     0.0,
+     0.0,
+     0.0,
+     10.0,
+     6.0,
+     0.0
+    ],
+    "center_of_mass": [
+     5.0,
+     3.0,
+     0.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 1,
+    "wires": 1,
+    "edges": 4,
+    "vertices": 4
+   },
+   "Circle": {
+    "type": "Edge",
+    "valid": true,
+    "volume": 0.0,
+    "area": 0.0,
+    "length": 18.849555922,
+    "bbox": [
+     2.0,
+     0.0,
+     8.0,
+     8.0,
+     6.0,
+     8.0
+    ],
+    "center_of_mass": [
+     5.0,
+     3.0,
+     8.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 0,
+    "wires": 0,
+    "edges": 1,
+    "vertices": 1
+   },
+   "Loft": {
+    "type": "Solid",
+    "valid": true,
+    "volume": 347.672714561,
+    "area": 291.284592767,
+    "length": 186.080520731,
+    "bbox": [
+     -1e-07,
+     -1e-07,
+     -1e-07,
+     10.0000001,
+     6.0000001,
+     8.0000001
+    ],
+    "center_of_mass": [
+     5.0,
+     3.0,
+     3.513325189
+    ],
+    "solids": 1,
+    "shells": 1,
+    "faces": 7,
+    "wires": 7,
+    "edges": 15,
+    "vertices": 10
+   }
+  },
+  "sweep_loft_open_wires": {
+   "Sketch": {
+    "type": "Wire",
+    "valid": true,
+    "volume": 0.0,
+    "area": 0.0,
+    "length": 15.0,
+    "bbox": [
+     0.0,
+     0.0,
+     0.0,
+     10.0,
+     5.0,
+     0.0
+    ],
+    "center_of_mass": [
+     6.666666667,
+     0.833333333,
+     0.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 0,
+    "wires": 1,
+    "edges": 2,
+    "vertices": 3
+   },
+   "Sketch001": {
+    "type": "Wire",
+    "valid": true,
+    "volume": 0.0,
+    "area": 0.0,
+    "length": 15.70796325,
+    "bbox": [
+     0.0,
+     0.0,
+     8.0,
+     10.0,
+     5.0,
+     8.0
+    ],
+    "center_of_mass": [
+     5.000000006,
+     3.183098865,
+     8.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 0,
+    "wires": 1,
+    "edges": 1,
+    "vertices": 2
+   },
+   "Loft": {
+    "type": "Shell",
+    "valid": true,
+    "volume": -39.505735488,
+    "area": 111.202993938,
+    "length": 67.009906641,
+    "bbox": [
+     -1e-07,
+     -1e-07,
+     -1e-07,
+     10.0000001,
+     5.0000001,
+     8.0000001
+    ],
+    "center_of_mass": [
+     5.343882954,
+     2.004830795,
+     4.04251664
+    ],
+    "solids": 0,
+    "shells": 1,
+    "faces": 2,
+    "wires": 2,
+    "edges": 7,
+    "vertices": 6
+   }
+  },
+  "sweep_loft_errors": {
+   "Sketch": {
+    "type": "Wire",
+    "valid": true,
+    "volume": 0.0,
+    "area": 0.0,
+    "length": 80.0,
+    "bbox": [
+     -10.0,
+     -10.0,
+     0.0,
+     10.0,
+     10.0,
+     0.0
+    ],
+    "center_of_mass": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 0,
+    "wires": 1,
+    "edges": 4,
+    "vertices": 4
+   },
+   "Holes": {
+    "type": "Compound",
+    "valid": true,
+    "volume": 0.0,
+    "area": 0.0,
+    "length": 32.0,
+    "bbox": [
+     0.0,
+     0.0,
+     0.0,
+     10.0,
+     4.0,
+     0.0
+    ],
+    "center_of_mass": [
+     5.0,
+     2.0,
+     0.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 0,
+    "wires": 2,
+    "edges": 8,
+    "vertices": 8
+   },
+   "Loft": {
+    "error": "No sections linked."
+   },
+   "Loft001": {
+    "error": "Need at least two vertices, edges or wires to create loft face"
+   },
+   "Loft002": {
+    "error": "Segments of a loft do not have sufficient separation"
+   },
+   "Loft003": {
+    "error": "Profile shape is not a single vertex, edge, wire nor face."
+   }
+  },
+  "sweep_helix": {
+   "Helix": {
+    "type": "Wire",
+    "valid": true,
+    "volume": 0.0,
+    "area": 0.0,
+    "length": 95.951258256,
+    "bbox": [
+     -5.0000001,
+     -5.0000001,
+     -1e-07,
+     5.0000001,
+     5.0000001,
+     18.0000001
+    ],
+    "center_of_mass": [
+     -0.0,
+     -0.0,
+     9.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 0,
+    "wires": 1,
+    "edges": 1,
+    "vertices": 2
+   },
+   "Profile": {
+    "type": "Wire",
+    "valid": true,
+    "volume": 0.0,
+    "area": 0.0,
+    "length": 6.283185307,
+    "bbox": [
+     4.0,
+     -0.0,
+     -1.0,
+     6.0,
+     0.0,
+     1.0
+    ],
+    "center_of_mass": [
+     5.0,
+     0.0,
+     0.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 0,
+    "wires": 1,
+    "edges": 1,
+    "vertices": 1
+   },
+   "Sweep": {
+    "type": "Solid",
+    "valid": true,
+    "volume": 296.087635591,
+    "area": 603.876059107,
+    "length": 254.174216252,
+    "bbox": [
+     -6.000018119,
+     -6.000018119,
+     -1.0000001,
+     6.000018119,
+     6.000018119,
+     19.0000001
+    ],
+    "center_of_mass": [
+     3.663e-06,
+     -0.0,
+     9.0
+    ],
+    "solids": 1,
+    "shells": 1,
+    "faces": 3,
+    "wires": 3,
+    "edges": 3,
+    "vertices": 2
+   }
+  },
+  "sweep_helix_nofrenet": {
+   "Helix": {
+    "type": "Wire",
+    "valid": true,
+    "volume": 0.0,
+    "area": 0.0,
+    "length": 95.951258256,
+    "bbox": [
+     -5.0000001,
+     -5.0000001,
+     -1e-07,
+     5.0000001,
+     5.0000001,
+     18.0000001
+    ],
+    "center_of_mass": [
+     -0.0,
+     -0.0,
+     9.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 0,
+    "wires": 1,
+    "edges": 1,
+    "vertices": 2
+   },
+   "Profile": {
+    "type": "Wire",
+    "valid": true,
+    "volume": 0.0,
+    "area": 0.0,
+    "length": 6.283185307,
+    "bbox": [
+     4.0,
+     -0.0,
+     -1.0,
+     6.0,
+     0.0,
+     1.0
+    ],
+    "center_of_mass": [
+     5.0,
+     0.0,
+     0.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 0,
+    "wires": 1,
+    "edges": 1,
+    "vertices": 1
+   },
+   "Sweep": {
+    "type": "Solid",
+    "valid": true,
+    "volume": 296.088120751,
+    "area": 603.918645616,
+    "length": 211.577715926,
+    "bbox": [
+     -5.99997813,
+     -5.998942048,
+     -1.0000001,
+     6.0000001,
+     5.99861781,
+     18.941031138
+    ],
+    "center_of_mass": [
+     0.000273818,
+     0.000171391,
+     8.999102572
+    ],
+    "solids": 1,
+    "shells": 1,
+    "faces": 3,
+    "wires": 3,
+    "edges": 3,
+    "vertices": 2
+   }
+  },
+  "sweep_helix_shell": {
+   "Helix": {
+    "type": "Wire",
+    "valid": true,
+    "volume": 0.0,
+    "area": 0.0,
+    "length": 95.951258256,
+    "bbox": [
+     -5.0000001,
+     -5.0000001,
+     -1e-07,
+     5.0000001,
+     5.0000001,
+     18.0000001
+    ],
+    "center_of_mass": [
+     -0.0,
+     -0.0,
+     9.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 0,
+    "wires": 1,
+    "edges": 1,
+    "vertices": 2
+   },
+   "Profile": {
+    "type": "Wire",
+    "valid": true,
+    "volume": 0.0,
+    "area": 0.0,
+    "length": 6.283185307,
+    "bbox": [
+     4.0,
+     -0.0,
+     -1.0,
+     6.0,
+     0.0,
+     1.0
+    ],
+    "center_of_mass": [
+     5.0,
+     0.0,
+     0.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 0,
+    "wires": 1,
+    "edges": 1,
+    "vertices": 1
+   },
+   "Sweep": {
+    "type": "Shell",
+    "valid": true,
+    "volume": -296.087635591,
+    "area": 597.592873801,
+    "length": 241.607845638,
+    "bbox": [
+     -6.000018119,
+     -6.000018119,
+     -1.0000001,
+     6.000018119,
+     6.000018119,
+     19.0000001
+    ],
+    "center_of_mass": [
+     3.263e-06,
+     -0.0,
+     9.0
+    ],
+    "solids": 0,
+    "shells": 1,
+    "faces": 1,
+    "wires": 1,
+    "edges": 3,
+    "vertices": 2
+   }
+  },
+  "sweep_path_transformed": {
+   "Path": {
+    "type": "Wire",
+    "valid": true,
+    "volume": 0.0,
+    "area": 0.0,
+    "length": 53.027756377,
+    "bbox": [
+     0.0,
+     0.0,
+     0.0,
+     20.0,
+     25.0,
+     0.0
+    ],
+    "center_of_mass": [
+     13.678628029,
+     8.920896524,
+     0.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 0,
+    "wires": 1,
+    "edges": 3,
+    "vertices": 4
+   },
+   "Square": {
+    "type": "Wire",
+    "valid": true,
+    "volume": 0.0,
+    "area": 0.0,
+    "length": 16.0,
+    "bbox": [
+     0.0,
+     -2.0,
+     -2.0,
+     0.0,
+     2.0,
+     2.0
+    ],
+    "center_of_mass": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 0,
+    "wires": 1,
+    "edges": 4,
+    "vertices": 4
+   },
+   "Sweep": {
+    "type": "Solid",
+    "valid": false,
+    "volume": 80.0,
+    "area": 736.222051019,
+    "length": 552.222051019,
+    "bbox": [
+     0.0,
+     -2.0,
+     -2.0,
+     20.0,
+     27.0,
+     2.0
+    ],
+    "center_of_mass": [
+     2.5,
+     -60.0,
+     -0.0
+    ],
+    "solids": 1,
+    "shells": 1,
+    "faces": 14,
+    "wires": 14,
+    "edges": 28,
+    "vertices": 16
+   }
+  },
+  "sweep_path_right": {
+   "Path": {
+    "type": "Wire",
+    "valid": true,
+    "volume": 0.0,
+    "area": 0.0,
+    "length": 53.027756377,
+    "bbox": [
+     0.0,
+     0.0,
+     0.0,
+     20.0,
+     25.0,
+     0.0
+    ],
+    "center_of_mass": [
+     13.678628029,
+     8.920896524,
+     0.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 0,
+    "wires": 1,
+    "edges": 3,
+    "vertices": 4
+   },
+   "Square": {
+    "type": "Wire",
+    "valid": true,
+    "volume": 0.0,
+    "area": 0.0,
+    "length": 16.0,
+    "bbox": [
+     0.0,
+     -2.0,
+     -2.0,
+     0.0,
+     2.0,
+     2.0
+    ],
+    "center_of_mass": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 0,
+    "wires": 1,
+    "edges": 4,
+    "vertices": 4
+   },
+   "Sweep": {
+    "type": "Solid",
+    "valid": true,
+    "volume": 848.444102037,
+    "area": 880.444102037,
+    "length": 560.996752766,
+    "bbox": [
+     0.0,
+     -2.0,
+     -2.0,
+     22.0,
+     26.664100589,
+     2.0
+    ],
+    "center_of_mass": [
+     13.740261384,
+     8.895980555,
+     -0.0
+    ],
+    "solids": 1,
+    "shells": 1,
+    "faces": 14,
+    "wires": 14,
+    "edges": 28,
+    "vertices": 16
+   }
+  },
+  "sweep_path_round": {
+   "Path": {
+    "type": "Wire",
+    "valid": true,
+    "volume": 0.0,
+    "area": 0.0,
+    "length": 53.027756377,
+    "bbox": [
+     0.0,
+     0.0,
+     0.0,
+     20.0,
+     25.0,
+     0.0
+    ],
+    "center_of_mass": [
+     13.678628029,
+     8.920896524,
+     0.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 0,
+    "wires": 1,
+    "edges": 3,
+    "vertices": 4
+   },
+   "Square": {
+    "type": "Wire",
+    "valid": true,
+    "volume": 0.0,
+    "area": 0.0,
+    "length": 16.0,
+    "bbox": [
+     0.0,
+     -2.0,
+     -2.0,
+     0.0,
+     2.0,
+     2.0
+    ],
+    "center_of_mass": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 0,
+    "wires": 1,
+    "edges": 4,
+    "vertices": 4
+   },
+   "Sweep": {
+    "type": "Solid",
+    "valid": true,
+    "volume": 844.309882302,
+    "area": 874.242772434,
+    "length": 584.475182157,
+    "bbox": [
+     0.0,
+     -2.0,
+     -2.0,
+     22.0,
+     26.664100589,
+     2.0
+    ],
+    "center_of_mass": [
+     13.701787959,
+     8.932604768,
+     0.0
+    ],
+    "solids": 1,
+    "shells": 1,
+    "faces": 20,
+    "wires": 20,
+    "edges": 42,
+    "vertices": 24
+   }
+  },
+  "sweep_path_two_edges": {
+   "Path": {
+    "type": "Wire",
+    "valid": true,
+    "volume": 0.0,
+    "area": 0.0,
+    "length": 53.027756377,
+    "bbox": [
+     0.0,
+     0.0,
+     0.0,
+     20.0,
+     25.0,
+     0.0
+    ],
+    "center_of_mass": [
+     13.678628029,
+     8.920896524,
+     0.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 0,
+    "wires": 1,
+    "edges": 3,
+    "vertices": 4
+   },
+   "Square": {
+    "type": "Wire",
+    "valid": true,
+    "volume": 0.0,
+    "area": 0.0,
+    "length": 16.0,
+    "bbox": [
+     0.0,
+     -2.0,
+     -2.0,
+     0.0,
+     2.0,
+     2.0
+    ],
+    "center_of_mass": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 0,
+    "wires": 1,
+    "edges": 4,
+    "vertices": 4
+   },
+   "Sweep": {
+    "type": "Solid",
+    "valid": true,
+    "volume": 556.566370614,
+    "area": 586.849555922,
+    "length": 391.880079113,
+    "bbox": [
+     0.0,
+     -2.0,
+     -2.0,
+     22.0,
+     15.0,
+     2.0
+    ],
+    "center_of_mass": [
+     14.298373921,
+     3.186202809,
+     -0.0
+    ],
+    "solids": 1,
+    "shells": 1,
+    "faces": 13,
+    "wires": 13,
+    "edges": 27,
+    "vertices": 16
+   }
+  },
+  "sweep_path_one_edge": {
+   "Path": {
+    "type": "Wire",
+    "valid": true,
+    "volume": 0.0,
+    "area": 0.0,
+    "length": 53.027756377,
+    "bbox": [
+     0.0,
+     0.0,
+     0.0,
+     20.0,
+     25.0,
+     0.0
+    ],
+    "center_of_mass": [
+     13.678628029,
+     8.920896524,
+     0.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 0,
+    "wires": 1,
+    "edges": 3,
+    "vertices": 4
+   },
+   "Square": {
+    "type": "Wire",
+    "valid": true,
+    "volume": 0.0,
+    "area": 0.0,
+    "length": 16.0,
+    "bbox": [
+     0.0,
+     -2.0,
+     -2.0,
+     0.0,
+     2.0,
+     2.0
+    ],
+    "center_of_mass": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 0,
+    "wires": 1,
+    "edges": 4,
+    "vertices": 4
+   },
+   "Sweep": {
+    "type": "Solid",
+    "valid": true,
+    "volume": 320.0,
+    "area": 352.0,
+    "length": 224.0,
+    "bbox": [
+     0.0,
+     -2.0,
+     -2.0,
+     20.0,
+     2.0,
+     2.0
+    ],
+    "center_of_mass": [
+     10.0,
+     0.0,
+     -0.0
+    ],
+    "solids": 1,
+    "shells": 1,
+    "faces": 6,
+    "wires": 6,
+    "edges": 12,
+    "vertices": 8
+   }
+  },
+  "sweep_path_whole": {
+   "Path": {
+    "type": "Wire",
+    "valid": true,
+    "volume": 0.0,
+    "area": 0.0,
+    "length": 53.027756377,
+    "bbox": [
+     0.0,
+     0.0,
+     0.0,
+     20.0,
+     25.0,
+     0.0
+    ],
+    "center_of_mass": [
+     13.678628029,
+     8.920896524,
+     0.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 0,
+    "wires": 1,
+    "edges": 3,
+    "vertices": 4
+   },
+   "Square": {
+    "type": "Wire",
+    "valid": true,
+    "volume": 0.0,
+    "area": 0.0,
+    "length": 16.0,
+    "bbox": [
+     0.0,
+     -2.0,
+     -2.0,
+     0.0,
+     2.0,
+     2.0
+    ],
+    "center_of_mass": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 0,
+    "wires": 1,
+    "edges": 4,
+    "vertices": 4
+   },
+   "Sweep": {
+    "type": "Solid",
+    "valid": true,
+    "volume": 848.444102037,
+    "area": 880.444102037,
+    "length": 560.996752766,
+    "bbox": [
+     0.0,
+     -2.0,
+     -2.0,
+     22.0,
+     26.664100589,
+     2.0
+    ],
+    "center_of_mass": [
+     13.740261384,
+     8.895980555,
+     -0.0
+    ],
+    "solids": 1,
+    "shells": 1,
+    "faces": 14,
+    "wires": 14,
+    "edges": 28,
+    "vertices": 16
+   }
+  },
+  "sweep_two_sections": {
+   "Sketch": {
+    "type": "Wire",
+    "valid": true,
+    "volume": 0.0,
+    "area": 0.0,
+    "length": 24.0,
+    "bbox": [
+     -3.0,
+     -3.0,
+     0.0,
+     3.0,
+     3.0,
+     0.0
+    ],
+    "center_of_mass": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 0,
+    "wires": 1,
+    "edges": 4,
+    "vertices": 4
+   },
+   "Sketch001": {
+    "type": "Wire",
+    "valid": true,
+    "volume": 0.0,
+    "area": 0.0,
+    "length": 12.566370614,
+    "bbox": [
+     -2.0,
+     -2.0,
+     20.0,
+     2.0,
+     2.0,
+     20.0
+    ],
+    "center_of_mass": [
+     0.0,
+     0.0,
+     20.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 0,
+    "wires": 1,
+    "edges": 1,
+    "vertices": 1
+   },
+   "Line": {
+    "type": "Edge",
+    "valid": true,
+    "volume": 0.0,
+    "area": 0.0,
+    "length": 20.0,
+    "bbox": [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     20.0
+    ],
+    "center_of_mass": [
+     0.0,
+     0.0,
+     10.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 0,
+    "wires": 0,
+    "edges": 1,
+    "vertices": 2
+   },
+   "Sweep": {
+    "type": "Solid",
+    "valid": true,
+    "volume": 467.826414686,
+    "area": 409.335077717,
+    "length": 274.185455287,
+    "bbox": [
+     -3.0000001,
+     -3.0000001,
+     -1e-07,
+     3.0000001,
+     3.0000001,
+     20.0000001
+    ],
+    "center_of_mass": [
+     0.0,
+     -0.0,
+     8.330318779
+    ],
+    "solids": 1,
+    "shells": 1,
+    "faces": 7,
+    "wires": 7,
+    "edges": 15,
+    "vertices": 10
+   }
+  },
+  "sweep_errors": {
+   "Path": {
+    "type": "Wire",
+    "valid": true,
+    "volume": 0.0,
+    "area": 0.0,
+    "length": 53.027756377,
+    "bbox": [
+     0.0,
+     0.0,
+     0.0,
+     20.0,
+     25.0,
+     0.0
+    ],
+    "center_of_mass": [
+     13.678628029,
+     8.920896524,
+     0.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 0,
+    "wires": 1,
+    "edges": 3,
+    "vertices": 4
+   },
+   "Square": {
+    "type": "Wire",
+    "valid": true,
+    "volume": 0.0,
+    "area": 0.0,
+    "length": 16.0,
+    "bbox": [
+     0.0,
+     -2.0,
+     -2.0,
+     0.0,
+     2.0,
+     2.0
+    ],
+    "center_of_mass": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 0,
+    "wires": 1,
+    "edges": 4,
+    "vertices": 4
+   },
+   "Sweep": {
+    "error": "No spine"
+   },
+   "Sweep001": {
+    "error": "No sections linked."
+   },
+   "Sweep002": {
+    "error": "A fatal error occurred when making the sweep"
+   }
+  },
+  "sweep_offset_arc_out": {
+   "Box": {
+    "type": "Solid",
+    "valid": true,
+    "volume": 1600.0,
+    "area": 880.0,
+    "length": 304.0,
+    "bbox": [
+     0.0,
+     0.0,
+     0.0,
+     20.0,
+     10.0,
+     8.0
+    ],
+    "center_of_mass": [
+     10.0,
+     5.0,
+     4.0
+    ],
+    "solids": 1,
+    "shells": 1,
+    "faces": 6,
+    "wires": 6,
+    "edges": 12,
+    "vertices": 8
+   },
+   "Offset": {
+    "type": "Solid",
+    "valid": true,
+    "volume": 3871.032404869,
+    "area": 1407.787565747,
+    "length": 758.796447372,
+    "bbox": [
+     -2.0,
+     -2.0,
+     -2.0,
+     22.0,
+     12.0,
+     10.0
+    ],
+    "center_of_mass": [
+     10.0,
+     5.0,
+     4.0
+    ],
+    "solids": 1,
+    "shells": 1,
+    "faces": 26,
+    "wires": 26,
+    "edges": 48,
+    "vertices": 24
+   }
+  },
+  "sweep_offset_tangent_out": {
+   "Box": {
+    "type": "Solid",
+    "valid": true,
+    "volume": 1600.0,
+    "area": 880.0,
+    "length": 304.0,
+    "bbox": [
+     0.0,
+     0.0,
+     0.0,
+     20.0,
+     10.0,
+     8.0
+    ],
+    "center_of_mass": [
+     10.0,
+     5.0,
+     4.0
+    ],
+    "solids": 1,
+    "shells": 1,
+    "faces": 6,
+    "wires": 6,
+    "edges": 12,
+    "vertices": 8
+   },
+   "Offset": {
+    "error": "BRepOffsetAPI_MakeOffsetShape not done"
+   }
+  },
+  "sweep_offset_intersection_out": {
+   "Box": {
+    "type": "Solid",
+    "valid": true,
+    "volume": 1600.0,
+    "area": 880.0,
+    "length": 304.0,
+    "bbox": [
+     0.0,
+     0.0,
+     0.0,
+     20.0,
+     10.0,
+     8.0
+    ],
+    "center_of_mass": [
+     10.0,
+     5.0,
+     4.0
+    ],
+    "solids": 1,
+    "shells": 1,
+    "faces": 6,
+    "wires": 6,
+    "edges": 12,
+    "vertices": 8
+   },
+   "Offset": {
+    "type": "Solid",
+    "valid": true,
+    "volume": 4032.0,
+    "area": 1584.0,
+    "length": 400.0,
+    "bbox": [
+     -2.0,
+     -2.0,
+     -2.0,
+     22.0,
+     12.0,
+     10.0
+    ],
+    "center_of_mass": [
+     10.0,
+     5.0,
+     4.0
+    ],
+    "solids": 1,
+    "shells": 1,
+    "faces": 6,
+    "wires": 6,
+    "edges": 12,
+    "vertices": 8
+   }
+  },
+  "sweep_offset_arc_in": {
+   "Box": {
+    "type": "Solid",
+    "valid": true,
+    "volume": 1600.0,
+    "area": 880.0,
+    "length": 304.0,
+    "bbox": [
+     0.0,
+     0.0,
+     0.0,
+     20.0,
+     10.0,
+     8.0
+    ],
+    "center_of_mass": [
+     10.0,
+     5.0,
+     4.0
+    ],
+    "solids": 1,
+    "shells": 1,
+    "faces": 6,
+    "wires": 6,
+    "edges": 12,
+    "vertices": 8
+   },
+   "Offset": {
+    "type": "Solid",
+    "valid": true,
+    "volume": 595.0,
+    "area": 478.0,
+    "length": 232.0,
+    "bbox": [
+     1.5,
+     1.5,
+     1.5,
+     18.5,
+     8.5,
+     6.5
+    ],
+    "center_of_mass": [
+     10.0,
+     5.0,
+     4.0
+    ],
+    "solids": 1,
+    "shells": 1,
+    "faces": 6,
+    "wires": 6,
+    "edges": 12,
+    "vertices": 8
+   }
+  },
+  "sweep_offset_tangent_in": {
+   "Box": {
+    "type": "Solid",
+    "valid": true,
+    "volume": 1600.0,
+    "area": 880.0,
+    "length": 304.0,
+    "bbox": [
+     0.0,
+     0.0,
+     0.0,
+     20.0,
+     10.0,
+     8.0
+    ],
+    "center_of_mass": [
+     10.0,
+     5.0,
+     4.0
+    ],
+    "solids": 1,
+    "shells": 1,
+    "faces": 6,
+    "wires": 6,
+    "edges": 12,
+    "vertices": 8
+   },
+   "Offset": {
+    "error": "BRepOffsetAPI_MakeOffsetShape not done"
+   }
+  },
+  "sweep_offset_intersection_in": {
+   "Box": {
+    "type": "Solid",
+    "valid": true,
+    "volume": 1600.0,
+    "area": 880.0,
+    "length": 304.0,
+    "bbox": [
+     0.0,
+     0.0,
+     0.0,
+     20.0,
+     10.0,
+     8.0
+    ],
+    "center_of_mass": [
+     10.0,
+     5.0,
+     4.0
+    ],
+    "solids": 1,
+    "shells": 1,
+    "faces": 6,
+    "wires": 6,
+    "edges": 12,
+    "vertices": 8
+   },
+   "Offset": {
+    "type": "Solid",
+    "valid": true,
+    "volume": 595.0,
+    "area": 478.0,
+    "length": 232.0,
+    "bbox": [
+     1.5,
+     1.5,
+     1.5,
+     18.5,
+     8.5,
+     6.5
+    ],
+    "center_of_mass": [
+     10.0,
+     5.0,
+     4.0
+    ],
+    "solids": 1,
+    "shells": 1,
+    "faces": 6,
+    "wires": 6,
+    "edges": 12,
+    "vertices": 8
+   }
+  },
+  "sweep_offset_cylinder": {
+   "Cylinder": {
+    "type": "Solid",
+    "valid": true,
+    "volume": 301.592894745,
+    "area": 251.327412287,
+    "length": 112.530964915,
+    "bbox": [
+     -4.0,
+     -4.0,
+     0.0,
+     4.0,
+     4.0,
+     6.0
+    ],
+    "center_of_mass": [
+     -0.0,
+     -0.0,
+     3.0
+    ],
+    "solids": 1,
+    "shells": 1,
+    "faces": 3,
+    "wires": 3,
+    "edges": 3,
+    "vertices": 2
+   },
+   "Offset": {
+    "type": "Solid",
+    "valid": true,
+    "volume": 715.070849607,
+    "area": 416.782300187,
+    "length": 252.331838,
+    "bbox": [
+     -5.2500001,
+     -5.2500001,
+     -1.2500001,
+     5.2500001,
+     5.2500001,
+     7.2500001
+    ],
+    "center_of_mass": [
+     -0.0,
+     0.0,
+     3.0
+    ],
+    "solids": 1,
+    "shells": 1,
+    "faces": 5,
+    "wires": 5,
+    "edges": 7,
+    "vertices": 4
+   }
+  },
+  "sweep_offset_intersection_flag": {
+   "Box": {
+    "type": "Solid",
+    "valid": true,
+    "volume": 1600.0,
+    "area": 880.0,
+    "length": 304.0,
+    "bbox": [
+     0.0,
+     0.0,
+     0.0,
+     20.0,
+     10.0,
+     8.0
+    ],
+    "center_of_mass": [
+     10.0,
+     5.0,
+     4.0
+    ],
+    "solids": 1,
+    "shells": 1,
+    "faces": 6,
+    "wires": 6,
+    "edges": 12,
+    "vertices": 8
+   },
+   "Offset": {
+    "type": "Solid",
+    "valid": true,
+    "volume": 2640.0,
+    "area": 1208.0,
+    "length": 352.0,
+    "bbox": [
+     -1.0,
+     -1.0,
+     -1.0,
+     21.0,
+     11.0,
+     9.0
+    ],
+    "center_of_mass": [
+     10.0,
+     5.0,
+     4.0
+    ],
+    "solids": 1,
+    "shells": 1,
+    "faces": 6,
+    "wires": 6,
+    "edges": 12,
+    "vertices": 8
+   }
+  },
+  "sweep_offset_mode_pipe": {
+   "Box": {
+    "type": "Solid",
+    "valid": true,
+    "volume": 1600.0,
+    "area": 880.0,
+    "length": 304.0,
+    "bbox": [
+     0.0,
+     0.0,
+     0.0,
+     20.0,
+     10.0,
+     8.0
+    ],
+    "center_of_mass": [
+     10.0,
+     5.0,
+     4.0
+    ],
+    "solids": 1,
+    "shells": 1,
+    "faces": 6,
+    "wires": 6,
+    "edges": 12,
+    "vertices": 8
+   },
+   "Offset": {
+    "type": "Solid",
+    "valid": true,
+    "volume": 2603.569311083,
+    "area": 1131.327412292,
+    "length": 683.398223686,
+    "bbox": [
+     -1.0,
+     -1.0,
+     -1.0,
+     21.0,
+     11.0,
+     9.0
+    ],
+    "center_of_mass": [
+     10.0,
+     5.0,
+     4.0
+    ],
+    "solids": 1,
+    "shells": 1,
+    "faces": 26,
+    "wires": 26,
+    "edges": 48,
+    "vertices": 24
+   }
+  },
+  "sweep_offset_mode_rectoverso": {
+   "Box": {
+    "type": "Solid",
+    "valid": true,
+    "volume": 1600.0,
+    "area": 880.0,
+    "length": 304.0,
+    "bbox": [
+     0.0,
+     0.0,
+     0.0,
+     20.0,
+     10.0,
+     8.0
+    ],
+    "center_of_mass": [
+     10.0,
+     5.0,
+     4.0
+    ],
+    "solids": 1,
+    "shells": 1,
+    "faces": 6,
+    "wires": 6,
+    "edges": 12,
+    "vertices": 8
+   },
+   "Offset": {
+    "type": "Solid",
+    "valid": true,
+    "volume": 2603.569311083,
+    "area": 1131.327412292,
+    "length": 683.398223686,
+    "bbox": [
+     -1.0,
+     -1.0,
+     -1.0,
+     21.0,
+     11.0,
+     9.0
+    ],
+    "center_of_mass": [
+     10.0,
+     5.0,
+     4.0
+    ],
+    "solids": 1,
+    "shells": 1,
+    "faces": 26,
+    "wires": 26,
+    "edges": 48,
+    "vertices": 24
+   }
+  },
+  "sweep_offset_face_fill": {
+   "Plane": {
+    "type": "Face",
+    "valid": true,
+    "volume": 0.0,
+    "area": 60.0,
+    "length": 32.0,
+    "bbox": [
+     0.0,
+     0.0,
+     0.0,
+     10.0,
+     6.0,
+     0.0
+    ],
+    "center_of_mass": [
+     5.0,
+     3.0,
+     0.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 1,
+    "wires": 1,
+    "edges": 4,
+    "vertices": 4
+   },
+   "Offset": {
+    "type": "Solid",
+    "valid": true,
+    "volume": 120.0,
+    "area": 184.0,
+    "length": 144.0,
+    "bbox": [
+     -1e-07,
+     -1e-07,
+     -1e-07,
+     10.0000001,
+     6.0000001,
+     2.0000001
+    ],
+    "center_of_mass": [
+     5.0,
+     3.0,
+     1.0
+    ],
+    "solids": 1,
+    "shells": 1,
+    "faces": 6,
+    "wires": 6,
+    "edges": 12,
+    "vertices": 8
+   }
+  },
+  "sweep_offset_face": {
+   "Plane": {
+    "type": "Face",
+    "valid": true,
+    "volume": 0.0,
+    "area": 60.0,
+    "length": 32.0,
+    "bbox": [
+     0.0,
+     0.0,
+     0.0,
+     10.0,
+     6.0,
+     0.0
+    ],
+    "center_of_mass": [
+     5.0,
+     3.0,
+     0.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 1,
+    "wires": 1,
+    "edges": 4,
+    "vertices": 4
+   },
+   "Offset": {
+    "type": "Shell",
+    "valid": true,
+    "volume": 0.0,
+    "area": 60.0,
+    "length": 32.0,
+    "bbox": [
+     0.0,
+     0.0,
+     -2.0,
+     10.0,
+     6.0,
+     -2.0
+    ],
+    "center_of_mass": [
+     5.0,
+     3.0,
+     -2.0
+    ],
+    "solids": 0,
+    "shells": 1,
+    "faces": 1,
+    "wires": 1,
+    "edges": 4,
+    "vertices": 4
+   }
+  },
+  "sweep_offset_params": {
+   "Box": {
+    "type": "Solid",
+    "valid": true,
+    "volume": 1600.0,
+    "area": 880.0,
+    "length": 304.0,
+    "bbox": [
+     0.0,
+     0.0,
+     0.0,
+     20.0,
+     10.0,
+     8.0
+    ],
+    "center_of_mass": [
+     10.0,
+     5.0,
+     4.0
+    ],
+    "solids": 1,
+    "shells": 1,
+    "faces": 6,
+    "wires": 6,
+    "edges": 12,
+    "vertices": 8
+   },
+   "Offset": {
+    "type": "Solid",
+    "valid": true,
+    "volume": 3202.743338918,
+    "area": 1266.415896403,
+    "length": 721.097335529,
+    "bbox": [
+     -1.5,
+     -1.5,
+     -1.5,
+     21.5,
+     11.5,
+     9.5
+    ],
+    "center_of_mass": [
+     10.0,
+     5.0,
+     4.0
+    ],
+    "solids": 1,
+    "shells": 1,
+    "faces": 26,
+    "wires": 26,
+    "edges": 48,
+    "vertices": 24
+   }
+  },
+  "sweep_offset_errors": {
+   "Offset": {
+    "error": "No source shape linked."
+   }
+  },
+  "sweep_offset2d_arc_out": {
+   "Sketch": {
+    "type": "Wire",
+    "valid": true,
+    "volume": 0.0,
+    "area": 0.0,
+    "length": 60.0,
+    "bbox": [
+     0.0,
+     0.0,
+     0.0,
+     20.0,
+     10.0,
+     0.0
+    ],
+    "center_of_mass": [
+     10.0,
+     5.0,
+     0.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 0,
+    "wires": 1,
+    "edges": 4,
+    "vertices": 4
+   },
+   "Offset2D": {
+    "type": "Wire",
+    "valid": true,
+    "volume": 0.0,
+    "area": 0.0,
+    "length": 72.566370614,
+    "bbox": [
+     -2.0,
+     -2.0,
+     0.0,
+     22.0,
+     12.0,
+     0.0
+    ],
+    "center_of_mass": [
+     10.0,
+     5.0,
+     0.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 0,
+    "wires": 1,
+    "edges": 8,
+    "vertices": 8
+   }
+  },
+  "sweep_offset2d_tangent_out": {
+   "Sketch": {
+    "type": "Wire",
+    "valid": true,
+    "volume": 0.0,
+    "area": 0.0,
+    "length": 60.0,
+    "bbox": [
+     0.0,
+     0.0,
+     0.0,
+     20.0,
+     10.0,
+     0.0
+    ],
+    "center_of_mass": [
+     10.0,
+     5.0,
+     0.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 0,
+    "wires": 1,
+    "edges": 4,
+    "vertices": 4
+   },
+   "Offset2D": {
+    "type": "Wire",
+    "valid": true,
+    "volume": 0.0,
+    "area": 0.0,
+    "length": 76.0,
+    "bbox": [
+     -2.0,
+     -2.0,
+     0.0,
+     22.0,
+     12.0,
+     0.0
+    ],
+    "center_of_mass": [
+     10.0,
+     5.0,
+     0.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 0,
+    "wires": 1,
+    "edges": 4,
+    "vertices": 4
+   }
+  },
+  "sweep_offset2d_intersection_out": {
+   "Sketch": {
+    "type": "Wire",
+    "valid": true,
+    "volume": 0.0,
+    "area": 0.0,
+    "length": 60.0,
+    "bbox": [
+     0.0,
+     0.0,
+     0.0,
+     20.0,
+     10.0,
+     0.0
+    ],
+    "center_of_mass": [
+     10.0,
+     5.0,
+     0.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 0,
+    "wires": 1,
+    "edges": 4,
+    "vertices": 4
+   },
+   "Offset2D": {
+    "type": "Wire",
+    "valid": true,
+    "volume": 0.0,
+    "area": 0.0,
+    "length": 76.0,
+    "bbox": [
+     -2.0,
+     -2.0,
+     0.0,
+     22.0,
+     12.0,
+     0.0
+    ],
+    "center_of_mass": [
+     10.0,
+     5.0,
+     0.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 0,
+    "wires": 1,
+    "edges": 4,
+    "vertices": 4
+   }
+  },
+  "sweep_offset2d_arc_in": {
+   "Sketch": {
+    "type": "Wire",
+    "valid": true,
+    "volume": 0.0,
+    "area": 0.0,
+    "length": 60.0,
+    "bbox": [
+     0.0,
+     0.0,
+     0.0,
+     20.0,
+     10.0,
+     0.0
+    ],
+    "center_of_mass": [
+     10.0,
+     5.0,
+     0.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 0,
+    "wires": 1,
+    "edges": 4,
+    "vertices": 4
+   },
+   "Offset2D": {
+    "type": "Wire",
+    "valid": true,
+    "volume": 0.0,
+    "area": 0.0,
+    "length": 48.0,
+    "bbox": [
+     1.5,
+     1.5,
+     0.0,
+     18.5,
+     8.5,
+     0.0
+    ],
+    "center_of_mass": [
+     10.0,
+     5.0,
+     0.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 0,
+    "wires": 1,
+    "edges": 4,
+    "vertices": 4
+   }
+  },
+  "sweep_offset2d_tangent_in": {
+   "Sketch": {
+    "type": "Wire",
+    "valid": true,
+    "volume": 0.0,
+    "area": 0.0,
+    "length": 60.0,
+    "bbox": [
+     0.0,
+     0.0,
+     0.0,
+     20.0,
+     10.0,
+     0.0
+    ],
+    "center_of_mass": [
+     10.0,
+     5.0,
+     0.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 0,
+    "wires": 1,
+    "edges": 4,
+    "vertices": 4
+   },
+   "Offset2D": {
+    "type": "Wire",
+    "valid": true,
+    "volume": 0.0,
+    "area": 0.0,
+    "length": 48.0,
+    "bbox": [
+     1.5,
+     1.5,
+     0.0,
+     18.5,
+     8.5,
+     0.0
+    ],
+    "center_of_mass": [
+     10.0,
+     5.0,
+     0.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 0,
+    "wires": 1,
+    "edges": 4,
+    "vertices": 4
+   }
+  },
+  "sweep_offset2d_intersection_in": {
+   "Sketch": {
+    "type": "Wire",
+    "valid": true,
+    "volume": 0.0,
+    "area": 0.0,
+    "length": 60.0,
+    "bbox": [
+     0.0,
+     0.0,
+     0.0,
+     20.0,
+     10.0,
+     0.0
+    ],
+    "center_of_mass": [
+     10.0,
+     5.0,
+     0.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 0,
+    "wires": 1,
+    "edges": 4,
+    "vertices": 4
+   },
+   "Offset2D": {
+    "type": "Wire",
+    "valid": true,
+    "volume": 0.0,
+    "area": 0.0,
+    "length": 48.0,
+    "bbox": [
+     1.5,
+     1.5,
+     0.0,
+     18.5,
+     8.5,
+     0.0
+    ],
+    "center_of_mass": [
+     10.0,
+     5.0,
+     0.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 0,
+    "wires": 1,
+    "edges": 4,
+    "vertices": 4
+   }
+  },
+  "sweep_offset2d_fill": {
+   "Sketch": {
+    "type": "Wire",
+    "valid": true,
+    "volume": 0.0,
+    "area": 0.0,
+    "length": 60.0,
+    "bbox": [
+     0.0,
+     0.0,
+     0.0,
+     20.0,
+     10.0,
+     0.0
+    ],
+    "center_of_mass": [
+     10.0,
+     5.0,
+     0.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 0,
+    "wires": 1,
+    "edges": 4,
+    "vertices": 4
+   },
+   "Offset2D": {
+    "type": "Face",
+    "valid": true,
+    "volume": 0.0,
+    "area": 132.566370614,
+    "length": 132.566370614,
+    "bbox": [
+     -2.0,
+     -2.0,
+     0.0,
+     22.0,
+     12.0,
+     0.0
+    ],
+    "center_of_mass": [
+     10.0,
+     5.0,
+     0.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 1,
+    "wires": 2,
+    "edges": 12,
+    "vertices": 12
+   }
+  },
+  "sweep_offset2d_fill_in": {
+   "Sketch": {
+    "type": "Wire",
+    "valid": true,
+    "volume": 0.0,
+    "area": 0.0,
+    "length": 60.0,
+    "bbox": [
+     0.0,
+     0.0,
+     0.0,
+     20.0,
+     10.0,
+     0.0
+    ],
+    "center_of_mass": [
+     10.0,
+     5.0,
+     0.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 0,
+    "wires": 1,
+    "edges": 4,
+    "vertices": 4
+   },
+   "Offset2D": {
+    "type": "Face",
+    "valid": true,
+    "volume": 0.0,
+    "area": 104.0,
+    "length": 104.0,
+    "bbox": [
+     0.0,
+     0.0,
+     0.0,
+     20.0,
+     10.0,
+     0.0
+    ],
+    "center_of_mass": [
+     10.0,
+     5.0,
+     0.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 1,
+    "wires": 2,
+    "edges": 8,
+    "vertices": 8
+   }
+  },
+  "sweep_offset2d_face": {
+   "Plane": {
+    "type": "Face",
+    "valid": true,
+    "volume": 0.0,
+    "area": 60.0,
+    "length": 32.0,
+    "bbox": [
+     0.0,
+     0.0,
+     0.0,
+     10.0,
+     6.0,
+     0.0
+    ],
+    "center_of_mass": [
+     5.0,
+     3.0,
+     0.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 1,
+    "wires": 1,
+    "edges": 4,
+    "vertices": 4
+   },
+   "Offset2D": {
+    "type": "Face",
+    "valid": true,
+    "volume": 0.0,
+    "area": 115.068583471,
+    "length": 41.424777961,
+    "bbox": [
+     -1.5,
+     -1.5,
+     0.0,
+     11.5,
+     7.5,
+     0.0
+    ],
+    "center_of_mass": [
+     5.0,
+     3.0,
+     0.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 1,
+    "wires": 1,
+    "edges": 8,
+    "vertices": 8
+   }
+  },
+  "sweep_offset2d_face_fill": {
+   "Plane": {
+    "type": "Face",
+    "valid": true,
+    "volume": -0.0,
+    "area": 60.0,
+    "length": 32.0,
+    "bbox": [
+     1.0,
+     2.0,
+     -2.0,
+     9.660254038,
+     8.0,
+     3.0
+    ],
+    "center_of_mass": [
+     5.330127019,
+     5.0,
+     0.5
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 1,
+    "wires": 1,
+    "edges": 4,
+    "vertices": 4
+   },
+   "Offset2D": {
+    "type": "Face",
+    "valid": true,
+    "volume": 0.0,
+    "area": 35.141592654,
+    "length": 70.283185307,
+    "bbox": [
+     0.133974596,
+     1.0,
+     -2.5,
+     10.526279442,
+     9.0,
+     3.5
+    ],
+    "center_of_mass": [
+     5.330127019,
+     5.0,
+     0.5
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 1,
+    "wires": 2,
+    "edges": 12,
+    "vertices": 12
+   }
+  },
+  "sweep_offset2d_holes": {
+   "Sketch": {
+    "type": "Compound",
+    "valid": true,
+    "volume": 0.0,
+    "area": 0.0,
+    "length": 143.98229715,
+    "bbox": [
+     0.0,
+     0.0,
+     0.0,
+     30.0,
+     20.0,
+     0.0
+    ],
+    "center_of_mass": [
+     15.043638596,
+     10.0,
+     0.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 0,
+    "wires": 3,
+    "edges": 6,
+    "vertices": 6
+   },
+   "Offset2D": {
+    "type": "Compound",
+    "valid": true,
+    "volume": 0.0,
+    "area": 0.0,
+    "length": 162.831853072,
+    "bbox": [
+     -1.0,
+     -1.0,
+     0.0,
+     31.0,
+     21.0,
+     0.0
+    ],
+    "center_of_mass": [
+     15.115760864,
+     10.0,
+     0.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 0,
+    "wires": 3,
+    "edges": 10,
+    "vertices": 10
+   }
+  },
+  "sweep_offset2d_holes_intersection": {
+   "Sketch": {
+    "type": "Compound",
+    "valid": true,
+    "volume": 0.0,
+    "area": 0.0,
+    "length": 143.98229715,
+    "bbox": [
+     0.0,
+     0.0,
+     0.0,
+     30.0,
+     20.0,
+     0.0
+    ],
+    "center_of_mass": [
+     15.043638596,
+     10.0,
+     0.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 0,
+    "wires": 3,
+    "edges": 6,
+    "vertices": 6
+   },
+   "Offset2D": {
+    "type": "Compound",
+    "valid": true,
+    "volume": 0.0,
+    "area": 0.0,
+    "length": 162.831853072,
+    "bbox": [
+     -1.0,
+     -1.0,
+     0.0,
+     31.0,
+     21.0,
+     0.0
+    ],
+    "center_of_mass": [
+     15.115760864,
+     10.0,
+     0.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 0,
+    "wires": 3,
+    "edges": 10,
+    "vertices": 10
+   }
+  },
+  "sweep_offset2d_holes_fill": {
+   "Sketch": {
+    "type": "Compound",
+    "valid": true,
+    "volume": 0.0,
+    "area": 0.0,
+    "length": 143.98229715,
+    "bbox": [
+     0.0,
+     0.0,
+     0.0,
+     30.0,
+     20.0,
+     0.0
+    ],
+    "center_of_mass": [
+     15.043638596,
+     10.0,
+     0.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 0,
+    "wires": 3,
+    "edges": 6,
+    "vertices": 6
+   },
+   "Offset2D": {
+    "type": "Compound",
+    "valid": true,
+    "volume": 0.0,
+    "area": 562.300888157,
+    "length": 175.398223686,
+    "bbox": [
+     0.0,
+     0.0,
+     0.0,
+     30.0,
+     20.0,
+     0.0
+    ],
+    "center_of_mass": [
+     15.0,
+     10.0,
+     0.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 3,
+    "wires": 5,
+    "edges": 8,
+    "vertices": 8
+   }
+  },
+  "sweep_offset2d_overlap": {
+   "Sketch": {
+    "type": "Compound",
+    "valid": true,
+    "volume": 0.0,
+    "area": 0.0,
+    "length": 80.0,
+    "bbox": [
+     0.0,
+     0.0,
+     0.0,
+     22.0,
+     10.0,
+     0.0
+    ],
+    "center_of_mass": [
+     11.0,
+     5.0,
+     0.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 0,
+    "wires": 2,
+    "edges": 8,
+    "vertices": 8
+   },
+   "Offset2D": {
+    "type": "Wire",
+    "valid": true,
+    "volume": 0.0,
+    "area": 0.0,
+    "length": 76.755160819,
+    "bbox": [
+     -2.0,
+     -2.0,
+     0.0,
+     24.0,
+     12.0,
+     0.0
+    ],
+    "center_of_mass": [
+     11.0,
+     5.0,
+     0.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 0,
+    "wires": 1,
+    "edges": 14,
+    "vertices": 14
+   }
+  },
+  "sweep_offset2d_circle": {
+   "Circle": {
+    "type": "Edge",
+    "valid": true,
+    "volume": 0.0,
+    "area": 0.0,
+    "length": 25.132741229,
+    "bbox": [
+     -1.702368677,
+     -0.590088138,
+     1.675406844,
+     5.702368677,
+     6.590088138,
+     6.324593156
+    ],
+    "center_of_mass": [
+     2.0,
+     3.0,
+     4.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 0,
+    "wires": 0,
+    "edges": 1,
+    "vertices": 1
+   },
+   "Offset2D": {
+    "type": "Wire",
+    "valid": true,
+    "volume": 0.0,
+    "area": 0.0,
+    "length": 31.415926536,
+    "bbox": [
+     -2.627960846,
+     -1.487610173,
+     1.094258555,
+     6.627960846,
+     7.487610173,
+     6.905741445
+    ],
+    "center_of_mass": [
+     2.0,
+     3.0,
+     4.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 0,
+    "wires": 1,
+    "edges": 1,
+    "vertices": 1
+   }
+  },
+  "sweep_offset2d_open_pipe": {
+   "Polygon": {
+    "type": "Wire",
+    "valid": true,
+    "volume": 0.0,
+    "area": 0.0,
+    "length": 25.211102551,
+    "bbox": [
+     0.0,
+     0.0,
+     0.0,
+     10.0,
+     12.0,
+     0.0
+    ],
+    "center_of_mass": [
+     7.158660257,
+     4.129570506,
+     0.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 0,
+    "wires": 1,
+    "edges": 3,
+    "vertices": 4
+   },
+   "Offset2D": {
+    "type": "Wire",
+    "valid": true,
+    "volume": 0.0,
+    "area": 0.0,
+    "length": 56.188612942,
+    "bbox": [
+     -1.0,
+     -1.0,
+     0.0,
+     11.0,
+     13.0,
+     0.0
+    ],
+    "center_of_mass": [
+     6.566689778,
+     4.356476009,
+     0.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 0,
+    "wires": 1,
+    "edges": 10,
+    "vertices": 10
+   }
+  },
+  "sweep_offset2d_open_skin": {
+   "Polygon": {
+    "type": "Wire",
+    "valid": true,
+    "volume": 0.0,
+    "area": 0.0,
+    "length": 25.211102551,
+    "bbox": [
+     0.0,
+     0.0,
+     0.0,
+     10.0,
+     12.0,
+     0.0
+    ],
+    "center_of_mass": [
+     7.158660257,
+     4.129570506,
+     0.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 0,
+    "wires": 1,
+    "edges": 3,
+    "vertices": 4
+   },
+   "Offset2D": {
+    "type": "Wire",
+    "valid": true,
+    "volume": 0.0,
+    "area": 0.0,
+    "length": 27.764692601,
+    "bbox": [
+     0.0,
+     -1.0,
+     0.0,
+     11.0,
+     12.832050294,
+     0.0
+    ],
+    "center_of_mass": [
+     7.918174057,
+     3.86889481,
+     0.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 0,
+    "wires": 1,
+    "edges": 5,
+    "vertices": 6
+   }
+  },
+  "sweep_offset2d_open_skin_fill": {
+   "Polygon": {
+    "type": "Wire",
+    "valid": true,
+    "volume": 0.0,
+    "area": 0.0,
+    "length": 25.211102551,
+    "bbox": [
+     0.0,
+     0.0,
+     0.0,
+     10.0,
+     12.0,
+     0.0
+    ],
+    "center_of_mass": [
+     7.158660257,
+     4.129570506,
+     0.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 0,
+    "wires": 1,
+    "edges": 3,
+    "vertices": 4
+   },
+   "Offset2D": {
+    "type": "Face",
+    "valid": true,
+    "volume": 0.0,
+    "area": 23.675918792,
+    "length": 49.351837585,
+    "bbox": [
+     0.0,
+     0.0,
+     0.0,
+     10.0,
+     12.0,
+     0.0
+    ],
+    "center_of_mass": [
+     6.755511848,
+     4.287024586,
+     0.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 1,
+    "wires": 1,
+    "edges": 8,
+    "vertices": 8
+   }
+  },
+  "sweep_offset2d_open_pipe_fill": {
+   "Polygon": {
+    "type": "Wire",
+    "valid": true,
+    "volume": 0.0,
+    "area": 0.0,
+    "length": 25.211102551,
+    "bbox": [
+     0.0,
+     0.0,
+     0.0,
+     10.0,
+     12.0,
+     0.0
+    ],
+    "center_of_mass": [
+     7.158660257,
+     4.129570506,
+     0.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 0,
+    "wires": 1,
+    "edges": 3,
+    "vertices": 4
+   },
+   "Offset2D": {
+    "type": "Face",
+    "valid": true,
+    "volume": 0.0,
+    "area": 53.563797755,
+    "length": 56.705390409,
+    "bbox": [
+     -1.0,
+     -1.0,
+     0.0,
+     11.0,
+     13.0,
+     0.0
+    ],
+    "center_of_mass": [
+     6.863803704,
+     4.233844455,
+     0.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 1,
+    "wires": 1,
+    "edges": 8,
+    "vertices": 8
+   }
+  },
+  "sweep_offset2d_zero": {
+   "Sketch": {
+    "type": "Wire",
+    "valid": true,
+    "volume": 0.0,
+    "area": 0.0,
+    "length": 60.0,
+    "bbox": [
+     0.0,
+     0.0,
+     0.0,
+     20.0,
+     10.0,
+     0.0
+    ],
+    "center_of_mass": [
+     10.0,
+     5.0,
+     0.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 0,
+    "wires": 1,
+    "edges": 4,
+    "vertices": 4
+   },
+   "Offset2D": {
+    "type": "Wire",
+    "valid": true,
+    "volume": 0.0,
+    "area": 0.0,
+    "length": 60.0,
+    "bbox": [
+     0.0,
+     0.0,
+     0.0,
+     20.0,
+     10.0,
+     0.0
+    ],
+    "center_of_mass": [
+     10.0,
+     5.0,
+     0.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 0,
+    "wires": 1,
+    "edges": 4,
+    "vertices": 4
+   }
+  },
+  "sweep_offset2d_errors": {
+   "Sketch": {
+    "type": "Wire",
+    "valid": true,
+    "volume": 0.0,
+    "area": 0.0,
+    "length": 60.0,
+    "bbox": [
+     0.0,
+     0.0,
+     0.0,
+     20.0,
+     10.0,
+     0.0
+    ],
+    "center_of_mass": [
+     10.0,
+     5.0,
+     0.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 0,
+    "wires": 1,
+    "edges": 4,
+    "vertices": 4
+   },
+   "Box": {
+    "type": "Solid",
+    "valid": true,
+    "volume": 1600.0,
+    "area": 880.0,
+    "length": 304.0,
+    "bbox": [
+     0.0,
+     0.0,
+     0.0,
+     20.0,
+     10.0,
+     8.0
+    ],
+    "center_of_mass": [
+     10.0,
+     5.0,
+     4.0
+    ],
+    "solids": 1,
+    "shells": 1,
+    "faces": 6,
+    "wires": 6,
+    "edges": 12,
+    "vertices": 8
+   },
+   "Helix": {
+    "type": "Wire",
+    "valid": true,
+    "volume": 0.0,
+    "area": 0.0,
+    "length": 95.951258256,
+    "bbox": [
+     -5.0000001,
+     -5.0000001,
+     -1e-07,
+     5.0000001,
+     5.0000001,
+     18.0000001
+    ],
+    "center_of_mass": [
+     -0.0,
+     -0.0,
+     9.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 0,
+    "wires": 1,
+    "edges": 1,
+    "vertices": 2
+   },
+   "Offset2D": {
+    "error": "Mode 'Recto-Verso' is not supported for 2D offset."
+   },
+   "Offset2D001": {
+    "error": "makeOffset2D: offset distance is zero. Can't fill offset."
+   },
+   "Offset2D002": {
+    "error": "makeOffset2D: input shape is not an edge, wire or face or compound of those."
+   },
+   "Offset2D003": {
+    "error": "makeOffset2D: wires are nonplanar or noncoplanar"
+   },
+   "Offset2D004": {
+    "error": "No source shape linked."
+   }
+  },
+  "sweep_thickness_arc": {
+   "Box": {
+    "type": "Solid",
+    "valid": true,
+    "volume": 1600.0,
+    "area": 880.0,
+    "length": 304.0,
+    "bbox": [
+     0.0,
+     0.0,
+     0.0,
+     20.0,
+     10.0,
+     8.0
+    ],
+    "center_of_mass": [
+     10.0,
+     5.0,
+     4.0
+    ],
+    "solids": 1,
+    "shells": 1,
+    "faces": 6,
+    "wires": 6,
+    "edges": 12,
+    "vertices": 8
+   },
+   "Thickness": {
+    "type": "Solid",
+    "valid": true,
+    "volume": 754.351026154,
+    "area": 1573.938040028,
+    "length": 842.265482457,
+    "bbox": [
+     -1.0,
+     -1.0,
+     -1.0,
+     21.0,
+     11.0,
+     8.0
+    ],
+    "center_of_mass": [
+     10.0,
+     5.0,
+     2.518384016
+    ],
+    "solids": 1,
+    "shells": 1,
+    "faces": 23,
+    "wires": 24,
+    "edges": 48,
+    "vertices": 28
+   }
+  },
+  "sweep_thickness_tangent": {
+   "Box": {
+    "type": "Solid",
+    "valid": true,
+    "volume": 1600.0,
+    "area": 880.0,
+    "length": 304.0,
+    "bbox": [
+     0.0,
+     0.0,
+     0.0,
+     20.0,
+     10.0,
+     8.0
+    ],
+    "center_of_mass": [
+     10.0,
+     5.0,
+     4.0
+    ],
+    "solids": 1,
+    "shells": 1,
+    "faces": 6,
+    "wires": 6,
+    "edges": 12,
+    "vertices": 8
+   },
+   "Thickness": {
+    "type": "Solid",
+    "valid": true,
+    "volume": 776.0,
+    "area": 1620.0,
+    "length": 648.0,
+    "bbox": [
+     -1.0,
+     -1.0,
+     -1.0,
+     21.0,
+     11.0,
+     8.0
+    ],
+    "center_of_mass": [
+     10.0,
+     5.0,
+     2.469072165
+    ],
+    "solids": 1,
+    "shells": 1,
+    "faces": 11,
+    "wires": 12,
+    "edges": 24,
+    "vertices": 16
+   }
+  },
+  "sweep_thickness_intersection": {
+   "Box": {
+    "type": "Solid",
+    "valid": true,
+    "volume": 1600.0,
+    "area": 880.0,
+    "length": 304.0,
+    "bbox": [
+     0.0,
+     0.0,
+     0.0,
+     20.0,
+     10.0,
+     8.0
+    ],
+    "center_of_mass": [
+     10.0,
+     5.0,
+     4.0
+    ],
+    "solids": 1,
+    "shells": 1,
+    "faces": 6,
+    "wires": 6,
+    "edges": 12,
+    "vertices": 8
+   },
+   "Thickness": {
+    "type": "Solid",
+    "valid": true,
+    "volume": 776.0,
+    "area": 1620.0,
+    "length": 648.0,
+    "bbox": [
+     -1.0,
+     -1.0,
+     -1.0,
+     21.0,
+     11.0,
+     8.0
+    ],
+    "center_of_mass": [
+     10.0,
+     5.0,
+     2.469072165
+    ],
+    "solids": 1,
+    "shells": 1,
+    "faces": 11,
+    "wires": 12,
+    "edges": 24,
+    "vertices": 16
+   }
+  },
+  "sweep_thickness_two": {
+   "Box": {
+    "type": "Solid",
+    "valid": true,
+    "volume": 1600.0,
+    "area": 880.0,
+    "length": 304.0,
+    "bbox": [
+     0.0,
+     0.0,
+     0.0,
+     20.0,
+     10.0,
+     8.0
+    ],
+    "center_of_mass": [
+     10.0,
+     5.0,
+     4.0
+    ],
+    "solids": 1,
+    "shells": 1,
+    "faces": 6,
+    "wires": 6,
+    "edges": 12,
+    "vertices": 8
+   },
+   "Thickness": {
+    "type": "Solid",
+    "valid": true,
+    "volume": 1055.25,
+    "area": 1534.5,
+    "length": 616.0,
+    "bbox": [
+     0.0,
+     -1.5,
+     -1.5,
+     21.5,
+     11.5,
+     8.0
+    ],
+    "center_of_mass": [
+     11.887171286,
+     5.0,
+     2.112828714
+    ],
+    "solids": 1,
+    "shells": 1,
+    "faces": 10,
+    "wires": 10,
+    "edges": 24,
+    "vertices": 16
+   }
+  },
+  "sweep_thickness_inward": {
+   "Box": {
+    "type": "Solid",
+    "valid": true,
+    "volume": 1600.0,
+    "area": 880.0,
+    "length": 304.0,
+    "bbox": [
+     0.0,
+     0.0,
+     0.0,
+     20.0,
+     10.0,
+     8.0
+    ],
+    "center_of_mass": [
+     10.0,
+     5.0,
+     4.0
+    ],
+    "solids": 1,
+    "shells": 1,
+    "faces": 6,
+    "wires": 6,
+    "edges": 12,
+    "vertices": 8
+   },
+   "Thickness": {
+    "type": "Solid",
+    "valid": true,
+    "volume": 688.0,
+    "area": 1412.0,
+    "length": 568.0,
+    "bbox": [
+     0.0,
+     0.0,
+     0.0,
+     20.0,
+     10.0,
+     8.0
+    ],
+    "center_of_mass": [
+     9.337209302,
+     5.0,
+     4.0
+    ],
+    "solids": 1,
+    "shells": 1,
+    "faces": 11,
+    "wires": 12,
+    "edges": 24,
+    "vertices": 16
+   }
+  },
+  "sweep_thickness_flags": {
+   "Box": {
+    "type": "Solid",
+    "valid": true,
+    "volume": 1600.0,
+    "area": 880.0,
+    "length": 304.0,
+    "bbox": [
+     0.0,
+     0.0,
+     0.0,
+     20.0,
+     10.0,
+     8.0
+    ],
+    "center_of_mass": [
+     10.0,
+     5.0,
+     4.0
+    ],
+    "solids": 1,
+    "shells": 1,
+    "faces": 6,
+    "wires": 6,
+    "edges": 12,
+    "vertices": 8
+   },
+   "Thickness": {
+    "type": "Solid",
+    "valid": true,
+    "volume": 358.325957151,
+    "area": 1464.612825523,
+    "length": 817.132741229,
+    "bbox": [
+     -0.5,
+     -0.5,
+     -0.5,
+     20.5,
+     10.5,
+     8.0
+    ],
+    "center_of_mass": [
+     10.0,
+     5.0,
+     2.672381486
+    ],
+    "solids": 1,
+    "shells": 1,
+    "faces": 23,
+    "wires": 24,
+    "edges": 48,
+    "vertices": 28
+   }
+  },
+  "sweep_thickness_mode_pipe": {
+   "Box": {
+    "type": "Solid",
+    "valid": true,
+    "volume": 1600.0,
+    "area": 880.0,
+    "length": 304.0,
+    "bbox": [
+     0.0,
+     0.0,
+     0.0,
+     20.0,
+     10.0,
+     8.0
+    ],
+    "center_of_mass": [
+     10.0,
+     5.0,
+     4.0
+    ],
+    "solids": 1,
+    "shells": 1,
+    "faces": 6,
+    "wires": 6,
+    "edges": 12,
+    "vertices": 8
+   },
+   "Thickness": {
+    "type": "Solid",
+    "valid": true,
+    "volume": 754.351026154,
+    "area": 1573.938040028,
+    "length": 842.265482457,
+    "bbox": [
+     -1.0,
+     -1.0,
+     -1.0,
+     21.0,
+     11.0,
+     8.0
+    ],
+    "center_of_mass": [
+     10.0,
+     5.0,
+     2.518384016
+    ],
+    "solids": 1,
+    "shells": 1,
+    "faces": 23,
+    "wires": 24,
+    "edges": 48,
+    "vertices": 28
+   }
+  },
+  "sweep_thickness_mode_rectoverso": {
+   "Box": {
+    "type": "Solid",
+    "valid": true,
+    "volume": 1600.0,
+    "area": 880.0,
+    "length": 304.0,
+    "bbox": [
+     0.0,
+     0.0,
+     0.0,
+     20.0,
+     10.0,
+     8.0
+    ],
+    "center_of_mass": [
+     10.0,
+     5.0,
+     4.0
+    ],
+    "solids": 1,
+    "shells": 1,
+    "faces": 6,
+    "wires": 6,
+    "edges": 12,
+    "vertices": 8
+   },
+   "Thickness": {
+    "type": "Solid",
+    "valid": true,
+    "volume": 754.351026154,
+    "area": 1573.938040028,
+    "length": 842.265482457,
+    "bbox": [
+     -1.0,
+     -1.0,
+     -1.0,
+     21.0,
+     11.0,
+     8.0
+    ],
+    "center_of_mass": [
+     10.0,
+     5.0,
+     2.518384016
+    ],
+    "solids": 1,
+    "shells": 1,
+    "faces": 23,
+    "wires": 24,
+    "edges": 48,
+    "vertices": 28
+   }
+  },
+  "sweep_thickness_cylinder": {
+   "Cylinder": {
+    "type": "Solid",
+    "valid": true,
+    "volume": 628.318530718,
+    "area": 408.407044967,
+    "length": 141.663706144,
+    "bbox": [
+     -5.0,
+     -5.0,
+     0.0,
+     5.0,
+     5.0,
+     8.0
+    ],
+    "center_of_mass": [
+     0.0,
+     -0.0,
+     4.0
+    ],
+    "solids": 1,
+    "shells": 1,
+    "faces": 3,
+    "wires": 3,
+    "edges": 3,
+    "vertices": 2
+   },
+   "Thickness": {
+    "type": "Solid",
+    "valid": true,
+    "volume": 296.842434622,
+    "area": 770.589859948,
+    "length": 368.778732465,
+    "bbox": [
+     -5.8000001,
+     -5.8000001,
+     0.0,
+     5.8000001,
+     5.8000001,
+     8.8000001
+    ],
+    "center_of_mass": [
+     -0.0,
+     0.0,
+     5.177723441
+    ],
+    "solids": 1,
+    "shells": 1,
+    "faces": 6,
+    "wires": 7,
+    "edges": 8,
+    "vertices": 5
+   }
+  },
+  "sweep_thickness_zero": {
+   "Box": {
+    "type": "Solid",
+    "valid": true,
+    "volume": 1600.0,
+    "area": 880.0,
+    "length": 304.0,
+    "bbox": [
+     0.0,
+     0.0,
+     0.0,
+     20.0,
+     10.0,
+     8.0
+    ],
+    "center_of_mass": [
+     10.0,
+     5.0,
+     4.0
+    ],
+    "solids": 1,
+    "shells": 1,
+    "faces": 6,
+    "wires": 6,
+    "edges": 12,
+    "vertices": 8
+   },
+   "Thickness": {
+    "type": "Solid",
+    "valid": true,
+    "volume": 1600.0,
+    "area": 880.0,
+    "length": 304.0,
+    "bbox": [
+     0.0,
+     0.0,
+     0.0,
+     20.0,
+     10.0,
+     8.0
+    ],
+    "center_of_mass": [
+     10.0,
+     5.0,
+     4.0
+    ],
+    "solids": 1,
+    "shells": 1,
+    "faces": 6,
+    "wires": 6,
+    "edges": 12,
+    "vertices": 8
+   }
+  },
+  "sweep_thickness_errors": {
+   "Box": {
+    "type": "Solid",
+    "valid": true,
+    "volume": 1600.0,
+    "area": 880.0,
+    "length": 304.0,
+    "bbox": [
+     0.0,
+     0.0,
+     0.0,
+     20.0,
+     10.0,
+     8.0
+    ],
+    "center_of_mass": [
+     10.0,
+     5.0,
+     4.0
+    ],
+    "solids": 1,
+    "shells": 1,
+    "faces": 6,
+    "wires": 6,
+    "edges": 12,
+    "vertices": 8
+   },
+   "Box001": {
+    "type": "Solid",
+    "valid": true,
+    "volume": 1000.0,
+    "area": 600.0,
+    "length": 240.0,
+    "bbox": [
+     30.0,
+     0.0,
+     0.0,
+     40.0,
+     10.0,
+     10.0
+    ],
+    "center_of_mass": [
+     35.0,
+     5.0,
+     5.0
+    ],
+    "solids": 1,
+    "shells": 1,
+    "faces": 6,
+    "wires": 6,
+    "edges": 12,
+    "vertices": 8
+   },
+   "Compound": {
+    "type": "Compound",
+    "valid": true,
+    "volume": 2600.0,
+    "area": 1480.0,
+    "length": 544.0,
+    "bbox": [
+     0.0,
+     0.0,
+     0.0,
+     40.0,
+     10.0,
+     10.0
+    ],
+    "center_of_mass": [
+     19.615384615,
+     5.0,
+     4.384615385
+    ],
+    "solids": 2,
+    "shells": 2,
+    "faces": 12,
+    "wires": 12,
+    "edges": 24,
+    "vertices": 16
+   },
+   "Thickness": {
+    "error": "Null input shape"
+   },
+   "Thickness001": {
+    "error": "Source shape is not single solid."
+   },
+   "Thickness002": {
+    "error": "Invalid face selection"
+   },
+   "Thickness003": {
+    "error": "Invalid source shape"
+   }
+  },
+  "sweep_project_all": {
+   "Cylinder": {
+    "type": "Solid",
+    "valid": true,
+    "volume": 9424.777960769,
+    "area": 2513.274122872,
+    "length": 311.327412287,
+    "bbox": [
+     -10.0,
+     -10.0,
+     0.0,
+     10.0,
+     10.0,
+     30.0
+    ],
+    "center_of_mass": [
+     -0.0,
+     -0.0,
+     15.0
+    ],
+    "solids": 1,
+    "shells": 1,
+    "faces": 3,
+    "wires": 3,
+    "edges": 3,
+    "vertices": 2
+   },
+   "Sketch": {
+    "type": "Wire",
+    "valid": true,
+    "volume": 0.0,
+    "area": 0.0,
+    "length": 36.0,
+    "bbox": [
+     -4.0,
+     -20.0,
+     5.0,
+     4.0,
+     -20.0,
+     15.0
+    ],
+    "center_of_mass": [
+     0.0,
+     -20.0,
+     10.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 0,
+    "wires": 1,
+    "edges": 4,
+    "vertices": 4
+   },
+   "Plane": {
+    "type": "Face",
+    "valid": true,
+    "volume": -0.0,
+    "area": 80.0,
+    "length": 36.0,
+    "bbox": [
+     -4.0,
+     -20.0,
+     5.0,
+     4.0,
+     -20.0,
+     15.0
+    ],
+    "center_of_mass": [
+     0.0,
+     -20.0,
+     10.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 1,
+    "wires": 1,
+    "edges": 4,
+    "vertices": 4
+   },
+   "Projection": {
+    "type": "Compound",
+    "valid": true,
+    "volume": -29.940526981,
+    "area": 82.303369213,
+    "length": 72.921347685,
+    "bbox": [
+     -4.0000001,
+     -10.0000001,
+     4.9999999,
+     4.0000001,
+     -9.16515129,
+     15.0000001
+    ],
+    "center_of_mass": [
+     -0.0,
+     -9.720136705,
+     10.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 1,
+    "wires": 1,
+    "edges": 8,
+    "vertices": 8
+   }
+  },
+  "sweep_project_faces": {
+   "Cylinder": {
+    "type": "Solid",
+    "valid": true,
+    "volume": 9424.777960769,
+    "area": 2513.274122872,
+    "length": 311.327412287,
+    "bbox": [
+     -10.0,
+     -10.0,
+     0.0,
+     10.0,
+     10.0,
+     30.0
+    ],
+    "center_of_mass": [
+     -0.0,
+     -0.0,
+     15.0
+    ],
+    "solids": 1,
+    "shells": 1,
+    "faces": 3,
+    "wires": 3,
+    "edges": 3,
+    "vertices": 2
+   },
+   "Sketch": {
+    "type": "Wire",
+    "valid": true,
+    "volume": 0.0,
+    "area": 0.0,
+    "length": 36.0,
+    "bbox": [
+     -4.0,
+     -20.0,
+     5.0,
+     4.0,
+     -20.0,
+     15.0
+    ],
+    "center_of_mass": [
+     0.0,
+     -20.0,
+     10.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 0,
+    "wires": 1,
+    "edges": 4,
+    "vertices": 4
+   },
+   "Plane": {
+    "type": "Face",
+    "valid": true,
+    "volume": -0.0,
+    "area": 80.0,
+    "length": 36.0,
+    "bbox": [
+     -4.0,
+     -20.0,
+     5.0,
+     4.0,
+     -20.0,
+     15.0
+    ],
+    "center_of_mass": [
+     0.0,
+     -20.0,
+     10.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 1,
+    "wires": 1,
+    "edges": 4,
+    "vertices": 4
+   },
+   "Projection": {
+    "type": "Compound",
+    "valid": true,
+    "volume": -29.940526981,
+    "area": 82.303369213,
+    "length": 36.460673843,
+    "bbox": [
+     -4.0000001,
+     -10.0000001,
+     4.9999999,
+     4.0000001,
+     -9.16515129,
+     15.0000001
+    ],
+    "center_of_mass": [
+     -0.0,
+     -9.720136705,
+     10.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 1,
+    "wires": 1,
+    "edges": 4,
+    "vertices": 4
+   }
+  },
+  "sweep_project_edges": {
+   "Cylinder": {
+    "type": "Solid",
+    "valid": true,
+    "volume": 9424.777960769,
+    "area": 2513.274122872,
+    "length": 311.327412287,
+    "bbox": [
+     -10.0,
+     -10.0,
+     0.0,
+     10.0,
+     10.0,
+     30.0
+    ],
+    "center_of_mass": [
+     -0.0,
+     -0.0,
+     15.0
+    ],
+    "solids": 1,
+    "shells": 1,
+    "faces": 3,
+    "wires": 3,
+    "edges": 3,
+    "vertices": 2
+   },
+   "Sketch": {
+    "type": "Wire",
+    "valid": true,
+    "volume": 0.0,
+    "area": 0.0,
+    "length": 36.0,
+    "bbox": [
+     -4.0,
+     -20.0,
+     5.0,
+     4.0,
+     -20.0,
+     15.0
+    ],
+    "center_of_mass": [
+     0.0,
+     -20.0,
+     10.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 0,
+    "wires": 1,
+    "edges": 4,
+    "vertices": 4
+   },
+   "Plane": {
+    "type": "Face",
+    "valid": true,
+    "volume": -0.0,
+    "area": 80.0,
+    "length": 36.0,
+    "bbox": [
+     -4.0,
+     -20.0,
+     5.0,
+     4.0,
+     -20.0,
+     15.0
+    ],
+    "center_of_mass": [
+     0.0,
+     -20.0,
+     10.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 1,
+    "wires": 1,
+    "edges": 4,
+    "vertices": 4
+   },
+   "Projection": {
+    "type": "Compound",
+    "valid": true,
+    "volume": 0.0,
+    "area": 0.0,
+    "length": 72.921347685,
+    "bbox": [
+     -4.0000001,
+     -10.0000001,
+     4.9999999,
+     4.0000001,
+     -9.16515129,
+     15.0000001
+    ],
+    "center_of_mass": [
+     -0.0,
+     -9.415707161,
+     10.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 0,
+    "wires": 1,
+    "edges": 8,
+    "vertices": 8
+   }
+  },
+  "sweep_project_height": {
+   "Cylinder": {
+    "type": "Solid",
+    "valid": true,
+    "volume": 9424.777960769,
+    "area": 2513.274122872,
+    "length": 311.327412287,
+    "bbox": [
+     -10.0,
+     -10.0,
+     0.0,
+     10.0,
+     10.0,
+     30.0
+    ],
+    "center_of_mass": [
+     -0.0,
+     -0.0,
+     15.0
+    ],
+    "solids": 1,
+    "shells": 1,
+    "faces": 3,
+    "wires": 3,
+    "edges": 3,
+    "vertices": 2
+   },
+   "Plane": {
+    "type": "Face",
+    "valid": true,
+    "volume": -0.0,
+    "area": 80.0,
+    "length": 36.0,
+    "bbox": [
+     -4.0,
+     -20.0,
+     5.0,
+     4.0,
+     -20.0,
+     15.0
+    ],
+    "center_of_mass": [
+     0.0,
+     -20.0,
+     10.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 1,
+    "wires": 1,
+    "edges": 4,
+    "vertices": 4
+   },
+   "Projection": {
+    "type": "Compound",
+    "valid": true,
+    "volume": 160.0,
+    "area": 236.606738427,
+    "length": 161.842695371,
+    "bbox": [
+     -4.0000001,
+     -12.0000001,
+     4.9999999,
+     4.0000001,
+     -9.16515129,
+     15.0000001
+    ],
+    "center_of_mass": [
+     -0.0,
+     -10.726536271,
+     10.0
+    ],
+    "solids": 1,
+    "shells": 1,
+    "faces": 6,
+    "wires": 6,
+    "edges": 12,
+    "vertices": 8
+   }
+  },
+  "sweep_project_offset": {
+   "Cylinder": {
+    "type": "Solid",
+    "valid": true,
+    "volume": 9424.777960769,
+    "area": 2513.274122872,
+    "length": 311.327412287,
+    "bbox": [
+     -10.0,
+     -10.0,
+     0.0,
+     10.0,
+     10.0,
+     30.0
+    ],
+    "center_of_mass": [
+     -0.0,
+     -0.0,
+     15.0
+    ],
+    "solids": 1,
+    "shells": 1,
+    "faces": 3,
+    "wires": 3,
+    "edges": 3,
+    "vertices": 2
+   },
+   "Plane": {
+    "type": "Face",
+    "valid": true,
+    "volume": -0.0,
+    "area": 80.0,
+    "length": 36.0,
+    "bbox": [
+     -4.0,
+     -20.0,
+     5.0,
+     4.0,
+     -20.0,
+     15.0
+    ],
+    "center_of_mass": [
+     0.0,
+     -20.0,
+     10.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 1,
+    "wires": 1,
+    "edges": 4,
+    "vertices": 4
+   },
+   "Projection": {
+    "type": "Compound",
+    "valid": true,
+    "volume": 240.0,
+    "area": 272.606738427,
+    "length": 169.842695371,
+    "bbox": [
+     -4.0000001,
+     -14.0000001,
+     4.9999999,
+     4.0000001,
+     -10.16515129,
+     15.0000001
+    ],
+    "center_of_mass": [
+     -0.0,
+     -12.226536271,
+     10.0
+    ],
+    "solids": 1,
+    "shells": 1,
+    "faces": 6,
+    "wires": 6,
+    "edges": 12,
+    "vertices": 8
+   }
+  },
+  "sweep_project_edges_of": {
+   "Cylinder": {
+    "type": "Solid",
+    "valid": true,
+    "volume": 9424.777960769,
+    "area": 2513.274122872,
+    "length": 311.327412287,
+    "bbox": [
+     -10.0,
+     -10.0,
+     0.0,
+     10.0,
+     10.0,
+     30.0
+    ],
+    "center_of_mass": [
+     -0.0,
+     -0.0,
+     15.0
+    ],
+    "solids": 1,
+    "shells": 1,
+    "faces": 3,
+    "wires": 3,
+    "edges": 3,
+    "vertices": 2
+   },
+   "Sketch": {
+    "type": "Compound",
+    "valid": true,
+    "volume": 0.0,
+    "area": 0.0,
+    "length": 52.0,
+    "bbox": [
+     -4.0,
+     -20.0,
+     5.0,
+     4.0,
+     -20.0,
+     15.0
+    ],
+    "center_of_mass": [
+     0.0,
+     -20.0,
+     10.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 0,
+    "wires": 2,
+    "edges": 8,
+    "vertices": 8
+   },
+   "Projection": {
+    "type": "Compound",
+    "valid": true,
+    "volume": 0.0,
+    "area": 0.0,
+    "length": 12.230336921,
+    "bbox": [
+     -4.0,
+     -10.0,
+     5.0,
+     4.0,
+     -9.16515139,
+     12.0
+    ],
+    "center_of_mass": [
+     0.654111171,
+     -9.745588911,
+     6.635277926
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 0,
+    "wires": 0,
+    "edges": 2,
+    "vertices": 4
+   }
+  },
+  "sweep_project_plane": {
+   "Box": {
+    "type": "Solid",
+    "valid": true,
+    "volume": 1600.0,
+    "area": 880.0,
+    "length": 304.0,
+    "bbox": [
+     0.0,
+     0.0,
+     0.0,
+     20.0,
+     10.0,
+     8.0
+    ],
+    "center_of_mass": [
+     10.0,
+     5.0,
+     4.0
+    ],
+    "solids": 1,
+    "shells": 1,
+    "faces": 6,
+    "wires": 6,
+    "edges": 12,
+    "vertices": 8
+   },
+   "Circle": {
+    "type": "Edge",
+    "valid": true,
+    "volume": 0.0,
+    "area": 0.0,
+    "length": 18.849555922,
+    "bbox": [
+     7.0,
+     2.0,
+     20.0,
+     13.0,
+     8.0,
+     20.0
+    ],
+    "center_of_mass": [
+     10.0,
+     5.0,
+     20.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 0,
+    "wires": 0,
+    "edges": 1,
+    "vertices": 1
+   },
+   "Projection": {
+    "type": "Compound",
+    "valid": true,
+    "volume": 0.0,
+    "area": 0.0,
+    "length": 18.849555909,
+    "bbox": [
+     9.3999999,
+     1.999999896,
+     7.9999999,
+     15.4000001,
+     8.000000099,
+     8.0000001
+    ],
+    "center_of_mass": [
+     12.399999999,
+     5.000000001,
+     8.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 0,
+    "wires": 0,
+    "edges": 1,
+    "vertices": 1
+   }
+  },
+  "sweep_project_errors": {
+   "Cylinder": {
+    "type": "Solid",
+    "valid": true,
+    "volume": 9424.777960769,
+    "area": 2513.274122872,
+    "length": 311.327412287,
+    "bbox": [
+     -10.0,
+     -10.0,
+     0.0,
+     10.0,
+     10.0,
+     30.0
+    ],
+    "center_of_mass": [
+     -0.0,
+     -0.0,
+     15.0
+    ],
+    "solids": 1,
+    "shells": 1,
+    "faces": 3,
+    "wires": 3,
+    "edges": 3,
+    "vertices": 2
+   },
+   "Sketch": {
+    "type": "Wire",
+    "valid": true,
+    "volume": 0.0,
+    "area": 0.0,
+    "length": 36.0,
+    "bbox": [
+     -4.0,
+     -20.0,
+     5.0,
+     4.0,
+     -20.0,
+     15.0
+    ],
+    "center_of_mass": [
+     0.0,
+     -20.0,
+     10.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 0,
+    "wires": 1,
+    "edges": 4,
+    "vertices": 4
+   },
+   "Projection": {
+    "error": "No support face specified"
+   },
+   "Projection001": {
+    "error": "Expect exactly one support face"
+   }
+  },
+  "sweep_offset2d_open_line": {
+   "Line": {
+    "type": "Edge",
+    "valid": true,
+    "volume": 0.0,
+    "area": 0.0,
+    "length": 10.0,
+    "bbox": [
+     0.0,
+     0.0,
+     0.0,
+     10.0,
+     0.0,
+     0.0
+    ],
+    "center_of_mass": [
+     5.0,
+     0.0,
+     0.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 0,
+    "wires": 0,
+    "edges": 1,
+    "vertices": 2
+   },
+   "Offset2D": {
+    "error": "makeOffset2D: wires are nonplanar or noncoplanar"
+   }
+  },
+  "sweep_offset2d_open_sketch": {
+   "Sketch": {
+    "type": "Wire",
+    "valid": true,
+    "volume": 0.0,
+    "area": 0.0,
+    "length": 18.0,
+    "bbox": [
+     0.0,
+     0.0,
+     0.0,
+     10.0,
+     8.0,
+     0.0
+    ],
+    "center_of_mass": [
+     7.222222222,
+     1.777777778,
+     0.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 0,
+    "wires": 1,
+    "edges": 2,
+    "vertices": 3
+   },
+   "Offset2D": {
+    "type": "Wire",
+    "valid": true,
+    "volume": 0.0,
+    "area": 0.0,
+    "length": 19.570796327,
+    "bbox": [
+     0.0,
+     -1.0,
+     0.0,
+     11.0,
+     8.0,
+     0.0
+    ],
+    "center_of_mass": [
+     7.905041813,
+     1.073027364,
+     0.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 0,
+    "wires": 1,
+    "edges": 4,
+    "vertices": 5
+   }
+  }
+ }
+}

@@ -33,6 +33,7 @@ import { MODE_TEXTS, REF_TYPE_TEXTS } from './attachertexts'
 import { ENGINE_MODES, MODE_REFS, REF_TYPES } from './attachmodes'
 import { suggest } from './attachsuggest'
 import { attachedOf, DATUM_TYPES, isDatum, placementMatrix, ROLES, type PlacementData } from './attached'
+import { datumPanelIcon, datumPanelTitle } from './pd_datum'
 import { applyOps, bodyOfPart, featureVisible, openOrigin, refOf, SKETCH, splitRef, targetBody, setAttachPicker, originPlanes } from './partdesign'
 
 export type Ref = [string, string]                  // AttachmentSupport's (object, sub-element)
@@ -79,7 +80,7 @@ export const engineOf = (type: string): Engine => (type === SKETCH ? ENGINE_OF_S
 /** The Body's object a click names, as a reference: a tree row ("part/Name"), or the 3D selection of the Body's shape
  *  ("body.Face6", the Tip feature's element). TaskAttacher::addToReference drops the sub-element of a datum or an
  *  origin feature. */
-function refOfRow(part: string, row: string): Ref | null {
+export function refOfRow(part: string, row: string): Ref | null {
   const [p, n] = splitRef(row)
   if (p !== part || !n) return null
   if (n === 'Origin001') return ['Origin', '']
@@ -96,7 +97,7 @@ function tipFeature(doc: FeatureDoc): string | null {
   return solids.length ? solids[solids.length - 1].name : doc.base ? 'BaseFeature' : null
 }
 /** The 3D selection's sub-elements of this part's Body, as references to its Tip feature. */
-function refsOfSelection(part: string): Ref[] {
+export function refsOfSelection(part: string): Ref[] {
   const s = getState(), body = bodyOfPart(s, part), doc = s.features[part]
   if (!doc) return []
   const out: Ref[] = []
@@ -305,12 +306,15 @@ export function AttachTask({ target, embed }: { target: AttachTarget; embed?: At
     }
     const t = DATUM_TYPES[target.type]
     const name = nextName(doc, t.base)
+    if (datumPanelTitle(target.type) && v.mode === 'Deactivated' && await messageBox('warning', 'Incompatible Reference Set',
+      'There is no attachment mode that fits the current set of references. If you choose to continue, the feature will remain where it is '
+      + 'now, and will not be moved as the references change. Continue?', ['Yes', 'No']) !== 'Yes') return   // TaskDlgDatumParameters::accept
     closeTask()
     const done = await applyOps(target.part, [{ op: 'add', feature: { name, type: target.type, ...props } }]   /* appended, as Body::addObject puts a datum */, { name: t.txn })
     if (done) setState({ featSel: [refOf(target.part, name)], selected: [] })
   }
   const box = (
-      <TaskBox title={PANEL_TITLE} icon="pd-attach">
+      <TaskBox title={datumPanelTitle(target.type) ?? PANEL_TITLE} icon={(datumPanelIcon(target.type) ?? 'pd-attach') as never}>
         <p className="pd-attach-msg" style={{ color: failed ? 'red' : attached ? 'green' : undefined }}>
           {failed ? `Attachment mode failed: ${ans.error}` : attached ? `Attached with mode ${modeCaption(engine, v.mode)}` : 'Not attached'}</p>
         {[0, 1, 2, 3].map((i) => (
@@ -453,7 +457,7 @@ function planeObject(color: string, role: boolean, text: string | null, pick: st
 function lineObject(color: string, dir: THREE.Vector3, role: boolean, pick: string | null) {
   const a = dir.clone().multiplyScalar(role ? 0.2 * LINE_SIZE : 0), b = dir.clone().multiplyScalar(role ? LINE_SIZE : 2 * LINE_SIZE)
   const line = new THREE.Line(new THREE.BufferGeometry().setFromPoints([a, b]), new THREE.LineBasicMaterial({ color, linewidth: 2 }))
-  if (pick) line.userData.pickName = pick
+  if (pick) { line.userData.pickName = pick; line.userData.pickPriority = 1 }   // a line over a face it lies on (hitAt's rule)
   return line
 }
 function pointObject(color: string, pick: string | null) {
@@ -511,11 +515,23 @@ function drawDatums() {
     const pl = attachedOf(f)?.placement
     if (isDatum(f.type) && pl && featureVisible(s, part, f)) items.push([part, f.name, f, pl])
   }
-  const key = JSON.stringify([items.map(([p, n, f, pl]) => [p, n, f.type, pl, bodyOfPart(s, p)?.matrix]), datumLabels, s.axisColors])
+  const sel = s.featSel.filter((r) => items.some(([p, n]) => r === refOf(p, n) || r.startsWith(`${refOf(p, n)}/`)))
+  const key = JSON.stringify([items.map(([p, n, f, pl]) => [p, n, f.type, pl, bodyOfPart(s, p)?.matrix]), datumLabels, s.axisColors, sel, s.selPrefs.color])
   if (key === drawnKey) return
   drawnKey = key
   const g = new THREE.Group()
-  for (const [part, name, f, pl] of items) g.add(placed(datumObject(f.type, name, refOf(part, name), datumLabels), pl, bodyOfPart(s, part)))
+  for (const [part, name, f, pl] of items) {
+    const o = placed(datumObject(f.type, name, refOf(part, name), datumLabels), pl, bodyOfPart(s, part))
+    o.userData.selectable = true                     // a click on it selects it (pd_pick.tsx), as in FreeCAD
+    // a selected datum (or an LCS's feature) in the selection colour, as SoFCUnifiedSelection draws it
+    const color = new THREE.Color(s.selPrefs.color)
+    o.traverse((x) => {
+      const pick = x.userData.pickName as string | undefined
+      const mat = (x as THREE.Mesh).material as (THREE.Material & { color?: THREE.Color }) | undefined
+      if (pick && mat?.color && sel.includes(pick)) mat.color.copy(color)
+    })
+    g.add(o)
+  }
   v.setHelper('pd-datums', g.children.length ? g : null)
   v.rescaleHelpers()
 }

@@ -21,6 +21,7 @@ import { ExtendHandler, FilletHandler, SplittingHandler, TrimmingHandler } from 
 import { ExternalHandler } from './sketchexternal'
 import * as XT from './sketchxformtools'
 import * as XO from './sketchxformovp'
+import { CURVE_RUN, curveEnabled } from './sketchcurvecmds'
 import * as SK from './sketch'
 import { getState, report } from './store'
 import { askPolygonSides } from './sketchpolydlg'
@@ -149,6 +150,7 @@ const RUN: Record<string, () => void> = {
   Sketcher_CopyClipboard: XT.copyClipboardCommand,
   Sketcher_Cut: XT.cutCommand,
   Sketcher_Paste: () => void XT.pasteCommand(),
+  ...CURVE_RUN, // the B-spline tools and the information layer (sketchcurvecmds.ts)
   Sketcher_ToggleConstruction: PC.toggleConstruction,
   Sketcher_LeaveSketch: () => void S.closeEdit(true),
   Sketcher_CancelSketch: () => void S.closeEdit(false),
@@ -185,6 +187,8 @@ export function isEnabled(name: string): boolean {
   if (name === 'Sketcher_EditSketch') return !editing && !!getState().slug && !!S.lastSketch()
   if (OUT_OF_EDIT.has(name)) return false
   if (!editing || !isImplemented(name)) return false
+  const curve = curveEnabled(name)
+  if (curve !== undefined) return curve
   // each command's isActive (CommandSketcherTools.cpp, CommandConstraints.cpp, CommandSketcherVirtualSpace.cpp)
   switch (name) {
     case 'Sketcher_SelectConstraints': return PC.hasGeometrySelected()

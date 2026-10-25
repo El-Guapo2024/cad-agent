@@ -72,3 +72,13 @@ The additive and subtractive primitives (ui/src/pd_transform.tsx) use 14 more fr
 The Sketcher's Constraints list and datum dialog (ui/src/sketchpanels.tsx, sketchui.tsx) add `bound-expression.svg`
 (`src/Gui/Icons` at 3160daf1e2b6, the icon ExpressionDelegate paints beside a datum bound to an expression; Alfredo Monclus,
 `FreeCAD LGPL2+`).
+
+The Part workbench's icons (ui/src/part_icons.ts) are in `part/`: every SVG of `src/Mod/Part/Gui/Resources/icons` and its
+`booleans/`, `create/`, `parametric/` and `tools/` folders (flattened) at 3160daf1e2b6, unmodified, 80 files. Their metadata
+says `FreeCAD LGPL2+`; `Part_Compound.svg`, `Part_CompoundFilter.svg`, `Part_ExplodeCompound.svg` and
+`Part_ProjectionOnSurface.svg` carry no LGPL tag and come under FreeCAD's LGPL-2.1, and `Part_CompoundFilter.svg`,
+`Part_ProjectionOnSurface.svg`, `Part_Thickness.svg` and `Part_ColorFace.svg` also name CC-BY-SA 4.0 (creators [vocx],
+Bernd Hahnebach, [agryson] Alexander Gryson and Stefan Tröger as their metadata lists them; THIRD_PARTY_LICENSES has the
+licence).
+The Multi-Transform panel's Scale transformation (ui/src/pd_transform.tsx, PartDesign::Scaled) adds `PartDesign_Scaled.svg`
+(`src/Mod/PartDesign/Gui/Resources/icons` at 3160daf1e2b6, ViewProviderScaled's icon); its metadata says `FreeCAD LGPL2+`.

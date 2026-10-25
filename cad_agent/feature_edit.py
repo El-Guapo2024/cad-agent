@@ -65,6 +65,7 @@ from pathlib import Path
 from . import feature as F
 from . import feature_edit_attach as _attach
 from . import feature_kw as KW
+from . import feature_part as _part_objects  # noqa: F401  the Part workbench's objects in OBJECTS (feature_edit_part.py)
 from . import params as P
 
 TYPE_IDS = {"Sketch": "Sketcher::SketchObject", "Pad": "PartDesign::Pad", "Pocket": "PartDesign::Pocket"}
@@ -79,7 +80,10 @@ EXTRUDE_PROPS = {"side_type": "side_type", "type1": "type", "type2": "type2", "l
                  "up_to_face": "up_to_face", "up_to_face2": "up_to_face2", "up_to_shape": "up_to_shape",
                  "up_to_shape2": "up_to_shape2", "use_custom_vector": "use_custom_vector",
                  "direction": "direction", "along_sketch_normal": "along_sketch_normal",
-                 "start_type": "start_type", "start_offset": "start_offset", "refine": "refine"}
+                 "start_type": "start_type", "start_offset": "start_offset", "start_reference": "start_reference",
+                 "taper_angle": "taper_angle",
+                 "taper_angle2": "taper_angle2", "operation": "operation", "refine": "refine",
+                 "reference_axis": "reference_axis"}
 IMPORT = ("from cad_agent.feature import (ArcOfCircle, ArcOfEllipse, ArcOfHyperbola, ArcOfParabola, Body, "
           "BSplineCurve,\n                               Circle, Constraint, Ellipse, LineSegment, Pad, Pocket, "
           "Point, Sketch)\n")
@@ -113,13 +117,15 @@ def _body_call(tree):
     if fn is None:
         return None
     for n in ast.walk(fn):
-        if isinstance(n, ast.Call) and _fname(n) == "Body":
+        if isinstance(n, ast.Call) and _fname(n) in ("Body", "Part.Document"):    # Part.Document: a part with OBJECTS
             return n
     return None
 
 
 def _fname(call):
     f = call.func
+    if isinstance(f, ast.Attribute) and isinstance(f.value, ast.Name) and f.value.id == "Part":
+        return "Part." + f.attr                     # a Part workbench object, Part.Box(...) (feature_part.py)
     return f.id if isinstance(f, ast.Name) else f.attr if isinstance(f, ast.Attribute) else None
 
 
@@ -189,19 +195,23 @@ def _arg(call, pos_names, name):
     return None
 
 
-def _entries(tree):
-    node = _top_assign(tree, "FEATURES")
+def _entries(tree, which="FEATURES"):
+    """The (name, call) entries of FEATURES, or of OBJECTS (the Part workbench's objects, feature_edit_part.py)."""
+    node = _top_assign(tree, which)
     if node is None:
         return None, []
     if not isinstance(node.value, ast.List):
-        raise FeatureEditError("FEATURES is not a list the app can edit")
+        raise FeatureEditError(f"{which} is not a list the app can edit")
     out = []
     for e in node.value.elts:
-        if not (isinstance(e, ast.Call) and _fname(e) in TYPE_IDS):
-            raise FeatureEditError(f"FEATURES holds {ast.unparse(e)[:60]!r}, not a Sketch, Pad or Pocket call")
+        if not (isinstance(e, ast.Call) and _fname(e) in TYPE_IDS) or (
+                _fname(e).startswith("Part.") != (which == "OBJECTS") and _fname(e) != "Sketch"):
+            raise FeatureEditError(f"{which} holds {ast.unparse(e)[:60]!r}, not " +
+                                   ("a Part object or a Sketch call" if which == "OBJECTS" else
+                                    "a Sketch, Pad or Pocket call"))
         n = _arg(e, SKETCH_POS, "name")
         if not (isinstance(n, ast.Constant) and isinstance(n.value, str)):
-            raise FeatureEditError("each FEATURES entry starts with its name, a string")
+            raise FeatureEditError(f"each {which} entry starts with its name, a string")
         out.append((n.value, e))
     return node.value, out
 
@@ -241,7 +251,7 @@ def _feature_dict(call, src):
     d = {"name": _lit(_arg(call, EXTRUDE_POS, "name"), src), "type": TYPE_IDS[kind],
          "profile": _lit(_arg(call, EXTRUDE_POS, "profile"), src)}
     kw = {k.arg: _lit(k.value, src) for k in call.keywords if k.arg != "profile"}
-    unknown = set(kw) - set(EXTRUDE_PROPS.values()) - {"midplane", "taper_angle", "taper_angle2"}
+    unknown = set(kw) - set(EXTRUDE_PROPS.values()) - {"midplane"}
     if unknown:
         raise FeatureEditError(f"{d['name']}: {', '.join(sorted(unknown))} is not a property of a {kind}")
     try:
@@ -251,7 +261,7 @@ def _feature_dict(call, src):
     for key, attr in EXTRUDE_PROPS.items():
         v = getattr(obj, attr)
         d[key] = list(v) if isinstance(v, tuple) else v
-    for key in ("up_to_face", "up_to_face2", "up_to_shape", "up_to_shape2"):
+    for key in ("up_to_face", "up_to_face2", "up_to_shape", "up_to_shape2", "start_reference", "reference_axis"):
         if key in kw:
             d[key] = kw[key]
     return d
@@ -267,11 +277,17 @@ def read_src(src: str, part: str = "") -> dict:
     tip = _lit(tip_node.value, src) if tip_node is not None else None
     feats = [_feature_dict(call, src) for _, call in entries]
     body = _body_call(tree)
-    base = lst is None or (body is not None and any(k.arg == "base" for k in body.keywords))
+    objs, objects = _entries(tree, "OBJECTS")       # the Part workbench's objects (feature_edit_part.py)
+    base = (lst is None and objs is None) or (body is not None and any(k.arg == "base" for k in body.keywords))
     if tip is None and feats:
         # the last feature; a datum is never a Body's Tip (Body::insertObject leaves the Tip where it was)
         tip = next((f["name"] for f in reversed(feats) if KINDS.get(f["type"]) not in _attach.DATUM_KINDS), None)
-    return {"part": part, "params": P.read_src(src), "base": base, "tip": tip, "features": feats}
+    out = {"part": part, "params": P.read_src(src), "base": base, "tip": tip, "features": feats}
+    if objs is not None:
+        out.update(body=lst is not None, objects=[_feature_dict(call, src) for _, call in objects])
+        from . import feature_edit_part as _P
+        out["object_tree"] = _P.tree_info(out)          # the tree's rows and what is shown (feature_edit_part.py)
+    return out
 
 
 def read(part_path) -> dict:
@@ -420,7 +436,7 @@ def _tuples(key, v):
     ("Pad", "Face6") as a tuple, up_to_shape a list of names or (name, [faces]) tuples."""
     if key in ("attachment_offset", "direction") and isinstance(v, list):
         return tuple(tuple(x) if isinstance(x, list) else x for x in v)
-    if key in ("up_to_face", "up_to_face2") and isinstance(v, list):
+    if key in ("up_to_face", "up_to_face2", "start_reference", "reference_axis") and isinstance(v, list):
         return tuple(v)
     if key in ("up_to_shape", "up_to_shape2") and isinstance(v, list):
         return [tuple(r) if isinstance(r, list) else r for r in v]
@@ -496,11 +512,11 @@ def _insert_at(t: _Text, lst, after_index):
     return t.line_end(t.after_comma(t.b(e)))
 
 
-def _insert(src: str, text: str, after: str | None, at_end: bool) -> str:
-    """src with a FEATURES entry (its source, continuation lines indented from column 0) put in: at the end,
-    first (after None), or after the entry named after."""
+def _insert(src: str, text: str, after: str | None, at_end: bool, which="FEATURES") -> str:
+    """src with a FEATURES (or OBJECTS) entry (its source, continuation lines indented from column 0) put in: at the
+    end, first (after None), or after the entry named after."""
     t = _Text(src)
-    lst, entries = _entries(t.tree)
+    lst, entries = _entries(t.tree, which)
     names = [n for n, _ in entries]
     ind = _indent(t, lst)
     lines = "".join(" " * ind + line + "\n" for line in text.split("\n")).rstrip("\n") + ",\n"
@@ -530,12 +546,23 @@ def _insert(src: str, text: str, after: str | None, at_end: bool) -> str:
 
 
 def _entry(src, name):
+    """(text, the list, index, call) of the FEATURES or OBJECTS entry named name."""
     t = _Text(src)
-    lst, entries = _entries(t.tree)
-    for i, (n, call) in enumerate(entries):
-        if n == name:
-            return t, lst, i, call
+    for which in ("FEATURES", "OBJECTS"):
+        lst, entries = _entries(t.tree, which)
+        for i, (n, call) in enumerate(entries):
+            if n == name:
+                return t, lst, i, call
     raise FeatureEditError(f"there is no feature {name!r}")
+
+
+def _which(src, name):
+    """The list ("FEATURES" or "OBJECTS") that holds name, or None."""
+    tree = ast.parse(src)
+    for which in ("FEATURES", "OBJECTS"):
+        if name in [n for n, _ in _entries(tree, which)[1]]:
+            return which
+    return None
 
 
 def _set_arg(t: _Text, call, pos_names, kw: str, text: str, spans):
@@ -694,7 +721,7 @@ def _refs(call):
     if isinstance(p, ast.Constant):
         out.append((p, p.value))
     for k in call.keywords:
-        if k.arg in ("up_to_face", "up_to_face2", "up_to_shape", "up_to_shape2"):
+        if k.arg in ("up_to_face", "up_to_face2", "up_to_shape", "up_to_shape2", "start_reference", "reference_axis"):
             v = k.value
             if isinstance(v, ast.Constant):
                 out.append((v, v.value))
@@ -709,7 +736,7 @@ def _refs(call):
 
 def _users(src, name):
     t = _Text(src)
-    _, entries = _entries(t.tree)
+    entries = _entries(t.tree)[1] + _entries(t.tree, "OBJECTS")[1]     # a Part object may use a Body's sketch
     return [n for n, call in entries if any(r == name for _, r in _refs(call))]
 
 
@@ -748,6 +775,7 @@ def ensure_import(src: str, names) -> str:
     node = next((n for n in tree.body if isinstance(n, ast.ImportFrom) and n.module == "cad_agent.feature"
                  and n.level == 0 and not any(a.asname for a in n.names)), None)
     have = {a.name for a in node.names} if node is not None else set()
+    names = {n for n in names if "." not in n}      # Part.Box is feature_part's (feature_edit_part.ensure_import)
     if set(names) <= have or "*" in have:
         return src
     want = sorted(have | set(names), key=lambda x: (x.lower(), x))
@@ -819,7 +847,7 @@ def _check(src):
         n = f["name"]
         if not NAME.match(n):
             raise FeatureEditError(f"{n!r} is not a name FreeCAD takes (letters, digits and _)")
-        if n in kinds or n == "BaseFeature":
+        if n in kinds or n == "BaseFeature" or (n == "Body" and "objects" in d):
             raise FeatureEditError(f"two features are named {n!r}")
         try:
             if KINDS[f["type"]] in _attach.DATUM_KINDS or f["type"] == TYPE_IDS["Sketch"]:
@@ -846,8 +874,10 @@ def _check(src):
             else:
                 if kinds.get(f["profile"]) != "Sketch":
                     raise FeatureEditError(f"{n}: its profile {f['profile']!r} is not a sketch before it")
-                for key in ("up_to_face", "up_to_face2"):
+                for key in ("up_to_face", "up_to_face2", "start_reference", "reference_axis"):
                     r = f.get(key)
+                    if isinstance(r, str) and not r.endswith("_Plane") and r not in seen:
+                        raise FeatureEditError(f"{n}: its {key} names {r!r}, which is not before it")
                     if isinstance(r, list) and r and r[0] not in seen:
                         raise FeatureEditError(f"{n}: its {key} names {r[0]!r}, which is not before it")
                 for key in ("up_to_shape", "up_to_shape2"):
@@ -861,6 +891,8 @@ def _check(src):
         seen.add(n)
     if d["tip"] is not None and d["tip"] not in kinds and d["tip"] != "BaseFeature":
         raise FeatureEditError(f"the tip {d['tip']!r} is not a feature")
+    from . import feature_edit_part as _P
+    _P.check(src, d)                                # OBJECTS, the Part workbench's objects
     return d
 
 
@@ -904,11 +936,16 @@ def apply_src(src: str, ops: list) -> str:
         kind = op["op"]
         tree = ast.parse(src)
         has_list = _top_assign(tree, "FEATURES") is not None
+        from . import feature_edit_part as _P
+        if kind == "add" and _P.goes_to_objects(op):     # a Part object, or a sketch outside the Body: OBJECTS
+            src = _P.add(src, op)
+            _check(src)
+            continue
         if kind == "add":
             feat = op.get("feature") or {}
             if not has_list:
-                src = _convert(src)
-            if feat.get("name") in [f["name"] for f in read_src(src)["features"]]:
+                src = _P.add_body(src) if _P.has_objects(tree) else _convert(src)
+            if feat.get("name") in _P.names(src) + ["Body"] * _P.has_objects(src):
                 raise FeatureEditError(f"there is already a feature {feat.get('name')!r}")
             cls = KW.kw_class(KINDS.get(feat.get("type"), feat.get("type")))
             if hasattr(cls, "command_defaults"):    # what FreeCAD's command sets on a new one (CmdPartDesignRevolution)
@@ -916,12 +953,16 @@ def apply_src(src: str, ops: list) -> str:
             src = _insert(src, feature_src(feat, 0), op.get("after"), "after" not in op)
             src = ensure_import(src, _kinds_of(feat))
             continue
-        if not has_list:
+        if not has_list and not _P.has_objects(tree):
             raise FeatureEditError("the part has no feature list yet: add a feature first")
         name = op.get("name")
+        which = _which(src, name) if kind in ("delete", "move") else None
         if kind == "set":
             src = _op_set(src, name, op.get("props") or {})
         elif kind == "delete":
+            if op.get("break"):              # Std_Delete answered Yes: links break as FreeCAD's (feature_delete.py)
+                from .feature_delete import break_links
+                src = break_links(src, name)
             users = _users(src, name)
             if users:
                 raise FeatureEditError(f"{name} cannot be deleted: {', '.join(users)} uses it")
@@ -929,7 +970,7 @@ def apply_src(src: str, ops: list) -> str:
             a, b = _entry_span(t, lst, i)
             tip = read_src(src)["tip"]
             src = t.edit([(a, b, "")])
-            if tip == name and _top_assign(ast.parse(src), "TIP") is not None:
+            if which == "FEATURES" and tip == name and _top_assign(ast.parse(src), "TIP") is not None:
                 names = [f["name"] for f in read_src(src)["features"]]
                 before = names[i - 1] if i else None
                 src = _set_tip(src, before) if before else _set_tip(src, None)
@@ -937,11 +978,11 @@ def apply_src(src: str, ops: list) -> str:
             to = op.get("to")
             if not (isinstance(to, str) and NAME.match(to)):
                 raise FeatureEditError(f"{to!r} is not a name FreeCAD takes (letters, digits and _)")
-            if to in [f["name"] for f in read_src(src)["features"]]:
+            if to in _P.names(src) or to == "Body" and _P.has_objects(src):
                 raise FeatureEditError(f"there is already a feature {to!r}")
             t, lst, i, call = _entry(src, name)
             spans = [(t.a(_arg(call, SKETCH_POS, "name")), t.b(_arg(call, SKETCH_POS, "name")), json.dumps(to))]
-            for _, c in _entries(t.tree)[1]:
+            for _, c in _entries(t.tree)[1] + _entries(t.tree, "OBJECTS")[1]:
                 spans += [(t.a(nd), t.b(nd), json.dumps(to + nd.value[len(r):]))   # "LCS.XY_Plane" keeps its role
                           for nd, r in _refs(c) if r == name]
             tip = _top_assign(t.tree, "TIP")
@@ -959,7 +1000,7 @@ def apply_src(src: str, ops: list) -> str:
             text = "\n".join(line[ind:] if line[:ind].strip() == "" else line
                              for line in text.split("\n"))     # continuation lines from column 0
             src = t.edit([(a, b, "")])
-            src = _insert(src, text, after, False)
+            src = _insert(src, text, after, False, which)
         elif kind == "tip":
             if name is not None and name not in [f["name"] for f in read_src(src)["features"]] \
                     and name != "BaseFeature":

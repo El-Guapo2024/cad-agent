@@ -59,3 +59,44 @@ A hand port to TypeScript is the fallback if the build fights back.
    datums, Additive/Subtractive primitives; Part workbench booleans and primitives; Assembly joints.
 
 Each step goes on its own branch and into main when its checks and CI are green, as before.
+
+## Part workbench objects in a part file (decided 2026-10-24, branch part-wb)
+
+A Body is one ordered history; Part objects are a graph: a Part::Cut is made from its Base and Tool, a Part::MultiFuse
+from its Shapes, a Part::Extrusion from its Base, each of which may be any other object, a sketch or a Body. In the
+part file they are a second list beside FEATURES, OBJECTS, in FreeCAD's document order (each object after what it
+links), written in FreeCAD's Python vocabulary under the name `Part`:
+
+```python
+from cad_agent import feature_part as Part
+from cad_agent.feature import Circle, Sketch
+
+OBJECTS = [
+    Part.Box("Box", length=40, width=20, height=5, label="Cube"),
+    Part.Cylinder("Cylinder", radius="r", height=5, placement=((8, 10, 0), (0, 0, 0))),
+    Part.Cut("Cut", "Box", "Cylinder"),
+    Sketch("Sketch", support="XY", geometry=[Circle((0, 0), 5)], constraints=[]),
+    Part.Extrusion("Extrude", "Sketch", length_fwd=10, solid=True),
+]
+
+def build(**p):
+    return Part.Document(OBJECTS, p)                       # with a Body: Part.Document(OBJECTS, p, FEATURES, tip=TIP)
+```
+
+- Each object is a feature_kw.KwFeature call: its Name first, links by position where FreeCAD's Python takes them
+  (Base, Tool; Shapes), the rest FreeCAD's properties in snake_case with FreeCAD's defaults left out, so feature_edit
+  reads and edits OBJECTS with the code it has for FEATURES. A link is a name, (name, "Edge3") or (name, ["Edge1",
+  ...]); label= is FreeCAD's Label when the command gives one (Part_Box labels its Box "Cube").
+- The Body, when the file has FEATURES, is the object "Body"; an object may link it or one of its features (a sketch).
+  A sketch made outside a Body is a Sketch(...) in OBJECTS, placed on an origin plane.
+- What build() returns is what FreeCAD shows: every object nothing links (the commands hide their inputs), and the
+  Body when nothing links it, as one compound. So every gate, drawing and export keeps reading one shape.
+- `Part.` and not bare names because hand-written parts import build123d's Box, Cylinder, Sphere, Plane: the first Part
+  object turns a Body file into a document (Body(FEATURES, p, ...) becomes Part.Document(OBJECTS, p, FEATURES, ...)),
+  a hand-written part first gets its Body with its solid as BaseFeature, and nothing it imports is shadowed.
+- Smallest extension of the seams: feature.py and feature_kw.py are unchanged but for feature_kw's import moving to its
+  end (an import cycle main had too); feature_edit.py's list helpers take which list (FEATURES or OBJECTS) and
+  its read() gives "objects" and "body"; the rest is in new files: cad_agent/feature_part*.py (the objects and
+  Part.Document), feature_part_face.py (FreeCAD's face makers), feature_edit_part.py (OBJECTS' own edits).
+- Checked like the Body: tests/golden/part (freecadcmd builds every case through feature_part.to_freecad; each object's
+  volume, area, length, box, centre and topology counts) and each type's FreeCAD defaults.

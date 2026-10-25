@@ -42,7 +42,9 @@ The properties are FreeCAD's in snake_case, with FreeCAD's defaults (FeatureRevo
     type, type2      Revolution: Angle, UpToLast, UpToFirst, UpToFace; Groove: Angle, ThroughAll, UpToFirst,
                      UpToFace; the deprecated type="TwoAngles" is SideType "Two sides" (onDocumentRestored)
     up_to_face(2)    ("Pad", "Face6") or an origin plane ("XY_Plane"), for UpToFace
-    reversed, project_axis, start_type ("Profile plane" | "Offset"), start_offset (degrees), refine (True)
+    reversed, project_axis, start_type ("Profile plane" | "Offset" | "Reference"), start_offset (degrees),
+    start_reference ("XY_Plane", ("Pad", "Face6") or a sketch; cad_agent/feature_startref.py), refine (True)
+    operation        a Groove's Operation: "Subtraction" (the default) or "Common" (FeatureAddSub)
 
 What is built is what Revolved::tryExecuteRevolved builds, in the same OCCT calls: BRepPrimAPI_MakeRevol for the
 angular types (and a Groove's ThroughAll, a full turn), BRepFeat_MakeRevol for the up-to types, then the fuse
@@ -86,7 +88,7 @@ from .feature_kw import KwFeature  # noqa: E402  (feature_kw imports feature.py,
 ANGULAR = 1e-12           # Precision::Angular()
 CONFUSION = 1e-7          # Precision::Confusion()
 SIDE_TYPES = ("One side", "Two sides", "Symmetric")    # Revolved::SideTypesEnums
-START_TYPES = ("Profile plane", "Offset")              # ProfileBased::StartTypesEnums, but Reference
+START_TYPES = ("Profile plane", "Offset", "Reference")  # ProfileBased::StartTypesEnums
 ORIGIN_AXES = {"X_Axis": (1.0, 0.0, 0.0), "Y_Axis": (0.0, 1.0, 0.0), "Z_Axis": (0.0, 0.0, 1.0)}
 SKETCH_AXES = ("V_Axis", "H_Axis", "N_Axis")
 
@@ -100,8 +102,8 @@ class _Revolved(KwFeature):
     DEFAULTS = {"profile": None, "reference_axis": None, "angle": 360.0, "angle2": 0.0, "side_type": "One side",
                 "type": "Angle", "type2": "Angle", "midplane": False, "reversed": False, "up_to_face": None,
                 "up_to_face2": None, "project_axis": False, "start_type": "Profile plane", "start_offset": 0.0,
-                "refine": True}
-    REFS = ("profile", "reference_axis", "up_to_face", "up_to_face2")
+                "start_reference": None, "refine": True}
+    REFS = ("profile", "reference_axis", "up_to_face", "up_to_face2", "start_reference")
     DICT_KEYS = {"type": "type1"}            # read()'s dicts keep "type" for the TypeId, as for a Pad
     SET_DROPS = {"side_type": ("midplane",)}  # setting SideType leaves out the deprecated Midplane
 
@@ -148,7 +150,8 @@ class _Revolved(KwFeature):
         obj = ctx.body.newObject(self.TYPE_ID, self.name)
         obj.Profile = ctx.made[self.profile]
         r = self.reference_axis
-        obj.ReferenceAxis = (ctx.origin[r], [""]) if isinstance(r, str) else (ctx.made[r[0]], [r[1]])
+        from .feature_refs import freecad_ref
+        obj.ReferenceAxis = freecad_ref(r, ctx)
         obj.Refine = self.refine
         obj.SideType = self.side_type
         obj.Type = self.type
@@ -159,6 +162,9 @@ class _Revolved(KwFeature):
         obj.ProjectAxis = self.project_axis
         obj.StartType = self.start_type
         ctx.setv(obj, "StartOffset", self.start_offset)
+        if self.start_reference is not None:
+            o, subs = ctx.ref(self.start_reference)
+            obj.StartReference = (o, subs)
         for prop, rr in (("UpToFace", self.up_to_face), ("UpToFace2", self.up_to_face2)):
             if rr is not None:
                 o, subs = ctx.ref(rr)
@@ -182,12 +188,25 @@ class Groove(_Revolved):
     TRANSACTION = "Make Groove"
     TYPES = ("Angle", "ThroughAll", "UpToFirst", "UpToFace")        # Groove::TypeEnums, without ?TwoAngles
     additive = False
+    DEFAULTS = {**_Revolved.DEFAULTS, "operation": "Subtraction"}   # FeatureAddSub::defineSubtractive
+
+    def validate(self):
+        super().validate()
+        if self.operation not in F.SUBTRACTIVE_OPERATIONS:
+            raise FeatureError(f"{self.name}: operation {self.operation!r} is not one of "
+                               f"{', '.join(F.SUBTRACTIVE_OPERATIONS)} (PartDesign::Groove's Operation)")
+
+    def to_freecad(self, ctx):
+        obj = super().to_freecad(ctx)
+        if self.operation != "Subtraction":
+            obj.Operation = self.operation
+        return obj
 
 def _axis_ref(r, where):
     if isinstance(r, str):
-        if r not in ORIGIN_AXES:
+        if not r:
             raise FeatureError(f"{where}: reference_axis {r!r} is not X_Axis, Y_Axis, Z_Axis or (feature, sub)")
-        return r
+        return r                                         # an Origin axis, or a datum line (checked when built)
     try:
         obj, sub = r
     except (TypeError, ValueError):
@@ -226,17 +245,31 @@ def _axis_from_edge(edge):
     raise FeatureError("Edge must be a straight line, circle or arc of circle")
 
 
-def get_axis(feat, sketch, shapes, sketches):
+def get_axis(feat, sketch, shapes, sketches, forbid: str = "parallel"):
     """(base, dir) as gp_Pnt and gp_Vec (dir unnormalised, as Base::Axis keeps it) in the body's frame, or raises with
-    FreeCAD's words. ForbiddenAxis::NotParallelWithNormal unless project_axis (Revolved::updateAxis)."""
+    FreeCAD's words. ForbiddenAxis::NotParallelWithNormal unless project_axis (Revolved::updateAxis); forbid
+    "perpendicular" is NotPerpendicularWithNormal (FeatureExtrude::computeDirection's, for a Pad's ReferenceAxis)."""
+    from .feature_refs import base_and_direction, datum_type
     r = feat.reference_axis
     origin, rot = sketch.placement()
     normal = gp_Dir(*sketch.normal())
 
     def verify(d):
-        if not feat.project_axis and normal.IsParallel(gp_Dir(d), ANGULAR):
+        if forbid == "perpendicular":
+            if normal.IsNormal(gp_Dir(d), ANGULAR):
+                raise FeatureError("Axis must not be parallel to the sketch plane")
+        elif not getattr(feat, "project_axis", False) and normal.IsParallel(gp_Dir(d), ANGULAR):
             raise FeatureError("Axis must not be perpendicular to the sketch plane")
 
+    t = datum_type(shapes, r)
+    if t in ("PartDesign::Line", "App::Line"):          # PartDesign::Line, then App::Line: getBasePoint, getDirection
+        b, d = base_and_direction(shapes, r)
+        verify(gp_Vec(*d))
+        return gp_Pnt(*b), gp_Vec(*d)
+    if t is not None:       # a datum plane or point: not a line, and its whole shape (sub "") is not an edge
+        raise FeatureError("Unsupported geometry type to get reference axis")
+    if isinstance(r, str) and r not in ORIGIN_AXES:
+        raise FeatureError(f"{feat.name}: reference_axis names {r!r}, which is not before it")
     if isinstance(r, str):                               # App::Line of the Body's Origin
         d = gp_Vec(*ORIGIN_AXES[r])
         verify(d)
@@ -564,7 +597,10 @@ def _revolve(feat: _Revolved, sketch, base, shapes, sketches, params, out=None):
         d = d.Reversed()
     axis = gp_Ax1(pnt, d)
     start = math.radians(_clamp(value(feat.start_offset, params, f"{where}.start_offset"))) \
-        if feat.start_type == "Offset" else 0.0
+        if feat.start_type in ("Offset", "Reference") else 0.0
+    if feat.start_type == "Reference":                  # Revolved::getStartReferenceAngle
+        from .feature_startref import revolve_angle
+        start = revolve_angle(sketchshape, feat.start_reference, axis, start, shapes, where)
     if abs(start) >= ANGULAR:                             # Revolved::rotateProfileToStart
         t = gp_Trsf()
         t.SetRotation(axis, start)
@@ -657,7 +693,10 @@ def _set_result(feat, base, revolved, out=None):
     if out is not None:
         out["addsub"] = result
     if base is not None:
-        result = F._bool("fuse" if feat.additive else "cut", base, [result])
+        # Revolution: base.makeElementFuse(revolve), the default tolerance; Groove::makeShape: getBooleanMaker()
+        # (Cut, or Common for Operation "Common") with FuzzyTolerance
+        maker = "fuse" if feat.additive else "common" if getattr(feat, "operation", "") == "Common" else "cut"
+        result = F._bool(maker, base, [result], -1.0 if feat.additive else 0.0)
         result = refine(result)
     if not F._count(result, TopAbs_SOLID):
         raise FeatureError("Resulting shape is not a solid")

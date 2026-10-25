@@ -67,6 +67,16 @@ def geo(g):
                 "axis_z": g.Axis.z}
     if t == "Part::GeomPoint":
         return {"type": "Point", "at": [g.X, g.Y]}
+    if t in ("Part::GeomEllipse", "Part::GeomArcOfEllipse"):
+        d = {"type": t[len("Part::Geom"):], "center": [g.Center.x, g.Center.y], "major_radius": g.MajorRadius,
+             "minor_radius": g.MinorRadius, "x_axis": [g.XAxis.x, g.XAxis.y], "axis_z": g.Axis.z}
+        if t == "Part::GeomArcOfEllipse":
+            d.update({"start": [g.StartPoint.x, g.StartPoint.y], "end": [g.EndPoint.x, g.EndPoint.y]})
+        return d
+    if t == "Part::GeomBSplineCurve":
+        return {"type": "BSplineCurve", "poles": [[q.x, q.y] for q in g.getPoles()], "weights": list(g.getWeights()),
+                "knots": list(g.getKnots()), "mults": list(g.getMultiplicities()), "degree": g.Degree,
+                "periodic": g.isPeriodic()}
     return {"type": t}
 
 

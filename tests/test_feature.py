@@ -65,12 +65,6 @@ def test_every_case_has_freecads_answer():
     assert not [n for n, g in FREECAD.items() if "error" in g or not g["valid"]]
 
 
-# Where the refine differs: FreeCAD refines with its own BRepBuilderAPI_RefineModel, this module with OCCT's
-# UnifySameDomain. They make the same solid; here FreeCAD also merges the hole's two half cylinders (one the
-# mirror of the other, as a symmetric pocket that is not a Length builds them) and UnifySameDomain does not.
-REFINE_DIFFERS = {"pocket_symmetric_through_all": 8}
-
-
 @pytest.mark.parametrize("name", sorted(CASES))
 def test_same_solid_as_freecad(name):
     case, want = CASES[name], FREECAD[name]
@@ -80,20 +74,14 @@ def test_same_solid_as_freecad(name):
     size = math.dist(want["bbox"][:3], want["bbox"][3:])
     assert got["bbox"] == pytest.approx(want["bbox"], abs=1e-6 * size)
     assert got["center_of_mass"] == pytest.approx(want["center_of_mass"], abs=1e-6 * size)
-    if name in REFINE_DIFFERS:
-        assert (got["solids"], got["faces"]) == (want["solids"], REFINE_DIFFERS[name])
-        return
     assert (got["solids"], got["faces"]) == (want["solids"], want["faces"])
     key = lambda f: tuple(round(x, 4) for x in f)       # noqa: E731
     assert sorted(map(key, got["face_list"])) == sorted(map(key, want["face_list"]))
 
 
-# Mostly the faces come in FreeCAD's order too, so an UpToFace written ("Pad", "Face6") names the face
-# FreeCAD's Face6 is. In these the faces are the same but their order is not: after a fuse with the refine
-# merging faces, UnifySameDomain numbers them otherwise than FreeCAD's own refine does.
-ORDER_DIFFERS = {"pad_up_to_last", "pad_up_to_last_step", "pad_up_to_first_wide", "pad_up_to_face",
-                 "pad_up_to_face_larger", "pad_up_to_shape_face", "pad_symmetric_up_to_face",
-                 "pad_two_sides_up_to", "pocket_symmetric_through_all", "pad_pad_refine", "base_box_pad"}
+# The faces come in FreeCAD's order too, so an UpToFace written ("Pad", "Face6") names the face FreeCAD's Face6
+# is: the refine is FreeCAD's own (cad_agent/refine.py) and the booleans are FreeCAD's (cad_agent/topo_boolean.py).
+ORDER_DIFFERS: set = set()
 SAME_ORDER = sorted(set(CASES) - ORDER_DIFFERS)
 
 

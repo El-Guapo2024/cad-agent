@@ -30,6 +30,7 @@ import * as quantity from './quantity'
 import type { Entry } from './chrome'
 import type { IconName } from './icons'
 import { applyOps, bodyOfPart, curveOf, numberOf, profileLoops, refOf, setAttachPicker, sketchMatrix, splitRef, targetBody, SKETCH } from './partdesign'
+import { useRefPick } from './pd_pick'
 import './pd_sweep.css'
 
 type Kind = 'loft' | 'pipe' | 'helix'
@@ -178,25 +179,12 @@ function ListBox({ items, onChange, reorder, title, name }: { items: string[]; o
 }
 type Mode = string | null
 /** While one of a panel's selection buttons is down: tree-row clicks (setAttachPicker) and 3D edge picks (subSel) go to it. */
-function useSelectionMode(mode: Mode, part: string, onRow: (name: string) => void, onEdge: (feature: string, edge: string) => void) {
-  const row = useRef(onRow), edge = useRef(onEdge)
-  row.current = onRow; edge.current = onEdge
-  useEffect(() => {
-    if (!mode) return
-    setAttachPicker((ref) => { const [p, n] = splitRef(ref); if (p === part && n) row.current(n) })
-    let last = JSON.stringify(getState().subSel)
-    const unsub = subscribe(() => {
-      const s = getState(), key = JSON.stringify(s.subSel)
-      if (key === last) return
-      last = key
-      const body = bodyOfPart(s, part), doc = s.features[part]
-      if (!body || !doc) return
-      const solids = doc.features.filter((f) => f.type !== SKETCH)
-      const tip = doc.tip ? solids.find((f) => f.name === doc.tip)?.name ?? solids[solids.length - 1]?.name : solids[solids.length - 1]?.name
-      for (const r of s.subSel) { const i = r.indexOf('.'); if (r.slice(0, i) === body.name && tip && /^Edge\d+$/.test(r.slice(i + 1))) edge.current(tip, r.slice(i + 1)) }
-    })
-    return () => { setAttachPicker(null); unsub() }
-  }, [mode, part])
+function useSelectionMode(mode: Mode, part: string, onRow: (name: string) => void, onEdge: (feature: string, edge: string) => void, feature: string | null = null) {
+  // pd_pick.tsx: the base shown in the Body's place and its edges clicked in the 3D view (an edge mode takes edges, the
+  // others whole objects: a sketch's row, a datum), the tree's rows through the same gate
+  const edgeMode = !!mode && /Edge$/.test(mode)
+  useRefPick(!!mode, { part, feature, allow: (p) => (edgeMode ? p.kind === 'element' && p.sub.startsWith('Edge') : !p.sub || p.kind !== 'element'),
+    onPick: (p) => { if (edgeMode) onEdge(p.obj, p.sub); else onRow(p.obj) } })
 }
 
 // ── geometry for the previews ────────────────────────────────────────────────────────────────────────────
@@ -342,7 +330,7 @@ export function SweepTask({ part, other, edit }: { part: string; other: string; 
     const next = mode!.startsWith('add') ? (subs.includes(e) ? subs : [...subs, e]) : subs.filter((x) => x !== e)
     set({ [key]: makeLink(feat, next) })
   }
-  useSelectionMode(mode, part, pick, pickEdge)
+  useSelectionMode(mode, part, pick, pickEdge, existing?.name ?? null)
   if (!doc || !profile) return <div className="tasks"><p className="hint">{part}: no sketch {linkName(v.profile) ?? linkName(existing?.profile) ?? ''}</p></div>
   const props = (): Values => {
     const keep = Object.keys(DEFAULTS[info.kind]).filter((k) => k !== 'operation' || !info.additive)

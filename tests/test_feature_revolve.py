@@ -73,13 +73,6 @@ def test_every_case_has_freecads_answer():
     assert not [n for n, g in FREECAD.items() if "error" in g or not g["valid"]]
 
 
-# Where the refine differs (FreeCAD's BRepBuilderAPI_RefineModel against OCCT's UnifySameDomain; feature.py's _refine):
-# the same solid, the faces counted otherwise.
-# rev_n_axis: a revolution about the sketch's normal is flat (no volume); UnifySameDomain merges its coplanar faces
-# into 2, FreeCAD's refine leaves 6.
-REFINE_DIFFERS = {"rev_n_axis": 2}
-
-
 @pytest.mark.parametrize("name", sorted(CASES))
 def test_same_solid_as_freecad(name):
     case, want = CASES[name], FREECAD[name]
@@ -90,17 +83,14 @@ def test_same_solid_as_freecad(name):
     assert got["bbox"] == pytest.approx(want["bbox"], abs=1e-6 * size)
     if abs(want["volume"]) > 1e-9:            # rev_n_axis turns the face in its own plane: no volume, no centre
         assert got["center_of_mass"] == pytest.approx(want["center_of_mass"], abs=1e-6 * size)
-    if name in REFINE_DIFFERS:
-        assert (got["solids"], got["faces"]) == (want["solids"], REFINE_DIFFERS[name])
-        return
     assert (got["solids"], got["faces"]) == (want["solids"], want["faces"])
     key = lambda f: tuple(round(x, 4) for x in f)       # noqa: E731
     assert sorted(map(key, got["face_list"])) == sorted(map(key, want["face_list"]))
 
 
-# Mostly the faces come in FreeCAD's order too, so an up_to_face written ("Revolution", "Face3") names the face
-# FreeCAD's Face3 is. These have the same faces in another order.
-ORDER_DIFFERS = {"rev_on_plate", "rev_symmetric_up_to_first", "groove_up_to_first"} | set(REFINE_DIFFERS)
+# The faces come in FreeCAD's order too, so an up_to_face written ("Revolution", "Face3") names the face FreeCAD's
+# Face3 is.
+ORDER_DIFFERS: set = set()
 
 
 def test_face_names_differ_only_where_known():

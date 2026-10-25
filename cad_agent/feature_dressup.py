@@ -50,7 +50,6 @@ try:                                     # the kernel; FreeCAD's Python reads th
     from OCP.BRep import BRep_Tool
     from OCP.BRepAdaptor import BRepAdaptor_Curve, BRepAdaptor_Surface
     from OCP.BRepAlgo import BRepAlgo
-    from OCP.BRepAlgoAPI import BRepAlgoAPI_Fuse
     from OCP.BRepCheck import BRepCheck_Analyzer
     from OCP.BRepFilletAPI import BRepFilletAPI_MakeChamfer, BRepFilletAPI_MakeFillet
     from OCP.BRepGProp import BRepGProp
@@ -111,13 +110,32 @@ def parse_base(base, where):
     return obj, list(subs)
 
 
+def _origin(r):
+    return isinstance(r, str) and (r in ORIGIN_PLANES or r in ORIGIN_AXES)
+
+
+def datum_type(shapes, r):
+    from .feature_refs import datum_type as t
+    return t(shapes, r)
+
+
+def base_and_direction(shapes, r):
+    from .feature_refs import base_and_direction as b
+    return b(shapes, r)
+
+
+def own_plane(shapes, r):
+    from .feature_refs import own_plane as o
+    return o(shapes, r)
+
+
 def _ref(r, where, prop, kinds):
     """A link-sub of Draft: an origin plane or axis name, or (feature, "FaceN"/"EdgeN")."""
     if r is None:
         return None
     if isinstance(r, str):
-        if r in ORIGIN_PLANES or r in ORIGIN_AXES:
-            return r
+        if r:
+            return r                     # an origin plane or axis, or a datum (cad_agent/feature_refs.py, when built)
         raise FeatureError(f"{where}: {prop} {r!r} is not an origin plane or axis or (feature, 'Face1')")
     try:
         obj, sub = r
@@ -125,8 +143,9 @@ def _ref(r, where, prop, kinds):
         raise FeatureError(f"{where}: {prop} {r!r} is not (feature, 'Face1')") from None
     if isinstance(sub, (list, tuple)):
         sub = sub[0] if sub else ""
-    if not (isinstance(obj, str) and any(isinstance(sub, str) and sub.startswith(k) and _sub_ok(sub)
-                                         for k in kinds)):
+    lcs_role = isinstance(sub, str) and any(sub.startswith(o) for o in (*ORIGIN_PLANES, *ORIGIN_AXES))
+    if not (isinstance(obj, str) and (lcs_role or any(isinstance(sub, str) and sub.startswith(k) and _sub_ok(sub)
+                                                      for k in kinds))):
         raise FeatureError(f"{where}: {prop} {r!r} is not (feature, '{kinds[0]}1')")
     return (obj, sub)
 
@@ -429,7 +448,20 @@ class Draft(_DressUp):
             return base
         angle = math.radians(value(self.angle, params, f"{self.name}.angle"))
         pull = None
-        if self.pull_direction is not None:
+        dt = datum_type(shapes, self.pull_direction)       # PartDesign::Line, App::Line (cad_agent/feature_refs.py)
+        nt = datum_type(shapes, self.neutral_plane)
+        for key, r, t in (("neutral_plane", self.neutral_plane, nt), ("pull_direction", self.pull_direction, dt)):
+            if isinstance(r, str) and t is None:
+                raise FeatureError(f"{self.name}: {key} {r!r} is not an origin plane or axis, a datum before it, "
+                                   "or (feature, 'Face1')")
+        if self.pull_direction is not None and dt is not None and not _origin(self.pull_direction):
+            if dt in ("PartDesign::Line", "App::Line"):
+                pull = gp_Dir(*base_and_direction(shapes, self.pull_direction)[1])
+            elif dt.startswith("PartDesign::"):               # a Part::Feature, no sub-element
+                raise FeatureError("No pull direction reference specified")
+            else:
+                raise FeatureError("Pull direction reference must be an edge of a feature or a datum line")
+        elif self.pull_direction is not None:
             if isinstance(self.pull_direction, str):
                 pull = gp_Dir(*ORIGIN_AXES[self.pull_direction])
             else:
@@ -440,7 +472,17 @@ class Draft(_DressUp):
                 if c.GetType() != GeomAbs_Line:
                     raise FeatureError("Pull direction reference edge must be linear")
                 pull = c.Line().Direction()
-        if self.neutral_plane is None:
+        if self.neutral_plane is not None and nt is not None and not _origin(self.neutral_plane):
+            if nt == "PartDesign::Plane":
+                b, n = base_and_direction(shapes, self.neutral_plane)
+            elif nt == "App::Plane":                          # makePlnFromPlane: its own Placement
+                b, n = own_plane(shapes, self.neutral_plane)
+            elif nt.startswith("PartDesign::"):
+                raise FeatureError("No neutral plane reference specified")
+            else:
+                raise FeatureError("Neutral plane reference must be face of a feature or a datum plane")
+            plane = gp_Pln(gp_Pnt(*b), gp_Dir(*n))
+        elif self.neutral_plane is None:
             face = _sub_shape(base, subs[0], self.name)
             if face is None:
                 raise FeatureError("Invalid Invalid face link")
@@ -530,14 +572,11 @@ class Draft(_DressUp):
         setv = ctx.setv
         setv(obj, "Angle", self.angle)
         obj.Reversed = self.reversed
-        axes, made = ctx.origin, ctx.made
         for prop, r in (("NeutralPlane", self.neutral_plane), ("PullDirection", self.pull_direction)):
             if r is None:
                 continue
-            if isinstance(r, str):
-                setattr(obj, prop, (axes[r], [""]))
-            else:
-                setattr(obj, prop, (made[r[0]], [r[1]]))
+            from .feature_refs import freecad_ref          # an origin feature, a datum, an LCS's feature
+            setattr(obj, prop, freecad_ref(r, ctx))
         return obj
 
 
@@ -655,16 +694,11 @@ def _recto_verso(solid, faces, thickness, tol, intersection, join):
     verso = _thick_solid(oriented, faces, -d, tol, intersection, BRepOffset_Skin, join)
     _valid_wall(recto, "Recto-verso positive-side wall is invalid")
     _valid_wall(verso, "Recto-verso negative-side wall is invalid")
-    args, tools = TopTools_ListOfShape(), TopTools_ListOfShape()
-    args.Append(recto)
-    tools.Append(verso)
-    mk = BRepAlgoAPI_Fuse()
-    mk.SetRunParallel(True)
-    mk.SetArguments(args)
-    mk.SetTools(tools)
-    mk.SetFuzzyValue(tol)
-    mk.Build()
-    result = mk.Shape() if mk.IsDone() else None
+    from .topo_boolean import BooleanError, element_boolean
+    try:                                                     # result.makeElementFuse({recto, verso}, ..., tolerance)
+        result = element_boolean("fuse", [recto, verso], tol)
+    except BooleanError:
+        result = None
     if result is None or result.IsNull() or not BRepCheck_Analyzer(result).IsValid() \
             or F._count(result, TopAbs_SOLID) != 1:
         raise FeatureError("Recto-verso thickness produced an invalid solid")

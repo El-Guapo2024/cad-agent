@@ -824,6 +824,9 @@ export class ArcOfParabolaHandler extends DefaultHandler {
 }
 
 // ── B-spline by control points (DrawSketchHandlerBSpline.h, ControlPoints) ───────────────────────────────────────
+let knotsSwitch: ((periodic: boolean, points: XY[]) => void) | null = null
+/** M: the knots method's tool (sketchcurvecmds.ts registers it). */
+export function setKnotsSwitch(f: (periodic: boolean, points: XY[]) => void) { knotsSwitch = f }
 /** Each click a construction circle at the pole (the first weighted 1, the others equal to it), auto-constraints on its
  *  centre; the right button (or Esc) or a click back on the first pole ends it: the B-spline, its poles aligned to the
  *  circles (its ends to what the first and last circle were tied to), the knot points (exposeInternalGeometry).
@@ -837,14 +840,18 @@ export class BSplineHandler extends DefaultHandler {
   private points: XY[] = []
   private geoIds: number[] = []
   private sugBackup: AutoConstraint[][] = []
-  constructor(private periodic = false) { super() }
+  /** carried: the knots tool's points so far, as poles now (M, changeConstructionMethode). */
+  constructor(private periodic = false, private carried: XY[] = []) { super() }
   crosshair() { return this.periodic ? 'Sketcher_Pointer_Create_Periodic_BSpline' : 'Sketcher_Pointer_Create_BSpline' }
   hints() {
     const sw = this.hint('%1 switch to knots', ['M']), per = this.hint('%1 toggle periodic', ['F']), deg = this.hint('%1/%2 increase/decrease degree', ['U', 'J'])
     if (this.state === 0) return [this.hint('%1 pick first control point', [LMB]), sw, per, deg]
     return [this.hint('%1 pick next point', [LMB]), this.hint('%1 finish', [RMB]), sw, per, this.hint('%1 undo last point', ['R']), deg]
   }
-  activated() { super.activated(); S.openCommand('Add Sketch B-Spline') }
+  activated() {
+    super.activated(); S.openCommand('Add Sketch B-Spline')
+    if (this.carried.length) { for (const p of this.carried) { this.prevCursor = p; this.addPos() } this.carried = []; this.state = 1; S.solve(); S.updateHints() }
+  }
   deactivated() { super.deactivated(); S.abortCommand() }
   private lastPoint(): XY { return this.points.length ? this.points[this.points.length - 1] : [0, 0] }
   getStartPointOfCurrentSegment() { return null }
@@ -910,7 +917,7 @@ export class BSplineHandler extends DefaultHandler {
     }
     if (!pressed && key === 'R' && this.state === 1) { this.undoLastPoint(); return true }
     if (!pressed && key === 'F') { this.periodic = !this.periodic; S.applyCursor(); if (this.state === 1) this.drawShape(); return true }
-    if (key === 'M') return true
+    if (key === 'M') { if (!pressed) knotsSwitch?.(this.periodic, [...this.points]); return true } // to B-spline by knots
     return super.registerPressedKey(pressed, key)
   }
   private undoLastPoint() {

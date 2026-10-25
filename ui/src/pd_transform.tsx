@@ -7,6 +7,8 @@
 //   src/Mod/PartDesign/Gui/TaskMirroredParameters.cpp: 2012 Jan Rheinländer
 //   src/Mod/PartDesign/Gui/TaskPatternParameters.cpp: 2012 Jan Rheinländer
 //   src/Mod/PartDesign/Gui/TaskMultiTransformParameters.cpp: 2012 Jan Rheinländer
+//   src/Mod/PartDesign/Gui/TaskScaledParameters.cpp, ViewProviderScaled.cpp: 2012 Jan Rheinländer
+//   src/Mod/PartDesign/App/FeatureScaled.cpp, FeatureMultiTransform.cpp: 2012 Jan Rheinländer (the preview's scalings)
 //   src/Mod/PartDesign/Gui/ViewProviderTransformed.cpp: 2012 Jan Rheinländer
 //   src/Mod/PartDesign/Gui/TaskPrimitiveParameters.cpp: 2015 Stefan Tröger
 //   src/Mod/Part/Gui/PatternParametersWidget.cpp: 2025 AstoCAD
@@ -32,12 +34,16 @@ import { ContextMenu, type Entry } from './chrome'
 import * as quantity from './quantity'
 import './pd_transform.css'
 import { AttachTask } from './pd_attach'
+import { axisRefText, patternRefText, useOriginShown, useRefPick, type Ref as PickRef } from './pd_pick'
 import type { PlacementData } from './attached'
 import { applyOps, bodyOfPart, createBody, isBodyDoc, numberOf, PAD, POCKET, previewObject, refOf, SKETCH, sketchMatrix, splitRef, targetBody,
   type ExtrudeSpec } from './partdesign'
 
 // ── the types ────────────────────────────────────────────────────────────────
 export const MIRRORED = 'PartDesign::Mirrored', LINEAR = 'PartDesign::LinearPattern', POLAR = 'PartDesign::PolarPattern', MULTI = 'PartDesign::MultiTransform'
+/** PartDesign::Scaled (cad_agent/feature_scaled.py). FreeCAD 26.3 does not register PartDesign_Scaled (Command.cpp has it
+ *  commented out): a Scaled comes from Multi-Transform's Add Scale Transformation, or from the code. */
+export const SCALED = 'PartDesign::Scaled'
 /** Each transformed feature: its kind (the part file's call), the command's menu text and pixmap, the name FreeCAD gives a new
  *  one (getUniqueObjectName(which)) and a MultiTransform's transformation of the kind (onTransformAdd…'s names). */
 const TRANSFORMED: Record<string, { kind: string; label: string; icon: IconName; cmd: string; sub: string; panel: string }> = {
@@ -45,6 +51,7 @@ const TRANSFORMED: Record<string, { kind: string; label: string; icon: IconName;
   [LINEAR]: { kind: 'LinearPattern', label: 'Linear Pattern', icon: 'pd-linear-pattern', cmd: 'PartDesign_LinearPattern', sub: 'Linear_Pattern', panel: 'Linear Pattern Parameters' },
   [POLAR]: { kind: 'PolarPattern', label: 'Polar Pattern', icon: 'pd-polar-pattern', cmd: 'PartDesign_PolarPattern', sub: 'Polar_Pattern', panel: 'Polar Pattern Parameters' },
   [MULTI]: { kind: 'MultiTransform', label: 'Multi-Transform', icon: 'pd-multi-transform', cmd: 'PartDesign_MultiTransform', sub: 'MultiTransform', panel: 'Multi-Transform Parameters' },
+  [SCALED]: { kind: 'Scaled', label: 'Scale', icon: 'pd-scaled', cmd: 'PartDesign_Scaled', sub: 'Scale', panel: 'Scale Parameters' },
 }
 export const SHAPES = ['Box', 'Cylinder', 'Sphere', 'Cone', 'Ellipsoid', 'Torus', 'Prism', 'Wedge'] as const
 type Shape = (typeof SHAPES)[number]
@@ -142,9 +149,11 @@ function newTransformed(doc: FeatureDoc, type: string, originals: string[]): Fea
   const f: Feature = { name: '', type, originals, transform_mode: originals.length ? 'Features' : 'Whole shape', refine: true, suppressed_indices: [] }
   const sk = sketchOf(doc, f)
   if (type === MIRRORED) f.mirror_plane = sk ? [sk.name, 'V_Axis'] : 'XY_Plane'
-  if (type === LINEAR) Object.assign(f, LINEAR_DEFAULTS, { direction: sk ? [sk.name, 'H_Axis'] : 'X_Axis', direction2: sk ? [sk.name, 'V_Axis'] : 'Y_Axis', length: 100, occurrences: 2 })
+  // Length 100 with Occurrences 2 syncs Offset to 100 (syncLengthAndOffset), as FreeCAD's new LinearPattern has it
+  if (type === LINEAR) Object.assign(f, LINEAR_DEFAULTS, { direction: sk ? [sk.name, 'H_Axis'] : 'X_Axis', direction2: sk ? [sk.name, 'V_Axis'] : 'Y_Axis', length: 100, occurrences: 2, offset: 100 })
   if (type === POLAR) Object.assign(f, POLAR_DEFAULTS, { axis: sk ? [sk.name, 'N_Axis'] : 'Z_Axis', angle: 360, occurrences: 2 })
   if (type === MULTI) f.transformations = []
+  if (type === SCALED) Object.assign(f, { factor: 2, occurrences: 2 })     // onTransformAddScaled: Factor = 2, Occurrences = 2
   return f
 }
 const LINEAR_DEFAULTS = { direction: null, reversed: false, mode: 'Extent', length: 100, offset: 10, spacings: [-1], spacing_pattern: [0], occurrences: 2,
@@ -154,6 +163,15 @@ const POLAR_DEFAULTS = { axis: null, reversed: false, mode: 'Extent', angle: 360
 /** PartDesign_Mirrored, _LinearPattern, _PolarPattern, _MultiTransform: the selected features of the active Body are the
  *  originals; the task panel opens on the new feature, which OK makes ("Make Mirrored"). Multi-Transform with a transformed
  *  feature selected converts it instead ("Convert to Multi-Transform feature"). */
+/** The tree's context menu (Workbench::setupContextMenu): with exactly one Mirrored, LinearPattern or PolarPattern among the
+ *  selection (countObjectsOfType<Transformed> - countObjectsOfType<MultiTransform> == 1), PartDesign_MultiTransform, which
+ *  converts it ("Convert to Multi-Transform feature"). */
+export function transformTreeEntries(refs: string[]): Entry[] {
+  const s = getState()
+  const types = refs.map((r) => { const [p, n] = splitRef(r); return findFeature(s.features[p], n)?.type }).filter((t): t is string => !!t)
+  const n = types.filter((t) => isTransformed(t)).length - types.filter((t) => t === MULTI).length
+  return n === 1 ? [{ label: 'Multi-Transform', icon: 'pd-multi-transform', cmd: 'PartDesign_MultiTransform', onSelect: () => void makeTransformed(MULTI) }] : []
+}
 export async function makeTransformed(type: string) {
   const s = getState()
   const part = bodyOrWarn()
@@ -187,6 +205,7 @@ async function convertToMulti(part: string, doc: FeatureDoc, tr: Feature) {
 /** PartDesign_CompPrimitiveAdditive / _Subtractive's actions: a new primitive of the shape opens its panel; OK makes it
  *  ("Make additive Box"). An additive one in a document with no Body makes the Body first, as FreeCAD does. */
 export async function makePrimitive(side: Side, shape: Shape) {
+  lastShape[side] = shape
   const s = getState()
   let part = targetBody()
   if (!part) {
@@ -260,8 +279,20 @@ function refAxis(doc: FeatureDoc, r: Ref, plane: boolean): Axis | null {
   return n === doc.tip ? elementAxis(sub) : null
 }
 const num = (doc: FeatureDoc, v: unknown, d: number) => numberOf(v, doc.params) ?? d
-/** Transformed::getTransformations in the browser, for the preview: null when a reference cannot be resolved here. */
-function transformsOf(doc: FeatureDoc, f: Feature): THREE.Matrix4[] | null {
+/** Scaled::getTransformations: the identity, then the scalings about centre by 1 + i (Factor - 1) / (Occurrences - 1). */
+function scalings(doc: FeatureDoc, f: Feature, centre: THREE.Vector3): THREE.Matrix4[] {
+  const factor = num(doc, f.factor, 2), occ = Math.round(num(doc, f.occurrences, 2))
+  if (factor < 1e-7 || occ < 2) return [new THREE.Matrix4()]
+  const step = (factor - 1) / (occ - 1)
+  return Array.from({ length: occ }, (_, i) => scaleAbout(centre, 1 + i * step))
+}
+const scaleAbout = (c: THREE.Vector3, k: number) => new THREE.Matrix4().makeTranslation(c.x, c.y, c.z)
+  .multiply(new THREE.Matrix4().makeScale(k, k, k)).multiply(new THREE.Matrix4().makeTranslation(-c.x, -c.y, -c.z))
+/** Transformed::getTransformations in the browser, for the preview: null when a reference cannot be resolved here. centre is
+ *  the first original's centre (the centre of its tool's box here; FreeCAD takes its centre of mass), which a Scaled scales
+ *  about. */
+function transformsOf(doc: FeatureDoc, f: Feature, centre = new THREE.Vector3()): THREE.Matrix4[] | null {
+  if (f.type === SCALED) return scalings(doc, f, centre)
   if (f.type === MIRRORED) {
     const a = refAxis(doc, f.mirror_plane as Ref, true)
     if (!a) return null
@@ -316,13 +347,27 @@ function transformsOf(doc: FeatureDoc, f: Feature): THREE.Matrix4[] | null {
     return out
   }
   if (f.type === MULTI) {
-    let inst: THREE.Matrix4[] | null = null
+    // MultiTransform::getTransformations: each occurrence keeps its centre; a Scaled scales each slice of them about its own
+    let inst: { m: THREE.Matrix4; c: THREE.Vector3 }[] | null = null
     for (const t of pdxChildren(f)) {
-      const ts = transformsOf(doc, t)
+      const ts = transformsOf(doc, t, centre)
       if (!ts) return null
-      inst = inst === null ? ts : ts.flatMap((x) => inst!.map((o) => x.clone().multiply(o)))
+      if (inst === null) { inst = ts.map((m) => ({ m, c: centre.clone().applyMatrix4(m) })); continue }
+      if (!inst.length) continue
+      if (t.type === SCALED) {
+        if (inst.length % ts.length) return null       // "Number of occurrences must be a divisor of previous number of occurrences"
+        const step: number = inst.length / ts.length
+        const old: { m: THREE.Matrix4; c: THREE.Vector3 }[] = inst
+        inst = ts.flatMap((m, i) => old.slice(i * step, (i + 1) * step).map((o): { m: THREE.Matrix4; c: THREE.Vector3 } => {
+          const k = new THREE.Vector3().setFromMatrixScale(m).x
+          return { m: scaleAbout(o.c, k).multiply(o.m), c: o.c }
+        }))
+        continue
+      }
+      const old: { m: THREE.Matrix4; c: THREE.Vector3 }[] = inst
+      inst = ts.flatMap((x) => old.map((o) => ({ m: x.clone().multiply(o.m), c: o.c.clone().applyMatrix4(x) })))
     }
-    return inst ?? []
+    return inst ? inst.map((x) => x.m) : []
   }
   return null
 }
@@ -397,7 +442,10 @@ function primitiveObject(doc: FeatureDoc, f: Feature): THREE.Object3D | null {
 /** The overlay: the originals' tools (or, in Transform body mode, the Body as the 3D view draws it) under each of the
  *  feature's transformations but the suppressed ones, as ViewProviderTransformed::updatePreview places its preview shape. */
 function transformedPreview(doc: FeatureDoc, f: Feature): THREE.Object3D | null {
-  const ts = transformsOf(doc, f)
+  const first = findFeature(doc, String((f.originals as string[] | undefined)?.[0] ?? ''))
+  const firstTool = first ? toolObject(doc, first) : null
+  const centre = firstTool ? new THREE.Box3().setFromObject(firstTool).getCenter(new THREE.Vector3()) : new THREE.Vector3()
+  const ts = transformsOf(doc, f, centre)
   if (!ts) return null
   const toPart = partMatrix(doc)
   const base = new THREE.Group()
@@ -424,40 +472,78 @@ function OkCancel({ onOk, onCancel }: { onOk(): void; onCancel(): void }) {
   return <div className="tbuttons pd-buttons"><button className="qbtn default" onClick={onOk}>OK</button><button className="qbtn" onClick={onCancel}>Cancel</button></div>
 }
 /** Gui::UIntSpinBox: a whole number from min. */
-function IntBox({ value, min, onChange, disabled }: { value: number; min: number; onChange(v: number): void; disabled?: boolean }) {
-  return <input className="pdx-int" type="number" min={min} step={1} value={value} disabled={disabled}
+function IntBox({ value, min, onChange, disabled, name }: { value: number; min: number; onChange(v: number): void; disabled?: boolean; name?: string }) {
+  return <input className="pdx-int" data-qf={name} type="number" min={min} step={1} value={value} disabled={disabled}
     onChange={(e) => { const n = Math.round(Number(e.target.value)); if (Number.isFinite(n) && n >= min) onChange(n) }} />
 }
 /** A reference combo (ComboLinks): its items, the current reference shown even when it is none of them (as "Pad:Face6"), and
  *  Select reference…, which waits for a click on an Origin axis or plane in the tree, or a face or edge in the 3D view. */
-function RefCombo({ items, value, onChange, onPick, picking, name }: { items: Item[]; value: Ref; onChange(r: Ref): void; onPick(): void; picking: boolean; name: string }) {
-  const list = [...items]
-  if (value !== null && !list.some((i) => sameRef(i.ref, value))) list.push({ label: refSub(value) ? `${refName(value)}:${refSub(value)}` : String(refName(value)), ref: value })
+function RefCombo({ items, value, onChange, onPick, picking, name, extra = [], pattern = false }: { items: Item[]; value: Ref; onChange(r: Ref): void; onPick(): void
+  picking: boolean; name: string; extra?: Ref[]; pattern?: boolean }) {
+  // ComboLinks: the items, Select reference…, then each link picked this session or set (addLink appends them after it);
+  // a link's text is getRefStr's (Mirrored) or PatternReferenceWidget's "object:sub" (the patterns)
+  const doc = getState().features[getState().task?.body ?? '']
+  const text = (r: Ref) => (pattern ? patternRefText(doc, r as PickRef) : axisRefText(doc, r as PickRef))
+  const links: Item[] = []
+  for (const r of [...extra, value]) if (r !== null && !items.some((i) => sameRef(i.ref, r)) && !links.some((i) => sameRef(i.ref, r))) links.push({ label: text(r), ref: r })
+  const list = [...items, ...links]
   const cur = list.findIndex((i) => sameRef(i.ref, value))
+  const at = (k: number) => (k < items.length ? k : k + 1)            // the option index, Select reference… between
   return <QComboBox data-qf={name} value={picking ? 'pick' : String(cur)} onChange={(e) => { const k = e.target.value; if (k === 'pick') onPick(); else onChange(list[Number(k)].ref) }}>
-    {list.map((i, k) => <option key={k} value={String(k)}>{i.label}</option>)}
+    {items.map((i, k) => <option key={k} value={String(k)}>{i.label}</option>)}
     <option value="pick">{SELECT_REF}</option>
+    {links.map((i, k) => <option key={at(items.length + k)} value={String(items.length + k)}>{i.label}</option>)}
   </QComboBox>
+}
+/** Mod/Part's ExperimentalFeatures (Tools > Edit parameters), which shows PatternParametersWidget's add-spacing button. */
+function experimental(): boolean {
+  try { return (JSON.parse(localStorage.getItem('cadui.custom') ?? '{}') as Record<string, { v: unknown }>)['Mod/Part/ExperimentalFeatures']?.v === true } catch { return false }
 }
 
 type Picking = { key: string; what: 'plane' | 'axis' | 'direction' } | null
 /** The fields of one transformation: Mirror's Plane, a pattern's Direction(s) or Axis with Mode, Length/Spacing or Angle,
  *  Occurrences (TaskMirroredParameters.ui, PatternParametersWidget.ui as TaskPatternParameters lays it out). */
-function TransformFields({ doc, f, sketch, set, picking, setPicking }: { doc: FeatureDoc; f: Feature; sketch: Feature | undefined; set(p: Partial<Feature>): void
-  picking: Picking; setPicking(p: Picking): void }) {
+function TransformFields({ doc, f, sketch, set: setRaw, picking, setPicking, picked = {} }: { doc: FeatureDoc; f: Feature; sketch: Feature | undefined; set(p: Partial<Feature>): void
+  picking: Picking; setPicking(p: Picking): void; picked?: Record<string, Ref[]> }) {
+  if (f.type === SCALED) {
+    // TaskScaledParameters.ui: Factor (spinFactor, a plain number), Occurrences (spinOccurrences)
+    return <>
+      <label className="tfield"><span>Factor</span><input className="pdx-int" data-qf="spinFactor" type="number" step={0.1} value={num(doc, f.factor, 2)}
+        onChange={(e) => { const n = Number(e.target.value); if (Number.isFinite(n)) setRaw({ factor: n }) }} /></label>
+      <label className="tfield"><span>Occurrences</span><IntBox name="spinOccurrences" value={Math.round(num(doc, f.occurrences, 2))} min={0} onChange={(x) => setRaw({ occurrences: x })} /></label>
+    </>
+  }
   if (f.type === MIRRORED) {
     return <label className="tfield"><span>Plane</span>
-      <RefCombo name="comboPlane" items={planeItems(sketch)} value={(f.mirror_plane ?? null) as Ref} onChange={(r) => set({ mirror_plane: r })}
+      <RefCombo name="comboPlane" items={planeItems(sketch)} value={(f.mirror_plane ?? null) as Ref} onChange={(r) => setRaw({ mirror_plane: r })} extra={picked.mirror_plane}
         picking={picking?.key === 'mirror_plane'} onPick={() => setPicking({ key: 'mirror_plane', what: 'plane' })} /></label>
   }
   const polar = f.type === POLAR
+  // LinearPatternExtension::syncLengthAndOffset: Extent keeps Offset = Length / (Occurrences - 1), Spacing Length = Offset x it
+  const set = (p: Partial<Feature>) => {
+    if (polar) return setRaw(p)
+    const n = { ...f, ...p }
+    for (const s of ['', '2'] as const) {
+      const touched = [`mode${s}`, `length${s}`, `offset${s}`, `occurrences${s}`].some((k) => k in p)
+      if (!touched) continue
+      const occ = Math.max(1, Math.round(num(doc, n[`occurrences${s}`], 2)) - 1)
+      if (String(n[`mode${s}`] ?? 'Extent') === 'Spacing') { if (!(`mode${s}` in p)) p = { ...p, [`length${s}`]: num(doc, n[`offset${s}`], 10) * occ } }
+      else p = { ...p, [`offset${s}`]: num(doc, n[`length${s}`], 100) / occ }
+    }
+    setRaw(p)
+  }
   const group = (s: '' | '2') => {
     const mode = String(f[`mode${s}`] ?? 'Extent')
     const refKey = polar ? 'axis' : `direction${s}`
+    // the ExperimentalFeatures spacing rows (PatternParametersWidget::addSpacingRow): SpacingPattern after the first
+    const pattern = ((f[`spacing_pattern${s}`] as number[] | undefined) ?? [0]).map(Number)
+    const rows = mode === 'Spacing' ? pattern.slice(1) : []
+    const offset = num(doc, f[`offset${s}`], polar ? 120 : 10)
+    const setRows = (r: number[]) => set({ [`spacing_pattern${s}`]: [offset, ...r] })
     return <>
       <div className="tfield pdx-dir">
         <button className={cls('qbtn', 'pdx-rev', f[`reversed${s}`] === true && 'on')} title="Reverse the direction of the pattern." onClick={() => set({ [`reversed${s}`]: !f[`reversed${s}`] })}>⇄</button>
-        <RefCombo name="comboDirection" items={axisItems(sketch)} value={(f[refKey] ?? null) as Ref} onChange={(r) => set({ [refKey]: r })}
+        <RefCombo name="comboDirection" items={axisItems(sketch)} value={(f[refKey] ?? null) as Ref} onChange={(r) => set({ [refKey]: r })} extra={picked[refKey]} pattern
           picking={picking?.key === refKey} onPick={() => setPicking({ key: refKey, what: polar ? 'axis' : 'direction' })} />
       </div>
       <label className="tfield"><span>Mode</span><QComboBox data-qf="comboMode" value={mode} onChange={(e) => set({ [`mode${s}`]: e.target.value })}>
@@ -465,8 +551,12 @@ function TransformFields({ doc, f, sketch, set, picking, setPicking }: { doc: Fe
       {mode === 'Extent'
         ? <label className="tfield"><span>{polar ? 'Total Angle' : 'Length'}</span><QuantityBox value={num(doc, f[polar ? 'angle' : `length${s}`], polar ? 360 : 100)} dims={polar ? ANGLE : LENGTH}
           onChange={(x) => set({ [polar ? 'angle' : `length${s}`]: x })} /></label>
-        : <label className="tfield"><span>{polar ? 'Angular Spacing' : 'Spacing'}</span><QuantityBox value={num(doc, f[`offset${s}`], polar ? 120 : 10)} dims={polar ? ANGLE : LENGTH}
-          onChange={(x) => set({ [`offset${s}`]: x })} /></label>}
+        : <div className="tfield pdx-spacing"><span>{polar ? 'Angular Spacing' : 'Spacing'}</span><QuantityBox value={offset} dims={polar ? ANGLE : LENGTH}
+          onChange={(x) => set({ [`offset${s}`]: x, ...(rows.length ? { [`spacing_pattern${s}`]: [x, ...rows] } : {}) })} />
+          {experimental() && <button className="qbtn pdx-add" data-qf="addSpacingButton" title="Add a spacing definition" onClick={() => setRows([...rows, offset])}>+</button>}</div>}
+      {rows.map((v, i) => <div key={i} className="tfield pdx-spacing"><span>{`Spacing ${i + 2}`}</span>
+        <QuantityBox value={v} dims={polar ? ANGLE : LENGTH} onChange={(x) => setRows(rows.map((y, k) => (k === i ? x : y)))} />
+        <button className="qbtn pdx-add" title="Remove this spacing definition." onClick={() => setRows(rows.filter((_, k) => k !== i))}>−</button></div>)}
       <label className="tfield"><span>Occurrences</span><IntBox value={Math.round(num(doc, f[`occurrences${s}`], 2))} min={1} onChange={(x) => set({ [`occurrences${s}`]: x })} /></label>
     </>
   }
@@ -480,8 +570,9 @@ function TransformFields({ doc, f, sketch, set, picking, setPicking }: { doc: Fe
   </>
 }
 
-const PICK_HINT: Record<string, string> = { plane: 'Select a plane: an Origin plane, a sketch\'s axis, or a planar face', axis: 'Select an axis: an Origin axis, a sketch\'s axis, or a straight or circular edge',
-  direction: 'Select a direction reference (edge, face, datum line)' }
+/** PartDesign::FeatureAddSub's types, the features Add Feature takes (originalSelected). */
+const ADDSUB = /^PartDesign::(Pad|Pocket|Revolution|Groove|Hole|AdditiveLoft|SubtractiveLoft|AdditivePipe|SubtractivePipe|AdditiveHelix|SubtractiveHelix|Additive\w+|Subtractive\w+)$/
+const isAddSub = (type: string) => ADDSUB.test(type)
 /** A transformed feature's panel (TaskTransformedParameters with its subclass's fields, TaskMultiTransformParameters for a
  *  MultiTransform), then Preview. A new feature has what the command gives it; OK writes it ("Make Mirrored", or
  *  "Edit Mirrored" for one double-clicked) and makes it the Tip; Cancel writes nothing. */
@@ -500,43 +591,42 @@ function TransformedTask({ part, other, edit }: { part: string; other: string; e
   const [overlay, setOverlay] = useState(true)
   const [mode, setMode] = useState<'add' | 'remove' | null>(null)
   const [picking, setPicking] = useState<Picking>(null)
+  const [picked, setPicked] = useState<Record<string, Ref[]>>({})          // the links picked this session (ComboLinks keeps them)
   const [sub, setSub] = useState<number | null>(null)
   const [menu, setMenu] = useState<{ x: number; y: number } | null>(null)
   const set = (p: Partial<Feature>) => setF((x) => (x ? { ...x, ...p } : x))
   const setSubF = (i: number, p: Partial<Feature>) => setF((x) => (x ? { ...x, transformations: pdxChildren(x).map((t, k) => (k === i ? { ...t, ...p } : t)) } : x))
-  // Add Feature / Remove Feature / Select reference…: the next pick in the tree or the 3D view (TaskTransformedParameters::onSelectionChanged)
-  const seen = useRef({ feat: s.featSel.join(), sub: s.subSel.join() })
-  useEffect(() => {
-    const before = seen.current
-    seen.current = { feat: s.featSel.join(), sub: s.subSel.join() }
-    if (!f || !doc) return
-    const featNew = s.featSel.join() !== before.feat ? s.featSel[s.featSel.length - 1] : null
-    const subNew = s.subSel.join() !== before.sub ? s.subSel[s.subSel.length - 1] : null
-    if (mode && featNew) {
-      const [p, n] = splitRef(featNew)
-      const g = p === part ? doc.features.find((x) => x.name === n) : undefined
-      if (!g || g.type === SKETCH || g.name === (existing?.name ?? '')) return
-      const orig = (f.originals as string[]) ?? []
-      if (mode === 'add' && !orig.includes(n)) set({ originals: [...orig, n] })
-      if (mode === 'remove') set({ originals: orig.filter((x) => x !== n) })
-      return
-    }
-    if (!picking) return
-    let r: Ref = null
-    if (featNew) {
-      const [p, n] = splitRef(featNew)
-      if (p === part && ORIGIN_DIR[n] && (picking.what === 'plane' ? n.endsWith('_Plane') : picking.what === 'axis' ? n.endsWith('_Axis') : true)) r = n
-    } else if (subNew) {
-      const [, el] = [subNew.slice(0, subNew.lastIndexOf('.')), subNew.slice(subNew.lastIndexOf('.') + 1)]
-      const tip = lastSolid(doc)
-      if (tip && tip !== existing?.name && /^(Face|Edge)\d+$/.test(el)) r = [tip, el]
-      else if (tip === existing?.name) report('warn', `${tip} is the Tip and the feature being edited: set the Tip before it to pick one of its faces or edges`)
-    }
-    if (r === null) return
-    if (sub !== null) setSubF(sub, { [picking.key]: r }); else set({ [picking.key]: r })
-    setPicking(null)
-  }, [s.featSel, s.subSel])
-  useEffect(() => { if (picking) report('msg', PICK_HINT[picking.what]) }, [picking])
+  // Add Feature / Remove Feature / Select reference…: the next pick in the 3D view (the base shown in the Body's place) or the
+  // tree, through the panel's gate (TaskTransformedParameters::originalSelected, onSelectionChanged; pd_pick.tsx)
+  const what = picking?.what
+  useRefPick(!!mode || !!picking, {
+    part, feature: existing?.name ?? null,
+    // addReferenceSelectionGate: Mirrored FACE | PLANAR; LinearPattern EDGE | PLANAR | FACE; PolarPattern EDGE | PLANAR | CIRCLE
+    allow: mode ? 'any' : what === 'plane' ? { face: true, planar: true } : what === 'axis' ? { edge: true, planar: true, circle: true } : { edge: true, planar: true, face: true },
+    message: picking && what !== 'plane' ? 'Select a direction reference (edge, face, datum line)' : undefined,
+    onPick: (p) => {
+      if (!f || !doc) return
+      if (mode) {
+        // originalSelected: a FeatureAddSub (Pad, Pocket, a primitive, ...) is added or removed, then the mode ends
+        const g = p.kind === 'element' ? doc.features.find((x) => x.name === p.obj) : undefined
+        if (!g || !isAddSub(g.type)) return
+        const orig = (f.originals as string[]) ?? []
+        if (mode === 'add' && !orig.includes(g.name)) set({ originals: [...orig, g.name] })
+        else if (mode === 'remove' && orig.includes(g.name)) set({ originals: orig.filter((x) => x !== g.name) })
+        else return
+        setMode(null)
+        return
+      }
+      if (!picking) return
+      const r = p.ref as Ref
+      if (sub !== null) setSubF(sub, { [picking.key]: r }); else set({ [picking.key]: r })
+      setPicked((x) => ({ ...x, [picking.key]: (x[picking.key] ?? []).some((q) => sameRef(q, r)) ? x[picking.key] : [...(x[picking.key] ?? []), r] }))
+      setPicking(null)
+    },
+  })
+  // the Origin's planes for a Mirrored, its axes for a pattern, while the panel is open (setTemporaryVisibility)
+  const shownType = f?.type === MULTI ? (sub !== null ? pdxChildren(f)[sub]?.type : undefined) : f?.type
+  useOriginShown(part, shownType === MIRRORED ? 'planes' : shownType === LINEAR || shownType === POLAR ? 'axes' : null)
   const drawn = useRef(false)
   useEffect(() => {
     if (!f || !doc || (!update && drawn.current)) return
@@ -551,7 +641,7 @@ function TransformedTask({ part, other, edit }: { part: string; other: string; e
   const originals = (f.originals as string[]) ?? []
   const ok = async () => {
     const out = whole ? { ...f, originals: [] } : f
-    if (!whole && !originals.length) { await messageBox('warning', info.label, info.kind === 'Mirrored' ? 'No features selected to be mirrored.' : 'No features selected to be patterned.'); return }
+    if (!whole && !originals.length) { await messageBox('warning', info.label, info.kind === 'Mirrored' ? 'No features selected to be mirrored.' : info.kind === 'Scaled' ? 'No features selected to be transformed.' : 'No features selected to be patterned.'); return }
     closeTask()
     if (existing) {
       const changed = Object.fromEntries(Object.entries(out).filter(([k, x]) => k !== 'name' && k !== 'type' && JSON.stringify(x) !== JSON.stringify(existing[k])))
@@ -583,7 +673,7 @@ function TransformedTask({ part, other, edit }: { part: string; other: string; e
     { label: 'Add Mirror Transformation', onSelect: () => addSub(MIRRORED) },
     { label: 'Add Linear Pattern', onSelect: () => addSub(LINEAR) },
     { label: 'Add Polar Pattern', onSelect: () => addSub(POLAR) },
-    { label: 'Add Scale Transformation', disabled: true, title: 'not yet: PartDesign::Scaled is not in feature_transform.py' },
+    { label: 'Add Scale Transformation', onSelect: () => addSub(SCALED) },
     'sep',
     { label: 'Move Up', disabled: sub === null || sub === 0, onSelect: () => sub !== null && move(sub, -1) },
     { label: 'Move Down', disabled: sub === null || sub === subs.length - 1, onSelect: () => sub !== null && move(sub, 1) },
@@ -596,11 +686,10 @@ function TransformedTask({ part, other, edit }: { part: string; other: string; e
           <label className="tcheck"><input type="radio" name="pdx-mode" checked={whole} onChange={() => set({ transform_mode: 'Whole shape' })} /> Transform body</label>
           <label className="tcheck"><input type="radio" name="pdx-mode" checked={!whole} onChange={() => set({ transform_mode: 'Features' })} /> Transform tool shapes</label>
           <div className="pdx-buttons">
-            <button className={cls('qbtn', mode === 'add' && 'on')} disabled={whole} onClick={() => setMode(mode === 'add' ? null : 'add')}>Add Feature</button>
-            <button className={cls('qbtn', mode === 'remove' && 'on')} disabled={whole} onClick={() => setMode(mode === 'remove' ? null : 'remove')}>Remove Feature</button>
+            <button className={cls('qbtn', mode === 'add' && 'on')} data-qf="buttonAddFeature" aria-pressed={mode === 'add'} disabled={whole || mode === 'remove'} onClick={() => setMode(mode === 'add' ? null : 'add')}>Add Feature</button>
+            <button className={cls('qbtn', mode === 'remove' && 'on')} data-qf="buttonRemoveFeature" aria-pressed={mode === 'remove'} disabled={whole || mode === 'add'} onClick={() => setMode(mode === 'remove' ? null : 'remove')}>Remove Feature</button>
           </div>
           <div className={cls('pdx-list', whole && 'off')} data-qf="listWidgetFeatures">{(whole ? [] : originals).map((o) => <div key={o} className="pdx-item">{o}</div>)}</div>
-          {mode && <p className="hint">{mode === 'add' ? 'Click a feature in the tree to add it' : 'Click a feature in the tree to remove it'}</p>}
           {f.type === MULTI ? <>
             <div className="tlabel">Transformations</div>
             <div className="pdx-list" data-qf="listTransformFeatures" onContextMenu={(e) => { e.preventDefault(); setMenu({ x: e.clientX, y: e.clientY }) }}>
@@ -609,10 +698,10 @@ function TransformedTask({ part, other, edit }: { part: string; other: string; e
             </div>
             {menu && <ContextMenu at={menu} entries={subMenu()} onClose={() => setMenu(null)} />}
             {sub !== null && subs[sub] && <div className="pdx-sub">
-              <TransformFields doc={doc} f={subs[sub]} sketch={sketch} set={(p) => setSubF(sub, p)} picking={picking} setPicking={setPicking} />
+              <TransformFields doc={doc} f={subs[sub]} sketch={sketch} set={(p) => setSubF(sub, p)} picking={picking} setPicking={setPicking} picked={picked} />
               <button className="qbtn" onClick={() => setSub(null)}>OK</button>
             </div>}
-          </> : <TransformFields doc={doc} f={f} sketch={sketch} set={set} picking={picking} setPicking={setPicking} />}
+          </> : <TransformFields doc={doc} f={f} sketch={sketch} set={set} picking={picking} setPicking={setPicking} picked={picked} />}
           <label className="tcheck"><input type="checkbox" checked={update} onChange={(e) => setUpdate(e.target.checked)} /> Recompute on change</label>
         </div>
       </TaskBox>
@@ -717,9 +806,11 @@ export function PdxTask({ kind, part, other, edit }: { kind: 'pdTransform' | 'pd
 }
 
 // ── the property view (PropertyEditor: groups in name order, properties in the order FreeCAD adds them) ──
-type PropDef = { key: string; name: string; kind: 'length' | 'angle' | 'bool' | 'enum' | 'int' | 'text' | 'list' | 'ref'; items?: string[]; ro?: (f: Feature) => string | null }
+type PropDef = { key: string; name: string; kind: 'length' | 'angle' | 'bool' | 'enum' | 'int' | 'float' | 'text' | 'list' | 'ref'; items?: string[]; ro?: (f: Feature) => string | null }
 const pick = 'picked in the task panel (Select reference…), or written in the code'
 const baseGroup = (f: Feature): PropDef[] => [
+  // Scaled's own, added with ADD_PROPERTY (no group: Base), which FreeCAD's property view lists first
+  ...(f.type === SCALED ? [{ key: 'factor', name: 'Factor', kind: 'float' as const }, { key: 'occurrences', name: 'Occurrences', kind: 'int' as const }] : []),
   ...(f.type === MULTI ? [{ key: 'transformations', name: 'Transformations', kind: 'text' as const, ro: () => 'edited in the Multi-Transform panel' }] : []),
   ...(isTransformed(f.type) ? [{ key: 'originals', name: 'Originals', kind: 'text' as const, ro: () => 'Add Feature / Remove Feature in the task panel' },
     { key: 'transform_mode', name: 'Transform Mode', kind: 'enum' as const, items: ['Features', 'Whole shape'] }] : []),
@@ -821,6 +912,7 @@ export function PdxProps({ part, name }: { part: string; name: string }) {
         onCommit={(x) => set({ [d.key]: x })} onExpr={(text) => set({ [d.key]: text })} note={typeof v === 'string' ? `= ${v}` : undefined} />
     }
     if (d.kind === 'int') return <EditRow key={d.key} k={d.name} value={Math.round(numberOf(v, doc.params) ?? 0)} type="int" onCommit={(x) => set({ [d.key]: x })} />
+    if (d.kind === 'float') return <EditRow key={d.key} k={d.name} value={numberOf(v, doc.params) ?? 0} type="float" onCommit={(x) => set({ [d.key]: x })} />
     if (d.kind === 'list') return <EditRow key={d.key} k={d.name} value={JSON.stringify(v ?? [])} type="str" onCommit={(x) => { try { const l = JSON.parse(String(x)); if (Array.isArray(l)) set({ [d.key]: l }) } catch { report('err', `${d.name}: a list such as [5, -1, 10]`) } }} />
     if (d.key === 'name') return <EditRow key={d.key} k={d.name} value={f.name} type="str" onCommit={(x) => holder ? report('warn', 'a transformation is renamed in the code') : void applyOps(part, [{ op: 'rename', name, to: String(x) }], { name: `Rename ${name}.Label` })} />
     if (d.key === 'placement') return <EditRow key={d.key} k={d.name} value={JSON.stringify(v ?? [[0, 0, 0], [0, 0, 0]])} type="str"
@@ -836,6 +928,14 @@ export function transformMenu(): Entry[] {
   return [MIRRORED, LINEAR, POLAR, MULTI].map((t) => ({ label: TRANSFORMED[t].label, icon: TRANSFORMED[t].icon, cmd: TRANSFORMED[t].cmd, disabled: !hasDoc(), onSelect: () => void makeTransformed(t) }))
 }
 /** CmdPrimtiveCompAdditive / CmdPrimtiveCompSubtractive's actions: "Additive Box" … "Additive Wedge". */
+/** The primitive each toolbar group last started (GroupCommand's rememberLast: the button shows it, a click runs it again;
+ *  the Box until one is picked, and a cancelled one counts). */
+const lastShape: Record<Side, Shape> = { Additive: 'Box', Subtractive: 'Box' }
+/** PartDesign_CompPrimitiveAdditive / _Subtractive's tool button: the last primitive's icon, the group's text and tooltip. */
+export function primitiveGroup(side: Side): Entry {
+  return { label: `${side} Primitive`, icon: primIcon(side, lastShape[side]), cmd: `PartDesign_CompPrimitive${side}`, disabled: !hasDoc(), split: true,
+    onSelect: () => void makePrimitive(side, lastShape[side]), sub: primitiveMenu(side) }
+}
 export function primitiveMenu(side: Side): Entry[] {
   return SHAPES.map((x) => ({ label: `${side} ${x}`, icon: primIcon(side, x), cmd: `PartDesign_${side}${x}`, disabled: !hasDoc(), onSelect: () => void makePrimitive(side, x) }))
 }

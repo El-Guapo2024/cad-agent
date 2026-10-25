@@ -82,9 +82,24 @@ cad_agent/feature_kw.py's KwFeature:
 - CI builds ui/planegcs native before the tests (feature tests solve sketches before test_planegcs did).
   Locally, rebuild it (`ui/planegcs/build.sh native`) after a merge that changes api.cpp/sketch.cpp.
 - Left: Scaled, RefineModel port, B-spline interpolation and tools, Offset, fillet between curves, trim/split
-  on B-splines, 3D picking for Up to face / axis edges / datums, Hole Up to first, Common, PartDesign:: datum
-  commands, Carbon copy, projecting conics, on-view parameters; then the Part workbench and Assembly joints.
+  on B-splines, Hole Up to first, Common, Start Reference, Carbon copy, projecting conics, on-view parameters
+  (the patterns' spacing labels too), ShapeBinder/SubShapeBinder; then the Part workbench and Assembly joints.
+- pd-pick (2026-10-25): every panel's reference picks in the 3D view through FreeCAD's gates (src/pd_pick.tsx), datums
+  as references everywhere (cad_agent/feature_refs.py, tests/golden/pick), Pad ReferenceAxis, Std_Delete that breaks
+  links as FreeCAD (feature_delete.py), PartDesign_Plane/Line/Point/CoordinateSystem, the split primitive buttons,
+  Multi-Transform in the tree menu; scripts/pickcheck.mjs vs scripts/fcpick.json. PARITY.md "Picking in the 3D view".
 - Browser checks must use scratch projects only (a check once wrote a Plate part into projects/arduino_car).
+- Part workbench (branch part-wb, 2026-10-25): Part objects are OBJECTS beside FEATURES (docs/EDITING_PLAN.md, "Part
+  workbench objects in a part file"); cad_agent/feature_part*.py (primitives, booleans, split/join/compound tools,
+  Extrude incl. taper and every face maker, Revolve, Mirror, Fillet, Chamfer, Loft, Sweep, Offset, Offset2D, Thickness,
+  Projection on surface), feature_edit_part.py, `cad feature new --document`; 211 freecadcmd documents in
+  tests/golden/part (`make.py [split|sweep]`), 1,368 checks. UI: src/part_wb.tsx, part_tasks.tsx, part_props.ts
+  (scripts/partprops.py), checked by scripts/partcheck.mjs against scripts/fcpart.json (scripts/fcpart.py): 392 ok,
+  22 known (2026-10-25; after the merge of editing-plan b855cc3 + 71cd370 the touched sections: booleans 44 ok / 2 known,
+  panels, props and undo all ok). Cut: Shape
+  builder and Cross-sections (static Part::Feature copies), Scale, Face from wires, Ruled surface, Reverse; see PARITY.md.
+  partcheck's output reaches a log only at its end (run it as `node scripts/partcheck.mjs > log`; it takes ~40 minutes on
+  a loaded box).
 
 ## Next (paused 2026-10-23)
 1. ~~Hidden specs~~ (done 2026-10-23): `pinned_carrier` and `hotplate_standoffs` count their holes `through`, and
