@@ -55,7 +55,9 @@ The vocabulary, as FreeCAD's Python API has it:
                  origin); point positions 1 start, 2 end, 3 centre. A value (the last argument of a
                  dimensional constraint) is a number in mm or radians, or a string: the name of a PARAMS
                  entry or an arithmetic expression over them, like FreeCAD's expression binding. An
-                 expression gives an angle in degrees, as a unitless FreeCAD expression does.
+                 expression gives an angle in degrees, as a unitless FreeCAD expression does. name=,
+                 driving=False (a reference dimension), active=False (deactivated) and virtual_space=True
+                 are SketchObject's renameConstraint, setDriving, setActive and setVirtualSpace.
     Sketch       Sketch(name, support="XY" | "XZ" | "YZ", attachment_offset=(x, y, z) or
                  ((x, y, z), (yaw, pitch, roll)), geometry=[...], constraints=[...]), attached FlatFace
                  to the body's origin plane as FreeCAD attaches it. The planes are FreeCAD's: XZ has the
@@ -334,9 +336,13 @@ GEOMETRIC = {"Coincident": (4,), "Horizontal": (1, 4), "Vertical": (1, 4), "Para
 
 class Constraint:
     """Sketcher.Constraint(type, *args): FreeCAD's argument lists, a value last on dimensional ones.
-    name and driving are SketchObject's Name and Driving (a reference dimension has driving=False)."""
+    name and driving are SketchObject's Name and Driving (a reference dimension has driving=False);
+    active=False is a deactivated constraint (SketchObject.setActive, the solver leaves it out) and
+    virtual_space=True one in the other virtual space (SketchObject.setVirtualSpace: drawn only while
+    the view shows that space)."""
 
-    def __init__(self, type: str, *args, name: str | None = None, driving: bool = True):
+    def __init__(self, type: str, *args, name: str | None = None, driving: bool = True,
+                 active: bool = True, virtual_space: bool = False):
         aligned = _curves.alignment_counts(type)          # "InternalAlignment:EllipseMajorDiameter", ...
         if type not in DIMENSIONAL and type not in GEOMETRIC and aligned is None:
             raise FeatureError(f"Constraint type {type!r} is not one of "
@@ -346,6 +352,7 @@ class Constraint:
             raise FeatureError(f"Constraint {type!r} takes {' or '.join(map(str, counts))} arguments, "
                                f"not {len(args)}: {args!r}")
         self.type, self.name, self.driving = type, name, bool(driving)
+        self.active, self.virtual_space = bool(active), bool(virtual_space)
         if type in DIMENSIONAL:
             self.args, self.value = tuple(args[:-1]), args[-1]
         else:
@@ -374,6 +381,10 @@ class Constraint:
             args.append(f"name={self.name!r}")
         if not self.driving:
             args.append("driving=False")
+        if not self.active:
+            args.append("active=False")
+        if self.virtual_space:
+            args.append("virtual_space=True")
         return f"Constraint({', '.join(args)})"
 
 
@@ -501,7 +512,8 @@ class Sketch:
                "geometry": [g.as_dict() for g in self.geometry],
                "constraints": [{"type": c.type, "args": list(c.args),
                                 **({"value": c.resolved(params)} if c.dimensional else {}),
-                                "driving": c.driving, "name": c.name or ""}
+                                "driving": c.driving, "name": c.name or "",
+                                **({} if c.active else {"active": False})}
                                for c in self.constraints]}
         if self._external:
             out["external"] = list(self._external)
@@ -513,7 +525,7 @@ class Sketch:
         a circle) counts as unsatisfied unless unchecked=False: only the solver can say."""
         out = []
         for i, c in enumerate(self.constraints):
-            if not c.driving:
+            if not c.driving or not c.active:
                 continue
             why = _residual(self, c, c.resolved(params), tol)
             if why == "unsupported":
@@ -1813,6 +1825,10 @@ def to_freecad(features, params: dict | None = None, doc=None, name: str = "Body
                     sk.renameConstraint(i, c.name)
                 if not c.driving:
                     sk.setDriving(i, False)
+                if not c.active:
+                    sk.setActive(i, False)
+                if c.virtual_space:
+                    sk.setVirtualSpace(i, True)
                 if c.dimensional and isinstance(c.value, str):
                     e = expr(c.value)
                     sk.setExpression(f"Constraints[{i}]", e + (" * 1 deg" if c.type == "Angle" else ""))

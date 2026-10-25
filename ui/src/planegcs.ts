@@ -35,6 +35,9 @@ export type Geo =
 export type Cons = {
   type: string; args: number[]; value?: number; driving?: boolean; name?: string
   active?: boolean; orientation?: number
+  // the part file's (cad_agent/feature.py Constraint), which the solver does not read: virtual_space true, and the
+  // expression the value is bound to (the part file's string value)
+  virtual_space?: boolean; expr?: string
 }
 // external: the sketch's external geometry (SketchObject's ExternalGeo after the H and V axes), GeoId -3, -4, … in
 // order, fixed for the solver (SketchObject.cpp / SketchObjectExternal.cpp; api.cpp's "external").

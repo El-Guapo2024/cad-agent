@@ -1,0 +1,21 @@
+/* SPDX-License-Identifier: LGPL-2.1-or-later */
+/* The Sketcher task panel's Constraints and Elements boxes (sketchpanels.tsx): the tool row (the filter check box,
+   the Filter button, Show/Hide, Settings) over the list, and 24 px icons, as FreeCAD's forms lay them out. */
+.skp-bar { display: flex; align-items: center; gap: 2px; margin-bottom: 4px; }
+.skp-filterbox { margin: 0 2px 0 0; }
+.skp-tool { display: inline-flex; align-items: center; gap: 2px; height: 24px; padding: 0 4px; }
+.skp-filter { flex: 1; justify-content: flex-start; }
+.skp-list { list-style: none; margin: 0; padding: 0; height: 240px; overflow: auto; background: var(--field-bg); border: 1px solid var(--border); outline: none; }
+.skp-list li { display: flex; gap: 4px; align-items: center; padding: 1px 4px; white-space: nowrap; cursor: default; min-height: 26px; position: relative; }
+.skp-list li:hover { background: var(--accent-hover); }
+.skp-list li.sel { background: var(--accent-bg); }
+.skp-list li.cur { outline: 1px dotted var(--border); outline-offset: -1px; }
+.skp-list li input[type="checkbox"] { margin: 0 2px 0 0; }
+.skp-text { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.skp-expr { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); }
+.skp-rename { flex: 1; min-width: 0; height: 20px; }
+.skp-elements li { gap: 4px; }
+.skp-popup { position: fixed; z-index: 1000; padding: 4px 0; min-width: 200px; max-height: 70vh; overflow: auto; }
+.skp-filter-item { display: flex; align-items: center; gap: 6px; padding: 1px 8px; white-space: pre; cursor: default; }
+.skp-filter-item:hover { background: var(--accent-hover); }
+.datum-fx { border: none; background: none; padding: 0 2px; cursor: pointer; display: inline-flex; align-items: center; }

@@ -37,7 +37,8 @@ Two entry points, for the server:
             {"name": "Pad", "type": "PartDesign::Pad", "profile": "Sketch", "side_type": "One side",
              "type1": "Length", "type2": "Length", "length": "thick", "length2": 10.0, ...}]}
         Geometry is cad_agent.planegcs's form (a Point is {"type": "Point", "at": [x, y]}); a constraint's value is
-        as written, a number or a PARAMS name. A Pad's or Pocket's every property is there, defaults filled in;
+        as written, a number or a PARAMS name (on writing, "expr" takes the place of "value" when given), and it has
+        "active": False and "virtual_space": True when it is deactivated or in the other virtual space. A Pad's or Pocket's every property is there, defaults filled in;
         the extrusion's own Type property is "type1" (FreeCAD's Type; "type" is the object's TypeId), the part
         file's keyword type=.
     apply(part_path, ops) -> dict (what read() then returns)
@@ -169,6 +170,10 @@ def _constraint_dict(c):
     if c.dimensional:
         d["value"] = c.value
     d["driving"], d["name"] = c.driving, c.name or ""
+    if not c.active:
+        d["active"] = False
+    if c.virtual_space:
+        d["virtual_space"] = True
     return d
 
 
@@ -333,12 +338,16 @@ def constraint_src(c: dict) -> str:
     if t in F.DIMENSIONAL:
         if "value" not in c:
             raise FeatureEditError(f"a {t} constraint needs a value")
-        v = c["value"]
+        v = c["expr"] if c.get("expr") else c["value"]   # "expr": the expression the UI binds the value to
         args.append(json.dumps(v) if isinstance(v, str) else _num(float(v)))
     if c.get("name"):
         args.append(f"name={json.dumps(c['name'])}")
     if c.get("driving") is False:
         args.append("driving=False")
+    if c.get("active") is False:
+        args.append("active=False")
+    if c.get("virtual_space"):
+        args.append("virtual_space=True")
     return f"Constraint({', '.join(args)})"
 
 
@@ -830,7 +839,8 @@ def _check(src):
             elif f["type"] == TYPE_IDS["Sketch"]:
                 F.Sketch(n, None, [F.geometry_from_dict(g) for g in f["geometry"]],
                          [F.Constraint(c["type"], *c["args"], *([c["value"]] if "value" in c else []),
-                                       name=c.get("name") or None, driving=c.get("driving", True))
+                                       name=c.get("name") or None, driving=c.get("driving", True),
+                                       active=c.get("active", True), virtual_space=c.get("virtual_space", False))
                           for c in f["constraints"]], **_attach.build(f, "Sketch"),
                          external_geometry=[tuple(r) for r in f.get("external_geometry") or []])
             else:

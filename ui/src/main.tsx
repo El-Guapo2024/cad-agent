@@ -26,3 +26,5 @@ Object.assign(window, { cadui: { getState, setState, getView, getDock, showPanel
   // attachcheck.mjs: the 3D selection, New Sketch, Edit > Create > Datums, Edit Attachment
   select, newSketch, createDatum, editAttachment } })
 Object.assign((window as unknown as { cadui: object }).cadui, { pdPanel: panelFields, loadFeatures })   // revolvecheck.mjs
+import { panelState as sketchPanel, resetPanelParams as sketchPanelReset } from './sketchpanels'
+Object.assign((window as unknown as { cadui: object }).cadui, { sketchPanel, sketchPanelReset })   // sketchcheck.mjs: the Sketcher's task panel

@@ -1,0 +1,2368 @@
+{
+ "about": "FreeCAD 26.3 (3160daf1e2b6), tests/golden/sketcher_panels/make.py",
+ "cases": [
+  {
+   "name": "conflict",
+   "geometry": [
+    {
+     "type": "LineSegment",
+     "start": [
+      0,
+      0
+     ],
+     "end": [
+      30,
+      0
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      30,
+      0
+     ],
+     "end": [
+      30,
+      20
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      30,
+      20
+     ],
+     "end": [
+      0,
+      20
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      0,
+      20
+     ],
+     "end": [
+      0,
+      0
+     ]
+    }
+   ],
+   "constraints": [
+    [
+     "Coincident",
+     0,
+     2,
+     1,
+     1
+    ],
+    [
+     "Coincident",
+     1,
+     2,
+     2,
+     1
+    ],
+    [
+     "Coincident",
+     2,
+     2,
+     3,
+     1
+    ],
+    [
+     "Coincident",
+     3,
+     2,
+     0,
+     1
+    ],
+    [
+     "Horizontal",
+     0
+    ],
+    [
+     "Horizontal",
+     2
+    ],
+    [
+     "Vertical",
+     1
+    ],
+    [
+     "Vertical",
+     3
+    ],
+    [
+     "Coincident",
+     0,
+     1,
+     -1,
+     1
+    ],
+    [
+     "DistanceX",
+     0,
+     1,
+     0,
+     2,
+     30.0
+    ],
+    [
+     "DistanceX",
+     0,
+     1,
+     0,
+     2,
+     40.0
+    ],
+    [
+     "DistanceY",
+     1,
+     1,
+     1,
+     2,
+     20.0
+    ]
+   ],
+   "calls": []
+  },
+  {
+   "name": "conflict-inactive",
+   "geometry": [
+    {
+     "type": "LineSegment",
+     "start": [
+      0,
+      0
+     ],
+     "end": [
+      30,
+      0
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      30,
+      0
+     ],
+     "end": [
+      30,
+      20
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      30,
+      20
+     ],
+     "end": [
+      0,
+      20
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      0,
+      20
+     ],
+     "end": [
+      0,
+      0
+     ]
+    }
+   ],
+   "constraints": [
+    [
+     "Coincident",
+     0,
+     2,
+     1,
+     1
+    ],
+    [
+     "Coincident",
+     1,
+     2,
+     2,
+     1
+    ],
+    [
+     "Coincident",
+     2,
+     2,
+     3,
+     1
+    ],
+    [
+     "Coincident",
+     3,
+     2,
+     0,
+     1
+    ],
+    [
+     "Horizontal",
+     0
+    ],
+    [
+     "Horizontal",
+     2
+    ],
+    [
+     "Vertical",
+     1
+    ],
+    [
+     "Vertical",
+     3
+    ],
+    [
+     "Coincident",
+     0,
+     1,
+     -1,
+     1
+    ],
+    [
+     "DistanceX",
+     0,
+     1,
+     0,
+     2,
+     30.0
+    ],
+    [
+     "DistanceX",
+     0,
+     1,
+     0,
+     2,
+     40.0
+    ],
+    [
+     "DistanceY",
+     1,
+     1,
+     1,
+     2,
+     20.0
+    ]
+   ],
+   "calls": [
+    [
+     "setActive",
+     10,
+     false
+    ]
+   ]
+  },
+  {
+   "name": "inactive-first",
+   "geometry": [
+    {
+     "type": "LineSegment",
+     "start": [
+      0,
+      0
+     ],
+     "end": [
+      30,
+      0
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      30,
+      0
+     ],
+     "end": [
+      30,
+      20
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      30,
+      20
+     ],
+     "end": [
+      0,
+      20
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      0,
+      20
+     ],
+     "end": [
+      0,
+      0
+     ]
+    }
+   ],
+   "constraints": [
+    [
+     "Coincident",
+     0,
+     2,
+     1,
+     1
+    ],
+    [
+     "Coincident",
+     1,
+     2,
+     2,
+     1
+    ],
+    [
+     "Coincident",
+     2,
+     2,
+     3,
+     1
+    ],
+    [
+     "Coincident",
+     3,
+     2,
+     0,
+     1
+    ],
+    [
+     "Horizontal",
+     0
+    ],
+    [
+     "Horizontal",
+     2
+    ],
+    [
+     "Vertical",
+     1
+    ],
+    [
+     "Vertical",
+     3
+    ],
+    [
+     "Coincident",
+     0,
+     1,
+     -1,
+     1
+    ],
+    [
+     "DistanceX",
+     0,
+     1,
+     0,
+     2,
+     30.0
+    ],
+    [
+     "DistanceX",
+     0,
+     1,
+     0,
+     2,
+     40.0
+    ],
+    [
+     "DistanceY",
+     1,
+     1,
+     1,
+     2,
+     20.0
+    ]
+   ],
+   "calls": [
+    [
+     "setActive",
+     9,
+     false
+    ]
+   ]
+  },
+  {
+   "name": "inactive-horizontal",
+   "geometry": [
+    {
+     "type": "LineSegment",
+     "start": [
+      0,
+      0
+     ],
+     "end": [
+      30,
+      0
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      30,
+      0
+     ],
+     "end": [
+      30,
+      20
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      30,
+      20
+     ],
+     "end": [
+      0,
+      20
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      0,
+      20
+     ],
+     "end": [
+      0,
+      0
+     ]
+    }
+   ],
+   "constraints": [
+    [
+     "Coincident",
+     0,
+     2,
+     1,
+     1
+    ],
+    [
+     "Coincident",
+     1,
+     2,
+     2,
+     1
+    ],
+    [
+     "Coincident",
+     2,
+     2,
+     3,
+     1
+    ],
+    [
+     "Coincident",
+     3,
+     2,
+     0,
+     1
+    ],
+    [
+     "Horizontal",
+     0
+    ],
+    [
+     "Horizontal",
+     2
+    ],
+    [
+     "Vertical",
+     1
+    ],
+    [
+     "Vertical",
+     3
+    ],
+    [
+     "Coincident",
+     0,
+     1,
+     -1,
+     1
+    ]
+   ],
+   "calls": [
+    [
+     "setActive",
+     4,
+     false
+    ]
+   ]
+  },
+  {
+   "name": "toggle-active-twice",
+   "geometry": [
+    {
+     "type": "LineSegment",
+     "start": [
+      0,
+      0
+     ],
+     "end": [
+      30,
+      0
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      30,
+      0
+     ],
+     "end": [
+      30,
+      20
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      30,
+      20
+     ],
+     "end": [
+      0,
+      20
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      0,
+      20
+     ],
+     "end": [
+      0,
+      0
+     ]
+    }
+   ],
+   "constraints": [
+    [
+     "Coincident",
+     0,
+     2,
+     1,
+     1
+    ],
+    [
+     "Coincident",
+     1,
+     2,
+     2,
+     1
+    ],
+    [
+     "Coincident",
+     2,
+     2,
+     3,
+     1
+    ],
+    [
+     "Coincident",
+     3,
+     2,
+     0,
+     1
+    ],
+    [
+     "Horizontal",
+     0
+    ],
+    [
+     "Horizontal",
+     2
+    ],
+    [
+     "Vertical",
+     1
+    ],
+    [
+     "Vertical",
+     3
+    ],
+    [
+     "Coincident",
+     0,
+     1,
+     -1,
+     1
+    ]
+   ],
+   "calls": [
+    [
+     "toggleActive",
+     5
+    ],
+    [
+     "toggleActive",
+     5
+    ],
+    [
+     "toggleActive",
+     6
+    ]
+   ]
+  },
+  {
+   "name": "virtual-space",
+   "geometry": [
+    {
+     "type": "LineSegment",
+     "start": [
+      0,
+      0
+     ],
+     "end": [
+      30,
+      0
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      30,
+      0
+     ],
+     "end": [
+      30,
+      20
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      30,
+      20
+     ],
+     "end": [
+      0,
+      20
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      0,
+      20
+     ],
+     "end": [
+      0,
+      0
+     ]
+    }
+   ],
+   "constraints": [
+    [
+     "Coincident",
+     0,
+     2,
+     1,
+     1
+    ],
+    [
+     "Coincident",
+     1,
+     2,
+     2,
+     1
+    ],
+    [
+     "Coincident",
+     2,
+     2,
+     3,
+     1
+    ],
+    [
+     "Coincident",
+     3,
+     2,
+     0,
+     1
+    ],
+    [
+     "Horizontal",
+     0
+    ],
+    [
+     "Horizontal",
+     2
+    ],
+    [
+     "Vertical",
+     1
+    ],
+    [
+     "Vertical",
+     3
+    ],
+    [
+     "Coincident",
+     0,
+     1,
+     -1,
+     1
+    ],
+    [
+     "DistanceX",
+     0,
+     1,
+     0,
+     2,
+     30.0
+    ]
+   ],
+   "calls": [
+    [
+     "setVirtualSpace",
+     [
+      4,
+      9
+     ],
+     true
+    ],
+    [
+     "toggleVirtualSpace",
+     4
+    ]
+   ]
+  },
+  {
+   "name": "reference-then-inactive",
+   "geometry": [
+    {
+     "type": "LineSegment",
+     "start": [
+      0,
+      0
+     ],
+     "end": [
+      30,
+      0
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      30,
+      0
+     ],
+     "end": [
+      30,
+      20
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      30,
+      20
+     ],
+     "end": [
+      0,
+      20
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      0,
+      20
+     ],
+     "end": [
+      0,
+      0
+     ]
+    }
+   ],
+   "constraints": [
+    [
+     "Coincident",
+     0,
+     2,
+     1,
+     1
+    ],
+    [
+     "Coincident",
+     1,
+     2,
+     2,
+     1
+    ],
+    [
+     "Coincident",
+     2,
+     2,
+     3,
+     1
+    ],
+    [
+     "Coincident",
+     3,
+     2,
+     0,
+     1
+    ],
+    [
+     "Horizontal",
+     0
+    ],
+    [
+     "Horizontal",
+     2
+    ],
+    [
+     "Vertical",
+     1
+    ],
+    [
+     "Vertical",
+     3
+    ],
+    [
+     "Coincident",
+     0,
+     1,
+     -1,
+     1
+    ],
+    [
+     "DistanceX",
+     0,
+     1,
+     0,
+     2,
+     30.0
+    ],
+    [
+     "DistanceY",
+     1,
+     1,
+     1,
+     2,
+     20.0
+    ]
+   ],
+   "calls": [
+    [
+     "setDriving",
+     10,
+     false
+    ],
+    [
+     "setActive",
+     9,
+     false
+    ]
+   ]
+  }
+ ],
+ "api_cases": [
+  {
+   "name": "rename",
+   "constraints": [
+    [
+     "Coincident",
+     0,
+     2,
+     1,
+     1
+    ],
+    [
+     "Coincident",
+     1,
+     2,
+     2,
+     1
+    ],
+    [
+     "Coincident",
+     2,
+     2,
+     3,
+     1
+    ],
+    [
+     "Coincident",
+     3,
+     2,
+     0,
+     1
+    ],
+    [
+     "Horizontal",
+     0
+    ],
+    [
+     "Horizontal",
+     2
+    ],
+    [
+     "Vertical",
+     1
+    ],
+    [
+     "Vertical",
+     3
+    ],
+    [
+     "Coincident",
+     0,
+     1,
+     -1,
+     1
+    ],
+    [
+     "DistanceX",
+     0,
+     1,
+     0,
+     2,
+     30.0
+    ]
+   ],
+   "calls": [
+    [
+     "renameConstraint",
+     9,
+     "width"
+    ],
+    [
+     "renameConstraint",
+     4,
+     "width"
+    ],
+    [
+     "renameConstraint",
+     4,
+     "1x"
+    ],
+    [
+     "renameConstraint",
+     4,
+     "a b"
+    ],
+    [
+     "renameConstraint",
+     9,
+     ""
+    ],
+    [
+     "renameConstraint",
+     5,
+     "h"
+    ],
+    [
+     "renameConstraint",
+     20,
+     "far"
+    ]
+   ]
+  },
+  {
+   "name": "toggle-driving",
+   "constraints": [
+    [
+     "Coincident",
+     0,
+     2,
+     1,
+     1
+    ],
+    [
+     "Coincident",
+     1,
+     2,
+     2,
+     1
+    ],
+    [
+     "Coincident",
+     2,
+     2,
+     3,
+     1
+    ],
+    [
+     "Coincident",
+     3,
+     2,
+     0,
+     1
+    ],
+    [
+     "Horizontal",
+     0
+    ],
+    [
+     "Horizontal",
+     2
+    ],
+    [
+     "Vertical",
+     1
+    ],
+    [
+     "Vertical",
+     3
+    ],
+    [
+     "Coincident",
+     0,
+     1,
+     -1,
+     1
+    ],
+    [
+     "DistanceX",
+     0,
+     1,
+     0,
+     2,
+     30.0
+    ],
+    [
+     "DistanceX",
+     -1,
+     1,
+     -2,
+     1,
+     0.0
+    ]
+   ],
+   "calls": [
+    [
+     "toggleDriving",
+     0
+    ],
+    [
+     "toggleDriving",
+     9
+    ],
+    [
+     "toggleDriving",
+     9
+    ],
+    [
+     "setDriving",
+     10,
+     false
+    ],
+    [
+     "setDriving",
+     10,
+     true
+    ]
+   ]
+  },
+  {
+   "name": "virtual-api",
+   "constraints": [
+    [
+     "Coincident",
+     0,
+     2,
+     1,
+     1
+    ],
+    [
+     "Coincident",
+     1,
+     2,
+     2,
+     1
+    ],
+    [
+     "Coincident",
+     2,
+     2,
+     3,
+     1
+    ],
+    [
+     "Coincident",
+     3,
+     2,
+     0,
+     1
+    ],
+    [
+     "Horizontal",
+     0
+    ],
+    [
+     "Horizontal",
+     2
+    ],
+    [
+     "Vertical",
+     1
+    ],
+    [
+     "Vertical",
+     3
+    ],
+    [
+     "Coincident",
+     0,
+     1,
+     -1,
+     1
+    ]
+   ],
+   "calls": [
+    [
+     "toggleVirtualSpace",
+     0
+    ],
+    [
+     "setVirtualSpace",
+     [
+      0,
+      1,
+      2
+     ],
+     true
+    ],
+    [
+     "setVirtualSpace",
+     3,
+     true
+    ],
+    [
+     "getVirtualSpace",
+     1
+    ],
+    [
+     "toggleVirtualSpace",
+     40
+    ]
+   ]
+  }
+ ],
+ "solve": {
+  "conflict": {
+   "status": -4,
+   "dof": -1,
+   "conflicting": [
+    10,
+    11
+   ],
+   "redundant": [],
+   "geometry": [
+    [
+     0.0,
+     0.0,
+     30.0,
+     0.0
+    ],
+    [
+     30.0,
+     0.0,
+     30.0,
+     20.0
+    ],
+    [
+     30.0,
+     20.0,
+     0.0,
+     20.0
+    ],
+    [
+     0.0,
+     20.0,
+     0.0,
+     0.0
+    ]
+   ],
+   "constraints": [
+    {
+     "type": "Coincident",
+     "value": 0.0,
+     "active": true,
+     "virtual_space": false,
+     "driving": true,
+     "name": ""
+    },
+    {
+     "type": "Coincident",
+     "value": 0.0,
+     "active": true,
+     "virtual_space": false,
+     "driving": true,
+     "name": ""
+    },
+    {
+     "type": "Coincident",
+     "value": 0.0,
+     "active": true,
+     "virtual_space": false,
+     "driving": true,
+     "name": ""
+    },
+    {
+     "type": "Coincident",
+     "value": 0.0,
+     "active": true,
+     "virtual_space": false,
+     "driving": true,
+     "name": ""
+    },
+    {
+     "type": "Horizontal",
+     "value": 0.0,
+     "active": true,
+     "virtual_space": false,
+     "driving": true,
+     "name": ""
+    },
+    {
+     "type": "Horizontal",
+     "value": 0.0,
+     "active": true,
+     "virtual_space": false,
+     "driving": true,
+     "name": ""
+    },
+    {
+     "type": "Vertical",
+     "value": 0.0,
+     "active": true,
+     "virtual_space": false,
+     "driving": true,
+     "name": ""
+    },
+    {
+     "type": "Vertical",
+     "value": 0.0,
+     "active": true,
+     "virtual_space": false,
+     "driving": true,
+     "name": ""
+    },
+    {
+     "type": "Coincident",
+     "value": 0.0,
+     "active": true,
+     "virtual_space": false,
+     "driving": true,
+     "name": ""
+    },
+    {
+     "type": "DistanceX",
+     "value": 30.0,
+     "active": true,
+     "virtual_space": false,
+     "driving": true,
+     "name": ""
+    },
+    {
+     "type": "DistanceX",
+     "value": 40.0,
+     "active": true,
+     "virtual_space": false,
+     "driving": true,
+     "name": ""
+    },
+    {
+     "type": "DistanceY",
+     "value": 20.0,
+     "active": true,
+     "virtual_space": false,
+     "driving": true,
+     "name": ""
+    }
+   ],
+   "calls": []
+  },
+  "conflict-inactive": {
+   "status": 0,
+   "dof": 0,
+   "conflicting": [],
+   "redundant": [],
+   "geometry": [
+    [
+     0.0,
+     0.0,
+     30.0,
+     0.0
+    ],
+    [
+     30.0,
+     0.0,
+     30.0,
+     20.0
+    ],
+    [
+     30.0,
+     20.0,
+     0.0,
+     20.0
+    ],
+    [
+     0.0,
+     20.0,
+     0.0,
+     0.0
+    ]
+   ],
+   "constraints": [
+    {
+     "type": "Coincident",
+     "value": 0.0,
+     "active": true,
+     "virtual_space": false,
+     "driving": true,
+     "name": ""
+    },
+    {
+     "type": "Coincident",
+     "value": 0.0,
+     "active": true,
+     "virtual_space": false,
+     "driving": true,
+     "name": ""
+    },
+    {
+     "type": "Coincident",
+     "value": 0.0,
+     "active": true,
+     "virtual_space": false,
+     "driving": true,
+     "name": ""
+    },
+    {
+     "type": "Coincident",
+     "value": 0.0,
+     "active": true,
+     "virtual_space": false,
+     "driving": true,
+     "name": ""
+    },
+    {
+     "type": "Horizontal",
+     "value": 0.0,
+     "active": true,
+     "virtual_space": false,
+     "driving": true,
+     "name": ""
+    },
+    {
+     "type": "Horizontal",
+     "value": 0.0,
+     "active": true,
+     "virtual_space": false,
+     "driving": true,
+     "name": ""
+    },
+    {
+     "type": "Vertical",
+     "value": 0.0,
+     "active": true,
+     "virtual_space": false,
+     "driving": true,
+     "name": ""
+    },
+    {
+     "type": "Vertical",
+     "value": 0.0,
+     "active": true,
+     "virtual_space": false,
+     "driving": true,
+     "name": ""
+    },
+    {
+     "type": "Coincident",
+     "value": 0.0,
+     "active": true,
+     "virtual_space": false,
+     "driving": true,
+     "name": ""
+    },
+    {
+     "type": "DistanceX",
+     "value": 30.0,
+     "active": true,
+     "virtual_space": false,
+     "driving": true,
+     "name": ""
+    },
+    {
+     "type": "DistanceX",
+     "value": 40.0,
+     "active": false,
+     "virtual_space": false,
+     "driving": true,
+     "name": ""
+    },
+    {
+     "type": "DistanceY",
+     "value": 20.0,
+     "active": true,
+     "virtual_space": false,
+     "driving": true,
+     "name": ""
+    }
+   ],
+   "calls": [
+    {
+     "ok": true
+    }
+   ]
+  },
+  "inactive-first": {
+   "status": 0,
+   "dof": 0,
+   "conflicting": [],
+   "redundant": [],
+   "geometry": [
+    [
+     0.0,
+     0.0,
+     40.0,
+     0.0
+    ],
+    [
+     40.0,
+     0.0,
+     40.0,
+     20.0
+    ],
+    [
+     40.0,
+     20.0,
+     0.0,
+     20.0
+    ],
+    [
+     0.0,
+     20.0,
+     0.0,
+     0.0
+    ]
+   ],
+   "constraints": [
+    {
+     "type": "Coincident",
+     "value": 0.0,
+     "active": true,
+     "virtual_space": false,
+     "driving": true,
+     "name": ""
+    },
+    {
+     "type": "Coincident",
+     "value": 0.0,
+     "active": true,
+     "virtual_space": false,
+     "driving": true,
+     "name": ""
+    },
+    {
+     "type": "Coincident",
+     "value": 0.0,
+     "active": true,
+     "virtual_space": false,
+     "driving": true,
+     "name": ""
+    },
+    {
+     "type": "Coincident",
+     "value": 0.0,
+     "active": true,
+     "virtual_space": false,
+     "driving": true,
+     "name": ""
+    },
+    {
+     "type": "Horizontal",
+     "value": 0.0,
+     "active": true,
+     "virtual_space": false,
+     "driving": true,
+     "name": ""
+    },
+    {
+     "type": "Horizontal",
+     "value": 0.0,
+     "active": true,
+     "virtual_space": false,
+     "driving": true,
+     "name": ""
+    },
+    {
+     "type": "Vertical",
+     "value": 0.0,
+     "active": true,
+     "virtual_space": false,
+     "driving": true,
+     "name": ""
+    },
+    {
+     "type": "Vertical",
+     "value": 0.0,
+     "active": true,
+     "virtual_space": false,
+     "driving": true,
+     "name": ""
+    },
+    {
+     "type": "Coincident",
+     "value": 0.0,
+     "active": true,
+     "virtual_space": false,
+     "driving": true,
+     "name": ""
+    },
+    {
+     "type": "DistanceX",
+     "value": 30.0,
+     "active": false,
+     "virtual_space": false,
+     "driving": true,
+     "name": ""
+    },
+    {
+     "type": "DistanceX",
+     "value": 40.0,
+     "active": true,
+     "virtual_space": false,
+     "driving": true,
+     "name": ""
+    },
+    {
+     "type": "DistanceY",
+     "value": 20.0,
+     "active": true,
+     "virtual_space": false,
+     "driving": true,
+     "name": ""
+    }
+   ],
+   "calls": [
+    {
+     "ok": true
+    }
+   ]
+  },
+  "inactive-horizontal": {
+   "status": 0,
+   "dof": 3,
+   "conflicting": [],
+   "redundant": [],
+   "geometry": [
+    [
+     0.0,
+     0.0,
+     30.0,
+     0.0
+    ],
+    [
+     30.0,
+     0.0,
+     30.0,
+     20.0
+    ],
+    [
+     30.0,
+     20.0,
+     0.0,
+     20.0
+    ],
+    [
+     0.0,
+     20.0,
+     0.0,
+     0.0
+    ]
+   ],
+   "constraints": [
+    {
+     "type": "Coincident",
+     "value": 0.0,
+     "active": true,
+     "virtual_space": false,
+     "driving": true,
+     "name": ""
+    },
+    {
+     "type": "Coincident",
+     "value": 0.0,
+     "active": true,
+     "virtual_space": false,
+     "driving": true,
+     "name": ""
+    },
+    {
+     "type": "Coincident",
+     "value": 0.0,
+     "active": true,
+     "virtual_space": false,
+     "driving": true,
+     "name": ""
+    },
+    {
+     "type": "Coincident",
+     "value": 0.0,
+     "active": true,
+     "virtual_space": false,
+     "driving": true,
+     "name": ""
+    },
+    {
+     "type": "Horizontal",
+     "value": 0.0,
+     "active": false,
+     "virtual_space": false,
+     "driving": true,
+     "name": ""
+    },
+    {
+     "type": "Horizontal",
+     "value": 0.0,
+     "active": true,
+     "virtual_space": false,
+     "driving": true,
+     "name": ""
+    },
+    {
+     "type": "Vertical",
+     "value": 0.0,
+     "active": true,
+     "virtual_space": false,
+     "driving": true,
+     "name": ""
+    },
+    {
+     "type": "Vertical",
+     "value": 0.0,
+     "active": true,
+     "virtual_space": false,
+     "driving": true,
+     "name": ""
+    },
+    {
+     "type": "Coincident",
+     "value": 0.0,
+     "active": true,
+     "virtual_space": false,
+     "driving": true,
+     "name": ""
+    }
+   ],
+   "calls": [
+    {
+     "ok": true
+    }
+   ]
+  },
+  "toggle-active-twice": {
+   "status": 0,
+   "dof": 3,
+   "conflicting": [],
+   "redundant": [],
+   "geometry": [
+    [
+     0.0,
+     0.0,
+     30.0,
+     0.0
+    ],
+    [
+     30.0,
+     0.0,
+     30.0,
+     20.0
+    ],
+    [
+     30.0,
+     20.0,
+     0.0,
+     20.0
+    ],
+    [
+     0.0,
+     20.0,
+     0.0,
+     0.0
+    ]
+   ],
+   "constraints": [
+    {
+     "type": "Coincident",
+     "value": 0.0,
+     "active": true,
+     "virtual_space": false,
+     "driving": true,
+     "name": ""
+    },
+    {
+     "type": "Coincident",
+     "value": 0.0,
+     "active": true,
+     "virtual_space": false,
+     "driving": true,
+     "name": ""
+    },
+    {
+     "type": "Coincident",
+     "value": 0.0,
+     "active": true,
+     "virtual_space": false,
+     "driving": true,
+     "name": ""
+    },
+    {
+     "type": "Coincident",
+     "value": 0.0,
+     "active": true,
+     "virtual_space": false,
+     "driving": true,
+     "name": ""
+    },
+    {
+     "type": "Horizontal",
+     "value": 0.0,
+     "active": true,
+     "virtual_space": false,
+     "driving": true,
+     "name": ""
+    },
+    {
+     "type": "Horizontal",
+     "value": 0.0,
+     "active": true,
+     "virtual_space": false,
+     "driving": true,
+     "name": ""
+    },
+    {
+     "type": "Vertical",
+     "value": 0.0,
+     "active": false,
+     "virtual_space": false,
+     "driving": true,
+     "name": ""
+    },
+    {
+     "type": "Vertical",
+     "value": 0.0,
+     "active": true,
+     "virtual_space": false,
+     "driving": true,
+     "name": ""
+    },
+    {
+     "type": "Coincident",
+     "value": 0.0,
+     "active": true,
+     "virtual_space": false,
+     "driving": true,
+     "name": ""
+    }
+   ],
+   "calls": [
+    {
+     "ok": true
+    },
+    {
+     "ok": true
+    },
+    {
+     "ok": true
+    }
+   ]
+  },
+  "virtual-space": {
+   "status": 0,
+   "dof": 1,
+   "conflicting": [],
+   "redundant": [],
+   "geometry": [
+    [
+     0.0,
+     0.0,
+     30.0,
+     0.0
+    ],
+    [
+     30.0,
+     0.0,
+     30.0,
+     20.0
+    ],
+    [
+     30.0,
+     20.0,
+     0.0,
+     20.0
+    ],
+    [
+     0.0,
+     20.0,
+     0.0,
+     0.0
+    ]
+   ],
+   "constraints": [
+    {
+     "type": "Coincident",
+     "value": 0.0,
+     "active": true,
+     "virtual_space": false,
+     "driving": true,
+     "name": ""
+    },
+    {
+     "type": "Coincident",
+     "value": 0.0,
+     "active": true,
+     "virtual_space": false,
+     "driving": true,
+     "name": ""
+    },
+    {
+     "type": "Coincident",
+     "value": 0.0,
+     "active": true,
+     "virtual_space": false,
+     "driving": true,
+     "name": ""
+    },
+    {
+     "type": "Coincident",
+     "value": 0.0,
+     "active": true,
+     "virtual_space": false,
+     "driving": true,
+     "name": ""
+    },
+    {
+     "type": "Horizontal",
+     "value": 0.0,
+     "active": true,
+     "virtual_space": false,
+     "driving": true,
+     "name": ""
+    },
+    {
+     "type": "Horizontal",
+     "value": 0.0,
+     "active": true,
+     "virtual_space": false,
+     "driving": true,
+     "name": ""
+    },
+    {
+     "type": "Vertical",
+     "value": 0.0,
+     "active": true,
+     "virtual_space": false,
+     "driving": true,
+     "name": ""
+    },
+    {
+     "type": "Vertical",
+     "value": 0.0,
+     "active": true,
+     "virtual_space": false,
+     "driving": true,
+     "name": ""
+    },
+    {
+     "type": "Coincident",
+     "value": 0.0,
+     "active": true,
+     "virtual_space": false,
+     "driving": true,
+     "name": ""
+    },
+    {
+     "type": "DistanceX",
+     "value": 30.0,
+     "active": true,
+     "virtual_space": true,
+     "driving": true,
+     "name": ""
+    }
+   ],
+   "calls": [
+    {
+     "ok": true
+    },
+    {
+     "ok": true
+    }
+   ]
+  },
+  "reference-then-inactive": {
+   "status": 0,
+   "dof": 2,
+   "conflicting": [],
+   "redundant": [],
+   "geometry": [
+    [
+     0.0,
+     0.0,
+     30.0,
+     0.0
+    ],
+    [
+     30.0,
+     0.0,
+     30.0,
+     20.0
+    ],
+    [
+     30.0,
+     20.0,
+     0.0,
+     20.0
+    ],
+    [
+     0.0,
+     20.0,
+     0.0,
+     0.0
+    ]
+   ],
+   "constraints": [
+    {
+     "type": "Coincident",
+     "value": 0.0,
+     "active": true,
+     "virtual_space": false,
+     "driving": true,
+     "name": ""
+    },
+    {
+     "type": "Coincident",
+     "value": 0.0,
+     "active": true,
+     "virtual_space": false,
+     "driving": true,
+     "name": ""
+    },
+    {
+     "type": "Coincident",
+     "value": 0.0,
+     "active": true,
+     "virtual_space": false,
+     "driving": true,
+     "name": ""
+    },
+    {
+     "type": "Coincident",
+     "value": 0.0,
+     "active": true,
+     "virtual_space": false,
+     "driving": true,
+     "name": ""
+    },
+    {
+     "type": "Horizontal",
+     "value": 0.0,
+     "active": true,
+     "virtual_space": false,
+     "driving": true,
+     "name": ""
+    },
+    {
+     "type": "Horizontal",
+     "value": 0.0,
+     "active": true,
+     "virtual_space": false,
+     "driving": true,
+     "name": ""
+    },
+    {
+     "type": "Vertical",
+     "value": 0.0,
+     "active": true,
+     "virtual_space": false,
+     "driving": true,
+     "name": ""
+    },
+    {
+     "type": "Vertical",
+     "value": 0.0,
+     "active": true,
+     "virtual_space": false,
+     "driving": true,
+     "name": ""
+    },
+    {
+     "type": "Coincident",
+     "value": 0.0,
+     "active": true,
+     "virtual_space": false,
+     "driving": true,
+     "name": ""
+    },
+    {
+     "type": "DistanceX",
+     "value": 30.0,
+     "active": false,
+     "virtual_space": false,
+     "driving": true,
+     "name": ""
+    },
+    {
+     "type": "DistanceY",
+     "value": 20.0,
+     "active": true,
+     "virtual_space": false,
+     "driving": false,
+     "name": ""
+    }
+   ],
+   "calls": [
+    {
+     "ok": true
+    },
+    {
+     "ok": true
+    }
+   ]
+  }
+ },
+ "api": {
+  "rename": {
+   "calls": [
+    {
+     "ok": true
+    },
+    {
+     "ok": false,
+     "error": "ValueError",
+     "message": "Duplicate constraint not allowed"
+    },
+    {
+     "ok": true
+    },
+    {
+     "ok": true
+    },
+    {
+     "ok": true
+    },
+    {
+     "ok": true
+    },
+    {
+     "ok": false,
+     "error": "IndexError",
+     "message": "Not able to rename a constraint with the given index: 20"
+    }
+   ],
+   "constraints": [
+    {
+     "type": "Coincident",
+     "value": 0.0,
+     "active": true,
+     "virtual_space": false,
+     "driving": true,
+     "name": ""
+    },
+    {
+     "type": "Coincident",
+     "value": 0.0,
+     "active": true,
+     "virtual_space": false,
+     "driving": true,
+     "name": ""
+    },
+    {
+     "type": "Coincident",
+     "value": 0.0,
+     "active": true,
+     "virtual_space": false,
+     "driving": true,
+     "name": ""
+    },
+    {
+     "type": "Coincident",
+     "value": 0.0,
+     "active": true,
+     "virtual_space": false,
+     "driving": true,
+     "name": ""
+    },
+    {
+     "type": "Horizontal",
+     "value": 0.0,
+     "active": true,
+     "virtual_space": false,
+     "driving": true,
+     "name": "a b"
+    },
+    {
+     "type": "Horizontal",
+     "value": 0.0,
+     "active": true,
+     "virtual_space": false,
+     "driving": true,
+     "name": "h"
+    },
+    {
+     "type": "Vertical",
+     "value": 0.0,
+     "active": true,
+     "virtual_space": false,
+     "driving": true,
+     "name": ""
+    },
+    {
+     "type": "Vertical",
+     "value": 0.0,
+     "active": true,
+     "virtual_space": false,
+     "driving": true,
+     "name": ""
+    },
+    {
+     "type": "Coincident",
+     "value": 0.0,
+     "active": true,
+     "virtual_space": false,
+     "driving": true,
+     "name": ""
+    },
+    {
+     "type": "DistanceX",
+     "value": 30.0,
+     "active": true,
+     "virtual_space": false,
+     "driving": true,
+     "name": ""
+    }
+   ]
+  },
+  "toggle-driving": {
+   "calls": [
+    {
+     "ok": false,
+     "error": "ValueError",
+     "message": "Not able toggle Driving for constraint with the given index: 0"
+    },
+    {
+     "ok": true
+    },
+    {
+     "ok": true
+    },
+    {
+     "ok": true
+    },
+    {
+     "ok": false,
+     "error": "ValueError",
+     "message": "Not able set Driving/reference for constraint with the given index: 10"
+    }
+   ],
+   "constraints": [
+    {
+     "type": "Coincident",
+     "value": 0.0,
+     "active": true,
+     "virtual_space": false,
+     "driving": true,
+     "name": ""
+    },
+    {
+     "type": "Coincident",
+     "value": 0.0,
+     "active": true,
+     "virtual_space": false,
+     "driving": true,
+     "name": ""
+    },
+    {
+     "type": "Coincident",
+     "value": 0.0,
+     "active": true,
+     "virtual_space": false,
+     "driving": true,
+     "name": ""
+    },
+    {
+     "type": "Coincident",
+     "value": 0.0,
+     "active": true,
+     "virtual_space": false,
+     "driving": true,
+     "name": ""
+    },
+    {
+     "type": "Horizontal",
+     "value": 0.0,
+     "active": true,
+     "virtual_space": false,
+     "driving": true,
+     "name": ""
+    },
+    {
+     "type": "Horizontal",
+     "value": 0.0,
+     "active": true,
+     "virtual_space": false,
+     "driving": true,
+     "name": ""
+    },
+    {
+     "type": "Vertical",
+     "value": 0.0,
+     "active": true,
+     "virtual_space": false,
+     "driving": true,
+     "name": ""
+    },
+    {
+     "type": "Vertical",
+     "value": 0.0,
+     "active": true,
+     "virtual_space": false,
+     "driving": true,
+     "name": ""
+    },
+    {
+     "type": "Coincident",
+     "value": 0.0,
+     "active": true,
+     "virtual_space": false,
+     "driving": true,
+     "name": ""
+    },
+    {
+     "type": "DistanceX",
+     "value": 30.0,
+     "active": true,
+     "virtual_space": false,
+     "driving": true,
+     "name": ""
+    },
+    {
+     "type": "DistanceX",
+     "value": 0.0,
+     "active": true,
+     "virtual_space": false,
+     "driving": false,
+     "name": ""
+    }
+   ]
+  },
+  "virtual-api": {
+   "calls": [
+    {
+     "ok": true
+    },
+    {
+     "ok": true
+    },
+    {
+     "ok": true
+    },
+    {
+     "ok": true,
+     "result": true
+    },
+    {
+     "ok": false,
+     "error": "ValueError",
+     "message": "Not able toggle virtual space for constraint with the given index: 40"
+    }
+   ],
+   "constraints": [
+    {
+     "type": "Coincident",
+     "value": 0.0,
+     "active": true,
+     "virtual_space": true,
+     "driving": true,
+     "name": ""
+    },
+    {
+     "type": "Coincident",
+     "value": 0.0,
+     "active": true,
+     "virtual_space": true,
+     "driving": true,
+     "name": ""
+    },
+    {
+     "type": "Coincident",
+     "value": 0.0,
+     "active": true,
+     "virtual_space": true,
+     "driving": true,
+     "name": ""
+    },
+    {
+     "type": "Coincident",
+     "value": 0.0,
+     "active": true,
+     "virtual_space": true,
+     "driving": true,
+     "name": ""
+    },
+    {
+     "type": "Horizontal",
+     "value": 0.0,
+     "active": true,
+     "virtual_space": false,
+     "driving": true,
+     "name": ""
+    },
+    {
+     "type": "Horizontal",
+     "value": 0.0,
+     "active": true,
+     "virtual_space": false,
+     "driving": true,
+     "name": ""
+    },
+    {
+     "type": "Vertical",
+     "value": 0.0,
+     "active": true,
+     "virtual_space": false,
+     "driving": true,
+     "name": ""
+    },
+    {
+     "type": "Vertical",
+     "value": 0.0,
+     "active": true,
+     "virtual_space": false,
+     "driving": true,
+     "name": ""
+    },
+    {
+     "type": "Coincident",
+     "value": 0.0,
+     "active": true,
+     "virtual_space": false,
+     "driving": true,
+     "name": ""
+    }
+   ]
+  }
+ }
+}

@@ -43,6 +43,9 @@ export type Constraint = {
   labelPosition: number
   /** Constraint::isInVirtualSpace. */
   virtual: boolean
+  /** The expression the value is bound to (SketchObject's ExpressionEngine for Constraints[i]): over the part's PARAMS,
+   *  as the part file writes a string value; value is what it evaluates to. */
+  expr?: string
   /** An InternalAlignment's Constraint::AlignmentType and InternalAlignmentIndex (a pole's or a knot's, else -1). */
   alignment?: CV.Alignment
   alignmentIndex?: number
@@ -102,22 +105,36 @@ export function alignmentConstraint(alignment: CV.Alignment, first: number, firs
   return { ...constraint('InternalAlignment', first, firstPos, second), alignment, alignmentIndex: index }
 }
 export function toCons(c: Constraint): Cons {
-  if (c.type === 'InternalAlignment' && c.alignment) return { type: `InternalAlignment:${c.alignment}`, args: alignmentArgs(c) }
-  const out: Cons = { type: c.type, args: toArgs(c) }
-  if (isDimensional(c)) out.value = c.value
-  if (!c.driving) out.driving = false
-  if (c.name) out.name = c.name
+  const out: Cons = c.type === 'InternalAlignment' && c.alignment ? { type: `InternalAlignment:${c.alignment}`, args: alignmentArgs(c) } : { type: c.type, args: toArgs(c) }
+  if (c.type !== 'InternalAlignment') {
+    if (isDimensional(c)) out.value = c.value
+    if (!c.driving) out.driving = false
+    if (c.name) out.name = c.name
+    if (c.expr && isDimensional(c)) out.expr = c.expr
+  }
+  // SketchObject::setActive and setVirtualSpace (the part file's active=False, virtual_space=True)
+  if (!c.active) out.active = false
+  if (c.virtual) out.virtual_space = true
   return out
 }
 /** ConstraintPy::PyInit's parsing, for the forms toArgs writes (an int argument where the value would be a GeoId). */
 export function fromCons(k: Cons): Constraint {
+  const c = fromConsOnly(k)
+  if (k.active === false) c.active = false
+  if (k.virtual_space) c.virtual = true
+  // an expression: the part file's string value (feature_edit.read), or expr beside the value it gave
+  const e = typeof k.value === 'string' ? k.value : k.expr
+  if (e && isDimensional(c)) { c.expr = e; if (typeof k.value === 'string') c.value = NaN }
+  return c
+}
+function fromConsOnly(k: Cons): Constraint {
   if (k.type.startsWith('InternalAlignment:')) {
     const al = k.type.slice('InternalAlignment:'.length) as CV.Alignment, a = k.args
     if (ALIGN_TWO.includes(al)) return alignmentConstraint(al, a[0], NONE, a[1])
     if (ALIGN_INDEXED.includes(al)) return alignmentConstraint(al, a[0], a[1] as PointPos, a[2], a[3] ?? -1)
     return alignmentConstraint(al, a[0], a[1] as PointPos, a[2])
   }
-  const t = k.type as ConstraintType, a = k.args, v = k.value ?? 0, P = (n: number) => n as PointPos
+  const t = k.type as ConstraintType, a = k.args, v = typeof k.value === 'number' ? k.value : 0, P = (n: number) => n as PointPos
   let c: Constraint
   const hasValue = k.value !== undefined
   if (t === 'Coincident') c = constraint(t, a[0], P(a[1]), a[2], P(a[3]))
@@ -254,8 +271,10 @@ export function normalArc(center: XY, radius: number, a0: number, a1: number, co
 }
 
 // ── names ────────────────────────────────────────────────────────────────────
-/** PropertyConstraintList::getConstraintName. */
+/** PropertyConstraintList::getConstraintName(name, i): the name, or ConstraintN. */
 export const constraintName = (c: Constraint, i: number) => c.name || `Constraint${i + 1}`
+/** PropertyConstraintList::getConstraintName(i): the sub-element name a constraint is selected by, whatever its name. */
+export const constraintSelName = (i: number) => `Constraint${i + 1}`
 /** ViewProviderSketch's sub-element names. */
 export const edgeName = (g: number) => (g === H_AXIS ? 'H_Axis' : g === V_AXIS ? 'V_Axis'
   : g <= REF_EXT ? `ExternalEdge${REF_EXT + 1 - g}` : `Edge${g + 1}`)

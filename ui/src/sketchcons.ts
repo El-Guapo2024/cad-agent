@@ -485,22 +485,52 @@ function dimension(sel: SelId[]) {
   return distance(sel)
 }
 
-/** Sketcher_ToggleDrivingConstraint: the selected dimensions between driving and reference; with none selected, the
- *  creation mode of new ones. */
+/** CmdSketcherToggleDrivingConstraint::activated: with a constraint selected, each selected constraint toggles
+ *  (SketchObject.toggleDriving; one that is no dimension, or a dimension of fixed geometry only made driving, raises
+ *  and counts as a failure); otherwise the creation mode of new dimensions switches (updateCommands
+ *  "ToggleDrivingConstraint": the dimension commands' icons). */
 export function toggleDriving() {
-  const ids = [...S.selectedConstraints()].filter((i) => SK.isDimensional(S.getConstraints()[i]))
-  if (!ids.length) { creationMode = creationMode === 'Driving' ? 'Reference' : 'Driving'; return }
+  const sel = S.getSelection()
+  if (!sel.some((n) => n.length > 10 && n.startsWith('Constraint'))) { creationMode = creationMode === 'Driving' ? 'Reference' : 'Driving'; S.notifyChanged(); return }
   S.openCommand('Toggle constraint to driving/reference')
-  for (const i of ids) { const c = S.getConstraints()[i]; S.setConstraint(i, { ...c, driving: !c.driving, ...(c.driving ? {} : { value: SK.measure(S.getGeometry(), c) }) }) }
-  finish()
+  let successful = sel.length
+  for (const n of sel) {
+    if (!(n.length > 10 && n.startsWith('Constraint'))) continue
+    if (!setDriving(Number(n.slice(10)) - 1)) { successful--; report('err', `Not able toggle Driving for constraint with the given index: ${Number(n.slice(10)) - 1}`) }
+  }
+  if (successful > 0) S.commitCommand()
+  else S.abortCommand()
+  S.clearSelection()
+  S.solve()
 }
-/** Sketcher_ToggleActiveConstraint. */
+/** SketchObject::setDriving(i, !isDriving) after testDrivingChange: only a dimension, and a dimension made driving
+ *  needs one element that is not fixed (GeoId >= 0); a reference one loses its expression. */
+function setDriving(i: number): boolean {
+  const c = S.getConstraints()[i]
+  if (!c || !SK.isDimensional(c)) return false
+  const driving = !c.driving
+  if (driving && !(c.first >= 0 || c.second >= 0 || c.third >= 0)) return false
+  const next = { ...c, driving, ...(driving ? { value: SK.measure(S.getGeometry(), c) } : {}) }
+  if (!driving) delete next.expr
+  S.setConstraint(i, next)
+  return true
+}
+/** CmdSketcherToggleActiveConstraint::activated: SketchObject.toggleActive on each selected constraint. */
 export function toggleActive() {
-  const ids = [...S.selectedConstraints()]
-  if (!ids.length) return
+  const sel = S.getSelection()
+  if (!sel.length) return
   S.openCommand('Activate/Deactivate constraints')
-  for (const i of ids) { const c = S.getConstraints()[i]; S.setConstraint(i, { ...c, active: !c.active }) }
-  finish()
+  let successful = sel.length
+  for (const n of sel) {
+    if (!(n.length > 10 && n.startsWith('Constraint'))) continue
+    const i = Number(n.slice(10)) - 1, c = S.getConstraints()[i]
+    if (!c) { successful--; continue }
+    S.setConstraint(i, { ...c, active: !c.active })
+  }
+  if (successful > 0) S.commitCommand()
+  else S.abortCommand()
+  S.clearSelection()
+  S.solve()
 }
 
 /** Runs a constraint command: on the selection, or (none) with the selection tool. */
