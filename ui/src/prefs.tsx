@@ -26,6 +26,8 @@ import {
   NotificationAreaPage, PdfPage, PythonConsolePage, ReportViewPage, SelectionPage, setServerPref, TransformSnapPage, UIPage, View3DPage, WorkbenchesPage, applyReportColors,
 } from './prefs-pages'
 export { AccelEdit, applyReportColors, checkCache } from './prefs-pages' // App.tsx and customize.tsx take them from here
+import { SketcherAppearancePage, SketcherDisplayPage, SketcherGeneralPage, SketcherGridPage, SKETCHER_RESET } from './prefs-sketcher'
+import { setSketcherParams } from './sketchovp'
 
 const GROUPS: [string, string, string[]][] = [
   ['General', 'preferences-general', ['General', 'Document', 'Selection', 'Keyboard', 'Cache', 'Notification Area', 'Report View']],
@@ -33,10 +35,12 @@ const GROUPS: [string, string, string[]][] = [
   ['Workbenches', 'preferences-workbenches', ['Available Workbenches']],
   ['Import-Export', 'preferences-import-export', ['PDF']],
   ['Python', 'preferences-python', ['Macro', 'Python General', 'Editor']],
+  ['Sketcher', 'sketcher/SketcherWorkbench', [ // Sketcher.qrc aliases preferences-sketcher.svg to it
+    'Sketcher General', 'Sketcher Grid', 'Sketcher Display', 'Sketcher Appearance']],
 ]
 
 /** Page ids that FreeCAD shows under another name: DlgSettingsPythonConsole's title is "General". */
-const LABEL: Record<string, string> = { 'Python General': 'General' }
+const LABEL: Record<string, string> = { 'Python General': 'General', 'Sketcher General': 'General', 'Sketcher Grid': 'Grid', 'Sketcher Display': 'Display', 'Sketcher Appearance': 'Appearance' }
 const label = (p: string) => LABEL[p] ?? p
 /** What each page's settings go back to (Reset Page / Group / All): the store's own defaults. */
 const DEFAULTS: Record<string, Record<string, unknown>> = {
@@ -58,11 +62,14 @@ const DEFAULTS: Record<string, Record<string, unknown>> = {
   Macro: { recordGuiCommands: true, guiAsComment: true, scriptToPyConsole: true },
   'Python General': { 'editor:wordWrap': true, 'editor:consoleBlock': false, 'editor:saveHistory': false },
   Editor: { 'editor:blockCursor': false, 'editor:tabSize': 4, 'editor:indentSize': 4, 'editor:spaces': true, 'editor:font': 'ui-monospace', 'editor:fontSize': 10, 'editor:colors': EDITOR_COLORS },
+  ...Object.fromEntries(Object.entries(SKETCHER_RESET).map(([p, ks]) => [p, Object.fromEntries(ks.map((k) => [`sketcher:${k}`, null]))])),
+  'Sketcher Grid': { 'sketcher.showGrid': true },
   'Report View': { reportShow: { msg: true, log: true, warn: true, err: true, critical: true }, 'report.showOn': {}, 'report.timecode': true, reportTimecode: true, 'report.colors': {} },
 }
 function resetPages(pages: string[]) {
   for (const p of pages) for (const [k, v] of Object.entries(DEFAULTS[p] ?? {})) {
     if (k.startsWith('server:')) { setServerPref(k.slice(7), v as number); continue }
+    if (k.startsWith('sketcher:')) { setSketcherParams({ [k.slice(9)]: null }); continue } // a Sketcher parameter, back to FreeCAD's default
     if (k.startsWith('editor:')) { setEditorPrefs({ [k.slice(7)]: v }); continue } // the two pages share one setting
     if (v === null) saved.remove(k) // a parameter that is unset by default (RemoveASCII): not stored as a value
     else saved.set(k, v)
@@ -78,6 +85,8 @@ const PAGES: Record<string, () => ReactNode> = {
   Advanced: () => <AdvancedPage />, 'Transform snap': () => <TransformSnapPage />,
   'Available Workbenches': () => <WorkbenchesPage />, PDF: () => <PdfPage />,
   Macro: () => <MacroPage />, 'Python General': () => <PythonConsolePage />, Editor: () => <EditorPage />,
+  'Sketcher General': () => <SketcherGeneralPage />, 'Sketcher Grid': () => <SketcherGridPage />, 'Sketcher Display': () => <SketcherDisplayPage />,
+  'Sketcher Appearance': () => <SketcherAppearancePage />,
 }
 const page = (name: string): ReactNode => PAGES[name]()
 

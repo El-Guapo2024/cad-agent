@@ -46,6 +46,11 @@ PAGES = [
     ("Python", "Gui::Dialog::DlgSettingsMacroImp", "macro"),
     ("Python", "Gui::Dialog::DlgSettingsPythonConsole", "pythongeneral"),
     ("Python", "Gui::Dialog::DlgSettingsEditor", "editor"),
+    # the Sketcher's (AppSketcherGui.cpp registers them in this order; the group shows once the Sketcher module is loaded)
+    ("Sketcher", "SketcherGui::SketcherSettings", "sketcher"),
+    ("Sketcher", "SketcherGui::SketcherSettingsGrid", "sketchergrid"),
+    ("Sketcher", "SketcherGui::SketcherSettingsDisplay", "sketcherdisplay"),
+    ("Sketcher", "SketcherGui::SketcherSettingsAppearance", "sketcherappearance"),
 ]
 
 

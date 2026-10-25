@@ -142,7 +142,7 @@ export function getPoint(geo: Geo[], g: number, pos: PointPos): XY | null {
   const e = geo[g]
   if (!e) return null
   switch (e.type) {
-    case 'Point': return pos === START ? e.at : null
+    case 'Point': return pos === START || pos === MID || pos === END ? e.at : null // SketchPoint::getPoint: any of the three
     case 'LineSegment': return pos === START ? e.start : pos === END ? e.end : null
     case 'Circle': return pos === MID ? e.center : null
     case 'ArcOfCircle':

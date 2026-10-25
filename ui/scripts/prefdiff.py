@@ -30,7 +30,10 @@ PAGES = {"General": "PreferencePages/DlgSettingsGeneral.ui", "Document": "Prefer
          "Advanced": "PreferencePages/DlgSettingsAdvanced.cpp",
          "Available Workbenches": "PreferencePages/DlgSettingsWorkbenches.ui", "PDF": "PreferencePages/DlgSettingsPDF.ui",
          "Macro": "PreferencePages/DlgSettingsMacro.ui", "Python General": "PreferencePages/DlgSettingsPythonConsole.ui",
-         "Editor": "PreferencePages/DlgSettingsEditor.ui"}
+         "Editor": "PreferencePages/DlgSettingsEditor.ui",
+         # the Sketcher's pages (prefs.tsx names them "Sketcher General", ...)
+         "Sketcher General": "src/Mod/Sketcher/Gui/SketcherSettings.ui", "Sketcher Grid": "src/Mod/Sketcher/Gui/SketcherSettingsGrid.ui",
+         "Sketcher Display": "src/Mod/Sketcher/Gui/SketcherSettingsDisplay.ui", "Sketcher Appearance": "src/Mod/Sketcher/Gui/SketcherSettingsAppearance.ui"}
 PROPS = {"text", "title", "suffix", "prefix", "specialValueText", "placeholderText"}
 
 
@@ -45,7 +48,7 @@ def source(path: str) -> str:
     f = CACHE / Path(path).name
     if not f.exists():
         CACHE.mkdir(parents=True, exist_ok=True)
-        url = f"https://raw.githubusercontent.com/FreeCAD/FreeCAD/{COMMIT}/src/Gui/{path}"
+        url = f"https://raw.githubusercontent.com/FreeCAD/FreeCAD/{COMMIT}/{path if path.startswith('src/') else 'src/Gui/' + path}"
         f.write_bytes(urllib.request.urlopen(url, timeout=30).read())
     return f.read_text()
 

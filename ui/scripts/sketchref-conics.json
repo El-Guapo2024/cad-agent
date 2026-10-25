@@ -1,0 +1,1791 @@
+{
+ "about": "What FreeCAD 26.3 (3160daf1e2b6) does for ui/scripts/sketchcases-conics.json, written by fcsketch.py --ref; ui/scripts/sketchcheck.mjs compares the workbench with it.",
+ "viewport": [
+  1014,
+  644
+ ],
+ "dialogs": [],
+ "cases": {
+  "ovp-ellipse-center": {
+   "geometry": [
+    {
+     "type": "Ellipse",
+     "center": [
+      20.0,
+      20.0
+     ],
+     "major_radius": 15.000000000000004,
+     "minor_radius": 5.999999999999999,
+     "x_axis": [
+      -0.8660252915835662,
+      -0.5000001943375614
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      7.009620626246507,
+      12.499997084936581
+     ],
+     "end": [
+      32.99037937375349,
+      27.50000291506342
+     ],
+     "construction": true
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      23.000001166025367,
+      14.803848250498604
+     ],
+     "end": [
+      16.999998833974633,
+      25.196151749501396
+     ],
+     "construction": true
+    },
+    {
+     "type": "Point",
+     "at": [
+      8.094120642716312,
+      13.126133785866482
+     ],
+     "construction": true
+    },
+    {
+     "type": "Point",
+     "at": [
+      31.905879357283688,
+      26.873866214133514
+     ],
+     "construction": true
+    }
+   ],
+   "constraints": [
+    {
+     "type": "InternalAlignment:EllipseMajorDiameter",
+     "args": [
+      1,
+      0
+     ]
+    },
+    {
+     "type": "InternalAlignment:EllipseMinorDiameter",
+     "args": [
+      2,
+      0
+     ]
+    },
+    {
+     "type": "InternalAlignment:EllipseFocus1",
+     "args": [
+      3,
+      1,
+      0
+     ]
+    },
+    {
+     "type": "InternalAlignment:EllipseFocus2",
+     "args": [
+      4,
+      1,
+      0
+     ]
+    },
+    {
+     "type": "DistanceX",
+     "args": [
+      0,
+      3
+     ],
+     "value": 20.0
+    },
+    {
+     "type": "DistanceY",
+     "args": [
+      0,
+      3
+     ],
+     "value": 20.0
+    },
+    {
+     "type": "Distance",
+     "args": [
+      0,
+      3,
+      1,
+      1
+     ],
+     "value": 15.0
+    },
+    {
+     "type": "Angle",
+     "args": [
+      1
+     ],
+     "value": 0.523599
+    },
+    {
+     "type": "Distance",
+     "args": [
+      0,
+      3,
+      2,
+      1
+     ],
+     "value": 6.0
+    }
+   ],
+   "message": {
+    "status": "Fully constrained",
+    "link": ""
+   },
+   "tool_widget": {
+    "title": "Ellipse Parameters",
+    "controls": [
+     {
+      "name": "comboBox1",
+      "items": [
+       "Center",
+       "Axis endpoints"
+      ],
+      "index": 0
+     }
+    ]
+   },
+   "ovp": [
+    {
+     "text": "33.04 mm",
+     "focus": false
+    },
+    {
+     "text": "25.93 mm",
+     "focus": true
+    }
+   ]
+  },
+  "ovp-ellipse-radius-only": {
+   "geometry": [
+    {
+     "type": "Ellipse",
+     "center": [
+      20.03105545,
+      20.0
+     ],
+     "major_radius": 15.000000000000002,
+     "minor_radius": 9.34048539785042,
+     "x_axis": [
+      0.9572113756844579,
+      0.289389672
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      34.38922608526687,
+      24.34084508
+     ],
+     "end": [
+      5.6728848147331306,
+      15.659154919999999
+     ],
+     "construction": true
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      17.32801544439528,
+      28.94081887723699
+     ],
+     "end": [
+      22.734095455604724,
+      11.059181122763011
+     ],
+     "construction": true
+    },
+    {
+     "type": "Point",
+     "at": [
+      31.265770479580524,
+      23.39654394004562
+     ],
+     "construction": true
+    },
+    {
+     "type": "Point",
+     "at": [
+      8.796340420419478,
+      16.60345605995438
+     ],
+     "construction": true
+    }
+   ],
+   "constraints": [
+    {
+     "type": "InternalAlignment:EllipseMajorDiameter",
+     "args": [
+      1,
+      0
+     ]
+    },
+    {
+     "type": "InternalAlignment:EllipseMinorDiameter",
+     "args": [
+      2,
+      0
+     ]
+    },
+    {
+     "type": "InternalAlignment:EllipseFocus1",
+     "args": [
+      3,
+      1,
+      0
+     ]
+    },
+    {
+     "type": "InternalAlignment:EllipseFocus2",
+     "args": [
+      4,
+      1,
+      0
+     ]
+    },
+    {
+     "type": "Distance",
+     "args": [
+      0,
+      3,
+      1,
+      1
+     ],
+     "value": 15.0
+    }
+   ],
+   "message": {
+    "status": "Under-constrained: ",
+    "link": "4 Degrees of Freedom"
+   },
+   "tool_widget": {
+    "title": "Ellipse Parameters",
+    "controls": [
+     {
+      "name": "comboBox1",
+      "items": [
+       "Center",
+       "Axis endpoints"
+      ],
+      "index": 0
+     }
+    ]
+   }
+  },
+  "ovp-ellipse-show": {
+   "geometry": [],
+   "constraints": [],
+   "message": {
+    "status": "Empty sketch",
+    "link": ""
+   },
+   "tool_widget": {
+    "title": "Ellipse Parameters",
+    "controls": [
+     {
+      "name": "comboBox1",
+      "items": [
+       "Center",
+       "Axis endpoints"
+      ],
+      "index": 0
+     }
+    ]
+   },
+   "ovp": [
+    {
+     "text": "8.81 mm",
+     "focus": true
+    }
+   ]
+  },
+  "ovp-ellipse-origin": {
+   "geometry": [
+    {
+     "type": "Ellipse",
+     "center": [
+      0.0,
+      1.0283436574951955e-26
+     ],
+     "major_radius": 24.999999999999996,
+     "minor_radius": 10.0,
+     "x_axis": [
+      -1.0,
+      -2.3378662150351864e-21
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      -25.0,
+      -2.145701662201152e-27
+     ],
+     "end": [
+      25.0,
+      -2.1709452111682245e-27
+     ],
+     "construction": true
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      -1.2274067820579817e-19,
+      -10.0
+     ],
+     "end": [
+      1.2273736948334795e-19,
+      10.0
+     ],
+     "construction": true
+    },
+    {
+     "type": "Point",
+     "at": [
+      -22.912878474779195,
+      -5.3567234191956653e-20
+     ],
+     "construction": true
+    },
+    {
+     "type": "Point",
+     "at": [
+      22.9128784747792,
+      5.3567234191956666e-20
+     ],
+     "construction": true
+    }
+   ],
+   "constraints": [
+    {
+     "type": "InternalAlignment:EllipseMajorDiameter",
+     "args": [
+      1,
+      0
+     ]
+    },
+    {
+     "type": "InternalAlignment:EllipseMinorDiameter",
+     "args": [
+      2,
+      0
+     ]
+    },
+    {
+     "type": "InternalAlignment:EllipseFocus1",
+     "args": [
+      3,
+      1,
+      0
+     ]
+    },
+    {
+     "type": "InternalAlignment:EllipseFocus2",
+     "args": [
+      4,
+      1,
+      0
+     ]
+    },
+    {
+     "type": "PointOnObject",
+     "args": [
+      0,
+      3,
+      -2
+     ]
+    },
+    {
+     "type": "PointOnObject",
+     "args": [
+      0,
+      3,
+      -1
+     ]
+    },
+    {
+     "type": "Distance",
+     "args": [
+      0,
+      3,
+      1,
+      1
+     ],
+     "value": 25.0
+    },
+    {
+     "type": "Angle",
+     "args": [
+      1
+     ],
+     "value": 0.0
+    },
+    {
+     "type": "Distance",
+     "args": [
+      0,
+      3,
+      2,
+      1
+     ],
+     "value": 10.0
+    }
+   ],
+   "message": {
+    "status": "Fully constrained",
+    "link": ""
+   },
+   "tool_widget": {
+    "title": "Ellipse Parameters",
+    "controls": [
+     {
+      "name": "comboBox1",
+      "items": [
+       "Center",
+       "Axis endpoints"
+      ],
+      "index": 0
+     }
+    ]
+   },
+   "ovp": [
+    {
+     "text": "13.01 mm",
+     "focus": false
+    },
+    {
+     "text": "4.04 mm",
+     "focus": true
+    }
+   ]
+  },
+  "ovp-ellipse-3points": {
+   "geometry": [
+    {
+     "type": "Ellipse",
+     "center": [
+      25.0,
+      20.0
+     ],
+     "major_radius": 17.117242768623687,
+     "minor_radius": 8.895230684529375,
+     "x_axis": [
+      0.9931506043228763,
+      0.11684124756739725
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      42.0,
+      22.0
+     ],
+     "end": [
+      8.0,
+      18.0
+     ],
+     "construction": true
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      23.960670149419794,
+      28.83430372993174
+     ],
+     "end": [
+      26.039329850580206,
+      11.16569627006826
+     ],
+     "construction": true
+    },
+    {
+     "type": "Point",
+     "at": [
+      39.524292671497435,
+      21.708740314293816
+     ],
+     "construction": true
+    },
+    {
+     "type": "Point",
+     "at": [
+      10.475707328502562,
+      18.291259685706184
+     ],
+     "construction": true
+    }
+   ],
+   "constraints": [
+    {
+     "type": "InternalAlignment:EllipseMajorDiameter",
+     "args": [
+      1,
+      0
+     ]
+    },
+    {
+     "type": "InternalAlignment:EllipseMinorDiameter",
+     "args": [
+      2,
+      0
+     ]
+    },
+    {
+     "type": "InternalAlignment:EllipseFocus1",
+     "args": [
+      3,
+      1,
+      0
+     ]
+    },
+    {
+     "type": "InternalAlignment:EllipseFocus2",
+     "args": [
+      4,
+      1,
+      0
+     ]
+    }
+   ],
+   "message": {
+    "status": "Under-constrained: ",
+    "link": "5 Degrees of Freedom"
+   },
+   "tool_widget": {
+    "title": "Ellipse Parameters",
+    "controls": [
+     {
+      "name": "comboBox1",
+      "items": [
+       "Center",
+       "Axis endpoints"
+      ],
+      "index": 1
+     }
+    ]
+   },
+   "ovp": [
+    {
+     "text": "11.17 mm",
+     "focus": false
+    },
+    {
+     "text": "26.04 mm",
+     "focus": true
+    }
+   ]
+  },
+  "ovp-ellipse-widget-method": {
+   "geometry": [
+    {
+     "type": "Ellipse",
+     "center": [
+      24.99999905,
+      20.00000191
+     ],
+     "major_radius": 17.04541790379934,
+     "minor_radius": 9.832669228508351,
+     "x_axis": [
+      0.99296278187626,
+      0.1184268289221617
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      41.92546463,
+      22.0186367
+     ],
+     "end": [
+      8.074533469999999,
+      17.981367120000005
+     ],
+     "construction": true
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      23.835547213427237,
+      29.763476500408753
+     ],
+     "end": [
+      26.164450886572762,
+      10.23652731959125
+     ],
+     "construction": true
+    },
+    {
+     "type": "Point",
+     "at": [
+      38.82555325307654,
+      21.648922264565574
+     ],
+     "construction": true
+    },
+    {
+     "type": "Point",
+     "at": [
+      11.174444846923459,
+      18.35108155543443
+     ],
+     "construction": true
+    }
+   ],
+   "constraints": [
+    {
+     "type": "InternalAlignment:EllipseMajorDiameter",
+     "args": [
+      1,
+      0
+     ]
+    },
+    {
+     "type": "InternalAlignment:EllipseMinorDiameter",
+     "args": [
+      2,
+      0
+     ]
+    },
+    {
+     "type": "InternalAlignment:EllipseFocus1",
+     "args": [
+      3,
+      1,
+      0
+     ]
+    },
+    {
+     "type": "InternalAlignment:EllipseFocus2",
+     "args": [
+      4,
+      1,
+      0
+     ]
+    }
+   ],
+   "message": {
+    "status": "Under-constrained: ",
+    "link": "5 Degrees of Freedom"
+   },
+   "tool_widget": {
+    "title": "Ellipse Parameters",
+    "controls": [
+     {
+      "name": "comboBox1",
+      "items": [
+       "Center",
+       "Axis endpoints"
+      ],
+      "index": 1
+     }
+    ]
+   }
+  },
+  "ovp-arc-of-ellipse": {
+   "geometry": [
+    {
+     "type": "ArcOfEllipse",
+     "center": [
+      20.0,
+      20.0
+     ],
+     "major_radius": 18.0,
+     "minor_radius": 7.999999999999999,
+     "x_axis": [
+      -0.9848077400232231,
+      -0.17364825133110828
+     ],
+     "start_angle": 3.446923530006995,
+     "end_angle": 5.194797766675879
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      2.2734606795819823,
+      16.87433147604005
+     ],
+     "end": [
+      37.72653932041801,
+      23.12566852395995
+     ],
+     "construction": true
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      21.389186010648867,
+      12.121538079814215
+     ],
+     "end": [
+      18.610813989351133,
+      27.878461920185785
+     ],
+     "construction": true
+    },
+    {
+     "type": "Point",
+     "at": [
+      4.120452334826773,
+      17.200006080454557
+     ],
+     "construction": true
+    },
+    {
+     "type": "Point",
+     "at": [
+      35.87954766517323,
+      22.799993919545443
+     ],
+     "construction": true
+    }
+   ],
+   "constraints": [
+    {
+     "type": "InternalAlignment:EllipseMajorDiameter",
+     "args": [
+      1,
+      0
+     ]
+    },
+    {
+     "type": "InternalAlignment:EllipseMinorDiameter",
+     "args": [
+      2,
+      0
+     ]
+    },
+    {
+     "type": "InternalAlignment:EllipseFocus1",
+     "args": [
+      3,
+      1,
+      0
+     ]
+    },
+    {
+     "type": "InternalAlignment:EllipseFocus2",
+     "args": [
+      4,
+      1,
+      0
+     ]
+    },
+    {
+     "type": "DistanceX",
+     "args": [
+      0,
+      3
+     ],
+     "value": 20.0
+    },
+    {
+     "type": "DistanceY",
+     "args": [
+      0,
+      3
+     ],
+     "value": 20.0
+    },
+    {
+     "type": "Distance",
+     "args": [
+      1,
+      1,
+      0,
+      3
+     ],
+     "value": 18.0
+    },
+    {
+     "type": "Angle",
+     "args": [
+      1
+     ],
+     "value": 0.174533
+    },
+    {
+     "type": "Distance",
+     "args": [
+      2,
+      1,
+      0,
+      3
+     ],
+     "value": 8.0
+    }
+   ],
+   "message": {
+    "status": "Under-constrained: ",
+    "link": "2 Degrees of Freedom"
+   },
+   "ovp": [
+    {
+     "text": "25.53 mm",
+     "focus": false
+    },
+    {
+     "text": "10.55 mm",
+     "focus": true
+    }
+   ]
+  },
+  "ovp-arc-of-ellipse-minor-first": {
+   "geometry": [
+    {
+     "type": "ArcOfEllipse",
+     "center": [
+      20.031055452475574,
+      19.999999999400185
+     ],
+     "major_radius": 14.0,
+     "minor_radius": 6.000000000000001,
+     "x_axis": [
+      -0.4472134576803162,
+      0.8944272599097235
+     ],
+     "start_angle": 5.2429606302803595,
+     "end_angle": 7.851336230082147
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      13.77006704495115,
+      32.52198163813632
+     ],
+     "end": [
+      26.29204386,
+      7.478018360664059
+     ],
+     "construction": true
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      14.664491893017233,
+      17.31671925331829
+     ],
+     "end": [
+      25.397619011933916,
+      22.683280745482083
+     ],
+     "construction": true
+    },
+    {
+     "type": "Point",
+     "at": [
+      14.374202946279091,
+      31.313709370032726
+     ],
+     "construction": true
+    },
+    {
+     "type": "Point",
+     "at": [
+      25.68790795867206,
+      8.686290628767646
+     ],
+     "construction": true
+    }
+   ],
+   "constraints": [
+    {
+     "type": "InternalAlignment:EllipseMajorDiameter",
+     "args": [
+      1,
+      0
+     ]
+    },
+    {
+     "type": "InternalAlignment:EllipseMinorDiameter",
+     "args": [
+      2,
+      0
+     ]
+    },
+    {
+     "type": "InternalAlignment:EllipseFocus1",
+     "args": [
+      3,
+      1,
+      0
+     ]
+    },
+    {
+     "type": "InternalAlignment:EllipseFocus2",
+     "args": [
+      4,
+      1,
+      0
+     ]
+    },
+    {
+     "type": "Distance",
+     "args": [
+      1,
+      1,
+      0,
+      3
+     ],
+     "value": 14.0
+    },
+    {
+     "type": "Distance",
+     "args": [
+      2,
+      1,
+      0,
+      3
+     ],
+     "value": 6.0
+    }
+   ],
+   "message": {
+    "status": "Under-constrained: ",
+    "link": "5 Degrees of Freedom"
+   }
+  },
+  "ovp-arc-of-ellipse-show": {
+   "geometry": [],
+   "constraints": [],
+   "message": {
+    "status": "Empty sketch",
+    "link": ""
+   },
+   "ovp": [
+    {
+     "text": "52.26°",
+     "focus": false
+    },
+    {
+     "text": "10.68 mm",
+     "focus": true
+    }
+   ]
+  },
+  "ovp-arc-of-hyperbola": {
+   "geometry": [
+    {
+     "type": "ArcOfHyperbola",
+     "center": [
+      9.93788815,
+      11.925472840895178
+     ],
+     "major_radius": 10.000000000000814,
+     "minor_radius": 5.999999999999998,
+     "x_axis": [
+      0.99999999999994,
+      -3.464102066234619e-07
+     ],
+     "start_angle": -0.800000207846124,
+     "end_angle": 0.7999997921538761
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      19.93788815,
+      11.925469376793114
+     ],
+     "end": [
+      -0.06211185000000086,
+      11.925476304997245
+     ],
+     "construction": true
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      19.93789022846124,
+      17.92546937679311
+     ],
+     "end": [
+      19.93788607153876,
+      5.925469376793114
+     ],
+     "construction": true
+    },
+    {
+     "type": "Point",
+     "at": [
+      21.599791939690597,
+      11.925468801092677
+     ],
+     "construction": true
+    }
+   ],
+   "constraints": [
+    {
+     "type": "InternalAlignment:HyperbolaMajor",
+     "args": [
+      1,
+      0
+     ]
+    },
+    {
+     "type": "InternalAlignment:HyperbolaMinor",
+     "args": [
+      2,
+      0
+     ]
+    },
+    {
+     "type": "InternalAlignment:HyperbolaFocus",
+     "args": [
+      3,
+      1,
+      0
+     ]
+    },
+    {
+     "type": "Distance",
+     "args": [
+      0,
+      3,
+      1,
+      1
+     ],
+     "value": 10.0
+    },
+    {
+     "type": "Angle",
+     "args": [
+      1
+     ],
+     "value": -3.141593
+    },
+    {
+     "type": "Distance",
+     "args": [
+      1,
+      1,
+      2,
+      1
+     ],
+     "value": 6.0
+    }
+   ],
+   "message": {
+    "status": "Under-constrained: ",
+    "link": "4 Degrees of Freedom"
+   }
+  },
+  "ovp-arc-of-hyperbola-show": {
+   "geometry": [],
+   "constraints": [],
+   "message": {
+    "status": "Empty sketch",
+    "link": ""
+   },
+   "ovp": [
+    {
+     "text": "1.37",
+     "focus": false
+    },
+    {
+     "text": "5.49 mm",
+     "focus": true
+    }
+   ]
+  },
+  "ovp-arc-of-hyperbola-end": {
+   "geometry": [],
+   "constraints": [],
+   "message": {
+    "status": "Empty sketch",
+    "link": ""
+   },
+   "ovp": [
+    {
+     "text": "-2.39",
+     "focus": true
+    }
+   ]
+  },
+  "ovp-arc-of-parabola": {
+   "geometry": [
+    {
+     "type": "ArcOfParabola",
+     "center": [
+      12.0,
+      20.0
+     ],
+     "focal": 10.0,
+     "x_axis": [
+      1.0,
+      0.0
+     ],
+     "start_angle": -11.95652199,
+     "end_angle": 11.0
+    },
+    {
+     "type": "Point",
+     "at": [
+      22.0,
+      20.0
+     ],
+     "construction": true
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      12.0,
+      20.0
+     ],
+     "end": [
+      22.0,
+      20.0
+     ],
+     "construction": true
+    }
+   ],
+   "constraints": [
+    {
+     "type": "InternalAlignment:ParabolaFocus",
+     "args": [
+      1,
+      1,
+      0
+     ]
+    },
+    {
+     "type": "InternalAlignment:ParabolaFocalAxis",
+     "args": [
+      2,
+      0
+     ]
+    },
+    {
+     "type": "DistanceX",
+     "args": [
+      1,
+      3
+     ],
+     "value": 22.0
+    },
+    {
+     "type": "DistanceY",
+     "args": [
+      1,
+      3
+     ],
+     "value": 20.0
+    },
+    {
+     "type": "Distance",
+     "args": [
+      2,
+      1,
+      2,
+      2
+     ],
+     "value": 10.0
+    },
+    {
+     "type": "Angle",
+     "args": [
+      2
+     ],
+     "value": 0.0
+    }
+   ],
+   "message": {
+    "status": "Under-constrained: ",
+    "link": "2 Degrees of Freedom"
+   },
+   "ovp": [
+    {
+     "text": "8.98 mm",
+     "focus": false
+    },
+    {
+     "text": "18.01 mm",
+     "focus": true
+    }
+   ]
+  },
+  "ovp-arc-of-parabola-show": {
+   "geometry": [],
+   "constraints": [],
+   "message": {
+    "status": "Empty sketch",
+    "link": ""
+   },
+   "ovp": [
+    {
+     "text": "-22.98",
+     "focus": true
+    }
+   ]
+  },
+  "fillet-widget-corner": {
+   "geometry": [
+    {
+     "type": "LineSegment",
+     "start": [
+      14.273493198229968,
+      10.0
+     ],
+     "end": [
+      45.0,
+      10.0
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      10.6043632039646,
+      14.230542427752196
+     ],
+     "end": [
+      14.0,
+      38.0
+     ]
+    },
+    {
+     "type": "ArcOfCircle",
+     "center": [
+      14.273493198229968,
+      13.706381
+     ],
+     "radius": 3.706381,
+     "start_angle": 2.999695598985629,
+     "end_angle": 4.71238898038469
+    }
+   ],
+   "constraints": [
+    {
+     "type": "Tangent",
+     "args": [
+      1,
+      1,
+      2,
+      1
+     ]
+    },
+    {
+     "type": "Tangent",
+     "args": [
+      0,
+      1,
+      2,
+      2
+     ]
+    }
+   ],
+   "message": {
+    "status": "Under-constrained: ",
+    "link": "7 Degrees of Freedom"
+   },
+   "tool_widget": {
+    "title": "Fillet/Chamfer Parameters",
+    "controls": [
+     {
+      "name": "comboBox1",
+      "items": [
+       "Fillet",
+       "Chamfer"
+      ],
+      "index": 0
+     },
+     {
+      "name": "checkBoxTS1",
+      "text": "Preserve corner (U)",
+      "checked": false
+     }
+    ]
+   }
+  },
+  "fillet-u-key": {
+   "geometry": [
+    {
+     "type": "LineSegment",
+     "start": [
+      26.767153350033375,
+      10.0
+     ],
+     "end": [
+      45.0,
+      10.0
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      12.37123356700067,
+      26.598634969004678
+     ],
+     "end": [
+      14.0,
+      38.0
+     ]
+    },
+    {
+     "type": "ArcOfCircle",
+     "center": [
+      26.76715335003338,
+      24.542075
+     ],
+     "radius": 14.542075,
+     "start_angle": 2.999695598985629,
+     "end_angle": 4.71238898038469
+    }
+   ],
+   "constraints": [
+    {
+     "type": "Tangent",
+     "args": [
+      0,
+      1,
+      2,
+      2
+     ]
+    },
+    {
+     "type": "Tangent",
+     "args": [
+      1,
+      1,
+      2,
+      1
+     ]
+    }
+   ],
+   "message": {
+    "status": "Under-constrained: ",
+    "link": "7 Degrees of Freedom"
+   },
+   "tool_widget": {
+    "title": "Fillet/Chamfer Parameters",
+    "controls": [
+     {
+      "name": "comboBox1",
+      "items": [
+       "Fillet",
+       "Chamfer"
+      ],
+      "index": 0
+     },
+     {
+      "name": "checkBoxTS1",
+      "text": "Preserve corner (U)",
+      "checked": false
+     }
+    ]
+   }
+  },
+  "fillet-combo-chamfer": {
+   "geometry": [
+    {
+     "type": "LineSegment",
+     "start": [
+      10.0,
+      10.0
+     ],
+     "end": [
+      14.273493198229968,
+      10.0
+     ],
+     "construction": true
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      10.0,
+      10.0
+     ],
+     "end": [
+      10.6043632039646,
+      14.230542427752196
+     ],
+     "construction": true
+    },
+    {
+     "type": "ArcOfCircle",
+     "center": [
+      14.273493198229968,
+      13.706381
+     ],
+     "radius": 3.706381,
+     "start_angle": 2.999695598985629,
+     "end_angle": 4.71238898038469,
+     "construction": true
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      10.6043632039646,
+      14.230542427752196
+     ],
+     "end": [
+      14.0,
+      38.0
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      14.273493198229968,
+      10.0
+     ],
+     "end": [
+      45.0,
+      10.0
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      10.6043632039646,
+      14.230542427752196
+     ],
+     "end": [
+      14.273493198229968,
+      10.0
+     ]
+    }
+   ],
+   "constraints": [
+    {
+     "type": "Coincident",
+     "args": [
+      0,
+      1,
+      1,
+      1
+     ]
+    },
+    {
+     "type": "Tangent",
+     "args": [
+      1,
+      2,
+      3,
+      1
+     ]
+    },
+    {
+     "type": "Tangent",
+     "args": [
+      0,
+      2,
+      4,
+      1
+     ]
+    },
+    {
+     "type": "Tangent",
+     "args": [
+      3,
+      1,
+      2,
+      1
+     ]
+    },
+    {
+     "type": "Tangent",
+     "args": [
+      4,
+      1,
+      2,
+      2
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      5,
+      1,
+      3,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      5,
+      2,
+      4,
+      1
+     ]
+    }
+   ],
+   "message": {
+    "status": "Under-constrained: ",
+    "link": "7 Degrees of Freedom"
+   },
+   "tool_widget": {
+    "title": "Fillet/Chamfer Parameters",
+    "controls": [
+     {
+      "name": "comboBox1",
+      "items": [
+       "Fillet",
+       "Chamfer"
+      ],
+      "index": 1
+     },
+     {
+      "name": "checkBoxTS1",
+      "text": "Preserve corner (U)",
+      "checked": true
+     }
+    ]
+   }
+  },
+  "chamfer-m-key": {
+   "geometry": [
+    {
+     "type": "LineSegment",
+     "start": [
+      10.0,
+      10.0
+     ],
+     "end": [
+      14.273493198229968,
+      10.0
+     ],
+     "construction": true
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      10.0,
+      10.0
+     ],
+     "end": [
+      10.6043632039646,
+      14.230542427752196
+     ],
+     "construction": true
+    },
+    {
+     "type": "ArcOfCircle",
+     "center": [
+      14.273493198229968,
+      13.706381
+     ],
+     "radius": 3.706381,
+     "start_angle": 2.999695598985629,
+     "end_angle": 4.71238898038469
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      10.6043632039646,
+      14.230542427752196
+     ],
+     "end": [
+      14.0,
+      38.0
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      14.273493198229968,
+      10.0
+     ],
+     "end": [
+      45.0,
+      10.0
+     ]
+    }
+   ],
+   "constraints": [
+    {
+     "type": "Coincident",
+     "args": [
+      0,
+      1,
+      1,
+      1
+     ]
+    },
+    {
+     "type": "Tangent",
+     "args": [
+      1,
+      2,
+      3,
+      1
+     ]
+    },
+    {
+     "type": "Tangent",
+     "args": [
+      0,
+      2,
+      4,
+      1
+     ]
+    },
+    {
+     "type": "Tangent",
+     "args": [
+      3,
+      1,
+      2,
+      1
+     ]
+    },
+    {
+     "type": "Tangent",
+     "args": [
+      4,
+      1,
+      2,
+      2
+     ]
+    }
+   ],
+   "message": {
+    "status": "Under-constrained: ",
+    "link": "7 Degrees of Freedom"
+   },
+   "tool_widget": {
+    "title": "Fillet/Chamfer Parameters",
+    "controls": [
+     {
+      "name": "comboBox1",
+      "items": [
+       "Fillet",
+       "Chamfer"
+      ],
+      "index": 0
+     },
+     {
+      "name": "checkBoxTS1",
+      "text": "Preserve corner (U)",
+      "checked": true
+     }
+    ]
+   }
+  },
+  "trim-widget-axes": {
+   "geometry": [
+    {
+     "type": "LineSegment",
+     "start": [
+      -1.7763568394002505e-15,
+      11.142857142857142
+     ],
+     "end": [
+      30.0,
+      14.0
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      15.0,
+      0.0
+     ],
+     "end": [
+      18.0,
+      40.0
+     ]
+    }
+   ],
+   "constraints": [
+    {
+     "type": "PointOnObject",
+     "args": [
+      0,
+      1,
+      -2
+     ]
+    }
+   ],
+   "message": {
+    "status": "Under-constrained: ",
+    "link": "7 Degrees of Freedom"
+   },
+   "tool_widget": {
+    "title": "Trimming Parameters",
+    "controls": [
+     {
+      "name": "checkBoxTS1",
+      "text": "Include axes (U)",
+      "checked": true
+     }
+    ]
+   }
+  },
+  "trim-u-key": {
+   "geometry": [
+    {
+     "type": "LineSegment",
+     "start": [
+      -12.0,
+      10.0
+     ],
+     "end": [
+      -1.7763568394002505e-15,
+      11.142857142857142
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      15.0,
+      0.0
+     ],
+     "end": [
+      18.0,
+      40.0
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      15.949640287769778,
+      12.661870503597122
+     ],
+     "end": [
+      30.0,
+      14.0
+     ]
+    }
+   ],
+   "constraints": [
+    {
+     "type": "PointOnObject",
+     "args": [
+      0,
+      2,
+      -2
+     ]
+    },
+    {
+     "type": "PointOnObject",
+     "args": [
+      2,
+      1,
+      1
+     ]
+    }
+   ],
+   "message": {
+    "status": "Under-constrained: ",
+    "link": "10 Degrees of Freedom"
+   },
+   "tool_widget": {
+    "title": "Trimming Parameters",
+    "controls": [
+     {
+      "name": "checkBoxTS1",
+      "text": "Include axes (U)",
+      "checked": true
+     }
+    ]
+   }
+  }
+ }
+}

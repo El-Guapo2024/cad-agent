@@ -5,6 +5,7 @@
 //   src/Mod/Sketcher/Gui/DrawSketchHandlerSplitting.h: 2022 Abdullah Tahiri
 //   src/Mod/Sketcher/Gui/DrawSketchHandlerExtend.h: 2022 Abdullah Tahiri
 //   src/Mod/Sketcher/Gui/DrawSketchHandlerFillet.h: 2022 Abdullah Tahiri
+//   src/Mod/Sketcher/Gui/DrawSketchDefaultWidgetController.h: 2023 Abdullah Tahiri
 // The Sketcher's editing tools: Trim (Sketcher_Trimming: the piece under the cursor between its cuts goes, hold the
 // button and drag to trim several, U for the axes as cuts), Split (Sketcher_Split), Extend (Sketcher_Extend: pick a
 // line or an arc, then where its end goes) and Fillet / Chamfer (Sketcher_CreateFillet, Sketcher_CreateChamfer: two
@@ -16,6 +17,7 @@ import { type PointPos, NONE, START, END, GEO_UNDEF } from './sketch'
 import * as S from './sketcher'
 import * as OPS from './sketchops'
 import { DefaultHandler, DrawSketchHandler, type AutoConstraint } from './sketchtools'
+import type { Controller, OvpSpec } from './sketchovp'
 import { report } from './store'
 
 const LMB = 'LMB'
@@ -52,10 +54,6 @@ export class TrimmingHandler extends DefaultHandler {
   hints() { return [this.hint('%1 pick edge to trim', [LMB]), this.hint('%1 toggle include axes as trim boundaries', ['U'])] }
   pressButton(p: XY) { this.mousePressed = true; return super.pressButton(p) }
   releaseButton(_p: XY) { this.mousePressed = false; return true }
-  registerPressedKey(pressed: boolean, key: string): boolean {
-    if (key === 'U' && !pressed) { this.includeAxes = !this.includeAxes; return true }
-    return super.registerPressedKey(pressed, key)
-  }
   protected update(p: XY) {
     this.trimPos = p
     this.geoIdToTrim = preselectedCurve(trimmable)
@@ -82,6 +80,19 @@ export class TrimmingHandler extends DefaultHandler {
     S.clearSelection()
     S.solve()
   }
+  // DSHTrimmingController: the Tool Parameters box with one check box, the axes as cuts (U)
+  isWidgetVisible() { return true }
+  toolWidgetText() { return 'Trimming Parameters' }
+  toolIcon() { return 'Sketcher_Trimming' }
+  ovpSpec(): OvpSpec { return { ovps: 0, widget: { parameters: 0, checkboxes: 1, comboboxes: 0, lineEdits: 0 }, firstComboIsMethod: false } }
+  configureToolWidget(c: Controller) {
+    if (!c.init) {
+      c.setCheckboxLabel(0, 'Include axes (U)')
+      c.setCheckboxToolTip(0, 'Include axes as trim boundaries')
+    }
+    c.syncCheckboxToHandler(0, this.includeAxes)
+  }
+  adaptDrawingToCheckboxChange(_c: Controller, i: number, v: boolean) { if (i === 0) this.includeAxes = v; this.updateCursor() }
 }
 
 // ── Split (DrawSketchHandlerSplitting.h) ─────────────────────────────────────────────────────────────────────────
@@ -217,11 +228,6 @@ export class FilletHandler extends DefaultHandler {
     const sw = this.hint('%1 switch mode', ['M']), pc = this.hint('%1 toggle preserve corner', ['U'])
     return [this.hint(this.state === 0 ? '%1 pick first edge or point' : '%1 pick second edge', [LMB]), sw, pc]
   }
-  registerPressedKey(pressed: boolean, key: string): boolean {
-    if (key === 'U' && !pressed) { this.preserveCorner = !this.preserveCorner; S.applyCursor(); return true }
-    return super.registerPressedKey(pressed, key)
-  }
-  protected resetOnMethodChange() { return false }
   protected update(p: XY) {
     const pre = S.getPreselection()
     if (this.state === 0) {
@@ -291,5 +297,22 @@ export class FilletHandler extends DefaultHandler {
   protected generateAutoConstraints() {}
   protected createAutoConstraints() {}
   protected onReset() { this.vtId = -1; this.geoId1 = GEO_UNDEF; this.geoId2 = GEO_UNDEF }
+  // DSHFilletController: the Tool Parameters box with the construction method's combo box (fillet or chamfer) and one
+  // check box, the corner kept (U)
+  isWidgetVisible() { return true }
+  toolWidgetText() { return 'Fillet/Chamfer Parameters' }
+  toolIcon() { return 'Sketcher_CreateFillet' }
+  ovpSpec(): OvpSpec { return { ovps: 0, widget: { parameters: 0, checkboxes: 1, comboboxes: 1, lineEdits: 0 }, firstComboIsMethod: true } }
+  configureToolWidget(c: Controller) {
+    if (!c.init) {
+      c.setComboboxElements(0, ['Fillet', 'Chamfer'])
+      c.setComboboxItemIcon(0, 0, 'Sketcher_CreateFillet'); c.setComboboxItemIcon(0, 1, 'Sketcher_CreateChamfer')
+      c.setCheckboxLabel(0, 'Preserve corner (U)')
+      c.setCheckboxToolTip(0, 'Preserves intersection point and most constraints')
+      c.setCheckboxIcon(0, 'Sketcher_CreatePointFillet')
+    }
+    c.syncCheckboxToHandler(0, this.preserveCorner)
+  }
+  adaptDrawingToCheckboxChange(_c: Controller, i: number, v: boolean) { if (i === 0) this.preserveCorner = v; this.updateCursor() }
 }
 void NONE

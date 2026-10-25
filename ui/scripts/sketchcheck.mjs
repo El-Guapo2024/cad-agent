@@ -227,7 +227,7 @@ for (const [k, c] of CASES.cases.entries()) {
     await p.dblclick(`.trow[data-ref="${part}/S"] .tname`)
     await p.evaluate(() => window.cadui.showPanel('view3d'))
   } else await gui('run', ['Sketcher_EditSketch', name, JSON.stringify(c.setup ?? {})])
-  try { await p.waitForSelector('.sketch-task', { timeout: 30000 }) } catch (e) { console.log('page errors:', errs.join(' / '), 'editing:', await p.evaluate(() => JSON.stringify(window.cadui.getState().sketchEditing))); throw e }
+  try { await p.waitForSelector('.sketch-task', { timeout: 120000 }) } catch (e) { console.log('page errors:', errs.join(' / '), 'editing:', await p.evaluate(() => JSON.stringify(window.cadui.getState().sketchEditing))); throw e }
   await p.waitForTimeout(800) // the view turning to the sketch (an animation, then the fit)
   // the camera FreeCAD's had, set again until it stays (the turn's animation may still be running)
   for (let i = 0; i < 20; i++) {

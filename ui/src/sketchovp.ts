@@ -30,7 +30,7 @@ import * as SK from './sketch'
 const PARAM_DEFAULTS: Record<string, number | boolean> = {
   'Mod/Sketcher/Tools/OnViewParameterVisibility': 1,
   'Mod/Sketcher/ContinuousCreationMode': true,
-  'Mod/Sketcher/General/ShowCursorCoords': true,
+  'Mod/Sketcher/ShowCursorCoords': true,
 }
 export function sketcherParam<T extends number | boolean>(path: string, d?: T): T {
   const all = saved.get<Record<string, number | boolean>>('sketcherParams', {})
@@ -53,8 +53,9 @@ export const ovpVisibilityPref = () => sketcherParam<number>('Mod/Sketcher/Tools
 export type LabelType = 'DISTANCE' | 'DISTANCEX' | 'DISTANCEY' | 'RADIUS' | 'DIAMETER' | 'ANGLE'
 /** EditableDatumLabel::Function: a coordinate (Positioning), a dimension (Dimensioning), always shown (Forced). */
 export type LabelFunction = 'Positioning' | 'Dimensioning' | 'Forced'
-export type Unit = 'Length' | 'Angle'
-const DIMS: Record<Unit, Dims> = { Length: [1, 0, 0, 0, 0, 0, 0, 0], Angle: [0, 0, 0, 0, 0, 0, 0, 1] }
+/** Base::Unit: Length, Angle, or One (a number without a unit, as a hyperbola's or parabola's parameter). */
+export type Unit = 'Length' | 'Angle' | 'One'
+const DIMS: Record<Unit, Dims> = { Length: [1, 0, 0, 0, 0, 0, 0, 0], Angle: [0, 0, 0, 0, 0, 0, 0, 1], One: [0, 0, 0, 0, 0, 0, 0, 0] }
 const CONFUSION = 1e-7
 
 /** The labels shown now (an active label is drawn; one in edit has its box), for the drawing and the checks. */
