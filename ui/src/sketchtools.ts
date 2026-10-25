@@ -652,17 +652,17 @@ export abstract class DefaultHandler extends DrawSketchHandler implements OvpToo
   /** drawDirectionAtCursor, drawWidthHeightAtCursor and drawDoubleAtCursor: only while the on-view parameters are
    *  off (the controller's check them; ShowCursorCoords). The length and angle as lengthToDisplayFormat writes them. */
   drawDirectionAtCursor(p: XY, origin: XY) {
-    if (!sketcherParam<boolean>('Mod/Sketcher/General/ShowCursorCoords')) return
+    if (!sketcherParam<boolean>('Mod/Sketcher/ShowCursorCoords')) return
     const d = sub(p, origin), angle = getAngle(d, [1, 0])
     S.setEdit({ positionText: { at: p, text: ` (${S.lengthString(len(d))}, ${S.angleString((angle * 180) / Math.PI)})` } })
   }
   drawWidthHeightAtCursor(p: XY, a: number, b: number) {
-    if (!sketcherParam<boolean>('Mod/Sketcher/General/ShowCursorCoords')) return
+    if (!sketcherParam<boolean>('Mod/Sketcher/ShowCursorCoords')) return
     S.setEdit({ positionText: { at: p, text: ` (${S.lengthString(a)} x ${S.lengthString(b)})` } })
   }
-  drawDoubleAtCursor(p: XY, v: number, unit: 'Length' | 'Angle' = 'Length') {
-    if (!sketcherParam<boolean>('Mod/Sketcher/General/ShowCursorCoords')) return
-    S.setEdit({ positionText: { at: p, text: ` (${unit === 'Length' ? S.lengthString(v) : S.angleString((v * 180) / Math.PI)})` } })
+  drawDoubleAtCursor(p: XY, v: number, unit: 'Length' | 'Angle' | 'One' = 'Length') {
+    if (!sketcherParam<boolean>('Mod/Sketcher/ShowCursorCoords')) return
+    S.setEdit({ positionText: { at: p, text: ` (${unit === 'Length' ? S.lengthString(v) : unit === 'Angle' ? S.angleString((v * 180) / Math.PI) : String(v)})` } })
   }
   protected clearCursorText() { S.setEdit({ positionText: null }) }
   hint(message: string, keys: string[]) { return { message, keys } }

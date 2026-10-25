@@ -110,7 +110,7 @@ them carry.
   triplus @ FreeCAD: Mod/Tux/NavigationIndicatorGui.py
   Victor Titov (DeepSOIC): Gui/Navigation/GestureNavigationStyle.cpp,
       Gui/Navigation/MayaGestureNavigationStyle.cpp, Gui/SoTouchEvents.cpp, Mod/Part/App/AttachExtension.cpp,
-      Mod/Part/App/Attacher.cpp, Mod/Part/Gui/AttacherTexts.cpp,
+      Mod/Part/App/Attacher.cpp, Mod/Part/Gui/AttacherTexts.cpp, Mod/Sketcher/Gui/AppSketcherGui.cpp,
       Mod/Show/mTempoVis.py
   WandererFan: Mod/Measure/App/Preferences.cpp
   Werner Mayer: Base/Rotation.cpp, Base/Tools.h, Base/VectorPyImp.cpp, Gui/Action.cpp,
@@ -136,7 +136,7 @@ them carry.
       Mod/Part/Gui/SoBrepFaceSet.cpp,
       Mod/PartDesign/Gui/SketchWorkflow.cpp, Mod/PartDesign/Gui/TaskExtrudeParameters.cpp,
       Mod/PartDesign/Gui/Workbench.cpp, Mod/Sketcher/Gui/EditDatumDialog.cpp,
-      Mod/Sketcher/Gui/SoZoomTranslation.cpp,
+      Mod/Sketcher/Gui/SoZoomTranslation.cpp, Mod/Sketcher/Gui/SketcherSettings.cpp,
       Base/Tools.cpp
   Zheng Lei (realthunder): Gui/ViewParams.cpp, Gui/CommandCompleter.cpp, Gui/CommandLink.cpp, Gui/OverlayManager.cpp,
       Gui/OverlayParams.py, Gui/OverlayWidgets.cpp, Gui/OverlayWidgets.h,
@@ -913,6 +913,9 @@ src/Mod/Sketcher/App/SketchObjectPyImp.cpp   [licence: LGPL-2.1-or-later]
 src/Mod/Sketcher/App/planegcs/Geo.cpp   [licence: LGPL-2.1-or-later]
     copyright 2014 Victor Titov (DeepSOIC)
     followed by src/sketchcurves.ts
+src/Mod/Sketcher/Gui/AppSketcherGui.cpp   [licence: LGPL-2.1-or-later]
+    copyright 2008 Jürgen Riegel
+    followed by src/prefs-sketcher.tsx
 src/Mod/Sketcher/Gui/Command.cpp   [licence: LGPL-2.1-or-later]
     copyright 2008 Jürgen Riegel
     followed by src/cmdreg.ts, src/fctips.ts, src/sketchcmdinfo.ts, src/sketchcmds.ts,
@@ -947,7 +950,7 @@ src/Mod/Sketcher/Gui/DrawSketchDefaultHandler.h   [licence: LGPL-2.1-or-later]
     followed by src/sketchgeo.ts
 src/Mod/Sketcher/Gui/DrawSketchDefaultWidgetController.h   [licence: LGPL-2.1-or-later]
     copyright 2023 Abdullah Tahiri
-    followed by src/sketchovp.ts
+    followed by src/sketchedit.ts, src/sketchgeo.ts, src/sketchovp.ts
 src/Mod/Sketcher/Gui/DrawSketchHandler.cpp   [licence: LGPL-2.1-or-later]
     copyright 2010 Jürgen Riegel
     followed by src/sketchtools.ts
@@ -1056,6 +1059,21 @@ src/Mod/Sketcher/Gui/SketchRectangularArrayDialog.cpp   [licence: LGPL-2.1-or-la
 src/Mod/Sketcher/Gui/SketchRectangularArrayDialog.ui   [licence: none]
     copyright: no line in the file
     followed by src/sketchxformtools.tsx
+src/Mod/Sketcher/Gui/SketcherSettings.cpp   [licence: LGPL-2.1-or-later]
+    copyright 2014 Werner Mayer
+    followed by src/prefs-sketcher.tsx
+src/Mod/Sketcher/Gui/SketcherSettings.ui   [licence: none]
+    copyright: no line in the file
+    followed by src/prefs-sketcher.tsx, src/uiforms-sketcher.ts
+src/Mod/Sketcher/Gui/SketcherSettingsAppearance.ui   [licence: none]
+    copyright: no line in the file
+    followed by src/prefs-sketcher.tsx, src/uiforms-sketcher.ts
+src/Mod/Sketcher/Gui/SketcherSettingsDisplay.ui   [licence: none]
+    copyright: no line in the file
+    followed by src/prefs-sketcher.tsx, src/uiforms-sketcher.ts
+src/Mod/Sketcher/Gui/SketcherSettingsGrid.ui   [licence: none]
+    copyright: no line in the file
+    followed by src/prefs-sketcher.tsx, src/uiforms-sketcher.ts
 src/Mod/Sketcher/Gui/SketcherToolDefaultWidget.cpp   [licence: LGPL-2.1-or-later]
     copyright 2022 Pierre-Louis Boyer
     followed by src/sketchovp.ts, src/sketchtoolbox.tsx

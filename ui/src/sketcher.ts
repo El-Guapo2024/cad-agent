@@ -1021,8 +1021,9 @@ function doBoxSelection(a: [number, number], b: [number, number], additive: bool
 }
 
 // ── keys (ViewProviderSketch::keyPressed, ShortcutListener's Delete) ────────────────────────────────────────────
-/** Sketcher's LeaveSketchWithEscape (on): Esc with nothing going on closes the edit (TaskDlgEditSketch's escape button). */
-export const LEAVE_WITH_ESCAPE = true
+/** Sketcher's LeaveSketchWithEscape (on; the General page sets it): Esc with nothing going on closes the edit (TaskDlgEditSketch's
+ *  escape button). Read as sketchovp.ts's sketcherParam reads it (that module imports this one). */
+export const leaveWithEscape = () => saved.get<Record<string, unknown>>('sketcherParams', {})['Mod/Sketcher/LeaveSketchWithEscape'] !== false
 export function handleKey(e: KeyboardEvent, down: boolean): boolean {
   const s = session
   if (!s) return false
@@ -1034,7 +1035,7 @@ export function handleKey(e: KeyboardEvent, down: boolean): boolean {
     if (s.drag) { if (!down) { s.drag.drag?.end(); s.geometry = s.drag.start.geometry; s.drag = null; s.mode = 'none'; solve() } return true }
     if (!down) return true
     if (s.selection.length) { clearSelection(); return true }
-    if (LEAVE_WITH_ESCAPE) { void closeEdit(true); return true }
+    if (leaveWithEscape()) { void closeEdit(true); return true }
     return true
   }
   if (s.handler) {

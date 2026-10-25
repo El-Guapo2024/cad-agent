@@ -72,6 +72,7 @@ const DEFAULT_POL: Record<string, string> = {
 const base = (c: string) => c.replace(/^Gui::(Pref)?/, 'Q').replace(/^QColorButton$/, 'QPushButton').replace(/^QFileChooser$/, 'QLineEdit')
   .replace(/^QUnitSpinBox$|^QQuantitySpinBox$|^QUIntSpinBox$/, 'QSpinBox').replace(/^QAccelLineEdit$|^QModifierLineEdit$/, 'QLineEdit')
   .replace(/^QDoubleSpinBox$/, 'QDoubleSpinBox')
+  .replace(/^QFontBox$/, 'QComboBox') // Gui::PrefFontBox is a QFontComboBox
 const polOf = (w: UiWidget) => w.fc?.pol ?? DEFAULT_POL[base(w.c)] ?? 'PP'
 /** Can it grow beyond its hint? (Preferred, Minimum, Expanding, MinimumExpanding, Ignored: yes. Fixed, Maximum: no.) */
 const grows = (p: string) => 'PmEXI'.includes(p)

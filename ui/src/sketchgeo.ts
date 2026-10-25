@@ -7,22 +7,31 @@
 //   src/Mod/Sketcher/Gui/DrawSketchHandlerArcOfParabola.h: 2022 Abdullah Tahiri
 //   src/Mod/Sketcher/Gui/DrawSketchHandlerBSpline.h: 2022 Abdullah Tahiri
 //   src/Mod/Sketcher/Gui/DrawSketchDefaultHandler.h: 2022 Abdullah Tahiri
+//   src/Mod/Sketcher/Gui/DrawSketchController.h: 2023 Abdullah Tahiri
+//   src/Mod/Sketcher/Gui/DrawSketchDefaultWidgetController.h: 2023 Abdullah Tahiri
 //   src/Mod/Sketcher/App/SketchObjectGeometry.cpp: 2008 Jürgen Riegel
 // The Sketcher's conic and B-spline tools: the ellipse by its centre or by its axis ends (Sketcher_CreateEllipseByCenter,
 // Sketcher_CreateEllipseBy3Points), the arcs of ellipse, hyperbola and parabola, and the B-spline by its control points,
 // open or periodic (Sketcher_CreateBSpline, Sketcher_CreatePeriodicBSpline), each making the geometry, the internal
-// geometry (exposeInternalGeometry) and the auto-constraints FreeCAD's tool makes for the same clicks.
+// geometry (exposeInternalGeometry) and the auto-constraints FreeCAD's tool makes for the same clicks; the conics' on-view
+// parameters (DSHEllipseController, with its Tool Parameters box, and the arcs' DrawSketchControllers) and the
+// constraints the values set make.
 import type { Geo, XY } from './solver'
 import * as SK from './sketch'
 import { type Constraint, type PointPos, NONE, START, END, MID, constraint, alignmentConstraint } from './sketch'
 import * as S from './sketcher'
 import * as CV from './sketchcurves'
 import { DefaultHandler, type AutoConstraint } from './sketchtools'
+import { type Controller, type OvpSpec, OVP, f6, constraintToAttachment, RT_PNT_ID, V_AXIS_ID, H_AXIS_ID } from './sketchovp'
 
 const CONFUSION = 1e-7, PCONFUSION = CONFUSION * 0.01
 const sub = (a: XY, b: XY): XY => [a[0] - b[0], a[1] - b[1]], add = (a: XY, b: XY): XY => [a[0] + b[0], a[1] + b[1]]
 const mul = (a: XY, k: number): XY => [a[0] * k, a[1] * k], len = (a: XY) => Math.hypot(a[0], a[1])
 const dot = (a: XY, b: XY) => a[0] * b[0] + a[1] * b[1]
+/** Base::Vector2d::Angle. */
+const angleOf = (a: XY) => Math.atan2(a[1], a[0])
+/** SketcherGui::areCollinear. */
+const areCollinear = (a: XY, b: XY, c: XY) => Math.abs((b[0] - a[0]) * (c[1] - a[1]) - (b[1] - a[1]) * (c[0] - a[0])) < CONFUSION
 const normalize = (a: XY): XY => { const l = len(a); return l ? [a[0] / l, a[1] / l] : [0, 0] }
 /** Base::Vector2d::Rotate(π/2). */
 const perp = (a: XY): XY => [-a[1], a[0]]
@@ -77,11 +86,19 @@ export function exposeInternalGeometry(geoId: number): number {
   return ex.geometry.length
 }
 
+/** Each constraint a controller's addConstraints adds is a Python addConstraint, which solves the sketch at once
+ *  (SketchObjectPy::addConstraint): the next one is added to the geometry as that solve left it. */
+const addSolved = (c: Constraint) => { S.addConstraint(c); S.solve() }
+const attachSolved = (...a: Parameters<typeof constraintToAttachment>) => { constraintToAttachment(...a); S.solve() }
+
 // ── Ellipse (DrawSketchHandlerEllipse.h): Center, then ThreeRim ("Axis endpoints") ──────────────────────────────
+/** DSHEllipseController: a DrawSketchDefaultWidgetController with the construction method's combo box; the centre's X
+ *  and Y, the first radius and its angle, then the second radius (Center); or the three rim points' X and Y (ThreeRim). */
 export class EllipseHandler extends DefaultHandler {
   readonly toolName = 'DSH_Ellipse'
   protected readonly states = 3
   protected readonly methods = 2
+  protected readonly autoConstraintSize = 3
   private centerPoint: XY = [0, 0]; private periapsis: XY = [0, 0]; private apoapsis: XY = [0, 0]
   private firstAxis: XY = [0, 0]; private secondAxis: XY = [0, 0]
   private firstRadius = 0; private secondRadius = 0; private majorRadius = 0; private minorRadius = 0
@@ -94,19 +111,19 @@ export class EllipseHandler extends DefaultHandler {
   }
   protected update(p: XY) {
     if (this.state === 0) {
-      this.drawPositionAtCursor(p)
+      this.ctl.drawPositionAtCursor(p)
       if (this.method === 0) { this.centerPoint = p; this.seekAndRender(this.sug[0], p, [0, 0]) }
       else { this.apoapsis = p; this.seekAndRender(this.sug[0], p, [0, 0], 'curve') }
     } else if (this.state === 1) {
       this.periapsis = p
       this.calculateMajorAxisParameters()
       this.drawShape()
-      if (this.method === 0) this.clearCursorText(); else this.drawPositionAtCursor(p)
+      if (this.method === 0) this.ctl.drawDoubleAtCursor(p, this.firstRadius); else this.ctl.drawPositionAtCursor(p)
       this.seekAndRender(this.sug[1], p, [0, 0], 'curve')
     } else if (this.state === 2) {
       this.calculateThroughPointMinorAxisParameters(p)
       this.drawShape()
-      if (this.method === 0) this.clearCursorText(); else this.drawPositionAtCursor(p)
+      if (this.method === 0) this.ctl.drawWidthHeightAtCursor(p, this.firstRadius, this.secondRadius); else this.ctl.drawPositionAtCursor(p)
       this.seekAndRender(this.sug[2], p, [0, 0], 'curve')
     }
   }
@@ -163,14 +180,137 @@ export class EllipseHandler extends DefaultHandler {
     this.removeRedundantAutoConstraints()
   }
   protected createAutoConstraints() { this.createGeneratedAutoConstraints(true); for (const s of this.sug.slice(0, 3)) s.length = 0 }
+  // the controller's specialisations
+  isWidgetVisible() { return true }
+  toolWidgetText() { return 'Ellipse Parameters' }
+  toolIcon() { return 'Sketcher_CreateEllipseByCenter' }
+  ovpSpec(): OvpSpec { return { ovps: this.method === 0 ? 5 : 6, widget: { parameters: 0, checkboxes: 0, comboboxes: 1, lineEdits: 0 }, firstComboIsMethod: true } }
+  ovpState(i: number) { return i < 2 ? 0 : i < 4 ? 1 : 2 }
+  configureToolWidget(c: Controller) {
+    if (!c.init) {
+      c.setComboboxElements(0, ['Center', 'Axis endpoints'])
+      const k = this.isConstructionMode() ? '_Constr' : ''
+      c.setComboboxItemIcon(0, 0, `Sketcher_CreateEllipseByCenter${k}`); c.setComboboxItemIcon(0, 1, `Sketcher_CreateEllipse_3points${k}`)
+    }
+    const o = c.onViewParameters
+    o[OVP.First].setLabelType('DISTANCEX'); o[OVP.Second].setLabelType('DISTANCEY')
+    if (this.method === 1) {
+      o[OVP.Third].setLabelType('DISTANCEX'); o[OVP.Fourth].setLabelType('DISTANCEY')
+      o[OVP.Fifth].setLabelType('DISTANCEX'); o[OVP.Sixth].setLabelType('DISTANCEY')
+    } else {
+      o[OVP.Third].setLabelType('RADIUS', 'Dimensioning'); o[OVP.Fourth].setLabelType('ANGLE', 'Dimensioning'); o[OVP.Fifth].setLabelType('RADIUS', 'Dimensioning')
+    }
+  }
+  doEnforceControlParameters(c: Controller, p: XY): XY {
+    const o = c.onViewParameters
+    let [x, y] = p
+    if (this.state === 0) {
+      if (o[OVP.First].isSet) x = o[OVP.First].getValue()
+      if (o[OVP.Second].isSet) y = o[OVP.Second].getValue()
+    } else if (this.state === 1) {
+      const third = o[OVP.Third], fourth = o[OVP.Fourth]
+      if (this.method === 0) {
+        let dir = sub([x, y], this.centerPoint)
+        if (len(dir) < CONFUSION) dir = [1, dir[1]] // if direction null, default to (1, 0)
+        let length = len(dir)
+        if (third.isSet) {
+          length = third.getValue()
+          if (length < CONFUSION && third.hasFinishedEditing) { c.unsetOnViewParameter(third); return [x, y] }
+          ;[x, y] = add(this.centerPoint, mul(normalize(dir), length))
+        }
+        if (fourth.isSet) { const a = (fourth.getValue() * Math.PI) / 180; x = this.centerPoint[0] + Math.cos(a) * length; y = this.centerPoint[1] + Math.sin(a) * length }
+      } else {
+        if (third.isSet) x = third.getValue()
+        if (fourth.isSet) y = fourth.getValue()
+        if (third.hasFinishedEditing && fourth.hasFinishedEditing && len(sub([x, y], this.apoapsis)) < CONFUSION) { c.unsetOnViewParameter(third); c.unsetOnViewParameter(fourth) }
+      }
+    } else if (this.state === 2) {
+      const fifth = o[OVP.Fifth]
+      if (this.method === 0) {
+        if (fifth.isSet) {
+          // (periapsis - centerPoint).Perpendicular(true): clockwise
+          const d = sub(this.periapsis, this.centerPoint)
+          ;[x, y] = add(this.centerPoint, mul(normalize([d[1], -d[0]]), fifth.getValue()))
+        }
+      } else {
+        const sixth = o[OVP.Sixth]
+        if (fifth.isSet) x = fifth.getValue()
+        if (sixth.isSet) y = sixth.getValue()
+        if (fifth.hasFinishedEditing && sixth.hasFinishedEditing && areCollinear(this.apoapsis, this.periapsis, [x, y])) { c.unsetOnViewParameter(fifth); c.unsetOnViewParameter(sixth) }
+      }
+    }
+    return [x, y]
+  }
+  adaptParameters(c: Controller, p: XY) {
+    const o = c.onViewParameters
+    const xy = (a: number, b: number) => {
+      if (!o[a].isSet) c.setOnViewParameterValue(a, p[0])
+      if (!o[b].isSet) c.setOnViewParameterValue(b, p[1])
+      const sameSign = p[0] * p[1] > 0
+      o[a].setLabelAutoDistanceReverse(!sameSign); o[b].setLabelAutoDistanceReverse(sameSign)
+      o[a].setPoints([0, 0], p); o[b].setPoints([0, 0], p)
+    }
+    if (this.state === 0) xy(OVP.First, OVP.Second)
+    else if (this.state === 1) {
+      if (this.method === 0) {
+        const vec = sub(p, this.centerPoint)
+        if (!o[OVP.Third].isSet) c.setOnViewParameterValue(OVP.Third, len(vec))
+        if (!o[OVP.Fourth].isSet) c.setOnViewParameterValue(OVP.Fourth, len(vec) > 0 ? (angleOf(vec) * 180) / Math.PI : 0, 'Angle')
+        o[OVP.Third].setPoints(this.centerPoint, p)
+        o[OVP.Fourth].setPoints(this.centerPoint, [0, 0])
+        o[OVP.Fourth].setLabelRange(angleOf(vec))
+      } else xy(OVP.Third, OVP.Fourth)
+    } else if (this.state === 2) {
+      if (this.method === 0) {
+        if (!o[OVP.Fifth].isSet) c.setOnViewParameterValue(OVP.Fifth, len(this.secondAxis))
+        o[OVP.Fifth].setPoints(this.centerPoint, add(this.centerPoint, this.secondAxis))
+      } else xy(OVP.Fifth, OVP.Sixth)
+    }
+  }
+  computeNextDrawSketchHandlerMode(c: Controller) {
+    const o = c.onViewParameters
+    if (this.state === 0) { if (o[OVP.First].hasFinishedEditing && o[OVP.Second].hasFinishedEditing) this.setNextState(1) }
+    else if (this.state === 1) { if (o[OVP.Third].hasFinishedEditing && o[OVP.Fourth].hasFinishedEditing) this.setNextState(2) }
+    else if (this.state === 2) {
+      if (this.method === 0) { if (o[OVP.Fifth].hasFinishedEditing) this.setNextState(this.states) }
+      else if (o[OVP.Fifth].hasFinishedEditing && o[OVP.Sixth].hasFinishedEditing) this.setNextState(this.states)
+    }
+  }
+  /** DSHEllipseController::addConstraints, before the auto-constraints are diagnosed (AutoConstraints is empty, so each
+   *  parameter set goes in): the centre's position, the first radius and its angle on the axis line it gave (the
+   *  internal major or minor axis), the second radius. No constraint for an ellipse by its axis ends. */
+  addConstraints(c: Controller) {
+    if (this.method !== 0) return
+    const o = c.onViewParameters
+    const x0set = o[OVP.First].isSet, y0set = o[OVP.Second].isSet
+    if (this.shapeGeometry[0]?.type === 'Ellipse') {
+      const firstCurve = this.ellipseGeoId
+      const x0 = o[OVP.First].getValue(), y0 = o[OVP.Second].getValue(), angle = (o[OVP.Fourth].getValue() * Math.PI) / 180
+      let firstLine = firstCurve + 1, secondLine = firstCurve + 2 // the major axis, then the minor
+      if (this.firstRadius < this.secondRadius) [firstLine, secondLine] = [secondLine, firstLine]
+      if (x0set) attachSolved([firstCurve, MID], V_AXIS_ID, x0)
+      if (y0set) attachSolved([firstCurve, MID], H_AXIS_ID, y0)
+      if (o[OVP.Third].isSet) addSolved(constraint('Distance', firstCurve, MID, firstLine, START, SK.GEO_UNDEF, NONE, f6(this.firstRadius)))
+      if (o[OVP.Fourth].isSet) addSolved(constraint('Angle', firstLine, NONE, SK.GEO_UNDEF, NONE, SK.GEO_UNDEF, NONE, f6(angle)))
+      if (o[OVP.Fifth].isSet) addSolved(constraint('Distance', firstCurve, MID, secondLine, START, SK.GEO_UNDEF, NONE, f6(this.secondRadius)))
+    } else { // it is a circle: its position from the widget's (unused) parameters, as FreeCAD's reads them
+      const firstCurve = S.highestCurveIndex()
+      if (x0set) attachSolved([firstCurve, MID], V_AXIS_ID, c.getParameter(OVP.First))
+      if (y0set) attachSolved([firstCurve, MID], H_AXIS_ID, c.getParameter(OVP.Second))
+      if (o[OVP.Third].isSet) addSolved(constraint('Radius', firstCurve, NONE, SK.GEO_UNDEF, NONE, SK.GEO_UNDEF, NONE, f6(this.firstRadius)))
+    }
+  }
 }
 
 // ── Arc of ellipse (DrawSketchHandlerArcOfEllipse.h) ─────────────────────────────────────────────────────────────
+/** DSHArcOfEllipseController: a DrawSketchController (no widget) with seven on-view parameters: the centre's X and Y,
+ *  the first radius and its angle, the second radius and the start angle, the arc's angle. */
 export class ArcOfEllipseHandler extends DefaultHandler {
   readonly toolName = 'DSH_ArcOfEllipse'
   protected readonly states = 4
+  protected readonly autoConstraintSize = 4
   private centerPoint: XY = [0, 0]; private axisPoint: XY = [0, 0]
-  private secondRadius = 0; private startAngle = 0; private arcAngle = 0; private valid = true
+  private secondRadius = 0; private startAngle = 0; private arcAngle = 0; private valid = true; private secondRadiusSet = false
   private ellipseGeoId = SK.GEO_UNDEF
   crosshair() { return 'Sketcher_Pointer_Create_ArcOfEllipse' }
   hints() { return [this.hint(['%1 pick ellipse center point', '%1 pick axis point', '%1 pick arc start point', '%1 pick arc end point'][Math.min(this.state, 3)], [LMB])] }
@@ -179,21 +319,23 @@ export class ArcOfEllipseHandler extends DefaultHandler {
   private secondAxis() { return perp(this.firstAxis()) }
   protected update(p: XY) {
     this.valid = true
-    if (this.state === 0) { this.centerPoint = p; this.drawPositionAtCursor(p); this.seekAndRender(this.sug[0], p, [0, 0]) }
+    if (this.state === 0) { this.centerPoint = p; this.ctl.drawPositionAtCursor(p); this.seekAndRender(this.sug[0], p, [0, 0]) }
     else if (this.state === 1) {
       this.axisPoint = p
       if (len(sub(this.axisPoint, this.centerPoint)) < CONFUSION) { this.valid = false; this.drawShape(); return }
-      this.clearCursorText()
+      this.ctl.drawDirectionAtCursor(p, this.centerPoint)
       this.seekAndRender(this.sug[1], p, sub(p, this.centerPoint), 'curve')
     } else if (this.state === 2) {
       const a = this.firstRadius(), ad = this.firstAxis(), bd = this.secondAxis(), d = sub(p, this.centerPoint)
       const dp: XY = [dot(d, ad), dot(d, bd)]
-      const cosT = Math.max(-1, Math.min(1, dp[0] / a)), sinT = Math.sqrt(Math.max(0, 1 - cosT * cosT))
-      if (sinT < CONFUSION) { this.valid = false; this.drawShape(); return }
-      this.secondRadius = Math.abs(dp[1]) / sinT
-      if (Math.abs(dp[1]) < CONFUSION) { this.valid = false; this.drawShape(); return }
+      if (!this.secondRadiusSet) {
+        const cosT = Math.max(-1, Math.min(1, dp[0] / a)), sinT = Math.sqrt(Math.max(0, 1 - cosT * cosT))
+        if (sinT < CONFUSION) { this.valid = false; this.drawShape(); return }
+        this.secondRadius = Math.abs(dp[1]) / sinT
+        if (Math.abs(dp[1]) < CONFUSION) { this.valid = false; this.drawShape(); return }
+      }
       this.startAngle = Math.atan2(dp[1] / this.secondRadius, dp[0] / a)
-      this.clearCursorText()
+      this.ctl.drawWidthHeightAtCursor(p, this.firstRadius(), this.secondRadius)
       this.seekAndRender(this.sug[2], p, [0, 0])
     } else if (this.state === 3) {
       const ad = this.firstAxis(), bd = this.secondAxis(), d = sub(p, this.centerPoint)
@@ -202,9 +344,9 @@ export class ArcOfEllipseHandler extends DefaultHandler {
       const angle2 = angle1 + (angle1 < 0 ? 2 : -2) * Math.PI
       this.arcAngle = Math.abs(angle1 - this.arcAngle) < Math.abs(angle2 - this.arcAngle) ? angle1 : angle2
       if (Math.abs(this.arcAngle) < CONFUSION) { this.valid = false; this.drawShape(); return }
-      this.clearCursorText()
+      this.ctl.drawDoubleAtCursor(p, this.arcAngle, 'Angle')
       this.seekAndRender(this.sug[3], p, [0, 0])
-    }
+    } else return
     this.drawShape()
   }
   private ellipse() {
@@ -220,9 +362,10 @@ export class ArcOfEllipseHandler extends DefaultHandler {
     if (this.state === 1) { this.shapeGeometry.push(makeEllipse(this.centerPoint, this.firstAxis(), this.firstRadius(), this.firstRadius() / 2, cm)); return }
     const e = this.ellipse()
     if (this.state === 2) this.shapeGeometry.push(makeEllipse(this.centerPoint, e.majorAxis, e.majorRadius, e.minorRadius, cm))
-    else this.shapeGeometry.push(makeArcOfEllipse(this.centerPoint, e.majorAxis, e.majorRadius, e.minorRadius, e.startAngle, e.endAngle, cm))
+    else if (this.state >= 3) this.shapeGeometry.push(makeArcOfEllipse(this.centerPoint, e.majorAxis, e.majorRadius, e.minorRadius, e.startAngle, e.endAngle, cm))
   }
   protected canGoToNextMode() { return this.valid }
+  protected angleSnappingControl() { S.setAngleSnapping(false) }
   protected executeCommands() {
     S.openCommand('Add sketch arc of ellipse')
     this.ellipseGeoId = S.highestCurveIndex() + 1
@@ -238,14 +381,126 @@ export class ArcOfEllipseHandler extends DefaultHandler {
     this.removeRedundantAutoConstraints()
   }
   protected createAutoConstraints() { this.createGeneratedAutoConstraints(true); for (const s of this.sug.slice(0, 4)) s.length = 0 }
+  // the controller's specialisations
+  toolIcon() { return 'Sketcher_CreateElliptical_Arc' }
+  ovpSpec(): OvpSpec { return { ovps: 7, widget: null, firstComboIsMethod: false } }
+  ovpState(i: number) { return i < 6 ? Math.trunc(i / 2) : 3 }
+  configureOnViewParameters(c: Controller) {
+    const o = c.onViewParameters
+    o[OVP.First].setLabelType('DISTANCEX'); o[OVP.Second].setLabelType('DISTANCEY')
+    o[OVP.Third].setLabelType('RADIUS', 'Dimensioning'); o[OVP.Fourth].setLabelType('ANGLE', 'Dimensioning')
+    o[OVP.Fifth].setLabelType('RADIUS', 'Dimensioning'); o[OVP.Sixth].setLabelType('ANGLE', 'Dimensioning')
+    o[OVP.Seventh].setLabelType('ANGLE', 'Dimensioning')
+  }
+  doEnforceControlParameters(c: Controller, p: XY): XY {
+    this.update(p) // the member variables up to date before the parameters are enforced
+    const o = c.onViewParameters
+    let [x, y] = p
+    if (this.state === 0) {
+      if (o[OVP.First].isSet) x = o[OVP.First].getValue()
+      if (o[OVP.Second].isSet) y = o[OVP.Second].getValue()
+    } else if (this.state === 1) {
+      const radiusP = o[OVP.Third], angleP = o[OVP.Fourth]
+      if (!radiusP.isSet && !angleP.isSet) return p
+      let r = this.firstRadius(), axis = this.firstAxis()
+      if (radiusP.isSet) {
+        r = radiusP.getValue()
+        if (r < CONFUSION && radiusP.hasFinishedEditing) { c.unsetOnViewParameter(radiusP); return p }
+      }
+      if (angleP.isSet) { const a = (angleP.getValue() * Math.PI) / 180; axis = [Math.cos(a), Math.sin(a)] }
+      ;[x, y] = add(this.centerPoint, mul(axis, r))
+    } else if (this.state === 2) {
+      const radiusP = o[OVP.Fifth], startP = o[OVP.Sixth]
+      if (!radiusP.isSet && !startP.isSet) return p
+      let r2 = this.secondRadius, start = this.startAngle
+      if (radiusP.isSet) {
+        r2 = radiusP.getValue()
+        this.secondRadius = r2
+        this.secondRadiusSet = true
+        if (r2 < CONFUSION && radiusP.hasFinishedEditing) { this.secondRadiusSet = false; c.unsetOnViewParameter(radiusP); return p }
+      }
+      if (startP.isSet) start = (startP.getValue() * Math.PI) / 180
+      ;[x, y] = add(add(this.centerPoint, mul(this.firstAxis(), this.firstRadius() * Math.cos(start))), mul(this.secondAxis(), r2 * Math.sin(start)))
+    } else if (this.state === 3) {
+      const arcP = o[OVP.Seventh]
+      if (!arcP.isSet) return p
+      const arcAngle = (arcP.getValue() * Math.PI) / 180
+      if (Math.abs(arcAngle) % (2 * Math.PI) < CONFUSION && arcP.hasFinishedEditing) { c.unsetOnViewParameter(arcP); return p }
+      this.arcAngle = arcAngle // so that it does not flip past π, where the other way round is shorter
+      const end = this.startAngle + arcAngle
+      ;[x, y] = add(add(this.centerPoint, mul(this.firstAxis(), this.firstRadius() * Math.cos(end))), mul(this.secondAxis(), this.secondRadius * Math.sin(end)))
+    }
+    return [x, y]
+  }
+  adaptParameters(c: Controller, p: XY) {
+    const o = c.onViewParameters
+    if (this.state === 0) {
+      if (!o[OVP.First].isSet) c.setOnViewParameterValue(OVP.First, p[0])
+      if (!o[OVP.Second].isSet) c.setOnViewParameterValue(OVP.Second, p[1])
+      const sameSign = p[0] * p[1] > 0
+      o[OVP.First].setLabelAutoDistanceReverse(!sameSign); o[OVP.Second].setLabelAutoDistanceReverse(sameSign)
+      o[OVP.First].setPoints([0, 0], p); o[OVP.Second].setPoints([0, 0], p)
+    } else if (this.state === 1) {
+      if (!o[OVP.Third].isSet) c.setOnViewParameterValue(OVP.Third, this.firstRadius())
+      if (!o[OVP.Fourth].isSet) c.setOnViewParameterValue(OVP.Fourth, (angleOf(this.firstAxis()) * 180) / Math.PI, 'Angle')
+      o[OVP.Third].setPoints(this.centerPoint, p)
+      o[OVP.Fourth].setPoints(this.centerPoint, [0, 0])
+      o[OVP.Fourth].setLabelRange(angleOf(this.firstAxis()))
+    } else if (this.state === 2) {
+      const radiusP = o[OVP.Fifth], startP = o[OVP.Sixth]
+      if (!radiusP.isSet) c.setOnViewParameterValue(OVP.Fifth, this.valid ? this.secondRadius : 0)
+      if (!startP.isSet) c.setOnViewParameterValue(OVP.Sixth, (this.startAngle * 180) / Math.PI, 'Angle')
+      startP.setPoints(this.centerPoint, [0, 0])
+      startP.setLabelStartAngle(angleOf(this.firstAxis()))
+      startP.setLabelRange(this.startAngle)
+      radiusP.setPoints(this.centerPoint, add(this.centerPoint, mul(this.secondAxis(), this.secondRadius)))
+      if (!this.valid) radiusP.setPoints(this.centerPoint, this.centerPoint)
+    } else if (this.state === 3) {
+      const arcP = o[OVP.Seventh]
+      if (!arcP.isSet) c.setOnViewParameterValue(OVP.Seventh, (this.arcAngle * 180) / Math.PI, 'Angle')
+      arcP.setPoints(this.centerPoint, [0, 0])
+      arcP.setLabelStartAngle(angleOf(this.firstAxis()) + this.startAngle)
+      arcP.setLabelRange(this.arcAngle)
+    }
+  }
+  computeNextDrawSketchHandlerMode(c: Controller) {
+    const o = c.onViewParameters
+    if (this.state === 0) { if (o[OVP.First].hasFinishedEditing && o[OVP.Second].hasFinishedEditing) this.setNextState(1) }
+    else if (this.state === 1) { if (o[OVP.Third].hasFinishedEditing && o[OVP.Fourth].hasFinishedEditing) this.setNextState(2) }
+    else if (this.state === 2) { if (o[OVP.Fifth].hasFinishedEditing && o[OVP.Sixth].hasFinishedEditing) this.setNextState(3) }
+    else if (this.state === 3) { if (o[OVP.Seventh].hasFinishedEditing) this.setNextState(this.states) }
+  }
+  /** DSHArcOfEllipseController::addConstraints, with no diagnosis yet: the centre's position (on the origin when both
+   *  are 0), the major and minor radii on the internal axis lines, the first axis's angle; not the arc's angles. */
+  addConstraints(c: Controller) {
+    const o = c.onViewParameters
+    const firstCurve = this.ellipseGeoId, majorLine = firstCurve + 1, minorLine = firstCurve + 2
+    const r1 = this.firstRadius(), isFirstMajor = r1 > this.secondRadius
+    const majorRadius = Math.max(r1, this.secondRadius), minorRadius = Math.min(r1, this.secondRadius)
+    const x0set = o[OVP.First].isSet, y0set = o[OVP.Second].isSet, firstAxisSet = o[OVP.Fourth].isSet
+    const majorRadiusSet = isFirstMajor ? o[OVP.Third].isSet : o[OVP.Fifth].isSet
+    const minorRadiusSet = isFirstMajor ? o[OVP.Fifth].isSet : o[OVP.Third].isSet
+    if (x0set && y0set && len(this.centerPoint) <= CONFUSION) attachSolved([firstCurve, MID], RT_PNT_ID, 0)
+    else {
+      if (x0set) attachSolved([firstCurve, MID], V_AXIS_ID, this.centerPoint[0])
+      if (y0set) attachSolved([firstCurve, MID], H_AXIS_ID, this.centerPoint[1])
+    }
+    if (majorRadiusSet) addSolved(constraint('Distance', majorLine, START, firstCurve, MID, SK.GEO_UNDEF, NONE, f6(majorRadius)))
+    // the first line is constrained, not the major one: it is what the user gave
+    if (firstAxisSet) addSolved(constraint('Angle', majorRadius === r1 ? majorLine : minorLine, NONE, SK.GEO_UNDEF, NONE, SK.GEO_UNDEF, NONE, f6(angleOf(this.firstAxis()))))
+    if (minorRadiusSet) addSolved(constraint('Distance', minorLine, START, firstCurve, MID, SK.GEO_UNDEF, NONE, f6(minorRadius)))
+  }
 }
 
 // ── Arc of hyperbola (DrawSketchHandlerArcOfHyperbola.h) ─────────────────────────────────────────────────────────
+/** DSHArcOfHyperbolaController: seven on-view parameters: the centre's X and Y, the major radius and its angle, the
+ *  minor radius and the (hyperbolic, unitless) start parameter, the arc's parameter span. */
 export class ArcOfHyperbolaHandler extends DefaultHandler {
   readonly toolName = 'DSH_ArcOfHyperbola'
   protected readonly states = 4
+  protected readonly autoConstraintSize = 4
   private centerPoint: XY = [0, 0]; private axisPoint: XY = [0, 0]
-  private minorRadius = 0; private startAngle = 0; private endAngle = 0; private valid = true
+  private minorRadius = 0; private startAngle = 0; private endAngle = 0; private valid = true; private minorRadiusSet = false
   private hyperbolaGeoId = SK.GEO_UNDEF
   crosshair() { return 'Sketcher_Pointer_Create_ArcOfHyperbola' }
   hints() { return [this.hint(['%1 pick center point', '%1 pick axis point', '%1 pick arc start point', '%1 pick arc end point'][Math.min(this.state, 3)], [LMB])] }
@@ -255,29 +510,31 @@ export class ArcOfHyperbolaHandler extends DefaultHandler {
   private arcAngle() { return this.endAngle - this.startAngle }
   protected update(p: XY) {
     this.valid = true
-    if (this.state === 0) { this.centerPoint = p; this.drawPositionAtCursor(p); this.seekAndRender(this.sug[0], p, [0, 0]) }
+    if (this.state === 0) { this.centerPoint = p; this.ctl.drawPositionAtCursor(p); this.seekAndRender(this.sug[0], p, [0, 0]) }
     else if (this.state === 1) {
       this.axisPoint = p
       if (len(sub(this.axisPoint, this.centerPoint)) < CONFUSION) { this.valid = false; this.drawShape(); return }
-      this.clearCursorText()
+      this.ctl.drawDirectionAtCursor(p, this.centerPoint)
       this.seekAndRender(this.sug[1], p, [0, 0], 'curve')
     } else if (this.state === 2) {
       const a = this.majorRadius(), d = sub(p, this.centerPoint), dp: XY = [dot(d, this.majorAxis()), dot(d, this.minorAxis())]
-      if (Math.abs(dp[1]) < CONFUSION) { this.valid = false; this.drawShape(); return }
-      const denom = (dp[0] * dp[0]) / (a * a) - 1
-      if (denom < CONFUSION) { this.valid = false; this.drawShape(); return }
-      this.minorRadius = Math.sqrt((dp[1] * dp[1]) / denom)
+      if (!this.minorRadiusSet) {
+        if (Math.abs(dp[1]) < CONFUSION) { this.valid = false; this.drawShape(); return }
+        const denom = (dp[0] * dp[0]) / (a * a) - 1
+        if (denom < CONFUSION) { this.valid = false; this.drawShape(); return }
+        this.minorRadius = Math.sqrt((dp[1] * dp[1]) / denom)
+      }
       this.startAngle = Math.atanh((dp[1] * a) / (dp[0] * this.minorRadius))
-      this.drawPositionAtCursor(p)
+      this.ctl.drawPositionAtCursor(p)
       this.seekAndRender(this.sug[2], p, [0, 0])
     } else if (this.state === 3) {
       const d = sub(p, this.centerPoint), dp: XY = [dot(d, this.majorAxis()), dot(d, this.minorAxis())]
       if (Math.abs((dp[1] * this.majorRadius()) / (dp[0] * this.minorRadius)) > 1) { this.valid = false; this.drawShape(); return }
       this.endAngle = Math.atanh((dp[1] * this.majorRadius()) / (dp[0] * this.minorRadius))
       if (Math.abs(this.arcAngle()) < CONFUSION) { this.valid = false; this.drawShape(); return }
-      this.drawPositionAtCursor(p)
+      this.ctl.drawPositionAtCursor(p)
       this.seekAndRender(this.sug[3], p, [0, 0])
-    }
+    } else return
     this.drawShape()
   }
   protected createShape() {
@@ -291,6 +548,7 @@ export class ArcOfHyperbolaHandler extends DefaultHandler {
       this.shapeGeometry.push(makeArcOfHyperbola(this.centerPoint, this.majorAxis(), this.majorRadius(), this.minorRadius, this.startAngle, this.endAngle, cm))
   }
   protected canGoToNextMode() { return this.valid }
+  protected angleSnappingControl() { S.setAngleSnapping(false) }
   protected executeCommands() {
     S.openCommand('Add sketch arc of hyperbola')
     this.hyperbolaGeoId = S.highestCurveIndex() + 1
@@ -306,12 +564,118 @@ export class ArcOfHyperbolaHandler extends DefaultHandler {
     this.removeRedundantAutoConstraints()
   }
   protected createAutoConstraints() { this.createGeneratedAutoConstraints(true); for (const s of this.sug.slice(0, 4)) s.length = 0 }
+  // the controller's specialisations
+  toolIcon() { return 'Sketcher_CreateHyperbolic_Arc' }
+  ovpSpec(): OvpSpec { return { ovps: 7, widget: null, firstComboIsMethod: false } }
+  ovpState(i: number) { return i < 6 ? Math.trunc(i / 2) : 3 }
+  configureOnViewParameters(c: Controller) {
+    const o = c.onViewParameters
+    o[OVP.First].setLabelType('DISTANCEX'); o[OVP.Second].setLabelType('DISTANCEY')
+    o[OVP.Third].setLabelType('RADIUS', 'Dimensioning'); o[OVP.Fourth].setLabelType('ANGLE', 'Dimensioning')
+    o[OVP.Fifth].setLabelType('DISTANCE', 'Dimensioning')
+    o[OVP.Sixth].setLabelType('ANGLE', 'Dimensioning') // not a real angle: the hyperbolic one
+    o[OVP.Seventh].setLabelType('ANGLE', 'Dimensioning')
+  }
+  doEnforceControlParameters(c: Controller, p: XY): XY {
+    this.update(p) // the member variables up to date before the parameters are enforced
+    const o = c.onViewParameters
+    let [x, y] = p
+    if (this.state === 0) {
+      if (o[OVP.First].isSet) x = o[OVP.First].getValue()
+      if (o[OVP.Second].isSet) y = o[OVP.Second].getValue()
+    } else if (this.state === 1) {
+      const radiusP = o[OVP.Third], angleP = o[OVP.Fourth]
+      if (!radiusP.isSet && !angleP.isSet) return p
+      let r = this.majorRadius(), axis = this.majorAxis()
+      if (radiusP.isSet) {
+        r = radiusP.getValue()
+        if (r < CONFUSION && radiusP.hasFinishedEditing) { c.unsetOnViewParameter(radiusP); return p }
+      }
+      if (angleP.isSet) { const a = (angleP.getValue() * Math.PI) / 180; axis = [Math.cos(a), Math.sin(a)] }
+      ;[x, y] = add(this.centerPoint, mul(axis, r))
+    } else if (this.state === 2) {
+      const radiusP = o[OVP.Fifth], startP = o[OVP.Sixth]
+      if (!radiusP.isSet && !startP.isSet) return p
+      let b = this.minorRadius, start = this.startAngle
+      if (radiusP.isSet) {
+        b = radiusP.getValue()
+        this.minorRadius = b
+        this.minorRadiusSet = true
+        if (b < CONFUSION && radiusP.hasFinishedEditing) { this.minorRadiusSet = false; c.unsetOnViewParameter(radiusP); return p }
+      }
+      if (startP.isSet) start = startP.getValue()
+      ;[x, y] = add(add(this.centerPoint, mul(this.majorAxis(), this.majorRadius() * Math.cosh(start))), mul(this.minorAxis(), b * Math.sinh(start)))
+    } else if (this.state === 3) {
+      const arcP = o[OVP.Seventh]
+      if (!arcP.isSet) return p
+      const arcAngle = -arcP.getValue(), end = this.startAngle - arcAngle
+      ;[x, y] = add(add(this.centerPoint, mul(this.majorAxis(), this.majorRadius() * Math.cosh(end))), mul(this.minorAxis(), this.minorRadius * Math.sinh(end)))
+    }
+    return [x, y]
+  }
+  adaptParameters(c: Controller, p: XY) {
+    const o = c.onViewParameters
+    if (this.state === 0) {
+      if (!o[OVP.First].isSet) c.setOnViewParameterValue(OVP.First, p[0])
+      if (!o[OVP.Second].isSet) c.setOnViewParameterValue(OVP.Second, p[1])
+      const sameSign = p[0] * p[1] > 0
+      o[OVP.First].setLabelAutoDistanceReverse(!sameSign); o[OVP.Second].setLabelAutoDistanceReverse(sameSign)
+      o[OVP.First].setPoints([0, 0], p); o[OVP.Second].setPoints([0, 0], p)
+    } else if (this.state === 1) {
+      if (!o[OVP.Third].isSet) c.setOnViewParameterValue(OVP.Third, this.majorRadius())
+      if (!o[OVP.Fourth].isSet) c.setOnViewParameterValue(OVP.Fourth, (angleOf(this.majorAxis()) * 180) / Math.PI, 'Angle')
+      o[OVP.Third].setPoints(this.centerPoint, p)
+      o[OVP.Fourth].setPoints(this.centerPoint, [0, 0])
+      o[OVP.Fourth].setLabelRange(angleOf(this.majorAxis()))
+    } else if (this.state === 2) {
+      const radiusP = o[OVP.Fifth], startP = o[OVP.Sixth]
+      if (!radiusP.isSet) c.setOnViewParameterValue(OVP.Fifth, this.valid ? this.minorRadius : 0)
+      if (!startP.isSet) c.setOnViewParameterValue(OVP.Sixth, this.valid ? this.startAngle : 0, 'One')
+      const start = this.axisPoint
+      startP.setPoints(start, [0, 0])
+      startP.setLabelStartAngle(angleOf(this.majorAxis()))
+      startP.setLabelRange(0)
+      radiusP.setPoints(start, add(start, mul(this.minorAxis(), this.minorRadius * Math.sign(this.startAngle))))
+      if (!this.valid) radiusP.setPoints(start, start)
+    } else if (this.state === 3) {
+      const arcP = o[OVP.Seventh]
+      if (!arcP.isSet) c.setOnViewParameterValue(OVP.Seventh, this.arcAngle(), 'One')
+      arcP.setPoints(this.axisPoint, [0, 0])
+      arcP.setLabelStartAngle(angleOf(this.majorAxis()))
+      arcP.setLabelRange(0)
+    }
+  }
+  computeNextDrawSketchHandlerMode(c: Controller) {
+    const o = c.onViewParameters
+    if (this.state === 0) { if (o[OVP.First].hasFinishedEditing && o[OVP.Second].hasFinishedEditing) this.setNextState(1) }
+    else if (this.state === 1) { if (o[OVP.Third].hasFinishedEditing && o[OVP.Fourth].hasFinishedEditing) this.setNextState(2) }
+    else if (this.state === 2) { if (o[OVP.Fifth].hasFinishedEditing && o[OVP.Sixth].hasFinishedEditing) this.setNextState(3) }
+    else if (this.state === 3) { if (o[OVP.Seventh].hasFinishedEditing) this.setNextState(this.states) }
+  }
+  /** DSHArcOfHyperbolaController::addConstraints, with no diagnosis yet: the centre's position, the major radius and
+   *  the major axis's angle (the internal major line runs the other way), the minor radius; not the hyperbolic angles. */
+  addConstraints(c: Controller) {
+    const o = c.onViewParameters
+    const firstCurve = this.hyperbolaGeoId, majorLine = firstCurve + 1, minorLine = firstCurve + 2
+    const x0set = o[OVP.First].isSet, y0set = o[OVP.Second].isSet
+    if (x0set && y0set && len(this.centerPoint) <= CONFUSION) attachSolved([firstCurve, MID], RT_PNT_ID, 0)
+    else {
+      if (x0set) attachSolved([firstCurve, MID], V_AXIS_ID, this.centerPoint[0])
+      if (y0set) attachSolved([firstCurve, MID], H_AXIS_ID, this.centerPoint[1])
+    }
+    if (o[OVP.Third].isSet) addSolved(constraint('Distance', firstCurve, MID, majorLine, START, SK.GEO_UNDEF, NONE, f6(this.majorRadius())))
+    if (o[OVP.Fourth].isSet) addSolved(constraint('Angle', majorLine, NONE, SK.GEO_UNDEF, NONE, SK.GEO_UNDEF, NONE, f6(angleOf(this.majorAxis()) - Math.PI)))
+    if (o[OVP.Fifth].isSet) addSolved(constraint('Distance', majorLine, START, minorLine, START, SK.GEO_UNDEF, NONE, f6(this.minorRadius)))
+  }
 }
 
 // ── Arc of parabola (DrawSketchHandlerArcOfParabola.h): focus, vertex, then the two ends ─────────────────────────
+/** DSHArcOfParabolaController: six on-view parameters: the focus's X and Y, the focal length and the axis's angle,
+ *  the start and the end's parameters (unitless). */
 export class ArcOfParabolaHandler extends DefaultHandler {
   readonly toolName = 'DSH_ArcOfParabola'
   protected readonly states = 4
+  protected readonly autoConstraintSize = 4
   private centerPoint: XY = [0, 0]; private focusPoint: XY = [0, 0]
   private startPoint = 0; private endPoint = 0; private valid = true
   private parabolaGeoId = SK.GEO_UNDEF
@@ -321,22 +685,22 @@ export class ArcOfParabolaHandler extends DefaultHandler {
   private focal() { return len(sub(this.focusPoint, this.centerPoint)) }
   protected update(p: XY) {
     this.valid = true
-    if (this.state === 0) { this.focusPoint = p; this.drawPositionAtCursor(p); this.seekAndRender(this.sug[0], p, [0, 0]) }
+    if (this.state === 0) { this.focusPoint = p; this.ctl.drawPositionAtCursor(p); this.seekAndRender(this.sug[0], p, [0, 0]) }
     else if (this.state === 1) {
       this.centerPoint = p
       if (len(sub(this.centerPoint, this.focusPoint)) < CONFUSION) { this.valid = false; this.drawShape(); return }
-      this.clearCursorText()
+      this.ctl.drawDirectionAtCursor(p, this.focusPoint)
       this.seekAndRender(this.sug[1], p, [0, 0])
     } else if (this.state === 2) {
       this.startPoint = dot(sub(p, this.centerPoint), perp(this.axis()))
-      this.drawPositionAtCursor(p)
+      this.ctl.drawPositionAtCursor(p)
       this.seekAndRender(this.sug[2], p, [0, 0])
     } else if (this.state === 3) {
       this.endPoint = dot(sub(p, this.centerPoint), perp(this.axis()))
       if (Math.abs(this.endPoint - this.startPoint) < CONFUSION) { this.valid = false; this.drawShape(); return }
-      this.drawPositionAtCursor(p)
+      this.ctl.drawPositionAtCursor(p)
       this.seekAndRender(this.sug[3], p, [0, 0])
-    }
+    } else return
     this.drawShape()
   }
   protected createShape() {
@@ -350,6 +714,7 @@ export class ArcOfParabolaHandler extends DefaultHandler {
       this.shapeGeometry.push(makeArcOfParabola(this.axis(), this.centerPoint, this.focal(), this.startPoint, this.endPoint, cm))
   }
   protected canGoToNextMode() { return this.valid }
+  protected angleSnappingControl() { S.setAngleSnapping(false) }
   protected executeCommands() {
     S.openCommand('Add sketch arc of parabola')
     this.parabolaGeoId = S.highestCurveIndex() + 1
@@ -366,6 +731,96 @@ export class ArcOfParabolaHandler extends DefaultHandler {
     this.removeRedundantAutoConstraints()
   }
   protected createAutoConstraints() { this.createGeneratedAutoConstraints(true); for (const s of this.sug.slice(0, 4)) s.length = 0 }
+  // the controller's specialisations
+  toolIcon() { return 'Sketcher_CreateParabolic_Arc' }
+  ovpSpec(): OvpSpec { return { ovps: 6, widget: null, firstComboIsMethod: false } }
+  ovpState(i: number) { return i < 4 ? Math.trunc(i / 2) : i - 2 }
+  configureOnViewParameters(c: Controller) {
+    const o = c.onViewParameters
+    o[OVP.First].setLabelType('DISTANCEX'); o[OVP.Second].setLabelType('DISTANCEY')
+    o[OVP.Third].setLabelType('RADIUS', 'Dimensioning'); o[OVP.Fourth].setLabelType('ANGLE', 'Dimensioning')
+    o[OVP.Fifth].setLabelType('ANGLE', 'Dimensioning'); o[OVP.Sixth].setLabelType('ANGLE', 'Dimensioning')
+  }
+  doEnforceControlParameters(c: Controller, p: XY): XY {
+    this.update(p) // the member variables up to date before the parameters are enforced
+    const o = c.onViewParameters
+    let [x, y] = p
+    if (this.state === 0) {
+      if (o[OVP.First].isSet) x = o[OVP.First].getValue()
+      if (o[OVP.Second].isSet) y = o[OVP.Second].getValue()
+    } else if (this.state === 1) {
+      const focalP = o[OVP.Third], angleP = o[OVP.Fourth]
+      if (!focalP.isSet && !angleP.isSet) return p
+      let focal = this.focal(), axis = this.axis()
+      if (focalP.isSet) {
+        focal = focalP.getValue()
+        if (focal < CONFUSION && focalP.hasFinishedEditing) { c.unsetOnViewParameter(focalP); return p }
+      }
+      if (angleP.isSet) { const a = (angleP.getValue() * Math.PI) / 180; axis = [Math.cos(a), Math.sin(a)] }
+      ;[x, y] = add(this.focusPoint, mul(axis, -focal))
+    } else if (this.state === 2) {
+      const startP = o[OVP.Fifth]
+      if (!startP.isSet) return p
+      ;[x, y] = add(this.centerPoint, mul(perp(this.axis()), startP.getValue()))
+    } else if (this.state === 3) {
+      const arcP = o[OVP.Sixth]
+      if (!arcP.isSet) return p
+      const arc = -arcP.getValue()
+      if (Math.abs(arc) < CONFUSION && arcP.hasFinishedEditing) { c.unsetOnViewParameter(arcP); return p }
+      // FreeCAD's puts the cursor where the end already is (endPoint, from the cursor), not where the span says
+      ;[x, y] = add(this.centerPoint, mul(perp(this.axis()), this.endPoint))
+    }
+    return [x, y]
+  }
+  adaptParameters(c: Controller, p: XY) {
+    const o = c.onViewParameters
+    if (this.state === 0) {
+      if (!o[OVP.First].isSet) c.setOnViewParameterValue(OVP.First, p[0])
+      if (!o[OVP.Second].isSet) c.setOnViewParameterValue(OVP.Second, p[1])
+      const sameSign = p[0] * p[1] > 0
+      o[OVP.First].setLabelAutoDistanceReverse(!sameSign); o[OVP.Second].setLabelAutoDistanceReverse(sameSign)
+      o[OVP.First].setPoints([0, 0], p); o[OVP.Second].setPoints([0, 0], p)
+    } else if (this.state === 1) {
+      if (!o[OVP.Third].isSet) c.setOnViewParameterValue(OVP.Third, this.focal())
+      if (!o[OVP.Fourth].isSet) c.setOnViewParameterValue(OVP.Fourth, (angleOf(this.axis()) * 180) / Math.PI, 'Angle')
+      o[OVP.Third].setPoints(this.focusPoint, p)
+      o[OVP.Fourth].setPoints(this.focusPoint, [0, 0])
+      o[OVP.Fourth].setLabelRange(angleOf(this.axis()))
+    } else if (this.state === 2) {
+      const startP = o[OVP.Fifth]
+      if (!startP.isSet) c.setOnViewParameterValue(OVP.Fifth, this.startPoint, 'One')
+      startP.setPoints(this.centerPoint, [0, 0])
+      startP.setLabelStartAngle(angleOf(this.axis()))
+      startP.setLabelRange(0)
+    } else if (this.state === 3) {
+      const arcP = o[OVP.Sixth]
+      if (!arcP.isSet) c.setOnViewParameterValue(OVP.Sixth, this.endPoint - this.startPoint, 'One')
+      arcP.setPoints(this.centerPoint, [0, 0])
+      arcP.setLabelStartAngle(angleOf(this.axis()))
+      arcP.setLabelRange(0)
+    }
+  }
+  computeNextDrawSketchHandlerMode(c: Controller) {
+    const o = c.onViewParameters
+    if (this.state === 0) { if (o[OVP.First].hasFinishedEditing && o[OVP.Second].hasFinishedEditing) this.setNextState(1) }
+    else if (this.state === 1) { if (o[OVP.Third].hasFinishedEditing && o[OVP.Fourth].hasFinishedEditing) this.setNextState(2) }
+    else if (this.state === 2) { if (o[OVP.Fifth].hasFinishedEditing) this.setNextState(3) }
+    else if (this.state === 3) { if (o[OVP.Sixth].hasFinishedEditing) this.setNextState(this.states) }
+  }
+  /** DSHArcOfParabolaController::addConstraints, with no diagnosis yet: the focus's position (its point, at its "mid"),
+   *  the focal length and the axis's angle on the internal focal line; not the ends' parameters. */
+  addConstraints(c: Controller) {
+    const o = c.onViewParameters
+    const focusPoint = this.parabolaGeoId + 1, line = this.parabolaGeoId + 2
+    const x0set = o[OVP.First].isSet, y0set = o[OVP.Second].isSet
+    if (x0set && y0set && len(this.focusPoint) <= CONFUSION) attachSolved([focusPoint, MID], RT_PNT_ID, 0)
+    else {
+      if (x0set) attachSolved([focusPoint, MID], V_AXIS_ID, this.focusPoint[0])
+      if (y0set) attachSolved([focusPoint, MID], H_AXIS_ID, this.focusPoint[1])
+    }
+    if (o[OVP.Third].isSet) addSolved(constraint('Distance', line, START, line, END, SK.GEO_UNDEF, NONE, f6(this.focal())))
+    if (o[OVP.Fourth].isSet) addSolved(constraint('Angle', line, NONE, SK.GEO_UNDEF, NONE, SK.GEO_UNDEF, NONE, f6(angleOf(this.axis()))))
+  }
 }
 
 // ── B-spline by control points (DrawSketchHandlerBSpline.h, ControlPoints) ───────────────────────────────────────
