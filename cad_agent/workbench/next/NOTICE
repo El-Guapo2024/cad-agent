@@ -116,8 +116,9 @@ them carry.
   triplus @ FreeCAD: Mod/Tux/NavigationIndicatorGui.py
   Victor Titov (DeepSOIC): Gui/Navigation/GestureNavigationStyle.cpp,
       Gui/Navigation/MayaGestureNavigationStyle.cpp, Gui/SoTouchEvents.cpp, Mod/Part/App/AttachExtension.cpp,
-      Mod/Part/App/Attacher.cpp, Mod/Part/Gui/AttacherTexts.cpp, Mod/Sketcher/Gui/AppSketcherGui.cpp,
-      Mod/Show/mTempoVis.py
+      Mod/Part/App/Attacher.cpp, Mod/Part/AttachmentEditor/Commands.py,
+      Mod/Part/AttachmentEditor/TaskAttachmentEditor.py, Mod/Part/Gui/AttacherTexts.cpp,
+      Mod/Sketcher/Gui/AppSketcherGui.cpp, Mod/Show/mTempoVis.py
   WandererFan: Mod/Measure/App/Preferences.cpp
   Werner Mayer: Base/Rotation.cpp, Base/Tools.h, Base/VectorPyImp.cpp, Gui/Action.cpp,
       Gui/Camera.cpp, Gui/Clipping.cpp, Gui/CommandMacro.cpp, Gui/CommandWindow.cpp,
@@ -696,6 +697,12 @@ src/Mod/Part/App/Part2DObject.cpp   [licence: LGPL-2.1-or-later]
 src/Mod/Part/App/PartFeature.cpp   [licence: LGPL-2.1-or-later]
     copyright 2002 Jürgen Riegel
     followed by src/viewer.ts
+src/Mod/Part/AttachmentEditor/Commands.py   [licence: LGPL-2.1-or-later]
+    copyright 2016 Victor Titov (DeepSOIC)
+    followed by src/pd_attach.tsx
+src/Mod/Part/AttachmentEditor/TaskAttachmentEditor.py   [licence: LGPL-2.1-or-later]
+    copyright 2016 Victor Titov (DeepSOIC)
+    followed by src/pd_attach.tsx
 src/Mod/Part/BOPTools/BOPFeatures.py   [licence: LGPL-2.1-or-later]
     copyright 2023 Werner Mayer
     followed by src/part_wb.tsx
@@ -789,7 +796,7 @@ src/Mod/Part/Gui/SoBrepFaceSet.cpp   [licence: LGPL-2.1-or-later]
     followed by src/viewer.ts
 src/Mod/Part/Gui/TaskAttacher.cpp   [licence: LGPL-2.1-or-later]
     copyright 2013 Jan Rheinländer
-    followed by src/partdesign.tsx
+    followed by src/partdesign.tsx, src/pd_attach.tsx
 src/Mod/Part/Gui/TaskAttacher.ui   [licence: none]
     copyright: no line in the file
     followed by src/partdesign.tsx
@@ -816,7 +823,7 @@ src/Mod/Part/Gui/TaskThickness.cpp   [licence: LGPL-2.1-or-later]
     followed by src/part_tasks.tsx
 src/Mod/Part/Gui/ViewProviderAttachExtension.cpp   [licence: LGPL-2.1-or-later]
     copyright 2016 Stefan Tröger
-    followed by src/partdesign.tsx
+    followed by src/partdesign.tsx, src/pd_attach.tsx
 src/Mod/Part/Gui/ViewProviderBoolean.cpp   [licence: LGPL-2.1-or-later]
     copyright 2008 Werner Mayer
     followed by src/part_wb.tsx

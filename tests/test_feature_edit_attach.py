@@ -273,6 +273,37 @@ def test_cad_feature_attach_answers_as_the_panel(demo, capsys):
     assert data["message"] == "LinkBroken" and "Face9" in data["error"]
 
 
+def test_cad_feature_attach_and_list_a_part_object(demo, capsys):
+    """A Part workbench object's AttachExtension (engine 3D): the panel's query resolves the objects before it and the
+    Body's features, and `cad feature list` places every object (feature_attach.body_info's Part objects)."""
+    _plate_body(capsys)
+    ops = [{"op": "add", "feature": {"name": "Base", "type": "Part::Box", "length": 20, "width": 20, "height": 10,
+                                     "placement": [[0, 0, 30], [0, 0, 0]]}},
+           {"op": "add", "feature": {"name": "Box", "type": "Part::Box", "length": 4, "width": 6, "height": 2,
+                                     "attachment_support": [["Base", "Face6"]], "map_mode": "FlatFace",
+                                     "attachment_offset": [[1, 2, 3], [0, 0, 0]]}},
+           {"op": "add", "feature": {"name": "Chip", "type": "Part::Box", "length": 2, "width": 2, "height": 2,
+                                     "attachment_support": [["Pad", "Face6"]], "map_mode": "FlatFace"}}]
+    code, data = run(capsys, "feature", "apply", "demo", "Body", "--ops", json.dumps(ops))
+    assert data.get("built") is True, data              # the gates may leave rows unchecked
+    code, data = run(capsys, "feature", "attach", "demo", "Body", "--support", "Base.Face6", "--mode", "FlatFace",
+                     "--offset", "[[1,2,3],[0,0,0]]", "--before", "Box")
+    assert code == cli.OK and data["engine"] == "3D"                    # Attacher::AttachEngine3D, not the CLI's Plane
+    assert data["suggestion"]["types"] == ["Plane"] and data["mode"] == "FlatFace"
+    assert data["placement"]["position"] == pytest.approx([1.0, 2.0, 43.0])       # Base sits at z 30, its top at 40
+    code, data = run(capsys, "feature", "attach", "demo", "Body", "--support", "Pad.Face6", "--before", "Chip")
+    assert data["engine"] == "3D" and data["placement"]["position"] == pytest.approx([0.0, 0.0, 5.0])
+    code, data = run(capsys, "feature", "attach", "demo", "Body", "--support", "Box.Face6", "--before", "Base")
+    assert data["message"] == "LinkBroken" and "'Box' before it" in data["error"]  # a part file is in order
+    code, data = run(capsys, "feature", "list", "demo", "Body")
+    objs = data["attached"]["objects"]
+    assert objs["Box"]["placement"]["position"] == pytest.approx([1.0, 2.0, 43.0])
+    assert objs["Box"]["map_mode"] == "FlatFace" and objs["Chip"]["map_mode"] == "FlatFace"
+    assert objs["Chip"]["placement"]["position"] == pytest.approx([0.0, 0.0, 5.0])
+    assert objs["Base"]["placement"]["position"] == pytest.approx([0.0, 0.0, 30.0])
+    assert data["attached"]["error"] is None
+
+
 def test_cad_feature_add_a_sketch_on_a_face_and_a_datum(demo, capsys):
     _plate_body(capsys)
     circle = json.dumps([{"type": "Circle", "center": [10, 10], "radius": 3, "construction": False}])

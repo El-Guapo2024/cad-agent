@@ -18,11 +18,13 @@ export type PlacementData = { position: number[]; rotation: number[]; matrix: nu
 export type Attached = { placement: PlacementData; map_mode?: string; external?: unknown[] }
 export type AttachedDoc = { objects: Record<string, Attached>; error: string | null }
 
-/** The doc with each feature's `attached` set from doc.attached (a doc without it is returned as it is). */
+/** The doc with each feature's and each Part object's `attached` set from doc.attached (a doc without it is returned as
+ *  it is): a Body's features and the document's OBJECTS are placed by the same AttachExtension. */
 export function withAttached(doc: FeatureDoc): FeatureDoc {
   const att = (doc as FeatureDoc & { attached?: AttachedDoc }).attached
   if (!att?.objects) return doc
-  return { ...doc, features: doc.features.map((f) => (att.objects[f.name] ? { ...f, attached: att.objects[f.name] } : f)) }
+  const mark = (f: Feature) => (att.objects[f.name] ? { ...f, attached: att.objects[f.name] } : f)
+  return { ...doc, features: doc.features.map(mark), ...(doc.objects ? { objects: doc.objects.map(mark) } : {}) }
 }
 export function withAttachedAll(docs: Record<string, FeatureDoc>): Record<string, FeatureDoc> {
   return Object.fromEntries(Object.entries(docs).map(([k, d]) => [k, withAttached(d)]))

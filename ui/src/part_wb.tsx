@@ -33,6 +33,7 @@ import { messageBox } from './msgbox'
 import * as quantity from './quantity'
 import type { Entry } from './chrome'
 import { applyOps, bodyOfPart, numberOf, refOf, sketchObject, splitRef, SKETCH, type TreeCtx } from './partdesign'
+import { attachedOf } from './attached'
 import { PART_PROPS, type PartProp } from './part_props'
 
 // ── the model ────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -227,8 +228,12 @@ function partState() {
 }
 /** Part's "&Part" menu, entry by entry as the real FreeCAD 26.3 has it (ui/scripts/fcpart.json). */
 export function partMenu(): Entry[] {
-  const { sel, doc } = partState()
+  const { sel, doc, part } = partState()
   const n = sel.length
+  // Part_EditAttachment's IsActive: exactly one selected object, and one with a Placement (a Part document's objects
+  // here; a Body feature has none, and a sketch's owner is the Sketcher)
+  const one = n === 1 ? objectOf(getState().features[part ?? ''], sel[0]) : undefined
+  const attachable = !!one && one.type !== SKETCH
   return [
     NA('Box Selection', 'pt-box-selection', 'Part_BoxSelection', 'face picking by a box is not in the 3D view yet'),
     'sep',
@@ -257,7 +262,8 @@ export function partMenu(): Entry[] {
     { label: 'New Sketch', icon: 'pd-new-sketch', cmd: 'Sketcher_NewSketch', disabled: !doc, onSelect: () => void openPart('sketch') },
     ...toolEntries(),
     'sep',
-    NA('Attachment', 'pt-attachment', 'Part_EditAttachment', 'a Part primitive is placed by its Placement here; AttachExtension\'s modes are not ported for Part objects'),
+    { label: 'Attachment', icon: 'pt-attachment', cmd: 'Part_EditAttachment', disabled: !attachable,
+      onSelect: () => { if (part && one) openTask('attach', part, one.name) } },
     'sep',
     NA('Check Geometry', 'pt-check-geometry', 'Part_CheckGeometry', 'the checks (Recompute) judge the geometry here'),
     NA('Defeaturing', 'pt-defeaturing', 'Part_Defeaturing', STATIC),
@@ -615,12 +621,19 @@ export function PartObjectProps({ refKey }: { refKey: string }) {
       line: `cad feature set ${s.slug} ${part} ${name} ${Object.entries(props).map(([a, b]) => `${a}=${typeof b === 'string' ? b : JSON.stringify(b)}`).join(' ')}` })
   }
   const groups = [...new Set(rows.map((r) => r.g))]
+  // AttachExtension's rows are the attachment the Body built (feature_attach.body_info), as the editor wrote it: the
+  // placement it gives the object, the MapMode it used and its references (a PropertyLinkSubList: "Base:Face6")
+  const att = attachedOf(o)
+  const attRefs = (o.attachment_support as unknown[] | undefined) ?? []
+  const refsText = attRefs.map((x) => Array.isArray(x) ? (x[1] ? `${x[0]}:${x[1]}` : String(x[0])) : linkText(x)).join(', ')
   const row = (r: PartProp): ReactNode => {
     const v = r.k ? (o[r.k] as unknown) : undefined
     const label = human(r.p)
     if (r.p === 'Label') return <EditRow key={r.p} k="Label" value={labelOf(o)} type="str" onCommit={(x) => set({ label: String(x) === name ? null : x })} />
-    if (r.p === 'Placement') return <Row key={r.p} k={label} v={placementText(v ?? [[0, 0, 0], [0, 0, 0]])} />
-    if (!r.k || r.ro) return <Row key={r.p} k={<span title={r.k ? 'Read-only' : 'not held by the part file: FreeCAD\'s value'}>{label}</span>} v={r.k ? String(v ?? '') : r.p === 'MapMode' ? 'Deactivated' : r.p === 'AttacherEngine' ? 'Engine 3D' : ''} />
+    if (r.p === 'Placement') return <Row key={r.p} k={label} v={placementText(att ? [att.placement.position, att.placement.ypr] : v ?? [[0, 0, 0], [0, 0, 0]])} />
+    if (!r.k || r.ro) return <Row key={r.p} k={<span title={r.k ? 'Read-only' : 'not held by the part file: FreeCAD\'s value'}>{label}</span>}
+      v={r.k ? String(v ?? '') : r.p === 'MapMode' ? String(att?.map_mode ?? o.map_mode ?? 'Deactivated') : r.p === 'AttacherEngine' ? 'Engine 3D'
+        : r.p === 'AttachmentSupport' ? refsText : ''} />
     if (/PropertyLink/.test(r.t)) return <Row key={r.p} k={<span title="a link: change it in its task panel, or with cad feature set">{label}</span>} v={linkText(v)} />
     if (r.t === 'App::PropertyBool') return <EditRow key={r.p} k={label} value={v === true} type="bool" onCommit={(x) => set({ [r.k!]: x })} />
     if (r.e) return <div key={r.p} className="prow" tabIndex={0}><span className="pk" style={propPad(0)}>{label}</span>

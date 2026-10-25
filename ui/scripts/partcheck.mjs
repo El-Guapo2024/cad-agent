@@ -50,7 +50,7 @@ const clean = (t) => String(t ?? '').replace(/&(.)/g, '$1').replace(/…$/, '').
 // What is deliberately different (PARITY.md, "Part workbench"), by the FreeCAD command or widget
 const NOT_PORTED = new Set(['Part_BoxSelection', 'Part_Builder', 'Part_ShapeFromMesh', 'Part_PointsFromMesh', 'Part_MakeSolid', 'Part_ReverseShape',
   'Part_SimpleCopy', 'Part_TransformedCopy', 'Part_ElementCopy', 'Part_ToleranceSet', 'Part_Scale', 'Part_MakeFace', 'Part_RuledSurface',
-  'Part_CrossSections', 'Part_SectionCut', 'Part_EditAttachment', 'Part_CheckGeometry', 'Part_Defeaturing', 'Materials_InspectAppearance',
+  'Part_CrossSections', 'Part_SectionCut', 'Part_CheckGeometry', 'Part_Defeaturing', 'Materials_InspectAppearance',
   'Materials_InspectMaterial', 'Part_ColorPerFace'])
 
 // ── a scratch workbench (transformcheck.mjs's) ───────────────────────────────────────────────────────────────────────
@@ -97,6 +97,7 @@ const objectsAt = (n, what) => until(`(cadui.getState().features[${JSON.stringif
 /** Select tree rows as clicks do (the first alone, the rest with Ctrl). */
 async function selectRows(names) {
   await st('cadui.setState({ featSel: [], selected: [] })')
+  await sleep(150)                 // let the cleared selection render: a click on a row still selected would toggle it off
   for (const [i, n] of names.entries()) {
     await page.click(`.ptrow[data-ref="${DOC}/${n}"] .tname`, { modifiers: i ? ['Control'] : [] })   // its label, not the eye
     if (!await until(`cadui.getState().featSel.includes(${JSON.stringify(`${DOC}/${n}`)}) && cadui.getState().featSel.length === ${i + 1}`, `${n} selected`, 10000)) {
@@ -299,6 +300,72 @@ try {
       same(made.map((o) => [o.name, o.label]), want.map((m) => [m.name, m.label]), 'Part_ExplodeCompound: FreeCAD\'s filters, names and labels')
       note('Part_ExplodeCompound: FreeCAD groups the filters in "Exploded Compound"; a part file has no groups (PARITY.md)')
     } }
+
+  // ── Part_EditAttachment: the Attachment panel on a Part object, its faces and edges picked in the 3D view ──────
+  }
+  if (want('attach')) {
+  console.log('attach')
+  const post = (ops) => st(`fetch('/api/pc/features/${DOC}', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CAD': '1' }, body: JSON.stringify({ ops: ${JSON.stringify(ops)} }) }).then(() => cadui.loadFeatures())`)
+  const entry = () => st(`(() => { const walk = (es) => { for (const e of es) { if (e.cmd === 'Part_EditAttachment') return e; if (e.menu) { const x = walk(e.menu); if (x) return x } } return null }; return walk(cadui.part().part) })()`)
+  const refs = () => st(`[...document.querySelectorAll('.taskview .tfield input')].slice(0, 4).map((e) => e.value)`)
+  // TaskAttacher::updateReferencesUI puts this text in every line whose reference is empty (fcattach.json's lineRefN)
+  const EMPTY = 'No reference selected'
+  const attachMsg = () => st(`document.querySelector('.taskview .pd-attach-msg')?.textContent ?? null`)
+  { const n = await count()
+    await post([{ op: 'add', list: 'OBJECTS', feature: { name: 'Base', type: 'Part::Box', length: 20, width: 20, height: 10, placement: [[0, 0, 30], [0, 0, 0]] } },
+      { op: 'add', list: 'OBJECTS', feature: { name: 'Chip', type: 'Part::Box', length: 4, width: 6, height: 2 } }])
+    await objectsAt(n + 2, 'Base and Chip') }
+  await st('cadui.setState({ featSel: [], selected: [], subSel: [] })')
+  await sleep(200)
+  check((await entry())?.enabled === false, 'Part_EditAttachment: greyed with nothing selected')
+  await selectRows(['Chip'])
+  check((await entry())?.enabled === true, 'Part_EditAttachment: enabled for one selected Part object')
+  await runCmd('Part_EditAttachment')
+  if (await until('cadui.getState().task?.other === "Chip"', 'the Attachment panel on Chip', 20000)) {
+    same(await st('cadui.getState().task.kind'), 'attach', 'Part_EditAttachment: the Attachment panel')
+    await until('cadui.getView().helpers?.has?.("part-pick")', 'the Part objects as pickable helpers', 30000)
+    // a click on the object itself is ignored (TaskAttacher: "Can't attach object to itself!"), its own faces are not drawn
+    await st('cadui.getView().helperPicker("@Chip.Face1")')
+    await sleep(300)
+    same(await refs(), [EMPTY, EMPTY, EMPTY, EMPTY], 'Part_EditAttachment: a click on the object itself is ignored')
+    await st('cadui.getView().helperPicker("@Base.Face6")')
+    if (await until('document.querySelector(".taskview .tfield input")?.value === "Base:Face6"', 'the face clicked in the 3D view as the reference', 30000)) {
+      same(await refs(), ['Base:Face6', EMPTY, EMPTY, EMPTY], 'Part_EditAttachment: the face clicked in the 3D view is reference 1')
+      await until('document.querySelector(".taskview .pd-attach-msg")?.textContent?.startsWith("Attached with mode")', 'the attachment\'s answer', 30000) &&
+        same(await attachMsg(), 'Attached with mode XY on plane', 'Part_EditAttachment: the engine 3D mode that fits the face')
+      await clickButton('OK')
+      await until('!cadui.getState().task', 'the Attachment panel to close')
+      if (await until(`(cadui.getState().features[${JSON.stringify(DOC)}]?.objects ?? []).find((o) => o.name === "Chip")?.attachment_support?.length === 1`, 'Chip attached', 30000)) {
+        const chip = (await objects()).find((o) => o.name === 'Chip')
+        same(chip.attachment_support, [['Base', 'Face6']], 'Part_EditAttachment: AttachmentSupport written')
+        same([chip.map_mode, chip.attachment_offset ?? null, chip.map_reversed ?? false], ['FlatFace', null, false], 'Part_EditAttachment: MapMode written, no offset')
+        await until('cadui.getState().undo[0]?.name === "Edit attachment"', 'the "Edit attachment" step', 30000) && ok('Part_EditAttachment: undo step "Edit attachment"')
+        const att = await st(`cadui.getState().features[${JSON.stringify(DOC)}]?.attached?.objects?.Chip ?? null`)
+        const z = att?.placement?.position?.[2]
+        check(typeof z === 'number' && Math.abs(z - 40) < 1e-6, 'Part_EditAttachment: the object lands on the face it is attached to', JSON.stringify(att?.placement?.position))
+        // the Data tab shows the attachment the Body built: its Placement, MapMode, engine and references
+        await until('!cadui.getState().busy.length', 'the attachment write to settle', 30000)
+        await selectRows(['Chip'])
+        await sleep(300)
+        const pvOf = (label) => st(`(() => { const r = [...document.querySelectorAll('.props .prow')].find((e) => e.querySelector('.pk')?.textContent.trim() === ${JSON.stringify(label)}); return r?.querySelector('.pv')?.textContent.trim() ?? null })()`)
+        same(await pvOf('Attachment Support'), 'Base:Face6', 'Part_EditAttachment: the property view\'s Attachment Support')
+        same(await pvOf('Map Mode'), 'FlatFace', 'Part_EditAttachment: the property view\'s Map Mode')
+        same(await pvOf('Attacher Engine'), 'Engine 3D', 'Part_EditAttachment: the property view\'s Attacher Engine')
+        check((await pvOf('Placement'))?.includes('40.00 mm') === true, 'Part_EditAttachment: the property view\'s Placement', await pvOf('Placement'))
+        // reopening it shows what was written, and a datum or a body feature is no target (one Part object at a time)
+        await runCmd('Part_EditAttachment')
+        if (await until('cadui.getState().task?.other === "Chip"', 'the Attachment panel reopened', 20000)) {
+          await until('document.querySelector(".taskview .tfield input")?.value === "Base:Face6"', 'the saved reference', 30000)
+          same(await refs(), ['Base:Face6', EMPTY, EMPTY, EMPTY], 'Part_EditAttachment: the panel opens on the saved reference')
+          await until('document.querySelector(".taskview .pd-attach-msg")?.textContent?.startsWith("Attached with mode")', 'the reopened panel\'s mode', 30000) &&
+            same(await attachMsg(), 'Attached with mode XY on plane', 'Part_EditAttachment: and on its mode')
+          await clickButton('Cancel')
+          await sleep(400)
+          same((await objects()).find((o) => o.name === 'Chip')?.attachment_support, [['Base', 'Face6']], 'Part_EditAttachment: Cancel writes nothing')
+        }
+      }
+    } else await clickButton('Cancel').catch(() => {})
+  }
 
   // ── task panels ────────────────────────────────────────────────────────────────────────────────────────────────
   }

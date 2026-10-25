@@ -622,11 +622,14 @@ makeElement* they call, and the Python features (BasicShapes' Tube, BOPTools' Bo
 Cutout with GeneralFuseResult, ShapeMerge, SplitAPI, JoinAPI; CompoundTools' CompoundFilter and Explode).
 `cad_agent/feature_edit_part.py` and feature_edit.py read and edit OBJECTS in place, `cad feature new --document` and `add`/`set`
 take them, and `src/part_wb.tsx` (commands, menu, toolbars, tree, property view, keys) and `src/part_tasks.tsx` (task panels) are
-the page's. `tests/golden/part` holds 211 documents freecadcmd built from the same lines (`make.py`, `make.py split`,
+the page's; `src/pd_attach.tsx` is the Attachment panel for a Part object too (AttacherEngine3D), and `src/part_pick.tsx` draws
+the objects' own shapes as the faces and edges their panels pick in the 3D view. `tests/golden/part` holds 211 documents freecadcmd built from the same lines (`make.py`, `make.py split`,
 `make.py sweep`): every object of them, 1,368 checks with the round trips, gives FreeCAD's volume, area, length, box, centre,
 shape type and counts of solids, shells, faces, wires, edges and vertices, or fails with FreeCAD's message; three are known
 (below). Every type's defaults are a fresh FreeCAD object's. `scripts/partcheck.mjs` holds the page to the real FreeCAD's GUI
-(`scripts/fcpart.py` writes `scripts/fcpart.json`): 392 checks pass, 22 known (2026-10-25).
+(`scripts/fcpart.py` writes `scripts/fcpart.json`): 406 checks pass, 21 known (2026-10-25), the attach section's 17 among
+them (the Attachment panel on a Part object, a face picked in the 3D view, the properties and the Placement written, the
+property view's rows, the panel reopened on them, Cancel writing nothing).
 
 | FreeCAD | Ours |
 |---|---|
@@ -634,13 +637,21 @@ shape type and counts of solids, shells, faces, wires, edges and vertices, or fa
 | Part menu, Solids / Part Tools / Boolean Tools toolbars | done: FreeCAD's entries in its order with its commands and icons (fcpart.json), the dropdown groups (Part_CompCompoundTools, _CompJoinFeatures, _CompSplitFeatures, _CompOffset) |
 | The commands on a selection | done as Command.cpp, CommandParametric.cpp, BOPFeatures.py and the BOPTools/CompoundTools commands do: FreeCAD's names (Box labelled Cube, Fusion, Common, Part__Mirroring labelled "<Label> (Mirror #n)", a Refine named after its source, Compound_child0 labelled "Compound.0"), the undo step's name ("Cube", "Part Cut", "Fusion", "Create Boolean Fragments", "Explode", …), the inputs each hides, its warnings |
 | Primitives dialog, Tube | done: the type list, each page's labels and the values the dialog starts from (a Plane 10 × 10 mm, a Line to (10, 10, 10), an Ellipsoid's Radius 3 at 4), the Location panel (position, rotation axis and angle, written with the dialog's two decimals), Create ("Create Box") and Close; a double-click on a primitive opens its page to edit, OK writes "Edit Box" |
-| Task panels | done: Extrude (DlgExtrusion: Along normal / edge / custom, Reversed, lengths, Symmetric, taper angles, Create solid, the shape list; OK, Close, Apply), Revolve, Mirror, Fillet and Chamfer (the shape, its edges with their radii, constant or variable), Loft and Sweep (available and selected profiles, the path), Offset, 2D Offset, Thickness, Project on surface, Boolean Operation, the new sketch's orientation |
+| Task panels | done: Extrude (DlgExtrusion: Along normal / edge / custom, Reversed, lengths, Symmetric, taper angles, Create solid, the shape list; OK, Close, Apply), Revolve, Mirror, Fillet and Chamfer (the shape, its edges with their radii, constant or variable; its edges also picked in the 3D view over the shape), Loft and Sweep (available and selected profiles, the path), Offset, 2D Offset, Thickness (faces picked in the 3D view, tinted), Project on surface (its support and projection picked in the 3D view), Boolean Operation, the new sketch's orientation |
 | Tree | done: a document's objects with what each claims under it (ViewProvider::claimChildren), the hidden greyed, the eye; Space writes visibility=, F2 the Label, Delete, double-click edits |
 | Property view | done: each type's groups and rows in FreeCAD's order (`src/part_props.ts`, written by `scripts/partprops.py` from FreeCAD's objects), editable where the part file holds the value |
 
 Deliberately or knowingly different:
-- Shape builder (Part_Builder), Cross-sections, Simple / Transformed / Element copy, Convert to solid and Defeaturing are greyed: they make a Part::Feature holding a fixed copy of a shape, which a part file of parametric objects cannot hold. Scale, Face from wires, Ruled surface, Reverse shapes and Set tolerance are not ported yet; Shape from mesh and Points from shape have no meshes to work on; Box selection, Persistent section cut, Check geometry, Attachment and Appearance per face are greyed with their reasons.
-- A Part primitive is placed by its Placement (AttachExtension with MapMode Deactivated, as the commands leave it); attaching one is not ported. A sketch outside a Body sits on the XY, XZ or YZ plane with an offset.
+- Shape builder (Part_Builder), Cross-sections, Simple / Transformed / Element copy, Convert to solid and Defeaturing are greyed: they make a Part::Feature holding a fixed copy of a shape, which a part file of parametric objects cannot hold. Scale, Face from wires, Ruled surface, Reverse shapes and Set tolerance are not ported yet; Shape from mesh and Points from shape have no meshes to work on; Box selection, Persistent section cut, Check geometry and Appearance per face are greyed with their reasons.
+- A Part object is placed by its Placement (AttachExtension with MapMode Deactivated, as the commands leave it), or by its
+  attachment: Part_EditAttachment opens `src/pd_attach.tsx` with AttacherEngine3D on exactly one selected Part object (not a
+  sketch), with the reference buttons, the engine 3D modes, the offset and Flip sides; the references are resolved among the
+  objects before it in the part file (a forward reference is refused when the attacher answers, as a part file is in order),
+  from the tree, the Origin's planes (`XY_Plane` …) or its faces and edges picked in the 3D view. While the panel is open the scene's joined
+  Body gives way and every shown Part object and the Body's Tip is drawn from its own shape (`src/part_pick.tsx`), the attached
+  object at the Placement the attacher answers; a click on the object itself is ignored ("Can't attach object to itself!"). The
+  drawn elements are faces and edges: a vertex cannot be picked, so a mode that needs one is not reached here (FreeCAD can,
+  by typing the reference). A sketch outside a Body sits on the XY, XZ or YZ plane with an offset.
 - Visibility is written in the part file (visibility=), so Space is an undo step ("Toggle visibility") and rebuilds the part; FreeCAD keeps it in the GUI document, outside undo. A sketch's visibility stays in the page, as a Body's sketches do.
 - Delete refuses an object another uses, after FreeCAD's "Object Dependencies" question: a part file has no broken links.
 - An object that fails to build (Connect of two solids with "There is more than one largest piece!", FreeCAD's message) is refused and nothing is written, as every `cad feature` change that does not build is put back; FreeCAD keeps it, marked in error.
@@ -648,7 +659,7 @@ Deliberately or knowingly different:
 - Explode compound's group ("Exploded Compound", an App::DocumentObjectGroup) is not made: a part file has no groups; the filters are.
 - The Python objects' TypeId is Part:: and the Proxy's name (Part::Tube, Part::BooleanFragments, …), FreeCAD's being Part::FeaturePython.
 - The refine and the booleans are pd-kernel's ports (cad_agent/refine.py, topo_boolean.py), shared with PartDesign. In a cut through a cut the boolean gives FreeCAD's shape (25 edges, 10 faces) and the refine port joins two edges FreeCAD's RefineModel leaves split (2 known cases, the same 9 faces and solid). An open sketch's 2D offset splits one edge fewer: FreeCAD's sketch shape carries plane curves from FaceMakerBuildFace that OCCT's offset follows (1 known case).
-- The lists a panel offers (Extrude's shapes, Fillet's solids, Loft's profiles) are told apart by the objects' types, not their built shapes; Fillet and Chamfer pick edges in their list, Thickness its faces, Project on surface its face, wires and edges, from lists rather than in the 3D view; the Primitives dialog's Pick Position and Circle From 3 Points, Project on surface's camera direction are greyed.
+- The lists a panel offers (Extrude's shapes, Fillet's solids, Loft's profiles) are told apart by the objects' types, not their built shapes; Fillet and Chamfer pick edges in their list or on the shape in the 3D view, Thickness its faces either way (drawn tinted over the shape), Project on surface its face, wires and edges (picked while its button is down); the Primitives dialog's Pick Position and Circle From 3 Points, Project on surface's camera direction are greyed.
 - The new sketch's orientation is a task panel, FreeCAD's a modal dialog.
 ## PartDesign Loft, Pipe and Helix, 2026-10-24
 
@@ -694,6 +705,13 @@ picked in the view, everything else also by its row in the tree. The server read
 features do (`cad_agent/feature_refs.py`: App datum elements by getBasePoint/getDirection, PartDesign::Plane and Line by theirs,
 a Draft's neutral plane by makePlnFromPlane), and a Pad's or Pocket's ReferenceAxis (Direction/edge) is built.
 
+The Part workbench's panels pick through `src/part_pick.tsx`: while a panel asks, the shown Part objects and the Body's Tip are
+drawn from their own shapes (`cad feature shape`, FreeCAD's Face1/Edge1 names) as the scene's helpers, and a click comes back
+as the part file's `("Base", "Face6")`. Fillet and Chamfer draw the chosen shape's edges only (their faces are not pickable),
+Thickness its faces tinted and in front of the shape (opacity 0.55), Project on surface what its armed button asks for, and the
+Attachment panel every shown object with the attached one at the Placement the attacher answers (the scene's merged body hides
+while it is open).
+
 | FreeCAD | Ours |
 |---|---|
 | Pad / Pocket: Up to face's Select Face | done: armed when a side turns to Up to face with no face (updateSideUI), "Face selection active"; a face of the base, a datum plane, an LCS's plane ("LCS:XY_Plane001"), the Origin's ("Origin:XY_Plane"); edges and lines refused; OK writes `up_to_face` |
@@ -709,6 +727,10 @@ a Draft's neutral plane by makePlnFromPlane), and a Pad's or Pocket's ReferenceA
 | PartDesign_Plane, _Line, _Point, _CoordinateSystem | done (`src/pd_datum.tsx`): UnifiedDatumCommand (one selected of the type opens it to edit, else a new one in the active Body, the selection as its references), TaskDatumParameters (the attachment panel titled "Datum Plane Parameters" … with the datum's icon), OK with no mode asks "Incompatible Reference Set"; "Create DatumPlane", "Create Local_CS" |
 | Std_Delete of a feature others use | done: "Object Dependencies" lists what links it, attachments and the next solid (whose BaseFeature it is) included, sorted; Yes deletes it and breaks the links as FreeCAD does (`cad_agent/feature_delete.py`, `cad feature delete --break`): an attached sketch or datum keeps its place, a dress-up's Base follows to the solid before, a list's entry goes, a single link is cleared |
 | Loft, Pipe, Helix (pd-sweep): the selection buttons | the edge modes (Add Edge / Remove Edge of a spine) take the base's edges in the 3D view, the others whole objects, through pd_pick (no check of its own yet: sweepcheck holds the panels) |
+| Part Fillet / Chamfer: the shape's edges | done: the edges of the chosen shape, drawn over it, clicked to check or uncheck (the list works too; the shape's faces are not drawn) |
+| Part Thickness: the shape's faces | done: its faces tinted over the shape while the pick is armed; a click adds the face to the list |
+| Part Project on surface: the projection surface, then the faces, wires or edges | done: Select Projection Surface takes a face of any shown object; Add/Remove Face, Wire and Edge take those elements while their button is down, and the pick ends the arming |
+| Part_EditAttachment: a reference | done: a face or edge of any shown Part object, or an Origin plane (XY_Plane …), as its line ("Base:Face6"); a click on the object itself is ignored, a forward reference is refused (PARITY.md, "Part workbench"); vertices are not drawn |
 
 Checked against the real FreeCAD 26.3: `scripts/fcpick.py` drives its GUI and picks through each panel's gate
 (`Gui.Selection.addSelection`, as a click does) into `scripts/fcpick.json`; `scripts/pickcheck.mjs` does the same clicks in the

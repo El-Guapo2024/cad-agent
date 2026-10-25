@@ -760,13 +760,17 @@ def external_list(where: str, ext) -> list[tuple[str, str]]:
 # ── a part's Body, for `cad feature list` and `cad feature attach` ─────────────────────────────────────
 
 def _load(path):
+    """(the part module, its FEATURES, PARAMS, the base shape, its OBJECTS): a part of Part objects, of a Body, or
+    both (a Part object attached to a Body feature)."""
     from . import state
     mod = state._load_module(path)
-    if not hasattr(mod, "FEATURES"):
+    features = list(getattr(mod, "FEATURES", None) or [])
+    objects = list(getattr(mod, "OBJECTS", None) or [])
+    if not features and not objects:
         raise FeatureError("the part has no FEATURES")
     params = dict(getattr(mod, "PARAMS", {}) or {})
     base = mod.build_base(**params) if hasattr(mod, "build_base") else None
-    return mod, list(mod.FEATURES), params, base
+    return mod, features, params, base, objects
 
 
 def _evaluate_upto(features, params, base):
@@ -786,25 +790,32 @@ def _evaluate_upto(features, params, base):
 
 
 def needs_body(doc: dict) -> bool:
-    """Whether a feature list (feature_edit.read()) has something only the built Body places: a datum, a sketch
-    attached to anything but an origin plane with FlatFace, or a sketch with external geometry."""
+    """Whether a feature list (feature_edit.read()) has something only the built document places: a datum, a sketch
+    attached to anything but an origin plane with FlatFace, a sketch with external geometry, or a Part object the
+    Attachment editor attached (feature_part.py's Part objects)."""
     datum_types = {c.type_id for c in DATUMS.values()}
     for f in doc.get("features") or []:
         if f.get("type") in datum_types:
             return True
         if f.get("type") == "Sketcher::SketchObject" and (not f.get("support") or f.get("external_geometry")):
             return True
+    for o in doc.get("objects") or []:
+        if o.get("attachment_support") or o.get("map_mode") not in (None, "Deactivated"):
+            return True
     return False
 
 
 def body_info(path) -> dict:
-    """Every object's Placement as the Body attaches it, each attached object's MapMode, and each sketch's
-    external geometry: {"objects": {name: {"placement": ..., "map_mode": ..., "external": [...]}}, "error"}.
-    Built past the Tip, as FreeCAD recomputes every feature of a Body."""
+    """Every object's Placement as the document places it (the Body attaches its features, a Part object its
+    attachment), each attached object's MapMode, and each sketch's external geometry: {"objects": {name:
+    {"placement": ..., "map_mode": ..., "external": [...]}}, "error"}. Built past the Tip, as FreeCAD recomputes every
+    feature of a Body, and every Part object after the objects it links."""
     try:
-        _, features, params, base = _load(path)
+        _, features, params, base, part_objects = _load(path)
     except Exception as e:                              # a part that does not load says why; the tree still shows
         return {"objects": {}, "error": f"{type(e).__name__}: {e}"}
+    if part_objects:
+        return _part_info(part_objects, features, params, base)
     shapes, err = _evaluate_upto(features, params, base)
     ctx = shapes["_attach"]
     objects = {}
@@ -821,11 +832,40 @@ def body_info(path) -> dict:
     return {"objects": objects, "error": err}
 
 
+def _part_info(part_objects, features, params, base) -> dict:
+    """body_info of a part with Part objects: feature_part.evaluate places them, and the Body it holds."""
+    from . import feature_part as Part
+    body, body_err = _evaluate_upto(features, params, base) if features else ({}, None)
+    try:
+        shapes = Part.evaluate(part_objects, params, features, base, body=body, keep_going=True)
+    except FeatureError as e:                           # OBJECTS that do not load: a duplicate name, a bad entry
+        return {"objects": {}, "error": str(e)}
+    ctx = shapes["_ctx"]
+    sketches = (ctx.body or {}).get("_sketches", {})
+    objects = {}
+    sources = [(ctx.placements, ctx.modes)]
+    if ctx.attach_ctx is not None:
+        sources.insert(0, (ctx.attach_ctx.placements, ctx.attach_ctx.modes))
+    for placements, modes in sources:
+        for name, pl in placements.items():
+            if name in ORIGIN or name == Part.BODY:
+                continue
+            rec = {"placement": pl.as_dict()}
+            if name in modes:
+                rec["map_mode"] = modes[name]
+            sk = sketches.get(name)
+            if sk is not None:
+                rec["external"] = list(sk._external)
+            objects[name] = rec
+    err = body_err or next(iter(ctx.errors.values()), None)
+    return {"objects": objects, "error": err}
+
+
 def project_query(path, sketch: str, refs) -> dict:
     """What Sketcher_External adds for references picked while a sketch is in edit: each one projected onto the
     sketch as the Body places it (rebuildExternalGeometry), resolved in the Body before the sketch.
     {"placement": the sketch's, "external": [[geometry, ...] per reference], "errors": [message or None, ...]}"""
-    _, features, params, base = _load(path)
+    _, features, params, base, _objects = _load(path)
     names = [getattr(f, "name", None) for f in features]
     if sketch not in names:
         raise FeatureError(f"there is no sketch {sketch!r}")
@@ -850,13 +890,29 @@ def attach_query(path, support, engine: str = "Plane", mode: str | None = None, 
                  prefer: str | None = None) -> dict:
     """What FreeCAD's Attachment panel shows for a set of references (TaskAttacher::updatePreview): their types,
     suggestMapModes' answer, and the Placement of the mode (the best fit when none is given). The references
-    resolve in the Body as it stands before `before` (the feature being edited), or with all of it."""
-    _, features, params, base = _load(path)
-    names = [getattr(f, "name", None) for f in features]
-    if before is not None and before in names:
-        features = features[:names.index(before)]
-    shapes, err = _evaluate_upto(features, params, base)
-    ctx = shapes["_attach"]
+    resolve in the Body as it stands before `before` (the feature being edited), or with all of it; a Part object
+    (`before` in a part with OBJECTS) resolves them among the objects before it, and uses its own engine, the
+    AttacherEngine the editor shows (Attacher::AttachEngine3D for every Part object)."""
+    _, features, params, base, part_objects = _load(path)
+    body_err = None
+    if part_objects:
+        from . import feature_part as Part
+        target = next((o for o in part_objects if o.name == before), None)
+        if target is not None:
+            engine = target.engine
+            part_objects = part_objects[:[o.name for o in part_objects].index(before)]
+        body, body_err = _evaluate_upto(features, params, base) if features else ({}, None)
+        try:
+            shapes = Part.evaluate(part_objects, params, features, base, body=body, keep_going=True)
+        except FeatureError as e:
+            return {"engine": engine, "message": "LinkBroken", "error": str(e)}
+        ctx, err = shapes["_ctx"], body_err
+    else:
+        names = [getattr(f, "name", None) for f in features]
+        if before is not None and before in names:
+            features = features[:names.index(before)]
+        shapes, err = _evaluate_upto(features, params, base)
+        ctx = shapes["_attach"]
     out = {"engine": engine, "build_error": err}
     try:
         refs = support_list("attachment", support)

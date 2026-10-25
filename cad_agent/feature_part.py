@@ -118,17 +118,68 @@ class PartObject(KwFeature):
     PROPS: dict = {}
     ENUMS: dict = {}                 # {key: FreeCAD's enumeration}, checked on construction
     RANGES: dict = {}                # {key: (lo, hi)}: FreeCAD's constraint, a value clamped to it
-    COMMON = {"label": None, "visibility": None}
+    # Every Part object has a Placement, and the Attachment editor (Part_EditAttachment) gives each one
+    # AttachExtension's properties: on a Part::Primitive and a Tube FreeCAD defines them, on the others the editor adds
+    # Part::AttachExtensionPython. attachment_support is AttachmentSupport, map_mode MapMode, attachment_offset
+    # AttachmentOffset, map_reversed MapReversed and map_path_parameter MapPathParameter; placement is the Placement an
+    # object with MapMode Deactivated keeps.
+    engine = "3D"                    # AttacherEngine: Attacher::AttachEngine3D for every Part object
+    ATTACH = ("attachment_support", "map_mode", "attachment_offset", "map_reversed", "map_path_parameter")
+    COMMON = {"placement": None, "label": None, "visibility": None, "attachment_support": (),
+              "map_mode": "Deactivated", "attachment_offset": None, "map_reversed": False,
+              "map_path_parameter": 0.0}
+    REFS = ("attachment_support",)
+
+    def __init_subclass__(cls, **kw):
+        super().__init_subclass__(**kw)
+        cls.REFS = tuple(dict.fromkeys((*cls.REFS, "attachment_support")))
 
     @classmethod
     def prop_name(cls, key):
         return cls.PROPS.get(key) or camel(key)
+
+    def normalize(self, key, v):
+        if key == "placement":
+            if v is None:
+                return None
+            try:
+                if len(v) == 3 and all(isinstance(c, (int, float)) for c in v):
+                    return (tuple(float(c) for c in v), (0.0, 0.0, 0.0))
+                pos, ypr = v
+                return (tuple(float(c) for c in pos), tuple(float(c) for c in ypr))
+            except (TypeError, ValueError):
+                raise F.FeatureError(f"{self.name}: placement {v!r} is not (x, y, z) or ((x, y, z), "
+                                     "(yaw, pitch, roll))") from None
+        if key == "attachment_support":
+            from .feature_attach import support_list
+            return support_list(f"{self.name}: attachment_support", v)
+        if key == "map_mode":
+            return v
+        if key == "attachment_offset":
+            return v
+        if key == "map_reversed":
+            return bool(v)
+        if key == "map_path_parameter":
+            try:
+                return float(v)
+            except (TypeError, ValueError):
+                raise F.FeatureError(f"{self.name}: map_path_parameter {v!r} is not a number") from None
+        return super().normalize(key, v)
 
     def validate(self):
         for k, items in self.ENUMS.items():
             v = getattr(self, k)
             if v not in items:
                 raise F.FeatureError(f"{self.name}: {k} {v!r} is not one of {', '.join(map(str, items))}")
+        if not isinstance(self.map_mode, str):
+            raise F.FeatureError(f"{self.name}: map_mode {self.map_mode!r} is not a name")
+        try:
+            from . import attacher as A
+        except ImportError:              # no OCP: the file is read, not built (this module imports without it)
+            return
+        if self.map_mode not in A.modes(self.engine):
+            raise F.FeatureError(f"{self.name}: map_mode {self.map_mode!r} is not one of "
+                                 f"{', '.join(A.modes(self.engine))}")
 
     def v(self, key, params):
         """A number property's value (a PARAMS name or expression evaluated), clamped to its range."""
@@ -162,11 +213,15 @@ class PartObject(KwFeature):
     def shape(self, ctx, params):
         raise NotImplementedError
 
+    def built_shape(self, ctx, params):
+        """The object's shape before its Placement: its own, built from its links (evaluate places it)."""
+        return self.shape(ctx, params)
+
     # ── freecadcmd, for the goldens ──
     def fc_props(self):
         """(FreeCAD property, value) for each property to set on the object, links left to fc_links."""
         for k in self.DEFAULTS:
-            if k in self.REFS or k in ("label", "placement", "visibility"):
+            if k in self.REFS or k in ("label", "placement", "visibility") or k in self.ATTACH:
                 continue
             yield self.prop_name(k), k, getattr(self, k)
 
@@ -176,6 +231,8 @@ class PartObject(KwFeature):
         for prop, k, val in self.fc_props():
             fc.setv(obj, prop, val)
         for k in self.REFS:
+            if k in self.ATTACH:            # fc_attach writes AttachmentSupport, after adding the extension
+                continue
             val = getattr(self, k)
             if val in (None, (), []):
                 continue
@@ -187,9 +244,30 @@ class PartObject(KwFeature):
         if getattr(self, "placement", None) is not None:
             (x, y, z), ypr = self.placement
             obj.Placement = fc.App.Placement(fc.App.Vector(x, y, z), fc.App.Rotation(*ypr))
+        if self.attachment_support or self.map_mode != "Deactivated" or self.attachment_offset is not None \
+                or self.map_reversed or self.map_path_parameter:
+            self.fc_attach(obj, fc)
         if self.label:
             obj.Label = self.label
         return obj
+
+    def fc_attach(self, obj, fc):
+        """AttachExtension's properties, as the Attachment editor writes them (writeParametersToFeature): the support,
+        the offset, Flip sides and the path parameter, then the MapMode that positions the object. An object FreeCAD
+        does not give the extension gets Part::AttachExtensionPython, as the editor adds it."""
+        App = fc.App
+        if not hasattr(obj, "AttacherType"):
+            obj.addExtension("Part::AttachExtensionPython")
+        if self.attachment_support:
+            obj.AttachmentSupport = [fc.link(r) for r in self.attachment_support]
+        off = self.attachment_offset
+        if off is not None:
+            pos, ypr = (off, (0.0, 0.0, 0.0)) if len(off) == 3 and all(isinstance(c, (int, float)) for c in off) \
+                else off
+            obj.AttachmentOffset = App.Placement(App.Vector(*pos), App.Rotation(*ypr))
+        obj.MapReversed = self.map_reversed
+        obj.MapPathParameter = self.map_path_parameter
+        obj.MapMode = self.map_mode
 
     def fc_setup(self, obj, fc):
         """A FeaturePython's Proxy, before its properties are set (Tube, BooleanFragments, ...)."""
@@ -198,32 +276,15 @@ class PartObject(KwFeature):
 class Placed(PartObject):
     """A primitive: its shape made at the origin and moved by its Placement (Part::Primitive, AttachExtension with
     MapMode Deactivated, as the commands leave it). placement is ((x, y, z), (yaw, pitch, roll)), mm and degrees."""
-    COMMON = {"placement": None, "label": None, "visibility": None}
-
-    def normalize(self, key, v):
-        if key == "placement":
-            if v is None:
-                return None
-            try:
-                if len(v) == 3 and all(isinstance(c, (int, float)) for c in v):
-                    return (tuple(float(c) for c in v), (0.0, 0.0, 0.0))
-                pos, ypr = v
-                return (tuple(float(c) for c in pos), tuple(float(c) for c in ypr))
-            except (TypeError, ValueError):
-                raise F.FeatureError(f"{self.name}: placement {v!r} is not (x, y, z) or ((x, y, z), "
-                                     "(yaw, pitch, roll))") from None
-        return super().normalize(key, v)
-
-    def source_value(self, key, v=None):
-        if key == "placement":
-            return getattr(self, key) if v is None else v
-        return super().source_value(key, v)
-
     def local(self, params):
         raise NotImplementedError
 
     def shape(self, ctx, params):
         return placed(self.local(params), self.placement)
+
+    def built_shape(self, ctx, params):
+        """The shape before its Placement: the primitive's own, at the origin."""
+        return self.local(params)
 
 
 def placement_trsf(placement):
@@ -244,30 +305,111 @@ def placed(shape, placement):
 # ── the document ─────────────────────────────────────────────────────────────────────────────────────────────────
 
 class Context:
-    """The document as an object sees it while it builds: the shapes made so far, by name."""
+    """The document as an object sees it while it builds: the shapes made so far, by name, and the Placement each
+    object sits at (its attachment's, or its placement=)."""
 
-    def __init__(self, objects, params, features=None, base=None, tip=None):
+    def __init__(self, objects, params, features=None, base=None, tip=None, body=None):
+        from . import attacher as A
         self.params = dict(params or {})
         self.objects = {}
         self.shapes: dict = {}
+        self.placements: dict = {}
+        self.modes: dict = {}            # {name: the MapMode its attachment used}
         self.errors: dict = {}
         self.body = None
+        self.attach_ctx = None
         self.features = features
-        if features is not None:
-            self.body = F.evaluate(features, self.params, base, tip)
+        if features is not None or body is not None:
+            self.body = body if body is not None else F.evaluate(features, self.params, base, tip)
+            self.attach_ctx = self.body.get("_attach")
             sk = self.body.get("_sketches", {})
             for n, s in sk.items():
                 self.shapes[n] = sketch_shape(s)
-            for f in features:
+            for f in features or ():
                 n = getattr(f, "name", None)
                 if n in self.body and n not in self.shapes:
                     self.shapes[n] = self.body[n]
             self.shapes[BODY] = self.body.get("Tip")
+            self.placements[BODY] = A.Placement()
         for o in objects:
             self.objects[o.name] = o
 
     def obj(self, name):
         return self.objects.get(name)
+
+    def sketch_placement(self, o):
+        """A document sketch's Placement: where its support plane and offset put it (Sketch.placement)."""
+        from . import attacher as A
+        try:
+            pos, m = o.placement()
+        except F.FeatureError as e:
+            raise F.FeatureError(str(e)) from None
+        return A.Placement(pos, A.Rotation.from_matrix(m))
+
+    def resolve(self, name, sub, where):
+        """(shape, placement, whole, plane) of a reference, as AttachExtension's readLinks reads it: an object of this
+        document or one of the Body's (a feature, a sketch, a datum, an origin feature; the Body itself is its Tip).
+        Only what is before the attached object can be referenced, as every link in a part file."""
+        from . import attacher as A
+        if name == BODY:
+            if self.body is None or self.shapes.get(BODY) is None:
+                raise F.FeatureError(f"{where}: no {BODY!r} in this document")
+            shape, pl, whole, plane = self.shapes[BODY], A.Placement(), not sub, False
+        elif name in self.objects:
+            if name in self.errors:
+                raise F.FeatureError(f"{where}: {name} failed: {self.errors[name]}")
+            if name not in self.shapes:
+                raise F.FeatureError(f"{where}: no object {name!r} before it")
+            shape, pl, whole, plane = self.shapes[name], self.placements.get(name, A.Placement()), not sub, False
+        elif self.attach_ctx is not None:
+            return self.attach_ctx.resolve(name, sub, where)
+        else:
+            raise F.FeatureError(f"{where}: no object {name!r} before it")
+        if shape is None or shape.IsNull():
+            raise F.FeatureError(f"{where}: {name} has no shape")
+        return (sub_shape(shape, sub, where) if sub else shape), pl, whole, plane
+
+    def ref(self, obj, sub, where):
+        from . import attacher as A
+        shape, pl, whole, plane = self.resolve(obj, sub, where)
+        return A.Ref(shape, pl, whole=whole, plane=plane)
+
+    def attach(self, f, where=None, orig=None):
+        """f's Placement by its attachment, or None when it is not attached (Deactivated, or no support): the
+        Attachment editor's AttachExtension::positionBySupport."""
+        from . import attacher as A
+        from .feature_attach import placement_of
+        where = where or f.name
+        refs = [self.ref(o, s, where) for o, s in f.attachment_support]
+        mode = f.map_mode
+        if mode == "Deactivated" or not refs:
+            return None
+        self.modes[f.name] = mode
+        try:
+            return A.attach(f.engine, mode, refs, offset=placement_of(where, f.attachment_offset, "attachment_offset"),
+                            reversed=f.map_reversed, parameter=f.map_path_parameter, orig=orig)
+        except A.AttachError as e:
+            raise F.FeatureError(f"{where}: {e}") from None
+
+    def add(self, o, params):
+        """Build one object as a recompute does: its shape before its Placement (a primitive's own, else one built
+        from its links) and the Placement its attachment gives it (else its placement=)."""
+        from . import attacher as A
+        if isinstance(o, F.Sketch):
+            sk = _place_sketch(o, params)
+            self.shapes[o.name] = sketch_shape(sk)
+            self.placements[o.name] = self.sketch_placement(o)
+            return self.shapes[o.name]
+        local = o.built_shape(self, params)
+        orig = A.Placement.from_offset(getattr(o, "placement", None))
+        pl = self.attach(o, f"{o.name}: attachment", orig=orig)
+        if pl is None:
+            pl = orig
+        self.placements[o.name] = pl
+        moved = pl.pos != (0.0, 0.0, 0.0) or pl.rot.q != (0.0, 0.0, 0.0, 1.0)
+        self.shapes[o.name] = local.Moved(TopLoc_Location(pl.trsf())) \
+            if local is not None and not local.IsNull() and moved else local
+        return self.shapes[o.name]
 
     def label(self, link):
         """The Label of a linked object, as FreeCAD's messages name it."""
@@ -344,14 +486,16 @@ def _place_sketch(f, params):
     return f.solved(params)
 
 
-def evaluate(objects, params=None, features=None, base=None, tip=None, upto=None, keep_going=False) -> dict:
+def evaluate(objects, params=None, features=None, base=None, tip=None, upto=None, keep_going=False,
+             body=None) -> dict:
     """{name: TopoDS_Shape} of every object in order (up to and including upto), with "Body" and the Body's features
-    when there are FEATURES, "_errors" {name: FreeCAD's message} when keep_going (a failed object has no shape, and
-    the objects that link it fail too, as a recompute leaves them), else the first error raised."""
+    when there are FEATURES (or body, an already evaluated feature.evaluate dict: what feature_attach's queries pass
+    when the Body stops at an error), "_errors" {name: FreeCAD's message} when keep_going (a failed object has no shape,
+    and the objects that link it fail too, as a recompute leaves them), else the first error raised."""
     params = dict(params or {})
     objects = list(objects or [])
-    ctx = Context(objects, params, features, base, tip)
-    names = set(ctx.shapes) | ({BODY} if features is not None else set())
+    ctx = Context(objects, params, features, base, tip, body)
+    names = set(ctx.shapes) | ({BODY} if features is not None or body is not None else set())
     for o in objects:
         n = getattr(o, "name", None)
         if not isinstance(o, (PartObject, F.Sketch)):
@@ -360,14 +504,12 @@ def evaluate(objects, params=None, features=None, base=None, tip=None, upto=None
             raise F.FeatureError(f"two objects are named {n!r}")
         names.add(n)
         try:
-            if isinstance(o, F.Sketch):
-                ctx.shapes[n] = sketch_shape(_place_sketch(o, params))
-            else:
-                ctx.shapes[n] = o.shape(ctx, params)
+            ctx.add(o, params)
         except F.FeatureError as e:
+            msg = str(e) if str(e).startswith(f"{n}:") else f"{n}: {e}"
             if not keep_going:
-                raise F.FeatureError(f"{n}: {e}") from None
-            ctx.errors[n] = str(e)
+                raise F.FeatureError(msg) from None
+            ctx.errors[n] = msg
         except Exception as e:  # noqa: BLE001 - OCCT's Standard_Failure, as FreeCAD reports it
             msg = getattr(e, "GetMessageString", lambda: str(e) or type(e).__name__)()
             if not keep_going:
@@ -406,11 +548,12 @@ def visible(objects, features=None) -> list[str]:
 
 
 def roots(objects, features=None) -> list[str]:
-    """The objects no other object links (the tree's top level), and "Body" first when nothing links it."""
+    """The objects no other object links (the tree's top level), and "Body" first when nothing links it. What an
+    object is attached to is not a link: AttachExtension's support shows in the dependency graph, not the tree."""
     used = set()
     for o in objects:
         if isinstance(o, PartObject):
-            used |= set(o.references())
+            used |= set(o.inputs())
     out = [BODY] if features is not None and BODY not in used and not (used & {getattr(f, "name", None)
                                                                          for f in features}) else []
     return out + [o.name for o in objects if o.name not in used]
@@ -450,6 +593,8 @@ def to_freecad(objects, params=None, doc=None, features=None, base=None, name="D
         made[BODY] = body
         for o in body.Group:
             made[o.Name] = o
+        for o in body.Origin.OriginFeatures:   # AttachExtension's references to "XY_Plane", "X_Axis", ...
+            made[o.Role] = o
     elif params:
         sheet = doc.addObject("Spreadsheet::Sheet", "Params")
         for i, (k, val) in enumerate(params.items()):

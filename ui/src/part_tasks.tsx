@@ -26,7 +26,7 @@
 // canExtrude, TaskLoft's profiles, DlgFilletEdges' solids), told apart here by their type.
 import { useEffect, useMemo, useState, type ReactNode } from 'react'
 import * as THREE from 'three'
-import { api, type FeatureOp } from './api'
+import type { FeatureOp } from './api'
 import { getState, report, useStore, type Feature, type FeatureDoc } from './store'
 import { closeTask, editSketch } from './actions'
 import { Icon, type IconName } from './icons'
@@ -36,6 +36,7 @@ import { QComboBox } from './combo'
 import { messageBox } from './msgbox'
 import { applyOps, numberOf, refOf, SKETCH } from './partdesign'
 import { addObject, labelOf, objectOf, partIcon, selectedObjects, setObjectPicker, uniqueLabel, uniqueName } from './part_wb'
+import { parsePartPick, partMesh, usePartScene, type Mesh } from './part_pick'
 import './part_tasks.css'
 
 // ── pieces ───────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -433,18 +434,15 @@ function MirrorTask({ part, edit }: { part: string; edit?: string }) {
 }
 
 // ── Fillet and Chamfer (DlgFilletEdges: the shape, its edges with their radii, "Fillet" / "Chamfer") ─────────────────
-/** The number of edges (and the faces) of an object as the server builds it (cad feature shape), and its first-level children. */
-function useShapeOf(part: string, name: string | null) {
-  const [m, setM] = useState<{ edges: number; faces: number } | null>(null)
+/** The shape of an object as the server builds it (cad feature shape), its faces and edges by FreeCAD's names: the
+ *  lists the dialogs show, and what the 3D view picks (part_pick.tsx's helpers). */
+function useShapeOf(part: string, name: string | null): Mesh | null {
+  const [m, setM] = useState<Mesh | null>(null)
   useEffect(() => {
-    const slug = getState().slug
-    if (!slug || !name) { setM(null); return }
+    setM(null)
+    if (!name) return
     let live = true
-    void api.featureShape(slug, part, [], name).then((r) => {
-      if (!live) return
-      const sh = r.data?.shape as { edges?: unknown[]; faces?: unknown[] } | null
-      setM(sh ? { edges: sh.edges?.length ?? 0, faces: sh.faces?.length ?? 0 } : { edges: 0, faces: 0 })
-    }).catch(() => live && setM({ edges: 0, faces: 0 }))
+    void partMesh(part, name).then((x) => { if (live) setM(x) })
     return () => { live = false }
   }, [part, name])
   return m
@@ -459,10 +457,15 @@ function FilletTask({ part, edit, kind }: { part: string; edit?: string; kind: '
   const [checked, setChecked] = useState<Map<number, [number, number]>>(() => new Map(was as Map<number, [number, number]>))
   const [variable, setVariable] = useState(false)
   const [r1, setR1] = useState(1), [rEnd, setREnd] = useState(1)
-  if (!doc) return null
-  const count = shapeInfo?.edges ?? 0
+  const count = shapeInfo?.edges.length ?? 0
   const toggle = (i: number) => setChecked((c) => { const n = new Map(c); if (n.has(i)) n.delete(i); else n.set(i, [r1, variable ? rEnd : r1]); return n })
   const all = (on: boolean) => setChecked(on ? new Map(Array.from({ length: count }, (_, i) => [i + 1, [r1, variable ? rEnd : r1]])) : new Map())
+  // the shape's edges are picked in the 3D view (DlgFilletEdges' Select edges), as the list's checkboxes pick them; the
+  // scene's joint body shows the shape already, so only its edges are drawn, over it
+  usePartScene({ part, active: !!shape, only: shape ? [shape] : [], helperKey: 'pt-pick',
+    allow: (o, el, face) => o === shape && !face,
+    onPick: (name) => { const p = parsePartPick(name); if (p && p[0] === shape && /^Edge\d+$/.test(p[1])) toggle(Number(p[1].slice(4))) } })
+  if (!doc) return null
   const ok = async () => {
     if (!shape) { await messageBox('warning', 'No shape selected', 'No valid shape is selected.\nSelect a valid shape in the drop-down box first.'); return }
     if (!checked.size) { await messageBox('warning', 'No edge selected', `No edge entity is checked to ${kind.toLowerCase()}.\nCheck one or more edge entities first.`); return }
@@ -483,7 +486,7 @@ function FilletTask({ part, edit, kind }: { part: string; edit?: string; kind: '
         <Legend title={kind === 'Fillet' ? 'Fillet parameter' : 'Chamfer parameters'}>
           <Legend title="Selection">
             <Radio name="selectEdges" label="Select edges" checked onChange={() => {}} />
-            <label className="tcheck" data-qf="selectFaces" title="faces pick their edges in FreeCAD's 3D view; here pick the edges in the list"><input type="radio" disabled /> Select faces</label>
+            <label className="tcheck" data-qf="selectFaces" title="a face picks all its edges in FreeCAD's 3D view; here pick the shape's edges in the 3D view or the list"><input type="radio" disabled /> Select faces</label>
             <button className="qbtn" onClick={() => all(true)}>All</button><button className="qbtn" onClick={() => all(false)}>None</button>
           </Legend>
           <Field label={kind === 'Fillet' ? 'Fillet type' : 'Chamfer type'}><QComboBox value={variable ? '1' : '0'} onChange={(e) => setVariable(e.target.value === '1')}>
@@ -594,6 +597,12 @@ function OffsetTask({ part, edit, kind }: { part: string; edit?: string; kind: '
   const [inter, setInter] = useState(existing?.intersection === true), [self, setSelf] = useState(existing?.self_intersection === true), [fill, setFill] = useState(existing?.fill === true)
   const [faces, setFaces] = useState<string[]>(() => (kind === 'thickness' && existing ? [((existing.faces as unknown[])?.[1] as string[])].flat().map(String) : []))
   const [picking, setPicking] = useState(false)
+  // Thickness' Faces button: the source's faces are picked in the 3D view, tinted over the shape as FreeCAD's selection
+  // tints it; the list below picks the same faces
+  usePartScene({ part, active: kind === 'thickness' && picking && !!source, only: source ? [source] : [], helperKey: 'pt-pick',
+    style: { face: '#ffaa00', edge: '#b26b00', opacity: 0.55 },
+    allow: (o, el, face) => o === source && face,
+    onPick: (name) => { const p = parsePartPick(name); if (p && p[0] === source && !faces.includes(p[1])) setFaces([...faces, p[1]]) } })
   if (!doc) return null
   const cfg = { offset: ['Offset', 'Part::Offset', 'Offset', 'Make Offset', 'pt-offset'], offset2d: ['Offset', 'Part::Offset2D', 'Offset2D', 'Make 2D Offset', 'pt-offset2d'],
     thickness: ['Thickness', 'Part::Thickness', 'Thickness', 'Make Thickness', 'pt-thickness'] }[kind] as [string, string, string, string, IconName]
@@ -622,7 +631,7 @@ function OffsetTask({ part, edit, kind }: { part: string; edit?: string; kind: '
         {kind !== 'thickness' && <Check name="fillOffset" label="Fill offset" checked={fill} onChange={setFill} />}
         {kind === 'thickness' && <>
           <button className={cls('qbtn', picking && 'on')} data-qf="facesButton" onClick={() => setPicking(!picking)}>{picking ? 'Done' : 'Faces'}</button>
-          {picking && <div className="pt-list" title="FreeCAD picks the faces in the 3D view; here they are listed">{Array.from({ length: info?.faces ?? 0 }, (_, i) => `Face${i + 1}`).map((f) => (
+          {picking && <div className="pt-list" title="the faces are picked in the 3D view; here they are listed too">{(info?.faces ?? []).map((f) => f.name).map((f) => (
             <label key={f} className={cls('pt-item', faces.includes(f) && 'sel')}><input type="checkbox" checked={faces.includes(f)} onChange={() => setFaces(faces.includes(f) ? faces.filter((x) => x !== f) : [...faces, f])} /> {f}</label>))}</div>}
           <div className="hint">{faces.length ? `${source}: ${faces.join(', ')}` : ''}</div></>}
         <Check name="updateView" label="Update view" checked onChange={() => {}} disabled />
@@ -682,6 +691,17 @@ function ProjectionTask({ part, edit }: { part: string; edit?: string }) {
   const [adding, setAdding] = useState<'support' | 'Face' | 'Wire' | 'Edge' | null>(null)
   const [obj, setObj] = useState('')
   const info = useShapeOf(part, obj || null)
+  // DlgProjectionOnSurface picks the surface and what is projected in the 3D view: a face, or an edge for a wire or an
+  // edge, of any object the document shows
+  usePartScene({ part, active: !!adding, helperKey: 'pt-pick',
+    allow: (o, el, face) => adding === 'support' || adding === 'Face' ? face : !face,
+    onPick: (name) => {
+      const p = parsePartPick(name)
+      if (!p) return
+      if (adding === 'support') setSupport(p)
+      else setProj((x) => [...x.filter((q) => !(q[0] === p[0] && q[1] === p[1])), p])
+      setAdding(null)
+    } })
   if (!doc) return null
   const objs = (doc.objects ?? []).filter((o) => o.name !== edit)
   const ok = async () => {
@@ -692,7 +712,8 @@ function ProjectionTask({ part, edit }: { part: string; edit?: string }) {
     if (existing) { await applyOps(part, [{ op: 'set', name: existing.name, props }], { name: 'Edit Projection' }); return }
     await addObject(part, { name: uniqueName(getState().features[part], 'Projection'), type: 'Part::ProjectOnSurface', ...props }, 'Project on surface')
   }
-  const subs = (k: 'Face' | 'Wire' | 'Edge' | 'support') => Array.from({ length: (k === 'Edge' ? info?.edges : info?.faces) ?? 0 }, (_, i) => `${k === 'support' ? 'Face' : k === 'Wire' ? 'Edge' : k}${i + 1}`)
+  const subs = (k: 'Face' | 'Wire' | 'Edge' | 'support'): string[] =>
+    (k === 'Edge' || k === 'Wire' ? info?.edges.map((e) => e.name) : info?.faces.map((f) => f.name)) ?? []
   return (
     <div className="tasks pt-task" data-task="projection">
       <Buttons items={[['OK', () => void ok(), true], ['Cancel', closeTask]]} />
@@ -700,7 +721,7 @@ function ProjectionTask({ part, edit }: { part: string; edit?: string }) {
         {(['support', 'Face', 'Wire', 'Edge'] as const).map((k) => (
           <button key={k} className={cls('qbtn', adding === k && 'on')} data-qf={k === 'support' ? 'pushButtonAddProjFace' : `pushButtonAdd${k}`} onClick={() => setAdding(adding === k ? null : k)}>
             {k === 'support' ? 'Select Projection Surface' : `Add ${k}`}</button>))}
-        {adding && <div className="pt-pick" title="FreeCAD picks these in the 3D view; here an object and its element">
+        {adding && <div className="pt-pick" title="the elements are picked in the 3D view; here an object and its element">
           <QComboBox value={obj} onChange={(e) => setObj(e.target.value)}><option value="">…</option>{objs.map((o) => <option key={o.name} value={o.name}>{labelOf(o)}</option>)}</QComboBox>
           {obj && <div className="pt-list">{subs(adding).map((sub) => <div key={sub} className="pt-item" onClick={() => {
             if (adding === 'support') setSupport([obj, sub]); else setProj([...proj.filter((p) => !(p[0] === obj && p[1] === sub)), [obj, sub]])
