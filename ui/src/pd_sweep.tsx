@@ -29,7 +29,7 @@ import { messageBox } from './msgbox'
 import * as quantity from './quantity'
 import type { Entry } from './chrome'
 import type { IconName } from './icons'
-import { applyOps, bodyOfPart, curveOf, numberOf, profileLoops, refOf, setAttachPicker, sketchMatrix, splitRef, targetBody, SKETCH } from './partdesign'
+import { applyOps, bodyOfPart, curveOf, isSolid, numberOf, profileLoops, refOf, setAttachPicker, sketchMatrix, splitRef, targetBody, SKETCH } from './partdesign'
 import { useRefPick } from './pd_pick'
 import './pd_sweep.css'
 
@@ -99,7 +99,7 @@ export async function sweepCommand(type: string) {
   const part = targetBody()
   if (!part) { await messageBox('warning', 'No active body', NO_BODY); return }
   const doc = s.features[part]
-  if (!info.additive && !doc.base && !doc.features.some((f) => f.type !== SKETCH)) {
+  if (!info.additive && !doc.base && !doc.features.some((f) => isSolid(f.type))) {
     await messageBox('warning', 'Cannot use this command as there is no solid to subtract from.',
       'Ensure that the body contains a feature before attempting a subtractive command.')
     return

@@ -34,7 +34,7 @@ import { ENGINE_MODES, MODE_REFS, REF_TYPES } from './attachmodes'
 import { suggest } from './attachsuggest'
 import { attachedOf, DATUM_TYPES, isDatum, placementMatrix, ROLES, type PlacementData } from './attached'
 import { datumPanelIcon, datumPanelTitle } from './pd_datum'
-import { applyOps, bodyOfPart, featureVisible, openOrigin, refOf, SKETCH, splitRef, targetBody, setAttachPicker, originPlanes } from './partdesign'
+import { applyOps, bodyOfPart, featureVisible, isSolid, openOrigin, refOf, SKETCH, splitRef, targetBody, setAttachPicker, originPlanes } from './partdesign'
 
 export type Ref = [string, string]                  // AttachmentSupport's (object, sub-element)
 type Engine = '3D' | 'Plane' | 'Line' | 'Point'
@@ -89,15 +89,17 @@ export function refOfRow(part: string, row: string): Ref | null {
   if (lcs) return [lcs[1], lcs[2] + '.']               // an LCS's feature: FreeCAD's "LCS", "XY_Plane001."
   return [n, '']
 }
-/** The solid the 3D view shows for the Body: the last solid feature up to its Tip (a sketch or a datum as the Tip leaves the
- *  one before it), whose elements a click in the 3D view names. */
+/** The solid the 3D view shows for the Body: the last solid feature up to its Tip (a sketch, a datum or a binder as the Tip
+ *  leaves the one before it), whose elements a click in the 3D view names. */
 function tipFeature(doc: FeatureDoc): string | null {
   const upto = doc.tip ? doc.features.findIndex((f) => f.name === doc.tip) : doc.features.length - 1
-  const solids = doc.features.slice(0, upto + 1).filter((f) => f.type !== SKETCH && !isDatum(f.type))
+  const solids = doc.features.slice(0, upto + 1).filter((f) => isSolid(f.type))
   return solids.length ? solids[solids.length - 1].name : doc.base ? 'BaseFeature' : null
 }
-/** The 3D selection's sub-elements of this part's Body, as references to its Tip feature. */
-export function refsOfSelection(part: string): Ref[] {
+/** The 3D selection's sub-elements of this part's Body, as references to its Tip feature. `wholeBody`: a selected Body
+ *  with no element is a reference to its whole Tip solid too; the ShapeBinder panel takes only the elements and the tree
+ *  rows, as TaskShapeBinder's referenceSelected does (and the ShapeBinder command drops the Body from its Support). */
+export function refsOfSelection(part: string, wholeBody = true): Ref[] {
   const s = getState(), body = bodyOfPart(s, part), doc = s.features[part]
   if (!doc) return []
   const out: Ref[] = []
@@ -106,7 +108,7 @@ export function refsOfSelection(part: string): Ref[] {
     const i = r.indexOf('.')
     if (body && r.slice(0, i) === body.name && tip) out.push([tip, r.slice(i + 1)])
   }
-  if (!s.subSel.length && body && s.selected.includes(body.name) && tip) out.push([tip, ''])
+  if (wholeBody && !s.subSel.length && body && s.selected.includes(body.name) && tip) out.push([tip, ''])
   for (const row of s.featSel) { const ref = refOfRow(part, row); if (ref) out.push(ref) }
   return out
 }

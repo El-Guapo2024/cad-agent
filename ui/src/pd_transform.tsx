@@ -36,7 +36,7 @@ import './pd_transform.css'
 import { AttachTask } from './pd_attach'
 import { axisRefText, patternRefText, useOriginShown, useRefPick, type Ref as PickRef } from './pd_pick'
 import type { PlacementData } from './attached'
-import { applyOps, bodyOfPart, createBody, isBodyDoc, numberOf, PAD, POCKET, previewObject, refOf, SKETCH, sketchMatrix, splitRef, targetBody,
+import { applyOps, bodyOfPart, createBody, isBodyDoc, isSolid, numberOf, PAD, POCKET, previewObject, refOf, SKETCH, sketchMatrix, splitRef, targetBody,
   type ExtrudeSpec } from './partdesign'
 
 // ── the types ────────────────────────────────────────────────────────────────
@@ -93,7 +93,7 @@ function uniqueName(taken: Set<string>, base: string) {
 const NO_BODY = 'In order to use PartDesign you need an active Body object in the document. Please make one active (double click) '
   + 'or create one.\n\nIf you have a legacy document with PartDesign objects without Body, use the migrate function in PartDesign '
   + 'to put them into a Body.'
-const lastSolid = (doc: FeatureDoc) => doc.tip ?? [...doc.features].reverse().find((f) => f.type !== SKETCH)?.name ?? doc.features[doc.features.length - 1]?.name ?? null
+const lastSolid = (doc: FeatureDoc) => doc.tip ?? [...doc.features].reverse().find((f) => isSolid(f.type))?.name ?? doc.features[doc.features.length - 1]?.name ?? null
 const clone = <T,>(x: T): T => JSON.parse(JSON.stringify(x))
 
 // ── references (PropertyLinkSub: a name, or [name, sub]) ──────────────────────
@@ -179,7 +179,7 @@ export async function makeTransformed(type: string) {
   const doc = s.features[part]
   const sel = s.featSel.map(splitRef).filter(([, n]) => n)
   if (sel.some(([p]) => p !== part)) { await messageBox('warning', 'Selection is not in the active body', 'Select only one feature in an active body.'); return }
-  const picked = sel.map(([, n]) => doc.features.find((f) => f.name === n)).filter((f): f is Feature => !!f && f.type !== SKETCH)
+  const picked = sel.map(([, n]) => doc.features.find((f) => f.name === n)).filter((f): f is Feature => !!f && isSolid(f.type))
   if (type === MULTI) {
     const tr = picked.find((f) => isTransformed(f.type) && f.type !== MULTI)
     if (tr) return convertToMulti(part, doc, tr)

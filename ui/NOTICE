@@ -850,10 +850,13 @@ src/Mod/PartDesign/App/FeatureMultiTransform.cpp   [licence: LGPL-2.1-or-later]
 src/Mod/PartDesign/App/FeatureScaled.cpp   [licence: LGPL-2.1-or-later]
     copyright 2012 Jan Rheinländer
     followed by src/pd_transform.tsx
+src/Mod/PartDesign/App/ShapeBinder.cpp   [licence: LGPL-2.1-or-later]
+    copyright 2015 Stefan Tröger
+    followed by src/pd_binder.tsx
 src/Mod/PartDesign/Gui/Command.cpp   [licence: LGPL-2.1-or-later]
     copyright 2008 Jürgen Riegel
     followed by src/fctips.ts, src/partdesign.tsx, src/pd_dressup.tsx, src/pd_revolve.tsx,
-        src/pd_sweep.tsx, src/pd_transform.tsx
+        src/pd_sweep.tsx, src/pd_transform.tsx, src/pd_binder.tsx
 src/Mod/PartDesign/Gui/CommandBody.cpp   [licence: LGPL-2.1-or-later]
     copyright 2015 Alexander Golubev (Fat-Zer)
     followed by src/fctips.ts, src/partdesign.tsx
@@ -962,6 +965,12 @@ src/Mod/PartDesign/Gui/TaskRevolutionParameters.ui   [licence: none]
 src/Mod/PartDesign/Gui/TaskScaledParameters.cpp   [licence: LGPL-2.1-or-later]
     copyright 2012 Jan Rheinländer
     followed by src/pd_transform.tsx
+src/Mod/PartDesign/Gui/TaskShapeBinder.cpp   [licence: LGPL-2.1-or-later]
+    copyright 2015 Stefan Tröger
+    followed by src/pd_binder.tsx
+src/Mod/PartDesign/Gui/TaskShapeBinder.ui   [licence: none]
+    copyright: no line in the file
+    followed by src/pd_binder.tsx
 src/Mod/PartDesign/Gui/TaskSketchBasedParameters.cpp   [licence: LGPL-2.1-or-later]
     copyright 2013 Jan Rheinländer
     followed by src/pd_pick.tsx, src/pd_extrude.tsx, src/pd_kernel.tsx
@@ -995,6 +1004,9 @@ src/Mod/PartDesign/Gui/ViewProviderPipe.cpp   [licence: LGPL-2.1-or-later]
 src/Mod/PartDesign/Gui/ViewProviderScaled.cpp   [licence: LGPL-2.1-or-later]
     copyright 2012 Jan Rheinländer
     followed by src/pd_transform.tsx
+src/Mod/PartDesign/Gui/ViewProviderShapeBinder.cpp   [licence: LGPL-2.1-or-later]
+    copyright 2015 Stefan Tröger
+    followed by src/pd_binder.tsx
 src/Mod/PartDesign/Gui/ViewProviderSketchBased.cpp   [licence: LGPL-2.1-or-later]
     copyright 2015 Alexander Golubev (Fat-Zer)
     followed by src/partdesign.tsx

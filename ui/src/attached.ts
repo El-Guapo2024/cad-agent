@@ -48,6 +48,11 @@ export const DATUM_TYPES: Record<string, DatumType> = {
   'PartDesign::CoordinateSystem': { kind: 'PartDesignCoordinateSystem', engine: '3D', base: 'Local_CS', icon: 'pd-datum-cs', menu: 'Local Coordinate System', cmd: 'PartDesign_CoordinateSystem', txn: 'Create Local_CS', shape: 'cs' },
 }
 export const isDatum = (type: unknown): type is string => typeof type === 'string' && type in DATUM_TYPES
+/** PartDesign::ShapeBinder (cad_agent/feature_binder.py), a Body feature that is not one of its solids: a copy of
+ *  another object's geometry. It lives here, with the datums, because both are the Body's objects that a Pad's or a
+ *  Pocket's shape never follows (Body::isSolidFeature); pd_binder.tsx holds its command, panel and property view. */
+export const SHAPE_BINDER = 'PartDesign::ShapeBinder'
+export const isBinder = (type: unknown): type is string => type === SHAPE_BINDER
 /** The Body's origin and a coordinate system's features, by role (App::LocalCoordinateSystem's roles). */
 export const ROLES = ['X_Axis', 'Y_Axis', 'Z_Axis', 'XY_Plane', 'XZ_Plane', 'YZ_Plane', 'Origin']
 

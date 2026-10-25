@@ -106,6 +106,8 @@ export type Task = { kind: 'params' | 'placement' | 'transform' | 'measure' | 'm
   | 'part'                               // the Part workbench's task panels (part_tasks.tsx): other says which
   // and the dress-ups (pd_dressup.tsx); `other` is the feature's name, new or edited
   | 'fillet' | 'chamfer' | 'draft' | 'thickness'
+  // pd_binder.tsx: TaskShapeBinder's "Shape Binder Parameters"; `other` is the binder's name, new or edited
+  | 'shapeBinder'
   // pd_transform.tsx: a transformed feature's panel and a primitive's; `other` is the feature edited, or what a new one is
   | 'pdTransform' | 'pdPrimitive'
   | 'pdSweep'     // pd_sweep.tsx: a Loft, Pipe or Helix; `other` is the feature edited, or "new:<TypeId>"
