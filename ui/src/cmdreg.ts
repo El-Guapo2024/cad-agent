@@ -52,6 +52,7 @@ import { createBody, deleteFeatures, moveFeatureAfter, newSketch, padOrPocket, s
 import { profileCommand } from './pd_revolve'
 import { pdxCommands } from './pd_transform'
 import { partCommands, partEnabled, partRun } from './part_wb'
+import { sweepCommands } from './pd_sweep'
 
 export type RegCommand = { label(): string; run(args: string[]): void; isEnabled(): boolean }
 export type CommandInfo = { name: string; label: string; enabled: boolean }
@@ -226,6 +227,7 @@ const COMMANDS: Record<string, RegCommand> = {
   ...Object.fromEntries(pdxCommands().map(([c, label, run]) => [c, reg(label, run, () => !!getState().slug)])),
   // part_wb.tsx: the Part workbench's commands (Command.cpp, CommandParametric.cpp, BOPTools, CompoundTools)
   ...Object.fromEntries(partCommands().map(([c, e]) => [c, reg(e.label, () => partRun(c), () => partEnabled(c))])),
+  ...Object.fromEntries(sweepCommands().map(([c, label, run]) => [c, reg(label, run, () => !!getState().slug)])),   // pd_sweep.tsx
 
   // ── CAD Agent workbench (chrome.tsx's agentEntries/agentwb.tsx: no FreeCAD equivalent) ──
   CADAgent_Check: reg('Check', () => openTask('check', ''), () => !!getState().slug),

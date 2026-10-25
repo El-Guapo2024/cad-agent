@@ -26,6 +26,7 @@ import { ExtrudeTask, FeatureProps, featureTreeEntries, isBodyDoc, PdBodyRows, r
 import { isObjectRef, isPartDoc, PartDocRows, PartObjectProps, partTreeEntries } from './part_wb'
 import { PartTask } from './part_tasks'
 import { HoleTask, RevolveTask } from './pd_revolve'
+import { SweepTask } from './pd_sweep'
 import { AttachTask, attachTarget } from './pd_attach'
 import { gotoSelection, navi, properties, runConsole, viewHome } from './commands'
 import { api, resultText } from './api'
@@ -899,6 +900,7 @@ function TaskContent() {
   if (task?.kind === 'pad' || task?.kind === 'pocket') return <ExtrudeTask key={`${task.kind}:${task.body}:${task.other}`} kind={task.kind} part={task.body} name={task.other ?? ''} edit={!!task.edit} />
   if (task?.kind === 'revolution' || task?.kind === 'groove') return <RevolveTask key={`${task.kind}:${task.body}:${task.other}`} kind={task.kind} part={task.body} name={task.other ?? ''} edit={!!task.edit} />
   if (task?.kind === 'part') return <PartTask part={task.body} other={task.other ?? ''} />   // the Part workbench's (part_tasks.tsx)
+  if (task?.kind === 'pdSweep') return <SweepTask key={`sweep:${task.body}:${task.other}`} part={task.body} other={task.other ?? ''} edit={!!task.edit} />
   if (task?.kind === 'hole') return <HoleTask key={`hole:${task.body}:${task.other}`} part={task.body} name={task.other ?? ''} edit={!!task.edit} />
   const b = task && scene?.bodies.find((x) => x.name === task.body)
   if (!task || !b) {
