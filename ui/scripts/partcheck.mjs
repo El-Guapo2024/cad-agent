@@ -97,7 +97,14 @@ const objectsAt = (n, what) => until(`(cadui.getState().features[${JSON.stringif
 /** Select tree rows as clicks do (the first alone, the rest with Ctrl). */
 async function selectRows(names) {
   await st('cadui.setState({ featSel: [], selected: [] })')
-  for (const [i, n] of names.entries()) await page.click(`.ptrow[data-ref="${DOC}/${n}"]`, { modifiers: i ? ['Control'] : [] })
+  for (const [i, n] of names.entries()) {
+    await page.click(`.ptrow[data-ref="${DOC}/${n}"] .tname`, { modifiers: i ? ['Control'] : [] })   // its label, not the eye
+    if (!await until(`cadui.getState().featSel.includes(${JSON.stringify(`${DOC}/${n}`)}) && cadui.getState().featSel.length === ${i + 1}`, `${n} selected`, 10000)) {
+      console.log(`        selection: ${JSON.stringify(await st('cadui.getState().featSel'))}; rows: ${JSON.stringify(await st(`[...document.querySelectorAll('.ptrow[data-ref="${DOC}/${n}"]')].length`))}`)
+      console.log(`        at the row's centre: ${await st(`(() => { const r = document.querySelector('.ptrow[data-ref="${DOC}/${n}"]').getBoundingClientRect(); const e = document.elementFromPoint(r.x + r.width / 2, r.y + r.height / 2); return e ? e.outerHTML.slice(0, 200) : null })()`)}`)
+      console.log(`        selected: ${JSON.stringify(await st('cadui.getState().selected'))}; task: ${JSON.stringify(await st('cadui.getState().task'))}`)
+    }
+  }
   await sleep(150)
 }
 const runCmd = (cmd) => st(`cadui.getCommand(${JSON.stringify(cmd)})?.run([])`)
@@ -256,6 +263,14 @@ try {
     await selectRows([a, b])
     const n = await count()
     await runCmd(cmd)
+    if (fc.dialogs?.length) {
+      // FreeCAD's recompute failed on it ("There is more than one largest piece") and kept the object in error; a change
+      // that does not build is put back here, as every `cad feature` edit is (PARITY.md)
+      await sleep(8000)
+      check(await count() === n, `${cmd}: refused with FreeCAD's error, nothing written`, `FreeCAD: ${fc.dialogs[0].text}`)
+      note(`${cmd}: FreeCAD keeps the object that fails to build; the part file puts the change back`)
+      continue
+    }
     if (!await objectsAt(n + 1, cmd)) continue
     const o = (await objects())[n], want = fc.made[0]
     const ty = want.proxy ? { FeatureBooleanFragments: 'Part::BooleanFragments', FeatureXOR: 'Part::XOR', FeatureConnect: 'Part::Connect', FeatureSlice: 'Part::Slice' }[want.proxy] : want.type
@@ -333,7 +348,7 @@ try {
   { const n = await count()
     await post([{ op: 'add', list: 'OBJECTS', feature: { name: 'SketchO', type: 'Sketcher::SketchObject', support: 'XY', geometry: rect(0, 0, 10, 6), constraints: [] } }])
     await objectsAt(n + 1, 'SketchO') }
-  await page.click(`.ptrow[data-ref="${DOC}/SketchO"]`)
+  await page.click(`.ptrow[data-ref="${DOC}/SketchO"] .tname`)
   await panel('Part_Offset2D', null, 'cmd_Part_Offset2D', 'OK', { props: { mode: 'Mode' }, defaults: { mode: 'Pipe' } })
   await panel('Part_ProjectionOnSurface', null, 'cmd_Part_ProjectionOnSurface', null)
   await runCmd('Part_Boolean')

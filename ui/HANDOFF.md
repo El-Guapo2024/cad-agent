@@ -91,7 +91,8 @@ cad_agent/feature_kw.py's KwFeature:
   Projection on surface), feature_edit_part.py, `cad feature new --document`; 211 freecadcmd documents in
   tests/golden/part (`make.py [split|sweep]`), 1,368 checks. UI: src/part_wb.tsx, part_tasks.tsx, part_props.ts
   (scripts/partprops.py), checked by scripts/partcheck.mjs against scripts/fcpart.json (scripts/fcpart.py): 392 ok,
-  21 known, 1 open (the check's Ctrl-click selection of BoxJ and CylJ for Part_JoinConnect reaches the command with BoxJ alone). Cut: Shape
+  22 known (2026-10-25; after the merge of editing-plan b855cc3 + 71cd370 the touched sections: booleans 44 ok / 2 known,
+  panels, props and undo all ok). Cut: Shape
   builder and Cross-sections (static Part::Feature copies), Scale, Face from wires, Ruled surface, Reverse; see PARITY.md.
   partcheck's output reaches a log only at its end (run it as `node scripts/partcheck.mjs > log`; it takes ~40 minutes on
   a loaded box).

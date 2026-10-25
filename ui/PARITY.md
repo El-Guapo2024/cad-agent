@@ -593,7 +593,7 @@ the page's. `tests/golden/part` holds 211 documents freecadcmd built from the sa
 `make.py sweep`): every object of them, 1,368 checks with the round trips, gives FreeCAD's volume, area, length, box, centre,
 shape type and counts of solids, shells, faces, wires, edges and vertices, or fails with FreeCAD's message; three are known
 (below). Every type's defaults are a fresh FreeCAD object's. `scripts/partcheck.mjs` holds the page to the real FreeCAD's GUI
-(`scripts/fcpart.py` writes `scripts/fcpart.json`): 392 checks pass, 21 known, 1 open (2026-10-25).
+(`scripts/fcpart.py` writes `scripts/fcpart.json`): 392 checks pass, 22 known (2026-10-25).
 
 | FreeCAD | Ours |
 |---|---|
@@ -610,6 +610,7 @@ Deliberately or knowingly different:
 - A Part primitive is placed by its Placement (AttachExtension with MapMode Deactivated, as the commands leave it); attaching one is not ported. A sketch outside a Body sits on the XY, XZ or YZ plane with an offset.
 - Visibility is written in the part file (visibility=), so Space is an undo step ("Toggle visibility") and rebuilds the part; FreeCAD keeps it in the GUI document, outside undo. A sketch's visibility stays in the page, as a Body's sketches do.
 - Delete refuses an object another uses, after FreeCAD's "Object Dependencies" question: a part file has no broken links.
+- An object that fails to build (Connect of two solids with "There is more than one largest piece!", FreeCAD's message) is refused and nothing is written, as every `cad feature` change that does not build is put back; FreeCAD keeps it, marked in error.
 - Rename (F2) writes the Label, as FreeCAD does; the Name stays. Labels are made unique as FreeCAD makes them.
 - Explode compound's group ("Exploded Compound", an App::DocumentObjectGroup) is not made: a part file has no groups; the filters are.
 - The Python objects' TypeId is Part:: and the Proxy's name (Part::Tube, Part::BooleanFragments, …), FreeCAD's being Part::FeaturePython.
