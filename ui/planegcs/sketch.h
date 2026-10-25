@@ -264,6 +264,9 @@ public:
     bool construction = false;
     bool blocked = false;  // GeometryFacade::getBlocked (set by a Block constraint)
     InternalType::InternalType internalType = InternalType::None;  // GeometryFacade::getInternalType
+    // The Sketcher's visual layer (ViewProviderSketchGeometryExtension, a Gui property; 0 Normal,
+    // 1 Discontinuous, 2 Hidden), carried with the geometry for cad-agent's UI: the solver never reads it.
+    int layer = 0;
 
     bool isConic() const
     {

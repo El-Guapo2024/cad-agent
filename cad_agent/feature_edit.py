@@ -36,8 +36,9 @@ Two entry points, for the server:
                               "name": ""}, ...]},
             {"name": "Pad", "type": "PartDesign::Pad", "profile": "Sketch", "side_type": "One side",
              "type1": "Length", "type2": "Length", "length": "thick", "length2": 10.0, ...}]}
-        Geometry is cad_agent.planegcs's form (a Point is {"type": "Point", "at": [x, y]}); a constraint's value is
-        as written, a number or a PARAMS name (on writing, "expr" takes the place of "value" when given), and it has
+        Geometry is cad_agent.planegcs's form (a Point is {"type": "Point", "at": [x, y]}); "layer" is there
+        only when it is not 0 (the Sketcher's Gui-only visual layer: 1 Discontinuous, 2 Hidden). A constraint's
+        value is as written, a number or a PARAMS name (on writing, "expr" takes the place of "value" when given), and it has
         "active": False and "virtual_space": True when it is deactivated or in the other virtual space. A Pad's or Pocket's every property is there, defaults filled in;
         the extrusion's own Type property is "type1" (FreeCAD's Type; "type" is the object's TypeId), the part
         file's keyword type=.
@@ -331,16 +332,18 @@ def _pt(p):
 def geometry_src(g: dict) -> str:
     kind = g.get("type")
     c = ", construction=True" if g.get("construction") else ""
+    layer = g.get("layer", 0)
+    l = f", layer={_num(layer)}" if layer else ""
     try:
         if kind == "LineSegment":
-            return f"LineSegment({_pt(g['start'])}, {_pt(g['end'])}{c})"
+            return f"LineSegment({_pt(g['start'])}, {_pt(g['end'])}{c}{l})"
         if kind == "Circle":
-            return f"Circle({_pt(g['center'])}, {_num(float(g['radius']))}{c})"
+            return f"Circle({_pt(g['center'])}, {_num(float(g['radius']))}{c}{l})"
         if kind == "ArcOfCircle":
             return (f"ArcOfCircle({_pt(g['center'])}, {_num(float(g['radius']))}, "
-                    f"{_num(float(g['start_angle']))}, {_num(float(g['end_angle']))}{c})")
+                    f"{_num(float(g['start_angle']))}, {_num(float(g['end_angle']))}{c}{l})")
         if kind == "Point":
-            return f"Point({_pt(g['at'] if 'at' in g else g['point'])}{c})"
+            return f"Point({_pt(g['at'] if 'at' in g else g['point'])}{c}{l})"
         if kind in F._curves.GEOMETRY:             # the conics and B-splines (feature_curves.py)
             return F._curves.source(g, _num)
     except (KeyError, TypeError, IndexError):

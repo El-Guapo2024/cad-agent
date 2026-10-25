@@ -210,11 +210,20 @@ def _xy(p, where):
     return (float(p[0]), float(p[1]))
 
 
+def _layer(v):
+    """The Sketcher's visual layers: 0 Normal, 1 Discontinuous, 2 Hidden (FreeCAD keeps them in a SketcherGui
+    geometry extension, ViewProviderSketchGeometryExtension, not in the sketch's own geometry)."""
+    if isinstance(v, bool) or not isinstance(v, int) or v not in (0, 1, 2):
+        raise FeatureError(f"layer: {v!r} is not 0 (Normal), 1 (Discontinuous) or 2 (Hidden)")
+    return v
+
+
 # ── geometry, as Part.LineSegment, Part.Circle, Part.ArcOfCircle and Part.Point ─────────────────────
 
 class _Geometry:
     kind = ""
     construction = False
+    layer = 0
 
     def points(self) -> dict:
         """{position: (x, y)}: 1 start, 2 end, 3 centre, as Sketcher's PointPos."""
@@ -223,6 +232,12 @@ class _Geometry:
     def as_dict(self) -> dict:
         raise NotImplementedError
 
+    def _layer_dict(self) -> dict:
+        return {"layer": self.layer} if self.layer else {}
+
+    def _layer_src(self) -> str:
+        return f", layer={self.layer}" if self.layer else ""
+
     def __eq__(self, other):
         return type(self) is type(other) and self.as_dict() == other.as_dict()
 
@@ -230,48 +245,52 @@ class _Geometry:
         d = self.as_dict()
         d.pop("type")
         c = d.pop("construction")
+        layer = d.pop("layer", 0)
         args = ", ".join(repr(tuple(v)) if isinstance(v, list) else repr(v) for v in d.values())
-        return f"{self.kind}({args}{', construction=True' if c else ''})"
+        return f"{self.kind}({args}{', construction=True' if c else ''}{f', layer={layer}' if layer else ''})"
 
 
 class LineSegment(_Geometry):
     kind = "LineSegment"
 
-    def __init__(self, start, end, construction: bool = False):
+    def __init__(self, start, end, construction: bool = False, layer: int = 0):
         self.start, self.end = _xy(start, "LineSegment start"), _xy(end, "LineSegment end")
         self.construction = bool(construction)
+        self.layer = _layer(layer)
 
     def points(self):
         return {1: self.start, 2: self.end}
 
     def as_dict(self):
         return {"type": self.kind, "start": list(self.start), "end": list(self.end),
-                "construction": self.construction}
+                "construction": self.construction, **self._layer_dict()}
 
 
 class Circle(_Geometry):
     kind = "Circle"
 
-    def __init__(self, center, radius, construction: bool = False):
+    def __init__(self, center, radius, construction: bool = False, layer: int = 0):
         self.center, self.radius = _xy(center, "Circle center"), float(radius)
         self.construction = bool(construction)
+        self.layer = _layer(layer)
 
     def points(self):
         return {3: self.center}
 
     def as_dict(self):
         return {"type": self.kind, "center": list(self.center), "radius": self.radius,
-                "construction": self.construction}
+                "construction": self.construction, **self._layer_dict()}
 
 
 class ArcOfCircle(_Geometry):
     """An arc counter-clockwise from start_angle to end_angle (radians), as Part.ArcOfCircle."""
     kind = "ArcOfCircle"
 
-    def __init__(self, center, radius, start_angle, end_angle, construction: bool = False):
+    def __init__(self, center, radius, start_angle, end_angle, construction: bool = False, layer: int = 0):
         self.center, self.radius = _xy(center, "ArcOfCircle center"), float(radius)
         self.start_angle, self.end_angle = float(start_angle), float(end_angle)
         self.construction = bool(construction)
+        self.layer = _layer(layer)
 
     def at(self, a):
         return (self.center[0] + self.radius * math.cos(a), self.center[1] + self.radius * math.sin(a))
@@ -282,21 +301,23 @@ class ArcOfCircle(_Geometry):
     def as_dict(self):
         return {"type": self.kind, "center": list(self.center), "radius": self.radius,
                 "start_angle": self.start_angle, "end_angle": self.end_angle,
-                "construction": self.construction}
+                "construction": self.construction, **self._layer_dict()}
 
 
 class Point(_Geometry):
     kind = "Point"
 
-    def __init__(self, point, construction: bool = False):
+    def __init__(self, point, construction: bool = False, layer: int = 0):
         self.point = _xy(point, "Point")
         self.construction = bool(construction)
+        self.layer = _layer(layer)
 
     def points(self):
         return {1: self.point}
 
     def as_dict(self):
-        return {"type": self.kind, "at": list(self.point), "construction": self.construction}
+        return {"type": self.kind, "at": list(self.point), "construction": self.construction,
+                **self._layer_dict()}
 
 
 GEOMETRY = {g.kind: g for g in (LineSegment, Circle, ArcOfCircle, Point)}
@@ -314,14 +335,15 @@ def geometry_from_dict(d: dict) -> _Geometry:
     """The inverse of as_dict(), for what a solver hands back."""
     kind = d.get("type")
     c = bool(d.get("construction", False))
+    layer = d.get("layer", 0)
     if kind == "LineSegment":
-        return LineSegment(d["start"], d["end"], c)
+        return LineSegment(d["start"], d["end"], c, layer)
     if kind == "Circle":
-        return Circle(d["center"], d["radius"], c)
+        return Circle(d["center"], d["radius"], c, layer)
     if kind == "ArcOfCircle":
-        return ArcOfCircle(d["center"], d["radius"], d["start_angle"], d["end_angle"], c)
+        return ArcOfCircle(d["center"], d["radius"], d["start_angle"], d["end_angle"], c, layer)
     if kind == "Point":
-        return Point(d["at"] if "at" in d else d["point"], c)
+        return Point(d["at"] if "at" in d else d["point"], c, layer)
     if kind in _curves.GEOMETRY:
         return _curves.from_dict(d)
     raise FeatureError(f"unknown geometry type {kind!r}")

@@ -7,6 +7,8 @@ Part.ArcOfHyperbola, Part.ArcOfParabola and Part.BSplineCurve, in a FEATURES lis
     ArcOfParabola((vx, vy), focal, start_angle, end_angle, x_axis=..., construction=...)
     BSplineCurve([(x, y), ...], mults, knots, periodic=False, degree=3, weights=None, construction=False)
 
+Each takes layer=0 as well: the Sketcher's Gui-only visual layer, 0 Normal, 1 Discontinuous, 2 Hidden.
+
 x_axis is Part's XAxis: the major axis towards the first focus (a parabola's axis, towards its focus);
 the centre of an ArcOfParabola is its vertex, Part's Location. start_angle and end_angle are the conic's
 own trim parameters (FirstParameter and LastParameter, as Part.ArcOfEllipse(ellipse, u1, u2) takes them),
@@ -38,7 +40,7 @@ from __future__ import annotations
 
 import math
 
-from .feature import FeatureError, _Geometry, _xy
+from .feature import FeatureError, _Geometry, _layer, _xy
 
 try:                                    # the kernel; FreeCAD's Python reads the vocabulary without it
     from OCP.BRepAdaptor import BRepAdaptor_Curve
@@ -161,19 +163,22 @@ class Ellipse(_EllipseBase):
     """Part.Ellipse(center, major_radius, minor_radius) with its XAxis set: the whole ellipse."""
     kind = "Ellipse"
 
-    def __init__(self, center, major_radius, minor_radius, x_axis=(1.0, 0.0), construction: bool = False):
+    def __init__(self, center, major_radius, minor_radius, x_axis=(1.0, 0.0), construction: bool = False,
+                 layer: int = 0):
         self.center = _xy(center, "Ellipse center")
         self._radii(major_radius, minor_radius)
         self._axes(x_axis)
         self.construction = bool(construction)
+        self.layer = _layer(layer)
 
     def as_dict(self):
         return {"type": self.kind, "center": list(self.center), "major_radius": self.major_radius,
-                "minor_radius": self.minor_radius, **self._axis_dict(), "construction": self.construction}
+                "minor_radius": self.minor_radius, **self._axis_dict(), "construction": self.construction,
+                **self._layer_dict()}
 
     def source(self, num=_num):
         return (f"Ellipse({_pt_src(self.center, num)}, {num(self.major_radius)}, {num(self.minor_radius)}"
-                f"{self._axis_src(num)}{', construction=True' if self.construction else ''})")
+                f"{self._axis_src(num)}{', construction=True' if self.construction else ''}{self._layer_src()})")
 
 
 class ArcOfEllipse(_EllipseBase):
@@ -181,23 +186,24 @@ class ArcOfEllipse(_EllipseBase):
     kind = "ArcOfEllipse"
 
     def __init__(self, center, major_radius, minor_radius, start_angle, end_angle, x_axis=(1.0, 0.0),
-                 construction: bool = False):
+                 construction: bool = False, layer: int = 0):
         self.center = _xy(center, "ArcOfEllipse center")
         self._radii(major_radius, minor_radius)
         self.start_angle = _angle(start_angle, "ArcOfEllipse start_angle")
         self.end_angle = _angle(end_angle, "ArcOfEllipse end_angle")
         self._axes(x_axis)
         self.construction = bool(construction)
+        self.layer = _layer(layer)
 
     def as_dict(self):
         return {"type": self.kind, "center": list(self.center), "major_radius": self.major_radius,
                 "minor_radius": self.minor_radius, **self._axis_dict(), "start_angle": self.start_angle,
-                "end_angle": self.end_angle, "construction": self.construction}
+                "end_angle": self.end_angle, "construction": self.construction, **self._layer_dict()}
 
     def source(self, num=_num):
         return (f"ArcOfEllipse({_pt_src(self.center, num)}, {num(self.major_radius)}, "
                 f"{num(self.minor_radius)}, {num(self.start_angle)}, {num(self.end_angle)}"
-                f"{self._axis_src(num)}{', construction=True' if self.construction else ''})")
+                f"{self._axis_src(num)}{', construction=True' if self.construction else ''}{self._layer_src()})")
 
 
 class ArcOfHyperbola(_Conic):
@@ -205,7 +211,7 @@ class ArcOfHyperbola(_Conic):
     kind = "ArcOfHyperbola"
 
     def __init__(self, center, major_radius, minor_radius, start_angle, end_angle, x_axis=(1.0, 0.0),
-                 construction: bool = False):
+                 construction: bool = False, layer: int = 0):
         self.center = _xy(center, "ArcOfHyperbola center")
         self.major_radius = _positive(major_radius, "ArcOfHyperbola major_radius")
         self.minor_radius = _positive(minor_radius, "ArcOfHyperbola minor_radius")
@@ -216,6 +222,7 @@ class ArcOfHyperbola(_Conic):
                                "U1 == U2)")
         self._axes(x_axis)
         self.construction = bool(construction)
+        self.layer = _layer(layer)
 
     def _coords(self, u):
         return (self.major_radius * math.cosh(u), self.minor_radius * math.sinh(u))
@@ -236,19 +243,20 @@ class ArcOfHyperbola(_Conic):
     def as_dict(self):
         return {"type": self.kind, "center": list(self.center), "major_radius": self.major_radius,
                 "minor_radius": self.minor_radius, **self._axis_dict(), "start_angle": self.start_angle,
-                "end_angle": self.end_angle, "construction": self.construction}
+                "end_angle": self.end_angle, "construction": self.construction, **self._layer_dict()}
 
     def source(self, num=_num):
         return (f"ArcOfHyperbola({_pt_src(self.center, num)}, {num(self.major_radius)}, "
                 f"{num(self.minor_radius)}, {num(self.start_angle)}, {num(self.end_angle)}"
-                f"{self._axis_src(num)}{', construction=True' if self.construction else ''})")
+                f"{self._axis_src(num)}{', construction=True' if self.construction else ''}{self._layer_src()})")
 
 
 class ArcOfParabola(_Conic):
     """Part.ArcOfParabola(parabola, start_angle, end_angle); center is the vertex (Part's Location)."""
     kind = "ArcOfParabola"
 
-    def __init__(self, center, focal, start_angle, end_angle, x_axis=(1.0, 0.0), construction: bool = False):
+    def __init__(self, center, focal, start_angle, end_angle, x_axis=(1.0, 0.0), construction: bool = False,
+                 layer: int = 0):
         self.center = _xy(center, "ArcOfParabola center")
         self.focal = _positive(focal, "ArcOfParabola focal")
         self.start_angle = _angle(start_angle, "ArcOfParabola start_angle")
@@ -258,6 +266,7 @@ class ArcOfParabola(_Conic):
                                "U1 == U2)")
         self._axes(x_axis)
         self.construction = bool(construction)
+        self.layer = _layer(layer)
 
     def _coords(self, u):
         return (u * u / (4 * self.focal), u)
@@ -275,11 +284,13 @@ class ArcOfParabola(_Conic):
 
     def as_dict(self):
         return {"type": self.kind, "center": list(self.center), "focal": self.focal, **self._axis_dict(),
-                "start_angle": self.start_angle, "end_angle": self.end_angle, "construction": self.construction}
+                "start_angle": self.start_angle, "end_angle": self.end_angle, "construction": self.construction,
+                **self._layer_dict()}
 
     def source(self, num=_num):
         return (f"ArcOfParabola({_pt_src(self.center, num)}, {num(self.focal)}, {num(self.start_angle)}, "
-                f"{num(self.end_angle)}{self._axis_src(num)}{', construction=True' if self.construction else ''})")
+                f"{num(self.end_angle)}{self._axis_src(num)}{', construction=True' if self.construction else ''}"
+                f"{self._layer_src()})")
 
 
 # ── the B-spline ──────────────────────────────────────────────────────────────────────────────────────
@@ -289,7 +300,7 @@ class BSplineCurve(_Geometry):
     kind = "BSplineCurve"
 
     def __init__(self, poles, mults, knots, periodic: bool = False, degree: int = 3, weights=None,
-                 construction: bool = False):
+                 construction: bool = False, layer: int = 0):
         w = "BSplineCurve"
         if not isinstance(poles, (list, tuple)) or len(poles) < 2:
             raise FeatureError(f"{w}: poles {poles!r} is not a list of two or more points (x, y)")
@@ -324,6 +335,7 @@ class BSplineCurve(_Geometry):
                 raise FeatureError(f"{w}: weights {weights!r} is not one number per pole")
             self.weights = [_positive(x, f"{w} weight") for x in weights]
         self.construction = bool(construction)
+        self.layer = _layer(layer)
         self._flat()
 
     def _flat(self):
@@ -402,7 +414,7 @@ class BSplineCurve(_Geometry):
     def as_dict(self):
         return {"type": self.kind, "poles": [list(p) for p in self.poles], "weights": list(self.weights),
                 "knots": list(self.knots), "mults": list(self.mults), "degree": self.degree,
-                "periodic": self.periodic, "construction": self.construction}
+                "periodic": self.periodic, "construction": self.construction, **self._layer_dict()}
 
     def source(self, num=_num):
         poles = "[" + ", ".join(_pt_src(p, num) for p in self.poles) + "]"
@@ -414,7 +426,7 @@ class BSplineCurve(_Geometry):
             out += f", degree={self.degree}"
         if any(w != 1.0 for w in self.weights):
             out += ", weights=[" + ", ".join(num(w) for w in self.weights) + "]"
-        return out + (", construction=True" if self.construction else "") + ")"
+        return out + (", construction=True" if self.construction else "") + self._layer_src() + ")"
 
 
 CURVES = (Ellipse, ArcOfEllipse, ArcOfHyperbola, ArcOfParabola, BSplineCurve)
@@ -427,17 +439,17 @@ for _g in CURVES:                       # repr is the part file's own line, whic
 def from_dict(d: dict):
     """geometry_from_dict for these kinds: the solver's JSON (start_point and end_point ignored)."""
     kind, c = d.get("type"), bool(d.get("construction", False))
-    ax = d.get("x_axis", (1.0, 0.0))
+    ax, layer = d.get("x_axis", (1.0, 0.0)), d.get("layer", 0)
     if kind == "Ellipse":
-        return Ellipse(d["center"], d["major_radius"], d["minor_radius"], ax, c)
+        return Ellipse(d["center"], d["major_radius"], d["minor_radius"], ax, c, layer)
     if kind in ("ArcOfEllipse", "ArcOfHyperbola"):
         return GEOMETRY[kind](d["center"], d["major_radius"], d["minor_radius"], d["start_angle"],
-                              d["end_angle"], ax, c)
+                              d["end_angle"], ax, c, layer)
     if kind == "ArcOfParabola":
-        return ArcOfParabola(d["center"], d["focal"], d["start_angle"], d["end_angle"], ax, c)
+        return ArcOfParabola(d["center"], d["focal"], d["start_angle"], d["end_angle"], ax, c, layer)
     if kind == "BSplineCurve":
         return BSplineCurve(d["poles"], d["mults"], d["knots"], d.get("periodic", False), d["degree"],
-                            d.get("weights"), c)
+                            d.get("weights"), c, layer)
     raise FeatureError(f"unknown geometry type {kind!r}")
 
 

@@ -709,7 +709,7 @@ export function drawSketch(ctx: Ctx, s: Screen, st: DrawState, camCenter: XY): H
   axis(V_AXIS, [0, camCenter[1] - span], [0, camCenter[1] + span], COLORS.axisV)
   // curves
   st.geometry.forEach((g, i) => {
-    if (g.type === 'Point') return
+    if (g.type === 'Point' || (g.layer ?? 0) === 2) return   // a Hidden layer's geometry is not drawn
     const color = curveColor(st, i), cons = g.construction
     strokePoly(ctx, s, polyline(g), color, cons ? SIZES.construction : SIZES.curve, cons ? DASH : [])
   })
@@ -735,6 +735,7 @@ export function drawSketch(ctx: Ctx, s: Screen, st: DrawState, camCenter: XY): H
   // points, over the curves (zHighPoints)
   const verts = vertices(st.geometry)
   verts.forEach(([g, pos], v) => {
+    if ((st.geometry[g]?.layer ?? 0) === 2) return           // nor are its points
     const p = getPoint(st.geometry, g, pos)
     if (!p) return
     const [x, y] = s.toScreen(p)

@@ -90,6 +90,22 @@ def test_set_sketch_geometry_touches_only_what_changed(plate):
     assert _build(plate).volume == pytest.approx(_expected_volume(holes=5, removed_extra=0), rel=1e-9)
 
 
+def test_set_sketch_geometry_layer(plate):
+    d = E.read(plate)
+    holes = d["features"][2]
+    geo = [dict(g) for g in holes["geometry"]]
+    geo[1] = dict(geo[1], layer=2)
+    before = plate.read_text()
+    E.apply(plate, [{"op": "set", "name": "Holes", "props": {"geometry": geo}}])
+    assert _diff(before, plate.read_text()) == ["-               Circle((24.0, -14.0), 2.25),",
+                                                "+               Circle((24.0, -14.0), 2.25, layer=2),"]
+    assert E.read(plate)["features"][2]["geometry"][1] == {"type": "Circle", "center": [24.0, -14.0],
+                                                           "radius": 2.25, "construction": False, "layer": 2}
+    geo[1] = dict(geo[1], layer=0)                      # back to Layer 0: the keyword goes away
+    E.apply(plate, [{"op": "set", "name": "Holes", "props": {"geometry": geo}}])
+    assert _diff(before, plate.read_text()) == []
+
+
 def _expected_volume(holes=4, removed_extra=0.0):
     return (60 * 40 * 6 - holes * math.pi * 2.25 ** 2 * 6 + math.pi * 64 * 4 - math.pi * 16 * 6
             - (64 + math.pi * 16) * 2 - removed_extra)
