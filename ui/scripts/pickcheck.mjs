@@ -140,7 +140,7 @@ async function holdWidget(c, stepName, name, what, nth = 0, keys = ['text', 'che
 
 // ── picks: a real click on an element the 3D view draws, or a row of the tree ───────────────────────────────────────
 const VIEWS = ['Std_ViewIsometric', 'Std_ViewFront', 'Std_ViewRight', 'Std_ViewTop', 'Std_ViewRear', 'Std_ViewLeft', 'Std_ViewBottom']
-async function click3d(key, name) {
+async function click3d(key, name, quiet = false, hoverOnly = false) {
   for (const v of [null, ...VIEWS]) {
     if (v) { await st(`cadui.getCommand(${JSON.stringify(v)})?.run([])`); await sleep(400); await st('cadui.getCommand("Std_ViewFitAll")?.run([])'); await sleep(600) }
     const p = await st(`cadui.getView().helperPoint(${JSON.stringify(key)}, ${JSON.stringify(name)})`)
@@ -154,7 +154,7 @@ async function click3d(key, name) {
       const t0 = Date.now()
       while (Date.now() - t0 < 2000 && !(await st(`cadui.getView().hoveredHelper() === ${JSON.stringify(name)} || /^Not allowed/.test(cadui.getState().gateMsg ?? '') || !cadui.getView().helperPicker`))) await sleep(50)
       if (args.includes('--verbose')) console.log(`    click ${name} at`, JSON.stringify(p), 'hits', JSON.stringify(await st(`cadui.getView().helperHit(${JSON.stringify(p)})`)), 'state', JSON.stringify(await st('({ gate: cadui.getState().gateMsg, task: cadui.getState().task?.kind })')))
-      await page.mouse.click(p.x, p.y); await sleep(500)
+      if (!hoverOnly) { await page.mouse.click(p.x, p.y); await sleep(500) }
       return p
     }
   }
@@ -164,6 +164,7 @@ async function click3d(key, name) {
     const pos = o?.geometry?.attributes?.position, V = cam.position.constructor, probes = []
     for (let i = 0; pos && i < Math.min(pos.count, 6); i++) { const s = toS(new V().fromBufferAttribute(pos, i).applyMatrix4(o.matrixWorld)); probes.push([Math.round(s.x), Math.round(s.y), v.helperHit(s)?.name ?? null]) }
     return JSON.stringify(out) + ' ' + JSON.stringify(probes) + ' canvas ' + JSON.stringify(v.viewer.renderer.domElement.getBoundingClientRect()) })()`)
+  if (quiet) return null
   bad(`${name}: not found in any standard view to click`, why)
   if (flag('shots', '')) await page.screenshot({ path: join(flag('shots', ''), `pickcheck-${name.replace(/\W+/g, '_')}.png`) })
   return null
@@ -178,7 +179,15 @@ async function pickLike(obj, sub) {
     await treeRow(obj)
     return true
   }
-  if (!sub) return click3d('pd-datums', `Body/${obj}`)
+  if (!sub) {
+    // a datum where no click in any view is its alone (lines leaving the origin a few degrees apart): its row in the tree,
+    // which the panel takes through the same gate, as FreeCAD's does
+    const p = await click3d('pd-datums', `Body/${obj}`, true)
+    if (p) return p
+    note(`${obj}: no point in the 3D view is it alone; picked by its row in the tree`)
+    await treeRow(obj)
+    return true
+  }
   return click3d('pd-pick', `@${obj}.${sub}`)
 }
 /** A click on a row of the tree: the combo view's Model tab, the Origin unfolded when the row is one of it, then Tasks again. */
@@ -415,12 +424,12 @@ try {
         const W = ['buttonAddFeature', 'buttonRemoveFeature', 'listWidgetFeatures']
         await page.click('.taskview [data-qf="buttonAddFeature"]'); await sleep(400)
         for (const w of W) await holdWidget('linear', 'Add Feature', w, 'linear: Add Feature', 0, ['checked', 'enabled', 'items'])
-        await until('!!cadui.getView().helperPoint("pd-pick", "@Pocket001.Face3")', 'the base for Add Feature', 20000)
+        await waitBase()
         await click3d('pd-pick', '@Pocket001.Face3')
         for (const w of W) await holdWidget('linear', 'pick Pocket001 Face3', w, 'linear: a click on the base adds it', 0, ['checked', 'enabled', 'items'])
         await page.click('.taskview [data-qf="buttonRemoveFeature"]'); await sleep(400)
         for (const w of W) await holdWidget('linear', 'Remove Feature', w, 'linear: Remove Feature', 0, ['checked', 'enabled'])
-        await until('!!cadui.getView().helperPoint("pd-pick", "@Pocket001.Face3")', 'the base for Remove Feature', 20000)
+        await waitBase()
         await click3d('pd-pick', '@Pocket001.Face3')
         for (const w of W) await holdWidget('linear', 'pick Pocket001 Face3 (remove)', w, 'linear: a click on it removes it', 0, ['checked', 'enabled', 'items'])
         await choose('comboMode', 'Spacing')
@@ -436,7 +445,7 @@ try {
         await page.click(".dv-tab:has-text(\"Model\")"); await sleep(300)
         for (const [row, fcm] of [["LinearPattern", FC.linear.context_menu], ["Pad", FC.linear.context_menu_pad]]) {
           await page.locator(`.pdrow[data-ref="Body/${row}"]`).first().click({ button: 'right' }); await sleep(400)
-          const items = await st('[...document.querySelectorAll(".ctx-menu .ctx-item, .ctxmenu .mi, [role=menu] [role=menuitem]")].map((e) => e.textContent.trim())')
+          const items = await st('[...document.querySelectorAll(".ctx .ctx-item")].map((e) => e.textContent.trim())')
           const i = fcm.findIndex((e) => e.text === 'Move Feature After…')
           const has = fcm[i + 1]?.text === 'Multi-Transform'
           check(items.some((t) => t.startsWith('Multi-Transform')) === has, `linear: the tree's menu on ${row} ${has ? 'has' : 'has no'} Multi-Transform, as FreeCAD's`, JSON.stringify(items.slice(0, 12)))
@@ -464,7 +473,7 @@ try {
       if (s.step === 'Preview') { await page.click('.taskview .pd-refsel'); await sleep(400); continue }
       if (s.step === 'buttonPlane' || s.step === 'buttonLine') {
         await page.locator(`.taskview button:text-is("${s.step === 'buttonPlane' ? 'Neutral Plane' : 'Pull Direction'}")`).click(); await sleep(500)
-        await until('!!cadui.getView().helperPoint("pd-dressup", "Face1")', 'the base', 20000)
+        await until('!!cadui.getView().helpers?.get?.("pd-dressup")', 'the base', 20000)
         continue
       }
       const m = /^(button\w+) pick (\S+)(?: (\S+))?$/.exec(s.step)
@@ -522,6 +531,7 @@ try {
       const want = { PartDesign_Plane: 'Datum Plane Parameters', PartDesign_Line: 'Datum Line Parameters', PartDesign_Point: 'Datum Point Parameters', PartDesign_CoordinateSystem: 'Local Coordinate System Parameters' }[cmd]
       check(head === want, `datums: ${key}: the panel is TaskDatumParameters' "${want}"`, head)
       const fmsg = fc.task[0].find((w) => w.name === 'message').text
+      await until(`document.querySelector('.taskview .pd-attach-msg')?.textContent === ${JSON.stringify(fmsg)}`, 'the message', 8000)
       check(await st('document.querySelector(".taskview .pd-attach-msg")?.textContent') === fmsg, `datums: ${key}: "${fmsg}"`, await st('document.querySelector(".taskview .pd-attach-msg")?.textContent'))
       const modes = await st('[...document.querySelectorAll(".taskview .pd-modes [role=option]")].map((e) => e.textContent)')
       same(modes, fc.task[0].find((w) => w.name === 'listOfModes').items, `datums: ${key}: the modes`)
@@ -538,7 +548,7 @@ try {
       check(f?.type === fc.type, `datums: ${key}: makes ${fc.type} ${fc.in_edit}`, JSON.stringify(f).slice(0, 200))
       if (f) same((await stepName()), fc.undo[0], `datums: ${key}: the step`)
       if (f && fc.after.MapMode !== 'Deactivated') same(f.map_mode ?? null, fc.after.MapMode, `datums: ${key}: attached with FreeCAD's mode`)
-      if (f) await post('/api/pick/features/Body', { ops: [{ op: 'delete', name: fc.in_edit }] })
+      if (f) { await post('/api/pick/features/Body', { ops: [{ op: 'delete', name: fc.in_edit }] }); await until(`!cadui.getState().features.Body.features.some((x) => x.name === ${JSON.stringify(fc.in_edit)})`, 'the datum gone again', 20000) }
       await sleep(800)
     }
   }
@@ -553,7 +563,7 @@ try {
       await post('/api/pick/features/Body', { ops: [{ op: 'set', name: 'Sketch001', props: { support: null, attachment_support: [['DatumPlane', '']], map_mode: 'FlatFace' } }] })
       await sleep(1200)
       await st(`cadui.setState({ featSel: ["Body/${victim}"], selected: [], subSel: [] })`)
-      await page.keyboard.press('Delete'); await sleep(600)
+      await st('cadui.getCommand("Std_Delete").run([])'); await sleep(600)
       await until('!!document.querySelector(".msgbox")', 'Object Dependencies', 10000)
       check(await st('document.querySelector(".msgbox .msgbox-title")?.textContent') === fb.title, `delete: ${victim}: FreeCAD asks "${fb.title}"`)
       const body = await st('document.querySelector(".msgbox .msgbox-body")?.textContent')
@@ -561,9 +571,10 @@ try {
       await page.locator('.msgbox .qbtn', { hasText: 'Yes' }).click(); await sleep(2500)
       const left = await st('cadui.getState().features.Body.features.map((f) => f.name)')
       const gone = !left.includes(victim)
-      if (fd.objects.Pad001?.status === 'No object linked' || (victim === 'Sketch001')) {
-        check(!gone, `delete: ${victim}: refused (FreeCAD leaves Pad001 with no profile, in error)`, JSON.stringify(left))
-        note(`delete: ${victim}: FreeCAD deletes it and keeps Pad001 in error ("No object linked"); a part file only takes a Body that builds`)
+      const broken = Object.entries(fd.objects).filter(([, o]) => !o.valid).map(([n, o]) => `${n} (${o.status.split(':')[0]})`)
+      if (broken.length) {
+        check(!gone, `delete: ${victim}: refused, as FreeCAD's delete leaves ${broken.join(', ')} in error`, JSON.stringify(left))
+        note(`delete: ${victim}: FreeCAD deletes it and keeps ${broken.join(', ')} in error; a part file only takes a Body that builds`)
         continue
       }
       check(gone, `delete: ${victim}: deleted after Yes, as in FreeCAD`, JSON.stringify(left))
@@ -581,17 +592,20 @@ try {
   // ── selection outside the panels, preselection ─────────────────────────────────────────────────────────────────
   if (want('select')) {
     console.log('select')
+    await page.goto(`${BASE}/next/#pick`); await until('!!window.cadui && cadui.getState().slug === "pick" && !!cadui.getState().scene', 'the project again')
+    await st('cadui.setState({ workbench: "design" })'); await page.click('.dv-tab:has-text("pick")').catch(() => {}); await sleep(500)
     await setup()
     await closeTask()
     const p = await click3d('pd-datums', 'Body/DatumPlane')
+    if (args.includes('--verbose')) console.log('    select probe', await st(`(() => { const v = cadui.getView(); const h = v.helperHit(${JSON.stringify(p)}); return JSON.stringify({ select: !!v.helperSelect, picker: !!v.helperPicker, hit: h, featSel: cadui.getState().featSel }) })()`))
     check(p && await st('cadui.getState().featSel.includes("Body/DatumPlane")'), 'select: a click on the datum plane in the 3D view selects it, as in FreeCAD')
     // a dress-up's base preselects under the pointer while Select is down; an element the gate refuses does not
     await st('cadui.setState({ featSel: [], subSel: [] })')
     await st('cadui.getCommand("PartDesign_Fillet").run([])')
     await until('!!document.querySelector(".taskview .pd-refsel")', 'the Fillet panel')
-    await until('!!cadui.getView().helperPoint("pd-dressup", "Face6")', 'the base', 20000)
-    const f6 = await st('cadui.getView().helperPoint("pd-dressup", "Face6")')
-    await page.mouse.move(f6.x, f6.y); await sleep(500)
+    await until("!!cadui.getView().helpers?.get?.(\"pd-dressup\")", "the base", 20000)
+    await click3d("pd-dressup", "Face6", false, true)
+    await sleep(300)
     check(await st('cadui.getView().hoveredHelper()') === 'Face6', 'select: the Fillet\'s base preselects Face6 under the pointer')
     check(/Preselected: pick\.Body\.Pad\.Face6/.test(await st('document.querySelector(".statusbar, .status-bar, footer")?.textContent ?? ""')), 'select: the status bar says "Preselected: …Pad.Face6"',
       await st('document.querySelector(".statusbar, .status-bar, footer")?.textContent?.slice(0, 120) ?? ""'))

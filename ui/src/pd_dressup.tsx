@@ -217,8 +217,9 @@ export function DressUpTask({ kind, part, name, edit }: { kind: DressKind; part:
         const r = await api.featureShape(slug, part, ops(), name)
         if (n !== seq.current) return
         const d = r.data ?? {}
-        setBuilt({ shape: (d.shape as Mesh) ?? null, base: (d.base as Mesh) ?? null, base_name: (d.base_name as string) ?? null,
-          error: (d.error as string) ?? (r.exit > 2 ? String(d.message ?? r.text ?? 'failed') : null) })
+        // a build that fails before its base keeps the base shown (and pickable) as it was
+        setBuilt((old) => ({ shape: (d.shape as Mesh) ?? null, base: (d.base as Mesh) ?? old?.base ?? null, base_name: (d.base_name as string) ?? old?.base_name ?? null,
+          error: (d.error as string) ?? (r.exit > 2 ? String(d.message ?? r.text ?? "failed") : null) }))
       } catch (e) { if (n === seq.current) setBuilt({ shape: null, base: null, base_name: null, error: String(e) }) }
     }, 150)
     return () => clearTimeout(t)

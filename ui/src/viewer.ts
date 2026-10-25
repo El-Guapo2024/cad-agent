@@ -512,7 +512,7 @@ export class CadView {
   hoveredHelper(): string | null { return this.hovered }
   /** The named helper the pointer hovers, and whether the gate takes it; the preselection follows. False when no named
    *  helper is there (the model's own preselection goes on). */
-  private hoverHelpers(c: { x: number; y: number }): boolean {
+  private hoverHelpers(c: { x: number; y: number }, clear?: () => void): boolean {
     const hit = this.helperPicker || this.helperSelect ? this.helperHit(c) : null
     const canvas = this.viewer.renderer?.domElement as HTMLElement | undefined
     const model = hit && !this.helperPicker ? this.hitAt(c) : null
@@ -526,11 +526,11 @@ export class CadView {
     const ok = this.helperPicker && this.helperGate ? this.helperGate(hit.name) : true
     if (ok === true) {
       this.setHovered(hit.name)
-      this.helperHover?.(hit.name, null)
+      clear?.(); this.helperHover?.(hit.name, null)
       unforbid()
     } else {
       this.setHovered(null)
-      this.helperHover?.(null, ok)
+      clear?.(); this.helperHover?.(null, ok)
       if (canvas) { canvas.style.cursor = 'not-allowed'; canvas.dataset.forbid = '1' }
     }
     return true
@@ -653,7 +653,7 @@ export class CadView {
       cancelAnimationFrame(this.hoverFrame)
       const c = this.client(ev.pos)
       this.hoverFrame = requestAnimationFrame(() => {
-        if (this.hoverHelpers(c)) { this.on.hover(null, null, null); return }
+        if (this.hoverHelpers(c, () => this.on.hover(null, null, null))) return
         const h = this.hitAt(c)
         this.on.hover(h?.body ?? null, h ? h.point.toArray() : null, h?.sub ?? null)
       })
