@@ -6,6 +6,9 @@
 //   src/Mod/Sketcher/App/SketchObjectPyImp.cpp: 2010 Jürgen Riegel
 //   src/Mod/Part/App/Geometry.cpp: 2008 Werner Mayer
 //   src/Base/Vector3D.cpp: 2005 Imetric 3D GmbH
+//   src/Mod/Sketcher/Gui/DrawSketchHandlerTranslate.h: 2022 Boyer Pierre-Louis
+//   src/Mod/Sketcher/Gui/DrawSketchHandlerRotate.h: 2022 Boyer Pierre-Louis
+//   src/Mod/Sketcher/Gui/DrawSketchHandlerScale.h: 2022 Boyer Pierre-Louis
 // SketchObject's transform operations, as the Sketcher's Copy, Clone, Move, Rectangular Array, Symmetry and Remove
 // Axes Alignment tools call them (sketch.addSymmetric(geoIds, refGeoId, refPosId), addCopy(geoIds, vector, clone),
 // addMove(geoIds, vector), addRectangularArray(geoIds, vector, clone, rows, cols, constrainDisplacement, perpScale),
@@ -435,4 +438,181 @@ export function removeAxesAlignment(d: Doc, geoIdList: number[]): boolean {
   }
   if (changed) d.constraints = out
   return changed
+}
+
+// ── the controllable transform tools' shapes (DrawSketchHandlerTranslate.h, DrawSketchHandlerRotate.h,
+//    DrawSketchHandlerScale.h: createShape) ─────────────────────────────────────────────────────────────────────
+/** The geometry with each point mapped (a translation or a rotation: lengths kept); `dir` maps a direction. */
+function mapGeometry(g: Geo, pt: (p: XY) => XY, dir: (v: XY) => XY, turn: number): Geo {
+  switch (g.type) {
+    case 'Point': return { ...g, at: pt(g.at) }
+    case 'LineSegment': return { ...g, start: pt(g.start), end: pt(g.end) }
+    case 'Circle': return { ...g, center: pt(g.center) }
+    case 'ArcOfCircle': { const [a, b] = setTrimPeriodic(g.start_angle + turn, g.end_angle + turn); return { ...g, center: pt(g.center), start_angle: a, end_angle: b } }
+    case 'Ellipse': return { ...g, center: pt(g.center), x_axis: unit(dir(g.x_axis)) }
+    case 'ArcOfEllipse': case 'ArcOfHyperbola': case 'ArcOfParabola': return stripEnds({ ...g, center: pt(g.center), x_axis: unit(dir(g.x_axis)) })
+    case 'BSplineCurve': return { ...g, poles: g.poles.map(pt), ...(g.weights ? { weights: [...g.weights] } : {}), knots: [...g.knots], mults: [...g.mults] }
+  }
+}
+/** createShape's moves of a copy by vec (setCenter / setPoints / setPoles + vec). */
+export const translateGeometry = (g: Geo, v: XY) => mapGeometry(g, (p) => add(p, v), (x) => x, 0)
+/** Base::Matrix4D(center, Z, angle) applied by Geometry::transform. */
+export function rotateGeometry(g: Geo, c: XY, angle: number): Geo {
+  const cs = Math.cos(angle), sn = Math.sin(angle)
+  const rot = (v: XY): XY => [cs * v[0] - sn * v[1], sn * v[0] + cs * v[1]]
+  return mapGeometry(g, (p) => add(c, rot(sub(p, c))), rot, angle)
+}
+/** DrawSketchHandlerScale::createShape for one geometry: radii, focal and a parabola's range times k, points about ref. */
+export function scaleGeometry(g: Geo, ref: XY, k: number): Geo {
+  const sp = (p: XY): XY => add(mul(sub(p, ref), k), ref)
+  switch (g.type) {
+    case 'Circle': return { ...g, radius: g.radius * k, center: sp(g.center) }
+    case 'ArcOfCircle': return { ...g, radius: g.radius * k, center: sp(g.center) }
+    case 'LineSegment': return { ...g, start: sp(g.start), end: sp(g.end) }
+    case 'Ellipse': return { ...g, major_radius: g.major_radius * k, minor_radius: g.minor_radius * k, center: sp(g.center) }
+    case 'ArcOfEllipse': case 'ArcOfHyperbola': return stripEnds({ ...g, major_radius: g.major_radius * k, minor_radius: g.minor_radius * k, center: sp(g.center) })
+    case 'ArcOfParabola': return stripEnds({ ...g, focal: g.focal * k, start_angle: g.start_angle * k, end_angle: g.end_angle * k, center: sp(g.center) })
+    case 'BSplineCurve': return { ...g, poles: g.poles.map(sp), ...(g.weights ? { weights: [...g.weights] } : {}), knots: [...g.knots], mults: [...g.mults] }
+    case 'Point': return { ...g, at: sp(g.at) }
+  }
+}
+/** SketcherGui::indexOfGeoId: the place in the list, GeoUndef for GeoUndef, else -1. */
+const indexOfGeoId = (list: number[], g: number) => (g === GEO_UNDEF ? GEO_UNDEF : list.indexOf(g))
+export type Shape = { geometry: Geo[]; constraints: Constraint[]; deleteOriginal: boolean }
+/** DrawSketchHandlerTranslate::createShape(false): the copies at firstFactor × v1 + secondFactor × v2 (a single element
+ *  and row moves the original: deleteOriginal), and the constraints among the copied elements. */
+export function translateShape(d: Doc, list: number[], v1: XY, v2: XY, numberOfCopies: number, secondNumberOfCopies: number,
+  firstSymmetric: boolean, secondSymmetric: boolean, cloneConstraints: boolean): Shape {
+  const offsets: [number, number][] = []
+  let deleteOriginal = false
+  if (numberOfCopies === 1 && secondNumberOfCopies === 1) { deleteOriginal = true; offsets.push([1, 0]) }
+  else {
+    const build = (n: number, sym: boolean) => {
+      n = Math.max(n, 1)
+      if (!sym) return Array.from({ length: n }, (_, i) => i)
+      const side = Math.trunc(n / 2), hasOriginal = n % 2 === 1, f: number[] = []
+      if (hasOriginal) f.push(0)
+      for (let i = 1; i <= side; i++) f.push(hasOriginal ? i : i - 0.5)
+      for (let i = 1; i <= side; i++) f.push(hasOriginal ? -i : 0.5 - i)
+      return f
+    }
+    const hasOriginal = (f: number[]) => f.some((x) => Math.abs(x) < CONFUSION)
+    const f1 = build(numberOfCopies, firstSymmetric), f2 = build(secondNumberOfCopies, secondSymmetric)
+    deleteOriginal = !(hasOriginal(f1) && hasOriginal(f2))
+    for (const b of f2) for (const a of f1) { if (Math.abs(a) < CONFUSION && Math.abs(b) < CONFUSION) continue; offsets.push([a, b]) }
+  }
+  const geometry: Geo[] = []
+  for (const [a, b] of offsets) {
+    const v = add(mul(v1, a), mul(v2, b))
+    for (const g of list) geometry.push(translateGeometry(geometryAt(d, g)!, v))
+  }
+  const first = d.geometry.length, size = list.length, out: Constraint[] = [], hasEqual: number[] = []
+  for (const c of d.constraints) {
+    const fi = indexOfGeoId(list, c.first), si = indexOfGeoId(list, c.second), ti = indexOfGeoId(list, c.third)
+    for (let k = 0; k < offsets.length; k++) {
+      const fk = first + fi + size * k, sk = first + si + size * k, tk = first + ti + size * k
+      const n: Constraint = { ...c, first: fk }
+      if (['Symmetric', 'Tangent', 'Perpendicular', 'Angle'].includes(c.type) && fi >= 0 && si >= 0 && ti >= 0) { n.second = sk; n.third = tk }
+      else if (['Coincident', 'Tangent', 'Symmetric', 'Perpendicular', 'Parallel', 'Equal', 'Angle', 'PointOnObject', 'Horizontal', 'Vertical', 'InternalAlignment'].includes(c.type)
+        && fi >= 0 && si >= 0 && ti === GEO_UNDEF) n.second = sk
+      else if (['Radius', 'Diameter', 'Weight'].includes(c.type) && fi >= 0) {
+        if (!(deleteOriginal || !cloneConstraints)) { n.type = 'Equal'; n.first = c.first; n.second = fk }
+      } else if (['Distance', 'DistanceX', 'DistanceY'].includes(c.type) && fi >= 0 && si >= 0) {
+        if (!deleteOriginal && cloneConstraints && c.first === c.second) {
+          if (hasEqual.includes(sk)) continue
+          n.type = 'Equal'; n.first = c.first; n.second = sk; hasEqual.push(sk)
+        } else n.second = sk
+      } else if (['Block', 'Horizontal', 'Vertical'].includes(c.type) && fi >= 0) n.first = fk
+      else continue
+      out.push(n)
+    }
+  }
+  return { geometry, constraints: out, deleteOriginal }
+}
+const FULL_TURN = 2 * Math.PI
+/** DrawSketchHandlerRotate's angle helpers. */
+export const clampToFullTurn = (a: number) => (a > FULL_TURN ? FULL_TURN : a < -FULL_TURN ? -FULL_TURN : a)
+const isOneFullTurn = (a: number) => Math.abs(Math.abs(a) - FULL_TURN) < ANGULAR
+const angleForShapeCreation = (a: number) => (Math.abs(a) < ANGULAR ? FULL_TURN : clampToFullTurn(a))
+export function closestContinuousAngle(angle: number, previous: number) {
+  if (Math.abs(angle) < ANGULAR) return 0
+  let closest = angle
+  for (const cand of [angle + FULL_TURN, angle - FULL_TURN]) if (Math.abs(cand) <= FULL_TURN && Math.abs(cand - previous) < Math.abs(closest - previous)) closest = cand
+  return closest
+}
+/** DrawSketchHandlerRotate::createShape(false): numberOfCopies elements spread over totalAngle about the centre (one
+ *  element rotates the original: deleteOriginal), symmetric ones on both sides, and the constraints among the copies. */
+export function rotateShape(d: Doc, list: number[], center: XY, totalAngle: number, numberOfCopies: number, symmetric: boolean, cloneConstraints: boolean): Shape & { individualAngle: number } {
+  const elements = Math.max(numberOfCopies, 1), transformOriginal = elements === 1
+  const toMake = transformOriginal ? 1 : symmetric ? Math.trunc(elements / 2) : elements - 1
+  const deleteOriginal = transformOriginal || (symmetric && elements % 2 === 0)
+  const shapeAngle = angleForShapeCreation(totalAngle)
+  let divisor = deleteOriginal && symmetric && !transformOriginal ? toMake - 0.5 : toMake
+  if (toMake > 0 && isOneFullTurn(shapeAngle)) divisor = transformOriginal ? 1 : elements
+  const individualAngle = shapeAngle / divisor
+  const factors: number[] = []
+  for (let i = 1; i <= toMake; i++) factors.push(transformOriginal ? i : deleteOriginal ? i - 0.5 : i)
+  if (symmetric && !transformOriginal) for (let i = 1; i <= toMake; i++) factors.push(deleteOriginal ? 0.5 - i : -i)
+  const geometry: Geo[] = []
+  for (const f of factors) for (const g of list) geometry.push(rotateGeometry(geometryAt(d, g)!, center, individualAngle * f))
+  const first = d.geometry.length, size = list.length, out: Constraint[] = [], hasEqual: number[] = []
+  for (const c of d.constraints) {
+    const fi = indexOfGeoId(list, c.first), si = indexOfGeoId(list, c.second), ti = indexOfGeoId(list, c.third)
+    for (let k = 0; k < factors.length; k++) {
+      const fk = first + fi + size * k, sk = first + si + size * k, tk = first + ti + size * k
+      const n: Constraint = { ...c, first: fk }
+      if (['Symmetric', 'Tangent', 'Perpendicular', 'Angle'].includes(c.type) && fi >= 0 && si >= 0 && ti >= 0) { n.second = sk; n.third = tk }
+      else if (['Coincident', 'Tangent', 'Symmetric', 'Perpendicular', 'Parallel', 'Equal', 'Angle', 'PointOnObject', 'InternalAlignment'].includes(c.type)
+        && fi >= 0 && si >= 0 && ti === GEO_UNDEF) n.second = sk
+      else if (['Radius', 'Diameter', 'Weight'].includes(c.type) && fi >= 0) {
+        if (!(deleteOriginal || !cloneConstraints)) { n.type = 'Equal'; n.first = c.first; n.second = fk }
+      } else if (['Distance', 'DistanceX', 'DistanceY'].includes(c.type) && fi >= 0) {
+        if (!deleteOriginal && cloneConstraints && (c.first === c.second || si < 0)) {
+          if (hasEqual.includes(fk)) continue
+          n.type = 'Equal'; n.first = c.first; n.second = fk; hasEqual.push(fk)
+        } else if (c.type === 'Distance') { if (si >= 0) n.second = sk }
+        else continue // DistanceX / DistanceY are left out (FreeCAD: they would flip the copy)
+      } else if (c.type === 'Block' && fi >= 0) n.first = fk
+      else continue
+      out.push(n)
+    }
+  }
+  return { geometry, constraints: out, deleteOriginal, individualAngle }
+}
+export type LabelToScale = { constrId: number; position: number; distance: number }
+/** DrawSketchHandlerScale::createShape(false): the scaled geometry, and the constraints among it (the dimensions times
+ *  k); none to the axes or the external geometry. The labels to scale are listed as FreeCAD lists them (an entry for
+ *  every constraint on a scaled element, numbered by the constraints kept). */
+export function scaleShape(d: Doc, list: number[], ref: XY, k: number, deleteOriginal: boolean, allowOriginConstraint = false): Shape & { labels: LabelToScale[] } {
+  const geometry = list.map((g) => scaleGeometry(geometryAt(d, g)!, ref, k))
+  const first = deleteOriginal ? d.geometry.length - list.length : d.geometry.length
+  const isExt = (g: number) => g !== GEO_UNDEF && g <= -3
+  const axis = (g: number) => g === V_AXIS || g === H_AXIS
+  const skip = (c: Constraint) => c.first === GEO_UNDEF || (!allowOriginConstraint && (axis(c.first) || axis(c.second) || axis(c.third))) || isExt(c.first) || isExt(c.second) || isExt(c.third)
+  const offset = (g: number) => {
+    if (g < 0) return allowOriginConstraint && axis(g) ? g : GEO_UNDEF
+    const i = list.indexOf(g)
+    return i < 0 ? GEO_UNDEF : i + first
+  }
+  const out: Constraint[] = [], labels: LabelToScale[] = []
+  let idx = 0
+  for (const c of d.constraints) {
+    if (skip(c)) continue
+    const f = offset(c.first), s = offset(c.second), t = offset(c.third)
+    const n: Constraint = { ...c }
+    if (f !== GEO_UNDEF) labels.push({ constrId: idx, position: c.labelPosition, distance: c.labelDistance })
+    const U = GEO_UNDEF
+    if (['Symmetric', 'Tangent', 'Perpendicular', 'Angle'].includes(c.type) && f !== U && s !== U && t !== U) { n.first = f; n.second = s; n.third = t }
+    else if (['Coincident', 'Tangent', 'Symmetric', 'Perpendicular', 'Parallel', 'Equal', 'Angle', 'PointOnObject', 'InternalAlignment'].includes(c.type) && f !== U && s !== U && t === U) { n.first = f; n.second = s }
+    else if (c.type === 'Angle' && f !== U && s === U && t === U) n.first = f
+    else if ((c.type === 'Radius' || c.type === 'Diameter') && f !== U) { n.first = f; n.value = c.value * k }
+    else if (['Distance', 'DistanceX', 'DistanceY'].includes(c.type) && f !== U && s !== U) { n.first = f; n.second = s; n.value = c.value * k }
+    else if (['Distance', 'DistanceX', 'DistanceY'].includes(c.type) && f !== U && c.second === U) { n.first = f; n.value = c.value * k }
+    else if ((c.type === 'Block' || c.type === 'Weight') && f !== U) n.first = f
+    else if ((c.type === 'Vertical' || c.type === 'Horizontal') && f !== U && (c.second === U || s !== U)) { n.first = f; n.second = s }
+    else continue
+    out.push(n)
+    idx++
+  }
+  return { geometry, constraints: out, deleteOriginal, labels }
 }

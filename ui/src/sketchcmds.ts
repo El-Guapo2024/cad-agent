@@ -19,6 +19,7 @@ import { ArcOfEllipseHandler, ArcOfHyperbolaHandler, ArcOfParabolaHandler, BSpli
 import { ExtendHandler, FilletHandler, SplittingHandler, TrimmingHandler } from './sketchedit'
 import { ExternalHandler } from './sketchexternal'
 import * as XT from './sketchxformtools'
+import * as XO from './sketchxformovp'
 import * as SK from './sketch'
 import { getState, report } from './store'
 import { recordAndRun } from './actions'
@@ -137,6 +138,10 @@ const RUN: Record<string, () => void> = {
   Sketcher_Move: () => XT.copyCommand('move'),
   Sketcher_RectangularArray: () => void XT.rectangularArrayCommand(),
   Sketcher_RemoveAxesAlignment: XT.removeAxesAlignmentCommand,
+  Sketcher_Symmetry: () => XO.transformCommand('symmetry'),
+  Sketcher_Translate: () => XO.transformCommand('translate'),
+  Sketcher_Rotate: () => XO.transformCommand('rotate'),
+  Sketcher_Scale: () => XO.transformCommand('scale'),
   Sketcher_CopyClipboard: XT.copyClipboardCommand,
   Sketcher_Cut: XT.cutCommand,
   Sketcher_Paste: () => void XT.pasteCommand(),
@@ -179,6 +184,7 @@ export function isEnabled(name: string): boolean {
     case 'Sketcher_StopOperation': return true
     case 'Sketcher_Copy': case 'Sketcher_Clone': case 'Sketcher_Move': case 'Sketcher_RectangularArray': case 'Sketcher_RemoveAxesAlignment':
     case 'Sketcher_CopyClipboard': case 'Sketcher_Cut':
+    case 'Sketcher_Symmetry': case 'Sketcher_Translate': case 'Sketcher_Rotate': case 'Sketcher_Scale':
       return XT.isCommandNeedingGeometryActive()
     case 'Sketcher_Paste': return XT.isCommandActive()
     default: return true

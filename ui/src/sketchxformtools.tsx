@@ -265,8 +265,8 @@ function geometryPython(g: SK.Geo): string {
 }
 /** PythonConverter::process(constraint, AddLastGeoIdToGeoIds): Sketcher.Constraint(...) with "lastGeoId + n" for the
  *  copied geometry, the value as std::to_string writes it ("%f"). */
-function constraintPython(c: SK.Constraint): string {
-  const id = (g: number) => (g >= 0 ? `lastGeoId + ${g}` : String(g))
+function constraintPython(c: SK.Constraint, addLastGeoId = true): string {
+  const id = (g: number) => (g >= 0 && addLastGeoId ? `lastGeoId + ${g}` : String(g))
   const i1 = id(c.first), i2 = id(c.second), i3 = id(c.third), ip1 = `${i1}, ${c.firstPos}`, ip2 = `${i2}, ${c.secondPos}`
   const val = c.value.toFixed(6)
   const secondUndef = c.second === GEO_UNDEF, thirdUndef = c.third === GEO_UNDEF, e1 = c.firstPos === NONE, e2 = c.secondPos === NONE, e3 = c.thirdPos === NONE
@@ -398,6 +398,17 @@ function parseConstraint(src: string, lastGeoId: number): SK.Constraint | null {
   if (flags.length) { c.active = flags[0]; if (flags.length > 1) c.driving = flags[1] }
   return c
 }
+/** DrawSketchDefaultHandler::commandAddShapeGeometryAndConstraints: the shape goes into the sketch as PythonConverter's
+ *  Python (geometry "%.8f", values "%f", no names, the GeoIds as they are), so what it becomes is what that Python
+ *  makes; then it is added in one go. */
+export function addShapeThroughPython(geos: SK.Geo[], cons: SK.Constraint[]) {
+  const g = geos.map((x) => parseGeometry(geometryPython(x), !!x.construction)).filter((x): x is SK.Geo => !!x)
+  const c = cons.map((x) => parseConstraint(constraintPython(x, false), 0)).filter((x): x is SK.Constraint => !!x)
+  if (g.length) S.addGeometry(g)
+  if (c.length) S.addConstraint(c)
+  return c
+}
+export { selectedGeoIds }
 /** CmdSketcherPaste: the clipboard's Python run on the sketch (when it is a Sketcher copy), then a solve. */
 export async function pasteCommand() {
   let data = ''
