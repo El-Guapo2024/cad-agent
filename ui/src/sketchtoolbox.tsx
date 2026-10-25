@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: LGPL-2.1-or-later
 // Follows FreeCAD (https://github.com/FreeCAD/FreeCAD, commit 3160daf1e2b6), copyright of the files below (each is
 // LGPL-2.0-or-later or LGPL-2.1-or-later as it states; ui/NOTICE has them all):
-//   src/Mod/Sketcher/Gui/TaskSketcherTool.cpp: 2022 Abdullah Tahiri
-//   src/Mod/Sketcher/Gui/SketcherToolDefaultWidget.cpp, SketcherToolDefaultWidget.ui: 2022 Abdullah Tahiri
+//   src/Mod/Sketcher/Gui/TaskSketcherTool.cpp: 2022 Pierre-Louis Boyer
+//   src/Mod/Sketcher/Gui/SketcherToolDefaultWidget.cpp: 2022 Pierre-Louis Boyer
 // The task panel's Tool Parameters box (TaskSketcherTool): the running tool's SketcherToolDefaultWidget, its combo
 // boxes, parameters and check boxes as the tool configures them (sketchovp.ts holds the model), shown while the tool is
 // on and its isWidgetVisible says so (TaskDlgEditSketch::slotToolChanged). Each control carries its name in the .ui

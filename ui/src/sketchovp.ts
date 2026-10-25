@@ -5,9 +5,9 @@
 //   src/Mod/Sketcher/Gui/DrawSketchDefaultWidgetController.h: 2023 Abdullah Tahiri
 //   src/Mod/Sketcher/Gui/DrawSketchControllableHandler.h: 2023 Abdullah Tahiri
 //   src/Mod/Sketcher/Gui/DrawSketchKeyboardManager.cpp: 2023 Abdullah Tahiri
-//   src/Mod/Sketcher/Gui/SketcherToolDefaultWidget.cpp: 2022 Abdullah Tahiri
+//   src/Mod/Sketcher/Gui/SketcherToolDefaultWidget.cpp: 2022 Pierre-Louis Boyer
 //   src/Mod/Sketcher/Gui/Utils.cpp: 2021 Abdullah Tahiri
-//   src/Gui/EditableDatumLabel.cpp: 2023 Pierre-Louis Boyer
+//   src/Gui/EditableDatumLabel.cpp: 2023 Ondsel
 //   src/Gui/SoDatumLabel.cpp: 2011 Luke Parry
 //   src/Gui/QuantitySpinBox.cpp: 2014 Werner Mayer
 // The on-view parameters and the Tool Parameters box of the Sketcher's tools. An on-view parameter is a
@@ -810,5 +810,5 @@ export function constraint2LinesByAngle(geoId1: number, geoId2: number, angle: n
   const modPi = angle % Math.PI, modHalfPi = angle % (Math.PI / 2)
   if (Math.abs(modPi) < CONFUSION) S.addConstraint(SK.constraint('Parallel', geoId1, SK.NONE, geoId2))
   else if (Math.abs(modHalfPi) < CONFUSION) S.addConstraint(SK.constraint('Perpendicular', geoId1, SK.NONE, geoId2))
-  else S.addConstraint(SK.constraint('Angle', geoId1, SK.NONE, geoId2, SK.NONE, SK.GEO_UNDEF, SK.NONE, f6(angle)))
+  else S.addConstraint(SK.constraint('Angle', geoId1, SK.END, geoId2, SK.START, SK.GEO_UNDEF, SK.NONE, f6(angle)))
 }

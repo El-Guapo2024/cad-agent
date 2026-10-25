@@ -33,6 +33,8 @@ export type AutoConstraint = { type: ConstraintType; geoId: number; posId: Point
 export type Target = 'vertex' | 'curve' | 'vertexNoTangency'
 const CONFUSION = 1e-7, SQ_CONFUSION = CONFUSION * CONFUSION
 const deg = (d: number) => (d * Math.PI) / 180
+/** std::round: halves away from zero (Math.round takes -0.5 to 0). */
+const cppRound = (x: number) => Math.sign(x) * Math.round(Math.abs(x))
 const angleDistance = (a: number, b: number) => Math.abs(Math.atan2(Math.sin(a - b), Math.cos(a - b)))
 const isParallelAngle = (r: number, c: number) => { const d = angleDistance(r, c); return d < deg(2) || Math.abs(d - Math.PI) < deg(2) }
 const isPerpendicularAngle = (r: number, c: number) => Math.abs(angleDistance(r, c) - Math.PI / 2) < deg(2)
@@ -1032,7 +1034,7 @@ export class PolylineHandler extends DefaultHandler {
         this.resetEdge = false
         const sign = prevDir[0] * (this.prevCursorPos[1] - lp[1]) - prevDir[1] * (this.prevCursorPos[0] - lp[0]) > 0 ? 1 : -1
         this.angleToPrevious = sign * (getAngle(cd, prevDir) - Math.PI)
-        this.angleToPrevious = Math.round(this.angleToPrevious / (Math.PI / 2)) * (Math.PI / 2)
+        this.angleToPrevious = cppRound(this.angleToPrevious / (Math.PI / 2)) * (Math.PI / 2)
       }
       const { radius, center } = this.arcCenter(this.prevCursorPos)
       this.center = center
@@ -1070,7 +1072,7 @@ export class PolylineHandler extends DefaultHandler {
         for (let i = ac1.length - 1; i >= 0; i--) if (ac1[i].type === 'Tangent' && ac1[i].geoId === geoId && ac1[i].posId === lastPos) ac1.splice(i, 1)
         this.shapeCon(ac1.length !== before ? 'Tangent' : 'Coincident', geoId, lastPos, geoId2, posId)
       } else {
-        const byPi = Math.round(this.angleToPrevious / Math.PI) * Math.PI, byHalf = Math.round(this.angleToPrevious / (Math.PI / 2)) * (Math.PI / 2)
+        const byPi = cppRound(this.angleToPrevious / Math.PI) * Math.PI, byHalf = cppRound(this.angleToPrevious / (Math.PI / 2)) * (Math.PI / 2)
         if (Math.abs(this.angleToPrevious - byPi) < CONFUSION) this.shapeCon('Tangent', geoId, lastPos, geoId2, posId)
         else if (Math.abs(this.angleToPrevious - byHalf) < CONFUSION) this.shapeCon('Perpendicular', geoId, lastPos, geoId2, posId)
       }

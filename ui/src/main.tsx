@@ -17,6 +17,7 @@ import { createDatum, editAttachment } from './pd_attach'
 import { panelFields } from './pd_revolve'
 import { loadFeatures } from './actions'
 import { setSketcherParams, ovpStates, toolWidgetState } from './sketchovp'
+import * as Sketcher from './sketcher'
 
 createRoot(document.getElementById('root')!).render(<App />)
 start()
@@ -28,4 +29,4 @@ Object.assign(window, { cadui: { getState, setState, getView, getDock, showPanel
   select, newSketch, createDatum, editAttachment } })
 Object.assign((window as unknown as { cadui: object }).cadui, { pdPanel: panelFields, loadFeatures })   // revolvecheck.mjs
 // sketchcheck.mjs: the Sketcher's preferences for a case, the on-view parameters' boxes, the Tool Parameters box
-Object.assign((window as unknown as { cadui: object }).cadui, { setSketcherParams, sketchOvps: ovpStates, sketchToolWidget: toolWidgetState })
+Object.assign((window as unknown as { cadui: object }).cadui, { setSketcherParams, sketchOvps: ovpStates, sketchToolWidget: toolWidgetState, sketcher: Sketcher })

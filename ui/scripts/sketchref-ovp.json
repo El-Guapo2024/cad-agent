@@ -1,0 +1,1464 @@
+{
+ "about": "What FreeCAD 26.3 (3160daf1e2b6) does for ui/scripts/sketchcases-ovp.json, written by fcsketch.py --ref; ui/scripts/sketchcheck.mjs compares the workbench with it.",
+ "viewport": [
+  1014,
+  644
+ ],
+ "dialogs": [],
+ "cases": {
+  "ovp-line-length-angle": {
+   "geometry": [
+    {
+     "type": "LineSegment",
+     "start": [
+      0.0,
+      0.0
+     ],
+     "end": [
+      21.213206901779458,
+      21.21319996941283
+     ]
+    }
+   ],
+   "constraints": [
+    {
+     "type": "Distance",
+     "args": [
+      0
+     ],
+     "value": 30.0
+    },
+    {
+     "type": "Angle",
+     "args": [
+      -1,
+      0
+     ],
+     "value": 0.785398
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      0,
+      1,
+      -1,
+      1
+     ]
+    }
+   ],
+   "message": {
+    "status": "Fully constrained",
+    "link": ""
+   },
+   "tool_widget": {
+    "title": "Line Parameters",
+    "controls": [
+     {
+      "name": "comboBox1",
+      "items": [
+       "Point, length, angle",
+       "Point, width, height",
+       "2 points"
+      ],
+      "index": 0
+     }
+    ]
+   }
+  },
+  "ovp-line-tab-cycle": {
+   "geometry": [],
+   "constraints": [],
+   "message": {
+    "status": "Empty sketch",
+    "link": ""
+   },
+   "tool_widget": {
+    "title": "Line Parameters",
+    "controls": [
+     {
+      "name": "comboBox1",
+      "items": [
+       "Point, length, angle",
+       "Point, width, height",
+       "2 points"
+      ],
+      "index": 0
+     }
+    ]
+   },
+   "ovp": [
+    {
+     "text": "34.02°",
+     "focus": false
+    },
+    {
+     "text": "37.47 mm",
+     "focus": true
+    }
+   ]
+  },
+  "ovp-line-enter-locks": {
+   "geometry": [
+    {
+     "type": "LineSegment",
+     "start": [
+      9.937885302226249,
+      10.062111557123067
+     ],
+     "end": [
+      26.67773136,
+      35.10699856656628
+     ]
+    }
+   ],
+   "constraints": [
+    {
+     "type": "Distance",
+     "args": [
+      0
+     ],
+     "value": 30.124223
+    },
+    {
+     "type": "Angle",
+     "args": [
+      -1,
+      0
+     ],
+     "value": 0.981599
+    }
+   ],
+   "message": {
+    "status": "Under-constrained: ",
+    "link": "2 Degrees of Freedom"
+   },
+   "tool_widget": {
+    "title": "Line Parameters",
+    "controls": [
+     {
+      "name": "comboBox1",
+      "items": [
+       "Point, length, angle",
+       "Point, width, height",
+       "2 points"
+      ],
+      "index": 0
+     }
+    ]
+   }
+  },
+  "ovp-line-type-click": {
+   "geometry": [
+    {
+     "type": "LineSegment",
+     "start": [
+      4.96894407,
+      4.93788815
+     ],
+     "end": [
+      19.47431758,
+      25.299473042522248
+     ]
+    }
+   ],
+   "constraints": [
+    {
+     "type": "Distance",
+     "args": [
+      0
+     ],
+     "value": 25.0
+    }
+   ],
+   "message": {
+    "status": "Under-constrained: ",
+    "link": "3 Degrees of Freedom"
+   },
+   "tool_widget": {
+    "title": "Line Parameters",
+    "controls": [
+     {
+      "name": "comboBox1",
+      "items": [
+       "Point, length, angle",
+       "Point, width, height",
+       "2 points"
+      ],
+      "index": 0
+     }
+    ]
+   }
+  },
+  "ovp-line-escape": {
+   "geometry": [],
+   "constraints": [],
+   "message": {
+    "status": "Empty sketch",
+    "link": ""
+   },
+   "tool_widget": {
+    "title": "Line Parameters",
+    "controls": [
+     {
+      "name": "comboBox1",
+      "items": [
+       "Point, length, angle",
+       "Point, width, height",
+       "2 points"
+      ],
+      "index": 0
+     }
+    ]
+   }
+  },
+  "ovp-line-ctrl-enter": {
+   "geometry": [
+    {
+     "type": "LineSegment",
+     "start": [
+      4.96894407,
+      4.93788815
+     ],
+     "end": [
+      36.184770288894406,
+      29.949329401391182
+     ]
+    }
+   ],
+   "constraints": [
+    {
+     "type": "Distance",
+     "args": [
+      0
+     ],
+     "value": 40.0
+    },
+    {
+     "type": "Angle",
+     "args": [
+      -1,
+      0
+     ],
+     "value": 0.675498
+    }
+   ],
+   "message": {
+    "status": "Under-constrained: ",
+    "link": "2 Degrees of Freedom"
+   },
+   "tool_widget": {
+    "title": "Line Parameters",
+    "controls": [
+     {
+      "name": "comboBox1",
+      "items": [
+       "Point, length, angle",
+       "Point, width, height",
+       "2 points"
+      ],
+      "index": 0
+     }
+    ]
+   }
+  },
+  "ovp-line-width-height": {
+   "geometry": [
+    {
+     "type": "LineSegment",
+     "start": [
+      4.96894407,
+      4.93788815
+     ],
+     "end": [
+      24.96894407,
+      14.93788815
+     ]
+    }
+   ],
+   "constraints": [
+    {
+     "type": "DistanceX",
+     "args": [
+      0,
+      1,
+      0,
+      2
+     ],
+     "value": 20.0
+    },
+    {
+     "type": "DistanceY",
+     "args": [
+      0,
+      1,
+      0,
+      2
+     ],
+     "value": 10.0
+    }
+   ],
+   "message": {
+    "status": "Under-constrained: ",
+    "link": "2 Degrees of Freedom"
+   },
+   "tool_widget": {
+    "title": "Line Parameters",
+    "controls": [
+     {
+      "name": "comboBox1",
+      "items": [
+       "Point, length, angle",
+       "Point, width, height",
+       "2 points"
+      ],
+      "index": 1
+     }
+    ]
+   }
+  },
+  "ovp-line-positions": {
+   "geometry": [
+    {
+     "type": "LineSegment",
+     "start": [
+      10.0,
+      5.0
+     ],
+     "end": [
+      30.0,
+      5.0
+     ]
+    }
+   ],
+   "constraints": [
+    {
+     "type": "DistanceX",
+     "args": [
+      0,
+      1
+     ],
+     "value": 10.0
+    },
+    {
+     "type": "DistanceY",
+     "args": [
+      0,
+      1
+     ],
+     "value": 5.0
+    },
+    {
+     "type": "Distance",
+     "args": [
+      0
+     ],
+     "value": 20.0
+    },
+    {
+     "type": "Horizontal",
+     "args": [
+      0
+     ]
+    }
+   ],
+   "message": {
+    "status": "Fully constrained",
+    "link": ""
+   },
+   "tool_widget": {
+    "title": "Line Parameters",
+    "controls": [
+     {
+      "name": "comboBox1",
+      "items": [
+       "Point, length, angle",
+       "Point, width, height",
+       "2 points"
+      ],
+      "index": 0
+     }
+    ]
+   },
+   "ovp": [
+    {
+     "text": "31.02 mm",
+     "focus": false
+    },
+    {
+     "text": "31.06 mm",
+     "focus": true
+    }
+   ]
+  },
+  "ovp-point-positions": {
+   "geometry": [
+    {
+     "type": "Point",
+     "at": [
+      12.0,
+      7.0
+     ]
+    }
+   ],
+   "constraints": [
+    {
+     "type": "DistanceX",
+     "args": [
+      0,
+      1
+     ],
+     "value": 12.0
+    },
+    {
+     "type": "DistanceY",
+     "args": [
+      0,
+      1
+     ],
+     "value": 7.0
+    }
+   ],
+   "message": {
+    "status": "Fully constrained",
+    "link": ""
+   },
+   "ovp": [
+    {
+     "text": "6.02 mm",
+     "focus": false
+    },
+    {
+     "text": "6.06 mm",
+     "focus": true
+    }
+   ]
+  },
+  "ovp-point-hidden": {
+   "geometry": [
+    {
+     "type": "Point",
+     "at": [
+      8.074534,
+      8.975157
+     ]
+    }
+   ],
+   "constraints": [],
+   "message": {
+    "status": "Under-constrained: ",
+    "link": "2 Degrees of Freedom"
+   }
+  },
+  "ovp-circle-radius": {
+   "geometry": [
+    {
+     "type": "Circle",
+     "center": [
+      20.03105545,
+      20.0
+     ],
+     "radius": 4.0
+    }
+   ],
+   "constraints": [
+    {
+     "type": "Diameter",
+     "args": [
+      0
+     ],
+     "value": 8.0
+    }
+   ],
+   "message": {
+    "status": "Under-constrained: ",
+    "link": "2 Degrees of Freedom"
+   },
+   "tool_widget": {
+    "title": "Circle Parameters",
+    "controls": [
+     {
+      "name": "comboBox1",
+      "items": [
+       "Center",
+       "3 rim points"
+      ],
+      "index": 0
+     }
+    ]
+   }
+  },
+  "ovp-rectangle-sizes": {
+   "geometry": [
+    {
+     "type": "LineSegment",
+     "start": [
+      0.0,
+      0.0
+     ],
+     "end": [
+      30.0,
+      0.0
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      30.0,
+      0.0
+     ],
+     "end": [
+      30.0,
+      20.0
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      30.0,
+      20.0
+     ],
+     "end": [
+      0.0,
+      20.0
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      0.0,
+      20.0
+     ],
+     "end": [
+      0.0,
+      0.0
+     ]
+    }
+   ],
+   "constraints": [
+    {
+     "type": "Coincident",
+     "args": [
+      0,
+      2,
+      1,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      1,
+      2,
+      2,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      2,
+      2,
+      3,
+      1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      3,
+      2,
+      0,
+      1
+     ]
+    },
+    {
+     "type": "Horizontal",
+     "args": [
+      0
+     ]
+    },
+    {
+     "type": "Horizontal",
+     "args": [
+      2
+     ]
+    },
+    {
+     "type": "Vertical",
+     "args": [
+      1
+     ]
+    },
+    {
+     "type": "Vertical",
+     "args": [
+      3
+     ]
+    },
+    {
+     "type": "Distance",
+     "args": [
+      1,
+      1,
+      3,
+      2
+     ],
+     "value": 30.0
+    },
+    {
+     "type": "Distance",
+     "args": [
+      0,
+      1,
+      2,
+      2
+     ],
+     "value": 20.0
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      0,
+      1,
+      -1,
+      1
+     ]
+    }
+   ],
+   "message": {
+    "status": "Fully constrained",
+    "link": ""
+   },
+   "tool_widget": {
+    "title": "Rectangle Parameters",
+    "controls": [
+     {
+      "name": "comboBox1",
+      "items": [
+       "Corner, width, height",
+       "Center, width, height",
+       "3 corners",
+       "Center, 2 corners"
+      ],
+      "index": 0
+     },
+     {
+      "name": "checkBoxTS1",
+      "text": "Rounded corners (U)",
+      "checked": false
+     },
+     {
+      "name": "checkBoxTS2",
+      "text": "Frame (J)",
+      "checked": false
+     }
+    ]
+   }
+  },
+  "ovp-arc-center": {
+   "geometry": [
+    {
+     "type": "ArcOfCircle",
+     "center": [
+      9.93788604169367,
+      10.062110632768782
+     ],
+     "radius": 12.0,
+     "start_angle": 0.5235988971281291,
+     "end_angle": 2.094394897128129
+    }
+   ],
+   "constraints": [
+    {
+     "type": "Radius",
+     "args": [
+      0
+     ],
+     "value": 12.0
+    },
+    {
+     "type": "Angle",
+     "args": [
+      0
+     ],
+     "value": 1.570796
+    }
+   ],
+   "message": {
+    "status": "Under-constrained: ",
+    "link": "3 Degrees of Freedom"
+   },
+   "tool_widget": {
+    "title": "Arc Parameters",
+    "controls": [
+     {
+      "name": "comboBox1",
+      "items": [
+       "Center",
+       "3 rim points"
+      ],
+      "index": 0
+     }
+    ]
+   }
+  },
+  "ovp-arc-radius-click": {
+   "geometry": [
+    {
+     "type": "ArcOfCircle",
+     "center": [
+      9.93788815,
+      10.06211185
+     ],
+     "radius": 8.0,
+     "start_angle": 0.37337639,
+     "end_angle": 1.57079633
+    }
+   ],
+   "constraints": [
+    {
+     "type": "Radius",
+     "args": [
+      0
+     ],
+     "value": 8.0
+    }
+   ],
+   "message": {
+    "status": "Under-constrained: ",
+    "link": "4 Degrees of Freedom"
+   },
+   "tool_widget": {
+    "title": "Arc Parameters",
+    "controls": [
+     {
+      "name": "comboBox1",
+      "items": [
+       "Center",
+       "3 rim points"
+      ],
+      "index": 0
+     }
+    ]
+   }
+  },
+  "ovp-arc-3rim-positions": {
+   "geometry": [
+    {
+     "type": "ArcOfCircle",
+     "center": [
+      10.0,
+      0.0
+     ],
+     "radius": 10.0,
+     "start_angle": 0.0,
+     "end_angle": 3.141592653589793
+    }
+   ],
+   "constraints": [
+    {
+     "type": "Coincident",
+     "args": [
+      0,
+      2,
+      -1,
+      1
+     ]
+    },
+    {
+     "type": "DistanceX",
+     "args": [
+      0,
+      1
+     ],
+     "value": 20.0
+    },
+    {
+     "type": "PointOnObject",
+     "args": [
+      0,
+      1,
+      -1
+     ]
+    }
+   ],
+   "message": {
+    "status": "Under-constrained: ",
+    "link": "1 Degrees of Freedom"
+   },
+   "tool_widget": {
+    "title": "Arc Parameters",
+    "controls": [
+     {
+      "name": "comboBox1",
+      "items": [
+       "Center",
+       "3 rim points"
+      ],
+      "index": 1
+     }
+    ]
+   },
+   "ovp": [
+    {
+     "text": "8.98 mm",
+     "focus": false
+    },
+    {
+     "text": "11.02 mm",
+     "focus": true
+    }
+   ]
+  },
+  "ovp-circle-3rim": {
+   "geometry": [
+    {
+     "type": "Circle",
+     "center": [
+      9.76389803,
+      5.0
+     ],
+     "radius": 10.969672043422168
+    }
+   ],
+   "constraints": [
+    {
+     "type": "PointOnObject",
+     "args": [
+      -1,
+      1,
+      0
+     ]
+    }
+   ],
+   "message": {
+    "status": "Under-constrained: ",
+    "link": "2 Degrees of Freedom"
+   },
+   "tool_widget": {
+    "title": "Circle Parameters",
+    "controls": [
+     {
+      "name": "comboBox1",
+      "items": [
+       "Center",
+       "3 rim points"
+      ],
+      "index": 1
+     }
+    ]
+   },
+   "ovp": [
+    {
+     "text": "10 mm",
+     "focus": false
+    },
+    {
+     "text": "8.98 mm",
+     "focus": true
+    }
+   ]
+  },
+  "ovp-circle-method-combo": {
+   "geometry": [
+    {
+     "type": "Circle",
+     "center": [
+      10.01552773,
+      0.04677583
+     ],
+     "radius": 10.015636958709674
+    }
+   ],
+   "constraints": [
+    {
+     "type": "PointOnObject",
+     "args": [
+      -1,
+      1,
+      0
+     ]
+    }
+   ],
+   "message": {
+    "status": "Under-constrained: ",
+    "link": "2 Degrees of Freedom"
+   },
+   "tool_widget": {
+    "title": "Circle Parameters",
+    "controls": [
+     {
+      "name": "comboBox1",
+      "items": [
+       "Center",
+       "3 rim points"
+      ],
+      "index": 1
+     }
+    ]
+   }
+  },
+  "ovp-polyline-lengths": {
+   "geometry": [
+    {
+     "type": "LineSegment",
+     "start": [
+      0.5898499244754061,
+      16.02507361948222
+     ],
+     "end": [
+      20.589849924475406,
+      16.02507361948222
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      20.589849924475406,
+      16.02507361948222
+     ],
+     "end": [
+      0.8936951240109394,
+      12.552108592860062
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      0.8936951240109394,
+      12.552108592860062
+     ],
+     "end": [
+      19.687546516437763,
+      19.392514270978452
+     ]
+    }
+   ],
+   "constraints": [
+    {
+     "type": "Distance",
+     "args": [
+      0
+     ],
+     "value": 20.0
+    },
+    {
+     "type": "Horizontal",
+     "args": [
+      0
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      0,
+      2,
+      1,
+      1
+     ]
+    },
+    {
+     "type": "Distance",
+     "args": [
+      1
+     ],
+     "value": 20.0
+    },
+    {
+     "type": "Angle",
+     "args": [
+      0,
+      2,
+      1,
+      1
+     ],
+     "value": 0.174533
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      1,
+      2,
+      2,
+      1
+     ]
+    },
+    {
+     "type": "Distance",
+     "args": [
+      2
+     ],
+     "value": 20.0
+    },
+    {
+     "type": "Angle",
+     "args": [
+      1,
+      2,
+      2,
+      1
+     ],
+     "value": 0.174533
+    }
+   ],
+   "message": {
+    "status": "Under-constrained: ",
+    "link": "2 Degrees of Freedom"
+   },
+   "tool_widget": {
+    "title": "Polyline Parameters",
+    "controls": [
+     {
+      "name": "comboBox1",
+      "items": [
+       "Line",
+       "Arc"
+      ],
+      "index": 0
+     },
+     {
+      "name": "checkBoxTS1",
+      "text": "Fillet (F)",
+      "checked": false
+     }
+    ]
+   }
+  },
+  "ovp-polyline-type-click": {
+   "geometry": [
+    {
+     "type": "LineSegment",
+     "start": [
+      4.96894407,
+      4.93788815
+     ],
+     "end": [
+      18.575991198653547,
+      11.25043664
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      18.575991198653547,
+      11.25043664
+     ],
+     "end": [
+      29.96894073,
+      20.0
+     ]
+    }
+   ],
+   "constraints": [
+    {
+     "type": "Distance",
+     "args": [
+      0
+     ],
+     "value": 15.0
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      0,
+      2,
+      1,
+      1
+     ]
+    }
+   ],
+   "message": {
+    "status": "Under-constrained: ",
+    "link": "5 Degrees of Freedom"
+   },
+   "tool_widget": {
+    "title": "Polyline Parameters",
+    "controls": [
+     {
+      "name": "comboBox1",
+      "items": [
+       "Line",
+       "Arc"
+      ],
+      "index": 0
+     },
+     {
+      "name": "checkBoxTS1",
+      "text": "Fillet (F)",
+      "checked": false
+     }
+    ]
+   }
+  },
+  "ovp-polyline-fillet": {
+   "geometry": [
+    {
+     "type": "LineSegment",
+     "start": [
+      23.96893883,
+      0.0
+     ],
+     "end": [
+      29.96893883,
+      0.0
+     ],
+     "construction": true
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      29.96893883,
+      0.0
+     ],
+     "end": [
+      29.96893883,
+      5.999999999999998
+     ],
+     "construction": true
+    },
+    {
+     "type": "ArcOfCircle",
+     "center": [
+      23.96893883,
+      6.0
+     ],
+     "radius": 6.0,
+     "start_angle": 4.71238898038469,
+     "end_angle": 6.283185307179586
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      29.96893883,
+      5.999999999999998
+     ],
+     "end": [
+      29.96893883,
+      20.0
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      0.0,
+      0.0
+     ],
+     "end": [
+      23.96893883,
+      0.0
+     ]
+    }
+   ],
+   "constraints": [
+    {
+     "type": "Coincident",
+     "args": [
+      4,
+      1,
+      -1,
+      1
+     ]
+    },
+    {
+     "type": "PointOnObject",
+     "args": [
+      0,
+      2,
+      -1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      0,
+      2,
+      1,
+      1
+     ]
+    },
+    {
+     "type": "Vertical",
+     "args": [
+      1
+     ]
+    },
+    {
+     "type": "Tangent",
+     "args": [
+      1,
+      2,
+      3,
+      1
+     ]
+    },
+    {
+     "type": "Tangent",
+     "args": [
+      4,
+      2,
+      0,
+      1
+     ]
+    },
+    {
+     "type": "Tangent",
+     "args": [
+      3,
+      1,
+      2,
+      2
+     ]
+    },
+    {
+     "type": "Tangent",
+     "args": [
+      4,
+      2,
+      2,
+      1
+     ]
+    }
+   ],
+   "message": {
+    "status": "Under-constrained: ",
+    "link": "3 Degrees of Freedom"
+   },
+   "tool_widget": {
+    "title": "Polyline Parameters",
+    "controls": [
+     {
+      "name": "comboBox1",
+      "items": [
+       "Line",
+       "Arc"
+      ],
+      "index": 0
+     },
+     {
+      "name": "checkBoxTS1",
+      "text": "Fillet (F)",
+      "checked": true
+     }
+    ]
+   },
+   "ovp": [
+    {
+     "text": "-180.00°",
+     "focus": false
+    },
+    {
+     "text": "14.00 mm",
+     "focus": true
+    }
+   ]
+  },
+  "ovp-polyline-arc": {
+   "geometry": [
+    {
+     "type": "LineSegment",
+     "start": [
+      0.0,
+      0.0
+     ],
+     "end": [
+      20.031055449999986,
+      0.0
+     ]
+    },
+    {
+     "type": "ArcOfCircle",
+     "center": [
+      20.03105544999999,
+      10.0
+     ],
+     "radius": 10.0,
+     "start_angle": 4.71238898038469,
+     "end_angle": 6.28318498038469
+    }
+   ],
+   "constraints": [
+    {
+     "type": "Coincident",
+     "args": [
+      0,
+      1,
+      -1,
+      1
+     ]
+    },
+    {
+     "type": "PointOnObject",
+     "args": [
+      0,
+      2,
+      -1
+     ]
+    },
+    {
+     "type": "Tangent",
+     "args": [
+      0,
+      2,
+      1,
+      1
+     ]
+    },
+    {
+     "type": "Radius",
+     "args": [
+      1
+     ],
+     "value": 10.0
+    },
+    {
+     "type": "Angle",
+     "args": [
+      1
+     ],
+     "value": 1.570796
+    }
+   ],
+   "message": {
+    "status": "Under-constrained: ",
+    "link": "1 Degrees of Freedom"
+   },
+   "tool_widget": {
+    "title": "Polyline Parameters",
+    "controls": [
+     {
+      "name": "comboBox1",
+      "items": [
+       "Line",
+       "Arc"
+      ],
+      "index": 0
+     },
+     {
+      "name": "checkBoxTS1",
+      "text": "Fillet (F)",
+      "checked": false
+     }
+    ]
+   },
+   "ovp": []
+  },
+  "ovp-polyline-undo": {
+   "geometry": [
+    {
+     "type": "LineSegment",
+     "start": [
+      0.0,
+      0.0
+     ],
+     "end": [
+      20.03105545,
+      0.0
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      20.03105545,
+      0.0
+     ],
+     "end": [
+      9.93788815,
+      15.03105545
+     ]
+    }
+   ],
+   "constraints": [
+    {
+     "type": "Coincident",
+     "args": [
+      0,
+      1,
+      -1,
+      1
+     ]
+    },
+    {
+     "type": "PointOnObject",
+     "args": [
+      0,
+      2,
+      -1
+     ]
+    },
+    {
+     "type": "Coincident",
+     "args": [
+      0,
+      2,
+      1,
+      1
+     ]
+    }
+   ],
+   "message": {
+    "status": "Under-constrained: ",
+    "link": "3 Degrees of Freedom"
+   },
+   "tool_widget": {
+    "title": "Polyline Parameters",
+    "controls": [
+     {
+      "name": "comboBox1",
+      "items": [
+       "Line",
+       "Arc"
+      ],
+      "index": 0
+     },
+     {
+      "name": "checkBoxTS1",
+      "text": "Fillet (F)",
+      "checked": false
+     }
+    ]
+   }
+  },
+  "ovp-line-mode-key": {
+   "geometry": [],
+   "constraints": [],
+   "message": {
+    "status": "Empty sketch",
+    "link": ""
+   },
+   "tool_widget": {
+    "title": "Line Parameters",
+    "controls": [
+     {
+      "name": "comboBox1",
+      "items": [
+       "Point, length, angle",
+       "Point, width, height",
+       "2 points"
+      ],
+      "index": 2
+     }
+    ]
+   }
+  },
+  "ovp-hidden-line-click": {
+   "geometry": [
+    {
+     "type": "LineSegment",
+     "start": [
+      4.96894407,
+      4.93788815
+     ],
+     "end": [
+      20.03105545,
+      24.96894073
+     ]
+    }
+   ],
+   "constraints": [],
+   "message": {
+    "status": "Under-constrained: ",
+    "link": "4 Degrees of Freedom"
+   }
+  }
+ }
+}
