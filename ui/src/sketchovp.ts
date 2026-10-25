@@ -150,7 +150,9 @@ export class EditableDatumLabel {
   getValue() { return this.value }
   getFunction() { return this.fn }
 
-  startEdit(val: number, keymanager: DrawSketchKeyboardManager) {
+  /** startEdit: visibleToMouse false (the default) makes the box transparent to the mouse
+   *  (setSpinboxVisibleToMouse: WA_TransparentForMouseEvents), so the clicks and moves over it reach the 3D view. */
+  startEdit(val: number, keymanager: DrawSketchKeyboardManager, visibleToMouse = false) {
     if (this.box) return
     this.resetLockedState()
     this.text = ' '
@@ -169,6 +171,7 @@ export class EditableDatumLabel {
     box.addEventListener('input', () => this.edited())
     box.addEventListener('focus', () => this.onFocusGained())
     box.addEventListener('pointerdown', (e) => e.stopPropagation())
+    if (!visibleToMouse) box.style.pointerEvents = 'none'
     overlayHost()?.appendChild(box)
     this.updateGeometry()
     this.positionSpinbox()
@@ -363,6 +366,8 @@ S.onOverlayDrawn(repositionBoxes)
 export function ovpStates() { return [...shown].map((l) => l.state()).filter((x): x is { text: string; focus: boolean } => !!x) }
 
 // ── the tool's widget (SketcherToolDefaultWidget) ───────────────────────────────────────────────────────────────
+/** A widget parameter's unit: a length, an angle, or none (Base::Unit(): a count, as the polygon's sides). */
+export type WidgetUnit = ValueUnit
 export type WidgetParameter = { label: string; value: number; unit: ValueUnit; visible: boolean; enabled: boolean; isSet: boolean; min?: number; max?: number; decimals?: number }
 export type WidgetCheckbox = { label: string; checked: boolean; visible: boolean; toolTip: string; icon?: string; prefEntry: string }
 export type WidgetCombobox = { label: string; items: { text: string; icon?: string }[]; index: number; visible: boolean; prefEntry: string }

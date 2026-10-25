@@ -12,12 +12,15 @@
 //   src/Mod/Sketcher/Gui/DrawSketchHandlerCircle.h: 2022 Abdullah Tahiri
 //   src/Mod/Sketcher/Gui/DrawSketchHandlerRectangle.h: 2022 Abdullah Tahiri
 //   src/Mod/Sketcher/Gui/DrawSketchHandlerSlot.h: 2022 Abdullah Tahiri
+//   src/Mod/Sketcher/Gui/DrawSketchHandlerArcSlot.h: 2023 Ondsel
 //   src/Mod/Sketcher/Gui/DrawSketchHandlerPolygon.h: 2022 Abdullah Tahiri
+//   src/Mod/Sketcher/ProfileLib/RegularPolygon.py: 2014 Johan Kristensen, Juergen Riegel
 //   src/Mod/Sketcher/Gui/Utils.cpp: 2021 Abdullah Tahiri
 // The Sketcher's geometry tools: DrawSketchHandler (what an auto-constraint the cursor suggests, its cursor icons,
 // how a suggestion becomes a constraint, redundant ones dropped), DrawSketchDefaultHandler's state machine (each click
 // the next state, continuous mode, Esc and the right button, M for the next construction method), and the handlers:
-// point, line, polyline, arc, circle, rectangle (corner, centred, rounded), slot and regular polygon, each making the
+// point, line, polyline, arc, circle, rectangle (four construction methods, rounded, framed), slot, arc slot and
+// regular polygon, each making the
 // geometry and constraints FreeCAD's makes for the same clicks.
 import type { Geo, XY } from './solver'
 import * as SK from './sketch'
@@ -664,7 +667,7 @@ export abstract class DefaultHandler extends DrawSketchHandler implements OvpToo
   protected clearCursorText() { S.setEdit({ positionText: null }) }
   hint(message: string, keys: string[]) { return { message, keys } }
 }
-const LMB = 'LMB', RMB = 'RMB'
+const LMB = 'LMB', RMB = 'RMB', MOUSE_MOVE = 'MouseMove'
 
 // ── Point (DrawSketchHandlerPoint.h) ─────────────────────────────────────────────────────────────────────────────
 /** DSHPointController: a DrawSketchController with two on-view parameters, the point's X and Y (positioning). */
@@ -1710,53 +1713,410 @@ export class CircleHandler extends DefaultHandler {
     }
   }
 }
-// ── Rectangle (DrawSketchHandlerRectangle.h), Diagonal and CenterAndCorner, with rounded corners ────────────────
+// ── Rectangle (DrawSketchHandlerRectangle.h) ─────────────────────────────────────────────────────────────────────
+/** Base::sgn. */
+const sgn = (v: number) => (v > 0 ? 1 : 0) - (v < 0 ? 1 : 0)
+/** RectangleConstructionMethod: Diagonal (two corners), CenterAndCorner, ThreePoints (three corners: any
+ *  parallelogram), CenterAnd3Points (the centre and two corners). With "Rounded corners (U)" a click more sets the
+ *  corner radius, with "Frame (J)" one more the frame's thickness (a second rectangle at that offset). FiveSeekEnd.
+ *  DSHRectangleController: the first corner's (or the centre's) X and Y; then the width and height (DISTANCEX and
+ *  DISTANCEY), or for three points a side's length and angle and the other side's length and the angle between them,
+ *  or for the centre and three points the corner's X and Y and the second side's length and angle; then the radius and
+ *  the thickness. The widget: the construction method and the two check boxes. */
 export class RectangleHandler extends DefaultHandler {
   readonly toolName = 'DSH_Rectangle'
-  protected readonly states = 3
-  protected readonly methods = 2
-  private center: XY = [0, 0]; private c1: XY = [0, 0]; private c2: XY = [0, 0]; private c3: XY = [0, 0]; private c4: XY = [0, 0]
-  private radius = 0; private length = 0; private width = 0; private angle = 0
-  private angle123 = Math.PI / 2; private angle412 = Math.PI / 2
-  private firstCurve = 0; private pointOneId = 0; private pointTwoId = 0; private centerPointId = 0
-  constructor(method = 0, private roundCorners = false) { super() ; this.method = method }
+  protected readonly states = 5
+  protected readonly methods = 4
+  protected readonly autoConstraintSize = 3
+  private center: XY = [0, 0]; private corner1: XY = [0, 0]; private corner2: XY = [0, 0]; private corner3: XY = [0, 0]; private corner4: XY = [0, 0]
+  private frameCorner1: XY = [0, 0]; private frameCorner2: XY = [0, 0]; private frameCorner3: XY = [0, 0]; private frameCorner4: XY = [0, 0]
+  private corner2Initial: XY = [0, 0]
+  private center1: XY = [0, 0]; private center2: XY = [0, 0]; private center3: XY = [0, 0]; private center4: XY = [0, 0]
+  private cornersReversed = false
+  private radius = 0; private length = 0; private width = 0; private thickness = 0; private radiusFrame = 0
+  private angle = 0; private angle123 = 0; private angle412 = 0
+  private firstCurve = GEO_UNDEF; private constructionPointOneId = GEO_UNDEF; private constructionPointTwoId = GEO_UNDEF
+  private constructionPointThreeId = GEO_UNDEF; private centerPointId = GEO_UNDEF; private side = 0
+  /** The direction signs taken when a width or height is first typed, so that the mouse does not flip them (#23459). */
+  private lengthSign = 0; private widthSign = 0
+  constructor(method = 0, private roundCorners = false, private makeFrame = false) { super(); this.method = method }
+  private get twoCorner() { return this.method === 0 || this.method === 1 }
   crosshair() {
-    if (this.roundCorners) return this.method === 1 ? 'Sketcher_Pointer_Oblong_Center' : 'Sketcher_Pointer_Oblong'
-    return this.method === 1 ? 'Sketcher_Pointer_Create_Box_Center' : 'Sketcher_Pointer_Create_Box'
+    const m = this.method
+    if (!this.roundCorners && !this.makeFrame) return m === 1 ? 'Sketcher_Pointer_Create_Box_Center' : m === 2 ? 'Sketcher_Pointer_Create_Box_3Points' : m === 3 ? 'Sketcher_Pointer_Create_Box_3Points_Center' : 'Sketcher_Pointer_Create_Box'
+    if (this.roundCorners && !this.makeFrame) return m === 1 ? 'Sketcher_Pointer_Oblong_Center' : 'Sketcher_Pointer_Oblong'
+    if (!this.roundCorners) return m === 1 ? 'Sketcher_Pointer_Create_Frame_Center' : 'Sketcher_Pointer_Create_Frame'
+    return m === 1 ? 'Sketcher_Pointer_Oblong_Frame_Center' : 'Sketcher_Pointer_Oblong_Frame'
   }
   hints() {
-    const first = this.method === 1 ? '%1 pick center' : '%1 pick first corner', second = this.method === 1 ? '%1 pick corner' : '%1 pick opposite corner'
-    return [this.hint([first, second, '%1 set corner radius'][Math.min(this.state, 2)], [LMB]), this.hint('%1 switch mode', ['M'])]
+    const texts = [
+      ['%1 pick first corner', '%1 pick opposite corner', '%1 set corner radius or frame thickness', '%1 set frame thickness'],
+      ['%1 pick center', '%1 pick corner', '%1 set corner radius or frame thickness', '%1 set frame thickness'],
+      ['%1 pick first corner', '%1 pick second corner', '%1 pick third corner', '%1 set corner radius or frame thickness'],
+      ['%1 pick center', '%1 pick first corner', '%1 pick second corner', '%1 set corner radius or frame thickness']][this.method]
+    if (this.state > 3) return []
+    const first = this.hint(texts[this.state], [this.twoCorner ? (this.state < 2 ? LMB : MOUSE_MOVE) : this.state < 3 ? LMB : MOUSE_MOVE])
+    return [first, this.hint('%1 switch mode', ['M']), this.hint('%1 toggle rounded corners', ['U']), this.hint('%1 toggle frame', ['J'])]
   }
   protected update(p: XY) {
+    const pi = Math.PI
     if (this.state === 0) {
-      this.drawPositionAtCursor(p)
-      if (this.method === 0) this.c1 = p; else this.center = p
+      this.ctl.drawPositionAtCursor(p)
+      if (this.method === 0 || this.method === 2) this.corner1 = p
+      else this.center = p
       this.seekAndRender(this.sug[0], p, [0, 0])
     } else if (this.state === 1) {
-      if (this.method === 1) this.c1 = sub(this.center, sub(p, this.center))
-      this.c3 = p
-      if (Math.sign(this.c3[0] - this.c1[0]) * Math.sign(this.c3[1] - this.c1[1]) > 0) { this.c2 = [p[0], this.c1[1]]; this.c4 = [this.c1[0], p[1]] }
-      else { this.c4 = [p[0], this.c1[1]]; this.c2 = [this.c1[0], p[1]] }
-      this.angle123 = this.angle412 = Math.PI / 2
-      if (this.roundCorners) { this.length = len(sub(this.c2, this.c1)); this.width = len(sub(this.c4, this.c1)); this.radius = Math.min(this.length, this.width) / 6 }
+      if (this.method === 0) {
+        this.ctl.drawDirectionAtCursor(p, this.corner1)
+        // corners 2 and 4 swapped so that the corners run counter-clockwise
+        this.corner3 = p
+        if ((this.corner3[0] - this.corner1[0]) * (this.corner3[1] - this.corner1[1]) > 0) { this.corner2 = [p[0], this.corner1[1]]; this.corner4 = [this.corner1[0], p[1]]; this.cornersReversed = false }
+        else { this.corner4 = [p[0], this.corner1[1]]; this.corner2 = [this.corner1[0], p[1]]; this.cornersReversed = true }
+        this.angle123 = pi / 2; this.angle412 = pi / 2
+      } else if (this.method === 1) {
+        this.ctl.drawDirectionAtCursor(p, this.center)
+        this.corner1 = sub(this.center, sub(p, this.center))
+        this.corner3 = p
+        if (sgn(this.corner3[0] - this.corner1[0]) * sgn(this.corner3[1] - this.corner1[1]) > 0) { this.corner2 = [p[0], this.corner1[1]]; this.corner4 = [this.corner1[0], p[1]]; this.cornersReversed = false }
+        else { this.corner4 = [p[0], this.corner1[1]]; this.corner2 = [this.corner1[0], p[1]]; this.cornersReversed = true }
+        this.angle123 = pi / 2; this.angle412 = pi / 2
+      } else if (this.method === 2) {
+        this.ctl.drawDirectionAtCursor(p, this.corner1)
+        this.corner2 = p
+        const d = sub(this.corner2, this.corner1), perpendicular: XY = [-d[1], d[0]]
+        this.corner3 = add(this.corner2, perpendicular); this.corner4 = add(this.corner1, perpendicular)
+        this.angle123 = pi / 2; this.angle412 = pi / 2
+        this.corner2Initial = this.corner2
+        this.side = this.pointSideOfVector(this.corner3, sub(this.corner2, this.corner1), this.corner1)
+      } else {
+        this.ctl.drawDirectionAtCursor(p, this.center)
+        this.corner1 = p
+        this.corner3 = sub(this.center, sub(p, this.center))
+        const d = sub(p, this.center), perpendicular: XY = [-d[1], d[0]]
+        this.corner2 = add(this.center, perpendicular); this.corner4 = sub(this.center, perpendicular)
+        this.angle123 = pi / 2; this.angle412 = pi / 2
+        this.side = this.pointSideOfVector(this.corner2, sub(this.corner3, this.corner1), this.corner1)
+      }
+      if (this.roundCorners) { this.length = len(sub(this.corner2, this.corner1)); this.width = len(sub(this.corner4, this.corner1)); this.radius = Math.min(this.length, this.width) / 6 }
       else this.radius = 0
-      this.clearCursorText()
       this.drawShape()
+      this.ctl.drawWidthHeightAtCursor(p, this.length, this.width)
       this.seekAndRender(this.sug[1], p, [0, 0])
     } else if (this.state === 2) {
-      this.calculateRadius(p)
-      this.clearCursorText()
+      if (this.twoCorner) {
+        if (this.roundCorners) { this.calculateRadius(p); this.ctl.drawDoubleAtCursor(p, this.radius) }
+        else { this.calculateThickness(p); this.ctl.drawDoubleAtCursor(p, this.thickness) } // a frame
+      } else {
+        const angleOf2 = (a: XY, b: XY) => { const l = len(a) * len(b); return Math.abs(l) > CONFUSION ? Math.acos(dot(a, b) / l) : null }
+        if (this.method === 2) {
+          this.corner2 = this.corner2Initial
+          this.corner3 = p
+          if (this.side === this.pointSideOfVector(this.corner3, sub(this.corner2, this.corner1), this.corner1)) { this.corner4 = add(this.corner1, sub(this.corner3, this.corner2)); this.cornersReversed = false }
+          else { this.corner4 = this.corner2; this.corner2 = add(this.corner1, sub(this.corner3, this.corner4)); this.cornersReversed = true }
+          const a = angleOf2(sub(this.corner1, this.corner2), sub(this.corner3, this.corner2))
+          if (a !== null) this.angle123 = a
+          this.angle412 = pi - this.angle123
+        } else {
+          this.corner2 = p
+          this.corner4 = sub(this.center, sub(p, this.center))
+          this.cornersReversed = false
+          if (this.side !== this.pointSideOfVector(this.corner2, sub(this.corner3, this.corner1), this.corner1)) { this.corner4 = p; this.corner2 = sub(this.center, sub(p, this.center)); this.cornersReversed = true }
+          const a = angleOf2(sub(this.corner4, this.corner1), sub(this.corner2, this.corner1))
+          if (a !== null) this.angle412 = a
+          this.angle123 = pi - this.angle412
+        }
+        const c412 = Math.cos(this.angle412), c123 = Math.cos(this.angle123)
+        this.radius = this.roundCorners ? (Math.min(this.length, this.width) / 6) * Math.min(Math.sqrt(1 - c412 * c412), Math.sqrt(1 - c123 * c123)) : 0
+        this.ctl.drawWidthHeightAtCursor(p, this.length, this.width)
+      }
+      this.drawShape()
+      if (!this.twoCorner) this.seekAndRender(this.sug[2], p, [0, 0])
+    } else if (this.state === 3) {
+      if (this.twoCorner || !this.roundCorners) { this.calculateThickness(p); this.ctl.drawDoubleAtCursor(p, this.thickness) }
+      else { this.calculateRadius(p); this.ctl.drawDoubleAtCursor(p, this.radius) }
+      this.drawShape()
+    } else if (this.state === 4) {
+      this.calculateThickness(p); this.ctl.drawDoubleAtCursor(p, this.thickness)
       this.drawShape()
     }
   }
-  private metrics(): boolean {
-    const vl = sub(this.c2, this.c1), vw = sub(this.c4, this.c1)
-    this.length = len(vl); this.width = len(vw); this.angle = angleOf(vl)
-    return this.length >= CONFUSION && this.width >= CONFUSION
+  protected executeCommands() {
+    this.firstCurve = S.highestCurveIndex() + 1
+    this.createShape(false)
+    if (!this.shapeGeometry.length) throw new Error('Failed to add box: Cannot create a rectangle with zero length or width')
+    S.openCommand('Add sketch box')
+    this.addShape()
+    S.commitCommand()
+    this.thickness = 0
+  }
+  protected generateAutoConstraints() {
+    const fc = this.firstCurve, rounded = this.radius > CONFUSION, [ac1, ac2, ac3] = this.sug
+    if (this.method === 0) {
+      if (rounded) { this.onElement(ac1, this.constructionPointOneId, START); this.onElement(ac2, this.constructionPointTwoId, START) }
+      else { this.onElement(ac1, fc, START); this.onElement(ac2, fc + 1, END) }
+    } else if (this.method === 1) {
+      this.onElement(ac1, this.centerPointId, START)
+      if (rounded) this.onElement(ac2, this.constructionPointOneId, START); else this.onElement(ac2, fc + 1, END)
+    } else if (this.method === 2) {
+      if (rounded) { this.onElement(ac1, this.constructionPointOneId, START); this.onElement(ac2, this.constructionPointTwoId, START); this.onElement(ac3, this.constructionPointThreeId, START) }
+      else { this.onElement(ac1, fc, START); this.onElement(ac2, this.cornersReversed ? fc + 3 : fc + 1, START); this.onElement(ac3, fc + 2, START) }
+    } else {
+      this.onElement(ac1, this.centerPointId, START)
+      if (rounded) { this.onElement(ac2, this.constructionPointOneId, START); this.onElement(ac3, this.constructionPointTwoId, START) }
+      else { this.onElement(ac2, fc, START); this.onElement(ac3, this.cornersReversed ? fc + 3 : fc + 1, START) }
+    }
+    this.removeRedundantAutoConstraints()
+  }
+  protected angleSnappingControl() {
+    if (this.method === 2 && this.state === 1) S.setAngleSnapping(true, this.corner1)
+    else if (this.method === 3 && this.state === 1) S.setAngleSnapping(true, this.center)
+    else if (this.method === 2 && this.state === 2) S.setAngleSnapping(true, this.cornersReversed ? this.corner4 : this.corner2)
+    else if (this.method === 3 && this.state === 2) S.setAngleSnapping(true, this.corner1)
+    else S.setAngleSnapping(false)
+  }
+  protected canGoToNextMode() { return !(this.state === 1 && !this.updateRectangleMetrics()) }
+  /** onButtonPressed: without rounded corners or a frame the shape is done after its corners. */
+  protected onButtonPressed(p: XY) {
+    this.update(p)
+    if (!this.canGoToNextMode()) return
+    const s = this.state, r = this.roundCorners, f = this.makeFrame, END_STATE = this.states
+    if (this.twoCorner) {
+      if (s === 1 && !r && !f) this.setState(END_STATE)
+      else if ((s === 2 && r && !f) || (s === 2 && !r && f)) this.setState(END_STATE)
+      else if (s === 3) this.setState(END_STATE)
+      else this.setState(s + 1)
+    } else {
+      if (s === 2 && !r && !f) this.setState(END_STATE)
+      else if ((s === 3 && r && !f) || (s === 3 && !r && f)) this.setState(END_STATE)
+      else this.setState(s + 1)
+    }
+  }
+  protected onReset() { this.thickness = 0; this.lengthSign = 0; this.widthSign = 0 }
+
+  protected createShape(onlyOutline: boolean) {
+    this.shapeGeometry = []
+    let vecL = sub(this.corner2, this.corner1), vecW = sub(this.corner4, this.corner1)
+    if (!this.updateRectangleMetrics()) return
+    vecL = mul(vecL, 1 / this.length); vecW = mul(vecW, 1 / this.width)
+    let L1 = this.radius, L2 = this.radius
+    const c123 = Math.cos(this.angle123 / 2), c412 = Math.cos(this.angle412 / 2)
+    if (c123 !== 1 && c412 !== 1) { L1 = this.radius / Math.sqrt(1 - c123 * c123); L2 = this.radius / Math.sqrt(1 - c412 * c412) }
+    this.createFirstRectangleGeometries(vecL, vecW, L1, L2)
+    const thicknessNotZero = Math.abs(this.thickness) > CONFUSION
+    const negThicknessEqualRadius = Math.abs(this.radius + this.thickness) < CONFUSION
+    if (this.makeFrame && this.state !== 1 && thicknessNotZero) this.createSecondRectangleGeometries(vecL, vecW, L1, L2)
+    if (!onlyOutline) {
+      this.shapeConstraints = []
+      if (this.radius > CONFUSION) this.finishOblongCreation(thicknessNotZero, negThicknessEqualRadius)
+      else this.finishRectangleCreation(thicknessNotZero) // the plain rectangles and frames
+    }
+  }
+  private updateRectangleMetrics(): boolean {
+    const vecL = sub(this.corner2, this.corner1), vecW = sub(this.corner4, this.corner1)
+    this.length = len(vecL); this.width = len(vecW); this.angle = angleOf(vecL)
+    const fin = (p: XY) => Number.isFinite(p[0]) && Number.isFinite(p[1])
+    const nonDegenerate = (a: number) => Number.isFinite(a) && Math.abs(a) % Math.PI >= CONFUSION
+    return fin(this.corner1) && fin(this.corner2) && fin(this.corner3) && fin(this.corner4) && Number.isFinite(this.length) && Number.isFinite(this.width)
+      && Number.isFinite(this.angle) && this.length >= CONFUSION && this.width >= CONFUSION && nonDegenerate(this.angle123) && nonDegenerate(this.angle412)
+  }
+  private createFirstRectangleGeometries(vecL: XY, vecW: XY, L1: number, L2: number) {
+    const c123 = Math.cos(this.angle123 / 2), c412 = Math.cos(this.angle412 / 2)
+    this.shapeGeometry.push(
+      this.line(add(this.corner1, mul(vecL, L2 * c412)), sub(this.corner2, mul(vecL, L1 * c123))),
+      this.line(add(this.corner2, mul(vecW, L1 * c123)), sub(this.corner3, mul(vecW, L2 * c412))),
+      this.line(sub(this.corner3, mul(vecL, L2 * c412)), add(this.corner4, mul(vecL, L1 * c123))),
+      this.line(sub(this.corner4, mul(vecW, L1 * c123)), add(this.corner1, mul(vecW, L2 * c412))))
+    if (this.roundCorners && this.radius > CONFUSION) {
+      // the centres, which a rounded frame with no inner radius needs later
+      const end = this.angle - Math.PI / 2, b1 = normalize(add(vecL, vecW)), b2 = normalize(sub(vecL, vecW))
+      this.center1 = add(this.corner1, mul(b1, L2)); this.center2 = sub(this.corner2, mul(b2, L1))
+      this.center3 = sub(this.corner3, mul(b1, L2)); this.center4 = add(this.corner4, mul(b2, L1))
+      const r = this.radius
+      this.shapeGeometry.push(
+        this.arc(this.center1, end - Math.PI + this.angle412, end, r),
+        this.arc(this.center2, end, end - Math.PI - this.angle123, r),
+        this.arc(this.center3, end + this.angle412, end - Math.PI, r),
+        this.arc(this.center4, end - Math.PI, end - this.angle123, r))
+    }
+  }
+  private createSecondRectangleGeometries(vecL: XY, vecW: XY, L1: number, L2: number) {
+    const end = this.angle - Math.PI / 2
+    if (this.radius < CONFUSION) this.radiusFrame = 0
+    else { this.radiusFrame = this.radius + this.thickness; if (this.radiusFrame < 0) this.radiusFrame = 0 }
+    const vecLF = sub(this.frameCorner2, this.frameCorner1), vecWF = sub(this.frameCorner4, this.frameCorner1)
+    const lengthF = len(vecLF), widthF = len(vecWF)
+    let L1F = 0, L2F = 0
+    if (this.radius > CONFUSION) { L1F = (L1 * this.radiusFrame) / this.radius; L2F = (L2 * this.radiusFrame) / this.radius }
+    const c123 = Math.cos(this.angle123 / 2), c412 = Math.cos(this.angle412 / 2)
+    const uL = mul(vecLF, 1 / lengthF), uW = mul(vecWF, 1 / widthF)
+    this.shapeGeometry.push(
+      this.line(add(this.frameCorner1, mul(uL, L2F * c412)), sub(this.frameCorner2, mul(uL, L1F * c123))),
+      this.line(add(this.frameCorner2, mul(uW, L1F * c123)), sub(this.frameCorner3, mul(uW, L2F * c412))),
+      this.line(sub(this.frameCorner3, mul(uL, L2F * c412)), add(this.frameCorner4, mul(uL, L1F * c123))),
+      this.line(sub(this.frameCorner4, mul(uW, L1F * c123)), add(this.frameCorner1, mul(uW, L2F * c412))))
+    if (this.roundCorners && this.radiusFrame > CONFUSION) {
+      const b1 = normalize(add(vecL, vecW)), b2 = normalize(sub(vecL, vecW)), r = this.radiusFrame
+      this.shapeGeometry.push(
+        this.arc(add(this.frameCorner1, mul(b1, L2F)), end - Math.PI + this.angle412, end, r),
+        this.arc(sub(this.frameCorner2, mul(b2, L1F)), end, end - Math.PI - this.angle123, r),
+        this.arc(sub(this.frameCorner3, mul(b1, L2F)), end + this.angle412, end - Math.PI, r),
+        this.arc(add(this.frameCorner4, mul(b2, L1F)), end - Math.PI, end - this.angle123, r))
+    }
+  }
+  private finishOblongCreation(thicknessNotZero: boolean, negThicknessEqualRadius: boolean) {
+    const fc = this.firstCurve
+    this.addTangentCoincidences(fc)
+    this.addAlignmentConstraints()
+    this.addArcEqualities()
+    if (thicknessNotZero) {
+      // 1: -thickness = radius: the inner rectangle is plain, its corners on the outer arcs' centres; 2: -thickness >
+      // radius: plain, held by construction lines; 3: otherwise the inner rectangle is rounded too
+      if (this.radiusFrame < CONFUSION) {
+        this.addRectangleCoincidences(fc + 8)
+        if (negThicknessEqualRadius) this.finishOblongFrameCase1()
+        else this.finishOblongFrameCase2()
+      } else this.finishOblongFrameCase3()
+    }
+    if (this.method === 2) this.finishOblongThreePoints(thicknessNotZero, negThicknessEqualRadius)
+    else if (this.method === 3) this.finishOblongCenterAnd3Points(thicknessNotZero, negThicknessEqualRadius)
+    else if (this.method === 1) this.finishOblongCenterAndCorner(thicknessNotZero, negThicknessEqualRadius)
+    else this.finishOblongDiagonal(thicknessNotZero, negThicknessEqualRadius)
+  }
+  private finishOblongFrameCase1() {
+    const fc = this.firstCurve
+    for (let k = 0; k < 4; k++) this.shapeCon('Coincident', fc + 8 + k, START, fc + 4 + k, MID)
+  }
+  private finishOblongFrameCase2() {
+    const fc = this.firstCurve
+    this.addFrameAlignmentConstraints(fc + 8)
+    const centers = [this.center1, this.center2, this.center3, this.center4], frames = [this.frameCorner1, this.frameCorner2, this.frameCorner3, this.frameCorner4]
+    for (let k = 0; k < 4; k++) this.shapeGeometry.push(this.line(centers[k], frames[k], true))
+    for (let k = 0; k < 4; k++) { this.shapeCon('Coincident', fc + 12 + k, START, fc + 4 + k, MID); this.shapeCon('Coincident', fc + 12 + k, END, fc + 8 + k, START) }
+    for (let k = 0; k < 3; k++) this.shapeCon('Perpendicular', fc + 12 + k, NONE, fc + 13 + k)
+  }
+  private finishOblongFrameCase3() {
+    const fc = this.firstCurve
+    this.addTangentCoincidences(fc + 8)
+    for (let k = 0; k < 4; k++) this.shapeCon('Coincident', fc + 4 + k, MID, fc + 12 + k, MID)
+    this.addFrameAlignmentConstraints(fc + 8, false)
+  }
+  /** The construction points' ids: after the 8 curves, the frame's 4 lines (and 4 more curves unless case 1). */
+  private oblongPointsAt(thicknessNotZero: boolean, negThicknessEqualRadius: boolean) {
+    return this.firstCurve + (thicknessNotZero ? (negThicknessEqualRadius ? 12 : 16) : 8)
+  }
+  private finishOblongThreePoints(thicknessNotZero: boolean, negThicknessEqualRadius: boolean) {
+    const fc = this.firstCurve, at = this.oblongPointsAt(thicknessNotZero, negThicknessEqualRadius)
+    this.constructionPointOneId = at; this.constructionPointTwoId = at + 1; this.constructionPointThreeId = at + 2
+    this.shapeGeometry.push(this.point(this.corner1, true))
+    if (!this.cornersReversed) {
+      this.shapeGeometry.push(this.point(this.corner2, true))
+      this.shapeCon('PointOnObject', this.constructionPointTwoId, START, fc); this.shapeCon('PointOnObject', this.constructionPointTwoId, START, fc + 1)
+    } else {
+      this.shapeGeometry.push(this.point(this.corner4, true))
+      this.shapeCon('PointOnObject', this.constructionPointTwoId, START, fc + 2); this.shapeCon('PointOnObject', this.constructionPointTwoId, START, fc + 3)
+    }
+    this.shapeGeometry.push(this.point(this.corner3, true))
+    this.shapeCon('PointOnObject', this.constructionPointOneId, START, fc); this.shapeCon('PointOnObject', this.constructionPointOneId, START, fc + 3)
+    this.shapeCon('PointOnObject', this.constructionPointThreeId, START, fc + 1); this.shapeCon('PointOnObject', this.constructionPointThreeId, START, fc + 2)
+  }
+  private finishOblongCenterAnd3Points(thicknessNotZero: boolean, negThicknessEqualRadius: boolean) {
+    const fc = this.firstCurve, at = this.oblongPointsAt(thicknessNotZero, negThicknessEqualRadius)
+    this.constructionPointOneId = at; this.constructionPointTwoId = at + 1; this.centerPointId = at + 2
+    this.shapeGeometry.push(this.point(this.corner1, true))
+    if (!this.cornersReversed) {
+      this.shapeGeometry.push(this.point(this.corner2, true))
+      this.shapeCon('PointOnObject', this.constructionPointTwoId, START, fc); this.shapeCon('PointOnObject', this.constructionPointTwoId, START, fc + 1)
+    } else {
+      this.shapeGeometry.push(this.point(this.corner4, true))
+      this.shapeCon('PointOnObject', this.constructionPointTwoId, START, fc + 2); this.shapeCon('PointOnObject', this.constructionPointTwoId, START, fc + 3)
+    }
+    this.shapeGeometry.push(this.point(this.center, true))
+    this.shapeCon('Symmetric', fc + 2, START, fc, START, this.centerPointId, START)
+    this.shapeCon('PointOnObject', this.constructionPointOneId, START, fc); this.shapeCon('PointOnObject', this.constructionPointOneId, START, fc + 3)
+  }
+  private finishOblongCenterAndCorner(thicknessNotZero: boolean, negThicknessEqualRadius: boolean) {
+    const fc = this.firstCurve, at = this.oblongPointsAt(thicknessNotZero, negThicknessEqualRadius)
+    this.constructionPointOneId = at; this.centerPointId = at + 1
+    this.shapeGeometry.push(this.point(this.corner3, true), this.point(this.center, true))
+    this.shapeCon('Symmetric', fc + 2, START, fc, START, this.centerPointId, START)
+    this.shapeCon('PointOnObject', this.constructionPointOneId, START, fc + 1); this.shapeCon('PointOnObject', this.constructionPointOneId, START, fc + 2)
+  }
+  private finishOblongDiagonal(thicknessNotZero: boolean, negThicknessEqualRadius: boolean) {
+    const fc = this.firstCurve, at = this.oblongPointsAt(thicknessNotZero, negThicknessEqualRadius)
+    this.constructionPointOneId = at; this.constructionPointTwoId = at + 1
+    this.shapeGeometry.push(this.point(this.corner1, true), this.point(this.corner3, true))
+    this.shapeCon('PointOnObject', this.constructionPointOneId, START, fc); this.shapeCon('PointOnObject', this.constructionPointOneId, START, fc + 3)
+    this.shapeCon('PointOnObject', this.constructionPointTwoId, START, fc + 1); this.shapeCon('PointOnObject', this.constructionPointTwoId, START, fc + 2)
+  }
+  private addTangentCoincidences(g: number) {
+    this.shapeCon('Tangent', g, START, g + 4, END); this.shapeCon('Tangent', g, END, g + 5, START)
+    this.shapeCon('Tangent', g + 1, START, g + 5, END); this.shapeCon('Tangent', g + 1, END, g + 6, START)
+    this.shapeCon('Tangent', g + 2, START, g + 6, END); this.shapeCon('Tangent', g + 2, END, g + 7, START)
+    this.shapeCon('Tangent', g + 3, START, g + 7, END); this.shapeCon('Tangent', g + 3, END, g + 4, START)
+  }
+  private addArcEqualities() {
+    const fc = this.firstCurve
+    this.shapeCon('Equal', fc + 4, NONE, fc + 5); this.shapeCon('Equal', fc + 5, NONE, fc + 6); this.shapeCon('Equal', fc + 6, NONE, fc + 7)
+  }
+  private finishRectangleCreation(thicknessNotZero: boolean) {
+    this.addRectangleCoincidences(this.firstCurve)
+    this.addAlignmentConstraints()
+    if (thicknessNotZero) this.finishRectangleFrameCreation()
+    if (this.method === 1 || this.method === 3) this.finishCenteredRectangleCreation(thicknessNotZero)
+  }
+  private addRectangleCoincidences(g: number) {
+    for (let k = 0; k < 4; k++) this.shapeCon('Coincident', g + k, END, g + ((k + 1) % 4), START)
+  }
+  /** Which sides are horizontal depends on which way the diagonal runs; a rectangle at an angle gets parallels. */
+  private alignmentTypes(): [ConstraintType, ConstraintType] {
+    return sgn(this.corner3[0] - this.corner1[0]) * sgn(this.corner3[1] - this.corner1[1]) < 0 ? ['Vertical', 'Horizontal'] : ['Horizontal', 'Vertical']
+  }
+  private addAlignmentConstraints() {
+    const fc = this.firstCurve, [ta, tb] = this.alignmentTypes()
+    if (Math.abs(this.angle) < CONFUSION || this.twoCorner) {
+      this.shapeCon(ta, fc); this.shapeCon(ta, fc + 2); this.shapeCon(tb, fc + 1); this.shapeCon(tb, fc + 3)
+    } else {
+      this.shapeCon('Parallel', fc, NONE, fc + 2); this.shapeCon('Parallel', fc + 1, NONE, fc + 3)
+      if (Math.abs(this.angle123 - Math.PI / 2) < CONFUSION) this.shapeCon('Perpendicular', fc, NONE, fc + 1)
+    }
+  }
+  private finishRectangleFrameCreation() {
+    const fc = this.firstCurve
+    this.addRectangleCoincidences(fc + 4)
+    this.addFrameAlignmentConstraints(fc + 4)
+    this.addRectangleFrameConstructionLines()
+  }
+  private addFrameAlignmentConstraints(g: number, addLast = true) {
+    const fc = this.firstCurve, [ta, tb] = this.alignmentTypes()
+    if (Math.abs(this.angle) < CONFUSION || this.twoCorner) {
+      this.shapeCon(ta, g); this.shapeCon(ta, g + 2); this.shapeCon(tb, g + 1)
+      if (addLast) this.shapeCon(tb, g + 3)
+    } else {
+      this.shapeCon('Parallel', g, NONE, g + 2); this.shapeCon('Parallel', g + 1, NONE, g + 3); this.shapeCon('Parallel', fc, NONE, g)
+      if (addLast) this.shapeCon('Parallel', fc + 1, NONE, g + 1)
+    }
+  }
+  private addRectangleFrameConstructionLines() {
+    const fc = this.firstCurve
+    const corners = [this.corner1, this.corner2, this.corner3, this.corner4], frames = [this.frameCorner1, this.frameCorner2, this.frameCorner3, this.frameCorner4]
+    for (let k = 0; k < 4; k++) this.shapeGeometry.push(this.line(corners[k], frames[k], true))
+    for (let k = 0; k < 4; k++) { this.shapeCon('Coincident', fc + 8 + k, START, fc + k, START); this.shapeCon('Coincident', fc + 8 + k, END, fc + 4 + k, START) }
+    for (let k = 0; k < 3; k++) this.shapeCon('Perpendicular', fc + 8 + k, NONE, fc + 9 + k)
+  }
+  private finishCenteredRectangleCreation(thicknessNotZero: boolean) {
+    const fc = this.firstCurve
+    this.centerPointId = fc + (thicknessNotZero ? 12 : 4)
+    this.shapeGeometry.push(this.point(this.center, true))
+    this.shapeCon('Symmetric', fc + 2, START, fc, START, this.centerPointId, START)
+  }
+  /** getPointSideOfVector: which side of the line through pointOnVector along separatingVector the point lies (0 on it). */
+  private pointSideOfVector(pointToCheck: XY, separatingVector: XY, pointOnVector: XY) {
+    const second = add(pointOnVector, separatingVector)
+    const d = (pointToCheck[0] - pointOnVector[0]) * (second[1] - pointOnVector[1]) - (pointToCheck[1] - pointOnVector[1]) * (second[0] - pointOnVector[0])
+    return Math.abs(d) < CONFUSION ? 0 : d < 0 ? -1 : 1
   }
   private calculateRadius(p: XY) {
-    const u = normalize(sub(this.c2, this.c1)), v = normalize(sub(this.c4, this.c1)), e = sub(p, this.c1)
+    const u = normalize(sub(this.corner2, this.corner1)), v = normalize(sub(this.corner4, this.corner1)), e = sub(p, this.corner1)
     const det = u[0] * v[1] - u[1] * v[0]
     let du = (v[1] * e[0] - v[0] * e[1]) / det, dv = (-u[1] * e[0] + u[0] * e[1]) / det
     if (-CONFUSION < du && du < 0) du = 0
@@ -1770,111 +2130,387 @@ export class RectangleHandler extends DefaultHandler {
     const c412 = Math.cos(this.angle412 / 2), c123 = Math.cos(this.angle123 / 2)
     this.radius = Math.min(this.radius, Math.min(this.length * 0.999, this.width * 0.999) / (c412 / Math.sqrt(1 - c412 * c412) + c123 / Math.sqrt(1 - c123 * c123)))
   }
-  protected createShape(onlyOutline: boolean) {
-    this.shapeGeometry = []
-    if (!this.metrics()) return
-    const vl = mul(sub(this.c2, this.c1), 1 / this.length), vw = mul(sub(this.c4, this.c1), 1 / this.width)
-    let L1 = this.radius, L2 = this.radius
-    const c123 = Math.cos(this.angle123 / 2), c412 = Math.cos(this.angle412 / 2)
-    if (c123 !== 1 && c412 !== 1) { L1 = this.radius / Math.sqrt(1 - c123 * c123); L2 = this.radius / Math.sqrt(1 - c412 * c412) }
-    this.shapeGeometry.push(
-      this.line(add(this.c1, mul(vl, L2 * c412)), sub(this.c2, mul(vl, L1 * c123))),
-      this.line(add(this.c2, mul(vw, L1 * c123)), sub(this.c3, mul(vw, L2 * c412))),
-      this.line(sub(this.c3, mul(vl, L2 * c412)), add(this.c4, mul(vl, L1 * c123))),
-      this.line(sub(this.c4, mul(vw, L1 * c123)), add(this.c1, mul(vw, L2 * c412))))
-    if (this.roundCorners && this.radius > CONFUSION) {
-      const end = this.angle - Math.PI / 2, b1 = normalize(add(vl, vw)), b2 = normalize(sub(vl, vw))
-      const r = this.radius
-      this.shapeGeometry.push(
-        this.arc(add(this.c1, mul(b1, L2)), end - Math.PI + this.angle412, end, r),
-        this.arc(sub(this.c2, mul(b2, L1)), end, end - Math.PI - this.angle123, r),
-        this.arc(sub(this.c3, mul(b1, L2)), end + this.angle412, end - Math.PI, r),
-        this.arc(add(this.c4, mul(b2, L1)), end - Math.PI, end - this.angle123, r))
+  private calculateThickness(p: XY) {
+    const u = normalize(sub(this.corner2, this.corner1)), v = normalize(sub(this.corner4, this.corner1)), e = sub(p, this.corner1)
+    const det = u[0] * v[1] - u[1] * v[0]
+    const du = (v[1] * e[0] - v[0] * e[1]) / det, dv = (-u[1] * e[0] + u[0] * e[1]) / det
+    const inL = du > 0 && du < this.length, inW = dv > 0 && dv < this.width
+    const nearL = Math.min(Math.abs(du), Math.abs(this.length - du)), nearW = Math.min(Math.abs(dv), Math.abs(this.width - dv))
+    let t: number
+    if (inL && !inW) t = nearW
+    else if (inW && !inL) t = nearL
+    else if (inL && inW) t = -Math.min(nearL, nearW)
+    else t = Math.max(nearL, nearW)
+    this.frameCorner1 = sub(sub(this.corner1, mul(u, t)), mul(v, t))
+    this.frameCorner2 = sub(add(this.corner2, mul(u, t)), mul(v, t))
+    this.frameCorner3 = add(add(this.corner3, mul(u, t)), mul(v, t))
+    this.frameCorner4 = add(sub(this.corner4, mul(u, t)), mul(v, t))
+    this.thickness = t * Math.sin(this.angle412)
+  }
+
+  // the controller's specialisations (DSHRectangleController)
+  isWidgetVisible() { return true }
+  toolWidgetText() { return 'Rectangle Parameters' }
+  toolIcon() { return 'Sketcher_CreateRectangle' }
+  ovpSpec(): OvpSpec { return { ovps: this.twoCorner ? 6 : 8, widget: { parameters: 0, checkboxes: 2, comboboxes: 1, lineEdits: 0 }, firstComboIsMethod: true } }
+  ovpState(i: number) {
+    const END_STATE = this.states
+    if (this.twoCorner) {
+      if (i < 2) return 0
+      if (i < 4) return 1
+      if (i === OVP.Fifth) return this.roundCorners ? 2 : END_STATE
+      return this.makeFrame ? (this.roundCorners ? 3 : 2) : END_STATE
     }
-    if (onlyOutline) return
-    this.shapeConstraints = []
-    const fc = this.firstCurve
-    // addAlignmentConstraints: which sides are horizontal depends on which way the diagonal runs
-    const [ta, tb]: ConstraintType[] = Math.sign(this.c3[0] - this.c1[0]) * Math.sign(this.c3[1] - this.c1[1]) < 0 ? ['Vertical', 'Horizontal'] : ['Horizontal', 'Vertical']
-    const alignment = () => { this.shapeCon(ta, fc); this.shapeCon(ta, fc + 2); this.shapeCon(tb, fc + 1); this.shapeCon(tb, fc + 3) }
-    if (this.radius > CONFUSION) { // finishOblongCreation
-      const tan = (a: number, ap: PointPos, b: number, bp: PointPos) => this.shapeCon('Tangent', a, ap, b, bp)
-      tan(fc, START, fc + 4, END); tan(fc, END, fc + 5, START); tan(fc + 1, START, fc + 5, END); tan(fc + 1, END, fc + 6, START)
-      tan(fc + 2, START, fc + 6, END); tan(fc + 2, END, fc + 7, START); tan(fc + 3, START, fc + 7, END); tan(fc + 3, END, fc + 4, START)
-      alignment()
-      this.shapeCon('Equal', fc + 4, NONE, fc + 5); this.shapeCon('Equal', fc + 5, NONE, fc + 6); this.shapeCon('Equal', fc + 6, NONE, fc + 7)
-      if (this.method === 1) { // finishOblongCenterAndCorner
-        this.pointOneId = fc + 8; this.centerPointId = fc + 9
-        this.shapeGeometry.push(this.point(this.c3, true), this.point(this.center, true))
-        this.shapeCon('Symmetric', fc + 2, START, fc, START, this.centerPointId, START)
-        this.shapeCon('PointOnObject', this.pointOneId, START, fc + 1); this.shapeCon('PointOnObject', this.pointOneId, START, fc + 2)
-      } else { // finishOblongDiagonal
-        this.pointOneId = fc + 8; this.pointTwoId = fc + 9
-        this.shapeGeometry.push(this.point(this.c1, true), this.point(this.c3, true))
-        this.shapeCon('PointOnObject', this.pointOneId, START, fc); this.shapeCon('PointOnObject', this.pointOneId, START, fc + 3)
-        this.shapeCon('PointOnObject', this.pointTwoId, START, fc + 1); this.shapeCon('PointOnObject', this.pointTwoId, START, fc + 2)
-      }
-    } else { // finishRectangleCreation
-      for (let k = 0; k < 4; k++) this.shapeCon('Coincident', fc + k, END, fc + ((k + 1) % 4), START)
-      alignment()
-      if (this.method === 1) { // finishCenteredRectangleCreation
-        this.centerPointId = fc + 4
-        this.shapeGeometry.push(this.point(this.center, true))
-        this.shapeCon('Symmetric', fc + 2, START, fc, START, this.centerPointId, START)
-      }
+    if (i < 2) return 0
+    if (i < 4) return 1
+    if (i < 6) return 2
+    if (i === OVP.Seventh) return this.roundCorners ? 3 : END_STATE
+    return this.makeFrame ? (this.roundCorners ? 4 : 3) : END_STATE
+  }
+  configureToolWidget(c: Controller) {
+    if (!c.init) {
+      c.setComboboxElements(0, ['Corner, width, height', 'Center, width, height', '3 corners', 'Center, 2 corners'])
+      c.setCheckboxLabel(0, 'Rounded corners (U)')
+      c.setCheckboxToolTip(0, 'Create a rectangle with rounded corners.')
+      c.syncCheckboxToHandler(0, this.roundCorners)
+      c.setCheckboxLabel(1, 'Frame (J)')
+      c.setCheckboxToolTip(1, 'Create two rectangles with a constant offset.')
+      c.syncCheckboxToHandler(1, this.makeFrame)
+      const k = this.isConstructionMode() ? '_Constr' : ''
+      c.setComboboxItemIcon(0, 0, `Sketcher_CreateRectangle${k}`); c.setComboboxItemIcon(0, 1, `Sketcher_CreateRectangle_Center${k}`)
+      c.setComboboxItemIcon(0, 2, `Sketcher_CreateRectangle3Points${k}`); c.setComboboxItemIcon(0, 3, `Sketcher_CreateRectangle3Points_Center${k}`)
+      c.setCheckboxIcon(0, `Sketcher_CreateOblong${k}`); c.setCheckboxIcon(1, `Sketcher_CreateFrame${k}`)
     }
-  }
-  protected canGoToNextMode() { return !(this.state === 1 && !this.metrics()) }
-  protected onButtonPressed(p: XY) {
-    this.update(p)
-    if (!this.canGoToNextMode()) return
-    if (this.state === 1 && !this.roundCorners) this.setState(3)
-    else if (this.state === 2) this.setState(3)
-    else this.setState(this.state + 1)
-  }
-  protected executeCommands() {
-    this.firstCurve = S.highestCurveIndex() + 1
-    this.createShape(false)
-    if (!this.shapeGeometry.length) throw new Error('Cannot create a rectangle with zero length or width')
-    S.openCommand('Add sketch box')
-    this.addShape()
-    S.commitCommand()
-  }
-  protected generateAutoConstraints() {
-    const fc = this.firstCurve, rounded = this.radius > CONFUSION
-    if (this.method === 0) {
-      if (rounded) { this.onElement(this.sug[0], this.pointOneId, START); this.onElement(this.sug[1], this.pointTwoId, START) }
-      else { this.onElement(this.sug[0], fc, START); this.onElement(this.sug[1], fc + 1, END) }
+    const o = c.onViewParameters
+    o[OVP.First].setLabelType('DISTANCEX'); o[OVP.Second].setLabelType('DISTANCEY')
+    if (this.twoCorner) {
+      o[OVP.Third].setLabelType('DISTANCEX', 'Dimensioning'); o[OVP.Fourth].setLabelType('DISTANCEY', 'Dimensioning')
+      o[OVP.Fifth].setLabelType('RADIUS', 'Dimensioning'); o[OVP.Sixth].setLabelType('DISTANCE', 'Dimensioning')
     } else {
-      this.onElement(this.sug[0], this.centerPointId, START)
-      if (rounded) this.onElement(this.sug[1], this.pointOneId, START); else this.onElement(this.sug[1], fc + 1, END)
+      if (this.method === 2) { o[OVP.Third].setLabelType('DISTANCE', 'Dimensioning'); o[OVP.Fourth].setLabelType('ANGLE', 'Dimensioning') }
+      else { o[OVP.Third].setLabelType('DISTANCEX'); o[OVP.Fourth].setLabelType('DISTANCEY') }
+      o[OVP.Fifth].setLabelType('DISTANCE', 'Dimensioning'); o[OVP.Sixth].setLabelType('ANGLE', 'Dimensioning')
+      o[OVP.Seventh].setLabelType('RADIUS', 'Dimensioning'); o[OVP.Eighth].setLabelType('DISTANCE', 'Dimensioning')
     }
-    this.removeRedundantAutoConstraints()
   }
+  adaptDrawingToCheckboxChange(_c: Controller, i: number, v: boolean) {
+    if (i === 0) this.roundCorners = v
+    else if (i === 1) this.makeFrame = v
+    this.updateCursor()
+  }
+  doEnforceControlParameters(c: Controller, p: XY): XY {
+    const o = c.onViewParameters
+    let [x, y] = p
+    const deg = (v: number) => (v * Math.PI) / 180
+    /** A thickness at or beyond half the rectangle cannot be: the parameter is unset. */
+    const thicknessAt = (k: number, diagonal: boolean): boolean => {
+      const prm = o[k]
+      if (!prm.isSet) return false
+      const t = prm.getValue()
+      if (t <= -Math.min(this.width, this.length) / 2 && prm.hasFinishedEditing) { c.unsetOnViewParameter(prm); return true }
+      const u = normalize(sub(this.corner2, this.corner1)), v = normalize(sub(this.corner4, this.corner1))
+      if (!diagonal) { [x, y] = sub(sub(this.corner1, mul(u, t)), mul(v, t)); return false }
+      const dir = normalize(add(u, v)), half = getAngle(u, v) / 2
+      let sinAngle = Math.abs(Math.sin(half))
+      if (sinAngle < CONFUSION) sinAngle = 1 // no division by 0
+      ;[x, y] = sub(this.corner1, mul(dir, t / sinAngle))
+      return false
+    }
+    switch (this.state) {
+      case 0:
+        if (o[OVP.First].isSet) x = o[OVP.First].getValue()
+        if (o[OVP.Second].isSet) y = o[OVP.Second].getValue()
+        break
+      case 1:
+        if (this.twoCorner) {
+          const third = o[OVP.Third], fourth = o[OVP.Fourth]
+          if (third.isSet) {
+            const length = third.getValue()
+            if (Math.abs(length) < CONFUSION && third.hasFinishedEditing) { c.unsetOnViewParameter(third); this.lengthSign = 0; return [x, y] }
+            if (this.method === 0) {
+              if (this.lengthSign === 0) this.lengthSign = x - this.corner1[0] >= 0 ? 1 : -1
+              x = this.corner1[0] + this.lengthSign * length
+            } else x = this.center[0] + length / 2
+          }
+          if (fourth.isSet) {
+            const width = fourth.getValue()
+            if (Math.abs(width) < CONFUSION && fourth.hasFinishedEditing) { c.unsetOnViewParameter(fourth); this.widthSign = 0; return [x, y] }
+            if (this.method === 0) {
+              if (this.widthSign === 0) this.widthSign = y - this.corner1[1] >= 0 ? 1 : -1
+              y = this.corner1[1] + this.widthSign * width
+            } else y = this.center[1] + width / 2
+          }
+        } else if (this.method === 2) {
+          let dir = sub([x, y], this.corner1)
+          if (len(dir) < CONFUSION) dir = [1, dir[1]] // a null direction defaults to (1, 0)
+          let length = len(dir)
+          const third = o[OVP.Third], fourth = o[OVP.Fourth]
+          if (third.isSet) {
+            length = third.getValue()
+            if (length < CONFUSION && third.hasFinishedEditing) { c.unsetOnViewParameter(third); return [x, y] }
+            ;[x, y] = add(this.corner1, mul(normalize(dir), length))
+          }
+          if (fourth.isSet) { const a = deg(fourth.getValue()); x = this.corner1[0] + Math.cos(a) * length; y = this.corner1[1] + Math.sin(a) * length }
+        } else {
+          const third = o[OVP.Third], fourth = o[OVP.Fourth]
+          if (third.isSet) x = third.getValue()
+          if (fourth.isSet) y = fourth.getValue()
+          if (third.hasFinishedEditing && fourth.hasFinishedEditing && len(sub([x, y], this.center)) < CONFUSION) { c.unsetOnViewParameter(third); c.unsetOnViewParameter(fourth) }
+        }
+        break
+      case 2:
+        if (this.twoCorner) {
+          if (this.roundCorners) {
+            if (o[OVP.Fifth].isSet) [x, y] = add(this.corner1, mul(normalize(sub(this.corner2, this.corner1)), o[OVP.Fifth].getValue()))
+          } else if (thicknessAt(OVP.Sixth, false)) return [x, y]
+        } else if (this.method === 2) {
+          let dir = sub([x, y], this.corner2Initial)
+          if (len(dir) < CONFUSION) dir = [1, dir[1]]
+          let width = len(dir)
+          const fifth = o[OVP.Fifth], sixth = o[OVP.Sixth]
+          if (fifth.isSet) {
+            width = fifth.getValue()
+            if (width < CONFUSION && fifth.hasFinishedEditing) { c.unsetOnViewParameter(fifth); return [x, y] }
+            ;[x, y] = add(this.corner2Initial, mul(normalize(dir), width))
+          }
+          if (sixth.isSet) {
+            const a = deg(sixth.getValue())
+            if (a % Math.PI < CONFUSION && sixth.hasFinishedEditing) { c.unsetOnViewParameter(sixth); return [x, y] }
+            const sign1 = this.pointSideOfVector([x, y], sub(this.corner2Initial, this.corner1), this.corner1)
+            const sign = this.side !== sign1 ? 1 : -1
+            const a123 = angleOf(sub(this.corner2Initial, this.corner1)) + Math.PI + sign * a
+            x = this.corner2Initial[0] + Math.cos(a123) * width; y = this.corner2Initial[1] + Math.sin(a123) * width
+          }
+        } else {
+          let dir = sub([x, y], this.corner1)
+          if (len(dir) < CONFUSION) dir = [1, dir[1]]
+          let width = len(dir)
+          const fifth = o[OVP.Fifth], sixth = o[OVP.Sixth]
+          if (fifth.isSet) {
+            width = fifth.getValue()
+            if (width < CONFUSION && fifth.hasFinishedEditing) { c.unsetOnViewParameter(fifth); return [x, y] }
+            ;[x, y] = add(this.corner1, mul(normalize(dir), width))
+          }
+          if (sixth.isSet) {
+            const cc = deg(sixth.getValue())
+            if (cc % Math.PI < CONFUSION && sixth.hasFinishedEditing) { c.unsetOnViewParameter(sixth); return [x, y] }
+            const a = Math.asin((width * Math.sin(Math.PI - cc)) / len(sub(this.corner3, this.corner1)))
+            const sign1 = this.pointSideOfVector([x, y], sub(this.corner3, this.corner1), this.corner1)
+            const sign = this.side !== sign1 ? 1 : -1
+            const angle = angleOf(sub(this.center, this.corner1)) + sign * (cc - a)
+            x = this.corner1[0] + Math.cos(angle) * width; y = this.corner1[1] + Math.sin(angle) * width
+          }
+        }
+        break
+      case 3:
+        if (this.twoCorner) { if (thicknessAt(OVP.Sixth, false)) return [x, y] }
+        else if (this.roundCorners) {
+          if (o[OVP.Seventh].isSet) {
+            const angleToUse = this.method === 3 ? this.angle123 / 2 : this.angle412 / 2
+            const vecL = normalize(sub(this.corner2Initial, this.corner1))
+            const L2 = o[OVP.Seventh].getValue() / Math.sqrt(1 - Math.cos(angleToUse) * Math.cos(angleToUse))
+            ;[x, y] = add(this.corner1, mul(vecL, L2 * Math.cos(angleToUse)))
+          }
+        } else if (thicknessAt(OVP.Eighth, true)) return [x, y]
+        break
+      case 4:
+        if (thicknessAt(OVP.Eighth, true)) return [x, y]
+        break
+    }
+    return [x, y]
+  }
+  adaptParameters(c: Controller, p: XY) {
+    // check boxes the handler changed (M to another method, …) are synchronised first, and that is all
+    if (c.getCheckboxChecked(0) !== this.roundCorners) { c.syncCheckboxToHandler(0, this.roundCorners); return }
+    if (c.getCheckboxChecked(1) !== this.makeFrame) { c.syncCheckboxToHandler(1, this.makeFrame); return }
+    const o = c.onViewParameters
+    switch (this.state) {
+      case 0: {
+        if (!o[OVP.First].isSet) c.setOnViewParameterValue(OVP.First, p[0])
+        if (!o[OVP.Second].isSet) c.setOnViewParameterValue(OVP.Second, p[1])
+        const sameSign = p[0] * p[1] > 0
+        o[OVP.First].setLabelAutoDistanceReverse(!sameSign); o[OVP.Second].setLabelAutoDistanceReverse(sameSign)
+        o[OVP.First].setPoints([0, 0], p); o[OVP.Second].setPoints([0, 0], p)
+        break
+      }
+      case 1: {
+        const third = o[OVP.Third], fourth = o[OVP.Fourth]
+        if (this.twoCorner) {
+          if (!third.isSet) c.setOnViewParameterValue(OVP.Third, this.cornersReversed ? this.width : this.length)
+          if (!fourth.isSet) c.setOnViewParameterValue(OVP.Fourth, this.cornersReversed ? this.length : this.width)
+          const start = this.corner1, vec = sub(p, start), sameSign = vec[0] * vec[1] > 0
+          third.setLabelAutoDistanceReverse(sameSign); fourth.setLabelAutoDistanceReverse(!sameSign)
+          third.setPoints(start, this.cornersReversed ? this.corner4 : this.corner2)
+          fourth.setPoints(start, this.cornersReversed ? this.corner2 : this.corner4)
+        } else if (this.method === 2) {
+          if (!third.isSet) c.setOnViewParameterValue(OVP.Third, this.length)
+          third.setPoints(this.corner4, this.corner3)
+          if (!fourth.isSet) c.setOnViewParameterValue(OVP.Fourth, (this.angle * 180) / Math.PI, 'Angle')
+          fourth.setPoints(this.corner1, [0, 0])
+          fourth.setLabelRange(angleOf(sub(this.corner2, this.corner1)))
+        } else {
+          if (!third.isSet) c.setOnViewParameterValue(OVP.Third, p[0])
+          if (!fourth.isSet) c.setOnViewParameterValue(OVP.Fourth, p[1])
+          const sameSign = p[0] * p[1] > 0
+          third.setLabelAutoDistanceReverse(!sameSign); fourth.setLabelAutoDistanceReverse(sameSign)
+          third.setPoints([0, 0], p); fourth.setPoints([0, 0], p)
+        }
+        break
+      }
+      case 2: {
+        if (this.twoCorner) {
+          if (this.roundCorners) {
+            if (!o[OVP.Fifth].isSet) c.setOnViewParameterValue(OVP.Fifth, this.radius)
+            const center = this.center3
+            let end = this.corner3
+            if (this.radius !== 0) end = add(center, mul(normalize(sub(end, center)), this.radius))
+            o[OVP.Fifth].setPoints(center, end)
+          } else {
+            if (!o[OVP.Sixth].isSet) c.setOnViewParameterValue(OVP.Sixth, this.thickness)
+            o[OVP.Sixth].setPoints(this.corner3, [this.corner3[0], this.frameCorner3[1]])
+          }
+        } else if (this.method === 2) {
+          o[OVP.Third].setPoints(this.corner4, this.corner3)
+          const reversed = this.cornersReversed, fifth = o[OVP.Fifth], sixth = o[OVP.Sixth]
+          if (!fifth.isSet) c.setOnViewParameterValue(OVP.Fifth, reversed ? this.length : this.width)
+          fifth.setLabelAutoDistanceReverse(reversed)
+          fifth.setPoints(this.corner1, reversed ? this.corner2 : this.corner4)
+          if (!sixth.isSet) c.setOnViewParameterValue(OVP.Sixth, (this.angle123 * 180) / Math.PI, 'Angle')
+          sixth.setPoints(reversed ? this.corner4 : this.corner2, [0, 0])
+          sixth.setLabelStartAngle(reversed ? angleOf(sub(this.corner1, this.corner4)) : angleOf(sub(this.corner3, this.corner2)))
+          sixth.setLabelRange(this.angle123)
+        } else {
+          const reversed = this.cornersReversed, fifth = o[OVP.Fifth], sixth = o[OVP.Sixth]
+          if (!fifth.isSet) c.setOnViewParameterValue(OVP.Fifth, reversed ? this.width : this.length)
+          fifth.setLabelAutoDistanceReverse(true)
+          fifth.setPoints(this.corner1, reversed ? this.corner4 : this.corner2)
+          if (!sixth.isSet) c.setOnViewParameterValue(OVP.Sixth, (this.angle412 * 180) / Math.PI, 'Angle')
+          sixth.setPoints(this.corner1, [0, 0])
+          sixth.setLabelStartAngle(angleOf(sub(this.corner2, this.corner1)))
+          sixth.setLabelRange(this.angle412)
+        }
+        break
+      }
+      case 3: {
+        if (this.twoCorner) {
+          if (!o[OVP.Sixth].isSet) c.setOnViewParameterValue(OVP.Sixth, this.thickness)
+          o[OVP.Sixth].setPoints(this.corner3, [this.corner3[0], this.frameCorner3[1]])
+        } else if (this.roundCorners) {
+          if (!o[OVP.Seventh].isSet) c.setOnViewParameterValue(OVP.Seventh, this.radius)
+          const center = this.center3
+          let end = this.corner3
+          if (this.radius !== 0) end = add(center, mul(normalize(sub(end, center)), this.radius))
+          o[OVP.Seventh].setPoints(center, end)
+        } else {
+          if (!o[OVP.Eighth].isSet) c.setOnViewParameterValue(OVP.Eighth, this.thickness)
+          o[OVP.Eighth].setPoints(this.corner3, add(this.corner3, mul(normalize(sub(this.corner3, this.corner2)), this.thickness)))
+        }
+        break
+      }
+      case 4: {
+        if (!o[OVP.Eighth].isSet) c.setOnViewParameterValue(OVP.Eighth, this.thickness)
+        o[OVP.Eighth].setPoints(this.corner3, add(this.corner3, mul(normalize(sub(this.corner3, this.corner2)), this.thickness)))
+        break
+      }
+    }
+  }
+  computeNextDrawSketchHandlerMode(c: Controller) {
+    const o = c.onViewParameters, END_STATE = this.states
+    switch (this.state) {
+      case 0: if (o[OVP.First].hasFinishedEditing && o[OVP.Second].hasFinishedEditing) this.setNextState(1); break
+      case 1:
+        if (o[OVP.Third].hasFinishedEditing && o[OVP.Fourth].hasFinishedEditing) {
+          if (!this.canGoToNextMode()) return
+          this.setNextState(this.roundCorners || this.makeFrame || !this.twoCorner ? 2 : END_STATE)
+        }
+        break
+      case 2:
+        if (this.twoCorner) {
+          if (this.roundCorners && o[OVP.Fifth].hasFinishedEditing) this.setNextState(this.makeFrame ? 3 : END_STATE)
+          else if (this.makeFrame && o[OVP.Sixth].hasFinishedEditing) this.setNextState(END_STATE)
+        } else if (o[OVP.Fifth].hasFinishedEditing && o[OVP.Sixth].hasFinishedEditing) this.setNextState(this.roundCorners || this.makeFrame ? 3 : END_STATE)
+        break
+      case 3:
+        if (this.twoCorner) { if (o[OVP.Sixth].hasFinishedEditing) this.setNextState(END_STATE) }
+        else if (this.roundCorners && o[OVP.Seventh].hasFinishedEditing) this.setNextState(this.makeFrame ? 4 : END_STATE)
+        else if (this.makeFrame && o[OVP.Eighth].hasFinishedEditing) this.setNextState(END_STATE)
+        break
+      case 4: if (this.makeFrame && o[OVP.Eighth].hasFinishedEditing) this.setNextState(END_STATE); break
+    }
+  }
+  /** DSHRectangleController::addConstraints, with no auto-constraints diagnosed yet (they come after): the first
+   *  point's position, the sides' lengths (a Distance between the ends of opposite sides), the angles, the radius and
+   *  the frame's thickness. */
+  addConstraints(c: Controller) {
+    const o = c.onViewParameters, fc = this.firstCurve, pi = Math.PI
+    const reverse = this.method === 3 ? !this.cornersReversed : this.cornersReversed
+    const x0 = o[OVP.First].getValue(), y0 = o[OVP.Second].getValue()
+    let length = o[OVP.Third].getValue(), width = o[OVP.Fourth].getValue(), radius = o[OVP.Fifth].getValue(), thickness = o[OVP.Sixth].getValue()
+    const x0set = o[OVP.First].isSet, y0set = o[OVP.Second].isSet
+    let lengthSet = o[OVP.Third].isSet, widthSet = o[OVP.Fourth].isSet, radiusSet = o[OVP.Fifth].isSet, thicknessSet = o[OVP.Sixth].isSet
+    const corner1x = o[OVP.Third].getValue(), corner1y = o[OVP.Fourth].getValue()
+    const angle = (o[OVP.Fourth].getValue() * pi) / 180, innerAngle = (o[OVP.Sixth].getValue() * pi) / 180
+    const corner1xSet = o[OVP.Third].isSet, corner1ySet = o[OVP.Fourth].isSet, angleSet = o[OVP.Fourth].isSet, innerAngleSet = o[OVP.Sixth].isSet
+    if (this.method === 3) lengthSet = false
+    if (!this.twoCorner) {
+      width = o[OVP.Fifth].getValue(); radius = o[OVP.Seventh].getValue(); thickness = o[OVP.Eighth].getValue()
+      widthSet = o[OVP.Fifth].isSet; radiusSet = o[OVP.Seventh].isSet; thicknessSet = o[OVP.Eighth].isSet
+    }
+    let firstPointId = fc
+    if (this.method === 0 || this.method === 2) { if (this.radius > CONFUSION) firstPointId = this.constructionPointOneId }
+    else firstPointId = this.centerPointId
+    if (x0set) constraintToAttachment([firstPointId, START], V_AXIS_ID, x0)
+    if (y0set) constraintToAttachment([firstPointId, START], H_AXIS_ID, y0)
+    const sideDistance = (curveId: number, v: number) => S.addConstraint(constraint('Distance', curveId, START, curveId + 2, END, GEO_UNDEF, NONE, f6(Math.abs(v))))
+    if (lengthSet) sideDistance(reverse ? fc : fc + 1, length)
+    if (widthSet) sideDistance(reverse ? fc + 1 : fc, width)
+    // no auto-constraint lands on the radius or the thickness: they can always be set
+    const notRight = (a: number) => Math.abs((Math.abs(a) % pi) - pi / 2) > CONFUSION // a right angle is a Perpendicular already
+    if (this.method === 2) {
+      if (angleSet) constraintLineByAngle(fc, angle)
+      if (innerAngleSet && notRight(innerAngle)) S.addConstraint(constraint('Angle', fc + 1, START, fc, END, GEO_UNDEF, NONE, f6(innerAngle)))
+    } else if (this.method === 3) {
+      if (corner1xSet) constraintToAttachment([fc, START], V_AXIS_ID, corner1x)
+      if (corner1ySet) constraintToAttachment([fc, START], H_AXIS_ID, corner1y)
+      if (innerAngleSet && notRight(innerAngle)) S.addConstraint(constraint('Angle', fc, START, fc + 3, END, GEO_UNDEF, NONE, f6(innerAngle)))
+    }
+    if (radiusSet && radius > CONFUSION) S.addConstraint(constraint('Radius', fc + 5, NONE, GEO_UNDEF, NONE, GEO_UNDEF, NONE, f6(radius)))
+    // with -thickness = radius the inner corners sit on the outer arcs' centres: a thickness would be redundant
+    const negThicknessEqualRadius = Math.abs(radius + thickness) < CONFUSION
+    if (thicknessSet && !negThicknessEqualRadius) S.addConstraint(constraint('Distance', fc + (this.roundCorners ? 8 : 4), START, fc, NONE, GEO_UNDEF, NONE, f6(Math.abs(thickness))))
+  }
+  doConstructionMethodChanged() { S.updateHints() }
 }
 
 // ── Slot (DrawSketchHandlerSlot.h) ───────────────────────────────────────────────────────────────────────────────
+/** Two arcs and two lines: the first centre, the second (length and angle), the width (the radius). ThreeSeekEnd.
+ *  DSHSlotController: the first centre's X and Y, the length and angle, the radius; no widget shown. */
 export class SlotHandler extends DefaultHandler {
   readonly toolName = 'DSH_Slot'
   protected readonly states = 3
-  private startPoint: XY = [0, 0]; private secondPoint: XY = [0, 0]; private radius = 0; private length = 0; private angle = 0; private firstCurve = 0
+  protected readonly autoConstraintSize = 2
+  private startPoint: XY = [0, 0]; private secondPoint: XY = [0, 0]; private radius = 1; private length = 0; private angle = 0; private firstCurve = 0
+  /** The direction taken when the angle is typed, so that the mouse does not flip the parameter (#23459). */
+  private capturedDirection: XY = [0, 0]
   crosshair() { return 'Sketcher_Pointer_Slot' }
-  hints() { return [this.hint(['%1 pick slot start point', '%1 pick slot end point', '%1 pick slot width'][Math.min(this.state, 2)], [LMB])] }
+  hints() { return this.state > 2 ? [] : [this.hint(['%1 pick slot start point', '%1 pick slot end point', '%1 pick slot width'][this.state], [LMB])] }
   protected update(p: XY) {
-    if (this.state === 0) { this.drawPositionAtCursor(p); this.startPoint = p; this.seekAndRender(this.sug[0], p, [0, 0]) }
+    if (this.state === 0) { this.ctl.drawPositionAtCursor(p); this.startPoint = p; this.seekAndRender(this.sug[0], p, [0, 0]) }
     else if (this.state === 1) {
-      this.clearCursorText()
+      this.ctl.drawDirectionAtCursor(p, this.startPoint)
       this.secondPoint = p
       this.angle = angleOf(sub(this.secondPoint, this.startPoint)); this.length = len(sub(this.secondPoint, this.startPoint))
-      this.radius = this.length * 0.2
+      this.radius = this.length * 0.2 // a fifth of the length
       this.drawShape()
       this.seekAndRender(this.sug[1], p, sub(this.secondPoint, this.startPoint), 'vertexNoTangency')
     } else if (this.state === 2) {
+      // between the centres the distance to the line through them, beyond them the distance to the nearer centre
       const L1 = len(sub(p, this.startPoint)), L2 = len(sub(p, this.secondPoint)), l = this.length
       if (L1 * L1 + l * l > L2 * L2 && L2 * L2 + l * l > L1 * L1) {
         const [s, e] = [this.startPoint, this.secondPoint]
         this.radius = Math.abs((e[1] - s[1]) * p[0] - (e[0] - s[0]) * p[1] + e[0] * s[1] - e[1] * s[0]) / l
       } else this.radius = Math.min(L1, L2)
+      this.ctl.drawDoubleAtCursor(p, this.radius)
       this.drawShape()
     }
   }
@@ -1893,8 +2529,9 @@ export class SlotHandler extends DefaultHandler {
   }
   protected canGoToNextMode() { return !((this.state === 1 && this.length < CONFUSION) || (this.state === 2 && (this.length < CONFUSION || this.radius < CONFUSION))) }
   protected angleSnappingControl() { if (this.state === 1) S.setAngleSnapping(true, this.startPoint); else S.setAngleSnapping(false) }
-  protected executeCommands() { this.firstCurve = S.highestCurveIndex() + 1; this.createShape(false); S.openCommand('Add slot'); this.addShape(); S.commitCommand() }
+  protected executeCommands() { this.firstCurve = S.highestCurveIndex() + 1; S.openCommand('Add slot'); this.createShape(false); this.addShape(); S.commitCommand() }
   protected generateAutoConstraints() {
+    // an alignment goes on the line, not on the arc
     let alignment = false
     for (const ac of this.sug[1]) if (['Horizontal', 'Vertical', 'Perpendicular', 'Parallel'].includes(ac.type)) { ac.geoId = this.firstCurve + 2; alignment = true }
     if (this.avoidRedundants && alignment) removeRedundantHorizontalVertical(this.sug[0], this.sug[1])
@@ -1902,45 +2539,372 @@ export class SlotHandler extends DefaultHandler {
     this.onElement(this.sug[1], S.highestCurveIndex() - 2, MID)
     this.removeRedundantAutoConstraints()
   }
+  ovpSpec(): OvpSpec { return { ovps: 5, widget: { parameters: 0, checkboxes: 0, comboboxes: 0, lineEdits: 0 }, firstComboIsMethod: false } }
+  ovpState(i: number) { return i < 2 ? 0 : i < 4 ? 1 : 2 }
+  configureToolWidget(c: Controller) {
+    const o = c.onViewParameters
+    o[OVP.First].setLabelType('DISTANCEX'); o[OVP.Second].setLabelType('DISTANCEY')
+    o[OVP.Third].setLabelType('DISTANCE', 'Dimensioning'); o[OVP.Fourth].setLabelType('ANGLE', 'Dimensioning'); o[OVP.Fifth].setLabelType('RADIUS', 'Dimensioning')
+  }
+  doEnforceControlParameters(c: Controller, p: XY): XY {
+    const o = c.onViewParameters
+    let [x, y] = p
+    if (this.state === 0) {
+      if (o[OVP.First].isSet) x = o[OVP.First].getValue()
+      if (o[OVP.Second].isSet) y = o[OVP.Second].getValue()
+    } else if (this.state === 1) {
+      const third = o[OVP.Third], fourth = o[OVP.Fourth]
+      let dir = sub([x, y], this.startPoint)
+      if (len(dir) < CONFUSION) dir = [1, dir[1]] // a null direction defaults to (1, 0)
+      if (fourth.isSet) { const a = (fourth.getValue() * Math.PI) / 180; this.capturedDirection = [Math.cos(a), Math.sin(a)] }
+      else this.capturedDirection = normalize(dir)
+      if (third.isSet) {
+        const length = third.getValue()
+        if (length < CONFUSION && third.hasFinishedEditing) { c.unsetOnViewParameter(third); this.capturedDirection = [0, 0]; return [x, y] }
+        ;[x, y] = add(this.startPoint, mul(this.capturedDirection, length))
+      } else if (fourth.isSet) [x, y] = add(this.startPoint, project(sub([x, y], this.startPoint), this.capturedDirection))
+    } else if (this.state === 2) {
+      const fifth = o[OVP.Fifth]
+      if (fifth.isSet) {
+        const radius = fifth.getValue()
+        if (radius < CONFUSION && fifth.hasFinishedEditing) { c.unsetOnViewParameter(fifth); return [x, y] }
+        x = this.secondPoint[0] + Math.cos(this.angle) * radius; y = this.secondPoint[1] + Math.sin(this.angle) * radius
+      }
+    }
+    return [x, y]
+  }
+  adaptParameters(c: Controller, p: XY) {
+    const o = c.onViewParameters
+    if (this.state === 0) {
+      if (!o[OVP.First].isSet) c.setOnViewParameterValue(OVP.First, p[0])
+      if (!o[OVP.Second].isSet) c.setOnViewParameterValue(OVP.Second, p[1])
+      const sameSign = p[0] * p[1] > 0
+      o[OVP.First].setLabelAutoDistanceReverse(!sameSign); o[OVP.Second].setLabelAutoDistanceReverse(sameSign)
+      o[OVP.First].setPoints([0, 0], p); o[OVP.Second].setPoints([0, 0], p)
+    } else if (this.state === 1) {
+      const third = o[OVP.Third], fourth = o[OVP.Fourth], vec = sub(this.secondPoint, this.startPoint)
+      if (!third.isSet) c.setOnViewParameterValue(OVP.Third, len(vec))
+      const range = angleOf(vec)
+      if (!fourth.isSet) c.setOnViewParameterValue(OVP.Fourth, (range * 180) / Math.PI, 'Angle')
+      else if (fourth.hasFinishedEditing && len(vec) > CONFUSION && Math.abs(range - (fourth.getValue() * Math.PI) / 180) > CONFUSION) c.setOnViewParameterValue(OVP.Fourth, (range * 180) / Math.PI, 'Angle')
+      third.setPoints(this.startPoint, this.secondPoint)
+      fourth.setPoints(this.startPoint, [0, 0])
+      fourth.setLabelRange(range)
+    } else if (this.state === 2) {
+      const fifth = o[OVP.Fifth]
+      if (!fifth.isSet) c.setOnViewParameterValue(OVP.Fifth, this.radius)
+      fifth.setPoints(this.secondPoint, [this.secondPoint[0] + Math.cos(this.angle) * this.radius, this.secondPoint[1] + Math.sin(this.angle) * this.radius])
+    }
+  }
+  computeNextDrawSketchHandlerMode(c: Controller) {
+    const o = c.onViewParameters
+    if (this.state === 0) { if (o[OVP.First].hasFinishedEditing && o[OVP.Second].hasFinishedEditing) this.setNextState(1) }
+    else if (this.state === 1) { if (o[OVP.Third].hasFinishedEditing && o[OVP.Fourth].hasFinishedEditing) this.setNextState(2) }
+    else if (this.state === 2) { if (o[OVP.Fifth].hasFinishedEditing) this.setNextState(this.states) }
+  }
+  /** DSHSlotController::addConstraints, with no auto-constraints diagnosed yet: the first centre's position (on the
+   *  origin: a coincidence), the centres' distance, the angle unless an alignment took it, the radius. */
+  addConstraints(c: Controller) {
+    const o = c.onViewParameters, fc = S.highestCurveIndex() - 3
+    const x0 = o[OVP.First].getValue(), y0 = o[OVP.Second].getValue()
+    const x0set = o[OVP.First].isSet, y0set = o[OVP.Second].isSet
+    if (x0set && y0set && x0 === 0 && y0 === 0) constraintToAttachment([fc, MID], RT_PNT_ID, x0)
+    else {
+      if (x0set) constraintToAttachment([fc, MID], V_AXIS_ID, x0)
+      if (y0set) constraintToAttachment([fc, MID], H_AXIS_ID, y0)
+    }
+    if (o[OVP.Third].isSet) S.addConstraint(constraint('Distance', fc, MID, fc + 1, MID, GEO_UNDEF, NONE, f6(this.length)))
+    if (o[OVP.Fourth].isSet) {
+      const s1 = this.sug[1], last = s1.length ? s1[s1.length - 1].type : null
+      if (last !== 'Horizontal' && last !== 'Vertical' && last !== 'Perpendicular' && last !== 'Parallel')
+        S.addConstraint(constraint('Angle', H_AXIS, NONE, fc + 2, NONE, GEO_UNDEF, NONE, f6(this.angle)))
+    }
+    // no auto-constraint in the third state
+    if (o[OVP.Fifth].isSet) S.addConstraint(constraint('Radius', fc, NONE, GEO_UNDEF, NONE, GEO_UNDEF, NONE, f6(this.radius)))
+  }
+}
+
+// ── Arc slot (DrawSketchHandlerArcSlot.h) ────────────────────────────────────────────────────────────────────────
+/** ArcSlotConstructionMethod: ArcSlot (arc ends: an outer and an inner arc joined by two half circles) and
+ *  RectangleSlot (flat ends: two arcs joined by two radial lines). The centre, the start (the radius and the start
+ *  angle), the end (the sweep), then the width. FourSeekEnd. DSHArcSlotController: the centre's X and Y, the radius and
+ *  start angle, the sweep, the ends' radius (or the flat end's length); the widget's construction method. */
+export class ArcSlotHandler extends DefaultHandler {
+  readonly toolName = 'DSH_ArcSlot'
+  protected readonly states = 4
+  protected readonly methods = 2
+  protected readonly autoConstraintSize = 3
+  private centerPoint: XY = [0, 0]; private startPoint: XY = [0, 0]; private endPoint: XY = [0, 0]
+  private startAngle = 0; private startAngleBackup = 0; private endAngle = 0; private arcAngle = 0; private r = 0; private radius = 0
+  private angleReversed = false
+  constructor(method = 0) { super(); this.method = method }
+  crosshair() { return this.method === 0 ? 'Sketcher_Pointer_Create_ArcSlot' : 'Sketcher_Pointer_Create_RectangleSlot' }
+  hints() {
+    if (this.state > 3) return []
+    return [this.hint(['%1 pick slot center', '%1 pick slot radius', '%1 pick slot angle', '%1 pick slot width'][this.state], [LMB]), this.hint('%1 switch mode', ['M'])]
+  }
+  protected update(p: XY) {
+    if (this.state === 0) {
+      this.ctl.drawPositionAtCursor(p)
+      this.centerPoint = p
+      this.seekAndRender(this.sug[0], p, [0, 0])
+    } else if (this.state === 1) {
+      this.ctl.drawDirectionAtCursor(p, this.centerPoint)
+      this.startPoint = p
+      this.startAngle = angleOf(sub(this.startPoint, this.centerPoint))
+      this.startAngleBackup = this.startAngle
+      this.radius = len(sub(this.startPoint, this.centerPoint))
+      this.drawShape()
+      this.seekAndRender(this.sug[1], p, [0, 0])
+    } else if (this.state === 2) {
+      this.endPoint = add(this.centerPoint, mul(normalize(sub(p, this.centerPoint)), this.radius))
+      this.r = this.method === 0 ? this.radius / 10 : this.radius * 1.2
+      this.startAngle = this.startAngleBackup
+      const a1 = angleOf(sub(p, this.centerPoint)) - this.startAngle, a2 = a1 + (a1 < 0 ? 2 : -2) * Math.PI
+      this.arcAngle = Math.abs(a1 - this.arcAngle) < Math.abs(a2 - this.arcAngle) ? a1 : a2
+      this.reverseIfNecessary()
+      this.drawShape()
+      this.ctl.drawDoubleAtCursor(p, this.arcAngle, 'Angle')
+      this.seekAndRender(this.sug[2], p, [0, 0])
+    } else if (this.state === 3) {
+      if (this.method === 0) this.r = Math.min(this.radius, Math.abs(this.radius - len(sub(p, this.centerPoint))))
+      else this.r = len(sub(p, this.centerPoint))
+      this.ctl.drawDoubleAtCursor(p, this.r)
+      this.drawShape()
+    }
+  }
+  private reverseIfNecessary() {
+    if (this.arcAngle > 0) { this.endAngle = this.startAngle + this.arcAngle; this.angleReversed = false }
+    else { this.endAngle = this.startAngle; this.startAngle = this.startAngle + this.arcAngle; this.angleReversed = true }
+  }
+  protected createShape(onlyOutline: boolean) {
+    this.shapeGeometry = []; this.shapeConstraints = []
+    if (this.radius < CONFUSION) return
+    const pi = Math.PI, s = this.startAngle, e = this.endAngle, rev = this.angleReversed
+    if (this.state === 1) this.shapeGeometry.push(this.circle(this.centerPoint, this.radius))
+    else {
+      if (Math.abs(this.arcAngle) < CONFUSION) return
+      if (this.state === 3 && this.r < CONFUSION) return
+      if (this.method === 0) {
+        this.shapeGeometry.push(
+          this.arc(this.centerPoint, s, e, this.radius + this.r),
+          this.arc(this.startPoint, rev ? e : s + pi, rev ? e + pi : s + 2 * pi, this.r),
+          this.arc(this.endPoint, rev ? s + pi : e, rev ? s + 2 * pi : pi + e, this.r))
+        if (this.radius - this.r > CONFUSION) this.shapeGeometry.push(this.arc(this.centerPoint, s, e, this.radius - this.r))
+      } else {
+        const arc1 = this.arc(this.centerPoint, s, e, this.radius)
+        const p11 = SK.getPoint([arc1], 0, START)!, p12 = SK.getPoint([arc1], 0, END)!
+        this.shapeGeometry.push(arc1)
+        if (this.r > CONFUSION) {
+          const arc2 = this.arc(this.centerPoint, s, e, this.r)
+          this.shapeGeometry.push(this.line(p11, SK.getPoint([arc2], 0, START)!), this.line(p12, SK.getPoint([arc2], 0, END)!))
+          this.shapeGeometry.push(arc2) // last, so that it is easy to leave out
+        } else this.shapeGeometry.push(this.line(p11, this.centerPoint), this.line(p12, this.centerPoint))
+      }
+    }
+    if (onlyOutline) return
+    const fc = S.highestCurveIndex() + 1
+    if (this.method === 0) {
+      const allArcs = Math.abs(this.radius - this.r) > CONFUSION
+      const pos1: PointPos = rev ? START : END, pos2: PointPos = rev ? END : START
+      if (allArcs) {
+        this.shapeCon('Coincident', fc, MID, fc + 3, MID)
+        this.shapeCon('Tangent', fc + 3, pos1, fc + 2, pos1)
+        this.shapeCon('Tangent', fc + 3, pos2, fc + 1, pos2)
+      } else {
+        this.shapeCon('Coincident', fc, MID, fc + 1, pos2)
+        this.shapeCon('Coincident', fc, MID, fc + 2, pos1)
+      }
+      this.shapeCon('Tangent', fc, pos1, fc + 2, pos2)
+      this.shapeCon('Tangent', fc, pos2, fc + 1, pos1)
+    } else {
+      this.shapeCon('Perpendicular', fc, NONE, fc + 1)
+      this.shapeCon('Perpendicular', fc, NONE, fc + 2)
+      this.shapeCon('Coincident', fc, START, fc + 1, START)
+      this.shapeCon('Coincident', fc, END, fc + 2, START)
+      if (this.r > CONFUSION) {
+        this.shapeCon('Coincident', fc, MID, fc + 3, MID)
+        this.shapeCon('Coincident', fc + 3, START, fc + 1, END)
+        this.shapeCon('Coincident', fc + 3, END, fc + 2, END)
+      } else {
+        this.shapeCon('Coincident', fc, MID, fc + 1, END)
+        this.shapeCon('Coincident', fc, MID, fc + 2, END)
+      }
+    }
+  }
+  protected canGoToNextMode() {
+    if (this.state === 1 && this.radius < CONFUSION) return false
+    if (this.state === 2 && Math.abs(this.arcAngle) < CONFUSION) return false
+    if (this.state === 3) return this.method === 0 ? this.r >= CONFUSION : Math.abs(this.radius - this.r) >= CONFUSION
+    return true
+  }
+  protected angleSnappingControl() { if (this.state === 1 || this.state === 2) S.setAngleSnapping(true, this.centerPoint); else S.setAngleSnapping(false) }
+  protected executeCommands() { this.createShape(false); S.openCommand('Add sketch arc slot'); this.addShape(); S.commitCommand() }
+  protected generateAutoConstraints() {
+    const h = S.highestCurveIndex(), [ac1, ac2, ac3] = this.sug
+    this.onElement(ac1, h - 3, MID) // the centre
+    if (this.method === 0) { this.onElement(ac2, h - 2, MID); this.onElement(ac3, h - 1, MID) }
+    else { this.onElement(ac2, h - 3, this.arcAngle > 0 ? START : END); this.onElement(ac3, h - 3, this.arcAngle > 0 ? END : START) }
+    this.removeRedundantAutoConstraints()
+  }
+  isWidgetVisible() { return true }
+  toolWidgetText() { return 'Arc Slot Parameters' }
+  toolIcon() { return 'Sketcher_CreateArcSlot' }
+  ovpSpec(): OvpSpec { return { ovps: 6, widget: { parameters: 0, checkboxes: 0, comboboxes: 1, lineEdits: 0 }, firstComboIsMethod: true } }
+  ovpState(i: number) { return i < 2 ? 0 : i < 4 ? 1 : i === 4 ? 2 : 3 }
+  configureToolWidget(c: Controller) {
+    if (!c.init) {
+      c.setComboboxElements(0, ['Arc ends', 'Flat ends'])
+      const k = this.isConstructionMode() ? '_Constr' : ''
+      c.setComboboxItemIcon(0, 0, `Sketcher_CreateArcSlot${k}`); c.setComboboxItemIcon(0, 1, `Sketcher_CreateRectangleSlot${k}`)
+    }
+    const o = c.onViewParameters
+    o[OVP.First].setLabelType('DISTANCEX'); o[OVP.Second].setLabelType('DISTANCEY')
+    o[OVP.Third].setLabelType('RADIUS', 'Dimensioning'); o[OVP.Fourth].setLabelType('ANGLE', 'Dimensioning'); o[OVP.Fifth].setLabelType('ANGLE', 'Dimensioning')
+    o[OVP.Sixth].setLabelType(this.method === 0 ? 'RADIUS' : 'DISTANCE', 'Dimensioning')
+  }
+  doEnforceControlParameters(c: Controller, p: XY): XY {
+    const o = c.onViewParameters
+    let [x, y] = p
+    if (this.state === 0) {
+      if (o[OVP.First].isSet) x = o[OVP.First].getValue()
+      if (o[OVP.Second].isSet) y = o[OVP.Second].getValue()
+    } else if (this.state === 1) {
+      const third = o[OVP.Third], fourth = o[OVP.Fourth]
+      let dir = sub([x, y], this.centerPoint)
+      if (len(dir) < CONFUSION) dir = [1, dir[1]] // a null direction defaults to (1, 0)
+      let radius = len(dir)
+      if (third.isSet) {
+        radius = third.getValue()
+        if (radius < CONFUSION && third.hasFinishedEditing) { c.unsetOnViewParameter(third); return [x, y] }
+        ;[x, y] = add(this.centerPoint, mul(normalize(dir), radius))
+      }
+      if (fourth.isSet) { const a = (fourth.getValue() * Math.PI) / 180; x = this.centerPoint[0] + Math.cos(a) * radius; y = this.centerPoint[1] + Math.sin(a) * radius }
+    } else if (this.state === 2) {
+      const fifth = o[OVP.Fifth]
+      if (fifth.isSet) {
+        const arcAngle = (fifth.getValue() * Math.PI) / 180
+        if (Math.abs(arcAngle) % (2 * Math.PI) < CONFUSION && fifth.hasFinishedEditing) c.unsetOnViewParameter(fifth)
+        else {
+          this.arcAngle = arcAngle
+          const length = len(sub([x, y], this.centerPoint)), a = this.startAngleBackup + arcAngle
+          x = this.centerPoint[0] + Math.cos(a) * length; y = this.centerPoint[1] + Math.sin(a) * length
+        }
+      }
+    } else if (this.state === 3) {
+      const sixth = o[OVP.Sixth]
+      if (sixth.isSet) {
+        const radius2 = sixth.getValue()
+        if (((Math.abs(radius2) < CONFUSION && this.method === 0) || (Math.abs(this.radius - radius2) < CONFUSION && this.method === 1)) && sixth.hasFinishedEditing) c.unsetOnViewParameter(sixth)
+        else [x, y] = add(this.centerPoint, [this.radius + radius2, 0])
+      }
+    }
+    return [x, y]
+  }
+  adaptParameters(c: Controller, p: XY) {
+    const o = c.onViewParameters
+    if (this.state === 0) {
+      if (!o[OVP.First].isSet) c.setOnViewParameterValue(OVP.First, p[0])
+      if (!o[OVP.Second].isSet) c.setOnViewParameterValue(OVP.Second, p[1])
+      const sameSign = p[0] * p[1] > 0
+      o[OVP.First].setLabelAutoDistanceReverse(!sameSign); o[OVP.Second].setLabelAutoDistanceReverse(sameSign)
+      o[OVP.First].setPoints([0, 0], p); o[OVP.Second].setPoints([0, 0], p)
+    } else if (this.state === 1) {
+      if (!o[OVP.Third].isSet) c.setOnViewParameterValue(OVP.Third, this.radius)
+      if (!o[OVP.Fourth].isSet) c.setOnViewParameterValue(OVP.Fourth, (this.startAngle * 180) / Math.PI, 'Angle')
+      o[OVP.Third].setPoints(this.centerPoint, p)
+      o[OVP.Fourth].setPoints(this.centerPoint, [0, 0])
+      o[OVP.Fourth].setLabelRange(this.startAngle)
+    } else if (this.state === 2) {
+      if (!o[OVP.Fifth].isSet) c.setOnViewParameterValue(OVP.Fifth, (this.arcAngle * 180) / Math.PI, 'Angle')
+      o[OVP.Fifth].setPoints(this.centerPoint, [0, 0])
+      o[OVP.Fifth].setLabelStartAngle(this.startAngleBackup)
+      o[OVP.Fifth].setLabelRange(this.arcAngle)
+    } else if (this.state === 3) {
+      const dist = this.method === 1 ? this.r - this.radius : this.r
+      if (!o[OVP.Sixth].isSet) c.setOnViewParameterValue(OVP.Sixth, dist)
+      o[OVP.Sixth].setPoints(this.endPoint, add(this.endPoint, mul(normalize(sub(this.endPoint, this.centerPoint)), dist)))
+    }
+  }
+  computeNextDrawSketchHandlerMode(c: Controller) {
+    const o = c.onViewParameters
+    if (this.state === 0) { if (o[OVP.First].hasFinishedEditing && o[OVP.Second].hasFinishedEditing) this.setNextState(1) }
+    else if (this.state === 1) { if (o[OVP.Third].hasFinishedEditing && o[OVP.Fourth].hasFinishedEditing) this.setNextState(2) }
+    else if (this.state === 2) { if (o[OVP.Fifth].hasFinishedEditing) this.setNextState(3) }
+    else if (this.state === 3) { if (o[OVP.Sixth].hasFinishedEditing) this.setNextState(this.states) }
+  }
+  /** DSHArcSlotController::addConstraints, with no auto-constraints diagnosed yet: the centre's position (on the origin:
+   *  a coincidence), the radius (arc ends: the distance from the centre to an end's centre), the sweep, the ends'
+   *  radius (flat ends: an end's length). */
+  addConstraints(c: Controller) {
+    const o = c.onViewParameters, fc = S.highestCurveIndex() - 3
+    const x0 = o[OVP.First].getValue(), y0 = o[OVP.Second].getValue(), radius = o[OVP.Third].getValue(), slotRadius = o[OVP.Sixth].getValue()
+    const x0set = o[OVP.First].isSet, y0set = o[OVP.Second].isSet
+    if (x0set && y0set && x0 === 0 && y0 === 0) constraintToAttachment([fc, MID], RT_PNT_ID, 0)
+    else {
+      if (x0set) constraintToAttachment([fc, MID], V_AXIS_ID, x0)
+      if (y0set) constraintToAttachment([fc, MID], H_AXIS_ID, y0)
+    }
+    if (o[OVP.Third].isSet) {
+      if (this.method === 0) S.addConstraint(constraint('Distance', fc, MID, fc + 2, MID, GEO_UNDEF, NONE, f6(Math.abs(radius))))
+      else S.addConstraint(constraint('Radius', fc, NONE, GEO_UNDEF, NONE, GEO_UNDEF, NONE, f6(Math.abs(radius))))
+    }
+    if (o[OVP.Fifth].isSet) S.addConstraint(constraint('Angle', fc, NONE, GEO_UNDEF, NONE, GEO_UNDEF, NONE, f6(Math.abs(this.arcAngle))))
+    if (o[OVP.Sixth].isSet) {
+      if (this.method === 0) S.addConstraint(constraint('Radius', fc + 2, NONE, GEO_UNDEF, NONE, GEO_UNDEF, NONE, f6(Math.abs(slotRadius))))
+      else S.addConstraint(constraint('Distance', fc + 2, NONE, GEO_UNDEF, NONE, GEO_UNDEF, NONE, f6(Math.abs(slotRadius))))
+    }
+  }
 }
 
 // ── Regular polygon (DrawSketchHandlerPolygon.h) ─────────────────────────────────────────────────────────────
+/** The centre, then a corner (the size and the rotation); U and J add and take away a side. TwoSeekEnd.
+ *  DSHPolygonController: the centre's X and Y, the circumradius and the corner's angle; the widget's number of sides. */
 export class PolygonHandler extends DefaultHandler {
   readonly toolName = 'DSH_Polygon'
   protected readonly states = 2
+  protected readonly autoConstraintSize = 2
   private centerPoint: XY = [0, 0]; private firstCorner: XY = [0, 0]; private radius = 0
   constructor(private corners = 6) { super() }
   crosshair() { return 'Sketcher_Pointer_Regular_Polygon' }
   hints() {
-    return this.state === 0 ? [this.hint('%1 pick polygon center', [LMB]), this.hint('%1/%2 increase/decrease number of sides', ['U', 'J'])]
-      : [this.hint('%1 confirm', [LMB]), this.hint('%1/%2 increase/decrease number of sides', ['U', 'J'])]
-  }
-  registerPressedKey(pressed: boolean, key: string): boolean {
-    if (!pressed && (key === 'U' || key === 'J')) { this.corners = Math.max(3, this.corners + (key === 'U' ? 1 : -1)); if (this.state === 1) this.drawShape(); return true }
-    return super.registerPressedKey(pressed, key)
+    const sides = this.hint('%1/%2 increase/decrease number of sides', ['U', 'J'])
+    return this.state === 0 ? [this.hint('%1 pick polygon center', [LMB]), sides]
+      : this.state === 1 ? [this.hint('%1 pick rotation and size', [MOUSE_MOVE]), this.hint('%1 confirm', [LMB]), sides] : []
   }
   protected update(p: XY) {
-    if (this.state === 0) { this.drawPositionAtCursor(p); this.centerPoint = p; this.seekAndRender(this.sug[0], p, [0, 0]) }
-    else if (this.state === 1) { this.clearCursorText(); this.firstCorner = p; this.drawShape(); this.seekAndRender(this.sug[1], p, [0, 0]) }
+    if (this.state === 0) { this.ctl.drawPositionAtCursor(p); this.centerPoint = p; this.seekAndRender(this.sug[0], p, [0, 0]) }
+    else if (this.state === 1) { this.ctl.drawDirectionAtCursor(p, this.centerPoint); this.firstCorner = p; this.drawShape(); this.seekAndRender(this.sug[1], p, [0, 0]) }
   }
   protected createShape() {
     this.shapeGeometry = []
     const dv = sub(this.firstCorner, this.centerPoint)
     this.radius = len(dv)
     if (this.radius < CONFUSION) return
-    const pts = Array.from({ length: this.corners }, (_, i): XY => {
-      const a = (2 * Math.PI * i) / this.corners, c = Math.cos(a), s = Math.sin(a)
-      return add(this.centerPoint, [c * dv[0] - s * dv[1], c * dv[1] + s * dv[0]])
-    })
-    for (let i = 0; i < this.corners; i++) this.shapeGeometry.push(this.line(pts[i], pts[(i + 1) % this.corners]))
+    const a = (2 * Math.PI) / this.corners, cos = Math.cos(a), sin = Math.sin(a)
+    let [rx, ry] = dv, prev = this.firstCorner
+    for (let i = 1; i <= this.corners; i++) {
+      const old = rx
+      rx = cos * rx - sin * ry; ry = cos * ry + sin * old
+      const next: XY = [this.centerPoint[0] + rx, this.centerPoint[1] + ry]
+      this.shapeGeometry.push(this.line(prev, next))
+      prev = next
+    }
   }
   protected canGoToNextMode() { return !(this.state === 1 && this.radius < CONFUSION) }
   protected angleSnappingControl() { if (this.state === 1) S.setAngleSnapping(true, this.centerPoint); else S.setAngleSnapping(false) }
+  /** ProfileLib.RegularPolygon.makeRegularPolygon(sketch, sides, centre, corner, construction): the sides, a
+   *  construction circle through the corners, the corners coincident and on the circle, the sides equal. */
   protected executeCommands() {
-    this.createShape()
-    S.openCommand('Add hexagon')
-    const n = this.corners, first = S.addGeometry(this.shapeGeometry) - n + 1
-    S.addGeometry(this.circle(this.centerPoint, this.radius, true))
+    S.openCommand('Add polygon')
+    const n = this.corners, c: XY = [f6(this.centerPoint[0]), f6(this.centerPoint[1])], k: XY = [f6(this.firstCorner[0]), f6(this.firstCorner[1])]
+    const dv = sub(k, c), step = (2 * Math.PI) / n, construction = this.isConstructionMode()
+    const pts = Array.from({ length: n }, (_, i): XY => {
+      const cv = Math.cos(step * i), sv = Math.sin(step * i)
+      return add(c, [cv * dv[0] - sv * dv[1], cv * dv[1] + sv * dv[0]])
+    })
+    const first = S.addGeometry(pts.map((p, i) => this.line(p, pts[(i + 1) % n], construction))) - n + 1
+    S.addGeometry(this.circle(c, len(dv), true))
     const circle = first + n, cons: Constraint[] = []
     for (let i = 0; i < n; i++) cons.push(constraint('Coincident', first + i, END, first + ((i + 1) % n), START))
     for (let i = 1; i < n; i++) cons.push(constraint('Equal', first, NONE, first + i))
@@ -1949,13 +2913,98 @@ export class PolygonHandler extends DefaultHandler {
     S.commitCommand()
   }
   protected generateAutoConstraints() {
+    // on the polygon's circle (its centre) and the last side's end
     const geo = S.getGeometry()
     for (let g = geo.length - 1; g >= 0; g--) {
       if (geo[g].type !== 'Circle') continue
-      if (this.sug[0].length) this.onElement(this.sug[0], g, MID)
-      if (this.sug[1].length) this.onElement(this.sug[1], g - 1, END)
+      this.onElement(this.sug[0], g, MID)
+      this.onElement(this.sug[1], g - 1, END)
       this.removeRedundantAutoConstraints()
       return
+    }
+  }
+  isWidgetVisible() { return true }
+  toolWidgetText() { return 'Polygon Parameters' }
+  toolIcon() { return 'Sketcher_CreateRegularPolygon' }
+  ovpSpec(): OvpSpec { return { ovps: 4, widget: { parameters: 1, checkboxes: 0, comboboxes: 0, lineEdits: 0 }, firstComboIsMethod: false } }
+  ovpState(i: number) { return i < 2 ? 0 : 1 }
+  firstKeyShortcut(c: Controller) { c.setParameterWithoutPassingFocus(0, c.getParameter(0) + 1); return true }
+  secondKeyShortcut(c: Controller) { const v = c.getParameter(0); if (v > 3) c.setParameterWithoutPassingFocus(0, v - 1); return true }
+  configureToolWidget(c: Controller) {
+    c.setParameterLabel(0, 'Sides')
+    c.setParameter(0, this.corners) // unconditionally
+    c.configureParameterUnit(0, 'None')
+    c.configureParameterMin(0, 3)
+    c.configureParameterMax(0, 9999) // a reasonable maximum, so that the box is not very wide
+    c.configureParameterDecimals(0, 0)
+    const o = c.onViewParameters
+    o[OVP.First].setLabelType('DISTANCEX'); o[OVP.Second].setLabelType('DISTANCEY')
+    o[OVP.Third].setLabelType('DISTANCE', 'Dimensioning'); o[OVP.Fourth].setLabelType('ANGLE', 'Dimensioning')
+  }
+  adaptDrawingToParameterChange(_c: Controller, i: number, v: number) { if (i === 0) this.corners = Math.max(3, Math.trunc(v)) }
+  doEnforceControlParameters(c: Controller, p: XY): XY {
+    const o = c.onViewParameters
+    let [x, y] = p
+    if (this.state === 0) {
+      if (o[OVP.First].isSet) x = o[OVP.First].getValue()
+      if (o[OVP.Second].isSet) y = o[OVP.Second].getValue()
+    } else if (this.state === 1) {
+      const third = o[OVP.Third], fourth = o[OVP.Fourth]
+      let dir = sub([x, y], this.centerPoint)
+      if (len(dir) < CONFUSION) dir = [1, dir[1]] // a null direction defaults to (1, 0)
+      let length = len(dir)
+      if (third.isSet) {
+        length = third.getValue()
+        if (length < CONFUSION && third.hasFinishedEditing) { c.unsetOnViewParameter(third); return [x, y] }
+        ;[x, y] = add(this.centerPoint, mul(normalize(dir), length))
+      }
+      if (fourth.isSet) { const a = (fourth.getValue() * Math.PI) / 180; x = this.centerPoint[0] + Math.cos(a) * length; y = this.centerPoint[1] + Math.sin(a) * length }
+    }
+    return [x, y]
+  }
+  adaptParameters(c: Controller, p: XY) {
+    const o = c.onViewParameters
+    if (this.state === 0) {
+      if (!o[OVP.First].isSet) c.setOnViewParameterValue(OVP.First, p[0])
+      if (!o[OVP.Second].isSet) c.setOnViewParameterValue(OVP.Second, p[1])
+      const sameSign = p[0] * p[1] > 0
+      o[OVP.First].setLabelAutoDistanceReverse(!sameSign); o[OVP.Second].setLabelAutoDistanceReverse(sameSign)
+      o[OVP.First].setPoints([0, 0], p); o[OVP.Second].setPoints([0, 0], p)
+    } else if (this.state === 1) {
+      const vec = sub(this.firstCorner, this.centerPoint), range = angleOf(vec)
+      if (!o[OVP.Third].isSet) c.setOnViewParameterValue(OVP.Third, len(vec))
+      if (!o[OVP.Fourth].isSet) c.setOnViewParameterValue(OVP.Fourth, (range * 180) / Math.PI, 'Angle')
+      o[OVP.Third].setPoints(this.centerPoint, this.firstCorner)
+      o[OVP.Fourth].setPoints(this.centerPoint, [0, 0])
+      o[OVP.Fourth].setLabelRange(range)
+    }
+  }
+  computeNextDrawSketchHandlerMode(c: Controller) {
+    const o = c.onViewParameters
+    if (this.state === 0) { if (o[OVP.First].hasFinishedEditing && o[OVP.Second].hasFinishedEditing) this.setNextState(1) }
+    else if (this.state === 1) { if (o[OVP.Third].hasFinishedEditing && o[OVP.Fourth].hasFinishedEditing) this.setNextState(this.states) }
+  }
+  /** DSHPolygonController::addConstraints, with no auto-constraints diagnosed yet: the centre's position, the radius,
+   *  and the corner's angle (Horizontal or Vertical through the centre and the last corner, or a construction line from
+   *  the centre to it at the angle). */
+  addConstraints(c: Controller) {
+    const o = c.onViewParameters, lastCurve = S.highestCurveIndex(), pi = Math.PI
+    const x0 = o[OVP.First].getValue(), y0 = o[OVP.Second].getValue(), radius = o[OVP.Third].getValue(), angle = (o[OVP.Fourth].getValue() * pi) / 180
+    if (o[OVP.First].isSet) constraintToAttachment([lastCurve, MID], V_AXIS_ID, x0)
+    if (o[OVP.Second].isSet) constraintToAttachment([lastCurve, MID], H_AXIS_ID, y0)
+    if (o[OVP.Third].isSet) S.addConstraint(constraint('Radius', lastCurve, NONE, GEO_UNDEF, NONE, GEO_UNDEF, NONE, f6(radius)))
+    if (o[OVP.Fourth].isSet) {
+      const circleGeoId = lastCurve, lastSideGeoId = lastCurve - 1
+      const remainder = (a: number, b: number) => a - Math.round(a / b) * b
+      if (Math.abs(remainder(angle, pi)) < CONFUSION) S.addConstraint(constraint('Horizontal', circleGeoId, MID, lastSideGeoId, END))
+      else if (Math.abs(remainder(angle, pi / 2)) < CONFUSION) S.addConstraint(constraint('Vertical', circleGeoId, MID, lastSideGeoId, END))
+      else {
+        S.addGeometry(this.line([f6(this.centerPoint[0]), f6(this.centerPoint[1])], [f6(this.firstCorner[0]), f6(this.firstCorner[1])], true))
+        const radialGeoId = S.highestCurveIndex()
+        S.addConstraint(constraint('Coincident', radialGeoId, START, circleGeoId, MID))
+        S.addConstraint(constraint('Coincident', radialGeoId, END, lastSideGeoId, END))
+        S.addConstraint(constraint('Angle', radialGeoId, NONE, GEO_UNDEF, NONE, GEO_UNDEF, NONE, f6(angle)))
+      }
     }
   }
 }
