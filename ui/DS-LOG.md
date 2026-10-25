@@ -386,3 +386,104 @@ Tests written with the work (they failed first, with no `pd-spacing` helper draw
 - **The labels' text is drawn in the browser at a constant 17 px** with the label's colour, not through Coin's font
   rendering; the checks compare what the overlay records (`userData.labels`) and the label's click behaviour, not the
   pixels.
+
+## 6a. Sketcher visual layers (the handoff's "Sketcher text and visual layers", first half) — done
+
+### What was done
+
+Tests written with the work (they failed first):
+
+- Three cases in `ui/scripts/sketchcases-panels.json`: `layer-menu` (Extended information on; row 1
+  moved with the context menu's Layer/Layer 1, then row 0 with Layer/Hidden), `layer-check` (the row
+  check boxes: hide two, show one, hide another) and `layer-external` (a plate's Pad.Edge4 projected
+  in, then the Layer menu on the external row), with FreeCAD's answers merged into
+  `ui/scripts/sketchref-panels.json` (513 insertions, 0 deletions: the three keys only).
+- The first run failed on two things, both fixed: `layer-menu` had row 0 still selected where FreeCAD
+  has every row unselected (`SketchObject::acceptGeometry` rebuilds TaskSketcherElements' list, and a
+  rebuilt list has no row selected, while the Gui selection stays), and `layer-external` read "Empty
+  sketch" where FreeCAD reads "Fully constrained" (`ViewProviderSketch::UpdateSolverInformation` also
+  wants ExternalGeo to hold nothing beyond the axes).
+- Part-file tests: `tests/test_feature.py::test_geometry_layer_is_a_keyword_only_when_set` and
+  `tests/test_feature_edit.py::test_set_sketch_geometry_layer` (the keyword appears when set and goes
+  away at 0; an edit writes the one changed line).
+
+Then:
+
+- The part file: `layer=` on every geometry constructor (`cad_agent/feature.py`, the conics and
+  B-splines in `feature_curves.py`), validated to 0/1/2, in `as_dict()`/`source()` only when not 0,
+  read by `geometry_from_dict`; `feature_edit.py`'s `geometry_src` writes it back.
+- The solver transport: `ui/planegcs/sketch.h`'s `Geometry.layer`, `api.cpp` parsing and writing
+  `layer` (only when not 0), the rebuilt `dist/planegcs.wasm`, and `ui/src/planegcs.ts`'s `Geo`
+  types. The solver never reads it.
+- Drawing and picking (`ui/src/sketchdraw.ts`, `ui/src/sketcher.ts`'s `detect`): a Hidden geometry is
+  not drawn and its edges and vertices are not picked.
+- The Elements box (`ui/src/sketchpanels.tsx`): the row's check box is the visual layer (checked on
+  Layer 0 and 1, unchecked on Hidden; disabled for external geometry, as `canBeHidden` leaves it),
+  a click or the context menu's Layer 0 / Layer 1 / Hidden moves it in the "Geometry Layer Change"
+  transaction; the Layer entries read the Gui selection as `ElementView::changeLayer` does
+  (`getGeoIdsOfEdgesFromNames`: a vertex names its geometry only for a `GeomPoint`), and external
+  geometry is refused with FreeCAD's TranslatedUserWarning text as a `report('warn')`. Labels carry
+  `#VL<layer>` in the Extended information form, as FreeCAD's IdInformation does with its default
+  three-layer list (the browser has no layer-list setting, so it always writes it).
+- The list's row selection (`ui/src/sketcher.ts`, `ui/src/sketchpanels.tsx`): a counter that also says
+  which of FreeCAD's two signals came last (`slotElementsChanged`'s rebuild on any geometry or
+  constraint change vs `onSelectionChanged`), with the rows a snapshot of the selection; a Layer menu
+  entry leaves the rows unselected while the selection stays.
+- `messageOf`'s empty test now needs ExternalGeo at the axes only.
+- Harness: `fcsketch_dump.py` reads a geometry's layer (`geom_layer`), carries each element row's
+  layer, clicks the check box through `QTest.mouseClick`, and takes menu paths into sub-menus;
+  `sketchcheck.mjs` compares geometry and element rows' `layer`, clicks `input[data-sub="check"]`,
+  takes `Layer/Layer 1` paths, and compares a case's literal `labels` (FreeCAD's ElementItem keeps
+  its label in a private C++ member that its delegate paints, so the oracle cannot read it back).
+- `ui/PARITY.md`: the Elements box row, the panels suite's counts and the visual-layer paragraph (a
+  part-file key, carried by the solver; FreeCAD keeps it in the SketcherGui geometry extension
+  `ViewProviderSketchGeometryExtension`'s VisualLayerId, which the part file's FreeCAD export here
+  does not write, so Hidden is not drawn or picked in the browser only).
+- Bundle rebuilt (`cad_agent/workbench/next/`; its solver wasm has the same md5 as
+  `ui/planegcs/dist/planegcs.wasm`).
+
+The full-suite run also caught a harness regression from the Layer work: the new path syntax read
+`Toggle Driving/Reference` as a submenu path, so `panel-toggle-reference` and
+`panel-toggle-reference-back` silently did nothing. Both `sketchcheck.mjs`'s `pickCtx` and
+`fcsketch_dump.py`'s `run_menu` now try the exact label first and fall back to splitting on `/`.
+
+### Commit
+
+`e3aa35d` Sketcher: the Elements box's visual layers, as FreeCAD's check box and Layer menu make them
+
+### Tests run
+
+- `sketchcheck.mjs --suite panels --only layer-menu,layer-check,layer-external,panel-toggle-reference,panel-toggle-reference-back`
+  — 5/5 cases as FreeCAD, 0 known, 19 colours, 0 differences.
+- `sketchcheck.mjs --suite panels` on the final bundle — 92/93 cases as FreeCAD, 1 known (el-shift),
+  19 colours, 0 differences.
+- `npx tsc --noEmit` clean; `npm run build` OK.
+- `pytest tests/test_feature.py tests/test_feature_edit.py -q` — 151 passed.
+- `pytest tests/test_licenses.py -q` — 244 passed.
+- `pytest $(/home/team_braneboard_com/work/cad-agent/.venv/bin/python tests/affected.py origin/main --list) -q`
+  — 5,616 passed, 3 skipped in 103.28 s.
+  (An earlier attempt with the bare `tests/affected.py` failed the substitution — the file is tracked
+  without the executable bit — so pytest ran the whole `tests/` tree instead: 7174 passed, 23 skipped
+  in 596.75 s.)
+
+### Unsure / questions
+
+- **The labels are literals a case carries**, transcribed from FreeCAD's source (`ExtendedNaming`'s
+  formats and its capitalization quirks, e.g. "Parabolic arc" against "Parabolic Arc" for an external
+  one) because its `ElementItem` keeps the label private; a change in FreeCAD's formats would only
+  show up by reading the source again.
+- **The part file's `layer` is not part of the FreeCAD export** (`feature_part._sketch_to_freecad`
+  calls `addGeometry` without an extension), so a document opened in FreeCAD loses it: Hidden is not
+  drawn or picked in the browser only. Layer 1 (Discontinuous) is drawn like Layer 0 here; FreeCAD's
+  discontinuous drawing is not ported.
+- **Geometry tools that build new geometry** (trim/split/fillet/copy/arrays) do not carry a layer
+  over; what FreeCAD does for each of them (some clone the geometry, with its extension) is not
+  checked here.
+- **The row selection is a one-counter model** of FreeCAD's two signals (`slotElementsChanged` and
+  `onSelectionChanged`), equivalent while every list-changing call is synchronous, as this sketch
+  layer is. The snapshot's key is the sketch ref, so opening another sketch starts it over.
+- **The empty-sketch change is a behaviour change beyond layers**: a sketch holding only external
+  geometry now reads "Fully constrained" (as FreeCAD does) instead of "Empty sketch".
+- **The external geometry's check box is drawn disabled rather than left out**, because FreeCAD's
+  delegate draws it with `State_Enabled` false (`canBeHidden`); Toggle Construction on external
+  geometry still does nothing.
