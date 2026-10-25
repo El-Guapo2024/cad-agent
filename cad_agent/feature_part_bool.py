@@ -18,7 +18,10 @@ Each has refine (FreeCAD's Refine, True as Preferences > Part/Part Design > Bool
 approximation (False); a MultiCommon behavior ("CommonOfAllShapes"). The operation is FCBRepAlgoAPI's: the boolean
 fuzzy value FreeCAD sets from the inputs' bounding box (BooleanFuzzy 1.0 x diagonal x Precision::Confusion), parallel
 and non-destructive, a Cut by a compound tool fusing the tool's pieces first, then the check FreeCAD runs
-(Preferences' CheckModel, on by default: "Resulting shape is invalid") and the refine.
+(Preferences' CheckModel, on by default: "Resulting shape is invalid") and the refine. The builds, the fuzzy value and
+makeElementBoolean are pd-kernel's ports (cad_agent/topo_boolean.py), the refine its BRepBuilderAPI_RefineModel
+(cad_agent/refine.py), shared with PartDesign; what is Part's own here is Part::Cut's Build of a compound tool (its
+pieces fused first, RecursiveCutFusedTools) and the Section.
 """
 from __future__ import annotations
 
@@ -29,17 +32,14 @@ from .feature_part import PartObject, register
 
 try:
     from OCP.BRep import BRep_Builder
-    from OCP.BRepAlgoAPI import BRepAlgoAPI_Common, BRepAlgoAPI_Cut, BRepAlgoAPI_Fuse, BRepAlgoAPI_Section
-    from OCP.BRepBndLib import BRepBndLib
+    from OCP.BRepAlgoAPI import BRepAlgoAPI_Section
     from OCP.BRepCheck import BRepCheck_Analyzer
-    from OCP.Bnd import Bnd_Box
     from OCP.TopAbs import TopAbs_COMPOUND, TopAbs_FACE, TopAbs_SOLID
     from OCP.TopoDS import TopoDS_Compound, TopoDS_Iterator
 except ImportError:                     # pragma: no cover - only FreeCAD's Python lands here
     pass
 
 CONFUSION = 1e-7
-BOOLEAN_FUZZY = 1.0                     # FuzzyHelper's BooleanFuzzy
 
 
 def _list(shapes):
@@ -69,26 +69,19 @@ def _flatten(shape, out):
 
 
 def auto_fuzzy(shapes) -> float:
-    """FCBRepAlgoAPIHelper::setAutoFuzzy."""
-    box = Bnd_Box()
-    for s in shapes:
-        BRepBndLib.Add_s(s, box)
-    return BOOLEAN_FUZZY * math.sqrt(box.SquareExtent()) * CONFUSION
-
-
-MAKERS = {"fuse": BRepAlgoAPI_Fuse, "cut": BRepAlgoAPI_Cut, "common": BRepAlgoAPI_Common} \
-    if "BRepAlgoAPI_Fuse" in globals() else {}
+    """FCBRepAlgoAPIHelper::setAutoFuzzy (cad_agent/topo_boolean.py, pd-kernel's port)."""
+    from .topo_boolean import auto_fuzzy as fuzzy
+    return fuzzy(list(shapes))
 
 
 def _run(kind, args, tools, fuzzy):
-    mk = MAKERS[kind]()
-    mk.SetArguments(_list(args))
-    mk.SetTools(_list(tools))
-    mk.SetFuzzyValue(fuzzy)
-    mk.SetRunParallel(True)
-    mk.SetNonDestructive(True)
-    mk.Build()
-    return mk.Shape() if mk.IsDone() else None
+    """One FCBRepAlgoAPI_* Build (topo_boolean._build: parallel, non-destructive, the fuzzy value); None when OCCT did
+    not finish."""
+    from .topo_boolean import BooleanError, _build
+    try:
+        return _build(kind, list(args), list(tools), fuzzy)
+    except BooleanError:
+        return None
 
 
 def fc_boolean(kind, base, tool, fuzzy=None):
@@ -230,7 +223,7 @@ class MultiCommon(PartObject):
     ENUMS = {"behavior": BEHAVIORS}
 
     def shape(self, ctx, params):
-        from .feature_transform import element_boolean
+        from .feature_transform import element_boolean      # makeElementBoolean (cad_agent/topo_boolean.py)
         shapes = [ctx.shape(s, f"{self.name}.Shapes") for s in self.shapes]
         for s in shapes:
             if s is None or s.IsNull():

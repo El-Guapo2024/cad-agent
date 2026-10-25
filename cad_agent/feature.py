@@ -69,8 +69,11 @@ The vocabulary, as FreeCAD's Python API has it:
                  UpToFirst, UpToFace, UpToShape), length (Pad 10, Pocket 5), length2, offset, offset2,
                  reversed, up_to_face / up_to_face2 (("Pad", "Face6"), or "XY_Plane" and the other origin
                  planes), up_to_shape / up_to_shape2 (["Pad"] or [("Pad", ["Face3", "Face6"])]),
-                 use_custom_vector, direction, along_sketch_normal, start_type ("Profile plane" or
-                 "Offset") and start_offset, refine (FreeCAD's default, True), and the deprecated forms
+                 use_custom_vector, direction, along_sketch_normal, start_type ("Profile plane",
+                 "Offset" or "Reference"), start_offset and start_reference ("XY_Plane", ("Pad", "Face6") or a
+                 sketch's name; cad_agent/feature_startref.py), taper_angle and taper_angle2 (degrees, for a Length or
+                 Through all side; cad_agent/feature_taper.py), a Pocket's operation ("Subtraction" or
+                 "Common", FeatureAddSub's Operation), refine (FreeCAD's default, True), and the deprecated forms
                  FreeCAD still reads: midplane=True (SideType Symmetric) and type="TwoLengths" (SideType
                  Two sides).
     Revolution, Groove, Hole
@@ -117,7 +120,6 @@ import operator
 try:                                    # the kernel; FreeCAD's Python reads the vocabulary without it
     from OCP.BRep import BRep_Builder, BRep_Tool
     from OCP.BRepAdaptor import BRepAdaptor_Surface
-    from OCP.BRepAlgoAPI import BRepAlgoAPI_Common, BRepAlgoAPI_Cut, BRepAlgoAPI_Fuse
     from OCP.BRepBndLib import BRepBndLib
     from OCP.BRepBuilderAPI import (BRepBuilderAPI_Copy, BRepBuilderAPI_DisconnectedWire,
                                     BRepBuilderAPI_MakeEdge, BRepBuilderAPI_MakeFace,
@@ -139,7 +141,6 @@ try:                                    # the kernel; FreeCAD's Python reads the
     from OCP.GeomAdaptor import GeomAdaptor_Surface
     from OCP.Geom import Geom_Circle, Geom_Plane, Geom_TrimmedCurve
     from OCP.ShapeFix import ShapeFix_Shape, ShapeFix_ShapeTolerance
-    from OCP.ShapeUpgrade import ShapeUpgrade_UnifySameDomain
     from OCP.TopAbs import (TopAbs_COMPOUND, TopAbs_FACE, TopAbs_IN, TopAbs_ON,
                             TopAbs_OUT, TopAbs_SHAPE, TopAbs_SOLID, TopAbs_VERTEX, TopAbs_WIRE)
     from OCP.TopExp import TopExp
@@ -789,7 +790,8 @@ def _residual(sk: Sketch, c: Constraint, v, tol) -> str:
 # ── Pad and Pocket ────────────────────────────────────────────────────────────────────────────────────
 
 SIDE_TYPES = ("One side", "Two sides", "Symmetric")
-START_TYPES = ("Profile plane", "Offset")
+START_TYPES = ("Profile plane", "Offset", "Reference")     # ProfileBased::StartTypesEnums
+SUBTRACTIVE_OPERATIONS = ("Subtraction", "Common")   # FeatureAddSub::defineSubtractive's Operation enums
 
 
 class _Extrude:
@@ -802,8 +804,8 @@ class _Extrude:
                  reversed: bool = False, midplane: bool = False, up_to_face=None, up_to_face2=None,
                  up_to_shape=None, up_to_shape2=None, use_custom_vector: bool = False,
                  direction=(1.0, 1.0, 1.0), along_sketch_normal: bool = True,
-                 start_type: str = "Profile plane", start_offset=0.0, taper_angle=0.0, taper_angle2=0.0,
-                 refine: bool = True):
+                 start_type: str = "Profile plane", start_offset=0.0, start_reference=None, taper_angle=0.0,
+                 taper_angle2=0.0, operation: str | None = None, refine: bool = True):
         self.name, self.profile = name, profile
         if type == "TwoLengths":
             # FeatureExtrude::onDocumentRestored: the deprecated TwoLengths is SideType "Two sides".
@@ -831,9 +833,16 @@ class _Extrude:
         self.use_custom_vector, self.direction = bool(use_custom_vector), tuple(direction)
         self.along_sketch_normal = bool(along_sketch_normal)
         self.start_type, self.start_offset = start_type, start_offset
-        if taper_angle or taper_angle2:
-            raise FeatureError(f"{name}: a taper angle is not supported yet")
-        self.taper_angle, self.taper_angle2 = 0.0, 0.0
+        self.start_reference = tuple(start_reference) if isinstance(start_reference, list) else start_reference
+        for k, t in (("taper_angle", taper_angle), ("taper_angle2", taper_angle2)):
+            if not isinstance(t, (int, float, str)) or isinstance(t, bool):
+                raise FeatureError(f"{name}: {k} {t!r} is not an angle (degrees) or a PARAMS expression")
+        self.taper_angle, self.taper_angle2 = taper_angle, taper_angle2
+        ops = self.OPERATIONS
+        self.operation = ops[0] if operation is None else operation
+        if self.operation not in ops:
+            raise FeatureError(f"{name}: operation {self.operation!r} is not one of {', '.join(ops)} "
+                               f"(PartDesign::{self.kind}'s Operation)")
         self.refine = bool(refine)
 
     def __repr__(self):
@@ -846,6 +855,7 @@ class Pad(_Extrude):
     kind = "Pad"
     TYPES = ("Length", "UpToLast", "UpToFirst", "UpToFace", "UpToShape")
     LENGTH = 10.0
+    OPERATIONS = ("Union",)                         # defineAdditive: the one enum, hidden
 
 
 class Pocket(_Extrude):
@@ -854,6 +864,7 @@ class Pocket(_Extrude):
     kind = "Pocket"
     TYPES = ("Length", "ThroughAll", "UpToFirst", "UpToFace", "UpToShape")
     LENGTH = 5.0
+    OPERATIONS = SUBTRACTIVE_OPERATIONS
 
 
 FEATURES = {"Sketch": Sketch, "Pad": Pad, "Pocket": Pocket}
@@ -863,6 +874,7 @@ FEATURES = {"Sketch": Sketch, "Pad": Pad, "Pocket": Pocket}
 # ── the kernel: what FreeCAD's C++ does, in the same OCCT calls ───────────────────────────────────────
 
 CONFUSION = 1e-7          # Precision::Confusion()
+ANGULAR = 1e-12           # Precision::Angular()
 
 
 def _faces(shape) -> list:
@@ -1205,36 +1217,23 @@ def _faces_cut_by(shape, face, d):
     return out
 
 
-def _bool(kind, base, tools):
-    """TopoShape::makeElementBoolean: base the argument, the tools (compounds expanded) the tools."""
-    args, tls = TopTools_ListOfShape(), TopTools_ListOfShape()
-    args.Append(base)
-    for t in tools:
-        if t.ShapeType() == TopAbs_COMPOUND and kind == "fuse":
-            it = TopoDS_Iterator(t)
-            while it.More():
-                tls.Append(it.Value())
-                it.Next()
-        else:
-            tls.Append(t)
-    mk = {"fuse": BRepAlgoAPI_Fuse, "cut": BRepAlgoAPI_Cut, "common": BRepAlgoAPI_Common}[kind]()
-    mk.SetRunParallel(True)
-    mk.SetArguments(args)
-    mk.SetTools(tls)
-    mk.Build()
-    if not mk.IsDone():
+def _bool(kind, base, tools, fuzzy=-1.0):
+    """TopoShape::makeElementBoolean(kind, {base, *tools}, tol) (cad_agent/topo_boolean.py); fuzzy -1 is FreeCAD's
+    default tolerance (the auto fuzzy value), 0 a feature's FuzzyTolerance."""
+    from .topo_boolean import BooleanError, element_boolean
+    try:
+        out = element_boolean(kind, [base, *tools], fuzzy)
+    except BooleanError as e:
+        raise FeatureError(str(e)) from None
+    if out is None:
         raise FeatureError(f"Boolean {kind} failed")
-    return mk.Shape()
+    return out
 
 
 def _refine(shape):
-    """FreeCAD refines with BRepBuilderAPI_RefineModel (its own); OCCT's UnifySameDomain merges the same
-    coplanar and co-cylindrical faces, so the solid, its volume and area are the same."""
-    u = ShapeUpgrade_UnifySameDomain(shape, True, True, False)
-    u.AllowInternalEdges(False)
-    u.Build()
-    out = u.Shape()
-    return out if _count(out, TopAbs_SOLID) == _count(shape, TopAbs_SOLID) else shape
+    """FeatureRefine::refineShapeIfActive: FreeCAD's own refine, BRepBuilderAPI_RefineModel (cad_agent/refine.py)."""
+    from .refine import refine
+    return refine(shape)
 
 
 def _through_all(base, profile) -> float:
@@ -1444,8 +1443,8 @@ def _shell_from_up_to_shape(shape, sketchshape, d):
 
 
 def _side(feat, sketchshape, method, length, d, offset, up_to_face, up_to_shape, base, shapes, additive,
-          where):
-    """FeatureExtrude::generateSingleExtrusionSide."""
+          where, taper=0.0):
+    """FeatureExtrude::generateSingleExtrusionSide; taper in degrees (a Length or ThroughAll side only)."""
     if method in ("UpToFirst", "UpToLast", "UpToFace", "UpToShape"):
         count = 1
         upto = None
@@ -1474,6 +1473,12 @@ def _side(feat, sketchshape, method, length, d, offset, up_to_face, up_to_shape,
                 raise FeatureError("Extrude: Unable to reach the selected shape, please select faces") \
                     from None
             raise
+    if abs(math.radians(taper)) >= ANGULAR:
+        from .feature_taper import DraftError, draft     # ExtrusionHelper::makeElementDraft
+        try:
+            return draft(sketchshape, d, length, taper)
+        except DraftError as e:
+            raise FeatureError(str(e)) from None
     try:
         return BRepPrimAPI_MakePrism(sketchshape, gp_Vec(d).Multiplied(length)).Shape()
     except Exception:
@@ -1531,23 +1536,38 @@ def _extrude(feat: _Extrude, sketch: Sketch, base, shapes, params, out: dict | N
     if feat.reversed:
         d = d.Reversed()
 
-    start = length(feat.start_offset, "start_offset") if feat.start_type == "Offset" else 0.0
+    if feat.start_type == "Reference":                # ProfileBased::getStartReferenceOffset
+        from .feature_startref import extrude_offset
+        start = extrude_offset(sketchshape, feat.start_reference, d, length(feat.start_offset, "start_offset"),
+                               shapes, where)
+    else:
+        start = length(feat.start_offset, "start_offset") if feat.start_type == "Offset" else 0.0
     start_sketch = _moved(sketchshape, gp_Vec(d).Multiplied(start)) if abs(start) >= CONFUSION \
         else sketchshape
     off1 = length(feat.offset, "offset")
+    from .feature_taper import clamp_angle
+    taper1 = clamp_angle(value(feat.taper_angle, params, f"{where}.taper_angle"))
+    taper2 = clamp_angle(value(feat.taper_angle2, params, f"{where}.taper_angle2"))
     prisms = []
 
-    def one(shape, m, ln, dd, off, utf, uts):
-        return _side(feat, shape, m, ln, dd, off, utf, uts, base, shapes, additive, where)
+    def one(shape, m, ln, dd, off, utf, uts, taper=0.0):
+        return _side(feat, shape, m, ln, dd, off, utf, uts, base, shapes, additive, where, taper)
 
     if side == "One side":
-        prisms.append(one(start_sketch, method, L, d, off1, feat.up_to_face, feat.up_to_shape))
+        prisms.append(one(start_sketch, method, L, d, off1, feat.up_to_face, feat.up_to_shape, taper1))
+        if prisms[0] is None:
+            raise FeatureError("Resulting fused extrusion is null.")
     elif side == "Symmetric":
-        if method == "Length":
+        if method == "Length" and abs(taper1) > ANGULAR:
+            # tapered: two prisms from the sketch plane, half the length each way, fused (xor) below
+            prisms.append(one(start_sketch, method, L / 2.0, d, off1, feat.up_to_face, feat.up_to_shape, taper1))
+            prisms.append(one(start_sketch, method, L / 2.0, d.Reversed(), off1, feat.up_to_face,
+                              feat.up_to_shape, taper1))
+        elif method == "Length":
             moved = _moved(start_sketch, gp_Vec(d).Reversed().Multiplied(L / 2.0))
             prisms.append(one(moved, method, L, d, off1, feat.up_to_face, feat.up_to_shape))
         else:
-            p1 = one(start_sketch, method, L, d, off1, feat.up_to_face, feat.up_to_shape)
+            p1 = one(start_sketch, method, L, d, off1, feat.up_to_face, feat.up_to_shape, taper1)
             box = Bnd_Box()
             BRepBndLib.Add_s(start_sketch, box)
             lo, hi = box.CornerMin(), box.CornerMax()
@@ -1559,24 +1579,27 @@ def _extrude(feat: _Extrude, sketch: Sketch, base, shapes, params, out: dict | N
         off2 = length(feat.offset2, "offset2")
         d2 = d.Reversed()
         has_start = abs(start) > CONFUSION
-        if not has_start and method in ("Length", "ThroughAll") and method2 != "UpToFirst":
+        no_taper = abs(taper1) < ANGULAR and abs(taper2) < ANGULAR
+        if not has_start and method in ("Length", "ThroughAll") and method2 != "UpToFirst" and no_taper:
             moved = _moved(sketchshape, gp_Vec(d).Multiplied(L))
             prisms.append(one(moved, method2, L + L2, d2, off2, feat.up_to_face2, feat.up_to_shape2))
-        elif not has_start and method2 in ("Length", "ThroughAll") and method != "UpToFirst":
+        elif not has_start and method2 in ("Length", "ThroughAll") and method != "UpToFirst" and no_taper:
             moved = _moved(sketchshape, gp_Vec(d).Reversed().Multiplied(L2))
             prisms.append(one(moved, method, L + L2, d, off1, feat.up_to_face, feat.up_to_shape))
         else:
-            prisms.append(one(start_sketch, method, L, d, off1, feat.up_to_face, feat.up_to_shape))
-            prisms.append(one(start_sketch, method2, L2, d2, off2, feat.up_to_face2, feat.up_to_shape2))
+            prisms.append(one(start_sketch, method, L, d, off1, feat.up_to_face, feat.up_to_shape, taper1))
+            prisms.append(one(start_sketch, method2, L2, d2, off2, feat.up_to_face2, feat.up_to_shape2, taper2))
     prisms = [p for p in prisms if p is not None and not p.IsNull()]
     if not prisms:
         raise FeatureError("No extrusion geometry was generated.")
     prism = prisms[0] if len(prisms) == 1 else _xor(prisms)
     refine = _refine if feat.refine else (lambda s: s)
+    prism = refine(prism)                           # buildExtrusion: the boolean takes the refined prism
     if out is not None:
-        out["addsub"] = refine(prism)
+        out["addsub"] = prism
     if base is not None:
-        result = _bool("fuse" if additive else "cut", base, [prism])
+        maker = "fuse" if additive else "common" if feat.operation == "Common" else "cut"   # getBooleanMaker
+        result = _bool(maker, base, [prism], 0.0)                                         # FuzzyTolerance
         if not _count(result, TopAbs_SOLID):
             raise FeatureError("Resulting shape is not a solid")
         return refine(result)
@@ -1838,6 +1861,12 @@ def to_freecad(features, params: dict | None = None, doc=None, name: str = "Body
         obj.AlongSketchNormal = f.along_sketch_normal
         obj.StartType = f.start_type
         setv(obj, "StartOffset", f.start_offset)
+        if f.start_reference is not None:
+            obj.StartReference = ref(f.start_reference)
+        setv(obj, "TaperAngle", f.taper_angle)
+        setv(obj, "TaperAngle2", f.taper_angle2)
+        if f.operation != f.OPERATIONS[0]:
+            obj.Operation = f.operation
         for prop, r in (("UpToFace", f.up_to_face), ("UpToFace2", f.up_to_face2)):
             if r is not None:
                 o, subs = ref(r)
@@ -1865,6 +1894,8 @@ from .feature_revolve import Groove, Revolution  # noqa: E402  PartDesign::Revol
 FEATURES.update(Revolution=Revolution, Groove=Groove)
 from .feature_hole import Hole  # noqa: E402  PartDesign::Hole
 FEATURES.update(Hole=Hole)
+from .feature_scaled import Scaled  # noqa: E402  PartDesign::Scaled
+FEATURES.update(Scaled=Scaled)
 from .feature_sweep import SWEEPS  # noqa: E402  PartDesign's Additive/Subtractive Loft, Pipe and Helix
 
 FEATURES.update(SWEEPS)

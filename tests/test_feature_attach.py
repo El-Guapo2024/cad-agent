@@ -121,6 +121,21 @@ def _points(g):
         return [g["center"], [g["radius"], 0.0]]
     if t == "Point":
         return [g["at"]]
+    if t == "BSplineCurve":
+        return [*g["poles"], *[[k, m] for k, m in zip(g["knots"], g["mults"])], [g["degree"], float(g["periodic"])],
+                *[[w, 0.0] for w in (g.get("weights") or [1.0] * len(g["poles"]))]]
+    if t in ("Ellipse", "ArcOfEllipse"):
+        x = g["x_axis"]
+        out = [g["center"], [g["major_radius"], g["minor_radius"]], x]
+        if t == "Ellipse":
+            return out
+        if "start" in g:                              # FreeCAD's record: clockwise about -Z, the CCW start is its end
+            s, e = (g["end"], g["start"]) if g.get("axis_z", 1.0) < 0 else (g["start"], g["end"])
+            return out + [s, e]
+        c, a, b, y = g["center"], g["major_radius"], g["minor_radius"], [-x[1], x[0]]
+        at = lambda u: [c[0] + a * math.cos(u) * x[0] + b * math.sin(u) * y[0],  # noqa: E731
+                        c[1] + a * math.cos(u) * x[1] + b * math.sin(u) * y[1]]
+        return out + [at(g["start_angle"]), at(g["end_angle"])]
     if "start" in g:                                  # FreeCAD's record
         s, e = g["start"], g["end"]
         if g.get("axis_z", 1.0) < 0:                  # GeomArcOfCircle runs clockwise: the Sketcher's CCW start

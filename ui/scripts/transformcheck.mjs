@@ -207,7 +207,8 @@ try {
     await sleep(300)
     const menu = await st('[...document.querySelectorAll(".ctx > *")].filter((e) => !e.classList.contains("mb-sep")).map((e) => ({ text: e.textContent.trim(), enabled: !e.classList.contains("dis") && !e.getAttribute("aria-disabled") }))')
     same(menu.map((e) => e.text), fc.context_menu.map((e) => e.text), 'Multi-Transform: the list\'s context menu, entry by entry')
-    if (fc.context_menu.find((e) => e.text === 'Add Scale Transformation')?.enabled) note('Add Scale Transformation is greyed: PartDesign::Scaled is not in feature_transform.py')
+    same(menu.find((e) => e.text === 'Add Scale Transformation')?.enabled, fc.context_menu.find((e) => e.text === 'Add Scale Transformation')?.enabled,
+      'Multi-Transform: Add Scale Transformation enabled as FreeCAD\'s (kernelcheck.mjs drives it)')
     await page.click('.ctx .mb-item:has-text("Add Mirror Transformation")')
     await sleep(400)
     same(await ourList('listTransformFeatures'), fcWidget(fc.task_mirror, 'listTransformFeatures').items, 'Multi-Transform: Add Mirror Transformation adds "Mirror"')

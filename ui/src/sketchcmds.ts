@@ -18,6 +18,7 @@ import { runConstraint, isConstraintCommand, toggleDriving, toggleActive, idOf }
 import { ArcOfEllipseHandler, ArcOfHyperbolaHandler, ArcOfParabolaHandler, BSplineHandler, EllipseHandler } from './sketchgeo'
 import { ExtendHandler, FilletHandler, SplittingHandler, TrimmingHandler } from './sketchedit'
 import { ExternalHandler } from './sketchexternal'
+import { CURVE_RUN, curveEnabled } from './sketchcurvecmds'
 import * as SK from './sketch'
 import { getState, report } from './store'
 import { recordAndRun } from './actions'
@@ -131,6 +132,7 @@ const RUN: Record<string, () => void> = {
   Sketcher_CreateFillet: tool(() => new FilletHandler(0)),
   Sketcher_CreateChamfer: tool(() => new FilletHandler(1)),
   Sketcher_Projection: tool(() => new ExternalHandler()),
+  ...CURVE_RUN, // the B-spline tools and the information layer (sketchcurvecmds.ts)
   Sketcher_ToggleConstruction: toggleConstruction,
   Sketcher_LeaveSketch: () => void S.closeEdit(true),
   Sketcher_CancelSketch: () => void S.closeEdit(false),
@@ -163,6 +165,8 @@ export function isEnabled(name: string): boolean {
   if (name === 'Sketcher_EditSketch') return !editing && !!getState().slug && !!S.lastSketch()
   if (OUT_OF_EDIT.has(name)) return false
   if (!editing || !isImplemented(name)) return false
+  const curve = curveEnabled(name)
+  if (curve !== undefined) return curve
   const sel = S.getSelection()
   switch (name) {
     case 'Sketcher_SelectConstraints': case 'Sketcher_SelectElementsAssociatedWithConstraints': case 'Sketcher_ToggleActiveConstraint':

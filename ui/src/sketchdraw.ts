@@ -688,6 +688,8 @@ function drawDatum(ctx: Ctx, s: Screen, d: Datum, color: string, lineWidth: numb
 export const labelFont = () => `${SIZES.font}px ${getComputedStyle(document.body).fontFamily || 'sans-serif'}`
 
 /** The whole edit mode drawing, in Coin's layer order: grid, axes, curves, points, constraints, edit curves, text. */
+/** What draws over the curves, in the information layer's place (sketchbsplineinfo.ts registers here). */
+export const overlays: ((ctx: Ctx, s: Screen, st: DrawState) => void)[] = []
 export function drawSketch(ctx: Ctx, s: Screen, st: DrawState, camCenter: XY): HitRegions {
   const hits: HitRegions = { icons: [], labels: [], datumLines: [] }
   ctx.clearRect(0, 0, s.w, s.h)
@@ -710,6 +712,8 @@ export function drawSketch(ctx: Ctx, s: Screen, st: DrawState, camCenter: XY): H
     const color = curveColor(st, i), cons = g.construction
     strokePoly(ctx, s, polyline(g), color, cons ? SIZES.construction : SIZES.curve, cons ? DASH : [])
   })
+  // the information layer (EditModeInformationOverlayCoinConverter: a B-spline's degree, control polygon, comb, ...)
+  for (const o of overlays) o(ctx, s, st)
   // the external geometry: ExternalWidth, ExternalPattern (CurvesExternalDrawStyle)
   ;(st.external ?? []).forEach((g, k) => {
     if (g.type === 'Point') return

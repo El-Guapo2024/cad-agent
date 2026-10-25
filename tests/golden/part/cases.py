@@ -90,6 +90,7 @@ CASES["multicommon3"] = {"objects": [Part.Box("Box", length=20, width=20, height
                                                    placement=((10, 10, -10), (0, 0, 0))),
                                      Part.MultiCommon("Common", ["Box", "Sphere", "Cylinder"])]}
 CASES["cut_chain"] = {"objects": THREE + [Part.Cut("Cut", "Box", "Sphere"), Part.Cut("Cut001", "Cut", "Cylinder")]}
+CASES["cut_chain_norefine"] = {"objects": THREE + [Part.Cut("Cut", "Box", "Sphere"), Part.Cut("Cut001", "Cut", "Cylinder", refine=False)]}
 CASES["cut_compound_tool"] = {"objects": THREE + [Part.Compound("Compound", ["Sphere", "Cylinder"]),
                                                   Part.Cut("Cut", "Box", "Compound")]}
 

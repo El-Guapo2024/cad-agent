@@ -79,7 +79,9 @@ EXTRUDE_PROPS = {"side_type": "side_type", "type1": "type", "type2": "type2", "l
                  "up_to_face": "up_to_face", "up_to_face2": "up_to_face2", "up_to_shape": "up_to_shape",
                  "up_to_shape2": "up_to_shape2", "use_custom_vector": "use_custom_vector",
                  "direction": "direction", "along_sketch_normal": "along_sketch_normal",
-                 "start_type": "start_type", "start_offset": "start_offset", "refine": "refine"}
+                 "start_type": "start_type", "start_offset": "start_offset", "start_reference": "start_reference",
+                 "taper_angle": "taper_angle",
+                 "taper_angle2": "taper_angle2", "operation": "operation", "refine": "refine"}
 IMPORT = ("from cad_agent.feature import (ArcOfCircle, ArcOfEllipse, ArcOfHyperbola, ArcOfParabola, Body, "
           "BSplineCurve,\n                               Circle, Constraint, Ellipse, LineSegment, Pad, Pocket, "
           "Point, Sketch)\n")
@@ -243,7 +245,7 @@ def _feature_dict(call, src):
     d = {"name": _lit(_arg(call, EXTRUDE_POS, "name"), src), "type": TYPE_IDS[kind],
          "profile": _lit(_arg(call, EXTRUDE_POS, "profile"), src)}
     kw = {k.arg: _lit(k.value, src) for k in call.keywords if k.arg != "profile"}
-    unknown = set(kw) - set(EXTRUDE_PROPS.values()) - {"midplane", "taper_angle", "taper_angle2"}
+    unknown = set(kw) - set(EXTRUDE_PROPS.values()) - {"midplane"}
     if unknown:
         raise FeatureEditError(f"{d['name']}: {', '.join(sorted(unknown))} is not a property of a {kind}")
     try:
@@ -253,7 +255,7 @@ def _feature_dict(call, src):
     for key, attr in EXTRUDE_PROPS.items():
         v = getattr(obj, attr)
         d[key] = list(v) if isinstance(v, tuple) else v
-    for key in ("up_to_face", "up_to_face2", "up_to_shape", "up_to_shape2"):
+    for key in ("up_to_face", "up_to_face2", "up_to_shape", "up_to_shape2", "start_reference"):
         if key in kw:
             d[key] = kw[key]
     return d
@@ -424,7 +426,7 @@ def _tuples(key, v):
     ("Pad", "Face6") as a tuple, up_to_shape a list of names or (name, [faces]) tuples."""
     if key in ("attachment_offset", "direction") and isinstance(v, list):
         return tuple(tuple(x) if isinstance(x, list) else x for x in v)
-    if key in ("up_to_face", "up_to_face2") and isinstance(v, list):
+    if key in ("up_to_face", "up_to_face2", "start_reference") and isinstance(v, list):
         return tuple(v)
     if key in ("up_to_shape", "up_to_shape2") and isinstance(v, list):
         return [tuple(r) if isinstance(r, list) else r for r in v]
@@ -709,7 +711,7 @@ def _refs(call):
     if isinstance(p, ast.Constant):
         out.append((p, p.value))
     for k in call.keywords:
-        if k.arg in ("up_to_face", "up_to_face2", "up_to_shape", "up_to_shape2"):
+        if k.arg in ("up_to_face", "up_to_face2", "up_to_shape", "up_to_shape2", "start_reference"):
             v = k.value
             if isinstance(v, ast.Constant):
                 out.append((v, v.value))
@@ -861,8 +863,10 @@ def _check(src):
             else:
                 if kinds.get(f["profile"]) != "Sketch":
                     raise FeatureEditError(f"{n}: its profile {f['profile']!r} is not a sketch before it")
-                for key in ("up_to_face", "up_to_face2"):
+                for key in ("up_to_face", "up_to_face2", "start_reference"):
                     r = f.get(key)
+                    if isinstance(r, str) and not r.endswith("_Plane") and r not in seen:
+                        raise FeatureEditError(f"{n}: its {key} names {r!r}, which is not before it")
                     if isinstance(r, list) and r and r[0] not in seen:
                         raise FeatureEditError(f"{n}: its {key} names {r[0]!r}, which is not before it")
                 for key in ("up_to_shape", "up_to_shape2"):

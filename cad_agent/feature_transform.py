@@ -48,7 +48,6 @@ from .feature_kw import ORIGIN, KwFeature, ref_name
 try:
     from OCP.BRep import BRep_Tool
     from OCP.BRepAdaptor import BRepAdaptor_Curve, BRepAdaptor_Surface
-    from OCP.BRepAlgoAPI import BRepAlgoAPI_Common, BRepAlgoAPI_Cut, BRepAlgoAPI_Fuse
     from OCP.BRepBuilderAPI import BRepBuilderAPI_Transform
     from OCP.GeomAbs import GeomAbs_Circle, GeomAbs_Line, GeomAbs_Plane
     from OCP.TopAbs import TopAbs_COMPOUND, TopAbs_EDGE, TopAbs_FACE, TopAbs_VERTEX
@@ -72,7 +71,20 @@ def transformed(shape, trsf):
     copy = trsf.ScaleFactor() * trsf.HVectorialPart().Determinant() < 0.0 \
         or abs(abs(trsf.ScaleFactor()) - 1) > CONFUSION
     if copy:
-        return BRepBuilderAPI_Transform(shape, trsf, True).Shape()
+        return BRepBuilderAPI_Transform(shape, trsf, True).Shape().Moved(TopLoc_Location(gp_Trsf()))
+    return moved(shape, trsf)
+
+
+def moved(shape, trsf):
+    """TopoShape::move(TopoDS_Shape&, const gp_Trsf&): the transformation's scale factor set to 1 first (above
+    TopLoc_Location::ScalePrec). OCCT then calls a gp_Scale form gp_Identity and keeps its translation, so a move by
+    a scaling of factor 1 about a point (a MultiTransform's Scaled at its first factor) leaves the shape where it was,
+    in FreeCAD and here."""
+    if abs(trsf.ScaleFactor()) > 1e-14:
+        t = gp_Trsf()
+        t.Multiply(trsf)                        # a copy (gp_Trsf has no copy constructor in OCP)
+        t.SetScaleFactor(1.0)
+        return shape.Moved(TopLoc_Location(t))
     return shape.Moved(TopLoc_Location(trsf))
 
 
@@ -86,53 +98,14 @@ def _expand(shape, out):
         it.Next()
 
 
-def element_boolean(maker: str, shapes: list):
-    """TopoShape::makeElementBoolean for "fuse", "cut" and "common": compounds expanded (for a fuse the first shape's
-    too), the first shape the argument and the rest the tools; one shape left is the result."""
-    if not shapes:
-        raise F.FeatureError("Null shape")
-    _shapes: list = []
-    if maker == "fuse":
-        for i, s in enumerate(shapes):
-            if s is None or s.IsNull():
-                if i == 0:
-                    return None
-                raise F.FeatureError("Null input shape")
-            if s.ShapeType() == TopAbs_COMPOUND:
-                if not _shapes:
-                    _shapes += shapes[:i]
-                _expand(s, _shapes)
-            elif _shapes:
-                _shapes.append(s)
-    else:
-        for i in range(1, len(shapes)):
-            s = shapes[i]
-            if s is None or s.IsNull():
-                raise F.FeatureError("Null input shape")
-            if s.ShapeType() == TopAbs_COMPOUND:
-                if not _shapes:
-                    _shapes += shapes[:i]
-                before = len(_shapes)
-                _expand(s, _shapes)
-                if maker == "common" and len(_shapes) == before:
-                    _shapes.append(s)
-            elif _shapes:
-                _shapes.append(s)
-    inputs = _shapes or shapes
-    if len(inputs) == 1:
-        return inputs[0]
-    args, tools = F.TopTools_ListOfShape(), F.TopTools_ListOfShape()
-    args.Append(inputs[0])
-    for s in inputs[1:]:
-        tools.Append(s)
-    mk = {"fuse": BRepAlgoAPI_Fuse, "cut": BRepAlgoAPI_Cut, "common": BRepAlgoAPI_Common}[maker]()
-    mk.SetRunParallel(True)
-    mk.SetArguments(args)
-    mk.SetTools(tools)
-    mk.Build()
-    if not mk.IsDone():
-        raise F.FeatureError(f"Boolean {maker} failed")
-    return mk.Shape()
+def element_boolean(maker: str, shapes: list, fuzzy: float = -1.0):
+    """TopoShape::makeElementBoolean for "fuse", "cut" and "common" (cad_agent/topo_boolean.py)."""
+    from .topo_boolean import BooleanError
+    from .topo_boolean import element_boolean as boolean
+    try:
+        return boolean(maker, shapes, fuzzy)
+    except BooleanError as e:
+        raise F.FeatureError(str(e)) from None
 
 
 # ── references ────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -658,7 +631,7 @@ class PolarPattern(_Pattern):
             obj.SpacingPattern = list(self.spacing_pattern)
 
 
-SUBS = ("Mirrored", "LinearPattern", "PolarPattern")
+SUBS = ("Mirrored", "LinearPattern", "PolarPattern", "Scaled")      # Scaled: cad_agent/feature_scaled.py
 
 
 class MultiTransform(Transformed):
@@ -673,8 +646,8 @@ class MultiTransform(Transformed):
         super().validate()
         for t in self.transformations:
             if not isinstance(t, Transformed) or t.kind not in SUBS:
-                raise F.FeatureError(f"{self.name}: its transformations are Mirrored, LinearPattern and PolarPattern, "
-                                     f"not {t!r}")
+                raise F.FeatureError(f"{self.name}: its transformations are Mirrored, LinearPattern, PolarPattern and "
+                                     f"Scaled, not {t!r}")
             if t.originals or t.transform_mode != "Features":
                 raise F.FeatureError(f"{self.name}: {t.name} is one of its transformations, so it has no originals "
                                      "and no transform mode of its own")
@@ -688,20 +661,40 @@ class MultiTransform(Transformed):
         return super().is_suppressed(index) or (0 <= index < len(self._generated) and self._generated[index])
 
     def get_transformations(self, shapes, params, originals):
-        """MultiTransform::getTransformations: the product of its transformations' lists, the later ones outer."""
+        """MultiTransform::getTransformations: the product of its transformations' lists, the later ones outer; a
+        Scaled scales each slice of the occurrences before it about their own centres."""
+        from .feature_scaled import first_original_cog
         self._generated, self._first_identity = [], True
         if not self.transformations:
             return []
-        instances = None                        # [(trsf, suppressed)]
+        cog = first_original_cog(shapes, originals)
+        instances = None                        # [(trsf, centre, suppressed)]
         for sub in self.transformations:
             ts = sub.get_transformations(shapes, params, originals)
             if instances is None:
-                instances = [(t, sub.is_suppressed(i)) for i, t in enumerate(ts)]
+                instances = [(t, cog.Transformed(t), sub.is_suppressed(i)) for i, t in enumerate(ts)]
                 continue
             if not instances:
+                continue                        # an empty product must not restart at the next helper
+            if sub.kind == "Scaled":
+                if not ts or len(instances) % len(ts):
+                    raise ValueError("Number of occurrences must be a divisor of previous number of occurrences")
+                step, old, scaled = len(instances) // len(ts), iter(instances), []
+                for i, t in enumerate(ts):
+                    s = sub.is_suppressed(i)
+                    for _ in range(step):
+                        old_t, centre, old_s = next(old)
+                        if t.ScaleFactor() > CONFUSION:
+                            c = gp_Trsf()
+                            c.SetScale(centre, t.ScaleFactor())
+                            c.Multiply(old_t)
+                        else:
+                            c, centre = t.Multiplied(old_t), centre.Transformed(t)
+                        scaled.append((c, centre, old_s or s))
+                instances = scaled
                 continue
-            instances = [(t.Multiplied(old), old_s or sub.is_suppressed(i))
-                         for i, t in enumerate(ts) for old, old_s in instances]
+            instances = [(t.Multiplied(old), centre.Transformed(t), old_s or sub.is_suppressed(i))
+                         for i, t in enumerate(ts) for old, centre, old_s in instances]
         if not instances:
             self._generated = [True]
             return [gp_Trsf()]
@@ -710,8 +703,8 @@ class MultiTransform(Transformed):
             for col in range(1, 5):
                 if abs(first.Value(row, col) - (1.0 if row == col else 0.0)) > CONFUSION:
                     self._first_identity = False
-        self._generated = [s for _, s in instances]
-        return [t for t, _ in instances]
+        self._generated = [s for _, _, s in instances]
+        return [t for t, _, _ in instances]
 
     def to_freecad(self, ctx):
         obj = super().to_freecad(ctx)

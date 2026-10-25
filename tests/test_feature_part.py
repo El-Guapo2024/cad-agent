@@ -40,10 +40,10 @@ TYPES = {"TopAbs_COMPOUND": "Compound", "TopAbs_COMPSOLID": "CompSolid", "TopAbs
          "TopAbs_SHELL": "Shell", "TopAbs_FACE": "Face", "TopAbs_WIRE": "Wire", "TopAbs_EDGE": "Edge",
          "TopAbs_VERTEX": "Vertex"}
 
-# Known differences, each in ui/PARITY.md ("Part workbench"): {(case, object): what differs}. The shape is the same
-# solid where it says faces: FreeCAD refines with BRepBuilderAPI_RefineModel, this with OCCT's UnifySameDomain.
-# In a cut through a cut, UnifySameDomain also joins the edges the second cut split on the first one's faces, where
-# FreeCAD's refine (faces only) leaves them: two edges fewer, the same faces and solid.
+# Known differences, each in ui/PARITY.md ("Part workbench"): {(case, object): the counts that differ}; an area's
+# cases_<area>.py adds its own (KNOWN there). The refine is FreeCAD's BRepBuilderAPI_RefineModel as cad_agent/refine.py
+# ports it. In a cut through a cut the boolean gives FreeCAD's shape (cut_chain_norefine: 25 edges, 10 faces), and the
+# port's refine joins two edges more than FreeCAD's (22 against 24, the same 9 faces and solid).
 KNOWN: dict = {("cut_chain", "Cut001"): ("edges", "vertices"), ("cut_compound_tool", "Cut"): ("edges", "vertices")}
 for _p in sorted(GOLDEN.glob("cases_*.py")):
     _spec = importlib.util.spec_from_file_location(f"part_known_{_p.stem}", _p)
