@@ -166,6 +166,16 @@ const PROP_DEFAULT: Record<string, Record<string, unknown>> = {
   'Part::Vertex': { x: 0, y: 0, z: 0 }, 'Part::Line': { x1: 0, y1: 0, z1: 0, x2: 0, y2: 0, z2: 1 }, 'Part::RegularPolygon': { polygon: 6, circumradius: 2 },
   'Part::Tube': { outer_radius: 5, inner_radius: 2, height: 10 },
 }
+/** DlgPrimitives.ui's widget name of a property's box: the page's prefix and the property (cylinderRadius, wedgeX2min,
+ *  edgeX1), its skew angles XSkew and YSkew, the Spiral's rotations spiralRotation. */
+const PREFIX: Record<string, string> = { 'Part::Plane': 'plane', 'Part::Box': 'box', 'Part::Cylinder': 'cylinder', 'Part::Cone': 'cone',
+  'Part::Sphere': 'sphere', 'Part::Ellipsoid': 'ellipsoid', 'Part::Torus': 'torus', 'Part::Prism': 'prism', 'Part::Wedge': 'wedge',
+  'Part::Helix': 'helix', 'Part::Spiral': 'spiral', 'Part::Circle': 'circle', 'Part::Ellipse': 'ellipse', 'Part::Vertex': 'vertex',
+  'Part::Line': 'edge', 'Part::RegularPolygon': 'regularPolygon' }
+const widgetName = (type: string, key: string) => {
+  const own: Record<string, string> = { first_angle: 'XSkew', second_angle: 'YSkew', rotations: 'Rotation', local_coord: 'LocalCS' }
+  return PREFIX[type] + (own[key] ?? key.split('_').map((w) => w[0].toUpperCase() + w.slice(1)).join(''))
+}
 function PrimitivesTask({ part, edit }: { part: string; edit?: string }) {
   const doc = useStore((s) => s.features[part])
   const existing = edit ? objectOf(doc, edit) : undefined
@@ -204,7 +214,7 @@ function PrimitivesTask({ part, edit }: { part: string; edit?: string }) {
     if (Object.keys(changed).length) await applyOps(part, [{ op: 'set', name: existing.name, props: changed }], { name: `Edit ${P.item}` })
   }
   const field = ([label, k, dims, , min, max]: PField) => (
-    <Q key={k} label={label} name={k} dims={dims} value={num(doc, vals[k], 0)} min={min} max={max} step={dims === A ? 1 : dims === N ? 1 : 1}
+    <Q key={k} label={label} name={widgetName(P.type, k)} dims={dims} value={num(doc, vals[k], 0)} min={min} max={max} step={dims === A ? 1 : dims === N ? 1 : 1}
       onChange={(v) => setVals((x) => ({ ...x, [k]: v }))} />)
   return (
     <div className="tasks pt-task" data-task="primitives">
@@ -214,8 +224,9 @@ function PrimitivesTask({ part, edit }: { part: string; edit?: string }) {
         <div data-qf="PrimitiveTypeCB"><QComboBox value={String(page)} disabled={!!existing} onChange={(e) => setPage(Number(e.target.value))}>
           {PRIMITIVE_PAGES.map((p, i) => <option key={p.item} value={i}>{p.item}</option>)}</QComboBox></div>
         <Legend title="Parameter">
+          {P.type === 'Part::Line' && <div className="tfield pt-line-head"><span /><span className="tlabel">Start point</span><span className="tlabel">End point</span></div>}
           {P.fields.map(field)}
-          {P.combo && <Field label={P.combo[0]}><QComboBox value={String(vals[P.combo[1]])} onChange={(e) => setVals((x) => ({ ...x, [P.combo![1]]: e.target.value }))}>
+          {P.combo && <Field label={P.combo[0]}><QComboBox data-qf={widgetName(P.type, P.combo[1])} value={String(vals[P.combo[1]])} onChange={(e) => setVals((x) => ({ ...x, [P.combo![1]]: e.target.value }))}>
             {P.combo[2].map((o) => <option key={o}>{o}</option>)}</QComboBox></Field>}
           {P.type === 'Part::Circle' && <button className="qbtn" disabled title="Picks three points in the 3D view: not in this view yet">From 3 Points</button>}
         </Legend>

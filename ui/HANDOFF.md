@@ -85,6 +85,15 @@ cad_agent/feature_kw.py's KwFeature:
   on B-splines, 3D picking for Up to face / axis edges / datums, Hole Up to first, Common, PartDesign:: datum
   commands, Carbon copy, projecting conics, on-view parameters; then the Part workbench and Assembly joints.
 - Browser checks must use scratch projects only (a check once wrote a Plate part into projects/arduino_car).
+- Part workbench (branch part-wb, 2026-10-25): Part objects are OBJECTS beside FEATURES (docs/EDITING_PLAN.md, "Part
+  workbench objects in a part file"); cad_agent/feature_part*.py (primitives, booleans, split/join/compound tools,
+  Extrude incl. taper and every face maker, Revolve, Mirror, Fillet, Chamfer, Loft, Sweep, Offset, Offset2D, Thickness,
+  Projection on surface), feature_edit_part.py, `cad feature new --document`; 211 freecadcmd documents in
+  tests/golden/part (`make.py [split|sweep]`), 1,368 checks. UI: src/part_wb.tsx, part_tasks.tsx, part_props.ts
+  (scripts/partprops.py), checked by scripts/partcheck.mjs against scripts/fcpart.json (scripts/fcpart.py). Cut: Shape
+  builder and Cross-sections (static Part::Feature copies), Scale, Face from wires, Ruled surface, Reverse; see PARITY.md.
+  partcheck's output reaches a log only at its end (run it as `node scripts/partcheck.mjs > log`; it takes ~40 minutes on
+  a loaded box).
 
 ## Next (paused 2026-10-23)
 1. ~~Hidden specs~~ (done 2026-10-23): `pinned_carrier` and `hotplate_standoffs` count their holes `through`, and
