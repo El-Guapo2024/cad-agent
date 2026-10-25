@@ -190,6 +190,9 @@ for (const [k, c] of CASES.cases.entries()) {
     const ops = [
       { op: 'add', feature: { name: 'Sketch', type: 'Sketcher::SketchObject', support: 'XY', geometry: [L([0, 0], [40, 0]), L([40, 0], [40, 20]), L([40, 20], [0, 20]), L([0, 20], [0, 0])], constraints: [] } },
       { op: 'add', feature: { name: 'Pad', type: 'PartDesign::Pad', profile: 'Sketch', length: 5 } },
+      // the case's other sketches (Carbon Copy's sources), between the Pad and S
+      ...(c.sources ?? []).map((src) => ({ op: 'add', feature: { name: src.name, type: 'Sketcher::SketchObject', attachment_support: src.support,
+        map_mode: src.map_mode ?? 'FlatFace', geometry: (src.geometry ?? []).map((g) => ({ construction: false, ...g })), constraints: src.constraints ?? [] } })),
       { op: 'add', feature: { name: 'S', type: 'Sketcher::SketchObject', attachment_support: [['Pad', 'Face6']], map_mode: 'FlatFace', geometry: [], constraints: [] } }]
     const r = await api(`/api/${encodeURIComponent(PROJECT)}/features/${part}`, { ops })
     if (r.exit > 2) { bad(`${c.name}: the plate was not made: ${JSON.stringify(r).slice(0, 300)}`); continue }

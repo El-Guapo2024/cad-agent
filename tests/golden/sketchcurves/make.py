@@ -11,7 +11,8 @@ exposeInternalGeometry shows first) and one tool, done as its command calls Sket
 (freecad_side.py): Geometry to B-spline (convertToNURBS then exposeInternalGeometry), Increase and Decrease B-spline
 degree, Increase and Decrease knot multiplicity and Insert knot (then exposeInternalGeometry of the B-spline found by
 its tag), Join curves, Trim and Split on B-splines, Fillet between curves other than two lines (radius 0, as the
-tool passes it), and B-spline by knots (the interpolation tool's Python commands, without autoconstraints). Recorded:
+tool passes it), B-spline by knots (the interpolation tool's Python commands, without autoconstraints) and Carbon copy
+(carbonCopy with allowUnaligned off, as CarbonCopySelection sets it without Ctrl or Alt held). Recorded:
 the geometry, the construction flags and every constraint after it. The cases come from a fixed seed.
 """
 from __future__ import annotations
