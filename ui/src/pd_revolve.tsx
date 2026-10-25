@@ -23,6 +23,7 @@ import { QComboBox } from './combo'
 import { messageBox } from './msgbox'
 import * as quantity from './quantity'
 import type { Entry } from './chrome'
+import { OperationRow, StartReferenceRow, startRefProp, type StartRef } from './pd_kernel'
 import { applyOps, bodyOfPart, curveOf, numberOf, profileLoops, refOf, sketchMatrix, splitRef, targetBody, SKETCH } from './partdesign'
 
 export const REVOLUTION = 'PartDesign::Revolution', GROOVE = 'PartDesign::Groove', HOLE = 'PartDesign::Hole'
@@ -240,6 +241,7 @@ export function RevolveTask({ kind, part, name, edit }: { kind: 'revolution' | '
     type2: String(existing?.type2 ?? 'Angle'), angle2: num(existing?.angle2, 0), reversed: existing?.reversed === true,
     project_axis: existing?.project_axis === true,
     up_to_face: (existing?.up_to_face ?? null) as unknown, up_to_face2: (existing?.up_to_face2 ?? null) as unknown,
+    operation: String(existing?.operation ?? 'Subtraction'), start_reference: (existing?.start_reference ?? null) as StartRef,
   }), [part, name, edit])
   const [v, setV] = useState(initial)
   const set = (patch: Partial<typeof v>) => setV((x) => ({ ...x, ...patch }))
@@ -268,12 +270,15 @@ export function RevolveTask({ kind, part, name, edit }: { kind: 'revolution' | '
     if (v.type === 'UpToFace') out.up_to_face = v.up_to_face
     if (v.side_type === 'Two sides') { out.type2 = v.type2; out.angle2 = v.angle2; if (v.type2 === 'UpToFace') out.up_to_face2 = v.up_to_face2 }
     if (v.start_type !== 'Profile plane') { out.start_type = v.start_type; out.start_offset = v.start_offset }
+    if (v.start_type === 'Reference') out.start_reference = v.start_reference
+    if (kind === 'groove') out.operation = v.operation
     return out
   }
   const ok = async () => {
     const p = props()
     if (existing) {
-      const was = (k: string) => (k === 'angle' || k === 'angle2' || k === 'start_offset' ? num(existing[k], k === 'angle' ? 360 : 0) : existing[k])
+      const was = (k: string) => (k === 'angle' || k === 'angle2' || k === 'start_offset' ? num(existing[k], k === 'angle' ? 360 : 0)
+        : k === 'operation' ? existing[k] ?? 'Subtraction' : k === 'start_reference' ? existing[k] ?? null : existing[k])
       const changed = Object.fromEntries(Object.entries(p).filter(([k, x]) => JSON.stringify(x) !== JSON.stringify(was(k))))
       closeTask()
       if (Object.keys(changed).length) await applyOps(part, [{ op: 'set', name, props: changed }], { name: `Edit ${name}` })
@@ -305,7 +310,8 @@ export function RevolveTask({ kind, part, name, edit }: { kind: 'revolution' | '
       <OkCancel onOk={() => void ok()} onCancel={closeTask} />
       <TaskBox title={`${label} Parameters`} icon={kind === 'revolution' ? 'pd-revolution' : 'pd-groove'}>
         <div className="pd-form">
-          <Field label="Start"><Combo value={v.start_type} items={STARTS} disabled={(x) => x === 'Reference'} onChange={(x) => set({ start_type: x })} /></Field>
+          <Field label="Start"><Combo value={v.start_type} items={STARTS} onChange={(x) => set({ start_type: x })} /></Field>
+          {v.start_type === 'Reference' && <StartReferenceRow part={part} value={v.start_reference} self={existing?.name} onChange={(r) => set({ start_reference: r })} />}
           <Field label="Offset" hidden={v.start_type === 'Profile plane'}><QuantityBox value={v.start_offset} dims={ANGLE} min={-360} max={360} onChange={(x) => set({ start_offset: x })} /></Field>
           <Field label="Direction"><Combo value={v.side_type} items={SIDES} onChange={(x) => set({ side_type: x })} /></Field>
           <Field label="Axis"><Combo value={JSON.stringify(v.reference_axis)} items={axisItems(sketch, v.reference_axis)} disabled={(x) => x === 'select'}
@@ -314,7 +320,7 @@ export function RevolveTask({ kind, part, name, edit }: { kind: 'revolution' | '
           {v.side_type === 'Two sides' && side(2)}
           <Check label="Project selected axis to profile plane" checked={v.project_axis} onChange={(x) => set({ project_axis: x })} />
           <Check label="Reversed" checked={v.reversed} disabled={symmetricAngleLike} onChange={(x) => set({ reversed: x })} />
-          {kind === 'groove' && <Field label="Operation"><Combo value="Subtraction" items={[['Subtraction', 'Subtraction'], ['Common', 'Common']]} disabled={(x) => x === 'Common'} onChange={() => {}} /></Field>}
+          {kind === 'groove' && <OperationRow value={v.operation} onChange={(x) => set({ operation: x })} />}
           <Check label="Recompute on change" checked={update} onChange={setUpdate} />
         </div>
       </TaskBox>
@@ -405,6 +411,7 @@ export function HoleTask({ part, name, edit }: { part: string; name: string; edi
   const sketch = doc?.features.find((f) => f.name === profileName)
   const throughAll = useMemo(() => throughAllOf(), [part])
   const [chosen, setChosen] = useState<Record<string, unknown> | null>(edit ? null : {})
+  const [startRef, setStartRef] = useState<StartRef>((existing?.start_reference ?? null) as StartRef)
   const [res, setRes] = useState<HoleRes | null>(null)
   const [overlay, setOverlay] = useState(true)
   const [modelThread, setModelThread] = useState(existing?.model_thread === true)
@@ -457,7 +464,10 @@ export function HoleTask({ part, name, edit }: { part: string; name: string; edi
     else choose({ threaded: true, model_thread: modelThread, cosmetic_thread: !modelThread })
   }
   const ok = async () => {
-    const keep = (await resolve(part, { name: existing?.name ?? 'Hole', type: HOLE, profile: sketch.name, ...chosen }, throughAll))?.minimal ?? chosen
+    const minimal = (await resolve(part, { name: existing?.name ?? 'Hole', type: HOLE, profile: sketch.name, ...chosen }, throughAll))?.minimal ?? chosen
+    // StartReference is a link, outside Hole::onChanged's state: written when the start is a Reference
+    const keep: Record<string, unknown> = { ...(minimal as Record<string, unknown>),
+      ...(val('start_type') === 'Reference' ? { start_reference: startRef } : existing?.start_reference != null ? { start_reference: null } : {}) }
     if (existing) {
       const was = (existing as Record<string, unknown>)
       const changed: Record<string, unknown> = {}
@@ -478,7 +488,8 @@ export function HoleTask({ part, name, edit }: { part: string; name: string; edi
         <div className="pd-form">
           <fieldset className="tgroup"><legend>Profile and Placement</legend>
             <Field label="Base profile types"><Combo value={String(val('base_profile_type'))} items={PROFILE_TYPES.map(([b, t]) => [String(b), t])} onChange={(x) => choose({ base_profile_type: Number(x) })} /></Field>
-            <Field label="Start"><Combo value={String(val('start_type'))} items={STARTS} disabled={(x) => x === 'Reference'} onChange={(x) => choose({ start_type: x })} /></Field>
+            <Field label="Start"><Combo value={String(val('start_type'))} items={STARTS} onChange={(x) => choose({ start_type: x })} /></Field>
+            {val('start_type') === 'Reference' && <StartReferenceRow part={part} value={startRef} self={existing?.name} onChange={setStartRef} />}
             <Field label="Offset" hidden={val('start_type') === 'Profile plane'}>{q('start_offset', LENGTH)}</Field>
           </fieldset>
           <fieldset className="tgroup"><legend>Hole</legend>
@@ -516,7 +527,7 @@ export function HoleTask({ part, name, edit }: { part: string; name: string; edi
               <Field label="">{q('custom_thread_clearance', LENGTH, { disabled: val('use_custom_thread_clearance') !== true })}</Field>
             </>}
           </fieldset>}
-          <Field label="Operation"><Combo value="Subtraction" items={[['Subtraction', 'Subtraction'], ['Common', 'Common']]} disabled={(x) => x === 'Common'} onChange={() => {}} /></Field>
+          <OperationRow value={String(val('operation') ?? 'Subtraction')} onChange={(x) => choose({ operation: x })} />
         </div>
       </TaskBox>
       <TaskBox title="Preview" icon="pd-hole">
@@ -537,8 +548,8 @@ function groupsOf(f: Feature): [string, PropDef[]][] {
   const base: [string, PropDef[]] = ['Base', [{ key: 'name', name: 'Label', kind: 'text' }, { key: 'suppressed', name: 'Suppressed', kind: 'bool', ro: () => 'FEATURES has no suppressed state' }]]
   const start = (unit: 'length' | 'angle'): [string, PropDef[]] => ['Start', [{ key: 'start_type', name: 'Start Type', kind: 'enum', items: ['Profile plane', 'Offset', 'Reference'] },
     { key: 'start_offset', name: 'Start Offset', kind: unit, ro: (x) => (x.start_type === 'Offset' ? null : 'Start Type is Profile plane') },
-    { key: 'start_reference', name: 'Start Reference', kind: 'text', ro: () => 'a face is picked in FreeCAD; not in feature.py yet' }]]
-  const partDesign = (sub: boolean): [string, PropDef[]] => ['Part Design', [...(sub ? [{ key: 'operation', name: 'Operation', kind: 'enum' as const, items: ['Subtraction', 'Common'], ro: () => 'feature.py cuts; Common is not there yet' }] : []),
+    { key: 'start_reference', name: 'Start Reference', kind: 'text', ro: (x) => (x.start_type === 'Reference' ? 'picked in the task panel (Pick Reference)' : 'Start Type is not Reference') }]]
+  const partDesign = (sub: boolean): [string, PropDef[]] => ['Part Design', [...(sub ? [{ key: 'operation', name: 'Operation', kind: 'enum' as const, items: ['Subtraction', 'Common'] }] : []),
     { key: 'refine', name: 'Refine', kind: 'bool' }, { key: 'fuzzy_tolerance', name: 'Fuzzy Tolerance', kind: 'text', ro: () => 'the booleans run at OCCT\'s own tolerance' }]]
   if (f.type === HOLE) {
     const r = new Set((f.read_only as string[] | undefined) ?? [])
@@ -571,7 +582,7 @@ function groupsOf(f: Feature): [string, PropDef[]][] {
     { key: 'reversed', name: 'Reversed', kind: 'bool', ro: sym }, { key: 'allow_multi_face', name: 'Allow Multi Face', kind: 'bool', ro: () => 'a Body\'s features always allow several faces' }]], start('angle'))
   return groups
 }
-const DEFAULTS: Record<string, unknown> = { suppressed: false, operation: 'Subtraction', fuzzy_tolerance: 0, midplane: false, allow_multi_face: true, start_reference: '' }
+const DEFAULTS: Record<string, unknown> = { suppressed: false, operation: 'Subtraction', fuzzy_tolerance: 0, midplane: false, allow_multi_face: true, start_reference: null }
 const refText = (r: unknown) => (Array.isArray(r) ? `${r[0]} [${r[1]}]` : typeof r === 'string' ? r : '')
 
 /** The Data tab for a Revolution, a Groove or a Hole (editable ones write through `cad feature set`). True when it drew. */
@@ -585,7 +596,7 @@ export function RevolveProps({ part, f, set, finishRename }: { part: string; f: 
     const why = d.ro?.(f) ?? null
     const shown = (x: unknown) => (d.kind === 'length' ? quantity.userString({ value: numberOf(x, doc?.params ?? {}) ?? 0, dims: LENGTH }).text + (typeof x === 'string' ? `  (= ${x})` : '')
       : d.kind === 'angle' ? quantity.userString({ value: numberOf(x, doc?.params ?? {}) ?? 0, dims: ANGLE }).text + (typeof x === 'string' ? `  (= ${x})` : '')
-        : d.key.startsWith('up_to_face') || d.key === 'reference_axis' ? refText(x) : String(x ?? ''))
+        : d.key.startsWith('up_to_face') || d.key === 'reference_axis' ? refText(x) : d.key === 'start_reference' ? startRefProp(x as StartRef) : String(x ?? ''))
     if (why) return <Row key={d.key} k={<span title={`Read-only: ${why}`}>{d.name}</span>} v={shown(v)} />
     if (d.key === 'name') return <EditRow key={d.key} k={d.name} value={f.name} type="str" onCommit={(x) => finishRename(String(x))} />
     if (d.kind === 'bool') return <EditRow key={d.key} k={d.name} value={v === true} type="bool" onCommit={(x) => set({ [d.key]: x })} />
