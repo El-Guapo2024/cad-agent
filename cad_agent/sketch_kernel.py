@@ -611,12 +611,3 @@ def cmd_sketchkernel(a) -> Result:
     bad = sum(1 for r in out if "error" in r)
     return Result(OK, {"answers": out}, f"{len(out)} answer(s), {bad} refused", "sketch kernel")
 
-
-def add_parser(add, fsub) -> None:
-    """featurecmd.add_parsers hands its subparsers here."""
-    sp = add("sketchkernel", cmd_sketchkernel, "OCCT's answers for the Sketcher's curve tools (B-spline degree, knots, "
-             "conversion, trim of a B-spline, fillet between curves, offset): --req JSON, a list of requests",
-             parent=fsub)
-    sp.set_defaults(cmd_name="feature sketchkernel", feature_cmd="sketchkernel")
-    sp.add_argument("slug", nargs="?")
-    sp.add_argument("--req", required=True, metavar="JSON", help="the requests (or @file.json)")
