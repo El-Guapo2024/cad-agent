@@ -2097,6 +2097,237 @@
      "cmd": "Sketcher_ToggleConstruction"
     }
    ]
+  },
+  {
+   "name": "offset-ovp-rect-typed",
+   "check": [
+    "widget",
+    "ovp"
+   ],
+   "setup": {
+    "geometry": [
+     {
+      "type": "LineSegment",
+      "start": [
+       5,
+       5
+      ],
+      "end": [
+       30,
+       5
+      ]
+     },
+     {
+      "type": "LineSegment",
+      "start": [
+       30,
+       5
+      ],
+      "end": [
+       30,
+       25
+      ]
+     },
+     {
+      "type": "LineSegment",
+      "start": [
+       30,
+       25
+      ],
+      "end": [
+       5,
+       25
+      ]
+     },
+     {
+      "type": "LineSegment",
+      "start": [
+       5,
+       25
+      ],
+      "end": [
+       5,
+       5
+      ]
+     }
+    ],
+    "constraints": [
+     {
+      "type": "Coincident",
+      "args": [
+       0,
+       2,
+       1,
+       1
+      ]
+     },
+     {
+      "type": "Coincident",
+      "args": [
+       1,
+       2,
+       2,
+       1
+      ]
+     },
+     {
+      "type": "Coincident",
+      "args": [
+       2,
+       2,
+       3,
+       1
+      ]
+     },
+     {
+      "type": "Coincident",
+      "args": [
+       3,
+       2,
+       0,
+       1
+      ]
+     },
+     {
+      "type": "Horizontal",
+      "args": [
+       0
+      ]
+     },
+     {
+      "type": "Horizontal",
+      "args": [
+       2
+      ]
+     },
+     {
+      "type": "Vertical",
+      "args": [
+       1
+      ]
+     },
+     {
+      "type": "Vertical",
+      "args": [
+       3
+      ]
+     }
+    ]
+   },
+   "steps": [
+    {
+     "select": [
+      "Edge1",
+      "Edge2",
+      "Edge3",
+      "Edge4"
+     ]
+    },
+    {
+     "cmd": "Sketcher_Offset"
+    },
+    {
+     "move": [
+      35,
+      15
+     ]
+    },
+    {
+     "type": "3"
+    },
+    {
+     "fkey": "Return"
+    }
+   ]
+  },
+  {
+   "name": "offset-ovp-circle-typed-constraint",
+   "check": [
+    "widget"
+   ],
+   "setup": {
+    "geometry": [
+     {
+      "type": "Circle",
+      "center": [
+       25,
+       20
+      ],
+      "radius": 8
+     }
+    ]
+   },
+   "steps": [
+    {
+     "select": [
+      "Edge1"
+     ]
+    },
+    {
+     "cmd": "Sketcher_Offset"
+    },
+    {
+     "key": "J"
+    },
+    {
+     "move": [
+      36,
+      20
+     ]
+    },
+    {
+     "type": "2.5"
+    },
+    {
+     "fkey": "Return"
+    }
+   ]
+  },
+  {
+   "name": "offset-ovp-zero",
+   "check": [
+    "ovp"
+   ],
+   "setup": {
+    "geometry": [
+     {
+      "type": "Circle",
+      "center": [
+       25,
+       20
+      ],
+      "radius": 8
+     }
+    ]
+   },
+   "steps": [
+    {
+     "select": [
+      "Edge1"
+     ]
+    },
+    {
+     "cmd": "Sketcher_Offset"
+    },
+    {
+     "move": [
+      36,
+      20
+     ]
+    },
+    {
+     "type": "0"
+    },
+    {
+     "fkey": "Return"
+    },
+    {
+     "move": [
+      37,
+      20
+     ]
+    }
+   ]
   }
  ]
 }

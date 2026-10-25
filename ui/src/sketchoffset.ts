@@ -286,7 +286,7 @@ export class OffsetHandler extends DefaultHandler {
   protected update(p: XY) {
     this.endpoint = p
     const req = request(this.chains, this.method === 0 ? 0 : 2, this.at())
-    const made = tryKernel((k) => k(req) as unknown as Made, () => { if (this.state === 0) this.update(this.endpoint) }, 'offset-preview')
+    const made = tryKernel((k) => k(req) as unknown as Made, () => { if (this.state === 0) { this.update(this.endpoint); this.ctl.adaptParameters() } }, 'offset-preview')
     if (made) { this.made = made; if (!this.offsetLengthSet) this.offsetLength = made.length }
     if (!this.offsetLengthSet) this.ctl.drawDoubleAtCursor(p, this.offsetLength)
     const geos = (this.made?.geometry ?? []).filter((g): g is Geo => !!g)
