@@ -63,6 +63,7 @@ import re
 from pathlib import Path
 
 from . import feature as F
+from . import feature_binder as _binder
 from . import feature_edit_attach as _attach
 from . import feature_kw as KW
 from . import feature_part as _part_objects  # noqa: F401  the Part workbench's objects in OBJECTS (feature_edit_part.py)
@@ -280,8 +281,9 @@ def read_src(src: str, part: str = "") -> dict:
     objs, objects = _entries(tree, "OBJECTS")       # the Part workbench's objects (feature_edit_part.py)
     base = (lst is None and objs is None) or (body is not None and any(k.arg == "base" for k in body.keywords))
     if tip is None and feats:
-        # the last feature; a datum is never a Body's Tip (Body::insertObject leaves the Tip where it was)
-        tip = next((f["name"] for f in reversed(feats) if KINDS.get(f["type"]) not in _attach.DATUM_KINDS), None)
+        # the last feature; a datum and a ShapeBinder are never a Body's Tip (Body::insertObject leaves it where it was)
+        not_tip = _attach.DATUM_KINDS + _binder.BINDER_KINDS
+        tip = next((f["name"] for f in reversed(feats) if KINDS.get(f["type"]) not in not_tip), None)
     out = {"part": part, "params": P.read_src(src), "base": base, "tip": tip, "features": feats}
     if objs is not None:
         out.update(body=lst is not None, objects=[_feature_dict(call, src) for _, call in objects])

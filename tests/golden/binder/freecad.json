@@ -1,0 +1,1324 @@
+{
+ "freecad": "26.3.0 20260929 (Git shallow)",
+ "cases": {
+  "whole_pad": {
+   "tip": "Pad",
+   "binders": {
+    "Binder": {
+     "support": [
+      [
+       "Pad",
+       [
+        ""
+       ]
+      ]
+     ],
+     "trace_support": false,
+     "type": "Solid",
+     "solids": 1,
+     "faces": 6,
+     "edges": 12,
+     "vertices": 8,
+     "placement": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "bbox": [
+      0.0,
+      0.0,
+      0.0,
+      40.0,
+      20.0,
+      5.0
+     ],
+     "area": 2200.0,
+     "volume": 4000.0
+    }
+   },
+   "sketches": {
+    "Sketch": {
+     "placement": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "solve": 0,
+     "dof": 2
+    }
+   },
+   "body": {
+    "type": "Solid",
+    "solids": 1,
+    "faces": 6,
+    "edges": 12,
+    "vertices": 8,
+    "placement": [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "bbox": [
+     0.0,
+     0.0,
+     0.0,
+     40.0,
+     20.0,
+     5.0
+    ],
+    "area": 2200.0,
+    "volume": 4000.0
+   }
+  },
+  "one_face": {
+   "tip": "Pad",
+   "binders": {
+    "Binder": {
+     "support": [
+      [
+       "Pad",
+       [
+        "Face6"
+       ]
+      ]
+     ],
+     "trace_support": false,
+     "type": "Face",
+     "solids": 0,
+     "faces": 1,
+     "edges": 4,
+     "vertices": 4,
+     "placement": [
+      0.0,
+      0.0,
+      5.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "bbox": [
+      0.0,
+      0.0,
+      5.0,
+      40.0,
+      20.0,
+      5.0
+     ],
+     "area": 800.0,
+     "volume": 0.0
+    }
+   },
+   "sketches": {
+    "Sketch": {
+     "placement": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "solve": 0,
+     "dof": 2
+    }
+   },
+   "body": {
+    "type": "Solid",
+    "solids": 1,
+    "faces": 6,
+    "edges": 12,
+    "vertices": 8,
+    "placement": [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "bbox": [
+     0.0,
+     0.0,
+     0.0,
+     40.0,
+     20.0,
+     5.0
+    ],
+    "area": 2200.0,
+    "volume": 4000.0
+   }
+  },
+  "two_faces": {
+   "tip": "Pad",
+   "binders": {
+    "Binder": {
+     "support": [
+      [
+       "Pad",
+       [
+        "Face1",
+        "Face6"
+       ]
+      ]
+     ],
+     "trace_support": false,
+     "type": "Compound",
+     "solids": 0,
+     "faces": 2,
+     "edges": 7,
+     "vertices": 6,
+     "placement": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "bbox": [
+      0.0,
+      0.0,
+      0.0,
+      40.0,
+      20.0,
+      5.0
+     ],
+     "area": 1000.0,
+     "volume": 666.666666667
+    }
+   },
+   "sketches": {
+    "Sketch": {
+     "placement": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "solve": 0,
+     "dof": 2
+    }
+   },
+   "body": {
+    "type": "Solid",
+    "solids": 1,
+    "faces": 6,
+    "edges": 12,
+    "vertices": 8,
+    "placement": [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "bbox": [
+     0.0,
+     0.0,
+     0.0,
+     40.0,
+     20.0,
+     5.0
+    ],
+    "area": 2200.0,
+    "volume": 4000.0
+   }
+  },
+  "two_edges": {
+   "tip": "Pad",
+   "binders": {
+    "Binder": {
+     "support": [
+      [
+       "Pad",
+       [
+        "Edge1",
+        "Edge3"
+       ]
+      ]
+     ],
+     "trace_support": false,
+     "type": "Compound",
+     "solids": 0,
+     "faces": 0,
+     "edges": 2,
+     "vertices": 3,
+     "placement": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "bbox": [
+      0.0,
+      0.0,
+      0.0,
+      40.0,
+      0.0,
+      5.0
+     ],
+     "area": 0.0,
+     "volume": 0.0
+    }
+   },
+   "sketches": {
+    "Sketch": {
+     "placement": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "solve": 0,
+     "dof": 2
+    }
+   },
+   "body": {
+    "type": "Solid",
+    "solids": 1,
+    "faces": 6,
+    "edges": 12,
+    "vertices": 8,
+    "placement": [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "bbox": [
+     0.0,
+     0.0,
+     0.0,
+     40.0,
+     20.0,
+     5.0
+    ],
+    "area": 2200.0,
+    "volume": 4000.0
+   }
+  },
+  "sketch_wire": {
+   "tip": "Pad",
+   "binders": {
+    "Binder": {
+     "support": [
+      [
+       "Sketch",
+       [
+        ""
+       ]
+      ]
+     ],
+     "trace_support": false,
+     "type": "Wire",
+     "solids": 0,
+     "faces": 0,
+     "edges": 4,
+     "vertices": 4,
+     "placement": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "bbox": [
+      0.0,
+      0.0,
+      0.0,
+      40.0,
+      20.0,
+      0.0
+     ],
+     "area": 0.0,
+     "volume": 0.0
+    }
+   },
+   "sketches": {
+    "Sketch": {
+     "placement": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "solve": 0,
+     "dof": 2
+    }
+   },
+   "body": {
+    "type": "Solid",
+    "solids": 1,
+    "faces": 6,
+    "edges": 12,
+    "vertices": 8,
+    "placement": [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "bbox": [
+     0.0,
+     0.0,
+     0.0,
+     40.0,
+     20.0,
+     5.0
+    ],
+    "area": 2200.0,
+    "volume": 4000.0
+   }
+  },
+  "sketch_edge": {
+   "tip": "Pad",
+   "binders": {
+    "Binder": {
+     "support": [
+      [
+       "Sketch",
+       [
+        "Edge1"
+       ]
+      ]
+     ],
+     "trace_support": false,
+     "type": "Edge",
+     "solids": 0,
+     "faces": 0,
+     "edges": 1,
+     "vertices": 2,
+     "placement": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "bbox": [
+      0.0,
+      0.0,
+      0.0,
+      40.0,
+      0.0,
+      0.0
+     ],
+     "area": 0.0,
+     "volume": 0.0
+    }
+   },
+   "sketches": {
+    "Sketch": {
+     "placement": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "solve": 0,
+     "dof": 2
+    }
+   },
+   "body": {
+    "type": "Solid",
+    "solids": 1,
+    "faces": 6,
+    "edges": 12,
+    "vertices": 8,
+    "placement": [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "bbox": [
+     0.0,
+     0.0,
+     0.0,
+     40.0,
+     20.0,
+     5.0
+    ],
+    "area": 2200.0,
+    "volume": 4000.0
+   }
+  },
+  "origin_plane": {
+   "tip": "Pad",
+   "binders": {
+    "Binder": {
+     "support": [
+      [
+       "XY_Plane",
+       [
+        ""
+       ]
+      ]
+     ],
+     "trace_support": false,
+     "type": "Face",
+     "solids": 0,
+     "faces": 1,
+     "edges": 0,
+     "vertices": 0,
+     "placement": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "infinite": true
+    }
+   },
+   "sketches": {
+    "Sketch": {
+     "placement": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "solve": 0,
+     "dof": 2
+    }
+   },
+   "body": {
+    "type": "Solid",
+    "solids": 1,
+    "faces": 6,
+    "edges": 12,
+    "vertices": 8,
+    "placement": [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "bbox": [
+     0.0,
+     0.0,
+     0.0,
+     40.0,
+     20.0,
+     5.0
+    ],
+    "area": 2200.0,
+    "volume": 4000.0
+   }
+  },
+  "origin_axes": {
+   "tip": "Pad",
+   "binders": {
+    "Binder": {
+     "support": [
+      [
+       "X_Axis",
+       [
+        ""
+       ]
+      ]
+     ],
+     "trace_support": false,
+     "type": "Edge",
+     "solids": 0,
+     "faces": 0,
+     "edges": 1,
+     "vertices": 0,
+     "placement": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "infinite": true
+    },
+    "Binder001": {
+     "support": [
+      [
+       "Origin001",
+       [
+        ""
+       ]
+      ]
+     ],
+     "trace_support": false,
+     "type": "Vertex",
+     "solids": 0,
+     "faces": 0,
+     "edges": 0,
+     "vertices": 1,
+     "placement": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "bbox": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "area": 0.0,
+     "volume": 0.0
+    }
+   },
+   "sketches": {
+    "Sketch": {
+     "placement": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "solve": 0,
+     "dof": 2
+    }
+   },
+   "body": {
+    "type": "Solid",
+    "solids": 1,
+    "faces": 6,
+    "edges": 12,
+    "vertices": 8,
+    "placement": [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "bbox": [
+     0.0,
+     0.0,
+     0.0,
+     40.0,
+     20.0,
+     5.0
+    ],
+    "area": 2200.0,
+    "volume": 4000.0
+   }
+  },
+  "empty": {
+   "tip": "Pad",
+   "binders": {
+    "Binder": {
+     "support": [],
+     "trace_support": false,
+     "null": true
+    }
+   },
+   "sketches": {
+    "Sketch": {
+     "placement": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "solve": 0,
+     "dof": 2
+    }
+   },
+   "body": {
+    "type": "Solid",
+    "solids": 1,
+    "faces": 6,
+    "edges": 12,
+    "vertices": 8,
+    "placement": [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "bbox": [
+     0.0,
+     0.0,
+     0.0,
+     40.0,
+     20.0,
+     5.0
+    ],
+    "area": 2200.0,
+    "volume": 4000.0
+   }
+  },
+  "binder_of_binder": {
+   "tip": "Pad",
+   "binders": {
+    "Binder": {
+     "support": [
+      [
+       "Pad",
+       [
+        "Face6"
+       ]
+      ]
+     ],
+     "trace_support": false,
+     "type": "Face",
+     "solids": 0,
+     "faces": 1,
+     "edges": 4,
+     "vertices": 4,
+     "placement": [
+      0.0,
+      0.0,
+      5.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "bbox": [
+      0.0,
+      0.0,
+      5.0,
+      40.0,
+      20.0,
+      5.0
+     ],
+     "area": 800.0,
+     "volume": 0.0
+    },
+    "Binder001": {
+     "support": [
+      [
+       "Binder",
+       [
+        ""
+       ]
+      ]
+     ],
+     "trace_support": false,
+     "type": "Face",
+     "solids": 0,
+     "faces": 1,
+     "edges": 4,
+     "vertices": 4,
+     "placement": [
+      0.0,
+      0.0,
+      5.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "bbox": [
+      0.0,
+      0.0,
+      5.0,
+      40.0,
+      20.0,
+      5.0
+     ],
+     "area": 800.0,
+     "volume": 0.0
+    }
+   },
+   "sketches": {
+    "Sketch": {
+     "placement": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "solve": 0,
+     "dof": 2
+    }
+   },
+   "body": {
+    "type": "Solid",
+    "solids": 1,
+    "faces": 6,
+    "edges": 12,
+    "vertices": 8,
+    "placement": [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "bbox": [
+     0.0,
+     0.0,
+     0.0,
+     40.0,
+     20.0,
+     5.0
+    ],
+    "area": 2200.0,
+    "volume": 4000.0
+   }
+  },
+  "first_part_feature": {
+   "tip": "Pad",
+   "binders": {
+    "Binder": {
+     "support": [
+      [
+       "Sketch",
+       [
+        "Edge1"
+       ]
+      ],
+      [
+       "Pad",
+       [
+        "Edge1"
+       ]
+      ]
+     ],
+     "trace_support": false,
+     "type": "Edge",
+     "solids": 0,
+     "faces": 0,
+     "edges": 1,
+     "vertices": 2,
+     "placement": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "bbox": [
+      0.0,
+      0.0,
+      0.0,
+      40.0,
+      0.0,
+      0.0
+     ],
+     "area": 0.0,
+     "volume": 0.0
+    }
+   },
+   "sketches": {
+    "Sketch": {
+     "placement": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "solve": 0,
+     "dof": 2
+    }
+   },
+   "body": {
+    "type": "Solid",
+    "solids": 1,
+    "faces": 6,
+    "edges": 12,
+    "vertices": 8,
+    "placement": [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "bbox": [
+     0.0,
+     0.0,
+     0.0,
+     40.0,
+     20.0,
+     5.0
+    ],
+    "area": 2200.0,
+    "volume": 4000.0
+   }
+  },
+  "whole_before_subs": {
+   "tip": "Pad",
+   "binders": {
+    "Binder": {
+     "support": [
+      [
+       "Pad",
+       [
+        ""
+       ]
+      ],
+      [
+       "Sketch",
+       [
+        "Edge1"
+       ]
+      ]
+     ],
+     "trace_support": false,
+     "type": "Solid",
+     "solids": 1,
+     "faces": 6,
+     "edges": 12,
+     "vertices": 8,
+     "placement": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "bbox": [
+      0.0,
+      0.0,
+      0.0,
+      40.0,
+      20.0,
+      5.0
+     ],
+     "area": 2200.0,
+     "volume": 4000.0
+    }
+   },
+   "sketches": {
+    "Sketch": {
+     "placement": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "solve": 0,
+     "dof": 2
+    }
+   },
+   "body": {
+    "type": "Solid",
+    "solids": 1,
+    "faces": 6,
+    "edges": 12,
+    "vertices": 8,
+    "placement": [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "bbox": [
+     0.0,
+     0.0,
+     0.0,
+     40.0,
+     20.0,
+     5.0
+    ],
+    "area": 2200.0,
+    "volume": 4000.0
+   }
+  },
+  "trace": {
+   "tip": "Pad",
+   "binders": {
+    "Binder": {
+     "support": [
+      [
+       "Pad",
+       [
+        "Face6"
+       ]
+      ]
+     ],
+     "trace_support": true,
+     "type": "Face",
+     "solids": 0,
+     "faces": 1,
+     "edges": 4,
+     "vertices": 4,
+     "placement": [
+      0.0,
+      0.0,
+      5.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "bbox": [
+      0.0,
+      0.0,
+      5.0,
+      40.0,
+      20.0,
+      5.0
+     ],
+     "area": 800.0,
+     "volume": 0.0
+    }
+   },
+   "sketches": {
+    "Sketch": {
+     "placement": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "solve": 0,
+     "dof": 2
+    }
+   },
+   "body": {
+    "type": "Solid",
+    "solids": 1,
+    "faces": 6,
+    "edges": 12,
+    "vertices": 8,
+    "placement": [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "bbox": [
+     0.0,
+     0.0,
+     0.0,
+     40.0,
+     20.0,
+     5.0
+    ],
+    "area": 2200.0,
+    "volume": 4000.0
+   }
+  },
+  "sketch_on_binder": {
+   "tip": "Pad001",
+   "binders": {
+    "Binder": {
+     "support": [
+      [
+       "Pad",
+       [
+        "Face6"
+       ]
+      ]
+     ],
+     "trace_support": false,
+     "type": "Face",
+     "solids": 0,
+     "faces": 1,
+     "edges": 4,
+     "vertices": 4,
+     "placement": [
+      0.0,
+      0.0,
+      5.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "bbox": [
+      0.0,
+      0.0,
+      5.0,
+      40.0,
+      20.0,
+      5.0
+     ],
+     "area": 800.0,
+     "volume": 0.0
+    }
+   },
+   "sketches": {
+    "Sketch": {
+     "placement": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "solve": 0,
+     "dof": 2
+    },
+    "OnBinder": {
+     "placement": [
+      0.0,
+      0.0,
+      5.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "solve": 0,
+     "dof": 2
+    }
+   },
+   "body": {
+    "type": "Compound",
+    "solids": 1,
+    "faces": 11,
+    "edges": 24,
+    "vertices": 16,
+    "placement": [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "bbox": [
+     0.0,
+     0.0,
+     0.0,
+     40.0,
+     20.0,
+     8.0
+    ],
+    "area": 2320.0,
+    "volume": 4300.0
+   }
+  },
+  "pad_up_to_binder": {
+   "tip": "Pad001",
+   "binders": {
+    "Binder": {
+     "support": [
+      [
+       "Pad",
+       [
+        "Face6"
+       ]
+      ]
+     ],
+     "trace_support": false,
+     "type": "Face",
+     "solids": 0,
+     "faces": 1,
+     "edges": 4,
+     "vertices": 4,
+     "placement": [
+      0.0,
+      0.0,
+      5.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "bbox": [
+      0.0,
+      0.0,
+      5.0,
+      40.0,
+      20.0,
+      5.0
+     ],
+     "area": 800.0,
+     "volume": 0.0
+    }
+   },
+   "sketches": {
+    "Sketch": {
+     "placement": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "solve": 0,
+     "dof": 2
+    },
+    "Below": {
+     "placement": [
+      0.0,
+      0.0,
+      -4.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "solve": 0,
+     "dof": 16
+    }
+   },
+   "body": {
+    "type": "Compound",
+    "solids": 1,
+    "faces": 11,
+    "edges": 24,
+    "vertices": 16,
+    "placement": [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "bbox": [
+     0.0,
+     0.0,
+     -4.0,
+     40.0,
+     20.0,
+     5.0
+    ],
+    "area": 2360.0,
+    "volume": 4400.0
+   }
+  },
+  "pocket_up_to_binder": {
+   "tip": "Pocket",
+   "binders": {
+    "Binder": {
+     "support": [
+      [
+       "Pad",
+       [
+        "Face5"
+       ]
+      ]
+     ],
+     "trace_support": false,
+     "type": "Face",
+     "solids": 0,
+     "faces": 1,
+     "edges": 4,
+     "vertices": 4,
+     "placement": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "bbox": [
+      0.0,
+      0.0,
+      0.0,
+      40.0,
+      20.0,
+      0.0
+     ],
+     "area": 800.0,
+     "volume": 0.0
+    }
+   },
+   "sketches": {
+    "Sketch": {
+     "placement": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "solve": 0,
+     "dof": 2
+    },
+    "Cavity": {
+     "placement": [
+      0.0,
+      0.0,
+      5.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "solve": 0,
+     "dof": 16
+    }
+   },
+   "body": {
+    "type": "Compound",
+    "solids": 1,
+    "faces": 10,
+    "edges": 24,
+    "vertices": 16,
+    "placement": [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "bbox": [
+     0.0,
+     0.0,
+     0.0,
+     40.0,
+     20.0,
+     5.0
+    ],
+    "area": 2200.0,
+    "volume": 3500.0
+   }
+  }
+ }
+}

@@ -1358,10 +1358,17 @@ def _ref_face(ref, shapes, where):
         raise FeatureError(f"{where}: {ref!r} is not (feature, 'FaceN') or an origin plane") from None
     if isinstance(sub, (list, tuple)):
         sub = sub[0]
-    if obj not in shapes:
-        raise FeatureError(f"{where}: no feature {obj!r} before it")
     if not (isinstance(sub, str) and sub.startswith("Face") and sub[4:].isdigit()):
         raise FeatureError(f"{where}: {sub!r} is not a face name (Face1, Face2, ...)")
+    if obj not in shapes:
+        ctx = shapes.get("_attach")
+        if ctx is not None and obj in ctx.kinds:
+            # a ShapeBinder's face (its Shape is a Part::Feature's), or a datum's: the Body's objects that are not solids
+            face = ctx.element(obj, sub, where)
+            if face is not None and not face.IsNull() and face.ShapeType() == TopAbs_FACE:
+                return face
+            raise FeatureError("SketchBased: Up to face: Failed to extract face")
+        raise FeatureError(f"{where}: no feature {obj!r} before it")
     faces = _faces(shapes[obj])
     i = int(sub[4:])
     if not 1 <= i <= len(faces):
@@ -1377,6 +1384,12 @@ def _up_to_shape(refs, shapes, where):
         refs = [refs]
     if len(refs) == 1 and isinstance(refs[0], str) and not refs[0].endswith("_Plane"):
         if refs[0] not in shapes:
+            ctx = shapes.get("_attach")
+            if ctx is not None and refs[0] in ctx.kinds:
+                shape = ctx.element(refs[0], "", where)     # a ShapeBinder's whole shape, a datum's
+                if shape is None or shape.IsNull():
+                    raise FeatureError(f"{where}: {refs[0]!r} has no shape")
+                return shape, 2
             raise FeatureError(f"{where}: no feature {refs[0]!r} before it")
         return shapes[refs[0]], 2
     faces = []
@@ -1668,7 +1681,8 @@ def evaluate(features, params: dict | None = None, base=None, tip: str | None = 
     previous = "BaseFeature" if solid is not None else None     # the solid feature before (getBaseObject)
     for f in ([] if tip == "BaseFeature" else features):
         name = getattr(f, "name", None)
-        if not isinstance(f, (Sketch, _Extrude)) and not hasattr(f, "execute") and not getattr(f, "is_datum", False):
+        if not isinstance(f, (Sketch, _Extrude)) and not hasattr(f, "execute") and \
+                not getattr(f, "is_datum", False) and not getattr(f, "is_binder", False):
             raise FeatureError(f"FEATURES holds {f!r}, not a Sketch, Pad or Pocket")
         if name in shapes or name in sketches or name in ctx.kinds:
             raise FeatureError(f"two features are named {name!r}" if name not in ctx.placements or
@@ -1678,6 +1692,8 @@ def evaluate(features, params: dict | None = None, base=None, tip: str | None = 
             sketches[name] = _place_sketch(f, ctx, params)
         elif getattr(f, "is_datum", False):
             ctx.add_datum(f)
+        elif getattr(f, "is_binder", False):
+            ctx.add_binder(f)                     # a copy of another object's geometry, not a solid feature
         elif not isinstance(f, _Extrude):
             shapes["_before"][name] = solid
             solid = f.execute(solid, shapes, params)
@@ -1944,3 +1960,6 @@ from .feature_attach import (DatumLine, DatumPlane, DatumPoint, LocalCoordinateS
 from .feature_attach import DATUMS as _DATUMS  # noqa: E402
 
 FEATURES.update(_DATUMS)
+from .feature_binder import ShapeBinder  # noqa: E402  PartDesign::ShapeBinder
+
+FEATURES.update(ShapeBinder=ShapeBinder)

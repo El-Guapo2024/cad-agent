@@ -83,10 +83,10 @@ def sub_shape(shape, sub: str):
 
 # ── the properties ────────────────────────────────────────────────────────────────────────────────────
 
-def support_list(where: str, sup) -> list[tuple[str, str]]:
+def support_list(where: str, sup, most: int | None = 4) -> list[tuple[str, str]]:
     """AttachmentSupport as a part file writes it, normalised to [(object, element), ...]: a name alone is
     (name, ""), "Pad.Face6" is ("Pad", "Face6"), (name, [e1, e2]) is two references, and the old "XY" is
-    ("XY_Plane", "")."""
+    ("XY_Plane", ""). most is how many AttachmentSupport takes; a ShapeBinder's Support has no limit (None)."""
     if sup is None:
         return []
     if isinstance(sup, str):
@@ -112,7 +112,7 @@ def support_list(where: str, sup) -> list[tuple[str, str]]:
                 raise FeatureError(f"{where}: {s!r} is not an element name (Face1, Edge1, Vertex1, ..., or an LCS's "
                                    "XY_Plane, X_Axis, ..., Origin)")
             out.append((SHORT.get(obj, obj), s or ""))
-    if len(out) > 4:
+    if most is not None and len(out) > most:
         raise FeatureError(f"{where}: an attachment takes at most four references (FreeCAD's Reference 1 to 4)")
     return out
 
@@ -423,6 +423,21 @@ class Context:
         self.sketches[sketch.name] = sketch
         self.placements[sketch.name] = placement
         self.kinds[sketch.name] = "sketch"
+
+    def add_binder(self, f) -> A.Placement:
+        """PartDesign::ShapeBinder: it copies its support's shape, which is its Shape and Placement
+        (ShapeBinder::execute), and a later feature can reference it; it is not a solid feature, so the Body's Tip
+        stays where it was."""
+        if f.name in self.kinds:
+            raise FeatureError(f"two features are named {f.name!r}")
+        from .feature_binder import binder_shape
+        shape = binder_shape(f, self)
+        pl = A.Placement.from_trsf(shape.Location().Transformation()) \
+            if shape is not None and not shape.IsNull() else A.Placement()
+        self.shapes[f.name] = shape
+        self.placements[f.name] = pl
+        self.kinds[f.name] = "binder"
+        return pl
 
     def first_placement(self, sketch) -> A.Placement:
         """ProfileBased::positionByPrevious for the Body's first solid feature: the Placement of its sketch's
