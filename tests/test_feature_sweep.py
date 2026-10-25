@@ -68,20 +68,19 @@ def test_every_case_has_freecads_answer():
     assert not [n for n, g in FREECAD.items() if "error" in g or not g["valid"]]
 
 
-# Where the refine differs (FreeCAD's BRepBuilderAPI_RefineModel against OCCT's UnifySameDomain; feature_sweep.refine):
-# the same solid, the faces counted otherwise. {case: our face count}
-# subhelix_common, subhelix_outside_deprecated: RefineModel's cylinder uniter merges the four strips the helix leaves of
-# the cylinder's face into one; UnifySameDomain keeps them (and FreeCAD's merged face moves the volume by 5e-7).
-REFINE_DIFFERS = {"subhelix_common": 18, "subhelix_outside_deprecated": 18}
-# Where the solid is the same but FreeCAD's numbers differ past 1e-6 of the size: {case: relative tolerance}
+# The refine is FreeCAD's own (cad_agent/refine.py), so every face count is FreeCAD's.
+REFINE_DIFFERS: dict = {}
+# Where the solid is the same but FreeCAD's numbers differ past 1e-6: {case: relative tolerance}. subhelix_common and
+# subhelix_outside_deprecated: RefineModel merges the four strips the helix leaves of the cylinder into one face, whose
+# helical edges the two builds approximate apart: its area 6e-6 from FreeCAD's.
 LOOSER = {"subhelix_common": 2e-5, "subhelix_outside_deprecated": 2e-5}
 
 
-def _same_faces(got, want, size, ordered):
+def _same_faces(got, want, size, ordered, rel=1e-6):
     """Each face's area and centre within 1e-6 relative (5e-4 mm2 absolute for the helical B-spline faces, which the
     two builds approximate apart by that much) and 1e-5 of the box's size: in order, or matched one to one."""
     def close(a, b):
-        return abs(a[0] - b[0]) <= max(5e-4, 1e-6 * abs(b[0])) and \
+        return abs(a[0] - b[0]) <= max(5e-4, rel * abs(b[0])) and \
             all(abs(x - y) <= 1e-5 * size + 1e-6 for x, y in zip(a[1:], b[1:]))
     if len(got) != len(want):
         return False
@@ -101,8 +100,8 @@ def test_same_solid_as_freecad(name):
     case, want = CASES[name], FREECAD[name]
     got = _measure(Body(case["features"], case.get("params")))
     rel = LOOSER.get(name, 1e-6)
-    assert got["volume"] == pytest.approx(want["volume"], rel=1e-6)
-    assert got["area"] == pytest.approx(want["area"], rel=1e-6)
+    assert got["volume"] == pytest.approx(want["volume"], rel=rel)
+    assert got["area"] == pytest.approx(want["area"], rel=rel)
     size = math.dist(want["bbox"][:3], want["bbox"][3:])
     assert got["bbox"] == pytest.approx(want["bbox"], abs=1e-6 * size)
     assert got["center_of_mass"] == pytest.approx(want["center_of_mass"], abs=rel * size)
@@ -110,14 +109,12 @@ def test_same_solid_as_freecad(name):
         assert (got["solids"], got["faces"]) == (want["solids"], REFINE_DIFFERS[name])
         return
     assert (got["solids"], got["faces"]) == (want["solids"], want["faces"])
-    assert _same_faces(got["face_list"], want["face_list"], size, ordered=False)
+    assert _same_faces(got["face_list"], want["face_list"], size, ordered=False, rel=rel)
 
 
-# Mostly the faces come in FreeCAD's order too, so a later reference ("AdditiveLoft", "Face3") names the face FreeCAD's
-# Face3 is. These have the same faces in another order:
-# loft_section_face_of_pad: the section is a face of the solid the loft is fused with; FreeCAD's fuse orders the faces
-# otherwise (before the refine, which changes nothing here).
-ORDER_DIFFERS = {"loft_section_face_of_pad"} | set(REFINE_DIFFERS)
+# The faces come in FreeCAD's order too, so a later reference ("AdditiveLoft", "Face3") names the face FreeCAD's Face3 is
+# (loft_section_face_of_pad too, since the fuse is FreeCAD's non-destructive one, cad_agent/topo_boolean.py).
+ORDER_DIFFERS: set = set(REFINE_DIFFERS)
 
 
 def test_face_names_differ_only_where_known():
@@ -129,7 +126,7 @@ def test_face_names_are_freecads(name):
     case, want = CASES[name], FREECAD[name]
     got = _measure(Body(case["features"], case.get("params")))
     size = math.dist(want["bbox"][:3], want["bbox"][3:])
-    assert _same_faces(got["face_list"], want["face_list"], size, ordered=True)
+    assert _same_faces(got["face_list"], want["face_list"], size, ordered=True, rel=LOOSER.get(name, 1e-6))
 
 
 @pytest.mark.parametrize("name", sorted(ERRORS))

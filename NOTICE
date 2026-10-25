@@ -43,6 +43,11 @@ that commit.
   LGPL-2.1-or-later        cad_agent/feature_sweep.py, all of it (PartDesign's Additive and
                            Subtractive Loft, Pipe and Helix). See section 2.
 
+  LGPL-2.1-or-later        cad_agent/refine.py, cad_agent/topo_boolean.py, cad_agent/feature_taper.py,
+                           cad_agent/feature_scaled.py and cad_agent/feature_startref.py, all of them
+                           (FreeCAD's refine and booleans, tapered extrusions, Scaled, start
+                           references). See section 2.
+
   LGPL-2.0-or-later        cad_agent/appcache.py, all of it. It is distributed here under version
                            2.1 of the licence, which "or any later version" allows; the text is in
                            ui/LICENSE.
@@ -110,6 +115,35 @@ that commit.
       FeatureAddSub.cpp Copyright (c) 2011 Juergen Riegel; TopoShape.cpp Copyright (c) 2002 Jürgen
       Riegel; TopoShapeExpansion.cpp Copyright (c) 2022 Zheng, Lei; FaceMakerCheese.cpp Copyright (c)
       2016 Victor Titov (DeepSOIC); modelRefine.cpp Copyright (c) 2011 Thomas Anderson.
+      SPDX-License-Identifier: LGPL-2.1-or-later
+
+  cad_agent/refine.py
+      Re-expresses src/Mod/Part/App/modelRefine.cpp (BRepBuilderAPI_RefineModel and ModelRefine) with
+      TopoShape::makeElementRefine and fixSolidOrientation (TopoShapeExpansion.cpp), TopoShape::isClosed
+      (TopoShape.cpp) and FeatureRefine::refineShapeIfActive. modelRefine.cpp Copyright (c) 2011 Thomas
+      Anderson; TopoShapeExpansion.cpp Copyright (c) 2022 Zheng, Lei; TopoShape.cpp Copyright (c) 2002
+      Jürgen Riegel. SPDX-License-Identifier: LGPL-2.1-or-later
+
+  cad_agent/topo_boolean.py
+      Re-expresses TopoShape::makeElementBoolean and expandCompound (TopoShapeExpansion.cpp) and
+      src/Mod/Part/App/FCBRepAlgoAPI_BooleanOperation.cpp. TopoShapeExpansion.cpp Copyright (c) 2022
+      Zheng, Lei; FCBRepAlgoAPI_BooleanOperation.cpp Copyright (c) 2024 Eric Price (CorvusCorax).
+      SPDX-License-Identifier: LGPL-2.1-or-later
+
+  cad_agent/feature_taper.py
+      Re-expresses src/Mod/Part/App/ExtrusionHelper.cpp (makeElementDraft, createTaperedPrismOffset),
+      BRepOffsetAPI_MakeOffsetFix.cpp and TopoShape::splitWires (TopoShapeExpansion.cpp). ExtrusionHelper.cpp
+      Copyright (c) 2022 Uwe Stöhr; BRepOffsetAPI_MakeOffsetFix.cpp Copyright (c) 2019 Werner Mayer;
+      TopoShapeExpansion.cpp Copyright (c) 2022 Zheng, Lei. SPDX-License-Identifier: LGPL-2.1-or-later
+
+  cad_agent/feature_scaled.py
+      Re-expresses src/Mod/PartDesign/App/FeatureScaled.cpp and the Scaled branch of
+      FeatureMultiTransform.cpp. Copyright (c) 2012 Jan Rheinländer. SPDX-License-Identifier: LGPL-2.1-or-later
+
+  cad_agent/feature_startref.py
+      Re-expresses ProfileBased::getStartReferenceOffset and its helpers (FeatureSketchBased.cpp),
+      Revolved::getStartReferenceAngle (FeatureRevolved.cpp) and TopoShape::getCenterOfGravity
+      (TopoShape.cpp). Copyright (c) 2010 Juergen Riegel; TopoShape.cpp Copyright (c) 2002 Jürgen Riegel.
       SPDX-License-Identifier: LGPL-2.1-or-later
 
   cad_agent/feature_hole.py and cad_agent/feature_hole_tables.py

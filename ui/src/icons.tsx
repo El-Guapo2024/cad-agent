@@ -88,7 +88,7 @@ export const FILES = {
   'pd-sub-loft': 'PartDesign_SubtractiveLoft', 'pd-sub-pipe': 'PartDesign_SubtractivePipe', 'pd-sub-helix': 'PartDesign_SubtractiveHelix',
   'pd-sub-box': 'PartDesign_SubtractiveBox', 'pd-fillet': 'PartDesign_Fillet', 'pd-chamfer': 'PartDesign_Chamfer', 'pd-draft': 'PartDesign_Draft',
   'pd-thickness': 'PartDesign_Thickness', 'pd-flip': 'PartDesign_Flip_Direction', 'pd-defeaturing': 'PartDesign_Defeaturing', 'pd-mirrored': 'PartDesign_Mirrored',
-  'pd-linear-pattern': 'PartDesign_LinearPattern', 'pd-polar-pattern': 'PartDesign_PolarPattern', 'pd-multi-transform': 'PartDesign_MultiTransform',
+  'pd-linear-pattern': 'PartDesign_LinearPattern', 'pd-polar-pattern': 'PartDesign_PolarPattern', 'pd-multi-transform': 'PartDesign_MultiTransform', 'pd-scaled': 'PartDesign_Scaled',
   'pd-boolean': 'PartDesign_Boolean', 'pd-check-geometry': 'Part_CheckGeometry', 'pd-gear': 'PartDesign_InternalExternalGear', 'pd-sprocket': 'PartDesign_Sprocket',
   'pd-wizard-shaft': 'PartDesign_WizardShaft', 'pd-move-tip': 'PartDesign_MoveTip', 'pd-move-feature': 'PartDesign_MoveFeature',
   'pd-move-in-tree': 'PartDesign_MoveFeatureInTree', 'pd-color-face': 'Part_ColorFace', freeze: 'Std_ToggleFreeze',

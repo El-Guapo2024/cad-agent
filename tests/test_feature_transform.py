@@ -54,13 +54,12 @@ FREECAD = json.loads((GOLDEN / "freecad.json").read_text())["cases"]
 BUILT = sorted(n for n in CASES if not CASES[n].get("error"))
 REFUSED = sorted(n for n in CASES if CASES[n].get("error"))
 
-# Where the faces differ, and why: {case: our face count}. The solid is the same (volume, area, box, centre); FreeCAD
-# refines with its own BRepBuilderAPI_RefineModel, this module with OCCT's UnifySameDomain (tests/test_feature.py's
-# REFINE_DIFFERS). In these a hole and its mirror image touch along a line (two r 3 holes 6 mm apart), or a hole touches
-# the plate's side: the boolean splits each touching face there, and FreeCAD's refine joins the halves again where
-# UnifySameDomain does not.
-FACES_DIFFER = {"mirror_sketch_h_axis": 10, "mirror_xz_plane": 10, "mirror_two_originals": 14,
-                "mirror_construction_line": 9}
+# The faces after a Mirrored of a Pocket or a Pad are FreeCAD's but for the order of the original's and the copy's
+# faces: FreeCAD's Mirrored puts the original's first, while every cut of the same shapes through Part (Shape.cut, the
+# list form, with or without fuzzy, the compound or its solid; FreeCAD's own exported support and tool) gives this
+# module's order, the copy's first (ui/PARITY.md, PartDesign transformed features).
+ORDER_DIFFERS = {"mirror_yz_plane", "mirror_boss_yz_plane", "mirror_refine_off", "mirror_then_pad",
+                 "multi_mirror_linear"}
 
 
 def test_every_case_has_freecads_answer():
@@ -79,12 +78,18 @@ def test_same_solid_as_freecad(name):
     size = math.dist(want["bbox"][:3], want["bbox"][3:])
     assert got["bbox"] == pytest.approx(want["bbox"], abs=1e-6 * size)
     assert got["center_of_mass"] == pytest.approx(want["center_of_mass"], abs=1e-6 * size)
-    if name in FACES_DIFFER:
-        assert (got["solids"], got["faces"]) == (want["solids"], FACES_DIFFER[name])
-        return
     assert (got["solids"], got["faces"]) == (want["solids"], want["faces"])
     key = lambda f: tuple(round(x, 4) for x in f)       # noqa: E731
     assert sorted(map(key, got["face_list"])) == sorted(map(key, want["face_list"]))
+
+
+@pytest.mark.parametrize("name", sorted(set(BUILT) - ORDER_DIFFERS))
+def test_face_names_are_freecads(name):
+    """The faces in FreeCAD's order too (Face1, Face2, ...), so a face named after a pattern is FreeCAD's."""
+    case, want = CASES[name], FREECAD[name]
+    got = _measure(Body(case["features"], case.get("params")))
+    assert [[round(x, 4) for x in f] for f in got["face_list"]] == \
+        [[round(x, 4) for x in f] for f in want["face_list"]]
 
 
 @pytest.mark.parametrize("name", REFUSED)
