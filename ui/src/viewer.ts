@@ -518,7 +518,7 @@ export class CadView {
     const model = hit && !this.helperPicker ? this.hitAt(c) : null
     const cam = this.viewer.camera?.getCamera?.()
     const unforbid = () => { if (canvas && canvas.dataset.forbid) { canvas.style.cursor = ''; delete canvas.dataset.forbid } }
-    if (!hit || (model && cam && cam.position.distanceTo(model.point) < hit.distance - 0.2) || (!this.helperPicker && !hit.selectable)) {
+    if (!hit || (model && cam && this.modelInFront(cam, model, hit.distance)) || (!this.helperPicker && !hit.selectable)) {
       if (this.hovered) { this.setHovered(null); this.helperHover?.(null, null) }
       unforbid()
       return false
@@ -534,6 +534,13 @@ export class CadView {
       if (canvas) { canvas.style.cursor = 'not-allowed'; canvas.dataset.forbid = '1' }
     }
     return true
+  }
+  /** Whether the model's element under the pointer is taken before a datum there: nearer by closeToFirst's 0.2, or a vertex
+   *  or an edge as near as it (an edge over the face it lies on, hitAt's rule; a datum plane drawn through a corner). */
+  private modelInFront(cam: THREE.Camera, model: { point: THREE.Vector3; sub: string | null }, helperDistance: number) {
+    void cam
+    const d = this.ray.ray.origin.distanceTo(model.point)       // from the pick ray's origin, as the hits' distances (orthographic too)
+    return d < helperDistance - 0.2 || (d <= helperDistance + 0.2 && /^(Vertex|Edge)/.test(model.sub ?? ''))
   }
   private helperAt(e: { x: number; y: number }): string | null {
     return this.helperHit(e)?.name ?? null
@@ -674,7 +681,7 @@ export class CadView {
       // A datum shown in the view: a click on it selects it (when nothing of the model is in front of it)
       const c = this.client(ev.pos), hit = this.helperHit(c), model = hit?.selectable ? this.hitAt(c) : null
       const cam = this.viewer.camera?.getCamera?.()
-      if (hit?.selectable && !(model && cam && cam.position.distanceTo(model.point) < hit.distance - 0.2)) {
+      if (hit?.selectable && !(model && cam && this.modelInFront(cam, model, hit.distance))) {
         this.helperSelect(hit.name, ev.ctrl)
         return true
       }

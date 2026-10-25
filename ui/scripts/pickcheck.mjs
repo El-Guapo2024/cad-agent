@@ -172,7 +172,13 @@ async function click3d(key, name, quiet = false, hoverOnly = false) {
 /** Where FreeCAD's step picked an object, our click: the base's element, a datum, an LCS's feature, or the Origin. */
 async function pickLike(obj, sub) {
   const ofLcs = /^(X_Axis|Y_Axis|Z_Axis|XY_Plane|XZ_Plane|YZ_Plane)00\d$/.exec(obj)
-  if (ofLcs) return click3d('pd-datums', `Body/LCS/${ofLcs[1]}`)
+  if (ofLcs) {
+    const p = await click3d('pd-datums', `Body/LCS/${ofLcs[1]}`, true)
+    if (p) return p
+    note(`LCS ${ofLcs[1]}: no point in the 3D view is it alone; picked by its row in the tree`)
+    await treeRow(`LCS/${ofLcs[1]}`)
+    return true
+  }
   if (/^(X_Axis|Y_Axis|Z_Axis|XY_Plane|XZ_Plane|YZ_Plane)$/.test(obj)) {
     const shown = await st(`!!cadui.getView().helperPoint('pd-pick-origin', ${JSON.stringify(obj)})`)
     if (shown) return click3d('pd-pick-origin', obj)
@@ -194,7 +200,8 @@ async function pickLike(obj, sub) {
 async function treeRow(name) {
   await page.click('.dv-tab:has-text("Model")'); await sleep(300)
   if (!(await st(`!!document.querySelector('.pdrow[data-ref="Body/${name}"]')`))) {
-    await page.locator('.pdrow[data-ref="Body/Origin"] .twisty').first().click(); await sleep(300)
+    const folder = name.includes("/") ? `Body/${name.split("/")[0]}` : "Body/Origin"     // an LCS's feature: under its LCS
+    await page.locator(`.pdrow[data-ref="${folder}"] .twisty`).first().click(); await sleep(300)
   }
   await page.locator(`.pdrow[data-ref="Body/${name}"]`).first().click(); await sleep(500)
   await page.click('.dv-tab:has-text("Tasks")'); await sleep(300)
@@ -562,7 +569,8 @@ try {
         { name: 'Pad001', type: 'PartDesign::Pad', profile: 'Sketch001', length: 2 }, { name: 'Fillet', type: 'PartDesign::Fillet', base: ['Pad001', ['Edge1']], radius: 0.5 }])
       await post('/api/pick/features/Body', { ops: [{ op: 'set', name: 'Sketch001', props: { support: null, attachment_support: [['DatumPlane', '']], map_mode: 'FlatFace' } }] })
       await sleep(1200)
-      await st(`cadui.setState({ featSel: ["Body/${victim}"], selected: [], subSel: [] })`)
+      await closeTask(); await page.keyboard.press("Escape"); await sleep(200)
+      await st(`cadui.setState({ featSel: ["Body/${victim}"], selected: [], subSel: [] })`); await sleep(300)
       await st('cadui.getCommand("Std_Delete").run([])'); await sleep(600)
       await until('!!document.querySelector(".msgbox")', 'Object Dependencies', 10000)
       check(await st('document.querySelector(".msgbox .msgbox-title")?.textContent') === fb.title, `delete: ${victim}: FreeCAD asks "${fb.title}"`)

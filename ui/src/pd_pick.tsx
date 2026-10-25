@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: LGPL-2.1-or-later
 // Follows FreeCAD (https://github.com/FreeCAD/FreeCAD, commit 3160daf1e2b6), copyright of the files below (each is
 // LGPL-2.0-or-later or LGPL-2.1-or-later as it states; ui/NOTICE has them all):
-//   src/Mod/PartDesign/Gui/ReferenceSelection.cpp: 2015 Alexander Golubev (Fat-Zer) (allow, allowOrigin, allowDatum,
+//   src/Mod/PartDesign/Gui/ReferenceSelection.cpp: 2012 Konstantinos Poulios (allow, allowOrigin, allowDatum,
 //     allowPartFeature, getReferencedSelection, getRefStr)
 //   src/Mod/PartDesign/Gui/TaskSketchBasedParameters.cpp: 2013 Jan Rheinländer (onSelectReference, startReferenceSelection,
 //     finishReferenceSelection, onAddSelection, updateReferenceName)

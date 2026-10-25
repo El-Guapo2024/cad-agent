@@ -728,6 +728,9 @@ src/Mod/PartDesign/Gui/CommandBody.cpp   [licence: LGPL-2.1-or-later]
 src/Mod/PartDesign/Gui/CommandPrimitive.cpp   [licence: LGPL-2.1-or-later]
     copyright 2015 Stefan Tröger
     followed by src/fctips.ts, src/pd_transform.tsx
+src/Mod/PartDesign/Gui/ReferenceSelection.cpp   [licence: LGPL-2.1-or-later]
+    copyright 2012 Konstantinos Poulios
+    followed by src/pd_pick.tsx
 src/Mod/PartDesign/Gui/SketchWorkflow.cpp   [licence: LGPL-2.1-or-later]
     copyright 2022 Werner Mayer
     followed by src/partdesign.tsx
@@ -740,6 +743,9 @@ src/Mod/PartDesign/Gui/TaskChamferParameters.cpp   [licence: LGPL-2.1-or-later]
 src/Mod/PartDesign/Gui/TaskChamferParameters.ui   [licence: none]
     copyright: no line in the file
     followed by src/pd_dressup.tsx
+src/Mod/PartDesign/Gui/TaskDatumParameters.cpp   [licence: LGPL-2.1-or-later]
+    copyright 2013 Jan Rheinländer
+    followed by src/pd_datum.tsx
 src/Mod/PartDesign/Gui/TaskDraftParameters.cpp   [licence: LGPL-2.1-or-later]
     copyright 2012 Jan Rheinländer
     followed by src/pd_dressup.tsx
@@ -821,6 +827,9 @@ src/Mod/PartDesign/Gui/TaskRevolutionParameters.cpp   [licence: LGPL-2.1-or-late
 src/Mod/PartDesign/Gui/TaskRevolutionParameters.ui   [licence: none]
     copyright: no line in the file
     followed by src/pd_revolve.tsx
+src/Mod/PartDesign/Gui/TaskSketchBasedParameters.cpp   [licence: LGPL-2.1-or-later]
+    copyright 2013 Jan Rheinländer
+    followed by src/pd_pick.tsx, src/pd_extrude.tsx
 src/Mod/PartDesign/Gui/TaskThicknessParameters.cpp   [licence: LGPL-2.1-or-later]
     copyright 2015 Stefan Tröger
     followed by src/pd_dressup.tsx

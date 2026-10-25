@@ -82,8 +82,12 @@ cad_agent/feature_kw.py's KwFeature:
 - CI builds ui/planegcs native before the tests (feature tests solve sketches before test_planegcs did).
   Locally, rebuild it (`ui/planegcs/build.sh native`) after a merge that changes api.cpp/sketch.cpp.
 - Left: Scaled, RefineModel port, B-spline interpolation and tools, Offset, fillet between curves, trim/split
-  on B-splines, 3D picking for Up to face / axis edges / datums, Hole Up to first, Common, PartDesign:: datum
-  commands, Carbon copy, projecting conics, on-view parameters; then the Part workbench and Assembly joints.
+  on B-splines, Hole Up to first, Common, Start Reference, Carbon copy, projecting conics, on-view parameters
+  (the patterns' spacing labels too), ShapeBinder/SubShapeBinder; then the Part workbench and Assembly joints.
+- pd-pick (2026-10-25): every panel's reference picks in the 3D view through FreeCAD's gates (src/pd_pick.tsx), datums
+  as references everywhere (cad_agent/feature_refs.py, tests/golden/pick), Pad ReferenceAxis, Std_Delete that breaks
+  links as FreeCAD (feature_delete.py), PartDesign_Plane/Line/Point/CoordinateSystem, the split primitive buttons,
+  Multi-Transform in the tree menu; scripts/pickcheck.mjs vs scripts/fcpick.json. PARITY.md "Picking in the 3D view".
 - Browser checks must use scratch projects only (a check once wrote a Plate part into projects/arduino_car).
 
 ## Next (paused 2026-10-23)

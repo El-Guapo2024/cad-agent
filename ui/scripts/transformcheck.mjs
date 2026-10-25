@@ -276,7 +276,7 @@ try {
     for (const shape of ['Box', 'Cylinder', 'Sphere', 'Cone', 'Ellipsoid', 'Torus', 'Prism', 'Wedge']) {
       const fc = FC[`prim_${side}${shape}`]
       await st('cadui.setState({ featSel: [], selected: [], subSel: [] })')
-      await page.click(`.tb-btn[data-cmd="PartDesign_CompPrimitive${side}"]`)
+      await page.click(`.tb-split[data-split="PartDesign_CompPrimitive${side}"] .tb-drop`)     // the group's arrow (its icon runs the last one)
       await page.click(`.ctx .mb-item:has-text("${side} ${shape}")`)
       await until('cadui.getState().task?.kind === "pdPrimitive"', `${side} ${shape}'s panel`)
       await sleep(250)
