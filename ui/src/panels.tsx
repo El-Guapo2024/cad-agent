@@ -13,6 +13,7 @@
 //   src/Gui/TaskTransform.cpp: 2015 Thomas Anderson
 //   src/Gui/PythonConsole.cpp: 2004 Werner Mayer
 //   No copyright line in the file: src/Mod/Material/Gui/DlgDisplayProperties.ui, src/Gui/Clipping.ui
+import { AssemblyProps, AssemblyRows, AssemblyTask, AssemblyWatchers, assemblyTreeEntries, assemblyViewHook, isComponent } from './assembly_wb'
 import { Fragment, createContext, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { axisAngleOf, eulerOf as eulerOfSeq, quatOfEuler as quatOfEulerSeq, quatOfYpr, yprOfQuat, type EulerSeq } from './rotation'
 import type { Body, CheckRow, LogEntry, Placement, Vec3 } from './api'
@@ -108,6 +109,7 @@ export function View3D() {
       picked: (picked) => setState({ picked }),
     })
     attachView(v)
+    v.assemblyHook = assemblyViewHook
     return () => { attachView(null); v.dispose() }
   }, [])
   const hasBodies = useStore((s) => Object.keys(s.features).some((p) => isBodyDoc(s.features[p]))) // a PartDesign Body is a part, built or not
@@ -226,6 +228,7 @@ function ModelTree() {
   }, [selected, treeOpts.syncSelection])
   const [menu, setMenu] = useState<{ x: number; y: number } | null>(null)
   const [fmenu, setFmenu] = useState<{ x: number; y: number } | null>(null)
+  const [amenu, setAmenu] = useState<{ x: number; y: number } | null>(null)
   const features = useStore((s) => s.features), featSel = useStore((s) => s.featSel), activeBody = useStore((s) => s.activeBody)
   const states = useMemo(() => statesByBody(checks?.rows, scene?.bodies ?? []), [checks, scene])
   // The object in edit (Gui::Document::getInEdit): the default edit (its parameters) or Transform.
@@ -306,6 +309,7 @@ function ModelTree() {
       {menu && <ContextMenu at={menu} entries={[...treeEntries('object'), 'sep', settingsMenu]} onClose={() => setMenu(null)} />}
       {fmenu && <ContextMenu at={fmenu} entries={[...(getState().featSel.some((r) => isObjectRef(getState(), r)) ? partTreeEntries : featureTreeEntries)({ expressionActions: expressionActions(), linkActions: linkActions(), properties,
         showHidden: { label: 'Show Items Hidden in Tree View', checked: showHidden, onSelect: () => setState((x) => ({ treeShowHidden: !x.treeShowHidden })) } }), 'sep', settingsMenu]} onClose={() => setFmenu(null)} />}
+      {amenu && <ContextMenu at={amenu} entries={[...assemblyTreeEntries(), 'sep', settingsMenu]} onClose={() => setAmenu(null)} />}
       {docMenu && <ContextMenu at={docMenu} entries={[...treeEntries('document'), 'sep', settingsMenu]} onClose={() => setDocMenu(null)} />}
       {emptyMenu && <ContextMenu at={emptyMenu} entries={[settingsMenu]} onClose={() => setEmptyMenu(null)} />}
       {filter !== null && (() => {
@@ -344,7 +348,9 @@ function ModelTree() {
           {showInternal && <span className="tdesc">{slug}</span>}
         </div>
       )}
-      {open && scene?.bodies.filter((b) => showHidden || viewOf({ view }, b.name).showInTree).map((b) => {
+      {/* the project's Assembly (assembly_wb.tsx): the Assembly, its Joints group and joints, its components */}
+      {open && <AssemblyRows ctx={pdCtx} onMenu={(at) => setAmenu(at)} />}
+      {open && scene?.bodies.filter((b) => (showHidden || viewOf({ view }, b.name).showInTree) && !isComponent(b.name)).map((b) => {
         const st = states.get(b.name), off = hidden.includes(b.name)
         const desc = [b.part && b.part !== b.name ? b.part : null, b.kind === 'bought' ? 'bought' : null,
           b.placement ? 'moved by hand' : null, st && st !== 'PASS' ? st : null].filter(Boolean).join(' · ')
@@ -456,6 +462,7 @@ function PropertyView() {
   const b = scene?.bodies.find((x) => x.name === selected[selected.length - 1])
   const lastFeat = useStore((s) => s.featSel[s.featSel.length - 1])
   const feat = lastFeat && (!lastFeat.endsWith('/') || !b) ? lastFeat : null
+  const asmProp = useStore((s) => s.asmSel[s.asmSel.length - 1] ?? null)
   // Auto Expand / Auto Collapse: a new object opens with everything expanded or collapsed.
   useEffect(() => { if (mode !== 'default') setExpand((e) => ({ gen: e.gen + 1, open: mode === 'auto-expand' })) }, [b?.name, mode])
   const bump = (open: boolean | null) => setExpand((e) => ({ gen: e.gen + 1, open }))
@@ -480,6 +487,7 @@ function PropertyView() {
       }}>
         <PropExpand.Provider value={expand}>
           {/* a Body's feature, sketch or Origin row (partdesign.tsx); the Body's own row shows its part's properties */}
+          {asmProp && tab === 'data' && <AssemblyProps key={asmProp} name={asmProp} />}
           {feat && isObjectRef(getState(), feat) && (tab === 'data' ? <PartObjectProps key={feat} refKey={feat} /> : <Row k="Visibility" v="Space toggles it (the part file's visibility=)" />)}
           {feat && !isObjectRef(getState(), feat) && (tab === 'data' ? <FeatureProps key={feat} refKey={feat} /> : <Row k="Visibility" v="the Body shows its Tip" />)}
           {!feat && b && (tab === 'data' ? <DataProps key={b.name + scene!.source_hash} b={b} />
@@ -853,7 +861,7 @@ export function TasksPanel() {
 }
 
 function TaskContent() {
-  const task = useStore((s) => s.task), scene = useStore((s) => s.scene)
+  const task = useStore((s) => s.task), scene = useStore((s) => s.scene), wb = useStore((s) => s.workbench)
   if (task?.kind === 'clip') return <ClipTask />
   if (task?.kind === 'info') return <InfoTask />
   if (task?.kind === 'units') return <UnitsTask />
@@ -900,9 +908,11 @@ function TaskContent() {
   if (task?.kind === 'pad' || task?.kind === 'pocket') return <ExtrudeTask key={`${task.kind}:${task.body}:${task.other}`} kind={task.kind} part={task.body} name={task.other ?? ''} edit={!!task.edit} />
   if (task?.kind === 'revolution' || task?.kind === 'groove') return <RevolveTask key={`${task.kind}:${task.body}:${task.other}`} kind={task.kind} part={task.body} name={task.other ?? ''} edit={!!task.edit} />
   if (task?.kind === 'part') return <PartTask part={task.body} other={task.other ?? ''} />   // the Part workbench's (part_tasks.tsx)
+  if (task?.kind === 'assembly') return <AssemblyTask body={task.body} other={task.other ?? ''} />   // the Assembly workbench's (assembly_wb.tsx)
   if (task?.kind === 'pdSweep') return <SweepTask key={`sweep:${task.body}:${task.other}`} part={task.body} other={task.other ?? ''} edit={!!task.edit} />
   if (task?.kind === 'hole') return <HoleTask key={`hole:${task.body}:${task.other}`} part={task.body} name={task.other ?? ''} edit={!!task.edit} />
   const b = task && scene?.bodies.find((x) => x.name === task.body)
+  if (!task && wb === 'assembly' && getState().slug) return <div className="tasks"><AssemblyWatchers /></div>
   if (!task || !b) {
     return (
       <div className="tasks">

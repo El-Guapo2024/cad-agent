@@ -71,7 +71,7 @@ def test_a_joint_is_made_as_freecads_panel_makes_it_and_reads_back(proj, capsys)
     p = data["doc"]["placements"]["pin"]
     assert p["base"] == pytest.approx([20.0, 15.0, -15.0], abs=1e-9)
     assert data["doc"]["status"] == {"state": "under_constrained", "text": "Under-constrained: ",
-                                     "link": "1 Degree of Freedom"}
+                                     "link": "1 Degrees of Freedom"}
     j = [o for o in E.objects_of(asm_src(proj)) if isinstance(o, W.Joint)][0]
     assert (j.name, j.label, j.joint_type) == ("Joint", "Revolute", "Revolute")
     assert j.reference1 == ("plate", ("Face6", "Face6")) and j.reference2 == ("pin", ("Face3", "Edge1"))

@@ -104,6 +104,7 @@ export type Task = { kind: 'params' | 'placement' | 'transform' | 'measure' | 'm
   | 'attach'
   | 'revolution' | 'groove' | 'hole'     // pd_revolve.tsx
   | 'part'                               // the Part workbench's task panels (part_tasks.tsx): other says which
+  | 'assembly'                           // the Assembly workbench's panels (assembly_wb.tsx): other says which
   // and the dress-ups (pd_dressup.tsx); `other` is the feature's name, new or edited
   | 'fillet' | 'chamfer' | 'draft' | 'thickness'
   // pd_transform.tsx: a transformed feature's panel and a primitive's; `other` is the feature edited, or what a new one is
@@ -360,6 +361,14 @@ export type State = {
   activeBody: string | null
   /** Sketches shown in the 3D view, as "part/Sketch" (a sketch a feature uses starts hidden, as FreeCAD hides it). */
   sketchShown: string[]
+  /** The project's Assembly (assembly.py's ASSEMBLY, `cad assembly show`): its tree, placements, JCS, the solver's document
+   *  and the Solver messages (assembly_wb.tsx); null when the project has none. */
+  assembly: import('./assembly_wb').AsmView | null
+  /** The tree's selected Assembly rows (its joints, the Assembly, the Joints group), by Name. */
+  asmSel: string[]
+  /** The Assembly is in edit (ViewProviderAssembly::setEdit: Assembly_ActivateAssembly, a double-click): parts drag with
+   *  the solver. */
+  asmActive: boolean
 }
 export type SelEntry = { selected: string[]; subSel: string[] }
 /** One part module's PartDesign feature list (GET /api/<slug>/features, `cad feature list`): cad_agent/feature_edit.py's
@@ -409,6 +418,7 @@ let state: State = {
   recordingMacro: null, recordGuiCommands: saved.get('recordGuiCommands', true), guiAsComment: saved.get('guiAsComment', true),
   sketchEditing: null, editHistory: null,
   features: {}, featSel: [], activeBody: null, sketchShown: [],
+  assembly: null, asmSel: [], asmActive: false,
 }
 const subs = new Set<() => void>()
 // Quantities are written in the user's unit system wherever they show (UnitsApi).

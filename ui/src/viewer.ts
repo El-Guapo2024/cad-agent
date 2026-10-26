@@ -658,6 +658,8 @@ export class CadView {
    *  preselects, a left release selects (SoFCUnifiedSelection), Ctrl toggles. */
   private sceneEvent(ev: { type: string; button?: number; pos: V2; ctrl: boolean }): boolean {
     if (this.sketchHook && ev.type !== 'key' && ev.type !== 'gesture') return this.sketchHook.event(ev as NavEvent)
+    // ViewProviderAssembly's mouse handling in edit (assembly_wb.tsx): a press on a part starts a drag with the solver
+    if (this.assemblyHook && ev.type !== 'key' && ev.type !== 'gesture' && this.assemblyHook(ev as NavEvent)) return true
     if (this.nav.interact) return ev.type !== 'move'
     if (ev.type === 'move') {
       cancelAnimationFrame(this.hoverFrame)
@@ -1017,6 +1019,54 @@ export class CadView {
     this.redraw()
   }
 
+  /** The Assembly in edit (assembly_wb.tsx): sees the view's events before the selection does; true when it took one. */
+  assemblyHook: ((ev: NavEvent) => boolean) | null = null
+  /** The pick ray through a pixel (Coin's, from the bottom left), as SbViewVolume::projectPointToLine gives it. */
+  rayAt(pos: V2): THREE.Ray | null {
+    const cam = this.viewer.camera?.getCamera?.(), c = this.viewer.renderer?.domElement as HTMLCanvasElement | undefined
+    if (!cam || !c) return null
+    const r = c.getBoundingClientRect(), p = this.client(pos)
+    cam.updateMatrixWorld()
+    const ray = new THREE.Raycaster()
+    ray.setFromCamera(new THREE.Vector2(((p.x - r.left) / r.width) * 2 - 1, -((p.y - r.top) / r.height) * 2 + 1), cam)
+    return ray.ray.clone()
+  }
+  /** The camera's focal point (its orbit target) and the direction it looks along. */
+  focalTarget(): { point: THREE.Vector3; dir: THREE.Vector3 } | null {
+    const cam = this.viewer.camera?.getCamera?.(), tgt = this.viewer.controls?.controls?.target as THREE.Vector3 | undefined
+    if (!cam || !tgt) return null
+    return { point: tgt.clone(), dir: new THREE.Vector3(0, 0, -1).applyQuaternion(cam.quaternion) }
+  }
+  /** What the model has under a pixel: the body, its element and the point, as a click would pick it. */
+  hitAtPos(pos: V2): { body: string; sub: string | null; point: THREE.Vector3 } | null {
+    const h = this.hitAt(this.client(pos))
+    return h ? { body: h.body, sub: h.sub ?? null, point: h.point } : null
+  }
+  private placed = new Map<string, { pos: THREE.Vector3; quat: THREE.Quaternion; scale: THREE.Vector3 }>()
+  /** Bodies drawn moved by world deltas (the Assembly's solve before it is written: a joint panel's preview, a drag);
+   *  null puts them back where the scene has them. A view only, as setPose. */
+  placeBodies(deltas: Record<string, THREE.Matrix4> | null) {
+    const groups = this.viewer.nestedGroup?.groups as Record<string, THREE.Object3D> | undefined
+    for (const [path, home] of this.placed) {
+      const g = groups?.[path]
+      if (g && !(deltas && Object.keys(deltas).some((n) => getState().scene?.bodies.find((x) => x.name === n)?.path === path))) {
+        g.position.copy(home.pos); g.quaternion.copy(home.quat); g.scale.copy(home.scale); g.updateMatrixWorld(true)
+        this.placed.delete(path)
+      }
+    }
+    for (const [name, delta] of Object.entries(deltas ?? {})) {
+      const b = getState().scene?.bodies.find((x) => x.name === name)
+      const g = b ? groups?.[b.path] : undefined
+      if (!b || !g) continue
+      if (!this.placed.has(b.path)) this.placed.set(b.path, { pos: g.position.clone(), quat: g.quaternion.clone(), scale: g.scale.clone() })
+      const home = this.placed.get(b.path)!
+      const parent = g.parent?.matrixWorld ?? new THREE.Matrix4()
+      const base = new THREE.Matrix4().compose(home.pos, home.quat, home.scale)
+      parent.clone().invert().multiply(delta).multiply(parent).multiply(base).decompose(g.position, g.quaternion, g.scale)
+      g.updateMatrixWorld(true)
+    }
+    this.redraw()
+  }
   private posed = new Map<string, { pos: THREE.Vector3; quat: THREE.Quaternion; scale: THREE.Vector3 }>()
   /** CADAgent_Pose: the machine drawn at one of its named poses (poses.ts), every body an axis carries slid by `offsets`
    *  in the world; null puts them all back where assembly.py has them. A view only, as previewPlacement is: the

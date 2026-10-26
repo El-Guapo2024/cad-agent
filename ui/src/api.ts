@@ -125,6 +125,15 @@ export const api = {
     http<CadResult>('POST', `/api/${encodeURIComponent(slug)}/features/${encodeURIComponent(part)}/shape`, { ops, feature }),
   applyFeatures: (slug: string, part: string, ops: FeatureOp[], name?: string) =>
     http<CadResult>('POST', `/api/${encodeURIComponent(slug)}/features/${encodeURIComponent(part)}`, name ? { ops, name } : { ops }),
+  /** `cad assembly show`: the project's Assembly recomputed (GET /api/<slug>/assembly; data is assembly_edit.solved()). */
+  assembly: (slug: string) => http<CadResult>('GET', `/api/${encodeURIComponent(slug)}/assembly`),
+  /** `cad assembly apply`: the Assembly's ops as one undo step (POST /api/<slug>/assembly); dry_run, a panel's preview,
+   *  writes nothing. data.doc is the Assembly after. */
+  applyAssembly: (slug: string, ops: Record<string, unknown>[], name?: string, dryRun?: boolean) =>
+    http<CadResult>('POST', `/api/${encodeURIComponent(slug)}/assembly`, { ops, ...(name ? { name } : {}), ...(dryRun ? { dry_run: true } : {}) }),
+  /** `cad assembly jcs`: where a pick puts a joint's coordinate system (findElementClosestVertex, findPlacement). */
+  assemblyJcs: (slug: string, comp: string, element: string, at?: number[] | null, type?: string) =>
+    http<CadResult>('POST', `/api/${encodeURIComponent(slug)}/assembly/jcs`, { comp, element, ...(at ? { at } : {}), ...(type ? { type } : {}) }),
   /** Minimum distance between two placed parts, and the closest points (`cad measure --posed`). */
   measure: (slug: string, a: string, b: string) => http<CadResult>('POST', '/api/measure', { slug, a, b }),
   mass: (slug: string, bodies: string[]) => http<CadResult>('POST', '/api/mass', { slug, bodies }),

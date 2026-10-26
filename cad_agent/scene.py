@@ -53,6 +53,7 @@ FLOAT_KEYS = {"vertices", "normals", "edges", "obj_vertices", "uvs"}
 
 # bodies.py decides what a body is; these are the names scene.py and the runner have always used for it.
 _part_for, _bought_names, _describe = bodies.part_for, bodies.bought_stems, bodies.describe
+_assembly_links = bodies.assembly_links
 
 
 def viewer_name(name: str) -> str:
@@ -111,7 +112,7 @@ def placed_solids(slug: str) -> tuple[dict, dict]:
         if name in linked:                    # a sub-assembly's body: its material is its own project's
             materials[name] = linked[name].material
             continue
-        part = _part_for(name, part_names)
+        part = _part_for(name, part_names, _assembly_links(slug))
         if part:
             if part not in metas:
                 _, metas[part] = st.build_part(slug, part)
@@ -325,7 +326,7 @@ def build_scene(slug: str, deviation: float | None = None, angular: float | None
             part, material, kind = None, info.material, info.kind
             mass = round(info.mass_g, 2) if info.mass_g is not None else None
         else:
-            part = _part_for(name, part_names)
+            part = _part_for(name, part_names, _assembly_links(slug))
             material = None
             if part:
                 meta = metas.get(part) or parts_meta.get(part)

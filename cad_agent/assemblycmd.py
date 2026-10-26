@@ -235,6 +235,19 @@ def cmd_rename(a) -> Result:
     return apply_ops(a, [{"op": "rename", "name": a.name, "to": a.to}], _cmd(a, a.name, a.to))
 
 
+def cmd_dry_run(a, ops) -> Result:
+    """The ops' result, nothing written and no undo step: a task panel's preview before OK."""
+    from . import assembly_edit as E
+    pdir = project(a.slug)
+    try:
+        doc = E.apply(pdir, ops, write=False)
+    except (ValueError, KeyError) as e:
+        raise UsageError(str(e)) from None
+    except Exception as e:
+        raise UsageError(f"the assembly did not build: {st.why(e)}") from None
+    return Result(OK, {"project": a.slug, "doc": doc, "dry_run": True}, "\n".join(_status_lines(doc)), f"{a.slug}: preview")
+
+
 def cmd_apply(a) -> Result:
     text = a.ops
     if text.startswith("@"):
@@ -243,6 +256,8 @@ def cmd_apply(a) -> Result:
         ops = json.loads(text)
     except ValueError as e:
         raise UsageError(f"--ops is JSON: {e}") from None
+    if getattr(a, "dry_run", False):
+        return cmd_dry_run(a, ops)
     words = ["--ops", json.dumps(ops, separators=(",", ":"))] + (["--name", a.name] if a.name else [])
     return apply_ops(a, ops, _cmd(a, *words), a.name)
 
@@ -265,10 +280,10 @@ def cmd_jcs(a) -> Result:
     plc = W.to_placement(link.placement)
     if a.vertex:
         vertex = a.vertex
-    elif a.at:
-        vertex = J.find_element_closest_vertex(shape, plc, a.element, _triple(a.at, "--at"))
     else:
-        vertex = a.element
+        # the picked point; without one, a click at the element's centre of gravity
+        at = _triple(a.at, "--at") if a.at else J.center_of_gravity(J.sub_shape(J.placed(shape, plc), a.element))
+        vertex = J.find_element_closest_vertex(shape, plc, a.element, at)
     jcs = J.find_placement(shape, plc, [a.element, vertex], a.type == "Distance")
     g = plc * jcs
     data = {"component": a.comp, "subs": [a.element, vertex], "placement": W.placement_json(jcs),
@@ -341,11 +356,13 @@ def add_parsers(add, sub) -> None:
     sp = one("apply", cmd_apply, "several ops as one undo step: --ops '[{\"op\": \"joint\", ...}]' (or --ops @file.json)")
     sp.add_argument("--ops", required=True, metavar="JSON")
     sp.add_argument("--name", help="the undo step's name (default: FreeCAD's transaction's)")
+    sp.add_argument("--dry-run", action="store_true", help="the result of the ops, nothing written (a panel's preview)")
     sp = one("jcs", cmd_jcs, "where a pick puts the joint coordinate system (TaskAssemblyCreateJoint's preview)")
     sp.add_argument("comp")
     sp.add_argument("element", help="Face3, Edge2, Vertex4")
     sp.add_argument("--vertex", help="the vertex sub-name (Vertex4, Edge2 of the face, or the element itself)")
-    sp.add_argument("--at", metavar="X,Y,Z", help="the picked point: the nearest vertex or centre is taken, as FreeCAD does")
+    sp.add_argument("--at", metavar="X,Y,Z", help="the picked point: the nearest vertex or centre is taken, as FreeCAD does "
+                    "(default: the element's centre)")
     sp.add_argument("--type", default="Fixed", help="the joint's type (Distance ignores the vertex)")
     sp = one("asmt", cmd_asmt, "exportAsASMT: the system the solver is given, in OndselSolver's format")
     sp.add_argument("--out", metavar="FILE")

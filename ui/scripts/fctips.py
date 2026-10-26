@@ -51,7 +51,7 @@ PY_COMMANDS = {"PartDesign_InvoluteGear", "PartDesign_Sprocket", "PartDesign_Wiz
 
 def wanted(name: str) -> bool:
     return ((name.startswith("Std_") and name not in NOT_HERE) or name in PART or name == "Part_CheckGeometry"
-            or (name.startswith(("PartDesign_", "Sketcher_")) and name not in PY_COMMANDS))
+            or (name.startswith(("PartDesign_", "Sketcher_")) and name not in PY_COMMANDS) or name.startswith("Assembly_"))
 
 
 def clean(title: str) -> str:
@@ -75,7 +75,7 @@ def main() -> None:
     used = set()
     for f in sorted(SRC.glob("*.ts*")):
         if f.name != "fctips.ts":
-            used |= set(re.findall(r"\b(?:Std|Part|PartDesign|Sketcher)_[A-Za-z0-9]+\b", f.read_text()))
+            used |= set(re.findall(r"\b(?:Std|Part|PartDesign|Sketcher|Assembly)_[A-Za-z0-9]+\b", f.read_text()))
     rows = []
     for name in sorted(used):
         c = cmds.get(name)

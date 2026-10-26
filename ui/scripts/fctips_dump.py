@@ -24,7 +24,7 @@ def run():
     res = {"commands": {}, "toolbars": {}}
     try:
         App.newDocument()
-        for wb in ["NoneWorkbench", "PartWorkbench", "SketcherWorkbench", "PartDesignWorkbench"]:
+        for wb in ["NoneWorkbench", "PartWorkbench", "SketcherWorkbench", "PartDesignWorkbench", "AssemblyWorkbench"]:
             Gui.activateWorkbench(wb)
             pump(800)
             for tb in mw.findChildren(QtWidgets.QToolBar):

@@ -121,11 +121,27 @@ def load_machine(slug: str, placed: bool = True, describe: bool = True) -> Assem
     return st.load_machine(slug, placed, describe)
 
 
-def part_for(body: str, parts: list[str]) -> str | None:
-    """The part module a body comes from: the same name, or the name without
+def assembly_links(slug: str) -> dict:
+    """{component: its part} of the project's Assembly (assembly.py's ASSEMBLY, App::Links: assembly_edit.py), read
+    from the file's text; {} when there is none."""
+    try:
+        path = st.project_dir(slug) / "assembly.py"
+        text = path.read_text() if path.exists() else ""
+        if "ASSEMBLY" not in text:
+            return {}
+        from .assembly_edit import objects_of
+        return {o.name: o.linked_object for o in objects_of(text) or [] if o.kind == "Link"}
+    except Exception:
+        return {}
+
+
+def part_for(body: str, parts: list[str], links: dict | None = None) -> str | None:
+    """The part module a body comes from: the part an Assembly component links, the same name, or the name without
     a position or index suffix (end_plate_left -> end_plate), or the one part
     that name ends (standoff_fl -> plate_standoff). Anything else is stock:
     gantry_beam is not a gantry_end."""
+    if links and links.get(body) in parts:
+        return links[body]
     if body in parts:
         return body
     words = body.split("_")
@@ -152,6 +168,7 @@ def describe(slug: str, parts: dict) -> dict[str, BodyInfo]:
     from . import bought as B
     pdir = st.project_dir(slug)
     part_names = st.part_names(slug)
+    links = assembly_links(slug)
     stems = bought_stems(pdir)
     modules: dict = {}                                  # part module -> (material, process, note)
     specs: dict = {}                                    # (project, bought name) -> BoughtSpec or None
@@ -162,7 +179,7 @@ def describe(slug: str, parts: dict) -> dict[str, BodyInfo]:
             if tag:
                 out[name] = _bought(name, solid, tag.get("project") or slug, tag["name"], specs)
                 continue
-            part = part_for(name, part_names)
+            part = part_for(name, part_names, links)
             if part:
                 out[name] = _made(slug, name, solid, part, modules)
             elif name in stems:

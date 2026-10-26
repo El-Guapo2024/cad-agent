@@ -601,11 +601,12 @@ class AssemblyDocument:
         return {c.name: J.placed(self.shape_of(c.name), self.plc[c.name]) for c in self.components()}
 
     def status(self) -> dict:
-        """ViewProviderAssembly::UpdateSolverInformation's message, from the last solve."""
-        return solver_message(self.last, len(self.components()))
+        """ViewProviderAssembly::UpdateSolverInformation's message, from the last solve (the joints by Label)."""
+        labels = {o.name: (o.label or o.name) for o in self.objects}
+        return solver_message(self.last, len(self.components()), labels)
 
 
-def solver_message(out: dict | None, n_components: int) -> dict:
+def solver_message(out: dict | None, n_components: int, labels: dict | None = None) -> dict:
     """The Solver messages panel (TaskAssemblyMessages), as ViewProviderAssembly::UpdateSolverInformation writes
     it: {"state", "text", "link"}."""
     if n_components == 0:
@@ -615,7 +616,7 @@ def solver_message(out: dict | None, n_components: int) -> dict:
                 "link": _dofs((n_components + 1) * 6)}
     dofs = out.get("dof", 0)
     if dofs < 0 or out.get("redundant"):
-        names = out.get("redundant", [])
+        names = [(labels or {}).get(n, n) for n in out.get("redundant", [])]
         return {"state": "conflicting_constraints", "text": "Over-constrained: ", "link": f"({_list(names)})"}
     if out.get("status", 0) not in (0, -6) or out.get("solver_status", 0) != 0:
         return {"state": "solver_failed", "text": "Solver failed to converge", "link": ""}
@@ -625,7 +626,8 @@ def solver_message(out: dict | None, n_components: int) -> dict:
 
 
 def _dofs(n):
-    return f"{n} Degree of Freedom" if n == 1 else f"{n} Degrees of Freedom"
+    """tr("%n Degrees of Freedom", "", dofs): FreeCAD ships no English translation, so Qt fills in %n alone."""
+    return f"{n} Degrees of Freedom"
 
 
 def _list(names, limit=3):

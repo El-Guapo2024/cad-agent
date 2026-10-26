@@ -112,8 +112,15 @@ def tree(objs) -> list:
     joints and joints, then the components."""
     rows = [{"name": "Assembly", "label": "Assembly", "type": "Assembly::AssemblyObject", "depth": 0,
              "icon": "Geoassembly"},
-            {"name": "Joints", "label": "Joints", "type": "Assembly::JointGroup", "depth": 1,
-             "icon": "Assembly_JointGroup"}]
+            {"name": "Origin", "label": "Origin", "type": "App::Origin", "depth": 1, "icon": "Std_CoordinateSystem"}]
+    # App::Origin's features, labelled as FreeCAD 26.3 labels them (fcassembly.json's tree)
+    for name, label, kind in (("X_Axis", "X-axis", "App::Line"), ("Y_Axis", "Y-axis", "App::Line"),
+                              ("Z_Axis", "Z-axis", "App::Line"), ("XY_Plane", "XY-plane", "App::Plane"),
+                              ("XZ_Plane", "XZ-plane", "App::Plane"), ("YZ_Plane", "YZ-plane", "App::Plane"),
+                              ("Origin_Point", "Origin-Point", "App::Point")):
+        rows.append({"name": name, "label": label, "type": kind, "depth": 2, "icon": kind})
+    rows.append({"name": "Joints", "label": "Joints", "type": "Assembly::JointGroup", "depth": 1,
+                 "icon": "Assembly_JointGroup"})
     for o in objs:
         if isinstance(o, W.GroundedJoint):
             rows.append({"name": o.name, "label": o.label or o.name, "type": "GroundedJoint", "depth": 2,
@@ -149,6 +156,12 @@ def solved(pdir) -> dict:
     doc = W.load(pdir.name, objects_of((pdir / FILE).read_text()))
     if ondsel.available():
         doc.recompute()                     # AssemblyObject::execute: SolveOnRecompute
+    out.update(_solved_of(doc))
+    return out
+
+
+def _solved_of(doc) -> dict:
+    out = {}
     out["placements"] = {n: W.placement_json(p) for n, p in doc.plc.items()}
     out["jcs"] = {n: {"placement1": W.placement_json(p1), "placement2": W.placement_json(p2),
                       "global1": W.placement_json(doc.global_jcs(doc.get(n), 0)),
@@ -474,8 +487,9 @@ def run_ops(doc: W.AssemblyDocument, ops, slug: str, part_names=None, hand_parts
     return done
 
 
-def apply(pdir, ops) -> dict:
-    """The ops applied to the project's assembly.py, all or nothing; returns solved() of the result and "done"."""
+def apply(pdir, ops, write: bool = True) -> dict:
+    """The ops applied to the project's assembly.py, all or nothing; returns solved() of the result and "done".
+    With write False nothing is written: the result is the document the ops would leave (a panel's preview)."""
     from . import state
     pdir = Path(pdir)
     path = pdir / FILE
@@ -498,6 +512,11 @@ def apply(pdir, ops) -> dict:
     done = run_ops(doc, ops, slug, part_names)
     doc.write_back()
     new = write_src(new, doc.objects)
+    if not write:
+        out = read_src(new, slug)
+        out.update(_solved_of(doc))
+        out["done"] = done
+        return out
     if new != src:
         state.write_atomic(path, new)
     out = solved(pdir) if objects_of(new) else read(pdir)
