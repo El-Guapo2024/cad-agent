@@ -542,3 +542,60 @@ font shipped with the workbench, the host's fonts server-side through fontTools,
 — and is text that does not match FreeCAD's HarfBuzz shaping acceptable as a documented difference,
 or must the oracle compare it glyph for glyph? Moved on; this was the last item on the handoff's Next
 list (Assembly joints was logged as a question in item 1, and everything else there is done).
+
+## 7. The review's three small items — done
+
+A Claude lane's review of `ds/handoff-1025` found code and documentation leftovers; the code findings it is fixing
+itself (ShapeBinder placement, attachment query, empty binder, binder tests, editcheck's binder check, Direction 2
+spacing labels) were left alone here, and so were the files that carry them.
+
+### 7a. PARITY entries and the Data tab's Attachment Support — commit `736294c`
+
+- `ui/src/part_wb.tsx`: a Part object's Data tab wrote Attachment Support as `Base:Face6`; FreeCAD's property view
+  writes `Base [Face6]` (and `Origin [XY_Plane.]` for an Origin feature), the form `pd_attach.tsx`'s `attachmentRows`
+  already uses, so `PartObjectProps` now renders that, and the unreachable `AttachmentSupport` arm inside the
+  read-only row is gone. No PARITY line was needed for it.
+- `ui/PARITY.md`, in the matching sections: Part_EditAttachment opens TaskAttacher's panel (not FreeCAD's Python
+  TaskAttachmentEditor), its undo step is "Edit attachment" (FreeCAD's "Edit attachment of <name>"), an empty
+  reference line reads "No reference selected" (FreeCAD's is empty), and a self-click is ignored without FreeCAD's
+  "Ignored. Can't attach object to itself!"; Deactivated returns a Part object to its old `placement=` where FreeCAD
+  keeps the last attached Placement; Scale at factor 0 is an error here, an empty shape in FreeCAD; the spacing
+  labels' DISTANCE is a bare line with its text at the middle (FreeCAD: extension lines and arrows), fall back to X
+  where FreeCAD falls back to Z, and carry the Body's Placement (FreeCAD's are Body-local, equal at the identity);
+  Trim/Split/Fillet and the other tools drop their new geometry's layer, and the Elements list re-selects every
+  selected row after a rebuild where FreeCAD changes one row at a time; the ShapeBinder panel takes only this Body's
+  features, where FreeCAD takes any Part::Feature in the document. The stale ShapeBinder row's "a whole-Body
+  selection binds the Tip solid" is gone: `refsOfSelection(part, false)` drops the Body, as FreeCAD's command does.
+- Bundle rebuilt (`cad_agent/workbench/next/`).
+
+### 7b. ShapeBinder panel fixes — commit `61a37d4`
+
+- `ui/src/pd_binder.tsx`: the edit's undo step is "Edit Shape Binder", Command.cpp's transaction before
+  `PartDesignGui::setEdit` (it was "Edit <name>"). The five refusal messages in `take` (self-pick, non-Part::Feature,
+  another support object, duplicate, missing element) are gone: `referenceSelected` returns false silently and the
+  mode still ends. The invented Object/Add/Remove tooltips are gone too: `TaskShapeBinder.ui` at 3160daf1e2b6 has no
+  toolTip properties and `setupButtonGroup` sets none.
+- Bundle rebuilt (`cad_agent/workbench/next/`).
+
+### 7c. geometry_src's layer validation — commit `cfc2504`
+
+- `cad_agent/feature_edit.py`: `geometry_src` asks `feature._layer` before writing any geometry, so a `layer` that is
+  not an int 0, 1 or 2 (a float `2.0`, `True`, `-1`, `3`) is refused at write time with the build's own message,
+  instead of being written and refused on read-back with the feature's name prefixed. Line/Circle/Arc/Point go
+  through it; the conics already validated in their constructors.
+- `tests/test_feature_edit.py`: `test_a_geometry_layer_is_validated_as_the_build_does`, the four types × four bad
+  layers, compares the message to `feature.geometry_from_dict`'s and checks the file is untouched.
+
+### Tests run
+
+- `pytest tests/test_feature_edit.py tests/test_licenses.py -q` (PYTHONPATH this worktree) — 279 passed.
+- `npx tsc -b --noEmit` — clean; `npm run build` — built, bundle committed.
+- `ui/scripts/editcheck.mjs` was not run: its Shape Binder section still expects the old undo name "Edit ShapeBinder"
+  (`editcheck.mjs:332`), which the review's other lane is fixing along with the binder code findings; the file is
+  outside this lane's edits.
+
+### Unsure / questions
+
+- None of the three needed a design decision. The Data tab's Origin form ("Origin [XY_Plane.]") follows
+  `pd_attach.tsx` and `fcedit.json`; the ShapeBinder row now records "Edit Shape Binder" as both the panel's step and
+  the tree menu's label.
