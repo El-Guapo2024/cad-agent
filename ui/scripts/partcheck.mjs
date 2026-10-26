@@ -465,7 +465,7 @@ try {
         await selectRows(['Chip'])
         await sleep(300)
         const pvOf = (label) => st(`(() => { const r = [...document.querySelectorAll('.props .prow')].find((e) => e.querySelector('.pk')?.textContent.trim() === ${JSON.stringify(label)}); return r?.querySelector('.pv')?.textContent.trim() ?? null })()`)
-        same(await pvOf('Attachment Support'), 'Base:Face6', 'Part_EditAttachment: the property view\'s Attachment Support')
+        same(await pvOf('Attachment Support'), 'Base [Face6]', 'Part_EditAttachment: the property view\'s Attachment Support')
         same(await pvOf('Map Mode'), 'FlatFace', 'Part_EditAttachment: the property view\'s Map Mode')
         same(await pvOf('Attacher Engine'), 'Engine 3D', 'Part_EditAttachment: the property view\'s Attacher Engine')
         check((await pvOf('Placement'))?.includes('40.00 mm') === true, 'Part_EditAttachment: the property view\'s Placement', await pvOf('Placement'))
