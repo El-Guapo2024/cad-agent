@@ -20,7 +20,7 @@
 import { useEffect, useMemo, useRef, useState, type KeyboardEvent as RKeyboardEvent } from 'react'
 import * as THREE from 'three'
 import { api, type Body, type FeatureOp } from './api'
-import { getState, report, setState, subscribe, useStore, type Feature, type FeatureDoc } from './store'
+import { getState, setState, subscribe, useStore, type Feature, type FeatureDoc } from './store'
 import { closeTask, getView, showPanel } from './actions'
 import { EditRow, Group, Row, TaskBox, cls } from './panels'
 import { messageBox } from './msgbox'
@@ -292,17 +292,17 @@ export function BinderTask({ part, name, edit }: { part: string; name: string; e
   const paintSource = painting && cur.obj !== shown ? cur.obj : null
   const marked = mode === 'add' || mode === 'remove' ? new Set(cur.subs) : new Set<string>()
 
-  // referenceSelected: a click on a feature, a sketch or a datum, or one of its elements, changes Support as FreeCAD does
+  // referenceSelected: a click on a feature, a sketch or a datum, or one of its elements, changes Support as FreeCAD
+  // does. A pick it cannot take is refused silently (the C++ returns false without a message; the mode still ends).
   const take = (ref: Ref, m: Mode): boolean => {
     const [o, sub] = ref
-    const why = (text: string) => { report('warn', text); return false }
-    if (o === name) return why(`${name}: a binder cannot copy itself`)
-    if (!isPartFeature(doc, o)) return why(`${o} is not a Body feature, a sketch or a PartDesign datum: a binder cannot copy it`)
+    if (o === name) return false
+    if (!isPartFeature(doc, o)) return false
     const now = filtered(doc, supportRef.current)
     if (m === 'obj') { putSupport([[o, '']]); setInText(o); setRow(-1); return true }   // refs.clear(); obj = selectedObj
-    if (now.obj && o !== now.obj) return why(`${o} is not the support object ${now.obj}: Object changes the object`)
+    if (now.obj && o !== now.obj) return false
     if (m === 'add') {
-      if (sub && now.subs.includes(sub)) return why(`${o}.${sub} is already in the list`)
+      if (sub && now.subs.includes(sub)) return false
       // refs.push_back(subName), then Support.setValue(obj, refs): with no element the object itself (FreeCAD's link list
       // with an empty sub name is the whole object), and with the first reference the whole-object entry is replaced
       putSupport([...now.subs, sub].map((x) => [o, x] as Ref))
@@ -310,7 +310,7 @@ export function BinderTask({ part, name, edit }: { part: string; name: string; e
       return true
     }
     const i = now.subs.indexOf(sub)
-    if (!sub || i < 0) return why(`${o}${sub ? `.${sub}` : ''} is not in the list`)
+    if (!sub || i < 0) return false
     const rest = now.subs.filter((_, k) => k !== i)
     // PropertyLinkSubList::setValue(obj, {}) stores one link with no element: the whole object
     putSupport(rest.length ? rest.map((x) => [o, x] as Ref) : [[o, '']])
@@ -440,7 +440,7 @@ export function BinderTask({ part, name, edit }: { part: string; name: string; e
     if (!support.length && typed && isPartFeature(doc, typed)) sup = [[typed, '']]
     if (existing) {
       if (JSON.stringify(sup) === JSON.stringify(pairs(existing.support))) { closeTask(); return }
-      const done = await applyOps(part, [{ op: 'set', name, props: { support: sup } }], { name: `Edit ${name}` })
+      const done = await applyOps(part, [{ op: 'set', name, props: { support: sup } }], { name: 'Edit Shape Binder' })
       if (!done) return
     } else {
       const after = insertAfter(doc)
@@ -457,14 +457,14 @@ export function BinderTask({ part, name, edit }: { part: string; name: string; e
       <TaskBox title="Shape Binder Parameters" icon="pd-shape-binder">
         <div className="pd-form">
           <div className="tfield">
-            <button className={cls('qbtn', mode === 'obj' && 'on')} aria-pressed={mode === 'obj'} title="Select a Body feature, a sketch or a datum as the support"
+            <button className={cls('qbtn', mode === 'obj' && 'on')} aria-pressed={mode === 'obj'}
               onClick={() => toggle('obj')}>Object</button>
             <input value={inText} placeholder="No object" onChange={(e) => changeText(e.target.value)} />
           </div>
           <div className="pd-buttons">
-            <button className={cls('qbtn', mode === 'add' && 'on')} aria-pressed={mode === 'add'} title="Select a face or an edge of the support object to add it"
+            <button className={cls('qbtn', mode === 'add' && 'on')} aria-pressed={mode === 'add'}
               onClick={() => toggle('add')}>Add Geometry</button>
-            <button className={cls('qbtn', mode === 'remove' && 'on')} aria-pressed={mode === 'remove'} title="Select a face or an edge of the support object to remove it"
+            <button className={cls('qbtn', mode === 'remove' && 'on')} aria-pressed={mode === 'remove'}
               onClick={() => toggle('remove')}>Remove Geometry</button>
           </div>
           <div className="pd-reflist" role="listbox" tabIndex={0}
