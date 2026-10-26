@@ -128,7 +128,9 @@ try {
   await page.click('.trow[data-ref="Body/XY_Plane"]')
   await st('cadui.showPanel("tasks")')
   await sleep(300)
-  check(await st('document.querySelector(".taskview .pd-attach-msg").textContent === "Attached with mode Plane face"'), 'New Sketch: XY-plane picked, "Attached with mode Plane face"')
+  const xyMsg = await st('document.querySelector(".taskview .pd-attach-msg")?.textContent ?? null')
+  check(xyMsg === 'Attached with mode Plane face', 'New Sketch: XY-plane picked, "Attached with mode Plane face"',
+    `${xyMsg}; refs ${await st('JSON.stringify([...document.querySelectorAll(".taskview .pd-refrow input, .taskview input")].map((e) => e.value))')}`)
   const picked = await st('[...document.querySelectorAll(".taskview .pd-mode")].map((e) => e.textContent)')
   check(JSON.stringify(picked) === JSON.stringify(FC.pick.task_picked[0].find((w) => w.name === 'listOfModes').items), 'New Sketch: the modes for a plane, as FreeCAD lists them', `${picked}`)
   await page.click('.taskview .pd-buttons .qbtn.default')
@@ -311,7 +313,7 @@ try {
   await page.locator('.ptabs button', { hasText: /^Data$/ }).click()
   const sbProperty = (k) => `[...document.querySelectorAll('.pgrid .prow')].find((r) => r.querySelector('.pk')?.textContent === ${JSON.stringify(k)})?.querySelector('.pv')?.textContent ?? null`
   const sbSupport = await st(sbProperty('Support'))
-  check(sbSupport === 'Pad:Face6', 'Shape Binder: the Data tab shows Support Pad:Face6', sbSupport)
+  check(sbSupport === 'Pad [Face6]', 'Shape Binder: the Data tab shows Support "Pad [Face6]" (DlgPropertyLink::formatLinks)', sbSupport)
   check(await st(`!![...document.querySelectorAll('.pgrid .prow')].find((r) => r.querySelector('.pk')?.textContent === 'Trace Support')`), 'Shape Binder: the Data tab has Trace Support')
   await page.click('.trow[data-ref="Body/ShapeBinder"]', { button: 'right' })
   await sleep(300)

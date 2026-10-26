@@ -767,10 +767,11 @@ def _load(path):
     both (a Part object attached to a Body feature)."""
     from . import state
     mod = state._load_module(path)
+    if not hasattr(mod, "FEATURES") and not hasattr(mod, "OBJECTS"):
+        raise FeatureError("the part has no FEATURES")
+    # a new Body's FEATURES is empty: its Origin is still there to attach to
     features = list(getattr(mod, "FEATURES", None) or [])
     objects = list(getattr(mod, "OBJECTS", None) or [])
-    if not features and not objects:
-        raise FeatureError("the part has no FEATURES")
     params = dict(getattr(mod, "PARAMS", {}) or {})
     base = mod.build_base(**params) if hasattr(mod, "build_base") else None
     return mod, features, params, base, objects

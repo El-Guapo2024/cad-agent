@@ -244,7 +244,8 @@ export async function shapeBinder() {
   if (s.featSel.length === 1 && !s.subSel.length && !s.selected.length) {
     const [p, n] = splitRef(s.featSel[0])
     const f = p === part ? doc.features.find((x) => x.name === n) : undefined
-    if (f && isBinder(f.type)) { editBinder(part, f); return }
+    // Command.cpp's bEditSelected branch: openCommand("Edit Shape Binder"), then setEdit
+    if (f && isBinder(f.type)) { editBinder(part, f, 'Edit Shape Binder'); return }
   }
   const support = refsOfSelection(part, false)
   const name = nextName(doc, 'ShapeBinder')
@@ -252,9 +253,12 @@ export async function shapeBinder() {
   setState({ task: { kind: 'shapeBinder', body: part, other: name }, activeBody: part, selected: [], subSel: [], featSel: [] })
   showPanel('tasks')
 }
-/** ViewProviderShapeBinder::setEdit, and the ShapeBinder command on a selected binder: its panel on the feature. */
-export function editBinder(part: string, f: Feature) {
-  setState({ task: { kind: 'shapeBinder', body: part, other: f.name, edit: true }, selected: [], subSel: [], featSel: [] })
+/** ViewProviderShapeBinder::setEdit, and the ShapeBinder command on a selected binder: its panel on the feature. The undo
+ *  step is the transaction the way in opened: a double-click (ViewProviderPart::doubleClicked) and the tree's "Edit Shape
+ *  Binder" (setupContextMenu) open "Edit <Label>", the command on a selected binder "Edit Shape Binder". */
+export function editBinder(part: string, f: Feature, step?: string) {
+  const label = typeof f.label === 'string' && f.label ? f.label : f.name
+  setState({ task: { kind: 'shapeBinder', body: part, other: f.name, edit: true, step: step ?? `Edit ${label}` }, selected: [], subSel: [], featSel: [] })
   showPanel('tasks')
 }
 
@@ -440,7 +444,7 @@ export function BinderTask({ part, name, edit }: { part: string; name: string; e
     if (!support.length && typed && isPartFeature(doc, typed)) sup = [[typed, '']]
     if (existing) {
       if (JSON.stringify(sup) === JSON.stringify(pairs(existing.support))) { closeTask(); return }
-      const done = await applyOps(part, [{ op: 'set', name, props: { support: sup } }], { name: 'Edit Shape Binder' })
+      const done = await applyOps(part, [{ op: 'set', name, props: { support: sup } }], { name: getState().task?.step ?? `Edit ${name}` })
       if (!done) return
     } else {
       const after = insertAfter(doc)
@@ -482,12 +486,28 @@ export function BinderTask({ part, name, edit }: { part: string; name: string; e
   )
 }
 
+/** DlgPropertyLink::formatLinks, how the property view shows a link list: one whole object by formatObject ("Pad", or
+ *  "Label (Name)" when they differ), elements of one object as "Pad [Face6, Edge3]", links to several objects as
+ *  "[Pad.Face1, Sketch.Edge1]"; at most three, then " ...". */
+export function formatLinks(doc: FeatureDoc | undefined, sup: Ref[]): string {
+  if (!sup.length) return ''
+  const object = (o: string) => {
+    const f = doc?.features.find((x) => x.name === o)
+    const label = typeof f?.label === 'string' && f.label ? f.label : o
+    return label === o ? o : `${label} (${o})`
+  }
+  if (sup.length === 1 && !sup[0][1]) return object(sup[0][0])
+  const more = sup.length > 3 ? ' ...' : ''
+  if (sup.every(([o]) => o === sup[0][0])) return `${object(sup[0][0])} [${sup.slice(0, 3).map(([, x]) => x).join(', ')}${more}]`
+  return `[${sup.slice(0, 3).map(([o, x]) => (x ? `${o}.${x}` : object(o))).join(', ')}${more}]`
+}
+
 // ── the property view: FreeCAD's Data tab for a binder (Base: Label, Support, TraceSupport; Placement is hidden) ──────
 export function BinderProps({ part, f, set, onRename }: { part: string; f: Feature; set(props: Record<string, unknown>): void; onRename(name: string): void }) {
   const s = useStore((x) => x)
   const doc = s.features[part]
   const sup = pairs(f.support)
-  const text = sup.map(([o, x]) => (x ? `${o}:${x}` : o)).join(', ')
+  const text = formatLinks(doc, sup)
   const copies = filtered(doc, sup)
   return (
     <Group title="Base">

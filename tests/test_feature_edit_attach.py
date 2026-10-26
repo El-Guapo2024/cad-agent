@@ -406,3 +406,12 @@ def test_part_objects_see_the_body_at_its_tip(tmp_path):
     assert info["error"] and "Face7" in info["error"]
     # every feature is still placed, past the Tip too
     assert info["objects"]["Sketch001"]["placement"]["position"] == pytest.approx([0.0, 0.0, 5.0])
+
+
+def test_attach_query_on_a_new_body(tmp_path):
+    """A new Body's FEATURES is empty and New Sketch's panel still attaches to its Origin's planes."""
+    from cad_agent.feature_attach import attach_query
+    p = tmp_path / "new_body.py"
+    p.write_text("from cad_agent.feature import Body\nFEATURES = []\n\n\ndef build(**p):\n    return Body(FEATURES, p)\n")
+    out = attach_query(p, ["XY_Plane"])
+    assert out["message"] == "OK" and out["mode"] == "FlatFace", out
