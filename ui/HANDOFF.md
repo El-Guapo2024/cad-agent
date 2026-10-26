@@ -94,6 +94,12 @@ Step 5, round 3 (six branches) is all in main (7526c0c, CI green, 6977 passed, 2
   out-of-edit commands (Validate/Map/Reorient/Mirror/Merge sketches) are on origin/sketcher-outofedit-wip, not merged.
 - Next: Assembly joints (Assembly workbench, its solver), then the leftovers in PARITY.md (ShapeBinder, Part's 3D
   picking and attachment, Part Scale/Face/Ruled/Reverse, pattern spacing labels, Sketcher text and visual layers).
+- DeepSeek's handoff (ShapeBinder, Part attachment and 3D picking, Part Scale/Face/Ruled/Reverse, pattern spacing
+  labels, Sketcher visual layers), reviewed and fixed, is in main as a2fffac (2026-10-26). DeepSeek works in its own
+  worktree on ds/handoff-1025 and commits there only; the lead reviews and squashes its work into main.
+- Step 5, round 4 (2026-10-26): Assembly (below) is in main; Sketcher text and the out-of-edit sketch commands are on
+  branch sketcher-text. Each golden folder has a cases.py: load it under its own name (importlib, as the tests do),
+  never `sys.path.insert` + `from cases import`, or it shadows another folder's in the full run.
 - pd-pick (2026-10-25): every panel's reference picks in the 3D view through FreeCAD's gates (src/pd_pick.tsx), datums
   as references everywhere (cad_agent/feature_refs.py, tests/golden/pick), Pad ReferenceAxis, Std_Delete that breaks
   links as FreeCAD (feature_delete.py), PartDesign_Plane/Line/Point/CoordinateSystem, the split primitive buttons,

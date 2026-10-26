@@ -2,11 +2,11 @@
 tests/golden/assembly/cases.py replayed through our commands, each step's component placements, joint references
 and JCS held to what freecadcmd recorded (tests/golden/assembly/freecad.json, make.py), and the ASMT system each
 case ends with (exportAsASMT) compared number by number."""
+import importlib.util
 import json
 import math
 import re
 import shutil
-import sys
 from pathlib import Path
 
 import pytest
@@ -14,8 +14,10 @@ import pytest
 from cad_agent import ondsel
 
 HERE = Path(__file__).resolve().parent / "golden" / "assembly"
-sys.path.insert(0, str(HERE))
-from cases import CASES  # noqa: E402
+_spec = importlib.util.spec_from_file_location("assembly_cases", HERE / "cases.py")  # not "cases": each golden has one
+_cases = importlib.util.module_from_spec(_spec)
+_spec.loader.exec_module(_cases)
+CASES = _cases.CASES
 
 GOLD = json.loads((HERE / "freecad.json").read_text())["cases"]
 pytestmark = pytest.mark.skipif(not ondsel.available(), reason="ui/ondsel is not built (ui/ondsel/build.sh native)")
