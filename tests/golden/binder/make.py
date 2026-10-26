@@ -26,6 +26,9 @@ from cad_agent import feature  # noqa: E402
 from cases import CASES  # noqa: E402
 
 
+ORIGIN_TYPES = ("App::Line", "App::Plane", "App::Point")
+
+
 def r(x):
     return round(x, 9) + 0.0                     # -0.0 is 0.0
 
@@ -44,6 +47,10 @@ def measure(shape):
     corn = [bb.XMin, bb.YMin, bb.ZMin, bb.XMax, bb.YMax, bb.ZMax]
     if any(abs(c) > 1e99 for c in corn):
         m["infinite"] = True
+        if shape.ShapeType == "Edge":                # the line's direction, the plane's normal
+            m["axis"] = [r(c) for c in shape.Curve.Direction]
+        elif shape.ShapeType == "Face":
+            m["axis"] = [r(c) for c in shape.Surface.Axis]
     else:
         m.update({"bbox": [r(c) for c in corn], "area": r(shape.Area), "volume": r(shape.Volume)})
     return m
@@ -62,7 +69,8 @@ for name, case in CASES.items():
     for o in body.Group:
         if o.TypeId == "PartDesign::ShapeBinder":
             res["binders"][o.Name] = {
-                "support": [[v.Name, list(s)] for v, s in o.Support],
+                # an Origin feature by its Role, the name the FEATURES give it (FreeCAD's point is Origin001)
+                "support": [[v.Role if v.TypeId in ORIGIN_TYPES else v.Name, list(s)] for v, s in o.Support],
                 "trace_support": bool(o.TraceSupport),
                 **measure(o.Shape),
             }

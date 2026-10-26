@@ -351,3 +351,58 @@ def test_a_primitive_is_attached_edited_and_followed(plate):
     assert '("Plate", "Face2")' in plate.read_text()
     with pytest.raises(E.FeatureEditError, match="Box"):
         E.apply(plate, [{"op": "delete", "name": "Plate"}])
+
+
+_TIP_PART = '''"""a Body with a Pad past its Tip, and maybe Part objects"""
+from cad_agent import feature_part as Part
+from cad_agent.feature import Body, LineSegment, Pad, Sketch
+
+
+def _rect(x0, y0, x1, y1):
+    return [LineSegment((x0, y0), (x1, y0)), LineSegment((x1, y0), (x1, y1)),
+            LineSegment((x1, y1), (x0, y1)), LineSegment((x0, y1), (x0, y0))]
+
+
+FEATURES = [
+    Sketch("Sketch", support="XY", geometry=_rect(0, 0, 40, 20)),
+    Pad("Pad", "Sketch", length=5.0),
+    Sketch("Sketch001", attachment_support=[("Pad", "Face6")], map_mode="FlatFace", geometry=_rect(5, 5, 15, 15)),
+    Pad("Pad001", "Sketch001", length=3.0),
+]
+TIP = "Pad"
+OBJECTS = [%s]
+
+
+def build(**p):
+    return Body(FEATURES, p, tip=TIP)
+'''
+
+
+@pytest.mark.parametrize("objects", ["", 'Part.Box("Box", length=2, width=2, height=2)'])
+def test_attach_query_before_a_body_sketch_cuts_the_body(tmp_path, objects):
+    """A Body feature's references resolve in the Body before it whether or not the part has Part objects: Pad.Face6
+    is a forward reference for Sketch (LinkBroken), and a reference for Sketch001."""
+    from cad_agent.feature_attach import attach_query
+    p = tmp_path / "tip_part.py"
+    p.write_text(_TIP_PART % objects)
+    out = attach_query(p, ["Pad.Face6"], before="Sketch")
+    assert out["message"] == "LinkBroken" and "'Pad'" in out["error"]
+    out = attach_query(p, ["Pad.Face6"], before="Sketch001")
+    assert out["message"] == "OK" and out["placement"]["position"] == pytest.approx([0.0, 0.0, 5.0])
+
+
+def test_part_objects_see_the_body_at_its_tip(tmp_path):
+    """The Body's shape is its Tip's (Body::Tip), as feature_edit_part builds it: with TIP = "Pad" the boss of Pad001,
+    built past the Tip, is not in it, so the Body has the plate's six faces and no Face7."""
+    from cad_agent.feature_attach import attach_query, body_info
+    p = tmp_path / "tip_part.py"
+    p.write_text(_TIP_PART % 'Part.Box("Box", length=2, width=2, height=2)')
+    out = attach_query(p, ["Body.Face7"], before="Box")
+    assert out["message"] == "LinkBroken" and "Face7" in out["error"]
+    assert attach_query(p, ["Body.Face6"], before="Box")["message"] == "OK"
+    p.write_text(_TIP_PART % 'Part.Box("Box", length=2, width=2, height=2, attachment_support=[("Body", "Face7")], '
+                 'map_mode="FlatFace")')
+    info = body_info(p)
+    assert info["error"] and "Face7" in info["error"]
+    # every feature is still placed, past the Tip too
+    assert info["objects"]["Sketch001"]["placement"]["position"] == pytest.approx([0.0, 0.0, 5.0])

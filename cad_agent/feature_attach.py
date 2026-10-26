@@ -496,6 +496,9 @@ class Context:
             raise FeatureError(f"{where}: no {obj!r} before it (a feature, a datum, or the Body's origin: "
                                f"{', '.join(ORIGIN)})")
         pl = self.placements[obj]
+        if sub and kind not in ("sketch", "datum") and self.shapes.get(obj) is None:
+            # AttachEngine::extractSubShape: an element of an object with no shape (an empty ShapeBinder)
+            raise FeatureError(f"{where}: AttachEngine3D: subshape not found {obj}.{sub}")
         try:
             if kind == "sketch":
                 return self.sketch_shape(obj, sub), pl, not sub, False
@@ -773,20 +776,35 @@ def _load(path):
     return mod, features, params, base, objects
 
 
-def _evaluate_upto(features, params, base):
+def _evaluate_upto(features, params, base, tip=None):
     """feature.evaluate of the features, and the first error if one stops it: (shapes, error or None). What
-    builds before the error is kept, as FreeCAD's tree keeps it."""
+    builds before the error is kept, as FreeCAD's tree keeps it. Every feature is built, past the Tip too, as
+    FreeCAD recomputes every feature of a Body; "Tip", the Body's shape, is the tip's solid (Body::Tip)."""
     from .feature import evaluate
     try:
-        return evaluate(features, params, base), None
+        return _with_tip(evaluate(features, params, base), features, tip), None
     except FeatureError as e:
         err = str(e)
     for i in range(len(features) - 1, -1, -1):          # the longest prefix that builds
         try:
-            return evaluate(features[:i], params, base), err
+            return _with_tip(evaluate(features[:i], params, base), features[:i], tip), err
         except FeatureError:
             continue
     return evaluate([], params, base), err
+
+
+def _with_tip(shapes, features, tip):
+    """shapes with "Tip" the solid after the tip feature (the last solid feature up to it), as feature.evaluate's
+    tip= leaves it, without stopping the build there."""
+    names = [getattr(f, "name", None) for f in features]
+    if tip is None or tip not in names and tip != "BaseFeature":
+        return shapes
+    solid = shapes.get("BaseFeature")
+    for n in ([] if tip == "BaseFeature" else names[:names.index(tip) + 1]):
+        if n in shapes and not n.startswith("_"):
+            solid = shapes[n]
+    shapes["Tip"] = solid
+    return shapes
 
 
 def needs_body(doc: dict) -> bool:
@@ -811,11 +829,11 @@ def body_info(path) -> dict:
     {"placement": ..., "map_mode": ..., "external": [...]}}, "error"}. Built past the Tip, as FreeCAD recomputes every
     feature of a Body, and every Part object after the objects it links."""
     try:
-        _, features, params, base, part_objects = _load(path)
+        mod, features, params, base, part_objects = _load(path)
     except Exception as e:                              # a part that does not load says why; the tree still shows
         return {"objects": {}, "error": f"{type(e).__name__}: {e}"}
     if part_objects:
-        return _part_info(part_objects, features, params, base)
+        return _part_info(part_objects, features, params, base, getattr(mod, "TIP", None))
     shapes, err = _evaluate_upto(features, params, base)
     ctx = shapes["_attach"]
     objects = {}
@@ -832,10 +850,11 @@ def body_info(path) -> dict:
     return {"objects": objects, "error": err}
 
 
-def _part_info(part_objects, features, params, base) -> dict:
-    """body_info of a part with Part objects: feature_part.evaluate places them, and the Body it holds."""
+def _part_info(part_objects, features, params, base, tip=None) -> dict:
+    """body_info of a part with Part objects: feature_part.evaluate places them, and the Body it holds (its shape
+    the Tip's, as feature_edit_part builds it)."""
     from . import feature_part as Part
-    body, body_err = _evaluate_upto(features, params, base) if features else ({}, None)
+    body, body_err = _evaluate_upto(features, params, base, tip) if features else ({}, None)
     try:
         shapes = Part.evaluate(part_objects, params, features, base, body=body, keep_going=True)
     except FeatureError as e:                           # OBJECTS that do not load: a duplicate name, a bad entry
@@ -893,22 +912,24 @@ def attach_query(path, support, engine: str = "Plane", mode: str | None = None, 
     resolve in the Body as it stands before `before` (the feature being edited), or with all of it; a Part object
     (`before` in a part with OBJECTS) resolves them among the objects before it, and uses its own engine, the
     AttacherEngine the editor shows (Attacher::AttachEngine3D for every Part object)."""
-    _, features, params, base, part_objects = _load(path)
+    mod, features, params, base, part_objects = _load(path)
     body_err = None
-    if part_objects:
+    names = [getattr(f, "name", None) for f in features]
+    target = next((o for o in part_objects if o.name == before), None)
+    if part_objects and (target is not None or before not in names):
         from . import feature_part as Part
-        target = next((o for o in part_objects if o.name == before), None)
         if target is not None:
             engine = target.engine
             part_objects = part_objects[:[o.name for o in part_objects].index(before)]
-        body, body_err = _evaluate_upto(features, params, base) if features else ({}, None)
+        body, body_err = _evaluate_upto(features, params, base, getattr(mod, "TIP", None)) \
+            if features else ({}, None)
         try:
             shapes = Part.evaluate(part_objects, params, features, base, body=body, keep_going=True)
         except FeatureError as e:
             return {"engine": engine, "message": "LinkBroken", "error": str(e)}
         ctx, err = shapes["_ctx"], body_err
     else:
-        names = [getattr(f, "name", None) for f in features]
+        # a Body feature (a sketch, a datum) resolves its references in the Body before it, Part objects or not
         if before is not None and before in names:
             features = features[:names.index(before)]
         shapes, err = _evaluate_upto(features, params, base)
