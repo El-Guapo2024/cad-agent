@@ -463,10 +463,13 @@ export class CadView {
    *  New Sketch picks one, a Pad's preview), by key; null removes and disposes it. Kept across a scene reload. */
   private helpers = new Map<string, THREE.Object3D>()
   setHelper(key: string, obj: THREE.Object3D | null) {
+    // before the first render there is no scene (three-cad-viewer throws on viewer.scene): the helper is kept, and show()
+    // adds the helpers once the scene is there (a store subscriber, the datums', can run while loadScene sets the scene)
+    const scene = this.rendered ? this.viewer.scene : null
     const old = this.helpers.get(key)
     if (old) {
       if (this.hovered) { let had = false; old.traverse((o) => { if (o.userData.pickName === this.hovered) had = true }); if (had) this.hovered = null }
-      this.viewer.scene?.remove(old)
+      scene?.remove(old)
       old.traverse((o) => {
         const m = o as THREE.Mesh
         m.geometry?.dispose()
@@ -480,7 +483,7 @@ export class CadView {
       // only what names itself for helperPicker (userData.pickName) can be hit
       obj.traverse((o) => { if (!o.userData.pickName) o.raycast = () => {} })
       this.helpers.set(key, obj)
-      this.viewer.scene?.add(obj)
+      scene?.add(obj)
     }
     this.redraw()
   }

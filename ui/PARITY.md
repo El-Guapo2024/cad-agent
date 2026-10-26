@@ -852,7 +852,7 @@ in `src/sketchobjcmds.tsx` and `cad_agent/sketch_commands.py` (`cad feature vali
 | Part file | `Constraint("Text", [0, 0, 1, 0, ...], "Text", "osifont-lgpl3fe", False)` in a sketch's constraints; feature_edit reads and writes it, to_freecad hands it to Sketcher.Constraint; the glyphs are ordinary geometry (BSplineCurve, LineSegment), so the sketch pads as FreeCAD's does |
 | Validate Sketch | done: TaskSketcherValidation's panel (Missing coincidences with its tolerance and Ignore construction geometry, Find and Fix; open and non-manifold vertices highlighted; invalid constraints Find/Fix; Delete constraints to external geometry; degenerated geometry Find/Fix; reversed external arcs; constraint orientation locking), with FreeCAD's notifications; points drawn in the 3D view |
 | Attach, Reorient, Mirror, Merge Sketch | done: the Select Sketch and Sketch Attachment input dialogs (the circular dependency check, the suggested and current modes), "Sketch Has Support" then SketchOrientationDialog, SketchMirrorDialog (X axis, Y axis, origin), the merged sketch's external geometry and the constraints FreeCAD skips with its Report view lines, each one undo step named as FreeCAD names it |
-| Checks | tests/golden/sketchtext (66 cases) and tests/golden/sketchobj (298 cases: mirror, merge and validate through freecadcmd, regenerated 2026-10-26: 298 equal); sketchcheck suite text against FreeCAD's GUI (ui/scripts/sketchcases-text.json, sketchref-text.json): 17 of 20 as FreeCAD, 3 known; sketchobjcheck (scripts/fcsketchobj.json from FreeCAD's GUI): 264 ok, 0 failing, 14 known |
+| Checks | tests/golden/sketchtext (66 cases) and tests/golden/sketchobj (298 cases: mirror, merge and validate through freecadcmd, regenerated 2026-10-26: 298 equal); sketchcheck suite text against FreeCAD's GUI (ui/scripts/sketchcases-text.json, sketchref-text.json): 19 of 22 as FreeCAD, 3 known; every suite on sketcher-text merged with main a2fffac: 335 of 342 as FreeCAD, 7 known, 0 differences; sketchobjcheck (scripts/fcsketchobj.json from FreeCAD's GUI, recorded again 2026-10-26: the same answers): 264 ok, 0 failing, 14 known |
 
 Known differences:
 - The Font box lists the fonts cad-agent finds, which leave out the three FreeCAD finds in its own folders: osifont-italic and
@@ -870,6 +870,9 @@ Known differences:
   either way); Cancel there is its own step, "Detach sketch", where FreeCAD clears the support outside any transaction.
 - Validate's orientation locking and "Delete constraints to external geometry" with nothing to delete write nothing: FreeCAD
   opens an undo step for a change that does not stay (changeConstraintsLocking puts the old constraints back).
+- Validate's "Swap Endpoints in Constraints" never becomes enabled: every projected arc is counter-clockwise (rebuildExternalGeometry
+  makes them so since FreeCAD 0.15, as cad_agent/feature_attach.py's projection does), so Find reports no reversed arc, as FreeCAD
+  does for any sketch made since; the swap itself (port_reversedExternalArcs) is not ported.
 
 ## Still missing
 

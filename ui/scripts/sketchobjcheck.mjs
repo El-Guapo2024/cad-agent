@@ -96,6 +96,7 @@ const BASE = `http://127.0.0.1:${port}`
 const browser = await chromium.launch({ args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader'] })
 const page = await browser.newPage({ viewport: { width: 1400, height: 950 } })
 page.on('pageerror', (e) => bad('page error', process.env.DEBUG ? e.stack : e.message))
+if (process.env.DEBUG) page.on('console', (m) => { if (m.type() === 'error' || m.type() === 'warning') console.log('  console', m.type(), m.text().slice(0, 600)) })
 const st = (expr) => page.evaluate(expr)
 const until = async (expr, what, ms = 60000, quiet = false) => {
   const t0 = Date.now()
