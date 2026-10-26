@@ -1,0 +1,1897 @@
+{
+ "freecad": "26.3.0 20260929 (Git shallow)",
+ "cases": {
+  "attach_flat_face": {
+   "Base": {
+    "type": "Solid",
+    "valid": true,
+    "volume": 4000.0,
+    "area": 1600.0,
+    "length": 400.0,
+    "bbox": [
+     0.0,
+     0.0,
+     0.0,
+     20.0,
+     20.0,
+     10.0
+    ],
+    "center_of_mass": [
+     10.0,
+     10.0,
+     5.0
+    ],
+    "solids": 1,
+    "shells": 1,
+    "faces": 6,
+    "wires": 6,
+    "edges": 12,
+    "vertices": 8,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
+   },
+   "Box": {
+    "type": "Solid",
+    "valid": true,
+    "volume": 48.0,
+    "area": 88.0,
+    "length": 96.0,
+    "bbox": [
+     1.0,
+     1.0,
+     13.0,
+     5.0,
+     7.196152423,
+     17.732050808
+    ],
+    "center_of_mass": [
+     3.0,
+     4.098076211,
+     15.366025404
+    ],
+    "solids": 1,
+    "shells": 1,
+    "faces": 6,
+    "wires": 6,
+    "edges": 12,
+    "vertices": 8,
+    "placement": [
+     [
+      1.0,
+      2.0,
+      13.0
+     ],
+     [
+      0.0,
+      0.0,
+      29.999999999999996
+     ]
+    ]
+   }
+  },
+  "attach_flip": {
+   "Base": {
+    "type": "Solid",
+    "valid": true,
+    "volume": 4000.0,
+    "area": 1600.0,
+    "length": 400.0,
+    "bbox": [
+     0.0,
+     0.0,
+     0.0,
+     20.0,
+     20.0,
+     10.0
+    ],
+    "center_of_mass": [
+     10.0,
+     10.0,
+     5.0
+    ],
+    "solids": 1,
+    "shells": 1,
+    "faces": 6,
+    "wires": 6,
+    "edges": 12,
+    "vertices": 8,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
+   },
+   "Box": {
+    "type": "Solid",
+    "valid": true,
+    "volume": 48.0,
+    "area": 88.0,
+    "length": 96.0,
+    "bbox": [
+     -5.0,
+     2.0,
+     5.0,
+     -1.0,
+     8.0,
+     7.0
+    ],
+    "center_of_mass": [
+     -3.0,
+     5.0,
+     6.0
+    ],
+    "solids": 1,
+    "shells": 1,
+    "faces": 6,
+    "wires": 6,
+    "edges": 12,
+    "vertices": 8,
+    "placement": [
+     [
+      -1.0,
+      2.0,
+      7.0
+     ],
+     [
+      180.0,
+      0.0,
+      180.0
+     ]
+    ]
+   }
+  },
+  "attach_side": {
+   "Base": {
+    "type": "Solid",
+    "valid": true,
+    "volume": 4000.0,
+    "area": 1600.0,
+    "length": 400.0,
+    "bbox": [
+     0.0,
+     0.0,
+     0.0,
+     20.0,
+     20.0,
+     10.0
+    ],
+    "center_of_mass": [
+     10.0,
+     10.0,
+     5.0
+    ],
+    "solids": 1,
+    "shells": 1,
+    "faces": 6,
+    "wires": 6,
+    "edges": 12,
+    "vertices": 8,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
+   },
+   "Cylinder": {
+    "type": "Solid",
+    "valid": true,
+    "volume": 62.831853072,
+    "area": 87.964594301,
+    "length": 60.265482457,
+    "bbox": [
+     22.0,
+     -2.0,
+     -2.0,
+     27.0,
+     2.0,
+     2.0
+    ],
+    "center_of_mass": [
+     24.5,
+     -0.0,
+     -0.0
+    ],
+    "solids": 1,
+    "shells": 1,
+    "faces": 3,
+    "wires": 3,
+    "edges": 3,
+    "vertices": 2,
+    "placement": [
+     [
+      22.0,
+      0.0,
+      0.0
+     ],
+     [
+      90.0,
+      0.0,
+      90.0
+     ]
+    ]
+   }
+  },
+  "attach_object_xy": {
+   "Base": {
+    "type": "Solid",
+    "valid": true,
+    "volume": 4000.0,
+    "area": 1600.0,
+    "length": 400.0,
+    "bbox": [
+     0.0,
+     0.0,
+     0.0,
+     20.0,
+     20.0,
+     10.0
+    ],
+    "center_of_mass": [
+     10.0,
+     10.0,
+     5.0
+    ],
+    "solids": 1,
+    "shells": 1,
+    "faces": 6,
+    "wires": 6,
+    "edges": 12,
+    "vertices": 8,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
+   },
+   "Box": {
+    "type": "Solid",
+    "valid": true,
+    "volume": 48.0,
+    "area": 88.0,
+    "length": 96.0,
+    "bbox": [
+     5.0,
+     5.0,
+     5.757359313,
+     9.0,
+     10.656854249,
+     11.414213562
+    ],
+    "center_of_mass": [
+     7.0,
+     7.828427125,
+     8.585786438
+    ],
+    "solids": 1,
+    "shells": 1,
+    "faces": 6,
+    "wires": 6,
+    "edges": 12,
+    "vertices": 8,
+    "placement": [
+     [
+      5.0,
+      5.0,
+      10.0
+     ],
+     [
+      0.0,
+      0.0,
+      -45.00000000000001
+     ]
+    ]
+   }
+  },
+  "attach_chain": {
+   "Base": {
+    "type": "Solid",
+    "valid": true,
+    "volume": 4000.0,
+    "area": 1600.0,
+    "length": 400.0,
+    "bbox": [
+     0.0,
+     0.0,
+     0.0,
+     20.0,
+     20.0,
+     10.0
+    ],
+    "center_of_mass": [
+     10.0,
+     10.0,
+     5.0
+    ],
+    "solids": 1,
+    "shells": 1,
+    "faces": 6,
+    "wires": 6,
+    "edges": 12,
+    "vertices": 8,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
+   },
+   "BoxA": {
+    "type": "Solid",
+    "valid": true,
+    "volume": 48.0,
+    "area": 88.0,
+    "length": 96.0,
+    "bbox": [
+     0.0,
+     0.0,
+     15.0,
+     4.0,
+     6.0,
+     17.0
+    ],
+    "center_of_mass": [
+     2.0,
+     3.0,
+     16.0
+    ],
+    "solids": 1,
+    "shells": 1,
+    "faces": 6,
+    "wires": 6,
+    "edges": 12,
+    "vertices": 8,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      15.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
+   },
+   "BoxB": {
+    "type": "Solid",
+    "valid": true,
+    "volume": 48.0,
+    "area": 88.0,
+    "length": 96.0,
+    "bbox": [
+     -6.0,
+     0.0,
+     15.0,
+     -2.0,
+     6.0,
+     17.0
+    ],
+    "center_of_mass": [
+     -4.0,
+     3.0,
+     16.0
+    ],
+    "solids": 1,
+    "shells": 1,
+    "faces": 6,
+    "wires": 6,
+    "edges": 12,
+    "vertices": 8,
+    "placement": [
+     [
+      -2.0,
+      0.0,
+      17.0
+     ],
+     [
+      180.0,
+      0.0,
+      180.0
+     ]
+    ]
+   }
+  },
+  "attach_deactivated": {
+   "Base": {
+    "type": "Solid",
+    "valid": true,
+    "volume": 4000.0,
+    "area": 1600.0,
+    "length": 400.0,
+    "bbox": [
+     0.0,
+     0.0,
+     0.0,
+     20.0,
+     20.0,
+     10.0
+    ],
+    "center_of_mass": [
+     10.0,
+     10.0,
+     5.0
+    ],
+    "solids": 1,
+    "shells": 1,
+    "faces": 6,
+    "wires": 6,
+    "edges": 12,
+    "vertices": 8,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
+   },
+   "Box": {
+    "type": "Solid",
+    "valid": true,
+    "volume": 48.0,
+    "area": 88.0,
+    "length": 96.0,
+    "bbox": [
+     30.0,
+     4.48236191,
+     0.0,
+     34.0,
+     10.795554958,
+     3.484765923
+    ],
+    "center_of_mass": [
+     32.0,
+     7.638958434,
+     1.742382962
+    ],
+    "solids": 1,
+    "shells": 1,
+    "faces": 6,
+    "wires": 6,
+    "edges": 12,
+    "vertices": 8,
+    "placement": [
+     [
+      30.0,
+      5.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      15.000000000000002
+     ]
+    ]
+   }
+  },
+  "attach_cut": {
+   "Base": {
+    "type": "Solid",
+    "valid": true,
+    "volume": 4000.0,
+    "area": 1600.0,
+    "length": 400.0,
+    "bbox": [
+     0.0,
+     0.0,
+     0.0,
+     20.0,
+     20.0,
+     10.0
+    ],
+    "center_of_mass": [
+     10.0,
+     10.0,
+     5.0
+    ],
+    "solids": 1,
+    "shells": 1,
+    "faces": 6,
+    "wires": 6,
+    "edges": 12,
+    "vertices": 8,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
+   },
+   "Cylinder": {
+    "type": "Solid",
+    "valid": true,
+    "volume": 848.230016469,
+    "area": 622.035345411,
+    "length": 135.398223686,
+    "bbox": [
+     7.0,
+     7.0,
+     -10.0,
+     13.0,
+     13.0,
+     20.0
+    ],
+    "center_of_mass": [
+     10.0,
+     10.0,
+     5.0
+    ],
+    "solids": 1,
+    "shells": 1,
+    "faces": 3,
+    "wires": 3,
+    "edges": 3,
+    "vertices": 2,
+    "placement": [
+     [
+      10.0,
+      10.0,
+      -10.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
+   },
+   "Cut": {
+    "type": "Compound",
+    "valid": true,
+    "volume": 3717.256661177,
+    "area": 1731.946891451,
+    "length": 495.398223686,
+    "bbox": [
+     0.0,
+     -20.0,
+     -35.0,
+     20.0,
+     0.0,
+     -25.0
+    ],
+    "center_of_mass": [
+     10.0,
+     -10.0,
+     -30.0
+    ],
+    "solids": 1,
+    "shells": 1,
+    "faces": 7,
+    "wires": 9,
+    "edges": 15,
+    "vertices": 10,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      -25.0
+     ],
+     [
+      0.0,
+      0.0,
+      180.0
+     ]
+    ]
+   }
+  },
+  "attach_polygon": {
+   "Base": {
+    "type": "Solid",
+    "valid": true,
+    "volume": 4000.0,
+    "area": 1600.0,
+    "length": 400.0,
+    "bbox": [
+     0.0,
+     0.0,
+     0.0,
+     20.0,
+     20.0,
+     10.0
+    ],
+    "center_of_mass": [
+     10.0,
+     10.0,
+     5.0
+    ],
+    "solids": 1,
+    "shells": 1,
+    "faces": 6,
+    "wires": 6,
+    "edges": 12,
+    "vertices": 8,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
+   },
+   "Polygon": {
+    "type": "Wire",
+    "valid": true,
+    "volume": 0.0,
+    "area": 0.0,
+    "length": 24.0,
+    "bbox": [
+     2.0,
+     2.0,
+     14.0,
+     10.0,
+     8.0,
+     14.0
+    ],
+    "center_of_mass": [
+     7.0,
+     4.0,
+     14.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 0,
+    "wires": 1,
+    "edges": 3,
+    "vertices": 3,
+    "placement": [
+     [
+      2.0,
+      2.0,
+      14.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
+   }
+  },
+  "attach_circle_edge": {
+   "Cylinder": {
+    "type": "Solid",
+    "valid": true,
+    "volume": 603.185789489,
+    "area": 402.123859659,
+    "length": 124.530964915,
+    "bbox": [
+     -4.0,
+     -4.0,
+     0.0,
+     4.0,
+     4.0,
+     12.0
+    ],
+    "center_of_mass": [
+     -0.0,
+     -0.0,
+     6.0
+    ],
+    "solids": 1,
+    "shells": 1,
+    "faces": 3,
+    "wires": 3,
+    "edges": 3,
+    "vertices": 2,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
+   },
+   "Circle": {
+    "type": "Edge",
+    "valid": true,
+    "volume": 0.0,
+    "area": 0.0,
+    "length": 12.566370614,
+    "bbox": [
+     -2.0,
+     -2.0,
+     15.0,
+     2.0,
+     2.0,
+     15.0
+    ],
+    "center_of_mass": [
+     0.0,
+     0.0,
+     15.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 0,
+    "wires": 0,
+    "edges": 1,
+    "vertices": 1,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      15.0
+     ],
+     [
+      89.99999999999999,
+      0.0,
+      0.0
+     ]
+    ]
+   }
+  },
+  "attach_fuse_placement": {
+   "Base": {
+    "type": "Solid",
+    "valid": true,
+    "volume": 4000.0,
+    "area": 1600.0,
+    "length": 400.0,
+    "bbox": [
+     0.0,
+     0.0,
+     0.0,
+     20.0,
+     20.0,
+     10.0
+    ],
+    "center_of_mass": [
+     10.0,
+     10.0,
+     5.0
+    ],
+    "solids": 1,
+    "shells": 1,
+    "faces": 6,
+    "wires": 6,
+    "edges": 12,
+    "vertices": 8,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
+   },
+   "Cylinder": {
+    "type": "Solid",
+    "valid": true,
+    "volume": 565.486677646,
+    "area": 433.539786195,
+    "length": 115.398223686,
+    "bbox": [
+     7.0,
+     7.0,
+     -5.0,
+     13.0,
+     13.0,
+     15.0
+    ],
+    "center_of_mass": [
+     10.0,
+     10.0,
+     5.0
+    ],
+    "solids": 1,
+    "shells": 1,
+    "faces": 3,
+    "wires": 3,
+    "edges": 3,
+    "vertices": 2,
+    "placement": [
+     [
+      10.0,
+      10.0,
+      -5.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
+   },
+   "Fusion": {
+    "type": "Compound",
+    "valid": true,
+    "volume": 4282.743338823,
+    "area": 1788.495559215,
+    "length": 570.796447372,
+    "bbox": [
+     0.0,
+     -7.071067812,
+     25.0,
+     20.0,
+     14.142135624,
+     46.213203436
+    ],
+    "center_of_mass": [
+     10.0,
+     3.535533906,
+     35.606601718
+    ],
+    "solids": 1,
+    "shells": 1,
+    "faces": 10,
+    "wires": 12,
+    "edges": 18,
+    "vertices": 12,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      25.0
+     ],
+     [
+      0.0,
+      0.0,
+      45.00000000000001
+     ]
+    ]
+   }
+  },
+  "attach_body_face": {
+   "Box": {
+    "type": "Solid",
+    "valid": true,
+    "volume": 48.0,
+    "area": 88.0,
+    "length": 96.0,
+    "bbox": [
+     3.0,
+     3.0,
+     7.0,
+     7.0,
+     9.0,
+     9.0
+    ],
+    "center_of_mass": [
+     5.0,
+     6.0,
+     8.0
+    ],
+    "solids": 1,
+    "shells": 1,
+    "faces": 6,
+    "wires": 6,
+    "edges": 12,
+    "vertices": 8,
+    "placement": [
+     [
+      3.0,
+      3.0,
+      7.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
+   },
+   "Body": {
+    "type": "Solid",
+    "valid": true,
+    "volume": 3600.0,
+    "area": 1800.0,
+    "length": 448.0,
+    "bbox": [
+     0.0,
+     0.0,
+     0.0,
+     30.0,
+     20.0,
+     6.0
+    ],
+    "center_of_mass": [
+     15.0,
+     10.0,
+     3.0
+    ],
+    "solids": 1,
+    "shells": 1,
+    "faces": 6,
+    "wires": 6,
+    "edges": 12,
+    "vertices": 8
+   }
+  },
+  "attach_origin_plane": {
+   "Box": {
+    "type": "Solid",
+    "valid": true,
+    "volume": 48.0,
+    "area": 88.0,
+    "length": 96.0,
+    "bbox": [
+     5.0,
+     5.0,
+     30.0,
+     9.0,
+     11.0,
+     32.0
+    ],
+    "center_of_mass": [
+     7.0,
+     8.0,
+     31.0
+    ],
+    "solids": 1,
+    "shells": 1,
+    "faces": 6,
+    "wires": 6,
+    "edges": 12,
+    "vertices": 8,
+    "placement": [
+     [
+      5.0,
+      5.0,
+      30.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
+   },
+   "Body": {
+    "type": "Solid",
+    "valid": true,
+    "volume": 3600.0,
+    "area": 1800.0,
+    "length": 448.0,
+    "bbox": [
+     0.0,
+     0.0,
+     0.0,
+     30.0,
+     20.0,
+     6.0
+    ],
+    "center_of_mass": [
+     15.0,
+     10.0,
+     3.0
+    ],
+    "solids": 1,
+    "shells": 1,
+    "faces": 6,
+    "wires": 6,
+    "edges": 12,
+    "vertices": 8
+   }
+  }
+ },
+ "extension": {
+  "Part::BooleanFragments": {
+   "AttachmentSupport": [],
+   "MapMode": "Deactivated",
+   "AttachmentOffset": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ],
+   "MapReversed": false,
+   "MapPathParameter": 0.0
+  },
+  "Part::Box": {
+   "AttachmentSupport": [],
+   "MapMode": "Deactivated",
+   "AttachmentOffset": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ],
+   "MapReversed": false,
+   "MapPathParameter": 0.0
+  },
+  "Part::Chamfer": {
+   "AttachmentSupport": [],
+   "MapMode": "Deactivated",
+   "AttachmentOffset": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ],
+   "MapReversed": false,
+   "MapPathParameter": 0.0
+  },
+  "Part::Circle": {
+   "AttachmentSupport": [],
+   "MapMode": "Deactivated",
+   "AttachmentOffset": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ],
+   "MapReversed": false,
+   "MapPathParameter": 0.0
+  },
+  "Part::Common": {
+   "AttachmentSupport": [],
+   "MapMode": "Deactivated",
+   "AttachmentOffset": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ],
+   "MapReversed": false,
+   "MapPathParameter": 0.0
+  },
+  "Part::Compound": {
+   "AttachmentSupport": [],
+   "MapMode": "Deactivated",
+   "AttachmentOffset": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ],
+   "MapReversed": false,
+   "MapPathParameter": 0.0
+  },
+  "Part::CompoundFilter": {
+   "AttachmentSupport": [],
+   "MapMode": "Deactivated",
+   "AttachmentOffset": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ],
+   "MapReversed": false,
+   "MapPathParameter": 0.0
+  },
+  "Part::Cone": {
+   "AttachmentSupport": [],
+   "MapMode": "Deactivated",
+   "AttachmentOffset": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ],
+   "MapReversed": false,
+   "MapPathParameter": 0.0
+  },
+  "Part::Connect": {
+   "AttachmentSupport": [],
+   "MapMode": "Deactivated",
+   "AttachmentOffset": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ],
+   "MapReversed": false,
+   "MapPathParameter": 0.0
+  },
+  "Part::Cut": {
+   "AttachmentSupport": [],
+   "MapMode": "Deactivated",
+   "AttachmentOffset": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ],
+   "MapReversed": false,
+   "MapPathParameter": 0.0
+  },
+  "Part::Cutout": {
+   "AttachmentSupport": [],
+   "MapMode": "Deactivated",
+   "AttachmentOffset": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ],
+   "MapReversed": false,
+   "MapPathParameter": 0.0
+  },
+  "Part::Cylinder": {
+   "AttachmentSupport": [],
+   "MapMode": "Deactivated",
+   "AttachmentOffset": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ],
+   "MapReversed": false,
+   "MapPathParameter": 0.0
+  },
+  "Part::Ellipse": {
+   "AttachmentSupport": [],
+   "MapMode": "Deactivated",
+   "AttachmentOffset": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ],
+   "MapReversed": false,
+   "MapPathParameter": 0.0
+  },
+  "Part::Ellipsoid": {
+   "AttachmentSupport": [],
+   "MapMode": "Deactivated",
+   "AttachmentOffset": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ],
+   "MapReversed": false,
+   "MapPathParameter": 0.0
+  },
+  "Part::Embed": {
+   "AttachmentSupport": [],
+   "MapMode": "Deactivated",
+   "AttachmentOffset": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ],
+   "MapReversed": false,
+   "MapPathParameter": 0.0
+  },
+  "Part::Extrusion": {
+   "AttachmentSupport": [],
+   "MapMode": "Deactivated",
+   "AttachmentOffset": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ],
+   "MapReversed": false,
+   "MapPathParameter": 0.0
+  },
+  "Part::Face": {
+   "AttachmentSupport": [],
+   "MapMode": "Deactivated",
+   "AttachmentOffset": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ],
+   "MapReversed": false,
+   "MapPathParameter": 0.0
+  },
+  "Part::Fillet": {
+   "AttachmentSupport": [],
+   "MapMode": "Deactivated",
+   "AttachmentOffset": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ],
+   "MapReversed": false,
+   "MapPathParameter": 0.0
+  },
+  "Part::Fuse": {
+   "AttachmentSupport": [],
+   "MapMode": "Deactivated",
+   "AttachmentOffset": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ],
+   "MapReversed": false,
+   "MapPathParameter": 0.0
+  },
+  "Part::Helix": {
+   "AttachmentSupport": [],
+   "MapMode": "Deactivated",
+   "AttachmentOffset": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ],
+   "MapReversed": false,
+   "MapPathParameter": 0.0
+  },
+  "Part::Line": {
+   "AttachmentSupport": [],
+   "MapMode": "Deactivated",
+   "AttachmentOffset": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ],
+   "MapReversed": false,
+   "MapPathParameter": 0.0
+  },
+  "Part::Loft": {
+   "AttachmentSupport": [],
+   "MapMode": "Deactivated",
+   "AttachmentOffset": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ],
+   "MapReversed": false,
+   "MapPathParameter": 0.0
+  },
+  "Part::Mirroring": {
+   "AttachmentSupport": [],
+   "MapMode": "Deactivated",
+   "AttachmentOffset": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ],
+   "MapReversed": false,
+   "MapPathParameter": 0.0
+  },
+  "Part::MultiCommon": {
+   "AttachmentSupport": [],
+   "MapMode": "Deactivated",
+   "AttachmentOffset": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ],
+   "MapReversed": false,
+   "MapPathParameter": 0.0
+  },
+  "Part::MultiFuse": {
+   "AttachmentSupport": [],
+   "MapMode": "Deactivated",
+   "AttachmentOffset": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ],
+   "MapReversed": false,
+   "MapPathParameter": 0.0
+  },
+  "Part::Offset": {
+   "AttachmentSupport": [],
+   "MapMode": "Deactivated",
+   "AttachmentOffset": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ],
+   "MapReversed": false,
+   "MapPathParameter": 0.0
+  },
+  "Part::Offset2D": {
+   "AttachmentSupport": [],
+   "MapMode": "Deactivated",
+   "AttachmentOffset": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ],
+   "MapReversed": false,
+   "MapPathParameter": 0.0
+  },
+  "Part::Plane": {
+   "AttachmentSupport": [],
+   "MapMode": "Deactivated",
+   "AttachmentOffset": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ],
+   "MapReversed": false,
+   "MapPathParameter": 0.0
+  },
+  "Part::Polygon": {
+   "AttachmentSupport": [],
+   "MapMode": "Deactivated",
+   "AttachmentOffset": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ],
+   "MapReversed": false,
+   "MapPathParameter": 0.0
+  },
+  "Part::Prism": {
+   "AttachmentSupport": [],
+   "MapMode": "Deactivated",
+   "AttachmentOffset": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ],
+   "MapReversed": false,
+   "MapPathParameter": 0.0
+  },
+  "Part::ProjectOnSurface": {
+   "AttachmentSupport": [],
+   "MapMode": "Deactivated",
+   "AttachmentOffset": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ],
+   "MapReversed": false,
+   "MapPathParameter": 0.0
+  },
+  "Part::Refine": {
+   "AttachmentSupport": [],
+   "MapMode": "Deactivated",
+   "AttachmentOffset": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ],
+   "MapReversed": false,
+   "MapPathParameter": 0.0
+  },
+  "Part::RegularPolygon": {
+   "AttachmentSupport": [],
+   "MapMode": "Deactivated",
+   "AttachmentOffset": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ],
+   "MapReversed": false,
+   "MapPathParameter": 0.0
+  },
+  "Part::Reverse": {
+   "AttachmentSupport": [],
+   "MapMode": "Deactivated",
+   "AttachmentOffset": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ],
+   "MapReversed": false,
+   "MapPathParameter": 0.0
+  },
+  "Part::Revolution": {
+   "AttachmentSupport": [],
+   "MapMode": "Deactivated",
+   "AttachmentOffset": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ],
+   "MapReversed": false,
+   "MapPathParameter": 0.0
+  },
+  "Part::RuledSurface": {
+   "AttachmentSupport": [],
+   "MapMode": "Deactivated",
+   "AttachmentOffset": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ],
+   "MapReversed": false,
+   "MapPathParameter": 0.0
+  },
+  "Part::Scale": {
+   "AttachmentSupport": [],
+   "MapMode": "Deactivated",
+   "AttachmentOffset": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ],
+   "MapReversed": false,
+   "MapPathParameter": 0.0
+  },
+  "Part::Section": {
+   "AttachmentSupport": [],
+   "MapMode": "Deactivated",
+   "AttachmentOffset": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ],
+   "MapReversed": false,
+   "MapPathParameter": 0.0
+  },
+  "Part::Slice": {
+   "AttachmentSupport": [],
+   "MapMode": "Deactivated",
+   "AttachmentOffset": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ],
+   "MapReversed": false,
+   "MapPathParameter": 0.0
+  },
+  "Part::Sphere": {
+   "AttachmentSupport": [],
+   "MapMode": "Deactivated",
+   "AttachmentOffset": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ],
+   "MapReversed": false,
+   "MapPathParameter": 0.0
+  },
+  "Part::Spiral": {
+   "AttachmentSupport": [],
+   "MapMode": "Deactivated",
+   "AttachmentOffset": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ],
+   "MapReversed": false,
+   "MapPathParameter": 0.0
+  },
+  "Part::Sweep": {
+   "AttachmentSupport": [],
+   "MapMode": "Deactivated",
+   "AttachmentOffset": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ],
+   "MapReversed": false,
+   "MapPathParameter": 0.0
+  },
+  "Part::Thickness": {
+   "AttachmentSupport": [],
+   "MapMode": "Deactivated",
+   "AttachmentOffset": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ],
+   "MapReversed": false,
+   "MapPathParameter": 0.0
+  },
+  "Part::Torus": {
+   "AttachmentSupport": [],
+   "MapMode": "Deactivated",
+   "AttachmentOffset": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ],
+   "MapReversed": false,
+   "MapPathParameter": 0.0
+  },
+  "Part::Tube": {
+   "AttachmentSupport": [],
+   "MapMode": "Deactivated",
+   "AttachmentOffset": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ],
+   "MapReversed": false,
+   "MapPathParameter": 0.0
+  },
+  "Part::Vertex": {
+   "AttachmentSupport": [],
+   "MapMode": "Deactivated",
+   "AttachmentOffset": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ],
+   "MapReversed": false,
+   "MapPathParameter": 0.0
+  },
+  "Part::Wedge": {
+   "AttachmentSupport": [],
+   "MapMode": "Deactivated",
+   "AttachmentOffset": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ],
+   "MapReversed": false,
+   "MapPathParameter": 0.0
+  },
+  "Part::XOR": {
+   "AttachmentSupport": [],
+   "MapMode": "Deactivated",
+   "AttachmentOffset": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ],
+   "MapReversed": false,
+   "MapPathParameter": 0.0
+  }
+ }
+}

@@ -152,7 +152,7 @@ const KEY = { Escape: 'Escape', Delete: 'Delete', Return: 'Enter', M: 'm', Tab: 
 const dialogs = []
 const near = (a, b, tol) => Math.abs(a - b) <= tol
 function sameGeo(a, b) {
-  if (a.type !== b.type || !!a.construction !== !!b.construction) return false
+  if (a.type !== b.type || !!a.construction !== !!b.construction || (a.layer ?? 0) !== (b.layer ?? 0)) return false
   const P = (u, v) => near(u[0], v[0], 0.25) && near(u[1], v[1], 0.25)
   if (a.type === 'Point') return P(a.at, b.at)
   if (a.type === 'LineSegment') return P(a.start, b.start) && P(a.end, b.end)
@@ -272,10 +272,26 @@ for (const [k, c] of CASES.cases.entries()) {
   const ctxEntries = () => p.evaluate(() => [...document.querySelectorAll('.ctx > *')].map((e) => e.classList.contains('mb-sep') ? 'sep'
     : { text: [...e.childNodes].filter((n) => n.nodeType === 3).map((n) => n.textContent).join('').trim(), enabled: !e.hasAttribute('data-disabled'),
       bold: e.classList.contains('bold'), checked: !!e.querySelector('.mb-check') }))
-  const pickCtx = async (label) => {
-    const i = (await ctxEntries()).findIndex((e) => e !== 'sep' && e.text === label)
-    if (i < 0) throw new Error(`no menu entry ${label}`)
-    await clickAt(p.locator('.ctx > *').nth(i))
+  // `path` names an entry, or a path into sub-menus ("Layer/Layer 1"), as fcsketch_dump.py's run_menu takes it: a
+  // sub-menu opens when the pointer is on its entry (CtxEntry's onMouseEnter). An entry's own label may hold a slash
+  // ("Toggle Driving/Reference"): that exact label wins over the path reading.
+  const pickCtx = async (path) => {
+    const top = await p.locator('.ctx > *').evaluateAll((l) => l.map((x) => x.classList.contains('mb-sep') ? 'sep'
+      : [...x.childNodes].filter((n) => n.nodeType === 3).map((n) => n.textContent).join('').trim()))
+    const whole = top.indexOf(path)
+    if (whole >= 0) { await clickAt(p.locator('.ctx > *').nth(whole)); return }
+    const parts = path.split('/')
+    let entries = p.locator('.ctx > *')
+    for (let i = 0; i < parts.length; i++) {
+      const texts = await entries.evaluateAll((l) => l.map((x) => x.classList.contains('mb-sep') ? 'sep'
+        : [...x.childNodes].filter((n) => n.nodeType === 3).map((n) => n.textContent).join('').trim()))
+      const j = texts.indexOf(parts[i])
+      if (j < 0) throw new Error(`no menu entry ${parts[i]}`)
+      const e = entries.nth(j)
+      if (i === parts.length - 1) { await clickAt(e); return }
+      await e.hover(); await p.waitForTimeout(150)
+      entries = e.locator('.ctx-sub > *')
+    }
   }
   // a pointer click at the element's middle, with modifier keys held (Playwright's own click waits for the layout to
   // stand still, which the docked panels' relayouts may not give it)
@@ -296,7 +312,8 @@ for (const [k, c] of CASES.cases.entries()) {
       await row.evaluate((e) => e.scrollIntoView({ block: 'nearest' }))
       const target = st.panel === 'elements' && st.sub && st.sub !== 'label' ? row.locator(`[data-sub="${st.sub}"]`) : row.locator('.skp-text')
       const editing = async () => (await row.locator('[data-rename]').count()) > 0
-      if ('check' in st) { const cb = row.locator('input[data-check]'); if ((await cb.isChecked()) !== st.check) await clickAt(cb) }
+      // a constraint's virtual space (the item's check state) or an element's visual layer (the delegate's check box)
+      if ('check' in st) { const cb = row.locator(st.panel === 'elements' ? 'input[data-sub="check"]' : 'input[data-check]'); if ((await cb.isChecked()) !== st.check) await clickAt(cb) }
       else if ('menu' in st) {
         await clickAt(target, { button: 'right', modifiers }); await p.waitForTimeout(120)
         if (st.record) (panelRecord.menus ??= []).push(await ctxEntries())
@@ -423,7 +440,7 @@ for (const [k, c] of CASES.cases.entries()) {
     else {
       const rowsC = (l) => JSON.stringify((l ?? []).map((r) => ({ text: r.text, hidden: r.hidden, checked: r.checked, selected: r.selected, tip: r.tip })))
       if (w.constraints && rowsC(o.constraints) !== rowsC(w.constraints)) diffs.push(`constraints list\n     ours     ${rowsC(o.constraints)}\n     FreeCAD  ${rowsC(w.constraints)}`)
-      const rowsE = (l) => JSON.stringify((l ?? []).map((r) => ({ id: r.id, hidden: r.hidden, selected: r.selected })))
+      const rowsE = (l) => JSON.stringify((l ?? []).map((r) => ({ id: r.id, hidden: r.hidden, selected: r.selected, layer: r.layer ?? 0 })))
       if (w.elements && rowsE(o.elements) !== rowsE(w.elements)) diffs.push(`elements list\n     ours     ${rowsE(o.elements)}\n     FreeCAD  ${rowsE(w.elements)}`)
       // (FreeCAD names an element the Elements list selected in lower case, as SketchObject::convertSubName gives it)
       const selN = (l) => JSON.stringify((l ?? []).map((x) => x.toLowerCase()).sort())
@@ -431,6 +448,14 @@ for (const [k, c] of CASES.cases.entries()) {
       const menu = (m) => JSON.stringify((m ?? []).map((l) => l.map((e) => (e === 'sep' ? e : `${e.text}${e.enabled ? '' : ' (off)'}${e.bold ? ' (bold)' : ''}`))))
       if (w.menus && menu(panelRecord.menus) !== menu(w.menus)) diffs.push(`context menus\n     ours     ${menu(panelRecord.menus)}\n     FreeCAD  ${menu(w.menus)}`)
     }
+  }
+  // "labels": the Elements box's labels as FreeCAD's TaskSketcherElements writes them. Its ElementItem keeps the
+  // label in a private C++ member (ElementItemDelegate paints it), not in the QListWidgetItem's text(), so the oracle
+  // cannot read it back: a case file holds what FreeCAD's source makes (its ExtendedNaming formats and the #VL<layer>).
+  if (c.labels) {
+    const o = await p.evaluate(() => window.cadui.sketchPanel?.() ?? null)
+    const gotL = (o?.elements ?? []).map((r) => r.text)
+    if (JSON.stringify(gotL) !== JSON.stringify(c.labels)) diffs.push(`element labels\n     ours     ${JSON.stringify(gotL)}\n     FreeCAD  ${JSON.stringify(c.labels)}`)
   }
   if (c.check?.includes('state') && got) {
     const st = (l) => JSON.stringify(l.map((k) => ({ name: k.name ?? '', driving: k.driving !== false, active: k.active !== false, virtual: !!k.virtual_space, expr: k.expr ?? '' })))

@@ -22,6 +22,7 @@ import { VIEW } from './theme'
 import { CadView, measurePair, subInfo, type TransformPhase } from './viewer'
 import { clarifyEntries, ContextMenu, expressionActions, linkActions, navHint, popupEntries, treeEntries, type Entry } from './chrome'
 import { DressUpTask } from './pd_dressup'
+import { BinderTask } from './pd_binder'
 import { PdxTask } from './pd_transform'
 import { ExtrudeTask, FeatureProps, featureTreeEntries, isBodyDoc, PdBodyRows, refOf, toggleActiveBody, type TreeCtx } from './partdesign'
 import { isObjectRef, isPartDoc, PartDocRows, PartObjectProps, partTreeEntries } from './part_wb'
@@ -904,6 +905,7 @@ function TaskContent() {
   // PartDesign (partdesign.tsx): New Sketch's attachment panel, Pad and Pocket; `body` is the part module.
   if (task?.kind === 'attach') return <AttachTask key={`${task.body}:${task.other}`} target={attachTarget(task.body, task.other ?? '')} />
   if (task && (task.kind === 'fillet' || task.kind === 'chamfer' || task.kind === 'draft' || task.kind === 'thickness')) return <DressUpTask key={`${task.kind}:${task.body}:${task.other}`} kind={task.kind} part={task.body} name={task.other ?? ''} edit={!!task.edit} />
+  if (task?.kind === 'shapeBinder') return <BinderTask key={`shapeBinder:${task.body}:${task.other}`} part={task.body} name={task.other ?? ''} edit={!!task.edit} />
   if (task?.kind === 'pdTransform' || task?.kind === 'pdPrimitive') return <PdxTask kind={task.kind} part={task.body} other={task.other ?? ''} edit={!!task.edit} />
   if (task?.kind === 'pad' || task?.kind === 'pocket') return <ExtrudeTask key={`${task.kind}:${task.body}:${task.other}`} kind={task.kind} part={task.body} name={task.other ?? ''} edit={!!task.edit} />
   if (task?.kind === 'revolution' || task?.kind === 'groove') return <RevolveTask key={`${task.kind}:${task.body}:${task.other}`} kind={task.kind} part={task.body} name={task.other ?? ''} edit={!!task.edit} />

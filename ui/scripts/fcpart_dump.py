@@ -465,6 +465,26 @@ def main():
     doc.recompute()
     safe("cmd_Part_Thickness", lambda: run("Part_Thickness", "BoxT", subs={"BoxT": ["Face6"]}, ok="OK"))
     safe("cmd_Part_ProjectionOnSurface", lambda: run("Part_ProjectionOnSurface", cancel=True))
+
+    # Reverse, Scale, Face from wires, Ruled surface: fresh objects, so the commands' names come out as they would on a
+    # document of their own
+    rv = doc.addObject("Part::Box", "BoxRv")
+    doc.recompute()
+    safe("cmd_Part_ReverseShape", lambda: run("Part_ReverseShape", "BoxRv"))
+    sc = doc.addObject("Part::Box", "BoxSc")
+    doc.recompute()
+    safe("cmd_Part_Scale", lambda: run("Part_Scale", "BoxSc", ok="OK"))
+    safe("cmd_Part_Scale_none", lambda: run("Part_Scale", ok="OK"))
+    sketch("SketchFa", rect(0, 0, 10, 6))
+    sketch("SketchFb", rect(2, 1, 12, 7), App.Placement(V(0, 0, 5), App.Rotation()))
+    safe("cmd_Part_MakeFace", lambda: run("Part_MakeFace", "SketchFa", "SketchFb"))
+    for name, a, b in (("LineRa", (0, 0, 0), (10, 0, 0)), ("LineRb", (0, 10, 5), (10, 10, 5))):
+        line = doc.addObject("Part::Line", name)
+        line.X1, line.Y1, line.Z1, line.X2, line.Y2, line.Z2 = (*a, *b)
+        doc.recompute()
+    safe("cmd_Part_RuledSurface", lambda: run("Part_RuledSurface", "LineRa", "LineRb"))
+    # no selection: CmdPartRuledSurface's warning (its only way there: one or two whole shapes are taken as they are)
+    safe("cmd_Part_RuledSurface_none", lambda: run("Part_RuledSurface"))
     two("BoxS", "CylS")
     safe("cmd_Part_BooleanFragments", lambda: run("Part_BooleanFragments", "BoxS", "CylS"))
     two("BoxX", "CylX")

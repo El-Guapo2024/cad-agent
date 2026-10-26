@@ -42,8 +42,9 @@ import { editRevolveFeature, RevolveProps, revolveEntries, REVOLVE_ICONS, REVOLV
 import { DressUpProps, dressUpEntries, dressUpUses, editDressUp, isDressUp } from './pd_dressup'
 import { editPdx, findFeature, isPdx, pdxChildren, pdxDeleteOps, pdxIcon, pdxKind, PdxProps, pdxUses, primitiveGroup, primitiveMenu, transformMenu, transformTreeEntries } from './pd_transform'
 import './partdesign.css'
-import { attachedOf, DATUM_TYPES, isDatum, placementMatrix, withAttached } from './attached'
+import { attachedOf, DATUM_TYPES, isBinder, isDatum, placementMatrix, SHAPE_BINDER, withAttached } from './attached'
 import { attachmentRows, editAttachment, sketchOnSelection } from './pd_attach'
+import { BinderProps, editBinder, shapeBinder } from './pd_binder'
 import { DirectionGroup, FaceRow, ShapeRows, shapeFaces, shapeFromDoc, shapeToDoc, useExtrudePick, type ExtrudeRefs, type ExtrudeSel } from './pd_extrude'
 import type { Ref } from './pd_pick'
 import { deleteObjects, isObjectRef, partKey } from './part_wb'
@@ -53,10 +54,10 @@ import { OperationRow, StartReferenceRow, startRefProp, TaperRow, taperReadOnly,
 export const SKETCH = 'Sketcher::SketchObject', PAD = 'PartDesign::Pad', POCKET = 'PartDesign::Pocket'
 const ICON_OF: Record<string, IconName> = { [SKETCH]: 'pd-sketch', [PAD]: 'pd-pad', [POCKET]: 'pd-pocket',
   'PartDesign::Fillet': 'pd-fillet', 'PartDesign::Chamfer': 'pd-chamfer', 'PartDesign::Draft': 'pd-draft', 'PartDesign::Thickness': 'pd-thickness', ...REVOLVE_ICONS,
-  ...SWEEP_ICONS }
+  ...SWEEP_ICONS, [SHAPE_BINDER]: 'pd-shape-binder' }
 const KIND: Record<string, string> = { [SKETCH]: 'Sketch', [PAD]: 'Pad', [POCKET]: 'Pocket',
   'PartDesign::Fillet': 'Fillet', 'PartDesign::Chamfer': 'Chamfer', 'PartDesign::Draft': 'Draft', 'PartDesign::Thickness': 'Thickness', ...REVOLVE_KINDS,
-  ...SWEEP_KINDS }
+  ...SWEEP_KINDS, [SHAPE_BINDER]: 'ShapeBinder' }
 for (const [t, d] of Object.entries(DATUM_TYPES)) { ICON_OF[t] = d.icon as IconName; KIND[t] = t } // the datums (pd_attach.tsx)
 /** App::Origin's features, as FreeCAD names (Name) and labels (Label) them, with their ViewProviders' icons. */
 export const ORIGIN: [string, string, IconName][] = [
@@ -82,7 +83,10 @@ function consumers(doc: FeatureDoc): Record<string, string[]> {
 }
 /** The Body's own Group in order, minus the sketches a feature claims (they show under it). */
 const topLevel = (doc: FeatureDoc) => { const c = consumers(doc); return doc.features.filter((f) => f.type !== SKETCH || !c[f.name]?.length) }
-const solidNames = (doc: FeatureDoc) => doc.features.filter((f) => f.type !== SKETCH && !isDatum(f.type)).map((f) => f.name)
+/** Body::isSolidFeature over a FEATURES list: a sketch, a datum and a binder (ShapeBinder, a copy of geometry another
+ *  object has) are not solid features, so the Body's solid and Tip never follow them. */
+export const isSolid = (type: unknown) => typeof type === 'string' && type !== SKETCH && !isDatum(type) && !isBinder(type)
+const solidNames = (doc: FeatureDoc) => doc.features.filter((f) => isSolid(f.type)).map((f) => f.name)
 
 /** A value as FEATURES keeps it: a number, or the name of a PARAMS entry or an expression over them (feature.py's value()). */
 export function numberOf(v: unknown, params: Record<string, unknown>): number | null {
@@ -108,6 +112,7 @@ export function featureVisible(s: State, part: string, f: Feature | string): boo
   if (!feat) return name === 'BaseFeature' ? bodyShown && !doc.tip : false
   if (feat.type === SKETCH) return !consumers(doc)[name]?.length !== s.sketchShown.includes(refOf(part, name))
   if (isDatum(feat.type)) return bodyShown && !s.sketchShown.includes(refOf(part, name)) // shown, as a new datum is
+  if (isBinder(feat.type)) return bodyShown && !s.sketchShown.includes(refOf(part, name)) // a Body object, hidden with it (a datum's rule)
   return bodyShown && doc.tip === name
 }
 
@@ -251,6 +256,7 @@ export function editFeature(ref: string) {
   if (f.type === SKETCH) return editSketch(part, name)
   if (f.type === PAD || f.type === POCKET) { setState({ task: { kind: f.type === PAD ? 'pad' : 'pocket', body: part, other: name, edit: true } }); showPanel('tasks'); return }
   if (isDatum(f.type)) return editAttachment(part, name)   // ViewProviderDatum::doubleClicked: the attachment editor
+  if (isBinder(f.type)) return editBinder(part, f)         // ViewProviderShapeBinder::setEdit: its own panel
   if (editRevolveFeature(part, f)) return
   if (isDressUp(f.type)) return editDressUp(part, f)
   if (editSweep(part, f)) return
@@ -268,7 +274,7 @@ export async function setTip() {
   const [part, name] = splitRef(refs[0])
   const doc = getState().features[part]
   const f = doc?.features.find((x) => x.name === name)
-  if (!f || f.type === SKETCH) { await messageBox('warning', 'Selection error', 'Only a solid feature can be the tip of a body.'); return }
+  if (!f || !isSolid(f.type)) { await messageBox('warning', 'Selection error', 'Only a solid feature can be the tip of a body.'); return }
   if (doc.tip === name) { report('msg', `${name} is already the tip of the body`); return }
   await applyOps(part, [{ op: 'tip', name }], { name: 'Move tip to selected feature', line: `cad feature tip ${getState().slug} ${part} ${name}` })
 }
@@ -295,7 +301,7 @@ async function moveAfter(part: string, names: string[], target: string | null) {
   }
   if (!ops.length) return
   const lastFeat = doc.features.find((f) => f.name === last)
-  if (last !== target && doc.tip === target && lastFeat && lastFeat.type !== SKETCH) {
+  if (last !== target && doc.tip === target && lastFeat && isSolid(lastFeat.type)) {
     const yes = await messageBox('question', 'Move Tip', 'The moved feature appears after the currently set tip.\n\nSet tip to last feature?', ['No', 'Yes'])
     if (yes === 'Yes') ops.push({ op: 'tip', name: last! })
   }
@@ -336,7 +342,7 @@ export function PickItemHost() {
  *  a Draft's planes), and the solid after a deleted solid, whose BaseFeature it is. */
 export function dependents(doc: FeatureDoc, names: string[]): string[] {
   const KEYS = ['profile', 'base', 'originals', 'attachment_support', 'external_geometry', 'up_to_face', 'up_to_face2', 'up_to_shape', 'up_to_shape2',
-    'reference_axis', 'mirror_plane', 'direction', 'direction2', 'axis', 'neutral_plane', 'pull_direction']
+    'reference_axis', 'mirror_plane', 'direction', 'direction2', 'axis', 'neutral_plane', 'pull_direction', 'support']
   const first = (v: unknown): string[] => (v == null ? [] : typeof v === 'string' ? [v]
     : Array.isArray(v) ? (typeof v[0] === 'string' && (v.length === 2 && (typeof v[1] === 'string' || Array.isArray(v[1]))) ? [v[0]] : v.flatMap(first)) : [])
   const links = (f: Feature): string[] => [...KEYS.flatMap((k) => first(f[k])), ...pdxChildren(f).flatMap(links)]
@@ -387,7 +393,7 @@ export function toggleFeatureVisibility(refs = getState().featSel) {
     const f = doc?.features.find((x) => x.name === name)
     const body = bodyOfPart(s, part)
     if (!name || (f && f.name === doc.tip) || (name === 'BaseFeature' && !doc.tip)) { if (body) toggleVisibility([body.name]); continue }
-    if (f?.type === SKETCH || isDatum(f?.type)) { flip.push(r); continue }
+    if (f?.type === SKETCH || isDatum(f?.type) || isBinder(f?.type)) { flip.push(r); continue }
     if (f) report('warn', `${name} is not the Tip: the 3D view shows the Body at its Tip. Set Tip on ${name} shows the Body up to it.`)
   }
   if (flip.length) setState((x) => ({ sketchShown: [...x.sketchShown.filter((r) => !flip.includes(r)), ...flip.filter((r) => !x.sketchShown.includes(r))] }))
@@ -535,7 +541,8 @@ export function featureTreeEntries(common: { expressionActions: Entry; linkActio
   const isBody = !!one && !name
   const na = (label: string, why: string, extra: Partial<Exclude<Entry, 'sep'>> = {}): Entry => ({ label, disabled: true, title: `n/a: ${why}`, ...extra })
   const own: Entry[] = []
-  if (f && f.type !== SKETCH && !isDatum(f.type)) own.push({ label: `Edit ${f.name}`, bold: true, onSelect: () => editFeature(one!) }, na('Set Face Colors', 'face colours are the material\'s here', { icon: 'pd-color-face' }), 'sep',
+  if (f && isBinder(f.type)) own.push({ label: 'Edit Shape Binder', bold: true, onSelect: () => editFeature(one!) }, 'sep') // ViewProviderShapeBinder::setupContextMenu
+  else if (f && f.type !== SKETCH && !isDatum(f.type)) own.push({ label: `Edit ${f.name}`, bold: true, onSelect: () => editFeature(one!) }, na('Set Face Colors', 'face colours are the material\'s here', { icon: 'pd-color-face' }), 'sep',
     { label: 'Set Tip', icon: 'pd-move-tip', cmd: 'PartDesign_MoveTip', onSelect: () => void setTip() })
   if (f?.type === SKETCH) own.push({ label: 'Edit Sketch', bold: true, onSelect: () => editFeature(one!) },
     { label: 'Edit Attachment', onSelect: () => editAttachment(part, name) }, 'sep')
@@ -685,6 +692,7 @@ export function FeatureProps({ refKey }: { refKey: string }) {
       {sz.length > 0 && <Group title="Size">{sz.map((k) => <Row key={k} k={human(k.split('_').map((w) => w[0].toUpperCase() + w.slice(1)).join(''))} v={String(f[k])} />)}</Group>}
     </>
   }
+  if (isBinder(f.type)) return <BinderProps part={part} f={f} set={set} onRename={(v) => void finishRename(refKey, v)} />
   if (REVOLVE_KINDS[f.type]) return <RevolveProps part={part} f={f} set={set} finishRename={(v) => void finishRename(refKey, v)} />
   if (isDressUp(f.type)) return <DressUpProps part={part} f={f} set={set} onRename={(n) => void finishRename(refKey, n)} />
   if (isPdx(f.type)) return <PdxProps part={part} name={name} />
@@ -1120,7 +1128,8 @@ export function partDesignMenu(): Entry[] {
   return [
     { label: 'New Body', icon: 'body', cmd: 'PartDesign_Body', onSelect: () => void createBody() },
     'sep',
-    soon('Shape Binder', 'pd-shape-binder', 'PartDesign_ShapeBinder'), soon('Sub-Shape Binder', 'pd-subshape-binder', 'PartDesign_SubShapeBinder'), soon('Clone', 'pd-clone', 'PartDesign_Clone'),
+    { label: 'Shape Binder', icon: 'pd-shape-binder', cmd: 'PartDesign_ShapeBinder', disabled: !doc, onSelect: () => void shapeBinder() },
+    soon('Sub-Shape Binder', 'pd-subshape-binder', 'PartDesign_SubShapeBinder'), soon('Clone', 'pd-clone', 'PartDesign_Clone'),
     'sep',
     { label: 'Additive Features', sub: [
       { label: 'Pad', icon: 'pd-pad', cmd: 'PartDesign_Pad', disabled: !doc, onSelect: () => void padOrPocket('pad') },

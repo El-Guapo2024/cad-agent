@@ -132,6 +132,17 @@ def new_sketch(doc, name):
 GEO_UNDEF = -2000
 
 
+def geom_layer(sk, geoId):
+    """A geometry's visual layer (ViewProviderSketchGeometryExtension's VisualLayerId, 0 when it has none: the
+    property is the Gui's, so a geometry made with Part API calls has no extension until the Elements box sets one)."""
+    try:
+        g = sk.Geometry[geoId] if geoId >= 0 else sk.ExternalGeo[-geoId - 1]
+        ext = g.getExtensionOfType("SketcherGui::ViewProviderSketchGeometryExtension")
+        return int(ext.VisualLayerId) if ext is not None else 0
+    except Exception:
+        return 0
+
+
 def geo_out(sk):
     out = []
     for i, g in enumerate(sk.Geometry):
@@ -170,6 +181,9 @@ def geo_out(sk):
             d = {"type": t}
         if c:
             d["construction"] = True
+        layer = geom_layer(sk, i)
+        if layer:
+            d["layer"] = layer
         out.append(d)
     return out
 
@@ -518,7 +532,20 @@ def run_menu(pick, record):
         state["done"] = True
         if record is not None:
             record.append(menu_entries(m))
+        # `pick` names an entry, or a path into sub-menus ("Layer/Layer 1"): each step down is a sub-menu's action.
+        # An entry's own label may hold a slash ("Toggle Driving/Reference"): that exact label wins over the path.
         act = next((a for a in m.actions() if not a.isSeparator() and a.text() == pick), None) if pick else None
+        if pick and act is None:
+            parts = pick.split("/")
+            container = m
+            for i, part in enumerate(parts):
+                act = next((a for a in container.actions() if not a.isSeparator() and a.text() == part), None)
+                if act is None:
+                    break
+                if i < len(parts) - 1:
+                    container, act = act.menu(), None
+                    if container is None:
+                        break
         m.hide()
         if act is not None and act.isEnabled():
             act.trigger()
@@ -526,7 +553,7 @@ def run_menu(pick, record):
     return state
 
 
-def panel_step(st, panel_record):
+def panel_step(st, panel_record, sk=None):
     which = st["panel"]
     lw = panel_list(which) if "row" in st or "menu" in st or "empty" in st else None
     mod = MODS[st.get("mod")]
@@ -537,10 +564,16 @@ def panel_step(st, panel_record):
         pump(2)
         vp = lw.viewport()
         if which == "elements":
-            pos = _probe.rect(lw, row, st.get("sub", "label")).center()
+            pos = _probe.rect(lw, row, "check" if "check" in st else st.get("sub", "label")).center()
         else:
             pos = lw.visualItemRect(item).center()
-        if "check" in st:                     # the row's check box (a constraint's virtual space)
+        if "check" in st and which == "elements":  # the row's check box (an element's visual layer): a click, which toggles
+            from PySide6.QtTest import QTest
+            hidden = geom_layer(sk, item.data(QtCore.Qt.UserRole)) == 2
+            if hidden == bool(st["check"]):       # the box only when the row is not already as the step wants it
+                QTest.mouseClick(vp, QtCore.Qt.LeftButton, mod, pos)
+                wait(150)
+        elif "check" in st:                       # a constraint's virtual space: its item's check state
             item.setCheckState(QtCore.Qt.Checked if st["check"] else QtCore.Qt.Unchecked)
         elif "menu" in st:                    # a right click on the row, and an entry of its context menu
             from PySide6.QtTest import QTest
@@ -613,7 +646,7 @@ def panel_step(st, panel_record):
         wait(150)
 
 
-def panel_out(doc):
+def panel_out(doc, sk=None):
     out = {}
     try:
         lc = panel_list("constraints")
@@ -623,7 +656,9 @@ def panel_out(doc):
         pass
     try:
         le = panel_list("elements")
-        out["elements"] = [{"id": le.item(i).data(QtCore.Qt.UserRole), "hidden": le.item(i).isHidden(), "selected": le.item(i).isSelected()}
+        out["elements"] = [{"id": le.item(i).data(QtCore.Qt.UserRole), "hidden": le.item(i).isHidden(),
+                            "selected": le.item(i).isSelected(),
+                            "layer": geom_layer(sk, le.item(i).data(QtCore.Qt.UserRole)) if sk is not None else 0}
                            for i in range(le.count())]
     except RuntimeError:
         pass
@@ -855,7 +890,7 @@ def run_case(doc, case, k):
             Gui.Selection.clearSelection()
         elif "panel" in st:
             # the task panel's lists, filters and settings (sketchcases-panels.json)
-            panel_step(st, panel_record)
+            panel_step(st, panel_record, sk)
     pump(6)
     res["cases"][case["name"]] = {"geometry": geo_out(sk), "constraints": cons_out(sk), "message": task_message(),
                                   "report": report_text()[report_at:]}
@@ -874,7 +909,7 @@ def run_case(doc, case, k):
                            w.isVisible(), w.hasFocus(), (w.findChild(QtWidgets.QLineEdit).text() if w.findChild(QtWidgets.QLineEdit) else "")]
                           for w in mw.findChildren(QtWidgets.QAbstractSpinBox) if w.isVisible()]}
     if any("panel" in st for st in case["steps"]) or "panel" in (case.get("check") or []):
-        res["cases"][case["name"]]["panel"] = {**panel_out(doc), **panel_record}
+        res["cases"][case["name"]]["panel"] = {**panel_out(doc, sk), **panel_record}
     Gui.ActiveDocument.resetEdit()
     pump(6)
     unset_params(old_params)

@@ -357,6 +357,8 @@ export class CadView {
       popup: (pos) => {
         const c = this.client(pos)
         if (this.sketchHook) { if (this.sketchHook.popup() === 'sketch') this.onSketchMenu?.(c.x, c.y); return }
+        const label = this.labelMenu ? this.helperAt(c) : null
+        if (label?.startsWith('spacing:') && this.labelMenu?.(label, c.x, c.y)) return
         this.on.menu?.(c.x, c.y, getState().preselected ?? this.hitAt(c)?.body ?? null)
       },
       band: (a, b) => this.drawBand(a, b),
@@ -465,7 +467,12 @@ export class CadView {
     if (old) {
       if (this.hovered) { let had = false; old.traverse((o) => { if (o.userData.pickName === this.hovered) had = true }); if (had) this.hovered = null }
       this.viewer.scene?.remove(old)
-      old.traverse((o) => { const m = o as THREE.Mesh; m.geometry?.dispose(); const mat = m.material as THREE.Material | THREE.Material[] | undefined; (Array.isArray(mat) ? mat : mat ? [mat] : []).forEach((x) => x.dispose()) })
+      old.traverse((o) => {
+        const m = o as THREE.Mesh
+        m.geometry?.dispose()
+        const mat = m.material as THREE.Material | THREE.Material[] | undefined
+        ;(Array.isArray(mat) ? mat : mat ? [mat] : []).forEach((x) => { (x as THREE.SpriteMaterial).map?.dispose(); x.dispose() })
+      })
       this.helpers.delete(key)
     }
     if (obj) {
@@ -479,6 +486,10 @@ export class CadView {
   }
   /** While set, a left click on a helper that has a userData.pickName hands that name here. */
   helperPicker: ((name: string) => void) | null = null
+  /** The on-view labels' own clicks (pd_transform.tsx's patterns' spacing labels, EditableDatumLabel): a left click on one
+   *  edits it, a right click asks for its menu first (true: the menu was shown, not the view's). Names "spacing:<i>". */
+  labelPick: ((name: string, x: number, y: number) => void) | null = null
+  labelMenu: ((name: string, x: number, y: number) => boolean) | null = null
   /** A task panel's selection gate (pd_pick.tsx: ReferenceSelection::allow): which named helpers may be preselected and
    *  picked; a refused one gets FreeCAD's "Not allowed:" message and the forbidden cursor (SelectionSingleton::setPreselect). */
   helperGate: ((name: string) => true | string) | null = null
@@ -558,13 +569,16 @@ export class CadView {
     const named = (o: THREE.Object3D | null) => { for (; o; o = o.parent) if (o.userData.pickName) return o; return null }
     const hits = this.ray.intersectObjects([...this.helpers.values()], true).map((h) => ({ h, o: named(h.object) })).filter((x) => x.o)
     if (!hits.length) return null
+    // An on-view label (EditableDatumLabel's SoDatumLabel under an SoAnnotation) is drawn over the model with depth testing
+    // off, and Coin's dragger takes a click on its text wherever a face or a datum is behind it: a named sprite wins outright.
+    const label = hits.filter((x) => (x.h.object as THREE.Sprite).isSprite).sort((a, b) => a.h.distance - b.h.distance)[0]
     // userData.pickPriority: an edge over the face it bounds, within closeToFirst's 0.2 slack (hitAt's rule)
     const near = hits.filter((x) => !(x.h.distance > hits[0].h.distance + 0.2))
     near.sort((a, b) => ((b.o!.userData.pickPriority as number) ?? 0) - ((a.o!.userData.pickPriority as number) ?? 0))
-    const o = near[0].o!
+    const hit = label ?? near[0], o = hit.o!
     let selectable = false
     for (let x: THREE.Object3D | null = o; x; x = x.parent) if (x.userData.selectable) selectable = true
-    return { name: o.userData.pickName as string, distance: near[0].h.distance, selectable }
+    return { name: o.userData.pickName as string, distance: hit.h.distance, selectable }
   }
   /** For scripts (dressupcheck.mjs): a client point where a click hits the helper element named pickName (a face's triangle
    *  centre or an edge's segment middle that helperAt resolves to that name), or null when none is in view. */
@@ -576,9 +590,10 @@ export class CadView {
     const cands: { x: number; y: number }[] = []
     root.traverse((o) => {
       if (o.userData.pickName !== pickName) return
+      if ((o as THREE.Sprite).isSprite) { cands.push(toScreen(o.getWorldPosition(new THREE.Vector3()))); return }   // a label's text
       const g = (o as THREE.Mesh).geometry as THREE.BufferGeometry | undefined
       const pos = g?.attributes.position
-      if (!pos) return
+      if (!pos) { cands.push(toScreen(o.getWorldPosition(new THREE.Vector3()))); return }
       if ((o as THREE.Mesh).isMesh && g!.index) {
         const idx = g!.index
         for (let t = 0; t + 2 < idx.count; t += 3) {
@@ -670,6 +685,10 @@ export class CadView {
         this.on.hover(h?.body ?? null, h ? h.point.toArray() : null, h?.sub ?? null)
       })
       return false
+    }
+    if (ev.type === 'release' && ev.button === 1 && this.labelPick) {
+      const c = this.client(ev.pos), name = this.helperAt(c)
+      if (name?.startsWith('spacing:')) { this.labelPick(name, c.x, c.y); return true }
     }
     if (ev.type === 'release' && ev.button === 1 && this.helperPicker) {
       // A pickable helper (an Origin plane New Sketch offers) takes the click before the model does; one the panel's
@@ -1854,7 +1873,13 @@ export class CadView {
     // A helper's parts in an SoShapeScale (userData.shapeScale: pixels per unit, the node's scaleFactor), as the
     // datums are (Gui/ViewProviderDatum.cpp): the same size on screen at any zoom.
     const wpp = this.worldPerPixel(cam, c.clientHeight)
-    for (const h of this.helpers.values()) h.traverse((o) => { if (typeof o.userData.shapeScale === 'number') o.scale.setScalar(o.userData.shapeScale * wpp) })
+    for (const h of this.helpers.values()) h.traverse((o) => {
+      const s = o.userData.shapeScale
+      if (typeof s !== 'number') return
+      // a label's sprite keeps its text's aspect ratio; anything else is square to its shapeScale
+      if ((o as THREE.Sprite).isSprite) o.scale.set(s * wpp * ((o.userData.aspect as number) ?? 1), s * wpp, 1)
+      else o.scale.setScalar(s * wpp)
+    })
   }
   /** Size the SoShapeScale helpers now (a helper set after the last camera change). */
   rescaleHelpers() { this.scalePlacementIndicators(); this.redraw() }

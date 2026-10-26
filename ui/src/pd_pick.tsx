@@ -22,7 +22,7 @@ import { api, type Body } from './api'
 import { getState, setState, subscribe, type Feature, type FeatureDoc } from './store'
 import { getView } from './actions'
 import { attachedOf, DATUM_TYPES, placementMatrix, ROLES } from './attached'
-import { originPlanes, setAttachPicker, tempHidden } from './partdesign'
+import { isSolid, originPlanes, setAttachPicker, tempHidden } from './partdesign'
 
 /** ReferenceSelection's AllowSelection flags (ReferenceSelection.h). */
 export type Allow = { face?: boolean; edge?: boolean; point?: boolean; planar?: boolean; circle?: boolean; whole?: boolean; solid?: boolean; otherBody?: boolean }
@@ -138,14 +138,14 @@ export function lcsFeatureName(doc: FeatureDoc, lcs: string, role: string): stri
  *  solid; null when there is none (the Body's first solid). */
 export function baseOf(doc: FeatureDoc, feature: string | null): string | null {
   const names = doc.features.map((f) => f.name)
-  const solid = (f: Feature) => f.type !== 'Sketcher::SketchObject' && !DATUM_TYPES[f.type]
+  const solid = (f: Feature) => isSolid(f.type)
   const upto = feature && names.includes(feature) ? names.indexOf(feature) - 1 : doc.tip ? names.indexOf(doc.tip) : names.length - 1
   for (let i = upto; i >= 0; i--) if (solid(doc.features[i])) return doc.features[i].name
   return doc.base ? 'BaseFeature' : null
 }
 
 /** The base's mesh from the server (`cad feature shape`): the shape of the solid named, by FreeCAD's element names. */
-async function baseMesh(part: string, base: string): Promise<Mesh | null> {
+export async function baseMesh(part: string, base: string): Promise<Mesh | null> {
   const slug = getState().slug, doc = getState().features[part]
   if (!slug || !doc) return null
   const names = doc.features.map((f) => f.name)

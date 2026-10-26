@@ -36,8 +36,9 @@ Two entry points, for the server:
                               "name": ""}, ...]},
             {"name": "Pad", "type": "PartDesign::Pad", "profile": "Sketch", "side_type": "One side",
              "type1": "Length", "type2": "Length", "length": "thick", "length2": 10.0, ...}]}
-        Geometry is cad_agent.planegcs's form (a Point is {"type": "Point", "at": [x, y]}); a constraint's value is
-        as written, a number or a PARAMS name (on writing, "expr" takes the place of "value" when given), and it has
+        Geometry is cad_agent.planegcs's form (a Point is {"type": "Point", "at": [x, y]}); "layer" is there
+        only when it is not 0 (the Sketcher's Gui-only visual layer: 1 Discontinuous, 2 Hidden). A constraint's
+        value is as written, a number or a PARAMS name (on writing, "expr" takes the place of "value" when given), and it has
         "active": False and "virtual_space": True when it is deactivated or in the other virtual space. A Pad's or Pocket's every property is there, defaults filled in;
         the extrusion's own Type property is "type1" (FreeCAD's Type; "type" is the object's TypeId), the part
         file's keyword type=.
@@ -63,6 +64,7 @@ import re
 from pathlib import Path
 
 from . import feature as F
+from . import feature_binder as _binder
 from . import feature_edit_attach as _attach
 from . import feature_kw as KW
 from . import feature_part as _part_objects  # noqa: F401  the Part workbench's objects in OBJECTS (feature_edit_part.py)
@@ -280,8 +282,9 @@ def read_src(src: str, part: str = "") -> dict:
     objs, objects = _entries(tree, "OBJECTS")       # the Part workbench's objects (feature_edit_part.py)
     base = (lst is None and objs is None) or (body is not None and any(k.arg == "base" for k in body.keywords))
     if tip is None and feats:
-        # the last feature; a datum is never a Body's Tip (Body::insertObject leaves the Tip where it was)
-        tip = next((f["name"] for f in reversed(feats) if KINDS.get(f["type"]) not in _attach.DATUM_KINDS), None)
+        # the last feature; a datum and a ShapeBinder are never a Body's Tip (Body::insertObject leaves it where it was)
+        not_tip = _attach.DATUM_KINDS + _binder.BINDER_KINDS
+        tip = next((f["name"] for f in reversed(feats) if KINDS.get(f["type"]) not in not_tip), None)
     out = {"part": part, "params": P.read_src(src), "base": base, "tip": tip, "features": feats}
     if objs is not None:
         out.update(body=lst is not None, objects=[_feature_dict(call, src) for _, call in objects])
@@ -330,15 +333,19 @@ def geometry_src(g: dict) -> str:
     kind = g.get("type")
     c = ", construction=True" if g.get("construction") else ""
     try:
+        # the build's own validation (feature._layer): a layer that is not an int 0, 1 or 2 is refused here too, with
+        # its message, rather than written and refused when the file is next read
+        layer = F._layer(g.get("layer", 0))
+        l = f", layer={_num(layer)}" if layer else ""
         if kind == "LineSegment":
-            return f"LineSegment({_pt(g['start'])}, {_pt(g['end'])}{c})"
+            return f"LineSegment({_pt(g['start'])}, {_pt(g['end'])}{c}{l})"
         if kind == "Circle":
-            return f"Circle({_pt(g['center'])}, {_num(float(g['radius']))}{c})"
+            return f"Circle({_pt(g['center'])}, {_num(float(g['radius']))}{c}{l})"
         if kind == "ArcOfCircle":
             return (f"ArcOfCircle({_pt(g['center'])}, {_num(float(g['radius']))}, "
-                    f"{_num(float(g['start_angle']))}, {_num(float(g['end_angle']))}{c})")
+                    f"{_num(float(g['start_angle']))}, {_num(float(g['end_angle']))}{c}{l})")
         if kind == "Point":
-            return f"Point({_pt(g['at'] if 'at' in g else g['point'])}{c})"
+            return f"Point({_pt(g['at'] if 'at' in g else g['point'])}{c}{l})"
         if kind in F._curves.GEOMETRY:             # the conics and B-splines (feature_curves.py)
             return F._curves.source(g, _num)
     except (KeyError, TypeError, IndexError):

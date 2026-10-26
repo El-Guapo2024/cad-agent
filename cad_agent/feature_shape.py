@@ -86,10 +86,25 @@ def _kind(t) -> str:
     return str(t.name if hasattr(t, "name") else t).replace("GeomAbs_", "")
 
 
+def _shape_of(shapes: dict, name: str | None):
+    """The shape evaluate() gave a feature's name: a solid's from "shapes", a binder's from the Body's Context (it
+    copies its support's geometry, and is not one of the Body's solids)."""
+    if name is None:
+        return None
+    shape = shapes.get(name)
+    if shape is None:
+        ctx = shapes.get("_attach")
+        if ctx is not None and ctx.kinds.get(name) == "binder":
+            return ctx.shapes.get(name)
+    return shape
+
+
 def shapes_after(path: Path, ops: list, name: str | None):
     """(doc, feature name, base name, feature solid, base solid, error) for the part at path after ops."""
     from . import feature as F
     from . import feature_edit as E
+    from .feature_attach import DATUMS
+    from .feature_binder import ShapeBinder
     src = path.read_text()
     new = E.apply_src(src, ops) if ops else src
     new = E.follow_src(src, new, path)
@@ -104,7 +119,9 @@ def shapes_after(path: Path, ops: list, name: str | None):
     if target not in names:
         raise UsageError(f"{path.stem} has no feature {target!r}")
     i = names.index(target)
-    base_name = next((f["name"] for f in reversed(doc["features"][:i]) if f["type"] != "Sketcher::SketchObject"),
+    # Body::isSolidFeature: a sketch, a datum and a binder are not solids, so the base is the last solid before it
+    non_solid = {"Sketcher::SketchObject", ShapeBinder.TYPE_ID} | {c.type_id for c in DATUMS.values()}
+    base_name = next((f["name"] for f in reversed(doc["features"][:i]) if f["type"] not in non_solid),
                      "BaseFeature" if doc.get("base") else None)
     error = None
     shapes = {}
@@ -117,7 +134,7 @@ def shapes_after(path: Path, ops: list, name: str | None):
                 shapes = F.evaluate(feats, params, base, tip=base_name)
             except F.FeatureError:
                 shapes = {}
-    return doc, target, base_name, shapes.get(target), shapes.get(base_name) if base_name else None, error
+    return doc, target, base_name, _shape_of(shapes, target), _shape_of(shapes, base_name), error
 
 
 def _children(shape) -> int:

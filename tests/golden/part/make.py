@@ -68,6 +68,8 @@ def plain(v):
         return v
     if hasattr(v, "Value") and hasattr(v, "Unit"):
         return v.Value
+    if isinstance(v, App.Placement):
+        return [list(v.Base), list(v.Rotation.toEuler())]
     if isinstance(v, App.Vector):
         return [v.x, v.y, v.z]
     if isinstance(v, (list, tuple)):
@@ -93,6 +95,26 @@ def defaults():
     return out
 
 
+def extension_defaults():
+    """{TypeId: {property: value}} of AttachExtension on a fresh object of each type: its properties where the type has
+    the extension, else those Part::AttachExtensionPython gives it, added as TaskAttachmentEditor.__init__ adds it. The
+    Attachment editor of Part_EditAttachment works on any object with a Placement."""
+    out = {}
+    doc = App.newDocument("extension")
+    for kind, cls in sorted(Part.OBJECTS.items()):
+        try:
+            obj = doc.addObject(getattr(cls, "FC_TYPE", cls.TYPE_ID), kind.split(".")[1])
+            if not hasattr(obj, "AttacherType"):
+                obj.addExtension("Part::AttachExtensionPython")
+            out[cls.TYPE_ID] = {p: plain(obj.getPropertyByName(p)) for p in
+                                ("AttachmentSupport", "MapMode", "AttachmentOffset", "MapReversed",
+                                 "MapPathParameter")}
+        except Exception as e:  # noqa: BLE001
+            out[cls.TYPE_ID] = {"error": f"{type(e).__name__}: {e}"}
+    App.closeDocument(doc.Name)
+    return out
+
+
 only = args[0] if args and args[0] in CASES else None
 path = ROOT / "tests" / "golden" / "part" / ("freecad.json" if AREA == "base" else f"freecad_{AREA}.json")
 out = {"freecad": ".".join(App.Version()[:3]) + " " + App.Version()[3], "cases": {}}
@@ -100,6 +122,8 @@ if only and path.exists():
     out = json.loads(path.read_text())
 elif AREA == "base":
     out["defaults"] = defaults()
+if AREA == "attach":
+    out["extension"] = extension_defaults()
 for name, case in CASES.items():
     if only and name != only:
         continue
@@ -116,6 +140,8 @@ for name, case in CASES.items():
                 res[o.name] = {"error": "null shape"}
             else:
                 res[o.name] = measure(obj.Shape)
+                pl = obj.Placement
+                res[o.name]["placement"] = [list(pl.Base), list(pl.Rotation.toEuler())]
         if case.get("features") is not None:
             res["Body"] = measure(made["Body"].Shape) if not made["Body"].Shape.isNull() else {"error": "null"}
     except Exception as e:                       # noqa: BLE001 - a property FreeCAD refuses to take

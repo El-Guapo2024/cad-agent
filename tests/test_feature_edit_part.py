@@ -95,6 +95,22 @@ def test_set_rename_delete_move(tmp_path):
         E.apply(p, [{"op": "add", "feature": {"name": "Box", "type": "Part::Cone"}}])
 
 
+def test_an_attachment_follows_a_rename_and_holds_a_delete(tmp_path):
+    """AttachExtension's support is a reference like any other (a Part object's REFS): a rename follows it, a delete
+    is refused while it is used, and a move before the object it is attached to is refused."""
+    p = _doc(tmp_path)
+    E.apply(p, [{"op": "add", "feature": {"name": "Base", "type": "Part::Box"}},
+                {"op": "add", "feature": {"name": "Box", "type": "Part::Box",
+                                          "attachment_support": [["Base", "Face6"]], "map_mode": "FlatFace"}}])
+    assert 'Part.Box("Box", attachment_support=[("Base", "Face6")], map_mode="FlatFace")' in p.read_text()
+    d = E.apply(p, [{"op": "rename", "name": "Base", "to": "Ground"}])
+    assert d["objects"][1]["attachment_support"] == [["Ground", "Face6"]]
+    with pytest.raises(E.FeatureEditError, match="Box uses it"):
+        E.apply(p, [{"op": "delete", "name": "Ground"}])
+    with pytest.raises(E.FeatureEditError, match="not before it"):
+        E.apply(p, [{"op": "move", "name": "Box", "after": None}])
+
+
 def test_bad_values_are_refused_and_nothing_written(tmp_path):
     p = _doc(tmp_path)
     E.apply(p, [{"op": "add", "feature": {"name": "Box", "type": "Part::Box"}}])
