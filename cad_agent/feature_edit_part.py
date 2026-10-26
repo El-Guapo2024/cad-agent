@@ -170,9 +170,7 @@ def check(src: str, d: dict):
             if kind == "Sketch":
                 F.Sketch(n, f.get("support") or "XY",
                          [F.geometry_from_dict(g) for g in f["geometry"]],
-                         [F.Constraint(c["type"], *c["args"], *([c["value"]] if "value" in c else []),
-                                       name=c.get("name") or None, driving=c.get("driving", True))
-                          for c in f["constraints"]])
+                         [F.constraint_from_dict(c) for c in f["constraints"]])
                 if f.get("external_geometry") or (f.get("attachment_support") and not f.get("support")):
                     raise E.FeatureEditError(f"{n}: a sketch outside a Body is placed on the XY, XZ or YZ plane here")
             else:

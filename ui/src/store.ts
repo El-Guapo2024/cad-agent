@@ -110,7 +110,9 @@ export type Task = { kind: 'params' | 'placement' | 'transform' | 'measure' | 'm
   | 'pdTransform' | 'pdPrimitive'
   | 'pdSweep'     // pd_sweep.tsx: a Loft, Pipe or Helix; `other` is the feature edited, or "new:<TypeId>"
   // The Sketcher's edit mode (sketcher.ts, sketchui.tsx): TaskDlgEditSketch.
-  | 'sketch'; body: string; other?: string; edit?: boolean }
+  | 'sketch'
+  | 'sketchValidate'      // sketchobjcmds.tsx: TaskSketcherValidation on the sketch `other` of `body`
+ ; body: string; other?: string; edit?: boolean }
 /** GET /api/history: one entry of the backend's Document undo/redo journal, shared with an
  *  agent in a terminal — replaces a UI-local undo stack (actions.ts no longer replays changes). */
 export type HistoryEntry = { id: string; name: string; by: 'ui' | 'agent'; t: number }

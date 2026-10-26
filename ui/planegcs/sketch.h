@@ -16,7 +16,8 @@
 // multiplicities); constraints Coincident, Horizontal, Vertical, Parallel, Perpendicular, Tangent
 // (with B-spline knot tangency), Distance, DistanceX, DistanceY, Radius, Diameter, Weight, Angle,
 // Equal, PointOnObject (B-splines too), Symmetric, SnellsLaw, InternalAlignment (every alignment
-// type), Block, driving or not. Groups and text are not ported.
+// type), Block, driving or not; Group and Text (their geometry left out of the solve and moved
+// with the handle line after it, Sketch::applyGroupTransformations).
 #pragma once
 
 #include <map>
@@ -160,6 +161,27 @@ struct Constraint
     bool isActive = true;
     InternalAlignmentType AlignmentType = Undef;
     int InternalAlignmentIndex = -1;
+    // A Group or Text constraint's elements (Constraint::elements, from Python's [GeoId, PosId, ...]):
+    // the handle line first, then the grouped geometry. Empty for every other type, whose elements are
+    // First, Second and Third.
+    std::vector<std::pair<int, PointPos>> Elements;
+
+    // Constraint::hasElement / getGeoId (the legacy elements are always three)
+    bool hasElement(size_t i) const
+    {
+        return Elements.empty() ? i < 3 : i < Elements.size();
+    }
+    int getGeoId(size_t i) const
+    {
+        if (!Elements.empty()) {
+            return i < Elements.size() ? Elements[i].first : GeoEnum::GeoUndef;
+        }
+        return i == 0 ? First : i == 1 ? Second : i == 2 ? Third : GeoEnum::GeoUndef;
+    }
+    bool isElementsEmpty() const
+    {
+        return (Type == Group || Type == Text) && Elements.empty();
+    }
 
     void setValue(double v)
     {
@@ -383,6 +405,9 @@ public:
     double bsplineLastParameter() const;
     // GeomCurve::closestParameter (GeomAPI_ProjectPointOnCurve's lowest-distance parameter)
     double closestParameter(Vec point) const;
+    // Part::Geometry::transform(Base::Matrix4D): gp_Trsf::SetValues with the matrix's first three rows,
+    // then Geom_Geometry::Transform (a group's geometry follows its handle, Sketch::applyGroupTransformations)
+    void transform(const double m[3][4]);
 
 private:
     Vec p;         // point, line location, circle centre
@@ -421,6 +446,12 @@ public:
     int addGeometry(const Geometry& geo, bool fixed = false);
     int addGeometry(const std::vector<Geometry>& geos, bool fixed = false);
     int addGeometry(const std::vector<Geometry>& geos, const std::vector<bool>& blockedGeometry);
+    // the internal geometry with the GeoIds of Group and Text constraints left to themselves
+    int addGeometry(
+        const std::vector<Geometry>& geos,
+        const std::vector<bool>& blockedGeometry,
+        const std::set<int>& inGroupGeoIds
+    );
 
     std::vector<Geometry> extractGeometry(
         bool withConstructionElements = true,
@@ -626,6 +657,15 @@ private:
 
     std::vector<GeoDef> Geoms;
     std::vector<ConstrDef> Constrs;
+    // Group functions (Sketch.h): the handle lines before a solve, to move their groups after it
+    struct GroupLineState
+    {
+        Vec startPoint, endPoint;
+    };
+    std::map<int, GroupLineState> preSolveGroupStates;
+    GroupLineState getGroupLineState(int geoId) const;
+    void captureGroupStates();
+    void applyGroupTransformations();
     GCS::System GCSsys;
     int ConstraintsCounter;
     std::vector<int> Conflicting;

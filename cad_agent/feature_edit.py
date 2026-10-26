@@ -172,7 +172,7 @@ def _lit(node, src):
 
 
 def _constraint_dict(c):
-    d = {"type": c.type, "args": list(c.args)}
+    d = {"type": c.type, "args": list(c.args), **F.text_dict(c)}
     if c.dimensional:
         d["value"] = c.value
     d["driving"], d["name"] = c.driving, c.name or ""
@@ -351,6 +351,10 @@ def geometry_src(g: dict) -> str:
 def constraint_src(c: dict) -> str:
     t = c.get("type")
     args = [json.dumps(t)] + [str(int(a)) for a in c.get("args", [])]
+    if t == "Text":                 # Constraint("Text", [g0, p0, ...], text, font, is_text_height): sketch_text.py
+        args = [json.dumps(t), "[" + ", ".join(str(int(a)) for a in c.get("args", [])) + "]",
+                json.dumps(c.get("text", ""), ensure_ascii=False), json.dumps(c.get("font", ""), ensure_ascii=False),
+                "False" if c.get("is_text_height", True) is False else "True"]
     if t in F.DIMENSIONAL:
         if "value" not in c:
             raise FeatureEditError(f"a {t} constraint needs a value")
@@ -866,10 +870,7 @@ def _check(src):
                     kinds[sub] = "nested"
             elif f["type"] == TYPE_IDS["Sketch"]:
                 F.Sketch(n, None, [F.geometry_from_dict(g) for g in f["geometry"]],
-                         [F.Constraint(c["type"], *c["args"], *([c["value"]] if "value" in c else []),
-                                       name=c.get("name") or None, driving=c.get("driving", True),
-                                       active=c.get("active", True), virtual_space=c.get("virtual_space", False))
-                          for c in f["constraints"]], **_attach.build(f, "Sketch"),
+                         [F.constraint_from_dict(c) for c in f["constraints"]], **_attach.build(f, "Sketch"),
                          external_geometry=[tuple(r) for r in f.get("external_geometry") or []])
             else:
                 if kinds.get(f["profile"]) != "Sketch":

@@ -49,6 +49,7 @@ import { MacroEditTask, MacroRecordTask, MacrosTask, WindowsTask } from './macro
 import { NewDocumentTask, OpenDocumentTask, ExportTask } from './filemenu'
 import { DependencyGraphTask, ParameterEditorTask, SceneInspectorTask } from './tools'
 import { SketchTask } from './sketchui'
+import { ValidateTask } from './sketchobjcmds'
 import {
   attachView, closeTask, editDefault, getView, place, placementOf, preselect, runCheck, runVerify, select, selectRange, setParams, setViewProps, showPanel,
   toggleVisibility, setPose,
@@ -893,6 +894,7 @@ function TaskContent() {
   if (task?.kind === 'dependencyGraph') return <DependencyGraphTask />
   // The Sketcher's edit mode (sketchui.tsx): TaskDlgEditSketch.
   if (task?.kind === 'sketch') return <SketchTask />
+  if (task?.kind === 'sketchValidate') return <ValidateTask key={`${task.body}/${task.other}`} part={task.body} name={task.other ?? ''} />
   // PartDesign (partdesign.tsx): New Sketch's attachment panel, Pad and Pocket; `body` is the part module.
   if (task?.kind === 'attach') return <AttachTask key={`${task.body}:${task.other}`} target={attachTarget(task.body, task.other ?? '')} />
   if (task && (task.kind === 'fillet' || task.kind === 'chamfer' || task.kind === 'draft' || task.kind === 'thickness')) return <DressUpTask key={`${task.kind}:${task.body}:${task.other}`} kind={task.kind} part={task.body} name={task.other ?? ''} edit={!!task.edit} />

@@ -1,0 +1,12 @@
+/* SPDX-License-Identifier: LGPL-2.1-or-later
+   Follows FreeCAD (https://github.com/FreeCAD/FreeCAD, commit 3160daf1e2b6), copyright of the files below (each is
+   LGPL-2.0-or-later or LGPL-2.1-or-later as it states; ui/NOTICE has them all):
+     No copyright line in the file: src/Mod/Sketcher/Gui/TaskSketcherValidation.ui
+   TaskSketcherValidation.ui's group boxes (a two-column QGridLayout each), SketchOrientationDialog's preview label and
+   QInputDialog's combo box (sketchobjcmds.tsx). */
+.sk-validate .grid2 { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 4px 6px; align-items: center; }
+.sk-validate .span2 { grid-column: 1 / -1; display: block; }
+.sk-validate .tgroup > .qbtn, .sk-validate .span2 > .qbtn { display: block; width: 100%; margin: 3px 0; }
+.sk-validate .grid2 > .qbtn, .sk-validate .grid2 > .qcombo { width: 100%; }
+.orient-preview { margin: 8px 4px 0 10px; align-self: flex-start; }
+.datum-body select.qcombo { width: 100%; margin-top: 6px; }

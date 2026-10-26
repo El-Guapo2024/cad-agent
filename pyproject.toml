@@ -9,7 +9,7 @@ description = "Agent-driven mechanical CAD: parametric parts, deterministic gate
 requires-python = ">=3.12"
 # The code is MIT; the workbench UI and its build are LGPL-2.1-or-later because they are ported from FreeCAD. What else the wheel
 # carries is under the other licences listed (NOTICE says where each applies, THIRD_PARTY_LICENSES has their texts).
-license = "MIT AND LGPL-2.1-or-later AND LGPL-2.0-or-later AND BSD-3-Clause AND Zlib AND ISC AND 0BSD AND CC0-1.0 AND CC-BY-3.0 AND CC-BY-SA-2.0 AND CC-BY-SA-4.0 AND MPL-2.0 AND BSL-1.0"
+license = "MIT AND LGPL-2.1-or-later AND LGPL-2.0-or-later AND BSD-3-Clause AND Zlib AND ISC AND 0BSD AND CC0-1.0 AND CC-BY-3.0 AND CC-BY-SA-2.0 AND CC-BY-SA-4.0 AND MPL-2.0 AND BSL-1.0 AND (GPL-2.0-only WITH Font-exception-2.0 OR GPL-3.0-only WITH Font-exception-2.0 OR LGPL-3.0-only WITH Font-exception-2.0)"
 # These go into the wheel's .dist-info/licenses. The three the UI build writes into workbench/next/ are package data, below.
 license-files = ["LICENSE", "NOTICE", "THIRD_PARTY_LICENSES", "ui/LICENSE", "ui/NOTICE"]
 dependencies = [
@@ -22,6 +22,11 @@ dependencies = [
     # 3MF for printed parts (BSD-2-Clause). It has wheels for macOS, Linux x86_64 and Windows x86_64
     # and none for Linux aarch64, where pip would otherwise stop at it: cad_agent imports it lazily.
     'lib3mf>=2.4; sys_platform != "linux" or platform_machine != "aarch64"',
+    # The Sketcher's text (cad_agent/sketch_text.py), as FreeCAD's Part::makeTextWires makes it: FreeType's glyph
+    # outlines (freetype-py, BSD-3-Clause; its wheel carries FreeType, FTL or GPL-2.0) and HarfBuzz's shaping
+    # (uharfbuzz, Apache-2.0; its wheel carries HarfBuzz, MIT). Imported only by `cad feature text`.
+    "freetype-py>=2.4",
+    "uharfbuzz>=0.39",
 ]
 
 [project.optional-dependencies]
@@ -46,4 +51,5 @@ include = ["cad_agent*"]
 cad_agent = ["workbench/*", "workbench/vendor/*", "workbench/next/*", "workbench/next/assets/*", "workbench/next/freecad-icons/*",
              # the notices of the UI bundle, which `npm run build` writes (ui/scripts/licenses.mjs); named so a change to the glob above cannot drop them
              "workbench/next/LICENSE", "workbench/next/NOTICE", "workbench/next/THIRD_PARTY_LICENSES.txt",
-             "library/*.toml"]       # the part library's catalog (step 6, piece A); its generators are Python packages
+             "library/*.toml",
+             "fonts/*"]               # the Sketcher's text font, osifont-lgpl3fe (FreeCAD's default), and its licence       # the part library's catalog (step 6, piece A); its generators are Python packages

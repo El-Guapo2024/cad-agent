@@ -515,6 +515,10 @@ def add_parsers(add, sub) -> None:
     sp.set_defaults(cmd_name="feature sketchkernel", feature_cmd="sketchkernel")
     sp.add_argument("slug", nargs="?")
     sp.add_argument("--req", required=True, metavar="JSON", help="the requests (or @file.json)")
+    from .sketch_commands import add_parser as sketch_parser   # mirror, merge, reorient, map, validate (Sketcher)
+    sketch_parser(add, fsub)
+    from .sketch_text import add_parser as text_parser         # the Sketcher's text: fonts, glyphs, setTextAndFont
+    text_parser(add, fsub)
     sp = fsub.choices["apply"]
     sp.add_argument("--name", help="the undo step's name (default: FreeCAD's for the ops, as \"Make Pad\"); a task panel "
                     "that edits a feature says \"Edit Pad\", as FreeCAD's double-click does")
