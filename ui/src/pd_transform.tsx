@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: LGPL-2.1-or-later
 // Follows FreeCAD (https://github.com/FreeCAD/FreeCAD, commit 3160daf1e2b6), copyright of the files below (each is
 // LGPL-2.0-or-later or LGPL-2.1-or-later as it states; ui/NOTICE has them all):
+//   src/Gui/EditableDatumLabel.cpp: 2023 Ondsel (a label clicked and edited in place)
+//   src/Gui/SoDatumLabel.cpp: 2011-2012 Luke Parry; 2026 Joao Matos (the label's size and colours)
 //   src/Mod/PartDesign/Gui/Command.cpp: 2008 Jürgen Riegel
 //   src/Mod/PartDesign/Gui/CommandPrimitive.cpp: 2015 Stefan Tröger
 //   src/Mod/PartDesign/Gui/TaskTransformedParameters.cpp: 2012 Jan Rheinländer
@@ -21,6 +23,7 @@
 // FreeCAD runs them, their task panels with the preview overlay, the property view, the tree's icons and the menu entries.
 // partdesign.tsx calls in here for these types; every edit is `cad feature` on the server, one undo step, as Pad's are.
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
+import { createPortal } from 'react-dom'
 import * as THREE from 'three'
 import type { FeatureOp } from './api'
 import { getState, report, setState, useStore, type Feature, type FeatureDoc } from './store'
@@ -32,11 +35,12 @@ import { QComboBox } from './combo'
 import { messageBox } from './msgbox'
 import { ContextMenu, type Entry } from './chrome'
 import * as quantity from './quantity'
+import { interpretInput, shownText } from './quantity-input'
 import './pd_transform.css'
 import { AttachTask } from './pd_attach'
 import { axisRefText, patternRefText, useOriginShown, useRefPick, type Ref as PickRef } from './pd_pick'
 import type { PlacementData } from './attached'
-import { applyOps, bodyOfPart, createBody, isBodyDoc, numberOf, PAD, POCKET, previewObject, refOf, SKETCH, sketchMatrix, splitRef, targetBody,
+import { applyOps, bodyOfPart, createBody, isBodyDoc, isSolid, numberOf, PAD, POCKET, previewObject, refOf, SKETCH, sketchMatrix, splitRef, targetBody,
   type ExtrudeSpec } from './partdesign'
 
 // ── the types ────────────────────────────────────────────────────────────────
@@ -93,7 +97,7 @@ function uniqueName(taken: Set<string>, base: string) {
 const NO_BODY = 'In order to use PartDesign you need an active Body object in the document. Please make one active (double click) '
   + 'or create one.\n\nIf you have a legacy document with PartDesign objects without Body, use the migrate function in PartDesign '
   + 'to put them into a Body.'
-const lastSolid = (doc: FeatureDoc) => doc.tip ?? [...doc.features].reverse().find((f) => f.type !== SKETCH)?.name ?? doc.features[doc.features.length - 1]?.name ?? null
+const lastSolid = (doc: FeatureDoc) => doc.tip ?? [...doc.features].reverse().find((f) => isSolid(f.type))?.name ?? doc.features[doc.features.length - 1]?.name ?? null
 const clone = <T,>(x: T): T => JSON.parse(JSON.stringify(x))
 
 // ── references (PropertyLinkSub: a name, or [name, sub]) ──────────────────────
@@ -179,7 +183,7 @@ export async function makeTransformed(type: string) {
   const doc = s.features[part]
   const sel = s.featSel.map(splitRef).filter(([, n]) => n)
   if (sel.some(([p]) => p !== part)) { await messageBox('warning', 'Selection is not in the active body', 'Select only one feature in an active body.'); return }
-  const picked = sel.map(([, n]) => doc.features.find((f) => f.name === n)).filter((f): f is Feature => !!f && f.type !== SKETCH)
+  const picked = sel.map(([, n]) => doc.features.find((f) => f.name === n)).filter((f): f is Feature => !!f && isSolid(f.type))
   if (type === MULTI) {
     const tr = picked.find((f) => isTransformed(f.type) && f.type !== MULTI)
     if (tr) return convertToMulti(part, doc, tr)
@@ -467,6 +471,153 @@ function transformedPreview(doc: FeatureDoc, f: Feature): THREE.Object3D | null 
   return g
 }
 
+// ── the patterns' on-view spacing labels (PartGui::PatternParametersWidget's EditableDatumLabels) ────────────────
+/** EditableDatumLabel::initColors at the Light preference pack: the dimension's own colour, and a spacing left at -1's. */
+const LABEL_ON = '#e03131', LABEL_OFF = '#868e96'
+/** A label as TaskPatternParameters::updatePatternSpacingLabels computes it: the text, the dimension's points in the 3D view
+ *  (for an ANGLE the label's centre twice, its arc being radius, start and range), and whether it has its own spacing. */
+export type SpacingLabel = { index: number; kind: 'DISTANCE' | 'ANGLE'; text: string; points: [number[], number[]]; color: string; value: number
+  radius?: number; start?: number; range?: number; center?: number[]; axis?: number[]
+  /** the LinearPattern's direction the label is of: 1, or 2 (parametersWidget2's, Direction2's properties) */
+  dir: 1 | 2 }
+/** A pattern's properties for one direction: Direction 2 of a LinearPattern is Mode2, Length2, Offset2, Spacings2, ... */
+export function patternKeys(dir: 1 | 2) {
+  const k = dir === 2 ? '2' : ''
+  return { mode: `mode${k}`, length: `length${k}`, offset: `offset${k}`, spacings: `spacings${k}`, occurrences: `occurrences${k}`,
+    direction: `direction${k}`, reversed: `reversed${k}` }
+}
+/** TaskPatternParameters::getStartPoint: the centre of the originals' AddSubShapes' (their tools') combined bounding box,
+ *  each moved by its feature's location; (0,0,0) when there is none (Transform body). In the part's frame. */
+function patternStartPoint(doc: FeatureDoc, f: Feature): THREE.Vector3 {
+  const box = new THREE.Box3()
+  if (f.transform_mode !== 'Whole shape') for (const name of (f.originals as string[] | undefined) ?? []) {
+    const t = findFeature(doc, name), o = t && toolObject(doc, t)
+    if (o) box.expandByObject(o)
+  }
+  return box.isEmpty() ? new THREE.Vector3() : box.getCenter(new THREE.Vector3())
+}
+/** PatternParametersWidget::updateSpacingLabels for a LinearPattern or a PolarPattern: Extent draws one label, Spacing
+ *  occurrences - 1; a Spacings entry of -1 is the global offset, in the deactivated colour, and an override is its own.
+ *  A LinearPattern draws Direction 1's and then Direction 2's (TaskPatternParameters::updatePatternSpacingLabels runs it
+ *  for parametersWidget and parametersWidget2), each from the same start point.
+ *  The points are the 3D view's (the Body's placement applied, as ViewProviderTransformed's preview is). */
+function spacingLabels(doc: FeatureDoc, f: Feature): SpacingLabel[] {
+  if (f.type !== LINEAR && f.type !== POLAR) return []
+  const toWorld = partMatrix(doc), start = patternStartPoint(doc, f)
+  if (f.type === LINEAR) return [...linearLabels(doc, f, 1, toWorld, start), ...linearLabels(doc, f, 2, toWorld, start)]
+  const occ = Math.round(num(doc, f.occurrences, 3))
+  if (occ <= 1) return []
+  const mode = String(f.mode ?? 'Extent'), off = num(doc, f.offset, 120)
+  const sp = ((f.spacings as number[] | undefined) ?? []).map(Number)
+  const a = f.axis === null || f.axis === undefined ? { p: new THREE.Vector3(), d: V([0, 0, 1]) } : refAxis(doc, f.axis as Ref, false)
+  if (!a) return []
+  const axis = a.d.clone().normalize().multiplyScalar(f.reversed === true ? -1 : 1)
+  const centre = a.p.clone(), sr = start.clone().sub(centre), len = sr.length(), radius = len < 1e-7 ? 1 : len
+  const xDir = V([1, 0, 0]).applyQuaternion(new THREE.Quaternion().setFromUnitVectors(V([0, 0, 1]), axis))
+  const proj = sr.clone().addScaledVector(axis, -sr.dot(axis))
+  let angle = 0
+  if (proj.length() > 1e-6) {
+    angle = xDir.angleTo(proj)                                          // Vector3d::GetAngleOriented: 0 .. 2 pi about the axis
+    if (new THREE.Vector3().crossVectors(xDir, proj).dot(axis) < 0) angle = 2 * Math.PI - angle
+  }
+  const c = centre.clone().applyMatrix4(toWorld).toArray(), ax = axis.clone().transformDirection(toWorld).toArray()
+  const label = (index: number, value: number, startAngle: number, own: boolean): SpacingLabel => ({
+    index, dir: 1, kind: 'ANGLE', value, text: shownText({ value, dims: ANGLE }).text, points: [c, c], color: own ? LABEL_ON : LABEL_OFF,
+    radius, start: startAngle, range: THREE.MathUtils.degToRad(value), center: c, axis: ax })
+  if (mode === 'Extent') return [label(0, num(doc, f.angle, 360), angle, true)]
+  const out: SpacingLabel[] = []
+  let cum = angle
+  for (let i = 0; i < occ - 1; i++) {
+    const o = sp[i] ?? -1, value = o === -1 ? off : o
+    out.push(label(i, value, cum, o !== -1))
+    cum += THREE.MathUtils.degToRad(value)
+  }
+  return out
+}
+/** One direction's labels of a LinearPattern (updateLinearLabels): none for one occurrence; the direction is
+ *  calculateOffsetVector's, normalised, else the fallback (getLinearPatternFallbackDirection: X for Direction 1, Y for
+ *  Direction 2) when there is no direction or it has no length. */
+function linearLabels(doc: FeatureDoc, f: Feature, dir: 1 | 2, toWorld: THREE.Matrix4, start: THREE.Vector3): SpacingLabel[] {
+  const k = patternKeys(dir)
+  const occ = Math.round(num(doc, f[k.occurrences], dir === 2 ? 1 : 2))
+  if (occ <= 1) return []
+  const mode = String(f[k.mode] ?? 'Extent'), off = num(doc, f[k.offset], 10)
+  const sp = ((f[k.spacings] as number[] | undefined) ?? []).map(Number)
+  const ref = f[k.direction]
+  const a = ref === null || ref === undefined ? null : refAxis(doc, ref as Ref, false)
+  let d = a && a.d.length() > 1e-7 ? a.d.clone().normalize().multiplyScalar(f[k.reversed] === true ? -1 : 1) : null
+  if (!d) d = V(dir === 2 ? [0, 1, 0] : [1, 0, 0])
+  const rot = new THREE.Quaternion().setFromUnitVectors(V([1, 0, 0]), d)
+  const at = (x: number) => V([x, 0, 0]).applyQuaternion(rot).add(start).applyMatrix4(toWorld).toArray()
+  const label = (index: number, value: number, x: number, own: boolean): SpacingLabel => ({
+    index, dir, kind: 'DISTANCE', value, text: shownText({ value, dims: LENGTH }).text, points: [at(x), at(x + value)],
+    color: own ? LABEL_ON : LABEL_OFF })
+  if (mode === 'Extent') return [label(0, num(doc, f[k.length], 100), 0, true)]
+  const out: SpacingLabel[] = []
+  let cur = 0
+  for (let i = 0; i < occ - 1; i++) {
+    const o = sp[i] ?? -1, value = o === -1 ? off : o
+    out.push(label(i, value, cur, o !== -1))
+    cur += value
+  }
+  return out
+}
+/** A label's text as a sprite: 17 px tall (SoDatumLabel's size), its width its text's, redrawn at a constant screen size
+ *  by userData.shapeScale/aspect (Viewer.scalePlacementIndicators). */
+function spacingSprite(text: string, color: string): THREE.Sprite {
+  const px = 17, cv = document.createElement('canvas'), m = cv.getContext('2d')!
+  m.font = `${px}px sans-serif`
+  const w = Math.ceil(m.measureText(text).width) + 6, h = px + 6
+  cv.width = w
+  cv.height = h
+  const x = cv.getContext('2d')!
+  x.font = `${px}px sans-serif`
+  x.fillStyle = color
+  x.textAlign = 'center'
+  x.textBaseline = 'middle'
+  x.fillText(text, w / 2, h / 2)
+  const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: new THREE.CanvasTexture(cv), depthTest: false, transparent: true, toneMapped: false }))
+  sp.userData.aspect = w / h
+  sp.userData.shapeScale = h
+  sp.renderOrder = 999
+  return sp
+}
+/** The overlay under the panel: each label's dimension — a line between its points, or an angle's arc about the axis — and
+ *  its text, clickable as "spacing:<i>" (EditableDatumLabel's SoDatumLabel under its SoAnnotation). userData.labels is the
+ *  spec, for pickcheck.mjs. */
+function spacingOverlay(doc: FeatureDoc, f: Feature): THREE.Group | null {
+  const labels = spacingLabels(doc, f)
+  if (!labels.length) return null
+  const g = new THREE.Group()
+  g.userData.labels = labels
+  labels.forEach((l, i) => {
+    const color = new THREE.Color(l.color), pts: THREE.Vector3[] = []
+    if (l.kind === 'DISTANCE') pts.push(V(l.points[0]), V(l.points[1]))
+    else if (l.center && l.axis) {
+      const centre = V(l.center), axis = V(l.axis).normalize()
+      const q = new THREE.Quaternion().setFromUnitVectors(V([0, 0, 1]), axis)
+      const x = V([1, 0, 0]).applyQuaternion(q), y = V([0, 1, 0]).applyQuaternion(q)
+      const n = Math.max(8, Math.ceil(((l.range ?? 0) / (2 * Math.PI)) * 64))
+      for (let k = 0; k <= n; k++) {
+        const t = (l.start ?? 0) + ((l.range ?? 0) * k) / n
+        pts.push(centre.clone().addScaledVector(x, (l.radius ?? 0) * Math.cos(t)).addScaledVector(y, (l.radius ?? 0) * Math.sin(t)))
+      }
+    }
+    if (pts.length > 1) {
+      const line = new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts), new THREE.LineBasicMaterial({ color, depthTest: false }))
+      line.renderOrder = 998
+      g.add(line)
+    }
+    const mid = l.kind === 'DISTANCE' ? V(l.points[0]).lerp(V(l.points[1]), 0.5)
+      : pts.length ? pts[Math.floor(pts.length / 2)] : V(l.points[0])
+    const tag = spacingSprite(l.text, l.color)
+    tag.position.copy(mid)
+    tag.userData.pickName = `spacing:${i}`
+    g.add(tag)
+  })
+  return g
+}
+
 // ── the task panels ──────────────────────────────────────────────────────────
 function OkCancel({ onOk, onCancel }: { onOk(): void; onCancel(): void }) {
   return <div className="tbuttons pd-buttons"><button className="qbtn default" onClick={onOk}>OK</button><button className="qbtn" onClick={onCancel}>Cancel</button></div>
@@ -594,6 +745,8 @@ function TransformedTask({ part, other, edit }: { part: string; other: string; e
   const [picked, setPicked] = useState<Record<string, Ref[]>>({})          // the links picked this session (ComboLinks keeps them)
   const [sub, setSub] = useState<number | null>(null)
   const [menu, setMenu] = useState<{ x: number; y: number } | null>(null)
+  const [labelEdit, setLabelEdit] = useState<{ index: number; dir: 1 | 2; x: number; y: number; text: string; value: number } | null>(null)
+  const [labelMenu, setLabelMenu] = useState<{ index: number; dir: 1 | 2; x: number; y: number } | null>(null)
   const set = (p: Partial<Feature>) => setF((x) => (x ? { ...x, ...p } : x))
   const setSubF = (i: number, p: Partial<Feature>) => setF((x) => (x ? { ...x, transformations: pdxChildren(x).map((t, k) => (k === i ? { ...t, ...p } : t)) } : x))
   // Add Feature / Remove Feature / Select reference…: the next pick in the 3D view (the base shown in the Body's place) or the
@@ -631,9 +784,57 @@ function TransformedTask({ part, other, edit }: { part: string; other: string; e
   useEffect(() => {
     if (!f || !doc || (!update && drawn.current)) return
     drawn.current = true
-    getView()?.setHelper('pd-preview', overlay ? transformedPreview(doc, f) : null)
+    const v = getView()
+    v?.setHelper('pd-preview', overlay ? transformedPreview(doc, f) : null)
+    v?.setHelper('pd-spacing', spacingOverlay(doc, f))
+    v?.rescaleHelpers()
   }, [f, overlay, update])
-  useEffect(() => () => { getView()?.setHelper('pd-preview', null) }, [])
+  useEffect(() => () => { const v = getView(); v?.setHelper('pd-preview', null); v?.setHelper('pd-spacing', null) }, [])
+  // EditableDatumLabel's clicked / rightClicked, on the labels the panel draws
+  useEffect(() => {
+    const v = getView()
+    if (!v || !f || !doc) return
+    const labels = spacingLabels(doc, f)
+    v.labelPick = (name, x, y) => {
+      const l = labels[Number(name.slice('spacing:'.length))]
+      if (l) setLabelEdit({ index: l.index, dir: l.dir, x, y, text: l.text, value: l.value })
+    }
+    v.labelMenu = (name, x, y) => {
+      // onSpacingLabelRightClicked: only a spacing label that has an override offers "Reset spacing"; the rest leave the view's menu
+      const l = labels[Number(name.slice('spacing:'.length))]
+      if (!l) return false
+      const k = patternKeys(l.dir), i = l.index, sp = ((f[k.spacings] as number[] | undefined) ?? []).map(Number)
+      if (String(f[k.mode] ?? 'Extent') !== 'Spacing' || i >= sp.length || sp[i] === -1) return false
+      setLabelMenu({ index: i, dir: l.dir, x, y })
+      return true
+    }
+    return () => { v.labelPick = null; v.labelMenu = null }
+  }, [f, doc])
+  /** onSpacingLabelClicked's editingFinished: the extent label writes Length/Total Angle, a spacing label its Spacings
+   *  entry, the global offset going back to -1. */
+  const finishLabel = (value: number) => {
+    if (!f || !doc || !labelEdit) return
+    const i = labelEdit.index, k = patternKeys(labelEdit.dir)
+    if (String(f[k.mode] ?? 'Extent') === 'Extent') set(f.type === POLAR ? { angle: value } : { [k.length]: value })
+    else {
+      const sp = ((f[k.spacings] as number[] | undefined) ?? []).map(Number)
+      const occ = Math.round(num(doc, f[k.occurrences], f.type === POLAR ? 3 : labelEdit.dir === 2 ? 1 : 2))
+      while (sp.length < Math.max(occ - 1, i + 1)) sp.push(-1)      // the property holds one per gap, as FreeCAD's does
+      sp[i] = value === num(doc, f[k.offset], f.type === POLAR ? 120 : 10) ? -1 : value
+      set({ [k.spacings]: sp })
+    }
+    setLabelEdit(null)
+  }
+  /** onSpacingLabelRightClicked's "Reset spacing": that Spacings entry back to -1. */
+  const resetSpacing = (i: number, dir: 1 | 2) => {
+    if (!f || !doc) return
+    const k = patternKeys(dir), sp = ((f[k.spacings] as number[] | undefined) ?? []).map(Number)
+    const occ = Math.round(num(doc, f[k.occurrences], f.type === POLAR ? 3 : dir === 2 ? 1 : 2))
+    while (sp.length < Math.max(occ - 1, i + 1)) sp.push(-1)
+    sp[i] = -1
+    set({ [k.spacings]: sp })
+    setLabelMenu(null)
+  }
   if (!doc || !f) return <div className="tasks"><p className="hint">{part}: no feature {other}</p></div>
   const info = TRANSFORMED[f.type]
   const whole = f.transform_mode === 'Whole shape'
@@ -709,6 +910,26 @@ function TransformedTask({ part, other, edit }: { part: string; other: string; e
         <label className="tcheck" title="n/a: the result is built when OK writes it; the preview shows the tool shapes"><input type="checkbox" disabled /> Show final result</label>
         <label className="tcheck"><input type="checkbox" checked={overlay} onChange={(e) => setOverlay(e.target.checked)} /> Show preview overlay</label>
       </TaskBox>
+      {/* EditableDatumLabel's startEditing: a spinbox over the label, its text selected, Escape and the focus leaving it cancel
+          (stopEdit: writeChanges false), Enter and Tab write the value. */}
+      {labelEdit && createPortal(
+        <input className="ovp-box" data-qf="spacingLabelBox" spellCheck={false} autoFocus defaultValue={labelEdit.text}
+          style={{ left: Math.max(0, Math.min(labelEdit.x - 40, innerWidth - 160)), top: Math.max(0, labelEdit.y - 26), width: `${Math.max(3, labelEdit.text.length + 1)}ch` }}
+          onFocus={(e) => e.currentTarget.select()} onPointerDown={(e) => e.stopPropagation()}
+          onBlur={() => setLabelEdit(null)}
+          onKeyDown={(e) => {
+            e.stopPropagation()                     // the box's keys are its own (QLineEdit's ShortcutOverride)
+            if (e.key === 'Escape') { e.preventDefault(); setLabelEdit(null); return }
+            if (e.key !== 'Enter' && e.key !== 'Tab') return
+            e.preventDefault(); e.stopPropagation()
+            const dims = f.type === POLAR ? ANGLE : LENGTH
+            // (unedited, the spinbox still holds the double it opened with, "33.33 mm" being its rounded text)
+            if (e.currentTarget.value === labelEdit.text) { finishLabel(labelEdit.value); return }
+            const r = interpretInput(e.currentTarget.value, { dims, display: shownText({ value: 0, dims }).display, phase: 'commit' })
+            if (r.status === 'ok') finishLabel(r.q.value); else setLabelEdit(null)
+          }} />, document.body)}
+      {labelMenu && <ContextMenu at={labelMenu} onClose={() => setLabelMenu(null)}
+        entries={[{ label: 'Reset spacing', onSelect: () => resetSpacing(labelMenu.index, labelMenu.dir) }]} />}
     </div>
   )
 }

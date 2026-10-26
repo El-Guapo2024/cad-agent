@@ -127,6 +127,17 @@ def test_construction_geometry_and_points_are_not_profile():
     assert _pad(geometry, length=2).volume == pytest.approx(200)
 
 
+def test_geometry_layer_is_a_keyword_only_when_set():
+    g = Circle((1, 2), 3, construction=True, layer=1)
+    assert g.as_dict() == {"type": "Circle", "center": [1.0, 2.0], "radius": 3.0,
+                           "construction": True, "layer": 1}
+    assert repr(g) == "Circle((1.0, 2.0), 3.0, construction=True, layer=1)"
+    assert feature.geometry_from_dict(g.as_dict()) == g
+    plain = Circle((1, 2), 3)
+    assert "layer" not in plain.as_dict() and repr(plain) == "Circle((1.0, 2.0), 3.0)"
+    assert Circle((1, 2), 3, layer=0) == plain
+
+
 def test_feature_errors_in_freecads_words():
     with pytest.raises(FeatureError, match="total length of zero"):
         _pad(rect(0, 0, 10, 10), length=0)

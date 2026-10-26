@@ -24,7 +24,7 @@ import { messageBox } from './msgbox'
 import * as quantity from './quantity'
 import type { Entry } from './chrome'
 import { OperationRow, StartReferenceRow, startRefProp, type StartRef } from './pd_kernel'
-import { applyOps, bodyOfPart, curveOf, numberOf, profileLoops, refOf, sketchMatrix, splitRef, targetBody, SKETCH } from './partdesign'
+import { applyOps, bodyOfPart, curveOf, isSolid, numberOf, profileLoops, refOf, sketchMatrix, splitRef, targetBody, SKETCH } from './partdesign'
 import { axisRefText, refText as pickText, useOriginShown, useRefPick, type Ref } from './pd_pick'
 
 export const REVOLUTION = 'PartDesign::Revolution', GROOVE = 'PartDesign::Groove', HOLE = 'PartDesign::Hole'
@@ -54,7 +54,7 @@ export async function profileCommand(kind: Kind) {
   const part = targetBody()
   if (!part) { await messageBox('warning', 'No active body', NO_BODY); return }
   const doc = s.features[part]
-  if (kind === 'groove' && !doc.base && !doc.features.some((f) => f.type !== SKETCH)) {
+  if (kind === 'groove' && !doc.base && !doc.features.some((f) => isSolid(f.type))) {
     await messageBox('warning', 'Cannot use this command as there is no solid to subtract from.',
       'Ensure that the body contains a feature before attempting a subtractive command.')
     return

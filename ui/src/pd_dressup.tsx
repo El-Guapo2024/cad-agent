@@ -29,7 +29,7 @@ import { EditRow, Group, Row, TaskBox, cls, propPad } from './panels'
 import { QuantityBox, LENGTH, ANGLE } from './qsb'
 import { QComboBox } from './combo'
 import { messageBox } from './msgbox'
-import { applyOps, bodyOfPart, numberOf, refOf, setAttachPicker, SKETCH, targetBody, tempHidden } from './partdesign'
+import { applyOps, bodyOfPart, isSolid, numberOf, refOf, setAttachPicker, targetBody, tempHidden } from './partdesign'
 import * as quantity from './quantity'
 import type { Entry } from './chrome'
 import { allows, axisRefText, datumHover, parsePick, parseRow, type Allow, type Picked, type Ref } from './pd_pick'
@@ -67,11 +67,12 @@ const nextName = (doc: FeatureDoc, base: string) => {
   if (!names.has(base)) return base
   for (let i = 1; ; i++) { const n = `${base}${String(i).padStart(3, '0')}`; if (!names.has(n)) return n }
 }
-/** The solid a new feature goes on: the Tip, or the solid before it when the Tip is a sketch, else the BaseFeature. */
+/** The solid a new feature goes on: the Tip, or the solid before it when the Tip is a sketch, a datum or a binder, else
+ *  the BaseFeature. */
 function solidAtTip(doc: FeatureDoc): string | null {
   const names = doc.features.map((f) => f.name)
   const upto = doc.tip ? names.indexOf(doc.tip) : names.length - 1
-  for (let i = upto; i >= 0; i--) if (doc.features[i].type !== SKETCH) return doc.features[i].name
+  for (let i = upto; i >= 0; i--) if (isSolid(doc.features[i].type)) return doc.features[i].name
   return doc.base ? 'BaseFeature' : null
 }
 

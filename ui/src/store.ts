@@ -106,11 +106,15 @@ export type Task = { kind: 'params' | 'placement' | 'transform' | 'measure' | 'm
   | 'part'                               // the Part workbench's task panels (part_tasks.tsx): other says which
   // and the dress-ups (pd_dressup.tsx); `other` is the feature's name, new or edited
   | 'fillet' | 'chamfer' | 'draft' | 'thickness'
+  // pd_binder.tsx: TaskShapeBinder's "Shape Binder Parameters"; `other` is the binder's name, new or edited
+  | 'shapeBinder'
   // pd_transform.tsx: a transformed feature's panel and a primitive's; `other` is the feature edited, or what a new one is
   | 'pdTransform' | 'pdPrimitive'
   | 'pdSweep'     // pd_sweep.tsx: a Loft, Pipe or Helix; `other` is the feature edited, or "new:<TypeId>"
   // The Sketcher's edit mode (sketcher.ts, sketchui.tsx): TaskDlgEditSketch.
-  | 'sketch'; body: string; other?: string; edit?: boolean }
+  | 'sketch'; body: string; other?: string; edit?: boolean
+  /** the undo step OK closes, when the way the panel opened names it (a ShapeBinder's "Edit Shape Binder" or "Edit <Label>") */
+  step?: string }
 /** GET /api/history: one entry of the backend's Document undo/redo journal, shared with an
  *  agent in a terminal — replaces a UI-local undo stack (actions.ts no longer replays changes). */
 export type HistoryEntry = { id: string; name: string; by: 'ui' | 'agent'; t: number }

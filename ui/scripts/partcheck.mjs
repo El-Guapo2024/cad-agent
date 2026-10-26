@@ -13,6 +13,9 @@
 //              type (FreeCAD's names, labels, "Create <type>")
 //   booleans   Cut, Union, Intersection, Section, Compound, Refine shape on tree selections: the object FreeCAD makes, its
 //              undo step, the inputs it hides, and the tree showing them under it, greyed
+//   standalone Reverse, Scale, Face from wires, Ruled surface: the object each makes, its undo step, the inputs it hides
+//              or keeps shown; the Scale panel's labels, factors, list and dialogs
+//   attach     Part_EditAttachment: the panel's references, the faces picked in the 3D view, what OK writes
 //   panels     Extrude, Revolve, Mirror, Fillet, Chamfer, Loft, Sweep, Offset, 2D Offset, Thickness, Project on surface,
 //              Boolean: each panel's labels, check boxes, groups and values against FreeCAD's; OK where FreeCAD's dump pressed
 //              it, and the object's properties against FreeCAD's
@@ -48,9 +51,9 @@ const want = (section) => !ONLY.length || ONLY.includes(section)
 const clean = (t) => String(t ?? '').replace(/&(.)/g, '$1').replace(/…$/, '').trim()
 
 // What is deliberately different (PARITY.md, "Part workbench"), by the FreeCAD command or widget
-const NOT_PORTED = new Set(['Part_BoxSelection', 'Part_Builder', 'Part_ShapeFromMesh', 'Part_PointsFromMesh', 'Part_MakeSolid', 'Part_ReverseShape',
-  'Part_SimpleCopy', 'Part_TransformedCopy', 'Part_ElementCopy', 'Part_ToleranceSet', 'Part_Scale', 'Part_MakeFace', 'Part_RuledSurface',
-  'Part_CrossSections', 'Part_SectionCut', 'Part_EditAttachment', 'Part_CheckGeometry', 'Part_Defeaturing', 'Materials_InspectAppearance',
+const NOT_PORTED = new Set(['Part_BoxSelection', 'Part_Builder', 'Part_ShapeFromMesh', 'Part_PointsFromMesh', 'Part_MakeSolid',
+  'Part_SimpleCopy', 'Part_TransformedCopy', 'Part_ElementCopy', 'Part_ToleranceSet',
+  'Part_CrossSections', 'Part_SectionCut', 'Part_CheckGeometry', 'Part_Defeaturing', 'Materials_InspectAppearance',
   'Materials_InspectMaterial', 'Part_ColorPerFace'])
 
 // ── a scratch workbench (transformcheck.mjs's) ───────────────────────────────────────────────────────────────────────
@@ -97,6 +100,7 @@ const objectsAt = (n, what) => until(`(cadui.getState().features[${JSON.stringif
 /** Select tree rows as clicks do (the first alone, the rest with Ctrl). */
 async function selectRows(names) {
   await st('cadui.setState({ featSel: [], selected: [] })')
+  await sleep(150)                 // let the cleared selection render: a click on a row still selected would toggle it off
   for (const [i, n] of names.entries()) {
     await page.click(`.ptrow[data-ref="${DOC}/${n}"] .tname`, { modifiers: i ? ['Control'] : [] })   // its label, not the eye
     if (!await until(`cadui.getState().featSel.includes(${JSON.stringify(`${DOC}/${n}`)}) && cadui.getState().featSel.length === ${i + 1}`, `${n} selected`, 10000)) {
@@ -299,6 +303,186 @@ try {
       same(made.map((o) => [o.name, o.label]), want.map((m) => [m.name, m.label]), 'Part_ExplodeCompound: FreeCAD\'s filters, names and labels')
       note('Part_ExplodeCompound: FreeCAD groups the filters in "Exploded Compound"; a part file has no groups (PARITY.md)')
     } }
+
+  // ── Reverse, Scale, Face from wires, Ruled surface: one object each, no panel but Scale's ──────────────────────
+  }
+  if (want('standalone')) {
+  console.log('standalone')
+  const post = (ops) => st(`fetch('/api/pc/features/${DOC}', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CAD': '1' }, body: JSON.stringify({ ops: ${JSON.stringify(ops)} }) }).then(() => cadui.loadFeatures())`)
+  const alertBox = () => st(`(() => { const b = document.querySelector('.msgbox[role="alertdialog"]'); return b ? { title: b.querySelector('.msgbox-title')?.textContent ?? null, text: b.querySelector('.msgbox-text')?.textContent ?? null, buttons: [...b.querySelectorAll('.msgbox-buttons button')].map((e) => e.textContent) } : null })()`)
+  const openScale = async () => {
+    await page.click('.tb-btn[data-cmd="Part_Scale"]').catch(() => runCmd('Part_Scale'))
+    return until('cadui.getState().task?.other === "scale"', 'the Scale panel', 20000)
+  }
+  const disabledFactors = () => st(`['dsbUniformScale', 'dsbXScale', 'dsbYScale', 'dsbZScale'].map((n) => document.querySelector('.taskview [data-qf="' + n + '"] input')?.disabled)`)
+
+  // Reverse: a Part::Reverse beside each selected shape, labelled "<Label> (Rev)", its source shown at the top
+  { const n = await count(); await post([{ op: 'add', list: 'OBJECTS', feature: { name: 'BoxRv', type: 'Part::Box' } }]); await objectsAt(n + 1, 'BoxRv') }
+  await selectRows(['BoxRv'])
+  { const n = await count(); await runCmd('Part_ReverseShape')
+    if (await objectsAt(n + 1, 'Part_ReverseShape')) {
+      const o = (await objects())[n], fc = FC.cmd_Part_ReverseShape, want = fc.made[0]
+      same([o.name, o.label ?? o.name, o.type], [want.name, want.label, want.type], 'Part_ReverseShape: FreeCAD\'s name, label and type')
+      await until(`cadui.getState().undo[0]?.name === ${JSON.stringify(fc.undo[0])}`, 'Part_ReverseShape: the "Reverse" step', 30000) && ok(`Part_ReverseShape: undo step "${fc.undo[0]}"`)
+      const t = await tree()
+      check(t.shown.includes('BoxRv') && !(t.children[o.name] ?? []).includes('BoxRv'), 'Part_ReverseShape: its source stays shown at the top, as FreeCAD leaves it', JSON.stringify(t))
+    } }
+
+  // Scale: TaskScale (DlgScale) on the picked shapes; OK makes one Part::Scale each and hides them
+  { const n = await count(); await post([{ op: 'add', list: 'OBJECTS', feature: { name: 'BoxSc', type: 'Part::Box' } }]); await objectsAt(n + 1, 'BoxSc') }
+  await selectRows(['BoxSc'])
+  if (await openScale()) {
+    const fc = FC.cmd_Part_Scale, tw = fc.task[0].find((w) => w.class === 'QTreeWidget')
+    await comparePanel(fc.task, 'Part_Scale')
+    same(await st(`document.querySelector('.taskview [data-qf="treeWidget"] .pt-list-head')?.textContent ?? null`), tw.headers[0], 'Part_Scale: the list\'s header, "Shape"')
+    same(await st(`[...document.querySelectorAll('.taskview [data-qf="treeWidget"] .pt-item.sel')].map((e) => e.textContent.trim())`), ['BoxSc'], 'Part_Scale: the selected shape starts picked, as DlgScale marks the selection')
+    // DlgScale::onUniformScaleToggled: the boxes each kind of scaling uses
+    await page.click('.taskview [data-qf="rbNonUniform"] input')
+    await sleep(200)
+    same(await disabledFactors(), [true, false, false, false], 'Part_Scale: non-uniform scaling enables X, Y and Z, disables the factor')
+    await page.click('.taskview [data-qf="rbUniform"] input')
+    await sleep(200)
+    same(await disabledFactors(), [false, true, true, true], 'Part_Scale: uniform scaling enables the factor, disables X, Y and Z')
+    const n = await count()
+    await clickButton('OK')
+    if (await objectsAt(n + 1, 'Part_Scale')) {
+      const o = (await objects())[n], want = fc.made[0], props = fc.props[want.name]
+      same([o.name, o.label ?? o.name, o.type], [want.name, want.label, want.type], 'Part_Scale: FreeCAD\'s object')
+      same([o.base, o.uniform, o.uniform_scale, o.x_scale, o.y_scale, o.z_scale],
+        ['BoxSc', fcValue(props.Uniform.value), fcValue(props.UniformScale.value), fcValue(props.XScale.value),
+          fcValue(props.YScale.value), fcValue(props.ZScale.value)], 'Part_Scale: Base and the factors FreeCAD writes')
+      await until(`cadui.getState().undo[0]?.name === ${JSON.stringify(fc.undo[0])}`, 'Part_Scale: the "Scale" step', 30000) && ok(`Part_Scale: undo step "${fc.undo[0]}"`)
+      const t = await tree()
+      same(['BoxSc'].filter((x) => !t.shown.includes(x)), fc.hidden, 'Part_Scale: hides the shape it scaled')
+      same(t.children[o.name] ?? [], ['BoxSc'], `Part_Scale: the tree shows BoxSc under ${o.name}`)
+    }
+  }
+  // OK with nothing picked: DlgScale's message, then QDialog::accept still closes the panel; nothing is made
+  await st('cadui.setState({ featSel: [], selected: [] })')
+  await sleep(200)
+  if (await openScale()) {
+    const n = await count()
+    await clickButton('OK')
+    if (await until('!!document.querySelector(".msgbox[role=alertdialog]")', 'the "No scalable shapes selected" box', 20000)) {
+      const d = FC.cmd_Part_Scale_none.dialogs[0]
+      same(await alertBox(), { title: d.title, text: d.text, buttons: d.buttons }, 'Part_Scale: FreeCAD\'s "No scalable shapes selected"')
+      await page.click('.msgbox .msgbox-buttons button')
+      await until('!cadui.getState().task', 'the Scale panel to close after OK', 20000) && ok('Part_Scale: OK closes the panel after its message')
+      check(await count() === n, 'Part_Scale: nothing is made when no shape is picked')
+    }
+  }
+
+  // Face From Wires: one Part::Face whose Sources are the sketches in selection order; the sources stay shown
+  const rect = (x0, y0, x1, y1) => [[x0, y0, x1, y0], [x1, y0, x1, y1], [x1, y1, x0, y1], [x0, y1, x0, y0]].map(([a, b, c, d]) => ({ type: 'LineSegment', start: [a, b], end: [c, d], construction: false }))
+  { const n = await count()
+    await post([{ op: 'add', list: 'OBJECTS', feature: { name: 'SketchFa', type: 'Sketcher::SketchObject', support: 'XY', geometry: rect(0, 0, 10, 6), constraints: [] } },
+      { op: 'add', list: 'OBJECTS', feature: { name: 'SketchFb', type: 'Sketcher::SketchObject', support: 'XY', geometry: rect(2, 1, 12, 7), constraints: [] } }])
+    await objectsAt(n + 2, 'SketchFa and SketchFb') }
+  await selectRows(['SketchFa', 'SketchFb'])
+  { const n = await count(); await runCmd('Part_MakeFace')
+    if (await objectsAt(n + 1, 'Part_MakeFace')) {
+      const o = (await objects())[n], fc = FC.cmd_Part_MakeFace, want = fc.made[0]
+      same([o.name, o.label ?? o.name, o.type], [want.name, want.label, want.type], 'Part_MakeFace: FreeCAD\'s object')
+      same(o.sources, ['SketchFa', 'SketchFb'], 'Part_MakeFace: Sources, in selection order')
+      same(o.face_maker_class, fc.props[want.name].FaceMakerClass.value, 'Part_MakeFace: the face maker FreeCAD starts from')
+      await until(`cadui.getState().undo[0]?.name === ${JSON.stringify(fc.undo[0])}`, 'Part_MakeFace: the "Make face" step', 30000) && ok(`Part_MakeFace: undo step "${fc.undo[0]}"`)
+      const t = await tree()
+      check(['SketchFa', 'SketchFb'].every((s) => (t.sketches_shown ?? []).includes(s)), 'Part_MakeFace: the sources stay shown, as FreeCAD leaves them')
+      same(t.children[o.name] ?? [], ['SketchFa', 'SketchFb'], 'Part_MakeFace: the tree shows the sources under the face')
+    } }
+
+  // Ruled Surface: one Part::RuledSurface between two lines; the curves stay shown; no selection: FreeCAD's warning
+  { const n = await count()
+    await post([{ op: 'add', list: 'OBJECTS', feature: { name: 'LineRa', type: 'Part::Line', x1: 0, y1: 0, z1: 0, x2: 10, y2: 0, z2: 0 } },
+      { op: 'add', list: 'OBJECTS', feature: { name: 'LineRb', type: 'Part::Line', x1: 0, y1: 10, z1: 5, x2: 10, y2: 10, z2: 5 } }])
+    await objectsAt(n + 2, 'LineRa and LineRb') }
+  await selectRows(['LineRa', 'LineRb'])
+  { const n = await count(); await runCmd('Part_RuledSurface')
+    if (await objectsAt(n + 1, 'Part_RuledSurface')) {
+      const o = (await objects())[n], fc = FC.cmd_Part_RuledSurface, want = fc.made[0]
+      same([o.name, o.label ?? o.name, o.type], [want.name, want.label, want.type], 'Part_RuledSurface: FreeCAD\'s object')
+      same([o.curve1, o.curve2, o.orientation], ['LineRa', 'LineRb', fc.props[want.name].Orientation.value], 'Part_RuledSurface: Curve1, Curve2 and Orientation')
+      await until(`cadui.getState().undo[0]?.name === ${JSON.stringify(fc.undo[0])}`, 'Part_RuledSurface: the "Create ruled surface" step', 30000) && ok(`Part_RuledSurface: undo step "${fc.undo[0]}"`)
+      const t = await tree()
+      check(['LineRa', 'LineRb'].every((s) => t.shown.includes(s)), 'Part_RuledSurface: the curves stay shown, as FreeCAD leaves them')
+      same(t.children[o.name] ?? [], ['LineRa', 'LineRb'], 'Part_RuledSurface: the tree shows the curves under the surface')
+    } }
+  await st('cadui.setState({ featSel: [], selected: [] })')
+  await sleep(200)
+  { const n = await count(); await runCmd('Part_RuledSurface')
+    if (await until('!!document.querySelector(".msgbox[role=alertdialog]")', 'the "Wrong Selection" box', 20000)) {
+      const d = FC.cmd_Part_RuledSurface_none.dialogs[0]
+      same(await alertBox(), { title: d.title, text: d.text, buttons: d.buttons }, 'Part_RuledSurface: FreeCAD\'s "Wrong Selection" warning')
+      await page.click('.msgbox .msgbox-buttons button')
+    }
+    await sleep(400)
+    check(await count() === n, 'Part_RuledSurface: nothing is made without a selection') }
+
+  // ── Part_EditAttachment: the Attachment panel on a Part object, its faces and edges picked in the 3D view ──────
+  }
+  if (want('attach')) {
+  console.log('attach')
+  const post = (ops) => st(`fetch('/api/pc/features/${DOC}', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CAD': '1' }, body: JSON.stringify({ ops: ${JSON.stringify(ops)} }) }).then(() => cadui.loadFeatures())`)
+  const entry = () => st(`(() => { const walk = (es) => { for (const e of es) { if (e.cmd === 'Part_EditAttachment') return e; if (e.menu) { const x = walk(e.menu); if (x) return x } } return null }; return walk(cadui.part().part) })()`)
+  const refs = () => st(`[...document.querySelectorAll('.taskview .tfield input')].slice(0, 4).map((e) => e.value)`)
+  // TaskAttacher::updateReferencesUI puts this text in every line whose reference is empty (fcattach.json's lineRefN)
+  const EMPTY = 'No reference selected'
+  const attachMsg = () => st(`document.querySelector('.taskview .pd-attach-msg')?.textContent ?? null`)
+  { const n = await count()
+    await post([{ op: 'add', list: 'OBJECTS', feature: { name: 'Base', type: 'Part::Box', length: 20, width: 20, height: 10, placement: [[0, 0, 30], [0, 0, 0]] } },
+      { op: 'add', list: 'OBJECTS', feature: { name: 'Chip', type: 'Part::Box', length: 4, width: 6, height: 2 } }])
+    await objectsAt(n + 2, 'Base and Chip') }
+  await st('cadui.setState({ featSel: [], selected: [], subSel: [] })')
+  await sleep(200)
+  check((await entry())?.enabled === false, 'Part_EditAttachment: greyed with nothing selected')
+  await selectRows(['Chip'])
+  check((await entry())?.enabled === true, 'Part_EditAttachment: enabled for one selected Part object')
+  await runCmd('Part_EditAttachment')
+  if (await until('cadui.getState().task?.other === "Chip"', 'the Attachment panel on Chip', 20000)) {
+    same(await st('cadui.getState().task.kind'), 'attach', 'Part_EditAttachment: the Attachment panel')
+    await until('cadui.getView().helpers?.has?.("part-pick")', 'the Part objects as pickable helpers', 30000)
+    // a click on the object itself is ignored (TaskAttacher: "Can't attach object to itself!"), its own faces are not drawn
+    await st('cadui.getView().helperPicker("@Chip.Face1")')
+    await sleep(300)
+    same(await refs(), [EMPTY, EMPTY, EMPTY, EMPTY], 'Part_EditAttachment: a click on the object itself is ignored')
+    await st('cadui.getView().helperPicker("@Base.Face6")')
+    if (await until('document.querySelector(".taskview .tfield input")?.value === "Base:Face6"', 'the face clicked in the 3D view as the reference', 30000)) {
+      same(await refs(), ['Base:Face6', EMPTY, EMPTY, EMPTY], 'Part_EditAttachment: the face clicked in the 3D view is reference 1')
+      await until('document.querySelector(".taskview .pd-attach-msg")?.textContent?.startsWith("Attached with mode")', 'the attachment\'s answer', 30000) &&
+        same(await attachMsg(), 'Attached with mode XY on plane', 'Part_EditAttachment: the engine 3D mode that fits the face')
+      await clickButton('OK')
+      await until('!cadui.getState().task', 'the Attachment panel to close')
+      if (await until(`(cadui.getState().features[${JSON.stringify(DOC)}]?.objects ?? []).find((o) => o.name === "Chip")?.attachment_support?.length === 1`, 'Chip attached', 30000)) {
+        const chip = (await objects()).find((o) => o.name === 'Chip')
+        same(chip.attachment_support, [['Base', 'Face6']], 'Part_EditAttachment: AttachmentSupport written')
+        same([chip.map_mode, chip.attachment_offset ?? null, chip.map_reversed ?? false], ['FlatFace', null, false], 'Part_EditAttachment: MapMode written, no offset')
+        await until('cadui.getState().undo[0]?.name === "Edit attachment"', 'the "Edit attachment" step', 30000) && ok('Part_EditAttachment: undo step "Edit attachment"')
+        const att = await st(`cadui.getState().features[${JSON.stringify(DOC)}]?.attached?.objects?.Chip ?? null`)
+        const z = att?.placement?.position?.[2]
+        check(typeof z === 'number' && Math.abs(z - 40) < 1e-6, 'Part_EditAttachment: the object lands on the face it is attached to', JSON.stringify(att?.placement?.position))
+        // the Data tab shows the attachment the Body built: its Placement, MapMode, engine and references
+        await until('!cadui.getState().busy.length', 'the attachment write to settle', 30000)
+        await selectRows(['Chip'])
+        await sleep(300)
+        const pvOf = (label) => st(`(() => { const r = [...document.querySelectorAll('.props .prow')].find((e) => e.querySelector('.pk')?.textContent.trim() === ${JSON.stringify(label)}); return r?.querySelector('.pv')?.textContent.trim() ?? null })()`)
+        same(await pvOf('Attachment Support'), 'Base [Face6]', 'Part_EditAttachment: the property view\'s Attachment Support')
+        same(await pvOf('Map Mode'), 'FlatFace', 'Part_EditAttachment: the property view\'s Map Mode')
+        same(await pvOf('Attacher Engine'), 'Engine 3D', 'Part_EditAttachment: the property view\'s Attacher Engine')
+        check((await pvOf('Placement'))?.includes('40.00 mm') === true, 'Part_EditAttachment: the property view\'s Placement', await pvOf('Placement'))
+        // reopening it shows what was written, and a datum or a body feature is no target (one Part object at a time)
+        await runCmd('Part_EditAttachment')
+        if (await until('cadui.getState().task?.other === "Chip"', 'the Attachment panel reopened', 20000)) {
+          await until('document.querySelector(".taskview .tfield input")?.value === "Base:Face6"', 'the saved reference', 30000)
+          same(await refs(), ['Base:Face6', EMPTY, EMPTY, EMPTY], 'Part_EditAttachment: the panel opens on the saved reference')
+          await until('document.querySelector(".taskview .pd-attach-msg")?.textContent?.startsWith("Attached with mode")', 'the reopened panel\'s mode', 30000) &&
+            same(await attachMsg(), 'Attached with mode XY on plane', 'Part_EditAttachment: and on its mode')
+          await clickButton('Cancel')
+          await sleep(400)
+          same((await objects()).find((o) => o.name === 'Chip')?.attachment_support, [['Base', 'Face6']], 'Part_EditAttachment: Cancel writes nothing')
+        }
+      }
+    } else await clickButton('Cancel').catch(() => {})
+  }
 
   // ── task panels ────────────────────────────────────────────────────────────────────────────────────────────────
   }

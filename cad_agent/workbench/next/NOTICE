@@ -116,8 +116,9 @@ them carry.
   triplus @ FreeCAD: Mod/Tux/NavigationIndicatorGui.py
   Victor Titov (DeepSOIC): Gui/Navigation/GestureNavigationStyle.cpp,
       Gui/Navigation/MayaGestureNavigationStyle.cpp, Gui/SoTouchEvents.cpp, Mod/Part/App/AttachExtension.cpp,
-      Mod/Part/App/Attacher.cpp, Mod/Part/Gui/AttacherTexts.cpp, Mod/Sketcher/Gui/AppSketcherGui.cpp,
-      Mod/Show/mTempoVis.py
+      Mod/Part/App/Attacher.cpp, Mod/Part/AttachmentEditor/Commands.py,
+      Mod/Part/AttachmentEditor/TaskAttachmentEditor.py, Mod/Part/Gui/AttacherTexts.cpp,
+      Mod/Sketcher/Gui/AppSketcherGui.cpp, Mod/Show/mTempoVis.py
   WandererFan: Mod/Measure/App/Preferences.cpp
   Werner Mayer: Base/Rotation.cpp, Base/Tools.h, Base/VectorPyImp.cpp, Gui/Action.cpp,
       Gui/Camera.cpp, Gui/Clipping.cpp, Gui/CommandMacro.cpp, Gui/CommandWindow.cpp,
@@ -696,6 +697,12 @@ src/Mod/Part/App/Part2DObject.cpp   [licence: LGPL-2.1-or-later]
 src/Mod/Part/App/PartFeature.cpp   [licence: LGPL-2.1-or-later]
     copyright 2002 Jürgen Riegel
     followed by src/viewer.ts
+src/Mod/Part/AttachmentEditor/Commands.py   [licence: LGPL-2.1-or-later]
+    copyright 2016 Victor Titov (DeepSOIC)
+    followed by src/pd_attach.tsx
+src/Mod/Part/AttachmentEditor/TaskAttachmentEditor.py   [licence: LGPL-2.1-or-later]
+    copyright 2016 Victor Titov (DeepSOIC)
+    followed by src/pd_attach.tsx
 src/Mod/Part/BOPTools/BOPFeatures.py   [licence: LGPL-2.1-or-later]
     copyright 2023 Werner Mayer
     followed by src/part_wb.tsx
@@ -765,6 +772,12 @@ src/Mod/Part/Gui/DlgRevolution.cpp   [licence: LGPL-2.1-or-later]
 src/Mod/Part/Gui/DlgRevolution.ui   [licence: LGPL-2.1-or-later]
     no copyright line in the file
     followed by src/part_tasks.tsx
+src/Mod/Part/Gui/DlgScale.cpp   [licence: LGPL-2.1-or-later]
+    copyright 2023 Wanderer Fan
+    followed by src/part_tasks.tsx
+src/Mod/Part/Gui/DlgScale.ui   [licence: LGPL-2.1-or-later]
+    no copyright line in the file
+    followed by src/part_tasks.tsx
 src/Mod/Part/Gui/Location.ui   [licence: LGPL-2.1-or-later]
     no copyright line in the file
     followed by src/part_tasks.tsx
@@ -789,7 +802,7 @@ src/Mod/Part/Gui/SoBrepFaceSet.cpp   [licence: LGPL-2.1-or-later]
     followed by src/viewer.ts
 src/Mod/Part/Gui/TaskAttacher.cpp   [licence: LGPL-2.1-or-later]
     copyright 2013 Jan Rheinländer
-    followed by src/partdesign.tsx
+    followed by src/partdesign.tsx, src/pd_attach.tsx
 src/Mod/Part/Gui/TaskAttacher.ui   [licence: none]
     copyright: no line in the file
     followed by src/partdesign.tsx
@@ -816,7 +829,7 @@ src/Mod/Part/Gui/TaskThickness.cpp   [licence: LGPL-2.1-or-later]
     followed by src/part_tasks.tsx
 src/Mod/Part/Gui/ViewProviderAttachExtension.cpp   [licence: LGPL-2.1-or-later]
     copyright 2016 Stefan Tröger
-    followed by src/partdesign.tsx
+    followed by src/partdesign.tsx, src/pd_attach.tsx
 src/Mod/Part/Gui/ViewProviderBoolean.cpp   [licence: LGPL-2.1-or-later]
     copyright 2008 Werner Mayer
     followed by src/part_wb.tsx
@@ -850,10 +863,13 @@ src/Mod/PartDesign/App/FeatureMultiTransform.cpp   [licence: LGPL-2.1-or-later]
 src/Mod/PartDesign/App/FeatureScaled.cpp   [licence: LGPL-2.1-or-later]
     copyright 2012 Jan Rheinländer
     followed by src/pd_transform.tsx
+src/Mod/PartDesign/App/ShapeBinder.cpp   [licence: LGPL-2.1-or-later]
+    copyright 2015 Stefan Tröger
+    followed by src/pd_binder.tsx
 src/Mod/PartDesign/Gui/Command.cpp   [licence: LGPL-2.1-or-later]
     copyright 2008 Jürgen Riegel
     followed by src/fctips.ts, src/partdesign.tsx, src/pd_dressup.tsx, src/pd_revolve.tsx,
-        src/pd_sweep.tsx, src/pd_transform.tsx
+        src/pd_sweep.tsx, src/pd_transform.tsx, src/pd_binder.tsx
 src/Mod/PartDesign/Gui/CommandBody.cpp   [licence: LGPL-2.1-or-later]
     copyright 2015 Alexander Golubev (Fat-Zer)
     followed by src/fctips.ts, src/partdesign.tsx
@@ -962,6 +978,12 @@ src/Mod/PartDesign/Gui/TaskRevolutionParameters.ui   [licence: none]
 src/Mod/PartDesign/Gui/TaskScaledParameters.cpp   [licence: LGPL-2.1-or-later]
     copyright 2012 Jan Rheinländer
     followed by src/pd_transform.tsx
+src/Mod/PartDesign/Gui/TaskShapeBinder.cpp   [licence: LGPL-2.1-or-later]
+    copyright 2015 Stefan Tröger
+    followed by src/pd_binder.tsx
+src/Mod/PartDesign/Gui/TaskShapeBinder.ui   [licence: none]
+    copyright: no line in the file
+    followed by src/pd_binder.tsx
 src/Mod/PartDesign/Gui/TaskSketchBasedParameters.cpp   [licence: LGPL-2.1-or-later]
     copyright 2013 Jan Rheinländer
     followed by src/pd_pick.tsx, src/pd_extrude.tsx, src/pd_kernel.tsx
@@ -995,6 +1017,9 @@ src/Mod/PartDesign/Gui/ViewProviderPipe.cpp   [licence: LGPL-2.1-or-later]
 src/Mod/PartDesign/Gui/ViewProviderScaled.cpp   [licence: LGPL-2.1-or-later]
     copyright 2012 Jan Rheinländer
     followed by src/pd_transform.tsx
+src/Mod/PartDesign/Gui/ViewProviderShapeBinder.cpp   [licence: LGPL-2.1-or-later]
+    copyright 2015 Stefan Tröger
+    followed by src/pd_binder.tsx
 src/Mod/PartDesign/Gui/ViewProviderSketchBased.cpp   [licence: LGPL-2.1-or-later]
     copyright 2015 Alexander Golubev (Fat-Zer)
     followed by src/partdesign.tsx

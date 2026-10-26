@@ -13,7 +13,9 @@
 //   src/Gui/ViewProviderCoordinateSystem.cpp: 2015 Stefan Tröger; 2015 Alexander Golubev (Fat-Zer)
 //   src/Gui/ViewParams.cpp: 2018 Zheng Lei (realthunder)
 //   No copyright line in the file: src/Mod/Part/Gui/TaskAttacher.ui
-// Attachment in the app, as FreeCAD does it: the Attachment panel (TaskAttacher) for a sketch and for a datum, with its
+//   src/Mod/Part/AttachmentEditor/Commands.py: 2016 Victor Titov (DeepSOIC) (Part_EditAttachment)
+//   src/Mod/Part/AttachmentEditor/TaskAttachmentEditor.py: 2016 Victor Titov (DeepSOIC)
+// Attachment in the app, as FreeCAD does it: the Attachment panel (TaskAttacher) for a sketch, a datum and a Part object, with its
 // reference buttons, the mode list of the attacher engine (the modes that fit in bold, the ones more references would
 // reach greyed with "(add …)"), the offset and Flip sides; the datums Edit > Create > Datums makes (Part's DatumPlane,
 // DatumLine, DatumPoint and LCS, PartDesign's own too), drawn as Gui's ViewProviderDatum draws them; and New Sketch on
@@ -22,7 +24,7 @@
 // Attacher.cpp held to freecadcmd); OK writes the attachment through `cad feature apply`, one undo step.
 import { useEffect, useRef, useState } from 'react'
 import * as THREE from 'three'
-import { api } from './api'
+import { api, type FeatureOp } from './api'
 import { getState, report, setState, subscribe, useStore, type Feature, type FeatureDoc } from './store'
 import { closeTask, editSketch, getView, openTask, showPanel } from './actions'
 import { cls, TaskBox } from './panels'
@@ -34,7 +36,9 @@ import { ENGINE_MODES, MODE_REFS, REF_TYPES } from './attachmodes'
 import { suggest } from './attachsuggest'
 import { attachedOf, DATUM_TYPES, isDatum, placementMatrix, ROLES, type PlacementData } from './attached'
 import { datumPanelIcon, datumPanelTitle } from './pd_datum'
-import { applyOps, bodyOfPart, featureVisible, openOrigin, refOf, SKETCH, splitRef, targetBody, setAttachPicker, originPlanes } from './partdesign'
+import { applyOps, bodyOfPart, featureVisible, openOrigin, refOf, SKETCH, splitRef, targetBody, setAttachPicker, originPlanes, tempHidden } from './partdesign'
+import { parsePartPick, partMesh, tipFeature, usePartScene, type Mesh } from './part_pick'
+import { setObjectPicker } from './part_wb'
 
 export type Ref = [string, string]                  // AttachmentSupport's (object, sub-element)
 type Engine = '3D' | 'Plane' | 'Line' | 'Point'
@@ -89,15 +93,10 @@ export function refOfRow(part: string, row: string): Ref | null {
   if (lcs) return [lcs[1], lcs[2] + '.']               // an LCS's feature: FreeCAD's "LCS", "XY_Plane001."
   return [n, '']
 }
-/** The solid the 3D view shows for the Body: the last solid feature up to its Tip (a sketch or a datum as the Tip leaves the
- *  one before it), whose elements a click in the 3D view names. */
-function tipFeature(doc: FeatureDoc): string | null {
-  const upto = doc.tip ? doc.features.findIndex((f) => f.name === doc.tip) : doc.features.length - 1
-  const solids = doc.features.slice(0, upto + 1).filter((f) => f.type !== SKETCH && !isDatum(f.type))
-  return solids.length ? solids[solids.length - 1].name : doc.base ? 'BaseFeature' : null
-}
-/** The 3D selection's sub-elements of this part's Body, as references to its Tip feature. */
-export function refsOfSelection(part: string): Ref[] {
+/** The 3D selection's sub-elements of this part's Body, as references to its Tip feature. `wholeBody`: a selected Body
+ *  with no element is a reference to its whole Tip solid too; the ShapeBinder panel takes only the elements and the tree
+ *  rows, as TaskShapeBinder's referenceSelected does (and the ShapeBinder command drops the Body from its Support). */
+export function refsOfSelection(part: string, wholeBody = true): Ref[] {
   const s = getState(), body = bodyOfPart(s, part), doc = s.features[part]
   if (!doc) return []
   const out: Ref[] = []
@@ -106,7 +105,7 @@ export function refsOfSelection(part: string): Ref[] {
     const i = r.indexOf('.')
     if (body && r.slice(0, i) === body.name && tip) out.push([tip, r.slice(i + 1)])
   }
-  if (!s.subSel.length && body && s.selected.includes(body.name) && tip) out.push([tip, ''])
+  if (wholeBody && !s.subSel.length && body && s.selected.includes(body.name) && tip) out.push([tip, ''])
   for (const row of s.featSel) { const ref = refOfRow(part, row); if (ref) out.push(ref) }
   return out
 }
@@ -141,8 +140,12 @@ export type AttachEmbed = { onChange: (props: ReturnType<typeof attachmentProps>
 export function AttachTask({ target, embed }: { target: AttachTarget; embed?: AttachEmbed }) {
   const s = useStore((x) => x)
   const doc = s.features[target.part]
-  const existing = target.name ? doc?.features.find((f) => f.name === target.name) : undefined
-  const engine = engineOf(target.type)
+  const existing = target.name ? doc?.features.find((f) => f.name === target.name) ?? doc?.objects?.find((o) => o.name === target.name) : undefined
+  /** A Part workbench object: its AttachExtension is AttachEngine3D (feature_part.py's PartObject.engine), and it is
+   *  attached to the objects and Body features before it in the part file (`--before`, feature_attach.attach_query). */
+  const partObject = target.name ? doc?.objects?.find((o) => o.name === target.name) : undefined
+  const isPartObj = !!partObject && partObject.type !== SKETCH
+  const engine: Engine = isPartObj ? '3D' : engineOf(target.type)
   const init = () => {
     let refs = ((existing?.attachment_support as Ref[] | undefined) ?? []).map((r) => [r[0], r[1]] as Ref)
     let first: string | null = null
@@ -164,9 +167,24 @@ export function AttachTask({ target, embed }: { target: AttachTarget; embed?: At
   const [v, setV] = useState(init)
   const initialV = useRef(JSON.stringify(v))
   const [ans, setAns] = useState<Answer>({})
-  // only a new object starts with a reference button active; it moves on after the selection's references (autoNext)
-  const [active, setActive] = useState<number>(existing ? -1 : Math.min(v.refs.length, 3))
-  const autoNext = useRef(!existing)
+  // a Part object as the panel previews it: its own shape, with its attachment taken off (it moves with the answer's
+  // Placement, as TaskAttachmentEditor moves the object itself)
+  const [own, setOwn] = useState<Mesh | null>(null)
+  useEffect(() => {
+    setOwn(null)
+    if (!isPartObj || !target.name) return
+    let live = true
+    const ops: FeatureOp[] = [{ op: 'set', name: target.name, props: { attachment_support: [], map_mode: 'Deactivated',
+      placement: null, attachment_offset: null } }]
+    void partMesh(target.part, target.name, ops).then((m) => { if (live) setOwn(m) })
+    return () => { live = false }
+  }, [isPartObj, target.part, target.name])
+  // The two panels FreeCAD opens differ on which button starts active. TaskAttachmentEditor (Part_EditAttachment, a
+  // primitive's): references exist: none; none: the first, and it moves on after each pick (auto_next). TaskAttacher, which
+  // a new datum or sketch gets with take_selection: the constructor starts the first button, handleInitialSelection writes
+  // the selection into the references, and addToReference's autoNext advance leaves the button after them active.
+  const [active, setActive] = useState<number>(existing ? (v.refs.length ? -1 : 0) : Math.min(v.refs.length, 3))
+  const autoNext = useRef(existing ? v.refs.length === 0 : true)
   const userSelected = useRef(false)
   const seq = useRef(0)
   const before = existing?.name ?? null
@@ -182,6 +200,16 @@ export function AttachTask({ target, embed }: { target: AttachTarget; embed?: At
     }, 60)
     return () => window.clearTimeout(t)
   }, [JSON.stringify(v), target.part])
+  // a Part object is shown from its own shape (usePartScene below), so the scene's joined body gives way while the panel
+  // is open: the object moves with the panel, and every other object keeps its own faces and edges to pick
+  useEffect(() => {
+    if (!isPartObj) return
+    const b = bodyOfPart(getState(), target.part)?.name
+    if (!b) return
+    const was = getState().hidden.includes(b)
+    if (!was) { tempHidden.add(b); setState((x) => ({ hidden: [...x.hidden, b] })) }
+    return () => { if (!was) { setState((x) => ({ hidden: x.hidden.filter((n) => n !== b) })); tempHidden.delete(b) } }
+  }, [isPartObj, target.part])
   // the references come from clicks in the tree and the 3D view (TaskAttacher::onSelectionChanged)
   // v and the active button as they are now, for the clicks that come before React renders (the tree's selection and its
   // attachPicker both report one pick): each add sees the one before it
@@ -222,11 +250,15 @@ export function AttachTask({ target, embed }: { target: AttachTarget; embed?: At
       if (refs.length) add([refs[refs.length - 1]])
     })
     setAttachPicker((row) => { const r = refOfRow(target.part, row); if (r) add([r]) })
+    // a Part document's tree hands its rows to the Part panels through part_wb.tsx's picker
+    if (isPartObj) setObjectPicker((row) => { const r = refOfRow(target.part, row); if (r) add([r]) })
     const view = getView()
     if (view) {
-      // the Origin's planes, larger and labelled while the panel is open (setTemporaryScale, setLabelVisibility)
-      view.setHelper('pd-origin', originPlanes(bodyOfPart(getState(), target.part), true))
-      view.helperPicker = (name) => {
+      // the Origin's planes, larger and labelled while the panel is open (setTemporaryScale, setLabelVisibility); a Part
+      // document without a Body has no Origin to attach to (attach_query resolves the Body's)
+      view.setHelper('pd-origin', getState().features[target.part]?.body ? originPlanes(bodyOfPart(getState(), target.part), true) : null)
+      // a Part object's faces and edges are its own helpers' (part_pick.tsx's picker)
+      if (!isPartObj) view.helperPicker = (name) => {
         if (ROLES.includes(name)) add([[name, '']])
         else { const r = refOfRow(target.part, name); if (r) add([r]) }
       }
@@ -235,10 +267,11 @@ export function AttachTask({ target, embed }: { target: AttachTarget; embed?: At
     datumLabels = true; redrawDatums()
     openOrigin(target.part)
     return () => {
-      unsub(); setAttachPicker(null); datumLabels = false; redrawDatums()
-      const w = getView(); if (w) { w.setHelper('pd-origin', null); w.setHelper('pd-attach-preview', null); w.helperPicker = null }
+      unsub(); setAttachPicker(null); if (isPartObj) setObjectPicker(null); datumLabels = false; redrawDatums()
+      // a Part object's picker is part_pick.tsx's (it sets and clears its own, and this effect re-runs without it)
+      const w = getView(); if (w) { w.setHelper('pd-origin', null); w.setHelper('pd-attach-preview', null); if (!isPartObj) w.helperPicker = null }
     }
-  }, [target.part, active])
+  }, [target.part, active, isPartObj])
   // a panel this box is part of (a primitive's, pd_transform.tsx) previews and writes the attachment itself
   useEffect(() => {
     if (!embed || JSON.stringify(v) === initialV.current && !ans.placement) return
@@ -246,14 +279,29 @@ export function AttachTask({ target, embed }: { target: AttachTarget; embed?: At
     if (JSON.stringify(v) !== initialV.current) embed.onChange(attachmentProps(v), live)
     else embed.onChange(null, live)
   }, [JSON.stringify(v), ans.key, JSON.stringify(ans.placement)])
-  // the object where the attachment puts it (the panel's updatePreview moves the object itself)
+  // the object where the attachment puts it (the panel's updatePreview moves the object itself); a Part object is drawn
+  // from its own shape by usePartScene below
   useEffect(() => {
     const view = getView()
-    if (!view || embed) return
+    if (!view || embed || isPartObj) return
     const pl = ans.placement
     view.setHelper('pd-attach-preview', pl ? previewOf(target.type, pl, bodyOfPart(getState(), target.part)) : null)
     view.rescaleHelpers()
-  }, [ans.placement, target.type])
+  }, [ans.placement, target.type, isPartObj])
+  // a Part object's faces and edges are the helpers of their own (part_pick.tsx), its own shape drawn where the answer
+  // puts it as TaskAttachmentEditor moves the object itself; the scene body gave way above, so they do not overlap
+  const attPl = partObject ? attachedOf(partObject)?.placement ?? null : null
+  const livePl = isPartObj ? ans.placement ?? attPl : null
+  usePartScene({
+    part: target.part, active: isPartObj, allow: () => true,
+    target: isPartObj && target.name && own ? { name: target.name, mesh: own, placement: livePl } : null,
+    onPick: (name) => {
+      const p = parsePartPick(name)
+      if (p) { if (p[0] !== target.name) add([p]); return }        // "Ignored. Can't attach object to itself!"
+      if (ROLES.includes(name)) add([[name, '']])
+      else { const r = refOfRow(target.part, name); if (r) add([r]) }
+    },
+  })
   if (!doc) return <div className="tasks"><p className="hint">{target.part}: no Body</p></div>
   // the server's answer when it is for these references, else what the page can tell from the references alone
   const refsKey = JSON.stringify(v.refs), fresh = ans.key === JSON.stringify(v)
@@ -412,17 +460,20 @@ export function datumsMenu(): Entry {
     return { label: d.menu, icon: d.icon as never, cmd: d.cmd, disabled: !has, onSelect: () => void createDatum(t) }
   }) }
 }
-/** ViewProviderAttachExtension's "Edit Attachment" (and a datum's double-click): the panel on the object. */
+/** ViewProviderAttachExtension's "Edit Attachment" (and a datum's double-click): the panel on the object, a Part
+ *  workbench object's too (Part_EditAttachment's AttachmentEditor). */
 export function editAttachment(part: string, name: string) {
-  const f = getState().features[part]?.features.find((x) => x.name === name)
+  const doc = getState().features[part]
+  const f = doc?.features.find((x) => x.name === name) ?? doc?.objects?.find((x) => x.name === name)
   if (!f) return
   openTask('attach', part, name)
   showPanel('tasks')
 }
-/** The task's target, from State.task (kind 'attach'; other: the feature, or "new:<TypeId>"). */
+/** The task's target, from State.task (kind 'attach'; other: the feature, a Part object, or "new:<TypeId>"). */
 export function attachTarget(part: string, other: string): AttachTarget {
   if (other.startsWith('new:')) return { part, name: null, type: other.slice(4) }
-  const f = getState().features[part]?.features.find((x) => x.name === other)
+  const doc = getState().features[part]
+  const f = doc?.features.find((x) => x.name === other) ?? doc?.objects?.find((x) => x.name === other)
   return { part, name: other, type: f?.type ?? SKETCH }
 }
 

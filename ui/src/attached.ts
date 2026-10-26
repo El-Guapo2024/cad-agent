@@ -18,11 +18,13 @@ export type PlacementData = { position: number[]; rotation: number[]; matrix: nu
 export type Attached = { placement: PlacementData; map_mode?: string; external?: unknown[] }
 export type AttachedDoc = { objects: Record<string, Attached>; error: string | null }
 
-/** The doc with each feature's `attached` set from doc.attached (a doc without it is returned as it is). */
+/** The doc with each feature's and each Part object's `attached` set from doc.attached (a doc without it is returned as
+ *  it is): a Body's features and the document's OBJECTS are placed by the same AttachExtension. */
 export function withAttached(doc: FeatureDoc): FeatureDoc {
   const att = (doc as FeatureDoc & { attached?: AttachedDoc }).attached
   if (!att?.objects) return doc
-  return { ...doc, features: doc.features.map((f) => (att.objects[f.name] ? { ...f, attached: att.objects[f.name] } : f)) }
+  const mark = (f: Feature) => (att.objects[f.name] ? { ...f, attached: att.objects[f.name] } : f)
+  return { ...doc, features: doc.features.map(mark), ...(doc.objects ? { objects: doc.objects.map(mark) } : {}) }
 }
 export function withAttachedAll(docs: Record<string, FeatureDoc>): Record<string, FeatureDoc> {
   return Object.fromEntries(Object.entries(docs).map(([k, d]) => [k, withAttached(d)]))
@@ -48,6 +50,11 @@ export const DATUM_TYPES: Record<string, DatumType> = {
   'PartDesign::CoordinateSystem': { kind: 'PartDesignCoordinateSystem', engine: '3D', base: 'Local_CS', icon: 'pd-datum-cs', menu: 'Local Coordinate System', cmd: 'PartDesign_CoordinateSystem', txn: 'Create Local_CS', shape: 'cs' },
 }
 export const isDatum = (type: unknown): type is string => typeof type === 'string' && type in DATUM_TYPES
+/** PartDesign::ShapeBinder (cad_agent/feature_binder.py), a Body feature that is not one of its solids: a copy of
+ *  another object's geometry. It lives here, with the datums, because both are the Body's objects that a Pad's or a
+ *  Pocket's shape never follows (Body::isSolidFeature); pd_binder.tsx holds its command, panel and property view. */
+export const SHAPE_BINDER = 'PartDesign::ShapeBinder'
+export const isBinder = (type: unknown): type is string => type === SHAPE_BINDER
 /** The Body's origin and a coordinate system's features, by role (App::LocalCoordinateSystem's roles). */
 export const ROLES = ['X_Axis', 'Y_Axis', 'Z_Axis', 'XY_Plane', 'XZ_Plane', 'YZ_Plane', 'Origin']
 
