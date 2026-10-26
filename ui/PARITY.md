@@ -415,6 +415,7 @@ Deliberately different:
 - Move Object To…, Set Face Colors, Toggle Suppressed and Toggle Freeze are greyed: a feature belongs to its part module, colours are the material's, FEATURES has no suppressed state, parts rebuild from source.
 - Revolution and Groove: a value past ±360° is the bound, as FreeCAD's PropertyAngle constraint clamps one set from Python (so "Angle of revolution too large" never fires, there as here). The faces of all 47 bodies are FreeCAD's, in its order (the refine and the booleans are FreeCAD's, see "PartDesign's kernel"); an axis or up-to face named ("Pad", "Edge1") counts the edges and faces of this module's solid, which mostly but not always are FreeCAD's numbering.
 - Hole: the part file keeps what was chosen and Hole::onChanged's port gives the rest, setting the chosen properties in one order (feature_hole.ORDER). FreeCAD's task panel sets them in the order the user clicks, so an unusual sequence (a counterbore's diameter typed, then a countersink chosen) can end with other cut values in FreeCAD than here; the 65 states of tests/golden/hole are FreeCAD's for that order, and revolvecheck's click sequence ends with FreeCAD's values. The panel asks the server for every change (`cad feature resolve`), so it lags a moment behind a click. Through all's Depth in the panel uses 2.02 × the diagonal of the view's box, FreeCAD's of the shapes (equal for the plate the check uses); the built hole uses the shapes. The screw norms after the first four Head types come in the order the Linux build's folder listing gives them (readCutDefinitions reads the folder unsorted). Start Reference and the Common operation are built; Up to first is not in FreeCAD 26.3 either (Hole::DepthTypeEnums has it commented out); Update thread view is greyed (the thread is built on OK).
+- (2026-10-26) ShapeBinder's Placement is ShapeBinder::execute's shape.getTransform(): a whole Pad or sketch gives the object's Placement (an XZ sketch's quarter turn, a sketch's AttachmentOffset), one element its own location, several the identity; with no Part::Feature in Support the first App::Line/Plane/Point is bound, Part's datums included, a line along gp_Lin()'s Z as FreeCAD's is (X_Axis's binder runs along Z, Y_Axis's along X). An empty binder referenced fails with FreeCAD's messages, and UpToShape's list takes a binder's, a datum's or a sketch's faces and a Part::DatumPlane's plane and refuses an axis ("SketchBased: Must be face of a feature"). tests/test_feature_binder.py: 30 bodies from freecadcmd, Support and TraceSupport as written, the Tip as read.
 
 ## Attachment and datums, 2026-10-24
 
@@ -457,6 +458,7 @@ Deliberately or knowingly different:
   refused ("not supported yet"): the sketch has no ellipse or B-spline yet. MidPoint, a mode FreeCAD has but does not enable, is
   ported and not offered, as in FreeCAD.
 - Sketcher_MapSketch (Attach Sketch) stays greyed: Edit Attachment does the same through the panel.
+- (2026-10-26) The Attachment panel's query for a Body sketch or datum resolves in the Body before it in a part with Part objects too (a forward reference is LinkBroken), and Part objects see the Body at its TIP, as feature_edit_part builds it; every feature is still placed, past the Tip too.
 
 ## Sketcher, 2026-10-24
 
@@ -613,6 +615,7 @@ Deliberately or knowingly different:
 - The on-view spacing labels: a DISTANCE is a bare line here with its text at the middle, where FreeCAD's EditableDatumLabel offsets it with extension lines and arrows; with no direction set the labels fall back to X (FreeCAD's to Z); their points carry the Body's Placement (FreeCAD's are Body-local, the same while the Body is at the identity).
 - A primitive is attached as FreeCAD attaches it (feature_primitive.placement_of() asks feature_attach's Context, engine 3D; three bodies of tests/golden/attach/bodies.py give FreeCAD's solid and Placement), or placed by its Placement when Deactivated; Placement shows in the property view's Base group, where FreeCAD hides it, and an attached one's shows the part file's placement, not the attached one.
 - (2026-10-25) The toolbars' primitive groups are FreeCAD's split buttons: the icon is the last primitive started (a cancelled one too) and runs it, the arrow lists them.
+- (2026-10-26) A LinearPattern's on-view spacing labels are Direction 1's and then Direction 2's, from the same start point, as updatePatternSpacingLabels runs them for parametersWidget and parametersWidget2; a click or "Reset spacing" on one writes its own direction's Length2/Spacings2 (pickcheck's "Occurrences2 3" step, recorded from FreeCAD).
 
 ## Part workbench, 2026-10-25
 
@@ -687,6 +690,7 @@ Deliberately or knowingly different:
 - The refine and the booleans are pd-kernel's ports (cad_agent/refine.py, topo_boolean.py), shared with PartDesign. In a cut through a cut the boolean gives FreeCAD's shape (25 edges, 10 faces) and the refine port joins two edges FreeCAD's RefineModel leaves split (2 known cases, the same 9 faces and solid). An open sketch's 2D offset splits one edge fewer: FreeCAD's sketch shape carries plane curves from FaceMakerBuildFace that OCCT's offset follows (1 known case).
 - The lists a panel offers (Extrude's shapes, Fillet's solids, Loft's profiles) are told apart by the objects' types, not their built shapes; Fillet and Chamfer pick edges in their list or on the shape in the 3D view, Thickness its faces either way (drawn tinted over the shape), Project on surface its face, wires and edges (picked while its button is down); the Primitives dialog's Pick Position and Circle From 3 Points, Project on surface's camera direction are greyed.
 - The new sketch's orientation is a task panel, FreeCAD's a modal dialog.
+- (2026-10-26) A Reverse of a Body feature takes the feature's Placement (a Pad's is its sketch's support's), as Reverse::execute leaves the source's on it; golden reverse_body_feature.
 ## PartDesign Loft, Pipe and Helix, 2026-10-24
 
 PartDesign::AdditiveLoft, SubtractiveLoft, AdditivePipe, SubtractivePipe, AdditiveHelix and SubtractiveHelix at 3160daf1e2b6, in a

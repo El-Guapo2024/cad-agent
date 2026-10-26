@@ -1385,8 +1385,12 @@ def _ref_face(ref, shapes, where):
     if obj not in shapes:
         ctx = shapes.get("_attach")
         if ctx is not None and obj in ctx.kinds:
-            # a ShapeBinder's face (its Shape is a Part::Feature's), or a datum's: the Body's objects that are not solids
-            face = ctx.element(obj, sub, where)
+            # a ShapeBinder's face (its Shape is a Part::Feature's), or a datum's, the Body's non-solid objects;
+            # getUpToFaceFromLinkSub finds no face in an empty binder either
+            try:
+                face = ctx.element(obj, sub, where)
+            except FeatureError:
+                face = None
             if face is not None and not face.IsNull() and face.ShapeType() == TopAbs_FACE:
                 return face
             raise FeatureError("SketchBased: Up to face: Failed to extract face")
@@ -1396,6 +1400,25 @@ def _ref_face(ref, shapes, where):
     if not 1 <= i <= len(faces):
         raise FeatureError("SketchBased: Up to face: Failed to extract face")
     return faces[i - 1]
+
+
+def _whole_faces(name, shapes, where):
+    """getUpToShapeFromLinkSubList's whole object in a list: an App::Plane's plane (a Part::DatumPlane), else the
+    faces of a Part::Feature (a solid, a ShapeBinder, a sketch, a PartDesign datum; none for an empty binder or a
+    sketch); an App::Line or App::Point is not a Part::Feature."""
+    if name in shapes:
+        return _faces(shapes[name])
+    ctx = shapes.get("_attach")
+    if ctx is None or name not in ctx.kinds:
+        raise FeatureError(f"{where}: no feature {name!r} before it")
+    if ctx.kinds[name] in ("App::Line", "App::Point"):  # the Origin's axes and point
+        raise FeatureError("SketchBased: Must be face of a feature")
+    if ctx.kinds[name] == "datum" and not getattr(ctx.datums[name], "TYPE_ID", "").startswith("PartDesign::"):
+        if getattr(ctx.datums[name], "plane", False):
+            return [ctx.shapes[name]]                # makeTopoShapeFromPlane: the plane at its Placement
+        raise FeatureError("SketchBased: Must be face of a feature")
+    shape = ctx.element(name, "", where)
+    return _faces(shape) if shape is not None and not shape.IsNull() else []
 
 
 def _up_to_shape(refs, shapes, where):
@@ -1408,9 +1431,11 @@ def _up_to_shape(refs, shapes, where):
         if refs[0] not in shapes:
             ctx = shapes.get("_attach")
             if ctx is not None and refs[0] in ctx.kinds:
-                shape = ctx.element(refs[0], "", where)     # a ShapeBinder's whole shape, a datum's
+                # any object's whole shape (getTopoShape): a ShapeBinder's, a datum's, a sketch's; an empty binder's
+                # null shape reaches nothing (FeatureExtrude's message for it, from freecadcmd)
+                shape = ctx.element(refs[0], "", where)
                 if shape is None or shape.IsNull():
-                    raise FeatureError(f"{where}: {refs[0]!r} has no shape")
+                    raise FeatureError("Extrude: Unable to reach the selected shape, please select faces")
                 return shape, 2
             raise FeatureError(f"{where}: no feature {refs[0]!r} before it")
         return shapes[refs[0]], 2
@@ -1419,9 +1444,7 @@ def _up_to_shape(refs, shapes, where):
         if isinstance(r, str) and r.endswith("_Plane"):
             faces.append(_plane_face(r))
         elif isinstance(r, str):
-            if r not in shapes:
-                raise FeatureError(f"{where}: no feature {r!r} before it")
-            faces.extend(_faces(shapes[r]))
+            faces.extend(_whole_faces(r, shapes, where))
         else:
             obj, subs = r
             for s in ([subs] if isinstance(subs, str) else subs):

@@ -335,10 +335,19 @@ try {
   // the command on a selected binder opens that binder's panel (Command.cpp's getSelection branch)
   await page.click('.trow[data-ref="Body/ShapeBinder"] .tname')
   await st('cadui.getCommand("PartDesign_ShapeBinder").run([])')
-  await until('cadui.getState().task?.kind === "shapeBinder" && cadui.getState().task.edit === true && cadui.getState().task.other === "ShapeBinder"', 'the selected binder\'s panel')
-  ok('Shape Binder on a selected binder: "Edit Shape Binder"')
-  await page.click('.taskview .tbuttons .qbtn:text-is("Cancel")')
-  await until('!cadui.getState().task', 'Cancel to close it')
+  if (await until('cadui.getState().task?.kind === "shapeBinder" && cadui.getState().task.edit === true && cadui.getState().task.other === "ShapeBinder"', 'the selected binder\'s panel'))
+    ok('Shape Binder on a selected binder: its panel, editing it')
+  // an edit there is one step, ViewProviderShapeBinder::setEdit's "Edit Shape Binder": Face6 again, then OK
+  await page.click('.taskview .pd-buttons .qbtn:text-is("Add Geometry")')
+  await sleep(300)
+  await st('cadui.getView().helperPicker("@Pad.Face6")')
+  await sleep(300)
+  await page.click('.taskview .tbuttons .qbtn.default')
+  await until('!cadui.getState().task', 'OK to close it')
+  check(await st('JSON.stringify(cadui.getState().features.Body.features.at(-1).support) === \'[["Pad","Face6"]]\''),
+    'Shape Binder on a selected binder: OK writes Support ["Pad","Face6"]')
+  const sbStep = await st('cadui.getState().undo[0]?.name')
+  check(sbStep === 'Edit Shape Binder', 'Shape Binder on a selected binder: one step, "Edit Shape Binder"', sbStep)
 } catch (e) {
   bad('editcheck stopped', e.stack ?? String(e))
 } finally {

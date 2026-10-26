@@ -528,6 +528,15 @@ try {
       check(await noBox(), 'spacing: Escape closes the spinbox')
       sameLabels(await labelState(), fcStep('spacing', 'Spacings 20').labels, 'spacing: Escape writes nothing')
     } else bad('spacing: a click on the second label opens its spinbox')
+    // Direction 2 (parametersWidget2): its labels after Direction 1's, from the same start point; off again after
+    await page.locator('.taskview label.tcheck:has-text("Direction 2") input').first().check(); await sleep(500)
+    const occ2 = page.locator('.taskview .tfield:has(> span:text-is("Occurrences")) input').nth(1)
+    if (await occ2.count()) {
+      await occ2.fill('3'); await sleep(700)
+      sameLabels(await labelState(), fcStep('spacing', 'Occurrences2 3').labels, 'spacing: Direction 2, Occurrences 3: its Extent label after Direction 1\'s')
+    } else bad('spacing: Direction 2 has an Occurrences field')
+    await page.locator('.taskview label.tcheck:has-text("Direction 2") input').first().uncheck(); await sleep(500)
+    sameLabels(await labelState(), fcStep('spacing', 'Spacings 20').labels, 'spacing: Direction 2 off: Direction 1\'s labels alone')
     // onSpacingLabelRightClicked: "Reset spacing" on an override only; a -1 label keeps the view's own menu
     const menu = async (i) => {
       const p = await st(`cadui.getView().helperPoint('pd-spacing', 'spacing:${i}')`)

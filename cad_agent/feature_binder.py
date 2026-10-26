@@ -12,8 +12,9 @@
 support is FreeCAD's Support, a PropertyLinkSubList: (object, element) pairs, the element "" for the object's whole
 shape (as a sketch's attachment_support is written). ShapeBinder copies the geometry of the first Part::Feature it
 names (a Pad, a Pocket, a sketch, another binder), its whole shape when that object's first entry has no element,
-else a compound of the elements; with no Part::Feature it copies the first Origin feature it names (an infinite
-face, line or vertex). TraceSupport is kept for FreeCAD: it moves the copied shape from one container to another,
+else a compound of the elements; with no Part::Feature it copies the first App::Plane, App::Line or App::Point it
+names (an Origin feature, a Part datum: an infinite face, an infinite line along its Placement's Z, a vertex).
+TraceSupport is kept for FreeCAD: it moves the copied shape from one container to another,
 and a Body is one container, so here it changes nothing. The binder's Placement is its shape's, as
 ShapeBinder::execute sets it; it is not a property of the part file, and the binder is never the Body's Tip.
 
@@ -53,15 +54,19 @@ class ShapeBinder(KwFeature):
             return _support(f"{self.name}.support", v)
         return super().normalize(key, v)
 
+    def support_groups(self) -> list:
+        """Support as to_freecad writes it, as FreeCAD's PropertyLinkSubList reads back: [(object, [elements])], one
+        entry per object in the order first named, an Origin feature's elements [""]."""
+        groups: dict = {}
+        for o, s in self.support:
+            groups.setdefault(o, []).append(s)
+        return [(o, [""] if o in FA.ORIGIN else subs) for o, subs in groups.items()]
+
     def to_freecad(self, ctx):
         """PartDesign::ShapeBinder with Support (one entry per object, all its elements) and TraceSupport; its shape
         and Placement follow on the recompute, at execute()."""
         obj = ctx.body.newObject(self.TYPE_ID, self.name)
-        groups: dict = {}
-        for o, s in self.support:
-            groups.setdefault(o, []).append(s)
-        sup = [(ctx.origin[o], [""]) if o in ctx.origin else ctx.ref((o, subs))
-               for o, subs in groups.items()]
+        sup = [(ctx.origin[o], subs) if o in ctx.origin else ctx.ref((o, subs)) for o, subs in self.support_groups()]
         if sup:
             obj.Support = sup
         if self.trace_support and sup:
@@ -75,8 +80,8 @@ class ShapeBinder(KwFeature):
 
 def _part_feature(ctx, support) -> str | None:
     """getFilteredReferences: the first object in Support that is a Part::Feature (a Body feature, another binder,
-    a sketch, and PartDesign's Plane, Line and Point, which are Part::Feature too; not an Origin feature or a
-    Part::DatumPlane), else None."""
+    a sketch, and PartDesign's Plane, Line, Point and CoordinateSystem, which are Part::Datum and so Part::Feature;
+    not an Origin feature or a Part::DatumPlane), else None."""
     for o, _ in support:
         kind = ctx.kinds.get(o)
         if kind in ("solid", "sketch", "binder"):
@@ -86,10 +91,23 @@ def _part_feature(ctx, support) -> str | None:
     return None
 
 
+# Part's datums are App::Plane, App::Line and App::Point (Part/App/Datums.h), as the Body's Origin features are
+_APP_KINDS = {"Part::DatumPlane": "App::Plane", "Part::DatumLine": "App::Line", "Part::DatumPoint": "App::Point"}
+
+
+def _app_kind(ctx, o) -> str | None:
+    """App::Plane, App::Line or App::Point when the object is one (an Origin feature, a Part datum), else None."""
+    if o in FA.ORIGIN:
+        return FA.ORIGIN[o][0]
+    if ctx.kinds.get(o) == "datum":
+        return _APP_KINDS.get(getattr(ctx.datums.get(o), "TYPE_ID", ""))
+    return None
+
+
 def filtered_support(ctx, support) -> tuple[str | None, list[str]]:
     """ShapeBinder::getFilteredReferences: (object, elements) of a binder's Support. The whole shape when that
     object's own entry has no element, else every element Support gives for it; with no Part::Feature, the first
-    Origin feature's name and no elements."""
+    App::Line, App::Plane or App::Point (an Origin feature, a Part datum) and no elements."""
     if not support:
         return None, []
     obj = _part_feature(ctx, support)
@@ -98,26 +116,70 @@ def filtered_support(ctx, support) -> tuple[str | None, list[str]]:
             return obj, []
         return obj, [s for o, s in support if o == obj and s]
     for o, _ in support:
-        if o in FA.ORIGIN:
+        if _app_kind(ctx, o) is not None:
             return o, []
     return None, []
 
 
+def _app_shape(kind):
+    """buildShapeFromReferences of an App::Line, App::Plane or App::Point, before its Placement: an edge on gp_Lin()
+    (the Z axis, whatever direction the Origin's own line has), a face on gp_Pln() (XY), a vertex at gp_Pnt()."""
+    if kind == "App::Line":
+        return FA._infinite(FA._line_edge((0, 0, 1)))
+    if kind == "App::Plane":
+        return FA._infinite(FA._plane_face())
+    from OCP.BRepBuilderAPI import BRepBuilderAPI_MakeVertex
+    from OCP.gp import gp_Pnt
+    return BRepBuilderAPI_MakeVertex(gp_Pnt(0, 0, 0)).Shape()
+
+
+def _located(shape, pl):
+    """A global shape as a Part::Feature's Shape holds it, located at the object's Placement (getTransform() is then
+    that Placement) with every element where it was: a Pad's TopoShape is built from its sketch moved by the inverse
+    Placement and then placed, so an element's location is the Placement times its own within the shape. Here the
+    shape is rebuilt one level down, each child moved by the inverse, and the copy located at the Placement; the two
+    cancel (one TopLoc datum), so its elements keep their exact global locations."""
+    if shape is None or shape.IsNull() or \
+            (tuple(pl.pos) == (0.0, 0.0, 0.0) and tuple(pl.rot.q) == (0.0, 0.0, 0.0, 1.0)):
+        return shape
+    from OCP.BRep import BRep_Builder
+    from OCP.TopLoc import TopLoc_Location
+    from OCP.TopoDS import TopoDS_Iterator
+    loc = TopLoc_Location(pl.trsf())
+    inv, own = loc.Inverted(), shape.Location()
+    out = shape.EmptyCopied()
+    out.Location(TopLoc_Location())
+    b = BRep_Builder()
+    it = TopoDS_Iterator(shape, False, False)
+    while it.More():
+        b.Add(out, it.Value().Moved(own).Moved(inv))
+        it.Next()
+    out.Location(loc)
+    return out
+
+
 def binder_shape(f, ctx):
     """ShapeBinder::buildShapeFromReferences, in the Body's coordinates: the object's whole shape, one element, or
-    a compound of the elements; None for a binder with nothing usable in its Support."""
+    a compound of the elements; None for a binder with nothing usable in its Support. Its location is what
+    FreeCAD's TopoShape carries, which ShapeBinder::execute makes the binder's Placement: a whole object's own
+    Placement (Part::Feature's Shape carries it), one element's own location within it, the identity for a
+    compound of several, and an App::Line/Plane/Point's Placement."""
     obj, subs = filtered_support(ctx, f.support)
     if obj is None:
         return None
     where = f"{f.name}: support"
-    if obj in FA.ORIGIN:
-        return ctx.origin_shape(obj)
+    kind = _app_kind(ctx, obj)
+    if kind is not None:
+        return FA._moved(_app_shape(kind), ctx.placements[obj])
     if not subs:
         if ctx.kinds.get(obj) == "sketch":
             # SketchObject::buildShape: the whole sketch is its wires (a Wire, not a compound of loose edges)
             from .feature_part import sketch_shape
-            return sketch_shape(ctx.sketches[obj])
-        return ctx.element(obj, "", where)
+            return _located(sketch_shape(ctx.sketches[obj]), ctx.placements[obj])
+        shape = ctx.element(obj, "", where)
+        if ctx.kinds.get(obj) == "solid":           # held global here, at the identity
+            return _located(shape, ctx.placements[obj])
+        return shape                                 # a binder's, a datum's: already at its Placement
     shapes = [ctx.element(obj, s, where) for s in subs]
     if any(s is None or s.IsNull() for s in shapes):
         return None

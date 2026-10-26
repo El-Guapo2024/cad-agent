@@ -8,6 +8,7 @@ also hold FreeCAD's filtering: the first Part::Feature in Support is the one cop
 means its whole shape, whatever else Support names.
 """
 from cad_agent.feature import Constraint, LineSegment, Pad, Pocket, ShapeBinder, Sketch
+from cad_agent.feature_attach import DatumLine, DatumPlane, DatumPoint
 
 
 def rect(x0, y0, x1, y1, construction=False):
@@ -28,6 +29,20 @@ def base_pad(length=5.0):
     """The 40 x 20 plate most cases start from, as tests/golden/feature/cases.py's base_pad."""
     return [Sketch("Sketch", "XY", rect(0, 0, 40, 20), rect_constraints(0, 40.0, 20.0)),
             Pad("Pad", "Sketch", length=length)]
+
+
+def xz_pad():
+    """The plate on the XZ plane: the Pad's and the sketch's Placement are the plane's (a quarter turn about X)."""
+    return [Sketch("Sketch", "XZ", rect(0, 0, 40, 20), rect_constraints(0, 40.0, 20.0)),
+            Pad("Pad", "Sketch", length=5.0)]
+
+
+def offset_pad():
+    """The plate's sketch moved off the XY plane by its AttachmentOffset: the sketch's Placement is the offset, the
+    Pad's the XY plane's (positionByPrevious takes the support's)."""
+    return [Sketch("Sketch", "XY", rect(0, 0, 40, 20), rect_constraints(0, 40.0, 20.0),
+                   attachment_offset=(3, 4, 7)),
+            Pad("Pad", "Sketch", length=5.0)]
 
 
 CASES = {
@@ -76,4 +91,46 @@ CASES = {
         ShapeBinder("Binder", support=[("Pad", "Face5")]),
         Sketch("Cavity", "XY", rect(15, 5, 25, 15), attachment_offset=(0, 0, 5)),
         Pocket("Pocket", "Cavity", type="UpToFace", up_to_face=("Binder", "Face1"))]),
+    # a support away from the identity: a whole object's Shape carries the object's Placement, which the binder
+    # takes (ShapeBinder::execute: Placement = shape.getTransform()); one element keeps its own location in it
+    "xz_whole_pad": dict(features=xz_pad() + [ShapeBinder("Binder", support=[("Pad", "")])]),
+    "xz_one_face": dict(features=xz_pad() + [ShapeBinder("Binder", support=[("Pad", "Face6")])]),
+    "xz_two_faces": dict(features=xz_pad() + [ShapeBinder("Binder", support=[("Pad", "Face1"), ("Pad", "Face6")])]),
+    "xz_sketch_wire": dict(features=xz_pad() + [ShapeBinder("Binder", support=[("Sketch", "")])]),
+    "xz_sketch_edge": dict(features=xz_pad() + [ShapeBinder("Binder", support=[("Sketch", "Edge1")])]),
+    "xz_binder_of_binder": dict(features=xz_pad() + [ShapeBinder("Binder", support=[("Pad", "")]),
+                                                     ShapeBinder("Binder001", support=[("Binder", "")]),
+                                                     ShapeBinder("Binder002", support=[("Binder", "Face6")])]),
+    "xz_sketch_on_binder": dict(features=xz_pad() + [
+        ShapeBinder("Binder", support=[("Pad", "")]),
+        Sketch("OnBinder", attachment_support=[("Binder", "Face6")], map_mode="FlatFace",
+               geometry=rect(5, 5, 15, 15), constraints=rect_constraints(0, 10.0, 10.0)),
+        Pad("Pad001", "OnBinder", length=3.0)]),
+    "offset_whole_pad": dict(features=offset_pad() + [ShapeBinder("Binder", support=[("Pad", "")])]),
+    "offset_sketch_wire": dict(features=offset_pad() + [ShapeBinder("Binder", support=[("Sketch", "")])]),
+    "offset_one_face": dict(features=offset_pad() + [ShapeBinder("Binder", support=[("Pad", "Face6")])]),
+    # an App::Line's binder is an edge on gp_Lin(), the Z axis, at the line's Placement: X_Axis's is along Z, Y_Axis's
+    # along X; an App::Plane's a face on gp_Pln() at its Placement
+    "origin_y_axis_xz_plane": dict(features=base_pad() + [ShapeBinder("Binder", support=[("Y_Axis", "")]),
+                                                          ShapeBinder("Binder001", support=[("XZ_Plane", "")])]),
+    # Part's datums are App::Plane, App::Line and App::Point, not Part::Feature: getFilteredReferences falls back to
+    # them as to an Origin feature, and a Part::Feature named with them is still the one copied
+    "part_datums": dict(features=base_pad() + [
+        DatumPlane("DatumPlane", attachment_support=[("Pad", "Face6")], map_mode="FlatFace"),
+        DatumLine("DatumLine", attachment_support=[("Pad", "Vertex2"), ("Pad", "Vertex4")], map_mode="TwoPointLine"),
+        DatumPoint("DatumPoint", attachment_support=[("Pad", "Vertex2")], map_mode="Vertex"),
+        ShapeBinder("Binder", support=[("DatumPlane", "")]),
+        ShapeBinder("Binder001", support=[("DatumLine", "")]),
+        ShapeBinder("Binder002", support=[("DatumPoint", "")]),
+        ShapeBinder("Binder003", support=[("DatumPlane", ""), ("Pad", "Face1")])]),
+    # a Pad up to a list of shapes naming a binder whole: its faces and the XY plane (getUpToShapeFromLinkSubList)
+    "pad_up_to_shape_list": dict(features=base_pad() + [
+        ShapeBinder("Binder", support=[("Pad", "Face6")]),
+        Sketch("Below", "XY", rect(10, 5, 20, 15), attachment_offset=(0, 0, -4)),
+        Pad("Pad001", "Below", type="UpToShape", up_to_shape=["Binder", "XY_Plane"])]),
+    # and naming a Part::DatumPlane, an App::Plane: its plane (makeTopoShapeFromPlane), as an origin plane's
+    "pad_up_to_shape_list_datum": dict(features=base_pad() + [
+        DatumPlane("DatumPlane", attachment_support=[("Pad", "Face6")], map_mode="FlatFace"),
+        Sketch("Below", "XY", rect(10, 5, 20, 15), attachment_offset=(0, 0, -4)),
+        Pad("Pad001", "Below", type="UpToShape", up_to_shape=["DatumPlane", "XY_Plane"])]),
 }

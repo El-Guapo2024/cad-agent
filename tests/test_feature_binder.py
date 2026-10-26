@@ -63,6 +63,7 @@ def _measure(shape) -> dict:
     corn = [lo.X(), lo.Y(), lo.Z(), hi.X(), hi.Y(), hi.Z()]
     if any(abs(c) > 1e99 for c in corn):
         out["infinite"] = True
+        out["axis"] = _axis(shape)
         return out
     props = GProp_GProps()
     BRepGProp.SurfaceProperties_s(shape, props)
@@ -70,6 +71,25 @@ def _measure(shape) -> dict:
     BRepGProp.VolumeProperties_s(shape, vol)
     out.update({"bbox": [_r(c) for c in corn], "area": _r(props.Mass()), "volume": _r(vol.Mass())})
     return out
+
+
+def _axis(shape):
+    """An infinite line's direction or an infinite plane's normal (the surface's axis), as make.py reads FreeCAD's
+    Curve.Direction and Surface.Axis; None for anything else."""
+    from OCP.BRepAdaptor import BRepAdaptor_Curve, BRepAdaptor_Surface
+    from OCP.GeomAbs import GeomAbs_Line, GeomAbs_Plane
+    from OCP.TopoDS import TopoDS
+    if shape.ShapeType() == TopAbs_EDGE:
+        c = BRepAdaptor_Curve(TopoDS.Edge(shape))
+        if c.GetType() == GeomAbs_Line:
+            d = c.Line().Direction()
+            return [_r(d.X()), _r(d.Y()), _r(d.Z())]
+    if shape.ShapeType() == TopAbs_FACE:
+        a = BRepAdaptor_Surface(TopoDS.Face(shape))
+        if a.GetType() == GeomAbs_Plane:
+            d = a.Plane().Axis().Direction()
+            return [_r(d.X()), _r(d.Y()), _r(d.Z())]
+    return None
 
 
 def _measure_part(part) -> dict:
@@ -95,8 +115,12 @@ def test_same_binder_as_freecad(name):
     ev = feature.evaluate(case["features"], case.get("params"))
     ctx = ev["_attach"]
     assert set(want["binders"]) == {f.name for f in case["features"] if isinstance(f, ShapeBinder)}
+    binders = {f.name: f for f in case["features"] if isinstance(f, ShapeBinder)}
     for binder in sorted(want["binders"]):
         w = want["binders"][binder]
+        # Support and TraceSupport as to_freecad writes them and FreeCAD reads them back
+        assert [[o, list(subs)] for o, subs in binders[binder].support_groups()] == w["support"]
+        assert binders[binder].trace_support == w["trace_support"]
         got = _measure(ctx.shapes.get(binder))
         assert ctx.kinds[binder] == "binder"
         if w.get("null"):
@@ -110,6 +134,8 @@ def test_same_binder_as_freecad(name):
         assert [_r(c) for c in (*pl.pos, *pl.rot.ypr())] == pytest.approx(w["placement"], abs=1e-7)
         if w.get("infinite"):
             assert got.get("infinite")
+            if "axis" in w:
+                assert got["axis"] == pytest.approx(w["axis"], abs=1e-9)
         else:
             assert got["bbox"] == pytest.approx(w["bbox"], abs=1e-6)
             assert got["area"] == pytest.approx(w["area"], rel=1e-6, abs=1e-9)
@@ -129,9 +155,11 @@ def test_same_body_and_tip_as_freecad(name):
     size = math.dist(w["bbox"][:3], w["bbox"][3:])
     assert got["bbox"] == pytest.approx(w["bbox"], abs=1e-6 * size)
     assert (got["faces"], got["edges"], got["solids"]) == (w["faces"], w["edges"], w["solids"])
-    solid = next((f.name for f in reversed(case["features"])
-                  if not isinstance(f, ShapeBinder)), None)
-    assert want["tip"] == solid
+    # the Tip our part file reads for these FEATURES (no TIP =): feature_edit.read_src's default
+    src = "FEATURES = [\n" + "".join(
+        f"    {type(f).__name__}({f.name!r}" + (f", {f.profile!r}" if hasattr(f, "profile") else "") + "),\n"
+        for f in case["features"]) + "]\n"
+    assert E.read_src(src)["tip"] == want["tip"]
 
 
 def _plate(tmp_path, name="plate.py"):
@@ -240,3 +268,32 @@ def test_binder_support_is_a_reference_list(tmp_path):
     assert b.references() == ["Pad", "Pad", "Pad"]
     assert ShapeBinder("B", support=("Pad", "")).support == (("Pad", ""),)
     assert ShapeBinder("B").support == ()
+
+
+# ── an empty binder, referenced: FreeCAD's messages (freecadcmd, 26.3 at 3160daf1e2b6) ──
+_BELOW = _cases.Sketch("Below", "XY", _cases.rect(10, 5, 20, 15), attachment_offset=(0, 0, -4))
+
+
+@pytest.mark.parametrize("features, message", [
+    # AttachEngine::extractSubShape: an element of an object with no shape
+    ([ShapeBinder("Binder"), _cases.Sketch("S2", attachment_support=[("Binder", "Face1")], map_mode="FlatFace",
+                                           geometry=_cases.rect(1, 1, 2, 2))],
+     "AttachEngine3D: subshape not found Binder.Face1"),
+    # the whole of it: a null shape, no plane for FlatFace
+    ([ShapeBinder("Binder"), _cases.Sketch("S2", attachment_support=[("Binder", "")], map_mode="FlatFace",
+                                           geometry=_cases.rect(1, 1, 2, 2))],
+     "No planar face in AttachEngine3D::calculateAttachedPlacement()!"),
+    # getUpToFaceFromLinkSub
+    ([ShapeBinder("Binder"), _BELOW, _cases.Pad("Pad001", "Below", type="UpToFace", up_to_face=("Binder", "Face1"))],
+     "SketchBased: Up to face: Failed to extract face"),
+    # getUpToShapeFromLinkSubList's one whole shape, null
+    ([ShapeBinder("Binder"), _BELOW, _cases.Pad("Pad001", "Below", type="UpToShape", up_to_shape=["Binder"])],
+     "Extrude: Unable to reach the selected shape, please select faces"),
+    # in a list, an App::Line is neither an App::Plane nor a Part::Feature (FeatureSketchBased.cpp)
+    ([_BELOW, _cases.Pad("Pad001", "Below", type="UpToShape", up_to_shape=["X_Axis", "XY_Plane"])],
+     "SketchBased: Must be face of a feature"),
+])
+def test_a_reference_to_an_empty_binder_fails_as_freecad(features, message):
+    with pytest.raises(feature.FeatureError) as e:
+        feature.evaluate(_cases.base_pad() + features)
+    assert message in str(e.value)

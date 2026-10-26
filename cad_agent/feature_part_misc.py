@@ -60,16 +60,25 @@ class Reverse(PartObject):
         from the source (base_placement)."""
         if self.source is None:
             raise F.FeatureError("No part object linked.")
-        from . import attacher as A
         shape = ctx.shape(self.source, f"{self.name}.Source")
-        pl = ctx.placements.get(self.source, A.Placement())
+        pl = _source_placement(ctx, self.source)
         return shape.Moved(TopLoc_Location(pl.inverse().trsf())).Reversed()
 
     def base_placement(self, ctx, params):
-        from . import attacher as A
         if self.source is None:
             return super().base_placement(ctx, params)
-        return ctx.placements.get(self.source, A.Placement())
+        return _source_placement(ctx, self.source)
+
+
+def _source_placement(ctx, name):
+    """The Placement of a linked object: a Part object's, else a Body feature's as the Body places it (a Pad's is
+    its sketch's support's, ProfileBased::positionByPrevious), else the identity (the Body)."""
+    from . import attacher as A
+    if name in ctx.placements:
+        return ctx.placements[name]
+    if ctx.attach_ctx is not None and name in ctx.attach_ctx.placements:
+        return ctx.attach_ctx.placements[name]
+    return A.Placement()
 
 
 class Scale(PartObject):
