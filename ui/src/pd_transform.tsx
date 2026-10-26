@@ -477,7 +477,15 @@ const LABEL_ON = '#e03131', LABEL_OFF = '#868e96'
 /** A label as TaskPatternParameters::updatePatternSpacingLabels computes it: the text, the dimension's points in the 3D view
  *  (for an ANGLE the label's centre twice, its arc being radius, start and range), and whether it has its own spacing. */
 export type SpacingLabel = { index: number; kind: 'DISTANCE' | 'ANGLE'; text: string; points: [number[], number[]]; color: string; value: number
-  radius?: number; start?: number; range?: number; center?: number[]; axis?: number[] }
+  radius?: number; start?: number; range?: number; center?: number[]; axis?: number[]
+  /** the LinearPattern's direction the label is of: 1, or 2 (parametersWidget2's, Direction2's properties) */
+  dir: 1 | 2 }
+/** A pattern's properties for one direction: Direction 2 of a LinearPattern is Mode2, Length2, Offset2, Spacings2, ... */
+export function patternKeys(dir: 1 | 2) {
+  const k = dir === 2 ? '2' : ''
+  return { mode: `mode${k}`, length: `length${k}`, offset: `offset${k}`, spacings: `spacings${k}`, occurrences: `occurrences${k}`,
+    direction: `direction${k}`, reversed: `reversed${k}` }
+}
 /** TaskPatternParameters::getStartPoint: the centre of the originals' AddSubShapes' (their tools') combined bounding box,
  *  each moved by its feature's location; (0,0,0) when there is none (Transform body). In the part's frame. */
 function patternStartPoint(doc: FeatureDoc, f: Feature): THREE.Vector3 {
@@ -490,33 +498,17 @@ function patternStartPoint(doc: FeatureDoc, f: Feature): THREE.Vector3 {
 }
 /** PatternParametersWidget::updateSpacingLabels for a LinearPattern or a PolarPattern: Extent draws one label, Spacing
  *  occurrences - 1; a Spacings entry of -1 is the global offset, in the deactivated colour, and an override is its own.
+ *  A LinearPattern draws Direction 1's and then Direction 2's (TaskPatternParameters::updatePatternSpacingLabels runs it
+ *  for parametersWidget and parametersWidget2), each from the same start point.
  *  The points are the 3D view's (the Body's placement applied, as ViewProviderTransformed's preview is). */
 function spacingLabels(doc: FeatureDoc, f: Feature): SpacingLabel[] {
   if (f.type !== LINEAR && f.type !== POLAR) return []
-  const occ = Math.round(num(doc, f.occurrences, f.type === POLAR ? 3 : 2))
-  if (occ <= 1) return []
-  const mode = String(f.mode ?? 'Extent'), off = num(doc, f.offset, f.type === POLAR ? 120 : 10)
-  const sp = ((f.spacings as number[] | undefined) ?? []).map(Number)
   const toWorld = partMatrix(doc), start = patternStartPoint(doc, f)
-  if (f.type === LINEAR) {
-    const a = f.direction === null || f.direction === undefined ? { p: new THREE.Vector3(), d: new THREE.Vector3() } : refAxis(doc, f.direction as Ref, false)
-    if (!a) return []
-    const d = a.d.clone().normalize().multiplyScalar(f.reversed === true ? -1 : 1)
-    const rot = new THREE.Quaternion().setFromUnitVectors(V([1, 0, 0]), d)
-    const at = (x: number) => V([x, 0, 0]).applyQuaternion(rot).add(start).applyMatrix4(toWorld).toArray()
-    const label = (index: number, value: number, x: number, own: boolean): SpacingLabel => ({
-      index, kind: 'DISTANCE', value, text: shownText({ value, dims: LENGTH }).text, points: [at(x), at(x + value)],
-      color: own ? LABEL_ON : LABEL_OFF })
-    if (mode === 'Extent') return [label(0, num(doc, f.length, 100), 0, true)]
-    const out: SpacingLabel[] = []
-    let cur = 0
-    for (let i = 0; i < occ - 1; i++) {
-      const o = sp[i] ?? -1, value = o === -1 ? off : o
-      out.push(label(i, value, cur, o !== -1))
-      cur += value
-    }
-    return out
-  }
+  if (f.type === LINEAR) return [...linearLabels(doc, f, 1, toWorld, start), ...linearLabels(doc, f, 2, toWorld, start)]
+  const occ = Math.round(num(doc, f.occurrences, 3))
+  if (occ <= 1) return []
+  const mode = String(f.mode ?? 'Extent'), off = num(doc, f.offset, 120)
+  const sp = ((f.spacings as number[] | undefined) ?? []).map(Number)
   const a = f.axis === null || f.axis === undefined ? { p: new THREE.Vector3(), d: V([0, 0, 1]) } : refAxis(doc, f.axis as Ref, false)
   if (!a) return []
   const axis = a.d.clone().normalize().multiplyScalar(f.reversed === true ? -1 : 1)
@@ -530,7 +522,7 @@ function spacingLabels(doc: FeatureDoc, f: Feature): SpacingLabel[] {
   }
   const c = centre.clone().applyMatrix4(toWorld).toArray(), ax = axis.clone().transformDirection(toWorld).toArray()
   const label = (index: number, value: number, startAngle: number, own: boolean): SpacingLabel => ({
-    index, kind: 'ANGLE', value, text: shownText({ value, dims: ANGLE }).text, points: [c, c], color: own ? LABEL_ON : LABEL_OFF,
+    index, dir: 1, kind: 'ANGLE', value, text: shownText({ value, dims: ANGLE }).text, points: [c, c], color: own ? LABEL_ON : LABEL_OFF,
     radius, start: startAngle, range: THREE.MathUtils.degToRad(value), center: c, axis: ax })
   if (mode === 'Extent') return [label(0, num(doc, f.angle, 360), angle, true)]
   const out: SpacingLabel[] = []
@@ -539,6 +531,34 @@ function spacingLabels(doc: FeatureDoc, f: Feature): SpacingLabel[] {
     const o = sp[i] ?? -1, value = o === -1 ? off : o
     out.push(label(i, value, cum, o !== -1))
     cum += THREE.MathUtils.degToRad(value)
+  }
+  return out
+}
+/** One direction's labels of a LinearPattern (updateLinearLabels): none for one occurrence; the direction is
+ *  calculateOffsetVector's, normalised, else the fallback (getLinearPatternFallbackDirection: X for Direction 1, Y for
+ *  Direction 2) when there is no direction or it has no length. */
+function linearLabels(doc: FeatureDoc, f: Feature, dir: 1 | 2, toWorld: THREE.Matrix4, start: THREE.Vector3): SpacingLabel[] {
+  const k = patternKeys(dir)
+  const occ = Math.round(num(doc, f[k.occurrences], dir === 2 ? 1 : 2))
+  if (occ <= 1) return []
+  const mode = String(f[k.mode] ?? 'Extent'), off = num(doc, f[k.offset], 10)
+  const sp = ((f[k.spacings] as number[] | undefined) ?? []).map(Number)
+  const ref = f[k.direction]
+  const a = ref === null || ref === undefined ? null : refAxis(doc, ref as Ref, false)
+  let d = a && a.d.length() > 1e-7 ? a.d.clone().normalize().multiplyScalar(f[k.reversed] === true ? -1 : 1) : null
+  if (!d) d = V(dir === 2 ? [0, 1, 0] : [1, 0, 0])
+  const rot = new THREE.Quaternion().setFromUnitVectors(V([1, 0, 0]), d)
+  const at = (x: number) => V([x, 0, 0]).applyQuaternion(rot).add(start).applyMatrix4(toWorld).toArray()
+  const label = (index: number, value: number, x: number, own: boolean): SpacingLabel => ({
+    index, dir, kind: 'DISTANCE', value, text: shownText({ value, dims: LENGTH }).text, points: [at(x), at(x + value)],
+    color: own ? LABEL_ON : LABEL_OFF })
+  if (mode === 'Extent') return [label(0, num(doc, f[k.length], 100), 0, true)]
+  const out: SpacingLabel[] = []
+  let cur = 0
+  for (let i = 0; i < occ - 1; i++) {
+    const o = sp[i] ?? -1, value = o === -1 ? off : o
+    out.push(label(i, value, cur, o !== -1))
+    cur += value
   }
   return out
 }
@@ -725,8 +745,8 @@ function TransformedTask({ part, other, edit }: { part: string; other: string; e
   const [picked, setPicked] = useState<Record<string, Ref[]>>({})          // the links picked this session (ComboLinks keeps them)
   const [sub, setSub] = useState<number | null>(null)
   const [menu, setMenu] = useState<{ x: number; y: number } | null>(null)
-  const [labelEdit, setLabelEdit] = useState<{ index: number; x: number; y: number; text: string; value: number } | null>(null)
-  const [labelMenu, setLabelMenu] = useState<{ index: number; x: number; y: number } | null>(null)
+  const [labelEdit, setLabelEdit] = useState<{ index: number; dir: 1 | 2; x: number; y: number; text: string; value: number } | null>(null)
+  const [labelMenu, setLabelMenu] = useState<{ index: number; dir: 1 | 2; x: number; y: number } | null>(null)
   const set = (p: Partial<Feature>) => setF((x) => (x ? { ...x, ...p } : x))
   const setSubF = (i: number, p: Partial<Feature>) => setF((x) => (x ? { ...x, transformations: pdxChildren(x).map((t, k) => (k === i ? { ...t, ...p } : t)) } : x))
   // Add Feature / Remove Feature / Select reference…: the next pick in the 3D view (the base shown in the Body's place) or the
@@ -776,14 +796,16 @@ function TransformedTask({ part, other, edit }: { part: string; other: string; e
     if (!v || !f || !doc) return
     const labels = spacingLabels(doc, f)
     v.labelPick = (name, x, y) => {
-      const i = Number(name.slice('spacing:'.length)), l = labels[i]
-      if (l) setLabelEdit({ index: i, x, y, text: l.text, value: l.value })
+      const l = labels[Number(name.slice('spacing:'.length))]
+      if (l) setLabelEdit({ index: l.index, dir: l.dir, x, y, text: l.text, value: l.value })
     }
     v.labelMenu = (name, x, y) => {
       // onSpacingLabelRightClicked: only a spacing label that has an override offers "Reset spacing"; the rest leave the view's menu
-      const i = Number(name.slice('spacing:'.length)), sp = ((f.spacings as number[] | undefined) ?? []).map(Number)
-      if (String(f.mode ?? 'Extent') !== 'Spacing' || i >= sp.length || sp[i] === -1) return false
-      setLabelMenu({ index: i, x, y })
+      const l = labels[Number(name.slice('spacing:'.length))]
+      if (!l) return false
+      const k = patternKeys(l.dir), i = l.index, sp = ((f[k.spacings] as number[] | undefined) ?? []).map(Number)
+      if (String(f[k.mode] ?? 'Extent') !== 'Spacing' || i >= sp.length || sp[i] === -1) return false
+      setLabelMenu({ index: i, dir: l.dir, x, y })
       return true
     }
     return () => { v.labelPick = null; v.labelMenu = null }
@@ -792,23 +814,25 @@ function TransformedTask({ part, other, edit }: { part: string; other: string; e
    *  entry, the global offset going back to -1. */
   const finishLabel = (value: number) => {
     if (!f || !doc || !labelEdit) return
-    const i = labelEdit.index
-    if (String(f.mode ?? 'Extent') === 'Extent') set(f.type === POLAR ? { angle: value } : { length: value })
+    const i = labelEdit.index, k = patternKeys(labelEdit.dir)
+    if (String(f[k.mode] ?? 'Extent') === 'Extent') set(f.type === POLAR ? { angle: value } : { [k.length]: value })
     else {
-      const sp = ((f.spacings as number[] | undefined) ?? []).map(Number), occ = Math.round(num(doc, f.occurrences, f.type === POLAR ? 3 : 2))
+      const sp = ((f[k.spacings] as number[] | undefined) ?? []).map(Number)
+      const occ = Math.round(num(doc, f[k.occurrences], f.type === POLAR ? 3 : labelEdit.dir === 2 ? 1 : 2))
       while (sp.length < Math.max(occ - 1, i + 1)) sp.push(-1)      // the property holds one per gap, as FreeCAD's does
-      sp[i] = value === num(doc, f.offset, f.type === POLAR ? 120 : 10) ? -1 : value
-      set({ spacings: sp })
+      sp[i] = value === num(doc, f[k.offset], f.type === POLAR ? 120 : 10) ? -1 : value
+      set({ [k.spacings]: sp })
     }
     setLabelEdit(null)
   }
   /** onSpacingLabelRightClicked's "Reset spacing": that Spacings entry back to -1. */
-  const resetSpacing = (i: number) => {
+  const resetSpacing = (i: number, dir: 1 | 2) => {
     if (!f || !doc) return
-    const sp = ((f.spacings as number[] | undefined) ?? []).map(Number), occ = Math.round(num(doc, f.occurrences, f.type === POLAR ? 3 : 2))
+    const k = patternKeys(dir), sp = ((f[k.spacings] as number[] | undefined) ?? []).map(Number)
+    const occ = Math.round(num(doc, f[k.occurrences], f.type === POLAR ? 3 : dir === 2 ? 1 : 2))
     while (sp.length < Math.max(occ - 1, i + 1)) sp.push(-1)
     sp[i] = -1
-    set({ spacings: sp })
+    set({ [k.spacings]: sp })
     setLabelMenu(null)
   }
   if (!doc || !f) return <div className="tasks"><p className="hint">{part}: no feature {other}</p></div>
@@ -905,7 +929,7 @@ function TransformedTask({ part, other, edit }: { part: string; other: string; e
             if (r.status === 'ok') finishLabel(r.q.value); else setLabelEdit(null)
           }} />, document.body)}
       {labelMenu && <ContextMenu at={labelMenu} onClose={() => setLabelMenu(null)}
-        entries={[{ label: 'Reset spacing', onSelect: () => resetSpacing(labelMenu.index) }]} />}
+        entries={[{ label: 'Reset spacing', onSelect: () => resetSpacing(labelMenu.index, labelMenu.dir) }]} />}
     </div>
   )
 }

@@ -657,6 +657,18 @@ def spacing():
     choose("comboMode", "Extent")
     choose("comboMode", "Spacing")
     out["steps"].append(snap("Spacings 20", f, P, labels=True))
+    # Direction 2 (parametersWidget2): updatePatternSpacingLabels draws its labels after Direction 1's, from the same
+    # start point; a Mode change refreshes them as above
+    P2 = P + ("Direction2", "Mode2", "Length2", "Offset2", "Occurrences2", "Spacings2")
+    f.Occurrences2 = 3
+    doc.recompute()
+    pump(0.5)
+    choose("comboMode", "Extent")
+    choose("comboMode", "Spacing")
+    out["steps"].append(snap("Occurrences2 3", f, P2, labels=True))
+    f.Occurrences2 = 1
+    doc.recompute()
+    pump(0.5)
     out["linear_finish"] = finish(f, P)
     out["polar"] = polar_spacing_labels()
     return out

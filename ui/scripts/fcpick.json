@@ -20210,6 +20210,343 @@
       "param2": 0.0
      }
     ]
+   },
+   {
+    "step": "Occurrences2 3",
+    "task": [
+     [
+      {
+       "class": "QPushButton",
+       "name": "",
+       "enabled": true,
+       "text": "OK"
+      },
+      {
+       "class": "QPushButton",
+       "name": "",
+       "enabled": true,
+       "text": "Cancel"
+      },
+      {
+       "class": "QSint::TaskHeader",
+       "name": "",
+       "enabled": true,
+       "text": ""
+      },
+      {
+       "class": "QSint::ActionLabel",
+       "name": "",
+       "enabled": true,
+       "text": "Linear Pattern Parameters"
+      },
+      {
+       "class": "QRadioButton",
+       "name": "radioTransformBody",
+       "enabled": true,
+       "text": "Transform body",
+       "checked": false
+      },
+      {
+       "class": "QRadioButton",
+       "name": "radioTransformToolShapes",
+       "enabled": true,
+       "text": "Transform tool shapes",
+       "checked": true
+      },
+      {
+       "class": "QPushButton",
+       "name": "buttonAddFeature",
+       "enabled": true,
+       "text": "Add Feature",
+       "checked": false
+      },
+      {
+       "class": "QPushButton",
+       "name": "buttonRemoveFeature",
+       "enabled": true,
+       "text": "Remove Feature",
+       "checked": false
+      },
+      {
+       "class": "QListWidget",
+       "name": "listWidgetFeatures",
+       "enabled": true,
+       "items": [
+        "Pocket001"
+       ]
+      },
+      {
+       "class": "QToolButton",
+       "name": "PushButtonReverse",
+       "enabled": true,
+       "text": ""
+      },
+      {
+       "class": "QComboBox",
+       "name": "comboDirection",
+       "enabled": true,
+       "items": [
+        "Horizontal sketch axis",
+        "Vertical sketch axis",
+        "Normal sketch axis",
+        "Base X-axis",
+        "Base Y-axis",
+        "Base Z-axis",
+        "Select reference\u2026"
+       ],
+       "current": "Horizontal sketch axis"
+      },
+      {
+       "class": "QLabel",
+       "name": "labelMode",
+       "enabled": true,
+       "text": "Mode"
+      },
+      {
+       "class": "QComboBox",
+       "name": "comboMode",
+       "enabled": true,
+       "items": [
+        "Extent",
+        "Spacing"
+       ],
+       "current": "Spacing"
+      },
+      {
+       "class": "QLabel",
+       "name": "labelOffset",
+       "enabled": true,
+       "text": "Spacing"
+      },
+      {
+       "class": "Gui::QuantitySpinBox",
+       "name": "spinSpacing",
+       "enabled": true,
+       "text": "33.33 mm"
+      },
+      {
+       "class": "QLineEdit",
+       "name": "qt_spinbox_lineedit",
+       "enabled": true,
+       "text": "33.33 mm",
+       "placeholder": ""
+      },
+      {
+       "class": "QLabel",
+       "name": "labelOccurrences",
+       "enabled": true,
+       "text": "Occurrences"
+      },
+      {
+       "class": "Gui::UIntSpinBox",
+       "name": "spinOccurrences",
+       "enabled": true,
+       "text": "4"
+      },
+      {
+       "class": "QLineEdit",
+       "name": "qt_spinbox_lineedit",
+       "enabled": true,
+       "text": "4",
+       "placeholder": ""
+      },
+      {
+       "class": "QCheckBox",
+       "name": "enableCheckbox",
+       "enabled": true,
+       "text": "Direction 2",
+       "checked": false
+      },
+      {
+       "class": "QCheckBox",
+       "name": "checkBoxUpdateView",
+       "enabled": true,
+       "text": "Recompute on change",
+       "checked": true
+      },
+      {
+       "class": "QSint::TaskHeader",
+       "name": "",
+       "enabled": true,
+       "text": ""
+      },
+      {
+       "class": "QSint::ActionLabel",
+       "name": "",
+       "enabled": true,
+       "text": "Preview"
+      },
+      {
+       "class": "QCheckBox",
+       "name": "showFinalCheckBox",
+       "enabled": true,
+       "text": "Show final result",
+       "checked": false
+      },
+      {
+       "class": "QCheckBox",
+       "name": "showTransparentPreviewCheckBox",
+       "enabled": true,
+       "text": "Show preview overlay",
+       "checked": true
+      }
+     ]
+    ],
+    "props": {
+     "Originals": [
+      "Pocket001"
+     ],
+     "Direction": [
+      "Sketch002",
+      [
+       "H_Axis"
+      ]
+     ],
+     "Mode": "Spacing",
+     "Length": "100.0 mm",
+     "Offset": "33.333333333333336 mm",
+     "Occurrences": "4",
+     "Spacings": [
+      "20.0",
+      "-1.0",
+      "-1.0"
+     ],
+     "Direction2": [
+      "Sketch002",
+      [
+       "V_Axis"
+      ]
+     ],
+     "Mode2": "Extent",
+     "Length2": "100.0 mm",
+     "Offset2": "50.0 mm",
+     "Occurrences2": "3",
+     "Spacings2": [
+      "-1.0",
+      "-1.0"
+     ]
+    },
+    "visible": {
+     "Sketch": true,
+     "Pad": false,
+     "DatumPlane": true,
+     "DatumLine": true,
+     "LCS": false,
+     "DatumPlane001": true,
+     "DatumLine001": true,
+     "Sketch001": true,
+     "Pocket": false,
+     "Sketch002": true,
+     "Pocket001": true,
+     "LinearPattern": false
+    },
+    "selected": [],
+    "labels": [
+     {
+      "text": [
+       "20.00 mm"
+      ],
+      "points": [
+       [
+        30.0,
+        10.0,
+        2.5
+       ],
+       [
+        50.0,
+        10.0,
+        2.5
+       ]
+      ],
+      "color": [
+       0.8784,
+       0.1922,
+       0.1922
+      ],
+      "type": 1,
+      "size": 17,
+      "param1": 0.319922,
+      "param2": 0.0
+     },
+     {
+      "text": [
+       "33.33 mm"
+      ],
+      "points": [
+       [
+        50.0,
+        10.0,
+        2.5
+       ],
+       [
+        83.333332,
+        10.0,
+        2.5
+       ]
+      ],
+      "color": [
+       0.5255,
+       0.5569,
+       0.5882
+      ],
+      "type": 1,
+      "size": 17,
+      "param1": 0.319922,
+      "param2": 0.0
+     },
+     {
+      "text": [
+       "33.33 mm"
+      ],
+      "points": [
+       [
+        83.333332,
+        10.0,
+        2.5
+       ],
+       [
+        116.666664,
+        10.0,
+        2.5
+       ]
+      ],
+      "color": [
+       0.5255,
+       0.5569,
+       0.5882
+      ],
+      "type": 1,
+      "size": 17,
+      "param1": 0.319922,
+      "param2": 0.0
+     },
+     {
+      "text": [
+       "100.00 mm"
+      ],
+      "points": [
+       [
+        30.0,
+        10.0,
+        2.5
+       ],
+       [
+        30.000003,
+        109.999997,
+        2.5
+       ]
+      ],
+      "color": [
+       0.8784,
+       0.1922,
+       0.1922
+      ],
+      "type": 1,
+      "size": 17,
+      "param1": 0.319922,
+      "param2": 0.0
+     }
+    ]
    }
   ],
   "linear_finish": {
