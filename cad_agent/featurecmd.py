@@ -279,6 +279,7 @@ def cmd_feature_list(a) -> Result:
 def _attached(slug: str, name: str, doc: dict) -> None:
     """doc["attached"]: where each sketch and datum sits as the Body attaches it, and each sketch's external
     geometry (feature_attach.body_info), for a Body with something that only the built Body places."""
+    from . import feature  # noqa: F401  feature.py imports feature_attach at its end: enter the cycle through it
     from .feature_attach import body_info, needs_body
     if needs_body(doc):
         doc["attached"] = body_info(part(slug, name))
