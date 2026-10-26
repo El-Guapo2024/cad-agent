@@ -332,9 +332,11 @@ def _pt(p):
 def geometry_src(g: dict) -> str:
     kind = g.get("type")
     c = ", construction=True" if g.get("construction") else ""
-    layer = g.get("layer", 0)
-    l = f", layer={_num(layer)}" if layer else ""
     try:
+        # the build's own validation (feature._layer): a layer that is not an int 0, 1 or 2 is refused here too, with
+        # its message, rather than written and refused when the file is next read
+        layer = F._layer(g.get("layer", 0))
+        l = f", layer={_num(layer)}" if layer else ""
         if kind == "LineSegment":
             return f"LineSegment({_pt(g['start'])}, {_pt(g['end'])}{c}{l})"
         if kind == "Circle":
