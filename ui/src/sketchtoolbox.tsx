@@ -27,7 +27,8 @@ export function ToolParametersBox() {
   const focusSeq = w?.focus.seq ?? 0
   useEffect(() => {
     if (!w || w.focus.parameter < 0) return
-    const el = body.current?.querySelector<HTMLInputElement>(`[data-tool-widget="${PARAM_NAMES[w.focus.parameter]}"] input`)
+    const el = w.focus.lineEdit !== undefined ? body.current?.querySelector<HTMLInputElement>(`[data-tool-widget="lineEdit${w.focus.lineEdit + 1}"]`)
+      : body.current?.querySelector<HTMLInputElement>(`[data-tool-widget="${PARAM_NAMES[w.focus.parameter]}"] input`)
     if (el) { el.focus(); el.select() }
   }, [focusSeq]) // eslint-disable-line react-hooks/exhaustive-deps
   if (!w) return null
@@ -41,6 +42,13 @@ export function ToolParametersBox() {
             <select className="qcombo" data-tool-widget={`comboBox${i + 1}`} value={c.index} onChange={(e) => { c.index = Number(e.target.value); w.onCombobox(i, c.index) }}>
               {c.items.map((it, k) => <option key={k} value={k}>{it.text}</option>)}
             </select>
+          </div>))}
+        {w.lineEdits.map((l, i) => l.visible && (
+          <div key={`l${i}`} className="hbox fill">
+            <span>{l.label}</span>
+            <input className="qline" data-tool-widget={`lineEdit${i + 1}`} value={l.text}
+              onKeyDown={(e) => { e.stopPropagation(); if (e.key === 'Tab' || e.key === 'Enter') { e.preventDefault(); w.onParameterTab(i) } }}
+              onChange={(e) => { l.text = e.target.value; w.onLineEdit(i, l.text) }} />
           </div>))}
         {w.parameters.map((p, i) => p.visible && (
           <div key={`p${i}`} className="hbox fill" data-tool-widget={PARAM_NAMES[i]}

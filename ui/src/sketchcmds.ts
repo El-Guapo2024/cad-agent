@@ -25,6 +25,7 @@ import { CURVE_RUN, curveEnabled } from './sketchcurvecmds'
 import * as SK from './sketch'
 import { getState, report } from './store'
 import { askPolygonSides } from './sketchpolydlg'
+import { TextHandler } from './sketchtext'
 import { recordAndRun } from './actions'
 
 export type ToolItem = string | 'sep' | { group: string; items: string[] }
@@ -107,6 +108,7 @@ const tool = (make: () => S.Handler) => () => S.activateHandler(make())
 const RUN: Record<string, () => void> = {
   Sketcher_CreatePoint: tool(() => new PointHandler()),
   Sketcher_CreateLine: tool(() => new LineHandler()),
+  Sketcher_CreateText: tool(() => new TextHandler()),
   Sketcher_CreatePolyline: tool(() => new PolylineHandler()),
   Sketcher_CreateArc: tool(() => new ArcHandler(0)),
   Sketcher_Create3PointArc: tool(() => new ArcHandler(1)),

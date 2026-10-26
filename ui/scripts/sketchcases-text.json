@@ -1,0 +1,704 @@
+{
+ "about": "Sketcher_CreateText (DrawSketchHandlerText, EditTextDialog): the handle line, the Text constraint and the glyphs, the Width and Height methods, the Text line edit and the Font combo box, the on-view parameters, auto-constraints on the handle, a double click on the handle (EditTextDialog), the group deleted, dragged and constrained with its handle. fcsketch.py --cases ui/scripts/sketchcases-text.json --ref records FreeCAD's answers in sketchref-text.json; sketchcheck.mjs --suite text compares.",
+ "camera": {
+  "center": [
+   25,
+   20
+  ],
+  "height": 100
+ },
+ "cases": [
+  {
+   "name": "text-width",
+   "check": [
+    "widget"
+   ],
+   "steps": [
+    {
+     "cmd": "Sketcher_CreateText"
+    },
+    {
+     "click": [
+      5,
+      10
+     ]
+    },
+    {
+     "move": [
+      30,
+      12
+     ]
+    },
+    {
+     "click": [
+      35,
+      10
+     ]
+    }
+   ]
+  },
+  {
+   "name": "text-height",
+   "check": [
+    "widget"
+   ],
+   "steps": [
+    {
+     "cmd": "Sketcher_CreateText"
+    },
+    {
+     "widget": {
+      "name": "comboBox1",
+      "index": 1
+     }
+    },
+    {
+     "click": [
+      5,
+      10
+     ]
+    },
+    {
+     "click": [
+      5,
+      22
+     ]
+    }
+   ]
+  },
+  {
+   "name": "text-mode-key",
+   "steps": [
+    {
+     "cmd": "Sketcher_CreateText"
+    },
+    {
+     "key": "M"
+    },
+    {
+     "click": [
+      10,
+      0
+     ]
+    },
+    {
+     "click": [
+      2,
+      15
+     ]
+    }
+   ]
+  },
+  {
+   "name": "text-typed",
+   "check": [
+    "widget"
+   ],
+   "steps": [
+    {
+     "cmd": "Sketcher_CreateText"
+    },
+    {
+     "widget": {
+      "name": "lineEdit1",
+      "text": "Hello 26"
+     }
+    },
+    {
+     "click": [
+      0,
+      5
+     ]
+    },
+    {
+     "click": [
+      40,
+      25
+     ]
+    }
+   ]
+  },
+  {
+   "name": "text-on-origin",
+   "steps": [
+    {
+     "cmd": "Sketcher_CreateText"
+    },
+    {
+     "click": [
+      0,
+      0
+     ]
+    },
+    {
+     "click": [
+      30,
+      0
+     ]
+    }
+   ]
+  },
+  {
+   "name": "text-on-axis",
+   "steps": [
+    {
+     "cmd": "Sketcher_CreateText"
+    },
+    {
+     "click": [
+      0,
+      12
+     ]
+    },
+    {
+     "click": [
+      25,
+      30
+     ]
+    }
+   ]
+  },
+  {
+   "name": "text-font",
+   "check": [
+    "widget"
+   ],
+   "steps": [
+    {
+     "cmd": "Sketcher_CreateText"
+    },
+    {
+     "widget": {
+      "name": "comboBox2",
+      "index": 0
+     }
+    },
+    {
+     "click": [
+      5,
+      5
+     ]
+    },
+    {
+     "click": [
+      45,
+      5
+     ]
+    }
+   ]
+  },
+  {
+   "name": "text-construction",
+   "steps": [
+    {
+     "cmd": "Sketcher_ToggleConstruction"
+    },
+    {
+     "cmd": "Sketcher_CreateText"
+    },
+    {
+     "click": [
+      5,
+      30
+     ]
+    },
+    {
+     "click": [
+      30,
+      30
+     ]
+    }
+   ]
+  },
+  {
+   "name": "text-ovp-width",
+   "params": {
+    "Mod/Sketcher/Tools/OnViewParameterVisibility": 2
+   },
+   "check": [
+    "ovp"
+   ],
+   "steps": [
+    {
+     "cmd": "Sketcher_CreateText"
+    },
+    {
+     "move": [
+      10,
+      10
+     ]
+    },
+    {
+     "type": "4"
+    },
+    {
+     "fkey": "Tab"
+    },
+    {
+     "type": "6"
+    },
+    {
+     "fkey": "Tab"
+    },
+    {
+     "move": [
+      30,
+      20
+     ]
+    },
+    {
+     "type": "25"
+    },
+    {
+     "fkey": "Tab"
+    },
+    {
+     "type": "15"
+    },
+    {
+     "fkey": "Tab"
+    },
+    {
+     "move": [
+      31,
+      21
+     ]
+    }
+   ]
+  },
+  {
+   "name": "text-ovp-height",
+   "params": {
+    "Mod/Sketcher/Tools/OnViewParameterVisibility": 2
+   },
+   "check": [
+    "ovp"
+   ],
+   "steps": [
+    {
+     "cmd": "Sketcher_CreateText"
+    },
+    {
+     "widget": {
+      "name": "comboBox1",
+      "index": 1
+     }
+    },
+    {
+     "move": [
+      10,
+      10
+     ]
+    },
+    {
+     "type": "4"
+    },
+    {
+     "fkey": "Tab"
+    },
+    {
+     "type": "6"
+    },
+    {
+     "fkey": "Tab"
+    },
+    {
+     "move": [
+      12,
+      25
+     ]
+    },
+    {
+     "type": "12"
+    },
+    {
+     "fkey": "Tab"
+    },
+    {
+     "type": "-10"
+    },
+    {
+     "fkey": "Tab"
+    },
+    {
+     "move": [
+      13,
+      26
+     ]
+    }
+   ]
+  },
+  {
+   "name": "text-ovp-seek-second",
+   "params": {
+    "Mod/Sketcher/Tools/OnViewParameterVisibility": 2
+   },
+   "check": [
+    "ovp",
+    "widget"
+   ],
+   "steps": [
+    {
+     "cmd": "Sketcher_CreateText"
+    },
+    {
+     "click": [
+      5,
+      5
+     ]
+    },
+    {
+     "move": [
+      30,
+      15
+     ]
+    }
+   ]
+  },
+  {
+   "name": "text-escape",
+   "steps": [
+    {
+     "cmd": "Sketcher_CreateText"
+    },
+    {
+     "click": [
+      5,
+      5
+     ]
+    },
+    {
+     "move": [
+      30,
+      15
+     ]
+    },
+    {
+     "key": "Escape"
+    }
+   ]
+  },
+  {
+   "name": "text-edit",
+   "steps": [
+    {
+     "cmd": "Sketcher_CreateText"
+    },
+    {
+     "click": [
+      5,
+      10
+     ]
+    },
+    {
+     "click": [
+      35,
+      10
+     ]
+    },
+    {
+     "key": "Escape"
+    },
+    {
+     "dblclick": [
+      20,
+      10
+     ],
+     "dialog": {
+      "lineEdit_text": "Edited",
+      "radioButton_height": true
+     }
+    }
+   ]
+  },
+  {
+   "name": "text-edit-font",
+   "steps": [
+    {
+     "cmd": "Sketcher_CreateText"
+    },
+    {
+     "click": [
+      5,
+      10
+     ]
+    },
+    {
+     "click": [
+      35,
+      10
+     ]
+    },
+    {
+     "key": "Escape"
+    },
+    {
+     "dblclick": [
+      20,
+      10
+     ],
+     "dialog": {
+      "comboBox_font": "DejaVuSerif"
+     }
+    }
+   ]
+  },
+  {
+   "name": "text-edit-nothing",
+   "steps": [
+    {
+     "cmd": "Sketcher_CreateText"
+    },
+    {
+     "click": [
+      5,
+      10
+     ]
+    },
+    {
+     "click": [
+      35,
+      10
+     ]
+    },
+    {
+     "key": "Escape"
+    },
+    {
+     "dblclick": [
+      20,
+      10
+     ]
+    }
+   ]
+  },
+  {
+   "name": "text-delete",
+   "steps": [
+    {
+     "cmd": "Sketcher_CreateText"
+    },
+    {
+     "click": [
+      5,
+      10
+     ]
+    },
+    {
+     "click": [
+      35,
+      10
+     ]
+    },
+    {
+     "key": "Escape"
+    },
+    {
+     "click": [
+      20,
+      10
+     ]
+    },
+    {
+     "key": "Delete"
+    }
+   ]
+  },
+  {
+   "name": "text-drag-end",
+   "steps": [
+    {
+     "cmd": "Sketcher_CreateText"
+    },
+    {
+     "click": [
+      5,
+      10
+     ]
+    },
+    {
+     "click": [
+      35,
+      10
+     ]
+    },
+    {
+     "key": "Escape"
+    },
+    {
+     "drag": [
+      [
+       35,
+       10
+      ],
+      [
+       40,
+       25
+      ]
+     ]
+    }
+   ],
+   "known": "FreeCAD 26.3's drag in the 3D view leaves a text's handle where it was (within 0.06 mm) and its glyphs scaled about 5 % off it; SketchObject.moveGeometry, the same move from Python, moves the handle to the cursor and the glyphs with it, as ours does (ui/PARITY.md, Sketcher text)"
+  },
+  {
+   "name": "text-drag-edge",
+   "steps": [
+    {
+     "cmd": "Sketcher_CreateText"
+    },
+    {
+     "click": [
+      5,
+      10
+     ]
+    },
+    {
+     "click": [
+      35,
+      10
+     ]
+    },
+    {
+     "key": "Escape"
+    },
+    {
+     "drag": [
+      [
+       20,
+       10
+      ],
+      [
+       26,
+       18
+      ]
+     ]
+    }
+   ],
+   "known": "FreeCAD 26.3's drag in the 3D view leaves a text's handle where it was (within 0.06 mm) and its glyphs scaled about 5 % off it; SketchObject.moveGeometry, the same move from Python, moves the handle to the cursor and the glyphs with it, as ours does (ui/PARITY.md, Sketcher text)"
+  },
+  {
+   "name": "text-drag-start",
+   "steps": [
+    {
+     "cmd": "Sketcher_CreateText"
+    },
+    {
+     "click": [
+      5,
+      10
+     ]
+    },
+    {
+     "click": [
+      35,
+      20
+     ]
+    },
+    {
+     "key": "Escape"
+    },
+    {
+     "drag": [
+      [
+       5,
+       10
+      ],
+      [
+       0,
+       0
+      ]
+     ]
+    }
+   ],
+   "known": "FreeCAD 26.3's drag in the 3D view leaves a text's handle where it was (within 0.06 mm) and its glyphs scaled about 5 % off it; SketchObject.moveGeometry, the same move from Python, moves the handle to the cursor and the glyphs with it, as ours does (ui/PARITY.md, Sketcher text)"
+  },
+  {
+   "name": "text-elements",
+   "check": [
+    "panel"
+   ],
+   "steps": [
+    {
+     "cmd": "Sketcher_CreateText"
+    },
+    {
+     "click": [
+      5,
+      10
+     ]
+    },
+    {
+     "click": [
+      35,
+      10
+     ]
+    },
+    {
+     "key": "Escape"
+    }
+   ]
+  },
+  {
+   "name": "text-convert",
+   "check": [
+    "panel"
+   ],
+   "steps": [
+    {
+     "cmd": "Sketcher_CreateText"
+    },
+    {
+     "click": [
+      5,
+      10
+     ]
+    },
+    {
+     "click": [
+      35,
+      10
+     ]
+    },
+    {
+     "key": "Escape"
+    },
+    {
+     "panel": "elements",
+     "row": 0,
+     "menu": "Convert to geometries"
+    }
+   ]
+  },
+  {
+   "name": "text-constrained",
+   "steps": [
+    {
+     "cmd": "Sketcher_CreateText"
+    },
+    {
+     "click": [
+      5,
+      10
+     ]
+    },
+    {
+     "click": [
+      35,
+      20
+     ]
+    },
+    {
+     "key": "Escape"
+    },
+    {
+     "select": [
+      "Edge1"
+     ]
+    },
+    {
+     "cmd": "Sketcher_ConstrainHorizontal"
+    }
+   ]
+  }
+ ]
+}

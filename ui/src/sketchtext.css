@@ -1,0 +1,11 @@
+/* SPDX-License-Identifier: LGPL-2.1-or-later
+   Follows FreeCAD (https://github.com/FreeCAD/FreeCAD, commit 3160daf1e2b6), copyright of the files below (each is
+   LGPL-2.0-or-later or LGPL-2.1-or-later as it states; ui/NOTICE has them all):
+     No copyright line in the file: src/Mod/Sketcher/Gui/EditTextDialog.ui
+   EditTextDialog.ui's QFormLayout (Text, Font, then the Height and Width radio buttons) and the Tool Parameters box's
+   line edit (SketcherToolDefaultWidget's lineEdit1, sketchtext.tsx). */
+.sk-edit-text .datum-body.form { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 6px 8px; align-items: center; }
+.sk-edit-text .radios { grid-column: 1 / -1; display: flex; gap: 12px; }
+.sk-edit-text .qline, .sk-edit-text .qcombo { width: 100%; min-width: 220px; }
+.qline { height: 22px; border: 1px solid var(--border); border-radius: var(--radius); padding: 0 4px; min-width: 0; font: inherit; }
+.sk-tool .qline { flex: 1; }

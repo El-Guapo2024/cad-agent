@@ -41,10 +41,18 @@ def accept_modal():
         c = w.findChild(QtWidgets.QWidget, name)
         if isinstance(c, QtWidgets.QAbstractButton):
             c.setChecked(bool(v))
+        elif isinstance(c, QtWidgets.QLineEdit):     # EditTextDialog's lineEdit_text
+            c.setText(str(v))
+        elif isinstance(c, QtWidgets.QComboBox):     # its comboBox_font: by the item's text
+            c.setCurrentIndex(c.findText(str(v), QtCore.Qt.MatchFixedString) if isinstance(v, str) else int(v))
         elif c is not None:
             c.setValue(v)
     current["dialog"] = None
-    if isinstance(w, QtWidgets.QDialog):
+    bb = w.findChild(QtWidgets.QDialogButtonBox) if w.windowTitle() == "Edit Text" else None
+    if bb is not None and bb.button(QtWidgets.QDialogButtonBox.Ok) is not None:
+        # EditTextDialog acts on its button box's accepted() (on_buttonBox_accepted), not on QDialog::accept
+        bb.button(QtWidgets.QDialogButtonBox.Ok).click()
+    elif isinstance(w, QtWidgets.QDialog):
         w.accept()
     else:
         w.close()
@@ -230,6 +238,16 @@ def cons_out(sk):
                 else [c.First, c.FirstPos, c.Second, int(a.get("InternalAlignmentIndex", -1))]
             out.append({"type": "InternalAlignment:" + ALIGNMENTS.get(kind, "Undef"), "args": args})
             continue
+        if c.Type == "Text":     # Sketcher.Constraint('Text', [GeoId, PosId, ...], text, font, isTextHeight)
+            import html
+            import json as _json
+            a = dict(re.findall(r'(\w+)="([^"]*)"', c.Content))
+            ids = [int(x) for x in a.get("ElementIds", "").split()]
+            pos = [int(x) for x in a.get("ElementPositions", "").split()]
+            meta = _json.loads(html.unescape(a.get("MetaData") or "{}") or "{}")
+            out.append({"type": "Text", "args": [v for e in zip(ids, pos) for v in e], "text": meta.get("text", ""),
+                        "font": meta.get("font", ""), "is_text_height": meta.get("isTextHeight", True)})
+            continue
         d = {"type": c.Type, "args": cons_args(c)}
         if c.Type in ("Distance", "DistanceX", "DistanceY", "Radius", "Diameter", "Angle", "Weight"):
             d["value"] = c.Value
@@ -300,7 +318,16 @@ def set_tool_widget(spec):
     c = tw.findChild(QtWidgets.QWidget, spec["name"])
     if c is None:
         raise RuntimeError("no %s in the tool widget" % spec["name"])
-    if "checked" in spec:
+    if "text" in spec:                  # a line edit (lineEdit1): its text selected, then typed
+        c.setFocus()
+        c.selectAll()
+        for ch in str(spec["text"]):
+            for t in (QtCore.QEvent.KeyPress, QtCore.QEvent.KeyRelease):
+                QtWidgets.QApplication.sendEvent(c, QtGui.QKeyEvent(t, char_key(ch) if ch.isalnum() else 0, QtCore.Qt.NoModifier, ch))
+        if not str(spec["text"]):
+            for t in (QtCore.QEvent.KeyPress, QtCore.QEvent.KeyRelease):
+                QtWidgets.QApplication.sendEvent(c, QtGui.QKeyEvent(t, QtCore.Qt.Key_Backspace, QtCore.Qt.NoModifier, ""))
+    elif "checked" in spec:
         if c.isChecked() != bool(spec["checked"]):
             c.click()
     elif "index" in spec:
@@ -330,6 +357,9 @@ def tool_widget_out():
             out.append({"name": n, "text": c.text(), "checked": c.isChecked()})
         elif n.startswith("comboBox"):
             out.append({"name": n, "items": [c.itemText(i) for i in range(c.count())], "index": c.currentIndex()})
+        elif n.startswith("lineEdit") and not n.startswith("lineEditLabel"):
+            lab = tw.findChild(QtWidgets.QLabel, "lineEditLabel" + n[len("lineEdit"):])
+            out.append({"name": n, "label": lab.text() if lab is not None else "", "text": c.text()})
         elif n.startswith("parameter") and c.metaObject().className() == "Gui::PrefQuantitySpinBox":
             # PySide may hand the box back as a QAbstractSpinBox (no rawValue method): the Q_PROPERTY then
             out.append({"name": n, "value": c.rawValue() if hasattr(c, "rawValue") else c.property("rawValue")})
@@ -792,6 +822,18 @@ def run_case(doc, case, k):
             mouse("move", p)
             mouse("press", p)
             mouse("release", p)
+        elif "dblclick" in st:
+            # a double click in the 3D view (editDoubleClicked: a text's handle opens EditTextDialog), with the
+            # step's "dialog" fields set before the dialog is accepted
+            p = st["dblclick"]
+            current["dialog"] = st.get("dialog")
+            mouse("move", [p[0] + 0.7, p[1] + 0.4])
+            mouse("move", p)
+            mouse("press", p)
+            mouse("release", p)
+            mouse("press", p)
+            mouse("release", p)
+            wait(300)
         elif "rclick" in st:
             p = st["rclick"]
             mouse("move", p)

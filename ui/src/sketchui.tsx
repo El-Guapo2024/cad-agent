@@ -39,6 +39,7 @@ import { ArrayDialog } from './sketchxformtools'
 import { ToolParametersBox } from './sketchtoolbox'
 import { RegularPolygonDialog } from './sketchpolydlg'
 import { SketchObjHost } from './sketchobjcmds'   // Map, Reorient, Validate, Merge, Mirror Sketch
+import { EditTextDialog } from './sketchtext'   // Sketcher_CreateText's EditTextDialog
 
 const useSketch = () => useSyncExternalStore(S.subscribeSketch, S.sketchVersion)
 /** The commands of the ToggleDrivingConstraint mode (CmdSketcherToggleDrivingConstraint's addCommandMode): their
@@ -394,5 +395,5 @@ onSketchSelection((cmd, args) => {
 
 /** The dialogs and the context menu, mounted once (App.tsx). */
 export function SketchHost() {
-  return <><DatumDialog /><OrientationDialog /><ArrayDialog /><RegularPolygonDialog /><SketchMenu /><SketchObjHost /></>
+  return <><DatumDialog /><OrientationDialog /><ArrayDialog /><RegularPolygonDialog /><SketchMenu /><SketchObjHost /><EditTextDialog /></>
 }

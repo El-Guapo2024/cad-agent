@@ -607,7 +607,9 @@ const START_TYPES: SK.Geo['type'][] = ['Point', 'ArcOfCircle', 'ArcOfEllipse', '
 const END_TYPES: SK.Geo['type'][] = ['ArcOfCircle', 'ArcOfEllipse', 'ArcOfHyperbola', 'ArcOfParabola', 'LineSegment', 'BSplineCurve']
 const validSub = (g: SK.Geo, sub: Sub) => (sub === 'mid' ? MID_TYPES.includes(g.type) : sub === 'start' ? START_TYPES.includes(g.type)
   : sub === 'end' ? END_TYPES.includes(g.type) : g.type !== 'Point')
-type Element = { id: number; geo: SK.Geo; state: GeoState; label: string; start: number; mid: number; end: number }
+type Element = { id: number; geo: SK.Geo; state: GeoState; label: string; start: number; mid: number; end: number
+  /** A Text constraint's handle line (ElementItem::isTextHandle), and a geometry a Text or Group holds (hidden). */
+  textHandle?: boolean; grouped?: boolean }
 const BASE_NAMES: Record<SK.Geo['type'], string> = { Point: 'Point', LineSegment: 'Line', ArcOfCircle: 'Arc', Circle: 'Circle', Ellipse: 'Ellipse',
   ArcOfEllipse: 'Elliptical Arc', ArcOfHyperbola: 'Hyperbolic Arc', ArcOfParabola: 'Parabolic arc', BSplineCurve: 'B-spline' }
 const EXT_NAMES: Record<SK.Geo['type'], [string, string]> = { Point: ['Point', 'Point'], LineSegment: ['Line', 'Line'], ArcOfCircle: ['Arc', 'Arc'],
@@ -617,11 +619,16 @@ const EXT_NAMES: Record<SK.Geo['type'], [string, string]> = { Point: ['Point', '
 function elements(): Element[] {
   const geo = S.getGeometry(), cs = S.getConstraints(), ext = S.getExternal(), naming = param('ExtendedNaming')
   const internal = new Set(cs.filter((c) => c.type === 'InternalAlignment').map((c) => c.first))
+  // the Group and Text constraints: their handles (named "Group" or "Text") and the geometry they hold (not listed)
+  const handles = new Map<number, string>(), grouped = SK.inGroup(cs)
+  for (const c of cs) if ((c.type === 'Group' || c.type === 'Text') && c.elements?.length) handles.set(c.elements[0][0], c.type)
   const out: Element[] = geo.map((g, k) => {
     const state: GeoState = internal.has(k) ? 'internal' : g.construction ? 'construction' : 'normal'
-    const base = BASE_NAMES[g.type] ?? 'Other'
+    const handle = g.type === 'LineSegment' ? handles.get(k) : undefined
+    const base = handle ?? BASE_NAMES[g.type] ?? 'Other'
     const label = naming ? `${base}(Edge${k + 1}#ID${k})${state === 'construction' ? '-Construction' : state === 'internal' ? '-Internal' : ''}` : `${k + 1}-${base}`
-    return { id: k, geo: g, state, label, start: S.vertexIndexOf(k, SK.START), mid: S.vertexIndexOf(k, SK.MID), end: S.vertexIndexOf(k, SK.END) }
+    return { id: k, geo: g, state, label, start: S.vertexIndexOf(k, SK.START), mid: S.vertexIndexOf(k, SK.MID), end: S.vertexIndexOf(k, SK.END),
+      textHandle: handle === 'Text', grouped: grouped.has(k) }
   })
   ext.geometry.forEach((g, k) => {
     const j = k + 3, id = -j, i = geo.length + j
@@ -635,6 +642,7 @@ function elements(): Element[] {
 }
 /** TaskSketcherElements::setItemVisibility. */
 function elementHidden(e: Element): boolean {
+  if (e.grouped) return true // a member of a group is never listed
   if (!param('ElementFilterEnabled')) return false
   const f = getPanel().eFilter, off = (i: number) => f[i] === 0
   return (off(0) && e.state === 'normal') || (off(1) && e.state === 'construction') || (off(2) && e.state === 'internal') || (off(3) && e.state === 'external')
@@ -669,9 +677,15 @@ function setElementFilter(index: number, state: Check) {
 /** ElementView::contextMenuEvent. */
 function elementMenu(): Entry[] {
   const items = S.getSelection().length > 0
+  // one text handle selected: Convert to geometries (doConvertToGeometries: the handle deleted, which drops the Text
+  // constraint and leaves the glyphs as plain geometry; FreeCAD opens no undo step for it)
+  const one = S.getSelection(), m = one.length === 1 ? /^Edge(\d+)$/.exec(one[0]) : null, h = m ? Number(m[1]) - 1 : -1
+  const isText = h >= 0 && S.getConstraints().some((c) => c.type === 'Text' && c.elements?.[0]?.[0] === h)
+  const convert: Entry[] = isText ? ['sep', { label: 'Convert to geometries', onSelect: () => { S.clearSelection(); S.delGeometries([h]); S.solve() } }] : []
   const item = (icon: string, label: string, cmd: string, onSelection: boolean): Entry => ({ label, img: sketcherIcon(icon), kbd: cmdInfo(cmd).accel || undefined,
     disabled: onSelection && !items, onSelect: () => runSketchCommand(cmd) })
   return [
+    ...convert,
     item('Constraint_PointOnPoint', 'Coincident Constraint', 'Sketcher_ConstrainCoincident', true),
     item('Constraint_PointOnObject', 'Point-On-Object Constraint', 'Sketcher_ConstrainPointOnObject', true),
     item('Constraint_Horizontal', 'Horizontal Constraint', 'Sketcher_ConstrainHorizontal', true),
@@ -778,7 +792,7 @@ export function ElementsList() {
               onMouseDown={(e) => { e.stopPropagation(); if ((e.target as HTMLElement).closest('[data-sub="check"]')) return; press(row, subAt(e), e) }}>
               {/* the visibility check box (layers): external geometry cannot be hidden; visual layers are not in the part file */}
               <input type="checkbox" data-sub="check" checked readOnly disabled title={it.id < 0 ? '' : 'Visual layers are not in the part file yet'} />
-              {(['edge', 'start', 'end', 'mid'] as Sub[]).map((sub) => <ElementIcon key={sub} sub={sub} geo={it.geo} state={it.state} opacity={opacity(sub)} />)}
+              {(['edge', 'start', 'end', 'mid'] as Sub[]).map((sub) => <ElementIcon key={sub} sub={sub} geo={it.geo} state={it.state} opacity={opacity(sub)} text={it.textHandle} />)}
               <span className="skp-text">{it.label}</span>
             </li>
           )
@@ -788,9 +802,12 @@ export function ElementsList() {
     </PanelBox>
   )
 }
-function ElementIcon({ sub, geo, state, opacity }: { sub: Sub; geo: SK.Geo; state: GeoState; opacity: number }) {
-  const name = elementIcon(geo, sub)
-  const variant = name === 'Sketcher_Element_SelectionTypeInvalid' ? 'normal' : state
+/** getIconImpl's text handle icons (Sketcher_CreateText, the text's start and end points; else the line's, in its
+ *  normal colours). */
+const TEXT_ICONS: Partial<Record<Sub, string>> = { edge: 'Sketcher_CreateText', start: 'Sketcher_Element_Text_StartPoint', end: 'Sketcher_Element_Text_EndPoint' }
+function ElementIcon({ sub, geo, state, opacity, text }: { sub: Sub; geo: SK.Geo; state: GeoState; opacity: number; text?: boolean }) {
+  const name = (text && TEXT_ICONS[sub]) || elementIcon(geo, sub)
+  const variant = name === 'Sketcher_Element_SelectionTypeInvalid' || text ? 'normal' : state
   const src = useIcon(name, variant)
   return <img src={src} data-sub={sub} data-icon={`${name}:${variant}`} width={24} height={24} alt="" draggable={false} style={{ opacity }} className="skp-icon" />
 }

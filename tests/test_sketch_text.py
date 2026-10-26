@@ -212,6 +212,46 @@ def test_the_part_file_keeps_the_text_constraint():
         F.Constraint("Text", [0], "A", "f")
 
 
+def test_a_padded_text_in_a_part_file(tmp_path):
+    """The workbench's save of a sketch with a text (feature_edit's ops), built: the glyphs pad, the file reads back
+    as it was written, and moving the handle by a constraint moves the glyphs (the solver's group)."""
+    import importlib.util
+    import shutil
+    from cad_agent import feature_edit as E
+    plate = tmp_path / "plate.py"
+    shutil.copy(Path(__file__).parent / "fixtures" / "feature_plate" / "parts" / "plate.py", plate)
+
+    def volume(path):
+        spec = importlib.util.spec_from_file_location(f"p{id(path)}{path.stat().st_mtime_ns}", path)
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        return mod.build(**mod.PARAMS).volume
+    before = volume(plate)
+    geo = [{"type": "LineSegment", "start": [-20, -5], "end": [-20, 5], "construction": True}]
+    r = T.set_text_and_font(geo, [T.text_constraint([(0, 0)], "Hi", T.font_path("osifont-lgpl3fe"))], 0, "Hi",
+                            "osifont-lgpl3fe")
+    sketch = {"name": "Label", "type": "Sketcher::SketchObject", "support": "XY", "attachment_offset": [0, 0, 6],
+              "geometry": r["geometry"], "constraints": r["constraints"]}
+    pad = {"name": "LabelPad", "type": "PartDesign::Pad", "profile": "Label", "length": 1.0}
+    E.apply(plate, [{"op": "add", "feature": sketch}, {"op": "add", "feature": pad}, {"op": "tip", "name": "LabelPad"}])
+    src = plate.read_text()
+    assert 'Constraint("Text", [0, 0, 1, 0, 2, 0,' in src and '"Hi", "osifont-lgpl3fe", True)' in src
+    back = next(f for f in E.read(plate)["features"] if f["name"] == "Label")
+    assert back["constraints"] == [dict(c, driving=True, name="") for c in r["constraints"]]
+    assert geometry_diff(back["geometry"], r["geometry"], 1e-8) == ""   # written to 9 decimals, as all geometry is
+
+    assert volume(plate) > before + 1.0                # the letters, 1 mm high, on the plate
+    if _planegcs():
+        cons = r["constraints"] + [{"type": "DistanceY", "args": [0, 1, 0, 2], "value": 20.0, "driving": True, "name": ""}]
+        geo2 = _solve(r["geometry"], cons)
+        assert geo2[0]["end"][1] - geo2[0]["start"][1] == pytest.approx(20.0)
+        h0 = max(p[1] for g in r["geometry"][1:] for p in g.get("poles", [g.get("start"), g.get("end")])) - \
+            min(p[1] for g in r["geometry"][1:] for p in g.get("poles", [g.get("start"), g.get("end")]))
+        h1 = max(p[1] for g in geo2[1:] for p in g.get("poles", [g.get("start"), g.get("end")])) - \
+            min(p[1] for g in geo2[1:] for p in g.get("poles", [g.get("start"), g.get("end")]))
+        assert h1 == pytest.approx(2 * h0, rel=1e-9)   # the handle doubled: so did the glyphs
+
+
 def test_cad_feature_text(capsys):
     from cad_agent import cli
     from test_cli import run

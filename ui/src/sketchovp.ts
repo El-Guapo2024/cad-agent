@@ -372,17 +372,22 @@ export type WidgetUnit = ValueUnit
 export type WidgetParameter = { label: string; value: number; unit: ValueUnit; visible: boolean; enabled: boolean; isSet: boolean; min?: number; max?: number; decimals?: number }
 export type WidgetCheckbox = { label: string; checked: boolean; visible: boolean; toolTip: string; icon?: string; prefEntry: string }
 export type WidgetCombobox = { label: string; items: { text: string; icon?: string }[]; index: number; visible: boolean; prefEntry: string }
+/** SketcherToolDefaultWidget's lineEdit1, lineEdit2 and their labels (lineEditLabel1, 2). */
+export type WidgetLineEdit = { label: string; text: string; visible: boolean }
 export type ToolWidget = {
   title: string; icon: string
-  parameters: WidgetParameter[]; checkboxes: WidgetCheckbox[]; comboboxes: WidgetCombobox[]
+  parameters: WidgetParameter[]; checkboxes: WidgetCheckbox[]; comboboxes: WidgetCombobox[]; lineEdits: WidgetLineEdit[]
   notice: string; noticeVisible: boolean
   /** What the box's controls report back (the controller's slots). */
   onParameter(i: number, v: number): void; onCheckbox(i: number, v: boolean): void; onCombobox(i: number, v: number): void
+  /** QLineEdit::textChanged (signalLineEditTextChanged). */
+  onLineEdit(i: number, text: string): void
   onParameterTab(i: number): void
-  /** A box of the widget to focus (setParameterFocus): its index, and a counter so that the same one can be asked again. */
-  focus: { parameter: number; seq: number }
+  /** A box of the widget to focus (setParameterFocus, setLineEditFocus): its index, and a counter so that the same one
+   *  can be asked again. */
+  focus: { parameter: number; seq: number; lineEdit?: number }
 }
-const N_PARAMETERS = 10, N_CHECKBOXES = 4, N_COMBOBOXES = 3
+const N_PARAMETERS = 10, N_CHECKBOXES = 4, N_COMBOBOXES = 3, N_LINEEDITS = 2
 let widget: ToolWidget | null = null
 let widgetVisible = false
 const widgetSubs = new Set<() => void>()
@@ -399,6 +404,7 @@ export function toolWidgetState() {
   const controls: Record<string, unknown>[] = []
   const names = ['One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine', 'Ten']
   w.comboboxes.forEach((c, i) => { if (c.visible) controls.push({ name: `comboBox${i + 1}`, items: c.items.map((x) => x.text), index: c.index }) })
+  w.lineEdits.forEach((l, i) => { if (l.visible) controls.push({ name: `lineEdit${i + 1}`, label: l.label, text: l.text }) })
   w.parameters.forEach((p, i) => { if (p.visible) controls.push({ name: `parameter${names[i]}`, value: p.value }) })
   w.checkboxes.forEach((c, i) => { if (c.visible) controls.push({ name: `checkBoxTS${i + 1}`, text: c.label, checked: c.checked }) })
   // the order Qt's findChildren gives: the .ui's order (combos, line edits, parameters, check boxes)
@@ -410,7 +416,8 @@ function newWidget(): ToolWidget {
     parameters: Array.from({ length: N_PARAMETERS }, (_, i) => ({ label: `Parameter ${i + 1}`, value: 0, unit: 'Length' as Unit, visible: false, enabled: true, isSet: false })),
     checkboxes: Array.from({ length: N_CHECKBOXES }, (_, i) => ({ label: `Checkbox ${i + 1}`, checked: false, visible: false, toolTip: `Checkbox ${i + 1} toolTip`, prefEntry: '' })),
     comboboxes: Array.from({ length: N_COMBOBOXES }, (_, i) => ({ label: i === 0 ? 'Mode (M)' : 'Mode', items: [], index: 0, visible: false, prefEntry: '' })),
-    onParameter() {}, onCheckbox() {}, onCombobox() {}, onParameterTab() {},
+    lineEdits: Array.from({ length: N_LINEEDITS }, () => ({ label: 'TextLabel', text: '', visible: false })),
+    onParameter() {}, onCheckbox() {}, onCombobox() {}, onLineEdit() {}, onParameterTab() {},
   }
 }
 
@@ -456,6 +463,7 @@ export interface OvpTool {
   adaptDrawingToParameterChange(c: Controller, i: number, v: number): void
   adaptDrawingToCheckboxChange(c: Controller, i: number, v: boolean): void
   adaptDrawingToComboboxChange(c: Controller, i: number, v: number): boolean
+  adaptDrawingToLineEditTextChange?(c: Controller, i: number, text: string): void
   doConstructionMethodChanged(c: Controller): void
   resetOnConstructionMethodChanged(): boolean
   firstKeyShortcut?(c: Controller): boolean
@@ -495,6 +503,7 @@ export class Controller {
       widget.onParameter = (i, v) => { if (!this.blockWidget) this.parameterValueChanged(i, v) }
       widget.onCheckbox = (i, v) => { widgetChanged(); if (!this.blockWidget) this.checkboxCheckedChanged(i, v) }
       widget.onCombobox = (i, v) => { widgetChanged(); if (!this.blockWidget) this.comboboxSelectionChanged(i, v) }
+      widget.onLineEdit = (i, v) => { widgetChanged(); if (!this.blockWidget) this.lineEditTextChanged(i, v) }
       widget.onParameterTab = () => this.passFocusToNextParameter()
     }
     this.resetControls()
@@ -659,6 +668,10 @@ export class Controller {
     if (this.setFocusToOnViewParameter(i)) return
     const w = i - this.onViewParameters.length
     if (w < this.nParameter && this.toolWidget) { this.toolWidget.focus = { parameter: w, seq: this.toolWidget.focus.seq + 1 }; this.parameterWithFocus = i; widgetChanged() }
+    else if (w < this.nParameter + this.nLineEdit && this.toolWidget) {
+      // setLineEditFocus: the line edit focused, its text selected
+      this.toolWidget.focus = { parameter: -1, lineEdit: w - this.nParameter, seq: this.toolWidget.focus.seq + 1 }; this.parameterWithFocus = i; widgetChanged()
+    }
   }
   isOnViewParameterOfCurrentMode(i: number) { return i < this.onViewParameters.length && this.handler.ovpState(i) === this.handler.currentState() }
   isOnViewParameterOfPreviousMode(i: number) { return i < this.onViewParameters.length && this.handler.ovpState(i) < this.handler.currentState() }
@@ -694,6 +707,14 @@ export class Controller {
     this.handler.adaptDrawingToCheckboxChange(this, i, v)
     this.finishControlsChanged()
   }
+  /** DrawSketchDefaultWidgetController::lineEditTextChanged: the tool's specialisation, then the controls redrawn
+   *  without passing the focus on (it stays in the line edit). */
+  private lineEditTextChanged(i: number, v: string) {
+    this.handler.adaptDrawingToLineEditTextChange?.(this, i, v)
+    this.focusAutoPassing = false
+    this.finishControlsChanged()
+    this.focusAutoPassing = true
+  }
   private comboboxSelectionChanged(i: number, v: number) {
     const cb = this.toolWidget?.comboboxes[i]
     if (cb?.prefEntry) setSketcherParams({ [`Mod/Sketcher/Tools/${cb.prefEntry}`]: v })
@@ -712,6 +733,7 @@ export class Controller {
       w.parameters.forEach((p, i) => { p.visible = i < this.nParameter; p.value = 0; p.isSet = false })
       w.checkboxes.forEach((c, i) => { c.visible = i < this.nCheckbox; c.checked = false })
       w.comboboxes.forEach((c, i) => { c.visible = i < this.nCombobox })
+      w.lineEdits.forEach((l, i) => { l.visible = i < this.nLineEdit; l.text = '' })  // initNLineEdits
       this.handler.configureToolWidget(this)
       if (this.handler.ovpSpec().firstComboIsMethod && w.comboboxes[0].index !== this.handler.constructionMethod()) w.comboboxes[0].index = this.handler.constructionMethod()
     } finally { this.blockWidget = false }
@@ -766,6 +788,16 @@ export class Controller {
     widgetChanged()
     this.toolWidget!.onCombobox(i, v)
   }
+  setLineEditLabel(i: number, s: string) { const l = this.toolWidget?.lineEdits[i]; if (l) { l.label = s; widgetChanged() } }
+  /** setLineEditText: QLineEdit::setText, whose textChanged the controller does not hear while it configures the widget. */
+  setLineEditText(i: number, s: string) {
+    const l = this.toolWidget?.lineEdits[i]
+    if (!l || l.text === s) return
+    l.text = s
+    widgetChanged()
+    if (!this.blockWidget) this.toolWidget!.onLineEdit(i, s)
+  }
+  getLineEditText(i: number) { return this.toolWidget?.lineEdits[i]?.text ?? '' }
   setNoticeText(s: string) { if (this.toolWidget) { this.toolWidget.notice = s; widgetChanged() } }
   setNoticeVisible(on: boolean) { if (this.toolWidget) { this.toolWidget.noticeVisible = on; widgetChanged() } }
   /** syncCheckboxToHandler: the box shows the handler's state (no signal: the widget is being configured). */
