@@ -822,7 +822,7 @@ def run_case(doc, case, k):
             mouse("move", p)
             mouse("press", p)
             mouse("release", p)
-        elif "dblclick" in st:
+        elif isinstance(st.get("dblclick"), list) and "panel" not in st:
             # a double click in the 3D view (editDoubleClicked: a text's handle opens EditTextDialog), with the
             # step's "dialog" fields set before the dialog is accepted
             p = st["dblclick"]

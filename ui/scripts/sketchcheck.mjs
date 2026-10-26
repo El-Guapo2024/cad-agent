@@ -348,7 +348,7 @@ for (const [k, c] of CASES.cases.entries()) {
     }
     else if (st.move) await move(st.move)
     else if (st.click) { await move([st.click[0] + 0.7, st.click[1] + 0.4]); await move(st.click); await p.mouse.down(); await p.waitForTimeout(60); await p.mouse.up(); await p.waitForTimeout(120) }
-    else if (st.dblclick) {
+    else if (Array.isArray(st.dblclick) && !st.panel) {
       // a double click in the 3D view (a text's handle: EditTextDialog), its "dialog" fields set before it is accepted
       await move([st.dblclick[0] + 0.7, st.dblclick[1] + 0.4]); await move(st.dblclick)
       for (let i = 0; i < 2; i++) { await p.mouse.down(); await p.waitForTimeout(40); await p.mouse.up(); await p.waitForTimeout(40) }
