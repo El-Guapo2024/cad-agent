@@ -33,7 +33,7 @@ import { messageBox } from './msgbox'
 import * as quantity from './quantity'
 import type { Entry } from './chrome'
 import { applyOps, bodyOfPart, numberOf, refOf, sketchObject, splitRef, SKETCH, type TreeCtx } from './partdesign'
-import { attachedOf } from './attached'
+import { attachedOf, ROLES } from './attached'
 import { PART_PROPS, type PartProp } from './part_props'
 
 // ── the model ────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -664,21 +664,22 @@ export function PartObjectProps({ refKey }: { refKey: string }) {
   }
   const groups = [...new Set(rows.map((r) => r.g))]
   // AttachExtension's rows are the attachment the Body built (feature_attach.body_info), as the editor wrote it: the
-  // placement it gives the object, the MapMode it used and its references (a PropertyLinkSubList: "Base:Face6")
+  // placement it gives the object, the MapMode it used and its references, which FreeCAD's property view shows as
+  // "Base [Face6]" (an Origin feature as "Origin [XY_Plane.]"), as pd_attach.tsx's attachmentRows does
   const att = attachedOf(o)
   const attRefs = (o.attachment_support as unknown[] | undefined) ?? []
-  const refsText = attRefs.map((x) => Array.isArray(x) ? (x[1] ? `${x[0]}:${x[1]}` : String(x[0])) : linkText(x)).join(', ')
+  const refsText = attRefs.map((x) => Array.isArray(x) ? (ROLES.includes(String(x[0])) ? `Origin [${x[0]}.]`
+    : x[1] ? `${x[0]} [${Array.isArray(x[1]) ? x[1].join(', ') : x[1]}]` : String(x[0])) : linkText(x)).join(', ')
   const row = (r: PartProp): ReactNode => {
     const v = r.k ? (o[r.k] as unknown) : undefined
     const label = human(r.p)
     if (r.p === 'Label') return <EditRow key={r.p} k="Label" value={labelOf(o)} type="str" onCommit={(x) => set({ label: String(x) === name ? null : x })} />
     if (r.p === 'Placement') return <Row key={r.p} k={label} v={placementText(att ? [att.placement.position, att.placement.ypr] : v ?? [[0, 0, 0], [0, 0, 0]])} />
-    // AttachmentSupport is a PropertyLinkSubList but FreeCAD's view shows it as "Base:Face6", and it is written by the
-    // Attachment panel rather than by hand
+    // AttachmentSupport is a PropertyLinkSubList but FreeCAD's view shows it as "Base [Face6]", and it is written by
+    // the Attachment panel rather than by hand
     if (r.p === 'AttachmentSupport') return <Row key={r.p} k={<span title="the attachment's references: change them in the Attachment panel">{label}</span>} v={refsText} />
     if (!r.k || r.ro) return <Row key={r.p} k={<span title={r.k ? 'Read-only' : 'not held by the part file: FreeCAD\'s value'}>{label}</span>}
-      v={r.k ? String(v ?? '') : r.p === 'MapMode' ? String(att?.map_mode ?? o.map_mode ?? 'Deactivated') : r.p === 'AttacherEngine' ? 'Engine 3D'
-        : r.p === 'AttachmentSupport' ? refsText : ''} />
+      v={r.k ? String(v ?? '') : r.p === 'MapMode' ? String(att?.map_mode ?? o.map_mode ?? 'Deactivated') : r.p === 'AttacherEngine' ? 'Engine 3D' : ''} />
     if (/PropertyLink/.test(r.t)) return <Row key={r.p} k={<span title="a link: change it in its task panel, or with cad feature set">{label}</span>} v={linkText(v)} />
     if (r.t === 'App::PropertyBool') return <EditRow key={r.p} k={label} value={v === true} type="bool" onCommit={(x) => set({ [r.k!]: x })} />
     if (r.e) return <div key={r.p} className="prow" tabIndex={0}><span className="pk" style={propPad(0)}>{label}</span>
