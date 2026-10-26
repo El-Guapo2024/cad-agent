@@ -77,6 +77,55 @@ def _lib():
     return lib
 
 
+class _NodeLib:
+    """The WebAssembly build (ui/ondsel/dist) behind the same calls, run by Node (tests/golden/assembly/wasm_lib.mjs):
+    what the browser runs, for the tests to hold to FreeCAD as they hold the native library."""
+    _SIG = {"ondsel_version": ([], "string"), "ondsel_solve": (["string"], "string"),
+            "ondsel_export": (["string"], "string"), "ondsel_query": (["string", "string", "string"], "string"),
+            "ondsel_new": (["string"], "number"), "ondsel_last_error": ([], "string"),
+            "ondsel_free": (["number"], None), "ondsel_handle_solve": (["number"], "string"),
+            "ondsel_pre_drag": (["number", "string"], "string"), "ondsel_drag_step": (["number", "string"], "string"),
+            "ondsel_post_drag": (["number"], "string")}
+
+    def __init__(self, node: str = "node"):
+        import subprocess
+        script = Path(__file__).resolve().parent.parent / "tests" / "golden" / "assembly" / "wasm_lib.mjs"
+        self._p = subprocess.Popen([node, str(script)], stdin=subprocess.PIPE, stdout=subprocess.PIPE, text=True)
+
+    def __getattr__(self, name):
+        if name not in self._SIG:
+            raise AttributeError(name)
+        types, ret = self._SIG[name]
+
+        def call(*args):
+            args = [a.decode() if isinstance(a, bytes) else a for a in args]
+            self._p.stdin.write(json.dumps({"fn": name, "args": args, "types": types, "ret": ret}) + "\n")
+            self._p.stdin.flush()
+            out = json.loads(self._p.stdout.readline())
+            if "crash" in out:
+                raise OndselError(out["crash"])
+            v = out["value"]
+            return v.encode() if isinstance(v, str) else v
+        return call
+
+    def close(self):
+        self._p.stdin.close()
+        self._p.wait(timeout=10)
+
+
+def use_wasm(node: str = "node"):
+    """From now on, run the WebAssembly build (through Node) instead of the native library."""
+    global _LIB
+    _LIB = _NodeLib(node)
+
+
+def use_native():
+    global _LIB
+    if isinstance(_LIB, _NodeLib):
+        _LIB.close()
+    _LIB = None
+
+
 def available() -> bool:
     try:
         _lib()

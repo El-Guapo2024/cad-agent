@@ -655,7 +655,7 @@ def rename_label(label: str, new_type: str, taken) -> str:
 
 
 def create_joint(doc: AssemblyDocument, joint_type: str, ref1, ref2, props: dict | None = None,
-                 name: str | None = None) -> Joint:
+                 name: str | None = None, reverse: bool = False) -> Joint:
     """Assembly_CreateJoint<Type> with two picks, as TaskAssemblyCreateJoint makes it: the joint object (Name
     Joint, Label the type), adaptUi's defaults, the picks one then two (setJointConnectors: presolve and solve),
     the panel's values, accept."""
@@ -682,6 +682,8 @@ def create_joint(doc: AssemblyDocument, joint_type: str, ref1, ref2, props: dict
     doc.set_joint_connectors(j, [ref1, ref2])
     for k, v in (props or {}).items():
         doc.set(j, k, v)
+    if reverse:                                  # the panel's Reverse button
+        doc.flip_one_part(j)
     doc.accept(j)
     return j
 

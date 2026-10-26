@@ -100,3 +100,56 @@ def build(**p):
   Part.Document), feature_part_face.py (FreeCAD's face makers), feature_edit_part.py (OBJECTS' own edits).
 - Checked like the Body: tests/golden/part (freecadcmd builds every case through feature_part.to_freecad; each object's
   volume, area, length, box, centre and topology counts) and each type's FreeCAD defaults.
+
+## Assembly in a part file (decided 2026-10-26, branch assembly)
+
+FreeCAD's Assembly is an object of a document whose components are App::Links to objects of other documents. Here a
+part file is one document (a Body, or Part objects) and its build() returns one shape, so an Assembly does not go in
+a part file: it goes in the project's assembly.py, which already is "the project's assembly document" for every gate
+(state.load_machine calls its parts()). Its ASSEMBLY list holds, in FreeCAD's Python vocabulary under the name
+`Assembly` and in the document's order, the components and the JointGroup's joints:
+
+```python
+from cad_agent import assembly_wb as Assembly
+
+SLUG = "arm_demo"
+
+ASSEMBLY = [
+    Assembly.Link("plate", "plate"),                                   # App::Link to parts/plate.py
+    Assembly.Link("pin", "pin", placement=((20.0, 15.0, -15.0), (0.0, 0.0, 0.0, 1.0))),
+    Assembly.GroundedJoint("GroundedJoint", "plate"),
+    Assembly.Joint("Joint", "Revolute", ("plate", ["Face6", "Face6"]), ("pin", ["Face3", "Edge1"]),
+                   label="Revolute"),
+]
+
+def parts():
+    return Assembly.parts(SLUG, ASSEMBLY)                               # {component: its part, placed}
+```
+
+- Each entry is a feature_kw.KwFeature (cad_agent/assembly_wb.py): Link is App::Link (LinkedObject: a part of the
+  project; Placement), GroundedJoint is JointObject.GroundedJoint (ObjectToGround), Joint is JointObject.Joint with
+  its properties in snake_case and FreeCAD's defaults left out: joint_type (Fixed, Revolute, Cylindrical, Slider,
+  Ball, Distance, Parallel, Perpendicular, Angle, RackPinion, Screw, Gears, Belt), reference1/2, offset1/2, angle,
+  distance, distance2, the limits, detach1/2, suppressed, label. The Assembly and its JointGroup ("Joints") are the
+  list itself: the tree shows them as FreeCAD does.
+- A reference is FreeCAD 26.3's (moving part, [element, vertex]): ("pin", ["Face3", "Edge1"]) is the JCS on the
+  pin's Face3 at the centre of that face's own Edge1. Placement1/2 are recomputed from the references
+  (updateJCSPlacements) and written only when detached.
+- A component's placement is its Placement as the last solve left it, every digit kept, so a recompute starts where
+  FreeCAD's document would; hand-written ones may give yaw, pitch, roll in degrees. parts() recomputes the
+  Assembly as FreeCAD does on opening a document (SolveOnRecompute) and returns each component's part placed there,
+  so the fit, sweep, BOM, mass and render gates see the solved assembly. A component's name is the part's (the
+  document's root object's Label, as a FreeCAD user labels a Body after the part), made unique as FreeCAD does.
+- The solver is FreeCAD's: OndselSolver at the submodule revision of 3160daf1e2b6 (4be80eef02a3), vendored unchanged
+  in ui/ondsel/upstream, with the solving half of AssemblyObject.cpp ported in front (ui/ondsel/assembly.cpp, a C
+  API taking JSON), native for Python (cad_agent/ondsel.py, `ui/ondsel/build.sh native`) and WebAssembly for the
+  page (ui/ondsel/dist, ui/src/ondsel.ts), as PlaneGCS is. JointObject.py and UtilsAssembly.py's Python (presolve,
+  findPlacement, the panel's create and accept) are ported in assembly_wb.py and assembly_jcs.py.
+- An assembly.py written by hand stays as it is; the first `cad assembly insert` (Assembly_InsertLink) adds the
+  list, and a hand-written parts() becomes placed_parts(), whose bodies the new parts() returns beside the
+  Assembly's. AXES, POSES, CLEARANCE and ALLOW_CONTACT keep their meaning; a sub-project is still SUBASSEMBLIES.
+- Edits: cad_agent/assembly_edit.py (read/apply, all or nothing, the entries an edit did not change keep their text)
+  behind `cad assembly ...` (cad_agent/assemblycmd.py), each change one undo step named as FreeCAD's transaction
+  ("Insert Component", "Create Revolute Joint", "Toggle grounded", "Move part").
+- Checked like the Body: tests/golden/assembly (freecadcmd builds each case through the GUI's command sequence;
+  every step's placements, references, JCS and the exportAsASMT file), the native and the wasm build both.

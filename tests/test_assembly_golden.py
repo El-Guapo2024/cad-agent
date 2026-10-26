@@ -5,6 +5,7 @@ case ends with (exportAsASMT) compared number by number."""
 import json
 import math
 import re
+import shutil
 import sys
 from pathlib import Path
 
@@ -120,8 +121,20 @@ def same_asmt(a: str, b: str, tol=1e-6):
     return None
 
 
+@pytest.fixture(scope="module", params=["native", "wasm"])
+def build(request):
+    """The native library (cad_agent/ondsel.py's ctypes) and the WebAssembly build the browser runs (ui/ondsel/dist,
+    through Node), each held to the same answers."""
+    if request.param == "wasm":
+        if not shutil.which("node"):
+            pytest.skip("node is not installed: the WebAssembly build is not checked")
+        ondsel.use_wasm()
+    yield request.param
+    ondsel.use_native()
+
+
 @pytest.mark.parametrize("name", list(CASES))
-def test_assembly_case_matches_freecad(name):
+def test_assembly_case_matches_freecad(build, name):
     gold = GOLD[name]
     assert "error" not in gold, gold.get("error")
     doc, steps, final = replay(CASES[name])
