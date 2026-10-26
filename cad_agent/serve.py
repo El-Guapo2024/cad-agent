@@ -81,6 +81,8 @@ def projectless(argv: list[str]) -> bool:
 
 # /api/<slug>/features and /api/<slug>/features/<part>: a part's PartDesign feature list (`cad feature`).
 FEATURES_PATH = re.compile(r"^/api/([A-Za-z0-9_][A-Za-z0-9_-]{0,63})/features(?:/([A-Za-z0-9_]+))?/?$")
+# /api/<slug>/assembly: the project's Assembly (`cad assembly show` / `cad assembly apply`); .../jcs, a pick's JCS.
+ASSEMBLY_PATH = re.compile(r"^/api/([A-Za-z0-9_][A-Za-z0-9_-]{0,63})/assembly(/jcs)?/?$")
 # POST /api/<slug>/features/<part>/shape: `cad feature shape`, a feature built after ops, nothing written.
 FEATURE_SHAPE_PATH = re.compile(r"^/api/([A-Za-z0-9_][A-Za-z0-9_-]{0,63})/features/([A-Za-z0-9_]+)/shape/?$")
 
@@ -365,6 +367,40 @@ class Bench:
         return self.run(self.root_of(slug), ["--actor", "ui", "feature", "shape", slug, part,
                                              "--ops", json.dumps(ops, separators=(",", ":")),
                                              *(["--feature", str(feature)] if feature else [])])
+
+    # ── the Assembly (`cad assembly`, cad_agent/assemblycmd.py) ──────────────────────────────────────────
+    def assembly_get(self, slug: str) -> dict:
+        """GET /api/<slug>/assembly: `cad assembly show`, the Assembly recomputed (tree, placements, JCS, the solver's
+        document for the page's own solver, the Solver messages)."""
+        return self.run(self.root_of(slug), ["--actor", "ui", "assembly", "show", slug])
+
+    def assembly_post(self, slug: str, ops, name=None, dry_run=False) -> dict:
+        """POST /api/<slug>/assembly {ops, name?, dry_run?}: `cad assembly apply`, one undo step; with dry_run the
+        result of the ops (a task panel's preview) and nothing written."""
+        self.root_of(slug)
+        if not isinstance(ops, list) or not ops:
+            raise ValueError("ops must be a non-empty list")
+        args = ["--with-text", "assembly", "apply", slug, "--ops", json.dumps(ops, separators=(",", ":")),
+                *(["--name", str(name)] if name else []), *(["--dry-run"] if dry_run else [])]
+        if dry_run:
+            return self.run(self.root_of(slug), ["--actor", "ui", *args])
+        r = self.cad(slug, "assembly", args)
+        if r["exit"] in (0, 1, 2) and not r["data"].get("error"):
+            self.schedule(slug, "check")
+            self.broadcast({"type": "assembly", "slug": slug})
+        return r
+
+    def assembly_jcs(self, slug: str, comp: str, element: str, at=None, vertex=None, type_=None) -> dict:
+        """POST /api/<slug>/assembly/jcs {comp, element, at?, vertex?, type?}: `cad assembly jcs`, where a pick puts
+        the joint's coordinate system (TaskAssemblyCreateJoint's preview). A read."""
+        args = ["--actor", "ui", "assembly", "jcs", slug, str(comp), str(element)]
+        if vertex:
+            args += ["--vertex", str(vertex)]
+        elif at is not None:
+            args += ["--at", ",".join(repr(float(c)) for c in at)]
+        if type_:
+            args += ["--type", str(type_)]
+        return self.run(self.root_of(slug), args)
 
     # ── gui: the shared selection, visibility and view (FreeCADGui's job) ──────
     def gui_get(self, slug: str) -> dict:
@@ -720,6 +756,12 @@ def make_handler(bench: Bench):
                 if path == "/api/macro":
                     name = q.get("name", "")
                     return self._json({"name": name, "text": macro.read_macro(name)})
+                m = ASSEMBLY_PATH.match(path)
+                if m and not m.group(2):
+                    try:
+                        return self._json(bench.assembly_get(m.group(1)))
+                    except KeyError:
+                        return self._json({"error": f"no project {m.group(1)!r}"}, 404)
                 m = FEATURES_PATH.match(path)
                 if m:
                     try:
@@ -854,6 +896,18 @@ def make_handler(bench: Bench):
                 try:
                     return self._json(bench.features_shape(m.group(1), m.group(2), body.get("ops") or [],
                                                            body.get("feature")))
+                except KeyError:
+                    return self._json({"error": f"no project {m.group(1)!r}"}, 404)
+                except (TypeError, ValueError) as e:
+                    return self._json({"error": f"bad request: {e}"}, 400)
+            m = ASSEMBLY_PATH.match(path)
+            if m:
+                try:
+                    if m.group(2):
+                        return self._json(bench.assembly_jcs(m.group(1), body.get("comp"), body.get("element"),
+                                                             body.get("at"), body.get("vertex"), body.get("type")))
+                    return self._json(bench.assembly_post(m.group(1), body.get("ops"), body.get("name"),
+                                                          bool(body.get("dry_run"))))
                 except KeyError:
                     return self._json({"error": f"no project {m.group(1)!r}"}, 404)
                 except (TypeError, ValueError) as e:

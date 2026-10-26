@@ -51,7 +51,7 @@ PY_COMMANDS = {"PartDesign_InvoluteGear", "PartDesign_Sprocket", "PartDesign_Wiz
 
 def wanted(name: str) -> bool:
     return ((name.startswith("Std_") and name not in NOT_HERE) or name in PART or name == "Part_CheckGeometry"
-            or (name.startswith(("PartDesign_", "Sketcher_")) and name not in PY_COMMANDS))
+            or (name.startswith(("PartDesign_", "Sketcher_")) and name not in PY_COMMANDS) or name.startswith("Assembly_"))
 
 
 def clean(title: str) -> str:
@@ -75,7 +75,7 @@ def main() -> None:
     used = set()
     for f in sorted(SRC.glob("*.ts*")):
         if f.name != "fctips.ts":
-            used |= set(re.findall(r"\b(?:Std|Part|PartDesign|Sketcher)_[A-Za-z0-9]+\b", f.read_text()))
+            used |= set(re.findall(r"\b(?:Std|Part|PartDesign|Sketcher|Assembly)_[A-Za-z0-9]+\b", f.read_text()))
     rows = []
     for name in sorted(used):
         c = cmds.get(name)
@@ -101,6 +101,17 @@ def main() -> None:
 //   src/Mod/PartDesign/Gui/CommandPrimitive.cpp: 2015 Stefan Tröger
 //   src/Mod/Sketcher/Gui/Command.cpp: 2008 Jürgen Riegel
 //   src/Mod/Part/Gui/Command.cpp: 2002 Jürgen Riegel
+//   src/Mod/Assembly/CommandCreateAssembly.py: 2023 Ondsel
+//   src/Mod/Assembly/CommandInsertLink.py: 2023 Ondsel
+//   src/Mod/Assembly/CommandInsertNewPart.py: 2024 Ondsel
+//   src/Mod/Assembly/CommandCreateJoint.py: 2023 Ondsel
+//   src/Mod/Assembly/CommandSolveAssembly.py: 2023 Ondsel
+//   src/Mod/Assembly/CommandExportASMT.py: 2023 Ondsel
+//   src/Mod/Assembly/CommandCreateView.py: 2023 Ondsel
+//   src/Mod/Assembly/CommandCreateBom.py: 2023 Ondsel
+//   src/Mod/Assembly/CommandCreateSimulation.py: 2024 Ondsel
+//   src/Mod/Assembly/CommandCreateSnapshot.py: 2026 AstoCAD
+//   src/Mod/Assembly/Gui/Commands.cpp: 2025 Pierre-Louis Boyer
 // Written by ui/scripts/fctips.py from the running FreeCAD: each command's menu text (sMenuText, its & dropped as
 // Action::cleanTitle does) and tooltip (sToolTipText), for every FreeCAD command id ui/src names. tooltip.ts draws a
 // command's tooltip from these as Action::createToolTip does. Do not edit by hand.

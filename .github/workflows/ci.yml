@@ -49,6 +49,11 @@ jobs:
           echo "EIGEN_DIR=$RUNNER_TEMP/eigen-5.0.0" >> "$GITHUB_ENV"
           EIGEN_DIR="$RUNNER_TEMP/eigen-5.0.0" bash ui/planegcs/build.sh native
 
+      # The Assembly's solver (OndselSolver, ui/ondsel/build.sh native): assembly.py's parts() solves with it, and
+      # tests/test_assembly_golden.py holds it (and the committed wasm, through Node) to FreeCAD's answers.
+      - name: Assembly solver
+        run: JOBS=4 bash ui/ondsel/build.sh native
+
       - name: Tests
         env:
           CAD_RENDER_BACKEND: numpy

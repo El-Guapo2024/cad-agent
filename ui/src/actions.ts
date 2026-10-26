@@ -541,7 +541,7 @@ function foundServer() {
 /** After a reconnect: everything may have changed while we weren't listening. */
 function refreshAll() {
   loadProjects()
-  if (getState().slug) { loadScene(); loadChecks(); loadStatus(); loadLog(); loadHistory(); loadFeatures() }
+  if (getState().slug) { loadScene(); loadChecks(); loadStatus(); loadLog(); loadHistory(); loadFeatures(); void import('./assembly_wb').then((m) => m.loadAssembly()) }
 }
 
 /** GET /api/<slug>/features (`cad feature list`): every part's PartDesign feature list, for the tree's Bodies
@@ -595,7 +595,7 @@ export async function openProject(slug: string) {
   report('msg', `Opened ${slug}`)
   lastGui = {}
   guiReady = false
-  await Promise.all([loadScene(true), loadChecks(), loadStatus(), loadLog(), loadGui(), loadHistory(), loadFeatures()])
+  await Promise.all([loadScene(true), loadChecks(), loadStatus(), loadLog(), loadGui(), loadHistory(), loadFeatures(), import('./assembly_wb').then((m) => m.loadAssembly())])
   publishGui() // also once on open, even if nothing above changed from the defaults
 }
 
@@ -692,9 +692,10 @@ function connect() {
     switch (ev.type) {
       case 'design':
         clearTimeout(designTimer)
-        designTimer = window.setTimeout(() => { loadScene(); loadStatus(); loadFeatures() }, 250)
+        designTimer = window.setTimeout(() => { loadScene(); loadStatus(); loadFeatures(); void import('./assembly_wb').then((m) => m.loadAssembly()) }, 250)
         break
       case 'features': loadFeatures(); break // POST /api/<slug>/features from this page or another one
+      case 'assembly': void import('./assembly_wb').then((m) => m.loadAssembly()); break // POST /api/<slug>/assembly
       case 'scene': loadScene(); break
       case 'checks': loadChecks(); break
       case 'verify': loadStatus(); break

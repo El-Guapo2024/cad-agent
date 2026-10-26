@@ -1574,6 +1574,8 @@ def build_parser() -> argparse.ArgumentParser:
 
     from .featurecmd import add_parsers as feature_parsers      # cad feature list|new|add|set|delete|...
     feature_parsers(add, sub)
+    from .assemblycmd import add_parsers as assembly_parsers    # cad assembly show|insert|joint|set|ground|...
+    assembly_parsers(add, sub)
 
     bp = add("bought", None, "bought parts: vendor STEP or measured, always with a source")
     bsub = bp.add_subparsers(dest="bought_cmd", metavar="<action>", parser_class=_Parser)

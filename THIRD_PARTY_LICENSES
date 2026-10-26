@@ -10,7 +10,8 @@ Boost, which the sketch solver's WebAssembly build includes. NOTICE says which f
 to.
 
 The GNU Lesser General Public License, version 2.1 (the licence of FreeCAD and of the parts of
-cad-agent that derive from it) is in ui/LICENSE, and is not repeated here. The npm packages in the
+cad-agent that derive from it, and of OndselSolver, FreeCAD's assembly solver, in ui/ondsel/upstream with
+its own copy of the text) is in ui/LICENSE, and is not repeated here. The npm packages in the
 workbench bundle are listed package by package, with the text each ships, in
 cad_agent/workbench/next/THIRD_PARTY_LICENSES.txt, which the build writes.
 

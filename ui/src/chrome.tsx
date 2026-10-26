@@ -60,6 +60,7 @@ import { SCHEMAS, userString } from './quantity'
 import { approveRenders } from './agentwb'
 import { deleteFeatures, partDesignMenu, pdToolbars, sketchMenu } from './partdesign'
 import { partMenu, partToolbars } from './part_wb'
+import { assemblyMenu, assemblyToolbars } from './assembly_wb'
 import { createDatum, datumsMenu } from './pd_attach'
 /** Edit > Create's entries other than Datums: a project's parts are its modules here, not document objects. */
 const CREATE_NA = 'n/a: a project\'s parts are its part modules; there is no document to add this to'
@@ -599,6 +600,7 @@ export function MenuBar() {
       {wb === 'design' && <><Menu label="Sketch" entries={sketchMenu()} /><Menu label="Part Design" entries={partDesignMenu()} /></>}
       {/* PartGui::Workbench::setupMenuBar: "&Part", inserted before Windows (part_wb.tsx) */}
       {wb === 'part' && <Menu label="Part" entries={partMenu()} />}
+      {wb === 'assembly' && <Menu label="Assembly" entries={assemblyMenu()} />}
       <Menu label="Windows" entries={windowsEntries()} />
       <Menu label="Help" entries={[
         { label: "What's This?", kbd: '⇧F1', icon: 'whats-this', onSelect: whatsThis },
@@ -813,9 +815,9 @@ function UndoRedoButton({ kind }: { kind: 'undo' | 'redo' }) {
 /** StdWorkbench::setupToolBars, then the workbench's own (Workbench.cpp; the dump in
  *  scripts/fcgui.py): Clipboard, Macro and Individual Views start hidden (DefaultVisibility::Hidden). */
 export const TOOLBARS = ['File', 'Edit', 'Clipboard', 'Workbench', 'Macro', 'View', 'Individual Views', 'Structure', 'Help', 'CAD Agent', 'Part Tools',
-  'Solids', 'Boolean Tools', 'Part Design Helper Features', 'Part Design Modeling Features', 'Part Design Dress-Up Features', 'Part Design Transformation Features'] as const
+  'Solids', 'Boolean Tools', 'Assembly', 'Assembly Joints', 'Part Design Helper Features', 'Part Design Modeling Features', 'Part Design Dress-Up Features', 'Part Design Transformation Features'] as const
 /** A workbench's own toolbars, listed in View > Toolbars only while it is active. */
-const WB_TOOLBARS: Record<string, string> = { 'CAD Agent': 'agent', Solids: 'part', 'Boolean Tools': 'part', 'Part Design Helper Features': 'design', 'Part Design Modeling Features': 'design',
+const WB_TOOLBARS: Record<string, string> = { 'CAD Agent': 'agent', Solids: 'part', 'Boolean Tools': 'part', Assembly: 'assembly', 'Assembly Joints': 'assembly', 'Part Design Helper Features': 'design', 'Part Design Modeling Features': 'design',
   'Part Design Dress-Up Features': 'design', 'Part Design Transformation Features': 'design' }
 const HIDDEN_TOOLBARS: readonly string[] = ['Clipboard', 'Macro', 'Individual Views']
 const toolbarOn = (shown: Record<string, boolean>, name: string) => shown[name] ?? !HIDDEN_TOOLBARS.includes(name)
@@ -912,7 +914,10 @@ export function ToolBar() {
       {/* PartGui::Workbench::setupToolBars: Solids, Part Tools and Boolean Tools, button by button (part_wb.tsx) */}
       {wb === 'part' && partToolbars().filter(([t]) => on(t as (typeof TOOLBARS)[number])).map(([t, es]) => (
         <span key={t} className="tb-group" title={t}><TGrip />{es.map((e, i) => <EntryBtn key={i} e={e} />)}</span>))}
-      {wb !== 'part' && on('Part Tools') && <><TGrip />
+      {/* Assembly's InitGui.py: the Assembly and Assembly Joints toolbars (assembly_wb.tsx) */}
+      {wb === 'assembly' && assemblyToolbars().filter(([t]) => on(t as (typeof TOOLBARS)[number])).map(([t, es]) => (
+        <span key={t} className="tb-group" title={t}><TGrip />{es.map((e, i) => e === 'sep' ? <TSep key={i} /> : <EntryBtn key={i} e={e} />)}</span>))}
+      {wb !== 'part' && wb !== 'assembly' && on('Part Tools') && <><TGrip />
         <Btn icon="visibility" cmd="Std_ToggleVisibility" disabled={!selected.length} onClick={() => toggleVisibility()} />
         {wb === 'design' && <Btn icon="body" cmd="Std_Edit" disabled={!one} onClick={() => one && editDefault(one)} />}
         {wb !== 'inspection' && <Btn icon="transform" cmd="Std_TransformManip" disabled={!one} onClick={() => one && openTask('transform', one)} />}

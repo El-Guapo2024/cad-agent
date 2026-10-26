@@ -199,7 +199,7 @@ src/Base/QuantityPyImp.cpp   [licence: LGPL-2.1-or-later]
     followed by src/expr-py.ts
 src/Base/Rotation.cpp   [licence: LGPL-2.1-or-later]
     copyright 2006 Werner Mayer
-    followed by src/rotation.ts, src/viewer.ts
+    followed by src/rotation.ts, src/viewer.ts, src/assembly_wb.tsx
 src/Base/Tools.cpp   [licence: LGPL-2.1-or-later]
     copyright 2009 Werner Mayer
     followed by src/sketchpanels.tsx
@@ -593,7 +593,7 @@ src/Gui/View3DInventorSelection.cpp   [licence: LGPL-2.0-or-later]
 src/Gui/View3DInventorViewer.cpp   [licence: LGPL-2.1-or-later]
     copyright 2004 Jürgen Riegel
     copyright 2026 Joao Matos
-    followed by src/lights.ts, src/nav.ts, src/sketchpanelcmds.ts, src/viewer.ts
+    followed by src/lights.ts, src/nav.ts, src/sketchpanelcmds.ts, src/viewer.ts, src/assembly_wb.tsx
 src/Gui/View3DPy.cpp   [licence: LGPL-2.0-or-later]
     copyright 2002 Jürgen Riegel
     followed by src/commands.ts, src/viewer.ts
@@ -639,9 +639,63 @@ src/Gui/propertyeditor/PropertyEditor.cpp   [licence: LGPL-2.1-or-later]
 src/Gui/resource.cpp   [licence: LGPL-2.0-or-later]
     copyright 2004 Werner Mayer
     followed by src/customize.tsx, src/prefs.tsx
+src/Mod/Assembly/App/AssemblyObject.cpp   [licence: LGPL-2.1-or-later]
+    copyright 2023 Ondsel
+    followed by src/ondsel.ts, ondsel/assembly.cpp, ondsel/assembly.h
+src/Mod/Assembly/CommandCreateAssembly.py   [licence: LGPL-2.1-or-later]
+    copyright 2023 Ondsel
+    followed by src/assembly_wb.tsx, src/fctips.ts
 src/Mod/Assembly/CommandCreateBom.py   [licence: LGPL-2.1-or-later]
     copyright 2023 Ondsel
-    followed by src/shopwb.tsx
+    followed by src/shopwb.tsx, src/fctips.ts
+src/Mod/Assembly/CommandCreateJoint.py   [licence: LGPL-2.1-or-later]
+    copyright 2023 Ondsel
+    followed by src/assembly_wb.tsx, src/fctips.ts
+src/Mod/Assembly/CommandCreateSimulation.py   [licence: LGPL-2.1-or-later]
+    copyright 2024 Ondsel
+    followed by src/fctips.ts
+src/Mod/Assembly/CommandCreateSnapshot.py   [licence: LGPL-2.1-or-later]
+    copyright 2026 AstoCAD
+    followed by src/fctips.ts
+src/Mod/Assembly/CommandCreateView.py   [licence: LGPL-2.1-or-later]
+    copyright 2023 Ondsel
+    followed by src/fctips.ts
+src/Mod/Assembly/CommandExportASMT.py   [licence: LGPL-2.1-or-later]
+    copyright 2023 Ondsel
+    followed by src/assembly_wb.tsx, src/fctips.ts
+src/Mod/Assembly/CommandInsertLink.py   [licence: LGPL-2.1-or-later]
+    copyright 2023 Ondsel
+    followed by src/assembly_wb.tsx, src/fctips.ts
+src/Mod/Assembly/CommandInsertNewPart.py   [licence: LGPL-2.1-or-later]
+    copyright 2024 Ondsel
+    followed by src/fctips.ts
+src/Mod/Assembly/CommandSolveAssembly.py   [licence: LGPL-2.1-or-later]
+    copyright 2023 Ondsel
+    followed by src/assembly_wb.tsx, src/fctips.ts
+src/Mod/Assembly/Gui/Commands.cpp   [licence: LGPL-2.1-or-later]
+    copyright 2025 Pierre-Louis Boyer
+    followed by src/fctips.ts
+src/Mod/Assembly/Gui/Resources/panels/TaskAssemblyCreateJoint.ui   [licence: none]
+    copyright: no line in the file
+    followed by src/assembly_wb.tsx
+src/Mod/Assembly/Gui/Resources/panels/TaskAssemblyInsertLink.ui   [licence: none]
+    copyright: no line in the file
+    followed by src/assembly_wb.tsx
+src/Mod/Assembly/Gui/TaskAssemblyMessages.cpp   [licence: LGPL-2.1-or-later]
+    copyright 2025 Pierre-Louis Boyer
+    followed by src/assembly_wb.tsx
+src/Mod/Assembly/Gui/ViewProviderAssembly.cpp   [licence: LGPL-2.1-or-later]
+    copyright 2023 Ondsel
+    followed by src/assembly_wb.tsx
+src/Mod/Assembly/InitGui.py   [licence: LGPL-2.1-or-later]
+    copyright 2023 Ondsel
+    followed by src/assembly_wb.tsx
+src/Mod/Assembly/JointObject.py   [licence: LGPL-2.1-or-later]
+    copyright 2023 Ondsel
+    followed by src/assembly_wb.tsx
+src/Mod/Assembly/UtilsAssembly.py   [licence: LGPL-2.1-or-later]
+    copyright 2023 Ondsel
+    followed by src/assembly_wb.tsx
 src/Mod/Material/Gui/DlgDisplayProperties.ui   [licence: none]
     copyright: no line in the file
     followed by src/panels.tsx
@@ -1332,6 +1386,15 @@ WebAssembly. That build includes code from Eigen 5.0.0 (MPL-2.0, source at
 https://gitlab.com/libeigen/eigen/-/archive/5.0.0/eigen-5.0.0.tar.gz, licence at
 https://mozilla.org/MPL/2.0/) and Boost's graph headers (BSL-1.0, https://www.boost.org/LICENSE_1_0.txt).
 
+ondsel/: FreeCAD's assembly solver. ondsel/upstream is OndselSolver (https://github.com/FreeCAD/OndselSolver),
+copied unchanged at 4be80eef02a3, the revision of FreeCAD's src/3rdParty/OndselSolver submodule at the commit
+above (LGPL-2.1, copyright 2023 Ondsel, Inc.; its LICENSE); its sample data, Visual Studio files and tests are
+left out. ondsel/assembly.cpp and assembly.h port the solving half of src/Mod/Assembly/App/AssemblyObject.cpp
+and the swapJCS/getDistanceType of AssemblyUtils.cpp (LGPL-2.1-or-later, copyright 2023 Ondsel),
+with the parts of src/Base/Rotation.cpp, Placement.cpp and Vector3D.cpp they use
+(copyright 2005 Jürgen Riegel, Werner Mayer); ondsel/api.cpp is a C API over them and ondsel/json.h is
+planegcs/api.cpp's JSON reader and writer. ondsel/dist is that code built to WebAssembly.
+
 4. Icons and style sheets
 -------------------------
 
@@ -1343,7 +1406,9 @@ cursor_createcopy, Sketcher_Pointer_Create_RectangularArray.svg from cursor_crea
 2014 Abdullah Tahiri). Among the first are the 16 of the
 PartDesign primitives (PartDesign_Additive*.svg, PartDesign_Subtractive*.svg). public/freecad-icons/part/ holds the Part
 workbench's 80 icons (src/Mod/Part/Gui/Resources/icons and its booleans, create, parametric and tools folders),
-unmodified; four of them also carry CC-BY-SA 4.0, as README.md there says. README.md in that folder says which
+unmodified; four of them also carry CC-BY-SA 4.0, as README.md there says. public/freecad-icons/assembly/ holds the
+Assembly workbench's 34 icons (src/Mod/Assembly/Gui/Resources/icons) and src/Gui/Icons/Geoassembly.svg, unmodified
+(LGPL-2.0-or-later, or FreeCAD's LGPL-2.1 for the two with no licence of their own). README.md in that folder says which
 licence each icon has, as its own metadata states it (mostly LGPL-2.0-or-later; a few are CC-BY-SA
 2.0 or 4.0 or public domain), and LICENSE is FreeCAD's. THIRD_PARTY_LICENSES at the top of the
 repository has the CC-BY-SA texts, and NOTICE there names the authors.

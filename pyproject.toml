@@ -9,7 +9,7 @@ description = "Agent-driven mechanical CAD: parametric parts, deterministic gate
 requires-python = ">=3.12"
 # The code is MIT; the workbench UI and its build are LGPL-2.1-or-later because they are ported from FreeCAD. What else the wheel
 # carries is under the other licences listed (NOTICE says where each applies, THIRD_PARTY_LICENSES has their texts).
-license = "MIT AND LGPL-2.1-or-later AND LGPL-2.0-or-later AND BSD-3-Clause AND Zlib AND ISC AND 0BSD AND CC0-1.0 AND CC-BY-3.0 AND CC-BY-SA-2.0 AND CC-BY-SA-4.0 AND MPL-2.0 AND BSL-1.0"
+license = "MIT AND LGPL-2.1-or-later AND LGPL-2.1-only AND LGPL-2.0-or-later AND BSD-3-Clause AND Zlib AND ISC AND 0BSD AND CC0-1.0 AND CC-BY-3.0 AND CC-BY-SA-2.0 AND CC-BY-SA-4.0 AND MPL-2.0 AND BSL-1.0"
 # These go into the wheel's .dist-info/licenses. The three the UI build writes into workbench/next/ are package data, below.
 license-files = ["LICENSE", "NOTICE", "THIRD_PARTY_LICENSES", "ui/LICENSE", "ui/NOTICE"]
 dependencies = [

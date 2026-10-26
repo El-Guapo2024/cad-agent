@@ -833,6 +833,53 @@ Deliberately or knowingly different:
   about its centre of mass.
 - A MultiTransform or Scaled that removes the whole Body leaves FreeCAD with an empty Body; a part file takes only a Body that builds.
 
+## Assembly workbench, 2026-10-26
+
+The Assembly is assembly.py's ASSEMBLY list (docs/EDITING_PLAN.md, "Assembly in a part file"), solved by FreeCAD's own
+OndselSolver (ui/ondsel, the submodule revision of 3160daf1e2b6) behind a port of AssemblyObject.cpp; JointObject.py and
+UtilsAssembly.py are ported in cad_agent/assembly_wb.py and assembly_jcs.py, the page in src/assembly_wb.tsx.
+
+Checked against the real FreeCAD:
+- tests/golden/assembly: 48 assemblies built by freecadcmd through the GUI's command sequence (createJointObject, the picks
+  one then two, the panel's values, accept with generatePropertySettings and the recompute), every joint type, offsets,
+  limits (swapped ones too), Reverse, later property edits, a moved and a suppressed part, chains, gears and belt on a
+  carrier, rack and pinion, screw, redundant, conflicting and ungrounded assemblies: each step's component placements (to
+  1e-6 mm and 1e-8 in the quaternion), joint labels, references and JCS, and the final exportAsASMT file number by number,
+  all equal, for the native build and for the wasm build the page runs.
+- ui/scripts/assemblycheck.mjs against fcassembly.json (fcassembly.py, the GUI): the Assembly menu and both toolbars entry by
+  entry (texts, commands, greyed or not, before and with an assembly in edit), the task watchers, every joint type's panel
+  widget by widget (adaptUi's fields per type), Insert Component's panel, three joints made from two picks and OK (Name,
+  Label, References, every placement, the undo step, the Solver messages after each, Over-constrained with the joints'
+  labels), the tree (Origin and its seven features, Joints, the components), a joint's property view, a drag with the solver,
+  undo: 124 ok, 0 FAIL, 28 known (the commands not ported, the tie, the hidden messages panel).
+
+Deliberate or known differences:
+- OndselSolver's LICENSE is the LGPL 2.1 with no "or later" (GitHub's licence API says LGPL-2.1), so it is recorded as
+  LGPL-2.1-only in pyproject.toml, where the plan said LGPL-2.1-or-later.
+- FreeCAD fixes its grounded parts in the order of an unordered_set of pointers; the port takes the order libstdc++ walks a
+  few pointers in (the last inserted first: the Origin, then the grounded components backwards). With many grounded parts
+  FreeCAD's own order can differ run to run; the placements agree whatever the order, the ASMT file's order may not.
+- getDistanceType's swapJCS runs the Python joint's onChanged on half-swapped references in FreeCAD, which leaves Placement2
+  at Offset2 alone for that solve; the port reproduces it (the reference's raw JCS travels with the solver document).
+- A click exactly at a disc face's centre is also at its circle's centre: findElementClosestVertex's tie (Face3 or Edge1)
+  is broken by the point's last bits, differently from one placement to the next in FreeCAD itself (assemblycheck `known`).
+- The Solver messages panel: FreeCAD 26.3 keeps it hidden in this GUI flow (its labels are read off the widget); the page
+  shows it under the task watchers while the Assembly is in edit. The text is FreeCAD's, "1 Degrees of Freedom" included
+  (tr("%n Degrees of Freedom") with no English translation).
+- A component is a part file of the project, named after it (FreeCAD names a link after the inserted object's Label); Insert
+  Component lists the project's parts, queues the ones clicked and inserts them at OK, each at the origin (FreeCAD inserts at
+  once and offsets the next ones by a share of their box while the view has not moved).
+- Isolate in the joint panel shows FreeCAD's modes but does not isolate; Show advanced offsets shows Offset1/2 greyed (they
+  are set with `cad assembly set ... offset1=...`); the JCS markers are three plain axes (SoSwitchMarker draws more), and the
+  hovered element's preview JCS is not drawn.
+- Dragging: findDragMode, initMove and tryMouseMove are ported (rotation about a revolute, along a slider, both for a
+  cylindrical, a ball, a plane-plane distance in its plane, the rest on the focal plane, with the solver's preDrag/doDragStep/
+  postDrag in the page's wasm). Not ported: Ctrl to drag several parts, and the Std_TransformManip dragger FreeCAD shows on an
+  unconnected part. The drag is checked in the page, not against FreeCAD's numbers (preDrag is not exposed to Python).
+- Not ported, whole features, greyed with the reason: Create Rigid Group, sub-assemblies (AssemblyLink, Go to Linked Assembly,
+  New Part), Link Arrays, Exploded View, Snapshot, Simulation (motions), the BOM object (`cad bom` is the bill of materials),
+  joints on the Assembly's Origin or on datums, the JCS at the intersection of two cylinders (findCylindersIntersection).
+
 ## Still missing
 
 - Nothing from FreeCAD's standard menus, toolbars, context menus, keys or panels that applies to these projects. What is left is n/a (no FreeCAD document) or listed as n/a above; PartDesign's features after Pad and Pocket come with docs/EDITING_PLAN.md step 5 (Revolution, Groove, Hole, the patterns, Mirror, the primitives and the dress-ups Fillet, Chamfer, Draft and Thickness, the Additive and Subtractive Loft, Pipe and Helix are above; Defeaturing is not there yet); the Sketcher's tools still to come are listed above.
