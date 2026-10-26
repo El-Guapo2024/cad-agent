@@ -108,6 +108,7 @@ Ref toRef(const Json* j)
     }
     r.geom = str(*j, "geom");
     r.radius = num(*j, "radius");
+    r.jcs = toPlacement(j->get("jcs"));
     return r;
 }
 
@@ -141,6 +142,10 @@ Document toDocument(const Json& j)
             jt.ref2 = toRef(jj.get("reference2"));
             jt.plc1 = toPlacement(jj.get("placement1"));
             jt.plc2 = toPlacement(jj.get("placement2"));
+            jt.offset1 = toPlacement(jj.get("offset1"));
+            jt.offset2 = toPlacement(jj.get("offset2"));
+            jt.detach1 = flag(jj, "detach1");
+            jt.detach2 = flag(jj, "detach2");
             jt.distance = num(jj, "distance");
             jt.distance2 = num(jj, "distance2");
             jt.angle = num(jj, "angle");
@@ -415,6 +420,21 @@ const char* ondsel_query(const char* json, const char* op, const char* args)
         }
         else if (o == "isJointConnectingPartToGround") {
             w.out += a.isJointConnectingPartToGround(arg(0), arg(1).c_str()) ? "true" : "false";
+        }
+        else if (o == "getJointOfPartConnectingToGround" || o == "getJointOfPartForUngroundedDrag") {
+            std::string name;
+            std::string j = o == "getJointOfPartForUngroundedDrag" ? a.getJointOfPartForUngroundedDrag(arg(0), name)
+                                                                    : a.getJointOfPartConnectingToGround(arg(0), name);
+            writeStrings(w, {j, name});
+        }
+        else if (o == "getUpstreamMovingPart") {
+            std::string joint = as.items.size() > 1 ? arg(1) : std::string();
+            std::string name;
+            std::string part = a.getUpstreamMovingPart(arg(0), joint, name);
+            writeStrings(w, {part, joint, name});
+        }
+        else if (o == "getDistanceType") {
+            w.str(a.distanceTypeName(arg(0)));
         }
         else if (o == "getDownstreamParts") {
             writeStrings(w, a.getDownstreamParts(arg(0), as.items.size() > 1 ? arg(1) : std::string()));

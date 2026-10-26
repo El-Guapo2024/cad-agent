@@ -427,8 +427,19 @@ void AssemblyObject::swapJCS(Joint* joint)
     if (!joint) {
         return;
     }
+    // AssemblyUtils::swapJCS swaps Placement1/2, then sets each reference's object (its sub-names cleared) and
+    // its sub-names. Setting the object fires the Python joint's onChanged, which recomputes the joint
+    // (updateJCSPlacements, unless detached) from the references as they then are; setting the sub-names does
+    // not. So the joint is left with Placement1 from the new Reference1 and its Offset1, and Placement2 from a
+    // reference with no element, which findPlacement makes the identity: Offset2 alone.
     std::swap(joint->plc1, joint->plc2);
     std::swap(joint->ref1, joint->ref2);
+    if (!joint->detach1) {
+        joint->plc1 = joint->ref1.jcs * joint->offset1;
+    }
+    if (!joint->detach2) {
+        joint->plc2 = joint->offset2;
+    }
     if (std::find(swapped.begin(), swapped.end(), joint->name) == swapped.end()) {
         swapped.push_back(joint->name);
     }
@@ -1263,6 +1274,99 @@ std::vector<std::string> AssemblyObject::getDownstreamParts(const std::string& p
         setJointActivated(joint, state);
     }
     return downstreamParts;
+}
+
+std::string AssemblyObject::getJointOfPartConnectingToGround(const std::string& part, std::string& name,
+                                                             const std::vector<std::string>& excludeJoints)
+{
+    if (part.empty()) {
+        return "";
+    }
+    for (auto* joint : getJointsOfPart(part)) {
+        if (std::find(excludeJoints.begin(), excludeJoints.end(), joint->name) != excludeJoints.end()) {
+            continue;
+        }
+        const std::string& part1 = joint->ref1.part;
+        const std::string& part2 = joint->ref2.part;
+        if (part1.empty() || part2.empty()) {
+            continue;
+        }
+        if (part == part1 && isJointConnectingPartToGround(joint->name, "Reference1")) {
+            name = "Reference1";
+            return joint->name;
+        }
+        if (part == part2 && isJointConnectingPartToGround(joint->name, "Reference2")) {
+            name = "Reference2";
+            return joint->name;
+        }
+    }
+    return "";
+}
+
+std::string AssemblyObject::getJointOfPartForUngroundedDrag(const std::string& part, std::string& name)
+{
+    if (part.empty()) {
+        return "";
+    }
+    for (auto* joint : getJointsOfPart(part)) {
+        if (!isJointTypeConnecting(joint) || joint->type == JointType::Fixed) {
+            continue;
+        }
+        const std::string& part1 = joint->ref1.part;
+        const std::string& part2 = joint->ref2.part;
+        if (part1.empty() || part2.empty()) {
+            continue;
+        }
+        if (part == part1) {
+            name = "Reference1";
+        }
+        else if (part == part2) {
+            name = "Reference2";
+        }
+        else {
+            continue;
+        }
+        return joint->name;
+    }
+    return "";
+}
+
+std::string AssemblyObject::getUpstreamMovingPart(const std::string& partIn, std::string& joint, std::string& name,
+                                                  std::vector<std::string> excludeJoints)
+{
+    std::string part = partIn;
+    while (true) {
+        if (part.empty() || isPartGrounded(part)) {
+            return "";
+        }
+        excludeJoints.push_back(joint);
+        joint = getJointOfPartConnectingToGround(part, name, excludeJoints);
+        Joint* j = doc.joint(joint);
+        JointType jointType = j ? j->type : JointType::Fixed;  // getJointType(nullptr) is Fixed
+        if (jointType != JointType::Fixed) {
+            return part;
+        }
+        if (!j) {
+            // FreeCAD goes on with getMovingPartFromRef(nullptr, ...), which is nullptr: no part
+            return "";
+        }
+        part = name == "Reference1" ? j->ref2.part : j->ref1.part;
+        // FreeCAD recurses with getUpstreamMovingPart(part, joint, name): its excludeJoints back to the default
+        excludeJoints.clear();
+    }
+}
+
+std::string AssemblyObject::distanceTypeName(const std::string& jointName)
+{
+    static const char* const names[] = {
+        "PointPoint", "LineLine", "LineCircle", "CircleCircle", "PlanePlane", "PlaneCylinder", "PlaneSphere",
+        "PlaneCone", "PlaneTorus", "CylinderCylinder", "CylinderSphere", "CylinderCone", "CylinderTorus",
+        "ConeCone", "ConeTorus", "ConeSphere", "TorusTorus", "TorusSphere", "SphereSphere", "PointPlane",
+        "PointCylinder", "PointSphere", "PointCone", "PointTorus", "LinePlane", "LineCylinder", "LineSphere",
+        "LineCone", "LineTorus", "CurvePlane", "CurveCylinder", "CurveSphere", "CurveCone", "CurveTorus",
+        "PointLine", "PointCurve", "Other"};
+    Joint* j = doc.joint(jointName);
+    return names[int(getDistanceType(j))];
 }
 
 void AssemblyObject::jointParts(const std::vector<Joint*>& joints)

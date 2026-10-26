@@ -170,6 +170,7 @@ struct Ref
     std::vector<std::string> subs; // ["Face6", "Vertex8"]
     std::string geom;              // "Plane", "Cylinder", "Sphere", "Cone", "Torus", "Line", "Circle", ...
     double radius = 0;             // getFaceRadius / getEdgeRadius
+    Placement jcs;                 // UtilsAssembly.findPlacement(ref): the JCS before the joint's Offset
     std::string element() const    // getElementFromProp: the first sub's last name
     {
         return subs.empty() ? std::string() : subs[0];
@@ -186,6 +187,8 @@ struct Joint
     bool isError = false;
     Ref ref1, ref2;
     Placement plc1, plc2;
+    Placement offset1, offset2;
+    bool detach1 = false, detach2 = false;
     double distance = 0, distance2 = 0, angle = 0;  // Angle in degrees, as the property
     bool enableLengthMin = false, enableLengthMax = false, enableAngleMin = false,
          enableAngleMax = false;
@@ -245,6 +248,14 @@ public:
     bool isPartConnected(const std::string& obj);
     bool isJointConnectingPartToGround(const std::string& joint, const char* propname);
     std::vector<std::string> getDownstreamParts(const std::string& part, const std::string& joint);
+    // the view provider's (ViewProviderAssembly::findDragMode): the joint that holds a part to the ground and
+    // which of its references the part is ("Reference1"/"Reference2"), or "" when none
+    std::string getJointOfPartConnectingToGround(const std::string& part, std::string& name,
+                                                 const std::vector<std::string>& excludeJoints = {});
+    std::string getJointOfPartForUngroundedDrag(const std::string& part, std::string& name);
+    std::string getUpstreamMovingPart(const std::string& part, std::string& joint, std::string& name,
+                                      std::vector<std::string> excludeJoints = {});
+    std::string distanceTypeName(const std::string& joint);
 
     // last solve
     int lastDoF = 0;

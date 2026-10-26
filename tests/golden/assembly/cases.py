@@ -147,3 +147,48 @@ case("conflicting_distance", *TWO_BOXES, [
 ])
 case("ungrounded", {"box10": BOX10, "bar": BAR}, [("Base", "box10", None), ("Arm", "bar", T)], [],
      [joint("Fixed", ("Base", ["Face6", "Face6"]), ("Arm", ["Face5", "Face5"]))])
+
+# ── more Distance pairs (getDistanceType), limits, Offset1, a carrier, a chain ──
+SPHERE_PIN = ({"pin": PIN, "ball": BALL}, [("Pin", "pin", None), ("Ball", "ball", T)], ["Pin"])
+case("distance_point_line", *TWO_BOXES,
+     [joint("Distance", ("Base", ["Edge2", "Edge2"]), ("Arm", ["Vertex1", "Vertex1"]), distance=3.0)])
+case("distance_line_plane", *TWO_BOXES,
+     [joint("Distance", ("Base", ["Face6", "Face6"]), ("Arm", ["Edge2", "Edge2"]), distance=2.0)])
+case("distance_plane_cylinder", {"plate": PLATE, "pin": PIN}, [("Plate", "plate", None), ("Pin", "pin", T)],
+     ["Plate"], [joint("Distance", ("Plate", ["Face6", "Face6"]), ("Pin", ["Face1", "Face1"]), distance=1.5)])
+case("distance_cylinder_sphere", *SPHERE_PIN,
+     [joint("Distance", ("Pin", ["Face1", "Face1"]), ("Ball", ["Face1", "Face1"]), distance=0.5)])
+case("distance_sphere_plane", {"plate": PLATE, "ball": BALL}, [("Plate", "plate", None), ("Ball", "ball", T)],
+     ["Plate"], [joint("Distance", ("Ball", ["Face1", "Face1"]), ("Plate", ["Face6", "Face6"]), distance=0.0)])
+case("distance_circles", {"disc": DISC, "pin": PIN}, [("Disc", "disc", None), ("Pin", "pin", T)], ["Disc"],
+     [joint("Distance", ("Disc", ["Edge1", "Edge1"]), ("Pin", ["Edge3", "Edge3"]), distance=2.0)])
+case("distance_point_cylinder", *PLATE_PIN,
+     [joint("Distance", ("Pin", ["Face1", "Face1"]), ("Plate", ["Vertex8", "Vertex8"]), distance=1.0)])
+case("revolute_angle_limits", *PLATE_PIN,
+     [joint("Revolute", ("Plate", ["Face6", "Face6"]), ("Pin", ["Face3", "Edge1"]), enable_angle_min=True,
+            angle_min=-30.0, enable_angle_max=True, angle_max=45.0)])
+case("cylindrical_limits", *PLATE_PIN,
+     [joint("Cylindrical", ("Plate", ["Face6", "Face6"]), ("Pin", ["Face1", "Face1"]), enable_length_min=True,
+            length_min=-3.0, enable_length_max=True, length_max=-1.0, enable_angle_max=True, angle_max=10.0)])
+case("limits_swapped", *TWO_BOXES,       # min above max: makeMbdJoint swaps them, in the document too
+     [joint("Slider", ("Base", ["Face6", "Face6"]), ("Arm", ["Face5", "Face5"]), enable_length_min=True,
+            length_min=8.0, enable_length_max=True, length_max=2.0)])
+case("fixed_offset1", *TWO_BOXES, [joint("Fixed", ("Base", ["Face6", "Face6"]), ("Arm", ["Face5", "Face5"]),
+                                         offset1=((2.0, -1.0, 0.0), (0.0, 0.0, 30.0)))])
+case("slider_rotation", *TWO_BOXES, [joint("Slider", ("Base", ["Face6", "Face6"]), ("Arm", ["Face5", "Face5"]),
+                                           offset2=((0.0, 0.0, 0.0), (45.0, 0.0, 0.0)))])
+DISC4 = [Part.Cylinder("Cylinder", radius=4, height=4)]
+case("belt_on_a_carrier", {"plate": PLATE, "bar": BAR, "disc": DISC, "disc2": DISC4},
+     [("Plate", "plate", None), ("Carrier", "bar", T), ("Gear1", "disc", T2), ("Gear2", "disc2", T3)], ["Plate"], [
+         joint("Revolute", ("Plate", ["Face6", "Face6"]), ("Carrier", ["Face5", "Face5"])),
+         joint("Revolute", ("Carrier", ["Face6", "Vertex2"]), ("Gear1", ["Face3", "Edge1"])),
+         joint("Revolute", ("Carrier", ["Face6", "Vertex8"]), ("Gear2", ["Face3", "Edge1"])),
+         joint("Belt", ("Gear1", ["Face2", "Edge1"]), ("Gear2", ["Face2", "Edge1"]), distance=8.0, distance2=4.0),
+     ])
+case("three_part_chain", {"plate": PLATE, "bar": BAR, "pin": PIN, "disc": DISC},
+     [("Plate", "plate", None), ("Arm", "bar", T), ("Pin", "pin", T2), ("Disc", "disc", T3)], ["Plate"], [
+         joint("Revolute", ("Plate", ["Face6", "Vertex8"]), ("Arm", ["Face5", "Vertex1"])),
+         joint("Cylindrical", ("Arm", ["Face6", "Vertex8"]), ("Pin", ["Face3", "Edge1"])),
+         joint("Fixed", ("Pin", ["Face2", "Edge1"]), ("Disc", ["Face3", "Edge1"])),
+         {"op": "suppress", "joint": "Joint", "value": True},
+     ])

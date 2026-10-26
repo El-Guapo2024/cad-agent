@@ -517,11 +517,15 @@ class AssemblyDocument:
                     return None
                 part = r[0] if self.get(r[0]) is not None else ""
                 geo = J.element_geometry(self.shape_of(r[0]), r[1][0]) if part and r[1] else {"geom": "", "radius": 0}
-                return {"part": part, "subs": list(r[1]), **geo}
+                raw = J.find_placement(self.shape_of(r[0]), self.plc[r[0]], list(r[1]),
+                                       j.joint_type == "Distance") if part and len(r[1]) >= 2 else Placement()
+                return {"part": part, "subs": list(r[1]), **geo, "jcs": placement_json(raw)}
             joints.append({
                 "name": j.name, "label": j.label or j.name, "type": j.joint_type, "suppressed": j.suppressed,
                 "reference1": ref(j.reference1), "reference2": ref(j.reference2),
                 "placement1": placement_json(p1), "placement2": placement_json(p2),
+                "offset1": placement_json(to_placement(j.offset1)), "offset2": placement_json(to_placement(j.offset2)),
+                "detach1": j.detach1, "detach2": j.detach2,
                 "distance": float(j.distance), "distance2": float(j.distance2), "angle": float(j.angle),
                 "enable_length_min": j.enable_length_min, "enable_length_max": j.enable_length_max,
                 "enable_angle_min": j.enable_angle_min, "enable_angle_max": j.enable_angle_max,
@@ -547,12 +551,14 @@ class AssemblyDocument:
         for name, p in out.get("placements", {}).items():
             if name in self.plc:
                 self.plc[name] = to_placement(p)
+        jd_of = {jd["name"]: jd for jd in out.get("joints", [])}
         for name in out.get("swapped", []):
             j = self.get(name)
-            if isinstance(j, Joint):
+            if isinstance(j, Joint):           # swapJCS: the references swapped, Placement1/2 as it left them
                 j.reference1, j.reference2 = j.reference2, j.reference1
-                p1, p2 = self.jcs[j.name]
-                self.jcs[j.name] = (p2, p1)
+                jd = jd_of.get(name)
+                if jd:
+                    self.jcs[j.name] = (to_placement(jd["placement1"]), to_placement(jd["placement2"]))
         for jd in out.get("joints", []):
             j = self.get(jd["name"])
             if isinstance(j, Joint):          # makeMbdJoint swaps limits given the wrong way round

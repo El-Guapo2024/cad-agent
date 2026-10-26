@@ -80,5 +80,9 @@ says `FreeCAD LGPL2+`; `Part_Compound.svg`, `Part_CompoundFilter.svg`, `Part_Exp
 `Part_ProjectionOnSurface.svg`, `Part_Thickness.svg` and `Part_ColorFace.svg` also name CC-BY-SA 4.0 (creators [vocx],
 Bernd Hahnebach, [agryson] Alexander Gryson and Stefan Tröger as their metadata lists them; THIRD_PARTY_LICENSES has the
 licence).
+The Assembly workbench's icons (ui/src/assembly_wb.tsx) are in `assembly/`: every SVG of
+`src/Mod/Assembly/Gui/Resources/icons` at 3160daf1e2b6, unmodified, 34 files, and `Geoassembly.svg` (`src/Gui/Icons`, the
+Assembly object's tree icon). Their metadata says `FreeCAD LGPL2+`, but for `Assembly_BillOfMaterials.svg` and
+`Assembly_CreateJointRigidGroup.svg`, which carry no licence and come under FreeCAD's LGPL-2.1.
 The Multi-Transform panel's Scale transformation (ui/src/pd_transform.tsx, PartDesign::Scaled) adds `PartDesign_Scaled.svg`
 (`src/Mod/PartDesign/Gui/Resources/icons` at 3160daf1e2b6, ViewProviderScaled's icon); its metadata says `FreeCAD LGPL2+`.
