@@ -463,7 +463,7 @@ The full-suite run also caught a harness regression from the Layer work: the new
 - `npx tsc --noEmit` clean; `npm run build` OK.
 - `pytest tests/test_feature.py tests/test_feature_edit.py -q` — 151 passed.
 - `pytest tests/test_licenses.py -q` — 244 passed.
-- `pytest $(/home/team_braneboard_com/work/cad-agent/.venv/bin/python tests/affected.py origin/main --list) -q`
+- `pytest $(.venv/bin/python tests/affected.py origin/main --list) -q`
   — 5,616 passed, 3 skipped in 103.28 s.
   (An earlier attempt with the bare `tests/affected.py` failed the substitution — the file is tracked
   without the executable bit — so pytest ran the whole `tests/` tree instead: 7174 passed, 23 skipped
