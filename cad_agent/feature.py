@@ -1385,7 +1385,7 @@ def _ref_face(ref, shapes, where):
     if obj not in shapes:
         ctx = shapes.get("_attach")
         if ctx is not None and obj in ctx.kinds:
-            # a ShapeBinder's face (its Shape is a Part::Feature's), or a datum's: the Body's objects that are not solids;
+            # a ShapeBinder's face (its Shape is a Part::Feature's), or a datum's, the Body's non-solid objects;
             # getUpToFaceFromLinkSub finds no face in an empty binder either
             try:
                 face = ctx.element(obj, sub, where)

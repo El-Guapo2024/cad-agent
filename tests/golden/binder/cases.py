@@ -123,7 +123,7 @@ CASES = {
         ShapeBinder("Binder001", support=[("DatumLine", "")]),
         ShapeBinder("Binder002", support=[("DatumPoint", "")]),
         ShapeBinder("Binder003", support=[("DatumPlane", ""), ("Pad", "Face1")])]),
-    # a Pad up to a list of shapes naming a binder whole: the binder's faces and the XY plane (getUpToShapeFromLinkSubList)
+    # a Pad up to a list of shapes naming a binder whole: its faces and the XY plane (getUpToShapeFromLinkSubList)
     "pad_up_to_shape_list": dict(features=base_pad() + [
         ShapeBinder("Binder", support=[("Pad", "Face6")]),
         Sketch("Below", "XY", rect(10, 5, 20, 15), attachment_offset=(0, 0, -4)),
