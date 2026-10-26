@@ -17,10 +17,49 @@
 //   src/Mod/PartDesign/Gui/CommandPrimitive.cpp: 2015 Stefan Tröger
 //   src/Mod/Sketcher/Gui/Command.cpp: 2008 Jürgen Riegel
 //   src/Mod/Part/Gui/Command.cpp: 2002 Jürgen Riegel
+//   src/Mod/Assembly/CommandCreateAssembly.py: 2023 Ondsel
+//   src/Mod/Assembly/CommandInsertLink.py: 2023 Ondsel
+//   src/Mod/Assembly/CommandInsertNewPart.py: 2024 Ondsel
+//   src/Mod/Assembly/CommandCreateJoint.py: 2023 Ondsel
+//   src/Mod/Assembly/CommandSolveAssembly.py: 2023 Ondsel
+//   src/Mod/Assembly/CommandExportASMT.py: 2023 Ondsel
+//   src/Mod/Assembly/CommandCreateView.py: 2023 Ondsel
+//   src/Mod/Assembly/CommandCreateBom.py: 2023 Ondsel
+//   src/Mod/Assembly/CommandCreateSimulation.py: 2024 Ondsel
+//   src/Mod/Assembly/CommandCreateSnapshot.py: 2026 AstoCAD
+//   src/Mod/Assembly/Gui/Commands.cpp: 2025 Pierre-Louis Boyer
 // Written by ui/scripts/fctips.py from the running FreeCAD: each command's menu text (sMenuText, its & dropped as
 // Action::cleanTitle does) and tooltip (sToolTipText), for every FreeCAD command id ui/src names. tooltip.ts draws a
 // command's tooltip from these as Action::createToolTip does. Do not edit by hand.
 export const FC_TIPS: Record<string, [menuText: string, toolTip: string]> = {
+  Assembly_ActivateAssembly: ["Activate Assembly", "Sets an assembly as the active one for editing."],
+  Assembly_CreateAssembly: ["New Assembly", "Creates an assembly object in the current document, or in the current active assembly (if any). Limit of one root assembly per file."],
+  Assembly_CreateBom: ["Bill of Materials", "<p>Creates a bill of materials of the current assembly. If an assembly is active, it will be a BOM of this assembly. Else it will be a BOM of the whole document.</p><p>The BOM object is a document object that stores the settings of your BOM. It is also a spreadsheet object so you can easily visualize the BOM. If you do not need the BOM object to be saved as a document object, you can simply export and cancel the task.</p><p>The columns 'Index', 'Name', 'File Name' and 'Quantity' are automatically generated on recompute. The 'Description' and custom columns are not overwritten.</p>"],
+  Assembly_CreateJointAngle: ["Angle Joint", "Creates an angle joint that fixes the angle between the Z-axis of the selected coordinate systems"],
+  Assembly_CreateJointBall: ["Ball Joint", "Creates a ball joint that connects parts at a point, allowing unrestricted movement as long as the connection points remain in contact"],
+  Assembly_CreateJointCylindrical: ["Cylindrical Joint", "Creates a cylindrical joint that allows rotation around and translation along a single axis between assembled parts"],
+  Assembly_CreateJointDistance: ["Distance Joint", "<p>Creates a distance joint that fixes the distance between the selected objects</p><p>Creates one of several different joints based on the selection. For example, a distance of 0 between a plane and a cylinder creates a tangent joint. A distance of 0 between planes will make them co-planar.</p>"],
+  Assembly_CreateJointFixed: ["Fixed Joint", "<p>1 - If an assembly is active : Creates a joint statically locking two parts together, preventing any movement or rotation</p><p>2 - If a part is active: Positions sub-parts by matching selected coordinate systems. The second part selected will move.</p>"],
+  Assembly_CreateJointGearBelt: ["Gears/Belt Joint", "<p>Creates a gears or belt joint that links 2 rotating gears together</p><p>Select the same coordinate systems as the revolute joints.</p>"],
+  Assembly_CreateJointGears: ["Gears Joint", "<p>Creates a gears joint that links 2 rotating gears together. They will have inverse rotation direction.</p><p>Select the same coordinate systems as the revolute joints.</p>"],
+  Assembly_CreateJointParallel: ["Parallel Joint", "Creates a parallel joint that makes the Z-axis of the selected coordinate systems parallel"],
+  Assembly_CreateJointPerpendicular: ["Perpendicular Joint", "Creates a perpendicular joint that makes the Z-axis of the selected coordinate systems perpendicular"],
+  Assembly_CreateJointRackPinion: ["Rack and Pinion Joint", "<p>Creates a rack and pinion joint that links a part with a slider joint to a part with a revolute joint</p><p>Select the same coordinate systems as the revolute and slider joints. The pitch radius defines the movement ratio between the rack and the pinion.</p>"],
+  Assembly_CreateJointRevolute: ["Revolute Joint", "Creates a revolute joint allowing rotation around a single axis between selected parts"],
+  Assembly_CreateJointRigidGroup: ["Create Rigid Group", "<p>Create a rigid group.</p><p>Creates a rigid group that permanently locks the selected components together.</p>"],
+  Assembly_CreateJointScrew: ["Screw Joint", "<p>Creates a screw joint that links a part with a slider joint to a part with a revolute joint</p><p>Select the same coordinate systems as the revolute and slider joints. The pitch radius defines the movement ratio between the rotating screw and the sliding part.</p>"],
+  Assembly_CreateJointSlider: ["Slider Joint", "Creates a slider joint that allows linear movement along a single axis, but restricts rotation between selected parts"],
+  Assembly_CreateSimulation: ["Simulation", "Creates a new simulation of the current assembly"],
+  Assembly_CreateSnapshot: ["Snapshot", "Captures the current assembly state (placements and visibility). Double-clicking the Snapshot object restores the assembly to that state."],
+  Assembly_CreateView: ["Exploded View", "Creates an exploded view of the current assembly"],
+  Assembly_ExportASMT: ["Export ASMT File", "Export currently active assembly as a ASMT file."],
+  Assembly_Insert: ["Insert Component", "<p>Inserts a component into the active assembly. This will create dynamic links to parts, bodies, primitives, and assemblies. To insert external components, make sure that the file is <b>open in the current session</b></p><ul><li>Insert by left clicking items in the list.</li><li>Remove by right clicking items in the list.</li><li>Press shift to add several instances of the component while clicking on the view.</li></ul>"],
+  Assembly_InsertLink: ["Insert Component", "<p>Inserts a component into the active assembly. This will create dynamic links to parts, bodies, primitives, and assemblies. To insert external components, make sure that the file is <b>open in the current session</b></p><ul><li>Insert by left clicking items in the list.</li><li>Remove by right clicking items in the list.</li><li>Press shift to add several instances of the component while clicking on the view.</li></ul>"],
+  Assembly_InsertNewPart: ["New Part", "Insert a new part into the active assembly. The new part's origin can be positioned in the assembly."],
+  Assembly_LinkSelectLinked: ["Go to Linked Assembly", "Selects the linked assembly and switches to its original document"],
+  Assembly_SelectJointsOfComponent: ["Select Component Joints", "Selects all joints referencing the selected component"],
+  Assembly_SolveAssembly: ["Solve Assembly", "Solves the currently active assembly."],
+  Assembly_ToggleGrounded: ["Toggle Grounded", "<p>Toggles the grounding of a part.</p><p>Grounding a part permanently locks its position in the assembly, preventing any movement or rotation."],
   PartDesign_AdditiveHelix: ["Additive Helix", "Sweeps the selected sketch or profile along a helix and adds it to the body"],
   PartDesign_AdditiveLoft: ["Additive Loft", "Lofts the selected sketch or profile through one or more sections and adds it to the body"],
   PartDesign_AdditivePipe: ["Additive Pipe", "Sweeps the selected sketch or profile along a path and adds it to the body"],

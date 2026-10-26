@@ -110,6 +110,16 @@ Step 5, round 3 (six branches) is all in main (7526c0c, CI green, 6977 passed, 2
   builder and Cross-sections (static Part::Feature copies), Scale, Face from wires, Ruled surface, Reverse; see PARITY.md.
   partcheck's output reaches a log only at its end (run it as `node scripts/partcheck.mjs > log`; it takes ~40 minutes on
   a loaded box).
+- Assembly workbench (branch assembly, 2026-10-26): FreeCAD's OndselSolver vendored unchanged in ui/ondsel/upstream (the
+  submodule revision of 3160daf1e2b6, 4be80eef02a3), AssemblyObject.cpp's solve ported in front of it (ui/ondsel/assembly.cpp,
+  a C API taking JSON), native (`ui/ondsel/build.sh native`, cad_agent/ondsel.py; CI builds it) and wasm (ui/ondsel/dist,
+  src/ondsel.ts). The Assembly is assembly.py's ASSEMBLY list (docs/EDITING_PLAN.md, "Assembly in a part file"):
+  cad_agent/assembly_wb.py (Link, GroundedJoint, Joint; JointObject.py's presolve and accept), assembly_jcs.py
+  (findPlacement), assembly_edit.py, `cad assembly ...`, /api/<slug>/assembly; parts() is the solved assembly, so every gate
+  reads it. 48 freecadcmd cases equal on both builds (tests/golden/assembly, `freecadcmd tests/golden/assembly/make.py`);
+  the page (src/assembly_wb.tsx) checked by scripts/assemblycheck.mjs against scripts/fcassembly.json (scripts/fcassembly.py):
+  124 ok, 0 FAIL. Cut: rigid groups, sub-assemblies, link arrays, exploded views, snapshots, simulation, the BOM object
+  (PARITY.md "Assembly workbench"). Run assemblycheck with CAD_PYTHON set in a worktree without its own .venv.
 
 ## Next (paused 2026-10-23)
 1. ~~Hidden specs~~ (done 2026-10-23): `pinned_carrier` and `hotplate_standoffs` count their holes `through`, and

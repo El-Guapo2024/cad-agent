@@ -643,22 +643,37 @@ src/Mod/Assembly/App/AssemblyObject.cpp   [licence: LGPL-2.1-or-later]
     followed by src/ondsel.ts, ondsel/assembly.cpp, ondsel/assembly.h
 src/Mod/Assembly/CommandCreateAssembly.py   [licence: LGPL-2.1-or-later]
     copyright 2023 Ondsel
-    followed by src/assembly_wb.tsx
+    followed by src/assembly_wb.tsx, src/fctips.ts
 src/Mod/Assembly/CommandCreateBom.py   [licence: LGPL-2.1-or-later]
     copyright 2023 Ondsel
-    followed by src/shopwb.tsx
+    followed by src/shopwb.tsx, src/fctips.ts
 src/Mod/Assembly/CommandCreateJoint.py   [licence: LGPL-2.1-or-later]
     copyright 2023 Ondsel
-    followed by src/assembly_wb.tsx
+    followed by src/assembly_wb.tsx, src/fctips.ts
+src/Mod/Assembly/CommandCreateSimulation.py   [licence: LGPL-2.1-or-later]
+    copyright 2024 Ondsel
+    followed by src/fctips.ts
+src/Mod/Assembly/CommandCreateSnapshot.py   [licence: LGPL-2.1-or-later]
+    copyright 2026 AstoCAD
+    followed by src/fctips.ts
+src/Mod/Assembly/CommandCreateView.py   [licence: LGPL-2.1-or-later]
+    copyright 2023 Ondsel
+    followed by src/fctips.ts
 src/Mod/Assembly/CommandExportASMT.py   [licence: LGPL-2.1-or-later]
     copyright 2023 Ondsel
-    followed by src/assembly_wb.tsx
+    followed by src/assembly_wb.tsx, src/fctips.ts
 src/Mod/Assembly/CommandInsertLink.py   [licence: LGPL-2.1-or-later]
     copyright 2023 Ondsel
-    followed by src/assembly_wb.tsx
+    followed by src/assembly_wb.tsx, src/fctips.ts
+src/Mod/Assembly/CommandInsertNewPart.py   [licence: LGPL-2.1-or-later]
+    copyright 2024 Ondsel
+    followed by src/fctips.ts
 src/Mod/Assembly/CommandSolveAssembly.py   [licence: LGPL-2.1-or-later]
     copyright 2023 Ondsel
-    followed by src/assembly_wb.tsx
+    followed by src/assembly_wb.tsx, src/fctips.ts
+src/Mod/Assembly/Gui/Commands.cpp   [licence: LGPL-2.1-or-later]
+    copyright 2025 Pierre-Louis Boyer
+    followed by src/fctips.ts
 src/Mod/Assembly/Gui/Resources/panels/TaskAssemblyCreateJoint.ui   [licence: none]
     copyright: no line in the file
     followed by src/assembly_wb.tsx

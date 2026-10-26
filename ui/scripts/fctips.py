@@ -101,6 +101,17 @@ def main() -> None:
 //   src/Mod/PartDesign/Gui/CommandPrimitive.cpp: 2015 Stefan Tröger
 //   src/Mod/Sketcher/Gui/Command.cpp: 2008 Jürgen Riegel
 //   src/Mod/Part/Gui/Command.cpp: 2002 Jürgen Riegel
+//   src/Mod/Assembly/CommandCreateAssembly.py: 2023 Ondsel
+//   src/Mod/Assembly/CommandInsertLink.py: 2023 Ondsel
+//   src/Mod/Assembly/CommandInsertNewPart.py: 2024 Ondsel
+//   src/Mod/Assembly/CommandCreateJoint.py: 2023 Ondsel
+//   src/Mod/Assembly/CommandSolveAssembly.py: 2023 Ondsel
+//   src/Mod/Assembly/CommandExportASMT.py: 2023 Ondsel
+//   src/Mod/Assembly/CommandCreateView.py: 2023 Ondsel
+//   src/Mod/Assembly/CommandCreateBom.py: 2023 Ondsel
+//   src/Mod/Assembly/CommandCreateSimulation.py: 2024 Ondsel
+//   src/Mod/Assembly/CommandCreateSnapshot.py: 2026 AstoCAD
+//   src/Mod/Assembly/Gui/Commands.cpp: 2025 Pierre-Louis Boyer
 // Written by ui/scripts/fctips.py from the running FreeCAD: each command's menu text (sMenuText, its & dropped as
 // Action::cleanTitle does) and tooltip (sToolTipText), for every FreeCAD command id ui/src names. tooltip.ts draws a
 // command's tooltip from these as Action::createToolTip does. Do not edit by hand.

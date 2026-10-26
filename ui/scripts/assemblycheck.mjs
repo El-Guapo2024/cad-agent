@@ -225,6 +225,58 @@ try {
       same(`${v.status?.text ?? ''} ${v.status?.link ?? ''}`.replace(/\s+/g, ' ').trim(), String(fc.solver).replace(/\s+/g, ' ').trim(), `${cmd}: the Solver messages`)
     }
   }
+  if (want('drag')) {
+    console.log('drag')
+    // the Bar hangs by its Distance joint (plane on plane, 5 mm): findDragMode gives TranslationOnPlane, so a drag slides
+    // it in the joint's plane and the solver keeps it 5 mm above the plate (z 10), as in FreeCAD
+    await st('cadui.setState({ task: null, asmActive: true })')
+    await page.click('text="ac : 1"').catch(() => {})            // the 3D view's tab in front of the Start page
+    await sleep(800)
+    const px = (p) => st(`(() => { const v = cadui.getView(), cam = v.viewer.camera.getCamera(), c = v.viewer.renderer.domElement
+      cam.updateMatrixWorld(); const q = cam.position.clone().set(${p.join(',')}).project(cam)
+      return [(q.x + 1) / 2 * c.clientWidth, (q.y + 1) / 2 * c.clientHeight] })()`)
+    const before = (await assembly()).placements.Bar
+    // the scene drawn again from the solved assembly.py (the file watcher's reload) before the press
+    await until(`(() => { const m = cadui.getState().scene?.bodies.find((b) => b.name === 'Bar')?.matrix; return !!m && Math.abs(m[3] - ${before.base[0]}) < 1e-6 && Math.abs(m[11] - ${before.base[2]}) < 1e-6 })()`, 'the scene with the Bar where the solve put it', 120000)
+    await sleep(1000)
+    // the Bar's middle (15, 3, 2 in the part, a 30 x 6 x 4 box) where its Placement puts it
+    const [qx, qy, qz, qw] = before.rotation, l = [15, 3, 2]
+    const rot = (v) => { const [x, y, z] = v, ix = qw * x + qy * z - qz * y, iy = qw * y + qz * x - qx * z, iz = qw * z + qx * y - qy * x, iw = -qx * x - qy * y - qz * z
+      return [ix * qw + iw * -qx + iy * -qz - iz * -qy, iy * qw + iw * -qy + iz * -qx - ix * -qz, iz * qw + iw * -qz + ix * -qy - iy * -qx] }
+    const r = rot(l), centre = [before.base[0] + r[0], before.base[1] + r[1], before.base[2] + r[2]]
+    let p0 = await px(centre)
+    // a pixel on the Bar: where its middle projects, else the first of a coarse scan of the view that hits it
+    for (let tries = 0; tries < 30 && await st(`cadui.getView().hitAtPos(${JSON.stringify(p0)})?.body ?? null`) !== 'Bar'; tries++) {
+      const found = await st(`(() => { const v = cadui.getView(), c = v.viewer.renderer.domElement
+        for (let y = 10; y < c.clientHeight; y += 12) for (let x = 10; x < c.clientWidth; x += 12) { const h = v.hitAtPos([x, y]); if (h?.body === 'Bar') return [x, y] }
+        return null })()`)
+      if (found) { p0 = found; break }
+      if (tries === 29) p0 = null
+      await sleep(1000)                        // the view still drawing the reloaded scene
+    }
+    if (!p0) {
+      console.log('        hit:', JSON.stringify(await st(`(() => { const v = cadui.getView(), c = v.viewer.renderer.domElement, seen = {}
+        for (let y = 10; y < c.clientHeight; y += 12) for (let x = 10; x < c.clientWidth; x += 12) { const h = v.hitAtPos([x, y]); if (h) seen[h.body] = (seen[h.body] ?? 0) + 1 }
+        return { seen, meshes: v.meshes?.size, size: [c.clientWidth, c.clientHeight], rect: c.getBoundingClientRect(), rendered: v.rendered, bodies: cadui.getState().scene.bodies.map((b) => [b.name, b.bbox, b.matrix?.slice(0, 4)]), hidden: cadui.getState().hidden } })()`)))
+      if (flag('shot', '')) await page.screenshot({ path: flag('shot', '') })
+      throw new Error('the Bar is not in view')
+    }
+    const ev = (type, pos) => st(`cadui.getView().assemblyHook({ type: ${JSON.stringify(type)}, button: 1, pos: ${JSON.stringify(pos)}, ctrl: false })`)
+    const pressed = await ev('press', p0)
+    const hit = await st(`(() => { const h = cadui.getView().hitAtPos(${JSON.stringify(p0)}); return h ? h.body : null })()`)
+    check(hit === 'Bar', 'drag: the press lands on the Bar', `hit ${hit} (${pressed})`)
+    for (let k = 1; k <= 8; k++) { await ev('move', [p0[0] + 6 * k, p0[1] + 3 * k]); await sleep(k === 1 ? 1500 : 120) }
+    await ev('release', [p0[0] + 48, p0[1] + 24])
+    await until(`cadui.getState().undo[0]?.name === 'Move part'`, 'the drag written ("Move part")', 120000)
+    await idle()
+    const after = (await assembly()).placements.Bar
+    check(Math.abs(after.base[2] - before.base[2]) < 1e-6 && Math.hypot(after.base[0] - before.base[0], after.base[1] - before.base[1]) > 1,
+      'drag: the Bar slid in the plate\'s plane, still 5 mm above it', `before ${JSON.stringify(before.base)} after ${JSON.stringify(after.base)}`)
+    same(await undoName(), 'Move part', 'drag: its undo step')
+    await runCmd('Std_Undo')
+    await until(`JSON.stringify(cadui.getState().assembly?.placements?.Bar?.base) === ${JSON.stringify(JSON.stringify(before.base))}`, 'the drag undone', 120000)
+      && ok('drag: Std_Undo puts the Bar back')
+  }
   if (want('tree')) {
     console.log('tree')
     const fcRows = FC.tree.filter((r) => r.depth >= 1 && !['Box', 'Cylinder', 'Box001'].includes(r.text)).map((r) => `${r.depth - 1}:${r.text}`)
