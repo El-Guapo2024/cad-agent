@@ -26,7 +26,19 @@
     "faces": 6,
     "wires": 6,
     "edges": 12,
-    "vertices": 8
+    "vertices": 8,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
    },
    "Cylinder": {
     "type": "Solid",
@@ -52,7 +64,19 @@
     "faces": 3,
     "wires": 3,
     "edges": 3,
-    "vertices": 2
+    "vertices": 2,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
    },
    "Sphere": {
     "type": "Solid",
@@ -78,7 +102,19 @@
     "faces": 1,
     "wires": 1,
     "edges": 3,
-    "vertices": 2
+    "vertices": 2,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
    },
    "Cone": {
     "type": "Solid",
@@ -104,7 +140,19 @@
     "faces": 3,
     "wires": 3,
     "edges": 3,
-    "vertices": 2
+    "vertices": 2,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
    },
    "Torus": {
     "type": "Solid",
@@ -130,7 +178,19 @@
     "faces": 1,
     "wires": 1,
     "edges": 2,
-    "vertices": 1
+    "vertices": 1,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
    },
    "Tube": {
     "type": "Compound",
@@ -156,7 +216,19 @@
     "faces": 4,
     "wires": 6,
     "edges": 6,
-    "vertices": 4
+    "vertices": 4,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
    },
    "Prism": {
     "type": "Solid",
@@ -182,7 +254,19 @@
     "faces": 8,
     "wires": 8,
     "edges": 18,
-    "vertices": 12
+    "vertices": 12,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
    },
    "Wedge": {
     "type": "Solid",
@@ -208,7 +292,19 @@
     "faces": 6,
     "wires": 6,
     "edges": 12,
-    "vertices": 8
+    "vertices": 8,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
    },
    "Helix": {
     "type": "Wire",
@@ -234,7 +330,19 @@
     "faces": 0,
     "wires": 1,
     "edges": 1,
-    "vertices": 2
+    "vertices": 2,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
    },
    "Spiral": {
     "type": "Wire",
@@ -260,7 +368,19 @@
     "faces": 0,
     "wires": 1,
     "edges": 2,
-    "vertices": 3
+    "vertices": 3,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
    },
    "Ellipsoid": {
     "type": "Solid",
@@ -286,7 +406,19 @@
     "faces": 1,
     "wires": 1,
     "edges": 3,
-    "vertices": 2
+    "vertices": 2,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
    },
    "Plane": {
     "type": "Face",
@@ -312,7 +444,19 @@
     "faces": 1,
     "wires": 1,
     "edges": 4,
-    "vertices": 4
+    "vertices": 4,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
    },
    "Circle": {
     "type": "Edge",
@@ -338,7 +482,19 @@
     "faces": 0,
     "wires": 0,
     "edges": 1,
-    "vertices": 1
+    "vertices": 1,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
    },
    "Ellipse": {
     "type": "Edge",
@@ -364,7 +520,19 @@
     "faces": 0,
     "wires": 0,
     "edges": 1,
-    "vertices": 1
+    "vertices": 1,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
    },
    "Line": {
     "type": "Edge",
@@ -390,7 +558,19 @@
     "faces": 0,
     "wires": 0,
     "edges": 1,
-    "vertices": 2
+    "vertices": 2,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
    },
    "Vertex": {
     "type": "Vertex",
@@ -416,7 +596,19 @@
     "faces": 0,
     "wires": 0,
     "edges": 0,
-    "vertices": 1
+    "vertices": 1,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
    },
    "RegularPolygon": {
     "type": "Wire",
@@ -442,7 +634,19 @@
     "faces": 0,
     "wires": 1,
     "edges": 6,
-    "vertices": 6
+    "vertices": 6,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
    },
    "Polygon": {
     "type": "Wire",
@@ -468,7 +672,19 @@
     "faces": 0,
     "wires": 1,
     "edges": 2,
-    "vertices": 3
+    "vertices": 3,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
    }
   },
   "prim_values": {
@@ -496,7 +712,19 @@
     "faces": 6,
     "wires": 6,
     "edges": 12,
-    "vertices": 8
+    "vertices": 8,
+    "placement": [
+     [
+      5.0,
+      -3.0,
+      2.0
+     ],
+     [
+      30.000000000000004,
+      14.999999999999998,
+      -10.0
+     ]
+    ]
    },
    "Cylinder": {
     "type": "Solid",
@@ -522,7 +750,19 @@
     "faces": 5,
     "wires": 5,
     "edges": 9,
-    "vertices": 6
+    "vertices": 6,
+    "placement": [
+     [
+      5.0,
+      -3.0,
+      2.0
+     ],
+     [
+      30.000000000000004,
+      14.999999999999998,
+      -10.0
+     ]
+    ]
    },
    "Skewed": {
     "type": "Solid",
@@ -548,7 +788,19 @@
     "faces": 3,
     "wires": 3,
     "edges": 3,
-    "vertices": 2
+    "vertices": 2,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
    },
    "Sphere": {
     "type": "Solid",
@@ -574,7 +826,19 @@
     "faces": 5,
     "wires": 5,
     "edges": 9,
-    "vertices": 6
+    "vertices": 6,
+    "placement": [
+     [
+      5.0,
+      -3.0,
+      2.0
+     ],
+     [
+      30.000000000000004,
+      14.999999999999998,
+      -10.0
+     ]
+    ]
    },
    "Cone": {
     "type": "Solid",
@@ -600,7 +864,19 @@
     "faces": 4,
     "wires": 4,
     "edges": 7,
-    "vertices": 4
+    "vertices": 4,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
    },
    "ConeCyl": {
     "type": "Solid",
@@ -626,7 +902,19 @@
     "faces": 3,
     "wires": 3,
     "edges": 3,
-    "vertices": 2
+    "vertices": 2,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
    },
    "Torus": {
     "type": "Solid",
@@ -652,7 +940,19 @@
     "faces": 5,
     "wires": 5,
     "edges": 9,
-    "vertices": 6
+    "vertices": 6,
+    "placement": [
+     [
+      5.0,
+      -3.0,
+      2.0
+     ],
+     [
+      30.000000000000004,
+      14.999999999999998,
+      -10.0
+     ]
+    ]
    },
    "Tube": {
     "type": "Compound",
@@ -678,7 +978,19 @@
     "faces": 4,
     "wires": 6,
     "edges": 6,
-    "vertices": 4
+    "vertices": 4,
+    "placement": [
+     [
+      5.0,
+      -3.0,
+      2.0
+     ],
+     [
+      30.000000000000004,
+      14.999999999999998,
+      -10.0
+     ]
+    ]
    },
    "Rod": {
     "type": "Solid",
@@ -704,7 +1016,19 @@
     "faces": 3,
     "wires": 3,
     "edges": 3,
-    "vertices": 2
+    "vertices": 2,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
    },
    "Prism": {
     "type": "Solid",
@@ -730,7 +1054,19 @@
     "faces": 7,
     "wires": 7,
     "edges": 15,
-    "vertices": 10
+    "vertices": 10,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
    },
    "Wedge": {
     "type": "Solid",
@@ -756,7 +1092,19 @@
     "faces": 6,
     "wires": 6,
     "edges": 12,
-    "vertices": 8
+    "vertices": 8,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
    },
    "Helix": {
     "type": "Wire",
@@ -782,7 +1130,19 @@
     "faces": 0,
     "wires": 1,
     "edges": 1,
-    "vertices": 2
+    "vertices": 2,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
    },
    "HelixSeg": {
     "type": "Wire",
@@ -808,7 +1168,19 @@
     "faces": 0,
     "wires": 1,
     "edges": 5,
-    "vertices": 6
+    "vertices": 6,
+    "placement": [
+     [
+      5.0,
+      -3.0,
+      2.0
+     ],
+     [
+      30.000000000000004,
+      14.999999999999998,
+      -10.0
+     ]
+    ]
    },
    "Spiral": {
     "type": "Wire",
@@ -834,7 +1206,19 @@
     "faces": 0,
     "wires": 1,
     "edges": 7,
-    "vertices": 8
+    "vertices": 8,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
    },
    "Ellipsoid": {
     "type": "Solid",
@@ -860,7 +1244,19 @@
     "faces": 5,
     "wires": 5,
     "edges": 9,
-    "vertices": 6
+    "vertices": 6,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
    },
    "Plane": {
     "type": "Face",
@@ -886,7 +1282,19 @@
     "faces": 1,
     "wires": 1,
     "edges": 4,
-    "vertices": 4
+    "vertices": 4,
+    "placement": [
+     [
+      5.0,
+      -3.0,
+      2.0
+     ],
+     [
+      30.000000000000004,
+      14.999999999999998,
+      -10.0
+     ]
+    ]
    },
    "Circle": {
     "type": "Edge",
@@ -912,7 +1320,19 @@
     "faces": 0,
     "wires": 0,
     "edges": 1,
-    "vertices": 2
+    "vertices": 2,
+    "placement": [
+     [
+      5.0,
+      -3.0,
+      2.0
+     ],
+     [
+      30.000000000000004,
+      14.999999999999998,
+      -10.0
+     ]
+    ]
    },
    "Ellipse": {
     "type": "Edge",
@@ -938,7 +1358,19 @@
     "faces": 0,
     "wires": 0,
     "edges": 1,
-    "vertices": 2
+    "vertices": 2,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
    },
    "Line": {
     "type": "Edge",
@@ -964,7 +1396,19 @@
     "faces": 0,
     "wires": 0,
     "edges": 1,
-    "vertices": 2
+    "vertices": 2,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
    },
    "Vertex": {
     "type": "Vertex",
@@ -990,7 +1434,19 @@
     "faces": 0,
     "wires": 0,
     "edges": 0,
-    "vertices": 1
+    "vertices": 1,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
    },
    "RegularPolygon": {
     "type": "Wire",
@@ -1016,7 +1472,19 @@
     "faces": 0,
     "wires": 1,
     "edges": 8,
-    "vertices": 8
+    "vertices": 8,
+    "placement": [
+     [
+      5.0,
+      -3.0,
+      2.0
+     ],
+     [
+      30.000000000000004,
+      14.999999999999998,
+      -10.0
+     ]
+    ]
    },
    "Polygon": {
     "type": "Wire",
@@ -1042,7 +1510,19 @@
     "faces": 0,
     "wires": 1,
     "edges": 4,
-    "vertices": 4
+    "vertices": 4,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
    }
   },
   "prim_params": {
@@ -1070,7 +1550,19 @@
     "faces": 6,
     "wires": 6,
     "edges": 12,
-    "vertices": 8
+    "vertices": 8,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
    },
    "Cylinder": {
     "type": "Solid",
@@ -1096,7 +1588,19 @@
     "faces": 3,
     "wires": 3,
     "edges": 3,
-    "vertices": 2
+    "vertices": 2,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
    },
    "Prism": {
     "type": "Solid",
@@ -1122,7 +1626,19 @@
     "faces": 9,
     "wires": 9,
     "edges": 21,
-    "vertices": 14
+    "vertices": 14,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
    }
   },
   "prim_errors": {
@@ -1159,7 +1675,19 @@
     "faces": 5,
     "wires": 5,
     "edges": 9,
-    "vertices": 6
+    "vertices": 6,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
    }
   },
   "cut": {
@@ -1187,7 +1715,19 @@
     "faces": 6,
     "wires": 6,
     "edges": 12,
-    "vertices": 8
+    "vertices": 8,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
    },
    "Cylinder": {
     "type": "Solid",
@@ -1213,7 +1753,19 @@
     "faces": 3,
     "wires": 3,
     "edges": 3,
-    "vertices": 2
+    "vertices": 2,
+    "placement": [
+     [
+      10.0,
+      10.0,
+      -5.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
    },
    "Cut": {
     "type": "Compound",
@@ -1239,7 +1791,19 @@
     "faces": 7,
     "wires": 9,
     "edges": 15,
-    "vertices": 10
+    "vertices": 10,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
    }
   },
   "cut_norefine": {
@@ -1267,7 +1831,19 @@
     "faces": 6,
     "wires": 6,
     "edges": 12,
-    "vertices": 8
+    "vertices": 8,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
    },
    "Cylinder": {
     "type": "Solid",
@@ -1293,7 +1869,19 @@
     "faces": 3,
     "wires": 3,
     "edges": 3,
-    "vertices": 2
+    "vertices": 2,
+    "placement": [
+     [
+      10.0,
+      10.0,
+      -5.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
    },
    "Cut": {
     "type": "Compound",
@@ -1319,7 +1907,19 @@
     "faces": 7,
     "wires": 9,
     "edges": 15,
-    "vertices": 10
+    "vertices": 10,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
    }
   },
   "fuse": {
@@ -1347,7 +1947,19 @@
     "faces": 6,
     "wires": 6,
     "edges": 12,
-    "vertices": 8
+    "vertices": 8,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
    },
    "Cylinder": {
     "type": "Solid",
@@ -1373,7 +1985,19 @@
     "faces": 3,
     "wires": 3,
     "edges": 3,
-    "vertices": 2
+    "vertices": 2,
+    "placement": [
+     [
+      10.0,
+      10.0,
+      -5.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
    },
    "Fusion": {
     "type": "Compound",
@@ -1399,7 +2023,19 @@
     "faces": 10,
     "wires": 12,
     "edges": 18,
-    "vertices": 12
+    "vertices": 12,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
    }
   },
   "common": {
@@ -1427,7 +2063,19 @@
     "faces": 6,
     "wires": 6,
     "edges": 12,
-    "vertices": 8
+    "vertices": 8,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
    },
    "Cylinder": {
     "type": "Solid",
@@ -1453,7 +2101,19 @@
     "faces": 3,
     "wires": 3,
     "edges": 3,
-    "vertices": 2
+    "vertices": 2,
+    "placement": [
+     [
+      10.0,
+      10.0,
+      -5.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
    },
    "Common": {
     "type": "Compound",
@@ -1479,7 +2139,19 @@
     "faces": 3,
     "wires": 3,
     "edges": 3,
-    "vertices": 2
+    "vertices": 2,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
    }
   },
   "section": {
@@ -1507,7 +2179,19 @@
     "faces": 6,
     "wires": 6,
     "edges": 12,
-    "vertices": 8
+    "vertices": 8,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
    },
    "Cylinder": {
     "type": "Solid",
@@ -1533,7 +2217,19 @@
     "faces": 3,
     "wires": 3,
     "edges": 3,
-    "vertices": 2
+    "vertices": 2,
+    "placement": [
+     [
+      10.0,
+      10.0,
+      -5.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
    },
    "Section": {
     "type": "Compound",
@@ -1559,7 +2255,19 @@
     "faces": 0,
     "wires": 0,
     "edges": 2,
-    "vertices": 2
+    "vertices": 2,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
    }
   },
   "multifuse": {
@@ -1587,7 +2295,19 @@
     "faces": 6,
     "wires": 6,
     "edges": 12,
-    "vertices": 8
+    "vertices": 8,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
    },
    "Sphere": {
     "type": "Solid",
@@ -1613,7 +2333,19 @@
     "faces": 1,
     "wires": 1,
     "edges": 3,
-    "vertices": 2
+    "vertices": 2,
+    "placement": [
+     [
+      20.0,
+      20.0,
+      10.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
    },
    "Cylinder": {
     "type": "Solid",
@@ -1639,7 +2371,19 @@
     "faces": 3,
     "wires": 3,
     "edges": 3,
-    "vertices": 2
+    "vertices": 2,
+    "placement": [
+     [
+      0.0,
+      10.0,
+      -10.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
    },
    "Fusion": {
     "type": "Compound",
@@ -1665,7 +2409,19 @@
     "faces": 11,
     "wires": 11,
     "edges": 31,
-    "vertices": 19
+    "vertices": 19,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
    }
   },
   "multifuse_norefine": {
@@ -1693,7 +2449,19 @@
     "faces": 6,
     "wires": 6,
     "edges": 12,
-    "vertices": 8
+    "vertices": 8,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
    },
    "Sphere": {
     "type": "Solid",
@@ -1719,7 +2487,19 @@
     "faces": 1,
     "wires": 1,
     "edges": 3,
-    "vertices": 2
+    "vertices": 2,
+    "placement": [
+     [
+      20.0,
+      20.0,
+      10.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
    },
    "Cylinder": {
     "type": "Solid",
@@ -1745,7 +2525,19 @@
     "faces": 3,
     "wires": 3,
     "edges": 3,
-    "vertices": 2
+    "vertices": 2,
+    "placement": [
+     [
+      0.0,
+      10.0,
+      -10.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
    },
    "Fusion": {
     "type": "Compound",
@@ -1771,7 +2563,19 @@
     "faces": 11,
     "wires": 11,
     "edges": 31,
-    "vertices": 19
+    "vertices": 19,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
    }
   },
   "multicommon": {
@@ -1799,7 +2603,19 @@
     "faces": 6,
     "wires": 6,
     "edges": 12,
-    "vertices": 8
+    "vertices": 8,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
    },
    "Sphere": {
     "type": "Solid",
@@ -1825,7 +2641,19 @@
     "faces": 1,
     "wires": 1,
     "edges": 3,
-    "vertices": 2
+    "vertices": 2,
+    "placement": [
+     [
+      20.0,
+      20.0,
+      10.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
    },
    "Cylinder": {
     "type": "Solid",
@@ -1851,7 +2679,19 @@
     "faces": 3,
     "wires": 3,
     "edges": 3,
-    "vertices": 2
+    "vertices": 2,
+    "placement": [
+     [
+      0.0,
+      10.0,
+      -10.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
    },
    "Common": {
     "type": "Compound",
@@ -1877,7 +2717,19 @@
     "faces": 4,
     "wires": 4,
     "edges": 7,
-    "vertices": 4
+    "vertices": 4,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
    }
   },
   "multicommon3": {
@@ -1905,7 +2757,19 @@
     "faces": 6,
     "wires": 6,
     "edges": 12,
-    "vertices": 8
+    "vertices": 8,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
    },
    "Sphere": {
     "type": "Solid",
@@ -1931,7 +2795,19 @@
     "faces": 1,
     "wires": 1,
     "edges": 3,
-    "vertices": 2
+    "vertices": 2,
+    "placement": [
+     [
+      10.0,
+      10.0,
+      5.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
    },
    "Cylinder": {
     "type": "Solid",
@@ -1957,7 +2833,19 @@
     "faces": 3,
     "wires": 3,
     "edges": 3,
-    "vertices": 2
+    "vertices": 2,
+    "placement": [
+     [
+      10.0,
+      10.0,
+      -10.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
    },
    "Common": {
     "type": "Compound",
@@ -1983,7 +2871,19 @@
     "faces": 3,
     "wires": 3,
     "edges": 3,
-    "vertices": 2
+    "vertices": 2,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
    }
   },
   "cut_chain": {
@@ -2011,7 +2911,19 @@
     "faces": 6,
     "wires": 6,
     "edges": 12,
-    "vertices": 8
+    "vertices": 8,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
    },
    "Sphere": {
     "type": "Solid",
@@ -2037,7 +2949,19 @@
     "faces": 1,
     "wires": 1,
     "edges": 3,
-    "vertices": 2
+    "vertices": 2,
+    "placement": [
+     [
+      20.0,
+      20.0,
+      10.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
    },
    "Cylinder": {
     "type": "Solid",
@@ -2063,7 +2987,19 @@
     "faces": 3,
     "wires": 3,
     "edges": 3,
-    "vertices": 2
+    "vertices": 2,
+    "placement": [
+     [
+      0.0,
+      10.0,
+      -10.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
    },
    "Cut": {
     "type": "Compound",
@@ -2089,7 +3025,19 @@
     "faces": 7,
     "wires": 7,
     "edges": 16,
-    "vertices": 10
+    "vertices": 10,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
    },
    "Cut001": {
     "type": "Compound",
@@ -2115,7 +3063,211 @@
     "faces": 9,
     "wires": 9,
     "edges": 24,
-    "vertices": 16
+    "vertices": 16,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
+   }
+  },
+  "cut_chain_norefine": {
+   "Box": {
+    "type": "Solid",
+    "valid": true,
+    "volume": 4000.0,
+    "area": 1600.0,
+    "length": 400.0,
+    "bbox": [
+     0.0,
+     0.0,
+     0.0,
+     20.0,
+     20.0,
+     10.0
+    ],
+    "center_of_mass": [
+     10.0,
+     10.0,
+     5.0
+    ],
+    "solids": 1,
+    "shells": 1,
+    "faces": 6,
+    "wires": 6,
+    "edges": 12,
+    "vertices": 8,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
+   },
+   "Sphere": {
+    "type": "Solid",
+    "valid": true,
+    "volume": 2144.660584851,
+    "area": 804.247719319,
+    "length": 50.265482457,
+    "bbox": [
+     12.0,
+     12.0,
+     2.0,
+     28.0,
+     28.0,
+     18.0
+    ],
+    "center_of_mass": [
+     20.0,
+     20.0,
+     10.0
+    ],
+    "solids": 1,
+    "shells": 1,
+    "faces": 1,
+    "wires": 1,
+    "edges": 3,
+    "vertices": 2,
+    "placement": [
+     [
+      20.0,
+      20.0,
+      10.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
+   },
+   "Cylinder": {
+    "type": "Solid",
+    "valid": true,
+    "volume": 1507.964473723,
+    "area": 854.513201776,
+    "length": 160.530964915,
+    "bbox": [
+     -4.0,
+     6.0,
+     -10.0,
+     4.0,
+     14.0,
+     20.0
+    ],
+    "center_of_mass": [
+     -0.0,
+     10.0,
+     5.0
+    ],
+    "solids": 1,
+    "shells": 1,
+    "faces": 3,
+    "wires": 3,
+    "edges": 3,
+    "vertices": 2,
+    "placement": [
+     [
+      0.0,
+      10.0,
+      -10.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
+   },
+   "Cut": {
+    "type": "Compound",
+    "valid": true,
+    "volume": 3731.917426894,
+    "area": 1549.734517543,
+    "length": 427.398223686,
+    "bbox": [
+     0.0,
+     0.0,
+     0.0,
+     20.0,
+     20.0,
+     10.0
+    ],
+    "center_of_mass": [
+     9.497154466,
+     9.497154466,
+     4.856329847
+    ],
+    "solids": 1,
+    "shells": 1,
+    "faces": 7,
+    "wires": 7,
+    "edges": 16,
+    "vertices": 10,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
+   },
+   "Cut001": {
+    "type": "Compound",
+    "valid": true,
+    "volume": 3480.590014606,
+    "area": 1545.132741229,
+    "length": 505.663706144,
+    "bbox": [
+     -0.0,
+     0.0,
+     0.0,
+     20.0,
+     20.0,
+     10.0
+    ],
+    "center_of_mass": [
+     10.060343058,
+     9.460844856,
+     4.845955673
+    ],
+    "solids": 1,
+    "shells": 1,
+    "faces": 10,
+    "wires": 10,
+    "edges": 25,
+    "vertices": 16,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
    }
   },
   "cut_compound_tool": {
@@ -2143,7 +3295,19 @@
     "faces": 6,
     "wires": 6,
     "edges": 12,
-    "vertices": 8
+    "vertices": 8,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
    },
    "Sphere": {
     "type": "Solid",
@@ -2169,7 +3333,19 @@
     "faces": 1,
     "wires": 1,
     "edges": 3,
-    "vertices": 2
+    "vertices": 2,
+    "placement": [
+     [
+      20.0,
+      20.0,
+      10.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
    },
    "Cylinder": {
     "type": "Solid",
@@ -2195,7 +3371,19 @@
     "faces": 3,
     "wires": 3,
     "edges": 3,
-    "vertices": 2
+    "vertices": 2,
+    "placement": [
+     [
+      0.0,
+      10.0,
+      -10.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
    },
    "Compound": {
     "type": "Compound",
@@ -2221,7 +3409,19 @@
     "faces": 4,
     "wires": 4,
     "edges": 6,
-    "vertices": 4
+    "vertices": 4,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
    },
    "Cut": {
     "type": "Compound",
@@ -2247,7 +3447,19 @@
     "faces": 9,
     "wires": 9,
     "edges": 24,
-    "vertices": 16
+    "vertices": 16,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
    }
   },
   "extrude_shell": {
@@ -2275,7 +3487,19 @@
     "faces": 0,
     "wires": 3,
     "edges": 6,
-    "vertices": 6
+    "vertices": 6,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
    },
    "Extrude": {
     "type": "Compound",
@@ -2301,7 +3525,19 @@
     "faces": 6,
     "wires": 6,
     "edges": 18,
-    "vertices": 12
+    "vertices": 12,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
    }
   },
   "extrude_solid": {
@@ -2329,7 +3565,19 @@
     "faces": 0,
     "wires": 3,
     "edges": 6,
-    "vertices": 6
+    "vertices": 6,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
    },
    "Extrude": {
     "type": "Solid",
@@ -2355,7 +3603,19 @@
     "faces": 8,
     "wires": 12,
     "edges": 18,
-    "vertices": 12
+    "vertices": 12,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
    }
   },
   "extrude_both": {
@@ -2383,7 +3643,19 @@
     "faces": 0,
     "wires": 3,
     "edges": 6,
-    "vertices": 6
+    "vertices": 6,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
    },
    "Extrude": {
     "type": "Solid",
@@ -2409,7 +3681,19 @@
     "faces": 8,
     "wires": 12,
     "edges": 18,
-    "vertices": 12
+    "vertices": 12,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
    }
   },
   "extrude_symmetric": {
@@ -2437,7 +3721,19 @@
     "faces": 0,
     "wires": 3,
     "edges": 6,
-    "vertices": 6
+    "vertices": 6,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
    },
    "Extrude": {
     "type": "Solid",
@@ -2463,7 +3759,19 @@
     "faces": 8,
     "wires": 12,
     "edges": 18,
-    "vertices": 12
+    "vertices": 12,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
    }
   },
   "extrude_dir": {
@@ -2491,7 +3799,19 @@
     "faces": 0,
     "wires": 3,
     "edges": 6,
-    "vertices": 6
+    "vertices": 6,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
    },
    "Extrude": {
     "type": "Solid",
@@ -2517,7 +3837,19 @@
     "faces": 8,
     "wires": 12,
     "edges": 18,
-    "vertices": 12
+    "vertices": 12,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
    }
   },
   "extrude_normal": {
@@ -2545,7 +3877,19 @@
     "faces": 0,
     "wires": 1,
     "edges": 4,
-    "vertices": 4
+    "vertices": 4,
+    "placement": [
+     [
+      0.0,
+      -4.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      89.99999999999999
+     ]
+    ]
    },
    "Extrude": {
     "type": "Solid",
@@ -2571,7 +3915,19 @@
     "faces": 6,
     "wires": 6,
     "edges": 12,
-    "vertices": 8
+    "vertices": 8,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
    }
   },
   "extrude_edge": {
@@ -2599,7 +3955,19 @@
     "faces": 0,
     "wires": 3,
     "edges": 6,
-    "vertices": 6
+    "vertices": 6,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
    },
    "Line": {
     "type": "Edge",
@@ -2625,7 +3993,19 @@
     "faces": 0,
     "wires": 0,
     "edges": 1,
-    "vertices": 2
+    "vertices": 2,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
    },
    "Extrude": {
     "type": "Solid",
@@ -2651,7 +4031,19 @@
     "faces": 8,
     "wires": 12,
     "edges": 18,
-    "vertices": 12
+    "vertices": 12,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
    }
   },
   "extrude_maker_simple": {
@@ -2679,7 +4071,19 @@
     "faces": 0,
     "wires": 4,
     "edges": 10,
-    "vertices": 10
+    "vertices": 10,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
    },
    "Extrude": {
     "type": "Compound",
@@ -2705,7 +4109,19 @@
     "faces": 18,
     "wires": 18,
     "edges": 30,
-    "vertices": 20
+    "vertices": 20,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
    }
   },
   "extrude_maker_cheese": {
@@ -2733,7 +4149,19 @@
     "faces": 0,
     "wires": 4,
     "edges": 10,
-    "vertices": 10
+    "vertices": 10,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
    },
    "Extrude": {
     "error": "Failed to validate broken face"
@@ -2764,7 +4192,19 @@
     "faces": 0,
     "wires": 4,
     "edges": 10,
-    "vertices": 10
+    "vertices": 10,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
    },
    "Extrude": {
     "error": "Failed to validate broken face"
@@ -2795,7 +4235,19 @@
     "faces": 0,
     "wires": 4,
     "edges": 10,
-    "vertices": 10
+    "vertices": 10,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
    },
    "Extrude": {
     "type": "Compound",
@@ -2821,7 +4273,19 @@
     "faces": 14,
     "wires": 18,
     "edges": 30,
-    "vertices": 20
+    "vertices": 20,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
    }
   },
   "extrude_maker_unified": {
@@ -2849,7 +4313,19 @@
     "faces": 0,
     "wires": 4,
     "edges": 10,
-    "vertices": 10
+    "vertices": 10,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
    },
    "Extrude": {
     "type": "Compound",
@@ -2875,7 +4351,19 @@
     "faces": 14,
     "wires": 18,
     "edges": 30,
-    "vertices": 20
+    "vertices": 20,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
    }
   },
   "extrude_overlap_unified": {
@@ -2903,7 +4391,19 @@
     "faces": 0,
     "wires": 2,
     "edges": 8,
-    "vertices": 8
+    "vertices": 8,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
    },
    "Extrude": {
     "type": "Compound",
@@ -2929,7 +4429,19 @@
     "faces": 18,
     "wires": 18,
     "edges": 34,
-    "vertices": 20
+    "vertices": 20,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
    }
   },
   "extrude_face": {
@@ -2957,7 +4469,19 @@
     "faces": 1,
     "wires": 1,
     "edges": 4,
-    "vertices": 4
+    "vertices": 4,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
    },
    "Extrude": {
     "type": "Solid",
@@ -2983,7 +4507,19 @@
     "faces": 6,
     "wires": 6,
     "edges": 12,
-    "vertices": 8
+    "vertices": 8,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
    }
   },
   "extrude_circle": {
@@ -3011,7 +4547,19 @@
     "faces": 0,
     "wires": 0,
     "edges": 1,
-    "vertices": 1
+    "vertices": 1,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
    },
    "Extrude": {
     "type": "Solid",
@@ -3037,7 +4585,19 @@
     "faces": 3,
     "wires": 3,
     "edges": 3,
-    "vertices": 2
+    "vertices": 2,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
    }
   },
   "revolve": {
@@ -3065,7 +4625,19 @@
     "faces": 0,
     "wires": 1,
     "edges": 4,
-    "vertices": 4
+    "vertices": 4,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      89.99999999999999
+     ]
+    ]
    },
    "Revolve": {
     "type": "Shell",
@@ -3091,7 +4663,19 @@
     "faces": 4,
     "wires": 6,
     "edges": 6,
-    "vertices": 4
+    "vertices": 4,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
    }
   },
   "revolve_solid": {
@@ -3119,7 +4703,19 @@
     "faces": 0,
     "wires": 1,
     "edges": 4,
-    "vertices": 4
+    "vertices": 4,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      89.99999999999999
+     ]
+    ]
    },
    "Revolve": {
     "type": "Solid",
@@ -3145,7 +4741,19 @@
     "faces": 6,
     "wires": 6,
     "edges": 12,
-    "vertices": 8
+    "vertices": 8,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
    }
   },
   "revolve_symmetric": {
@@ -3173,7 +4781,19 @@
     "faces": 0,
     "wires": 1,
     "edges": 4,
-    "vertices": 4
+    "vertices": 4,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      89.99999999999999
+     ]
+    ]
    },
    "Revolve": {
     "type": "Solid",
@@ -3199,7 +4819,19 @@
     "faces": 6,
     "wires": 6,
     "edges": 12,
-    "vertices": 8
+    "vertices": 8,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
    }
   },
   "revolve_axis": {
@@ -3227,7 +4859,19 @@
     "faces": 0,
     "wires": 1,
     "edges": 1,
-    "vertices": 1
+    "vertices": 1,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
    },
    "Revolve": {
     "type": "Solid",
@@ -3253,7 +4897,19 @@
     "faces": 3,
     "wires": 3,
     "edges": 3,
-    "vertices": 2
+    "vertices": 2,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
    }
   },
   "revolve_axis_link": {
@@ -3281,7 +4937,19 @@
     "faces": 0,
     "wires": 1,
     "edges": 1,
-    "vertices": 1
+    "vertices": 1,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
    },
    "Line": {
     "type": "Edge",
@@ -3307,7 +4975,19 @@
     "faces": 0,
     "wires": 0,
     "edges": 1,
-    "vertices": 2
+    "vertices": 2,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
    },
    "Revolve": {
     "type": "Solid",
@@ -3333,7 +5013,19 @@
     "faces": 3,
     "wires": 3,
     "edges": 3,
-    "vertices": 2
+    "vertices": 2,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
    }
   },
   "revolve_arc_link": {
@@ -3361,7 +5053,19 @@
     "faces": 0,
     "wires": 1,
     "edges": 1,
-    "vertices": 1
+    "vertices": 1,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
    },
    "Arc": {
     "type": "Edge",
@@ -3387,7 +5091,19 @@
     "faces": 0,
     "wires": 0,
     "edges": 1,
-    "vertices": 2
+    "vertices": 2,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      89.99999999999999
+     ]
+    ]
    },
    "Revolve": {
     "type": "Solid",
@@ -3413,7 +5129,19 @@
     "faces": 3,
     "wires": 3,
     "edges": 3,
-    "vertices": 2
+    "vertices": 2,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
    }
   },
   "mirror": {
@@ -3441,7 +5169,19 @@
     "faces": 6,
     "wires": 6,
     "edges": 12,
-    "vertices": 8
+    "vertices": 8,
+    "placement": [
+     [
+      5.0,
+      -3.0,
+      2.0
+     ],
+     [
+      30.000000000000004,
+      14.999999999999998,
+      -10.0
+     ]
+    ]
    },
    "Mirror": {
     "type": "Solid",
@@ -3467,7 +5207,19 @@
     "faces": 6,
     "wires": 6,
     "edges": 12,
-    "vertices": 8
+    "vertices": 8,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
    }
   },
   "mirror_face": {
@@ -3495,7 +5247,19 @@
     "faces": 6,
     "wires": 6,
     "edges": 12,
-    "vertices": 8
+    "vertices": 8,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
    },
    "Cylinder": {
     "type": "Solid",
@@ -3521,7 +5285,19 @@
     "faces": 3,
     "wires": 3,
     "edges": 3,
-    "vertices": 2
+    "vertices": 2,
+    "placement": [
+     [
+      3.0,
+      2.0,
+      3.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
    },
    "Mirror": {
     "type": "Solid",
@@ -3547,7 +5323,19 @@
     "faces": 3,
     "wires": 3,
     "edges": 3,
-    "vertices": 2
+    "vertices": 2,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
    }
   },
   "mirror_plane_obj": {
@@ -3575,7 +5363,19 @@
     "faces": 1,
     "wires": 1,
     "edges": 3,
-    "vertices": 2
+    "vertices": 2,
+    "placement": [
+     [
+      5.0,
+      5.0,
+      5.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
    },
    "Plane": {
     "type": "Face",
@@ -3601,7 +5401,19 @@
     "faces": 1,
     "wires": 1,
     "edges": 4,
-    "vertices": 4
+    "vertices": 4,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      2.0
+     ],
+     [
+      0.0,
+      45.00000000000001,
+      0.0
+     ]
+    ]
    },
    "Mirror": {
     "type": "Solid",
@@ -3627,7 +5439,19 @@
     "faces": 1,
     "wires": 1,
     "edges": 3,
-    "vertices": 2
+    "vertices": 2,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
    }
   },
   "fillet": {
@@ -3655,7 +5479,19 @@
     "faces": 6,
     "wires": 6,
     "edges": 12,
-    "vertices": 8
+    "vertices": 8,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
    },
    "Fillet": {
     "type": "Compound",
@@ -3681,7 +5517,19 @@
     "faces": 9,
     "wires": 9,
     "edges": 21,
-    "vertices": 14
+    "vertices": 14,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
    }
   },
   "chamfer": {
@@ -3709,7 +5557,19 @@
     "faces": 6,
     "wires": 6,
     "edges": 12,
-    "vertices": 8
+    "vertices": 8,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
    },
    "Chamfer": {
     "type": "Compound",
@@ -3735,7 +5595,19 @@
     "faces": 8,
     "wires": 8,
     "edges": 18,
-    "vertices": 12
+    "vertices": 12,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
    }
   },
   "fillet_cut": {
@@ -3763,7 +5635,19 @@
     "faces": 6,
     "wires": 6,
     "edges": 12,
-    "vertices": 8
+    "vertices": 8,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
    },
    "Cylinder": {
     "type": "Solid",
@@ -3789,7 +5673,19 @@
     "faces": 3,
     "wires": 3,
     "edges": 3,
-    "vertices": 2
+    "vertices": 2,
+    "placement": [
+     [
+      10.0,
+      10.0,
+      -5.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
    },
    "Cut": {
     "type": "Compound",
@@ -3815,7 +5711,19 @@
     "faces": 7,
     "wires": 9,
     "edges": 15,
-    "vertices": 10
+    "vertices": 10,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
    },
    "Fillet": {
     "type": "Compound",
@@ -3841,7 +5749,19 @@
     "faces": 9,
     "wires": 11,
     "edges": 21,
-    "vertices": 14
+    "vertices": 14,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
    }
   },
   "compound": {
@@ -3869,7 +5789,19 @@
     "faces": 6,
     "wires": 6,
     "edges": 12,
-    "vertices": 8
+    "vertices": 8,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
    },
    "Sphere": {
     "type": "Solid",
@@ -3895,7 +5827,19 @@
     "faces": 1,
     "wires": 1,
     "edges": 3,
-    "vertices": 2
+    "vertices": 2,
+    "placement": [
+     [
+      20.0,
+      20.0,
+      10.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
    },
    "Cylinder": {
     "type": "Solid",
@@ -3921,7 +5865,19 @@
     "faces": 3,
     "wires": 3,
     "edges": 3,
-    "vertices": 2
+    "vertices": 2,
+    "placement": [
+     [
+      0.0,
+      10.0,
+      -10.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
    },
    "Compound": {
     "type": "Compound",
@@ -3947,7 +5903,19 @@
     "faces": 10,
     "wires": 10,
     "edges": 18,
-    "vertices": 12
+    "vertices": 12,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
    }
   },
   "refine": {
@@ -3975,7 +5943,19 @@
     "faces": 6,
     "wires": 6,
     "edges": 12,
-    "vertices": 8
+    "vertices": 8,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
    },
    "Box001": {
     "type": "Solid",
@@ -4001,7 +5981,19 @@
     "faces": 6,
     "wires": 6,
     "edges": 12,
-    "vertices": 8
+    "vertices": 8,
+    "placement": [
+     [
+      10.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
    },
    "Fusion": {
     "type": "Compound",
@@ -4027,7 +6019,19 @@
     "faces": 10,
     "wires": 10,
     "edges": 20,
-    "vertices": 12
+    "vertices": 12,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
    },
    "Refine": {
     "type": "Compound",
@@ -4053,7 +6057,19 @@
     "faces": 6,
     "wires": 6,
     "edges": 12,
-    "vertices": 8
+    "vertices": 8,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
    }
   },
   "body_cut": {
@@ -4081,7 +6097,19 @@
     "faces": 3,
     "wires": 3,
     "edges": 3,
-    "vertices": 2
+    "vertices": 2,
+    "placement": [
+     [
+      15.0,
+      10.0,
+      -2.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
    },
    "Cut": {
     "type": "Compound",
@@ -4107,7 +6135,19 @@
     "faces": 7,
     "wires": 9,
     "edges": 15,
-    "vertices": 10
+    "vertices": 10,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
    },
    "Body": {
     "type": "Solid",
@@ -4161,7 +6201,19 @@
     "faces": 6,
     "wires": 6,
     "edges": 12,
-    "vertices": 8
+    "vertices": 8,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
    },
    "Fusion": {
     "type": "Compound",
@@ -4187,7 +6239,19 @@
     "faces": 6,
     "wires": 6,
     "edges": 12,
-    "vertices": 8
+    "vertices": 8,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
    },
    "Body": {
     "type": "Solid",
@@ -4215,138 +6279,6 @@
     "edges": 12,
     "vertices": 8
    }
-  },
-  "cut_chain_norefine": {
-   "Box": {
-    "type": "Solid",
-    "valid": true,
-    "volume": 4000.0,
-    "area": 1600.0,
-    "length": 400.0,
-    "bbox": [
-     0.0,
-     0.0,
-     0.0,
-     20.0,
-     20.0,
-     10.0
-    ],
-    "center_of_mass": [
-     10.0,
-     10.0,
-     5.0
-    ],
-    "solids": 1,
-    "shells": 1,
-    "faces": 6,
-    "wires": 6,
-    "edges": 12,
-    "vertices": 8
-   },
-   "Sphere": {
-    "type": "Solid",
-    "valid": true,
-    "volume": 2144.660584851,
-    "area": 804.247719319,
-    "length": 50.265482457,
-    "bbox": [
-     12.0,
-     12.0,
-     2.0,
-     28.0,
-     28.0,
-     18.0
-    ],
-    "center_of_mass": [
-     20.0,
-     20.0,
-     10.0
-    ],
-    "solids": 1,
-    "shells": 1,
-    "faces": 1,
-    "wires": 1,
-    "edges": 3,
-    "vertices": 2
-   },
-   "Cylinder": {
-    "type": "Solid",
-    "valid": true,
-    "volume": 1507.964473723,
-    "area": 854.513201776,
-    "length": 160.530964915,
-    "bbox": [
-     -4.0,
-     6.0,
-     -10.0,
-     4.0,
-     14.0,
-     20.0
-    ],
-    "center_of_mass": [
-     -0.0,
-     10.0,
-     5.0
-    ],
-    "solids": 1,
-    "shells": 1,
-    "faces": 3,
-    "wires": 3,
-    "edges": 3,
-    "vertices": 2
-   },
-   "Cut": {
-    "type": "Compound",
-    "valid": true,
-    "volume": 3731.917426894,
-    "area": 1549.734517543,
-    "length": 427.398223686,
-    "bbox": [
-     0.0,
-     0.0,
-     0.0,
-     20.0,
-     20.0,
-     10.0
-    ],
-    "center_of_mass": [
-     9.497154466,
-     9.497154466,
-     4.856329847
-    ],
-    "solids": 1,
-    "shells": 1,
-    "faces": 7,
-    "wires": 7,
-    "edges": 16,
-    "vertices": 10
-   },
-   "Cut001": {
-    "type": "Compound",
-    "valid": true,
-    "volume": 3480.590014606,
-    "area": 1545.132741229,
-    "length": 505.663706144,
-    "bbox": [
-     -0.0,
-     0.0,
-     0.0,
-     20.0,
-     20.0,
-     10.0
-    ],
-    "center_of_mass": [
-     10.060343058,
-     9.460844856,
-     4.845955673
-    ],
-    "solids": 1,
-    "shells": 1,
-    "faces": 10,
-    "wires": 10,
-    "edges": 25,
-    "vertices": 16
-   }
   }
  },
  "defaults": {
@@ -4354,9 +6286,20 @@
    "Label": "BooleanFragments",
    "Mode": "Standard",
    "Objects": [],
-   "Placement": "Placement [Pos=(0,0,0), Yaw-Pitch-Roll=(0,0,0)]",
-   "Proxy": "<BOPTools.SplitFeatures.FeatureBooleanFragments object at 0x7dbd3e783770>",
-   "ShapeMaterial": "<Material at 0x58bac6784580>",
+   "Placement": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ],
+   "Proxy": "<BOPTools.SplitFeatures.FeatureBooleanFragments object at 0x7d5acba8c1a0>",
+   "ShapeMaterial": "<Material at 0x5e06c1a0ff30>",
    "Tolerance": 0.0,
    "_ElementMapVersion": "",
    "_TypeId": "Part::FeaturePython"
@@ -4364,7 +6307,18 @@
   "Part::Box": {
    "AttacherEngine": "Engine 3D",
    "AttacherType": "Attacher::AttachEngine3D",
-   "AttachmentOffset": "Placement [Pos=(0,0,0), Yaw-Pitch-Roll=(0,0,0)]",
+   "AttachmentOffset": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ],
    "AttachmentSupport": [],
    "Height": 10.0,
    "Label": "Box",
@@ -4372,8 +6326,19 @@
    "MapMode": "Deactivated",
    "MapPathParameter": 0.0,
    "MapReversed": false,
-   "Placement": "Placement [Pos=(0,0,0), Yaw-Pitch-Roll=(0,0,0)]",
-   "ShapeMaterial": "<Material at 0x58bac6784580>",
+   "Placement": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ],
+   "ShapeMaterial": "<Material at 0x5e06c1a0ff30>",
    "Width": 10.0,
    "_ElementMapVersion": ""
   },
@@ -4382,8 +6347,19 @@
    "EdgeLinks": null,
    "Edges": [],
    "Label": "Chamfer",
-   "Placement": "Placement [Pos=(0,0,0), Yaw-Pitch-Roll=(0,0,0)]",
-   "ShapeMaterial": "<Material at 0x58bac6784580>",
+   "Placement": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ],
+   "ShapeMaterial": "<Material at 0x5e06c1a0ff30>",
    "_ElementMapVersion": ""
   },
   "Part::Circle": {
@@ -4391,31 +6367,75 @@
    "Angle2": 360.0,
    "AttacherEngine": "Engine 3D",
    "AttacherType": "Attacher::AttachEngine3D",
-   "AttachmentOffset": "Placement [Pos=(0,0,0), Yaw-Pitch-Roll=(0,0,0)]",
+   "AttachmentOffset": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ],
    "AttachmentSupport": [],
    "Label": "Circle",
    "MapMode": "Deactivated",
    "MapPathParameter": 0.0,
    "MapReversed": false,
-   "Placement": "Placement [Pos=(0,0,0), Yaw-Pitch-Roll=(0,0,0)]",
+   "Placement": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ],
    "Radius": 2.0,
-   "ShapeMaterial": "<Material at 0x58bac6784580>",
+   "ShapeMaterial": "<Material at 0x5e06c1a0ff30>",
    "_ElementMapVersion": ""
   },
   "Part::Common": {
    "Base": null,
    "Label": "Common",
-   "Placement": "Placement [Pos=(0,0,0), Yaw-Pitch-Roll=(0,0,0)]",
+   "Placement": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ],
    "Refine": true,
-   "ShapeMaterial": "<Material at 0x58bac6784580>",
+   "ShapeMaterial": "<Material at 0x5e06c1a0ff30>",
    "Tool": null,
    "_ElementMapVersion": ""
   },
   "Part::Compound": {
    "Label": "Compound",
    "Links": [],
-   "Placement": "Placement [Pos=(0,0,0), Yaw-Pitch-Roll=(0,0,0)]",
-   "ShapeMaterial": "<Material at 0x58bac6784580>",
+   "Placement": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ],
+   "ShapeMaterial": "<Material at 0x5e06c1a0ff30>",
    "_ElementMapVersion": ""
   },
   "Part::CompoundFilter": {
@@ -4424,9 +6444,20 @@
    "Invert": false,
    "Label": "CompoundFilter",
    "OverrideMaxVal": 0.0,
-   "Placement": "Placement [Pos=(0,0,0), Yaw-Pitch-Roll=(0,0,0)]",
-   "Proxy": "<CompoundTools.CompoundFilter._CompoundFilter object at 0x7dbd3e7838c0>",
-   "ShapeMaterial": "<Material at 0x58bac6784580>",
+   "Placement": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ],
+   "Proxy": "<CompoundTools.CompoundFilter._CompoundFilter object at 0x7d5acba8c2f0>",
+   "ShapeMaterial": "<Material at 0x5e06c1a0ff30>",
    "Stencil": null,
    "WindowFrom": 80.0,
    "WindowTo": 100.0,
@@ -4438,26 +6469,59 @@
    "Angle": 360.0,
    "AttacherEngine": "Engine 3D",
    "AttacherType": "Attacher::AttachEngine3D",
-   "AttachmentOffset": "Placement [Pos=(0,0,0), Yaw-Pitch-Roll=(0,0,0)]",
+   "AttachmentOffset": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ],
    "AttachmentSupport": [],
    "Height": 10.0,
    "Label": "Cone",
    "MapMode": "Deactivated",
    "MapPathParameter": 0.0,
    "MapReversed": false,
-   "Placement": "Placement [Pos=(0,0,0), Yaw-Pitch-Roll=(0,0,0)]",
+   "Placement": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ],
    "Radius1": 2.0,
    "Radius2": 4.0,
-   "ShapeMaterial": "<Material at 0x58bac6784580>",
+   "ShapeMaterial": "<Material at 0x5e06c1a0ff30>",
    "_ElementMapVersion": ""
   },
   "Part::Connect": {
    "Label": "Connect",
    "Objects": [],
-   "Placement": "Placement [Pos=(0,0,0), Yaw-Pitch-Roll=(0,0,0)]",
-   "Proxy": "<BOPTools.JoinFeatures.FeatureConnect object at 0x7dbd3e783b60>",
+   "Placement": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ],
+   "Proxy": "<BOPTools.JoinFeatures.FeatureConnect object at 0x7d5acba8c590>",
    "Refine": false,
-   "ShapeMaterial": "<Material at 0x58bac6784580>",
+   "ShapeMaterial": "<Material at 0x5e06c1a0ff30>",
    "Tolerance": 0.0,
    "_ElementMapVersion": "",
    "_TypeId": "Part::FeaturePython"
@@ -4465,19 +6529,41 @@
   "Part::Cut": {
    "Base": null,
    "Label": "Cut",
-   "Placement": "Placement [Pos=(0,0,0), Yaw-Pitch-Roll=(0,0,0)]",
+   "Placement": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ],
    "Refine": true,
-   "ShapeMaterial": "<Material at 0x58bac6784580>",
+   "ShapeMaterial": "<Material at 0x5e06c1a0ff30>",
    "Tool": null,
    "_ElementMapVersion": ""
   },
   "Part::Cutout": {
    "Base": null,
    "Label": "Cutout",
-   "Placement": "Placement [Pos=(0,0,0), Yaw-Pitch-Roll=(0,0,0)]",
-   "Proxy": "<BOPTools.JoinFeatures.FeatureCutout object at 0x7dbd3e783cb0>",
+   "Placement": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ],
+   "Proxy": "<BOPTools.JoinFeatures.FeatureCutout object at 0x7d5acba8c6e0>",
    "Refine": false,
-   "ShapeMaterial": "<Material at 0x58bac6784580>",
+   "ShapeMaterial": "<Material at 0x5e06c1a0ff30>",
    "Tolerance": 0.0,
    "Tool": null,
    "_ElementMapVersion": "",
@@ -4487,7 +6573,18 @@
    "Angle": 360.0,
    "AttacherEngine": "Engine 3D",
    "AttacherType": "Attacher::AttachEngine3D",
-   "AttachmentOffset": "Placement [Pos=(0,0,0), Yaw-Pitch-Roll=(0,0,0)]",
+   "AttachmentOffset": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ],
    "AttachmentSupport": [],
    "FirstAngle": 0.0,
    "Height": 10.0,
@@ -4495,10 +6592,21 @@
    "MapMode": "Deactivated",
    "MapPathParameter": 0.0,
    "MapReversed": false,
-   "Placement": "Placement [Pos=(0,0,0), Yaw-Pitch-Roll=(0,0,0)]",
+   "Placement": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ],
    "Radius": 2.0,
    "SecondAngle": 0.0,
-   "ShapeMaterial": "<Material at 0x58bac6784580>",
+   "ShapeMaterial": "<Material at 0x5e06c1a0ff30>",
    "_ElementMapVersion": ""
   },
   "Part::Ellipse": {
@@ -4506,7 +6614,18 @@
    "Angle2": 360.0,
    "AttacherEngine": "Engine 3D",
    "AttacherType": "Attacher::AttachEngine3D",
-   "AttachmentOffset": "Placement [Pos=(0,0,0), Yaw-Pitch-Roll=(0,0,0)]",
+   "AttachmentOffset": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ],
    "AttachmentSupport": [],
    "Label": "Ellipse",
    "MajorRadius": 4.0,
@@ -4514,8 +6633,19 @@
    "MapPathParameter": 0.0,
    "MapReversed": false,
    "MinorRadius": 4.0,
-   "Placement": "Placement [Pos=(0,0,0), Yaw-Pitch-Roll=(0,0,0)]",
-   "ShapeMaterial": "<Material at 0x58bac6784580>",
+   "Placement": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ],
+   "ShapeMaterial": "<Material at 0x5e06c1a0ff30>",
    "_ElementMapVersion": ""
   },
   "Part::Ellipsoid": {
@@ -4524,26 +6654,59 @@
    "Angle3": 360.0,
    "AttacherEngine": "Engine 3D",
    "AttacherType": "Attacher::AttachEngine3D",
-   "AttachmentOffset": "Placement [Pos=(0,0,0), Yaw-Pitch-Roll=(0,0,0)]",
+   "AttachmentOffset": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ],
    "AttachmentSupport": [],
    "Label": "Ellipsoid",
    "MapMode": "Deactivated",
    "MapPathParameter": 0.0,
    "MapReversed": false,
-   "Placement": "Placement [Pos=(0,0,0), Yaw-Pitch-Roll=(0,0,0)]",
+   "Placement": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ],
    "Radius1": 2.0,
    "Radius2": 4.0,
    "Radius3": 0.0,
-   "ShapeMaterial": "<Material at 0x58bac6784580>",
+   "ShapeMaterial": "<Material at 0x5e06c1a0ff30>",
    "_ElementMapVersion": ""
   },
   "Part::Embed": {
    "Base": null,
    "Label": "Embed",
-   "Placement": "Placement [Pos=(0,0,0), Yaw-Pitch-Roll=(0,0,0)]",
-   "Proxy": "<BOPTools.JoinFeatures.FeatureEmbed object at 0x7dbd3e783e00>",
+   "Placement": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ],
+   "Proxy": "<BOPTools.JoinFeatures.FeatureEmbed object at 0x7d5acba8c830>",
    "Refine": false,
-   "ShapeMaterial": "<Material at 0x58bac6784580>",
+   "ShapeMaterial": "<Material at 0x5e06c1a0ff30>",
    "Tolerance": 0.0,
    "Tool": null,
    "_ElementMapVersion": "",
@@ -4564,13 +6727,43 @@
    "Label": "Extrusion",
    "LengthFwd": 0.0,
    "LengthRev": 0.0,
-   "Placement": "Placement [Pos=(0,0,0), Yaw-Pitch-Roll=(0,0,0)]",
+   "Placement": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ],
    "Reversed": false,
-   "ShapeMaterial": "<Material at 0x58bac6784580>",
+   "ShapeMaterial": "<Material at 0x5e06c1a0ff30>",
    "Solid": false,
    "Symmetric": false,
    "TaperAngle": 0.0,
    "TaperAngleRev": 0.0,
+   "_ElementMapVersion": ""
+  },
+  "Part::Face": {
+   "FaceMakerClass": "Part::FaceMakerUnified",
+   "Label": "Face",
+   "Placement": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ],
+   "ShapeMaterial": "<Material at 0x5e06c1a0ff30>",
+   "Sources": [],
    "_ElementMapVersion": ""
   },
   "Part::Fillet": {
@@ -4578,16 +6771,38 @@
    "EdgeLinks": null,
    "Edges": [],
    "Label": "Fillet",
-   "Placement": "Placement [Pos=(0,0,0), Yaw-Pitch-Roll=(0,0,0)]",
-   "ShapeMaterial": "<Material at 0x58bac6784580>",
+   "Placement": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ],
+   "ShapeMaterial": "<Material at 0x5e06c1a0ff30>",
    "_ElementMapVersion": ""
   },
   "Part::Fuse": {
    "Base": null,
    "Label": "Fuse",
-   "Placement": "Placement [Pos=(0,0,0), Yaw-Pitch-Roll=(0,0,0)]",
+   "Placement": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ],
    "Refine": true,
-   "ShapeMaterial": "<Material at 0x58bac6784580>",
+   "ShapeMaterial": "<Material at 0x5e06c1a0ff30>",
    "Tool": null,
    "_ElementMapVersion": ""
   },
@@ -4595,7 +6810,18 @@
    "Angle": 0.0,
    "AttacherEngine": "Engine 3D",
    "AttacherType": "Attacher::AttachEngine3D",
-   "AttachmentOffset": "Placement [Pos=(0,0,0), Yaw-Pitch-Roll=(0,0,0)]",
+   "AttachmentOffset": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ],
    "AttachmentSupport": [],
    "Height": 2.0,
    "Label": "Helix",
@@ -4605,24 +6831,57 @@
    "MapPathParameter": 0.0,
    "MapReversed": false,
    "Pitch": 1.0,
-   "Placement": "Placement [Pos=(0,0,0), Yaw-Pitch-Roll=(0,0,0)]",
+   "Placement": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ],
    "Radius": 1.0,
    "SegmentLength": 0.0,
-   "ShapeMaterial": "<Material at 0x58bac6784580>",
+   "ShapeMaterial": "<Material at 0x5e06c1a0ff30>",
    "Style": "Old style",
    "_ElementMapVersion": ""
   },
   "Part::Line": {
    "AttacherEngine": "Engine 3D",
    "AttacherType": "Attacher::AttachEngine3D",
-   "AttachmentOffset": "Placement [Pos=(0,0,0), Yaw-Pitch-Roll=(0,0,0)]",
+   "AttachmentOffset": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ],
    "AttachmentSupport": [],
    "Label": "Line",
    "MapMode": "Deactivated",
    "MapPathParameter": 0.0,
    "MapReversed": false,
-   "Placement": "Placement [Pos=(0,0,0), Yaw-Pitch-Roll=(0,0,0)]",
-   "ShapeMaterial": "<Material at 0x58bac6784580>",
+   "Placement": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ],
+   "ShapeMaterial": "<Material at 0x5e06c1a0ff30>",
    "X1": 0.0,
    "X2": 0.0,
    "Y1": 0.0,
@@ -4636,10 +6895,21 @@
    "Label": "Loft",
    "Linearize": false,
    "MaxDegree": 5,
-   "Placement": "Placement [Pos=(0,0,0), Yaw-Pitch-Roll=(0,0,0)]",
+   "Placement": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ],
    "Ruled": false,
    "Sections": [],
-   "ShapeMaterial": "<Material at 0x58bac6784580>",
+   "ShapeMaterial": "<Material at 0x5e06c1a0ff30>",
    "Solid": true,
    "_ElementMapVersion": ""
   },
@@ -4656,25 +6926,58 @@
     0.0,
     1.0
    ],
-   "Placement": "Placement [Pos=(0,0,0), Yaw-Pitch-Roll=(0,0,0)]",
-   "ShapeMaterial": "<Material at 0x58bac6784580>",
+   "Placement": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ],
+   "ShapeMaterial": "<Material at 0x5e06c1a0ff30>",
    "Source": null,
    "_ElementMapVersion": ""
   },
   "Part::MultiCommon": {
    "Behavior": "CommonOfAllShapes",
    "Label": "MultiCommon",
-   "Placement": "Placement [Pos=(0,0,0), Yaw-Pitch-Roll=(0,0,0)]",
+   "Placement": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ],
    "Refine": true,
-   "ShapeMaterial": "<Material at 0x58bac6784580>",
+   "ShapeMaterial": "<Material at 0x5e06c1a0ff30>",
    "Shapes": [],
    "_ElementMapVersion": ""
   },
   "Part::MultiFuse": {
    "Label": "MultiFuse",
-   "Placement": "Placement [Pos=(0,0,0), Yaw-Pitch-Roll=(0,0,0)]",
+   "Placement": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ],
    "Refine": true,
-   "ShapeMaterial": "<Material at 0x58bac6784580>",
+   "ShapeMaterial": "<Material at 0x5e06c1a0ff30>",
    "Shapes": [],
    "_ElementMapVersion": ""
   },
@@ -4684,9 +6987,20 @@
    "Join": "Arc",
    "Label": "Offset",
    "Mode": "Skin",
-   "Placement": "Placement [Pos=(0,0,0), Yaw-Pitch-Roll=(0,0,0)]",
+   "Placement": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ],
    "SelfIntersection": false,
-   "ShapeMaterial": "<Material at 0x58bac6784580>",
+   "ShapeMaterial": "<Material at 0x5e06c1a0ff30>",
    "Source": null,
    "Value": 1.0,
    "_ElementMapVersion": ""
@@ -4697,9 +7011,20 @@
    "Join": "Arc",
    "Label": "Offset2D",
    "Mode": "Pipe",
-   "Placement": "Placement [Pos=(0,0,0), Yaw-Pitch-Roll=(0,0,0)]",
+   "Placement": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ],
    "SelfIntersection": false,
-   "ShapeMaterial": "<Material at 0x58bac6784580>",
+   "ShapeMaterial": "<Material at 0x5e06c1a0ff30>",
    "Source": null,
    "Value": 1.0,
    "_ElementMapVersion": ""
@@ -4707,15 +7032,37 @@
   "Part::Plane": {
    "AttacherEngine": "Engine 3D",
    "AttacherType": "Attacher::AttachEngine3D",
-   "AttachmentOffset": "Placement [Pos=(0,0,0), Yaw-Pitch-Roll=(0,0,0)]",
+   "AttachmentOffset": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ],
    "AttachmentSupport": [],
    "Label": "Plane",
    "Length": 100.0,
    "MapMode": "Deactivated",
    "MapPathParameter": 0.0,
    "MapReversed": false,
-   "Placement": "Placement [Pos=(0,0,0), Yaw-Pitch-Roll=(0,0,0)]",
-   "ShapeMaterial": "<Material at 0x58bac6784580>",
+   "Placement": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ],
+   "ShapeMaterial": "<Material at 0x5e06c1a0ff30>",
    "Width": 100.0,
    "_ElementMapVersion": ""
   },
@@ -4729,14 +7076,36 @@
      0.0
     ]
    ],
-   "Placement": "Placement [Pos=(0,0,0), Yaw-Pitch-Roll=(0,0,0)]",
-   "ShapeMaterial": "<Material at 0x58bac6784580>",
+   "Placement": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ],
+   "ShapeMaterial": "<Material at 0x5e06c1a0ff30>",
    "_ElementMapVersion": ""
   },
   "Part::Prism": {
    "AttacherEngine": "Engine 3D",
    "AttacherType": "Attacher::AttachEngine3D",
-   "AttachmentOffset": "Placement [Pos=(0,0,0), Yaw-Pitch-Roll=(0,0,0)]",
+   "AttachmentOffset": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ],
    "AttachmentSupport": [],
    "Circumradius": 2.0,
    "FirstAngle": 0.0,
@@ -4745,10 +7114,21 @@
    "MapMode": "Deactivated",
    "MapPathParameter": 0.0,
    "MapReversed": false,
-   "Placement": "Placement [Pos=(0,0,0), Yaw-Pitch-Roll=(0,0,0)]",
+   "Placement": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ],
    "Polygon": 6,
    "SecondAngle": 0.0,
-   "ShapeMaterial": "<Material at 0x58bac6784580>",
+   "ShapeMaterial": "<Material at 0x5e06c1a0ff30>",
    "_ElementMapVersion": ""
   },
   "Part::ProjectOnSurface": {
@@ -4761,32 +7141,94 @@
    "Label": "ProjectOnSurface",
    "Mode": "All",
    "Offset": 0.0,
-   "Placement": "Placement [Pos=(0,0,0), Yaw-Pitch-Roll=(0,0,0)]",
+   "Placement": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ],
    "Projection": [],
-   "ShapeMaterial": "<Material at 0x58bac6784580>",
+   "ShapeMaterial": "<Material at 0x5e06c1a0ff30>",
    "SupportFace": null,
    "_ElementMapVersion": ""
   },
   "Part::Refine": {
    "Label": "Refine",
-   "Placement": "Placement [Pos=(0,0,0), Yaw-Pitch-Roll=(0,0,0)]",
-   "ShapeMaterial": "<Material at 0x58bac6784580>",
+   "Placement": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ],
+   "ShapeMaterial": "<Material at 0x5e06c1a0ff30>",
    "Source": null,
    "_ElementMapVersion": ""
   },
   "Part::RegularPolygon": {
    "AttacherEngine": "Engine 3D",
    "AttacherType": "Attacher::AttachEngine3D",
-   "AttachmentOffset": "Placement [Pos=(0,0,0), Yaw-Pitch-Roll=(0,0,0)]",
+   "AttachmentOffset": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ],
    "AttachmentSupport": [],
    "Circumradius": 2.0,
    "Label": "RegularPolygon",
    "MapMode": "Deactivated",
    "MapPathParameter": 0.0,
    "MapReversed": false,
-   "Placement": "Placement [Pos=(0,0,0), Yaw-Pitch-Roll=(0,0,0)]",
+   "Placement": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ],
    "Polygon": 6,
-   "ShapeMaterial": "<Material at 0x58bac6784580>",
+   "ShapeMaterial": "<Material at 0x5e06c1a0ff30>",
+   "_ElementMapVersion": ""
+  },
+  "Part::Reverse": {
+   "Label": "Reverse",
+   "Placement": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ],
+   "ShapeMaterial": "<Material at 0x5e06c1a0ff30>",
+   "Source": null,
    "_ElementMapVersion": ""
   },
   "Part::Revolution": {
@@ -4804,20 +7246,85 @@
    ],
    "FaceMakerClass": "Part::FaceMakerUnified",
    "Label": "Revolution",
-   "Placement": "Placement [Pos=(0,0,0), Yaw-Pitch-Roll=(0,0,0)]",
-   "ShapeMaterial": "<Material at 0x58bac6784580>",
+   "Placement": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ],
+   "ShapeMaterial": "<Material at 0x5e06c1a0ff30>",
    "Solid": false,
    "Source": null,
    "Symmetric": false,
+   "_ElementMapVersion": ""
+  },
+  "Part::RuledSurface": {
+   "Curve1": null,
+   "Curve2": null,
+   "Label": "RuledSurface",
+   "Orientation": "Automatic",
+   "Placement": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ],
+   "ShapeMaterial": "<Material at 0x5e06c1a0ff30>",
+   "_ElementMapVersion": ""
+  },
+  "Part::Scale": {
+   "Base": null,
+   "Label": "Scale",
+   "Placement": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ],
+   "ShapeMaterial": "<Material at 0x5e06c1a0ff30>",
+   "Uniform": true,
+   "UniformScale": 1.0,
+   "XScale": 1.0,
+   "YScale": 1.0,
+   "ZScale": 1.0,
    "_ElementMapVersion": ""
   },
   "Part::Section": {
    "Approximation": false,
    "Base": null,
    "Label": "Section",
-   "Placement": "Placement [Pos=(0,0,0), Yaw-Pitch-Roll=(0,0,0)]",
+   "Placement": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ],
    "Refine": true,
-   "ShapeMaterial": "<Material at 0x58bac6784580>",
+   "ShapeMaterial": "<Material at 0x5e06c1a0ff30>",
    "Tool": null,
    "_ElementMapVersion": ""
   },
@@ -4825,9 +7332,20 @@
    "Base": null,
    "Label": "Slice",
    "Mode": "Standard",
-   "Placement": "Placement [Pos=(0,0,0), Yaw-Pitch-Roll=(0,0,0)]",
-   "Proxy": "<BOPTools.SplitFeatures.FeatureSlice object at 0x7dbd391c0050>",
-   "ShapeMaterial": "<Material at 0x58bac6784580>",
+   "Placement": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ],
+   "Proxy": "<BOPTools.SplitFeatures.FeatureSlice object at 0x7d5acba8c980>",
+   "ShapeMaterial": "<Material at 0x5e06c1a0ff30>",
    "Tolerance": 0.0,
    "Tools": [],
    "_ElementMapVersion": "",
@@ -4839,21 +7357,54 @@
    "Angle3": 360.0,
    "AttacherEngine": "Engine 3D",
    "AttacherType": "Attacher::AttachEngine3D",
-   "AttachmentOffset": "Placement [Pos=(0,0,0), Yaw-Pitch-Roll=(0,0,0)]",
+   "AttachmentOffset": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ],
    "AttachmentSupport": [],
    "Label": "Sphere",
    "MapMode": "Deactivated",
    "MapPathParameter": 0.0,
    "MapReversed": false,
-   "Placement": "Placement [Pos=(0,0,0), Yaw-Pitch-Roll=(0,0,0)]",
+   "Placement": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ],
    "Radius": 5.0,
-   "ShapeMaterial": "<Material at 0x58bac6784580>",
+   "ShapeMaterial": "<Material at 0x5e06c1a0ff30>",
    "_ElementMapVersion": ""
   },
   "Part::Spiral": {
    "AttacherEngine": "Engine 3D",
    "AttacherType": "Attacher::AttachEngine3D",
-   "AttachmentOffset": "Placement [Pos=(0,0,0), Yaw-Pitch-Roll=(0,0,0)]",
+   "AttachmentOffset": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ],
    "AttachmentSupport": [],
    "Growth": 1.0,
    "Label": "Spiral",
@@ -4861,20 +7412,42 @@
    "MapMode": "Deactivated",
    "MapPathParameter": 0.0,
    "MapReversed": false,
-   "Placement": "Placement [Pos=(0,0,0), Yaw-Pitch-Roll=(0,0,0)]",
+   "Placement": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ],
    "Radius": 1.0,
    "Rotations": 2.0,
    "SegmentLength": 1.0,
-   "ShapeMaterial": "<Material at 0x58bac6784580>",
+   "ShapeMaterial": "<Material at 0x5e06c1a0ff30>",
    "_ElementMapVersion": ""
   },
   "Part::Sweep": {
    "Frenet": true,
    "Label": "Sweep",
    "Linearize": false,
-   "Placement": "Placement [Pos=(0,0,0), Yaw-Pitch-Roll=(0,0,0)]",
+   "Placement": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ],
    "Sections": [],
-   "ShapeMaterial": "<Material at 0x58bac6784580>",
+   "ShapeMaterial": "<Material at 0x5e06c1a0ff30>",
    "Solid": true,
    "Spine": null,
    "Transition": "Right corner",
@@ -4886,9 +7459,20 @@
    "Join": "Arc",
    "Label": "Thickness",
    "Mode": "Skin",
-   "Placement": "Placement [Pos=(0,0,0), Yaw-Pitch-Roll=(0,0,0)]",
+   "Placement": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ],
    "SelfIntersection": false,
-   "ShapeMaterial": "<Material at 0x58bac6784580>",
+   "ShapeMaterial": "<Material at 0x5e06c1a0ff30>",
    "Value": 1.0,
    "_ElementMapVersion": ""
   },
@@ -4898,22 +7482,55 @@
    "Angle3": 360.0,
    "AttacherEngine": "Engine 3D",
    "AttacherType": "Attacher::AttachEngine3D",
-   "AttachmentOffset": "Placement [Pos=(0,0,0), Yaw-Pitch-Roll=(0,0,0)]",
+   "AttachmentOffset": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ],
    "AttachmentSupport": [],
    "Label": "Torus",
    "MapMode": "Deactivated",
    "MapPathParameter": 0.0,
    "MapReversed": false,
-   "Placement": "Placement [Pos=(0,0,0), Yaw-Pitch-Roll=(0,0,0)]",
+   "Placement": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ],
    "Radius1": 10.0,
    "Radius2": 2.0,
-   "ShapeMaterial": "<Material at 0x58bac6784580>",
+   "ShapeMaterial": "<Material at 0x5e06c1a0ff30>",
    "_ElementMapVersion": ""
   },
   "Part::Tube": {
    "AttacherEngine": "Engine 3D",
    "AttacherType": "Attacher::AttachEngine3D",
-   "AttachmentOffset": "Placement [Pos=(0,0,0), Yaw-Pitch-Roll=(0,0,0)]",
+   "AttachmentOffset": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ],
    "AttachmentSupport": [],
    "Height": 10.0,
    "InnerRadius": 2.0,
@@ -4922,23 +7539,56 @@
    "MapPathParameter": 0.0,
    "MapReversed": false,
    "OuterRadius": 5.0,
-   "Placement": "Placement [Pos=(0,0,0), Yaw-Pitch-Roll=(0,0,0)]",
-   "Proxy": "<BasicShapes.Shapes.TubeFeature object at 0x7dbd3e7830e0>",
-   "ShapeMaterial": "<Material at 0x58bac6784580>",
+   "Placement": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ],
+   "Proxy": "<BasicShapes.Shapes.TubeFeature object at 0x7d5acbbdfa10>",
+   "ShapeMaterial": "<Material at 0x5e06c1a0ff30>",
    "_ElementMapVersion": "",
    "_TypeId": "Part::FeaturePython"
   },
   "Part::Vertex": {
    "AttacherEngine": "Engine 3D",
    "AttacherType": "Attacher::AttachEngine3D",
-   "AttachmentOffset": "Placement [Pos=(0,0,0), Yaw-Pitch-Roll=(0,0,0)]",
+   "AttachmentOffset": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ],
    "AttachmentSupport": [],
    "Label": "Vertex",
    "MapMode": "Deactivated",
    "MapPathParameter": 0.0,
    "MapReversed": false,
-   "Placement": "Placement [Pos=(0,0,0), Yaw-Pitch-Roll=(0,0,0)]",
-   "ShapeMaterial": "<Material at 0x58bac6784580>",
+   "Placement": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ],
+   "ShapeMaterial": "<Material at 0x5e06c1a0ff30>",
    "X": 0.0,
    "Y": 0.0,
    "Z": 0.0,
@@ -4947,14 +7597,36 @@
   "Part::Wedge": {
    "AttacherEngine": "Engine 3D",
    "AttacherType": "Attacher::AttachEngine3D",
-   "AttachmentOffset": "Placement [Pos=(0,0,0), Yaw-Pitch-Roll=(0,0,0)]",
+   "AttachmentOffset": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ],
    "AttachmentSupport": [],
    "Label": "Wedge",
    "MapMode": "Deactivated",
    "MapPathParameter": 0.0,
    "MapReversed": false,
-   "Placement": "Placement [Pos=(0,0,0), Yaw-Pitch-Roll=(0,0,0)]",
-   "ShapeMaterial": "<Material at 0x58bac6784580>",
+   "Placement": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ],
+   "ShapeMaterial": "<Material at 0x5e06c1a0ff30>",
    "X2max": 8.0,
    "X2min": 2.0,
    "Xmax": 10.0,
@@ -4970,9 +7642,20 @@
   "Part::XOR": {
    "Label": "XOR",
    "Objects": [],
-   "Placement": "Placement [Pos=(0,0,0), Yaw-Pitch-Roll=(0,0,0)]",
-   "Proxy": "<BOPTools.SplitFeatures.FeatureXOR object at 0x7dbd391c02f0>",
-   "ShapeMaterial": "<Material at 0x58bac6784580>",
+   "Placement": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ],
+   "Proxy": "<BOPTools.SplitFeatures.FeatureXOR object at 0x7d5acba8cc20>",
+   "ShapeMaterial": "<Material at 0x5e06c1a0ff30>",
    "Tolerance": 0.0,
    "_ElementMapVersion": "",
    "_TypeId": "Part::FeaturePython"

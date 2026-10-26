@@ -15,7 +15,8 @@
 //        "start_angle": u1, "end_angle": u2}
 //     | {"type": "BSplineCurve", "poles": [[x, y], ...], "weights": [w, ...] (default 1),
 //        "knots": [k, ...], "mults": [m, ...], "degree": d, "periodic": false}
-//   each with "construction": true|false (default false). A conic's x_axis is Part's XAxis (the
+//   each with "construction": true|false (default false) and "layer": 0|1|2 (default 0; the
+//   Sketcher's Gui-only visual layer, carried through untouched). A conic's x_axis is Part's XAxis (the
 //   major axis, towards the first focus; a parabola's axis, towards its focus), and its angles are
 //   the trim parameters of the conic (FirstParameter, LastParameter), as Part.ArcOfEllipse(ellipse,
 //   u1, u2) takes them; the conics are built as Part's Python makes them (Part.Ellipse(center, a,
@@ -599,6 +600,9 @@ Sketcher::Geometry parseGeometry(const Json& j)
     }
     if (const Json* constr = j.get("construction")) {
         g.construction = constr->kind == Json::Bool && constr->b;
+    }
+    if (const Json* layer = j.get("layer")) {
+        g.layer = layer->isInt() ? layer->asInt() : 0;
     }
     return g;
 }
@@ -1503,6 +1507,10 @@ void writeGeometry(Writer& w, const Sketcher::Geometry& g)
     }
     w.key("construction");
     w.out += g.construction ? "true" : "false";
+    if (g.layer) {
+        w.key("layer");
+        w.integer(g.layer);
+    }
     w.out += '}';
 }
 

@@ -20,6 +20,7 @@ from OCP.BRepGProp import BRepGProp
 from OCP.GProp import GProp_GProps
 from OCP.TopAbs import (TopAbs_EDGE, TopAbs_FACE, TopAbs_SHELL, TopAbs_SOLID, TopAbs_VERTEX, TopAbs_WIRE)
 
+from cad_agent import attacher as A
 from cad_agent import feature as F
 from cad_agent import feature_part as Part
 
@@ -36,6 +37,10 @@ for _p in sorted(GOLDEN.glob("cases*.py")):          # cases.py, and each area's
     CASES.update(_cases.CASES)
     FREECAD.update(_fc["cases"])
 FC = json.loads((GOLDEN / "freecad.json").read_text())
+# AttachExtension's properties on a fresh object of each type (make.py attach): a Part::Primitive and a Tube have the
+# extension, the other types get Part::AttachExtensionPython as the Attachment editor adds it.
+_EXT = GOLDEN / "freecad_attach.json"
+EXT = json.loads(_EXT.read_text()).get("extension", {}) if _EXT.exists() else {}
 TYPES = {"TopAbs_COMPOUND": "Compound", "TopAbs_COMPSOLID": "CompSolid", "TopAbs_SOLID": "Solid",
          "TopAbs_SHELL": "Shell", "TopAbs_FACE": "Face", "TopAbs_WIRE": "Wire", "TopAbs_EDGE": "Edge",
          "TopAbs_VERTEX": "Vertex"}
@@ -140,6 +145,13 @@ def test_same_shape_as_freecad(built, case, obj):
     for k in ("type", "solids", "shells", "faces", "wires", "edges", "vertices"):
         if k not in known:
             assert got[k] == want[k], k
+    if "placement" in want:                     # where the object sits: its attachment's, else its placement=
+        pl = shapes["_ctx"].placements[obj]
+        pos, ypr = want["placement"]
+        assert pl.pos == pytest.approx(pos, abs=1e-6 * size), "placement"
+        got_m = [c for row in pl.rot.matrix() for c in row]
+        want_m = [c for row in A.Rotation.from_ypr(*ypr).matrix() for c in row]
+        assert got_m == pytest.approx(want_m, abs=1e-9), "placement rotation"
 
 
 CLASSES = sorted(Part.OBJECTS.items())
@@ -149,6 +161,7 @@ CLASSES = sorted(Part.OBJECTS.items())
 def test_defaults_are_freecads(kind, cls):
     fc = FC["defaults"][cls.TYPE_ID]
     assert "error" not in fc, fc
+    ext = EXT.get(cls.TYPE_ID, {})
     for key, d in cls.DEFAULTS.items():
         if key in ("label", "visibility"):          # the Label, and the ViewObject's Visibility
             continue
@@ -156,6 +169,22 @@ def test_defaults_are_freecads(kind, cls):
             assert "Placement" in fc
             continue
         prop = cls.prop_name(key)
+        if key in cls.ATTACH:                       # AttachExtension's properties, as make.py attach recorded them
+            assert "error" not in ext, ext
+            assert prop in ext, f"{prop} is not a property of FreeCAD's {cls.TYPE_ID} with AttachExtension"
+            v = ext[prop]
+            if key == "attachment_offset":          # ours None is FreeCAD's identity Placement
+                ours = list(A.Placement.from_offset(d).pos) + list(A.Placement.from_offset(d).rot.ypr())
+                assert ours == pytest.approx(v[0] + v[1], abs=1e-9), (prop, ours, v)
+                continue
+            ours = json.loads(json.dumps(d))
+            if key == "attachment_support":
+                assert v in (None, [], "None") or isinstance(v, str), (prop, v)
+            elif isinstance(v, (int, float, list)) and not isinstance(v, bool):
+                assert ours == pytest.approx(v), (prop, ours, v)
+            else:
+                assert ours == v, (prop, ours, v)
+            continue
         assert prop in fc, f"{prop} is not a property of FreeCAD's {cls.TYPE_ID}"
         v = fc[prop]
         if key in cls.REFS:
@@ -168,3 +197,11 @@ def test_defaults_are_freecads(kind, cls):
             assert ours == pytest.approx(v), (prop, ours, v)
         else:
             assert ours == v, (prop, ours, v)
+
+
+def test_a_reverse_without_a_source_fails_as_its_execute_does():
+    """FreeCAD's recompute never runs Reverse::execute on a fresh, source-less Part::Reverse: it stays Valid with a null
+    Shape and no message. A part file is a document to build, so the object fails with the message execute returns
+    (Reverse::execute: "No part object linked."); no golden case can record FreeCAD's side of it."""
+    built = Part.evaluate([Part.Reverse("Reverse")], keep_going=True)
+    assert "No part object linked." in built["_errors"]["Reverse"]

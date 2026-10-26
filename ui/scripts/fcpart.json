@@ -15669,6 +15669,1036 @@
    }
   }
  },
+ "cmd_Part_ReverseShape": {
+  "task": [
+   []
+  ],
+  "buttons": [],
+  "dialogs": [],
+  "made": [
+   {
+    "name": "BoxRv_rev",
+    "label": "BoxRv (Rev)",
+    "type": "Part::Reverse",
+    "proxy": null,
+    "visible": true
+   }
+  ],
+  "hidden": [],
+  "undo": [
+   "Reverse"
+  ],
+  "props": {
+   "BoxRv_rev": {
+    "Label": {
+     "value": "BoxRv (Rev)",
+     "group": "Base",
+     "type": "App::PropertyString",
+     "mode": []
+    },
+    "Placement": {
+     "value": "Placement [Pos=(0,0,0), Yaw-Pitch-Roll=(0,0,0)]",
+     "group": "",
+     "type": "App::PropertyPlacement",
+     "mode": []
+    },
+    "ShapeMaterial": {
+     "value": "<Material>",
+     "group": "",
+     "type": "Materials::PropertyMaterial",
+     "mode": []
+    },
+    "Source": {
+     "value": "<Part::Box>",
+     "group": "Reverse",
+     "type": "App::PropertyLink",
+     "mode": []
+    },
+    "Visibility": {
+     "value": "True",
+     "group": "",
+     "type": "App::PropertyBool",
+     "mode": [
+      "Hidden"
+     ]
+    },
+    "_ElementMapVersion": {
+     "value": "15.70200.5",
+     "group": "Base",
+     "type": "App::PropertyString",
+     "mode": [
+      "Hidden"
+     ]
+    }
+   }
+  }
+ },
+ "cmd_Part_Scale": {
+  "task": [
+   [
+    {
+     "class": "QPushButton",
+     "name": "",
+     "y": 9,
+     "x": 81,
+     "enabled": true,
+     "text": "OK"
+    },
+    {
+     "class": "QPushButton",
+     "name": "",
+     "y": 9,
+     "x": 193,
+     "enabled": true,
+     "text": "Close"
+    },
+    {
+     "class": "QPushButton",
+     "name": "",
+     "y": 9,
+     "x": 305,
+     "enabled": true,
+     "text": "Apply"
+    },
+    {
+     "class": "QSint::TaskHeader",
+     "name": "",
+     "y": 50,
+     "x": 4,
+     "enabled": true,
+     "text": ""
+    },
+    {
+     "class": "QSint::ActionLabel",
+     "name": "",
+     "y": 53,
+     "x": 9,
+     "enabled": true,
+     "text": "Scale"
+    },
+    {
+     "class": "QRadioButton",
+     "name": "rbUniform",
+     "y": 85,
+     "x": 18,
+     "enabled": true,
+     "text": "Uniform scaling",
+     "checked": true
+    },
+    {
+     "class": "QLabel",
+     "name": "label",
+     "y": 107,
+     "x": 18,
+     "enabled": true,
+     "text": "Factor"
+    },
+    {
+     "class": "QDoubleSpinBox",
+     "name": "dsbUniformScale",
+     "y": 107,
+     "x": 143,
+     "enabled": true,
+     "text": "1.00"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 108,
+     "x": 148,
+     "enabled": true,
+     "text": "1.00"
+    },
+    {
+     "class": "QRadioButton",
+     "name": "rbNonUniform",
+     "y": 134,
+     "x": 18,
+     "enabled": true,
+     "text": "Non-uniform scaling",
+     "checked": false
+    },
+    {
+     "class": "QLabel",
+     "name": "label_3",
+     "y": 156,
+     "x": 18,
+     "enabled": true,
+     "text": "X-factor"
+    },
+    {
+     "class": "QDoubleSpinBox",
+     "name": "dsbXScale",
+     "y": 156,
+     "x": 143,
+     "enabled": false,
+     "text": "1.00"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 157,
+     "x": 148,
+     "enabled": false,
+     "text": "1.00"
+    },
+    {
+     "class": "QLabel",
+     "name": "label_4",
+     "y": 183,
+     "x": 18,
+     "enabled": true,
+     "text": "Y-factor"
+    },
+    {
+     "class": "QDoubleSpinBox",
+     "name": "dsbYScale",
+     "y": 183,
+     "x": 143,
+     "enabled": false,
+     "text": "1.00"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 184,
+     "x": 148,
+     "enabled": false,
+     "text": "1.00"
+    },
+    {
+     "class": "QLabel",
+     "name": "label_7",
+     "y": 210,
+     "x": 18,
+     "enabled": true,
+     "text": "Z-factor"
+    },
+    {
+     "class": "QDoubleSpinBox",
+     "name": "dsbZScale",
+     "y": 210,
+     "x": 143,
+     "enabled": false,
+     "text": "1.00"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 211,
+     "x": 148,
+     "enabled": false,
+     "text": "1.00"
+    },
+    {
+     "class": "QTreeWidget",
+     "name": "treeWidget",
+     "y": 265,
+     "x": 18,
+     "enabled": true,
+     "items": [
+      [
+       "Cube"
+      ],
+      [
+       "Cylinder"
+      ],
+      [
+       "Sphere"
+      ],
+      [
+       "Cone"
+      ],
+      [
+       "Torus"
+      ],
+      [
+       "Tube"
+      ],
+      [
+       "Plane"
+      ],
+      [
+       "Box"
+      ],
+      [
+       "Cylinder001"
+      ],
+      [
+       "Cone001"
+      ],
+      [
+       "Sphere001"
+      ],
+      [
+       "Ellipsoid"
+      ],
+      [
+       "Torus001"
+      ],
+      [
+       "Prism"
+      ],
+      [
+       "Wedge"
+      ],
+      [
+       "Helix"
+      ],
+      [
+       "Spiral"
+      ],
+      [
+       "Circle"
+      ],
+      [
+       "Ellipse"
+      ],
+      [
+       "Line"
+      ],
+      [
+       "Regular polygon"
+      ],
+      [
+       "BoxA"
+      ],
+      [
+       "CylA"
+      ],
+      [
+       "Cut"
+      ],
+      [
+       "BoxB"
+      ],
+      [
+       "CylB"
+      ],
+      [
+       "Fusion"
+      ],
+      [
+       "BoxC"
+      ],
+      [
+       "CylC"
+      ],
+      [
+       "Common"
+      ],
+      [
+       "BoxD"
+      ],
+      [
+       "CylD"
+      ],
+      [
+       "Section"
+      ],
+      [
+       "BoxE"
+      ],
+      [
+       "CylE"
+      ],
+      [
+       "Compound"
+      ],
+      [
+       "Fusion001"
+      ],
+      [
+       "Sketch"
+      ],
+      [
+       "Extrude"
+      ],
+      [
+       "Sketch001"
+      ],
+      [
+       "Revolve"
+      ],
+      [
+       "BoxM"
+      ],
+      [
+       "BoxM (Mirror #1)"
+      ],
+      [
+       "BoxF"
+      ],
+      [
+       "SketchL1"
+      ],
+      [
+       "SketchL2"
+      ],
+      [
+       "BoxO"
+      ],
+      [
+       "Offset"
+      ],
+      [
+       "SketchO"
+      ],
+      [
+       "Offset2D"
+      ],
+      [
+       "BoxT"
+      ],
+      [
+       "Thickness"
+      ],
+      [
+       "BoxRv"
+      ],
+      [
+       "BoxRv (Rev)"
+      ],
+      [
+       "BoxSc"
+      ]
+     ],
+     "headers": [
+      "Shape"
+     ]
+    }
+   ]
+  ],
+  "buttons": [
+   "OK",
+   "Close",
+   "Apply"
+  ],
+  "ok": true,
+  "dialogs": [],
+  "made": [
+   {
+    "name": "Scale",
+    "label": "Scale",
+    "type": "Part::Scale",
+    "proxy": null,
+    "visible": true
+   }
+  ],
+  "hidden": [
+   "BoxSc"
+  ],
+  "undo": [
+   "Scale"
+  ],
+  "props": {
+   "Scale": {
+    "Base": {
+     "value": "<Part::Box>",
+     "group": "Scale",
+     "type": "App::PropertyLink",
+     "mode": []
+    },
+    "Label": {
+     "value": "Scale",
+     "group": "Base",
+     "type": "App::PropertyString",
+     "mode": []
+    },
+    "Placement": {
+     "value": "Placement [Pos=(0,0,0), Yaw-Pitch-Roll=(0,0,0)]",
+     "group": "",
+     "type": "App::PropertyPlacement",
+     "mode": []
+    },
+    "ShapeMaterial": {
+     "value": "<Material>",
+     "group": "",
+     "type": "Materials::PropertyMaterial",
+     "mode": []
+    },
+    "Uniform": {
+     "value": "True",
+     "group": "Scale",
+     "type": "App::PropertyBool",
+     "mode": []
+    },
+    "UniformScale": {
+     "value": "1.0",
+     "group": "Scale",
+     "type": "App::PropertyFloat",
+     "mode": []
+    },
+    "Visibility": {
+     "value": "True",
+     "group": "",
+     "type": "App::PropertyBool",
+     "mode": [
+      "Hidden"
+     ]
+    },
+    "XScale": {
+     "value": "1.0",
+     "group": "Scale",
+     "type": "App::PropertyFloat",
+     "mode": []
+    },
+    "YScale": {
+     "value": "1.0",
+     "group": "Scale",
+     "type": "App::PropertyFloat",
+     "mode": []
+    },
+    "ZScale": {
+     "value": "1.0",
+     "group": "Scale",
+     "type": "App::PropertyFloat",
+     "mode": []
+    },
+    "_ElementMapVersion": {
+     "value": "15.70200.5",
+     "group": "Base",
+     "type": "App::PropertyString",
+     "mode": [
+      "Hidden"
+     ]
+    }
+   }
+  }
+ },
+ "cmd_Part_Scale_none": {
+  "task": [
+   [
+    {
+     "class": "QPushButton",
+     "name": "",
+     "y": 9,
+     "x": 81,
+     "enabled": true,
+     "text": "OK"
+    },
+    {
+     "class": "QPushButton",
+     "name": "",
+     "y": 9,
+     "x": 193,
+     "enabled": true,
+     "text": "Close"
+    },
+    {
+     "class": "QPushButton",
+     "name": "",
+     "y": 9,
+     "x": 305,
+     "enabled": true,
+     "text": "Apply"
+    },
+    {
+     "class": "QSint::TaskHeader",
+     "name": "",
+     "y": 50,
+     "x": 4,
+     "enabled": true,
+     "text": ""
+    },
+    {
+     "class": "QSint::ActionLabel",
+     "name": "",
+     "y": 53,
+     "x": 9,
+     "enabled": true,
+     "text": "Scale"
+    },
+    {
+     "class": "QRadioButton",
+     "name": "rbUniform",
+     "y": 85,
+     "x": 18,
+     "enabled": true,
+     "text": "Uniform scaling",
+     "checked": true
+    },
+    {
+     "class": "QLabel",
+     "name": "label",
+     "y": 107,
+     "x": 18,
+     "enabled": true,
+     "text": "Factor"
+    },
+    {
+     "class": "QDoubleSpinBox",
+     "name": "dsbUniformScale",
+     "y": 107,
+     "x": 143,
+     "enabled": true,
+     "text": "1.00"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 108,
+     "x": 148,
+     "enabled": true,
+     "text": "1.00"
+    },
+    {
+     "class": "QRadioButton",
+     "name": "rbNonUniform",
+     "y": 134,
+     "x": 18,
+     "enabled": true,
+     "text": "Non-uniform scaling",
+     "checked": false
+    },
+    {
+     "class": "QLabel",
+     "name": "label_3",
+     "y": 156,
+     "x": 18,
+     "enabled": true,
+     "text": "X-factor"
+    },
+    {
+     "class": "QDoubleSpinBox",
+     "name": "dsbXScale",
+     "y": 156,
+     "x": 143,
+     "enabled": false,
+     "text": "1.00"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 157,
+     "x": 148,
+     "enabled": false,
+     "text": "1.00"
+    },
+    {
+     "class": "QLabel",
+     "name": "label_4",
+     "y": 183,
+     "x": 18,
+     "enabled": true,
+     "text": "Y-factor"
+    },
+    {
+     "class": "QDoubleSpinBox",
+     "name": "dsbYScale",
+     "y": 183,
+     "x": 143,
+     "enabled": false,
+     "text": "1.00"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 184,
+     "x": 148,
+     "enabled": false,
+     "text": "1.00"
+    },
+    {
+     "class": "QLabel",
+     "name": "label_7",
+     "y": 210,
+     "x": 18,
+     "enabled": true,
+     "text": "Z-factor"
+    },
+    {
+     "class": "QDoubleSpinBox",
+     "name": "dsbZScale",
+     "y": 210,
+     "x": 143,
+     "enabled": false,
+     "text": "1.00"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 211,
+     "x": 148,
+     "enabled": false,
+     "text": "1.00"
+    },
+    {
+     "class": "QTreeWidget",
+     "name": "treeWidget",
+     "y": 265,
+     "x": 18,
+     "enabled": true,
+     "items": [
+      [
+       "Cube"
+      ],
+      [
+       "Cylinder"
+      ],
+      [
+       "Sphere"
+      ],
+      [
+       "Cone"
+      ],
+      [
+       "Torus"
+      ],
+      [
+       "Tube"
+      ],
+      [
+       "Plane"
+      ],
+      [
+       "Box"
+      ],
+      [
+       "Cylinder001"
+      ],
+      [
+       "Cone001"
+      ],
+      [
+       "Sphere001"
+      ],
+      [
+       "Ellipsoid"
+      ],
+      [
+       "Torus001"
+      ],
+      [
+       "Prism"
+      ],
+      [
+       "Wedge"
+      ],
+      [
+       "Helix"
+      ],
+      [
+       "Spiral"
+      ],
+      [
+       "Circle"
+      ],
+      [
+       "Ellipse"
+      ],
+      [
+       "Line"
+      ],
+      [
+       "Regular polygon"
+      ],
+      [
+       "BoxA"
+      ],
+      [
+       "CylA"
+      ],
+      [
+       "Cut"
+      ],
+      [
+       "BoxB"
+      ],
+      [
+       "CylB"
+      ],
+      [
+       "Fusion"
+      ],
+      [
+       "BoxC"
+      ],
+      [
+       "CylC"
+      ],
+      [
+       "Common"
+      ],
+      [
+       "BoxD"
+      ],
+      [
+       "CylD"
+      ],
+      [
+       "Section"
+      ],
+      [
+       "BoxE"
+      ],
+      [
+       "CylE"
+      ],
+      [
+       "Compound"
+      ],
+      [
+       "Fusion001"
+      ],
+      [
+       "Sketch"
+      ],
+      [
+       "Extrude"
+      ],
+      [
+       "Sketch001"
+      ],
+      [
+       "Revolve"
+      ],
+      [
+       "BoxM"
+      ],
+      [
+       "BoxM (Mirror #1)"
+      ],
+      [
+       "BoxF"
+      ],
+      [
+       "SketchL1"
+      ],
+      [
+       "SketchL2"
+      ],
+      [
+       "BoxO"
+      ],
+      [
+       "Offset"
+      ],
+      [
+       "SketchO"
+      ],
+      [
+       "Offset2D"
+      ],
+      [
+       "BoxT"
+      ],
+      [
+       "Thickness"
+      ],
+      [
+       "BoxRv"
+      ],
+      [
+       "BoxRv (Rev)"
+      ],
+      [
+       "BoxSc"
+      ],
+      [
+       "Scale"
+      ]
+     ],
+     "headers": [
+      "Shape"
+     ]
+    }
+   ]
+  ],
+  "buttons": [
+   "OK",
+   "Close",
+   "Apply"
+  ],
+  "ok": true,
+  "dialogs": [
+   {
+    "title": "Scale",
+    "text": "No scalable shapes selected",
+    "buttons": [
+     "OK"
+    ]
+   }
+  ],
+  "made": [],
+  "hidden": [],
+  "undo": [
+   "Scale"
+  ],
+  "props": {}
+ },
+ "cmd_Part_MakeFace": {
+  "task": [
+   []
+  ],
+  "buttons": [],
+  "dialogs": [],
+  "made": [
+   {
+    "name": "Face",
+    "label": "Face",
+    "type": "Part::Face",
+    "proxy": null,
+    "visible": true
+   }
+  ],
+  "hidden": [],
+  "undo": [
+   "Make face"
+  ],
+  "props": {
+   "Face": {
+    "FaceMakerClass": {
+     "value": "Part::FaceMakerUnified",
+     "group": "",
+     "type": "App::PropertyString",
+     "mode": []
+    },
+    "Label": {
+     "value": "Face",
+     "group": "Base",
+     "type": "App::PropertyString",
+     "mode": []
+    },
+    "Placement": {
+     "value": "Placement [Pos=(0,0,0), Yaw-Pitch-Roll=(0,0,0)]",
+     "group": "",
+     "type": "App::PropertyPlacement",
+     "mode": []
+    },
+    "ShapeMaterial": {
+     "value": "<Material>",
+     "group": "",
+     "type": "Materials::PropertyMaterial",
+     "mode": []
+    },
+    "Sources": {
+     "value": "[<Sketcher::SketchObject>, <Sketcher::SketchObject>]",
+     "group": "",
+     "type": "App::PropertyLinkList",
+     "mode": []
+    },
+    "Visibility": {
+     "value": "True",
+     "group": "",
+     "type": "App::PropertyBool",
+     "mode": [
+      "Hidden"
+     ]
+    },
+    "_ElementMapVersion": {
+     "value": "15.70200.5",
+     "group": "Base",
+     "type": "App::PropertyString",
+     "mode": [
+      "Hidden"
+     ]
+    }
+   }
+  }
+ },
+ "cmd_Part_RuledSurface": {
+  "task": [
+   []
+  ],
+  "buttons": [],
+  "dialogs": [],
+  "made": [
+   {
+    "name": "Ruled_Surface",
+    "label": "Ruled_Surface",
+    "type": "Part::RuledSurface",
+    "proxy": null,
+    "visible": true
+   }
+  ],
+  "hidden": [],
+  "undo": [
+   "Create ruled surface"
+  ],
+  "props": {
+   "Ruled_Surface": {
+    "Curve1": {
+     "value": "(<Part::Line>, [''])",
+     "group": "Ruled Surface",
+     "type": "App::PropertyLinkSub",
+     "mode": []
+    },
+    "Curve2": {
+     "value": "(<Part::Line>, [''])",
+     "group": "Ruled Surface",
+     "type": "App::PropertyLinkSub",
+     "mode": []
+    },
+    "Label": {
+     "value": "Ruled_Surface",
+     "group": "Base",
+     "type": "App::PropertyString",
+     "mode": []
+    },
+    "Orientation": {
+     "value": "Automatic",
+     "group": "Ruled Surface",
+     "type": "App::PropertyEnumeration",
+     "mode": [],
+     "enums": [
+      "Automatic",
+      "Forward",
+      "Reversed"
+     ]
+    },
+    "Placement": {
+     "value": "Placement [Pos=(0,0,0), Yaw-Pitch-Roll=(0,0,0)]",
+     "group": "",
+     "type": "App::PropertyPlacement",
+     "mode": []
+    },
+    "ShapeMaterial": {
+     "value": "<Material>",
+     "group": "",
+     "type": "Materials::PropertyMaterial",
+     "mode": []
+    },
+    "Visibility": {
+     "value": "True",
+     "group": "",
+     "type": "App::PropertyBool",
+     "mode": [
+      "Hidden"
+     ]
+    },
+    "_ElementMapVersion": {
+     "value": "15.70200.5",
+     "group": "Base",
+     "type": "App::PropertyString",
+     "mode": [
+      "Hidden"
+     ]
+    }
+   }
+  }
+ },
+ "cmd_Part_RuledSurface_none": {
+  "task": [
+   []
+  ],
+  "buttons": [],
+  "dialogs": [
+   {
+    "title": "Wrong Selection",
+    "text": "Select either 2 edges or 2 wires.",
+    "buttons": [
+     "OK"
+    ]
+   }
+  ],
+  "made": [],
+  "hidden": [],
+  "undo": [
+   "Create ruled surface"
+  ],
+  "props": {}
+ },
  "cmd_Part_BooleanFragments": {
   "task": [
    []
@@ -16042,7 +17072,7 @@
   "props": {
    "GrExplode_Compound": {
     "Group": {
-     "value": "[<Part::FeaturePython (<CompoundTools.CompoundFilter._CompoundFilter object at 0x74e4580a6510>)>\n, <Part::FeaturePython (<CompoundTools.CompoundFilter._CompoundFilter object at 0x74e45bf23c50>)>\n]",
+     "value": "[<Part::FeaturePython (<CompoundTools.CompoundFilter._CompoundFilter object at 0x73d81eb7e3c0>)>\n, <Part::FeaturePython (<CompoundTools.CompoundFilter._CompoundFilter object at 0x73d820133c50>)>\n]",
      "group": "Base",
      "type": "App::PropertyLinkList",
      "mode": []
@@ -16638,6 +17668,76 @@
    "visible": true
   },
   {
+   "name": "BoxRv",
+   "label": "BoxRv",
+   "type": "Part::Box",
+   "proxy": null,
+   "visible": true
+  },
+  {
+   "name": "BoxRv_rev",
+   "label": "BoxRv (Rev)",
+   "type": "Part::Reverse",
+   "proxy": null,
+   "visible": true
+  },
+  {
+   "name": "BoxSc",
+   "label": "BoxSc",
+   "type": "Part::Box",
+   "proxy": null,
+   "visible": false
+  },
+  {
+   "name": "Scale",
+   "label": "Scale",
+   "type": "Part::Scale",
+   "proxy": null,
+   "visible": true
+  },
+  {
+   "name": "SketchFa",
+   "label": "SketchFa",
+   "type": "Sketcher::SketchObject",
+   "proxy": null,
+   "visible": true
+  },
+  {
+   "name": "SketchFb",
+   "label": "SketchFb",
+   "type": "Sketcher::SketchObject",
+   "proxy": null,
+   "visible": true
+  },
+  {
+   "name": "Face",
+   "label": "Face",
+   "type": "Part::Face",
+   "proxy": null,
+   "visible": true
+  },
+  {
+   "name": "LineRa",
+   "label": "LineRa",
+   "type": "Part::Line",
+   "proxy": null,
+   "visible": true
+  },
+  {
+   "name": "LineRb",
+   "label": "LineRb",
+   "type": "Part::Line",
+   "proxy": null,
+   "visible": true
+  },
+  {
+   "name": "Ruled_Surface",
+   "label": "Ruled_Surface",
+   "type": "Part::RuledSurface",
+   "proxy": null,
+   "visible": true
+  },
+  {
    "name": "BoxS",
    "label": "BoxS",
    "type": "Part::Box",
@@ -16751,7 +17851,7 @@
    "italic": false,
    "fg": "#000000",
    "icon": "part_icon0.png",
-   "children": 42
+   "children": 47
   },
   {
    "text": "Cube",
@@ -17213,12 +18313,102 @@
    "children": 0
   },
   {
-   "text": "BooleanFragments",
+   "text": "BoxRv",
    "depth": 1,
    "bold": false,
    "italic": false,
    "fg": "#000000",
    "icon": "part_icon52.png",
+   "children": 0
+  },
+  {
+   "text": "BoxRv (Rev)",
+   "depth": 1,
+   "bold": false,
+   "italic": false,
+   "fg": "#000000",
+   "icon": "part_icon53.png",
+   "children": 0
+  },
+  {
+   "text": "Scale",
+   "depth": 1,
+   "bold": false,
+   "italic": false,
+   "fg": "#000000",
+   "icon": "part_icon54.png",
+   "children": 1
+  },
+  {
+   "text": "BoxSc",
+   "depth": 2,
+   "bold": false,
+   "italic": false,
+   "fg": "#6f6f6f",
+   "icon": "part_icon55.png",
+   "children": 0
+  },
+  {
+   "text": "Face",
+   "depth": 1,
+   "bold": false,
+   "italic": false,
+   "fg": "#000000",
+   "icon": "part_icon56.png",
+   "children": 2
+  },
+  {
+   "text": "SketchFa",
+   "depth": 2,
+   "bold": false,
+   "italic": false,
+   "fg": "#000000",
+   "icon": "part_icon57.png",
+   "children": 0
+  },
+  {
+   "text": "SketchFb",
+   "depth": 2,
+   "bold": false,
+   "italic": false,
+   "fg": "#000000",
+   "icon": "part_icon58.png",
+   "children": 0
+  },
+  {
+   "text": "Ruled_Surface",
+   "depth": 1,
+   "bold": false,
+   "italic": false,
+   "fg": "#000000",
+   "icon": "part_icon59.png",
+   "children": 2
+  },
+  {
+   "text": "LineRb",
+   "depth": 2,
+   "bold": false,
+   "italic": false,
+   "fg": "#000000",
+   "icon": "part_icon60.png",
+   "children": 0
+  },
+  {
+   "text": "LineRa",
+   "depth": 2,
+   "bold": false,
+   "italic": false,
+   "fg": "#000000",
+   "icon": "part_icon61.png",
+   "children": 0
+  },
+  {
+   "text": "BooleanFragments",
+   "depth": 1,
+   "bold": false,
+   "italic": false,
+   "fg": "#000000",
+   "icon": "part_icon62.png",
    "children": 2
   },
   {
@@ -17227,7 +18417,7 @@
    "bold": false,
    "italic": false,
    "fg": "#6f6f6f",
-   "icon": "part_icon53.png",
+   "icon": "part_icon63.png",
    "children": 0
   },
   {
@@ -17236,7 +18426,7 @@
    "bold": false,
    "italic": false,
    "fg": "#6f6f6f",
-   "icon": "part_icon54.png",
+   "icon": "part_icon64.png",
    "children": 0
   },
   {
@@ -17245,7 +18435,7 @@
    "bold": false,
    "italic": false,
    "fg": "#000000",
-   "icon": "part_icon55.png",
+   "icon": "part_icon65.png",
    "children": 2
   },
   {
@@ -17254,7 +18444,7 @@
    "bold": false,
    "italic": false,
    "fg": "#6f6f6f",
-   "icon": "part_icon56.png",
+   "icon": "part_icon66.png",
    "children": 0
   },
   {
@@ -17263,7 +18453,7 @@
    "bold": false,
    "italic": false,
    "fg": "#6f6f6f",
-   "icon": "part_icon57.png",
+   "icon": "part_icon67.png",
    "children": 0
   },
   {
@@ -17272,7 +18462,7 @@
    "bold": false,
    "italic": false,
    "fg": "#000000",
-   "icon": "part_icon58.png",
+   "icon": "part_icon68.png",
    "children": 2
   },
   {
@@ -17281,7 +18471,7 @@
    "bold": false,
    "italic": false,
    "fg": "#6f6f6f",
-   "icon": "part_icon59.png",
+   "icon": "part_icon69.png",
    "children": 0
   },
   {
@@ -17290,7 +18480,7 @@
    "bold": false,
    "italic": false,
    "fg": "#6f6f6f",
-   "icon": "part_icon60.png",
+   "icon": "part_icon70.png",
    "children": 0
   },
   {
@@ -17299,7 +18489,7 @@
    "bold": false,
    "italic": false,
    "fg": "#000000",
-   "icon": "part_icon61.png",
+   "icon": "part_icon71.png",
    "children": 2
   },
   {
@@ -17308,7 +18498,7 @@
    "bold": false,
    "italic": false,
    "fg": "#6f6f6f",
-   "icon": "part_icon62.png",
+   "icon": "part_icon72.png",
    "children": 0
   },
   {
@@ -17317,7 +18507,7 @@
    "bold": false,
    "italic": false,
    "fg": "#6f6f6f",
-   "icon": "part_icon63.png",
+   "icon": "part_icon73.png",
    "children": 0
   },
   {
@@ -17326,7 +18516,7 @@
    "bold": false,
    "italic": false,
    "fg": "#000000",
-   "icon": "part_icon64.png",
+   "icon": "part_icon74.png",
    "children": 2
   },
   {
@@ -17335,7 +18525,7 @@
    "bold": false,
    "italic": false,
    "fg": "#000000",
-   "icon": "part_icon65.png",
+   "icon": "part_icon75.png",
    "children": 1
   },
   {
@@ -17344,7 +18534,7 @@
    "bold": false,
    "italic": false,
    "fg": "#6f6f6f",
-   "icon": "part_icon66.png",
+   "icon": "part_icon76.png",
    "children": 2
   },
   {
@@ -17353,7 +18543,7 @@
    "bold": false,
    "italic": false,
    "fg": "#6f6f6f",
-   "icon": "part_icon67.png",
+   "icon": "part_icon77.png",
    "children": 0
   },
   {
@@ -17362,7 +18552,7 @@
    "bold": false,
    "italic": false,
    "fg": "#6f6f6f",
-   "icon": "part_icon68.png",
+   "icon": "part_icon78.png",
    "children": 0
   },
   {
@@ -17371,7 +18561,7 @@
    "bold": false,
    "italic": false,
    "fg": "#000000",
-   "icon": "part_icon69.png",
+   "icon": "part_icon79.png",
    "children": 1
   },
   {
@@ -17380,7 +18570,7 @@
    "bold": false,
    "italic": false,
    "fg": "#6f6f6f",
-   "icon": "part_icon70.png",
+   "icon": "part_icon80.png",
    "children": 2
   },
   {
@@ -17389,7 +18579,7 @@
    "bold": false,
    "italic": false,
    "fg": "#6f6f6f",
-   "icon": "part_icon71.png",
+   "icon": "part_icon81.png",
    "children": 0
   },
   {
@@ -17398,7 +18588,7 @@
    "bold": false,
    "italic": false,
    "fg": "#6f6f6f",
-   "icon": "part_icon72.png",
+   "icon": "part_icon82.png",
    "children": 0
   }
  ],
@@ -18149,6 +19339,20 @@
     "value": null,
     "group": false,
     "editable": false
+   },
+   {
+    "depth": 0,
+    "name": "Vertex 1 - Start",
+    "value": null,
+    "group": false,
+    "editable": false
+   },
+   {
+    "depth": 0,
+    "name": "Vertex 2 - Finish",
+    "value": null,
+    "group": false,
+    "editable": false
    }
   ]
  ],
@@ -18300,6 +19504,20 @@
     "value": null,
     "group": false,
     "editable": false
+   },
+   {
+    "depth": 0,
+    "name": "Vertex 1 - Start",
+    "value": null,
+    "group": false,
+    "editable": false
+   },
+   {
+    "depth": 0,
+    "name": "Vertex 2 - Finish",
+    "value": null,
+    "group": false,
+    "editable": false
    }
   ]
  ],
@@ -18416,6 +19634,20 @@
     "value": null,
     "group": false,
     "editable": false
+   },
+   {
+    "depth": 0,
+    "name": "Vertex 1 - Start",
+    "value": null,
+    "group": false,
+    "editable": false
+   },
+   {
+    "depth": 0,
+    "name": "Vertex 2 - Finish",
+    "value": null,
+    "group": false,
+    "editable": false
    }
   ]
  ],
@@ -18522,6 +19754,20 @@
    {
     "depth": 0,
     "name": "Sketch",
+    "value": null,
+    "group": false,
+    "editable": false
+   },
+   {
+    "depth": 0,
+    "name": "Vertex 1 - Start",
+    "value": null,
+    "group": false,
+    "editable": false
+   },
+   {
+    "depth": 0,
+    "name": "Vertex 2 - Finish",
     "value": null,
     "group": false,
     "editable": false
@@ -18732,6 +19978,20 @@
     "value": null,
     "group": false,
     "editable": false
+   },
+   {
+    "depth": 0,
+    "name": "Vertex 1 - Start",
+    "value": null,
+    "group": false,
+    "editable": false
+   },
+   {
+    "depth": 0,
+    "name": "Vertex 2 - Finish",
+    "value": null,
+    "group": false,
+    "editable": false
    }
   ]
  ],
@@ -18939,6 +20199,20 @@
     "value": null,
     "group": false,
     "editable": false
+   },
+   {
+    "depth": 0,
+    "name": "Vertex 1 - Start",
+    "value": null,
+    "group": false,
+    "editable": false
+   },
+   {
+    "depth": 0,
+    "name": "Vertex 2 - Finish",
+    "value": null,
+    "group": false,
+    "editable": false
    }
   ]
  ],
@@ -19083,6 +20357,20 @@
     "value": null,
     "group": false,
     "editable": false
+   },
+   {
+    "depth": 0,
+    "name": "Vertex 1 - Start",
+    "value": null,
+    "group": false,
+    "editable": false
+   },
+   {
+    "depth": 0,
+    "name": "Vertex 2 - Finish",
+    "value": null,
+    "group": false,
+    "editable": false
    }
   ]
  ],
@@ -19105,6 +20393,10 @@
   "Create Connect",
   "Create Boolean XOR",
   "Create Boolean Fragments",
+  "Create ruled surface",
+  "Make face",
+  "Scale",
+  "Reverse",
   "Project on surface",
   "Make Thickness",
   "Make 2D Offset",
@@ -19115,11 +20407,7 @@
   "Refine shape",
   "Compound",
   "Section",
-  "Common",
-  "Fusion",
-  "Part Cut",
-  "Create Regular polygon",
-  "Create Line"
+  "Common"
  ],
  "types": {
   "Part::Fillet": {

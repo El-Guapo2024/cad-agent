@@ -13328,6 +13328,519 @@
     ]
    }
   },
+  "layer-menu": {
+   "geometry": [
+    {
+     "type": "LineSegment",
+     "start": [
+      0.0,
+      0.0
+     ],
+     "end": [
+      30.0,
+      0.0
+     ],
+     "layer": 2
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      30.0,
+      0.0
+     ],
+     "end": [
+      30.0,
+      20.0
+     ],
+     "layer": 1
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      30.0,
+      20.0
+     ],
+     "end": [
+      0.0,
+      20.0
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      0.0,
+      20.0
+     ],
+     "end": [
+      0.0,
+      0.0
+     ]
+    },
+    {
+     "type": "Point",
+     "at": [
+      40.0,
+      10.0
+     ]
+    },
+    {
+     "type": "Circle",
+     "center": [
+      45.0,
+      30.0
+     ],
+     "radius": 5.0
+    },
+    {
+     "type": "ArcOfCircle",
+     "center": [
+      10.0,
+      35.0
+     ],
+     "radius": 4.0,
+     "start_angle": 0.0,
+     "end_angle": 2.0
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      35.0,
+      -5.0
+     ],
+     "end": [
+      50.0,
+      -5.0
+     ],
+     "construction": true
+    }
+   ],
+   "constraints": [],
+   "message": {
+    "status": "Under-constrained: ",
+    "link": "30 Degrees of Freedom"
+   },
+   "panel": {
+    "constraints": [],
+    "elements": [
+     {
+      "id": 0,
+      "hidden": false,
+      "selected": false,
+      "layer": 2
+     },
+     {
+      "id": 1,
+      "hidden": false,
+      "selected": false,
+      "layer": 1
+     },
+     {
+      "id": 2,
+      "hidden": false,
+      "selected": false,
+      "layer": 0
+     },
+     {
+      "id": 3,
+      "hidden": false,
+      "selected": false,
+      "layer": 0
+     },
+     {
+      "id": 4,
+      "hidden": false,
+      "selected": false,
+      "layer": 0
+     },
+     {
+      "id": 5,
+      "hidden": false,
+      "selected": false,
+      "layer": 0
+     },
+     {
+      "id": 6,
+      "hidden": false,
+      "selected": false,
+      "layer": 0
+     },
+     {
+      "id": 7,
+      "hidden": false,
+      "selected": false,
+      "layer": 0
+     }
+    ],
+    "selection": [
+     "edge1"
+    ],
+    "menus": [
+     [
+      {
+       "text": "Coincident Constraint",
+       "enabled": true,
+       "bold": false,
+       "shortcut": "C, C"
+      },
+      {
+       "text": "Point-On-Object Constraint",
+       "enabled": true,
+       "bold": false,
+       "shortcut": "O"
+      },
+      {
+       "text": "Horizontal Constraint",
+       "enabled": true,
+       "bold": false,
+       "shortcut": "H"
+      },
+      {
+       "text": "Vertical Constraint",
+       "enabled": true,
+       "bold": false,
+       "shortcut": "V"
+      },
+      {
+       "text": "Parallel Constraint",
+       "enabled": true,
+       "bold": false,
+       "shortcut": "P"
+      },
+      {
+       "text": "Perpendicular Constraint",
+       "enabled": true,
+       "bold": false,
+       "shortcut": "N"
+      },
+      {
+       "text": "Tangent Constraint",
+       "enabled": true,
+       "bold": false,
+       "shortcut": "T"
+      },
+      {
+       "text": "Equal Constraint",
+       "enabled": true,
+       "bold": false,
+       "shortcut": "E"
+      },
+      {
+       "text": "Symmetric Constraint",
+       "enabled": true,
+       "bold": false,
+       "shortcut": "S"
+      },
+      {
+       "text": "Block Constraint",
+       "enabled": true,
+       "bold": false,
+       "shortcut": "K, B"
+      },
+      {
+       "text": "Horizontal Dimension",
+       "enabled": true,
+       "bold": false,
+       "shortcut": "L"
+      },
+      {
+       "text": "Vertical Dimension",
+       "enabled": true,
+       "bold": false,
+       "shortcut": "I"
+      },
+      {
+       "text": "Distance Dimension",
+       "enabled": true,
+       "bold": false,
+       "shortcut": "K, D"
+      },
+      {
+       "text": "Radius/Diameter Dimension",
+       "enabled": true,
+       "bold": false,
+       "shortcut": "K, S"
+      },
+      {
+       "text": "Radius Dimension",
+       "enabled": true,
+       "bold": false,
+       "shortcut": "K, R"
+      },
+      {
+       "text": "Diameter Dimension",
+       "enabled": true,
+       "bold": false,
+       "shortcut": "K, O"
+      },
+      {
+       "text": "Angle Dimension",
+       "enabled": true,
+       "bold": false,
+       "shortcut": "K, A"
+      },
+      {
+       "text": "Lock Position",
+       "enabled": true,
+       "bold": false,
+       "shortcut": "K, L"
+      },
+      "sep",
+      {
+       "text": "Toggle Construction Geometry",
+       "enabled": true,
+       "bold": false,
+       "shortcut": "G, N"
+      },
+      "sep",
+      {
+       "text": "Select Constraints",
+       "enabled": true,
+       "bold": false,
+       "shortcut": "Z, K"
+      },
+      {
+       "text": "Select Origin",
+       "enabled": true,
+       "bold": false,
+       "shortcut": "Z, O"
+      },
+      {
+       "text": "Select Horizontal Axis",
+       "enabled": true,
+       "bold": false,
+       "shortcut": "Z, H"
+      },
+      {
+       "text": "Select Vertical Axis",
+       "enabled": true,
+       "bold": false,
+       "shortcut": "Z, V"
+      },
+      "sep",
+      {
+       "text": "Layer",
+       "enabled": true,
+       "bold": false,
+       "shortcut": "",
+       "sub": [
+        {
+         "text": "Layer 0",
+         "enabled": true,
+         "bold": false,
+         "shortcut": ""
+        },
+        {
+         "text": "Layer 1",
+         "enabled": true,
+         "bold": false,
+         "shortcut": ""
+        },
+        {
+         "text": "Hidden",
+         "enabled": true,
+         "bold": false,
+         "shortcut": ""
+        }
+       ]
+      },
+      "sep",
+      {
+       "text": "Delete",
+       "enabled": true,
+       "bold": false,
+       "shortcut": "Del"
+      }
+     ]
+    ]
+   }
+  },
+  "layer-check": {
+   "geometry": [
+    {
+     "type": "LineSegment",
+     "start": [
+      0.0,
+      0.0
+     ],
+     "end": [
+      30.0,
+      0.0
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      30.0,
+      0.0
+     ],
+     "end": [
+      30.0,
+      20.0
+     ]
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      30.0,
+      20.0
+     ],
+     "end": [
+      0.0,
+      20.0
+     ],
+     "layer": 2
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      0.0,
+      20.0
+     ],
+     "end": [
+      0.0,
+      0.0
+     ],
+     "layer": 2
+    },
+    {
+     "type": "Point",
+     "at": [
+      40.0,
+      10.0
+     ]
+    },
+    {
+     "type": "Circle",
+     "center": [
+      45.0,
+      30.0
+     ],
+     "radius": 5.0
+    },
+    {
+     "type": "ArcOfCircle",
+     "center": [
+      10.0,
+      35.0
+     ],
+     "radius": 4.0,
+     "start_angle": 0.0,
+     "end_angle": 2.0
+    },
+    {
+     "type": "LineSegment",
+     "start": [
+      35.0,
+      -5.0
+     ],
+     "end": [
+      50.0,
+      -5.0
+     ],
+     "construction": true
+    }
+   ],
+   "constraints": [],
+   "message": {
+    "status": "Under-constrained: ",
+    "link": "30 Degrees of Freedom"
+   },
+   "panel": {
+    "constraints": [],
+    "elements": [
+     {
+      "id": 0,
+      "hidden": false,
+      "selected": false,
+      "layer": 0
+     },
+     {
+      "id": 1,
+      "hidden": false,
+      "selected": false,
+      "layer": 0
+     },
+     {
+      "id": 2,
+      "hidden": false,
+      "selected": false,
+      "layer": 2
+     },
+     {
+      "id": 3,
+      "hidden": false,
+      "selected": false,
+      "layer": 2
+     },
+     {
+      "id": 4,
+      "hidden": false,
+      "selected": false,
+      "layer": 0
+     },
+     {
+      "id": 5,
+      "hidden": false,
+      "selected": false,
+      "layer": 0
+     },
+     {
+      "id": 6,
+      "hidden": false,
+      "selected": false,
+      "layer": 0
+     },
+     {
+      "id": 7,
+      "hidden": false,
+      "selected": false,
+      "layer": 0
+     }
+    ],
+    "selection": []
+   }
+  },
+  "layer-external": {
+   "geometry": [],
+   "constraints": [],
+   "message": {
+    "status": "Fully constrained",
+    "link": ""
+   },
+   "external": [
+    {
+     "type": "LineSegment",
+     "start": [
+      0.0,
+      0.0
+     ],
+     "end": [
+      40.0,
+      0.0
+     ]
+    }
+   ],
+   "external_geometry": [
+    [
+     "Pad",
+     "Edge4"
+    ]
+   ],
+   "panel": {
+    "constraints": [],
+    "elements": [
+     {
+      "id": -3,
+      "hidden": false,
+      "selected": true,
+      "layer": 0
+     }
+    ],
+    "selection": [
+     "ExternalEdge1"
+    ]
+   }
+  },
   "cmd-delete-all-geometry": {
    "geometry": [],
    "constraints": [],

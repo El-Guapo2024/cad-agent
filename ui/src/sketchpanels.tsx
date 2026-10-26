@@ -626,7 +626,8 @@ function elements(): Element[] {
     const state: GeoState = internal.has(k) ? 'internal' : g.construction ? 'construction' : 'normal'
     const handle = g.type === 'LineSegment' ? handles.get(k) : undefined
     const base = handle ?? BASE_NAMES[g.type] ?? 'Other'
-    const label = naming ? `${base}(Edge${k + 1}#ID${k})${state === 'construction' ? '-Construction' : state === 'internal' ? '-Internal' : ''}` : `${k + 1}-${base}`
+    const layer = g.layer ?? 0
+    const label = naming ? `${base}(Edge${k + 1}#ID${k}#VL${layer})${state === 'construction' ? '-Construction' : state === 'internal' ? '-Internal' : ''}` : `${k + 1}-${base}`
     return { id: k, geo: g, state, label, start: S.vertexIndexOf(k, SK.START), mid: S.vertexIndexOf(k, SK.MID), end: S.vertexIndexOf(k, SK.END),
       textHandle: handle === 'Text', grouped: grouped.has(k) }
   })
@@ -634,7 +635,8 @@ function elements(): Element[] {
     const j = k + 3, id = -j, i = geo.length + j
     const [extended, short] = EXT_NAMES[g.type] ?? ['Other', 'Other']
     const ref = ext.refs[ext.owner[k] ?? k]
-    const link = naming ? (ref ? `(ExternalEdge${j - 2}#ID${-j}, ${ref[0]}.${ref[1]})` : `(ExternalEdge${j - 2}#ID${-j})`) : ''
+    const layer = g.layer ?? 0
+    const link = naming ? (ref ? `(ExternalEdge${j - 2}#ID${-j}#VL${layer}, ${ref[0]}.${ref[1]})` : `(ExternalEdge${j - 2}#ID${-j}#VL${layer})`) : ''
     // !Defining: the part file's external geometry is reference geometry (ConstructionExternal)
     out.push({ id, geo: g, state: 'constructionExternal', label: naming ? extended + link : `${i - 2}-${short}`, start: S.vertexIndexOf(id, SK.START), mid: S.vertexIndexOf(id, SK.MID), end: S.vertexIndexOf(id, SK.END) })
   })
@@ -656,10 +658,27 @@ function subSelected(e: Element, sel: Set<string>): Record<Sub, boolean> {
   const n = subNames(e)
   return { edge: sel.has(n.edge), start: !!n.start && sel.has(n.start), end: !!n.end && sel.has(n.end), mid: !!n.mid && sel.has(n.mid) }
 }
-export type ElementRow = { id: number; text: string; hidden: boolean; selected: boolean }
+/** The Elements list's rows, as the QListWidget has them. TaskSketcherElements::slotElementsChanged rebuilds the list
+ *  when the sketch's geometry or a constraint changes (SketchObject::acceptGeometry), and a rebuilt list has every row
+ *  unselected; TaskSketcherElements::onSelectionChanged selects the rows when the Gui selection changes. A change that
+ *  rebuilds the list without the selection changing (a Layer menu entry) leaves the rows unselected while the selection
+ *  stays, so the rows keep a snapshot of the selection rather than reading it, and of the two signals the last one
+ *  decides. */
+let elRows = { key: '', version: -1, names: new Set<string>() }
+function elementRowSelection(): Set<string> {
+  const s = S.getSession(), key = s ? `${s.ref.part}/${s.ref.name}` : ''
+  const { version, last } = S.elementsListEvent()
+  if (elRows.key !== key) elRows = { key, version, names: new Set() }
+  else if (elRows.version !== version) elRows = { key, version, names: last === 'selection' ? new Set(S.getSelection()) : new Set() }
+  return elRows.names
+}
+export type ElementRow = { id: number; text: string; hidden: boolean; selected: boolean; layer: number }
 export function elementRows(): ElementRow[] {
-  const sel = new Set(S.getSelection())
-  return elements().map((e) => { const s = subSelected(e, sel); return { id: e.id, text: e.label, hidden: elementHidden(e), selected: s.edge || s.start || s.end || s.mid } })
+  const sel = elementRowSelection()
+  return elements().map((e) => {
+    const s = subSelected(e, sel)
+    return { id: e.id, text: e.label, hidden: elementHidden(e), selected: s.edge || s.start || s.end || s.mid, layer: e.geo.layer ?? 0 }
+  })
 }
 /** onListMultiFilterItemChanged. */
 function setElementFilter(index: number, state: Check) {
@@ -674,12 +693,47 @@ function setElementFilter(index: number, state: Check) {
   for (let i = f.length - 1; i >= 0; i--) st = (st << 1) | (f[i] === 2 ? 1 : 0)
   setParam('ElementFilterState', st)
 }
-/** ElementView::contextMenuEvent. */
-function elementMenu(): Entry[] {
-  const items = S.getSelection().length > 0
+/** getGeoIdsOfEdgesFromNames: the geometry a selection names; a vertex names its geometry only when that is a Point. */
+function selectedGeoIds(): number[] {
+  const all = S.getGeometry(), verts = SK.vertices(all), out: number[] = []
+  for (const name of S.getSelection()) {
+    if (name.startsWith('ExternalEdge')) out.push(SK.REF_EXT + 1 - Number(name.slice(12)))
+    else if (name.startsWith('Edge')) out.push(Number(name.slice(4)) - 1)
+    else if (name.startsWith('Vertex')) {
+      const [g] = verts[Number(name.slice(6)) - 1] ?? []
+      if (g !== undefined && all[g]?.type === 'Point') out.push(g)
+    }
+  }
+  return out
+}
+/** TaskSketcherElements' ElementView::changeLayer: the geometry on a visual layer, in the "Geometry Layer Change"
+ *  transaction; external geometry cannot be moved to one (FreeCAD's TranslatedUserWarning, a notification).
+ *  `item`, the check box's row, is deselected with its vertices when it is hidden. */
+function changeLayer(ids: number[], layer: number, item?: Element) {
+  S.openCommand('Geometry Layer Change')
+  const geo = S.getGeometry(), next = [...geo]
+  let changed = false
+  for (const g of ids) {
+    if (g < 0) {
+      report('warn', 'Unsupported visual layer operation. It is currently unsupported to move external geometry to another visual layer. External geometry will be omitted')
+    } else if (next[g] && (next[g].layer ?? 0) !== layer) {
+      next[g] = S.withLayer(next[g], layer)
+      changed = true
+    }
+  }
+  if (changed) { S.setGeometry(next); S.solve() }
+  S.commitCommand()
+  if (layer === 2 && item && item.id >= 0) {
+    const n = subNames(item)
+    for (const name of [n.edge, n.start, n.end, n.mid]) if (name) S.rmvSelection(name)
+  }
+}
+/** ElementView::contextMenuEvent: its ACTSONSELECTION items are enabled on the list's selected rows. */
+function elementMenu(sel: Set<string>): Entry[] {
+  const items = sel.size > 0
   // one text handle selected: Convert to geometries (doConvertToGeometries: the handle deleted, which drops the Text
   // constraint and leaves the glyphs as plain geometry; FreeCAD opens no undo step for it)
-  const one = S.getSelection(), m = one.length === 1 ? /^Edge(\d+)$/.exec(one[0]) : null, h = m ? Number(m[1]) - 1 : -1
+  const one = [...sel], m = one.length === 1 ? /^Edge(\d+)$/.exec(one[0]) : null, h = m ? Number(m[1]) - 1 : -1
   const isText = h >= 0 && S.getConstraints().some((c) => c.type === 'Text' && c.elements?.[0]?.[0] === h)
   const convert: Entry[] = isText ? ['sep', { label: 'Convert to geometries', onSelect: () => { S.clearSelection(); S.delGeometries([h]); S.solve() } }] : []
   const item = (icon: string, label: string, cmd: string, onSelection: boolean): Entry => ({ label, img: sketcherIcon(icon), kbd: cmdInfo(cmd).accel || undefined,
@@ -714,9 +768,9 @@ function elementMenu(): Entry[] {
     item('Sketcher_SelectVerticalAxis', 'Select Vertical Axis', 'Sketcher_SelectVerticalAxis', false),
     'sep',
     { label: 'Layer', sub: [
-      { label: 'Layer 0', disabled: true, title: 'Visual layers are not in the part file yet' },
-      { label: 'Layer 1', disabled: true, title: 'Visual layers are not in the part file yet' },
-      { label: 'Hidden', disabled: true, title: 'Visual layers are not in the part file yet' }] },
+      { label: 'Layer 0', disabled: !items, onSelect: () => changeLayer(selectedGeoIds(), 0) },
+      { label: 'Layer 1', disabled: !items, onSelect: () => changeLayer(selectedGeoIds(), 1) },
+      { label: 'Hidden', disabled: !items, onSelect: () => changeLayer(selectedGeoIds(), 2) }] },
     'sep',
     { label: 'Delete', kbd: isMac ? '⌫' : 'Del', disabled: !items, onSelect: () => S.deleteSelected() },
   ]
@@ -724,7 +778,7 @@ function elementMenu(): Entry[] {
 export function ElementsList() {
   useSketch(); usePanel()
   const p = getPanel()
-  const els = elements(), sel = new Set(S.getSelection())
+  const els = elements(), sel = elementRowSelection()
   const [filterAt, setFilterAt] = useState<{ x: number; y: number } | null>(null)
   const [menuAt, setMenuAt] = useState<{ x: number; y: number } | null>(null)
   const [hover, setHover] = useState<{ row: number; sub: Sub } | null>(null)
@@ -790,15 +844,17 @@ export function ElementsList() {
               onMouseEnter={() => { p.focusItem = row }}
               onMouseMove={(e) => hoverSub(row, subAt(e))}
               onMouseDown={(e) => { e.stopPropagation(); if ((e.target as HTMLElement).closest('[data-sub="check"]')) return; press(row, subAt(e), e) }}>
-              {/* the visibility check box (layers): external geometry cannot be hidden; visual layers are not in the part file */}
-              <input type="checkbox" data-sub="check" checked readOnly disabled title={it.id < 0 ? '' : 'Visual layers are not in the part file yet'} />
+              {/* ElementItem::isVisible: the check box is on unless the geometry is on the Hidden layer; external
+                  geometry cannot be hidden */}
+              <input type="checkbox" data-sub="check" checked={it.id < 0 || (it.geo.layer ?? 0) !== 2} disabled={it.id < 0}
+                onChange={(e) => changeLayer([it.id], e.target.checked ? 0 : 2, it)} />
               {(['edge', 'start', 'end', 'mid'] as Sub[]).map((sub) => <ElementIcon key={sub} sub={sub} geo={it.geo} state={it.state} opacity={opacity(sub)} text={it.textHandle} />)}
               <span className="skp-text">{it.label}</span>
             </li>
           )
         })}
       </ul>
-      {menuAt && <ContextMenu at={menuAt} entries={elementMenu()} onClose={() => setMenuAt(null)} />}
+      {menuAt && <ContextMenu at={menuAt} entries={elementMenu(sel)} onClose={() => setMenuAt(null)} />}
     </PanelBox>
   )
 }

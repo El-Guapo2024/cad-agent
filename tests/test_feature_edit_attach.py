@@ -273,6 +273,37 @@ def test_cad_feature_attach_answers_as_the_panel(demo, capsys):
     assert data["message"] == "LinkBroken" and "Face9" in data["error"]
 
 
+def test_cad_feature_attach_and_list_a_part_object(demo, capsys):
+    """A Part workbench object's AttachExtension (engine 3D): the panel's query resolves the objects before it and the
+    Body's features, and `cad feature list` places every object (feature_attach.body_info's Part objects)."""
+    _plate_body(capsys)
+    ops = [{"op": "add", "feature": {"name": "Base", "type": "Part::Box", "length": 20, "width": 20, "height": 10,
+                                     "placement": [[0, 0, 30], [0, 0, 0]]}},
+           {"op": "add", "feature": {"name": "Box", "type": "Part::Box", "length": 4, "width": 6, "height": 2,
+                                     "attachment_support": [["Base", "Face6"]], "map_mode": "FlatFace",
+                                     "attachment_offset": [[1, 2, 3], [0, 0, 0]]}},
+           {"op": "add", "feature": {"name": "Chip", "type": "Part::Box", "length": 2, "width": 2, "height": 2,
+                                     "attachment_support": [["Pad", "Face6"]], "map_mode": "FlatFace"}}]
+    code, data = run(capsys, "feature", "apply", "demo", "Body", "--ops", json.dumps(ops))
+    assert data.get("built") is True, data              # the gates may leave rows unchecked
+    code, data = run(capsys, "feature", "attach", "demo", "Body", "--support", "Base.Face6", "--mode", "FlatFace",
+                     "--offset", "[[1,2,3],[0,0,0]]", "--before", "Box")
+    assert code == cli.OK and data["engine"] == "3D"                    # Attacher::AttachEngine3D, not the CLI's Plane
+    assert data["suggestion"]["types"] == ["Plane"] and data["mode"] == "FlatFace"
+    assert data["placement"]["position"] == pytest.approx([1.0, 2.0, 43.0])       # Base sits at z 30, its top at 40
+    code, data = run(capsys, "feature", "attach", "demo", "Body", "--support", "Pad.Face6", "--before", "Chip")
+    assert data["engine"] == "3D" and data["placement"]["position"] == pytest.approx([0.0, 0.0, 5.0])
+    code, data = run(capsys, "feature", "attach", "demo", "Body", "--support", "Box.Face6", "--before", "Base")
+    assert data["message"] == "LinkBroken" and "'Box' before it" in data["error"]  # a part file is in order
+    code, data = run(capsys, "feature", "list", "demo", "Body")
+    objs = data["attached"]["objects"]
+    assert objs["Box"]["placement"]["position"] == pytest.approx([1.0, 2.0, 43.0])
+    assert objs["Box"]["map_mode"] == "FlatFace" and objs["Chip"]["map_mode"] == "FlatFace"
+    assert objs["Chip"]["placement"]["position"] == pytest.approx([0.0, 0.0, 5.0])
+    assert objs["Base"]["placement"]["position"] == pytest.approx([0.0, 0.0, 30.0])
+    assert data["attached"]["error"] is None
+
+
 def test_cad_feature_add_a_sketch_on_a_face_and_a_datum(demo, capsys):
     _plate_body(capsys)
     circle = json.dumps([{"type": "Circle", "center": [10, 10], "radius": 3, "construction": False}])
@@ -320,3 +351,67 @@ def test_a_primitive_is_attached_edited_and_followed(plate):
     assert '("Plate", "Face2")' in plate.read_text()
     with pytest.raises(E.FeatureEditError, match="Box"):
         E.apply(plate, [{"op": "delete", "name": "Plate"}])
+
+
+_TIP_PART = '''"""a Body with a Pad past its Tip, and maybe Part objects"""
+from cad_agent import feature_part as Part
+from cad_agent.feature import Body, LineSegment, Pad, Sketch
+
+
+def _rect(x0, y0, x1, y1):
+    return [LineSegment((x0, y0), (x1, y0)), LineSegment((x1, y0), (x1, y1)),
+            LineSegment((x1, y1), (x0, y1)), LineSegment((x0, y1), (x0, y0))]
+
+
+FEATURES = [
+    Sketch("Sketch", support="XY", geometry=_rect(0, 0, 40, 20)),
+    Pad("Pad", "Sketch", length=5.0),
+    Sketch("Sketch001", attachment_support=[("Pad", "Face6")], map_mode="FlatFace", geometry=_rect(5, 5, 15, 15)),
+    Pad("Pad001", "Sketch001", length=3.0),
+]
+TIP = "Pad"
+OBJECTS = [%s]
+
+
+def build(**p):
+    return Body(FEATURES, p, tip=TIP)
+'''
+
+
+@pytest.mark.parametrize("objects", ["", 'Part.Box("Box", length=2, width=2, height=2)'])
+def test_attach_query_before_a_body_sketch_cuts_the_body(tmp_path, objects):
+    """A Body feature's references resolve in the Body before it whether or not the part has Part objects: Pad.Face6
+    is a forward reference for Sketch (LinkBroken), and a reference for Sketch001."""
+    from cad_agent.feature_attach import attach_query
+    p = tmp_path / "tip_part.py"
+    p.write_text(_TIP_PART % objects)
+    out = attach_query(p, ["Pad.Face6"], before="Sketch")
+    assert out["message"] == "LinkBroken" and "'Pad'" in out["error"]
+    out = attach_query(p, ["Pad.Face6"], before="Sketch001")
+    assert out["message"] == "OK" and out["placement"]["position"] == pytest.approx([0.0, 0.0, 5.0])
+
+
+def test_part_objects_see_the_body_at_its_tip(tmp_path):
+    """The Body's shape is its Tip's (Body::Tip), as feature_edit_part builds it: with TIP = "Pad" the boss of Pad001,
+    built past the Tip, is not in it, so the Body has the plate's six faces and no Face7."""
+    from cad_agent.feature_attach import attach_query, body_info
+    p = tmp_path / "tip_part.py"
+    p.write_text(_TIP_PART % 'Part.Box("Box", length=2, width=2, height=2)')
+    out = attach_query(p, ["Body.Face7"], before="Box")
+    assert out["message"] == "LinkBroken" and "Face7" in out["error"]
+    assert attach_query(p, ["Body.Face6"], before="Box")["message"] == "OK"
+    p.write_text(_TIP_PART % 'Part.Box("Box", length=2, width=2, height=2, attachment_support=[("Body", "Face7")], '
+                 'map_mode="FlatFace")')
+    info = body_info(p)
+    assert info["error"] and "Face7" in info["error"]
+    # every feature is still placed, past the Tip too
+    assert info["objects"]["Sketch001"]["placement"]["position"] == pytest.approx([0.0, 0.0, 5.0])
+
+
+def test_attach_query_on_a_new_body(tmp_path):
+    """A new Body's FEATURES is empty and New Sketch's panel still attaches to its Origin's planes."""
+    from cad_agent.feature_attach import attach_query
+    p = tmp_path / "new_body.py"
+    p.write_text("from cad_agent.feature import Body\nFEATURES = []\n\n\ndef build(**p):\n    return Body(FEATURES, p)\n")
+    out = attach_query(p, ["XY_Plane"])
+    assert out["message"] == "OK" and out["mode"] == "FlatFace", out

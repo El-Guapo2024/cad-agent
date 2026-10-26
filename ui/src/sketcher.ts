@@ -110,6 +110,11 @@ type Session = {
   showGrid: boolean
   angleSnap: { on: boolean; ref: XY; last: number }
   saving: boolean
+  /** TaskSketcherElements' list: slotElementsChanged rebuilds it (leaving every row unselected) when the geometry or
+   *  a constraint changes as a property change, and onSelectionChanged re-selects its rows when the selection
+   *  changes. A counter and which of the two it counts last, so that the Elements box can wait for the last signal. */
+  listVersion: number
+  lastListChange: 'elements' | 'selection'
 }
 
 let solver: Solver | null = null
@@ -125,6 +130,11 @@ export function subscribeSketch(f: () => void) { subs.add(f); return () => { sub
 export const sketchVersion = () => version
 export const getSession = () => session
 export const isEditing = () => !!session
+/** What the Elements box reads: see Session.listVersion. */
+export const elementsListEvent = (): { version: number; last: 'elements' | 'selection' } =>
+  ({ version: session?.listVersion ?? 0, last: session?.lastListChange ?? 'elements' })
+function elementsChanged() { if (session) { session.listVersion++; session.lastListChange = 'elements' } }
+function selectionChanged() { if (session) { session.listVersion++; session.lastListChange = 'selection' } }
 
 // ── geometry helpers on the session ──────────────────────────────────────────────────────────────────────────────
 const sel = () => session?.selection ?? []
@@ -206,7 +216,8 @@ const intList = (zero: number[]) => { const ints = zero.map((i) => i + 1); retur
 /** ViewProviderSketch::UpdateSolverInformation. */
 function messageOf(s: Session): SolverMessage {
   const r = s.result
-  if (!s.geometry.length) return { state: 'empty', text: 'Empty sketch', link: '', linkText: '' }
+  // (ViewProviderSketch::UpdateSolverInformation: empty is no geometry and nothing beyond the axes in ExternalGeo)
+  if (!s.geometry.length && !s.external.geometry.length) return { state: 'empty', text: 'Empty sketch', link: '', linkText: '' }
   if (!r) return { state: 'solver_failed', text: 'Solver failed to converge', link: '', linkText: '' }
   if (r.dof < 0 || r.conflicting.length) return { state: 'conflicting_constraints', text: 'Over-constrained: ', link: '#conflicting', linkText: `(${intList(r.conflicting)})` }
   if (r.malformed.length) return { state: 'malformed_constraints', text: 'Malformed constraints: ', link: '#malformed', linkText: `(${intList(r.malformed)})` }
@@ -276,6 +287,7 @@ export function abortCommand() {
   if (!s?.command) return
   s.geometry = s.command.before.geometry; s.constraints = s.command.before.constraints; s.external = s.command.before.external
   s.command = null
+  elementsChanged()
   solve()
 }
 function publishHistory() {
@@ -292,6 +304,7 @@ export function undo(steps = 1) {
     s.redo.unshift({ ...snap(), name: u.name })
     s.geometry = u.geometry; s.constraints = u.constraints; s.external = u.external
   }
+  elementsChanged()
   clearSelection(); solve(); publishHistory()
 }
 export function redo(steps = 1) {
@@ -302,6 +315,7 @@ export function redo(steps = 1) {
     s.undo.unshift({ ...snap(), name: r.name })
     s.geometry = r.geometry; s.constraints = r.constraints; s.external = r.external
   }
+  elementsChanged()
   clearSelection(); solve(); publishHistory()
 }
 
@@ -318,19 +332,27 @@ export function withConstruction(g: Geo, on: boolean): Geo {
   void _c
   return (on ? { ...rest, construction: true } : rest) as Geo
 }
+/** Geometry on a visual layer: 0 (Normal) is left out, as the part file writes it. */
+export function withLayer(g: Geo, layer: number): Geo {
+  const { layer: _l, ...rest } = g as Geo & { layer?: number }
+  void _l
+  return (layer ? { ...rest, layer } : rest) as Geo
+}
 export function addGeometry(g: Geo | Geo[], construction?: boolean): number {
   const s = session!
   for (const e of Array.isArray(g) ? g : [g]) s.geometry = [...s.geometry, construction === undefined ? e : withConstruction(e, construction)]
+  elementsChanged()
   return s.geometry.length - 1
 }
 export function addConstraint(c: Constraint | Constraint[]): number {
   const s = session!
   for (const k of Array.isArray(c) ? c : [c]) s.constraints.push(k)
+  elementsChanged()
   return s.constraints.length - 1
 }
-export function setConstraints(list: Constraint[]) { session!.constraints = list }
-export function setGeometry(list: Geo[]) { session!.geometry = list }
-export function setConstraint(i: number, c: Constraint) { const s = session!; s.constraints = s.constraints.map((x, k) => (k === i ? c : x)) }
+export function setConstraints(list: Constraint[]) { session!.constraints = list; elementsChanged() }
+export function setGeometry(list: Geo[]) { session!.geometry = list; elementsChanged() }
+export function setConstraint(i: number, c: Constraint) { const s = session!; s.constraints = s.constraints.map((x, k) => (k === i ? c : x)); elementsChanged() }
 /** SketchObject::delGeometries: the geometry, the constraints on it, the GeoIds after it renumbered. */
 export function delGeometries(ids: number[]) {
   const s = session!
@@ -341,12 +363,14 @@ export function delGeometries(ids: number[]) {
   // changeConstraintAfterDeletingGeo: every element (a Text's glyphs too)
   s.constraints = s.constraints.filter((c) => !SK.elementsOf(c).some(([g]) => gone.has(g))).map((c) => SK.mapGeoIds(c, map))
   s.geometry = s.geometry.filter((_, i) => !gone.has(i))
+  elementsChanged()
 }
 export function delConstraints(ids: number[]) {
   const s = session!
   const gone = new Set(ids)
   s.constraints = s.constraints.filter((_, i) => !gone.has(i))
   s.hiddenConstraints = new Set([...s.hiddenConstraints].filter((i) => !gone.has(i)).map((i) => i - ids.filter((x) => x < i).length))
+  elementsChanged()
 }
 /** SketchObject::delConstraintOnPoint: the constraints on one point (a coincidence, a point on an object, a
  *  dimension to it); with onlyCoincident, only those that tie it to another point. */
@@ -365,6 +389,7 @@ export function delConstraintOnPoint(g: number, pos: PointPos, onlyCoincident = 
 export function toggleConstruction(g: number) {
   const s = session!
   s.geometry = s.geometry.map((e, i) => (i === g ? withConstruction(e, !e.construction) : e))
+  elementsChanged()
 }
 /** SketchObject::addExternal: a reference and the geometry it projects to (rebuildExternalGeometry's), after the
  *  others. Refused as FreeCAD refuses a reference the sketch has already ("Duplicated external reference"). */
@@ -373,6 +398,7 @@ export function addExternal(ref: [string, string], geometry: Geo[]): boolean {
   if (s.external.refs.some((r) => r[0] === ref[0] && r[1] === ref[1])) return false
   const i = s.external.refs.length
   s.external = { refs: [...s.external.refs, ref], geometry: [...s.external.geometry, ...geometry], owner: [...s.external.owner, ...geometry.map(() => i)] }
+  elementsChanged()
   return true
 }
 /** SketchObject::delExternal (delExternalPrivate with removeRef): the external geometries' references go, with every
@@ -388,14 +414,15 @@ export function delExternal(geoIds: number[]) {
   const renumber = new Map([...new Set(e.owner.filter((r) => !refs.has(r)))].map((r, k) => [r, k]))
   s.external = { refs: e.refs.filter((_, r) => !refs.has(r)), geometry: e.geometry.filter((_, k) => keep[k]),
     owner: e.owner.filter((_, k) => keep[k]).map((r) => renumber.get(r)!) }
+  elementsChanged()
 }
 
 // ── selection (Gui::Selection, as ViewProviderSketch::onSelectionChanged reads it) ───────────────────────────────
-export function addSelection(name: string) { const s = session; if (s && !s.selection.includes(name)) { s.selection = [...s.selection, name]; changed() } }
-export function rmvSelection(name: string) { const s = session; if (s) { s.selection = s.selection.filter((n) => n !== name); changed() } }
+export function addSelection(name: string) { const s = session; if (s && !s.selection.includes(name)) { s.selection = [...s.selection, name]; selectionChanged(); changed() } }
+export function rmvSelection(name: string) { const s = session; if (s) { const had = s.selection.includes(name); s.selection = s.selection.filter((n) => n !== name); if (had) selectionChanged(); changed() } }
 export function isSelected(name: string) { return !!session?.selection.includes(name) }
-export function clearSelection() { const s = session; if (s && s.selection.length) { s.selection = []; changed() } }
-export function setSelection(names: string[]) { const s = session; if (s) { s.selection = [...new Set(names)]; changed() } }
+export function clearSelection() { const s = session; if (s && s.selection.length) { s.selection = []; selectionChanged(); changed() } }
+export function setSelection(names: string[]) { const s = session; if (s) { s.selection = [...new Set(names)]; selectionChanged(); changed() } }
 export function getSelection() { return [...sel()] }
 
 // ── the solver's view of points (SketchObject::getPoint, getGeoVertexIndex) ──────────────────────────────────────
@@ -448,6 +475,7 @@ function detect(x: number, y: number, hovered: number): Hit | null {
   let best: Hit | null = null, bestD = Infinity
   verts.forEach(([g, pos], v) => {
     if (grouped.has(g)) return
+    if ((all[g]?.layer ?? 0) === 2) return           // a hidden visual layer is not drawn, so not pickable
     const p = SK.getPoint(all, g, pos)
     if (!p) return
     const [px, py] = sc.toScreen(p)
@@ -459,7 +487,7 @@ function detect(x: number, y: number, hovered: number): Hit | null {
   if (!best) {
     let bestE = Infinity
     const edge = (g: Geo, i: number) => {
-      if (g.type === 'Point') return
+      if (g.type === 'Point' || (g.layer ?? 0) === 2) return
       const pts = SK.polyline(g).map((p) => sc.toScreen(p))
       const lw = SK.isExternalId(i) ? SIZES.external : g.construction ? SIZES.construction : SIZES.curve
       const r = Math.max(3, lw * 0.5 + 2, pickRadius())
@@ -1110,6 +1138,7 @@ export async function editSketch(ref: SketchRef) {
     before: { hidden: st.hidden, camera: view?.getCamera() ?? null, workbench: st.workbench }, command: null,
     hits: { icons: [], labels: [], datumLines: [] }, click: { pos: [-16000, -16000], t: 0, cursor: [0, 0] },
     showGrid: saved.get('sketcher.showGrid', true), angleSnap: { on: false, ref: [0, 0], last: 0 }, saving: false,
+    listVersion: 0, lastListChange: 'elements',
   }
   setState({ hidden: [...new Set([...st.hidden, ...dependents])], workbench: 'sketcher', selected: [], subSel: [], sketchEditing: { part: ref.part, name: ref.name },
     task: { kind: 'sketch', body: ref.name } })

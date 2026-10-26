@@ -53,6 +53,7 @@ import { profileCommand } from './pd_revolve'
 import { pdxCommands } from './pd_transform'
 import { pdDatumCommands } from './pd_datum'
 import { dressUpEntries } from './pd_dressup'
+import { shapeBinder } from './pd_binder'
 import { partCommands, partEnabled, partRun } from './part_wb'
 import { sweepCommands } from './pd_sweep'
 
@@ -222,6 +223,7 @@ const COMMANDS: Record<string, RegCommand> = {
   PartDesign_Revolution: reg('Revolve', () => void profileCommand('revolution'), () => !!getState().slug),   // pd_revolve.tsx
   PartDesign_Groove: reg('Groove', () => void profileCommand('groove'), () => !!getState().slug),
   PartDesign_Hole: reg('Hole', () => void profileCommand('hole'), () => !!getState().slug),
+  PartDesign_ShapeBinder: reg('Shape Binder', () => void shapeBinder(), () => !!getState().slug),   // pd_binder.tsx
   PartDesign_MoveTip: reg('Set Tip', () => void setTip(), () => getState().featSel.length === 1),
   PartDesign_MoveFeatureInTree: reg('Move Feature After…', moveFeatureAfter, () => getState().featSel.length > 0),
   Std_Delete: reg('Delete', () => void deleteFeatures(), () => getState().featSel.length > 0),
