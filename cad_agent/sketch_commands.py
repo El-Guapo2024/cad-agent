@@ -1010,7 +1010,7 @@ def orientation_locking(geo: list, cons: list[dict], lock: bool) -> int:
 
 def _load(path):
     from .feature_attach import _evaluate_upto, _load as load
-    _, features, params, base = load(path)
+    _, features, params, base, *_ = load(path)        # (module, FEATURES, PARAMS, base, OBJECTS)
     shapes, err = _evaluate_upto(features, params, base)
     return features, params, shapes, err
 
