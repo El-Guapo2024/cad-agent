@@ -6,7 +6,7 @@ from the wires of its Sources through a face maker, and a RuledSurface fills bet
 reversing the second when the fill would be twisted).
 """
 from cad_agent import feature_part as Part
-from cad_agent.feature import Circle, LineSegment, Sketch  # noqa: F401
+from cad_agent.feature import Circle, LineSegment, Pad, Sketch  # noqa: F401
 
 from cases import rect
 
@@ -29,6 +29,10 @@ CASES["reverse_chain"] = {"objects": [
     Part.Box("Box", length=10, width=20, height=5, placement=P),
     Part.Reverse("Box_rev", "Box"),
     Part.Reverse("Box_rev_rev", "Box_rev")]}
+# a Body feature's: the Pad's Placement is its sketch's support's (the XZ plane), which the Reverse takes
+CASES["reverse_body_feature"] = {"features": [
+    Sketch("Sketch", support="XZ", geometry=rect(0, 0, 30, 20)), Pad("Pad", "Sketch", length=5.0)],
+    "objects": [Part.Reverse("Pad_rev", "Pad")]}
 # A Reverse with no Source is not in the goldens: FreeCAD's recompute leaves it Valid with a null Shape, never running
 # Reverse::execute ("No part object linked."); tests/test_feature_part.py holds our error to the execute's message.
 
