@@ -48,6 +48,13 @@ that commit.
                            (FreeCAD's refine and booleans, tapered extrusions, Scaled, start
                            references). See section 2.
 
+  LGPL-2.1-or-later        cad_agent/assembly_wb.py and cad_agent/assembly_jcs.py, all of them (the
+                           Assembly workbench's objects and joint coordinate systems). See section 2.
+
+  LGPL-2.1                 ui/ondsel/upstream/, OndselSolver, FreeCAD's assembly solver: under its own
+                           licence, the GNU Lesser General Public License version 2.1 (its LICENSE,
+                           which names no later version). See section 3.
+
   LGPL-2.0-or-later        cad_agent/appcache.py, all of it. It is distributed here under version
                            2.1 of the licence, which "or any later version" allows; the text is in
                            ui/LICENSE.
@@ -185,6 +192,15 @@ that commit.
       src/Mod/Import/App/dxf/ImpExpDxf.cpp, Copyright (c) 2015 Yorik van Havre (SPDX
       LGPL-2.1-or-later; the Library General Public License, version 2 or later).
 
+  cad_agent/assembly_wb.py and cad_agent/assembly_jcs.py
+      Re-express src/Mod/Assembly/JointObject.py (Joint, GroundedJoint, TaskAssemblyCreateJoint's
+      create and accept), UtilsAssembly.py (findPlacement, findElementClosestVertex and the JCS
+      helpers), CommandInsertLink.py and CommandCreateJoint.py, and the element queries of
+      src/Mod/Assembly/App/AssemblyUtils.cpp, function by function.
+      Copyright (c) 2023 Ondsel <development@ondsel.com>. SPDX-License-Identifier:
+      LGPL-2.1-or-later. The solving half of AssemblyObject.cpp is ported in ui/ondsel/assembly.cpp
+      (part of ui/, LGPL-2.1-or-later), which cad_agent/ondsel.py loads.
+
   These are close translations or re-expressions and keep their code; each file says so in its
   header. Other files credit FreeCAD in a comment (cad_agent/bom.py, subassembly.py, shop.py,
   speckinds/shop.py, undo.py, gui.py, macro.py, userprefs.py, scene.py, serve.py, beam.py, and
@@ -248,6 +264,14 @@ that commit.
       TransformControls example (MIT, the three.js authors), and three-cad-viewer 5.0.7 (its
       esm.min.js and css; MIT, Bernhard Walter), whose build contains three.js, postprocessing
       (Zlib) and n8ao.
+
+  OndselSolver (LGPL-2.1, Copyright (c) 2023 Ondsel, Inc.)
+      ui/ondsel/upstream/: https://github.com/FreeCAD/OndselSolver at 4be80eef02a3, the revision FreeCAD
+      3160daf1e2b6 has as its src/3rdParty/OndselSolver submodule. Its sources (OndselSolver/*.h and
+      *.cpp, the CMakeLists.txt files), LICENSE and README.md are copied unchanged; its sample data
+      (.asmt, .mbd, .mov, dragging.log), Visual Studio files, tests and test application are left out.
+      ui/ondsel/dist/ondsel.wasm is it built to WebAssembly, and the workbench bundle carries that.
+      The licence text is its LICENSE (ui/ondsel/upstream/LICENSE), the same text as ui/LICENSE.
 
   Coin3D (BSD-3-Clause, Copyright (c) Kongsberg Oil & Gas Technologies AS)
       ui/src/nav.ts follows its SbSphereSheetProjector for the sphere-sheet projection.

@@ -1307,6 +1307,15 @@ WebAssembly. That build includes code from Eigen 5.0.0 (MPL-2.0, source at
 https://gitlab.com/libeigen/eigen/-/archive/5.0.0/eigen-5.0.0.tar.gz, licence at
 https://mozilla.org/MPL/2.0/) and Boost's graph headers (BSL-1.0, https://www.boost.org/LICENSE_1_0.txt).
 
+ondsel/: FreeCAD's assembly solver. ondsel/upstream is OndselSolver (https://github.com/FreeCAD/OndselSolver),
+copied unchanged at 4be80eef02a3, the revision of FreeCAD's src/3rdParty/OndselSolver submodule at the commit
+above (LGPL-2.1, copyright 2023 Ondsel, Inc.; its LICENSE); its sample data, Visual Studio files and tests are
+left out. ondsel/assembly.cpp and assembly.h port the solving half of src/Mod/Assembly/App/AssemblyObject.cpp
+and the swapJCS/getDistanceType of AssemblyUtils.cpp (LGPL-2.1-or-later, copyright 2023 Ondsel
+<development@ondsel.com>), with the parts of src/Base/Rotation.cpp, Placement.cpp and Vector3D.cpp they use
+(copyright 2005 Jürgen Riegel, Werner Mayer); ondsel/api.cpp is a C API over them and ondsel/json.h is
+planegcs/api.cpp's JSON reader and writer. ondsel/dist is that code built to WebAssembly.
+
 4. Icons and style sheets
 -------------------------
 

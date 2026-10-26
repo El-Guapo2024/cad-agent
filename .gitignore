@@ -49,3 +49,5 @@ evals/**/verify.json
 
 # The native build of the sketch solver (ui/planegcs/build.sh native)
 ui/planegcs/build/
+# The native build of the assembly solver (ui/ondsel/build.sh native)
+ui/ondsel/build/
