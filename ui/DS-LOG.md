@@ -549,12 +549,13 @@ A Claude lane's review of `ds/handoff-1025` found code and documentation leftove
 itself (ShapeBinder placement, attachment query, empty binder, binder tests, editcheck's binder check, Direction 2
 spacing labels) were left alone here, and so were the files that carry them.
 
-### 7a. PARITY entries and the Data tab's Attachment Support — commit `736294c`
+### 7a. PARITY entries and the Data tab's Attachment Support — commits `736294c`, `59db590`
 
 - `ui/src/part_wb.tsx`: a Part object's Data tab wrote Attachment Support as `Base:Face6`; FreeCAD's property view
   writes `Base [Face6]` (and `Origin [XY_Plane.]` for an Origin feature), the form `pd_attach.tsx`'s `attachmentRows`
   already uses, so `PartObjectProps` now renders that, and the unreachable `AttachmentSupport` arm inside the
-  read-only row is gone. No PARITY line was needed for it.
+  read-only row is gone. No PARITY line was needed for it. `ui/scripts/partcheck.mjs`'s property-view check now
+  expects FreeCAD's `Base [Face6]` instead of the old `Base:Face6`.
 - `ui/PARITY.md`, in the matching sections: Part_EditAttachment opens TaskAttacher's panel (not FreeCAD's Python
   TaskAttachmentEditor), its undo step is "Edit attachment" (FreeCAD's "Edit attachment of <name>"), an empty
   reference line reads "No reference selected" (FreeCAD's is empty), and a self-click is ignored without FreeCAD's
@@ -590,6 +591,8 @@ spacing labels) were left alone here, and so were the files that carry them.
 
 - `pytest tests/test_feature_edit.py tests/test_licenses.py -q` (PYTHONPATH this worktree) — 279 passed.
 - `npx tsc -b --noEmit` — clean; `npm run build` — built, bundle committed.
+- `ui/scripts/partcheck.mjs --only=attach` — 17 ok, 0 FAIL, 0 known (run with `CAD_PYTHON` the shared venv and
+  `NODE_PATH` the folder with playwright; this worktree has neither a .venv nor playwright).
 - `ui/scripts/editcheck.mjs` was not run: its Shape Binder section still expects the old undo name "Edit ShapeBinder"
   (`editcheck.mjs:332`), which the review's other lane is fixing along with the binder code findings; the file is
   outside this lane's edits.
