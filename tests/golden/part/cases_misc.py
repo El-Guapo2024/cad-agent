@@ -5,14 +5,17 @@ A Reverse takes its source's Placement, a Scale scales the source's placed shape
 from the wires of its Sources through a face maker, and a RuledSurface fills between two edges or wires (Automatic
 reversing the second when the fill would be twisted).
 """
+import importlib.util as _ilu
+from pathlib import Path as _Path
+
 from cad_agent import feature_part as Part
 from cad_agent.feature import Circle, LineSegment, Pad, Sketch  # noqa: F401
 
-from cases import rect
-
-# cases.py's P, spelled out here: when the whole suite is collected another golden area's `cases` module can be the one
-# `cases` resolves to (tests/golden/feature/cases.py has rect but no P).
-P = ((5.0, -3.0, 2.0), (30.0, 15.0, -10.0))         # a placement off the axes, turned on all three
+# cases.py's helpers, loaded by its path: "cases" is another golden folder's module too when the tests run together
+_spec = _ilu.spec_from_file_location("part_base_cases", _Path(__file__).with_name("cases.py"))
+_base = _ilu.module_from_spec(_spec)
+_spec.loader.exec_module(_base)
+rect, P = _base.rect, _base.P
 
 CASES = {}
 

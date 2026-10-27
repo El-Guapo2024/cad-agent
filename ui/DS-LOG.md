@@ -666,3 +666,148 @@ non-planar Pipe ends and the solid face as Profile), `ui/src/shopwb.tsx` (the dr
 exports; no TechDraw editing code), and `ui/src/chrome.tsx`'s `WORKBENCHES` (six workbenches; no Spreadsheet or Draft).
 
 Unsure: none.
+
+## 9. Test loading: each golden's `cases.py` under its own name — done
+
+### What was done
+
+Several golden folders have a module called `cases.py`. Tests and helpers put the folder on `sys.path` and did a
+bare `from cases import ...`, so `sys.modules["cases"]` held whichever golden's file was imported first and the
+suite broke in another order. The brief's pair,
+`pytest -q tests/test_feature_part.py tests/test_feature_transform.py`, passes in this worktree (1048 passed)
+because nothing in that pair imports a bare `cases` after part's folder is on the path; the collision itself
+reproduced with `pytest -q tests/test_feature_part.py tests/test_feature_attach.py`: `ImportError: cannot import
+name 'base_pad' from 'cases' (tests/golden/part/cases.py)` — `cases_attach.py`'s `from cases import rect` had put
+part's `cases.py` in `sys.modules`, and `bodies.py`'s `from cases import base_pad` then got it. Every test-side load
+now follows `tests/test_feature_binder.py` and `tests/test_assembly_golden.py`: `importlib.util.spec_from_file_location`
+by path, under a unique module name.
+
+- `tests/test_feature.py`: `feature_cases` for `tests/golden/feature/cases.py`; no `sys.path.insert`.
+- `tests/test_feature_attach.py`: `attach_bodies` for `golden/attach/bodies.py` and `feature_cases` for
+  `golden/feature/cases.py`, both by path; no `sys.path.insert`.
+- `tests/test_feature_edit_part.py`, `tests/test_feature_part.py`: the `sys.path.insert(golden/part)` is gone (both
+  already loaded every `cases*.py` by path; the insert existed only for the helpers' bare `cases` import).
+- `tests/golden/attach/bodies.py`: `feature_cases` (feature's `base_pad`, `rect`, `rect_constraints`).
+- `tests/golden/dressup/dressup_cases.py`: `feature_cases` (feature's `base_pad`, `rect`, `rounded`, `step`).
+- `tests/golden/part/cases_misc.py`, `tests/golden/part/cases_attach.py`: `part_base_cases`, the name
+  `cases_split.py` already used, for part's `rect` (and `P` in `cases_misc.py`, replacing the spelled-out copy and
+  its "another golden's `cases`" comment).
+- `tests/golden/part/cases_split.py` already loaded by path, `cases_sweep.py` is self-contained; nothing to change.
+
+No `tests/golden/*/make.py` changed. The files a make.py imports keep working both ways, because the by-path load
+inside the helper does not depend on `sys.path` and the make script still imports the helper by its old name:
+
+- `attach/make_bodies.py` → `from bodies import CASES` (attach and feature on its `sys.path`): imported, 33 cases.
+- `dressup/make.py` → `from dressup_cases import CASES, FOLLOW`: imported, 51 cases + 5 FOLLOW.
+- `part/make.py` → `importlib.import_module("cases_misc" / "cases_attach" / ...)` (part on its `sys.path`):
+  imported; `cases` 47, `cases_misc` 24, `cases_attach` 12, `cases_split` 67, `cases_sweep` 98 (checked with the
+  scripts' own `sys.path` setup in plain Python, not freecadcmd).
+- `feature/make.py` → `from cases import CASES`: `tests/golden/feature/cases.py` itself is untouched and still
+  importable that way.
+
+The remaining test-side `sys.path.insert`s cannot shadow `cases.py`: `test_feature_dressup.py` imports
+`dressup_cases`, `test_feature_edit_attach.py` imports `bodies`, and the sketch goldens' `freecad_side.py` (run by
+freecadcmd, not pytest) import `freecad_side_geo` — all unique names.
+
+### Commit
+
+`tests: load each golden's cases.py by path under its own module name`
+
+### Tests run
+
+a) each touched test file alone (`PYTHONPATH=$PWD .venv/bin/python -m pytest -q <file>`):
+
+```
+== tests/test_feature.py
+132 passed in 4.72s
+== tests/test_feature_attach.py
+332 passed in 3.11s
+== tests/test_feature_edit_part.py
+690 passed in 3.34s
+== tests/test_feature_part.py
+855 passed in 5.65s
+== tests/test_feature_dressup.py
+152 passed in 5.23s
+== tests/test_feature_edit_attach.py
+57 passed in 5.60s
+```
+
+(`test_feature_dressup.py` and `test_feature_edit_attach.py` were not edited, but their helpers changed.)
+
+b) every pair of the touched test files plus `test_feature_transform.py`, `test_feature_dressup.py`,
+`test_feature_part.py`, `test_feature_binder.py`, `test_assembly_golden.py`, in both orders (56 runs; assembly skips
+because `ui/ondsel` is not built). All passed, `fail=0`:
+
+```
+PAIR 1: tests/test_feature.py tests/test_feature_attach.py :: 464 passed in 5.82s
+PAIR 2: tests/test_feature_attach.py tests/test_feature.py :: 464 passed in 5.79s
+PAIR 3: tests/test_feature.py tests/test_feature_edit_part.py :: 822 passed in 6.11s
+PAIR 4: tests/test_feature_edit_part.py tests/test_feature.py :: 822 passed in 5.99s
+PAIR 5: tests/test_feature.py tests/test_feature_part.py :: 987 passed in 9.95s
+PAIR 6: tests/test_feature_part.py tests/test_feature.py :: 987 passed in 9.89s
+PAIR 7: tests/test_feature.py tests/test_feature_transform.py :: 325 passed in 9.60s
+PAIR 8: tests/test_feature_transform.py tests/test_feature.py :: 325 passed in 9.59s
+PAIR 9: tests/test_feature.py tests/test_feature_dressup.py :: 284 passed in 7.98s
+PAIR 10: tests/test_feature_dressup.py tests/test_feature.py :: 284 passed in 8.17s
+PAIR 11: tests/test_feature.py tests/test_feature_binder.py :: 203 passed in 6.04s
+PAIR 12: tests/test_feature_binder.py tests/test_feature.py :: 203 passed in 6.03s
+PAIR 13: tests/test_feature.py tests/test_assembly_golden.py :: 132 passed, 98 skipped in 4.89s
+PAIR 14: tests/test_assembly_golden.py tests/test_feature.py :: 132 passed, 98 skipped in 4.86s
+PAIR 15: tests/test_feature_attach.py tests/test_feature_edit_part.py :: 1022 passed in 4.40s
+PAIR 16: tests/test_feature_edit_part.py tests/test_feature_attach.py :: 1022 passed in 4.36s
+PAIR 17: tests/test_feature_attach.py tests/test_feature_part.py :: 1187 passed in 8.24s
+PAIR 18: tests/test_feature_part.py tests/test_feature_attach.py :: 1187 passed in 8.33s
+PAIR 19: tests/test_feature_attach.py tests/test_feature_transform.py :: 525 passed in 7.70s
+PAIR 20: tests/test_feature_transform.py tests/test_feature_attach.py :: 525 passed in 7.64s
+PAIR 21: tests/test_feature_attach.py tests/test_feature_dressup.py :: 484 passed in 6.17s
+PAIR 22: tests/test_feature_dressup.py tests/test_feature_attach.py :: 484 passed in 6.28s
+PAIR 23: tests/test_feature_attach.py tests/test_feature_binder.py :: 403 passed in 4.37s
+PAIR 24: tests/test_feature_binder.py tests/test_feature_attach.py :: 403 passed in 4.38s
+PAIR 25: tests/test_feature_attach.py tests/test_assembly_golden.py :: 332 passed, 98 skipped in 3.14s
+PAIR 26: tests/test_assembly_golden.py tests/test_feature_attach.py :: 332 passed, 98 skipped in 3.26s
+PAIR 27: tests/test_feature_edit_part.py tests/test_feature_part.py :: 1545 passed in 8.67s
+PAIR 28: tests/test_feature_part.py tests/test_feature_edit_part.py :: 1545 passed in 8.66s
+PAIR 29: tests/test_feature_edit_part.py tests/test_feature_transform.py :: 883 passed in 7.78s
+PAIR 30: tests/test_feature_transform.py tests/test_feature_edit_part.py :: 883 passed in 8.01s
+PAIR 31: tests/test_feature_edit_part.py tests/test_feature_dressup.py :: 842 passed in 6.47s
+PAIR 32: tests/test_feature_dressup.py tests/test_feature_edit_part.py :: 842 passed in 6.46s
+PAIR 33: tests/test_feature_edit_part.py tests/test_feature_binder.py :: 761 passed in 4.47s
+PAIR 34: tests/test_feature_binder.py tests/test_feature_edit_part.py :: 761 passed in 4.69s
+PAIR 35: tests/test_feature_edit_part.py tests/test_assembly_golden.py :: 690 passed, 98 skipped in 3.29s
+PAIR 36: tests/test_assembly_golden.py tests/test_feature_edit_part.py :: 690 passed, 98 skipped in 3.27s
+PAIR 37: tests/test_feature_part.py tests/test_feature_transform.py :: 1048 passed in 11.60s
+PAIR 38: tests/test_feature_transform.py tests/test_feature_part.py :: 1048 passed in 11.84s
+PAIR 39: tests/test_feature_part.py tests/test_feature_dressup.py :: 1007 passed in 10.31s
+PAIR 40: tests/test_feature_dressup.py tests/test_feature_part.py :: 1007 passed in 10.23s
+PAIR 41: tests/test_feature_part.py tests/test_feature_binder.py :: 926 passed in 8.37s
+PAIR 42: tests/test_feature_binder.py tests/test_feature_part.py :: 926 passed in 8.42s
+PAIR 43: tests/test_feature_part.py tests/test_assembly_golden.py :: 855 passed, 98 skipped in 5.66s
+PAIR 44: tests/test_assembly_golden.py tests/test_feature_part.py :: 855 passed, 98 skipped in 5.76s
+PAIR 45: tests/test_feature_transform.py tests/test_feature_dressup.py :: 345 passed in 9.77s
+PAIR 46: tests/test_feature_dressup.py tests/test_feature_transform.py :: 345 passed in 9.88s
+PAIR 47: tests/test_feature_transform.py tests/test_feature_binder.py :: 264 passed in 7.83s
+PAIR 48: tests/test_feature_binder.py tests/test_feature_transform.py :: 264 passed in 7.78s
+PAIR 49: tests/test_feature_transform.py tests/test_assembly_golden.py :: 193 passed, 98 skipped in 6.62s
+PAIR 50: tests/test_assembly_golden.py tests/test_feature_transform.py :: 193 passed, 98 skipped in 6.65s
+PAIR 51: tests/test_feature_dressup.py tests/test_feature_binder.py :: 223 passed in 6.50s
+PAIR 52: tests/test_feature_binder.py tests/test_feature_dressup.py :: 223 passed in 6.46s
+PAIR 53: tests/test_feature_dressup.py tests/test_assembly_golden.py :: 152 passed, 98 skipped in 5.30s
+PAIR 54: tests/test_assembly_golden.py tests/test_feature_dressup.py :: 152 passed, 98 skipped in 5.29s
+PAIR 55: tests/test_feature_binder.py tests/test_assembly_golden.py :: 71 passed, 98 skipped in 3.37s
+PAIR 56: tests/test_assembly_golden.py tests/test_feature_binder.py :: 71 passed, 98 skipped in 3.37s
+MATRIX DONE: 56 runs, fail=0
+```
+
+Extra (the two tests that both load `golden/attach/bodies.py`, in both orders): 389 passed in 6.85s each.
+
+c) collected count before and after (the working-tree diff reversed with `git apply -R`, collected, then
+re-applied — equal):
+
+```
+before: 7397 tests collected in 3.26s
+after:  7397 tests collected in 3.34s
+```
+
+### Unsure / questions
+
+None.

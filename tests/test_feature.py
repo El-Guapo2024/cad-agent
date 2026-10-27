@@ -5,6 +5,7 @@ feature.to_freecad and wrote freecad.json. Here the same lines go through featur
 solid: volume and area to 1e-6 relative, the bounding box and centre of mass to 1e-6 of the box's size, the same
 number of solids and faces, and the same faces (area and centre).
 """
+import importlib.util
 import json
 import math
 import sys
@@ -22,8 +23,10 @@ from cad_agent import feature
 from cad_agent.feature import (Body, Circle, Constraint, FeatureError, LineSegment, Pad, Pocket, Sketch)
 
 GOLDEN = Path(__file__).parent / "golden" / "feature"
-sys.path.insert(0, str(GOLDEN))
-from cases import CASES, rect, rect_constraints  # noqa: E402
+_spec = importlib.util.spec_from_file_location("feature_cases", GOLDEN / "cases.py")  # not "cases": each golden has one
+_cases = importlib.util.module_from_spec(_spec)
+_spec.loader.exec_module(_cases)
+CASES, rect, rect_constraints = _cases.CASES, _cases.rect, _cases.rect_constraints
 
 FREECAD = json.loads((GOLDEN / "freecad.json").read_text())["cases"]
 

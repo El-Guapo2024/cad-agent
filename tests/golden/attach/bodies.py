@@ -7,12 +7,16 @@ Face5 z=0, Face6 z=5; Edge4 (0,0,5)-(40,0,5), Edge7 (40,0,5)-(40,20,5), Edge5 (4
 (40,20,5)-(0,20,5); Vertex1 (0,0,0), Vertex2 (0,0,5), Vertex4 (40,0,5), Vertex6 (40,20,5), Vertex7 (0,20,0). The
 cylinder (r 5, 8 high on XY): Face1 its side, Face3 its top, Edge3 the top circle, Vertex1 (5,0,0).
 """
-import os
-import sys
+import importlib.util
+from pathlib import Path
 
-sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "feature"))
-
-from cases import base_pad, rect, rect_constraints  # noqa: E402
+# tests/golden/feature/cases.py, loaded by its path: `from cases import` would take whichever golden's cases.py the
+# test run imported first. make_bodies.py puts this folder and feature on sys.path, so either way still works.
+_spec = importlib.util.spec_from_file_location(
+    "feature_cases", Path(__file__).resolve().parent.parent / "feature" / "cases.py")
+_cases = importlib.util.module_from_spec(_spec)
+_spec.loader.exec_module(_cases)
+base_pad, rect, rect_constraints = _cases.base_pad, _cases.rect, _cases.rect_constraints
 
 from cad_agent.feature import (Circle, Constraint, DatumLine, DatumPlane, DatumPoint,  # noqa: E402
                                LineSegment, LocalCoordinateSystem, Pad, PartDesignCoordinateSystem,

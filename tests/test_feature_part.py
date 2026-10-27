@@ -9,7 +9,6 @@ marks the object invalid, fail with FreeCAD's message. Each class's DEFAULTS are
 import importlib.util
 import json
 import math
-import sys
 from pathlib import Path
 
 import pytest
@@ -25,7 +24,6 @@ from cad_agent import feature as F
 from cad_agent import feature_part as Part
 
 GOLDEN = Path(__file__).parent / "golden" / "part"
-sys.path.insert(0, str(GOLDEN))
 CASES, FREECAD = {}, {}
 for _p in sorted(GOLDEN.glob("cases*.py")):          # cases.py, and each area's cases_<area>.py
     _spec = importlib.util.spec_from_file_location(f"part_{_p.stem}", _p)

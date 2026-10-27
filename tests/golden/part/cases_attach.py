@@ -7,10 +7,17 @@ Placement of an object that is not a Part::Primitive (a Fuse) moves its built sh
 freecad_attach.json (make.py attach), together with the extension's property values for the types FreeCAD makes
 without it.
 """
+import importlib.util as _ilu
+from pathlib import Path as _Path
+
 from cad_agent import feature_part as Part
 from cad_agent.feature import Pad, Sketch
 
-from cases import rect
+# cases.py's helpers, loaded by its path: "cases" is another golden folder's module too when the tests run together
+_spec = _ilu.spec_from_file_location("part_base_cases", _Path(__file__).with_name("cases.py"))
+_base = _ilu.module_from_spec(_spec)
+_spec.loader.exec_module(_base)
+rect = _base.rect
 
 
 def flat(name, support, **kw):

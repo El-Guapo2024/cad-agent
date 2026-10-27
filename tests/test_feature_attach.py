@@ -5,9 +5,9 @@ feature.to_freecad and wrote bodies.json. Here the same lines go through feature
 solid (as tests/test_feature.py measures it), every sketch and datum the Placement FreeCAD's attachment gave it,
 every sketch the external geometry FreeCAD projected and the geometry FreeCAD's solver left.
 """
+import importlib.util
 import json
 import math
-import sys
 from pathlib import Path
 
 import pytest
@@ -24,9 +24,15 @@ from cad_agent.feature import (Circle, Constraint, DatumLine, DatumPlane, DatumP
                                Sketch)
 
 GOLDEN = Path(__file__).parent / "golden" / "attach"
-sys.path.insert(0, str(GOLDEN))
-from bodies import CASES  # noqa: E402
-from cases import base_pad, rect  # noqa: E402  (tests/golden/feature/cases.py, on bodies.py's path)
+_bodies_spec = importlib.util.spec_from_file_location("attach_bodies", GOLDEN / "bodies.py")
+_bodies = importlib.util.module_from_spec(_bodies_spec)
+_bodies_spec.loader.exec_module(_bodies)
+CASES = _bodies.CASES
+# tests/golden/feature/cases.py, by its path: a bare `from cases import` takes whichever golden's cases.py came first
+_cases_spec = importlib.util.spec_from_file_location("feature_cases", GOLDEN.parent / "feature" / "cases.py")
+_cases = importlib.util.module_from_spec(_cases_spec)
+_cases_spec.loader.exec_module(_cases)
+base_pad, rect = _cases.base_pad, _cases.rect
 
 FREECAD = json.loads((GOLDEN / "bodies.json").read_text())["cases"]
 

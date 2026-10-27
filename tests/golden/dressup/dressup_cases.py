@@ -10,15 +10,20 @@ FOLLOW: name -> {"features": [...], "edit": [...], "after": [...]}: a body, an e
 body after the edit as a feature list (what the part file holds). make.py records each dress-up's Base as
 FreeCAD rewrites it; the test holds feature_dressup.follow() to it.
 """
+import importlib.util
 import math
-import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "feature"))
+# tests/golden/feature/cases.py, loaded by its path: `from cases import` would take whichever golden's cases.py the
+# test run imported first. make.py puts this folder and feature on sys.path, so either way still works.
+_spec = importlib.util.spec_from_file_location(
+    "feature_cases", Path(__file__).resolve().parent.parent / "feature" / "cases.py")
+_cases = importlib.util.module_from_spec(_spec)
+_spec.loader.exec_module(_cases)
+base_pad, rect, rounded, step = _cases.base_pad, _cases.rect, _cases.rounded, _cases.step
 
 from cad_agent.feature import (Chamfer, Circle, Draft, Fillet, LineSegment, Pad, Pocket,  # noqa: E402
                                Sketch, Thickness)
-from cases import base_pad, rect, rounded, step  # noqa: E402
 
 PI = math.pi
 

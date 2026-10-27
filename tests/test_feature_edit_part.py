@@ -2,7 +2,6 @@
 does a Body's FEATURES: in place, only what is not FreeCAD's default, all or nothing, and the result still builds."""
 import ast
 import importlib.util
-import sys
 from pathlib import Path
 
 import pytest
@@ -12,7 +11,6 @@ from cad_agent import feature_edit_part as EP
 from cad_agent import feature_part as Part
 
 GOLDEN = Path(__file__).parent / "golden" / "part"
-sys.path.insert(0, str(GOLDEN))          # an area's cases import cases.py's helpers
 
 
 def _cases():
