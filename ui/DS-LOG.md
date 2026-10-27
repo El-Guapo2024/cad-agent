@@ -811,3 +811,111 @@ after:  7397 tests collected in 3.34s
 ### Unsure / questions
 
 None.
+
+## 10. User docs: the FreeCAD-style editing — done
+
+What: the user docs did not mention the FreeCAD-style editing. `README.md`'s "## Commands" block gains one line each for
+`cad feature`, `cad assembly` and `cad techdraw` (three lines, in the block's command-then-phrase style), and
+`docs/DETAILS.md`'s "### The FreeCAD-style UI (in progress)" gains a short paragraph and four bullets: the workbenches
+the page offers; that an edit in the page or through those three commands is written back into `parts/<Part>.py`
+(`FEATURES`, `OBJECTS`), `assembly.py` (`ASSEMBLY`) and `techdraw/<Page>.py` (under `TechDraw`); one undo step per edit;
+and that each edit is checked against the real FreeCAD, with `ui/PARITY.md` for what differs and `docs/EDITING_PLAN.md`
+for the file formats. Docs only; no tests run.
+
+### Help output the README lines were checked against
+
+`feature` line ("list, add, set, delete, move, clone"):
+
+```
+$ cad feature --help
+usage: cad feature [-h] [--json] <action> ...
+
+a part's PartDesign feature list (Body, Sketch, Pad, Pocket, Fillet, Chamfer, Draft, Thickness): list, new, add, set, delete, rename, move, tip; each change one undo step
+...
+    list        the Body's tree of one part, or of every part
+    new         a new part module with an empty Body (FreeCAD's Create body)
+    add         add a Sketch, Pad, Pocket, ...
+    set         change a feature's properties (length=8 type1=ThroughAll profile=Sketch001)
+    delete      delete features (the layer refuses one another feature still uses)
+    rename      rename a feature, and every reference to it
+    move        move a feature in the Body's order (PartDesign_MoveFeatureInTree)
+    tip         set the Body's Tip (PartDesign_MoveTip)
+    attach      the Attachment panel's answer for references …
+    project     external geometry …
+    apply       several ops as one undo step …
+    shape       a feature's solid and its base's …
+    clone       a new Body whose base is a Clone of another (FreeCAD's PartDesign_Clone)
+    …and sketchkernel, mirror, merge, reorient, map, validate, text, resolve
+```
+
+(Subcommand names verbatim; some descriptions shortened here.)
+
+`assembly` line ("show, insert, joint, set, ground, solve"):
+
+```
+$ cad assembly --help
+usage: cad assembly [-h] [--json] <action> ...
+
+a project's Assembly (FreeCAD's Assembly workbench): show, insert, joint, set, ground, move, solve, delete, rename; solved by FreeCAD's OndselSolver; each change one undo step
+...
+    show      the Assembly's tree, where each component is, the Solver messages
+    new       Assembly_CreateAssembly: the ASSEMBLY list in assembly.py
+    insert    Assembly_InsertLink: a part of the project as a component
+    joint     Assembly_CreateJoint: TYPE and two picks, comp:Element[:Vertex]
+    set       change a joint's or a component's properties (distance=12, ...)
+    …and reverse, ground, move, solve, delete, rename, apply, jcs, asmt
+```
+
+(Subcommand names verbatim; some descriptions shortened here.)
+
+`techdraw` line ("view, section, dimension, balloon, export"): `cad techdraw --help` does not print — it exits 4 while
+argparse formats the parent help, because the `set` subcommand's help string holds `format_spec='%.1f'`
+(`cad_agent/techdrawcmd.py:383`) and argparse %-formats a subparser's help against a dict
+(`TypeError: must be real number, not dict`). The subcommands were read from `add_parsers` (techdrawcmd.py:329-402) and
+each one's `--help` run on its own:
+
+```
+$ cad techdraw <sub> --help   # usage line, for each subcommand
+usage: cad techdraw ls [-h] [--json] slug
+usage: cad techdraw show [-h] [--json] [--no-recompute] [--svg] slug page
+usage: cad techdraw new [-h] [--json] [--page PAGE] [--template TEMPLATE] slug
+usage: cad techdraw view [-h] [--json] [--direction X,Y,Z] [--x-direction X,Y,Z] [--name NAME] slug page PART [PART ...]
+usage: cad techdraw projgroup [-h] [--json] [--direction X,Y,Z] [--x-direction X,Y,Z] [--projections TYPES] slug page PART [PART ...]
+usage: cad techdraw projection [-h] [--json] [--off] slug page group type
+usage: cad techdraw section [-h] [--json] [--direction {Right,Left,Up,Down}] [--origin X,Y,Z] [--symbol SYMBOL] slug page view
+usage: cad techdraw dimension [-h] [--json] slug page type VIEW:ELEMENT [VIEW:ELEMENT ...]
+usage: cad techdraw balloon [-h] [--json] --origin X,Y [--at X,Y] slug page view
+usage: cad techdraw annotation [-h] [--json] [--at X,Y] slug page [LINE ...]
+usage: cad techdraw set [-h] [--json] slug page name KEY=VALUE [KEY=VALUE ...]
+usage: cad techdraw move [-h] [--json] --at X,Y slug page name
+usage: cad techdraw delete [-h] [--json] slug page NAME [NAME ...]
+usage: cad techdraw rename [-h] [--json] slug page name to
+usage: cad techdraw apply [-h] [--json] --ops JSON [--name NAME] [--dry-run] [--svg] slug page
+usage: cad techdraw export [-h] [--json] [--format FORMAT] [--out DIR] slug page
+usage: cad techdraw delete-page [-h] [--json] slug page
+```
+
+Also run, as asked:
+
+```
+usage: cad feature add [-h] [--json] [--after AFTER] slug part type name [KEY=VALUE ...]
+usage: cad feature set [-h] [--json] slug part name KEY=VALUE [KEY=VALUE ...]
+usage: cad feature clone [-h] [--json] [--name NAME] slug source
+```
+
+### Checked in the sources
+
+- Workbenches: `ui/src/chrome.tsx`'s `WORKBENCHES` — agent (CAD Agent), design (Part Design), assembly (Assembly),
+  inspection (Inspection), sketcher (Sketcher), part (Part), techdraw (TechDraw).
+- File formats: `docs/EDITING_PLAN.md` — `FEATURES` and `OBJECTS` in a part file (lines 22, 67, 74), `ASSEMBLY` in
+  `assembly.py` (lines 109, 117), and `techdraw/<Page>.py` under `TechDraw` (line 197).
+- One undo step: the three commands' help strings ("each change one undo step" for feature, assembly and techdraw).
+
+### Commit
+
+`docs: the user docs name the freecad-style editing commands`
+
+### Unsure / questions
+
+- `cad techdraw --help`'s crash is in `cad_agent/techdrawcmd.py`, a file outside this lane's edits; logged here, not
+  fixed.

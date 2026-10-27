@@ -154,6 +154,17 @@ it, printing what a terminal would. The CAD Agent workbench (the default) puts
 check, verify, done, cut list, tables, tool envelopes, bought parts, renders,
 approvals and rules in its own menu and toolbar.
 
+The page offers FreeCAD's workbenches — CAD Agent, Part Design, Assembly,
+Inspection, Sketcher, Part and TechDraw — and an edit made in the page, or
+through `cad feature`, `cad assembly` or `cad techdraw`, is written back into
+the project as Python in the files the design already uses, one undo step for
+each edit:
+
+- `parts/<Part>.py`: `FEATURES` (a Body's feature list) and `OBJECTS` (the Part workbench's objects)
+- `assembly.py`: the `ASSEMBLY` list
+- `techdraw/<Page>.py`: a page's objects, under `TechDraw`
+- every edit is checked against the real FreeCAD: `ui/PARITY.md` says what differs, and `docs/EDITING_PLAN.md` records the file formats
+
 ### Working together: a person in the UI, an agent in a terminal
 
 Both drive the same project through the same CLI. Model changes (`cad set`,
