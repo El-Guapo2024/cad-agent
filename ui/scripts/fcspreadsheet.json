@@ -4504,7 +4504,9 @@
    "application/x-fc-spreadsheet"
   ],
   "xml": "<?xml version='1.0' encoding='utf-8'?>\n<Cells count=\"1\">\n    <Range from=\"J1\" to=\"K2\" count=\"4\">\n        <Cell address=\"J1\" content=\"1\" style=\"bold\" />\n        <Cell address=\"J2\" content=\"=J1 + 1\" />\n        <Cell address=\"K1\" content=\"=$J$1 * 2\" />\n        <Cell address=\"K2\" content=\"=sum(J1:J2)\" />\n    </Range>\n</Cells>\n",
-  "undo": [],
+  "undo": [
+   "Paste Cell"
+  ],
   "used": {
    "J1": {
     "content": "1",
@@ -4520,25 +4522,103 @@
    },
    "K2": {
     "content": "=sum(J1:J2)"
-   }
-  },
-  "tiled": {},
-  "cut_undo": [],
-  "after_cut": {
-   "J1": {
+   },
+   "L5": {
     "content": "1",
     "style": [
      "bold"
     ]
    },
+   "M5": {
+    "content": "=$J$1 * 2"
+   },
+   "L6": {
+    "content": "=L5 + 1"
+   },
+   "M6": {
+    "content": "=sum(L5:L6)"
+   }
+  },
+  "tiled": {
+   "L10": {
+    "content": "1",
+    "style": [
+     "bold"
+    ]
+   },
+   "M10": {
+    "content": "=$J$1 * 2"
+   },
+   "N10": {
+    "content": "1",
+    "style": [
+     "bold"
+    ]
+   },
+   "O10": {
+    "content": "=$J$1 * 2"
+   },
+   "L11": {
+    "content": "=L10 + 1"
+   },
+   "M11": {
+    "content": "=sum(L10:L11)"
+   },
+   "N11": {
+    "content": "=N10 + 1"
+   },
+   "O11": {
+    "content": "=sum(N10:N11)"
+   },
+   "L12": {
+    "content": "1",
+    "style": [
+     "bold"
+    ]
+   },
+   "M12": {
+    "content": "=$J$1 * 2"
+   },
+   "N12": {
+    "content": "1",
+    "style": [
+     "bold"
+    ]
+   },
+   "O12": {
+    "content": "=$J$1 * 2"
+   },
+   "L13": {
+    "content": "=L12 + 1"
+   },
+   "M13": {
+    "content": "=sum(L12:L13)"
+   },
+   "N13": {
+    "content": "=N12 + 1"
+   },
+   "O13": {
+    "content": "=sum(N12:N13)"
+   }
+  },
+  "cut_undo": [
+   "Paste Cell"
+  ],
+  "after_cut": {
    "K1": {
     "content": "=$J$1 * 2"
    },
-   "J2": {
-    "content": "=J1 + 1"
+   "Q1": {
+    "content": "1",
+    "style": [
+     "bold"
+    ]
    },
    "K2": {
     "content": "=sum(J1:J2)"
+   },
+   "Q2": {
+    "content": "=Q1 + 1"
    }
   },
   "delete_undo": [
@@ -4747,8 +4827,55 @@
   ]
  },
  "props": {
-  "view": [],
-  "data": []
+  "view": [
+   {
+    "depth": 0,
+    "name": "Display Options",
+    "value": null
+   },
+   {
+    "depth": 1,
+    "name": "Display Mode",
+    "value": ""
+   },
+   {
+    "depth": 1,
+    "name": "Show In Tree",
+    "value": "true"
+   },
+   {
+    "depth": 1,
+    "name": "Visibility",
+    "value": "true"
+   },
+   {
+    "depth": 0,
+    "name": "Selection",
+    "value": null
+   },
+   {
+    "depth": 1,
+    "name": "On Top When Selected",
+    "value": "Disabled"
+   },
+   {
+    "depth": 1,
+    "name": "Selection Style",
+    "value": "Shape"
+   }
+  ],
+  "data": [
+   {
+    "depth": 0,
+    "name": "Base",
+    "value": null
+   },
+   {
+    "depth": 1,
+    "name": "Label",
+    "value": "Spreadsheet"
+   }
+  ]
  },
  "tree": [
   {
@@ -4766,13 +4893,13 @@
    "Edit cell",
    "Edit cell",
    "Clear Cells",
+   "Paste Cell",
+   "Paste Cell",
+   "Paste Cell",
    "Edit cell",
    "Edit cell",
    "Edit cell",
    "Edit cell",
-   "Edit cell",
-   "Edit cell",
-   "Set cell properties",
    "Edit cell"
   ],
   "after_undo": [
@@ -4789,73 +4916,73 @@
  "cycles": {
   "first": {
    "A1": {
-    "display": "=A2 + 1",
-    "edit": "=A2 + 1",
-    "tooltip": "<pre>Cyclic dependency\nA1, A2</pre>",
-    "fg": "#ff0000",
-    "bg": null,
+    "display": "5",
+    "edit": "5",
+    "tooltip": null,
+    "fg": "#000000",
+    "bg": "#ffffff",
     "align": [
-     "left",
+     "right",
      "vcenter"
     ],
     "font": []
    },
    "B1": {
-    "display": "5",
-    "edit": "5",
-    "tooltip": "<pre>Pending computation due to cyclic dependency</pre>",
-    "fg": "#ff0000",
-    "bg": null,
+    "display": "3.00 mm",
+    "edit": "=3 mm",
+    "tooltip": "thick",
+    "fg": "#000000",
+    "bg": "#ffffff",
     "align": [
-     "left",
+     "right",
      "vcenter"
     ],
     "font": []
    },
    "A2": {
-    "display": "=A1",
-    "edit": "=A1",
-    "tooltip": "<pre>Cyclic dependency\nA1, A2</pre>",
-    "fg": "#ff0000",
-    "bg": null,
+    "display": "-3",
+    "edit": "-3",
+    "tooltip": null,
+    "fg": "#000000",
+    "bg": "#ffffff",
     "align": [
-     "left",
+     "right",
      "vcenter"
     ],
     "font": []
    },
    "B2": {
-    "display": "=B1 * 2",
-    "edit": "=B1 * 2",
-    "tooltip": "<pre>Pending computation due to cyclic dependency</pre>",
-    "fg": "#ff0000",
-    "bg": null,
+    "display": "1000.00 mm",
+    "edit": "=1 m",
+    "tooltip": null,
+    "fg": "#000000",
+    "bg": "#ffffff",
     "align": [
-     "left",
+     "right",
      "vcenter"
     ],
     "font": []
    },
    "A3": {
-    "display": "=A3",
-    "edit": "=A3",
-    "tooltip": "<pre>Cyclic dependency\nA3</pre>",
-    "fg": "#ff0000",
-    "bg": null,
+    "display": "2.50",
+    "edit": "2.5",
+    "tooltip": "ratio",
+    "fg": "#000000",
+    "bg": "#ffffff",
     "align": [
-     "left",
+     "right",
      "vcenter"
     ],
     "font": []
    },
    "B3": {
-    "display": null,
-    "edit": null,
+    "display": "1.00 m^2",
+    "edit": "=1 m * 1 m",
     "tooltip": null,
-    "fg": "#0000ff",
-    "bg": null,
+    "fg": "#000000",
+    "bg": "#ffffff",
     "align": [
-     "hcenter",
+     "right",
      "vcenter"
     ],
     "font": []
@@ -4864,10 +4991,10 @@
   "fixed": {
    "A1": {
     "display": "5",
-    "edit": "=A2 + 1",
+    "edit": "5",
     "tooltip": null,
-    "fg": "#212529",
-    "bg": null,
+    "fg": "#000000",
+    "bg": "#ffffff",
     "align": [
      "right",
      "vcenter"
@@ -4875,11 +5002,11 @@
     "font": []
    },
    "B1": {
-    "display": "5",
-    "edit": "5",
-    "tooltip": null,
-    "fg": "#212529",
-    "bg": null,
+    "display": "3.00 mm",
+    "edit": "=3 mm",
+    "tooltip": "thick",
+    "fg": "#000000",
+    "bg": "#ffffff",
     "align": [
      "right",
      "vcenter"
@@ -4887,11 +5014,11 @@
     "font": []
    },
    "A2": {
-    "display": "4",
-    "edit": "4",
+    "display": "-3",
+    "edit": "-3",
     "tooltip": null,
-    "fg": "#212529",
-    "bg": null,
+    "fg": "#000000",
+    "bg": "#ffffff",
     "align": [
      "right",
      "vcenter"
@@ -4899,11 +5026,11 @@
     "font": []
    },
    "B2": {
-    "display": "10",
-    "edit": "=B1 * 2",
+    "display": "1000.00 mm",
+    "edit": "=1 m",
     "tooltip": null,
-    "fg": "#212529",
-    "bg": null,
+    "fg": "#000000",
+    "bg": "#ffffff",
     "align": [
      "right",
      "vcenter"
@@ -4911,11 +5038,11 @@
     "font": []
    },
    "A3": {
-    "display": "1",
-    "edit": "1",
-    "tooltip": null,
-    "fg": "#212529",
-    "bg": null,
+    "display": "2.50",
+    "edit": "2.5",
+    "tooltip": "ratio",
+    "fg": "#000000",
+    "bg": "#ffffff",
     "align": [
      "right",
      "vcenter"
@@ -4923,13 +5050,13 @@
     "font": []
    },
    "B3": {
-    "display": null,
-    "edit": null,
+    "display": "1.00 m^2",
+    "edit": "=1 m * 1 m",
     "tooltip": null,
-    "fg": "#0000ff",
-    "bg": null,
+    "fg": "#000000",
+    "bg": "#ffffff",
     "align": [
-     "hcenter",
+     "right",
      "vcenter"
     ],
     "font": []
@@ -4937,78 +5064,66 @@
   },
   "two_loops": {
    "C1": {
-    "display": "=D1",
-    "edit": "=D1",
-    "tooltip": "<pre>Cyclic dependency\nC1, D1</pre>",
-    "fg": "#ff0000",
-    "bg": null,
+    "display": "10",
+    "edit": "=A1 * 2",
+    "tooltip": null,
+    "fg": "#000000",
+    "bg": "#ffffff",
     "align": [
-     "left",
+     "right",
      "vcenter"
     ],
     "font": []
    },
    "D1": {
-    "display": "=C1",
-    "edit": "=C1",
-    "tooltip": "<pre>Cyclic dependency\nC1, D1</pre>",
-    "fg": "#ff0000",
-    "bg": null,
+    "display": "6",
+    "edit": "=A1 + 1",
+    "tooltip": null,
+    "fg": "#000000",
+    "bg": "#ffffff",
     "align": [
-     "left",
+     "right",
      "vcenter"
     ],
     "font": []
    },
    "E1": {
-    "display": "=E2",
-    "edit": "=E2",
-    "tooltip": "<pre>Cyclic dependency\nE1, E2, E3</pre>",
-    "fg": "#ff0000",
+    "display": null,
+    "edit": null,
+    "tooltip": null,
+    "fg": "#0000ff",
     "bg": null,
     "align": [
-     "left",
+     "hcenter",
      "vcenter"
     ],
     "font": []
    },
    "C2": {
-    "display": null,
-    "edit": null,
+    "display": "1003.00 mm",
+    "edit": "=B1 + B2",
     "tooltip": null,
-    "fg": "#0000ff",
-    "bg": null,
+    "fg": "#000000",
+    "bg": "#ffffff",
     "align": [
-     "hcenter",
+     "right",
      "vcenter"
     ],
     "font": []
    },
    "D2": {
-    "display": null,
-    "edit": null,
+    "display": "7",
+    "edit": "7",
     "tooltip": null,
-    "fg": "#0000ff",
-    "bg": null,
+    "fg": "#000000",
+    "bg": "#ffffff",
     "align": [
-     "hcenter",
+     "right",
      "vcenter"
     ],
     "font": []
    },
    "E2": {
-    "display": "=E3",
-    "edit": "=E3",
-    "tooltip": "<pre>Cyclic dependency\nE1, E2, E3</pre>",
-    "fg": "#ff0000",
-    "bg": null,
-    "align": [
-     "left",
-     "vcenter"
-    ],
-    "font": []
-   },
-   "C3": {
     "display": null,
     "edit": null,
     "tooltip": null,
@@ -5016,6 +5131,18 @@
     "bg": null,
     "align": [
      "hcenter",
+     "vcenter"
+    ],
+    "font": []
+   },
+   "C3": {
+    "display": "4.50",
+    "edit": "=sum(A1:A3)",
+    "tooltip": null,
+    "fg": "#000000",
+    "bg": "#ffffff",
+    "align": [
+     "right",
      "vcenter"
     ],
     "font": []
@@ -5033,11 +5160,11 @@
     "font": []
    },
    "E3": {
-    "display": "=E1",
-    "edit": "=E1",
-    "tooltip": "<pre>Cyclic dependency\nE1, E2, E3</pre>",
-    "fg": "#ff0000",
-    "bg": null,
+    "display": "AlignLeft",
+    "edit": "'AlignLeft",
+    "tooltip": null,
+    "fg": "#000000",
+    "bg": "#ffffff",
     "align": [
      "left",
      "vcenter"
@@ -5147,24 +5274,6 @@
     1.0
    ]
   },
-  "J1": {
-   "content": "1",
-   "style": [
-    "bold"
-   ],
-   "foreground": [
-    0.0,
-    0.0,
-    0.0,
-    1.0
-   ],
-   "background": [
-    1.0,
-    1.0,
-    1.0,
-    1.0
-   ]
-  },
   "K1": {
    "content": "=$J$1 * 2",
    "foreground": [
@@ -5227,21 +5336,6 @@
   },
   "D2": {
    "content": "7",
-   "foreground": [
-    0.0,
-    0.0,
-    0.0,
-    1.0
-   ],
-   "background": [
-    1.0,
-    1.0,
-    1.0,
-    1.0
-   ]
-  },
-  "J2": {
-   "content": "=J1 + 1",
    "foreground": [
     0.0,
     0.0,
@@ -5517,6 +5611,39 @@
     1.0
    ]
   },
+  "L5": {
+   "content": "1",
+   "style": [
+    "bold"
+   ],
+   "foreground": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "background": [
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  "M5": {
+   "content": "=$J$1 * 2",
+   "foreground": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "background": [
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
   "T5": {
    "content": ""
   },
@@ -5590,6 +5717,36 @@
   "G6": {
    "content": "4",
    "alias": "four",
+   "foreground": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "background": [
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  "L6": {
+   "content": "=L5 + 1",
+   "foreground": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "background": [
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  "M6": {
+   "content": "=sum(L5:L6)",
    "foreground": [
     0.0,
     0.0,
@@ -5939,6 +6096,72 @@
     1.0
    ]
   },
+  "L10": {
+   "content": "1",
+   "style": [
+    "bold"
+   ],
+   "foreground": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "background": [
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  "M10": {
+   "content": "=$J$1 * 2",
+   "foreground": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "background": [
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  "N10": {
+   "content": "1",
+   "style": [
+    "bold"
+   ],
+   "foreground": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "background": [
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  "O10": {
+   "content": "=$J$1 * 2",
+   "foreground": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "background": [
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
   "A11": {
    "content": "-0.004",
    "foreground": [
@@ -6020,6 +6243,66 @@
     1.0
    ]
   },
+  "L11": {
+   "content": "=L10 + 1",
+   "foreground": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "background": [
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  "M11": {
+   "content": "=sum(L10:L11)",
+   "foreground": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "background": [
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  "N11": {
+   "content": "=N10 + 1",
+   "foreground": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "background": [
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  "O11": {
+   "content": "=sum(N10:N11)",
+   "foreground": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "background": [
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
   "A12": {
    "content": "=1 / 0",
    "foreground": [
@@ -6080,6 +6363,72 @@
     1.0
    ]
   },
+  "L12": {
+   "content": "1",
+   "style": [
+    "bold"
+   ],
+   "foreground": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "background": [
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  "M12": {
+   "content": "=$J$1 * 2",
+   "foreground": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "background": [
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  "N12": {
+   "content": "1",
+   "style": [
+    "bold"
+   ],
+   "foreground": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "background": [
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  "O12": {
+   "content": "=$J$1 * 2",
+   "foreground": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "background": [
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
   "A13": {
    "content": "=nothing",
    "foreground": [
@@ -6113,6 +6462,66 @@
   },
   "C13": {
    "content": "'x",
+   "foreground": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "background": [
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  "L13": {
+   "content": "=L12 + 1",
+   "foreground": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "background": [
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  "M13": {
+   "content": "=sum(L12:L13)",
+   "foreground": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "background": [
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  "N13": {
+   "content": "=N12 + 1",
+   "foreground": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "background": [
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  "O13": {
+   "content": "=sum(N12:N13)",
    "foreground": [
     0.0,
     0.0,

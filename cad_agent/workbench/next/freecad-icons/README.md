@@ -92,3 +92,9 @@ The TechDraw workbench's icons (ui/src/techdraw.tsx, techdraw_tasks.tsx) are in 
 the rich text editor's `MRTE/` folder and `actions/TechDraw_MoveView.svg` (CC-BY-SA 2.0) are left out. Their metadata
 says `FreeCAD LGPL2+` (some link the LGPL 3.0 text from their `cc:license` while their rights say FreeCAD LGPL2+), or
 carries no licence and they come under FreeCAD's LGPL-2.1.
+
+The Spreadsheet workbench's icons (ui/src/spreadsheet.tsx) are in `spreadsheet/`: every SVG of
+`src/Mod/Spreadsheet/Gui/Resources/icons` at 3160daf1e2b6, unmodified, 18 files. Their metadata says `FreeCAD LGPL2+`
+(drawn by Eivind Kvedalen), but for SpreadsheetStyleBold.svg, SpreadsheetStyleItalic.svg and SpreadsheetStyleUnderline.svg
+(Tango's format-text icons, by Lapo Calamandrei and Andreas Nilsson), which are in the public domain as their
+`cc:license` says.

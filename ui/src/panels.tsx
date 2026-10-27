@@ -29,6 +29,7 @@ import { PdxTask } from './pd_transform'
 import { ExtrudeTask, FeatureProps, featureTreeEntries, isBodyDoc, PdBodyRows, refOf, toggleActiveBody, type TreeCtx } from './partdesign'
 import { isObjectRef, isPartDoc, PartDocRows, PartObjectProps, partTreeEntries } from './part_wb'
 import { TechDrawProps, TechDrawRows, useTd } from './techdraw'
+import { bindParam, boundExpression, boundValue, namesSheet, SpreadsheetProps, SpreadsheetRows, useSs } from './spreadsheet'
 import { TechDrawTask } from './techdraw_tasks'
 import { PartTask } from './part_tasks'
 import { HoleTask, RevolveTask } from './pd_revolve'
@@ -400,6 +401,8 @@ function ModelTree() {
       })}
       {/* the project's TechDraw pages (techdraw.tsx): each page with its template, views, dimensions, balloons, annotations */}
       {open && <TechDrawRows iconSize={iconSize} />}
+      {/* the project's spreadsheets (spreadsheet.tsx): each Sheet, as the document's objects */}
+      {open && <SpreadsheetRows iconSize={iconSize} />}
       {/* A Body the scene does not draw (nothing built yet, or not in assembly.py): its own row, as FreeCAD lists every Body */}
       {open && Object.keys(features).filter((p) => isPartDoc(features[p]) && !scene?.bodies.some((b) => b.part === p)).map((p) => (
         <PartDocRows key={'pt:' + p} ctx={pdCtx} part={p} bodyRows={(depth) => <PdBodyRows ctx={pdCtx} part={p} body={undefined} bodyRow={(tw) => bodyRowOf(p, depth, tw)} />} row={(twisty) => (
@@ -472,6 +475,7 @@ function PropertyView() {
   const feat = lastFeat && (!lastFeat.endsWith('/') || !b) ? lastFeat : null
   const asmProp = useStore((s) => s.asmSel[s.asmSel.length - 1] ?? null)
   const tdProp = useTd((s) => s.sel.some((r) => !r.includes('.')))
+  const ssProp = useSs((s) => s.sel.length > 0)
   // Auto Expand / Auto Collapse: a new object opens with everything expanded or collapsed.
   useEffect(() => { if (mode !== 'default') setExpand((e) => ({ gen: e.gen + 1, open: mode === 'auto-expand' })) }, [b?.name, mode])
   const bump = (open: boolean | null) => setExpand((e) => ({ gen: e.gen + 1, open }))
@@ -498,6 +502,7 @@ function PropertyView() {
           {/* a Body's feature, sketch or Origin row (partdesign.tsx); the Body's own row shows its part's properties */}
           {asmProp && tab === 'data' && <AssemblyProps key={asmProp} name={asmProp} />}
           {tdProp && tab === 'data' && <TechDrawProps />}
+          {ssProp && tab === 'data' && <SpreadsheetProps />}
           {feat && isObjectRef(getState(), feat) && (tab === 'data' ? <PartObjectProps key={feat} refKey={feat} /> : <Row k="Visibility" v="Space toggles it (the part file's visibility=)" />)}
           {feat && !isObjectRef(getState(), feat) && (tab === 'data' ? <FeatureProps key={feat} refKey={feat} /> : <Row k="Visibility" v="the Body shows its Tip" />)}
           {!feat && b && (tab === 'data' ? <DataProps key={b.name + scene!.source_hash} b={b} />
@@ -573,10 +578,12 @@ const qText = (v: unknown, kind: QKind) => quantity.userString({ value: Number(v
  *  or angle is edited in a QuantitySpinBox (17 cm, 1/2 in, 90 °; arrows and the wheel step
  *  it), as FreeCAD's PropertyUnitItem is; "=" opens the Expression Editor over the part's
  *  other parameters (DlgExpressionInput). PARAMS keeps plain numbers, so OK writes the result. */
-export function EditRow({ k, value, type, onCommit, depth = 0, unit, kind, vars, owner, onExpr, note }:
+export function EditRow({ k, value, type, onCommit, depth = 0, unit, kind, vars, owner, onExpr, onExprText, note }:
   { k: string; value: unknown; type: string; onCommit(v: unknown): void; depth?: number; unit?: string; kind?: QKind | null; vars?: Record<string, quantity.Quantity | PyVal>; owner?: string
     /** The Expression Editor's text is written instead of its value (a FEATURES value may be a PARAMS expression). */
     onExpr?(text: string): void
+    /** Offered the Expression Editor's text first: true when it took it (a PARAMS entry bound to a spreadsheet's cell). */
+    onExprText?(text: string): boolean
     /** Shown after the value: the expression it is bound to. */
     note?: string }) {
   const [editing, setEditing] = useState(false)
@@ -606,6 +613,7 @@ export function EditRow({ k, value, type, onCommit, depth = 0, unit, kind, vars,
     setExpr(null)
     setEditing(false)
     if (onExpr) { onExpr(text.replace(/^=/, '').trim()); return }
+    if (onExprText && onExprText(text.replace(/^=/, '').trim())) return
     report('msg', `${k} = ${text} = ${kind ? qText(n, kind) : fmtValue(n)}. PARAMS keeps plain numbers, so the value is written, not the expression.`)
     write(n)
   }
@@ -740,6 +748,7 @@ export function AppearanceTask() {
 
 function DataProps({ b }: { b: Body }) {
   useStore((s) => s.units) // written again in a new unit system
+  useSs((s) => s.parts)    // a binding changed (spreadsheet.tsx)
   const pl = placementOf(b)
   const params = Object.entries(b.params ?? {})
   const vars = paramVars(b)
@@ -759,7 +768,14 @@ function DataProps({ b }: { b: Body }) {
       {params.length > 0 && b.part && (
         <Group title="Parameters">
           {params.map(([k, p]) => (p.editable
-            ? <EditRow key={k} k={k} value={p.value} type={p.type} kind={paramKind(k, p.type)} vars={vars} owner={b.name} onCommit={(v) => setParams(b.part!, { [k]: p.value }, { [k]: v })} />
+            // a parameter bound to an expression (EXPRESSIONS, FreeCAD's ExpressionEngine: a spreadsheet's cell) shows it, and
+            // "=" with a sheet named binds it (spreadsheet.tsx); a bound one is read only, as FreeCAD's property editor makes it
+            ? boundExpression(b.part!, k)
+              ? <EditRow key={k} k={k} value={boundValue(b.part!, k) ?? p.value} type={p.type} kind={paramKind(k, p.type)} vars={vars} owner={b.name}
+                  note={`= ${boundExpression(b.part!, k)}`} onExpr={(t) => void bindParam(b.part!, k, t || null)}
+                  onCommit={() => report('err', `${k} is bound to ${boundExpression(b.part!, k)}: change the cell, or clear the expression`)} />
+              : <EditRow key={k} k={k} value={p.value} type={p.type} kind={paramKind(k, p.type)} vars={vars} owner={b.name} onCommit={(v) => setParams(b.part!, { [k]: p.value }, { [k]: v })}
+                  onExprText={(t) => (namesSheet(t) ? (void bindParam(b.part!, k, t), true) : false)} />
             : <Row key={k} k={<span title="Not a plain literal in the part file, so it can't be edited here">{k}</span>} v={fmtValue(p.value)} />))}
         </Group>
       )}

@@ -541,6 +541,10 @@ export type Env = {
   /** the object that owns the expression (its name) and its document; a name that is neither is not found. */
   owner?: string
   doc?: string
+  /** Another object of the document (a spreadsheet's cell: spreadsheet.tsx's sheetObjects): called for a path that names an object
+   *  other than the owner, or two names of which the first is not one of the owner's properties; the value and the names left
+   *  (attributes), or null for expr.ts's own error. */
+  resolve?: (p: VarPath) => { value: PyVal | Quantity; rest: string[] } | null
 }
 const isPyVal = (x: PyVal | Quantity): x is PyVal => 't' in x
 function propertyValue(x: PyVal | Quantity): PyVal {
@@ -554,6 +558,10 @@ const refText = (r: Ref) => (r.str ? `<<${r.name}>>` : r.name)
 function resolveProperty(n: Extract<Node, { k: 'var' }>, env: Env): { value: PyVal; rest: string[] } {
   const owner = env.owner ?? '', doc = env.doc ?? ''
   const p = n.path
+  if (env.resolve && ((p.doc && p.doc.name !== doc) || (p.obj && p.obj.name !== owner) || (p.names.length >= 2 && !Object.prototype.hasOwnProperty.call(env.vars, p.names[0])))) {
+    const r = env.resolve(p)
+    if (r) return { value: propertyValue(r.value), rest: r.rest }
+  }
   if (p.doc && p.doc.name !== doc) throw rt(`Document '${refText(p.doc)}' not found in '${p.doc.name}'`)
   if (p.obj && p.obj.name !== owner) throw rt(`Document object '${refText(p.obj)}' not found in '${doc}'`)
   const prop = p.names[0]

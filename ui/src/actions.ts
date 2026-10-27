@@ -486,6 +486,21 @@ export function openPageWindow(page: string, title: string) {
   dock.getPanel(id)?.api.setActive()
   windowChanged()
 }
+/** A spreadsheet's SheetView (spreadsheet.tsx): a tab "drawing:ss:<Sheet>" titled with the sheet's Label (ViewProviderSheet::
+ *  showSpreadsheetView), treated by the windows' commands as a drawing is. */
+const SHEET_WINDOW = DRAWING + 'ss:'
+export function openSheetWindow(sheet: string, title: string) {
+  if (!dock) return
+  const id = SHEET_WINDOW + sheet
+  const open = dock.getPanel(id)
+  if (open) { open.api.setActive(); return }
+  const near = dock.getPanel('view3d') ?? dock.getPanel('start') ?? drawingPanels()[0]
+  addPanel({ id, component: 'spreadsheet', title, params: { sheet }, ...(near ? { position: { referencePanel: near.id, direction: 'within' as const } } : {}) })
+  dock.getPanel(id)?.api.setActive()
+  windowChanged()
+}
+export const sheetWindows = () => drawingPanels().filter((p) => p.id.startsWith(SHEET_WINDOW))
+  .map((p) => ({ sheet: p.id.slice(SHEET_WINDOW.length), active: dock?.activePanel?.id === p.id }))
 export const pageWindows = () => drawingPanels().filter((p) => p.id.startsWith(PAGE_WINDOW))
   .map((p) => ({ page: p.id.slice(PAGE_WINDOW.length), active: dock?.activePanel?.id === p.id }))
 
@@ -712,11 +727,12 @@ function connect() {
       case 'features': loadFeatures(); break // POST /api/<slug>/features from this page or another one
       case 'assembly': void import('./assembly_wb').then((m) => m.loadAssembly()); break // POST /api/<slug>/assembly
       case 'techdraw': void import('./techdraw').then((m) => m.loadTechDraw()); break // POST /api/<slug>/techdraw/<page>
+      case 'spreadsheet': void import('./spreadsheet').then((m) => m.loadSheets()); break // POST /api/<slug>/spreadsheet/<sheet>
       case 'scene': loadScene(); break
       case 'checks': loadChecks(); break
       case 'verify': loadStatus(); break
       // The journal changed: our own undo/redo, the agent's `cad undo`/`cad redo`, or a new change.
-      case 'history': loadHistory(); void import('./techdraw').then((m) => m.loadTechDraw()); break   // an undo may change a page
+      case 'history': loadHistory(); void import('./techdraw').then((m) => m.loadTechDraw()); void import('./spreadsheet').then((m) => m.loadSheets()); break   // an undo may change a page or a sheet
       case 'log': setState((s) => ({ log: [...s.log, ...ev.entries].slice(-500) })); break
       case 'busy': setState({ busy: ev.busy ?? [] }); break
       case 'checked':

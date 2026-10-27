@@ -48,8 +48,11 @@ them carry.
   David Friedli: Mod/Measure/Gui/Command.cpp, Mod/Measure/Gui/TaskMeasure.cpp,
       Mod/Measure/Gui/ViewProviderMeasureAngle.cpp, Mod/Measure/Gui/ViewProviderMeasureBase.cpp,
       Mod/Measure/Gui/ViewProviderMeasureDistance.cpp
-  Eivind Kvedalen: App/Expression.cpp, App/Expression.l, App/Expression.y, App/ObjectIdentifier.cpp,
-      Gui/Dialogs/DlgExpressionInput.cpp, Gui/ExpressionCompleter.cpp
+  Eivind Kvedalen: App/Expression.cpp, App/Expression.l, App/Expression.y, App/ObjectIdentifier.cpp, App/Range.cpp,
+      Gui/Dialogs/DlgExpressionInput.cpp, Gui/ExpressionCompleter.cpp, Mod/Spreadsheet/App/Cell.cpp,
+      Mod/Spreadsheet/App/PropertySheet.cpp, Mod/Spreadsheet/Gui/Command.cpp, Mod/Spreadsheet/Gui/PropertiesDialog.cpp,
+      Mod/Spreadsheet/Gui/SheetModel.cpp, Mod/Spreadsheet/Gui/SheetTableView.cpp, Mod/Spreadsheet/Gui/SpreadsheetView.cpp,
+      Mod/Spreadsheet/Gui/ViewProviderSpreadsheet.cpp, Mod/Spreadsheet/Gui/Workbench.cpp
   Florian Foinant-Willig: Mod/Sketcher/Gui/CommandSketcherOverlay.cpp
   FreeCAD contributors: Gui/Selection/SelectionColors.h
   FreeCAD Project Association: Gui/CommandStd.cpp, Gui/Dialogs/DlgPreferencesImp.cpp,
@@ -181,6 +184,9 @@ src/App/GeoFeature.cpp   [licence: LGPL-2.1-or-later]
 src/App/ObjectIdentifier.cpp   [licence: LGPL-2.1-or-later]
     copyright 2015 Eivind Kvedalen
     followed by src/expr.ts
+src/App/Range.cpp   [licence: LGPL-2.1-or-later]
+    copyright 2015 Eivind Kvedalen
+    followed by src/spreadsheet_model.ts
 src/App/QuantityInput.cpp   [licence: LGPL-2.1-or-later]
     copyright: no line in the file
     followed by src/expr.ts, src/quantity-input.ts
@@ -1400,6 +1406,39 @@ src/Mod/Sketcher/Gui/ViewProviderSketch.cpp   [licence: LGPL-2.1-or-later]
 src/Mod/Sketcher/Gui/Workbench.cpp   [licence: LGPL-2.1-or-later]
     copyright 2008 Jürgen Riegel
     followed by src/chrome.tsx, src/sketchcmds.ts, src/sketcher.ts
+src/Mod/Spreadsheet/App/Cell.cpp   [licence: LGPL-2.1-or-later]
+    copyright 2015 Eivind Kvedalen
+    followed by src/spreadsheet_model.ts
+src/Mod/Spreadsheet/App/PropertySheet.cpp   [licence: LGPL-2.1-or-later]
+    copyright 2015 Eivind Kvedalen
+    followed by src/spreadsheet_model.ts
+src/Mod/Spreadsheet/Gui/Command.cpp   [licence: LGPL-2.1-or-later]
+    copyright 2015 Eivind Kvedalen
+    followed by src/spreadsheet.tsx
+src/Mod/Spreadsheet/Gui/PropertiesDialog.cpp   [licence: LGPL-2.1-or-later]
+    copyright 2015 Eivind Kvedalen
+    followed by src/spreadsheet.tsx
+src/Mod/Spreadsheet/Gui/PropertiesDialog.ui   [licence: none]
+    copyright: no line in the file
+    followed by src/spreadsheet.tsx
+src/Mod/Spreadsheet/Gui/Sheet.ui   [licence: none]
+    copyright: no line in the file
+    followed by src/spreadsheet.tsx
+src/Mod/Spreadsheet/Gui/SheetModel.cpp   [licence: LGPL-2.1-or-later]
+    copyright 2015 Eivind Kvedalen
+    followed by src/spreadsheet.tsx, src/spreadsheet_model.ts
+src/Mod/Spreadsheet/Gui/SheetTableView.cpp   [licence: LGPL-2.1-or-later]
+    copyright 2015 Eivind Kvedalen
+    followed by src/spreadsheet.tsx, src/spreadsheet_model.ts
+src/Mod/Spreadsheet/Gui/SpreadsheetView.cpp   [licence: LGPL-2.1-or-later]
+    copyright 2015 Eivind Kvedalen
+    followed by src/spreadsheet.tsx
+src/Mod/Spreadsheet/Gui/ViewProviderSpreadsheet.cpp   [licence: LGPL-2.1-or-later]
+    copyright 2015 Eivind Kvedalen
+    followed by src/spreadsheet.tsx
+src/Mod/Spreadsheet/Gui/Workbench.cpp   [licence: LGPL-2.1-or-later]
+    copyright 2015 Eivind Kvedalen
+    followed by src/spreadsheet.tsx
 src/Mod/Start/App/ExamplesModel.cpp   [licence: LGPL-2.1-or-later]
     copyright 2024 The FreeCAD Project Association AISBL
     followed by src/start.tsx

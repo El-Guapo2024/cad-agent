@@ -1432,6 +1432,11 @@ class Sheet:
                                 raise SpreadsheetError(f"Failed to copy cell {self.full_name()}.{d.to_string()} from "
                                                        f"{new_addr.to_string()}")
                             cell.set_expression(X.copy(nc.expression))
+                            # getExpression(true) carries the cell's look in the expression's comment, which
+                            # Cell::setExpression restores (an alias already taken is left out)
+                            look = nc.attrs()
+                            if look:
+                                cell.restore(look, check_alias=True)
                         if cell.is_used(SPANS_SET):
                             rs, cs = cell.spans()
                             self.cells.merge_cells(d, CellAddress(d.row + rs - 1, d.col + cs - 1))

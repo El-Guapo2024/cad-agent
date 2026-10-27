@@ -124,7 +124,7 @@ export type Task = { kind: 'params' | 'placement' | 'transform' | 'measure' | 'm
 /** GET /api/history: one entry of the backend's Document undo/redo journal, shared with an
  *  agent in a terminal — replaces a UI-local undo stack (actions.ts no longer replays changes). */
 export type HistoryEntry = { id: string; name: string; by: 'ui' | 'agent'; t: number }
-export type Workbench = 'design' | 'assembly' | 'inspection' | 'agent' | 'sketcher' | 'part' | 'techdraw'
+export type Workbench = 'design' | 'assembly' | 'inspection' | 'agent' | 'sketcher' | 'part' | 'techdraw' | 'spreadsheet'
 /** FreeCAD's draw styles that the viewer can show faithfully. */
 export type DrawStyle = 'asis' | 'points' | 'wireframe' | 'hiddenline' | 'noshading' | 'shaded' | 'flatlines'
 export type ClipAxis = { on: boolean; offset: number; flip: boolean }

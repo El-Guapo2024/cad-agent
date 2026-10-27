@@ -34,10 +34,11 @@ import { isMac } from './nav'
 import { StartPanel } from './start'
 import { DrawingPanel } from './shopwb'
 import { TechDrawPage } from './techdraw'
+import { SpreadsheetOverlays, SpreadsheetView } from './spreadsheet'
 
 const components: Record<string, FC<IDockviewPanelProps<any>>> = {
   view3d: View3D, model: ModelPanel, tasks: TasksPanel, report: ReportView, checks: ChecksView, console: ConsoleView, selection: SelectionView,
-  start: StartPanel, drawing: DrawingPanel, techdraw: TechDrawPage,
+  start: StartPanel, drawing: DrawingPanel, techdraw: TechDrawPage, spreadsheet: SpreadsheetView,
 }
 
 /** MainWindow::addWindow gives a window's tab the view's window icon (QMdiSubWindow::setWindowIcon): a 3D view has
@@ -47,7 +48,7 @@ const components: Record<string, FC<IDockviewPanelProps<any>>> = {
  *  that uses it (the bundle's assets/), not the page. */
 const TAB_ICONS: Record<string, string> = { view3d: 'Document', start: 'StartCommandIcon' }
 const Tab: FC<IDockviewPanelHeaderProps> = (props) => {
-  const icon = TAB_ICONS[props.api.id] ?? (props.api.id.startsWith('drawing:') ? 'TechDraw_TreePage' : null)
+  const icon = TAB_ICONS[props.api.id] ?? (props.api.id.startsWith('drawing:ss:') ? 'spreadsheet/Spreadsheet' : props.api.id.startsWith('drawing:') ? 'TechDraw_TreePage' : null)
   return <DockviewDefaultTab {...props} {...(icon ? { 'data-icon': icon, style: { '--tab-icon': `url(${new URL(`freecad-icons/${icon}.svg`, document.baseURI).href})` } as CSSProperties } : {})} />
 }
 
@@ -227,6 +228,7 @@ export function App() {
       <CustomizeDialog />
       <PickItemHost />
       <MessageBoxHost />
+      <SpreadsheetOverlays />
       <SketchHost />
     </div>
   )

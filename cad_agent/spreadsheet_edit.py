@@ -247,6 +247,16 @@ def sheet_json(doc, sheet, prefs=None) -> dict:
         d["value"] = value_json(p)
         if c.has_exception():
             d["exception"] = c.exception
+        # what SheetModel::data reads of the cell, for the page's own port of it (src/spreadsheet_model.ts)
+        from .spreadsheet_sheet import (ALIAS_SET, BACKGROUND_COLOR_SET, DISPLAY_UNIT_SET, FOREGROUND_COLOR_SET,
+                                        STYLE_SET)
+        d["raw"] = {"alignment": c.alignment, "style": sorted(c.style) if c.is_used(STYLE_SET) else [],
+                    "fg": list(c.foreground) if c.is_used(FOREGROUND_COLOR_SET) else None,
+                    "bg": list(c.background) if c.is_used(BACKGROUND_COLOR_SET) else None,
+                    "alias": c.alias if c.is_used(ALIAS_SET) else None,
+                    "du": {"text": c.display_unit.string_rep, "dims": list(c.display_unit.unit),
+                           "scaler": c.display_unit.scaler} if c.is_used(DISPLAY_UNIT_SET) else None,
+                    "dirty": a.key in sheet.cells.dirty}
         d["view"] = display(sheet, a, prefs)
         cells[name] = d
     merged = {}

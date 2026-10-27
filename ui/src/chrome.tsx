@@ -62,6 +62,7 @@ import { deleteFeatures, partDesignMenu, pdToolbars, sketchMenu } from './partde
 import { partMenu, partToolbars } from './part_wb'
 import { assemblyMenu, assemblyToolbars } from './assembly_wb'
 import { deleteTd, tdState, TECHDRAW_TOOLBARS, techdrawMenu, techdrawToolbars } from './techdraw'
+import { ColorPickers, deleteSelectedSheets, sheetActive, sheetMsg, spreadsheetMenu, spreadsheetToolbar, ssState } from './spreadsheet'
 import { createDatum, datumsMenu } from './pd_attach'
 /** Edit > Create's entries other than Datums: a project's parts are its modules here, not document objects. */
 const CREATE_NA = 'n/a: a project\'s parts are its part modules; there is no document to add this to'
@@ -96,6 +97,7 @@ const WORKBENCHES: Record<Workbench, { label: string; icon: IconName; name: stri
   sketcher: { label: 'Sketcher', icon: 'wb-sketcher', name: 'SketcherWorkbench' },
   part: { label: 'Part', icon: 'wb-part', name: 'PartWorkbench' },
   techdraw: { label: 'TechDraw', icon: 'td-preferences-techdraw', name: 'TechDrawWorkbench' },   // TechDraw's InitGui.py
+  spreadsheet: { label: 'Spreadsheet', icon: 'ss-SpreadsheetWorkbench', name: 'SpreadsheetWorkbench' },   // Spreadsheet's InitGui.py
 }
 /** WorkbenchGroup::refreshWorkbenchList: the workbenches in the order of their internal names
  *  (Gui.listWorkbenches()), the first nine on W, 1 … W, 9. */
@@ -455,12 +457,18 @@ export function MenuBar() {
         'sep',
         // The clipboard group. The model is source code, so only Copy has a meaning here: the
         // selection's names, as text (commands.ts copySelection).
-        { label: 'Cut', kbd: '⌘X', icon: 'edit-cut', disabled: true, title: 'n/a: parts are source code; removing one is an edit to it' },
-        { label: 'Copy', kbd: '⌘C', icon: 'edit-copy', cmd: 'Std_Copy', disabled: !selected.length, onSelect: copySelection, title: 'Copies the selection to the clipboard' },
-        { label: 'Paste', kbd: '⌘V', icon: 'edit-paste', disabled: true, title: 'n/a: parts are source code; adding one is an edit to it' },
+        // a sheet's view in front takes the clipboard commands (SheetView::onMsg: Cut, Copy, Paste)
+        sheetActive() ? { label: 'Cut', kbd: '⌘X', icon: 'edit-cut', cmd: 'Std_Cut', onSelect: () => sheetMsg('Cut') }
+          : { label: 'Cut', kbd: '⌘X', icon: 'edit-cut', disabled: true, title: 'n/a: parts are source code; removing one is an edit to it' },
+        sheetActive() ? { label: 'Copy', kbd: '⌘C', icon: 'edit-copy', cmd: 'Std_Copy', onSelect: () => sheetMsg('Copy') }
+          : { label: 'Copy', kbd: '⌘C', icon: 'edit-copy', cmd: 'Std_Copy', disabled: !selected.length, onSelect: copySelection, title: 'Copies the selection to the clipboard' },
+        sheetActive() ? { label: 'Paste', kbd: '⌘V', icon: 'edit-paste', cmd: 'Std_Paste', onSelect: () => sheetMsg('Paste') }
+          : { label: 'Paste', kbd: '⌘V', icon: 'edit-paste', disabled: true, title: 'n/a: parts are source code; adding one is an edit to it' },
         { label: 'Duplicate Selection', icon: 'duplicate', disabled: true, title: 'n/a: parts are source code; duplicating one is an edit to it' },
         // Std_Delete: a Body's features (partdesign.tsx), with FreeCAD's dependency warning; a part is its source code
         tdState().sel.length ? { label: 'Delete', kbd: '⌫', icon: 'edit-delete', cmd: 'Std_Delete', onSelect: () => void deleteTd() } :
+        sheetActive() ? { label: 'Delete', kbd: '⌫', icon: 'edit-delete', cmd: 'Std_Delete', onSelect: () => sheetMsg('Std_Delete') } :
+        ssState().sel.length ? { label: 'Delete', kbd: '⌫', icon: 'edit-delete', cmd: 'Std_Delete', onSelect: () => void deleteSelectedSheets() } :
         getState().featSel.length ? { label: 'Delete', kbd: '⌫', icon: 'edit-delete', cmd: 'Std_Delete', onSelect: () => void deleteFeatures() }
           : { label: 'Delete', kbd: '⌫', icon: 'edit-delete', disabled: true, title: 'n/a: parts are source code; deleting one is an edit to it' },
         'sep',
@@ -606,6 +614,8 @@ export function MenuBar() {
       {wb === 'assembly' && <Menu label="Assembly" entries={assemblyMenu()} />}
       {/* TechDrawGui::Workbench::setupMenuBar: "Tech&Draw", inserted before Windows (techdraw.tsx) */}
       {wb === 'techdraw' && <Menu label="TechDraw" entries={techdrawMenu()} />}
+      {/* SpreadsheetGui::Workbench::setupMenuBar: "&Spreadsheet", inserted before Windows (spreadsheet.tsx) */}
+      {wb === 'spreadsheet' && <Menu label="Spreadsheet" entries={spreadsheetMenu()} />}
       <Menu label="Windows" entries={windowsEntries()} />
       <Menu label="Help" entries={[
         { label: "What's This?", kbd: '⇧F1', icon: 'whats-this', onSelect: whatsThis },
@@ -822,11 +832,11 @@ function UndoRedoButton({ kind }: { kind: 'undo' | 'redo' }) {
 export const TOOLBARS = ['File', 'Edit', 'Clipboard', 'Workbench', 'Macro', 'View', 'Individual Views', 'Structure', 'Help', 'CAD Agent', 'Part Tools',
   'Solids', 'Boolean Tools', 'Assembly', 'Assembly Joints', 'Part Design Helper Features', 'Part Design Modeling Features', 'Part Design Dress-Up Features', 'Part Design Transformation Features',
   'TechDraw Pages', 'TechDraw Views', 'TechDraw Stacking', 'TechDraw Dimensions', 'TechDraw Attributes', 'TechDraw Centerlines', 'TechDraw Extend Dimensions',
-  'TechDraw File Access', 'TechDraw Decoration', 'TechDraw Annotation'] as const
+  'TechDraw File Access', 'TechDraw Decoration', 'TechDraw Annotation', 'Spreadsheet'] as const
 /** A workbench's own toolbars, listed in View > Toolbars only while it is active. */
 const WB_TOOLBARS: Record<string, string> = { 'CAD Agent': 'agent', Solids: 'part', 'Boolean Tools': 'part', Assembly: 'assembly', 'Assembly Joints': 'assembly', 'Part Design Helper Features': 'design', 'Part Design Modeling Features': 'design',
   'Part Design Dress-Up Features': 'design', 'Part Design Transformation Features': 'design',
-  ...Object.fromEntries(TECHDRAW_TOOLBARS.map((t) => [t, 'techdraw'])) }
+  ...Object.fromEntries(TECHDRAW_TOOLBARS.map((t) => [t, 'techdraw'])), Spreadsheet: 'spreadsheet' }
 const HIDDEN_TOOLBARS: readonly string[] = ['Clipboard', 'Macro', 'Individual Views']
 const toolbarOn = (shown: Record<string, boolean>, name: string) => shown[name] ?? !HIDDEN_TOOLBARS.includes(name)
 /** QToolBar::handle: the 8px grip each toolbar starts with (FreeCAD.qss), gone when locked. */
@@ -928,7 +938,9 @@ export function ToolBar() {
       {/* TechDrawGui::Workbench::setupToolBars: its ten toolbars (techdraw.tsx) */}
       {wb === 'techdraw' && techdrawToolbars().filter(([t]) => on(t as (typeof TOOLBARS)[number])).map(([t, es]) => (
         <span key={t} className="tb-group" title={t}><TGrip />{es.map((e, i) => <EntryBtn key={i} e={e} />)}</span>))}
-      {wb !== 'part' && wb !== 'assembly' && wb !== 'techdraw' && on('Part Tools') && <><TGrip />
+      {/* SpreadsheetGui::Workbench::setupToolBars and activated(): the Spreadsheet toolbar and its two colour pickers */}
+      {wb === 'spreadsheet' && on('Spreadsheet') && <span className="tb-group" title="Spreadsheet"><TGrip />{spreadsheetToolbar().map((e, i) => <EntryBtn key={i} e={e} />)}<ColorPickers /></span>}
+      {wb !== 'part' && wb !== 'assembly' && wb !== 'techdraw' && wb !== 'spreadsheet' && on('Part Tools') && <><TGrip />
         <Btn icon="visibility" cmd="Std_ToggleVisibility" disabled={!selected.length} onClick={() => toggleVisibility()} />
         {wb === 'design' && <Btn icon="body" cmd="Std_Edit" disabled={!one} onClick={() => one && editDefault(one)} />}
         {wb !== 'inspection' && <Btn icon="transform" cmd="Std_TransformManip" disabled={!one} onClick={() => one && openTask('transform', one)} />}

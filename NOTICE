@@ -55,6 +55,15 @@ that commit.
                            techdraw_export.py, all of them (the TechDraw workbench's page objects,
                            view geometry, dimensions, commands and exports). See section 2.
 
+  LGPL-2.1-or-later        cad_agent/fcexpr.py, fcexpr_fn.py, fcexpr_py.py, fcexpr_quantity.py and
+                           fcexpr_data.json, all of them (FreeCAD's expression language: the port of
+                           ui/src/expr.ts, its values and quantities, and the grammar and unit tables
+                           of ui/src). See section 2.
+
+  LGPL-2.1-or-later        cad_agent/spreadsheet.py, spreadsheet_sheet.py, spreadsheet_doc.py and
+                           spreadsheet_edit.py, all of them (the Spreadsheet workbench's sheet, cells,
+                           recompute, document and commands). See section 2.
+
   LGPL-2.1-or-later and    cad_agent/techdraw_templates/: FreeCAD's TechDraw templates, unmodified.
   CC0-1.0                  See section 3.
 
@@ -269,6 +278,22 @@ that commit.
       Joe Dowsett, 2012 Yorik van Havre, 2015-2023 WandererFan, 2019 Franck Jullien (each file's header
       names its own). SPDX-License-Identifier: LGPL-2.1-or-later. The page's DXF reuses
       cad_agent/dxf.py's writer (above).
+
+  cad_agent/fcexpr.py, fcexpr_fn.py, fcexpr_py.py, fcexpr_quantity.py, fcexpr_data.json
+      Re-express ui/src/expr.ts, expr-py.ts, expr-grammar.ts, quantity.ts, units-data.ts and
+      units-schemas.ts (part of ui/, LGPL-2.1-or-later), which port src/App/Expression.cpp,
+      Expression.l, Expression.y, ObjectIdentifier.cpp and src/Base/Quantity.cpp, Quantity.l,
+      Quantity.y, QuantityPyImp.cpp, Unit.cpp, UnitsSchemasData.h, VectorPyImp.cpp. Copyright (c)
+      2010, 2013 Jürgen Riegel, 2015 Eivind Kvedalen, 2008 Werner Mayer (each file's header names its
+      own). SPDX-License-Identifier: LGPL-2.1-or-later.
+
+  cad_agent/spreadsheet.py, spreadsheet_sheet.py, spreadsheet_doc.py, spreadsheet_edit.py
+      Re-express src/App/Range.cpp, src/Mod/Spreadsheet/App: Sheet.cpp, Cell.cpp, PropertySheet.cpp,
+      SheetPyImp.cpp, PropertyColumnWidths.cpp, PropertyRowHeights.cpp, src/Mod/Spreadsheet/Gui:
+      Command.cpp, SheetTableView.cpp, SpreadsheetView.cpp, PropertiesDialog.cpp, SheetModel.cpp,
+      Workbench.cpp, and src/App/ObjectIdentifier.cpp, PropertyExpressionEngine.cpp and Document.cpp's
+      name resolution, cycle check and recompute order. Copyright (c) 2015 Eivind Kvedalen, 2002 Jürgen
+      Riegel. SPDX-License-Identifier: LGPL-2.1-or-later.
 
   These are close translations or re-expressions and keep their code; each file says so in its
   header. Other files credit FreeCAD in a comment (cad_agent/bom.py, subassembly.py, shop.py,

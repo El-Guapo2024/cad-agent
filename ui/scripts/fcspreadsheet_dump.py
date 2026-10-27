@@ -112,6 +112,12 @@ def toolbars():
 
 
 def table():
+    area = mw.findChild(QtWidgets.QMdiArea)
+    act = area.activeSubWindow() if area is not None else None
+    if act is not None:
+        mine = [w for w in act.findChildren(QtWidgets.QWidget) if w.metaObject().className() == "SpreadsheetGui::SheetTableView"]
+        if mine:
+            return mine[0]
     found = [w for w in app.allWidgets() if w.metaObject().className() == "SpreadsheetGui::SheetTableView"]
     for w in found:
         if w.isVisible():
@@ -587,33 +593,33 @@ def main():
         tv = table()
         select("J1:K2")
         acts = {a.text(): a for a in tv.findChildren(QtGui.QAction)}
-        acts["Copy"].trigger()
+        (acts["Copy"].setEnabled(True), acts["Copy"].trigger())
         pump(0.3)
         clip = QtWidgets.QApplication.clipboard().mimeData()
         out = {"text": clip.text(), "formats": clip.formats(),
                "xml": bytes(clip.data("application/x-fc-spreadsheet")).decode("utf-8", "replace")}
         select("L5")
         before = list(doc.UndoNames)
-        acts["Paste"].trigger()
+        (acts["Paste"].setEnabled(True), acts["Paste"].trigger())
         pump(0.8)
         out["undo"] = undo_head(before)
         out["used"] = {a: c for a, c in used().items() if a[0] in "JKLM"}
         select("L10:O13")
-        acts["Paste"].trigger()
+        (acts["Paste"].setEnabled(True), acts["Paste"].trigger())
         pump(0.8)
         out["tiled"] = {a: c for a, c in used().items() if a[0] in "LMNO" and int(a[1:]) >= 10}
         select("J1:J2")
-        acts["Cut"].trigger()
+        (acts["Cut"].setEnabled(True), acts["Cut"].trigger())
         pump(0.3)
         select("Q1")
         before = list(doc.UndoNames)
-        acts["Paste"].trigger()
+        (acts["Paste"].setEnabled(True), acts["Paste"].trigger())
         pump(0.8)
         out["cut_undo"] = undo_head(before)
         out["after_cut"] = {a: c for a, c in used().items() if a[0] in "JKQ"}
         select("Q1:Q2")
         before = list(doc.UndoNames)
-        acts["Delete"].trigger()
+        (acts["Delete"].setEnabled(True), acts["Delete"].trigger())
         pump(0.6)
         out["delete_undo"] = undo_head(before)
         out["after_delete"] = {a: c for a, c in used().items() if a[0] in "Q"}
@@ -689,7 +695,7 @@ def main():
                 tw.setCurrentIndex(i)
                 pump(0.3)
                 rows = []
-                for ed in tw.widget(i).findChildren(QtWidgets.QTreeView):
+                for ed in [x for x in mw.findChildren(QtWidgets.QTreeView) if x.metaObject().className() == "Gui::PropertyEditor::PropertyEditor" and x.isVisible()]:
                     m = ed.model()
 
                     def walk(parent, depth):
@@ -739,6 +745,11 @@ def main():
         doc.recompute()
         Gui.getDocument(doc.Name).setEdit("Spreadsheet001")
         pump(1.0)
+        area = mw.findChild(QtWidgets.QMdiArea)
+        for w in area.subWindowList():
+            if w.windowTitle().startswith("Spreadsheet001"):
+                area.setActiveSubWindow(w)
+        pump(0.5)
         out = {"first": view_cells("A1:B3")}
         s2.set("A2", "4")
         s2.set("A3", "1")

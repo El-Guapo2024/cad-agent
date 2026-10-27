@@ -16,6 +16,7 @@ import { newSketch, pdMenus } from './partdesign'
 import { partMenus } from './part_wb'
 import { assemblyMenus, loadAssembly } from './assembly_wb'
 import { applyTd, loadTechDraw, tdSelect, tdState, techdrawMenus } from './techdraw'
+import { applySs, loadSheets, setSs, spreadsheetMenus, ssState } from './spreadsheet'
 import { createDatum, editAttachment } from './pd_attach'
 import { panelFields } from './pd_revolve'
 import { loadFeatures } from './actions'
@@ -37,3 +38,4 @@ import { panelState as sketchPanel, resetPanelParams as sketchPanelReset } from 
 Object.assign((window as unknown as { cadui: object }).cadui, { sketchPanel, sketchPanelReset })   // sketchcheck.mjs: the Sketcher's task panel
 Object.assign((window as unknown as { cadui: object }).cadui, { part: partMenus, assembly: assemblyMenus, loadAssembly,
   techdraw: techdrawMenus, td: { state: tdState, apply: applyTd, load: loadTechDraw, select: tdSelect } })   // partcheck.mjs, assemblycheck.mjs
+Object.assign((window as unknown as { cadui: object }).cadui, { spreadsheet: spreadsheetMenus, ss: { state: ssState, set: setSs, apply: applySs, load: loadSheets } })   // spreadsheetcheck.mjs

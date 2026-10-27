@@ -410,7 +410,8 @@ class Bench:
                 *(["--name", str(name)] if name else [])]
         r = self.cad(slug, "sheet", args)
         if r["exit"] in (0, 1, 2) and not r["data"].get("error"):
-            self.schedule(slug, "check")
+            if ((r["data"].get("doc") or {}).get("parts")):       # a part reads a cell: its gates again
+                self.schedule(slug, "check")
             self.broadcast({"type": "spreadsheet", "slug": slug, "sheet": sheet})
         return r
 
