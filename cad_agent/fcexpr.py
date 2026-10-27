@@ -17,6 +17,7 @@ FreeCAD's ExpressionVisitors do), the values as Python's, and the document's hoo
 
 Env.resolve (another object's property) and Env.range_cells (a sheet's cells) are asked here for every name and range the
 tree holds, and their answers (or the errors they raise) go with the call; expr.ts uses one where FreeCAD would look."""
+import atexit
 import copy as _copy
 import json
 import math
@@ -263,6 +264,9 @@ def _engine():
         from py_mini_racer import MiniRacer   # imported on first use: the CLI's parser never loads V8
         ctx = MiniRacer()
         ctx.eval(ENGINE.read_text(encoding="utf-8"))
+        # closed at exit, before Python 3.13 stops daemon threads: left to __del__ at shutdown, its join on
+        # mini-racer's event-loop thread never returns and the process hangs after its work is done
+        atexit.register(ctx.close)
         _ctx = ctx
     return _ctx
 

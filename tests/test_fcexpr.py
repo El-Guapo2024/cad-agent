@@ -8,6 +8,7 @@ of the current TS sources (ui/scripts/fcexprjs.py).
 """
 import importlib.util
 import json
+import subprocess
 import sys
 from pathlib import Path
 
@@ -141,3 +142,10 @@ def test_hooks():
         F.evaluate(tree, failing)
     assert e.value.message == "Property 'Length' not found in 'Box'"
     assert F.evaluate(F.parse("1 ? 2 : Box.Length"), failing) == 2   # a name the evaluation never reaches is never an error
+
+
+def test_a_process_that_used_the_engine_exits():
+    # on Python 3.13 an engine left to __del__ at shutdown hangs the process after its work (fcexpr closes it at exit)
+    code = "from cad_agent import fcexpr; fcexpr.parse('1+2')"
+    r = subprocess.run([sys.executable, "-c", code], cwd=Path(__file__).resolve().parent.parent, timeout=60)
+    assert r.returncode == 0
