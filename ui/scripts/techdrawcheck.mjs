@@ -23,6 +23,8 @@
 //   undo       Std_Undo takes the balloon back and Std_Redo brings it again
 //   annot      the tools of the Add Vertices and Add Lines menus, the Centerlines toolbar and the eraser (ui/scripts/fctechdraw_annot.json):
 //              each entry's state for a selection, the task panels' widgets and first values, what the tool makes, the undo step
+//   hatch      TechDraw_GeometricHatch and TechDraw_Hatch (ui/scripts/fctechdraw_hatch.json): the wrong selections, the panels' widgets and
+//              first values, what OK makes (the object, the drawn lines), the undo steps
 //   export     TechDraw_ExportPageSVG: the file's page size
 // A difference prints as FAIL; the deliberate ones (PARITY.md, "TechDraw") as `known`. Exit 1 on a FAIL.
 import { createRequire } from 'module'
@@ -42,6 +44,7 @@ const args = process.argv.slice(2)
 const flag = (name, d) => { const a = args.find((x) => x.startsWith(`--${name}=`)); return a ? a.slice(name.length + 3) : d }
 const FC = JSON.parse(readFileSync(flag('fc', join(HERE, 'fctechdraw.json')), 'utf8'))
 const ANNOT = JSON.parse(readFileSync(flag('annot', join(HERE, 'fctechdraw_annot.json')), 'utf8'))
+const HATCH = JSON.parse(readFileSync(flag('hatch', join(HERE, 'fctechdraw_hatch.json')), 'utf8'))
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms))
 let pass = 0, fail = 0, known = 0
 const ok = (what) => { pass++; if (args.includes('--verbose')) console.log(`  ok    ${what}`) }
@@ -62,7 +65,7 @@ const PORTED = new Set(['TechDraw_PageDefault', 'TechDraw_PageTemplate', 'TechDr
   'TechDraw_RadiusDimension', 'TechDraw_DiameterDimension', 'TechDraw_AngleDimension', 'TechDraw_3PtAngleDimension', 'TechDraw_Balloon',
   'TechDraw_Annotation', 'TechDraw_ToggleFrame', 'TechDraw_CosmeticVertex', 'TechDraw_CosmeticVertexGroup', 'TechDraw_Midpoints', 'TechDraw_Quadrants',
   'TechDraw_2PointCosmeticLine', 'TechDraw_CosmeticCircle', 'TechDraw_CenterLineGroup', 'TechDraw_FaceCenterLine', 'TechDraw_2LineCenterLine',
-  'TechDraw_2PointCenterLine', 'TechDraw_CosmeticEraser', 'TechDraw_DecorateLine'])
+  'TechDraw_2PointCenterLine', 'TechDraw_CosmeticEraser', 'TechDraw_DecorateLine', 'TechDraw_Hatch', 'TechDraw_GeometricHatch'])
 
 // ── a scratch workbench with the two parts ───────────────────────────────────────────────────────────────────────
 const freePort = (from) => new Promise((res, rej) => {
@@ -511,6 +514,51 @@ try {
     await select([]); await runCmd('TechDraw_CosmeticEraser')
     same(await msgText(), 'Nothing selected', 'Remove Cosmetic Object: nothing selected')
     note('Edit Line Appearance and Remove Cosmetic Object make no undo step in FreeCAD (no transaction is open); each is a step here')
+    if (want('annot') || want('hatch')) await hatchChecks()
+  }
+  // ── hatching (ui/scripts/fctechdraw_hatch.json) ──
+  async function hatchChecks() {
+    console.log('hatch')
+    const fcText = (panel, name) => { for (const tv of panel) for (const w of tv) if (w.name === name) return w.text ?? w.current }
+    const ourText = (name) => st(`(() => { const e = document.querySelector('.tasks [data-qf="${name}"]'); return !e ? undefined : e.matches('input') ? e.value : e.querySelector('.combo-label')?.textContent ?? e.querySelector('input')?.value ?? e.textContent })()`)
+    const okTask = async () => { await page.click('.tasks .tbuttons .qbtn.default', { timeout: 8000 }); await idle(); await sleep(500) }
+    const made = (name) => until(`cadui.td.state().docs.Page.objects.some((o) => o.name === "${name}")`, `${name} in the page`, 20000)
+    const msgText = async () => { await until('!!document.querySelector(".msgbox")', 'a message', 8000); const t = await st('document.querySelector(".msgbox-text")?.textContent'); await page.click('.msgbox-buttons button'); await sleep(200); return t }
+    const open = async (cmd, refs, kind) => { await select(refs); await runCmd(cmd); await until(`cadui.getState().task?.other?.startsWith("${kind}:")`, `${cmd}'s panel`); await sleep(600) }
+    await select([]); await runCmd('TechDraw_GeometricHatch')
+    same(await msgText(), HATCH.wrong_nothing.dialogs[0].text, 'Geometric Hatch: nothing selected')
+    await select(['Page/View']); await runCmd('TechDraw_Hatch')
+    same(await msgText(), HATCH.wrong_view_only.dialogs[0].text, 'Image Hatch: a view and no face')
+    await select(['Page/View.Edge2']); await runCmd('TechDraw_GeometricHatch')
+    same(await msgText(), HATCH.wrong_edge.dialogs[0].text, 'Geometric Hatch: an edge')
+    // the geometric hatch
+    await open('TechDraw_GeometricHatch', ['Page/View.Face0'], 'geomhatch')
+    for (const n of ['cbName', 'sbScale', 'sbWeight', 'dsbRotation', 'dsbOffsetX', 'dsbOffsetY'])
+      same(await ourText(n), n === 'cbName' ? 'Diamond' : fcText(HATCH.geomhatch.panel, n), `Geometric Hatch: ${n}`)
+    same(await st(`document.querySelector('.tasks .tbox-head span')?.textContent`), 'Geometric Hatch', 'Geometric Hatch: the panel title')
+    await okTask()
+    await made('GeomHatch'); await sleep(500)
+    const g = (await obj('GeomHatch'))
+    check(g?.name_pattern === 'Diamond' && g.faces?.[0] === 'Face0' && g.source === 'View', 'Geometric Hatch: the object', JSON.stringify(g))
+    same(await undoHead(), HATCH.geomhatch.undo.head[0], 'Geometric Hatch: the undo step')
+    const lines = ((await td()).docs.Page.result.hatches?.GeomHatch?.faces?.Face0?.lines ?? []).length
+    same(await st(`document.querySelectorAll('[data-hatch="GeomHatch"]').length`), lines, 'Geometric Hatch: the lines drawn')
+    check(lines > 0, 'Geometric Hatch: the face has lines')
+    // the image hatch
+    await open('TechDraw_Hatch', ['Page/View.Face1'], 'hatch')
+    same(await st(`document.querySelector('.tasks .tbox-head span')?.textContent`), 'Create Face Hatch', 'Image Hatch: the panel title')
+    for (const n of ['sbScale', 'dsbRotation', 'dsbOffsetX', 'dsbOffsetY']) same(await ourText(n), fcText(HATCH.hatch.panel, n), `Image Hatch: ${n}`)
+    await okTask()
+    await made('Hatch'); await sleep(500)
+    const h = await obj('Hatch')
+    check(h?.faces?.[0] === 'Face1' && h.hatch_pattern === 'simple.svg', 'Image Hatch: the object', JSON.stringify(h))
+    same(await undoHead(), 'Create Hatch', 'Image Hatch: the undo step')
+    check((await st(`document.querySelectorAll('[data-hatch="Hatch"]').length`)) >= 1, 'Image Hatch: drawn')
+    // a face that has a hatch gets the new one (FreeCAD: Remove old hatch, then Create Hatch)
+    await open('TechDraw_Hatch', ['Page/View.Face1'], 'hatch')
+    await okTask()
+    same((await td()).docs.Page.objects.filter((o) => o.kind === 'DrawHatch').length, 1, 'Image Hatch: a face already hatched has the new hatch only')
+    note('Image Hatch: FreeCAD makes "Remove old hatch", "Create Hatch" and several "Update Hatch" steps; this is one "Create Hatch" step')
   }
   // ── the SVG export ──
   if (want('export')) {

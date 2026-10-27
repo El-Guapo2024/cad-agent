@@ -36,7 +36,7 @@ function Buttons({ ok, cancel, okOff }: { ok(): void; cancel(): void; okOff?: bo
 export function TechDrawTask({ page, other }: { page: string; other: string }) {
   const [kind, name, mode] = other.split(':')
   const create = mode === 'create'
-  if (['cosvertex', 'cosline', 'coscircle', 'centerline', 'linedecor'].includes(kind)) return <AnnotTask page={page} other={other} />
+  if (['cosvertex', 'cosline', 'coscircle', 'centerline', 'linedecor', 'hatch', 'geomhatch'].includes(kind)) return <AnnotTask page={page} other={other} />
   useEffect(() => () => clearPreview(page), [page])
   if (kind === 'projgroup') return <ProjGroupTask key={other} page={page} name={name} create={create} />
   if (kind === 'section') return <SectionTask key={other} page={page} name={name} create={create} />

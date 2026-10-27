@@ -1429,7 +1429,7 @@ src/Mod/TechDraw/Gui/CommandCreateDims.cpp   [licence: LGPL-2.1-or-later]
     followed by src/techdraw.tsx, src/techdraw_cmds.ts
 src/Mod/TechDraw/Gui/CommandDecorate.cpp   [licence: LGPL-2.1-or-later]
     copyright 2014 Luke Parry
-    followed by src/techdraw_cmds.ts
+    followed by src/techdraw_cmds.ts, src/techdraw_annot.tsx
 src/Mod/TechDraw/Gui/CommandExtensionDims.cpp   [licence: LGPL-2.1-or-later]
     copyright 2021 edi
     followed by src/techdraw_cmds.ts
@@ -1490,6 +1490,18 @@ src/Mod/TechDraw/Gui/TaskDimension.cpp   [licence: LGPL-2.1-or-later]
 src/Mod/TechDraw/Gui/TaskDimension.ui   [licence: none]
     copyright: no line in the file
     followed by src/techdraw_tasks.tsx, src/uiforms-techdraw.ts
+src/Mod/TechDraw/Gui/TaskGeomHatch.cpp   [licence: LGPL-2.1-or-later]
+    copyright 2017 WandererFan
+    followed by src/techdraw_annot.tsx
+src/Mod/TechDraw/Gui/TaskGeomHatch.ui   [licence: none]
+    copyright: no line in the file
+    followed by src/techdraw_annot.tsx, src/uiforms-techdraw.ts
+src/Mod/TechDraw/Gui/TaskHatch.cpp   [licence: LGPL-2.1-or-later]
+    copyright 2020 FreeCAD Developers
+    followed by src/techdraw_annot.tsx
+src/Mod/TechDraw/Gui/TaskHatch.ui   [licence: none]
+    copyright: no line in the file
+    followed by src/techdraw_annot.tsx, src/uiforms-techdraw.ts
 src/Mod/TechDraw/Gui/TaskLineDecor.cpp   [licence: LGPL-2.1-or-later]
     copyright 2018 WandererFan
     followed by src/techdraw_annot.tsx

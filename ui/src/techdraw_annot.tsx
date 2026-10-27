@@ -9,12 +9,15 @@
 //   src/Mod/TechDraw/Gui/TaskCosmeticCircle.cpp: 2023 WandererFan
 //   src/Mod/TechDraw/Gui/TaskCenterLine.cpp: 2019 WandererFan
 //   src/Mod/TechDraw/Gui/TaskLineDecor.cpp: 2018 WandererFan
+//   src/Mod/TechDraw/Gui/CommandDecorate.cpp: 2014 Luke Parry
+//   src/Mod/TechDraw/Gui/TaskGeomHatch.cpp: 2017 WandererFan
+//   src/Mod/TechDraw/Gui/TaskHatch.cpp: 2020 FreeCAD Developers
 //   No copyright line in the file: src/Mod/TechDraw/Gui/TaskCosVertex.ui, src/Mod/TechDraw/Gui/TaskCosmeticLine.ui,
 //       src/Mod/TechDraw/Gui/TaskCosmeticCircle.ui, src/Mod/TechDraw/Gui/TaskCenterLine.ui, src/Mod/TechDraw/Gui/TaskLineDecor.ui,
-//       src/Mod/TechDraw/Gui/TaskRestoreLines.ui
+//       src/Mod/TechDraw/Gui/TaskRestoreLines.ui, src/Mod/TechDraw/Gui/TaskHatch.ui, src/Mod/TechDraw/Gui/TaskGeomHatch.ui
 // TechDraw's annotation tools: the commands of the Add Vertices, Add Lines and Centerlines menus and the cosmetic eraser, and the
 // task panels of TaskCosVertex, TaskCosmeticLine, TaskCosmeticCircle, TaskCenterLine and TaskLineDecor (with its Restore Invisible
-// Lines box). Each is one `cad techdraw apply` of the ops of cad_agent/techdraw_annot.py: one undo step named as FreeCAD's
+// Lines box), and the hatching commands (CommandDecorate.cpp) with TaskHatch and TaskGeomHatch. Each is one `cad techdraw apply` of the ops of cad_agent/techdraw_annot.py: one undo step named as FreeCAD's
 // transaction. A centreline is made when its panel opens (TaskCenterLine's createCenterLine) and changed live; OK folds the changes
 // into that step (the server's `amend`), Cancel takes the step back. Line Decoration and the eraser make no transaction in FreeCAD:
 // here each is a step of its own (ui/PARITY.md, "TechDraw annotations").
@@ -239,6 +242,17 @@ function decorateLine() {
   clearSelection()
 }
 
+/** TechDraw_Hatch / TechDraw_GeometricHatch (execHatch, execGeometricHatch): the faces selected in one view. */
+function hatchCommand(kind: 'hatch' | 'geomhatch') {
+  if (!needPage()) return
+  const s = selection()
+  if (!s) { warn('Incorrect Selection', 'Select a face first'); return }
+  const faces = s.subs.filter((x) => kindOf(x) === 'Face')
+  if (!faces.length) { warn('Incorrect Selection', 'No faces to hatch in this selection'); return }
+  openAnnotTask(kind, s.page, s.view, 'create', { faces })
+  clearSelection()
+}
+
 /** The commands of this file by FreeCAD's name: what they run, and whether they are active (needPage and needView). */
 export function annotActions(on: boolean): Record<string, [() => void, boolean]> {
   return {
@@ -252,6 +266,8 @@ export function annotActions(on: boolean): Record<string, [() => void, boolean]>
     TechDraw_2PointCenterLine: [() => void centerLine('Vertex'), on],
     TechDraw_CosmeticEraser: [() => void eraser(), on],
     TechDraw_DecorateLine: [decorateLine, on],
+    TechDraw_Hatch: [() => hatchCommand('hatch'), on],
+    TechDraw_GeometricHatch: [() => hatchCommand('geomhatch'), on],
   }
 }
 
@@ -274,6 +290,7 @@ export function AnnotTask({ page, other }: { page: string; other: string }) {
   if (kind === 'cosline') return <CosLineTask key={other} page={page} view={view} edit={mode === 'edit'} data={data} />
   if (kind === 'coscircle') return <CosCircleTask key={other} page={page} view={view} edit={mode === 'edit'} data={data} />
   if (kind === 'centerline') return <CenterLineTask key={other} page={page} view={view} create={mode === 'create'} data={data} />
+  if (kind === 'hatch' || kind === 'geomhatch') return <HatchTask key={other} page={page} view={view} geom={kind === 'geomhatch'} faces={(data.faces as string[]) ?? []} />
   if (kind === 'linedecor') return <LineDecorTask key={other} page={page} view={view} data={data} />
   return null
 }
@@ -477,3 +494,49 @@ function LineDecorTask({ page, view, data }: { page: string; view: string; data:
     </div>)
 }
 
+
+
+/** TaskHatch (Image Hatch) and TaskGeomHatch (Geometric Hatch): the pattern and its scale, colour, rotation and offset. OK makes
+ * the DrawHatch / DrawGeomHatch of the faces (a face another hatch has is taken from it: "Remove old hatch"). */
+function HatchTask({ page, view, geom, faces }: { page: string; view: string; geom: boolean; faces: string[] }) {
+  const files = (tdState().docs[page]?.result as { hatch_files?: { pat: Record<string, string[]>; svg: string[] } } | undefined)?.hatch_files
+  const pats = files?.pat ?? { 'FCPAT.pat': ['Diamond'] }
+  const [file, setFile] = useState(geom ? 'FCPAT.pat' : 'simple.svg')
+  const names = pats[file] ?? []
+  const [name, setName] = useState(names[0] ?? 'Diamond')
+  const [scale, setScale] = useState(1), [weight, setWeight] = useState(0.5)
+  const [color, setColor] = useState('#00ff00')
+  const [rot, setRot] = useState(0), [ox, setOx] = useState(0), [oy, setOy] = useState(0)
+  const cycle = () => {
+    const all = geom ? Object.keys(pats) : files?.svg ?? [file]
+    const next = all[(all.indexOf(file) + 1) % all.length]
+    setFile(next)
+    if (geom) setName((pats[next] ?? [])[0] ?? '')
+  }
+  const common: Bindings = {
+    fcFile: { value: file, click: cycle },
+    sbScale: { value: scale, suffix: '', dec: 2, step: 0.1, min: 0.001, max: 1e9, set: setScale },
+    ccColor: { value: color, set: setColor },
+    dsbRotation: { value: rot, dec: 2, min: -360, max: 360, set: setRot },
+    dsbOffsetX: { value: ox, dec: 2, min: -1e9, max: 1e9, set: setOx },
+    dsbOffsetY: { value: oy, dec: 2, min: -1e9, max: 1e9, set: setOy },
+    groupBox: {},
+  }
+  const bind: Bindings = geom
+    ? { ...common, cbName: { value: name, opts: names.map((n) => [n, n] as const), set: (v: string) => setName(v) },
+        sbWeight: { value: weight, suffix: '', dec: 2, step: 0.1, min: 0, max: 1e9, set: setWeight } }
+    : common
+  const ok = async () => {
+    const rgba = unhex(color)
+    const op = geom
+      ? { op: 'geomhatch', view, faces, file_pattern: file, name_pattern: name, scale_pattern: scale, weight_pattern: weight, color_pattern: rgba, pattern_rotation: rot, pattern_offset: [ox, oy, 0] }
+      : { op: 'hatch', view, faces, replace: true, hatch_pattern: file, hatch_color: rgba, hatch_scale: scale, hatch_rotation: rot, hatch_offset: [ox, oy, 0] }
+    await applyTd(page, [op], geom ? 'Create GeomHatch' : 'Create Hatch')
+    closeTask()
+  }
+  return (
+    <div className="tasks">
+      <Buttons ok={() => void ok()} cancel={closeTask} />
+      <TaskBox title={geom ? 'Geometric Hatch' : 'Create Face Hatch'} icon={icon(geom ? 'td-TechDraw_GeometricHatch' : 'td-TechDraw_Hatch')}><QtForm form={TECHDRAW_FORMS[geom ? 'geomhatch' : 'hatch']} bind={bind} /></TaskBox>
+    </div>)
+}

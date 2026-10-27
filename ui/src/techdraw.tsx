@@ -31,7 +31,7 @@ import { messageBox } from './msgbox'
 import type { Entry } from './chrome'
 import { TD_CMDS } from './techdraw_cmds'
 import { annotActions } from './techdraw_annot'
-import { TD_PROPS, type TdProp } from './techdraw_props'
+import { TD_PROPS, TD_VIEW_PROPS, type TdProp } from './techdraw_props'
 import './techdraw.css'
 
 // ── the model (cad_agent/techdraw_edit.py's read and techdraw.PageDocument.result) ──────────────────────────────────
@@ -720,11 +720,16 @@ function derived(page: string, o: TdObj, p: string): unknown {
   const d = st.docs[page]
   if (o.kind === 'DrawSVGTemplate' && (p === 'Width' || p === 'Height')) return p === 'Width' ? d?.result?.width : d?.result?.height
   if (o.kind === 'DrawSVGTemplate' && p === 'Orientation') return (d?.result?.width ?? 0) >= (d?.result?.height ?? 0) ? 'Landscape' : 'Portrait'
+  if ((o.kind === 'DrawHatch' || o.kind === 'DrawGeomHatch') && p === 'Source') return o.source ? `${o.source} [${((o.faces as string[]) ?? []).join(', ')}]` : ''
+  if ((o.kind === 'DrawHatch' || o.kind === 'DrawGeomHatch') && (p === 'SvgIncluded' || p === 'PatIncluded'))
+    return String(o.kind === 'DrawHatch' ? o.hatch_pattern : o.file_pattern)
   if (o.kind === 'DrawPage' && p === 'Views') return d?.objects.filter((x) => x.kind !== 'DrawPage' && x.kind !== 'DrawSVGTemplate' && !groupOf(page, x.name)).map((x) => x.name)
   return undefined
 }
 /** The selected page object's property view (Data tab): FreeCAD's groups and rows, the ones the page file holds editable. */
-export function TechDrawProps() {
+/** What the View tab shows of the properties no page file holds (every object is visible and in the tree). */
+const VIEW_FIXED: Record<string, string> = { 'Display Mode': '', 'Show In Tree': 'true', 'Visibility': 'true', 'On Top When Selected': 'Disabled', 'Selection Style': 'Shape' }
+export function TechDrawProps({ view = false }: { view?: boolean }) {
   const sel = useTd((s) => s.sel)
   const docs = useTd((s) => s.docs)
   const last = [...sel].reverse().map(splitRef).find(([, , sub]) => !sub)
@@ -732,20 +737,20 @@ export function TechDrawProps() {
   const [page, name] = last
   const o = docs[page]?.objects.find((x) => x.name === name)
   if (!o) return null
-  const rows = TD_PROPS[o.kind] ?? []
+  const rows = (view ? TD_VIEW_PROPS : TD_PROPS)[o.kind] ?? []
   const groups = [...new Set(rows.map((r) => r.g))]
   const commit = (r: TdProp, v: unknown) => {
     const key = r.k === 'dim_type' || r.k === 'item_type' ? 'type' : r.k!
     void applyTd(page, [{ op: 'set', name, props: { [key]: v } }], `Edit ${name}.${r.p.replace(/ /g, '')}`)
   }
-  const show = (v: unknown) => Array.isArray(v) ? (v.length === 3 && v.every((x) => typeof x === 'number') ? `[${(v as number[]).map((x) => x.toFixed(2)).join(' ')}]`
+  const show = (v: unknown) => Array.isArray(v) && v.length === 4 && v.every((x) => typeof x === 'number' && x >= 0 && x <= 1) ? `[${v.slice(0, 3).map((x) => Math.round(x * 255)).join(', ')}]` : Array.isArray(v) ? (v.length === 3 && v.every((x) => typeof x === 'number') ? `[${(v as number[]).map((x) => x.toFixed(2)).join(' ')}]`
     : (v as unknown[]).map((x) => (Array.isArray(x) ? `${x[0]}.${x[1]}` : String(x))).join(', '))
     : v && typeof v === 'object' ? `[${Object.keys(v).length} items]` : v === null || v === undefined ? '' : String(v)
   return (
     <>{groups.map((g) => (
       <Group key={g} title={g}>
         {rows.filter((r) => r.g === g).map((r) => {
-          const v = r.k === 'label' ? labelOf(o) : r.k ? o[r.k] : derived(page, o, r.p)
+          const v = r.k === 'label' ? labelOf(o) : r.k ? o[r.k] : view && r.p in VIEW_FIXED ? VIEW_FIXED[r.p] : derived(page, o, r.p)
           const ro = !r.k || (o.kind === 'DrawProjGroupItem' && r.k === 'item_type')
           if (!ro && r.t.endsWith('Bool')) return <EditRow key={r.p} k={r.p} value={v} type="bool" depth={1} onCommit={(nv) => commit(r, nv)} />
           if (!ro && NUMERIC.test(r.t)) return <EditRow key={r.p} k={r.p} value={v} type={/Integer/.test(r.t) ? 'int' : 'float'} depth={1} onCommit={(nv) => commit(r, nv)} />

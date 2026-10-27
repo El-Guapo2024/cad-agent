@@ -56,7 +56,8 @@ STEP_NAMES = {"cosmetic_vertex": "Add Cosmetic Vertex", "midpoints": "Add midpoi
               "cosmetic_line_edit": "Update Cosmetic Line", "cosmetic_circle": "Create Cosmetic Circle",
               "cosmetic_circle_edit": "Update Cosmetic Circle", "centerline": "Create Centerline",
               "centerline_edit": "Edit Centerline", "erase": "Remove Cosmetic Object", "format": "Edit Line Appearance",
-              "restore_lines": "Restore Invisible Lines", "hatch": "Create Hatch", "geomhatch": "Create GeomHatch"}
+              "restore_lines": "Restore Invisible Lines", "hatch": "Create Hatch", "geomhatch": "Create GeomHatch",
+              "remove_hatch": "Remove old hatch"}
 OPS = tuple(STEP_NAMES)
 
 
@@ -517,3 +518,23 @@ def _hatch(s, E, v, op):
         raise E.TechDrawEditError(str(e)) from None
     s.add(h)
     return f"made {n} on {', '.join(faces)} of {v.name}"
+
+
+def _remove_hatch(s, E, v, op):
+    """CmdTechDrawHatch's "Remove old hatch": the faces taken out of the DrawHatch objects that hold them, and the objects
+    left with no face removed (DrawHatch::removeSub)."""
+    faces = list(op.get("faces") or [])
+    gone = 0
+    for o in [o for o in s.objs if isinstance(o, T.DrawHatch) and o.source == v.name]:
+        left = [f for f in o.faces if f not in faces]
+        if len(left) == len(o.faces):
+            continue
+        gone += 1
+        if left:
+            d = T.as_dict(o)
+            d["faces"] = left
+            s.objs[s.objs.index(o)] = E._rebuilt(o, d)
+        else:
+            s.objs.remove(o)
+            s.taken.discard(o.name)
+    return f"took {', '.join(faces)} out of {gone} hatch(es) of {v.name}"

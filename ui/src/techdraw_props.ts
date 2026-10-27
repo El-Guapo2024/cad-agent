@@ -202,4 +202,43 @@ export const TD_PROPS: Record<string, TdProp[]> = {
   {"g": "Base", "p": "Caption Location", "k": null, "t": "App::PropertyVector"},
   {"g": "Base", "p": "Label", "k": "label", "t": "App::PropertyString"}
  ],
+ "DrawHatch": [
+  {"g": "Base", "p": "Label", "k": "label", "t": "App::PropertyString"},
+  {"g": "Hatch", "p": "Source", "k": null, "t": "App::PropertyLinkSub"},
+  {"g": "Hatch", "p": "Hatch Pattern", "k": "hatch_pattern", "t": "App::PropertyFile"},
+  {"g": "Hatch", "p": "Svg Included", "k": null, "t": "App::PropertyFileIncluded"}
+ ],
+ "DrawGeomHatch": [
+  {"g": "Base", "p": "Label", "k": "label", "t": "App::PropertyString"},
+  {"g": "Geom Hatch", "p": "Source", "k": null, "t": "App::PropertyLinkSub"},
+  {"g": "Geom Hatch", "p": "File Pattern", "k": "file_pattern", "t": "App::PropertyFile"},
+  {"g": "Geom Hatch", "p": "Pat Included", "k": null, "t": "App::PropertyFileIncluded"},
+  {"g": "Geom Hatch", "p": "Name Pattern", "k": "name_pattern", "t": "App::PropertyString"},
+  {"g": "Geom Hatch", "p": "Scale Pattern", "k": "scale_pattern", "t": "App::PropertyFloatConstraint"},
+  {"g": "Geom Hatch", "p": "Pattern Rotation", "k": "pattern_rotation", "t": "App::PropertyFloat"},
+  {"g": "Geom Hatch", "p": "Pattern Offset", "k": "pattern_offset", "t": "App::PropertyVector"}
+ ],
+}
+// the View tab of the types that have one here (the view providers' properties the page file holds)
+export const TD_VIEW_PROPS: Record<string, TdProp[]> = {
+ "DrawHatch": [
+  {"g": "Display Options", "p": "Display Mode", "k": null, "t": ""},
+  {"g": "Display Options", "p": "Show In Tree", "k": null, "t": ""},
+  {"g": "Display Options", "p": "Visibility", "k": null, "t": ""},
+  {"g": "Hatch", "p": "Hatch Color", "k": "hatch_color", "t": "App::PropertyColor"},
+  {"g": "Hatch", "p": "Hatch Offset", "k": "hatch_offset", "t": "App::PropertyVector"},
+  {"g": "Hatch", "p": "Hatch Rotation", "k": "hatch_rotation", "t": "App::PropertyFloat"},
+  {"g": "Hatch", "p": "Hatch Scale", "k": "hatch_scale", "t": "App::PropertyFloat"},
+  {"g": "Selection", "p": "On Top When Selected", "k": null, "t": ""},
+  {"g": "Selection", "p": "Selection Style", "k": null, "t": ""}
+ ],
+ "DrawGeomHatch": [
+  {"g": "Display Options", "p": "Display Mode", "k": null, "t": ""},
+  {"g": "Display Options", "p": "Show In Tree", "k": null, "t": ""},
+  {"g": "Display Options", "p": "Visibility", "k": null, "t": ""},
+  {"g": "Geom Hatch", "p": "Color Pattern", "k": "color_pattern", "t": "App::PropertyColor"},
+  {"g": "Geom Hatch", "p": "Weight Pattern", "k": "weight_pattern", "t": "App::PropertyFloat"},
+  {"g": "Selection", "p": "On Top When Selected", "k": null, "t": ""},
+  {"g": "Selection", "p": "Selection Style", "k": null, "t": ""}
+ ],
 }

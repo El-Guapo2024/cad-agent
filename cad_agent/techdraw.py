@@ -717,13 +717,13 @@ class PageDocument:
             line = self.section_line(s)
             if line is not None:
                 sections[s.name] = line
-        hatches = {}
-        if any(isinstance(o, (DrawHatch, DrawGeomHatch)) for o in self.objects):
-            from . import techdraw_hatch as H
-            hatches = H.results(self)
+        from . import techdraw_hatch as H
+        hatches = H.results(self) if any(isinstance(o, (DrawHatch, DrawGeomHatch)) for o in self.objects) else {}
+        files = {"pat": {f: H.pattern_names(f) for f in H.pat_files()}, "svg": H.svg_files()}   # what the hatch panels offer
         return {"page": self.page.name if self.page else None, "width": w, "height": h,
                 "template": t.template if t else None, "texts": dict(t.editable_texts) if t else {},
-                "views": views, "dimensions": dims, "sections": sections, "hatches": hatches, "errors": dict(self.errors)}
+                "views": views, "dimensions": dims, "sections": sections, "hatches": hatches, "hatch_files": files,
+                "errors": dict(self.errors)}
 
     def section_line(self, s) -> dict | None:
         """DrawViewSection::sectionLineEnds: the section line on its base view, in the base view's paper

@@ -1000,13 +1000,24 @@ and objects, ui/scripts/fctechdraw.json) and `ui/scripts/techdrawcheck.mjs` (the
 | Section | done: TaskSectionView's four arrows (SectionNormal, Direction, XDirection, Rotation equal FreeCAD's for each), symbol, origin, scale, the cut and its section faces (filled grey, the default CutSurfaceDisplay "Color"), the section line and arrows on the base view |
 | Dimensions | done: Length, Horizontal, Vertical, Radius, Diameter, Angle, 3-point angle, and Smart by the selection only (simplified: no live switching while dragging); DimensionFormatter (%w %r %g, tolerances, equal tolerance, Arbitrary), TaskDimension (format, tolerances, arrowheads, Reference, Theoretically exact); values, getText and the shown text equal FreeCAD's in 11 golden cases |
 | Balloon, Annotation | done: TechDraw_Balloon (the click places the origin on the view the command was given), shape and end type, TechDraw_Annotation |
+| Cosmetic geometry | done: Cosmetic Vertex (TaskCosVertex, Pick Point), Add Midpoint and Quadrant Vertices, Cosmetic Line (TaskCosmeticLine), Cosmetic Circle and Arc (TaskCosmeticCircle), Remove Cosmetic Object; stored as `cosmetic_vertexes`, `cosmetic_edges` of the view; the edges are numbered after the HLR ones as FreeCAD's |
+| Centrelines | done: on faces, between 2 lines and 2 points (TaskCenterLine, edited live, OK folds the edits into the one "Create Centerline" step); the face finder is FreeCAD's findFacesV0_17 (9 of 9 views equal), so `FaceN` and the centrelines equal freecadcmd's |
+| Line appearance | done: Edit Line Appearance (TaskLineDecor) and Restore Invisible Lines, the ASME Y14.2 line styles with their dashes (techdraw_lines.py), GeomFormats on HLR edges; the page, SVG and DXF draw them |
+| Hatching | done: Image Hatch (DrawHatch: the svg tile repeated over the face, as QGIFace::buildSvgHatch) and Geometric Hatch (DrawGeomHatch: FCPAT.pat's patterns, trimmed to the face by the same OCC Common; the lines equal makeGeomHatch's in 18 golden cases incl. dashes, shifts and origins); TaskHatch and TaskGeomHatch panels; hatches are children of their view in the tree; SVG, PDF (geometric only) and DXF (none) |
 | Export | done: SVG (10 units/mm as TechDraw's, the template inlined), DXF (each view's HLR compounds on its own layer, as TechDraw's writer), PDF (hand-written, the template drawn) |
 | Tree, property view, undo | done: the page's rows as FreeCAD's (dimensions and balloons under their view, sections at page level), the property view's rows and groups from FreeCAD's (techdraw_props.ts), each command one Edit > Undo step named as FreeCAD names it |
 
 Known differences, each marked `known` by techdrawcheck:
 - Commands not ported are greyed (Broken View, Complex Section, Clip Group, SVG/Bitmap, Project Shape, Active/Draft/BIM/Spreadsheet
-  views, Rich Text Annotation, Print All, hatching, cosmetic edges, centre lines, leaders, welding and surface symbols, extensions);
-  FreeCAD enables some of these where we grey them.
+  views, Rich Text Annotation, Print All, leaders, welding and surface symbols, the extension commands: cosmetic 2/3-point circles,
+  arcs, parallel and perpendicular lines, Toggle Edge Visibility, threads and the rest); FreeCAD enables some of these where we grey them.
+- Line Decoration and Remove Cosmetic Object make no undo step in FreeCAD (no transaction is open); each is a step here. Cancel of
+  Line Decoration on an HLR edge crashes FreeCAD. The centreline edit panel's style box shows Format.Style in FreeCAD, the line
+  number here. The 3D-point radio buttons of the cosmetic panels are greyed. A cosmetic circle with one vertex has radius 0 and OK
+  refuses it. Cosmetic vertices are not in the SVG, PDF or DXF. A face's fill colour is not drawn.
+- Image Hatch: FreeCAD makes "Remove old hatch", "Create Hatch" and several "Update Hatch" steps; here "Create Hatch" is one step
+  (the old hatch of a face is replaced in it). FreeCAD exports a bitmap or svg hatch to the page SVG as an embedded image; here it is a
+  vector `<pattern>` (PDF omits it). The pattern file box cycles through the shipped files instead of opening a file dialog.
 - A section is one undo step; FreeCAD commits "Create Section View" then "Edit Section View". The GUI's "Drag Dimension" step is not made.
 - TaskSectionView's CompassWidget and VectorEditWidget are not ported (the four arrows are).
 - Dimension, balloon and section line drawing (arrow sizes, text gap) approximate QGIViewDimension; DXF dimensions are lines and
@@ -1021,5 +1032,5 @@ Known differences, each marked `known` by techdrawcheck:
 - Sketcher: external intersection is greyed "Not in this workbench yet"; external geometry of an ellipse or a B-spline, of a circle at an angle (read as an ellipse) or of a non-flat face is refused "not supported yet" ("Sketcher, 2026-10-24", "Attachment and datums, 2026-10-24").
 - Sketcher: Validate's Swap Endpoints in Constraints never enables, and the swap itself (port_reversedExternalArcs) is not ported ("Sketcher text and the commands on sketch objects, 2026-10-26").
 - Loft, Pipe and Helix: a Pipe whose end sections are not planar is refused, and a solid's face as a Pipe's or Helix's Profile is not offered ("PartDesign Loft, Pipe and Helix, 2026-10-24").
-- TechDraw: Broken View, Complex Section, Clip Group, SVG and bitmap views, Project Shape, views from other workbenches, Rich Text, hatching, cosmetic edges, centre lines, leaders, welding and surface symbols and the extensions are greyed; a section is one undo step, not two ("TechDraw workbench, 2026-10-27").
+- TechDraw: Broken View, Complex Section, Clip Group, SVG and bitmap views, Project Shape, views from other workbenches, Rich Text, leaders, welding and surface symbols and the extension commands are greyed; a section is one undo step, not two ("TechDraw workbench, 2026-10-27").
 - Spreadsheet and the other workbenches: the selector offers only Assembly, CAD Agent, Inspection, Part Design, Part, Sketcher and TechDraw, so Spreadsheet, Draft, FEM, Mesh and the rest are not offered ("Toolbars").
