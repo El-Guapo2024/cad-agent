@@ -18,7 +18,7 @@ import ast
 import json
 
 from . import feature as F
-from .feature_attach import DATUMS, ORIGIN, SHORT, external_list, support_list
+from .feature_attach import DATUMS, ORIGIN, SHORT, external_refs, ref_items, support_list
 
 DATUM_KINDS = tuple(DATUMS)
 ATTACH_KEYS = ("attachment_support", "map_mode", "attachment_offset", "map_reversed", "map_path_parameter",
@@ -81,7 +81,7 @@ def sketch_dict(call, src, lit, arg) -> dict:
             raise _E()(str(e)) from None
     d = attach_dict(where, kw, "Plane", default_mode="FlatFace")
     try:
-        d["external_geometry"] = _pairs(external_list(where, kw.get("external_geometry")))
+        d["external_geometry"] = [list(r) for r in ref_items(external_refs(where, kw.get("external_geometry")))]
     except F.FeatureError as e:
         raise _E()(str(e)) from None
     d["support"] = plain_plane(d)
@@ -155,11 +155,12 @@ def attach_kw(d: dict, kind: str) -> list[str]:
     if kind == "Sketch" and d.get("external_geometry"):
         raw = d["external_geometry"]
         try:
-            ext = external_list(d.get("name", ""), [raw] if isinstance(raw, str) else
+            ext = external_refs(d.get("name", ""), [raw] if isinstance(raw, str) else
                                 [r if isinstance(r, str) else tuple(r) for r in raw])
         except F.FeatureError as e:
             raise _E()(str(e)) from None
-        out.append(f"external_geometry={_ref_src(ext)}")
+        from .feature_edit import lit
+        out.append(f"external_geometry={lit(ref_items(ext))}")
     return out
 
 

@@ -368,10 +368,13 @@ setCarbonSources((part, name) => {
 /** The sketch's external geometry as the Body projected it (attached.external, after its build), and which of its
  *  references each came from: one geometry per edge or vertex; a face's are asked for again (`cad feature project`). */
 async function externalOf(f: import('./store').Feature, part: string): Promise<S.External> {
-  const refs = ((f.external_geometry ?? []) as unknown[]).map((r) => (Array.isArray(r) ? [String(r[0]), String(r[1] ?? '')] : String(r).split('.', 2)) as [string, string])
+  const refs = ((f.external_geometry ?? []) as unknown[]).map((r) => (Array.isArray(r)
+    ? (r.length > 2 && r[2] !== 'Projection' ? [String(r[0]), String(r[1] ?? ''), String(r[2])] : [String(r[0]), String(r[1] ?? '')])
+    : String(r).split('.', 2)) as S.ExtRef)
   const geometry = (attachedOf(f)?.external ?? []) as SK.Geo[]
   if (!refs.length) return { refs: [], geometry: [], owner: [] }
-  if (geometry.length === refs.length && !refs.some((r) => r[1].startsWith('Face'))) return { refs, geometry, owner: refs.map((_, i) => i) }
+  // one geometry per edge or vertex projected; a face, or a section, may give any number: asked for again
+  if (geometry.length === refs.length && !refs.some((r) => r[1].startsWith('Face') || r[2])) return { refs, geometry, owner: refs.map((_, i) => i) }
   const p = await projectRefs(refs, part, f.name).catch(() => null)
   if (!p) return { refs, geometry, owner: geometry.map((_, i) => Math.min(i, refs.length - 1)) }
   return { refs, geometry: p.external.flat(), owner: p.external.flatMap((g, i) => g.map(() => i)) }

@@ -358,6 +358,13 @@ export function ValidateTask({ part, name }: { part: string; name: string }) {
     notify(d.notification as Note)
     setFix((x) => ({ ...x, reversed: (d.points as number[][]).length > 0 && (d.constraints as number) > 0 }))
   }
+  // onSwapReversedClicked: port_reversedExternalArcs(false) in "Sketch porting", its notification, the points hidden
+  const swapReversed = async () => {
+    const d = await call('reversed', { fix: true })
+    if (d) notify(d.notification as Note)
+    hidePoints()
+    setFix((x) => ({ ...x, reversed: false }))
+  }
   const lock = async (on: boolean) => { const d = await call(on ? 'lock' : 'unlock'); if (d) notify(d.notification as Note) }
   const delExternal = async () => {
     const b = await messageBox('question', 'Delete Constraints to External Geometry', 'This will delete all constraints that deal with external geometry. This is '
@@ -403,7 +410,7 @@ export function ValidateTask({ part, name }: { part: string; name: string }) {
           </fieldset>
           <fieldset className="tgroup" data-group="groupBox_3"><legend>Reversed External Geometry</legend>
             <B id="findReversed" text="Find" tip="Finds reversed external geometries" onClick={findReversed} />
-            <B id="swapReversed" text="Swap Endpoints in Constraints" tip="Fixes found reversed external geometries by swapping their endpoints" on={fix.reversed} onClick={() => {}} />
+            <B id="swapReversed" text="Swap Endpoints in Constraints" tip="Fixes found reversed external geometries by swapping their endpoints" on={fix.reversed} onClick={swapReversed} />
           </fieldset>
           <fieldset className="tgroup" data-group="groupBox_4"><legend>Constraint Orientation Locking</legend>
             <B id="orientLockEnable" text="Enable/Update" tip="Enables/updates constraint orientation locking" onClick={() => lock(true)} />

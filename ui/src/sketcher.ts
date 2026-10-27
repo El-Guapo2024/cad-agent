@@ -38,10 +38,15 @@ export type SketchRef = { part: string | null; name: string; placement?: Placeme
 /** The sketch's external geometry (SketchObject's ExternalGeometry and ExternalGeo after the axes): the references as
  *  the part file names them ([object, element]), the geometry they project to (GeoId -3, -4, …), and for each
  *  geometry the reference it comes from (a face gives several). */
-export type External = { refs: [string, string][]; geometry: Geo[]; owner: number[] }
+/** An ExternalGeometry link (object, element) and its ExternalTypes value when it is not Projection: "Intersection"
+ *  (Sketcher_Intersection) or "Both". */
+export type ExtKind = 'Projection' | 'Intersection' | 'Both'
+export type ExtRef = [string, string] | [string, string, ExtKind]
+export const extKind = (r: ExtRef): ExtKind => (r[2] ?? 'Projection')
+export type External = { refs: ExtRef[]; geometry: Geo[]; owner: number[] }
 type Snapshot = { geometry: Geo[]; constraints: Constraint[]; external: External }
 const noExternal = (): External => ({ refs: [], geometry: [], owner: [] })
-const copyExternal = (e: External): External => ({ refs: e.refs.map((r) => [...r] as [string, string]), geometry: e.geometry.map((g) => ({ ...g })), owner: [...e.owner] })
+const copyExternal = (e: External): External => ({ refs: e.refs.map((r) => [...r] as ExtRef), geometry: e.geometry.map((g) => ({ ...g })), owner: [...e.owner] })
 /** ViewProviderSketch::Mode (SketchMode). */
 export type Mode = 'none' | 'selectPoint' | 'selectEdge' | 'selectCross' | 'selectConstraint' | 'selectWire' | 'drag' | 'dragConstraint'
   | 'useHandler' | 'startRubber' | 'rubber'
@@ -392,12 +397,28 @@ export function toggleConstruction(g: number) {
   elementsChanged()
 }
 /** SketchObject::addExternal: a reference and the geometry it projects to (rebuildExternalGeometry's), after the
- *  others. Refused as FreeCAD refuses a reference the sketch has already ("Duplicated external reference"). */
-export function addExternal(ref: [string, string], geometry: Geo[]): boolean {
-  const s = session!
-  if (s.external.refs.some((r) => r[0] === ref[0] && r[1] === ref[1])) return false
-  const i = s.external.refs.length
-  s.external = { refs: [...s.external.refs, ref], geometry: [...s.external.geometry, ...geometry], owner: [...s.external.owner, ...geometry.map(() => i)] }
+ *  others. Refused as FreeCAD refuses a reference the sketch has already ("Link to … already exists in this sketch"),
+ *  unless one is a projection and the other an intersection: the link becomes Both, the new geometry after the
+ *  reference's own (FreeCAD gives it the next ids, after all the external geometry; here a reference's geometry stays
+ *  together, as the part file rebuilds it) and the constraints on the external geometry after it renumbered. */
+export function addExternal(ref: ExtRef, geometry: Geo[]): boolean {
+  const s = session!, e = s.external
+  const i = e.refs.findIndex((r) => r[0] === ref[0] && r[1] === ref[1])
+  if (i >= 0) {
+    const had = extKind(e.refs[i]), add = extKind(ref)
+    if (had === 'Both' || had === add || add === 'Both') return false
+    const at = e.owner.lastIndexOf(i) + 1                       // the index after the reference's own geometry
+    const n = geometry.length
+    const map = (g: number) => (SK.isExternalId(g) && SK.REF_EXT - g >= at ? g - n : g)
+    s.constraints = s.constraints.map((c) => SK.mapGeoIds(c, map))
+    s.external = { refs: e.refs.map((r, k) => (k === i ? [r[0], r[1], 'Both'] as ExtRef : r)),
+      geometry: [...e.geometry.slice(0, at), ...geometry, ...e.geometry.slice(at)],
+      owner: [...e.owner.slice(0, at), ...geometry.map(() => i), ...e.owner.slice(at)] }
+    elementsChanged()
+    return true
+  }
+  const k = e.refs.length
+  s.external = { refs: [...e.refs, ref], geometry: [...e.geometry, ...geometry], owner: [...e.owner, ...geometry.map(() => k)] }
   elementsChanged()
   return true
 }
@@ -1250,7 +1271,7 @@ export function onSketchClosed(f: (e: { ref: SketchRef; sketch: Sketch; accepted
 /** Saves a sketch into its part module (cad_agent/feature_edit.py `apply`, op "set" on the sketch's geometry and
  *  constraints): POST /api/<slug>/features/<part> {ops}. Without a part, or without the endpoint, the sketch stays as
  *  it is in memory and the Report view says why, as FreeCAD's report does when a recompute fails. */
-export async function saveSketch(part: string | null, name: string, sketch: Sketch, externalRefs?: [string, string][]): Promise<boolean> {
+export async function saveSketch(part: string | null, name: string, sketch: Sketch, externalRefs?: ExtRef[]): Promise<boolean> {
   const slug = getState().slug
   pending.set(name, sketch)
   if (!slug || !part) { report('err', `${name}: the sketch is in no part yet, so it was not saved. It is kept in memory until this page closes.`); return false }

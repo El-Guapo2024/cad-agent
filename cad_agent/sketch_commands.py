@@ -970,8 +970,9 @@ def constraints_to_external(cons: list[dict]) -> list[int]:
 
 def reversed_external_arcs(external: list[dict], cons: list[dict]):
     """The Reversed External Geometry box: the external arcs of circle whose axis is -Z (their end points), and the
-    constraints port_reversedExternalArcs would swap. rebuildExternalGeometry makes every projected arc
-    counter-clockwise since FreeCAD 0.15, as cad_agent/feature_attach.py's projection does."""
+    constraints port_reversedExternalArcs would swap: an arc FreeCAD keeps on a circle about -Z (a circle projected
+    from one whose axis runs against the sketch's normal, or what hidden-line removal or a section gives) is
+    "reversed" in its geometry dict (cad_agent/feature_attach.py, feature_attach_curves.py)."""
     pts, rev = [], set()
     for i, g in enumerate(external):
         if g.get("type") == "ArcOfCircle" and g.get("reversed"):
@@ -1280,7 +1281,14 @@ def validate(path, name: str, what: str, tolerance: float = CONFUSION * 1000, in
         pts, n = reversed_external_arcs(sk["external"], cons)
         out["points"] = [list(p) for p in pts]
         out["constraints"] = n
-        if not pts:
+        if fix:                                     # onSwapReversedClicked: port_reversedExternalArcs(false)
+            from .feature_attach_ext import swap_reversed
+            swapped, n = swap_reversed(sk["external"], cons)
+            kept = _carry_values(file_cons, swapped)
+            set_op(_solve(sk, kept, params), kept, "Sketch porting")
+            note("notification", "Reversed external geometry",
+                 f"{n} changes were made to constraints linking to endpoints of reversed arcs.")
+        elif not pts:
             note("notification", "Reversed external geometry", "No reversed external geometry arcs were found.")
         elif n:
             note("warning", "Reversed external geometry",
