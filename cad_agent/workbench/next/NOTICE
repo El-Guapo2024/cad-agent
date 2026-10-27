@@ -858,6 +858,12 @@ src/Mod/Part/Gui/DlgRevolution.ui   [licence: LGPL-2.1-or-later]
 src/Mod/Part/Gui/DlgScale.cpp   [licence: LGPL-2.1-or-later]
     copyright 2023 Wanderer Fan
     followed by src/part_tasks.tsx
+src/Mod/Part/Gui/CrossSections.ui   [licence: LGPL-2.1-or-later]
+    no copyright line in the file
+    followed by src/part_static.tsx
+src/Mod/Part/Gui/TaskShapeBuilder.ui   [licence: LGPL-2.1-or-later]
+    no copyright line in the file
+    followed by src/part_static.tsx
 src/Mod/Part/Gui/DlgScale.ui   [licence: LGPL-2.1-or-later]
     no copyright line in the file
     followed by src/part_tasks.tsx
