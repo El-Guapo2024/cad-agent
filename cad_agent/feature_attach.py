@@ -819,6 +819,8 @@ def needs_body(doc: dict) -> bool:
             return True
         if f.get("type") == "Sketcher::SketchObject" and (not f.get("support") or f.get("external_geometry")):
             return True
+        if f.get("type") in ("Part::InvoluteGear", "Part::Sprocket") and f.get("attachment_support"):
+            return True                                 # an attached gear is placed as a sketch is (feature_gear.py)
     for o in doc.get("objects") or []:
         if o.get("attachment_support") or o.get("map_mode") not in (None, "Deactivated"):
             return True

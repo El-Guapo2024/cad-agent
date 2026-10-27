@@ -4,7 +4,7 @@
 # Public License, version 2.1 or (at your option) any later version; the text is in ../ui/LICENSE.
 #
 #   Derived from FreeCAD (https://github.com/FreeCAD/FreeCAD), commit 3160daf1e2b62b0472854da4848255c6b3ad554c:
-#     src/Mod/PartDesign/App/FeatureDefeaturing.cpp (execute; no copyright line in the file)
+#     src/Mod/PartDesign/App/FeatureDefeaturing.cpp: Copyright (c) 2026 Max Wilfinger (execute)
 #     src/Mod/Part/App/TopoShapeExpansion.cpp: Copyright (c) 2022 Zheng, Lei (makeElementDefeaturing)
 #     src/Mod/PartDesign/App/FeatureDressUp.cpp: Copyright (c) 2010 Juergen Riegel (getFaces)
 #

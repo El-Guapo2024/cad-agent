@@ -96,6 +96,8 @@ def _shape_of(shapes: dict, name: str | None):
         ctx = shapes.get("_attach")
         if ctx is not None and ctx.kinds.get(name) == "binder":
             return ctx.shapes.get(name)
+        if ctx is not None and ctx.kinds.get(name) == "sketch":      # an Involute Gear's, a Sprocket's wire
+            return ctx.sketch_shape(name)
     return shape
 
 

@@ -38,6 +38,7 @@ them carry.
       Mod/Sketcher/Gui/EditModeInformationOverlayCoinConverter.cpp, Mod/Sketcher/Gui/SketchRectangularArrayDialog.cpp,
       Mod/Sketcher/Gui/SketcherRegularPolygonDialog.cpp, Mod/Sketcher/Gui/TaskSketcherElements.cpp,
       Mod/Sketcher/Gui/Utils.cpp
+  Adam Spontarelli: Mod/PartDesign/SprocketFeature.py
   Alexander Golubev (Fat-Zer): Gui/ViewProviderPlane.cpp, Mod/PartDesign/Gui/CommandBody.cpp,
       Mod/PartDesign/Gui/ViewProviderSketchBased.cpp
   Alfredo Monclus: Mod/Start/Gui/NewFileButton.cpp
@@ -69,7 +70,8 @@ them carry.
       Mod/PartDesign/Gui/TaskFilletParameters.cpp, Mod/PartDesign/Gui/TaskHoleParameters.cpp,
       Mod/PartDesign/Gui/TaskPadParameters.cpp, Mod/PartDesign/Gui/TaskPocketParameters.cpp,
       Mod/PartDesign/Gui/TaskRevolutionParameters.cpp, Mod/PartDesign/Gui/ViewProvider.cpp,
-      Mod/Sketcher/Gui/ViewProviderSketch.cpp, Mod/Sketcher/ProfileLib/RegularPolygon.py
+      Mod/Sketcher/Gui/ViewProviderSketch.cpp, Mod/Sketcher/ProfileLib/RegularPolygon.py,
+      Mod/PartDesign/InvoluteGearFeature.py
   Jürgen Riegel: App/Expression.l, App/Expression.y, App/GeoFeature.cpp, Base/Exception.cpp,
       Base/Quantity.cpp, Base/Quantity.l, Base/Quantity.y, Base/QuantityPyImp.cpp,
       Base/UnitsApi.cpp, Gui/Command.cpp, Gui/CommandDoc.cpp, Gui/CommandFeat.cpp,
@@ -95,6 +97,7 @@ them carry.
   Kustaa Nyholm: Gui/NaviCube.cpp
   Loke S. Haugsnes: Mod/Measure/Gui/TaskMeasure.cpp
   Luke Parry: Gui/SoDatumLabel.cpp, Mod/Measure/App/AppMeasure.cpp, Mod/Measure/App/Measurement.cpp
+  Max Wilfinger: Mod/PartDesign/Gui/TaskDefeaturingParameters.cpp
   Morten Vajhøj: Mod/Measure/App/MassPropertiesResult.cpp, Mod/Measure/Gui/TaskMassProperties.cpp
   Ondsel: Gui/EditableDatumLabel.cpp, Mod/Assembly/CommandCreateBom.py, Mod/Sketcher/Gui/DrawSketchHandlerArcSlot.h
   Pablo Gil Fernández (the original of FreeCAD.qss) and MisterMaker (its revision):
@@ -924,7 +927,7 @@ src/Mod/PartDesign/App/ShapeBinder.cpp   [licence: LGPL-2.1-or-later]
 src/Mod/PartDesign/Gui/Command.cpp   [licence: LGPL-2.1-or-later]
     copyright 2008 Jürgen Riegel
     followed by src/fctips.ts, src/partdesign.tsx, src/pd_dressup.tsx, src/pd_revolve.tsx,
-        src/pd_sweep.tsx, src/pd_transform.tsx, src/pd_binder.tsx
+        src/pd_sweep.tsx, src/pd_transform.tsx, src/pd_binder.tsx, src/pd_last.tsx
 src/Mod/PartDesign/Gui/CommandBody.cpp   [licence: LGPL-2.1-or-later]
     copyright 2015 Alexander Golubev (Fat-Zer)
     followed by src/fctips.ts, src/partdesign.tsx
@@ -949,6 +952,12 @@ src/Mod/PartDesign/Gui/TaskChamferParameters.ui   [licence: none]
 src/Mod/PartDesign/Gui/TaskDatumParameters.cpp   [licence: LGPL-2.1-or-later]
     copyright 2013 Jan Rheinländer
     followed by src/pd_datum.tsx
+src/Mod/PartDesign/Gui/TaskDefeaturingParameters.cpp   [licence: LGPL-2.1-or-later]
+    copyright 2026 Max Wilfinger
+    followed by src/pd_dressup.tsx
+src/Mod/PartDesign/Gui/TaskDefeaturingParameters.ui   [licence: none]
+    copyright: no line in the file
+    followed by src/pd_dressup.tsx
 src/Mod/PartDesign/Gui/TaskDraftParameters.cpp   [licence: LGPL-2.1-or-later]
     copyright 2012 Jan Rheinländer
     followed by src/pd_dressup.tsx
@@ -1074,7 +1083,7 @@ src/Mod/PartDesign/Gui/ViewProviderScaled.cpp   [licence: LGPL-2.1-or-later]
     followed by src/pd_transform.tsx
 src/Mod/PartDesign/Gui/ViewProviderShapeBinder.cpp   [licence: LGPL-2.1-or-later]
     copyright 2015 Stefan Tröger
-    followed by src/pd_binder.tsx
+    followed by src/pd_binder.tsx, src/pd_last.tsx
 src/Mod/PartDesign/Gui/ViewProviderSketchBased.cpp   [licence: LGPL-2.1-or-later]
     copyright 2015 Alexander Golubev (Fat-Zer)
     followed by src/partdesign.tsx
@@ -1084,6 +1093,18 @@ src/Mod/PartDesign/Gui/ViewProviderTransformed.cpp   [licence: LGPL-2.1-or-later
 src/Mod/PartDesign/Gui/Workbench.cpp   [licence: LGPL-2.1-or-later]
     copyright 2008 Werner Mayer
     followed by src/chrome.tsx, src/partdesign.tsx
+src/Mod/PartDesign/InvoluteGearFeature.py   [licence: LGPL-2.1-or-later]
+    copyright 2014 Juergen Riegel
+    followed by src/pd_last.tsx
+src/Mod/PartDesign/InvoluteGearFeature.ui   [licence: none]
+    copyright: no line in the file
+    followed by src/pd_last.tsx
+src/Mod/PartDesign/SprocketFeature.py   [licence: LGPL-2.1-or-later]
+    copyright 2020 Adam Spontarelli
+    followed by src/pd_last.tsx
+src/Mod/PartDesign/SprocketFeature.ui   [licence: none]
+    copyright: no line in the file
+    followed by src/pd_last.tsx
 src/Mod/Show/mTempoVis.py   [licence: LGPL-2.1-or-later]
     copyright 2016 Victor Titov (DeepSOIC)
     followed by src/sketchpanelcmds.ts

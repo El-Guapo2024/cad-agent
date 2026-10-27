@@ -2096,3 +2096,5 @@ from .feature_defeaturing import Defeaturing  # noqa: E402,F401  PartDesign::Def
 FEATURES.update(Defeaturing=Defeaturing)
 from .feature_subbinder import SubShapeBinder  # noqa: E402,F401  PartDesign::SubShapeBinder
 FEATURES.update(SubShapeBinder=SubShapeBinder)
+from .feature_boolean import LINKED, Boolean, Clone  # noqa: E402,F401  PartDesign::Boolean, ::FeatureBase (Clone)
+FEATURES.update(LINKED)
