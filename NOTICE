@@ -51,6 +51,13 @@ that commit.
   LGPL-2.1-or-later        cad_agent/assembly_wb.py and cad_agent/assembly_jcs.py, all of them (the
                            Assembly workbench's objects and joint coordinate systems). See section 2.
 
+  LGPL-2.1-or-later        cad_agent/techdraw.py, techdraw_view.py, techdraw_dim.py, techdraw_edit.py and
+                           techdraw_export.py, all of them (the TechDraw workbench's page objects,
+                           view geometry, dimensions, commands and exports). See section 2.
+
+  LGPL-2.1-or-later and    cad_agent/techdraw_templates/: FreeCAD's TechDraw templates, unmodified.
+  CC0-1.0                  See section 3.
+
   LGPL-2.1                 ui/ondsel/upstream/, OndselSolver, FreeCAD's assembly solver: under its own
                            licence, the GNU Lesser General Public License version 2.1 (its LICENSE,
                            which names no later version). See section 3.
@@ -219,6 +226,19 @@ that commit.
       LGPL-2.1-or-later. The solving half of AssemblyObject.cpp is ported in ui/ondsel/assembly.cpp
       (part of ui/, LGPL-2.1-or-later), which cad_agent/ondsel.py loads.
 
+  cad_agent/techdraw.py, techdraw_view.py, techdraw_dim.py, techdraw_edit.py, techdraw_export.py
+      Re-express src/Mod/TechDraw/App: DrawPage.cpp, DrawSVGTemplate.cpp, DrawTemplate.cpp,
+      DrawView.cpp, DrawViewPart.cpp, GeometryObject.cpp, ShapeUtils.cpp, ShapeExtractor.cpp,
+      DrawProjectSplit.cpp, Geometry.cpp, DrawUtil.cpp, DrawProjGroup.cpp, DrawProjGroupItem.cpp,
+      DrawViewSection.cpp, EdgeWalker.cpp, DrawViewDimension.cpp, DimensionFormatter.cpp,
+      DrawViewBalloon.cpp, DrawViewAnnotation.cpp, Preferences.cpp and AppTechDrawPy.cpp
+      (writeDXFPage), and src/Mod/TechDraw/Gui: Command.cpp, CommandCreateDims.cpp,
+      CommandAnnotate.cpp, TaskProjGroup.cpp, TaskSectionView.cpp, QGIViewPart.cpp,
+      QGIViewDimension.cpp, QGIViewBalloon.cpp, MDIViewPage.cpp. Copyright (c) 2007 Jürgen Riegel,
+      2012-2013 Luke Parry, 2014 Joe Dowsett, 2015-2023 WandererFan, 2019 Franck Jullien, 2023
+      Benjamin Bræstrup Sayoc. SPDX-License-Identifier: LGPL-2.1-or-later. The page's DXF reuses
+      cad_agent/dxf.py's writer (above).
+
   These are close translations or re-expressions and keep their code; each file says so in its
   header. Other files credit FreeCAD in a comment (cad_agent/bom.py, subassembly.py, shop.py,
   speckinds/shop.py, undo.py, gui.py, macro.py, userprefs.py, scene.py, serve.py, beam.py, and
@@ -282,6 +302,15 @@ that commit.
       TransformControls example (MIT, the three.js authors), and three-cad-viewer 5.0.7 (its
       esm.min.js and css; MIT, Bernhard Walter), whose build contains three.js, postprocessing
       (Zlib) and n8ao.
+
+  FreeCAD's TechDraw templates  cad_agent/techdraw_templates/: src/Mod/TechDraw/Templates/
+                                Default_Template_A4_Landscape.svg, ISO/A4_Landscape_TD.svg and
+                                ISO/A3_Landscape_TD.svg (no notice of their own, so under FreeCAD's
+                                licence, LGPL-2.0-or-later, distributed here under 2.1), and
+                                ISO/A4_Landscape_ISO5457_minimal.svg, ISO/A3_Landscape_ISO5457_minimal.svg
+                                and ISO/A4_Portrait_ISO5457_minimal.svg (CC0 1.0, as their metadata
+                                says; "A. Nemesis" in the title block is the template's sample text),
+                                copied unmodified at FreeCAD 3160daf1e2b6.
 
   OndselSolver (LGPL-2.1, Copyright (c) 2023 Ondsel, Inc.)
       ui/ondsel/upstream/: https://github.com/FreeCAD/OndselSolver at 4be80eef02a3, the revision FreeCAD

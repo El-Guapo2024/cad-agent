@@ -153,3 +153,70 @@ def parts():
   ("Insert Component", "Create Revolute Joint", "Toggle grounded", "Move part").
 - Checked like the Body: tests/golden/assembly (freecadcmd builds each case through the GUI's command sequence;
   every step's placements, references, JCS and the exportAsASMT file), the native and the wasm build both.
+
+## TechDraw pages in a project (decided 2026-10-27, branch techdraw)
+
+FreeCAD's TechDraw page is a document object (TechDraw::DrawPage) whose views link the 3D objects they draw; a view's
+lines are not stored but recomputed from the shape (DrawViewPart::execute, hidden line removal). Here a page is one
+file of the project, `techdraw/<Page>.py`, holding the page's objects in FreeCAD's document order under the name
+`TechDraw`, as ASSEMBLY holds the Assembly's:
+
+```python
+"""Page: a TechDraw page of the project; the app and `cad techdraw ...` edit it (cad_agent/techdraw_edit.py)."""
+from cad_agent import techdraw as TechDraw
+
+PAGE = [
+    TechDraw.DrawPage("Page", "Template"),
+    TechDraw.DrawSVGTemplate("Template", template="ISO/A4_Landscape_TD.svg", editable_texts={"FC-Title": "Plate"}),
+    TechDraw.DrawProjGroup("ProjGroup", source=["plate"], views=["ProjItem", "ProjItem001"], anchor="ProjItem",
+                           x=120.0, y=110.0, scale_type="Custom", scale=0.5),
+    TechDraw.DrawProjGroupItem("ProjItem", type="Front", label="Front"),
+    TechDraw.DrawProjGroupItem("ProjItem001", type="Top", direction=(0.0, 0.0, 1.0), label="Top"),
+    TechDraw.DrawProjGroupItem("View", source=["plate"], direction=(0.0, 0.0, 1.0), x=230.0, y=60.0),
+    TechDraw.DrawViewSection("Section", base_view="View", section_symbol="A", section_normal=(-1.0, 0.0, 0.0),
+                             section_origin=(20.0, 15.0, 2.5), direction=(-1.0, 0.0, 0.0), x_direction=(0.0, 1.0, 0.0),
+                             x=230.0, y=150.0),
+    TechDraw.DrawViewDimension("Dimension", type="DistanceX", references_2d=[("View", "Edge3")], x=12.0, y=-25.0),
+    TechDraw.DrawViewDimension("Dimension001", type="Diameter", references_2d=[("View", "Edge5")],
+                               format_spec="⌀%.2w", over_tolerance=0.1, under_tolerance=-0.1, equal_tolerance=False),
+    TechDraw.DrawViewBalloon("Balloon", source_view="View", origin_x=5.0, origin_y=3.0, text="1", x=30.0, y=30.0),
+    TechDraw.DrawViewAnnotation("Annotation", text=["Default Text"], x=40.0, y=20.0),
+]
+```
+
+- Each entry is a feature_kw.KwFeature (cad_agent/techdraw.py): its Name, the links FreeCAD's Python takes by
+  position (DrawPage's Template), the rest the type's properties in snake_case with FreeCAD's defaults (a fresh
+  profile's Preferences > TechDraw) left out. Property names are FreeCAD's: Source, Direction, XDirection, Scale,
+  ScaleType, X, Y, Rotation, HardHidden, SmoothVisible...; BaseView, SectionNormal, SectionOrigin, SectionDirection,
+  SectionSymbol, CutSurfaceDisplay; Type, References2D, MeasureType, FormatSpec, OverTolerance, UnderTolerance,
+  EqualTolerance, Arbitrary, ArbitraryTolerances, Inverted, TheoreticalExact; SourceView, OriginX/Y, BubbleShape,
+  EndType, Text; Text, TextSize, Font, TextStyle, MaxWidth, LineSpace.
+- One file is one page: every view in PAGE belongs to its DrawPage (the page's Views are the list's views, in order,
+  that no DrawProjGroup holds); a DrawProjGroup's Views and Anchor are written, and its items take their Source,
+  Scale and ScaleType from it as DrawProjGroup::updateChildren* gives them. Names are unique over all of a project's
+  pages, as in FreeCAD's one document ("Page001" has "Template001").
+- A Source is a part of the project, by its module's name (parts/plate.py's build(), FreeCAD's Body or Part feature),
+  in the part's own frame. A 2D reference is (view, "EdgeN" | "VertexN"), FreeCAD's References2D, numbered as
+  DrawViewPart numbers its geometry after HLR (GeometryObject::addGeomFromCompound: visible hard, outline, smooth,
+  then hidden ones, each after ScrubCount passes of DrawProjectSplit::removeOverlapEdges), so the numbers are FreeCAD's.
+- Nothing computed is stored: lines, vertices, section faces, dimension values and text are a recompute
+  (cad_agent/techdraw_view.py: ShapeUtils, GeometryObject, DrawProjGroup's placement, DrawViewSection's cut;
+  techdraw_dim.py: DrawViewDimension's measures and DimensionFormatter), done with OCCT through OCP inside the
+  commands, as cad_agent/drawing/hlr.py does. A view's X and Y are written when they are the page's (a move, or
+  AutoDistribute off), as FreeCAD saves them.
+- Templates are FreeCAD's own SVGs, shipped in cad_agent/techdraw_templates/ (Default_Template_A4_Landscape.svg,
+  ISO/A4_Landscape_TD.svg, ISO/A3_Landscape_TD.svg and the ISO 5457 minimal A4/A3 sheets: LGPL-2.1-or-later as part
+  of FreeCAD, the ISO 5457 ones CC0 1.0 as their metadata says; NOTICE), named by their path under FreeCAD's
+  Mod/TechDraw/Templates. EditableTexts are the template's freecad:editable fields, as DrawSVGTemplate reads them.
+- Edits: cad_agent/techdraw_edit.py (read/apply, all or nothing, untouched entries keep their text) behind
+  `cad techdraw ...` (cad_agent/techdrawcmd.py) and /api/<slug>/techdraw; each change one undo step named as
+  FreeCAD's transaction ("Drawing create page", "Create view", "Create projection group", "Create SectionView",
+  "Create dimension", "Create Balloon", "Create Annotation").
+- Exports (`cad techdraw export`): SVG and PDF of the page as TechDraw's MDIViewPage prints it, and DXF as
+  TechDraw.writeDXFPage writes it, to out/techdraw/<Page>.svg|dxf|pdf.
+- Coexisting with `cad drawing`: its plate drawings (cad_agent/drawing/, out/drawings/) are unchanged, and so are its
+  gates and tests; techdraw/ is not a design input (verify.DESIGN), so a page never makes a verdict stale.
+- Checked like the Body: tests/golden/techdraw (freecadcmd builds each page from the same BREP: every view's visible
+  and hidden edges in FreeCAD's order, each dimension's value and text, section faces, the projection group's
+  positions, the DXF page), and ui/scripts/techdrawcheck.mjs against ui/scripts/fctechdraw.json (the real GUI's
+  TechDraw menu and toolbars, task panels, tree, property view and undo).
