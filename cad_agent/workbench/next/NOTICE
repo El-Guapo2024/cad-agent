@@ -809,7 +809,16 @@ src/Mod/Part/Gui/CommandParametric.cpp   [licence: LGPL-2.1-or-later]
     followed by src/part_wb.tsx
 src/Mod/Part/Gui/CommandSimple.cpp   [licence: LGPL-2.1-or-later]
     copyright 2002 Jürgen Riegel
-    followed by src/part_wb.tsx
+    followed by src/part_wb.tsx, src/part_static.tsx, cad_agent/feature_part_static.py
+src/Mod/Part/Gui/CrossSections.cpp   [licence: LGPL-2.1-or-later]
+    copyright 2012 Werner Mayer
+    followed by src/part_static.tsx
+src/Mod/Part/Gui/TaskShapeBuilder.cpp   [licence: LGPL-2.1-or-later]
+    copyright 2011 Werner Mayer
+    followed by src/part_static.tsx
+src/Mod/Part/BOPTools/ToleranceFeatures.py   [licence: LGPL-2.1-or-later]
+    copyright 2024 Eric Price (CorvusCorax)
+    followed by src/part_static.tsx, cad_agent/feature_part_static.py
 src/Mod/Part/Gui/DlgBooleanOperation.cpp   [licence: LGPL-2.1-or-later]
     copyright 2007 Werner Mayer
     followed by src/part_tasks.tsx

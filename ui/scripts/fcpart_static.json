@@ -1,0 +1,7004 @@
+{
+ "errors": {},
+ "workbench": "PartWorkbench",
+ "menus_selected": {
+  "bar": [
+   "&File",
+   "&Edit",
+   "&View",
+   "&Tools",
+   "&Macro",
+   "&Part",
+   "&Windows",
+   "",
+   "&Help"
+  ],
+  "&Edit": [
+   {
+    "text": "&Undo",
+    "name": "Std_Undo",
+    "shortcut": "Ctrl+Z",
+    "enabled": false,
+    "icon": true
+   },
+   {
+    "text": "&Redo",
+    "name": "Std_Redo",
+    "shortcut": "Ctrl+Shift+Z",
+    "enabled": false,
+    "icon": true
+   },
+   {
+    "sep": true
+   },
+   {
+    "text": "Cu&t",
+    "name": "Std_Cut",
+    "shortcut": "Ctrl+X",
+    "enabled": false,
+    "icon": true
+   },
+   {
+    "text": "&Copy",
+    "name": "Std_Copy",
+    "shortcut": "Ctrl+C",
+    "enabled": true,
+    "icon": true
+   },
+   {
+    "text": "&Paste",
+    "name": "Std_Paste",
+    "shortcut": "Ctrl+V",
+    "enabled": false,
+    "icon": true
+   },
+   {
+    "text": "Duplicate Selecti&on",
+    "name": "Std_DuplicateSelection",
+    "shortcut": "",
+    "enabled": true,
+    "icon": true
+   },
+   {
+    "text": "&Delete",
+    "name": "Std_Delete",
+    "shortcut": "Del",
+    "enabled": true,
+    "icon": true
+   },
+   {
+    "sep": true
+   },
+   {
+    "text": "Recompute",
+    "name": "Std_Refresh",
+    "shortcut": "F5",
+    "enabled": false,
+    "icon": true
+   },
+   {
+    "text": "&Box Selection",
+    "name": "Std_BoxSelection",
+    "shortcut": "Shift+B",
+    "enabled": true,
+    "icon": true
+   },
+   {
+    "text": "Bo&x Element Selection",
+    "name": "Std_BoxElementSelection",
+    "shortcut": "Shift+E",
+    "enabled": true,
+    "icon": true
+   },
+   {
+    "text": "Select &All",
+    "name": "Std_SelectAll",
+    "shortcut": "Ctrl+A",
+    "enabled": true,
+    "icon": true
+   },
+   {
+    "sep": true
+   },
+   {
+    "text": "Trans&form",
+    "name": "Std_TransformManip",
+    "shortcut": "",
+    "enabled": true,
+    "icon": true
+   },
+   {
+    "text": "P&lacement",
+    "name": "Std_Placement",
+    "shortcut": "",
+    "enabled": true,
+    "icon": true
+   },
+   {
+    "text": "Ali&gn To\u2026",
+    "name": "Std_Alignment",
+    "shortcut": "",
+    "enabled": false,
+    "icon": true
+   },
+   {
+    "text": "&Send to Python Console",
+    "name": "Std_SendToPythonConsole",
+    "shortcut": "Ctrl+Shift+P",
+    "enabled": true,
+    "icon": true
+   },
+   {
+    "text": "Propert&ies",
+    "name": "Std_Properties",
+    "shortcut": "Alt+Return",
+    "enabled": true,
+    "icon": true
+   },
+   {
+    "sep": true
+   },
+   {
+    "text": "Toggle &Edit Mode",
+    "name": "Std_Edit",
+    "shortcut": "",
+    "enabled": true,
+    "icon": true
+   },
+   {
+    "text": "Edit &Mode",
+    "name": "Std_UserEditMode",
+    "shortcut": "",
+    "enabled": true,
+    "icon": false,
+    "menu": [
+     {
+      "text": "&Default",
+      "name": "Std_UserEditModeDefault",
+      "shortcut": "",
+      "enabled": true,
+      "icon": true
+     },
+     {
+      "text": "Trans&form",
+      "name": "Std_UserEditModeTransform",
+      "shortcut": "",
+      "enabled": true,
+      "icon": true
+     },
+     {
+      "text": "Cu&tting",
+      "name": "Std_UserEditModeCutting",
+      "shortcut": "",
+      "enabled": true,
+      "icon": true
+     },
+     {
+      "text": "&Color",
+      "name": "Std_UserEditModeColor",
+      "shortcut": "",
+      "enabled": true,
+      "icon": true
+     }
+    ]
+   },
+   {
+    "sep": true
+   },
+   {
+    "text": "Prefere&nces",
+    "name": "Std_DlgPreferences",
+    "shortcut": "Ctrl+,",
+    "enabled": true,
+    "icon": true
+   },
+   {
+    "text": "Create",
+    "name": "Create",
+    "shortcut": "",
+    "enabled": true,
+    "icon": false,
+    "menu": [
+     {
+      "text": "New Part",
+      "name": "Std_Part",
+      "shortcut": "",
+      "enabled": true,
+      "icon": true
+     },
+     {
+      "text": "New Group",
+      "name": "Std_Group",
+      "shortcut": "",
+      "enabled": true,
+      "icon": true
+     },
+     {
+      "text": "Variable Set",
+      "name": "Std_VarSet",
+      "shortcut": "",
+      "enabled": true,
+      "icon": true
+     },
+     {
+      "text": "Annotation Label",
+      "name": "Std_AnnotationLabel",
+      "shortcut": "",
+      "enabled": true,
+      "icon": true
+     },
+     {
+      "text": "Datums",
+      "name": "Part_Datums",
+      "shortcut": "",
+      "enabled": true,
+      "icon": false,
+      "menu": [
+       {
+        "text": "Coordinate System",
+        "name": "Part_CoordinateSystem",
+        "shortcut": "",
+        "enabled": true,
+        "icon": true
+       },
+       {
+        "text": "Datum Plane",
+        "name": "Part_DatumPlane",
+        "shortcut": "",
+        "enabled": true,
+        "icon": true
+       },
+       {
+        "text": "Datum Line",
+        "name": "Part_DatumLine",
+        "shortcut": "",
+        "enabled": true,
+        "icon": true
+       },
+       {
+        "text": "Datum Point",
+        "name": "Part_DatumPoint",
+        "shortcut": "",
+        "enabled": true,
+        "icon": true
+       }
+      ]
+     },
+     {
+      "text": "Link Actions",
+      "name": "Std_LinkActions",
+      "shortcut": "",
+      "enabled": true,
+      "icon": false,
+      "menu": [
+       {
+        "text": "Make Link",
+        "name": "Std_LinkMake",
+        "shortcut": "",
+        "enabled": true,
+        "icon": true
+       },
+       {
+        "text": "Make Sub-Link",
+        "name": "Std_LinkMakeRelative",
+        "shortcut": "",
+        "enabled": false,
+        "icon": true
+       },
+       {
+        "text": "Replace With Link",
+        "name": "Std_LinkReplace",
+        "shortcut": "",
+        "enabled": false,
+        "icon": true
+       },
+       {
+        "text": "Unlink",
+        "name": "Std_LinkUnlink",
+        "shortcut": "",
+        "enabled": false,
+        "icon": true
+       },
+       {
+        "text": "Import Links",
+        "name": "Std_LinkImport",
+        "shortcut": "",
+        "enabled": false,
+        "icon": true
+       },
+       {
+        "text": "Import All Links",
+        "name": "Std_LinkImportAll",
+        "shortcut": "",
+        "enabled": false,
+        "icon": true
+       }
+      ]
+     },
+     {
+      "sep": true
+     },
+     {
+      "text": "Te&xt Document",
+      "name": "Std_TextDocument",
+      "shortcut": "",
+      "enabled": true,
+      "icon": true
+     }
+    ]
+   }
+  ],
+  "&View": [
+   {
+    "text": "New 3D View",
+    "name": "Std_ViewCreate",
+    "shortcut": "",
+    "enabled": true,
+    "icon": true
+   },
+   {
+    "text": "Orthographic View",
+    "name": "Std_OrthographicCamera",
+    "shortcut": "V, O",
+    "enabled": true,
+    "icon": true
+   },
+   {
+    "text": "Perspective View",
+    "name": "Std_PerspectiveCamera",
+    "shortcut": "V, P",
+    "enabled": true,
+    "icon": true
+   },
+   {
+    "text": "Fullscreen",
+    "name": "Std_MainFullscreen",
+    "shortcut": "Alt+F11",
+    "enabled": true,
+    "icon": true
+   },
+   {
+    "sep": true
+   },
+   {
+    "text": "Standard &Views",
+    "name": "Standard &Views",
+    "shortcut": "",
+    "enabled": true,
+    "icon": false,
+    "menu": [
+     {
+      "text": "&Fit All",
+      "name": "Std_ViewFitAll",
+      "shortcut": "V, F",
+      "enabled": true,
+      "icon": true
+     },
+     {
+      "text": "Fit &Selection",
+      "name": "Std_ViewFitSelection",
+      "shortcut": "V, S",
+      "enabled": true,
+      "icon": true
+     },
+     {
+      "text": "&Align to Selection",
+      "name": "Std_AlignToSelection",
+      "shortcut": "",
+      "enabled": true,
+      "icon": true
+     },
+     {
+      "text": "A&xonometric",
+      "name": "A&xonometric",
+      "shortcut": "",
+      "enabled": true,
+      "icon": false,
+      "menu": [
+       {
+        "text": "&Isometric",
+        "name": "Std_ViewIsometric",
+        "shortcut": "0",
+        "enabled": true,
+        "icon": true
+       },
+       {
+        "text": "&Dimetric",
+        "name": "Std_ViewDimetric",
+        "shortcut": "",
+        "enabled": true,
+        "icon": true
+       },
+       {
+        "text": "&Trimetric",
+        "name": "Std_ViewTrimetric",
+        "shortcut": "",
+        "enabled": true,
+        "icon": true
+       }
+      ]
+     },
+     {
+      "sep": true
+     },
+     {
+      "text": "&Home",
+      "name": "Std_ViewHome",
+      "shortcut": "Home",
+      "enabled": true,
+      "icon": true
+     },
+     {
+      "text": "Front",
+      "name": "Std_ViewFront",
+      "shortcut": "1",
+      "enabled": true,
+      "icon": true
+     },
+     {
+      "text": "Top",
+      "name": "Std_ViewTop",
+      "shortcut": "2",
+      "enabled": true,
+      "icon": true
+     },
+     {
+      "text": "Right",
+      "name": "Std_ViewRight",
+      "shortcut": "3",
+      "enabled": true,
+      "icon": true
+     },
+     {
+      "text": "Rear",
+      "name": "Std_ViewRear",
+      "shortcut": "4",
+      "enabled": true,
+      "icon": true
+     },
+     {
+      "text": "Bottom",
+      "name": "Std_ViewBottom",
+      "shortcut": "5",
+      "enabled": true,
+      "icon": true
+     },
+     {
+      "text": "Left",
+      "name": "Std_ViewLeft",
+      "shortcut": "6",
+      "enabled": true,
+      "icon": true
+     },
+     {
+      "sep": true
+     },
+     {
+      "text": "Rotate &Left",
+      "name": "Std_ViewRotateLeft",
+      "shortcut": "Shift+Left",
+      "enabled": true,
+      "icon": true
+     },
+     {
+      "text": "Rotates &Right",
+      "name": "Std_ViewRotateRight",
+      "shortcut": "Shift+Right",
+      "enabled": true,
+      "icon": true
+     },
+     {
+      "sep": true
+     },
+     {
+      "text": "St&ore Working View",
+      "name": "Std_StoreWorkingView",
+      "shortcut": "Shift+End",
+      "enabled": true,
+      "icon": false
+     },
+     {
+      "text": "R&ecall Working View",
+      "name": "Std_RecallWorkingView",
+      "shortcut": "End",
+      "enabled": false,
+      "icon": false
+     }
+    ]
+   },
+   {
+    "text": "F&reeze Display",
+    "name": "Std_FreezeViews",
+    "shortcut": "",
+    "enabled": true,
+    "icon": false,
+    "menu": [
+     {
+      "text": "&Save Views\u2026",
+      "name": null,
+      "shortcut": "",
+      "enabled": false,
+      "icon": false
+     },
+     {
+      "text": "&Load Views\u2026",
+      "name": null,
+      "shortcut": "",
+      "enabled": true,
+      "icon": false
+     },
+     {
+      "sep": true
+     },
+     {
+      "text": "F&reeze View",
+      "name": null,
+      "shortcut": "Shift+F",
+      "enabled": true,
+      "icon": false
+     },
+     {
+      "text": "&Clear Views",
+      "name": null,
+      "shortcut": "",
+      "enabled": false,
+      "icon": false
+     },
+     {
+      "sep": true
+     }
+    ]
+   },
+   {
+    "text": "&Draw Style",
+    "name": "Std_DrawStyle",
+    "shortcut": "",
+    "enabled": true,
+    "icon": false,
+    "menu": [
+     {
+      "text": "As Is",
+      "name": "Std_DrawStyleAsIs",
+      "shortcut": "V, 1",
+      "enabled": true,
+      "icon": true
+     },
+     {
+      "text": "Points",
+      "name": "Std_DrawStylePoints",
+      "shortcut": "V, 2",
+      "enabled": true,
+      "icon": true
+     },
+     {
+      "text": "Wireframe",
+      "name": "Std_DrawStyleWireframe",
+      "shortcut": "V, 3",
+      "enabled": true,
+      "icon": true
+     },
+     {
+      "text": "Hidden Line",
+      "name": "Std_DrawStyleHiddenLine",
+      "shortcut": "V, 4",
+      "enabled": true,
+      "icon": true
+     },
+     {
+      "text": "No Shading",
+      "name": "Std_DrawStyleNoShading",
+      "shortcut": "V, 5",
+      "enabled": true,
+      "icon": true
+     },
+     {
+      "text": "Shaded",
+      "name": "Std_DrawStyleShaded",
+      "shortcut": "V, 6",
+      "enabled": true,
+      "icon": true
+     },
+     {
+      "text": "Flat Lines",
+      "name": "Std_DrawStyleFlatLines",
+      "shortcut": "V, 7",
+      "enabled": true,
+      "icon": true
+     }
+    ]
+   },
+   {
+    "text": "&Bounding Box",
+    "name": "Std_SelBoundingBox",
+    "shortcut": "",
+    "enabled": true,
+    "icon": true
+   },
+   {
+    "sep": true
+   },
+   {
+    "text": "&Zoom",
+    "name": "&Zoom",
+    "shortcut": "",
+    "enabled": true,
+    "icon": false,
+    "menu": [
+     {
+      "text": "Zoom &In",
+      "name": "Std_ViewZoomIn",
+      "shortcut": "Ctrl++",
+      "enabled": true,
+      "icon": true
+     },
+     {
+      "text": "Zoom &Out",
+      "name": "Std_ViewZoomOut",
+      "shortcut": "Ctrl+-",
+      "enabled": true,
+      "icon": true
+     },
+     {
+      "sep": true
+     },
+     {
+      "text": "&Box Zoom",
+      "name": "Std_ViewBoxZoom",
+      "shortcut": "Ctrl+B",
+      "enabled": true,
+      "icon": true
+     }
+    ]
+   },
+   {
+    "text": "D&ocument Window",
+    "name": "Std_ViewDockUndockFullscreen",
+    "shortcut": "",
+    "enabled": true,
+    "icon": false,
+    "menu": [
+     {
+      "text": "&Docked",
+      "name": "Std_ViewDock",
+      "shortcut": "V, D",
+      "enabled": true,
+      "icon": false
+     },
+     {
+      "text": "&Undocked",
+      "name": "Std_ViewUndock",
+      "shortcut": "V, U",
+      "enabled": true,
+      "icon": false
+     },
+     {
+      "text": "&Fullscreen",
+      "name": "Std_ViewFullscreen",
+      "shortcut": "F11",
+      "enabled": true,
+      "icon": true
+     }
+    ]
+   },
+   {
+    "text": "Issue Camera &Position",
+    "name": "Std_ViewIvIssueCamPos",
+    "shortcut": "",
+    "enabled": true,
+    "icon": true
+   },
+   {
+    "text": "Toggle A&xis Cross",
+    "name": "Std_AxisCross",
+    "shortcut": "A, C",
+    "enabled": true,
+    "icon": true
+   },
+   {
+    "text": "Clippin&g View",
+    "name": "Std_ToggleClipPlane",
+    "shortcut": "",
+    "enabled": true,
+    "icon": true
+   },
+   {
+    "text": "Text&ure Mapping",
+    "name": "Std_TextureMapping",
+    "shortcut": "",
+    "enabled": true,
+    "icon": true
+   },
+   {
+    "sep": true
+   },
+   {
+    "text": "V&isibility",
+    "name": "V&isibility",
+    "shortcut": "",
+    "enabled": true,
+    "icon": false,
+    "menu": [
+     {
+      "text": "Toggle &Visibility",
+      "name": "Std_ToggleVisibility",
+      "shortcut": "Space",
+      "enabled": true,
+      "icon": true
+     },
+     {
+      "text": "Sho&w Selection",
+      "name": "Std_ShowSelection",
+      "shortcut": "",
+      "enabled": true,
+      "icon": true
+     },
+     {
+      "text": "&Hide Selection",
+      "name": "Std_HideSelection",
+      "shortcut": "",
+      "enabled": true,
+      "icon": true
+     },
+     {
+      "text": "&Select Visible Objects",
+      "name": "Std_SelectVisibleObjects",
+      "shortcut": "",
+      "enabled": true,
+      "icon": true
+     },
+     {
+      "sep": true
+     },
+     {
+      "text": "To&ggle All Objects",
+      "name": "Std_ToggleObjects",
+      "shortcut": "",
+      "enabled": true,
+      "icon": true
+     },
+     {
+      "text": "Show &All Objects",
+      "name": "Std_ShowObjects",
+      "shortcut": "",
+      "enabled": true,
+      "icon": true
+     },
+     {
+      "text": "Hide All &Objects",
+      "name": "Std_HideObjects",
+      "shortcut": "",
+      "enabled": true,
+      "icon": true
+     },
+     {
+      "sep": true
+     },
+     {
+      "text": "Toggle Se&lectability",
+      "name": "Std_ToggleSelectability",
+      "shortcut": "",
+      "enabled": true,
+      "icon": true
+     }
+    ]
+   },
+   {
+    "text": "Toggle Navigation/&Edit Mode",
+    "name": "Std_ToggleNavigation",
+    "shortcut": "Esc",
+    "enabled": false,
+    "icon": true
+   },
+   {
+    "text": "&Material",
+    "name": "Std_SetMaterial",
+    "shortcut": "",
+    "enabled": true,
+    "icon": true
+   },
+   {
+    "text": "&Appearance",
+    "name": "Std_SetAppearance",
+    "shortcut": "Ctrl+D",
+    "enabled": true,
+    "icon": true
+   },
+   {
+    "text": "Random &Color",
+    "name": "Std_RandomColor",
+    "shortcut": "",
+    "enabled": true,
+    "icon": true
+   },
+   {
+    "text": "Appearance per &Face",
+    "name": "Part_ColorPerFace",
+    "shortcut": "",
+    "enabled": true,
+    "icon": true
+   },
+   {
+    "text": "Toggle Transparenc&y",
+    "name": "Std_ToggleTransparency",
+    "shortcut": "V, T",
+    "enabled": true,
+    "icon": true
+   },
+   {
+    "sep": true
+   },
+   {
+    "text": "&Workbench",
+    "name": "Std_Workbench",
+    "shortcut": "",
+    "enabled": true,
+    "icon": false,
+    "menu": [
+     {
+      "text": "Assembly",
+      "name": "AssemblyWorkbench",
+      "shortcut": "W, 1",
+      "enabled": true,
+      "icon": true
+     },
+     {
+      "text": "BIM",
+      "name": "BIMWorkbench",
+      "shortcut": "W, 2",
+      "enabled": true,
+      "icon": true
+     },
+     {
+      "text": "CAM",
+      "name": "CAMWorkbench",
+      "shortcut": "W, 3",
+      "enabled": true,
+      "icon": true
+     },
+     {
+      "text": "Draft",
+      "name": "DraftWorkbench",
+      "shortcut": "W, 4",
+      "enabled": true,
+      "icon": true
+     },
+     {
+      "text": "FEM",
+      "name": "FemWorkbench",
+      "shortcut": "W, 5",
+      "enabled": true,
+      "icon": true
+     },
+     {
+      "text": "Material",
+      "name": "MaterialWorkbench",
+      "shortcut": "W, 6",
+      "enabled": true,
+      "icon": true
+     },
+     {
+      "text": "Mesh",
+      "name": "MeshWorkbench",
+      "shortcut": "W, 7",
+      "enabled": true,
+      "icon": true
+     },
+     {
+      "text": "Part Design",
+      "name": "PartDesignWorkbench",
+      "shortcut": "W, 8",
+      "enabled": true,
+      "icon": true
+     },
+     {
+      "text": "Part",
+      "name": "PartWorkbench",
+      "shortcut": "W, 9",
+      "enabled": true,
+      "icon": true
+     },
+     {
+      "text": "Points",
+      "name": "PointsWorkbench",
+      "shortcut": "",
+      "enabled": true,
+      "icon": true
+     },
+     {
+      "text": "Reverse Engineering",
+      "name": "ReverseEngineeringWorkbench",
+      "shortcut": "",
+      "enabled": true,
+      "icon": true
+     },
+     {
+      "text": "Sketcher",
+      "name": "SketcherWorkbench",
+      "shortcut": "",
+      "enabled": true,
+      "icon": true
+     },
+     {
+      "text": "Spreadsheet",
+      "name": "SpreadsheetWorkbench",
+      "shortcut": "",
+      "enabled": true,
+      "icon": true
+     },
+     {
+      "text": "Surface",
+      "name": "SurfaceWorkbench",
+      "shortcut": "",
+      "enabled": true,
+      "icon": true
+     },
+     {
+      "text": "TechDraw",
+      "name": "TechDrawWorkbench",
+      "shortcut": "",
+      "enabled": true,
+      "icon": true
+     }
+    ]
+   },
+   {
+    "text": "&Toolbars",
+    "name": "Std_ToolBarMenu",
+    "shortcut": "",
+    "enabled": true,
+    "icon": false,
+    "menu": [
+     {
+      "text": "File",
+      "name": null,
+      "shortcut": "",
+      "enabled": true,
+      "icon": false
+     },
+     {
+      "text": "Edit",
+      "name": null,
+      "shortcut": "",
+      "enabled": true,
+      "icon": false
+     },
+     {
+      "text": "Clipboard",
+      "name": null,
+      "shortcut": "",
+      "enabled": true,
+      "icon": false
+     },
+     {
+      "text": "Workbench",
+      "name": null,
+      "shortcut": "",
+      "enabled": true,
+      "icon": false
+     },
+     {
+      "text": "Macro",
+      "name": null,
+      "shortcut": "",
+      "enabled": true,
+      "icon": false
+     },
+     {
+      "text": "View",
+      "name": null,
+      "shortcut": "",
+      "enabled": true,
+      "icon": false
+     },
+     {
+      "text": "Individual Views",
+      "name": null,
+      "shortcut": "",
+      "enabled": true,
+      "icon": false
+     },
+     {
+      "text": "Structure",
+      "name": null,
+      "shortcut": "",
+      "enabled": true,
+      "icon": false
+     },
+     {
+      "text": "Help",
+      "name": null,
+      "shortcut": "",
+      "enabled": true,
+      "icon": false
+     },
+     {
+      "text": "Solids",
+      "name": null,
+      "shortcut": "",
+      "enabled": true,
+      "icon": false
+     },
+     {
+      "text": "Part Tools",
+      "name": null,
+      "shortcut": "",
+      "enabled": true,
+      "icon": false
+     },
+     {
+      "text": "Boolean Tools",
+      "name": null,
+      "shortcut": "",
+      "enabled": true,
+      "icon": false
+     },
+     {
+      "sep": true
+     },
+     {
+      "text": "Lock Toolbars",
+      "name": "Std_ToggleToolBarLock",
+      "shortcut": "",
+      "enabled": true,
+      "icon": false
+     }
+    ]
+   },
+   {
+    "text": "&Panels",
+    "name": "Std_DockViewMenu",
+    "shortcut": "",
+    "enabled": true,
+    "icon": false,
+    "menu": [
+     {
+      "text": "Selection View",
+      "name": "Std_SelectionView",
+      "shortcut": "",
+      "enabled": true,
+      "icon": false
+     },
+     {
+      "text": "Model",
+      "name": "Std_ComboView",
+      "shortcut": "",
+      "enabled": true,
+      "icon": false
+     },
+     {
+      "text": "Python Console",
+      "name": "Std_PythonView",
+      "shortcut": "",
+      "enabled": true,
+      "icon": false
+     },
+     {
+      "text": "Report View",
+      "name": "Std_ReportView",
+      "shortcut": "",
+      "enabled": true,
+      "icon": false
+     },
+     {
+      "text": "Tasks",
+      "name": "Std_TaskView",
+      "shortcut": "",
+      "enabled": true,
+      "icon": false
+     }
+    ]
+   },
+   {
+    "text": "Overlay Docked Panel",
+    "name": "Std_DockOverlay",
+    "shortcut": "",
+    "enabled": true,
+    "icon": false,
+    "menu": [
+     {
+      "text": "Toggle Overl&ay for All Panels",
+      "name": "Std_DockOverlayAll",
+      "shortcut": "",
+      "enabled": true,
+      "icon": false
+     },
+     {
+      "text": "Toggle Tra&nsparent Panels",
+      "name": "Std_DockOverlayTransparentAll",
+      "shortcut": "",
+      "enabled": true,
+      "icon": false
+     },
+     {
+      "sep": true
+     },
+     {
+      "text": "Toggle &Overlay",
+      "name": "Std_DockOverlayToggle",
+      "shortcut": "",
+      "enabled": true,
+      "icon": false
+     },
+     {
+      "text": "Toggle Tran&sparent Mode",
+      "name": "Std_DockOverlayToggleTransparent",
+      "shortcut": "",
+      "enabled": true,
+      "icon": false
+     },
+     {
+      "sep": true
+     },
+     {
+      "text": "Bypass &Mouse Events in Overlay Panels",
+      "name": "Std_DockOverlayMouseTransparent",
+      "shortcut": "T, T",
+      "enabled": true,
+      "icon": false
+     },
+     {
+      "sep": true
+     },
+     {
+      "text": "Toggle &Left",
+      "name": "Std_DockOverlayToggleLeft",
+      "shortcut": "Ctrl+Left",
+      "enabled": true,
+      "icon": true
+     },
+     {
+      "text": "Toggle &Right",
+      "name": "Std_DockOverlayToggleRight",
+      "shortcut": "Ctrl+Right",
+      "enabled": true,
+      "icon": true
+     },
+     {
+      "text": "Toggle &Top",
+      "name": "Std_DockOverlayToggleTop",
+      "shortcut": "Ctrl+Up",
+      "enabled": true,
+      "icon": true
+     },
+     {
+      "text": "Toggle &Bottom",
+      "name": "Std_DockOverlayToggleBottom",
+      "shortcut": "Ctrl+Down",
+      "enabled": true,
+      "icon": true
+     }
+    ]
+   },
+   {
+    "text": "Toggle Bottom Panels",
+    "name": "Std_ToggleBottomPanels",
+    "shortcut": "Ctrl+0",
+    "enabled": true,
+    "icon": true
+   },
+   {
+    "sep": true
+   },
+   {
+    "text": "&Link Navigation",
+    "name": "Std_LinkSelectActions",
+    "shortcut": "",
+    "enabled": true,
+    "icon": false,
+    "menu": [
+     {
+      "text": "&Go to Linked Object",
+      "name": "Std_LinkSelectLinked",
+      "shortcut": "S, G",
+      "enabled": false,
+      "icon": true
+     },
+     {
+      "text": "Go to &Deepest Linked Object",
+      "name": "Std_LinkSelectLinkedFinal",
+      "shortcut": "S, D",
+      "enabled": false,
+      "icon": true
+     },
+     {
+      "text": "Select &All Links",
+      "name": "Std_LinkSelectAllLinks",
+      "shortcut": "",
+      "enabled": false,
+      "icon": true
+     }
+    ]
+   },
+   {
+    "text": "Tree View Actions",
+    "name": "Std_TreeViewActions",
+    "shortcut": "",
+    "enabled": true,
+    "icon": false,
+    "menu": [
+     {
+      "text": "Sync View",
+      "name": "Std_TreeSyncView",
+      "shortcut": "T, 1",
+      "enabled": true,
+      "icon": false
+     },
+     {
+      "text": "Sync Selection",
+      "name": "Std_TreeSyncSelection",
+      "shortcut": "T, 2",
+      "enabled": true,
+      "icon": false
+     },
+     {
+      "text": "Sync Placement",
+      "name": "Std_TreeSyncPlacement",
+      "shortcut": "T, 3",
+      "enabled": true,
+      "icon": false
+     },
+     {
+      "text": "Preselection",
+      "name": "Std_TreePreSelection",
+      "shortcut": "T, 4",
+      "enabled": true,
+      "icon": false
+     },
+     {
+      "text": "Record Selection",
+      "name": "Std_TreeRecordSelection",
+      "shortcut": "T, 5",
+      "enabled": true,
+      "icon": false
+     },
+     {
+      "sep": true
+     },
+     {
+      "text": "&Single Document",
+      "name": "Std_TreeSingleDocument",
+      "shortcut": "",
+      "enabled": true,
+      "icon": false
+     },
+     {
+      "text": "&Multi Document",
+      "name": "Std_TreeMultiDocument",
+      "shortcut": "",
+      "enabled": true,
+      "icon": false
+     },
+     {
+      "text": "Collapse/E&xpand",
+      "name": "Std_TreeCollapseDocument",
+      "shortcut": "",
+      "enabled": true,
+      "icon": false
+     },
+     {
+      "sep": true
+     },
+     {
+      "text": "Initiate &Dragging",
+      "name": "Std_TreeDrag",
+      "shortcut": "T, D",
+      "enabled": true,
+      "icon": true
+     },
+     {
+      "text": "&Go to Selection",
+      "name": "Std_TreeSelection",
+      "shortcut": "T, G",
+      "enabled": true,
+      "icon": true
+     },
+     {
+      "sep": true
+     },
+     {
+      "text": "Selection &Back",
+      "name": "Std_SelBack",
+      "shortcut": "S, B",
+      "enabled": false,
+      "icon": true
+     },
+     {
+      "text": "Selection &Forward",
+      "name": "Std_SelForward",
+      "shortcut": "S, F",
+      "enabled": false,
+      "icon": true
+     }
+    ]
+   },
+   {
+    "text": "Status Bar",
+    "name": "Std_ViewStatusBar",
+    "shortcut": "",
+    "enabled": true,
+    "icon": false
+   }
+  ],
+  "&Part": [
+   {
+    "text": "Box Selection",
+    "name": "Part_BoxSelection",
+    "shortcut": "",
+    "enabled": true,
+    "icon": true
+   },
+   {
+    "sep": true
+   },
+   {
+    "text": "Primitives",
+    "name": "Primitives",
+    "shortcut": "",
+    "enabled": true,
+    "icon": false,
+    "menu": [
+     {
+      "text": "Cube",
+      "name": "Part_Box",
+      "shortcut": "",
+      "enabled": true,
+      "icon": true
+     },
+     {
+      "text": "Cylinder",
+      "name": "Part_Cylinder",
+      "shortcut": "",
+      "enabled": true,
+      "icon": true
+     },
+     {
+      "text": "Sphere",
+      "name": "Part_Sphere",
+      "shortcut": "",
+      "enabled": true,
+      "icon": true
+     },
+     {
+      "text": "Cone",
+      "name": "Part_Cone",
+      "shortcut": "",
+      "enabled": true,
+      "icon": true
+     },
+     {
+      "text": "Torus",
+      "name": "Part_Torus",
+      "shortcut": "",
+      "enabled": true,
+      "icon": true
+     },
+     {
+      "text": "Tube",
+      "name": "Part_Tube",
+      "shortcut": "",
+      "enabled": true,
+      "icon": true
+     }
+    ]
+   },
+   {
+    "text": "Primitive",
+    "name": "Part_Primitives",
+    "shortcut": "",
+    "enabled": true,
+    "icon": true
+   },
+   {
+    "text": "Shape Builder",
+    "name": "Part_Builder",
+    "shortcut": "",
+    "enabled": true,
+    "icon": true
+   },
+   {
+    "sep": true
+   },
+   {
+    "text": "Shape From Mesh",
+    "name": "Part_ShapeFromMesh",
+    "shortcut": "",
+    "enabled": false,
+    "icon": true
+   },
+   {
+    "text": "Points From Shape",
+    "name": "Part_PointsFromMesh",
+    "shortcut": "",
+    "enabled": true,
+    "icon": true
+   },
+   {
+    "text": "Convert to Solid",
+    "name": "Part_MakeSolid",
+    "shortcut": "",
+    "enabled": true,
+    "icon": true
+   },
+   {
+    "text": "Reverse Shapes",
+    "name": "Part_ReverseShape",
+    "shortcut": "",
+    "enabled": true,
+    "icon": true
+   },
+   {
+    "text": "Copy",
+    "name": "Copy",
+    "shortcut": "",
+    "enabled": true,
+    "icon": false,
+    "menu": [
+     {
+      "text": "Simple Copy",
+      "name": "Part_SimpleCopy",
+      "shortcut": "",
+      "enabled": true,
+      "icon": true
+     },
+     {
+      "text": "Transformed Copy",
+      "name": "Part_TransformedCopy",
+      "shortcut": "",
+      "enabled": true,
+      "icon": true
+     },
+     {
+      "text": "Shape Element Copy",
+      "name": "Part_ElementCopy",
+      "shortcut": "",
+      "enabled": true,
+      "icon": true
+     },
+     {
+      "text": "Refine Shape",
+      "name": "Part_RefineShape",
+      "shortcut": "",
+      "enabled": true,
+      "icon": true
+     }
+    ]
+   },
+   {
+    "sep": true
+   },
+   {
+    "text": "Boolean",
+    "name": "Boolean",
+    "shortcut": "",
+    "enabled": true,
+    "icon": false,
+    "menu": [
+     {
+      "text": "Boolean Operation",
+      "name": "Part_Boolean",
+      "shortcut": "",
+      "enabled": true,
+      "icon": true
+     },
+     {
+      "text": "Cut",
+      "name": "Part_Cut",
+      "shortcut": "",
+      "enabled": false,
+      "icon": true
+     },
+     {
+      "text": "Union",
+      "name": "Part_Fuse",
+      "shortcut": "",
+      "enabled": true,
+      "icon": true
+     },
+     {
+      "text": "Intersection",
+      "name": "Part_Common",
+      "shortcut": "",
+      "enabled": true,
+      "icon": true
+     }
+    ]
+   },
+   {
+    "text": "Join",
+    "name": "Join",
+    "shortcut": "",
+    "enabled": true,
+    "icon": false,
+    "menu": [
+     {
+      "text": "Connect Shapes",
+      "name": "Part_JoinConnect",
+      "shortcut": "",
+      "enabled": true,
+      "icon": true
+     },
+     {
+      "text": "Embed Shapes",
+      "name": "Part_JoinEmbed",
+      "shortcut": "",
+      "enabled": true,
+      "icon": true
+     },
+     {
+      "text": "Cutout Shape",
+      "name": "Part_JoinCutout",
+      "shortcut": "",
+      "enabled": true,
+      "icon": true
+     }
+    ]
+   },
+   {
+    "text": "Split",
+    "name": "Split",
+    "shortcut": "",
+    "enabled": true,
+    "icon": false,
+    "menu": [
+     {
+      "text": "Boolean Fragments",
+      "name": "Part_BooleanFragments",
+      "shortcut": "",
+      "enabled": true,
+      "icon": true
+     },
+     {
+      "text": "Slice Apart",
+      "name": "Part_SliceApart",
+      "shortcut": "",
+      "enabled": true,
+      "icon": true
+     },
+     {
+      "text": "Slice to Compound",
+      "name": "Part_Slice",
+      "shortcut": "",
+      "enabled": true,
+      "icon": true
+     },
+     {
+      "text": "Boolean XOR",
+      "name": "Part_XOR",
+      "shortcut": "",
+      "enabled": true,
+      "icon": true
+     }
+    ]
+   },
+   {
+    "text": "Compound",
+    "name": "Compound",
+    "shortcut": "",
+    "enabled": true,
+    "icon": false,
+    "menu": [
+     {
+      "text": "Compound",
+      "name": "Part_Compound",
+      "shortcut": "",
+      "enabled": true,
+      "icon": true
+     },
+     {
+      "text": "Explode Compound",
+      "name": "Part_ExplodeCompound",
+      "shortcut": "",
+      "enabled": true,
+      "icon": true
+     },
+     {
+      "text": "Compound Filter",
+      "name": "Part_CompoundFilter",
+      "shortcut": "",
+      "enabled": true,
+      "icon": true
+     },
+     {
+      "text": "Set Tolerance",
+      "name": "Part_ToleranceSet",
+      "shortcut": "",
+      "enabled": true,
+      "icon": true
+     }
+    ]
+   },
+   {
+    "sep": true
+   },
+   {
+    "text": "New Sketch",
+    "name": "Sketcher_NewSketch",
+    "shortcut": "",
+    "enabled": true,
+    "icon": true
+   },
+   {
+    "text": "Extrude",
+    "name": "Part_Extrude",
+    "shortcut": "",
+    "enabled": true,
+    "icon": true
+   },
+   {
+    "text": "Revolve",
+    "name": "Part_Revolve",
+    "shortcut": "",
+    "enabled": true,
+    "icon": true
+   },
+   {
+    "text": "Mirror",
+    "name": "Part_Mirror",
+    "shortcut": "",
+    "enabled": true,
+    "icon": true
+   },
+   {
+    "text": "Scale",
+    "name": "Part_Scale",
+    "shortcut": "",
+    "enabled": true,
+    "icon": true
+   },
+   {
+    "text": "Fillet",
+    "name": "Part_Fillet",
+    "shortcut": "",
+    "enabled": true,
+    "icon": true
+   },
+   {
+    "text": "Chamfer",
+    "name": "Part_Chamfer",
+    "shortcut": "",
+    "enabled": true,
+    "icon": true
+   },
+   {
+    "text": "Face From Wires",
+    "name": "Part_MakeFace",
+    "shortcut": "",
+    "enabled": true,
+    "icon": true
+   },
+   {
+    "text": "Ruled Surface",
+    "name": "Part_RuledSurface",
+    "shortcut": "",
+    "enabled": true,
+    "icon": true
+   },
+   {
+    "text": "Loft",
+    "name": "Part_Loft",
+    "shortcut": "",
+    "enabled": true,
+    "icon": true
+   },
+   {
+    "text": "Sweep",
+    "name": "Part_Sweep",
+    "shortcut": "",
+    "enabled": true,
+    "icon": true
+   },
+   {
+    "text": "Section",
+    "name": "Part_Section",
+    "shortcut": "",
+    "enabled": false,
+    "icon": true
+   },
+   {
+    "text": "Cross-Sections",
+    "name": "Part_CrossSections",
+    "shortcut": "",
+    "enabled": true,
+    "icon": true
+   },
+   {
+    "text": "3D Offset",
+    "name": "Part_Offset",
+    "shortcut": "",
+    "enabled": true,
+    "icon": true
+   },
+   {
+    "text": "2D Offset",
+    "name": "Part_Offset2D",
+    "shortcut": "",
+    "enabled": true,
+    "icon": true
+   },
+   {
+    "text": "Thickness",
+    "name": "Part_Thickness",
+    "shortcut": "",
+    "enabled": true,
+    "icon": true
+   },
+   {
+    "text": "Project on Surface",
+    "name": "Part_ProjectionOnSurface",
+    "shortcut": "",
+    "enabled": true,
+    "icon": true
+   },
+   {
+    "text": "Persiste&nt Section Cut",
+    "name": "Part_SectionCut",
+    "shortcut": "",
+    "enabled": true,
+    "icon": true
+   },
+   {
+    "sep": true
+   },
+   {
+    "text": "Attachment",
+    "name": "Part_EditAttachment",
+    "shortcut": "",
+    "enabled": true,
+    "icon": true
+   },
+   {
+    "sep": true
+   },
+   {
+    "text": "Check Geometry",
+    "name": "Part_CheckGeometry",
+    "shortcut": "",
+    "enabled": true,
+    "icon": true
+   },
+   {
+    "text": "Defeaturing",
+    "name": "Part_Defeaturing",
+    "shortcut": "",
+    "enabled": false,
+    "icon": true
+   },
+   {
+    "text": "Inspect Appearance",
+    "name": "Materials_InspectAppearance",
+    "shortcut": "",
+    "enabled": true,
+    "icon": false
+   },
+   {
+    "text": "Inspect Material",
+    "name": "Materials_InspectMaterial",
+    "shortcut": "",
+    "enabled": true,
+    "icon": false
+   }
+  ]
+ },
+ "toolbars_selected": [
+  {
+   "title": "File",
+   "name": "File",
+   "visible": true,
+   "buttons": [
+    {
+     "name": "Std_New",
+     "text": "&New Document",
+     "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>New Document</b> (Ctrl+N)</p><p style='white-space:pre; margin:0;'>Creates a new empty document</p><p style='white-space:pre; margin-top:0.5em;'><i>Std_New</i></p>",
+     "enabled": true
+    },
+    {
+     "name": "Std_Open",
+     "text": "&Open\u2026",
+     "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Open\u2026</b> (Ctrl+O)</p><p style='white-space:pre; margin:0;'>Opens a document or imports files</p><p style='white-space:pre; margin-top:0.5em;'><i>Std_Open</i></p>",
+     "enabled": true
+    },
+    {
+     "name": "Std_Save",
+     "text": "&Save",
+     "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Save</b> (Ctrl+S)</p><p style='white-space:pre; margin:0;'>Saves the active document</p><p style='white-space:pre; margin-top:0.5em;'><i>Std_Save</i></p>",
+     "enabled": true
+    }
+   ]
+  },
+  {
+   "title": "Edit",
+   "name": "Edit",
+   "visible": true,
+   "buttons": [
+    {
+     "name": "",
+     "text": "&Undo",
+     "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Undo</b> (Ctrl+Z)</p><p style='white-space:pre; margin:0;'>Undoes the previous action</p><p style='white-space:pre; margin-top:0.5em;'><i>Std_Undo</i></p>",
+     "enabled": false,
+     "menu": []
+    },
+    {
+     "name": "",
+     "text": "&Redo",
+     "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Redo</b> (Ctrl+Shift+Z)</p><p style='white-space:pre; margin:0;'>Redoes a previously undone action</p><p style='white-space:pre; margin-top:0.5em;'><i>Std_Redo</i></p>",
+     "enabled": false,
+     "menu": []
+    },
+    {
+     "sep": true
+    },
+    {
+     "name": "Std_Refresh",
+     "text": "Recompute",
+     "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Recompute</b> (F5)</p><p style='white-space:pre; margin:0;'>Recomputes the active document</p><p style='white-space:pre; margin-top:0.5em;'><i>Std_Refresh</i></p>",
+     "enabled": false
+    }
+   ]
+  },
+  {
+   "title": "Workbench",
+   "name": "Workbench",
+   "visible": true,
+   "buttons": [
+    {
+     "name": "",
+     "text": "",
+     "tip": "",
+     "enabled": true
+    }
+   ]
+  },
+  {
+   "title": "View",
+   "name": "View",
+   "visible": true,
+   "buttons": [
+    {
+     "name": "Std_ViewFitAll",
+     "text": "&Fit All",
+     "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Fit All</b> (V, F)</p><p style='white-space:pre; margin:0;'>Fits all content into the 3D view</p><p style='white-space:pre; margin-top:0.5em;'><i>Std_ViewFitAll</i></p>",
+     "enabled": true
+    },
+    {
+     "name": "Std_ViewFitSelection",
+     "text": "Fit &Selection",
+     "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Fit Selection</b> (V, S)</p><p style='white-space:pre; margin:0;'>Fits the selected content into the 3D view</p><p style='white-space:pre; margin-top:0.5em;'><i>Std_ViewFitSelection</i></p>",
+     "enabled": true
+    },
+    {
+     "name": "Std_ViewGroup",
+     "text": "Standard &Views",
+     "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Isometric</b></p><p style='white-space:pre; margin:0;'>Sets the camera to the isometric view</p><p style='white-space:pre; margin-top:0.5em;'><i>Std_ViewIsometric (Std_ViewGroup:0)</i></p>",
+     "enabled": true,
+     "menu": [
+      {
+       "text": "&Isometric",
+       "name": "Std_ViewIsometric",
+       "shortcut": "0",
+       "enabled": true,
+       "icon": true
+      },
+      {
+       "text": "Front",
+       "name": "Std_ViewFront",
+       "shortcut": "1",
+       "enabled": true,
+       "icon": true
+      },
+      {
+       "text": "Top",
+       "name": "Std_ViewTop",
+       "shortcut": "2",
+       "enabled": true,
+       "icon": true
+      },
+      {
+       "text": "Right",
+       "name": "Std_ViewRight",
+       "shortcut": "3",
+       "enabled": true,
+       "icon": true
+      },
+      {
+       "text": "Rear",
+       "name": "Std_ViewRear",
+       "shortcut": "4",
+       "enabled": true,
+       "icon": true
+      },
+      {
+       "text": "Bottom",
+       "name": "Std_ViewBottom",
+       "shortcut": "5",
+       "enabled": true,
+       "icon": true
+      },
+      {
+       "text": "Left",
+       "name": "Std_ViewLeft",
+       "shortcut": "6",
+       "enabled": true,
+       "icon": true
+      }
+     ]
+    },
+    {
+     "name": "Std_AlignToSelection",
+     "text": "&Align to Selection",
+     "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Align to Selection</b></p><p style='white-space:pre; margin:0;'>Aligns the camera view to the selected elements in the 3D view</p><p style='white-space:pre; margin-top:0.5em;'><i>Std_AlignToSelection</i></p>",
+     "enabled": true
+    },
+    {
+     "sep": true
+    },
+    {
+     "name": "Std_DrawStyle",
+     "text": "&Draw Style",
+     "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Draw Style</b></p><p style='white-space:pre; margin:0;'>Changes the draw style of the objects</p><p style='white-space:pre; margin-top:0.5em;'><i>Std_DrawStyle</i></p>",
+     "enabled": true,
+     "menu": [
+      {
+       "text": "As Is",
+       "name": "Std_DrawStyleAsIs",
+       "shortcut": "V, 1",
+       "enabled": true,
+       "icon": true
+      },
+      {
+       "text": "Points",
+       "name": "Std_DrawStylePoints",
+       "shortcut": "V, 2",
+       "enabled": true,
+       "icon": true
+      },
+      {
+       "text": "Wireframe",
+       "name": "Std_DrawStyleWireframe",
+       "shortcut": "V, 3",
+       "enabled": true,
+       "icon": true
+      },
+      {
+       "text": "Hidden Line",
+       "name": "Std_DrawStyleHiddenLine",
+       "shortcut": "V, 4",
+       "enabled": true,
+       "icon": true
+      },
+      {
+       "text": "No Shading",
+       "name": "Std_DrawStyleNoShading",
+       "shortcut": "V, 5",
+       "enabled": true,
+       "icon": true
+      },
+      {
+       "text": "Shaded",
+       "name": "Std_DrawStyleShaded",
+       "shortcut": "V, 6",
+       "enabled": true,
+       "icon": true
+      },
+      {
+       "text": "Flat Lines",
+       "name": "Std_DrawStyleFlatLines",
+       "shortcut": "V, 7",
+       "enabled": true,
+       "icon": true
+      }
+     ]
+    },
+    {
+     "name": "Part_SelectFilter",
+     "text": "Selection Filter",
+     "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Selection Filter</b></p><p style='white-space:pre; margin:0;'>Changes the selection filter</p><p style='white-space:pre; margin-top:0.5em;'><i>Part_SelectFilter</i></p>",
+     "enabled": true,
+     "menu": [
+      {
+       "text": "Vertex Selection",
+       "name": null,
+       "shortcut": "X, S",
+       "enabled": true,
+       "icon": true
+      },
+      {
+       "text": "Edge Selection",
+       "name": null,
+       "shortcut": "E, S",
+       "enabled": true,
+       "icon": true
+      },
+      {
+       "text": "Face Selection",
+       "name": null,
+       "shortcut": "F, S",
+       "enabled": true,
+       "icon": true
+      },
+      {
+       "text": "No Selection Filters",
+       "name": null,
+       "shortcut": "C, S",
+       "enabled": true,
+       "icon": true
+      }
+     ]
+    },
+    {
+     "sep": true
+    },
+    {
+     "name": "Std_Measure",
+     "text": "&Measure",
+     "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Measure</b></p><p style='white-space:pre; margin:0;'>Measures a feature</p><p style='white-space:pre; margin-top:0.5em;'><i>Std_Measure</i></p>",
+     "enabled": true
+    },
+    {
+     "name": "Std_MassProperties",
+     "text": "Mass Properties",
+     "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Mass Properties</b></p><p style='white-space:pre; margin:0;'>Calculates mass properties of selected objects</p><p style='white-space:pre; margin-top:0.5em;'><i>Std_MassProperties</i></p>",
+     "enabled": true
+    }
+   ]
+  },
+  {
+   "title": "Structure",
+   "name": "Structure",
+   "visible": true,
+   "buttons": [
+    {
+     "name": "Std_Part",
+     "text": "New Part",
+     "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>New Part</b></p><p style='white-space:pre; margin:0;'>Creates a part, which is a general-purpose container to group objects so they act as a unit</p>in the 3D view. It is intended to arrange objects that have a part TopoShape, like part primitives, Part Design bodies, and other parts.<p style='white-space:pre; margin-top:0.5em;'><i>Std_Part</i></p>",
+     "enabled": true
+    },
+    {
+     "name": "Part_Datums",
+     "text": "Datums",
+     "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Coordinate System</b></p><p style='white-space:pre; margin:0;'>Creates a coordinate system that can be attached to other objects</p><p style='white-space:pre; margin-top:0.5em;'><i>Part_CoordinateSystem (Part_Datums:0)</i></p>",
+     "enabled": true,
+     "menu": [
+      {
+       "text": "Coordinate System",
+       "name": "Part_CoordinateSystem",
+       "shortcut": "",
+       "enabled": true,
+       "icon": true
+      },
+      {
+       "text": "Datum Plane",
+       "name": "Part_DatumPlane",
+       "shortcut": "",
+       "enabled": true,
+       "icon": true
+      },
+      {
+       "text": "Datum Line",
+       "name": "Part_DatumLine",
+       "shortcut": "",
+       "enabled": true,
+       "icon": true
+      },
+      {
+       "text": "Datum Point",
+       "name": "Part_DatumPoint",
+       "shortcut": "",
+       "enabled": true,
+       "icon": true
+      }
+     ]
+    },
+    {
+     "name": "Std_Group",
+     "text": "New Group",
+     "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>New Group</b></p><p style='white-space:pre; margin:0;'>Creates a group, which is a general-purpose container to group objects in the tree view, regardless</p>of their data type. It is a simple folder to organize the objects in a model.<p style='white-space:pre; margin-top:0.5em;'><i>Std_Group</i></p>",
+     "enabled": true
+    },
+    {
+     "name": "Std_LinkActions",
+     "text": "Link Actions",
+     "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Make Link</b></p><p style='white-space:pre; margin:0;'>A link is an object that references another object, either within the same or in another</p>document. Unlike clones, links reference the original shape directly, making them more memory-efficient, which helps with the creation of complex assemblies.<p style='white-space:pre; margin-top:0.5em;'><i>Std_LinkMake (Std_LinkActions:0)</i></p>",
+     "enabled": true,
+     "menu": [
+      {
+       "text": "Make Link",
+       "name": "Std_LinkMake",
+       "shortcut": "",
+       "enabled": true,
+       "icon": true
+      },
+      {
+       "text": "Make Sub-Link",
+       "name": "Std_LinkMakeRelative",
+       "shortcut": "",
+       "enabled": false,
+       "icon": true
+      },
+      {
+       "text": "Replace With Link",
+       "name": "Std_LinkReplace",
+       "shortcut": "",
+       "enabled": false,
+       "icon": true
+      },
+      {
+       "text": "Unlink",
+       "name": "Std_LinkUnlink",
+       "shortcut": "",
+       "enabled": false,
+       "icon": true
+      },
+      {
+       "text": "Import Links",
+       "name": "Std_LinkImport",
+       "shortcut": "",
+       "enabled": false,
+       "icon": true
+      },
+      {
+       "text": "Import All Links",
+       "name": "Std_LinkImportAll",
+       "shortcut": "",
+       "enabled": false,
+       "icon": true
+      }
+     ]
+    },
+    {
+     "name": "Std_VarSet",
+     "text": "Variable Set",
+     "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Variable Set</b></p><p style='white-space:pre; margin:0;'>Creates a variable set, which is an object that maintains a set of properties to be used as</p>variables<p style='white-space:pre; margin-top:0.5em;'><i>Std_VarSet</i></p>",
+     "enabled": true
+    }
+   ]
+  },
+  {
+   "title": "Help",
+   "name": "Help",
+   "visible": true,
+   "buttons": [
+    {
+     "name": "Std_WhatsThis",
+     "text": "&What's This?",
+     "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>What's This?</b> (Shift+F1)</p><p style='white-space:pre; margin:0;'>Opens the documentation for the selected command</p><p style='white-space:pre; margin-top:0.5em;'><i>Std_WhatsThis</i></p>",
+     "enabled": true
+    }
+   ]
+  },
+  {
+   "title": "Solids",
+   "name": "Solids",
+   "visible": true,
+   "buttons": [
+    {
+     "name": "Part_Box",
+     "text": "Cube",
+     "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Cube</b></p><p style='white-space:pre; margin:0;'>Creates a solid cube</p><p style='white-space:pre; margin-top:0.5em;'><i>Part_Box</i></p>",
+     "enabled": true
+    },
+    {
+     "name": "Part_Cylinder",
+     "text": "Cylinder",
+     "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Cylinder</b></p><p style='white-space:pre; margin:0;'>Creates a solid cylinder</p><p style='white-space:pre; margin-top:0.5em;'><i>Part_Cylinder</i></p>",
+     "enabled": true
+    },
+    {
+     "name": "Part_Sphere",
+     "text": "Sphere",
+     "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Sphere</b></p><p style='white-space:pre; margin:0;'>Creates a solid sphere</p><p style='white-space:pre; margin-top:0.5em;'><i>Part_Sphere</i></p>",
+     "enabled": true
+    },
+    {
+     "name": "Part_Cone",
+     "text": "Cone",
+     "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Cone</b></p><p style='white-space:pre; margin:0;'>Creates a solid cone</p><p style='white-space:pre; margin-top:0.5em;'><i>Part_Cone</i></p>",
+     "enabled": true
+    },
+    {
+     "name": "Part_Torus",
+     "text": "Torus",
+     "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Torus</b></p><p style='white-space:pre; margin:0;'>Creates a solid torus</p><p style='white-space:pre; margin-top:0.5em;'><i>Part_Torus</i></p>",
+     "enabled": true
+    },
+    {
+     "name": "Part_Tube",
+     "text": "Tube",
+     "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Tube</b></p><p style='white-space:pre; margin:0;'>Creates a tube</p><p style='white-space:pre; margin-top:0.5em;'><i>Part_Tube</i></p>",
+     "enabled": true
+    },
+    {
+     "name": "Part_Primitives",
+     "text": "Primitive",
+     "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Primitive</b></p><p style='white-space:pre; margin:0;'>Creates solid geometric primitives parametrically</p><p style='white-space:pre; margin-top:0.5em;'><i>Part_Primitives</i></p>",
+     "enabled": true
+    },
+    {
+     "name": "Part_Builder",
+     "text": "Shape Builder",
+     "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Shape Builder</b></p><p style='white-space:pre; margin:0;'>Advanced utility to create shapes</p><p style='white-space:pre; margin-top:0.5em;'><i>Part_Builder</i></p>",
+     "enabled": true
+    }
+   ]
+  },
+  {
+   "title": "Part Tools",
+   "name": "Part Tools",
+   "visible": true,
+   "buttons": [
+    {
+     "name": "Sketcher_NewSketch",
+     "text": "New Sketch",
+     "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>New Sketch</b></p><p style='white-space:pre; margin:0;'>Creates a new sketch</p><p style='white-space:pre; margin-top:0.5em;'><i>Sketcher_NewSketch</i></p>",
+     "enabled": true
+    },
+    {
+     "name": "Part_Extrude",
+     "text": "Extrude",
+     "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Extrude</b></p><p style='white-space:pre; margin:0;'>Extrudes the selected sketch or profile</p><p style='white-space:pre; margin-top:0.5em;'><i>Part_Extrude</i></p>",
+     "enabled": true
+    },
+    {
+     "name": "Part_Revolve",
+     "text": "Revolve",
+     "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Revolve</b></p><p style='white-space:pre; margin:0;'>Revolves the selected shape</p><p style='white-space:pre; margin-top:0.5em;'><i>Part_Revolve</i></p>",
+     "enabled": true
+    },
+    {
+     "name": "Part_Mirror",
+     "text": "Mirror",
+     "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Mirror</b></p><p style='white-space:pre; margin:0;'>Mirrors the selected shape</p><p style='white-space:pre; margin-top:0.5em;'><i>Part_Mirror</i></p>",
+     "enabled": true
+    },
+    {
+     "name": "Part_Scale",
+     "text": "Scale",
+     "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Scale</b></p><p style='white-space:pre; margin:0;'>Scales the selected shape</p><p style='white-space:pre; margin-top:0.5em;'><i>Part_Scale</i></p>",
+     "enabled": true
+    },
+    {
+     "name": "Part_Fillet",
+     "text": "Fillet",
+     "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Fillet</b></p><p style='white-space:pre; margin:0;'>Fillets the selected edges of a shape</p><p style='white-space:pre; margin-top:0.5em;'><i>Part_Fillet</i></p>",
+     "enabled": true
+    },
+    {
+     "name": "Part_Chamfer",
+     "text": "Chamfer",
+     "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Chamfer</b></p><p style='white-space:pre; margin:0;'>Chamfers the selected edges of a shape</p><p style='white-space:pre; margin-top:0.5em;'><i>Part_Chamfer</i></p>",
+     "enabled": true
+    },
+    {
+     "name": "Part_MakeFace",
+     "text": "Face From Wires",
+     "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Face From Wires</b></p><p style='white-space:pre; margin:0;'>Creates a face from the selected wires (e.g. from a sketch)</p><p style='white-space:pre; margin-top:0.5em;'><i>Part_MakeFace</i></p>",
+     "enabled": true
+    },
+    {
+     "name": "Part_RuledSurface",
+     "text": "Ruled Surface",
+     "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Ruled Surface</b></p><p style='white-space:pre; margin:0;'>Creates a ruled surface between 2 selected wires</p><p style='white-space:pre; margin-top:0.5em;'><i>Part_RuledSurface</i></p>",
+     "enabled": true
+    },
+    {
+     "name": "Part_Loft",
+     "text": "Loft",
+     "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Loft</b></p><p style='white-space:pre; margin:0;'>Lofts the selected profiles</p><p style='white-space:pre; margin-top:0.5em;'><i>Part_Loft</i></p>",
+     "enabled": true
+    },
+    {
+     "name": "Part_Sweep",
+     "text": "Sweep",
+     "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Sweep</b></p><p style='white-space:pre; margin:0;'>Sweeps profiles along a wire</p><p style='white-space:pre; margin-top:0.5em;'><i>Part_Sweep</i></p>",
+     "enabled": true
+    },
+    {
+     "name": "Part_Section",
+     "text": "Section",
+     "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Section</b></p><p style='white-space:pre; margin:0;'>Sections 2 selected shapes</p><p style='white-space:pre; margin-top:0.5em;'><i>Part_Section</i></p>",
+     "enabled": false
+    },
+    {
+     "name": "Part_CrossSections",
+     "text": "Cross-Sections",
+     "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Cross-Sections</b></p><p style='white-space:pre; margin:0;'>Creates cross-sections</p><p style='white-space:pre; margin-top:0.5em;'><i>Part_CrossSections</i></p>",
+     "enabled": true
+    },
+    {
+     "name": "Part_CompOffset",
+     "text": "Offset",
+     "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Offset</b></p><p style='white-space:pre; margin:0;'>Tools to offset shapes (construct parallel shapes)</p><p style='white-space:pre; margin-top:0.5em;'><i>Part_CompOffset</i></p>",
+     "enabled": true,
+     "menu": [
+      {
+       "text": "3D Offset",
+       "name": null,
+       "shortcut": "",
+       "enabled": true,
+       "icon": true
+      },
+      {
+       "text": "2D Offset",
+       "name": null,
+       "shortcut": "",
+       "enabled": true,
+       "icon": true
+      }
+     ]
+    },
+    {
+     "name": "Part_Thickness",
+     "text": "Thickness",
+     "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Thickness</b></p><p style='white-space:pre; margin:0;'>Removes the selected faces and offsets the remaining shape outward to add thickness</p><p style='white-space:pre; margin-top:0.5em;'><i>Part_Thickness</i></p>",
+     "enabled": true
+    },
+    {
+     "name": "Part_ProjectionOnSurface",
+     "text": "Project on Surface",
+     "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Project on Surface</b></p><p style='white-space:pre; margin:0;'>Projects edges, wires, or faces of one shape\nonto a face of another shape.\nThe camera view determines the direction\nof the projection.</p><p style='white-space:pre; margin-top:0.5em;'><i>Part_ProjectionOnSurface</i></p>",
+     "enabled": true
+    },
+    {
+     "name": "Part_ColorPerFace",
+     "text": "Appearance per &Face",
+     "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Appearance per Face</b></p><p style='white-space:pre; margin:0;'>Sets the appearance of individual faces of the selected object</p><p style='white-space:pre; margin-top:0.5em;'><i>Part_ColorPerFace</i></p>",
+     "enabled": true
+    }
+   ]
+  },
+  {
+   "title": "Boolean Tools",
+   "name": "Boolean Tools",
+   "visible": true,
+   "buttons": [
+    {
+     "name": "Part_CompCompoundTools",
+     "text": "Compound Tools",
+     "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Compound Tools</b></p><p style='white-space:pre; margin:0;'>Compound tools for working with multiple shapes</p><p style='white-space:pre; margin-top:0.5em;'><i>Part_CompCompoundTools</i></p>",
+     "enabled": true,
+     "menu": [
+      {
+       "text": "Compound",
+       "name": null,
+       "shortcut": "",
+       "enabled": true,
+       "icon": true
+      },
+      {
+       "text": "Explode Compound",
+       "name": null,
+       "shortcut": "",
+       "enabled": true,
+       "icon": true
+      },
+      {
+       "text": "Compound Filter",
+       "name": null,
+       "shortcut": "",
+       "enabled": true,
+       "icon": true
+      }
+     ]
+    },
+    {
+     "name": "Part_Boolean",
+     "text": "Boolean Operation",
+     "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Boolean Operation</b></p><p style='white-space:pre; margin:0;'>Applies a boolean operation with the selected shapes</p><p style='white-space:pre; margin-top:0.5em;'><i>Part_Boolean</i></p>",
+     "enabled": true
+    },
+    {
+     "name": "Part_Cut",
+     "text": "Cut",
+     "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Cut</b></p><p style='white-space:pre; margin:0;'>Cuts 2 selected shapes</p><p style='white-space:pre; margin-top:0.5em;'><i>Part_Cut</i></p>",
+     "enabled": false
+    },
+    {
+     "name": "Part_Fuse",
+     "text": "Union",
+     "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Union</b></p><p style='white-space:pre; margin:0;'>Unites the selected shapes</p><p style='white-space:pre; margin-top:0.5em;'><i>Part_Fuse</i></p>",
+     "enabled": true
+    },
+    {
+     "name": "Part_Common",
+     "text": "Intersection",
+     "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Intersection</b></p><p style='white-space:pre; margin:0;'>Intersects the selected shapes</p><p style='white-space:pre; margin-top:0.5em;'><i>Part_Common</i></p>",
+     "enabled": true
+    },
+    {
+     "name": "Part_CompJoinFeatures",
+     "text": "Join Shapes",
+     "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Join Shapes</b></p><p style='white-space:pre; margin:0;'>Joins the selected walled shapes</p><p style='white-space:pre; margin-top:0.5em;'><i>Part_CompJoinFeatures</i></p>",
+     "enabled": true,
+     "menu": [
+      {
+       "text": "Connect Shapes",
+       "name": null,
+       "shortcut": "",
+       "enabled": true,
+       "icon": true
+      },
+      {
+       "text": "Embed Shapes",
+       "name": null,
+       "shortcut": "",
+       "enabled": true,
+       "icon": true
+      },
+      {
+       "text": "Cutout Shape",
+       "name": null,
+       "shortcut": "",
+       "enabled": true,
+       "icon": true
+      }
+     ]
+    },
+    {
+     "name": "Part_CompSplitFeatures",
+     "text": "Split Shapes",
+     "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Split Shapes</b></p><p style='white-space:pre; margin:0;'>Shape splitting and compsolid creation tools</p><p style='white-space:pre; margin-top:0.5em;'><i>Part_CompSplitFeatures</i></p>",
+     "enabled": true,
+     "menu": [
+      {
+       "text": "Boolean Fragments",
+       "name": null,
+       "shortcut": "",
+       "enabled": true,
+       "icon": true
+      },
+      {
+       "text": "Slice Apart",
+       "name": null,
+       "shortcut": "",
+       "enabled": true,
+       "icon": true
+      },
+      {
+       "text": "Slice to Compound",
+       "name": null,
+       "shortcut": "",
+       "enabled": true,
+       "icon": true
+      },
+      {
+       "text": "Boolean XOR",
+       "name": null,
+       "shortcut": "",
+       "enabled": true,
+       "icon": true
+      }
+     ]
+    },
+    {
+     "name": "Part_CheckGeometry",
+     "text": "Check Geometry",
+     "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Check Geometry</b></p><p style='white-space:pre; margin:0;'>Analyzes the selected shapes for errors</p><p style='white-space:pre; margin-top:0.5em;'><i>Part_CheckGeometry</i></p>",
+     "enabled": true
+    },
+    {
+     "name": "Part_Defeaturing",
+     "text": "Defeaturing",
+     "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Defeaturing</b></p><p style='white-space:pre; margin:0;'>Removes the selected features from a shape</p><p style='white-space:pre; margin-top:0.5em;'><i>Part_Defeaturing</i></p>",
+     "enabled": false
+    }
+   ]
+  }
+ ],
+ "menus_none": {
+  "bar": [
+   "&File",
+   "&Edit",
+   "&View",
+   "&Tools",
+   "&Macro",
+   "&Part",
+   "&Windows",
+   "",
+   "&Help"
+  ],
+  "&Edit": [
+   {
+    "text": "&Undo",
+    "name": "Std_Undo",
+    "shortcut": "Ctrl+Z",
+    "enabled": false,
+    "icon": true
+   },
+   {
+    "text": "&Redo",
+    "name": "Std_Redo",
+    "shortcut": "Ctrl+Shift+Z",
+    "enabled": false,
+    "icon": true
+   },
+   {
+    "sep": true
+   },
+   {
+    "text": "Cu&t",
+    "name": "Std_Cut",
+    "shortcut": "Ctrl+X",
+    "enabled": false,
+    "icon": true
+   },
+   {
+    "text": "&Copy",
+    "name": "Std_Copy",
+    "shortcut": "Ctrl+C",
+    "enabled": true,
+    "icon": true
+   },
+   {
+    "text": "&Paste",
+    "name": "Std_Paste",
+    "shortcut": "Ctrl+V",
+    "enabled": false,
+    "icon": true
+   },
+   {
+    "text": "Duplicate Selecti&on",
+    "name": "Std_DuplicateSelection",
+    "shortcut": "",
+    "enabled": true,
+    "icon": true
+   },
+   {
+    "text": "&Delete",
+    "name": "Std_Delete",
+    "shortcut": "Del",
+    "enabled": true,
+    "icon": true
+   },
+   {
+    "sep": true
+   },
+   {
+    "text": "Recompute",
+    "name": "Std_Refresh",
+    "shortcut": "F5",
+    "enabled": false,
+    "icon": true
+   },
+   {
+    "text": "&Box Selection",
+    "name": "Std_BoxSelection",
+    "shortcut": "Shift+B",
+    "enabled": true,
+    "icon": true
+   },
+   {
+    "text": "Bo&x Element Selection",
+    "name": "Std_BoxElementSelection",
+    "shortcut": "Shift+E",
+    "enabled": true,
+    "icon": true
+   },
+   {
+    "text": "Select &All",
+    "name": "Std_SelectAll",
+    "shortcut": "Ctrl+A",
+    "enabled": true,
+    "icon": true
+   },
+   {
+    "sep": true
+   },
+   {
+    "text": "Trans&form",
+    "name": "Std_TransformManip",
+    "shortcut": "",
+    "enabled": true,
+    "icon": true
+   },
+   {
+    "text": "P&lacement",
+    "name": "Std_Placement",
+    "shortcut": "",
+    "enabled": true,
+    "icon": true
+   },
+   {
+    "text": "Ali&gn To\u2026",
+    "name": "Std_Alignment",
+    "shortcut": "",
+    "enabled": false,
+    "icon": true
+   },
+   {
+    "text": "&Send to Python Console",
+    "name": "Std_SendToPythonConsole",
+    "shortcut": "Ctrl+Shift+P",
+    "enabled": true,
+    "icon": true
+   },
+   {
+    "text": "Propert&ies",
+    "name": "Std_Properties",
+    "shortcut": "Alt+Return",
+    "enabled": true,
+    "icon": true
+   },
+   {
+    "sep": true
+   },
+   {
+    "text": "Toggle &Edit Mode",
+    "name": "Std_Edit",
+    "shortcut": "",
+    "enabled": true,
+    "icon": true
+   },
+   {
+    "text": "Edit &Mode",
+    "name": "Std_UserEditMode",
+    "shortcut": "",
+    "enabled": true,
+    "icon": false,
+    "menu": [
+     {
+      "text": "&Default",
+      "name": "Std_UserEditModeDefault",
+      "shortcut": "",
+      "enabled": true,
+      "icon": true
+     },
+     {
+      "text": "Trans&form",
+      "name": "Std_UserEditModeTransform",
+      "shortcut": "",
+      "enabled": true,
+      "icon": true
+     },
+     {
+      "text": "Cu&tting",
+      "name": "Std_UserEditModeCutting",
+      "shortcut": "",
+      "enabled": true,
+      "icon": true
+     },
+     {
+      "text": "&Color",
+      "name": "Std_UserEditModeColor",
+      "shortcut": "",
+      "enabled": true,
+      "icon": true
+     }
+    ]
+   },
+   {
+    "sep": true
+   },
+   {
+    "text": "Prefere&nces",
+    "name": "Std_DlgPreferences",
+    "shortcut": "Ctrl+,",
+    "enabled": true,
+    "icon": true
+   },
+   {
+    "text": "Create",
+    "name": "Create",
+    "shortcut": "",
+    "enabled": true,
+    "icon": false,
+    "menu": [
+     {
+      "text": "New Part",
+      "name": "Std_Part",
+      "shortcut": "",
+      "enabled": true,
+      "icon": true
+     },
+     {
+      "text": "New Group",
+      "name": "Std_Group",
+      "shortcut": "",
+      "enabled": true,
+      "icon": true
+     },
+     {
+      "text": "Variable Set",
+      "name": "Std_VarSet",
+      "shortcut": "",
+      "enabled": true,
+      "icon": true
+     },
+     {
+      "text": "Annotation Label",
+      "name": "Std_AnnotationLabel",
+      "shortcut": "",
+      "enabled": true,
+      "icon": true
+     },
+     {
+      "text": "Datums",
+      "name": "Part_Datums",
+      "shortcut": "",
+      "enabled": true,
+      "icon": false,
+      "menu": [
+       {
+        "text": "Coordinate System",
+        "name": "Part_CoordinateSystem",
+        "shortcut": "",
+        "enabled": true,
+        "icon": true
+       },
+       {
+        "text": "Datum Plane",
+        "name": "Part_DatumPlane",
+        "shortcut": "",
+        "enabled": true,
+        "icon": true
+       },
+       {
+        "text": "Datum Line",
+        "name": "Part_DatumLine",
+        "shortcut": "",
+        "enabled": true,
+        "icon": true
+       },
+       {
+        "text": "Datum Point",
+        "name": "Part_DatumPoint",
+        "shortcut": "",
+        "enabled": true,
+        "icon": true
+       }
+      ]
+     },
+     {
+      "text": "Link Actions",
+      "name": "Std_LinkActions",
+      "shortcut": "",
+      "enabled": true,
+      "icon": false,
+      "menu": [
+       {
+        "text": "Make Link",
+        "name": "Std_LinkMake",
+        "shortcut": "",
+        "enabled": true,
+        "icon": true
+       },
+       {
+        "text": "Make Sub-Link",
+        "name": "Std_LinkMakeRelative",
+        "shortcut": "",
+        "enabled": false,
+        "icon": true
+       },
+       {
+        "text": "Replace With Link",
+        "name": "Std_LinkReplace",
+        "shortcut": "",
+        "enabled": false,
+        "icon": true
+       },
+       {
+        "text": "Unlink",
+        "name": "Std_LinkUnlink",
+        "shortcut": "",
+        "enabled": false,
+        "icon": true
+       },
+       {
+        "text": "Import Links",
+        "name": "Std_LinkImport",
+        "shortcut": "",
+        "enabled": false,
+        "icon": true
+       },
+       {
+        "text": "Import All Links",
+        "name": "Std_LinkImportAll",
+        "shortcut": "",
+        "enabled": false,
+        "icon": true
+       }
+      ]
+     },
+     {
+      "sep": true
+     },
+     {
+      "text": "Te&xt Document",
+      "name": "Std_TextDocument",
+      "shortcut": "",
+      "enabled": true,
+      "icon": true
+     }
+    ]
+   }
+  ],
+  "&View": [
+   {
+    "text": "New 3D View",
+    "name": "Std_ViewCreate",
+    "shortcut": "",
+    "enabled": true,
+    "icon": true
+   },
+   {
+    "text": "Orthographic View",
+    "name": "Std_OrthographicCamera",
+    "shortcut": "V, O",
+    "enabled": true,
+    "icon": true
+   },
+   {
+    "text": "Perspective View",
+    "name": "Std_PerspectiveCamera",
+    "shortcut": "V, P",
+    "enabled": true,
+    "icon": true
+   },
+   {
+    "text": "Fullscreen",
+    "name": "Std_MainFullscreen",
+    "shortcut": "Alt+F11",
+    "enabled": true,
+    "icon": true
+   },
+   {
+    "sep": true
+   },
+   {
+    "text": "Standard &Views",
+    "name": "Standard &Views",
+    "shortcut": "",
+    "enabled": true,
+    "icon": false,
+    "menu": [
+     {
+      "text": "&Fit All",
+      "name": "Std_ViewFitAll",
+      "shortcut": "V, F",
+      "enabled": true,
+      "icon": true
+     },
+     {
+      "text": "Fit &Selection",
+      "name": "Std_ViewFitSelection",
+      "shortcut": "V, S",
+      "enabled": true,
+      "icon": true
+     },
+     {
+      "text": "&Align to Selection",
+      "name": "Std_AlignToSelection",
+      "shortcut": "",
+      "enabled": true,
+      "icon": true
+     },
+     {
+      "text": "A&xonometric",
+      "name": "A&xonometric",
+      "shortcut": "",
+      "enabled": true,
+      "icon": false,
+      "menu": [
+       {
+        "text": "&Isometric",
+        "name": "Std_ViewIsometric",
+        "shortcut": "0",
+        "enabled": true,
+        "icon": true
+       },
+       {
+        "text": "&Dimetric",
+        "name": "Std_ViewDimetric",
+        "shortcut": "",
+        "enabled": true,
+        "icon": true
+       },
+       {
+        "text": "&Trimetric",
+        "name": "Std_ViewTrimetric",
+        "shortcut": "",
+        "enabled": true,
+        "icon": true
+       }
+      ]
+     },
+     {
+      "sep": true
+     },
+     {
+      "text": "&Home",
+      "name": "Std_ViewHome",
+      "shortcut": "Home",
+      "enabled": true,
+      "icon": true
+     },
+     {
+      "text": "Front",
+      "name": "Std_ViewFront",
+      "shortcut": "1",
+      "enabled": true,
+      "icon": true
+     },
+     {
+      "text": "Top",
+      "name": "Std_ViewTop",
+      "shortcut": "2",
+      "enabled": true,
+      "icon": true
+     },
+     {
+      "text": "Right",
+      "name": "Std_ViewRight",
+      "shortcut": "3",
+      "enabled": true,
+      "icon": true
+     },
+     {
+      "text": "Rear",
+      "name": "Std_ViewRear",
+      "shortcut": "4",
+      "enabled": true,
+      "icon": true
+     },
+     {
+      "text": "Bottom",
+      "name": "Std_ViewBottom",
+      "shortcut": "5",
+      "enabled": true,
+      "icon": true
+     },
+     {
+      "text": "Left",
+      "name": "Std_ViewLeft",
+      "shortcut": "6",
+      "enabled": true,
+      "icon": true
+     },
+     {
+      "sep": true
+     },
+     {
+      "text": "Rotate &Left",
+      "name": "Std_ViewRotateLeft",
+      "shortcut": "Shift+Left",
+      "enabled": true,
+      "icon": true
+     },
+     {
+      "text": "Rotates &Right",
+      "name": "Std_ViewRotateRight",
+      "shortcut": "Shift+Right",
+      "enabled": true,
+      "icon": true
+     },
+     {
+      "sep": true
+     },
+     {
+      "text": "St&ore Working View",
+      "name": "Std_StoreWorkingView",
+      "shortcut": "Shift+End",
+      "enabled": true,
+      "icon": false
+     },
+     {
+      "text": "R&ecall Working View",
+      "name": "Std_RecallWorkingView",
+      "shortcut": "End",
+      "enabled": false,
+      "icon": false
+     }
+    ]
+   },
+   {
+    "text": "F&reeze Display",
+    "name": "Std_FreezeViews",
+    "shortcut": "",
+    "enabled": true,
+    "icon": false,
+    "menu": [
+     {
+      "text": "&Save Views\u2026",
+      "name": null,
+      "shortcut": "",
+      "enabled": false,
+      "icon": false
+     },
+     {
+      "text": "&Load Views\u2026",
+      "name": null,
+      "shortcut": "",
+      "enabled": true,
+      "icon": false
+     },
+     {
+      "sep": true
+     },
+     {
+      "text": "F&reeze View",
+      "name": null,
+      "shortcut": "Shift+F",
+      "enabled": true,
+      "icon": false
+     },
+     {
+      "text": "&Clear Views",
+      "name": null,
+      "shortcut": "",
+      "enabled": false,
+      "icon": false
+     },
+     {
+      "sep": true
+     }
+    ]
+   },
+   {
+    "text": "&Draw Style",
+    "name": "Std_DrawStyle",
+    "shortcut": "",
+    "enabled": true,
+    "icon": false,
+    "menu": [
+     {
+      "text": "As Is",
+      "name": "Std_DrawStyleAsIs",
+      "shortcut": "V, 1",
+      "enabled": true,
+      "icon": true
+     },
+     {
+      "text": "Points",
+      "name": "Std_DrawStylePoints",
+      "shortcut": "V, 2",
+      "enabled": true,
+      "icon": true
+     },
+     {
+      "text": "Wireframe",
+      "name": "Std_DrawStyleWireframe",
+      "shortcut": "V, 3",
+      "enabled": true,
+      "icon": true
+     },
+     {
+      "text": "Hidden Line",
+      "name": "Std_DrawStyleHiddenLine",
+      "shortcut": "V, 4",
+      "enabled": true,
+      "icon": true
+     },
+     {
+      "text": "No Shading",
+      "name": "Std_DrawStyleNoShading",
+      "shortcut": "V, 5",
+      "enabled": true,
+      "icon": true
+     },
+     {
+      "text": "Shaded",
+      "name": "Std_DrawStyleShaded",
+      "shortcut": "V, 6",
+      "enabled": true,
+      "icon": true
+     },
+     {
+      "text": "Flat Lines",
+      "name": "Std_DrawStyleFlatLines",
+      "shortcut": "V, 7",
+      "enabled": true,
+      "icon": true
+     }
+    ]
+   },
+   {
+    "text": "&Bounding Box",
+    "name": "Std_SelBoundingBox",
+    "shortcut": "",
+    "enabled": true,
+    "icon": true
+   },
+   {
+    "sep": true
+   },
+   {
+    "text": "&Zoom",
+    "name": "&Zoom",
+    "shortcut": "",
+    "enabled": true,
+    "icon": false,
+    "menu": [
+     {
+      "text": "Zoom &In",
+      "name": "Std_ViewZoomIn",
+      "shortcut": "Ctrl++",
+      "enabled": true,
+      "icon": true
+     },
+     {
+      "text": "Zoom &Out",
+      "name": "Std_ViewZoomOut",
+      "shortcut": "Ctrl+-",
+      "enabled": true,
+      "icon": true
+     },
+     {
+      "sep": true
+     },
+     {
+      "text": "&Box Zoom",
+      "name": "Std_ViewBoxZoom",
+      "shortcut": "Ctrl+B",
+      "enabled": true,
+      "icon": true
+     }
+    ]
+   },
+   {
+    "text": "D&ocument Window",
+    "name": "Std_ViewDockUndockFullscreen",
+    "shortcut": "",
+    "enabled": true,
+    "icon": false,
+    "menu": [
+     {
+      "text": "&Docked",
+      "name": "Std_ViewDock",
+      "shortcut": "V, D",
+      "enabled": true,
+      "icon": false
+     },
+     {
+      "text": "&Undocked",
+      "name": "Std_ViewUndock",
+      "shortcut": "V, U",
+      "enabled": true,
+      "icon": false
+     },
+     {
+      "text": "&Fullscreen",
+      "name": "Std_ViewFullscreen",
+      "shortcut": "F11",
+      "enabled": true,
+      "icon": true
+     }
+    ]
+   },
+   {
+    "text": "Issue Camera &Position",
+    "name": "Std_ViewIvIssueCamPos",
+    "shortcut": "",
+    "enabled": true,
+    "icon": true
+   },
+   {
+    "text": "Toggle A&xis Cross",
+    "name": "Std_AxisCross",
+    "shortcut": "A, C",
+    "enabled": true,
+    "icon": true
+   },
+   {
+    "text": "Clippin&g View",
+    "name": "Std_ToggleClipPlane",
+    "shortcut": "",
+    "enabled": true,
+    "icon": true
+   },
+   {
+    "text": "Text&ure Mapping",
+    "name": "Std_TextureMapping",
+    "shortcut": "",
+    "enabled": true,
+    "icon": true
+   },
+   {
+    "sep": true
+   },
+   {
+    "text": "V&isibility",
+    "name": "V&isibility",
+    "shortcut": "",
+    "enabled": true,
+    "icon": false,
+    "menu": [
+     {
+      "text": "Toggle &Visibility",
+      "name": "Std_ToggleVisibility",
+      "shortcut": "Space",
+      "enabled": true,
+      "icon": true
+     },
+     {
+      "text": "Sho&w Selection",
+      "name": "Std_ShowSelection",
+      "shortcut": "",
+      "enabled": true,
+      "icon": true
+     },
+     {
+      "text": "&Hide Selection",
+      "name": "Std_HideSelection",
+      "shortcut": "",
+      "enabled": true,
+      "icon": true
+     },
+     {
+      "text": "&Select Visible Objects",
+      "name": "Std_SelectVisibleObjects",
+      "shortcut": "",
+      "enabled": true,
+      "icon": true
+     },
+     {
+      "sep": true
+     },
+     {
+      "text": "To&ggle All Objects",
+      "name": "Std_ToggleObjects",
+      "shortcut": "",
+      "enabled": true,
+      "icon": true
+     },
+     {
+      "text": "Show &All Objects",
+      "name": "Std_ShowObjects",
+      "shortcut": "",
+      "enabled": true,
+      "icon": true
+     },
+     {
+      "text": "Hide All &Objects",
+      "name": "Std_HideObjects",
+      "shortcut": "",
+      "enabled": true,
+      "icon": true
+     },
+     {
+      "sep": true
+     },
+     {
+      "text": "Toggle Se&lectability",
+      "name": "Std_ToggleSelectability",
+      "shortcut": "",
+      "enabled": true,
+      "icon": true
+     }
+    ]
+   },
+   {
+    "text": "Toggle Navigation/&Edit Mode",
+    "name": "Std_ToggleNavigation",
+    "shortcut": "Esc",
+    "enabled": false,
+    "icon": true
+   },
+   {
+    "text": "&Material",
+    "name": "Std_SetMaterial",
+    "shortcut": "",
+    "enabled": true,
+    "icon": true
+   },
+   {
+    "text": "&Appearance",
+    "name": "Std_SetAppearance",
+    "shortcut": "Ctrl+D",
+    "enabled": true,
+    "icon": true
+   },
+   {
+    "text": "Random &Color",
+    "name": "Std_RandomColor",
+    "shortcut": "",
+    "enabled": true,
+    "icon": true
+   },
+   {
+    "text": "Appearance per &Face",
+    "name": "Part_ColorPerFace",
+    "shortcut": "",
+    "enabled": true,
+    "icon": true
+   },
+   {
+    "text": "Toggle Transparenc&y",
+    "name": "Std_ToggleTransparency",
+    "shortcut": "V, T",
+    "enabled": true,
+    "icon": true
+   },
+   {
+    "sep": true
+   },
+   {
+    "text": "&Workbench",
+    "name": "Std_Workbench",
+    "shortcut": "",
+    "enabled": true,
+    "icon": false,
+    "menu": [
+     {
+      "text": "Assembly",
+      "name": "AssemblyWorkbench",
+      "shortcut": "W, 1",
+      "enabled": true,
+      "icon": true
+     },
+     {
+      "text": "BIM",
+      "name": "BIMWorkbench",
+      "shortcut": "W, 2",
+      "enabled": true,
+      "icon": true
+     },
+     {
+      "text": "CAM",
+      "name": "CAMWorkbench",
+      "shortcut": "W, 3",
+      "enabled": true,
+      "icon": true
+     },
+     {
+      "text": "Draft",
+      "name": "DraftWorkbench",
+      "shortcut": "W, 4",
+      "enabled": true,
+      "icon": true
+     },
+     {
+      "text": "FEM",
+      "name": "FemWorkbench",
+      "shortcut": "W, 5",
+      "enabled": true,
+      "icon": true
+     },
+     {
+      "text": "Material",
+      "name": "MaterialWorkbench",
+      "shortcut": "W, 6",
+      "enabled": true,
+      "icon": true
+     },
+     {
+      "text": "Mesh",
+      "name": "MeshWorkbench",
+      "shortcut": "W, 7",
+      "enabled": true,
+      "icon": true
+     },
+     {
+      "text": "Part Design",
+      "name": "PartDesignWorkbench",
+      "shortcut": "W, 8",
+      "enabled": true,
+      "icon": true
+     },
+     {
+      "text": "Part",
+      "name": "PartWorkbench",
+      "shortcut": "W, 9",
+      "enabled": true,
+      "icon": true
+     },
+     {
+      "text": "Points",
+      "name": "PointsWorkbench",
+      "shortcut": "",
+      "enabled": true,
+      "icon": true
+     },
+     {
+      "text": "Reverse Engineering",
+      "name": "ReverseEngineeringWorkbench",
+      "shortcut": "",
+      "enabled": true,
+      "icon": true
+     },
+     {
+      "text": "Sketcher",
+      "name": "SketcherWorkbench",
+      "shortcut": "",
+      "enabled": true,
+      "icon": true
+     },
+     {
+      "text": "Spreadsheet",
+      "name": "SpreadsheetWorkbench",
+      "shortcut": "",
+      "enabled": true,
+      "icon": true
+     },
+     {
+      "text": "Surface",
+      "name": "SurfaceWorkbench",
+      "shortcut": "",
+      "enabled": true,
+      "icon": true
+     },
+     {
+      "text": "TechDraw",
+      "name": "TechDrawWorkbench",
+      "shortcut": "",
+      "enabled": true,
+      "icon": true
+     }
+    ]
+   },
+   {
+    "text": "&Toolbars",
+    "name": "Std_ToolBarMenu",
+    "shortcut": "",
+    "enabled": true,
+    "icon": false,
+    "menu": [
+     {
+      "text": "File",
+      "name": null,
+      "shortcut": "",
+      "enabled": true,
+      "icon": false
+     },
+     {
+      "text": "Edit",
+      "name": null,
+      "shortcut": "",
+      "enabled": true,
+      "icon": false
+     },
+     {
+      "text": "Clipboard",
+      "name": null,
+      "shortcut": "",
+      "enabled": true,
+      "icon": false
+     },
+     {
+      "text": "Workbench",
+      "name": null,
+      "shortcut": "",
+      "enabled": true,
+      "icon": false
+     },
+     {
+      "text": "Macro",
+      "name": null,
+      "shortcut": "",
+      "enabled": true,
+      "icon": false
+     },
+     {
+      "text": "View",
+      "name": null,
+      "shortcut": "",
+      "enabled": true,
+      "icon": false
+     },
+     {
+      "text": "Individual Views",
+      "name": null,
+      "shortcut": "",
+      "enabled": true,
+      "icon": false
+     },
+     {
+      "text": "Structure",
+      "name": null,
+      "shortcut": "",
+      "enabled": true,
+      "icon": false
+     },
+     {
+      "text": "Help",
+      "name": null,
+      "shortcut": "",
+      "enabled": true,
+      "icon": false
+     },
+     {
+      "text": "Solids",
+      "name": null,
+      "shortcut": "",
+      "enabled": true,
+      "icon": false
+     },
+     {
+      "text": "Part Tools",
+      "name": null,
+      "shortcut": "",
+      "enabled": true,
+      "icon": false
+     },
+     {
+      "text": "Boolean Tools",
+      "name": null,
+      "shortcut": "",
+      "enabled": true,
+      "icon": false
+     },
+     {
+      "sep": true
+     },
+     {
+      "text": "Lock Toolbars",
+      "name": "Std_ToggleToolBarLock",
+      "shortcut": "",
+      "enabled": true,
+      "icon": false
+     }
+    ]
+   },
+   {
+    "text": "&Panels",
+    "name": "Std_DockViewMenu",
+    "shortcut": "",
+    "enabled": true,
+    "icon": false,
+    "menu": [
+     {
+      "text": "Selection View",
+      "name": "Std_SelectionView",
+      "shortcut": "",
+      "enabled": true,
+      "icon": false
+     },
+     {
+      "text": "Model",
+      "name": "Std_ComboView",
+      "shortcut": "",
+      "enabled": true,
+      "icon": false
+     },
+     {
+      "text": "Python Console",
+      "name": "Std_PythonView",
+      "shortcut": "",
+      "enabled": true,
+      "icon": false
+     },
+     {
+      "text": "Report View",
+      "name": "Std_ReportView",
+      "shortcut": "",
+      "enabled": true,
+      "icon": false
+     },
+     {
+      "text": "Tasks",
+      "name": "Std_TaskView",
+      "shortcut": "",
+      "enabled": true,
+      "icon": false
+     }
+    ]
+   },
+   {
+    "text": "Overlay Docked Panel",
+    "name": "Std_DockOverlay",
+    "shortcut": "",
+    "enabled": true,
+    "icon": false,
+    "menu": [
+     {
+      "text": "Toggle Overl&ay for All Panels",
+      "name": "Std_DockOverlayAll",
+      "shortcut": "",
+      "enabled": true,
+      "icon": false
+     },
+     {
+      "text": "Toggle Tra&nsparent Panels",
+      "name": "Std_DockOverlayTransparentAll",
+      "shortcut": "",
+      "enabled": true,
+      "icon": false
+     },
+     {
+      "sep": true
+     },
+     {
+      "text": "Toggle &Overlay",
+      "name": "Std_DockOverlayToggle",
+      "shortcut": "",
+      "enabled": true,
+      "icon": false
+     },
+     {
+      "text": "Toggle Tran&sparent Mode",
+      "name": "Std_DockOverlayToggleTransparent",
+      "shortcut": "",
+      "enabled": true,
+      "icon": false
+     },
+     {
+      "sep": true
+     },
+     {
+      "text": "Bypass &Mouse Events in Overlay Panels",
+      "name": "Std_DockOverlayMouseTransparent",
+      "shortcut": "T, T",
+      "enabled": true,
+      "icon": false
+     },
+     {
+      "sep": true
+     },
+     {
+      "text": "Toggle &Left",
+      "name": "Std_DockOverlayToggleLeft",
+      "shortcut": "Ctrl+Left",
+      "enabled": true,
+      "icon": true
+     },
+     {
+      "text": "Toggle &Right",
+      "name": "Std_DockOverlayToggleRight",
+      "shortcut": "Ctrl+Right",
+      "enabled": true,
+      "icon": true
+     },
+     {
+      "text": "Toggle &Top",
+      "name": "Std_DockOverlayToggleTop",
+      "shortcut": "Ctrl+Up",
+      "enabled": true,
+      "icon": true
+     },
+     {
+      "text": "Toggle &Bottom",
+      "name": "Std_DockOverlayToggleBottom",
+      "shortcut": "Ctrl+Down",
+      "enabled": true,
+      "icon": true
+     }
+    ]
+   },
+   {
+    "text": "Toggle Bottom Panels",
+    "name": "Std_ToggleBottomPanels",
+    "shortcut": "Ctrl+0",
+    "enabled": true,
+    "icon": true
+   },
+   {
+    "sep": true
+   },
+   {
+    "text": "&Link Navigation",
+    "name": "Std_LinkSelectActions",
+    "shortcut": "",
+    "enabled": true,
+    "icon": false,
+    "menu": [
+     {
+      "text": "&Go to Linked Object",
+      "name": "Std_LinkSelectLinked",
+      "shortcut": "S, G",
+      "enabled": false,
+      "icon": true
+     },
+     {
+      "text": "Go to &Deepest Linked Object",
+      "name": "Std_LinkSelectLinkedFinal",
+      "shortcut": "S, D",
+      "enabled": false,
+      "icon": true
+     },
+     {
+      "text": "Select &All Links",
+      "name": "Std_LinkSelectAllLinks",
+      "shortcut": "",
+      "enabled": false,
+      "icon": true
+     }
+    ]
+   },
+   {
+    "text": "Tree View Actions",
+    "name": "Std_TreeViewActions",
+    "shortcut": "",
+    "enabled": true,
+    "icon": false,
+    "menu": [
+     {
+      "text": "Sync View",
+      "name": "Std_TreeSyncView",
+      "shortcut": "T, 1",
+      "enabled": true,
+      "icon": false
+     },
+     {
+      "text": "Sync Selection",
+      "name": "Std_TreeSyncSelection",
+      "shortcut": "T, 2",
+      "enabled": true,
+      "icon": false
+     },
+     {
+      "text": "Sync Placement",
+      "name": "Std_TreeSyncPlacement",
+      "shortcut": "T, 3",
+      "enabled": true,
+      "icon": false
+     },
+     {
+      "text": "Preselection",
+      "name": "Std_TreePreSelection",
+      "shortcut": "T, 4",
+      "enabled": true,
+      "icon": false
+     },
+     {
+      "text": "Record Selection",
+      "name": "Std_TreeRecordSelection",
+      "shortcut": "T, 5",
+      "enabled": true,
+      "icon": false
+     },
+     {
+      "sep": true
+     },
+     {
+      "text": "&Single Document",
+      "name": "Std_TreeSingleDocument",
+      "shortcut": "",
+      "enabled": true,
+      "icon": false
+     },
+     {
+      "text": "&Multi Document",
+      "name": "Std_TreeMultiDocument",
+      "shortcut": "",
+      "enabled": true,
+      "icon": false
+     },
+     {
+      "text": "Collapse/E&xpand",
+      "name": "Std_TreeCollapseDocument",
+      "shortcut": "",
+      "enabled": true,
+      "icon": false
+     },
+     {
+      "sep": true
+     },
+     {
+      "text": "Initiate &Dragging",
+      "name": "Std_TreeDrag",
+      "shortcut": "T, D",
+      "enabled": true,
+      "icon": true
+     },
+     {
+      "text": "&Go to Selection",
+      "name": "Std_TreeSelection",
+      "shortcut": "T, G",
+      "enabled": true,
+      "icon": true
+     },
+     {
+      "sep": true
+     },
+     {
+      "text": "Selection &Back",
+      "name": "Std_SelBack",
+      "shortcut": "S, B",
+      "enabled": false,
+      "icon": true
+     },
+     {
+      "text": "Selection &Forward",
+      "name": "Std_SelForward",
+      "shortcut": "S, F",
+      "enabled": false,
+      "icon": true
+     }
+    ]
+   },
+   {
+    "text": "Status Bar",
+    "name": "Std_ViewStatusBar",
+    "shortcut": "",
+    "enabled": true,
+    "icon": false
+   }
+  ],
+  "&Part": [
+   {
+    "text": "Box Selection",
+    "name": "Part_BoxSelection",
+    "shortcut": "",
+    "enabled": true,
+    "icon": true
+   },
+   {
+    "sep": true
+   },
+   {
+    "text": "Primitives",
+    "name": "Primitives",
+    "shortcut": "",
+    "enabled": true,
+    "icon": false,
+    "menu": [
+     {
+      "text": "Cube",
+      "name": "Part_Box",
+      "shortcut": "",
+      "enabled": true,
+      "icon": true
+     },
+     {
+      "text": "Cylinder",
+      "name": "Part_Cylinder",
+      "shortcut": "",
+      "enabled": true,
+      "icon": true
+     },
+     {
+      "text": "Sphere",
+      "name": "Part_Sphere",
+      "shortcut": "",
+      "enabled": true,
+      "icon": true
+     },
+     {
+      "text": "Cone",
+      "name": "Part_Cone",
+      "shortcut": "",
+      "enabled": true,
+      "icon": true
+     },
+     {
+      "text": "Torus",
+      "name": "Part_Torus",
+      "shortcut": "",
+      "enabled": true,
+      "icon": true
+     },
+     {
+      "text": "Tube",
+      "name": "Part_Tube",
+      "shortcut": "",
+      "enabled": true,
+      "icon": true
+     }
+    ]
+   },
+   {
+    "text": "Primitive",
+    "name": "Part_Primitives",
+    "shortcut": "",
+    "enabled": true,
+    "icon": true
+   },
+   {
+    "text": "Shape Builder",
+    "name": "Part_Builder",
+    "shortcut": "",
+    "enabled": true,
+    "icon": true
+   },
+   {
+    "sep": true
+   },
+   {
+    "text": "Shape From Mesh",
+    "name": "Part_ShapeFromMesh",
+    "shortcut": "",
+    "enabled": false,
+    "icon": true
+   },
+   {
+    "text": "Points From Shape",
+    "name": "Part_PointsFromMesh",
+    "shortcut": "",
+    "enabled": true,
+    "icon": true
+   },
+   {
+    "text": "Convert to Solid",
+    "name": "Part_MakeSolid",
+    "shortcut": "",
+    "enabled": true,
+    "icon": true
+   },
+   {
+    "text": "Reverse Shapes",
+    "name": "Part_ReverseShape",
+    "shortcut": "",
+    "enabled": true,
+    "icon": true
+   },
+   {
+    "text": "Copy",
+    "name": "Copy",
+    "shortcut": "",
+    "enabled": true,
+    "icon": false,
+    "menu": [
+     {
+      "text": "Simple Copy",
+      "name": "Part_SimpleCopy",
+      "shortcut": "",
+      "enabled": true,
+      "icon": true
+     },
+     {
+      "text": "Transformed Copy",
+      "name": "Part_TransformedCopy",
+      "shortcut": "",
+      "enabled": true,
+      "icon": true
+     },
+     {
+      "text": "Shape Element Copy",
+      "name": "Part_ElementCopy",
+      "shortcut": "",
+      "enabled": true,
+      "icon": true
+     },
+     {
+      "text": "Refine Shape",
+      "name": "Part_RefineShape",
+      "shortcut": "",
+      "enabled": true,
+      "icon": true
+     }
+    ]
+   },
+   {
+    "sep": true
+   },
+   {
+    "text": "Boolean",
+    "name": "Boolean",
+    "shortcut": "",
+    "enabled": true,
+    "icon": false,
+    "menu": [
+     {
+      "text": "Boolean Operation",
+      "name": "Part_Boolean",
+      "shortcut": "",
+      "enabled": true,
+      "icon": true
+     },
+     {
+      "text": "Cut",
+      "name": "Part_Cut",
+      "shortcut": "",
+      "enabled": false,
+      "icon": true
+     },
+     {
+      "text": "Union",
+      "name": "Part_Fuse",
+      "shortcut": "",
+      "enabled": true,
+      "icon": true
+     },
+     {
+      "text": "Intersection",
+      "name": "Part_Common",
+      "shortcut": "",
+      "enabled": true,
+      "icon": true
+     }
+    ]
+   },
+   {
+    "text": "Join",
+    "name": "Join",
+    "shortcut": "",
+    "enabled": true,
+    "icon": false,
+    "menu": [
+     {
+      "text": "Connect Shapes",
+      "name": "Part_JoinConnect",
+      "shortcut": "",
+      "enabled": true,
+      "icon": true
+     },
+     {
+      "text": "Embed Shapes",
+      "name": "Part_JoinEmbed",
+      "shortcut": "",
+      "enabled": true,
+      "icon": true
+     },
+     {
+      "text": "Cutout Shape",
+      "name": "Part_JoinCutout",
+      "shortcut": "",
+      "enabled": true,
+      "icon": true
+     }
+    ]
+   },
+   {
+    "text": "Split",
+    "name": "Split",
+    "shortcut": "",
+    "enabled": true,
+    "icon": false,
+    "menu": [
+     {
+      "text": "Boolean Fragments",
+      "name": "Part_BooleanFragments",
+      "shortcut": "",
+      "enabled": true,
+      "icon": true
+     },
+     {
+      "text": "Slice Apart",
+      "name": "Part_SliceApart",
+      "shortcut": "",
+      "enabled": true,
+      "icon": true
+     },
+     {
+      "text": "Slice to Compound",
+      "name": "Part_Slice",
+      "shortcut": "",
+      "enabled": true,
+      "icon": true
+     },
+     {
+      "text": "Boolean XOR",
+      "name": "Part_XOR",
+      "shortcut": "",
+      "enabled": true,
+      "icon": true
+     }
+    ]
+   },
+   {
+    "text": "Compound",
+    "name": "Compound",
+    "shortcut": "",
+    "enabled": true,
+    "icon": false,
+    "menu": [
+     {
+      "text": "Compound",
+      "name": "Part_Compound",
+      "shortcut": "",
+      "enabled": true,
+      "icon": true
+     },
+     {
+      "text": "Explode Compound",
+      "name": "Part_ExplodeCompound",
+      "shortcut": "",
+      "enabled": true,
+      "icon": true
+     },
+     {
+      "text": "Compound Filter",
+      "name": "Part_CompoundFilter",
+      "shortcut": "",
+      "enabled": true,
+      "icon": true
+     },
+     {
+      "text": "Set Tolerance",
+      "name": "Part_ToleranceSet",
+      "shortcut": "",
+      "enabled": true,
+      "icon": true
+     }
+    ]
+   },
+   {
+    "sep": true
+   },
+   {
+    "text": "New Sketch",
+    "name": "Sketcher_NewSketch",
+    "shortcut": "",
+    "enabled": true,
+    "icon": true
+   },
+   {
+    "text": "Extrude",
+    "name": "Part_Extrude",
+    "shortcut": "",
+    "enabled": true,
+    "icon": true
+   },
+   {
+    "text": "Revolve",
+    "name": "Part_Revolve",
+    "shortcut": "",
+    "enabled": true,
+    "icon": true
+   },
+   {
+    "text": "Mirror",
+    "name": "Part_Mirror",
+    "shortcut": "",
+    "enabled": true,
+    "icon": true
+   },
+   {
+    "text": "Scale",
+    "name": "Part_Scale",
+    "shortcut": "",
+    "enabled": true,
+    "icon": true
+   },
+   {
+    "text": "Fillet",
+    "name": "Part_Fillet",
+    "shortcut": "",
+    "enabled": true,
+    "icon": true
+   },
+   {
+    "text": "Chamfer",
+    "name": "Part_Chamfer",
+    "shortcut": "",
+    "enabled": true,
+    "icon": true
+   },
+   {
+    "text": "Face From Wires",
+    "name": "Part_MakeFace",
+    "shortcut": "",
+    "enabled": true,
+    "icon": true
+   },
+   {
+    "text": "Ruled Surface",
+    "name": "Part_RuledSurface",
+    "shortcut": "",
+    "enabled": true,
+    "icon": true
+   },
+   {
+    "text": "Loft",
+    "name": "Part_Loft",
+    "shortcut": "",
+    "enabled": true,
+    "icon": true
+   },
+   {
+    "text": "Sweep",
+    "name": "Part_Sweep",
+    "shortcut": "",
+    "enabled": true,
+    "icon": true
+   },
+   {
+    "text": "Section",
+    "name": "Part_Section",
+    "shortcut": "",
+    "enabled": false,
+    "icon": true
+   },
+   {
+    "text": "Cross-Sections",
+    "name": "Part_CrossSections",
+    "shortcut": "",
+    "enabled": true,
+    "icon": true
+   },
+   {
+    "text": "3D Offset",
+    "name": "Part_Offset",
+    "shortcut": "",
+    "enabled": true,
+    "icon": true
+   },
+   {
+    "text": "2D Offset",
+    "name": "Part_Offset2D",
+    "shortcut": "",
+    "enabled": true,
+    "icon": true
+   },
+   {
+    "text": "Thickness",
+    "name": "Part_Thickness",
+    "shortcut": "",
+    "enabled": true,
+    "icon": true
+   },
+   {
+    "text": "Project on Surface",
+    "name": "Part_ProjectionOnSurface",
+    "shortcut": "",
+    "enabled": true,
+    "icon": true
+   },
+   {
+    "text": "Persiste&nt Section Cut",
+    "name": "Part_SectionCut",
+    "shortcut": "",
+    "enabled": true,
+    "icon": true
+   },
+   {
+    "sep": true
+   },
+   {
+    "text": "Attachment",
+    "name": "Part_EditAttachment",
+    "shortcut": "",
+    "enabled": true,
+    "icon": true
+   },
+   {
+    "sep": true
+   },
+   {
+    "text": "Check Geometry",
+    "name": "Part_CheckGeometry",
+    "shortcut": "",
+    "enabled": true,
+    "icon": true
+   },
+   {
+    "text": "Defeaturing",
+    "name": "Part_Defeaturing",
+    "shortcut": "",
+    "enabled": false,
+    "icon": true
+   },
+   {
+    "text": "Inspect Appearance",
+    "name": "Materials_InspectAppearance",
+    "shortcut": "",
+    "enabled": true,
+    "icon": false
+   },
+   {
+    "text": "Inspect Material",
+    "name": "Materials_InspectMaterial",
+    "shortcut": "",
+    "enabled": true,
+    "icon": false
+   }
+  ]
+ },
+ "cmd_Part_SimpleCopy": {
+  "task": [
+   []
+  ],
+  "buttons": [],
+  "dialogs": [],
+  "made": [
+   {
+    "name": "Box001",
+    "label": "Box001",
+    "type": "Part::Feature",
+    "proxy": null,
+    "visible": true
+   }
+  ],
+  "hidden": [],
+  "undo": [
+   "Simple copy"
+  ],
+  "props": {
+   "Box001": {
+    "Label": {
+     "value": "Box001",
+     "group": "Base",
+     "type": "App::PropertyString",
+     "mode": []
+    },
+    "Placement": {
+     "value": "Placement [Pos=(5,-3,2), Yaw-Pitch-Roll=(30,15,-10)]",
+     "group": "",
+     "type": "App::PropertyPlacement",
+     "mode": []
+    },
+    "ShapeMaterial": {
+     "value": "<Material>",
+     "group": "",
+     "type": "Materials::PropertyMaterial",
+     "mode": []
+    },
+    "Visibility": {
+     "value": "True",
+     "group": "",
+     "type": "App::PropertyBool",
+     "mode": [
+      "Hidden"
+     ]
+    },
+    "_ElementMapVersion": {
+     "value": "15.70200.5",
+     "group": "Base",
+     "type": "App::PropertyString",
+     "mode": [
+      "Hidden"
+     ]
+    }
+   }
+  }
+ },
+ "cmd_Part_TransformedCopy": {
+  "task": [
+   []
+  ],
+  "buttons": [],
+  "dialogs": [],
+  "made": [
+   {
+    "name": "Box002",
+    "label": "Box002",
+    "type": "Part::Feature",
+    "proxy": null,
+    "visible": true
+   }
+  ],
+  "hidden": [],
+  "undo": [
+   "Transformed copy"
+  ],
+  "props": {
+   "Box002": {
+    "Label": {
+     "value": "Box002",
+     "group": "Base",
+     "type": "App::PropertyString",
+     "mode": []
+    },
+    "Placement": {
+     "value": "Placement [Pos=(5,-3,2), Yaw-Pitch-Roll=(30,15,-10)]",
+     "group": "",
+     "type": "App::PropertyPlacement",
+     "mode": []
+    },
+    "ShapeMaterial": {
+     "value": "<Material>",
+     "group": "",
+     "type": "Materials::PropertyMaterial",
+     "mode": []
+    },
+    "Visibility": {
+     "value": "True",
+     "group": "",
+     "type": "App::PropertyBool",
+     "mode": [
+      "Hidden"
+     ]
+    },
+    "_ElementMapVersion": {
+     "value": "15.70200.5",
+     "group": "Base",
+     "type": "App::PropertyString",
+     "mode": [
+      "Hidden"
+     ]
+    }
+   }
+  }
+ },
+ "cmd_Part_ElementCopy": {
+  "task": [
+   []
+  ],
+  "buttons": [],
+  "dialogs": [],
+  "made": [
+   {
+    "name": "Box003",
+    "label": "Box003",
+    "type": "Part::Feature",
+    "proxy": null,
+    "visible": true
+   }
+  ],
+  "hidden": [],
+  "undo": [
+   "Element copy"
+  ],
+  "props": {
+   "Box003": {
+    "Label": {
+     "value": "Box003",
+     "group": "Base",
+     "type": "App::PropertyString",
+     "mode": []
+    },
+    "Placement": {
+     "value": "Placement [Pos=(5,-3,2), Yaw-Pitch-Roll=(30,15,-10)]",
+     "group": "",
+     "type": "App::PropertyPlacement",
+     "mode": []
+    },
+    "ShapeMaterial": {
+     "value": "<Material>",
+     "group": "",
+     "type": "Materials::PropertyMaterial",
+     "mode": []
+    },
+    "Visibility": {
+     "value": "True",
+     "group": "",
+     "type": "App::PropertyBool",
+     "mode": [
+      "Hidden"
+     ]
+    },
+    "_ElementMapVersion": {
+     "value": "15.70200.5",
+     "group": "Base",
+     "type": "App::PropertyString",
+     "mode": [
+      "Hidden"
+     ]
+    }
+   }
+  }
+ },
+ "cmd_Part_ElementCopy_face": {
+  "task": [
+   []
+  ],
+  "buttons": [],
+  "dialogs": [],
+  "made": [
+   {
+    "name": "Box004",
+    "label": "Box004",
+    "type": "Part::Feature",
+    "proxy": null,
+    "visible": true
+   }
+  ],
+  "hidden": [],
+  "undo": [
+   "Element copy"
+  ],
+  "props": {
+   "Box004": {
+    "Label": {
+     "value": "Box004",
+     "group": "Base",
+     "type": "App::PropertyString",
+     "mode": []
+    },
+    "Placement": {
+     "value": "Placement [Pos=(5,-3,2), Yaw-Pitch-Roll=(30,15,-10)]",
+     "group": "",
+     "type": "App::PropertyPlacement",
+     "mode": []
+    },
+    "ShapeMaterial": {
+     "value": "<Material>",
+     "group": "",
+     "type": "Materials::PropertyMaterial",
+     "mode": []
+    },
+    "Visibility": {
+     "value": "True",
+     "group": "",
+     "type": "App::PropertyBool",
+     "mode": [
+      "Hidden"
+     ]
+    },
+    "_ElementMapVersion": {
+     "value": "15.70200.5",
+     "group": "Base",
+     "type": "App::PropertyString",
+     "mode": [
+      "Hidden"
+     ]
+    }
+   }
+  }
+ },
+ "cmd_Part_SimpleCopy_two": {
+  "task": [
+   []
+  ],
+  "buttons": [],
+  "dialogs": [],
+  "made": [
+   {
+    "name": "Box005",
+    "label": "Box005",
+    "type": "Part::Feature",
+    "proxy": null,
+    "visible": true
+   },
+   {
+    "name": "Box006",
+    "label": "Box006",
+    "type": "Part::Feature",
+    "proxy": null,
+    "visible": true
+   }
+  ],
+  "hidden": [],
+  "undo": [
+   "Simple copy"
+  ],
+  "props": {
+   "Box005": {
+    "Label": {
+     "value": "Box005",
+     "group": "Base",
+     "type": "App::PropertyString",
+     "mode": []
+    },
+    "Placement": {
+     "value": "Placement [Pos=(5,-3,2), Yaw-Pitch-Roll=(30,15,-10)]",
+     "group": "",
+     "type": "App::PropertyPlacement",
+     "mode": []
+    },
+    "ShapeMaterial": {
+     "value": "<Material>",
+     "group": "",
+     "type": "Materials::PropertyMaterial",
+     "mode": []
+    },
+    "Visibility": {
+     "value": "True",
+     "group": "",
+     "type": "App::PropertyBool",
+     "mode": [
+      "Hidden"
+     ]
+    },
+    "_ElementMapVersion": {
+     "value": "15.70200.5",
+     "group": "Base",
+     "type": "App::PropertyString",
+     "mode": [
+      "Hidden"
+     ]
+    }
+   },
+   "Box006": {
+    "Label": {
+     "value": "Box006",
+     "group": "Base",
+     "type": "App::PropertyString",
+     "mode": []
+    },
+    "Placement": {
+     "value": "Placement [Pos=(5,-3,2), Yaw-Pitch-Roll=(30,15,-10)]",
+     "group": "",
+     "type": "App::PropertyPlacement",
+     "mode": []
+    },
+    "ShapeMaterial": {
+     "value": "<Material>",
+     "group": "",
+     "type": "Materials::PropertyMaterial",
+     "mode": []
+    },
+    "Visibility": {
+     "value": "True",
+     "group": "",
+     "type": "App::PropertyBool",
+     "mode": [
+      "Hidden"
+     ]
+    },
+    "_ElementMapVersion": {
+     "value": "15.70200.5",
+     "group": "Base",
+     "type": "App::PropertyString",
+     "mode": [
+      "Hidden"
+     ]
+    }
+   }
+  }
+ },
+ "cmd_Part_MakeSolid_compound": {
+  "task": [
+   []
+  ],
+  "buttons": [],
+  "dialogs": [],
+  "made": [
+   {
+    "name": "Comp_solid",
+    "label": "Comp (Solid)",
+    "type": "Part::Feature",
+    "proxy": null,
+    "visible": true
+   }
+  ],
+  "hidden": [],
+  "undo": [
+   "Make solid"
+  ],
+  "props": {
+   "Comp_solid": {
+    "Label": {
+     "value": "Comp (Solid)",
+     "group": "Base",
+     "type": "App::PropertyString",
+     "mode": []
+    },
+    "Placement": {
+     "value": "Placement [Pos=(0,0,0), Yaw-Pitch-Roll=(0,0,0)]",
+     "group": "",
+     "type": "App::PropertyPlacement",
+     "mode": []
+    },
+    "ShapeMaterial": {
+     "value": "<Material>",
+     "group": "",
+     "type": "Materials::PropertyMaterial",
+     "mode": []
+    },
+    "Visibility": {
+     "value": "True",
+     "group": "",
+     "type": "App::PropertyBool",
+     "mode": [
+      "Hidden"
+     ]
+    },
+    "_ElementMapVersion": {
+     "value": "15.70200.5",
+     "group": "Base",
+     "type": "App::PropertyString",
+     "mode": [
+      "Hidden"
+     ]
+    }
+   }
+  }
+ },
+ "cmd_Part_MakeSolid_shell": {
+  "task": [
+   []
+  ],
+  "buttons": [],
+  "dialogs": [],
+  "made": [
+   {
+    "name": "Sh_solid",
+    "label": "Sh (Solid)",
+    "type": "Part::Feature",
+    "proxy": null,
+    "visible": true
+   }
+  ],
+  "hidden": [],
+  "undo": [
+   "Make solid"
+  ],
+  "props": {
+   "Sh_solid": {
+    "Label": {
+     "value": "Sh (Solid)",
+     "group": "Base",
+     "type": "App::PropertyString",
+     "mode": []
+    },
+    "Placement": {
+     "value": "Placement [Pos=(0,0,0), Yaw-Pitch-Roll=(0,0,0)]",
+     "group": "",
+     "type": "App::PropertyPlacement",
+     "mode": []
+    },
+    "ShapeMaterial": {
+     "value": "<Material>",
+     "group": "",
+     "type": "Materials::PropertyMaterial",
+     "mode": []
+    },
+    "Visibility": {
+     "value": "True",
+     "group": "",
+     "type": "App::PropertyBool",
+     "mode": [
+      "Hidden"
+     ]
+    },
+    "_ElementMapVersion": {
+     "value": "15.70200.5",
+     "group": "Base",
+     "type": "App::PropertyString",
+     "mode": [
+      "Hidden"
+     ]
+    }
+   }
+  }
+ },
+ "cmd_Part_MakeSolid_solid": {
+  "task": [
+   []
+  ],
+  "buttons": [],
+  "dialogs": [],
+  "made": [],
+  "hidden": [],
+  "undo": [
+   "Make solid"
+  ],
+  "props": {}
+ },
+ "cmd_Part_MakeSolid_none": {
+  "task": [
+   []
+  ],
+  "buttons": [],
+  "dialogs": [],
+  "made": [],
+  "hidden": [],
+  "undo": [
+   "Make solid"
+  ],
+  "props": {}
+ },
+ "cmd_Part_ToleranceSet": {
+  "task": [
+   []
+  ],
+  "buttons": [],
+  "dialogs": [],
+  "made": [
+   {
+    "name": "Tolerance",
+    "label": "Tolerance",
+    "type": "Part::FeaturePython",
+    "proxy": "FeatureToleranceSet",
+    "visible": true
+   }
+  ],
+  "hidden": [],
+  "undo": [
+   "Create ToleranceSet"
+  ],
+  "props": {
+   "Tolerance": {
+    "Label": {
+     "value": "Tolerance",
+     "group": "Base",
+     "type": "App::PropertyString",
+     "mode": []
+    },
+    "Objects": {
+     "value": "[<Part::Box>]",
+     "group": "ToleranceSet",
+     "type": "App::PropertyLinkList",
+     "mode": []
+    },
+    "Placement": {
+     "value": "Placement [Pos=(0,0,0), Yaw-Pitch-Roll=(0,0,0)]",
+     "group": "",
+     "type": "App::PropertyPlacement",
+     "mode": []
+    },
+    "Refine": {
+     "value": "False",
+     "group": "ToleranceSet",
+     "type": "App::PropertyBool",
+     "mode": []
+    },
+    "ShapeMaterial": {
+     "value": "<Material>",
+     "group": "",
+     "type": "Materials::PropertyMaterial",
+     "mode": []
+    },
+    "Visibility": {
+     "value": "True",
+     "group": "",
+     "type": "App::PropertyBool",
+     "mode": [
+      "Hidden"
+     ]
+    },
+    "_ElementMapVersion": {
+     "value": "15.70200.5",
+     "group": "Base",
+     "type": "App::PropertyString",
+     "mode": [
+      "Hidden"
+     ]
+    },
+    "maxTolerance": {
+     "value": "0.0 mm",
+     "group": "ToleranceSet",
+     "type": "App::PropertyLength",
+     "mode": []
+    },
+    "minTolerance": {
+     "value": "1e-07 mm",
+     "group": "ToleranceSet",
+     "type": "App::PropertyLength",
+     "mode": []
+    }
+   }
+  }
+ },
+ "cmd_Part_ToleranceSet_two": {
+  "task": [
+   []
+  ],
+  "buttons": [],
+  "dialogs": [],
+  "made": [
+   {
+    "name": "Tolerance001",
+    "label": "Tolerance001",
+    "type": "Part::FeaturePython",
+    "proxy": "FeatureToleranceSet",
+    "visible": true
+   }
+  ],
+  "hidden": [],
+  "undo": [
+   "Create ToleranceSet"
+  ],
+  "props": {
+   "Tolerance001": {
+    "Label": {
+     "value": "Tolerance001",
+     "group": "Base",
+     "type": "App::PropertyString",
+     "mode": []
+    },
+    "Objects": {
+     "value": "[<Part::Box>, <Part::Box>]",
+     "group": "ToleranceSet",
+     "type": "App::PropertyLinkList",
+     "mode": []
+    },
+    "Placement": {
+     "value": "Placement [Pos=(0,0,0), Yaw-Pitch-Roll=(0,0,0)]",
+     "group": "",
+     "type": "App::PropertyPlacement",
+     "mode": []
+    },
+    "Refine": {
+     "value": "False",
+     "group": "ToleranceSet",
+     "type": "App::PropertyBool",
+     "mode": []
+    },
+    "ShapeMaterial": {
+     "value": "<Material>",
+     "group": "",
+     "type": "Materials::PropertyMaterial",
+     "mode": []
+    },
+    "Visibility": {
+     "value": "True",
+     "group": "",
+     "type": "App::PropertyBool",
+     "mode": [
+      "Hidden"
+     ]
+    },
+    "_ElementMapVersion": {
+     "value": "15.70200.5",
+     "group": "Base",
+     "type": "App::PropertyString",
+     "mode": [
+      "Hidden"
+     ]
+    },
+    "maxTolerance": {
+     "value": "0.0 mm",
+     "group": "ToleranceSet",
+     "type": "App::PropertyLength",
+     "mode": []
+    },
+    "minTolerance": {
+     "value": "1e-07 mm",
+     "group": "ToleranceSet",
+     "type": "App::PropertyLength",
+     "mode": []
+    }
+   }
+  }
+ },
+ "cmd_Part_ToleranceSet_none": {
+  "task": [
+   []
+  ],
+  "buttons": [],
+  "dialogs": [
+   {
+    "title": "Bad Selection",
+    "text": "Select at least one object or compounds",
+    "buttons": [
+     "OK"
+    ]
+   }
+  ],
+  "made": [],
+  "hidden": [],
+  "undo": [
+   "Create ToleranceSet"
+  ],
+  "props": {}
+ },
+ "crosssections": {
+  "task": [
+   [
+    {
+     "class": "QPushButton",
+     "name": "",
+     "y": 9,
+     "x": 81,
+     "enabled": true,
+     "text": "OK"
+    },
+    {
+     "class": "QPushButton",
+     "name": "",
+     "y": 9,
+     "x": 193,
+     "enabled": true,
+     "text": "Cancel"
+    },
+    {
+     "class": "QPushButton",
+     "name": "",
+     "y": 9,
+     "x": 305,
+     "enabled": true,
+     "text": "Apply"
+    },
+    {
+     "class": "QSint::TaskHeader",
+     "name": "",
+     "y": 50,
+     "x": 4,
+     "enabled": true,
+     "text": ""
+    },
+    {
+     "class": "QSint::ActionLabel",
+     "name": "",
+     "y": 53,
+     "x": 9,
+     "enabled": true,
+     "text": "Cross Sections"
+    },
+    {
+     "class": "QGroupBox",
+     "name": "planeBox",
+     "y": 85,
+     "x": 18,
+     "enabled": true,
+     "text": "Guiding Plane"
+    },
+    {
+     "class": "QRadioButton",
+     "name": "xyPlane",
+     "y": 113,
+     "x": 28,
+     "enabled": true,
+     "text": "XY",
+     "checked": true
+    },
+    {
+     "class": "QRadioButton",
+     "name": "xzPlane",
+     "y": 113,
+     "x": 175,
+     "enabled": true,
+     "text": "XZ",
+     "checked": false
+    },
+    {
+     "class": "QRadioButton",
+     "name": "yzPlane",
+     "y": 113,
+     "x": 322,
+     "enabled": true,
+     "text": "YZ",
+     "checked": false
+    },
+    {
+     "class": "QLabel",
+     "name": "label",
+     "y": 135,
+     "x": 28,
+     "enabled": true,
+     "text": "Position"
+    },
+    {
+     "class": "Gui::QuantitySpinBox",
+     "name": "position",
+     "y": 135,
+     "x": 249,
+     "enabled": true,
+     "text": "2.50 mm"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 136,
+     "x": 254,
+     "enabled": true,
+     "text": "2.50 mm"
+    },
+    {
+     "class": "QGroupBox",
+     "name": "sectionsBox",
+     "y": 178,
+     "x": 18,
+     "enabled": true,
+     "text": "Sections"
+    },
+    {
+     "class": "QCheckBox",
+     "name": "checkBothSides",
+     "y": 206,
+     "x": 28,
+     "enabled": false,
+     "text": "On both sides",
+     "checked": false
+    },
+    {
+     "class": "QLabel",
+     "name": "label_3",
+     "y": 232,
+     "x": 28,
+     "enabled": false,
+     "text": "Count"
+    },
+    {
+     "class": "QSpinBox",
+     "name": "countSections",
+     "y": 232,
+     "x": 249,
+     "enabled": false,
+     "text": "1"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 233,
+     "x": 254,
+     "enabled": false,
+     "text": "1"
+    },
+    {
+     "class": "QLabel",
+     "name": "label_2",
+     "y": 259,
+     "x": 28,
+     "enabled": false,
+     "text": "Distance"
+    },
+    {
+     "class": "Gui::QuantitySpinBox",
+     "name": "distance",
+     "y": 259,
+     "x": 249,
+     "enabled": false,
+     "text": "0.00 mm"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 260,
+     "x": 254,
+     "enabled": false,
+     "text": "0.00 mm"
+    }
+   ]
+  ],
+  "buttons": [
+   "OK",
+   "Cancel",
+   "Apply"
+  ],
+  "values": {
+   "XY": {
+    "position": "2.50 mm",
+    "distance": "0.00 mm",
+    "countSections": "1",
+    "sections": [
+     false
+    ]
+   },
+   "XZ": {
+    "position": "10.00 mm",
+    "distance": "0.00 mm",
+    "countSections": "1",
+    "sections": [
+     false
+    ]
+   },
+   "YZ": {
+    "position": "5.00 mm",
+    "distance": "0.00 mm",
+    "countSections": "1",
+    "sections": [
+     false
+    ]
+   }
+  },
+  "sections_start": false,
+  "sections_off": {
+   "position": "5.00 mm",
+   "distance": "0.00 mm",
+   "countSections": "1"
+  },
+  "xz_count3": {
+   "position": "10.00 mm",
+   "distance": "3.33 mm",
+   "countSections": "3"
+  },
+  "both": {
+   "position": "10.00 mm",
+   "distance": "6.67 mm",
+   "countSections": "3"
+  },
+  "made": [
+   {
+    "name": "BoxCs_cs",
+    "label": "BoxCs_cs",
+    "type": "Part::Feature",
+    "proxy": null,
+    "visible": true,
+    "props": {
+     "Label": {
+      "value": "BoxCs_cs",
+      "group": "Base",
+      "type": "App::PropertyString",
+      "mode": []
+     },
+     "Placement": {
+      "value": "Placement [Pos=(0,0,0), Yaw-Pitch-Roll=(0,0,0)]",
+      "group": "",
+      "type": "App::PropertyPlacement",
+      "mode": []
+     },
+     "ShapeMaterial": {
+      "value": "<Material>",
+      "group": "",
+      "type": "Materials::PropertyMaterial",
+      "mode": []
+     },
+     "Visibility": {
+      "value": "True",
+      "group": "",
+      "type": "App::PropertyBool",
+      "mode": [
+       "Hidden"
+      ]
+     },
+     "_ElementMapVersion": {
+      "value": "15.70200.5",
+      "group": "Base",
+      "type": "App::PropertyString",
+      "mode": [
+       "Hidden"
+      ]
+     }
+    }
+   }
+  ],
+  "undo": [
+   "Create ToleranceSet"
+  ],
+  "shape": {
+   "BoxCs_cs": {
+    "edges": 12,
+    "wires": 3,
+    "type": "Compound"
+   }
+  }
+ },
+ "builder": {
+  "modes": {
+   "Edge from vertices": {
+    "boxes": {
+     "Planar": {
+      "enabled": false,
+      "checked": false
+     },
+     "Refine shape": {
+      "enabled": false,
+      "checked": true
+     },
+     "All faces": {
+      "enabled": false,
+      "checked": false
+     }
+    },
+    "labels": [
+     "Select two vertices to create an edge"
+    ],
+    "checked_radios": [
+     "Edge from vertices"
+    ]
+   },
+   "Wire from edges": {
+    "boxes": {
+     "Planar": {
+      "enabled": true,
+      "checked": false
+     },
+     "Refine shape": {
+      "enabled": false,
+      "checked": true
+     },
+     "All faces": {
+      "enabled": false,
+      "checked": false
+     }
+    },
+    "labels": [
+     "Select adjacent edges"
+    ],
+    "checked_radios": [
+     "Wire from edges"
+    ]
+   },
+   "Face from vertices": {
+    "boxes": {
+     "Planar": {
+      "enabled": true,
+      "checked": false
+     },
+     "Refine shape": {
+      "enabled": false,
+      "checked": true
+     },
+     "All faces": {
+      "enabled": false,
+      "checked": false
+     }
+    },
+    "labels": [
+     "Select vertices"
+    ],
+    "checked_radios": [
+     "Face from vertices"
+    ]
+   },
+   "Face from edges": {
+    "boxes": {
+     "Planar": {
+      "enabled": true,
+      "checked": false
+     },
+     "Refine shape": {
+      "enabled": false,
+      "checked": true
+     },
+     "All faces": {
+      "enabled": false,
+      "checked": false
+     }
+    },
+    "labels": [
+     "Select a closed loop of edges"
+    ],
+    "checked_radios": [
+     "Face from edges"
+    ]
+   },
+   "Shell from faces": {
+    "boxes": {
+     "Planar": {
+      "enabled": false,
+      "checked": false
+     },
+     "Refine shape": {
+      "enabled": true,
+      "checked": true
+     },
+     "All faces": {
+      "enabled": true,
+      "checked": false
+     }
+    },
+    "labels": [
+     "Select adjacent faces"
+    ],
+    "checked_radios": [
+     "Shell from faces"
+    ]
+   },
+   "Solid from shell": {
+    "boxes": {
+     "Planar": {
+      "enabled": false,
+      "checked": false
+     },
+     "Refine shape": {
+      "enabled": true,
+      "checked": true
+     },
+     "All faces": {
+      "enabled": false,
+      "checked": false
+     }
+    },
+    "labels": [
+     "All shape types can be selected"
+    ],
+    "checked_radios": [
+     "Solid from shell"
+    ]
+   }
+  },
+  "made": {
+   "Edge from vertices": {
+    "objs": [
+     {
+      "name": "Edge",
+      "label": "Edge",
+      "type": "Part::Feature",
+      "proxy": null,
+      "visible": true,
+      "shape": "Edge",
+      "area": 0.0,
+      "placement": "Placement [Pos=(0,0,0), Yaw-Pitch-Roll=(0,0,0)]"
+     }
+    ],
+    "undo": [
+     "Edge"
+    ],
+    "dialogs": [],
+    "selection_after": []
+   },
+   "Wire from edges": {
+    "objs": [
+     {
+      "name": "Wire",
+      "label": "Wire",
+      "type": "Part::Feature",
+      "proxy": null,
+      "visible": true,
+      "shape": "Wire",
+      "area": 0.0,
+      "placement": "Placement [Pos=(0,0,0), Yaw-Pitch-Roll=(0,0,0)]"
+     }
+    ],
+    "undo": [
+     "Wire"
+    ],
+    "dialogs": [],
+    "selection_after": []
+   },
+   "Face from vertices": {
+    "objs": [
+     {
+      "name": "Face",
+      "label": "Face",
+      "type": "Part::Feature",
+      "proxy": null,
+      "visible": true,
+      "shape": "Face",
+      "area": 200.0,
+      "placement": "Placement [Pos=(0,0,0), Yaw-Pitch-Roll=(0,0,0)]"
+     }
+    ],
+    "undo": [
+     "Face"
+    ],
+    "dialogs": [],
+    "selection_after": []
+   },
+   "Face from edges": {
+    "objs": [
+     {
+      "name": "Face001",
+      "label": "Face001",
+      "type": "Part::Feature",
+      "proxy": null,
+      "visible": true,
+      "shape": "Face",
+      "area": 200.0,
+      "placement": "Placement [Pos=(0,0,0), Yaw-Pitch-Roll=(0,0,0)]"
+     }
+    ],
+    "undo": [],
+    "dialogs": [],
+    "selection_after": []
+   },
+   "Shell from faces": {
+    "objs": [
+     {
+      "name": "Shell",
+      "label": "Shell",
+      "type": "Part::Feature",
+      "proxy": null,
+      "visible": true,
+      "shape": "Shell",
+      "area": 350.0,
+      "placement": "Placement [Pos=(0,0,0), Yaw-Pitch-Roll=(0,0,0)]"
+     }
+    ],
+    "undo": [
+     "Shell"
+    ],
+    "dialogs": [],
+    "selection_after": []
+   },
+   "Solid from shell": {
+    "objs": [
+     {
+      "name": "Solid",
+      "label": "Solid",
+      "type": "Part::Feature",
+      "proxy": null,
+      "visible": true,
+      "shape": "Solid",
+      "area": 350.0
+     }
+    ],
+    "undo": [
+     "Solid"
+    ],
+    "dialogs": []
+   }
+  },
+  "task": [
+   [
+    {
+     "class": "QPushButton",
+     "name": "",
+     "y": 9,
+     "x": 193,
+     "enabled": true,
+     "text": "Close"
+    },
+    {
+     "class": "QSint::TaskHeader",
+     "name": "",
+     "y": 50,
+     "x": 4,
+     "enabled": true,
+     "text": ""
+    },
+    {
+     "class": "QSint::ActionLabel",
+     "name": "",
+     "y": 53,
+     "x": 9,
+     "enabled": true,
+     "text": "Create Shape"
+    },
+    {
+     "class": "QGroupBox",
+     "name": "groupBox",
+     "y": 85,
+     "x": 18,
+     "enabled": true,
+     "text": "Create Shape"
+    },
+    {
+     "class": "QRadioButton",
+     "name": "radioButtonEdgeFromVertex",
+     "y": 113,
+     "x": 28,
+     "enabled": true,
+     "text": "Edge from vertices",
+     "checked": true
+    },
+    {
+     "class": "QRadioButton",
+     "name": "radioButtonWireFromEdge",
+     "y": 135,
+     "x": 28,
+     "enabled": true,
+     "text": "Wire from edges",
+     "checked": false
+    },
+    {
+     "class": "QRadioButton",
+     "name": "radioButtonFaceFromVertex",
+     "y": 157,
+     "x": 28,
+     "enabled": true,
+     "text": "Face from vertices",
+     "checked": false
+    },
+    {
+     "class": "QRadioButton",
+     "name": "radioButtonFaceFromEdge",
+     "y": 179,
+     "x": 28,
+     "enabled": true,
+     "text": "Face from edges",
+     "checked": false
+    },
+    {
+     "class": "QRadioButton",
+     "name": "radioButtonShellFromFace",
+     "y": 201,
+     "x": 28,
+     "enabled": true,
+     "text": "Shell from faces",
+     "checked": false
+    },
+    {
+     "class": "QRadioButton",
+     "name": "radioButtonSolidFromShell",
+     "y": 223,
+     "x": 28,
+     "enabled": true,
+     "text": "Solid from shell",
+     "checked": false
+    },
+    {
+     "class": "QCheckBox",
+     "name": "checkPlanar",
+     "y": 254,
+     "x": 28,
+     "enabled": false,
+     "text": "Planar",
+     "checked": false
+    },
+    {
+     "class": "QCheckBox",
+     "name": "checkRefine",
+     "y": 280,
+     "x": 28,
+     "enabled": false,
+     "text": "Refine shape",
+     "checked": true
+    },
+    {
+     "class": "QCheckBox",
+     "name": "checkFaces",
+     "y": 306,
+     "x": 28,
+     "enabled": false,
+     "text": "All faces",
+     "checked": false
+    },
+    {
+     "class": "QPushButton",
+     "name": "selectButton",
+     "y": 332,
+     "x": 28,
+     "enabled": true,
+     "text": "Box Selection"
+    },
+    {
+     "class": "QPushButton",
+     "name": "createButton",
+     "y": 332,
+     "x": 375,
+     "enabled": true,
+     "text": "Create"
+    },
+    {
+     "class": "QLabel",
+     "name": "label",
+     "y": 390,
+     "x": 18,
+     "enabled": true,
+     "text": "Select two vertices to create an edge"
+    }
+   ]
+  ],
+  "buttons": [
+   "Close"
+  ],
+  "wrong": {
+   "Edge from vertices": [
+    {
+     "title": "Wrong Selection",
+     "text": "Select two vertices",
+     "buttons": [
+      "OK"
+     ]
+    }
+   ],
+   "Wire from edges": [
+    {
+     "title": "Wrong Selection",
+     "text": "Select at least 1 edge",
+     "buttons": [
+      "OK"
+     ]
+    }
+   ],
+   "Face from vertices": [
+    {
+     "title": "Wrong Selection",
+     "text": "Select three or more vertices",
+     "buttons": [
+      "OK"
+     ]
+    }
+   ],
+   "Shell from faces": [
+    {
+     "title": "Wrong Selection",
+     "text": "Select at least 2 faces",
+     "buttons": [
+      "OK"
+     ]
+    }
+   ],
+   "Solid from shell": [
+    {
+     "title": "Wrong Selection",
+     "text": "Select only 1 shape object",
+     "buttons": [
+      "OK"
+     ]
+    }
+   ]
+  }
+ },
+ "check_geometry": {
+  "settings": {
+   "task": [
+    [
+     {
+      "class": "QSint::TaskHeader",
+      "name": "",
+      "y": 8,
+      "x": 4,
+      "enabled": true,
+      "text": ""
+     },
+     {
+      "class": "QSint::ActionLabel",
+      "name": "",
+      "y": 11,
+      "x": 9,
+      "enabled": true,
+      "text": "Settings"
+     },
+     {
+      "class": "QCheckBox",
+      "name": "",
+      "y": 34,
+      "x": 9,
+      "enabled": true,
+      "text": "Skip this settings page",
+      "checked": false
+     },
+     {
+      "class": "QCheckBox",
+      "name": "",
+      "y": 54,
+      "x": 9,
+      "enabled": true,
+      "text": "Run boolean operation check",
+      "checked": false
+     },
+     {
+      "class": "QCheckBox",
+      "name": "",
+      "y": 74,
+      "x": 9,
+      "enabled": true,
+      "text": "Single-threaded",
+      "checked": false
+     },
+     {
+      "class": "QCheckBox",
+      "name": "",
+      "y": 94,
+      "x": 9,
+      "enabled": true,
+      "text": "Log errors",
+      "checked": true
+     },
+     {
+      "class": "QCheckBox",
+      "name": "",
+      "y": 114,
+      "x": 9,
+      "enabled": true,
+      "text": "Expand shape content",
+      "checked": false
+     },
+     {
+      "class": "QCheckBox",
+      "name": "",
+      "y": 134,
+      "x": 9,
+      "enabled": true,
+      "text": "Advanced shape content",
+      "checked": true
+     },
+     {
+      "class": "QLabel",
+      "name": "",
+      "y": 154,
+      "x": 9,
+      "enabled": true,
+      "text": "\nIndividual boolean operation checks:"
+     },
+     {
+      "class": "QCheckBox",
+      "name": "",
+      "y": 251,
+      "x": 9,
+      "enabled": true,
+      "text": "  Bad type",
+      "checked": true
+     },
+     {
+      "class": "QCheckBox",
+      "name": "",
+      "y": 271,
+      "x": 9,
+      "enabled": true,
+      "text": "  Self-intersect",
+      "checked": true
+     },
+     {
+      "class": "QCheckBox",
+      "name": "",
+      "y": 291,
+      "x": 9,
+      "enabled": true,
+      "text": "  Too small edge",
+      "checked": true
+     },
+     {
+      "class": "QCheckBox",
+      "name": "",
+      "y": 311,
+      "x": 9,
+      "enabled": true,
+      "text": "  Nonrecoverable face",
+      "checked": true
+     },
+     {
+      "class": "QCheckBox",
+      "name": "",
+      "y": 331,
+      "x": 9,
+      "enabled": true,
+      "text": "  Continuity",
+      "checked": true
+     },
+     {
+      "class": "QCheckBox",
+      "name": "",
+      "y": 351,
+      "x": 9,
+      "enabled": true,
+      "text": "  Incompatibility of face",
+      "checked": true
+     },
+     {
+      "class": "QCheckBox",
+      "name": "",
+      "y": 371,
+      "x": 9,
+      "enabled": true,
+      "text": "  Incompatibility of vertex",
+      "checked": true
+     },
+     {
+      "class": "QCheckBox",
+      "name": "",
+      "y": 391,
+      "x": 9,
+      "enabled": true,
+      "text": "  Incompatibility of edge",
+      "checked": true
+     },
+     {
+      "class": "QCheckBox",
+      "name": "",
+      "y": 411,
+      "x": 9,
+      "enabled": true,
+      "text": "  Invalid curve on surface",
+      "checked": true
+     },
+     {
+      "class": "QPushButton",
+      "name": "",
+      "y": 453,
+      "x": 25,
+      "enabled": true,
+      "text": "Run Check"
+     },
+     {
+      "class": "QPushButton",
+      "name": "",
+      "y": 453,
+      "x": 137,
+      "enabled": false,
+      "text": "Settings"
+     },
+     {
+      "class": "QPushButton",
+      "name": "",
+      "y": 453,
+      "x": 249,
+      "enabled": false,
+      "text": "Results"
+     },
+     {
+      "class": "QPushButton",
+      "name": "",
+      "y": 453,
+      "x": 361,
+      "enabled": true,
+      "text": "Close"
+     }
+    ]
+   ],
+   "buttons": [
+    "Run Check",
+    "Close",
+    "Settings",
+    "Results"
+   ]
+  },
+  "results": {
+   "task": [
+    [
+     {
+      "class": "QSint::TaskHeader",
+      "name": "",
+      "y": 8,
+      "x": 4,
+      "enabled": true,
+      "text": ""
+     },
+     {
+      "class": "QSint::ActionLabel",
+      "name": "",
+      "y": 11,
+      "x": 9,
+      "enabled": true,
+      "text": "Check Geometry Results"
+     },
+     {
+      "class": "QLabel",
+      "name": "",
+      "y": 43,
+      "x": 18,
+      "enabled": true,
+      "text": "1 processed out of 1 selected<br/>0 invalid shapes. <a href=\"#report\">to report view.</a>"
+     },
+     {
+      "class": "QSint::TaskHeader",
+      "name": "",
+      "y": 414,
+      "x": 4,
+      "enabled": true,
+      "text": ""
+     },
+     {
+      "class": "QSint::ActionLabel",
+      "name": "",
+      "y": 417,
+      "x": 9,
+      "enabled": true,
+      "text": "Shape Content"
+     },
+     {
+      "class": "QPushButton",
+      "name": "",
+      "y": 453,
+      "x": 25,
+      "enabled": true,
+      "text": "Run Check"
+     },
+     {
+      "class": "QPushButton",
+      "name": "",
+      "y": 453,
+      "x": 137,
+      "enabled": true,
+      "text": "Settings"
+     },
+     {
+      "class": "QPushButton",
+      "name": "",
+      "y": 453,
+      "x": 249,
+      "enabled": false,
+      "text": "Results"
+     },
+     {
+      "class": "QPushButton",
+      "name": "",
+      "y": 453,
+      "x": 361,
+      "enabled": true,
+      "text": "Close"
+     }
+    ]
+   ],
+   "buttons": [
+    "Run Check",
+    "Close",
+    "Settings",
+    "Results"
+   ]
+  },
+  "tree": [
+   {
+    "depth": 0,
+    "cols": [
+     "Unnamed.BoxCg",
+     "Solid",
+     "No errors"
+    ]
+   },
+   {
+    "header": [
+     "Name",
+     "Type",
+     "Error"
+    ]
+   }
+  ],
+  "bad": {
+   "task": [
+    [
+     {
+      "class": "QSint::TaskHeader",
+      "name": "",
+      "y": 8,
+      "x": 4,
+      "enabled": true,
+      "text": ""
+     },
+     {
+      "class": "QSint::ActionLabel",
+      "name": "",
+      "y": 11,
+      "x": 9,
+      "enabled": true,
+      "text": "Check Geometry Results"
+     },
+     {
+      "class": "QLabel",
+      "name": "",
+      "y": 43,
+      "x": 18,
+      "enabled": true,
+      "text": "3 processed out of 3 selected<br/>1 invalid shapes. <a href=\"#report\">to report view.</a>"
+     },
+     {
+      "class": "QSint::TaskHeader",
+      "name": "",
+      "y": 414,
+      "x": 4,
+      "enabled": true,
+      "text": ""
+     },
+     {
+      "class": "QSint::ActionLabel",
+      "name": "",
+      "y": 417,
+      "x": 9,
+      "enabled": true,
+      "text": "Shape Content"
+     },
+     {
+      "class": "QPushButton",
+      "name": "",
+      "y": 453,
+      "x": 25,
+      "enabled": true,
+      "text": "Run Check"
+     },
+     {
+      "class": "QPushButton",
+      "name": "",
+      "y": 453,
+      "x": 137,
+      "enabled": true,
+      "text": "Settings"
+     },
+     {
+      "class": "QPushButton",
+      "name": "",
+      "y": 453,
+      "x": 249,
+      "enabled": false,
+      "text": "Results"
+     },
+     {
+      "class": "QPushButton",
+      "name": "",
+      "y": 453,
+      "x": 361,
+      "enabled": true,
+      "text": "Close"
+     }
+    ]
+   ],
+   "tree": [
+    {
+     "depth": 0,
+     "cols": [
+      "Unnamed.Bowtie",
+      "Face",
+      "Invalid"
+     ]
+    },
+    {
+     "depth": 1,
+     "cols": [
+      "Face1",
+      "Face",
+      "Not closed"
+     ]
+    },
+    {
+     "depth": 2,
+     "cols": [
+      "Wire1",
+      "Wire",
+      "Self-intersecting wire"
+     ]
+    },
+    {
+     "depth": 0,
+     "cols": [
+      "Unnamed.OpenShell",
+      "Shell",
+      "No errors"
+     ]
+    },
+    {
+     "depth": 0,
+     "cols": [
+      "Unnamed.BoxCg",
+      "Solid",
+      "No errors"
+     ]
+    },
+    {
+     "header": [
+      "Name",
+      "Type",
+      "Error"
+     ]
+    }
+   ]
+  }
+ },
+ "objects": [
+  {
+   "name": "Box",
+   "label": "Box",
+   "type": "Part::Box",
+   "proxy": null,
+   "visible": true
+  },
+  {
+   "name": "Box001",
+   "label": "Box001",
+   "type": "Part::Feature",
+   "proxy": null,
+   "visible": true
+  },
+  {
+   "name": "Box002",
+   "label": "Box002",
+   "type": "Part::Feature",
+   "proxy": null,
+   "visible": true
+  },
+  {
+   "name": "Box003",
+   "label": "Box003",
+   "type": "Part::Feature",
+   "proxy": null,
+   "visible": true
+  },
+  {
+   "name": "Box004",
+   "label": "Box004",
+   "type": "Part::Feature",
+   "proxy": null,
+   "visible": true
+  },
+  {
+   "name": "Box005",
+   "label": "Box005",
+   "type": "Part::Feature",
+   "proxy": null,
+   "visible": true
+  },
+  {
+   "name": "Box006",
+   "label": "Box006",
+   "type": "Part::Feature",
+   "proxy": null,
+   "visible": true
+  },
+  {
+   "name": "BoxA",
+   "label": "BoxA",
+   "type": "Part::Box",
+   "proxy": null,
+   "visible": false
+  },
+  {
+   "name": "BoxB",
+   "label": "BoxB",
+   "type": "Part::Box",
+   "proxy": null,
+   "visible": false
+  },
+  {
+   "name": "Comp",
+   "label": "Comp",
+   "type": "Part::Compound",
+   "proxy": null,
+   "visible": true
+  },
+  {
+   "name": "Comp_solid",
+   "label": "Comp (Solid)",
+   "type": "Part::Feature",
+   "proxy": null,
+   "visible": true
+  },
+  {
+   "name": "Sh",
+   "label": "Sh",
+   "type": "Part::Feature",
+   "proxy": null,
+   "visible": true
+  },
+  {
+   "name": "Sh_solid",
+   "label": "Sh (Solid)",
+   "type": "Part::Feature",
+   "proxy": null,
+   "visible": true
+  },
+  {
+   "name": "Tolerance",
+   "label": "Tolerance",
+   "type": "Part::FeaturePython",
+   "proxy": "FeatureToleranceSet",
+   "visible": true
+  },
+  {
+   "name": "Tolerance001",
+   "label": "Tolerance001",
+   "type": "Part::FeaturePython",
+   "proxy": "FeatureToleranceSet",
+   "visible": true
+  },
+  {
+   "name": "BoxCs",
+   "label": "BoxCs",
+   "type": "Part::Box",
+   "proxy": null,
+   "visible": true
+  },
+  {
+   "name": "BoxCs_cs",
+   "label": "BoxCs_cs",
+   "type": "Part::Feature",
+   "proxy": null,
+   "visible": true
+  },
+  {
+   "name": "BoxSb",
+   "label": "BoxSb",
+   "type": "Part::Box",
+   "proxy": null,
+   "visible": true
+  },
+  {
+   "name": "Edge",
+   "label": "Edge",
+   "type": "Part::Feature",
+   "proxy": null,
+   "visible": true
+  },
+  {
+   "name": "Wire",
+   "label": "Wire",
+   "type": "Part::Feature",
+   "proxy": null,
+   "visible": true
+  },
+  {
+   "name": "Face",
+   "label": "Face",
+   "type": "Part::Feature",
+   "proxy": null,
+   "visible": true
+  },
+  {
+   "name": "Face001",
+   "label": "Face001",
+   "type": "Part::Feature",
+   "proxy": null,
+   "visible": true
+  },
+  {
+   "name": "Shell",
+   "label": "Shell",
+   "type": "Part::Feature",
+   "proxy": null,
+   "visible": true
+  },
+  {
+   "name": "Solid",
+   "label": "Solid",
+   "type": "Part::Feature",
+   "proxy": null,
+   "visible": true
+  },
+  {
+   "name": "BoxCg",
+   "label": "BoxCg",
+   "type": "Part::Box",
+   "proxy": null,
+   "visible": true
+  },
+  {
+   "name": "Bowtie",
+   "label": "Bowtie",
+   "type": "Part::Feature",
+   "proxy": null,
+   "visible": true
+  },
+  {
+   "name": "OpenShell",
+   "label": "OpenShell",
+   "type": "Part::Feature",
+   "proxy": null,
+   "visible": true
+  }
+ ],
+ "tree": [
+  {
+   "text": "Unnamed",
+   "depth": 0,
+   "bold": true,
+   "italic": false,
+   "fg": "#000000",
+   "icon": "part_icon0.png",
+   "children": 25
+  },
+  {
+   "text": "Box",
+   "depth": 1,
+   "bold": false,
+   "italic": false,
+   "fg": "#000000",
+   "icon": "part_icon1.png",
+   "children": 0
+  },
+  {
+   "text": "Box001",
+   "depth": 1,
+   "bold": false,
+   "italic": false,
+   "fg": "#000000",
+   "icon": "part_icon2.png",
+   "children": 0
+  },
+  {
+   "text": "Box002",
+   "depth": 1,
+   "bold": false,
+   "italic": false,
+   "fg": "#000000",
+   "icon": "part_icon3.png",
+   "children": 0
+  },
+  {
+   "text": "Box003",
+   "depth": 1,
+   "bold": false,
+   "italic": false,
+   "fg": "#000000",
+   "icon": "part_icon4.png",
+   "children": 0
+  },
+  {
+   "text": "Box004",
+   "depth": 1,
+   "bold": false,
+   "italic": false,
+   "fg": "#000000",
+   "icon": "part_icon5.png",
+   "children": 0
+  },
+  {
+   "text": "Box005",
+   "depth": 1,
+   "bold": false,
+   "italic": false,
+   "fg": "#000000",
+   "icon": "part_icon6.png",
+   "children": 0
+  },
+  {
+   "text": "Box006",
+   "depth": 1,
+   "bold": false,
+   "italic": false,
+   "fg": "#000000",
+   "icon": "part_icon7.png",
+   "children": 0
+  },
+  {
+   "text": "Comp",
+   "depth": 1,
+   "bold": false,
+   "italic": false,
+   "fg": "#000000",
+   "icon": "part_icon8.png",
+   "children": 2
+  },
+  {
+   "text": "BoxA",
+   "depth": 2,
+   "bold": false,
+   "italic": false,
+   "fg": "#6f6f6f",
+   "icon": "part_icon9.png",
+   "children": 0
+  },
+  {
+   "text": "BoxB",
+   "depth": 2,
+   "bold": false,
+   "italic": false,
+   "fg": "#6f6f6f",
+   "icon": "part_icon10.png",
+   "children": 0
+  },
+  {
+   "text": "Comp (Solid)",
+   "depth": 1,
+   "bold": false,
+   "italic": false,
+   "fg": "#000000",
+   "icon": "part_icon11.png",
+   "children": 0
+  },
+  {
+   "text": "Sh",
+   "depth": 1,
+   "bold": false,
+   "italic": false,
+   "fg": "#000000",
+   "icon": "part_icon12.png",
+   "children": 0
+  },
+  {
+   "text": "Sh (Solid)",
+   "depth": 1,
+   "bold": false,
+   "italic": false,
+   "fg": "#000000",
+   "icon": "part_icon13.png",
+   "children": 0
+  },
+  {
+   "text": "Tolerance",
+   "depth": 1,
+   "bold": false,
+   "italic": false,
+   "fg": "#000000",
+   "icon": "part_icon14.png",
+   "children": 1
+  },
+  {
+   "text": "BoxA",
+   "depth": 2,
+   "bold": false,
+   "italic": false,
+   "fg": "#6f6f6f",
+   "icon": "part_icon15.png",
+   "children": 0
+  },
+  {
+   "text": "Tolerance001",
+   "depth": 1,
+   "bold": false,
+   "italic": false,
+   "fg": "#000000",
+   "icon": "part_icon16.png",
+   "children": 2
+  },
+  {
+   "text": "BoxA",
+   "depth": 2,
+   "bold": false,
+   "italic": false,
+   "fg": "#6f6f6f",
+   "icon": "part_icon17.png",
+   "children": 0
+  },
+  {
+   "text": "BoxB",
+   "depth": 2,
+   "bold": false,
+   "italic": false,
+   "fg": "#6f6f6f",
+   "icon": "part_icon18.png",
+   "children": 0
+  },
+  {
+   "text": "BoxCs",
+   "depth": 1,
+   "bold": false,
+   "italic": false,
+   "fg": "#000000",
+   "icon": "part_icon19.png",
+   "children": 0
+  },
+  {
+   "text": "BoxCs_cs",
+   "depth": 1,
+   "bold": false,
+   "italic": false,
+   "fg": "#000000",
+   "icon": "part_icon20.png",
+   "children": 0
+  },
+  {
+   "text": "BoxSb",
+   "depth": 1,
+   "bold": false,
+   "italic": false,
+   "fg": "#000000",
+   "icon": "part_icon21.png",
+   "children": 0
+  },
+  {
+   "text": "Edge",
+   "depth": 1,
+   "bold": false,
+   "italic": false,
+   "fg": "#000000",
+   "icon": "part_icon22.png",
+   "children": 0
+  },
+  {
+   "text": "Wire",
+   "depth": 1,
+   "bold": false,
+   "italic": false,
+   "fg": "#000000",
+   "icon": "part_icon23.png",
+   "children": 0
+  },
+  {
+   "text": "Face",
+   "depth": 1,
+   "bold": false,
+   "italic": false,
+   "fg": "#000000",
+   "icon": "part_icon24.png",
+   "children": 0
+  },
+  {
+   "text": "Face001",
+   "depth": 1,
+   "bold": false,
+   "italic": false,
+   "fg": "#000000",
+   "icon": "part_icon25.png",
+   "children": 0
+  },
+  {
+   "text": "Shell",
+   "depth": 1,
+   "bold": false,
+   "italic": false,
+   "fg": "#000000",
+   "icon": "part_icon26.png",
+   "children": 0
+  },
+  {
+   "text": "Solid",
+   "depth": 1,
+   "bold": false,
+   "italic": false,
+   "fg": "#000000",
+   "icon": "part_icon27.png",
+   "children": 0
+  },
+  {
+   "text": "BoxCg",
+   "depth": 1,
+   "bold": false,
+   "italic": false,
+   "fg": "#000000",
+   "icon": "part_icon28.png",
+   "children": 0
+  },
+  {
+   "text": "Bowtie",
+   "depth": 1,
+   "bold": false,
+   "italic": false,
+   "fg": "#000000",
+   "icon": "part_icon29.png",
+   "children": 0
+  },
+  {
+   "text": "OpenShell",
+   "depth": 1,
+   "bold": false,
+   "italic": false,
+   "fg": "#000000",
+   "icon": "part_icon30.png",
+   "children": 0
+  }
+ ],
+ "props_Box001": [
+  [
+   {
+    "depth": 0,
+    "name": "Attachment",
+    "value": null,
+    "group": false,
+    "editable": false
+   },
+   {
+    "depth": 0,
+    "name": "Base",
+    "value": null,
+    "group": false,
+    "editable": false
+   },
+   {
+    "depth": 1,
+    "name": "Placement",
+    "value": "[(-0.38 0.33 0.86); 35.99\u00b0; (5.00 mm  -3.00 mm  2.00 mm)]",
+    "group": false,
+    "editable": true
+   },
+   {
+    "depth": 2,
+    "name": "Angle",
+    "value": "35.99\u00b0",
+    "group": false,
+    "editable": true
+   },
+   {
+    "depth": 2,
+    "name": "Axis",
+    "value": "[-0.38 0.33 0.86]",
+    "group": false,
+    "editable": true
+   },
+   {
+    "depth": 2,
+    "name": "Position",
+    "value": "[5.00 mm -3.00 mm 2.00 mm]",
+    "group": false,
+    "editable": true
+   },
+   {
+    "depth": 1,
+    "name": "Label",
+    "value": "Box001",
+    "group": false,
+    "editable": true
+   },
+   {
+    "depth": 0,
+    "name": "Box",
+    "value": null,
+    "group": false,
+    "editable": false
+   }
+  ]
+ ],
+ "props_Comp_solid": [
+  [
+   {
+    "depth": 0,
+    "name": "Attachment",
+    "value": null,
+    "group": false,
+    "editable": false
+   },
+   {
+    "depth": 0,
+    "name": "Base",
+    "value": null,
+    "group": false,
+    "editable": false
+   },
+   {
+    "depth": 1,
+    "name": "Placement",
+    "value": "[(0.00 0.00 1.00); 0.00\u00b0; (0.00 mm  0.00 mm  0.00 mm)]",
+    "group": false,
+    "editable": true
+   },
+   {
+    "depth": 2,
+    "name": "Angle",
+    "value": "0.00\u00b0",
+    "group": false,
+    "editable": true
+   },
+   {
+    "depth": 2,
+    "name": "Axis",
+    "value": "[0.00 0.00 1.00]",
+    "group": false,
+    "editable": true
+   },
+   {
+    "depth": 2,
+    "name": "Position",
+    "value": "[0.00 mm 0.00 mm 0.00 mm]",
+    "group": false,
+    "editable": true
+   },
+   {
+    "depth": 1,
+    "name": "Label",
+    "value": "Comp (Solid)",
+    "group": false,
+    "editable": true
+   },
+   {
+    "depth": 0,
+    "name": "Box",
+    "value": null,
+    "group": false,
+    "editable": false
+   }
+  ]
+ ],
+ "props_Tolerance": [
+  [
+   {
+    "depth": 0,
+    "name": "Attachment",
+    "value": null,
+    "group": false,
+    "editable": false
+   },
+   {
+    "depth": 0,
+    "name": "Base",
+    "value": null,
+    "group": false,
+    "editable": false
+   },
+   {
+    "depth": 1,
+    "name": "Placement",
+    "value": "[(0.00 0.00 1.00); 0.00\u00b0; (0.00 mm  0.00 mm  0.00 mm)]",
+    "group": false,
+    "editable": true
+   },
+   {
+    "depth": 2,
+    "name": "Angle",
+    "value": "0.00\u00b0",
+    "group": false,
+    "editable": true
+   },
+   {
+    "depth": 2,
+    "name": "Axis",
+    "value": "[0.00 0.00 1.00]",
+    "group": false,
+    "editable": true
+   },
+   {
+    "depth": 2,
+    "name": "Position",
+    "value": "[0.00 mm 0.00 mm 0.00 mm]",
+    "group": false,
+    "editable": true
+   },
+   {
+    "depth": 1,
+    "name": "Label",
+    "value": "Tolerance",
+    "group": false,
+    "editable": true
+   },
+   {
+    "depth": 0,
+    "name": "Box",
+    "value": null,
+    "group": false,
+    "editable": false
+   },
+   {
+    "depth": 0,
+    "name": "Tolerance Set",
+    "value": null,
+    "group": false,
+    "editable": false
+   },
+   {
+    "depth": 1,
+    "name": "Objects",
+    "value": "BoxA",
+    "group": false,
+    "editable": true
+   },
+   {
+    "depth": 1,
+    "name": "Refine",
+    "value": "false",
+    "group": false,
+    "editable": true
+   },
+   {
+    "depth": 1,
+    "name": "max Tolerance",
+    "value": "0.00 mm",
+    "group": false,
+    "editable": true
+   },
+   {
+    "depth": 1,
+    "name": "min Tolerance",
+    "value": "0.00 mm",
+    "group": false,
+    "editable": true
+   }
+  ]
+ ],
+ "props_Edge": [
+  [
+   {
+    "depth": 0,
+    "name": "Attachment",
+    "value": null,
+    "group": false,
+    "editable": false
+   },
+   {
+    "depth": 0,
+    "name": "Base",
+    "value": null,
+    "group": false,
+    "editable": false
+   },
+   {
+    "depth": 1,
+    "name": "Placement",
+    "value": "[(0.00 0.00 1.00); 0.00\u00b0; (0.00 mm  0.00 mm  0.00 mm)]",
+    "group": false,
+    "editable": true
+   },
+   {
+    "depth": 2,
+    "name": "Angle",
+    "value": "0.00\u00b0",
+    "group": false,
+    "editable": true
+   },
+   {
+    "depth": 2,
+    "name": "Axis",
+    "value": "[0.00 0.00 1.00]",
+    "group": false,
+    "editable": true
+   },
+   {
+    "depth": 2,
+    "name": "Position",
+    "value": "[0.00 mm 0.00 mm 0.00 mm]",
+    "group": false,
+    "editable": true
+   },
+   {
+    "depth": 1,
+    "name": "Label",
+    "value": "Edge",
+    "group": false,
+    "editable": true
+   },
+   {
+    "depth": 0,
+    "name": "Box",
+    "value": null,
+    "group": false,
+    "editable": false
+   },
+   {
+    "depth": 0,
+    "name": "Tolerance Set",
+    "value": null,
+    "group": false,
+    "editable": false
+   }
+  ]
+ ],
+ "props_Face": [
+  [
+   {
+    "depth": 0,
+    "name": "Attachment",
+    "value": null,
+    "group": false,
+    "editable": false
+   },
+   {
+    "depth": 0,
+    "name": "Base",
+    "value": null,
+    "group": false,
+    "editable": false
+   },
+   {
+    "depth": 1,
+    "name": "Placement",
+    "value": "[(0.00 0.00 1.00); 0.00\u00b0; (0.00 mm  0.00 mm  0.00 mm)]",
+    "group": false,
+    "editable": true
+   },
+   {
+    "depth": 2,
+    "name": "Angle",
+    "value": "0.00\u00b0",
+    "group": false,
+    "editable": true
+   },
+   {
+    "depth": 2,
+    "name": "Axis",
+    "value": "[0.00 0.00 1.00]",
+    "group": false,
+    "editable": true
+   },
+   {
+    "depth": 2,
+    "name": "Position",
+    "value": "[0.00 mm 0.00 mm 0.00 mm]",
+    "group": false,
+    "editable": true
+   },
+   {
+    "depth": 1,
+    "name": "Label",
+    "value": "Face",
+    "group": false,
+    "editable": true
+   },
+   {
+    "depth": 0,
+    "name": "Box",
+    "value": null,
+    "group": false,
+    "editable": false
+   },
+   {
+    "depth": 0,
+    "name": "Tolerance Set",
+    "value": null,
+    "group": false,
+    "editable": false
+   }
+  ]
+ ],
+ "types": {
+  "Part::ToleranceSet": {
+   "Label": {
+    "value": "ToleranceT",
+    "group": "Base",
+    "type": "App::PropertyString",
+    "mode": []
+   },
+   "Objects": {
+    "value": "[]",
+    "group": "ToleranceSet",
+    "type": "App::PropertyLinkList",
+    "mode": []
+   },
+   "Placement": {
+    "value": "Placement [Pos=(0,0,0), Yaw-Pitch-Roll=(0,0,0)]",
+    "group": "",
+    "type": "App::PropertyPlacement",
+    "mode": []
+   },
+   "Refine": {
+    "value": "False",
+    "group": "ToleranceSet",
+    "type": "App::PropertyBool",
+    "mode": []
+   },
+   "ShapeMaterial": {
+    "value": "<Material>",
+    "group": "",
+    "type": "Materials::PropertyMaterial",
+    "mode": []
+   },
+   "Visibility": {
+    "value": "True",
+    "group": "",
+    "type": "App::PropertyBool",
+    "mode": [
+     "Hidden"
+    ]
+   },
+   "_ElementMapVersion": {
+    "value": "",
+    "group": "Base",
+    "type": "App::PropertyString",
+    "mode": [
+     "Hidden"
+    ]
+   },
+   "maxTolerance": {
+    "value": "0.0 mm",
+    "group": "ToleranceSet",
+    "type": "App::PropertyLength",
+    "mode": []
+   },
+   "minTolerance": {
+    "value": "0.0 mm",
+    "group": "ToleranceSet",
+    "type": "App::PropertyLength",
+    "mode": []
+   }
+  },
+  "Part::Feature": {
+   "Label": {
+    "value": "FeatureT",
+    "group": "Base",
+    "type": "App::PropertyString",
+    "mode": []
+   },
+   "Placement": {
+    "value": "Placement [Pos=(0,0,0), Yaw-Pitch-Roll=(0,0,0)]",
+    "group": "",
+    "type": "App::PropertyPlacement",
+    "mode": []
+   },
+   "ShapeMaterial": {
+    "value": "<Material>",
+    "group": "",
+    "type": "Materials::PropertyMaterial",
+    "mode": []
+   },
+   "Visibility": {
+    "value": "True",
+    "group": "",
+    "type": "App::PropertyBool",
+    "mode": [
+     "Hidden"
+    ]
+   },
+   "_ElementMapVersion": {
+    "value": "",
+    "group": "Base",
+    "type": "App::PropertyString",
+    "mode": [
+     "Hidden"
+    ]
+   }
+  }
+ },
+ "undo_names": [
+  "Solid",
+  "Shell",
+  "Face",
+  "Face",
+  "Wire",
+  "Edge",
+  "Create ToleranceSet",
+  "Create ToleranceSet",
+  "Make solid",
+  "Make solid",
+  "Simple copy",
+  "Element copy",
+  "Element copy",
+  "Transformed copy",
+  "Simple copy"
+ ]
+}

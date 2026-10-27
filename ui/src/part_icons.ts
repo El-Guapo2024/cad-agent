@@ -27,5 +27,5 @@ export const PART_FILES = {
   'pt-refine': 'part/Part_Refine_Shape', 'pt-reverse': 'part/Part_Reverse_Shape', 'pt-element-copy': 'part/Part_Element_Copy',
   'pt-transformed-copy': 'part/Part_Transformed_Copy', 'pt-make-solid': 'part/Part_MakeSolid', 'pt-points-from-mesh': 'part/Part_PointsFromMesh',
   'pt-shape-from-mesh': 'part/Part_Shape_from_Mesh', 'pt-shape-info': 'part/Part_ShapeInfo', 'pt-export': 'part/Part_Export',
-  'pt-import': 'part/Part_Import',
+  'pt-import': 'part/Part_Import', 'pt-tolerance': 'part/preferences-part_design',
 } as const

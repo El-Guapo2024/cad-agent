@@ -569,6 +569,7 @@ export class CadView {
     // a helper line (a dress-up's base edges) within the pick radius, as hitAt picks the model's
     const perPx = this.worldPerPixel(cam, r.height), radius = getState().selPrefs.pickRadius
     this.ray.params.Line = { threshold: perPx * radius }
+    this.ray.params.Points = { threshold: perPx * radius }           // a helper's vertex (the Shape builder's)
     const named = (o: THREE.Object3D | null) => { for (; o; o = o.parent) if (o.userData.pickName) return o; return null }
     const hits = this.ray.intersectObjects([...this.helpers.values()], true).map((h) => ({ h, o: named(h.object) })).filter((x) => x.o)
     if (!hits.length) return null
@@ -597,6 +598,7 @@ export class CadView {
       const g = (o as THREE.Mesh).geometry as THREE.BufferGeometry | undefined
       const pos = g?.attributes.position
       if (!pos) { cands.push(toScreen(o.getWorldPosition(new THREE.Vector3()))); return }
+      if ((o as THREE.Points).isPoints) { for (let i = 0; i < pos.count; i++) cands.push(toScreen(v.fromBufferAttribute(pos, i).applyMatrix4(o.matrixWorld))); return }   // a vertex
       if ((o as THREE.Mesh).isMesh && g!.index) {
         const idx = g!.index
         for (let t = 0; t + 2 < idx.count; t += 3) {
