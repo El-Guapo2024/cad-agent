@@ -7,7 +7,8 @@
 //
 // It starts a scratch workbench of its own (a temporary projects folder, CAD_* pointed at scratch paths, as
 // attachcheck.mjs does) holding the document fcsketchobj_dump.py makes (a Body with the 40 x 20 x 5 plate, Sketch001
-// on the XZ plane, Sketch002 on the Pad's top face with external geometry, each with FreeCAD's solved geometry), and
+// on the XZ plane, Sketch002 on the Pad's top face with external geometry, Sketch003 flipped with an arc and Sketch004
+// with that arc, a reversed one, as external geometry, each with FreeCAD's solved geometry), and
 // in Chromium on SwiftShader does what that script did in FreeCAD: selects rows of the tree (or the Pad's face), runs
 // the command from the Sketcher toolbar, answers its dialogs, and compares the dialogs' contents, what was made or
 // changed (geometry, constraints, placement, attachment), the step's name and the commands' enabled state; each case
@@ -81,7 +82,9 @@ const r1 = cad('feature', 'apply', 'sko', 'Body', '--ops', JSON.stringify([
   { op: 'add', feature: sketchFeature('Sketch', { support: 'XY' }) },
   { op: 'add', feature: { name: 'Pad', type: 'PartDesign::Pad', profile: 'Sketch', length: 5 } },
   { op: 'add', feature: sketchFeature('Sketch001', { support: 'XZ', attachment_offset: [0, 0, 3] }) },
-  { op: 'add', feature: sketchFeature('Sketch002', { attachment_support: [['Pad', 'Face6']], map_mode: 'FlatFace', external_geometry: [['Pad', FC.top_edge]] }) }]))
+  { op: 'add', feature: sketchFeature('Sketch002', { attachment_support: [['Pad', 'Face6']], map_mode: 'FlatFace', external_geometry: [['Pad', FC.top_edge]] }) },
+  { op: 'add', feature: sketchFeature('Sketch003', { attachment_support: [['XY_Plane', '']], map_mode: 'FlatFace', map_reversed: true }) },
+  { op: 'add', feature: sketchFeature('Sketch004', { support: 'XY', attachment_offset: [0, 0, 7], external_geometry: [['Sketch003', 'Edge1']] }) }]))
 if (r1.status > 2) { console.log(r1.stdout, r1.stderr); process.exit(1) }
 const port = await freePort(8991)
 const server = spawn(python, ['-c', `import sys; from pathlib import Path; from cad_agent import serve; serve.run([Path(sys.argv[1])], host="127.0.0.1", port=${port})`, ROOT],
@@ -219,7 +222,7 @@ try {
   await until("!!cadui.getView()?.renderer || !!document.querySelector(\"canvas\")", "the 3D view", 30000, true)
   await sleep(3000)
   await st('cadui.setState({ workbench: "sketcher" })')
-  await until('cadui.getState().features.Body?.features.length === 4', 'the Body')
+  await until('cadui.getState().features.Body?.features.length === 6', 'the Body')
   await sleep(800)
   const N = (await features()).length, S0 = await top()
 
@@ -365,8 +368,8 @@ try {
   }
 
   console.log('validate')
-  for (const key of ['validate_sketch001', 'validate_sketch002']) {
-    const fc = FC[key], sketch = key === 'validate_sketch001' ? 'Sketch001' : 'Sketch002'
+  for (const key of ['validate_sketch001', 'validate_sketch002', 'validate_sketch004']) {
+    const fc = FC[key], sketch = `Sketch${key.slice(-3)}`
     await selectRows([sketch])
     await runCmd('Sketcher_ValidateSketch')
     await until('!!document.querySelector("[data-task=sketchValidate]")', `${key}: the panel`)
@@ -402,7 +405,16 @@ try {
       check(f.constraints.length === step.sketch.constraints.length && f.geometry.length === step.sketch.geometry.length,
         `${key} after ${b}: ${step.sketch.geometry.length} geometries and ${step.sketch.constraints.length} constraints`, `${f.geometry.length} and ${f.constraints.length}`)
       if (writes && unchanged && (await top()) === before) note(`${key} ${b}: FreeCAD opens "${step.undo[0]}" though nothing changes; a change that changes nothing makes no step here`)
-      else if (writes) await compareStep(step, `${key} ${b}`)
+      else if (writes) {
+        await compareStep(step, `${key} ${b}`)
+        if (b === 'swapReversed') {                // port_reversedExternalArcs: the constraints swapped, the sketch solved
+          const g = await feature(sketch)
+          check(!sameConstraints(g.constraints, step.sketch.constraints), `${key} ${b}: the constraints`, sameConstraints(g.constraints, step.sketch.constraints))
+          check(!sameGeometry(g.geometry, step.sketch.geometry), `${key} ${b}: the geometry`, sameGeometry(g.geometry, step.sketch.geometry))
+          const n = await st('JSON.stringify(cadui.getState().messages.slice(-3).map((m) => m.text))')
+          check(n.includes('changes were made to constraints linking to endpoints of reversed arcs'), `${key} ${b}: the notification`, n)
+        }
+      }
       else if (step.undo.length) note(`${key} ${b}: FreeCAD opens "${step.undo[0]}" for a change that does not stay (changeConstraintsLocking puts the old constraints back); here nothing is written`)
     }
     await page.click('[data-task=sketchValidate] .tbuttons button')

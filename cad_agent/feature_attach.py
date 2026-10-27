@@ -640,8 +640,11 @@ def _process_edge(edge, pr: _Proj, where):
         span = l - f
         same = vec1.Dot(vec2) > 0
         a0 = a_b if same else a_e
-        return [{"type": "ArcOfCircle", "center": [c[0], c[1]], "radius": r, "start_angle": a0,
-                 "end_angle": a0 + span, "construction": True}]
+        arc = {"type": "ArcOfCircle", "center": [c[0], c[1]], "radius": r, "start_angle": a0,
+               "end_angle": a0 + span, "construction": True}
+        if not same:                                # GeomArcOfConic::isReversed: its axis is -Z
+            arc["reversed"] = True
+        return [arc]
     if vec1.IsNormal(vec2, 1e-12):                  # Precision::Angular()
         cnt = pr.near(circ.Location())
         orient = vec1.Crossed(vec2)
@@ -686,14 +689,27 @@ def _process_edge(edge, pr: _Proj, where):
     return FAC.oblique_circle(edge, pr)                  # the general case: an ellipse
 
 
-def project(pl: A.Placement, shape, where: str = "external geometry") -> list[dict]:
+def project(pl: A.Placement, shape, where: str = "external geometry", kind: str = "Projection") -> list[dict]:
     """The external geometry FreeCAD makes of one reference for a sketch placed at pl: a vertex gives a point,
     an edge its projection, a planar face the projections of its edges (one line when the face is edge-on to
-    the sketch). Geometry dicts in the sketch's coordinates, construction (as GeometryFacade::setConstruction
-    marks them)."""
+    the sketch), any other face what hidden-line removal draws of it; kind "Intersection" (Sketcher_Intersection)
+    the reference's section with the sketch's plane instead, "Both" the projection then the section. Geometry
+    dicts in the sketch's coordinates, construction (as GeometryFacade::setConstruction marks them)."""
+    from . import feature_attach_ext as FAE
+    projection, inter = FAE.kind_flags(kind)
     pr = _Proj(pl)
     if shape is None or shape.IsNull():
         raise FeatureError(f"{where}: the reference has no shape")
+    geos = _project(pr, shape, where) if projection else []
+    if inter:
+        try:
+            geos = FAE.intersection(shape, pr, _process_edge, geos, where)
+        except FeatureError as e:
+            raise FeatureError(f"{where}: {e}") from None
+    return geos
+
+
+def _project(pr: _Proj, shape, where) -> list[dict]:
     st = shape.ShapeType()
     if st == TopAbs_VERTEX:
         p = pr.local(pr.near(BRep_Tool.Pnt_s(TopoDS.Vertex(shape))))
@@ -704,8 +720,8 @@ def project(pl: A.Placement, shape, where: str = "external geometry") -> list[di
         face = TopoDS.Face(shape)
         surf = BRepAdaptor_Surface(face)
         if surf.GetType() != GeomAbs_Plane:
-            raise FeatureError(f"{where}: a face that is not flat projects through hidden-line removal, which "
-                               "is not supported yet")
+            from .feature_attach_ext import curved_face
+            return curved_face(face, pr)                # processFace: projectShape, hidden-line removal
         dnormal = surf.Plane().Axis().Direction()
         geos = []
         ex = TopExp_Explorer(face, TopAbs_EDGE)
@@ -729,6 +745,8 @@ def project(pl: A.Placement, shape, where: str = "external geometry") -> list[di
                         end = p
             if start is not None:
                 return [{"type": "LineSegment", "start": list(start), "end": list(end), "construction": False}]
+            from .feature_attach_ext import edge_on_fallback
+            return geos + edge_on_fallback(surf.Plane(), pr, _project_line)
         return geos
     raise FeatureError(f"{where}: Unknown type of geometry")
 
@@ -737,28 +755,44 @@ def external_geometry(sketch, pl: A.Placement, ctx: Context) -> list[dict]:
     """A sketch's ExternalGeo after the H and V axes: GeoId -3, -4, ... in the order of its
     external_geometry references."""
     out = []
-    for obj, sub in getattr(sketch, "external_geometry", None) or []:
+    kinds = getattr(sketch, "external_types", None) or []
+    for i, (obj, sub) in enumerate(getattr(sketch, "external_geometry", None) or []):
         where = f"{sketch.name}: external geometry {obj}.{sub}" if sub else f"{sketch.name}: external geometry {obj}"
-        out += project(pl, ctx.external_shape(obj, sub, where), where)
+        out += project(pl, ctx.external_shape(obj, sub, where), where, kinds[i] if i < len(kinds) else "Projection")
     return out
 
 
-def external_list(where: str, ext) -> list[tuple[str, str]]:
-    """ExternalGeometry as a part file writes it: [(object, element), ...]."""
+def external_refs(where: str, ext) -> list[tuple[str, str, str]]:
+    """ExternalGeometry and ExternalTypes as a part file writes them: [(object, element), ...], a reference
+    Sketcher_Intersection made (object, element, "Intersection"), or "Both" when it was projected too; as a
+    string "Pad.Edge3" or "Pad.Face2:Intersection"."""
     if not ext:
         return []
     out = []
     for r in ext:
         if isinstance(r, str):
-            r = tuple(r.partition(".")[::2])            # "Pad.Edge3"
+            ref, _, kind = r.partition(":")
+            r = tuple(ref.partition(".")[::2]) + ((kind,) if kind else ())     # "Pad.Edge3"
         try:
-            obj, sub = r
+            obj, sub, *kind = r
         except (TypeError, ValueError):
             raise FeatureError(f"{where}: external geometry {r!r} is not (object, element)") from None
+        if len(kind) > 1 or (kind and kind[0] not in ("Projection", "Intersection", "Both")):
+            raise FeatureError(f"{where}: external geometry {r!r}: the third item is 'Intersection' or 'Both'")
         if not isinstance(obj, str) or not isinstance(sub, str) or (sub and not ELEMENT.match(sub)):
             raise FeatureError(f"{where}: external geometry {r!r} is not (object, 'Edge1' / 'Vertex1' / 'Face1')")
-        out.append((SHORT.get(obj, obj), sub))
+        out.append((SHORT.get(obj, obj), sub, kind[0] if kind else "Projection"))
     return out
+
+
+def external_list(where: str, ext) -> list[tuple[str, str]]:
+    """ExternalGeometry as a part file writes it: [(object, element), ...] (external_refs without the types)."""
+    return [(o, s) for o, s, _ in external_refs(where, ext)]
+
+
+def ref_items(refs) -> list:
+    """(object, element[, type]) as a part file writes a reference: the type only when it is not Projection."""
+    return [(o, s) if k == "Projection" else (o, s, k) for o, s, k in refs]
 
 
 # ── a part's Body, for `cad feature list` and `cad feature attach` ─────────────────────────────────────
@@ -897,10 +931,10 @@ def project_query(path, sketch: str, refs) -> dict:
     ctx = shapes["_attach"]
     pl = ctx.attach(f, f"Sketch {sketch}", orig=f._own_pl) or f._own_pl     # as feature._place_sketch places it
     out = {"placement": pl.as_dict(), "external": [], "errors": [], "build_error": err}
-    for r in external_list(f"Sketch {sketch}", refs):
+    for r in external_refs(f"Sketch {sketch}", refs):
         where = f"{sketch}: external geometry {r[0]}.{r[1]}" if r[1] else f"{sketch}: external geometry {r[0]}"
         try:
-            out["external"].append(project(pl, ctx.external_shape(r[0], r[1], where), where))
+            out["external"].append(project(pl, ctx.external_shape(r[0], r[1], where), where, r[2]))
             out["errors"].append(None)
         except FeatureError as e:
             out["external"].append([])
