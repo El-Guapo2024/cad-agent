@@ -8645,6 +8645,4314 @@
     }
    },
    "dxf": "999\nFreeCAD v26.3 20260929 (Git shallow)\n  0\nSECTION\n  2\nHEADER\n  9\n$ACADVER\n  1\nAC1014\n  9\n$ACADMAINTVER\n 70\n     9\n  9\n$DWGCODEPAGE\n  3\nANSI_1252\n  9\n$TEXTSTYLE\n  7\nSTANDARD\n  9\n$DIMSTYLE\n  2\nSTANDARD\n  9\n$DIMTXSTY\n  7\nSTANDARD\n  9\n$LUNITS\n 70\n2\n  9\n$INSUNITS\n 70\n4\n  9\n$PEXTMAX\n 10\n50\n 20\n50\n 30\n50\n  9\n$PEXTMIN\n 10\n0\n 20\n0\n 30\n0\n  9\n$HANDSEED\n  5\nFFFF\n  0\nENDSEC\n  0\nSECTION\n  2\nCLASSES\n  0\nCLASS\n  1\nACDBDICTIONARYWDFLT\n  2\nAcDbDictionaryWithDefault\n  3\nObjectDBX Classes\n 90\n        0\n280\n     0\n281\n     0\n  0\nCLASS\n  1\nXRECORD\n  2\nAcDbXrecord\n  3\nObjectDBX Classes\n 90\n        0\n280\n     0\n281\n     0\n  0\nCLASS\n  1\nLWPOLYLINE\n  2\nAcDbPolyline\n  3\nObjectDBX Classes\n 90\n        0\n280\n     0\n281\n     1\n  0\nENDSEC\n  0\nSECTION\n  2\nTABLES\n  0\nTABLE\n  2\nVPORT\n  5\n20\n330\n0\n100\nAcDbSymbolTable\n 70\n     1\n  0\nVPORT\n  5\n21\n330\n20\n100\nAcDbSymbolTableRecord\n100\nAcDbViewportTableRecord\n  2\n*ACTIVE\n 70\n     0\n  0\nENDTAB\n  0\nTABLE\n  2\nLTYPE\n  5\n22\n330\n0\n100\nAcDbSymbolTable\n 70\n     1\n  0\nLTYPE\n  5\n23\n330\n21\n100\nAcDbSymbolTableRecord\n100\nAcDbLinetypeTableRecord\n  2\nBYBLOCK\n 70\n     0\n  3\n\n 72\n    65\n 73\n     0\n 40\n0.0\n  0\nLTYPE\n  5\n24\n330\n21\n100\nAcDbSymbolTableRecord\n100\nAcDbLinetypeTableRecord\n  2\nBYLAYER\n 70\n     0\n  3\n\n 72\n    65\n 73\n     0\n 40\n0.0\n  0\nLTYPE\n  5\n25\n330\n21\n100\nAcDbSymbolTableRecord\n100\nAcDbLinetypeTableRecord\n  2\nCONTINUOUS\n 70\n     0\n  3\nSolid line\n 72\n    65\n 73\n     0\n 40\n0.0\n  0\nENDTAB\n  0\nTABLE\n  2\nLAYER\n  5\nA0F\n330\n0\n100\nAcDbSymbolTable\n 70\n3\n  0\nLAYER\n  5\nA10\n330\nA0F\n100\nAcDbSymbolTableRecord\n100\nAcDbLayerTableRecord\n  2\n0\n 70\n   0\n 62\n   7\n  6\nCONTINUOUS\n  0\nLAYER\n  5\nA11\n330\nA0F\n100\nAcDbSymbolTableRecord\n100\nAcDbLayerTableRecord\n  2\nView\n 70\n    0\n 62\n    7\n  6\nCONTINUOUS\n  0\nLAYER\n  5\nA12\n330\nA0F\n100\nAcDbSymbolTableRecord\n100\nAcDbLayerTableRecord\n  2\nAnnotation\n 70\n    0\n 62\n    7\n  6\nCONTINUOUS\n  0\nENDTAB\n  0\nTABLE\n  2\nSTYLE\n  5\n70\n330\n0\n100\nAcDbSymbolTable\n 70\n     2\n  0\nSTYLE\n  5\n71\n330\n70\n100\nAcDbSymbolTableRecord\n100\nAcDbTextStyleTableRecord\n  2\nSTANDARD\n 70\n     0\n 40\n0.0\n 41\n1.0\n 50\n0.0\n 71\n     0\n 42\n2.5\n  3\narial.ttf\n  4\n\n  0\nSTYLE\n  5\n72\n330\n70\n100\nAcDbSymbolTableRecord\n100\nAcDbTextStyleTableRecord\n  2\nANNOTATIVE\n 70\n     0\n 40\n0.0\n 41\n1.0\n 50\n0.0\n 71\n     0\n 42\n2.5\n  3\narial.ttf\n  4\n\n  0\nENDTAB\n  0\nTABLE\n  2\nVIEW\n  5\n73\n330\n0\n100\nAcDbSymbolTable\n 70\n     0\n  0\nENDTAB\n  0\nTABLE\n  2\nUCS\n  5\n74\n330\n0\n100\nAcDbSymbolTable\n 70\n     0\n  0\nENDTAB\n  0\nTABLE\n  2\nAPPID\n  5\n75\n330\n0\n100\nAcDbSymbolTable\n 70\n     2\n  0\nAPPID\n  5\n76\n330\n75\n100\nAcDbSymbolTableRecord\n100\nAcDbRegAppTableRecord\n  2\nACAD\n 70\n     0\n  0\nAPPID\n  5\n77\n330\n75\n100\nAcDbSymbolTableRecord\n100\nAcDbRegAppTableRecord\n  2\nACADANNOTATIVE\n 70\n     0\n  0\nENDTAB\n  0\nTABLE\n  2\nDIMSTYLE\n  5\n78\n330\n0\n100\nAcDbSymbolTable\n 70\n     2\n  0\nDIMSTYLE\n105\n79\n330\n78\n100\nAcDbSymbolTableRecord\n100\nAcDbDimStyleTableRecord\n  2\nSTANDARD\n 70\n     0\n  3\n\n  4\n\n  5\n\n  6\n\n  7\n\n 40\n0.0\n 41\n2.5\n 42\n0.625\n 43\n3.75\n 44\n1.25\n 45\n0.0\n 46\n0.0\n 47\n0.0\n 48\n0.0\n140\n2.5\n141\n2.5\n142\n0.0\n143\n0.03937007874016\n144\n1.0\n145\n0.0\n146\n1.0\n147\n0.625\n 71\n     0\n 72\n     0\n 73\n     0\n 74\n     0\n 75\n     0\n 76\n     0\n 77\n     1\n 78\n     8\n170\n     0\n171\n     3\n172\n     1\n173\n     0\n174\n     0\n175\n     0\n176\n     0\n177\n     0\n178\n     0\n270\n     2\n271\n     2\n272\n     2\n273\n     2\n274\n     3\n340\n71\n275\n     0\n280\n     0\n281\n     0\n282\n     0\n283\n     0\n284\n     8\n285\n     0\n286\n     0\n287\n     3\n288\n     0\n  0\nENDTAB\n  0\nTABLE\n  2\nBLOCK_RECORD\n  5\nA01\n330\n0\n100\nAcDbSymbolTable\n  70\n5\n  0\nBLOCK_RECORD\n  5\nA02\n330\nA01\n100\nAcDbSymbolTableRecord\n100\nAcDbBlockTableRecord\n  2\n*MODEL_SPACE\n  0\nBLOCK_RECORD\n  5\nA03\n330\nA01\n100\nAcDbSymbolTableRecord\n100\nAcDbBlockTableRecord\n  2\n*PAPER_SPACE\n  0\nENDTAB\n  0\nENDSEC\n  0\nSECTION\n  2\nBLOCKS\n  0\nBLOCK\n  5\nA04\n330\nA02\n100\nAcDbEntity\n  8\n0\n100\nAcDbBlockBegin\n  2\n*MODEL_SPACE\n 70\n   0\n 10\n0\n 20\n0\n 30\n0\n  3\n*MODEL_SPACE\n  1\n \n  0\nENDBLK\n  5\nA05\n330\nA02\n100\nAcDbEntity\n  8\n0\n100\nAcDbBlockEnd\n  0\nBLOCK\n  5\nA06\n330\nA03\n100\nAcDbEntity\n 67\n1\n  8\n0\n100\nAcDbBlockBegin\n  2\n*PAPER_SPACE\n 70\n   0\n 10\n0\n 20\n0\n 30\n0\n  3\n*PAPER_SPACE\n  1\n \n  0\nENDBLK\n  5\nA07\n330\nA03\n100\nAcDbEntity\n 67\n    1\n  8\n0\n100\nAcDbBlockEnd\n  0\nENDSEC\n  0\nSECTION\n  2\nENTITIES\n  0\nLINE\n  5\nA08\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbLine\n 10\n190.000000000\n 20\n136.500000000\n 30\n0.000000000\n 11\n190.000000000\n 21\n163.500000000\n 31\n0.000000000\n  0\nARC\n  5\nA09\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbCircle\n 10\n193.000000000\n 20\n136.500000000\n 30\n0.000000000\n 40\n3.000000000\n100\nAcDbArc\n 50\n180.000000000\n 51\n-90.000000000\n  0\nLINE\n  5\nA0A\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbLine\n 10\n190.000000000\n 20\n163.500000000\n 30\n0.000000000\n 11\n230.000000000\n 21\n163.500000000\n 31\n0.000000000\n  0\nLINE\n  5\nA0B\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbLine\n 10\n193.000000000\n 20\n133.500000000\n 30\n0.000000000\n 11\n230.000000000\n 21\n133.500000000\n 31\n0.000000000\n  0\nLINE\n  5\nA0C\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbLine\n 10\n230.000000000\n 20\n133.500000000\n 30\n0.000000000\n 11\n230.000000000\n 21\n163.500000000\n 31\n0.000000000\n  0\nCIRCLE\n  5\nA0D\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbCircle\n 10\n220.000000000\n 20\n156.500000000\n 30\n0.000000000\n 40\n4.000000000\n  0\nTEXT\n  5\nA0E\n330\nA02\n100\nAcDbEntity\n  8\nAnnotation\n100\nAcDbText\n 10\n60.000000000\n 20\n40.000000000\n 30\n0.000000000\n 40\n5.000000000\n  1\nGENERAL TOLERANCE\n  7\nSTANDARD\n 72\n1\n 11\n60.000000000\n 21\n40.000000000\n 31\n0.000000000\n100\nAcDbText\n  0\nENDSEC\n  0\nSECTION\n  2\nOBJECTS\n  0\nDICTIONARY\n  5\nF000\n330\n0\n100\nAcDbDictionary\n  3\nACAD_GROUP\n350\nF001\n  0\nDICTIONARY\n  5\nF001\n330\nF000\n100\nAcDbDictionary\n  0\nENDSEC\n  0\nEOF"
+  },
+  "plate_cosmetic": {
+   "views": {
+    "View": {
+     "X": 148.5,
+     "Y": 105.0,
+     "Scale": 1.0,
+     "ScaleType": "Page",
+     "Direction": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "XDirection": [
+      1.0,
+      0.0,
+      0.0
+     ],
+     "Rotation": 0.0,
+     "nvis": 11,
+     "nhid": 0,
+     "edges": [
+      {
+       "curve": "Line",
+       "start": [
+        -20.0,
+        -12.0,
+        0.0
+       ],
+       "end": [
+        -20.0,
+        15.0,
+        0.0
+       ],
+       "length": 27.0
+      },
+      {
+       "curve": "Circle",
+       "start": [
+        -20.0,
+        -12.0,
+        0.0
+       ],
+       "end": [
+        -16.99999999999999,
+        -15.0,
+        0.0
+       ],
+       "length": 4.7123889803847,
+       "radius": 3.0,
+       "center": [
+        -17.0,
+        -12.0,
+        0.0
+       ]
+      },
+      {
+       "curve": "Line",
+       "start": [
+        -20.0,
+        15.0,
+        0.0
+       ],
+       "end": [
+        20.0,
+        15.0,
+        0.0
+       ],
+       "length": 40.0
+      },
+      {
+       "curve": "Line",
+       "start": [
+        -17.0,
+        -15.0,
+        0.0
+       ],
+       "end": [
+        20.0,
+        -15.0,
+        0.0
+       ],
+       "length": 37.0
+      },
+      {
+       "curve": "Line",
+       "start": [
+        20.0,
+        -15.0,
+        0.0
+       ],
+       "end": [
+        20.0,
+        15.0,
+        0.0
+       ],
+       "length": 30.0
+      },
+      {
+       "curve": "Circle",
+       "start": [
+        14.0,
+        8.0,
+        0.0
+       ],
+       "end": [
+        14.0,
+        8.0,
+        0.0
+       ],
+       "length": 25.13274122871836,
+       "radius": 4.0,
+       "center": [
+        10.0,
+        8.0,
+        0.0
+       ]
+      },
+      {
+       "curve": "Line",
+       "start": [
+        -5.0,
+        -4.0,
+        0.0
+       ],
+       "end": [
+        12.0,
+        9.0,
+        0.0
+       ],
+       "length": 21.400934559032695
+      },
+      {
+       "curve": "Circle",
+       "start": [
+        5.5,
+        4.0,
+        0.0
+       ],
+       "end": [
+        5.5,
+        4.0,
+        0.0
+       ],
+       "length": 15.707963267948966,
+       "radius": 2.5,
+       "center": [
+        3.0,
+        4.0,
+        0.0
+       ]
+      },
+      {
+       "curve": "Circle",
+       "start": [
+        3.954423259036624,
+        2.520944533000791,
+        0.0
+       ],
+       "end": [
+        0.4790554669992091,
+        4.9544232590366235,
+        0.0
+       ],
+       "length": 4.71238898038469,
+       "radius": 3.0,
+       "center": [
+        1.0,
+        2.0,
+        0.0
+       ]
+      },
+      {
+       "curve": "Line",
+       "start": [
+        -20.0,
+        15.0,
+        0.0
+       ],
+       "end": [
+        20.0,
+        15.0,
+        0.0
+       ],
+       "length": 40.0
+      },
+      {
+       "curve": "Circle",
+       "start": [
+        18.0,
+        8.0,
+        0.0
+       ],
+       "end": [
+        18.0,
+        8.0,
+        0.0
+       ],
+       "length": 25.132741228718345,
+       "radius": 4.0,
+       "center": [
+        14.0,
+        8.0,
+        0.0
+       ]
+      }
+     ],
+     "vertices": [
+      [
+       -20.0,
+       -12.0,
+       0.0
+      ],
+      [
+       -20.0,
+       15.0,
+       0.0
+      ],
+      [
+       -16.99999999999999,
+       -15.0,
+       0.0
+      ],
+      [
+       -17.0,
+       -12.0,
+       0.0
+      ],
+      [
+       20.0,
+       15.0,
+       0.0
+      ],
+      [
+       20.0,
+       -15.0,
+       0.0
+      ],
+      [
+       14.0,
+       8.0,
+       0.0
+      ],
+      [
+       14.0,
+       8.0,
+       0.0
+      ],
+      [
+       10.0,
+       8.0,
+       0.0
+      ],
+      [
+       5.0,
+       6.0,
+       0.0
+      ],
+      [
+       0.0,
+       15.0,
+       0.0
+      ],
+      [
+       9.999999999999996,
+       12.0,
+       0.0
+      ],
+      [
+       6.0,
+       7.999999999999994,
+       0.0
+      ],
+      [
+       10.00000000000001,
+       4.0,
+       0.0
+      ],
+      [
+       -19.771638597533858,
+       -13.14805029709527,
+       0.0
+      ],
+      [
+       -19.12132034355964,
+       -14.121320343559645,
+       0.0
+      ],
+      [
+       -18.14805029709526,
+       -14.771638597533864,
+       0.0
+      ]
+     ],
+     "cosmetic": {
+      "vertexes": [
+       [
+        5.0,
+        6.0,
+        0.0
+       ],
+       [
+        0.0,
+        15.0,
+        0.0
+       ],
+       [
+        9.999999999999996,
+        12.0,
+        0.0
+       ],
+       [
+        6.0,
+        7.999999999999994,
+        0.0
+       ],
+       [
+        10.00000000000001,
+        4.0,
+        0.0
+       ],
+       [
+        -19.771638597533858,
+        -13.14805029709527,
+        0.0
+       ],
+       [
+        -19.12132034355964,
+        -14.121320343559645,
+        0.0
+       ],
+       [
+        -18.14805029709526,
+        -14.771638597533864,
+        0.0
+       ]
+      ],
+      "edges": [
+       {
+        "style": 2,
+        "weight": 0.5,
+        "color": [
+         0.0,
+         0.0,
+         0.0,
+         1.0
+        ],
+        "visible": true
+       },
+       {
+        "style": 2,
+        "weight": 0.5,
+        "color": [
+         0.0,
+         0.0,
+         0.0,
+         1.0
+        ],
+        "visible": true
+       },
+       {
+        "style": 2,
+        "weight": 0.5,
+        "color": [
+         0.0,
+         0.0,
+         0.0,
+         1.0
+        ],
+        "visible": true
+       },
+       {
+        "style": 2,
+        "weight": 0.5,
+        "color": [
+         0.0,
+         0.0,
+         0.0,
+         1.0
+        ],
+        "visible": true
+       },
+       {
+        "style": 2,
+        "weight": 0.5,
+        "color": [
+         0.0,
+         0.0,
+         0.0,
+         1.0
+        ],
+        "visible": true
+       }
+      ],
+      "centerlines": []
+     }
+    }
+   },
+   "dims": {},
+   "page": {
+    "Scale": 1.0,
+    "ProjectionType": "First angle",
+    "Views": [
+     "View"
+    ]
+   },
+   "template": {
+    "Width": 297.0,
+    "Height": 210.0,
+    "Orientation": "Landscape",
+    "EditableTexts": {}
+   },
+   "dxf": "999\nFreeCAD v26.3 20260929 (Git shallow)\n  0\nSECTION\n  2\nHEADER\n  9\n$ACADVER\n  1\nAC1014\n  9\n$ACADMAINTVER\n 70\n     9\n  9\n$DWGCODEPAGE\n  3\nANSI_1252\n  9\n$TEXTSTYLE\n  7\nSTANDARD\n  9\n$DIMSTYLE\n  2\nSTANDARD\n  9\n$DIMTXSTY\n  7\nSTANDARD\n  9\n$LUNITS\n 70\n2\n  9\n$INSUNITS\n 70\n4\n  9\n$PEXTMAX\n 10\n50\n 20\n50\n 30\n50\n  9\n$PEXTMIN\n 10\n0\n 20\n0\n 30\n0\n  9\n$HANDSEED\n  5\nFFFF\n  0\nENDSEC\n  0\nSECTION\n  2\nCLASSES\n  0\nCLASS\n  1\nACDBDICTIONARYWDFLT\n  2\nAcDbDictionaryWithDefault\n  3\nObjectDBX Classes\n 90\n        0\n280\n     0\n281\n     0\n  0\nCLASS\n  1\nXRECORD\n  2\nAcDbXrecord\n  3\nObjectDBX Classes\n 90\n        0\n280\n     0\n281\n     0\n  0\nCLASS\n  1\nLWPOLYLINE\n  2\nAcDbPolyline\n  3\nObjectDBX Classes\n 90\n        0\n280\n     0\n281\n     1\n  0\nENDSEC\n  0\nSECTION\n  2\nTABLES\n  0\nTABLE\n  2\nVPORT\n  5\n20\n330\n0\n100\nAcDbSymbolTable\n 70\n     1\n  0\nVPORT\n  5\n21\n330\n20\n100\nAcDbSymbolTableRecord\n100\nAcDbViewportTableRecord\n  2\n*ACTIVE\n 70\n     0\n  0\nENDTAB\n  0\nTABLE\n  2\nLTYPE\n  5\n22\n330\n0\n100\nAcDbSymbolTable\n 70\n     1\n  0\nLTYPE\n  5\n23\n330\n21\n100\nAcDbSymbolTableRecord\n100\nAcDbLinetypeTableRecord\n  2\nBYBLOCK\n 70\n     0\n  3\n\n 72\n    65\n 73\n     0\n 40\n0.0\n  0\nLTYPE\n  5\n24\n330\n21\n100\nAcDbSymbolTableRecord\n100\nAcDbLinetypeTableRecord\n  2\nBYLAYER\n 70\n     0\n  3\n\n 72\n    65\n 73\n     0\n 40\n0.0\n  0\nLTYPE\n  5\n25\n330\n21\n100\nAcDbSymbolTableRecord\n100\nAcDbLinetypeTableRecord\n  2\nCONTINUOUS\n 70\n     0\n  3\nSolid line\n 72\n    65\n 73\n     0\n 40\n0.0\n  0\nENDTAB\n  0\nTABLE\n  2\nLAYER\n  5\nA13\n330\n0\n100\nAcDbSymbolTable\n 70\n2\n  0\nLAYER\n  5\nA14\n330\nA13\n100\nAcDbSymbolTableRecord\n100\nAcDbLayerTableRecord\n  2\n0\n 70\n   0\n 62\n   7\n  6\nCONTINUOUS\n  0\nLAYER\n  5\nA15\n330\nA13\n100\nAcDbSymbolTableRecord\n100\nAcDbLayerTableRecord\n  2\nView\n 70\n    0\n 62\n    7\n  6\nCONTINUOUS\n  0\nENDTAB\n  0\nTABLE\n  2\nSTYLE\n  5\n70\n330\n0\n100\nAcDbSymbolTable\n 70\n     2\n  0\nSTYLE\n  5\n71\n330\n70\n100\nAcDbSymbolTableRecord\n100\nAcDbTextStyleTableRecord\n  2\nSTANDARD\n 70\n     0\n 40\n0.0\n 41\n1.0\n 50\n0.0\n 71\n     0\n 42\n2.5\n  3\narial.ttf\n  4\n\n  0\nSTYLE\n  5\n72\n330\n70\n100\nAcDbSymbolTableRecord\n100\nAcDbTextStyleTableRecord\n  2\nANNOTATIVE\n 70\n     0\n 40\n0.0\n 41\n1.0\n 50\n0.0\n 71\n     0\n 42\n2.5\n  3\narial.ttf\n  4\n\n  0\nENDTAB\n  0\nTABLE\n  2\nVIEW\n  5\n73\n330\n0\n100\nAcDbSymbolTable\n 70\n     0\n  0\nENDTAB\n  0\nTABLE\n  2\nUCS\n  5\n74\n330\n0\n100\nAcDbSymbolTable\n 70\n     0\n  0\nENDTAB\n  0\nTABLE\n  2\nAPPID\n  5\n75\n330\n0\n100\nAcDbSymbolTable\n 70\n     2\n  0\nAPPID\n  5\n76\n330\n75\n100\nAcDbSymbolTableRecord\n100\nAcDbRegAppTableRecord\n  2\nACAD\n 70\n     0\n  0\nAPPID\n  5\n77\n330\n75\n100\nAcDbSymbolTableRecord\n100\nAcDbRegAppTableRecord\n  2\nACADANNOTATIVE\n 70\n     0\n  0\nENDTAB\n  0\nTABLE\n  2\nDIMSTYLE\n  5\n78\n330\n0\n100\nAcDbSymbolTable\n 70\n     2\n  0\nDIMSTYLE\n105\n79\n330\n78\n100\nAcDbSymbolTableRecord\n100\nAcDbDimStyleTableRecord\n  2\nSTANDARD\n 70\n     0\n  3\n\n  4\n\n  5\n\n  6\n\n  7\n\n 40\n0.0\n 41\n2.5\n 42\n0.625\n 43\n3.75\n 44\n1.25\n 45\n0.0\n 46\n0.0\n 47\n0.0\n 48\n0.0\n140\n2.5\n141\n2.5\n142\n0.0\n143\n0.03937007874016\n144\n1.0\n145\n0.0\n146\n1.0\n147\n0.625\n 71\n     0\n 72\n     0\n 73\n     0\n 74\n     0\n 75\n     0\n 76\n     0\n 77\n     1\n 78\n     8\n170\n     0\n171\n     3\n172\n     1\n173\n     0\n174\n     0\n175\n     0\n176\n     0\n177\n     0\n178\n     0\n270\n     2\n271\n     2\n272\n     2\n273\n     2\n274\n     3\n340\n71\n275\n     0\n280\n     0\n281\n     0\n282\n     0\n283\n     0\n284\n     8\n285\n     0\n286\n     0\n287\n     3\n288\n     0\n  0\nENDTAB\n  0\nTABLE\n  2\nBLOCK_RECORD\n  5\nA01\n330\n0\n100\nAcDbSymbolTable\n  70\n5\n  0\nBLOCK_RECORD\n  5\nA02\n330\nA01\n100\nAcDbSymbolTableRecord\n100\nAcDbBlockTableRecord\n  2\n*MODEL_SPACE\n  0\nBLOCK_RECORD\n  5\nA03\n330\nA01\n100\nAcDbSymbolTableRecord\n100\nAcDbBlockTableRecord\n  2\n*PAPER_SPACE\n  0\nENDTAB\n  0\nENDSEC\n  0\nSECTION\n  2\nBLOCKS\n  0\nBLOCK\n  5\nA04\n330\nA02\n100\nAcDbEntity\n  8\n0\n100\nAcDbBlockBegin\n  2\n*MODEL_SPACE\n 70\n   0\n 10\n0\n 20\n0\n 30\n0\n  3\n*MODEL_SPACE\n  1\n \n  0\nENDBLK\n  5\nA05\n330\nA02\n100\nAcDbEntity\n  8\n0\n100\nAcDbBlockEnd\n  0\nBLOCK\n  5\nA06\n330\nA03\n100\nAcDbEntity\n 67\n1\n  8\n0\n100\nAcDbBlockBegin\n  2\n*PAPER_SPACE\n 70\n   0\n 10\n0\n 20\n0\n 30\n0\n  3\n*PAPER_SPACE\n  1\n \n  0\nENDBLK\n  5\nA07\n330\nA03\n100\nAcDbEntity\n 67\n    1\n  8\n0\n100\nAcDbBlockEnd\n  0\nENDSEC\n  0\nSECTION\n  2\nENTITIES\n  0\nLINE\n  5\nA08\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbLine\n 10\n128.500000000\n 20\n93.000000000\n 30\n0.000000000\n 11\n128.500000000\n 21\n120.000000000\n 31\n0.000000000\n  0\nARC\n  5\nA09\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbCircle\n 10\n131.500000000\n 20\n93.000000000\n 30\n0.000000000\n 40\n3.000000000\n100\nAcDbArc\n 50\n180.000000000\n 51\n-90.000000000\n  0\nLINE\n  5\nA0A\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbLine\n 10\n128.500000000\n 20\n120.000000000\n 30\n0.000000000\n 11\n168.500000000\n 21\n120.000000000\n 31\n0.000000000\n  0\nLINE\n  5\nA0B\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbLine\n 10\n131.500000000\n 20\n90.000000000\n 30\n0.000000000\n 11\n168.500000000\n 21\n90.000000000\n 31\n0.000000000\n  0\nLINE\n  5\nA0C\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbLine\n 10\n168.500000000\n 20\n90.000000000\n 30\n0.000000000\n 11\n168.500000000\n 21\n120.000000000\n 31\n0.000000000\n  0\nCIRCLE\n  5\nA0D\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbCircle\n 10\n158.500000000\n 20\n113.000000000\n 30\n0.000000000\n 40\n4.000000000\n  0\nLINE\n  5\nA0E\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbLine\n 10\n143.500000000\n 20\n101.000000000\n 30\n0.000000000\n 11\n160.500000000\n 21\n114.000000000\n 31\n0.000000000\n  0\nCIRCLE\n  5\nA0F\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbCircle\n 10\n151.500000000\n 20\n109.000000000\n 30\n0.000000000\n 40\n2.500000000\n  0\nARC\n  5\nA10\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbCircle\n 10\n149.500000000\n 20\n107.000000000\n 30\n0.000000000\n 40\n3.000000000\n100\nAcDbArc\n 50\n10.000000000\n 51\n100.000000000\n  0\nLINE\n  5\nA11\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbLine\n 10\n128.500000000\n 20\n120.000000000\n 30\n0.000000000\n 11\n168.500000000\n 21\n120.000000000\n 31\n0.000000000\n  0\nCIRCLE\n  5\nA12\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbCircle\n 10\n162.500000000\n 20\n113.000000000\n 30\n0.000000000\n 40\n4.000000000\n  0\nENDSEC\n  0\nSECTION\n  2\nOBJECTS\n  0\nDICTIONARY\n  5\nF000\n330\n0\n100\nAcDbDictionary\n  3\nACAD_GROUP\n350\nF001\n  0\nDICTIONARY\n  5\nF001\n330\nF000\n100\nAcDbDictionary\n  0\nENDSEC\n  0\nEOF"
+  },
+  "plate_cosmetic_rotated": {
+   "views": {
+    "View": {
+     "X": 148.5,
+     "Y": 105.0,
+     "Scale": 2.0,
+     "ScaleType": "Custom",
+     "Direction": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "XDirection": [
+      1.0,
+      0.0,
+      0.0
+     ],
+     "Rotation": 30.0,
+     "nvis": 11,
+     "nhid": 0,
+     "edges": [
+      {
+       "curve": "Line",
+       "start": [
+        -11.320508075688775,
+        -20.392304845413264,
+        0.0
+       ],
+       "end": [
+        -24.82050807568877,
+        2.99038105676658,
+        0.0
+       ],
+       "length": 27.0
+      },
+      {
+       "curve": "Circle",
+       "start": [
+        -11.320508075688775,
+        -20.392304845413264,
+        0.0
+       ],
+       "end": [
+        -7.22243186433545,
+        -21.490381056766577,
+        0.0
+       ],
+       "length": 4.7123889803847,
+       "radius": 3.0,
+       "center": [
+        -8.722431864335459,
+        -18.892304845413264,
+        0.0
+       ]
+      },
+      {
+       "curve": "Line",
+       "start": [
+        -24.82050807568877,
+        2.99038105676658,
+        0.0
+       ],
+       "end": [
+        9.820508075688778,
+        22.990381056766577,
+        0.0
+       ],
+       "length": 40.0
+      },
+      {
+       "curve": "Line",
+       "start": [
+        -7.222431864335459,
+        -21.49038105676658,
+        0.0
+       ],
+       "end": [
+        24.820508075688775,
+        -2.9903810567665836,
+        0.0
+       ],
+       "length": 37.0
+      },
+      {
+       "curve": "Line",
+       "start": [
+        24.82050807568877,
+        -2.990381056766582,
+        0.0
+       ],
+       "end": [
+        9.820508075688773,
+        22.99038105676658,
+        0.0
+       ],
+       "length": 30.0
+      },
+      {
+       "curve": "Circle",
+       "start": [
+        8.124355652982143,
+        13.928203230275509,
+        0.0
+       ],
+       "end": [
+        8.124355652982143,
+        13.928203230275509,
+        0.0
+       ],
+       "length": 25.13274122871836,
+       "radius": 4.0,
+       "center": [
+        4.660254037844387,
+        11.928203230275509,
+        0.0
+       ]
+      },
+      {
+       "curve": "Line",
+       "start": [
+        -2.3301270189221936,
+        -5.964101615137754,
+        0.0
+       ],
+       "end": [
+        5.892304845413265,
+        13.794228634059948,
+        0.0
+       ],
+       "length": 21.400934559032695
+      },
+      {
+       "curve": "Circle",
+       "start": [
+        2.7631397208144133,
+        6.214101615137754,
+        0.0
+       ],
+       "end": [
+        2.7631397208144133,
+        6.214101615137754,
+        0.0
+       ],
+       "length": 15.707963267948966,
+       "radius": 2.5,
+       "center": [
+        0.5980762113533171,
+        4.964101615137755,
+        0.0
+       ]
+      },
+      {
+       "curve": "Circle",
+       "start": [
+        2.164158733141373,
+        4.160413636628495,
+        0.0
+       ],
+       "end": [
+        -2.0623374252751785,
+        4.530184136925811,
+        0.0
+       ],
+       "length": 4.71238898038469,
+       "radius": 3.0,
+       "center": [
+        -0.1339745962155613,
+        2.2320508075688776,
+        0.0
+       ]
+      },
+      {
+       "curve": "Line",
+       "start": [
+        -24.82050807568877,
+        2.99038105676658,
+        0.0
+       ],
+       "end": [
+        9.820508075688778,
+        22.990381056766577,
+        0.0
+       ],
+       "length": 40.0
+      },
+      {
+       "curve": "Circle",
+       "start": [
+        11.588457268119896,
+        15.928203230275507,
+        0.0
+       ],
+       "end": [
+        11.588457268119896,
+        15.928203230275507,
+        0.0
+       ],
+       "length": 25.132741228718345,
+       "radius": 4.0,
+       "center": [
+        8.124355652982144,
+        13.92820323027551,
+        0.0
+       ]
+      }
+     ],
+     "vertices": [
+      [
+       -11.320508075688775,
+       -20.392304845413264,
+       0.0
+      ],
+      [
+       -24.82050807568877,
+       2.99038105676658,
+       0.0
+      ],
+      [
+       -7.22243186433545,
+       -21.490381056766577,
+       0.0
+      ],
+      [
+       -8.722431864335459,
+       -18.892304845413264,
+       0.0
+      ],
+      [
+       9.820508075688778,
+       22.990381056766577,
+       0.0
+      ],
+      [
+       24.820508075688775,
+       -2.9903810567665836,
+       0.0
+      ],
+      [
+       8.124355652982143,
+       13.928203230275509,
+       0.0
+      ],
+      [
+       8.124355652982143,
+       13.928203230275509,
+       0.0
+      ],
+      [
+       4.660254037844387,
+       11.928203230275509,
+       0.0
+      ],
+      [
+       1.330127018922194,
+       7.696152422706632,
+       0.0
+      ],
+      [
+       -7.499999999999997,
+       12.990381056766578,
+       0.0
+      ],
+      [
+       2.6602540378443846,
+       15.39230484541326,
+       0.0
+      ],
+      [
+       1.1961524227066351,
+       9.928203230275505,
+       0.0
+      ],
+      [
+       6.660254037844396,
+       8.464101615137759,
+       0.0
+      ],
+      [
+       -10.548716151361617,
+       -21.27236486628697,
+       0.0
+      ],
+      [
+       -9.498888999643015,
+       -21.79008232428047,
+       0.0
+      ],
+      [
+       -8.330853287675296,
+       -21.866639429534693,
+       0.0
+      ]
+     ],
+     "cosmetic": {
+      "vertexes": [
+       [
+        5.0,
+        6.0,
+        0.0
+       ],
+       [
+        8.881784197001252e-16,
+        14.999999999999998,
+        0.0
+       ],
+       [
+        9.999999999999996,
+        12.0,
+        0.0
+       ],
+       [
+        6.0,
+        7.999999999999995,
+        0.0
+       ],
+       [
+        10.00000000000001,
+        3.9999999999999996,
+        0.0
+       ],
+       [
+        -19.77163859753386,
+        -13.148050297095274,
+        0.0
+       ],
+       [
+        -19.12132034355964,
+        -14.121320343559645,
+        0.0
+       ],
+       [
+        -18.14805029709526,
+        -14.771638597533862,
+        0.0
+       ]
+      ],
+      "edges": [
+       {
+        "style": 2,
+        "weight": 0.5,
+        "color": [
+         0.0,
+         0.0,
+         0.0,
+         1.0
+        ],
+        "visible": true
+       },
+       {
+        "style": 2,
+        "weight": 0.5,
+        "color": [
+         0.0,
+         0.0,
+         0.0,
+         1.0
+        ],
+        "visible": true
+       },
+       {
+        "style": 2,
+        "weight": 0.5,
+        "color": [
+         0.0,
+         0.0,
+         0.0,
+         1.0
+        ],
+        "visible": true
+       },
+       {
+        "style": 2,
+        "weight": 0.5,
+        "color": [
+         0.0,
+         0.0,
+         0.0,
+         1.0
+        ],
+        "visible": true
+       },
+       {
+        "style": 2,
+        "weight": 0.5,
+        "color": [
+         0.0,
+         0.0,
+         0.0,
+         1.0
+        ],
+        "visible": true
+       }
+      ],
+      "centerlines": []
+     }
+    }
+   },
+   "dims": {},
+   "page": {
+    "Scale": 1.0,
+    "ProjectionType": "First angle",
+    "Views": [
+     "View"
+    ]
+   },
+   "template": {
+    "Width": 297.0,
+    "Height": 210.0,
+    "Orientation": "Landscape",
+    "EditableTexts": {}
+   },
+   "dxf": "999\nFreeCAD v26.3 20260929 (Git shallow)\n  0\nSECTION\n  2\nHEADER\n  9\n$ACADVER\n  1\nAC1014\n  9\n$ACADMAINTVER\n 70\n     9\n  9\n$DWGCODEPAGE\n  3\nANSI_1252\n  9\n$TEXTSTYLE\n  7\nSTANDARD\n  9\n$DIMSTYLE\n  2\nSTANDARD\n  9\n$DIMTXSTY\n  7\nSTANDARD\n  9\n$LUNITS\n 70\n2\n  9\n$INSUNITS\n 70\n4\n  9\n$PEXTMAX\n 10\n50\n 20\n50\n 30\n50\n  9\n$PEXTMIN\n 10\n0\n 20\n0\n 30\n0\n  9\n$HANDSEED\n  5\nFFFF\n  0\nENDSEC\n  0\nSECTION\n  2\nCLASSES\n  0\nCLASS\n  1\nACDBDICTIONARYWDFLT\n  2\nAcDbDictionaryWithDefault\n  3\nObjectDBX Classes\n 90\n        0\n280\n     0\n281\n     0\n  0\nCLASS\n  1\nXRECORD\n  2\nAcDbXrecord\n  3\nObjectDBX Classes\n 90\n        0\n280\n     0\n281\n     0\n  0\nCLASS\n  1\nLWPOLYLINE\n  2\nAcDbPolyline\n  3\nObjectDBX Classes\n 90\n        0\n280\n     0\n281\n     1\n  0\nENDSEC\n  0\nSECTION\n  2\nTABLES\n  0\nTABLE\n  2\nVPORT\n  5\n20\n330\n0\n100\nAcDbSymbolTable\n 70\n     1\n  0\nVPORT\n  5\n21\n330\n20\n100\nAcDbSymbolTableRecord\n100\nAcDbViewportTableRecord\n  2\n*ACTIVE\n 70\n     0\n  0\nENDTAB\n  0\nTABLE\n  2\nLTYPE\n  5\n22\n330\n0\n100\nAcDbSymbolTable\n 70\n     1\n  0\nLTYPE\n  5\n23\n330\n21\n100\nAcDbSymbolTableRecord\n100\nAcDbLinetypeTableRecord\n  2\nBYBLOCK\n 70\n     0\n  3\n\n 72\n    65\n 73\n     0\n 40\n0.0\n  0\nLTYPE\n  5\n24\n330\n21\n100\nAcDbSymbolTableRecord\n100\nAcDbLinetypeTableRecord\n  2\nBYLAYER\n 70\n     0\n  3\n\n 72\n    65\n 73\n     0\n 40\n0.0\n  0\nLTYPE\n  5\n25\n330\n21\n100\nAcDbSymbolTableRecord\n100\nAcDbLinetypeTableRecord\n  2\nCONTINUOUS\n 70\n     0\n  3\nSolid line\n 72\n    65\n 73\n     0\n 40\n0.0\n  0\nENDTAB\n  0\nTABLE\n  2\nLAYER\n  5\nA13\n330\n0\n100\nAcDbSymbolTable\n 70\n2\n  0\nLAYER\n  5\nA14\n330\nA13\n100\nAcDbSymbolTableRecord\n100\nAcDbLayerTableRecord\n  2\n0\n 70\n   0\n 62\n   7\n  6\nCONTINUOUS\n  0\nLAYER\n  5\nA15\n330\nA13\n100\nAcDbSymbolTableRecord\n100\nAcDbLayerTableRecord\n  2\nView\n 70\n    0\n 62\n    7\n  6\nCONTINUOUS\n  0\nENDTAB\n  0\nTABLE\n  2\nSTYLE\n  5\n70\n330\n0\n100\nAcDbSymbolTable\n 70\n     2\n  0\nSTYLE\n  5\n71\n330\n70\n100\nAcDbSymbolTableRecord\n100\nAcDbTextStyleTableRecord\n  2\nSTANDARD\n 70\n     0\n 40\n0.0\n 41\n1.0\n 50\n0.0\n 71\n     0\n 42\n2.5\n  3\narial.ttf\n  4\n\n  0\nSTYLE\n  5\n72\n330\n70\n100\nAcDbSymbolTableRecord\n100\nAcDbTextStyleTableRecord\n  2\nANNOTATIVE\n 70\n     0\n 40\n0.0\n 41\n1.0\n 50\n0.0\n 71\n     0\n 42\n2.5\n  3\narial.ttf\n  4\n\n  0\nENDTAB\n  0\nTABLE\n  2\nVIEW\n  5\n73\n330\n0\n100\nAcDbSymbolTable\n 70\n     0\n  0\nENDTAB\n  0\nTABLE\n  2\nUCS\n  5\n74\n330\n0\n100\nAcDbSymbolTable\n 70\n     0\n  0\nENDTAB\n  0\nTABLE\n  2\nAPPID\n  5\n75\n330\n0\n100\nAcDbSymbolTable\n 70\n     2\n  0\nAPPID\n  5\n76\n330\n75\n100\nAcDbSymbolTableRecord\n100\nAcDbRegAppTableRecord\n  2\nACAD\n 70\n     0\n  0\nAPPID\n  5\n77\n330\n75\n100\nAcDbSymbolTableRecord\n100\nAcDbRegAppTableRecord\n  2\nACADANNOTATIVE\n 70\n     0\n  0\nENDTAB\n  0\nTABLE\n  2\nDIMSTYLE\n  5\n78\n330\n0\n100\nAcDbSymbolTable\n 70\n     2\n  0\nDIMSTYLE\n105\n79\n330\n78\n100\nAcDbSymbolTableRecord\n100\nAcDbDimStyleTableRecord\n  2\nSTANDARD\n 70\n     0\n  3\n\n  4\n\n  5\n\n  6\n\n  7\n\n 40\n0.0\n 41\n2.5\n 42\n0.625\n 43\n3.75\n 44\n1.25\n 45\n0.0\n 46\n0.0\n 47\n0.0\n 48\n0.0\n140\n2.5\n141\n2.5\n142\n0.0\n143\n0.03937007874016\n144\n1.0\n145\n0.0\n146\n1.0\n147\n0.625\n 71\n     0\n 72\n     0\n 73\n     0\n 74\n     0\n 75\n     0\n 76\n     0\n 77\n     1\n 78\n     8\n170\n     0\n171\n     3\n172\n     1\n173\n     0\n174\n     0\n175\n     0\n176\n     0\n177\n     0\n178\n     0\n270\n     2\n271\n     2\n272\n     2\n273\n     2\n274\n     3\n340\n71\n275\n     0\n280\n     0\n281\n     0\n282\n     0\n283\n     0\n284\n     8\n285\n     0\n286\n     0\n287\n     3\n288\n     0\n  0\nENDTAB\n  0\nTABLE\n  2\nBLOCK_RECORD\n  5\nA01\n330\n0\n100\nAcDbSymbolTable\n  70\n5\n  0\nBLOCK_RECORD\n  5\nA02\n330\nA01\n100\nAcDbSymbolTableRecord\n100\nAcDbBlockTableRecord\n  2\n*MODEL_SPACE\n  0\nBLOCK_RECORD\n  5\nA03\n330\nA01\n100\nAcDbSymbolTableRecord\n100\nAcDbBlockTableRecord\n  2\n*PAPER_SPACE\n  0\nENDTAB\n  0\nENDSEC\n  0\nSECTION\n  2\nBLOCKS\n  0\nBLOCK\n  5\nA04\n330\nA02\n100\nAcDbEntity\n  8\n0\n100\nAcDbBlockBegin\n  2\n*MODEL_SPACE\n 70\n   0\n 10\n0\n 20\n0\n 30\n0\n  3\n*MODEL_SPACE\n  1\n \n  0\nENDBLK\n  5\nA05\n330\nA02\n100\nAcDbEntity\n  8\n0\n100\nAcDbBlockEnd\n  0\nBLOCK\n  5\nA06\n330\nA03\n100\nAcDbEntity\n 67\n1\n  8\n0\n100\nAcDbBlockBegin\n  2\n*PAPER_SPACE\n 70\n   0\n 10\n0\n 20\n0\n 30\n0\n  3\n*PAPER_SPACE\n  1\n \n  0\nENDBLK\n  5\nA07\n330\nA03\n100\nAcDbEntity\n 67\n    1\n  8\n0\n100\nAcDbBlockEnd\n  0\nENDSEC\n  0\nSECTION\n  2\nENTITIES\n  0\nLINE\n  5\nA08\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbLine\n 10\n125.858983849\n 20\n64.215390309\n 30\n0.000000000\n 11\n98.858983849\n 21\n110.980762114\n 31\n0.000000000\n  0\nARC\n  5\nA09\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbCircle\n 10\n131.055136271\n 20\n67.215390309\n 30\n0.000000000\n 40\n6.000000000\n100\nAcDbArc\n 50\n-150.000000000\n 51\n-60.000000000\n  0\nLINE\n  5\nA0A\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbLine\n 10\n98.858983849\n 20\n110.980762114\n 30\n0.000000000\n 11\n168.141016151\n 21\n150.980762114\n 31\n0.000000000\n  0\nLINE\n  5\nA0B\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbLine\n 10\n134.055136271\n 20\n62.019237886\n 30\n0.000000000\n 11\n198.141016151\n 21\n99.019237886\n 31\n0.000000000\n  0\nLINE\n  5\nA0C\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbLine\n 10\n198.141016151\n 20\n99.019237886\n 30\n0.000000000\n 11\n168.141016151\n 21\n150.980762114\n 31\n0.000000000\n  0\nCIRCLE\n  5\nA0D\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbCircle\n 10\n157.820508076\n 20\n128.856406461\n 30\n0.000000000\n 40\n8.000000000\n  0\nLINE\n  5\nA0E\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbLine\n 10\n143.839745962\n 20\n93.071796770\n 30\n0.000000000\n 11\n160.284609691\n 21\n132.588457268\n 31\n0.000000000\n  0\nCIRCLE\n  5\nA0F\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbCircle\n 10\n149.696152423\n 20\n114.928203230\n 30\n0.000000000\n 40\n5.000000000\n  0\nARC\n  5\nA10\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbCircle\n 10\n148.232050808\n 20\n109.464101615\n 30\n0.000000000\n 40\n6.000000000\n100\nAcDbArc\n 50\n40.000000000\n 51\n130.000000000\n  0\nLINE\n  5\nA11\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbLine\n 10\n98.858983849\n 20\n110.980762114\n 30\n0.000000000\n 11\n168.141016151\n 21\n150.980762114\n 31\n0.000000000\n  0\nCIRCLE\n  5\nA12\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbCircle\n 10\n164.748711306\n 20\n132.856406461\n 30\n0.000000000\n 40\n8.000000000\n  0\nENDSEC\n  0\nSECTION\n  2\nOBJECTS\n  0\nDICTIONARY\n  5\nF000\n330\n0\n100\nAcDbDictionary\n  3\nACAD_GROUP\n350\nF001\n  0\nDICTIONARY\n  5\nF001\n330\nF000\n100\nAcDbDictionary\n  0\nENDSEC\n  0\nEOF"
+  },
+  "plate_centerlines": {
+   "views": {
+    "View": {
+     "X": 148.5,
+     "Y": 105.0,
+     "Scale": 1.0,
+     "ScaleType": "Page",
+     "Direction": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "XDirection": [
+      1.0,
+      0.0,
+      0.0
+     ],
+     "Rotation": 0.0,
+     "nvis": 11,
+     "nhid": 0,
+     "edges": [
+      {
+       "curve": "Line",
+       "start": [
+        -20.0,
+        -12.0,
+        0.0
+       ],
+       "end": [
+        -20.0,
+        15.0,
+        0.0
+       ],
+       "length": 27.0
+      },
+      {
+       "curve": "Circle",
+       "start": [
+        -20.0,
+        -12.0,
+        0.0
+       ],
+       "end": [
+        -16.99999999999999,
+        -15.0,
+        0.0
+       ],
+       "length": 4.7123889803847,
+       "radius": 3.0,
+       "center": [
+        -17.0,
+        -12.0,
+        0.0
+       ]
+      },
+      {
+       "curve": "Line",
+       "start": [
+        -20.0,
+        15.0,
+        0.0
+       ],
+       "end": [
+        20.0,
+        15.0,
+        0.0
+       ],
+       "length": 40.0
+      },
+      {
+       "curve": "Line",
+       "start": [
+        -17.0,
+        -15.0,
+        0.0
+       ],
+       "end": [
+        20.0,
+        -15.0,
+        0.0
+       ],
+       "length": 37.0
+      },
+      {
+       "curve": "Line",
+       "start": [
+        20.0,
+        -15.0,
+        0.0
+       ],
+       "end": [
+        20.0,
+        15.0,
+        0.0
+       ],
+       "length": 30.0
+      },
+      {
+       "curve": "Circle",
+       "start": [
+        14.0,
+        8.0,
+        0.0
+       ],
+       "end": [
+        14.0,
+        8.0,
+        0.0
+       ],
+       "length": 25.13274122871836,
+       "radius": 4.0,
+       "center": [
+        10.0,
+        8.0,
+        0.0
+       ]
+      },
+      {
+       "curve": "Line",
+       "start": [
+        0.0,
+        -13.5,
+        0.0
+       ],
+       "end": [
+        0.0,
+        15.0,
+        0.0
+       ],
+       "length": 28.5
+      },
+      {
+       "curve": "Line",
+       "start": [
+        -20.5,
+        0.0,
+        0.0
+       ],
+       "end": [
+        22.0,
+        0.0,
+        0.0
+       ],
+       "length": 42.5
+      },
+      {
+       "curve": "Line",
+       "start": [
+        8.0,
+        -17.5,
+        0.0
+       ],
+       "end": [
+        -12.0,
+        9.5,
+        0.0
+       ],
+       "length": 33.60059523282288
+      },
+      {
+       "curve": "Line",
+       "start": [
+        18.216379556952838,
+        -14.324459416897335,
+        0.0
+       ],
+       "end": [
+        -18.216379556952838,
+        17.324459416897334,
+        0.0
+       ],
+       "length": 48.25971404805462
+      },
+      {
+       "curve": "Line",
+       "start": [
+        1.5000000000000053,
+        -15.0,
+        0.0
+       ],
+       "end": [
+        0.0,
+        1.5,
+        0.0
+       ],
+       "length": 16.56804152578089
+      }
+     ],
+     "vertices": [
+      [
+       -20.0,
+       -12.0,
+       0.0
+      ],
+      [
+       -20.0,
+       15.0,
+       0.0
+      ],
+      [
+       -16.99999999999999,
+       -15.0,
+       0.0
+      ],
+      [
+       -17.0,
+       -12.0,
+       0.0
+      ],
+      [
+       20.0,
+       15.0,
+       0.0
+      ],
+      [
+       20.0,
+       -15.0,
+       0.0
+      ],
+      [
+       14.0,
+       8.0,
+       0.0
+      ],
+      [
+       14.0,
+       8.0,
+       0.0
+      ],
+      [
+       10.0,
+       8.0,
+       0.0
+      ]
+     ],
+     "cosmetic": {
+      "vertexes": [],
+      "edges": [],
+      "centerlines": [
+       {
+        "Format": {
+         "style": 2,
+         "weight": 0.5,
+         "color": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+         ],
+         "visible": true
+        },
+        "Mode": 0,
+        "Type": 1,
+        "Edges": [
+         "Edge0",
+         "Edge4"
+        ],
+        "Faces": [],
+        "Points": [],
+        "HorizShift": 0.0,
+        "VertShift": 0.0,
+        "Rotation": 0.0,
+        "Extension": 0.0,
+        "Flip": false
+       },
+       {
+        "Format": {
+         "style": 2,
+         "weight": 0.5,
+         "color": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+         ],
+         "visible": true
+        },
+        "Mode": 1,
+        "Type": 1,
+        "Edges": [
+         "Edge2",
+         "Edge3"
+        ],
+        "Faces": [],
+        "Points": [],
+        "HorizShift": 0.0,
+        "VertShift": 0.0,
+        "Rotation": 0.0,
+        "Extension": 2.0,
+        "Flip": false
+       },
+       {
+        "Format": {
+         "style": 2,
+         "weight": 0.5,
+         "color": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+         ],
+         "visible": true
+        },
+        "Mode": 0,
+        "Type": 2,
+        "Edges": [],
+        "Faces": [],
+        "Points": [
+         "Vertex3",
+         "Vertex8"
+        ],
+        "HorizShift": 1.5,
+        "VertShift": -2.0,
+        "Rotation": 0.0,
+        "Extension": 0.0,
+        "Flip": false
+       },
+       {
+        "Format": {
+         "style": 2,
+         "weight": 0.5,
+         "color": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+         ],
+         "visible": true
+        },
+        "Mode": 2,
+        "Type": 2,
+        "Edges": [],
+        "Faces": [],
+        "Points": [
+         "Vertex0",
+         "Vertex4"
+        ],
+        "HorizShift": 0.0,
+        "VertShift": 0.0,
+        "Rotation": 15.0,
+        "Extension": 0.0,
+        "Flip": false
+       },
+       {
+        "Format": {
+         "style": 2,
+         "weight": 0.5,
+         "color": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+         ],
+         "visible": true
+        },
+        "Mode": 2,
+        "Type": 1,
+        "Edges": [
+         "Edge1",
+         "Edge4"
+        ],
+        "Faces": [],
+        "Points": [],
+        "HorizShift": 0.0,
+        "VertShift": 0.0,
+        "Rotation": 0.0,
+        "Extension": 0.0,
+        "Flip": false
+       }
+      ]
+     }
+    }
+   },
+   "dims": {},
+   "page": {
+    "Scale": 1.0,
+    "ProjectionType": "First angle",
+    "Views": [
+     "View"
+    ]
+   },
+   "template": {
+    "Width": 297.0,
+    "Height": 210.0,
+    "Orientation": "Landscape",
+    "EditableTexts": {}
+   },
+   "dxf": "999\nFreeCAD v26.3 20260929 (Git shallow)\n  0\nSECTION\n  2\nHEADER\n  9\n$ACADVER\n  1\nAC1014\n  9\n$ACADMAINTVER\n 70\n     9\n  9\n$DWGCODEPAGE\n  3\nANSI_1252\n  9\n$TEXTSTYLE\n  7\nSTANDARD\n  9\n$DIMSTYLE\n  2\nSTANDARD\n  9\n$DIMTXSTY\n  7\nSTANDARD\n  9\n$LUNITS\n 70\n2\n  9\n$INSUNITS\n 70\n4\n  9\n$PEXTMAX\n 10\n50\n 20\n50\n 30\n50\n  9\n$PEXTMIN\n 10\n0\n 20\n0\n 30\n0\n  9\n$HANDSEED\n  5\nFFFF\n  0\nENDSEC\n  0\nSECTION\n  2\nCLASSES\n  0\nCLASS\n  1\nACDBDICTIONARYWDFLT\n  2\nAcDbDictionaryWithDefault\n  3\nObjectDBX Classes\n 90\n        0\n280\n     0\n281\n     0\n  0\nCLASS\n  1\nXRECORD\n  2\nAcDbXrecord\n  3\nObjectDBX Classes\n 90\n        0\n280\n     0\n281\n     0\n  0\nCLASS\n  1\nLWPOLYLINE\n  2\nAcDbPolyline\n  3\nObjectDBX Classes\n 90\n        0\n280\n     0\n281\n     1\n  0\nENDSEC\n  0\nSECTION\n  2\nTABLES\n  0\nTABLE\n  2\nVPORT\n  5\n20\n330\n0\n100\nAcDbSymbolTable\n 70\n     1\n  0\nVPORT\n  5\n21\n330\n20\n100\nAcDbSymbolTableRecord\n100\nAcDbViewportTableRecord\n  2\n*ACTIVE\n 70\n     0\n  0\nENDTAB\n  0\nTABLE\n  2\nLTYPE\n  5\n22\n330\n0\n100\nAcDbSymbolTable\n 70\n     1\n  0\nLTYPE\n  5\n23\n330\n21\n100\nAcDbSymbolTableRecord\n100\nAcDbLinetypeTableRecord\n  2\nBYBLOCK\n 70\n     0\n  3\n\n 72\n    65\n 73\n     0\n 40\n0.0\n  0\nLTYPE\n  5\n24\n330\n21\n100\nAcDbSymbolTableRecord\n100\nAcDbLinetypeTableRecord\n  2\nBYLAYER\n 70\n     0\n  3\n\n 72\n    65\n 73\n     0\n 40\n0.0\n  0\nLTYPE\n  5\n25\n330\n21\n100\nAcDbSymbolTableRecord\n100\nAcDbLinetypeTableRecord\n  2\nCONTINUOUS\n 70\n     0\n  3\nSolid line\n 72\n    65\n 73\n     0\n 40\n0.0\n  0\nENDTAB\n  0\nTABLE\n  2\nLAYER\n  5\nA13\n330\n0\n100\nAcDbSymbolTable\n 70\n2\n  0\nLAYER\n  5\nA14\n330\nA13\n100\nAcDbSymbolTableRecord\n100\nAcDbLayerTableRecord\n  2\n0\n 70\n   0\n 62\n   7\n  6\nCONTINUOUS\n  0\nLAYER\n  5\nA15\n330\nA13\n100\nAcDbSymbolTableRecord\n100\nAcDbLayerTableRecord\n  2\nView\n 70\n    0\n 62\n    7\n  6\nCONTINUOUS\n  0\nENDTAB\n  0\nTABLE\n  2\nSTYLE\n  5\n70\n330\n0\n100\nAcDbSymbolTable\n 70\n     2\n  0\nSTYLE\n  5\n71\n330\n70\n100\nAcDbSymbolTableRecord\n100\nAcDbTextStyleTableRecord\n  2\nSTANDARD\n 70\n     0\n 40\n0.0\n 41\n1.0\n 50\n0.0\n 71\n     0\n 42\n2.5\n  3\narial.ttf\n  4\n\n  0\nSTYLE\n  5\n72\n330\n70\n100\nAcDbSymbolTableRecord\n100\nAcDbTextStyleTableRecord\n  2\nANNOTATIVE\n 70\n     0\n 40\n0.0\n 41\n1.0\n 50\n0.0\n 71\n     0\n 42\n2.5\n  3\narial.ttf\n  4\n\n  0\nENDTAB\n  0\nTABLE\n  2\nVIEW\n  5\n73\n330\n0\n100\nAcDbSymbolTable\n 70\n     0\n  0\nENDTAB\n  0\nTABLE\n  2\nUCS\n  5\n74\n330\n0\n100\nAcDbSymbolTable\n 70\n     0\n  0\nENDTAB\n  0\nTABLE\n  2\nAPPID\n  5\n75\n330\n0\n100\nAcDbSymbolTable\n 70\n     2\n  0\nAPPID\n  5\n76\n330\n75\n100\nAcDbSymbolTableRecord\n100\nAcDbRegAppTableRecord\n  2\nACAD\n 70\n     0\n  0\nAPPID\n  5\n77\n330\n75\n100\nAcDbSymbolTableRecord\n100\nAcDbRegAppTableRecord\n  2\nACADANNOTATIVE\n 70\n     0\n  0\nENDTAB\n  0\nTABLE\n  2\nDIMSTYLE\n  5\n78\n330\n0\n100\nAcDbSymbolTable\n 70\n     2\n  0\nDIMSTYLE\n105\n79\n330\n78\n100\nAcDbSymbolTableRecord\n100\nAcDbDimStyleTableRecord\n  2\nSTANDARD\n 70\n     0\n  3\n\n  4\n\n  5\n\n  6\n\n  7\n\n 40\n0.0\n 41\n2.5\n 42\n0.625\n 43\n3.75\n 44\n1.25\n 45\n0.0\n 46\n0.0\n 47\n0.0\n 48\n0.0\n140\n2.5\n141\n2.5\n142\n0.0\n143\n0.03937007874016\n144\n1.0\n145\n0.0\n146\n1.0\n147\n0.625\n 71\n     0\n 72\n     0\n 73\n     0\n 74\n     0\n 75\n     0\n 76\n     0\n 77\n     1\n 78\n     8\n170\n     0\n171\n     3\n172\n     1\n173\n     0\n174\n     0\n175\n     0\n176\n     0\n177\n     0\n178\n     0\n270\n     2\n271\n     2\n272\n     2\n273\n     2\n274\n     3\n340\n71\n275\n     0\n280\n     0\n281\n     0\n282\n     0\n283\n     0\n284\n     8\n285\n     0\n286\n     0\n287\n     3\n288\n     0\n  0\nENDTAB\n  0\nTABLE\n  2\nBLOCK_RECORD\n  5\nA01\n330\n0\n100\nAcDbSymbolTable\n  70\n5\n  0\nBLOCK_RECORD\n  5\nA02\n330\nA01\n100\nAcDbSymbolTableRecord\n100\nAcDbBlockTableRecord\n  2\n*MODEL_SPACE\n  0\nBLOCK_RECORD\n  5\nA03\n330\nA01\n100\nAcDbSymbolTableRecord\n100\nAcDbBlockTableRecord\n  2\n*PAPER_SPACE\n  0\nENDTAB\n  0\nENDSEC\n  0\nSECTION\n  2\nBLOCKS\n  0\nBLOCK\n  5\nA04\n330\nA02\n100\nAcDbEntity\n  8\n0\n100\nAcDbBlockBegin\n  2\n*MODEL_SPACE\n 70\n   0\n 10\n0\n 20\n0\n 30\n0\n  3\n*MODEL_SPACE\n  1\n \n  0\nENDBLK\n  5\nA05\n330\nA02\n100\nAcDbEntity\n  8\n0\n100\nAcDbBlockEnd\n  0\nBLOCK\n  5\nA06\n330\nA03\n100\nAcDbEntity\n 67\n1\n  8\n0\n100\nAcDbBlockBegin\n  2\n*PAPER_SPACE\n 70\n   0\n 10\n0\n 20\n0\n 30\n0\n  3\n*PAPER_SPACE\n  1\n \n  0\nENDBLK\n  5\nA07\n330\nA03\n100\nAcDbEntity\n 67\n    1\n  8\n0\n100\nAcDbBlockEnd\n  0\nENDSEC\n  0\nSECTION\n  2\nENTITIES\n  0\nLINE\n  5\nA08\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbLine\n 10\n128.500000000\n 20\n93.000000000\n 30\n0.000000000\n 11\n128.500000000\n 21\n120.000000000\n 31\n0.000000000\n  0\nARC\n  5\nA09\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbCircle\n 10\n131.500000000\n 20\n93.000000000\n 30\n0.000000000\n 40\n3.000000000\n100\nAcDbArc\n 50\n180.000000000\n 51\n-90.000000000\n  0\nLINE\n  5\nA0A\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbLine\n 10\n128.500000000\n 20\n120.000000000\n 30\n0.000000000\n 11\n168.500000000\n 21\n120.000000000\n 31\n0.000000000\n  0\nLINE\n  5\nA0B\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbLine\n 10\n131.500000000\n 20\n90.000000000\n 30\n0.000000000\n 11\n168.500000000\n 21\n90.000000000\n 31\n0.000000000\n  0\nLINE\n  5\nA0C\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbLine\n 10\n168.500000000\n 20\n90.000000000\n 30\n0.000000000\n 11\n168.500000000\n 21\n120.000000000\n 31\n0.000000000\n  0\nCIRCLE\n  5\nA0D\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbCircle\n 10\n158.500000000\n 20\n113.000000000\n 30\n0.000000000\n 40\n4.000000000\n  0\nLINE\n  5\nA0E\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbLine\n 10\n148.500000000\n 20\n91.500000000\n 30\n0.000000000\n 11\n148.500000000\n 21\n120.000000000\n 31\n0.000000000\n  0\nLINE\n  5\nA0F\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbLine\n 10\n128.000000000\n 20\n105.000000000\n 30\n0.000000000\n 11\n170.500000000\n 21\n105.000000000\n 31\n0.000000000\n  0\nLINE\n  5\nA10\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbLine\n 10\n156.500000000\n 20\n87.500000000\n 30\n0.000000000\n 11\n136.500000000\n 21\n114.500000000\n 31\n0.000000000\n  0\nLINE\n  5\nA11\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbLine\n 10\n166.716379557\n 20\n90.675540583\n 30\n0.000000000\n 11\n130.283620443\n 21\n122.324459417\n 31\n0.000000000\n  0\nLINE\n  5\nA12\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbLine\n 10\n150.000000000\n 20\n90.000000000\n 30\n0.000000000\n 11\n148.500000000\n 21\n106.500000000\n 31\n0.000000000\n  0\nENDSEC\n  0\nSECTION\n  2\nOBJECTS\n  0\nDICTIONARY\n  5\nF000\n330\n0\n100\nAcDbDictionary\n  3\nACAD_GROUP\n350\nF001\n  0\nDICTIONARY\n  5\nF001\n330\nF000\n100\nAcDbDictionary\n  0\nENDSEC\n  0\nEOF"
+  },
+  "plate_centerlines_rotated": {
+   "views": {
+    "View": {
+     "X": 148.5,
+     "Y": 105.0,
+     "Scale": 1.5,
+     "ScaleType": "Custom",
+     "Direction": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "XDirection": [
+      1.0,
+      0.0,
+      0.0
+     ],
+     "Rotation": 30.0,
+     "nvis": 11,
+     "nhid": 0,
+     "edges": [
+      {
+       "curve": "Line",
+       "start": [
+        -11.320508075688773,
+        -20.392304845413264,
+        0.0
+       ],
+       "end": [
+        -24.82050807568877,
+        2.99038105676658,
+        0.0
+       ],
+       "length": 27.0
+      },
+      {
+       "curve": "Circle",
+       "start": [
+        -11.320508075688775,
+        -20.392304845413264,
+        0.0
+       ],
+       "end": [
+        -7.22243186433545,
+        -21.490381056766573,
+        0.0
+       ],
+       "length": 4.7123889803847,
+       "radius": 3.0,
+       "center": [
+        -8.722431864335459,
+        -18.892304845413264,
+        0.0
+       ]
+      },
+      {
+       "curve": "Line",
+       "start": [
+        -24.82050807568877,
+        2.99038105676658,
+        0.0
+       ],
+       "end": [
+        9.820508075688773,
+        22.99038105676658,
+        0.0
+       ],
+       "length": 40.0
+      },
+      {
+       "curve": "Line",
+       "start": [
+        -7.222431864335459,
+        -21.49038105676658,
+        0.0
+       ],
+       "end": [
+        24.82050807568877,
+        -2.9903810567665823,
+        0.0
+       ],
+       "length": 37.0
+      },
+      {
+       "curve": "Line",
+       "start": [
+        24.82050807568877,
+        -2.9903810567665823,
+        0.0
+       ],
+       "end": [
+        9.820508075688775,
+        22.99038105676658,
+        0.0
+       ],
+       "length": 30.0
+      },
+      {
+       "curve": "Circle",
+       "start": [
+        8.12435565298214,
+        13.928203230275509,
+        0.0
+       ],
+       "end": [
+        8.12435565298214,
+        13.928203230275509,
+        0.0
+       ],
+       "length": 25.13274122871836,
+       "radius": 4.0,
+       "center": [
+        4.660254037844387,
+        11.928203230275509,
+        0.0
+       ]
+      },
+      {
+       "curve": "Line",
+       "start": [
+        6.75,
+        -11.691342951089922,
+        0.0
+       ],
+       "end": [
+        -7.499999999999998,
+        12.99038105676658,
+        0.0
+       ],
+       "length": 28.5
+      },
+      {
+       "curve": "Line",
+       "start": [
+        -17.17617050839137,
+        -9.916666666666666,
+        0.0
+       ],
+       "end": [
+        18.475208614068027,
+        10.666666666666666,
+        0.0
+       ],
+       "length": 41.16666666666667
+      },
+      {
+       "curve": "Line",
+       "start": [
+        14.87916512459885,
+        -12.173393758658799,
+        0.0
+       ],
+       "end": [
+        -15.941342951089922,
+        1.2092921435210457,
+        0.0
+       ],
+       "length": 33.60059523282288
+      },
+      {
+       "curve": "Line",
+       "start": [
+        22.93807716974934,
+        -3.2971559720359025,
+        0.0
+       ],
+       "end": [
+        -24.43807716974934,
+        5.8952321833892185,
+        0.0
+       ],
+       "length": 48.25971404805462
+      },
+      {
+       "curve": "Line",
+       "start": [
+        8.799038105676662,
+        -12.24038105676658,
+        0.0
+       ],
+       "end": [
+        -0.75,
+        1.299038105676658,
+        0.0
+       ],
+       "length": 16.56804152578089
+      }
+     ],
+     "vertices": [
+      [
+       -11.320508075688773,
+       -20.392304845413264,
+       0.0
+      ],
+      [
+       -24.820508075688775,
+       2.99038105676658,
+       0.0
+      ],
+      [
+       -7.222431864335451,
+       -21.490381056766577,
+       0.0
+      ],
+      [
+       -8.722431864335459,
+       -18.892304845413264,
+       0.0
+      ],
+      [
+       9.820508075688773,
+       22.99038105676658,
+       0.0
+      ],
+      [
+       24.820508075688775,
+       -2.9903810567665823,
+       0.0
+      ],
+      [
+       8.12435565298214,
+       13.928203230275509,
+       0.0
+      ],
+      [
+       8.12435565298214,
+       13.928203230275509,
+       0.0
+      ],
+      [
+       4.660254037844387,
+       11.928203230275509,
+       0.0
+      ]
+     ],
+     "cosmetic": {
+      "vertexes": [],
+      "edges": [],
+      "centerlines": [
+       {
+        "Format": {
+         "style": 2,
+         "weight": 0.5,
+         "color": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+         ],
+         "visible": true
+        },
+        "Mode": 0,
+        "Type": 1,
+        "Edges": [
+         "Edge0",
+         "Edge4"
+        ],
+        "Faces": [],
+        "Points": [],
+        "HorizShift": 0.0,
+        "VertShift": 0.0,
+        "Rotation": 0.0,
+        "Extension": 0.0,
+        "Flip": false
+       },
+       {
+        "Format": {
+         "style": 2,
+         "weight": 0.5,
+         "color": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+         ],
+         "visible": true
+        },
+        "Mode": 1,
+        "Type": 1,
+        "Edges": [
+         "Edge2",
+         "Edge3"
+        ],
+        "Faces": [],
+        "Points": [],
+        "HorizShift": 0.0,
+        "VertShift": 0.0,
+        "Rotation": 0.0,
+        "Extension": 2.0,
+        "Flip": false
+       },
+       {
+        "Format": {
+         "style": 2,
+         "weight": 0.5,
+         "color": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+         ],
+         "visible": true
+        },
+        "Mode": 0,
+        "Type": 2,
+        "Edges": [],
+        "Faces": [],
+        "Points": [
+         "Vertex3",
+         "Vertex8"
+        ],
+        "HorizShift": 1.5,
+        "VertShift": -2.0,
+        "Rotation": 0.0,
+        "Extension": 0.0,
+        "Flip": false
+       },
+       {
+        "Format": {
+         "style": 2,
+         "weight": 0.5,
+         "color": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+         ],
+         "visible": true
+        },
+        "Mode": 2,
+        "Type": 2,
+        "Edges": [],
+        "Faces": [],
+        "Points": [
+         "Vertex0",
+         "Vertex4"
+        ],
+        "HorizShift": 0.0,
+        "VertShift": 0.0,
+        "Rotation": 15.0,
+        "Extension": 0.0,
+        "Flip": false
+       },
+       {
+        "Format": {
+         "style": 2,
+         "weight": 0.5,
+         "color": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+         ],
+         "visible": true
+        },
+        "Mode": 2,
+        "Type": 1,
+        "Edges": [
+         "Edge1",
+         "Edge4"
+        ],
+        "Faces": [],
+        "Points": [],
+        "HorizShift": 0.0,
+        "VertShift": 0.0,
+        "Rotation": 0.0,
+        "Extension": 0.0,
+        "Flip": false
+       }
+      ]
+     }
+    }
+   },
+   "dims": {},
+   "page": {
+    "Scale": 1.0,
+    "ProjectionType": "First angle",
+    "Views": [
+     "View"
+    ]
+   },
+   "template": {
+    "Width": 297.0,
+    "Height": 210.0,
+    "Orientation": "Landscape",
+    "EditableTexts": {}
+   },
+   "dxf": "999\nFreeCAD v26.3 20260929 (Git shallow)\n  0\nSECTION\n  2\nHEADER\n  9\n$ACADVER\n  1\nAC1014\n  9\n$ACADMAINTVER\n 70\n     9\n  9\n$DWGCODEPAGE\n  3\nANSI_1252\n  9\n$TEXTSTYLE\n  7\nSTANDARD\n  9\n$DIMSTYLE\n  2\nSTANDARD\n  9\n$DIMTXSTY\n  7\nSTANDARD\n  9\n$LUNITS\n 70\n2\n  9\n$INSUNITS\n 70\n4\n  9\n$PEXTMAX\n 10\n50\n 20\n50\n 30\n50\n  9\n$PEXTMIN\n 10\n0\n 20\n0\n 30\n0\n  9\n$HANDSEED\n  5\nFFFF\n  0\nENDSEC\n  0\nSECTION\n  2\nCLASSES\n  0\nCLASS\n  1\nACDBDICTIONARYWDFLT\n  2\nAcDbDictionaryWithDefault\n  3\nObjectDBX Classes\n 90\n        0\n280\n     0\n281\n     0\n  0\nCLASS\n  1\nXRECORD\n  2\nAcDbXrecord\n  3\nObjectDBX Classes\n 90\n        0\n280\n     0\n281\n     0\n  0\nCLASS\n  1\nLWPOLYLINE\n  2\nAcDbPolyline\n  3\nObjectDBX Classes\n 90\n        0\n280\n     0\n281\n     1\n  0\nENDSEC\n  0\nSECTION\n  2\nTABLES\n  0\nTABLE\n  2\nVPORT\n  5\n20\n330\n0\n100\nAcDbSymbolTable\n 70\n     1\n  0\nVPORT\n  5\n21\n330\n20\n100\nAcDbSymbolTableRecord\n100\nAcDbViewportTableRecord\n  2\n*ACTIVE\n 70\n     0\n  0\nENDTAB\n  0\nTABLE\n  2\nLTYPE\n  5\n22\n330\n0\n100\nAcDbSymbolTable\n 70\n     1\n  0\nLTYPE\n  5\n23\n330\n21\n100\nAcDbSymbolTableRecord\n100\nAcDbLinetypeTableRecord\n  2\nBYBLOCK\n 70\n     0\n  3\n\n 72\n    65\n 73\n     0\n 40\n0.0\n  0\nLTYPE\n  5\n24\n330\n21\n100\nAcDbSymbolTableRecord\n100\nAcDbLinetypeTableRecord\n  2\nBYLAYER\n 70\n     0\n  3\n\n 72\n    65\n 73\n     0\n 40\n0.0\n  0\nLTYPE\n  5\n25\n330\n21\n100\nAcDbSymbolTableRecord\n100\nAcDbLinetypeTableRecord\n  2\nCONTINUOUS\n 70\n     0\n  3\nSolid line\n 72\n    65\n 73\n     0\n 40\n0.0\n  0\nENDTAB\n  0\nTABLE\n  2\nLAYER\n  5\nA13\n330\n0\n100\nAcDbSymbolTable\n 70\n2\n  0\nLAYER\n  5\nA14\n330\nA13\n100\nAcDbSymbolTableRecord\n100\nAcDbLayerTableRecord\n  2\n0\n 70\n   0\n 62\n   7\n  6\nCONTINUOUS\n  0\nLAYER\n  5\nA15\n330\nA13\n100\nAcDbSymbolTableRecord\n100\nAcDbLayerTableRecord\n  2\nView\n 70\n    0\n 62\n    7\n  6\nCONTINUOUS\n  0\nENDTAB\n  0\nTABLE\n  2\nSTYLE\n  5\n70\n330\n0\n100\nAcDbSymbolTable\n 70\n     2\n  0\nSTYLE\n  5\n71\n330\n70\n100\nAcDbSymbolTableRecord\n100\nAcDbTextStyleTableRecord\n  2\nSTANDARD\n 70\n     0\n 40\n0.0\n 41\n1.0\n 50\n0.0\n 71\n     0\n 42\n2.5\n  3\narial.ttf\n  4\n\n  0\nSTYLE\n  5\n72\n330\n70\n100\nAcDbSymbolTableRecord\n100\nAcDbTextStyleTableRecord\n  2\nANNOTATIVE\n 70\n     0\n 40\n0.0\n 41\n1.0\n 50\n0.0\n 71\n     0\n 42\n2.5\n  3\narial.ttf\n  4\n\n  0\nENDTAB\n  0\nTABLE\n  2\nVIEW\n  5\n73\n330\n0\n100\nAcDbSymbolTable\n 70\n     0\n  0\nENDTAB\n  0\nTABLE\n  2\nUCS\n  5\n74\n330\n0\n100\nAcDbSymbolTable\n 70\n     0\n  0\nENDTAB\n  0\nTABLE\n  2\nAPPID\n  5\n75\n330\n0\n100\nAcDbSymbolTable\n 70\n     2\n  0\nAPPID\n  5\n76\n330\n75\n100\nAcDbSymbolTableRecord\n100\nAcDbRegAppTableRecord\n  2\nACAD\n 70\n     0\n  0\nAPPID\n  5\n77\n330\n75\n100\nAcDbSymbolTableRecord\n100\nAcDbRegAppTableRecord\n  2\nACADANNOTATIVE\n 70\n     0\n  0\nENDTAB\n  0\nTABLE\n  2\nDIMSTYLE\n  5\n78\n330\n0\n100\nAcDbSymbolTable\n 70\n     2\n  0\nDIMSTYLE\n105\n79\n330\n78\n100\nAcDbSymbolTableRecord\n100\nAcDbDimStyleTableRecord\n  2\nSTANDARD\n 70\n     0\n  3\n\n  4\n\n  5\n\n  6\n\n  7\n\n 40\n0.0\n 41\n2.5\n 42\n0.625\n 43\n3.75\n 44\n1.25\n 45\n0.0\n 46\n0.0\n 47\n0.0\n 48\n0.0\n140\n2.5\n141\n2.5\n142\n0.0\n143\n0.03937007874016\n144\n1.0\n145\n0.0\n146\n1.0\n147\n0.625\n 71\n     0\n 72\n     0\n 73\n     0\n 74\n     0\n 75\n     0\n 76\n     0\n 77\n     1\n 78\n     8\n170\n     0\n171\n     3\n172\n     1\n173\n     0\n174\n     0\n175\n     0\n176\n     0\n177\n     0\n178\n     0\n270\n     2\n271\n     2\n272\n     2\n273\n     2\n274\n     3\n340\n71\n275\n     0\n280\n     0\n281\n     0\n282\n     0\n283\n     0\n284\n     8\n285\n     0\n286\n     0\n287\n     3\n288\n     0\n  0\nENDTAB\n  0\nTABLE\n  2\nBLOCK_RECORD\n  5\nA01\n330\n0\n100\nAcDbSymbolTable\n  70\n5\n  0\nBLOCK_RECORD\n  5\nA02\n330\nA01\n100\nAcDbSymbolTableRecord\n100\nAcDbBlockTableRecord\n  2\n*MODEL_SPACE\n  0\nBLOCK_RECORD\n  5\nA03\n330\nA01\n100\nAcDbSymbolTableRecord\n100\nAcDbBlockTableRecord\n  2\n*PAPER_SPACE\n  0\nENDTAB\n  0\nENDSEC\n  0\nSECTION\n  2\nBLOCKS\n  0\nBLOCK\n  5\nA04\n330\nA02\n100\nAcDbEntity\n  8\n0\n100\nAcDbBlockBegin\n  2\n*MODEL_SPACE\n 70\n   0\n 10\n0\n 20\n0\n 30\n0\n  3\n*MODEL_SPACE\n  1\n \n  0\nENDBLK\n  5\nA05\n330\nA02\n100\nAcDbEntity\n  8\n0\n100\nAcDbBlockEnd\n  0\nBLOCK\n  5\nA06\n330\nA03\n100\nAcDbEntity\n 67\n1\n  8\n0\n100\nAcDbBlockBegin\n  2\n*PAPER_SPACE\n 70\n   0\n 10\n0\n 20\n0\n 30\n0\n  3\n*PAPER_SPACE\n  1\n \n  0\nENDBLK\n  5\nA07\n330\nA03\n100\nAcDbEntity\n 67\n    1\n  8\n0\n100\nAcDbBlockEnd\n  0\nENDSEC\n  0\nSECTION\n  2\nENTITIES\n  0\nLINE\n  5\nA08\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbLine\n 10\n131.519237886\n 20\n74.411542732\n 30\n0.000000000\n 11\n111.269237886\n 21\n109.485571585\n 31\n0.000000000\n  0\nARC\n  5\nA09\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbCircle\n 10\n135.416352203\n 20\n76.661542732\n 30\n0.000000000\n 40\n4.500000000\n100\nAcDbArc\n 50\n-150.000000000\n 51\n-60.000000000\n  0\nLINE\n  5\nA0A\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbLine\n 10\n111.269237886\n 20\n109.485571585\n 30\n0.000000000\n 11\n163.230762114\n 21\n139.485571585\n 31\n0.000000000\n  0\nLINE\n  5\nA0B\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbLine\n 10\n137.666352203\n 20\n72.764428415\n 30\n0.000000000\n 11\n185.730762114\n 21\n100.514428415\n 31\n0.000000000\n  0\nLINE\n  5\nA0C\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbLine\n 10\n185.730762114\n 20\n100.514428415\n 30\n0.000000000\n 11\n163.230762114\n 21\n139.485571585\n 31\n0.000000000\n  0\nCIRCLE\n  5\nA0D\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbCircle\n 10\n155.490381057\n 20\n122.892304845\n 30\n0.000000000\n 40\n6.000000000\n  0\nLINE\n  5\nA0E\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbLine\n 10\n158.625000000\n 20\n87.462985573\n 30\n0.000000000\n 11\n137.250000000\n 21\n124.485571585\n 31\n0.000000000\n  0\nLINE\n  5\nA0F\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbLine\n 10\n122.735744237\n 20\n90.125000000\n 30\n0.000000000\n 11\n176.212812921\n 21\n121.000000000\n 31\n0.000000000\n  0\nLINE\n  5\nA10\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbLine\n 10\n170.818747687\n 20\n86.739909362\n 30\n0.000000000\n 11\n124.587985573\n 21\n106.813938215\n 31\n0.000000000\n  0\nLINE\n  5\nA11\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbLine\n 10\n182.907115755\n 20\n100.054266042\n 30\n0.000000000\n 11\n111.842884245\n 21\n113.842848275\n 31\n0.000000000\n  0\nLINE\n  5\nA12\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbLine\n 10\n161.698557159\n 20\n86.639428415\n 30\n0.000000000\n 11\n147.375000000\n 21\n106.948557159\n 31\n0.000000000\n  0\nENDSEC\n  0\nSECTION\n  2\nOBJECTS\n  0\nDICTIONARY\n  5\nF000\n330\n0\n100\nAcDbDictionary\n  3\nACAD_GROUP\n350\nF001\n  0\nDICTIONARY\n  5\nF001\n330\nF000\n100\nAcDbDictionary\n  0\nENDSEC\n  0\nEOF"
+  },
+  "plate_cosmetic_erased": {
+   "views": {
+    "View": {
+     "X": 148.5,
+     "Y": 105.0,
+     "Scale": 1.0,
+     "ScaleType": "Page",
+     "Direction": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "XDirection": [
+      1.0,
+      0.0,
+      0.0
+     ],
+     "Rotation": 0.0,
+     "nvis": 6,
+     "nhid": 0,
+     "edges": [
+      {
+       "curve": "Line",
+       "start": [
+        -20.0,
+        -12.0,
+        0.0
+       ],
+       "end": [
+        -20.0,
+        15.0,
+        0.0
+       ],
+       "length": 27.0
+      },
+      {
+       "curve": "Circle",
+       "start": [
+        -20.0,
+        -12.0,
+        0.0
+       ],
+       "end": [
+        -16.99999999999999,
+        -15.0,
+        0.0
+       ],
+       "length": 4.7123889803847,
+       "radius": 3.0,
+       "center": [
+        -17.0,
+        -12.0,
+        0.0
+       ]
+      },
+      {
+       "curve": "Line",
+       "start": [
+        -20.0,
+        15.0,
+        0.0
+       ],
+       "end": [
+        20.0,
+        15.0,
+        0.0
+       ],
+       "length": 40.0
+      },
+      {
+       "curve": "Line",
+       "start": [
+        -17.0,
+        -15.0,
+        0.0
+       ],
+       "end": [
+        20.0,
+        -15.0,
+        0.0
+       ],
+       "length": 37.0
+      },
+      {
+       "curve": "Line",
+       "start": [
+        20.0,
+        -15.0,
+        0.0
+       ],
+       "end": [
+        20.0,
+        15.0,
+        0.0
+       ],
+       "length": 30.0
+      },
+      {
+       "curve": "Circle",
+       "start": [
+        14.0,
+        8.0,
+        0.0
+       ],
+       "end": [
+        14.0,
+        8.0,
+        0.0
+       ],
+       "length": 25.13274122871836,
+       "radius": 4.0,
+       "center": [
+        10.0,
+        8.0,
+        0.0
+       ]
+      }
+     ],
+     "vertices": [
+      [
+       -20.0,
+       -12.0,
+       0.0
+      ],
+      [
+       -20.0,
+       15.0,
+       0.0
+      ],
+      [
+       -16.99999999999999,
+       -15.0,
+       0.0
+      ],
+      [
+       -17.0,
+       -12.0,
+       0.0
+      ],
+      [
+       20.0,
+       15.0,
+       0.0
+      ],
+      [
+       20.0,
+       -15.0,
+       0.0
+      ],
+      [
+       14.0,
+       8.0,
+       0.0
+      ],
+      [
+       14.0,
+       8.0,
+       0.0
+      ],
+      [
+       10.0,
+       8.0,
+       0.0
+      ],
+      [
+       -5.0,
+       6.0,
+       0.0
+      ]
+     ],
+     "cosmetic": {
+      "vertexes": [
+       [
+        -5.0,
+        6.0,
+        0.0
+       ]
+      ],
+      "edges": [],
+      "centerlines": []
+     }
+    }
+   },
+   "dims": {},
+   "page": {
+    "Scale": 1.0,
+    "ProjectionType": "First angle",
+    "Views": [
+     "View"
+    ]
+   },
+   "template": {
+    "Width": 297.0,
+    "Height": 210.0,
+    "Orientation": "Landscape",
+    "EditableTexts": {}
+   },
+   "dxf": "999\nFreeCAD v26.3 20260929 (Git shallow)\n  0\nSECTION\n  2\nHEADER\n  9\n$ACADVER\n  1\nAC1014\n  9\n$ACADMAINTVER\n 70\n     9\n  9\n$DWGCODEPAGE\n  3\nANSI_1252\n  9\n$TEXTSTYLE\n  7\nSTANDARD\n  9\n$DIMSTYLE\n  2\nSTANDARD\n  9\n$DIMTXSTY\n  7\nSTANDARD\n  9\n$LUNITS\n 70\n2\n  9\n$INSUNITS\n 70\n4\n  9\n$PEXTMAX\n 10\n50\n 20\n50\n 30\n50\n  9\n$PEXTMIN\n 10\n0\n 20\n0\n 30\n0\n  9\n$HANDSEED\n  5\nFFFF\n  0\nENDSEC\n  0\nSECTION\n  2\nCLASSES\n  0\nCLASS\n  1\nACDBDICTIONARYWDFLT\n  2\nAcDbDictionaryWithDefault\n  3\nObjectDBX Classes\n 90\n        0\n280\n     0\n281\n     0\n  0\nCLASS\n  1\nXRECORD\n  2\nAcDbXrecord\n  3\nObjectDBX Classes\n 90\n        0\n280\n     0\n281\n     0\n  0\nCLASS\n  1\nLWPOLYLINE\n  2\nAcDbPolyline\n  3\nObjectDBX Classes\n 90\n        0\n280\n     0\n281\n     1\n  0\nENDSEC\n  0\nSECTION\n  2\nTABLES\n  0\nTABLE\n  2\nVPORT\n  5\n20\n330\n0\n100\nAcDbSymbolTable\n 70\n     1\n  0\nVPORT\n  5\n21\n330\n20\n100\nAcDbSymbolTableRecord\n100\nAcDbViewportTableRecord\n  2\n*ACTIVE\n 70\n     0\n  0\nENDTAB\n  0\nTABLE\n  2\nLTYPE\n  5\n22\n330\n0\n100\nAcDbSymbolTable\n 70\n     1\n  0\nLTYPE\n  5\n23\n330\n21\n100\nAcDbSymbolTableRecord\n100\nAcDbLinetypeTableRecord\n  2\nBYBLOCK\n 70\n     0\n  3\n\n 72\n    65\n 73\n     0\n 40\n0.0\n  0\nLTYPE\n  5\n24\n330\n21\n100\nAcDbSymbolTableRecord\n100\nAcDbLinetypeTableRecord\n  2\nBYLAYER\n 70\n     0\n  3\n\n 72\n    65\n 73\n     0\n 40\n0.0\n  0\nLTYPE\n  5\n25\n330\n21\n100\nAcDbSymbolTableRecord\n100\nAcDbLinetypeTableRecord\n  2\nCONTINUOUS\n 70\n     0\n  3\nSolid line\n 72\n    65\n 73\n     0\n 40\n0.0\n  0\nENDTAB\n  0\nTABLE\n  2\nLAYER\n  5\nA0E\n330\n0\n100\nAcDbSymbolTable\n 70\n2\n  0\nLAYER\n  5\nA0F\n330\nA0E\n100\nAcDbSymbolTableRecord\n100\nAcDbLayerTableRecord\n  2\n0\n 70\n   0\n 62\n   7\n  6\nCONTINUOUS\n  0\nLAYER\n  5\nA10\n330\nA0E\n100\nAcDbSymbolTableRecord\n100\nAcDbLayerTableRecord\n  2\nView\n 70\n    0\n 62\n    7\n  6\nCONTINUOUS\n  0\nENDTAB\n  0\nTABLE\n  2\nSTYLE\n  5\n70\n330\n0\n100\nAcDbSymbolTable\n 70\n     2\n  0\nSTYLE\n  5\n71\n330\n70\n100\nAcDbSymbolTableRecord\n100\nAcDbTextStyleTableRecord\n  2\nSTANDARD\n 70\n     0\n 40\n0.0\n 41\n1.0\n 50\n0.0\n 71\n     0\n 42\n2.5\n  3\narial.ttf\n  4\n\n  0\nSTYLE\n  5\n72\n330\n70\n100\nAcDbSymbolTableRecord\n100\nAcDbTextStyleTableRecord\n  2\nANNOTATIVE\n 70\n     0\n 40\n0.0\n 41\n1.0\n 50\n0.0\n 71\n     0\n 42\n2.5\n  3\narial.ttf\n  4\n\n  0\nENDTAB\n  0\nTABLE\n  2\nVIEW\n  5\n73\n330\n0\n100\nAcDbSymbolTable\n 70\n     0\n  0\nENDTAB\n  0\nTABLE\n  2\nUCS\n  5\n74\n330\n0\n100\nAcDbSymbolTable\n 70\n     0\n  0\nENDTAB\n  0\nTABLE\n  2\nAPPID\n  5\n75\n330\n0\n100\nAcDbSymbolTable\n 70\n     2\n  0\nAPPID\n  5\n76\n330\n75\n100\nAcDbSymbolTableRecord\n100\nAcDbRegAppTableRecord\n  2\nACAD\n 70\n     0\n  0\nAPPID\n  5\n77\n330\n75\n100\nAcDbSymbolTableRecord\n100\nAcDbRegAppTableRecord\n  2\nACADANNOTATIVE\n 70\n     0\n  0\nENDTAB\n  0\nTABLE\n  2\nDIMSTYLE\n  5\n78\n330\n0\n100\nAcDbSymbolTable\n 70\n     2\n  0\nDIMSTYLE\n105\n79\n330\n78\n100\nAcDbSymbolTableRecord\n100\nAcDbDimStyleTableRecord\n  2\nSTANDARD\n 70\n     0\n  3\n\n  4\n\n  5\n\n  6\n\n  7\n\n 40\n0.0\n 41\n2.5\n 42\n0.625\n 43\n3.75\n 44\n1.25\n 45\n0.0\n 46\n0.0\n 47\n0.0\n 48\n0.0\n140\n2.5\n141\n2.5\n142\n0.0\n143\n0.03937007874016\n144\n1.0\n145\n0.0\n146\n1.0\n147\n0.625\n 71\n     0\n 72\n     0\n 73\n     0\n 74\n     0\n 75\n     0\n 76\n     0\n 77\n     1\n 78\n     8\n170\n     0\n171\n     3\n172\n     1\n173\n     0\n174\n     0\n175\n     0\n176\n     0\n177\n     0\n178\n     0\n270\n     2\n271\n     2\n272\n     2\n273\n     2\n274\n     3\n340\n71\n275\n     0\n280\n     0\n281\n     0\n282\n     0\n283\n     0\n284\n     8\n285\n     0\n286\n     0\n287\n     3\n288\n     0\n  0\nENDTAB\n  0\nTABLE\n  2\nBLOCK_RECORD\n  5\nA01\n330\n0\n100\nAcDbSymbolTable\n  70\n5\n  0\nBLOCK_RECORD\n  5\nA02\n330\nA01\n100\nAcDbSymbolTableRecord\n100\nAcDbBlockTableRecord\n  2\n*MODEL_SPACE\n  0\nBLOCK_RECORD\n  5\nA03\n330\nA01\n100\nAcDbSymbolTableRecord\n100\nAcDbBlockTableRecord\n  2\n*PAPER_SPACE\n  0\nENDTAB\n  0\nENDSEC\n  0\nSECTION\n  2\nBLOCKS\n  0\nBLOCK\n  5\nA04\n330\nA02\n100\nAcDbEntity\n  8\n0\n100\nAcDbBlockBegin\n  2\n*MODEL_SPACE\n 70\n   0\n 10\n0\n 20\n0\n 30\n0\n  3\n*MODEL_SPACE\n  1\n \n  0\nENDBLK\n  5\nA05\n330\nA02\n100\nAcDbEntity\n  8\n0\n100\nAcDbBlockEnd\n  0\nBLOCK\n  5\nA06\n330\nA03\n100\nAcDbEntity\n 67\n1\n  8\n0\n100\nAcDbBlockBegin\n  2\n*PAPER_SPACE\n 70\n   0\n 10\n0\n 20\n0\n 30\n0\n  3\n*PAPER_SPACE\n  1\n \n  0\nENDBLK\n  5\nA07\n330\nA03\n100\nAcDbEntity\n 67\n    1\n  8\n0\n100\nAcDbBlockEnd\n  0\nENDSEC\n  0\nSECTION\n  2\nENTITIES\n  0\nLINE\n  5\nA08\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbLine\n 10\n128.500000000\n 20\n93.000000000\n 30\n0.000000000\n 11\n128.500000000\n 21\n120.000000000\n 31\n0.000000000\n  0\nARC\n  5\nA09\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbCircle\n 10\n131.500000000\n 20\n93.000000000\n 30\n0.000000000\n 40\n3.000000000\n100\nAcDbArc\n 50\n180.000000000\n 51\n-90.000000000\n  0\nLINE\n  5\nA0A\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbLine\n 10\n128.500000000\n 20\n120.000000000\n 30\n0.000000000\n 11\n168.500000000\n 21\n120.000000000\n 31\n0.000000000\n  0\nLINE\n  5\nA0B\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbLine\n 10\n131.500000000\n 20\n90.000000000\n 30\n0.000000000\n 11\n168.500000000\n 21\n90.000000000\n 31\n0.000000000\n  0\nLINE\n  5\nA0C\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbLine\n 10\n168.500000000\n 20\n90.000000000\n 30\n0.000000000\n 11\n168.500000000\n 21\n120.000000000\n 31\n0.000000000\n  0\nCIRCLE\n  5\nA0D\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbCircle\n 10\n158.500000000\n 20\n113.000000000\n 30\n0.000000000\n 40\n4.000000000\n  0\nENDSEC\n  0\nSECTION\n  2\nOBJECTS\n  0\nDICTIONARY\n  5\nF000\n330\n0\n100\nAcDbDictionary\n  3\nACAD_GROUP\n350\nF001\n  0\nDICTIONARY\n  5\nF001\n330\nF000\n100\nAcDbDictionary\n  0\nENDSEC\n  0\nEOF"
+  },
+  "bracket_face_centerlines": {
+   "views": {
+    "View": {
+     "X": 148.5,
+     "Y": 105.0,
+     "Scale": 1.0,
+     "ScaleType": "Page",
+     "Direction": [
+      0.0,
+      -1.0,
+      0.0
+     ],
+     "XDirection": [
+      1.0,
+      0.0,
+      0.0
+     ],
+     "Rotation": 0.0,
+     "nvis": 19,
+     "nhid": 0,
+     "edges": [
+      {
+       "curve": "Line",
+       "start": [
+        2.5,
+        -19.999999999999986,
+        0.0
+       ],
+       "end": [
+        32.5,
+        -19.999999999999986,
+        0.0
+       ],
+       "length": 30.0
+      },
+      {
+       "curve": "Line",
+       "start": [
+        -12.5,
+        -19.999999999999986,
+        0.0
+       ],
+       "end": [
+        -7.5,
+        -19.999999999999986,
+        0.0
+       ],
+       "length": 5.0
+      },
+      {
+       "curve": "BSplineCurve",
+       "start": [
+        2.5,
+        -19.999999999999986,
+        0.0
+       ],
+       "end": [
+        -7.5,
+        -19.999999999999986,
+        0.0
+       ],
+       "length": 10.0
+      },
+      {
+       "curve": "Line",
+       "start": [
+        32.499999999999964,
+        -20.000000000000018,
+        0.0
+       ],
+       "end": [
+        37.499999999999986,
+        -14.999999999999998,
+        0.0
+       ],
+       "length": 7.071067811865502
+      },
+      {
+       "curve": "Line",
+       "start": [
+        -12.5,
+        -19.999999999999986,
+        0.0
+       ],
+       "end": [
+        -12.5,
+        -13.999999999999986,
+        0.0
+       ],
+       "length": 6.0
+      },
+      {
+       "curve": "Line",
+       "start": [
+        37.5,
+        -14.999999999999986,
+        0.0
+       ],
+       "end": [
+        37.5,
+        -13.999999999999986,
+        0.0
+       ],
+       "length": 1.0
+      },
+      {
+       "curve": "Line",
+       "start": [
+        2.5,
+        -13.999999999999986,
+        0.0
+       ],
+       "end": [
+        37.5,
+        -13.999999999999986,
+        0.0
+       ],
+       "length": 35.0
+      },
+      {
+       "curve": "BSplineCurve",
+       "start": [
+        2.5,
+        -13.999999999999986,
+        0.0
+       ],
+       "end": [
+        -7.5,
+        -13.999999999999986,
+        0.0
+       ],
+       "length": 10.0
+      },
+      {
+       "curve": "Line",
+       "start": [
+        -12.5,
+        -13.999999999999986,
+        0.0
+       ],
+       "end": [
+        -7.5,
+        -13.999999999999986,
+        0.0
+       ],
+       "length": 5.0
+      },
+      {
+       "curve": "Line",
+       "start": [
+        2.5,
+        -19.999999999999986,
+        0.0
+       ],
+       "end": [
+        2.5,
+        -13.999999999999986,
+        0.0
+       ],
+       "length": 6.0
+      },
+      {
+       "curve": "Line",
+       "start": [
+        -7.5,
+        -19.999999999999986,
+        0.0
+       ],
+       "end": [
+        -7.5,
+        -13.999999999999986,
+        0.0
+       ],
+       "length": 6.0
+      },
+      {
+       "curve": "Line",
+       "start": [
+        -37.5,
+        -19.999999999999986,
+        0.0
+       ],
+       "end": [
+        -37.5,
+        20.000000000000014,
+        0.0
+       ],
+       "length": 40.0
+      },
+      {
+       "curve": "Line",
+       "start": [
+        -37.5,
+        -19.999999999999986,
+        0.0
+       ],
+       "end": [
+        -31.5,
+        -19.999999999999986,
+        0.0
+       ],
+       "length": 6.0
+      },
+      {
+       "curve": "Line",
+       "start": [
+        -31.5,
+        -19.999999999999986,
+        0.0
+       ],
+       "end": [
+        -31.5,
+        20.000000000000014,
+        0.0
+       ],
+       "length": 40.0
+      },
+      {
+       "curve": "Line",
+       "start": [
+        -37.5,
+        20.000000000000014,
+        0.0
+       ],
+       "end": [
+        -31.5,
+        20.000000000000014,
+        0.0
+       ],
+       "length": 6.0
+      },
+      {
+       "curve": "Line",
+       "start": [
+        12.5,
+        -13.999999899999986,
+        0.0
+       ],
+       "end": [
+        12.5,
+        -20.000000099999987,
+        0.0
+       ],
+       "length": 6.000000200000001
+      },
+      {
+       "curve": "Line",
+       "start": [
+        -38.5,
+        1.4210854715202004e-14,
+        0.0
+       ],
+       "end": [
+        -30.5,
+        1.4210854715202004e-14,
+        0.0
+       ],
+       "length": 8.0
+      },
+      {
+       "curve": "Line",
+       "start": [
+        16.99999995,
+        -13.999999899999986,
+        0.0
+       ],
+       "end": [
+        16.99999995,
+        -20.000000099999987,
+        0.0
+       ],
+       "length": 6.000000200000001
+      },
+      {
+       "curve": "Line",
+       "start": [
+        -12.34923155196477,
+        -17.85505035831416,
+        0.0
+       ],
+       "end": [
+        -7.650768448035229,
+        -16.144949641685812,
+        0.0
+       ],
+       "length": 5.000000000000001
+      }
+     ],
+     "vertices": [
+      [
+       2.5,
+       -19.999999999999986,
+       0.0
+      ],
+      [
+       32.5,
+       -19.999999999999986,
+       0.0
+      ],
+      [
+       -12.5,
+       -19.999999999999986,
+       0.0
+      ],
+      [
+       -7.5,
+       -19.999999999999986,
+       0.0
+      ],
+      [
+       37.499999999999986,
+       -14.999999999999998,
+       0.0
+      ],
+      [
+       -12.5,
+       -13.999999999999986,
+       0.0
+      ],
+      [
+       37.5,
+       -13.999999999999986,
+       0.0
+      ],
+      [
+       2.5,
+       -13.999999999999986,
+       0.0
+      ],
+      [
+       -7.5,
+       -13.999999999999986,
+       0.0
+      ],
+      [
+       -37.5,
+       -19.999999999999986,
+       0.0
+      ],
+      [
+       -37.5,
+       20.000000000000014,
+       0.0
+      ],
+      [
+       -31.5,
+       -19.999999999999986,
+       0.0
+      ],
+      [
+       -31.5,
+       20.000000000000014,
+       0.0
+      ]
+     ],
+     "cosmetic": {
+      "vertexes": [],
+      "edges": [],
+      "centerlines": [
+       {
+        "Format": {
+         "style": 2,
+         "weight": 0.5,
+         "color": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+         ],
+         "visible": true
+        },
+        "Mode": 0,
+        "Type": 0,
+        "Edges": [],
+        "Faces": [
+         "Face0"
+        ],
+        "Points": [],
+        "HorizShift": 0.0,
+        "VertShift": 0.0,
+        "Rotation": 0.0,
+        "Extension": 0.0,
+        "Flip": false
+       },
+       {
+        "Format": {
+         "style": 2,
+         "weight": 0.5,
+         "color": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+         ],
+         "visible": true
+        },
+        "Mode": 1,
+        "Type": 0,
+        "Edges": [],
+        "Faces": [
+         "Face1"
+        ],
+        "Points": [],
+        "HorizShift": 0.0,
+        "VertShift": 0.0,
+        "Rotation": 0.0,
+        "Extension": 1.0,
+        "Flip": false
+       },
+       {
+        "Format": {
+         "style": 2,
+         "weight": 0.5,
+         "color": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+         ],
+         "visible": true
+        },
+        "Mode": 0,
+        "Type": 0,
+        "Edges": [],
+        "Faces": [
+         "Face2",
+         "Face3"
+        ],
+        "Points": [],
+        "HorizShift": 2.0,
+        "VertShift": 0.0,
+        "Rotation": 0.0,
+        "Extension": 0.0,
+        "Flip": false
+       },
+       {
+        "Format": {
+         "style": 2,
+         "weight": 0.5,
+         "color": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+         ],
+         "visible": true
+        },
+        "Mode": 1,
+        "Type": 0,
+        "Edges": [],
+        "Faces": [
+         "Face4"
+        ],
+        "Points": [],
+        "HorizShift": 0.0,
+        "VertShift": 0.0,
+        "Rotation": 20.0,
+        "Extension": 0.0,
+        "Flip": false
+       }
+      ]
+     }
+    }
+   },
+   "dims": {},
+   "page": {
+    "Scale": 1.0,
+    "ProjectionType": "First angle",
+    "Views": [
+     "View"
+    ]
+   },
+   "template": {
+    "Width": 297.0,
+    "Height": 210.0,
+    "Orientation": "Landscape",
+    "EditableTexts": {}
+   },
+   "dxf": "999\nFreeCAD v26.3 20260929 (Git shallow)\n  0\nSECTION\n  2\nHEADER\n  9\n$ACADVER\n  1\nAC1014\n  9\n$ACADMAINTVER\n 70\n     9\n  9\n$DWGCODEPAGE\n  3\nANSI_1252\n  9\n$TEXTSTYLE\n  7\nSTANDARD\n  9\n$DIMSTYLE\n  2\nSTANDARD\n  9\n$DIMTXSTY\n  7\nSTANDARD\n  9\n$LUNITS\n 70\n2\n  9\n$INSUNITS\n 70\n4\n  9\n$PEXTMAX\n 10\n50\n 20\n50\n 30\n50\n  9\n$PEXTMIN\n 10\n0\n 20\n0\n 30\n0\n  9\n$HANDSEED\n  5\nFFFF\n  0\nENDSEC\n  0\nSECTION\n  2\nCLASSES\n  0\nCLASS\n  1\nACDBDICTIONARYWDFLT\n  2\nAcDbDictionaryWithDefault\n  3\nObjectDBX Classes\n 90\n        0\n280\n     0\n281\n     0\n  0\nCLASS\n  1\nXRECORD\n  2\nAcDbXrecord\n  3\nObjectDBX Classes\n 90\n        0\n280\n     0\n281\n     0\n  0\nCLASS\n  1\nLWPOLYLINE\n  2\nAcDbPolyline\n  3\nObjectDBX Classes\n 90\n        0\n280\n     0\n281\n     1\n  0\nENDSEC\n  0\nSECTION\n  2\nTABLES\n  0\nTABLE\n  2\nVPORT\n  5\n20\n330\n0\n100\nAcDbSymbolTable\n 70\n     1\n  0\nVPORT\n  5\n21\n330\n20\n100\nAcDbSymbolTableRecord\n100\nAcDbViewportTableRecord\n  2\n*ACTIVE\n 70\n     0\n  0\nENDTAB\n  0\nTABLE\n  2\nLTYPE\n  5\n22\n330\n0\n100\nAcDbSymbolTable\n 70\n     1\n  0\nLTYPE\n  5\n23\n330\n21\n100\nAcDbSymbolTableRecord\n100\nAcDbLinetypeTableRecord\n  2\nBYBLOCK\n 70\n     0\n  3\n\n 72\n    65\n 73\n     0\n 40\n0.0\n  0\nLTYPE\n  5\n24\n330\n21\n100\nAcDbSymbolTableRecord\n100\nAcDbLinetypeTableRecord\n  2\nBYLAYER\n 70\n     0\n  3\n\n 72\n    65\n 73\n     0\n 40\n0.0\n  0\nLTYPE\n  5\n25\n330\n21\n100\nAcDbSymbolTableRecord\n100\nAcDbLinetypeTableRecord\n  2\nCONTINUOUS\n 70\n     0\n  3\nSolid line\n 72\n    65\n 73\n     0\n 40\n0.0\n  0\nENDTAB\n  0\nTABLE\n  2\nLAYER\n  5\nA1B\n330\n0\n100\nAcDbSymbolTable\n 70\n2\n  0\nLAYER\n  5\nA1C\n330\nA1B\n100\nAcDbSymbolTableRecord\n100\nAcDbLayerTableRecord\n  2\n0\n 70\n   0\n 62\n   7\n  6\nCONTINUOUS\n  0\nLAYER\n  5\nA1D\n330\nA1B\n100\nAcDbSymbolTableRecord\n100\nAcDbLayerTableRecord\n  2\nView\n 70\n    0\n 62\n    7\n  6\nCONTINUOUS\n  0\nENDTAB\n  0\nTABLE\n  2\nSTYLE\n  5\n70\n330\n0\n100\nAcDbSymbolTable\n 70\n     2\n  0\nSTYLE\n  5\n71\n330\n70\n100\nAcDbSymbolTableRecord\n100\nAcDbTextStyleTableRecord\n  2\nSTANDARD\n 70\n     0\n 40\n0.0\n 41\n1.0\n 50\n0.0\n 71\n     0\n 42\n2.5\n  3\narial.ttf\n  4\n\n  0\nSTYLE\n  5\n72\n330\n70\n100\nAcDbSymbolTableRecord\n100\nAcDbTextStyleTableRecord\n  2\nANNOTATIVE\n 70\n     0\n 40\n0.0\n 41\n1.0\n 50\n0.0\n 71\n     0\n 42\n2.5\n  3\narial.ttf\n  4\n\n  0\nENDTAB\n  0\nTABLE\n  2\nVIEW\n  5\n73\n330\n0\n100\nAcDbSymbolTable\n 70\n     0\n  0\nENDTAB\n  0\nTABLE\n  2\nUCS\n  5\n74\n330\n0\n100\nAcDbSymbolTable\n 70\n     0\n  0\nENDTAB\n  0\nTABLE\n  2\nAPPID\n  5\n75\n330\n0\n100\nAcDbSymbolTable\n 70\n     2\n  0\nAPPID\n  5\n76\n330\n75\n100\nAcDbSymbolTableRecord\n100\nAcDbRegAppTableRecord\n  2\nACAD\n 70\n     0\n  0\nAPPID\n  5\n77\n330\n75\n100\nAcDbSymbolTableRecord\n100\nAcDbRegAppTableRecord\n  2\nACADANNOTATIVE\n 70\n     0\n  0\nENDTAB\n  0\nTABLE\n  2\nDIMSTYLE\n  5\n78\n330\n0\n100\nAcDbSymbolTable\n 70\n     2\n  0\nDIMSTYLE\n105\n79\n330\n78\n100\nAcDbSymbolTableRecord\n100\nAcDbDimStyleTableRecord\n  2\nSTANDARD\n 70\n     0\n  3\n\n  4\n\n  5\n\n  6\n\n  7\n\n 40\n0.0\n 41\n2.5\n 42\n0.625\n 43\n3.75\n 44\n1.25\n 45\n0.0\n 46\n0.0\n 47\n0.0\n 48\n0.0\n140\n2.5\n141\n2.5\n142\n0.0\n143\n0.03937007874016\n144\n1.0\n145\n0.0\n146\n1.0\n147\n0.625\n 71\n     0\n 72\n     0\n 73\n     0\n 74\n     0\n 75\n     0\n 76\n     0\n 77\n     1\n 78\n     8\n170\n     0\n171\n     3\n172\n     1\n173\n     0\n174\n     0\n175\n     0\n176\n     0\n177\n     0\n178\n     0\n270\n     2\n271\n     2\n272\n     2\n273\n     2\n274\n     3\n340\n71\n275\n     0\n280\n     0\n281\n     0\n282\n     0\n283\n     0\n284\n     8\n285\n     0\n286\n     0\n287\n     3\n288\n     0\n  0\nENDTAB\n  0\nTABLE\n  2\nBLOCK_RECORD\n  5\nA01\n330\n0\n100\nAcDbSymbolTable\n  70\n5\n  0\nBLOCK_RECORD\n  5\nA02\n330\nA01\n100\nAcDbSymbolTableRecord\n100\nAcDbBlockTableRecord\n  2\n*MODEL_SPACE\n  0\nBLOCK_RECORD\n  5\nA03\n330\nA01\n100\nAcDbSymbolTableRecord\n100\nAcDbBlockTableRecord\n  2\n*PAPER_SPACE\n  0\nENDTAB\n  0\nENDSEC\n  0\nSECTION\n  2\nBLOCKS\n  0\nBLOCK\n  5\nA04\n330\nA02\n100\nAcDbEntity\n  8\n0\n100\nAcDbBlockBegin\n  2\n*MODEL_SPACE\n 70\n   0\n 10\n0\n 20\n0\n 30\n0\n  3\n*MODEL_SPACE\n  1\n \n  0\nENDBLK\n  5\nA05\n330\nA02\n100\nAcDbEntity\n  8\n0\n100\nAcDbBlockEnd\n  0\nBLOCK\n  5\nA06\n330\nA03\n100\nAcDbEntity\n 67\n1\n  8\n0\n100\nAcDbBlockBegin\n  2\n*PAPER_SPACE\n 70\n   0\n 10\n0\n 20\n0\n 30\n0\n  3\n*PAPER_SPACE\n  1\n \n  0\nENDBLK\n  5\nA07\n330\nA03\n100\nAcDbEntity\n 67\n    1\n  8\n0\n100\nAcDbBlockEnd\n  0\nENDSEC\n  0\nSECTION\n  2\nENTITIES\n  0\nLINE\n  5\nA08\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbLine\n 10\n151.000000000\n 20\n85.000000000\n 30\n0.000000000\n 11\n181.000000000\n 21\n85.000000000\n 31\n0.000000000\n  0\nLINE\n  5\nA09\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbLine\n 10\n136.000000000\n 20\n85.000000000\n 30\n0.000000000\n 11\n141.000000000\n 21\n85.000000000\n 31\n0.000000000\n  0\nSPLINE\n  5\nA0A\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbSpline\n210\n0\n220\n0\n230\n1\n 70\n8\n 71\n1\n 72\n17\n 73\n15\n 74\n0\n 40\n0.000000000\n 40\n0.000000000\n 40\n0.224399475\n 40\n0.448798951\n 40\n0.673198426\n 40\n0.897597901\n 40\n1.121997376\n 40\n1.346396852\n 40\n1.570796327\n 40\n1.795195802\n 40\n2.019595277\n 40\n2.243994753\n 40\n2.468394228\n 40\n2.692793703\n 40\n2.917193178\n 40\n3.141592654\n 40\n3.141592654\n 10\n151.000000000\n 20\n85.000000000\n 30\n0.000000000\n 10\n150.874639561\n 20\n85.000000000\n 30\n0.000000000\n 10\n150.504844340\n 20\n85.000000000\n 30\n0.000000000\n 10\n149.909157412\n 20\n85.000000000\n 30\n0.000000000\n 10\n149.117449009\n 20\n85.000000000\n 30\n0.000000000\n 10\n148.169418696\n 20\n85.000000000\n 30\n0.000000000\n 10\n147.112604670\n 20\n85.000000000\n 30\n0.000000000\n 10\n146.000000000\n 20\n85.000000000\n 30\n0.000000000\n 10\n144.887395330\n 20\n85.000000000\n 30\n0.000000000\n 10\n143.830581304\n 20\n85.000000000\n 30\n0.000000000\n 10\n142.882550991\n 20\n85.000000000\n 30\n0.000000000\n 10\n142.090842588\n 20\n85.000000000\n 30\n0.000000000\n 10\n141.495155660\n 20\n85.000000000\n 30\n0.000000000\n 10\n141.125360439\n 20\n85.000000000\n 30\n0.000000000\n 10\n141.000000000\n 20\n85.000000000\n 30\n0.000000000\n  0\nLINE\n  5\nA0B\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbLine\n 10\n181.000000000\n 20\n85.000000000\n 30\n0.000000000\n 11\n186.000000000\n 21\n90.000000000\n 31\n0.000000000\n  0\nLINE\n  5\nA0C\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbLine\n 10\n136.000000000\n 20\n85.000000000\n 30\n0.000000000\n 11\n136.000000000\n 21\n91.000000000\n 31\n0.000000000\n  0\nLINE\n  5\nA0D\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbLine\n 10\n186.000000000\n 20\n90.000000000\n 30\n0.000000000\n 11\n186.000000000\n 21\n91.000000000\n 31\n0.000000000\n  0\nLINE\n  5\nA0E\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbLine\n 10\n151.000000000\n 20\n91.000000000\n 30\n0.000000000\n 11\n186.000000000\n 21\n91.000000000\n 31\n0.000000000\n  0\nSPLINE\n  5\nA0F\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbSpline\n210\n0\n220\n0\n230\n1\n 70\n8\n 71\n1\n 72\n17\n 73\n15\n 74\n0\n 40\n0.000000000\n 40\n0.000000000\n 40\n0.224399475\n 40\n0.448798951\n 40\n0.673198426\n 40\n0.897597901\n 40\n1.121997376\n 40\n1.346396852\n 40\n1.570796327\n 40\n1.795195802\n 40\n2.019595277\n 40\n2.243994753\n 40\n2.468394228\n 40\n2.692793703\n 40\n2.917193178\n 40\n3.141592654\n 40\n3.141592654\n 10\n151.000000000\n 20\n91.000000000\n 30\n0.000000000\n 10\n150.874639561\n 20\n91.000000000\n 30\n0.000000000\n 10\n150.504844340\n 20\n91.000000000\n 30\n0.000000000\n 10\n149.909157412\n 20\n91.000000000\n 30\n0.000000000\n 10\n149.117449009\n 20\n91.000000000\n 30\n0.000000000\n 10\n148.169418696\n 20\n91.000000000\n 30\n0.000000000\n 10\n147.112604670\n 20\n91.000000000\n 30\n0.000000000\n 10\n146.000000000\n 20\n91.000000000\n 30\n0.000000000\n 10\n144.887395330\n 20\n91.000000000\n 30\n0.000000000\n 10\n143.830581304\n 20\n91.000000000\n 30\n0.000000000\n 10\n142.882550991\n 20\n91.000000000\n 30\n0.000000000\n 10\n142.090842588\n 20\n91.000000000\n 30\n0.000000000\n 10\n141.495155660\n 20\n91.000000000\n 30\n0.000000000\n 10\n141.125360439\n 20\n91.000000000\n 30\n0.000000000\n 10\n141.000000000\n 20\n91.000000000\n 30\n0.000000000\n  0\nLINE\n  5\nA10\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbLine\n 10\n136.000000000\n 20\n91.000000000\n 30\n0.000000000\n 11\n141.000000000\n 21\n91.000000000\n 31\n0.000000000\n  0\nLINE\n  5\nA11\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbLine\n 10\n151.000000000\n 20\n85.000000000\n 30\n0.000000000\n 11\n151.000000000\n 21\n91.000000000\n 31\n0.000000000\n  0\nLINE\n  5\nA12\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbLine\n 10\n141.000000000\n 20\n85.000000000\n 30\n0.000000000\n 11\n141.000000000\n 21\n91.000000000\n 31\n0.000000000\n  0\nLINE\n  5\nA13\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbLine\n 10\n111.000000000\n 20\n85.000000000\n 30\n0.000000000\n 11\n111.000000000\n 21\n125.000000000\n 31\n0.000000000\n  0\nLINE\n  5\nA14\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbLine\n 10\n111.000000000\n 20\n85.000000000\n 30\n0.000000000\n 11\n117.000000000\n 21\n85.000000000\n 31\n0.000000000\n  0\nLINE\n  5\nA15\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbLine\n 10\n117.000000000\n 20\n85.000000000\n 30\n0.000000000\n 11\n117.000000000\n 21\n125.000000000\n 31\n0.000000000\n  0\nLINE\n  5\nA16\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbLine\n 10\n111.000000000\n 20\n125.000000000\n 30\n0.000000000\n 11\n117.000000000\n 21\n125.000000000\n 31\n0.000000000\n  0\nLINE\n  5\nA17\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbLine\n 10\n161.000000000\n 20\n91.000000100\n 30\n0.000000000\n 11\n161.000000000\n 21\n84.999999900\n 31\n0.000000000\n  0\nLINE\n  5\nA18\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbLine\n 10\n110.000000000\n 20\n105.000000000\n 30\n0.000000000\n 11\n118.000000000\n 21\n105.000000000\n 31\n0.000000000\n  0\nLINE\n  5\nA19\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbLine\n 10\n165.499999950\n 20\n91.000000100\n 30\n0.000000000\n 11\n165.499999950\n 21\n84.999999900\n 31\n0.000000000\n  0\nLINE\n  5\nA1A\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbLine\n 10\n136.150768448\n 20\n87.144949642\n 30\n0.000000000\n 11\n140.849231552\n 21\n88.855050358\n 31\n0.000000000\n  0\nENDSEC\n  0\nSECTION\n  2\nOBJECTS\n  0\nDICTIONARY\n  5\nF000\n330\n0\n100\nAcDbDictionary\n  3\nACAD_GROUP\n350\nF001\n  0\nDICTIONARY\n  5\nF001\n330\nF000\n100\nAcDbDictionary\n  0\nENDSEC\n  0\nEOF"
+  },
+  "bracket_iso_face_centerlines": {
+   "views": {
+    "View": {
+     "X": 148.5,
+     "Y": 105.0,
+     "Scale": 1.0,
+     "ScaleType": "Page",
+     "Direction": [
+      1.0,
+      -1.0,
+      1.0
+     ],
+     "XDirection": [
+      1.0,
+      1.0,
+      0.0
+     ],
+     "Rotation": 0.0,
+     "nvis": 32,
+     "nhid": 0,
+     "edges": [
+      {
+       "curve": "Line",
+       "start": [
+        42.42640687119285,
+        -19.391793797033493,
+        0.0
+       ],
+       "end": [
+        42.42640687119285,
+        -18.575297216105767,
+        0.0
+       ],
+       "length": 0.8164965809277263
+      },
+      {
+       "curve": "Line",
+       "start": [
+        7.071067811865472,
+        1.837117307087385,
+        0.0
+       ],
+       "end": [
+        42.42640687119285,
+        -18.575297216105767,
+        0.0
+       ],
+       "length": 40.824829046386306
+      },
+      {
+       "curve": "Line",
+       "start": [
+        -3.5355339059327413,
+        -21.43303524935281,
+        0.0
+       ],
+       "end": [
+        17.677669529663685,
+        -33.6804839632687,
+        0.0
+       ],
+       "length": 24.49489742783178
+      },
+      {
+       "curve": "Line",
+       "start": [
+        -14.142135623730955,
+        -15.309310892394864,
+        0.0
+       ],
+       "end": [
+        -10.606601717798217,
+        -17.350552344714178,
+        0.0
+       ],
+       "length": 4.08248290463863
+      },
+      {
+       "curve": "Ellipse",
+       "start": [
+        -3.5355339059327413,
+        -17.350552344714178,
+        0.0
+       ],
+       "end": [
+        -10.606601717798206,
+        -17.35055234471417,
+        0.0
+       ],
+       "length": 7.349951395514092,
+       "major": 5.0,
+       "minor": 2.886751345948129,
+       "center": [
+        -7.071067811865479,
+        -19.391793797033493,
+        0.0
+       ]
+      },
+      {
+       "curve": "Line",
+       "start": [
+        17.677669529663664,
+        -33.68048396326871,
+        0.0
+       ],
+       "end": [
+        21.213203435596412,
+        -31.63924251094939,
+        0.0
+       ],
+       "length": 4.0824829046386455
+      },
+      {
+       "curve": "Line",
+       "start": [
+        21.213203435596427,
+        -31.639242510949387,
+        0.0
+       ],
+       "end": [
+        42.42640687119285,
+        -19.391793797033493,
+        0.0
+       ],
+       "length": 24.494897427831784
+      },
+      {
+       "curve": "Line",
+       "start": [
+        -14.142135623730955,
+        -15.309310892394864,
+        0.0
+       ],
+       "end": [
+        -14.142135623730955,
+        -10.410331406828508,
+        0.0
+       ],
+       "length": 4.898979485566357
+      },
+      {
+       "curve": "Line",
+       "start": [
+        -14.142135623730955,
+        -10.410331406828508,
+        0.0
+       ],
+       "end": [
+        7.071067811865472,
+        1.837117307087384,
+        0.0
+       ],
+       "length": 24.494897427831784
+      },
+      {
+       "curve": "Line",
+       "start": [
+        21.213203435596427,
+        -31.639242510949387,
+        0.0
+       ],
+       "end": [
+        21.213203435596427,
+        -30.82274593002166,
+        0.0
+       ],
+       "length": 0.8164965809277263
+      },
+      {
+       "curve": "Line",
+       "start": [
+        21.213203435596427,
+        -30.82274593002166,
+        0.0
+       ],
+       "end": [
+        42.42640687119285,
+        -18.575297216105767,
+        0.0
+       ],
+       "length": 24.494897427831784
+      },
+      {
+       "curve": "Line",
+       "start": [
+        -3.5355339059327413,
+        -16.534055763786455,
+        0.0
+       ],
+       "end": [
+        21.213203435596423,
+        -30.82274593002166,
+        0.0
+       ],
+       "length": 28.577380332470412
+      },
+      {
+       "curve": "Ellipse",
+       "start": [
+        -3.535533905932742,
+        -16.534055763786455,
+        0.0
+       ],
+       "end": [
+        -2.071067811865479,
+        -14.492814311467138,
+        0.0
+       ],
+       "length": 2.6309540509559746,
+       "major": 5.0,
+       "minor": 2.886751345948129,
+       "center": [
+        -7.071067811865479,
+        -14.492814311467138,
+        0.0
+       ]
+      },
+      {
+       "curve": "Ellipse",
+       "start": [
+        -2.071067811865479,
+        -14.492814311467138,
+        0.0
+       ],
+       "end": [
+        -10.606601717798206,
+        -12.451572859147817,
+        0.0
+       ],
+       "length": 9.980905446480437,
+       "major": 5.0,
+       "minor": 2.886751345948129,
+       "center": [
+        -7.071067811865479,
+        -14.492814311467138,
+        0.0
+       ]
+      },
+      {
+       "curve": "Line",
+       "start": [
+        -14.142135623730955,
+        -10.410331406828508,
+        0.0
+       ],
+       "end": [
+        -10.606601717798217,
+        -12.451572859147824,
+        0.0
+       ],
+       "length": 4.08248290463863
+      },
+      {
+       "curve": "Line",
+       "start": [
+        -3.535533905932742,
+        -21.433035249352812,
+        0.0
+       ],
+       "end": [
+        -3.535533905932742,
+        -16.53405576378646,
+        0.0
+       ],
+       "length": 4.898979485566356
+      },
+      {
+       "curve": "Line",
+       "start": [
+        -10.606601717798217,
+        -17.35055234471418,
+        0.0
+       ],
+       "end": [
+        -10.606601717798217,
+        -12.451572859147827,
+        0.0
+       ],
+       "length": 4.898979485566356
+      },
+      {
+       "curve": "Line",
+       "start": [
+        -42.42640687119286,
+        -11.226827987756234,
+        0.0
+       ],
+       "end": [
+        -42.42640687119286,
+        21.43303524935281,
+        0.0
+       ],
+       "length": 32.65986323710904
+      },
+      {
+       "curve": "Line",
+       "start": [
+        -42.42640687119286,
+        21.433035249352812,
+        0.0
+       ],
+       "end": [
+        -21.213203435596434,
+        33.680483963268706,
+        0.0
+       ],
+       "length": 24.494897427831784
+      },
+      {
+       "curve": "Line",
+       "start": [
+        -42.42640687119286,
+        -11.226827987756234,
+        0.0
+       ],
+       "end": [
+        -38.183766184073576,
+        -13.676317730539413,
+        0.0
+       ],
+       "length": 4.898979485566357
+      },
+      {
+       "curve": "Line",
+       "start": [
+        -38.183766184073576,
+        -13.676317730539413,
+        0.0
+       ],
+       "end": [
+        -38.183766184073576,
+        18.98354550656963,
+        0.0
+       ],
+       "length": 32.65986323710904
+      },
+      {
+       "curve": "Line",
+       "start": [
+        -42.42640687119286,
+        21.433035249352812,
+        0.0
+       ],
+       "end": [
+        -38.183766184073576,
+        18.983545506569634,
+        0.0
+       ],
+       "length": 4.898979485566357
+      },
+      {
+       "curve": "Line",
+       "start": [
+        -21.21320343559643,
+        33.6804839632687,
+        0.0
+       ],
+       "end": [
+        -16.970562748477143,
+        31.23099422048552,
+        0.0
+       ],
+       "length": 4.898979485566357
+      },
+      {
+       "curve": "Line",
+       "start": [
+        -38.183766184073576,
+        18.983545506569634,
+        0.0
+       ],
+       "end": [
+        -16.97056274847715,
+        31.230994220485528,
+        0.0
+       ],
+       "length": 24.494897427831784
+      },
+      {
+       "curve": "Line",
+       "start": [
+        -38.183766184073576,
+        -13.676317730539413,
+        0.0
+       ],
+       "end": [
+        -16.97056274847715,
+        -1.428869016623521,
+        0.0
+       ],
+       "length": 24.494897427831784
+      },
+      {
+       "curve": "Line",
+       "start": [
+        -16.970562748477143,
+        -1.428869016623521,
+        0.0
+       ],
+       "end": [
+        -16.970562748477143,
+        31.23099422048552,
+        0.0
+       ],
+       "length": 32.65986323710904
+      },
+      {
+       "curve": "Ellipse",
+       "start": [
+        -27.577164466275356,
+        11.226827987756234,
+        0.0
+       ],
+       "end": [
+        -25.577164466275356,
+        17.956915926604893,
+        0.0
+       ],
+       "length": 7.984724357184362,
+       "major": 4.0,
+       "minor": 2.309401076758504,
+       "center": [
+        -27.577164466275356,
+        14.49281431146714,
+        0.0
+       ]
+      },
+      {
+       "curve": "Ellipse",
+       "start": [
+        -25.577164466275356,
+        17.956915926604893,
+        0.0
+       ],
+       "end": [
+        -29.577164466275356,
+        11.028712696329386,
+        0.0
+       ],
+       "length": 10.089487597940796,
+       "major": 4.0,
+       "minor": 2.309401076758504,
+       "center": [
+        -27.577164466275356,
+        14.49281431146714,
+        0.0
+       ]
+      },
+      {
+       "curve": "Ellipse",
+       "start": [
+        -29.577164466275356,
+        11.028712696329384,
+        0.0
+       ],
+       "end": [
+        -27.577164466275345,
+        11.226827987756241,
+        0.0
+       ],
+       "length": 2.1047632407647923,
+       "major": 4.0,
+       "minor": 2.309401076758504,
+       "center": [
+        -27.577164466275356,
+        14.49281431146714,
+        0.0
+       ]
+      },
+      {
+       "curve": "Line",
+       "start": [
+        13.121514897571295,
+        1.8371173070873859,
+        0.0
+       ],
+       "end": [
+        13.121514897571295,
+        -33.68048396326871,
+        0.0
+       ],
+       "length": 35.517601270356096
+      },
+      {
+       "curve": "Line",
+       "start": [
+        -42.42640687119287,
+        10.002083116364648,
+        0.0
+       ],
+       "end": [
+        -16.97056274847715,
+        10.002083116364648,
+        0.0
+       ],
+       "length": 25.455844122715718
+      },
+      {
+       "curve": "Line",
+       "start": [
+        7.818214038672186,
+        -16.534055763786455,
+        0.0
+       ],
+       "end": [
+        7.818214038672186,
+        -33.68048396326871,
+        0.0
+       ],
+       "length": 17.14642819948226
+      }
+     ],
+     "vertices": [
+      [
+       42.42640687119285,
+       -19.391793797033493,
+       0.0
+      ],
+      [
+       42.42640687119285,
+       -18.575297216105767,
+       0.0
+      ],
+      [
+       7.071067811865472,
+       1.837117307087385,
+       0.0
+      ],
+      [
+       -3.5355339059327413,
+       -21.43303524935281,
+       0.0
+      ],
+      [
+       17.677669529663685,
+       -33.6804839632687,
+       0.0
+      ],
+      [
+       -14.142135623730955,
+       -15.309310892394864,
+       0.0
+      ],
+      [
+       -10.606601717798217,
+       -17.350552344714178,
+       0.0
+      ],
+      [
+       -3.5355339059327413,
+       -17.350552344714178,
+       0.0
+      ],
+      [
+       21.213203435596412,
+       -31.63924251094939,
+       0.0
+      ],
+      [
+       -14.142135623730955,
+       -10.410331406828508,
+       0.0
+      ],
+      [
+       21.213203435596427,
+       -30.82274593002166,
+       0.0
+      ],
+      [
+       -3.5355339059327413,
+       -16.534055763786455,
+       0.0
+      ],
+      [
+       -2.071067811865479,
+       -14.492814311467138,
+       0.0
+      ],
+      [
+       -10.606601717798206,
+       -12.451572859147817,
+       0.0
+      ],
+      [
+       -42.42640687119286,
+       -11.226827987756234,
+       0.0
+      ],
+      [
+       -42.42640687119286,
+       21.43303524935281,
+       0.0
+      ],
+      [
+       -21.213203435596434,
+       33.680483963268706,
+       0.0
+      ],
+      [
+       -38.183766184073576,
+       -13.676317730539413,
+       0.0
+      ],
+      [
+       -38.183766184073576,
+       18.98354550656963,
+       0.0
+      ],
+      [
+       -16.970562748477143,
+       31.23099422048552,
+       0.0
+      ],
+      [
+       -16.97056274847715,
+       -1.428869016623521,
+       0.0
+      ],
+      [
+       -27.577164466275356,
+       11.226827987756234,
+       0.0
+      ],
+      [
+       -25.577164466275356,
+       17.956915926604893,
+       0.0
+      ],
+      [
+       -29.577164466275356,
+       11.028712696329386,
+       0.0
+      ]
+     ],
+     "cosmetic": {
+      "vertexes": [],
+      "edges": [],
+      "centerlines": [
+       {
+        "Format": {
+         "style": 2,
+         "weight": 0.5,
+         "color": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+         ],
+         "visible": true
+        },
+        "Mode": 0,
+        "Type": 0,
+        "Edges": [],
+        "Faces": [
+         "Face0"
+        ],
+        "Points": [],
+        "HorizShift": 0.0,
+        "VertShift": 0.0,
+        "Rotation": 0.0,
+        "Extension": 0.0,
+        "Flip": false
+       },
+       {
+        "Format": {
+         "style": 2,
+         "weight": 0.5,
+         "color": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+         ],
+         "visible": true
+        },
+        "Mode": 1,
+        "Type": 0,
+        "Edges": [],
+        "Faces": [
+         "Face1"
+        ],
+        "Points": [],
+        "HorizShift": 0.0,
+        "VertShift": 0.0,
+        "Rotation": 0.0,
+        "Extension": 0.0,
+        "Flip": false
+       },
+       {
+        "Format": {
+         "style": 2,
+         "weight": 0.5,
+         "color": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+         ],
+         "visible": true
+        },
+        "Mode": 0,
+        "Type": 0,
+        "Edges": [],
+        "Faces": [
+         "Face5"
+        ],
+        "Points": [],
+        "HorizShift": 0.0,
+        "VertShift": 0.0,
+        "Rotation": 0.0,
+        "Extension": 0.0,
+        "Flip": false
+       }
+      ]
+     }
+    }
+   },
+   "dims": {},
+   "page": {
+    "Scale": 1.0,
+    "ProjectionType": "First angle",
+    "Views": [
+     "View"
+    ]
+   },
+   "template": {
+    "Width": 297.0,
+    "Height": 210.0,
+    "Orientation": "Landscape",
+    "EditableTexts": {}
+   },
+   "dxf": "999\nFreeCAD v26.3 20260929 (Git shallow)\n  0\nSECTION\n  2\nHEADER\n  9\n$ACADVER\n  1\nAC1014\n  9\n$ACADMAINTVER\n 70\n     9\n  9\n$DWGCODEPAGE\n  3\nANSI_1252\n  9\n$TEXTSTYLE\n  7\nSTANDARD\n  9\n$DIMSTYLE\n  2\nSTANDARD\n  9\n$DIMTXSTY\n  7\nSTANDARD\n  9\n$LUNITS\n 70\n2\n  9\n$INSUNITS\n 70\n4\n  9\n$PEXTMAX\n 10\n50\n 20\n50\n 30\n50\n  9\n$PEXTMIN\n 10\n0\n 20\n0\n 30\n0\n  9\n$HANDSEED\n  5\nFFFF\n  0\nENDSEC\n  0\nSECTION\n  2\nCLASSES\n  0\nCLASS\n  1\nACDBDICTIONARYWDFLT\n  2\nAcDbDictionaryWithDefault\n  3\nObjectDBX Classes\n 90\n        0\n280\n     0\n281\n     0\n  0\nCLASS\n  1\nXRECORD\n  2\nAcDbXrecord\n  3\nObjectDBX Classes\n 90\n        0\n280\n     0\n281\n     0\n  0\nCLASS\n  1\nLWPOLYLINE\n  2\nAcDbPolyline\n  3\nObjectDBX Classes\n 90\n        0\n280\n     0\n281\n     1\n  0\nENDSEC\n  0\nSECTION\n  2\nTABLES\n  0\nTABLE\n  2\nVPORT\n  5\n20\n330\n0\n100\nAcDbSymbolTable\n 70\n     1\n  0\nVPORT\n  5\n21\n330\n20\n100\nAcDbSymbolTableRecord\n100\nAcDbViewportTableRecord\n  2\n*ACTIVE\n 70\n     0\n  0\nENDTAB\n  0\nTABLE\n  2\nLTYPE\n  5\n22\n330\n0\n100\nAcDbSymbolTable\n 70\n     1\n  0\nLTYPE\n  5\n23\n330\n21\n100\nAcDbSymbolTableRecord\n100\nAcDbLinetypeTableRecord\n  2\nBYBLOCK\n 70\n     0\n  3\n\n 72\n    65\n 73\n     0\n 40\n0.0\n  0\nLTYPE\n  5\n24\n330\n21\n100\nAcDbSymbolTableRecord\n100\nAcDbLinetypeTableRecord\n  2\nBYLAYER\n 70\n     0\n  3\n\n 72\n    65\n 73\n     0\n 40\n0.0\n  0\nLTYPE\n  5\n25\n330\n21\n100\nAcDbSymbolTableRecord\n100\nAcDbLinetypeTableRecord\n  2\nCONTINUOUS\n 70\n     0\n  3\nSolid line\n 72\n    65\n 73\n     0\n 40\n0.0\n  0\nENDTAB\n  0\nTABLE\n  2\nLAYER\n  5\nA28\n330\n0\n100\nAcDbSymbolTable\n 70\n2\n  0\nLAYER\n  5\nA29\n330\nA28\n100\nAcDbSymbolTableRecord\n100\nAcDbLayerTableRecord\n  2\n0\n 70\n   0\n 62\n   7\n  6\nCONTINUOUS\n  0\nLAYER\n  5\nA2A\n330\nA28\n100\nAcDbSymbolTableRecord\n100\nAcDbLayerTableRecord\n  2\nView\n 70\n    0\n 62\n    7\n  6\nCONTINUOUS\n  0\nENDTAB\n  0\nTABLE\n  2\nSTYLE\n  5\n70\n330\n0\n100\nAcDbSymbolTable\n 70\n     2\n  0\nSTYLE\n  5\n71\n330\n70\n100\nAcDbSymbolTableRecord\n100\nAcDbTextStyleTableRecord\n  2\nSTANDARD\n 70\n     0\n 40\n0.0\n 41\n1.0\n 50\n0.0\n 71\n     0\n 42\n2.5\n  3\narial.ttf\n  4\n\n  0\nSTYLE\n  5\n72\n330\n70\n100\nAcDbSymbolTableRecord\n100\nAcDbTextStyleTableRecord\n  2\nANNOTATIVE\n 70\n     0\n 40\n0.0\n 41\n1.0\n 50\n0.0\n 71\n     0\n 42\n2.5\n  3\narial.ttf\n  4\n\n  0\nENDTAB\n  0\nTABLE\n  2\nVIEW\n  5\n73\n330\n0\n100\nAcDbSymbolTable\n 70\n     0\n  0\nENDTAB\n  0\nTABLE\n  2\nUCS\n  5\n74\n330\n0\n100\nAcDbSymbolTable\n 70\n     0\n  0\nENDTAB\n  0\nTABLE\n  2\nAPPID\n  5\n75\n330\n0\n100\nAcDbSymbolTable\n 70\n     2\n  0\nAPPID\n  5\n76\n330\n75\n100\nAcDbSymbolTableRecord\n100\nAcDbRegAppTableRecord\n  2\nACAD\n 70\n     0\n  0\nAPPID\n  5\n77\n330\n75\n100\nAcDbSymbolTableRecord\n100\nAcDbRegAppTableRecord\n  2\nACADANNOTATIVE\n 70\n     0\n  0\nENDTAB\n  0\nTABLE\n  2\nDIMSTYLE\n  5\n78\n330\n0\n100\nAcDbSymbolTable\n 70\n     2\n  0\nDIMSTYLE\n105\n79\n330\n78\n100\nAcDbSymbolTableRecord\n100\nAcDbDimStyleTableRecord\n  2\nSTANDARD\n 70\n     0\n  3\n\n  4\n\n  5\n\n  6\n\n  7\n\n 40\n0.0\n 41\n2.5\n 42\n0.625\n 43\n3.75\n 44\n1.25\n 45\n0.0\n 46\n0.0\n 47\n0.0\n 48\n0.0\n140\n2.5\n141\n2.5\n142\n0.0\n143\n0.03937007874016\n144\n1.0\n145\n0.0\n146\n1.0\n147\n0.625\n 71\n     0\n 72\n     0\n 73\n     0\n 74\n     0\n 75\n     0\n 76\n     0\n 77\n     1\n 78\n     8\n170\n     0\n171\n     3\n172\n     1\n173\n     0\n174\n     0\n175\n     0\n176\n     0\n177\n     0\n178\n     0\n270\n     2\n271\n     2\n272\n     2\n273\n     2\n274\n     3\n340\n71\n275\n     0\n280\n     0\n281\n     0\n282\n     0\n283\n     0\n284\n     8\n285\n     0\n286\n     0\n287\n     3\n288\n     0\n  0\nENDTAB\n  0\nTABLE\n  2\nBLOCK_RECORD\n  5\nA01\n330\n0\n100\nAcDbSymbolTable\n  70\n5\n  0\nBLOCK_RECORD\n  5\nA02\n330\nA01\n100\nAcDbSymbolTableRecord\n100\nAcDbBlockTableRecord\n  2\n*MODEL_SPACE\n  0\nBLOCK_RECORD\n  5\nA03\n330\nA01\n100\nAcDbSymbolTableRecord\n100\nAcDbBlockTableRecord\n  2\n*PAPER_SPACE\n  0\nENDTAB\n  0\nENDSEC\n  0\nSECTION\n  2\nBLOCKS\n  0\nBLOCK\n  5\nA04\n330\nA02\n100\nAcDbEntity\n  8\n0\n100\nAcDbBlockBegin\n  2\n*MODEL_SPACE\n 70\n   0\n 10\n0\n 20\n0\n 30\n0\n  3\n*MODEL_SPACE\n  1\n \n  0\nENDBLK\n  5\nA05\n330\nA02\n100\nAcDbEntity\n  8\n0\n100\nAcDbBlockEnd\n  0\nBLOCK\n  5\nA06\n330\nA03\n100\nAcDbEntity\n 67\n1\n  8\n0\n100\nAcDbBlockBegin\n  2\n*PAPER_SPACE\n 70\n   0\n 10\n0\n 20\n0\n 30\n0\n  3\n*PAPER_SPACE\n  1\n \n  0\nENDBLK\n  5\nA07\n330\nA03\n100\nAcDbEntity\n 67\n    1\n  8\n0\n100\nAcDbBlockEnd\n  0\nENDSEC\n  0\nSECTION\n  2\nENTITIES\n  0\nLINE\n  5\nA08\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbLine\n 10\n190.926406871\n 20\n85.608206203\n 30\n0.000000000\n 11\n190.926406871\n 21\n86.424702784\n 31\n0.000000000\n  0\nLINE\n  5\nA09\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbLine\n 10\n155.571067812\n 20\n106.837117307\n 30\n0.000000000\n 11\n190.926406871\n 21\n86.424702784\n 31\n0.000000000\n  0\nLINE\n  5\nA0A\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbLine\n 10\n144.964466094\n 20\n83.566964751\n 30\n0.000000000\n 11\n166.177669530\n 21\n71.319516037\n 31\n0.000000000\n  0\nLINE\n  5\nA0B\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbLine\n 10\n134.357864376\n 20\n89.690689108\n 30\n0.000000000\n 11\n137.893398282\n 21\n87.649447655\n 31\n0.000000000\n  0\nELLIPSE\n  5\nA0C\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbEllipse\n 10\n141.428932188\n 20\n85.608206203\n 30\n0.000000000\n 11\n5.000000000\n 21\n0.000000000\n 31\n0.000000000\n 40\n0.577350269\n 41\n0.785398163\n 42\n2.356194490\n  0\nLINE\n  5\nA0D\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbLine\n 10\n166.177669530\n 20\n71.319516037\n 30\n0.000000000\n 11\n169.713203436\n 21\n73.360757489\n 31\n0.000000000\n  0\nLINE\n  5\nA0E\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbLine\n 10\n169.713203436\n 20\n73.360757489\n 30\n0.000000000\n 11\n190.926406871\n 21\n85.608206203\n 31\n0.000000000\n  0\nLINE\n  5\nA0F\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbLine\n 10\n134.357864376\n 20\n89.690689108\n 30\n0.000000000\n 11\n134.357864376\n 21\n94.589668593\n 31\n0.000000000\n  0\nLINE\n  5\nA10\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbLine\n 10\n134.357864376\n 20\n94.589668593\n 30\n0.000000000\n 11\n155.571067812\n 21\n106.837117307\n 31\n0.000000000\n  0\nLINE\n  5\nA11\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbLine\n 10\n169.713203436\n 20\n73.360757489\n 30\n0.000000000\n 11\n169.713203436\n 21\n74.177254070\n 31\n0.000000000\n  0\nLINE\n  5\nA12\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbLine\n 10\n169.713203436\n 20\n74.177254070\n 30\n0.000000000\n 11\n190.926406871\n 21\n86.424702784\n 31\n0.000000000\n  0\nLINE\n  5\nA13\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbLine\n 10\n144.964466094\n 20\n88.465944236\n 30\n0.000000000\n 11\n169.713203436\n 21\n74.177254070\n 31\n0.000000000\n  0\nELLIPSE\n  5\nA14\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbEllipse\n 10\n141.428932188\n 20\n90.507185689\n 30\n0.000000000\n 11\n5.000000000\n 21\n0.000000000\n 31\n0.000000000\n 40\n0.577350269\n 41\n5.497787144\n 42\n0.000000000\n  0\nELLIPSE\n  5\nA15\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbEllipse\n 10\n141.428932188\n 20\n90.507185689\n 30\n0.000000000\n 11\n5.000000000\n 21\n0.000000000\n 31\n0.000000000\n 40\n0.577350269\n 41\n0.000000000\n 42\n2.356194490\n  0\nLINE\n  5\nA16\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbLine\n 10\n134.357864376\n 20\n94.589668593\n 30\n0.000000000\n 11\n137.893398282\n 21\n92.548427141\n 31\n0.000000000\n  0\nLINE\n  5\nA17\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbLine\n 10\n144.964466094\n 20\n83.566964751\n 30\n0.000000000\n 11\n144.964466094\n 21\n88.465944236\n 31\n0.000000000\n  0\nLINE\n  5\nA18\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbLine\n 10\n137.893398282\n 20\n87.649447655\n 30\n0.000000000\n 11\n137.893398282\n 21\n92.548427141\n 31\n0.000000000\n  0\nLINE\n  5\nA19\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbLine\n 10\n106.073593129\n 20\n93.773172012\n 30\n0.000000000\n 11\n106.073593129\n 21\n126.433035249\n 31\n0.000000000\n  0\nLINE\n  5\nA1A\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbLine\n 10\n106.073593129\n 20\n126.433035249\n 30\n0.000000000\n 11\n127.286796564\n 21\n138.680483963\n 31\n0.000000000\n  0\nLINE\n  5\nA1B\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbLine\n 10\n106.073593129\n 20\n93.773172012\n 30\n0.000000000\n 11\n110.316233816\n 21\n91.323682269\n 31\n0.000000000\n  0\nLINE\n  5\nA1C\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbLine\n 10\n110.316233816\n 20\n91.323682269\n 30\n0.000000000\n 11\n110.316233816\n 21\n123.983545507\n 31\n0.000000000\n  0\nLINE\n  5\nA1D\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbLine\n 10\n106.073593129\n 20\n126.433035249\n 30\n0.000000000\n 11\n110.316233816\n 21\n123.983545507\n 31\n0.000000000\n  0\nLINE\n  5\nA1E\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbLine\n 10\n127.286796564\n 20\n138.680483963\n 30\n0.000000000\n 11\n131.529437252\n 21\n136.230994220\n 31\n0.000000000\n  0\nLINE\n  5\nA1F\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbLine\n 10\n110.316233816\n 20\n123.983545507\n 30\n0.000000000\n 11\n131.529437252\n 21\n136.230994220\n 31\n0.000000000\n  0\nLINE\n  5\nA20\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbLine\n 10\n110.316233816\n 20\n91.323682269\n 30\n0.000000000\n 11\n131.529437252\n 21\n103.571130983\n 31\n0.000000000\n  0\nLINE\n  5\nA21\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbLine\n 10\n131.529437252\n 20\n103.571130983\n 30\n0.000000000\n 11\n131.529437252\n 21\n136.230994220\n 31\n0.000000000\n  0\nELLIPSE\n  5\nA22\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbEllipse\n 10\n120.922835534\n 20\n119.492814311\n 30\n0.000000000\n 11\n-2.000000000\n 21\n-3.464101615\n 31\n0.000000000\n 40\n0.577350269\n 41\n0.785398163\n 42\n3.141592654\n  0\nELLIPSE\n  5\nA23\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbEllipse\n 10\n120.922835534\n 20\n119.492814311\n 30\n0.000000000\n 11\n-2.000000000\n 21\n-3.464101615\n 31\n0.000000000\n 40\n0.577350269\n 41\n3.141592654\n 42\n0.000000000\n  0\nELLIPSE\n  5\nA24\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbEllipse\n 10\n120.922835534\n 20\n119.492814311\n 30\n0.000000000\n 11\n-2.000000000\n 21\n-3.464101615\n 31\n0.000000000\n 40\n0.577350269\n 41\n0.000000000\n 42\n0.785398163\n  0\nLINE\n  5\nA25\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbLine\n 10\n161.621514898\n 20\n106.837117307\n 30\n0.000000000\n 11\n161.621514898\n 21\n71.319516037\n 31\n0.000000000\n  0\nLINE\n  5\nA26\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbLine\n 10\n106.073593129\n 20\n115.002083116\n 30\n0.000000000\n 11\n131.529437252\n 21\n115.002083116\n 31\n0.000000000\n  0\nLINE\n  5\nA27\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbLine\n 10\n156.318214039\n 20\n88.465944236\n 30\n0.000000000\n 11\n156.318214039\n 21\n71.319516037\n 31\n0.000000000\n  0\nENDSEC\n  0\nSECTION\n  2\nOBJECTS\n  0\nDICTIONARY\n  5\nF000\n330\n0\n100\nAcDbDictionary\n  3\nACAD_GROUP\n350\nF001\n  0\nDICTIONARY\n  5\nF001\n330\nF000\n100\nAcDbDictionary\n  0\nENDSEC\n  0\nEOF"
+  },
+  "plate_face_centerlines_rotated": {
+   "views": {
+    "View": {
+     "X": 148.5,
+     "Y": 105.0,
+     "Scale": 2.0,
+     "ScaleType": "Custom",
+     "Direction": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "XDirection": [
+      1.0,
+      0.0,
+      0.0
+     ],
+     "Rotation": 30.0,
+     "nvis": 10,
+     "nhid": 0,
+     "edges": [
+      {
+       "curve": "Line",
+       "start": [
+        -11.320508075688775,
+        -20.392304845413264,
+        0.0
+       ],
+       "end": [
+        -24.82050807568877,
+        2.99038105676658,
+        0.0
+       ],
+       "length": 27.0
+      },
+      {
+       "curve": "Circle",
+       "start": [
+        -11.320508075688775,
+        -20.392304845413264,
+        0.0
+       ],
+       "end": [
+        -7.22243186433545,
+        -21.490381056766577,
+        0.0
+       ],
+       "length": 4.7123889803847,
+       "radius": 3.0,
+       "center": [
+        -8.722431864335459,
+        -18.892304845413264,
+        0.0
+       ]
+      },
+      {
+       "curve": "Line",
+       "start": [
+        -24.82050807568877,
+        2.99038105676658,
+        0.0
+       ],
+       "end": [
+        9.820508075688778,
+        22.990381056766577,
+        0.0
+       ],
+       "length": 40.0
+      },
+      {
+       "curve": "Line",
+       "start": [
+        -7.222431864335459,
+        -21.49038105676658,
+        0.0
+       ],
+       "end": [
+        24.820508075688775,
+        -2.9903810567665836,
+        0.0
+       ],
+       "length": 37.0
+      },
+      {
+       "curve": "Line",
+       "start": [
+        24.82050807568877,
+        -2.990381056766582,
+        0.0
+       ],
+       "end": [
+        9.820508075688773,
+        22.99038105676658,
+        0.0
+       ],
+       "length": 30.0
+      },
+      {
+       "curve": "Circle",
+       "start": [
+        8.124355652982143,
+        13.928203230275509,
+        0.0
+       ],
+       "end": [
+        8.124355652982143,
+        13.928203230275509,
+        0.0
+       ],
+       "length": 25.13274122871836,
+       "radius": 4.0,
+       "center": [
+        4.660254037844387,
+        11.928203230275509,
+        0.0
+       ]
+      },
+      {
+       "curve": "Line",
+       "start": [
+        -10.392304845413264,
+        -5.999999999999999,
+        0.0
+       ],
+       "end": [
+        10.392304845413264,
+        5.999999999999999,
+        0.0
+       ],
+       "length": 24.0
+      },
+      {
+       "curve": "Line",
+       "start": [
+        -7.499999999999999,
+        12.99038105676658,
+        0.0
+       ],
+       "end": [
+        7.500000000000001,
+        -12.990381056766584,
+        0.0
+       ],
+       "length": 30.000000000000004
+      },
+      {
+       "curve": "Line",
+       "start": [
+        0.6961524227066329,
+        10.794228634059948,
+        0.0
+       ],
+       "end": [
+        7.6243556529821435,
+        14.794228634059948,
+        0.0
+       ],
+       "length": 8.0
+      },
+      {
+       "curve": "Line",
+       "start": [
+        2.365948292440204,
+        15.204811407431475,
+        0.0
+       ],
+       "end": [
+        6.954559783248572,
+        8.651595053119541,
+        0.0
+       ],
+       "length": 7.999999999999999
+      }
+     ],
+     "vertices": [
+      [
+       -11.320508075688775,
+       -20.392304845413264,
+       0.0
+      ],
+      [
+       -24.82050807568877,
+       2.99038105676658,
+       0.0
+      ],
+      [
+       -7.22243186433545,
+       -21.490381056766577,
+       0.0
+      ],
+      [
+       -8.722431864335459,
+       -18.892304845413264,
+       0.0
+      ],
+      [
+       9.820508075688778,
+       22.990381056766577,
+       0.0
+      ],
+      [
+       24.820508075688775,
+       -2.9903810567665836,
+       0.0
+      ],
+      [
+       8.124355652982143,
+       13.928203230275509,
+       0.0
+      ],
+      [
+       8.124355652982143,
+       13.928203230275509,
+       0.0
+      ],
+      [
+       4.660254037844387,
+       11.928203230275509,
+       0.0
+      ]
+     ],
+     "cosmetic": {
+      "vertexes": [],
+      "edges": [
+       {
+        "style": 2,
+        "weight": 0.5,
+        "color": [
+         0.0,
+         0.0,
+         0.0,
+         1.0
+        ],
+        "visible": true
+       }
+      ],
+      "centerlines": [
+       {
+        "Format": {
+         "style": 2,
+         "weight": 0.5,
+         "color": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+         ],
+         "visible": true
+        },
+        "Mode": 0,
+        "Type": 0,
+        "Edges": [],
+        "Faces": [
+         "Face0"
+        ],
+        "Points": [],
+        "HorizShift": 0.0,
+        "VertShift": 0.0,
+        "Rotation": 0.0,
+        "Extension": 0.0,
+        "Flip": false
+       },
+       {
+        "Format": {
+         "style": 2,
+         "weight": 0.5,
+         "color": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+         ],
+         "visible": true
+        },
+        "Mode": 1,
+        "Type": 0,
+        "Edges": [],
+        "Faces": [
+         "Face1"
+        ],
+        "Points": [],
+        "HorizShift": 0.0,
+        "VertShift": 1.0,
+        "Rotation": 0.0,
+        "Extension": 0.0,
+        "Flip": false
+       },
+       {
+        "Format": {
+         "style": 2,
+         "weight": 0.5,
+         "color": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+         ],
+         "visible": true
+        },
+        "Mode": 0,
+        "Type": 0,
+        "Edges": [],
+        "Faces": [
+         "Face1"
+        ],
+        "Points": [],
+        "HorizShift": 0.0,
+        "VertShift": 0.0,
+        "Rotation": 5.0,
+        "Extension": 0.0,
+        "Flip": false
+       }
+      ]
+     }
+    }
+   },
+   "dims": {},
+   "page": {
+    "Scale": 1.0,
+    "ProjectionType": "First angle",
+    "Views": [
+     "View"
+    ]
+   },
+   "template": {
+    "Width": 297.0,
+    "Height": 210.0,
+    "Orientation": "Landscape",
+    "EditableTexts": {}
+   },
+   "dxf": "999\nFreeCAD v26.3 20260929 (Git shallow)\n  0\nSECTION\n  2\nHEADER\n  9\n$ACADVER\n  1\nAC1014\n  9\n$ACADMAINTVER\n 70\n     9\n  9\n$DWGCODEPAGE\n  3\nANSI_1252\n  9\n$TEXTSTYLE\n  7\nSTANDARD\n  9\n$DIMSTYLE\n  2\nSTANDARD\n  9\n$DIMTXSTY\n  7\nSTANDARD\n  9\n$LUNITS\n 70\n2\n  9\n$INSUNITS\n 70\n4\n  9\n$PEXTMAX\n 10\n50\n 20\n50\n 30\n50\n  9\n$PEXTMIN\n 10\n0\n 20\n0\n 30\n0\n  9\n$HANDSEED\n  5\nFFFF\n  0\nENDSEC\n  0\nSECTION\n  2\nCLASSES\n  0\nCLASS\n  1\nACDBDICTIONARYWDFLT\n  2\nAcDbDictionaryWithDefault\n  3\nObjectDBX Classes\n 90\n        0\n280\n     0\n281\n     0\n  0\nCLASS\n  1\nXRECORD\n  2\nAcDbXrecord\n  3\nObjectDBX Classes\n 90\n        0\n280\n     0\n281\n     0\n  0\nCLASS\n  1\nLWPOLYLINE\n  2\nAcDbPolyline\n  3\nObjectDBX Classes\n 90\n        0\n280\n     0\n281\n     1\n  0\nENDSEC\n  0\nSECTION\n  2\nTABLES\n  0\nTABLE\n  2\nVPORT\n  5\n20\n330\n0\n100\nAcDbSymbolTable\n 70\n     1\n  0\nVPORT\n  5\n21\n330\n20\n100\nAcDbSymbolTableRecord\n100\nAcDbViewportTableRecord\n  2\n*ACTIVE\n 70\n     0\n  0\nENDTAB\n  0\nTABLE\n  2\nLTYPE\n  5\n22\n330\n0\n100\nAcDbSymbolTable\n 70\n     1\n  0\nLTYPE\n  5\n23\n330\n21\n100\nAcDbSymbolTableRecord\n100\nAcDbLinetypeTableRecord\n  2\nBYBLOCK\n 70\n     0\n  3\n\n 72\n    65\n 73\n     0\n 40\n0.0\n  0\nLTYPE\n  5\n24\n330\n21\n100\nAcDbSymbolTableRecord\n100\nAcDbLinetypeTableRecord\n  2\nBYLAYER\n 70\n     0\n  3\n\n 72\n    65\n 73\n     0\n 40\n0.0\n  0\nLTYPE\n  5\n25\n330\n21\n100\nAcDbSymbolTableRecord\n100\nAcDbLinetypeTableRecord\n  2\nCONTINUOUS\n 70\n     0\n  3\nSolid line\n 72\n    65\n 73\n     0\n 40\n0.0\n  0\nENDTAB\n  0\nTABLE\n  2\nLAYER\n  5\nA12\n330\n0\n100\nAcDbSymbolTable\n 70\n2\n  0\nLAYER\n  5\nA13\n330\nA12\n100\nAcDbSymbolTableRecord\n100\nAcDbLayerTableRecord\n  2\n0\n 70\n   0\n 62\n   7\n  6\nCONTINUOUS\n  0\nLAYER\n  5\nA14\n330\nA12\n100\nAcDbSymbolTableRecord\n100\nAcDbLayerTableRecord\n  2\nView\n 70\n    0\n 62\n    7\n  6\nCONTINUOUS\n  0\nENDTAB\n  0\nTABLE\n  2\nSTYLE\n  5\n70\n330\n0\n100\nAcDbSymbolTable\n 70\n     2\n  0\nSTYLE\n  5\n71\n330\n70\n100\nAcDbSymbolTableRecord\n100\nAcDbTextStyleTableRecord\n  2\nSTANDARD\n 70\n     0\n 40\n0.0\n 41\n1.0\n 50\n0.0\n 71\n     0\n 42\n2.5\n  3\narial.ttf\n  4\n\n  0\nSTYLE\n  5\n72\n330\n70\n100\nAcDbSymbolTableRecord\n100\nAcDbTextStyleTableRecord\n  2\nANNOTATIVE\n 70\n     0\n 40\n0.0\n 41\n1.0\n 50\n0.0\n 71\n     0\n 42\n2.5\n  3\narial.ttf\n  4\n\n  0\nENDTAB\n  0\nTABLE\n  2\nVIEW\n  5\n73\n330\n0\n100\nAcDbSymbolTable\n 70\n     0\n  0\nENDTAB\n  0\nTABLE\n  2\nUCS\n  5\n74\n330\n0\n100\nAcDbSymbolTable\n 70\n     0\n  0\nENDTAB\n  0\nTABLE\n  2\nAPPID\n  5\n75\n330\n0\n100\nAcDbSymbolTable\n 70\n     2\n  0\nAPPID\n  5\n76\n330\n75\n100\nAcDbSymbolTableRecord\n100\nAcDbRegAppTableRecord\n  2\nACAD\n 70\n     0\n  0\nAPPID\n  5\n77\n330\n75\n100\nAcDbSymbolTableRecord\n100\nAcDbRegAppTableRecord\n  2\nACADANNOTATIVE\n 70\n     0\n  0\nENDTAB\n  0\nTABLE\n  2\nDIMSTYLE\n  5\n78\n330\n0\n100\nAcDbSymbolTable\n 70\n     2\n  0\nDIMSTYLE\n105\n79\n330\n78\n100\nAcDbSymbolTableRecord\n100\nAcDbDimStyleTableRecord\n  2\nSTANDARD\n 70\n     0\n  3\n\n  4\n\n  5\n\n  6\n\n  7\n\n 40\n0.0\n 41\n2.5\n 42\n0.625\n 43\n3.75\n 44\n1.25\n 45\n0.0\n 46\n0.0\n 47\n0.0\n 48\n0.0\n140\n2.5\n141\n2.5\n142\n0.0\n143\n0.03937007874016\n144\n1.0\n145\n0.0\n146\n1.0\n147\n0.625\n 71\n     0\n 72\n     0\n 73\n     0\n 74\n     0\n 75\n     0\n 76\n     0\n 77\n     1\n 78\n     8\n170\n     0\n171\n     3\n172\n     1\n173\n     0\n174\n     0\n175\n     0\n176\n     0\n177\n     0\n178\n     0\n270\n     2\n271\n     2\n272\n     2\n273\n     2\n274\n     3\n340\n71\n275\n     0\n280\n     0\n281\n     0\n282\n     0\n283\n     0\n284\n     8\n285\n     0\n286\n     0\n287\n     3\n288\n     0\n  0\nENDTAB\n  0\nTABLE\n  2\nBLOCK_RECORD\n  5\nA01\n330\n0\n100\nAcDbSymbolTable\n  70\n5\n  0\nBLOCK_RECORD\n  5\nA02\n330\nA01\n100\nAcDbSymbolTableRecord\n100\nAcDbBlockTableRecord\n  2\n*MODEL_SPACE\n  0\nBLOCK_RECORD\n  5\nA03\n330\nA01\n100\nAcDbSymbolTableRecord\n100\nAcDbBlockTableRecord\n  2\n*PAPER_SPACE\n  0\nENDTAB\n  0\nENDSEC\n  0\nSECTION\n  2\nBLOCKS\n  0\nBLOCK\n  5\nA04\n330\nA02\n100\nAcDbEntity\n  8\n0\n100\nAcDbBlockBegin\n  2\n*MODEL_SPACE\n 70\n   0\n 10\n0\n 20\n0\n 30\n0\n  3\n*MODEL_SPACE\n  1\n \n  0\nENDBLK\n  5\nA05\n330\nA02\n100\nAcDbEntity\n  8\n0\n100\nAcDbBlockEnd\n  0\nBLOCK\n  5\nA06\n330\nA03\n100\nAcDbEntity\n 67\n1\n  8\n0\n100\nAcDbBlockBegin\n  2\n*PAPER_SPACE\n 70\n   0\n 10\n0\n 20\n0\n 30\n0\n  3\n*PAPER_SPACE\n  1\n \n  0\nENDBLK\n  5\nA07\n330\nA03\n100\nAcDbEntity\n 67\n    1\n  8\n0\n100\nAcDbBlockEnd\n  0\nENDSEC\n  0\nSECTION\n  2\nENTITIES\n  0\nLINE\n  5\nA08\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbLine\n 10\n125.858983849\n 20\n64.215390309\n 30\n0.000000000\n 11\n98.858983849\n 21\n110.980762114\n 31\n0.000000000\n  0\nARC\n  5\nA09\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbCircle\n 10\n131.055136271\n 20\n67.215390309\n 30\n0.000000000\n 40\n6.000000000\n100\nAcDbArc\n 50\n-150.000000000\n 51\n-60.000000000\n  0\nLINE\n  5\nA0A\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbLine\n 10\n98.858983849\n 20\n110.980762114\n 30\n0.000000000\n 11\n168.141016151\n 21\n150.980762114\n 31\n0.000000000\n  0\nLINE\n  5\nA0B\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbLine\n 10\n134.055136271\n 20\n62.019237886\n 30\n0.000000000\n 11\n198.141016151\n 21\n99.019237886\n 31\n0.000000000\n  0\nLINE\n  5\nA0C\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbLine\n 10\n198.141016151\n 20\n99.019237886\n 30\n0.000000000\n 11\n168.141016151\n 21\n150.980762114\n 31\n0.000000000\n  0\nCIRCLE\n  5\nA0D\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbCircle\n 10\n157.820508076\n 20\n128.856406461\n 30\n0.000000000\n 40\n8.000000000\n  0\nLINE\n  5\nA0E\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbLine\n 10\n127.715390309\n 20\n93.000000000\n 30\n0.000000000\n 11\n169.284609691\n 21\n117.000000000\n 31\n0.000000000\n  0\nLINE\n  5\nA0F\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbLine\n 10\n133.500000000\n 20\n130.980762114\n 30\n0.000000000\n 11\n163.500000000\n 21\n79.019237886\n 31\n0.000000000\n  0\nLINE\n  5\nA10\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbLine\n 10\n149.892304845\n 20\n126.588457268\n 30\n0.000000000\n 11\n163.748711306\n 21\n134.588457268\n 31\n0.000000000\n  0\nLINE\n  5\nA11\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbLine\n 10\n153.231896585\n 20\n135.409622815\n 30\n0.000000000\n 11\n162.409119566\n 21\n122.303190106\n 31\n0.000000000\n  0\nENDSEC\n  0\nSECTION\n  2\nOBJECTS\n  0\nDICTIONARY\n  5\nF000\n330\n0\n100\nAcDbDictionary\n  3\nACAD_GROUP\n350\nF001\n  0\nDICTIONARY\n  5\nF001\n330\nF000\n100\nAcDbDictionary\n  0\nENDSEC\n  0\nEOF"
+  },
+  "shaft_face_centerlines": {
+   "views": {
+    "View": {
+     "X": 148.5,
+     "Y": 105.0,
+     "Scale": 1.0,
+     "ScaleType": "Page",
+     "Direction": [
+      0.0,
+      -1.0,
+      0.0
+     ],
+     "XDirection": [
+      1.0,
+      0.0,
+      0.0
+     ],
+     "Rotation": 0.0,
+     "nvis": 18,
+     "nhid": 0,
+     "edges": [
+      {
+       "curve": "Line",
+       "start": [
+        6.0,
+        5.0,
+        0.0
+       ],
+       "end": [
+        6.0,
+        23.0,
+        0.0
+       ],
+       "length": 18.0
+      },
+      {
+       "curve": "BSplineCurve",
+       "start": [
+        -6.0,
+        23.0,
+        0.0
+       ],
+       "end": [
+        6.0,
+        23.0,
+        0.0
+       ],
+       "length": 12.0
+      },
+      {
+       "curve": "Line",
+       "start": [
+        6.0,
+        23.0,
+        0.0
+       ],
+       "end": [
+        4.0,
+        25.0,
+        0.0
+       ],
+       "length": 2.82842712474619
+      },
+      {
+       "curve": "BSplineCurve",
+       "start": [
+        -4.0,
+        25.0,
+        0.0
+       ],
+       "end": [
+        4.0,
+        25.0,
+        0.0
+       ],
+       "length": 8.0
+      },
+      {
+       "curve": "BSplineCurve",
+       "start": [
+        -10.0,
+        5.0,
+        0.0
+       ],
+       "end": [
+        10.0,
+        5.0,
+        0.0
+       ],
+       "length": 20.000000000000007
+      },
+      {
+       "curve": "Line",
+       "start": [
+        10.0,
+        -25.0,
+        0.0
+       ],
+       "end": [
+        10.0,
+        5.0,
+        0.0
+       ],
+       "length": 30.0
+      },
+      {
+       "curve": "BSplineCurve",
+       "start": [
+        -10.0,
+        -25.0,
+        0.0
+       ],
+       "end": [
+        10.0,
+        -25.0,
+        0.0
+       ],
+       "length": 20.000000000000007
+      },
+      {
+       "curve": "Line",
+       "start": [
+        -6.0,
+        5.0,
+        0.0
+       ],
+       "end": [
+        -6.0,
+        23.0,
+        0.0
+       ],
+       "length": 18.0
+      },
+      {
+       "curve": "Line",
+       "start": [
+        -4.0,
+        25.0,
+        0.0
+       ],
+       "end": [
+        -6.000000000000001,
+        23.0,
+        0.0
+       ],
+       "length": 2.8284271247461907
+      },
+      {
+       "curve": "Line",
+       "start": [
+        -10.0,
+        -25.0,
+        0.0
+       ],
+       "end": [
+        -10.0,
+        5.0,
+        0.0
+       ],
+       "length": 30.0
+      },
+      {
+       "curve": "Line",
+       "start": [
+        0.0,
+        25.0000001,
+        0.0
+       ],
+       "end": [
+        0.0,
+        -25.0000001,
+        0.0
+       ],
+       "length": 50.0000002
+      },
+      {
+       "curve": "Line",
+       "start": [
+        -10.0000001,
+        0.0,
+        0.0
+       ],
+       "end": [
+        10.0000001,
+        0.0,
+        0.0
+       ],
+       "length": 20.0000002
+      },
+      {
+       "curve": "Line",
+       "start": [
+        0.0,
+        5.000000099999999,
+        0.0
+       ],
+       "end": [
+        0.0,
+        -25.0000001,
+        0.0
+       ],
+       "length": 30.000000200000002
+      },
+      {
+       "curve": "Line",
+       "start": [
+        -10.0000001,
+        -10.0,
+        0.0
+       ],
+       "end": [
+        10.0000001,
+        -10.0,
+        0.0
+       ],
+       "length": 20.0000002
+      },
+      {
+       "curve": "Line",
+       "start": [
+        0.0,
+        23.0000001,
+        0.0
+       ],
+       "end": [
+        0.0,
+        4.999999900000001,
+        0.0
+       ],
+       "length": 18.000000200000002
+      },
+      {
+       "curve": "Line",
+       "start": [
+        -6.0000001,
+        14.0,
+        0.0
+       ],
+       "end": [
+        6.0000001,
+        14.0,
+        0.0
+       ],
+       "length": 12.0000002
+      },
+      {
+       "curve": "Line",
+       "start": [
+        0.0,
+        25.0000001,
+        0.0
+       ],
+       "end": [
+        0.0,
+        22.9999999,
+        0.0
+       ],
+       "length": 2.0000002000000023
+      },
+      {
+       "curve": "Line",
+       "start": [
+        -6.0000001,
+        24.0,
+        0.0
+       ],
+       "end": [
+        6.0000001,
+        24.0,
+        0.0
+       ],
+       "length": 12.0000002
+      }
+     ],
+     "vertices": [
+      [
+       6.0,
+       5.0,
+       0.0
+      ],
+      [
+       6.0,
+       23.0,
+       0.0
+      ],
+      [
+       -6.0,
+       23.0,
+       0.0
+      ],
+      [
+       4.0,
+       25.0,
+       0.0
+      ],
+      [
+       -4.0,
+       25.0,
+       0.0
+      ],
+      [
+       -10.0,
+       5.0,
+       0.0
+      ],
+      [
+       10.0,
+       5.0,
+       0.0
+      ],
+      [
+       10.0,
+       -25.0,
+       0.0
+      ],
+      [
+       -10.0,
+       -25.0,
+       0.0
+      ],
+      [
+       -6.0,
+       5.0,
+       0.0
+      ]
+     ],
+     "cosmetic": {
+      "vertexes": [],
+      "edges": [],
+      "centerlines": [
+       {
+        "Format": {
+         "style": 2,
+         "weight": 0.5,
+         "color": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+         ],
+         "visible": true
+        },
+        "Mode": 0,
+        "Type": 0,
+        "Edges": [],
+        "Faces": [
+         "Face0"
+        ],
+        "Points": [],
+        "HorizShift": 0.0,
+        "VertShift": 0.0,
+        "Rotation": 0.0,
+        "Extension": 0.0,
+        "Flip": false
+       },
+       {
+        "Format": {
+         "style": 2,
+         "weight": 0.5,
+         "color": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+         ],
+         "visible": true
+        },
+        "Mode": 1,
+        "Type": 0,
+        "Edges": [],
+        "Faces": [
+         "Face0"
+        ],
+        "Points": [],
+        "HorizShift": 0.0,
+        "VertShift": 0.0,
+        "Rotation": 0.0,
+        "Extension": 0.0,
+        "Flip": false
+       },
+       {
+        "Format": {
+         "style": 2,
+         "weight": 0.5,
+         "color": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+         ],
+         "visible": true
+        },
+        "Mode": 0,
+        "Type": 0,
+        "Edges": [],
+        "Faces": [
+         "Face1"
+        ],
+        "Points": [],
+        "HorizShift": 0.0,
+        "VertShift": 0.0,
+        "Rotation": 0.0,
+        "Extension": 0.0,
+        "Flip": false
+       },
+       {
+        "Format": {
+         "style": 2,
+         "weight": 0.5,
+         "color": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+         ],
+         "visible": true
+        },
+        "Mode": 1,
+        "Type": 0,
+        "Edges": [],
+        "Faces": [
+         "Face1"
+        ],
+        "Points": [],
+        "HorizShift": 0.0,
+        "VertShift": 0.0,
+        "Rotation": 0.0,
+        "Extension": 0.0,
+        "Flip": false
+       },
+       {
+        "Format": {
+         "style": 2,
+         "weight": 0.5,
+         "color": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+         ],
+         "visible": true
+        },
+        "Mode": 0,
+        "Type": 0,
+        "Edges": [],
+        "Faces": [
+         "Face2"
+        ],
+        "Points": [],
+        "HorizShift": 0.0,
+        "VertShift": 0.0,
+        "Rotation": 0.0,
+        "Extension": 0.0,
+        "Flip": false
+       },
+       {
+        "Format": {
+         "style": 2,
+         "weight": 0.5,
+         "color": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+         ],
+         "visible": true
+        },
+        "Mode": 1,
+        "Type": 0,
+        "Edges": [],
+        "Faces": [
+         "Face2"
+        ],
+        "Points": [],
+        "HorizShift": 0.0,
+        "VertShift": 0.0,
+        "Rotation": 0.0,
+        "Extension": 0.0,
+        "Flip": false
+       },
+       {
+        "Format": {
+         "style": 2,
+         "weight": 0.5,
+         "color": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+         ],
+         "visible": true
+        },
+        "Mode": 0,
+        "Type": 0,
+        "Edges": [],
+        "Faces": [
+         "Face3"
+        ],
+        "Points": [],
+        "HorizShift": 0.0,
+        "VertShift": 0.0,
+        "Rotation": 0.0,
+        "Extension": 0.0,
+        "Flip": false
+       },
+       {
+        "Format": {
+         "style": 2,
+         "weight": 0.5,
+         "color": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+         ],
+         "visible": true
+        },
+        "Mode": 1,
+        "Type": 0,
+        "Edges": [],
+        "Faces": [
+         "Face3"
+        ],
+        "Points": [],
+        "HorizShift": 0.0,
+        "VertShift": 0.0,
+        "Rotation": 0.0,
+        "Extension": 0.0,
+        "Flip": false
+       }
+      ]
+     }
+    }
+   },
+   "dims": {},
+   "page": {
+    "Scale": 1.0,
+    "ProjectionType": "First angle",
+    "Views": [
+     "View"
+    ]
+   },
+   "template": {
+    "Width": 297.0,
+    "Height": 210.0,
+    "Orientation": "Landscape",
+    "EditableTexts": {}
+   },
+   "dxf": "999\nFreeCAD v26.3 20260929 (Git shallow)\n  0\nSECTION\n  2\nHEADER\n  9\n$ACADVER\n  1\nAC1014\n  9\n$ACADMAINTVER\n 70\n     9\n  9\n$DWGCODEPAGE\n  3\nANSI_1252\n  9\n$TEXTSTYLE\n  7\nSTANDARD\n  9\n$DIMSTYLE\n  2\nSTANDARD\n  9\n$DIMTXSTY\n  7\nSTANDARD\n  9\n$LUNITS\n 70\n2\n  9\n$INSUNITS\n 70\n4\n  9\n$PEXTMAX\n 10\n50\n 20\n50\n 30\n50\n  9\n$PEXTMIN\n 10\n0\n 20\n0\n 30\n0\n  9\n$HANDSEED\n  5\nFFFF\n  0\nENDSEC\n  0\nSECTION\n  2\nCLASSES\n  0\nCLASS\n  1\nACDBDICTIONARYWDFLT\n  2\nAcDbDictionaryWithDefault\n  3\nObjectDBX Classes\n 90\n        0\n280\n     0\n281\n     0\n  0\nCLASS\n  1\nXRECORD\n  2\nAcDbXrecord\n  3\nObjectDBX Classes\n 90\n        0\n280\n     0\n281\n     0\n  0\nCLASS\n  1\nLWPOLYLINE\n  2\nAcDbPolyline\n  3\nObjectDBX Classes\n 90\n        0\n280\n     0\n281\n     1\n  0\nENDSEC\n  0\nSECTION\n  2\nTABLES\n  0\nTABLE\n  2\nVPORT\n  5\n20\n330\n0\n100\nAcDbSymbolTable\n 70\n     1\n  0\nVPORT\n  5\n21\n330\n20\n100\nAcDbSymbolTableRecord\n100\nAcDbViewportTableRecord\n  2\n*ACTIVE\n 70\n     0\n  0\nENDTAB\n  0\nTABLE\n  2\nLTYPE\n  5\n22\n330\n0\n100\nAcDbSymbolTable\n 70\n     1\n  0\nLTYPE\n  5\n23\n330\n21\n100\nAcDbSymbolTableRecord\n100\nAcDbLinetypeTableRecord\n  2\nBYBLOCK\n 70\n     0\n  3\n\n 72\n    65\n 73\n     0\n 40\n0.0\n  0\nLTYPE\n  5\n24\n330\n21\n100\nAcDbSymbolTableRecord\n100\nAcDbLinetypeTableRecord\n  2\nBYLAYER\n 70\n     0\n  3\n\n 72\n    65\n 73\n     0\n 40\n0.0\n  0\nLTYPE\n  5\n25\n330\n21\n100\nAcDbSymbolTableRecord\n100\nAcDbLinetypeTableRecord\n  2\nCONTINUOUS\n 70\n     0\n  3\nSolid line\n 72\n    65\n 73\n     0\n 40\n0.0\n  0\nENDTAB\n  0\nTABLE\n  2\nLAYER\n  5\nA1A\n330\n0\n100\nAcDbSymbolTable\n 70\n2\n  0\nLAYER\n  5\nA1B\n330\nA1A\n100\nAcDbSymbolTableRecord\n100\nAcDbLayerTableRecord\n  2\n0\n 70\n   0\n 62\n   7\n  6\nCONTINUOUS\n  0\nLAYER\n  5\nA1C\n330\nA1A\n100\nAcDbSymbolTableRecord\n100\nAcDbLayerTableRecord\n  2\nView\n 70\n    0\n 62\n    7\n  6\nCONTINUOUS\n  0\nENDTAB\n  0\nTABLE\n  2\nSTYLE\n  5\n70\n330\n0\n100\nAcDbSymbolTable\n 70\n     2\n  0\nSTYLE\n  5\n71\n330\n70\n100\nAcDbSymbolTableRecord\n100\nAcDbTextStyleTableRecord\n  2\nSTANDARD\n 70\n     0\n 40\n0.0\n 41\n1.0\n 50\n0.0\n 71\n     0\n 42\n2.5\n  3\narial.ttf\n  4\n\n  0\nSTYLE\n  5\n72\n330\n70\n100\nAcDbSymbolTableRecord\n100\nAcDbTextStyleTableRecord\n  2\nANNOTATIVE\n 70\n     0\n 40\n0.0\n 41\n1.0\n 50\n0.0\n 71\n     0\n 42\n2.5\n  3\narial.ttf\n  4\n\n  0\nENDTAB\n  0\nTABLE\n  2\nVIEW\n  5\n73\n330\n0\n100\nAcDbSymbolTable\n 70\n     0\n  0\nENDTAB\n  0\nTABLE\n  2\nUCS\n  5\n74\n330\n0\n100\nAcDbSymbolTable\n 70\n     0\n  0\nENDTAB\n  0\nTABLE\n  2\nAPPID\n  5\n75\n330\n0\n100\nAcDbSymbolTable\n 70\n     2\n  0\nAPPID\n  5\n76\n330\n75\n100\nAcDbSymbolTableRecord\n100\nAcDbRegAppTableRecord\n  2\nACAD\n 70\n     0\n  0\nAPPID\n  5\n77\n330\n75\n100\nAcDbSymbolTableRecord\n100\nAcDbRegAppTableRecord\n  2\nACADANNOTATIVE\n 70\n     0\n  0\nENDTAB\n  0\nTABLE\n  2\nDIMSTYLE\n  5\n78\n330\n0\n100\nAcDbSymbolTable\n 70\n     2\n  0\nDIMSTYLE\n105\n79\n330\n78\n100\nAcDbSymbolTableRecord\n100\nAcDbDimStyleTableRecord\n  2\nSTANDARD\n 70\n     0\n  3\n\n  4\n\n  5\n\n  6\n\n  7\n\n 40\n0.0\n 41\n2.5\n 42\n0.625\n 43\n3.75\n 44\n1.25\n 45\n0.0\n 46\n0.0\n 47\n0.0\n 48\n0.0\n140\n2.5\n141\n2.5\n142\n0.0\n143\n0.03937007874016\n144\n1.0\n145\n0.0\n146\n1.0\n147\n0.625\n 71\n     0\n 72\n     0\n 73\n     0\n 74\n     0\n 75\n     0\n 76\n     0\n 77\n     1\n 78\n     8\n170\n     0\n171\n     3\n172\n     1\n173\n     0\n174\n     0\n175\n     0\n176\n     0\n177\n     0\n178\n     0\n270\n     2\n271\n     2\n272\n     2\n273\n     2\n274\n     3\n340\n71\n275\n     0\n280\n     0\n281\n     0\n282\n     0\n283\n     0\n284\n     8\n285\n     0\n286\n     0\n287\n     3\n288\n     0\n  0\nENDTAB\n  0\nTABLE\n  2\nBLOCK_RECORD\n  5\nA01\n330\n0\n100\nAcDbSymbolTable\n  70\n5\n  0\nBLOCK_RECORD\n  5\nA02\n330\nA01\n100\nAcDbSymbolTableRecord\n100\nAcDbBlockTableRecord\n  2\n*MODEL_SPACE\n  0\nBLOCK_RECORD\n  5\nA03\n330\nA01\n100\nAcDbSymbolTableRecord\n100\nAcDbBlockTableRecord\n  2\n*PAPER_SPACE\n  0\nENDTAB\n  0\nENDSEC\n  0\nSECTION\n  2\nBLOCKS\n  0\nBLOCK\n  5\nA04\n330\nA02\n100\nAcDbEntity\n  8\n0\n100\nAcDbBlockBegin\n  2\n*MODEL_SPACE\n 70\n   0\n 10\n0\n 20\n0\n 30\n0\n  3\n*MODEL_SPACE\n  1\n \n  0\nENDBLK\n  5\nA05\n330\nA02\n100\nAcDbEntity\n  8\n0\n100\nAcDbBlockEnd\n  0\nBLOCK\n  5\nA06\n330\nA03\n100\nAcDbEntity\n 67\n1\n  8\n0\n100\nAcDbBlockBegin\n  2\n*PAPER_SPACE\n 70\n   0\n 10\n0\n 20\n0\n 30\n0\n  3\n*PAPER_SPACE\n  1\n \n  0\nENDBLK\n  5\nA07\n330\nA03\n100\nAcDbEntity\n 67\n    1\n  8\n0\n100\nAcDbBlockEnd\n  0\nENDSEC\n  0\nSECTION\n  2\nENTITIES\n  0\nLINE\n  5\nA08\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbLine\n 10\n154.500000000\n 20\n110.000000000\n 30\n0.000000000\n 11\n154.500000000\n 21\n128.000000000\n 31\n0.000000000\n  0\nSPLINE\n  5\nA09\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbSpline\n210\n0\n220\n0\n230\n1\n 70\n8\n 71\n1\n 72\n17\n 73\n15\n 74\n0\n 40\n3.141592654\n 40\n3.141592654\n 40\n3.365992129\n 40\n3.590391604\n 40\n3.814791079\n 40\n4.039190555\n 40\n4.263590030\n 40\n4.487989505\n 40\n4.712388980\n 40\n4.936788456\n 40\n5.161187931\n 40\n5.385587406\n 40\n5.609986881\n 40\n5.834386357\n 40\n6.058785832\n 40\n6.283185307\n 40\n6.283185307\n 10\n142.500000000\n 20\n128.000000000\n 30\n0.000000000\n 10\n142.650432527\n 20\n128.000000000\n 30\n0.000000000\n 10\n143.094186793\n 20\n128.000000000\n 30\n0.000000000\n 10\n143.809011105\n 20\n128.000000000\n 30\n0.000000000\n 10\n144.759061189\n 20\n128.000000000\n 30\n0.000000000\n 10\n145.896697565\n 20\n128.000000000\n 30\n0.000000000\n 10\n147.164874396\n 20\n128.000000000\n 30\n0.000000000\n 10\n148.500000000\n 20\n128.000000000\n 30\n0.000000000\n 10\n149.835125604\n 20\n128.000000000\n 30\n0.000000000\n 10\n151.103302435\n 20\n128.000000000\n 30\n0.000000000\n 10\n152.240938811\n 20\n128.000000000\n 30\n0.000000000\n 10\n153.190988895\n 20\n128.000000000\n 30\n0.000000000\n 10\n153.905813207\n 20\n128.000000000\n 30\n0.000000000\n 10\n154.349567473\n 20\n128.000000000\n 30\n0.000000000\n 10\n154.500000000\n 20\n128.000000000\n 30\n0.000000000\n  0\nLINE\n  5\nA0A\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbLine\n 10\n154.500000000\n 20\n128.000000000\n 30\n0.000000000\n 11\n152.500000000\n 21\n130.000000000\n 31\n0.000000000\n  0\nSPLINE\n  5\nA0B\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbSpline\n210\n0\n220\n0\n230\n1\n 70\n8\n 71\n1\n 72\n17\n 73\n15\n 74\n0\n 40\n3.141592654\n 40\n3.141592654\n 40\n3.365992129\n 40\n3.590391604\n 40\n3.814791079\n 40\n4.039190555\n 40\n4.263590030\n 40\n4.487989505\n 40\n4.712388980\n 40\n4.936788456\n 40\n5.161187931\n 40\n5.385587406\n 40\n5.609986881\n 40\n5.834386357\n 40\n6.058785832\n 40\n6.283185307\n 40\n6.283185307\n 10\n144.500000000\n 20\n130.000000000\n 30\n0.000000000\n 10\n144.600288351\n 20\n130.000000000\n 30\n0.000000000\n 10\n144.896124528\n 20\n130.000000000\n 30\n0.000000000\n 10\n145.372674070\n 20\n130.000000000\n 30\n0.000000000\n 10\n146.006040793\n 20\n130.000000000\n 30\n0.000000000\n 10\n146.764465044\n 20\n130.000000000\n 30\n0.000000000\n 10\n147.609916264\n 20\n130.000000000\n 30\n0.000000000\n 10\n148.500000000\n 20\n130.000000000\n 30\n0.000000000\n 10\n149.390083736\n 20\n130.000000000\n 30\n0.000000000\n 10\n150.235534956\n 20\n130.000000000\n 30\n0.000000000\n 10\n150.993959207\n 20\n130.000000000\n 30\n0.000000000\n 10\n151.627325930\n 20\n130.000000000\n 30\n0.000000000\n 10\n152.103875472\n 20\n130.000000000\n 30\n0.000000000\n 10\n152.399711649\n 20\n130.000000000\n 30\n0.000000000\n 10\n152.500000000\n 20\n130.000000000\n 30\n0.000000000\n  0\nSPLINE\n  5\nA0C\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbSpline\n210\n0\n220\n0\n230\n1\n 70\n8\n 71\n1\n 72\n17\n 73\n15\n 74\n0\n 40\n3.141592654\n 40\n3.141592654\n 40\n3.365992129\n 40\n3.590391604\n 40\n3.814791079\n 40\n4.039190555\n 40\n4.263590030\n 40\n4.487989505\n 40\n4.712388980\n 40\n4.936788456\n 40\n5.161187931\n 40\n5.385587406\n 40\n5.609986881\n 40\n5.834386357\n 40\n6.058785832\n 40\n6.283185307\n 40\n6.283185307\n 10\n138.500000000\n 20\n110.000000000\n 30\n0.000000000\n 10\n138.750720878\n 20\n110.000000000\n 30\n0.000000000\n 10\n139.490311321\n 20\n110.000000000\n 30\n0.000000000\n 10\n140.681685175\n 20\n110.000000000\n 30\n0.000000000\n 10\n142.265101981\n 20\n110.000000000\n 30\n0.000000000\n 10\n144.161162609\n 20\n110.000000000\n 30\n0.000000000\n 10\n146.274790660\n 20\n110.000000000\n 30\n0.000000000\n 10\n148.500000000\n 20\n110.000000000\n 30\n0.000000000\n 10\n150.725209340\n 20\n110.000000000\n 30\n0.000000000\n 10\n152.838837391\n 20\n110.000000000\n 30\n0.000000000\n 10\n154.734898019\n 20\n110.000000000\n 30\n0.000000000\n 10\n156.318314825\n 20\n110.000000000\n 30\n0.000000000\n 10\n157.509688679\n 20\n110.000000000\n 30\n0.000000000\n 10\n158.249279122\n 20\n110.000000000\n 30\n0.000000000\n 10\n158.500000000\n 20\n110.000000000\n 30\n0.000000000\n  0\nLINE\n  5\nA0D\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbLine\n 10\n158.500000000\n 20\n80.000000000\n 30\n0.000000000\n 11\n158.500000000\n 21\n110.000000000\n 31\n0.000000000\n  0\nSPLINE\n  5\nA0E\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbSpline\n210\n0\n220\n0\n230\n1\n 70\n8\n 71\n1\n 72\n17\n 73\n15\n 74\n0\n 40\n3.141592654\n 40\n3.141592654\n 40\n3.365992129\n 40\n3.590391604\n 40\n3.814791079\n 40\n4.039190555\n 40\n4.263590030\n 40\n4.487989505\n 40\n4.712388980\n 40\n4.936788456\n 40\n5.161187931\n 40\n5.385587406\n 40\n5.609986881\n 40\n5.834386357\n 40\n6.058785832\n 40\n6.283185307\n 40\n6.283185307\n 10\n138.500000000\n 20\n80.000000000\n 30\n0.000000000\n 10\n138.750720878\n 20\n80.000000000\n 30\n0.000000000\n 10\n139.490311321\n 20\n80.000000000\n 30\n0.000000000\n 10\n140.681685175\n 20\n80.000000000\n 30\n0.000000000\n 10\n142.265101981\n 20\n80.000000000\n 30\n0.000000000\n 10\n144.161162609\n 20\n80.000000000\n 30\n0.000000000\n 10\n146.274790660\n 20\n80.000000000\n 30\n0.000000000\n 10\n148.500000000\n 20\n80.000000000\n 30\n0.000000000\n 10\n150.725209340\n 20\n80.000000000\n 30\n0.000000000\n 10\n152.838837391\n 20\n80.000000000\n 30\n0.000000000\n 10\n154.734898019\n 20\n80.000000000\n 30\n0.000000000\n 10\n156.318314825\n 20\n80.000000000\n 30\n0.000000000\n 10\n157.509688679\n 20\n80.000000000\n 30\n0.000000000\n 10\n158.249279122\n 20\n80.000000000\n 30\n0.000000000\n 10\n158.500000000\n 20\n80.000000000\n 30\n0.000000000\n  0\nLINE\n  5\nA0F\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbLine\n 10\n142.500000000\n 20\n110.000000000\n 30\n0.000000000\n 11\n142.500000000\n 21\n128.000000000\n 31\n0.000000000\n  0\nLINE\n  5\nA10\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbLine\n 10\n144.500000000\n 20\n130.000000000\n 30\n0.000000000\n 11\n142.500000000\n 21\n128.000000000\n 31\n0.000000000\n  0\nLINE\n  5\nA11\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbLine\n 10\n138.500000000\n 20\n80.000000000\n 30\n0.000000000\n 11\n138.500000000\n 21\n110.000000000\n 31\n0.000000000\n  0\nLINE\n  5\nA12\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbLine\n 10\n148.500000000\n 20\n130.000000100\n 30\n0.000000000\n 11\n148.500000000\n 21\n79.999999900\n 31\n0.000000000\n  0\nLINE\n  5\nA13\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbLine\n 10\n138.499999900\n 20\n105.000000000\n 30\n0.000000000\n 11\n158.500000100\n 21\n105.000000000\n 31\n0.000000000\n  0\nLINE\n  5\nA14\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbLine\n 10\n148.500000000\n 20\n110.000000100\n 30\n0.000000000\n 11\n148.500000000\n 21\n79.999999900\n 31\n0.000000000\n  0\nLINE\n  5\nA15\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbLine\n 10\n138.499999900\n 20\n95.000000000\n 30\n0.000000000\n 11\n158.500000100\n 21\n95.000000000\n 31\n0.000000000\n  0\nLINE\n  5\nA16\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbLine\n 10\n148.500000000\n 20\n128.000000100\n 30\n0.000000000\n 11\n148.500000000\n 21\n109.999999900\n 31\n0.000000000\n  0\nLINE\n  5\nA17\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbLine\n 10\n142.499999900\n 20\n119.000000000\n 30\n0.000000000\n 11\n154.500000100\n 21\n119.000000000\n 31\n0.000000000\n  0\nLINE\n  5\nA18\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbLine\n 10\n148.500000000\n 20\n130.000000100\n 30\n0.000000000\n 11\n148.500000000\n 21\n127.999999900\n 31\n0.000000000\n  0\nLINE\n  5\nA19\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbLine\n 10\n142.499999900\n 20\n129.000000000\n 30\n0.000000000\n 11\n154.500000100\n 21\n129.000000000\n 31\n0.000000000\n  0\nENDSEC\n  0\nSECTION\n  2\nOBJECTS\n  0\nDICTIONARY\n  5\nF000\n330\n0\n100\nAcDbDictionary\n  3\nACAD_GROUP\n350\nF001\n  0\nDICTIONARY\n  5\nF001\n330\nF000\n100\nAcDbDictionary\n  0\nENDSEC\n  0\nEOF"
+  },
+  "plate_front_face_centerlines": {
+   "views": {
+    "View": {
+     "X": 148.5,
+     "Y": 105.0,
+     "Scale": 1.0,
+     "ScaleType": "Page",
+     "Direction": [
+      0.0,
+      -1.0,
+      0.0
+     ],
+     "XDirection": [
+      1.0,
+      0.0,
+      0.0
+     ],
+     "Rotation": 0.0,
+     "nvis": 13,
+     "nhid": 0,
+     "edges": [
+      {
+       "curve": "Line",
+       "start": [
+        -20.0,
+        -5.0,
+        0.0
+       ],
+       "end": [
+        -20.0,
+        5.0,
+        0.0
+       ],
+       "length": 10.0
+      },
+      {
+       "curve": "BSplineCurve",
+       "start": [
+        -20.0,
+        5.0,
+        0.0
+       ],
+       "end": [
+        -16.99999999999999,
+        5.0,
+        0.0
+       ],
+       "length": 3.0000000000000115
+      },
+      {
+       "curve": "Line",
+       "start": [
+        -17.0,
+        5.0,
+        0.0
+       ],
+       "end": [
+        20.0,
+        5.0,
+        0.0
+       ],
+       "length": 37.0
+      },
+      {
+       "curve": "BSplineCurve",
+       "start": [
+        -20.0,
+        -5.0,
+        0.0
+       ],
+       "end": [
+        -16.99999999999999,
+        -5.0,
+        0.0
+       ],
+       "length": 3.0000000000000115
+      },
+      {
+       "curve": "Line",
+       "start": [
+        -17.0,
+        -5.0,
+        0.0
+       ],
+       "end": [
+        20.0,
+        -5.0,
+        0.0
+       ],
+       "length": 37.0
+      },
+      {
+       "curve": "Line",
+       "start": [
+        20.0,
+        -5.0,
+        0.0
+       ],
+       "end": [
+        20.0,
+        5.0,
+        0.0
+       ],
+       "length": 10.0
+      },
+      {
+       "curve": "Line",
+       "start": [
+        -17.0,
+        -5.0,
+        0.0
+       ],
+       "end": [
+        -17.0,
+        5.0,
+        0.0
+       ],
+       "length": 10.0
+      },
+      {
+       "curve": "Line",
+       "start": [
+        -5.000000058430487e-08,
+        5.0000001,
+        0.0
+       ],
+       "end": [
+        -5.000000058430487e-08,
+        -5.0000001,
+        0.0
+       ],
+       "length": 10.0000002
+      },
+      {
+       "curve": "Line",
+       "start": [
+        -20.0000001,
+        0.0,
+        0.0
+       ],
+       "end": [
+        20.0,
+        0.0,
+        0.0
+       ],
+       "length": 40.0000001
+      },
+      {
+       "curve": "Line",
+       "start": [
+        1.5,
+        5.0,
+        0.0
+       ],
+       "end": [
+        1.5,
+        -5.0,
+        0.0
+       ],
+       "length": 10.0
+      },
+      {
+       "curve": "Line",
+       "start": [
+        -17.0,
+        0.0,
+        0.0
+       ],
+       "end": [
+        20.0,
+        0.0,
+        0.0
+       ],
+       "length": 37.0
+      },
+      {
+       "curve": "Line",
+       "start": [
+        -18.499999999999993,
+        5.0000001,
+        0.0
+       ],
+       "end": [
+        -18.499999999999993,
+        -5.0000001,
+        0.0
+       ],
+       "length": 10.0000002
+      },
+      {
+       "curve": "Line",
+       "start": [
+        -20.000000099999998,
+        0.0,
+        0.0
+       ],
+       "end": [
+        -16.999999899999988,
+        0.0,
+        0.0
+       ],
+       "length": 3.0000002000000094
+      }
+     ],
+     "vertices": [
+      [
+       -20.0,
+       -5.0,
+       0.0
+      ],
+      [
+       -20.0,
+       5.0,
+       0.0
+      ],
+      [
+       -16.99999999999999,
+       5.0,
+       0.0
+      ],
+      [
+       20.0,
+       5.0,
+       0.0
+      ],
+      [
+       -16.99999999999999,
+       -5.0,
+       0.0
+      ],
+      [
+       20.0,
+       -5.0,
+       0.0
+      ]
+     ],
+     "cosmetic": {
+      "vertexes": [],
+      "edges": [],
+      "centerlines": [
+       {
+        "Format": {
+         "style": 2,
+         "weight": 0.5,
+         "color": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+         ],
+         "visible": true
+        },
+        "Mode": 0,
+        "Type": 0,
+        "Edges": [],
+        "Faces": [
+         "Face0"
+        ],
+        "Points": [],
+        "HorizShift": 0.0,
+        "VertShift": 0.0,
+        "Rotation": 0.0,
+        "Extension": 0.0,
+        "Flip": false
+       },
+       {
+        "Format": {
+         "style": 2,
+         "weight": 0.5,
+         "color": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+         ],
+         "visible": true
+        },
+        "Mode": 1,
+        "Type": 0,
+        "Edges": [],
+        "Faces": [
+         "Face0"
+        ],
+        "Points": [],
+        "HorizShift": 0.0,
+        "VertShift": 0.0,
+        "Rotation": 0.0,
+        "Extension": 0.0,
+        "Flip": false
+       },
+       {
+        "Format": {
+         "style": 2,
+         "weight": 0.5,
+         "color": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+         ],
+         "visible": true
+        },
+        "Mode": 0,
+        "Type": 0,
+        "Edges": [],
+        "Faces": [
+         "Face1"
+        ],
+        "Points": [],
+        "HorizShift": 0.0,
+        "VertShift": 0.0,
+        "Rotation": 0.0,
+        "Extension": 0.0,
+        "Flip": false
+       },
+       {
+        "Format": {
+         "style": 2,
+         "weight": 0.5,
+         "color": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+         ],
+         "visible": true
+        },
+        "Mode": 1,
+        "Type": 0,
+        "Edges": [],
+        "Faces": [
+         "Face1"
+        ],
+        "Points": [],
+        "HorizShift": 0.0,
+        "VertShift": 0.0,
+        "Rotation": 0.0,
+        "Extension": 0.0,
+        "Flip": false
+       },
+       {
+        "Format": {
+         "style": 2,
+         "weight": 0.5,
+         "color": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+         ],
+         "visible": true
+        },
+        "Mode": 0,
+        "Type": 0,
+        "Edges": [],
+        "Faces": [
+         "Face2"
+        ],
+        "Points": [],
+        "HorizShift": 0.0,
+        "VertShift": 0.0,
+        "Rotation": 0.0,
+        "Extension": 0.0,
+        "Flip": false
+       },
+       {
+        "Format": {
+         "style": 2,
+         "weight": 0.5,
+         "color": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+         ],
+         "visible": true
+        },
+        "Mode": 1,
+        "Type": 0,
+        "Edges": [],
+        "Faces": [
+         "Face2"
+        ],
+        "Points": [],
+        "HorizShift": 0.0,
+        "VertShift": 0.0,
+        "Rotation": 0.0,
+        "Extension": 0.0,
+        "Flip": false
+       }
+      ]
+     }
+    }
+   },
+   "dims": {},
+   "page": {
+    "Scale": 1.0,
+    "ProjectionType": "First angle",
+    "Views": [
+     "View"
+    ]
+   },
+   "template": {
+    "Width": 297.0,
+    "Height": 210.0,
+    "Orientation": "Landscape",
+    "EditableTexts": {}
+   },
+   "dxf": "999\nFreeCAD v26.3 20260929 (Git shallow)\n  0\nSECTION\n  2\nHEADER\n  9\n$ACADVER\n  1\nAC1014\n  9\n$ACADMAINTVER\n 70\n     9\n  9\n$DWGCODEPAGE\n  3\nANSI_1252\n  9\n$TEXTSTYLE\n  7\nSTANDARD\n  9\n$DIMSTYLE\n  2\nSTANDARD\n  9\n$DIMTXSTY\n  7\nSTANDARD\n  9\n$LUNITS\n 70\n2\n  9\n$INSUNITS\n 70\n4\n  9\n$PEXTMAX\n 10\n50\n 20\n50\n 30\n50\n  9\n$PEXTMIN\n 10\n0\n 20\n0\n 30\n0\n  9\n$HANDSEED\n  5\nFFFF\n  0\nENDSEC\n  0\nSECTION\n  2\nCLASSES\n  0\nCLASS\n  1\nACDBDICTIONARYWDFLT\n  2\nAcDbDictionaryWithDefault\n  3\nObjectDBX Classes\n 90\n        0\n280\n     0\n281\n     0\n  0\nCLASS\n  1\nXRECORD\n  2\nAcDbXrecord\n  3\nObjectDBX Classes\n 90\n        0\n280\n     0\n281\n     0\n  0\nCLASS\n  1\nLWPOLYLINE\n  2\nAcDbPolyline\n  3\nObjectDBX Classes\n 90\n        0\n280\n     0\n281\n     1\n  0\nENDSEC\n  0\nSECTION\n  2\nTABLES\n  0\nTABLE\n  2\nVPORT\n  5\n20\n330\n0\n100\nAcDbSymbolTable\n 70\n     1\n  0\nVPORT\n  5\n21\n330\n20\n100\nAcDbSymbolTableRecord\n100\nAcDbViewportTableRecord\n  2\n*ACTIVE\n 70\n     0\n  0\nENDTAB\n  0\nTABLE\n  2\nLTYPE\n  5\n22\n330\n0\n100\nAcDbSymbolTable\n 70\n     1\n  0\nLTYPE\n  5\n23\n330\n21\n100\nAcDbSymbolTableRecord\n100\nAcDbLinetypeTableRecord\n  2\nBYBLOCK\n 70\n     0\n  3\n\n 72\n    65\n 73\n     0\n 40\n0.0\n  0\nLTYPE\n  5\n24\n330\n21\n100\nAcDbSymbolTableRecord\n100\nAcDbLinetypeTableRecord\n  2\nBYLAYER\n 70\n     0\n  3\n\n 72\n    65\n 73\n     0\n 40\n0.0\n  0\nLTYPE\n  5\n25\n330\n21\n100\nAcDbSymbolTableRecord\n100\nAcDbLinetypeTableRecord\n  2\nCONTINUOUS\n 70\n     0\n  3\nSolid line\n 72\n    65\n 73\n     0\n 40\n0.0\n  0\nENDTAB\n  0\nTABLE\n  2\nLAYER\n  5\nA15\n330\n0\n100\nAcDbSymbolTable\n 70\n2\n  0\nLAYER\n  5\nA16\n330\nA15\n100\nAcDbSymbolTableRecord\n100\nAcDbLayerTableRecord\n  2\n0\n 70\n   0\n 62\n   7\n  6\nCONTINUOUS\n  0\nLAYER\n  5\nA17\n330\nA15\n100\nAcDbSymbolTableRecord\n100\nAcDbLayerTableRecord\n  2\nView\n 70\n    0\n 62\n    7\n  6\nCONTINUOUS\n  0\nENDTAB\n  0\nTABLE\n  2\nSTYLE\n  5\n70\n330\n0\n100\nAcDbSymbolTable\n 70\n     2\n  0\nSTYLE\n  5\n71\n330\n70\n100\nAcDbSymbolTableRecord\n100\nAcDbTextStyleTableRecord\n  2\nSTANDARD\n 70\n     0\n 40\n0.0\n 41\n1.0\n 50\n0.0\n 71\n     0\n 42\n2.5\n  3\narial.ttf\n  4\n\n  0\nSTYLE\n  5\n72\n330\n70\n100\nAcDbSymbolTableRecord\n100\nAcDbTextStyleTableRecord\n  2\nANNOTATIVE\n 70\n     0\n 40\n0.0\n 41\n1.0\n 50\n0.0\n 71\n     0\n 42\n2.5\n  3\narial.ttf\n  4\n\n  0\nENDTAB\n  0\nTABLE\n  2\nVIEW\n  5\n73\n330\n0\n100\nAcDbSymbolTable\n 70\n     0\n  0\nENDTAB\n  0\nTABLE\n  2\nUCS\n  5\n74\n330\n0\n100\nAcDbSymbolTable\n 70\n     0\n  0\nENDTAB\n  0\nTABLE\n  2\nAPPID\n  5\n75\n330\n0\n100\nAcDbSymbolTable\n 70\n     2\n  0\nAPPID\n  5\n76\n330\n75\n100\nAcDbSymbolTableRecord\n100\nAcDbRegAppTableRecord\n  2\nACAD\n 70\n     0\n  0\nAPPID\n  5\n77\n330\n75\n100\nAcDbSymbolTableRecord\n100\nAcDbRegAppTableRecord\n  2\nACADANNOTATIVE\n 70\n     0\n  0\nENDTAB\n  0\nTABLE\n  2\nDIMSTYLE\n  5\n78\n330\n0\n100\nAcDbSymbolTable\n 70\n     2\n  0\nDIMSTYLE\n105\n79\n330\n78\n100\nAcDbSymbolTableRecord\n100\nAcDbDimStyleTableRecord\n  2\nSTANDARD\n 70\n     0\n  3\n\n  4\n\n  5\n\n  6\n\n  7\n\n 40\n0.0\n 41\n2.5\n 42\n0.625\n 43\n3.75\n 44\n1.25\n 45\n0.0\n 46\n0.0\n 47\n0.0\n 48\n0.0\n140\n2.5\n141\n2.5\n142\n0.0\n143\n0.03937007874016\n144\n1.0\n145\n0.0\n146\n1.0\n147\n0.625\n 71\n     0\n 72\n     0\n 73\n     0\n 74\n     0\n 75\n     0\n 76\n     0\n 77\n     1\n 78\n     8\n170\n     0\n171\n     3\n172\n     1\n173\n     0\n174\n     0\n175\n     0\n176\n     0\n177\n     0\n178\n     0\n270\n     2\n271\n     2\n272\n     2\n273\n     2\n274\n     3\n340\n71\n275\n     0\n280\n     0\n281\n     0\n282\n     0\n283\n     0\n284\n     8\n285\n     0\n286\n     0\n287\n     3\n288\n     0\n  0\nENDTAB\n  0\nTABLE\n  2\nBLOCK_RECORD\n  5\nA01\n330\n0\n100\nAcDbSymbolTable\n  70\n5\n  0\nBLOCK_RECORD\n  5\nA02\n330\nA01\n100\nAcDbSymbolTableRecord\n100\nAcDbBlockTableRecord\n  2\n*MODEL_SPACE\n  0\nBLOCK_RECORD\n  5\nA03\n330\nA01\n100\nAcDbSymbolTableRecord\n100\nAcDbBlockTableRecord\n  2\n*PAPER_SPACE\n  0\nENDTAB\n  0\nENDSEC\n  0\nSECTION\n  2\nBLOCKS\n  0\nBLOCK\n  5\nA04\n330\nA02\n100\nAcDbEntity\n  8\n0\n100\nAcDbBlockBegin\n  2\n*MODEL_SPACE\n 70\n   0\n 10\n0\n 20\n0\n 30\n0\n  3\n*MODEL_SPACE\n  1\n \n  0\nENDBLK\n  5\nA05\n330\nA02\n100\nAcDbEntity\n  8\n0\n100\nAcDbBlockEnd\n  0\nBLOCK\n  5\nA06\n330\nA03\n100\nAcDbEntity\n 67\n1\n  8\n0\n100\nAcDbBlockBegin\n  2\n*PAPER_SPACE\n 70\n   0\n 10\n0\n 20\n0\n 30\n0\n  3\n*PAPER_SPACE\n  1\n \n  0\nENDBLK\n  5\nA07\n330\nA03\n100\nAcDbEntity\n 67\n    1\n  8\n0\n100\nAcDbBlockEnd\n  0\nENDSEC\n  0\nSECTION\n  2\nENTITIES\n  0\nLINE\n  5\nA08\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbLine\n 10\n128.500000000\n 20\n100.000000000\n 30\n0.000000000\n 11\n128.500000000\n 21\n110.000000000\n 31\n0.000000000\n  0\nSPLINE\n  5\nA09\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbSpline\n210\n0\n220\n0\n230\n1\n 70\n8\n 71\n1\n 72\n17\n 73\n15\n 74\n0\n 40\n4.712388980\n 40\n4.712388980\n 40\n4.824588718\n 40\n4.936788456\n 40\n5.048988193\n 40\n5.161187931\n 40\n5.273387669\n 40\n5.385587406\n 40\n5.497787144\n 40\n5.609986881\n 40\n5.722186619\n 40\n5.834386357\n 40\n5.946586094\n 40\n6.058785832\n 40\n6.170985570\n 40\n6.283185307\n 40\n6.283185307\n 10\n128.500000000\n 20\n110.000000000\n 30\n0.000000000\n 10\n128.518863370\n 20\n110.000000000\n 30\n0.000000000\n 10\n128.575216263\n 20\n110.000000000\n 30\n0.000000000\n 10\n128.668350009\n 20\n110.000000000\n 30\n0.000000000\n 10\n128.797093396\n 20\n110.000000000\n 30\n0.000000000\n 10\n128.959827402\n 20\n110.000000000\n 30\n0.000000000\n 10\n129.154505553\n 20\n110.000000000\n 30\n0.000000000\n 10\n129.378679656\n 20\n110.000000000\n 30\n0.000000000\n 10\n129.629530594\n 20\n110.000000000\n 30\n0.000000000\n 10\n129.903903770\n 20\n110.000000000\n 30\n0.000000000\n 10\n130.198348783\n 20\n110.000000000\n 30\n0.000000000\n 10\n130.509162814\n 20\n110.000000000\n 30\n0.000000000\n 10\n130.832437198\n 20\n110.000000000\n 30\n0.000000000\n 10\n131.164106572\n 20\n110.000000000\n 30\n0.000000000\n 10\n131.500000000\n 20\n110.000000000\n 30\n0.000000000\n  0\nLINE\n  5\nA0A\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbLine\n 10\n131.500000000\n 20\n110.000000000\n 30\n0.000000000\n 11\n168.500000000\n 21\n110.000000000\n 31\n0.000000000\n  0\nSPLINE\n  5\nA0B\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbSpline\n210\n0\n220\n0\n230\n1\n 70\n8\n 71\n1\n 72\n17\n 73\n15\n 74\n0\n 40\n4.712388980\n 40\n4.712388980\n 40\n4.824588718\n 40\n4.936788456\n 40\n5.048988193\n 40\n5.161187931\n 40\n5.273387669\n 40\n5.385587406\n 40\n5.497787144\n 40\n5.609986881\n 40\n5.722186619\n 40\n5.834386357\n 40\n5.946586094\n 40\n6.058785832\n 40\n6.170985570\n 40\n6.283185307\n 40\n6.283185307\n 10\n128.500000000\n 20\n100.000000000\n 30\n0.000000000\n 10\n128.518863370\n 20\n100.000000000\n 30\n0.000000000\n 10\n128.575216263\n 20\n100.000000000\n 30\n0.000000000\n 10\n128.668350009\n 20\n100.000000000\n 30\n0.000000000\n 10\n128.797093396\n 20\n100.000000000\n 30\n0.000000000\n 10\n128.959827402\n 20\n100.000000000\n 30\n0.000000000\n 10\n129.154505553\n 20\n100.000000000\n 30\n0.000000000\n 10\n129.378679656\n 20\n100.000000000\n 30\n0.000000000\n 10\n129.629530594\n 20\n100.000000000\n 30\n0.000000000\n 10\n129.903903770\n 20\n100.000000000\n 30\n0.000000000\n 10\n130.198348783\n 20\n100.000000000\n 30\n0.000000000\n 10\n130.509162814\n 20\n100.000000000\n 30\n0.000000000\n 10\n130.832437198\n 20\n100.000000000\n 30\n0.000000000\n 10\n131.164106572\n 20\n100.000000000\n 30\n0.000000000\n 10\n131.500000000\n 20\n100.000000000\n 30\n0.000000000\n  0\nLINE\n  5\nA0C\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbLine\n 10\n131.500000000\n 20\n100.000000000\n 30\n0.000000000\n 11\n168.500000000\n 21\n100.000000000\n 31\n0.000000000\n  0\nLINE\n  5\nA0D\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbLine\n 10\n168.500000000\n 20\n100.000000000\n 30\n0.000000000\n 11\n168.500000000\n 21\n110.000000000\n 31\n0.000000000\n  0\nLINE\n  5\nA0E\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbLine\n 10\n131.500000000\n 20\n100.000000000\n 30\n0.000000000\n 11\n131.500000000\n 21\n110.000000000\n 31\n0.000000000\n  0\nLINE\n  5\nA0F\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbLine\n 10\n148.499999950\n 20\n110.000000100\n 30\n0.000000000\n 11\n148.499999950\n 21\n99.999999900\n 31\n0.000000000\n  0\nLINE\n  5\nA10\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbLine\n 10\n128.499999900\n 20\n105.000000000\n 30\n0.000000000\n 11\n168.500000000\n 21\n105.000000000\n 31\n0.000000000\n  0\nLINE\n  5\nA11\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbLine\n 10\n150.000000000\n 20\n110.000000000\n 30\n0.000000000\n 11\n150.000000000\n 21\n100.000000000\n 31\n0.000000000\n  0\nLINE\n  5\nA12\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbLine\n 10\n131.500000000\n 20\n105.000000000\n 30\n0.000000000\n 11\n168.500000000\n 21\n105.000000000\n 31\n0.000000000\n  0\nLINE\n  5\nA13\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbLine\n 10\n130.000000000\n 20\n110.000000100\n 30\n0.000000000\n 11\n130.000000000\n 21\n99.999999900\n 31\n0.000000000\n  0\nLINE\n  5\nA14\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbLine\n 10\n128.499999900\n 20\n105.000000000\n 30\n0.000000000\n 11\n131.500000100\n 21\n105.000000000\n 31\n0.000000000\n  0\nENDSEC\n  0\nSECTION\n  2\nOBJECTS\n  0\nDICTIONARY\n  5\nF000\n330\n0\n100\nAcDbDictionary\n  3\nACAD_GROUP\n350\nF001\n  0\nDICTIONARY\n  5\nF001\n330\nF000\n100\nAcDbDictionary\n  0\nENDSEC\n  0\nEOF"
   }
  }
 }

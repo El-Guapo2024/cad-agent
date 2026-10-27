@@ -217,3 +217,33 @@ def test_page_dxf_views(case):
     ta = sorted(e["1"][0] for e in ours if e["type"] == "TEXT" and e["8"][0].startswith("Annotation"))
     tb = sorted(e["1"][0] for e in theirs if e["type"] == "TEXT")
     assert ta == tb
+
+
+COSMETIC_CASES = [(c, v) for c in CASES for v, r in FREECAD[c].get("views", {}).items() if "cosmetic" in r]
+
+
+@pytest.mark.parametrize("case,view", COSMETIC_CASES)
+def test_cosmetic_objects(case, view):
+    """CosmeticVertex.Point, CosmeticEdge.Format and CenterLine's Mode, Type, shifts, rotation and extension, as
+    FreeCAD's Python objects read them."""
+    from cad_agent import techdraw_cosmetic as C
+    fc = FREECAD[case]["views"][view]["cosmetic"]
+    o = doc(case).get(view)
+    ours = {"vertexes": [c["point"] for c in o.source_value("cosmetic_vertexes")],
+            "edges": [C.format_of(c) for c in o.source_value("cosmetic_edges")],
+            "centerlines": o.source_value("center_lines")}
+    assert len(ours["vertexes"]) == len(fc["vertexes"])
+    for a, b in zip(ours["vertexes"], fc["vertexes"]):
+        assert close(a, b, 1e-9)
+    assert len(ours["edges"]) == len(fc["edges"])
+    for a, b in zip(ours["edges"], fc["edges"]):
+        assert a["style"] == b["style"] and a["visible"] == b["visible"] and abs(a["weight"] - b["weight"]) < 1e-9
+        assert close(a["color"], b["color"])
+    assert len(ours["centerlines"]) == len(fc["centerlines"])
+    for a, b in zip(ours["centerlines"], fc["centerlines"]):
+        assert C.MODES.index(a["mode"]) == b["Mode"] and C.TYPES.index(a["type"]) == b["Type"]
+        assert (a["faces"], a["edges"], a["vertexes"]) == (b["Faces"], b["Edges"], b["Points"])
+        assert (a["h_shift"], a["v_shift"], a["rotate"], a["extend"], a["flip"]) == \
+            (b["HorizShift"], b["VertShift"], b["Rotation"], b["Extension"], b["Flip"])
+        f = C.format_of(a)
+        assert f["style"] == b["Format"]["style"] and abs(f["weight"] - b["Format"]["weight"]) < 1e-9

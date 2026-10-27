@@ -377,13 +377,15 @@ class Bench:
             return self.run(self.root_of(slug), ["--actor", "ui", "techdraw", "ls", slug])
         return self.run(self.root_of(slug), ["--actor", "ui", "techdraw", "show", slug, page, "--svg"])
 
-    def techdraw_post(self, slug: str, page: str, ops, name=None, dry_run=False) -> dict:
-        """POST /api/<slug>/techdraw/<page> {ops, name?, dry_run?}: `cad techdraw apply --svg`, one undo step."""
+    def techdraw_post(self, slug: str, page: str, ops, name=None, dry_run=False, amend=False) -> dict:
+        """POST /api/<slug>/techdraw/<page> {ops, name?, dry_run?, amend?}: `cad techdraw apply --svg`, one undo step
+        (with amend, folded into the last one)."""
         self.root_of(slug)
         if not isinstance(ops, list) or not ops:
             raise ValueError("ops must be a non-empty list")
         args = ["--with-text", "techdraw", "apply", slug, page, "--ops", json.dumps(ops, separators=(",", ":")), "--svg",
-                *(["--name", str(name)] if name else []), *(["--dry-run"] if dry_run else [])]
+                *(["--name", str(name)] if name else []), *(["--dry-run"] if dry_run else []),
+                *(["--amend"] if amend else [])]
         if dry_run:
             return self.run(self.root_of(slug), ["--actor", "ui", *args])
         r = self.cad(slug, "techdraw", args)
@@ -933,7 +935,7 @@ def make_handler(bench: Bench):
             if m and m.group(2):
                 try:
                     return self._json(bench.techdraw_post(m.group(1), m.group(2), body.get("ops"), body.get("name"),
-                                                          bool(body.get("dry_run"))))
+                                                          bool(body.get("dry_run")), bool(body.get("amend"))))
                 except KeyError:
                     return self._json({"error": f"no project {m.group(1)!r}"}, 404)
                 except (TypeError, ValueError) as e:

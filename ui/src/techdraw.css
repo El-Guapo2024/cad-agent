@@ -20,3 +20,8 @@
 .td-svg .td-frame { fill: transparent; pointer-events: all; }
 .td-svg.noframes .td-frame { stroke: none; }
 .td-svg .td-frame.td-sel, .td-svg .td-frame.td-pre { stroke-dasharray: none; }
+.td-svg path.td-facepick, .td-svg path.td-vertex { fill: transparent; pointer-events: all; }
+.td-svg path.td-facepick.td-pre, .td-svg path.td-facepick.td-sel { fill: rgba(0, 171, 255, 0.18); stroke: none; }
+.td-svg path.td-vertex.td-pre, .td-svg path.td-vertex.td-sel { fill: #00abff; stroke: none; }
+.td-svg path.td-cv { pointer-events: none; }
+.td-svg path.td-cv.td-sel, .td-svg path.td-cv.td-pre { fill: #00abff; }

@@ -498,6 +498,7 @@ function PropertyView() {
           {/* a Body's feature, sketch or Origin row (partdesign.tsx); the Body's own row shows its part's properties */}
           {asmProp && tab === 'data' && <AssemblyProps key={asmProp} name={asmProp} />}
           {tdProp && tab === 'data' && <TechDrawProps />}
+          {tdProp && tab === 'view' && <TechDrawProps view />}
           {feat && isObjectRef(getState(), feat) && (tab === 'data' ? <PartObjectProps key={feat} refKey={feat} /> : <Row k="Visibility" v="Space toggles it (the part file's visibility=)" />)}
           {feat && !isObjectRef(getState(), feat) && (tab === 'data' ? <FeatureProps key={feat} refKey={feat} /> : <Row k="Visibility" v="the Body shows its Tip" />)}
           {!feat && b && (tab === 'data' ? <DataProps key={b.name + scene!.source_hash} b={b} />

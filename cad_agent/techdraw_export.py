@@ -100,6 +100,90 @@ def _edge_segs(ej: dict, ox: float, oy: float) -> list:
     return [("M", *P(ej["start"])), ("L", *P(ej["end"]))]
 
 
+def _hex(color) -> str:
+    return "#" + "".join(f"{max(0, min(255, round(c * 255))):02x}" for c in color[:3])
+
+
+VERTEX_PICK = 1.2               # mm: the radius a click finds a vertex within
+COSMETIC_VERTEX_SIZE = 2.1      # CosmeticVertex::size: Preferences::vertexScale (3) x the thick line's width (0.70)
+
+
+def _circle(cx: float, cy: float, r: float) -> list:
+    return [("M", cx + r, cy), ("A", r, 0, 1, cx - r, cy), ("A", r, 0, 1, cx + r, cy), ("Z",)]
+
+
+def _hatch_prims(res: dict, view: str, ox: float, oy: float) -> list:
+    """QGIFace's hatches: a geometric hatch's segments in its colour and weight (PATPathMaker::simpleLine), an image hatch as
+    the tile repeated over the face (QGIFace::buildSvgHatch: 64 units a side times the scale, turned and shifted)."""
+    from .techdraw_hatch import SVG_TILE, svg_path, tile_svg
+    out = []
+    for name, h in res.get("hatches", {}).items():
+        if h["view"] != view:
+            continue
+        stroke = _hex(h["color"])
+        for face, g in h["faces"].items():
+            attrs = {"data-view": view, "data-hatch": name, "class": "td-hatch"}
+            if h["kind"] == "geom":
+                for x0, y0, x1, y1 in g["lines"]:
+                    out.append(Prim("path", [("M", ox + x0, oy + y0), ("L", ox + x1, oy + y1)], width=h["weight"], stroke=stroke, attrs=attrs))
+            elif len(g["loop"]) > 2:
+                tile = SVG_TILE / REZ * h["scale"]                # mm
+                pid = f"hatch-{name}-{face}"
+                body = re.sub(r"^.*?<svg", "<svg", tile_svg(h["pattern"], stroke), flags=re.S)
+                body = re.sub(r"(<svg[^>]*?)\s(width|height)=\"[^\"]*\"", r"\1", body)
+                body = re.sub(r"(<svg[^>]*?)\s(width|height)=\"[^\"]*\"", r"\1", body)
+                body = body.replace("<svg", f'<svg width="{_n(tile * REZ)}" height="{_n(tile * REZ)}" viewBox="0 0 {_n(SVG_TILE)} {_n(SVG_TILE)}"', 1)
+                dx, dy = h["offset"][0] * REZ, -h["offset"][1] * REZ
+                pat = (f'<pattern id="{pid}" patternUnits="userSpaceOnUse" width="{_n(tile * REZ)}" height="{_n(tile * REZ)}" '
+                       f'patternTransform="translate({_n(ox * REZ + dx)} {_n(oy * REZ + dy)}) rotate({_n(-h["rotation"])})">{body}</pattern>')
+                out.append(Prim("raw", text=f"<defs>{pat}</defs>"))
+                segs = [("M", ox + g["loop"][0][0], oy + g["loop"][0][1])] + [("L", ox + p[0], oy + p[1]) for p in g["loop"][1:]] + [("Z",)]
+                out.append(Prim("path", segs, width=0.0, fill=f"url(#{pid})", stroke="none", attrs=attrs))
+    return out
+
+
+def _vertex_targets(v: dict, name: str, ox: float, oy: float) -> list:
+    """What the page picks a vertex by (QGIVertex: a click near one selects it), and a cosmetic vertex's dot."""
+    out = []
+    for i, vt in enumerate(v["vertices"]):
+        cx, cy = ox + vt["x"], oy + vt["y"]
+        if vt.get("tag"):
+            out.append(Prim("path", _circle(cx, cy, COSMETIC_VERTEX_SIZE / 2.0), width=0.0, fill="#000000", stroke="none",
+                            attrs={"data-view": name, "class": "td-cv", "data-sub": f"Vertex{i}"}))
+        out.append(Prim("path", _circle(cx, cy, VERTEX_PICK), width=0.0, fill="transparent", stroke="none",
+                        attrs={"data-view": name, "class": "td-vertex", "data-sub": f"Vertex{i}"}))
+    return out
+
+
+def _face_targets(doc, name: str, ox: float, oy: float) -> list:
+    """The view's faces as what a click inside picks (QGIFace), the biggest first so a hole's own face is on top."""
+    from OCP.BRepAdaptor import BRepAdaptor_Curve
+    from OCP.BRepTools import BRepTools_WireExplorer
+    from OCP.TopAbs import TopAbs_REVERSED
+    from . import techdraw_cosmetic as C
+    o, geo = doc.get(name), doc.geo.get(name)
+    if o is None or geo is None:
+        return []
+    out = []
+    for i, w in enumerate(C.faces_of(geo, o)):
+        pts = []
+        ex = BRepTools_WireExplorer(w)
+        while ex.More():
+            e = ex.Current()
+            a = BRepAdaptor_Curve(e)
+            f, l = a.FirstParameter(), a.LastParameter()
+            n = 1 if a.GetType() == 0 else 24
+            seg = [a.Value(f + (l - f) * k / n) for k in range(n + 1)]
+            if e.Orientation() == TopAbs_REVERSED:
+                seg.reverse()
+            pts += [(ox + p.X(), oy + p.Y()) for p in (seg if not pts else seg[1:])]
+            ex.Next()
+        if len(pts) > 2:
+            out.append(Prim("path", [("M", *pts[0])] + [("L", *p) for p in pts[1:]] + [("Z",)], width=0.0, fill="transparent",
+                            stroke="none", attrs={"data-view": name, "class": "td-facepick", "data-sub": f"Face{i}"}))
+    return out
+
+
 def view_origin(res: dict, name: str):
     """A view's centre on the page, y down."""
     v = res["views"][name]
@@ -326,11 +410,27 @@ def display(doc, frames: bool = False) -> list:
                 segs.append(("Z",))
             out.append(Prim("path", segs, width=0.0, fill="#D3D3D3", stroke="none", attrs={"data-view": name,
                                                                                          "class": "td-face"}))
+        if frames:
+            out += _face_targets(doc, name, ox, oy)
+        out += _hatch_prims(res, name, ox, oy)
         for i, e in enumerate(v["edges"]):
             hidden = not e["visible"]
             width = THIN if (hidden or e["cls"] in ("smooth", "seam", "iso")) else THICK
-            out.append(Prim("path", _edge_segs(e, ox, oy), width=width, dash=HIDDEN_DASH if hidden else (),
+            dash, stroke = HIDDEN_DASH if hidden else (), "#000000"
+            f = e.get("format")
+            if f is not None:                   # a cosmetic edge, a centre line, or an edge given a GeomFormat
+                if not f["visible"]:
+                    continue
+                from .techdraw_lines import pen
+                width, stroke = f["weight"], _hex(f["color"])
+                pattern, drawn = pen(f["line_number"], f["style"])
+                if not drawn:
+                    continue
+                dash = tuple(x * width for x in pattern) if pattern else ()
+            out.append(Prim("path", _edge_segs(e, ox, oy), width=width, dash=dash, stroke=stroke,
                             attrs={"data-view": name, "data-sub": f"Edge{i}"}))
+        if frames:
+            out += _vertex_targets(v, name, ox, oy)
     for name, line in res.get("sections", {}).items():
         out += _section_line(name, line, res)
     for name, d in res["dimensions"].items():
@@ -401,6 +501,8 @@ def template_svg(name: str, texts: dict) -> str:
 
 
 def prim_svg(p: Prim, k=REZ) -> str:
+    if p.kind == "raw":
+        return p.text
     attrs = "".join(f' {a}="{_esc(str(v))}"' for a, v in p.attrs.items())
     if p.kind == "text":
         anchor = f' text-anchor="{p.anchor}"' if p.anchor != "start" else ""
@@ -468,6 +570,15 @@ def page_dxf(doc) -> bytes:
                 for occ in _edges_of(invert_geometry(comp)):
                     try:
                         p = dxf.primitive(Edge(occ), frame)
+                    except dxf.Unsupported:
+                        continue
+                    items.append((o.name, _moved(p, x, y)))
+            # the cosmetic edges and centre lines (write1ViewDxf adds them moved, not mirrored, and the file has them
+            # y up like the others: FreeCAD 26.3's headless writeDXFPage, tests/golden/techdraw)
+            for e in geo.edges:
+                if e.cls in ("cosmetic", "centerline"):
+                    try:
+                        p = dxf.primitive(Edge(invert_geometry(e.occ)), frame)
                     except dxf.Unsupported:
                         continue
                     items.append((o.name, _moved(p, x, y)))
@@ -593,6 +704,8 @@ class _Pdf:
     def prim(self, p: Prim, m=None):
         T = (lambda x, y: (x, y)) if m is None else (lambda x, y: (m[0] * x + m[2] * y + m[4], m[1] * x + m[3] * y + m[5]))
         sc = 1.0 if m is None else math.sqrt(abs(m[0] * m[3] - m[1] * m[2]))
+        if p.kind == "raw":
+            return
         if p.kind == "text":
             x, y = T(*p.at)
             size = p.size * sc * PT
@@ -629,7 +742,7 @@ class _Pdf:
                 cur = start
         if not out:
             return
-        if p.fill and p.fill != "none":
+        if p.fill and p.fill.startswith("#"):
             r, g, b = (int(p.fill[i:i + 2], 16) / 255.0 for i in (1, 3, 5))
             self.ops.append(f"{r:.3f} {g:.3f} {b:.3f} rg " + " ".join(out) + " f 0 0 0 rg")
         if p.stroke != "none":
