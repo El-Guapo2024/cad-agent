@@ -502,7 +502,7 @@ try {
     await comparePanel(FC[fcKey].task, cmd, opts)
     if (!ok) { await clickButton('Cancel').catch(() => clickButton('Close')); return null }
     await clickButton(ok)
-    if (!await objectsAt(n + 1, cmd)) return null
+    if (!await objectsAt(n + 1, cmd)) { if (args.includes('--debug')) console.log('        dbg', await st(`JSON.stringify({ sel: cadui.getState().featSel, objs: cadui.getState().features.Unnamed.objects.map((o) => [o.name, o.type, o.solid]), list: [...document.querySelectorAll('.pt-list .pt-item')].map((e) => e.textContent) })`)); return null }
     const o = (await objects())[n], want = FC[fcKey].made[0]
     await until(`cadui.getState().undo[0]?.name === ${JSON.stringify(FC[fcKey].undo[0])}`, `${cmd}: the "${FC[fcKey].undo[0]}" step`, 30000) && ok_(`${cmd}: "${FC[fcKey].undo[0]}"`)
     const fprops = FC[fcKey].props[want.name] ?? {}
@@ -716,7 +716,7 @@ try {
     await st('cadui.getView().fitAll()')
     await sleep(3000)
     if (args.includes('--debug')) console.log('        scene', await st(`(() => { const v = cadui.getView(); const g = v.helpers.get('pt-builder'); let p = null; g.traverse((o) => { if (o.userData.pickName === '@BoxSb.Vertex1') { const at = o.geometry.attributes.position; p = o.position.clone().set(at.getX(0), at.getY(0), at.getZ(0)).applyMatrix4(o.matrixWorld) } }); const cam = v.viewer.camera.getCamera(); cam.updateMatrixWorld(); const q = p ? p.clone().project(cam) : null; return JSON.stringify({ bodies: cadui.getState().scene.bodies.map((b) => [b.name, b.part, b.bbox]), p, q, canvas: v.viewer.renderer.domElement.getBoundingClientRect() }) })()`))
-    if (false) { await page.screenshot({ path: '/tmp/claude-413747813/-home-team-braneboard-com-work-cad-agent/d2f693fe-f948-451f-8bfd-d51a06ce2bb4/scratchpad/pw2_shot.png' }); console.log('        pts', await st(`JSON.stringify(['Vertex1', 'Vertex8', 'Edge2'].map((n) => cadui.getView().helperPoint('pt-builder', '@BoxSb.' + n)))`)) }
+    if (false) { console.log('        dbg', await st(`JSON.stringify({ sel: cadui.getState().featSel, objs: cadui.getState().features.Unnamed.objects.map((o) => [o.name, o.type, o.solid]), list: [...document.querySelectorAll('.pt-list .pt-item')].map((e) => e.textContent) })`)); console.log('        pts', await st(`JSON.stringify(['Vertex1', 'Vertex8', 'Edge2'].map((n) => cadui.getView().helperPoint('pt-builder', '@BoxSb.' + n)))`)) }
     const pickIn = async (names) => {
       // a click on the element when the view has it in frame (pickcheck.mjs does these with real pointer events), else the picker's own call
       for (const nm of names) {
@@ -738,7 +738,8 @@ try {
       await page.click('.taskview [data-qf="createButton"]')
       if (!await objectsAt(n + 1, `Create ${m}`)) continue
       const o = (await objects())[n], want = fc.made[fcKey].objs[0]
-      same([o.name, o.label ?? o.name, o.type], [want.name, want.label, 'Part::ShapeBuilder'], `Part_Builder: ${m}: FreeCAD's object (a Part::Feature there)`)
+      const base = want.name.replace(/\d+$/, '')           // the full run has a Face from the standalone section already: the next free name of the same base
+      same([o.name.replace(/\d+$/, ''), (o.label ?? o.name) === o.name, o.type], [base, true, 'Part::ShapeBuilder'], `Part_Builder: ${m}: FreeCAD's object (a Part::Feature there), named after its kind`)
       same(o.elements, picks.map((p) => ['BoxSb', p]), `Part_Builder: ${m}: the elements picked`)
       await step(fc.made[fcKey].undo[0] ?? 'Face') && ok(`Part_Builder: ${m}: undo step "${fc.made[fcKey].undo[0] ?? 'Face'}"`)
       const sh = (await shapeOf(o.name))?.shape

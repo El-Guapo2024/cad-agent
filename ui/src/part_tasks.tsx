@@ -38,31 +38,11 @@ import { messageBox } from './msgbox'
 import { applyOps, numberOf, refOf, SKETCH } from './partdesign'
 import { addObject, labelOf, objectOf, partIcon, selectedObjects, setObjectPicker, uniqueLabel, uniqueName } from './part_wb'
 import { parsePartPick, partMesh, usePartScene, type Mesh } from './part_pick'
-import { CrossSectionsTask, ShapeBuilderTask } from './part_static'
+import { Buttons, Check, Field, Legend, Q, Radio } from './part_widgets'
+export { Buttons, Check, Field, Legend, Q, Radio }
 import './part_tasks.css'
 
 // ── pieces ───────────────────────────────────────────────────────────────────────────────────────────────────────
-export function Buttons({ items }: { items: [string, () => void, boolean?][] }) {
-  return <div className="tbuttons pd-buttons">{items.map(([t, f, def]) => <button key={t} className={cls('qbtn', def && 'default')} onClick={f}>{t}</button>)}</div>
-}
-export function Field({ label, children, title }: { label: string; children: ReactNode; title?: string }) {
-  return <label className="tfield" title={title}><span>{label}</span>{children}</label>
-}
-export function Check({ label, checked, onChange, disabled, name }: { label: string; checked: boolean; onChange(v: boolean): void; disabled?: boolean; name?: string }) {
-  return <label className="tcheck" data-qf={name}><input type="checkbox" checked={checked} disabled={disabled} onChange={(e) => onChange(e.target.checked)} /> {label}</label>
-}
-export function Radio({ label, checked, onChange, name }: { label: string; checked: boolean; onChange(): void; name?: string }) {
-  return <label className="tcheck" data-qf={name}><input type="radio" checked={checked} onChange={onChange} /> {label}</label>
-}
-export function Legend({ title, children }: { title: string; children: ReactNode }) {
-  return <fieldset className="tgroup"><legend>{title}</legend>{children}</fieldset>
-}
-/** A Gui::QuantitySpinBox of the dialog: a length, an angle, or a plain number. */
-export function Q({ label, value, dims = LENGTH, onChange, min, max, disabled, name, step, decimals }: { label?: string; value: number; dims?: number[]; onChange(v: number): void
-  min?: number; max?: number; disabled?: boolean; name?: string; step?: number; decimals?: number }) {
-  const box = <span data-qf={name}><QuantityBox key={`${name}:${value}`} value={value} dims={dims as typeof LENGTH} min={min} max={max} step={step} disabled={disabled} decimals={decimals} onChange={onChange} /></span>
-  return label ? <Field label={label}>{box}</Field> : box
-}
 /** A QTreeWidget of objects, by Label with their icons; click picks one (or toggles one, multi). */
 function ObjList({ doc, names, picked, onPick, header, multi, name }: { doc: FeatureDoc; names: string[]; picked: string[]; onPick(next: string[]): void
   header?: string; multi?: boolean; name?: string }) {
@@ -861,8 +841,6 @@ export function PartTask({ part, other }: { part: string; other: string }) {
     case 'boolean': return <BooleanTask key={key} part={part} />
     case 'projection': return <ProjectionTask key={key} part={part} edit={edit} />
     case 'sketch': return <SketchTask key={key} part={part} />
-    case 'crosssections': return <CrossSectionsTask key={key} part={part} />
-    case 'builder': return <ShapeBuilderTask key={key} part={part} />
   }
   report('err', `no Part task panel ${which}`)
   return null

@@ -21,7 +21,7 @@ import { messageBox } from './msgbox'
 import { applyOps, bodyOfPart } from './partdesign'
 import { activeDoc, labelOf, objectOf, openPart, selectedObjects, uniqueLabel, uniqueName } from './part_wb'
 import { parsePartPick, partMatrix, usePartScene, type Mesh } from './part_pick'
-import { Buttons, Check, Field, Q, Radio } from './part_tasks'
+import { Buttons, Check, Field, Q, Radio } from './part_widgets'
 import { LENGTH } from './qsb'
 
 // ── what the server says of an object's shape ────────────────────────────────────────────────────────────────────────
