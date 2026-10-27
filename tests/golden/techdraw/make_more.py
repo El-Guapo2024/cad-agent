@@ -36,7 +36,9 @@ def val(v):
         return [val(x) for x in v]
     if hasattr(v, "Name"):
         return v.Name
-    if isinstance(v, (bool, int, float, str, type(None))):
+    if isinstance(v, str):   # no machine's paths in the golden: FreeCAD's resources and its document cache by name
+        return v.replace(App.getResourceDir().rstrip("/"), "<resources>").replace(App.getUserCachePath().rstrip("/"), "<cache>")
+    if isinstance(v, (bool, int, float, type(None))):
         return v
     return repr(v)
 
