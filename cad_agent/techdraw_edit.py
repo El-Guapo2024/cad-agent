@@ -140,7 +140,9 @@ TREE_ICONS = {"DrawPage": "TechDraw_TreePage", "DrawSVGTemplate": "TechDraw_Tree
               "DrawProjGroup": "TechDraw_TreeProjGroup", "DrawViewSection": "TechDraw_TreeSection",
               "DrawViewDimension": "TechDraw_Dimension", "DrawViewBalloon": "TechDraw_Balloon",
               "DrawViewAnnotation": "TechDraw_TreeAnnotation", "DrawHatch": "TechDraw_TreeHatch",
-              "DrawGeomHatch": "TechDraw_TreeView"}
+              "DrawGeomHatch": "TechDraw_TreeView", "DrawLeaderLine": "TechDraw_LeaderLine", "DrawRichAnno": "TechDraw_Annotation",
+              "DrawViewSymbol": "TechDraw_TreeSymbol", "DrawWeldSymbol": "TechDraw_WeldSymbol", "DrawTileWeld": "TechDraw_Tile",
+              "DrawViewImage": "TechDraw_Image", "DrawViewClip": "TechDraw_ClipGroup"}
 DIM_ICONS = {"Distance": "TechDraw_LengthDimension", "DistanceX": "TechDraw_HorizontalDimension",
              "DistanceY": "TechDraw_VerticalDimension", "Radius": "TechDraw_RadiusDimension",
              "Diameter": "TechDraw_DiameterDimension", "Angle": "TechDraw_AngleDimension",
@@ -164,10 +166,16 @@ def tree(objs) -> list:
             parent = o.source_view
         elif isinstance(o, (T.DrawHatch, T.DrawGeomHatch)):
             parent = o.source                     # ViewProviderViewPart::claimChildren: its hatches
+        elif o.kind in T.techdraw_objs.OWNER_KEYS:
+            parent = T.techdraw_objs.owner_of(o)  # DrawView::claimParent: a leader's view, a weld's leader, a tile's weld ...
         elif isinstance(o, T.DrawProjGroupItem) and doc.group_of(o.name) is not None:
             parent = doc.group_of(o.name).name
         if parent in by:
             claimed.setdefault(parent, []).append(o.name)
+        if isinstance(o, T.techdraw_objs.DrawViewClip):                  # ViewProviderViewClip::claimChildren: its Views
+            for n in o.views:
+                if n in by:
+                    claimed.setdefault(o.name, []).append(n)
     rows = []
 
     def add(name, depth):
@@ -231,7 +239,9 @@ def recomputed(pdir, page: str, objs=None, svg: bool = False) -> dict:
     pdir = Path(pdir)
     out = read(pdir, page) if objs is None else read_src_objs(objs, page, pdir.name)
     objs = objs if objs is not None else objects_of(page_file(pdir, page).read_text())
-    doc = T.PageDocument(objs, shape_loader(pdir.name), pdir.name).recompute()
+    doc = T.PageDocument(objs, shape_loader(pdir.name), pdir.name)
+    doc.pdir = pdir
+    doc.recompute()
     out["result"] = doc.result()
     if svg:
         from .techdraw_export import page_svg
@@ -245,7 +255,9 @@ def page_document(pdir, page: str):
     objs = objects_of(page_file(pdir, page).read_text()) if page_file(pdir, page).exists() else None
     if objs is None:
         raise TechDrawEditError(f"there is no page {page!r} (techdraw/{page}.py)")
-    return T.PageDocument(objs, shape_loader(pdir.name), pdir.name).recompute()
+    doc = T.PageDocument(objs, shape_loader(pdir.name), pdir.name)
+    doc.pdir = pdir
+    return doc.recompute()
 
 
 def read_src_objs(objs, page, slug):
@@ -568,6 +580,9 @@ def run_ops(s: Session, ops) -> list:
         elif kind in _annot_ops():
             from . import techdraw_annot as A
             done.append(A.run(s, op))
+        elif kind in _more_ops():
+            from . import techdraw_more as M
+            done.append(M.run(s, op))
         elif kind == "set":
             o = s.get(op.get("name"))
             props = dict(op.get("props") or {})
@@ -578,6 +593,8 @@ def run_ops(s: Session, ops) -> list:
                     d["format_spec"] = None     # DrawViewDimension::onChanged(Type): the default for the type
                 elif key == "type" and isinstance(o, T.DrawProjGroupItem):
                     d["item_type"] = v
+                elif key == "editable_texts" and isinstance(o, T.techdraw_objs.DrawViewSymbol):
+                    d["symbol"] = T.techdraw_objs.with_editable_texts(d["symbol"], list(v))     # EditableTexts: updateFieldsInSymbol
                 elif key not in o.DEFAULTS:
                     raise TechDrawEditError(f"{key} is not a property of a {o.kind}")
                 else:
@@ -622,6 +639,11 @@ def run_ops(s: Session, ops) -> list:
 def _annot_ops():
     from . import techdraw_annot as A
     return A.OPS
+
+
+def _more_ops():
+    from . import techdraw_more as M
+    return M.OPS
 
 
 def _rebuilt(o, d):
@@ -837,6 +859,9 @@ def _dependents(s: Session, name) -> list:
             out.append(o)
         elif isinstance(o, (T.DrawHatch, T.DrawGeomHatch)) and o.source == name:
             out.append(o)
+        elif o.kind in T.techdraw_objs.OWNER_KEYS and T.techdraw_objs.owner_of(o) == name:
+            out.append(o)                       # the leaders, annotations, symbols and images of a view; a leader's welds; a weld's tiles
+            out += [x for x in _dependents(s, o.name) if x not in out]
     return out
 
 
@@ -884,6 +909,13 @@ def _rename(s: Session, name, to) -> str:
                 d[k] = to
         if isinstance(x, (T.DrawHatch, T.DrawGeomHatch)) and d.get("source") == name:
             d["source"] = to
+        if x.kind in T.techdraw_objs.OWNER_KEYS or x.kind == "DrawViewClip":
+            for k in x.REFS:                    # a leader's view, a weld's leader, a tile's weld, a clip's views
+                v = d.get(k)
+                if isinstance(v, list):
+                    d[k] = [to if r == name else r for r in v]
+                elif v == name:
+                    d[k] = to
         if "views" in d and isinstance(x, T.DrawProjGroup):
             d["views"] = [to if v == name else v for v in d["views"]]
         if "references_2d" in d:
@@ -917,7 +949,9 @@ def apply(pdir, page: str, ops, write: bool = True, recompute: bool = True, svg:
         state.write_atomic(path, new)
     out = read_src_objs(s.objs, page, pdir.name)
     if recompute or svg:
-        doc = T.PageDocument(s.objs, shape_loader(pdir.name), pdir.name).recompute()
+        doc = T.PageDocument(s.objs, shape_loader(pdir.name), pdir.name)
+        doc.pdir = pdir
+        doc.recompute()
         out["result"] = doc.result()
         if svg:
             from .techdraw_export import page_svg

@@ -16,6 +16,7 @@ import { boxElementSelection, boxSelection, boxZoom, clarifySelection, exportPar
 import { workbenchList } from './chrome'
 import { setState } from './store'
 import { MessageBoxHost } from './msgbox'
+import { FileChooserHost } from './techdraw_more'
 import { SketchHost } from './sketchui'
 import { sketchShortcut } from './sketchcmds'
 import * as Sketcher from './sketcher'
@@ -228,6 +229,7 @@ export function App() {
       <CustomizeDialog />
       <PickItemHost />
       <MessageBoxHost />
+      <FileChooserHost />
       <SpreadsheetOverlays />
       <SketchHost />
     </div>

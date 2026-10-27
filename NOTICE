@@ -384,6 +384,15 @@ that commit.
                                 says; "A. Nemesis" in the title block is the template's sample text),
                                 copied unmodified at FreeCAD 3160daf1e2b6.
 
+  FreeCAD's TechDraw symbols    cad_agent/techdraw_symbols/: src/Mod/TechDraw/Symbols/ (the SVG files of the Insert SVG,
+                                Weld Symbol and Surface Finish tools: Welding/, gd-and-t/, misc/, other/, surface-roughness-symbols/),
+                                copied unmodified at FreeCAD 3160daf1e2b6. The files carry no notice of their own and are
+                                FreeCAD's (LGPL-2.0-or-later, distributed here under 2.1), except other/CutLine.svg,
+                                FilletInside.svg, FilletOutside.svg, InsideEdgeBroken.svg, OutsideEdgeBroken.svg and
+                                surface-roughness-symbols/Roughness.svg, RoughnessGeneral.svg, which are bavariaSHAPE's
+                                and say so in their metadata: CC BY (Creative Commons Attribution; the files name
+                                CC-BY 3.0 and link CC BY 4.0). Attribution: bavariaSHAPE.
+
   OndselSolver (LGPL-2.1, Copyright (c) 2023 Ondsel, Inc.)
       ui/ondsel/upstream/: https://github.com/FreeCAD/OndselSolver at 4be80eef02a3, the revision FreeCAD
       3160daf1e2b6 has as its src/3rdParty/OndselSolver submodule. Its sources (OndselSolver/*.h and

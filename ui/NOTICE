@@ -1542,6 +1542,11 @@ src/Mod/TechDraw/Gui/TaskGeomHatch.cpp   [licence: LGPL-2.1-or-later]
     copyright 2017 WandererFan
     followed by src/techdraw_annot.tsx
 src/Mod/TechDraw/Gui/TaskGeomHatch.ui   [licence: none]
+src/Mod/TechDraw/Gui/SymbolChooser.ui   [licence: none]
+src/Mod/TechDraw/Gui/TaskLeaderLine.ui   [licence: none]
+src/Mod/TechDraw/Gui/TaskRichAnno.ui   [licence: none]
+src/Mod/TechDraw/Gui/TaskSurfaceFinishSymbols.ui   [licence: none]
+src/Mod/TechDraw/Gui/TaskWeldingSymbol.ui   [licence: none]
     copyright: no line in the file
     followed by src/techdraw_annot.tsx, src/uiforms-techdraw.ts
 src/Mod/TechDraw/Gui/TaskHatch.cpp   [licence: LGPL-2.1-or-later]
@@ -1665,3 +1670,21 @@ The build (npm run build) bundles React, three.js, three-cad-viewer, dockview
 and the Radix and Floating UI packages they use. It writes their licences, one by one with the texts
 their authors ship, into cad_agent/workbench/next/THIRD_PARTY_LICENSES.txt (scripts/licenses.mjs);
 the build also writes this file and LICENSE there.
+src/Mod/TechDraw/Gui/TaskLeaderLine.cpp   [licence: LGPL-2.1-or-later]
+    copyright 2019 WandererFan
+    followed by src/techdraw_more.tsx
+src/Mod/TechDraw/Gui/TaskRichAnno.cpp   [licence: LGPL-2.1-or-later]
+    copyright 2019 WandererFan
+    followed by src/techdraw_more.tsx
+src/Mod/TechDraw/Gui/TaskWeldingSymbol.cpp   [licence: LGPL-2.1-or-later]
+    copyright 2019 WandererFan
+    followed by src/techdraw_more.tsx
+src/Mod/TechDraw/Gui/SymbolChooser.cpp   [licence: LGPL-2.1-or-later]
+    copyright 2019 WandererFan
+    followed by src/techdraw_more.tsx
+src/Mod/TechDraw/Gui/TaskSurfaceFinishSymbols.cpp   [licence: LGPL-2.1-or-later]
+    copyright 2019 WandererFan
+    followed by src/techdraw_more.tsx
+src/Mod/TechDraw/Gui/QGTracker.cpp   [licence: LGPL-2.1-or-later]
+    copyright 2019 WandererFan
+    followed by src/techdraw_more.tsx

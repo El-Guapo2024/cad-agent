@@ -1,0 +1,1094 @@
+{
+ "TechDraw::DrawLeaderLine": {
+  "AutoHorizontal": {
+   "type": "App::PropertyBool",
+   "group": "Leader",
+   "value": true,
+   "mode": [],
+   "doc": "Forces last line segment to be horizontal"
+  },
+  "Caption": {
+   "type": "App::PropertyString",
+   "group": "Base",
+   "value": "",
+   "mode": [
+    "Hidden"
+   ],
+   "doc": "Short text about the view"
+  },
+  "CaptionLocation": {
+   "type": "App::PropertyVector",
+   "group": "Base",
+   "value": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "mode": [],
+   "doc": "Location of the caption relative to the view"
+  },
+  "CaptionSnap": {
+   "type": "App::PropertyEnumeration",
+   "group": "Base",
+   "value": "Bottom",
+   "mode": [
+    "Hidden"
+   ],
+   "doc": "Snap the caption to the view's top, bottom, left or right edge",
+   "enum": [
+    "Top",
+    "Bottom",
+    "Left",
+    "Right",
+    "NoSnap"
+   ]
+  },
+  "EndSymbol": {
+   "type": "App::PropertyEnumeration",
+   "group": "",
+   "value": "None",
+   "mode": [],
+   "doc": "",
+   "enum": [
+    "Filled arrow",
+    "Open arrow",
+    "Tick",
+    "Dot",
+    "Open circle",
+    "Fork",
+    "Filled triangle",
+    "None"
+   ]
+  },
+  "ExpressionEngine": {
+   "type": "App::PropertyExpressionEngine",
+   "group": "Base",
+   "value": [],
+   "mode": [
+    "Hidden"
+   ],
+   "doc": "Property expressions"
+  },
+  "Label": {
+   "type": "App::PropertyString",
+   "group": "Base",
+   "value": "LeaderLine",
+   "mode": [],
+   "doc": "User name of the object (UTF8)"
+  },
+  "Label2": {
+   "type": "App::PropertyString",
+   "group": "Base",
+   "value": "",
+   "mode": [
+    "Hidden"
+   ],
+   "doc": "User description of the object (UTF8)"
+  },
+  "LeaderParent": {
+   "type": "App::PropertyLink",
+   "group": "Leader",
+   "value": "View",
+   "mode": [],
+   "doc": "View to which this leader is attached"
+  },
+  "LockPosition": {
+   "type": "App::PropertyBool",
+   "group": "Base",
+   "value": true,
+   "mode": [
+    "Hidden"
+   ],
+   "doc": "Lock View position to parent Page or Group"
+  },
+  "RotatesWithParent": {
+   "type": "App::PropertyBool",
+   "group": "Leader",
+   "value": true,
+   "mode": [],
+   "doc": "If true, leader rotates around parent.  If false, only first segment of leader changes with parent rotation."
+  },
+  "Rotation": {
+   "type": "App::PropertyAngle",
+   "group": "Base",
+   "value": 0.0,
+   "mode": [
+    "ReadOnly",
+    "Hidden"
+   ],
+   "doc": "Rotation in degrees counterclockwise"
+  },
+  "Scalable": {
+   "type": "App::PropertyBool",
+   "group": "Leader",
+   "value": false,
+   "mode": [],
+   "doc": "Scale line with LeaderParent"
+  },
+  "Scale": {
+   "type": "App::PropertyFloatConstraint",
+   "group": "Base",
+   "value": 1.0,
+   "mode": [
+    "ReadOnly",
+    "Hidden"
+   ],
+   "doc": "Scale factor of the view (decimal value). For fractions, use an expression (e.g. =1/10)."
+  },
+  "ScaleType": {
+   "type": "App::PropertyEnumeration",
+   "group": "Base",
+   "value": "Page",
+   "mode": [
+    "ReadOnly",
+    "Hidden"
+   ],
+   "doc": "Scale Type",
+   "enum": [
+    "Page",
+    "Automatic",
+    "Custom"
+   ]
+  },
+  "StartSymbol": {
+   "type": "App::PropertyEnumeration",
+   "group": "",
+   "value": "Filled arrow",
+   "mode": [],
+   "doc": "",
+   "enum": [
+    "Filled arrow",
+    "Open arrow",
+    "Tick",
+    "Dot",
+    "Open circle",
+    "Fork",
+    "Filled triangle",
+    "None"
+   ]
+  },
+  "Visibility": {
+   "type": "App::PropertyBool",
+   "group": "",
+   "value": true,
+   "mode": [
+    "Hidden"
+   ],
+   "doc": ""
+  },
+  "WayPoints": {
+   "type": "App::PropertyVectorList",
+   "group": "Leader",
+   "value": [
+    "Vector (0.0, 0.0, 0.0)"
+   ],
+   "mode": [],
+   "doc": "Intermediate points for Leader line"
+  },
+  "X": {
+   "type": "App::PropertyDistance",
+   "group": "Base",
+   "value": 148.5,
+   "mode": [
+    "ReadOnly"
+   ],
+   "doc": "X position"
+  },
+  "Y": {
+   "type": "App::PropertyDistance",
+   "group": "Base",
+   "value": 105.0,
+   "mode": [
+    "ReadOnly"
+   ],
+   "doc": "Y position"
+  }
+ },
+ "TechDraw::DrawRichAnno": {
+  "AnnoParent": {
+   "type": "App::PropertyLink",
+   "group": "Text Block",
+   "value": null,
+   "mode": [],
+   "doc": "Object to which this annontation is attached"
+  },
+  "AnnoText": {
+   "type": "App::PropertyString",
+   "group": "Text Block",
+   "value": "",
+   "mode": [],
+   "doc": "Annotation text"
+  },
+  "Caption": {
+   "type": "App::PropertyString",
+   "group": "Base",
+   "value": "",
+   "mode": [
+    "Hidden"
+   ],
+   "doc": "Short text about the view"
+  },
+  "CaptionLocation": {
+   "type": "App::PropertyVector",
+   "group": "Base",
+   "value": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "mode": [],
+   "doc": "Location of the caption relative to the view"
+  },
+  "CaptionSnap": {
+   "type": "App::PropertyEnumeration",
+   "group": "Base",
+   "value": "Bottom",
+   "mode": [
+    "Hidden"
+   ],
+   "doc": "Snap the caption to the view's top, bottom, left or right edge",
+   "enum": [
+    "Top",
+    "Bottom",
+    "Left",
+    "Right",
+    "NoSnap"
+   ]
+  },
+  "ExpressionEngine": {
+   "type": "App::PropertyExpressionEngine",
+   "group": "Base",
+   "value": [],
+   "mode": [
+    "Hidden"
+   ],
+   "doc": "Property expressions"
+  },
+  "Label": {
+   "type": "App::PropertyString",
+   "group": "Base",
+   "value": "RichTextAnnotation",
+   "mode": [],
+   "doc": "User name of the object (UTF8)"
+  },
+  "Label2": {
+   "type": "App::PropertyString",
+   "group": "Base",
+   "value": "",
+   "mode": [
+    "Hidden"
+   ],
+   "doc": "User description of the object (UTF8)"
+  },
+  "LockPosition": {
+   "type": "App::PropertyBool",
+   "group": "Base",
+   "value": false,
+   "mode": [],
+   "doc": "Lock View position to parent Page or Group"
+  },
+  "MaxWidth": {
+   "type": "App::PropertyFloat",
+   "group": "Text Block",
+   "value": -1.0,
+   "mode": [],
+   "doc": "Width limit before auto wrap"
+  },
+  "OriginCentered": {
+   "type": "App::PropertyBool",
+   "group": "Text Block",
+   "value": false,
+   "mode": [],
+   "doc": "Center the annotation on it's origin."
+  },
+  "Rotation": {
+   "type": "App::PropertyAngle",
+   "group": "Base",
+   "value": 0.0,
+   "mode": [],
+   "doc": "Rotation in degrees counterclockwise"
+  },
+  "Scale": {
+   "type": "App::PropertyFloatConstraint",
+   "group": "Base",
+   "value": 1.0,
+   "mode": [
+    "ReadOnly",
+    "Hidden"
+   ],
+   "doc": "Scale factor of the view (decimal value). For fractions, use an expression (e.g. =1/10)."
+  },
+  "ScaleType": {
+   "type": "App::PropertyEnumeration",
+   "group": "Base",
+   "value": "Page",
+   "mode": [
+    "Hidden"
+   ],
+   "doc": "Scale Type",
+   "enum": [
+    "Page",
+    "Automatic",
+    "Custom"
+   ]
+  },
+  "ShowFrame": {
+   "type": "App::PropertyBool",
+   "group": "Text Block",
+   "value": true,
+   "mode": [],
+   "doc": "Outline rectangle on/off"
+  },
+  "Visibility": {
+   "type": "App::PropertyBool",
+   "group": "",
+   "value": true,
+   "mode": [
+    "Hidden"
+   ],
+   "doc": ""
+  },
+  "X": {
+   "type": "App::PropertyDistance",
+   "group": "Base",
+   "value": 148.5,
+   "mode": [],
+   "doc": "X position"
+  },
+  "Y": {
+   "type": "App::PropertyDistance",
+   "group": "Base",
+   "value": 105.0,
+   "mode": [],
+   "doc": "Y position"
+  }
+ },
+ "TechDraw::DrawViewSymbol": {
+  "Caption": {
+   "type": "App::PropertyString",
+   "group": "Base",
+   "value": "",
+   "mode": [],
+   "doc": "Short text about the view"
+  },
+  "CaptionLocation": {
+   "type": "App::PropertyVector",
+   "group": "Base",
+   "value": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "mode": [],
+   "doc": "Location of the caption relative to the view"
+  },
+  "CaptionSnap": {
+   "type": "App::PropertyEnumeration",
+   "group": "Base",
+   "value": "Bottom",
+   "mode": [
+    "Hidden"
+   ],
+   "doc": "Snap the caption to the view's top, bottom, left or right edge",
+   "enum": [
+    "Top",
+    "Bottom",
+    "Left",
+    "Right",
+    "NoSnap"
+   ]
+  },
+  "EditableTexts": {
+   "type": "App::PropertyStringList",
+   "group": "Drawing view",
+   "value": [
+    ""
+   ],
+   "mode": [],
+   "doc": "Substitution values for the editable strings in this symbol"
+  },
+  "ExpressionEngine": {
+   "type": "App::PropertyExpressionEngine",
+   "group": "Base",
+   "value": [],
+   "mode": [
+    "Hidden"
+   ],
+   "doc": "Property expressions"
+  },
+  "Label": {
+   "type": "App::PropertyString",
+   "group": "Base",
+   "value": "Symbol",
+   "mode": [],
+   "doc": "User name of the object (UTF8)"
+  },
+  "Label2": {
+   "type": "App::PropertyString",
+   "group": "Base",
+   "value": "",
+   "mode": [
+    "Hidden"
+   ],
+   "doc": "User description of the object (UTF8)"
+  },
+  "LockPosition": {
+   "type": "App::PropertyBool",
+   "group": "Base",
+   "value": false,
+   "mode": [],
+   "doc": "Lock View position to parent Page or Group"
+  },
+  "Owner": {
+   "type": "App::PropertyLink",
+   "group": "Drawing view",
+   "value": null,
+   "mode": [],
+   "doc": "Feature to which this symbol is attached"
+  },
+  "Rotation": {
+   "type": "App::PropertyAngle",
+   "group": "Base",
+   "value": 0.0,
+   "mode": [],
+   "doc": "Rotation in degrees counterclockwise"
+  },
+  "Scale": {
+   "type": "App::PropertyFloatConstraint",
+   "group": "Base",
+   "value": 1.0,
+   "mode": [],
+   "doc": "Scale factor of the view (decimal value). For fractions, use an expression (e.g. =1/10)."
+  },
+  "ScaleType": {
+   "type": "App::PropertyEnumeration",
+   "group": "Base",
+   "value": "Custom",
+   "mode": [],
+   "doc": "Scale Type",
+   "enum": [
+    "Page",
+    "Automatic",
+    "Custom"
+   ]
+  },
+  "Symbol": {
+   "type": "App::PropertyString",
+   "group": "Drawing view",
+   "value": "",
+   "mode": [
+    "Hidden"
+   ],
+   "doc": "The SVG code defining this symbol"
+  },
+  "Visibility": {
+   "type": "App::PropertyBool",
+   "group": "",
+   "value": true,
+   "mode": [
+    "Hidden"
+   ],
+   "doc": ""
+  },
+  "X": {
+   "type": "App::PropertyDistance",
+   "group": "Base",
+   "value": 148.5,
+   "mode": [],
+   "doc": "X position"
+  },
+  "Y": {
+   "type": "App::PropertyDistance",
+   "group": "Base",
+   "value": 105.0,
+   "mode": [],
+   "doc": "Y position"
+  }
+ },
+ "TechDraw::DrawWeldSymbol": {
+  "AllAround": {
+   "type": "App::PropertyBool",
+   "group": "Weld Symbol",
+   "value": false,
+   "mode": [],
+   "doc": "All Around Symbol on/off"
+  },
+  "AlternatingWeld": {
+   "type": "App::PropertyBool",
+   "group": "Weld Symbol",
+   "value": false,
+   "mode": [],
+   "doc": "Alternating Weld true/false"
+  },
+  "Caption": {
+   "type": "App::PropertyString",
+   "group": "Base",
+   "value": "",
+   "mode": [
+    "Hidden"
+   ],
+   "doc": "Short text about the view"
+  },
+  "CaptionLocation": {
+   "type": "App::PropertyVector",
+   "group": "Base",
+   "value": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "mode": [],
+   "doc": "Location of the caption relative to the view"
+  },
+  "CaptionSnap": {
+   "type": "App::PropertyEnumeration",
+   "group": "Base",
+   "value": "Bottom",
+   "mode": [
+    "Hidden"
+   ],
+   "doc": "Snap the caption to the view's top, bottom, left or right edge",
+   "enum": [
+    "Top",
+    "Bottom",
+    "Left",
+    "Right",
+    "NoSnap"
+   ]
+  },
+  "ExpressionEngine": {
+   "type": "App::PropertyExpressionEngine",
+   "group": "Base",
+   "value": [],
+   "mode": [
+    "Hidden"
+   ],
+   "doc": "Property expressions"
+  },
+  "FieldWeld": {
+   "type": "App::PropertyBool",
+   "group": "Weld Symbol",
+   "value": false,
+   "mode": [],
+   "doc": "Field Weld Symbol on/off"
+  },
+  "Label": {
+   "type": "App::PropertyString",
+   "group": "Base",
+   "value": "WeldSymbol",
+   "mode": [],
+   "doc": "User name of the object (UTF8)"
+  },
+  "Label2": {
+   "type": "App::PropertyString",
+   "group": "Base",
+   "value": "",
+   "mode": [
+    "Hidden"
+   ],
+   "doc": "User description of the object (UTF8)"
+  },
+  "Leader": {
+   "type": "App::PropertyLink",
+   "group": "Weld Symbol",
+   "value": "LeaderLine",
+   "mode": [],
+   "doc": "Parent Leader"
+  },
+  "LockPosition": {
+   "type": "App::PropertyBool",
+   "group": "Base",
+   "value": false,
+   "mode": [],
+   "doc": "Lock View position to parent Page or Group"
+  },
+  "Rotation": {
+   "type": "App::PropertyAngle",
+   "group": "Base",
+   "value": 0.0,
+   "mode": [
+    "Hidden"
+   ],
+   "doc": "Rotation in degrees counterclockwise"
+  },
+  "Scale": {
+   "type": "App::PropertyFloatConstraint",
+   "group": "Base",
+   "value": 1.0,
+   "mode": [
+    "ReadOnly",
+    "Hidden"
+   ],
+   "doc": "Scale factor of the view (decimal value). For fractions, use an expression (e.g. =1/10)."
+  },
+  "ScaleType": {
+   "type": "App::PropertyEnumeration",
+   "group": "Base",
+   "value": "Page",
+   "mode": [
+    "Hidden"
+   ],
+   "doc": "Scale Type",
+   "enum": [
+    "Page",
+    "Automatic",
+    "Custom"
+   ]
+  },
+  "TailText": {
+   "type": "App::PropertyString",
+   "group": "Weld Symbol",
+   "value": "",
+   "mode": [],
+   "doc": "Text at tail of symbol"
+  },
+  "Visibility": {
+   "type": "App::PropertyBool",
+   "group": "",
+   "value": true,
+   "mode": [
+    "Hidden"
+   ],
+   "doc": ""
+  },
+  "X": {
+   "type": "App::PropertyDistance",
+   "group": "Base",
+   "value": 0.0,
+   "mode": [],
+   "doc": "X position"
+  },
+  "Y": {
+   "type": "App::PropertyDistance",
+   "group": "Base",
+   "value": 0.0,
+   "mode": [],
+   "doc": "Y position"
+  }
+ },
+ "TechDraw::DrawTileWeld": {
+  "CenterText": {
+   "type": "App::PropertyString",
+   "group": "TileWeld",
+   "value": "",
+   "mode": [],
+   "doc": "Text above/below symbol"
+  },
+  "ExpressionEngine": {
+   "type": "App::PropertyExpressionEngine",
+   "group": "Base",
+   "value": [],
+   "mode": [
+    "Hidden"
+   ],
+   "doc": "Property expressions"
+  },
+  "Label": {
+   "type": "App::PropertyString",
+   "group": "Base",
+   "value": "TileWeld",
+   "mode": [],
+   "doc": "User name of the object (UTF8)"
+  },
+  "Label2": {
+   "type": "App::PropertyString",
+   "group": "Base",
+   "value": "",
+   "mode": [
+    "Hidden"
+   ],
+   "doc": "User description of the object (UTF8)"
+  },
+  "LeftText": {
+   "type": "App::PropertyString",
+   "group": "TileWeld",
+   "value": "",
+   "mode": [],
+   "doc": "Text before symbol"
+  },
+  "RightText": {
+   "type": "App::PropertyString",
+   "group": "TileWeld",
+   "value": "",
+   "mode": [],
+   "doc": "Text after symbol"
+  },
+  "SymbolFile": {
+   "type": "App::PropertyFile",
+   "group": "TileWeld",
+   "value": "blankTile.svg",
+   "mode": [],
+   "doc": "Symbol File"
+  },
+  "SymbolIncluded": {
+   "type": "App::PropertyFileIncluded",
+   "group": "TileWeld",
+   "value": "blankTile.svg",
+   "mode": [],
+   "doc": "Embedded Symbol. System use only."
+  },
+  "TileColumn": {
+   "type": "App::PropertyInteger",
+   "group": "Tile",
+   "value": 0,
+   "mode": [
+    "ReadOnly"
+   ],
+   "doc": "Column in parent object"
+  },
+  "TileParent": {
+   "type": "App::PropertyLink",
+   "group": "Tile",
+   "value": "WeldSymbol",
+   "mode": [],
+   "doc": "Object to which this tile is attached"
+  },
+  "TileRow": {
+   "type": "App::PropertyIntegerConstraint",
+   "group": "Tile",
+   "value": 0,
+   "mode": [],
+   "doc": "Row in parent object\n 0 for arrow side, -1 for other side"
+  },
+  "Visibility": {
+   "type": "App::PropertyBool",
+   "group": "",
+   "value": true,
+   "mode": [
+    "Hidden"
+   ],
+   "doc": ""
+  }
+ },
+ "TechDraw::DrawViewImage": {
+  "Caption": {
+   "type": "App::PropertyString",
+   "group": "Base",
+   "value": "",
+   "mode": [],
+   "doc": "Short text about the view"
+  },
+  "CaptionLocation": {
+   "type": "App::PropertyVector",
+   "group": "Base",
+   "value": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "mode": [],
+   "doc": "Location of the caption relative to the view"
+  },
+  "CaptionSnap": {
+   "type": "App::PropertyEnumeration",
+   "group": "Base",
+   "value": "Bottom",
+   "mode": [
+    "Hidden"
+   ],
+   "doc": "Snap the caption to the view's top, bottom, left or right edge",
+   "enum": [
+    "Top",
+    "Bottom",
+    "Left",
+    "Right",
+    "NoSnap"
+   ]
+  },
+  "ExpressionEngine": {
+   "type": "App::PropertyExpressionEngine",
+   "group": "Base",
+   "value": [],
+   "mode": [
+    "Hidden"
+   ],
+   "doc": "Property expressions"
+  },
+  "Height": {
+   "type": "App::PropertyFloat",
+   "group": "Image",
+   "value": 100.0,
+   "mode": [],
+   "doc": "The height of cropped image"
+  },
+  "ImageFile": {
+   "type": "App::PropertyFile",
+   "group": "Image",
+   "value": "",
+   "mode": [],
+   "doc": "The file containing this bitmap"
+  },
+  "ImageIncluded": {
+   "type": "App::PropertyFileIncluded",
+   "group": "Image",
+   "value": "",
+   "mode": [],
+   "doc": "Embedded image file. System use only."
+  },
+  "Label": {
+   "type": "App::PropertyString",
+   "group": "Base",
+   "value": "Image",
+   "mode": [],
+   "doc": "User name of the object (UTF8)"
+  },
+  "Label2": {
+   "type": "App::PropertyString",
+   "group": "Base",
+   "value": "",
+   "mode": [
+    "Hidden"
+   ],
+   "doc": "User description of the object (UTF8)"
+  },
+  "LockPosition": {
+   "type": "App::PropertyBool",
+   "group": "Base",
+   "value": false,
+   "mode": [],
+   "doc": "Lock View position to parent Page or Group"
+  },
+  "Owner": {
+   "type": "App::PropertyLink",
+   "group": "Image",
+   "value": null,
+   "mode": [],
+   "doc": "Feature to which this symbol is attached"
+  },
+  "Rotation": {
+   "type": "App::PropertyAngle",
+   "group": "Base",
+   "value": 0.0,
+   "mode": [],
+   "doc": "Rotation in degrees counterclockwise"
+  },
+  "Scale": {
+   "type": "App::PropertyFloatConstraint",
+   "group": "Base",
+   "value": 1.0,
+   "mode": [],
+   "doc": "Scale factor of the view (decimal value). For fractions, use an expression (e.g. =1/10)."
+  },
+  "ScaleType": {
+   "type": "App::PropertyEnumeration",
+   "group": "Base",
+   "value": "Custom",
+   "mode": [],
+   "doc": "Scale Type",
+   "enum": [
+    "Page",
+    "Automatic",
+    "Custom"
+   ]
+  },
+  "Visibility": {
+   "type": "App::PropertyBool",
+   "group": "",
+   "value": true,
+   "mode": [
+    "Hidden"
+   ],
+   "doc": ""
+  },
+  "Width": {
+   "type": "App::PropertyFloat",
+   "group": "Image",
+   "value": 100.0,
+   "mode": [],
+   "doc": "The width of cropped image"
+  },
+  "X": {
+   "type": "App::PropertyDistance",
+   "group": "Base",
+   "value": 148.5,
+   "mode": [],
+   "doc": "X position"
+  },
+  "Y": {
+   "type": "App::PropertyDistance",
+   "group": "Base",
+   "value": 105.0,
+   "mode": [],
+   "doc": "Y position"
+  }
+ },
+ "TechDraw::DrawViewClip": {
+  "Caption": {
+   "type": "App::PropertyString",
+   "group": "Base",
+   "value": "",
+   "mode": [],
+   "doc": "Short text about the view"
+  },
+  "CaptionLocation": {
+   "type": "App::PropertyVector",
+   "group": "Base",
+   "value": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "mode": [],
+   "doc": "Location of the caption relative to the view"
+  },
+  "CaptionSnap": {
+   "type": "App::PropertyEnumeration",
+   "group": "Base",
+   "value": "Bottom",
+   "mode": [
+    "Hidden"
+   ],
+   "doc": "Snap the caption to the view's top, bottom, left or right edge",
+   "enum": [
+    "Top",
+    "Bottom",
+    "Left",
+    "Right",
+    "NoSnap"
+   ]
+  },
+  "ExpressionEngine": {
+   "type": "App::PropertyExpressionEngine",
+   "group": "Base",
+   "value": [],
+   "mode": [
+    "Hidden"
+   ],
+   "doc": "Property expressions"
+  },
+  "Height": {
+   "type": "App::PropertyLength",
+   "group": "Clip Group",
+   "value": 100.0,
+   "mode": [],
+   "doc": "The height of the view area of this clip"
+  },
+  "Label": {
+   "type": "App::PropertyString",
+   "group": "Base",
+   "value": "Clip",
+   "mode": [],
+   "doc": "User name of the object (UTF8)"
+  },
+  "Label2": {
+   "type": "App::PropertyString",
+   "group": "Base",
+   "value": "",
+   "mode": [
+    "Hidden"
+   ],
+   "doc": "User description of the object (UTF8)"
+  },
+  "LockPosition": {
+   "type": "App::PropertyBool",
+   "group": "Base",
+   "value": false,
+   "mode": [],
+   "doc": "Lock View position to parent Page or Group"
+  },
+  "Rotation": {
+   "type": "App::PropertyAngle",
+   "group": "Base",
+   "value": 0.0,
+   "mode": [],
+   "doc": "Rotation in degrees counterclockwise"
+  },
+  "Scale": {
+   "type": "App::PropertyFloatConstraint",
+   "group": "Base",
+   "value": 1.0,
+   "mode": [
+    "ReadOnly",
+    "Hidden"
+   ],
+   "doc": "Scale factor of the view (decimal value). For fractions, use an expression (e.g. =1/10)."
+  },
+  "ScaleType": {
+   "type": "App::PropertyEnumeration",
+   "group": "Base",
+   "value": "Page",
+   "mode": [
+    "ReadOnly",
+    "Hidden"
+   ],
+   "doc": "Scale Type",
+   "enum": [
+    "Page",
+    "Automatic",
+    "Custom"
+   ]
+  },
+  "ShowFrame": {
+   "type": "App::PropertyBool",
+   "group": "Clip Group",
+   "value": false,
+   "mode": [],
+   "doc": "Specifies if the clip frame appears on the page or not"
+  },
+  "Views": {
+   "type": "App::PropertyLinkList",
+   "group": "Clip Group",
+   "value": [],
+   "mode": [],
+   "doc": "The Views in this Clip group"
+  },
+  "Visibility": {
+   "type": "App::PropertyBool",
+   "group": "",
+   "value": true,
+   "mode": [
+    "Hidden"
+   ],
+   "doc": ""
+  },
+  "Width": {
+   "type": "App::PropertyLength",
+   "group": "Clip Group",
+   "value": 100.0,
+   "mode": [],
+   "doc": "The width of the view area of this clip"
+  },
+  "X": {
+   "type": "App::PropertyDistance",
+   "group": "Base",
+   "value": 148.5,
+   "mode": [],
+   "doc": "X position"
+  },
+  "Y": {
+   "type": "App::PropertyDistance",
+   "group": "Base",
+   "value": 105.0,
+   "mode": [],
+   "doc": "Y position"
+  }
+ },
+ "objects": [
+  "Box",
+  "Page",
+  "Template",
+  "View",
+  "LeaderLine",
+  "RichTextAnnotation",
+  "Symbol",
+  "TileWeld",
+  "TileWeld001",
+  "WeldSymbol",
+  "Image",
+  "Clip"
+ ],
+ "labels": [
+  "Box",
+  "Page",
+  "Template",
+  "View",
+  "LeaderLine",
+  "RichTextAnnotation",
+  "Symbol",
+  "TileWeld",
+  "TileWeld001",
+  "WeldSymbol",
+  "Image",
+  "Clip"
+ ]
+}

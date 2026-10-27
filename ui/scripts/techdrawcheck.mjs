@@ -25,6 +25,8 @@
 //              each entry's state for a selection, the task panels' widgets and first values, what the tool makes, the undo step
 //   hatch      TechDraw_GeometricHatch and TechDraw_Hatch (ui/scripts/fctechdraw_hatch.json): the wrong selections, the panels' widgets and
 //              first values, what OK makes (the object, the drawn lines), the undo steps
+//   more       the leader line, rich text, symbol, weld symbol, surface finish, image and clip tools (ui/scripts/fctechdraw_more.json): the wrong selections,
+//              the panels' widgets, the clicks on the page, what each makes (properties, tree place), the undo steps, the property view's rows (with annot)
 //   export     TechDraw_ExportPageSVG: the file's page size
 // A difference prints as FAIL; the deliberate ones (PARITY.md, "TechDraw") as `known`. Exit 1 on a FAIL.
 import { createRequire } from 'module'
@@ -45,6 +47,7 @@ const flag = (name, d) => { const a = args.find((x) => x.startsWith(`--${name}=`
 const FC = JSON.parse(readFileSync(flag('fc', join(HERE, 'fctechdraw.json')), 'utf8'))
 const ANNOT = JSON.parse(readFileSync(flag('annot', join(HERE, 'fctechdraw_annot.json')), 'utf8'))
 const HATCH = JSON.parse(readFileSync(flag('hatch', join(HERE, 'fctechdraw_hatch.json')), 'utf8'))
+const MORE = JSON.parse(readFileSync(flag('more', join(HERE, 'fctechdraw_more.json')), 'utf8'))
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms))
 let pass = 0, fail = 0, known = 0
 const ok = (what) => { pass++; if (args.includes('--verbose')) console.log(`  ok    ${what}`) }
@@ -65,7 +68,8 @@ const PORTED = new Set(['TechDraw_PageDefault', 'TechDraw_PageTemplate', 'TechDr
   'TechDraw_RadiusDimension', 'TechDraw_DiameterDimension', 'TechDraw_AngleDimension', 'TechDraw_3PtAngleDimension', 'TechDraw_Balloon',
   'TechDraw_Annotation', 'TechDraw_ToggleFrame', 'TechDraw_CosmeticVertex', 'TechDraw_CosmeticVertexGroup', 'TechDraw_Midpoints', 'TechDraw_Quadrants',
   'TechDraw_2PointCosmeticLine', 'TechDraw_CosmeticCircle', 'TechDraw_CenterLineGroup', 'TechDraw_FaceCenterLine', 'TechDraw_2LineCenterLine',
-  'TechDraw_2PointCenterLine', 'TechDraw_CosmeticEraser', 'TechDraw_DecorateLine', 'TechDraw_Hatch', 'TechDraw_GeometricHatch'])
+  'TechDraw_2PointCenterLine', 'TechDraw_CosmeticEraser', 'TechDraw_DecorateLine', 'TechDraw_Hatch', 'TechDraw_GeometricHatch',
+  'TechDraw_LeaderLine', 'TechDraw_RichTextAnnotation', 'TechDraw_WeldSymbol', 'TechDraw_SurfaceFinishSymbols', 'TechDraw_Symbol', 'TechDraw_Image', 'TechDraw_ClipGroup'])
 
 // ── a scratch workbench with the two parts ───────────────────────────────────────────────────────────────────────
 const freePort = (from) => new Promise((res, rej) => {
@@ -341,7 +345,7 @@ try {
     check(!!(await obj('Balloon')), 'Std_Redo brings it again')
   }
   // ── the annotation tools, on the View from above (ui/scripts/fctechdraw_annot.json) ──
-  if (want('annot')) {
+  if (want('annot')) try {
     console.log('annot')
     const fcText = (panel, name) => { for (const tv of panel) for (const w of tv) if (w.name === name) return w.text }
     const ourText = (name) => st(`(() => { const e = document.querySelector('.tasks [data-qf="${name}"]'); return !e ? undefined : e.matches('input') ? e.value : e.querySelector('input')?.value ?? e.textContent })()`)
@@ -515,7 +519,7 @@ try {
     same(await msgText(), 'Nothing selected', 'Remove Cosmetic Object: nothing selected')
     note('Edit Line Appearance and Remove Cosmetic Object make no undo step in FreeCAD (no transaction is open); each is a step here')
     if (want('annot') || want('hatch')) await hatchChecks()
-  }
+  } catch (e) { bad('the annot part stopped', String(e.message).split('\n')[0]) }
   // ── hatching (ui/scripts/fctechdraw_hatch.json) ──
   async function hatchChecks() {
     console.log('hatch')
@@ -560,6 +564,209 @@ try {
     same((await td()).docs.Page.objects.filter((o) => o.kind === 'DrawHatch').length, 1, 'Image Hatch: a face already hatched has the new hatch only')
     note('Image Hatch: FreeCAD makes "Remove old hatch", "Create Hatch" and several "Update Hatch" steps; this is one "Create Hatch" step')
   }
+  // ── the leader line, rich text, symbol, weld, surface finish, image and clip tools (ui/scripts/fctechdraw_more.json) ──
+  async function moreChecks() {
+    console.log('more')
+    const fcText = (panel, name) => { for (const tv of panel) for (const w of tv) if (w.name === name) return w.text ?? w.current }
+    const ourText = (name) => st(`(() => { const e = document.querySelector('.tasks [data-qf="${name}"]'); return !e ? undefined : e.matches('input') ? e.value : e.querySelector('.combo-label')?.textContent ?? e.querySelector('input')?.value ?? e.textContent })()`)
+    const okTask = async () => { await page.click('.tasks .tbuttons .qbtn.default', { timeout: 8000 }); await idle(); await sleep(500) }
+    const cancelTask = async () => { await page.click('.tasks .tbuttons .qbtn:not(.default)'); await idle(); await sleep(500) }
+    const msgText = async () => { await until('!!document.querySelector(".msgbox")', 'a message', 8000); const t = await st('document.querySelector(".msgbox-text")?.textContent'); await page.click('.msgbox-buttons button'); await sleep(200); return t }
+    const open = async (cmd, refs, kind) => { await select(refs); await runCmd(cmd); await until(`cadui.getState().task?.other?.startsWith("${kind}:")`, `${cmd}'s panel`); await sleep(600) }
+    const taskTitle = () => st(`document.querySelector('.tasks .tbox-head span')?.textContent`)
+    const names = async () => (await objs()).map((o) => o.name)
+    const count = (kind) => st(`cadui.td.state().docs.Page.objects.filter((o) => o.kind === "${kind}").length`)
+    /** waits (the machine may be busy) until the page has n objects of a kind */
+    const have = async (kind, n) => { await until(`cadui.td.state().docs.Page.objects.filter((o) => o.kind === "${kind}").length >= ${n}`, `${n} ${kind}`, 60000); await sleep(300) }
+    const newest = async (before) => (await objs()).filter((o) => !before.includes(o.name))
+    // the widgets FreeCAD's dump does not list (a QTextBrowser, a FileChooser, the form's root, a graphics view)
+    const UNLISTED = ['tbBaseView', 'fcSymbolDir', 'TaskWeldingSymbol', 'graphicsView', 'surfaceScene']
+    const ourNames = async () => (await ourPanel()).filter((n) => !UNLISTED.includes(n))
+    const panelNames = async (rec, what) => same(sorted(await ourNames()), sorted(fcPanel(rec.panel)), `${what}: the panel's widgets`)
+    const errs = () => st(`cadui.getState().messages.filter((m) => m.level === 'err').map((m) => m.text).slice(-3)`)
+    const showErrs = async (what) => { const e = await errs(); if (e.length) console.log(`  (${what}: ${JSON.stringify(e)})`) }
+    const sheetPx = async (x, y) => {
+      const r = await st(`(() => { const e = document.querySelector('.td-sheet').getBoundingClientRect(); return [e.left, e.top, e.width, e.height] })()`)
+      const res = (await td()).docs.Page.result
+      return [r[0] + (x / res.width) * r[2], r[1] + (1 - y / res.height) * r[3]]
+    }
+    const REC = MORE
+    // the menus: every new command is active with a page and a view (as the recording's states are)
+    for (const key of ['states_none', 'states_view', 'states_edge']) {
+      await select(key === 'states_view' ? ['Page/View'] : key === 'states_edge' ? ['Page/View.Edge2'] : [])
+      const ours = await st('cadui.techdraw()')
+      const flat = (es, acc = {}) => { for (const e of es) { if (e.sep) continue; if (e.cmd) acc[e.cmd] = e.enabled; if (e.menu) flat(e.menu, acc) } return acc }
+      const f = flat(ours.menu)
+      const fc = {}; const fl = (es) => { for (const e of es) { if (e.sep) continue; if (e.menu) fl(e.menu); else fc[e.name] = e.enabled } }; fl(REC[key].menu)
+      for (const c of ['TechDraw_LeaderLine', 'TechDraw_RichTextAnnotation', 'TechDraw_WeldSymbol', 'TechDraw_SurfaceFinishSymbols', 'TechDraw_Symbol', 'TechDraw_Image', 'TechDraw_ClipGroup'])
+        check(f[c] === fc[c], `${key}: ${c} is ${fc[c] ? 'active' : 'greyed'}`, `ours ${f[c]}`)
+    }
+    // ── Leader Line ──
+    await select([]); await runCmd('TechDraw_LeaderLine')
+    same(await msgText(), REC.leader_wrong_nothing.dialogs[0].text, 'Leader Line: nothing selected')
+    await open('TechDraw_LeaderLine', ['Page/View'], 'leader')
+    await panelNames(REC.leader.panel ? REC.leader : REC.leader, 'Leader Line')
+    same(await taskTitle(), 'New Leader Line', 'Leader Line: the panel title')
+    for (const n of ['cboxStartSym', 'cboxEndSym', 'cboxStyle', 'dsbWeight']) same(await ourText(n), fcText(REC.leader.panel, n), `Leader Line: ${n}`)
+    await page.click('[data-qf="pbTracker"]'); await sleep(300)
+    same(await ourText('pbTracker'), 'Save Points', 'Leader Line: Pick Points becomes Save Points')
+    check(await st(`document.querySelector('.tasks .tbuttons .qbtn.default').disabled`), 'Leader Line: OK is off while points are picked')
+    const view = (await td()).docs.Page.result.views.View
+    const pts = [[view.x - 28, view.y - 5], [view.x - 8, view.y + 20], [view.x + 22, view.y + 20]]
+    for (let i = 0; i < pts.length; i++) {
+      const [px, py] = await sheetPx(...pts[i])
+      await page.mouse.click(px, py); await sleep(150)
+    }
+    { const [px, py] = await sheetPx(...pts[2]); await page.mouse.dblclick(px, py); await sleep(400) }
+    check(!(await st(`document.querySelector('.tasks .tbuttons .qbtn.default').disabled`)), 'Leader Line: OK is on once the points are saved')
+    check(await st(`document.querySelector('[data-qf="pbTracker"]').disabled`), 'Leader Line: Save Points is off after the double click')
+    await page.selectOption('[data-qf="cboxEndSym"] select', '0').catch(() => {})
+    await okTask(); await have('DrawLeaderLine', 1)
+    const l = await obj('LeaderLine')
+    check(!!l && l.way_points.length === 3 && Math.abs(l.way_points[1][0] - 20) < 0.6 && Math.abs(l.way_points[1][1] + 25) < 0.6, 'Leader Line: WayPoints are the clicks, relative to the first',
+      JSON.stringify(l?.way_points))
+    check(!!l && Math.abs(l.x - (pts[0][0] - view.x)) < 0.6 && Math.abs(l.y - (pts[0][1] - view.y)) < 0.6, 'Leader Line: X, Y relative to the view', `${l?.x}, ${l?.y}`)
+    same(await undoHead(), REC.leader.undo.head[0], 'Leader Line: the undo step')
+    same(await st(`cadui.td.state().docs.Page.tree.find((r) => r.name === 'LeaderLine')?.depth`), REC.leader_nopoints.tree.find((r) => r.text === 'LeaderLine').depth - 1, 'Leader Line: under its view in the tree')
+    check((await st(`document.querySelectorAll('[data-name="LeaderLine"]').length`)) > 0, 'Leader Line: drawn on the page')
+    // Cancel makes nothing
+    await open('TechDraw_LeaderLine', ['Page/View'], 'leader'); const nb = (await names()).length; await cancelTask()
+    same((await names()).length, nb, 'Leader Line: Cancel makes nothing')
+    // edit: a double click on the leader (setEdit)
+    await page.locator('[data-td="Page/LeaderLine"]').dblclick(); await sleep(800)
+    same(await taskTitle(), 'Edit Leader Line', 'Leader Line: the edit panel')
+    await okTask()
+    // ── a leader on a view at scale 0.5 turned 30 degrees, from the recorded points ──
+    await st(`cadui.td.apply("Page", [{ op: "set", name: "View", props: { scale_type: "Custom", scale: 0.5, rotation: 30 } }], "Edit View.Scale")`); await idle()
+    const sc = REC.leader_scaled
+    await st(`cadui.td.apply("Page", [{ op: "leader", view: "View", points: ${JSON.stringify(sc.edit.points)} }], "Create Leader")`); await idle(); await sleep(400)
+    { const ls = (await objs()).filter((o) => o.kind === 'DrawLeaderLine').pop(), f = sc.made[0]
+      check(Math.abs(ls.x - f.X) < 1e-9 && Math.abs(ls.y - f.Y) < 1e-9 && ls.way_points.every((p, i) => near(p, f.WayPoints[i], 1e-9)), 'Leader Line at scale 0.5, turned 30 degrees: X, Y, WayPoints', JSON.stringify([ls.x, ls.y, ls.way_points])) }
+    await st(`cadui.td.apply("Page", [{ op: "set", name: "View", props: { scale_type: "Page", rotation: 0 } }], "Edit View.Scale")`); await idle()
+    // ── Rich Text ──
+    await select(['Page/View']); await runCmd('TechDraw_RichTextAnnotation')
+    await until('cadui.getState().task?.other?.startsWith("richanno:")', 'the rich text panel'); await sleep(500)
+    same(await taskTitle(), 'Rich Text Creator', 'Rich Text: the panel title')
+    for (const n of ['dsbMaxWidth', 'dsbWidth']) check(await st(`!!document.querySelector('[data-qf="${n}"] input')?.disabled`), `Rich Text: ${n} is off before the text is placed`)
+    const before = await names()
+    { const [px, py] = await sheetPx(200, 60); await page.mouse.click(px, py) }
+    await until('cadui.td.state().docs.Page.objects.some((o) => o.kind === "DrawRichAnno")', 'the annotation', 20000); await sleep(600)
+    const ra = (await newest(before))[0]
+    check(!!ra && ra.anno_parent === 'View' && Math.abs(ra.x - 200) < 0.6 && Math.abs(ra.y - 60) < 0.6, 'Rich Text: made where the click was, on the base view', JSON.stringify([ra?.x, ra?.y, ra?.anno_parent]))
+    same(await undoHead(), REC.richanno_plain.undo.head[0], 'Rich Text: the undo step')
+    same(ra.anno_text, REC.richanno_plain.made[0].AnnoText.replace('Hello rich text', '<br />'), 'Rich Text: the empty text, as the text document writes it')
+    await page.keyboard.type('Hello rich text'); await sleep(1200)
+    same((await obj(ra.name)).anno_text, REC.richanno_plain.made[0].AnnoText, 'Rich Text: the text typed, as the text document writes it')
+    await st(`(() => { const e = document.querySelector('.td-rich [contenteditable]'); e.focus(); document.execCommand('selectAll') })()`); await page.click('.td-rich-bar button[title="Bold"]'); await sleep(1200)
+    check((await obj(ra.name)).anno_text.includes('<span style=" font-weight:700;">Hello rich text</span>'), 'Rich Text: bold is a span with font-weight:700', (await obj(ra.name)).anno_text.slice(-260))
+    await okTask()
+    same(await undoHead(), 'Create Annotation', 'Rich Text: OK keeps the one step')
+    await page.locator(`[data-td="Page/${ra.name}"]`).dblclick(); await sleep(700)
+    same(await taskTitle(), 'Rich Text Editor', 'Rich Text: the edit panel'); await cancelTask()
+    // ── Symbol ──
+    await select([]); await runCmd('TechDraw_Symbol')
+    await until('!!document.querySelector(".msgbox")', 'the file chooser')
+    same(await st('document.querySelector(".msgbox-title")?.textContent'), REC.symbol_page.file_dialogs[0].title, 'Insert SVG: the file dialog\'s title')
+    await page.selectOption('.msgbox select', 'shipped:misc/North.svg'); await page.click('.msgbox-buttons .qbtn.default'); await have('DrawViewSymbol', 1)
+    { const s = (await objs()).filter((o) => o.kind === 'DrawViewSymbol').pop(), f = REC.symbol_page.made[0]
+      check(s.symbol.length === f.Symbol.length && s.symbol === f.Symbol, 'Insert SVG: the symbol is the file\'s text')
+      same([s.x, s.y, s.owner, s.scale_type, s.name], [f.X, f.Y, f.Owner, f.ScaleType, f.Name], 'Insert SVG: X, Y, Owner, ScaleType, Name')
+      same(await undoHead(), REC.symbol_page.undo.head[0], 'Insert SVG: the undo step') }
+    await select(['Page/View']); await runCmd('TechDraw_Symbol'); await until('!!document.querySelector(".msgbox")', 'the file chooser')
+    await page.selectOption('.msgbox select', 'shipped:other/Diameter.svg'); await page.click('.msgbox-buttons .qbtn.default'); await have('DrawViewSymbol', 2)
+    { const s = (await objs()).filter((o) => o.kind === 'DrawViewSymbol').pop(), f = REC.symbol_owner.made[0]
+      same([s.x, s.y, s.owner], [f.X, f.Y, f.Owner], 'Insert SVG on a view: X, Y, Owner (0, 0 about the view)') }
+    // ── Weld Symbol ──
+    await select([]); await runCmd('TechDraw_WeldSymbol')
+    same(await msgText(), REC.weld_wrong_nothing.dialogs[0].text, 'Weld Symbol: nothing selected')
+    await open('TechDraw_WeldSymbol', ['Page/LeaderLine'], 'weld')
+    same(sorted(await ourNames()), sorted(fcPanel(REC.weld.panel).filter((n) => n)), 'Weld Symbol: the panel\'s widgets')
+    same(await taskTitle(), 'Create Welding Symbol', 'Weld Symbol: the panel title')
+    await page.click('[data-qf="pbArrowSymbol"]'); await until('!!document.querySelector(".msgbox")', 'SymbolChooser')
+    same(await st('document.querySelector(".msgbox-title")?.textContent'), 'Select a Symbol', 'Weld Symbol: SymbolChooser\'s title')
+    same(await st(`[...document.querySelectorAll('[data-qf="lwSymbols"] div > div:last-child')].map((e) => e.textContent)`), [...new Set(REC.weld.choosers[0].items)], 'Weld Symbol: SymbolChooser lists the AWS symbols')
+    note('Weld Symbol: FreeCAD\'s SymbolChooser lists each symbol twice (the folder is loaded twice); once here')
+    await page.click('[data-qf="lwSymbols"] [title="Welding/AWS/filletDown.svg"]'); await sleep(300)
+    await page.fill('[data-qf="leArrowTextL"]', '3'); await page.fill('[data-qf="leArrowTextC"]', '(2)'); await page.fill('[data-qf="leArrowTextR"]', '5')
+    await page.fill('[data-qf="leOtherTextL"]', '4'); await page.fill('[data-qf="leTailText"]', 'T1')
+    await page.click('[data-qf="pbOtherSymbol"]'); await until('!!document.querySelector(".msgbox")', 'SymbolChooser')
+    await page.click('[data-qf="lwSymbols"] [title="Welding/AWS/VUp.svg"]'); await sleep(300)
+    await page.click('[data-qf="cbFieldWeld"] input'); await page.click('[data-qf="cbAllAround"] input')
+    await okTask(); await have('DrawWeldSymbol', 1); await showErrs('weld')
+    { const f = REC.weld.made, tw = await obj('TileWeld'), tw1 = await obj('TileWeld001'), w = await obj('WeldSymbol')
+      same([tw?.left_text, tw?.center_text, tw?.right_text, tw?.tile_row, tw?.tile_parent], [f[0].LeftText, f[0].CenterText, f[0].RightText, f[0].TileRow, f[0].TileParent], 'Weld Symbol: the arrow side\'s tile')
+      same([tw1?.left_text, tw1?.tile_row], [f[1].LeftText, f[1].TileRow], 'Weld Symbol: the other side\'s tile')
+      check(tw?.symbol_file.endsWith('filletDown.svg') && tw1?.symbol_file.endsWith('VUp.svg'), 'Weld Symbol: the symbols chosen', JSON.stringify([tw?.symbol_file, tw1?.symbol_file]))
+      same([w?.tail_text, w?.all_around, w?.field_weld, w?.alternating_weld, w?.leader], [f[2].TailText, f[2].AllAround, f[2].FieldWeld, f[2].AlternatingWeld, f[2].Leader], 'Weld Symbol: the symbol\'s properties')
+      same(await undoHead(), REC.weld.undo.head[0], 'Weld Symbol: the undo step')
+      const rows = (await td()).docs.Page.tree
+      for (const n of ['LeaderLine', 'WeldSymbol', 'TileWeld', 'TileWeld001']) same(rows.find((r) => r.name === n)?.depth, REC.weld.tree.find((r) => r.text === n).depth - 1, `Weld Symbol: ${n}'s place in the tree`) }
+    await st(`cadui.td.select("Page/WeldSymbol")`); await runCmd('TechDraw_WeldSymbol'); await until('cadui.getState().task?.other?.startsWith("weld:WeldSymbol:edit")', 'the weld edit panel'); await sleep(500)
+    same(await taskTitle(), 'Edit Welding Symbol', 'Weld Symbol: the edit panel')
+    same(await ourText('leTailText'), 'T1', 'Weld Symbol: the edit panel shows the tail text')
+    await page.fill('[data-qf="leTailText"]', 'T2'); await okTask()
+    same(await undoHead(), REC.weld_edit.undo.head[0], 'Weld Symbol: the edit\'s undo step')
+    same((await obj('WeldSymbol')).tail_text, 'T2', 'Weld Symbol: the edit')
+    // ── Surface Finish Symbol ──
+    await select(['Page/Page']); await runCmd('TechDraw_SurfaceFinishSymbols')
+    same(await msgText(), REC.surface_wrong_page.dialogs[0].text, 'Surface Finish Symbol: a page selected')
+    await open('TechDraw_SurfaceFinishSymbols', [], 'surface')
+    same(sorted(await ourNames()), sorted(fcPanel(REC.surface_none.panel)), 'Surface Finish Symbol: the panel\'s widgets')
+    same(await taskTitle(), 'Surface Finish Symbols', 'Surface Finish Symbol: the panel title')
+    const nsurf = await st(`cadui.td.state().docs.Page.objects.filter((o) => o.name.startsWith('SurfaceSymbol')).length`)
+    await okTask(); await until(`cadui.td.state().docs.Page.objects.filter((o) => o.name.startsWith('SurfaceSymbol')).length > ${nsurf}`, 'the surface symbol', 60000); await showErrs('surface')
+    { const s = (await objs()).filter((o) => o.name.startsWith('SurfaceSymbol')).pop(), f = REC.surface_none.made[0]
+      same([s.owner, s.x, s.y, s.symbol], [f.Owner, f.X, f.Y, f.Symbol], 'Surface Finish Symbol: the page\'s centre, and the symbol\'s text')
+      same(await undoHead(), REC.surface_none.undo.head[0], 'Surface Finish Symbol: the undo step') }
+    for (const [key, ref] of [['surface_vertex', 'Page/View.Vertex1'], ['surface_edge', 'Page/View.Edge2'], ['surface_face', 'Page/View.Face0']]) {
+      const nsf = await st(`cadui.td.state().docs.Page.objects.filter((o) => o.name.startsWith('SurfaceSymbol')).length`)
+      await open('TechDraw_SurfaceFinishSymbols', [ref], 'surface')
+      const f = REC[key].made[0]
+      if (REC[key].edit) {
+        const e = REC[key].edit
+        if (e.iso) { /* the first recording's ISO values */ }
+      }
+      await okTask(); await until(`cadui.td.state().docs.Page.objects.filter((o) => o.name.startsWith('SurfaceSymbol')).length > ${nsf}`, 'the surface symbol', 60000)
+      const s = (await objs()).filter((o) => o.name.startsWith('SurfaceSymbol')).pop()
+      check(Math.abs(s.x - f.X) < 0.01 && Math.abs(s.y - f.Y) < 0.01 && s.owner === f.Owner, `Surface Finish Symbol on ${ref.split('.')[1]}: placed at the element`, `${s.x}, ${s.y} vs ${f.X}, ${f.Y}`)
+    }
+    // ── Image ──
+    writeFileSync(join(ROOT, SLUG, 'pic.png'), Buffer.from(REC.image_png_b64, 'base64'))
+    await st('cadui.td.load()'); await idle(); await sleep(500)
+    await select([]); await runCmd('TechDraw_Image'); await until('!!document.querySelector(".msgbox")', 'the image chooser')
+    same(await st('document.querySelector(".msgbox-title")?.textContent'), REC.image_page.file_dialogs[0].title, 'Bitmap Image: the file dialog\'s title')
+    await page.selectOption('.msgbox select', 'project:pic.png'); await page.click('.msgbox-buttons .qbtn.default'); await have('DrawViewImage', 1)
+    { const im = (await objs()).filter((o) => o.kind === 'DrawViewImage').pop(), f = REC.image_page.made[0]
+      same([im.x, im.y, im.owner, im.width, im.height, im.scale_type], [f.X, f.Y, f.Owner, f.Width, f.Height, f.ScaleType], 'Bitmap Image: X, Y, Owner, Width, Height, ScaleType')
+      same(await undoHead(), REC.image_page.undo.head[0], 'Bitmap Image: the undo step')
+      check((await st(`document.querySelectorAll('[data-name="${im.name}"] image, image[href^="data:image/png"]').length`)) > 0, 'Bitmap Image: drawn') }
+    // ── Clip Group ──
+    await select(['Page/View']); await runCmd('TechDraw_ClipGroupAdd')
+    same(await msgText(), 'Select one clip group and one view', 'Add View To Clip Group: a view alone')
+    await select([]); await runCmd('TechDraw_ClipGroup'); await have('DrawViewClip', 1)
+    { const c = (await objs()).filter((o) => o.kind === 'DrawViewClip').pop(), f = REC.clip.made[0]
+      same([c.x, c.y, c.width, c.height, c.show_frame], [f.X, f.Y, f.Width, f.Height, f.ShowFrame], 'Clip Group: X, Y, Width, Height, ShowFrame')
+      same(await undoHead(), REC.clip.undo.head[0], 'Clip Group: the undo step')
+      await st(`cadui.td.apply("Page", [{ op: "set", name: "${c.name}", props: { width: 60, height: 40, show_frame: true } }], "Edit Clip.Width")`); await idle()
+      await select(['Page/' + c.name, 'Page/View']); await runCmd('TechDraw_ClipGroupAdd'); await idle(); await sleep(500)
+      const v = await obj('View'), cc = await obj(c.name)
+      same([v.x, v.y, cc.views], [REC.clip_after_add.view.X, REC.clip_after_add.view.Y, REC.clip_after_add.clip.Views], 'Add View To Clip Group: the view\'s X, Y and the clip\'s Views')
+      same(await undoHead(), REC.clip_add.undo.head[0], 'Add View To Clip Group: the undo step')
+      await select(['Page/View']); await runCmd('TechDraw_ClipGroupRemove'); await idle(); await sleep(500)
+      same((await obj(c.name)).views, REC.clip_after_remove.clip.Views, 'Remove From Clip Group: the clip\'s Views')
+      same(await undoHead(), REC.clip_remove.undo.head[0], 'Remove From Clip Group: the undo step') }
+    // ── the tree and the property view ──
+    for (const [key, name] of [['props_DrawLeaderLine_LeaderLine', 'LeaderLine'], ['props_DrawWeldSymbol_WeldSymbol', 'WeldSymbol'], ['props_DrawViewClip_Clip', 'Clip']]) {
+      await select([`Page/${name}`]); await sleep(400)
+      const rows = await st(`[...document.querySelectorAll('.prop-group .pk, .prow .pk')].map((e) => e.textContent.trim())`)
+      const fc = (REC[key].data[0] ?? []).filter((r) => r.depth === 1).map((r) => r.name)
+      check(fc.every((n) => rows.includes(n)), `${name}: the property view has FreeCAD's rows`, JSON.stringify(fc.filter((n) => !rows.includes(n))))
+    }
+    note('Leader Line: the points are edited by picking them again (Edit Points), not by dragging the line\'s markers (QGEPath)')
+    note('Rich Text: the toolbar has bold, italic, underline, colour and size only; the text is laid out by an estimated advance, not Qt\'s metrics')
+    note('Insert SVG, Bitmap Image: the file dialog is a list of FreeCAD\'s symbols and the project\'s files with Browse… for a file of the person\'s own')
+  }
+  if (want('more')) await moreChecks()
   // ── the SVG export ──
   if (want('export')) {
     console.log('export')

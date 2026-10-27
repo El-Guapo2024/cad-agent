@@ -55,5 +55,5 @@ cad_agent = ["workbench/*", "workbench/vendor/*", "workbench/next/*", "workbench
              # the notices of the UI bundle, which `npm run build` writes (ui/scripts/licenses.mjs); named so a change to the glob above cannot drop them
              "workbench/next/LICENSE", "workbench/next/NOTICE", "workbench/next/THIRD_PARTY_LICENSES.txt",
              "library/*.toml",
-             "techdraw_templates/*.svg", "techdraw_templates/ISO/*.svg", "techdraw_templates/PAT/*.pat", "techdraw_templates/Patterns/*.svg",   # FreeCAD's TechDraw templates (NOTICE)
+             "techdraw_templates/*.svg", "techdraw_templates/ISO/*.svg", "techdraw_templates/PAT/*.pat", "techdraw_templates/Patterns/*.svg", "techdraw_symbols/*/*.svg", "techdraw_symbols/*/*/*.svg", "techdraw_symbols/*/*/*/*.svg",   # FreeCAD's TechDraw templates (NOTICE)
              "fonts/*", "fcexpr_engine.js"]               # the Sketcher's text font, osifont-lgpl3fe (FreeCAD's default), and its licence       # the part library's catalog (step 6, piece A); its generators are Python packages

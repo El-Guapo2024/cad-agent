@@ -56,10 +56,13 @@ STEP_NAMES = {"new_page": "Drawing create page", "view": "Create view", "projgro
 
 def step_name(ops: list) -> str:
     from .techdraw_annot import STEP_NAMES as ANNOT
+    from .techdraw_more import STEP_NAMES as MORE
     op = ops[-1] if ops else {}
     kind = op.get("op")
     if kind in ANNOT:
         return ANNOT[kind]
+    if kind in MORE:
+        return MORE[kind]
     if kind in STEP_NAMES:
         return STEP_NAMES[kind]
     if kind in ("rename", "label"):
@@ -545,3 +548,5 @@ def add_parsers(add, sub) -> None:
     sp.add_argument("--format", default="svg,dxf,pdf")
     sp.add_argument("--out", metavar="DIR")
     one("delete-page", cmd_delete_page, "delete a page and everything on it")
+    from . import techdrawcmd_more
+    techdrawcmd_more.add(one, apply_ops, _cmd)
