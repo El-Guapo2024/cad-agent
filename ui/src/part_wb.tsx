@@ -35,6 +35,7 @@ import type { Entry } from './chrome'
 import { applyOps, bodyOfPart, numberOf, refOf, sketchObject, splitRef, SKETCH, type TreeCtx } from './partdesign'
 import { attachedOf, ROLES } from './attached'
 import { PART_PROPS, type PartProp } from './part_props'
+import { convertToSolid, copyShapes, openCrossSections, setTolerance } from './part_static'
 
 // ── the model ────────────────────────────────────────────────────────────────────────────────────────────────────
 /** A part of Part workbench objects: its read() has OBJECTS (feature_edit_part.py). */
@@ -64,6 +65,10 @@ const TYPES: Record<string, [IconName, string]> = {
   // ViewProviderReverse and ViewProviderFace set no pixmap of their own (the generic Part icon); the other two do
   'Part::Reverse': ['pt-feature', 'Reverse'], 'Part::Scale': ['pt-scale', 'Scale'], 'Part::Face': ['pt-feature', 'Face'],
   'Part::RuledSurface': ['pt-ruled', 'RuledSurface'],
+  // Part_SimpleCopy, Part_MakeSolid, Part_CrossSections and Part_Builder make a Part::Feature (ViewProviderPart: the generic
+  // icon); the ToleranceSet is a FeaturePython whose provider gives preferences-part_design (part_static.tsx)
+  'Part::Feature': ['pt-feature', 'Feature'], 'Part::MakeSolid': ['pt-feature', 'Feature'], 'Part::CrossSections': ['pt-feature', 'Feature'],
+  'Part::ShapeBuilder': ['pt-feature', 'Feature'], 'Part::ToleranceSet': ['pt-tolerance', 'ToleranceSet'],
   [SKETCH]: ['pd-sketch', 'Sketch'],
 }
 export const partIcon = (type: string): IconName => TYPES[type]?.[0] ?? 'pt-feature'
@@ -74,12 +79,14 @@ const msg = (e: unknown) => (e instanceof Error ? e.message : String(e))
 export function uniqueName(doc: FeatureDoc | undefined, base: string): string {
   const taken = new Set([...(doc?.objects ?? []).map((o) => o.name), ...(doc?.features ?? []).map((f) => f.name), ...(doc?.body ? ['Body'] : [])])
   if (!taken.has(base)) return base
+  base = base.replace(/\d+$/, '') || base                      // a name in use loses its trailing digits first: Box001 -> Box005, not Box001001
   for (let i = 1; ; i++) { const n = `${base}${String(i).padStart(3, '0')}`; if (!taken.has(n)) return n }
 }
 /** Document::getUniqueObjectLabel, as a Label set by a command comes out: unique over the labels (DuplicateLabels off). */
 export function uniqueLabel(doc: FeatureDoc | undefined, base: string): string {
   const taken = new Set((doc?.objects ?? []).map(labelOf))
   if (!taken.has(base)) return base
+  base = base.replace(/\d+$/, '') || base
   for (let i = 1; ; i++) { const n = `${base}${String(i).padStart(3, '0')}`; if (!taken.has(n)) return n }
 }
 
@@ -262,7 +269,7 @@ async function explode(part: string, name: string, tx: string) {
 
 // ── the menu and the toolbars (PartGui::Workbench::setupMenuBar / setupToolBars) ─────────────────────────────────────
 const NA = (label: string, icon: IconName, cmd: string, why: string): Entry => ({ label, icon, cmd, disabled: true, title: `n/a: ${why}` })
-const STATIC = 'it makes a Part::Feature holding a fixed copy of a shape, which a part file of parametric objects cannot hold'
+const DEFEATURING = 'Part::Defeaturing (OCCT\'s BRepAlgoAPI_Defeaturing on faces picked in the 3D view) is not ported yet'
 const MESH = 'there are no meshes in a part file'
 function partState() {
   const s = getState(), part = activeDoc()
@@ -277,19 +284,20 @@ export function partMenu(): Entry[] {
   const one = n === 1 ? objectOf(getState().features[part ?? ''], sel[0]) : undefined
   const attachable = !!one && one.type !== SKETCH
   return [
-    NA('Box Selection', 'pt-box-selection', 'Part_BoxSelection', 'face picking by a box is not in the 3D view yet'),
+    NA('Box Selection', 'pt-box-selection', 'Part_BoxSelection', 'a box dragged over the 3D view picks faces of the scene\'s one merged body, not of a Part object\'s shape'),
     'sep',
     { label: 'Primitives', sub: primitiveEntries() },
     { label: 'Primitive', icon: 'pt-primitives', cmd: 'Part_Primitives', disabled: !doc, onSelect: () => void openPart('primitives') },
-    NA('Shape Builder', 'pt-builder', 'Part_Builder', STATIC),
+    { label: 'Shape Builder', icon: 'pt-builder', cmd: 'Part_Builder', disabled: !doc, onSelect: () => void openPart('builder') },
     'sep',
     NA('Shape From Mesh', 'pt-shape-from-mesh', 'Part_ShapeFromMesh', MESH),
     NA('Points From Shape', 'pt-points-from-mesh', 'Part_PointsFromMesh', MESH),
-    NA('Convert to Solid', 'pt-make-solid', 'Part_MakeSolid', STATIC),
+    { label: 'Convert to Solid', icon: 'pt-make-solid', cmd: 'Part_MakeSolid', disabled: !n, onSelect: () => void convertToSolid() },
     { label: 'Reverse Shapes', icon: 'pt-reverse', cmd: 'Part_ReverseShape', disabled: !n, onSelect: () => void reverseShapes() },
     { label: 'Copy', sub: [
-      NA('Simple Copy', 'pt-feature', 'Part_SimpleCopy', STATIC), NA('Transformed Copy', 'pt-transformed-copy', 'Part_TransformedCopy', STATIC),
-      NA('Shape Element Copy', 'pt-element-copy', 'Part_ElementCopy', STATIC),
+      { label: 'Simple Copy', icon: 'pt-3d', cmd: 'Part_SimpleCopy', disabled: !n, onSelect: () => void copyShapes('Part_SimpleCopy') },
+      { label: 'Transformed Copy', icon: 'pt-transformed-copy', cmd: 'Part_TransformedCopy', disabled: !n, onSelect: () => void copyShapes('Part_TransformedCopy') },
+      { label: 'Shape Element Copy', icon: 'pt-element-copy', cmd: 'Part_ElementCopy', disabled: !n, onSelect: () => void copyShapes('Part_ElementCopy') },
       { label: 'Refine Shape', icon: 'pt-refine', cmd: 'Part_RefineShape', disabled: !n, onSelect: () => void fromSelection('Part_RefineShape') }] },
     'sep',
     { label: 'Boolean', sub: [
@@ -307,8 +315,8 @@ export function partMenu(): Entry[] {
     { label: 'Attachment', icon: 'pt-attachment', cmd: 'Part_EditAttachment', disabled: !attachable,
       onSelect: () => { if (part && one) openTask('attach', part, one.name) } },
     'sep',
-    NA('Check Geometry', 'pt-check-geometry', 'Part_CheckGeometry', 'the checks (Recompute) judge the geometry here'),
-    NA('Defeaturing', 'pt-defeaturing', 'Part_Defeaturing', STATIC),
+    NA('Check Geometry', 'pt-check-geometry', 'Part_CheckGeometry', 'OCP does not expose BRepCheck_Result\'s status lists, which FreeCAD\'s result tree is made of'),
+    NA('Defeaturing', 'pt-defeaturing', 'Part_Defeaturing', DEFEATURING),
     NA('Inspect Appearance', 'material', 'Materials_InspectAppearance', 'materials are set in the part\'s source'),
     NA('Inspect Material', 'material', 'Materials_InspectMaterial', 'materials are set in the part\'s source'),
   ]
@@ -342,12 +350,13 @@ function splitEntries(): Entry[] {
   ]
 }
 function compoundEntries(): Entry[] {
-  const n = partState().sel.length
+  const { sel, doc } = partState()
+  const n = sel.length
   return [
     { label: 'Compound', icon: 'pt-compound', cmd: 'Part_Compound', disabled: !n, onSelect: () => void fromSelection('Part_Compound') },
     { label: 'Explode Compound', icon: 'pt-explode', cmd: 'Part_ExplodeCompound', disabled: n !== 1, onSelect: () => void fromSelection('Part_ExplodeCompound') },
     { label: 'Compound Filter', icon: 'pt-compound-filter', cmd: 'Part_CompoundFilter', disabled: !n, onSelect: () => void fromSelection('Part_CompoundFilter') },
-    NA('Set Tolerance', 'pt-feature', 'Part_ToleranceSet', 'shape tolerances are OCCT\'s defaults here'),
+    { label: 'Set Tolerance', icon: 'pt-tolerance', cmd: 'Part_ToleranceSet', disabled: !doc, onSelect: () => void setTolerance() },
   ]
 }
 /** The Part menu's tools from New Sketch on (and the Part Tools toolbar's). */
@@ -366,7 +375,7 @@ function toolEntries(): Entry[] {
     { label: 'Loft', icon: 'pt-loft', cmd: 'Part_Loft', disabled: !doc, onSelect: () => void openPart('loft') },
     { label: 'Sweep', icon: 'pt-sweep', cmd: 'Part_Sweep', disabled: !doc, onSelect: () => void openPart('sweep') },
     { label: 'Section', icon: 'pt-section', cmd: 'Part_Section', disabled: n !== 2, onSelect: () => void booleanOf('section') },
-    NA('Cross-Sections', 'pt-cross-sections', 'Part_CrossSections', STATIC),
+    { label: 'Cross-Sections', icon: 'pt-cross-sections', cmd: 'Part_CrossSections', disabled: !n, onSelect: () => void openCrossSections() },
     { label: '3D Offset', icon: 'pt-offset', cmd: 'Part_Offset', disabled: n !== 1, onSelect: () => void openPart('offset') },
     { label: '2D Offset', icon: 'pt-offset2d', cmd: 'Part_Offset2D', disabled: n !== 1, onSelect: () => void openPart('offset2d') },
     { label: 'Thickness', icon: 'pt-thickness', cmd: 'Part_Thickness', disabled: n !== 1, onSelect: () => void openPart('thickness') },

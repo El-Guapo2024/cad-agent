@@ -32,6 +32,7 @@ import { TechDrawProps, TechDrawRows, useTd } from './techdraw'
 import { bindParam, boundExpression, boundValue, namesSheet, SpreadsheetProps, SpreadsheetRows, useSs } from './spreadsheet'
 import { TechDrawTask } from './techdraw_tasks'
 import { PartTask } from './part_tasks'
+import { CrossSectionsTask, ShapeBuilderTask } from './part_static'
 import { HoleTask, RevolveTask } from './pd_revolve'
 import { SweepTask } from './pd_sweep'
 import { AttachTask, attachTarget } from './pd_attach'
@@ -938,6 +939,8 @@ function TaskContent() {
   if (task?.kind === 'pdTransform' || task?.kind === 'pdPrimitive') return <PdxTask kind={task.kind} part={task.body} other={task.other ?? ''} edit={!!task.edit} />
   if (task?.kind === 'pad' || task?.kind === 'pocket') return <ExtrudeTask key={`${task.kind}:${task.body}:${task.other}`} kind={task.kind} part={task.body} name={task.other ?? ''} edit={!!task.edit} />
   if (task?.kind === 'revolution' || task?.kind === 'groove') return <RevolveTask key={`${task.kind}:${task.body}:${task.other}`} kind={task.kind} part={task.body} name={task.other ?? ''} edit={!!task.edit} />
+  if (task?.kind === 'part' && task.other === 'crosssections') return <CrossSectionsTask key={task.body} part={task.body} />   // part_static.tsx
+  if (task?.kind === 'part' && task.other === 'builder') return <ShapeBuilderTask key={task.body} part={task.body} />
   if (task?.kind === 'part') return <PartTask part={task.body} other={task.other ?? ''} />   // the Part workbench's (part_tasks.tsx)
   if (task?.kind === 'techdraw') return <TechDrawTask page={task.body} other={task.other ?? ''} />   // TechDraw's panels (techdraw_tasks.tsx)
   if (task?.kind === 'assembly') return <AssemblyTask body={task.body} other={task.other ?? ''} />   // the Assembly workbench's (assembly_wb.tsx)

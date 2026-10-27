@@ -101,6 +101,19 @@ def build(**p):
 - Checked like the Body: tests/golden/part (freecadcmd builds every case through feature_part.to_freecad; each object's
   volume, area, length, box, centre and topology counts) and each type's FreeCAD defaults.
 
+## Static objects in a part file (decided 2026-10-27, branch part-wb-2)
+
+FreeCAD's Simple, Transformed and Element copy, Convert to solid, Cross-sections and the Shape builder run Python that sets
+the Shape of a new Part::Feature, which then holds that shape alone. A part file holds the recipe instead, as an object of
+OBJECTS (cad_agent/feature_part_static.py): `Part.Feature("Box001", "Box")` (a copy of the source's placed shape; a
+`("Box", "Face3")` source is the element copy; the copy's Placement is the source's, a vertex's identity),
+`Part.MakeSolid("Comp_solid", "Comp")`, `Part.CrossSections("Box_cs", "Box", plane="XZ", positions=[...])`,
+`Part.ShapeBuilder("Face", "Face from vertices", elements=[("Box", "Vertex2"), ...], planar=...)`. They have no children in the
+tree and hide nothing. The cost is that they follow their source when it changes. Set tolerance is a parametric
+FeaturePython in FreeCAD (`Part.ToleranceSet("Tolerance", ["Box"], min_tolerance=1e-07)`), its result at the origin
+(Feature::onChanged puts a recompute's shape at the object's Placement). A recipe's own properties are not FreeCAD properties
+of Part::Feature (`STATIC = True`), so the property view shows Placement and Label only, as FreeCAD's.
+
 ## Assembly in a part file (decided 2026-10-26, branch assembly)
 
 FreeCAD's Assembly is an object of a document whose components are App::Links to objects of other documents. Here a
