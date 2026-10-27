@@ -70,6 +70,7 @@
     "cosmetic_edges": [],
     "center_lines": [],
     "cosmetic_vertexes": [],
+    "geom_formats": [],
     "item_type": "Front"
    },
    {
@@ -431,6 +432,7 @@
     "cosmetic_edges": [],
     "center_lines": [],
     "cosmetic_vertexes": [],
+    "geom_formats": [],
     "item_type": "Front"
    },
    {
@@ -873,6 +875,7 @@
     "cosmetic_edges": [],
     "center_lines": [],
     "cosmetic_vertexes": [],
+    "geom_formats": [],
     "item_type": "Front"
    },
    {
@@ -913,6 +916,7 @@
     "cosmetic_edges": [],
     "center_lines": [],
     "cosmetic_vertexes": [],
+    "geom_formats": [],
     "item_type": "Top"
    },
    {
@@ -953,6 +957,7 @@
     "cosmetic_edges": [],
     "center_lines": [],
     "cosmetic_vertexes": [],
+    "geom_formats": [],
     "item_type": "Right"
    },
    {
@@ -993,6 +998,7 @@
     "cosmetic_edges": [],
     "center_lines": [],
     "cosmetic_vertexes": [],
+    "geom_formats": [],
     "item_type": "Left"
    },
    {
@@ -1033,6 +1039,7 @@
     "cosmetic_edges": [],
     "center_lines": [],
     "cosmetic_vertexes": [],
+    "geom_formats": [],
     "item_type": "Bottom"
    },
    {
@@ -1073,6 +1080,7 @@
     "cosmetic_edges": [],
     "center_lines": [],
     "cosmetic_vertexes": [],
+    "geom_formats": [],
     "item_type": "Rear"
    },
    {
@@ -1113,6 +1121,7 @@
     "cosmetic_edges": [],
     "center_lines": [],
     "cosmetic_vertexes": [],
+    "geom_formats": [],
     "item_type": "FrontTopLeft"
    },
    {
@@ -1153,6 +1162,7 @@
     "cosmetic_edges": [],
     "center_lines": [],
     "cosmetic_vertexes": [],
+    "geom_formats": [],
     "item_type": "FrontBottomRight"
    }
   ],
@@ -1244,6 +1254,7 @@
     "cosmetic_edges": [],
     "center_lines": [],
     "cosmetic_vertexes": [],
+    "geom_formats": [],
     "item_type": "Front"
    },
    {
@@ -1284,6 +1295,7 @@
     "cosmetic_edges": [],
     "center_lines": [],
     "cosmetic_vertexes": [],
+    "geom_formats": [],
     "item_type": "Top"
    },
    {
@@ -1324,6 +1336,7 @@
     "cosmetic_edges": [],
     "center_lines": [],
     "cosmetic_vertexes": [],
+    "geom_formats": [],
     "item_type": "Right"
    },
    {
@@ -1364,6 +1377,7 @@
     "cosmetic_edges": [],
     "center_lines": [],
     "cosmetic_vertexes": [],
+    "geom_formats": [],
     "item_type": "Left"
    },
    {
@@ -1404,6 +1418,7 @@
     "cosmetic_edges": [],
     "center_lines": [],
     "cosmetic_vertexes": [],
+    "geom_formats": [],
     "item_type": "FrontTopRight"
    },
    {
@@ -1444,6 +1459,7 @@
     "cosmetic_edges": [],
     "center_lines": [],
     "cosmetic_vertexes": [],
+    "geom_formats": [],
     "item_type": "FrontBottomLeft"
    }
   ],
@@ -1510,6 +1526,7 @@
     "cosmetic_edges": [],
     "center_lines": [],
     "cosmetic_vertexes": [],
+    "geom_formats": [],
     "item_type": "Front"
    },
    {
@@ -1716,6 +1733,7 @@
     "cosmetic_edges": [],
     "center_lines": [],
     "cosmetic_vertexes": [],
+    "geom_formats": [],
     "item_type": "Front"
    }
   ],
@@ -1782,6 +1800,7 @@
     "cosmetic_edges": [],
     "center_lines": [],
     "cosmetic_vertexes": [],
+    "geom_formats": [],
     "item_type": "Front"
    },
    {
@@ -1824,6 +1843,7 @@
     "cosmetic_edges": [],
     "center_lines": [],
     "cosmetic_vertexes": [],
+    "geom_formats": [],
     "item_type": "Front"
    },
    {
@@ -2057,6 +2077,7 @@
     "cosmetic_edges": [],
     "center_lines": [],
     "cosmetic_vertexes": [],
+    "geom_formats": [],
     "item_type": "Front"
    },
    {
@@ -2099,6 +2120,7 @@
     "cosmetic_edges": [],
     "center_lines": [],
     "cosmetic_vertexes": [],
+    "geom_formats": [],
     "base_view": "View",
     "section_symbol": "A",
     "section_normal": [
@@ -2160,6 +2182,7 @@
     "cosmetic_edges": [],
     "center_lines": [],
     "cosmetic_vertexes": [],
+    "geom_formats": [],
     "base_view": "View",
     "section_symbol": "B",
     "section_normal": [
@@ -2245,6 +2268,7 @@
     "cosmetic_edges": [],
     "center_lines": [],
     "cosmetic_vertexes": [],
+    "geom_formats": [],
     "item_type": "Front"
    },
    {
@@ -2287,6 +2311,7 @@
     "cosmetic_edges": [],
     "center_lines": [],
     "cosmetic_vertexes": [],
+    "geom_formats": [],
     "base_view": "View",
     "section_symbol": "A",
     "section_normal": [
@@ -2372,6 +2397,7 @@
     "cosmetic_edges": [],
     "center_lines": [],
     "cosmetic_vertexes": [],
+    "geom_formats": [],
     "item_type": "Front"
    },
    {
@@ -2435,6 +2461,7 @@
     "cosmetic_edges": [],
     "center_lines": [],
     "cosmetic_vertexes": [],
+    "geom_formats": [],
     "item_type": "Front"
    },
    {
@@ -2475,6 +2502,7 @@
     "cosmetic_edges": [],
     "center_lines": [],
     "cosmetic_vertexes": [],
+    "geom_formats": [],
     "item_type": "Top"
    }
   ],
@@ -2552,6 +2580,7 @@
     "cosmetic_edges": [],
     "center_lines": [],
     "cosmetic_vertexes": [],
+    "geom_formats": [],
     "item_type": "Front"
    },
    {
@@ -2751,7 +2780,7 @@
        15.0,
        0.0
       ],
-      "tag": "89914764-8157-4a36-9b6c-ae18a417984f"
+      "tag": "c3e3af2e-fc83-4d7a-8aa7-c8156b0e19ef"
      },
      {
       "point": [
@@ -2759,7 +2788,7 @@
        12.0,
        0.0
       ],
-      "tag": "153ed8c3-05e0-4808-96b1-c1ef6527473c"
+      "tag": "c46279ba-81a6-4955-8c31-ac7537f7bf56"
      },
      {
       "point": [
@@ -2767,7 +2796,7 @@
        7.999999999999994,
        0.0
       ],
-      "tag": "e53db584-800a-42b4-84dd-cf261beb402e"
+      "tag": "fb83a67d-eaed-426b-aebc-7f6232ede682"
      },
      {
       "point": [
@@ -2775,7 +2804,7 @@
        4.0,
        0.0
       ],
-      "tag": "b0a4a490-de40-4b24-8941-cf26362d5392"
+      "tag": "e7755edc-4bd7-4414-9c78-5fd22617560a"
      },
      {
       "point": [
@@ -2783,7 +2812,7 @@
        -13.14805029709527,
        0.0
       ],
-      "tag": "1fea325b-5f76-4061-bea3-c9be374ea22b"
+      "tag": "e1ea7d4c-c06d-4f8b-b279-a94304c95dca"
      },
      {
       "point": [
@@ -2791,7 +2820,7 @@
        -14.121320343559645,
        0.0
       ],
-      "tag": "6871a563-6972-41c0-87c9-b8e7aa2dfd27"
+      "tag": "71dc8d0f-37a2-464d-9df9-a81df4bf5c03"
      },
      {
       "point": [
@@ -2799,9 +2828,10 @@
        -14.771638597533864,
        0.0
       ],
-      "tag": "4ad72536-6b29-4059-8a35-6a3b267a7ccb"
+      "tag": "1cd411c7-7c6b-47f1-80e8-4407287c3a5c"
      }
     ],
+    "geom_formats": [],
     "item_type": "Front"
    }
   ],
@@ -2943,7 +2973,7 @@
        14.999999999999998,
        0.0
       ],
-      "tag": "a9017a8b-28d3-472f-869a-278e6689a210"
+      "tag": "b2619522-b5ef-4b38-95c0-b31ef6772969"
      },
      {
       "point": [
@@ -2951,7 +2981,7 @@
        12.0,
        0.0
       ],
-      "tag": "109d5d61-3744-41d4-b751-93b5949e3801"
+      "tag": "82f4ee42-ccc0-4d61-baaf-7df0df702320"
      },
      {
       "point": [
@@ -2959,7 +2989,7 @@
        7.999999999999995,
        0.0
       ],
-      "tag": "c824a7ac-fa69-4d02-9084-2c87b737cb98"
+      "tag": "b2dae411-26d0-454c-b86e-111836a25ea7"
      },
      {
       "point": [
@@ -2967,7 +2997,7 @@
        3.9999999999999996,
        0.0
       ],
-      "tag": "e6e2c02f-e6e8-441c-86fe-3afde5f6b7f3"
+      "tag": "9047fcec-18a9-44b0-a77c-7f8ef58b2e57"
      },
      {
       "point": [
@@ -2975,7 +3005,7 @@
        -13.148050297095274,
        0.0
       ],
-      "tag": "e5761041-53d0-424f-b428-99df1e74e650"
+      "tag": "652526ef-64d3-46b1-b9ad-8b5a14a25701"
      },
      {
       "point": [
@@ -2983,7 +3013,7 @@
        -14.121320343559645,
        0.0
       ],
-      "tag": "3597709d-b6de-4835-8df3-8ed12c35bc4b"
+      "tag": "fcfcd19a-579d-4c6b-a170-ed67f40ac31f"
      },
      {
       "point": [
@@ -2991,9 +3021,10 @@
        -14.771638597533862,
        0.0
       ],
-      "tag": "527c36af-7227-4358-8f06-d76ca751a924"
+      "tag": "e7a86ee9-fa6f-4528-8335-9e6bfa9d21b3"
      }
     ],
+    "geom_formats": [],
     "item_type": "Front"
    }
   ],
@@ -3064,9 +3095,21 @@
        "Edge0",
        "Edge4"
       ],
-      "extend": 0.0,
+      "extend": 3.0,
       "faces": [],
       "flip": false,
+      "format": {
+       "color": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+       ],
+       "line_number": 5,
+       "style": 2,
+       "visible": true,
+       "weight": 0.5
+      },
       "h_shift": 0.0,
       "mode": "Vertical",
       "rotate": 0.0,
@@ -3083,6 +3126,18 @@
       "extend": 2.0,
       "faces": [],
       "flip": false,
+      "format": {
+       "color": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+       ],
+       "line_number": 5,
+       "style": 2,
+       "visible": true,
+       "weight": 0.5
+      },
       "h_shift": 0.0,
       "mode": "Horizontal",
       "rotate": 0.0,
@@ -3093,9 +3148,21 @@
      },
      {
       "edges": [],
-      "extend": 0.0,
+      "extend": 3.0,
       "faces": [],
       "flip": false,
+      "format": {
+       "color": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+       ],
+       "line_number": 5,
+       "style": 2,
+       "visible": true,
+       "weight": 0.5
+      },
       "h_shift": 1.5,
       "mode": "Vertical",
       "rotate": 0.0,
@@ -3109,9 +3176,21 @@
      },
      {
       "edges": [],
-      "extend": 0.0,
+      "extend": 3.0,
       "faces": [],
       "flip": false,
+      "format": {
+       "color": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+       ],
+       "line_number": 5,
+       "style": 2,
+       "visible": true,
+       "weight": 0.5
+      },
       "h_shift": 0.0,
       "mode": "Aligned",
       "rotate": 15.0,
@@ -3128,9 +3207,21 @@
        "Edge1",
        "Edge4"
       ],
-      "extend": 0.0,
+      "extend": 3.0,
       "faces": [],
       "flip": false,
+      "format": {
+       "color": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+       ],
+       "line_number": 5,
+       "style": 2,
+       "visible": true,
+       "weight": 0.5
+      },
       "h_shift": 0.0,
       "mode": "Aligned",
       "rotate": 0.0,
@@ -3141,6 +3232,7 @@
      }
     ],
     "cosmetic_vertexes": [],
+    "geom_formats": [],
     "item_type": "Front"
    }
   ],
@@ -3211,9 +3303,21 @@
        "Edge0",
        "Edge4"
       ],
-      "extend": 0.0,
+      "extend": 3.0,
       "faces": [],
       "flip": false,
+      "format": {
+       "color": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+       ],
+       "line_number": 5,
+       "style": 2,
+       "visible": true,
+       "weight": 0.5
+      },
       "h_shift": 0.0,
       "mode": "Vertical",
       "rotate": 0.0,
@@ -3230,6 +3334,18 @@
       "extend": 2.0,
       "faces": [],
       "flip": false,
+      "format": {
+       "color": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+       ],
+       "line_number": 5,
+       "style": 2,
+       "visible": true,
+       "weight": 0.5
+      },
       "h_shift": 0.0,
       "mode": "Horizontal",
       "rotate": 0.0,
@@ -3240,9 +3356,21 @@
      },
      {
       "edges": [],
-      "extend": 0.0,
+      "extend": 3.0,
       "faces": [],
       "flip": false,
+      "format": {
+       "color": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+       ],
+       "line_number": 5,
+       "style": 2,
+       "visible": true,
+       "weight": 0.5
+      },
       "h_shift": 1.5,
       "mode": "Vertical",
       "rotate": 0.0,
@@ -3256,9 +3384,21 @@
      },
      {
       "edges": [],
-      "extend": 0.0,
+      "extend": 3.0,
       "faces": [],
       "flip": false,
+      "format": {
+       "color": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+       ],
+       "line_number": 5,
+       "style": 2,
+       "visible": true,
+       "weight": 0.5
+      },
       "h_shift": 0.0,
       "mode": "Aligned",
       "rotate": 15.0,
@@ -3275,9 +3415,21 @@
        "Edge1",
        "Edge4"
       ],
-      "extend": 0.0,
+      "extend": 3.0,
       "faces": [],
       "flip": false,
+      "format": {
+       "color": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+       ],
+       "line_number": 5,
+       "style": 2,
+       "visible": true,
+       "weight": 0.5
+      },
       "h_shift": 0.0,
       "mode": "Aligned",
       "rotate": 0.0,
@@ -3288,6 +3440,7 @@
      }
     ],
     "cosmetic_vertexes": [],
+    "geom_formats": [],
     "item_type": "Front"
    }
   ],
@@ -3355,11 +3508,23 @@
     "center_lines": [
      {
       "edges": [],
-      "extend": 0.0,
+      "extend": 3.0,
       "faces": [
        "Face0"
       ],
       "flip": false,
+      "format": {
+       "color": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+       ],
+       "line_number": 5,
+       "style": 2,
+       "visible": true,
+       "weight": 0.5
+      },
       "h_shift": 0.0,
       "mode": "Vertical",
       "rotate": 0.0,
@@ -3375,6 +3540,18 @@
        "Face1"
       ],
       "flip": false,
+      "format": {
+       "color": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+       ],
+       "line_number": 5,
+       "style": 2,
+       "visible": true,
+       "weight": 0.5
+      },
       "h_shift": 0.0,
       "mode": "Horizontal",
       "rotate": 0.0,
@@ -3385,12 +3562,24 @@
      },
      {
       "edges": [],
-      "extend": 0.0,
+      "extend": 3.0,
       "faces": [
        "Face2",
        "Face3"
       ],
       "flip": false,
+      "format": {
+       "color": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+       ],
+       "line_number": 5,
+       "style": 2,
+       "visible": true,
+       "weight": 0.5
+      },
       "h_shift": 2.0,
       "mode": "Vertical",
       "rotate": 0.0,
@@ -3401,11 +3590,23 @@
      },
      {
       "edges": [],
-      "extend": 0.0,
+      "extend": 3.0,
       "faces": [
        "Face4"
       ],
       "flip": false,
+      "format": {
+       "color": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+       ],
+       "line_number": 5,
+       "style": 2,
+       "visible": true,
+       "weight": 0.5
+      },
       "h_shift": 0.0,
       "mode": "Horizontal",
       "rotate": 20.0,
@@ -3416,6 +3617,7 @@
      }
     ],
     "cosmetic_vertexes": [],
+    "geom_formats": [],
     "item_type": "Front"
    }
   ],
@@ -3483,11 +3685,23 @@
     "center_lines": [
      {
       "edges": [],
-      "extend": 0.0,
+      "extend": 3.0,
       "faces": [
        "Face0"
       ],
       "flip": false,
+      "format": {
+       "color": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+       ],
+       "line_number": 5,
+       "style": 2,
+       "visible": true,
+       "weight": 0.5
+      },
       "h_shift": 0.0,
       "mode": "Vertical",
       "rotate": 0.0,
@@ -3498,11 +3712,23 @@
      },
      {
       "edges": [],
-      "extend": 0.0,
+      "extend": 3.0,
       "faces": [
        "Face1"
       ],
       "flip": false,
+      "format": {
+       "color": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+       ],
+       "line_number": 5,
+       "style": 2,
+       "visible": true,
+       "weight": 0.5
+      },
       "h_shift": 0.0,
       "mode": "Horizontal",
       "rotate": 0.0,
@@ -3513,11 +3739,23 @@
      },
      {
       "edges": [],
-      "extend": 0.0,
+      "extend": 3.0,
       "faces": [
        "Face5"
       ],
       "flip": false,
+      "format": {
+       "color": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+       ],
+       "line_number": 5,
+       "style": 2,
+       "visible": true,
+       "weight": 0.5
+      },
       "h_shift": 0.0,
       "mode": "Vertical",
       "rotate": 0.0,
@@ -3528,6 +3766,7 @@
      }
     ],
     "cosmetic_vertexes": [],
+    "geom_formats": [],
     "item_type": "Front"
    }
   ],
@@ -3610,11 +3849,23 @@
     "center_lines": [
      {
       "edges": [],
-      "extend": 0.0,
+      "extend": 3.0,
       "faces": [
        "Face0"
       ],
       "flip": false,
+      "format": {
+       "color": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+       ],
+       "line_number": 5,
+       "style": 2,
+       "visible": true,
+       "weight": 0.5
+      },
       "h_shift": 0.0,
       "mode": "Vertical",
       "rotate": 0.0,
@@ -3625,11 +3876,23 @@
      },
      {
       "edges": [],
-      "extend": 0.0,
+      "extend": 3.0,
       "faces": [
        "Face1"
       ],
       "flip": false,
+      "format": {
+       "color": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+       ],
+       "line_number": 5,
+       "style": 2,
+       "visible": true,
+       "weight": 0.5
+      },
       "h_shift": 0.0,
       "mode": "Horizontal",
       "rotate": 0.0,
@@ -3640,11 +3903,23 @@
      },
      {
       "edges": [],
-      "extend": 0.0,
+      "extend": 3.0,
       "faces": [
        "Face1"
       ],
       "flip": false,
+      "format": {
+       "color": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+       ],
+       "line_number": 5,
+       "style": 2,
+       "visible": true,
+       "weight": 0.5
+      },
       "h_shift": 0.0,
       "mode": "Vertical",
       "rotate": 5.0,
@@ -3655,6 +3930,7 @@
      }
     ],
     "cosmetic_vertexes": [],
+    "geom_formats": [],
     "item_type": "Front"
    }
   ],
@@ -3722,11 +3998,23 @@
     "center_lines": [
      {
       "edges": [],
-      "extend": 0.0,
+      "extend": 3.0,
       "faces": [
        "Face0"
       ],
       "flip": false,
+      "format": {
+       "color": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+       ],
+       "line_number": 5,
+       "style": 2,
+       "visible": true,
+       "weight": 0.5
+      },
       "h_shift": 0.0,
       "mode": "Vertical",
       "rotate": 0.0,
@@ -3737,11 +4025,23 @@
      },
      {
       "edges": [],
-      "extend": 0.0,
+      "extend": 3.0,
       "faces": [
        "Face0"
       ],
       "flip": false,
+      "format": {
+       "color": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+       ],
+       "line_number": 5,
+       "style": 2,
+       "visible": true,
+       "weight": 0.5
+      },
       "h_shift": 0.0,
       "mode": "Horizontal",
       "rotate": 0.0,
@@ -3752,11 +4052,23 @@
      },
      {
       "edges": [],
-      "extend": 0.0,
+      "extend": 3.0,
       "faces": [
        "Face1"
       ],
       "flip": false,
+      "format": {
+       "color": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+       ],
+       "line_number": 5,
+       "style": 2,
+       "visible": true,
+       "weight": 0.5
+      },
       "h_shift": 0.0,
       "mode": "Vertical",
       "rotate": 0.0,
@@ -3767,11 +4079,23 @@
      },
      {
       "edges": [],
-      "extend": 0.0,
+      "extend": 3.0,
       "faces": [
        "Face1"
       ],
       "flip": false,
+      "format": {
+       "color": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+       ],
+       "line_number": 5,
+       "style": 2,
+       "visible": true,
+       "weight": 0.5
+      },
       "h_shift": 0.0,
       "mode": "Horizontal",
       "rotate": 0.0,
@@ -3782,11 +4106,23 @@
      },
      {
       "edges": [],
-      "extend": 0.0,
+      "extend": 3.0,
       "faces": [
        "Face2"
       ],
       "flip": false,
+      "format": {
+       "color": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+       ],
+       "line_number": 5,
+       "style": 2,
+       "visible": true,
+       "weight": 0.5
+      },
       "h_shift": 0.0,
       "mode": "Vertical",
       "rotate": 0.0,
@@ -3797,11 +4133,23 @@
      },
      {
       "edges": [],
-      "extend": 0.0,
+      "extend": 3.0,
       "faces": [
        "Face2"
       ],
       "flip": false,
+      "format": {
+       "color": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+       ],
+       "line_number": 5,
+       "style": 2,
+       "visible": true,
+       "weight": 0.5
+      },
       "h_shift": 0.0,
       "mode": "Horizontal",
       "rotate": 0.0,
@@ -3812,11 +4160,23 @@
      },
      {
       "edges": [],
-      "extend": 0.0,
+      "extend": 3.0,
       "faces": [
        "Face3"
       ],
       "flip": false,
+      "format": {
+       "color": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+       ],
+       "line_number": 5,
+       "style": 2,
+       "visible": true,
+       "weight": 0.5
+      },
       "h_shift": 0.0,
       "mode": "Vertical",
       "rotate": 0.0,
@@ -3827,11 +4187,23 @@
      },
      {
       "edges": [],
-      "extend": 0.0,
+      "extend": 3.0,
       "faces": [
        "Face3"
       ],
       "flip": false,
+      "format": {
+       "color": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+       ],
+       "line_number": 5,
+       "style": 2,
+       "visible": true,
+       "weight": 0.5
+      },
       "h_shift": 0.0,
       "mode": "Horizontal",
       "rotate": 0.0,
@@ -3842,6 +4214,7 @@
      }
     ],
     "cosmetic_vertexes": [],
+    "geom_formats": [],
     "item_type": "Front"
    }
   ],
@@ -3909,11 +4282,23 @@
     "center_lines": [
      {
       "edges": [],
-      "extend": 0.0,
+      "extend": 3.0,
       "faces": [
        "Face0"
       ],
       "flip": false,
+      "format": {
+       "color": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+       ],
+       "line_number": 5,
+       "style": 2,
+       "visible": true,
+       "weight": 0.5
+      },
       "h_shift": 0.0,
       "mode": "Vertical",
       "rotate": 0.0,
@@ -3924,11 +4309,23 @@
      },
      {
       "edges": [],
-      "extend": 0.0,
+      "extend": 3.0,
       "faces": [
        "Face0"
       ],
       "flip": false,
+      "format": {
+       "color": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+       ],
+       "line_number": 5,
+       "style": 2,
+       "visible": true,
+       "weight": 0.5
+      },
       "h_shift": 0.0,
       "mode": "Horizontal",
       "rotate": 0.0,
@@ -3939,11 +4336,23 @@
      },
      {
       "edges": [],
-      "extend": 0.0,
+      "extend": 3.0,
       "faces": [
        "Face1"
       ],
       "flip": false,
+      "format": {
+       "color": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+       ],
+       "line_number": 5,
+       "style": 2,
+       "visible": true,
+       "weight": 0.5
+      },
       "h_shift": 0.0,
       "mode": "Vertical",
       "rotate": 0.0,
@@ -3954,11 +4363,23 @@
      },
      {
       "edges": [],
-      "extend": 0.0,
+      "extend": 3.0,
       "faces": [
        "Face1"
       ],
       "flip": false,
+      "format": {
+       "color": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+       ],
+       "line_number": 5,
+       "style": 2,
+       "visible": true,
+       "weight": 0.5
+      },
       "h_shift": 0.0,
       "mode": "Horizontal",
       "rotate": 0.0,
@@ -3969,11 +4390,23 @@
      },
      {
       "edges": [],
-      "extend": 0.0,
+      "extend": 3.0,
       "faces": [
        "Face2"
       ],
       "flip": false,
+      "format": {
+       "color": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+       ],
+       "line_number": 5,
+       "style": 2,
+       "visible": true,
+       "weight": 0.5
+      },
       "h_shift": 0.0,
       "mode": "Vertical",
       "rotate": 0.0,
@@ -3984,11 +4417,23 @@
      },
      {
       "edges": [],
-      "extend": 0.0,
+      "extend": 3.0,
       "faces": [
        "Face2"
       ],
       "flip": false,
+      "format": {
+       "color": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+       ],
+       "line_number": 5,
+       "style": 2,
+       "visible": true,
+       "weight": 0.5
+      },
       "h_shift": 0.0,
       "mode": "Horizontal",
       "rotate": 0.0,
@@ -3999,6 +4444,7 @@
      }
     ],
     "cosmetic_vertexes": [],
+    "geom_formats": [],
     "item_type": "Front"
    }
   ],
@@ -4074,6 +4520,7 @@
       "tag": "cv-2"
      }
     ],
+    "geom_formats": [],
     "item_type": "Front"
    }
   ],

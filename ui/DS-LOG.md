@@ -919,3 +919,38 @@ usage: cad feature clone [-h] [--json] [--name NAME] slug source
 
 - `cad techdraw --help`'s crash is in `cad_agent/techdrawcmd.py`, a file outside this lane's edits; logged here, not
   fixed.
+
+## 11. The TechDraw golden regenerated — done
+
+### What was done
+
+- `tests/golden/techdraw/prep.py` run from the repository root: `cases.json` was older than the script, so it
+  gained the `geom_formats` field, the centreline default `extend` 0.0 → 3.0, and freshly generated cosmetic tags
+  (random UUIDs, different on every prep run; `make.py` does not read them). `breps/` came out identical.
+- `tests/golden/techdraw/make.py` run headless with FreeCAD 26.3
+  (`~/freecad/squashfs-root/usr/bin/freecadcmd`, FreeCAD 26.3.0devR20260929): all 21 cases recorded, none errored.
+  The only other answer change besides the extension itself: the centreline cases' view edges now reach 3.0
+  further at each end (e.g. `plate_centerlines` edge 6, length 28.5 → 34.5) and the DXF follows. Two runs of
+  `make.py` wrote byte-identical files, so the recorder is deterministic.
+- No test, case or assertion changed.
+
+### Tests run
+
+`PYTHONPATH=$PWD .venv/bin/python -m pytest -q tests/test_techdraw_golden.py tests/test_techdraw_svg.py
+tests/test_techdraw_edit.py tests/test_techdraw_annot.py tests/test_techdraw_hatch.py`
+
+```
+204 passed in 8.03s
+```
+
+- A grep for absolute home-directory paths on `cases.json` and `freecad.json`: no matches; neither file holds a
+  local path.
+
+### Commit
+
+`tests: the techdraw golden regenerated from prep.py and FreeCAD`
+
+### Unsure / questions
+
+- None. The `cases.json` tag churn is expected on every prep run (random cosmetic tags), so a future regeneration
+  will show it again.
