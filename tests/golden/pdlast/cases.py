@@ -7,6 +7,7 @@ one feature runs its own cases.
 """
 from cad_agent.feature import (Chamfer, Circle, Constraint, Defeaturing, Fillet, InvoluteGear, LineSegment, Pad,
                                PartDesignPlane, Pocket, Sketch, Sprocket, SubShapeBinder)
+from cad_agent.feature_boolean import Boolean, Clone
 
 
 def rect(x0, y0, x1, y1, construction=False):
@@ -150,4 +151,41 @@ SUBBINDER = {
         Pad("Pad001", "Sketch001", type="UpToFace", up_to_face=("Binder", "Face1"))]},
 }
 
-CASES = {**GEAR, **DEFEATURING, **SUBBINDER}
+# ── Boolean and Clone (FeatureBoolean.cpp, FeatureBase.cpp): other Bodies of the document, each a part module here ─────
+# "others" are the document's other Bodies, built first under their names; "body" is the case's own Body's name
+def cylinder(name, cx, cy, r, length, z=0.0, sketch="Sketch", pad="Pad"):
+    return [Sketch(sketch, "XY", [Circle((cx, cy), r)], [], attachment_offset=(0, 0, z)), Pad(pad, sketch, length=length)]
+
+
+ROD = {"Body001": {"features": cylinder("Rod", 20, 10, 4, 12, z=-3, sketch="Sketch001", pad="Pad001")}}
+BOOLEAN = {
+    "bool_cut": {"others": ROD, "features": [*plate(0, 0, 40, 20), Boolean("Boolean", ["Body001"], type="Cut")]},
+    "bool_fuse": {"others": ROD, "features": [*plate(0, 0, 40, 20), Boolean("Boolean", ["Body001"])]},
+    "bool_common": {"others": ROD, "features": [*plate(0, 0, 40, 20), Boolean("Boolean", ["Body001"], type="Common")]},
+    "bool_two_tools": {"others": {**ROD, "Body002": {"features": cylinder("Rod2", 5, 5, 2, 20, z=-5, sketch="Sketch002",
+                                                                          pad="Pad002")}},
+                       "features": [*plate(0, 0, 40, 20), Boolean("Boolean", ["Body001", "Body002"], type="Cut")]},
+    "bool_unrefined": {"others": ROD, "features": [*plate(0, 0, 40, 20), Boolean("Boolean", ["Body001"], refine=False)]},
+    "bool_no_base": {"others": {**ROD, "Body002": {"features": [*plate(10, 0, 20, 30, 2.0, "Sketch002", "Pad002")]}},
+                     "features": [Boolean("Boolean", ["Body001", "Body002"])]},
+    "bool_then_pocket": {"others": ROD, "features": [
+        *plate(0, 0, 40, 20), Boolean("Boolean", ["Body001"]),
+        Sketch("Sketch003", "XY", rect(30, 5, 35, 15), rect_constraints(0, 5.0, 10.0)),
+        Pocket("Pocket", "Sketch003", type="ThroughAll", reversed=True)]},
+    "bool_feature_tool": {"others": {"Body001": {"features": [
+        *cylinder("Rod", 20, 10, 4, 12, z=-3, sketch="Sketch001", pad="Pad001"),
+        Sketch("Sketch002", "XY", [Circle((20, 10), 2)], [], attachment_offset=(0, 0, -3)),
+        Pocket("Pocket001", "Sketch002", type="ThroughAll", reversed=True)]}},
+        "features": [*plate(0, 0, 40, 20), Boolean("Boolean", ["Body001.Pad001"], type="Cut")]},
+    "clone_body": {"body": "Body001", "others": {"Body": {"features": [*holed()]}},
+                   "features": [Clone("Clone", "Body")]},
+    "clone_then_pad": {"body": "Body001", "others": {"Body": {"features": [*plate(0, 0, 40, 20)]}},
+                       "features": [Clone("Clone", "Body"),
+                                    Sketch("Sketch001", "XY", rect(10, 5, 20, 15), rect_constraints(0, 10.0, 10.0),
+                                           attachment_offset=(0, 0, 5)),
+                                    Pad("Pad001", "Sketch001", length=3.0)]},
+    "clone_feature": {"body": "Body001", "others": {"Body": {"features": [*holed()]}},
+                      "features": [Clone("Clone", "Body.Pad")]},
+}
+
+CASES = {**GEAR, **DEFEATURING, **SUBBINDER, **BOOLEAN}

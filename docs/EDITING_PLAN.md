@@ -153,3 +153,39 @@ def parts():
   ("Insert Component", "Create Revolute Joint", "Toggle grounded", "Move part").
 - Checked like the Body: tests/golden/assembly (freecadcmd builds each case through the GUI's command sequence;
   every step's placements, references, JCS and the exportAsASMT file), the native and the wasm build both.
+
+## Several Bodies (decided 2026-10-27, branch pd-last)
+
+FreeCAD's PartDesign_Boolean fuses, cuts or commons other Bodies of the document into the active one, and PartDesign_Clone
+starts a new Body whose base is a copy of another. Both need a link from one Body to another. The app already makes each Body
+its own part module (New Body writes parts/Body001.py, and the tree lists every part's Body as FreeCAD lists the Bodies of a
+document), and a part file stays one Body with its Part objects. So a link to another Body is that part's name, and a link to
+one of its features "Part.Feature":
+
+```python
+# parts/Body.py
+FEATURES = [
+    Sketch("Sketch", ...), Pad("Pad", "Sketch", length=5),
+    Boolean("Boolean", ["Body001"], type="Cut"),             # PartDesign::Boolean, its Group the tool Bodies
+]
+
+# parts/Body001.py, written by PartDesign_Clone (`cad feature clone SLUG Body`): "Create Clone"
+FEATURES = [
+    Clone("Clone", "Body"),                                  # PartDesign::FeatureBase, BaseFeature the Body
+]
+TIP = "Clone"
+```
+
+- The other part is built from its own source as its build() builds it (its FEATURES with its PARAMS, BaseFeature and TIP; a
+  part with no FEATURES is its build()'s shape, a Part::Feature as FreeCAD takes one), in its own frame: both Bodies sit at the
+  document's origin, as two Bodies FreeCAD makes do until one is moved (Boolean's getTopoShapeInLocalCoordinates). Where
+  assembly.py places a part does not move it for the Boolean.
+- A Body that reaches itself through these links is refused ("Link cycle: Body001 -> Body -> Body001"), as FreeCAD refuses a
+  dependency loop; a missing part is "no Body 'Body009' (parts/Body009.py)".
+- cad_agent/feature_boolean.py has the features; it finds the other part next to the part file whose FEATURES name it, and a
+  caller that has the Bodies at hand gives them by name instead (feature_boolean.OTHERS: tests/golden/pdlast). The build cache
+  keys a part that calls Boolean or Clone on every file of the project (buildcache.REACHES_CALLS), as it keys a part that calls
+  build_part, so an edit to the tool rebuilds the Body that uses it.
+- Checked like the Body: tests/golden/pdlast builds each case's other Bodies first in the same FreeCAD document, under their part
+  names, then the case's Body; the shapes are FreeCAD's (tests/test_feature_pdlast.py).
+- A ShapeBinder and a Sub-Shape Binder still bind their own Body only.

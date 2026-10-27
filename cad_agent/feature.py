@@ -89,6 +89,10 @@ The vocabulary, as FreeCAD's Python API has it:
                  the 16 primitives (feature_primitive.py); both written as feature_kw.KwFeature calls
     AdditiveLoft, SubtractiveLoft, AdditivePipe, SubtractivePipe, AdditiveHelix, SubtractiveHelix
                  PartDesign's Loft, Pipe and Helix (feature_sweep.py has their properties)
+    InvoluteGear, Sprocket, Defeaturing, SubShapeBinder, Boolean, Clone
+                 PartDesign's gears (a profile, as a sketch is: feature_gear.py), Defeaturing
+                 (feature_defeaturing.py), Sub-Shape Binder (feature_subbinder.py), and Boolean and Clone,
+                 which link other Bodies by their part's name (feature_boolean.py)
 
 What is built is the solid FreeCAD would build, because the same OCCT calls build it in the same order:
 the sketch's edges are joined to wires as TopoShape::makeElementWires joins them, the face is made as

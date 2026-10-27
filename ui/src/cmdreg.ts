@@ -55,6 +55,7 @@ import { pdDatumCommands } from './pd_datum'
 import { dressUpEntries } from './pd_dressup'
 import { shapeBinder } from './pd_binder'
 import { makeGear, subShapeBinder } from './pd_last'
+import { booleanCommand, cloneCommand, cloneEnabled } from './pd_boolean'
 import { partCommands, partEnabled, partRun } from './part_wb'
 import { assemblyCommands, assemblyEnabled, assemblyRun } from './assembly_wb'
 import { sweepCommands } from './pd_sweep'
@@ -230,6 +231,9 @@ const COMMANDS: Record<string, RegCommand> = {
   PartDesign_SubShapeBinder: reg('Sub-Shape Binder', () => void subShapeBinder(), () => !!getState().slug),
   PartDesign_InvoluteGear: reg('Involute Gear', () => void makeGear('gear'), () => !!getState().slug),
   PartDesign_Sprocket: reg('Sprocket', () => void makeGear('sprocket'), () => !!getState().slug),
+  // pd_boolean.tsx: Clone and Boolean Operation (Command.cpp), which take other Bodies (other part modules)
+  PartDesign_Clone: reg('Clone', () => void cloneCommand(), cloneEnabled),
+  PartDesign_Boolean: reg('Boolean Operation', () => void booleanCommand(), () => !!getState().slug),
   PartDesign_MoveTip: reg('Set Tip', () => void setTip(), () => getState().featSel.length === 1),
   PartDesign_MoveFeatureInTree: reg('Move Feature After…', moveFeatureAfter, () => getState().featSel.length > 0),
   Std_Delete: reg('Delete', () => void deleteFeatures(), () => getState().featSel.length > 0),

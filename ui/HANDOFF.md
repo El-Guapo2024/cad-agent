@@ -85,7 +85,8 @@ Step 5, round 3 (six branches) is all in main (7526c0c, CI green, 6977 passed, 2
 - pd-sweep: Additive/Subtractive Loft, Pipe, Helix (71 goldens; sweepcheck 302 ok).
 - pd-kernel: FreeCAD's RefineModel (cad_agent/refine.py) and booleans (topo_boolean.py) for every feature, closing
   the face-count/order differences; taper, Common, Scaled, Start Reference (kernelcheck 38 ok). Left: Mirrored puts
-  the copy's faces first in 5 transform goldens; refine.py merges 2 edges more than FreeCAD in 2 Part cuts.
+  the copy's faces first in 5 transform goldens; refine.py merged 2 edges more than FreeCAD in 2 Part cuts (fixed 2026-10-27:
+  FreeCAD keeps conic edges from BRepLib_FuseEdges on OCCT 8 too, collectConicEdges).
 - sketcher-curves: B-spline by knots and its tools, trim/split on B-splines, fillet between curves, Offset, Carbon
   Copy, projected conics/B-splines; OCCT's numbers via `cad feature sketchkernel` (408 goldens). Left: solver fails to
   converge on wide B-splines by knots; Carbon Copy copies values, not expressions.
@@ -100,6 +101,12 @@ Step 5, round 3 (six branches) is all in main (7526c0c, CI green, 6977 passed, 2
 - Step 5, round 4 (2026-10-26): Assembly (below) is in main; Sketcher text and the out-of-edit sketch commands are on
   branch sketcher-text. Each golden folder has a cases.py: load it under its own name (importlib, as the tests do),
   never `sys.path.insert` + `from cases import`, or it shadows another folder's in the full run.
+- pd-last (2026-10-27): PartDesign's last commands, each a KwFeature: Involute Gear and Sprocket (cad_agent/feature_gear.py,
+  a profile as a sketch is), Defeaturing (feature_defeaturing.py), Sub-Shape Binder (feature_subbinder.py), Boolean and Clone
+  (feature_boolean.py, `cad feature clone`): a Body is a part module, so a Boolean's tool or a Clone's source is another part's
+  name (docs/EDITING_PLAN.md, "Several Bodies"). 52 freecadcmd documents in tests/golden/pdlast (`make.py [CASE ...]`); the page
+  (src/pd_last.tsx, src/pd_boolean.tsx, Defeaturing in pd_dressup.tsx) held by scripts/pdlastcheck.mjs to scripts/fcpdlast.json
+  (scripts/fcpdlast.py): 171 ok, 4 known. The Shaft Design Wizard is cut. refine.py now keeps conic edges from FuseEdges.
 - pd-pick (2026-10-25): every panel's reference picks in the 3D view through FreeCAD's gates (src/pd_pick.tsx), datums
   as references everywhere (cad_agent/feature_refs.py, tests/golden/pick), Pad ReferenceAxis, Std_Delete that breaks
   links as FreeCAD (feature_delete.py), PartDesign_Plane/Line/Point/CoordinateSystem, the split primitive buttons,

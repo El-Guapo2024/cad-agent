@@ -9,6 +9,7 @@ feature_kw.KwFeature does.
 import importlib.util
 import json
 import math
+from contextlib import contextmanager
 from pathlib import Path
 
 import pytest
@@ -19,6 +20,7 @@ from OCP.GProp import GProp_GProps
 from OCP.TopAbs import TopAbs_EDGE, TopAbs_FACE, TopAbs_SOLID, TopAbs_VERTEX
 
 from cad_agent import feature
+from cad_agent import feature_boolean as FB
 from cad_agent import feature_edit as E
 from cad_agent.feature import Body
 
@@ -72,9 +74,26 @@ def _same(got, want, what):
         assert got["center"] == pytest.approx(want["center"], abs=1e-6 * size), f"{what}: centre"
 
 
+@contextmanager
+def _others(case):
+    """The case's other Bodies (a Boolean's tools, a Clone's source) as feature_boolean finds them: by name, each built
+    from its own FEATURES (the part modules of a project, here)."""
+    def body(oc):
+        def shapes():
+            ev = feature.evaluate(oc["features"], oc.get("params"))
+            return ev["Tip"], {k: v for k, v in ev.items() if not k.startswith("_") and v is not None}
+        return shapes
+    token = FB.OTHERS.set({n: body(oc) for n, oc in (case.get("others") or {}).items()})
+    try:
+        yield
+    finally:
+        FB.OTHERS.reset(token)
+
+
 def _evaluate(name):
     case = CASES[name]
-    return feature.evaluate(case["features"], case.get("params"))
+    with _others(case):
+        return feature.evaluate(case["features"], case.get("params"))
 
 
 def test_every_case_has_freecads_answer():
@@ -85,7 +104,8 @@ def test_every_case_has_freecads_answer():
 @pytest.mark.parametrize("name", sorted(CASES))
 def test_same_body_as_freecad(name):
     case, want = CASES[name], FREECAD[name]
-    part = Body(case["features"], case.get("params"))
+    with _others(case):
+        part = Body(case["features"], case.get("params"))
     got = _measure(part.wrapped)
     w = want["body"]
     _same(got, w, "body")
@@ -242,3 +262,128 @@ def test_defeaturing_and_subshapebinder_part_file_round_trip(tmp_path):
         E.apply_src(src, [{"op": "set", "name": "Binder", "props": {"bind_mode": "Frozen"}}])
     src = E.apply_src(src, [{"op": "rename", "name": "Pad", "to": "Plate"}])
     assert '("Plate", "Face1")' in src
+
+
+@pytest.mark.parametrize("name", sorted(_cases.BOOLEAN))
+def test_boolean_and_clone_objects_as_freecad(name):
+    """The Boolean's or Clone's own Shape is FreeCAD's (the Body's, as it is the Tip there and here)."""
+    case, want = CASES[name], FREECAD[name]
+    ev = _evaluate(name)
+    for f in case["features"]:
+        if type(f).__name__ not in ("Boolean", "Clone"):
+            continue
+        w = want["objects"][f.name]
+        assert w["type"] == f.TYPE_ID and w["valid"]
+        got = _measure(ev[f.name])
+        _same(got, w["shape"], f.name)
+        assert (got["faces"], got["edges"]) == (w["shape"]["faces"], w["shape"]["edges"])
+
+
+PLATE_SRC = '''from cad_agent.feature import Body, Circle, LineSegment, Pad, Sketch, Boolean, Clone
+
+PARAMS = {"w": 40.0}
+
+FEATURES = [
+    Sketch("Sketch", support="XY", geometry=[LineSegment((0.0, 0.0), (40.0, 0.0)), LineSegment((40.0, 0.0), (40.0, 20.0)),
+                                             LineSegment((40.0, 20.0), (0.0, 20.0)), LineSegment((0.0, 20.0), (0.0, 0.0))]),
+    Pad("Pad", "Sketch", length=5.0),
+%s]
+
+
+def build(**p):
+    return Body(FEATURES, p)
+'''
+ROD_SRC = '''from cad_agent.feature import Body, Boolean, Circle, Pad, Sketch, Clone
+
+PARAMS = {}
+
+FEATURES = [
+    Sketch("Sketch", support="XY", geometry=[Circle((20.0, 10.0), 4.0)], attachment_offset=(0, 0, -3)),
+    Pad("Pad", "Sketch", length=12.0),
+%s]
+
+
+def build(**p):
+    return Body(FEATURES, p)
+'''
+
+
+def _project(tmp_path, body_extra="", rod_extra=""):
+    parts = tmp_path / "proj" / "parts"
+    parts.mkdir(parents=True)
+    (parts / "Body.py").write_text(PLATE_SRC % body_extra)
+    (parts / "Body001.py").write_text(ROD_SRC % rod_extra)
+    return parts
+
+
+def _build_file(path):
+    from cad_agent import state
+    mod = state._load_module(path)
+    return mod.build(**mod.PARAMS)
+
+
+def test_a_boolean_takes_another_part_of_the_project(tmp_path):
+    """In a part file the tool is another part module of the project, by its name, built from its own source."""
+    parts = _project(tmp_path, '    Boolean("Boolean", ["Body001"], type="Cut"),\n')
+    assert _build_file(parts / "Body.py").volume == pytest.approx(FREECAD["bool_cut"]["body"]["volume"], rel=1e-9)
+    # the tool's own edit is what the next build takes
+    (parts / "Body001.py").write_text(ROD_SRC.replace("4.0)]", "2.0)]") % "")
+    assert _build_file(parts / "Body.py").volume == pytest.approx(4000 - math.pi * 4 * 5, rel=1e-9)
+
+
+def test_a_clone_is_a_new_part_whose_base_is_another(tmp_path):
+    parts = _project(tmp_path)
+    (parts / "Body002.py").write_text(ROD_SRC.replace(
+        '    Sketch("Sketch", support="XY", geometry=[Circle((20.0, 10.0), 4.0)], attachment_offset=(0, 0, -3)),\n'
+        '    Pad("Pad", "Sketch", length=12.0),\n', "") % '    Clone("Clone", "Body"),\n')
+    assert _build_file(parts / "Body002.py").volume == pytest.approx(4000.0, rel=1e-12)
+    d = E.read(parts / "Body002.py")
+    assert d["tip"] == "Clone" and d["features"][0]["type"] == "PartDesign::FeatureBase"
+    assert d["features"][0]["base_feature"] == "Body"
+
+
+def test_a_link_cycle_and_a_missing_body_are_refused(tmp_path):
+    parts = _project(tmp_path, '    Boolean("Boolean", ["Body001"]),\n', '    Boolean("Boolean", ["Body"]),\n')
+    with pytest.raises(feature.FeatureError, match="Link cycle: Body001 -> Body -> Body001|Link cycle"):
+        _build_file(parts / "Body.py")
+    (parts / "Body.py").write_text(PLATE_SRC % '    Boolean("Boolean", ["Body009"]),\n')
+    with pytest.raises(feature.FeatureError, match="no Body 'Body009'"):
+        _build_file(parts / "Body.py")
+
+
+def test_boolean_part_file_round_trip(tmp_path):
+    parts = _project(tmp_path)
+    src = E.apply_src((parts / "Body.py").read_text(), [
+        {"op": "add", "feature": {"name": "Boolean", "type": "PartDesign::Boolean", "group": ["Body001"], "type1": "Cut"}}])
+    assert 'Boolean("Boolean", ["Body001"], type="Cut")' in src
+    d = E.read_src(src)
+    b = next(f for f in d["features"] if f["name"] == "Boolean")
+    assert b["type"] == "PartDesign::Boolean" and b["type1"] == "Cut" and b["group"] == ["Body001"] and b["refine"] is True
+    assert d["tip"] == "Boolean"
+    src = E.apply_src(src, [{"op": "set", "name": "Boolean", "props": {"type1": "Common"}}])
+    assert 'Boolean("Boolean", ["Body001"], type="Common")' in src
+    with pytest.raises(E.FeatureEditError, match="not one of"):
+        E.apply_src(src, [{"op": "set", "name": "Boolean", "props": {"type1": "Section"}}])
+
+
+from test_cli import run  # noqa: E402
+from test_workbench import demo  # noqa: E402,F401 (the project fixture)
+
+
+def test_cad_feature_clone(demo, capsys):
+    """`cad feature clone demo plate`: a new Body (Body, then Body001, ...) whose Clone copies plate; one undo step,
+    "Create Clone", which undo takes back."""
+    from cad_agent import cli
+    from cad_agent import undo as un
+    code, data = run(capsys, "feature", "clone", "demo", "plate")
+    assert code == cli.OK and data["part"] == "Body"
+    path = demo / "parts" / "Body.py"
+    assert 'Clone("Clone", "plate"),' in path.read_text() and 'TIP = "Clone"' in path.read_text()
+    assert data["doc"]["tip"] == "Clone"
+    assert un.load(demo)["undo"][-1]["name"] == "Create Clone"
+    un.perform(demo, "undo")
+    assert not path.exists()
+    un.perform(demo, "redo")
+    assert _build_file(path).volume == pytest.approx(_build_file(demo / "parts" / "plate.py").volume, rel=1e-12)
+    assert run(capsys, "feature", "clone", "demo", "plate")[1]["part"] == "Body001"
+    assert run(capsys, "feature", "clone", "demo", "nothing")[0] == cli.USAGE

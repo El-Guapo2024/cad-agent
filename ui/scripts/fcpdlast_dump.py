@@ -498,5 +498,110 @@ def binder():
 
 safe("binder", binder)
 
+
+# ── Clone and Boolean: a second Body ─────────────────────────────────────────────────────────────────────────────────
+def second_body(name="Body001", sketch="Sketch001", pad="Pad001"):
+    """Another Body beside the first: a rod (a circle of 4 at (20, 10), 12 long from z = -3) through the plate."""
+    b = doc.addObject("PartDesign::Body", name)
+    sk = b.newObject("Sketcher::SketchObject", sketch)
+    sk.AttachmentSupport = [(b.Origin.OriginFeatures[3], "")]       # its XY_Plane
+    sk.MapMode = "FlatFace"
+    sk.AttachmentOffset = App.Placement(V(0, 0, -3), App.Rotation())
+    sk.addGeometry(Part.Circle(V(20, 10, 0), V(0, 0, 1), 4), False)
+    p = b.newObject("PartDesign::Pad", pad)
+    p.Profile = sk
+    p.Length = 12
+    sk.Visibility = False
+    doc.recompute()
+    return b
+
+
+def visible():
+    return {o.Name: o.Visibility for o in doc.Objects if o.TypeId in ("PartDesign::Body", "PartDesign::Boolean", "PartDesign::FeatureBase")}
+
+
+def clone():
+    fresh("CloneDoc")
+    out = {}
+    Gui.Selection.clearSelection()
+    Gui.Selection.addSelection(body)
+    pump(0.3)
+    out["enabled"] = Gui.Command.get("PartDesign_Clone").isActive()
+    Gui.runCommand("PartDesign_Clone", 0)
+    pump(1.5)
+    c = doc.getObject("Clone")
+    b1 = doc.getObject("Body001")
+    out["after"] = {"undo": doc.UndoNames, "in_edit": in_edit(), "objects": objects(), "visible": visible(),
+                    "body001_group": [o.Name for o in b1.Group] if b1 else None, "tip": b1.Tip.Name if b1 and b1.Tip else None,
+                    "base": c.BaseFeature.Name if c and c.BaseFeature else None, "shape": shape(c) if c else None,
+                    "body001": shape(b1) if b1 else None,
+                    "active": str(Gui.ActiveDocument.ActiveView.getActiveObject("pdbody"))}
+    out["props"] = props(c) if c else None
+    out["groups"] = {p: c.getGroupOfProperty(p) for p in c.PropertiesList} if c else None
+    out["modes"] = {p: c.getEditorMode(p) for p in c.PropertiesList} if c else None
+    out["tree"] = tree_rows()
+    out["props_view"] = property_view("Clone")
+    out["menu"] = menu_at("Clone")
+    Gui.Selection.clearSelection()
+    pump(0.3)
+    out["enabled_nothing"] = Gui.Command.get("PartDesign_Clone").isActive()
+    return out
+
+
+safe("clone", clone)
+
+
+def boolean():
+    fresh("BooleanDoc")
+    out = {}
+    rod = second_body()
+    doc.clearUndos()
+    Gui.ActiveDocument.ActiveView.setActiveObject("pdbody", body)
+    pump(0.3)
+    Gui.Selection.clearSelection()
+    Gui.Selection.addSelection(rod)
+    pump(0.3)
+    Gui.runCommand("PartDesign_Boolean", 0)
+    pump(1.5)
+    bo = doc.getObject("Boolean")
+    out["in_edit"] = in_edit()
+    out["task"] = task_widgets()
+    out["created"] = {"group": [o.Name for o in bo.Group] if bo else None, "type": bo.Type if bo else None,
+                      "visible": visible(), "props": props(bo) if bo else None}
+    out["groups"] = {p: bo.getGroupOfProperty(p) for p in bo.PropertiesList} if bo else None
+    combo = widget("comboType")
+    combo.setCurrentIndex(1)
+    pump(1.0)
+    out["cut_live"] = {"type": bo.Type, "shape": shape(bo)}
+    out["ok"] = click_button("OK")
+    pump(1.2)
+    out["after_ok"] = {"undo": doc.UndoNames, "in_edit": in_edit(), "tip": body.Tip.Name, "visible": visible(),
+                       "objects": objects(), "shape": shape(bo), "body": shape(body), "group": [o.Name for o in bo.Group]}
+    out["tree"] = tree_rows()
+    out["props_view"] = property_view("Boolean")
+    out["menu"] = menu_at("Boolean")
+    Gui.ActiveDocument.setEdit(bo, 0)
+    pump(1.2)
+    out["edit_task"] = task_widgets()
+    click_button("Cancel")
+    pump(1.0)
+    out["after_cancel"] = {"undo": doc.UndoNames, "visible": visible()}
+    # nothing selected: an empty Boolean, its panel; OK asks for a body
+    Gui.Selection.clearSelection()
+    pump(0.3)
+    Gui.runCommand("PartDesign_Boolean", 0)
+    pump(1.5)
+    out["empty_in_edit"] = in_edit()
+    out["empty_task"] = task_widgets()
+    out["empty_ok"] = message_box(lambda: click_button("OK"))
+    out["empty_still_in_edit"] = in_edit()
+    click_button("Cancel")
+    pump(1.0)
+    out["after_empty_cancel"] = {"undo": doc.UndoNames, "objects": [o.Name for o in doc.Objects]}
+    return out
+
+
+safe("boolean", boolean)
+
 json.dump(res, open(os.path.join(OUT, "fcpdlast.json"), "w"), indent=1, default=str)
 os._exit(0)

@@ -83,7 +83,10 @@ for name, case in CASES.items():
     if only and name not in only:
         continue
     doc = App.newDocument(name)
-    body = feature.to_freecad(case["features"], case.get("params"), doc=doc)
+    for other, oc in (case.get("others") or {}).items():     # the document's other Bodies, under their own names
+        feature.to_freecad(oc["features"], oc.get("params"), doc=doc, name=other)
+        doc.recompute()
+    body = feature.to_freecad(case["features"], case.get("params"), doc=doc, name=case.get("body", "Body"))
     doc.recompute()
     bad = [f"{o.Name}: {o.getStatusString()}" for o in body.Group if not o.isValid()]
     res = {"error": "; ".join(bad)} if bad else {}

@@ -1,5 +1,1230 @@
 {
  "cases": {
+  "bool_common": {
+   "body": {
+    "area": 226.194671058,
+    "bbox": [
+     16.0,
+     6.0,
+     0.0,
+     24.0,
+     14.0,
+     5.0
+    ],
+    "center": [
+     20.0,
+     10.0,
+     2.5
+    ],
+    "edges": 3,
+    "faces": 3,
+    "placement": [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "solids": 1,
+    "type": "Compound",
+    "vertices": 2,
+    "volume": 251.327412287
+   },
+   "objects": {
+    "Boolean": {
+     "placement": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "shape": {
+      "area": 226.194671058,
+      "bbox": [
+       16.0,
+       6.0,
+       0.0,
+       24.0,
+       14.0,
+       5.0
+      ],
+      "center": [
+       20.0,
+       10.0,
+       2.5
+      ],
+      "edges": 3,
+      "faces": 3,
+      "placement": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ],
+      "solids": 1,
+      "type": "Compound",
+      "vertices": 2,
+      "volume": 251.327412287
+     },
+     "type": "PartDesign::Boolean",
+     "valid": true
+    },
+    "Pad": {
+     "placement": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "shape": {
+      "area": 2200.0,
+      "bbox": [
+       0.0,
+       0.0,
+       0.0,
+       40.0,
+       20.0,
+       5.0
+      ],
+      "center": [
+       20.0,
+       10.0,
+       2.5
+      ],
+      "edges": 12,
+      "faces": 6,
+      "placement": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ],
+      "solids": 1,
+      "type": "Solid",
+      "vertices": 8,
+      "volume": 4000.0
+     },
+     "type": "PartDesign::Pad",
+     "valid": true
+    }
+   },
+   "tip": "Boolean"
+  },
+  "bool_cut": {
+   "body": {
+    "area": 2225.132741229,
+    "bbox": [
+     0.0,
+     0.0,
+     0.0,
+     40.0,
+     20.0,
+     5.0
+    ],
+    "center": [
+     20.0,
+     10.0,
+     2.5
+    ],
+    "edges": 15,
+    "faces": 7,
+    "placement": [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "solids": 1,
+    "type": "Compound",
+    "vertices": 10,
+    "volume": 3748.672587713
+   },
+   "objects": {
+    "Boolean": {
+     "placement": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "shape": {
+      "area": 2225.132741229,
+      "bbox": [
+       0.0,
+       0.0,
+       0.0,
+       40.0,
+       20.0,
+       5.0
+      ],
+      "center": [
+       20.0,
+       10.0,
+       2.5
+      ],
+      "edges": 15,
+      "faces": 7,
+      "placement": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ],
+      "solids": 1,
+      "type": "Compound",
+      "vertices": 10,
+      "volume": 3748.672587713
+     },
+     "type": "PartDesign::Boolean",
+     "valid": true
+    },
+    "Pad": {
+     "placement": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "shape": {
+      "area": 2200.0,
+      "bbox": [
+       0.0,
+       0.0,
+       0.0,
+       40.0,
+       20.0,
+       5.0
+      ],
+      "center": [
+       20.0,
+       10.0,
+       2.5
+      ],
+      "edges": 12,
+      "faces": 6,
+      "placement": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ],
+      "solids": 1,
+      "type": "Solid",
+      "vertices": 8,
+      "volume": 4000.0
+     },
+     "type": "PartDesign::Pad",
+     "valid": true
+    }
+   },
+   "tip": "Boolean"
+  },
+  "bool_feature_tool": {
+   "body": {
+    "area": 2225.132741229,
+    "bbox": [
+     0.0,
+     0.0,
+     0.0,
+     40.0,
+     20.0,
+     5.0
+    ],
+    "center": [
+     20.0,
+     10.0,
+     2.5
+    ],
+    "edges": 15,
+    "faces": 7,
+    "placement": [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "solids": 1,
+    "type": "Compound",
+    "vertices": 10,
+    "volume": 3748.672587713
+   },
+   "objects": {
+    "Boolean": {
+     "placement": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "shape": {
+      "area": 2225.132741229,
+      "bbox": [
+       0.0,
+       0.0,
+       0.0,
+       40.0,
+       20.0,
+       5.0
+      ],
+      "center": [
+       20.0,
+       10.0,
+       2.5
+      ],
+      "edges": 15,
+      "faces": 7,
+      "placement": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ],
+      "solids": 1,
+      "type": "Compound",
+      "vertices": 10,
+      "volume": 3748.672587713
+     },
+     "type": "PartDesign::Boolean",
+     "valid": true
+    },
+    "Pad": {
+     "placement": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "shape": {
+      "area": 2200.0,
+      "bbox": [
+       0.0,
+       0.0,
+       0.0,
+       40.0,
+       20.0,
+       5.0
+      ],
+      "center": [
+       20.0,
+       10.0,
+       2.5
+      ],
+      "edges": 12,
+      "faces": 6,
+      "placement": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ],
+      "solids": 1,
+      "type": "Solid",
+      "vertices": 8,
+      "volume": 4000.0
+     },
+     "type": "PartDesign::Pad",
+     "valid": true
+    }
+   },
+   "tip": "Boolean"
+  },
+  "bool_fuse": {
+   "body": {
+    "area": 2375.929188601,
+    "bbox": [
+     0.0,
+     0.0,
+     -3.0,
+     40.0,
+     20.0,
+     9.0
+    ],
+    "center": [
+     20.0,
+     10.0,
+     2.569302093
+    ],
+    "edges": 18,
+    "faces": 10,
+    "placement": [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "solids": 1,
+    "type": "Compound",
+    "vertices": 12,
+    "volume": 4351.858377202
+   },
+   "objects": {
+    "Boolean": {
+     "placement": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "shape": {
+      "area": 2375.929188601,
+      "bbox": [
+       0.0,
+       0.0,
+       -3.0,
+       40.0,
+       20.0,
+       9.0
+      ],
+      "center": [
+       20.0,
+       10.0,
+       2.569302093
+      ],
+      "edges": 18,
+      "faces": 10,
+      "placement": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ],
+      "solids": 1,
+      "type": "Compound",
+      "vertices": 12,
+      "volume": 4351.858377202
+     },
+     "type": "PartDesign::Boolean",
+     "valid": true
+    },
+    "Pad": {
+     "placement": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "shape": {
+      "area": 2200.0,
+      "bbox": [
+       0.0,
+       0.0,
+       0.0,
+       40.0,
+       20.0,
+       5.0
+      ],
+      "center": [
+       20.0,
+       10.0,
+       2.5
+      ],
+      "edges": 12,
+      "faces": 6,
+      "placement": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ],
+      "solids": 1,
+      "type": "Solid",
+      "vertices": 8,
+      "volume": 4000.0
+     },
+     "type": "PartDesign::Pad",
+     "valid": true
+    }
+   },
+   "tip": "Boolean"
+  },
+  "bool_no_base": {
+   "body": {
+    "area": 1651.327412287,
+    "bbox": [
+     10.0,
+     0.0,
+     -3.0,
+     30.0,
+     30.0,
+     9.0
+    ],
+    "center": [
+     20.0,
+     13.523908612,
+     1.708523866
+    ],
+    "edges": 18,
+    "faces": 10,
+    "placement": [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "solids": 1,
+    "type": "Compound",
+    "vertices": 12,
+    "volume": 1702.654824574
+   },
+   "objects": {
+    "Boolean": {
+     "placement": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "shape": {
+      "area": 1651.327412287,
+      "bbox": [
+       10.0,
+       0.0,
+       -3.0,
+       30.0,
+       30.0,
+       9.0
+      ],
+      "center": [
+       20.0,
+       13.523908612,
+       1.708523866
+      ],
+      "edges": 18,
+      "faces": 10,
+      "placement": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ],
+      "solids": 1,
+      "type": "Compound",
+      "vertices": 12,
+      "volume": 1702.654824574
+     },
+     "type": "PartDesign::Boolean",
+     "valid": true
+    }
+   },
+   "tip": "Boolean"
+  },
+  "bool_then_pocket": {
+   "body": {
+    "area": 2425.929188601,
+    "bbox": [
+     0.0,
+     0.0,
+     -3.0,
+     40.0,
+     20.0,
+     9.0
+    ],
+    "center": [
+     19.238150196,
+     10.0,
+     2.573525916
+    ],
+    "edges": 30,
+    "faces": 14,
+    "placement": [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "solids": 1,
+    "type": "Compound",
+    "vertices": 20,
+    "volume": 4101.858377202
+   },
+   "objects": {
+    "Boolean": {
+     "placement": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "shape": {
+      "area": 2375.929188601,
+      "bbox": [
+       0.0,
+       0.0,
+       -3.0,
+       40.0,
+       20.0,
+       9.0
+      ],
+      "center": [
+       20.0,
+       10.0,
+       2.569302093
+      ],
+      "edges": 18,
+      "faces": 10,
+      "placement": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ],
+      "solids": 1,
+      "type": "Compound",
+      "vertices": 12,
+      "volume": 4351.858377202
+     },
+     "type": "PartDesign::Boolean",
+     "valid": true
+    },
+    "Pad": {
+     "placement": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "shape": {
+      "area": 2200.0,
+      "bbox": [
+       0.0,
+       0.0,
+       0.0,
+       40.0,
+       20.0,
+       5.0
+      ],
+      "center": [
+       20.0,
+       10.0,
+       2.5
+      ],
+      "edges": 12,
+      "faces": 6,
+      "placement": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ],
+      "solids": 1,
+      "type": "Solid",
+      "vertices": 8,
+      "volume": 4000.0
+     },
+     "type": "PartDesign::Pad",
+     "valid": true
+    },
+    "Pocket": {
+     "placement": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "shape": {
+      "area": 2425.929188601,
+      "bbox": [
+       0.0,
+       0.0,
+       -3.0,
+       40.0,
+       20.0,
+       9.0
+      ],
+      "center": [
+       19.238150196,
+       10.0,
+       2.573525916
+      ],
+      "edges": 30,
+      "faces": 14,
+      "placement": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ],
+      "solids": 1,
+      "type": "Compound",
+      "vertices": 20,
+      "volume": 4101.858377202
+     },
+     "type": "PartDesign::Pocket",
+     "valid": true
+    }
+   },
+   "tip": "Pocket"
+  },
+  "bool_two_tools": {
+   "body": {
+    "area": 2262.831853072,
+    "bbox": [
+     0.0,
+     0.0,
+     0.0,
+     40.0,
+     20.0,
+     5.0
+    ],
+    "center": [
+     20.255702257,
+     10.085234086,
+     2.5
+    ],
+    "edges": 18,
+    "faces": 8,
+    "placement": [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "solids": 1,
+    "type": "Compound",
+    "vertices": 12,
+    "volume": 3685.840734641
+   },
+   "objects": {
+    "Boolean": {
+     "placement": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "shape": {
+      "area": 2262.831853072,
+      "bbox": [
+       0.0,
+       0.0,
+       0.0,
+       40.0,
+       20.0,
+       5.0
+      ],
+      "center": [
+       20.255702257,
+       10.085234086,
+       2.5
+      ],
+      "edges": 18,
+      "faces": 8,
+      "placement": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ],
+      "solids": 1,
+      "type": "Compound",
+      "vertices": 12,
+      "volume": 3685.840734641
+     },
+     "type": "PartDesign::Boolean",
+     "valid": true
+    },
+    "Pad": {
+     "placement": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "shape": {
+      "area": 2200.0,
+      "bbox": [
+       0.0,
+       0.0,
+       0.0,
+       40.0,
+       20.0,
+       5.0
+      ],
+      "center": [
+       20.0,
+       10.0,
+       2.5
+      ],
+      "edges": 12,
+      "faces": 6,
+      "placement": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ],
+      "solids": 1,
+      "type": "Solid",
+      "vertices": 8,
+      "volume": 4000.0
+     },
+     "type": "PartDesign::Pad",
+     "valid": true
+    }
+   },
+   "tip": "Boolean"
+  },
+  "bool_unrefined": {
+   "body": {
+    "area": 2375.929188601,
+    "bbox": [
+     0.0,
+     0.0,
+     -3.0,
+     40.0,
+     20.0,
+     9.0
+    ],
+    "center": [
+     20.0,
+     10.0,
+     2.569302093
+    ],
+    "edges": 18,
+    "faces": 10,
+    "placement": [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "solids": 1,
+    "type": "Compound",
+    "vertices": 12,
+    "volume": 4351.858377202
+   },
+   "objects": {
+    "Boolean": {
+     "placement": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "shape": {
+      "area": 2375.929188601,
+      "bbox": [
+       0.0,
+       0.0,
+       -3.0,
+       40.0,
+       20.0,
+       9.0
+      ],
+      "center": [
+       20.0,
+       10.0,
+       2.569302093
+      ],
+      "edges": 18,
+      "faces": 10,
+      "placement": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ],
+      "solids": 1,
+      "type": "Compound",
+      "vertices": 12,
+      "volume": 4351.858377202
+     },
+     "type": "PartDesign::Boolean",
+     "valid": true
+    },
+    "Pad": {
+     "placement": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "shape": {
+      "area": 2200.0,
+      "bbox": [
+       0.0,
+       0.0,
+       0.0,
+       40.0,
+       20.0,
+       5.0
+      ],
+      "center": [
+       20.0,
+       10.0,
+       2.5
+      ],
+      "edges": 12,
+      "faces": 6,
+      "placement": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ],
+      "solids": 1,
+      "type": "Solid",
+      "vertices": 8,
+      "volume": 4000.0
+     },
+     "type": "PartDesign::Pad",
+     "valid": true
+    }
+   },
+   "tip": "Boolean"
+  },
+  "clone_body": {
+   "body": {
+    "area": 2237.699111843,
+    "bbox": [
+     0.0,
+     0.0,
+     0.0,
+     40.0,
+     20.0,
+     5.0
+    ],
+    "center": [
+     20.0,
+     10.0,
+     2.5
+    ],
+    "edges": 15,
+    "faces": 7,
+    "placement": [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "solids": 1,
+    "type": "Compound",
+    "vertices": 10,
+    "volume": 3858.628330588
+   },
+   "objects": {
+    "Clone": {
+     "placement": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "shape": {
+      "area": 2237.699111843,
+      "bbox": [
+       0.0,
+       0.0,
+       0.0,
+       40.0,
+       20.0,
+       5.0
+      ],
+      "center": [
+       20.0,
+       10.0,
+       2.5
+      ],
+      "edges": 15,
+      "faces": 7,
+      "placement": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ],
+      "solids": 1,
+      "type": "Compound",
+      "vertices": 10,
+      "volume": 3858.628330588
+     },
+     "type": "PartDesign::FeatureBase",
+     "valid": true
+    }
+   },
+   "tip": "Clone"
+  },
+  "clone_feature": {
+   "body": {
+    "area": 2200.0,
+    "bbox": [
+     0.0,
+     0.0,
+     0.0,
+     40.0,
+     20.0,
+     5.0
+    ],
+    "center": [
+     20.0,
+     10.0,
+     2.5
+    ],
+    "edges": 12,
+    "faces": 6,
+    "placement": [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "solids": 1,
+    "type": "Solid",
+    "vertices": 8,
+    "volume": 4000.0
+   },
+   "objects": {
+    "Clone": {
+     "placement": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "shape": {
+      "area": 2200.0,
+      "bbox": [
+       0.0,
+       0.0,
+       0.0,
+       40.0,
+       20.0,
+       5.0
+      ],
+      "center": [
+       20.0,
+       10.0,
+       2.5
+      ],
+      "edges": 12,
+      "faces": 6,
+      "placement": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ],
+      "solids": 1,
+      "type": "Solid",
+      "vertices": 8,
+      "volume": 4000.0
+     },
+     "type": "PartDesign::FeatureBase",
+     "valid": true
+    }
+   },
+   "tip": "Clone"
+  },
+  "clone_then_pad": {
+   "body": {
+    "area": 2320.0,
+    "bbox": [
+     0.0,
+     0.0,
+     0.0,
+     40.0,
+     20.0,
+     8.0
+    ],
+    "center": [
+     19.651162791,
+     10.0,
+     2.779069767
+    ],
+    "edges": 24,
+    "faces": 11,
+    "placement": [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "solids": 1,
+    "type": "Compound",
+    "vertices": 16,
+    "volume": 4300.0
+   },
+   "objects": {
+    "Clone": {
+     "placement": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "shape": {
+      "area": 2200.0,
+      "bbox": [
+       0.0,
+       0.0,
+       0.0,
+       40.0,
+       20.0,
+       5.0
+      ],
+      "center": [
+       20.0,
+       10.0,
+       2.5
+      ],
+      "edges": 12,
+      "faces": 6,
+      "placement": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ],
+      "solids": 1,
+      "type": "Solid",
+      "vertices": 8,
+      "volume": 4000.0
+     },
+     "type": "PartDesign::FeatureBase",
+     "valid": true
+    },
+    "Pad001": {
+     "placement": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "shape": {
+      "area": 2320.0,
+      "bbox": [
+       0.0,
+       0.0,
+       0.0,
+       40.0,
+       20.0,
+       8.0
+      ],
+      "center": [
+       19.651162791,
+       10.0,
+       2.779069767
+      ],
+      "edges": 24,
+      "faces": 11,
+      "placement": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ],
+      "solids": 1,
+      "type": "Compound",
+      "vertices": 16,
+      "volume": 4300.0
+     },
+     "type": "PartDesign::Pad",
+     "valid": true
+    }
+   },
+   "tip": "Pad001"
+  },
   "defeat_boss": {
    "body": {
     "area": 2200.0,

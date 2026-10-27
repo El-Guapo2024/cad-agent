@@ -51,15 +51,16 @@ import { deleteObjects, isObjectRef, partKey } from './part_wb'
 import { editSweep, isSweep, sweepChildren, sweepEntries, SweepProps, sweepUses, SWEEP_ICONS, SWEEP_KINDS } from './pd_sweep'
 import { OperationRow, StartReferenceRow, startRefProp, TaperRow, taperReadOnly, type StartRef } from './pd_kernel'
 import { isEnabled as isSketchCmdEnabled, runSketchCommand } from './sketchcmds'
+import { BOOLEAN_ICONS, BOOLEAN_KINDS, BooleanProps, booleanChildRows, booleanEntries, editBoolean, isBoolean, isClone, linkBody } from './pd_boolean'
 import { editLast, gearEntries, isLast, isProfile2d, isSubBinder, LAST_ICONS, LAST_KINDS, LastProps, lastTreeEntries, subShapeBinderEntry, useProfile } from './pd_last'
 
 export const SKETCH = 'Sketcher::SketchObject', PAD = 'PartDesign::Pad', POCKET = 'PartDesign::Pocket'
 const ICON_OF: Record<string, IconName> = { [SKETCH]: 'pd-sketch', [PAD]: 'pd-pad', [POCKET]: 'pd-pocket',
   'PartDesign::Fillet': 'pd-fillet', 'PartDesign::Chamfer': 'pd-chamfer', 'PartDesign::Draft': 'pd-draft', 'PartDesign::Thickness': 'pd-thickness', ...REVOLVE_ICONS,
-  ...SWEEP_ICONS, [SHAPE_BINDER]: 'pd-shape-binder', ...LAST_ICONS }
+  ...SWEEP_ICONS, [SHAPE_BINDER]: 'pd-shape-binder', ...LAST_ICONS, ...BOOLEAN_ICONS }
 const KIND: Record<string, string> = { [SKETCH]: 'Sketch', [PAD]: 'Pad', [POCKET]: 'Pocket',
   'PartDesign::Fillet': 'Fillet', 'PartDesign::Chamfer': 'Chamfer', 'PartDesign::Draft': 'Draft', 'PartDesign::Thickness': 'Thickness', ...REVOLVE_KINDS,
-  ...SWEEP_KINDS, [SHAPE_BINDER]: 'ShapeBinder', ...LAST_KINDS }
+  ...SWEEP_KINDS, [SHAPE_BINDER]: 'ShapeBinder', ...LAST_KINDS, ...BOOLEAN_KINDS }
 for (const [t, d] of Object.entries(DATUM_TYPES)) { ICON_OF[t] = d.icon as IconName; KIND[t] = t } // the datums (pd_attach.tsx)
 /** App::Origin's features, as FreeCAD names (Name) and labels (Label) them, with their ViewProviders' icons. */
 export const ORIGIN: [string, string, IconName][] = [
@@ -262,6 +263,8 @@ export function editFeature(ref: string) {
   if (isDatum(f.type)) return editAttachment(part, name)   // ViewProviderDatum::doubleClicked: the attachment editor
   if (isBinder(f.type)) return editBinder(part, f)         // ViewProviderShapeBinder::setEdit: its own panel
   if (isLast(f.type)) return editLast(part, f)             // a gear's panel, a Sub-Shape Binder's sync (pd_last.tsx)
+  if (isBoolean(f.type)) return editBoolean(part, f)       // TaskBooleanParameters (pd_boolean.tsx)
+  if (isClone(f.type)) { report('msg', `${name}: a Clone has no task panel (FeatureBase has no edit mode)`); return }
   if (editRevolveFeature(part, f)) return
   if (isDressUp(f.type)) return editDressUp(part, f)
   if (editSweep(part, f)) return
@@ -510,9 +513,12 @@ export function PdBodyRows({ ctx, part, body, bodyRow }: { ctx: TreeCtx; part: s
     return (
       <div key={r} className="pdgroup">
         <PdRow ctx={ctx} depth={depth} refKey={r} icon={ICON_OF[f.type] ?? pdxIcon(f.type) ?? 'part'} label={f.name} internal={f.name} desc={desc}
-          hidden={!featureVisible(s, part, f)} kids={kids.length > 0 || lcs} dflt={false} overlays={overlays} onDouble={() => editFeature(r)}
+          hidden={!featureVisible(s, part, f)} kids={kids.length > 0 || lcs || (isBoolean(f.type) && booleanChildRows(f).length > 0)} dflt={false} overlays={overlays} onDouble={() => editFeature(r)}
           title={after ? `${f.name} comes after the Tip (${doc.tip}): it is kept, not built` : undefined} />
         {kids.length > 0 && isOpen(r, false) && kids.map((k) => featureRow(k, depth + 1))}
+        {isBoolean(f.type) && isOpen(r, false) && booleanChildRows(f).map((t) => (
+          <PdRow key={t.link} ctx={ctx} depth={depth + 1} refKey={t.link.includes('.') ? refOf(linkBody(t.link), t.label) : refOf(t.link, '')} icon={t.link.includes('.') ? 'pd-pad' : 'body'}
+            label={t.label} internal={t.label} desc={`a tool: ${t.link}`} hidden={false} kids={false} dflt={false} />))}
         {lcs && isOpen(r, false) && ORIGIN.map(([n, label, icon]) => {
           // ViewProviderCoordinateSystem::claimChildren: its origin's features, labelled as FreeCAD's unique labels them
           const role = n === 'Origin001' ? 'Origin' : n, k = lcsIndex(f.name) + 1
@@ -548,6 +554,8 @@ export function featureTreeEntries(common: { expressionActions: Entry; linkActio
   const own: Entry[] = []
   if (f && isBinder(f.type)) own.push({ label: 'Edit Shape Binder', bold: true, onSelect: () => editFeature(one!) }, 'sep') // ViewProviderShapeBinder::setupContextMenu
   else if (f && isLast(f.type)) own.push(...lastTreeEntries(part, f, na, moveFeatureAfter))   // a gear, a Sub-Shape Binder (pd_last.tsx)
+  else if (f && isClone(f.type)) own.push(na('Set Face Colors', 'face colours are the material\'s here', { icon: 'pd-color-face' }), 'sep',   // no setEdit: no Edit entry
+    { label: 'Set Tip', icon: 'pd-move-tip', cmd: 'PartDesign_MoveTip', onSelect: () => void setTip() })
   else if (f && f.type !== SKETCH && !isDatum(f.type)) own.push({ label: `Edit ${f.name}`, bold: true, onSelect: () => editFeature(one!) }, na('Set Face Colors', 'face colours are the material\'s here', { icon: 'pd-color-face' }), 'sep',
     { label: 'Set Tip', icon: 'pd-move-tip', cmd: 'PartDesign_MoveTip', onSelect: () => void setTip() })
   if (f?.type === SKETCH) own.push({ label: 'Edit Sketch', bold: true, onSelect: () => editFeature(one!) },
@@ -578,7 +586,7 @@ export function featureTreeEntries(common: { expressionActions: Entry; linkActio
     { label: 'Paste', kbd: '⌘V', icon: 'edit-paste', disabled: true },
     { label: 'Delete', kbd: '⌫', icon: 'edit-delete', cmd: 'Std_Delete', disabled: !refs.some((r) => { const [, n] = splitRef(r); return !!n && !ORIGIN_NAMES.includes(n) }), onSelect: () => void deleteFeatures() },
     { label: 'Send to Console', kbd: '⇧⌘P', icon: 'console', onSelect: () => consoleLog('in', refs.map((r) => splitRef(r).join('.')).join(' ')) },
-    ...(f?.type === SKETCH || isBody || isLast(f?.type) ? [na('Transform', 'a Body\'s placement comes from assembly.py; select the part to move it', { icon: 'transform' }),
+    ...(f?.type === SKETCH || isBody || isLast(f?.type) || isBoolean(f?.type) || isClone(f?.type) ? [na('Transform', 'a Body\'s placement comes from assembly.py; select the part to move it', { icon: 'transform' }),
       na('Placement', 'a sketch is placed by its support and attachment offset', { icon: 'placement' })] : []),
     { label: 'Properties', kbd: '⌥↵', onSelect: common.properties },
     'sep',
@@ -700,6 +708,7 @@ export function FeatureProps({ refKey }: { refKey: string }) {
   }
   if (isBinder(f.type)) return <BinderProps part={part} f={f} set={set} onRename={(v) => void finishRename(refKey, v)} />
   if (isLast(f.type)) return <LastProps part={part} f={f} set={set} onRename={(v) => void finishRename(refKey, v)} />
+  if (isBoolean(f.type) || isClone(f.type)) return <BooleanProps part={part} f={f} set={set} onRename={(v) => void finishRename(refKey, v)} />
   if (REVOLVE_KINDS[f.type]) return <RevolveProps part={part} f={f} set={set} finishRename={(v) => void finishRename(refKey, v)} />
   if (isDressUp(f.type)) return <DressUpProps part={part} f={f} set={set} onRename={(n) => void finishRename(refKey, n)} />
   if (isPdx(f.type)) return <PdxProps part={part} name={name} />
@@ -1110,8 +1119,9 @@ export function ExtrudeTask({ kind, part, name, edit }: { kind: 'pad' | 'pocket'
 }
 
 // ── menus and toolbars (PartDesignGui::Workbench::setupMenuBar / setupToolBars) ─────────────
-const later = 'not yet: the PartDesign features after Pad and Pocket come later (docs/EDITING_PLAN.md, step 5)'
-const soon = (label: string, icon: IconName, cmd: string): Entry => ({ label, icon, cmd, disabled: true, title: later })
+// WizardShaft.py: a Python wizard with its own table, its matplotlib charts and its shaft calculation, writing a sketch
+// and a Revolution through FreeCAD's document API; not ported (ui/PARITY.md, "PartDesign's last commands")
+const SHAFT_WIZARD = 'n/a: the Shaft Design Wizard is a Python wizard (its own table, charts and shaft calculation) that is not ported'
 const hasDoc = () => !!getState().slug
 /** The Sketcher's commands on sketch objects (sketchobjcmds.tsx), as the Sketch menu's entries. */
 const skObj = (cmd: string) => ({ disabled: !isSketchCmdEnabled(cmd), onSelect: () => runSketchCommand(cmd) })
@@ -1138,7 +1148,7 @@ export function partDesignMenu(): Entry[] {
     { label: 'New Body', icon: 'body', cmd: 'PartDesign_Body', onSelect: () => void createBody() },
     'sep',
     { label: 'Shape Binder', icon: 'pd-shape-binder', cmd: 'PartDesign_ShapeBinder', disabled: !doc, onSelect: () => void shapeBinder() },
-    subShapeBinderEntry(doc), soon('Clone', 'pd-clone', 'PartDesign_Clone'),
+    subShapeBinderEntry(doc), booleanEntries(doc).clone,
     'sep',
     { label: 'Additive Features', sub: [
       { label: 'Pad', icon: 'pd-pad', cmd: 'PartDesign_Pad', disabled: !doc, onSelect: () => void padOrPocket('pad') },
@@ -1154,7 +1164,7 @@ export function partDesignMenu(): Entry[] {
     'sep',
     { label: 'Transformation Features', sub: transformMenu() },
     'sep',
-    soon('Boolean Operation', 'pd-boolean', 'PartDesign_Boolean'),
+    booleanEntries(doc).boolean,
     'sep',
     { label: 'Inspect Appearance', icon: 'material', cmd: 'Materials_InspectAppearance', disabled: true, title: 'n/a: materials are set in the part\'s source' },
     { label: 'Inspect Material', icon: 'material', cmd: 'Materials_InspectMaterial', disabled: true, title: 'n/a: materials are set in the part\'s source' },
@@ -1163,7 +1173,7 @@ export function partDesignMenu(): Entry[] {
     'sep',
     gearEntries(doc).gear, gearEntries(doc).sprocket,
     'sep',
-    soon('Shaft Design Wizard', 'pd-wizard-shaft', 'PartDesign_WizardShaft'),
+    { label: 'Shaft Design Wizard', icon: 'pd-wizard-shaft', cmd: 'PartDesign_WizardShaft', disabled: true, title: SHAFT_WIZARD },
   ]
 }
 /** The workbench's four toolbars, button by button (setupToolBars). Groups (Create Datum's sketch commands, the primitives)
@@ -1179,7 +1189,7 @@ export function pdToolbars(): [string, Entry[]][] {
       byLabel(m, 'Check Geometry'), byLabel(m, 'Sub-Shape Binder'), byLabel(m, 'Clone')]],
     ['Part Design Modeling Features', [...pad, primitiveGroup('Additive'), 'sep',
       ...pocket, primitiveGroup('Subtractive'), 'sep',
-      soon('Boolean Operation', 'pd-boolean', 'PartDesign_Boolean')]],
+      booleanEntries(doc).boolean]],
     ['Part Design Dress-Up Features', sub('Dress-Up Features')],
     ['Part Design Transformation Features', sub('Transformation Features')],
   ].map(([t, e]) => [t as string, (e as Entry[]).map((x) => (x !== 'sep' && x.cmd === 'PartDesign_Pad' ? { ...x, disabled: !doc } : x))])

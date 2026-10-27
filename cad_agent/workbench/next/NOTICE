@@ -61,7 +61,8 @@ them carry.
       Mod/PartDesign/Gui/TaskScaledParameters.cpp, Mod/PartDesign/Gui/TaskSketchBasedParameters.cpp,
       Mod/PartDesign/Gui/TaskTransformedParameters.cpp, Mod/PartDesign/Gui/ViewProviderDressUp.cpp,
       Mod/PartDesign/Gui/ViewProviderScaled.cpp, Mod/PartDesign/Gui/ViewProviderTransformed.cpp,
-      Mod/PartDesign/App/FeatureMultiTransform.cpp, Mod/PartDesign/App/FeatureScaled.cpp
+      Mod/PartDesign/App/FeatureMultiTransform.cpp, Mod/PartDesign/App/FeatureScaled.cpp,
+      Mod/PartDesign/Gui/TaskBooleanParameters.cpp, Mod/PartDesign/Gui/ViewProviderBoolean.cpp
   Joao Matos: Gui/Inventor/SoFCBackgroundGradient.cpp, Gui/Inventor/SoNaviCube.cpp,
       Gui/NaviCube.cpp, Gui/SoDatumLabel.cpp, Gui/View3DInventorViewer.cpp,
       Mod/Part/Gui/SoBrepFaceSet.cpp
@@ -92,7 +93,7 @@ them carry.
       Mod/Sketcher/Gui/TaskSketcherConstraints.cpp, Mod/Sketcher/Gui/TaskSketcherMessages.cpp,
       Mod/Sketcher/Gui/Workbench.cpp,
       Mod/Sketcher/App/SketchObjectPyImp.cpp, Mod/Sketcher/Gui/CommandAlterGeometry.cpp
-  Kacper Donat: Mod/PartDesign/Gui/StyleParameters.h
+  Kacper Donat: Mod/PartDesign/Gui/StyleParameters.h, Mod/PartDesign/Gui/ViewProviderBoolean.cpp
   Kirill Gavrilov: Gui/Navigation/OpenCascadeNavigationStyle.cpp
   Kustaa Nyholm: Gui/NaviCube.cpp
   Loke S. Haugsnes: Mod/Measure/Gui/TaskMeasure.cpp
@@ -927,7 +928,7 @@ src/Mod/PartDesign/App/ShapeBinder.cpp   [licence: LGPL-2.1-or-later]
 src/Mod/PartDesign/Gui/Command.cpp   [licence: LGPL-2.1-or-later]
     copyright 2008 Jürgen Riegel
     followed by src/fctips.ts, src/partdesign.tsx, src/pd_dressup.tsx, src/pd_revolve.tsx,
-        src/pd_sweep.tsx, src/pd_transform.tsx, src/pd_binder.tsx, src/pd_last.tsx
+        src/pd_sweep.tsx, src/pd_transform.tsx, src/pd_binder.tsx, src/pd_last.tsx, src/pd_boolean.tsx
 src/Mod/PartDesign/Gui/CommandBody.cpp   [licence: LGPL-2.1-or-later]
     copyright 2015 Alexander Golubev (Fat-Zer)
     followed by src/fctips.ts, src/partdesign.tsx
@@ -943,6 +944,12 @@ src/Mod/PartDesign/Gui/SketchWorkflow.cpp   [licence: LGPL-2.1-or-later]
 src/Mod/PartDesign/Gui/StyleParameters.h   [licence: LGPL-2.1-or-later]
     copyright 2025 Kacper Donat
     followed by src/partdesign.tsx, src/pd_dressup.tsx
+src/Mod/PartDesign/Gui/TaskBooleanParameters.cpp   [licence: LGPL-2.1-or-later]
+    copyright 2013 Jan Rheinländer
+    followed by src/pd_boolean.tsx
+src/Mod/PartDesign/Gui/TaskBooleanParameters.ui   [licence: none]
+    copyright: no line in the file
+    followed by src/pd_boolean.tsx
 src/Mod/PartDesign/Gui/TaskChamferParameters.cpp   [licence: LGPL-2.1-or-later]
     copyright 2011 Juergen Riegel
     followed by src/pd_dressup.tsx
@@ -1066,6 +1073,9 @@ src/Mod/PartDesign/Gui/TaskTransformedParameters.ui   [licence: none]
 src/Mod/PartDesign/Gui/ViewProvider.cpp   [licence: LGPL-2.1-or-later]
     copyright 2011 Juergen Riegel
     followed by src/partdesign.tsx
+src/Mod/PartDesign/Gui/ViewProviderBoolean.cpp   [licence: LGPL-2.1-or-later]
+    copyright 2013 Jan Rheinländer; 2025 Kacper Donat
+    followed by src/pd_boolean.tsx
 src/Mod/PartDesign/Gui/ViewProviderDressUp.cpp   [licence: LGPL-2.1-or-later]
     copyright 2012 Jan Rheinländer
     followed by src/pd_dressup.tsx
