@@ -114,6 +114,49 @@ def test_gear_wire_as_freecad(name):
         assert [_r(c) for c in (*pl.pos, *pl.rot.ypr())] == pytest.approx(w["placement"], abs=1e-9)
 
 
+@pytest.mark.parametrize("name", sorted(_cases.DEFEATURING))
+def test_defeaturing_as_freecad(name):
+    """The Defeaturing's own Shape is the Body's (it is the Tip), with FreeCAD's faces in FreeCAD's order."""
+    case, want = CASES[name], FREECAD[name]
+    ev = _evaluate(name)
+    w = want["objects"]["Defeaturing"]
+    assert w["type"] == "PartDesign::Defeaturing" and w["valid"]
+    got = _measure(ev["Defeaturing"])
+    _same(got, w["shape"], "Defeaturing")
+    assert (got["faces"], got["edges"]) == (w["shape"]["faces"], w["shape"]["edges"])
+
+
+TYPES = {"COMPOUND": "Compound", "SOLID": "Solid", "SHELL": "Shell", "FACE": "Face", "WIRE": "Wire", "EDGE": "Edge",
+         "VERTEX": "Vertex", "COMPSOLID": "CompSolid"}
+
+
+@pytest.mark.parametrize("name", sorted(_cases.SUBBINDER))
+def test_subshapebinder_as_freecad(name):
+    """The binder's Shape (its type, counts, size, where its Placement puts it) and Support are FreeCAD's."""
+    case, want = CASES[name], FREECAD[name]
+    ev = _evaluate(name)
+    ctx = ev["_attach"]
+    for f in case["features"]:
+        if type(f).__name__ != "SubShapeBinder":
+            continue
+        w = want["objects"][f.name]
+        assert w["type"] == "PartDesign::SubShapeBinder" and w["valid"]
+        assert ctx.kinds[f.name] == "binder"
+        shape = ctx.shapes[f.name]
+        ws = w["shape"]
+        if ws.get("null"):
+            assert shape is None or shape.IsNull()
+            continue
+        got = _measure(shape)
+        assert TYPES[shape.ShapeType().name.replace("TopAbs_", "")] == ws["type"]
+        assert (got["solids"], got["faces"], got["edges"], got["vertices"]) == \
+            (ws["solids"], ws["faces"], ws["edges"], ws["vertices"])
+        _same(got, ws, f"{f.name}")
+        pl = ctx.placements[f.name]
+        assert [_r(c) for c in (*pl.pos, *pl.rot.ypr())] == pytest.approx(w["placement"], abs=1e-9)
+        assert [_r(c) for c in (*pl.pos, *pl.rot.ypr())] == pytest.approx(ws["placement"], abs=1e-9)
+
+
 @pytest.mark.parametrize("name", sorted(CASES))
 def test_tip_as_freecad(name):
     """The Tip our part file reads for these FEATURES (no TIP =): a gear is not a solid feature, as a sketch is not."""
@@ -170,3 +213,32 @@ def test_gear_part_file_round_trip(tmp_path):
         E.apply_src(src, [{"op": "delete", "name": "InvoluteGear"}])
     with pytest.raises(E.FeatureEditError, match="not one of"):
         E.apply_src(src, [{"op": "set", "name": "Sprocket", "props": {"sprocket_reference": "ANSI 99"}}])
+
+
+PLATE = Path(__file__).parent / "fixtures" / "feature_plate" / "parts" / "plate.py"
+
+
+def test_defeaturing_and_subshapebinder_part_file_round_trip(tmp_path):
+    """Both go through the part file as every dress-up and binder does: written with only what is not FreeCAD's
+    default, read back with every property, refused where FreeCAD's Body would not build them, renamed with what they
+    link."""
+    src = E.apply_src(PLATE.read_text(), [
+        {"op": "add", "feature": {"name": "Defeaturing", "type": "PartDesign::Defeaturing",
+                                  "base": ["TiePocket", ["Face1"]]}},
+        {"op": "add", "feature": {"name": "Binder", "type": "PartDesign::SubShapeBinder",
+                                  "support": [["Defeaturing", "Face6"], ["Pad", "Face1"]], "offset": 1.0}},
+        {"op": "tip", "name": "Defeaturing"},
+    ])
+    assert 'Defeaturing("Defeaturing", ("TiePocket", ["Face1"]))' in src
+    assert 'SubShapeBinder("Binder", support=[("Defeaturing", "Face6"), ("Pad", "Face1")], offset=1.0)' in src
+    d = E.read_src(src)
+    assert d["tip"] == "Defeaturing"
+    b = next(f for f in d["features"] if f["name"] == "Binder")
+    assert b["make_face"] is True and b["bind_mode"] == "Synchronized" and b["refine"] is True
+    _build(src, tmp_path)                            # it builds
+    with pytest.raises(E.FeatureEditError, match="Binder"):
+        E.apply_src(src, [{"op": "delete", "name": "Defeaturing"}])     # the binder uses it
+    with pytest.raises(E.FeatureEditError, match="Synchronized"):
+        E.apply_src(src, [{"op": "set", "name": "Binder", "props": {"bind_mode": "Frozen"}}])
+    src = E.apply_src(src, [{"op": "rename", "name": "Pad", "to": "Plate"}])
+    assert '("Plate", "Face1")' in src

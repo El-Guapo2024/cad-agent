@@ -120,7 +120,8 @@ def shapes_after(path: Path, ops: list, name: str | None):
         raise UsageError(f"{path.stem} has no feature {target!r}")
     i = names.index(target)
     # Body::isSolidFeature: a sketch, a datum and a binder are not solids, so the base is the last solid before it
-    non_solid = {"Sketcher::SketchObject", ShapeBinder.TYPE_ID} | {c.type_id for c in DATUMS.values()}
+    non_solid = {"Sketcher::SketchObject", ShapeBinder.TYPE_ID, "PartDesign::SubShapeBinder", "Part::InvoluteGear",
+                 "Part::Sprocket"} | {c.type_id for c in DATUMS.values()}
     base_name = next((f["name"] for f in reversed(doc["features"][:i]) if f["type"] not in non_solid),
                      "BaseFeature" if doc.get("base") else None)
     error = None

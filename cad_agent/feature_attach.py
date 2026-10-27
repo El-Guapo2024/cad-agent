@@ -431,7 +431,8 @@ class Context:
         if f.name in self.kinds:
             raise FeatureError(f"two features are named {f.name!r}")
         from .feature_binder import binder_shape
-        shape = binder_shape(f, self)
+        # a SubShapeBinder builds its own (feature_subbinder.py)
+        shape = f.bound_shape(self) if hasattr(f, "bound_shape") else binder_shape(f, self)
         pl = A.Placement.from_trsf(shape.Location().Transformation()) \
             if shape is not None and not shape.IsNull() else A.Placement()
         self.shapes[f.name] = shape

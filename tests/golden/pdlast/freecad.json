@@ -1,5 +1,1454 @@
 {
  "cases": {
+  "defeat_boss": {
+   "body": {
+    "area": 2200.0,
+    "bbox": [
+     0.0,
+     0.0,
+     0.0,
+     40.0,
+     20.0,
+     5.0
+    ],
+    "center": [
+     20.0,
+     10.0,
+     2.5
+    ],
+    "edges": 12,
+    "faces": 6,
+    "placement": [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "solids": 1,
+    "type": "Compound",
+    "vertices": 8,
+    "volume": 4000.0
+   },
+   "objects": {
+    "Defeaturing": {
+     "placement": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "shape": {
+      "area": 2200.0,
+      "bbox": [
+       0.0,
+       0.0,
+       0.0,
+       40.0,
+       20.0,
+       5.0
+      ],
+      "center": [
+       20.0,
+       10.0,
+       2.5
+      ],
+      "edges": 12,
+      "faces": 6,
+      "placement": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ],
+      "solids": 1,
+      "type": "Compound",
+      "vertices": 8,
+      "volume": 4000.0
+     },
+     "type": "PartDesign::Defeaturing",
+     "valid": true
+    },
+    "Pad": {
+     "placement": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "shape": {
+      "area": 2200.0,
+      "bbox": [
+       0.0,
+       0.0,
+       0.0,
+       40.0,
+       20.0,
+       5.0
+      ],
+      "center": [
+       20.0,
+       10.0,
+       2.5
+      ],
+      "edges": 12,
+      "faces": 6,
+      "placement": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ],
+      "solids": 1,
+      "type": "Solid",
+      "vertices": 8,
+      "volume": 4000.0
+     },
+     "type": "PartDesign::Pad",
+     "valid": true
+    },
+    "Pad001": {
+     "placement": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "shape": {
+      "area": 2320.0,
+      "bbox": [
+       0.0,
+       0.0,
+       0.0,
+       40.0,
+       20.0,
+       8.0
+      ],
+      "center": [
+       19.651162791,
+       10.0,
+       2.779069767
+      ],
+      "edges": 24,
+      "faces": 11,
+      "placement": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ],
+      "solids": 1,
+      "type": "Compound",
+      "vertices": 16,
+      "volume": 4300.0
+     },
+     "type": "PartDesign::Pad",
+     "valid": true
+    }
+   },
+   "tip": "Defeaturing"
+  },
+  "defeat_boss_and_top": {
+   "body": {
+    "area": 2320.0,
+    "bbox": [
+     0.0,
+     0.0,
+     0.0,
+     40.0,
+     20.0,
+     8.0
+    ],
+    "center": [
+     19.651162791,
+     10.0,
+     2.779069767
+    ],
+    "edges": 24,
+    "faces": 11,
+    "placement": [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "solids": 1,
+    "type": "Compound",
+    "vertices": 16,
+    "volume": 4300.0
+   },
+   "objects": {
+    "Defeaturing": {
+     "placement": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "shape": {
+      "area": 2320.0,
+      "bbox": [
+       0.0,
+       0.0,
+       0.0,
+       40.0,
+       20.0,
+       8.0
+      ],
+      "center": [
+       19.651162791,
+       10.0,
+       2.779069767
+      ],
+      "edges": 24,
+      "faces": 11,
+      "placement": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ],
+      "solids": 1,
+      "type": "Compound",
+      "vertices": 16,
+      "volume": 4300.0
+     },
+     "type": "PartDesign::Defeaturing",
+     "valid": true
+    },
+    "Pad": {
+     "placement": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "shape": {
+      "area": 2200.0,
+      "bbox": [
+       0.0,
+       0.0,
+       0.0,
+       40.0,
+       20.0,
+       5.0
+      ],
+      "center": [
+       20.0,
+       10.0,
+       2.5
+      ],
+      "edges": 12,
+      "faces": 6,
+      "placement": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ],
+      "solids": 1,
+      "type": "Solid",
+      "vertices": 8,
+      "volume": 4000.0
+     },
+     "type": "PartDesign::Pad",
+     "valid": true
+    },
+    "Pad001": {
+     "placement": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "shape": {
+      "area": 2320.0,
+      "bbox": [
+       0.0,
+       0.0,
+       0.0,
+       40.0,
+       20.0,
+       8.0
+      ],
+      "center": [
+       19.651162791,
+       10.0,
+       2.779069767
+      ],
+      "edges": 24,
+      "faces": 11,
+      "placement": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ],
+      "solids": 1,
+      "type": "Compound",
+      "vertices": 16,
+      "volume": 4300.0
+     },
+     "type": "PartDesign::Pad",
+     "valid": true
+    }
+   },
+   "tip": "Defeaturing"
+  },
+  "defeat_chamfer": {
+   "body": {
+    "area": 2200.0,
+    "bbox": [
+     0.0,
+     0.0,
+     0.0,
+     40.0,
+     20.0,
+     5.0
+    ],
+    "center": [
+     20.0,
+     10.0,
+     2.5
+    ],
+    "edges": 12,
+    "faces": 6,
+    "placement": [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "solids": 1,
+    "type": "Compound",
+    "vertices": 8,
+    "volume": 4000.0
+   },
+   "objects": {
+    "Chamfer": {
+     "placement": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "shape": {
+      "area": 2193.356601718,
+      "bbox": [
+       0.0,
+       0.0,
+       0.0,
+       40.0,
+       20.0,
+       5.0
+      ],
+      "center": [
+       19.972539509,
+       10.013378188,
+       2.5
+      ],
+      "edges": 15,
+      "faces": 7,
+      "placement": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ],
+      "solids": 1,
+      "type": "Compound",
+      "vertices": 10,
+      "volume": 3994.375
+     },
+     "type": "PartDesign::Chamfer",
+     "valid": true
+    },
+    "Defeaturing": {
+     "placement": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "shape": {
+      "area": 2200.0,
+      "bbox": [
+       0.0,
+       0.0,
+       0.0,
+       40.0,
+       20.0,
+       5.0
+      ],
+      "center": [
+       20.0,
+       10.0,
+       2.5
+      ],
+      "edges": 12,
+      "faces": 6,
+      "placement": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ],
+      "solids": 1,
+      "type": "Compound",
+      "vertices": 8,
+      "volume": 4000.0
+     },
+     "type": "PartDesign::Defeaturing",
+     "valid": true
+    },
+    "Pad": {
+     "placement": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "shape": {
+      "area": 2200.0,
+      "bbox": [
+       0.0,
+       0.0,
+       0.0,
+       40.0,
+       20.0,
+       5.0
+      ],
+      "center": [
+       20.0,
+       10.0,
+       2.5
+      ],
+      "edges": 12,
+      "faces": 6,
+      "placement": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ],
+      "solids": 1,
+      "type": "Solid",
+      "vertices": 8,
+      "volume": 4000.0
+     },
+     "type": "PartDesign::Pad",
+     "valid": true
+    }
+   },
+   "tip": "Defeaturing"
+  },
+  "defeat_fillet": {
+   "body": {
+    "area": 2200.0,
+    "bbox": [
+     0.0,
+     0.0,
+     0.0,
+     40.0,
+     20.0,
+     5.0
+    ],
+    "center": [
+     20.0,
+     10.0,
+     2.5
+    ],
+    "edges": 12,
+    "faces": 6,
+    "placement": [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "solids": 1,
+    "type": "Compound",
+    "vertices": 8,
+    "volume": 4000.0
+   },
+   "objects": {
+    "Defeaturing": {
+     "placement": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "shape": {
+      "area": 2200.0,
+      "bbox": [
+       0.0,
+       0.0,
+       0.0,
+       40.0,
+       20.0,
+       5.0
+      ],
+      "center": [
+       20.0,
+       10.0,
+       2.5
+      ],
+      "edges": 12,
+      "faces": 6,
+      "placement": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ],
+      "solids": 1,
+      "type": "Compound",
+      "vertices": 8,
+      "volume": 4000.0
+     },
+     "type": "PartDesign::Defeaturing",
+     "valid": true
+    },
+    "Fillet": {
+     "placement": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "shape": {
+      "area": 2159.088484089,
+      "bbox": [
+       0.0,
+       0.0,
+       0.0,
+       40.0,
+       20.0,
+       5.0
+      ],
+      "center": [
+       20.017420423,
+       10.091253145,
+       2.517420422
+      ],
+      "edges": 17,
+      "faces": 8,
+      "placement": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ],
+      "solids": 1,
+      "type": "Compound",
+      "vertices": 11,
+      "volume": 3962.138632084
+     },
+     "type": "PartDesign::Fillet",
+     "valid": true
+    },
+    "Pad": {
+     "placement": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "shape": {
+      "area": 2200.0,
+      "bbox": [
+       0.0,
+       0.0,
+       0.0,
+       40.0,
+       20.0,
+       5.0
+      ],
+      "center": [
+       20.0,
+       10.0,
+       2.5
+      ],
+      "edges": 12,
+      "faces": 6,
+      "placement": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ],
+      "solids": 1,
+      "type": "Solid",
+      "vertices": 8,
+      "volume": 4000.0
+     },
+     "type": "PartDesign::Pad",
+     "valid": true
+    }
+   },
+   "tip": "Defeaturing"
+  },
+  "defeat_hole": {
+   "body": {
+    "area": 2200.0,
+    "bbox": [
+     0.0,
+     0.0,
+     0.0,
+     40.0,
+     20.0,
+     5.0
+    ],
+    "center": [
+     20.0,
+     10.0,
+     2.5
+    ],
+    "edges": 12,
+    "faces": 6,
+    "placement": [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "solids": 1,
+    "type": "Compound",
+    "vertices": 8,
+    "volume": 4000.0
+   },
+   "objects": {
+    "Defeaturing": {
+     "placement": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "shape": {
+      "area": 2200.0,
+      "bbox": [
+       0.0,
+       0.0,
+       0.0,
+       40.0,
+       20.0,
+       5.0
+      ],
+      "center": [
+       20.0,
+       10.0,
+       2.5
+      ],
+      "edges": 12,
+      "faces": 6,
+      "placement": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ],
+      "solids": 1,
+      "type": "Compound",
+      "vertices": 8,
+      "volume": 4000.0
+     },
+     "type": "PartDesign::Defeaturing",
+     "valid": true
+    },
+    "Pad": {
+     "placement": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "shape": {
+      "area": 2200.0,
+      "bbox": [
+       0.0,
+       0.0,
+       0.0,
+       40.0,
+       20.0,
+       5.0
+      ],
+      "center": [
+       20.0,
+       10.0,
+       2.5
+      ],
+      "edges": 12,
+      "faces": 6,
+      "placement": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ],
+      "solids": 1,
+      "type": "Solid",
+      "vertices": 8,
+      "volume": 4000.0
+     },
+     "type": "PartDesign::Pad",
+     "valid": true
+    },
+    "Pocket": {
+     "placement": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "shape": {
+      "area": 2237.699111843,
+      "bbox": [
+       0.0,
+       0.0,
+       0.0,
+       40.0,
+       20.0,
+       5.0
+      ],
+      "center": [
+       20.0,
+       10.0,
+       2.5
+      ],
+      "edges": 15,
+      "faces": 7,
+      "placement": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ],
+      "solids": 1,
+      "type": "Compound",
+      "vertices": 10,
+      "volume": 3858.628330588
+     },
+     "type": "PartDesign::Pocket",
+     "valid": true
+    }
+   },
+   "tip": "Defeaturing"
+  },
+  "defeat_hole_unrefined": {
+   "body": {
+    "area": 2200.0,
+    "bbox": [
+     0.0,
+     0.0,
+     0.0,
+     40.0,
+     20.0,
+     5.0
+    ],
+    "center": [
+     20.0,
+     10.0,
+     2.5
+    ],
+    "edges": 12,
+    "faces": 6,
+    "placement": [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "solids": 1,
+    "type": "Compound",
+    "vertices": 8,
+    "volume": 4000.0
+   },
+   "objects": {
+    "Defeaturing": {
+     "placement": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "shape": {
+      "area": 2200.0,
+      "bbox": [
+       0.0,
+       0.0,
+       0.0,
+       40.0,
+       20.0,
+       5.0
+      ],
+      "center": [
+       20.0,
+       10.0,
+       2.5
+      ],
+      "edges": 12,
+      "faces": 6,
+      "placement": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ],
+      "solids": 1,
+      "type": "Compound",
+      "vertices": 8,
+      "volume": 4000.0
+     },
+     "type": "PartDesign::Defeaturing",
+     "valid": true
+    },
+    "Pad": {
+     "placement": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "shape": {
+      "area": 2200.0,
+      "bbox": [
+       0.0,
+       0.0,
+       0.0,
+       40.0,
+       20.0,
+       5.0
+      ],
+      "center": [
+       20.0,
+       10.0,
+       2.5
+      ],
+      "edges": 12,
+      "faces": 6,
+      "placement": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ],
+      "solids": 1,
+      "type": "Solid",
+      "vertices": 8,
+      "volume": 4000.0
+     },
+     "type": "PartDesign::Pad",
+     "valid": true
+    },
+    "Pocket": {
+     "placement": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "shape": {
+      "area": 2237.699111843,
+      "bbox": [
+       0.0,
+       0.0,
+       0.0,
+       40.0,
+       20.0,
+       5.0
+      ],
+      "center": [
+       20.0,
+       10.0,
+       2.5
+      ],
+      "edges": 15,
+      "faces": 7,
+      "placement": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ],
+      "solids": 1,
+      "type": "Compound",
+      "vertices": 10,
+      "volume": 3858.628330588
+     },
+     "type": "PartDesign::Pocket",
+     "valid": true
+    }
+   },
+   "tip": "Defeaturing"
+  },
+  "defeat_nothing": {
+   "body": {
+    "area": 2237.699111843,
+    "bbox": [
+     0.0,
+     0.0,
+     0.0,
+     40.0,
+     20.0,
+     5.0
+    ],
+    "center": [
+     20.0,
+     10.0,
+     2.5
+    ],
+    "edges": 15,
+    "faces": 7,
+    "placement": [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "solids": 1,
+    "type": "Compound",
+    "vertices": 10,
+    "volume": 3858.628330588
+   },
+   "objects": {
+    "Defeaturing": {
+     "placement": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "shape": {
+      "area": 2237.699111843,
+      "bbox": [
+       0.0,
+       0.0,
+       0.0,
+       40.0,
+       20.0,
+       5.0
+      ],
+      "center": [
+       20.0,
+       10.0,
+       2.5
+      ],
+      "edges": 15,
+      "faces": 7,
+      "placement": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ],
+      "solids": 1,
+      "type": "Compound",
+      "vertices": 10,
+      "volume": 3858.628330588
+     },
+     "type": "PartDesign::Defeaturing",
+     "valid": true
+    },
+    "Pad": {
+     "placement": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "shape": {
+      "area": 2200.0,
+      "bbox": [
+       0.0,
+       0.0,
+       0.0,
+       40.0,
+       20.0,
+       5.0
+      ],
+      "center": [
+       20.0,
+       10.0,
+       2.5
+      ],
+      "edges": 12,
+      "faces": 6,
+      "placement": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ],
+      "solids": 1,
+      "type": "Solid",
+      "vertices": 8,
+      "volume": 4000.0
+     },
+     "type": "PartDesign::Pad",
+     "valid": true
+    },
+    "Pocket": {
+     "placement": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "shape": {
+      "area": 2237.699111843,
+      "bbox": [
+       0.0,
+       0.0,
+       0.0,
+       40.0,
+       20.0,
+       5.0
+      ],
+      "center": [
+       20.0,
+       10.0,
+       2.5
+      ],
+      "edges": 15,
+      "faces": 7,
+      "placement": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ],
+      "solids": 1,
+      "type": "Compound",
+      "vertices": 10,
+      "volume": 3858.628330588
+     },
+     "type": "PartDesign::Pocket",
+     "valid": true
+    }
+   },
+   "tip": "Defeaturing"
+  },
+  "defeat_side_face": {
+   "body": {
+    "area": 2200.0,
+    "bbox": [
+     0.0,
+     0.0,
+     0.0,
+     40.0,
+     20.0,
+     5.0
+    ],
+    "center": [
+     20.0,
+     10.0,
+     2.5
+    ],
+    "edges": 12,
+    "faces": 6,
+    "placement": [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "solids": 1,
+    "type": "Solid",
+    "vertices": 8,
+    "volume": 4000.0
+   },
+   "objects": {
+    "Defeaturing": {
+     "placement": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "shape": {
+      "area": 2200.0,
+      "bbox": [
+       0.0,
+       0.0,
+       0.0,
+       40.0,
+       20.0,
+       5.0
+      ],
+      "center": [
+       20.0,
+       10.0,
+       2.5
+      ],
+      "edges": 12,
+      "faces": 6,
+      "placement": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ],
+      "solids": 1,
+      "type": "Solid",
+      "vertices": 8,
+      "volume": 4000.0
+     },
+     "type": "PartDesign::Defeaturing",
+     "valid": true
+    },
+    "Pad": {
+     "placement": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "shape": {
+      "area": 2200.0,
+      "bbox": [
+       0.0,
+       0.0,
+       0.0,
+       40.0,
+       20.0,
+       5.0
+      ],
+      "center": [
+       20.0,
+       10.0,
+       2.5
+      ],
+      "edges": 12,
+      "faces": 6,
+      "placement": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ],
+      "solids": 1,
+      "type": "Solid",
+      "vertices": 8,
+      "volume": 4000.0
+     },
+     "type": "PartDesign::Pad",
+     "valid": true
+    }
+   },
+   "tip": "Defeaturing"
+  },
+  "defeat_then_pad": {
+   "body": {
+    "area": 2260.0,
+    "bbox": [
+     0.0,
+     0.0,
+     0.0,
+     40.0,
+     20.0,
+     7.0
+    ],
+    "center": [
+     20.304878049,
+     10.0,
+     2.585365854
+    ],
+    "edges": 24,
+    "faces": 11,
+    "placement": [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "solids": 1,
+    "type": "Compound",
+    "vertices": 16,
+    "volume": 4100.0
+   },
+   "objects": {
+    "Defeaturing": {
+     "placement": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "shape": {
+      "area": 2200.0,
+      "bbox": [
+       0.0,
+       0.0,
+       0.0,
+       40.0,
+       20.0,
+       5.0
+      ],
+      "center": [
+       20.0,
+       10.0,
+       2.5
+      ],
+      "edges": 12,
+      "faces": 6,
+      "placement": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ],
+      "solids": 1,
+      "type": "Compound",
+      "vertices": 8,
+      "volume": 4000.0
+     },
+     "type": "PartDesign::Defeaturing",
+     "valid": true
+    },
+    "Pad": {
+     "placement": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "shape": {
+      "area": 2200.0,
+      "bbox": [
+       0.0,
+       0.0,
+       0.0,
+       40.0,
+       20.0,
+       5.0
+      ],
+      "center": [
+       20.0,
+       10.0,
+       2.5
+      ],
+      "edges": 12,
+      "faces": 6,
+      "placement": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ],
+      "solids": 1,
+      "type": "Solid",
+      "vertices": 8,
+      "volume": 4000.0
+     },
+     "type": "PartDesign::Pad",
+     "valid": true
+    },
+    "Pad002": {
+     "placement": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "shape": {
+      "area": 2260.0,
+      "bbox": [
+       0.0,
+       0.0,
+       0.0,
+       40.0,
+       20.0,
+       7.0
+      ],
+      "center": [
+       20.304878049,
+       10.0,
+       2.585365854
+      ],
+      "edges": 24,
+      "faces": 11,
+      "placement": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ],
+      "solids": 1,
+      "type": "Compound",
+      "vertices": 16,
+      "volume": 4100.0
+     },
+     "type": "PartDesign::Pad",
+     "valid": true
+    },
+    "Pocket": {
+     "placement": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "shape": {
+      "area": 2237.699111843,
+      "bbox": [
+       0.0,
+       0.0,
+       0.0,
+       40.0,
+       20.0,
+       5.0
+      ],
+      "center": [
+       20.0,
+       10.0,
+       2.5
+      ],
+      "edges": 15,
+      "faces": 7,
+      "placement": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ],
+      "solids": 1,
+      "type": "Compound",
+      "vertices": 10,
+      "volume": 3858.628330588
+     },
+     "type": "PartDesign::Pocket",
+     "valid": true
+    }
+   },
+   "tip": "Pad002"
+  },
   "gear_default": {
    "body": {
     "area": 8572.471247388,
@@ -1451,6 +2900,2512 @@
     }
    },
    "tip": "Pad"
+  },
+  "ssb_datum_plane": {
+   "body": {
+    "area": 2200.0,
+    "bbox": [
+     0.0,
+     0.0,
+     0.0,
+     40.0,
+     20.0,
+     5.0
+    ],
+    "center": [
+     20.0,
+     10.0,
+     2.5
+    ],
+    "edges": 12,
+    "faces": 6,
+    "placement": [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "solids": 1,
+    "type": "Solid",
+    "vertices": 8,
+    "volume": 4000.0
+   },
+   "objects": {
+    "Binder": {
+     "placement": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "shape": {
+      "area": 8e+100,
+      "bbox": [
+       -1e+100,
+       -1e+100,
+       5.0,
+       1e+100,
+       1e+100,
+       5.0
+      ],
+      "edges": 0,
+      "faces": 1,
+      "placement": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ],
+      "solids": 0,
+      "type": "Compound",
+      "vertices": 0
+     },
+     "type": "PartDesign::SubShapeBinder",
+     "valid": true
+    },
+    "DatumPlane": {
+     "placement": [
+      0.0,
+      0.0,
+      5.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "shape": {
+      "area": 8e+100,
+      "bbox": [
+       -1e+100,
+       -1e+100,
+       5.0,
+       1e+100,
+       1e+100,
+       5.0
+      ],
+      "edges": 0,
+      "faces": 1,
+      "placement": [
+       0.0,
+       0.0,
+       5.0,
+       0.0,
+       0.0,
+       0.0
+      ],
+      "solids": 0,
+      "type": "Face",
+      "vertices": 0
+     },
+     "type": "PartDesign::Plane",
+     "valid": true
+    },
+    "Pad": {
+     "placement": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "shape": {
+      "area": 2200.0,
+      "bbox": [
+       0.0,
+       0.0,
+       0.0,
+       40.0,
+       20.0,
+       5.0
+      ],
+      "center": [
+       20.0,
+       10.0,
+       2.5
+      ],
+      "edges": 12,
+      "faces": 6,
+      "placement": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ],
+      "solids": 1,
+      "type": "Solid",
+      "vertices": 8,
+      "volume": 4000.0
+     },
+     "type": "PartDesign::Pad",
+     "valid": true
+    }
+   },
+   "tip": "Pad"
+  },
+  "ssb_empty": {
+   "body": {
+    "area": 2200.0,
+    "bbox": [
+     0.0,
+     0.0,
+     0.0,
+     40.0,
+     20.0,
+     5.0
+    ],
+    "center": [
+     20.0,
+     10.0,
+     2.5
+    ],
+    "edges": 12,
+    "faces": 6,
+    "placement": [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "solids": 1,
+    "type": "Solid",
+    "vertices": 8,
+    "volume": 4000.0
+   },
+   "objects": {
+    "Binder": {
+     "placement": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "shape": {
+      "null": true
+     },
+     "type": "PartDesign::SubShapeBinder",
+     "valid": true
+    },
+    "Pad": {
+     "placement": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "shape": {
+      "area": 2200.0,
+      "bbox": [
+       0.0,
+       0.0,
+       0.0,
+       40.0,
+       20.0,
+       5.0
+      ],
+      "center": [
+       20.0,
+       10.0,
+       2.5
+      ],
+      "edges": 12,
+      "faces": 6,
+      "placement": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ],
+      "solids": 1,
+      "type": "Solid",
+      "vertices": 8,
+      "volume": 4000.0
+     },
+     "type": "PartDesign::Pad",
+     "valid": true
+    }
+   },
+   "tip": "Pad"
+  },
+  "ssb_face": {
+   "body": {
+    "area": 2200.0,
+    "bbox": [
+     0.0,
+     0.0,
+     0.0,
+     40.0,
+     20.0,
+     5.0
+    ],
+    "center": [
+     20.0,
+     10.0,
+     2.5
+    ],
+    "edges": 12,
+    "faces": 6,
+    "placement": [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "solids": 1,
+    "type": "Solid",
+    "vertices": 8,
+    "volume": 4000.0
+   },
+   "objects": {
+    "Binder": {
+     "placement": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "shape": {
+      "area": 800.0,
+      "bbox": [
+       0.0,
+       0.0,
+       5.0,
+       40.0,
+       20.0,
+       5.0
+      ],
+      "edges": 4,
+      "faces": 1,
+      "placement": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ],
+      "solids": 0,
+      "type": "Compound",
+      "vertices": 4
+     },
+     "type": "PartDesign::SubShapeBinder",
+     "valid": true
+    },
+    "Pad": {
+     "placement": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "shape": {
+      "area": 2200.0,
+      "bbox": [
+       0.0,
+       0.0,
+       0.0,
+       40.0,
+       20.0,
+       5.0
+      ],
+      "center": [
+       20.0,
+       10.0,
+       2.5
+      ],
+      "edges": 12,
+      "faces": 6,
+      "placement": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ],
+      "solids": 1,
+      "type": "Solid",
+      "vertices": 8,
+      "volume": 4000.0
+     },
+     "type": "PartDesign::Pad",
+     "valid": true
+    }
+   },
+   "tip": "Pad"
+  },
+  "ssb_fuse": {
+   "body": {
+    "area": 2320.0,
+    "bbox": [
+     0.0,
+     0.0,
+     0.0,
+     40.0,
+     20.0,
+     8.0
+    ],
+    "center": [
+     19.651162791,
+     10.0,
+     2.779069767
+    ],
+    "edges": 24,
+    "faces": 11,
+    "placement": [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "solids": 1,
+    "type": "Compound",
+    "vertices": 16,
+    "volume": 4300.0
+   },
+   "objects": {
+    "Binder": {
+     "placement": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "shape": {
+      "area": 2320.0,
+      "bbox": [
+       0.0,
+       0.0,
+       0.0,
+       40.0,
+       20.0,
+       8.0
+      ],
+      "center": [
+       19.651162791,
+       10.0,
+       2.779069767
+      ],
+      "edges": 24,
+      "faces": 11,
+      "placement": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ],
+      "solids": 1,
+      "type": "Compound",
+      "vertices": 16,
+      "volume": 4300.0
+     },
+     "type": "PartDesign::SubShapeBinder",
+     "valid": true
+    },
+    "Pad": {
+     "placement": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "shape": {
+      "area": 2200.0,
+      "bbox": [
+       0.0,
+       0.0,
+       0.0,
+       40.0,
+       20.0,
+       5.0
+      ],
+      "center": [
+       20.0,
+       10.0,
+       2.5
+      ],
+      "edges": 12,
+      "faces": 6,
+      "placement": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ],
+      "solids": 1,
+      "type": "Solid",
+      "vertices": 8,
+      "volume": 4000.0
+     },
+     "type": "PartDesign::Pad",
+     "valid": true
+    },
+    "Pad001": {
+     "placement": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "shape": {
+      "area": 2320.0,
+      "bbox": [
+       0.0,
+       0.0,
+       0.0,
+       40.0,
+       20.0,
+       8.0
+      ],
+      "center": [
+       19.651162791,
+       10.0,
+       2.779069767
+      ],
+      "edges": 24,
+      "faces": 11,
+      "placement": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ],
+      "solids": 1,
+      "type": "Compound",
+      "vertices": 16,
+      "volume": 4300.0
+     },
+     "type": "PartDesign::Pad",
+     "valid": true
+    }
+   },
+   "tip": "Pad001"
+  },
+  "ssb_not_relative": {
+   "body": {
+    "area": 2200.0,
+    "bbox": [
+     0.0,
+     0.0,
+     0.0,
+     40.0,
+     20.0,
+     5.0
+    ],
+    "center": [
+     20.0,
+     10.0,
+     2.5
+    ],
+    "edges": 12,
+    "faces": 6,
+    "placement": [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "solids": 1,
+    "type": "Solid",
+    "vertices": 8,
+    "volume": 4000.0
+   },
+   "objects": {
+    "Binder": {
+     "placement": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "shape": {
+      "area": 800.0,
+      "bbox": [
+       0.0,
+       0.0,
+       0.0,
+       40.0,
+       20.0,
+       0.0
+      ],
+      "edges": 4,
+      "faces": 1,
+      "placement": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ],
+      "solids": 0,
+      "type": "Compound",
+      "vertices": 4
+     },
+     "type": "PartDesign::SubShapeBinder",
+     "valid": true
+    },
+    "Pad": {
+     "placement": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "shape": {
+      "area": 2200.0,
+      "bbox": [
+       0.0,
+       0.0,
+       0.0,
+       40.0,
+       20.0,
+       5.0
+      ],
+      "center": [
+       20.0,
+       10.0,
+       2.5
+      ],
+      "edges": 12,
+      "faces": 6,
+      "placement": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ],
+      "solids": 1,
+      "type": "Solid",
+      "vertices": 8,
+      "volume": 4000.0
+     },
+     "type": "PartDesign::Pad",
+     "valid": true
+    }
+   },
+   "tip": "Pad"
+  },
+  "ssb_open_edges": {
+   "body": {
+    "area": 2200.0,
+    "bbox": [
+     0.0,
+     0.0,
+     0.0,
+     40.0,
+     20.0,
+     5.0
+    ],
+    "center": [
+     20.0,
+     10.0,
+     2.5
+    ],
+    "edges": 12,
+    "faces": 6,
+    "placement": [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "solids": 1,
+    "type": "Solid",
+    "vertices": 8,
+    "volume": 4000.0
+   },
+   "objects": {
+    "Binder": {
+     "placement": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "shape": {
+      "bbox": [
+       0.0,
+       0.0,
+       0.0,
+       40.0,
+       0.0,
+       5.0
+      ],
+      "closed": null,
+      "edges": 2,
+      "faces": 0,
+      "length": 10.0,
+      "placement": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ],
+      "solids": 0,
+      "type": "Compound",
+      "vertices": 4
+     },
+     "type": "PartDesign::SubShapeBinder",
+     "valid": true
+    },
+    "Pad": {
+     "placement": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "shape": {
+      "area": 2200.0,
+      "bbox": [
+       0.0,
+       0.0,
+       0.0,
+       40.0,
+       20.0,
+       5.0
+      ],
+      "center": [
+       20.0,
+       10.0,
+       2.5
+      ],
+      "edges": 12,
+      "faces": 6,
+      "placement": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ],
+      "solids": 1,
+      "type": "Solid",
+      "vertices": 8,
+      "volume": 4000.0
+     },
+     "type": "PartDesign::Pad",
+     "valid": true
+    }
+   },
+   "tip": "Pad"
+  },
+  "ssb_origin_axis": {
+   "body": {
+    "area": 2200.0,
+    "bbox": [
+     0.0,
+     0.0,
+     0.0,
+     40.0,
+     20.0,
+     5.0
+    ],
+    "center": [
+     20.0,
+     10.0,
+     2.5
+    ],
+    "edges": 12,
+    "faces": 6,
+    "placement": [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "solids": 1,
+    "type": "Solid",
+    "vertices": 8,
+    "volume": 4000.0
+   },
+   "objects": {
+    "Binder": {
+     "placement": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "shape": {
+      "bbox": [
+       0.0,
+       -1e+100,
+       0.0,
+       0.0,
+       1e+100,
+       0.0
+      ],
+      "closed": false,
+      "edges": 1,
+      "faces": 0,
+      "length": 4e+100,
+      "placement": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ],
+      "solids": 0,
+      "type": "Wire",
+      "vertices": 0
+     },
+     "type": "PartDesign::SubShapeBinder",
+     "valid": true
+    },
+    "Pad": {
+     "placement": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "shape": {
+      "area": 2200.0,
+      "bbox": [
+       0.0,
+       0.0,
+       0.0,
+       40.0,
+       20.0,
+       5.0
+      ],
+      "center": [
+       20.0,
+       10.0,
+       2.5
+      ],
+      "edges": 12,
+      "faces": 6,
+      "placement": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ],
+      "solids": 1,
+      "type": "Solid",
+      "vertices": 8,
+      "volume": 4000.0
+     },
+     "type": "PartDesign::Pad",
+     "valid": true
+    }
+   },
+   "tip": "Pad"
+  },
+  "ssb_origin_plane": {
+   "body": {
+    "area": 2200.0,
+    "bbox": [
+     0.0,
+     0.0,
+     0.0,
+     40.0,
+     20.0,
+     5.0
+    ],
+    "center": [
+     20.0,
+     10.0,
+     2.5
+    ],
+    "edges": 12,
+    "faces": 6,
+    "placement": [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "solids": 1,
+    "type": "Solid",
+    "vertices": 8,
+    "volume": 4000.0
+   },
+   "objects": {
+    "Binder": {
+     "placement": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "shape": {
+      "area": 8.000000000000003e+100,
+      "bbox": [
+       -1e+100,
+       0.0,
+       -1e+100,
+       1e+100,
+       0.0,
+       1e+100
+      ],
+      "edges": 0,
+      "faces": 1,
+      "placement": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ],
+      "solids": 0,
+      "type": "Compound",
+      "vertices": 0
+     },
+     "type": "PartDesign::SubShapeBinder",
+     "valid": true
+    },
+    "Pad": {
+     "placement": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "shape": {
+      "area": 2200.0,
+      "bbox": [
+       0.0,
+       0.0,
+       0.0,
+       40.0,
+       20.0,
+       5.0
+      ],
+      "center": [
+       20.0,
+       10.0,
+       2.5
+      ],
+      "edges": 12,
+      "faces": 6,
+      "placement": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ],
+      "solids": 1,
+      "type": "Solid",
+      "vertices": 8,
+      "volume": 4000.0
+     },
+     "type": "PartDesign::Pad",
+     "valid": true
+    }
+   },
+   "tip": "Pad"
+  },
+  "ssb_placement": {
+   "body": {
+    "area": 2200.0,
+    "bbox": [
+     0.0,
+     0.0,
+     0.0,
+     40.0,
+     20.0,
+     5.0
+    ],
+    "center": [
+     20.0,
+     10.0,
+     2.5
+    ],
+    "edges": 12,
+    "faces": 6,
+    "placement": [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "solids": 1,
+    "type": "Solid",
+    "vertices": 8,
+    "volume": 4000.0
+   },
+   "objects": {
+    "Binder": {
+     "placement": [
+      0.0,
+      0.0,
+      10.0,
+      30.0,
+      0.0,
+      0.0
+     ],
+     "shape": {
+      "area": 800.0,
+      "bbox": [
+       -10.0,
+       0.0,
+       15.0,
+       34.641016151,
+       37.320508076,
+       15.0
+      ],
+      "edges": 4,
+      "faces": 1,
+      "placement": [
+       0.0,
+       0.0,
+       10.0,
+       30.0,
+       0.0,
+       0.0
+      ],
+      "solids": 0,
+      "type": "Compound",
+      "vertices": 4
+     },
+     "type": "PartDesign::SubShapeBinder",
+     "valid": true
+    },
+    "Pad": {
+     "placement": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "shape": {
+      "area": 2200.0,
+      "bbox": [
+       0.0,
+       0.0,
+       0.0,
+       40.0,
+       20.0,
+       5.0
+      ],
+      "center": [
+       20.0,
+       10.0,
+       2.5
+      ],
+      "edges": 12,
+      "faces": 6,
+      "placement": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ],
+      "solids": 1,
+      "type": "Solid",
+      "vertices": 8,
+      "volume": 4000.0
+     },
+     "type": "PartDesign::Pad",
+     "valid": true
+    }
+   },
+   "tip": "Pad"
+  },
+  "ssb_sketch": {
+   "body": {
+    "area": 2200.0,
+    "bbox": [
+     0.0,
+     0.0,
+     0.0,
+     40.0,
+     20.0,
+     5.0
+    ],
+    "center": [
+     20.0,
+     10.0,
+     2.5
+    ],
+    "edges": 12,
+    "faces": 6,
+    "placement": [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "solids": 1,
+    "type": "Solid",
+    "vertices": 8,
+    "volume": 4000.0
+   },
+   "objects": {
+    "Binder": {
+     "placement": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "shape": {
+      "area": 800.0,
+      "bbox": [
+       0.0,
+       0.0,
+       0.0,
+       40.0,
+       20.0,
+       0.0
+      ],
+      "edges": 4,
+      "faces": 1,
+      "placement": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ],
+      "solids": 0,
+      "type": "Face",
+      "vertices": 4
+     },
+     "type": "PartDesign::SubShapeBinder",
+     "valid": true
+    },
+    "Pad": {
+     "placement": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "shape": {
+      "area": 2200.0,
+      "bbox": [
+       0.0,
+       0.0,
+       0.0,
+       40.0,
+       20.0,
+       5.0
+      ],
+      "center": [
+       20.0,
+       10.0,
+       2.5
+      ],
+      "edges": 12,
+      "faces": 6,
+      "placement": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ],
+      "solids": 1,
+      "type": "Solid",
+      "vertices": 8,
+      "volume": 4000.0
+     },
+     "type": "PartDesign::Pad",
+     "valid": true
+    }
+   },
+   "tip": "Pad"
+  },
+  "ssb_sketch_no_face": {
+   "body": {
+    "area": 2200.0,
+    "bbox": [
+     0.0,
+     0.0,
+     0.0,
+     40.0,
+     20.0,
+     5.0
+    ],
+    "center": [
+     20.0,
+     10.0,
+     2.5
+    ],
+    "edges": 12,
+    "faces": 6,
+    "placement": [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "solids": 1,
+    "type": "Solid",
+    "vertices": 8,
+    "volume": 4000.0
+   },
+   "objects": {
+    "Binder": {
+     "placement": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "shape": {
+      "bbox": [
+       0.0,
+       0.0,
+       0.0,
+       40.0,
+       20.0,
+       0.0
+      ],
+      "closed": null,
+      "edges": 4,
+      "faces": 0,
+      "length": 120.0,
+      "placement": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ],
+      "solids": 0,
+      "type": "Compound",
+      "vertices": 4
+     },
+     "type": "PartDesign::SubShapeBinder",
+     "valid": true
+    },
+    "Pad": {
+     "placement": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "shape": {
+      "area": 2200.0,
+      "bbox": [
+       0.0,
+       0.0,
+       0.0,
+       40.0,
+       20.0,
+       5.0
+      ],
+      "center": [
+       20.0,
+       10.0,
+       2.5
+      ],
+      "edges": 12,
+      "faces": 6,
+      "placement": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ],
+      "solids": 1,
+      "type": "Solid",
+      "vertices": 8,
+      "volume": 4000.0
+     },
+     "type": "PartDesign::Pad",
+     "valid": true
+    }
+   },
+   "tip": "Pad"
+  },
+  "ssb_sketch_offset": {
+   "body": {
+    "area": 2200.0,
+    "bbox": [
+     0.0,
+     0.0,
+     0.0,
+     40.0,
+     20.0,
+     5.0
+    ],
+    "center": [
+     20.0,
+     10.0,
+     2.5
+    ],
+    "edges": 12,
+    "faces": 6,
+    "placement": [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "solids": 1,
+    "type": "Solid",
+    "vertices": 8,
+    "volume": 4000.0
+   },
+   "objects": {
+    "Binder": {
+     "placement": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "shape": {
+      "area": 1052.566370614,
+      "bbox": [
+       -2.0,
+       -2.0,
+       0.0,
+       42.0,
+       22.0,
+       0.0
+      ],
+      "edges": 8,
+      "faces": 1,
+      "placement": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ],
+      "solids": 0,
+      "type": "Face",
+      "vertices": 8
+     },
+     "type": "PartDesign::SubShapeBinder",
+     "valid": true
+    },
+    "Pad": {
+     "placement": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "shape": {
+      "area": 2200.0,
+      "bbox": [
+       0.0,
+       0.0,
+       0.0,
+       40.0,
+       20.0,
+       5.0
+      ],
+      "center": [
+       20.0,
+       10.0,
+       2.5
+      ],
+      "edges": 12,
+      "faces": 6,
+      "placement": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ],
+      "solids": 1,
+      "type": "Solid",
+      "vertices": 8,
+      "volume": 4000.0
+     },
+     "type": "PartDesign::Pad",
+     "valid": true
+    }
+   },
+   "tip": "Pad"
+  },
+  "ssb_sketch_offset_in": {
+   "body": {
+    "area": 2200.0,
+    "bbox": [
+     0.0,
+     0.0,
+     0.0,
+     40.0,
+     20.0,
+     5.0
+    ],
+    "center": [
+     20.0,
+     10.0,
+     2.5
+    ],
+    "edges": 12,
+    "faces": 6,
+    "placement": [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "solids": 1,
+    "type": "Solid",
+    "vertices": 8,
+    "volume": 4000.0
+   },
+   "objects": {
+    "Binder": {
+     "placement": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "shape": {
+      "area": 629.0,
+      "bbox": [
+       1.5,
+       1.5,
+       0.0,
+       38.5,
+       18.5,
+       0.0
+      ],
+      "edges": 4,
+      "faces": 1,
+      "placement": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ],
+      "solids": 0,
+      "type": "Face",
+      "vertices": 4
+     },
+     "type": "PartDesign::SubShapeBinder",
+     "valid": true
+    },
+    "Pad": {
+     "placement": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "shape": {
+      "area": 2200.0,
+      "bbox": [
+       0.0,
+       0.0,
+       0.0,
+       40.0,
+       20.0,
+       5.0
+      ],
+      "center": [
+       20.0,
+       10.0,
+       2.5
+      ],
+      "edges": 12,
+      "faces": 6,
+      "placement": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ],
+      "solids": 1,
+      "type": "Solid",
+      "vertices": 8,
+      "volume": 4000.0
+     },
+     "type": "PartDesign::Pad",
+     "valid": true
+    }
+   },
+   "tip": "Pad"
+  },
+  "ssb_sketch_offset_wires": {
+   "body": {
+    "area": 2200.0,
+    "bbox": [
+     0.0,
+     0.0,
+     0.0,
+     40.0,
+     20.0,
+     5.0
+    ],
+    "center": [
+     20.0,
+     10.0,
+     2.5
+    ],
+    "edges": 12,
+    "faces": 6,
+    "placement": [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "solids": 1,
+    "type": "Solid",
+    "vertices": 8,
+    "volume": 4000.0
+   },
+   "objects": {
+    "Binder": {
+     "placement": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "shape": {
+      "area": 123.141592654,
+      "bbox": [
+       -1.0,
+       -1.0,
+       0.0,
+       41.0,
+       21.0,
+       0.0
+      ],
+      "edges": 12,
+      "faces": 1,
+      "placement": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ],
+      "solids": 0,
+      "type": "Face",
+      "vertices": 12
+     },
+     "type": "PartDesign::SubShapeBinder",
+     "valid": true
+    },
+    "Pad": {
+     "placement": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "shape": {
+      "area": 2200.0,
+      "bbox": [
+       0.0,
+       0.0,
+       0.0,
+       40.0,
+       20.0,
+       5.0
+      ],
+      "center": [
+       20.0,
+       10.0,
+       2.5
+      ],
+      "edges": 12,
+      "faces": 6,
+      "placement": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ],
+      "solids": 1,
+      "type": "Solid",
+      "vertices": 8,
+      "volume": 4000.0
+     },
+     "type": "PartDesign::Pad",
+     "valid": true
+    }
+   },
+   "tip": "Pad"
+  },
+  "ssb_sorted_faces": {
+   "body": {
+    "area": 2200.0,
+    "bbox": [
+     0.0,
+     0.0,
+     0.0,
+     40.0,
+     20.0,
+     5.0
+    ],
+    "center": [
+     20.0,
+     10.0,
+     2.5
+    ],
+    "edges": 12,
+    "faces": 6,
+    "placement": [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "solids": 1,
+    "type": "Solid",
+    "vertices": 8,
+    "volume": 4000.0
+   },
+   "objects": {
+    "Binder": {
+     "placement": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "shape": {
+      "area": 1200.0,
+      "bbox": [
+       0.0,
+       0.0,
+       0.0,
+       40.0,
+       20.0,
+       5.0
+      ],
+      "edges": 12,
+      "faces": 3,
+      "placement": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ],
+      "solids": 0,
+      "type": "Compound",
+      "vertices": 12
+     },
+     "type": "PartDesign::SubShapeBinder",
+     "valid": true
+    },
+    "Pad": {
+     "placement": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "shape": {
+      "area": 2200.0,
+      "bbox": [
+       0.0,
+       0.0,
+       0.0,
+       40.0,
+       20.0,
+       5.0
+      ],
+      "center": [
+       20.0,
+       10.0,
+       2.5
+      ],
+      "edges": 12,
+      "faces": 6,
+      "placement": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ],
+      "solids": 1,
+      "type": "Solid",
+      "vertices": 8,
+      "volume": 4000.0
+     },
+     "type": "PartDesign::Pad",
+     "valid": true
+    }
+   },
+   "tip": "Pad"
+  },
+  "ssb_then_sketch_on_it": {
+   "body": {
+    "area": 2360.0,
+    "bbox": [
+     0.0,
+     0.0,
+     0.0,
+     40.0,
+     20.0,
+     9.0
+    ],
+    "center": [
+     19.090909091,
+     10.0,
+     2.909090909
+    ],
+    "edges": 24,
+    "faces": 11,
+    "placement": [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "solids": 1,
+    "type": "Compound",
+    "vertices": 16,
+    "volume": 4400.0
+   },
+   "objects": {
+    "Binder": {
+     "placement": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "shape": {
+      "area": 800.0,
+      "bbox": [
+       0.0,
+       0.0,
+       5.0,
+       40.0,
+       20.0,
+       5.0
+      ],
+      "edges": 4,
+      "faces": 1,
+      "placement": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ],
+      "solids": 0,
+      "type": "Compound",
+      "vertices": 4
+     },
+     "type": "PartDesign::SubShapeBinder",
+     "valid": true
+    },
+    "Pad": {
+     "placement": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "shape": {
+      "area": 2200.0,
+      "bbox": [
+       0.0,
+       0.0,
+       0.0,
+       40.0,
+       20.0,
+       5.0
+      ],
+      "center": [
+       20.0,
+       10.0,
+       2.5
+      ],
+      "edges": 12,
+      "faces": 6,
+      "placement": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ],
+      "solids": 1,
+      "type": "Solid",
+      "vertices": 8,
+      "volume": 4000.0
+     },
+     "type": "PartDesign::Pad",
+     "valid": true
+    },
+    "Pad001": {
+     "placement": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "shape": {
+      "area": 2360.0,
+      "bbox": [
+       0.0,
+       0.0,
+       0.0,
+       40.0,
+       20.0,
+       9.0
+      ],
+      "center": [
+       19.090909091,
+       10.0,
+       2.909090909
+      ],
+      "edges": 24,
+      "faces": 11,
+      "placement": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ],
+      "solids": 1,
+      "type": "Compound",
+      "vertices": 16,
+      "volume": 4400.0
+     },
+     "type": "PartDesign::Pad",
+     "valid": true
+    }
+   },
+   "tip": "Pad001"
+  },
+  "ssb_two_objects": {
+   "body": {
+    "area": 2237.699111843,
+    "bbox": [
+     0.0,
+     0.0,
+     0.0,
+     40.0,
+     20.0,
+     5.0
+    ],
+    "center": [
+     20.0,
+     10.0,
+     2.5
+    ],
+    "edges": 15,
+    "faces": 7,
+    "placement": [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "solids": 1,
+    "type": "Compound",
+    "vertices": 10,
+    "volume": 3858.628330588
+   },
+   "objects": {
+    "Binder": {
+     "placement": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "shape": {
+      "area": 94.247779608,
+      "bbox": [
+       17.0,
+       7.0,
+       0.0,
+       23.0,
+       13.0,
+       5.0
+      ],
+      "edges": 4,
+      "faces": 1,
+      "placement": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ],
+      "solids": 0,
+      "type": "Compound",
+      "vertices": 3
+     },
+     "type": "PartDesign::SubShapeBinder",
+     "valid": true
+    },
+    "Pad": {
+     "placement": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "shape": {
+      "area": 2200.0,
+      "bbox": [
+       0.0,
+       0.0,
+       0.0,
+       40.0,
+       20.0,
+       5.0
+      ],
+      "center": [
+       20.0,
+       10.0,
+       2.5
+      ],
+      "edges": 12,
+      "faces": 6,
+      "placement": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ],
+      "solids": 1,
+      "type": "Solid",
+      "vertices": 8,
+      "volume": 4000.0
+     },
+     "type": "PartDesign::Pad",
+     "valid": true
+    },
+    "Pocket": {
+     "placement": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "shape": {
+      "area": 2237.699111843,
+      "bbox": [
+       0.0,
+       0.0,
+       0.0,
+       40.0,
+       20.0,
+       5.0
+      ],
+      "center": [
+       20.0,
+       10.0,
+       2.5
+      ],
+      "edges": 15,
+      "faces": 7,
+      "placement": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ],
+      "solids": 1,
+      "type": "Compound",
+      "vertices": 10,
+      "volume": 3858.628330588
+     },
+     "type": "PartDesign::Pocket",
+     "valid": true
+    }
+   },
+   "tip": "Pocket"
+  },
+  "ssb_up_to_face": {
+   "body": {
+    "area": 2440.0,
+    "bbox": [
+     0.0,
+     0.0,
+     0.0,
+     40.0,
+     20.0,
+     11.0
+    ],
+    "center": [
+     18.695652174,
+     10.0,
+     3.217391304
+    ],
+    "edges": 24,
+    "faces": 11,
+    "placement": [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "solids": 1,
+    "type": "Compound",
+    "vertices": 16,
+    "volume": 4600.0
+   },
+   "objects": {
+    "Binder": {
+     "placement": [
+      0.0,
+      0.0,
+      6.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "shape": {
+      "area": 800.0,
+      "bbox": [
+       0.0,
+       0.0,
+       11.0,
+       40.0,
+       20.0,
+       11.0
+      ],
+      "edges": 4,
+      "faces": 1,
+      "placement": [
+       0.0,
+       0.0,
+       6.0,
+       0.0,
+       0.0,
+       0.0
+      ],
+      "solids": 0,
+      "type": "Compound",
+      "vertices": 4
+     },
+     "type": "PartDesign::SubShapeBinder",
+     "valid": true
+    },
+    "Pad": {
+     "placement": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "shape": {
+      "area": 2200.0,
+      "bbox": [
+       0.0,
+       0.0,
+       0.0,
+       40.0,
+       20.0,
+       5.0
+      ],
+      "center": [
+       20.0,
+       10.0,
+       2.5
+      ],
+      "edges": 12,
+      "faces": 6,
+      "placement": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ],
+      "solids": 1,
+      "type": "Solid",
+      "vertices": 8,
+      "volume": 4000.0
+     },
+     "type": "PartDesign::Pad",
+     "valid": true
+    },
+    "Pad001": {
+     "placement": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "shape": {
+      "area": 2440.0,
+      "bbox": [
+       0.0,
+       0.0,
+       0.0,
+       40.0,
+       20.0,
+       11.0
+      ],
+      "center": [
+       18.695652174,
+       10.0,
+       3.217391304
+      ],
+      "edges": 24,
+      "faces": 11,
+      "placement": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ],
+      "solids": 1,
+      "type": "Compound",
+      "vertices": 16,
+      "volume": 4600.0
+     },
+     "type": "PartDesign::Pad",
+     "valid": true
+    }
+   },
+   "tip": "Pad001"
+  },
+  "ssb_whole_pad": {
+   "body": {
+    "area": 2200.0,
+    "bbox": [
+     0.0,
+     0.0,
+     0.0,
+     40.0,
+     20.0,
+     5.0
+    ],
+    "center": [
+     20.0,
+     10.0,
+     2.5
+    ],
+    "edges": 12,
+    "faces": 6,
+    "placement": [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "solids": 1,
+    "type": "Solid",
+    "vertices": 8,
+    "volume": 4000.0
+   },
+   "objects": {
+    "Binder": {
+     "placement": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "shape": {
+      "area": 2200.0,
+      "bbox": [
+       0.0,
+       0.0,
+       0.0,
+       40.0,
+       20.0,
+       5.0
+      ],
+      "center": [
+       20.0,
+       10.0,
+       2.5
+      ],
+      "edges": 12,
+      "faces": 6,
+      "placement": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ],
+      "solids": 1,
+      "type": "Compound",
+      "vertices": 8,
+      "volume": 4000.0
+     },
+     "type": "PartDesign::SubShapeBinder",
+     "valid": true
+    },
+    "Pad": {
+     "placement": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "shape": {
+      "area": 2200.0,
+      "bbox": [
+       0.0,
+       0.0,
+       0.0,
+       40.0,
+       20.0,
+       5.0
+      ],
+      "center": [
+       20.0,
+       10.0,
+       2.5
+      ],
+      "edges": 12,
+      "faces": 6,
+      "placement": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ],
+      "solids": 1,
+      "type": "Solid",
+      "vertices": 8,
+      "volume": 4000.0
+     },
+     "type": "PartDesign::Pad",
+     "valid": true
+    }
+   },
+   "tip": "Pad"
+  },
+  "ssb_whole_pad_unrefined": {
+   "body": {
+    "area": 2237.699111843,
+    "bbox": [
+     0.0,
+     0.0,
+     0.0,
+     40.0,
+     20.0,
+     5.0
+    ],
+    "center": [
+     20.0,
+     10.0,
+     2.5
+    ],
+    "edges": 15,
+    "faces": 7,
+    "placement": [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "solids": 1,
+    "type": "Compound",
+    "vertices": 10,
+    "volume": 3858.628330588
+   },
+   "objects": {
+    "Binder": {
+     "placement": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "shape": {
+      "area": 2237.699111843,
+      "bbox": [
+       0.0,
+       0.0,
+       0.0,
+       40.0,
+       20.0,
+       5.0
+      ],
+      "center": [
+       20.0,
+       10.0,
+       2.5
+      ],
+      "edges": 15,
+      "faces": 7,
+      "placement": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ],
+      "solids": 1,
+      "type": "Compound",
+      "vertices": 10,
+      "volume": 3858.628330588
+     },
+     "type": "PartDesign::SubShapeBinder",
+     "valid": true
+    },
+    "Pad": {
+     "placement": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "shape": {
+      "area": 2200.0,
+      "bbox": [
+       0.0,
+       0.0,
+       0.0,
+       40.0,
+       20.0,
+       5.0
+      ],
+      "center": [
+       20.0,
+       10.0,
+       2.5
+      ],
+      "edges": 12,
+      "faces": 6,
+      "placement": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ],
+      "solids": 1,
+      "type": "Solid",
+      "vertices": 8,
+      "volume": 4000.0
+     },
+     "type": "PartDesign::Pad",
+     "valid": true
+    },
+    "Pocket": {
+     "placement": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "shape": {
+      "area": 2237.699111843,
+      "bbox": [
+       0.0,
+       0.0,
+       0.0,
+       40.0,
+       20.0,
+       5.0
+      ],
+      "center": [
+       20.0,
+       10.0,
+       2.5
+      ],
+      "edges": 15,
+      "faces": 7,
+      "placement": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ],
+      "solids": 1,
+      "type": "Compound",
+      "vertices": 10,
+      "volume": 3858.628330588
+     },
+     "type": "PartDesign::Pocket",
+     "valid": true
+    }
+   },
+   "tip": "Pocket"
   }
  },
  "freecad": "26.3.0 20260929 (Git shallow)"

@@ -5,7 +5,8 @@ Each case is the same FEATURES list for both, as tests/golden/feature/cases.py h
 {"features": [...], "params": {...} (optional)}. The groups (GEAR, ...) say which feature a case is about, so a test of
 one feature runs its own cases.
 """
-from cad_agent.feature import Constraint, InvoluteGear, LineSegment, Pad, Pocket, Sketch, Sprocket
+from cad_agent.feature import (Chamfer, Circle, Constraint, Defeaturing, Fillet, InvoluteGear, LineSegment, Pad,
+                               PartDesignPlane, Pocket, Sketch, Sprocket, SubShapeBinder)
 
 
 def rect(x0, y0, x1, y1, construction=False):
@@ -69,4 +70,84 @@ GEAR = {
         Pad("Pad", "Sprocket", length=3.0, side_type="Symmetric")]},
 }
 
-CASES = {**GEAR}
+
+
+def holed(refine=True):
+    return [*plate(0, 0, 40, 20, 5.0), Sketch("Sketch001", "XY", [Circle((20.0, 10.0), 3.0)], []),
+            Pocket("Pocket", "Sketch001", type="ThroughAll", reversed=True, refine=refine)]
+
+
+def bossed():
+    return [*plate(0, 0, 40, 20, 5.0),
+            Sketch("Sketch001", "XY", rect(10, 5, 20, 15), rect_constraints(0, 10.0, 10.0), attachment_offset=(0, 0, 5)),
+            Pad("Pad001", "Sketch001", length=3.0)]
+
+
+# ── Defeaturing (FeatureDefeaturing.cpp) ─────────────────────────────────────────────────────────────────────────────
+DEFEATURING = {
+    "defeat_hole": {"features": [*holed(), Defeaturing("Defeaturing", ("Pocket", ["Face7"]))]},
+    "defeat_hole_unrefined": {"features": [*holed(False), Defeaturing("Defeaturing", ("Pocket", ["Face7"]),
+                                                                       refine=False)]},
+    "defeat_fillet": {"features": [*plate(0, 0, 40, 20, 5.0), Fillet("Fillet", ("Pad", ["Edge1", "Edge3"]), radius=2.0),
+                                   Defeaturing("Defeaturing", ("Fillet", ["Face3", "Face5"]))]},
+    "defeat_chamfer": {"features": [*plate(0, 0, 40, 20, 5.0), Chamfer("Chamfer", ("Pad", ["Edge2"]), size=1.5),
+                                    Defeaturing("Defeaturing", ("Chamfer", ["Face3"]))]},
+    "defeat_boss": {"features": [*bossed(), Defeaturing("Defeaturing", ("Pad001", ["Face7", "Face8", "Face9", "Face10",
+                                                                                    "Face11"]))]},
+    "defeat_nothing": {"features": [*holed(), Defeaturing("Defeaturing", ("Pocket", []))]},
+    "defeat_then_pad": {"features": [*holed(), Defeaturing("Defeaturing", ("Pocket", ["Face7"])),
+                                     Sketch("Sketch002", "XY", rect(30, 5, 35, 15), rect_constraints(0, 5.0, 10.0),
+                                            attachment_offset=(0, 0, 5)),
+                                     Pad("Pad002", "Sketch002", length=2.0)]},
+}
+
+# faces BRepAlgoAPI_Defeaturing cannot remove: it reports a warning, is done, and gives the solid back as it was
+DEFEATURING.update({
+    "defeat_side_face": {"features": [*plate(0, 0, 40, 20, 5.0), Defeaturing("Defeaturing", ("Pad", ["Face1"]))]},
+    "defeat_boss_and_top": {"features": [*bossed(), Defeaturing("Defeaturing", ("Pad001", ["Face5", "Face7", "Face8",
+                                                                                            "Face9"]))]},
+})
+
+# ── Sub-Shape Binder (ShapeBinder.cpp's SubShapeBinder::update) ──────────────────────────────────────────────────────
+SUBBINDER = {
+    "ssb_face": {"features": [*plate(0, 0, 40, 20), SubShapeBinder("Binder", support=[("Pad", ["Face6"])])]},
+    "ssb_whole_pad": {"features": [*plate(0, 0, 40, 20), SubShapeBinder("Binder", support=["Pad"])]},
+    "ssb_whole_pad_unrefined": {"features": [*holed(), SubShapeBinder("Binder", support=["Pocket"], refine=False)]},
+    "ssb_sketch": {"features": [*plate(0, 0, 40, 20), SubShapeBinder("Binder", support=["Sketch"])]},
+    "ssb_sketch_no_face": {"features": [*plate(0, 0, 40, 20),
+                                        SubShapeBinder("Binder", support=["Sketch"], make_face=False)]},
+    "ssb_sketch_offset": {"features": [*plate(0, 0, 40, 20), SubShapeBinder("Binder", support=["Sketch"], offset=2.0)]},
+    "ssb_sketch_offset_in": {"features": [*plate(0, 0, 40, 20), SubShapeBinder(
+        "Binder", support=["Sketch"], offset=-1.5, offset_join_type="Intersection")]},
+    "ssb_sketch_offset_wires": {"features": [*plate(0, 0, 40, 20), SubShapeBinder(
+        "Binder", support=["Sketch"], make_face=False, offset=1.0, offset_fill=True)]},
+    "ssb_open_edges": {"features": [*plate(0, 0, 40, 20), SubShapeBinder("Binder", support=[("Pad", ["Edge1", "Edge2"])])]},
+    "ssb_sorted_faces": {"features": [*plate(0, 0, 40, 20),
+                                      SubShapeBinder("Binder", support=[("Pad", ["Face6", "Face1", "Face3"])])]},
+    "ssb_two_objects": {"features": [*holed(), SubShapeBinder("Binder", support=[("Pocket", ["Face7"]),
+                                                                                ("Sketch001", "")])]},
+    "ssb_fuse": {"features": [*bossed(), SubShapeBinder("Binder", support=["Pad", "Pad001"], fuse=True)]},
+    "ssb_placement": {"features": [*plate(0, 0, 40, 20), SubShapeBinder(
+        "Binder", support=[("Pad", ["Face6"])], placement=((0.0, 0.0, 10.0), (30.0, 0.0, 0.0)))]},
+    "ssb_not_relative": {"features": [*plate(0, 0, 40, 20), SubShapeBinder("Binder", support=[("Pad", ["Face6"])],
+                                                                           relative=False)]},
+    "ssb_empty": {"features": [*plate(0, 0, 40, 20), SubShapeBinder("Binder")]},
+    "ssb_origin_plane": {"features": [*plate(0, 0, 40, 20), SubShapeBinder("Binder", support=["XZ_Plane"])]},
+    "ssb_origin_axis": {"features": [*plate(0, 0, 40, 20), SubShapeBinder("Binder", support=["Y_Axis"])]},
+    "ssb_datum_plane": {"features": [*plate(0, 0, 40, 20),
+                                     PartDesignPlane("DatumPlane", attachment_support=[("Pad", "Face6")],
+                                                     map_mode="FlatFace"),
+                                     SubShapeBinder("Binder", support=["DatumPlane"])]},
+    "ssb_then_sketch_on_it": {"features": [
+        *plate(0, 0, 40, 20), SubShapeBinder("Binder", support=[("Pad", ["Face6"])]),
+        Sketch("Sketch001", None, rect(5, 5, 15, 15), rect_constraints(0, 10.0, 10.0),
+               attachment_support=[("Binder", "Face1")], map_mode="FlatFace"),
+        Pad("Pad001", "Sketch001", length=4.0)]},
+    "ssb_up_to_face": {"features": [
+        *plate(0, 0, 40, 20), SubShapeBinder("Binder", support=[("Pad", ["Face6"])],
+                                             placement=((0.0, 0.0, 6.0), (0.0, 0.0, 0.0))),
+        Sketch("Sketch001", "XY", rect(5, 5, 15, 15), rect_constraints(0, 10.0, 10.0)),
+        Pad("Pad001", "Sketch001", type="UpToFace", up_to_face=("Binder", "Face1"))]},
+}
+
+CASES = {**GEAR, **DEFEATURING, **SUBBINDER}
