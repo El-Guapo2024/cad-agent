@@ -57,6 +57,9 @@ cad export <project> <part> --format step|stl|3mf|dxf
 cad bom <project>                              the bill of materials (CSV and JSON)
 cad shop <project> [--draft | --check]         the shop files, for a design that is done
 cad drawing <project> <part>                   a dimensioned drawing of a machined or laser-cut plate (DXF, SVG, PDF)
+cad feature <action>                           a part's Part Design features: list, add, set, delete, move, clone
+cad assembly <action>                          a project's Assembly: show, insert, joint, set, ground, solve
+cad techdraw <action>                          a project's TechDraw pages: view, section, dimension, balloon, export
 ```
 
 ## The library
