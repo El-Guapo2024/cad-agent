@@ -35,6 +35,7 @@ from __future__ import annotations
 
 import base64
 import math
+import os
 import re
 import xml.etree.ElementTree as ET
 from pathlib import Path
@@ -555,16 +556,34 @@ def _clip_prims(doc, res, c):
 
 # ── the page ─────────────────────────────────────────────────────────────────────────────────────────────
 
+_SYMBOL_FILES: list | None = None
+
+
 def catalog(doc) -> dict:
-    """What the symbol, weld and image choosers offer: FreeCAD's symbol files, and the bitmaps of the project."""
+    """What the symbol, weld and image choosers offer: FreeCAD's symbol files, and the bitmaps of the project (its folders no
+    deeper than two levels, but not the hidden ones, out/ or the parts' caches)."""
+    global _SYMBOL_FILES
+    if _SYMBOL_FILES is None:
+        _SYMBOL_FILES = O.symbol_files()
     pdir = getattr(doc, "pdir", None)
-    imgs = []
+    imgs: list = []
+
+    def scan(d: Path, depth: int):
+        try:
+            entries = sorted(os.scandir(d), key=lambda e: e.name)
+        except OSError:
+            return
+        for e in entries:
+            if e.name.startswith(".") or e.name in ("out", "__pycache__", "parts", "node_modules"):
+                continue
+            if e.is_dir(follow_symlinks=False):
+                if depth < 2:
+                    scan(Path(e.path), depth + 1)
+            elif e.name.lower().endswith(O.IMAGE_EXTENSIONS):
+                imgs.append(str(Path(e.path).relative_to(pdir)))
     if pdir is not None and Path(pdir).is_dir():
-        for p in sorted(Path(pdir).rglob("*")):
-            rel = p.relative_to(pdir)
-            if p.suffix.lower() in O.IMAGE_EXTENSIONS and not rel.parts[0].startswith((".", "out")) and p.is_file():
-                imgs.append(str(rel))
-    return {"symbol_files": O.symbol_files(), "project_images": imgs}
+        scan(Path(pdir), 0)
+    return {"symbol_files": _SYMBOL_FILES, "project_images": imgs}
 
 
 def results(doc) -> dict:

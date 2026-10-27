@@ -567,6 +567,7 @@ try {
   // ── the leader line, rich text, symbol, weld, surface finish, image and clip tools (ui/scripts/fctechdraw_more.json) ──
   async function moreChecks() {
     console.log('more')
+    await st('cadui.setState({ task: null })')       // a panel the part before may have left open
     const fcText = (panel, name) => { for (const tv of panel) for (const w of tv) if (w.name === name) return w.text ?? w.current }
     const ourText = (name) => st(`(() => { const e = document.querySelector('.tasks [data-qf="${name}"]'); return !e ? undefined : e.matches('input') ? e.value : e.querySelector('.combo-label')?.textContent ?? e.querySelector('input')?.value ?? e.textContent })()`)
     const okTask = async () => { await page.click('.tasks .tbuttons .qbtn.default', { timeout: 8000 }); await idle(); await sleep(500) }
@@ -732,7 +733,7 @@ try {
     }
     // ── Image ──
     writeFileSync(join(ROOT, SLUG, 'pic.png'), Buffer.from(REC.image_png_b64, 'base64'))
-    await st('cadui.td.load()'); await idle(); await sleep(500)
+    await st('cadui.td.load()'); await until(`cadui.td.state().docs.Page.result.project_images?.includes('pic.png')`, 'the project\'s bitmaps', 60000)
     await select([]); await runCmd('TechDraw_Image'); await until('!!document.querySelector(".msgbox")', 'the image chooser')
     same(await st('document.querySelector(".msgbox-title")?.textContent'), REC.image_page.file_dialogs[0].title, 'Bitmap Image: the file dialog\'s title')
     await page.selectOption('.msgbox select', 'project:pic.png'); await page.click('.msgbox-buttons .qbtn.default'); await have('DrawViewImage', 1)
@@ -741,8 +742,8 @@ try {
       same(await undoHead(), REC.image_page.undo.head[0], 'Bitmap Image: the undo step')
       check((await st(`document.querySelectorAll('[data-name="${im.name}"] image, image[href^="data:image/png"]').length`)) > 0, 'Bitmap Image: drawn') }
     // ── Clip Group ──
-    await select(['Page/View']); await runCmd('TechDraw_ClipGroupAdd')
-    same(await msgText(), 'Select one clip group and one view', 'Add View To Clip Group: a view alone')
+    // isActive: a clip group in the document (FreeCAD's recording shows no message: the command cannot run before there is one)
+    same(await st(`cadui.getCommand('TechDraw_ClipGroupAdd')?.isEnabled()`), false, 'Add View To Clip Group: inactive until a clip group exists')
     await select([]); await runCmd('TechDraw_ClipGroup'); await have('DrawViewClip', 1)
     { const c = (await objs()).filter((o) => o.kind === 'DrawViewClip').pop(), f = REC.clip.made[0]
       same([c.x, c.y, c.width, c.height, c.show_frame], [f.X, f.Y, f.Width, f.Height, f.ShowFrame], 'Clip Group: X, Y, Width, Height, ShowFrame')

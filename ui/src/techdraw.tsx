@@ -480,6 +480,8 @@ export function techdrawCommands(): [string, Exclude<Entry, 'sep'>][] {
   const walk = (es: Entry[]) => { for (const x of es) { if (x === 'sep') continue; if (x.cmd && x.onSelect && !out.some(([c]) => c === x.cmd)) out.push([x.cmd, x]); if (x.sub) walk(x.sub) } }
   walk(techdrawMenu())
   for (const [, es] of techdrawToolbars()) walk(es)
+  // the commands no menu lists (TechDraw_ClipGroupAdd, TechDraw_ClipGroupRemove: the clip group's context menu in FreeCAD)
+  for (const [cmd, [fn, on]] of Object.entries(actions())) if (!out.some(([c]) => c === cmd)) out.push([cmd, cmdEntry(cmd, fn, !on) as Exclude<Entry, 'sep'>])
   return out
 }
 export const techdrawRun = (cmd: string) => { const a = actions()[cmd]; if (a && a[1]) a[0]() }
