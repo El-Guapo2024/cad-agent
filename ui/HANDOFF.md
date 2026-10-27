@@ -107,6 +107,14 @@ Step 5, round 3 (six branches) is all in main (7526c0c, CI green, 6977 passed, 2
   EDITING_PLAN.md "TechDraw pages in a project"; techdrawcheck 361 ok, 104 known) are in main, 7691 passed. wirecheck on
   menus, toolbars, tree and panels after round 4: 0 NO-OP, ERROR or WRONG (the joint commands' greyed reason added).
   Left: Spreadsheet, Assembly's cut features, TechDraw's leaders, Rich Text and symbols (cosmetic geometry, centre lines, line appearance and hatching are on branch techdraw-2).
+- Step 5, round 6 (2026-10-27): spreadsheet (Spreadsheet workbench, spreadsheet/<Name>.py, parts bind cells with
+  EXPRESSIONS; the server runs the page's own expr.ts through mini-racer, one formula engine; spreadsheetcheck 285 ok),
+  assembly-2 (rigid groups, sub-assemblies, New Part, exploded views, Origin joints, cylinder JCS, Isolate, offsets,
+  Ctrl-drag, simulation; 84 freecadcmd cases; assemblycheck 338 ok) and techdraw-2 (cosmetic geometry, centre lines,
+  line appearance, hatching) are in main, 7961 passed.
+- Juan's rules from here (2026-10-27): keep the ports already written; for the remaining work recycle code (packages,
+  FreeCAD's code vendored, the repo's own) wherever it is faster and simpler; keep a rewrite that is faster or must run
+  in the browser. The end goal is a Rust implementation, later; not started.
 - pd-last (2026-10-27): PartDesign's last commands, each a KwFeature: Involute Gear and Sprocket (cad_agent/feature_gear.py,
   a profile as a sketch is), Defeaturing (feature_defeaturing.py), Sub-Shape Binder (feature_subbinder.py), Boolean and Clone
   (feature_boolean.py, `cad feature clone`): a Body is a part module, so a Boolean's tool or a Clone's source is another part's
