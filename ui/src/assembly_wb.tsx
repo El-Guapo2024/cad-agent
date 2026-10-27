@@ -254,15 +254,17 @@ export function openJoint(type: JointType, edit?: string) {
   if (!asmState().has) return
   openTask('assembly', 'joint', edit ? `${type}:${edit}` : type)
 }
+// isCreateJointActive is false: why the joint commands are greyed
+const NO_JOINT = 'needs an active assembly with a component (double-click the Assembly, then Insert Component)'
 function jointEntries(): Entry[] {
   const { parts: active } = asmState()
   return JOINT_TYPES.filter((t) => t !== 'Gears' && t !== 'Belt').map((t) => ({ label: JOINT_MENU[t][0], icon: jointIcon(t), cmd: `Assembly_CreateJoint${t}`,
-    kbd: JOINT_MENU[t][1], disabled: !active, onSelect: () => openJoint(t) }))
+    kbd: JOINT_MENU[t][1], disabled: !active, title: active ? undefined : NO_JOINT, onSelect: () => openJoint(t) }))
 }
 function gearEntries(): Entry[] {
   const { parts: active } = asmState()
   return (['Gears', 'Belt'] as const).map((t) => ({ label: JOINT_MENU[t][0], icon: jointIcon(t), cmd: `Assembly_CreateJoint${t}`, kbd: JOINT_MENU[t][1],
-    disabled: !active, onSelect: () => openJoint(t) }))
+    disabled: !active, title: active ? undefined : NO_JOINT, onSelect: () => openJoint(t) }))
 }
 function insertEntries(): Entry[] {
   const { active } = asmState()
