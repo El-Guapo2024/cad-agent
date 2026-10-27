@@ -31,7 +31,9 @@ import { messageBox } from './msgbox'
 import type { Entry } from './chrome'
 import { TD_CMDS } from './techdraw_cmds'
 import { annotActions } from './techdraw_annot'
+import { moreActions, TrackerOverlay, MORE_EDIT } from './techdraw_more'
 import { TD_PROPS, TD_VIEW_PROPS, type TdProp } from './techdraw_props'
+import { TD_PROPS_MORE, TD_VIEW_PROPS_MORE } from './techdraw_props_more'
 import './techdraw.css'
 
 // ── the model (cad_agent/techdraw_edit.py's read and techdraw.PageDocument.result) ──────────────────────────────────
@@ -46,7 +48,11 @@ export type TdDoc = { project: string; page: string; objects: TdObj[]; tree: TdR
 
 type Mode = { kind: 'balloon'; page: string; view: string }
   /** TaskCosVertex's tracker: the next click on the page (mm from the lower left, y up) is handed to onPick */
-  | { kind: 'pick'; page: string; view: string; onPick: (p: [number, number]) => void } | null
+  | { kind: 'pick'; page: string; view: string; onPick: (p: [number, number]) => void }
+  /** QGTracker (TaskLeaderLine): left clicks add points (not within 1 mm of the last click), a double click or a right click ends */
+  | { kind: 'track'; page: string; points: [number, number][]; onChange: (pts: [number, number][]) => void; onFinish: (pts: [number, number][]) => void }
+  /** TaskRichAnno's placement: the next click on the page is where the text goes */
+  | { kind: 'place'; page: string; onPlace: (p: [number, number]) => void } | null
 type TdState = { pages: string[]; docs: Record<string, TdDoc>; sel: string[]; pre: string | null; mode: Mode; frames: boolean
   /** a task panel's preview of a page (a dry run): the page drawn as the panel's values would leave it */
   preview: Record<string, TdDoc> }
@@ -342,7 +348,7 @@ const NOT_PORTED = 'not ported yet (docs/EDITING_PLAN.md, "TechDraw pages in a p
 const WHY: Record<string, string> = {
   TechDraw_PrintAll: 'printing is the browser\'s: export the page as PDF', TechDraw_ActiveView: 'there is no image of the 3D view to insert',
   TechDraw_DraftView: 'there are no Draft objects', TechDraw_ArchView: 'there are no BIM section planes', TechDraw_SpreadsheetView: 'there are no spreadsheets',
-  TechDraw_Image: 'pages hold no images', TechDraw_Symbol: 'pages hold no SVG symbols', TechDraw_ProjectShape: 'a shape projected in 3D is not a page object',
+  TechDraw_ProjectShape: 'a shape projected in 3D is not a page object',
 }
 function cmdEntry(cmd: string, onSelect?: () => void, disabled = false): Exclude<Entry, 'sep'> {
   const c = TD_CMDS[cmd]
@@ -375,6 +381,7 @@ function actions(): Record<string, [() => void, boolean]> {
     TechDraw_RadiusDimension: dim('Radius'), TechDraw_DiameterDimension: dim('Diameter'), TechDraw_AngleDimension: dim('Angle'),
     TechDraw_3PtAngleDimension: dim('Angle3Pt'),
     ...annotActions(c.havePage && c.haveView),
+    ...moreActions(c.havePage, c.havePage && c.haveView),
     TechDraw_Balloon: [() => balloon(), c.havePage && c.haveView && !getState().task], TechDraw_Annotation: [() => void annotation(), c.havePage],
     // ToggleFrame's isActive: Preferences > TechDraw > View Frames set to Manual, which a fresh profile is not
     TechDraw_ToggleFrame: [() => setTd((s) => ({ frames: !s.frames })), false],
@@ -576,11 +583,12 @@ export const TechDrawPage: FC<IDockviewPanelProps<PageParams>> = (props) => {
   }
   const drag = useRef<{ x: number; y: number; ref: string | null; moved: boolean; pan: boolean; vx: number; vy: number; el: Element | null } | null>(null)
   const onDown = (ev: React.PointerEvent) => {
+    if ((mode?.kind === 'track' || mode?.kind === 'place') && mode.page === page) return        // the tracker takes the clicks
     const ref = ev.button === 0 ? target(ev.target) : null
     const pan = ev.button !== 0 || !ref
     const [, obj] = ref ? splitRef(ref) : [null, null]
     const o = obj ? objOf(page, obj) : undefined
-    const movable = o && (isView(o) || o.kind === 'DrawProjGroup' || o.kind === 'DrawViewDimension' || o.kind === 'DrawViewBalloon' || o.kind === 'DrawViewAnnotation')
+    const movable = o && (isView(o) || o.kind === 'DrawProjGroup' || o.kind === 'DrawViewDimension' || o.kind === 'DrawViewBalloon' || o.kind === 'DrawViewAnnotation' || MORE_EDIT.movable.has(o.kind))
     drag.current = { x: ev.clientX, y: ev.clientY, ref, moved: false, pan, vx: view.x, vy: view.y, el: movable ? host.current : null }
     ;(ev.target as Element).setPointerCapture?.(ev.pointerId)
   }
@@ -601,7 +609,18 @@ export const TechDrawPage: FC<IDockviewPanelProps<PageParams>> = (props) => {
         host.current?.querySelectorAll(`[data-view="${item}"]`).forEach((x) => (x as SVGElement).setAttribute('transform', `translate(${dx / view.k} ${dy / view.k})`))
     }
   }
+  const lastClick = useRef<[number, number] | null>(null)
   const onUp = async (ev: React.PointerEvent) => {
+    if (mode?.kind === 'place' && mode.page === page && ev.button === 0) { mode.onPlace(pagePoint(ev.clientX, ev.clientY)); return }
+    if (mode?.kind === 'track' && mode.page === page) {
+      const p = pagePoint(ev.clientX, ev.clientY)
+      const lc = lastClick.current
+      if (lc && Math.abs(p[0] - lc[0]) + Math.abs(p[1] - lc[1]) < 1) return                    // QGTracker: within 1 mm of the last click
+      lastClick.current = p
+      if (ev.button === 0) mode.onChange([...mode.points, p])
+      else if (ev.button === 2) mode.onFinish(mode.points)
+      return
+    }
     const d = drag.current
     drag.current = null
     if (!d) return
@@ -642,6 +661,7 @@ export const TechDrawPage: FC<IDockviewPanelProps<PageParams>> = (props) => {
     setView((v) => { const k = Math.min(20, Math.max(0.02, v.k * f)); const px = ev.clientX - r.left, py = ev.clientY - r.top; return { k, x: px - (px - v.x) * (k / v.k), y: py - (py - v.y) * (k / v.k) } })
   }
   const onDouble = (ev: React.MouseEvent) => {
+    if (mode?.kind === 'track' && mode.page === page) { lastClick.current = null; mode.onFinish(mode.points); return }
     const ref = target(ev.target)
     if (!ref) return
     const [, obj] = splitRef(ref)
@@ -650,11 +670,12 @@ export const TechDrawPage: FC<IDockviewPanelProps<PageParams>> = (props) => {
   if (!doc) return <div className="td-page empty">Loading {page}…</div>
   return (
     <div className="td-page">
-      <div ref={box} className={cls('td-scene', (mode?.kind === 'balloon' || mode?.kind === 'pick') && 'placing')} onPointerDown={onDown} onPointerMove={onMove} onPointerUp={(ev) => void onUp(ev)}
+      <div ref={box} className={cls('td-scene', (mode?.kind === 'balloon' || mode?.kind === 'pick' || mode?.kind === 'track' || mode?.kind === 'place') && 'placing')} onPointerDown={onDown} onPointerMove={onMove} onPointerUp={(ev) => void onUp(ev)}
         onPointerLeave={() => setTd({ pre: null })} onWheel={onWheel} onDoubleClick={onDouble} onContextMenu={(ev) => ev.preventDefault()}
         onKeyDown={(ev) => { if (ev.key === 'Escape') setTd({ mode: null }) }} tabIndex={0}>
         <div className="td-sheet" style={{ transform: `translate(${view.x}px, ${view.y}px) scale(${view.k})` }}>
           <div ref={host} className={cls('td-svg', !useTd((s) => s.frames) && 'noframes')} />
+          <TrackerOverlay page={page} width={w * PX} height={h * PX} sheetH={h} />
         </div>
       </div>
     </div>
@@ -674,6 +695,8 @@ export function editObject(page: string, name: string) {
   if (o.kind === 'DrawProjGroup' || o.kind === 'DrawViewPart') { openTask('techdraw', page, `projgroup:${name}:edit`); return }
   if (o.kind === 'DrawViewDimension') { openTask('techdraw', page, `dimension:${name}:edit`); return }
   if (o.kind === 'DrawViewBalloon') { openTask('techdraw', page, `balloon:${name}:edit`); return }
+  const more = MORE_EDIT.task(o.kind, name)
+  if (more) openTask('techdraw', page, more)
 }
 export const closeTd = closeTask
 
@@ -711,7 +734,8 @@ export function TechDrawRows({ iconSize = 16 }: { iconSize?: number }) {
 const TD_ICON_KEYS: Record<string, true> = Object.fromEntries(Object.values(TD_CMDS).map((c) => [c.icon ?? '', true as const]).concat(
   ['TechDraw_TreePage', 'TechDraw_TreePageTemplate', 'TechDraw_TreeView', 'TechDraw_TreeProjGroup', 'TechDraw_TreeSection', 'TechDraw_TreeAnnotation',
     'TechDraw_Dimension', 'TechDraw_Balloon', 'TechDraw_LengthDimension', 'TechDraw_HorizontalDimension', 'TechDraw_VerticalDimension', 'TechDraw_RadiusDimension',
-    'TechDraw_DiameterDimension', 'TechDraw_AngleDimension', 'TechDraw_3PtAngleDimension'].map((n) => [`td-${n}`, true as const])))
+    'TechDraw_DiameterDimension', 'TechDraw_AngleDimension', 'TechDraw_3PtAngleDimension', 'TechDraw_TreeSymbol', 'TechDraw_Tile', 'TechDraw_LeaderLine',
+    'TechDraw_WeldSymbol', 'TechDraw_Image', 'TechDraw_ClipGroup'].map((n) => [`td-${n}`, true as const])))
 
 // ── the property view (PropertyEditor over the object's properties: techdraw_props.ts, the real FreeCAD's rows) ───────
 const NUMERIC = /Float|Distance|Length|Angle|Integer|Quantity|Percent/
@@ -737,13 +761,13 @@ export function TechDrawProps({ view = false }: { view?: boolean }) {
   const [page, name] = last
   const o = docs[page]?.objects.find((x) => x.name === name)
   if (!o) return null
-  const rows = (view ? TD_VIEW_PROPS : TD_PROPS)[o.kind] ?? []
+  const rows = (view ? { ...TD_VIEW_PROPS, ...TD_VIEW_PROPS_MORE } : { ...TD_PROPS, ...TD_PROPS_MORE })[o.kind] ?? []
   const groups = [...new Set(rows.map((r) => r.g))]
   const commit = (r: TdProp, v: unknown) => {
     const key = r.k === 'dim_type' || r.k === 'item_type' ? 'type' : r.k!
     void applyTd(page, [{ op: 'set', name, props: { [key]: v } }], `Edit ${name}.${r.p.replace(/ /g, '')}`)
   }
-  const show = (v: unknown) => Array.isArray(v) && v.length === 4 && v.every((x) => typeof x === 'number' && x >= 0 && x <= 1) ? `[${v.slice(0, 3).map((x) => Math.round(x * 255)).join(', ')}]` : Array.isArray(v) ? (v.length === 3 && v.every((x) => typeof x === 'number') ? `[${(v as number[]).map((x) => x.toFixed(2)).join(' ')}]`
+  const show = (v: unknown): string => Array.isArray(v) && v.length > 0 && v.every((x) => Array.isArray(x) && x.length === 3 && x.every((c) => typeof c === 'number')) ? (v as number[][]).map((x) => `[${x.map((c) => c.toFixed(2)).join(' ')}]`).join(' ') :  Array.isArray(v) && v.length === 4 && v.every((x) => typeof x === 'number' && x >= 0 && x <= 1) ? `[${v.slice(0, 3).map((x) => Math.round(x * 255)).join(', ')}]` : Array.isArray(v) ? (v.length === 3 && v.every((x) => typeof x === 'number') ? `[${(v as number[]).map((x) => x.toFixed(2)).join(' ')}]`
     : (v as unknown[]).map((x) => (Array.isArray(x) ? `${x[0]}.${x[1]}` : String(x))).join(', '))
     : v && typeof v === 'object' ? `[${Object.keys(v).length} items]` : v === null || v === undefined ? '' : String(v)
   return (

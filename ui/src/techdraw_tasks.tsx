@@ -22,6 +22,7 @@ import { TaskBox } from './panels'
 import { applyTd, clearPreview, objOf, tdState, useTd, type TdObj } from './techdraw'
 import type { IconName } from './icons'
 import { AnnotTask } from './techdraw_annot'
+import { MoreTask, MORE_KINDS } from './techdraw_more'
 
 const icon = (file: string, size: number) => <img src={`./freecad-icons/techdraw/${file}.svg`} width={size} height={size} alt="" />
 
@@ -36,6 +37,7 @@ function Buttons({ ok, cancel, okOff }: { ok(): void; cancel(): void; okOff?: bo
 export function TechDrawTask({ page, other }: { page: string; other: string }) {
   const [kind, name, mode] = other.split(':')
   const create = mode === 'create'
+  if (MORE_KINDS.includes(kind)) return <MoreTask page={page} other={other} />
   if (['cosvertex', 'cosline', 'coscircle', 'centerline', 'linedecor', 'hatch', 'geomhatch'].includes(kind)) return <AnnotTask page={page} other={other} />
   useEffect(() => () => clearPreview(page), [page])
   if (kind === 'projgroup') return <ProjGroupTask key={other} page={page} name={name} create={create} />

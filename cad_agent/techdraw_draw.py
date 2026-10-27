@@ -123,7 +123,7 @@ def _own_origin(doc, res, o):
     owner = O.owner_of(o) if not isinstance(o, (O.DrawLeaderLine, O.DrawWeldSymbol, O.DrawTileWeld)) else None
     if isinstance(o, O.DrawLeaderLine):
         return leader_geometry(doc, res, o)["origin"]
-    if owner and doc.get(owner) is not None and not isinstance(o, O.DrawRichAnno):
+    if owner and doc.get(owner) is not None:
         px, py, _s, _r = _object_origin(doc, res, owner)
         return px + o.x, py - o.y
     return o.x, res["height"] - o.y
@@ -282,7 +282,7 @@ def rich_layout(o):
     for runs in blocks:
         pt = max([r[5] for r in runs] or [9.0])
         h = pt * mm_pt * 1.2
-        base = y + pt * mm_pt
+        base = y + pt * mm_pt + 1.867 * pt / 9.0              # QGIRichAnno: the text is set down by its size, and the font's ascent
         x = 0.0
         placed = []
         for text, bold, ital, und, col, rpt in runs:
@@ -555,17 +555,30 @@ def _clip_prims(doc, res, c):
 
 # ── the page ─────────────────────────────────────────────────────────────────────────────────────────────
 
+def catalog(doc) -> dict:
+    """What the symbol, weld and image choosers offer: FreeCAD's symbol files, and the bitmaps of the project."""
+    pdir = getattr(doc, "pdir", None)
+    imgs = []
+    if pdir is not None and Path(pdir).is_dir():
+        for p in sorted(Path(pdir).rglob("*")):
+            rel = p.relative_to(pdir)
+            if p.suffix.lower() in O.IMAGE_EXTENSIONS and not rel.parts[0].startswith((".", "out")) and p.is_file():
+                imgs.append(str(rel))
+    return {"symbol_files": O.symbol_files(), "project_images": imgs}
+
+
 def results(doc) -> dict:
     """What the page, the CLI and the goldens read of these objects: leaders' points and local axes, rich text's size,
     symbols' places. Everything is in the page's mm with y down."""
     objs = [o for o in doc.objects if o.kind in {c.kind for c in O.NEW_CLASSES}]
+    cat = catalog(doc)
     if not objs:
-        return {}
+        return cat
     w, h = doc.page_size()
     res = {"views": {}, "height": h}
     for name, (x, y) in doc.pos.items():
         res["views"][name] = {"x": x, "y": y, "scale": doc.view_scale(doc.get(name)) if doc.get(name) is not None else 1.0}
-    out = {"leaders": {}, "richannos": {}, "symbols": {}, "welds": {}, "images": {}, "clips": {}}
+    out = {**cat, "leaders": {}, "richannos": {}, "symbols": {}, "welds": {}, "images": {}, "clips": {}}
     for o in objs:
         if isinstance(o, O.DrawLeaderLine):
             g = leader_geometry(doc, res, o)

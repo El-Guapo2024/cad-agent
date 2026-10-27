@@ -393,7 +393,7 @@ def _surface(s, E, op):
             elif sub.startswith("Edge"):
                 px, py = _edge_mid(geo.edges[i].occ)
             elif sub.startswith("Face"):
-                px, py = _face_center(geo, i)
+                px, py = _face_center(geo, owner, i)
             else:
                 px = py = 0.0
             x, y = px, -py                                    # DrawUtil::invertY(placement)
@@ -420,16 +420,20 @@ def _edge_mid(edge):
     return _mid_point(edge)
 
 
-def _face_center(geo, i):
-    """Face::getCenter: the centre of the face's outer wire's points."""
-    faces = getattr(geo, "faces", None)
-    if not faces or i >= len(faces):
-        return 0.0, 0.0
-    pts = [p for loop in faces[i].get("loops", faces[i].loops if hasattr(faces[i], "loops") else []) for p in loop] \
-        if isinstance(faces[i], dict) else []
-    if not pts:
-        return 0.0, 0.0
-    return sum(p[0] for p in pts) / len(pts), sum(p[1] for p in pts) / len(pts)
+def _face_center(geo, view, i):
+    """Face::getCenter: the centre of mass of the face the view's Face<i> wire bounds (BRepGProp::SurfaceProperties)."""
+    from OCP.BRepBuilderAPI import BRepBuilderAPI_MakeFace
+    from OCP.BRepGProp import BRepGProp
+    from OCP.GProp import GProp_GProps
+    from . import techdraw_cosmetic as C
+    wires = C.faces_of(geo, view)
+    if not (0 <= i < len(wires)):
+        raise ValueError(f"the view has no Face{i} ({len(wires)} faces)")
+    face = BRepBuilderAPI_MakeFace(wires[i], True).Face()
+    props = GProp_GProps()
+    BRepGProp.SurfaceProperties_s(face, props)
+    c = props.CentreOfMass()
+    return c.X(), c.Y()
 
 
 # ── images (TechDraw_Image) ───────────────────────────────────────────────────────────────────────────────

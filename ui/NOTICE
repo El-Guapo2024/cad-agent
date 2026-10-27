@@ -1670,3 +1670,21 @@ The build (npm run build) bundles React, three.js, three-cad-viewer, dockview
 and the Radix and Floating UI packages they use. It writes their licences, one by one with the texts
 their authors ship, into cad_agent/workbench/next/THIRD_PARTY_LICENSES.txt (scripts/licenses.mjs);
 the build also writes this file and LICENSE there.
+src/Mod/TechDraw/Gui/TaskLeaderLine.cpp   [licence: LGPL-2.1-or-later]
+    copyright 2019 WandererFan
+    followed by src/techdraw_more.tsx
+src/Mod/TechDraw/Gui/TaskRichAnno.cpp   [licence: LGPL-2.1-or-later]
+    copyright 2019 WandererFan
+    followed by src/techdraw_more.tsx
+src/Mod/TechDraw/Gui/TaskWeldingSymbol.cpp   [licence: LGPL-2.1-or-later]
+    copyright 2019 WandererFan
+    followed by src/techdraw_more.tsx
+src/Mod/TechDraw/Gui/SymbolChooser.cpp   [licence: LGPL-2.1-or-later]
+    copyright 2019 WandererFan
+    followed by src/techdraw_more.tsx
+src/Mod/TechDraw/Gui/TaskSurfaceFinishSymbols.cpp   [licence: LGPL-2.1-or-later]
+    copyright 2019 WandererFan
+    followed by src/techdraw_more.tsx
+src/Mod/TechDraw/Gui/QGTracker.cpp   [licence: LGPL-2.1-or-later]
+    copyright 2019 WandererFan
+    followed by src/techdraw_more.tsx

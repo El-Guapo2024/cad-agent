@@ -1052,25 +1052,27 @@ and objects, ui/scripts/fctechdraw.json) and `ui/scripts/techdrawcheck.mjs` (the
 | Hatching | done: Image Hatch (DrawHatch: the svg tile repeated over the face, as QGIFace::buildSvgHatch) and Geometric Hatch (DrawGeomHatch: FCPAT.pat's patterns, trimmed to the face by the same OCC Common; the lines equal makeGeomHatch's in 18 golden cases incl. dashes, shifts and origins); TaskHatch and TaskGeomHatch panels; hatches are children of their view in the tree; SVG, PDF (geometric only) and DXF (none) |
 | Export | done: SVG (10 units/mm as TechDraw's, the template inlined), DXF (each view's HLR compounds on its own layer, as TechDraw's writer), PDF (hand-written, the template drawn) |
 | Tree, property view, undo | done: the page's rows as FreeCAD's (dimensions and balloons under their view, sections at page level), the property view's rows and groups from FreeCAD's (techdraw_props.ts), each command one Edit > Undo step named as FreeCAD names it |
+| Leader line, rich text | done: TechDraw_LeaderLine (TaskLeaderLine: Pick Points is QGTracker, clicks on the page and a double or right click to end, OK is "Create Leader", the edit panel "Edit Leader"; X, Y and WayPoints equal the real GUI's at scale 1 and at scale 0.5 turned 30 degrees), TechDraw_RichTextAnnotation (TaskRichAnno: a click places the text, which is made at once as "Create Annotation" with FreeCAD's X, Y, and edited in place; AnnoText is the HTML QTextDocument::toHtml writes, equal to the GUI's for plain text; the edit panel is "Edit Annotation") |
+| Symbols | done: TechDraw_Symbol (a list of FreeCAD's 113 SVG symbols, unchanged in `cad_agent/techdraw_symbols/`, or a file of one's own; Symbol is the file's text; EditableTexts rewrite the SVG byte for byte as QDom writes it, 113 of 113), TechDraw_WeldSymbol (TaskWeldingSymbol with SymbolChooser; the two tiles and the symbol are made in FreeCAD's order, "Create Weld Symbol", the edit panel "Edit Weld Symbol"), TechDraw_SurfaceFinishSymbols (TaskSurfaceFinishSymbols: the six icons, ISO and ASME, the symbol's SVG text and its place on a vertex, edge, face, leader or the page equal the GUI's) |
+| Images, clip groups | done: TechDraw_Image (a bitmap of the project, or one uploaded into techdraw/images/), TechDraw_ClipGroup, ClipGroupAdd and ClipGroupRemove (DrawViewClip::addView's positions equal freecadcmd's), the views of a clip clipped on the page |
+| Property view | the new objects' rows and groups are FreeCAD's (techdraw_props_more.ts, from the real GUI) |
 
-Leader line, rich text, symbols, welds, surface finish, images and clip groups (branch techdraw-3, 2026-10-27), server side only so far:
-`cad_agent/techdraw_objs.py` (DrawLeaderLine, DrawRichAnno, DrawViewSymbol, DrawWeldSymbol, DrawTileWeld, DrawViewImage, DrawViewClip, in
-FreeCAD's property names), `techdraw_more.py` (the ops and their `cad techdraw leader|rich-text|symbol|weld|surface|image|clip|clip-add|
-clip-remove`), `techdraw_draw.py` (their drawing on the page, SVG; PDF and DXF omit symbols, images and rich text), FreeCAD's 113 symbol
-SVGs unchanged in `cad_agent/techdraw_symbols/` (NOTICE). Checked: tests/test_techdraw_more.py against freecadcmd (`make_more.py`: makeLeader's
-X, Y and WayPoints, the tiles' names and order, DrawViewClip.addView's positions, every property default, and EditableTexts rewriting
-byte for byte for all 113 symbols: QDom's writer reproduced) and against the real GUI's leader line (`fctechdraw_more.py`: panel widgets, clicks
-on the page, X, Y, WayPoints, view provider properties, undo step "Create Leader"; the other tools' sections of the dump are written but
-only the leader's recording is in `fctechdraw_more.json`). NOT done: the app's commands and task panels (the menu entries stay greyed),
-the GUI recordings of rich text, symbol, weld, surface finish, image and clip, their property view rows, the leader's scale and rotation
-checked in the GUI, a rich text's position (the formula of the annotation's X, Y under a parent is a guess), Complex Section, Broken View,
-the two undo steps of a section, and the extension commands (circles, arcs, parallel and perpendicular lines, Toggle Edge Visibility,
-threads, chain, coordinate and chamfer dimensions).
+Source: `cad_agent/techdraw_objs.py`, `techdraw_more.py` (ops; `cad techdraw leader|rich-text|symbol|weld|surface|image|clip|clip-add|clip-remove`),
+`techdraw_draw.py` (the page's drawing), `ui/src/techdraw_more.tsx` (commands, panels, tracker, rich text editor, file choosers). Checked by
+tests/test_techdraw_more.py (freecadcmd, tests/golden/techdraw/make_more.py), tests/test_techdraw_more_gui.py and `techdrawcheck.mjs --only=annot`
+(its "more" part) against ui/scripts/fctechdraw_more.json (ui/scripts/fctechdraw_more.py).
+
+Known differences of these tools: the leader's points are edited by picking them again, not by dragging QGEPath's markers; the rich text toolbar has
+bold, italic, underline, colour and size (not MRichTextEdit's whole set) and the text is laid out with an estimated advance, not Qt's metrics (so the
+frame's size and the weld tiles' texts are near FreeCAD's, not equal); SymbolChooser lists each symbol once (FreeCAD loads the folder twice); the file
+dialogs are lists of FreeCAD's symbols and the project's files with Browse for a file of one's own; an uploaded image is kept in
+techdraw/images/ and stays when the step is undone; PDF and DXF leave out symbols, images and rich text; a weld's tile symbol is drawn at the
+symbol factor 1.25 without Qt's font metrics; Toggle Edge Visibility, Broken View, Complex Section and the extension commands are not ported.
 
 Known differences, each marked `known` by techdrawcheck:
-- Commands not ported are greyed (Broken View, Complex Section, Clip Group, SVG/Bitmap, Project Shape, Active/Draft/BIM/Spreadsheet
-  views, Rich Text Annotation, Print All, leaders, welding and surface symbols, the extension commands: cosmetic 2/3-point circles,
-  arcs, parallel and perpendicular lines, Toggle Edge Visibility, threads and the rest); FreeCAD enables some of these where we grey them.
+- Commands not ported are greyed (Broken View, Complex Section, Project Shape, Active/Draft/BIM/Spreadsheet views, Print All, Toggle Edge
+  Visibility, the extension commands: cosmetic 2/3-point circles, arcs, parallel and perpendicular lines, threads, chain, coordinate and chamfer
+  dimensions and the rest); FreeCAD enables some of these where we grey them.
 - Line Decoration and Remove Cosmetic Object make no undo step in FreeCAD (no transaction is open); each is a step here. Cancel of
   Line Decoration on an HLR edge crashes FreeCAD. The centreline edit panel's style box shows Format.Style in FreeCAD, the line
   number here. The 3D-point radio buttons of the cosmetic panels are greyed. A cosmetic circle with one vertex has radius 0 and OK
@@ -1132,6 +1134,6 @@ Known differences:
 - Sketcher: external intersection is greyed "Not in this workbench yet"; external geometry of an ellipse or a B-spline, of a circle at an angle (read as an ellipse) or of a non-flat face is refused "not supported yet" ("Sketcher, 2026-10-24", "Attachment and datums, 2026-10-24").
 - Sketcher: Validate's Swap Endpoints in Constraints never enables, and the swap itself (port_reversedExternalArcs) is not ported ("Sketcher text and the commands on sketch objects, 2026-10-26").
 - Loft, Pipe and Helix: a Pipe whose end sections are not planar is refused, and a solid's face as a Pipe's or Helix's Profile is not offered ("PartDesign Loft, Pipe and Helix, 2026-10-24").
-- TechDraw: Broken View, Complex Section, Clip Group, SVG and bitmap views, Project Shape, views from other workbenches, Rich Text, leaders, welding and surface symbols and the extension commands are greyed; a section is one undo step, not two ("TechDraw workbench, 2026-10-27").
+- TechDraw: Broken View, Complex Section, Project Shape, views from other workbenches, Toggle Edge Visibility and the extension commands are greyed; a section is one undo step, not two ("TechDraw workbench, 2026-10-27").
 - Spreadsheet: Bind…, Configuration Table, zoom, printing, the line edits' completer, xlsx import and charts are cut ("Spreadsheet workbench, 2026-10-27").
 - The other workbenches: the selector offers only Assembly, CAD Agent, Inspection, Part Design, Part, Sketcher, Spreadsheet and TechDraw, so Draft, FEM, Mesh and the rest are not offered ("Toolbars").

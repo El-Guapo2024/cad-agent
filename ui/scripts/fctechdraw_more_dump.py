@@ -239,16 +239,15 @@ def answer_dialogs(holder, file=None, symbol=None):
 
 
 def proxy_widgets():
-    """The widgets inside the surface finish panel's graphics view (QGraphicsProxyWidget), by tool tip."""
+    """The widgets inside the surface finish panel's graphics view (QGraphicsProxyWidget), by tool tip: the application's widgets
+    that have one of the panel's tool tips (PySide returns the scene's proxies as plain items, so they are found this way)."""
+    names = ("Method", "Addition", "Average roughness", "Roughness sampling length", "Lay symbol", "Minimum roughness grade number",
+             "Maximum roughness grade number")
     out = {}
-    for v in mw.findChildren(QtWidgets.QGraphicsView):
-        if v.objectName() != "graphicsView" or not v.isVisible():
-            continue
-        for it in v.scene().items():
-            if isinstance(it, QtWidgets.QGraphicsProxyWidget):
-                w = it.widget()
-                out[w.toolTip()] = {"widget": w, "visible": it.isVisible(), "pos": [it.pos().x(), it.pos().y()],
-                                    "size": [w.width(), w.height()], "class": w.metaObject().className()}
+    for w in app.allWidgets():
+        t = w.toolTip()
+        if t in names and (t not in out or w.isVisible()):
+            out[t] = {"widget": w, "visible": w.isVisible(), "size": [w.width(), w.height()], "class": w.metaObject().className()}
     return out
 
 
@@ -317,26 +316,45 @@ def leader_section():
     safe("leader_edit", edit_existing)
 
 
+def mark(msg):
+    res.setdefault("progress", []).append(msg)
+    save()
+
+
 def richanno_section():
-    safe("richanno_wrong_page", lambda: run_cmd_plain("TechDraw_RichTextAnnotation", ["Page"]))
+    # a page (not a view) selected is no wrong selection: the panel opens with no base view. It is closed again before the next command,
+    # which would show "Task in progress" in a message box of its own event loop
+    def page_sel():
+        r = run_cmd_plain("TechDraw_RichTextAnnotation", ["Page"])
+        close_task()
+        pump(0.5)
+        return r
+    safe("richanno_page_selected", page_sel)
 
     def make(text_fn, base, at, frame=None, width=None):
         names = {o.Name for o in doc.Objects}
         select(base)
         undo = list(doc.UndoNames)
         holder = {}
+        wd = watch_dialogs(holder)
         out = {"selection": [[x.ObjectName, list(x.SubElementNames)] for x in Gui.Selection.getSelectionEx()]}
+        mark("run")
         Gui.runCommand("TechDraw_RichTextAnnotation", 0)
+        mark("ran")
         pump(1.5)
         out["panel_open"] = task_widgets()
         out["undo_after_open"] = new_undo(undo)
         out["made_after_open"] = [o.Name for o in doc.Objects if o.Name not in names]
         out["top_levels"] = [w.metaObject().className() for w in app.topLevelWidgets() if w.isVisible()]
+        mark("click")
         out["clicked"] = click_page(*at)
+        mark("clicked")
         pump(1.0)
         out["made_after_click"] = [o.Name for o in doc.Objects if o.Name not in names]
         out["panel_placed"] = task_widgets()
+        mark("editors")
         eds = rich_editors()
+        mark("editors found %d" % len(eds))
         out["editors"] = [[e["top"], e["visible"]] for e in eds]
         if frame is not None:
             gb = child("gbFrame", QtWidgets.QGroupBox)
@@ -346,6 +364,7 @@ def richanno_section():
         if width is not None:
             out["width"] = set_quantity("dsbMaxWidth", width)
         if text_fn is not None and eds:
+            mark("text")
             out["text"] = text_fn([e["edit"] for e in eds if e["top"] != "Gui::MainWindow"] or [eds[0]["edit"]])
         pump(0.8)
         out["before_ok"] = [object_state(n.Name) for n in doc.Objects if n.Name not in names and n.TypeId == "TechDraw::DrawRichAnno"]
@@ -354,6 +373,8 @@ def richanno_section():
         out["undo"] = new_undo(undo)
         out["made"] = objects_made(names)
         out["dialog_open_after"] = bool(Gui.Control.activeDialog())
+        wd.stop()
+        out["dialogs"] = holder.get("dialogs", [])
         close_task()
         out["tree"] = tree_rows()
         return out
@@ -525,7 +546,10 @@ def surface_section():
         px = proxy_widgets()
         out["proxies"] = {k: {kk: vv for kk, vv in v.items() if kk != "widget"} for k, v in px.items()}
         if edit:
-            out["edit"] = edit(px)
+            try:
+                out["edit"] = edit(px)
+            except Exception:
+                out["edit_error"] = traceback.format_exc()
             pump(0.6)
         out["button"] = click_button("OK")
         settle()
@@ -630,6 +654,29 @@ def clip_section():
     safe("clip_after_remove", lambda: {"clip": object_state("Clip"), "view": object_state("View")})
 
 
+def leader2_section():
+    """A leader on a view at scale 0.5 turned 30 degrees: X, Y and WayPoints are unscaled and unrotated (createLeaderFeature)."""
+    v = doc.getObject("View")
+    v.ScaleType = "Custom"
+    v.Scale = 0.5
+    v.Rotation = 30.0
+    v.recompute()
+    settle(2.5)
+    res["leader2_view"] = {"pos": view_page_pos("View"), "scale": v.Scale, "rotation": v.Rotation.Value}
+    pts = [(140.0, 100.0), (160.0, 118.0), (185.0, 118.0)]
+
+    def pick():
+        click_button("Pick Points")
+        pump(0.5)
+        return {"points": click_points(pts)}
+    safe("leader_scaled", lambda: run_tool_more("TechDraw_LeaderLine", ["View"], pick))
+    safe("leader_scaled_svg", svg_page)
+    v.Scale = 1.0
+    v.Rotation = 0.0
+    v.recompute()
+    settle(2.0)
+
+
 def main():
     global doc
     pump(1.5)
@@ -664,6 +711,8 @@ def main():
     res["page_view"] = bool(page_view())
     if want("leader"):
         leader_section()
+    if want("leader2"):
+        leader2_section()
     if want("richanno"):
         richanno_section()
     if want("symbol"):
