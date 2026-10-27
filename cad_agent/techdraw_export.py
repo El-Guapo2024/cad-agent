@@ -302,16 +302,20 @@ def display(doc, frames: bool = False) -> list:
     from . import techdraw as T
     res = doc.result()
     out = []
-    for name, v in res["views"].items():
-        if "edges" not in v:
-            continue
-        ox, oy = view_origin(res, name)
-        if frames:
+    if frames:          # under every view's lines, so a click on a line finds the line
+        for name, v in res["views"].items():
+            if "edges" not in v:
+                continue
+            ox, oy = view_origin(res, name)
             x0, y0, x1, y1 = v["box"]
             m = 5.0                                     # QGIView's frame: a margin about the view's lines
             out.append(Prim("path", [("M", ox + x0 - m, oy + y0 - m), ("L", ox + x1 + m, oy + y0 - m), ("L", ox + x1 + m, oy + y1 + m),
                                      ("L", ox + x0 - m, oy + y1 + m), ("Z",)], width=0.18, dash=(1.0, 1.0), stroke="#c0c0c0",
                             fill="none", attrs={"data-view": name, "class": "td-frame"}))
+    for name, v in res["views"].items():
+        if "edges" not in v:
+            continue
+        ox, oy = view_origin(res, name)
         for loop_face in v.get("faces", []):
             segs = []
             for loop in loop_face["loops"]:

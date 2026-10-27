@@ -148,7 +148,7 @@ DIM_ICONS = {"Distance": "TechDraw_LengthDimension", "DistanceX": "TechDraw_Hori
 
 def tree(objs) -> list:
     """The tree's rows as FreeCAD shows a page (ViewProviderPage::claimChildren: the Template, then the page's views;
-    a group claims its items, a view its dimensions, balloons and the sections cut from it)."""
+    a group claims its items, a view its dimensions and balloons; a section stays on the page)."""
     by = {o.name: o for o in objs}
     page = next((o for o in objs if isinstance(o, T.DrawPage)), None)
     if page is None:
@@ -161,8 +161,6 @@ def tree(objs) -> list:
             parent = o.view()
         elif isinstance(o, T.DrawViewBalloon):
             parent = o.source_view
-        elif isinstance(o, T.DrawViewSection):
-            parent = o.base_view
         elif isinstance(o, T.DrawProjGroupItem) and doc.group_of(o.name) is not None:
             parent = doc.group_of(o.name).name
         if parent in by:

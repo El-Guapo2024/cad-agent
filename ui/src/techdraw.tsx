@@ -30,6 +30,7 @@ import { cls, EditRow, Group, Row } from './panels'
 import { messageBox } from './msgbox'
 import type { Entry } from './chrome'
 import { TD_CMDS } from './techdraw_cmds'
+import { TD_PROPS, type TdProp } from './techdraw_props'
 import './techdraw.css'
 
 // ── the model (cad_agent/techdraw_edit.py's read and techdraw.PageDocument.result) ──────────────────────────────────
@@ -42,7 +43,7 @@ export type TdResult = { page: string | null; width: number; height: number; tem
   views: Record<string, TdView>; dimensions: Record<string, TdDim>; sections: Record<string, unknown>; errors: Record<string, string> }
 export type TdDoc = { project: string; page: string; objects: TdObj[]; tree: TdRow[]; result?: TdResult; svg?: string }
 
-type Mode = { kind: 'balloon'; page: string } | null
+type Mode = { kind: 'balloon'; page: string; view: string } | null
 type TdState = { pages: string[]; docs: Record<string, TdDoc>; sel: string[]; pre: string | null; mode: Mode; frames: boolean
   /** a task panel's preview of a page (a dry run): the page drawn as the panel's values would leave it */
   preview: Record<string, TdDoc> }
@@ -292,7 +293,7 @@ function balloon() {
   const v = st.sel.map(splitRef).find(([p, n]) => p === page && isView(objOf(p, n)))
   if (!v) { warn('Incorrect selection', 'Select a View'); return }
   openPage(page)
-  setTd({ mode: { kind: 'balloon', page } })
+  setTd({ mode: { kind: 'balloon', page, view: v[1] } })
   report('msg', 'Click on the view where the balloon should point')
 }
 async function placeBalloon(page: string, view: string, origin: [number, number]) {
@@ -600,13 +601,12 @@ export const TechDrawPage: FC<IDockviewPanelProps<PageParams>> = (props) => {
     const d = drag.current
     drag.current = null
     if (!d) return
-    if (mode?.kind === 'balloon' && !d.moved && d.ref) {
-      const [, obj] = splitRef(d.ref)
-      const vname = isView(objOf(page, obj)) ? obj : null
-      const v = vname ? doc?.result?.views[vname] : null
-      if (v && vname) {
+    if (mode?.kind === 'balloon' && mode.page === page && !d.moved) {
+      // QGVPage's balloon placing: the click is where the balloon points, on the view the command was given
+      const v = doc?.result?.views[mode.view]
+      if (v) {
         const [px, py] = pagePoint(ev.clientX, ev.clientY)
-        await placeBalloon(page, vname, [px - v.x, py - v.y])
+        await placeBalloon(page, mode.view, [px - v.x, py - v.y])
       }
       return
     }
@@ -704,64 +704,17 @@ const TD_ICON_KEYS: Record<string, true> = Object.fromEntries(Object.values(TD_C
     'TechDraw_Dimension', 'TechDraw_Balloon', 'TechDraw_LengthDimension', 'TechDraw_HorizontalDimension', 'TechDraw_VerticalDimension', 'TechDraw_RadiusDimension',
     'TechDraw_DiameterDimension', 'TechDraw_AngleDimension', 'TechDraw_3PtAngleDimension'].map((n) => [`td-${n}`, true as const])))
 
-// ── the property view (PropertyEditor over the object's properties, FreeCAD's groups and names) ───────────────────
-type PropDef = { g: string; p: string; k: string; t: 'bool' | 'float' | 'int' | 'string' | 'enum' | 'vector' | 'link' | 'list' | 'ro'; e?: string[] }
-const VIEW_PROPS: PropDef[] = [
-  { g: 'Base', p: 'X', k: 'x', t: 'float' }, { g: 'Base', p: 'Y', k: 'y', t: 'float' }, { g: 'Base', p: 'Lock Position', k: 'lock_position', t: 'bool' },
-  { g: 'Base', p: 'Rotation', k: 'rotation', t: 'float' }, { g: 'Base', p: 'Scale Type', k: 'scale_type', t: 'enum', e: ['Page', 'Automatic', 'Custom'] },
-  { g: 'Base', p: 'Scale', k: 'scale', t: 'float' }, { g: 'Base', p: 'Caption', k: 'caption', t: 'string' }, { g: 'Base', p: 'Label', k: 'label', t: 'string' },
-  { g: 'Projection', p: 'Source', k: 'source', t: 'list' }, { g: 'Projection', p: 'Direction', k: 'direction', t: 'vector' },
-  { g: 'Projection', p: 'X Direction', k: 'x_direction', t: 'vector' }, { g: 'Projection', p: 'Perspective', k: 'perspective', t: 'bool' },
-  { g: 'Projection', p: 'Focus', k: 'focus', t: 'float' },
-  { g: 'HLR Parameters', p: 'Coarse View', k: 'coarse_view', t: 'bool' }, { g: 'HLR Parameters', p: 'Smooth Visible', k: 'smooth_visible', t: 'bool' },
-  { g: 'HLR Parameters', p: 'Seam Visible', k: 'seam_visible', t: 'bool' }, { g: 'HLR Parameters', p: 'Iso Visible', k: 'iso_visible', t: 'bool' },
-  { g: 'HLR Parameters', p: 'Hard Hidden', k: 'hard_hidden', t: 'bool' }, { g: 'HLR Parameters', p: 'Smooth Hidden', k: 'smooth_hidden', t: 'bool' },
-  { g: 'HLR Parameters', p: 'Seam Hidden', k: 'seam_hidden', t: 'bool' }, { g: 'HLR Parameters', p: 'Iso Hidden', k: 'iso_hidden', t: 'bool' },
-  { g: 'HLR Parameters', p: 'Iso Count', k: 'iso_count', t: 'int' }, { g: 'HLR Parameters', p: 'Scrub Count', k: 'scrub_count', t: 'int' },
-]
-const PROPS: Record<string, PropDef[]> = {
-  DrawPage: [{ g: 'Base', p: 'Label', k: 'label', t: 'string' }, { g: 'Page', p: 'Keep Updated', k: 'keep_updated', t: 'bool' },
-    { g: 'Page', p: 'Template', k: 'template', t: 'link' }, { g: 'Page', p: 'Projection Type', k: 'projection_type', t: 'enum', e: ['First angle', 'Third angle'] },
-    { g: 'Page', p: 'Scale', k: 'scale', t: 'float' }, { g: 'Page', p: 'Next Balloon Index', k: 'next_balloon_index', t: 'int' }],
-  DrawSVGTemplate: [{ g: 'Base', p: 'Label', k: 'label', t: 'string' }, { g: 'Template', p: 'Template', k: 'template', t: 'ro' }],
-  DrawViewPart: VIEW_PROPS,
-  DrawProjGroupItem: [...VIEW_PROPS, { g: 'Base', p: 'Type', k: 'item_type', t: 'ro' }],
-  DrawViewSection: [...VIEW_PROPS, { g: 'Section', p: 'Base View', k: 'base_view', t: 'link' }, { g: 'Section', p: 'Section Symbol', k: 'section_symbol', t: 'string' },
-    { g: 'Section', p: 'Section Normal', k: 'section_normal', t: 'vector' }, { g: 'Section', p: 'Section Origin', k: 'section_origin', t: 'vector' },
-    { g: 'Cut Surface Format', p: 'Cut Surface Display', k: 'cut_surface_display', t: 'enum', e: ['Hide', 'Color', 'SvgHatch', 'PatHatch'] },
-    { g: 'Cut Operation', p: 'Fuse Before Cut', k: 'fuse_before_cut', t: 'bool' }, { g: 'Cut Operation', p: 'Trim After Cut', k: 'trim_after_cut', t: 'bool' },
-    { g: 'Appearance', p: 'Section Line Stretch', k: 'section_line_stretch', t: 'float' }],
-  DrawProjGroup: [{ g: 'Base', p: 'X', k: 'x', t: 'float' }, { g: 'Base', p: 'Y', k: 'y', t: 'float' }, { g: 'Base', p: 'Lock Position', k: 'lock_position', t: 'bool' },
-    { g: 'Base', p: 'Scale Type', k: 'scale_type', t: 'enum', e: ['Page', 'Automatic', 'Custom'] }, { g: 'Base', p: 'Scale', k: 'scale', t: 'float' },
-    { g: 'Base', p: 'Label', k: 'label', t: 'string' }, { g: 'Base', p: 'Source', k: 'source', t: 'list' }, { g: 'Base', p: 'Anchor', k: 'anchor', t: 'link' },
-    { g: 'Base', p: 'Projection Type', k: 'projection_type', t: 'enum', e: ['First angle', 'Third angle', 'Default'] }, { g: 'Collection', p: 'Views', k: 'views', t: 'list' },
-    { g: 'Distribute', p: 'Auto Distribute', k: 'auto_distribute', t: 'bool' }, { g: 'Distribute', p: 'spacing X', k: 'spacing_x', t: 'float' },
-    { g: 'Distribute', p: 'spacing Y', k: 'spacing_y', t: 'float' }],
-  DrawViewDimension: [{ g: 'Base', p: 'X', k: 'x', t: 'float' }, { g: 'Base', p: 'Y', k: 'y', t: 'float' }, { g: 'Base', p: 'Label', k: 'label', t: 'string' },
-    { g: 'Format', p: 'Format Spec', k: 'format_spec', t: 'string' }, { g: 'Format', p: 'Format Spec Over Tolerance', k: 'format_spec_over_tolerance', t: 'string' },
-    { g: 'Format', p: 'Format Spec Under Tolerance', k: 'format_spec_under_tolerance', t: 'string' }, { g: 'Format', p: 'Arbitrary', k: 'arbitrary', t: 'bool' },
-    { g: 'Format', p: 'Arbitrary Tolerances', k: 'arbitrary_tolerances', t: 'bool' }, { g: 'Format', p: 'Show Units', k: 'show_units', t: 'bool' },
-    { g: 'Override', p: 'Angle Override', k: 'angle_override', t: 'bool' }, { g: 'Override', p: 'Line Angle', k: 'line_angle', t: 'float' },
-    { g: 'Override', p: 'Extension Angle', k: 'extension_angle', t: 'float' },
-    { g: 'Dimension', p: 'Type', k: 'dim_type', t: 'enum', e: ['Distance', 'DistanceX', 'DistanceY', 'DistanceZ', 'Radius', 'Diameter', 'Angle', 'Angle3Pt', 'Area'] },
-    { g: 'Dimension', p: 'Measure Type', k: 'measure_type', t: 'enum', e: ['True', 'Projected'] }, { g: 'Dimension', p: 'References2D', k: 'references_2d', t: 'list' },
-    { g: 'Dimension', p: 'Theoretical Exact', k: 'theoretical_exact', t: 'bool' }, { g: 'Dimension', p: 'Equal Tolerance', k: 'equal_tolerance', t: 'bool' },
-    { g: 'Dimension', p: 'Over Tolerance', k: 'over_tolerance', t: 'float' }, { g: 'Dimension', p: 'Under Tolerance', k: 'under_tolerance', t: 'float' },
-    { g: 'Dimension', p: 'Inverted', k: 'inverted', t: 'bool' }, { g: 'Dimension', p: 'Show Supplementary', k: 'show_supplementary', t: 'bool' }],
-  DrawViewBalloon: [{ g: 'Base', p: 'X', k: 'x', t: 'float' }, { g: 'Base', p: 'Y', k: 'y', t: 'float' }, { g: 'Base', p: 'Lock Position', k: 'lock_position', t: 'bool' },
-    { g: 'Base', p: 'Label', k: 'label', t: 'string' }, { g: 'Balloon', p: 'Text', k: 'text', t: 'string' }, { g: 'Balloon', p: 'Source View', k: 'source_view', t: 'link' },
-    { g: 'Balloon', p: 'Origin X', k: 'origin_x', t: 'float' }, { g: 'Balloon', p: 'Origin Y', k: 'origin_y', t: 'float' },
-    { g: 'Balloon', p: 'End Type', k: 'end_type', t: 'enum', e: ['Filled arrow', 'Open arrow', 'Tick', 'Dot', 'Open circle', 'Fork', 'Filled triangle', 'None'] },
-    { g: 'Balloon', p: 'End Type Scale', k: 'end_type_scale', t: 'float' },
-    { g: 'Balloon', p: 'Bubble Shape', k: 'bubble_shape', t: 'enum', e: ['Circular', 'None', 'Triangle', 'Inspection', 'Hexagon', 'Square', 'Rectangle', 'Line'] },
-    { g: 'Balloon', p: 'Shape Scale', k: 'shape_scale', t: 'float' }, { g: 'Balloon', p: 'Kink Length', k: 'kink_length', t: 'float' }],
-  DrawViewAnnotation: [{ g: 'Base', p: 'X', k: 'x', t: 'float' }, { g: 'Base', p: 'Y', k: 'y', t: 'float' }, { g: 'Base', p: 'Lock Position', k: 'lock_position', t: 'bool' },
-    { g: 'Base', p: 'Rotation', k: 'rotation', t: 'float' }, { g: 'Base', p: 'Caption', k: 'caption', t: 'string' }, { g: 'Base', p: 'Label', k: 'label', t: 'string' },
-    { g: 'Annotation', p: 'Text', k: 'text', t: 'list' }, { g: 'Annotation', p: 'Font', k: 'font', t: 'string' }, { g: 'Annotation', p: 'Text Size', k: 'text_size', t: 'float' },
-    { g: 'Annotation', p: 'Max Width', k: 'max_width', t: 'float' }, { g: 'Annotation', p: 'Line Space', k: 'line_space', t: 'int' },
-    { g: 'Annotation', p: 'Text Style', k: 'text_style', t: 'enum', e: ['Normal', 'Bold', 'Italic', 'Bold-Italic'] }],
+// ── the property view (PropertyEditor over the object's properties: techdraw_props.ts, the real FreeCAD's rows) ───────
+const NUMERIC = /Float|Distance|Length|Angle|Integer|Quantity|Percent/
+/** What a row the page file does not hold shows: the template's size, a page's views. */
+function derived(page: string, o: TdObj, p: string): unknown {
+  const d = st.docs[page]
+  if (o.kind === 'DrawSVGTemplate' && (p === 'Width' || p === 'Height')) return p === 'Width' ? d?.result?.width : d?.result?.height
+  if (o.kind === 'DrawSVGTemplate' && p === 'Orientation') return (d?.result?.width ?? 0) >= (d?.result?.height ?? 0) ? 'Landscape' : 'Portrait'
+  if (o.kind === 'DrawPage' && p === 'Views') return d?.objects.filter((x) => x.kind !== 'DrawPage' && x.kind !== 'DrawSVGTemplate' && !groupOf(page, x.name)).map((x) => x.name)
+  return undefined
 }
-/** The selected page object's property view (Data tab). */
+/** The selected page object's property view (Data tab): FreeCAD's groups and rows, the ones the page file holds editable. */
 export function TechDrawProps() {
   const sel = useTd((s) => s.sel)
   const docs = useTd((s) => s.docs)
@@ -770,28 +723,30 @@ export function TechDrawProps() {
   const [page, name] = last
   const o = docs[page]?.objects.find((x) => x.name === name)
   if (!o) return null
-  const defs = PROPS[o.kind] ?? []
-  const groups = [...new Set(defs.map((d) => d.g))].sort()
-  const commit = (d: PropDef, v: unknown) => {
-    const key = d.k === 'dim_type' || d.k === 'item_type' ? 'type' : d.k
-    void applyTd(page, [{ op: 'set', name, props: { [key]: v } }], `Edit ${name}.${d.p.replace(/ /g, '')}`)
+  const rows = TD_PROPS[o.kind] ?? []
+  const groups = [...new Set(rows.map((r) => r.g))]
+  const commit = (r: TdProp, v: unknown) => {
+    const key = r.k === 'dim_type' || r.k === 'item_type' ? 'type' : r.k!
+    void applyTd(page, [{ op: 'set', name, props: { [key]: v } }], `Edit ${name}.${r.p.replace(/ /g, '')}`)
   }
   const show = (v: unknown) => Array.isArray(v) ? (v.length === 3 && v.every((x) => typeof x === 'number') ? `[${(v as number[]).map((x) => x.toFixed(2)).join(' ')}]`
-    : (v as unknown[]).map((x) => (Array.isArray(x) ? `${x[0]}.${x[1]}` : String(x))).join(', ')) : v === null || v === undefined ? '' : String(v)
+    : (v as unknown[]).map((x) => (Array.isArray(x) ? `${x[0]}.${x[1]}` : String(x))).join(', '))
+    : v && typeof v === 'object' ? `[${Object.keys(v).length} items]` : v === null || v === undefined ? '' : String(v)
   return (
     <>{groups.map((g) => (
       <Group key={g} title={g}>
-        {defs.filter((d) => d.g === g).map((d) => {
-          const v = d.k === 'label' ? labelOf(o) : o[d.k]
-          if (d.t === 'bool' || d.t === 'float' || d.t === 'int' || d.t === 'string') {
-            return <EditRow key={d.k} k={d.p} value={v} type={d.t === 'string' ? 'str' : d.t} depth={1} onCommit={(nv) => commit(d, nv)} />
+        {rows.filter((r) => r.g === g).map((r) => {
+          const v = r.k === 'label' ? labelOf(o) : r.k ? o[r.k] : derived(page, o, r.p)
+          const ro = !r.k || (o.kind === 'DrawProjGroupItem' && r.k === 'item_type')
+          if (!ro && r.t.endsWith('Bool')) return <EditRow key={r.p} k={r.p} value={v} type="bool" depth={1} onCommit={(nv) => commit(r, nv)} />
+          if (!ro && NUMERIC.test(r.t)) return <EditRow key={r.p} k={r.p} value={v} type={/Integer/.test(r.t) ? 'int' : 'float'} depth={1} onCommit={(nv) => commit(r, nv)} />
+          if (!ro && r.t.endsWith('PropertyString')) return <EditRow key={r.p} k={r.p} value={v} type="str" depth={1} onCommit={(nv) => commit(r, nv)} />
+          if (!ro && r.e) {
+            return <div key={r.p} className="prow" tabIndex={0}><span className="pk" style={{ paddingLeft: 16 }}>{r.p}</span>
+              <span className="pv"><select className="pselect" value={String(v)} onChange={(ev) => commit(r, ev.target.value)}>
+                {r.e.map((x) => <option key={x} value={x}>{x}</option>)}</select></span></div>
           }
-          if (d.t === 'enum') {
-            return <div key={d.k} className="prow" tabIndex={0}><span className="pk" style={{ paddingLeft: 16 }}>{d.p}</span>
-              <span className="pv"><select className="pselect" value={String(v)} onChange={(ev) => commit(d, ev.target.value)}>
-                {d.e!.map((x) => <option key={x} value={x}>{x}</option>)}</select></span></div>
-          }
-          return <Row key={d.k} k={d.p} v={show(v)} depth={1} />
+          return <Row key={r.p} k={r.p} v={show(v)} depth={1} />
         })}
       </Group>))}</>
   )

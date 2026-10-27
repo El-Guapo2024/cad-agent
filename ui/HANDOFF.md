@@ -127,6 +127,10 @@ Step 5, round 3 (six branches) is all in main (7526c0c, CI green, 6977 passed, 2
   124 ok, 0 FAIL. Cut: rigid groups, sub-assemblies, link arrays, exploded views, snapshots, simulation, the BOM object
   (PARITY.md "Assembly workbench"). Run assemblycheck with CAD_PYTHON set in a worktree without its own .venv.
 
+TechDraw (branch techdraw, 2026-10-27): pages as techdraw/<Page>.py, `cad techdraw`, the workbench in the page (views,
+projection groups, sections, dimensions, balloons, annotations, SVG/DXF/PDF). HLR numbering equals FreeCAD's; checks are
+tests/test_techdraw_{golden,svg,edit}.py and ui/scripts/techdrawcheck.mjs; differences in ui/PARITY.md ("TechDraw workbench").
+
 ## Next (paused 2026-10-23)
 1. ~~Hidden specs~~ (done 2026-10-23): `pinned_carrier` and `hotplate_standoffs` count their holes `through`, and
    `syringe_clamp` grades its bore with `[[shaft_fit]]`; tests/test_eval.py GAPS has the design each one catches.

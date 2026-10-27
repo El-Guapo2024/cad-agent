@@ -14,6 +14,7 @@
 .td-svg text.td-pre { fill: #0ac8ff; }
 .td-svg .td-sel { stroke: #00abff; }
 .td-svg text.td-sel { fill: #00abff; }
+.td-svg path.td-face { pointer-events: none; }   /* a section face is drawn, not picked (faces are not selectable here) */
 .td-svg path.td-face.td-sel, .td-svg path.td-face.td-pre { stroke: none; }
 .qf-btn.on { outline: 2px solid #00abff; }
 .td-svg .td-frame { fill: transparent; pointer-events: all; }
