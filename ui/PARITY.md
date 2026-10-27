@@ -1022,7 +1022,7 @@ and `src/spreadsheet_model.ts`. The checks: `ui/scripts/exprdiff_py.py` (the Pyt
 cases, tests/golden/spreadsheet: every cell's content, property type, value or "ERR:" message, the look, the `<Cell>` attributes a
 document saves, sizes, the errors, a reopened document, a Pad driven by a cell, CSV), tests/test_spreadsheet_view.py
 (SheetModel::data for 60 cells, #PENDING and the cycles against ui/scripts/fcspreadsheet.json, the real GUI's model), and
-`ui/scripts/spreadsheetcheck.mjs` (the page against fcspreadsheet.json: SPREADSHEETCHECK_RESULT).
+`ui/scripts/spreadsheetcheck.mjs` (the page against fcspreadsheet.json: 285 ok, 12 known, 0 FAIL).
 
 | Item | Status |
 |---|---|
@@ -1046,6 +1046,8 @@ Known differences:
 - Paste follows the page's own clipboard (the cells copied in the page, and text from the system clipboard when the browser lets the
   page read it); New Spreadsheet and Import are active with no document open, as the project is the document.
 - A cell's value is the server's: there is no #PENDING state in the page, since every edit is recomputed before it shows.
+- The Content line edit is enabled from the start (FreeCAD enables it when a cell first becomes current); Ctrl+Down runs
+  SheetTableView's region scan here, where the recording's Ctrl+Down did not move (spreadsheetcheck's `known` lines).
 
 ## Still missing
 

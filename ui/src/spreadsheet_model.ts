@@ -251,7 +251,8 @@ export function moveKey(sh: SsSheet, cur: Addr, key: string, mods: Mods, tab: nu
     case 'ArrowRight': if (c >= maxCol) break; if (mods.ctrl) scan(0, 1); else c += colSpan; tab = 0; break
     case 'ArrowUp': if (r === 0) break; if (mods.ctrl) scan(-1, 0); else r--; tab = 0; break
     case 'ArrowDown': if (r >= maxRow) break; if (mods.ctrl) scan(1, 0); else r += rowSpan; tab = 0; break
-    case 'Tab': if (!mods.shift) { tab++; c += colSpan } else { tab = 0; c-- } break
+    // Qt sends Shift+Tab as Key_Backtab with the Shift modifier, which finishEditWithMove leaves where it is
+    case 'Tab': if (!mods.shift) { tab++; c += colSpan } else tab = 0; break
   }
   const p = anchorOf(sh, { row: Math.max(0, Math.min(r, maxRow)), col: Math.max(0, Math.min(c, maxCol)) })
   return { to: { row: Math.max(0, Math.min(p.row, maxRow)), col: Math.max(0, Math.min(p.col, maxCol)) }, tab }

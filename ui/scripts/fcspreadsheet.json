@@ -4916,73 +4916,73 @@
  "cycles": {
   "first": {
    "A1": {
-    "display": "5",
-    "edit": "5",
-    "tooltip": null,
-    "fg": "#000000",
-    "bg": "#ffffff",
+    "display": "=A2 + 1",
+    "edit": "=A2 + 1",
+    "tooltip": "<pre>Cyclic dependency\nA1, A2</pre>",
+    "fg": "#ff0000",
+    "bg": null,
     "align": [
-     "right",
+     "left",
      "vcenter"
     ],
     "font": []
    },
    "B1": {
-    "display": "3.00 mm",
-    "edit": "=3 mm",
-    "tooltip": "thick",
-    "fg": "#000000",
-    "bg": "#ffffff",
+    "display": "5",
+    "edit": "5",
+    "tooltip": "<pre>Pending computation due to cyclic dependency</pre>",
+    "fg": "#ff0000",
+    "bg": null,
     "align": [
-     "right",
+     "left",
      "vcenter"
     ],
     "font": []
    },
    "A2": {
-    "display": "-3",
-    "edit": "-3",
-    "tooltip": null,
-    "fg": "#000000",
-    "bg": "#ffffff",
+    "display": "=A1",
+    "edit": "=A1",
+    "tooltip": "<pre>Cyclic dependency\nA1, A2</pre>",
+    "fg": "#ff0000",
+    "bg": null,
     "align": [
-     "right",
+     "left",
      "vcenter"
     ],
     "font": []
    },
    "B2": {
-    "display": "1000.00 mm",
-    "edit": "=1 m",
-    "tooltip": null,
-    "fg": "#000000",
-    "bg": "#ffffff",
+    "display": "=B1 * 2",
+    "edit": "=B1 * 2",
+    "tooltip": "<pre>Pending computation due to cyclic dependency</pre>",
+    "fg": "#ff0000",
+    "bg": null,
     "align": [
-     "right",
+     "left",
      "vcenter"
     ],
     "font": []
    },
    "A3": {
-    "display": "2.50",
-    "edit": "2.5",
-    "tooltip": "ratio",
-    "fg": "#000000",
-    "bg": "#ffffff",
+    "display": "=A3",
+    "edit": "=A3",
+    "tooltip": "<pre>Cyclic dependency\nA3</pre>",
+    "fg": "#ff0000",
+    "bg": null,
     "align": [
-     "right",
+     "left",
      "vcenter"
     ],
     "font": []
    },
    "B3": {
-    "display": "1.00 m^2",
-    "edit": "=1 m * 1 m",
+    "display": null,
+    "edit": null,
     "tooltip": null,
-    "fg": "#000000",
-    "bg": "#ffffff",
+    "fg": "#0000ff",
+    "bg": null,
     "align": [
-     "right",
+     "hcenter",
      "vcenter"
     ],
     "font": []
@@ -4991,10 +4991,10 @@
   "fixed": {
    "A1": {
     "display": "5",
-    "edit": "5",
+    "edit": "=A2 + 1",
     "tooltip": null,
-    "fg": "#000000",
-    "bg": "#ffffff",
+    "fg": "#212529",
+    "bg": null,
     "align": [
      "right",
      "vcenter"
@@ -5002,11 +5002,11 @@
     "font": []
    },
    "B1": {
-    "display": "3.00 mm",
-    "edit": "=3 mm",
-    "tooltip": "thick",
-    "fg": "#000000",
-    "bg": "#ffffff",
+    "display": "5",
+    "edit": "5",
+    "tooltip": null,
+    "fg": "#212529",
+    "bg": null,
     "align": [
      "right",
      "vcenter"
@@ -5014,11 +5014,11 @@
     "font": []
    },
    "A2": {
-    "display": "-3",
-    "edit": "-3",
+    "display": "4",
+    "edit": "4",
     "tooltip": null,
-    "fg": "#000000",
-    "bg": "#ffffff",
+    "fg": "#212529",
+    "bg": null,
     "align": [
      "right",
      "vcenter"
@@ -5026,11 +5026,11 @@
     "font": []
    },
    "B2": {
-    "display": "1000.00 mm",
-    "edit": "=1 m",
+    "display": "10",
+    "edit": "=B1 * 2",
     "tooltip": null,
-    "fg": "#000000",
-    "bg": "#ffffff",
+    "fg": "#212529",
+    "bg": null,
     "align": [
      "right",
      "vcenter"
@@ -5038,11 +5038,11 @@
     "font": []
    },
    "A3": {
-    "display": "2.50",
-    "edit": "2.5",
-    "tooltip": "ratio",
-    "fg": "#000000",
-    "bg": "#ffffff",
+    "display": "1",
+    "edit": "1",
+    "tooltip": null,
+    "fg": "#212529",
+    "bg": null,
     "align": [
      "right",
      "vcenter"
@@ -5050,13 +5050,13 @@
     "font": []
    },
    "B3": {
-    "display": "1.00 m^2",
-    "edit": "=1 m * 1 m",
+    "display": null,
+    "edit": null,
     "tooltip": null,
-    "fg": "#000000",
-    "bg": "#ffffff",
+    "fg": "#0000ff",
+    "bg": null,
     "align": [
-     "right",
+     "hcenter",
      "vcenter"
     ],
     "font": []
@@ -5064,66 +5064,42 @@
   },
   "two_loops": {
    "C1": {
-    "display": "10",
-    "edit": "=A1 * 2",
-    "tooltip": null,
-    "fg": "#000000",
-    "bg": "#ffffff",
+    "display": "=D1",
+    "edit": "=D1",
+    "tooltip": "<pre>Cyclic dependency\nC1, D1</pre>",
+    "fg": "#ff0000",
+    "bg": null,
     "align": [
-     "right",
+     "left",
      "vcenter"
     ],
     "font": []
    },
    "D1": {
-    "display": "6",
-    "edit": "=A1 + 1",
-    "tooltip": null,
-    "fg": "#000000",
-    "bg": "#ffffff",
+    "display": "=C1",
+    "edit": "=C1",
+    "tooltip": "<pre>Cyclic dependency\nC1, D1</pre>",
+    "fg": "#ff0000",
+    "bg": null,
     "align": [
-     "right",
+     "left",
      "vcenter"
     ],
     "font": []
    },
    "E1": {
-    "display": null,
-    "edit": null,
-    "tooltip": null,
-    "fg": "#0000ff",
+    "display": "=E2",
+    "edit": "=E2",
+    "tooltip": "<pre>Cyclic dependency\nE1, E2, E3</pre>",
+    "fg": "#ff0000",
     "bg": null,
     "align": [
-     "hcenter",
+     "left",
      "vcenter"
     ],
     "font": []
    },
    "C2": {
-    "display": "1003.00 mm",
-    "edit": "=B1 + B2",
-    "tooltip": null,
-    "fg": "#000000",
-    "bg": "#ffffff",
-    "align": [
-     "right",
-     "vcenter"
-    ],
-    "font": []
-   },
-   "D2": {
-    "display": "7",
-    "edit": "7",
-    "tooltip": null,
-    "fg": "#000000",
-    "bg": "#ffffff",
-    "align": [
-     "right",
-     "vcenter"
-    ],
-    "font": []
-   },
-   "E2": {
     "display": null,
     "edit": null,
     "tooltip": null,
@@ -5135,14 +5111,38 @@
     ],
     "font": []
    },
-   "C3": {
-    "display": "4.50",
-    "edit": "=sum(A1:A3)",
+   "D2": {
+    "display": null,
+    "edit": null,
     "tooltip": null,
-    "fg": "#000000",
-    "bg": "#ffffff",
+    "fg": "#0000ff",
+    "bg": null,
     "align": [
-     "right",
+     "hcenter",
+     "vcenter"
+    ],
+    "font": []
+   },
+   "E2": {
+    "display": "=E3",
+    "edit": "=E3",
+    "tooltip": "<pre>Cyclic dependency\nE1, E2, E3</pre>",
+    "fg": "#ff0000",
+    "bg": null,
+    "align": [
+     "left",
+     "vcenter"
+    ],
+    "font": []
+   },
+   "C3": {
+    "display": null,
+    "edit": null,
+    "tooltip": null,
+    "fg": "#0000ff",
+    "bg": null,
+    "align": [
+     "hcenter",
      "vcenter"
     ],
     "font": []
@@ -5160,11 +5160,11 @@
     "font": []
    },
    "E3": {
-    "display": "AlignLeft",
-    "edit": "'AlignLeft",
-    "tooltip": null,
-    "fg": "#000000",
-    "bg": "#ffffff",
+    "display": "=E1",
+    "edit": "=E1",
+    "tooltip": "<pre>Cyclic dependency\nE1, E2, E3</pre>",
+    "fg": "#ff0000",
+    "bg": null,
     "align": [
      "left",
      "vcenter"
