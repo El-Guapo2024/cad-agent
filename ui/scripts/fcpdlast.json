@@ -1,0 +1,6638 @@
+{
+ "errors": {},
+ "gear": {
+  "in_edit": "InvoluteGear",
+  "task": [
+   [
+    {
+     "class": "QPushButton",
+     "name": "",
+     "y": 9,
+     "x": 81,
+     "enabled": true,
+     "text": "OK"
+    },
+    {
+     "class": "QPushButton",
+     "name": "",
+     "y": 9,
+     "x": 193,
+     "enabled": true,
+     "text": "Cancel"
+    },
+    {
+     "class": "QPushButton",
+     "name": "",
+     "y": 9,
+     "x": 305,
+     "enabled": true,
+     "text": "Apply"
+    },
+    {
+     "class": "QSint::TaskHeader",
+     "name": "",
+     "y": 50,
+     "x": 4,
+     "enabled": true,
+     "text": ""
+    },
+    {
+     "class": "QSint::ActionLabel",
+     "name": "",
+     "y": 53,
+     "x": 9,
+     "enabled": true,
+     "text": "Involute Parameter"
+    },
+    {
+     "class": "QLabel",
+     "name": "label_NumberOfTeeth",
+     "y": 87,
+     "x": 20,
+     "enabled": true,
+     "text": "Number of teeth"
+    },
+    {
+     "class": "QSpinBox",
+     "name": "spinBox_NumberOfTeeth",
+     "y": 87,
+     "x": 132,
+     "enabled": true,
+     "text": "26"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 88,
+     "x": 137,
+     "enabled": true,
+     "text": "26"
+    },
+    {
+     "class": "QLabel",
+     "name": "label_Modules",
+     "y": 114,
+     "x": 20,
+     "enabled": true,
+     "text": "Module"
+    },
+    {
+     "class": "Gui::InputField",
+     "name": "Quantity_Modules",
+     "y": 114,
+     "x": 132,
+     "enabled": true,
+     "text": "2.50 mm"
+    },
+    {
+     "class": "QLabel",
+     "name": "label_PressureAngle",
+     "y": 146,
+     "x": 20,
+     "enabled": true,
+     "text": "Pressure angle"
+    },
+    {
+     "class": "Gui::InputField",
+     "name": "Quantity_PressureAngle",
+     "y": 146,
+     "x": 132,
+     "enabled": true,
+     "text": "20.00\u00b0"
+    },
+    {
+     "class": "QLabel",
+     "name": "label_HighPrecision",
+     "y": 178,
+     "x": 20,
+     "enabled": true,
+     "text": "High precision"
+    },
+    {
+     "class": "QComboBox",
+     "name": "comboBox_HighPrecision",
+     "y": 178,
+     "x": 132,
+     "enabled": true,
+     "items": [
+      "True",
+      "False"
+     ],
+     "current": "True"
+    },
+    {
+     "class": "QLabel",
+     "name": "label_ExternalGear",
+     "y": 208,
+     "x": 20,
+     "enabled": true,
+     "text": "External gear"
+    },
+    {
+     "class": "QComboBox",
+     "name": "comboBox_ExternalGear",
+     "y": 208,
+     "x": 132,
+     "enabled": true,
+     "items": [
+      "True",
+      "False"
+     ],
+     "current": "True"
+    },
+    {
+     "class": "QLabel",
+     "name": "label_Addendum",
+     "y": 238,
+     "x": 20,
+     "enabled": true,
+     "text": "Addendum coefficient"
+    },
+    {
+     "class": "QDoubleSpinBox",
+     "name": "doubleSpinBox_Addendum",
+     "y": 238,
+     "x": 132,
+     "enabled": true,
+     "text": "1.00"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 239,
+     "x": 137,
+     "enabled": true,
+     "text": "1.00"
+    },
+    {
+     "class": "QLabel",
+     "name": "label_Dedendum",
+     "y": 265,
+     "x": 20,
+     "enabled": true,
+     "text": "Dedendum coefficient"
+    },
+    {
+     "class": "QDoubleSpinBox",
+     "name": "doubleSpinBox_Dedendum",
+     "y": 265,
+     "x": 132,
+     "enabled": true,
+     "text": "1.25"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 266,
+     "x": 137,
+     "enabled": true,
+     "text": "1.25"
+    },
+    {
+     "class": "QLabel",
+     "name": "label_RootFillet",
+     "y": 292,
+     "x": 20,
+     "enabled": true,
+     "text": "Root fillet coefficient"
+    },
+    {
+     "class": "QDoubleSpinBox",
+     "name": "doubleSpinBox_RootFillet",
+     "y": 292,
+     "x": 132,
+     "enabled": true,
+     "text": "0.38"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 293,
+     "x": 137,
+     "enabled": true,
+     "text": "0.38"
+    },
+    {
+     "class": "QLabel",
+     "name": "label_ProfileShift",
+     "y": 319,
+     "x": 20,
+     "enabled": true,
+     "text": "Profile shift coefficient"
+    },
+    {
+     "class": "QDoubleSpinBox",
+     "name": "doubleSpinBox_ProfileShift",
+     "y": 319,
+     "x": 132,
+     "enabled": true,
+     "text": "0.00"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 320,
+     "x": 137,
+     "enabled": true,
+     "text": "0.00"
+    }
+   ]
+  ],
+  "props_new": {
+   "AddendumCoefficient": "1.0",
+   "AttacherEngine": "Engine Plane",
+   "AttacherType": "Attacher::AttachEnginePlane",
+   "AttachmentOffset": "Placement [Pos=(0,0,0), Yaw-Pitch-Roll=(0,0,0)]",
+   "AttachmentSupport": "[]",
+   "DedendumCoefficient": "1.25",
+   "ExternalGear": "True",
+   "HighPrecision": "True",
+   "Label": "InvoluteGear",
+   "Label2": "",
+   "MapMode": "Deactivated",
+   "MapPathParameter": "0.0",
+   "MapReversed": "False",
+   "Modules": "2.5 mm",
+   "NumberOfTeeth": "26",
+   "Placement": "Placement [Pos=(0,0,0), Yaw-Pitch-Roll=(0,0,0)]",
+   "PressureAngle": "20.0 deg",
+   "ProfileShiftCoefficient": "0.0",
+   "RootFilletCoefficient": "0.38",
+   "ShapeMaterial": "<Material at 0x60c87280c8c0>",
+   "Visibility": "True",
+   "_ElementMapVersion": "15.70200.5"
+  },
+  "groups": {
+   "AddendumCoefficient": "Gear",
+   "AttacherEngine": "Attachment",
+   "AttacherType": "Attachment",
+   "AttachmentOffset": "Attachment",
+   "AttachmentSupport": "Attachment",
+   "DedendumCoefficient": "Gear",
+   "ExpressionEngine": "Base",
+   "ExternalGear": "Gear",
+   "HighPrecision": "Gear",
+   "Label": "Base",
+   "Label2": "Base",
+   "MapMode": "Attachment",
+   "MapPathParameter": "Attachment",
+   "MapReversed": "Attachment",
+   "Modules": "Gear",
+   "NumberOfTeeth": "Gear",
+   "Placement": "",
+   "PressureAngle": "Gear",
+   "ProfileShiftCoefficient": "Gear",
+   "Proxy": "",
+   "RootFilletCoefficient": "Gear",
+   "Shape": "",
+   "ShapeMaterial": "",
+   "Visibility": "",
+   "_ElementMapVersion": "Base"
+  },
+  "shape_new": {
+   "type": "Wire",
+   "faces": 0,
+   "edges": 260,
+   "area": 0.0,
+   "length": 405.612509,
+   "volume": 0
+  },
+  "teeth_live": 13,
+  "shape_13": {
+   "type": "Wire",
+   "faces": 0,
+   "edges": 130,
+   "area": 0.0,
+   "length": 203.573361,
+   "volume": 0
+  },
+  "ok": true,
+  "after_ok": {
+   "in_edit": null,
+   "undo": [
+    "Create involute gear"
+   ],
+   "tip": "Pad",
+   "objects": [
+    {
+     "name": "Body",
+     "label": "Body",
+     "type": "PartDesign::Body",
+     "visible": true,
+     "in_body": false
+    },
+    {
+     "name": "Origin",
+     "label": "Origin",
+     "type": "App::Origin",
+     "visible": false,
+     "in_body": false
+    },
+    {
+     "name": "X_Axis",
+     "label": "X-axis",
+     "type": "App::Line",
+     "visible": true,
+     "in_body": false
+    },
+    {
+     "name": "Y_Axis",
+     "label": "Y-axis",
+     "type": "App::Line",
+     "visible": true,
+     "in_body": false
+    },
+    {
+     "name": "Z_Axis",
+     "label": "Z-axis",
+     "type": "App::Line",
+     "visible": true,
+     "in_body": false
+    },
+    {
+     "name": "XY_Plane",
+     "label": "XY-plane",
+     "type": "App::Plane",
+     "visible": true,
+     "in_body": false
+    },
+    {
+     "name": "XZ_Plane",
+     "label": "XZ-plane",
+     "type": "App::Plane",
+     "visible": true,
+     "in_body": false
+    },
+    {
+     "name": "YZ_Plane",
+     "label": "YZ-plane",
+     "type": "App::Plane",
+     "visible": true,
+     "in_body": false
+    },
+    {
+     "name": "Origin001",
+     "label": "Origin-Point",
+     "type": "App::Point",
+     "visible": true,
+     "in_body": false
+    },
+    {
+     "name": "Sketch",
+     "label": "Sketch",
+     "type": "Sketcher::SketchObject",
+     "visible": false,
+     "in_body": true
+    },
+    {
+     "name": "Pad",
+     "label": "Pad",
+     "type": "PartDesign::Pad",
+     "visible": true,
+     "in_body": true
+    },
+    {
+     "name": "InvoluteGear",
+     "label": "InvoluteGear",
+     "type": "Part::Part2DObjectPython",
+     "visible": true,
+     "in_body": true
+    }
+   ],
+   "props": {
+    "AddendumCoefficient": "1.0",
+    "AttacherEngine": "Engine Plane",
+    "AttacherType": "Attacher::AttachEnginePlane",
+    "AttachmentOffset": "Placement [Pos=(0,0,0), Yaw-Pitch-Roll=(0,0,0)]",
+    "AttachmentSupport": "[]",
+    "DedendumCoefficient": "1.25",
+    "ExternalGear": "True",
+    "HighPrecision": "True",
+    "Label": "InvoluteGear",
+    "Label2": "",
+    "MapMode": "Deactivated",
+    "MapPathParameter": "0.0",
+    "MapReversed": "False",
+    "Modules": "2.5 mm",
+    "NumberOfTeeth": "13",
+    "Placement": "Placement [Pos=(0,0,0), Yaw-Pitch-Roll=(0,0,0)]",
+    "PressureAngle": "20.0 deg",
+    "ProfileShiftCoefficient": "0.0",
+    "RootFilletCoefficient": "0.38",
+    "ShapeMaterial": "<Material at 0x60c87280c8c0>",
+    "Visibility": "True",
+    "_ElementMapVersion": "15.70200.5"
+   }
+  },
+  "tree": [
+   {
+    "text": "GearDoc",
+    "depth": 0,
+    "bold": true,
+    "icon": "pdlast-icon0.png",
+    "children": 1,
+    "fg": "#000000"
+   },
+   {
+    "text": "Body",
+    "depth": 1,
+    "bold": true,
+    "icon": "pdlast-icon1.png",
+    "children": 3,
+    "fg": "#000000"
+   },
+   {
+    "text": "Origin",
+    "depth": 2,
+    "bold": false,
+    "icon": "pdlast-icon2.png",
+    "children": 7,
+    "fg": "#6f6f6f"
+   },
+   {
+    "text": "X-axis",
+    "depth": 3,
+    "bold": false,
+    "icon": "pdlast-icon3.png",
+    "children": 0,
+    "fg": "#000000"
+   },
+   {
+    "text": "Y-axis",
+    "depth": 3,
+    "bold": false,
+    "icon": "pdlast-icon4.png",
+    "children": 0,
+    "fg": "#000000"
+   },
+   {
+    "text": "Z-axis",
+    "depth": 3,
+    "bold": false,
+    "icon": "pdlast-icon5.png",
+    "children": 0,
+    "fg": "#000000"
+   },
+   {
+    "text": "XY-plane",
+    "depth": 3,
+    "bold": false,
+    "icon": "pdlast-icon6.png",
+    "children": 0,
+    "fg": "#000000"
+   },
+   {
+    "text": "XZ-plane",
+    "depth": 3,
+    "bold": false,
+    "icon": "pdlast-icon7.png",
+    "children": 0,
+    "fg": "#000000"
+   },
+   {
+    "text": "YZ-plane",
+    "depth": 3,
+    "bold": false,
+    "icon": "pdlast-icon8.png",
+    "children": 0,
+    "fg": "#000000"
+   },
+   {
+    "text": "Origin-Point",
+    "depth": 3,
+    "bold": false,
+    "icon": "pdlast-icon9.png",
+    "children": 0,
+    "fg": "#000000"
+   },
+   {
+    "text": "Pad",
+    "depth": 2,
+    "bold": false,
+    "icon": "pdlast-icon10.png",
+    "children": 1,
+    "fg": "#000000"
+   },
+   {
+    "text": "Sketch",
+    "depth": 3,
+    "bold": false,
+    "icon": "pdlast-icon11.png",
+    "children": 0,
+    "fg": "#6f6f6f"
+   },
+   {
+    "text": "InvoluteGear",
+    "depth": 2,
+    "bold": false,
+    "icon": "pdlast-icon12.png",
+    "children": 0,
+    "fg": "#000000"
+   }
+  ],
+  "props_view": [
+   [
+    {
+     "depth": 0,
+     "name": "Attachment",
+     "value": null,
+     "group": false,
+     "editable": false
+    },
+    {
+     "depth": 1,
+     "name": "Attacher Engine",
+     "value": "Engine Plane",
+     "group": false,
+     "editable": true
+    },
+    {
+     "depth": 1,
+     "name": "Attachment Support",
+     "value": "",
+     "group": false,
+     "editable": true
+    },
+    {
+     "depth": 1,
+     "name": "Map Mode",
+     "value": "Deactivated",
+     "group": false,
+     "editable": true
+    },
+    {
+     "depth": 0,
+     "name": "Base",
+     "value": null,
+     "group": false,
+     "editable": false
+    },
+    {
+     "depth": 1,
+     "name": "Placement",
+     "value": "[(0.00 0.00 1.00); 0.00\u00b0; (0.00 mm  0.00 mm  0.00 mm)]",
+     "group": false,
+     "editable": true
+    },
+    {
+     "depth": 1,
+     "name": "Label",
+     "value": "InvoluteGear",
+     "group": false,
+     "editable": true
+    },
+    {
+     "depth": 0,
+     "name": "Gear",
+     "value": null,
+     "group": false,
+     "editable": false
+    },
+    {
+     "depth": 1,
+     "name": "Addendum Coefficient",
+     "value": "1",
+     "group": false,
+     "editable": true
+    },
+    {
+     "depth": 1,
+     "name": "Dedendum Coefficient",
+     "value": "1.25",
+     "group": false,
+     "editable": true
+    },
+    {
+     "depth": 1,
+     "name": "External Gear",
+     "value": "true",
+     "group": false,
+     "editable": true
+    },
+    {
+     "depth": 1,
+     "name": "High Precision",
+     "value": "true",
+     "group": false,
+     "editable": true
+    },
+    {
+     "depth": 1,
+     "name": "Modules",
+     "value": "2.50 mm",
+     "group": false,
+     "editable": true
+    },
+    {
+     "depth": 1,
+     "name": "Number Of Teeth",
+     "value": "13",
+     "group": false,
+     "editable": true
+    },
+    {
+     "depth": 1,
+     "name": "Pressure Angle",
+     "value": "20.00\u00b0",
+     "group": false,
+     "editable": true
+    },
+    {
+     "depth": 1,
+     "name": "Profile Shift Coefficient",
+     "value": "0",
+     "group": false,
+     "editable": true
+    },
+    {
+     "depth": 1,
+     "name": "Root Fillet Coefficient",
+     "value": "0.38",
+     "group": false,
+     "editable": true
+    }
+   ]
+  ],
+  "menu": [
+   {
+    "text": "Appearance per Face",
+    "name": 3,
+    "shortcut": "",
+    "enabled": true
+   },
+   {
+    "sep": true
+   },
+   {
+    "text": "Move Object To\u2026",
+    "name": "PartDesign_MoveFeature",
+    "shortcut": "",
+    "enabled": true
+   },
+   {
+    "text": "Move Feature After\u2026",
+    "name": "PartDesign_MoveFeatureInTree",
+    "shortcut": "",
+    "enabled": true
+   },
+   {
+    "sep": true
+   },
+   {
+    "text": "Toggle Freeze",
+    "name": "Std_ToggleFreeze",
+    "shortcut": "",
+    "enabled": true
+   },
+   {
+    "sep": true
+   },
+   {
+    "text": "Toggle &Visibility",
+    "name": "Std_ToggleVisibility",
+    "shortcut": "Space",
+    "enabled": true
+   },
+   {
+    "text": "Sho&w Selection",
+    "name": "Std_ShowSelection",
+    "shortcut": "",
+    "enabled": true
+   },
+   {
+    "text": "&Hide Selection",
+    "name": "Std_HideSelection",
+    "shortcut": "",
+    "enabled": true
+   },
+   {
+    "text": "Toggle Se&lectability",
+    "name": "Std_ToggleSelectability",
+    "shortcut": "",
+    "enabled": true
+   },
+   {
+    "text": "Select All Instances",
+    "name": "Std_TreeSelectAllInstances",
+    "shortcut": "",
+    "enabled": true
+   },
+   {
+    "sep": true
+   },
+   {
+    "text": "&Material",
+    "name": "Std_SetMaterial",
+    "shortcut": "",
+    "enabled": true
+   },
+   {
+    "text": "&Appearance",
+    "name": "Std_SetAppearance",
+    "shortcut": "Ctrl+D",
+    "enabled": true
+   },
+   {
+    "text": "Random &Color",
+    "name": "Std_RandomColor",
+    "shortcut": "",
+    "enabled": true
+   },
+   {
+    "text": "Toggle Transparenc&y",
+    "name": "Std_ToggleTransparency",
+    "shortcut": "V, T",
+    "enabled": true
+   },
+   {
+    "sep": true
+   },
+   {
+    "text": "Cu&t",
+    "name": "Std_Cut",
+    "shortcut": "Ctrl+X",
+    "enabled": false
+   },
+   {
+    "text": "&Copy",
+    "name": "Std_Copy",
+    "shortcut": "Ctrl+C",
+    "enabled": true
+   },
+   {
+    "text": "&Paste",
+    "name": "Std_Paste",
+    "shortcut": "Ctrl+V",
+    "enabled": false
+   },
+   {
+    "text": "&Delete",
+    "name": "Std_Delete",
+    "shortcut": "Del",
+    "enabled": true
+   },
+   {
+    "text": "&Send to Python Console",
+    "name": "Std_SendToPythonConsole",
+    "shortcut": "Ctrl+Shift+P",
+    "enabled": true
+   },
+   {
+    "text": "Trans&form",
+    "name": "Std_TransformManip",
+    "shortcut": "",
+    "enabled": true
+   },
+   {
+    "text": "P&lacement",
+    "name": "Std_Placement",
+    "shortcut": "",
+    "enabled": true
+   },
+   {
+    "text": "Propert&ies",
+    "name": "Std_Properties",
+    "shortcut": "Alt+Return",
+    "enabled": true
+   },
+   {
+    "sep": true
+   },
+   {
+    "text": "Expression Actions",
+    "name": "Std_Expressions",
+    "shortcut": "",
+    "enabled": true,
+    "menu": [
+     {
+      "text": "Copy Selected",
+      "name": null,
+      "shortcut": "",
+      "enabled": true
+     },
+     {
+      "text": "Copy Active Document",
+      "name": null,
+      "shortcut": "",
+      "enabled": true
+     },
+     {
+      "text": "Copy All Documents",
+      "name": null,
+      "shortcut": "",
+      "enabled": true
+     },
+     {
+      "text": "Paste",
+      "name": null,
+      "shortcut": "",
+      "enabled": false
+     }
+    ]
+   },
+   {
+    "text": "Link Actions",
+    "name": "Link Actions",
+    "shortcut": "",
+    "enabled": true,
+    "menu": [
+     {
+      "text": "Link Group",
+      "name": "Std_LinkMakeGroup",
+      "shortcut": "",
+      "enabled": true,
+      "menu": [
+       {
+        "text": "Simple Group",
+        "name": null,
+        "shortcut": "",
+        "enabled": true
+       },
+       {
+        "text": "Group With Links",
+        "name": null,
+        "shortcut": "",
+        "enabled": true
+       },
+       {
+        "text": "Group With Transform Links",
+        "name": null,
+        "shortcut": "",
+        "enabled": true
+       }
+      ]
+     },
+     {
+      "text": "Make Link",
+      "name": "Std_LinkMake",
+      "shortcut": "",
+      "enabled": true
+     },
+     {
+      "text": "Make Sub-Link",
+      "name": "Std_LinkMakeRelative",
+      "shortcut": "",
+      "enabled": true
+     },
+     {
+      "sep": true
+     },
+     {
+      "text": "Replace With Link",
+      "name": "Std_LinkReplace",
+      "shortcut": "",
+      "enabled": true
+     },
+     {
+      "sep": true
+     }
+    ]
+   },
+   {
+    "text": "Show Items Hidden in Tree View",
+    "name": null,
+    "shortcut": "",
+    "enabled": true
+   },
+   {
+    "text": "Toggle Visibility in Tree View",
+    "name": null,
+    "shortcut": "",
+    "enabled": true
+   },
+   {
+    "sep": true
+   },
+   {
+    "text": "Mark to Recompute",
+    "name": null,
+    "shortcut": "",
+    "enabled": true
+   },
+   {
+    "text": "Recompute Object",
+    "name": null,
+    "shortcut": "Ctrl+Shift+R",
+    "enabled": true
+   },
+   {
+    "sep": true
+   },
+   {
+    "text": "Rename",
+    "name": null,
+    "shortcut": "F2",
+    "enabled": true
+   },
+   {
+    "sep": true
+   },
+   {
+    "text": "Tree Settings",
+    "name": null,
+    "shortcut": "",
+    "enabled": true,
+    "menu": [
+     {
+      "text": "Show Description",
+      "name": null,
+      "shortcut": "",
+      "enabled": true
+     },
+     {
+      "text": "Show Internal Name",
+      "name": null,
+      "shortcut": "",
+      "enabled": true
+     }
+    ]
+   }
+  ],
+  "edit_task": [
+   [
+    {
+     "class": "QPushButton",
+     "name": "",
+     "y": 9,
+     "x": 81,
+     "enabled": true,
+     "text": "OK"
+    },
+    {
+     "class": "QPushButton",
+     "name": "",
+     "y": 9,
+     "x": 193,
+     "enabled": true,
+     "text": "Cancel"
+    },
+    {
+     "class": "QPushButton",
+     "name": "",
+     "y": 9,
+     "x": 305,
+     "enabled": true,
+     "text": "Apply"
+    },
+    {
+     "class": "QSint::TaskHeader",
+     "name": "",
+     "y": 50,
+     "x": 4,
+     "enabled": true,
+     "text": ""
+    },
+    {
+     "class": "QSint::ActionLabel",
+     "name": "",
+     "y": 53,
+     "x": 9,
+     "enabled": true,
+     "text": "Involute Parameter"
+    },
+    {
+     "class": "QLabel",
+     "name": "label_NumberOfTeeth",
+     "y": 87,
+     "x": 20,
+     "enabled": true,
+     "text": "Number of teeth"
+    },
+    {
+     "class": "QSpinBox",
+     "name": "spinBox_NumberOfTeeth",
+     "y": 87,
+     "x": 132,
+     "enabled": true,
+     "text": "13"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 88,
+     "x": 137,
+     "enabled": true,
+     "text": "13"
+    },
+    {
+     "class": "QLabel",
+     "name": "label_Modules",
+     "y": 114,
+     "x": 20,
+     "enabled": true,
+     "text": "Module"
+    },
+    {
+     "class": "Gui::InputField",
+     "name": "Quantity_Modules",
+     "y": 114,
+     "x": 132,
+     "enabled": true,
+     "text": "2.50 mm"
+    },
+    {
+     "class": "QLabel",
+     "name": "label_PressureAngle",
+     "y": 146,
+     "x": 20,
+     "enabled": true,
+     "text": "Pressure angle"
+    },
+    {
+     "class": "Gui::InputField",
+     "name": "Quantity_PressureAngle",
+     "y": 146,
+     "x": 132,
+     "enabled": true,
+     "text": "20.00\u00b0"
+    },
+    {
+     "class": "QLabel",
+     "name": "label_HighPrecision",
+     "y": 178,
+     "x": 20,
+     "enabled": true,
+     "text": "High precision"
+    },
+    {
+     "class": "QComboBox",
+     "name": "comboBox_HighPrecision",
+     "y": 178,
+     "x": 132,
+     "enabled": true,
+     "items": [
+      "True",
+      "False"
+     ],
+     "current": "True"
+    },
+    {
+     "class": "QLabel",
+     "name": "label_ExternalGear",
+     "y": 208,
+     "x": 20,
+     "enabled": true,
+     "text": "External gear"
+    },
+    {
+     "class": "QComboBox",
+     "name": "comboBox_ExternalGear",
+     "y": 208,
+     "x": 132,
+     "enabled": true,
+     "items": [
+      "True",
+      "False"
+     ],
+     "current": "True"
+    },
+    {
+     "class": "QLabel",
+     "name": "label_Addendum",
+     "y": 238,
+     "x": 20,
+     "enabled": true,
+     "text": "Addendum coefficient"
+    },
+    {
+     "class": "QDoubleSpinBox",
+     "name": "doubleSpinBox_Addendum",
+     "y": 238,
+     "x": 132,
+     "enabled": true,
+     "text": "1.00"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 239,
+     "x": 137,
+     "enabled": true,
+     "text": "1.00"
+    },
+    {
+     "class": "QLabel",
+     "name": "label_Dedendum",
+     "y": 265,
+     "x": 20,
+     "enabled": true,
+     "text": "Dedendum coefficient"
+    },
+    {
+     "class": "QDoubleSpinBox",
+     "name": "doubleSpinBox_Dedendum",
+     "y": 265,
+     "x": 132,
+     "enabled": true,
+     "text": "1.25"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 266,
+     "x": 137,
+     "enabled": true,
+     "text": "1.25"
+    },
+    {
+     "class": "QLabel",
+     "name": "label_RootFillet",
+     "y": 292,
+     "x": 20,
+     "enabled": true,
+     "text": "Root fillet coefficient"
+    },
+    {
+     "class": "QDoubleSpinBox",
+     "name": "doubleSpinBox_RootFillet",
+     "y": 292,
+     "x": 132,
+     "enabled": true,
+     "text": "0.38"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 293,
+     "x": 137,
+     "enabled": true,
+     "text": "0.38"
+    },
+    {
+     "class": "QLabel",
+     "name": "label_ProfileShift",
+     "y": 319,
+     "x": 20,
+     "enabled": true,
+     "text": "Profile shift coefficient"
+    },
+    {
+     "class": "QDoubleSpinBox",
+     "name": "doubleSpinBox_ProfileShift",
+     "y": 319,
+     "x": 132,
+     "enabled": true,
+     "text": "0.00"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 320,
+     "x": 137,
+     "enabled": true,
+     "text": "0.00"
+    }
+   ]
+  ],
+  "edit_ok": true,
+  "after_edit": {
+   "undo": [
+    "Create involute gear"
+   ],
+   "addendum": 0.9
+  },
+  "after_cancel": {
+   "undo": [
+    "Create involute gear"
+   ],
+   "dedendum": 1.4,
+   "exists": true
+  },
+  "pad_in_edit": "Pad001",
+  "pad_ok": true,
+  "after_pad": {
+   "undo": [
+    "Make Pad",
+    "Create involute gear"
+   ],
+   "tip": "Pad001",
+   "objects": [
+    {
+     "name": "Body",
+     "label": "Body",
+     "type": "PartDesign::Body",
+     "visible": true,
+     "in_body": false
+    },
+    {
+     "name": "Origin",
+     "label": "Origin",
+     "type": "App::Origin",
+     "visible": false,
+     "in_body": false
+    },
+    {
+     "name": "X_Axis",
+     "label": "X-axis",
+     "type": "App::Line",
+     "visible": true,
+     "in_body": false
+    },
+    {
+     "name": "Y_Axis",
+     "label": "Y-axis",
+     "type": "App::Line",
+     "visible": true,
+     "in_body": false
+    },
+    {
+     "name": "Z_Axis",
+     "label": "Z-axis",
+     "type": "App::Line",
+     "visible": true,
+     "in_body": false
+    },
+    {
+     "name": "XY_Plane",
+     "label": "XY-plane",
+     "type": "App::Plane",
+     "visible": true,
+     "in_body": false
+    },
+    {
+     "name": "XZ_Plane",
+     "label": "XZ-plane",
+     "type": "App::Plane",
+     "visible": true,
+     "in_body": false
+    },
+    {
+     "name": "YZ_Plane",
+     "label": "YZ-plane",
+     "type": "App::Plane",
+     "visible": true,
+     "in_body": false
+    },
+    {
+     "name": "Origin001",
+     "label": "Origin-Point",
+     "type": "App::Point",
+     "visible": true,
+     "in_body": false
+    },
+    {
+     "name": "Sketch",
+     "label": "Sketch",
+     "type": "Sketcher::SketchObject",
+     "visible": false,
+     "in_body": true
+    },
+    {
+     "name": "Pad",
+     "label": "Pad",
+     "type": "PartDesign::Pad",
+     "visible": false,
+     "in_body": true
+    },
+    {
+     "name": "InvoluteGear",
+     "label": "InvoluteGear",
+     "type": "Part::Part2DObjectPython",
+     "visible": false,
+     "in_body": true
+    },
+    {
+     "name": "Pad001",
+     "label": "Pad001",
+     "type": "PartDesign::Pad",
+     "visible": true,
+     "in_body": true
+    }
+   ],
+   "pad001": {
+    "type": "Compound",
+    "faces": 137,
+    "edges": 405,
+    "area": 5017.551568,
+    "length": 3515.45493,
+    "volume": 10815.883353
+   }
+  },
+  "tree_pad": [
+   {
+    "text": "GearDoc",
+    "depth": 0,
+    "bold": true,
+    "icon": "pdlast-icon13.png",
+    "children": 1,
+    "fg": "#000000"
+   },
+   {
+    "text": "Body",
+    "depth": 1,
+    "bold": true,
+    "icon": "pdlast-icon14.png",
+    "children": 3,
+    "fg": "#000000"
+   },
+   {
+    "text": "Origin",
+    "depth": 2,
+    "bold": false,
+    "icon": "pdlast-icon2.png",
+    "children": 7,
+    "fg": "#6f6f6f"
+   },
+   {
+    "text": "X-axis",
+    "depth": 3,
+    "bold": false,
+    "icon": "pdlast-icon3.png",
+    "children": 0,
+    "fg": "#000000"
+   },
+   {
+    "text": "Y-axis",
+    "depth": 3,
+    "bold": false,
+    "icon": "pdlast-icon4.png",
+    "children": 0,
+    "fg": "#000000"
+   },
+   {
+    "text": "Z-axis",
+    "depth": 3,
+    "bold": false,
+    "icon": "pdlast-icon5.png",
+    "children": 0,
+    "fg": "#000000"
+   },
+   {
+    "text": "XY-plane",
+    "depth": 3,
+    "bold": false,
+    "icon": "pdlast-icon6.png",
+    "children": 0,
+    "fg": "#000000"
+   },
+   {
+    "text": "XZ-plane",
+    "depth": 3,
+    "bold": false,
+    "icon": "pdlast-icon7.png",
+    "children": 0,
+    "fg": "#000000"
+   },
+   {
+    "text": "YZ-plane",
+    "depth": 3,
+    "bold": false,
+    "icon": "pdlast-icon8.png",
+    "children": 0,
+    "fg": "#000000"
+   },
+   {
+    "text": "Origin-Point",
+    "depth": 3,
+    "bold": false,
+    "icon": "pdlast-icon9.png",
+    "children": 0,
+    "fg": "#000000"
+   },
+   {
+    "text": "Pad",
+    "depth": 2,
+    "bold": false,
+    "icon": "pdlast-icon15.png",
+    "children": 1,
+    "fg": "#6f6f6f"
+   },
+   {
+    "text": "Sketch",
+    "depth": 3,
+    "bold": false,
+    "icon": "pdlast-icon11.png",
+    "children": 0,
+    "fg": "#6f6f6f"
+   },
+   {
+    "text": "Pad001",
+    "depth": 2,
+    "bold": false,
+    "icon": "pdlast-icon16.png",
+    "children": 1,
+    "fg": "#000000"
+   },
+   {
+    "text": "InvoluteGear",
+    "depth": 3,
+    "bold": false,
+    "icon": "pdlast-icon17.png",
+    "children": 0,
+    "fg": "#6f6f6f"
+   }
+  ]
+ },
+ "sprocket": {
+  "in_edit": "Sprocket",
+  "task": [
+   [
+    {
+     "class": "QPushButton",
+     "name": "",
+     "y": 9,
+     "x": 81,
+     "enabled": true,
+     "text": "OK"
+    },
+    {
+     "class": "QPushButton",
+     "name": "",
+     "y": 9,
+     "x": 193,
+     "enabled": true,
+     "text": "Cancel"
+    },
+    {
+     "class": "QPushButton",
+     "name": "",
+     "y": 9,
+     "x": 305,
+     "enabled": true,
+     "text": "Apply"
+    },
+    {
+     "class": "QSint::TaskHeader",
+     "name": "",
+     "y": 50,
+     "x": 4,
+     "enabled": true,
+     "text": ""
+    },
+    {
+     "class": "QSint::ActionLabel",
+     "name": "",
+     "y": 53,
+     "x": 9,
+     "enabled": true,
+     "text": "Sprocket Parameters"
+    },
+    {
+     "class": "QLabel",
+     "name": "label_9",
+     "y": 87,
+     "x": 20,
+     "enabled": true,
+     "text": "Number of teeth"
+    },
+    {
+     "class": "QSpinBox",
+     "name": "spinBox_NumberOfTeeth",
+     "y": 87,
+     "x": 249,
+     "enabled": true,
+     "text": "50"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 88,
+     "x": 254,
+     "enabled": true,
+     "text": "50"
+    },
+    {
+     "class": "QLabel",
+     "name": "label_10",
+     "y": 114,
+     "x": 20,
+     "enabled": true,
+     "text": "Sprocket reference"
+    },
+    {
+     "class": "QComboBox",
+     "name": "comboBox_SprocketReference",
+     "y": 114,
+     "x": 249,
+     "enabled": true,
+     "items": [
+      "ANSI 25",
+      "ANSI 35",
+      "ANSI 41",
+      "ANSI 40",
+      "ANSI 50",
+      "ANSI 60",
+      "ANSI 80",
+      "ANSI 100",
+      "ANSI 120",
+      "ANSI 140",
+      "ANSI 160",
+      "ANSI 180",
+      "ANSI 200",
+      "ANSI 240",
+      "Bicycle with derailleur",
+      "Bicycle without derailleur",
+      "ISO 606 06B",
+      "ISO 606 08B",
+      "ISO 606 10B",
+      "ISO 606 12B",
+      "ISO 606 16B",
+      "ISO 606 20B",
+      "ISO 606 24B",
+      "Motorcycle 420",
+      "Motorcycle 425",
+      "Motorcycle 428",
+      "Motorcycle 520",
+      "Motorcycle 525",
+      "Motorcycle 530",
+      "Motorcycle 630"
+     ],
+     "current": "ANSI 25"
+    },
+    {
+     "class": "QLabel",
+     "name": "label_8",
+     "y": 144,
+     "x": 20,
+     "enabled": true,
+     "text": "Chain pitch"
+    },
+    {
+     "class": "Gui::InputField",
+     "name": "Quantity_Pitch",
+     "y": 144,
+     "x": 249,
+     "enabled": true,
+     "text": "9.52 mm"
+    },
+    {
+     "class": "QLabel",
+     "name": "label_6",
+     "y": 176,
+     "x": 20,
+     "enabled": true,
+     "text": "Chain roller diameter"
+    },
+    {
+     "class": "Gui::InputField",
+     "name": "Quantity_RollerDiameter",
+     "y": 176,
+     "x": 249,
+     "enabled": true,
+     "text": "5.08 mm"
+    },
+    {
+     "class": "QLabel",
+     "name": "label_7",
+     "y": 208,
+     "x": 20,
+     "enabled": true,
+     "text": "Tooth width"
+    },
+    {
+     "class": "Gui::InputField",
+     "name": "Quantity_Thickness",
+     "y": 208,
+     "x": 249,
+     "enabled": true,
+     "text": "2.79 mm"
+    }
+   ]
+  ],
+  "props_new": {
+   "AttacherEngine": "Engine Plane",
+   "AttacherType": "Attacher::AttachEnginePlane",
+   "AttachmentOffset": "Placement [Pos=(0,0,0), Yaw-Pitch-Roll=(0,0,0)]",
+   "AttachmentSupport": "[]",
+   "Label": "Sprocket",
+   "Label2": "",
+   "MapMode": "Deactivated",
+   "MapPathParameter": "0.0",
+   "MapReversed": "False",
+   "NumberOfTeeth": "50",
+   "Pitch": "9.52 mm",
+   "Placement": "Placement [Pos=(0,0,0), Yaw-Pitch-Roll=(0,0,0)]",
+   "RollerDiameter": "5.08 mm",
+   "ShapeMaterial": "<Material at 0x60c8731f4bd0>",
+   "SprocketReference": "ANSI 25",
+   "Thickness": "2.79 mm",
+   "Visibility": "True",
+   "_ElementMapVersion": "15.70200.5"
+  },
+  "groups": {
+   "AttacherEngine": "Attachment",
+   "AttacherType": "Attachment",
+   "AttachmentOffset": "Attachment",
+   "AttachmentSupport": "Attachment",
+   "ExpressionEngine": "Base",
+   "Label": "Base",
+   "Label2": "Base",
+   "MapMode": "Attachment",
+   "MapPathParameter": "Attachment",
+   "MapReversed": "Attachment",
+   "NumberOfTeeth": "Sprocket",
+   "Pitch": "Sprocket",
+   "Placement": "",
+   "Proxy": "",
+   "RollerDiameter": "Sprocket",
+   "Shape": "",
+   "ShapeMaterial": "",
+   "SprocketReference": "Sprocket",
+   "Thickness": "Sprocket",
+   "Visibility": "",
+   "_ElementMapVersion": "Base"
+  },
+  "enum": [
+   "ANSI 25",
+   "ANSI 35",
+   "ANSI 41",
+   "ANSI 40",
+   "ANSI 50",
+   "ANSI 60",
+   "ANSI 80",
+   "ANSI 100",
+   "ANSI 120",
+   "ANSI 140",
+   "ANSI 160",
+   "ANSI 180",
+   "ANSI 200",
+   "ANSI 240",
+   "Bicycle with derailleur",
+   "Bicycle without derailleur",
+   "ISO 606 06B",
+   "ISO 606 08B",
+   "ISO 606 10B",
+   "ISO 606 12B",
+   "ISO 606 16B",
+   "ISO 606 20B",
+   "ISO 606 24B",
+   "Motorcycle 420",
+   "Motorcycle 425",
+   "Motorcycle 428",
+   "Motorcycle 520",
+   "Motorcycle 525",
+   "Motorcycle 530",
+   "Motorcycle 630"
+  ],
+  "task_ansi40": [
+   [
+    {
+     "class": "QPushButton",
+     "name": "",
+     "y": 9,
+     "x": 81,
+     "enabled": true,
+     "text": "OK"
+    },
+    {
+     "class": "QPushButton",
+     "name": "",
+     "y": 9,
+     "x": 193,
+     "enabled": true,
+     "text": "Cancel"
+    },
+    {
+     "class": "QPushButton",
+     "name": "",
+     "y": 9,
+     "x": 305,
+     "enabled": true,
+     "text": "Apply"
+    },
+    {
+     "class": "QSint::TaskHeader",
+     "name": "",
+     "y": 50,
+     "x": 4,
+     "enabled": true,
+     "text": ""
+    },
+    {
+     "class": "QSint::ActionLabel",
+     "name": "",
+     "y": 53,
+     "x": 9,
+     "enabled": true,
+     "text": "Sprocket Parameters"
+    },
+    {
+     "class": "QLabel",
+     "name": "label_9",
+     "y": 87,
+     "x": 20,
+     "enabled": true,
+     "text": "Number of teeth"
+    },
+    {
+     "class": "QSpinBox",
+     "name": "spinBox_NumberOfTeeth",
+     "y": 87,
+     "x": 249,
+     "enabled": true,
+     "text": "50"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 88,
+     "x": 254,
+     "enabled": true,
+     "text": "50"
+    },
+    {
+     "class": "QLabel",
+     "name": "label_10",
+     "y": 114,
+     "x": 20,
+     "enabled": true,
+     "text": "Sprocket reference"
+    },
+    {
+     "class": "QComboBox",
+     "name": "comboBox_SprocketReference",
+     "y": 114,
+     "x": 249,
+     "enabled": true,
+     "items": [
+      "ANSI 25",
+      "ANSI 35",
+      "ANSI 41",
+      "ANSI 40",
+      "ANSI 50",
+      "ANSI 60",
+      "ANSI 80",
+      "ANSI 100",
+      "ANSI 120",
+      "ANSI 140",
+      "ANSI 160",
+      "ANSI 180",
+      "ANSI 200",
+      "ANSI 240",
+      "Bicycle with derailleur",
+      "Bicycle without derailleur",
+      "ISO 606 06B",
+      "ISO 606 08B",
+      "ISO 606 10B",
+      "ISO 606 12B",
+      "ISO 606 16B",
+      "ISO 606 20B",
+      "ISO 606 24B",
+      "Motorcycle 420",
+      "Motorcycle 425",
+      "Motorcycle 428",
+      "Motorcycle 520",
+      "Motorcycle 525",
+      "Motorcycle 530",
+      "Motorcycle 630"
+     ],
+     "current": "ANSI 40"
+    },
+    {
+     "class": "QLabel",
+     "name": "label_8",
+     "y": 144,
+     "x": 20,
+     "enabled": true,
+     "text": "Chain pitch"
+    },
+    {
+     "class": "Gui::InputField",
+     "name": "Quantity_Pitch",
+     "y": 144,
+     "x": 249,
+     "enabled": true,
+     "text": "12.70 mm"
+    },
+    {
+     "class": "QLabel",
+     "name": "label_6",
+     "y": 176,
+     "x": 20,
+     "enabled": true,
+     "text": "Chain roller diameter"
+    },
+    {
+     "class": "Gui::InputField",
+     "name": "Quantity_RollerDiameter",
+     "y": 176,
+     "x": 249,
+     "enabled": true,
+     "text": "7.92 mm"
+    },
+    {
+     "class": "QLabel",
+     "name": "label_7",
+     "y": 208,
+     "x": 20,
+     "enabled": true,
+     "text": "Tooth width"
+    },
+    {
+     "class": "Gui::InputField",
+     "name": "Quantity_Thickness",
+     "y": 208,
+     "x": 249,
+     "enabled": true,
+     "text": "7.21 mm"
+    }
+   ]
+  ],
+  "props_ansi40": {
+   "AttacherEngine": "Engine Plane",
+   "AttacherType": "Attacher::AttachEnginePlane",
+   "AttachmentOffset": "Placement [Pos=(0,0,0), Yaw-Pitch-Roll=(0,0,0)]",
+   "AttachmentSupport": "[]",
+   "Label": "Sprocket",
+   "Label2": "",
+   "MapMode": "Deactivated",
+   "MapPathParameter": "0.0",
+   "MapReversed": "False",
+   "NumberOfTeeth": "50",
+   "Pitch": "12.7 mm",
+   "Placement": "Placement [Pos=(0,0,0), Yaw-Pitch-Roll=(0,0,0)]",
+   "RollerDiameter": "7.92 mm",
+   "ShapeMaterial": "<Material at 0x60c8731f4bd0>",
+   "SprocketReference": "ANSI 40",
+   "Thickness": "7.21 mm",
+   "Visibility": "True",
+   "_ElementMapVersion": "15.70200.5"
+  },
+  "ok": true,
+  "after_ok": {
+   "undo": [
+    "Create Sprocket"
+   ],
+   "tip": "Pad",
+   "objects": [
+    {
+     "name": "Body",
+     "label": "Body",
+     "type": "PartDesign::Body",
+     "visible": true,
+     "in_body": false
+    },
+    {
+     "name": "Origin",
+     "label": "Origin",
+     "type": "App::Origin",
+     "visible": false,
+     "in_body": false
+    },
+    {
+     "name": "X_Axis",
+     "label": "X-axis",
+     "type": "App::Line",
+     "visible": true,
+     "in_body": false
+    },
+    {
+     "name": "Y_Axis",
+     "label": "Y-axis",
+     "type": "App::Line",
+     "visible": true,
+     "in_body": false
+    },
+    {
+     "name": "Z_Axis",
+     "label": "Z-axis",
+     "type": "App::Line",
+     "visible": true,
+     "in_body": false
+    },
+    {
+     "name": "XY_Plane",
+     "label": "XY-plane",
+     "type": "App::Plane",
+     "visible": true,
+     "in_body": false
+    },
+    {
+     "name": "XZ_Plane",
+     "label": "XZ-plane",
+     "type": "App::Plane",
+     "visible": true,
+     "in_body": false
+    },
+    {
+     "name": "YZ_Plane",
+     "label": "YZ-plane",
+     "type": "App::Plane",
+     "visible": true,
+     "in_body": false
+    },
+    {
+     "name": "Origin001",
+     "label": "Origin-Point",
+     "type": "App::Point",
+     "visible": true,
+     "in_body": false
+    },
+    {
+     "name": "Sketch",
+     "label": "Sketch",
+     "type": "Sketcher::SketchObject",
+     "visible": false,
+     "in_body": true
+    },
+    {
+     "name": "Pad",
+     "label": "Pad",
+     "type": "PartDesign::Pad",
+     "visible": true,
+     "in_body": true
+    },
+    {
+     "name": "Sprocket",
+     "label": "Sprocket",
+     "type": "Part::Part2DObjectPython",
+     "visible": true,
+     "in_body": true
+    }
+   ],
+   "props": {
+    "AttacherEngine": "Engine Plane",
+    "AttacherType": "Attacher::AttachEnginePlane",
+    "AttachmentOffset": "Placement [Pos=(0,0,0), Yaw-Pitch-Roll=(0,0,0)]",
+    "AttachmentSupport": "[]",
+    "Label": "Sprocket",
+    "Label2": "",
+    "MapMode": "Deactivated",
+    "MapPathParameter": "0.0",
+    "MapReversed": "False",
+    "NumberOfTeeth": "50",
+    "Pitch": "12.7 mm",
+    "Placement": "Placement [Pos=(0,0,0), Yaw-Pitch-Roll=(0,0,0)]",
+    "RollerDiameter": "7.92 mm",
+    "ShapeMaterial": "<Material at 0x60c8731f4bd0>",
+    "SprocketReference": "ANSI 40",
+    "Thickness": "7.21 mm",
+    "Visibility": "True",
+    "_ElementMapVersion": "15.70200.5"
+   },
+   "shape": {
+    "type": "Wire",
+    "faces": 0,
+    "edges": 400,
+    "area": 0.0,
+    "length": 1091.736416,
+    "volume": 0
+   }
+  },
+  "props_view": [
+   [
+    {
+     "depth": 0,
+     "name": "Attachment",
+     "value": null,
+     "group": false,
+     "editable": false
+    },
+    {
+     "depth": 1,
+     "name": "Attacher Engine",
+     "value": "Engine Plane",
+     "group": false,
+     "editable": true
+    },
+    {
+     "depth": 1,
+     "name": "Attachment Support",
+     "value": "",
+     "group": false,
+     "editable": true
+    },
+    {
+     "depth": 1,
+     "name": "Map Mode",
+     "value": "Deactivated",
+     "group": false,
+     "editable": true
+    },
+    {
+     "depth": 0,
+     "name": "Base",
+     "value": null,
+     "group": false,
+     "editable": false
+    },
+    {
+     "depth": 1,
+     "name": "Placement",
+     "value": "[(0.00 0.00 1.00); 0.00\u00b0; (0.00 mm  0.00 mm  0.00 mm)]",
+     "group": false,
+     "editable": true
+    },
+    {
+     "depth": 1,
+     "name": "Label",
+     "value": "Sprocket",
+     "group": false,
+     "editable": true
+    },
+    {
+     "depth": 0,
+     "name": "Gear",
+     "value": null,
+     "group": false,
+     "editable": false
+    },
+    {
+     "depth": 0,
+     "name": "Sprocket",
+     "value": null,
+     "group": false,
+     "editable": false
+    },
+    {
+     "depth": 1,
+     "name": "Number Of Teeth",
+     "value": "50",
+     "group": false,
+     "editable": true
+    },
+    {
+     "depth": 1,
+     "name": "Pitch",
+     "value": "12.70 mm",
+     "group": false,
+     "editable": true
+    },
+    {
+     "depth": 1,
+     "name": "Roller Diameter",
+     "value": "7.92 mm",
+     "group": false,
+     "editable": true
+    },
+    {
+     "depth": 1,
+     "name": "Sprocket Reference",
+     "value": "ANSI 40",
+     "group": false,
+     "editable": true
+    },
+    {
+     "depth": 1,
+     "name": "Thickness",
+     "value": "7.21 mm",
+     "group": false,
+     "editable": true
+    }
+   ]
+  ],
+  "menu": [
+   {
+    "text": "Appearance per Face",
+    "name": 3,
+    "shortcut": "",
+    "enabled": true
+   },
+   {
+    "sep": true
+   },
+   {
+    "text": "Move Object To\u2026",
+    "name": "PartDesign_MoveFeature",
+    "shortcut": "",
+    "enabled": true
+   },
+   {
+    "text": "Move Feature After\u2026",
+    "name": "PartDesign_MoveFeatureInTree",
+    "shortcut": "",
+    "enabled": true
+   },
+   {
+    "sep": true
+   },
+   {
+    "text": "Toggle Freeze",
+    "name": "Std_ToggleFreeze",
+    "shortcut": "",
+    "enabled": true
+   },
+   {
+    "sep": true
+   },
+   {
+    "text": "Toggle &Visibility",
+    "name": "Std_ToggleVisibility",
+    "shortcut": "Space",
+    "enabled": true
+   },
+   {
+    "text": "Sho&w Selection",
+    "name": "Std_ShowSelection",
+    "shortcut": "",
+    "enabled": true
+   },
+   {
+    "text": "&Hide Selection",
+    "name": "Std_HideSelection",
+    "shortcut": "",
+    "enabled": true
+   },
+   {
+    "text": "Toggle Se&lectability",
+    "name": "Std_ToggleSelectability",
+    "shortcut": "",
+    "enabled": true
+   },
+   {
+    "text": "Select All Instances",
+    "name": "Std_TreeSelectAllInstances",
+    "shortcut": "",
+    "enabled": true
+   },
+   {
+    "sep": true
+   },
+   {
+    "text": "&Material",
+    "name": "Std_SetMaterial",
+    "shortcut": "",
+    "enabled": true
+   },
+   {
+    "text": "&Appearance",
+    "name": "Std_SetAppearance",
+    "shortcut": "Ctrl+D",
+    "enabled": true
+   },
+   {
+    "text": "Random &Color",
+    "name": "Std_RandomColor",
+    "shortcut": "",
+    "enabled": true
+   },
+   {
+    "text": "Toggle Transparenc&y",
+    "name": "Std_ToggleTransparency",
+    "shortcut": "V, T",
+    "enabled": true
+   },
+   {
+    "sep": true
+   },
+   {
+    "text": "Cu&t",
+    "name": "Std_Cut",
+    "shortcut": "Ctrl+X",
+    "enabled": false
+   },
+   {
+    "text": "&Copy",
+    "name": "Std_Copy",
+    "shortcut": "Ctrl+C",
+    "enabled": true
+   },
+   {
+    "text": "&Paste",
+    "name": "Std_Paste",
+    "shortcut": "Ctrl+V",
+    "enabled": false
+   },
+   {
+    "text": "&Delete",
+    "name": "Std_Delete",
+    "shortcut": "Del",
+    "enabled": true
+   },
+   {
+    "text": "&Send to Python Console",
+    "name": "Std_SendToPythonConsole",
+    "shortcut": "Ctrl+Shift+P",
+    "enabled": true
+   },
+   {
+    "text": "Trans&form",
+    "name": "Std_TransformManip",
+    "shortcut": "",
+    "enabled": true
+   },
+   {
+    "text": "P&lacement",
+    "name": "Std_Placement",
+    "shortcut": "",
+    "enabled": true
+   },
+   {
+    "text": "Propert&ies",
+    "name": "Std_Properties",
+    "shortcut": "Alt+Return",
+    "enabled": true
+   },
+   {
+    "sep": true
+   },
+   {
+    "text": "Expression Actions",
+    "name": "Std_Expressions",
+    "shortcut": "",
+    "enabled": true,
+    "menu": [
+     {
+      "text": "Copy Selected",
+      "name": null,
+      "shortcut": "",
+      "enabled": true
+     },
+     {
+      "text": "Copy Active Document",
+      "name": null,
+      "shortcut": "",
+      "enabled": true
+     },
+     {
+      "text": "Copy All Documents",
+      "name": null,
+      "shortcut": "",
+      "enabled": true
+     },
+     {
+      "text": "Paste",
+      "name": null,
+      "shortcut": "",
+      "enabled": false
+     }
+    ]
+   },
+   {
+    "text": "Link Actions",
+    "name": "Link Actions",
+    "shortcut": "",
+    "enabled": true,
+    "menu": [
+     {
+      "text": "Link Group",
+      "name": "Std_LinkMakeGroup",
+      "shortcut": "",
+      "enabled": true,
+      "menu": [
+       {
+        "text": "Simple Group",
+        "name": null,
+        "shortcut": "",
+        "enabled": true
+       },
+       {
+        "text": "Group With Links",
+        "name": null,
+        "shortcut": "",
+        "enabled": true
+       },
+       {
+        "text": "Group With Transform Links",
+        "name": null,
+        "shortcut": "",
+        "enabled": true
+       }
+      ]
+     },
+     {
+      "text": "Make Link",
+      "name": "Std_LinkMake",
+      "shortcut": "",
+      "enabled": true
+     },
+     {
+      "text": "Make Sub-Link",
+      "name": "Std_LinkMakeRelative",
+      "shortcut": "",
+      "enabled": true
+     },
+     {
+      "sep": true
+     },
+     {
+      "text": "Replace With Link",
+      "name": "Std_LinkReplace",
+      "shortcut": "",
+      "enabled": true
+     },
+     {
+      "sep": true
+     }
+    ]
+   },
+   {
+    "text": "Show Items Hidden in Tree View",
+    "name": null,
+    "shortcut": "",
+    "enabled": true
+   },
+   {
+    "text": "Toggle Visibility in Tree View",
+    "name": null,
+    "shortcut": "",
+    "enabled": true
+   },
+   {
+    "sep": true
+   },
+   {
+    "text": "Mark to Recompute",
+    "name": null,
+    "shortcut": "",
+    "enabled": true
+   },
+   {
+    "text": "Recompute Object",
+    "name": null,
+    "shortcut": "Ctrl+Shift+R",
+    "enabled": true
+   },
+   {
+    "sep": true
+   },
+   {
+    "text": "Rename",
+    "name": null,
+    "shortcut": "F2",
+    "enabled": true
+   },
+   {
+    "sep": true
+   },
+   {
+    "text": "Tree Settings",
+    "name": null,
+    "shortcut": "",
+    "enabled": true,
+    "menu": [
+     {
+      "text": "Show Description",
+      "name": null,
+      "shortcut": "",
+      "enabled": true
+     },
+     {
+      "text": "Show Internal Name",
+      "name": null,
+      "shortcut": "",
+      "enabled": true
+     }
+    ]
+   }
+  ],
+  "edit_task": [
+   [
+    {
+     "class": "QPushButton",
+     "name": "",
+     "y": 9,
+     "x": 81,
+     "enabled": true,
+     "text": "OK"
+    },
+    {
+     "class": "QPushButton",
+     "name": "",
+     "y": 9,
+     "x": 193,
+     "enabled": true,
+     "text": "Cancel"
+    },
+    {
+     "class": "QPushButton",
+     "name": "",
+     "y": 9,
+     "x": 305,
+     "enabled": true,
+     "text": "Apply"
+    },
+    {
+     "class": "QSint::TaskHeader",
+     "name": "",
+     "y": 50,
+     "x": 4,
+     "enabled": true,
+     "text": ""
+    },
+    {
+     "class": "QSint::ActionLabel",
+     "name": "",
+     "y": 53,
+     "x": 9,
+     "enabled": true,
+     "text": "Sprocket Parameters"
+    },
+    {
+     "class": "QLabel",
+     "name": "label_9",
+     "y": 87,
+     "x": 20,
+     "enabled": true,
+     "text": "Number of teeth"
+    },
+    {
+     "class": "QSpinBox",
+     "name": "spinBox_NumberOfTeeth",
+     "y": 87,
+     "x": 249,
+     "enabled": true,
+     "text": "50"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 88,
+     "x": 254,
+     "enabled": true,
+     "text": "50"
+    },
+    {
+     "class": "QLabel",
+     "name": "label_10",
+     "y": 114,
+     "x": 20,
+     "enabled": true,
+     "text": "Sprocket reference"
+    },
+    {
+     "class": "QComboBox",
+     "name": "comboBox_SprocketReference",
+     "y": 114,
+     "x": 249,
+     "enabled": true,
+     "items": [
+      "ANSI 25",
+      "ANSI 35",
+      "ANSI 41",
+      "ANSI 40",
+      "ANSI 50",
+      "ANSI 60",
+      "ANSI 80",
+      "ANSI 100",
+      "ANSI 120",
+      "ANSI 140",
+      "ANSI 160",
+      "ANSI 180",
+      "ANSI 200",
+      "ANSI 240",
+      "Bicycle with derailleur",
+      "Bicycle without derailleur",
+      "ISO 606 06B",
+      "ISO 606 08B",
+      "ISO 606 10B",
+      "ISO 606 12B",
+      "ISO 606 16B",
+      "ISO 606 20B",
+      "ISO 606 24B",
+      "Motorcycle 420",
+      "Motorcycle 425",
+      "Motorcycle 428",
+      "Motorcycle 520",
+      "Motorcycle 525",
+      "Motorcycle 530",
+      "Motorcycle 630"
+     ],
+     "current": "ANSI 40"
+    },
+    {
+     "class": "QLabel",
+     "name": "label_8",
+     "y": 144,
+     "x": 20,
+     "enabled": true,
+     "text": "Chain pitch"
+    },
+    {
+     "class": "Gui::InputField",
+     "name": "Quantity_Pitch",
+     "y": 144,
+     "x": 249,
+     "enabled": true,
+     "text": "12.70 mm"
+    },
+    {
+     "class": "QLabel",
+     "name": "label_6",
+     "y": 176,
+     "x": 20,
+     "enabled": true,
+     "text": "Chain roller diameter"
+    },
+    {
+     "class": "Gui::InputField",
+     "name": "Quantity_RollerDiameter",
+     "y": 176,
+     "x": 249,
+     "enabled": true,
+     "text": "7.92 mm"
+    },
+    {
+     "class": "QLabel",
+     "name": "label_7",
+     "y": 208,
+     "x": 20,
+     "enabled": true,
+     "text": "Tooth width"
+    },
+    {
+     "class": "Gui::InputField",
+     "name": "Quantity_Thickness",
+     "y": 208,
+     "x": 249,
+     "enabled": true,
+     "text": "7.21 mm"
+    }
+   ]
+  ],
+  "after_cancel": {
+   "undo": [
+    "Delete",
+    "Create Sprocket"
+   ],
+   "exists": false,
+   "objects": [
+    {
+     "name": "Body",
+     "label": "Body",
+     "type": "PartDesign::Body",
+     "visible": true,
+     "in_body": false
+    },
+    {
+     "name": "Origin",
+     "label": "Origin",
+     "type": "App::Origin",
+     "visible": false,
+     "in_body": false
+    },
+    {
+     "name": "X_Axis",
+     "label": "X-axis",
+     "type": "App::Line",
+     "visible": true,
+     "in_body": false
+    },
+    {
+     "name": "Y_Axis",
+     "label": "Y-axis",
+     "type": "App::Line",
+     "visible": true,
+     "in_body": false
+    },
+    {
+     "name": "Z_Axis",
+     "label": "Z-axis",
+     "type": "App::Line",
+     "visible": true,
+     "in_body": false
+    },
+    {
+     "name": "XY_Plane",
+     "label": "XY-plane",
+     "type": "App::Plane",
+     "visible": true,
+     "in_body": false
+    },
+    {
+     "name": "XZ_Plane",
+     "label": "XZ-plane",
+     "type": "App::Plane",
+     "visible": true,
+     "in_body": false
+    },
+    {
+     "name": "YZ_Plane",
+     "label": "YZ-plane",
+     "type": "App::Plane",
+     "visible": true,
+     "in_body": false
+    },
+    {
+     "name": "Origin001",
+     "label": "Origin-Point",
+     "type": "App::Point",
+     "visible": true,
+     "in_body": false
+    },
+    {
+     "name": "Sketch",
+     "label": "Sketch",
+     "type": "Sketcher::SketchObject",
+     "visible": false,
+     "in_body": true
+    },
+    {
+     "name": "Pad",
+     "label": "Pad",
+     "type": "PartDesign::Pad",
+     "visible": true,
+     "in_body": true
+    }
+   ]
+  }
+ },
+ "defeat": {
+  "pocket_faces": 7,
+  "in_edit": "Defeaturing",
+  "task": [
+   [
+    {
+     "class": "QPushButton",
+     "name": "",
+     "y": 9,
+     "x": 137,
+     "enabled": true,
+     "text": "OK"
+    },
+    {
+     "class": "QPushButton",
+     "name": "",
+     "y": 9,
+     "x": 249,
+     "enabled": true,
+     "text": "Cancel"
+    },
+    {
+     "class": "QSint::TaskHeader",
+     "name": "",
+     "y": 50,
+     "x": 4,
+     "enabled": true,
+     "text": ""
+    },
+    {
+     "class": "QSint::ActionLabel",
+     "name": "",
+     "y": 53,
+     "x": 9,
+     "enabled": true,
+     "text": "Defeaturing Parameters"
+    },
+    {
+     "class": "QToolButton",
+     "name": "buttonRefSel",
+     "y": 85,
+     "x": 18,
+     "enabled": true,
+     "text": "Confirm Selection",
+     "checked": true
+    },
+    {
+     "class": "QListWidget",
+     "name": "listWidgetReferences",
+     "y": 114,
+     "x": 18,
+     "enabled": true,
+     "items": [
+      "Face7"
+     ]
+    },
+    {
+     "class": "QSint::TaskHeader",
+     "name": "",
+     "y": 328,
+     "x": 4,
+     "enabled": true,
+     "text": ""
+    },
+    {
+     "class": "QSint::ActionLabel",
+     "name": "",
+     "y": 331,
+     "x": 9,
+     "enabled": true,
+     "text": "Preview"
+    },
+    {
+     "class": "QCheckBox",
+     "name": "showFinalCheckBox",
+     "y": 363,
+     "x": 18,
+     "enabled": true,
+     "text": "Show final result",
+     "checked": false
+    },
+    {
+     "class": "QCheckBox",
+     "name": "showTransparentPreviewCheckBox",
+     "y": 389,
+     "x": 18,
+     "enabled": true,
+     "text": "Show preview overlay",
+     "checked": true
+    }
+   ]
+  ],
+  "props_new": {
+   "AddSubShape": "<Shape object at 0x60c872bff640>",
+   "Base": "(<PartDesign::Pocket>, ['Face7'])",
+   "BaseFeature": "<PartDesign::Pocket>",
+   "FuzzyTolerance": "0.0",
+   "Label": "Defeaturing",
+   "Label2": "",
+   "Operation": "Union",
+   "Placement": "Placement [Pos=(0,0,0), Yaw-Pitch-Roll=(0,0,0)]",
+   "PreviewShape": "<Compound object at 0x60c872bff640>",
+   "Refine": "True",
+   "ShapeMaterial": "<Material at 0x60c86f355170>",
+   "SupportTransform": "False",
+   "Suppressed": "False",
+   "SuppressedShape": "<Shape object at 0x60c8736e13d0>",
+   "Visibility": "False",
+   "_Body": "<body object>",
+   "_ElementMapVersion": "15.70200.5"
+  },
+  "groups": {
+   "AddSubShape": "",
+   "Base": "",
+   "BaseFeature": "",
+   "ExpressionEngine": "Base",
+   "FuzzyTolerance": "Part Design",
+   "Label": "Base",
+   "Label2": "Base",
+   "Operation": "Part Design",
+   "Placement": "",
+   "PreviewShape": "",
+   "Refine": "Part Design",
+   "Shape": "",
+   "ShapeMaterial": "",
+   "SupportTransform": "Base",
+   "Suppressed": "Base",
+   "SuppressedShape": "",
+   "Visibility": "",
+   "_Body": "Base",
+   "_ElementMapVersion": "Base"
+  },
+  "ok": true,
+  "after_ok": {
+   "undo": [
+    "Make Defeaturing"
+   ],
+   "tip": "Defeaturing",
+   "objects": [
+    {
+     "name": "Body",
+     "label": "Body",
+     "type": "PartDesign::Body",
+     "visible": true,
+     "in_body": false
+    },
+    {
+     "name": "Origin",
+     "label": "Origin",
+     "type": "App::Origin",
+     "visible": false,
+     "in_body": false
+    },
+    {
+     "name": "X_Axis",
+     "label": "X-axis",
+     "type": "App::Line",
+     "visible": true,
+     "in_body": false
+    },
+    {
+     "name": "Y_Axis",
+     "label": "Y-axis",
+     "type": "App::Line",
+     "visible": true,
+     "in_body": false
+    },
+    {
+     "name": "Z_Axis",
+     "label": "Z-axis",
+     "type": "App::Line",
+     "visible": true,
+     "in_body": false
+    },
+    {
+     "name": "XY_Plane",
+     "label": "XY-plane",
+     "type": "App::Plane",
+     "visible": true,
+     "in_body": false
+    },
+    {
+     "name": "XZ_Plane",
+     "label": "XZ-plane",
+     "type": "App::Plane",
+     "visible": true,
+     "in_body": false
+    },
+    {
+     "name": "YZ_Plane",
+     "label": "YZ-plane",
+     "type": "App::Plane",
+     "visible": true,
+     "in_body": false
+    },
+    {
+     "name": "Origin001",
+     "label": "Origin-Point",
+     "type": "App::Point",
+     "visible": true,
+     "in_body": false
+    },
+    {
+     "name": "Sketch",
+     "label": "Sketch",
+     "type": "Sketcher::SketchObject",
+     "visible": false,
+     "in_body": true
+    },
+    {
+     "name": "Pad",
+     "label": "Pad",
+     "type": "PartDesign::Pad",
+     "visible": false,
+     "in_body": true
+    },
+    {
+     "name": "Sketch001",
+     "label": "Sketch001",
+     "type": "Sketcher::SketchObject",
+     "visible": true,
+     "in_body": true
+    },
+    {
+     "name": "Pocket",
+     "label": "Pocket",
+     "type": "PartDesign::Pocket",
+     "visible": false,
+     "in_body": true
+    },
+    {
+     "name": "Defeaturing",
+     "label": "Defeaturing",
+     "type": "PartDesign::Defeaturing",
+     "visible": true,
+     "in_body": true
+    }
+   ],
+   "shape": {
+    "type": "Compound",
+    "faces": 6,
+    "edges": 12,
+    "area": 2200.0,
+    "length": 520.0,
+    "volume": 4000.0
+   },
+   "base": "(<PartDesign::Pocket>, ['Face7'])"
+  },
+  "tree": [
+   {
+    "text": "DefeatDoc",
+    "depth": 0,
+    "bold": true,
+    "icon": "pdlast-icon18.png",
+    "children": 1,
+    "fg": "#000000"
+   },
+   {
+    "text": "Body",
+    "depth": 1,
+    "bold": true,
+    "icon": "pdlast-icon19.png",
+    "children": 4,
+    "fg": "#000000"
+   },
+   {
+    "text": "Origin",
+    "depth": 2,
+    "bold": false,
+    "icon": "pdlast-icon20.png",
+    "children": 7,
+    "fg": "#6f6f6f"
+   },
+   {
+    "text": "X-axis",
+    "depth": 3,
+    "bold": false,
+    "icon": "pdlast-icon21.png",
+    "children": 0,
+    "fg": "#000000"
+   },
+   {
+    "text": "Y-axis",
+    "depth": 3,
+    "bold": false,
+    "icon": "pdlast-icon22.png",
+    "children": 0,
+    "fg": "#000000"
+   },
+   {
+    "text": "Z-axis",
+    "depth": 3,
+    "bold": false,
+    "icon": "pdlast-icon23.png",
+    "children": 0,
+    "fg": "#000000"
+   },
+   {
+    "text": "XY-plane",
+    "depth": 3,
+    "bold": false,
+    "icon": "pdlast-icon24.png",
+    "children": 0,
+    "fg": "#000000"
+   },
+   {
+    "text": "XZ-plane",
+    "depth": 3,
+    "bold": false,
+    "icon": "pdlast-icon25.png",
+    "children": 0,
+    "fg": "#000000"
+   },
+   {
+    "text": "YZ-plane",
+    "depth": 3,
+    "bold": false,
+    "icon": "pdlast-icon26.png",
+    "children": 0,
+    "fg": "#000000"
+   },
+   {
+    "text": "Origin-Point",
+    "depth": 3,
+    "bold": false,
+    "icon": "pdlast-icon27.png",
+    "children": 0,
+    "fg": "#000000"
+   },
+   {
+    "text": "Pad",
+    "depth": 2,
+    "bold": false,
+    "icon": "pdlast-icon28.png",
+    "children": 1,
+    "fg": "#6f6f6f"
+   },
+   {
+    "text": "Sketch",
+    "depth": 3,
+    "bold": false,
+    "icon": "pdlast-icon29.png",
+    "children": 0,
+    "fg": "#6f6f6f"
+   },
+   {
+    "text": "Pocket",
+    "depth": 2,
+    "bold": false,
+    "icon": "pdlast-icon30.png",
+    "children": 1,
+    "fg": "#6f6f6f"
+   },
+   {
+    "text": "Sketch001",
+    "depth": 3,
+    "bold": false,
+    "icon": "pdlast-icon31.png",
+    "children": 0,
+    "fg": "#000000"
+   },
+   {
+    "text": "Defeaturing",
+    "depth": 2,
+    "bold": false,
+    "icon": "pdlast-icon32.png",
+    "children": 0,
+    "fg": "#000000"
+   }
+  ],
+  "props_view": [
+   [
+    {
+     "depth": 0,
+     "name": "Attachment",
+     "value": null,
+     "group": false,
+     "editable": false
+    },
+    {
+     "depth": 0,
+     "name": "Base",
+     "value": null,
+     "group": false,
+     "editable": false
+    },
+    {
+     "depth": 1,
+     "name": "Base",
+     "value": "Pocket [Face7]",
+     "group": false,
+     "editable": true
+    },
+    {
+     "depth": 1,
+     "name": "Support Transform",
+     "value": "false",
+     "group": false,
+     "editable": true
+    },
+    {
+     "depth": 1,
+     "name": "Label",
+     "value": "Defeaturing",
+     "group": false,
+     "editable": true
+    },
+    {
+     "depth": 1,
+     "name": "Suppressed",
+     "value": "false",
+     "group": false,
+     "editable": true
+    },
+    {
+     "depth": 0,
+     "name": "Gear",
+     "value": null,
+     "group": false,
+     "editable": false
+    },
+    {
+     "depth": 0,
+     "name": "Part Design",
+     "value": null,
+     "group": false,
+     "editable": false
+    },
+    {
+     "depth": 1,
+     "name": "Refine",
+     "value": "true",
+     "group": false,
+     "editable": true
+    },
+    {
+     "depth": 1,
+     "name": "Fuzzy Tolerance",
+     "value": "0",
+     "group": false,
+     "editable": true
+    },
+    {
+     "depth": 0,
+     "name": "Pocket",
+     "value": null,
+     "group": false,
+     "editable": false
+    },
+    {
+     "depth": 0,
+     "name": "Side1",
+     "value": null,
+     "group": false,
+     "editable": false
+    },
+    {
+     "depth": 0,
+     "name": "Side2",
+     "value": null,
+     "group": false,
+     "editable": false
+    },
+    {
+     "depth": 0,
+     "name": "Sketch Based",
+     "value": null,
+     "group": false,
+     "editable": false
+    },
+    {
+     "depth": 0,
+     "name": "Sprocket",
+     "value": null,
+     "group": false,
+     "editable": false
+    },
+    {
+     "depth": 0,
+     "name": "Start",
+     "value": null,
+     "group": false,
+     "editable": false
+    }
+   ]
+  ],
+  "menu": [
+   {
+    "text": "Edit Defeaturing",
+    "name": 0,
+    "shortcut": "",
+    "enabled": true
+   },
+   {
+    "text": "Set Face Colors",
+    "name": 3,
+    "shortcut": "",
+    "enabled": true
+   },
+   {
+    "sep": true
+   },
+   {
+    "text": "Set Tip",
+    "name": "PartDesign_MoveTip",
+    "shortcut": "",
+    "enabled": true
+   },
+   {
+    "text": "Move Object To\u2026",
+    "name": "PartDesign_MoveFeature",
+    "shortcut": "",
+    "enabled": true
+   },
+   {
+    "text": "Move Feature After\u2026",
+    "name": "PartDesign_MoveFeatureInTree",
+    "shortcut": "",
+    "enabled": true
+   },
+   {
+    "sep": true
+   },
+   {
+    "text": "Toggle Suppressed",
+    "name": "Std_ToggleSuppress",
+    "shortcut": "",
+    "enabled": true
+   },
+   {
+    "text": "Toggle Freeze",
+    "name": "Std_ToggleFreeze",
+    "shortcut": "",
+    "enabled": true
+   },
+   {
+    "sep": true
+   },
+   {
+    "text": "Toggle &Visibility",
+    "name": "Std_ToggleVisibility",
+    "shortcut": "Space",
+    "enabled": true
+   },
+   {
+    "text": "Sho&w Selection",
+    "name": "Std_ShowSelection",
+    "shortcut": "",
+    "enabled": true
+   },
+   {
+    "text": "&Hide Selection",
+    "name": "Std_HideSelection",
+    "shortcut": "",
+    "enabled": true
+   },
+   {
+    "text": "Toggle Se&lectability",
+    "name": "Std_ToggleSelectability",
+    "shortcut": "",
+    "enabled": true
+   },
+   {
+    "text": "Select All Instances",
+    "name": "Std_TreeSelectAllInstances",
+    "shortcut": "",
+    "enabled": true
+   },
+   {
+    "sep": true
+   },
+   {
+    "text": "&Material",
+    "name": "Std_SetMaterial",
+    "shortcut": "",
+    "enabled": true
+   },
+   {
+    "text": "&Appearance",
+    "name": "Std_SetAppearance",
+    "shortcut": "Ctrl+D",
+    "enabled": true
+   },
+   {
+    "text": "Random &Color",
+    "name": "Std_RandomColor",
+    "shortcut": "",
+    "enabled": true
+   },
+   {
+    "text": "Toggle Transparenc&y",
+    "name": "Std_ToggleTransparency",
+    "shortcut": "V, T",
+    "enabled": true
+   },
+   {
+    "sep": true
+   },
+   {
+    "text": "Cu&t",
+    "name": "Std_Cut",
+    "shortcut": "Ctrl+X",
+    "enabled": false
+   },
+   {
+    "text": "&Copy",
+    "name": "Std_Copy",
+    "shortcut": "Ctrl+C",
+    "enabled": true
+   },
+   {
+    "text": "&Paste",
+    "name": "Std_Paste",
+    "shortcut": "Ctrl+V",
+    "enabled": false
+   },
+   {
+    "text": "&Delete",
+    "name": "Std_Delete",
+    "shortcut": "Del",
+    "enabled": true
+   },
+   {
+    "text": "&Send to Python Console",
+    "name": "Std_SendToPythonConsole",
+    "shortcut": "Ctrl+Shift+P",
+    "enabled": true
+   },
+   {
+    "text": "Propert&ies",
+    "name": "Std_Properties",
+    "shortcut": "Alt+Return",
+    "enabled": true
+   },
+   {
+    "sep": true
+   },
+   {
+    "text": "Expression Actions",
+    "name": "Std_Expressions",
+    "shortcut": "",
+    "enabled": true,
+    "menu": [
+     {
+      "text": "Copy Selected",
+      "name": null,
+      "shortcut": "",
+      "enabled": true
+     },
+     {
+      "text": "Copy Active Document",
+      "name": null,
+      "shortcut": "",
+      "enabled": true
+     },
+     {
+      "text": "Copy All Documents",
+      "name": null,
+      "shortcut": "",
+      "enabled": true
+     },
+     {
+      "text": "Paste",
+      "name": null,
+      "shortcut": "",
+      "enabled": false
+     }
+    ]
+   },
+   {
+    "text": "Link Actions",
+    "name": "Link Actions",
+    "shortcut": "",
+    "enabled": true,
+    "menu": [
+     {
+      "text": "Link Group",
+      "name": "Std_LinkMakeGroup",
+      "shortcut": "",
+      "enabled": true,
+      "menu": [
+       {
+        "text": "Simple Group",
+        "name": null,
+        "shortcut": "",
+        "enabled": true
+       },
+       {
+        "text": "Group With Links",
+        "name": null,
+        "shortcut": "",
+        "enabled": true
+       },
+       {
+        "text": "Group With Transform Links",
+        "name": null,
+        "shortcut": "",
+        "enabled": true
+       }
+      ]
+     },
+     {
+      "text": "Make Link",
+      "name": "Std_LinkMake",
+      "shortcut": "",
+      "enabled": true
+     },
+     {
+      "text": "Make Sub-Link",
+      "name": "Std_LinkMakeRelative",
+      "shortcut": "",
+      "enabled": true
+     },
+     {
+      "sep": true
+     },
+     {
+      "text": "Replace With Link",
+      "name": "Std_LinkReplace",
+      "shortcut": "",
+      "enabled": true
+     },
+     {
+      "sep": true
+     }
+    ]
+   },
+   {
+    "text": "Show Items Hidden in Tree View",
+    "name": null,
+    "shortcut": "",
+    "enabled": true
+   },
+   {
+    "text": "Toggle Visibility in Tree View",
+    "name": null,
+    "shortcut": "",
+    "enabled": true
+   },
+   {
+    "text": "Add Dependent Objects to Selection",
+    "name": null,
+    "shortcut": "",
+    "enabled": true
+   },
+   {
+    "sep": true
+   },
+   {
+    "text": "Mark to Recompute",
+    "name": null,
+    "shortcut": "",
+    "enabled": true
+   },
+   {
+    "text": "Recompute Object",
+    "name": null,
+    "shortcut": "Ctrl+Shift+R",
+    "enabled": true
+   },
+   {
+    "sep": true
+   },
+   {
+    "text": "Rename",
+    "name": null,
+    "shortcut": "F2",
+    "enabled": true
+   },
+   {
+    "sep": true
+   },
+   {
+    "text": "Tree Settings",
+    "name": null,
+    "shortcut": "",
+    "enabled": true,
+    "menu": [
+     {
+      "text": "Show Description",
+      "name": null,
+      "shortcut": "",
+      "enabled": true
+     },
+     {
+      "text": "Show Internal Name",
+      "name": null,
+      "shortcut": "",
+      "enabled": true
+     }
+    ]
+   }
+  ],
+  "edge_selected": {
+   "title": "Wrong Selection",
+   "text": "Defeaturing works only on faces",
+   "buttons": [
+    "OK"
+   ]
+  },
+  "after_edge": [
+   "Body",
+   "Origin",
+   "X_Axis",
+   "Y_Axis",
+   "Z_Axis",
+   "XY_Plane",
+   "XZ_Plane",
+   "YZ_Plane",
+   "Origin001",
+   "Sketch",
+   "Pad",
+   "Sketch001",
+   "Pocket",
+   "Defeaturing"
+  ],
+  "empty_in_edit": "Defeaturing001",
+  "empty_task": [
+   [
+    {
+     "class": "QPushButton",
+     "name": "",
+     "y": 9,
+     "x": 137,
+     "enabled": true,
+     "text": "OK"
+    },
+    {
+     "class": "QPushButton",
+     "name": "",
+     "y": 9,
+     "x": 249,
+     "enabled": true,
+     "text": "Cancel"
+    },
+    {
+     "class": "QSint::TaskHeader",
+     "name": "",
+     "y": 50,
+     "x": 4,
+     "enabled": true,
+     "text": ""
+    },
+    {
+     "class": "QSint::ActionLabel",
+     "name": "",
+     "y": 53,
+     "x": 9,
+     "enabled": true,
+     "text": "Defeaturing Parameters"
+    },
+    {
+     "class": "QToolButton",
+     "name": "buttonRefSel",
+     "y": 85,
+     "x": 18,
+     "enabled": true,
+     "text": "Confirm Selection",
+     "checked": true
+    },
+    {
+     "class": "QListWidget",
+     "name": "listWidgetReferences",
+     "y": 114,
+     "x": 18,
+     "enabled": true,
+     "items": []
+    },
+    {
+     "class": "QSint::TaskHeader",
+     "name": "",
+     "y": 328,
+     "x": 4,
+     "enabled": true,
+     "text": ""
+    },
+    {
+     "class": "QSint::ActionLabel",
+     "name": "",
+     "y": 331,
+     "x": 9,
+     "enabled": true,
+     "text": "Preview"
+    },
+    {
+     "class": "QCheckBox",
+     "name": "showFinalCheckBox",
+     "y": 363,
+     "x": 18,
+     "enabled": true,
+     "text": "Show final result",
+     "checked": false
+    },
+    {
+     "class": "QCheckBox",
+     "name": "showTransparentPreviewCheckBox",
+     "y": 389,
+     "x": 18,
+     "enabled": true,
+     "text": "Show preview overlay",
+     "checked": true
+    }
+   ]
+  ],
+  "after_empty": {
+   "undo": [
+    "Make Defeaturing",
+    "Make Defeaturing"
+   ],
+   "base": "(<PartDesign::Defeaturing>, [])",
+   "tip": "Defeaturing001",
+   "valid": true
+  }
+ },
+ "binder": {
+  "in_edit": null,
+  "task": [
+   [
+    {
+     "class": "QSint::TaskHeader",
+     "name": "",
+     "y": 8,
+     "x": 4,
+     "enabled": true,
+     "text": ""
+    },
+    {
+     "class": "QSint::ActionLabel",
+     "name": "",
+     "y": 11,
+     "x": 9,
+     "enabled": true,
+     "text": "Face Tools"
+    },
+    {
+     "class": "QSint::ActionLabel",
+     "name": "",
+     "y": 34,
+     "x": 9,
+     "enabled": true,
+     "text": "New Sketch"
+    },
+    {
+     "class": "QSint::ActionLabel",
+     "name": "",
+     "y": 64,
+     "x": 9,
+     "enabled": true,
+     "text": "Fillet"
+    },
+    {
+     "class": "QSint::ActionLabel",
+     "name": "",
+     "y": 94,
+     "x": 9,
+     "enabled": true,
+     "text": "Chamfer"
+    },
+    {
+     "class": "QSint::ActionLabel",
+     "name": "",
+     "y": 124,
+     "x": 9,
+     "enabled": true,
+     "text": "Draft"
+    },
+    {
+     "class": "QSint::ActionLabel",
+     "name": "",
+     "y": 154,
+     "x": 9,
+     "enabled": true,
+     "text": "Thickness"
+    },
+    {
+     "class": "QSint::ActionLabel",
+     "name": "",
+     "y": 184,
+     "x": 9,
+     "enabled": true,
+     "text": "Defeaturing"
+    },
+    {
+     "class": "QSint::ActionLabel",
+     "name": "",
+     "y": 214,
+     "x": 9,
+     "enabled": true,
+     "text": "Datum Point"
+    },
+    {
+     "class": "QSint::ActionLabel",
+     "name": "",
+     "y": 244,
+     "x": 9,
+     "enabled": true,
+     "text": "Datum Line"
+    },
+    {
+     "class": "QSint::ActionLabel",
+     "name": "",
+     "y": 274,
+     "x": 9,
+     "enabled": true,
+     "text": "Datum Plane"
+    },
+    {
+     "class": "QSint::ActionLabel",
+     "name": "",
+     "y": 304,
+     "x": 9,
+     "enabled": true,
+     "text": "Coordinate System"
+    }
+   ]
+  ],
+  "after": {
+   "undo": [
+    "Create Sub-Shape Binder"
+   ],
+   "tip": "Pad",
+   "objects": [
+    {
+     "name": "Body",
+     "label": "Body",
+     "type": "PartDesign::Body",
+     "visible": true,
+     "in_body": false
+    },
+    {
+     "name": "Origin",
+     "label": "Origin",
+     "type": "App::Origin",
+     "visible": false,
+     "in_body": false
+    },
+    {
+     "name": "X_Axis",
+     "label": "X-axis",
+     "type": "App::Line",
+     "visible": true,
+     "in_body": false
+    },
+    {
+     "name": "Y_Axis",
+     "label": "Y-axis",
+     "type": "App::Line",
+     "visible": true,
+     "in_body": false
+    },
+    {
+     "name": "Z_Axis",
+     "label": "Z-axis",
+     "type": "App::Line",
+     "visible": true,
+     "in_body": false
+    },
+    {
+     "name": "XY_Plane",
+     "label": "XY-plane",
+     "type": "App::Plane",
+     "visible": true,
+     "in_body": false
+    },
+    {
+     "name": "XZ_Plane",
+     "label": "XZ-plane",
+     "type": "App::Plane",
+     "visible": true,
+     "in_body": false
+    },
+    {
+     "name": "YZ_Plane",
+     "label": "YZ-plane",
+     "type": "App::Plane",
+     "visible": true,
+     "in_body": false
+    },
+    {
+     "name": "Origin001",
+     "label": "Origin-Point",
+     "type": "App::Point",
+     "visible": true,
+     "in_body": false
+    },
+    {
+     "name": "Sketch",
+     "label": "Sketch",
+     "type": "Sketcher::SketchObject",
+     "visible": false,
+     "in_body": true
+    },
+    {
+     "name": "Pad",
+     "label": "Pad",
+     "type": "PartDesign::Pad",
+     "visible": true,
+     "in_body": true
+    },
+    {
+     "name": "Binder",
+     "label": "Binder",
+     "type": "PartDesign::SubShapeBinder",
+     "visible": true,
+     "in_body": true
+    }
+   ],
+   "props": {
+    "BindCopyOnChange": "Disabled",
+    "BindMode": "Synchronized",
+    "Cache_Pad": "Matrix ((1,0,0,0),(0,1,0,0),(0,0,1,0),(0,0,0,1))",
+    "ClaimChildren": "False",
+    "Context": "(<body object>, 'Binder.')",
+    "Fuse": "False",
+    "Label": "Binder",
+    "Label2": "",
+    "MakeFace": "True",
+    "Offset": "0.0",
+    "OffsetFill": "False",
+    "OffsetIntersection": "False",
+    "OffsetJoinType": "Arcs",
+    "OffsetOpenResult": "False",
+    "PartialLoad": "False",
+    "Placement": "Placement [Pos=(0,0,0), Yaw-Pitch-Roll=(0,0,0)]",
+    "Refine": "True",
+    "Relative": "True",
+    "ShapeMaterial": "<Material at 0x60c873277800>",
+    "Support": "[(<PartDesign::Pad>, ('Face6',))]",
+    "Visibility": "True",
+    "_CopiedLink": "None",
+    "_ElementMapVersion": "15.70200.5",
+    "_Version": "3"
+   },
+   "shape": {
+    "type": "Compound",
+    "faces": 1,
+    "edges": 4,
+    "area": 800.0,
+    "length": 120.0,
+    "volume": 0
+   },
+   "support": [
+    [
+     "Pad",
+     [
+      "Face6"
+     ]
+    ]
+   ]
+  },
+  "groups": {
+   "BindCopyOnChange": "Base",
+   "BindMode": "Base",
+   "Cache_Pad": "Cache",
+   "ClaimChildren": "Base",
+   "Context": "Base",
+   "ExpressionEngine": "Base",
+   "Fuse": "Base",
+   "Label": "Base",
+   "Label2": "Base",
+   "MakeFace": "Base",
+   "Offset": "Offsetting",
+   "OffsetFill": "Offsetting",
+   "OffsetIntersection": "Offsetting",
+   "OffsetJoinType": "Offsetting",
+   "OffsetOpenResult": "Offsetting",
+   "PartialLoad": "Base",
+   "Placement": "",
+   "Refine": "Base",
+   "Relative": "Base",
+   "Shape": "",
+   "ShapeMaterial": "",
+   "Support": "",
+   "Visibility": "",
+   "_CopiedLink": "Base",
+   "_ElementMapVersion": "Base",
+   "_Version": "Base"
+  },
+  "modes": {
+   "BindCopyOnChange": [],
+   "BindMode": [],
+   "Cache_Pad": [
+    "Hidden"
+   ],
+   "ClaimChildren": [],
+   "Context": [
+    "Hidden"
+   ],
+   "ExpressionEngine": [
+    "Hidden"
+   ],
+   "Fuse": [],
+   "Label": [],
+   "Label2": [
+    "Hidden"
+   ],
+   "MakeFace": [],
+   "Offset": [],
+   "OffsetFill": [],
+   "OffsetIntersection": [],
+   "OffsetJoinType": [],
+   "OffsetOpenResult": [],
+   "PartialLoad": [],
+   "Placement": [],
+   "Refine": [],
+   "Relative": [],
+   "Shape": [],
+   "ShapeMaterial": [],
+   "Support": [
+    "ReadOnly"
+   ],
+   "Visibility": [
+    "Hidden"
+   ],
+   "_CopiedLink": [
+    "ReadOnly",
+    "Hidden"
+   ],
+   "_ElementMapVersion": [
+    "Hidden"
+   ],
+   "_Version": [
+    "ReadOnly",
+    "Hidden"
+   ]
+  },
+  "tree": [
+   {
+    "text": "BinderDoc",
+    "depth": 0,
+    "bold": true,
+    "icon": "pdlast-icon33.png",
+    "children": 1,
+    "fg": "#000000"
+   },
+   {
+    "text": "Body",
+    "depth": 1,
+    "bold": true,
+    "icon": "pdlast-icon34.png",
+    "children": 3,
+    "fg": "#000000"
+   },
+   {
+    "text": "Origin",
+    "depth": 2,
+    "bold": false,
+    "icon": "pdlast-icon35.png",
+    "children": 7,
+    "fg": "#6f6f6f"
+   },
+   {
+    "text": "X-axis",
+    "depth": 3,
+    "bold": false,
+    "icon": "pdlast-icon36.png",
+    "children": 0,
+    "fg": "#000000"
+   },
+   {
+    "text": "Y-axis",
+    "depth": 3,
+    "bold": false,
+    "icon": "pdlast-icon37.png",
+    "children": 0,
+    "fg": "#000000"
+   },
+   {
+    "text": "Z-axis",
+    "depth": 3,
+    "bold": false,
+    "icon": "pdlast-icon38.png",
+    "children": 0,
+    "fg": "#000000"
+   },
+   {
+    "text": "XY-plane",
+    "depth": 3,
+    "bold": false,
+    "icon": "pdlast-icon39.png",
+    "children": 0,
+    "fg": "#000000"
+   },
+   {
+    "text": "XZ-plane",
+    "depth": 3,
+    "bold": false,
+    "icon": "pdlast-icon40.png",
+    "children": 0,
+    "fg": "#000000"
+   },
+   {
+    "text": "YZ-plane",
+    "depth": 3,
+    "bold": false,
+    "icon": "pdlast-icon41.png",
+    "children": 0,
+    "fg": "#000000"
+   },
+   {
+    "text": "Origin-Point",
+    "depth": 3,
+    "bold": false,
+    "icon": "pdlast-icon42.png",
+    "children": 0,
+    "fg": "#000000"
+   },
+   {
+    "text": "Pad",
+    "depth": 2,
+    "bold": false,
+    "icon": "pdlast-icon43.png",
+    "children": 1,
+    "fg": "#000000"
+   },
+   {
+    "text": "Sketch",
+    "depth": 3,
+    "bold": false,
+    "icon": "pdlast-icon44.png",
+    "children": 0,
+    "fg": "#6f6f6f"
+   },
+   {
+    "text": "Binder",
+    "depth": 2,
+    "bold": false,
+    "icon": "pdlast-icon45.png",
+    "children": 0,
+    "fg": "#000000"
+   }
+  ],
+  "props_view": [
+   [
+    {
+     "depth": 0,
+     "name": "Attachment",
+     "value": null,
+     "group": false,
+     "editable": false
+    },
+    {
+     "depth": 0,
+     "name": "Base",
+     "value": null,
+     "group": false,
+     "editable": false
+    },
+    {
+     "depth": 1,
+     "name": "Support",
+     "value": "Pad [Face6]",
+     "group": false,
+     "editable": false
+    },
+    {
+     "depth": 1,
+     "name": "Fuse",
+     "value": "false",
+     "group": false,
+     "editable": true
+    },
+    {
+     "depth": 1,
+     "name": "Make Face",
+     "value": "true",
+     "group": false,
+     "editable": true
+    },
+    {
+     "depth": 1,
+     "name": "Claim Children",
+     "value": "false",
+     "group": false,
+     "editable": true
+    },
+    {
+     "depth": 1,
+     "name": "Relative",
+     "value": "true",
+     "group": false,
+     "editable": true
+    },
+    {
+     "depth": 1,
+     "name": "Bind Mode",
+     "value": "Synchronized",
+     "group": false,
+     "editable": true
+    },
+    {
+     "depth": 1,
+     "name": "Partial Load",
+     "value": "false",
+     "group": false,
+     "editable": true
+    },
+    {
+     "depth": 1,
+     "name": "Bind Copy On Change",
+     "value": "Disabled",
+     "group": false,
+     "editable": true
+    },
+    {
+     "depth": 1,
+     "name": "Refine",
+     "value": "true",
+     "group": false,
+     "editable": true
+    },
+    {
+     "depth": 1,
+     "name": "Placement",
+     "value": "[(0.00 0.00 1.00); 0.00\u00b0; (0.00 mm  0.00 mm  0.00 mm)]",
+     "group": false,
+     "editable": true
+    },
+    {
+     "depth": 1,
+     "name": "Label",
+     "value": "Binder",
+     "group": false,
+     "editable": true
+    },
+    {
+     "depth": 0,
+     "name": "Gear",
+     "value": null,
+     "group": false,
+     "editable": false
+    },
+    {
+     "depth": 0,
+     "name": "Offsetting",
+     "value": null,
+     "group": false,
+     "editable": false
+    },
+    {
+     "depth": 1,
+     "name": "Offset",
+     "value": "0",
+     "group": false,
+     "editable": true
+    },
+    {
+     "depth": 1,
+     "name": "Offset Join Type",
+     "value": "Arcs",
+     "group": false,
+     "editable": true
+    },
+    {
+     "depth": 1,
+     "name": "Offset Fill",
+     "value": "false",
+     "group": false,
+     "editable": true
+    },
+    {
+     "depth": 1,
+     "name": "Offset Open Result",
+     "value": "false",
+     "group": false,
+     "editable": true
+    },
+    {
+     "depth": 1,
+     "name": "Offset Intersection",
+     "value": "false",
+     "group": false,
+     "editable": true
+    },
+    {
+     "depth": 0,
+     "name": "Pad",
+     "value": null,
+     "group": false,
+     "editable": false
+    },
+    {
+     "depth": 0,
+     "name": "Part Design",
+     "value": null,
+     "group": false,
+     "editable": false
+    },
+    {
+     "depth": 0,
+     "name": "Pocket",
+     "value": null,
+     "group": false,
+     "editable": false
+    },
+    {
+     "depth": 0,
+     "name": "Side1",
+     "value": null,
+     "group": false,
+     "editable": false
+    },
+    {
+     "depth": 0,
+     "name": "Side2",
+     "value": null,
+     "group": false,
+     "editable": false
+    },
+    {
+     "depth": 0,
+     "name": "Sketch Based",
+     "value": null,
+     "group": false,
+     "editable": false
+    },
+    {
+     "depth": 0,
+     "name": "Sprocket",
+     "value": null,
+     "group": false,
+     "editable": false
+    },
+    {
+     "depth": 0,
+     "name": "Start",
+     "value": null,
+     "group": false,
+     "editable": false
+    }
+   ]
+  ],
+  "menu": [
+   {
+    "text": "Synchronize",
+    "name": 0,
+    "shortcut": "",
+    "enabled": true
+   },
+   {
+    "text": "Select Bound Object",
+    "name": 4,
+    "shortcut": "",
+    "enabled": true
+   },
+   {
+    "text": "Appearance per Face",
+    "name": 3,
+    "shortcut": "",
+    "enabled": true
+   },
+   {
+    "sep": true
+   },
+   {
+    "text": "Move Object To\u2026",
+    "name": "PartDesign_MoveFeature",
+    "shortcut": "",
+    "enabled": true
+   },
+   {
+    "text": "Move Feature After\u2026",
+    "name": "PartDesign_MoveFeatureInTree",
+    "shortcut": "",
+    "enabled": true
+   },
+   {
+    "sep": true
+   },
+   {
+    "text": "Toggle Freeze",
+    "name": "Std_ToggleFreeze",
+    "shortcut": "",
+    "enabled": true
+   },
+   {
+    "sep": true
+   },
+   {
+    "text": "Toggle &Visibility",
+    "name": "Std_ToggleVisibility",
+    "shortcut": "Space",
+    "enabled": true
+   },
+   {
+    "text": "Sho&w Selection",
+    "name": "Std_ShowSelection",
+    "shortcut": "",
+    "enabled": true
+   },
+   {
+    "text": "&Hide Selection",
+    "name": "Std_HideSelection",
+    "shortcut": "",
+    "enabled": true
+   },
+   {
+    "text": "Toggle Se&lectability",
+    "name": "Std_ToggleSelectability",
+    "shortcut": "",
+    "enabled": true
+   },
+   {
+    "text": "Select All Instances",
+    "name": "Std_TreeSelectAllInstances",
+    "shortcut": "",
+    "enabled": true
+   },
+   {
+    "sep": true
+   },
+   {
+    "text": "&Material",
+    "name": "Std_SetMaterial",
+    "shortcut": "",
+    "enabled": true
+   },
+   {
+    "text": "&Appearance",
+    "name": "Std_SetAppearance",
+    "shortcut": "Ctrl+D",
+    "enabled": true
+   },
+   {
+    "text": "Random &Color",
+    "name": "Std_RandomColor",
+    "shortcut": "",
+    "enabled": true
+   },
+   {
+    "text": "Toggle Transparenc&y",
+    "name": "Std_ToggleTransparency",
+    "shortcut": "V, T",
+    "enabled": true
+   },
+   {
+    "sep": true
+   },
+   {
+    "text": "Cu&t",
+    "name": "Std_Cut",
+    "shortcut": "Ctrl+X",
+    "enabled": false
+   },
+   {
+    "text": "&Copy",
+    "name": "Std_Copy",
+    "shortcut": "Ctrl+C",
+    "enabled": true
+   },
+   {
+    "text": "&Paste",
+    "name": "Std_Paste",
+    "shortcut": "Ctrl+V",
+    "enabled": false
+   },
+   {
+    "text": "&Delete",
+    "name": "Std_Delete",
+    "shortcut": "Del",
+    "enabled": true
+   },
+   {
+    "text": "&Send to Python Console",
+    "name": "Std_SendToPythonConsole",
+    "shortcut": "Ctrl+Shift+P",
+    "enabled": true
+   },
+   {
+    "text": "Trans&form",
+    "name": "Std_TransformManip",
+    "shortcut": "",
+    "enabled": true
+   },
+   {
+    "text": "P&lacement",
+    "name": "Std_Placement",
+    "shortcut": "",
+    "enabled": true
+   },
+   {
+    "text": "Propert&ies",
+    "name": "Std_Properties",
+    "shortcut": "Alt+Return",
+    "enabled": true
+   },
+   {
+    "sep": true
+   },
+   {
+    "text": "Expression Actions",
+    "name": "Std_Expressions",
+    "shortcut": "",
+    "enabled": true,
+    "menu": [
+     {
+      "text": "Copy Selected",
+      "name": null,
+      "shortcut": "",
+      "enabled": true
+     },
+     {
+      "text": "Copy Active Document",
+      "name": null,
+      "shortcut": "",
+      "enabled": true
+     },
+     {
+      "text": "Copy All Documents",
+      "name": null,
+      "shortcut": "",
+      "enabled": true
+     },
+     {
+      "text": "Paste",
+      "name": null,
+      "shortcut": "",
+      "enabled": false
+     }
+    ]
+   },
+   {
+    "text": "Link Actions",
+    "name": "Link Actions",
+    "shortcut": "",
+    "enabled": true,
+    "menu": [
+     {
+      "text": "Link Group",
+      "name": "Std_LinkMakeGroup",
+      "shortcut": "",
+      "enabled": true,
+      "menu": [
+       {
+        "text": "Simple Group",
+        "name": null,
+        "shortcut": "",
+        "enabled": true
+       },
+       {
+        "text": "Group With Links",
+        "name": null,
+        "shortcut": "",
+        "enabled": true
+       },
+       {
+        "text": "Group With Transform Links",
+        "name": null,
+        "shortcut": "",
+        "enabled": true
+       }
+      ]
+     },
+     {
+      "text": "Make Link",
+      "name": "Std_LinkMake",
+      "shortcut": "",
+      "enabled": true
+     },
+     {
+      "text": "Make Sub-Link",
+      "name": "Std_LinkMakeRelative",
+      "shortcut": "",
+      "enabled": true
+     },
+     {
+      "sep": true
+     },
+     {
+      "text": "Replace With Link",
+      "name": "Std_LinkReplace",
+      "shortcut": "",
+      "enabled": true
+     },
+     {
+      "sep": true
+     }
+    ]
+   },
+   {
+    "text": "Show Items Hidden in Tree View",
+    "name": null,
+    "shortcut": "",
+    "enabled": true
+   },
+   {
+    "text": "Toggle Visibility in Tree View",
+    "name": null,
+    "shortcut": "",
+    "enabled": true
+   },
+   {
+    "text": "Add Dependent Objects to Selection",
+    "name": null,
+    "shortcut": "",
+    "enabled": true
+   },
+   {
+    "sep": true
+   },
+   {
+    "text": "Mark to Recompute",
+    "name": null,
+    "shortcut": "",
+    "enabled": true
+   },
+   {
+    "text": "Recompute Object",
+    "name": null,
+    "shortcut": "Ctrl+Shift+R",
+    "enabled": true
+   },
+   {
+    "sep": true
+   },
+   {
+    "text": "Rename",
+    "name": null,
+    "shortcut": "F2",
+    "enabled": true
+   },
+   {
+    "sep": true
+   },
+   {
+    "text": "Tree Settings",
+    "name": null,
+    "shortcut": "",
+    "enabled": true,
+    "menu": [
+     {
+      "text": "Show Description",
+      "name": null,
+      "shortcut": "",
+      "enabled": true
+     },
+     {
+      "text": "Show Internal Name",
+      "name": null,
+      "shortcut": "",
+      "enabled": true
+     }
+    ]
+   }
+  ],
+  "after_double": {
+   "undo": [
+    "Sync binder",
+    "Create Sub-Shape Binder"
+   ],
+   "in_edit": null
+  },
+  "empty": {
+   "exists": true,
+   "support": "[]",
+   "null": true,
+   "undo": [
+    "Create Sub-Shape Binder",
+    "Sync binder",
+    "Create Sub-Shape Binder"
+   ]
+  },
+  "whole": {
+   "support": [
+    [
+     "Pad",
+     [
+      ""
+     ]
+    ]
+   ],
+   "shape": {
+    "type": "Compound",
+    "faces": 6,
+    "edges": 12,
+    "area": 2200.0,
+    "length": 520.0,
+    "volume": 4000.0
+   }
+  }
+ },
+ "clone": {
+  "enabled": true,
+  "after": {
+   "undo": [
+    "Create Clone"
+   ],
+   "in_edit": null,
+   "objects": [
+    {
+     "name": "Body",
+     "label": "Body",
+     "type": "PartDesign::Body",
+     "visible": true,
+     "in_body": false
+    },
+    {
+     "name": "Origin",
+     "label": "Origin",
+     "type": "App::Origin",
+     "visible": false,
+     "in_body": false
+    },
+    {
+     "name": "X_Axis",
+     "label": "X-axis",
+     "type": "App::Line",
+     "visible": true,
+     "in_body": false
+    },
+    {
+     "name": "Y_Axis",
+     "label": "Y-axis",
+     "type": "App::Line",
+     "visible": true,
+     "in_body": false
+    },
+    {
+     "name": "Z_Axis",
+     "label": "Z-axis",
+     "type": "App::Line",
+     "visible": true,
+     "in_body": false
+    },
+    {
+     "name": "XY_Plane",
+     "label": "XY-plane",
+     "type": "App::Plane",
+     "visible": true,
+     "in_body": false
+    },
+    {
+     "name": "XZ_Plane",
+     "label": "XZ-plane",
+     "type": "App::Plane",
+     "visible": true,
+     "in_body": false
+    },
+    {
+     "name": "YZ_Plane",
+     "label": "YZ-plane",
+     "type": "App::Plane",
+     "visible": true,
+     "in_body": false
+    },
+    {
+     "name": "Origin001",
+     "label": "Origin-Point",
+     "type": "App::Point",
+     "visible": true,
+     "in_body": false
+    },
+    {
+     "name": "Sketch",
+     "label": "Sketch",
+     "type": "Sketcher::SketchObject",
+     "visible": false,
+     "in_body": true
+    },
+    {
+     "name": "Pad",
+     "label": "Pad",
+     "type": "PartDesign::Pad",
+     "visible": true,
+     "in_body": true
+    },
+    {
+     "name": "Body001",
+     "label": "Body001",
+     "type": "PartDesign::Body",
+     "visible": true,
+     "in_body": false
+    },
+    {
+     "name": "Origin002",
+     "label": "Origin001",
+     "type": "App::Origin",
+     "visible": false,
+     "in_body": false
+    },
+    {
+     "name": "X_Axis001",
+     "label": "X-axis001",
+     "type": "App::Line",
+     "visible": true,
+     "in_body": false
+    },
+    {
+     "name": "Y_Axis001",
+     "label": "Y-axis001",
+     "type": "App::Line",
+     "visible": true,
+     "in_body": false
+    },
+    {
+     "name": "Z_Axis001",
+     "label": "Z-axis001",
+     "type": "App::Line",
+     "visible": true,
+     "in_body": false
+    },
+    {
+     "name": "XY_Plane001",
+     "label": "XY-plane001",
+     "type": "App::Plane",
+     "visible": true,
+     "in_body": false
+    },
+    {
+     "name": "XZ_Plane001",
+     "label": "XZ-plane001",
+     "type": "App::Plane",
+     "visible": true,
+     "in_body": false
+    },
+    {
+     "name": "YZ_Plane001",
+     "label": "YZ-plane001",
+     "type": "App::Plane",
+     "visible": true,
+     "in_body": false
+    },
+    {
+     "name": "Origin003",
+     "label": "Origin-Point001",
+     "type": "App::Point",
+     "visible": true,
+     "in_body": false
+    },
+    {
+     "name": "Clone",
+     "label": "Clone",
+     "type": "PartDesign::FeatureBase",
+     "visible": true,
+     "in_body": false
+    }
+   ],
+   "visible": {
+    "Body": true,
+    "Body001": true,
+    "Clone": true
+   },
+   "body001_group": [
+    "Clone"
+   ],
+   "tip": "Clone",
+   "base": "Body",
+   "shape": {
+    "type": "Solid",
+    "faces": 6,
+    "edges": 12,
+    "area": 2200.0,
+    "length": 520.0,
+    "volume": 4000.0
+   },
+   "body001": {
+    "type": "Solid",
+    "faces": 6,
+    "edges": 12,
+    "area": 2200.0,
+    "length": 520.0,
+    "volume": 4000.0
+   },
+   "active": "<body object>"
+  },
+  "props": {
+   "BaseFeature": "<body object>",
+   "Label": "Clone",
+   "Label2": "",
+   "Placement": "Placement [Pos=(0,0,0), Yaw-Pitch-Roll=(0,0,0)]",
+   "PreviewShape": "<Shape object at 0x60c86f170b00>",
+   "ShapeMaterial": "<Material at 0x60c8736449d0>",
+   "Suppressed": "False",
+   "SuppressedShape": "<Shape object at 0x60c86f170b00>",
+   "UseLegacyBaseFeaturePlacement": "False",
+   "Visibility": "True",
+   "_Body": "None",
+   "_ElementMapVersion": "15.70200.5"
+  },
+  "groups": {
+   "BaseFeature": "",
+   "ExpressionEngine": "Base",
+   "Label": "Base",
+   "Label2": "Base",
+   "Placement": "",
+   "PreviewShape": "",
+   "Shape": "",
+   "ShapeMaterial": "",
+   "Suppressed": "Base",
+   "SuppressedShape": "",
+   "UseLegacyBaseFeaturePlacement": "Compatibility",
+   "Visibility": "",
+   "_Body": "Base",
+   "_ElementMapVersion": "Base"
+  },
+  "modes": {
+   "BaseFeature": [],
+   "ExpressionEngine": [
+    "Hidden"
+   ],
+   "Label": [],
+   "Label2": [
+    "Hidden"
+   ],
+   "Placement": [],
+   "PreviewShape": [
+    "Hidden"
+   ],
+   "Shape": [],
+   "ShapeMaterial": [],
+   "Suppressed": [],
+   "SuppressedShape": [],
+   "UseLegacyBaseFeaturePlacement": [
+    "Hidden"
+   ],
+   "Visibility": [
+    "Hidden"
+   ],
+   "_Body": [
+    "ReadOnly",
+    "Hidden"
+   ],
+   "_ElementMapVersion": [
+    "Hidden"
+   ]
+  },
+  "tree": [
+   {
+    "text": "CloneDoc",
+    "depth": 0,
+    "bold": true,
+    "icon": "pdlast-icon46.png",
+    "children": 2,
+    "fg": "#000000"
+   },
+   {
+    "text": "Body",
+    "depth": 1,
+    "bold": true,
+    "icon": "pdlast-icon47.png",
+    "children": 2,
+    "fg": "#000000"
+   },
+   {
+    "text": "Origin",
+    "depth": 2,
+    "bold": false,
+    "icon": "pdlast-icon48.png",
+    "children": 7,
+    "fg": "#6f6f6f"
+   },
+   {
+    "text": "X-axis",
+    "depth": 3,
+    "bold": false,
+    "icon": "pdlast-icon49.png",
+    "children": 0,
+    "fg": "#000000"
+   },
+   {
+    "text": "Y-axis",
+    "depth": 3,
+    "bold": false,
+    "icon": "pdlast-icon50.png",
+    "children": 0,
+    "fg": "#000000"
+   },
+   {
+    "text": "Z-axis",
+    "depth": 3,
+    "bold": false,
+    "icon": "pdlast-icon51.png",
+    "children": 0,
+    "fg": "#000000"
+   },
+   {
+    "text": "XY-plane",
+    "depth": 3,
+    "bold": false,
+    "icon": "pdlast-icon52.png",
+    "children": 0,
+    "fg": "#000000"
+   },
+   {
+    "text": "XZ-plane",
+    "depth": 3,
+    "bold": false,
+    "icon": "pdlast-icon53.png",
+    "children": 0,
+    "fg": "#000000"
+   },
+   {
+    "text": "YZ-plane",
+    "depth": 3,
+    "bold": false,
+    "icon": "pdlast-icon54.png",
+    "children": 0,
+    "fg": "#000000"
+   },
+   {
+    "text": "Origin-Point",
+    "depth": 3,
+    "bold": false,
+    "icon": "pdlast-icon55.png",
+    "children": 0,
+    "fg": "#000000"
+   },
+   {
+    "text": "Pad",
+    "depth": 2,
+    "bold": false,
+    "icon": "pdlast-icon56.png",
+    "children": 1,
+    "fg": "#000000"
+   },
+   {
+    "text": "Sketch",
+    "depth": 3,
+    "bold": false,
+    "icon": "pdlast-icon57.png",
+    "children": 0,
+    "fg": "#6f6f6f"
+   },
+   {
+    "text": "Body001",
+    "depth": 1,
+    "bold": false,
+    "icon": "pdlast-icon58.png",
+    "children": 2,
+    "fg": "#000000"
+   },
+   {
+    "text": "Origin001",
+    "depth": 2,
+    "bold": false,
+    "icon": "pdlast-icon59.png",
+    "children": 7,
+    "fg": "#6f6f6f"
+   },
+   {
+    "text": "X-axis001",
+    "depth": 3,
+    "bold": false,
+    "icon": "pdlast-icon60.png",
+    "children": 0,
+    "fg": "#000000"
+   },
+   {
+    "text": "Y-axis001",
+    "depth": 3,
+    "bold": false,
+    "icon": "pdlast-icon61.png",
+    "children": 0,
+    "fg": "#000000"
+   },
+   {
+    "text": "Z-axis001",
+    "depth": 3,
+    "bold": false,
+    "icon": "pdlast-icon62.png",
+    "children": 0,
+    "fg": "#000000"
+   },
+   {
+    "text": "XY-plane001",
+    "depth": 3,
+    "bold": false,
+    "icon": "pdlast-icon63.png",
+    "children": 0,
+    "fg": "#000000"
+   },
+   {
+    "text": "XZ-plane001",
+    "depth": 3,
+    "bold": false,
+    "icon": "pdlast-icon64.png",
+    "children": 0,
+    "fg": "#000000"
+   },
+   {
+    "text": "YZ-plane001",
+    "depth": 3,
+    "bold": false,
+    "icon": "pdlast-icon65.png",
+    "children": 0,
+    "fg": "#000000"
+   },
+   {
+    "text": "Origin-Point001",
+    "depth": 3,
+    "bold": false,
+    "icon": "pdlast-icon66.png",
+    "children": 0,
+    "fg": "#000000"
+   },
+   {
+    "text": "Clone",
+    "depth": 2,
+    "bold": false,
+    "icon": "pdlast-icon67.png",
+    "children": 0,
+    "fg": "#000000"
+   }
+  ],
+  "props_view": [
+   [
+    {
+     "depth": 0,
+     "name": "Attachment",
+     "value": null,
+     "group": false,
+     "editable": false
+    },
+    {
+     "depth": 0,
+     "name": "Base",
+     "value": null,
+     "group": false,
+     "editable": false
+    },
+    {
+     "depth": 1,
+     "name": "Base Feature",
+     "value": "Body",
+     "group": false,
+     "editable": true
+    },
+    {
+     "depth": 1,
+     "name": "Placement",
+     "value": "[(0.00 0.00 1.00); 0.00\u00b0; (0.00 mm  0.00 mm  0.00 mm)]",
+     "group": false,
+     "editable": true
+    },
+    {
+     "depth": 1,
+     "name": "Label",
+     "value": "Clone",
+     "group": false,
+     "editable": true
+    },
+    {
+     "depth": 1,
+     "name": "Suppressed",
+     "value": "false",
+     "group": false,
+     "editable": true
+    },
+    {
+     "depth": 0,
+     "name": "Gear",
+     "value": null,
+     "group": false,
+     "editable": false
+    },
+    {
+     "depth": 0,
+     "name": "Offsetting",
+     "value": null,
+     "group": false,
+     "editable": false
+    },
+    {
+     "depth": 0,
+     "name": "Pad",
+     "value": null,
+     "group": false,
+     "editable": false
+    },
+    {
+     "depth": 0,
+     "name": "Part Design",
+     "value": null,
+     "group": false,
+     "editable": false
+    },
+    {
+     "depth": 0,
+     "name": "Pocket",
+     "value": null,
+     "group": false,
+     "editable": false
+    },
+    {
+     "depth": 0,
+     "name": "Side1",
+     "value": null,
+     "group": false,
+     "editable": false
+    },
+    {
+     "depth": 0,
+     "name": "Side2",
+     "value": null,
+     "group": false,
+     "editable": false
+    },
+    {
+     "depth": 0,
+     "name": "Sketch Based",
+     "value": null,
+     "group": false,
+     "editable": false
+    },
+    {
+     "depth": 0,
+     "name": "Sprocket",
+     "value": null,
+     "group": false,
+     "editable": false
+    },
+    {
+     "depth": 0,
+     "name": "Start",
+     "value": null,
+     "group": false,
+     "editable": false
+    }
+   ]
+  ],
+  "menu": [
+   {
+    "text": "Set Face Colors",
+    "name": 3,
+    "shortcut": "",
+    "enabled": true
+   },
+   {
+    "sep": true
+   },
+   {
+    "text": "Set Tip",
+    "name": "PartDesign_MoveTip",
+    "shortcut": "",
+    "enabled": true
+   },
+   {
+    "text": "Move Object To\u2026",
+    "name": "PartDesign_MoveFeature",
+    "shortcut": "",
+    "enabled": true
+   },
+   {
+    "text": "Move Feature After\u2026",
+    "name": "PartDesign_MoveFeatureInTree",
+    "shortcut": "",
+    "enabled": true
+   },
+   {
+    "sep": true
+   },
+   {
+    "text": "Toggle Suppressed",
+    "name": "Std_ToggleSuppress",
+    "shortcut": "",
+    "enabled": true
+   },
+   {
+    "text": "Toggle Freeze",
+    "name": "Std_ToggleFreeze",
+    "shortcut": "",
+    "enabled": true
+   },
+   {
+    "sep": true
+   },
+   {
+    "text": "Toggle &Visibility",
+    "name": "Std_ToggleVisibility",
+    "shortcut": "Space",
+    "enabled": true
+   },
+   {
+    "text": "Sho&w Selection",
+    "name": "Std_ShowSelection",
+    "shortcut": "",
+    "enabled": true
+   },
+   {
+    "text": "&Hide Selection",
+    "name": "Std_HideSelection",
+    "shortcut": "",
+    "enabled": true
+   },
+   {
+    "text": "Toggle Se&lectability",
+    "name": "Std_ToggleSelectability",
+    "shortcut": "",
+    "enabled": true
+   },
+   {
+    "text": "Select All Instances",
+    "name": "Std_TreeSelectAllInstances",
+    "shortcut": "",
+    "enabled": true
+   },
+   {
+    "sep": true
+   },
+   {
+    "text": "&Material",
+    "name": "Std_SetMaterial",
+    "shortcut": "",
+    "enabled": true
+   },
+   {
+    "text": "&Appearance",
+    "name": "Std_SetAppearance",
+    "shortcut": "Ctrl+D",
+    "enabled": true
+   },
+   {
+    "text": "Random &Color",
+    "name": "Std_RandomColor",
+    "shortcut": "",
+    "enabled": true
+   },
+   {
+    "text": "Toggle Transparenc&y",
+    "name": "Std_ToggleTransparency",
+    "shortcut": "V, T",
+    "enabled": true
+   },
+   {
+    "sep": true
+   },
+   {
+    "text": "Cu&t",
+    "name": "Std_Cut",
+    "shortcut": "Ctrl+X",
+    "enabled": false
+   },
+   {
+    "text": "&Copy",
+    "name": "Std_Copy",
+    "shortcut": "Ctrl+C",
+    "enabled": true
+   },
+   {
+    "text": "&Paste",
+    "name": "Std_Paste",
+    "shortcut": "Ctrl+V",
+    "enabled": false
+   },
+   {
+    "text": "&Delete",
+    "name": "Std_Delete",
+    "shortcut": "Del",
+    "enabled": true
+   },
+   {
+    "text": "&Send to Python Console",
+    "name": "Std_SendToPythonConsole",
+    "shortcut": "Ctrl+Shift+P",
+    "enabled": true
+   },
+   {
+    "text": "Trans&form",
+    "name": "Std_TransformManip",
+    "shortcut": "",
+    "enabled": true
+   },
+   {
+    "text": "P&lacement",
+    "name": "Std_Placement",
+    "shortcut": "",
+    "enabled": true
+   },
+   {
+    "text": "Propert&ies",
+    "name": "Std_Properties",
+    "shortcut": "Alt+Return",
+    "enabled": true
+   },
+   {
+    "sep": true
+   },
+   {
+    "text": "Expression Actions",
+    "name": "Std_Expressions",
+    "shortcut": "",
+    "enabled": true,
+    "menu": [
+     {
+      "text": "Copy Selected",
+      "name": null,
+      "shortcut": "",
+      "enabled": true
+     },
+     {
+      "text": "Copy Active Document",
+      "name": null,
+      "shortcut": "",
+      "enabled": true
+     },
+     {
+      "text": "Copy All Documents",
+      "name": null,
+      "shortcut": "",
+      "enabled": true
+     },
+     {
+      "text": "Paste",
+      "name": null,
+      "shortcut": "",
+      "enabled": false
+     }
+    ]
+   },
+   {
+    "text": "Link Actions",
+    "name": "Link Actions",
+    "shortcut": "",
+    "enabled": true,
+    "menu": [
+     {
+      "text": "Link Group",
+      "name": "Std_LinkMakeGroup",
+      "shortcut": "",
+      "enabled": true,
+      "menu": [
+       {
+        "text": "Simple Group",
+        "name": null,
+        "shortcut": "",
+        "enabled": true
+       },
+       {
+        "text": "Group With Links",
+        "name": null,
+        "shortcut": "",
+        "enabled": true
+       },
+       {
+        "text": "Group With Transform Links",
+        "name": null,
+        "shortcut": "",
+        "enabled": true
+       }
+      ]
+     },
+     {
+      "text": "Make Link",
+      "name": "Std_LinkMake",
+      "shortcut": "",
+      "enabled": true
+     },
+     {
+      "text": "Make Sub-Link",
+      "name": "Std_LinkMakeRelative",
+      "shortcut": "",
+      "enabled": true
+     },
+     {
+      "sep": true
+     },
+     {
+      "text": "Replace With Link",
+      "name": "Std_LinkReplace",
+      "shortcut": "",
+      "enabled": true
+     },
+     {
+      "sep": true
+     }
+    ]
+   },
+   {
+    "text": "Show Items Hidden in Tree View",
+    "name": null,
+    "shortcut": "",
+    "enabled": true
+   },
+   {
+    "text": "Toggle Visibility in Tree View",
+    "name": null,
+    "shortcut": "",
+    "enabled": true
+   },
+   {
+    "text": "Add Dependent Objects to Selection",
+    "name": null,
+    "shortcut": "",
+    "enabled": true
+   },
+   {
+    "sep": true
+   },
+   {
+    "text": "Mark to Recompute",
+    "name": null,
+    "shortcut": "",
+    "enabled": true
+   },
+   {
+    "text": "Recompute Object",
+    "name": null,
+    "shortcut": "Ctrl+Shift+R",
+    "enabled": true
+   },
+   {
+    "sep": true
+   },
+   {
+    "text": "Rename",
+    "name": null,
+    "shortcut": "F2",
+    "enabled": true
+   },
+   {
+    "sep": true
+   },
+   {
+    "text": "Tree Settings",
+    "name": null,
+    "shortcut": "",
+    "enabled": true,
+    "menu": [
+     {
+      "text": "Show Description",
+      "name": null,
+      "shortcut": "",
+      "enabled": true
+     },
+     {
+      "text": "Show Internal Name",
+      "name": null,
+      "shortcut": "",
+      "enabled": true
+     }
+    ]
+   }
+  ],
+  "enabled_nothing": false
+ },
+ "boolean": {
+  "in_edit": "Boolean",
+  "task": [
+   [
+    {
+     "class": "QPushButton",
+     "name": "",
+     "y": 9,
+     "x": 137,
+     "enabled": true,
+     "text": "OK"
+    },
+    {
+     "class": "QPushButton",
+     "name": "",
+     "y": 9,
+     "x": 249,
+     "enabled": true,
+     "text": "Cancel"
+    },
+    {
+     "class": "QSint::TaskHeader",
+     "name": "",
+     "y": 50,
+     "x": 4,
+     "enabled": true,
+     "text": ""
+    },
+    {
+     "class": "QSint::ActionLabel",
+     "name": "",
+     "y": 53,
+     "x": 9,
+     "enabled": true,
+     "text": "Boolean Parameters"
+    },
+    {
+     "class": "QToolButton",
+     "name": "buttonBodyAdd",
+     "y": 85,
+     "x": 119,
+     "enabled": true,
+     "text": "Add Body",
+     "checked": false
+    },
+    {
+     "class": "QToolButton",
+     "name": "buttonBodyRemove",
+     "y": 85,
+     "x": 289,
+     "enabled": true,
+     "text": "Remove Body",
+     "checked": false
+    },
+    {
+     "class": "QListWidget",
+     "name": "listWidgetBodies",
+     "y": 114,
+     "x": 18,
+     "enabled": true,
+     "items": [
+      "Body001"
+     ]
+    },
+    {
+     "class": "QComboBox",
+     "name": "comboType",
+     "y": 312,
+     "x": 18,
+     "enabled": true,
+     "items": [
+      "Fuse",
+      "Cut",
+      "Common"
+     ],
+     "current": "Fuse"
+    },
+    {
+     "class": "QSint::TaskHeader",
+     "name": "",
+     "y": 358,
+     "x": 4,
+     "enabled": true,
+     "text": ""
+    },
+    {
+     "class": "QSint::ActionLabel",
+     "name": "",
+     "y": 361,
+     "x": 9,
+     "enabled": true,
+     "text": "Preview"
+    },
+    {
+     "class": "QCheckBox",
+     "name": "showFinalCheckBox",
+     "y": 393,
+     "x": 18,
+     "enabled": true,
+     "text": "Show final result",
+     "checked": false
+    },
+    {
+     "class": "QCheckBox",
+     "name": "showTransparentPreviewCheckBox",
+     "y": 419,
+     "x": 18,
+     "enabled": true,
+     "text": "Show preview overlay",
+     "checked": true
+    }
+   ]
+  ],
+  "created": {
+   "group": [
+    "Body001"
+   ],
+   "type": "Fuse",
+   "visible": {
+    "Body": true,
+    "Body001": true,
+    "Boolean": false
+   },
+   "props": {
+    "BaseFeature": "<PartDesign::Pad>",
+    "FuzzyTolerance": "0.0",
+    "Group": "[<body object>]",
+    "Label": "Boolean",
+    "Label2": "",
+    "Placement": "Placement [Pos=(0,0,0), Yaw-Pitch-Roll=(0,0,0)]",
+    "PreviewShape": "<Compound object at 0x60c868856610>",
+    "Refine": "True",
+    "ShapeMaterial": "<Material at 0x60c86f5c0220>",
+    "Suppressed": "False",
+    "SuppressedShape": "<Shape object at 0x60c868856610>",
+    "Type": "Fuse",
+    "UseLegacyBodyPlacement": "False",
+    "Visibility": "False",
+    "_Body": "<body object>",
+    "_ElementMapVersion": "15.70200.5",
+    "_GroupTouched": "False"
+   }
+  },
+  "groups": {
+   "BaseFeature": "",
+   "ExpressionEngine": "Base",
+   "FuzzyTolerance": "Part Design",
+   "Group": "Base",
+   "Label": "Base",
+   "Label2": "Base",
+   "Placement": "",
+   "PreviewShape": "",
+   "Refine": "Part Design",
+   "Shape": "",
+   "ShapeMaterial": "",
+   "Suppressed": "Base",
+   "SuppressedShape": "",
+   "Type": "",
+   "UseLegacyBodyPlacement": "Compatibility",
+   "Visibility": "",
+   "_Body": "Base",
+   "_ElementMapVersion": "Base",
+   "_GroupTouched": "Base"
+  },
+  "cut_live": {
+   "type": "Cut",
+   "shape": {
+    "type": "Compound",
+    "faces": 7,
+    "edges": 15,
+    "area": 2225.132741,
+    "length": 630.530965,
+    "volume": 3748.672588
+   }
+  },
+  "ok": true,
+  "after_ok": {
+   "undo": [
+    "Create Boolean"
+   ],
+   "in_edit": null,
+   "tip": "Boolean",
+   "visible": {
+    "Body": true,
+    "Body001": true,
+    "Boolean": true
+   },
+   "objects": [
+    {
+     "name": "Body",
+     "label": "Body",
+     "type": "PartDesign::Body",
+     "visible": true,
+     "in_body": false
+    },
+    {
+     "name": "Origin",
+     "label": "Origin",
+     "type": "App::Origin",
+     "visible": false,
+     "in_body": false
+    },
+    {
+     "name": "X_Axis",
+     "label": "X-axis",
+     "type": "App::Line",
+     "visible": true,
+     "in_body": false
+    },
+    {
+     "name": "Y_Axis",
+     "label": "Y-axis",
+     "type": "App::Line",
+     "visible": true,
+     "in_body": false
+    },
+    {
+     "name": "Z_Axis",
+     "label": "Z-axis",
+     "type": "App::Line",
+     "visible": true,
+     "in_body": false
+    },
+    {
+     "name": "XY_Plane",
+     "label": "XY-plane",
+     "type": "App::Plane",
+     "visible": true,
+     "in_body": false
+    },
+    {
+     "name": "XZ_Plane",
+     "label": "XZ-plane",
+     "type": "App::Plane",
+     "visible": true,
+     "in_body": false
+    },
+    {
+     "name": "YZ_Plane",
+     "label": "YZ-plane",
+     "type": "App::Plane",
+     "visible": true,
+     "in_body": false
+    },
+    {
+     "name": "Origin001",
+     "label": "Origin-Point",
+     "type": "App::Point",
+     "visible": true,
+     "in_body": false
+    },
+    {
+     "name": "Sketch",
+     "label": "Sketch",
+     "type": "Sketcher::SketchObject",
+     "visible": false,
+     "in_body": true
+    },
+    {
+     "name": "Pad",
+     "label": "Pad",
+     "type": "PartDesign::Pad",
+     "visible": false,
+     "in_body": true
+    },
+    {
+     "name": "Body001",
+     "label": "Body001",
+     "type": "PartDesign::Body",
+     "visible": true,
+     "in_body": false
+    },
+    {
+     "name": "Origin002",
+     "label": "Origin001",
+     "type": "App::Origin",
+     "visible": false,
+     "in_body": false
+    },
+    {
+     "name": "X_Axis001",
+     "label": "X-axis001",
+     "type": "App::Line",
+     "visible": true,
+     "in_body": false
+    },
+    {
+     "name": "Y_Axis001",
+     "label": "Y-axis001",
+     "type": "App::Line",
+     "visible": true,
+     "in_body": false
+    },
+    {
+     "name": "Z_Axis001",
+     "label": "Z-axis001",
+     "type": "App::Line",
+     "visible": true,
+     "in_body": false
+    },
+    {
+     "name": "XY_Plane001",
+     "label": "XY-plane001",
+     "type": "App::Plane",
+     "visible": true,
+     "in_body": false
+    },
+    {
+     "name": "XZ_Plane001",
+     "label": "XZ-plane001",
+     "type": "App::Plane",
+     "visible": true,
+     "in_body": false
+    },
+    {
+     "name": "YZ_Plane001",
+     "label": "YZ-plane001",
+     "type": "App::Plane",
+     "visible": true,
+     "in_body": false
+    },
+    {
+     "name": "Origin003",
+     "label": "Origin-Point001",
+     "type": "App::Point",
+     "visible": true,
+     "in_body": false
+    },
+    {
+     "name": "Sketch001",
+     "label": "Sketch001",
+     "type": "Sketcher::SketchObject",
+     "visible": false,
+     "in_body": false
+    },
+    {
+     "name": "Pad001",
+     "label": "Pad001",
+     "type": "PartDesign::Pad",
+     "visible": true,
+     "in_body": false
+    },
+    {
+     "name": "Boolean",
+     "label": "Boolean",
+     "type": "PartDesign::Boolean",
+     "visible": true,
+     "in_body": true
+    }
+   ],
+   "shape": {
+    "type": "Compound",
+    "faces": 7,
+    "edges": 15,
+    "area": 2225.132741,
+    "length": 630.530965,
+    "volume": 3748.672588
+   },
+   "body": {
+    "type": "Compound",
+    "faces": 7,
+    "edges": 15,
+    "area": 2225.132741,
+    "length": 630.530965,
+    "volume": 3748.672588
+   },
+   "group": [
+    "Body001"
+   ]
+  },
+  "tree": [
+   {
+    "text": "BooleanDoc",
+    "depth": 0,
+    "bold": true,
+    "icon": "pdlast-icon68.png",
+    "children": 1,
+    "fg": "#000000"
+   },
+   {
+    "text": "Body",
+    "depth": 1,
+    "bold": true,
+    "icon": "pdlast-icon69.png",
+    "children": 3,
+    "fg": "#000000"
+   },
+   {
+    "text": "Origin",
+    "depth": 2,
+    "bold": false,
+    "icon": "pdlast-icon70.png",
+    "children": 7,
+    "fg": "#6f6f6f"
+   },
+   {
+    "text": "X-axis",
+    "depth": 3,
+    "bold": false,
+    "icon": "pdlast-icon71.png",
+    "children": 0,
+    "fg": "#000000"
+   },
+   {
+    "text": "Y-axis",
+    "depth": 3,
+    "bold": false,
+    "icon": "pdlast-icon72.png",
+    "children": 0,
+    "fg": "#000000"
+   },
+   {
+    "text": "Z-axis",
+    "depth": 3,
+    "bold": false,
+    "icon": "pdlast-icon73.png",
+    "children": 0,
+    "fg": "#000000"
+   },
+   {
+    "text": "XY-plane",
+    "depth": 3,
+    "bold": false,
+    "icon": "pdlast-icon74.png",
+    "children": 0,
+    "fg": "#000000"
+   },
+   {
+    "text": "XZ-plane",
+    "depth": 3,
+    "bold": false,
+    "icon": "pdlast-icon75.png",
+    "children": 0,
+    "fg": "#000000"
+   },
+   {
+    "text": "YZ-plane",
+    "depth": 3,
+    "bold": false,
+    "icon": "pdlast-icon76.png",
+    "children": 0,
+    "fg": "#000000"
+   },
+   {
+    "text": "Origin-Point",
+    "depth": 3,
+    "bold": false,
+    "icon": "pdlast-icon77.png",
+    "children": 0,
+    "fg": "#000000"
+   },
+   {
+    "text": "Pad",
+    "depth": 2,
+    "bold": false,
+    "icon": "pdlast-icon78.png",
+    "children": 1,
+    "fg": "#6f6f6f"
+   },
+   {
+    "text": "Sketch",
+    "depth": 3,
+    "bold": false,
+    "icon": "pdlast-icon79.png",
+    "children": 0,
+    "fg": "#6f6f6f"
+   },
+   {
+    "text": "Boolean",
+    "depth": 2,
+    "bold": false,
+    "icon": "pdlast-icon80.png",
+    "children": 1,
+    "fg": "#000000"
+   },
+   {
+    "text": "Body001",
+    "depth": 3,
+    "bold": false,
+    "icon": "pdlast-icon81.png",
+    "children": 2,
+    "fg": "#000000"
+   },
+   {
+    "text": "Origin001",
+    "depth": 4,
+    "bold": false,
+    "icon": "pdlast-icon82.png",
+    "children": 7,
+    "fg": "#6f6f6f"
+   },
+   {
+    "text": "X-axis001",
+    "depth": 5,
+    "bold": false,
+    "icon": "pdlast-icon83.png",
+    "children": 0,
+    "fg": "#000000"
+   },
+   {
+    "text": "Y-axis001",
+    "depth": 5,
+    "bold": false,
+    "icon": "pdlast-icon84.png",
+    "children": 0,
+    "fg": "#000000"
+   },
+   {
+    "text": "Z-axis001",
+    "depth": 5,
+    "bold": false,
+    "icon": "pdlast-icon85.png",
+    "children": 0,
+    "fg": "#000000"
+   },
+   {
+    "text": "XY-plane001",
+    "depth": 5,
+    "bold": false,
+    "icon": "pdlast-icon86.png",
+    "children": 0,
+    "fg": "#000000"
+   },
+   {
+    "text": "XZ-plane001",
+    "depth": 5,
+    "bold": false,
+    "icon": "pdlast-icon87.png",
+    "children": 0,
+    "fg": "#000000"
+   },
+   {
+    "text": "YZ-plane001",
+    "depth": 5,
+    "bold": false,
+    "icon": "pdlast-icon88.png",
+    "children": 0,
+    "fg": "#000000"
+   },
+   {
+    "text": "Origin-Point001",
+    "depth": 5,
+    "bold": false,
+    "icon": "pdlast-icon89.png",
+    "children": 0,
+    "fg": "#000000"
+   },
+   {
+    "text": "Pad001",
+    "depth": 4,
+    "bold": false,
+    "icon": "pdlast-icon90.png",
+    "children": 1,
+    "fg": "#000000"
+   },
+   {
+    "text": "Sketch001",
+    "depth": 5,
+    "bold": false,
+    "icon": "pdlast-icon91.png",
+    "children": 0,
+    "fg": "#6f6f6f"
+   }
+  ],
+  "props_view": [
+   [
+    {
+     "depth": 0,
+     "name": "Attachment",
+     "value": null,
+     "group": false,
+     "editable": false
+    },
+    {
+     "depth": 0,
+     "name": "Base",
+     "value": null,
+     "group": false,
+     "editable": false
+    },
+    {
+     "depth": 1,
+     "name": "Type",
+     "value": "Cut",
+     "group": false,
+     "editable": true
+    },
+    {
+     "depth": 1,
+     "name": "Label",
+     "value": "Boolean",
+     "group": false,
+     "editable": true
+    },
+    {
+     "depth": 1,
+     "name": "Group",
+     "value": "Body001",
+     "group": false,
+     "editable": true
+    },
+    {
+     "depth": 1,
+     "name": "Suppressed",
+     "value": "false",
+     "group": false,
+     "editable": true
+    },
+    {
+     "depth": 0,
+     "name": "Gear",
+     "value": null,
+     "group": false,
+     "editable": false
+    },
+    {
+     "depth": 0,
+     "name": "Offsetting",
+     "value": null,
+     "group": false,
+     "editable": false
+    },
+    {
+     "depth": 0,
+     "name": "Pad",
+     "value": null,
+     "group": false,
+     "editable": false
+    },
+    {
+     "depth": 0,
+     "name": "Part Design",
+     "value": null,
+     "group": false,
+     "editable": false
+    },
+    {
+     "depth": 1,
+     "name": "Refine",
+     "value": "true",
+     "group": false,
+     "editable": true
+    },
+    {
+     "depth": 1,
+     "name": "Fuzzy Tolerance",
+     "value": "0",
+     "group": false,
+     "editable": true
+    },
+    {
+     "depth": 0,
+     "name": "Pocket",
+     "value": null,
+     "group": false,
+     "editable": false
+    },
+    {
+     "depth": 0,
+     "name": "Side1",
+     "value": null,
+     "group": false,
+     "editable": false
+    },
+    {
+     "depth": 0,
+     "name": "Side2",
+     "value": null,
+     "group": false,
+     "editable": false
+    },
+    {
+     "depth": 0,
+     "name": "Sketch Based",
+     "value": null,
+     "group": false,
+     "editable": false
+    },
+    {
+     "depth": 0,
+     "name": "Sprocket",
+     "value": null,
+     "group": false,
+     "editable": false
+    },
+    {
+     "depth": 0,
+     "name": "Start",
+     "value": null,
+     "group": false,
+     "editable": false
+    }
+   ]
+  ],
+  "menu": [
+   {
+    "text": "Edit Boolean",
+    "name": 0,
+    "shortcut": "",
+    "enabled": true
+   },
+   {
+    "text": "Set Face Colors",
+    "name": 3,
+    "shortcut": "",
+    "enabled": true
+   },
+   {
+    "sep": true
+   },
+   {
+    "text": "Set Tip",
+    "name": "PartDesign_MoveTip",
+    "shortcut": "",
+    "enabled": true
+   },
+   {
+    "text": "Move Object To\u2026",
+    "name": "PartDesign_MoveFeature",
+    "shortcut": "",
+    "enabled": true
+   },
+   {
+    "text": "Move Feature After\u2026",
+    "name": "PartDesign_MoveFeatureInTree",
+    "shortcut": "",
+    "enabled": true
+   },
+   {
+    "sep": true
+   },
+   {
+    "text": "Toggle Suppressed",
+    "name": "Std_ToggleSuppress",
+    "shortcut": "",
+    "enabled": true
+   },
+   {
+    "text": "Toggle Freeze",
+    "name": "Std_ToggleFreeze",
+    "shortcut": "",
+    "enabled": true
+   },
+   {
+    "sep": true
+   },
+   {
+    "text": "Toggle &Visibility",
+    "name": "Std_ToggleVisibility",
+    "shortcut": "Space",
+    "enabled": true
+   },
+   {
+    "text": "Sho&w Selection",
+    "name": "Std_ShowSelection",
+    "shortcut": "",
+    "enabled": true
+   },
+   {
+    "text": "&Hide Selection",
+    "name": "Std_HideSelection",
+    "shortcut": "",
+    "enabled": true
+   },
+   {
+    "text": "Toggle Se&lectability",
+    "name": "Std_ToggleSelectability",
+    "shortcut": "",
+    "enabled": true
+   },
+   {
+    "text": "Select All Instances",
+    "name": "Std_TreeSelectAllInstances",
+    "shortcut": "",
+    "enabled": true
+   },
+   {
+    "sep": true
+   },
+   {
+    "text": "&Material",
+    "name": "Std_SetMaterial",
+    "shortcut": "",
+    "enabled": true
+   },
+   {
+    "text": "&Appearance",
+    "name": "Std_SetAppearance",
+    "shortcut": "Ctrl+D",
+    "enabled": true
+   },
+   {
+    "text": "Random &Color",
+    "name": "Std_RandomColor",
+    "shortcut": "",
+    "enabled": true
+   },
+   {
+    "text": "Toggle Transparenc&y",
+    "name": "Std_ToggleTransparency",
+    "shortcut": "V, T",
+    "enabled": true
+   },
+   {
+    "sep": true
+   },
+   {
+    "text": "Cu&t",
+    "name": "Std_Cut",
+    "shortcut": "Ctrl+X",
+    "enabled": false
+   },
+   {
+    "text": "&Copy",
+    "name": "Std_Copy",
+    "shortcut": "Ctrl+C",
+    "enabled": true
+   },
+   {
+    "text": "&Paste",
+    "name": "Std_Paste",
+    "shortcut": "Ctrl+V",
+    "enabled": false
+   },
+   {
+    "text": "&Delete",
+    "name": "Std_Delete",
+    "shortcut": "Del",
+    "enabled": true
+   },
+   {
+    "text": "&Send to Python Console",
+    "name": "Std_SendToPythonConsole",
+    "shortcut": "Ctrl+Shift+P",
+    "enabled": true
+   },
+   {
+    "text": "Trans&form",
+    "name": "Std_TransformManip",
+    "shortcut": "",
+    "enabled": true
+   },
+   {
+    "text": "P&lacement",
+    "name": "Std_Placement",
+    "shortcut": "",
+    "enabled": true
+   },
+   {
+    "text": "Propert&ies",
+    "name": "Std_Properties",
+    "shortcut": "Alt+Return",
+    "enabled": true
+   },
+   {
+    "sep": true
+   },
+   {
+    "text": "Expression Actions",
+    "name": "Std_Expressions",
+    "shortcut": "",
+    "enabled": true,
+    "menu": [
+     {
+      "text": "Copy Selected",
+      "name": null,
+      "shortcut": "",
+      "enabled": true
+     },
+     {
+      "text": "Copy Active Document",
+      "name": null,
+      "shortcut": "",
+      "enabled": true
+     },
+     {
+      "text": "Copy All Documents",
+      "name": null,
+      "shortcut": "",
+      "enabled": true
+     },
+     {
+      "text": "Paste",
+      "name": null,
+      "shortcut": "",
+      "enabled": false
+     }
+    ]
+   },
+   {
+    "text": "Link Actions",
+    "name": "Link Actions",
+    "shortcut": "",
+    "enabled": true,
+    "menu": [
+     {
+      "text": "Link Group",
+      "name": "Std_LinkMakeGroup",
+      "shortcut": "",
+      "enabled": true,
+      "menu": [
+       {
+        "text": "Simple Group",
+        "name": null,
+        "shortcut": "",
+        "enabled": true
+       },
+       {
+        "text": "Group With Links",
+        "name": null,
+        "shortcut": "",
+        "enabled": true
+       },
+       {
+        "text": "Group With Transform Links",
+        "name": null,
+        "shortcut": "",
+        "enabled": true
+       }
+      ]
+     },
+     {
+      "text": "Make Link",
+      "name": "Std_LinkMake",
+      "shortcut": "",
+      "enabled": true
+     },
+     {
+      "text": "Make Sub-Link",
+      "name": "Std_LinkMakeRelative",
+      "shortcut": "",
+      "enabled": true
+     },
+     {
+      "sep": true
+     },
+     {
+      "text": "Replace With Link",
+      "name": "Std_LinkReplace",
+      "shortcut": "",
+      "enabled": true
+     },
+     {
+      "sep": true
+     }
+    ]
+   },
+   {
+    "text": "Show Items Hidden in Tree View",
+    "name": null,
+    "shortcut": "",
+    "enabled": true
+   },
+   {
+    "text": "Toggle Visibility in Tree View",
+    "name": null,
+    "shortcut": "",
+    "enabled": true
+   },
+   {
+    "text": "Add Dependent Objects to Selection",
+    "name": null,
+    "shortcut": "",
+    "enabled": true
+   },
+   {
+    "sep": true
+   },
+   {
+    "text": "Mark to Recompute",
+    "name": null,
+    "shortcut": "",
+    "enabled": true
+   },
+   {
+    "text": "Recompute Object",
+    "name": null,
+    "shortcut": "Ctrl+Shift+R",
+    "enabled": true
+   },
+   {
+    "sep": true
+   },
+   {
+    "text": "Rename",
+    "name": null,
+    "shortcut": "F2",
+    "enabled": true
+   },
+   {
+    "sep": true
+   },
+   {
+    "text": "Tree Settings",
+    "name": null,
+    "shortcut": "",
+    "enabled": true,
+    "menu": [
+     {
+      "text": "Show Description",
+      "name": null,
+      "shortcut": "",
+      "enabled": true
+     },
+     {
+      "text": "Show Internal Name",
+      "name": null,
+      "shortcut": "",
+      "enabled": true
+     }
+    ]
+   }
+  ],
+  "edit_task": [
+   [
+    {
+     "class": "QPushButton",
+     "name": "",
+     "y": 9,
+     "x": 137,
+     "enabled": true,
+     "text": "OK"
+    },
+    {
+     "class": "QPushButton",
+     "name": "",
+     "y": 9,
+     "x": 249,
+     "enabled": true,
+     "text": "Cancel"
+    },
+    {
+     "class": "QSint::TaskHeader",
+     "name": "",
+     "y": 50,
+     "x": 4,
+     "enabled": true,
+     "text": ""
+    },
+    {
+     "class": "QSint::ActionLabel",
+     "name": "",
+     "y": 53,
+     "x": 9,
+     "enabled": true,
+     "text": "Boolean Parameters"
+    },
+    {
+     "class": "QToolButton",
+     "name": "buttonBodyAdd",
+     "y": 85,
+     "x": 119,
+     "enabled": true,
+     "text": "Add Body",
+     "checked": false
+    },
+    {
+     "class": "QToolButton",
+     "name": "buttonBodyRemove",
+     "y": 85,
+     "x": 289,
+     "enabled": true,
+     "text": "Remove Body",
+     "checked": false
+    },
+    {
+     "class": "QListWidget",
+     "name": "listWidgetBodies",
+     "y": 114,
+     "x": 18,
+     "enabled": true,
+     "items": [
+      "Body001"
+     ]
+    },
+    {
+     "class": "QComboBox",
+     "name": "comboType",
+     "y": 312,
+     "x": 18,
+     "enabled": true,
+     "items": [
+      "Fuse",
+      "Cut",
+      "Common"
+     ],
+     "current": "Cut"
+    },
+    {
+     "class": "QSint::TaskHeader",
+     "name": "",
+     "y": 358,
+     "x": 4,
+     "enabled": true,
+     "text": ""
+    },
+    {
+     "class": "QSint::ActionLabel",
+     "name": "",
+     "y": 361,
+     "x": 9,
+     "enabled": true,
+     "text": "Preview"
+    },
+    {
+     "class": "QCheckBox",
+     "name": "showFinalCheckBox",
+     "y": 393,
+     "x": 18,
+     "enabled": true,
+     "text": "Show final result",
+     "checked": false
+    },
+    {
+     "class": "QCheckBox",
+     "name": "showTransparentPreviewCheckBox",
+     "y": 419,
+     "x": 18,
+     "enabled": true,
+     "text": "Show preview overlay",
+     "checked": true
+    }
+   ]
+  ],
+  "after_cancel": {
+   "undo": [
+    "Create Boolean"
+   ],
+   "visible": {
+    "Body": true,
+    "Body001": true,
+    "Boolean": true
+   }
+  },
+  "empty_in_edit": "Boolean001",
+  "empty_task": [
+   [
+    {
+     "class": "QPushButton",
+     "name": "",
+     "y": 9,
+     "x": 137,
+     "enabled": true,
+     "text": "OK"
+    },
+    {
+     "class": "QPushButton",
+     "name": "",
+     "y": 9,
+     "x": 249,
+     "enabled": true,
+     "text": "Cancel"
+    },
+    {
+     "class": "QSint::TaskHeader",
+     "name": "",
+     "y": 50,
+     "x": 4,
+     "enabled": true,
+     "text": ""
+    },
+    {
+     "class": "QSint::ActionLabel",
+     "name": "",
+     "y": 53,
+     "x": 9,
+     "enabled": true,
+     "text": "Boolean Parameters"
+    },
+    {
+     "class": "QToolButton",
+     "name": "buttonBodyAdd",
+     "y": 85,
+     "x": 119,
+     "enabled": true,
+     "text": "Add Body",
+     "checked": false
+    },
+    {
+     "class": "QToolButton",
+     "name": "buttonBodyRemove",
+     "y": 85,
+     "x": 289,
+     "enabled": true,
+     "text": "Remove Body",
+     "checked": false
+    },
+    {
+     "class": "QListWidget",
+     "name": "listWidgetBodies",
+     "y": 114,
+     "x": 18,
+     "enabled": true,
+     "items": []
+    },
+    {
+     "class": "QComboBox",
+     "name": "comboType",
+     "y": 312,
+     "x": 18,
+     "enabled": true,
+     "items": [
+      "Fuse",
+      "Cut",
+      "Common"
+     ],
+     "current": "Fuse"
+    },
+    {
+     "class": "QSint::TaskHeader",
+     "name": "",
+     "y": 358,
+     "x": 4,
+     "enabled": true,
+     "text": ""
+    },
+    {
+     "class": "QSint::ActionLabel",
+     "name": "",
+     "y": 361,
+     "x": 9,
+     "enabled": true,
+     "text": "Preview"
+    },
+    {
+     "class": "QCheckBox",
+     "name": "showFinalCheckBox",
+     "y": 393,
+     "x": 18,
+     "enabled": true,
+     "text": "Show final result",
+     "checked": false
+    },
+    {
+     "class": "QCheckBox",
+     "name": "showTransparentPreviewCheckBox",
+     "y": 419,
+     "x": 18,
+     "enabled": true,
+     "text": "Show preview overlay",
+     "checked": true
+    }
+   ]
+  ],
+  "empty_ok": {
+   "title": "Empty Body List",
+   "text": "The body list cannot be empty",
+   "buttons": [
+    "OK"
+   ]
+  },
+  "empty_still_in_edit": "Boolean001",
+  "after_empty_cancel": {
+   "undo": [
+    "Create Boolean"
+   ],
+   "objects": [
+    "Body",
+    "Origin",
+    "X_Axis",
+    "Y_Axis",
+    "Z_Axis",
+    "XY_Plane",
+    "XZ_Plane",
+    "YZ_Plane",
+    "Origin001",
+    "Sketch",
+    "Pad",
+    "Body001",
+    "Origin002",
+    "X_Axis001",
+    "Y_Axis001",
+    "Z_Axis001",
+    "XY_Plane001",
+    "XZ_Plane001",
+    "YZ_Plane001",
+    "Origin003",
+    "Sketch001",
+    "Pad001",
+    "Boolean"
+   ]
+  }
+ }
+}

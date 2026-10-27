@@ -45,9 +45,9 @@ TYPES = {"TopAbs_COMPOUND": "Compound", "TopAbs_COMPSOLID": "CompSolid", "TopAbs
 
 # Known differences, each in ui/PARITY.md ("Part workbench"): {(case, object): the counts that differ}; an area's
 # cases_<area>.py adds its own (KNOWN there). The refine is FreeCAD's BRepBuilderAPI_RefineModel as cad_agent/refine.py
-# ports it. In a cut through a cut the boolean gives FreeCAD's shape (cut_chain_norefine: 25 edges, 10 faces), and the
-# port's refine joins two edges more than FreeCAD's (22 against 24, the same 9 faces and solid).
-KNOWN: dict = {("cut_chain", "Cut001"): ("edges", "vertices"), ("cut_compound_tool", "Cut"): ("edges", "vertices")}
+# ports it, conic edges kept from BRepLib_FuseEdges as FreeCAD on OCCT 8 keeps them, so a cut through a cut has FreeCAD's
+# 24 edges (cut_chain, cut_compound_tool) where the port joined two arcs before.
+KNOWN: dict = {}
 for _p in sorted(GOLDEN.glob("cases_*.py")):
     _spec = importlib.util.spec_from_file_location(f"part_known_{_p.stem}", _p)
     _m = importlib.util.module_from_spec(_spec)

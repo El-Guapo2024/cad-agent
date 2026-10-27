@@ -510,6 +510,8 @@ def add_parsers(add, sub) -> None:
     sp.add_argument("--ops", required=True, metavar="JSON")
     from .feature_shape import add_parser as shape_parser
     shape_parser(add, fsub)
+    from .feature_clonecmd import add_parser as clone_parser     # PartDesign_Clone: a new Body cloning another
+    clone_parser(add, fsub)
     sp = add("sketchkernel", cmd_sketchkernel, "OCCT's answers for the Sketcher's curve tools (B-spline degree, knots, "
              "conversion, trim of a B-spline, fillet between curves, offset): --req JSON, a list of requests",
              parent=fsub)

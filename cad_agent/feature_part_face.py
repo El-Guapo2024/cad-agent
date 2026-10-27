@@ -463,9 +463,23 @@ def _unified(m):
     return out
 
 
+def _build_face(m):
+    """FaceMakerBuildFace::Build_Essence: the edges split where they cross themselves and each other, every bounded
+    region a face (what a Sub-Shape Binder makes of wires, feature_subbinder.py; not offered to a Part Extrude here)."""
+    edges = [e for w in m.wires for e in _explore(w, TopAbs_EDGE)]
+    if not edges:
+        return []
+    plane = _find_plane(edges)
+    if plane is None:
+        return []
+    edges = _split_self_intersecting(edges, plane)
+    edges = _split_at_intersections(edges)
+    return _bounded_faces(edges, plane)
+
+
 ESSENCE = {"Part::FaceMakerSimple": _simple, "Part::FaceMakerCheese": _cheese,
            "Part::FaceMakerExtrusion": _extrusion_maker, "Part::FaceMakerBullseye": _bullseye,
-           "Part::FaceMakerUnified": _unified}
+           "Part::FaceMakerUnified": _unified, "Part::FaceMakerBuildFace": _build_face}
 
 
 def make_face(shape, maker="Part::FaceMakerBullseye"):

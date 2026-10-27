@@ -73,6 +73,9 @@ from . import params as P
 TYPE_IDS = {"Sketch": "Sketcher::SketchObject", "Pad": "PartDesign::Pad", "Pocket": "PartDesign::Pocket"}
 TYPE_IDS.update(KW.type_ids())          # every feature_kw.KwFeature: Mirrored, AdditiveBox, ... (read and written below)
 KINDS = {v: k for k, v in TYPE_IDS.items()}
+# A Part2DObject of PartDesign's (an Involute Gear, a Sprocket: feature_gear.py): a Pad's or a Pocket's profile, as a sketch
+# is, and like it never the Body's Tip
+from .feature_gear import GEAR_KINDS as PROFILE_KINDS  # noqa: E402
 SKETCH_POS = ("name", "support", "geometry", "constraints")
 SKETCH_KW = ("support", "attachment_offset", "map_mode", "geometry", "constraints")
 EXTRUDE_POS = ("name", "profile")
@@ -283,7 +286,7 @@ def read_src(src: str, part: str = "") -> dict:
     base = (lst is None and objs is None) or (body is not None and any(k.arg == "base" for k in body.keywords))
     if tip is None and feats:
         # the last feature; a datum and a ShapeBinder are never a Body's Tip (Body::insertObject leaves it where it was)
-        not_tip = _attach.DATUM_KINDS + _binder.BINDER_KINDS
+        not_tip = _attach.DATUM_KINDS + _binder.BINDER_KINDS + PROFILE_KINDS     # a gear is a profile, as a sketch
         tip = next((f["name"] for f in reversed(feats) if KINDS.get(f["type"]) not in not_tip), None)
     out = {"part": part, "params": P.read_src(src), "base": base, "tip": tip, "features": feats}
     if objs is not None:
@@ -880,7 +883,7 @@ def _check(src):
                          [F.constraint_from_dict(c) for c in f["constraints"]], **_attach.build(f, "Sketch"),
                          external_geometry=[tuple(r) for r in f.get("external_geometry") or []])
             else:
-                if kinds.get(f["profile"]) != "Sketch":
+                if kinds.get(f["profile"]) not in ("Sketch",) + PROFILE_KINDS:
                     raise FeatureEditError(f"{n}: its profile {f['profile']!r} is not a sketch before it")
                 for key in ("up_to_face", "up_to_face2", "start_reference", "reference_axis"):
                     r = f.get(key)

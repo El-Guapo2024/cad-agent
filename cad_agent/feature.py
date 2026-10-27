@@ -89,6 +89,10 @@ The vocabulary, as FreeCAD's Python API has it:
                  the 16 primitives (feature_primitive.py); both written as feature_kw.KwFeature calls
     AdditiveLoft, SubtractiveLoft, AdditivePipe, SubtractivePipe, AdditiveHelix, SubtractiveHelix
                  PartDesign's Loft, Pipe and Helix (feature_sweep.py has their properties)
+    InvoluteGear, Sprocket, Defeaturing, SubShapeBinder, Boolean, Clone
+                 PartDesign's gears (a profile, as a sketch is: feature_gear.py), Defeaturing
+                 (feature_defeaturing.py), Sub-Shape Binder (feature_subbinder.py), and Boolean and Clone,
+                 which link other Bodies by their part's name (feature_boolean.py)
 
 What is built is the solid FreeCAD would build, because the same OCCT calls build it in the same order:
 the sketch's edges are joined to wires as TopoShape::makeElementWires joins them, the face is made as
@@ -1012,6 +1016,9 @@ def _trsf(sketch: Sketch):
 
 def _edge(g):
     """Part::Geometry::toShape(): the edge of a sketch geometry, in the sketch's own plane."""
+    own = getattr(g, "occ_edge", None)
+    if own is not None:                   # a gear's Part.Arc or Part.BezierCurve, as FreeCAD makes it (feature_gear.py)
+        return own()
     z = gp_Dir(0, 0, 1)
     if isinstance(g, _curves.CURVES):
         return _curves.edge(g)
@@ -1287,7 +1294,7 @@ def profile_face(sketch: Sketch):
     for w in wires:
         if not BRep_Tool.IsClosed_s(w):
             raise FeatureError("Wire is not closed.")
-    cross = _crossing(sketch, idx)
+    cross = None if getattr(sketch, "part2d", False) else _crossing(sketch, idx)   # a gear's wire is not checked
     if cross:
         raise FeatureError("Could not create face from sketch.\nIntersecting sketch entities or multiple "
                            f"faces in a sketch are not allowed. (Sketch {sketch.name}: geometry "
@@ -1797,7 +1804,8 @@ def evaluate(features, params: dict | None = None, base=None, tip: str | None = 
     for f in ([] if tip == "BaseFeature" else features):
         name = getattr(f, "name", None)
         if not isinstance(f, (Sketch, _Extrude)) and not hasattr(f, "execute") and \
-                not getattr(f, "is_datum", False) and not getattr(f, "is_binder", False):
+                not getattr(f, "is_datum", False) and not getattr(f, "is_binder", False) and \
+                not getattr(f, "is_part2d", False):
             raise FeatureError(f"FEATURES holds {f!r}, not a Sketch, Pad or Pocket")
         if name in shapes or name in sketches or name in ctx.kinds:
             raise FeatureError(f"two features are named {name!r}" if name not in ctx.placements or
@@ -1809,6 +1817,9 @@ def evaluate(features, params: dict | None = None, base=None, tip: str | None = 
             ctx.add_datum(f)
         elif getattr(f, "is_binder", False):
             ctx.add_binder(f)                     # a copy of another object's geometry, not a solid feature
+        elif getattr(f, "is_part2d", False):
+            # a Part2DObject (an Involute Gear, a Sprocket: feature_gear.py): a profile, placed as a sketch is
+            sketches[name] = _place_sketch(f.profile_sketch(params), ctx, params)
         elif not isinstance(f, _Extrude):
             shapes["_before"][name] = solid
             solid = f.execute(solid, shapes, params)
@@ -2080,3 +2091,14 @@ FEATURES.update(_DATUMS)
 from .feature_binder import ShapeBinder  # noqa: E402  PartDesign::ShapeBinder
 
 FEATURES.update(ShapeBinder=ShapeBinder)
+try:                                    # PartDesign's Involute Gear and Sprocket
+    from .feature_gear import GEARS, InvoluteGear, Sprocket  # noqa: E402,F401
+    FEATURES.update(GEARS)
+except ImportError:                     # feature_gear was imported first: it adds these names itself
+    pass
+from .feature_defeaturing import Defeaturing  # noqa: E402,F401  PartDesign::Defeaturing
+FEATURES.update(Defeaturing=Defeaturing)
+from .feature_subbinder import SubShapeBinder  # noqa: E402,F401  PartDesign::SubShapeBinder
+FEATURES.update(SubShapeBinder=SubShapeBinder)
+from .feature_boolean import LINKED, Boolean, Clone  # noqa: E402,F401  PartDesign::Boolean, ::FeatureBase (Clone)
+FEATURES.update(LINKED)

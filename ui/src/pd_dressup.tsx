@@ -9,11 +9,13 @@
 //   src/Mod/PartDesign/Gui/TaskChamferParameters.cpp: 2011 Juergen Riegel
 //   src/Mod/PartDesign/Gui/TaskDraftParameters.cpp: 2012 Jan Rheinländer
 //   src/Mod/PartDesign/Gui/TaskThicknessParameters.cpp: 2015 Stefan Tröger
+//   src/Mod/PartDesign/Gui/TaskDefeaturingParameters.cpp: 2026 Max Wilfinger (the Defeaturing panel; makeDefeaturing is Command.cpp's)
 //   src/Mod/PartDesign/Gui/ViewProviderDressUp.cpp: 2012 Jan Rheinländer (highlightReferences, setErrorState)
 //   src/Mod/PartDesign/Gui/StyleParameters.h: 2025 Kacper Donat (PreviewDressUpColor, PreviewShapeOpacity, PreviewErrorColor)
 //   src/Mod/Part/Gui/ReferenceHighlighter.cpp: 2021 Werner Mayer (the magenta of a referenced element)
 //   No copyright line in the file: src/Mod/PartDesign/Gui/TaskFilletParameters.ui, src/Mod/PartDesign/Gui/TaskChamferParameters.ui,
-//     src/Mod/PartDesign/Gui/TaskDraftParameters.ui, src/Mod/PartDesign/Gui/TaskThicknessParameters.ui
+//     src/Mod/PartDesign/Gui/TaskDraftParameters.ui, src/Mod/PartDesign/Gui/TaskThicknessParameters.ui,
+//     src/Mod/PartDesign/Gui/TaskDefeaturingParameters.ui
 // PartDesign's dress-up features, Fillet, Chamfer, Draft and Thickness (cad_agent/feature_dressup.py): the commands, their
 // task panels and the property view. The page cannot build a fillet, so the panel asks the server for the feature built
 // after its edits (`cad feature shape`, POST /api/<slug>/features/<part>/shape, nothing written) and draws what comes back:
@@ -35,7 +37,7 @@ import type { Entry } from './chrome'
 import { allows, axisRefText, datumHover, parsePick, parseRow, type Allow, type Picked, type Ref } from './pd_pick'
 import './partdesign.css'
 
-export type DressKind = 'fillet' | 'chamfer' | 'draft' | 'thickness'
+export type DressKind = 'fillet' | 'chamfer' | 'draft' | 'thickness' | 'defeaturing'
 type Info = { type: string; label: string; icon: IconName; edges: boolean; faces: boolean; cmd: string; tip: string }
 /** Each dress-up: FreeCAD's TypeId, the command, and what its panel picks (TaskDressUpParameters' selectEdges, selectFaces). */
 export const DRESS: Record<DressKind, Info> = {
@@ -43,6 +45,8 @@ export const DRESS: Record<DressKind, Info> = {
   chamfer: { type: 'PartDesign::Chamfer', label: 'Chamfer', icon: 'pd-chamfer', edges: true, faces: true, cmd: 'PartDesign_Chamfer', tip: 'Applies a chamfer to the selected edges or faces' },
   draft: { type: 'PartDesign::Draft', label: 'Draft', icon: 'pd-draft', edges: false, faces: true, cmd: 'PartDesign_Draft', tip: 'Applies a draft to the selected faces' },
   thickness: { type: 'PartDesign::Thickness', label: 'Thickness', icon: 'pd-thickness', edges: false, faces: true, cmd: 'PartDesign_Thickness', tip: 'Applies thickness and removes the selected faces' },
+  // TaskDefeaturingParameters: TaskDressUpParameters(DressUpView, selectEdges=false, selectFaces=true, ...) (cad_agent/feature_defeaturing.py)
+  defeaturing: { type: 'PartDesign::Defeaturing', label: 'Defeaturing', icon: 'pd-defeaturing', edges: false, faces: true, cmd: 'PartDesign_Defeaturing', tip: 'Removes selected faces from a solid' },
 }
 export const kindOfType = (t: string): DressKind | null => (Object.keys(DRESS) as DressKind[]).find((k) => DRESS[k].type === t) ?? null
 export const isDressUp = (t: string) => kindOfType(t) !== null
@@ -58,6 +62,7 @@ const DEFAULTS: Record<DressKind, Record<string, unknown>> = {
   chamfer: { chamfer_type: 'Equal distance', size: 1, size2: 1, angle: 45, flip_direction: false, use_all_edges: false, refine: true },
   draft: { angle: 1.5, neutral_plane: null, pull_direction: null, reversed: false, refine: true },
   thickness: { value: 1, reversed: true, mode: 'Skin', join: 'Arc', intersection: false, refine: true },
+  defeaturing: { refine: true },               // FeatureDefeaturing.cpp adds no property of its own
 }
 const NO_BODY = 'In order to use PartDesign you need an active Body object in the document. Please make one active (double click) '
   + 'or create one.\n\nIf you have a legacy document with PartDesign objects without Body, use the migrate function in PartDesign '
@@ -92,8 +97,14 @@ export async function dressUp(kind: DressKind) {
   const own = body ? `${body.name}.` : '\u0000'
   const refs = s.subSel
   const bodies = new Set(refs.map((r) => r.slice(0, r.lastIndexOf('.'))))
-  if (bodies.size > 1) { await messageBox('warning', 'Wrong selection', 'Select an edge, face, or body from a single body.'); return }
-  if (refs.length && !refs[0].startsWith(own)) { await messageBox('warning', 'Selection is not in the active body', 'Select an edge, face, or body from an active body.'); return }
+  if (kind !== 'defeaturing' && bodies.size > 1) { await messageBox('warning', 'Wrong selection', 'Select an edge, face, or body from a single body.'); return }
+  if (kind !== 'defeaturing' && refs.length && !refs[0].startsWith(own)) { await messageBox('warning', 'Selection is not in the active body', 'Select an edge, face, or body from an active body.'); return }
+  if (kind === 'defeaturing') {
+    // makeDefeaturing: one object, of the active Body, its sub-elements all faces
+    if (bodies.size > 1) { await messageBox('warning', 'Wrong Selection', 'Select faces from a single body'); return }
+    if (refs.length && !refs[0].startsWith(own)) { await messageBox('warning', 'Selection Outside Active Body', 'Select faces from the active body'); return }
+    if (refs.some((r) => !r.slice(own.length).startsWith('Face'))) { await messageBox('warning', 'Wrong Selection', 'Defeaturing works only on faces'); return }
+  }
   const base = solidAtTip(doc)
   if (!base) { await messageBox('warning', 'Wrong selection', 'Shape of the selected part is empty'); return }
   let subs = refs.map((r) => r.slice(own.length))
@@ -186,7 +197,7 @@ export function DressUpTask({ kind, part, name, edit }: { kind: DressKind; part:
   const [v, setV] = useState<Record<string, unknown>>(initial)
   const [refs, setRefs] = useState<string[]>(() => (existing && Array.isArray(existing.base) ? (existing.base[1] as string[]) ?? [] : fresh?.refs ?? []))
   // setSelectionMode(refSel) when the list starts empty; Draft also does when it has no pull direction (TaskDraftParameters)
-  const [mode, setMode] = useState<Mode>(() => (initial.use_all_edges === true ? 'none' : !refs.length || (kind === 'draft' && !(existing?.pull_direction)) ? 'refSel' : 'none'))
+  const [mode, setMode] = useState<Mode>(() => (initial.use_all_edges === true ? 'none' : !refs.length || kind === 'defeaturing' || (kind === 'draft' && !(existing?.pull_direction)) ? 'refSel' : 'none'))
   const [current, setCurrent] = useState<string[]>([])  // the list's selected rows, highlighted in the 3D view
   const [showFinal, setShowFinal] = useState(false)
   const [overlay, setOverlay] = useState(true)
@@ -312,7 +323,8 @@ export function DressUpTask({ kind, part, name, edit }: { kind: DressKind; part:
     if (e.key.toLowerCase() === 'a' && e.ctrlKey && e.shiftKey && info.edges) { e.preventDefault(); addAllEdges() }
   }
   const ok = async () => {
-    if (!refs.length) report('warn', `Empty ${info.label.toLowerCase()} created!`)
+    // TaskDefeaturingParameters::apply warns without the other dress-ups' "!"
+    if (!refs.length) report('warn', kind === 'defeaturing' ? 'Empty defeaturing created' : `Empty ${info.label.toLowerCase()} created!`)
     // FreeCAD keeps a feature that does not build (an empty Fillet: "Fillet not possible on selected shapes") and marks it
     // in error; a part file here only takes a Body that builds, so the panel says why and stays open (PARITY.md)
     if (built?.error) { await messageBox('warning', 'Input error', built.error); return }
@@ -409,6 +421,7 @@ function groupsOf(kind: DressKind): [string, P[]][] {
       { key: 'angle', name: 'Angle', kind: 'angle', ro: (f) => (ct(f) === 'Distance and Angle' ? null : 'Chamfer Type is not Distance and Angle') },
       { key: 'flip_direction', name: 'Flip Direction', kind: 'bool' }, { key: 'use_all_edges', name: 'Use All Edges', kind: 'bool' }]], partDesign]
   }
+  if (kind === 'defeaturing') return [['Base', [baseRow, supportT, label, suppressed]], partDesign]
   if (kind === 'draft') return [['Base', [{ key: 'angle', name: 'Angle', kind: 'angle' }, { key: 'reversed', name: 'Reversed', kind: 'bool' }, baseRow, supportT, label, suppressed]],
     ['Draft', [{ key: 'neutral_plane', name: 'Neutral Plane', kind: 'text', ro: () => 'picked in the task panel' }, { key: 'pull_direction', name: 'Pull Direction', kind: 'text', ro: () => 'picked in the task panel' }]], partDesign]
   return [['Base', [baseRow, supportT, label, suppressed]], partDesign, ['Thickness', [{ key: 'value', name: 'Value', kind: 'length' }, { key: 'mode', name: 'Mode', kind: 'enum', items: ['Skin', 'Pipe', 'RectoVerso'] },
@@ -440,7 +453,7 @@ export function DressUpProps({ part, f, set, onRename }: { part: string; f: Feat
   return <>{groupsOf(kind).map(([g, defs]) => <Group key={g} title={g}>{defs.map(row)}</Group>)}</>
 }
 
-// ── menus and toolbar: Workbench.cpp's "Dress-Up Features" (Defeaturing is not here yet) ─────────────
+// ── menus and toolbar: Workbench.cpp's "Dress-Up Features", Defeaturing last ─────────────────────────
 export function dressUpEntries(hasDoc: boolean): Entry[] {
   return (Object.keys(DRESS) as DressKind[]).map((k) => ({ label: DRESS[k].label, icon: DRESS[k].icon, cmd: DRESS[k].cmd, disabled: !hasDoc, title: DRESS[k].tip, onSelect: () => void dressUp(k) }))
 }

@@ -431,7 +431,8 @@ class Context:
         if f.name in self.kinds:
             raise FeatureError(f"two features are named {f.name!r}")
         from .feature_binder import binder_shape
-        shape = binder_shape(f, self)
+        # a SubShapeBinder builds its own (feature_subbinder.py)
+        shape = f.bound_shape(self) if hasattr(f, "bound_shape") else binder_shape(f, self)
         pl = A.Placement.from_trsf(shape.Location().Transformation()) \
             if shape is not None and not shape.IsNull() else A.Placement()
         self.shapes[f.name] = shape
@@ -818,6 +819,8 @@ def needs_body(doc: dict) -> bool:
             return True
         if f.get("type") == "Sketcher::SketchObject" and (not f.get("support") or f.get("external_geometry")):
             return True
+        if f.get("type") in ("Part::InvoluteGear", "Part::Sprocket") and f.get("attachment_support"):
+            return True                                 # an attached gear is placed as a sketch is (feature_gear.py)
     for o in doc.get("objects") or []:
         if o.get("attachment_support") or o.get("map_mode") not in (None, "Deactivated"):
             return True

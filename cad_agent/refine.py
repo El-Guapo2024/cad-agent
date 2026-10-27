@@ -30,8 +30,10 @@ Per shell (FaceUniter::process): the faces of each surface type FreeCAD handles 
 into groups on the same surface (splitEqual), each group into edge-connected runs (FaceAdjacencySplitter), each run of
 two or more faces is rebuilt as one face from its boundary (buildFace), the old faces are removed and the new ones sewn
 in (BRepBuilderAPI_Sewing), and the edges between them fused (BRepLib_FuseEdges). The same OCCT calls in the same
-order, so the faces come out in FreeCAD's order. FreeCAD is built on OCCT 8.0.1 here, as OCP is, so modelRefine.cpp's
-collectConicEdges branch (OCC_VERSION_HEX <= 0x7fffff) is not taken there and not ported. The history FreeCAD keeps for
+order, so the faces come out in FreeCAD's order. FreeCAD is built on OCCT 8.0.1 here, as OCP is; modelRefine.cpp's
+collectConicEdges branch (`#if OCC_VERSION_HEX <= 0x7fffff`, meant for OCCT 7) is taken there too, since 8.0.1 is 0x080001:
+the edges on circles, ellipses and the other conics are kept from BRepLib_FuseEdges (AvoidEdges), so two arcs of one circle
+that a refine puts on one face stay two edges, as in FreeCAD. The history FreeCAD keeps for
 its element names (modifiedShapes, LogModifications) has no effect on the shape and is left out.
 """
 from __future__ import annotations
@@ -617,6 +619,27 @@ class FaceAdjacencySplitter:
                 self._find(TopoDS.Face(f), out)
 
 
+def collect_conic_edges(shell):
+    """collectConicEdges: the shell's edges (TopExp::MapShapes order) whose 3D curve is a Geom_Conic."""
+    from OCP.Geom import Geom_Conic
+    from OCP.TopExp import TopExp
+    from OCP.TopoDS import TopoDS
+    try:
+        from OCP.TopTools import TopTools_IndexedMapOfShape
+    except ImportError:                     # OCP 8 moved OCCT's collections
+        from OCP.collections import IndexedMap_TopoDS_Shape_TopTools_ShapeMapHasher as TopTools_IndexedMapOfShape
+    edges, out = TopTools_IndexedMapOfShape(), TopTools_IndexedMapOfShape()
+    TopExp.MapShapes_s(shell, TopAbs_EDGE, edges)
+    for i in range(1, edges.Extent() + 1):
+        e = edges.FindKey(i)
+        if e.IsNull():
+            continue
+        curve = BRep_Tool.Curve_s(TopoDS.Edge(e), 0.0, 0.0)
+        if curve is not None and isinstance(curve, Geom_Conic):
+            out.Add(e)
+    return out
+
+
 def _sewn_shell(shape):
     if shape.IsNull() or shape.ShapeType() != TopAbs_SHELL:
         raise RefineFailed("Removing splitter failed")
@@ -674,6 +697,7 @@ class FaceUniter:
                 builder.Add(shell, f)
             self.work_shell = shell
         fuse = BRepLib_FuseEdges(self.work_shell)
+        fuse.AvoidEdges(collect_conic_edges(self.work_shell))     # OCC_VERSION_HEX 0x080001 <= 0x7fffff
         affected = TopTools_DataMapOfShapeShape()
         fuse.Faces(affected)
         for value in _values(affected):

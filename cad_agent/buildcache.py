@@ -63,7 +63,8 @@ SKIP_DIRS = {"out", "baseline", "research", "__pycache__", "node_modules"}    # 
 OUTPUTS = {"checks.json", "verify.json"}
 # A part that calls one of these may reach a module or a file by a name the scan of its imports cannot
 # see: build_part and load_assembly run other design files, the rest import or read by a computed name.
-REACHES_CALLS = {"__import__", "exec", "eval", "compile", "open", "build_part", "load_assembly"}
+REACHES_CALLS = {"__import__", "exec", "eval", "compile", "open", "build_part", "load_assembly",
+                 "Boolean", "Clone"}   # PartDesign's Boolean and Clone build another part (feature_boolean.py)
 REACHES_METHODS = {"import_module", "run_path", "run_module", "spec_from_file_location", "load_module",
                    "exec_module", "open", "read_text", "read_bytes", "load", "loadtxt", "import_step",
                    "import_stl", "import_svg", "import_brep", "import_dxf", "build_part", "load_assembly"}

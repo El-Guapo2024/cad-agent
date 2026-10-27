@@ -58,6 +58,11 @@ that commit.
   LGPL-2.1-or-later        cad_agent/sketch_text.py and cad_agent/sketch_commands.py, all of them (the
                            Sketcher's text, and its commands on sketch objects). See section 2.
 
+  LGPL-2.1-or-later        cad_agent/feature_gear.py, cad_agent/feature_defeaturing.py,
+                           cad_agent/feature_subbinder.py, cad_agent/feature_boolean.py and
+                           cad_agent/feature_clonecmd.py, all of them (PartDesign's Involute Gear and
+                           Sprocket, Defeaturing, Sub-Shape Binder, Boolean and Clone). See section 2.
+
   LGPL-2.0-or-later        cad_agent/appcache.py, all of it. It is distributed here under version
                            2.1 of the licence, which "or any later version" allows; the text is in
                            ui/LICENSE.
@@ -179,6 +184,31 @@ that commit.
       2015 Abdullah Tahiri), with src/Mod/Sketcher/App/SketchAnalysis.cpp (Copyright (c) 2018 Abdullah
       Tahiri, 2013 Werner Mayer) and the SketchObject operations they call.
       SPDX-License-Identifier: LGPL-2.1-or-later
+
+  cad_agent/feature_gear.py
+      Ports src/Mod/PartDesign/InvoluteGearFeature.py (Copyright (c) 2014 Juergen Riegel) and
+      SprocketFeature.py (Copyright (c) 2020 Adam Spontarelli), and copies unchanged the gear and sprocket
+      geometry of src/Mod/PartDesign/fcgear/involute.py ((c) 2014 David Douard, (c) 2023 Jonas Bähr; based
+      on attoparsec's inkscape-extensions and gearUtils-03.js by Dr A.R.Collins), fcgear/fcgear.py ((c)
+      2014 David Douard) and fcsprocket/sprocket.py and fcsprocket.py ((c) 2020 Adam Spontarelli).
+      SPDX-License-Identifier: LGPL-2.1-or-later
+
+  cad_agent/feature_defeaturing.py
+      Re-expresses src/Mod/PartDesign/App/FeatureDefeaturing.cpp (Copyright (c) 2026 Max Wilfinger) and
+      TopoShape::makeElementDefeaturing (src/Mod/Part/App/TopoShapeExpansion.cpp, Copyright (c) 2022
+      Zheng, Lei). SPDX-License-Identifier: LGPL-2.1-or-later
+
+  cad_agent/feature_subbinder.py
+      Re-expresses PartDesign::SubShapeBinder (src/Mod/PartDesign/App/ShapeBinder.cpp, Copyright (c) 2015
+      Stefan Tröger): its properties and update(), for a binder in its own Body; with it
+      cad_agent/feature_part_face.py gained FaceMakerBuildFace's Build_Essence
+      (src/Mod/Part/App/FaceMakerBuildFace.cpp). SPDX-License-Identifier: LGPL-2.1-or-later
+
+  cad_agent/feature_boolean.py, cad_agent/feature_clonecmd.py
+      Re-express PartDesign::Boolean (src/Mod/PartDesign/App/FeatureBoolean.cpp, Copyright (c) 2013 Jan
+      Rheinländer), PartDesign::FeatureBase (FeatureBase.cpp, Copyright (c) 2017 Stefan Tröger) and the
+      commands CmdPartDesignBoolean and CmdPartDesignClone (src/Mod/PartDesign/Gui/Command.cpp, Copyright
+      (c) 2008 Jürgen Riegel). SPDX-License-Identifier: LGPL-2.1-or-later
 
   cad_agent/appcache.py
       Re-expresses src/Gui/PreferencePages/DlgSettingsCacheDirectory.cpp (class ApplicationCache)

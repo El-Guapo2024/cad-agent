@@ -28,7 +28,7 @@ from . import feature as F
 from . import feature_attach as FA
 from .feature_kw import KwFeature
 
-BINDER_KINDS = ("ShapeBinder",)          # a feature of the Body that is not its solid (feature_edit's Tip)
+BINDER_KINDS = ("ShapeBinder", "SubShapeBinder")    # a feature of the Body that is not its solid (feature_edit's Tip)
 
 
 def _support(where: str, v) -> tuple:
