@@ -527,7 +527,7 @@ class Sketch:
                  attachment_offset=None, map_mode: str | None = None, plane: str | None = None,
                  attachment_support=None, map_reversed: bool = False, map_path_parameter=0.0,
                  placement=None, external_geometry=None):
-        from .feature_attach import Attachable, external_list
+        from .feature_attach import Attachable, external_refs
         self.name = name
         sup = plane if plane is not None else support
         if sup is not None and attachment_support is not None:
@@ -542,7 +542,9 @@ class Sketch:
         one = self.attachment_support[0] if len(self.attachment_support) == 1 else None
         self.support = one[0][:-6] if (one and one[1] == "" and one[0][:-6] in PLANES and one[0].endswith("_Plane")
                                        and self.map_mode == "FlatFace" and not self.map_reversed) else None
-        self.external_geometry = external_list(f"Sketch {name}", external_geometry)
+        refs = external_refs(f"Sketch {name}", external_geometry)
+        self.external_geometry = [(o, s) for o, s, _ in refs]
+        self.external_types = [k for _, _, k in refs]      # ExternalTypes: Projection, Intersection or Both
         self._placed = None                             # the Placement the Body attached it at (attacher.Placement)
         self._external = []                             # ExternalGeo after the axes, as geometry dicts
         self.geometry = list(geometry)
@@ -2003,8 +2005,11 @@ def to_freecad(features, params: dict | None = None, doc=None, name: str = "Body
                 sk.addGeometry(pg, g.construction)
             if f.external_geometry:                  # what it projects must be built first, as in the GUI
                 doc.recompute()
-            for o, sb in f.external_geometry:        # Sketcher_External: GeoId -3, -4, ... in this order
-                sk.addExternal(obj_of(o).Name, sb)
+            for (o, sb), k in zip(f.external_geometry, f.external_types):    # GeoId -3, -4, ... in this order
+                if k != "Intersection":              # Sketcher_Projection, then Sketcher_Intersection
+                    sk.addExternal(obj_of(o).Name, sb)
+                if k != "Projection":
+                    sk.addExternal(obj_of(o).Name, sb, False, True)
             for i, c in enumerate(f.constraints):
                 args = list(c.args) + ([c.resolved(params)] if c.dimensional else [])
                 if c.type == "Text":                 # Sketcher.Constraint('Text', [g0, p0, ...], text, font, h)

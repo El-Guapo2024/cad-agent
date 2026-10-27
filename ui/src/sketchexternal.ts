@@ -4,11 +4,12 @@
 //   src/Mod/Sketcher/Gui/DrawSketchHandlerExternal.h: 2022 Abdullah Tahiri
 //   src/Mod/Sketcher/Gui/CommandCreateGeo.cpp: 2010 Jürgen Riegel
 //   src/Mod/Sketcher/App/SketchObjectExternal.cpp: 2008 Jürgen Riegel
-// Sketcher_Projection (External Projection, G X): DrawSketchHandlerExternal with its ExternalSelection gate. While it
-// is on, the Body's faces, edges and vertices shown in the 3D view preselect under the cursor; a click adds the element
-// as external geometry ("Add external geometry", SketchObject::addExternal), its projection onto the sketch's plane
-// computed as rebuildExternalGeometry does it, by the server (`cad feature project`, cad_agent/feature_attach.py). The
-// tool stays on until Esc or a right click, as FreeCAD's does.
+// Sketcher_Projection (External Projection, G X) and Sketcher_Intersection (External Intersection, G I):
+// DrawSketchHandlerExternal with its ExternalSelection gate. While it is on, the Body's faces, edges and vertices shown
+// in the 3D view preselect under the cursor; a click adds the element as external geometry ("Add external geometry",
+// SketchObject::addExternal with its intersection flag), its projection onto the sketch's plane or its section with
+// it computed as rebuildExternalGeometry does it, by the server (`cad feature project`, cad_agent/feature_attach.py and
+// feature_attach_ext.py). The tool stays on until Esc or a right click, as FreeCAD's does.
 import * as S from './sketcher'
 import type { Geo, XY } from './solver'
 import { api, resultText } from './api'
@@ -37,10 +38,10 @@ export function externalAllowed(body: string, sub: string | null): { ref: [strin
 }
 
 /** The projections of references onto the sketch in edit (`cad feature project`), one list per reference. */
-export async function projectRefs(refs: [string, string][], part = S.getSession()?.ref.part, sketch = S.getSession()?.ref.name): Promise<{ external: Geo[][]; errors: (string | null)[] } | null> {
+export async function projectRefs(refs: S.ExtRef[], part = S.getSession()?.ref.part, sketch = S.getSession()?.ref.name): Promise<{ external: Geo[][]; errors: (string | null)[] } | null> {
   const slug = getState().slug
   if (!slug || !part || !sketch) return null
-  const args = ['feature', 'project', slug, part, sketch, ...refs.flatMap((r) => ['--ref', r[1] ? `${r[0]}.${r[1]}` : r[0]])]
+  const args = ['feature', 'project', slug, part, sketch, ...refs.flatMap((r) => ['--ref', (r[1] ? `${r[0]}.${r[1]}` : r[0]) + (r[2] && r[2] !== 'Projection' ? `:${r[2]}` : '')])]
   const r = await api.cad(slug, args)
   if (r.exit !== 0 || !r.data) { report('err', `External geometry: ${resultText(r)}`); return null }
   return { external: (r.data.external ?? []) as Geo[][], errors: (r.data.errors ?? []) as (string | null)[] }
@@ -50,6 +51,8 @@ export class ExternalHandler implements S.Handler {
   readonly toolName = 'DSH_External'
   private hover: { body: string; sub: string } | null = null
   private busy = false
+  /** DrawSketchHandlerExternal(alwaysReference, intersection): Sketcher_Intersection's. */
+  constructor(readonly intersection = false) {}
   activated() { S.clearSelection() }
   deactivated() { this.hover = null; preselect(null, null); setState({ gateMsg: null }) }
   /** The 3D element under the cursor, preselected if the gate lets it through (Gui::Selection's preselection). */
@@ -89,8 +92,12 @@ export class ExternalHandler implements S.Handler {
     return true
   }
   /** onSelectionChanged (AddSelection): the element becomes external geometry, in its own command. */
-  private async add(ref: [string, string]) {
-    if (S.getExternal().refs.some((r) => r[0] === ref[0] && r[1] === ref[1])) return
+  private async add(pair: [string, string]) {
+    const kind: S.ExtKind = this.intersection ? 'Intersection' : 'Projection'
+    const ref: S.ExtRef = this.intersection ? [pair[0], pair[1], kind] : pair
+    const had = S.getExternal().refs.find((r) => r[0] === ref[0] && r[1] === ref[1])
+    // addExternal's "Link to … already exists in this sketch" (a projection and an intersection of it make Both)
+    if (had && (S.extKind(had) === kind || S.extKind(had) === 'Both')) { report('err', 'Failed to add external geometry'); return }
     this.busy = true
     await projectRefs([ref]).then((p) => {
       this.busy = false
@@ -107,6 +114,6 @@ export class ExternalHandler implements S.Handler {
   }
   pressRightButton() { S.purgeHandler() }
   registerPressedKey(pressed: boolean, key: string) { if (key === 'Escape') { if (!pressed) S.purgeHandler(); return true } return false }
-  cursor() { return { svg: 'Sketcher_Pointer_External', tail: [] } }
+  cursor() { return { svg: this.intersection ? 'Sketcher_Pointer_External_Intersection' : 'Sketcher_Pointer_External', tail: [] } }
   hints() { return [{ message: '%1 pick external geometry', keys: ['LMB'] }] }
 }

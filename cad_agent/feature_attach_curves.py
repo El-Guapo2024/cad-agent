@@ -78,11 +78,15 @@ def circle_dict(c, first=None, last=None):
         return {"type": "Circle", "center": _xy(cnt), "radius": c.Radius(), "construction": True}
     tc = Geom_TrimmedCurve(c, first, last)
     s, e = tc.StartPoint(), tc.EndPoint()
-    if c.Position().Direction().Z() < 0:
+    rev = c.Position().Direction().Z() < 0
+    if rev:
         s, e = e, s
     a1, a2 = _ccw_angles(s, e, cnt, tc.LastParameter() - tc.FirstParameter())
-    return {"type": "ArcOfCircle", "center": _xy(cnt), "radius": c.Radius(), "start_angle": a1, "end_angle": a2,
-            "construction": True}
+    d = {"type": "ArcOfCircle", "center": _xy(cnt), "radius": c.Radius(), "start_angle": a1, "end_angle": a2,
+         "construction": True}
+    if rev:                                         # GeomArcOfConic::isReversed (Validate's reversed arcs)
+        d["reversed"] = True
+    return d
 
 
 def conic_dict(kind, c, first=None, last=None):

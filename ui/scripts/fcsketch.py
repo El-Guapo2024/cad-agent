@@ -61,7 +61,7 @@ def write_ref(res: dict) -> Path:
            "sketch_menu": menu(sketch["menu"]), "params": res["params"], "message_empty": res["message_empty"],
            "dialogs": [{"case": d["case"], "title": d["title"]} for d in res["dialogs"]],
            "cases": {k: {"geometry": v["geometry"], "constraints": v["constraints"], "message": v["message"],
-                         **({"external": v["external"], "external_geometry": v["external_geometry"]} if "external" in v else {}),
+                         **({k: v[k] for k in ("external", "external_geometry", "external_types") if k in v} if "external" in v else {}),
                          **({"tool_widget": v["tool_widget"]} if v.get("tool_widget") else {}),
                          **({"ovp": v["ovp"]} if v.get("ovp") else {}),
                          **({"panel": v["panel"]} if v.get("panel") else {})}

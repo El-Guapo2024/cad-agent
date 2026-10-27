@@ -502,9 +502,11 @@ def add_parsers(add, sub) -> None:
     sp.add_argument("--before", metavar="FEATURE", help="resolve in the Body before this feature (the one being "
                     "edited); default: all of it")
     sp = one("project", cmd_feature_project, "external geometry: references projected onto a sketch as the Body "
-             "places it (Sketcher_External), --ref Pad.Edge3")
+             "places it (Sketcher_Projection, or Sketcher_Intersection with :Intersection), --ref Pad.Edge3")
     sp.add_argument("sketch")
-    sp.add_argument("--ref", action="append", metavar="OBJ.ELEMENT", help="an edge, vertex or face (Pad.Edge3)")
+    sp.add_argument("--ref", action="append", metavar="OBJ.ELEMENT",
+                    help="an edge, vertex or face (Pad.Edge3; Pad.Face1:Intersection for its section with the "
+                    "sketch's plane, :Both for both)")
     sp = one("apply", cmd_feature_apply, "several ops as one undo step: --ops '[{\"op\": \"set\", ...}]' "
              "(or --ops @file.json)")
     sp.add_argument("--ops", required=True, metavar="JSON")

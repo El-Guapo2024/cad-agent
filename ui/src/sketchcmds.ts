@@ -140,6 +140,7 @@ const RUN: Record<string, () => void> = {
   Sketcher_CreateFillet: tool(() => new FilletHandler(0)),
   Sketcher_CreateChamfer: tool(() => new FilletHandler(1)),
   Sketcher_Projection: tool(() => new ExternalHandler()),
+  Sketcher_Intersection: tool(() => new ExternalHandler(true)),
   Sketcher_Copy: () => XT.copyCommand('copy'),
   Sketcher_Clone: () => XT.copyCommand('clone'),
   Sketcher_Move: () => XT.copyCommand('move'),
