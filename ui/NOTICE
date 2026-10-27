@@ -1542,6 +1542,11 @@ src/Mod/TechDraw/Gui/TaskGeomHatch.cpp   [licence: LGPL-2.1-or-later]
     copyright 2017 WandererFan
     followed by src/techdraw_annot.tsx
 src/Mod/TechDraw/Gui/TaskGeomHatch.ui   [licence: none]
+src/Mod/TechDraw/Gui/SymbolChooser.ui   [licence: none]
+src/Mod/TechDraw/Gui/TaskLeaderLine.ui   [licence: none]
+src/Mod/TechDraw/Gui/TaskRichAnno.ui   [licence: none]
+src/Mod/TechDraw/Gui/TaskSurfaceFinishSymbols.ui   [licence: none]
+src/Mod/TechDraw/Gui/TaskWeldingSymbol.ui   [licence: none]
     copyright: no line in the file
     followed by src/techdraw_annot.tsx, src/uiforms-techdraw.ts
 src/Mod/TechDraw/Gui/TaskHatch.cpp   [licence: LGPL-2.1-or-later]

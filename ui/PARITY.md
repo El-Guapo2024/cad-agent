@@ -1053,6 +1053,20 @@ and objects, ui/scripts/fctechdraw.json) and `ui/scripts/techdrawcheck.mjs` (the
 | Export | done: SVG (10 units/mm as TechDraw's, the template inlined), DXF (each view's HLR compounds on its own layer, as TechDraw's writer), PDF (hand-written, the template drawn) |
 | Tree, property view, undo | done: the page's rows as FreeCAD's (dimensions and balloons under their view, sections at page level), the property view's rows and groups from FreeCAD's (techdraw_props.ts), each command one Edit > Undo step named as FreeCAD names it |
 
+Leader line, rich text, symbols, welds, surface finish, images and clip groups (branch techdraw-3, 2026-10-27), server side only so far:
+`cad_agent/techdraw_objs.py` (DrawLeaderLine, DrawRichAnno, DrawViewSymbol, DrawWeldSymbol, DrawTileWeld, DrawViewImage, DrawViewClip, in
+FreeCAD's property names), `techdraw_more.py` (the ops and their `cad techdraw leader|rich-text|symbol|weld|surface|image|clip|clip-add|
+clip-remove`), `techdraw_draw.py` (their drawing on the page, SVG; PDF and DXF omit symbols, images and rich text), FreeCAD's 113 symbol
+SVGs unchanged in `cad_agent/techdraw_symbols/` (NOTICE). Checked: tests/test_techdraw_more.py against freecadcmd (`make_more.py`: makeLeader's
+X, Y and WayPoints, the tiles' names and order, DrawViewClip.addView's positions, every property default, and EditableTexts rewriting
+byte for byte for all 113 symbols: QDom's writer reproduced) and against the real GUI's leader line (`fctechdraw_more.py`: panel widgets, clicks
+on the page, X, Y, WayPoints, view provider properties, undo step "Create Leader"; the other tools' sections of the dump are written but
+only the leader's recording is in `fctechdraw_more.json`). NOT done: the app's commands and task panels (the menu entries stay greyed),
+the GUI recordings of rich text, symbol, weld, surface finish, image and clip, their property view rows, the leader's scale and rotation
+checked in the GUI, a rich text's position (the formula of the annotation's X, Y under a parent is a guess), Complex Section, Broken View,
+the two undo steps of a section, and the extension commands (circles, arcs, parallel and perpendicular lines, Toggle Edge Visibility,
+threads, chain, coordinate and chamfer dimensions).
+
 Known differences, each marked `known` by techdrawcheck:
 - Commands not ported are greyed (Broken View, Complex Section, Clip Group, SVG/Bitmap, Project Shape, Active/Draft/BIM/Spreadsheet
   views, Rich Text Annotation, Print All, leaders, welding and surface symbols, the extension commands: cosmetic 2/3-point circles,

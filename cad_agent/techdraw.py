@@ -542,7 +542,8 @@ class PageDocument:
 
     def views(self):
         return [o for o in self.objects if isinstance(o, (DrawViewPart, DrawProjGroup, DrawViewDimension,
-                                                          DrawViewBalloon, DrawViewAnnotation))]
+                                                          DrawViewBalloon, DrawViewAnnotation))
+                or o.kind in techdraw_objs.PAGE_VIEW_KINDS]
 
     def page_views(self):
         """DrawPage.Views: every view no group holds, in the list's order."""
@@ -600,6 +601,11 @@ class PageDocument:
         for o in self.objects:
             if isinstance(o, (DrawViewPart,)) and o.name not in self.pos:
                 self.pos[o.name] = (o.x, o.y)
+        for c in (o for o in self.objects if o.kind == "DrawViewClip"):      # a clip's views are placed about its centre
+            for n in c.views:
+                v = self.get(n)
+                if isinstance(v, DrawViewPart):
+                    self.pos[n] = (c.x + v.x, c.y + v.y)
         from . import techdraw_dim as D
         for d in (o for o in self.objects if isinstance(o, DrawViewDimension)):
             vname = d.view()
@@ -720,10 +726,13 @@ class PageDocument:
         from . import techdraw_hatch as H
         hatches = H.results(self) if any(isinstance(o, (DrawHatch, DrawGeomHatch)) for o in self.objects) else {}
         files = {"pat": {f: H.pattern_names(f) for f in H.pat_files()}, "svg": H.svg_files()}   # what the hatch panels offer
-        return {"page": self.page.name if self.page else None, "width": w, "height": h,
-                "template": t.template if t else None, "texts": dict(t.editable_texts) if t else {},
-                "views": views, "dimensions": dims, "sections": sections, "hatches": hatches, "hatch_files": files,
-                "errors": dict(self.errors)}
+        out = {"page": self.page.name if self.page else None, "width": w, "height": h,
+               "template": t.template if t else None, "texts": dict(t.editable_texts) if t else {},
+               "views": views, "dimensions": dims, "sections": sections, "hatches": hatches, "hatch_files": files,
+               "errors": dict(self.errors)}
+        from . import techdraw_draw as M
+        out.update(M.results(self))          # leaders, rich text, symbols, welds, images, clips: their places on the page
+        return out
 
     def section_line(self, s) -> dict | None:
         """DrawViewSection::sectionLineEnds: the section line on its base view, in the base view's paper
@@ -768,3 +777,7 @@ class PageDocument:
             for p in pts:
                 xs.append(p[0] * c - (-p[1]) * s)
         return (max(xs) - min(xs)) / geo.scale if xs else 1.0
+
+
+# the annotation, symbol and image objects (techdraw_objs.py) register themselves in CLASSES
+from . import techdraw_objs  # noqa: E402,F401

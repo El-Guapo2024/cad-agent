@@ -450,6 +450,13 @@ def display(doc, frames: bool = False) -> list:
             out += _balloon(o, res)
         elif isinstance(o, T.DrawViewAnnotation):
             out += _annotation(o, res)
+    from . import techdraw_draw as D          # leaders, rich text, symbols, welds, images and clips
+    extra, clipped = D.display(doc, res, getattr(doc, "pdir", None))
+    out += extra
+    for p in out:
+        c = clipped.get(p.attrs.get("data-view"))
+        if c:
+            p.attrs["clip-path"] = f"url(#clip-{c})"
     return out
 
 
