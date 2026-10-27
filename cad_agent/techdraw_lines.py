@@ -3,8 +3,8 @@
 # This file is not MIT. It re-expresses FreeCAD's TechDraw line styles and keeps FreeCAD's licence, the GNU Lesser
 # General Public License, version 2.1 or (at your option) any later version; the text is in ../ui/LICENSE.
 #
-#   Derived from: src/Mod/TechDraw/App/LineGenerator.cpp (Copyright (c) 2022 WandererFan),
-#                 src/Mod/TechDraw/LineGroup/ASME.Y14.2.2008.LineDef.csv and .ElementDef.csv (FreeCAD, LGPL-2.1-or-later)
+#   Derived from: src/Mod/TechDraw/App/LineGenerator.cpp (Copyright (c) 2023 WandererFan),
+#                 src/Mod/TechDraw/LineGroup/ASME.Y14.2.2008.LineDef.csv and .ElementDef.csv (no copyright line)
 #                 FreeCAD (https://github.com/FreeCAD/FreeCAD), commit 3160daf1e2b62b0472854da4848255c6b3ad554c
 #
 #   This library is free software; you can redistribute it and/or modify it under the terms of the GNU Library

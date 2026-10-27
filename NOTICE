@@ -51,9 +51,10 @@ that commit.
   LGPL-2.1-or-later        cad_agent/assembly_wb.py and cad_agent/assembly_jcs.py, all of them (the
                            Assembly workbench's objects and joint coordinate systems). See section 2.
 
-  LGPL-2.1-or-later        cad_agent/techdraw.py, techdraw_view.py, techdraw_dim.py, techdraw_edit.py and
-                           techdraw_export.py, all of them (the TechDraw workbench's page objects,
-                           view geometry, dimensions, commands and exports). See section 2.
+  LGPL-2.1-or-later        cad_agent/techdraw.py, techdraw_view.py, techdraw_dim.py, techdraw_edit.py,
+                           techdraw_export.py, techdraw_cosmetic.py, techdraw_annot.py, techdraw_faces.py
+                           and techdraw_lines.py, all of them (the TechDraw workbench's page objects,
+                           view geometry, dimensions, annotations, commands and exports). See section 2.
 
   LGPL-2.1-or-later and    cad_agent/techdraw_templates/: FreeCAD's TechDraw templates, unmodified.
   CC0-1.0                  See section 3.
@@ -256,8 +257,13 @@ that commit.
       LGPL-2.1-or-later. The solving half of AssemblyObject.cpp is ported in ui/ondsel/assembly.cpp
       (part of ui/, LGPL-2.1-or-later), which cad_agent/ondsel.py loads.
 
-  cad_agent/techdraw.py, techdraw_view.py, techdraw_dim.py, techdraw_edit.py, techdraw_export.py
-      Re-express src/Mod/TechDraw/App: DrawPage.cpp, DrawSVGTemplate.cpp, DrawTemplate.cpp,
+  cad_agent/techdraw.py, techdraw_view.py, techdraw_dim.py, techdraw_edit.py, techdraw_export.py,
+  techdraw_cosmetic.py, techdraw_annot.py, techdraw_faces.py, techdraw_lines.py
+      Re-express src/Mod/TechDraw/App (the last four: Cosmetic.cpp, CosmeticVertex.cpp, CosmeticExtension.cpp,
+      CenterLine.cpp, LineFormat.cpp, LineGenerator.cpp and the ASME line definitions of LineGroup/, and
+      the Gui task panels TaskCosVertex.cpp, TaskCosmeticLine.cpp, TaskCosmeticCircle.cpp, TaskCenterLine.cpp,
+      TaskLineDecor.cpp, CommandExtensionPack.cpp; copyright 2018-2023 WandererFan, 2021 edi, 2022 Benjamin
+      Bræstrup Sayoc, 2012-2013 Luke Parry; each file's header names its own): DrawPage.cpp, DrawSVGTemplate.cpp, DrawTemplate.cpp,
       DrawView.cpp, DrawViewPart.cpp, GeometryObject.cpp, ShapeUtils.cpp, ShapeExtractor.cpp,
       DrawProjectSplit.cpp, Geometry.cpp, DrawUtil.cpp, DrawProjGroup.cpp, DrawProjGroupItem.cpp,
       DrawViewSection.cpp, EdgeWalker.cpp, DrawViewDimension.cpp, DimensionFormatter.cpp,

@@ -5,11 +5,12 @@
 # ../ui/LICENSE.
 #
 #   Derived from: src/Mod/TechDraw/Gui/CommandAnnotate.cpp (Copyright (c) 2019 WandererFan),
-#                 src/Mod/TechDraw/Gui/TaskCosVertex.cpp (Copyright (c) 2019 Wanderer Fan),
-#                 src/Mod/TechDraw/Gui/TaskCosmeticLine.cpp (Copyright (c) 2019 Wanderer Fan),
-#                 src/Mod/TechDraw/Gui/TaskCosmeticCircle.cpp (Copyright (c) 2019 Wanderer Fan),
-#                 src/Mod/TechDraw/Gui/TaskCenterLine.cpp (Copyright (c) 2019 Wanderer Fan),
-#                 src/Mod/TechDraw/Gui/CommandExtensionPack.cpp (Copyright (c) 2022 Wanderer Fan)
+#                 src/Mod/TechDraw/Gui/TaskCosVertex.cpp (Copyright (c) 2019 WandererFan),
+#                 src/Mod/TechDraw/Gui/TaskCosmeticLine.cpp (Copyright (c) 2020 WandererFan),
+#                 src/Mod/TechDraw/Gui/TaskCosmeticCircle.cpp (Copyright (c) 2023 WandererFan),
+#                 src/Mod/TechDraw/Gui/TaskCenterLine.cpp (Copyright (c) 2019 WandererFan),
+#                 src/Mod/TechDraw/Gui/TaskLineDecor.cpp (Copyright (c) 2018 WandererFan),
+#                 src/Mod/TechDraw/Gui/CommandExtensionPack.cpp (Copyright (c) 2021 edi)
 #                 FreeCAD (https://github.com/FreeCAD/FreeCAD), commit 3160daf1e2b62b0472854da4848255c6b3ad554c
 #
 #   This library is free software; you can redistribute it and/or modify it under the terms of the GNU Library

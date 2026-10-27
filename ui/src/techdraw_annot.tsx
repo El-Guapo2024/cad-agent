@@ -2,10 +2,16 @@
 // Follows FreeCAD (https://github.com/FreeCAD/FreeCAD, commit 3160daf1e2b6), copyright of the files below (each is
 // LGPL-2.0-or-later or LGPL-2.1-or-later as it states; ui/NOTICE has them all):
 //   src/Mod/TechDraw/Gui/CommandAnnotate.cpp: 2019 WandererFan
-//   src/Mod/TechDraw/Gui/CommandHelpers.cpp: 2022 Wanderer Fan
-//   src/Mod/TechDraw/Gui/CommandExtensionPack.cpp: 2022 Wanderer Fan
-//   src/Mod/TechDraw/Gui/TaskCosVertex.cpp, TaskCosmeticLine.cpp, TaskCosmeticCircle.cpp, TaskCenterLine.cpp, TaskLineDecor.cpp: 2019 Wanderer Fan
-//   No copyright line in the file: the .ui files of those task panels (uiforms-techdraw.ts)
+//   src/Mod/TechDraw/Gui/CommandHelpers.cpp: 2024 WandererFan
+//   src/Mod/TechDraw/Gui/CommandExtensionPack.cpp: 2021 edi
+//   src/Mod/TechDraw/Gui/TaskCosVertex.cpp: 2019 WandererFan
+//   src/Mod/TechDraw/Gui/TaskCosmeticLine.cpp: 2020 WandererFan
+//   src/Mod/TechDraw/Gui/TaskCosmeticCircle.cpp: 2023 WandererFan
+//   src/Mod/TechDraw/Gui/TaskCenterLine.cpp: 2019 WandererFan
+//   src/Mod/TechDraw/Gui/TaskLineDecor.cpp: 2018 WandererFan
+//   No copyright line in the file: src/Mod/TechDraw/Gui/TaskCosVertex.ui, src/Mod/TechDraw/Gui/TaskCosmeticLine.ui,
+//       src/Mod/TechDraw/Gui/TaskCosmeticCircle.ui, src/Mod/TechDraw/Gui/TaskCenterLine.ui, src/Mod/TechDraw/Gui/TaskLineDecor.ui,
+//       src/Mod/TechDraw/Gui/TaskRestoreLines.ui
 // TechDraw's annotation tools: the commands of the Add Vertices, Add Lines and Centerlines menus and the cosmetic eraser, and the
 // task panels of TaskCosVertex, TaskCosmeticLine, TaskCosmeticCircle, TaskCenterLine and TaskLineDecor (with its Restore Invisible
 // Lines box). Each is one `cad techdraw apply` of the ops of cad_agent/techdraw_annot.py: one undo step named as FreeCAD's

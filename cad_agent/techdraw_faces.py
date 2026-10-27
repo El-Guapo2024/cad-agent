@@ -4,10 +4,10 @@
 # General Public License, version 2.1 or (at your option) any later version; the text is in ../ui/LICENSE.
 #
 #   Derived from: src/Mod/TechDraw/App/DrawViewPart.cpp (Copyright (c) 2002 Jürgen Riegel, 2013 Luke Parry, 2016 WandererFan),
-#                 src/Mod/TechDraw/App/DrawProjectSplit.cpp (Copyright (c) 2018 Wanderer Fan),
+#                 src/Mod/TechDraw/App/DrawProjectSplit.cpp (Copyright (c) 2016 WandererFan),
 #                 src/Mod/TechDraw/App/EdgeWalker.cpp (Copyright (c) 2016 WandererFan),
 #                 src/Mod/TechDraw/App/DrawUtil.cpp (Copyright (c) 2015 WandererFan),
-#                 src/Mod/TechDraw/App/GeometryObject.cpp (Copyright (c) 2018 Wanderer Fan)
+#                 src/Mod/TechDraw/App/GeometryObject.cpp (Copyright (c) 2013 Luke Parry)
 #                 FreeCAD (https://github.com/FreeCAD/FreeCAD), commit 3160daf1e2b62b0472854da4848255c6b3ad554c
 #
 #   This library is free software; you can redistribute it and/or modify it under the terms of the GNU Library

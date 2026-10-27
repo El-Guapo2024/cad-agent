@@ -3,14 +3,14 @@
 # This file is not MIT. It re-expresses FreeCAD's TechDraw cosmetic geometry and keeps FreeCAD's licence, the GNU
 # Lesser General Public License, version 2.1 or (at your option) any later version; the text is in ../ui/LICENSE.
 #
-#   Derived from: src/Mod/TechDraw/App/Cosmetic.cpp (Copyright (c) 2019 Wanderer Fan),
-#                 src/Mod/TechDraw/App/CosmeticVertex.cpp (Copyright (c) 2019 Wanderer Fan),
-#                 src/Mod/TechDraw/App/CosmeticExtension.cpp (Copyright (c) 2019 Wanderer Fan),
-#                 src/Mod/TechDraw/App/CenterLine.cpp (Copyright (c) 2019 Wanderer Fan),
-#                 src/Mod/TechDraw/App/GeometryObject.cpp (Copyright (c) 2018 Wanderer Fan),
-#                 src/Mod/TechDraw/App/Geometry.cpp (Copyright (c) 2018 Wanderer Fan),
-#                 src/Mod/TechDraw/App/LineFormat.cpp (Copyright (c) 2022 Wanderer Fan),
-#                 src/Mod/TechDraw/App/ShapeUtils.cpp (Copyright (c) 2023 Wanderer Fan),
+#   Derived from: src/Mod/TechDraw/App/Cosmetic.cpp (Copyright (c) 2019 WandererFan, 2022 Benjamin Bræstrup Sayoc),
+#                 src/Mod/TechDraw/App/CosmeticVertex.cpp (Copyright (c) 2019 WandererFan, 2022 Benjamin Bræstrup Sayoc),
+#                 src/Mod/TechDraw/App/CosmeticExtension.cpp (Copyright (c) 2019 WandererFan),
+#                 src/Mod/TechDraw/App/CenterLine.cpp (Copyright (c) 2019 WandererFan, 2022 Benjamin Bræstrup Sayoc),
+#                 src/Mod/TechDraw/App/GeometryObject.cpp (Copyright (c) 2013 Luke Parry),
+#                 src/Mod/TechDraw/App/Geometry.cpp (Copyright (c) 2012 Luke Parry),
+#                 src/Mod/TechDraw/App/LineFormat.cpp (Copyright (c) 2024 wandererfan; LGPL-2.0-or-later),
+#                 src/Mod/TechDraw/App/ShapeUtils.cpp (Copyright (c) 2023 WandererFan),
 #                 src/Mod/TechDraw/Gui/CommandAnnotate.cpp (Copyright (c) 2019 WandererFan)
 #                 FreeCAD (https://github.com/FreeCAD/FreeCAD), commit 3160daf1e2b62b0472854da4848255c6b3ad554c
 #

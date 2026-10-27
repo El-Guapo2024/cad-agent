@@ -1423,7 +1423,7 @@ src/Mod/TechDraw/Gui/CommandAlign.cpp   [licence: LGPL-2.1-or-later]
     followed by src/techdraw_cmds.ts
 src/Mod/TechDraw/Gui/CommandAnnotate.cpp   [licence: LGPL-2.1-or-later]
     copyright 2019 WandererFan
-    followed by src/techdraw.tsx, src/techdraw_cmds.ts
+    followed by src/techdraw.tsx, src/techdraw_cmds.ts, src/techdraw_annot.tsx
 src/Mod/TechDraw/Gui/CommandCreateDims.cpp   [licence: LGPL-2.1-or-later]
     copyright 2014 Luke Parry; 2022 WandererFan
     followed by src/techdraw.tsx, src/techdraw_cmds.ts
@@ -1435,10 +1435,10 @@ src/Mod/TechDraw/Gui/CommandExtensionDims.cpp   [licence: LGPL-2.1-or-later]
     followed by src/techdraw_cmds.ts
 src/Mod/TechDraw/Gui/CommandExtensionPack.cpp   [licence: LGPL-2.1-or-later]
     copyright 2021 edi
-    followed by src/techdraw_cmds.ts
+    followed by src/techdraw_cmds.ts, src/techdraw_annot.tsx
 src/Mod/TechDraw/Gui/CommandHelpers.cpp   [licence: LGPL-2.0-or-later]
     copyright 2024 WandererFan
-    followed by src/techdraw_cmds.ts
+    followed by src/techdraw_cmds.ts, src/techdraw_annot.tsx
 src/Mod/TechDraw/Gui/CommandStack.cpp   [licence: LGPL-2.1-or-later]
     copyright 2022 WandererFan
     followed by src/techdraw_cmds.ts
@@ -1460,18 +1460,51 @@ src/Mod/TechDraw/Gui/TaskBalloon.cpp   [licence: LGPL-2.1-or-later]
 src/Mod/TechDraw/Gui/TaskBalloon.ui   [licence: none]
     copyright: no line in the file
     followed by src/techdraw_tasks.tsx, src/uiforms-techdraw.ts
+src/Mod/TechDraw/Gui/TaskCenterLine.cpp   [licence: LGPL-2.1-or-later]
+    copyright 2019 WandererFan
+    followed by src/techdraw_annot.tsx
+src/Mod/TechDraw/Gui/TaskCenterLine.ui   [licence: none]
+    copyright: no line in the file
+    followed by src/techdraw_annot.tsx, src/uiforms-techdraw.ts
+src/Mod/TechDraw/Gui/TaskCosVertex.cpp   [licence: LGPL-2.1-or-later]
+    copyright 2019 WandererFan
+    followed by src/techdraw_annot.tsx
+src/Mod/TechDraw/Gui/TaskCosVertex.ui   [licence: none]
+    copyright: no line in the file
+    followed by src/techdraw_annot.tsx, src/uiforms-techdraw.ts
+src/Mod/TechDraw/Gui/TaskCosmeticCircle.cpp   [licence: LGPL-2.1-or-later]
+    copyright 2023 WandererFan
+    followed by src/techdraw_annot.tsx
+src/Mod/TechDraw/Gui/TaskCosmeticCircle.ui   [licence: none]
+    copyright: no line in the file
+    followed by src/techdraw_annot.tsx, src/uiforms-techdraw.ts
+src/Mod/TechDraw/Gui/TaskCosmeticLine.cpp   [licence: LGPL-2.1-or-later]
+    copyright 2020 WandererFan
+    followed by src/techdraw_annot.tsx
+src/Mod/TechDraw/Gui/TaskCosmeticLine.ui   [licence: none]
+    copyright: no line in the file
+    followed by src/techdraw_annot.tsx, src/uiforms-techdraw.ts
 src/Mod/TechDraw/Gui/TaskDimension.cpp   [licence: LGPL-2.1-or-later]
     copyright 2021 Uwe Stöhr
     followed by src/techdraw_tasks.tsx
 src/Mod/TechDraw/Gui/TaskDimension.ui   [licence: none]
     copyright: no line in the file
     followed by src/techdraw_tasks.tsx, src/uiforms-techdraw.ts
+src/Mod/TechDraw/Gui/TaskLineDecor.cpp   [licence: LGPL-2.1-or-later]
+    copyright 2018 WandererFan
+    followed by src/techdraw_annot.tsx
+src/Mod/TechDraw/Gui/TaskLineDecor.ui   [licence: none]
+    copyright: no line in the file
+    followed by src/techdraw_annot.tsx, src/uiforms-techdraw.ts
 src/Mod/TechDraw/Gui/TaskProjGroup.cpp   [licence: LGPL-2.1-or-later]
     copyright 2014 Joe Dowsett; 2014 Luke Parry
     followed by src/techdraw_tasks.tsx
 src/Mod/TechDraw/Gui/TaskProjGroup.ui   [licence: none]
     copyright: no line in the file
     followed by src/techdraw_tasks.tsx, src/uiforms-techdraw.ts
+src/Mod/TechDraw/Gui/TaskRestoreLines.ui   [licence: none]
+    copyright: no line in the file
+    followed by src/techdraw_annot.tsx, src/uiforms-techdraw.ts
 src/Mod/TechDraw/Gui/TaskSectionView.cpp   [licence: LGPL-2.1-or-later]
     copyright 2016 WandererFan
     followed by src/techdraw_tasks.tsx
