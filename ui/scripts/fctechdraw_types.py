@@ -18,8 +18,12 @@ d = doc.addObject("TechDraw::DrawViewDimension", "Dimension"); page.addView(d)
 b = doc.addObject("TechDraw::DrawViewBalloon", "Balloon"); page.addView(b)
 a = doc.addObject("TechDraw::DrawViewAnnotation", "Annotation"); page.addView(a)
 doc.recompute()
+h = doc.addObject("TechDraw::DrawHatch", "Hatch")
+h.Source = (v, ["Face0"])
+gh = doc.addObject("TechDraw::DrawGeomHatch", "GeomHatch")
+gh.Source = (v, ["Face0"])
 out = {}
-for o in [page, tpl, v, g, doc.getObject("ProjItem"), s, d, b, a]:
+for o in [page, tpl, v, g, doc.getObject("ProjItem"), s, d, b, a, h, gh]:
     props = {}
     for p in o.PropertiesList:
         try:

@@ -1,0 +1,5198 @@
+{
+ "errors": {},
+ "start": {
+  "CosmeticVertexes": [],
+  "CosmeticEdges": [],
+  "CenterLines": [],
+  "GeomFormats": [],
+  "edges": [
+   {
+    "curve": "Line",
+    "start": [
+     -20.0,
+     -12.0,
+     0.0
+    ],
+    "end": [
+     -20.0,
+     15.0,
+     0.0
+    ]
+   },
+   {
+    "curve": "Circle",
+    "start": [
+     -20.0,
+     -12.0,
+     0.0
+    ],
+    "end": [
+     -16.99999999999999,
+     -15.0,
+     0.0
+    ]
+   },
+   {
+    "curve": "Line",
+    "start": [
+     -20.0,
+     15.0,
+     0.0
+    ],
+    "end": [
+     20.0,
+     15.0,
+     0.0
+    ]
+   },
+   {
+    "curve": "Line",
+    "start": [
+     -17.0,
+     -15.0,
+     0.0
+    ],
+    "end": [
+     20.0,
+     -15.0,
+     0.0
+    ]
+   },
+   {
+    "curve": "Line",
+    "start": [
+     20.0,
+     -15.0,
+     0.0
+    ],
+    "end": [
+     20.0,
+     15.0,
+     0.0
+    ]
+   },
+   {
+    "curve": "Circle",
+    "start": [
+     14.0,
+     8.0,
+     0.0
+    ],
+    "end": [
+     14.0,
+     8.0,
+     0.0
+    ]
+   }
+  ],
+  "vertices": [
+   [
+    -20.0,
+    -12.0,
+    0.0
+   ],
+   [
+    -20.0,
+    15.0,
+    0.0
+   ],
+   [
+    -16.99999999999999,
+    -15.0,
+    0.0
+   ],
+   [
+    -17.0,
+    -12.0,
+    0.0
+   ],
+   [
+    20.0,
+    15.0,
+    0.0
+   ],
+   [
+    20.0,
+    -15.0,
+    0.0
+   ],
+   [
+    14.0,
+    8.0,
+    0.0
+   ],
+   [
+    14.0,
+    8.0,
+    0.0
+   ],
+   [
+    10.0,
+    8.0,
+    0.0
+   ]
+  ]
+ },
+ "states_face": {
+  "selection": [
+   [
+    "View",
+    [
+     "Face0"
+    ]
+   ]
+  ],
+  "menu": [
+   {
+    "text": "Hatching",
+    "name": "Hatching",
+    "enabled": true,
+    "tip": "Hatching",
+    "menu": [
+     {
+      "text": "Image Hatch",
+      "name": "TechDraw_Hatch",
+      "enabled": true,
+      "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Image Hatch</b></p><p style='white-space:pre; margin:0;'>Applies a hatch pattern to the selected faces using an image file</p><p style='white-space:pre; margin-top:0.5em;'><i>TechDraw_Hatch</i></p>"
+     },
+     {
+      "text": "Geometric Hatch",
+      "name": "TechDraw_GeometricHatch",
+      "enabled": true,
+      "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Geometric Hatch</b></p><p style='white-space:pre; margin:0;'>Applies a geometric hatch pattern to the selected faces</p><p style='white-space:pre; margin-top:0.5em;'><i>TechDraw_GeometricHatch</i></p>"
+     }
+    ]
+   },
+   {
+    "text": "Centerlines/Threading",
+    "name": "Centerlines/Threading",
+    "enabled": true,
+    "tip": "Centerlines/Threading",
+    "menu": [
+     {
+      "text": "Circle Centerlines",
+      "name": "TechDraw_ExtensionCircleCenterLines",
+      "enabled": true,
+      "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Circle Centerlines</b></p><p style='white-space:pre; margin:0;'>Adds centerlines to the selected circles and arcs</p><p style='white-space:pre; margin-top:0.5em;'><i>TechDraw_ExtensionCircleCenterLines</i></p>"
+     },
+     {
+      "text": "Bolt Circle Centerlines",
+      "name": "TechDraw_ExtensionHoleCircle",
+      "enabled": true,
+      "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Bolt Circle Centerlines</b></p><p style='white-space:pre; margin:0;'>Adds centerlines to a circular pattern of three or more selected circles</p><p style='white-space:pre; margin-top:0.5em;'><i>TechDraw_ExtensionHoleCircle</i></p>"
+     },
+     {
+      "sep": true
+     },
+     {
+      "text": "Cosmetic Thread Hole Side View",
+      "name": "TechDraw_ExtensionThreadHoleSide",
+      "enabled": true,
+      "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Cosmetic Thread Hole Side View</b></p><p style='white-space:pre; margin:0;'>Adds a cosmetic thread to the side view of a hole or circle</p><p style='white-space:pre; margin-top:0.5em;'><i>TechDraw_ExtensionThreadHoleSide</i></p>"
+     },
+     {
+      "text": "Cosmetic Thread Hole Bottom View",
+      "name": "TechDraw_ExtensionThreadHoleBottom",
+      "enabled": true,
+      "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Cosmetic Thread Hole Bottom View</b></p><p style='white-space:pre; margin:0;'>Adds a cosmetic thread to the top or bottom view of selected holes or circles</p><p style='white-space:pre; margin-top:0.5em;'><i>TechDraw_ExtensionThreadHoleBottom</i></p>"
+     },
+     {
+      "text": "Cosmetic Thread Bolt Side View",
+      "name": "TechDraw_ExtensionThreadBoltSide",
+      "enabled": true,
+      "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Cosmetic Thread Bolt Side View</b></p><p style='white-space:pre; margin:0;'>Adds a cosmetic thread to the side view of a bolt/screw/rod between two selected parallel</p>lines<p style='white-space:pre; margin-top:0.5em;'><i>TechDraw_ExtensionThreadBoltSide</i></p>"
+     },
+     {
+      "text": "Cosmetic Thread Bolt Bottom View",
+      "name": "TechDraw_ExtensionThreadBoltBottom",
+      "enabled": true,
+      "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Cosmetic Thread Bolt Bottom View</b></p><p style='white-space:pre; margin:0;'>Adds a cosmetic thread to the top or bottom view of the selected bolts/screws/rods</p><p style='white-space:pre; margin-top:0.5em;'><i>TechDraw_ExtensionThreadBoltBottom</i></p>"
+     },
+     {
+      "sep": true
+     },
+     {
+      "text": "Cosmetic Intersection Vertices",
+      "name": "TechDraw_ExtensionVertexAtIntersection",
+      "enabled": true,
+      "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Cosmetic Intersection Vertices</b></p><p style='white-space:pre; margin:0;'>Adds cosmetic vertices at the intersections of selected edges</p><p style='white-space:pre; margin-top:0.5em;'><i>TechDraw_ExtensionVertexAtIntersection</i></p>"
+     },
+     {
+      "text": "Offset Vertex",
+      "name": "TechDraw_CommandAddOffsetVertex",
+      "enabled": true,
+      "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Offset Vertex</b></p><p style='white-space:pre; margin:0;'>Creates an offset from one selected vertex</p><p style='white-space:pre; margin-top:0.5em;'><i>TechDraw_CommandAddOffsetVertex</i></p>"
+     },
+     {
+      "sep": true
+     },
+     {
+      "text": "Cosmetic 1 Point Circle",
+      "name": "TechDraw_CosmeticCircle",
+      "enabled": true,
+      "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Cosmetic 1 Point Circle</b></p><p style='white-space:pre; margin:0;'>Adds a cosmetic circle based on a selected centerpoint</p><p style='white-space:pre; margin-top:0.5em;'><i>TechDraw_CosmeticCircle</i></p>"
+     },
+     {
+      "text": "Cosmetic 2 Point Circle",
+      "name": "TechDraw_ExtensionDrawCosmCircle",
+      "enabled": true,
+      "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Cosmetic 2 Point Circle</b></p><p style='white-space:pre; margin:0;'>Adds a cosmetic circle based on two selected vertices, where the first is the center point</p>and the second is the radius<p style='white-space:pre; margin-top:0.5em;'><i>TechDraw_ExtensionDrawCosmCircle</i></p>"
+     },
+     {
+      "text": "Cosmetic 3 Point Circle",
+      "name": "TechDraw_ExtensionDrawCosmCircle3Points",
+      "enabled": true,
+      "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Cosmetic 3 Point Circle</b></p><p style='white-space:pre; margin:0;'>Adds a cosmetic circle that passes through 3 selected perimeter points</p><p style='white-space:pre; margin-top:0.5em;'><i>TechDraw_ExtensionDrawCosmCircle3Points</i></p>"
+     },
+     {
+      "text": "Cosmetic Arc",
+      "name": "TechDraw_ExtensionDrawCosmArc",
+      "enabled": true,
+      "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Cosmetic Arc</b></p><p style='white-space:pre; margin:0;'>Adds a cosmetic counter clockwise arc based on three vertices, where the first selection is</p>the center point and the second is the radius and start point<p style='white-space:pre; margin-top:0.5em;'><i>TechDraw_ExtensionDrawCosmArc</i></p>"
+     },
+     {
+      "text": "Cosmetic Parallel Line",
+      "name": "TechDraw_ExtensionLineParallel",
+      "enabled": true,
+      "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Cosmetic Parallel Line</b></p><p style='white-space:pre; margin:0;'>Adds a cosmetic circle to 3 selected vertices</p><p style='white-space:pre; margin-top:0.5em;'><i>TechDraw_ExtensionLineParallel</i></p>"
+     },
+     {
+      "text": "Cosmetic Perpendicular Line",
+      "name": "TechDraw_ExtensionLinePerpendicular",
+      "enabled": true,
+      "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Cosmetic Perpendicular Line</b></p><p style='white-space:pre; margin:0;'>Adds a cosmetic line perpendicular to the selected line through the selected vertex</p><p style='white-space:pre; margin-top:0.5em;'><i>TechDraw_ExtensionLinePerpendicular</i></p>"
+     }
+    ]
+   },
+   {
+    "text": "Annotations",
+    "name": "Annotations",
+    "enabled": true,
+    "tip": "Annotations",
+    "menu": [
+     {
+      "text": "Text Annotation",
+      "name": "TechDraw_Annotation",
+      "enabled": true,
+      "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Text Annotation</b></p><p style='white-space:pre; margin:0;'>Inserts an editable text block annotation to the current page</p><p style='white-space:pre; margin-top:0.5em;'><i>TechDraw_Annotation</i></p>"
+     },
+     {
+      "text": "Rich Text Annotation",
+      "name": "TechDraw_RichTextAnnotation",
+      "enabled": true,
+      "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Rich Text Annotation</b></p><p style='white-space:pre; margin:0;'>Inserts a rich text annotation in the current page</p><p style='white-space:pre; margin-top:0.5em;'><i>TechDraw_RichTextAnnotation</i></p>"
+     },
+     {
+      "text": "Balloon Annotation",
+      "name": "TechDraw_Balloon",
+      "enabled": true,
+      "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Balloon Annotation</b></p><p style='white-space:pre; margin:0;'>Inserts a new balloon annotation in the selected view</p><p style='white-space:pre; margin-top:0.5em;'><i>TechDraw_Balloon</i></p>"
+     },
+     {
+      "text": "Axonometric Length Dimension",
+      "name": "TechDraw_AxoLengthDimension",
+      "enabled": true,
+      "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Axonometric Length Dimension</b></p><p style='white-space:pre; margin:0;'>Creates a length dimension in with axonometric view, using selected edges or vertex pairs</p>to define direction and measurement<p style='white-space:pre; margin-top:0.5em;'><i>TechDraw_AxoLengthDimension</i></p>"
+     }
+    ]
+   },
+   {
+    "text": "Add Lines",
+    "name": "Add Lines",
+    "enabled": true,
+    "tip": "Add Lines",
+    "menu": [
+     {
+      "text": "Leader Line",
+      "name": "TechDraw_LeaderLine",
+      "enabled": true,
+      "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Leader Line</b></p><p style='white-space:pre; margin:0;'>Adds a leader line</p><p style='white-space:pre; margin-top:0.5em;'><i>TechDraw_LeaderLine</i></p>"
+     },
+     {
+      "text": "Centerline on Face",
+      "name": "TechDraw_FaceCenterLine",
+      "enabled": true,
+      "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Centerline on Face</b></p><p style='white-space:pre; margin:0;'>Adds a centerline to selected faces</p><p style='white-space:pre; margin-top:0.5em;'><i>TechDraw_FaceCenterLine</i></p>"
+     },
+     {
+      "text": "Centerline Between 2 Lines",
+      "name": "TechDraw_2LineCenterLine",
+      "enabled": true,
+      "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Centerline Between 2 Lines</b></p><p style='white-space:pre; margin:0;'>Adds a centerline between 2 selected lines</p><p style='white-space:pre; margin-top:0.5em;'><i>TechDraw_2LineCenterLine</i></p>"
+     },
+     {
+      "text": "Centerline Between 2 Points",
+      "name": "TechDraw_2PointCenterLine",
+      "enabled": true,
+      "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Centerline Between 2 Points</b></p><p style='white-space:pre; margin:0;'>Adds a centerline between 2 selected points</p><p style='white-space:pre; margin-top:0.5em;'><i>TechDraw_2PointCenterLine</i></p>"
+     },
+     {
+      "text": "Cosmetic Line Through 2 Points",
+      "name": "TechDraw_2PointCosmeticLine",
+      "enabled": true,
+      "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Cosmetic Line Through 2 Points</b></p><p style='white-space:pre; margin:0;'>Adds a cosmetic line that passes through 2 selected points</p><p style='white-space:pre; margin-top:0.5em;'><i>TechDraw_2PointCosmeticLine</i></p>"
+     },
+     {
+      "sep": true
+     },
+     {
+      "text": "Edit Line Appearance",
+      "name": "TechDraw_DecorateLine",
+      "enabled": true,
+      "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Edit Line Appearance</b></p><p style='white-space:pre; margin:0;'>Opens the 'Line decoration' dialog to edit the selected lines</p><p style='white-space:pre; margin-top:0.5em;'><i>TechDraw_DecorateLine</i></p>"
+     },
+     {
+      "text": "Toggle Edge Visibility",
+      "name": "TechDraw_ShowAll",
+      "enabled": true,
+      "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Toggle Edge Visibility</b></p><p style='white-space:pre; margin:0;'>Toggles the visibility of the selected edges</p><p style='white-space:pre; margin-top:0.5em;'><i>TechDraw_ShowAll</i></p>"
+     }
+    ]
+   },
+   {
+    "text": "Add Vertices",
+    "name": "Add Vertices",
+    "enabled": true,
+    "tip": "Add Vertices",
+    "menu": [
+     {
+      "text": "Cosmetic Vertex",
+      "name": "TechDraw_CosmeticVertex",
+      "enabled": true,
+      "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Cosmetic Vertex</b></p><p style='white-space:pre; margin:0;'>Adds a cosmetic vertex</p><p style='white-space:pre; margin-top:0.5em;'><i>TechDraw_CosmeticVertex</i></p>"
+     },
+     {
+      "text": "Midpoint Vertices",
+      "name": "TechDraw_Midpoints",
+      "enabled": true,
+      "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Midpoint Vertices</b></p><p style='white-space:pre; margin:0;'>Adds cosmetic vertices at the midpoint of the selected edges</p><p style='white-space:pre; margin-top:0.5em;'><i>TechDraw_Midpoints</i></p>"
+     },
+     {
+      "text": "Quadrant Vertices",
+      "name": "TechDraw_Quadrants",
+      "enabled": true,
+      "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Quadrant Vertices</b></p><p style='white-space:pre; margin:0;'>Adds cosmetic vertices at the quadrant points of the selected circles</p><p style='white-space:pre; margin-top:0.5em;'><i>TechDraw_Quadrants</i></p>"
+     }
+    ]
+   },
+   {
+    "text": "Remove Cosmetic Object",
+    "name": "TechDraw_CosmeticEraser",
+    "enabled": true,
+    "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Remove Cosmetic Object</b></p><p style='white-space:pre; margin:0;'>Removes the selected cosmetic object from the page</p><p style='white-space:pre; margin-top:0.5em;'><i>TechDraw_CosmeticEraser</i></p>"
+   }
+  ],
+  "toolbars": [
+   {
+    "title": "TechDraw Centerlines",
+    "buttons": [
+     {
+      "name": "TechDraw_ExtensionCircleCenterLinesGroup",
+      "text": "Circle Centerlines",
+      "enabled": true,
+      "menu": [
+       {
+        "text": "Circle Centerlines",
+        "name": "TechDraw_ExtensionCircleCenterLines",
+        "enabled": true,
+        "tip": "Adds centerlines to selected circles and arcs:"
+       },
+       {
+        "text": "Bolt Circle Centerlines",
+        "name": "TechDraw_ExtensionHoleCircle",
+        "enabled": true,
+        "tip": "Adds centerlines to a circular pattern of selected circles"
+       }
+      ]
+     },
+     {
+      "name": "TechDraw_ExtensionThreadsGroup",
+      "text": "Cosmetic Thread Hole Side View",
+      "enabled": true,
+      "menu": [
+       {
+        "text": "Cosmetic Thread Hole Side View",
+        "name": "TechDraw_ExtensionThreadHoleSide",
+        "enabled": true,
+        "tip": "Adds a cosmetic thread to the side view of a selected hole between two selected parallel lines"
+       },
+       {
+        "text": "Cosmetic Thread Hole Bottom View",
+        "name": "TechDraw_ExtensionThreadHoleBottom",
+        "enabled": true,
+        "tip": "Adds a cosmetic thread to the top or bottom view of holes or circles"
+       },
+       {
+        "text": "Cosmetic Thread Bolt Side View",
+        "name": "TechDraw_ExtensionThreadBoltSide",
+        "enabled": true,
+        "tip": "Adds a cosmetic thread to the side view of a bolt/screw/rod between two selected parallel lines"
+       },
+       {
+        "text": "Cosmetic Thread Bolt Bottom View",
+        "name": "TechDraw_ExtensionThreadBoltBottom",
+        "enabled": true,
+        "tip": "Adds a cosmetic thread to the top or bottom view of the selected bolts/screws/rods"
+       }
+      ]
+     },
+     {
+      "name": "TechDraw_CommandVertexCreationGroup",
+      "text": "Cosmetic Intersection Vertices",
+      "enabled": true,
+      "menu": [
+       {
+        "text": "Cosmetic Intersection Vertices",
+        "name": null,
+        "enabled": true,
+        "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Cosmetic Intersection Vertices</b></p><p style='white-space:pre; margin:0;'>Adds cosmetic vertices at the intersections of selected edges</p><p style='white-space:pre; margin-top:0.5em;'><i>TechDraw_ExtensionVertexAtIntersection</i></p>"
+       },
+       {
+        "text": "Offset Vertex",
+        "name": null,
+        "enabled": true,
+        "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Offset Vertex</b></p><p style='white-space:pre; margin:0;'>Creates an offset from one selected vertex</p><p style='white-space:pre; margin-top:0.5em;'><i>TechDraw_CommandAddOffsetVertex</i></p>"
+       }
+      ]
+     },
+     {
+      "name": "TechDraw_ExtensionDrawCirclesGroup",
+      "text": "Cosmetic 1 Point Circle",
+      "enabled": true,
+      "menu": [
+       {
+        "text": "Cosmetic 1 Point Circle",
+        "name": "TechDraw_CosmeticCircle",
+        "enabled": true,
+        "tip": "Adds a cosmetic circle based on a selected centerpoint"
+       },
+       {
+        "text": "Cosmetic 2 Point Circle",
+        "name": "TechDraw_ExtensionDrawCosmCircle",
+        "enabled": true,
+        "tip": "Adds a cosmetic circle based on two vertices, where the first selection is the centerpoint and the second is the radius"
+       },
+       {
+        "text": "Cosmetic 3 Point Circle",
+        "name": "TechDraw_ExtensionDrawCosmCircle3Points",
+        "enabled": true,
+        "tip": "Adds a cosmetic circle that passes through 3 selected perimeter points"
+       },
+       {
+        "text": "Cosmetic Arc",
+        "name": "TechDraw_ExtensionDrawCosmArc",
+        "enabled": true,
+        "tip": "Adds a cosmetic counter clockwise arc based on three vertices, where the first selection is the center point and the second is the radius and start point."
+       }
+      ]
+     },
+     {
+      "name": "TechDraw_ExtensionLinePPGroup",
+      "text": "Cosmetic Parallel Line",
+      "enabled": true,
+      "menu": [
+       {
+        "text": "Cosmetic Parallel Line",
+        "name": "TechDraw_ExtensionLineParallel",
+        "enabled": true,
+        "tip": "Adds a cosmetic line parallel to the selected line through the selected vertex"
+       },
+       {
+        "text": "Cosmetic Perpendicular Line",
+        "name": "TechDraw_ExtensionLinePerpendicular",
+        "enabled": true,
+        "tip": "Adds a cosmetic line perpendicular to the selected line through the selected vertex"
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "title": "TechDraw Decoration",
+    "buttons": [
+     {
+      "name": "TechDraw_ToggleFrame",
+      "text": "Toggle View Frames",
+      "enabled": false
+     },
+     {
+      "name": "TechDraw_Hatch",
+      "text": "Image Hatch",
+      "enabled": true
+     },
+     {
+      "name": "TechDraw_GeometricHatch",
+      "text": "Geometric Hatch",
+      "enabled": true
+     }
+    ]
+   },
+   {
+    "title": "TechDraw Annotation",
+    "buttons": [
+     {
+      "name": "TechDraw_RichTextAnnotation",
+      "text": "Rich Text Annotation",
+      "enabled": true
+     },
+     {
+      "name": "TechDraw_LeaderLine",
+      "text": "Leader Line",
+      "enabled": true
+     },
+     {
+      "name": "TechDraw_CosmeticVertexGroup",
+      "text": "Cosmetic Vertex",
+      "enabled": true,
+      "menu": [
+       {
+        "text": "Cosmetic Vertex",
+        "name": "TechDraw_CosmeticVertex",
+        "enabled": true,
+        "tip": "Inserts a cosmetic vertex into a view"
+       },
+       {
+        "text": "Midpoint Vertices",
+        "name": "TechDraw_Midpoints",
+        "enabled": true,
+        "tip": "Inserts cosmetic vertices at the midpoint of the selected edges"
+       },
+       {
+        "text": "Quadrant Vertices",
+        "name": "TechDraw_Quadrants",
+        "enabled": true,
+        "tip": "Inserts cosmetic vertices at the quadrant points of the selected circles"
+       }
+      ]
+     },
+     {
+      "name": "TechDraw_CenterLineGroup",
+      "text": "Centerline",
+      "enabled": true,
+      "menu": [
+       {
+        "text": "Centerline on Face",
+        "name": "TechDraw_FaceCenterLine",
+        "enabled": true,
+        "tip": "Adds a centerline to selected faces"
+       },
+       {
+        "text": "Centerline Between 2 Lines",
+        "name": "TechDraw_2LineCenterLine",
+        "enabled": true,
+        "tip": "Adds a centerline between 2 selected lines"
+       },
+       {
+        "text": "Centerline Between 2 Points",
+        "name": "TechDraw_2PointCenterLine",
+        "enabled": true,
+        "tip": "Adds a centerline between 2 selected points"
+       }
+      ]
+     },
+     {
+      "name": "TechDraw_2PointCosmeticLine",
+      "text": "Cosmetic Line Through 2 Points",
+      "enabled": true
+     },
+     {
+      "name": "TechDraw_DecorateLine",
+      "text": "Edit Line Appearance",
+      "enabled": true
+     },
+     {
+      "name": "TechDraw_ShowAll",
+      "text": "Toggle Edge Visibility",
+      "enabled": true
+     },
+     {
+      "name": "TechDraw_WeldSymbol",
+      "text": "Weld Symbol",
+      "enabled": true
+     },
+     {
+      "name": "TechDraw_SurfaceFinishSymbols",
+      "text": "Surface Finish Symbol",
+      "enabled": true
+     },
+     {
+      "name": "TechDraw_HoleShaftFit",
+      "text": "Hole/Shaft Fit",
+      "enabled": true
+     }
+    ]
+   }
+  ]
+ },
+ "wrong_nothing": {
+  "selection": [],
+  "dialog_open": false,
+  "panel": [
+   []
+  ],
+  "dialogs": [
+   {
+    "title": "Incorrect Selection",
+    "text": "Select a face first",
+    "buttons": [
+     "OK"
+    ]
+   }
+  ],
+  "undo_after_open": {
+   "head": [],
+   "all": [
+    "Create view",
+    "Drawing create page"
+   ]
+  }
+ },
+ "wrong_nothing_geom": {
+  "selection": [],
+  "dialog_open": false,
+  "panel": [
+   []
+  ],
+  "dialogs": [
+   {
+    "title": "Incorrect Selection",
+    "text": "Select a face first",
+    "buttons": [
+     "OK"
+    ]
+   }
+  ],
+  "undo_after_open": {
+   "head": [],
+   "all": [
+    "Create view",
+    "Drawing create page"
+   ]
+  }
+ },
+ "wrong_view_only": {
+  "selection": [
+   [
+    "View",
+    []
+   ]
+  ],
+  "dialog_open": false,
+  "panel": [
+   []
+  ],
+  "dialogs": [
+   {
+    "title": "Incorrect Selection",
+    "text": "No faces to hatch in this selection",
+    "buttons": [
+     "OK"
+    ]
+   }
+  ],
+  "undo_after_open": {
+   "head": [],
+   "all": [
+    "Create view",
+    "Drawing create page"
+   ]
+  }
+ },
+ "wrong_edge": {
+  "selection": [
+   [
+    "View",
+    [
+     "Edge2"
+    ]
+   ]
+  ],
+  "dialog_open": false,
+  "panel": [
+   []
+  ],
+  "dialogs": [
+   {
+    "title": "Incorrect Selection",
+    "text": "No faces to hatch in this selection",
+    "buttons": [
+     "OK"
+    ]
+   }
+  ],
+  "undo_after_open": {
+   "head": [],
+   "all": [
+    "Create view",
+    "Drawing create page"
+   ]
+  }
+ },
+ "wrong_page": {
+  "selection": [
+   [
+    "Page",
+    []
+   ]
+  ],
+  "dialog_open": false,
+  "panel": [
+   []
+  ],
+  "dialogs": [
+   {
+    "title": "Incorrect Selection",
+    "text": "No TechDraw object in selection",
+    "buttons": [
+     "OK"
+    ]
+   }
+  ],
+  "undo_after_open": {
+   "head": [],
+   "all": [
+    "Create view",
+    "Drawing create page"
+   ]
+  }
+ },
+ "geomhatch": {
+  "selection": [
+   [
+    "View",
+    [
+     "Face0"
+    ]
+   ]
+  ],
+  "dialog_open": true,
+  "panel": [
+   [
+    {
+     "class": "QPushButton",
+     "name": "",
+     "y": 9,
+     "x": 137,
+     "enabled": true,
+     "text": "OK"
+    },
+    {
+     "class": "QPushButton",
+     "name": "",
+     "y": 9,
+     "x": 249,
+     "enabled": true,
+     "text": "Cancel"
+    },
+    {
+     "class": "QSint::TaskHeader",
+     "name": "",
+     "y": 50,
+     "x": 4,
+     "enabled": true,
+     "text": ""
+    },
+    {
+     "class": "QSint::ActionLabel",
+     "name": "",
+     "y": 53,
+     "x": 9,
+     "enabled": true,
+     "text": "Geometric Hatch"
+    },
+    {
+     "class": "QGroupBox",
+     "name": "groupBox",
+     "y": 85,
+     "x": 18,
+     "enabled": true,
+     "text": "Define Pattern"
+    },
+    {
+     "class": "QLabel",
+     "name": "label",
+     "y": 113,
+     "x": 28,
+     "enabled": true,
+     "text": "Pattern file"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "",
+     "y": 113,
+     "x": 85,
+     "enabled": true,
+     "text": "<FreeCAD>/Mod/TechDraw/PAT/FCPAT.pat"
+    },
+    {
+     "class": "QPushButton",
+     "name": "",
+     "y": 113,
+     "x": 443,
+     "enabled": true,
+     "text": "\u2026"
+    },
+    {
+     "class": "QLabel",
+     "name": "label_4",
+     "y": 141,
+     "x": 28,
+     "enabled": true,
+     "text": "Pattern name"
+    },
+    {
+     "class": "QComboBox",
+     "name": "cbName",
+     "y": 141,
+     "x": 269,
+     "enabled": true,
+     "tip": "Name of pattern within file",
+     "items": [
+      "Diamond",
+      "Diamond2",
+      "Diamond4",
+      "Diagonal4",
+      "Diagonal5",
+      "Square",
+      "Horizontal5",
+      "Vertical5"
+     ],
+     "current": "Diamond"
+    },
+    {
+     "class": "QLabel",
+     "name": "label_2",
+     "y": 171,
+     "x": 28,
+     "enabled": true,
+     "text": "Pattern scale"
+    },
+    {
+     "class": "Gui::QuantitySpinBox",
+     "name": "sbScale",
+     "y": 171,
+     "x": 269,
+     "enabled": true,
+     "tip": "Enlarges/shrinks the pattern",
+     "text": "1.00"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 172,
+     "x": 274,
+     "enabled": true,
+     "text": "1.00"
+    },
+    {
+     "class": "QLabel",
+     "name": "label_5",
+     "y": 202,
+     "x": 28,
+     "enabled": true,
+     "text": "Line width"
+    },
+    {
+     "class": "Gui::QuantitySpinBox",
+     "name": "sbWeight",
+     "y": 202,
+     "x": 269,
+     "enabled": true,
+     "tip": "Thickness of the lines within the pattern",
+     "text": "0.50"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 203,
+     "x": 274,
+     "enabled": true,
+     "text": "0.50"
+    },
+    {
+     "class": "QLabel",
+     "name": "label_3",
+     "y": 233,
+     "x": 28,
+     "enabled": true,
+     "text": "Line color"
+    },
+    {
+     "class": "Gui::ColorButton",
+     "name": "ccColor",
+     "y": 233,
+     "x": 269,
+     "enabled": true,
+     "tip": "Color of pattern lines",
+     "text": ""
+    },
+    {
+     "class": "QLabel",
+     "name": "label_6",
+     "y": 261,
+     "x": 28,
+     "enabled": true,
+     "text": "Rotation"
+    },
+    {
+     "class": "QDoubleSpinBox",
+     "name": "dsbRotation",
+     "y": 261,
+     "x": 269,
+     "enabled": true,
+     "text": "0.00"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 262,
+     "x": 274,
+     "enabled": true,
+     "text": "0.00"
+    },
+    {
+     "class": "QLabel",
+     "name": "label_7",
+     "y": 288,
+     "x": 28,
+     "enabled": true,
+     "text": "Offset X"
+    },
+    {
+     "class": "QDoubleSpinBox",
+     "name": "dsbOffsetX",
+     "y": 288,
+     "x": 269,
+     "enabled": true,
+     "text": "0.00"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 289,
+     "x": 274,
+     "enabled": true,
+     "text": "0.00"
+    },
+    {
+     "class": "QLabel",
+     "name": "label_8",
+     "y": 315,
+     "x": 28,
+     "enabled": true,
+     "text": "Offset Y"
+    },
+    {
+     "class": "QDoubleSpinBox",
+     "name": "dsbOffsetY",
+     "y": 315,
+     "x": 269,
+     "enabled": true,
+     "text": "0.00"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 316,
+     "x": 274,
+     "enabled": true,
+     "text": "0.00"
+    }
+   ]
+  ],
+  "view_after_open": {
+   "CosmeticVertexes": [],
+   "CosmeticEdges": [],
+   "CenterLines": [],
+   "GeomFormats": [],
+   "edges": [
+    {
+     "curve": "Line",
+     "start": [
+      -20.0,
+      -12.0,
+      0.0
+     ],
+     "end": [
+      -20.0,
+      15.0,
+      0.0
+     ]
+    },
+    {
+     "curve": "Circle",
+     "start": [
+      -20.0,
+      -12.0,
+      0.0
+     ],
+     "end": [
+      -16.99999999999999,
+      -15.0,
+      0.0
+     ]
+    },
+    {
+     "curve": "Line",
+     "start": [
+      -20.0,
+      15.0,
+      0.0
+     ],
+     "end": [
+      20.0,
+      15.0,
+      0.0
+     ]
+    },
+    {
+     "curve": "Line",
+     "start": [
+      -17.0,
+      -15.0,
+      0.0
+     ],
+     "end": [
+      20.0,
+      -15.0,
+      0.0
+     ]
+    },
+    {
+     "curve": "Line",
+     "start": [
+      20.0,
+      -15.0,
+      0.0
+     ],
+     "end": [
+      20.0,
+      15.0,
+      0.0
+     ]
+    },
+    {
+     "curve": "Circle",
+     "start": [
+      14.0,
+      8.0,
+      0.0
+     ],
+     "end": [
+      14.0,
+      8.0,
+      0.0
+     ]
+    }
+   ],
+   "vertices": [
+    [
+     -20.0,
+     -12.0,
+     0.0
+    ],
+    [
+     -20.0,
+     15.0,
+     0.0
+    ],
+    [
+     -16.99999999999999,
+     -15.0,
+     0.0
+    ],
+    [
+     -17.0,
+     -12.0,
+     0.0
+    ],
+    [
+     20.0,
+     15.0,
+     0.0
+    ],
+    [
+     20.0,
+     -15.0,
+     0.0
+    ],
+    [
+     14.0,
+     8.0,
+     0.0
+    ],
+    [
+     14.0,
+     8.0,
+     0.0
+    ],
+    [
+     10.0,
+     8.0,
+     0.0
+    ]
+   ]
+  },
+  "undo_after_open": {
+   "head": [
+    "Create GeomHatch"
+   ],
+   "all": [
+    "Create GeomHatch",
+    "Create view",
+    "Drawing create page"
+   ]
+  },
+  "edit": {
+   "names": [
+    "Diamond",
+    "Diamond2",
+    "Diamond4",
+    "Diagonal4",
+    "Diagonal5",
+    "Square",
+    "Horizontal5",
+    "Vertical5"
+   ],
+   "name": "Diagonal4",
+   "scale": true,
+   "weight": true,
+   "rotation": true,
+   "ox": true,
+   "oy": true
+  },
+  "panel_after_edit": [
+   [
+    {
+     "class": "QPushButton",
+     "name": "",
+     "y": 9,
+     "x": 137,
+     "enabled": true,
+     "text": "OK"
+    },
+    {
+     "class": "QPushButton",
+     "name": "",
+     "y": 9,
+     "x": 249,
+     "enabled": true,
+     "text": "Cancel"
+    },
+    {
+     "class": "QSint::TaskHeader",
+     "name": "",
+     "y": 50,
+     "x": 4,
+     "enabled": true,
+     "text": ""
+    },
+    {
+     "class": "QSint::ActionLabel",
+     "name": "",
+     "y": 53,
+     "x": 9,
+     "enabled": true,
+     "text": "Geometric Hatch"
+    },
+    {
+     "class": "QGroupBox",
+     "name": "groupBox",
+     "y": 85,
+     "x": 18,
+     "enabled": true,
+     "text": "Define Pattern"
+    },
+    {
+     "class": "QLabel",
+     "name": "label",
+     "y": 113,
+     "x": 28,
+     "enabled": true,
+     "text": "Pattern file"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "",
+     "y": 113,
+     "x": 85,
+     "enabled": true,
+     "text": "<FreeCAD>/Mod/TechDraw/PAT/FCPAT.pat"
+    },
+    {
+     "class": "QPushButton",
+     "name": "",
+     "y": 113,
+     "x": 443,
+     "enabled": true,
+     "text": "\u2026"
+    },
+    {
+     "class": "QLabel",
+     "name": "label_4",
+     "y": 141,
+     "x": 28,
+     "enabled": true,
+     "text": "Pattern name"
+    },
+    {
+     "class": "QComboBox",
+     "name": "cbName",
+     "y": 141,
+     "x": 269,
+     "enabled": true,
+     "tip": "Name of pattern within file",
+     "items": [
+      "Diamond",
+      "Diamond2",
+      "Diamond4",
+      "Diagonal4",
+      "Diagonal5",
+      "Square",
+      "Horizontal5",
+      "Vertical5"
+     ],
+     "current": "Diagonal4"
+    },
+    {
+     "class": "QLabel",
+     "name": "label_2",
+     "y": 171,
+     "x": 28,
+     "enabled": true,
+     "text": "Pattern scale"
+    },
+    {
+     "class": "Gui::QuantitySpinBox",
+     "name": "sbScale",
+     "y": 171,
+     "x": 269,
+     "enabled": true,
+     "tip": "Enlarges/shrinks the pattern",
+     "text": "2"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 172,
+     "x": 274,
+     "enabled": true,
+     "text": "2"
+    },
+    {
+     "class": "QLabel",
+     "name": "label_5",
+     "y": 202,
+     "x": 28,
+     "enabled": true,
+     "text": "Line width"
+    },
+    {
+     "class": "Gui::QuantitySpinBox",
+     "name": "sbWeight",
+     "y": 202,
+     "x": 269,
+     "enabled": true,
+     "tip": "Thickness of the lines within the pattern",
+     "text": "0.3 mm"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 203,
+     "x": 274,
+     "enabled": true,
+     "text": "0.3 mm"
+    },
+    {
+     "class": "QLabel",
+     "name": "label_3",
+     "y": 233,
+     "x": 28,
+     "enabled": true,
+     "text": "Line color"
+    },
+    {
+     "class": "Gui::ColorButton",
+     "name": "ccColor",
+     "y": 233,
+     "x": 269,
+     "enabled": true,
+     "tip": "Color of pattern lines",
+     "text": ""
+    },
+    {
+     "class": "QLabel",
+     "name": "label_6",
+     "y": 261,
+     "x": 28,
+     "enabled": true,
+     "text": "Rotation"
+    },
+    {
+     "class": "QDoubleSpinBox",
+     "name": "dsbRotation",
+     "y": 261,
+     "x": 269,
+     "enabled": true,
+     "text": "15"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 262,
+     "x": 274,
+     "enabled": true,
+     "text": "15"
+    },
+    {
+     "class": "QLabel",
+     "name": "label_7",
+     "y": 288,
+     "x": 28,
+     "enabled": true,
+     "text": "Offset X"
+    },
+    {
+     "class": "QDoubleSpinBox",
+     "name": "dsbOffsetX",
+     "y": 288,
+     "x": 269,
+     "enabled": true,
+     "text": "1"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 289,
+     "x": 274,
+     "enabled": true,
+     "text": "1"
+    },
+    {
+     "class": "QLabel",
+     "name": "label_8",
+     "y": 315,
+     "x": 28,
+     "enabled": true,
+     "text": "Offset Y"
+    },
+    {
+     "class": "QDoubleSpinBox",
+     "name": "dsbOffsetY",
+     "y": 315,
+     "x": 269,
+     "enabled": true,
+     "text": "2"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 316,
+     "x": 274,
+     "enabled": true,
+     "text": "2"
+    }
+   ]
+  ],
+  "view_after_edit": {
+   "CosmeticVertexes": [],
+   "CosmeticEdges": [],
+   "CenterLines": [],
+   "GeomFormats": [],
+   "edges": [
+    {
+     "curve": "Line",
+     "start": [
+      -20.0,
+      -12.0,
+      0.0
+     ],
+     "end": [
+      -20.0,
+      15.0,
+      0.0
+     ]
+    },
+    {
+     "curve": "Circle",
+     "start": [
+      -20.0,
+      -12.0,
+      0.0
+     ],
+     "end": [
+      -16.99999999999999,
+      -15.0,
+      0.0
+     ]
+    },
+    {
+     "curve": "Line",
+     "start": [
+      -20.0,
+      15.0,
+      0.0
+     ],
+     "end": [
+      20.0,
+      15.0,
+      0.0
+     ]
+    },
+    {
+     "curve": "Line",
+     "start": [
+      -17.0,
+      -15.0,
+      0.0
+     ],
+     "end": [
+      20.0,
+      -15.0,
+      0.0
+     ]
+    },
+    {
+     "curve": "Line",
+     "start": [
+      20.0,
+      -15.0,
+      0.0
+     ],
+     "end": [
+      20.0,
+      15.0,
+      0.0
+     ]
+    },
+    {
+     "curve": "Circle",
+     "start": [
+      14.0,
+      8.0,
+      0.0
+     ],
+     "end": [
+      14.0,
+      8.0,
+      0.0
+     ]
+    }
+   ],
+   "vertices": [
+    [
+     -20.0,
+     -12.0,
+     0.0
+    ],
+    [
+     -20.0,
+     15.0,
+     0.0
+    ],
+    [
+     -16.99999999999999,
+     -15.0,
+     0.0
+    ],
+    [
+     -17.0,
+     -12.0,
+     0.0
+    ],
+    [
+     20.0,
+     15.0,
+     0.0
+    ],
+    [
+     20.0,
+     -15.0,
+     0.0
+    ],
+    [
+     14.0,
+     8.0,
+     0.0
+    ],
+    [
+     14.0,
+     8.0,
+     0.0
+    ],
+    [
+     10.0,
+     8.0,
+     0.0
+    ]
+   ]
+  },
+  "button": true,
+  "dialogs": [],
+  "undo": {
+   "head": [
+    "Create GeomHatch"
+   ],
+   "all": [
+    "Create GeomHatch",
+    "Create view",
+    "Drawing create page"
+   ]
+  },
+  "view": {
+   "CosmeticVertexes": [],
+   "CosmeticEdges": [],
+   "CenterLines": [],
+   "GeomFormats": [],
+   "edges": [
+    {
+     "curve": "Line",
+     "start": [
+      -20.0,
+      -12.0,
+      0.0
+     ],
+     "end": [
+      -20.0,
+      15.0,
+      0.0
+     ]
+    },
+    {
+     "curve": "Circle",
+     "start": [
+      -20.0,
+      -12.0,
+      0.0
+     ],
+     "end": [
+      -16.99999999999999,
+      -15.0,
+      0.0
+     ]
+    },
+    {
+     "curve": "Line",
+     "start": [
+      -20.0,
+      15.0,
+      0.0
+     ],
+     "end": [
+      20.0,
+      15.0,
+      0.0
+     ]
+    },
+    {
+     "curve": "Line",
+     "start": [
+      -17.0,
+      -15.0,
+      0.0
+     ],
+     "end": [
+      20.0,
+      -15.0,
+      0.0
+     ]
+    },
+    {
+     "curve": "Line",
+     "start": [
+      20.0,
+      -15.0,
+      0.0
+     ],
+     "end": [
+      20.0,
+      15.0,
+      0.0
+     ]
+    },
+    {
+     "curve": "Circle",
+     "start": [
+      14.0,
+      8.0,
+      0.0
+     ],
+     "end": [
+      14.0,
+      8.0,
+      0.0
+     ]
+    }
+   ],
+   "vertices": [
+    [
+     -20.0,
+     -12.0,
+     0.0
+    ],
+    [
+     -20.0,
+     15.0,
+     0.0
+    ],
+    [
+     -16.99999999999999,
+     -15.0,
+     0.0
+    ],
+    [
+     -17.0,
+     -12.0,
+     0.0
+    ],
+    [
+     20.0,
+     15.0,
+     0.0
+    ],
+    [
+     20.0,
+     -15.0,
+     0.0
+    ],
+    [
+     14.0,
+     8.0,
+     0.0
+    ],
+    [
+     14.0,
+     8.0,
+     0.0
+    ],
+    [
+     10.0,
+     8.0,
+     0.0
+    ]
+   ]
+  },
+  "tasks_after": [
+   []
+  ],
+  "hatches": {
+   "objects": [
+    {
+     "Name": "GeomHatch",
+     "Label": "GeomHatch",
+     "TypeId": "TechDraw::DrawGeomHatch",
+     "FilePattern": "<FreeCAD>/Mod/TechDraw/PAT/FCPAT.pat",
+     "Label2": "",
+     "NamePattern": "Diagonal4",
+     "PatIncluded": "<document>/FCPAT.pat",
+     "PatternOffset": [
+      1.0,
+      2.0,
+      0.0
+     ],
+     "PatternRotation": 15.0,
+     "ScalePattern": 2.0,
+     "Source": [
+      "View",
+      [
+       "Face0"
+      ]
+     ],
+     "Visibility": true,
+     "ViewProvider": {
+      "ColorPattern": [
+       0.0,
+       1.0,
+       0.0,
+       0.0
+      ],
+      "DisplayMode": "",
+      "OnTopWhenSelected": "Disabled",
+      "SelectionStyle": "Shape",
+      "ShowInTree": true,
+      "Visibility": true,
+      "WeightPattern": 0.3
+     }
+    }
+   ]
+  },
+  "tree": [
+   {
+    "text": "Unnamed",
+    "depth": 0,
+    "children": 3
+   },
+   {
+    "text": "plate",
+    "depth": 1,
+    "children": 0
+   },
+   {
+    "text": "bracket",
+    "depth": 1,
+    "children": 0
+   },
+   {
+    "text": "Page",
+    "depth": 1,
+    "children": 2
+   },
+   {
+    "text": "Template",
+    "depth": 2,
+    "children": 0
+   },
+   {
+    "text": "View",
+    "depth": 2,
+    "children": 1
+   },
+   {
+    "text": "GeomHatch",
+    "depth": 3,
+    "children": 0
+   }
+  ]
+ },
+ "geomhatch_svg": "<?xml version='1.0' encoding='UTF-8' standalone='no'?>\n<svg baseProfile=\"tiny\" height=\"210mm\" version=\"1.2\" viewBox=\"0 0 2970 2100\" width=\"297mm\" xmlns=\"http://www.w3.org/2000/svg\" xmlns:cc=\"http://creativecommons.org/ns#\" xmlns:dc=\"http://purl.org/dc/elements/1.1/\" xmlns:freecad=\"https://www.freecad.org/wiki/index.php?title=Svg_Namespace\" xmlns:inkscape=\"http://www.inkscape.org/namespaces/inkscape\" xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\" xmlns:sodipodi=\"http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd\" xmlns:svg=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\">\n <title>FreeCAD SVG Export</title>\n <desc>Drawing page: Page exported from FreeCAD document: Unnamed</desc>\n <defs/>\n <g id=\"Page\" inkscape:groupmode=\"layer\" inkscape:label=\"TechDraw\">\n  <g id=\"Default_Template_A4_Landscape.svg\" style=\"stroke: none;\" transform=\"scale(10.000000, 10.000000)\">\n   <metadata id=\"metadata8\">\n    <rdf:RDF>\n     <cc:Work rdf:about=\"\">\n      <dc:format>image/svg+xml</dc:format>\n      <dc:type rdf:resource=\"http://purl.org/dc/dcmitype/StillImage\"/>\n     </cc:Work>\n    </rdf:RDF>\n   </metadata>\n  </g>\n  <g fill=\"none\" fill-rule=\"evenodd\" id=\"DrawingContent\" stroke=\"black\" stroke-linecap=\"square\" stroke-linejoin=\"bevel\" stroke-width=\"1\">\n   <g fill=\"#f1f3f5\" fill-opacity=\"1\" font-family=\"Sans Serif\" font-size=\"31.75\" font-style=\"normal\" font-weight=\"400\" stroke=\"none\" transform=\"matrix(1,0,0,1,1485,1050)\">\n    <path d=\"M-200,120 C-200,136.569 -186.569,150 -170,150 L200,150 L200,-150 L-200,-150 L-200,120 Z \" fill-rule=\"evenodd\" vector-effect=\"non-scaling-stroke\"/>\n   </g>\n   <g fill=\"none\" font-family=\"Sans Serif\" font-size=\"31.75\" font-style=\"normal\" font-weight=\"400\" stroke=\"#00ff00\" stroke-linecap=\"square\" stroke-linejoin=\"bevel\" stroke-opacity=\"0\" stroke-width=\"3\" transform=\"matrix(1,0,0,1,1485,1050)\">\n    <path d=\"M188.979,150 L200,130.91 \" fill-rule=\"evenodd\" vector-effect=\"none\"/>\n   </g>\n   <g fill=\"none\" font-family=\"Sans Serif\" font-size=\"31.75\" font-style=\"normal\" font-weight=\"400\" stroke=\"#00ff00\" stroke-linecap=\"square\" stroke-linejoin=\"bevel\" stroke-opacity=\"0\" stroke-width=\"3\" transform=\"matrix(1,0,0,1,1485,1050)\">\n    <path d=\"M96.6025,150 L200,-29.0897 \" fill-rule=\"evenodd\" vector-effect=\"none\"/>\n   </g>\n   <g fill=\"none\" font-family=\"Sans Serif\" font-size=\"31.75\" font-style=\"normal\" font-weight=\"400\" stroke=\"#00ff00\" stroke-linecap=\"square\" stroke-linejoin=\"bevel\" stroke-opacity=\"0\" stroke-width=\"3\" transform=\"matrix(1,0,0,1,1485,1050)\">\n    <path d=\"M4.2265,150 L177.432,-150 \" fill-rule=\"evenodd\" vector-effect=\"none\"/>\n   </g>\n   <g fill=\"none\" font-family=\"Sans Serif\" font-size=\"31.75\" font-style=\"normal\" font-weight=\"400\" stroke=\"#00ff00\" stroke-linecap=\"square\" stroke-linejoin=\"bevel\" stroke-opacity=\"0\" stroke-width=\"3\" transform=\"matrix(1,0,0,1,1485,1050)\">\n    <path d=\"M-88.1495,150 L85.0555,-150 \" fill-rule=\"evenodd\" vector-effect=\"none\"/>\n   </g>\n   <g fill=\"none\" font-family=\"Sans Serif\" font-size=\"31.75\" font-style=\"normal\" font-weight=\"400\" stroke=\"#00ff00\" stroke-linecap=\"square\" stroke-linejoin=\"bevel\" stroke-opacity=\"0\" stroke-width=\"3\" transform=\"matrix(1,0,0,1,1485,1050)\">\n    <path d=\"M-179.612,148.418 L-7.32051,-150 \" fill-rule=\"evenodd\" vector-effect=\"none\"/>\n   </g>\n   <g fill=\"none\" font-family=\"Sans Serif\" font-size=\"31.75\" font-style=\"normal\" font-weight=\"400\" stroke=\"#00ff00\" stroke-linecap=\"square\" stroke-linejoin=\"bevel\" stroke-opacity=\"0\" stroke-width=\"3\" transform=\"matrix(1,0,0,1,1485,1050)\">\n    <path d=\"M-200,23.7307 L-99.6966,-150 \" fill-rule=\"evenodd\" vector-effect=\"none\"/>\n   </g>\n   <g fill=\"none\" font-family=\"Sans Serif\" font-size=\"31.75\" font-style=\"normal\" font-weight=\"400\" stroke=\"#00ff00\" stroke-linecap=\"square\" stroke-linejoin=\"bevel\" stroke-opacity=\"0\" stroke-width=\"3\" transform=\"matrix(1,0,0,1,1485,1050)\">\n    <path d=\"M-200,-136.269 L-192.073,-150 \" fill-rule=\"evenodd\" vector-effect=\"none\"/>\n   </g>\n   <g fill=\"#f1f3f5\" fill-opacity=\"1\" font-family=\"Sans Serif\" font-size=\"31.75\" font-style=\"normal\" font-weight=\"400\" stroke=\"none\" transform=\"matrix(1,0,0,1,1485,1050)\">\n    <path d=\"M140,-80 C140,-57.9086 122.091,-40 100,-40 C77.9086,-40 60,-57.9086 60,-80 C60,-102.091 77.9086,-120 100,-120 C122.091,-120 140,-102.091 140,-80 Z \" fill-rule=\"evenodd\" vector-effect=\"non-scaling-stroke\"/>\n   </g>\n   <g fill=\"none\" font-family=\"Sans Serif\" font-size=\"31.75\" font-style=\"normal\" font-weight=\"400\" stroke=\"#212529\" stroke-linecap=\"round\" stroke-linejoin=\"bevel\" stroke-opacity=\"1\" stroke-width=\"7.15843\" transform=\"matrix(1,0,0,1,1485,1050)\">\n    <path d=\"M-200,120 L-200,-150 \" fill-rule=\"evenodd\" vector-effect=\"none\"/>\n   </g>\n   <g fill=\"none\" font-family=\"Sans Serif\" font-size=\"31.75\" font-style=\"normal\" font-weight=\"400\" stroke=\"#212529\" stroke-linecap=\"round\" stroke-linejoin=\"bevel\" stroke-opacity=\"1\" stroke-width=\"7.15843\" transform=\"matrix(1,0,0,1,1485,1050)\">\n    <path d=\"M-200,120 C-200,136.569 -186.569,150 -170,150 \" fill-rule=\"evenodd\" vector-effect=\"none\"/>\n   </g>\n   <g fill=\"none\" font-family=\"Sans Serif\" font-size=\"31.75\" font-style=\"normal\" font-weight=\"400\" stroke=\"#212529\" stroke-linecap=\"round\" stroke-linejoin=\"bevel\" stroke-opacity=\"1\" stroke-width=\"7.15843\" transform=\"matrix(1,0,0,1,1485,1050)\">\n    <path d=\"M-200,-150 L200,-150 \" fill-rule=\"evenodd\" vector-effect=\"none\"/>\n   </g>\n   <g fill=\"none\" font-family=\"Sans Serif\" font-size=\"31.75\" font-style=\"normal\" font-weight=\"400\" stroke=\"#212529\" stroke-linecap=\"round\" stroke-linejoin=\"bevel\" stroke-opacity=\"1\" stroke-width=\"7.15843\" transform=\"matrix(1,0,0,1,1485,1050)\">\n    <path d=\"M-170,150 L200,150 \" fill-rule=\"evenodd\" vector-effect=\"none\"/>\n   </g>\n   <g fill=\"none\" font-family=\"Sans Serif\" font-size=\"31.75\" font-style=\"normal\" font-weight=\"400\" stroke=\"#212529\" stroke-linecap=\"round\" stroke-linejoin=\"bevel\" stroke-opacity=\"1\" stroke-width=\"7.15843\" transform=\"matrix(1,0,0,1,1485,1050)\">\n    <path d=\"M200,150 L200,-150 \" fill-rule=\"evenodd\" vector-effect=\"none\"/>\n   </g>\n   <g fill=\"none\" font-family=\"Sans Serif\" font-size=\"31.75\" font-style=\"normal\" font-weight=\"400\" stroke=\"#212529\" stroke-linecap=\"round\" stroke-linejoin=\"bevel\" stroke-opacity=\"1\" stroke-width=\"7.15843\" transform=\"matrix(1,0,0,1,1485,1050)\">\n    <path d=\"M140,-80 C140,-57.9086 122.091,-40 100,-40 C77.9086,-40 60,-57.9086 60,-80 C60,-102.091 77.9086,-120 100,-120 C122.091,-120 140,-102.091 140,-80 Z \" fill-rule=\"evenodd\" vector-effect=\"none\"/>\n   </g>\n  </g>\n </g>\n</svg>\n",
+ "geomhatch_cancel": {
+  "selection": [
+   [
+    "View",
+    [
+     "Face1"
+    ]
+   ]
+  ],
+  "dialog_open": true,
+  "panel": [
+   [
+    {
+     "class": "QPushButton",
+     "name": "",
+     "y": 9,
+     "x": 137,
+     "enabled": true,
+     "text": "OK"
+    },
+    {
+     "class": "QPushButton",
+     "name": "",
+     "y": 9,
+     "x": 249,
+     "enabled": true,
+     "text": "Cancel"
+    },
+    {
+     "class": "QSint::TaskHeader",
+     "name": "",
+     "y": 50,
+     "x": 4,
+     "enabled": true,
+     "text": ""
+    },
+    {
+     "class": "QSint::ActionLabel",
+     "name": "",
+     "y": 53,
+     "x": 9,
+     "enabled": true,
+     "text": "Geometric Hatch"
+    },
+    {
+     "class": "QGroupBox",
+     "name": "groupBox",
+     "y": 85,
+     "x": 18,
+     "enabled": true,
+     "text": "Define Pattern"
+    },
+    {
+     "class": "QLabel",
+     "name": "label",
+     "y": 113,
+     "x": 28,
+     "enabled": true,
+     "text": "Pattern file"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "",
+     "y": 113,
+     "x": 85,
+     "enabled": true,
+     "text": "<FreeCAD>/Mod/TechDraw/PAT/FCPAT.pat"
+    },
+    {
+     "class": "QPushButton",
+     "name": "",
+     "y": 113,
+     "x": 443,
+     "enabled": true,
+     "text": "\u2026"
+    },
+    {
+     "class": "QLabel",
+     "name": "label_4",
+     "y": 141,
+     "x": 28,
+     "enabled": true,
+     "text": "Pattern name"
+    },
+    {
+     "class": "QComboBox",
+     "name": "cbName",
+     "y": 141,
+     "x": 269,
+     "enabled": true,
+     "tip": "Name of pattern within file",
+     "items": [
+      "Diamond",
+      "Diamond2",
+      "Diamond4",
+      "Diagonal4",
+      "Diagonal5",
+      "Square",
+      "Horizontal5",
+      "Vertical5"
+     ],
+     "current": "Diamond"
+    },
+    {
+     "class": "QLabel",
+     "name": "label_2",
+     "y": 171,
+     "x": 28,
+     "enabled": true,
+     "text": "Pattern scale"
+    },
+    {
+     "class": "Gui::QuantitySpinBox",
+     "name": "sbScale",
+     "y": 171,
+     "x": 269,
+     "enabled": true,
+     "tip": "Enlarges/shrinks the pattern",
+     "text": "1.00"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 172,
+     "x": 274,
+     "enabled": true,
+     "text": "1.00"
+    },
+    {
+     "class": "QLabel",
+     "name": "label_5",
+     "y": 202,
+     "x": 28,
+     "enabled": true,
+     "text": "Line width"
+    },
+    {
+     "class": "Gui::QuantitySpinBox",
+     "name": "sbWeight",
+     "y": 202,
+     "x": 269,
+     "enabled": true,
+     "tip": "Thickness of the lines within the pattern",
+     "text": "0.50"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 203,
+     "x": 274,
+     "enabled": true,
+     "text": "0.50"
+    },
+    {
+     "class": "QLabel",
+     "name": "label_3",
+     "y": 233,
+     "x": 28,
+     "enabled": true,
+     "text": "Line color"
+    },
+    {
+     "class": "Gui::ColorButton",
+     "name": "ccColor",
+     "y": 233,
+     "x": 269,
+     "enabled": true,
+     "tip": "Color of pattern lines",
+     "text": ""
+    },
+    {
+     "class": "QLabel",
+     "name": "label_6",
+     "y": 261,
+     "x": 28,
+     "enabled": true,
+     "text": "Rotation"
+    },
+    {
+     "class": "QDoubleSpinBox",
+     "name": "dsbRotation",
+     "y": 261,
+     "x": 269,
+     "enabled": true,
+     "text": "0.00"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 262,
+     "x": 274,
+     "enabled": true,
+     "text": "0.00"
+    },
+    {
+     "class": "QLabel",
+     "name": "label_7",
+     "y": 288,
+     "x": 28,
+     "enabled": true,
+     "text": "Offset X"
+    },
+    {
+     "class": "QDoubleSpinBox",
+     "name": "dsbOffsetX",
+     "y": 288,
+     "x": 269,
+     "enabled": true,
+     "text": "0.00"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 289,
+     "x": 274,
+     "enabled": true,
+     "text": "0.00"
+    },
+    {
+     "class": "QLabel",
+     "name": "label_8",
+     "y": 315,
+     "x": 28,
+     "enabled": true,
+     "text": "Offset Y"
+    },
+    {
+     "class": "QDoubleSpinBox",
+     "name": "dsbOffsetY",
+     "y": 315,
+     "x": 269,
+     "enabled": true,
+     "text": "0.00"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 316,
+     "x": 274,
+     "enabled": true,
+     "text": "0.00"
+    }
+   ]
+  ],
+  "view_after_open": {
+   "CosmeticVertexes": [],
+   "CosmeticEdges": [],
+   "CenterLines": [],
+   "GeomFormats": [],
+   "edges": [
+    {
+     "curve": "Line",
+     "start": [
+      -20.0,
+      -12.0,
+      0.0
+     ],
+     "end": [
+      -20.0,
+      15.0,
+      0.0
+     ]
+    },
+    {
+     "curve": "Circle",
+     "start": [
+      -20.0,
+      -12.0,
+      0.0
+     ],
+     "end": [
+      -16.99999999999999,
+      -15.0,
+      0.0
+     ]
+    },
+    {
+     "curve": "Line",
+     "start": [
+      -20.0,
+      15.0,
+      0.0
+     ],
+     "end": [
+      20.0,
+      15.0,
+      0.0
+     ]
+    },
+    {
+     "curve": "Line",
+     "start": [
+      -17.0,
+      -15.0,
+      0.0
+     ],
+     "end": [
+      20.0,
+      -15.0,
+      0.0
+     ]
+    },
+    {
+     "curve": "Line",
+     "start": [
+      20.0,
+      -15.0,
+      0.0
+     ],
+     "end": [
+      20.0,
+      15.0,
+      0.0
+     ]
+    },
+    {
+     "curve": "Circle",
+     "start": [
+      14.0,
+      8.0,
+      0.0
+     ],
+     "end": [
+      14.0,
+      8.0,
+      0.0
+     ]
+    }
+   ],
+   "vertices": [
+    [
+     -20.0,
+     -12.0,
+     0.0
+    ],
+    [
+     -20.0,
+     15.0,
+     0.0
+    ],
+    [
+     -16.99999999999999,
+     -15.0,
+     0.0
+    ],
+    [
+     -17.0,
+     -12.0,
+     0.0
+    ],
+    [
+     20.0,
+     15.0,
+     0.0
+    ],
+    [
+     20.0,
+     -15.0,
+     0.0
+    ],
+    [
+     14.0,
+     8.0,
+     0.0
+    ],
+    [
+     14.0,
+     8.0,
+     0.0
+    ],
+    [
+     10.0,
+     8.0,
+     0.0
+    ]
+   ]
+  },
+  "undo_after_open": {
+   "head": [
+    "Create GeomHatch"
+   ],
+   "all": [
+    "Create GeomHatch",
+    "Create GeomHatch",
+    "Create view",
+    "Drawing create page"
+   ]
+  },
+  "edit": {
+   "names": [
+    "Diamond",
+    "Diamond2",
+    "Diamond4",
+    "Diagonal4",
+    "Diagonal5",
+    "Square",
+    "Horizontal5",
+    "Vertical5"
+   ],
+   "name": "Diagonal4",
+   "scale": true,
+   "weight": true,
+   "rotation": true,
+   "ox": true,
+   "oy": true
+  },
+  "panel_after_edit": [
+   [
+    {
+     "class": "QPushButton",
+     "name": "",
+     "y": 9,
+     "x": 137,
+     "enabled": true,
+     "text": "OK"
+    },
+    {
+     "class": "QPushButton",
+     "name": "",
+     "y": 9,
+     "x": 249,
+     "enabled": true,
+     "text": "Cancel"
+    },
+    {
+     "class": "QSint::TaskHeader",
+     "name": "",
+     "y": 50,
+     "x": 4,
+     "enabled": true,
+     "text": ""
+    },
+    {
+     "class": "QSint::ActionLabel",
+     "name": "",
+     "y": 53,
+     "x": 9,
+     "enabled": true,
+     "text": "Geometric Hatch"
+    },
+    {
+     "class": "QGroupBox",
+     "name": "groupBox",
+     "y": 85,
+     "x": 18,
+     "enabled": true,
+     "text": "Define Pattern"
+    },
+    {
+     "class": "QLabel",
+     "name": "label",
+     "y": 113,
+     "x": 28,
+     "enabled": true,
+     "text": "Pattern file"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "",
+     "y": 113,
+     "x": 85,
+     "enabled": true,
+     "text": "<FreeCAD>/Mod/TechDraw/PAT/FCPAT.pat"
+    },
+    {
+     "class": "QPushButton",
+     "name": "",
+     "y": 113,
+     "x": 443,
+     "enabled": true,
+     "text": "\u2026"
+    },
+    {
+     "class": "QLabel",
+     "name": "label_4",
+     "y": 141,
+     "x": 28,
+     "enabled": true,
+     "text": "Pattern name"
+    },
+    {
+     "class": "QComboBox",
+     "name": "cbName",
+     "y": 141,
+     "x": 269,
+     "enabled": true,
+     "tip": "Name of pattern within file",
+     "items": [
+      "Diamond",
+      "Diamond2",
+      "Diamond4",
+      "Diagonal4",
+      "Diagonal5",
+      "Square",
+      "Horizontal5",
+      "Vertical5"
+     ],
+     "current": "Diagonal4"
+    },
+    {
+     "class": "QLabel",
+     "name": "label_2",
+     "y": 171,
+     "x": 28,
+     "enabled": true,
+     "text": "Pattern scale"
+    },
+    {
+     "class": "Gui::QuantitySpinBox",
+     "name": "sbScale",
+     "y": 171,
+     "x": 269,
+     "enabled": true,
+     "tip": "Enlarges/shrinks the pattern",
+     "text": "2"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 172,
+     "x": 274,
+     "enabled": true,
+     "text": "2"
+    },
+    {
+     "class": "QLabel",
+     "name": "label_5",
+     "y": 202,
+     "x": 28,
+     "enabled": true,
+     "text": "Line width"
+    },
+    {
+     "class": "Gui::QuantitySpinBox",
+     "name": "sbWeight",
+     "y": 202,
+     "x": 269,
+     "enabled": true,
+     "tip": "Thickness of the lines within the pattern",
+     "text": "0.3 mm"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 203,
+     "x": 274,
+     "enabled": true,
+     "text": "0.3 mm"
+    },
+    {
+     "class": "QLabel",
+     "name": "label_3",
+     "y": 233,
+     "x": 28,
+     "enabled": true,
+     "text": "Line color"
+    },
+    {
+     "class": "Gui::ColorButton",
+     "name": "ccColor",
+     "y": 233,
+     "x": 269,
+     "enabled": true,
+     "tip": "Color of pattern lines",
+     "text": ""
+    },
+    {
+     "class": "QLabel",
+     "name": "label_6",
+     "y": 261,
+     "x": 28,
+     "enabled": true,
+     "text": "Rotation"
+    },
+    {
+     "class": "QDoubleSpinBox",
+     "name": "dsbRotation",
+     "y": 261,
+     "x": 269,
+     "enabled": true,
+     "text": "15"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 262,
+     "x": 274,
+     "enabled": true,
+     "text": "15"
+    },
+    {
+     "class": "QLabel",
+     "name": "label_7",
+     "y": 288,
+     "x": 28,
+     "enabled": true,
+     "text": "Offset X"
+    },
+    {
+     "class": "QDoubleSpinBox",
+     "name": "dsbOffsetX",
+     "y": 288,
+     "x": 269,
+     "enabled": true,
+     "text": "1"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 289,
+     "x": 274,
+     "enabled": true,
+     "text": "1"
+    },
+    {
+     "class": "QLabel",
+     "name": "label_8",
+     "y": 315,
+     "x": 28,
+     "enabled": true,
+     "text": "Offset Y"
+    },
+    {
+     "class": "QDoubleSpinBox",
+     "name": "dsbOffsetY",
+     "y": 315,
+     "x": 269,
+     "enabled": true,
+     "text": "2"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 316,
+     "x": 274,
+     "enabled": true,
+     "text": "2"
+    }
+   ]
+  ],
+  "view_after_edit": {
+   "CosmeticVertexes": [],
+   "CosmeticEdges": [],
+   "CenterLines": [],
+   "GeomFormats": [],
+   "edges": [
+    {
+     "curve": "Line",
+     "start": [
+      -20.0,
+      -12.0,
+      0.0
+     ],
+     "end": [
+      -20.0,
+      15.0,
+      0.0
+     ]
+    },
+    {
+     "curve": "Circle",
+     "start": [
+      -20.0,
+      -12.0,
+      0.0
+     ],
+     "end": [
+      -16.99999999999999,
+      -15.0,
+      0.0
+     ]
+    },
+    {
+     "curve": "Line",
+     "start": [
+      -20.0,
+      15.0,
+      0.0
+     ],
+     "end": [
+      20.0,
+      15.0,
+      0.0
+     ]
+    },
+    {
+     "curve": "Line",
+     "start": [
+      -17.0,
+      -15.0,
+      0.0
+     ],
+     "end": [
+      20.0,
+      -15.0,
+      0.0
+     ]
+    },
+    {
+     "curve": "Line",
+     "start": [
+      20.0,
+      -15.0,
+      0.0
+     ],
+     "end": [
+      20.0,
+      15.0,
+      0.0
+     ]
+    },
+    {
+     "curve": "Circle",
+     "start": [
+      14.0,
+      8.0,
+      0.0
+     ],
+     "end": [
+      14.0,
+      8.0,
+      0.0
+     ]
+    }
+   ],
+   "vertices": [
+    [
+     -20.0,
+     -12.0,
+     0.0
+    ],
+    [
+     -20.0,
+     15.0,
+     0.0
+    ],
+    [
+     -16.99999999999999,
+     -15.0,
+     0.0
+    ],
+    [
+     -17.0,
+     -12.0,
+     0.0
+    ],
+    [
+     20.0,
+     15.0,
+     0.0
+    ],
+    [
+     20.0,
+     -15.0,
+     0.0
+    ],
+    [
+     14.0,
+     8.0,
+     0.0
+    ],
+    [
+     14.0,
+     8.0,
+     0.0
+    ],
+    [
+     10.0,
+     8.0,
+     0.0
+    ]
+   ]
+  },
+  "button": true,
+  "dialogs": [],
+  "undo": {
+   "head": [
+    "Delete",
+    "Create GeomHatch"
+   ],
+   "all": [
+    "Delete",
+    "Create GeomHatch",
+    "Create GeomHatch",
+    "Create view",
+    "Drawing create page"
+   ]
+  },
+  "view": {
+   "CosmeticVertexes": [],
+   "CosmeticEdges": [],
+   "CenterLines": [],
+   "GeomFormats": [],
+   "edges": [
+    {
+     "curve": "Line",
+     "start": [
+      -20.0,
+      -12.0,
+      0.0
+     ],
+     "end": [
+      -20.0,
+      15.0,
+      0.0
+     ]
+    },
+    {
+     "curve": "Circle",
+     "start": [
+      -20.0,
+      -12.0,
+      0.0
+     ],
+     "end": [
+      -16.99999999999999,
+      -15.0,
+      0.0
+     ]
+    },
+    {
+     "curve": "Line",
+     "start": [
+      -20.0,
+      15.0,
+      0.0
+     ],
+     "end": [
+      20.0,
+      15.0,
+      0.0
+     ]
+    },
+    {
+     "curve": "Line",
+     "start": [
+      -17.0,
+      -15.0,
+      0.0
+     ],
+     "end": [
+      20.0,
+      -15.0,
+      0.0
+     ]
+    },
+    {
+     "curve": "Line",
+     "start": [
+      20.0,
+      -15.0,
+      0.0
+     ],
+     "end": [
+      20.0,
+      15.0,
+      0.0
+     ]
+    },
+    {
+     "curve": "Circle",
+     "start": [
+      14.0,
+      8.0,
+      0.0
+     ],
+     "end": [
+      14.0,
+      8.0,
+      0.0
+     ]
+    }
+   ],
+   "vertices": [
+    [
+     -20.0,
+     -12.0,
+     0.0
+    ],
+    [
+     -20.0,
+     15.0,
+     0.0
+    ],
+    [
+     -16.99999999999999,
+     -15.0,
+     0.0
+    ],
+    [
+     -17.0,
+     -12.0,
+     0.0
+    ],
+    [
+     20.0,
+     15.0,
+     0.0
+    ],
+    [
+     20.0,
+     -15.0,
+     0.0
+    ],
+    [
+     14.0,
+     8.0,
+     0.0
+    ],
+    [
+     14.0,
+     8.0,
+     0.0
+    ],
+    [
+     10.0,
+     8.0,
+     0.0
+    ]
+   ]
+  },
+  "tasks_after": [
+   []
+  ],
+  "hatches": {
+   "objects": [
+    {
+     "Name": "GeomHatch",
+     "Label": "GeomHatch",
+     "TypeId": "TechDraw::DrawGeomHatch",
+     "FilePattern": "<FreeCAD>/Mod/TechDraw/PAT/FCPAT.pat",
+     "Label2": "",
+     "NamePattern": "Diagonal4",
+     "PatIncluded": "<document>/FCPAT.pat",
+     "PatternOffset": [
+      1.0,
+      2.0,
+      0.0
+     ],
+     "PatternRotation": 15.0,
+     "ScalePattern": 2.0,
+     "Source": [
+      "View",
+      [
+       "Face0"
+      ]
+     ],
+     "Visibility": true,
+     "ViewProvider": {
+      "ColorPattern": [
+       0.0,
+       1.0,
+       0.0,
+       0.0
+      ],
+      "DisplayMode": "",
+      "OnTopWhenSelected": "Disabled",
+      "SelectionStyle": "Shape",
+      "ShowInTree": true,
+      "Visibility": true,
+      "WeightPattern": 0.3
+     }
+    }
+   ]
+  },
+  "tree": [
+   {
+    "text": "Unnamed",
+    "depth": 0,
+    "children": 3
+   },
+   {
+    "text": "plate",
+    "depth": 1,
+    "children": 0
+   },
+   {
+    "text": "bracket",
+    "depth": 1,
+    "children": 0
+   },
+   {
+    "text": "Page",
+    "depth": 1,
+    "children": 2
+   },
+   {
+    "text": "Template",
+    "depth": 2,
+    "children": 0
+   },
+   {
+    "text": "View",
+    "depth": 2,
+    "children": 1
+   },
+   {
+    "text": "GeomHatch",
+    "depth": 3,
+    "children": 0
+   }
+  ]
+ },
+ "hatch": {
+  "selection": [
+   [
+    "View",
+    [
+     "Face1"
+    ]
+   ]
+  ],
+  "dialog_open": true,
+  "panel": [
+   [
+    {
+     "class": "QPushButton",
+     "name": "",
+     "y": 9,
+     "x": 137,
+     "enabled": true,
+     "text": "OK"
+    },
+    {
+     "class": "QPushButton",
+     "name": "",
+     "y": 9,
+     "x": 249,
+     "enabled": true,
+     "text": "Cancel"
+    },
+    {
+     "class": "QSint::TaskHeader",
+     "name": "",
+     "y": 50,
+     "x": 4,
+     "enabled": true,
+     "text": ""
+    },
+    {
+     "class": "QSint::ActionLabel",
+     "name": "",
+     "y": 53,
+     "x": 9,
+     "enabled": true,
+     "text": "Create Face Hatch"
+    },
+    {
+     "class": "QGroupBox",
+     "name": "groupBox",
+     "y": 85,
+     "x": 18,
+     "enabled": true,
+     "tip": "Select an SVG or bitmap file",
+     "text": "Pattern Parameters"
+    },
+    {
+     "class": "QLabel",
+     "name": "label",
+     "y": 113,
+     "x": 28,
+     "enabled": true,
+     "text": "Pattern file"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "",
+     "y": 113,
+     "x": 85,
+     "enabled": true,
+     "text": "<FreeCAD>/Mod/TechDraw/Patterns/simple.svg"
+    },
+    {
+     "class": "QPushButton",
+     "name": "",
+     "y": 113,
+     "x": 443,
+     "enabled": true,
+     "text": "\u2026"
+    },
+    {
+     "class": "QLabel",
+     "name": "label_2",
+     "y": 141,
+     "x": 28,
+     "enabled": true,
+     "text": "SVG pattern scale"
+    },
+    {
+     "class": "Gui::QuantitySpinBox",
+     "name": "sbScale",
+     "y": 141,
+     "x": 249,
+     "enabled": true,
+     "tip": "Enlarges/shrinks the pattern (SVG only)",
+     "text": "1.00"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 142,
+     "x": 254,
+     "enabled": true,
+     "text": "1.00"
+    },
+    {
+     "class": "QLabel",
+     "name": "label_3",
+     "y": 173,
+     "x": 28,
+     "enabled": true,
+     "text": "SVG line color"
+    },
+    {
+     "class": "Gui::ColorButton",
+     "name": "ccColor",
+     "y": 173,
+     "x": 249,
+     "enabled": true,
+     "tip": "Color of pattern lines (SVG only)",
+     "text": ""
+    },
+    {
+     "class": "QLabel",
+     "name": "label_4",
+     "y": 205,
+     "x": 28,
+     "enabled": true,
+     "text": "Rotation"
+    },
+    {
+     "class": "QDoubleSpinBox",
+     "name": "dsbRotation",
+     "y": 205,
+     "x": 249,
+     "enabled": true,
+     "tip": "Rotate the pattern (degrees)",
+     "text": "0.00"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 206,
+     "x": 254,
+     "enabled": true,
+     "text": "0.00"
+    },
+    {
+     "class": "QLabel",
+     "name": "label_5",
+     "y": 232,
+     "x": 28,
+     "enabled": true,
+     "text": "Offset X"
+    },
+    {
+     "class": "QDoubleSpinBox",
+     "name": "dsbOffsetX",
+     "y": 232,
+     "x": 249,
+     "enabled": true,
+     "text": "0.00"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 233,
+     "x": 254,
+     "enabled": true,
+     "text": "0.00"
+    },
+    {
+     "class": "QLabel",
+     "name": "label_6",
+     "y": 259,
+     "x": 28,
+     "enabled": true,
+     "text": "Offset Y"
+    },
+    {
+     "class": "QDoubleSpinBox",
+     "name": "dsbOffsetY",
+     "y": 259,
+     "x": 249,
+     "enabled": true,
+     "text": "0.00"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 260,
+     "x": 254,
+     "enabled": true,
+     "text": "0.00"
+    }
+   ]
+  ],
+  "view_after_open": {
+   "CosmeticVertexes": [],
+   "CosmeticEdges": [],
+   "CenterLines": [],
+   "GeomFormats": [],
+   "edges": [
+    {
+     "curve": "Line",
+     "start": [
+      -20.0,
+      -12.0,
+      0.0
+     ],
+     "end": [
+      -20.0,
+      15.0,
+      0.0
+     ]
+    },
+    {
+     "curve": "Circle",
+     "start": [
+      -20.0,
+      -12.0,
+      0.0
+     ],
+     "end": [
+      -16.99999999999999,
+      -15.0,
+      0.0
+     ]
+    },
+    {
+     "curve": "Line",
+     "start": [
+      -20.0,
+      15.0,
+      0.0
+     ],
+     "end": [
+      20.0,
+      15.0,
+      0.0
+     ]
+    },
+    {
+     "curve": "Line",
+     "start": [
+      -17.0,
+      -15.0,
+      0.0
+     ],
+     "end": [
+      20.0,
+      -15.0,
+      0.0
+     ]
+    },
+    {
+     "curve": "Line",
+     "start": [
+      20.0,
+      -15.0,
+      0.0
+     ],
+     "end": [
+      20.0,
+      15.0,
+      0.0
+     ]
+    },
+    {
+     "curve": "Circle",
+     "start": [
+      14.0,
+      8.0,
+      0.0
+     ],
+     "end": [
+      14.0,
+      8.0,
+      0.0
+     ]
+    }
+   ],
+   "vertices": [
+    [
+     -20.0,
+     -12.0,
+     0.0
+    ],
+    [
+     -20.0,
+     15.0,
+     0.0
+    ],
+    [
+     -16.99999999999999,
+     -15.0,
+     0.0
+    ],
+    [
+     -17.0,
+     -12.0,
+     0.0
+    ],
+    [
+     20.0,
+     15.0,
+     0.0
+    ],
+    [
+     20.0,
+     -15.0,
+     0.0
+    ],
+    [
+     14.0,
+     8.0,
+     0.0
+    ],
+    [
+     14.0,
+     8.0,
+     0.0
+    ],
+    [
+     10.0,
+     8.0,
+     0.0
+    ]
+   ]
+  },
+  "undo_after_open": {
+   "head": [],
+   "all": [
+    "Delete",
+    "Create GeomHatch",
+    "Create GeomHatch",
+    "Create view",
+    "Drawing create page"
+   ]
+  },
+  "edit": {
+   "scale": true,
+   "rotation": true,
+   "ox": true,
+   "oy": true
+  },
+  "panel_after_edit": [
+   [
+    {
+     "class": "QPushButton",
+     "name": "",
+     "y": 9,
+     "x": 137,
+     "enabled": true,
+     "text": "OK"
+    },
+    {
+     "class": "QPushButton",
+     "name": "",
+     "y": 9,
+     "x": 249,
+     "enabled": true,
+     "text": "Cancel"
+    },
+    {
+     "class": "QSint::TaskHeader",
+     "name": "",
+     "y": 50,
+     "x": 4,
+     "enabled": true,
+     "text": ""
+    },
+    {
+     "class": "QSint::ActionLabel",
+     "name": "",
+     "y": 53,
+     "x": 9,
+     "enabled": true,
+     "text": "Create Face Hatch"
+    },
+    {
+     "class": "QGroupBox",
+     "name": "groupBox",
+     "y": 85,
+     "x": 18,
+     "enabled": true,
+     "tip": "Select an SVG or bitmap file",
+     "text": "Pattern Parameters"
+    },
+    {
+     "class": "QLabel",
+     "name": "label",
+     "y": 113,
+     "x": 28,
+     "enabled": true,
+     "text": "Pattern file"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "",
+     "y": 113,
+     "x": 85,
+     "enabled": true,
+     "text": "<FreeCAD>/Mod/TechDraw/Patterns/simple.svg"
+    },
+    {
+     "class": "QPushButton",
+     "name": "",
+     "y": 113,
+     "x": 443,
+     "enabled": true,
+     "text": "\u2026"
+    },
+    {
+     "class": "QLabel",
+     "name": "label_2",
+     "y": 141,
+     "x": 28,
+     "enabled": true,
+     "text": "SVG pattern scale"
+    },
+    {
+     "class": "Gui::QuantitySpinBox",
+     "name": "sbScale",
+     "y": 141,
+     "x": 249,
+     "enabled": true,
+     "tip": "Enlarges/shrinks the pattern (SVG only)",
+     "text": "2"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 142,
+     "x": 254,
+     "enabled": true,
+     "text": "2"
+    },
+    {
+     "class": "QLabel",
+     "name": "label_3",
+     "y": 173,
+     "x": 28,
+     "enabled": true,
+     "text": "SVG line color"
+    },
+    {
+     "class": "Gui::ColorButton",
+     "name": "ccColor",
+     "y": 173,
+     "x": 249,
+     "enabled": true,
+     "tip": "Color of pattern lines (SVG only)",
+     "text": ""
+    },
+    {
+     "class": "QLabel",
+     "name": "label_4",
+     "y": 205,
+     "x": 28,
+     "enabled": true,
+     "text": "Rotation"
+    },
+    {
+     "class": "QDoubleSpinBox",
+     "name": "dsbRotation",
+     "y": 205,
+     "x": 249,
+     "enabled": true,
+     "tip": "Rotate the pattern (degrees)",
+     "text": "10"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 206,
+     "x": 254,
+     "enabled": true,
+     "text": "10"
+    },
+    {
+     "class": "QLabel",
+     "name": "label_5",
+     "y": 232,
+     "x": 28,
+     "enabled": true,
+     "text": "Offset X"
+    },
+    {
+     "class": "QDoubleSpinBox",
+     "name": "dsbOffsetX",
+     "y": 232,
+     "x": 249,
+     "enabled": true,
+     "text": "1"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 233,
+     "x": 254,
+     "enabled": true,
+     "text": "1"
+    },
+    {
+     "class": "QLabel",
+     "name": "label_6",
+     "y": 259,
+     "x": 28,
+     "enabled": true,
+     "text": "Offset Y"
+    },
+    {
+     "class": "QDoubleSpinBox",
+     "name": "dsbOffsetY",
+     "y": 259,
+     "x": 249,
+     "enabled": true,
+     "text": "2"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 260,
+     "x": 254,
+     "enabled": true,
+     "text": "2"
+    }
+   ]
+  ],
+  "view_after_edit": {
+   "CosmeticVertexes": [],
+   "CosmeticEdges": [],
+   "CenterLines": [],
+   "GeomFormats": [],
+   "edges": [
+    {
+     "curve": "Line",
+     "start": [
+      -20.0,
+      -12.0,
+      0.0
+     ],
+     "end": [
+      -20.0,
+      15.0,
+      0.0
+     ]
+    },
+    {
+     "curve": "Circle",
+     "start": [
+      -20.0,
+      -12.0,
+      0.0
+     ],
+     "end": [
+      -16.99999999999999,
+      -15.0,
+      0.0
+     ]
+    },
+    {
+     "curve": "Line",
+     "start": [
+      -20.0,
+      15.0,
+      0.0
+     ],
+     "end": [
+      20.0,
+      15.0,
+      0.0
+     ]
+    },
+    {
+     "curve": "Line",
+     "start": [
+      -17.0,
+      -15.0,
+      0.0
+     ],
+     "end": [
+      20.0,
+      -15.0,
+      0.0
+     ]
+    },
+    {
+     "curve": "Line",
+     "start": [
+      20.0,
+      -15.0,
+      0.0
+     ],
+     "end": [
+      20.0,
+      15.0,
+      0.0
+     ]
+    },
+    {
+     "curve": "Circle",
+     "start": [
+      14.0,
+      8.0,
+      0.0
+     ],
+     "end": [
+      14.0,
+      8.0,
+      0.0
+     ]
+    }
+   ],
+   "vertices": [
+    [
+     -20.0,
+     -12.0,
+     0.0
+    ],
+    [
+     -20.0,
+     15.0,
+     0.0
+    ],
+    [
+     -16.99999999999999,
+     -15.0,
+     0.0
+    ],
+    [
+     -17.0,
+     -12.0,
+     0.0
+    ],
+    [
+     20.0,
+     15.0,
+     0.0
+    ],
+    [
+     20.0,
+     -15.0,
+     0.0
+    ],
+    [
+     14.0,
+     8.0,
+     0.0
+    ],
+    [
+     14.0,
+     8.0,
+     0.0
+    ],
+    [
+     10.0,
+     8.0,
+     0.0
+    ]
+   ]
+  },
+  "button": true,
+  "dialogs": [],
+  "undo": {
+   "head": [
+    "Update Hatch",
+    "Update Hatch",
+    "Update Hatch",
+    "Update Hatch",
+    "Update Hatch"
+   ],
+   "all": [
+    "Update Hatch",
+    "Update Hatch",
+    "Update Hatch",
+    "Update Hatch",
+    "Update Hatch",
+    "Delete"
+   ]
+  },
+  "view": {
+   "CosmeticVertexes": [],
+   "CosmeticEdges": [],
+   "CenterLines": [],
+   "GeomFormats": [],
+   "edges": [
+    {
+     "curve": "Line",
+     "start": [
+      -20.0,
+      -12.0,
+      0.0
+     ],
+     "end": [
+      -20.0,
+      15.0,
+      0.0
+     ]
+    },
+    {
+     "curve": "Circle",
+     "start": [
+      -20.0,
+      -12.0,
+      0.0
+     ],
+     "end": [
+      -16.99999999999999,
+      -15.0,
+      0.0
+     ]
+    },
+    {
+     "curve": "Line",
+     "start": [
+      -20.0,
+      15.0,
+      0.0
+     ],
+     "end": [
+      20.0,
+      15.0,
+      0.0
+     ]
+    },
+    {
+     "curve": "Line",
+     "start": [
+      -17.0,
+      -15.0,
+      0.0
+     ],
+     "end": [
+      20.0,
+      -15.0,
+      0.0
+     ]
+    },
+    {
+     "curve": "Line",
+     "start": [
+      20.0,
+      -15.0,
+      0.0
+     ],
+     "end": [
+      20.0,
+      15.0,
+      0.0
+     ]
+    },
+    {
+     "curve": "Circle",
+     "start": [
+      14.0,
+      8.0,
+      0.0
+     ],
+     "end": [
+      14.0,
+      8.0,
+      0.0
+     ]
+    }
+   ],
+   "vertices": [
+    [
+     -20.0,
+     -12.0,
+     0.0
+    ],
+    [
+     -20.0,
+     15.0,
+     0.0
+    ],
+    [
+     -16.99999999999999,
+     -15.0,
+     0.0
+    ],
+    [
+     -17.0,
+     -12.0,
+     0.0
+    ],
+    [
+     20.0,
+     15.0,
+     0.0
+    ],
+    [
+     20.0,
+     -15.0,
+     0.0
+    ],
+    [
+     14.0,
+     8.0,
+     0.0
+    ],
+    [
+     14.0,
+     8.0,
+     0.0
+    ],
+    [
+     10.0,
+     8.0,
+     0.0
+    ]
+   ]
+  },
+  "tasks_after": [
+   []
+  ],
+  "hatches": {
+   "objects": [
+    {
+     "Name": "GeomHatch",
+     "Label": "GeomHatch",
+     "TypeId": "TechDraw::DrawGeomHatch",
+     "FilePattern": "<FreeCAD>/Mod/TechDraw/PAT/FCPAT.pat",
+     "Label2": "",
+     "NamePattern": "Diagonal4",
+     "PatIncluded": "<document>/FCPAT.pat",
+     "PatternOffset": [
+      1.0,
+      2.0,
+      0.0
+     ],
+     "PatternRotation": 15.0,
+     "ScalePattern": 2.0,
+     "Source": [
+      "View",
+      [
+       "Face0"
+      ]
+     ],
+     "Visibility": true,
+     "ViewProvider": {
+      "ColorPattern": [
+       0.0,
+       1.0,
+       0.0,
+       0.0
+      ],
+      "DisplayMode": "",
+      "OnTopWhenSelected": "Disabled",
+      "SelectionStyle": "Shape",
+      "ShowInTree": true,
+      "Visibility": true,
+      "WeightPattern": 0.3
+     }
+    },
+    {
+     "Name": "Hatch",
+     "Label": "Hatch",
+     "TypeId": "TechDraw::DrawHatch",
+     "HatchPattern": "<FreeCAD>/Mod/TechDraw/Patterns/simple.svg",
+     "Label2": "",
+     "Source": [
+      "View",
+      [
+       "Face1"
+      ]
+     ],
+     "SvgIncluded": "<document>/simple.svg",
+     "Visibility": true,
+     "ViewProvider": {
+      "DisplayMode": "",
+      "HatchColor": [
+       0.0,
+       1.0,
+       0.0,
+       0.0
+      ],
+      "HatchOffset": [
+       1.0,
+       2.0,
+       0.0
+      ],
+      "HatchRotation": 10.0,
+      "HatchScale": 2.0,
+      "OnTopWhenSelected": "Disabled",
+      "SelectionStyle": "Shape",
+      "ShowInTree": true,
+      "Visibility": true
+     }
+    }
+   ]
+  },
+  "tree": [
+   {
+    "text": "Unnamed",
+    "depth": 0,
+    "children": 3
+   },
+   {
+    "text": "plate",
+    "depth": 1,
+    "children": 0
+   },
+   {
+    "text": "bracket",
+    "depth": 1,
+    "children": 0
+   },
+   {
+    "text": "Page",
+    "depth": 1,
+    "children": 2
+   },
+   {
+    "text": "Template",
+    "depth": 2,
+    "children": 0
+   },
+   {
+    "text": "View",
+    "depth": 2,
+    "children": 2
+   },
+   {
+    "text": "GeomHatch",
+    "depth": 3,
+    "children": 0
+   },
+   {
+    "text": "Hatch",
+    "depth": 3,
+    "children": 0
+   }
+  ]
+ },
+ "hatch_svg": "<?xml version='1.0' encoding='UTF-8' standalone='no'?>\n<svg baseProfile=\"tiny\" height=\"210mm\" version=\"1.2\" viewBox=\"0 0 2970 2100\" width=\"297mm\" xmlns=\"http://www.w3.org/2000/svg\" xmlns:cc=\"http://creativecommons.org/ns#\" xmlns:dc=\"http://purl.org/dc/elements/1.1/\" xmlns:freecad=\"https://www.freecad.org/wiki/index.php?title=Svg_Namespace\" xmlns:inkscape=\"http://www.inkscape.org/namespaces/inkscape\" xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\" xmlns:sodipodi=\"http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd\" xmlns:svg=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\">\n <title>FreeCAD SVG Export</title>\n <desc>Drawing page: Page exported from FreeCAD document: Unnamed</desc>\n <defs/>\n <g id=\"Page\" inkscape:groupmode=\"layer\" inkscape:label=\"TechDraw\">\n  <g id=\"Default_Template_A4_Landscape.svg\" style=\"stroke: none;\" transform=\"scale(10.000000, 10.000000)\">\n   <metadata id=\"metadata8\">\n    <rdf:RDF>\n     <cc:Work rdf:about=\"\">\n      <dc:format>image/svg+xml</dc:format>\n      <dc:type rdf:resource=\"http://purl.org/dc/dcmitype/StillImage\"/>\n     </cc:Work>\n    </rdf:RDF>\n   </metadata>\n  </g>\n  <g fill=\"none\" fill-rule=\"evenodd\" id=\"DrawingContent\" stroke=\"black\" stroke-linecap=\"square\" stroke-linejoin=\"bevel\" stroke-width=\"1\">\n   <g fill=\"#f1f3f5\" fill-opacity=\"1\" font-family=\"Sans Serif\" font-size=\"31.75\" font-style=\"normal\" font-weight=\"400\" stroke=\"none\" transform=\"matrix(1,0,0,1,1485,1050)\">\n    <path d=\"M-200,120 C-200,136.569 -186.569,150 -170,150 L200,150 L200,-150 L-200,-150 L-200,120 Z \" fill-rule=\"evenodd\" vector-effect=\"non-scaling-stroke\"/>\n   </g>\n   <g fill=\"none\" font-family=\"Sans Serif\" font-size=\"31.75\" font-style=\"normal\" font-weight=\"400\" stroke=\"#00ff00\" stroke-linecap=\"square\" stroke-linejoin=\"bevel\" stroke-opacity=\"0\" stroke-width=\"3\" transform=\"matrix(1,0,0,1,1485,1050)\">\n    <path d=\"M188.979,150 L200,130.91 \" fill-rule=\"evenodd\" vector-effect=\"none\"/>\n   </g>\n   <g fill=\"none\" font-family=\"Sans Serif\" font-size=\"31.75\" font-style=\"normal\" font-weight=\"400\" stroke=\"#00ff00\" stroke-linecap=\"square\" stroke-linejoin=\"bevel\" stroke-opacity=\"0\" stroke-width=\"3\" transform=\"matrix(1,0,0,1,1485,1050)\">\n    <path d=\"M96.6025,150 L200,-29.0897 \" fill-rule=\"evenodd\" vector-effect=\"none\"/>\n   </g>\n   <g fill=\"none\" font-family=\"Sans Serif\" font-size=\"31.75\" font-style=\"normal\" font-weight=\"400\" stroke=\"#00ff00\" stroke-linecap=\"square\" stroke-linejoin=\"bevel\" stroke-opacity=\"0\" stroke-width=\"3\" transform=\"matrix(1,0,0,1,1485,1050)\">\n    <path d=\"M4.2265,150 L177.432,-150 \" fill-rule=\"evenodd\" vector-effect=\"none\"/>\n   </g>\n   <g fill=\"none\" font-family=\"Sans Serif\" font-size=\"31.75\" font-style=\"normal\" font-weight=\"400\" stroke=\"#00ff00\" stroke-linecap=\"square\" stroke-linejoin=\"bevel\" stroke-opacity=\"0\" stroke-width=\"3\" transform=\"matrix(1,0,0,1,1485,1050)\">\n    <path d=\"M-88.1495,150 L85.0555,-150 \" fill-rule=\"evenodd\" vector-effect=\"none\"/>\n   </g>\n   <g fill=\"none\" font-family=\"Sans Serif\" font-size=\"31.75\" font-style=\"normal\" font-weight=\"400\" stroke=\"#00ff00\" stroke-linecap=\"square\" stroke-linejoin=\"bevel\" stroke-opacity=\"0\" stroke-width=\"3\" transform=\"matrix(1,0,0,1,1485,1050)\">\n    <path d=\"M-179.612,148.418 L-7.32051,-150 \" fill-rule=\"evenodd\" vector-effect=\"none\"/>\n   </g>\n   <g fill=\"none\" font-family=\"Sans Serif\" font-size=\"31.75\" font-style=\"normal\" font-weight=\"400\" stroke=\"#00ff00\" stroke-linecap=\"square\" stroke-linejoin=\"bevel\" stroke-opacity=\"0\" stroke-width=\"3\" transform=\"matrix(1,0,0,1,1485,1050)\">\n    <path d=\"M-200,23.7307 L-99.6966,-150 \" fill-rule=\"evenodd\" vector-effect=\"none\"/>\n   </g>\n   <g fill=\"none\" font-family=\"Sans Serif\" font-size=\"31.75\" font-style=\"normal\" font-weight=\"400\" stroke=\"#00ff00\" stroke-linecap=\"square\" stroke-linejoin=\"bevel\" stroke-opacity=\"0\" stroke-width=\"3\" transform=\"matrix(1,0,0,1,1485,1050)\">\n    <path d=\"M-200,-136.269 L-192.073,-150 \" fill-rule=\"evenodd\" vector-effect=\"none\"/>\n   </g>\n   <g fill=\"#f1f3f5\" fill-opacity=\"1\" font-family=\"Sans Serif\" font-size=\"31.75\" font-style=\"normal\" font-weight=\"400\" stroke=\"none\" transform=\"matrix(1,0,0,1,1485,1050)\">\n    <path d=\"M140,-80 C140,-57.9086 122.091,-40 100,-40 C77.9086,-40 60,-57.9086 60,-80 C60,-102.091 77.9086,-120 100,-120 C122.091,-120 140,-102.091 140,-80 Z \" fill-rule=\"evenodd\" vector-effect=\"non-scaling-stroke\"/>\n   </g>\n   <g fill=\"none\" font-family=\"Sans Serif\" font-size=\"31.75\" font-style=\"normal\" font-weight=\"400\" stroke=\"#000000\" stroke-linecap=\"square\" stroke-linejoin=\"bevel\" stroke-opacity=\"1\" stroke-width=\"1\" transform=\"matrix(1,0,0,1,1521,906)\">\n    <image height=\"128\" image-rendering=\"optimizeSpeed\" preserveAspectRatio=\"none\" width=\"128\" x=\"0\" xlink:href=\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAYAAADDPmHLAAAACXBIWXMAAA7EAAAOxAGVKw4bAAABpUlEQVR4nO3VsW0DQRAEwUtCgPIPSYbSeVlUCOwDpyqB/ps1/hwAAAAAAAAAAAAAAIBP8pzv+hOoPOf7POf3POc5z/k5z/mqP4l3cfxhjj/M8Yc5/jDHH+b4wxx/mOMPc/xh9fFffQK3HP/V541uO77fzhvV49f9afX4dX9aPX7dn1aPX/en1ePX/Wn1+HV/Wj1+3Z9Wj1/3p9Xj1/1p9fh1f1o9ft2fVo9f96fV49f9afX4dX9aPX7dn1aPX/en1ePX/Wn1+Df0Z90w/g39SbeMf0N/zk3jL/ZT9ePX+6n68ev9VP349X6qfvx6P1U/fr2fqh+/3k/Vj1/vp+rHr/dT9ePX+6n68ev9VP349f4VVsev+9dYHL/uX2Vt/Lo/rR6/7k+rx6/70+rx6/60evy6P60ev+5Pq8ev+9Pq8ev+tHr8uj+tHr/uT6vHr/vT6vHr/rR6/Lo/rR6/7k+rx6/70+rx6/60evy6P60ev+5Pq8ev+/McH8fnvRx/mOMPc/xhjj/M8Yc5/jDHH+b4wxx/mOPzz/EBAAAAAAAAAAAAAIAP8wc0H4vlT5aonwAAAABJRU5ErkJggg==\" y=\"0\"/>\n   </g>\n   <g fill=\"none\" font-family=\"Sans Serif\" font-size=\"31.75\" font-style=\"normal\" font-weight=\"400\" stroke=\"#212529\" stroke-linecap=\"round\" stroke-linejoin=\"bevel\" stroke-opacity=\"1\" stroke-width=\"7.15843\" transform=\"matrix(1,0,0,1,1485,1050)\">\n    <path d=\"M-200,120 L-200,-150 \" fill-rule=\"evenodd\" vector-effect=\"none\"/>\n   </g>\n   <g fill=\"none\" font-family=\"Sans Serif\" font-size=\"31.75\" font-style=\"normal\" font-weight=\"400\" stroke=\"#212529\" stroke-linecap=\"round\" stroke-linejoin=\"bevel\" stroke-opacity=\"1\" stroke-width=\"7.15843\" transform=\"matrix(1,0,0,1,1485,1050)\">\n    <path d=\"M-200,120 C-200,136.569 -186.569,150 -170,150 \" fill-rule=\"evenodd\" vector-effect=\"none\"/>\n   </g>\n   <g fill=\"none\" font-family=\"Sans Serif\" font-size=\"31.75\" font-style=\"normal\" font-weight=\"400\" stroke=\"#212529\" stroke-linecap=\"round\" stroke-linejoin=\"bevel\" stroke-opacity=\"1\" stroke-width=\"7.15843\" transform=\"matrix(1,0,0,1,1485,1050)\">\n    <path d=\"M-200,-150 L200,-150 \" fill-rule=\"evenodd\" vector-effect=\"none\"/>\n   </g>\n   <g fill=\"none\" font-family=\"Sans Serif\" font-size=\"31.75\" font-style=\"normal\" font-weight=\"400\" stroke=\"#212529\" stroke-linecap=\"round\" stroke-linejoin=\"bevel\" stroke-opacity=\"1\" stroke-width=\"7.15843\" transform=\"matrix(1,0,0,1,1485,1050)\">\n    <path d=\"M-170,150 L200,150 \" fill-rule=\"evenodd\" vector-effect=\"none\"/>\n   </g>\n   <g fill=\"none\" font-family=\"Sans Serif\" font-size=\"31.75\" font-style=\"normal\" font-weight=\"400\" stroke=\"#212529\" stroke-linecap=\"round\" stroke-linejoin=\"bevel\" stroke-opacity=\"1\" stroke-width=\"7.15843\" transform=\"matrix(1,0,0,1,1485,1050)\">\n    <path d=\"M200,150 L200,-150 \" fill-rule=\"evenodd\" vector-effect=\"none\"/>\n   </g>\n   <g fill=\"none\" font-family=\"Sans Serif\" font-size=\"31.75\" font-style=\"normal\" font-weight=\"400\" stroke=\"#212529\" stroke-linecap=\"round\" stroke-linejoin=\"bevel\" stroke-opacity=\"1\" stroke-width=\"7.15843\" transform=\"matrix(1,0,0,1,1485,1050)\">\n    <path d=\"M140,-80 C140,-57.9086 122.091,-40 100,-40 C77.9086,-40 60,-57.9086 60,-80 C60,-102.091 77.9086,-120 100,-120 C122.091,-120 140,-102.091 140,-80 Z \" fill-rule=\"evenodd\" vector-effect=\"none\"/>\n   </g>\n  </g>\n </g>\n</svg>\n",
+ "hatch_again": {
+  "selection": [
+   [
+    "View",
+    [
+     "Face1"
+    ]
+   ]
+  ],
+  "dialog_open": true,
+  "panel": [
+   [
+    {
+     "class": "QPushButton",
+     "name": "",
+     "y": 9,
+     "x": 137,
+     "enabled": true,
+     "text": "OK"
+    },
+    {
+     "class": "QPushButton",
+     "name": "",
+     "y": 9,
+     "x": 249,
+     "enabled": true,
+     "text": "Cancel"
+    },
+    {
+     "class": "QSint::TaskHeader",
+     "name": "",
+     "y": 50,
+     "x": 4,
+     "enabled": true,
+     "text": ""
+    },
+    {
+     "class": "QSint::ActionLabel",
+     "name": "",
+     "y": 53,
+     "x": 9,
+     "enabled": true,
+     "text": "Create Face Hatch"
+    },
+    {
+     "class": "QGroupBox",
+     "name": "groupBox",
+     "y": 85,
+     "x": 18,
+     "enabled": true,
+     "tip": "Select an SVG or bitmap file",
+     "text": "Pattern Parameters"
+    },
+    {
+     "class": "QLabel",
+     "name": "label",
+     "y": 113,
+     "x": 28,
+     "enabled": true,
+     "text": "Pattern file"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "",
+     "y": 113,
+     "x": 85,
+     "enabled": true,
+     "text": "<FreeCAD>/Mod/TechDraw/Patterns/simple.svg"
+    },
+    {
+     "class": "QPushButton",
+     "name": "",
+     "y": 113,
+     "x": 443,
+     "enabled": true,
+     "text": "\u2026"
+    },
+    {
+     "class": "QLabel",
+     "name": "label_2",
+     "y": 141,
+     "x": 28,
+     "enabled": true,
+     "text": "SVG pattern scale"
+    },
+    {
+     "class": "Gui::QuantitySpinBox",
+     "name": "sbScale",
+     "y": 141,
+     "x": 249,
+     "enabled": true,
+     "tip": "Enlarges/shrinks the pattern (SVG only)",
+     "text": "1.00"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 142,
+     "x": 254,
+     "enabled": true,
+     "text": "1.00"
+    },
+    {
+     "class": "QLabel",
+     "name": "label_3",
+     "y": 173,
+     "x": 28,
+     "enabled": true,
+     "text": "SVG line color"
+    },
+    {
+     "class": "Gui::ColorButton",
+     "name": "ccColor",
+     "y": 173,
+     "x": 249,
+     "enabled": true,
+     "tip": "Color of pattern lines (SVG only)",
+     "text": ""
+    },
+    {
+     "class": "QLabel",
+     "name": "label_4",
+     "y": 205,
+     "x": 28,
+     "enabled": true,
+     "text": "Rotation"
+    },
+    {
+     "class": "QDoubleSpinBox",
+     "name": "dsbRotation",
+     "y": 205,
+     "x": 249,
+     "enabled": true,
+     "tip": "Rotate the pattern (degrees)",
+     "text": "0.00"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 206,
+     "x": 254,
+     "enabled": true,
+     "text": "0.00"
+    },
+    {
+     "class": "QLabel",
+     "name": "label_5",
+     "y": 232,
+     "x": 28,
+     "enabled": true,
+     "text": "Offset X"
+    },
+    {
+     "class": "QDoubleSpinBox",
+     "name": "dsbOffsetX",
+     "y": 232,
+     "x": 249,
+     "enabled": true,
+     "text": "0.00"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 233,
+     "x": 254,
+     "enabled": true,
+     "text": "0.00"
+    },
+    {
+     "class": "QLabel",
+     "name": "label_6",
+     "y": 259,
+     "x": 28,
+     "enabled": true,
+     "text": "Offset Y"
+    },
+    {
+     "class": "QDoubleSpinBox",
+     "name": "dsbOffsetY",
+     "y": 259,
+     "x": 249,
+     "enabled": true,
+     "text": "0.00"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 260,
+     "x": 254,
+     "enabled": true,
+     "text": "0.00"
+    }
+   ]
+  ],
+  "view_after_open": {
+   "CosmeticVertexes": [],
+   "CosmeticEdges": [],
+   "CenterLines": [],
+   "GeomFormats": [],
+   "edges": [
+    {
+     "curve": "Line",
+     "start": [
+      -20.0,
+      -12.0,
+      0.0
+     ],
+     "end": [
+      -20.0,
+      15.0,
+      0.0
+     ]
+    },
+    {
+     "curve": "Circle",
+     "start": [
+      -20.0,
+      -12.0,
+      0.0
+     ],
+     "end": [
+      -16.99999999999999,
+      -15.0,
+      0.0
+     ]
+    },
+    {
+     "curve": "Line",
+     "start": [
+      -20.0,
+      15.0,
+      0.0
+     ],
+     "end": [
+      20.0,
+      15.0,
+      0.0
+     ]
+    },
+    {
+     "curve": "Line",
+     "start": [
+      -17.0,
+      -15.0,
+      0.0
+     ],
+     "end": [
+      20.0,
+      -15.0,
+      0.0
+     ]
+    },
+    {
+     "curve": "Line",
+     "start": [
+      20.0,
+      -15.0,
+      0.0
+     ],
+     "end": [
+      20.0,
+      15.0,
+      0.0
+     ]
+    },
+    {
+     "curve": "Circle",
+     "start": [
+      14.0,
+      8.0,
+      0.0
+     ],
+     "end": [
+      14.0,
+      8.0,
+      0.0
+     ]
+    }
+   ],
+   "vertices": [
+    [
+     -20.0,
+     -12.0,
+     0.0
+    ],
+    [
+     -20.0,
+     15.0,
+     0.0
+    ],
+    [
+     -16.99999999999999,
+     -15.0,
+     0.0
+    ],
+    [
+     -17.0,
+     -12.0,
+     0.0
+    ],
+    [
+     20.0,
+     15.0,
+     0.0
+    ],
+    [
+     20.0,
+     -15.0,
+     0.0
+    ],
+    [
+     14.0,
+     8.0,
+     0.0
+    ],
+    [
+     14.0,
+     8.0,
+     0.0
+    ],
+    [
+     10.0,
+     8.0,
+     0.0
+    ]
+   ]
+  },
+  "undo_after_open": {
+   "head": [
+    "Remove old hatch"
+   ],
+   "all": [
+    "Remove old hatch",
+    "Update Hatch",
+    "Update Hatch",
+    "Update Hatch",
+    "Update Hatch",
+    "Update Hatch"
+   ]
+  },
+  "button": true,
+  "dialogs": [
+   {
+    "title": "Replace hatch?",
+    "text": "Some faces in the selection are already hatched. Replace?",
+    "buttons": [
+     "&Yes",
+     "&No"
+    ]
+   }
+  ],
+  "undo": {
+   "head": [
+    "Update Hatch",
+    "Create Hatch",
+    "Remove old hatch"
+   ],
+   "all": [
+    "Update Hatch",
+    "Create Hatch",
+    "Remove old hatch",
+    "Update Hatch",
+    "Update Hatch",
+    "Update Hatch"
+   ]
+  },
+  "view": {
+   "CosmeticVertexes": [],
+   "CosmeticEdges": [],
+   "CenterLines": [],
+   "GeomFormats": [],
+   "edges": [
+    {
+     "curve": "Line",
+     "start": [
+      -20.0,
+      -12.0,
+      0.0
+     ],
+     "end": [
+      -20.0,
+      15.0,
+      0.0
+     ]
+    },
+    {
+     "curve": "Circle",
+     "start": [
+      -20.0,
+      -12.0,
+      0.0
+     ],
+     "end": [
+      -16.99999999999999,
+      -15.0,
+      0.0
+     ]
+    },
+    {
+     "curve": "Line",
+     "start": [
+      -20.0,
+      15.0,
+      0.0
+     ],
+     "end": [
+      20.0,
+      15.0,
+      0.0
+     ]
+    },
+    {
+     "curve": "Line",
+     "start": [
+      -17.0,
+      -15.0,
+      0.0
+     ],
+     "end": [
+      20.0,
+      -15.0,
+      0.0
+     ]
+    },
+    {
+     "curve": "Line",
+     "start": [
+      20.0,
+      -15.0,
+      0.0
+     ],
+     "end": [
+      20.0,
+      15.0,
+      0.0
+     ]
+    },
+    {
+     "curve": "Circle",
+     "start": [
+      14.0,
+      8.0,
+      0.0
+     ],
+     "end": [
+      14.0,
+      8.0,
+      0.0
+     ]
+    }
+   ],
+   "vertices": [
+    [
+     -20.0,
+     -12.0,
+     0.0
+    ],
+    [
+     -20.0,
+     15.0,
+     0.0
+    ],
+    [
+     -16.99999999999999,
+     -15.0,
+     0.0
+    ],
+    [
+     -17.0,
+     -12.0,
+     0.0
+    ],
+    [
+     20.0,
+     15.0,
+     0.0
+    ],
+    [
+     20.0,
+     -15.0,
+     0.0
+    ],
+    [
+     14.0,
+     8.0,
+     0.0
+    ],
+    [
+     14.0,
+     8.0,
+     0.0
+    ],
+    [
+     10.0,
+     8.0,
+     0.0
+    ]
+   ]
+  },
+  "tasks_after": [
+   []
+  ],
+  "hatches": {
+   "objects": [
+    {
+     "Name": "GeomHatch",
+     "Label": "GeomHatch",
+     "TypeId": "TechDraw::DrawGeomHatch",
+     "FilePattern": "<FreeCAD>/Mod/TechDraw/PAT/FCPAT.pat",
+     "Label2": "",
+     "NamePattern": "Diagonal4",
+     "PatIncluded": "<document>/FCPAT.pat",
+     "PatternOffset": [
+      1.0,
+      2.0,
+      0.0
+     ],
+     "PatternRotation": 15.0,
+     "ScalePattern": 2.0,
+     "Source": [
+      "View",
+      [
+       "Face0"
+      ]
+     ],
+     "Visibility": true,
+     "ViewProvider": {
+      "ColorPattern": [
+       0.0,
+       1.0,
+       0.0,
+       0.0
+      ],
+      "DisplayMode": "",
+      "OnTopWhenSelected": "Disabled",
+      "SelectionStyle": "Shape",
+      "ShowInTree": true,
+      "Visibility": true,
+      "WeightPattern": 0.3
+     }
+    },
+    {
+     "Name": "Hatch",
+     "Label": "Hatch",
+     "TypeId": "TechDraw::DrawHatch",
+     "HatchPattern": "<FreeCAD>/Mod/TechDraw/Patterns/simple.svg",
+     "Label2": "",
+     "Source": [
+      "View",
+      [
+       "Face1"
+      ]
+     ],
+     "SvgIncluded": "<document>/simple1.svg",
+     "Visibility": true,
+     "ViewProvider": {
+      "DisplayMode": "",
+      "HatchColor": [
+       0.0,
+       1.0,
+       0.0,
+       0.0
+      ],
+      "HatchOffset": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "HatchRotation": 0.0,
+      "HatchScale": 1.0,
+      "OnTopWhenSelected": "Disabled",
+      "SelectionStyle": "Shape",
+      "ShowInTree": true,
+      "Visibility": true
+     }
+    }
+   ]
+  },
+  "tree": [
+   {
+    "text": "Unnamed",
+    "depth": 0,
+    "children": 3
+   },
+   {
+    "text": "plate",
+    "depth": 1,
+    "children": 0
+   },
+   {
+    "text": "bracket",
+    "depth": 1,
+    "children": 0
+   },
+   {
+    "text": "Page",
+    "depth": 1,
+    "children": 2
+   },
+   {
+    "text": "Template",
+    "depth": 2,
+    "children": 0
+   },
+   {
+    "text": "View",
+    "depth": 2,
+    "children": 2
+   },
+   {
+    "text": "GeomHatch",
+    "depth": 3,
+    "children": 0
+   },
+   {
+    "text": "Hatch",
+    "depth": 3,
+    "children": 0
+   }
+  ]
+ },
+ "hatch_edit": {
+  "object": "Hatch",
+  "dialog_open": true,
+  "panel": [
+   [
+    {
+     "class": "QPushButton",
+     "name": "",
+     "y": 9,
+     "x": 137,
+     "enabled": true,
+     "text": "OK"
+    },
+    {
+     "class": "QPushButton",
+     "name": "",
+     "y": 9,
+     "x": 249,
+     "enabled": true,
+     "text": "Cancel"
+    },
+    {
+     "class": "QSint::TaskHeader",
+     "name": "",
+     "y": 50,
+     "x": 4,
+     "enabled": true,
+     "text": ""
+    },
+    {
+     "class": "QSint::ActionLabel",
+     "name": "",
+     "y": 53,
+     "x": 9,
+     "enabled": true,
+     "text": "Edit Face Hatch"
+    },
+    {
+     "class": "QGroupBox",
+     "name": "groupBox",
+     "y": 85,
+     "x": 18,
+     "enabled": true,
+     "tip": "Select an SVG or bitmap file",
+     "text": "Pattern Parameters"
+    },
+    {
+     "class": "QLabel",
+     "name": "label",
+     "y": 113,
+     "x": 28,
+     "enabled": true,
+     "text": "Pattern file"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "",
+     "y": 113,
+     "x": 85,
+     "enabled": true,
+     "text": "<FreeCAD>/Mod/TechDraw/Patterns/simple.svg"
+    },
+    {
+     "class": "QPushButton",
+     "name": "",
+     "y": 113,
+     "x": 443,
+     "enabled": true,
+     "text": "\u2026"
+    },
+    {
+     "class": "QLabel",
+     "name": "label_2",
+     "y": 141,
+     "x": 28,
+     "enabled": true,
+     "text": "SVG pattern scale"
+    },
+    {
+     "class": "Gui::QuantitySpinBox",
+     "name": "sbScale",
+     "y": 141,
+     "x": 249,
+     "enabled": true,
+     "tip": "Enlarges/shrinks the pattern (SVG only)",
+     "text": "1.00"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 142,
+     "x": 254,
+     "enabled": true,
+     "text": "1.00"
+    },
+    {
+     "class": "QLabel",
+     "name": "label_3",
+     "y": 173,
+     "x": 28,
+     "enabled": true,
+     "text": "SVG line color"
+    },
+    {
+     "class": "Gui::ColorButton",
+     "name": "ccColor",
+     "y": 173,
+     "x": 249,
+     "enabled": true,
+     "tip": "Color of pattern lines (SVG only)",
+     "text": ""
+    },
+    {
+     "class": "QLabel",
+     "name": "label_4",
+     "y": 205,
+     "x": 28,
+     "enabled": true,
+     "text": "Rotation"
+    },
+    {
+     "class": "QDoubleSpinBox",
+     "name": "dsbRotation",
+     "y": 205,
+     "x": 249,
+     "enabled": true,
+     "tip": "Rotate the pattern (degrees)",
+     "text": "0.00"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 206,
+     "x": 254,
+     "enabled": true,
+     "text": "0.00"
+    },
+    {
+     "class": "QLabel",
+     "name": "label_5",
+     "y": 232,
+     "x": 28,
+     "enabled": true,
+     "text": "Offset X"
+    },
+    {
+     "class": "QDoubleSpinBox",
+     "name": "dsbOffsetX",
+     "y": 232,
+     "x": 249,
+     "enabled": true,
+     "text": "0.00"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 233,
+     "x": 254,
+     "enabled": true,
+     "text": "0.00"
+    },
+    {
+     "class": "QLabel",
+     "name": "label_6",
+     "y": 259,
+     "x": 28,
+     "enabled": true,
+     "text": "Offset Y"
+    },
+    {
+     "class": "QDoubleSpinBox",
+     "name": "dsbOffsetY",
+     "y": 259,
+     "x": 249,
+     "enabled": true,
+     "text": "0.00"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 260,
+     "x": 254,
+     "enabled": true,
+     "text": "0.00"
+    }
+   ]
+  ],
+  "edit": {
+   "scale": true
+  },
+  "undo": {
+   "head": [
+    "Update Hatch",
+    "Update Hatch"
+   ],
+   "all": [
+    "Update Hatch",
+    "Update Hatch",
+    "Update Hatch",
+    "Create Hatch",
+    "Remove old hatch",
+    "Update Hatch"
+   ]
+  },
+  "hatches": {
+   "objects": [
+    {
+     "Name": "GeomHatch",
+     "Label": "GeomHatch",
+     "TypeId": "TechDraw::DrawGeomHatch",
+     "FilePattern": "<FreeCAD>/Mod/TechDraw/PAT/FCPAT.pat",
+     "Label2": "",
+     "NamePattern": "Diagonal4",
+     "PatIncluded": "<document>/FCPAT.pat",
+     "PatternOffset": [
+      1.0,
+      2.0,
+      0.0
+     ],
+     "PatternRotation": 15.0,
+     "ScalePattern": 2.0,
+     "Source": [
+      "View",
+      [
+       "Face0"
+      ]
+     ],
+     "Visibility": true,
+     "ViewProvider": {
+      "ColorPattern": [
+       0.0,
+       1.0,
+       0.0,
+       0.0
+      ],
+      "DisplayMode": "",
+      "OnTopWhenSelected": "Disabled",
+      "SelectionStyle": "Shape",
+      "ShowInTree": true,
+      "Visibility": true,
+      "WeightPattern": 0.3
+     }
+    },
+    {
+     "Name": "Hatch",
+     "Label": "Hatch",
+     "TypeId": "TechDraw::DrawHatch",
+     "HatchPattern": "<FreeCAD>/Mod/TechDraw/Patterns/simple.svg",
+     "Label2": "",
+     "Source": [
+      "View",
+      [
+       "Face1"
+      ]
+     ],
+     "SvgIncluded": "<document>/simple1.svg",
+     "Visibility": true,
+     "ViewProvider": {
+      "DisplayMode": "",
+      "HatchColor": [
+       0.0,
+       1.0,
+       0.0,
+       0.0
+      ],
+      "HatchOffset": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "HatchRotation": 0.0,
+      "HatchScale": 3.0,
+      "OnTopWhenSelected": "Disabled",
+      "SelectionStyle": "Shape",
+      "ShowInTree": true,
+      "Visibility": true
+     }
+    }
+   ]
+  }
+ },
+ "geomhatch_edit": {
+  "object": "GeomHatch",
+  "dialog_open": true,
+  "panel": [
+   [
+    {
+     "class": "QPushButton",
+     "name": "",
+     "y": 9,
+     "x": 137,
+     "enabled": true,
+     "text": "OK"
+    },
+    {
+     "class": "QPushButton",
+     "name": "",
+     "y": 9,
+     "x": 249,
+     "enabled": true,
+     "text": "Cancel"
+    },
+    {
+     "class": "QSint::TaskHeader",
+     "name": "",
+     "y": 50,
+     "x": 4,
+     "enabled": true,
+     "text": ""
+    },
+    {
+     "class": "QSint::ActionLabel",
+     "name": "",
+     "y": 53,
+     "x": 9,
+     "enabled": true,
+     "text": "Geometric Hatch"
+    },
+    {
+     "class": "QGroupBox",
+     "name": "groupBox",
+     "y": 85,
+     "x": 18,
+     "enabled": true,
+     "text": "Define Pattern"
+    },
+    {
+     "class": "QLabel",
+     "name": "label",
+     "y": 113,
+     "x": 28,
+     "enabled": true,
+     "text": "Pattern file"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "",
+     "y": 113,
+     "x": 85,
+     "enabled": true,
+     "text": "<FreeCAD>/Mod/TechDraw/PAT/FCPAT.pat"
+    },
+    {
+     "class": "QPushButton",
+     "name": "",
+     "y": 113,
+     "x": 443,
+     "enabled": true,
+     "text": "\u2026"
+    },
+    {
+     "class": "QLabel",
+     "name": "label_4",
+     "y": 141,
+     "x": 28,
+     "enabled": true,
+     "text": "Pattern name"
+    },
+    {
+     "class": "QComboBox",
+     "name": "cbName",
+     "y": 141,
+     "x": 269,
+     "enabled": true,
+     "tip": "Name of pattern within file",
+     "items": [
+      "Diamond",
+      "Diamond2",
+      "Diamond4",
+      "Diagonal4",
+      "Diagonal5",
+      "Square",
+      "Horizontal5",
+      "Vertical5"
+     ],
+     "current": "Diagonal4"
+    },
+    {
+     "class": "QLabel",
+     "name": "label_2",
+     "y": 171,
+     "x": 28,
+     "enabled": true,
+     "text": "Pattern scale"
+    },
+    {
+     "class": "Gui::QuantitySpinBox",
+     "name": "sbScale",
+     "y": 171,
+     "x": 269,
+     "enabled": true,
+     "tip": "Enlarges/shrinks the pattern",
+     "text": "2.00"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 172,
+     "x": 274,
+     "enabled": true,
+     "text": "2.00"
+    },
+    {
+     "class": "QLabel",
+     "name": "label_5",
+     "y": 202,
+     "x": 28,
+     "enabled": true,
+     "text": "Line width"
+    },
+    {
+     "class": "Gui::QuantitySpinBox",
+     "name": "sbWeight",
+     "y": 202,
+     "x": 269,
+     "enabled": true,
+     "tip": "Thickness of the lines within the pattern",
+     "text": "0.30"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 203,
+     "x": 274,
+     "enabled": true,
+     "text": "0.30"
+    },
+    {
+     "class": "QLabel",
+     "name": "label_3",
+     "y": 233,
+     "x": 28,
+     "enabled": true,
+     "text": "Line color"
+    },
+    {
+     "class": "Gui::ColorButton",
+     "name": "ccColor",
+     "y": 233,
+     "x": 269,
+     "enabled": true,
+     "tip": "Color of pattern lines",
+     "text": ""
+    },
+    {
+     "class": "QLabel",
+     "name": "label_6",
+     "y": 261,
+     "x": 28,
+     "enabled": true,
+     "text": "Rotation"
+    },
+    {
+     "class": "QDoubleSpinBox",
+     "name": "dsbRotation",
+     "y": 261,
+     "x": 269,
+     "enabled": true,
+     "text": "15.00"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 262,
+     "x": 274,
+     "enabled": true,
+     "text": "15.00"
+    },
+    {
+     "class": "QLabel",
+     "name": "label_7",
+     "y": 288,
+     "x": 28,
+     "enabled": true,
+     "text": "Offset X"
+    },
+    {
+     "class": "QDoubleSpinBox",
+     "name": "dsbOffsetX",
+     "y": 288,
+     "x": 269,
+     "enabled": true,
+     "text": "1.00"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 289,
+     "x": 274,
+     "enabled": true,
+     "text": "1.00"
+    },
+    {
+     "class": "QLabel",
+     "name": "label_8",
+     "y": 315,
+     "x": 28,
+     "enabled": true,
+     "text": "Offset Y"
+    },
+    {
+     "class": "QDoubleSpinBox",
+     "name": "dsbOffsetY",
+     "y": 315,
+     "x": 269,
+     "enabled": true,
+     "text": "2.00"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 316,
+     "x": 274,
+     "enabled": true,
+     "text": "2.00"
+    }
+   ]
+  ],
+  "edit": {
+   "scale": true
+  },
+  "undo": {
+   "head": [],
+   "all": [
+    "Update Hatch",
+    "Update Hatch",
+    "Update Hatch",
+    "Create Hatch",
+    "Remove old hatch",
+    "Update Hatch"
+   ]
+  },
+  "hatches": {
+   "objects": [
+    {
+     "Name": "GeomHatch",
+     "Label": "GeomHatch",
+     "TypeId": "TechDraw::DrawGeomHatch",
+     "FilePattern": "<FreeCAD>/Mod/TechDraw/PAT/FCPAT.pat",
+     "Label2": "",
+     "NamePattern": "Diagonal4",
+     "PatIncluded": "<document>/FCPAT.pat",
+     "PatternOffset": [
+      1.0,
+      2.0,
+      0.0
+     ],
+     "PatternRotation": 15.0,
+     "ScalePattern": 1.0,
+     "Source": [
+      "View",
+      [
+       "Face0"
+      ]
+     ],
+     "Visibility": true,
+     "ViewProvider": {
+      "ColorPattern": [
+       0.0,
+       1.0,
+       0.0,
+       0.0
+      ],
+      "DisplayMode": "",
+      "OnTopWhenSelected": "Disabled",
+      "SelectionStyle": "Shape",
+      "ShowInTree": true,
+      "Visibility": true,
+      "WeightPattern": 0.3
+     }
+    },
+    {
+     "Name": "Hatch",
+     "Label": "Hatch",
+     "TypeId": "TechDraw::DrawHatch",
+     "HatchPattern": "<FreeCAD>/Mod/TechDraw/Patterns/simple.svg",
+     "Label2": "",
+     "Source": [
+      "View",
+      [
+       "Face1"
+      ]
+     ],
+     "SvgIncluded": "<document>/simple1.svg",
+     "Visibility": true,
+     "ViewProvider": {
+      "DisplayMode": "",
+      "HatchColor": [
+       0.0,
+       1.0,
+       0.0,
+       0.0
+      ],
+      "HatchOffset": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "HatchRotation": 0.0,
+      "HatchScale": 3.0,
+      "OnTopWhenSelected": "Disabled",
+      "SelectionStyle": "Shape",
+      "ShowInTree": true,
+      "Visibility": true
+     }
+    }
+   ]
+  }
+ },
+ "tree": [
+  {
+   "text": "Unnamed",
+   "depth": 0,
+   "children": 3
+  },
+  {
+   "text": "plate",
+   "depth": 1,
+   "children": 0
+  },
+  {
+   "text": "bracket",
+   "depth": 1,
+   "children": 0
+  },
+  {
+   "text": "Page",
+   "depth": 1,
+   "children": 2
+  },
+  {
+   "text": "Template",
+   "depth": 2,
+   "children": 0
+  },
+  {
+   "text": "View",
+   "depth": 2,
+   "children": 2
+  },
+  {
+   "text": "GeomHatch",
+   "depth": 3,
+   "children": 0
+  },
+  {
+   "text": "Hatch",
+   "depth": 3,
+   "children": 0
+  }
+ ],
+ "props_DrawGeomHatch_GeomHatch": {
+  "view": [
+   [
+    {
+     "depth": 0,
+     "name": "Display Options",
+     "value": null
+    },
+    {
+     "depth": 1,
+     "name": "Display Mode",
+     "value": ""
+    },
+    {
+     "depth": 1,
+     "name": "Show In Tree",
+     "value": "true"
+    },
+    {
+     "depth": 1,
+     "name": "Visibility",
+     "value": "true"
+    },
+    {
+     "depth": 0,
+     "name": "Geom Hatch",
+     "value": null
+    },
+    {
+     "depth": 1,
+     "name": "Color Pattern",
+     "value": "[0, 255, 0]"
+    },
+    {
+     "depth": 1,
+     "name": "Weight Pattern",
+     "value": "0.3"
+    },
+    {
+     "depth": 0,
+     "name": "Selection",
+     "value": null
+    },
+    {
+     "depth": 1,
+     "name": "On Top When Selected",
+     "value": "Disabled"
+    },
+    {
+     "depth": 1,
+     "name": "Selection Style",
+     "value": "Shape"
+    }
+   ]
+  ],
+  "data": [
+   [
+    {
+     "depth": 0,
+     "name": "Base",
+     "value": null
+    },
+    {
+     "depth": 1,
+     "name": "Label",
+     "value": "GeomHatch"
+    },
+    {
+     "depth": 0,
+     "name": "Geom Hatch",
+     "value": null
+    },
+    {
+     "depth": 1,
+     "name": "Source",
+     "value": "View [Face0]"
+    },
+    {
+     "depth": 1,
+     "name": "File Pattern",
+     "value": "<FreeCAD>/Mod/TechDraw/PAT/FCPAT.pat"
+    },
+    {
+     "depth": 1,
+     "name": "Pat Included",
+     "value": "<document>/FCPAT.pat"
+    },
+    {
+     "depth": 1,
+     "name": "Name Pattern",
+     "value": "Diagonal4"
+    },
+    {
+     "depth": 1,
+     "name": "Scale Pattern",
+     "value": "1"
+    },
+    {
+     "depth": 1,
+     "name": "Pattern Rotation",
+     "value": "15"
+    },
+    {
+     "depth": 1,
+     "name": "Pattern Offset",
+     "value": "[1.00 2.00 0.00]"
+    }
+   ]
+  ]
+ },
+ "props_DrawHatch_Hatch": {
+  "view": [
+   [
+    {
+     "depth": 0,
+     "name": "Display Options",
+     "value": null
+    },
+    {
+     "depth": 1,
+     "name": "Display Mode",
+     "value": ""
+    },
+    {
+     "depth": 1,
+     "name": "Show In Tree",
+     "value": "true"
+    },
+    {
+     "depth": 1,
+     "name": "Visibility",
+     "value": "true"
+    },
+    {
+     "depth": 0,
+     "name": "Hatch",
+     "value": null
+    },
+    {
+     "depth": 1,
+     "name": "Hatch Color",
+     "value": "[0, 255, 0]"
+    },
+    {
+     "depth": 1,
+     "name": "Hatch Offset",
+     "value": "[0.00 0.00 0.00]"
+    },
+    {
+     "depth": 1,
+     "name": "Hatch Rotation",
+     "value": "0"
+    },
+    {
+     "depth": 1,
+     "name": "Hatch Scale",
+     "value": "3"
+    },
+    {
+     "depth": 0,
+     "name": "Selection",
+     "value": null
+    },
+    {
+     "depth": 1,
+     "name": "On Top When Selected",
+     "value": "Disabled"
+    },
+    {
+     "depth": 1,
+     "name": "Selection Style",
+     "value": "Shape"
+    }
+   ]
+  ],
+  "data": [
+   [
+    {
+     "depth": 0,
+     "name": "Base",
+     "value": null
+    },
+    {
+     "depth": 1,
+     "name": "Label",
+     "value": "Hatch"
+    },
+    {
+     "depth": 0,
+     "name": "Hatch",
+     "value": null
+    },
+    {
+     "depth": 1,
+     "name": "Source",
+     "value": "View [Face1]"
+    },
+    {
+     "depth": 1,
+     "name": "Hatch Pattern",
+     "value": "<FreeCAD>/Mod/TechDraw/Patterns/simple.svg"
+    },
+    {
+     "depth": 1,
+     "name": "Svg Included",
+     "value": "<document>/simple1.svg"
+    }
+   ]
+  ]
+ },
+ "final_svg": "<?xml version='1.0' encoding='UTF-8' standalone='no'?>\n<svg baseProfile=\"tiny\" height=\"210mm\" version=\"1.2\" viewBox=\"0 0 2970 2100\" width=\"297mm\" xmlns=\"http://www.w3.org/2000/svg\" xmlns:cc=\"http://creativecommons.org/ns#\" xmlns:dc=\"http://purl.org/dc/elements/1.1/\" xmlns:freecad=\"https://www.freecad.org/wiki/index.php?title=Svg_Namespace\" xmlns:inkscape=\"http://www.inkscape.org/namespaces/inkscape\" xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\" xmlns:sodipodi=\"http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd\" xmlns:svg=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\">\n <title>FreeCAD SVG Export</title>\n <desc>Drawing page: Page exported from FreeCAD document: Unnamed</desc>\n <defs/>\n <g id=\"Page\" inkscape:groupmode=\"layer\" inkscape:label=\"TechDraw\">\n  <g id=\"Default_Template_A4_Landscape.svg\" style=\"stroke: none;\" transform=\"scale(10.000000, 10.000000)\">\n   <metadata id=\"metadata8\">\n    <rdf:RDF>\n     <cc:Work rdf:about=\"\">\n      <dc:format>image/svg+xml</dc:format>\n      <dc:type rdf:resource=\"http://purl.org/dc/dcmitype/StillImage\"/>\n     </cc:Work>\n    </rdf:RDF>\n   </metadata>\n  </g>\n  <g fill=\"none\" fill-rule=\"evenodd\" id=\"DrawingContent\" stroke=\"black\" stroke-linecap=\"square\" stroke-linejoin=\"bevel\" stroke-width=\"1\">\n   <g fill=\"#f1f3f5\" fill-opacity=\"1\" font-family=\"Sans Serif\" font-size=\"31.75\" font-style=\"normal\" font-weight=\"400\" stroke=\"none\" transform=\"matrix(1,0,0,1,1485,1050)\">\n    <path d=\"M-200,120 C-200,136.569 -186.569,150 -170,150 L200,150 L200,-150 L-200,-150 L-200,120 Z \" fill-rule=\"evenodd\" vector-effect=\"non-scaling-stroke\"/>\n   </g>\n   <g fill=\"none\" font-family=\"Sans Serif\" font-size=\"31.75\" font-style=\"normal\" font-weight=\"400\" stroke=\"#00ff00\" stroke-linecap=\"square\" stroke-linejoin=\"bevel\" stroke-opacity=\"0\" stroke-width=\"3\" transform=\"matrix(1,0,0,1,1485,1050)\">\n    <path d=\"M188.979,150 L200,130.91 \" fill-rule=\"evenodd\" vector-effect=\"none\"/>\n   </g>\n   <g fill=\"none\" font-family=\"Sans Serif\" font-size=\"31.75\" font-style=\"normal\" font-weight=\"400\" stroke=\"#00ff00\" stroke-linecap=\"square\" stroke-linejoin=\"bevel\" stroke-opacity=\"0\" stroke-width=\"3\" transform=\"matrix(1,0,0,1,1485,1050)\">\n    <path d=\"M142.791,150 L200,50.9103 \" fill-rule=\"evenodd\" vector-effect=\"none\"/>\n   </g>\n   <g fill=\"none\" font-family=\"Sans Serif\" font-size=\"31.75\" font-style=\"normal\" font-weight=\"400\" stroke=\"#00ff00\" stroke-linecap=\"square\" stroke-linejoin=\"bevel\" stroke-opacity=\"0\" stroke-width=\"3\" transform=\"matrix(1,0,0,1,1485,1050)\">\n    <path d=\"M96.6025,150 L200,-29.0897 \" fill-rule=\"evenodd\" vector-effect=\"none\"/>\n   </g>\n   <g fill=\"none\" font-family=\"Sans Serif\" font-size=\"31.75\" font-style=\"normal\" font-weight=\"400\" stroke=\"#00ff00\" stroke-linecap=\"square\" stroke-linejoin=\"bevel\" stroke-opacity=\"0\" stroke-width=\"3\" transform=\"matrix(1,0,0,1,1485,1050)\">\n    <path d=\"M50.4145,150 L200,-109.09 \" fill-rule=\"evenodd\" vector-effect=\"none\"/>\n   </g>\n   <g fill=\"none\" font-family=\"Sans Serif\" font-size=\"31.75\" font-style=\"normal\" font-weight=\"400\" stroke=\"#00ff00\" stroke-linecap=\"square\" stroke-linejoin=\"bevel\" stroke-opacity=\"0\" stroke-width=\"3\" transform=\"matrix(1,0,0,1,1485,1050)\">\n    <path d=\"M4.2265,150 L177.432,-150 \" fill-rule=\"evenodd\" vector-effect=\"none\"/>\n   </g>\n   <g fill=\"none\" font-family=\"Sans Serif\" font-size=\"31.75\" font-style=\"normal\" font-weight=\"400\" stroke=\"#00ff00\" stroke-linecap=\"square\" stroke-linejoin=\"bevel\" stroke-opacity=\"0\" stroke-width=\"3\" transform=\"matrix(1,0,0,1,1485,1050)\">\n    <path d=\"M-41.9615,150 L131.244,-150 \" fill-rule=\"evenodd\" vector-effect=\"none\"/>\n   </g>\n   <g fill=\"none\" font-family=\"Sans Serif\" font-size=\"31.75\" font-style=\"normal\" font-weight=\"400\" stroke=\"#00ff00\" stroke-linecap=\"square\" stroke-linejoin=\"bevel\" stroke-opacity=\"0\" stroke-width=\"3\" transform=\"matrix(1,0,0,1,1485,1050)\">\n    <path d=\"M-88.1495,150 L85.0555,-150 \" fill-rule=\"evenodd\" vector-effect=\"none\"/>\n   </g>\n   <g fill=\"none\" font-family=\"Sans Serif\" font-size=\"31.75\" font-style=\"normal\" font-weight=\"400\" stroke=\"#00ff00\" stroke-linecap=\"square\" stroke-linejoin=\"bevel\" stroke-opacity=\"0\" stroke-width=\"3\" transform=\"matrix(1,0,0,1,1485,1050)\">\n    <path d=\"M-134.338,150 L38.8675,-150 \" fill-rule=\"evenodd\" vector-effect=\"none\"/>\n   </g>\n   <g fill=\"none\" font-family=\"Sans Serif\" font-size=\"31.75\" font-style=\"normal\" font-weight=\"400\" stroke=\"#00ff00\" stroke-linecap=\"square\" stroke-linejoin=\"bevel\" stroke-opacity=\"0\" stroke-width=\"3\" transform=\"matrix(1,0,0,1,1485,1050)\">\n    <path d=\"M-179.612,148.418 L-7.32051,-150 \" fill-rule=\"evenodd\" vector-effect=\"none\"/>\n   </g>\n   <g fill=\"none\" font-family=\"Sans Serif\" font-size=\"31.75\" font-style=\"normal\" font-weight=\"400\" stroke=\"#00ff00\" stroke-linecap=\"square\" stroke-linejoin=\"bevel\" stroke-opacity=\"0\" stroke-width=\"3\" transform=\"matrix(1,0,0,1,1485,1050)\">\n    <path d=\"M-200,103.731 L-53.5085,-150 \" fill-rule=\"evenodd\" vector-effect=\"none\"/>\n   </g>\n   <g fill=\"none\" font-family=\"Sans Serif\" font-size=\"31.75\" font-style=\"normal\" font-weight=\"400\" stroke=\"#00ff00\" stroke-linecap=\"square\" stroke-linejoin=\"bevel\" stroke-opacity=\"0\" stroke-width=\"3\" transform=\"matrix(1,0,0,1,1485,1050)\">\n    <path d=\"M-200,23.7307 L-99.6966,-150 \" fill-rule=\"evenodd\" vector-effect=\"none\"/>\n   </g>\n   <g fill=\"none\" font-family=\"Sans Serif\" font-size=\"31.75\" font-style=\"normal\" font-weight=\"400\" stroke=\"#00ff00\" stroke-linecap=\"square\" stroke-linejoin=\"bevel\" stroke-opacity=\"0\" stroke-width=\"3\" transform=\"matrix(1,0,0,1,1485,1050)\">\n    <path d=\"M-200,-56.2693 L-145.885,-150 \" fill-rule=\"evenodd\" vector-effect=\"none\"/>\n   </g>\n   <g fill=\"none\" font-family=\"Sans Serif\" font-size=\"31.75\" font-style=\"normal\" font-weight=\"400\" stroke=\"#00ff00\" stroke-linecap=\"square\" stroke-linejoin=\"bevel\" stroke-opacity=\"0\" stroke-width=\"3\" transform=\"matrix(1,0,0,1,1485,1050)\">\n    <path d=\"M-200,-136.269 L-192.073,-150 \" fill-rule=\"evenodd\" vector-effect=\"none\"/>\n   </g>\n   <g fill=\"#f1f3f5\" fill-opacity=\"1\" font-family=\"Sans Serif\" font-size=\"31.75\" font-style=\"normal\" font-weight=\"400\" stroke=\"none\" transform=\"matrix(1,0,0,1,1485,1050)\">\n    <path d=\"M140,-80 C140,-57.9086 122.091,-40 100,-40 C77.9086,-40 60,-57.9086 60,-80 C60,-102.091 77.9086,-120 100,-120 C122.091,-120 140,-102.091 140,-80 Z \" fill-rule=\"evenodd\" vector-effect=\"non-scaling-stroke\"/>\n   </g>\n   <g fill=\"none\" font-family=\"Sans Serif\" font-size=\"31.75\" font-style=\"normal\" font-weight=\"400\" stroke=\"#000000\" stroke-linecap=\"square\" stroke-linejoin=\"bevel\" stroke-opacity=\"1\" stroke-width=\"1\" transform=\"matrix(1,0,0,1,1489,874)\">\n    <image height=\"192\" image-rendering=\"optimizeSpeed\" preserveAspectRatio=\"none\" width=\"192\" x=\"0\" xlink:href=\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMAAAADACAYAAABS3GwHAAAACXBIWXMAAA7EAAAOxAGVKw4bAAAB+UlEQVR4nO3dMXbcMBAFQer+uTKdlY4UONM+0Z5tTBUu8IMGQ+K6AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAnnZfH9MT4P+4/zqf4ud89/Vx3deX+NlH/KwlftYSP2uJn7XEz1riZy3xs1Y9/spO3tAJ8X/vh5ecFP/3gR85Mf7SfgbV46nvZ1A9nvp+BtXjqe9nUD2e+n4G1eOp72dQPZ76fgbV46nvZ1A9nvp+BtXjqe9nUD2e+n4G1eOp72dQPZ76fgbV46nvZ1g5HvHza9V4xM+vVeMRP48oxiN+HlOLR/w8qhSP+HlcJR7x87hKPOJnLfGzlvhZS/ysJX7WEj9riZ+1xM9a4mct8bOW+FmrHn9lJ29I/Kx1Qvz39TU9g6JT4r8vb4nxopPidwF4yWnxuwD8mPhZ68T47+tzehYFp8Zf2c+gejz1/Qyqx1Pfz6B6PPX9DKrHU9/PoHo89f0MqsdT38+gejz1/Qyqx1Pfz6B6PPX9DKrHU9/PoHo89f0MqsdT38+gejz1/byBajzi5zG1eMTP4yrxiJ+1xM9a4mct8bOW+FlL/KwlftYSP2uJn7X8rpC1fOEBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIB/4A9p2w9iiadjDgAAAABJRU5ErkJggg==\" y=\"0\"/>\n   </g>\n   <g fill=\"none\" font-family=\"Sans Serif\" font-size=\"31.75\" font-style=\"normal\" font-weight=\"400\" stroke=\"#212529\" stroke-linecap=\"round\" stroke-linejoin=\"bevel\" stroke-opacity=\"1\" stroke-width=\"7.15843\" transform=\"matrix(1,0,0,1,1485,1050)\">\n    <path d=\"M-200,120 L-200,-150 \" fill-rule=\"evenodd\" vector-effect=\"none\"/>\n   </g>\n   <g fill=\"none\" font-family=\"Sans Serif\" font-size=\"31.75\" font-style=\"normal\" font-weight=\"400\" stroke=\"#212529\" stroke-linecap=\"round\" stroke-linejoin=\"bevel\" stroke-opacity=\"1\" stroke-width=\"7.15843\" transform=\"matrix(1,0,0,1,1485,1050)\">\n    <path d=\"M-200,120 C-200,136.569 -186.569,150 -170,150 \" fill-rule=\"evenodd\" vector-effect=\"none\"/>\n   </g>\n   <g fill=\"none\" font-family=\"Sans Serif\" font-size=\"31.75\" font-style=\"normal\" font-weight=\"400\" stroke=\"#212529\" stroke-linecap=\"round\" stroke-linejoin=\"bevel\" stroke-opacity=\"1\" stroke-width=\"7.15843\" transform=\"matrix(1,0,0,1,1485,1050)\">\n    <path d=\"M-200,-150 L200,-150 \" fill-rule=\"evenodd\" vector-effect=\"none\"/>\n   </g>\n   <g fill=\"none\" font-family=\"Sans Serif\" font-size=\"31.75\" font-style=\"normal\" font-weight=\"400\" stroke=\"#212529\" stroke-linecap=\"round\" stroke-linejoin=\"bevel\" stroke-opacity=\"1\" stroke-width=\"7.15843\" transform=\"matrix(1,0,0,1,1485,1050)\">\n    <path d=\"M-170,150 L200,150 \" fill-rule=\"evenodd\" vector-effect=\"none\"/>\n   </g>\n   <g fill=\"none\" font-family=\"Sans Serif\" font-size=\"31.75\" font-style=\"normal\" font-weight=\"400\" stroke=\"#212529\" stroke-linecap=\"round\" stroke-linejoin=\"bevel\" stroke-opacity=\"1\" stroke-width=\"7.15843\" transform=\"matrix(1,0,0,1,1485,1050)\">\n    <path d=\"M200,150 L200,-150 \" fill-rule=\"evenodd\" vector-effect=\"none\"/>\n   </g>\n   <g fill=\"none\" font-family=\"Sans Serif\" font-size=\"31.75\" font-style=\"normal\" font-weight=\"400\" stroke=\"#212529\" stroke-linecap=\"round\" stroke-linejoin=\"bevel\" stroke-opacity=\"1\" stroke-width=\"7.15843\" transform=\"matrix(1,0,0,1,1485,1050)\">\n    <path d=\"M140,-80 C140,-57.9086 122.091,-40 100,-40 C77.9086,-40 60,-57.9086 60,-80 C60,-102.091 77.9086,-120 100,-120 C122.091,-120 140,-102.091 140,-80 Z \" fill-rule=\"evenodd\" vector-effect=\"none\"/>\n   </g>\n  </g>\n </g>\n</svg>\n",
+ "final_dxf": "999\nFreeCAD v26.3 20260929 (Git shallow)\n  0\nSECTION\n  2\nHEADER\n  9\n$ACADVER\n  1\nAC1014\n  9\n$ACADMAINTVER\n 70\n     9\n  9\n$DWGCODEPAGE\n  3\nANSI_1252\n  9\n$TEXTSTYLE\n  7\nSTANDARD\n  9\n$DIMSTYLE\n  2\nSTANDARD\n  9\n$DIMTXSTY\n  7\nSTANDARD\n  9\n$LUNITS\n 70\n2\n  9\n$INSUNITS\n 70\n4\n  9\n$PEXTMAX\n 10\n50\n 20\n50\n 30\n50\n  9\n$PEXTMIN\n 10\n0\n 20\n0\n 30\n0\n  9\n$HANDSEED\n  5\nFFFF\n  0\nENDSEC\n  0\nSECTION\n  2\nCLASSES\n  0\nCLASS\n  1\nACDBDICTIONARYWDFLT\n  2\nAcDbDictionaryWithDefault\n  3\nObjectDBX Classes\n 90\n        0\n280\n     0\n281\n     0\n  0\nCLASS\n  1\nXRECORD\n  2\nAcDbXrecord\n  3\nObjectDBX Classes\n 90\n        0\n280\n     0\n281\n     0\n  0\nCLASS\n  1\nLWPOLYLINE\n  2\nAcDbPolyline\n  3\nObjectDBX Classes\n 90\n        0\n280\n     0\n281\n     1\n  0\nENDSEC\n  0\nSECTION\n  2\nTABLES\n  0\nTABLE\n  2\nVPORT\n  5\n20\n330\n0\n100\nAcDbSymbolTable\n 70\n     1\n  0\nVPORT\n  5\n21\n330\n20\n100\nAcDbSymbolTableRecord\n100\nAcDbViewportTableRecord\n  2\n*ACTIVE\n 70\n     0\n  0\nENDTAB\n  0\nTABLE\n  2\nLTYPE\n  5\n22\n330\n0\n100\nAcDbSymbolTable\n 70\n     1\n  0\nLTYPE\n  5\n23\n330\n21\n100\nAcDbSymbolTableRecord\n100\nAcDbLinetypeTableRecord\n  2\nBYBLOCK\n 70\n     0\n  3\n\n 72\n    65\n 73\n     0\n 40\n0.0\n  0\nLTYPE\n  5\n24\n330\n21\n100\nAcDbSymbolTableRecord\n100\nAcDbLinetypeTableRecord\n  2\nBYLAYER\n 70\n     0\n  3\n\n 72\n    65\n 73\n     0\n 40\n0.0\n  0\nLTYPE\n  5\n25\n330\n21\n100\nAcDbSymbolTableRecord\n100\nAcDbLinetypeTableRecord\n  2\nCONTINUOUS\n 70\n     0\n  3\nSolid line\n 72\n    65\n 73\n     0\n 40\n0.0\n  0\nENDTAB\n  0\nTABLE\n  2\nLAYER\n  5\nA0E\n330\n0\n100\nAcDbSymbolTable\n 70\n2\n  0\nLAYER\n  5\nA0F\n330\nA0E\n100\nAcDbSymbolTableRecord\n100\nAcDbLayerTableRecord\n  2\n0\n 70\n   0\n 62\n   7\n  6\nCONTINUOUS\n  0\nLAYER\n  5\nA10\n330\nA0E\n100\nAcDbSymbolTableRecord\n100\nAcDbLayerTableRecord\n  2\nView\n 70\n    0\n 62\n    7\n  6\nCONTINUOUS\n  0\nENDTAB\n  0\nTABLE\n  2\nSTYLE\n  5\n70\n330\n0\n100\nAcDbSymbolTable\n 70\n     2\n  0\nSTYLE\n  5\n71\n330\n70\n100\nAcDbSymbolTableRecord\n100\nAcDbTextStyleTableRecord\n  2\nSTANDARD\n 70\n     0\n 40\n0.0\n 41\n1.0\n 50\n0.0\n 71\n     0\n 42\n2.5\n  3\narial.ttf\n  4\n\n  0\nSTYLE\n  5\n72\n330\n70\n100\nAcDbSymbolTableRecord\n100\nAcDbTextStyleTableRecord\n  2\nANNOTATIVE\n 70\n     0\n 40\n0.0\n 41\n1.0\n 50\n0.0\n 71\n     0\n 42\n2.5\n  3\narial.ttf\n  4\n\n  0\nENDTAB\n  0\nTABLE\n  2\nVIEW\n  5\n73\n330\n0\n100\nAcDbSymbolTable\n 70\n     0\n  0\nENDTAB\n  0\nTABLE\n  2\nUCS\n  5\n74\n330\n0\n100\nAcDbSymbolTable\n 70\n     0\n  0\nENDTAB\n  0\nTABLE\n  2\nAPPID\n  5\n75\n330\n0\n100\nAcDbSymbolTable\n 70\n     2\n  0\nAPPID\n  5\n76\n330\n75\n100\nAcDbSymbolTableRecord\n100\nAcDbRegAppTableRecord\n  2\nACAD\n 70\n     0\n  0\nAPPID\n  5\n77\n330\n75\n100\nAcDbSymbolTableRecord\n100\nAcDbRegAppTableRecord\n  2\nACADANNOTATIVE\n 70\n     0\n  0\nENDTAB\n  0\nTABLE\n  2\nDIMSTYLE\n  5\n78\n330\n0\n100\nAcDbSymbolTable\n 70\n     2\n  0\nDIMSTYLE\n105\n79\n330\n78\n100\nAcDbSymbolTableRecord\n100\nAcDbDimStyleTableRecord\n  2\nSTANDARD\n 70\n     0\n  3\n\n  4\n\n  5\n\n  6\n\n  7\n\n 40\n0.0\n 41\n2.5\n 42\n0.625\n 43\n3.75\n 44\n1.25\n 45\n0.0\n 46\n0.0\n 47\n0.0\n 48\n0.0\n140\n2.5\n141\n2.5\n142\n0.0\n143\n0.03937007874016\n144\n1.0\n145\n0.0\n146\n1.0\n147\n0.625\n 71\n     0\n 72\n     0\n 73\n     0\n 74\n     0\n 75\n     0\n 76\n     0\n 77\n     1\n 78\n     8\n170\n     0\n171\n     3\n172\n     1\n173\n     0\n174\n     0\n175\n     0\n176\n     0\n177\n     0\n178\n     0\n270\n     2\n271\n     2\n272\n     2\n273\n     2\n274\n     3\n340\n71\n275\n     0\n280\n     0\n281\n     0\n282\n     0\n283\n     0\n284\n     8\n285\n     0\n286\n     0\n287\n     3\n288\n     0\n  0\nENDTAB\n  0\nTABLE\n  2\nBLOCK_RECORD\n  5\nA01\n330\n0\n100\nAcDbSymbolTable\n  70\n5\n  0\nBLOCK_RECORD\n  5\nA02\n330\nA01\n100\nAcDbSymbolTableRecord\n100\nAcDbBlockTableRecord\n  2\n*MODEL_SPACE\n  0\nBLOCK_RECORD\n  5\nA03\n330\nA01\n100\nAcDbSymbolTableRecord\n100\nAcDbBlockTableRecord\n  2\n*PAPER_SPACE\n  0\nENDTAB\n  0\nENDSEC\n  0\nSECTION\n  2\nBLOCKS\n  0\nBLOCK\n  5\nA04\n330\nA02\n100\nAcDbEntity\n  8\n0\n100\nAcDbBlockBegin\n  2\n*MODEL_SPACE\n 70\n   0\n 10\n0\n 20\n0\n 30\n0\n  3\n*MODEL_SPACE\n  1\n \n  0\nENDBLK\n  5\nA05\n330\nA02\n100\nAcDbEntity\n  8\n0\n100\nAcDbBlockEnd\n  0\nBLOCK\n  5\nA06\n330\nA03\n100\nAcDbEntity\n 67\n1\n  8\n0\n100\nAcDbBlockBegin\n  2\n*PAPER_SPACE\n 70\n   0\n 10\n0\n 20\n0\n 30\n0\n  3\n*PAPER_SPACE\n  1\n \n  0\nENDBLK\n  5\nA07\n330\nA03\n100\nAcDbEntity\n 67\n    1\n  8\n0\n100\nAcDbBlockEnd\n  0\nENDSEC\n  0\nSECTION\n  2\nENTITIES\n  0\nLINE\n  5\nA08\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbLine\n 10\n128.500000000\n 20\n93.000000000\n 30\n0.000000000\n 11\n128.500000000\n 21\n120.000000000\n 31\n0.000000000\n  0\nARC\n  5\nA09\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbCircle\n 10\n131.500000000\n 20\n93.000000000\n 30\n0.000000000\n 40\n3.000000000\n100\nAcDbArc\n 50\n180.000000000\n 51\n-90.000000000\n  0\nLINE\n  5\nA0A\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbLine\n 10\n128.500000000\n 20\n120.000000000\n 30\n0.000000000\n 11\n168.500000000\n 21\n120.000000000\n 31\n0.000000000\n  0\nLINE\n  5\nA0B\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbLine\n 10\n131.500000000\n 20\n90.000000000\n 30\n0.000000000\n 11\n168.500000000\n 21\n90.000000000\n 31\n0.000000000\n  0\nLINE\n  5\nA0C\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbLine\n 10\n168.500000000\n 20\n90.000000000\n 30\n0.000000000\n 11\n168.500000000\n 21\n120.000000000\n 31\n0.000000000\n  0\nCIRCLE\n  5\nA0D\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbCircle\n 10\n158.500000000\n 20\n113.000000000\n 30\n0.000000000\n 40\n4.000000000\n  0\nENDSEC\n  0\nSECTION\n  2\nOBJECTS\n  0\nDICTIONARY\n  5\nF000\n330\n0\n100\nAcDbDictionary\n  3\nACAD_GROUP\n350\nF001\n  0\nDICTIONARY\n  5\nF001\n330\nF000\n100\nAcDbDictionary\n  0\nENDSEC\n  0\nEOF",
+ "undo_names": [
+  "Update Hatch",
+  "Update Hatch",
+  "Update Hatch",
+  "Create Hatch",
+  "Remove old hatch",
+  "Update Hatch",
+  "Update Hatch",
+  "Update Hatch",
+  "Update Hatch",
+  "Update Hatch",
+  "Delete",
+  "Create GeomHatch",
+  "Create GeomHatch",
+  "Create view",
+  "Drawing create page"
+ ]
+}

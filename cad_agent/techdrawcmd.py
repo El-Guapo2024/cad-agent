@@ -26,6 +26,14 @@ transaction:
     cad techdraw export     SLUG PAGE [--format svg,dxf,pdf] [--out DIR]
                                                                  TechDraw_ExportPageSVG / DXF / PDF
     cad techdraw delete-page SLUG PAGE                            Std_Delete of the page and everything on it
+    cad techdraw cosmetic-vertex SLUG PAGE VIEW X,Y               TechDraw_CosmeticVertex
+    cad techdraw midpoints|quadrants SLUG PAGE VIEW EDGE ...      TechDraw_Midpoints, TechDraw_Quadrants
+    cad techdraw cosmetic-line SLUG PAGE VIEW --p0 X,Y --p1 X,Y   TechDraw_2PointCosmeticLine (--vertices V V, --edge E)
+    cad techdraw cosmetic-circle SLUG PAGE VIEW --center X,Y --radius R [--arc A,B]   TechDraw_CosmeticCircle
+    cad techdraw centerline SLUG PAGE VIEW SUB ... [--mode M]     TechDraw_FaceCenterLine, _2LineCenterLine, _2PointCenterLine
+    cad techdraw erase      SLUG PAGE VIEW SUB ...                TechDraw_CosmeticEraser
+    cad techdraw format     SLUG PAGE VIEW EDGE ... [--line-number N --weight W --visible false]   TechDraw_DecorateLine
+    cad techdraw restore-lines SLUG PAGE VIEW                     TaskRestoreLines
 
 TYPE is Distance, DistanceX, DistanceY, Radius, Diameter, Angle or Angle3Pt (Length, Horizontal, Vertical, Radius,
 Diameter, Angle and 3-point Angle Dimension). A view's X and Y are the page's millimetres from its lower left corner;
@@ -47,8 +55,11 @@ STEP_NAMES = {"new_page": "Drawing create page", "view": "Create view", "projgro
 
 
 def step_name(ops: list) -> str:
+    from .techdraw_annot import STEP_NAMES as ANNOT
     op = ops[-1] if ops else {}
     kind = op.get("op")
+    if kind in ANNOT:
+        return ANNOT[kind]
     if kind in STEP_NAMES:
         return STEP_NAMES[kind]
     if kind in ("rename", "label"):
@@ -123,7 +134,10 @@ def apply_ops(a, page: str, ops: list, cmd: str, step: str | None = None) -> Res
     name = step or step_name(ops)
     from . import undo as un
     rel = f"{E.DIR}/{page}.py"
-    un.record(pdir, name, cmd, [{"path": rel, "before": before, "after": after}], by=actor(a))
+    if getattr(a, "amend", False):          # a task panel's edit of what its command just made: the same undo step
+        un.amend(pdir, [{"path": rel, "before": before, "after": after}], by=actor(a))
+    else:
+        un.record(pdir, name, cmd, [{"path": rel, "before": before, "after": after}], by=actor(a))
     lines = [f"{a.slug}/{page}: {name}"] + [f"  {d}" for d in doc.get("done", [])] + _lines(doc)
     data = {"project": a.slug, "page": page, "step": name, "doc": doc, "file": str(path)}
     return Result(OK, data, "\n".join(lines), f"{a.slug}/{page}: {name}", [str(path)])
@@ -267,6 +281,90 @@ def cmd_rename(a) -> Result:
     return apply_ops(a, a.page, [{"op": "rename", "name": a.name, "to": a.to}], _cmd(a, a.page, a.name, a.to))
 
 
+# ── cosmetic geometry and centre lines (techdraw_annot.py) ──────────────────────────────────────────────────
+
+def cmd_cosmetic_vertex(a) -> Result:
+    return apply_ops(a, a.page, [{"op": "cosmetic_vertex", "view": a.view, "point": _floats(a.point, 2, "POINT")}],
+                     _cmd(a, a.page, a.view, a.point))
+
+
+def cmd_points(a) -> Result:
+    op = "midpoints" if a.techdraw_cmd == "midpoints" else "quadrants"
+    return apply_ops(a, a.page, [{"op": op, "view": a.view, "edges": a.edges}], _cmd(a, a.page, a.view, *a.edges))
+
+
+def cmd_cosmetic_line(a) -> Result:
+    op = {"op": "cosmetic_line", "view": a.view}
+    if a.vertices:
+        op["vertices"] = a.vertices
+    elif a.p0 and a.p1:
+        op["p0"], op["p1"] = _floats(a.p0, 2, "--p0"), _floats(a.p1, 2, "--p1")
+    else:
+        raise UsageError("say the line: --p0 X,Y --p1 X,Y, or --vertices Vertex1 Vertex2")
+    if a.edge:
+        op["op"], op["edge"] = "cosmetic_line_edit", a.edge
+    return apply_ops(a, a.page, [op], _cmd(a, a.page, a.view, *(["--edge", a.edge] if a.edge else []),
+                                           *(["--vertices", *a.vertices] if a.vertices else
+                                             ["--p0", a.p0, "--p1", a.p1])))
+
+
+def cmd_cosmetic_circle(a) -> Result:
+    op = {"op": "cosmetic_circle_edit" if a.edge else "cosmetic_circle", "view": a.view}
+    if a.edge:
+        op["edge"] = a.edge
+    elif not (a.vertices or (a.center and a.radius is not None)):
+        raise UsageError("say the circle: --center X,Y --radius R, or --vertices CENTRE RIM")
+    if a.vertices:
+        op["vertices"] = a.vertices
+    if a.center:
+        op["center"] = _floats(a.center, 2, "--center")
+    if a.radius is not None:
+        op["radius"] = a.radius
+    if a.arc:
+        op["arc"] = True
+        op["start_angle"], op["end_angle"] = _floats(a.arc, 2, "--arc")
+    words = [a.page, a.view] + (["--edge", a.edge] if a.edge else []) + (["--vertices", *a.vertices] if a.vertices else []) + \
+        (["--center", a.center] if a.center else []) + (["--radius", repr(a.radius)] if a.radius is not None else []) + \
+        (["--arc", a.arc] if a.arc else [])
+    return apply_ops(a, a.page, [op], _cmd(a, *words))
+
+
+def cmd_centerline(a) -> Result:
+    op = {"op": "centerline", "view": a.view, "subs": a.subs, "mode": a.mode}
+    for key in ("h_shift", "v_shift", "rotate", "extend"):
+        v = getattr(a, key)
+        if v is not None:
+            op[key] = v
+    words = [a.page, a.view, *a.subs, "--mode", a.mode] + sum(([f"--{k.replace('_', '-')}", repr(getattr(a, k))]
+                                                              for k in ("h_shift", "v_shift", "rotate", "extend")
+                                                              if getattr(a, k) is not None), [])
+    return apply_ops(a, a.page, [op], _cmd(a, *words))
+
+
+def cmd_erase(a) -> Result:
+    return apply_ops(a, a.page, [{"op": "erase", "view": a.view, "subs": a.subs}], _cmd(a, a.page, a.view, *a.subs))
+
+
+def cmd_format(a) -> Result:
+    op = {"op": "format", "view": a.view, "subs": a.subs}
+    for key in ("style", "weight", "line_number"):
+        if getattr(a, key) is not None:
+            op[key] = getattr(a, key)
+    if a.visible is not None:
+        op["visible"] = a.visible == "true"
+    if a.color:
+        op["color"] = _floats(a.color, 3, "--color") + [1.0]
+    words = [a.page, a.view, *a.subs] + sum(([f"--{k.replace('_', '-')}", str(getattr(a, k))] for k in ("style", "weight", "line_number")
+                                              if getattr(a, k) is not None), []) + \
+        (["--visible", a.visible] if a.visible else []) + (["--color", a.color] if a.color else [])
+    return apply_ops(a, a.page, [op], _cmd(a, *words))
+
+
+def cmd_restore_lines(a) -> Result:
+    kinds = [k.strip() for k in a.kinds.split(",") if k.strip()]
+    return apply_ops(a, a.page, [{"op": "restore_lines", "view": a.view, "kinds": kinds}], _cmd(a, a.page, a.view, "--kinds", a.kinds))
+
+
 def cmd_apply(a) -> Result:
     text = a.ops
     if text.startswith("@"):
@@ -283,7 +381,8 @@ def cmd_apply(a) -> Result:
             raise UsageError(str(e)) from None
         return Result(OK, {"project": a.slug, "page": a.page, "doc": doc, "dry_run": True}, "\n".join(_lines(doc)),
                       f"{a.slug}/{a.page}: preview")
-    words = [a.page, "--ops", json.dumps(ops, separators=(",", ":"))] + (["--name", a.name] if a.name else [])
+    words = [a.page, "--ops", json.dumps(ops, separators=(",", ":"))] + (["--name", a.name] if a.name else []) + \
+        (["--amend"] if getattr(a, "amend", False) else [])
     return apply_ops(a, a.page, ops, _cmd(a, *words), a.name)
 
 
@@ -377,10 +476,54 @@ def add_parsers(add, sub) -> None:
     sp.add_argument("view")
     sp.add_argument("--origin", required=True, metavar="X,Y", help="where it points, relative to the view's centre")
     sp.add_argument("--at", metavar="X,Y", help="where the bubble goes (default origin + (10, 10))")
+    sp = one("cosmetic-vertex", cmd_cosmetic_vertex, "TechDraw_CosmeticVertex: a cosmetic vertex at X,Y of a view")
+    sp.add_argument("view")
+    sp.add_argument("point", metavar="X,Y", help="unscaled, unrotated, y up, about the view's centre")
+    for name, what in (("midpoints", "TechDraw_Midpoints: cosmetic vertices at the midpoints of edges"),
+                       ("quadrants", "TechDraw_Quadrants: cosmetic vertices at the quadrant points of edges")):
+        sp = one(name, cmd_points, what)
+        sp.add_argument("view")
+        sp.add_argument("edges", nargs="+", metavar="EDGE")
+    sp = one("cosmetic-line", cmd_cosmetic_line, "TechDraw_2PointCosmeticLine: a cosmetic line (--edge: change one)")
+    sp.add_argument("view")
+    sp.add_argument("--p0", metavar="X,Y")
+    sp.add_argument("--p1", metavar="X,Y")
+    sp.add_argument("--vertices", nargs=2, metavar="VERTEX")
+    sp.add_argument("--edge", metavar="EDGE", help="the cosmetic line to change (TaskCosmeticLine, edit)")
+    sp = one("cosmetic-circle", cmd_cosmetic_circle, "TechDraw_CosmeticCircle: a cosmetic circle or arc (--edge: change one)")
+    sp.add_argument("view")
+    sp.add_argument("--center", metavar="X,Y")
+    sp.add_argument("--radius", type=float)
+    sp.add_argument("--vertices", nargs=2, metavar="VERTEX", help="the centre and a point on the circle")
+    sp.add_argument("--arc", metavar="START,END", help="an arc from START to END degrees, anticlockwise")
+    sp.add_argument("--edge", metavar="EDGE")
+    sp = one("centerline", cmd_centerline, "TechDraw_FaceCenterLine, _2LineCenterLine, _2PointCenterLine: a centerline on "
+             "Face0, or between Edge1 Edge2, or between Vertex1 Vertex2")
+    sp.add_argument("view")
+    sp.add_argument("subs", nargs="+", metavar="SUB")
+    sp.add_argument("--mode", default="Vertical", choices=["Vertical", "Horizontal", "Aligned"])
+    sp.add_argument("--h-shift", dest="h_shift", type=float)
+    sp.add_argument("--v-shift", dest="v_shift", type=float)
+    sp.add_argument("--rotate", type=float, help="degrees")
+    sp.add_argument("--extend", type=float)
+    sp = one("erase", cmd_erase, "TechDraw_CosmeticEraser: remove cosmetic edges, centerlines and vertices")
+    sp.add_argument("view")
+    sp.add_argument("subs", nargs="+", metavar="SUB", help="Edge7 / Vertex9 of the view")
+    sp = one("format", cmd_format, "TechDraw_DecorateLine: the style, weight, colour and visibility of lines (Edge7 ...)")
+    sp.add_argument("view")
+    sp.add_argument("subs", nargs="+", metavar="EDGE")
+    sp.add_argument("--line-number", dest="line_number", type=int, help="1-17: Visible, Hidden, Section, Center, Symmetry ... Chain")
+    sp.add_argument("--style", type=int, help="the Qt pen style (2: dashed)")
+    sp.add_argument("--weight", type=float, help="mm")
+    sp.add_argument("--visible", choices=["true", "false"])
+    sp.add_argument("--color", metavar="R,G,B", help="0 to 1 each")
+    sp = one("restore-lines", cmd_restore_lines, "TaskRestoreLines: the lines made invisible visible again")
+    sp.add_argument("view")
+    sp.add_argument("--kinds", default="all", help="all, or geometry,cosmetic,center")
     sp = one("annotation", cmd_annotation, "TechDraw_Annotation: a text on the page")
     sp.add_argument("text", nargs="*", metavar="LINE")
     sp.add_argument("--at", metavar="X,Y")
-    sp = one("set", cmd_set, "change an object's properties (scale=0.5 hard_hidden=true format_spec='%.1f')")
+    sp = one("set", cmd_set, "change an object's properties (scale=0.5 hard_hidden=true format_spec='%%.1f')")
     sp.add_argument("name")
     sp.add_argument("props", nargs="+", metavar="KEY=VALUE")
     sp = one("move", cmd_move, "a view's X and Y on the page (a drag)")
@@ -395,6 +538,8 @@ def add_parsers(add, sub) -> None:
     sp.add_argument("--ops", required=True, metavar="JSON")
     sp.add_argument("--name", help="the undo step's name (default: FreeCAD's transaction's)")
     sp.add_argument("--dry-run", action="store_true", help="the result, nothing written")
+    sp.add_argument("--amend", action="store_true", help="fold the change into the last undo step (a panel's edit of "
+                    "what its command just made)")
     sp.add_argument("--svg", action="store_true", help="the page drawn after the ops, as data.doc.svg")
     sp = one("export", cmd_export, "TechDraw_ExportPageSVG / _ExportPageDXF / _ExportPagePDF: out/techdraw/<Page>.*")
     sp.add_argument("--format", default="svg,dxf,pdf")

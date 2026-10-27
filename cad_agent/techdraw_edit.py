@@ -139,7 +139,8 @@ TREE_ICONS = {"DrawPage": "TechDraw_TreePage", "DrawSVGTemplate": "TechDraw_Tree
               "DrawViewPart": "TechDraw_TreeView", "DrawProjGroupItem": "TechDraw_TreeView",
               "DrawProjGroup": "TechDraw_TreeProjGroup", "DrawViewSection": "TechDraw_TreeSection",
               "DrawViewDimension": "TechDraw_Dimension", "DrawViewBalloon": "TechDraw_Balloon",
-              "DrawViewAnnotation": "TechDraw_TreeAnnotation"}
+              "DrawViewAnnotation": "TechDraw_TreeAnnotation", "DrawHatch": "TechDraw_TreeHatch",
+              "DrawGeomHatch": "TechDraw_TreeView"}
 DIM_ICONS = {"Distance": "TechDraw_LengthDimension", "DistanceX": "TechDraw_HorizontalDimension",
              "DistanceY": "TechDraw_VerticalDimension", "Radius": "TechDraw_RadiusDimension",
              "Diameter": "TechDraw_DiameterDimension", "Angle": "TechDraw_AngleDimension",
@@ -161,6 +162,8 @@ def tree(objs) -> list:
             parent = o.view()
         elif isinstance(o, T.DrawViewBalloon):
             parent = o.source_view
+        elif isinstance(o, (T.DrawHatch, T.DrawGeomHatch)):
+            parent = o.source                     # ViewProviderViewPart::claimChildren: its hatches
         elif isinstance(o, T.DrawProjGroupItem) and doc.group_of(o.name) is not None:
             parent = doc.group_of(o.name).name
         if parent in by:
@@ -562,6 +565,9 @@ def run_ops(s: Session, ops) -> list:
             text = op.get("text") or ["Default Text"]
             s.add(T.DrawViewAnnotation(n, text=text, x=float(at[0]), y=float(at[1])))
             done.append(f"made {n}")
+        elif kind in _annot_ops():
+            from . import techdraw_annot as A
+            done.append(A.run(s, op))
         elif kind == "set":
             o = s.get(op.get("name"))
             props = dict(op.get("props") or {})
@@ -608,8 +614,14 @@ def run_ops(s: Session, ops) -> list:
             done.append(f"labelled {o.name} {op.get('to')!r}")
         else:
             raise TechDrawEditError(f"{kind!r} is not a TechDraw edit (new_page, view, projgroup, projection, "
-                                    "section, dimension, balloon, annotation, set, move, delete, rename, label)")
+                                    "section, dimension, balloon, annotation, set, move, delete, rename, label, and the cosmetic and centerline "
+                                    "ops of techdraw_annot.py)")
     return done
+
+
+def _annot_ops():
+    from . import techdraw_annot as A
+    return A.OPS
 
 
 def _rebuilt(o, d):
@@ -823,6 +835,8 @@ def _dependents(s: Session, name) -> list:
             out.append(o)
         elif isinstance(o, T.DrawViewBalloon) and o.source_view == name:
             out.append(o)
+        elif isinstance(o, (T.DrawHatch, T.DrawGeomHatch)) and o.source == name:
+            out.append(o)
     return out
 
 
@@ -868,6 +882,8 @@ def _rename(s: Session, name, to) -> str:
         for k in ("template", "anchor", "base_view", "source_view"):
             if d.get(k) == name and k in x.DEFAULTS and (k != "template" or isinstance(x, T.DrawPage)):
                 d[k] = to
+        if isinstance(x, (T.DrawHatch, T.DrawGeomHatch)) and d.get("source") == name:
+            d["source"] = to
         if "views" in d and isinstance(x, T.DrawProjGroup):
             d["views"] = [to if v == name else v for v in d["views"]]
         if "references_2d" in d:

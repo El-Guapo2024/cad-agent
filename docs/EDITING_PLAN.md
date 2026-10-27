@@ -247,7 +247,11 @@ PAGE = [
 - Edits: cad_agent/techdraw_edit.py (read/apply, all or nothing, untouched entries keep their text) behind
   `cad techdraw ...` (cad_agent/techdrawcmd.py) and /api/<slug>/techdraw; each change one undo step named as
   FreeCAD's transaction ("Drawing create page", "Create view", "Create projection group", "Create SectionView",
-  "Create dimension", "Create Balloon", "Create Annotation").
+  "Create dimension", "Create Balloon", "Create Annotation", and for the annotation tools of cad_agent/techdraw_annot.py
+  "Add Cosmetic Vertex", "Create Cosmetic Line", "Create Cosmetic Circle", "Create Centerline", "Edit Line Appearance",
+  "Remove Cosmetic Object", "Create Hatch", "Create GeomHatch"). A view's cosmetic vertices, cosmetic edges, centre lines and
+  geom formats are lists on the view (`cosmetic_vertexes=`, `cosmetic_edges=`, `center_lines=`, `geom_formats=`); a hatch is
+  its own entry (`DrawHatch`/`DrawGeomHatch`, `source=` the view, `faces=["Face0"]`).
 - Exports (`cad techdraw export`): SVG and PDF of the page as TechDraw's MDIViewPage prints it, and DXF as
   TechDraw.writeDXFPage writes it, to out/techdraw/<Page>.svg|dxf|pdf.
 - Coexisting with `cad drawing`: its plate drawings (cad_agent/drawing/, out/drawings/) are unchanged, and so are its

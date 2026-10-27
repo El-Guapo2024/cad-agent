@@ -21,6 +21,10 @@
 //   annotate   TechDraw_Annotation and TechDraw_Balloon (a click on the view)
 //   tree       the page's rows; props, each object's property view against FreeCAD's rows
 //   undo       Std_Undo takes the balloon back and Std_Redo brings it again
+//   annot      the tools of the Add Vertices and Add Lines menus, the Centerlines toolbar and the eraser (ui/scripts/fctechdraw_annot.json):
+//              each entry's state for a selection, the task panels' widgets and first values, what the tool makes, the undo step
+//   hatch      TechDraw_GeometricHatch and TechDraw_Hatch (ui/scripts/fctechdraw_hatch.json): the wrong selections, the panels' widgets and
+//              first values, what OK makes (the object, the drawn lines), the undo steps
 //   export     TechDraw_ExportPageSVG: the file's page size
 // A difference prints as FAIL; the deliberate ones (PARITY.md, "TechDraw") as `known`. Exit 1 on a FAIL.
 import { createRequire } from 'module'
@@ -39,11 +43,14 @@ const REPO = resolve(HERE, '..', '..')
 const args = process.argv.slice(2)
 const flag = (name, d) => { const a = args.find((x) => x.startsWith(`--${name}=`)); return a ? a.slice(name.length + 3) : d }
 const FC = JSON.parse(readFileSync(flag('fc', join(HERE, 'fctechdraw.json')), 'utf8'))
+const ANNOT = JSON.parse(readFileSync(flag('annot', join(HERE, 'fctechdraw_annot.json')), 'utf8'))
+const HATCH = JSON.parse(readFileSync(flag('hatch', join(HERE, 'fctechdraw_hatch.json')), 'utf8'))
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms))
 let pass = 0, fail = 0, known = 0
 const ok = (what) => { pass++; if (args.includes('--verbose')) console.log(`  ok    ${what}`) }
 const bad = (what, detail = '') => { fail++; console.log(`  FAIL  ${what}${detail ? `: ${detail}` : ''}`) }
-const note = (what) => { known++; console.log(`  known ${what}`) }
+let quiet = false
+const note = (what) => { known++; if (!quiet) console.log(`  known ${what}`) }
 const check = (cond, what, detail) => (cond ? ok(what) : bad(what, detail))
 const same = (a, b, what) => check(JSON.stringify(a) === JSON.stringify(b), what, `\n        FreeCAD ${JSON.stringify(b)}\n        ours    ${JSON.stringify(a)}`)
 const near = (a, b, tol = 1e-6) => Array.isArray(a) && Array.isArray(b) && a.length === b.length && a.every((x, i) => Math.abs(x - b[i]) <= tol)
@@ -56,7 +63,9 @@ const PORTED = new Set(['TechDraw_PageDefault', 'TechDraw_PageTemplate', 'TechDr
   'TechDraw_ExportPageDXF', 'TechDraw_ExportPagePDF', 'TechDraw_View', 'TechDraw_ProjectionGroup', 'TechDraw_SectionView', 'TechDraw_SectionGroup',
   'TechDraw_Dimension', 'TechDraw_CompDimensionTools', 'TechDraw_LengthDimension', 'TechDraw_HorizontalDimension', 'TechDraw_VerticalDimension',
   'TechDraw_RadiusDimension', 'TechDraw_DiameterDimension', 'TechDraw_AngleDimension', 'TechDraw_3PtAngleDimension', 'TechDraw_Balloon',
-  'TechDraw_Annotation', 'TechDraw_ToggleFrame'])
+  'TechDraw_Annotation', 'TechDraw_ToggleFrame', 'TechDraw_CosmeticVertex', 'TechDraw_CosmeticVertexGroup', 'TechDraw_Midpoints', 'TechDraw_Quadrants',
+  'TechDraw_2PointCosmeticLine', 'TechDraw_CosmeticCircle', 'TechDraw_CenterLineGroup', 'TechDraw_FaceCenterLine', 'TechDraw_2LineCenterLine',
+  'TechDraw_2PointCenterLine', 'TechDraw_CosmeticEraser', 'TechDraw_DecorateLine', 'TechDraw_Hatch', 'TechDraw_GeometricHatch'])
 
 // ── a scratch workbench with the two parts ───────────────────────────────────────────────────────────────────────
 const freePort = (from) => new Promise((res, rej) => {
@@ -121,7 +130,7 @@ function compareToolbars(fc, ours, what) {
   }
 }
 /** The open panel's widgets by their Qt object names, FreeCAD's (those it shows) and ours (data-qf, not hidden). */
-const ourPanel = () => st(`[...document.querySelectorAll('.tasks [data-qf]')].map((e) => e.getAttribute('data-qf')).filter((n) => n && !n.includes('::'))`)
+const ourPanel = () => st(`[...document.querySelectorAll('.tasks [data-qf]:not(.qf-line)')].map((e) => e.getAttribute('data-qf')).filter((n) => n && !n.includes('::'))`)
 const fcPanel = (p) => (Array.isArray(p[0]) ? p.flat() : p).map((w) => w.name).filter((n) => n && n !== 'qt_spinbox_lineedit' && !n.startsWith('qt_'))
 const sorted = (a) => [...new Set(a)].sort()
 const made = (k) => { const m = FC[k]?.made ?? []; return Array.isArray(m) ? m : [m] }
@@ -180,7 +189,7 @@ try {
     await page.mouse.click(box.x + box.width * 0.25, box.y + box.height / 2)
     await sleep(300)
     same((await td()).sel, ['Page/View.Edge2'], 'a click on Edge2 selects it')
-    await page.mouse.click(box.x + box.width * 0.25, box.y + box.height / 2 + 12)
+    await page.mouse.click(box.x + box.width * 0.25, box.y - 12)
     await sleep(300)
     same((await td()).sel, ['Page/View'], 'a click inside the view\'s frame selects the view')
   }
@@ -330,6 +339,226 @@ try {
     check(!(await obj('Balloon')), 'Std_Undo takes the balloon back')
     await runCmd('Std_Redo'); await until('cadui.td.state().docs.Page.objects.some((o) => o.name === "Balloon")', 'the balloon again', 30000)
     check(!!(await obj('Balloon')), 'Std_Redo brings it again')
+  }
+  // ── the annotation tools, on the View from above (ui/scripts/fctechdraw_annot.json) ──
+  if (want('annot')) {
+    console.log('annot')
+    const fcText = (panel, name) => { for (const tv of panel) for (const w of tv) if (w.name === name) return w.text }
+    const ourText = (name) => st(`(() => { const e = document.querySelector('.tasks [data-qf="${name}"]'); return !e ? undefined : e.matches('input') ? e.value : e.querySelector('input')?.value ?? e.textContent })()`)
+    const fillQ = async (name, text) => { const sel = `.tasks [data-qf="${name}"] input`; await page.fill(sel, text); await page.locator(sel).evaluate((e) => e.blur()); await sleep(250) }
+    const okTask = async () => {
+      try { await page.click('.tasks .tbuttons .qbtn.default', { timeout: 8000 }) } catch (e) { console.log(await st(`document.querySelector('.tasks')?.outerHTML.slice(0, 1500) ?? document.body.innerText.slice(0, 600)`)); throw e }
+      await idle(); await sleep(500)
+    }
+    const cancelTask = async () => { await page.click('.tasks .tbuttons .qbtn:not(.default)'); await idle(); await sleep(500) }
+    const msgText = async () => { await until('!!document.querySelector(".msgbox")', 'a message', 8000); const t = await st('document.querySelector(".msgbox-text")?.textContent'); await page.click('.msgbox-buttons button'); await sleep(200); return t }
+    const undoNames = () => st('cadui.getState().undo.slice(0, 5).map((u) => u.name)')
+    const open = async (cmd, refs, kind) => {
+      await select(refs)
+      await runCmd(cmd)
+      await until(`cadui.getState().task?.other?.startsWith("${kind}:")`, `${cmd}'s panel`)
+      await sleep(600)
+    }
+    const geometry = async (rec, what) => {
+      const v = (await td()).docs.Page.result.views.View
+      const fe = rec.edges, fv = rec.vertices
+      if (v.edges.length !== fe.length || v.vertices.length !== fv.length) { bad(`${what}: the geometry`, `${v.edges.length} edges and ${v.vertices.length} vertices, FreeCAD ${fe.length} and ${fv.length}`); return }
+      const s = v.scale
+      let why = ''
+      v.edges.forEach((e, i) => {
+        if (why) return
+        if (!near([e.start[0] / s, -e.start[1] / s], fe[i].start.slice(0, 2), 1e-4) || !near([e.end[0] / s, -e.end[1] / s], fe[i].end.slice(0, 2), 1e-4))
+          why = `Edge${i}: ours ${JSON.stringify([e.start, e.end])} FreeCAD ${JSON.stringify([fe[i].start, fe[i].end])}`
+      })
+      v.vertices.forEach((p, i) => { if (!why && !near([p.x / s, -p.y / s], fv[i].slice(0, 2), 1e-4)) why = `Vertex${i}: ours ${JSON.stringify([p.x, p.y])} FreeCAD ${JSON.stringify(fv[i])}` })
+      check(!why, `${what}: the edges and vertices, in FreeCAD's numbering`, why)
+    }
+    const panelNames = async (key, what) => same(sorted(await ourPanel()), sorted(fcPanel(ANNOT[key].panel)), `${what}: the panel's widgets`)
+    const firstValues = async (key, names, what) => {
+      for (const n of names) same(await ourText(n), fcText(ANNOT[key].panel, n), `${what}: ${n}`)
+    }
+    const stepIs = async (key, what, ours) => {
+      const head = await undoHead(), f = ANNOT[key].undo.head[0]
+      if (f === undefined) note(`${what}: no undo step in FreeCAD (a property edit outside a transaction); here "${head}"`)
+      else same(head, f, `${what}: the undo step`)
+      void ours
+    }
+    const NAMES = ['Hatching', 'Centerlines/Threading', 'Annotations', 'Add Lines', 'Add Vertices', 'Remove Cosmetic Object']
+    // the menus and toolbars for each selection
+    for (const [key, refs] of [['states_none', []], ['states_view', ['Page/View']], ['states_edge', ['Page/View.Edge2']], ['states_two_edges', ['Page/View.Edge0', 'Page/View.Edge4']],
+      ['states_two_vertices', ['Page/View.Vertex1', 'Page/View.Vertex6']], ['states_face', ['Page/View.Face0']]]) {
+      await select(refs)
+      quiet = key !== 'states_none'
+      const t = await st('cadui.techdraw()')
+      compareMenu(ANNOT[key].menu, t.menu.filter((e) => !e.sep && NAMES.includes(clean(e.text))), `${key} (${refs.join(', ') || 'nothing'})`)
+      compareToolbars(ANNOT[key].toolbars, t.toolbars.filter((x) => ANNOT[key].toolbars.some((y) => y.title === x.title)), key)
+      quiet = false
+    }
+    // Cosmetic Vertex
+    await open('TechDraw_CosmeticVertex', ['Page/View'], 'cosvertex')
+    await panelNames('cosvertex', 'Cosmetic Vertex')
+    same(await st(`document.querySelector('.tasks .tbox-head span')?.textContent`), 'New Cosmetic Vertex', 'Cosmetic Vertex: the panel\'s title')
+    await firstValues('cosvertex', ['dsbX', 'dsbY'], 'Cosmetic Vertex')
+    await fillQ('dsbX', '5 mm'); await fillQ('dsbY', '6 mm')
+    await okTask()
+    await geometry(ANNOT.cosvertex.view, 'Cosmetic Vertex')
+    await stepIs('cosvertex', 'Cosmetic Vertex')
+    await open('TechDraw_CosmeticVertex', ['Page/View'], 'cosvertex')
+    await cancelTask()
+    check(!(await st('cadui.getState().task')), 'Cosmetic Vertex: Cancel closes the panel')
+    // Midpoint and Quadrant Vertices
+    await select(['Page/View.Edge2']); await runCmd('TechDraw_Midpoints'); await idle(); await sleep(500)
+    await geometry(ANNOT.midpoints.view, 'Midpoint Vertices'); await stepIs('midpoints', 'Midpoint Vertices')
+    await select(['Page/View.Edge5']); await runCmd('TechDraw_Quadrants'); await idle(); await sleep(500)
+    await geometry(ANNOT.quadrants.view, 'Quadrant Vertices'); await stepIs('quadrants', 'Quadrant Vertices')
+    await select(['Page/View']); await runCmd('TechDraw_Midpoints')
+    same(await msgText(), ANNOT.midpoints_nothing.dialogs[0].text, 'Midpoint Vertices: nothing selected')
+    // Cosmetic Line through 2 points
+    await open('TechDraw_2PointCosmeticLine', ['Page/View.Vertex1', 'Page/View.Vertex6'], 'cosline')
+    await panelNames('cosline', 'Cosmetic Line')
+    await firstValues('cosline', ['qsbx1', 'qsby1', 'qsbz1', 'qsbx2', 'qsby2', 'qsbz2'], 'Cosmetic Line')
+    await fillQ('qsbx2', '12 mm'); await fillQ('qsby2', '9 mm')
+    await okTask()
+    await geometry(ANNOT.cosline.view, 'Cosmetic Line'); await stepIs('cosline', 'Cosmetic Line')
+    await select(['Page/View.Vertex1']); await runCmd('TechDraw_2PointCosmeticLine')
+    same(await msgText(), ANNOT.cosline_wrong.dialogs[0].text, 'Cosmetic Line: one vertex')
+    await open('TechDraw_2PointCosmeticLine', ['Page/View.Edge6'], 'cosline')
+    same(await st(`document.querySelector('.tasks .tbox-head span')?.textContent`), 'Edit Cosmetic Line', 'Cosmetic Line: the edit panel\'s title')
+    await firstValues('cosline_edit', ['qsbx1', 'qsby1', 'qsbx2', 'qsby2'], 'Cosmetic Line, edit')
+    await fillQ('qsby1', '-3 mm')
+    await okTask()
+    await geometry(ANNOT.cosline_edit.view, 'Cosmetic Line, edit'); await stepIs('cosline_edit', 'Cosmetic Line, edit')
+    // Cosmetic Circle
+    await open('TechDraw_CosmeticCircle', ['Page/View.Vertex6', 'Page/View.Vertex8'], 'coscircle')
+    await panelNames('coscircle', 'Cosmetic Circle')
+    await firstValues('coscircle', ['qsbCenterX', 'qsbCenterY', 'qsbCenterZ', 'qsbRadius', 'qsbStartAngle', 'qsbEndAngle'], 'Cosmetic Circle')
+    await fillQ('qsbRadius', '3 mm')
+    await okTask()
+    await geometry(ANNOT.coscircle.view, 'Cosmetic Circle'); await stepIs('coscircle', 'Cosmetic Circle')
+    await open('TechDraw_CosmeticCircle', ['Page/View.Vertex1', 'Page/View.Vertex4'], 'coscircle')
+    await page.click('[data-qf="rbArc"] input'); await sleep(300)
+    await fillQ('qsbStartAngle', '10'); await fillQ('qsbEndAngle', '100')
+    await okTask()
+    await geometry(ANNOT.coscircle_arc.view, 'Cosmetic Arc')
+    await open('TechDraw_CosmeticCircle', ['Page/View.Edge8'], 'coscircle')
+    same(await st(`document.querySelector('.tasks .tbox-head span')?.textContent`), 'Edit Cosmetic Circle', 'Cosmetic Circle: the edit panel\'s title')
+    await firstValues('coscircle_edit', ['qsbCenterX', 'qsbCenterY', 'qsbRadius', 'qsbStartAngle', 'qsbEndAngle'], 'Cosmetic Circle, edit')
+    await fillQ('qsbRadius', '6 mm')
+    await okTask()
+    await geometry(ANNOT.coscircle_edit.view, 'Cosmetic Circle, edit')
+    // Centerlines: made when the panel opens, changed live, one undo step
+    {
+      const n0 = await undoNames()
+      await open('TechDraw_2LineCenterLine', ['Page/View.Edge0', 'Page/View.Edge4'], 'centerline')
+      await panelNames('cl2lines', 'Centerline Between 2 Lines')
+      same(await undoHead(), 'Create Centerline', 'Centerline Between 2 Lines: made when the panel opens')
+      await firstValues('cl2lines', ['qsbHorizShift', 'qsbVertShift', 'qsbExtend'], 'Centerline Between 2 Lines')
+      same(await st(`document.querySelector('.tasks [data-qf="cboxStyle"] .combo-label')?.textContent`), 'Symmetry', 'Centerline Between 2 Lines: the style box opens on Symmetry')
+      await fillQ('qsbVertShift', '1.5 mm'); await fillQ('qsbHorizShift', '-2 mm'); await fillQ('qsbRotate', '10'); await fillQ('qsbExtend', '2 mm'); await fillQ('dsbWeight', '0.7 mm')
+      await okTask()
+      await geometry(ANNOT.cl2lines.view, 'Centerline Between 2 Lines')
+      same((await undoNames()).slice(1), n0.slice(0, 4), 'Centerline Between 2 Lines: one undo step for the line and its changes')
+      same(await undoHead(), ANNOT.cl2lines.undo.head[0], 'Centerline Between 2 Lines: the undo step')
+      await open('TechDraw_2PointCenterLine', ['Page/View.Vertex3', 'Page/View.Vertex8'], 'centerline')
+      await okTask()
+      await geometry(ANNOT.cl2points.view, 'Centerline Between 2 Points')
+      // Cancel takes the new line back
+      const n1 = await undoNames()
+      await open('TechDraw_2LineCenterLine', ['Page/View.Edge2', 'Page/View.Edge3'], 'centerline')
+      same(await st(`document.querySelector('.tasks [data-qf="rbHorizontal"] input')?.checked`), true, 'Centerline Between 2 Lines: two horizontal lines make it horizontal (checkPathologicalEdges)')
+      await fillQ('qsbExtend', '2 mm')
+      await cancelTask(); await sleep(2500)
+      await geometry(ANNOT.cl2lines_cancel.view, 'Centerline Between 2 Lines, Cancel')
+      same((await undoNames()).slice(0, 4), n1.slice(0, 4), 'Centerline Between 2 Lines, Cancel: no step is left')
+      await select(['Page/View.Edge2']); await runCmd('TechDraw_2LineCenterLine')
+      same(await msgText(), ANNOT.cl2lines_wrong.dialogs[0].text, 'Centerline Between 2 Lines: one line that is not a centerline')
+      await open('TechDraw_FaceCenterLine', ['Page/View.Face0'], 'centerline')
+      await panelNames('clface', 'Centerline on Face')
+      same(await st(`document.querySelector('.tasks [data-qf="rbAligned"] input')?.disabled`), true, 'Centerline on Face: Aligned is off')
+      await okTask()
+      await geometry(ANNOT.clface.view, 'Centerline on Face')
+      await open('TechDraw_FaceCenterLine', ['Page/View.Face1'], 'centerline')
+      await okTask()
+      await geometry(ANNOT.clface_hole.view, 'Centerline on Face, the hole')
+      await open('TechDraw_2LineCenterLine', ['Page/View.Edge9'], 'centerline')
+      same(await st(`document.querySelector('.tasks .tbox-head span')?.textContent`), 'Edit Centerline', 'Centerline: the edit panel\'s title')
+      await firstValues('cl_edit_existing', ['qsbHorizShift', 'qsbVertShift', 'qsbRotate', 'qsbExtend'], 'Centerline, edit')
+      note('Centerline, edit: FreeCAD\'s style box shows Format.Style (Hidden), not the line number the panel set (Symmetry); this shows the line number')
+      await cancelTask()
+    }
+    // a face is picked by a click inside it (QGIFace): a point of the plate where a face is on top
+    {
+      const at = await st(`(() => { const f = document.querySelector('[data-view="View"][data-sub="Face0"]'); const b = f.getBoundingClientRect()
+        for (let i = 1; i < 30; i++) for (let j = 1; j < 30; j++) { const x = b.left + b.width * i / 30, y = b.top + b.height * j / 30
+          const e = document.elementFromPoint(x, y); const sub = e?.getAttribute('data-sub'); if (/^Face/.test(sub ?? '')) return [x, y, sub, e.getAttribute('data-view')] }
+        return null })()`)
+      check(!!at, 'a point of the view where a face is on top')
+      if (at) { await page.mouse.click(at[0], at[1]); await sleep(300); same((await td()).sel, [`Page/${at[3]}.${at[2]}`], 'a click inside a face picks it') }
+    }
+    // Line Decoration
+    await open('TechDraw_DecorateLine', ['Page/View.Edge0', 'Page/View.Edge1'], 'linedecor')
+    await panelNames('decorate_hlr', 'Edit Line Appearance')
+    await firstValues('decorate_hlr', ['dsb_Weight', 'le_Lines'], 'Edit Line Appearance')
+    same(await st(`document.querySelector('.tasks [data-qf="cb_Style"] .combo-label')?.textContent`), 'Hidden', 'Edit Line Appearance: the style box opens on Hidden')
+    await page.click('.tasks [data-qf="cb_Style"]'); await page.locator('.combo-popup .combo-item', { hasText: /^Center$/ }).first().click(); await sleep(300); await fillQ('dsb_Weight', '0.9 mm'); await page.click('.tasks [data-qf="cb_Visible"] input'); await sleep(300)
+    await okTask()
+    await until('(cadui.td.state().docs.Page.objects.find((o) => o.name === "View")?.geom_formats ?? []).length === 2', 'the GeomFormats', 15000)
+    check(((await obj('View')).geom_formats ?? []).length === 2, 'Edit Line Appearance: a GeomFormat for each HLR edge', JSON.stringify((await obj('View')).geom_formats))
+    await select(['Page/View']); await runCmd('TechDraw_DecorateLine')
+    same(await msgText(), ANNOT.decorate_view_only.dialogs[0].text, 'Edit Line Appearance: a view and no lines')
+    // the eraser
+    for (const [key, ref] of [['edge', 'Page/View.Edge6'], ['centerline', 'Page/View.Edge8'], ['vertex', 'Page/View.Vertex9'], ['hlr_edge', 'Page/View.Edge0']]) {
+      await select([ref]); await runCmd('TechDraw_CosmeticEraser'); await idle(); await sleep(500)
+      await geometry(ANNOT.eraser[key].view, `Remove Cosmetic Object (${key})`)
+    }
+    await select([]); await runCmd('TechDraw_CosmeticEraser')
+    same(await msgText(), 'Nothing selected', 'Remove Cosmetic Object: nothing selected')
+    note('Edit Line Appearance and Remove Cosmetic Object make no undo step in FreeCAD (no transaction is open); each is a step here')
+    if (want('annot') || want('hatch')) await hatchChecks()
+  }
+  // ── hatching (ui/scripts/fctechdraw_hatch.json) ──
+  async function hatchChecks() {
+    console.log('hatch')
+    const fcText = (panel, name) => { for (const tv of panel) for (const w of tv) if (w.name === name) return w.text ?? w.current }
+    const ourText = (name) => st(`(() => { const e = document.querySelector('.tasks [data-qf="${name}"]'); return !e ? undefined : e.matches('input') ? e.value : e.querySelector('.combo-label')?.textContent ?? e.querySelector('input')?.value ?? e.textContent })()`)
+    const okTask = async () => { await page.click('.tasks .tbuttons .qbtn.default', { timeout: 8000 }); await idle(); await sleep(500) }
+    const made = (name) => until(`cadui.td.state().docs.Page.objects.some((o) => o.name === "${name}")`, `${name} in the page`, 20000)
+    const msgText = async () => { await until('!!document.querySelector(".msgbox")', 'a message', 8000); const t = await st('document.querySelector(".msgbox-text")?.textContent'); await page.click('.msgbox-buttons button'); await sleep(200); return t }
+    const open = async (cmd, refs, kind) => { await select(refs); await runCmd(cmd); await until(`cadui.getState().task?.other?.startsWith("${kind}:")`, `${cmd}'s panel`); await sleep(600) }
+    await select([]); await runCmd('TechDraw_GeometricHatch')
+    same(await msgText(), HATCH.wrong_nothing.dialogs[0].text, 'Geometric Hatch: nothing selected')
+    await select(['Page/View']); await runCmd('TechDraw_Hatch')
+    same(await msgText(), HATCH.wrong_view_only.dialogs[0].text, 'Image Hatch: a view and no face')
+    await select(['Page/View.Edge2']); await runCmd('TechDraw_GeometricHatch')
+    same(await msgText(), HATCH.wrong_edge.dialogs[0].text, 'Geometric Hatch: an edge')
+    // the geometric hatch
+    await open('TechDraw_GeometricHatch', ['Page/View.Face0'], 'geomhatch')
+    for (const n of ['cbName', 'sbScale', 'sbWeight', 'dsbRotation', 'dsbOffsetX', 'dsbOffsetY'])
+      same(await ourText(n), n === 'cbName' ? 'Diamond' : fcText(HATCH.geomhatch.panel, n), `Geometric Hatch: ${n}`)
+    same(await st(`document.querySelector('.tasks .tbox-head span')?.textContent`), 'Geometric Hatch', 'Geometric Hatch: the panel title')
+    await okTask()
+    await made('GeomHatch'); await sleep(500)
+    const g = (await obj('GeomHatch'))
+    check(g?.name_pattern === 'Diamond' && g.faces?.[0] === 'Face0' && g.source === 'View', 'Geometric Hatch: the object', JSON.stringify(g))
+    same(await undoHead(), HATCH.geomhatch.undo.head[0], 'Geometric Hatch: the undo step')
+    const lines = ((await td()).docs.Page.result.hatches?.GeomHatch?.faces?.Face0?.lines ?? []).length
+    same(await st(`document.querySelectorAll('[data-hatch="GeomHatch"]').length`), lines, 'Geometric Hatch: the lines drawn')
+    check(lines > 0, 'Geometric Hatch: the face has lines')
+    // the image hatch
+    await open('TechDraw_Hatch', ['Page/View.Face1'], 'hatch')
+    same(await st(`document.querySelector('.tasks .tbox-head span')?.textContent`), 'Create Face Hatch', 'Image Hatch: the panel title')
+    for (const n of ['sbScale', 'dsbRotation', 'dsbOffsetX', 'dsbOffsetY']) same(await ourText(n), fcText(HATCH.hatch.panel, n), `Image Hatch: ${n}`)
+    await okTask()
+    await made('Hatch'); await sleep(500)
+    const h = await obj('Hatch')
+    check(h?.faces?.[0] === 'Face1' && h.hatch_pattern === 'simple.svg', 'Image Hatch: the object', JSON.stringify(h))
+    same(await undoHead(), 'Create Hatch', 'Image Hatch: the undo step')
+    check((await st(`document.querySelectorAll('[data-hatch="Hatch"]').length`)) >= 1, 'Image Hatch: drawn')
+    // a face that has a hatch gets the new one (FreeCAD: Remove old hatch, then Create Hatch)
+    await open('TechDraw_Hatch', ['Page/View.Face1'], 'hatch')
+    await okTask()
+    same((await td()).docs.Page.objects.filter((o) => o.kind === 'DrawHatch').length, 1, 'Image Hatch: a face already hatched has the new hatch only')
+    note('Image Hatch: FreeCAD makes "Remove old hatch", "Create Hatch" and several "Update Hatch" steps; this is one "Create Hatch" step')
   }
   // ── the SVG export ──
   if (want('export')) {
