@@ -79,6 +79,10 @@ export const PART_PROPS: Record<string, PartProp[]> = {
   {"g": "Connect", "p": "Refine", "k": "refine", "t": "App::PropertyBool"},
   {"g": "Connect", "p": "Tolerance", "k": "tolerance", "t": "App::PropertyLength"},
  ],
+ "Part::CrossSections": [
+  {"g": "Base", "p": "Placement", "k": "placement", "t": "App::PropertyPlacement"},
+  {"g": "Base", "p": "Label", "k": "label", "t": "App::PropertyString"},
+ ],
  "Part::Cut": [
   {"g": "Base", "p": "Base", "k": "base", "t": "App::PropertyLink"},
   {"g": "Base", "p": "Tool", "k": "tool", "t": "App::PropertyLink"},
@@ -160,6 +164,10 @@ export const PART_PROPS: Record<string, PartProp[]> = {
   {"g": "Base", "p": "Placement", "k": "placement", "t": "App::PropertyPlacement"},
   {"g": "Base", "p": "Label", "k": "label", "t": "App::PropertyString"},
  ],
+ "Part::Feature": [
+  {"g": "Base", "p": "Placement", "k": "placement", "t": "App::PropertyPlacement"},
+  {"g": "Base", "p": "Label", "k": "label", "t": "App::PropertyString"},
+ ],
  "Part::Fillet": [
   {"g": "Base", "p": "Base", "k": "base", "t": "App::PropertyLink"},
   {"g": "Base", "p": "Edges", "k": "edges", "t": "Part::PropertyFilletEdges"},
@@ -209,6 +217,10 @@ export const PART_PROPS: Record<string, PartProp[]> = {
   {"g": "Loft", "p": "Closed", "k": "closed", "t": "App::PropertyBool"},
   {"g": "Loft", "p": "MaxDegree", "k": "max_degree", "t": "App::PropertyIntegerConstraint"},
   {"g": "Loft", "p": "Linearize", "k": "linearize", "t": "App::PropertyBool"},
+ ],
+ "Part::MakeSolid": [
+  {"g": "Base", "p": "Placement", "k": "placement", "t": "App::PropertyPlacement"},
+  {"g": "Base", "p": "Label", "k": "label", "t": "App::PropertyString"},
  ],
  "Part::Mirroring": [
   {"g": "Base", "p": "Source", "k": "source", "t": "App::PropertyLink"},
@@ -344,6 +356,10 @@ export const PART_PROPS: Record<string, PartProp[]> = {
   {"g": "Boolean", "p": "Refine", "k": "refine", "t": "App::PropertyBool"},
   {"g": "Section", "p": "Approximation", "k": "approximation", "t": "App::PropertyBool"},
  ],
+ "Part::ShapeBuilder": [
+  {"g": "Base", "p": "Placement", "k": "placement", "t": "App::PropertyPlacement"},
+  {"g": "Base", "p": "Label", "k": "label", "t": "App::PropertyString"},
+ ],
  "Part::Slice": [
   {"g": "Base", "p": "Placement", "k": "placement", "t": "App::PropertyPlacement"},
   {"g": "Base", "p": "Label", "k": "label", "t": "App::PropertyString"},
@@ -394,6 +410,14 @@ export const PART_PROPS: Record<string, PartProp[]> = {
   {"g": "Thickness", "p": "Join", "k": "join", "t": "App::PropertyEnumeration", "e": ["Arc", "Tangent", "Intersection"]},
   {"g": "Thickness", "p": "Intersection", "k": "intersection", "t": "App::PropertyBool"},
   {"g": "Thickness", "p": "SelfIntersection", "k": "self_intersection", "t": "App::PropertyBool"},
+ ],
+ "Part::ToleranceSet": [
+  {"g": "Base", "p": "Placement", "k": "placement", "t": "App::PropertyPlacement"},
+  {"g": "Base", "p": "Label", "k": "label", "t": "App::PropertyString"},
+  {"g": "ToleranceSet", "p": "Objects", "k": "objects", "t": "App::PropertyLinkList"},
+  {"g": "ToleranceSet", "p": "Refine", "k": "refine", "t": "App::PropertyBool"},
+  {"g": "ToleranceSet", "p": "minTolerance", "k": "min_tolerance", "t": "App::PropertyLength"},
+  {"g": "ToleranceSet", "p": "maxTolerance", "k": "max_tolerance", "t": "App::PropertyLength"},
  ],
  "Part::Torus": [
   {"g": "Attachment", "p": "AttachmentSupport", "k": "attachment_support", "t": "App::PropertyLinkSubList"},

@@ -694,6 +694,7 @@ from . import feature_part_ops  # noqa: E402,F401  Extrusion, Revolution, Mirror
 from . import feature_part_split  # noqa: E402,F401  BooleanFragments, Slice, XOR, Connect, Embed, Cutout, CompoundFilter
 from . import feature_part_sweep  # noqa: E402,F401  Loft, Sweep, Offset, Offset2D, Thickness, ProjectOnSurface
 from . import feature_part_misc  # noqa: E402,F401  Reverse, Scale, Face, RuledSurface
+from . import feature_part_static  # noqa: E402,F401  Feature (copies), MakeSolid, CrossSections, ShapeBuilder, ToleranceSet
 
 # What each command hides, where it is not what the tree shows under the object (Gui/Command.cpp, TaskLoft.cpp,
 # TaskSweep.cpp, TaskOffset.cpp, DlgProjectionOnSurface.cpp, Mirroring.cpp: they leave their inputs shown).

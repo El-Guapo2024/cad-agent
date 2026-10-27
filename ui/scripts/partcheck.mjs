@@ -20,6 +20,8 @@
 //              Boolean: each panel's labels, check boxes, groups and values against FreeCAD's; OK where FreeCAD's dump pressed
 //              it, and the object's properties against FreeCAD's
 //   split      Boolean Fragments, XOR, Connect, Slice, Explode compound: names, undo steps, hidden inputs
+//   static     Simple, Transformed and Element copy, Convert to solid, Set tolerance, Cross-sections, the Shape builder
+//              (ui/scripts/fcpart_static.json, fcpart_static.py): names, labels, undo steps, the panels, the elements picked in the 3D view
 //   props      the property view of a Box, the Cut and the Extrude against FreeCAD's rows
 //   undo       Std_Undo takes the last object back
 // A difference prints as FAIL; the deliberate ones (PARITY.md, "Part workbench") as `known`. Exit 1 on a FAIL.
@@ -51,9 +53,8 @@ const want = (section) => !ONLY.length || ONLY.includes(section)
 const clean = (t) => String(t ?? '').replace(/&(.)/g, '$1').replace(/…$/, '').trim()
 
 // What is deliberately different (PARITY.md, "Part workbench"), by the FreeCAD command or widget
-const NOT_PORTED = new Set(['Part_BoxSelection', 'Part_Builder', 'Part_ShapeFromMesh', 'Part_PointsFromMesh', 'Part_MakeSolid',
-  'Part_SimpleCopy', 'Part_TransformedCopy', 'Part_ElementCopy', 'Part_ToleranceSet',
-  'Part_CrossSections', 'Part_SectionCut', 'Part_CheckGeometry', 'Part_Defeaturing', 'Materials_InspectAppearance',
+const NOT_PORTED = new Set(['Part_BoxSelection', 'Part_ShapeFromMesh', 'Part_PointsFromMesh',
+  'Part_SectionCut', 'Part_CheckGeometry', 'Part_Defeaturing', 'Materials_InspectAppearance',
   'Materials_InspectMaterial', 'Part_ColorPerFace'])
 
 // ── a scratch workbench (transformcheck.mjs's) ───────────────────────────────────────────────────────────────────────
@@ -537,6 +538,239 @@ try {
   await panel('Part_ProjectionOnSurface', null, 'cmd_Part_ProjectionOnSurface', null)
   await runCmd('Part_Boolean')
   if (await until('cadui.getState().task?.other === "boolean"', 'the Boolean panel', 20000)) { await comparePanel(FC.cmd_Part_Boolean.task, 'Part_Boolean'); await clickButton('Close') }
+
+  }
+  if (want('static')) {
+  console.log('static')
+  const FS = JSON.parse(readFileSync(join(HERE, 'fcpart_static.json'), 'utf8'))
+  const post = async (ops) => {
+    const r = await st(`fetch('/api/pc/features/${DOC}', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CAD': '1' }, body: JSON.stringify({ ops: ${JSON.stringify(ops)} }) }).then((r) => r.json()).then((j) => { cadui.loadFeatures(); return j })`)
+    if (r?.data?.error || (r?.exit ?? 0) > 2) console.log(`        post refused: ${r?.data?.error ?? JSON.stringify(r).slice(0, 300)}`)
+  }
+  const alertBox = () => st(`(() => { const b = document.querySelector('.msgbox[role="alertdialog"]'); return b ? { title: b.querySelector('.msgbox-title')?.textContent ?? null, text: b.querySelector('.msgbox-text')?.textContent ?? null, buttons: [...b.querySelectorAll('.msgbox-buttons button')].map((e) => e.textContent) } : null })()`)
+  const dismiss = async () => { await page.click('.msgbox .msgbox-buttons button'); await sleep(200) }
+  const addBox = async (name, extra = {}) => {
+    const n = await count()
+    await post([{ op: 'add', feature: { name, type: 'Part::Box', length: 10, width: 20, height: 5, ...extra } }])
+    await objectsAt(n + 1, name)
+  }
+  const entryOf = (cmd) => st(`(() => { const walk = (es) => { for (const e of es) { if (e.cmd === ${JSON.stringify(cmd)}) return e; if (e.menu) { const x = walk(e.menu); if (x) return x } } return null }; return walk(cadui.part().part) })()`)
+  const objOf = async (name) => (await objects()).find((o) => o.name === name)
+  const shapeOf = (name) => st(`fetch('/api/pc/features/${DOC}/shape', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CAD': '1' }, body: JSON.stringify({ ops: [], feature: ${JSON.stringify(name)} }) }).then((r) => r.json()).then((r) => r.data)`)
+  const step = (fc) => until(`cadui.getState().undo[0]?.name === ${JSON.stringify(fc)}`, `the "${fc}" step`, 30000)
+
+  // the menu: enabled as the commands' isActive says (CmdPartSimpleCopy: a selection; Set tolerance and the builder: a document)
+  await page.click('.dv-tab:has-text("pc")').catch(() => page.click('text=pc : 1'))     // the 3D view in front of the Start page: the picks are clicks in it
+  await sleep(800)
+  await st('cadui.setState({ featSel: [], selected: [], subSel: [] })')
+  await sleep(200)
+  await addBox('BoxCp', { placement: [[5, -3, 2], [30, 15, -10]] })
+  for (const c of ['Part_SimpleCopy', 'Part_TransformedCopy', 'Part_ElementCopy', 'Part_MakeSolid', 'Part_CrossSections']) check((await entryOf(c))?.enabled === false, `${c}: greyed with nothing selected`)
+  for (const c of ['Part_Builder', 'Part_ToleranceSet']) check((await entryOf(c))?.enabled === true, `${c}: enabled with a document open`)
+  await selectRows(['BoxCp'])
+  for (const c of ['Part_SimpleCopy', 'Part_TransformedCopy', 'Part_ElementCopy', 'Part_MakeSolid', 'Part_CrossSections']) check((await entryOf(c))?.enabled === true, `${c}: enabled with a shape selected`)
+
+  // ── Simple, Transformed and Element copy ──
+  for (const [cmd, name] of [['Part_SimpleCopy', 'BoxCp001'], ['Part_TransformedCopy', 'BoxCp002'], ['Part_ElementCopy', 'BoxCp003']]) {
+    const fc = FS[`cmd_${cmd}`], n = await count()
+    await selectRows(['BoxCp'])
+    await runCmd(cmd)
+    if (!await objectsAt(n + 1, cmd)) continue
+    const o = (await objects())[n], want = fc.made[0]
+    same([o.name, o.label ?? o.name, o.type], [name, name, want.type], `${cmd}: FreeCAD's object (named after its source, labelled with its Label)`)
+    same(o.source, 'BoxCp', `${cmd}: the copy follows its source (a known difference, PARITY.md)`)
+    await step(fc.undo[0]) && ok(`${cmd}: undo step "${fc.undo[0]}"`)
+    const t = await tree()
+    same(['BoxCp'].filter((x) => !t.shown.includes(x)), fc.hidden, `${cmd}: hides nothing`)
+    same(t.children[o.name] ?? [], [], `${cmd}: claims no children`)
+  }
+  { // two selected: one copy each, in one step; a name in use loses its digits first (Box001 -> Box005)
+    const fc = FS.cmd_Part_SimpleCopy_two, n = await count()
+    await selectRows(['BoxCp', 'BoxCp001'])
+    await runCmd('Part_SimpleCopy')
+    if (await objectsAt(n + 2, 'two copies')) {
+      same((await objects()).slice(n).map((o) => [o.name, o.label ?? o.name, o.source]), [['BoxCp004', 'BoxCp004', 'BoxCp'], ['BoxCp005', 'BoxCp005', 'BoxCp001']], 'Part_SimpleCopy: a copy of each selected shape, named as FreeCAD names them')
+      same(fc.made.map((m) => m.name), ['Box005', 'Box006'], 'Part_SimpleCopy: (FreeCAD\'s own two copies)')
+      await step(fc.undo[0]) && ok('Part_SimpleCopy: both in one "Simple copy" step')
+    }
+  }
+
+  // ── Convert to solid ──
+  { const n = await count()
+    await post([{ op: 'add', feature: { name: 'BoxMa', type: 'Part::Box', length: 10, width: 10, height: 10 } },
+      { op: 'add', feature: { name: 'BoxMb', type: 'Part::Box', length: 10, width: 10, height: 10, placement: [[10, 0, 0], [0, 0, 0]] } },
+      { op: 'add', feature: { name: 'CompMs', type: 'Part::Compound', links: ['BoxMa', 'BoxMb'] } },
+      { op: 'add', feature: { name: 'ShMs', type: 'Part::ShapeBuilder', mode: 'Shell from faces', all_faces: true, elements: [['BoxMa', 'Face1'], ['BoxMa', 'Face2']] } }])
+    await objectsAt(n + 4, 'the shapes to convert') }
+  for (const [src, fcKey] of [['CompMs', 'cmd_Part_MakeSolid_compound'], ['ShMs', 'cmd_Part_MakeSolid_shell']]) {
+    const fc = FS[fcKey], n = await count()
+    await selectRows([src])
+    await runCmd('Part_MakeSolid')
+    if (!await objectsAt(n + 1, `Part_MakeSolid of ${src}`)) continue
+    const o = (await objects())[n], want = fc.made[0]
+    same([o.name, o.label, o.type === 'Part::MakeSolid' ? want.type : o.type], [`${src}_solid`, `${src} (Solid)`, 'Part::Feature'], `Part_MakeSolid on ${src}: "<name>_solid" labelled "<Label> (Solid)" (a Part::Feature there, a Part::MakeSolid recipe here)`)
+    await step(fc.undo[0]) && ok(`Part_MakeSolid: undo step "${fc.undo[0]}"`)
+  }
+  { const n = await count()                                  // a solid is ignored ("is already a solid"), nothing made
+    await selectRows(['BoxCp'])
+    await runCmd('Part_MakeSolid')
+    await sleep(1500)
+    check(await count() === n, 'Part_MakeSolid: a solid is ignored, nothing is made (FS: ' + JSON.stringify(FS.cmd_Part_MakeSolid_solid.made) + ')') }
+
+  // ── Set tolerance ──
+  for (const [sel, name, fcKey] of [[['BoxCp'], 'Tolerance', 'cmd_Part_ToleranceSet'], [['BoxCp', 'BoxMa'], 'Tolerance001', 'cmd_Part_ToleranceSet_two']]) {
+    const fc = FS[fcKey], n = await count()
+    await selectRows(sel)
+    await runCmd('Part_ToleranceSet')
+    if (!await objectsAt(n + 1, fcKey)) continue
+    const o = (await objects())[n], want = fc.made[0]
+    same([o.name, o.label ?? o.name, o.type], [name, want.label, 'Part::ToleranceSet'], `${fcKey}: FreeCAD's object (a Part::FeaturePython there)`)
+    same([o.objects, o.min_tolerance], [sel, 1e-7], `${fcKey}: Objects and minTolerance 1e-7`)
+    await step(fc.undo[0]) && ok(`${fcKey}: undo step "${fc.undo[0]}"`)
+    const t = await tree()
+    same(t.children[o.name] ?? [], sel, `${fcKey}: the tree shows the objects under it`)
+    check(sel.every((s) => !t.shown.includes(s)), `${fcKey}: hides its objects`)
+  }
+  await st('cadui.setState({ featSel: [], selected: [] })')
+  await sleep(200)
+  { const n = await count(); await runCmd('Part_ToleranceSet')
+    if (await until('!!document.querySelector(".msgbox[role=alertdialog]")', 'the "Bad Selection" box', 20000)) {
+      const d = FS.cmd_Part_ToleranceSet_none.dialogs[0]
+      same(await alertBox(), { title: d.title, text: d.text, buttons: d.buttons }, 'Part_ToleranceSet: FreeCAD\'s "Bad Selection"')
+      await dismiss()
+    }
+    check(await count() === n, 'Part_ToleranceSet: nothing is made without a selection') }
+
+  // ── Cross-sections ──
+  await addBox('BoxCs')
+  await selectRows(['BoxCs'])
+  await runCmd('Part_CrossSections')
+  if (await until('cadui.getState().task?.other === "crosssections"', 'the Cross-sections panel', 20000)) {
+    const fc = FS.crosssections
+    await comparePanel(fc.task, 'Part_CrossSections', { skip: ['Cross Sections'], extra: [] })
+    same(await st(`[...document.querySelectorAll('.taskview .tbuttons button')].map((e) => e.textContent)`), fc.buttons, 'Part_CrossSections: OK, Cancel, Apply')
+    const val = (qf) => st(`(() => { const i = document.querySelector('.taskview [data-qf="${qf}"] input'); return i ? i.value : null })()`)
+    const clickRadio = async (qf) => { await page.click(`.taskview [data-qf="${qf}"] input`); await sleep(250) }
+    for (const [plane, qf] of [['XY', 'xyPlane'], ['XZ', 'xzPlane'], ['YZ', 'yzPlane']]) {
+      await clickRadio(qf)
+      same([await val('position'), await val('distance'), await val('countSections')], [fc.values[plane].position, fc.values[plane].distance, fc.values[plane].countSections], `Part_CrossSections: ${plane} puts Position, Distance and Count where FreeCAD's dialog does`)
+    }
+    const sectionsBox = '.taskview [data-qf="sectionsBox"] legend input'
+    check(await st(`document.querySelector('${sectionsBox}').checked === ${JSON.stringify(fc.sections_start)}`), 'Part_CrossSections: the Sections box starts off')
+    same(await st(`['checkBothSides', 'countSections', 'distance'].map((n) => document.querySelector('.taskview [data-qf="' + n + '"] input').disabled)`), [true, true, true], 'Part_CrossSections: and its boxes are disabled')
+    await page.click(sectionsBox)
+    await sleep(250)
+    await clickRadio('xzPlane')
+    await page.fill('.taskview [data-qf="countSections"] input', '3')
+    await sleep(300)
+    same([await val('position'), await val('distance'), await val('countSections')], [fc.xz_count3.position, fc.xz_count3.distance, fc.xz_count3.countSections], 'Part_CrossSections: XZ, Count 3: Distance is a third of the box, halved')
+    await page.click('.taskview [data-qf="checkBothSides"] input')
+    await sleep(300)
+    same([await val('position'), await val('distance'), await val('countSections')], [fc.both.position, fc.both.distance, fc.both.countSections], 'Part_CrossSections: On both sides doubles Distance')
+    const n = await count()
+    await clickButton('OK')
+    if (await objectsAt(n + 1, 'the cross-sections')) {
+      const o = (await objects())[n], want = fc.made[0]
+      same([o.name, o.label ?? o.name, o.type, o.base], [want.name.replace('BoxCs', 'BoxCs'), want.label, 'Part::CrossSections', 'BoxCs'], 'Part_CrossSections: "<name>_cs" over the shape')
+      same([o.plane, o.positions], ['XZ', [3.33333, 10, 16.6667]], 'Part_CrossSections: the planes, as the Python string carries them (six digits)')
+      const sh = (await shapeOf(o.name))?.shape
+      same([sh?.edges.length], [fc.shape[want.name].edges], 'Part_CrossSections: the same wires (12 edges for 3 slices)')
+      note('Part_CrossSections: FreeCAD opens no transaction for it (Ctrl+Z undoes the step before); here it is one "Cross-sections" step')
+      await until('!cadui.getState().task', 'the panel to close after OK', 20000) && ok('Part_CrossSections: OK closes the panel')
+    }
+  }
+
+  // ── Shape builder ──
+  await addBox('BoxSb', { placement: [[100, 0, 0], [0, 0, 0]] })         // away from the others, so that a click lands on its elements alone
+  await st('cadui.setState({ featSel: [], selected: [] })')
+  await sleep(200)
+  await page.click('.tb-btn[data-cmd="Part_Builder"]')
+  if (await until('cadui.getState().task?.other === "builder"', 'the Shape builder', 20000)) {
+    const fc = FS.builder
+    await comparePanel(fc.task, 'Part_Builder', { skip: ['Create Shape'], extra: [] })
+    same(await st(`[...document.querySelectorAll('.taskview .tbuttons button')].map((e) => e.textContent)`), fc.buttons, 'Part_Builder: Close')
+    const boxes = () => st(`(() => { const o = {}; for (const [k, qf] of [['Planar', 'checkPlanar'], ['Refine shape', 'checkRefine'], ['All faces', 'checkFaces']]) { const i = document.querySelector('.taskview [data-qf="' + qf + '"] input'); o[k] = { enabled: !i.disabled, checked: i.checked } } return o })()`)
+    const RADIOS = { 'Edge from vertices': 'radioButtonEdgeFromVertex', 'Wire from edges': 'radioButtonWireFromEdge', 'Face from vertices': 'radioButtonFaceFromVertex', 'Face from edges': 'radioButtonFaceFromEdge', 'Shell from faces': 'radioButtonShellFromFace', 'Solid from shell': 'radioButtonSolidFromShell' }
+    for (const [m, qf] of Object.entries(RADIOS)) {
+      await page.click(`.taskview [data-qf="${qf}"] input`)
+      await sleep(250)
+      same(await boxes(), fc.modes[m].boxes, `Part_Builder: ${m}: Planar, Refine shape and All faces as TaskShapeBuilder::switchMode sets them`)
+      same(await st(`document.querySelector('.taskview [data-qf="label"]').textContent`), fc.modes[m].labels[0], `Part_Builder: ${m}: its hint`)
+    }
+    // Create with a wrong selection: the box and its text
+    for (const m of ['Edge from vertices', 'Wire from edges', 'Face from vertices', 'Shell from faces', 'Solid from shell']) {
+      await page.click(`.taskview [data-qf="${RADIOS[m]}"] input`)
+      await sleep(200)
+      await page.click('.taskview [data-qf="createButton"]')
+      if (await until('!!document.querySelector(".msgbox[role=alertdialog]")', `the box for ${m}`, 20000)) {
+        const d = fc.wrong[m][0]
+        same(await alertBox(), { title: d.title, text: d.text, buttons: d.buttons }, `Part_Builder: ${m} with a wrong selection: FreeCAD's "${d.text}"`)
+        await dismiss()
+      }
+    }
+    // Create from elements picked in the 3D view, one mode after the other
+    await until('cadui.getView().helpers?.has?.("pt-builder")', 'the shapes drawn as pickable helpers', 30000)
+    if (args.includes('--debug')) console.log('        helpers', await st(`(() => { const g = cadui.getView().helpers.get('pt-builder'); const names = []; g.traverse((o) => { if (o.userData.pickName) names.push(o.userData.pickName) }); return JSON.stringify({ kids: g.children.length, names: names.slice(0, 40), view: cadui.getView().helperPoint('pt-builder', '@BoxSb.Face6') }) })()`))
+    await until('!cadui.getState().busy.length', 'the scene to follow the edits', 60000)
+    await sleep(4000)                                                     // the scene is rebuilt after the edits; the view fits what it holds
+    await st('cadui.getView().fitAll()')
+    await sleep(3000)
+    if (args.includes('--debug')) console.log('        scene', await st(`(() => { const v = cadui.getView(); const g = v.helpers.get('pt-builder'); let p = null; g.traverse((o) => { if (o.userData.pickName === '@BoxSb.Vertex1') { const at = o.geometry.attributes.position; p = o.position.clone().set(at.getX(0), at.getY(0), at.getZ(0)).applyMatrix4(o.matrixWorld) } }); const cam = v.viewer.camera.getCamera(); cam.updateMatrixWorld(); const q = p ? p.clone().project(cam) : null; return JSON.stringify({ bodies: cadui.getState().scene.bodies.map((b) => [b.name, b.part, b.bbox]), p, q, canvas: v.viewer.renderer.domElement.getBoundingClientRect() }) })()`))
+    const pickIn = async (names) => {
+      // a click on the element when the view has it in frame (pickcheck.mjs does these with real pointer events), else the picker's own call
+      for (const nm of names) {
+        const p = await st(`cadui.getView().helperPoint('pt-builder', ${JSON.stringify(`@BoxSb.${nm}`)})`)
+        if (p) await page.mouse.click(p.x, p.y)
+        else if (await st(`!!cadui.getView().helperPicker`)) await st(`cadui.getView().helperPicker(${JSON.stringify(`@BoxSb.${nm}`)})`)
+        else { bad(`Part_Builder: ${nm} cannot be picked`); return false }
+        await sleep(250)
+      }
+      return true
+    }
+    for (const [m, picks, fcKey] of [['Edge from vertices', ['Vertex1', 'Vertex8'], 'Edge from vertices'], ['Wire from edges', ['Edge2', 'Edge10', 'Edge6', 'Edge12'], 'Wire from edges'],
+      ['Face from vertices', ['Vertex2', 'Vertex4', 'Vertex8', 'Vertex6'], 'Face from vertices'], ['Face from edges', ['Edge2', 'Edge10', 'Edge6', 'Edge12'], 'Face from edges'],
+      ['Shell from faces', ['Face1', 'Face3', 'Face5'], 'Shell from faces']]) {
+      await page.click(`.taskview [data-qf="${RADIOS[m]}"] input`)
+      await sleep(250)
+      const n = await count()
+      if (!await pickIn(picks)) continue
+      await page.click('.taskview [data-qf="createButton"]')
+      if (!await objectsAt(n + 1, `Create ${m}`)) continue
+      const o = (await objects())[n], want = fc.made[fcKey].objs[0]
+      same([o.name, o.label ?? o.name, o.type], [want.name, want.label, 'Part::ShapeBuilder'], `Part_Builder: ${m}: FreeCAD's object (a Part::Feature there)`)
+      same(o.elements, picks.map((p) => ['BoxSb', p]), `Part_Builder: ${m}: the elements picked`)
+      await step(fc.made[fcKey].undo[0] ?? 'Face') && ok(`Part_Builder: ${m}: undo step "${fc.made[fcKey].undo[0] ?? 'Face'}"`)
+      const sh = (await shapeOf(o.name))?.shape
+      check(!!sh && (m === 'Shell from faces' ? sh.faces.length === 3 : m === 'Edge from vertices' || m === 'Wire from edges' ? sh.edges.length >= 1 : sh.faces.length === 1), `Part_Builder: ${m}: the shape it makes`, JSON.stringify(sh && { faces: sh.faces.length, edges: sh.edges.length }))
+    }
+    // Solid from shell: the shell object selected in the tree
+    await page.click(`.taskview [data-qf="${RADIOS['Solid from shell']}"] input`)
+    await st(`cadui.setState({ featSel: [${JSON.stringify(`${DOC}/Shell`)}], selected: [] })`)          // the tree's Model tab is behind the panel
+    await sleep(200)
+    { const n = await count()
+      await page.click('.taskview [data-qf="createButton"]')
+      if (await objectsAt(n + 1, 'Create Solid')) {
+        const o = (await objects())[n], want = fc.made['Solid from shell'].objs[0]
+        same([o.name, o.label ?? o.name, o.type, o.elements], [want.name, want.label, 'Part::ShapeBuilder', ['Shell']], 'Part_Builder: Solid from shell: FreeCAD\'s object')
+        await step('Solid') && ok('Part_Builder: Solid from shell: undo step "Solid"')
+      } }
+    await clickButton('Close')
+    await until('!cadui.getState().task', 'the builder to close', 20000) && ok('Part_Builder: Close closes the panel')
+  }
+
+  // ── the property view and the tree ──
+  for (const [name, fcKey] of [['BoxCp001', 'props_Box001'], ['BoxMa', null], ['CompMs_solid', 'props_Comp_solid'], ['Tolerance', 'props_Tolerance'], ['Edge', 'props_Edge']]) {
+    if (!fcKey) continue
+    await selectRows([name])
+    await sleep(300)
+    const rows = await st(`[...document.querySelectorAll('.props .prow .pk')].map((e) => e.textContent.trim())`)
+    const fcRows = (FS[fcKey]?.[0] ?? []).filter((r) => r.depth === 1).map((r) => r.name)
+    const missing = fcRows.filter((r) => !rows.includes(r))
+    check(!missing.length, `props ${name}: FreeCAD's rows`, `missing ${JSON.stringify(missing)}; ours ${JSON.stringify(rows)}`)
+  }
+  { const t = await tree()
+    check(t.top.includes('BoxCp001') && t.top.includes('Tolerance') && t.top.includes('Tolerance001'), 'tree: the copies and the tolerance sets are at the top level')
+  }
 
   // ── the property view ────────────────────────────────────────────────────────────────────────────────────────
   }

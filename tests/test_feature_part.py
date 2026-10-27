@@ -24,7 +24,7 @@ from cad_agent import feature as F
 from cad_agent import feature_part as Part
 
 GOLDEN = Path(__file__).parent / "golden" / "part"
-CASES, FREECAD = {}, {}
+CASES, FREECAD, _AREA_DEFAULTS = {}, {}, {}
 for _p in sorted(GOLDEN.glob("cases*.py")):          # cases.py, and each area's cases_<area>.py
     _spec = importlib.util.spec_from_file_location(f"part_{_p.stem}", _p)
     _cases = importlib.util.module_from_spec(_spec)
@@ -34,11 +34,16 @@ for _p in sorted(GOLDEN.glob("cases*.py")):          # cases.py, and each area's
     assert not set(_cases.CASES) & set(CASES), f"two areas name a case the same: {set(_cases.CASES) & set(CASES)}"
     CASES.update(_cases.CASES)
     FREECAD.update(_fc["cases"])
+    if _p.stem != "cases":
+        _AREA_DEFAULTS.update(_fc.get("defaults", {}))
 FC = json.loads((GOLDEN / "freecad.json").read_text())
+FC["defaults"].update(_AREA_DEFAULTS)           # an area's new types (make.py static)
 # AttachExtension's properties on a fresh object of each type (make.py attach): a Part::Primitive and a Tube have the
 # extension, the other types get Part::AttachExtensionPython as the Attachment editor adds it.
 _EXT = GOLDEN / "freecad_attach.json"
 EXT = json.loads(_EXT.read_text()).get("extension", {}) if _EXT.exists() else {}
+_EXT = GOLDEN / "freecad_static.json"
+EXT.update(json.loads(_EXT.read_text()).get("extension", {}) if _EXT.exists() else {})
 TYPES = {"TopAbs_COMPOUND": "Compound", "TopAbs_COMPSOLID": "CompSolid", "TopAbs_SOLID": "Solid",
          "TopAbs_SHELL": "Shell", "TopAbs_FACE": "Face", "TopAbs_WIRE": "Wire", "TopAbs_EDGE": "Edge",
          "TopAbs_VERTEX": "Vertex"}
@@ -167,6 +172,8 @@ def test_defaults_are_freecads(kind, cls):
             assert "Placement" in fc
             continue
         prop = cls.prop_name(key)
+        if getattr(cls, "STATIC", False) and key not in cls.COMMON:     # the recipe's own, not a Part::Feature property
+            continue
         if key in cls.ATTACH:                       # AttachExtension's properties, as make.py attach recorded them
             assert "error" not in ext, ext
             assert prop in ext, f"{prop} is not a property of FreeCAD's {cls.TYPE_ID} with AttachExtension"

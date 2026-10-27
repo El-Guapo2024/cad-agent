@@ -16,6 +16,7 @@ import { isBinder, isDatum, placementMatrix, type PlacementData } from './attach
 export type Mesh = {
   faces: { name: string; points: number[]; index: number[]; kind?: string }[]
   edges: { name: string; points: number[]; kind?: string | null }[]
+  vertices?: { name: string; point: number[] }[]
 }
 export type MeshStyle = { face?: THREE.ColorRepresentation; edge?: THREE.ColorRepresentation; opacity?: number }
 const SKETCH = 'Sketcher::SketchObject'
@@ -72,7 +73,7 @@ export async function partMesh(part: string, name: string, ops: FeatureOp[] = []
 /** One object's faces and edges, named "@Base.Face6" for the view's helper picking (an edge over the face it lies on). The
  *  faces may be left out (an edge picker does not draw them over the shape already in the scene); nothing is pickable
  *  without a pickName, which the view skips in its raycast. */
-export function meshObject(name: string, mesh: Mesh, opts: { matrix?: THREE.Matrix4; style?: MeshStyle; faces?: boolean
+export function meshObject(name: string, mesh: Mesh, opts: { matrix?: THREE.Matrix4; style?: MeshStyle; faces?: boolean; vertices?: boolean
   pick?: (element: string, face: boolean) => boolean } = {}): THREE.Group {
   const style = opts.style ?? STYLE
   const opacity = style.opacity ?? 1
@@ -98,6 +99,14 @@ export function meshObject(name: string, mesh: Mesh, opts: { matrix?: THREE.Matr
     if (opts.pick?.(e.name, false)) { line.userData.pickName = `@${name}.${e.name}`; line.userData.pickPriority = 1 }
     g.add(line)
   }
+  // vertices only for a panel that picks them (the Shape builder): a point per vertex, over the edges
+  if (opts.vertices) for (const v of mesh.vertices ?? []) {
+    const geo = new THREE.BufferGeometry()
+    geo.setAttribute('position', new THREE.Float32BufferAttribute(v.point, 3))
+    const pt = new THREE.Points(geo, new THREE.PointsMaterial({ color: style.edge ?? STYLE.edge, size: 7, sizeAttenuation: false }))
+    if (opts.pick?.(v.name, false)) { pt.userData.pickName = `@${name}.${v.name}`; pt.userData.pickPriority = 2 }
+    g.add(pt)
+  }
   if (opts.matrix) g.applyMatrix4(opts.matrix)
   return g
 }
@@ -122,7 +131,7 @@ const TARGET: MeshStyle = { face: '#ffaa00', edge: '#b26b00', opacity: 0.55 }
  * panel that picks the elements of one shape, Fillet's). `target` is drawn, not picked. Returns the meshes, by object
  * name, for the panel's counts.
  */
-export function usePartScene(opts: { part: string; active: boolean; extra?: string[]; only?: string[]; allow?: (obj: string, element: string, face: boolean) => boolean
+export function usePartScene(opts: { part: string; active: boolean; extra?: string[]; only?: string[]; vertices?: boolean; gateKey?: string; allow?: (obj: string, element: string, face: boolean) => boolean
   onPick?: (name: string) => void; target?: SceneTarget | null; style?: MeshStyle; helperKey?: string }): Record<string, Mesh> {
   const [meshes, setMeshes] = useState<Record<string, Mesh>>({})
   const allow = useRef(opts.allow), pick = useRef(opts.onPick)
@@ -151,7 +160,7 @@ export function usePartScene(opts: { part: string; active: boolean; extra?: stri
     const anyFace = Object.entries(meshes).some(([n, mesh]) => mesh.faces.some((f) => allow.current?.(n, f.name, true)))
     for (const [name, mesh] of Object.entries(meshes)) {
       if (opts.target?.name === name) continue
-      g.add(meshObject(name, mesh, { matrix: m, style: opts.style, faces: anyFace, pick: (el, face) => !!allow.current?.(name, el, face) }))
+      g.add(meshObject(name, mesh, { matrix: m, style: opts.style, faces: anyFace, vertices: opts.vertices, pick: (el, face) => !!allow.current?.(name, el, face) }))
     }
     if (opts.target) {
       const local = opts.target.placement ? placementMatrix(opts.target.placement) : new THREE.Matrix4()
@@ -166,6 +175,6 @@ export function usePartScene(opts: { part: string; active: boolean; extra?: stri
       // another panel's picker may have taken over meanwhile: only this one's is cleared
       if (w) { w.setHelper(key, null); if (w.helperPicker === mine) w.helperPicker = null }
     }
-  }, [opts.active, meshes, styleKey, targetKey, key])
+  }, [opts.active, meshes, styleKey, targetKey, key, opts.gateKey])
   return meshes
 }

@@ -39,7 +39,7 @@ def mesh(shape, deflection: float | None = None) -> dict:
 
     from . import feature as F
     if shape is None or shape.IsNull():
-        return {"faces": [], "edges": []}
+        return {"faces": [], "edges": [], "vertices": []}
     if deflection is None:
         box = Bnd_Box()
         BRepBndLib.Add_s(shape, box)
@@ -78,7 +78,12 @@ def mesh(shape, deflection: float | None = None) -> dict:
                 p = d.Value(k)
                 pts += [r(p.X()), r(p.Y()), r(p.Z())]
         edges.append({"name": f"Edge{i}", "points": pts, "kind": kind})
-    return {"faces": faces, "edges": edges}
+    from OCP.TopAbs import TopAbs_VERTEX
+    vertices = []
+    for i, v in enumerate(F._subs(shape, TopAbs_VERTEX), 1):           # Shape builder picks vertices
+        p = BRep_Tool.Pnt_s(TopoDS.Vertex(v))
+        vertices.append({"name": f"Vertex{i}", "point": [r(p.X()), r(p.Y()), r(p.Z())]})
+    return {"faces": faces, "edges": edges, "vertices": vertices}
 
 
 def _kind(t) -> str:
@@ -155,6 +160,24 @@ def _children(shape) -> int:
     return n
 
 
+def shape_info(shape) -> dict:
+    """{"shape_type": "Solid", "bbox": [xmin, ymin, zmin, xmax, ymax, zmax]} of a shape (Part::Feature's ShapeType and
+    TopoShape::getBoundBox: BRepBndLib::Add), None for each when there is no shape: what Convert to solid and
+    Cross-sections ask of the objects selected."""
+    if shape is None or shape.IsNull():
+        return {"shape_type": None, "bbox": None}
+    from OCP.Bnd import Bnd_Box
+    from OCP.BRepBndLib import BRepBndLib
+    box = Bnd_Box()
+    BRepBndLib.Add_s(shape, box)
+    kind = shape.ShapeType().name.split("_")[-1].capitalize()
+    kind = {"Compsolid": "CompSolid"}.get(kind, kind)
+    if box.IsVoid():
+        return {"shape_type": kind, "bbox": None}
+    lo, hi = box.CornerMin(), box.CornerMax()
+    return {"shape_type": kind, "bbox": [lo.X(), lo.Y(), lo.Z(), hi.X(), hi.Y(), hi.Z()]}
+
+
 def cmd_feature_shape(a) -> Result:
     project(a.slug)
     path = part(a.slug, a.part)
@@ -169,10 +192,11 @@ def cmd_feature_shape(a) -> Result:
         doc, target, base_name, solid, base, error = shapes_after(path, ops, a.feature)
     except ValueError as e:                       # FeatureEditError: the ops do not apply
         raise UsageError(str(e)) from None
+    info = shape_info(solid)                      # before the mesh: BRepBndLib::Add reads a triangulation when there is one
     data = {"project": a.slug, "part": a.part, "feature": target, "base_name": base_name,
             "shape": mesh(solid) if solid is not None and not error else None,
             "base": mesh(base) if base is not None else None, "error": error, "doc": doc,
-            "children": _children(solid)}
+            "children": _children(solid), **info}
     text = f"{a.part}/{target}: " + (error or f"{len(data['shape']['faces'])} faces") + \
         (f"; base {base_name}" if base_name else "")
     return Result(OK, data, text, f"{a.part}/{target} shape")

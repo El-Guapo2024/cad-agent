@@ -20,7 +20,7 @@ from cad_agent import feature_part as Part  # noqa: E402
 
 PROXY = {"TubeFeature": "Part::Tube", "FeatureBooleanFragments": "Part::BooleanFragments", "FeatureXOR": "Part::XOR",
          "FeatureConnect": "Part::Connect", "FeatureSlice": "Part::Slice", "_CompoundFilter": "Part::CompoundFilter",
-         "FeatureEmbed": "Part::Embed", "FeatureCutout": "Part::Cutout"}
+         "FeatureEmbed": "Part::Embed", "FeatureCutout": "Part::Cutout", "FeatureToleranceSet": "Part::ToleranceSet"}
 SKIP = {"ShapeMaterial", "Visibility", "AttacherType", "Label2"}
 
 
@@ -40,12 +40,17 @@ def collect(dump):
 
 
 def main():
-    dump = json.loads(Path(sys.argv[1]).read_text())
-    dst = Path(sys.argv[2]) if len(sys.argv) > 2 else HERE.parent / "src" / "part_props.ts"
-    fc = collect(dump)
+    # fcpart.json, then any more dumps (fcpart_static.json), then the .ts to write
+    dumps = [Path(a) for a in sys.argv[1:] if a.endswith(".json")]
+    ts = [Path(a) for a in sys.argv[1:] if a.endswith(".ts")]
+    dst = ts[0] if ts else HERE.parent / "src" / "part_props.ts"
+    fc = {}
+    for path in dumps:
+        for tid, props in collect(json.loads(path.read_text())).items():
+            fc.setdefault(tid, props)
     types = {}
     for kind, cls in sorted(Part.OBJECTS.items()):
-        props = fc.get(cls.TYPE_ID)
+        props = fc.get(cls.TYPE_ID) or fc.get(getattr(cls, "FC_TYPE", None))      # a recipe's object is a Part::Feature
         if props is None:
             print(f"partprops: FreeCAD made no {cls.TYPE_ID}; its view is its DEFAULTS")
             props = {}
