@@ -1,0 +1,1457 @@
+{
+ "cases": {
+  "gear_default": {
+   "body": {
+    "area": 8572.471247388,
+    "bbox": [
+     -35.001322793,
+     -34.844713797,
+     0.0,
+     35.001322793,
+     34.844713797,
+     5.0
+    ],
+    "center": [
+     0.0,
+     0.0,
+     2.5
+    ],
+    "edges": 780,
+    "faces": 262,
+    "placement": [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "solids": 1,
+    "type": "Solid",
+    "vertices": 520,
+    "volume": 16361.021757258
+   },
+   "objects": {
+    "InvoluteGear": {
+     "placement": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "shape": {
+      "bbox": [
+       -35.001322793,
+       -34.844713797,
+       0.0,
+       35.001322793,
+       34.844713797,
+       0.0
+      ],
+      "closed": true,
+      "edges": 260,
+      "faces": 0,
+      "length": 405.612508897,
+      "placement": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ],
+      "solids": 0,
+      "type": "Wire",
+      "vertices": 260
+     },
+     "type": "Part::Part2DObjectPython",
+     "valid": true
+    },
+    "Pad": {
+     "placement": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "shape": {
+      "area": 8572.471247388,
+      "bbox": [
+       -35.001322793,
+       -34.844713797,
+       0.0,
+       35.001322793,
+       34.844713797,
+       5.0
+      ],
+      "center": [
+       0.0,
+       0.0,
+       2.5
+      ],
+      "edges": 780,
+      "faces": 262,
+      "placement": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ],
+      "solids": 1,
+      "type": "Solid",
+      "vertices": 520,
+      "volume": 16361.021757258
+     },
+     "type": "PartDesign::Pad",
+     "valid": true
+    }
+   },
+   "tip": "Pad"
+  },
+  "gear_flank_lines": {
+   "body": {
+    "area": 1484.956139587,
+    "bbox": [
+     -14.00100936,
+     -14.00100936,
+     0.0,
+     14.00100936,
+     14.00100936,
+     4.0
+    ],
+    "center": [
+     0.0,
+     0.0,
+     2.0
+    ],
+    "edges": 360,
+    "faces": 122,
+    "placement": [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "solids": 1,
+    "type": "Solid",
+    "vertices": 240,
+    "volume": 1736.979894274
+   },
+   "objects": {
+    "InvoluteGear": {
+     "placement": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "shape": {
+      "bbox": [
+       -14.00100936,
+       -14.00100936,
+       0.0,
+       14.00100936,
+       14.00100936,
+       0.0
+      ],
+      "closed": true,
+      "edges": 120,
+      "faces": 0,
+      "length": 154.116548113,
+      "placement": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ],
+      "solids": 0,
+      "type": "Wire",
+      "vertices": 120
+     },
+     "type": "Part::Part2DObjectPython",
+     "valid": true
+    },
+    "Pad": {
+     "placement": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "shape": {
+      "area": 1484.956139587,
+      "bbox": [
+       -14.00100936,
+       -14.00100936,
+       0.0,
+       14.00100936,
+       14.00100936,
+       4.0
+      ],
+      "center": [
+       0.0,
+       0.0,
+       2.0
+      ],
+      "edges": 360,
+      "faces": 122,
+      "placement": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ],
+      "solids": 1,
+      "type": "Solid",
+      "vertices": 240,
+      "volume": 1736.979894274
+     },
+     "type": "PartDesign::Pad",
+     "valid": true
+    }
+   },
+   "tip": "Pad"
+  },
+  "gear_internal": {
+   "body": {
+    "area": 6417.258525216,
+    "bbox": [
+     -31.780795206,
+     -31.780795206,
+     0.0,
+     31.780795206,
+     31.780795206,
+     2.0
+    ],
+    "center": [
+     0.0,
+     0.0,
+     1.0
+    ],
+    "edges": 960,
+    "faces": 322,
+    "placement": [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "solids": 1,
+    "type": "Solid",
+    "vertices": 640,
+    "volume": 5748.791324422
+   },
+   "objects": {
+    "InvoluteGear": {
+     "placement": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "shape": {
+      "bbox": [
+       -31.780795206,
+       -31.780795206,
+       0.0,
+       31.780795206,
+       31.780795206,
+       0.0
+      ],
+      "closed": true,
+      "edges": 320,
+      "faces": 0,
+      "length": 334.233600397,
+      "placement": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ],
+      "solids": 0,
+      "type": "Wire",
+      "vertices": 320
+     },
+     "type": "Part::Part2DObjectPython",
+     "valid": true
+    },
+    "Pad": {
+     "placement": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "shape": {
+      "area": 6417.258525216,
+      "bbox": [
+       -31.780795206,
+       -31.780795206,
+       0.0,
+       31.780795206,
+       31.780795206,
+       2.0
+      ],
+      "center": [
+       0.0,
+       0.0,
+       1.0
+      ],
+      "edges": 960,
+      "faces": 322,
+      "placement": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ],
+      "solids": 1,
+      "type": "Solid",
+      "vertices": 640,
+      "volume": 5748.791324422
+     },
+     "type": "PartDesign::Pad",
+     "valid": true
+    }
+   },
+   "tip": "Pad"
+  },
+  "gear_internal_in_ring": {
+   "body": {
+    "area": 10976.610277931,
+    "bbox": [
+     -40.0,
+     -40.0,
+     0.0,
+     40.0,
+     40.0,
+     6.0
+    ],
+    "center": [
+     0.0,
+     0.0,
+     3.0
+    ],
+    "edges": 972,
+    "faces": 326,
+    "placement": [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "solids": 1,
+    "type": "Compound",
+    "vertices": 648,
+    "volume": 21153.626026705
+   },
+   "objects": {
+    "InvoluteGear": {
+     "placement": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "shape": {
+      "bbox": [
+       -31.780795206,
+       -31.780795206,
+       0.0,
+       31.780795206,
+       31.780795206,
+       0.0
+      ],
+      "closed": true,
+      "edges": 320,
+      "faces": 0,
+      "length": 334.233600397,
+      "placement": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ],
+      "solids": 0,
+      "type": "Wire",
+      "vertices": 320
+     },
+     "type": "Part::Part2DObjectPython",
+     "valid": true
+    },
+    "Pad": {
+     "placement": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "shape": {
+      "area": 14720.0,
+      "bbox": [
+       -40.0,
+       -40.0,
+       0.0,
+       40.0,
+       40.0,
+       6.0
+      ],
+      "center": [
+       0.0,
+       0.0,
+       3.0
+      ],
+      "edges": 12,
+      "faces": 6,
+      "placement": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ],
+      "solids": 1,
+      "type": "Solid",
+      "vertices": 8,
+      "volume": 38400.0
+     },
+     "type": "PartDesign::Pad",
+     "valid": true
+    },
+    "Pocket": {
+     "placement": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "shape": {
+      "area": 10976.610277931,
+      "bbox": [
+       -40.0,
+       -40.0,
+       0.0,
+       40.0,
+       40.0,
+       6.0
+      ],
+      "center": [
+       0.0,
+       0.0,
+       3.0
+      ],
+      "edges": 972,
+      "faces": 326,
+      "placement": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ],
+      "solids": 1,
+      "type": "Compound",
+      "vertices": 648,
+      "volume": 21153.626026705
+     },
+     "type": "PartDesign::Pocket",
+     "valid": true
+    }
+   },
+   "tip": "Pocket"
+  },
+  "gear_on_xz": {
+   "body": {
+    "area": 1117.154175934,
+    "bbox": [
+     -5.970595666,
+     -2.0,
+     -7.970595666,
+     15.970595666,
+     2.0,
+     13.970595666
+    ],
+    "center": [
+     5.0,
+     0.0,
+     3.0
+    ],
+    "edges": 600,
+    "faces": 202,
+    "placement": [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "solids": 1,
+    "type": "Solid",
+    "vertices": 400,
+    "volume": 1230.750193528
+   },
+   "objects": {
+    "InvoluteGear": {
+     "placement": [
+      5.0,
+      -2.0,
+      3.0,
+      0.0,
+      -30.0,
+      90.0
+     ],
+     "shape": {
+      "bbox": [
+       -5.970595666,
+       -2.0,
+       -7.970595666,
+       15.970595666,
+       -2.0,
+       13.970595666
+      ],
+      "closed": true,
+      "edges": 200,
+      "faces": 0,
+      "length": 125.444769792,
+      "placement": [
+       5.0,
+       -2.0,
+       3.0,
+       0.0,
+       -30.0,
+       90.0
+      ],
+      "solids": 0,
+      "type": "Wire",
+      "vertices": 200
+     },
+     "type": "Part::Part2DObjectPython",
+     "valid": true
+    },
+    "Pad": {
+     "placement": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      90.0
+     ],
+     "shape": {
+      "area": 1117.154175934,
+      "bbox": [
+       -5.970595666,
+       -2.0,
+       -7.970595666,
+       15.970595666,
+       2.0,
+       13.970595666
+      ],
+      "center": [
+       5.0,
+       0.0,
+       3.0
+      ],
+      "edges": 600,
+      "faces": 202,
+      "placement": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       90.0
+      ],
+      "solids": 1,
+      "type": "Solid",
+      "vertices": 400,
+      "volume": 1230.750193528
+     },
+     "type": "PartDesign::Pad",
+     "valid": true
+    }
+   },
+   "tip": "Pad"
+  },
+  "gear_params": {
+   "body": {
+    "area": 4047.902886323,
+    "bbox": [
+     -20.000652316,
+     -19.93455085,
+     0.0,
+     20.000652316,
+     19.93455085,
+     8.0
+    ],
+    "center": [
+     0.0,
+     0.0,
+     4.0
+    ],
+    "edges": 720,
+    "faces": 242,
+    "placement": [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "solids": 1,
+    "type": "Solid",
+    "vertices": 480,
+    "volume": 8738.404951897
+   },
+   "objects": {
+    "InvoluteGear": {
+     "placement": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "shape": {
+      "bbox": [
+       -20.000652316,
+       -19.93455085,
+       0.0,
+       20.000652316,
+       19.93455085,
+       0.0
+      ],
+      "closed": true,
+      "edges": 240,
+      "faces": 0,
+      "length": 232.912706044,
+      "placement": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ],
+      "solids": 0,
+      "type": "Wire",
+      "vertices": 240
+     },
+     "type": "Part::Part2DObjectPython",
+     "valid": true
+    },
+    "Pad": {
+     "placement": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "shape": {
+      "area": 4047.902886323,
+      "bbox": [
+       -20.000652316,
+       -19.93455085,
+       0.0,
+       20.000652316,
+       19.93455085,
+       8.0
+      ],
+      "center": [
+       0.0,
+       0.0,
+       4.0
+      ],
+      "edges": 720,
+      "faces": 242,
+      "placement": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ],
+      "solids": 1,
+      "type": "Solid",
+      "vertices": 480,
+      "volume": 8738.404951897
+     },
+     "type": "PartDesign::Pad",
+     "valid": true
+    }
+   },
+   "tip": "Pad"
+  },
+  "gear_pocket_symmetric": {
+   "body": {
+    "area": 10164.712758379,
+    "bbox": [
+     -30.0,
+     -30.0,
+     0.0,
+     30.0,
+     30.0,
+     10.0
+    ],
+    "center": [
+     0.0,
+     0.0,
+     4.865662592
+    ],
+    "edges": 462,
+    "faces": 157,
+    "placement": [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "solids": 1,
+    "type": "Compound",
+    "vertices": 308,
+    "volume": 34457.043369351
+   },
+   "objects": {
+    "InvoluteGear": {
+     "placement": [
+      0.0,
+      0.0,
+      10.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "shape": {
+      "bbox": [
+       -12.56608109,
+       -12.722149328,
+       10.0,
+       12.75093931,
+       12.723922924,
+       10.0
+      ],
+      "closed": true,
+      "edges": 150,
+      "faces": 0,
+      "length": 141.178189595,
+      "placement": [
+       0.0,
+       0.0,
+       10.0,
+       0.0,
+       0.0,
+       0.0
+      ],
+      "solids": 0,
+      "type": "Wire",
+      "vertices": 150
+     },
+     "type": "Part::Part2DObjectPython",
+     "valid": true
+    },
+    "Pad": {
+     "placement": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "shape": {
+      "area": 9600.0,
+      "bbox": [
+       -30.0,
+       -30.0,
+       0.0,
+       30.0,
+       30.0,
+       10.0
+      ],
+      "center": [
+       0.0,
+       0.0,
+       5.0
+      ],
+      "edges": 12,
+      "faces": 6,
+      "placement": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ],
+      "solids": 1,
+      "type": "Solid",
+      "vertices": 8,
+      "volume": 36000.0
+     },
+     "type": "PartDesign::Pad",
+     "valid": true
+    },
+    "Pocket": {
+     "placement": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "shape": {
+      "area": 10164.712758379,
+      "bbox": [
+       -30.0,
+       -30.0,
+       0.0,
+       30.0,
+       30.0,
+       10.0
+      ],
+      "center": [
+       0.0,
+       0.0,
+       4.865662592
+      ],
+      "edges": 462,
+      "faces": 157,
+      "placement": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ],
+      "solids": 1,
+      "type": "Compound",
+      "vertices": 308,
+      "volume": 34457.043369351
+     },
+     "type": "PartDesign::Pocket",
+     "valid": true
+    }
+   },
+   "tip": "Pocket"
+  },
+  "gear_shifted_no_fillet": {
+   "body": {
+    "area": 6353.561533431,
+    "bbox": [
+     -29.32307294,
+     -29.636495525,
+     0.0,
+     29.703097045,
+     29.630982034,
+     6.0
+    ],
+    "center": [
+     0.0,
+     0.0,
+     3.0
+    ],
+    "edges": 408,
+    "faces": 138,
+    "placement": [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "solids": 1,
+    "type": "Solid",
+    "vertices": 272,
+    "volume": 12961.503459398
+   },
+   "objects": {
+    "InvoluteGear": {
+     "placement": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "shape": {
+      "bbox": [
+       -29.32307294,
+       -29.636495525,
+       0.0,
+       29.703097045,
+       29.630982034,
+       0.0
+      ],
+      "closed": true,
+      "edges": 136,
+      "faces": 0,
+      "length": 338.843396716,
+      "placement": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ],
+      "solids": 0,
+      "type": "Wire",
+      "vertices": 136
+     },
+     "type": "Part::Part2DObjectPython",
+     "valid": true
+    },
+    "Pad": {
+     "placement": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "shape": {
+      "area": 6353.561533431,
+      "bbox": [
+       -29.32307294,
+       -29.636495525,
+       0.0,
+       29.703097045,
+       29.630982034,
+       6.0
+      ],
+      "center": [
+       0.0,
+       0.0,
+       3.0
+      ],
+      "edges": 408,
+      "faces": 138,
+      "placement": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ],
+      "solids": 1,
+      "type": "Solid",
+      "vertices": 272,
+      "volume": 12961.503459398
+     },
+     "type": "PartDesign::Pad",
+     "valid": true
+    }
+   },
+   "tip": "Pad"
+  },
+  "gear_small_low_precision": {
+   "body": {
+    "area": 288.42636305,
+    "bbox": [
+     -5.258310606,
+     -5.458100162,
+     0.0,
+     5.499955376,
+     5.458433456,
+     3.0
+    ],
+    "center": [
+     0.0,
+     0.0,
+     1.5
+    ],
+    "edges": 216,
+    "faces": 74,
+    "placement": [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "solids": 1,
+    "type": "Solid",
+    "vertices": 144,
+    "volume": 181.593496619
+   },
+   "objects": {
+    "InvoluteGear": {
+     "placement": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "shape": {
+      "bbox": [
+       -5.258310606,
+       -5.458100162,
+       0.0,
+       5.499955376,
+       5.458433456,
+       0.0
+      ],
+      "closed": true,
+      "edges": 72,
+      "faces": 0,
+      "length": 55.78801065,
+      "placement": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ],
+      "solids": 0,
+      "type": "Wire",
+      "vertices": 72
+     },
+     "type": "Part::Part2DObjectPython",
+     "valid": true
+    },
+    "Pad": {
+     "placement": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "shape": {
+      "area": 288.42636305,
+      "bbox": [
+       -5.258310606,
+       -5.458100162,
+       0.0,
+       5.499955376,
+       5.458433456,
+       3.0
+      ],
+      "center": [
+       0.0,
+       0.0,
+       1.5
+      ],
+      "edges": 216,
+      "faces": 74,
+      "placement": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ],
+      "solids": 1,
+      "type": "Solid",
+      "vertices": 144,
+      "volume": 181.593496619
+     },
+     "type": "PartDesign::Pad",
+     "valid": true
+    }
+   },
+   "tip": "Pad"
+  },
+  "sprocket_ansi40": {
+   "body": {
+    "area": 9583.633213893,
+    "bbox": [
+     -38.35263064,
+     -38.516937104,
+     0.0,
+     38.35263064,
+     37.861113055,
+     7.2136
+    ],
+    "center": [
+     -0.000176023,
+     -0.001501857,
+     3.6068
+    ],
+    "edges": 391,
+    "faces": 121,
+    "placement": [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "solids": 1,
+    "type": "Solid",
+    "vertices": 272,
+    "volume": 25099.012637728
+   },
+   "objects": {
+    "Pad": {
+     "placement": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "shape": {
+      "area": 9583.633213893,
+      "bbox": [
+       -38.35263064,
+       -38.516937104,
+       0.0,
+       38.35263064,
+       37.861113055,
+       7.2136
+      ],
+      "center": [
+       -0.000176023,
+       -0.001501857,
+       3.6068
+      ],
+      "edges": 391,
+      "faces": 121,
+      "placement": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ],
+      "solids": 1,
+      "type": "Solid",
+      "vertices": 272,
+      "volume": 25099.012637728
+     },
+     "type": "PartDesign::Pad",
+     "valid": true
+    },
+    "Sprocket": {
+     "placement": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "shape": {
+      "bbox": [
+       -38.35263064,
+       -38.516937104,
+       0.0,
+       38.35263064,
+       37.861113055,
+       0.0
+      ],
+      "closed": true,
+      "edges": 136,
+      "faces": 0,
+      "length": 363.872361327,
+      "placement": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ],
+      "solids": 0,
+      "type": "Wire",
+      "vertices": 136
+     },
+     "type": "Part::Part2DObjectPython",
+     "valid": true
+    }
+   },
+   "tip": "Pad"
+  },
+  "sprocket_default": {
+   "body": {
+    "area": 38057.256124105,
+    "bbox": [
+     -79.033488229,
+     -78.877533693,
+     0.0,
+     79.033488229,
+     78.877533693,
+     2.794
+    ],
+    "center": [
+     -1.4389e-05,
+     -0.000416357,
+     1.397
+    ],
+    "edges": 1150,
+    "faces": 352,
+    "placement": [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "solids": 1,
+    "type": "Solid",
+    "vertices": 800,
+    "volume": 50073.569670904
+   },
+   "objects": {
+    "Pad": {
+     "placement": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "shape": {
+      "area": 38057.256124105,
+      "bbox": [
+       -79.033488229,
+       -78.877533693,
+       0.0,
+       79.033488229,
+       78.877533693,
+       2.794
+      ],
+      "center": [
+       -1.4389e-05,
+       -0.000416357,
+       1.397
+      ],
+      "edges": 1150,
+      "faces": 352,
+      "placement": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ],
+      "solids": 1,
+      "type": "Solid",
+      "vertices": 800,
+      "volume": 50073.569670904
+     },
+     "type": "PartDesign::Pad",
+     "valid": true
+    },
+    "Sprocket": {
+     "placement": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "shape": {
+      "bbox": [
+       -79.033488229,
+       -78.877533693,
+       0.0,
+       79.033488229,
+       78.877533693,
+       0.0
+      ],
+      "closed": true,
+      "edges": 400,
+      "faces": 0,
+      "length": 792.273742966,
+      "placement": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ],
+      "solids": 0,
+      "type": "Wire",
+      "vertices": 400
+     },
+     "type": "Part::Part2DObjectPython",
+     "valid": true
+    }
+   },
+   "tip": "Pad"
+  },
+  "sprocket_few_teeth": {
+   "body": {
+    "area": 1094.387059229,
+    "bbox": [
+     -13.803142835,
+     -14.016078562,
+     -1.5,
+     13.803142835,
+     13.170805597,
+     1.5
+    ],
+    "center": [
+     -0.00019824,
+     -0.000901574,
+     0.0
+    ],
+    "edges": 207,
+    "faces": 65,
+    "placement": [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "solids": 1,
+    "type": "Solid",
+    "vertices": 144,
+    "volume": 1114.058168118
+   },
+   "objects": {
+    "Pad": {
+     "placement": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "shape": {
+      "area": 1094.387059229,
+      "bbox": [
+       -13.803142835,
+       -14.016078562,
+       -1.5,
+       13.803142835,
+       13.170805597,
+       1.5
+      ],
+      "center": [
+       -0.00019824,
+       -0.000901574,
+       0.0
+      ],
+      "edges": 207,
+      "faces": 65,
+      "placement": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ],
+      "solids": 1,
+      "type": "Solid",
+      "vertices": 144,
+      "volume": 1114.058168118
+     },
+     "type": "PartDesign::Pad",
+     "valid": true
+    },
+    "Sprocket": {
+     "placement": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "shape": {
+      "bbox": [
+       -13.803142835,
+       -14.016078562,
+       0.0,
+       13.803142835,
+       13.170805597,
+       0.0
+      ],
+      "closed": true,
+      "edges": 72,
+      "faces": 0,
+      "length": 117.227204606,
+      "placement": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ],
+      "solids": 0,
+      "type": "Wire",
+      "vertices": 72
+     },
+     "type": "Part::Part2DObjectPython",
+     "valid": true
+    }
+   },
+   "tip": "Pad"
+  }
+ },
+ "freecad": "26.3.0 20260929 (Git shallow)"
+}
