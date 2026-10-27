@@ -404,7 +404,7 @@ export abstract class DrawSketchHandler implements S.Handler {
 
 /** Utils.cpp removeRedundantHorizontalVertical: no horizontal or vertical when both ends are already tied to the
  *  external geometry, or one to the origin and the other on an axis. */
-function removeRedundantHorizontalVertical(sug1: AutoConstraint[], sug2: AutoConstraint[]) {
+export function removeRedundantHorizontalVertical(sug1: AutoConstraint[], sug2: AutoConstraint[]) {
   if (!sug1.length || !sug2.length) return
   const detect = (sug: AutoConstraint[]) => {
     let ext = false, orig = false, axis = false

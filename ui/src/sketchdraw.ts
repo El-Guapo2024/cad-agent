@@ -16,7 +16,7 @@
 // a new FreeCAD 26 profile starts with, as the rest of this UI); the code defaults are in the comments.
 import type { Geo, XY } from './solver'
 import { type Constraint, type PointPos, GEO_UNDEF, NONE, START, END, MID, H_AXIS, V_AXIS, getPoint, isLine, isCircle, isArc, isCircular,
-  polyline, presentationValue, isDimensional, vertices } from './sketch'
+  polyline, presentationValue, isDimensional, vertices, groupHandleOf, inGroup } from './sketch'
 
 // ── DrawingParameters (EditModeCoinManagerParameters.cpp) as the FreeCAD Light pack sets them ───────────────────────
 const hex = (n: number) => '#' + n.toString(16).padStart(6, '0')
@@ -186,12 +186,14 @@ function pointColor(st: DrawState, vertex: number, g: number, pos: PointPos): st
   if (isCoincident(st.constraints, g, pos)) return COLORS.constrIco
   return defined ? COLORS.curve : COLORS.construction
 }
-function curveColor(st: DrawState, g: number): string {
-  const sel = st.selection.curves.has(g), pre = st.preselect.curve === g
+function curveColor(st: DrawState, own: number): string {
+  // a text's glyph (an edge in a group) takes its handle's selection and state, and keeps its own layer
+  const g = own >= 0 ? groupHandleOf(st.constraints, own) : own
+  const sel = st.selection.curves.has(g), pre = st.preselect.curve === own || st.preselect.curve === g
   if (sel || pre) return sel ? (pre ? COLORS.preselectSelected : COLORS.select) : COLORS.preselect
   if (g <= -3) return COLORS.external // CurveExternalColor (a reference external; a defining one has its own)
   if (st.invalid) return COLORS.invalid
-  if (st.geometry[g].construction) return st.fullyElements.has(g) ? COLORS.fullyConstruction : COLORS.construction
+  if (st.geometry[own].construction) return st.fullyElements.has(g) ? COLORS.fullyConstruction : COLORS.construction
   return st.fully ? COLORS.fully : st.fullyElements.has(g) ? COLORS.fullyElement : COLORS.curve
 }
 /** EditModeConstraintCoinManager::constrColor. */
@@ -734,7 +736,10 @@ export function drawSketch(ctx: Ctx, s: Screen, st: DrawState, camCenter: XY): H
   drawIcons(ctx, s, st, hits)
   // points, over the curves (zHighPoints)
   const verts = vertices(st.geometry)
+  // a text's glyphs show no points (EditModeGeometryCoinConverter leaves a group member's out)
+  const grouped = inGroup(st.constraints)
   verts.forEach(([g, pos], v) => {
+    if (grouped.has(g)) return
     if ((st.geometry[g]?.layer ?? 0) === 2) return           // nor are its points
     const p = getPoint(st.geometry, g, pos)
     if (!p) return

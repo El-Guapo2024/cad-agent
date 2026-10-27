@@ -100,6 +100,7 @@ them carry.
   Pablo Gil Fernández (the original of FreeCAD.qss) and MisterMaker (its revision):
       Gui/Stylesheets/FreeCAD.qss
   Pierre-Louis Boyer: Mod/Measure/Gui/QuickMeasure.cpp, Mod/Sketcher/Gui/DrawSketchHandlerOffset.h,
+      Mod/Sketcher/Gui/DrawSketchHandlerText.h, Mod/Sketcher/Gui/EditTextDialog.cpp,
       Mod/Sketcher/Gui/DrawSketchHandlerRotate.h,
       Mod/Sketcher/Gui/DrawSketchHandlerScale.h, Mod/Sketcher/Gui/DrawSketchHandlerSymmetry.h,
       Mod/Sketcher/Gui/DrawSketchHandlerTranslate.h, Mod/Sketcher/Gui/SketcherToolDefaultWidget.cpp,
@@ -1238,6 +1239,9 @@ src/Mod/Sketcher/Gui/DrawSketchHandlerSplitting.h   [licence: LGPL-2.1-or-later]
 src/Mod/Sketcher/Gui/DrawSketchHandlerSymmetry.h   [licence: LGPL-2.1-or-later]
     copyright 2022 Boyer Pierre-Louis
     followed by src/sketchxformovp.ts
+src/Mod/Sketcher/Gui/DrawSketchHandlerText.h   [licence: LGPL-2.1-or-later]
+    copyright 2025 Pierre-Louis Boyer
+    followed by src/sketchtext.tsx
 src/Mod/Sketcher/Gui/DrawSketchHandlerTranslate.h   [licence: LGPL-2.1-or-later]
     copyright 2022 Boyer Pierre-Louis
     followed by src/sketchxform.ts, src/sketchxformovp.ts
@@ -1268,6 +1272,21 @@ src/Mod/Sketcher/Gui/EditModeGeometryCoinManager.cpp   [licence: LGPL-2.1-or-lat
 src/Mod/Sketcher/Gui/EditModeInformationOverlayCoinConverter.cpp   [licence: LGPL-2.1-or-later]
     copyright 2021 Abdullah Tahiri
     followed by src/sketchbsplineinfo.ts
+src/Mod/Sketcher/Gui/EditTextDialog.cpp   [licence: LGPL-2.1-or-later]
+    copyright 2025 Pierre-Louis Boyer
+    followed by src/sketchtext.tsx
+src/Mod/Sketcher/Gui/EditTextDialog.ui   [licence: none]
+    no copyright line in the file
+    followed by src/sketchtext.tsx
+src/Mod/Sketcher/Gui/FontProvider.cpp   [licence: LGPL-2.1-or-later]
+    copyright 2026 FreeCAD Project Association
+    followed by src/sketchtext.tsx
+src/Mod/Sketcher/Gui/SketchMirrorDialog.cpp   [licence: LGPL-2.1-or-later]
+    copyright 2015 Abdullah Tahiri
+    followed by src/sketchobjcmds.tsx
+src/Mod/Sketcher/Gui/SketchMirrorDialog.ui   [licence: none]
+    no copyright line in the file
+    followed by src/sketchobjcmds.tsx
 src/Mod/Sketcher/Gui/SketcherRegularPolygonDialog.cpp   [licence: LGPL-2.1-or-later]
     copyright 2017 Abdullah Tahiri
     followed by src/sketchpolydlg.tsx
@@ -1310,6 +1329,12 @@ src/Mod/Sketcher/Gui/SnapManager.cpp   [licence: LGPL-2.1-or-later]
 src/Mod/Sketcher/Gui/SoZoomTranslation.cpp   [licence: LGPL-2.1-or-later]
     copyright 2011 Werner Mayer
     followed by src/sketchdraw.ts
+src/Mod/Sketcher/Gui/TaskSketcherValidation.cpp   [licence: LGPL-2.1-or-later]
+    copyright 2013 Werner Mayer
+    followed by src/sketchobjcmds.tsx
+src/Mod/Sketcher/Gui/TaskSketcherValidation.ui   [licence: none]
+    no copyright line in the file
+    followed by src/sketchobjcmds.tsx, src/sketchobjcmds.css
 src/Mod/Sketcher/ProfileLib/RegularPolygon.py   [licence: LGPL-2.1-or-later]
     copyright 2014 Johan Kristensen, Juergen Riegel
     followed by src/sketchtools.ts

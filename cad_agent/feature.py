@@ -368,6 +368,11 @@ class Constraint:
 
     def __init__(self, type: str, *args, name: str | None = None, driving: bool = True,
                  active: bool = True, virtual_space: bool = False):
+        self.text = self.font = None
+        self.is_text_height = True
+        if type == "Text":                                # cad_agent/sketch_text.py: Sketcher_CreateText
+            self._text(args, name, driving, active, virtual_space)
+            return
         aligned = _curves.alignment_counts(type)          # "InternalAlignment:EllipseMajorDiameter", ...
         if type not in DIMENSIONAL and type not in GEOMETRIC and aligned is None:
             raise FeatureError(f"Constraint type {type!r} is not one of "
@@ -386,6 +391,32 @@ class Constraint:
             if isinstance(a, bool) or not isinstance(a, int):
                 raise FeatureError(f"Constraint {type!r}: {a!r} is not a geometry index or point position")
 
+    def _text(self, args, name, driving, active, virtual_space):
+        """Sketcher.Constraint('Text', [GeoId, PosId, ...], text, font[, isTextHeight]): the handle line first, then
+        the glyphs (ConstraintPyImp's "sO!ss|O"); font as Constraint::setFont keeps it, the font file's name."""
+        w = "Constraint 'Text'"
+        if len(args) not in (3, 4):
+            raise FeatureError(f"{w} takes [GeoId, PosId, ...], text, font and isTextHeight, not {args!r}")
+        elems, text, font = args[0], args[1], args[2]
+        height = args[3] if len(args) == 4 else True
+        if not isinstance(elems, (list, tuple)) or len(elems) % 2 or not elems:
+            raise FeatureError(f"{w}: Element list must have an even number of items (pairs of GeoId, PosId).")
+        if any(isinstance(a, bool) or not isinstance(a, int) for a in elems):
+            raise FeatureError(f"{w}: Element list items must be integers.")
+        if not isinstance(text, str) or not isinstance(font, str) or not isinstance(height, bool):
+            raise FeatureError(f"{w}: text and font are strings and isTextHeight True or False, not {args[1:]!r}")
+        self.type, self.name, self.driving = "Text", name, True
+        self.active, self.virtual_space = bool(active), bool(virtual_space)
+        self.args, self.value = tuple(int(a) for a in elems), None
+        self.text, self.font, self.is_text_height = text, font, height
+
+    @property
+    def elements(self) -> list[tuple[int, int]]:
+        """Constraint::getElement(i) for every element: (GeoId, PosId)."""
+        if self.type == "Text":
+            return [(self.args[i], self.args[i + 1]) for i in range(0, len(self.args), 2)]
+        return []
+
     @property
     def dimensional(self) -> bool:
         return self.type in DIMENSIONAL
@@ -402,6 +433,9 @@ class Constraint:
 
     def __repr__(self):
         args = [repr(self.type), *map(repr, self.args)] + ([repr(self.value)] if self.dimensional else [])
+        if self.type == "Text":
+            args = [repr(self.type), repr(list(self.args)), repr(self.text), repr(self.font),
+                    repr(self.is_text_height)]
         if self.name:
             args.append(f"name={self.name!r}")
         if not self.driving:
@@ -411,6 +445,32 @@ class Constraint:
         if self.virtual_space:
             args.append("virtual_space=True")
         return f"Constraint({', '.join(args)})"
+
+
+def constraint_from_dict(c: dict) -> Constraint:
+    """A part file's constraint dict (feature_edit.read's form) as a Constraint: {"type", "args", "value",
+    "name", "driving", "active", "virtual_space"}, a Text one with "text", "font" and "is_text_height"."""
+    kw = dict(name=c.get("name") or None, driving=c.get("driving", True) is not False,
+              active=c.get("active", True) is not False, virtual_space=bool(c.get("virtual_space", False)))
+    if c.get("type") == "Text":
+        return Constraint("Text", list(c.get("args", [])), c.get("text", ""), c.get("font", ""),
+                          bool(c.get("is_text_height", True)), **kw)
+    return Constraint(c["type"], *c["args"], *([c["value"]] if "value" in c else []), **kw)
+
+
+def text_dict(c: Constraint) -> dict:
+    """A Text constraint's own keys in the dict forms (feature_edit, the solver's JSON)."""
+    return {"text": c.text, "font": c.font, "is_text_height": c.is_text_height} if c.type == "Text" else {}
+
+
+def in_group(constraints) -> set:
+    """The GeoIds a Text constraint holds after its handle: Sketch::setUpSketch leaves them out of the solve and
+    makes every other constraint on them unenforceable."""
+    out = set()
+    for c in constraints:
+        if c.type == "Text":
+            out.update(g for g, _ in c.elements[1:])
+    return out
 
 
 # ── the sketch ────────────────────────────────────────────────────────────────────────────────────────
@@ -535,7 +595,7 @@ class Sketch:
         values resolved to mm and radians, and the external geometry after the axes."""
         out = {"name": self.name,
                "geometry": [g.as_dict() for g in self.geometry],
-               "constraints": [{"type": c.type, "args": list(c.args),
+               "constraints": [{"type": c.type, "args": list(c.args), **text_dict(c),
                                 **({"value": c.resolved(params)} if c.dimensional else {}),
                                 "driving": c.driving, "name": c.name or "",
                                 **({} if c.active else {"active": False})}
@@ -549,9 +609,12 @@ class Sketch:
         when none. A constraint this module cannot check (an InternalAlignment, a tangent at a point of
         a circle) counts as unsatisfied unless unchecked=False: only the solver can say."""
         out = []
+        grouped = in_group(self.constraints)
         for i, c in enumerate(self.constraints):
-            if not c.driving or not c.active:
+            if not c.driving or not c.active or c.type == "Text":
                 continue
+            if grouped and any(isinstance(a, int) and a in grouped for a in _geo_ids(c)):
+                continue                                # unenforceable, as Sketch::setUpSketch makes it
             why = _residual(self, c, c.resolved(params), tol)
             if why == "unsupported":
                 why = "cannot be checked without the solver" if unchecked else ""
@@ -621,6 +684,13 @@ def _solve(sketch: dict, reason: str = "") -> dict:
 
 
 # The geometric check of a constraint against stored geometry: '' when it holds, else why not.
+
+def _geo_ids(c: Constraint) -> list[int]:
+    """Constraint::getGeoId(0..2): the geometries a constraint names (First, Second, Third)."""
+    from .sketch_commands import fields
+    f = fields({"type": c.type, "args": list(c.args)})
+    return [f["first"], f["second"], f["third"]]
+
 
 def _pt(sk: Sketch, g: int, pos: int):
     if g == -1:
@@ -1926,6 +1996,8 @@ def to_freecad(features, params: dict | None = None, doc=None, name: str = "Body
                 sk.addExternal(obj_of(o).Name, sb)
             for i, c in enumerate(f.constraints):
                 args = list(c.args) + ([c.resolved(params)] if c.dimensional else [])
+                if c.type == "Text":                 # Sketcher.Constraint('Text', [g0, p0, ...], text, font, h)
+                    args = [list(c.args), c.text, c.font, c.is_text_height]
                 sk.addConstraint(Sketcher.Constraint(c.type, *args))
                 if c.name:
                     sk.renameConstraint(i, c.name)

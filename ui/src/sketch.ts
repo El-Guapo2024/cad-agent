@@ -49,6 +49,13 @@ export type Constraint = {
   /** An InternalAlignment's Constraint::AlignmentType and InternalAlignmentIndex (a pole's or a knot's, else -1). */
   alignment?: CV.Alignment
   alignmentIndex?: number
+  /** A Group or Text constraint's elements (Constraint::elements): the handle line, then the geometry it holds;
+   *  first/second/third are elements 0, 1 and 2, as FreeCAD keeps the legacy fields. */
+  elements?: [number, PointPos][]
+  /** A Text constraint's text, font (the font file's name, as Constraint::setFont keeps it) and isTextHeight. */
+  text?: string
+  font?: string
+  textHeight?: boolean
 }
 export type SketchData = { geometry: Geo[]; constraints: Constraint[] }
 
@@ -56,6 +63,43 @@ export function constraint(type: ConstraintType, first: number, firstPos: PointP
   third = GEO_UNDEF, thirdPos: PointPos = NONE, value = 0): Constraint {
   return { type, first, firstPos, second, secondPos, third, thirdPos, value, driving: true, active: true, name: '',
     labelDistance: 10, labelPosition: type === 'Radius' || type === 'Diameter' ? 10 : 0, virtual: false }
+}
+
+/** Sketcher.Constraint('Text', [GeoId, PosId, ...], text, font, isTextHeight) (DrawSketchHandlerText). */
+export function textConstraint(elements: [number, PointPos][], text: string, font: string, height: boolean): Constraint {
+  const e = (i: number): [number, PointPos] => elements[i] ?? [GEO_UNDEF, NONE]
+  return { ...constraint('Text', e(0)[0], e(0)[1], e(1)[0], e(1)[1], e(2)[0], e(2)[1]), elements: elements.map((x) => [x[0], x[1]]), text, font,
+    textHeight: height }
+}
+/** Constraint::getElement for every element: a Group's or Text's whole list, else First, Second, Third. */
+export function elementsOf(c: Constraint): [number, PointPos][] {
+  return c.elements ?? [[c.first, c.firstPos], [c.second, c.secondPos], [c.third, c.thirdPos]]
+}
+/** The constraint with every GeoId mapped (its legacy fields and its elements). */
+export function mapGeoIds(c: Constraint, f: (g: number) => number): Constraint {
+  const n: Constraint = { ...c, first: f(c.first), second: f(c.second), third: f(c.third) }
+  if (c.elements) n.elements = c.elements.map(([g, p]) => [f(g), p])
+  return n
+}
+/** Constraint::involvesGeoId over every element. */
+export const involves = (c: Constraint, g: number) => elementsOf(c).some(([eg]) => eg === g)
+/** SketchObject::getGroupHandleIfInGroup: the handle of the Text (or Group) that holds the geometry, else the geometry. */
+export function groupHandleOf(constraints: Constraint[], g: number): number {
+  for (const c of constraints) {
+    if ((c.type === 'Text' || c.type === 'Group') && c.elements && c.elements.slice(1).some(([eg]) => eg === g)) return c.elements[0][0]
+  }
+  return g
+}
+/** SketchObject::isInGroup(geoId, includeHandle false) for every GeoId: what the Text (and Group) constraints hold. */
+export function inGroup(constraints: Constraint[]): Set<number> {
+  const out = new Set<number>()
+  for (const c of constraints) if ((c.type === 'Text' || c.type === 'Group') && c.elements) for (const [g] of c.elements.slice(1)) out.add(g)
+  return out
+}
+/** SketchObject::getGroupGeometries(handle): what a Text (or Group) whose handle it is holds. */
+export function groupGeometries(constraints: Constraint[], handle: number): number[] {
+  const c = constraints.find((k) => (k.type === 'Text' || k.type === 'Group') && k.elements?.[0]?.[0] === handle)
+  return c ? c.elements!.slice(1).map(([g]) => g) : []
 }
 
 const DIMENSIONAL: ConstraintType[] = ['Distance', 'DistanceX', 'DistanceY', 'Radius', 'Diameter', 'Angle', 'SnellsLaw', 'Weight']
@@ -87,6 +131,7 @@ export function toArgs(c: Constraint): number[] {
       if (fp === NONE && sp === NONE) return [f, s]
       return [f, fp, s, sp]
     case 'Symmetric': return tp === NONE ? [f, fp, s, sp, th] : [f, fp, s, sp, th, tp]
+    case 'Text': case 'Group': return elementsOf(c).flatMap(([g, p]) => [g, p])
     default: return [f, fp, s, sp, th, tp]
   }
 }
@@ -106,6 +151,7 @@ export function alignmentConstraint(alignment: CV.Alignment, first: number, firs
 }
 export function toCons(c: Constraint): Cons {
   const out: Cons = c.type === 'InternalAlignment' && c.alignment ? { type: `InternalAlignment:${c.alignment}`, args: alignmentArgs(c) } : { type: c.type, args: toArgs(c) }
+  if (c.type === 'Text') { out.text = c.text ?? ''; out.font = c.font ?? ''; out.is_text_height = c.textHeight !== false }
   if (c.type !== 'InternalAlignment') {
     if (isDimensional(c)) out.value = c.value
     if (!c.driving) out.driving = false
@@ -135,6 +181,13 @@ function fromConsOnly(k: Cons): Constraint {
     return alignmentConstraint(al, a[0], a[1] as PointPos, a[2])
   }
   const t = k.type as ConstraintType, a = k.args, v = typeof k.value === 'number' ? k.value : 0, P = (n: number) => n as PointPos
+  if (t === 'Text') {
+    const els: [number, PointPos][] = []
+    for (let i = 0; i + 1 < a.length; i += 2) els.push([a[i], P(a[i + 1])])
+    const c = textConstraint(els, k.text ?? '', k.font ?? '', k.is_text_height !== false)
+    if (k.name) c.name = k.name
+    return c
+  }
   let c: Constraint
   const hasValue = k.value !== undefined
   if (t === 'Coincident') c = constraint(t, a[0], P(a[1]), a[2], P(a[3]))

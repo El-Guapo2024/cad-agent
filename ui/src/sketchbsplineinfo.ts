@@ -13,6 +13,7 @@
 // off).
 import type { XY } from './solver'
 import * as CV from './sketchcurves'
+import { inGroup } from './sketch'
 import { overlays, SIZES, labelFont, type Screen, type DrawState } from './sketchdraw'
 import { saved } from './store'
 
@@ -98,7 +99,9 @@ function text(ctx: CanvasRenderingContext2D, s: Screen, at: XY, str: string, lin
 }
 
 function drawLayer(ctx: CanvasRenderingContext2D, s: Screen, st: DrawState) {
-  const splines = st.geometry.filter((g): g is CV.BSpline => g.type === 'BSplineCurve')
+  // a text's glyphs get no information overlay (EditModeInformationOverlayCoinConverter skips a group member)
+  const grouped = inGroup(st.constraints)
+  const splines = st.geometry.filter((g, i): g is CV.BSpline => g.type === 'BSplineCurve' && !grouped.has(i))
   const arcs = st.geometry.filter((g) => g.type === 'ArcOfCircle')
   if (!splines.length && !arcs.length) return
   const scale = combScale(splines)

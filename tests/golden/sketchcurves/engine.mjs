@@ -3944,6 +3944,36 @@ function constraint(type, first, firstPos = 0, second = GEO_UNDEF, secondPos = 0
 		virtual: false
 	};
 }
+/** Sketcher.Constraint('Text', [GeoId, PosId, ...], text, font, isTextHeight) (DrawSketchHandlerText). */
+function textConstraint(elements, text, font, height) {
+	const e = (i) => elements[i] ?? [-2e3, 0];
+	return {
+		...constraint("Text", e(0)[0], e(0)[1], e(1)[0], e(1)[1], e(2)[0], e(2)[1]),
+		elements: elements.map((x) => [x[0], x[1]]),
+		text,
+		font,
+		textHeight: height
+	};
+}
+/** Constraint::getElement for every element: a Group's or Text's whole list, else First, Second, Third. */
+function elementsOf(c) {
+	return c.elements ?? [
+		[c.first, c.firstPos],
+		[c.second, c.secondPos],
+		[c.third, c.thirdPos]
+	];
+}
+/** The constraint with every GeoId mapped (its legacy fields and its elements). */
+function mapGeoIds(c, f) {
+	const n = {
+		...c,
+		first: f(c.first),
+		second: f(c.second),
+		third: f(c.third)
+	};
+	if (c.elements) n.elements = c.elements.map(([g, p]) => [f(g), p]);
+	return n;
+}
 const DIMENSIONAL$1 = [
 	"Distance",
 	"DistanceX",
@@ -4049,6 +4079,8 @@ function toArgs(c) {
 			th,
 			tp
 		];
+		case "Text":
+		case "Group": return elementsOf(c).flatMap(([g, p]) => [g, p]);
 		default: return [
 			f,
 			fp,
@@ -4100,6 +4132,11 @@ function toCons(c) {
 		type: c.type,
 		args: toArgs(c)
 	};
+	if (c.type === "Text") {
+		out.text = c.text ?? "";
+		out.font = c.font ?? "";
+		out.is_text_height = c.textHeight !== false;
+	}
 	if (c.type !== "InternalAlignment") {
 		if (isDimensional(c)) out.value = c.value;
 		if (!c.driving) out.driving = false;
@@ -4130,6 +4167,13 @@ function fromConsOnly(k) {
 		return alignmentConstraint(al, a[0], a[1], a[2]);
 	}
 	const t = k.type, a = k.args, v = typeof k.value === "number" ? k.value : 0, P = (n) => n;
+	if (t === "Text") {
+		const els = [];
+		for (let i = 0; i + 1 < a.length; i += 2) els.push([a[i], P(a[i + 1])]);
+		const c = textConstraint(els, k.text ?? "", k.font ?? "", k.is_text_height !== false);
+		if (k.name) c.name = k.name;
+		return c;
+	}
 	let c;
 	const hasValue = k.value !== void 0;
 	if (t === "Coincident") c = constraint(t, a[0], P(a[1]), a[2], P(a[3]));
@@ -4213,12 +4257,8 @@ const projectToLine = (p, d) => {
 	return sub(mul(d, t), p);
 };
 const clone = (c) => ({ ...c });
-const elements = (c) => [
-	[c.first, c.firstPos],
-	[c.second, c.secondPos],
-	[c.third, c.thirdPos]
-];
-const involvesGeoId = (c, g) => c.first === g || c.second === g || c.third === g;
+const elements = (c) => elementsOf(c);
+const involvesGeoId = (c, g) => elements(c).some(([eg]) => eg === g);
 const involvesGeoIdAndPosId = (c, g, p) => elements(c).some(([eg, ep]) => eg === g && ep === p);
 function substituteIndex(c, from, to) {
 	if (c.first === from) c.first = to;
@@ -4671,10 +4711,7 @@ function afterDeletingGeo(c, deleted) {
 	if (involvesGeoId(c, deleted)) return null;
 	const n = clone(c);
 	const fix = (g) => deleted >= 0 ? g > deleted ? g - 1 : g : g < deleted && g !== -2e3 ? g + 1 : g;
-	n.first = fix(n.first);
-	n.second = fix(n.second);
-	n.third = fix(n.third);
-	return n;
+	return mapGeoIds(n, fix);
 }
 /** SketchObject::delGeometriesExclusiveList. */
 function delGeometriesExclusive(d, ids) {

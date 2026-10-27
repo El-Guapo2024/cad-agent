@@ -113,7 +113,9 @@ export type Task = { kind: 'params' | 'placement' | 'transform' | 'measure' | 'm
   | 'pdTransform' | 'pdPrimitive'
   | 'pdSweep'     // pd_sweep.tsx: a Loft, Pipe or Helix; `other` is the feature edited, or "new:<TypeId>"
   // The Sketcher's edit mode (sketcher.ts, sketchui.tsx): TaskDlgEditSketch.
-  | 'sketch'; body: string; other?: string; edit?: boolean
+  | 'sketch'
+  | 'sketchValidate'      // sketchobjcmds.tsx: TaskSketcherValidation on the sketch `other` of `body`
+  ; body: string; other?: string; edit?: boolean
   /** the undo step OK closes, when the way the panel opened names it (a ShapeBinder's "Edit Shape Binder" or "Edit <Label>") */
   step?: string }
 /** GET /api/history: one entry of the backend's Document undo/redo journal, shared with an

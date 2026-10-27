@@ -172,6 +172,8 @@ function sameGeo(a, b) {
 }
 const sameCons = (a, b) => a.type === b.type && a.args.join() === b.args.join()
   && (b.value === undefined || near(a.value ?? NaN, b.value, a.type === 'Angle' ? 0.01 : 0.3))
+  // a Text constraint: its text, font and isTextHeight too
+  && (b.type !== 'Text' || (a.text === b.text && a.font === b.font && a.is_text_height === b.is_text_height))
 const fmtC = (c) => `${c.type}(${c.args.join(',')}${c.value !== undefined ? `=${+c.value.toFixed(4)}` : ''})`
 const fmtG = (g) => g.type === 'Point' ? `Point(${g.at.map((v) => v.toFixed(2))})` : g.type === 'LineSegment' ? `Line(${g.start.map((v) => v.toFixed(2))} ${g.end.map((v) => v.toFixed(2))})`
   : g.type === 'BSplineCurve' ? `BSpline(d${g.degree}${g.periodic ? ' periodic' : ''} ${g.poles.map((q) => q.map((v) => v.toFixed(2)).join(',')).join(' ')} w${g.weights.map((v) => +v.toFixed(3)).join(',')} k${g.knots.map((v) => +v.toFixed(3)).join(',')} m${g.mults.join(',')})`
@@ -363,6 +365,21 @@ for (const [k, c] of CASES.cases.entries()) {
     }
     else if (st.move) await move(st.move)
     else if (st.click) { await move([st.click[0] + 0.7, st.click[1] + 0.4]); await move(st.click); await p.mouse.down(); await p.waitForTimeout(60); await p.mouse.up(); await p.waitForTimeout(120) }
+    else if (Array.isArray(st.dblclick) && !st.panel) {
+      // a double click in the 3D view (a text's handle: EditTextDialog), its "dialog" fields set before it is accepted
+      await move([st.dblclick[0] + 0.7, st.dblclick[1] + 0.4]); await move(st.dblclick)
+      for (let i = 0; i < 2; i++) { await p.mouse.down(); await p.waitForTimeout(40); await p.mouse.up(); await p.waitForTimeout(40) }
+      if (st.dialog) {
+        for (let i = 0; i < 40 && !(await p.locator('.datum-dlg').count()); i++) await p.waitForTimeout(100)
+        for (const [name, v] of Object.entries(st.dialog)) {
+          const f = p.locator(`.datum-dlg [data-qf="${name}"]`).first()
+          if (typeof v === 'boolean') { if ((await f.isChecked()) !== v) await f.click() }
+          else if (await f.evaluate((e) => e.tagName === 'SELECT')) await f.selectOption(typeof v === 'string' ? { label: v } : { index: v })
+          else await f.fill(String(v))
+        }
+      }
+      await p.waitForTimeout(150)
+    }
     else if (st.drag) {
       const [a, z] = st.drag
       await move(a); await p.mouse.down(); await p.waitForTimeout(60)
@@ -374,7 +391,8 @@ for (const [k, c] of CASES.cases.entries()) {
     else if (st.fkey) { await p.keyboard.press((st.ctrl ? 'Control+' : '') + (KEY[st.fkey] ?? st.fkey)); await p.waitForTimeout(100) }
     else if (st.widget) { // a control of the Tool Parameters box, by its name in SketcherToolDefaultWidget.ui
       const w = p.locator(`[data-tool-widget="${st.widget.name}"]`).first()
-      if ('checked' in st.widget) { if ((await w.isChecked()) !== !!st.widget.checked) await w.click() }
+      if ('text' in st.widget) { await w.click(); await w.fill(String(st.widget.text)) } // a line edit (lineEdit1)
+      else if ('checked' in st.widget) { if ((await w.isChecked()) !== !!st.widget.checked) await w.click() }
       else if ('index' in st.widget) await w.selectOption({ index: st.widget.index })
       else if ('value' in st.widget) { await w.click(); await w.press('Control+a'); await w.type(String(st.widget.value)); await w.press('Enter') }
       await p.waitForTimeout(120)
@@ -417,7 +435,16 @@ for (const [k, c] of CASES.cases.entries()) {
   // parameters' texts and which has the focus, as FreeCAD showed them at the end of the steps
   if (c.check?.includes('widget')) {
     const tw = await p.evaluate(() => window.cadui.sketchToolWidget?.() ?? null), tww = want.tool_widget ?? null
-    const norm = (w) => w && JSON.stringify({ title: w.title, controls: w.controls.map((x) => ({ ...x, value: x.value === undefined ? undefined : +x.value.toFixed(4) })) })
+    // the Text tool's Font box: FreeCAD lists the fonts of its TechDraw folder (Y14 is QFileInfo::baseName of Y14.5-2018.ttf) and the
+    // one its GUI adds (src/Gui/Fonts/URWGothic-Demi.ttf), which cad-agent does not ship (only osifont-lgpl3fe
+    // is; ui/PARITY.md), so those three leave FreeCAD's list before it is compared
+    const fonts = (x) => {
+      if (x.name !== 'comboBox2' || !Array.isArray(x.items) || !x.items.includes('osifont-lgpl3fe')) return x
+      const drop = new Set(['osifont-italic', 'Y14', 'URWGothic-Demi']), cur = x.items[x.index]
+      const items = x.items.filter((t) => !drop.has(t))
+      return { ...x, items, index: items.indexOf(cur) }
+    }
+    const norm = (w) => w && JSON.stringify({ title: w.title, controls: w.controls.map(fonts).map((x) => ({ ...x, value: x.value === undefined ? undefined : +x.value.toFixed(4) })) })
     if (norm(tw) !== norm(tww)) diffs.push(`tool widget\n     ours     ${norm(tw)}\n     FreeCAD  ${norm(tww)}`)
   }
   if (c.check?.includes('ovp')) {

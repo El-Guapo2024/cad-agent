@@ -360,8 +360,8 @@ export function delGeometries(ids: number[]) {
   // a geometry with internal geometry takes it along (SketchObject::delGeometries)
   for (const c of s.constraints) if (c.type === 'InternalAlignment' && gone.has(c.second)) gone.add(c.first)
   const map = (g: number) => (g < 0 || g === GEO_UNDEF ? g : g - [...gone].filter((x) => x < g).length)
-  s.constraints = s.constraints.filter((c) => !gone.has(c.first) && !gone.has(c.second) && !gone.has(c.third))
-    .map((c) => ({ ...c, first: map(c.first), second: map(c.second), third: map(c.third) }))
+  // changeConstraintAfterDeletingGeo: every element (a Text's glyphs too)
+  s.constraints = s.constraints.filter((c) => !SK.elementsOf(c).some(([g]) => gone.has(g))).map((c) => SK.mapGeoIds(c, map))
   s.geometry = s.geometry.filter((_, i) => !gone.has(i))
   elementsChanged()
 }
@@ -409,8 +409,7 @@ export function delExternal(geoIds: number[]) {
   if (!refs.size) return
   const gone = new Set(e.owner.map((r, k) => (refs.has(r) ? SK.REF_EXT - k : null)).filter((g): g is number => g !== null))
   const map = (g: number) => (SK.isExternalId(g) ? g + [...gone].filter((x) => x > g).length : g) // changeConstraintAfterDeletingGeo
-  s.constraints = s.constraints.filter((c) => !gone.has(c.first) && !gone.has(c.second) && !gone.has(c.third))
-    .map((c) => ({ ...c, first: map(c.first), second: map(c.second), third: map(c.third) }))
+  s.constraints = s.constraints.filter((c) => !SK.elementsOf(c).some(([g]) => gone.has(g))).map((c) => SK.mapGeoIds(c, map))
   const keep = e.owner.map((r) => !refs.has(r))
   const renumber = new Map([...new Set(e.owner.filter((r) => !refs.has(r)))].map((r, k) => [r, k]))
   s.external = { refs: e.refs.filter((_, r) => !refs.has(r)), geometry: e.geometry.filter((_, k) => keep[k]),
@@ -472,8 +471,10 @@ function detect(x: number, y: number, hovered: number): Hit | null {
   // for the point already under the cursor), else an edge within its hit radius or the pick radius
   const all = geoAll()
   const verts = SK.vertices(all)
+  const grouped = SK.inGroup(s.constraints) // a text's glyphs have no points to pick
   let best: Hit | null = null, bestD = Infinity
   verts.forEach(([g, pos], v) => {
+    if (grouped.has(g)) return
     if ((all[g]?.layer ?? 0) === 2) return           // a hidden visual layer is not drawn, so not pickable
     const p = SK.getPoint(all, g, pos)
     if (!p) return
@@ -517,7 +518,8 @@ function showPreselection(hit: Hit | null): boolean {
   const before = JSON.stringify(s.pre)
   if (!hit) s.pre = { point: -1, curve: null, cross: null, constraints: [] }
   else if (hit.kind === 'point') s.pre = { point: hit.point!, curve: null, cross: null, constraints: [] }
-  else if (hit.kind === 'edge') s.pre = { point: -1, curve: hit.geo!, cross: null, constraints: [] }
+  // a glyph of a text (an edge in a group) preselects the text's handle (ViewProviderSketch::detectAndShowPreselection)
+  else if (hit.kind === 'edge') s.pre = { point: -1, curve: SK.groupHandleOf(s.constraints, hit.geo!), cross: null, constraints: [] }
   else if (hit.kind === 'axis') s.pre = { point: -1, curve: null, cross: hit.cross!, constraints: [] }
   else s.pre = { point: -1, curve: null, cross: null, constraints: hit.constraints! }
   return JSON.stringify(s.pre) !== before
@@ -816,12 +818,21 @@ const doubleClickMs = () => saved.get('doubleClickInterval', 0) || 400
 /** ViewProviderSketch::editDoubleClicked: a datum's dialog; an edge selects its wire. */
 function editDoubleClicked() {
   const s = session!
-  if (s.pre.curve !== null && s.pre.curve >= 0) { s.mode = 'selectWire'; return }
+  if (s.pre.curve !== null && s.pre.curve >= 0) {
+    // the handle of a Text constraint: EditTextDialog
+    const g = s.pre.curve, text = s.constraints.findIndex((c) => c.type === 'Text' && c.elements?.[0]?.[0] === g)
+    if (text >= 0 && onTextDoubleClick) { s.mode = 'none'; onTextDoubleClick(text); return }
+    s.mode = 'selectWire'; return
+  }
   for (const id of s.pre.constraints) {
     const c = s.constraints[id]
     if (c && SK.isDimensional(c)) { onDatumDoubleClick?.(id); return }
+    if (c && c.type === 'Text' && onTextDoubleClick) { onTextDoubleClick(id); return }
   }
 }
+let onTextDoubleClick: ((id: number) => void) | null = null
+/** EditTextDialog (sketchtext.tsx) registers here: a double click on a text's handle, or on its constraint. */
+export function onEditText(f: (id: number) => void) { onTextDoubleClick = f }
 let onDatumDoubleClick: ((id: number) => void) | null = null
 /** The datum dialog (EditDatumDialog, sketchpanel.tsx) registers here. */
 export function onEditDatum(f: (id: number) => void) { onDatumDoubleClick = f }
@@ -846,10 +857,14 @@ function toggleWireSelection(g: number | null) {
 function initDragging(geoId: number, pos: PointPos, at: XY) {
   const s = session!
   if (geoId < 0 || !solver) { s.mode = 'none'; return }
+  // an edge in a group (a text's glyph) drags the group's handle, as an edge (getGroupHandleIfInGroup)
+  const handle = SK.groupHandleOf(s.constraints, geoId)
+  if (handle !== geoId) { geoId = handle; pos = NONE }
   const dragged: [number, PointPos][] = [[geoId, pos]]
   // selected curves and points go with it (they all move by the cursor's displacement then)
-  for (const g of selectedCurves()) {
+  for (let g of selectedCurves()) {
     if (g < 0) continue
+    g = SK.groupHandleOf(s.constraints, g)
     if (g === geoId) { if (!(pos === MID && SK.isArc(s.geometry[g]))) dragged[0][1] = NONE }
     else dragged.push([g, NONE])
   }
@@ -1093,6 +1108,8 @@ export function deleteSelected() {
     if (s.geometry[g]?.type === 'Point') curves.push(g)
     else delConstraintOnPoint(g, pos)
   }
+  // a group's handle takes the group along (a text's glyphs)
+  for (const g of [...curves]) curves.push(...SK.groupGeometries(s.constraints, g))
   if (curves.length) delGeometries([...new Set(curves)])
   if (externals.length) delExternal(externals) // ViewProviderSketch::onDelete: delExternal on the ExternalEdges
   clearSelection()

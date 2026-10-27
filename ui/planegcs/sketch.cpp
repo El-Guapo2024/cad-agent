@@ -15,6 +15,7 @@
 #include <cfloat>
 #include <cmath>
 #include <functional>
+#include <limits>
 #include <numbers>
 #include <optional>
 
@@ -830,6 +831,165 @@ Vec Geometry::bsplineValue(double u) const
     return value;
 }
 
+namespace
+{
+// gp_Trsf::SetValues(a11 .. a34): the 3x3 part times 1/s (gp_Mat::Divide), s the signed cube root of its
+// determinant, then Orthogonalize (columns, then rows); loc the last column.
+struct Trsf
+{
+    double M[3][3];
+    double scale;
+    double loc[3];
+};
+void normalize3(double v[3])
+{
+    double d = std::sqrt(v[0] * v[0] + v[1] * v[1] + v[2] * v[2]);  // gp_XYZ::Modulus
+    v[0] /= d;
+    v[1] /= d;
+    v[2] /= d;
+}
+double dot3(const double a[3], const double b[3])
+{
+    return a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
+}
+// gp_Trsf::Orthogonalize's Gram-Schmidt on three vectors
+void orthonormal(double v1[3], double v2[3], double v3[3])
+{
+    normalize3(v1);
+    double d = dot3(v2, v1);
+    for (int k = 0; k < 3; ++k) {
+        v2[k] -= v1[k] * d;
+    }
+    normalize3(v2);
+    double d1 = dot3(v3, v1), d2 = dot3(v3, v2);
+    for (int k = 0; k < 3; ++k) {
+        v3[k] -= v1[k] * d1 + v2[k] * d2;
+    }
+    normalize3(v3);
+}
+Trsf setValues(const double m[3][4])
+{
+    Trsf t {};
+    double M[3][3];
+    for (int i = 0; i < 3; ++i) {
+        for (int j = 0; j < 3; ++j) {
+            M[i][j] = m[i][j];
+        }
+    }
+    double det = M[0][0] * (M[1][1] * M[2][2] - M[2][1] * M[1][2])
+        - M[0][1] * (M[1][0] * M[2][2] - M[2][0] * M[1][2])
+        + M[0][2] * (M[1][0] * M[2][1] - M[2][0] * M[1][1]);
+    if (std::fabs(det) < DBL_MIN) {
+        throw GeometryError("gp_Trsf::SetValues, null determinant");
+    }
+    double s = det > 0 ? std::pow(det, 1. / 3.) : -std::pow(-det, 1. / 3.);
+    double inv = 1 / s;
+    for (auto& row : M) {
+        for (double& x : row) {
+            x *= inv;
+        }
+    }
+    double c[3][3];
+    for (int j = 0; j < 3; ++j) {
+        for (int i = 0; i < 3; ++i) {
+            c[j][i] = M[i][j];
+        }
+    }
+    orthonormal(c[0], c[1], c[2]);
+    for (int i = 0; i < 3; ++i) {
+        for (int j = 0; j < 3; ++j) {
+            M[i][j] = c[j][i];
+        }
+    }
+    orthonormal(M[0], M[1], M[2]);
+    for (int i = 0; i < 3; ++i) {
+        for (int j = 0; j < 3; ++j) {
+            t.M[i][j] = M[i][j];
+        }
+        t.loc[i] = m[i][3];
+    }
+    t.scale = s;
+    return t;
+}
+// gp_Pnt::Transform with a gp_CompoundTrsf (gp_Trsf::Transforms)
+Vec apply(const Trsf& t, Vec p)
+{
+    double x = t.M[0][0] * p.x + t.M[0][1] * p.y + t.M[0][2] * 0.0;
+    double y = t.M[1][0] * p.x + t.M[1][1] * p.y + t.M[1][2] * 0.0;
+    if (t.scale != 1.0) {
+        x *= t.scale;
+        y *= t.scale;
+    }
+    return {x + t.loc[0], y + t.loc[1]};
+}
+// gp_Dir::Transform: the vectorial part, normalised, reversed for a negative scale
+V3 applyDir(const Trsf& t, V3 d)
+{
+    double v[3] = {t.M[0][0] * d.x + t.M[0][1] * d.y + t.M[0][2] * d.z,
+                   t.M[1][0] * d.x + t.M[1][1] * d.y + t.M[1][2] * d.z,
+                   t.M[2][0] * d.x + t.M[2][1] * d.y + t.M[2][2] * d.z};
+    normalize3(v);
+    if (t.scale < 0.0) {
+        v[0] = -v[0];
+        v[1] = -v[1];
+        v[2] = -v[2];
+    }
+    return {v[0], v[1], v[2]};
+}
+}  // namespace
+
+void Geometry::transform(const double m[3][4])
+{
+    Trsf t = setValues(m);
+    double as = std::fabs(t.scale);
+    switch (kind) {
+        case Point:
+            p = apply(t, p);
+            break;
+        case LineSegment: {
+            // Geom_TrimmedCurve::Transform: the line's location and direction, the trims times |scale|
+            // (Geom_Line::TransformedParameter)
+            p = apply(t, p);
+            V3 d = applyDir(t, V3 {dir.x, dir.y, 0.0});
+            dir = {d.x, d.y};
+            u1 *= as;
+            u2 *= as;
+        } break;
+        case Circle:
+        case ArcOfCircle: {
+            // The circle here keeps the X direction (1, 0): a turn of its frame moves the trims instead.
+            V3 d = applyDir(t, V3 {1.0, 0.0, 0.0});
+            double turn = std::atan2(d.y, d.x);
+            p = apply(t, p);
+            r *= as;
+            if (kind == ArcOfCircle) {
+                u1 += turn;
+                u2 += turn;
+            }
+        } break;
+        case Ellipse:
+        case ArcOfEllipse:
+        case ArcOfHyperbola:
+        case ArcOfParabola: {
+            // Geom_Conic::Transform: gp_Ax2 (location and directions), the radii or focal times |scale|
+            Vec l = apply(t, Vec {pos.loc.x, pos.loc.y});
+            pos.loc = V3 {l.x, l.y, 0.0};
+            pos.n = applyDir(t, pos.n);
+            pos.vx = applyDir(t, pos.vx);
+            pos.vy = applyDir(t, pos.vy);
+            majR *= as;
+            minR *= as;
+            focal *= as;
+        } break;
+        case BSplineCurve:
+            // Geom_BSplineCurve::Transform: every pole
+            for (auto& q : bsp.poles) {
+                q = apply(t, q);
+            }
+            break;
+    }
+}
+
 double Geometry::closestParameter(Vec point) const
 {
     // GeomCurve::closestParameter: GeomAPI_ProjectPointOnCurve(point, curve)'s
@@ -1102,7 +1262,16 @@ int Sketch::setUpSketch(
     }
     reserveParams(count);
 
-    // (Group and Text constraints, whose geometry the solver ignores, are not ported.)
+    // The geometries that are in groups are going to be ignored by the solver.
+    std::set<int> inGroupGeoIds;
+    for (const auto& c : ConstraintList) {
+        if (c->Type == Group || c->Type == Text) {
+            // Start from index 1, as 0 is the frame.
+            for (int i = 1; c->hasElement(i); ++i) {
+                inGroupGeoIds.insert(c->getGeoId(i));
+            }
+        }
+    }
 
     std::vector<Geometry> intGeoList, extGeoList;
     std::copy(GeoList.begin(), GeoList.end() - extGeoCount, std::back_inserter(intGeoList));
@@ -1121,7 +1290,7 @@ int Sketch::setUpSketch(
 
     buildInternalAlignmentGeometryMap(ConstraintList);
 
-    addGeometry(intGeoList, onlyBlockedGeometry);
+    addGeometry(intGeoList, onlyBlockedGeometry, inGroupGeoIds);
     int extStart = Geoms.size();
     addGeometry(extGeoList, true);
     int extEnd = Geoms.size() - 1;
@@ -1131,6 +1300,22 @@ int Sketch::setUpSketch(
 
     // The Geoms list might be empty after an undo/redo
     if (!Geoms.empty()) {
+        // Disable any constraint that act on geometries that are in a group.
+        for (size_t i = 0; i < ConstraintList.size(); ++i) {
+            const auto& c = ConstraintList[i];
+
+            if (c->Type == Group || c->Type == Text) {
+                continue;
+            }
+
+            for (int j = 0; c->hasElement(j); ++j) {
+                if (inGroupGeoIds.count(c->getGeoId(j))) {
+                    unenforceableConstraints[i] = true;
+                    break;
+                }
+            }
+        }
+
         addConstraints(ConstraintList, unenforceableConstraints);
     }
     clearTemporaryConstraints();
@@ -1439,6 +1624,29 @@ int Sketch::addGeometry(const std::vector<Geometry>& geos, const std::vector<boo
     auto bit = blockedGeometry.begin();
     for (auto it = geos.begin(); it != geos.end() && bit != blockedGeometry.end(); ++it, ++bit) {
         ret = addGeometry(*it, *bit);
+    }
+    return ret;
+}
+
+int Sketch::addGeometry(
+    const std::vector<Geometry>& geos,
+    const std::vector<bool>& blockedGeometry,
+    const std::set<int>& inGroupGeoIds
+)
+{
+    int ret = -1;
+    int geoIdCounter = 0;
+    auto bit = blockedGeometry.begin();
+    for (auto it = geos.begin(); it != geos.end() && bit != blockedGeometry.end(); ++it, ++bit, ++geoIdCounter) {
+        // Check if the current geometry is in group: kept, but not given to the solver.
+        if (inGroupGeoIds.count(geoIdCounter)) {
+            GeoDef def;
+            def.geo = *it;
+            Geoms.push_back(def);
+        }
+        else {
+            ret = addGeometry(*it, *bit);
+        }
     }
     return ret;
 }
@@ -2730,9 +2938,19 @@ int Sketch::addConstraint(const Constraint* constraint)
                 c.driving
             );
         } break;
-        // (Group and Text are not ported: malformed here)
         case Text:
-        case Group:
+        case Group: {
+            if (constraint->isElementsEmpty()) {
+                return -1;
+            }
+            // Check that the first element is correctly the group construction line
+            if (Geoms[checkGeoId(constraint->getGeoId(0))].type != Line) {
+                return -1;
+            }
+
+            rtn = ++ConstraintsCounter;
+            break;
+        }
         case Sketcher::None:   // ambiguous enum value
         case Sketcher::Block:  // handled separately while adding geometry
         case NumConstraintTypes:
@@ -4740,13 +4958,181 @@ bool Sketch::updateNonDrivingConstraints()
 
 GCS::SolveStatus Sketch::solve()
 {
-    // (captureGroupStates/applyGroupTransformations act on Group/Text constraints only, which are
-    // not ported.)
+    captureGroupStates();
+
     std::string solvername;
 
     auto result = internalSolve(solvername);
 
+    if (result == GCS::SolveStatus::Success) {
+        applyGroupTransformations();
+    }
+
     return result;
+}
+
+// Group functions related -------------------------------------------------
+
+Sketch::GroupLineState Sketch::getGroupLineState(int geoId) const
+{
+    GroupLineState state;
+    state.startPoint = getPoint(geoId, PointPos::start);
+    state.endPoint = getPoint(geoId, PointPos::end);
+    return state;
+}
+
+void Sketch::captureGroupStates()
+{
+    preSolveGroupStates.clear();
+
+    for (const auto& constrDef : Constrs) {
+        const Constraint* c = constrDef.constr;
+
+        if ((c->Type != Group && c->Type != Text) || !c->hasElement(1)) {
+            continue;
+        }
+
+        // --- Capture Frame State ---
+        int frameGeoId = c->getGeoId(0);
+        preSolveGroupStates[frameGeoId] = getGroupLineState(frameGeoId);
+    }
+}
+
+namespace
+{
+// Base::Matrix4D, as much of it as applyGroupTransformations uses: identity by default, operator*, rotLine
+struct Mat4
+{
+    double d[4][4] = {{1, 0, 0, 0}, {0, 1, 0, 0}, {0, 0, 1, 0}, {0, 0, 0, 1}};
+    Mat4 operator*(const Mat4& m) const
+    {
+        Mat4 r;
+        for (int i = 0; i < 4; i++) {
+            for (int j = 0; j < 4; j++) {
+                r.d[i][j] = 0;
+                for (int e = 0; e < 4; e++) {
+                    r.d[i][j] += d[i][e] * m.d[e][j];
+                }
+            }
+        }
+        return r;
+    }
+    // Matrix4D::rotLine(vec, fAngle)
+    void rotLine(V3 a, double fAngle)
+    {
+        double len = std::sqrt(a.x * a.x + a.y * a.y + a.z * a.z);  // Vector3d::Normalize
+        if (len != 0.0 && len != 1.0) {
+            a.x /= len;
+            a.y /= len;
+            a.z /= len;
+        }
+        double fcos = std::cos(fAngle), fsin = std::sin(fAngle);
+        double A[3][3] = {{(1 - fcos) * a.x * a.x, (1 - fcos) * a.x * a.y, (1 - fcos) * a.x * a.z},
+                          {(1 - fcos) * a.x * a.y, (1 - fcos) * a.y * a.y, (1 - fcos) * a.y * a.z},
+                          {(1 - fcos) * a.x * a.z, (1 - fcos) * a.y * a.z, (1 - fcos) * a.z * a.z}};
+        double B[3][3] = {{fcos, 0, 0}, {0, fcos, 0}, {0, 0, fcos}};
+        double C[3][3] = {{0, -fsin * a.z, fsin * a.y}, {fsin * a.z, 0, -fsin * a.x}, {-fsin * a.y, fsin * a.x, 0}};
+        Mat4 rot;
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                rot.d[i][j] = A[i][j] + B[i][j] + C[i][j];
+            }
+        }
+        *this = rot * *this;
+    }
+};
+}  // namespace
+
+void Sketch::applyGroupTransformations()
+{
+    if (preSolveGroupStates.empty()) {
+        return;
+    }
+
+    for (const auto& constrDef : Constrs) {
+        const Constraint* c = constrDef.constr;
+        if ((c->Type != Group && c->Type != Text) || !c->hasElement(1)) {
+            continue;
+        }
+
+        int frameGeoId = c->getGeoId(0);
+
+        // Get the "before" and "after" states of the frame line
+        GroupLineState preSolveFrame = preSolveGroupStates.at(frameGeoId);
+        GroupLineState postSolveFrame = getGroupLineState(frameGeoId);
+
+        // --- Calculate the Transformation ---
+        V3 preVec {preSolveFrame.endPoint.x - preSolveFrame.startPoint.x,
+                   preSolveFrame.endPoint.y - preSolveFrame.startPoint.y, 0.0};
+        V3 postVec {postSolveFrame.endPoint.x - postSolveFrame.startPoint.x,
+                    postSolveFrame.endPoint.y - postSolveFrame.startPoint.y, 0.0};
+        auto length = [](const V3& v) { return std::sqrt(v.x * v.x + v.y * v.y + v.z * v.z); };
+
+        // Handle potential zero-length lines to avoid division by zero
+        double preLen = length(preVec);
+        double scale = (preLen > 1e-7) ? length(postVec) / preLen : 1.0;  // Precision::Confusion()
+
+        // 1. T1: Matrix to translate the group to the origin (using pre-solve start point)
+        Mat4 T1;
+        T1.d[0][3] = -preSolveFrame.startPoint.x;
+        T1.d[1][3] = -preSolveFrame.startPoint.y;
+        T1.d[2][3] = 0;
+
+        // 2. S: Matrix for scaling
+        Mat4 S;
+        S.d[0][0] = scale;
+        S.d[1][1] = scale;
+        S.d[2][2] = scale;
+
+        // 3. R: Matrix for rotation
+        Mat4 R;
+        if (preLen > 1e-7) {
+            // We can get the axis and angle from the two vectors and use rotLine (Vector3d::Cross, GetAngle)
+            V3 axis {preVec.y * postVec.z - preVec.z * postVec.y, preVec.z * postVec.x - preVec.x * postVec.z,
+                     preVec.x * postVec.y - preVec.y * postVec.x};
+            double angle;
+            double len1 = length(preVec), len2 = length(postVec);
+            if (len1 <= DBL_EPSILON || len2 <= DBL_EPSILON) {
+                angle = std::numeric_limits<double>::quiet_NaN();
+            }
+            else {
+                double dot = preVec.x * postVec.x + preVec.y * postVec.y + preVec.z * postVec.z;
+                dot /= len1;
+                dot /= len2;
+                angle = dot <= -1.0 ? std::numbers::pi : dot >= 1.0 ? 0.0 : std::acos(dot);
+            }
+            // Only apply rotation if the vectors are not collinear
+            if (length(axis) > 1e-7) {
+                R.rotLine(axis, angle);
+            }
+        }
+
+        // 4. T2: Matrix to translate the group to its new final position
+        Mat4 T2;
+        T2.d[0][3] = postSolveFrame.startPoint.x;
+        T2.d[1][3] = postSolveFrame.startPoint.y;
+        T2.d[2][3] = 0;
+
+        // 5. Combine the matrices in the correct order: T_final = T2 * R * S * T1
+        Mat4 transform = T2 * R * S * T1;
+        double m[3][4];
+        for (int i = 0; i < 3; ++i) {
+            for (int j = 0; j < 4; ++j) {
+                m[i][j] = transform.d[i][j];
+            }
+        }
+
+        // --- Loop through grouped elements and apply the transform ---
+        for (int i = 1; c->hasElement(i); ++i) {
+            int groupedGeoId = c->getGeoId(i);
+            if (groupedGeoId == GeoEnum::GeoUndef) {
+                continue;
+            }
+            Geoms[checkGeoId(groupedGeoId)].geo.transform(m);
+        }
+    }
+
+    preSolveGroupStates.clear();
 }
 
 GCS::SolveStatus Sketch::internalSolve(std::string& solvername, int level)

@@ -14,7 +14,7 @@
 // lines and circles, Newton's method on a sampling for the conics). The fillet is FreeCAD's between two lines; its
 // moves (moveGeometry with updateGeoBeforeMoving) go to the solver through `move`.
 import type { Geo, XY } from './solver'
-import { type Constraint, type PointPos, NONE, START, END, MID, GEO_UNDEF, H_AXIS, V_AXIS, constraint, getPoint, coincidentPoints } from './sketch'
+import { type Constraint, type PointPos, NONE, START, END, MID, GEO_UNDEF, H_AXIS, V_AXIS, constraint, getPoint, coincidentPoints, elementsOf, mapGeoIds } from './sketch'
 import * as CV from './sketchcurves'
 import type { Kernel } from './sketchkernel'
 
@@ -36,8 +36,8 @@ const projectToLine = (p: XY, d: XY): XY => { const t = dot(p, d) / dot(d, d); r
 const clone = (c: Constraint): Constraint => ({ ...c })
 
 // ── constraints' elements (Constraint.cpp, with the legacy First/Second/Third) ──────────────────────────────────
-const elements = (c: Constraint): [number, PointPos][] => [[c.first, c.firstPos], [c.second, c.secondPos], [c.third, c.thirdPos]]
-export const involvesGeoId = (c: Constraint, g: number) => c.first === g || c.second === g || c.third === g
+const elements = (c: Constraint): [number, PointPos][] => elementsOf(c)
+export const involvesGeoId = (c: Constraint, g: number) => elements(c).some(([eg]) => eg === g)
 export const involvesGeoIdAndPosId = (c: Constraint, g: number, p: PointPos) => elements(c).some(([eg, ep]) => eg === g && ep === p)
 function substituteIndex(c: Constraint, from: number, to: number) {
   if (c.first === from) c.first = to
@@ -340,8 +340,7 @@ function afterDeletingGeo(c: Constraint, deleted: number): Constraint | null {
   if (involvesGeoId(c, deleted)) return null
   const n = clone(c)
   const fix = (g: number) => (deleted >= 0 ? (g > deleted ? g - 1 : g) : (g < deleted && g !== GEO_UNDEF ? g + 1 : g))
-  n.first = fix(n.first); n.second = fix(n.second); n.third = fix(n.third)
-  return n
+  return mapGeoIds(n, fix)
 }
 /** SketchObject::delGeometriesExclusiveList. */
 export function delGeometriesExclusive(d: Doc, ids: number[]) {

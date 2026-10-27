@@ -1194,6 +1194,46 @@ Constraint parseConstraint(const Json& j)
     if (!type || type->kind != Json::String || !args || args->kind != Json::Array) {
         throw std::invalid_argument("a constraint object needs \"type\" and \"args\"");
     }
+    if (type->str == "Text" || type->str == "Group") {
+        // Sketcher.Constraint('Text', [GeoId, PosId, ...], text, font, isHeight) / ('Group', [...]):
+        // "args" is the element list (ConstraintPyImp's parseElementsList); the text and font are
+        // not the solver's business
+        if (args->items.size() % 2 != 0) {
+            throw std::invalid_argument(
+                "Element list must have an even number of items (pairs of GeoId, PosId).");
+        }
+        c.Type = type->str == "Text" ? Text : Group;
+        for (size_t i = 0; i < args->items.size(); i += 2) {
+            const Json& g = args->items[i];
+            const Json& p = args->items[i + 1];
+            if (g.kind != Json::Int || p.kind != Json::Int) {
+                throw std::invalid_argument("Element list items must be integers.");
+            }
+            c.Elements.emplace_back(static_cast<int>(g.integer), static_cast<PointPos>(p.integer));
+        }
+        // the legacy First/Second/Third are elements 0, 1 and 2
+        if (!c.Elements.empty()) {
+            c.First = c.Elements[0].first;
+            c.FirstPos = c.Elements[0].second;
+        }
+        if (c.Elements.size() > 1) {
+            c.Second = c.Elements[1].first;
+            c.SecondPos = c.Elements[1].second;
+        }
+        if (c.Elements.size() > 2) {
+            c.Third = c.Elements[2].first;
+            c.ThirdPos = c.Elements[2].second;
+        }
+        if (const Json* v = j.get("active")) {
+            c.isActive = v->kind == Json::Bool ? v->b : v->asDouble() != 0;
+        }
+        if (const Json* v = j.get("name")) {
+            if (v->kind == Json::String) {
+                c.Name = v->str;
+            }
+        }
+        return c;
+    }
     if (const Json* value = j.get("value")) {
         // {type, args, value}: the args are the geoIds and positions, the value goes last, a float
         std::vector<Json> items;

@@ -50,6 +50,7 @@ import type { Ref } from './pd_pick'
 import { deleteObjects, isObjectRef, partKey } from './part_wb'
 import { editSweep, isSweep, sweepChildren, sweepEntries, SweepProps, sweepUses, SWEEP_ICONS, SWEEP_KINDS } from './pd_sweep'
 import { OperationRow, StartReferenceRow, startRefProp, TaperRow, taperReadOnly, type StartRef } from './pd_kernel'
+import { isEnabled as isSketchCmdEnabled, runSketchCommand } from './sketchcmds'
 
 export const SKETCH = 'Sketcher::SketchObject', PAD = 'PartDesign::Pad', POCKET = 'PartDesign::Pocket'
 const ICON_OF: Record<string, IconName> = { [SKETCH]: 'pd-sketch', [PAD]: 'pd-pad', [POCKET]: 'pd-pocket',
@@ -1106,17 +1107,19 @@ export function ExtrudeTask({ kind, part, name, edit }: { kind: 'pad' | 'pocket'
 const later = 'not yet: the PartDesign features after Pad and Pocket come later (docs/EDITING_PLAN.md, step 5)'
 const soon = (label: string, icon: IconName, cmd: string): Entry => ({ label, icon, cmd, disabled: true, title: later })
 const hasDoc = () => !!getState().slug
+/** The Sketcher's commands on sketch objects (sketchobjcmds.tsx), as the Sketch menu's entries. */
+const skObj = (cmd: string) => ({ disabled: !isSketchCmdEnabled(cmd), onSelect: () => runSketchCommand(cmd) })
 /** The "&Sketch" menu, entry by entry as the real FreeCAD 26.3 has it. */
 export function sketchMenu(): Entry[] {
   const s = getState(), one = s.featSel.length === 1 ? s.features[splitRef(s.featSel[0])[0]]?.features.find((f) => f.name === splitRef(s.featSel[0])[1]) : undefined
   return [
     { label: 'New Sketch', icon: 'pd-new-sketch', cmd: 'PartDesign_NewSketch', disabled: !hasDoc(), onSelect: () => void newSketch() },
     { label: 'Edit Sketch', icon: 'pd-edit-sketch', cmd: 'Sketcher_EditSketch', disabled: one?.type !== SKETCH, onSelect: () => editFeature(s.featSel[0]) },
-    { label: 'Attach Sketch', icon: 'pd-map-sketch', cmd: 'Sketcher_MapSketch', disabled: true, title: 'not yet: a sketch\'s support is set when it is made, or with `cad feature set`' },
-    { label: 'Reorient Sketch', icon: 'pd-reorient-sketch', cmd: 'Sketcher_ReorientSketch', disabled: true, title: 'not yet: comes with the Sketcher' },
-    { label: 'Validate Sketch', icon: 'pd-validate-sketch', cmd: 'Sketcher_ValidateSketch', disabled: true, title: 'not yet: comes with the Sketcher' },
-    { label: 'Merge Sketches', icon: 'pd-merge-sketch', cmd: 'Sketcher_MergeSketches', disabled: true, title: 'not yet: comes with the Sketcher' },
-    { label: 'Mirror Sketch', icon: 'pd-mirror-sketch', cmd: 'Sketcher_MirrorSketch', disabled: true, title: 'not yet: comes with the Sketcher' },
+    { label: 'Attach Sketch', icon: 'pd-map-sketch', cmd: 'Sketcher_MapSketch', ...skObj('Sketcher_MapSketch') },
+    { label: 'Reorient Sketch', icon: 'pd-reorient-sketch', cmd: 'Sketcher_ReorientSketch', ...skObj('Sketcher_ReorientSketch') },
+    { label: 'Validate Sketch', icon: 'pd-validate-sketch', cmd: 'Sketcher_ValidateSketch', ...skObj('Sketcher_ValidateSketch') },
+    { label: 'Merge Sketches', icon: 'pd-merge-sketch', cmd: 'Sketcher_MergeSketches', ...skObj('Sketcher_MergeSketches') },
+    { label: 'Mirror Sketch', icon: 'pd-mirror-sketch', cmd: 'Sketcher_MirrorSketch', ...skObj('Sketcher_MirrorSketch') },
   ]
 }
 /** The "&Part Design" menu, entry by entry as the real FreeCAD 26.3 has it (the WizardShaft entry is there when its Python
