@@ -611,7 +611,12 @@ function Spin({ value, min, max, step, dec, suffix, prefix, special, left, quant
   const input = useRef<HTMLInputElement>(null)
   useEffect(() => { if (!focus) setText(show(value)) }, [value, focus, dec, suffix, prefix]) // eslint-disable-line react-hooks/exhaustive-deps
   const clamp = (v: number) => Math.min(max, Math.max(min, v))
-  const num = (t: string) => { const n = Number(t.replace(suffix.trim(), '').replace(prefix, '').replace(',', '.').trim()); return Number.isFinite(n) && t.trim() !== '' ? n : null }
+  // (a quantity spin box takes a unit after the number, whatever suffix it shows: "3 mm" in a box that shows "3.00")
+  const num = (t: string) => {
+    const bare = quantity ? t.replace(/\s*(mm|cm|m|in|deg|°)\s*$/i, '') : t
+    const n = Number(bare.replace(suffix.trim(), '').replace(prefix, '').replace(',', '.').trim())
+    return Number.isFinite(n) && t.trim() !== '' ? n : null
+  }
   const commit = (v: number) => { const c = Math.round(clamp(v) * 10 ** dec) / 10 ** dec; if (c !== value) onSet?.(c as never); return c }
   const stepBy = (n: number) => { const c = commit(value + n * step); setText(show(c)) }
   const hold = useRef<number>(0)

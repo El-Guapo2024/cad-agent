@@ -30,6 +30,7 @@ import { cls, EditRow, Group, Row } from './panels'
 import { messageBox } from './msgbox'
 import type { Entry } from './chrome'
 import { TD_CMDS } from './techdraw_cmds'
+import { annotActions } from './techdraw_annot'
 import { TD_PROPS, type TdProp } from './techdraw_props'
 import './techdraw.css'
 
@@ -43,7 +44,9 @@ export type TdResult = { page: string | null; width: number; height: number; tem
   views: Record<string, TdView>; dimensions: Record<string, TdDim>; sections: Record<string, unknown>; errors: Record<string, string> }
 export type TdDoc = { project: string; page: string; objects: TdObj[]; tree: TdRow[]; result?: TdResult; svg?: string }
 
-type Mode = { kind: 'balloon'; page: string; view: string } | null
+type Mode = { kind: 'balloon'; page: string; view: string }
+  /** TaskCosVertex's tracker: the next click on the page (mm from the lower left, y up) is handed to onPick */
+  | { kind: 'pick'; page: string; view: string; onPick: (p: [number, number]) => void } | null
 type TdState = { pages: string[]; docs: Record<string, TdDoc>; sel: string[]; pre: string | null; mode: Mode; frames: boolean
   /** a task panel's preview of a page (a dry run): the page drawn as the panel's values would leave it */
   preview: Record<string, TdDoc> }
@@ -107,12 +110,12 @@ export async function loadTechDraw() {
 
 /** `cad techdraw apply`: the ops as one undo step named as FreeCAD's transaction. With dryRun the page as the ops would
  *  leave it, nothing written (a task panel's preview, setTd preview). */
-export async function applyTd(page: string, ops: Record<string, unknown>[], name?: string, dryRun = false): Promise<TdDoc | null> {
+export async function applyTd(page: string, ops: Record<string, unknown>[], name?: string, dryRun = false, amend = false): Promise<TdDoc | null> {
   const s = getState()
   if (!s.slug) return null
-  if (!dryRun && s.scriptToPyConsole) consoleLog('in', `cad techdraw apply ${s.slug} ${page} --ops '${JSON.stringify(ops)}'${name ? ` --name '${name}'` : ''}`)
+  if (!dryRun && s.scriptToPyConsole) consoleLog('in', `cad techdraw apply ${s.slug} ${page} --ops '${JSON.stringify(ops)}'${name ? ` --name '${name}'` : ''}${amend ? ' --amend' : ''}`)
   try {
-    const r = await http('POST', `/api/${enc(s.slug)}/techdraw/${enc(page)}`, { ops, ...(name ? { name } : {}), ...(dryRun ? { dry_run: true } : {}) })
+    const r = await http('POST', `/api/${enc(s.slug)}/techdraw/${enc(page)}`, { ops, ...(name ? { name } : {}), ...(dryRun ? { dry_run: true } : {}), ...(amend ? { amend: true } : {}) })
     if (r.exit !== 0) { if (!dryRun) report('err', `${name ?? 'TechDraw'}: ${resultText(r)}`); return null }
     const doc = (r.data?.doc ?? null) as unknown as TdDoc | null
     if (!doc) return null
@@ -371,6 +374,7 @@ function actions(): Record<string, [() => void, boolean]> {
     TechDraw_LengthDimension: dim('Distance'), TechDraw_HorizontalDimension: dim('DistanceX'), TechDraw_VerticalDimension: dim('DistanceY'),
     TechDraw_RadiusDimension: dim('Radius'), TechDraw_DiameterDimension: dim('Diameter'), TechDraw_AngleDimension: dim('Angle'),
     TechDraw_3PtAngleDimension: dim('Angle3Pt'),
+    ...annotActions(c.havePage && c.haveView),
     TechDraw_Balloon: [() => balloon(), c.havePage && c.haveView && !getState().task], TechDraw_Annotation: [() => void annotation(), c.havePage],
     // ToggleFrame's isActive: Preferences > TechDraw > View Frames set to Manual, which a fresh profile is not
     TechDraw_ToggleFrame: [() => setTd((s) => ({ frames: !s.frames })), false],
@@ -601,6 +605,11 @@ export const TechDrawPage: FC<IDockviewPanelProps<PageParams>> = (props) => {
     const d = drag.current
     drag.current = null
     if (!d) return
+    if (mode?.kind === 'pick' && mode.page === page && !d.moved) {
+      const [px, py] = pagePoint(ev.clientX, ev.clientY)
+      mode.onPick([px, py])
+      return
+    }
     if (mode?.kind === 'balloon' && mode.page === page && !d.moved) {
       // QGVPage's balloon placing: the click is where the balloon points, on the view the command was given
       const v = doc?.result?.views[mode.view]
@@ -641,7 +650,7 @@ export const TechDrawPage: FC<IDockviewPanelProps<PageParams>> = (props) => {
   if (!doc) return <div className="td-page empty">Loading {page}…</div>
   return (
     <div className="td-page">
-      <div ref={box} className={cls('td-scene', mode?.kind === 'balloon' && 'placing')} onPointerDown={onDown} onPointerMove={onMove} onPointerUp={(ev) => void onUp(ev)}
+      <div ref={box} className={cls('td-scene', (mode?.kind === 'balloon' || mode?.kind === 'pick') && 'placing')} onPointerDown={onDown} onPointerMove={onMove} onPointerUp={(ev) => void onUp(ev)}
         onPointerLeave={() => setTd({ pre: null })} onWheel={onWheel} onDoubleClick={onDouble} onContextMenu={(ev) => ev.preventDefault()}
         onKeyDown={(ev) => { if (ev.key === 'Escape') setTd({ mode: null }) }} tabIndex={0}>
         <div className="td-sheet" style={{ transform: `translate(${view.x}px, ${view.y}px) scale(${view.k})` }}>
