@@ -274,3 +274,38 @@ case("cylinders_intersection_moving", {"plate": PLATE, "tee": TEE}, [("Plate", "
      ["Plate"], [joint("Fixed", ("Plate", ["Face6", "Vertex8"]), ("Tee", ["Face1", "Edge4"]))])
 case("cylinders_intersection_ball", {"plate": PLATE, "tee": TEE}, [("Plate", "plate", None), ("Tee", "tee", T)],
      ["Plate"], [joint("Ball", ("Plate", ["Vertex8", "Vertex8"]), ("Tee", ["Face5", "Edge1"]))])
+
+# ── sub-assemblies: an Assembly::AssemblyLink to the Assembly of another document ("subs": that document's case, made,
+#    solved and saved first). Its children are named here as FreeCAD names them (the parent's Plate makes the
+#    sub-assembly's Plate "Plate001"); a reference into a rigid link is (link, ["Child.Face5", ...]).
+#    {"op": "insert_assembly", "sub": doc, "rigid": bool, "placement": (x, y, z)}   Insert Component of an Assembly
+#    {"op": "set_rigid", "link": name, "value": bool}                              Turn rigid / Turn flexible
+SUB = {"parts": {"plate": PLATE, "pin": PIN}, "components": [("Plate", "plate", None), ("Pin", "pin", T)],
+       "ground": ["Plate"], "steps": [joint("Revolute", ("Plate", ["Face6", "Face6"]), ("Pin", ["Face3", "Edge1"]))]}
+
+
+def sub_case(name, steps, rigid=True):
+    CASES[name] = {"parts": {"box10": BOX10}, "components": [("Plate", "box10", None)], "ground": ["Plate"],
+                   "subs": {"Sub": SUB},
+                   "steps": [{"op": "insert_assembly", "sub": "Sub", "rigid": rigid, "placement": (50.0, 0.0, 0.0)}]
+                   + steps}
+
+
+sub_case("subasm_rigid_inserted", [])
+sub_case("subasm_rigid_fixed",
+         [joint("Fixed", ("Plate", ["Face6", "Face6"]), ("Assembly001", ["Plate001.Face5", "Plate001.Face5"]))])
+sub_case("subasm_rigid_revolute_on_child",
+         [joint("Revolute", ("Plate", ["Face6", "Vertex8"]), ("Assembly001", ["Pin.Face2", "Pin.Edge1"]))])
+sub_case("subasm_rigid_move", [{"op": "move", "link": "Assembly001", "placement": T2}])
+sub_case("subasm_flexible_inserted", [], rigid=False)
+sub_case("subasm_flexible_fixed",
+         [joint("Fixed", ("Plate", ["Face6", "Face6"]), ("Plate001", ["Face5", "Face5"]))], rigid=False)
+sub_case("subasm_flexible_move_child", [
+    joint("Fixed", ("Plate", ["Face6", "Face6"]), ("Plate001", ["Face5", "Face5"])),
+    {"op": "move", "link": "Pin", "placement": T3},
+], rigid=False)
+sub_case("subasm_turn_flexible_and_back", [
+    joint("Fixed", ("Plate", ["Face6", "Face6"]), ("Assembly001", ["Plate001.Face5", "Plate001.Face5"])),
+    {"op": "set_rigid", "link": "Assembly001", "value": False},
+    {"op": "set_rigid", "link": "Assembly001", "value": True},
+])

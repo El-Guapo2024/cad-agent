@@ -141,6 +141,26 @@ def tree(objs) -> list:
             rows.append({"name": o.name, "label": o.label or o.name, "type": "App::Link", "depth": 1,
                          "linked_object": o.linked_object, "grounded": o.name in grounded,
                          "icon": "Assembly_AssemblyLink"})
+        elif isinstance(o, W.AssemblyLink):
+            # ViewProviderAssemblyLink: its icon says rigid or flexible; under it a flexible link's JointGroup (the
+            # copies of the sub-assembly's joints), then the children
+            rows.append({"name": o.name, "label": o.label or o.name, "type": "Assembly::AssemblyLink", "depth": 1,
+                         "linked_object": o.linked_object, "rigid": o.rigid, "grounded": o.name in grounded,
+                         "icon": "Assembly_AssemblyLinkRigid" if o.rigid else "Assembly_AssemblyLink"})
+            if not o.rigid:
+                rows.append({"name": f"{o.name}.Joints", "label": "Joints", "type": "Assembly::JointGroup",
+                             "depth": 2, "icon": "Assembly_JointGroup", "parent": o.name})
+                for copy, src in o.joints:
+                    rows.append({"name": copy, "label": copy, "type": "Joint", "depth": 3, "parent": f"{o.name}.Joints",
+                                 "icon": "Assembly_CreateJointFixed", "source": src, "copy": True})
+            for child, src in o.components:
+                rows.append({"name": child, "label": child, "type": "App::Link", "depth": 2, "parent": o.name,
+                             "source": src, "grounded": child in grounded, "icon": "Assembly_AssemblyLink",
+                             "component": not o.rigid})
+    for r in rows:                           # each row's parent row, for the tree's expanding and collapsing
+        if "parent" not in r:
+            r["parent"] = (None if r["depth"] == 0 else "Assembly" if r["depth"] == 1 else
+                           "Origin" if r["type"] in ("App::Line", "App::Plane", "App::Point") else "Joints")
     return rows
 
 
@@ -163,11 +183,43 @@ def solved(pdir) -> dict:
     if ondsel.available():
         doc.recompute()                     # AssemblyObject::execute: SolveOnRecompute
     out.update(_solved_of(doc))
+    _refine_tree(out)
     return out
+
+
+def _refine_tree(out: dict):
+    """The tree's sub-assembly rows as the loaded document has them: the children's Labels, the joint copies' types."""
+    copies, labels = out.get("copy_rows") or {}, out.get("child_labels") or {}
+    for r in out.get("tree", []):
+        if r.get("copy") and r["name"] in copies:
+            r.update(copies[r["name"]])
+        elif "source" in r and r["name"] in labels:
+            r["label"] = labels[r["name"]]
 
 
 def _solved_of(doc) -> dict:
     out = {}
+    # the bodies the Assembly shows and what each is: the component a pick on it moves (a rigid sub-assembly for its
+    # children), the sub-assembly it is in, its part and project
+    leaves = []
+    for name, _shape, _plc in doc.leaves():
+        if name in doc.child_of:
+            lname, src = doc.child_of[name]
+            link = doc.get(lname)
+            sub = doc.subs[lname]
+            leaves.append({"name": name, "label": doc.label_of(name), "moving": name if not link.rigid else lname,
+                           "link": lname, "source": src, "part": sub.get(src).linked_object, "project": sub.project})
+        else:
+            leaves.append({"name": name, "label": doc.label_of(name), "moving": name, "link": None,
+                           "part": doc.get(name).linked_object, "project": doc.document})
+    out["leaves"] = leaves
+    out["solver_parts"] = doc.solver_parts()
+    # the copies of a flexible sub-assembly's joints, as the tree and the property view show them
+    out["copies"] = [W.as_dict(j) for js in doc.sub_joints.values() for j in js]
+    out["copy_rows"] = {j.name: {"label": j.label or j.name, "joint_type": j.joint_type,
+                                 "icon": f"Assembly_CreateJoint{j.joint_type}", "suppressed": j.suppressed}
+                        for js in doc.sub_joints.values() for j in js}
+    out["child_labels"] = dict(doc.child_labels)
     out["placements"] = {n: W.placement_json(p) for n, p in doc.plc.items()}
     out["jcs"] = {n: {"placement1": W.placement_json(p1), "placement2": W.placement_json(p2),
                       "global1": W.placement_json(doc.global_jcs(doc.get(n), 0)),
@@ -327,14 +379,27 @@ def _get(doc, name, cls=None, what="object"):
 
 
 def _check_target(doc, r):
-    """A reference's moving part is a component, or the Assembly's Origin with one of its features (MakeJointSelGate
-    takes an App::Origin's datum elements)."""
+    """A reference's moving part is a component (a Link, a rigid sub-assembly with its child's name before the
+    element, a flexible one's child), or the Assembly's Origin with one of its features (MakeJointSelGate takes an
+    App::Origin's datum elements)."""
     if r[0] == doc.origin:
         if doc.resolve(r) is None:
             raise AssemblyEditError(f"{r[1][0]!r} is not a feature of the Assembly's Origin "
                                     f"({', '.join(n + '.' for n in W.ORIGIN_DATUMS)})")
         return
-    _get(doc, r[0], W.Link, "component")
+    if r[0] not in doc.solver_parts():
+        raise AssemblyEditError(f"there is no component {r[0]!r}")
+    if doc.resolve(r) is None:
+        o = doc.get(r[0])
+        raise AssemblyEditError(f"{r[0]} is a rigid sub-assembly: name one of its children before the element "
+                                f"({', '.join(c + '.Face1' for c in o.children())})")
+
+
+def _part(doc, name) -> str:
+    """A component of the solve: a Link, a rigid sub-assembly, a flexible one's child."""
+    if name not in doc.solver_parts():
+        raise AssemblyEditError(f"there is no component {name!r}")
+    return name
 
 
 def _ref(v, where):
@@ -356,7 +421,26 @@ def run_ops(doc: W.AssemblyDocument, ops, slug: str, part_names=None, hand_parts
         if not isinstance(op, dict) or "op" not in op:
             raise AssemblyEditError(f"op {k} is not an edit: {op!r}")
         kind = op["op"]
-        if kind == "insert":
+        if kind == "insert" and op.get("assembly"):
+            # Insert Component of another project's Assembly: an AssemblyLink (assembly_link.py)
+            from . import assembly_link as AL
+            project = op["assembly"]
+            if project == slug:
+                raise AssemblyEditError("an Assembly cannot be inserted into itself")
+            name = op.get("name")
+            if name is not None:
+                _check_name(doc, name, "object")
+            try:
+                source = doc.sources.get(project) or AL.load_source(project)
+                link = AL.insert_assembly_link(doc, project, source, name=name, rigid=op.get("rigid", True),
+                                               placement=op.get("placement"), ground_first=op.get("ground_first", True))
+            except (W.AssemblyError, FileNotFoundError) as e:
+                raise AssemblyEditError(str(e)) from None
+            doc.sources[project] = source
+            doc.recompute()
+            done.append(f"inserted {link.name} (Assembly::AssemblyLink to {project}'s Assembly, "
+                        f"{'rigid' if link.rigid else 'flexible'})")
+        elif kind == "insert":
             part = op.get("part")
             if part_names is not None and part not in part_names:
                 raise AssemblyEditError(f"there is no part {part!r} in the project (parts: {', '.join(part_names)})")
@@ -420,6 +504,21 @@ def run_ops(doc: W.AssemblyDocument, ops, slug: str, part_names=None, hand_parts
                     except (W.AssemblyError, ValueError) as e:
                         raise AssemblyEditError(str(e)) from None
                 doc.recompute()
+            elif isinstance(o, W.AssemblyLink):
+                from . import assembly_link as AL
+                for key, v in props.items():
+                    if key == "rigid":
+                        AL.set_rigid(doc, o, v)
+                    elif key == "placement":
+                        if not o.rigid:
+                            raise AssemblyEditError(f"{o.name} is flexible: its Placement stays the identity")
+                        doc.plc[o.name] = W.to_placement(v)
+                    elif key == "label":
+                        o.label = v
+                    else:
+                        raise AssemblyEditError(f"{key} is not a property the app sets on an AssemblyLink "
+                                                "(rigid, placement, label)")
+                doc.recompute()
             elif isinstance(o, W.RigidGroupJoint):
                 for key, v in props.items():
                     if key == "objects_to_rigid_group":
@@ -455,10 +554,10 @@ def run_ops(doc: W.AssemblyDocument, ops, slug: str, part_names=None, hand_parts
             doc.accept(j)
             done.append(f"reversed {j.name}")
         elif kind == "ground":
-            c = _get(doc, op.get("name"), W.Link, "component")
-            g = W.toggle_grounded(doc, c.name)
+            name = _part(doc, op.get("name"))
+            g = W.toggle_grounded(doc, name)
             doc.recompute()
-            done.append(f"grounded {c.name}" if g else f"{c.name} no longer grounded")
+            done.append(f"grounded {name}" if g else f"{name} no longer grounded")
         elif kind == "rigid":
             parts = list(op.get("parts") or [])
             for n in parts:
@@ -477,25 +576,35 @@ def run_ops(doc: W.AssemblyDocument, ops, slug: str, part_names=None, hand_parts
             doc.recompute()
             done.append(f"stored the positions of {g.name}")
         elif kind == "move":
-            c = _get(doc, op.get("name"), W.Link, "component")
-            if c.name in doc.grounded():
-                raise AssemblyEditError(f"{c.name} is grounded: its Placement is read-only")
-            doc.plc[c.name] = W.to_placement(op.get("placement"))
+            name = _part(doc, op.get("name"))
+            if name in doc.grounded():
+                raise AssemblyEditError(f"{name} is grounded: its Placement is read-only")
+            doc.plc[name] = W.to_placement(op.get("placement"))
             doc.recompute()
-            done.append(f"moved {c.name}")
+            done.append(f"moved {name}")
         elif kind == "drag":
             for n, p in (op.get("placements") or {}).items():
-                _get(doc, n, W.Link, "component")
-                doc.plc[n] = W.to_placement(p)
+                doc.plc[_part(doc, n)] = W.to_placement(p)
             done.append("dragged " + ", ".join(op.get("placements") or {}))
         elif kind == "solve":
             out = doc.solve(True)
-            done.append(f"solved: {W.solver_message(out, len(doc.components()))['text'].strip()}")
+            done.append(f"solved: {W.solver_message(out, len(doc.solver_parts()))['text'].strip()}")
         elif kind == "delete":
             o = _get(doc, op.get("name"))
+            if o not in doc.objects:
+                raise AssemblyEditError(f"{o.name} is a copy of a joint of the sub-assembly: change it in its project")
             gone = [o]
-            if isinstance(o, W.Link):
-                gone += [x for x in doc.objects if isinstance(x, (W.Joint, W.GroundedJoint)) and o.name in x.references()]
+            if isinstance(o, (W.Link, W.AssemblyLink)):
+                # the component, and its children for a sub-assembly, take their joints and GroundedJoints with them
+                names = {o.name} | (set(o.children()) if isinstance(o, W.AssemblyLink) else set())
+                gone += [x for x in doc.objects if isinstance(x, (W.Joint, W.GroundedJoint)) and names & set(x.references())]
+                if isinstance(o, W.AssemblyLink):
+                    for c in o.children():
+                        doc.child_of.pop(c, None)
+                        doc.child_plc.pop(c, None)
+                        doc.plc.pop(c, None)
+                    doc.sub_joints.pop(o.name, None)
+                    doc.subs.pop(o.name, None)
             for x in gone:
                 doc.objects.remove(x)
                 doc.jcs.pop(x.name, None)
@@ -530,9 +639,37 @@ def run_ops(doc: W.AssemblyDocument, ops, slug: str, part_names=None, hand_parts
             o = _get(doc, op.get("name"))
             o.label = op.get("to") or None
             done.append(f"labelled {o.name} {o.label!r}")
+        elif kind == "new_part":
+            # Assembly_InsertNewPart: an empty App::Link "Link" (the panel's first reference, the whole of it: its
+            # origin), the Fixed joint to the element picked when there is one, then createPart: parts/<Part>.py
+            from . import assembly_newpart as NP
+            pname = op.get("name") or "Part"
+            if not NAME.match(pname):
+                raise AssemblyEditError(f"{pname!r} is not a part name (letters, digits and _)")
+            taken = list(part_names or []) + [Path(f).stem for f in doc.new_files]
+            if pname in taken:
+                raise AssemblyEditError(f"there is already a part {pname!r} (parts/{pname}.py)")
+            lname = W.unique_name(doc.all_names(), "Link")
+            link = W.Link(lname, pname, label=pname)
+            doc.objects.insert(len(doc.component_entries()), link)
+            doc.shapes[pname] = NP.empty_shape()
+            doc.plc[lname] = W.Placement()
+            ref = _ref(op.get("ref"), "ref")
+            j = None
+            if ref is not None:
+                _check_target(doc, ref)
+                props = dict(op.get("props") or {})
+                reverse = props.pop("reverse", False)
+                try:
+                    j = W.create_joint(doc, op.get("type") or "Fixed", (lname, ["", ""]), ref, props, reverse=reverse)
+                except W.AssemblyError as e:
+                    raise AssemblyEditError(str(e)) from None
+            doc.new_files[f"parts/{pname}.py"] = NP.part_source(pname)
+            doc.recompute()
+            done.append(f"made parts/{pname}.py and {lname} (App::Link to it)" + (f", {j.name} at its origin" if j else ""))
         else:
             raise AssemblyEditError(f"{kind!r} is not an assembly edit (new, insert, joint, set, edit, reverse, "
-                                    "ground, rigid, update_rigid, move, drag, solve, delete, rename, label)")
+                                    "ground, rigid, update_rigid, move, drag, solve, delete, rename, label, new_part)")
     return done
 
 
@@ -564,10 +701,14 @@ def apply(pdir, ops, write: bool = True) -> dict:
     if not write:
         out = read_src(new, slug)
         out.update(_solved_of(doc))
+        _refine_tree(out)
         out["done"] = done
         return out
+    for rel, text in doc.new_files.items():       # a part a command made (New Part): written before the Assembly
+        state.write_atomic(pdir / rel, text)
     if new != src:
         state.write_atomic(path, new)
     out = solved(pdir) if objects_of(new) else read(pdir)
     out["done"] = done
+    out["new_files"] = sorted(doc.new_files)
     return out

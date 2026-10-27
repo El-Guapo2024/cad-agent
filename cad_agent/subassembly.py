@@ -512,6 +512,15 @@ def _scan(path: str, mtime_ns: int, size: int) -> tuple[tuple, bool]:
               and node.value.func.value.id == NAME):
             whole = False                   # SUBASSEMBLIES.update(...)
             continue
+        elif (isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute) and node.func.attr == "AssemblyLink"
+              and isinstance(node.func.value, ast.Name) and node.func.value.id == "Assembly"):
+            # an Assembly's sub-assembly (assembly_link.py): Assembly.AssemblyLink(name, "project", ...)
+            arg = node.args[1] if len(node.args) > 1 else next((k.value for k in node.keywords if k.arg == "linked_object"), None)
+            if isinstance(arg, ast.Constant) and isinstance(arg.value, str):
+                names.append(arg.value)
+            else:
+                whole = False
+            continue
         else:
             continue
         for target in targets:

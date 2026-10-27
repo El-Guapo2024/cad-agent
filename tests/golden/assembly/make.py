@@ -81,10 +81,31 @@ class Capture:
         self.f.close()
 
 
+def links_of(asm):
+    """{Name: object} of the Assembly's components and sub-assemblies, and of each AssemblyLink's children."""
+    out = {}
+    for o in asm.Group:
+        if o.TypeId in ("App::Link", "Assembly::AssemblyLink"):
+            out[o.Name] = o
+        if o.TypeId == "Assembly::AssemblyLink":
+            out.update({c.Name: c for c in o.Group if c.TypeId == "App::Link"})
+    return out
+
+
+def joint_groups(asm):
+    """The Assembly's JointGroup, then each flexible AssemblyLink's (its copies of the sub-assembly's joints)."""
+    out = [g for g in asm.Group if g.TypeId == "Assembly::JointGroup"]
+    for o in asm.Group:
+        if o.TypeId == "Assembly::AssemblyLink":
+            out += [g for g in o.Group if g.TypeId == "Assembly::JointGroup"]
+    return out
+
+
 def state(asm, jg, links):
     joints = {}
     rigid = {}
-    for j in jg.Group:
+    links = links_of(asm)
+    for j in [x for g in joint_groups(asm) for x in g.Group]:
         if hasattr(j, "ObjectsToRigidGroup"):
             rigid[j.Name] = {"label": j.Label, "members": [o.Name for o in j.ObjectsToRigidGroup],
                              "rigid_placements": [plc_json(p) for p in j.RigidPlacements], "suppressed": j.Suppressed}
@@ -106,6 +127,11 @@ def state(asm, jg, links):
     out = {"placements": {n: plc_json(l.Placement) for n, l in links.items()}, "joints": joints}
     if rigid:
         out["rigid_groups"] = rigid
+    subs = {o.Name: {"rigid": o.Rigid, "children": [c.Name for c in o.Group if c.TypeId == "App::Link"],
+                     "labels": [c.Label for c in o.Group if c.TypeId == "App::Link"]}
+            for o in asm.Group if o.TypeId == "Assembly::AssemblyLink"}
+    if subs:
+        out["assembly_links"] = subs
     return out
 
 
@@ -115,8 +141,16 @@ def accept(asm, joint):
     asm.recompute(True)
 
 
-def run(name, c):
-    doc = App.newDocument("Unnamed")
+SAVED = tempfile.mkdtemp(prefix="asmgold")     # an AssemblyLink links a saved document from a saved one
+
+
+def run(name, c, docname="Unnamed"):
+    subs = {}
+    for sname, sc in c.get("subs", {}).items():
+        # the sub-assembly: its own document, made and solved as a case is, then saved
+        sub = run(sname, sc, docname=sname)
+        subs[sname] = sub
+    doc = App.newDocument(docname)
     App.setActiveDocument(doc.Name)
     sources = {}
     for pname, objs in c["parts"].items():
@@ -141,9 +175,12 @@ def run(name, c):
         doc.recompute()
     out = {"names": {n: l.Name for n, l in links.items()}, "steps": []}
 
+    if docname != "Unnamed" or subs:
+        doc.saveAs(os.path.join(SAVED, f"{docname}.FCStd"))
+
     def target(name):
-        """A reference's moving part: a component, or the Assembly's Origin (a pick on one of its features)."""
-        return asm.Origin if name == "Origin" else links[name]
+        """A reference's moving part: a component, a sub-assembly or its child, or the Assembly's Origin."""
+        return asm.Origin if name == "Origin" else doc.getObject(name)
     for step in c["steps"]:
         with Capture() as cap:
             if step["op"] == "joint":
@@ -173,7 +210,23 @@ def run(name, c):
                 j.Proxy.flipOnePart(j)
                 accept(asm, j)
             elif step["op"] == "move":
-                links[step["link"]].Placement = plc(step["placement"])
+                doc.getObject(step["link"]).Placement = plc(step["placement"])
+                doc.recompute()
+            elif step["op"] == "insert_assembly":
+                # TaskAssemblyInsertLink.accept for an Assembly: an AssemblyLink named after its Label, LinkedObject,
+                # recomputed, placed, then Rigid from "Rigid sub-assemblies"; the document recomputed at the end
+                sub_asm = App.getDocument(step["sub"]).getObject("Assembly")
+                al = asm.newObject("Assembly::AssemblyLink", sub_asm.Label)
+                al.LinkedObject = sub_asm
+                al.Label = sub_asm.Label
+                al.recompute()
+                if step.get("placement"):
+                    al.Placement.Base = V(*step["placement"])
+                al.Rigid = step.get("rigid", True)
+                doc.recompute()
+            elif step["op"] == "set_rigid":
+                # ViewProviderAssemblyLink's Turn rigid / Turn flexible ("Toggle Rigid"), then a recompute
+                doc.getObject(step["link"]).Rigid = step["value"]
                 doc.recompute()
             elif step["op"] == "rigid":
                 # CommandCreateJointRigidGroup.Activated: createJointRigidGroupJoint(parts), then the recompute
@@ -201,7 +254,10 @@ def run(name, c):
         asm.exportAsASMT(path)
     out["asmt"] = Path(path).read_text()
     os.remove(path)
-    App.closeDocument(doc.Name)
+    out["subs"] = subs
+    if docname == "Unnamed":
+        for d in list(App.listDocuments()):
+            App.closeDocument(d)
     return out
 
 

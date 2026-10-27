@@ -9,12 +9,15 @@ the transaction:
     cad assembly new     SLUG                              Assembly_CreateAssembly ("New assembly")
     cad assembly insert  SLUG PART [--name N] [--at X,Y,Z] [--no-ground]
                                                            Assembly_InsertLink ("Insert Component")
+    cad assembly insert  SLUG PROJECT --assembly [--flexible]  another project's Assembly as a sub-assembly
     cad assembly joint   SLUG TYPE COMP:ELEMENT[:VERTEX] COMP:ELEMENT[:VERTEX] [KEY=VALUE ...] [--reverse]
                                                            Assembly_CreateJoint<TYPE> ("Create <Type> Joint")
     cad assembly set     SLUG NAME KEY=VALUE ...           a joint's or a component's properties
     cad assembly reverse SLUG JOINT                        the joint panel's Reverse
     cad assembly ground  SLUG COMP                         Assembly_ToggleGrounded ("Toggle grounded")
     cad assembly rigid   SLUG COMP COMP ... [--name N]     Assembly_CreateJointRigidGroup ("Create Rigid Group")
+    cad assembly new-part SLUG [NAME] [--at COMP:ELEMENT[:VERTEX]]
+                                                           Assembly_InsertNewPart (parts/NAME.py, its origin fixed there)
     cad assembly update-rigid SLUG GROUP                   a suppressed rigid group's "Update Stored Positions"
     cad assembly move    SLUG COMP --at X,Y,Z [--ypr Y,P,R]   a component's Placement, then a recompute
     cad assembly solve   SLUG                              Assembly_SolveAssembly
@@ -42,7 +45,7 @@ from .cmdbase import OK, Result, UsageError, actor, pairs, project
 KEYS = {"distance", "distance2", "angle", "offset1", "offset2", "detach1", "detach2", "enable_length_min",
         "enable_length_max", "enable_angle_min", "enable_angle_max", "length_min", "length_max", "angle_min",
         "angle_max", "suppressed", "label", "joint_type", "placement", "reference1", "reference2", "visibility",
-        "objects_to_rigid_group"}
+        "objects_to_rigid_group", "rigid"}
 
 
 def _ref(text: str):
@@ -84,6 +87,8 @@ def step_name(ops: list, before: dict) -> str:
         return f"Edit {label} Joint"
     if kind == "ground":
         return "Toggle grounded"
+    if kind == "new_part":                      # TaskAssemblyNewPart is a joint panel: its transaction is the joint's
+        return f"Create {op.get('type') or 'Fixed'} Joint"
     if kind == "rigid":
         return "Create Rigid Group"
     if kind == "update_rigid":
@@ -108,12 +113,19 @@ def _status_lines(doc: dict) -> list[str]:
     for row in doc.get("tree", []):
         ind = "  " * (row["depth"] + 1)
         extra = ""
-        if row["type"] == "App::Link":
+        if row["type"] == "App::Link" and "source" in row:          # a sub-assembly's child
+            p = (doc.get("placements") or {}).get(row["name"])
+            at = "" if p is None else "  at (" + ", ".join(f"{c:.6g}" for c in p["base"]) + ")"
+            extra = f"  -> {row['source']} of the sub-assembly" + (" (grounded)" if row.get("grounded") else "") + at
+        elif row["type"] == "App::Link":
             p = (doc.get("placements") or {}).get(row["name"])
             at = "" if p is None else "  at (" + ", ".join(f"{c:.6g}" for c in p["base"]) + ")"
             extra = f"  -> parts/{row['linked_object']}.py" + (" (grounded)" if row.get("grounded") else "") + at
+        elif row["type"] == "Assembly::AssemblyLink":
+            extra = (f"  -> {row['linked_object']}/assembly.py's Assembly, " + ("rigid" if row.get("rigid") else "flexible")
+                     + (" (grounded)" if row.get("grounded") else ""))
         elif row["type"] == "Joint":
-            extra = f"  {row['joint_type']}" + (" (suppressed)" if row.get("suppressed") else "")
+            extra = f"  {row.get('joint_type', '')}" + (" (suppressed)" if row.get("suppressed") else "") + (" (a copy)" if row.get("copy") else "")
         elif row["type"] == "GroundedJoint":
             extra = f"  grounds {row['object_to_ground']}"
         elif row["type"] == "RigidGroupJoint":
@@ -136,6 +148,7 @@ def apply_ops(a, ops: list, cmd: str, step: str | None = None) -> Result:
     path = pdir / E.FILE
     before_text = path.read_text() if path.exists() else None
     before = E.read(pdir)
+    parts_before = set((pdir / "parts").glob("*.py")) if (pdir / "parts").is_dir() else set()
     try:
         doc = E.apply(pdir, ops)
     except (ValueError, KeyError) as e:          # all or nothing: the file is as it was
@@ -145,11 +158,14 @@ def apply_ops(a, ops: list, cmd: str, step: str | None = None) -> Result:
             path.unlink(missing_ok=True)
         else:
             path.write_text(before_text)
+        for p in (set((pdir / "parts").glob("*.py")) if (pdir / "parts").is_dir() else set()) - parts_before:
+            p.unlink(missing_ok=True)            # a part a command made goes too (New Part)
         raise UsageError(f"the assembly did not build: {st.why(e)}") from None
     after_text = path.read_text() if path.exists() else None
     name = step or step_name(ops, before)
     from . import undo as un
-    un.record(pdir, name, cmd, [{"path": E.FILE, "before": before_text, "after": after_text}], by=actor(a))
+    changes = [{"path": rel, "before": None, "after": (pdir / rel).read_text()} for rel in doc.get("new_files", [])]
+    un.record(pdir, name, cmd, changes + [{"path": E.FILE, "before": before_text, "after": after_text}], by=actor(a))
     lines = [f"{a.slug}: {name}"] + [f"  {d}" for d in doc.get("done", [])] + _status_lines(doc)
     data = {"project": a.slug, "step": name, "doc": doc, "file": str(path)}
     return Result(OK, data, "\n".join(lines), f"{a.slug}: {name}", [str(path)])
@@ -181,14 +197,17 @@ def cmd_new(a) -> Result:
 
 def cmd_insert(a) -> Result:
     op = {"op": "insert", "part": a.part}
+    if getattr(a, "assembly", False):          # another project's Assembly: an AssemblyLink (a sub-assembly)
+        op = {"op": "insert", "assembly": a.part, "rigid": not a.flexible}
     if a.name:
         op["name"] = a.name
     if a.at:
         op["placement"] = [_triple(a.at, "--at"), [0.0, 0.0, 0.0]]
     if a.no_ground:
         op["ground_first"] = False
-    words = [a.part] + (["--name", a.name] if a.name else []) + (["--at", a.at] if a.at else []) + \
-        (["--no-ground"] if a.no_ground else [])
+    words = [a.part] + (["--assembly"] if getattr(a, "assembly", False) else []) + \
+        (["--flexible"] if getattr(a, "flexible", False) else []) + (["--name", a.name] if a.name else []) + \
+        (["--at", a.at] if a.at else []) + (["--no-ground"] if a.no_ground else [])
     return apply_ops(a, [op], _cmd(a, *words))
 
 
@@ -225,6 +244,14 @@ def cmd_reverse(a) -> Result:
 
 def cmd_ground(a) -> Result:
     return apply_ops(a, [{"op": "ground", "name": a.name}], _cmd(a, a.name))
+
+
+def cmd_new_part(a) -> Result:
+    op = {"op": "new_part", "name": a.name}
+    if a.at:
+        op["ref"] = _ref(a.at)
+    words = [a.name] + (["--at", a.at] if a.at else [])
+    return apply_ops(a, [op], _cmd(a, *words))
 
 
 def cmd_rigid(a) -> Result:
@@ -310,7 +337,7 @@ def cmd_jcs(a) -> Result:
         return Result(OK, data, f"Origin.{sub}: JCS at (0, 0, 0)", f"Origin.{sub}")
     link = next((o for o in objs if isinstance(o, W.Link) and o.name == a.comp), None)
     if link is None:
-        raise UsageError(f"there is no component {a.comp!r}")
+        return _jcs_in_sub_assembly(a, objs)
     solid, _ = st.build_part(a.slug, link.linked_object)
     shape = solid.wrapped
     plc = W.to_placement(link.placement)
@@ -325,6 +352,33 @@ def cmd_jcs(a) -> Result:
     data = {"component": a.comp, "subs": [a.element, vertex], "placement": W.placement_json(jcs),
             "global": W.placement_json(g), **J.element_geometry(shape, a.element)}
     text = (f"{a.comp}.{a.element} at {vertex}: JCS at (" + ", ".join(f"{c:.6g}" for c in g.pos) + "), z " +
+            "(" + ", ".join(f"{c:.6g}" for c in g.rot.mult_vec((0, 0, 1))) + ")")
+    return Result(OK, data, text, text)
+
+
+def _jcs_in_sub_assembly(a, objs) -> Result:
+    """cmd_jcs for a sub-assembly's body: a flexible one's child (a component here), or a rigid one, whose element
+    names the child first ("Plate001.Face5"); the vertex found in the child's shape, the JCS in its frame."""
+    from . import assembly_jcs as J
+    from . import assembly_wb as W
+    doc = W.load(a.slug, objs)
+    r = doc.resolve((a.comp, (a.element, a.element)))
+    if r is None or r.shape is None:
+        raise UsageError(f"there is no component {a.comp!r}" if a.comp not in doc.solver_parts() else
+                         f"{a.comp} is a rigid sub-assembly: name its child first ({a.comp} Child.Face1)")
+    prefix, elem = (a.element.rsplit(".", 1)[0] + ".", a.element.rsplit(".", 1)[1]) if "." in a.element else ("", a.element)
+    obj_global = r.part_plc if r.obj is None else r.part_plc * r.obj
+    if a.vertex:
+        vertex = a.vertex.rsplit(".", 1)[-1]
+    else:
+        at = _triple(a.at, "--at") if a.at else J.center_of_gravity(J.sub_shape(J.placed(r.shape, obj_global), elem))
+        vertex = J.find_element_closest_vertex(r.shape, obj_global, elem, at)
+    jcs = J.find_placement(r.shape, r.frame, [elem, vertex], a.type == "Distance")
+    g = obj_global * jcs
+    subs = [prefix + elem, prefix + vertex]
+    data = {"component": a.comp, "subs": subs, "placement": W.placement_json(jcs), "global": W.placement_json(g),
+            **J.element_geometry(r.shape, elem)}
+    text = (f"{a.comp}.{subs[0]} at {subs[1]}: JCS at (" + ", ".join(f"{c:.6g}" for c in g.pos) + "), z " +
             "(" + ", ".join(f"{c:.6g}" for c in g.rot.mult_vec((0, 0, 1))) + ")")
     return Result(OK, data, text, text)
 
@@ -364,6 +418,10 @@ def add_parsers(add, sub) -> None:
     sp.add_argument("--name", help="the component's Name (default: the part's, made unique)")
     sp.add_argument("--at", metavar="X,Y,Z", help="where it goes, mm")
     sp.add_argument("--no-ground", action="store_true", help="do not ground the first component (GroundFirstPart No)")
+    sp.add_argument("--assembly", action="store_true", help="PART is another project: its Assembly goes in as a "
+                    "sub-assembly (Assembly::AssemblyLink)")
+    sp.add_argument("--flexible", action="store_true", help="with --assembly: a flexible sub-assembly (its joints "
+                    "solved here) instead of a rigid one")
     sp = one("joint", cmd_joint, "Assembly_CreateJoint: TYPE and two picks, comp:Element[:Vertex] (arm:Face3:Edge2)")
     sp.add_argument("type", help="Fixed, Revolute, Cylindrical, Slider, Ball, Distance, Parallel, Perpendicular, "
                     "Angle, RackPinion, Screw, Gears, Belt")
@@ -379,6 +437,10 @@ def add_parsers(add, sub) -> None:
     sp.add_argument("name")
     sp = one("ground", cmd_ground, "Assembly_ToggleGrounded")
     sp.add_argument("name")
+    sp = one("new-part", cmd_new_part, "Assembly_InsertNewPart: a new part file (a Body with a sketch) linked in, its "
+             "origin fixed to an element")
+    sp.add_argument("name", nargs="?", default="Part", help="the part's name (default Part)")
+    sp.add_argument("--at", metavar="COMP:ELEMENT[:VERTEX]", help="where its origin goes: a Fixed joint to that element")
     sp = one("rigid", cmd_rigid, "Assembly_CreateJointRigidGroup: lock two or more components together")
     sp.add_argument("parts", nargs="+", metavar="COMP")
     sp.add_argument("--name", help="the group's Name (default RigidGroupJoint, RigidGroupJoint001, ...)")

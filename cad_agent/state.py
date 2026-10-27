@@ -253,7 +253,8 @@ def load_machine(slug: str, placed: bool = True, describe: bool = True):
         raise TypeError("assembly.py POSES must be {name: {...}}, one dict for each named pose")
     machine = bodies.Assembly(
         slug=slug, parts=parts, clearance=dict(getattr(mod, "CLEARANCE", {})),
-        allow_contact=set(getattr(mod, "ALLOW_CONTACT", set())), axes=load_axes(mod), poses=dict(poses))
+        allow_contact=set(getattr(mod, "ALLOW_CONTACT", set())), axes=load_axes(mod), poses=dict(poses),
+        bodies=dict(getattr(parts, "bodies", None) or {}))   # an Assembly's sub-assembly bodies (assembly_wb.Parts)
     declared = getattr(mod, "SUBASSEMBLIES", None)
     if declared:
         from .cmdbase import NotBuilt, resolve

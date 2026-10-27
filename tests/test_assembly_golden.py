@@ -26,16 +26,23 @@ POS_TOL = 1e-6           # mm
 ROT_TOL = 1e-8           # quaternion components (q and -q are the same rotation)
 
 
-def replay(c):
+def replay(c, document="Unnamed"):
+    from cad_agent import assembly_link as AL
     from cad_agent import assembly_wb as W
     from cad_agent import feature_part as Part
+    subs = {}
+    for sname, sc in c.get("subs", {}).items():
+        # the sub-assembly's own document, made and solved as a case is: what the AssemblyLink links
+        sdoc, _, _ = replay(sc, document=sname)
+        sdoc.write_back()
+        subs[sname] = AL.SubSource(sname, sdoc.objects, sdoc.shapes)
     shapes = {}
     for pname, objs in c["parts"].items():
         shapes[pname] = Part.evaluate(objs, {})[objs[-1].name]
     objects = [W.Link(n, p, placement=pl) for n, p, pl in c["components"]]
     objects += [W.GroundedJoint("GroundedJoint" if i == 0 else f"GroundedJoint{i:03d}", g)
                 for i, g in enumerate(c["ground"])]
-    doc = W.AssemblyDocument(objects, shapes)
+    doc = W.AssemblyDocument(objects, shapes, document=document, subs=subs)
     doc.recompute()
     steps = []
     for step in c["steps"]:
@@ -64,6 +71,14 @@ def replay(c):
         elif op == "update_rigid":
             W.update_stored_positions(doc, doc.get(step["joint"]))
             doc.recompute()
+        elif op == "insert_assembly":
+            AL.insert_assembly_link(doc, step["sub"], subs[step["sub"]], rigid=step.get("rigid", True),
+                                    placement=(step.get("placement") or (0.0, 0.0, 0.0), (0.0, 0.0, 0.0)),
+                                    ground_first=False)
+            doc.recompute()
+        elif op == "set_rigid":
+            AL.set_rigid(doc, doc.get(step["link"]), step["value"])
+            doc.recompute()
         steps.append(state(doc))
     final = doc.solve()
     return doc, steps, final
@@ -85,9 +100,18 @@ def state(doc):
     rigid = {g.name: {"label": g.label or g.name, "members": list(g.objects_to_rigid_group),
                       "rigid_placements": [plc_list(W.to_placement(p)) for p in g.rigid_placements],
                       "suppressed": g.suppressed} for g in doc.rigid_groups()}
-    out = {"placements": {n: plc_list(p) for n, p in doc.plc.items()}, "joints": joints}
+    placements = {n: plc_list(p) for n, p in doc.plc.items()}
+    for o in doc.asm_links():                  # a flexible link's Placement is the identity, a rigid one's children
+        if not o.rigid:                        # the sources' placements
+            placements[o.name] = plc_list(W.Placement())
+        placements.update({c: plc_list(p) for c, p in doc.child_plc.items() if doc.child_of[c][0] == o.name})
+    out = {"placements": placements, "joints": joints}
     if rigid:
         out["rigid_groups"] = rigid
+    links = {o.name: {"rigid": o.rigid, "children": o.children(), "labels": [doc.child_labels[c] for c in o.children()]}
+             for o in doc.asm_links()}
+    if links:
+        out["assembly_links"] = links
     return out
 
 
@@ -115,6 +139,10 @@ def diff_state(ours, theirs, where):
         for k in ("placement1", "placement2"):
             if not same_plc(mine[k], j[k]):
                 out.append(f"{where} {n}.{k} {fmt(mine[k])} != FreeCAD {fmt(j[k])}")
+    for n, a in theirs.get("assembly_links", {}).items():
+        mine = ours.get("assembly_links", {}).get(n)
+        if mine != a:
+            out.append(f"{where} {n} {mine!r} != FreeCAD {a!r}")
     for n, g in theirs.get("rigid_groups", {}).items():
         mine = ours.get("rigid_groups", {}).get(n)
         if mine is None:

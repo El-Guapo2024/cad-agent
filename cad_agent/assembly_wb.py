@@ -299,7 +299,8 @@ class AssemblyDocument:
     jcs[joint] is each joint's (Placement1, Placement2), recomputed from the references as updateJCSPlacements
     does unless the joint is detached."""
 
-    def __init__(self, objects, shapes: dict, document: str = "Unnamed", origin: str = "Origin"):
+    def __init__(self, objects, shapes: dict, document: str = "Unnamed", origin: str = "Origin", subs=None):
+        from . import assembly_link as AL
         self.objects = list(objects)
         self.shapes = dict(shapes)
         self.document = document
@@ -311,6 +312,23 @@ class AssemblyDocument:
         self.last = None            # the last solve's result
         self._presolve_backup = {}  # Joint.partsMovedByPresolved, per joint
         self._previous = []         # AssemblyObject::previousPositions (solve(storePrev))
+        # sub-assemblies (assembly_link.py): each AssemblyLink's linked Assembly (SubSource, by the link's name), its
+        # children (child -> (link, source component)), a rigid link's children's placements in it, the children's
+        # Labels, a flexible link's joint copies
+        self.subs, self.child_of, self.child_plc, self.child_labels, self.sub_joints = {}, {}, {}, {}, {}
+        self.sources = dict(subs or {})          # {project: SubSource}
+        self.new_files = {}                      # {path in the project: text}: files a command made (New Part)
+        for o in self.asm_links():
+            src = self.sources.get(o.linked_object)
+            if src is None:
+                raise AssemblyError(f"{o.name}: its sub-assembly {o.linked_object!r} is not loaded")
+            self.subs[o.name] = src
+            if o.rigid:
+                self.plc[o.name] = to_placement(o.placement)
+            else:
+                for c, p in o.placements:
+                    self.plc[c] = to_placement(p)
+            AL.update_contents(self, o)          # AssemblyLink::onDocumentRestored
         # AssemblyObject::rigidPlacementCache: each active rigid group member's placement at the last solve. A
         # document read from its file starts where that solve left it, so the members' placements are the cache
         # (a member moved before the next solve then drags the others: syncActiveRigidGroupPlacements)
@@ -323,8 +341,43 @@ class AssemblyDocument:
     def components(self) -> list[Link]:
         return [o for o in self.objects if isinstance(o, Link)]
 
+    def asm_links(self) -> list:
+        from .assembly_link import AssemblyLink
+        return [o for o in self.objects if isinstance(o, AssemblyLink)]
+
+    def component_entries(self) -> list:
+        """The Assembly's Group's components as the file lists them: App::Links and AssemblyLinks."""
+        from .assembly_link import AssemblyLink
+        return [o for o in self.objects if isinstance(o, (Link, AssemblyLink))]
+
+    def solver_parts(self) -> list[str]:
+        """getAssemblyComponents: the components in the Group's order, a rigid sub-assembly as one, a flexible one's
+        children in its place (collectComponentsRecursively)."""
+        out = []
+        for o in self.component_entries():
+            if isinstance(o, Link) or o.rigid:
+                out.append(o.name)
+            else:
+                out += o.children()
+        return out
+
+    def label_of(self, name) -> str:
+        o = self.get(name)
+        if o is not None:
+            return getattr(o, "label", None) or o.name
+        return self.child_labels.get(name, name)
+
+    def all_names(self) -> list[str]:
+        """Every Name in the document (for getUniqueObjectName): the objects', the sub-assemblies' children and joint
+        copies, the Assembly's own, its JointGroup's and its Origin's."""
+        out = ["Assembly", "Joints", self.origin] + list(ORIGIN_DATUMS)
+        out += [o.name for o in self.objects] + list(self.child_of)
+        out += [j.name for js in self.sub_joints.values() for j in js]
+        return out
+
     def joints(self) -> list[Joint]:
-        return [o for o in self.objects if isinstance(o, Joint)]
+        """getJoints(): the JointGroup's, then the flexible sub-assemblies' (subJoints)."""
+        return [o for o in self.objects if isinstance(o, Joint)] + [j for js in self.sub_joints.values() for j in js]
 
     def grounded_joints(self) -> list[GroundedJoint]:
         return [o for o in self.objects if isinstance(o, GroundedJoint)]
@@ -335,20 +388,30 @@ class AssemblyDocument:
     def labels(self) -> list[str]:
         """Every Label in the document: the objects', and the Assembly's own and its Origin's."""
         out = ["Assembly", "Joints", self.origin, "X_Axis", "Y_Axis", "Z_Axis", "XY_Plane", "XZ_Plane", "YZ_Plane"]
-        return out + [getattr(o, "label", None) or o.name for o in self.objects]
+        out += [getattr(o, "label", None) or o.name for o in self.objects] + list(self.child_labels.values())
+        return out + [j.label or j.name for js in self.sub_joints.values() for j in js]
 
     def get(self, name):
         for o in self.objects:
             if o.name == name:
                 return o
+        for js in self.sub_joints.values():
+            for j in js:
+                if j.name == name:
+                    return j
         return None
 
     def grounded(self) -> set:
         """The components whose Placement a GroundedJoint has made read-only."""
-        names = {c.name for c in self.components()}
+        names = set(self.solver_parts())
         return {g.object_to_ground for g in self.grounded_joints() if g.object_to_ground in names}
 
     def shape_of(self, comp: str):
+        """A component's part's shape at the origin: a Link's, or a sub-assembly child's (its source's part)."""
+        if comp in self.child_of:
+            lname, src = self.child_of[comp]
+            sub = self.subs[lname]
+            return sub.shapes[sub.get(src).linked_object]
         link = self.get(comp)
         if not isinstance(link, Link):
             raise AssemblyError(f"there is no component {comp!r}")
@@ -356,6 +419,21 @@ class AssemblyDocument:
             return self.shapes[link.linked_object]
         except KeyError:
             raise AssemblyError(f"{comp}: its part {link.linked_object!r} is not built") from None
+
+    def leaves(self) -> list:
+        """[(name, shape at the origin, global placement)] of every body the Assembly shows: its Links, and each
+        sub-assembly's children (a rigid link's at the link's placement times the child's)."""
+        out = []
+        for o in self.component_entries():
+            if isinstance(o, Link):
+                out.append((o.name, self.shape_of(o.name), self.plc[o.name]))
+            elif o.rigid:
+                for c in o.children():
+                    out.append((c, self.shape_of(c), self.plc[o.name] * self.child_plc[c]))
+            else:
+                for c in o.children():
+                    out.append((c, self.shape_of(c), self.plc[c]))
+        return out
 
     # ── what a reference names (UtilsAssembly.getObject, getGlobalPlacement) ──
     def resolve(self, ref) -> Resolved | None:
@@ -372,8 +450,15 @@ class AssemblyDocument:
                 return None
             return Resolved(comp, Placement(), Placement((0.0, 0.0, 0.0), Rotation(datum[1], normalize=False)), None, Placement(), first)
         o = self.get(comp)
-        if isinstance(o, Link):
+        if isinstance(o, Link) or (comp in self.child_of and comp in self.plc):
+            # a Link, or a flexible sub-assembly's child (a component of this Assembly)
             return Resolved(comp, self.plc[comp], None, self.shape_of(comp), self.plc[comp], None)
+        if o is not None and o.kind == "AssemblyLink" and o.rigid:
+            # getObject through a rigid sub-assembly: "Child.Face3" is the child's Face3, the JCS in the child's frame
+            if first not in o.children():
+                return None
+            c = self.child_plc[first]
+            return Resolved(comp, self.plc[comp], c, self.shape_of(first), c, None)
         return None
 
     # ── JointObject.Joint ──
@@ -588,7 +673,10 @@ class AssemblyDocument:
 
     def recompute(self):
         """assembly.recompute(True): each joint's execute (updateJCSPlacements), then AssemblyObject::execute's
-        solve (SolveOnRecompute)."""
+        solve (SolveOnRecompute). The sub-assemblies' AssemblyLinks recompute first (updateContents)."""
+        from . import assembly_link as AL
+        for o in self.asm_links():
+            AL.update_contents(self, o)
         for j in self.joints():
             self.update_jcs(j)
         return self.solve()
@@ -601,8 +689,8 @@ class AssemblyDocument:
     def solver_doc(self) -> dict:
         from . import assembly_jcs as J
         grounded = self.grounded()
-        parts = [{"name": c.name, "label": c.label or c.name, "placement": placement_json(self.plc[c.name]),
-                  "grounded": c.name in grounded} for c in self.components()]
+        parts = [{"name": n, "label": self.label_of(n), "placement": placement_json(self.plc[n]),
+                  "grounded": n in grounded} for n in self.solver_parts()]
         joints = []
         for j in self.joints():
             p1, p2 = self.jcs[j.name]
@@ -697,6 +785,13 @@ class AssemblyDocument:
         for c in self.components():
             p = self.plc[c.name]
             c.placement = None if is_identity(p) else placement_literal(p)
+        for o in self.asm_links():
+            if o.rigid:
+                p = self.plc[o.name]
+                o.placement, o.placements = (None if is_identity(p) else placement_literal(p)), ()
+            else:
+                o.placement = None
+                o.placements = tuple((c, placement_literal(self.plc[c])) for c in o.children())
         for j in self.joints():
             p1, p2 = self.jcs[j.name]
             j.placement1 = placement_literal(p1) if j.detach1 else None
@@ -706,12 +801,12 @@ class AssemblyDocument:
     def located(self) -> dict:
         """{component: its part's shape at its Placement} (a TopoDS_Shape each)."""
         from . import assembly_jcs as J
-        return {c.name: J.placed(self.shape_of(c.name), self.plc[c.name]) for c in self.components()}
+        return {n: J.placed(shape, plc) for n, shape, plc in self.leaves()}
 
     def status(self) -> dict:
         """ViewProviderAssembly::UpdateSolverInformation's message, from the last solve (the joints by Label)."""
-        labels = {o.name: (o.label or o.name) for o in self.objects}
-        return solver_message(self.last, len(self.components()), labels)
+        labels = {j.name: (j.label or j.name) for j in self.joints()}
+        return solver_message(self.last, len(self.solver_parts()), labels)
 
 
 def solver_message(out: dict | None, n_components: int, labels: dict | None = None) -> dict:
@@ -777,7 +872,7 @@ def create_joint(doc: AssemblyDocument, joint_type: str, ref1, ref2, props: dict
     the panel's values, accept."""
     if joint_type not in JOINT_TYPES:
         raise AssemblyError(f"{joint_type!r} is not a JointType")
-    names = [o.name for o in doc.objects]
+    names = doc.all_names()
     jname = name or unique_name(names, "Joint")
     taken = set(doc.labels())
     # createJointObject: Label = the type; then Joint(): JointType = JointTypes (the list, which selects Fixed)
@@ -808,14 +903,14 @@ def insert_link(doc: AssemblyDocument, part: str, shape, name: str | None = None
                 placement=None) -> Link:
     """Assembly_InsertLink for one part: an App::Link named after it; the first one of an ungrounded assembly
     grounded (GroundFirstPart answered Yes), as CommandCreateJoint.createGroundedJoint does."""
-    names = [o.name for o in doc.objects]
+    names = doc.all_names()
     lname = name or unique_name(names, part)
     link = Link(lname, part, placement=placement)
-    doc.objects.insert(len(doc.components()), link)
+    doc.objects.insert(len(doc.component_entries()), link)
     doc.shapes[part] = shape
     doc.plc[lname] = to_placement(placement)
-    if ground_first and len(doc.components()) == 1 and not doc.grounded():
-        doc.objects.append(GroundedJoint(unique_name([o.name for o in doc.objects], "GroundedJoint"), lname))
+    if ground_first and len(doc.component_entries()) == 1 and not doc.grounded():
+        doc.objects.append(GroundedJoint(unique_name(doc.all_names(), "GroundedJoint"), lname))
     return link
 
 
@@ -825,7 +920,7 @@ def toggle_grounded(doc: AssemblyDocument, comp: str):
         if g.object_to_ground == comp:
             doc.objects.remove(g)
             return None
-    g = GroundedJoint(unique_name([o.name for o in doc.objects], "GroundedJoint"), comp)
+    g = GroundedJoint(unique_name(doc.all_names(), "GroundedJoint"), comp)
     doc.objects.append(g)
     return g
 
@@ -892,7 +987,7 @@ def create_rigid_group(doc: AssemblyDocument, parts, name: str | None = None) ->
     if len(parts) < 2:
         doc.messages.append(("warning", "Select at least 2 components to create a rigid group"))
         return None
-    names = [o.name for o in doc.objects]
+    names = doc.all_names()
     gname = name or unique_name(names, "RigidGroupJoint")
     label = unique_name(set(doc.labels()), "RigidGroupJoint")
     g = RigidGroupJoint(gname, list(parts), label=label if label != gname else None)
@@ -904,15 +999,32 @@ def create_rigid_group(doc: AssemblyDocument, parts, name: str | None = None) ->
 
 # ── what assembly.py's parts() calls ──────────────────────────────────────────────────────────────────
 
+def empty_body(slug: str, part: str) -> bool:
+    """A part whose Body has no solid yet (a Sketch and nothing else, as Assembly_InsertNewPart makes it): scene.py's
+    _empty_body, which leaves it out of the scene too."""
+    from .scene import _empty_body
+    from .state import project_dir
+    return _empty_body(project_dir(slug) / "parts" / f"{part}.py")
+
+
 def load(slug: str, objects) -> AssemblyDocument:
     """The document of a project's ASSEMBLY, its parts built (state.build_part)."""
+    from .assembly_link import AssemblyLink, load_source
     from .state import build_part
-    shapes = {}
+    shapes, subs = {}, {}
     for o in objects:
         if isinstance(o, Link) and o.linked_object not in shapes:
+            if empty_body(slug, o.linked_object):
+                from .assembly_newpart import empty_shape
+                shapes[o.linked_object] = empty_shape()
+                continue
             solid, _ = build_part(slug, o.linked_object)
             shapes[o.linked_object] = solid.wrapped
-    return AssemblyDocument(objects, shapes, document=slug)
+        elif isinstance(o, AssemblyLink) and o.linked_object not in subs:
+            if o.linked_object == slug:
+                raise AssemblyError(f"{o.name}: an Assembly cannot link itself")
+            subs[o.linked_object] = load_source(o.linked_object)
+    return AssemblyDocument(objects, shapes, document=slug, subs=subs)
 
 
 def parts(slug: str, objects, solve: bool = True) -> dict:
@@ -925,14 +1037,46 @@ def parts(slug: str, objects, solve: bool = True) -> dict:
     if solve and ondsel.available() and doc.joints():
         doc.recompute()
     from .state import build_part
-    out = {}
-    for c in doc.components():
-        solid, _ = build_part(slug, c.linked_object)
-        p = doc.plc[c.name]
+    out = Parts()
+    for name, _shape, p in doc.leaves():
+        if name in doc.child_of:                 # a sub-assembly's child: its part is the linked project's
+            lname, src = doc.child_of[name]
+            project, part = doc.subs[lname].project, doc.subs[lname].get(src).linked_object
+        else:
+            project, part = slug, doc.get(name).linked_object
+        if empty_body(project, part):            # a Body before its first Pad (New Part): no solid to show
+            continue
+        solid, _ = build_part(project, part)
         loc = Location(p.trsf())
-        out[c.name] = solid.moved(loc) if hasattr(solid, "moved") else Compound(solid.wrapped).moved(loc)
+        out[name] = solid.moved(loc) if hasattr(solid, "moved") else Compound(solid.wrapped).moved(loc)
+        if project != slug:
+            out.linked[name] = (project, src)
     return out
+
+
+class Parts(dict):
+    """What parts() returns: {body: solid}, and for a sub-assembly's child the project and component it comes from
+    (linked), so the bodies are described as that project's (state.load_machine reads `bodies`)."""
+
+    def __init__(self, *a, **kw):
+        super().__init__(*a, **kw)
+        self.linked = {}
+
+    @property
+    def bodies(self) -> dict:
+        from dataclasses import replace
+        from . import bodies as B
+        out = {}
+        for name, (project, src) in self.linked.items():
+            info = B.describe(project, {src: self[name]})[src]
+            out[name] = replace(info, name=name)
+        return out
 
 
 def angle_of(p: Placement) -> float:
     return math.degrees(2 * math.acos(max(-1.0, min(1.0, p.rot.q[3]))))
+
+
+# AssemblyLink (assembly_link.py) is an ASSEMBLY entry too: Assembly.AssemblyLink(...) in assembly.py; the module
+# registers it here (CLASSES, and this module's AssemblyLink) whichever of the two is imported first
+from . import assembly_link  # noqa: E402,F401

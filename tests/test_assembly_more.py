@@ -131,3 +131,80 @@ def test_a_joint_on_the_assemblys_origin(proj, capsys):
     assert max(abs(a - b) for a, b in zip(z, (0, 0, 1))) < 1e-12
     code, data = run(capsys, "assembly", "joint", "asm", "Fixed", "Origin:XYZ_Plane", "bar:Face3")
     assert code != cli.OK and "not a feature of the Assembly's Origin" in str(data)
+
+
+def test_new_part_is_a_part_file_linked_with_its_origin_fixed(proj, capsys):
+    run(capsys, "assembly", "insert", "asm", "plate")
+    code, data = run(capsys, "assembly", "new-part", "asm", "--at", "plate:Face6:Vertex7")
+    assert code == cli.OK, data
+    assert data["step"] == "Create Fixed Joint"
+    src = (proj / "parts" / "Part.py").read_text()
+    assert 'Sketch("Sketch", support="XY", geometry=[Circle((0.0, 0.0), 5.0)]' in src
+    link = next(o for o in objs(proj) if isinstance(o, W.Link) and o.name == "Link")
+    assert link.linked_object == "Part" and link.label == "Part"
+    j = next(o for o in objs(proj) if isinstance(o, W.Joint))
+    assert j.joint_type == "Fixed" and j.reference2 == ("Link", ("", ""))      # the unconnected link second
+    p = W.to_placement(data["doc"]["placements"]["Link"])
+    assert max(abs(a - b) for a, b in zip(p.pos, (40, 30, 5))) < 1e-9, p.pos   # its origin on the plate's corner
+    code, data = run(capsys, "undo", "asm")                                      # one step takes both files back
+    assert code == cli.OK and not (proj / "parts" / "Part.py").exists()
+    code, data = run(capsys, "assembly", "new-part", "asm", "plate")
+    assert code != cli.OK and "already a part" in str(data)
+
+
+@pytest.fixture
+def sub(proj, capsys):
+    """A second project, "gantry", whose Assembly is a plate and a pin on a revolute: the sub-assembly."""
+    d = proj.parent / "gantry"
+    (d / "parts").mkdir(parents=True)
+    (d / "parts" / "plate.py").write_text(PART.format(name="plate", obj='Part.Box("Box", length=40, width=30, height=5)'))
+    (d / "parts" / "pin.py").write_text(PART.format(name="pin", obj='Part.Cylinder("Cylinder", radius=3, height=20)'))
+    run(capsys, "assembly", "insert", "gantry", "plate")
+    run(capsys, "assembly", "insert", "gantry", "pin", "--at", "30,5,2")
+    code, data = run(capsys, "assembly", "joint", "gantry", "Revolute", "plate:Face6", "pin:Face3:Edge1")
+    assert code == cli.OK, data
+    return d
+
+
+def test_a_rigid_sub_assembly(proj, sub, capsys):
+    run(capsys, "assembly", "insert", "asm", "plate")
+    code, data = run(capsys, "assembly", "insert", "asm", "gantry", "--assembly", "--at", "50,0,0")
+    assert code == cli.OK, data
+    link = next(o for o in objs(proj) if isinstance(o, W.AssemblyLink))
+    assert link.name == "Assembly001" and link.rigid and link.components == (("plate001", "plate"), ("pin", "pin"))
+    src = (proj / "assembly.py").read_text()
+    assert 'Assembly.AssemblyLink("Assembly001", "gantry", placement=((50.0, 0.0, 0.0), (0.0, 0.0, 0.0, 1.0))' in src
+    names = [x["name"] for x in data["doc"]["leaves"]]
+    assert names == ["plate", "plate001", "pin"]
+    assert data["doc"]["leaves"][2]["moving"] == "Assembly001" and data["doc"]["leaves"][2]["project"] == "gantry"
+    # a joint onto the sub-assembly's plate: the whole sub-assembly moves with it
+    code, data = run(capsys, "assembly", "joint", "asm", "Fixed", "plate:Face6", "Assembly001:plate001.Face5")
+    assert code == cli.OK, data
+    p = W.to_placement(data["doc"]["placements"]["Assembly001"])
+    assert abs(p.pos[2] - 5.0) < 1e-9
+    code, data = run(capsys, "assembly", "jcs", "asm", "Assembly001", "pin.Face3")
+    assert code == cli.OK and data["subs"][0] == "pin.Face3"
+    # the gates see the sub-assembly's bodies, described as the gantry's
+    m = st.load_machine("asm")
+    assert set(m.parts) == {"plate", "plate001", "pin"} and m.bodies["pin"].project == "gantry"
+    # verify hashes the linked project's files: it is found in assembly.py's text, nothing run
+    from cad_agent import subassembly
+    assert subassembly.tree_projects(proj) == (["gantry"], True)
+
+
+def test_a_flexible_sub_assembly_and_back(proj, sub, capsys):
+    run(capsys, "assembly", "insert", "asm", "plate")
+    code, data = run(capsys, "assembly", "insert", "asm", "gantry", "--assembly", "--flexible", "--at", "50,0,0")
+    assert code == cli.OK, data
+    link = next(o for o in objs(proj) if isinstance(o, W.AssemblyLink))
+    assert not link.rigid and link.joints == (("Joint", "Joint"),) and [c for c, _ in link.placements] == ["plate001", "pin"]
+    assert data["doc"]["solver_parts"] == ["plate", "plate001", "pin"]
+    code, data = run(capsys, "assembly", "joint", "asm", "Fixed", "plate:Face6", "plate001:Face5")
+    assert code == cli.OK, data
+    assert next(o for o in objs(proj) if isinstance(o, W.Joint)).name == "Joint001"
+    code, data = run(capsys, "assembly", "set", "asm", "Assembly001", "rigid=true")
+    assert code == cli.OK, data
+    j = next(o for o in objs(proj) if isinstance(o, W.Joint))
+    assert j.reference2 == ("Assembly001", ("plate001.Face5", "plate001.Face5"))
+    code, data = run(capsys, "assembly", "delete", "asm", "Assembly001")
+    assert code == cli.OK and not any(isinstance(o, (W.AssemblyLink, W.Joint)) for o in objs(proj))
