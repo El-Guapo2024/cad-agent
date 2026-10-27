@@ -56,10 +56,9 @@ that commit.
                            techdraw_lines.py and techdraw_hatch.py, all of them (the TechDraw workbench's page objects,
                            view geometry, dimensions, annotations, commands and exports). See section 2.
 
-  LGPL-2.1-or-later        cad_agent/fcexpr.py, fcexpr_fn.py, fcexpr_py.py, fcexpr_quantity.py and
-                           fcexpr_data.json, all of them (FreeCAD's expression language: the port of
-                           ui/src/expr.ts, its values and quantities, and the grammar and unit tables
-                           of ui/src). See section 2.
+  LGPL-2.1-or-later        cad_agent/fcexpr.py and cad_agent/fcexpr_engine.js, all of them (FreeCAD's
+                           expression language for the server: ui/src/expr.ts and what it uses, bundled
+                           by ui/scripts/fcexprjs.py and run in V8, and the Python glue). See section 2.
 
   LGPL-2.1-or-later        cad_agent/spreadsheet.py, spreadsheet_sheet.py, spreadsheet_doc.py and
                            spreadsheet_edit.py, all of them (the Spreadsheet workbench's sheet, cells,
@@ -286,9 +285,10 @@ that commit.
       names its own). SPDX-License-Identifier: LGPL-2.1-or-later. The page's DXF reuses
       cad_agent/dxf.py's writer (above).
 
-  cad_agent/fcexpr.py, fcexpr_fn.py, fcexpr_py.py, fcexpr_quantity.py, fcexpr_data.json
-      Re-express ui/src/expr.ts, expr-py.ts, expr-grammar.ts, quantity.ts, units-data.ts and
-      units-schemas.ts (part of ui/, LGPL-2.1-or-later), which port src/App/Expression.cpp,
+  cad_agent/fcexpr_engine.js, cad_agent/fcexpr.py
+      The bundle is ui/src/expr.ts, expr-py.ts, expr-grammar.ts, quantity.ts, units-data.ts and
+      units-schemas.ts (part of ui/, LGPL-2.1-or-later) with ui/scripts/expr-server-entry.ts, built by
+      vite; fcexpr.py carries its trees and values to Python. ui/src's files port src/App/Expression.cpp,
       Expression.l, Expression.y, ObjectIdentifier.cpp and src/Base/Quantity.cpp, Quantity.l,
       Quantity.y, QuantityPyImp.cpp, Unit.cpp, UnitsSchemasData.h, VectorPyImp.cpp. Copyright (c)
       2010, 2013 Jürgen Riegel, 2015 Eivind Kvedalen, 2008 Werner Mayer (each file's header names its

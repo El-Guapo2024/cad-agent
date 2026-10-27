@@ -306,8 +306,18 @@ PARAMS = {"thick": 5.0, "width": 40.0}
 EXPRESSIONS = {"thick": "Spreadsheet.thick", "width": "<<Params>>.B2 * 4"}   # FreeCAD's ExpressionEngine
 ```
 
-- An EXPRESSIONS entry is a FreeCAD expression (cad_agent/fcexpr.py, the port of ui/src/expr.ts, held to the same 75,558
-  FreeCAD answers) evaluated with the part as its owner, as ObjectIdentifier resolves names: a bare name is one of the
+One formula engine (decided 2026-10-27, Juan's "minimize our own code"): ui/src/expr.ts (with expr-py.ts, quantity.ts and
+the grammar and unit tables) is the only implementation of FreeCAD's expression language. The server shares it: it is
+bundled, as it is, into cad_agent/fcexpr_engine.js (ui/scripts/fcexprjs.py, with ui/scripts/expr-server-entry.ts for the
+JSON in and out; tests/test_fcexpr.py fails when the bundle is older than its sources) and run in V8 through the
+mini-racer package. cad_agent/fcexpr.py is glue only: the tree as dataclasses of expr.ts's Node (a sheet's insert, remove,
+paste and rename visitors rewrite it), values as Python's, and the document's hooks (ObjectIdentifier::resolveAmbiguity,
+another object's property, a range's cells), which Python answers before the call and expr.ts's Env.resolve,
+Env.rangeCells and parseExpr's resolveAmbiguity consult. A sheet's cell views (SheetModel::data) and its CSV are made once,
+on the server, and the page shows them; CSV import reads with the standard library's csv module.
+
+- An EXPRESSIONS entry is a FreeCAD expression evaluated by the page's own engine (see "One formula engine" below) with
+  the part as its owner, as ObjectIdentifier resolves names: a bare name is one of the
   part's own PARAMS; `Obj.prop` names the object Obj by its Name, else by its Label, `<<Label>>.prop` by Label only, and
   `Spreadsheet.A1` / `Spreadsheet.thick` is the cell's computed property (by address or alias, absolute `$A$1` too). The
   result is written to the PARAMS entry in that entry's type, as setting a PropertyFloat from a Quantity takes its value

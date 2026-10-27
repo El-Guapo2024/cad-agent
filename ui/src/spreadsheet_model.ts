@@ -1,27 +1,25 @@
 // SPDX-License-Identifier: LGPL-2.1-or-later
 // Follows FreeCAD (https://github.com/FreeCAD/FreeCAD, commit 3160daf1e2b6), copyright of the files below (each is
 // LGPL-2.0-or-later or LGPL-2.1-or-later as it states; ui/NOTICE has them all):
-//   src/Mod/Spreadsheet/Gui/SheetModel.cpp: 2015 Eivind Kvedalen
 //   src/Mod/Spreadsheet/Gui/SheetTableView.cpp: 2015 Eivind Kvedalen
 //   src/Mod/Spreadsheet/App/PropertySheet.cpp: 2015 Eivind Kvedalen
 //   src/Mod/Spreadsheet/App/Cell.cpp: 2015 Eivind Kvedalen
 //   src/App/Range.cpp: 2015 Eivind Kvedalen
 // What the Spreadsheet page shows of a sheet the server computed (cad_agent/spreadsheet_edit.py's sheet_json): cell
-// addresses and ranges (App::CellAddress, App::Range: a range is walked column by column), what SheetModel::data gives
-// for each role of a cell (display string, tooltip, colours, alignment, font), the selection's ranges and the keys that
+// addresses and ranges (App::CellAddress, App::Range: a range is walked column by column), the cell views the server made
+// (SheetModel::data in spreadsheet_sheet.display), the selection's ranges and the keys that
 // move the current cell (SheetTableView::selectedRanges, finishEditWithMove), the clipboard's text and cells
 // (SheetTableView::_copySelection, PropertySheet::copyCells) and PropertySheet::isValidAlias.
-import { userString, unitPrefs } from './quantity'
-import { UNITS } from './units-data'
+import { isTokenAConstant, isTokenAUnit } from './expr'
 
 export type SsValue = { kind: 'int' | 'float' | 'quantity' | 'string' | 'object'; v?: number | string; dims?: number[]; s: string; type?: string }
 export type SsRaw = { alignment: number; style: string[]; fg: number[] | null; bg: number[] | null; alias: string | null
   du: { text: string; dims: number[]; scaler: number } | null; dirty?: boolean }
-export type SsCell = { content: string | null; value: SsValue | null; exception?: string; raw: SsRaw
+export type SsCell = { content: string | null; value: SsValue | null; exception?: string; raw: SsRaw; view?: CellView
   alignment?: string; style?: string; foreground_color?: string; background_color?: string; display_unit?: string; alias?: string
   row_span?: number; col_span?: number }
 export type SsSheet = { name: string; label: string; type: string; cells: Record<string, SsCell>; merged: Record<string, [number, number]>
-  column_widths: Record<string, number>; row_heights: Record<string, number>; errors: string[]; used_range: [string, string] | null }
+  column_widths: Record<string, number>; row_heights: Record<string, number>; errors: string[]; used_range: [string, string] | null; csv: string }
 
 export const MAX_ROWS = 16384
 export const MAX_COLUMNS = 26 * 26 + 26
@@ -83,118 +81,12 @@ export function encodeAlignment(a: number): string {
   return s
 }
 
-/** SheetParameter's colours as the FreeCAD Light preference pack sets them (Preferences > Spreadsheet). */
-export const SS_PREFS = { aliasBg: '#bac8ff', textFg: '#212529', positiveFg: '#212529', negativeFg: '#212529', showAlias: false, aliasFormat: '%V = %A' }
-
+/** What SheetModel::data gives for the roles the table draws: the server's (spreadsheet_sheet.display, in sheet_json's `view`). */
 export type CellView = { display: string | null; edit: string | null; tooltip: string | null; fg: string | null; bg: string | null
   align: string[]; font: string[]; error?: boolean; pending?: boolean }
-
-/** QColor(255.0 * r, ...) of a Base::Color: each component's int conversion. */
-const qcolor = (c: number[]) => '#' + c.slice(0, 3).map((x) => Math.trunc(255 * x).toString(16).padStart(2, '0')).join('') +
-  (Math.trunc(255 * c[3]) === 255 ? '' : Math.trunc(255 * c[3]).toString(16).padStart(2, '0'))
-/** QString::toHtmlEscaped. */
-const htmlEscaped = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
-/** QLocale().toString(v, 'f', decimals) in the C locale (FreeCAD's GUI runs with it): %.*f, no grouping. */
-function fixed(v: number, decimals: number): string {
-  if (Number.isNaN(v)) return 'nan'
-  if (!Number.isFinite(v)) return v > 0 ? 'inf' : '-inf'
-  return toFixedExact(v, decimals)
-}
-/** printf's %.*f of the double's exact value (ties to even), as Quantity::toNumber's Fixed does. */
-function toFixedExact(v: number, decimals: number): string {
-  // the exact decimal expansion of the double, then round half to even
-  const neg = v < 0 || Object.is(v, -0)
-  const view = new DataView(new ArrayBuffer(8))
-  view.setFloat64(0, Math.abs(v))
-  const hi = view.getUint32(0), lo = view.getUint32(4), e = (hi >>> 20) & 0x7ff
-  let m = (BigInt(hi & 0xfffff) << 32n) | BigInt(lo), p = -1074
-  if (e) { m |= 1n << 52n; p = e - 1075 }
-  // value = m * 2^p = N / 10^k with k = max(0, -p)
-  const k = p >= 0 ? 0 : -p
-  const N = p >= 0 ? m << BigInt(p) : m * 5n ** BigInt(k)
-  const scale = 10n ** BigInt(k)
-  // round N / 10^k at `decimals`
-  let q: bigint
-  if (k <= decimals) q = N * 10n ** BigInt(decimals - k)
-  else {
-    const div = 10n ** BigInt(k - decimals)
-    q = N / div
-    const r = N % div, half = div / 2n
-    if (r > half || (r === half && q % 2n === 1n)) q += 1n
-  }
-  void scale
-  const t = q.toString().padStart(decimals + 1, '0')
-  const body = decimals ? `${t.slice(0, -decimals)}.${t.slice(-decimals)}` : t
-  return (neg ? '-' : '') + body
-}
-
-/** SheetModel::data for the roles the table draws. `c` is the cell (undefined when there is none). */
-export function cellView(c: SsCell | undefined, prefs = SS_PREFS): CellView {
-  const out: CellView = { display: null, edit: null, tooltip: null, fg: null, bg: null, align: [], font: [] }
-  const raw: SsRaw = c?.raw ?? { alignment: DEFAULT_ALIGNMENT, style: [], fg: null, bg: null, alias: null, du: null }
-  const s = c?.content ?? null
-  out.edit = s
-  if (!c?.exception && raw.alias) out.tooltip = raw.alias
-  if (raw.bg) out.bg = qcolor(raw.bg)
-  else if (raw.alias) out.bg = prefs.aliasBg
-  out.font = raw.style.filter((x) => x === 'bold' || x === 'italic' || x === 'underline').sort()
-  if (c?.exception) {
-    out.tooltip = `<pre>${htmlEscaped(c.exception)}</pre>`
-    out.display = s ?? '#ERR'
-    out.fg = '#ff0000'
-    out.align = ['left', 'vcenter']
-    out.error = true
-    return out
-  }
-  const a = raw.alignment
-  const align: string[] = []
-  for (const [bit, name] of [[AL.LEFT, 'left'], [AL.HCENTER, 'hcenter'], [AL.RIGHT, 'right'], [AL.TOP, 'top'], [AL.VCENTER, 'vcenter'], [AL.BOTTOM, 'bottom']] as const) if (a & bit) align.push(name)
-  const implied = (h: string) => {
-    let al = [...align]
-    if (a & AL.HIMPLIED) al = [...al.filter((x) => !['left', 'hcenter', 'right'].includes(x)), h]
-    if (a & AL.VIMPLIED) al = [...al.filter((x) => !['top', 'vcenter', 'bottom'].includes(x)), 'vcenter']
-    return al
-  }
-  const fmt = (text: string) => {
-    if (raw.alias && prefs.showAlias && (prefs.aliasFormat.includes('%V') || prefs.aliasFormat.includes('%A'))) return prefs.aliasFormat.replace('%A', raw.alias).replace('%V', text)
-    return text
-  }
-  const v = c?.value ?? null
-  if (!v || raw.dirty) {
-    out.fg = '#0000ff'
-    out.align = ['hcenter', 'vcenter']
-    if (s !== null) out.display = s.startsWith('=') ? '#PENDING' : s
-    out.pending = true
-    return out
-  }
-  const fgSet = raw.fg ? qcolor(raw.fg) : null
-  const decimals = unitPrefs.decimals
-  if (v.kind === 'string') {
-    out.fg = fgSet ?? prefs.textFg
-    out.display = fmt(String(v.v))
-    out.align = implied('left')
-  } else if (v.kind === 'quantity') {
-    const value = Number(v.v), dims = (v.dims ?? [0, 0, 0, 0, 0, 0, 0, 0]) as [number, number, number, number, number, number, number, number]
-    out.fg = fgSet ?? (value < 0 ? prefs.negativeFg : prefs.positiveFg)
-    out.align = implied('right')
-    if (raw.du) {
-      const one = dims.every((x) => x === 0), same = dims.every((x, i) => x === raw.du!.dims[i])
-      out.display = fmt(one || same ? `${fixed(value / raw.du.scaler, decimals)} ${raw.du.text}` : '#ERR: unit')
-    } else out.display = fmt(userString({ value, dims }).text)
-  } else if (v.kind === 'int' || v.kind === 'float') {
-    const d = Number(v.v)
-    out.fg = fgSet ?? (d < 0 ? prefs.negativeFg : prefs.positiveFg)
-    out.align = implied('right')
-    if (raw.du) out.display = fmt(`${fixed(d / raw.du.scaler, decimals)} ${raw.du.text}`)
-    else if (v.kind === 'float') out.display = fmt(fixed(d, decimals))
-    else out.display = fmt(String(v.v))
-  } else {
-    out.fg = fgSet ?? prefs.textFg
-    out.align = implied('hcenter')
-    out.display = fmt(v.s)
-  }
-  return out
-}
+const NO_CELL: CellView = { display: null, edit: null, tooltip: null, fg: null, bg: null, align: [], font: [] }
+/** The cell's view as the server made it (undefined: no cell there). */
+export const cellView = (c: SsCell | undefined): CellView => c?.view ?? NO_CELL
 
 // ── the selection (SheetTableView::selectedRanges) and the keys (finishEditWithMove) ─────────────────────────────
 /** The cell a merged cell's part belongs to (PropertySheet::getAnchor). */
@@ -289,9 +181,7 @@ export function copyOf(sh: SsSheet, ranges: Rng[]): { text: string; clip: Clip }
 }
 
 // ── aliases (PropertySheet::isValidAlias, Sheet::isValidAlias) ───────────────────────────────────────────────────
-const CONSTANTS = new Set(['pi', 'e', 'True', 'true', 'False', 'false', 'None'])
-export const isUnitToken = (s: string) => Object.prototype.hasOwnProperty.call(UNITS, s) && s !== '"' && s !== "'"
-export const isConstantToken = (s: string) => CONSTANTS.has(s)
+const isUnitToken = isTokenAUnit, isConstantToken = isTokenAConstant   // ExpressionParser's, through expr.ts's lexer
 export const isCellName = (s: string) => /^\$?[A-Z]{1,2}\$?[0-9]{1,5}$/.test(s) && parseAddr(s.replace(/\$/g, '')) !== null && Number(/[0-9]+$/.exec(s)![0]) <= MAX_ROWS
 /** Sheet::isValidAlias: syntax, not an alias already (any cell's, the cell's own too: PropertySheet::isValidAlias), not a cell
  *  address, a unit or a constant, not one of the sheet's properties. */

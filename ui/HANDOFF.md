@@ -147,9 +147,9 @@ tests/test_techdraw_{golden,svg,edit}.py and ui/scripts/techdrawcheck.mjs; diffe
 Spreadsheet (branch spreadsheet, 2026-10-27): sheets as spreadsheet/<Name>.py (docs/EDITING_PLAN.md "Spreadsheets in a project"),
 `cad sheet`, /api/<slug>/spreadsheet, the workbench in the page (src/spreadsheet.tsx, spreadsheet_model.ts), a part's PARAMS
 bound to cells by its EXPRESSIONS (applied in state._load_module, so every build sees them). The server evaluates with
-cad_agent/fcexpr*.py, a port of src/expr.ts: `python ui/scripts/exprdiff_py.py` holds it to the 75,558 stored FreeCAD answers
-(0 differ, and 0 differ from expr.ts; `--against-ts` compares the two engines); `ui/scripts/fcexprpy.py` rewrites
-cad_agent/fcexpr_data.json after expr-grammar.ts or the unit tables change. Goldens: `freecadcmd tests/golden/spreadsheet/make.py
+src/expr.ts itself: `python3 ui/scripts/fcexprjs.py` bundles it into cad_agent/fcexpr_engine.js (rerun it after any change to
+expr.ts, expr-py.ts, quantity.ts or their tables; tests/test_fcexpr.py says when it is stale), which cad_agent/fcexpr.py runs
+in V8 (mini-racer); `python ui/scripts/exprdiff_py.py` holds that path to the 75,558 stored FreeCAD answers (0 differ). Goldens: `freecadcmd tests/golden/spreadsheet/make.py
 [CASE]`; the GUI recording: `FREECAD_APP=... xvfb-run ... python3 ui/scripts/fcspreadsheet.py OUT` (copy OUT/fcspreadsheet.json
 to ui/scripts/); the page's check: ui/scripts/spreadsheetcheck.mjs (CAD_PYTHON set in a worktree without its own .venv; it takes
 some 15 minutes, every edit being a `cad` call). Note the undo journal keeps 20 steps (undo.MAX_STEPS, FreeCAD's MaxUndoSize):

@@ -269,7 +269,7 @@ def sheet_json(doc, sheet, prefs=None) -> dict:
             "column_widths": {column_name(c): w for c, w in sorted(sheet.column_widths.items())},
             "row_heights": {str(r + 1): h for r, h in sorted(sheet.row_heights.items())},
             "errors": sorted(sheet.cells.data[k].address.to_string() for k in sheet.cell_errors if k in sheet.cells.data),
-            "used_range": sheet.getUsedRange()}
+            "used_range": sheet.getUsedRange(), "csv": sheet.export_text()}
 
 
 def doc_json(doc, failed: dict, prefs=None) -> dict:

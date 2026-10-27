@@ -27,6 +27,9 @@ dependencies = [
     # (uharfbuzz, Apache-2.0; its wheel carries HarfBuzz, MIT). Imported only by `cad feature text`.
     "freetype-py>=2.4",
     "uharfbuzz>=0.39",
+    # V8 for the server's formula engine (cad_agent/fcexpr.py runs the page's own src/expr.ts, bundled as
+    # cad_agent/fcexpr_engine.js): mini-racer (ISC; its wheel carries V8, BSD-3-Clause). Imported on first use.
+    "mini-racer>=0.12",
 ]
 
 [project.optional-dependencies]
@@ -53,4 +56,4 @@ cad_agent = ["workbench/*", "workbench/vendor/*", "workbench/next/*", "workbench
              "workbench/next/LICENSE", "workbench/next/NOTICE", "workbench/next/THIRD_PARTY_LICENSES.txt",
              "library/*.toml",
              "techdraw_templates/*.svg", "techdraw_templates/ISO/*.svg", "techdraw_templates/PAT/*.pat", "techdraw_templates/Patterns/*.svg",   # FreeCAD's TechDraw templates (NOTICE)
-             "fonts/*"]               # the Sketcher's text font, osifont-lgpl3fe (FreeCAD's default), and its licence       # the part library's catalog (step 6, piece A); its generators are Python packages
+             "fonts/*", "fcexpr_engine.js"]               # the Sketcher's text font, osifont-lgpl3fe (FreeCAD's default), and its licence       # the part library's catalog (step 6, piece A); its generators are Python packages

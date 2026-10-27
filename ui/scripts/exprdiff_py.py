@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: LGPL-2.1-or-later
-"""Differential test of the Python formula engine (cad_agent/fcexpr.py) against the real FreeCAD's answers.
+"""Differential test of the server's formula engine (cad_agent/fcexpr.py running src/expr.ts in V8) against the real FreeCAD's answers.
 
 The same stored answers ui/scripts/exprdiff.py holds ui/src/expr.ts to (scripts/exprdiff/fc_answers.json.gz, some 75,000
 expressions evaluated by FreeCAD 26.3 on an object with the properties of exprdiff-entry.ts), the same comparison
-(exprdiff.differs and exprdiff.excused), here run in process through the Python engine, no Node needed.
+(exprdiff.differs and exprdiff.excused), here through the server's path: the bundle, the Python values and trees, no Node needed.
 
     PYTHONPATH=. python3 ui/scripts/exprdiff_py.py                  # every case; exit 1 if anything differs
     PYTHONPATH=. python3 ui/scripts/exprdiff_py.py --show 5 --kind value --category fn --limit 2000
@@ -68,7 +68,7 @@ def describe(r):
     if t is bool:
         return {"t": "bool", "v": r}
     if t is int:
-        return {"t": "int", "v": fcexpr.P.int_str(r)}
+        return {"t": "int", "v": fcexpr._int_text(r)}
     if t is float:
         return {"t": "float", "v": enc(r)}
     if t is complex:

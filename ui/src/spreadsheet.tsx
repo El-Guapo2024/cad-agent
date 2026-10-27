@@ -170,30 +170,11 @@ function importSheet() {
   }
   input.click()
 }
-/** Sheet::exportToFile's text: the non-empty cells, a tab between columns and a newline between rows, a number as a
- *  stream writes it (6 significant digits), a field holding the delimiter quoted. */
-export function exportText(sh: SsSheet, delimiter = '\t', quote = '"', escape = '\\'): string {
-  const cells = Object.entries(sh.cells).filter(([, c]) => c.content !== null && c.content !== '').map(([k]) => parseAddr(k)!)
-    .sort((a, b) => a.row - b.row || a.col - b.col)
-  let out = '', prevRow = -1, prevCol = -1
-  const firstCol = cells.length ? cells[0].col : 0
-  for (const a of cells) {
-    const c = sh.cells[addrText(a)]
-    if (prevRow !== -1 && prevRow !== a.row) { out += '\n'.repeat(a.row - prevRow); prevCol = firstCol }
-    if (prevCol !== -1 && a.col !== prevCol) out += delimiter.repeat(a.col - prevCol)
-    const v = c.value
-    let field = !v ? '' : v.kind === 'int' ? String(v.v) : v.kind === 'float' || v.kind === 'quantity' ? toNumber(Number(v.v), 'Default', 6) : v.kind === 'string' ? String(v.v) : ''
-    if (quote && field.includes(delimiter)) field = quote + [...field].map((ch) => (ch === quote ? escape + ch : ch)).join('') + quote
-    out += field
-    prevRow = a.row; prevCol = a.col
-  }
-  return out + '\n'
-}
 function exportSheet() {
   const sh = activeSheet()
   const d = sh ? st.sheets[sh] : null
   if (!d) return
-  const blob = new Blob([exportText(d)], { type: 'text/csv' })
+  const blob = new Blob([d.csv], { type: 'text/csv' })   // Sheet::exportToFile, as the server wrote it (sheet_json)
   const a = document.createElement('a')
   a.href = URL.createObjectURL(blob)
   a.download = `${d.label}.csv`

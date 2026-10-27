@@ -23,13 +23,14 @@
 computed properties and recompute (Sheet.cpp), SheetPy's methods by their Python names, and what the sheet's view shows
 of a cell (SheetModel::data).
 
-A cell's expression is a tree of cad_agent/fcexpr.py (the port of App/Expression.cpp); the sheet evaluates it with itself
+A cell's expression is a tree of cad_agent/fcexpr.py (src/expr.ts's, run in V8); the sheet evaluates it with itself
 as the owner: its properties are its cells' computed values, by address and by alias, as Sheet::getPropertyByName finds
 them, and other objects of the document (other sheets, the parts' parameters) come from the Document it belongs to
 (spreadsheet_doc.py).
 """
 from __future__ import annotations
 
+import csv
 import math
 from collections import deque
 
@@ -1459,7 +1460,7 @@ class Sheet:
     def import_text(self, text: str, delimiter="\t", quote_char='"', escape_char="\\"):
         self.clear_all()
         for row, line in enumerate(text.splitlines()):
-            fields = _escaped_list(line, escape_char if quote_char else "\0", delimiter, quote_char or "\0")
+            fields = _fields(line, delimiter, quote_char, escape_char)
             for col, f in enumerate(fields):
                 if f:
                     self.set_cell(CellAddress(row, col), f)
@@ -1516,33 +1517,14 @@ def _stream(p: Prop) -> str:
     return ""
 
 
-def _escaped_list(line: str, escape: str, sep: str, quote: str) -> list:
-    """boost::escaped_list_separator(escape, sep, quote) over one line: fields split at sep outside quotes, quotes
-    removed, an escape before the escape, the quote, 'n' or the separator taken literally."""
-    out, cur, inq, i = [], "", False, 0
-    while i < len(line):
-        ch = line[i]
-        if escape != "\0" and ch == escape:
-            i += 1
-            if i >= len(line):
-                raise SpreadsheetError("cannot end with escape")
-            nxt = line[i]
-            if nxt == escape or nxt == quote or nxt == sep:
-                cur += nxt
-            elif nxt == "n":
-                cur += "\n"
-            else:
-                raise SpreadsheetError("unknown escape sequence")
-        elif quote != "\0" and ch == quote:
-            inq = not inq
-        elif ch == sep and not inq:
-            out.append(cur)
-            cur = ""
-        else:
-            cur += ch
-        i += 1
-    out.append(cur)
-    return out
+def _fields(line: str, sep: str, quote: str, escape: str) -> list:
+    """One line's fields (FreeCAD reads the file line by line through boost::escaped_list_separator): the standard library's
+    csv reader with the same separator, quote and escape (ui/PARITY.md has where the two differ)."""
+    try:
+        return next(csv.reader([line], delimiter=sep, quotechar=quote or None, escapechar=(escape or None) if quote else None,
+                               doublequote=False, quoting=csv.QUOTE_MINIMAL if quote else csv.QUOTE_NONE, strict=False), [])
+    except csv.Error as e:
+        raise SpreadsheetError(str(e)) from None
 
 
 def classify(out):

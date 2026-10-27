@@ -1027,9 +1027,10 @@ Known differences, each marked `known` by techdrawcheck:
 
 Spreadsheets edited in the app as FreeCAD 3160daf1e2b6 edits a Spreadsheet::Sheet, written back as `spreadsheet/<Name>.py`
 (docs/EDITING_PLAN.md, "Spreadsheets in a project"), and a part's PARAMS bound to cells through its EXPRESSIONS. The Python is
-`cad_agent/spreadsheet*.py` (`cad sheet ...`) on `cad_agent/fcexpr*.py`, a port of `src/expr.ts`; the page is `src/spreadsheet.tsx`
-and `src/spreadsheet_model.ts`. The checks: `ui/scripts/exprdiff_py.py` (the Python engine on the 75,558 stored FreeCAD answers:
-0 differ, and 0 differ from expr.ts), tests/test_fcexpr.py (1,974 of them on CI), tests/test_spreadsheet_golden.py (16 freecadcmd
+`cad_agent/spreadsheet*.py` (`cad sheet ...`) on `src/expr.ts` itself (bundled as `cad_agent/fcexpr_engine.js`, run in V8 by
+`cad_agent/fcexpr.py`); the page is `src/spreadsheet.tsx` and `src/spreadsheet_model.ts`, and shows the cell views and CSV the
+server made. The checks: `ui/scripts/exprdiff_py.py` (the server's path through the engine on the 75,558 stored FreeCAD answers:
+0 differ), tests/test_fcexpr.py (1,974 of them on CI), tests/test_spreadsheet_golden.py (16 freecadcmd
 cases, tests/golden/spreadsheet: every cell's content, property type, value or "ERR:" message, the look, the `<Cell>` attributes a
 document saves, sizes, the errors, a reopened document, a Pad driven by a cell, CSV), tests/test_spreadsheet_view.py
 (SheetModel::data for 60 cells, #PENDING and the cycles against ui/scripts/fcspreadsheet.json, the real GUI's model), and
@@ -1057,6 +1058,9 @@ Known differences:
 - Paste follows the page's own clipboard (the cells copied in the page, and text from the system clipboard when the browser lets the
   page read it); New Spreadsheet and Import are active with no document open, as the project is the document.
 - A cell's value is the server's: there is no #PENDING state in the page, since every edit is recomputed before it shows.
+- CSV import reads each line with Python's csv module where FreeCAD uses boost::escaped_list_separator: a quote in the middle
+  of a field is kept rather than opening a quoted part, an escape before any character gives that character (FreeCAD refuses
+  one before anything but the escape, the quote, the delimiter or `n`, and reads `\n` as a newline).
 - The Content line edit is enabled from the start (FreeCAD enables it when a cell first becomes current); Ctrl+Down runs
   SheetTableView's region scan here, where the recording's Ctrl+Down did not move (spreadsheetcheck's `known` lines).
 

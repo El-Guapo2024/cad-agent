@@ -1,8 +1,10 @@
-"""The Python formula engine (cad_agent/fcexpr.py, a port of ui/src/expr.ts) against the real FreeCAD's answers.
+"""The server's formula engine (cad_agent/fcexpr.py: ui/src/expr.ts bundled into cad_agent/fcexpr_engine.js, run in V8)
+against the real FreeCAD's answers.
 
 tests/golden/expr/cases.json holds a sample of ui/scripts/exprdiff.py's cases with the answers FreeCAD 26.3.0 (main 3160daf1e2b6)
-gave; every one goes through the Python engine and is held to FreeCAD's by exprdiff's own comparison. (All 75,558 stored answers:
-`python3 ui/scripts/exprdiff_py.py`.) cad_agent/fcexpr_data.json must be what ui/scripts/fcexprpy.py makes of the TS sources.
+gave; every one goes through cad_agent.fcexpr (the bundle and the Python glue: values, trees and hooks) and is held to
+FreeCAD's by exprdiff's own comparison. (All 75,558 stored answers: `python3 ui/scripts/exprdiff_py.py`.) The bundle must be
+of the current TS sources (ui/scripts/fcexprjs.py).
 """
 import importlib.util
 import json
@@ -54,11 +56,9 @@ def test_the_engine_answers_as_freecad_did(sample, exprdiff, runner):
     assert F.QUIRKS.int32_cast is False   # run_all puts it back
 
 
-def test_the_tables_are_current():
-    gen = _load("fcexprpy", "fcexprpy.py")
-    data = json.loads((REPO / "cad_agent" / "fcexpr_data.json").read_text(encoding="utf-8"))
-    assert data["sources"] == gen.source_hash(), "ui/src/expr-grammar.ts, units-data.ts or units-schemas.ts changed: run python3 ui/scripts/fcexprpy.py"
-    assert (REPO / "cad_agent" / "fcexpr_data.json").read_text(encoding="utf-8") == gen.render(gen.build())
+def test_the_engine_bundle_is_current():
+    gen = _load("fcexprjs", "fcexprjs.py")
+    assert gen.bundled_hash() == gen.source_hash(), "ui/src/expr.ts or what it uses changed: run python3 ui/scripts/fcexprjs.py"
 
 
 def test_to_text_round_trips(sample):
@@ -84,13 +84,10 @@ def test_to_text_round_trips(sample):
 
 
 def test_user_string_and_units():
-    assert F.user_string("12.5 mm") == ("12.50 mm", 1.0, "mm")
-    assert F.user_string(F.Quantity(12500, L))[0] == "12.50 m"
-    assert F.user_string(F.Quantity(25.4 * 13.5, L), schema=5)[0] == "1' 1\" + 1/2\""
-    assert F.unit_string((1, 1, -2, 0, 0, 0, 0, 0)) == "mm*kg/s^2" and F.type_string((1, 1, -2, 0, 0, 0, 0, 0)) == "Force"
-    assert F.unit_string((-1, 0, 0, 0, 0, 0, 0, 0)) == "1/mm"
-    assert F.parse_quantity("1 in").value == pytest.approx(25.4)
-    assert F.to_number(0.1, "Fixed", 20) == "0.10000000000000000555" and F.format_fixed(9.995, 2) == "10.00"
+    assert F.user_string(F.Quantity(12.5, L), 0, 2, 8) == ("12.50 mm", 1.0, "mm")
+    assert F.user_string(F.Quantity(12500, L), 0, 2, 8)[0] == "12.50 m"
+    assert F.user_string(F.Quantity(25.4 * 13.5, L), 5, 2, 8)[0] == "1' 1\" + 1/2\""
+    assert F.to_number(0.1, "Fixed", 20) == "0.10000000000000000555"
     assert F.parse_unit("cm") == (L, 10.0) and F.parse_unit("1/mm") == ((-1, 0, 0, 0, 0, 0, 0, 0), 1.0)
     with pytest.raises(F.ExprError) as e:
         F.parse_unit("2 mm")
@@ -103,7 +100,8 @@ def test_values_and_errors():
     env = F.Env({"pLen": F.Quantity(10, L), "pCnt": 3}, owner="Obj")
     assert F.evaluate_value("pLen * pCnt + 1 cm", env).value == 40.0
     assert F.evaluate_value("7 / 2", env) == 3.5 and F.evaluate_value("2 ^ 70", env) == 2 ** 70
-    assert F.py_repr(F.evaluate_value("pLen", env)) == "10.0 mm"
+    assert F.py_str(F.evaluate_value("pLen", env)) == "10.0 mm"
+    assert F.evaluate_value("str(pCnt) + <<x>>", env) == "3x" and F.evaluate_value("vector(1; 2; 3)", env) == F.Vector(1, 2, 3)
     with pytest.raises(F.ExprError) as e:
         F.evaluate_value("1 / 0", env)
     assert e.value.etype == "ZeroDivisionError" and e.value.message == "division by zero\nin expression: 1 / 0"
@@ -118,7 +116,7 @@ def test_values_and_errors():
 def test_identifiers_and_cells():
     tree = F.parse("sum(A1:B2) + x")
     assert [p.names for p in F.identifiers(tree)] == [["A1"], ["B1"], ["A2"], ["B2"], ["x"]]
-    assert F.evaluate(tree, F.Env({"A1": 1, "B2": F.Quantity(2, F.ZERO), "x": 5})) == 8
+    assert F.evaluate(tree, F.Env({"A1": 1, "B2": F.Quantity(2, (0,) * 8), "x": 5})) == 8
     hook = F.Env({"x": 5}, range_cells=lambda r: [("A1", 1, "int"), ("A2", True, "bool")])
     with pytest.raises(F.ExprError) as e:
         F.evaluate(tree, hook)
@@ -134,5 +132,12 @@ def test_hooks():
     assert F.evaluate_value("Box.Length * 2", env).value == 14.0
     assert F.evaluate_value("Box.Length.Value", env) == 7.0
     assert F.evaluate_value("Obj.x", F.Env({"x": 3}, owner="Obj")) == 3
-    tree = F.parse("Box.Length", resolve_ambiguity=lambda obj, prop, owner: F.VarPath(obj=obj, names=[prop]))
-    assert tree.path.obj.name == "Box" and tree.path.names == ["Length"]
+    tree = F.parse("Box.Length.Value", resolve_ambiguity=lambda obj, prop, owner: F.VarPath(obj=obj, names=[prop], forced=True))
+    assert tree.path.obj.name == "Box" and tree.path.names == ["Length", "Value"] and F.to_text(tree) == "Box.Length.Value"
+    env = F.Env({}, owner="Obj", resolve=lambda path: (F.Quantity(7, L), path.names[1:]))
+    assert F.evaluate(tree, env) == 7.0
+    failing = F.Env({}, owner="Obj", resolve=lambda path: (_ for _ in ()).throw(F.ExprError("Property 'Length' not found in 'Box'", "RuntimeError")))
+    with pytest.raises(F.ExprError) as e:
+        F.evaluate(tree, failing)
+    assert e.value.message == "Property 'Length' not found in 'Box'"
+    assert F.evaluate(F.parse("1 ? 2 : Box.Length"), failing) == 2   # a name the evaluation never reaches is never an error
