@@ -473,6 +473,21 @@ export function openDrawing(p: DrawingParams) {
   windowChanged()
 }
 function closeDrawings() { for (const p of drawingPanels()) removePanel(p) }
+/** A TechDraw page's MDIViewPage (techdraw.tsx): a tab "drawing:td:<Page>" titled with the page's Label, so the windows'
+ *  commands (Close, Close All, Windows) treat it as they treat a drawing. */
+const PAGE_WINDOW = DRAWING + 'td:'
+export function openPageWindow(page: string, title: string) {
+  if (!dock) return
+  const id = PAGE_WINDOW + page
+  const open = dock.getPanel(id)
+  if (open) { open.api.setActive(); return }
+  const near = dock.getPanel('view3d') ?? dock.getPanel('start') ?? drawingPanels()[0]
+  addPanel({ id, component: 'techdraw', title, params: { page }, ...(near ? { position: { referencePanel: near.id, direction: 'within' as const } } : {}) })
+  dock.getPanel(id)?.api.setActive()
+  windowChanged()
+}
+export const pageWindows = () => drawingPanels().filter((p) => p.id.startsWith(PAGE_WINDOW))
+  .map((p) => ({ page: p.id.slice(PAGE_WINDOW.length), active: dock?.activePanel?.id === p.id }))
 
 // ── Std_RecentFiles (File menu): recently opened projects, newest first — the same `saved`-backed
 // pattern as macro.tsx's recentMacros, for Recent Macros. DlgSettingsGeneral.ui's "Recent File List
@@ -696,11 +711,12 @@ function connect() {
         break
       case 'features': loadFeatures(); break // POST /api/<slug>/features from this page or another one
       case 'assembly': void import('./assembly_wb').then((m) => m.loadAssembly()); break // POST /api/<slug>/assembly
+      case 'techdraw': void import('./techdraw').then((m) => m.loadTechDraw()); break // POST /api/<slug>/techdraw/<page>
       case 'scene': loadScene(); break
       case 'checks': loadChecks(); break
       case 'verify': loadStatus(); break
       // The journal changed: our own undo/redo, the agent's `cad undo`/`cad redo`, or a new change.
-      case 'history': loadHistory(); break
+      case 'history': loadHistory(); void import('./techdraw').then((m) => m.loadTechDraw()); break   // an undo may change a page
       case 'log': setState((s) => ({ log: [...s.log, ...ev.entries].slice(-500) })); break
       case 'busy': setState({ busy: ev.busy ?? [] }); break
       case 'checked':

@@ -33,10 +33,11 @@ import { overrideKey } from './keymap'
 import { isMac } from './nav'
 import { StartPanel } from './start'
 import { DrawingPanel } from './shopwb'
+import { TechDrawPage } from './techdraw'
 
 const components: Record<string, FC<IDockviewPanelProps<any>>> = {
   view3d: View3D, model: ModelPanel, tasks: TasksPanel, report: ReportView, checks: ChecksView, console: ConsoleView, selection: SelectionView,
-  start: StartPanel, drawing: DrawingPanel,
+  start: StartPanel, drawing: DrawingPanel, techdraw: TechDrawPage,
 }
 
 /** MainWindow::addWindow gives a window's tab the view's window icon (QMdiSubWindow::setWindowIcon): a 3D view has

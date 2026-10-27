@@ -105,6 +105,7 @@ export type Task = { kind: 'params' | 'placement' | 'transform' | 'measure' | 'm
   | 'revolution' | 'groove' | 'hole'     // pd_revolve.tsx
   | 'part'                               // the Part workbench's task panels (part_tasks.tsx): other says which
   | 'assembly'                           // the Assembly workbench's panels (assembly_wb.tsx): other says which
+  | 'techdraw'                           // TechDraw's panels (techdraw_tasks.tsx): body is the page, other "<panel>:<object>:create|edit"
   // and the dress-ups (pd_dressup.tsx); `other` is the feature's name, new or edited
   | 'fillet' | 'chamfer' | 'draft' | 'thickness' | 'defeaturing'
   // pd_binder.tsx: TaskShapeBinder's "Shape Binder Parameters"; `other` is the binder's name, new or edited
@@ -123,7 +124,7 @@ export type Task = { kind: 'params' | 'placement' | 'transform' | 'measure' | 'm
 /** GET /api/history: one entry of the backend's Document undo/redo journal, shared with an
  *  agent in a terminal — replaces a UI-local undo stack (actions.ts no longer replays changes). */
 export type HistoryEntry = { id: string; name: string; by: 'ui' | 'agent'; t: number }
-export type Workbench = 'design' | 'assembly' | 'inspection' | 'agent' | 'sketcher' | 'part'
+export type Workbench = 'design' | 'assembly' | 'inspection' | 'agent' | 'sketcher' | 'part' | 'techdraw'
 /** FreeCAD's draw styles that the viewer can show faithfully. */
 export type DrawStyle = 'asis' | 'points' | 'wireframe' | 'hiddenline' | 'noshading' | 'shaded' | 'flatlines'
 export type ClipAxis = { on: boolean; offset: number; flip: boolean }

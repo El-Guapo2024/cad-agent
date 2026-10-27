@@ -61,6 +61,7 @@ import { approveRenders } from './agentwb'
 import { deleteFeatures, partDesignMenu, pdToolbars, sketchMenu } from './partdesign'
 import { partMenu, partToolbars } from './part_wb'
 import { assemblyMenu, assemblyToolbars } from './assembly_wb'
+import { deleteTd, tdState, TECHDRAW_TOOLBARS, techdrawMenu, techdrawToolbars } from './techdraw'
 import { createDatum, datumsMenu } from './pd_attach'
 /** Edit > Create's entries other than Datums: a project's parts are its modules here, not document objects. */
 const CREATE_NA = 'n/a: a project\'s parts are its part modules; there is no document to add this to'
@@ -94,6 +95,7 @@ const WORKBENCHES: Record<Workbench, { label: string; icon: IconName; name: stri
   inspection: { label: 'Inspection', icon: 'wb-inspection', name: 'InspectionWorkbench' },
   sketcher: { label: 'Sketcher', icon: 'wb-sketcher', name: 'SketcherWorkbench' },
   part: { label: 'Part', icon: 'wb-part', name: 'PartWorkbench' },
+  techdraw: { label: 'TechDraw', icon: 'td-preferences-techdraw', name: 'TechDrawWorkbench' },   // TechDraw's InitGui.py
 }
 /** WorkbenchGroup::refreshWorkbenchList: the workbenches in the order of their internal names
  *  (Gui.listWorkbenches()), the first nine on W, 1 … W, 9. */
@@ -458,6 +460,7 @@ export function MenuBar() {
         { label: 'Paste', kbd: '⌘V', icon: 'edit-paste', disabled: true, title: 'n/a: parts are source code; adding one is an edit to it' },
         { label: 'Duplicate Selection', icon: 'duplicate', disabled: true, title: 'n/a: parts are source code; duplicating one is an edit to it' },
         // Std_Delete: a Body's features (partdesign.tsx), with FreeCAD's dependency warning; a part is its source code
+        tdState().sel.length ? { label: 'Delete', kbd: '⌫', icon: 'edit-delete', cmd: 'Std_Delete', onSelect: () => void deleteTd() } :
         getState().featSel.length ? { label: 'Delete', kbd: '⌫', icon: 'edit-delete', cmd: 'Std_Delete', onSelect: () => void deleteFeatures() }
           : { label: 'Delete', kbd: '⌫', icon: 'edit-delete', disabled: true, title: 'n/a: parts are source code; deleting one is an edit to it' },
         'sep',
@@ -601,6 +604,8 @@ export function MenuBar() {
       {/* PartGui::Workbench::setupMenuBar: "&Part", inserted before Windows (part_wb.tsx) */}
       {wb === 'part' && <Menu label="Part" entries={partMenu()} />}
       {wb === 'assembly' && <Menu label="Assembly" entries={assemblyMenu()} />}
+      {/* TechDrawGui::Workbench::setupMenuBar: "Tech&Draw", inserted before Windows (techdraw.tsx) */}
+      {wb === 'techdraw' && <Menu label="TechDraw" entries={techdrawMenu()} />}
       <Menu label="Windows" entries={windowsEntries()} />
       <Menu label="Help" entries={[
         { label: "What's This?", kbd: '⇧F1', icon: 'whats-this', onSelect: whatsThis },
@@ -815,10 +820,13 @@ function UndoRedoButton({ kind }: { kind: 'undo' | 'redo' }) {
 /** StdWorkbench::setupToolBars, then the workbench's own (Workbench.cpp; the dump in
  *  scripts/fcgui.py): Clipboard, Macro and Individual Views start hidden (DefaultVisibility::Hidden). */
 export const TOOLBARS = ['File', 'Edit', 'Clipboard', 'Workbench', 'Macro', 'View', 'Individual Views', 'Structure', 'Help', 'CAD Agent', 'Part Tools',
-  'Solids', 'Boolean Tools', 'Assembly', 'Assembly Joints', 'Part Design Helper Features', 'Part Design Modeling Features', 'Part Design Dress-Up Features', 'Part Design Transformation Features'] as const
+  'Solids', 'Boolean Tools', 'Assembly', 'Assembly Joints', 'Part Design Helper Features', 'Part Design Modeling Features', 'Part Design Dress-Up Features', 'Part Design Transformation Features',
+  'TechDraw Pages', 'TechDraw Views', 'TechDraw Stacking', 'TechDraw Dimensions', 'TechDraw Attributes', 'TechDraw Centerlines', 'TechDraw Extend Dimensions',
+  'TechDraw File Access', 'TechDraw Decoration', 'TechDraw Annotation'] as const
 /** A workbench's own toolbars, listed in View > Toolbars only while it is active. */
 const WB_TOOLBARS: Record<string, string> = { 'CAD Agent': 'agent', Solids: 'part', 'Boolean Tools': 'part', Assembly: 'assembly', 'Assembly Joints': 'assembly', 'Part Design Helper Features': 'design', 'Part Design Modeling Features': 'design',
-  'Part Design Dress-Up Features': 'design', 'Part Design Transformation Features': 'design' }
+  'Part Design Dress-Up Features': 'design', 'Part Design Transformation Features': 'design',
+  ...Object.fromEntries(TECHDRAW_TOOLBARS.map((t) => [t, 'techdraw'])) }
 const HIDDEN_TOOLBARS: readonly string[] = ['Clipboard', 'Macro', 'Individual Views']
 const toolbarOn = (shown: Record<string, boolean>, name: string) => shown[name] ?? !HIDDEN_TOOLBARS.includes(name)
 /** QToolBar::handle: the 8px grip each toolbar starts with (FreeCAD.qss), gone when locked. */
@@ -917,7 +925,10 @@ export function ToolBar() {
       {/* Assembly's InitGui.py: the Assembly and Assembly Joints toolbars (assembly_wb.tsx) */}
       {wb === 'assembly' && assemblyToolbars().filter(([t]) => on(t as (typeof TOOLBARS)[number])).map(([t, es]) => (
         <span key={t} className="tb-group" title={t}><TGrip />{es.map((e, i) => e === 'sep' ? <TSep key={i} /> : <EntryBtn key={i} e={e} />)}</span>))}
-      {wb !== 'part' && wb !== 'assembly' && on('Part Tools') && <><TGrip />
+      {/* TechDrawGui::Workbench::setupToolBars: its ten toolbars (techdraw.tsx) */}
+      {wb === 'techdraw' && techdrawToolbars().filter(([t]) => on(t as (typeof TOOLBARS)[number])).map(([t, es]) => (
+        <span key={t} className="tb-group" title={t}><TGrip />{es.map((e, i) => <EntryBtn key={i} e={e} />)}</span>))}
+      {wb !== 'part' && wb !== 'assembly' && wb !== 'techdraw' && on('Part Tools') && <><TGrip />
         <Btn icon="visibility" cmd="Std_ToggleVisibility" disabled={!selected.length} onClick={() => toggleVisibility()} />
         {wb === 'design' && <Btn icon="body" cmd="Std_Edit" disabled={!one} onClick={() => one && editDefault(one)} />}
         {wb !== 'inspection' && <Btn icon="transform" cmd="Std_TransformManip" disabled={!one} onClick={() => one && openTask('transform', one)} />}

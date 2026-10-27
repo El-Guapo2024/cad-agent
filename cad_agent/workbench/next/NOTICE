@@ -1415,6 +1415,99 @@ src/Mod/Start/Gui/NewFileButton.cpp   [licence: LGPL-2.1-or-later]
 src/Mod/Start/Gui/StartView.cpp   [licence: LGPL-2.1-or-later]
     copyright 2024 The FreeCAD Project Association AISBL
     followed by src/freecad.css, src/start.tsx
+src/Mod/TechDraw/Gui/Command.cpp   [licence: LGPL-2.1-or-later]
+    copyright 2002 Jürgen Riegel; 2014 Luke Parry
+    followed by src/techdraw.tsx, src/techdraw_cmds.ts
+src/Mod/TechDraw/Gui/CommandAlign.cpp   [licence: LGPL-2.1-or-later]
+    copyright 2024 Benjamin Bræstrup Sayoc
+    followed by src/techdraw_cmds.ts
+src/Mod/TechDraw/Gui/CommandAnnotate.cpp   [licence: LGPL-2.1-or-later]
+    copyright 2019 WandererFan
+    followed by src/techdraw.tsx, src/techdraw_cmds.ts
+src/Mod/TechDraw/Gui/CommandCreateDims.cpp   [licence: LGPL-2.1-or-later]
+    copyright 2014 Luke Parry; 2022 WandererFan
+    followed by src/techdraw.tsx, src/techdraw_cmds.ts
+src/Mod/TechDraw/Gui/CommandDecorate.cpp   [licence: LGPL-2.1-or-later]
+    copyright 2014 Luke Parry
+    followed by src/techdraw_cmds.ts
+src/Mod/TechDraw/Gui/CommandExtensionDims.cpp   [licence: LGPL-2.1-or-later]
+    copyright 2021 edi
+    followed by src/techdraw_cmds.ts
+src/Mod/TechDraw/Gui/CommandExtensionPack.cpp   [licence: LGPL-2.1-or-later]
+    copyright 2021 edi
+    followed by src/techdraw_cmds.ts
+src/Mod/TechDraw/Gui/CommandHelpers.cpp   [licence: LGPL-2.0-or-later]
+    copyright 2024 WandererFan
+    followed by src/techdraw_cmds.ts
+src/Mod/TechDraw/Gui/CommandStack.cpp   [licence: LGPL-2.1-or-later]
+    copyright 2022 WandererFan
+    followed by src/techdraw_cmds.ts
+src/Mod/TechDraw/Gui/DrawGuiUtil.cpp   [licence: LGPL-2.1-or-later]
+    copyright 2016 WandererFan; 2024 Benjamin Bræstrup Sayoc
+    followed by src/techdraw.tsx
+src/Mod/TechDraw/Gui/MDIViewPage.cpp   [licence: LGPL-2.1-or-later]
+    copyright 2007 Jürgen Riegel; 2013 Luke Parry
+    followed by src/techdraw.tsx
+src/Mod/TechDraw/Gui/QGSPage.cpp   [licence: LGPL-2.1-or-later]
+    copyright 2020 WandererFan
+    followed by src/techdraw.tsx
+src/Mod/TechDraw/Gui/QGVPage.cpp   [licence: LGPL-2.1-or-later]
+    copyright 2013 Luke Parry
+    followed by src/techdraw.tsx
+src/Mod/TechDraw/Gui/TaskBalloon.cpp   [licence: LGPL-2.1-or-later]
+    copyright 2016 WandererFan; 2019 Franck Jullien
+    followed by src/techdraw_tasks.tsx
+src/Mod/TechDraw/Gui/TaskBalloon.ui   [licence: none]
+    copyright: no line in the file
+    followed by src/techdraw_tasks.tsx, src/uiforms-techdraw.ts
+src/Mod/TechDraw/Gui/TaskDimension.cpp   [licence: LGPL-2.1-or-later]
+    copyright 2021 Uwe Stöhr
+    followed by src/techdraw_tasks.tsx
+src/Mod/TechDraw/Gui/TaskDimension.ui   [licence: none]
+    copyright: no line in the file
+    followed by src/techdraw_tasks.tsx, src/uiforms-techdraw.ts
+src/Mod/TechDraw/Gui/TaskProjGroup.cpp   [licence: LGPL-2.1-or-later]
+    copyright 2014 Joe Dowsett; 2014 Luke Parry
+    followed by src/techdraw_tasks.tsx
+src/Mod/TechDraw/Gui/TaskProjGroup.ui   [licence: none]
+    copyright: no line in the file
+    followed by src/techdraw_tasks.tsx, src/uiforms-techdraw.ts
+src/Mod/TechDraw/Gui/TaskSectionView.cpp   [licence: LGPL-2.1-or-later]
+    copyright 2016 WandererFan
+    followed by src/techdraw_tasks.tsx
+src/Mod/TechDraw/Gui/TaskSectionView.ui   [licence: none]
+    copyright: no line in the file
+    followed by src/techdraw_tasks.tsx, src/uiforms-techdraw.ts
+src/Mod/TechDraw/Gui/ViewProviderPage.cpp   [licence: LGPL-2.1-or-later]
+    copyright 2004 Jürgen Riegel; 2012 Luke Parry
+    followed by src/techdraw.tsx
+src/Mod/TechDraw/Gui/Workbench.cpp   [licence: LGPL-2.1-or-later]
+    copyright 2005 Werner Mayer; 2013 Luke Parry
+    followed by src/techdraw.tsx
+src/Mod/TechDraw/InitGui.py   [licence: LGPL-2.1-or-later]
+    copyright 2002,2003 Jürgen Riegel
+    followed by src/techdraw.tsx
+src/Mod/TechDraw/TechDrawTools/CommandAxoLengthDimension.py   [licence: LGPL-2.1-or-later]
+    copyright 2023 edi
+    followed by src/techdraw_cmds.ts
+src/Mod/TechDraw/TechDrawTools/CommandFillTemplateFields.py   [licence: LGPL-2.1-or-later]
+    copyright 2023 Syres
+    followed by src/techdraw_cmds.ts
+src/Mod/TechDraw/TechDrawTools/CommandHoleShaftFit.py   [licence: LGPL-2.1-or-later]
+    copyright 2023 edi
+    followed by src/techdraw_cmds.ts
+src/Mod/TechDraw/TechDrawTools/CommandMoveView.py   [licence: LGPL-2.1-or-later]
+    copyright 2022 WandererFan
+    followed by src/techdraw_cmds.ts
+src/Mod/TechDraw/TechDrawTools/CommandPositionSectionView.py   [licence: LGPL-2.1-or-later]
+    copyright 2023 edi
+    followed by src/techdraw_cmds.ts
+src/Mod/TechDraw/TechDrawTools/CommandShareView.py   [licence: LGPL-2.1-or-later]
+    copyright 2022 WandererFan
+    followed by src/techdraw_cmds.ts
+src/Mod/TechDraw/TechDrawTools/CommandVertexCreations.py   [licence: LGPL-2.1-or-later]
+    copyright 2023 edi
+    followed by src/techdraw_cmds.ts
 src/Mod/Tux/NavigationIndicatorGui.py   [licence: LGPL-2.1-or-later]
     copyright 2016, 2017, 2018 triplus @ FreeCAD
     followed by src/chrome.tsx

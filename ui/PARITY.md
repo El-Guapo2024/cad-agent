@@ -106,7 +106,7 @@ agent's job, in the code.
 | FreeCAD toolbar | Ours |
 |---|---|
 | Edit: Undo, Redo, Recompute | done |
-| Workbench | done: Assembly, CAD Agent, Inspection, Part Design, Part and Sketcher — every entry of `chrome.tsx`'s `WORKBENCHES`, in internal-name order as `workbenchList` sorts them; Preferences > Workbenches hides the disabled ones (the start-up one always stays) |
+| Workbench | done: Assembly, CAD Agent, Inspection, Part Design, Part, Sketcher and TechDraw — every entry of `chrome.tsx`'s `WORKBENCHES`, in internal-name order as `workbenchList` sorts them; Preferences > Workbenches hides the disabled ones (the start-up one always stays) |
 | View: Fit all, Fit selection, Standard views ▾, Draw style ▾, Measure | done |
 | View: Align to selection | done |
 | View: Mass properties | done |
@@ -984,6 +984,34 @@ Deliberately or knowingly different:
   tools or the removed volume (updatePreviewShape).
 - The Shaft Design Wizard is cut (above).
 
+## TechDraw workbench, 2026-10-27
+
+TechDraw pages edited in the app as FreeCAD 3160daf1e2b6 does, written back as `techdraw/<Page>.py` in the project
+(docs/EDITING_PLAN.md, "TechDraw pages in a project"). `cad drawing` and its Drawing tab are unchanged beside it. The Python is
+`cad_agent/techdraw*.py` (`cad techdraw ...`); the page is `src/techdraw.tsx` and `src/techdraw_tasks.tsx`. The checks are
+tests/test_techdraw_golden.py (freecadcmd's numbers, tests/golden/techdraw), tests/test_techdraw_svg.py (the GUI's own SVG export
+and objects, ui/scripts/fctechdraw.json) and `ui/scripts/techdrawcheck.mjs` (the GUI against fctechdraw.json: 361 ok, 104 known, 0 FAIL).
+
+| Item | Status |
+|---|---|
+| Page | done: TechDraw_PageDefault and TechDraw_PageTemplate (7 templates shipped: FreeCAD's Default A4, ISO A4/A3 TD, ISO 5457 minimal, A4 portrait; LGPL, NOTICE), the page as an MDI tab (pan, zoom, selection and preselection colours), Redraw, Fill Template Fields (the autofill keys), Toggle Frames |
+| View | done: TechDraw_View's TaskProjGroup ("New View"), Direction, XDirection, Scale (Page, Automatic, Custom; DrawView::checkFit and sensibleScale), X/Y, drag to move, rotate. HLR is FreeCAD's pipeline on the same OCCT 8.0.1 (findCentroid, HLRBRep_Algo, makeTDGeometry, removeOverlapEdges, isZeroEdge): EdgeN numbering equals FreeCAD's in 29 of 29 views |
+| Projection group | done: TaskProjGroup's twelve checkboxes, first and third angle, AutoDistribute, spacing, the camera's direction for the anchor (ProjectionGroup from the Top view gives (0,0,1)), a view turned into a group and back (turnViewToProjGroup/turnProjGroupToView) |
+| Section | done: TaskSectionView's four arrows (SectionNormal, Direction, XDirection, Rotation equal FreeCAD's for each), symbol, origin, scale, the cut and its section faces (filled grey, the default CutSurfaceDisplay "Color"), the section line and arrows on the base view |
+| Dimensions | done: Length, Horizontal, Vertical, Radius, Diameter, Angle, 3-point angle, and Smart by the selection only (simplified: no live switching while dragging); DimensionFormatter (%w %r %g, tolerances, equal tolerance, Arbitrary), TaskDimension (format, tolerances, arrowheads, Reference, Theoretically exact); values, getText and the shown text equal FreeCAD's in 11 golden cases |
+| Balloon, Annotation | done: TechDraw_Balloon (the click places the origin on the view the command was given), shape and end type, TechDraw_Annotation |
+| Export | done: SVG (10 units/mm as TechDraw's, the template inlined), DXF (each view's HLR compounds on its own layer, as TechDraw's writer), PDF (hand-written, the template drawn) |
+| Tree, property view, undo | done: the page's rows as FreeCAD's (dimensions and balloons under their view, sections at page level), the property view's rows and groups from FreeCAD's (techdraw_props.ts), each command one Edit > Undo step named as FreeCAD names it |
+
+Known differences, each marked `known` by techdrawcheck:
+- Commands not ported are greyed (Broken View, Complex Section, Clip Group, SVG/Bitmap, Project Shape, Active/Draft/BIM/Spreadsheet
+  views, Rich Text Annotation, Print All, hatching, cosmetic edges, centre lines, leaders, welding and surface symbols, extensions);
+  FreeCAD enables some of these where we grey them.
+- A section is one undo step; FreeCAD commits "Create Section View" then "Edit Section View". The GUI's "Drag Dimension" step is not made.
+- TaskSectionView's CompassWidget and VectorEditWidget are not ported (the four arrows are).
+- Dimension, balloon and section line drawing (arrow sizes, text gap) approximate QGIViewDimension; DXF dimensions are lines and
+  TEXT, not DIMENSION entities; the page's text falls back to DejaVu Sans where osifont is not installed.
+
 ## Still missing
 
 - PartDesign: the Shaft Design Wizard is cut (a Python wizard with its own table, charts and calculation); a Sub-Shape Binder binds its own Body only, and only Synchronized; a Boolean's tools and a Clone's source are other part modules ("PartDesign's last commands, 2026-10-27"); Move Object To…, Set Face Colors, Toggle Suppressed and Toggle Freeze are greyed with FreeCAD's reasons ("PartDesign, 2026-10-24").
@@ -993,5 +1021,5 @@ Deliberately or knowingly different:
 - Sketcher: external intersection is greyed "Not in this workbench yet"; external geometry of an ellipse or a B-spline, of a circle at an angle (read as an ellipse) or of a non-flat face is refused "not supported yet" ("Sketcher, 2026-10-24", "Attachment and datums, 2026-10-24").
 - Sketcher: Validate's Swap Endpoints in Constraints never enables, and the swap itself (port_reversedExternalArcs) is not ported ("Sketcher text and the commands on sketch objects, 2026-10-26").
 - Loft, Pipe and Helix: a Pipe whose end sections are not planar is refused, and a solid's face as a Pipe's or Helix's Profile is not offered ("PartDesign Loft, Pipe and Helix, 2026-10-24").
-- TechDraw: the Drawing tab is `cad drawing`'s finished page, opened as TechDraw opens a page, with its DXF, SVG and PDF to save; it is not a TechDraw page to edit, and there are no dimension, view or page tools ("Every cad command from the page (2026-10-13)").
-- Spreadsheet and the other workbenches: the selector offers only Assembly, CAD Agent, Inspection, Part Design, Part and Sketcher, so Spreadsheet, Draft, FEM, Mesh and the rest are not offered ("Toolbars").
+- TechDraw: Broken View, Complex Section, Clip Group, SVG and bitmap views, Project Shape, views from other workbenches, Rich Text, hatching, cosmetic edges, centre lines, leaders, welding and surface symbols and the extensions are greyed; a section is one undo step, not two ("TechDraw workbench, 2026-10-27").
+- Spreadsheet and the other workbenches: the selector offers only Assembly, CAD Agent, Inspection, Part Design, Part, Sketcher and TechDraw, so Spreadsheet, Draft, FEM, Mesh and the rest are not offered ("Toolbars").
