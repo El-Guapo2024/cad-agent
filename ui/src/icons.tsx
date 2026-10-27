@@ -14,6 +14,7 @@
 import { PART_FILES } from './part_icons'
 import { ASSEMBLY_FILES } from './assembly_icons'
 import { TECHDRAW_FILES } from './techdraw_icons'
+import { SPREADSHEET_FILES } from './spreadsheet_icons'
 export const FILES = {
   document: 'Document', group: 'Group', part: 'Part_Feature', bought: 'Part_FeatureImport', body: 'PartDesign_Body',
   'wb-design': 'PartDesignWorkbench', 'wb-assembly': 'AssemblyWorkbench', 'wb-inspection': 'InspectionWorkbench',
@@ -104,6 +105,7 @@ export const FILES = {
   ...PART_FILES, // the Part workbench's (part_icons.ts, public/freecad-icons/part)
   ...ASSEMBLY_FILES, // the Assembly workbench's (assembly_icons.ts, public/freecad-icons/assembly)
   ...TECHDRAW_FILES, // the TechDraw workbench's (techdraw_icons.ts, public/freecad-icons/techdraw)
+  ...SPREADSHEET_FILES, // the Spreadsheet workbench's (spreadsheet_icons.ts, public/freecad-icons/spreadsheet)
 } as const
 
 export type IconName = keyof typeof FILES

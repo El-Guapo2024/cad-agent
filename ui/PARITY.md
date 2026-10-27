@@ -1069,6 +1069,47 @@ Known differences, each marked `known` by techdrawcheck:
 - Dimension, balloon and section line drawing (arrow sizes, text gap) approximate QGIViewDimension; DXF dimensions are lines and
   TEXT, not DIMENSION entities; the page's text falls back to DejaVu Sans where osifont is not installed.
 
+## Spreadsheet workbench, 2026-10-27
+
+Spreadsheets edited in the app as FreeCAD 3160daf1e2b6 edits a Spreadsheet::Sheet, written back as `spreadsheet/<Name>.py`
+(docs/EDITING_PLAN.md, "Spreadsheets in a project"), and a part's PARAMS bound to cells through its EXPRESSIONS. The Python is
+`cad_agent/spreadsheet*.py` (`cad sheet ...`) on `src/expr.ts` itself (bundled as `cad_agent/fcexpr_engine.js`, run in V8 by
+`cad_agent/fcexpr.py`); the page is `src/spreadsheet.tsx` and `src/spreadsheet_model.ts`, and shows the cell views and CSV the
+server made. The checks: `ui/scripts/exprdiff_py.py` (the server's path through the engine on the 75,558 stored FreeCAD answers:
+0 differ), tests/test_fcexpr.py (1,974 of them on CI), tests/test_spreadsheet_golden.py (16 freecadcmd
+cases, tests/golden/spreadsheet: every cell's content, property type, value or "ERR:" message, the look, the `<Cell>` attributes a
+document saves, sizes, the errors, a reopened document, a Pad driven by a cell, CSV), tests/test_spreadsheet_view.py
+(SheetModel::data for 60 cells, #PENDING and the cycles against ui/scripts/fcspreadsheet.json, the real GUI's model), and
+`ui/scripts/spreadsheetcheck.mjs` (the page against fcspreadsheet.json: 285 ok, 12 known, 0 FAIL).
+
+| Item | Status |
+|---|---|
+| Cells | done: Cell::setContent's reading of what is typed (strtod's numbers, quantities and fractions without `=`, `'` strings, a formula that does not parse kept as its text), getStringContent's form (`=A1 * 2`), aliases (isValidAlias's rules and messages), styles, alignment (`keep`/`replace`), colours (Base::Color's floats and encodeColor), display units (parseUnit), merged cells, column widths and row heights |
+| Evaluation | done: every function of the expression language (fcexpr), ranges walked as App::Range walks them (column by column, aliases at either end), the aggregates with "Invalid property type for aggregate.", the cell's property type (Integer, Float, SpreadsheetQuantity, String, PythonObject), errors as the cell's exception and "ERR: ..." |
+| Recompute | done: Sheet::execute's graph and boost::topological_sort's order, the alias that the order cannot see (a cell using an alias defined after it fails once, as in FreeCAD), cycles ("Pending computation due to cyclic dependency", "Cyclic dependency\nA1, A2"), other sheets' cells made dirty by a change (slotChangedObject) |
+| Rows and columns | done: insert and remove with MoveCellsExpressionVisitor's rewrites, aliases and spans moved, other sheets' and parts' references renamed (renameObjectIdentifiers), sizes shifted |
+| Other objects | done: `Sheet.alias`, `<<Label>>.A1`, a part's PARAMS read from a cell (`=plate.thick`), names resolved as ObjectIdentifier does (resolveAmbiguity at parse: `=Params.A1` on Params is kept as `=A1`), its messages ("Property 'x' not found in 'Params'"), validateExpression's "cyclic reference to <slug>#Spreadsheet.A2" |
+| Binding | done: a part's EXPRESSIONS bind PARAMS entries (state._load_module applies them), a bound entry is read only for `cad set`, the Expression Editor on a parameter binds it when its text names a sheet, and reads the sheets' cells |
+| Page | done: the Spreadsheet menu and toolbar with the two QtColorPicker buttons, SheetView's Content and Alias line edits (the alias checked as typed, "Alias contains invalid characters!"), the cells drawn by SheetModel::data (display strings, colours, alignment, fonts, tooltips), editing in the cell (a key, F2 or a double click; Enter, Tab, Esc), finishEditWithMove's keys, the selection (click, Shift, Ctrl, drag, headers, Ctrl+A), Copy/Cut/Paste (tiled, relative references moved), Delete, the cell's context menu, the headers' Insert / Remove menus, column and row resize, the Properties dialog (its five tabs, the alias statuses, OK as PropertiesDialog::apply), Set Alias, CSV import and export, the tree, the property view, undo |
+
+Known differences:
+- Bind… (DlgBindSheet), Configuration Table (DlgSheetConf), the zoom slider, printing, the expression completer in the line edits,
+  xlsx import and charts are not ported; Bind… and Configuration Table are greyed in the context menu.
+- A part bound to a cell by its alias follows the cell at each recompute here; FreeCAD does not recompute it when the cell changes
+  (the alias is not the property that changed) and keeps the old value, even after a reopen (tests/test_spreadsheet_golden.py "pad").
+- Two sheets that read each other: FreeCAD logs "The graph must be a DAG" and recomputes one of them; here both run in document order
+  (again until nothing changes) and the recompute reports the cycle.
+- The Alias line edit's change is an undo step ("Set alias") here; FreeCAD's confirmAliasChanged opens no transaction. A column or
+  row resized is an undo step ("Resize column", "Resize row"); FreeCAD's sets the size outside a transaction.
+- Paste follows the page's own clipboard (the cells copied in the page, and text from the system clipboard when the browser lets the
+  page read it); New Spreadsheet and Import are active with no document open, as the project is the document.
+- A cell's value is the server's: there is no #PENDING state in the page, since every edit is recomputed before it shows.
+- CSV import reads each line with Python's csv module where FreeCAD uses boost::escaped_list_separator: a quote in the middle
+  of a field is kept rather than opening a quoted part, an escape before any character gives that character (FreeCAD refuses
+  one before anything but the escape, the quote, the delimiter or `n`, and reads `\n` as a newline).
+- The Content line edit is enabled from the start (FreeCAD enables it when a cell first becomes current); Ctrl+Down runs
+  SheetTableView's region scan here, where the recording's Ctrl+Down did not move (spreadsheetcheck's `known` lines).
+
 ## Still missing
 
 - PartDesign: the Shaft Design Wizard is cut (a Python wizard with its own table, charts and calculation); a Sub-Shape Binder binds its own Body only, and only Synchronized; a Boolean's tools and a Clone's source are other part modules ("PartDesign's last commands, 2026-10-27"); Move Object To…, Set Face Colors, Toggle Suppressed and Toggle Freeze are greyed with FreeCAD's reasons ("PartDesign, 2026-10-24").
@@ -1078,4 +1119,5 @@ Known differences, each marked `known` by techdrawcheck:
 - Sketcher: Validate's Swap Endpoints in Constraints never enables, and the swap itself (port_reversedExternalArcs) is not ported ("Sketcher text and the commands on sketch objects, 2026-10-26").
 - Loft, Pipe and Helix: a Pipe whose end sections are not planar is refused, and a solid's face as a Pipe's or Helix's Profile is not offered ("PartDesign Loft, Pipe and Helix, 2026-10-24").
 - TechDraw: Broken View, Complex Section, Clip Group, SVG and bitmap views, Project Shape, views from other workbenches, Rich Text, leaders, welding and surface symbols and the extension commands are greyed; a section is one undo step, not two ("TechDraw workbench, 2026-10-27").
-- Spreadsheet and the other workbenches: the selector offers only Assembly, CAD Agent, Inspection, Part Design, Part, Sketcher and TechDraw, so Spreadsheet, Draft, FEM, Mesh and the rest are not offered ("Toolbars").
+- Spreadsheet: Bind…, Configuration Table, zoom, printing, the line edits' completer, xlsx import and charts are cut ("Spreadsheet workbench, 2026-10-27").
+- The other workbenches: the selector offers only Assembly, CAD Agent, Inspection, Part Design, Part, Sketcher, Spreadsheet and TechDraw, so Draft, FEM, Mesh and the rest are not offered ("Toolbars").

@@ -47,6 +47,12 @@ export type VarPath = {
   names: string[]
   /** components that ObjectIdentifier holds: attributes after the property, constant indices and ranges. */
   sub: IdComp[]
+  /** Set by a document's resolveAmbiguity (a spreadsheet's): `forced`, the object (and document) are written out, as
+   *  ObjectIdentifier::toString writes a documentObjectName set by force; `ownerNamed`, the text named the owner (a rename
+   *  then writes it out); `plain`, an `Obj.prop` whose Obj the document lacks, written as it was typed. */
+  forced?: boolean
+  ownerNamed?: boolean
+  plain?: boolean
 }
 export type Node =
   | { k: 'num'; v: number }
@@ -286,7 +292,10 @@ function quote(s: string): string {
 /** ObjectIdentifier::toString: the property, a '.' before it if it is the owner's own and attributes follow. */
 function pathText(p: VarPath): string {
   const props = p.names.map((n, i) => (i === 0 ? n : '.' + n)).join('')
-  return (p.local || p.names.length > 1 ? '.' : '') + props + p.sub.map((c) => idCompText(c)).join('')
+  const subs = p.sub.map((c) => idCompText(c)).join('')
+  if (p.plain) return props + subs
+  if (p.forced && p.obj) return (p.doc ? refText(p.doc) + '#' : '') + refText(p.obj) + '.' + props + subs
+  return (p.local || p.names.length > 1 ? '.' : '') + props + subs
 }
 function idCompText(c: IdComp): string {
   switch (c.k) {
@@ -388,7 +397,9 @@ const op = (o: BinOpName, l: Node, r: Node): Node => ({ k: 'op', op: o, l, r })
 const emptyPath = (): VarPath => ({ doc: null, obj: null, local: false, names: [], sub: [] })
 const mkVar = (path: VarPath): Extract<Node, { k: 'var' }> => ({ k: 'var', path, comps: [] })
 
-type Ctx = { result: Node | null; value: boolean; unit: boolean; owner?: string }
+/** ObjectIdentifier::resolveAmbiguity for `Name.prop` at parse time: what the name means in the owner's document. */
+export type ResolveAmbiguity = (obj: Ref, prop: string, owner?: string) => VarPath
+type Ctx = { result: Node | null; value: boolean; unit: boolean; owner?: string; resolveAmbiguity?: ResolveAmbiguity }
 type V = any // eslint-disable-line @typescript-eslint/no-explicit-any
 
 /** FunctionExpression's constructor: the checks on the name and the number of arguments. */
@@ -460,7 +471,7 @@ const ACTIONS: Record<string, (v: V[], ctx: Ctx) => V> = {
   "iden: '.' id_or_cell": (v) => ({ ...emptyPath(), local: true, names: [v[1]] }),
   "iden: object '.' STRING '.' id_or_cell": (v) => ({ ...emptyPath(), obj: v[0], names: [v[4]] }),
   // ObjectIdentifier::resolveAmbiguity: the first name is the owner (dropped) or else a property of the owner, then an attribute
-  "iden: object '.' id_or_cell": (v, c) => ({ ...emptyPath(), names: v[0].name === c.owner ? [v[2]] : [v[0].name, v[2]] }),
+  "iden: object '.' id_or_cell": (v, c) => c.resolveAmbiguity ? c.resolveAmbiguity(v[0], v[2], c.owner) : ({ ...emptyPath(), names: v[0].name === c.owner ? [v[2]] : [v[0].name, v[2]] }),
   "iden: document '#' object '.' id_or_cell": (v) => ({ ...emptyPath(), doc: v[0], obj: v[2], names: [v[4]] }),
   "iden: document '#' object '.' STRING '.' id_or_cell": (v) => ({ ...emptyPath(), doc: v[0], obj: v[2], names: [v[6]] }),
   "iden: iden '.' IDENTIFIER": (v) => ({ ...v[0], names: [...v[0].names, v[2]] }),
@@ -490,9 +501,15 @@ const RULE_ACTIONS = RULES.map(([, , text]) => {
  *  the parameters it may use: a unit's or constant's name among them reads as the parameter. Throws what FreeCAD throws:
  *  ParserError for text that is not an expression ("Failed to parse expression '...'"), and the lexer's and
  *  constructors' own errors. `owner` is the name of the object the expression belongs to. */
-export function parseExpr(text: string, names: ReadonlySet<string> = new Set(), owner?: string): Node {
+export function parseExpr(text: string, names: ReadonlySet<string> = new Set(), owner?: string, resolveAmbiguity?: ResolveAmbiguity): Node {
+  const ctx = runParser(text, names, owner, resolveAmbiguity)
+  if (!ctx.result) throw new PyError(`Unknown error in expression '${text}'`, 'ParserError', 'syntax')
+  if (!ctx.value) throw new PyError('Expression can not evaluate to a value.', 'FreeCADError', 'syntax')
+  return ctx.result
+}
+function runParser(text: string, names: ReadonlySet<string>, owner?: string, resolveAmbiguity?: ResolveAmbiguity): Ctx {
   const lexer = new Lexer(text, names)
-  const ctx: Ctx = { result: null, value: false, unit: false, owner }
+  const ctx: Ctx = { result: null, value: false, unit: false, owner, resolveAmbiguity }
   const states = [0]
   const values: V[] = [undefined]
   let tok: Tok | null = null
@@ -527,10 +544,28 @@ export function parseExpr(text: string, names: ReadonlySet<string> = new Set(), 
     if (next < 0) throw parseError(text)
     states.push(next)
   }
-  if (!ctx.result) throw new PyError(`Unknown error in expression '${text}'`, 'ParserError', 'syntax')
-  if (!ctx.value) throw new PyError('Expression can not evaluate to a value.', 'FreeCADError', 'syntax')
-  return ctx.result
+  return ctx
 }
+
+/** ExpressionParser::parseUnit: a unit expression (or 1/unit), simplified: its dimensions and scaler ("cm": Length, 10). */
+export function parseUnit(text: string): { dims: Dims; scaler: number } {
+  let ctx: Ctx
+  try { ctx = runParser(text, new Set()) } catch (e) {
+    if (e instanceof PyError && e.kind === 'syntax' && e.message === `Failed to parse expression '${text}'`) throw new PyError('Failed to parse expression.', 'ParserError', 'syntax')
+    throw e
+  }
+  const r = ctx.result
+  if (!r) throw new PyError('Unknown error in expression', 'ParserError', 'syntax')
+  const unit = ctx.unit || (r.k === 'op' && r.op === '/' && numLike(r.l) && r.r.k === 'unit' && essentiallyEqual(r.l.v, 1))
+  if (!unit) throw new PyError('Expression is not a unit.', 'ExpressionError')
+  const q = asQuantity(ev(r, { vars: {} }))
+  return { dims: q.dims, scaler: q.value }
+}
+const firstTokens = (s: string) => { const lx = new Lexer(s, new Set()); const a = lx.next(); return [a.n, lx.next().n] }
+/** ExpressionParser::isTokenAUnit: the text is one UNIT token (a US building unit, " or ', is not). */
+export function isTokenAUnit(s: string): boolean { const [a, b] = firstTokens(s); return b === 0 && a === T('UNIT') }
+/** ExpressionParser::isTokenAConstant. */
+export function isTokenAConstant(s: string): boolean { const [a, b] = firstTokens(s); return b === 0 && a === T('CONSTANT') }
 
 // ─── Evaluation (Expression.cpp's _getPyValue) ────────────────────────────────────────────────────
 
@@ -541,6 +576,13 @@ export type Env = {
   /** the object that owns the expression (its name) and its document; a name that is neither is not found. */
   owner?: string
   doc?: string
+  /** Another object of the document (a spreadsheet's cell: spreadsheet.tsx's sheetObjects): called for a path that names an object
+   *  other than the owner, or two names of which the first is not one of the owner's properties; the value and the names left
+   *  (attributes), or null for expr.ts's own error. */
+  resolve?: (p: VarPath) => { value: PyVal | Quantity; rest: string[] } | null
+  /** A range's cells as the sheet has them (RangeExpression::getRange, aliases at its ends), in its order, with the cell
+   *  property's kind ('quantity', 'float', 'int' or another); null for the owner's vars, row by row. */
+  rangeCells?: (n: Extract<Node, { k: 'range' }>) => { addr: string; value: PyVal | Quantity; kind?: string }[] | null
 }
 const isPyVal = (x: PyVal | Quantity): x is PyVal => 't' in x
 function propertyValue(x: PyVal | Quantity): PyVal {
@@ -554,6 +596,10 @@ const refText = (r: Ref) => (r.str ? `<<${r.name}>>` : r.name)
 function resolveProperty(n: Extract<Node, { k: 'var' }>, env: Env): { value: PyVal; rest: string[] } {
   const owner = env.owner ?? '', doc = env.doc ?? ''
   const p = n.path
+  if (env.resolve && ((p.doc && p.doc.name !== doc) || (p.obj && p.obj.name !== owner) || (p.names.length >= 2 && !Object.prototype.hasOwnProperty.call(env.vars, p.names[0])))) {
+    const r = env.resolve(p)
+    if (r) return { value: propertyValue(r.value), rest: r.rest }
+  }
   if (p.doc && p.doc.name !== doc) throw rt(`Document '${refText(p.doc)}' not found in '${p.doc.name}'`)
   if (p.obj && p.obj.name !== owner) throw rt(`Document object '${refText(p.obj)}' not found in '${doc}'`)
   const prop = p.names[0]
@@ -675,11 +721,17 @@ function rangeCells(n: Extract<Node, { k: 'range' }>): string[] {
     for (let c = Math.min(c1.col, c2.col); c <= Math.max(c1.col, c2.col); c++) out.push(`${columnName(c)}${r}`)
   return out
 }
-function rangeList(n: Extract<Node, { k: 'range' }>, env: Env): PyVal {
-  const items: PyVal[] = []
-  for (const addr of rangeCells(n)) if (Object.prototype.hasOwnProperty.call(env.vars, addr)) items.push(propertyValue(env.vars[addr]))
-  return { t: 'list', v: items }
+function envCells(n: Extract<Node, { k: 'range' }>, env: Env): { addr: string; value: PyVal | Quantity; kind?: string }[] {
+  const got = env.rangeCells?.(n)
+  if (got) return got
+  const out: { addr: string; value: PyVal | Quantity }[] = []
+  for (const addr of rangeCells(n)) if (Object.prototype.hasOwnProperty.call(env.vars, addr)) out.push({ addr, value: env.vars[addr] })
+  return out
 }
+function rangeList(n: Extract<Node, { k: 'range' }>, env: Env): PyVal {
+  return { t: 'list', v: envCells(n, env).map((c) => propertyValue(c.value)) }
+}
+const AGGREGATE_KINDS = new Set(['quantity', 'float', 'int'])
 
 // ─── Functions (FunctionExpression::evaluate) ──────────────────────────────────────────────────────
 
@@ -755,9 +807,8 @@ function evalFunction(n: Extract<Node, { k: 'fn' }>, env: Env): PyVal {
     const c = new Collector(f)
     for (const a of args) {
       if (a.k === 'range') {
-        for (const addr of rangeCells(a)) {
-          if (!Object.prototype.hasOwnProperty.call(env.vars, addr)) continue
-          const q = P.toQuantity(propertyValue(env.vars[addr]))
+        for (const cell of envCells(a, env)) {
+          const q = cell.kind !== undefined && !AGGREGATE_KINDS.has(cell.kind) ? null : P.toQuantity(propertyValue(cell.value))
           if (!q) throw new PyError(inExpr('Invalid property type for aggregate.', n), 'ExpressionError')
           c.collect(q)
         }

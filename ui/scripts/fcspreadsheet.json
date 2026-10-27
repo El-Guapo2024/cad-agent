@@ -1,0 +1,6817 @@
+{
+ "errors": {},
+ "prefs": {
+  "AliasedCellBackgroundColor": "#bac8ff",
+  "TextColor": "#212529",
+  "PositiveNumberColor": "#212529",
+  "NegativeNumberColor": "#212529",
+  "DisplayAliasFormatString": "",
+  "ImportExportDelimiter": "",
+  "showAliasName": false,
+  "Decimals": 2,
+  "UserSchema": 0,
+  "locale": "C",
+  "system_locale": "C"
+ },
+ "menus_none": {
+  "bar": [
+   "&File",
+   "&Edit",
+   "&View",
+   "&Tools",
+   "&Macro",
+   "&Spreadsheet",
+   "&Windows",
+   "",
+   "&Help"
+  ],
+  "&Edit": [
+   {
+    "text": "&Undo",
+    "name": "Std_Undo",
+    "shortcut": "Ctrl+Z",
+    "enabled": false,
+    "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Undo</b> (Ctrl+Z)</p><p style='white-space:pre; margin:0;'>Undoes the previous action</p><p style='white-space:pre; margin-top:0.5em;'><i>Std_Undo</i></p>"
+   },
+   {
+    "text": "&Redo",
+    "name": "Std_Redo",
+    "shortcut": "Ctrl+Shift+Z",
+    "enabled": false,
+    "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Redo</b> (Ctrl+Shift+Z)</p><p style='white-space:pre; margin:0;'>Redoes a previously undone action</p><p style='white-space:pre; margin-top:0.5em;'><i>Std_Redo</i></p>"
+   },
+   {
+    "sep": true
+   },
+   {
+    "text": "Cu&t",
+    "name": "Std_Cut",
+    "shortcut": "Ctrl+X",
+    "enabled": false,
+    "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Cut</b> (Ctrl+X)</p><p style='white-space:pre; margin:0;'>Removes the selection and copies it to the clipboard</p><p style='white-space:pre; margin-top:0.5em;'><i>Std_Cut</i></p>"
+   },
+   {
+    "text": "&Copy",
+    "name": "Std_Copy",
+    "shortcut": "Ctrl+C",
+    "enabled": false,
+    "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Copy</b> (Ctrl+C)</p><p style='white-space:pre; margin:0;'>Copies the selection to the clipboard</p><p style='white-space:pre; margin-top:0.5em;'><i>Std_Copy</i></p>"
+   },
+   {
+    "text": "&Paste",
+    "name": "Std_Paste",
+    "shortcut": "Ctrl+V",
+    "enabled": false,
+    "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Paste</b> (Ctrl+V)</p><p style='white-space:pre; margin:0;'>Pastes the contents of the clipboard</p><p style='white-space:pre; margin-top:0.5em;'><i>Std_Paste</i></p>"
+   },
+   {
+    "text": "Duplicate Selecti&on",
+    "name": "Std_DuplicateSelection",
+    "shortcut": "",
+    "enabled": false,
+    "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Duplicate Selection</b></p><p style='white-space:pre; margin:0;'>Duplicates the selected objects to the active document</p><p style='white-space:pre; margin-top:0.5em;'><i>Std_DuplicateSelection</i></p>"
+   },
+   {
+    "text": "&Delete",
+    "name": "Std_Delete",
+    "shortcut": "Del",
+    "enabled": false,
+    "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Delete</b> (Del)</p><p style='white-space:pre; margin:0;'>Deletes the selected objects</p><p style='white-space:pre; margin-top:0.5em;'><i>Std_Delete</i></p>"
+   },
+   {
+    "sep": true
+   },
+   {
+    "text": "Recompute",
+    "name": "Std_Refresh",
+    "shortcut": "F5",
+    "enabled": false,
+    "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Recompute</b> (F5)</p><p style='white-space:pre; margin:0;'>Recomputes the active document</p><p style='white-space:pre; margin-top:0.5em;'><i>Std_Refresh</i></p>"
+   },
+   {
+    "text": "&Box Selection",
+    "name": "Std_BoxSelection",
+    "shortcut": "Shift+B",
+    "enabled": false,
+    "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Box Selection</b> (Shift+B)</p><p style='white-space:pre; margin:0;'>Activates the box selection tool</p><p style='white-space:pre; margin-top:0.5em;'><i>Std_BoxSelection</i></p>"
+   },
+   {
+    "text": "Bo&x Element Selection",
+    "name": "Std_BoxElementSelection",
+    "shortcut": "Shift+E",
+    "enabled": false,
+    "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Box Element Selection</b> (Shift+E)</p><p style='white-space:pre; margin:0;'>Activates box element selection</p><p style='white-space:pre; margin-top:0.5em;'><i>Std_BoxElementSelection</i></p>"
+   },
+   {
+    "text": "Select &All",
+    "name": "Std_SelectAll",
+    "shortcut": "Ctrl+A",
+    "enabled": false,
+    "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Select All</b> (Ctrl+A)</p><p style='white-space:pre; margin:0;'>Selects all objects in the active document</p><p style='white-space:pre; margin-top:0.5em;'><i>Std_SelectAll</i></p>"
+   },
+   {
+    "sep": true
+   },
+   {
+    "text": "Trans&form",
+    "name": "Std_TransformManip",
+    "shortcut": "",
+    "enabled": false,
+    "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Transform</b></p><p style='white-space:pre; margin:0;'>Transforms the selected object in the 3D view</p><p style='white-space:pre; margin-top:0.5em;'><i>Std_TransformManip</i></p>"
+   },
+   {
+    "text": "P&lacement",
+    "name": "Std_Placement",
+    "shortcut": "",
+    "enabled": false,
+    "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Placement</b></p><p style='white-space:pre; margin:0;'>Opens the placement editor to adjust the placement of the selected object</p><p style='white-space:pre; margin-top:0.5em;'><i>Std_Placement</i></p>"
+   },
+   {
+    "text": "Ali&gn To…",
+    "name": "Std_Alignment",
+    "shortcut": "",
+    "enabled": false,
+    "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Align To…</b></p><p style='white-space:pre; margin:0;'>Aligns the selected objects</p><p style='white-space:pre; margin-top:0.5em;'><i>Std_Alignment</i></p>"
+   },
+   {
+    "text": "&Send to Python Console",
+    "name": "Std_SendToPythonConsole",
+    "shortcut": "Ctrl+Shift+P",
+    "enabled": false,
+    "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Send to Python Console</b> (Ctrl+Shift+P)</p><p style='white-space:pre; margin:0;'>Sends the selected objects to the Python console</p><p style='white-space:pre; margin-top:0.5em;'><i>Std_SendToPythonConsole</i></p>"
+   },
+   {
+    "text": "Propert&ies",
+    "name": "Std_Properties",
+    "shortcut": "Alt+Return",
+    "enabled": false,
+    "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Properties</b> (Alt+Return)</p><p style='white-space:pre; margin:0;'>Shows the property view, which displays the properties of the selected object.</p><p style='white-space:pre; margin-top:0.5em;'><i>Std_Properties</i></p>"
+   },
+   {
+    "sep": true
+   },
+   {
+    "text": "Toggle &Edit Mode",
+    "name": "Std_Edit",
+    "shortcut": "",
+    "enabled": false,
+    "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Toggle Edit Mode</b></p><p style='white-space:pre; margin:0;'>Toggles the selected object's edit mode</p><p style='white-space:pre; margin-top:0.5em;'><i>Std_Edit</i></p>"
+   },
+   {
+    "text": "Edit &Mode",
+    "name": "Std_UserEditMode",
+    "shortcut": "",
+    "enabled": true,
+    "tip": "Edit Mode",
+    "menu": [
+     {
+      "text": "&Default",
+      "name": "Std_UserEditModeDefault",
+      "shortcut": "",
+      "enabled": true,
+      "tip": "The object will be edited using the mode defined internally to be the most appropriate for the object type"
+     },
+     {
+      "text": "Trans&form",
+      "name": "Std_UserEditModeTransform",
+      "shortcut": "",
+      "enabled": true,
+      "tip": "The object will have its placement editable with the Std TransformManip command"
+     },
+     {
+      "text": "Cu&tting",
+      "name": "Std_UserEditModeCutting",
+      "shortcut": "",
+      "enabled": true,
+      "tip": "This edit mode is implemented as available but currently does not seem to be used by any object"
+     },
+     {
+      "text": "&Color",
+      "name": "Std_UserEditModeColor",
+      "shortcut": "",
+      "enabled": true,
+      "tip": "The object will have the color of its individual faces editable with the Appearance per Face command"
+     }
+    ]
+   },
+   {
+    "sep": true
+   },
+   {
+    "text": "Prefere&nces",
+    "name": "Std_DlgPreferences",
+    "shortcut": "Ctrl+,",
+    "enabled": true,
+    "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Preferences</b> (Ctrl+,)</p><p style='white-space:pre; margin:0;'>Opens a dialog to edit the preferences</p><p style='white-space:pre; margin-top:0.5em;'><i>Std_DlgPreferences</i></p>"
+   },
+   {
+    "text": "Create",
+    "name": "Create",
+    "shortcut": "",
+    "enabled": true,
+    "tip": "Create",
+    "menu": [
+     {
+      "text": "New Part",
+      "name": "Std_Part",
+      "shortcut": "",
+      "enabled": false,
+      "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>New Part</b></p><p style='white-space:pre; margin:0;'>Creates a part, which is a general-purpose container to group objects so they act as a unit</p>in the 3D view. It is intended to arrange objects that have a part TopoShape, like part primitives, Part Design bodies, and other parts.<p style='white-space:pre; margin-top:0.5em;'><i>Std_Part</i></p>"
+     },
+     {
+      "text": "New Group",
+      "name": "Std_Group",
+      "shortcut": "",
+      "enabled": false,
+      "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>New Group</b></p><p style='white-space:pre; margin:0;'>Creates a group, which is a general-purpose container to group objects in the tree view, regardless</p>of their data type. It is a simple folder to organize the objects in a model.<p style='white-space:pre; margin-top:0.5em;'><i>Std_Group</i></p>"
+     },
+     {
+      "text": "Variable Set",
+      "name": "Std_VarSet",
+      "shortcut": "",
+      "enabled": false,
+      "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Variable Set</b></p><p style='white-space:pre; margin:0;'>Creates a variable set, which is an object that maintains a set of properties to be used as</p>variables<p style='white-space:pre; margin-top:0.5em;'><i>Std_VarSet</i></p>"
+     },
+     {
+      "text": "Annotation Label",
+      "name": "Std_AnnotationLabel",
+      "shortcut": "",
+      "enabled": false,
+      "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Annotation Label</b></p><p style='white-space:pre; margin:0;'>Creates a new annotation label at the picked location in the 3D view</p><p style='white-space:pre; margin-top:0.5em;'><i>Std_AnnotationLabel</i></p>"
+     },
+     {
+      "text": "Datums",
+      "name": "Part_Datums",
+      "shortcut": "",
+      "enabled": true,
+      "tip": "Datums",
+      "menu": [
+       {
+        "text": "Coordinate System",
+        "name": "Part_CoordinateSystem",
+        "shortcut": "",
+        "enabled": false,
+        "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Coordinate System</b></p><p style='white-space:pre; margin:0;'>Creates a coordinate system that can be attached to other objects</p><p style='white-space:pre; margin-top:0.5em;'><i>Part_CoordinateSystem</i></p>"
+       },
+       {
+        "text": "Datum Plane",
+        "name": "Part_DatumPlane",
+        "shortcut": "",
+        "enabled": false,
+        "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Datum Plane</b></p><p style='white-space:pre; margin:0;'>Creates a datum plane that can be attached to other objects</p><p style='white-space:pre; margin-top:0.5em;'><i>Part_DatumPlane</i></p>"
+       },
+       {
+        "text": "Datum Line",
+        "name": "Part_DatumLine",
+        "shortcut": "",
+        "enabled": false,
+        "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Datum Line</b></p><p style='white-space:pre; margin:0;'>Creates a datum line that can be attached to other objects</p><p style='white-space:pre; margin-top:0.5em;'><i>Part_DatumLine</i></p>"
+       },
+       {
+        "text": "Datum Point",
+        "name": "Part_DatumPoint",
+        "shortcut": "",
+        "enabled": false,
+        "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Datum Point</b></p><p style='white-space:pre; margin:0;'>Creates a datum point that can be attached to other objects</p><p style='white-space:pre; margin-top:0.5em;'><i>Part_DatumPoint</i></p>"
+       }
+      ]
+     },
+     {
+      "text": "Link Actions",
+      "name": "Std_LinkActions",
+      "shortcut": "",
+      "enabled": true,
+      "tip": "Link Actions",
+      "menu": [
+       {
+        "text": "Make Link",
+        "name": "Std_LinkMake",
+        "shortcut": "",
+        "enabled": false,
+        "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Make Link</b></p><p style='white-space:pre; margin:0;'>A link is an object that references another object, either within the same or in another</p>document. Unlike clones, links reference the original shape directly, making them more memory-efficient, which helps with the creation of complex assemblies.<p style='white-space:pre; margin-top:0.5em;'><i>Std_LinkMake</i></p>"
+       },
+       {
+        "text": "Make Sub-Link",
+        "name": "Std_LinkMakeRelative",
+        "shortcut": "",
+        "enabled": false,
+        "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Make Sub-Link</b></p><p style='white-space:pre; margin:0;'>Creates a sub-object or sub-element link</p><p style='white-space:pre; margin-top:0.5em;'><i>Std_LinkMakeRelative</i></p>"
+       },
+       {
+        "text": "Replace With Link",
+        "name": "Std_LinkReplace",
+        "shortcut": "",
+        "enabled": false,
+        "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Replace With Link</b></p><p style='white-space:pre; margin:0;'>Replaces the selected objects with links</p><p style='white-space:pre; margin-top:0.5em;'><i>Std_LinkReplace</i></p>"
+       },
+       {
+        "text": "Unlink",
+        "name": "Std_LinkUnlink",
+        "shortcut": "",
+        "enabled": false,
+        "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Unlink</b></p><p style='white-space:pre; margin:0;'>Unlinks the object by placing it directly in the container</p><p style='white-space:pre; margin-top:0.5em;'><i>Std_LinkUnlink</i></p>"
+       },
+       {
+        "text": "Import Links",
+        "name": "Std_LinkImport",
+        "shortcut": "",
+        "enabled": false,
+        "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Import Links</b></p><p style='white-space:pre; margin:0;'>Imports selected external links</p><p style='white-space:pre; margin-top:0.5em;'><i>Std_LinkImport</i></p>"
+       },
+       {
+        "text": "Import All Links",
+        "name": "Std_LinkImportAll",
+        "shortcut": "",
+        "enabled": false,
+        "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Import All Links</b></p><p style='white-space:pre; margin:0;'>Imports all links of the active document</p><p style='white-space:pre; margin-top:0.5em;'><i>Std_LinkImportAll</i></p>"
+       }
+      ]
+     },
+     {
+      "sep": true
+     },
+     {
+      "text": "Te&xt Document",
+      "name": "Std_TextDocument",
+      "shortcut": "",
+      "enabled": false,
+      "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Text Document</b></p><p style='white-space:pre; margin:0;'>Adds a text document to the active document</p><p style='white-space:pre; margin-top:0.5em;'><i>Std_TextDocument</i></p>"
+     }
+    ]
+   }
+  ],
+  "&Spreadsheet": [
+   {
+    "text": "&New Spreadsheet",
+    "name": "Spreadsheet_CreateSheet",
+    "shortcut": "",
+    "enabled": false,
+    "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>New Spreadsheet</b></p><p style='white-space:pre; margin:0;'>Creates a new spreadsheet</p><p style='white-space:pre; margin-top:0.5em;'><i>Spreadsheet_CreateSheet</i></p>"
+   },
+   {
+    "sep": true
+   },
+   {
+    "text": "&Import Spreadsheet",
+    "name": "Spreadsheet_Import",
+    "shortcut": "",
+    "enabled": false,
+    "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Import Spreadsheet</b></p><p style='white-space:pre; margin:0;'>Imports a CSV file into a new spreadsheet</p><p style='white-space:pre; margin-top:0.5em;'><i>Spreadsheet_Import</i></p>"
+   },
+   {
+    "text": "&Export Spreadsheet",
+    "name": "Spreadsheet_Export",
+    "shortcut": "",
+    "enabled": false,
+    "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Export Spreadsheet</b></p><p style='white-space:pre; margin:0;'>Exports the spreadsheet to a CSV file</p><p style='white-space:pre; margin-top:0.5em;'><i>Spreadsheet_Export</i></p>"
+   },
+   {
+    "sep": true
+   },
+   {
+    "text": "&Merge Cells",
+    "name": "Spreadsheet_MergeCells",
+    "shortcut": "",
+    "enabled": false,
+    "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Merge Cells</b></p><p style='white-space:pre; margin:0;'>Merges the selected cells</p><p style='white-space:pre; margin-top:0.5em;'><i>Spreadsheet_MergeCells</i></p>"
+   },
+   {
+    "text": "Sp&lit Cell",
+    "name": "Spreadsheet_SplitCell",
+    "shortcut": "",
+    "enabled": false,
+    "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Split Cell</b></p><p style='white-space:pre; margin:0;'>Splits a previously merged cell</p><p style='white-space:pre; margin-top:0.5em;'><i>Spreadsheet_SplitCell</i></p>"
+   },
+   {
+    "sep": true
+   },
+   {
+    "text": "&Alignment",
+    "name": "&Alignment",
+    "shortcut": "",
+    "enabled": true,
+    "tip": "Alignment",
+    "menu": [
+     {
+      "text": "Align &Left",
+      "name": "Spreadsheet_AlignLeft",
+      "shortcut": "",
+      "enabled": false,
+      "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Align Left</b></p><p style='white-space:pre; margin:0;'>Aligns cell contents to the left</p><p style='white-space:pre; margin-top:0.5em;'><i>Spreadsheet_AlignLeft</i></p>"
+     },
+     {
+      "text": "Align Horizontal &Center",
+      "name": "Spreadsheet_AlignCenter",
+      "shortcut": "",
+      "enabled": false,
+      "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Align Horizontal Center</b></p><p style='white-space:pre; margin:0;'>Aligns cell contents to the horizontal center</p><p style='white-space:pre; margin-top:0.5em;'><i>Spreadsheet_AlignCenter</i></p>"
+     },
+     {
+      "text": "Align &Right",
+      "name": "Spreadsheet_AlignRight",
+      "shortcut": "",
+      "enabled": false,
+      "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Align Right</b></p><p style='white-space:pre; margin:0;'>Aligns cell contents to the right</p><p style='white-space:pre; margin-top:0.5em;'><i>Spreadsheet_AlignRight</i></p>"
+     },
+     {
+      "text": "Align &Top",
+      "name": "Spreadsheet_AlignTop",
+      "shortcut": "",
+      "enabled": false,
+      "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Align Top</b></p><p style='white-space:pre; margin:0;'>Aligns cell contents to the top</p><p style='white-space:pre; margin-top:0.5em;'><i>Spreadsheet_AlignTop</i></p>"
+     },
+     {
+      "text": "Align &Vertical Center",
+      "name": "Spreadsheet_AlignVCenter",
+      "shortcut": "",
+      "enabled": false,
+      "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Align Vertical Center</b></p><p style='white-space:pre; margin:0;'>Aligns cell contents to the vertical center</p><p style='white-space:pre; margin-top:0.5em;'><i>Spreadsheet_AlignVCenter</i></p>"
+     },
+     {
+      "text": "Align &Bottom",
+      "name": "Spreadsheet_AlignBottom",
+      "shortcut": "",
+      "enabled": false,
+      "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Align Bottom</b></p><p style='white-space:pre; margin:0;'>Aligns cell contents to the bottom</p><p style='white-space:pre; margin-top:0.5em;'><i>Spreadsheet_AlignBottom</i></p>"
+     }
+    ]
+   },
+   {
+    "text": "&Styles",
+    "name": "&Styles",
+    "shortcut": "",
+    "enabled": true,
+    "tip": "Styles",
+    "menu": [
+     {
+      "text": "&Bold Text",
+      "name": "Spreadsheet_StyleBold",
+      "shortcut": "Ctrl+B",
+      "enabled": false,
+      "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Bold Text</b> (Ctrl+B)</p><p style='white-space:pre; margin:0;'>Sets the text in the selected cells bold</p><p style='white-space:pre; margin-top:0.5em;'><i>Spreadsheet_StyleBold</i></p>"
+     },
+     {
+      "text": "&Italic Text",
+      "name": "Spreadsheet_StyleItalic",
+      "shortcut": "Ctrl+I",
+      "enabled": false,
+      "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Italic Text</b> (Ctrl+I)</p><p style='white-space:pre; margin:0;'>Sets the text in the selected cells italic</p><p style='white-space:pre; margin-top:0.5em;'><i>Spreadsheet_StyleItalic</i></p>"
+     },
+     {
+      "text": "&Underline Text",
+      "name": "Spreadsheet_StyleUnderline",
+      "shortcut": "Ctrl+U",
+      "enabled": false,
+      "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Underline Text</b> (Ctrl+U)</p><p style='white-space:pre; margin:0;'>Underlines the text in the selected cells</p><p style='white-space:pre; margin-top:0.5em;'><i>Spreadsheet_StyleUnderline</i></p>"
+     }
+    ]
+   }
+  ]
+ },
+ "toolbars_none": [
+  {
+   "title": "Spreadsheet",
+   "name": "Spreadsheet",
+   "visible": true,
+   "buttons": [
+    {
+     "name": "Spreadsheet_CreateSheet",
+     "text": "&New Spreadsheet",
+     "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>New Spreadsheet</b></p><p style='white-space:pre; margin:0;'>Creates a new spreadsheet</p><p style='white-space:pre; margin-top:0.5em;'><i>Spreadsheet_CreateSheet</i></p>",
+     "enabled": false,
+     "widget": "QToolButton"
+    },
+    {
+     "sep": true
+    },
+    {
+     "name": "Spreadsheet_Import",
+     "text": "&Import Spreadsheet",
+     "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Import Spreadsheet</b></p><p style='white-space:pre; margin:0;'>Imports a CSV file into a new spreadsheet</p><p style='white-space:pre; margin-top:0.5em;'><i>Spreadsheet_Import</i></p>",
+     "enabled": false,
+     "widget": "QToolButton"
+    },
+    {
+     "name": "Spreadsheet_Export",
+     "text": "&Export Spreadsheet",
+     "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Export Spreadsheet</b></p><p style='white-space:pre; margin:0;'>Exports the spreadsheet to a CSV file</p><p style='white-space:pre; margin-top:0.5em;'><i>Spreadsheet_Export</i></p>",
+     "enabled": false,
+     "widget": "QToolButton"
+    },
+    {
+     "sep": true
+    },
+    {
+     "name": "Spreadsheet_MergeCells",
+     "text": "&Merge Cells",
+     "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Merge Cells</b></p><p style='white-space:pre; margin:0;'>Merges the selected cells</p><p style='white-space:pre; margin-top:0.5em;'><i>Spreadsheet_MergeCells</i></p>",
+     "enabled": false,
+     "widget": "QToolButton"
+    },
+    {
+     "name": "Spreadsheet_SplitCell",
+     "text": "Sp&lit Cell",
+     "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Split Cell</b></p><p style='white-space:pre; margin:0;'>Splits a previously merged cell</p><p style='white-space:pre; margin-top:0.5em;'><i>Spreadsheet_SplitCell</i></p>",
+     "enabled": false,
+     "widget": "QToolButton"
+    },
+    {
+     "sep": true
+    },
+    {
+     "name": "Spreadsheet_AlignLeft",
+     "text": "Align &Left",
+     "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Align Left</b></p><p style='white-space:pre; margin:0;'>Aligns cell contents to the left</p><p style='white-space:pre; margin-top:0.5em;'><i>Spreadsheet_AlignLeft</i></p>",
+     "enabled": false,
+     "widget": "QToolButton"
+    },
+    {
+     "name": "Spreadsheet_AlignCenter",
+     "text": "Align Horizontal &Center",
+     "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Align Horizontal Center</b></p><p style='white-space:pre; margin:0;'>Aligns cell contents to the horizontal center</p><p style='white-space:pre; margin-top:0.5em;'><i>Spreadsheet_AlignCenter</i></p>",
+     "enabled": false,
+     "widget": "QToolButton"
+    },
+    {
+     "name": "Spreadsheet_AlignRight",
+     "text": "Align &Right",
+     "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Align Right</b></p><p style='white-space:pre; margin:0;'>Aligns cell contents to the right</p><p style='white-space:pre; margin-top:0.5em;'><i>Spreadsheet_AlignRight</i></p>",
+     "enabled": false,
+     "widget": "QToolButton"
+    },
+    {
+     "name": "Spreadsheet_AlignTop",
+     "text": "Align &Top",
+     "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Align Top</b></p><p style='white-space:pre; margin:0;'>Aligns cell contents to the top</p><p style='white-space:pre; margin-top:0.5em;'><i>Spreadsheet_AlignTop</i></p>",
+     "enabled": false,
+     "widget": "QToolButton"
+    },
+    {
+     "name": "Spreadsheet_AlignVCenter",
+     "text": "Align &Vertical Center",
+     "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Align Vertical Center</b></p><p style='white-space:pre; margin:0;'>Aligns cell contents to the vertical center</p><p style='white-space:pre; margin-top:0.5em;'><i>Spreadsheet_AlignVCenter</i></p>",
+     "enabled": false,
+     "widget": "QToolButton"
+    },
+    {
+     "name": "Spreadsheet_AlignBottom",
+     "text": "Align &Bottom",
+     "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Align Bottom</b></p><p style='white-space:pre; margin:0;'>Aligns cell contents to the bottom</p><p style='white-space:pre; margin-top:0.5em;'><i>Spreadsheet_AlignBottom</i></p>",
+     "enabled": false,
+     "widget": "QToolButton"
+    },
+    {
+     "sep": true
+    },
+    {
+     "name": "Spreadsheet_StyleBold",
+     "text": "&Bold Text",
+     "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Bold Text</b> (Ctrl+B)</p><p style='white-space:pre; margin:0;'>Sets the text in the selected cells bold</p><p style='white-space:pre; margin-top:0.5em;'><i>Spreadsheet_StyleBold</i></p>",
+     "enabled": false,
+     "widget": "QToolButton"
+    },
+    {
+     "name": "Spreadsheet_StyleItalic",
+     "text": "&Italic Text",
+     "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Italic Text</b> (Ctrl+I)</p><p style='white-space:pre; margin:0;'>Sets the text in the selected cells italic</p><p style='white-space:pre; margin-top:0.5em;'><i>Spreadsheet_StyleItalic</i></p>",
+     "enabled": false,
+     "widget": "QToolButton"
+    },
+    {
+     "name": "Spreadsheet_StyleUnderline",
+     "text": "&Underline Text",
+     "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Underline Text</b> (Ctrl+U)</p><p style='white-space:pre; margin:0;'>Underlines the text in the selected cells</p><p style='white-space:pre; margin-top:0.5em;'><i>Spreadsheet_StyleUnderline</i></p>",
+     "enabled": false,
+     "widget": "QToolButton"
+    },
+    {
+     "sep": true
+    },
+    {
+     "name": "Spreadsheet_SetAlias",
+     "text": "Set Alias",
+     "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Set Alias</b> (Ctrl+Shift+A)</p><p style='white-space:pre; margin:0;'>Sets an alias for the selected cell</p><p style='white-space:pre; margin-top:0.5em;'><i>Spreadsheet_SetAlias</i></p>",
+     "enabled": false,
+     "widget": "QToolButton"
+    },
+    {
+     "sep": true
+    },
+    {
+     "name": "Spreadsheet_ForegroundColor",
+     "text": "",
+     "tip": "Sets the text color of cells",
+     "enabled": true,
+     "widget": "QtColorPicker"
+    },
+    {
+     "name": "Spreadsheet_BackgroundColor",
+     "text": "",
+     "tip": "Sets the background color of cells",
+     "enabled": true,
+     "widget": "QtColorPicker"
+    }
+   ]
+  }
+ ],
+ "create": {
+  "objects": [
+   [
+    "Spreadsheet",
+    "Spreadsheet::Sheet",
+    "Spreadsheet"
+   ]
+  ],
+  "undo": [
+   "Create Spreadsheet"
+  ],
+  "mdi": [
+   "Start",
+   "Unnamed : 1[*]",
+   "Spreadsheet[*]"
+  ],
+  "active": "Spreadsheet[*]",
+  "table": true,
+  "rows": 1024,
+  "cols": 26,
+  "header_h": [
+   "A",
+   "Z"
+  ],
+  "header_v": [
+   "1",
+   "10"
+  ],
+  "col_width": 100,
+  "row_height": 30,
+  "labels": [
+   "&Content",
+   "&Alias"
+  ],
+  "alias_tip": "Refer to cell by alias, for example\nSpreadsheet.my_alias_name instead of Spreadsheet.B1",
+  "content_enabled": false
+ },
+ "menus_sheet": {
+  "bar": [
+   "&File",
+   "&Edit",
+   "&View",
+   "&Tools",
+   "&Macro",
+   "&Spreadsheet",
+   "&Windows",
+   "",
+   "&Help"
+  ],
+  "&Edit": [
+   {
+    "text": "&Undo",
+    "name": "Std_Undo",
+    "shortcut": "Ctrl+Z",
+    "enabled": true,
+    "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Undo</b> (Ctrl+Z)</p><p style='white-space:pre; margin:0;'>Undoes the previous action</p><p style='white-space:pre; margin-top:0.5em;'><i>Std_Undo</i></p>"
+   },
+   {
+    "text": "&Redo",
+    "name": "Std_Redo",
+    "shortcut": "Ctrl+Shift+Z",
+    "enabled": false,
+    "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Redo</b> (Ctrl+Shift+Z)</p><p style='white-space:pre; margin:0;'>Redoes a previously undone action</p><p style='white-space:pre; margin-top:0.5em;'><i>Std_Redo</i></p>"
+   },
+   {
+    "sep": true
+   },
+   {
+    "text": "Cu&t",
+    "name": "Std_Cut",
+    "shortcut": "Ctrl+X",
+    "enabled": true,
+    "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Cut</b> (Ctrl+X)</p><p style='white-space:pre; margin:0;'>Removes the selection and copies it to the clipboard</p><p style='white-space:pre; margin-top:0.5em;'><i>Std_Cut</i></p>"
+   },
+   {
+    "text": "&Copy",
+    "name": "Std_Copy",
+    "shortcut": "Ctrl+C",
+    "enabled": true,
+    "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Copy</b> (Ctrl+C)</p><p style='white-space:pre; margin:0;'>Copies the selection to the clipboard</p><p style='white-space:pre; margin-top:0.5em;'><i>Std_Copy</i></p>"
+   },
+   {
+    "text": "&Paste",
+    "name": "Std_Paste",
+    "shortcut": "Ctrl+V",
+    "enabled": true,
+    "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Paste</b> (Ctrl+V)</p><p style='white-space:pre; margin:0;'>Pastes the contents of the clipboard</p><p style='white-space:pre; margin-top:0.5em;'><i>Std_Paste</i></p>"
+   },
+   {
+    "text": "Duplicate Selecti&on",
+    "name": "Std_DuplicateSelection",
+    "shortcut": "",
+    "enabled": true,
+    "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Duplicate Selection</b></p><p style='white-space:pre; margin:0;'>Duplicates the selected objects to the active document</p><p style='white-space:pre; margin-top:0.5em;'><i>Std_DuplicateSelection</i></p>"
+   },
+   {
+    "text": "&Delete",
+    "name": "Std_Delete",
+    "shortcut": "Del",
+    "enabled": true,
+    "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Delete</b> (Del)</p><p style='white-space:pre; margin:0;'>Deletes the selected objects</p><p style='white-space:pre; margin-top:0.5em;'><i>Std_Delete</i></p>"
+   },
+   {
+    "sep": true
+   },
+   {
+    "text": "Recompute",
+    "name": "Std_Refresh",
+    "shortcut": "F5",
+    "enabled": false,
+    "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Recompute</b> (F5)</p><p style='white-space:pre; margin:0;'>Recomputes the active document</p><p style='white-space:pre; margin-top:0.5em;'><i>Std_Refresh</i></p>"
+   },
+   {
+    "text": "&Box Selection",
+    "name": "Std_BoxSelection",
+    "shortcut": "Shift+B",
+    "enabled": false,
+    "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Box Selection</b> (Shift+B)</p><p style='white-space:pre; margin:0;'>Activates the box selection tool</p><p style='white-space:pre; margin-top:0.5em;'><i>Std_BoxSelection</i></p>"
+   },
+   {
+    "text": "Bo&x Element Selection",
+    "name": "Std_BoxElementSelection",
+    "shortcut": "Shift+E",
+    "enabled": false,
+    "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Box Element Selection</b> (Shift+E)</p><p style='white-space:pre; margin:0;'>Activates box element selection</p><p style='white-space:pre; margin-top:0.5em;'><i>Std_BoxElementSelection</i></p>"
+   },
+   {
+    "text": "Select &All",
+    "name": "Std_SelectAll",
+    "shortcut": "Ctrl+A",
+    "enabled": true,
+    "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Select All</b> (Ctrl+A)</p><p style='white-space:pre; margin:0;'>Selects all objects in the active document</p><p style='white-space:pre; margin-top:0.5em;'><i>Std_SelectAll</i></p>"
+   },
+   {
+    "sep": true
+   },
+   {
+    "text": "Trans&form",
+    "name": "Std_TransformManip",
+    "shortcut": "",
+    "enabled": false,
+    "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Transform</b></p><p style='white-space:pre; margin:0;'>Transforms the selected object in the 3D view</p><p style='white-space:pre; margin-top:0.5em;'><i>Std_TransformManip</i></p>"
+   },
+   {
+    "text": "P&lacement",
+    "name": "Std_Placement",
+    "shortcut": "",
+    "enabled": false,
+    "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Placement</b></p><p style='white-space:pre; margin:0;'>Opens the placement editor to adjust the placement of the selected object</p><p style='white-space:pre; margin-top:0.5em;'><i>Std_Placement</i></p>"
+   },
+   {
+    "text": "Ali&gn To…",
+    "name": "Std_Alignment",
+    "shortcut": "",
+    "enabled": false,
+    "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Align To…</b></p><p style='white-space:pre; margin:0;'>Aligns the selected objects</p><p style='white-space:pre; margin-top:0.5em;'><i>Std_Alignment</i></p>"
+   },
+   {
+    "text": "&Send to Python Console",
+    "name": "Std_SendToPythonConsole",
+    "shortcut": "Ctrl+Shift+P",
+    "enabled": true,
+    "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Send to Python Console</b> (Ctrl+Shift+P)</p><p style='white-space:pre; margin:0;'>Sends the selected objects to the Python console</p><p style='white-space:pre; margin-top:0.5em;'><i>Std_SendToPythonConsole</i></p>"
+   },
+   {
+    "text": "Propert&ies",
+    "name": "Std_Properties",
+    "shortcut": "Alt+Return",
+    "enabled": true,
+    "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Properties</b> (Alt+Return)</p><p style='white-space:pre; margin:0;'>Shows the property view, which displays the properties of the selected object.</p><p style='white-space:pre; margin-top:0.5em;'><i>Std_Properties</i></p>"
+   },
+   {
+    "sep": true
+   },
+   {
+    "text": "Toggle &Edit Mode",
+    "name": "Std_Edit",
+    "shortcut": "",
+    "enabled": true,
+    "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Toggle Edit Mode</b></p><p style='white-space:pre; margin:0;'>Toggles the selected object's edit mode</p><p style='white-space:pre; margin-top:0.5em;'><i>Std_Edit</i></p>"
+   },
+   {
+    "text": "Edit &Mode",
+    "name": "Std_UserEditMode",
+    "shortcut": "",
+    "enabled": true,
+    "tip": "Edit Mode",
+    "menu": [
+     {
+      "text": "&Default",
+      "name": "Std_UserEditModeDefault",
+      "shortcut": "",
+      "enabled": true,
+      "tip": "The object will be edited using the mode defined internally to be the most appropriate for the object type"
+     },
+     {
+      "text": "Trans&form",
+      "name": "Std_UserEditModeTransform",
+      "shortcut": "",
+      "enabled": true,
+      "tip": "The object will have its placement editable with the Std TransformManip command"
+     },
+     {
+      "text": "Cu&tting",
+      "name": "Std_UserEditModeCutting",
+      "shortcut": "",
+      "enabled": true,
+      "tip": "This edit mode is implemented as available but currently does not seem to be used by any object"
+     },
+     {
+      "text": "&Color",
+      "name": "Std_UserEditModeColor",
+      "shortcut": "",
+      "enabled": true,
+      "tip": "The object will have the color of its individual faces editable with the Appearance per Face command"
+     }
+    ]
+   },
+   {
+    "sep": true
+   },
+   {
+    "text": "Prefere&nces",
+    "name": "Std_DlgPreferences",
+    "shortcut": "Ctrl+,",
+    "enabled": true,
+    "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Preferences</b> (Ctrl+,)</p><p style='white-space:pre; margin:0;'>Opens a dialog to edit the preferences</p><p style='white-space:pre; margin-top:0.5em;'><i>Std_DlgPreferences</i></p>"
+   },
+   {
+    "text": "Create",
+    "name": "Create",
+    "shortcut": "",
+    "enabled": true,
+    "tip": "Create",
+    "menu": [
+     {
+      "text": "New Part",
+      "name": "Std_Part",
+      "shortcut": "",
+      "enabled": true,
+      "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>New Part</b></p><p style='white-space:pre; margin:0;'>Creates a part, which is a general-purpose container to group objects so they act as a unit</p>in the 3D view. It is intended to arrange objects that have a part TopoShape, like part primitives, Part Design bodies, and other parts.<p style='white-space:pre; margin-top:0.5em;'><i>Std_Part</i></p>"
+     },
+     {
+      "text": "New Group",
+      "name": "Std_Group",
+      "shortcut": "",
+      "enabled": true,
+      "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>New Group</b></p><p style='white-space:pre; margin:0;'>Creates a group, which is a general-purpose container to group objects in the tree view, regardless</p>of their data type. It is a simple folder to organize the objects in a model.<p style='white-space:pre; margin-top:0.5em;'><i>Std_Group</i></p>"
+     },
+     {
+      "text": "Variable Set",
+      "name": "Std_VarSet",
+      "shortcut": "",
+      "enabled": true,
+      "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Variable Set</b></p><p style='white-space:pre; margin:0;'>Creates a variable set, which is an object that maintains a set of properties to be used as</p>variables<p style='white-space:pre; margin-top:0.5em;'><i>Std_VarSet</i></p>"
+     },
+     {
+      "text": "Annotation Label",
+      "name": "Std_AnnotationLabel",
+      "shortcut": "",
+      "enabled": true,
+      "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Annotation Label</b></p><p style='white-space:pre; margin:0;'>Creates a new annotation label at the picked location in the 3D view</p><p style='white-space:pre; margin-top:0.5em;'><i>Std_AnnotationLabel</i></p>"
+     },
+     {
+      "text": "Datums",
+      "name": "Part_Datums",
+      "shortcut": "",
+      "enabled": true,
+      "tip": "Datums",
+      "menu": [
+       {
+        "text": "Coordinate System",
+        "name": "Part_CoordinateSystem",
+        "shortcut": "",
+        "enabled": true,
+        "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Coordinate System</b></p><p style='white-space:pre; margin:0;'>Creates a coordinate system that can be attached to other objects</p><p style='white-space:pre; margin-top:0.5em;'><i>Part_CoordinateSystem</i></p>"
+       },
+       {
+        "text": "Datum Plane",
+        "name": "Part_DatumPlane",
+        "shortcut": "",
+        "enabled": true,
+        "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Datum Plane</b></p><p style='white-space:pre; margin:0;'>Creates a datum plane that can be attached to other objects</p><p style='white-space:pre; margin-top:0.5em;'><i>Part_DatumPlane</i></p>"
+       },
+       {
+        "text": "Datum Line",
+        "name": "Part_DatumLine",
+        "shortcut": "",
+        "enabled": true,
+        "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Datum Line</b></p><p style='white-space:pre; margin:0;'>Creates a datum line that can be attached to other objects</p><p style='white-space:pre; margin-top:0.5em;'><i>Part_DatumLine</i></p>"
+       },
+       {
+        "text": "Datum Point",
+        "name": "Part_DatumPoint",
+        "shortcut": "",
+        "enabled": true,
+        "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Datum Point</b></p><p style='white-space:pre; margin:0;'>Creates a datum point that can be attached to other objects</p><p style='white-space:pre; margin-top:0.5em;'><i>Part_DatumPoint</i></p>"
+       }
+      ]
+     },
+     {
+      "text": "Link Actions",
+      "name": "Std_LinkActions",
+      "shortcut": "",
+      "enabled": true,
+      "tip": "Link Actions",
+      "menu": [
+       {
+        "text": "Make Link",
+        "name": "Std_LinkMake",
+        "shortcut": "",
+        "enabled": true,
+        "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Make Link</b></p><p style='white-space:pre; margin:0;'>A link is an object that references another object, either within the same or in another</p>document. Unlike clones, links reference the original shape directly, making them more memory-efficient, which helps with the creation of complex assemblies.<p style='white-space:pre; margin-top:0.5em;'><i>Std_LinkMake</i></p>"
+       },
+       {
+        "text": "Make Sub-Link",
+        "name": "Std_LinkMakeRelative",
+        "shortcut": "",
+        "enabled": false,
+        "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Make Sub-Link</b></p><p style='white-space:pre; margin:0;'>Creates a sub-object or sub-element link</p><p style='white-space:pre; margin-top:0.5em;'><i>Std_LinkMakeRelative</i></p>"
+       },
+       {
+        "text": "Replace With Link",
+        "name": "Std_LinkReplace",
+        "shortcut": "",
+        "enabled": false,
+        "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Replace With Link</b></p><p style='white-space:pre; margin:0;'>Replaces the selected objects with links</p><p style='white-space:pre; margin-top:0.5em;'><i>Std_LinkReplace</i></p>"
+       },
+       {
+        "text": "Unlink",
+        "name": "Std_LinkUnlink",
+        "shortcut": "",
+        "enabled": false,
+        "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Unlink</b></p><p style='white-space:pre; margin:0;'>Unlinks the object by placing it directly in the container</p><p style='white-space:pre; margin-top:0.5em;'><i>Std_LinkUnlink</i></p>"
+       },
+       {
+        "text": "Import Links",
+        "name": "Std_LinkImport",
+        "shortcut": "",
+        "enabled": false,
+        "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Import Links</b></p><p style='white-space:pre; margin:0;'>Imports selected external links</p><p style='white-space:pre; margin-top:0.5em;'><i>Std_LinkImport</i></p>"
+       },
+       {
+        "text": "Import All Links",
+        "name": "Std_LinkImportAll",
+        "shortcut": "",
+        "enabled": false,
+        "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Import All Links</b></p><p style='white-space:pre; margin:0;'>Imports all links of the active document</p><p style='white-space:pre; margin-top:0.5em;'><i>Std_LinkImportAll</i></p>"
+       }
+      ]
+     },
+     {
+      "sep": true
+     },
+     {
+      "text": "Te&xt Document",
+      "name": "Std_TextDocument",
+      "shortcut": "",
+      "enabled": true,
+      "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Text Document</b></p><p style='white-space:pre; margin:0;'>Adds a text document to the active document</p><p style='white-space:pre; margin-top:0.5em;'><i>Std_TextDocument</i></p>"
+     }
+    ]
+   }
+  ],
+  "&Spreadsheet": [
+   {
+    "text": "&New Spreadsheet",
+    "name": "Spreadsheet_CreateSheet",
+    "shortcut": "",
+    "enabled": true,
+    "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>New Spreadsheet</b></p><p style='white-space:pre; margin:0;'>Creates a new spreadsheet</p><p style='white-space:pre; margin-top:0.5em;'><i>Spreadsheet_CreateSheet</i></p>"
+   },
+   {
+    "sep": true
+   },
+   {
+    "text": "&Import Spreadsheet",
+    "name": "Spreadsheet_Import",
+    "shortcut": "",
+    "enabled": true,
+    "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Import Spreadsheet</b></p><p style='white-space:pre; margin:0;'>Imports a CSV file into a new spreadsheet</p><p style='white-space:pre; margin-top:0.5em;'><i>Spreadsheet_Import</i></p>"
+   },
+   {
+    "text": "&Export Spreadsheet",
+    "name": "Spreadsheet_Export",
+    "shortcut": "",
+    "enabled": true,
+    "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Export Spreadsheet</b></p><p style='white-space:pre; margin:0;'>Exports the spreadsheet to a CSV file</p><p style='white-space:pre; margin-top:0.5em;'><i>Spreadsheet_Export</i></p>"
+   },
+   {
+    "sep": true
+   },
+   {
+    "text": "&Merge Cells",
+    "name": "Spreadsheet_MergeCells",
+    "shortcut": "",
+    "enabled": false,
+    "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Merge Cells</b></p><p style='white-space:pre; margin:0;'>Merges the selected cells</p><p style='white-space:pre; margin-top:0.5em;'><i>Spreadsheet_MergeCells</i></p>"
+   },
+   {
+    "text": "Sp&lit Cell",
+    "name": "Spreadsheet_SplitCell",
+    "shortcut": "",
+    "enabled": false,
+    "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Split Cell</b></p><p style='white-space:pre; margin:0;'>Splits a previously merged cell</p><p style='white-space:pre; margin-top:0.5em;'><i>Spreadsheet_SplitCell</i></p>"
+   },
+   {
+    "sep": true
+   },
+   {
+    "text": "&Alignment",
+    "name": "&Alignment",
+    "shortcut": "",
+    "enabled": true,
+    "tip": "Alignment",
+    "menu": [
+     {
+      "text": "Align &Left",
+      "name": "Spreadsheet_AlignLeft",
+      "shortcut": "",
+      "enabled": true,
+      "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Align Left</b></p><p style='white-space:pre; margin:0;'>Aligns cell contents to the left</p><p style='white-space:pre; margin-top:0.5em;'><i>Spreadsheet_AlignLeft</i></p>"
+     },
+     {
+      "text": "Align Horizontal &Center",
+      "name": "Spreadsheet_AlignCenter",
+      "shortcut": "",
+      "enabled": true,
+      "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Align Horizontal Center</b></p><p style='white-space:pre; margin:0;'>Aligns cell contents to the horizontal center</p><p style='white-space:pre; margin-top:0.5em;'><i>Spreadsheet_AlignCenter</i></p>"
+     },
+     {
+      "text": "Align &Right",
+      "name": "Spreadsheet_AlignRight",
+      "shortcut": "",
+      "enabled": true,
+      "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Align Right</b></p><p style='white-space:pre; margin:0;'>Aligns cell contents to the right</p><p style='white-space:pre; margin-top:0.5em;'><i>Spreadsheet_AlignRight</i></p>"
+     },
+     {
+      "text": "Align &Top",
+      "name": "Spreadsheet_AlignTop",
+      "shortcut": "",
+      "enabled": true,
+      "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Align Top</b></p><p style='white-space:pre; margin:0;'>Aligns cell contents to the top</p><p style='white-space:pre; margin-top:0.5em;'><i>Spreadsheet_AlignTop</i></p>"
+     },
+     {
+      "text": "Align &Vertical Center",
+      "name": "Spreadsheet_AlignVCenter",
+      "shortcut": "",
+      "enabled": true,
+      "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Align Vertical Center</b></p><p style='white-space:pre; margin:0;'>Aligns cell contents to the vertical center</p><p style='white-space:pre; margin-top:0.5em;'><i>Spreadsheet_AlignVCenter</i></p>"
+     },
+     {
+      "text": "Align &Bottom",
+      "name": "Spreadsheet_AlignBottom",
+      "shortcut": "",
+      "enabled": true,
+      "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Align Bottom</b></p><p style='white-space:pre; margin:0;'>Aligns cell contents to the bottom</p><p style='white-space:pre; margin-top:0.5em;'><i>Spreadsheet_AlignBottom</i></p>"
+     }
+    ]
+   },
+   {
+    "text": "&Styles",
+    "name": "&Styles",
+    "shortcut": "",
+    "enabled": true,
+    "tip": "Styles",
+    "menu": [
+     {
+      "text": "&Bold Text",
+      "name": "Spreadsheet_StyleBold",
+      "shortcut": "Ctrl+B",
+      "enabled": true,
+      "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Bold Text</b> (Ctrl+B)</p><p style='white-space:pre; margin:0;'>Sets the text in the selected cells bold</p><p style='white-space:pre; margin-top:0.5em;'><i>Spreadsheet_StyleBold</i></p>"
+     },
+     {
+      "text": "&Italic Text",
+      "name": "Spreadsheet_StyleItalic",
+      "shortcut": "Ctrl+I",
+      "enabled": true,
+      "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Italic Text</b> (Ctrl+I)</p><p style='white-space:pre; margin:0;'>Sets the text in the selected cells italic</p><p style='white-space:pre; margin-top:0.5em;'><i>Spreadsheet_StyleItalic</i></p>"
+     },
+     {
+      "text": "&Underline Text",
+      "name": "Spreadsheet_StyleUnderline",
+      "shortcut": "Ctrl+U",
+      "enabled": true,
+      "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Underline Text</b> (Ctrl+U)</p><p style='white-space:pre; margin:0;'>Underlines the text in the selected cells</p><p style='white-space:pre; margin-top:0.5em;'><i>Spreadsheet_StyleUnderline</i></p>"
+     }
+    ]
+   }
+  ]
+ },
+ "toolbars_sheet": [
+  {
+   "title": "Spreadsheet",
+   "name": "Spreadsheet",
+   "visible": true,
+   "buttons": [
+    {
+     "name": "Spreadsheet_CreateSheet",
+     "text": "&New Spreadsheet",
+     "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>New Spreadsheet</b></p><p style='white-space:pre; margin:0;'>Creates a new spreadsheet</p><p style='white-space:pre; margin-top:0.5em;'><i>Spreadsheet_CreateSheet</i></p>",
+     "enabled": true,
+     "widget": "QToolButton"
+    },
+    {
+     "sep": true
+    },
+    {
+     "name": "Spreadsheet_Import",
+     "text": "&Import Spreadsheet",
+     "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Import Spreadsheet</b></p><p style='white-space:pre; margin:0;'>Imports a CSV file into a new spreadsheet</p><p style='white-space:pre; margin-top:0.5em;'><i>Spreadsheet_Import</i></p>",
+     "enabled": true,
+     "widget": "QToolButton"
+    },
+    {
+     "name": "Spreadsheet_Export",
+     "text": "&Export Spreadsheet",
+     "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Export Spreadsheet</b></p><p style='white-space:pre; margin:0;'>Exports the spreadsheet to a CSV file</p><p style='white-space:pre; margin-top:0.5em;'><i>Spreadsheet_Export</i></p>",
+     "enabled": true,
+     "widget": "QToolButton"
+    },
+    {
+     "sep": true
+    },
+    {
+     "name": "Spreadsheet_MergeCells",
+     "text": "&Merge Cells",
+     "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Merge Cells</b></p><p style='white-space:pre; margin:0;'>Merges the selected cells</p><p style='white-space:pre; margin-top:0.5em;'><i>Spreadsheet_MergeCells</i></p>",
+     "enabled": false,
+     "widget": "QToolButton"
+    },
+    {
+     "name": "Spreadsheet_SplitCell",
+     "text": "Sp&lit Cell",
+     "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Split Cell</b></p><p style='white-space:pre; margin:0;'>Splits a previously merged cell</p><p style='white-space:pre; margin-top:0.5em;'><i>Spreadsheet_SplitCell</i></p>",
+     "enabled": false,
+     "widget": "QToolButton"
+    },
+    {
+     "sep": true
+    },
+    {
+     "name": "Spreadsheet_AlignLeft",
+     "text": "Align &Left",
+     "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Align Left</b></p><p style='white-space:pre; margin:0;'>Aligns cell contents to the left</p><p style='white-space:pre; margin-top:0.5em;'><i>Spreadsheet_AlignLeft</i></p>",
+     "enabled": true,
+     "widget": "QToolButton"
+    },
+    {
+     "name": "Spreadsheet_AlignCenter",
+     "text": "Align Horizontal &Center",
+     "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Align Horizontal Center</b></p><p style='white-space:pre; margin:0;'>Aligns cell contents to the horizontal center</p><p style='white-space:pre; margin-top:0.5em;'><i>Spreadsheet_AlignCenter</i></p>",
+     "enabled": true,
+     "widget": "QToolButton"
+    },
+    {
+     "name": "Spreadsheet_AlignRight",
+     "text": "Align &Right",
+     "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Align Right</b></p><p style='white-space:pre; margin:0;'>Aligns cell contents to the right</p><p style='white-space:pre; margin-top:0.5em;'><i>Spreadsheet_AlignRight</i></p>",
+     "enabled": true,
+     "widget": "QToolButton"
+    },
+    {
+     "name": "Spreadsheet_AlignTop",
+     "text": "Align &Top",
+     "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Align Top</b></p><p style='white-space:pre; margin:0;'>Aligns cell contents to the top</p><p style='white-space:pre; margin-top:0.5em;'><i>Spreadsheet_AlignTop</i></p>",
+     "enabled": true,
+     "widget": "QToolButton"
+    },
+    {
+     "name": "Spreadsheet_AlignVCenter",
+     "text": "Align &Vertical Center",
+     "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Align Vertical Center</b></p><p style='white-space:pre; margin:0;'>Aligns cell contents to the vertical center</p><p style='white-space:pre; margin-top:0.5em;'><i>Spreadsheet_AlignVCenter</i></p>",
+     "enabled": true,
+     "widget": "QToolButton"
+    },
+    {
+     "name": "Spreadsheet_AlignBottom",
+     "text": "Align &Bottom",
+     "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Align Bottom</b></p><p style='white-space:pre; margin:0;'>Aligns cell contents to the bottom</p><p style='white-space:pre; margin-top:0.5em;'><i>Spreadsheet_AlignBottom</i></p>",
+     "enabled": true,
+     "widget": "QToolButton"
+    },
+    {
+     "sep": true
+    },
+    {
+     "name": "Spreadsheet_StyleBold",
+     "text": "&Bold Text",
+     "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Bold Text</b> (Ctrl+B)</p><p style='white-space:pre; margin:0;'>Sets the text in the selected cells bold</p><p style='white-space:pre; margin-top:0.5em;'><i>Spreadsheet_StyleBold</i></p>",
+     "enabled": true,
+     "widget": "QToolButton"
+    },
+    {
+     "name": "Spreadsheet_StyleItalic",
+     "text": "&Italic Text",
+     "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Italic Text</b> (Ctrl+I)</p><p style='white-space:pre; margin:0;'>Sets the text in the selected cells italic</p><p style='white-space:pre; margin-top:0.5em;'><i>Spreadsheet_StyleItalic</i></p>",
+     "enabled": true,
+     "widget": "QToolButton"
+    },
+    {
+     "name": "Spreadsheet_StyleUnderline",
+     "text": "&Underline Text",
+     "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Underline Text</b> (Ctrl+U)</p><p style='white-space:pre; margin:0;'>Underlines the text in the selected cells</p><p style='white-space:pre; margin-top:0.5em;'><i>Spreadsheet_StyleUnderline</i></p>",
+     "enabled": true,
+     "widget": "QToolButton"
+    },
+    {
+     "sep": true
+    },
+    {
+     "name": "Spreadsheet_SetAlias",
+     "text": "Set Alias",
+     "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Set Alias</b> (Ctrl+Shift+A)</p><p style='white-space:pre; margin:0;'>Sets an alias for the selected cell</p><p style='white-space:pre; margin-top:0.5em;'><i>Spreadsheet_SetAlias</i></p>",
+     "enabled": false,
+     "widget": "QToolButton"
+    },
+    {
+     "sep": true
+    },
+    {
+     "name": "Spreadsheet_ForegroundColor",
+     "text": "",
+     "tip": "Sets the text color of cells",
+     "enabled": true,
+     "widget": "QtColorPicker"
+    },
+    {
+     "name": "Spreadsheet_BackgroundColor",
+     "text": "",
+     "tip": "Sets the background color of cells",
+     "enabled": true,
+     "widget": "QtColorPicker"
+    }
+   ]
+  }
+ ],
+ "cells": {
+  "undo": [
+   "Edit cell",
+   "Edit cell",
+   "Edit cell"
+  ],
+  "undo_count": 53,
+  "cells": {
+   "A1": {
+    "content": "5"
+   },
+   "B1": {
+    "content": "=3 mm",
+    "alias": "thick"
+   },
+   "C1": {
+    "content": "=A1 * 2"
+   },
+   "A2": {
+    "content": "-3"
+   },
+   "B2": {
+    "content": "=1 m"
+   },
+   "C2": {
+    "content": "=B1 + B2"
+   },
+   "A3": {
+    "content": "2.5",
+    "alias": "ratio"
+   },
+   "B3": {
+    "content": "=1 m * 1 m"
+   },
+   "C3": {
+    "content": "=sum(A1:A3)"
+   },
+   "A4": {
+    "content": "-2.5"
+   },
+   "B4": {
+    "content": "=2 kg"
+   },
+   "C4": {
+    "content": "=average(B1:B2)"
+   },
+   "A5": {
+    "content": "=1 / 3"
+   },
+   "B5": {
+    "content": "=90 deg"
+   },
+   "A6": {
+    "content": "12345.678"
+   },
+   "B6": {
+    "content": "=1 s"
+   },
+   "A7": {
+    "content": "1e-07"
+   },
+   "B7": {
+    "content": "'-3 mm"
+   },
+   "A8": {
+    "content": "1e+20"
+   },
+   "B8": {
+    "content": "=1 mm / 1 s"
+   },
+   "C8": {
+    "content": "=min(A1:A3)"
+   },
+   "A9": {
+    "content": "12.5"
+   },
+   "B9": {
+    "content": "=12 in"
+   },
+   "C9": {
+    "content": "=max(B1:B2)"
+   },
+   "A10": {
+    "content": "0.005"
+   },
+   "B10": {
+    "content": "=0.5 mm"
+   },
+   "C10": {
+    "content": "=count(A1:A6)"
+   },
+   "A11": {
+    "content": "-0.004"
+   },
+   "B11": {
+    "content": "=0.0001 mm"
+   },
+   "C11": {
+    "content": "=stddev(A1:A3)"
+   },
+   "A12": {
+    "content": "=1 / 0"
+   },
+   "B12": {
+    "content": "=5 N"
+   },
+   "C12": {
+    "content": "=A15 + 1"
+   },
+   "A13": {
+    "content": "=nothing"
+   },
+   "B13": {
+    "content": "=3 mm",
+    "display_unit": "cm"
+   },
+   "C13": {
+    "content": "'x"
+   },
+   "A14": {
+    "content": "'=foo("
+   },
+   "B14": {
+    "content": "=4 mm",
+    "display_unit": "in"
+   },
+   "C14": {
+    "content": "=str(B1)"
+   },
+   "A15": {
+    "content": "'text"
+   },
+   "B15": {
+    "content": "5",
+    "display_unit": "mm"
+   },
+   "C15": {
+    "content": "=B1 > 2 mm"
+   },
+   "A16": {
+    "content": "'hello"
+   },
+   "B16": {
+    "content": "=7 mm",
+    "display_unit": "s"
+   },
+   "C16": {
+    "content": "=A1 / 2"
+   },
+   "A17": {
+    "content": "=True"
+   },
+   "B17": {
+    "content": "1.5",
+    "display_unit": "deg"
+   },
+   "A18": {
+    "content": "=None"
+   },
+   "B18": {
+    "content": "2",
+    "display_unit": "mm"
+   },
+   "A19": {
+    "content": "=list(1; 2)"
+   },
+   "B19": {
+    "content": "=1 (mm ^ 3)"
+   },
+   "A20": {
+    "content": "=vector(1; 2; 3)"
+   },
+   "B20": {
+    "content": "=sqrt(2)"
+   }
+  },
+  "view": {
+   "A1": {
+    "display": "5",
+    "edit": "5",
+    "tooltip": null,
+    "fg": "#212529",
+    "bg": null,
+    "align": [
+     "right",
+     "vcenter"
+    ],
+    "font": []
+   },
+   "B1": {
+    "display": "3.00 mm",
+    "edit": "=3 mm",
+    "tooltip": "thick",
+    "fg": "#212529",
+    "bg": "#bac8ff",
+    "align": [
+     "right",
+     "vcenter"
+    ],
+    "font": []
+   },
+   "C1": {
+    "display": "10",
+    "edit": "=A1 * 2",
+    "tooltip": null,
+    "fg": "#212529",
+    "bg": null,
+    "align": [
+     "right",
+     "vcenter"
+    ],
+    "font": []
+   },
+   "A2": {
+    "display": "-3",
+    "edit": "-3",
+    "tooltip": null,
+    "fg": "#212529",
+    "bg": null,
+    "align": [
+     "right",
+     "vcenter"
+    ],
+    "font": []
+   },
+   "B2": {
+    "display": "1000.00 mm",
+    "edit": "=1 m",
+    "tooltip": null,
+    "fg": "#212529",
+    "bg": null,
+    "align": [
+     "right",
+     "vcenter"
+    ],
+    "font": []
+   },
+   "C2": {
+    "display": "1003.00 mm",
+    "edit": "=B1 + B2",
+    "tooltip": null,
+    "fg": "#212529",
+    "bg": null,
+    "align": [
+     "right",
+     "vcenter"
+    ],
+    "font": []
+   },
+   "A3": {
+    "display": "2.50",
+    "edit": "2.5",
+    "tooltip": "ratio",
+    "fg": "#212529",
+    "bg": "#bac8ff",
+    "align": [
+     "right",
+     "vcenter"
+    ],
+    "font": []
+   },
+   "B3": {
+    "display": "1.00 m^2",
+    "edit": "=1 m * 1 m",
+    "tooltip": null,
+    "fg": "#212529",
+    "bg": null,
+    "align": [
+     "right",
+     "vcenter"
+    ],
+    "font": []
+   },
+   "C3": {
+    "display": "4.50",
+    "edit": "=sum(A1:A3)",
+    "tooltip": null,
+    "fg": "#212529",
+    "bg": null,
+    "align": [
+     "right",
+     "vcenter"
+    ],
+    "font": []
+   },
+   "A4": {
+    "display": "-2.50",
+    "edit": "-2.5",
+    "tooltip": null,
+    "fg": "#212529",
+    "bg": null,
+    "align": [
+     "right",
+     "vcenter"
+    ],
+    "font": []
+   },
+   "B4": {
+    "display": "2.00 kg",
+    "edit": "=2 kg",
+    "tooltip": null,
+    "fg": "#212529",
+    "bg": null,
+    "align": [
+     "right",
+     "vcenter"
+    ],
+    "font": []
+   },
+   "C4": {
+    "display": "501.50 mm",
+    "edit": "=average(B1:B2)",
+    "tooltip": null,
+    "fg": "#212529",
+    "bg": null,
+    "align": [
+     "right",
+     "vcenter"
+    ],
+    "font": []
+   },
+   "A5": {
+    "display": "0.33",
+    "edit": "=1 / 3",
+    "tooltip": null,
+    "fg": "#212529",
+    "bg": null,
+    "align": [
+     "right",
+     "vcenter"
+    ],
+    "font": []
+   },
+   "B5": {
+    "display": "90.00°",
+    "edit": "=90 deg",
+    "tooltip": null,
+    "fg": "#212529",
+    "bg": null,
+    "align": [
+     "right",
+     "vcenter"
+    ],
+    "font": []
+   },
+   "C5": {
+    "display": null,
+    "edit": null,
+    "tooltip": null,
+    "fg": "#0000ff",
+    "bg": null,
+    "align": [
+     "hcenter",
+     "vcenter"
+    ],
+    "font": []
+   },
+   "A6": {
+    "display": "12345.68",
+    "edit": "12345.678",
+    "tooltip": null,
+    "fg": "#212529",
+    "bg": null,
+    "align": [
+     "right",
+     "vcenter"
+    ],
+    "font": []
+   },
+   "B6": {
+    "display": "1.00 s",
+    "edit": "=1 s",
+    "tooltip": null,
+    "fg": "#212529",
+    "bg": null,
+    "align": [
+     "right",
+     "vcenter"
+    ],
+    "font": []
+   },
+   "C6": {
+    "display": null,
+    "edit": null,
+    "tooltip": null,
+    "fg": "#0000ff",
+    "bg": null,
+    "align": [
+     "hcenter",
+     "vcenter"
+    ],
+    "font": []
+   },
+   "A7": {
+    "display": "0.00",
+    "edit": "1e-07",
+    "tooltip": null,
+    "fg": "#212529",
+    "bg": null,
+    "align": [
+     "right",
+     "vcenter"
+    ],
+    "font": []
+   },
+   "B7": {
+    "display": "-3 mm",
+    "edit": "'-3 mm",
+    "tooltip": null,
+    "fg": "#212529",
+    "bg": null,
+    "align": [
+     "left",
+     "vcenter"
+    ],
+    "font": []
+   },
+   "C7": {
+    "display": null,
+    "edit": null,
+    "tooltip": null,
+    "fg": "#0000ff",
+    "bg": null,
+    "align": [
+     "hcenter",
+     "vcenter"
+    ],
+    "font": []
+   },
+   "A8": {
+    "display": "100000000000000000000.00",
+    "edit": "1e+20",
+    "tooltip": null,
+    "fg": "#212529",
+    "bg": null,
+    "align": [
+     "right",
+     "vcenter"
+    ],
+    "font": []
+   },
+   "B8": {
+    "display": "1.00 mm/s",
+    "edit": "=1 mm / 1 s",
+    "tooltip": null,
+    "fg": "#212529",
+    "bg": null,
+    "align": [
+     "right",
+     "vcenter"
+    ],
+    "font": []
+   },
+   "C8": {
+    "display": "-3",
+    "edit": "=min(A1:A3)",
+    "tooltip": null,
+    "fg": "#212529",
+    "bg": null,
+    "align": [
+     "right",
+     "vcenter"
+    ],
+    "font": []
+   },
+   "A9": {
+    "display": "12.50",
+    "edit": "12.5",
+    "tooltip": null,
+    "fg": "#212529",
+    "bg": null,
+    "align": [
+     "right",
+     "vcenter"
+    ],
+    "font": []
+   },
+   "B9": {
+    "display": "304.80 mm",
+    "edit": "=12 in",
+    "tooltip": null,
+    "fg": "#212529",
+    "bg": null,
+    "align": [
+     "right",
+     "vcenter"
+    ],
+    "font": []
+   },
+   "C9": {
+    "display": "1000.00 mm",
+    "edit": "=max(B1:B2)",
+    "tooltip": null,
+    "fg": "#212529",
+    "bg": null,
+    "align": [
+     "right",
+     "vcenter"
+    ],
+    "font": []
+   },
+   "A10": {
+    "display": "0.01",
+    "edit": "0.005",
+    "tooltip": null,
+    "fg": "#212529",
+    "bg": null,
+    "align": [
+     "right",
+     "vcenter"
+    ],
+    "font": []
+   },
+   "B10": {
+    "display": "0.50 mm",
+    "edit": "=0.5 mm",
+    "tooltip": null,
+    "fg": "#212529",
+    "bg": null,
+    "align": [
+     "right",
+     "vcenter"
+    ],
+    "font": []
+   },
+   "C10": {
+    "display": "6",
+    "edit": "=count(A1:A6)",
+    "tooltip": null,
+    "fg": "#212529",
+    "bg": null,
+    "align": [
+     "right",
+     "vcenter"
+    ],
+    "font": []
+   },
+   "A11": {
+    "display": "-0.00",
+    "edit": "-0.004",
+    "tooltip": null,
+    "fg": "#212529",
+    "bg": null,
+    "align": [
+     "right",
+     "vcenter"
+    ],
+    "font": []
+   },
+   "B11": {
+    "display": "100.00 nm",
+    "edit": "=0.0001 mm",
+    "tooltip": null,
+    "fg": "#212529",
+    "bg": null,
+    "align": [
+     "right",
+     "vcenter"
+    ],
+    "font": []
+   },
+   "C11": {
+    "display": "4.09",
+    "edit": "=stddev(A1:A3)",
+    "tooltip": null,
+    "fg": "#212529",
+    "bg": null,
+    "align": [
+     "right",
+     "vcenter"
+    ],
+    "font": []
+   },
+   "A12": {
+    "display": "=1 / 0",
+    "edit": "=1 / 0",
+    "tooltip": "<pre>division by zero\nin expression: 1 / 0</pre>",
+    "fg": "#ff0000",
+    "bg": null,
+    "align": [
+     "left",
+     "vcenter"
+    ],
+    "font": []
+   },
+   "B12": {
+    "display": "5.00 N",
+    "edit": "=5 N",
+    "tooltip": null,
+    "fg": "#212529",
+    "bg": null,
+    "align": [
+     "right",
+     "vcenter"
+    ],
+    "font": []
+   },
+   "C12": {
+    "display": "=A15 + 1",
+    "edit": "=A15 + 1",
+    "tooltip": "<pre>can only concatenate str (not &quot;int&quot;) to str\nin expression: A15 + 1</pre>",
+    "fg": "#ff0000",
+    "bg": null,
+    "align": [
+     "left",
+     "vcenter"
+    ],
+    "font": []
+   },
+   "A13": {
+    "display": "=nothing",
+    "edit": "=nothing",
+    "tooltip": "<pre>Property 'nothing' not found in 'Spreadsheet'</pre>",
+    "fg": "#ff0000",
+    "bg": null,
+    "align": [
+     "left",
+     "vcenter"
+    ],
+    "font": []
+   },
+   "B13": {
+    "display": "0.30 cm",
+    "edit": "=3 mm",
+    "tooltip": null,
+    "fg": "#212529",
+    "bg": null,
+    "align": [
+     "right",
+     "vcenter"
+    ],
+    "font": []
+   },
+   "C13": {
+    "display": "x",
+    "edit": "'x",
+    "tooltip": null,
+    "fg": "#212529",
+    "bg": null,
+    "align": [
+     "left",
+     "vcenter"
+    ],
+    "font": []
+   },
+   "A14": {
+    "display": "=foo(",
+    "edit": "'=foo(",
+    "tooltip": null,
+    "fg": "#212529",
+    "bg": null,
+    "align": [
+     "left",
+     "vcenter"
+    ],
+    "font": []
+   },
+   "B14": {
+    "display": "0.16 in",
+    "edit": "=4 mm",
+    "tooltip": null,
+    "fg": "#212529",
+    "bg": null,
+    "align": [
+     "right",
+     "vcenter"
+    ],
+    "font": []
+   },
+   "C14": {
+    "display": "3.0 mm",
+    "edit": "=str(B1)",
+    "tooltip": null,
+    "fg": "#212529",
+    "bg": null,
+    "align": [
+     "left",
+     "vcenter"
+    ],
+    "font": []
+   },
+   "A15": {
+    "display": "text",
+    "edit": "'text",
+    "tooltip": null,
+    "fg": "#212529",
+    "bg": null,
+    "align": [
+     "left",
+     "vcenter"
+    ],
+    "font": []
+   },
+   "B15": {
+    "display": "5.00 mm",
+    "edit": "5",
+    "tooltip": null,
+    "fg": "#212529",
+    "bg": null,
+    "align": [
+     "right",
+     "vcenter"
+    ],
+    "font": []
+   },
+   "C15": {
+    "display": "True",
+    "edit": "=B1 > 2 mm",
+    "tooltip": null,
+    "fg": "#212529",
+    "bg": null,
+    "align": [
+     "hcenter",
+     "vcenter"
+    ],
+    "font": []
+   },
+   "A16": {
+    "display": "hello",
+    "edit": "'hello",
+    "tooltip": null,
+    "fg": "#212529",
+    "bg": null,
+    "align": [
+     "left",
+     "vcenter"
+    ],
+    "font": []
+   },
+   "B16": {
+    "display": "#ERR: unit",
+    "edit": "=7 mm",
+    "tooltip": null,
+    "fg": "#212529",
+    "bg": null,
+    "align": [
+     "right",
+     "vcenter"
+    ],
+    "font": []
+   },
+   "C16": {
+    "display": "2.50",
+    "edit": "=A1 / 2",
+    "tooltip": null,
+    "fg": "#212529",
+    "bg": null,
+    "align": [
+     "right",
+     "vcenter"
+    ],
+    "font": []
+   },
+   "A17": {
+    "display": "True",
+    "edit": "=True",
+    "tooltip": null,
+    "fg": "#212529",
+    "bg": null,
+    "align": [
+     "hcenter",
+     "vcenter"
+    ],
+    "font": []
+   },
+   "B17": {
+    "display": "1.50 deg",
+    "edit": "1.5",
+    "tooltip": null,
+    "fg": "#212529",
+    "bg": null,
+    "align": [
+     "right",
+     "vcenter"
+    ],
+    "font": []
+   },
+   "C17": {
+    "display": null,
+    "edit": null,
+    "tooltip": null,
+    "fg": "#0000ff",
+    "bg": null,
+    "align": [
+     "hcenter",
+     "vcenter"
+    ],
+    "font": []
+   },
+   "A18": {
+    "display": "None",
+    "edit": "=None",
+    "tooltip": null,
+    "fg": "#212529",
+    "bg": null,
+    "align": [
+     "hcenter",
+     "vcenter"
+    ],
+    "font": []
+   },
+   "B18": {
+    "display": "2.00 mm",
+    "edit": "2",
+    "tooltip": null,
+    "fg": "#212529",
+    "bg": null,
+    "align": [
+     "right",
+     "vcenter"
+    ],
+    "font": []
+   },
+   "C18": {
+    "display": null,
+    "edit": null,
+    "tooltip": null,
+    "fg": "#0000ff",
+    "bg": null,
+    "align": [
+     "hcenter",
+     "vcenter"
+    ],
+    "font": []
+   },
+   "A19": {
+    "display": "[1, 2]",
+    "edit": "=list(1; 2)",
+    "tooltip": null,
+    "fg": "#212529",
+    "bg": null,
+    "align": [
+     "hcenter",
+     "vcenter"
+    ],
+    "font": []
+   },
+   "B19": {
+    "display": "1.00 mm^3",
+    "edit": "=1 (mm ^ 3)",
+    "tooltip": null,
+    "fg": "#212529",
+    "bg": null,
+    "align": [
+     "right",
+     "vcenter"
+    ],
+    "font": []
+   },
+   "C19": {
+    "display": null,
+    "edit": null,
+    "tooltip": null,
+    "fg": "#0000ff",
+    "bg": null,
+    "align": [
+     "hcenter",
+     "vcenter"
+    ],
+    "font": []
+   },
+   "A20": {
+    "display": "Vector (1.0, 2.0, 3.0)",
+    "edit": "=vector(1; 2; 3)",
+    "tooltip": null,
+    "fg": "#212529",
+    "bg": null,
+    "align": [
+     "hcenter",
+     "vcenter"
+    ],
+    "font": []
+   },
+   "B20": {
+    "display": "1.41",
+    "edit": "=sqrt(2)",
+    "tooltip": null,
+    "fg": "#212529",
+    "bg": null,
+    "align": [
+     "right",
+     "vcenter"
+    ],
+    "font": []
+   },
+   "C20": {
+    "display": null,
+    "edit": null,
+    "tooltip": null,
+    "fg": "#0000ff",
+    "bg": null,
+    "align": [
+     "hcenter",
+     "vcenter"
+    ],
+    "font": []
+   }
+  },
+  "empty": {
+   "display": null,
+   "edit": null,
+   "tooltip": null,
+   "fg": "#0000ff",
+   "bg": null,
+   "align": [
+    "hcenter",
+    "vcenter"
+   ],
+   "font": []
+  }
+ },
+ "pending": {
+  "D1": {
+   "display": "#PENDING",
+   "edit": "=A1 + 1",
+   "tooltip": null,
+   "fg": "#0000ff",
+   "bg": null,
+   "align": [
+    "hcenter",
+    "vcenter"
+   ],
+   "font": []
+  },
+  "D2": {
+   "display": "7",
+   "edit": "7",
+   "tooltip": null,
+   "fg": "#0000ff",
+   "bg": null,
+   "align": [
+    "hcenter",
+    "vcenter"
+   ],
+   "font": []
+  },
+  "after": {
+   "D1": {
+    "display": "6",
+    "edit": "=A1 + 1",
+    "tooltip": null,
+    "fg": "#212529",
+    "bg": null,
+    "align": [
+     "right",
+     "vcenter"
+    ],
+    "font": []
+   },
+   "D2": {
+    "display": "7",
+    "edit": "7",
+    "tooltip": null,
+    "fg": "#212529",
+    "bg": null,
+    "align": [
+     "right",
+     "vcenter"
+    ],
+    "font": []
+   }
+  }
+ },
+ "lines": {
+  "A1": {
+   "content": "5",
+   "alias": ""
+  },
+  "B1": {
+   "content": "=3 mm",
+   "alias": "thick"
+  },
+  "C1": {
+   "content": "=A1 * 2",
+   "alias": ""
+  },
+  "A15": {
+   "content": "'text",
+   "alias": ""
+  },
+  "A14": {
+   "content": "'=foo(",
+   "alias": ""
+  },
+  "E5": {
+   "content": "",
+   "alias": ""
+  }
+ },
+ "context_menu": {
+  "one": {
+   "actions": [
+    {
+     "text": "Properties",
+     "enabled": true
+    },
+    {
+     "sep": true
+    },
+    {
+     "text": "Recompute",
+     "enabled": true
+    },
+    {
+     "text": "Bind…",
+     "enabled": true
+    },
+    {
+     "text": "Configuration Table",
+     "enabled": false
+    },
+    {
+     "sep": true
+    },
+    {
+     "text": "Merge Cells",
+     "enabled": false
+    },
+    {
+     "text": "Split Cell",
+     "enabled": false
+    },
+    {
+     "sep": true
+    },
+    {
+     "text": "Cut",
+     "enabled": true
+    },
+    {
+     "text": "Copy",
+     "enabled": true
+    },
+    {
+     "text": "Paste",
+     "enabled": false
+    },
+    {
+     "text": "Delete",
+     "enabled": true
+    }
+   ]
+  },
+  "range": {
+   "actions": [
+    {
+     "text": "Properties",
+     "enabled": true
+    },
+    {
+     "sep": true
+    },
+    {
+     "text": "Recompute",
+     "enabled": true
+    },
+    {
+     "text": "Bind…",
+     "enabled": true
+    },
+    {
+     "text": "Configuration Table",
+     "enabled": true
+    },
+    {
+     "sep": true
+    },
+    {
+     "text": "Merge Cells",
+     "enabled": true
+    },
+    {
+     "text": "Split Cell",
+     "enabled": false
+    },
+    {
+     "sep": true
+    },
+    {
+     "text": "Cut",
+     "enabled": true
+    },
+    {
+     "text": "Copy",
+     "enabled": true
+    },
+    {
+     "text": "Paste",
+     "enabled": false
+    },
+    {
+     "text": "Delete",
+     "enabled": true
+    }
+   ]
+  },
+  "merged": {
+   "actions": [
+    {
+     "text": "Properties",
+     "enabled": true
+    },
+    {
+     "sep": true
+    },
+    {
+     "text": "Recompute",
+     "enabled": true
+    },
+    {
+     "text": "Bind…",
+     "enabled": true
+    },
+    {
+     "text": "Configuration Table",
+     "enabled": false
+    },
+    {
+     "sep": true
+    },
+    {
+     "text": "Merge Cells",
+     "enabled": false
+    },
+    {
+     "text": "Split Cell",
+     "enabled": true
+    },
+    {
+     "sep": true
+    },
+    {
+     "text": "Cut",
+     "enabled": true
+    },
+    {
+     "text": "Copy",
+     "enabled": true
+    },
+    {
+     "text": "Paste",
+     "enabled": false
+    },
+    {
+     "text": "Delete",
+     "enabled": true
+    }
+   ]
+  }
+ },
+ "commands": {
+  "Spreadsheet_AlignLeft": {
+   "undo": [
+    "Left-align cell"
+   ],
+   "cells": {
+    "E3": {
+     "content": "'AlignLeft",
+     "alignment": [
+      "left",
+      "vcenter"
+     ]
+    },
+    "F3": {
+     "content": "",
+     "alignment": [
+      "left"
+     ]
+    }
+   }
+  },
+  "Spreadsheet_AlignCenter": {
+   "undo": [
+    "Center cell"
+   ],
+   "cells": {
+    "E4": {
+     "content": "'AlignCenter",
+     "alignment": [
+      "center",
+      "vcenter"
+     ]
+    },
+    "F4": {
+     "content": "",
+     "alignment": [
+      "center"
+     ]
+    }
+   }
+  },
+  "Spreadsheet_AlignRight": {
+   "undo": [
+    "Right-align cell"
+   ],
+   "cells": {
+    "E5": {
+     "content": "'AlignRight",
+     "alignment": [
+      "right",
+      "vcenter"
+     ]
+    },
+    "F5": {
+     "content": "",
+     "alignment": [
+      "right"
+     ]
+    }
+   }
+  },
+  "Spreadsheet_AlignTop": {
+   "undo": [
+    "Top-align cell"
+   ],
+   "cells": {
+    "E6": {
+     "content": "'AlignTop",
+     "alignment": [
+      "left",
+      "top"
+     ]
+    },
+    "F6": {
+     "content": "",
+     "alignment": [
+      "top"
+     ]
+    }
+   }
+  },
+  "Spreadsheet_AlignVCenter": {
+   "undo": [
+    "Vertically center cells"
+   ],
+   "cells": {
+    "E7": {
+     "content": "'AlignVCenter",
+     "alignment": [
+      "left",
+      "vcenter"
+     ]
+    },
+    "F7": {
+     "content": "",
+     "alignment": [
+      "vcenter"
+     ]
+    }
+   }
+  },
+  "Spreadsheet_AlignBottom": {
+   "undo": [
+    "Bottom-align cell"
+   ],
+   "cells": {
+    "E8": {
+     "content": "'AlignBottom",
+     "alignment": [
+      "bottom",
+      "left"
+     ]
+    },
+    "F8": {
+     "content": "",
+     "alignment": [
+      "bottom"
+     ]
+    }
+   }
+  },
+  "Spreadsheet_StyleBold": {
+   "undo": [
+    "Set bold text"
+   ],
+   "cells": {
+    "E9": {
+     "content": "'StyleBold",
+     "style": [
+      "bold"
+     ]
+    },
+    "F9": {
+     "content": "",
+     "style": [
+      "bold"
+     ]
+    }
+   }
+  },
+  "Spreadsheet_StyleItalic": {
+   "undo": [
+    "Set italic text"
+   ],
+   "cells": {
+    "E10": {
+     "content": "'StyleItalic",
+     "style": [
+      "italic"
+     ]
+    },
+    "F10": {
+     "content": "",
+     "style": [
+      "italic"
+     ]
+    }
+   }
+  },
+  "Spreadsheet_StyleUnderline": {
+   "undo": [
+    "Set underline text"
+   ],
+   "cells": {
+    "E11": {
+     "content": "'StyleUnderline",
+     "style": [
+      "underline"
+     ]
+    },
+    "F11": {
+     "content": "",
+     "style": [
+      "underline"
+     ]
+    }
+   }
+  },
+  "bold_again": {
+   "undo": [
+    "Set bold text"
+   ],
+   "cell": {
+    "content": "'StyleBold"
+   }
+  },
+  "Spreadsheet_MergeCells": {
+   "undo": [
+    "Merge cells"
+   ],
+   "used": {
+    "A1": {
+     "content": "5"
+    },
+    "B1": {
+     "content": "=3 mm",
+     "alias": "thick"
+    },
+    "C1": {
+     "content": "=A1 * 2"
+    },
+    "D1": {
+     "content": "=A1 + 1"
+    },
+    "A2": {
+     "content": "-3"
+    },
+    "B2": {
+     "content": "=1 m"
+    },
+    "C2": {
+     "content": "=B1 + B2"
+    },
+    "D2": {
+     "content": "7"
+    },
+    "A3": {
+     "content": "2.5",
+     "alias": "ratio"
+    },
+    "B3": {
+     "content": "=1 m * 1 m"
+    },
+    "C3": {
+     "content": "=sum(A1:A3)"
+    },
+    "E3": {
+     "content": "'AlignLeft",
+     "alignment": [
+      "left",
+      "vcenter"
+     ]
+    },
+    "F3": {
+     "content": "",
+     "alignment": [
+      "left"
+     ]
+    },
+    "A4": {
+     "content": "-2.5"
+    },
+    "B4": {
+     "content": "=2 kg"
+    },
+    "C4": {
+     "content": "=average(B1:B2)"
+    },
+    "E4": {
+     "content": "'AlignCenter",
+     "alignment": [
+      "center",
+      "vcenter"
+     ]
+    },
+    "F4": {
+     "content": "",
+     "alignment": [
+      "center"
+     ]
+    },
+    "A5": {
+     "content": "=1 / 3"
+    },
+    "B5": {
+     "content": "=90 deg"
+    },
+    "E5": {
+     "content": "'AlignRight",
+     "alignment": [
+      "right",
+      "vcenter"
+     ]
+    },
+    "F5": {
+     "content": "",
+     "alignment": [
+      "right"
+     ]
+    },
+    "A6": {
+     "content": "12345.678"
+    },
+    "B6": {
+     "content": "=1 s"
+    },
+    "E6": {
+     "content": "'AlignTop",
+     "alignment": [
+      "left",
+      "top"
+     ]
+    },
+    "F6": {
+     "content": "",
+     "alignment": [
+      "top"
+     ]
+    },
+    "A7": {
+     "content": "1e-07"
+    },
+    "B7": {
+     "content": "'-3 mm"
+    },
+    "E7": {
+     "content": "'AlignVCenter",
+     "alignment": [
+      "left",
+      "vcenter"
+     ]
+    },
+    "F7": {
+     "content": "",
+     "alignment": [
+      "vcenter"
+     ]
+    },
+    "A8": {
+     "content": "1e+20"
+    },
+    "B8": {
+     "content": "=1 mm / 1 s"
+    },
+    "C8": {
+     "content": "=min(A1:A3)"
+    },
+    "E8": {
+     "content": "'AlignBottom",
+     "alignment": [
+      "bottom",
+      "left"
+     ]
+    },
+    "F8": {
+     "content": "",
+     "alignment": [
+      "bottom"
+     ]
+    },
+    "A9": {
+     "content": "12.5"
+    },
+    "B9": {
+     "content": "=12 in"
+    },
+    "C9": {
+     "content": "=max(B1:B2)"
+    },
+    "E9": {
+     "content": "'StyleBold"
+    },
+    "A10": {
+     "content": "0.005"
+    },
+    "B10": {
+     "content": "=0.5 mm"
+    },
+    "C10": {
+     "content": "=count(A1:A6)"
+    },
+    "E10": {
+     "content": "'StyleItalic",
+     "style": [
+      "italic"
+     ]
+    },
+    "F10": {
+     "content": "",
+     "style": [
+      "italic"
+     ]
+    },
+    "A11": {
+     "content": "-0.004"
+    },
+    "B11": {
+     "content": "=0.0001 mm"
+    },
+    "C11": {
+     "content": "=stddev(A1:A3)"
+    },
+    "E11": {
+     "content": "'StyleUnderline",
+     "style": [
+      "underline"
+     ]
+    },
+    "F11": {
+     "content": "",
+     "style": [
+      "underline"
+     ]
+    },
+    "A12": {
+     "content": "=1 / 0"
+    },
+    "B12": {
+     "content": "=5 N"
+    },
+    "C12": {
+     "content": "=A15 + 1"
+    },
+    "E12": {
+     "content": "'m"
+    },
+    "A13": {
+     "content": "=nothing"
+    },
+    "B13": {
+     "content": "=3 mm",
+     "display_unit": "cm"
+    },
+    "C13": {
+     "content": "'x"
+    },
+    "A14": {
+     "content": "'=foo("
+    },
+    "B14": {
+     "content": "=4 mm",
+     "display_unit": "in"
+    },
+    "C14": {
+     "content": "=str(B1)"
+    },
+    "A15": {
+     "content": "'text"
+    },
+    "B15": {
+     "content": "5",
+     "display_unit": "mm"
+    },
+    "C15": {
+     "content": "=B1 > 2 mm"
+    },
+    "A16": {
+     "content": "'hello"
+    },
+    "B16": {
+     "content": "=7 mm",
+     "display_unit": "s"
+    },
+    "C16": {
+     "content": "=A1 / 2"
+    },
+    "A17": {
+     "content": "=True"
+    },
+    "B17": {
+     "content": "1.5",
+     "display_unit": "deg"
+    },
+    "A18": {
+     "content": "=None"
+    },
+    "B18": {
+     "content": "2",
+     "display_unit": "mm"
+    },
+    "A19": {
+     "content": "=list(1; 2)"
+    },
+    "B19": {
+     "content": "=1 (mm ^ 3)"
+    },
+    "A20": {
+     "content": "=vector(1; 2; 3)"
+    },
+    "B20": {
+     "content": "=sqrt(2)"
+    }
+   },
+   "spans": {
+    "E12": [
+     2,
+     2
+    ]
+   }
+  },
+  "Spreadsheet_SplitCell": {
+   "undo": [
+    "Sp&lit cell"
+   ],
+   "spans": {}
+  }
+ },
+ "menus_range": {
+  "bar": [
+   "&File",
+   "&Edit",
+   "&View",
+   "&Tools",
+   "&Macro",
+   "&Spreadsheet",
+   "&Windows",
+   "",
+   "&Help"
+  ],
+  "&Edit": [
+   {
+    "text": "&Undo",
+    "name": "Std_Undo",
+    "shortcut": "Ctrl+Z",
+    "enabled": true,
+    "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Undo</b> (Ctrl+Z)</p><p style='white-space:pre; margin:0;'>Undoes the previous action</p><p style='white-space:pre; margin-top:0.5em;'><i>Std_Undo</i></p>"
+   },
+   {
+    "text": "&Redo",
+    "name": "Std_Redo",
+    "shortcut": "Ctrl+Shift+Z",
+    "enabled": false,
+    "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Redo</b> (Ctrl+Shift+Z)</p><p style='white-space:pre; margin:0;'>Redoes a previously undone action</p><p style='white-space:pre; margin-top:0.5em;'><i>Std_Redo</i></p>"
+   },
+   {
+    "sep": true
+   },
+   {
+    "text": "Cu&t",
+    "name": "Std_Cut",
+    "shortcut": "Ctrl+X",
+    "enabled": true,
+    "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Cut</b> (Ctrl+X)</p><p style='white-space:pre; margin:0;'>Removes the selection and copies it to the clipboard</p><p style='white-space:pre; margin-top:0.5em;'><i>Std_Cut</i></p>"
+   },
+   {
+    "text": "&Copy",
+    "name": "Std_Copy",
+    "shortcut": "Ctrl+C",
+    "enabled": true,
+    "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Copy</b> (Ctrl+C)</p><p style='white-space:pre; margin:0;'>Copies the selection to the clipboard</p><p style='white-space:pre; margin-top:0.5em;'><i>Std_Copy</i></p>"
+   },
+   {
+    "text": "&Paste",
+    "name": "Std_Paste",
+    "shortcut": "Ctrl+V",
+    "enabled": true,
+    "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Paste</b> (Ctrl+V)</p><p style='white-space:pre; margin:0;'>Pastes the contents of the clipboard</p><p style='white-space:pre; margin-top:0.5em;'><i>Std_Paste</i></p>"
+   },
+   {
+    "text": "Duplicate Selecti&on",
+    "name": "Std_DuplicateSelection",
+    "shortcut": "",
+    "enabled": true,
+    "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Duplicate Selection</b></p><p style='white-space:pre; margin:0;'>Duplicates the selected objects to the active document</p><p style='white-space:pre; margin-top:0.5em;'><i>Std_DuplicateSelection</i></p>"
+   },
+   {
+    "text": "&Delete",
+    "name": "Std_Delete",
+    "shortcut": "Del",
+    "enabled": true,
+    "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Delete</b> (Del)</p><p style='white-space:pre; margin:0;'>Deletes the selected objects</p><p style='white-space:pre; margin-top:0.5em;'><i>Std_Delete</i></p>"
+   },
+   {
+    "sep": true
+   },
+   {
+    "text": "Recompute",
+    "name": "Std_Refresh",
+    "shortcut": "F5",
+    "enabled": true,
+    "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Recompute</b> (F5)</p><p style='white-space:pre; margin:0;'>Recomputes the active document</p><p style='white-space:pre; margin-top:0.5em;'><i>Std_Refresh</i></p>"
+   },
+   {
+    "text": "&Box Selection",
+    "name": "Std_BoxSelection",
+    "shortcut": "Shift+B",
+    "enabled": false,
+    "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Box Selection</b> (Shift+B)</p><p style='white-space:pre; margin:0;'>Activates the box selection tool</p><p style='white-space:pre; margin-top:0.5em;'><i>Std_BoxSelection</i></p>"
+   },
+   {
+    "text": "Bo&x Element Selection",
+    "name": "Std_BoxElementSelection",
+    "shortcut": "Shift+E",
+    "enabled": false,
+    "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Box Element Selection</b> (Shift+E)</p><p style='white-space:pre; margin:0;'>Activates box element selection</p><p style='white-space:pre; margin-top:0.5em;'><i>Std_BoxElementSelection</i></p>"
+   },
+   {
+    "text": "Select &All",
+    "name": "Std_SelectAll",
+    "shortcut": "Ctrl+A",
+    "enabled": true,
+    "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Select All</b> (Ctrl+A)</p><p style='white-space:pre; margin:0;'>Selects all objects in the active document</p><p style='white-space:pre; margin-top:0.5em;'><i>Std_SelectAll</i></p>"
+   },
+   {
+    "sep": true
+   },
+   {
+    "text": "Trans&form",
+    "name": "Std_TransformManip",
+    "shortcut": "",
+    "enabled": false,
+    "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Transform</b></p><p style='white-space:pre; margin:0;'>Transforms the selected object in the 3D view</p><p style='white-space:pre; margin-top:0.5em;'><i>Std_TransformManip</i></p>"
+   },
+   {
+    "text": "P&lacement",
+    "name": "Std_Placement",
+    "shortcut": "",
+    "enabled": false,
+    "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Placement</b></p><p style='white-space:pre; margin:0;'>Opens the placement editor to adjust the placement of the selected object</p><p style='white-space:pre; margin-top:0.5em;'><i>Std_Placement</i></p>"
+   },
+   {
+    "text": "Ali&gn To…",
+    "name": "Std_Alignment",
+    "shortcut": "",
+    "enabled": false,
+    "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Align To…</b></p><p style='white-space:pre; margin:0;'>Aligns the selected objects</p><p style='white-space:pre; margin-top:0.5em;'><i>Std_Alignment</i></p>"
+   },
+   {
+    "text": "&Send to Python Console",
+    "name": "Std_SendToPythonConsole",
+    "shortcut": "Ctrl+Shift+P",
+    "enabled": true,
+    "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Send to Python Console</b> (Ctrl+Shift+P)</p><p style='white-space:pre; margin:0;'>Sends the selected objects to the Python console</p><p style='white-space:pre; margin-top:0.5em;'><i>Std_SendToPythonConsole</i></p>"
+   },
+   {
+    "text": "Propert&ies",
+    "name": "Std_Properties",
+    "shortcut": "Alt+Return",
+    "enabled": true,
+    "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Properties</b> (Alt+Return)</p><p style='white-space:pre; margin:0;'>Shows the property view, which displays the properties of the selected object.</p><p style='white-space:pre; margin-top:0.5em;'><i>Std_Properties</i></p>"
+   },
+   {
+    "sep": true
+   },
+   {
+    "text": "Toggle &Edit Mode",
+    "name": "Std_Edit",
+    "shortcut": "",
+    "enabled": true,
+    "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Toggle Edit Mode</b></p><p style='white-space:pre; margin:0;'>Toggles the selected object's edit mode</p><p style='white-space:pre; margin-top:0.5em;'><i>Std_Edit</i></p>"
+   },
+   {
+    "text": "Edit &Mode",
+    "name": "Std_UserEditMode",
+    "shortcut": "",
+    "enabled": true,
+    "tip": "Edit Mode",
+    "menu": [
+     {
+      "text": "&Default",
+      "name": "Std_UserEditModeDefault",
+      "shortcut": "",
+      "enabled": true,
+      "tip": "The object will be edited using the mode defined internally to be the most appropriate for the object type"
+     },
+     {
+      "text": "Trans&form",
+      "name": "Std_UserEditModeTransform",
+      "shortcut": "",
+      "enabled": true,
+      "tip": "The object will have its placement editable with the Std TransformManip command"
+     },
+     {
+      "text": "Cu&tting",
+      "name": "Std_UserEditModeCutting",
+      "shortcut": "",
+      "enabled": true,
+      "tip": "This edit mode is implemented as available but currently does not seem to be used by any object"
+     },
+     {
+      "text": "&Color",
+      "name": "Std_UserEditModeColor",
+      "shortcut": "",
+      "enabled": true,
+      "tip": "The object will have the color of its individual faces editable with the Appearance per Face command"
+     }
+    ]
+   },
+   {
+    "sep": true
+   },
+   {
+    "text": "Prefere&nces",
+    "name": "Std_DlgPreferences",
+    "shortcut": "Ctrl+,",
+    "enabled": true,
+    "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Preferences</b> (Ctrl+,)</p><p style='white-space:pre; margin:0;'>Opens a dialog to edit the preferences</p><p style='white-space:pre; margin-top:0.5em;'><i>Std_DlgPreferences</i></p>"
+   },
+   {
+    "text": "Create",
+    "name": "Create",
+    "shortcut": "",
+    "enabled": true,
+    "tip": "Create",
+    "menu": [
+     {
+      "text": "New Part",
+      "name": "Std_Part",
+      "shortcut": "",
+      "enabled": true,
+      "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>New Part</b></p><p style='white-space:pre; margin:0;'>Creates a part, which is a general-purpose container to group objects so they act as a unit</p>in the 3D view. It is intended to arrange objects that have a part TopoShape, like part primitives, Part Design bodies, and other parts.<p style='white-space:pre; margin-top:0.5em;'><i>Std_Part</i></p>"
+     },
+     {
+      "text": "New Group",
+      "name": "Std_Group",
+      "shortcut": "",
+      "enabled": true,
+      "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>New Group</b></p><p style='white-space:pre; margin:0;'>Creates a group, which is a general-purpose container to group objects in the tree view, regardless</p>of their data type. It is a simple folder to organize the objects in a model.<p style='white-space:pre; margin-top:0.5em;'><i>Std_Group</i></p>"
+     },
+     {
+      "text": "Variable Set",
+      "name": "Std_VarSet",
+      "shortcut": "",
+      "enabled": true,
+      "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Variable Set</b></p><p style='white-space:pre; margin:0;'>Creates a variable set, which is an object that maintains a set of properties to be used as</p>variables<p style='white-space:pre; margin-top:0.5em;'><i>Std_VarSet</i></p>"
+     },
+     {
+      "text": "Annotation Label",
+      "name": "Std_AnnotationLabel",
+      "shortcut": "",
+      "enabled": true,
+      "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Annotation Label</b></p><p style='white-space:pre; margin:0;'>Creates a new annotation label at the picked location in the 3D view</p><p style='white-space:pre; margin-top:0.5em;'><i>Std_AnnotationLabel</i></p>"
+     },
+     {
+      "text": "Datums",
+      "name": "Part_Datums",
+      "shortcut": "",
+      "enabled": true,
+      "tip": "Datums",
+      "menu": [
+       {
+        "text": "Coordinate System",
+        "name": "Part_CoordinateSystem",
+        "shortcut": "",
+        "enabled": true,
+        "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Coordinate System</b></p><p style='white-space:pre; margin:0;'>Creates a coordinate system that can be attached to other objects</p><p style='white-space:pre; margin-top:0.5em;'><i>Part_CoordinateSystem</i></p>"
+       },
+       {
+        "text": "Datum Plane",
+        "name": "Part_DatumPlane",
+        "shortcut": "",
+        "enabled": true,
+        "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Datum Plane</b></p><p style='white-space:pre; margin:0;'>Creates a datum plane that can be attached to other objects</p><p style='white-space:pre; margin-top:0.5em;'><i>Part_DatumPlane</i></p>"
+       },
+       {
+        "text": "Datum Line",
+        "name": "Part_DatumLine",
+        "shortcut": "",
+        "enabled": true,
+        "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Datum Line</b></p><p style='white-space:pre; margin:0;'>Creates a datum line that can be attached to other objects</p><p style='white-space:pre; margin-top:0.5em;'><i>Part_DatumLine</i></p>"
+       },
+       {
+        "text": "Datum Point",
+        "name": "Part_DatumPoint",
+        "shortcut": "",
+        "enabled": true,
+        "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Datum Point</b></p><p style='white-space:pre; margin:0;'>Creates a datum point that can be attached to other objects</p><p style='white-space:pre; margin-top:0.5em;'><i>Part_DatumPoint</i></p>"
+       }
+      ]
+     },
+     {
+      "text": "Link Actions",
+      "name": "Std_LinkActions",
+      "shortcut": "",
+      "enabled": true,
+      "tip": "Link Actions",
+      "menu": [
+       {
+        "text": "Make Link",
+        "name": "Std_LinkMake",
+        "shortcut": "",
+        "enabled": true,
+        "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Make Link</b></p><p style='white-space:pre; margin:0;'>A link is an object that references another object, either within the same or in another</p>document. Unlike clones, links reference the original shape directly, making them more memory-efficient, which helps with the creation of complex assemblies.<p style='white-space:pre; margin-top:0.5em;'><i>Std_LinkMake</i></p>"
+       },
+       {
+        "text": "Make Sub-Link",
+        "name": "Std_LinkMakeRelative",
+        "shortcut": "",
+        "enabled": false,
+        "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Make Sub-Link</b></p><p style='white-space:pre; margin:0;'>Creates a sub-object or sub-element link</p><p style='white-space:pre; margin-top:0.5em;'><i>Std_LinkMakeRelative</i></p>"
+       },
+       {
+        "text": "Replace With Link",
+        "name": "Std_LinkReplace",
+        "shortcut": "",
+        "enabled": false,
+        "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Replace With Link</b></p><p style='white-space:pre; margin:0;'>Replaces the selected objects with links</p><p style='white-space:pre; margin-top:0.5em;'><i>Std_LinkReplace</i></p>"
+       },
+       {
+        "text": "Unlink",
+        "name": "Std_LinkUnlink",
+        "shortcut": "",
+        "enabled": false,
+        "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Unlink</b></p><p style='white-space:pre; margin:0;'>Unlinks the object by placing it directly in the container</p><p style='white-space:pre; margin-top:0.5em;'><i>Std_LinkUnlink</i></p>"
+       },
+       {
+        "text": "Import Links",
+        "name": "Std_LinkImport",
+        "shortcut": "",
+        "enabled": false,
+        "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Import Links</b></p><p style='white-space:pre; margin:0;'>Imports selected external links</p><p style='white-space:pre; margin-top:0.5em;'><i>Std_LinkImport</i></p>"
+       },
+       {
+        "text": "Import All Links",
+        "name": "Std_LinkImportAll",
+        "shortcut": "",
+        "enabled": false,
+        "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Import All Links</b></p><p style='white-space:pre; margin:0;'>Imports all links of the active document</p><p style='white-space:pre; margin-top:0.5em;'><i>Std_LinkImportAll</i></p>"
+       }
+      ]
+     },
+     {
+      "sep": true
+     },
+     {
+      "text": "Te&xt Document",
+      "name": "Std_TextDocument",
+      "shortcut": "",
+      "enabled": true,
+      "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Text Document</b></p><p style='white-space:pre; margin:0;'>Adds a text document to the active document</p><p style='white-space:pre; margin-top:0.5em;'><i>Std_TextDocument</i></p>"
+     }
+    ]
+   }
+  ],
+  "&Spreadsheet": [
+   {
+    "text": "&New Spreadsheet",
+    "name": "Spreadsheet_CreateSheet",
+    "shortcut": "",
+    "enabled": true,
+    "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>New Spreadsheet</b></p><p style='white-space:pre; margin:0;'>Creates a new spreadsheet</p><p style='white-space:pre; margin-top:0.5em;'><i>Spreadsheet_CreateSheet</i></p>"
+   },
+   {
+    "sep": true
+   },
+   {
+    "text": "&Import Spreadsheet",
+    "name": "Spreadsheet_Import",
+    "shortcut": "",
+    "enabled": true,
+    "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Import Spreadsheet</b></p><p style='white-space:pre; margin:0;'>Imports a CSV file into a new spreadsheet</p><p style='white-space:pre; margin-top:0.5em;'><i>Spreadsheet_Import</i></p>"
+   },
+   {
+    "text": "&Export Spreadsheet",
+    "name": "Spreadsheet_Export",
+    "shortcut": "",
+    "enabled": true,
+    "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Export Spreadsheet</b></p><p style='white-space:pre; margin:0;'>Exports the spreadsheet to a CSV file</p><p style='white-space:pre; margin-top:0.5em;'><i>Spreadsheet_Export</i></p>"
+   },
+   {
+    "sep": true
+   },
+   {
+    "text": "&Merge Cells",
+    "name": "Spreadsheet_MergeCells",
+    "shortcut": "",
+    "enabled": true,
+    "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Merge Cells</b></p><p style='white-space:pre; margin:0;'>Merges the selected cells</p><p style='white-space:pre; margin-top:0.5em;'><i>Spreadsheet_MergeCells</i></p>"
+   },
+   {
+    "text": "Sp&lit Cell",
+    "name": "Spreadsheet_SplitCell",
+    "shortcut": "",
+    "enabled": false,
+    "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Split Cell</b></p><p style='white-space:pre; margin:0;'>Splits a previously merged cell</p><p style='white-space:pre; margin-top:0.5em;'><i>Spreadsheet_SplitCell</i></p>"
+   },
+   {
+    "sep": true
+   },
+   {
+    "text": "&Alignment",
+    "name": "&Alignment",
+    "shortcut": "",
+    "enabled": true,
+    "tip": "Alignment",
+    "menu": [
+     {
+      "text": "Align &Left",
+      "name": "Spreadsheet_AlignLeft",
+      "shortcut": "",
+      "enabled": true,
+      "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Align Left</b></p><p style='white-space:pre; margin:0;'>Aligns cell contents to the left</p><p style='white-space:pre; margin-top:0.5em;'><i>Spreadsheet_AlignLeft</i></p>"
+     },
+     {
+      "text": "Align Horizontal &Center",
+      "name": "Spreadsheet_AlignCenter",
+      "shortcut": "",
+      "enabled": true,
+      "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Align Horizontal Center</b></p><p style='white-space:pre; margin:0;'>Aligns cell contents to the horizontal center</p><p style='white-space:pre; margin-top:0.5em;'><i>Spreadsheet_AlignCenter</i></p>"
+     },
+     {
+      "text": "Align &Right",
+      "name": "Spreadsheet_AlignRight",
+      "shortcut": "",
+      "enabled": true,
+      "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Align Right</b></p><p style='white-space:pre; margin:0;'>Aligns cell contents to the right</p><p style='white-space:pre; margin-top:0.5em;'><i>Spreadsheet_AlignRight</i></p>"
+     },
+     {
+      "text": "Align &Top",
+      "name": "Spreadsheet_AlignTop",
+      "shortcut": "",
+      "enabled": true,
+      "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Align Top</b></p><p style='white-space:pre; margin:0;'>Aligns cell contents to the top</p><p style='white-space:pre; margin-top:0.5em;'><i>Spreadsheet_AlignTop</i></p>"
+     },
+     {
+      "text": "Align &Vertical Center",
+      "name": "Spreadsheet_AlignVCenter",
+      "shortcut": "",
+      "enabled": true,
+      "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Align Vertical Center</b></p><p style='white-space:pre; margin:0;'>Aligns cell contents to the vertical center</p><p style='white-space:pre; margin-top:0.5em;'><i>Spreadsheet_AlignVCenter</i></p>"
+     },
+     {
+      "text": "Align &Bottom",
+      "name": "Spreadsheet_AlignBottom",
+      "shortcut": "",
+      "enabled": true,
+      "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Align Bottom</b></p><p style='white-space:pre; margin:0;'>Aligns cell contents to the bottom</p><p style='white-space:pre; margin-top:0.5em;'><i>Spreadsheet_AlignBottom</i></p>"
+     }
+    ]
+   },
+   {
+    "text": "&Styles",
+    "name": "&Styles",
+    "shortcut": "",
+    "enabled": true,
+    "tip": "Styles",
+    "menu": [
+     {
+      "text": "&Bold Text",
+      "name": "Spreadsheet_StyleBold",
+      "shortcut": "Ctrl+B",
+      "enabled": true,
+      "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Bold Text</b> (Ctrl+B)</p><p style='white-space:pre; margin:0;'>Sets the text in the selected cells bold</p><p style='white-space:pre; margin-top:0.5em;'><i>Spreadsheet_StyleBold</i></p>"
+     },
+     {
+      "text": "&Italic Text",
+      "name": "Spreadsheet_StyleItalic",
+      "shortcut": "Ctrl+I",
+      "enabled": true,
+      "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Italic Text</b> (Ctrl+I)</p><p style='white-space:pre; margin:0;'>Sets the text in the selected cells italic</p><p style='white-space:pre; margin-top:0.5em;'><i>Spreadsheet_StyleItalic</i></p>"
+     },
+     {
+      "text": "&Underline Text",
+      "name": "Spreadsheet_StyleUnderline",
+      "shortcut": "Ctrl+U",
+      "enabled": true,
+      "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Underline Text</b> (Ctrl+U)</p><p style='white-space:pre; margin:0;'>Underlines the text in the selected cells</p><p style='white-space:pre; margin-top:0.5em;'><i>Spreadsheet_StyleUnderline</i></p>"
+     }
+    ]
+   }
+  ]
+ },
+ "properties": {
+  "seen": true,
+  "title": "Cell Properties",
+  "widgets": [
+   {
+    "class": "QTabWidget",
+    "name": "tabWidget",
+    "enabled": true,
+    "visible": true,
+    "tabs": [
+     "&Color",
+     "&Alignment",
+     "&Style",
+     "&Display unit",
+     "A&lias"
+    ],
+    "current": 0,
+    "tab_enabled": [
+     true,
+     true,
+     true,
+     true,
+     true
+    ]
+   },
+   {
+    "class": "QLabel",
+    "name": "label_6",
+    "enabled": true,
+    "visible": false,
+    "text": "Alias for this cell"
+   },
+   {
+    "class": "QLineEdit",
+    "name": "alias",
+    "enabled": true,
+    "visible": false,
+    "tip": "Allows referring to a cell by an alias name, for example\nSpreadsheet.my_alias_name instead of Spreadsheet.B1",
+    "text": ""
+   },
+   {
+    "class": "QLabel",
+    "name": "aliasStatus",
+    "enabled": true,
+    "visible": false,
+    "text": ""
+   },
+   {
+    "class": "QLabel",
+    "name": "label_3",
+    "enabled": true,
+    "visible": false,
+    "text": "Text for the unit"
+   },
+   {
+    "class": "QLineEdit",
+    "name": "displayUnit",
+    "enabled": true,
+    "visible": false,
+    "text": ""
+   },
+   {
+    "class": "QCheckBox",
+    "name": "styleBold",
+    "enabled": true,
+    "visible": false,
+    "text": "Bold",
+    "checked": false
+   },
+   {
+    "class": "QCheckBox",
+    "name": "styleItalic",
+    "enabled": true,
+    "visible": false,
+    "text": "Italic",
+    "checked": false
+   },
+   {
+    "class": "QCheckBox",
+    "name": "styleUnderline",
+    "enabled": true,
+    "visible": false,
+    "text": "Underline",
+    "checked": false
+   },
+   {
+    "class": "QLabel",
+    "name": "label_4",
+    "enabled": true,
+    "visible": false,
+    "text": "Horizontal"
+   },
+   {
+    "class": "QRadioButton",
+    "name": "alignLeft",
+    "enabled": true,
+    "visible": false,
+    "text": "Left",
+    "checked": true
+   },
+   {
+    "class": "QRadioButton",
+    "name": "alignHCenter",
+    "enabled": true,
+    "visible": false,
+    "text": "Center",
+    "checked": false
+   },
+   {
+    "class": "QRadioButton",
+    "name": "alignRight",
+    "enabled": true,
+    "visible": false,
+    "text": "Right",
+    "checked": false
+   },
+   {
+    "class": "QLabel",
+    "name": "label_5",
+    "enabled": true,
+    "visible": false,
+    "text": "Vertical"
+   },
+   {
+    "class": "QRadioButton",
+    "name": "alignTop",
+    "enabled": true,
+    "visible": false,
+    "text": "Top",
+    "checked": false
+   },
+   {
+    "class": "QRadioButton",
+    "name": "alignVCenter",
+    "enabled": true,
+    "visible": false,
+    "text": "Center",
+    "checked": true
+   },
+   {
+    "class": "QRadioButton",
+    "name": "alignBottom",
+    "enabled": true,
+    "visible": false,
+    "text": "Bottom",
+    "checked": false
+   },
+   {
+    "class": "QLabel",
+    "name": "label",
+    "enabled": true,
+    "visible": true,
+    "text": "Text"
+   },
+   {
+    "class": "QtColorPicker",
+    "name": "foregroundColor",
+    "enabled": true,
+    "visible": true,
+    "text": "Default",
+    "checked": false
+   },
+   {
+    "class": "QPushButton",
+    "name": "",
+    "enabled": true,
+    "visible": false,
+    "text": "Reset"
+   },
+   {
+    "class": "QPushButton",
+    "name": "",
+    "enabled": true,
+    "visible": false,
+    "text": "Custom Colors"
+   },
+   {
+    "class": "QLabel",
+    "name": "label_2",
+    "enabled": true,
+    "visible": true,
+    "text": "Background"
+   },
+   {
+    "class": "QtColorPicker",
+    "name": "backgroundColor",
+    "enabled": true,
+    "visible": true,
+    "text": "Default",
+    "checked": false
+   },
+   {
+    "class": "QPushButton",
+    "name": "",
+    "enabled": true,
+    "visible": false,
+    "text": "Reset"
+   },
+   {
+    "class": "QPushButton",
+    "name": "",
+    "enabled": true,
+    "visible": false,
+    "text": "Custom Colors"
+   },
+   {
+    "class": "QToolButton",
+    "name": "ScrollLeftButton",
+    "enabled": false,
+    "visible": false,
+    "text": ""
+   },
+   {
+    "class": "QToolButton",
+    "name": "ScrollRightButton",
+    "enabled": false,
+    "visible": false,
+    "text": ""
+   },
+   {
+    "class": "QPushButton",
+    "name": "",
+    "enabled": true,
+    "visible": true,
+    "text": "OK"
+   },
+   {
+    "class": "QPushButton",
+    "name": "",
+    "enabled": true,
+    "visible": true,
+    "text": "Cancel"
+   }
+  ],
+  "pages": {
+   "&Color": [
+    {
+     "class": "QTabWidget",
+     "name": "tabWidget",
+     "enabled": true,
+     "visible": true,
+     "tabs": [
+      "&Color",
+      "&Alignment",
+      "&Style",
+      "&Display unit",
+      "A&lias"
+     ],
+     "current": 0,
+     "tab_enabled": [
+      true,
+      true,
+      true,
+      true,
+      true
+     ]
+    },
+    {
+     "class": "QLabel",
+     "name": "label",
+     "enabled": true,
+     "visible": true,
+     "text": "Text"
+    },
+    {
+     "class": "QtColorPicker",
+     "name": "foregroundColor",
+     "enabled": true,
+     "visible": true,
+     "text": "Default",
+     "checked": false
+    },
+    {
+     "class": "QLabel",
+     "name": "label_2",
+     "enabled": true,
+     "visible": true,
+     "text": "Background"
+    },
+    {
+     "class": "QtColorPicker",
+     "name": "backgroundColor",
+     "enabled": true,
+     "visible": true,
+     "text": "Default",
+     "checked": false
+    },
+    {
+     "class": "QPushButton",
+     "name": "",
+     "enabled": true,
+     "visible": true,
+     "text": "OK"
+    },
+    {
+     "class": "QPushButton",
+     "name": "",
+     "enabled": true,
+     "visible": true,
+     "text": "Cancel"
+    }
+   ],
+   "&Alignment": [
+    {
+     "class": "QTabWidget",
+     "name": "tabWidget",
+     "enabled": true,
+     "visible": true,
+     "tabs": [
+      "&Color",
+      "&Alignment",
+      "&Style",
+      "&Display unit",
+      "A&lias"
+     ],
+     "current": 1,
+     "tab_enabled": [
+      true,
+      true,
+      true,
+      true,
+      true
+     ]
+    },
+    {
+     "class": "QLabel",
+     "name": "label_4",
+     "enabled": true,
+     "visible": true,
+     "text": "Horizontal"
+    },
+    {
+     "class": "QRadioButton",
+     "name": "alignLeft",
+     "enabled": true,
+     "visible": true,
+     "text": "Left",
+     "checked": true
+    },
+    {
+     "class": "QRadioButton",
+     "name": "alignHCenter",
+     "enabled": true,
+     "visible": true,
+     "text": "Center",
+     "checked": false
+    },
+    {
+     "class": "QRadioButton",
+     "name": "alignRight",
+     "enabled": true,
+     "visible": true,
+     "text": "Right",
+     "checked": false
+    },
+    {
+     "class": "QLabel",
+     "name": "label_5",
+     "enabled": true,
+     "visible": true,
+     "text": "Vertical"
+    },
+    {
+     "class": "QRadioButton",
+     "name": "alignTop",
+     "enabled": true,
+     "visible": true,
+     "text": "Top",
+     "checked": false
+    },
+    {
+     "class": "QRadioButton",
+     "name": "alignVCenter",
+     "enabled": true,
+     "visible": true,
+     "text": "Center",
+     "checked": true
+    },
+    {
+     "class": "QRadioButton",
+     "name": "alignBottom",
+     "enabled": true,
+     "visible": true,
+     "text": "Bottom",
+     "checked": false
+    },
+    {
+     "class": "QPushButton",
+     "name": "",
+     "enabled": true,
+     "visible": true,
+     "text": "OK"
+    },
+    {
+     "class": "QPushButton",
+     "name": "",
+     "enabled": true,
+     "visible": true,
+     "text": "Cancel"
+    }
+   ],
+   "&Style": [
+    {
+     "class": "QTabWidget",
+     "name": "tabWidget",
+     "enabled": true,
+     "visible": true,
+     "tabs": [
+      "&Color",
+      "&Alignment",
+      "&Style",
+      "&Display unit",
+      "A&lias"
+     ],
+     "current": 2,
+     "tab_enabled": [
+      true,
+      true,
+      true,
+      true,
+      true
+     ]
+    },
+    {
+     "class": "QCheckBox",
+     "name": "styleBold",
+     "enabled": true,
+     "visible": true,
+     "text": "Bold",
+     "checked": false
+    },
+    {
+     "class": "QCheckBox",
+     "name": "styleItalic",
+     "enabled": true,
+     "visible": true,
+     "text": "Italic",
+     "checked": false
+    },
+    {
+     "class": "QCheckBox",
+     "name": "styleUnderline",
+     "enabled": true,
+     "visible": true,
+     "text": "Underline",
+     "checked": false
+    },
+    {
+     "class": "QPushButton",
+     "name": "",
+     "enabled": true,
+     "visible": true,
+     "text": "OK"
+    },
+    {
+     "class": "QPushButton",
+     "name": "",
+     "enabled": true,
+     "visible": true,
+     "text": "Cancel"
+    }
+   ],
+   "&Display unit": [
+    {
+     "class": "QTabWidget",
+     "name": "tabWidget",
+     "enabled": true,
+     "visible": true,
+     "tabs": [
+      "&Color",
+      "&Alignment",
+      "&Style",
+      "&Display unit",
+      "A&lias"
+     ],
+     "current": 3,
+     "tab_enabled": [
+      true,
+      true,
+      true,
+      true,
+      true
+     ]
+    },
+    {
+     "class": "QLabel",
+     "name": "label_3",
+     "enabled": true,
+     "visible": true,
+     "text": "Text for the unit"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "displayUnit",
+     "enabled": true,
+     "visible": true,
+     "text": ""
+    },
+    {
+     "class": "QPushButton",
+     "name": "",
+     "enabled": true,
+     "visible": true,
+     "text": "OK"
+    },
+    {
+     "class": "QPushButton",
+     "name": "",
+     "enabled": true,
+     "visible": true,
+     "text": "Cancel"
+    }
+   ],
+   "A&lias": [
+    {
+     "class": "QTabWidget",
+     "name": "tabWidget",
+     "enabled": true,
+     "visible": true,
+     "tabs": [
+      "&Color",
+      "&Alignment",
+      "&Style",
+      "&Display unit",
+      "A&lias"
+     ],
+     "current": 4,
+     "tab_enabled": [
+      true,
+      true,
+      true,
+      true,
+      true
+     ]
+    },
+    {
+     "class": "QLabel",
+     "name": "label_6",
+     "enabled": true,
+     "visible": true,
+     "text": "Alias for this cell"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "alias",
+     "enabled": true,
+     "visible": true,
+     "tip": "Allows referring to a cell by an alias name, for example\nSpreadsheet.my_alias_name instead of Spreadsheet.B1",
+     "text": ""
+    },
+    {
+     "class": "QPushButton",
+     "name": "",
+     "enabled": true,
+     "visible": true,
+     "text": "OK"
+    },
+    {
+     "class": "QPushButton",
+     "name": "",
+     "enabled": true,
+     "visible": true,
+     "text": "Cancel"
+    }
+   ]
+  },
+  "alias_checks": {
+   "1x": {
+    "status": "Invalid: bad alias syntax",
+    "status_visible": true,
+    "tip": "Alias must start with a letter and contain only letters, digits, and '_'",
+    "ok": false
+   },
+   "mm": {
+    "status": "Invalid: reserved unit token",
+    "status_visible": true,
+    "tip": "Alias conflicts with a reserved unit token used by expressions",
+    "ok": false
+   },
+   "pi": {
+    "status": "Invalid: reserved constant token",
+    "status_visible": true,
+    "tip": "Alias conflicts with a reserved constant token used by expressions",
+    "ok": false
+   },
+   "thick": {
+    "status": "Invalid: alias already exists",
+    "status_visible": true,
+    "tip": "Alias already defined",
+    "ok": false
+   },
+   "A1": {
+    "status": "Invalid: alias matches cell address pattern",
+    "status_visible": true,
+    "tip": "Alias cannot look like a cell address such as A1 or C12",
+    "ok": false
+   },
+   "Label": {
+    "status": "Invalid: conflicts with existing property name",
+    "status_visible": true,
+    "tip": "Alias conflicts with an existing spreadsheet property name",
+    "ok": false
+   },
+   "g_one": {
+    "status": "",
+    "status_visible": false,
+    "tip": "Allows referring to a cell by an alias name, for example\nSpreadsheet.my_alias_name instead of Spreadsheet.B1",
+    "ok": true
+   }
+  },
+  "bad_unit_ok": false,
+  "undo": [
+   "Set cell properties"
+  ],
+  "cell": {
+   "content": "=2 mm",
+   "alias": "g_one",
+   "style": [
+    "bold"
+   ],
+   "alignment": [
+    "right",
+    "top"
+   ],
+   "display_unit": "cm"
+  },
+  "view": {
+   "display": "0.20 cm",
+   "edit": "=2 mm",
+   "tooltip": "g_one",
+   "fg": "#212529",
+   "bg": "#bac8ff",
+   "align": [
+    "right",
+    "top"
+   ],
+   "font": [
+    "bold"
+   ]
+  }
+ },
+ "properties_range": {
+  "seen": true,
+  "title": "Cell Properties",
+  "widgets": [
+   {
+    "class": "QTabWidget",
+    "name": "tabWidget",
+    "enabled": true,
+    "visible": true,
+    "tabs": [
+     "&Color",
+     "&Alignment",
+     "&Style",
+     "&Display unit",
+     "A&lias"
+    ],
+    "current": 0,
+    "tab_enabled": [
+     true,
+     true,
+     true,
+     true,
+     false
+    ]
+   },
+   {
+    "class": "QLabel",
+    "name": "label_6",
+    "enabled": false,
+    "visible": false,
+    "text": "Alias for this cell"
+   },
+   {
+    "class": "QLineEdit",
+    "name": "alias",
+    "enabled": false,
+    "visible": false,
+    "tip": "Allows referring to a cell by an alias name, for example\nSpreadsheet.my_alias_name instead of Spreadsheet.B1",
+    "text": ""
+   },
+   {
+    "class": "QLabel",
+    "name": "aliasStatus",
+    "enabled": false,
+    "visible": false,
+    "text": ""
+   },
+   {
+    "class": "QLabel",
+    "name": "label_3",
+    "enabled": true,
+    "visible": false,
+    "text": "Text for the unit"
+   },
+   {
+    "class": "QLineEdit",
+    "name": "displayUnit",
+    "enabled": true,
+    "visible": false,
+    "text": ""
+   },
+   {
+    "class": "QCheckBox",
+    "name": "styleBold",
+    "enabled": true,
+    "visible": false,
+    "text": "Bold",
+    "checked": false
+   },
+   {
+    "class": "QCheckBox",
+    "name": "styleItalic",
+    "enabled": true,
+    "visible": false,
+    "text": "Italic",
+    "checked": false
+   },
+   {
+    "class": "QCheckBox",
+    "name": "styleUnderline",
+    "enabled": true,
+    "visible": false,
+    "text": "Underline",
+    "checked": false
+   },
+   {
+    "class": "QLabel",
+    "name": "label_4",
+    "enabled": true,
+    "visible": false,
+    "text": "Horizontal"
+   },
+   {
+    "class": "QRadioButton",
+    "name": "alignLeft",
+    "enabled": true,
+    "visible": false,
+    "text": "Left",
+    "checked": true
+   },
+   {
+    "class": "QRadioButton",
+    "name": "alignHCenter",
+    "enabled": true,
+    "visible": false,
+    "text": "Center",
+    "checked": false
+   },
+   {
+    "class": "QRadioButton",
+    "name": "alignRight",
+    "enabled": true,
+    "visible": false,
+    "text": "Right",
+    "checked": false
+   },
+   {
+    "class": "QLabel",
+    "name": "label_5",
+    "enabled": true,
+    "visible": false,
+    "text": "Vertical"
+   },
+   {
+    "class": "QRadioButton",
+    "name": "alignTop",
+    "enabled": true,
+    "visible": false,
+    "text": "Top",
+    "checked": false
+   },
+   {
+    "class": "QRadioButton",
+    "name": "alignVCenter",
+    "enabled": true,
+    "visible": false,
+    "text": "Center",
+    "checked": true
+   },
+   {
+    "class": "QRadioButton",
+    "name": "alignBottom",
+    "enabled": true,
+    "visible": false,
+    "text": "Bottom",
+    "checked": false
+   },
+   {
+    "class": "QLabel",
+    "name": "label",
+    "enabled": true,
+    "visible": true,
+    "text": "Text"
+   },
+   {
+    "class": "QtColorPicker",
+    "name": "foregroundColor",
+    "enabled": true,
+    "visible": true,
+    "text": "Default",
+    "checked": false
+   },
+   {
+    "class": "QPushButton",
+    "name": "",
+    "enabled": true,
+    "visible": false,
+    "text": "Reset"
+   },
+   {
+    "class": "QPushButton",
+    "name": "",
+    "enabled": true,
+    "visible": false,
+    "text": "Custom Colors"
+   },
+   {
+    "class": "QLabel",
+    "name": "label_2",
+    "enabled": true,
+    "visible": true,
+    "text": "Background"
+   },
+   {
+    "class": "QtColorPicker",
+    "name": "backgroundColor",
+    "enabled": true,
+    "visible": true,
+    "text": "Default",
+    "checked": false
+   },
+   {
+    "class": "QPushButton",
+    "name": "",
+    "enabled": true,
+    "visible": false,
+    "text": "Reset"
+   },
+   {
+    "class": "QPushButton",
+    "name": "",
+    "enabled": true,
+    "visible": false,
+    "text": "Custom Colors"
+   },
+   {
+    "class": "QToolButton",
+    "name": "ScrollLeftButton",
+    "enabled": false,
+    "visible": false,
+    "text": ""
+   },
+   {
+    "class": "QToolButton",
+    "name": "ScrollRightButton",
+    "enabled": false,
+    "visible": false,
+    "text": ""
+   },
+   {
+    "class": "QPushButton",
+    "name": "",
+    "enabled": true,
+    "visible": true,
+    "text": "OK"
+   },
+   {
+    "class": "QPushButton",
+    "name": "",
+    "enabled": true,
+    "visible": true,
+    "text": "Cancel"
+   }
+  ]
+ },
+ "set_alias": {
+  "seen": true,
+  "title": "Cell Properties",
+  "widgets": [
+   {
+    "class": "QTabWidget",
+    "name": "tabWidget",
+    "enabled": true,
+    "visible": true,
+    "tabs": [
+     "&Color",
+     "&Alignment",
+     "&Style",
+     "&Display unit",
+     "A&lias"
+    ],
+    "current": 4,
+    "tab_enabled": [
+     true,
+     true,
+     true,
+     true,
+     true
+    ]
+   },
+   {
+    "class": "QLabel",
+    "name": "label_3",
+    "enabled": true,
+    "visible": false,
+    "text": "Text for the unit"
+   },
+   {
+    "class": "QLineEdit",
+    "name": "displayUnit",
+    "enabled": true,
+    "visible": false,
+    "text": ""
+   },
+   {
+    "class": "QCheckBox",
+    "name": "styleBold",
+    "enabled": true,
+    "visible": false,
+    "text": "Bold",
+    "checked": false
+   },
+   {
+    "class": "QCheckBox",
+    "name": "styleItalic",
+    "enabled": true,
+    "visible": false,
+    "text": "Italic",
+    "checked": false
+   },
+   {
+    "class": "QCheckBox",
+    "name": "styleUnderline",
+    "enabled": true,
+    "visible": false,
+    "text": "Underline",
+    "checked": false
+   },
+   {
+    "class": "QLabel",
+    "name": "label_4",
+    "enabled": true,
+    "visible": false,
+    "text": "Horizontal"
+   },
+   {
+    "class": "QRadioButton",
+    "name": "alignLeft",
+    "enabled": true,
+    "visible": false,
+    "text": "Left",
+    "checked": true
+   },
+   {
+    "class": "QRadioButton",
+    "name": "alignHCenter",
+    "enabled": true,
+    "visible": false,
+    "text": "Center",
+    "checked": false
+   },
+   {
+    "class": "QRadioButton",
+    "name": "alignRight",
+    "enabled": true,
+    "visible": false,
+    "text": "Right",
+    "checked": false
+   },
+   {
+    "class": "QLabel",
+    "name": "label_5",
+    "enabled": true,
+    "visible": false,
+    "text": "Vertical"
+   },
+   {
+    "class": "QRadioButton",
+    "name": "alignTop",
+    "enabled": true,
+    "visible": false,
+    "text": "Top",
+    "checked": false
+   },
+   {
+    "class": "QRadioButton",
+    "name": "alignVCenter",
+    "enabled": true,
+    "visible": false,
+    "text": "Center",
+    "checked": true
+   },
+   {
+    "class": "QRadioButton",
+    "name": "alignBottom",
+    "enabled": true,
+    "visible": false,
+    "text": "Bottom",
+    "checked": false
+   },
+   {
+    "class": "QLabel",
+    "name": "label",
+    "enabled": true,
+    "visible": false,
+    "text": "Text"
+   },
+   {
+    "class": "QtColorPicker",
+    "name": "foregroundColor",
+    "enabled": true,
+    "visible": false,
+    "text": "Default",
+    "checked": false
+   },
+   {
+    "class": "QPushButton",
+    "name": "",
+    "enabled": true,
+    "visible": false,
+    "text": "Reset"
+   },
+   {
+    "class": "QPushButton",
+    "name": "",
+    "enabled": true,
+    "visible": false,
+    "text": "Custom Colors"
+   },
+   {
+    "class": "QLabel",
+    "name": "label_2",
+    "enabled": true,
+    "visible": false,
+    "text": "Background"
+   },
+   {
+    "class": "QtColorPicker",
+    "name": "backgroundColor",
+    "enabled": true,
+    "visible": false,
+    "text": "Default",
+    "checked": false
+   },
+   {
+    "class": "QPushButton",
+    "name": "",
+    "enabled": true,
+    "visible": false,
+    "text": "Reset"
+   },
+   {
+    "class": "QPushButton",
+    "name": "",
+    "enabled": true,
+    "visible": false,
+    "text": "Custom Colors"
+   },
+   {
+    "class": "QLabel",
+    "name": "label_6",
+    "enabled": true,
+    "visible": true,
+    "text": "Alias for this cell"
+   },
+   {
+    "class": "QLineEdit",
+    "name": "alias",
+    "enabled": true,
+    "visible": true,
+    "tip": "Allows referring to a cell by an alias name, for example\nSpreadsheet.my_alias_name instead of Spreadsheet.B1",
+    "text": ""
+   },
+   {
+    "class": "QLabel",
+    "name": "aliasStatus",
+    "enabled": true,
+    "visible": false,
+    "text": ""
+   },
+   {
+    "class": "QToolButton",
+    "name": "ScrollLeftButton",
+    "enabled": false,
+    "visible": false,
+    "text": ""
+   },
+   {
+    "class": "QToolButton",
+    "name": "ScrollRightButton",
+    "enabled": false,
+    "visible": false,
+    "text": ""
+   },
+   {
+    "class": "QPushButton",
+    "name": "",
+    "enabled": true,
+    "visible": true,
+    "text": "OK"
+   },
+   {
+    "class": "QPushButton",
+    "name": "",
+    "enabled": true,
+    "visible": true,
+    "text": "Cancel"
+   }
+  ],
+  "undo": [
+   "Set cell properties"
+  ],
+  "cell": {
+   "content": "4",
+   "alias": "four"
+  }
+ },
+ "alias_line": {
+  "bad alias": {
+   "tip": "Alias contains invalid characters!",
+   "style": "color:rgb(255,90,90)"
+  },
+  "eight": {
+   "tip": "Refer to cell by alias, for example\nSpreadsheet.my_alias_name instead of Spreadsheet.B1",
+   "style": ""
+  },
+  "undo": [],
+  "cell": {
+   "content": "8",
+   "alias": "eight"
+  }
+ },
+ "content_line": {
+  "undo": [
+   "Edit cell"
+  ],
+  "cell": {
+   "content": "=eight * 2"
+  },
+  "view": {
+   "display": "16",
+   "edit": "=eight * 2",
+   "tooltip": null,
+   "fg": "#212529",
+   "bg": null,
+   "align": [
+    "right",
+    "vcenter"
+   ],
+   "font": []
+  }
+ },
+ "copy_paste": {
+  "text": "1\t=$J$1 * 2\n=J1 + 1\t=sum(J1:J2)",
+  "formats": [
+   "text/plain",
+   "application/x-fc-spreadsheet"
+  ],
+  "xml": "<?xml version='1.0' encoding='utf-8'?>\n<Cells count=\"1\">\n    <Range from=\"J1\" to=\"K2\" count=\"4\">\n        <Cell address=\"J1\" content=\"1\" style=\"bold\" />\n        <Cell address=\"J2\" content=\"=J1 + 1\" />\n        <Cell address=\"K1\" content=\"=$J$1 * 2\" />\n        <Cell address=\"K2\" content=\"=sum(J1:J2)\" />\n    </Range>\n</Cells>\n",
+  "undo": [
+   "Paste Cell"
+  ],
+  "used": {
+   "J1": {
+    "content": "1",
+    "style": [
+     "bold"
+    ]
+   },
+   "K1": {
+    "content": "=$J$1 * 2"
+   },
+   "J2": {
+    "content": "=J1 + 1"
+   },
+   "K2": {
+    "content": "=sum(J1:J2)"
+   },
+   "L5": {
+    "content": "1",
+    "style": [
+     "bold"
+    ]
+   },
+   "M5": {
+    "content": "=$J$1 * 2"
+   },
+   "L6": {
+    "content": "=L5 + 1"
+   },
+   "M6": {
+    "content": "=sum(L5:L6)"
+   }
+  },
+  "tiled": {
+   "L10": {
+    "content": "1",
+    "style": [
+     "bold"
+    ]
+   },
+   "M10": {
+    "content": "=$J$1 * 2"
+   },
+   "N10": {
+    "content": "1",
+    "style": [
+     "bold"
+    ]
+   },
+   "O10": {
+    "content": "=$J$1 * 2"
+   },
+   "L11": {
+    "content": "=L10 + 1"
+   },
+   "M11": {
+    "content": "=sum(L10:L11)"
+   },
+   "N11": {
+    "content": "=N10 + 1"
+   },
+   "O11": {
+    "content": "=sum(N10:N11)"
+   },
+   "L12": {
+    "content": "1",
+    "style": [
+     "bold"
+    ]
+   },
+   "M12": {
+    "content": "=$J$1 * 2"
+   },
+   "N12": {
+    "content": "1",
+    "style": [
+     "bold"
+    ]
+   },
+   "O12": {
+    "content": "=$J$1 * 2"
+   },
+   "L13": {
+    "content": "=L12 + 1"
+   },
+   "M13": {
+    "content": "=sum(L12:L13)"
+   },
+   "N13": {
+    "content": "=N12 + 1"
+   },
+   "O13": {
+    "content": "=sum(N12:N13)"
+   }
+  },
+  "cut_undo": [
+   "Paste Cell"
+  ],
+  "after_cut": {
+   "K1": {
+    "content": "=$J$1 * 2"
+   },
+   "Q1": {
+    "content": "1",
+    "style": [
+     "bold"
+    ]
+   },
+   "K2": {
+    "content": "=sum(J1:J2)"
+   },
+   "Q2": {
+    "content": "=Q1 + 1"
+   }
+  },
+  "delete_undo": [
+   "Clear Cells"
+  ],
+  "after_delete": {}
+ },
+ "headers": {
+  "rows_1": {
+   "actions": [
+    {
+     "text": "Insert 1 Rows Above",
+     "enabled": true
+    },
+    {
+     "text": "Insert 1 Rows Below",
+     "enabled": true
+    },
+    {
+     "text": "Remove Rows",
+     "enabled": true
+    }
+   ]
+  },
+  "rows_2": {
+   "actions": [
+    {
+     "text": "Insert 2 Rows Above",
+     "enabled": true
+    },
+    {
+     "text": "Insert 2 Rows Below",
+     "enabled": true
+    },
+    {
+     "text": "Remove Rows",
+     "enabled": true
+    }
+   ]
+  },
+  "columns_1": {
+   "actions": [
+    {
+     "text": "Insert 1 Columns Left",
+     "enabled": true
+    },
+    {
+     "text": "Insert 1 Columns Right",
+     "enabled": true
+    },
+    {
+     "text": "Remove Columns",
+     "enabled": true
+    }
+   ]
+  },
+  "columns_2": {
+   "actions": [
+    {
+     "text": "Insert 2 Columns Left",
+     "enabled": true
+    },
+    {
+     "text": "Insert 2 Columns Right",
+     "enabled": true
+    },
+    {
+     "text": "Remove Columns",
+     "enabled": true
+    }
+   ]
+  },
+  "insert_undo": [
+   "Insert Rows"
+  ],
+  "after_insert": {
+   "A2": {
+    "content": "-3"
+   },
+   "A20": {
+    "content": "=vector(1; 2; 3)"
+   },
+   "A25": {
+    "content": "=A27 + 1"
+   },
+   "A27": {
+    "content": "4"
+   }
+  }
+ },
+ "keys": {
+  "focus": false,
+  "moves": [
+   {
+    "from": "T3",
+    "key": "Return",
+    "mod": 0,
+    "to": "T4",
+    "focus": true
+   },
+   {
+    "from": "T3",
+    "key": "Return",
+    "mod": 33554432,
+    "to": "T2",
+    "focus": true
+   },
+   {
+    "from": "T3",
+    "key": "Tab",
+    "mod": 0,
+    "to": "U3",
+    "focus": true
+   },
+   {
+    "from": "T3",
+    "key": "Backtab",
+    "mod": 33554432,
+    "to": "T3",
+    "focus": true
+   },
+   {
+    "from": "T3",
+    "key": "Left",
+    "mod": 0,
+    "to": "S3",
+    "focus": true
+   },
+   {
+    "from": "T3",
+    "key": "Right",
+    "mod": 0,
+    "to": "U3",
+    "focus": true
+   },
+   {
+    "from": "T3",
+    "key": "Up",
+    "mod": 0,
+    "to": "T2",
+    "focus": true
+   },
+   {
+    "from": "T3",
+    "key": "Down",
+    "mod": 0,
+    "to": "T4",
+    "focus": true
+   },
+   {
+    "from": "T3",
+    "key": "Home",
+    "mod": 0,
+    "to": "T1",
+    "focus": true
+   },
+   {
+    "from": "T3",
+    "key": "Home",
+    "mod": 67108864,
+    "to": "A1",
+    "focus": true
+   },
+   {
+    "from": "A3",
+    "key": "End",
+    "mod": 0,
+    "to": "A27",
+    "focus": true
+   },
+   {
+    "from": "T4",
+    "key": "Down",
+    "mod": 0,
+    "to": "T5",
+    "focus": true
+   },
+   {
+    "from": "T5",
+    "key": "Down",
+    "mod": 0,
+    "to": "T7",
+    "focus": true
+   },
+   {
+    "from": "S5",
+    "key": "Right",
+    "mod": 0,
+    "to": "T5",
+    "focus": true
+   },
+   {
+    "from": "A1",
+    "key": "Down",
+    "mod": 67108864,
+    "to": "A1",
+    "focus": true
+   },
+   {
+    "from": "A20",
+    "key": "Down",
+    "mod": 67108864,
+    "to": "A20",
+    "focus": true
+   }
+  ]
+ },
+ "props": {
+  "view": [
+   {
+    "depth": 0,
+    "name": "Display Options",
+    "value": null
+   },
+   {
+    "depth": 1,
+    "name": "Display Mode",
+    "value": ""
+   },
+   {
+    "depth": 1,
+    "name": "Show In Tree",
+    "value": "true"
+   },
+   {
+    "depth": 1,
+    "name": "Visibility",
+    "value": "true"
+   },
+   {
+    "depth": 0,
+    "name": "Selection",
+    "value": null
+   },
+   {
+    "depth": 1,
+    "name": "On Top When Selected",
+    "value": "Disabled"
+   },
+   {
+    "depth": 1,
+    "name": "Selection Style",
+    "value": "Shape"
+   }
+  ],
+  "data": [
+   {
+    "depth": 0,
+    "name": "Base",
+    "value": null
+   },
+   {
+    "depth": 1,
+    "name": "Label",
+    "value": "Spreadsheet"
+   }
+  ]
+ },
+ "tree": [
+  {
+   "text": "Unnamed",
+   "depth": 0
+  },
+  {
+   "text": "Spreadsheet",
+   "depth": 1
+  }
+ ],
+ "undo": {
+  "before": [
+   "Insert Rows",
+   "Edit cell",
+   "Edit cell",
+   "Clear Cells",
+   "Paste Cell",
+   "Paste Cell",
+   "Paste Cell",
+   "Edit cell",
+   "Edit cell",
+   "Edit cell",
+   "Edit cell",
+   "Edit cell"
+  ],
+  "after_undo": [
+   "Edit cell",
+   "Edit cell",
+   "Clear Cells"
+  ],
+  "after_redo": [
+   "Insert Rows",
+   "Edit cell",
+   "Edit cell"
+  ]
+ },
+ "cycles": {
+  "first": {
+   "A1": {
+    "display": "=A2 + 1",
+    "edit": "=A2 + 1",
+    "tooltip": "<pre>Cyclic dependency\nA1, A2</pre>",
+    "fg": "#ff0000",
+    "bg": null,
+    "align": [
+     "left",
+     "vcenter"
+    ],
+    "font": []
+   },
+   "B1": {
+    "display": "5",
+    "edit": "5",
+    "tooltip": "<pre>Pending computation due to cyclic dependency</pre>",
+    "fg": "#ff0000",
+    "bg": null,
+    "align": [
+     "left",
+     "vcenter"
+    ],
+    "font": []
+   },
+   "A2": {
+    "display": "=A1",
+    "edit": "=A1",
+    "tooltip": "<pre>Cyclic dependency\nA1, A2</pre>",
+    "fg": "#ff0000",
+    "bg": null,
+    "align": [
+     "left",
+     "vcenter"
+    ],
+    "font": []
+   },
+   "B2": {
+    "display": "=B1 * 2",
+    "edit": "=B1 * 2",
+    "tooltip": "<pre>Pending computation due to cyclic dependency</pre>",
+    "fg": "#ff0000",
+    "bg": null,
+    "align": [
+     "left",
+     "vcenter"
+    ],
+    "font": []
+   },
+   "A3": {
+    "display": "=A3",
+    "edit": "=A3",
+    "tooltip": "<pre>Cyclic dependency\nA3</pre>",
+    "fg": "#ff0000",
+    "bg": null,
+    "align": [
+     "left",
+     "vcenter"
+    ],
+    "font": []
+   },
+   "B3": {
+    "display": null,
+    "edit": null,
+    "tooltip": null,
+    "fg": "#0000ff",
+    "bg": null,
+    "align": [
+     "hcenter",
+     "vcenter"
+    ],
+    "font": []
+   }
+  },
+  "fixed": {
+   "A1": {
+    "display": "5",
+    "edit": "=A2 + 1",
+    "tooltip": null,
+    "fg": "#212529",
+    "bg": null,
+    "align": [
+     "right",
+     "vcenter"
+    ],
+    "font": []
+   },
+   "B1": {
+    "display": "5",
+    "edit": "5",
+    "tooltip": null,
+    "fg": "#212529",
+    "bg": null,
+    "align": [
+     "right",
+     "vcenter"
+    ],
+    "font": []
+   },
+   "A2": {
+    "display": "4",
+    "edit": "4",
+    "tooltip": null,
+    "fg": "#212529",
+    "bg": null,
+    "align": [
+     "right",
+     "vcenter"
+    ],
+    "font": []
+   },
+   "B2": {
+    "display": "10",
+    "edit": "=B1 * 2",
+    "tooltip": null,
+    "fg": "#212529",
+    "bg": null,
+    "align": [
+     "right",
+     "vcenter"
+    ],
+    "font": []
+   },
+   "A3": {
+    "display": "1",
+    "edit": "1",
+    "tooltip": null,
+    "fg": "#212529",
+    "bg": null,
+    "align": [
+     "right",
+     "vcenter"
+    ],
+    "font": []
+   },
+   "B3": {
+    "display": null,
+    "edit": null,
+    "tooltip": null,
+    "fg": "#0000ff",
+    "bg": null,
+    "align": [
+     "hcenter",
+     "vcenter"
+    ],
+    "font": []
+   }
+  },
+  "two_loops": {
+   "C1": {
+    "display": "=D1",
+    "edit": "=D1",
+    "tooltip": "<pre>Cyclic dependency\nC1, D1</pre>",
+    "fg": "#ff0000",
+    "bg": null,
+    "align": [
+     "left",
+     "vcenter"
+    ],
+    "font": []
+   },
+   "D1": {
+    "display": "=C1",
+    "edit": "=C1",
+    "tooltip": "<pre>Cyclic dependency\nC1, D1</pre>",
+    "fg": "#ff0000",
+    "bg": null,
+    "align": [
+     "left",
+     "vcenter"
+    ],
+    "font": []
+   },
+   "E1": {
+    "display": "=E2",
+    "edit": "=E2",
+    "tooltip": "<pre>Cyclic dependency\nE1, E2, E3</pre>",
+    "fg": "#ff0000",
+    "bg": null,
+    "align": [
+     "left",
+     "vcenter"
+    ],
+    "font": []
+   },
+   "C2": {
+    "display": null,
+    "edit": null,
+    "tooltip": null,
+    "fg": "#0000ff",
+    "bg": null,
+    "align": [
+     "hcenter",
+     "vcenter"
+    ],
+    "font": []
+   },
+   "D2": {
+    "display": null,
+    "edit": null,
+    "tooltip": null,
+    "fg": "#0000ff",
+    "bg": null,
+    "align": [
+     "hcenter",
+     "vcenter"
+    ],
+    "font": []
+   },
+   "E2": {
+    "display": "=E3",
+    "edit": "=E3",
+    "tooltip": "<pre>Cyclic dependency\nE1, E2, E3</pre>",
+    "fg": "#ff0000",
+    "bg": null,
+    "align": [
+     "left",
+     "vcenter"
+    ],
+    "font": []
+   },
+   "C3": {
+    "display": null,
+    "edit": null,
+    "tooltip": null,
+    "fg": "#0000ff",
+    "bg": null,
+    "align": [
+     "hcenter",
+     "vcenter"
+    ],
+    "font": []
+   },
+   "D3": {
+    "display": null,
+    "edit": null,
+    "tooltip": null,
+    "fg": "#0000ff",
+    "bg": null,
+    "align": [
+     "hcenter",
+     "vcenter"
+    ],
+    "font": []
+   },
+   "E3": {
+    "display": "=E1",
+    "edit": "=E1",
+    "tooltip": "<pre>Cyclic dependency\nE1, E2, E3</pre>",
+    "fg": "#ff0000",
+    "bg": null,
+    "align": [
+     "left",
+     "vcenter"
+    ],
+    "font": []
+   }
+  }
+ },
+ "final_cells": {
+  "A1": {
+   "content": "5",
+   "foreground": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "background": [
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  "B1": {
+   "content": "=3 mm",
+   "alias": "thick",
+   "foreground": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "background": [
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  "C1": {
+   "content": "=A1 * 2",
+   "foreground": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "background": [
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  "D1": {
+   "content": "=A1 + 1",
+   "foreground": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "background": [
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  "G1": {
+   "content": "=2 mm",
+   "alias": "g_one",
+   "style": [
+    "bold"
+   ],
+   "alignment": [
+    "right",
+    "top"
+   ],
+   "foreground": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "background": [
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ],
+   "display_unit": "cm"
+  },
+  "H1": {
+   "content": "",
+   "foreground": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "background": [
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  "K1": {
+   "content": "=$J$1 * 2",
+   "foreground": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "background": [
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  "A2": {
+   "content": "-3",
+   "foreground": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "background": [
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  "B2": {
+   "content": "=1 m",
+   "foreground": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "background": [
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  "C2": {
+   "content": "=B1 + B2",
+   "foreground": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "background": [
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  "D2": {
+   "content": "7",
+   "foreground": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "background": [
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  "K2": {
+   "content": "=sum(J1:J2)",
+   "foreground": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "background": [
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  "A3": {
+   "content": "2.5",
+   "alias": "ratio",
+   "foreground": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "background": [
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  "B3": {
+   "content": "=1 m * 1 m",
+   "foreground": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "background": [
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  "C3": {
+   "content": "=sum(A1:A3)",
+   "foreground": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "background": [
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  "E3": {
+   "content": "'AlignLeft",
+   "alignment": [
+    "left",
+    "vcenter"
+   ],
+   "foreground": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "background": [
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  "F3": {
+   "content": "",
+   "alignment": [
+    "left"
+   ],
+   "foreground": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "background": [
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  "G3": {
+   "content": "",
+   "foreground": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "background": [
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  "A4": {
+   "content": "-2.5",
+   "foreground": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "background": [
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  "B4": {
+   "content": "=2 kg",
+   "foreground": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "background": [
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  "C4": {
+   "content": "=average(B1:B2)",
+   "foreground": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "background": [
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  "E4": {
+   "content": "'AlignCenter",
+   "alignment": [
+    "center",
+    "vcenter"
+   ],
+   "foreground": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "background": [
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  "F4": {
+   "content": "",
+   "alignment": [
+    "center"
+   ],
+   "foreground": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "background": [
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  "A5": {
+   "content": "=1 / 3",
+   "foreground": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "background": [
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  "B5": {
+   "content": "=90 deg",
+   "foreground": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "background": [
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  "E5": {
+   "content": "'AlignRight",
+   "alignment": [
+    "right",
+    "vcenter"
+   ],
+   "foreground": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "background": [
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  "F5": {
+   "content": "",
+   "alignment": [
+    "right"
+   ],
+   "foreground": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "background": [
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  "L5": {
+   "content": "1",
+   "style": [
+    "bold"
+   ],
+   "foreground": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "background": [
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  "M5": {
+   "content": "=$J$1 * 2",
+   "foreground": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "background": [
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  "T5": {
+   "content": ""
+  },
+  "A6": {
+   "content": "12345.678",
+   "foreground": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "background": [
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  "B6": {
+   "content": "=1 s",
+   "foreground": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "background": [
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  "E6": {
+   "content": "'AlignTop",
+   "alignment": [
+    "left",
+    "top"
+   ],
+   "foreground": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "background": [
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  "F6": {
+   "content": "",
+   "alignment": [
+    "top"
+   ],
+   "foreground": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "background": [
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  "G6": {
+   "content": "4",
+   "alias": "four",
+   "foreground": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "background": [
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  "L6": {
+   "content": "=L5 + 1",
+   "foreground": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "background": [
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  "M6": {
+   "content": "=sum(L5:L6)",
+   "foreground": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "background": [
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  "A7": {
+   "content": "1e-07",
+   "foreground": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "background": [
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  "B7": {
+   "content": "'-3 mm",
+   "foreground": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "background": [
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  "E7": {
+   "content": "'AlignVCenter",
+   "alignment": [
+    "left",
+    "vcenter"
+   ],
+   "foreground": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "background": [
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  "F7": {
+   "content": "",
+   "alignment": [
+    "vcenter"
+   ],
+   "foreground": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "background": [
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  "A8": {
+   "content": "1e+20",
+   "foreground": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "background": [
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  "B8": {
+   "content": "=1 mm / 1 s",
+   "foreground": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "background": [
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  "C8": {
+   "content": "=min(A1:A3)",
+   "foreground": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "background": [
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  "E8": {
+   "content": "'AlignBottom",
+   "alignment": [
+    "bottom",
+    "left"
+   ],
+   "foreground": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "background": [
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  "F8": {
+   "content": "",
+   "alignment": [
+    "bottom"
+   ],
+   "foreground": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "background": [
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  "G8": {
+   "content": "8",
+   "alias": "eight",
+   "foreground": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "background": [
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  "A9": {
+   "content": "12.5",
+   "foreground": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "background": [
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  "B9": {
+   "content": "=12 in",
+   "foreground": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "background": [
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  "C9": {
+   "content": "=max(B1:B2)",
+   "foreground": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "background": [
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  "E9": {
+   "content": "'StyleBold",
+   "foreground": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "background": [
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  "F9": {
+   "content": "",
+   "foreground": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "background": [
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  "A10": {
+   "content": "0.005",
+   "foreground": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "background": [
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  "B10": {
+   "content": "=0.5 mm",
+   "foreground": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "background": [
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  "C10": {
+   "content": "=count(A1:A6)",
+   "foreground": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "background": [
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  "E10": {
+   "content": "'StyleItalic",
+   "style": [
+    "italic"
+   ],
+   "foreground": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "background": [
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  "F10": {
+   "content": "",
+   "style": [
+    "italic"
+   ],
+   "foreground": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "background": [
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  "G10": {
+   "content": "=eight * 2",
+   "foreground": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "background": [
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  "L10": {
+   "content": "1",
+   "style": [
+    "bold"
+   ],
+   "foreground": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "background": [
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  "M10": {
+   "content": "=$J$1 * 2",
+   "foreground": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "background": [
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  "N10": {
+   "content": "1",
+   "style": [
+    "bold"
+   ],
+   "foreground": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "background": [
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  "O10": {
+   "content": "=$J$1 * 2",
+   "foreground": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "background": [
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  "A11": {
+   "content": "-0.004",
+   "foreground": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "background": [
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  "B11": {
+   "content": "=0.0001 mm",
+   "foreground": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "background": [
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  "C11": {
+   "content": "=stddev(A1:A3)",
+   "foreground": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "background": [
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  "E11": {
+   "content": "'StyleUnderline",
+   "style": [
+    "underline"
+   ],
+   "foreground": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "background": [
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  "F11": {
+   "content": "",
+   "style": [
+    "underline"
+   ],
+   "foreground": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "background": [
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  "L11": {
+   "content": "=L10 + 1",
+   "foreground": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "background": [
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  "M11": {
+   "content": "=sum(L10:L11)",
+   "foreground": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "background": [
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  "N11": {
+   "content": "=N10 + 1",
+   "foreground": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "background": [
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  "O11": {
+   "content": "=sum(N10:N11)",
+   "foreground": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "background": [
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  "A12": {
+   "content": "=1 / 0",
+   "foreground": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "background": [
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  "B12": {
+   "content": "=5 N",
+   "foreground": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "background": [
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  "C12": {
+   "content": "=A15 + 1",
+   "foreground": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "background": [
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  "E12": {
+   "content": "'m",
+   "foreground": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "background": [
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  "L12": {
+   "content": "1",
+   "style": [
+    "bold"
+   ],
+   "foreground": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "background": [
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  "M12": {
+   "content": "=$J$1 * 2",
+   "foreground": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "background": [
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  "N12": {
+   "content": "1",
+   "style": [
+    "bold"
+   ],
+   "foreground": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "background": [
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  "O12": {
+   "content": "=$J$1 * 2",
+   "foreground": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "background": [
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  "A13": {
+   "content": "=nothing",
+   "foreground": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "background": [
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  "B13": {
+   "content": "=3 mm",
+   "foreground": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "background": [
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ],
+   "display_unit": "cm"
+  },
+  "C13": {
+   "content": "'x",
+   "foreground": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "background": [
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  "L13": {
+   "content": "=L12 + 1",
+   "foreground": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "background": [
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  "M13": {
+   "content": "=sum(L12:L13)",
+   "foreground": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "background": [
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  "N13": {
+   "content": "=N12 + 1",
+   "foreground": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "background": [
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  "O13": {
+   "content": "=sum(N12:N13)",
+   "foreground": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "background": [
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  "A14": {
+   "content": "'=foo(",
+   "foreground": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "background": [
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  "B14": {
+   "content": "=4 mm",
+   "foreground": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "background": [
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ],
+   "display_unit": "in"
+  },
+  "C14": {
+   "content": "=str(B1)",
+   "foreground": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "background": [
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  "A15": {
+   "content": "'text",
+   "foreground": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "background": [
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  "B15": {
+   "content": "5",
+   "foreground": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "background": [
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ],
+   "display_unit": "mm"
+  },
+  "C15": {
+   "content": "=B1 > 2 mm",
+   "foreground": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "background": [
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  "A16": {
+   "content": "'hello",
+   "foreground": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "background": [
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  "B16": {
+   "content": "=7 mm",
+   "foreground": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "background": [
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ],
+   "display_unit": "s"
+  },
+  "C16": {
+   "content": "=A1 / 2",
+   "foreground": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "background": [
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  "A17": {
+   "content": "=True",
+   "foreground": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "background": [
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  "B17": {
+   "content": "1.5",
+   "foreground": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "background": [
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ],
+   "display_unit": "deg"
+  },
+  "A18": {
+   "content": "=None",
+   "foreground": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "background": [
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  "B18": {
+   "content": "2",
+   "foreground": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "background": [
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ],
+   "display_unit": "mm"
+  },
+  "A19": {
+   "content": "=list(1; 2)",
+   "foreground": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "background": [
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  "B19": {
+   "content": "=1 (mm ^ 3)",
+   "foreground": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "background": [
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  "A20": {
+   "content": "=vector(1; 2; 3)",
+   "foreground": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "background": [
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  "B20": {
+   "content": "=sqrt(2)",
+   "foreground": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "background": [
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  "A25": {
+   "content": "=A27 + 1",
+   "foreground": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "background": [
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  "A27": {
+   "content": "4"
+  }
+ }
+}

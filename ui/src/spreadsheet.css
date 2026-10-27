@@ -1,0 +1,48 @@
+/* SPDX-License-Identifier: LGPL-2.1-or-later */
+/* The Spreadsheet workbench's sheet view (spreadsheet.tsx): the Content and Alias line edits above the table (white cells, its grid,
+   the headers 50 px wide and the default 100 x 30 cells), the selection, the current cell, the copied range's dashed frame,
+   an alias with an invalid name in red, and the Properties dialog. */
+.ss-view { display: flex; flex-direction: column; width: 100%; height: 100%; background: var(--panel-bg, #f0f0f0); }
+.ss-view.empty { align-items: center; justify-content: center; color: #555; }
+.ss-lines { display: grid; grid-template-columns: auto 1fr auto 1fr; gap: 4px 6px; align-items: center; padding: 4px 6px; }
+.ss-lines input { height: 22px; font: inherit; padding: 0 4px; border: 1px solid #b0b0b0; background: #fff; }
+.ss-lines input.bad, .ss-dialog input.bad { color: rgb(200, 0, 0); }
+.ss-grid-scroll { position: relative; flex: 1; overflow: auto; background: #fff; outline: none; user-select: none; }
+.ss-canvas { position: relative; }
+.ss-cell { position: absolute; box-sizing: border-box; border-right: 1px solid #d4d4d4; border-bottom: 1px solid #d4d4d4; display: flex;
+  padding: 0 3px; overflow: hidden; white-space: pre; color: #000; font-size: 13px; background: #fff; }
+.ss-cell.merged { z-index: 1; }
+.ss-cell.sel { background-image: linear-gradient(rgba(48, 140, 198, 0.25), rgba(48, 140, 198, 0.25)); }
+.ss-cell.cur { outline: 2px solid #308cc6; outline-offset: -2px; z-index: 2; }
+.ss-cell.copied { outline: 1px dashed #308cc6; outline-offset: -2px; }
+.ss-cell.cut { outline: 1px dashed #c05030; outline-offset: -2px; }
+.ss-text { overflow: hidden; text-overflow: clip; }
+.ss-editor { position: absolute; inset: 0; width: 100%; height: 100%; box-sizing: border-box; border: 2px solid #308cc6; font: inherit; padding: 0 2px; }
+.ss-hcol, .ss-hrow, .ss-corner { position: absolute; box-sizing: border-box; background: #f3f3f3; border-right: 1px solid #c8c8c8; border-bottom: 1px solid #c8c8c8;
+  display: flex; align-items: center; justify-content: center; font-size: 12px; color: #222; z-index: 3; }
+.ss-hcol { height: 24px; }
+.ss-hrow { width: 50px; }
+.ss-hcol.sel, .ss-hrow.sel { background: #dcdcdc; font-weight: 600; }
+.ss-corner { width: 50px; height: 24px; z-index: 4; }
+.ss-resize-c { position: absolute; right: -3px; top: 0; width: 6px; height: 100%; cursor: col-resize; }
+.ss-resize-r { position: absolute; bottom: -3px; left: 0; height: 6px; width: 100%; cursor: row-resize; }
+.ss-color { display: inline-flex; align-items: center; gap: 1px; }
+.ss-swatch { display: inline-block; width: 16px; height: 16px; border: 1px solid #777; }
+.ss-colors { padding: 4px; min-width: 0; }
+.ss-grid { display: grid; grid-template-columns: repeat(6, 18px); gap: 2px; }
+.ss-grid button { width: 18px; height: 18px; border: 1px solid #888; padding: 0; }
+.ss-more { padding: 3px 4px; cursor: default; }
+.ss-more:hover { background: var(--accent-hover); }
+.ss-modal { position: fixed; inset: 0; z-index: 2000; display: flex; align-items: center; justify-content: center; background: rgba(0, 0, 0, 0.08); }
+.ss-dialog { background: var(--panel-bg, #f0f0f0); border: 1px solid #999; box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3); min-width: 380px; padding: 8px; }
+.ss-dtitle { font-weight: 600; margin-bottom: 6px; }
+.ss-tabs { display: flex; gap: 2px; border-bottom: 1px solid #aaa; }
+.ss-tab { border: 1px solid #aaa; border-bottom: none; background: #e8e8e8; padding: 2px 8px; }
+.ss-tab.sel { background: #fff; }
+.ss-tabpage { border: 1px solid #aaa; border-top: none; padding: 10px; min-height: 90px; background: #fff; }
+.ss-form { display: grid; grid-template-columns: auto 1fr; gap: 6px 10px; align-items: center; }
+.ss-form.ss-checks { grid-template-columns: 1fr; }
+.ss-radios { display: flex; gap: 10px; }
+.ss-status { grid-column: 2; color: rgb(200, 0, 0); }
+.ss-buttons { display: flex; justify-content: flex-end; gap: 6px; margin-top: 8px; }
+.ss-colorfield { display: inline-flex; gap: 6px; align-items: center; }

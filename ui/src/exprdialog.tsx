@@ -14,6 +14,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { asQuantity, evaluateValue, resultText, type PyVal } from './expr'
+import { sheetResolve } from './spreadsheet'
 import { ContextMenu } from './chrome'
 import { userString, type Quantity } from './quantity'
 import type { Dims } from './units-data'
@@ -65,7 +66,7 @@ export function ExpressionDialog({ at, text, dims, vars, owner, min, max, onOk, 
   let msg = '', bad = false, value: number | null = null
   if (expr.trim()) {
     try {
-      const result = evaluateValue(expr, { vars, owner })
+      const result = evaluateValue(expr, { vars, owner, resolve: sheetResolve })   // a spreadsheet's cells (spreadsheet.tsx)
       // checkExpression: what is not a number (a string, None, a list ...) is shown as the expression it becomes
       // (result->toString()); a quantity field has no way to take it, so OK stays off.
       if (result.t !== 'qty' && result.t !== 'int' && result.t !== 'float' && result.t !== 'bool') throw new Error(resultText(result))

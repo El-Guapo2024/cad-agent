@@ -91,6 +91,12 @@ def write(path: Path, changes: dict) -> None:
     path = Path(path)
     raw = path.read_bytes()
     src = raw.decode()
+    if "EXPRESSIONS" in src:                         # FreeCAD's ExpressionEngine: a bound property is read only
+        from .spreadsheet_doc import part_params
+        bound = {k: v for k, v in part_params(src)[1].items() if k in changes}
+        if bound:
+            k, v = next(iter(bound.items()))
+            raise ParamError(f"{k} is bound to {v} (EXPRESSIONS): change the cell, or clear the expression")
     starts = [0]
     for line in raw.splitlines(keepends=True):
         starts.append(starts[-1] + len(line))

@@ -1,0 +1,7116 @@
+{
+ "content_kinds": [
+  {
+   "step": "recompute",
+   "return": 1,
+   "objects": {
+    "Spreadsheet": {
+     "label": "Spreadsheet",
+     "cells": {
+      "A1": {
+       "content": "5",
+       "type": "App::PropertyInteger",
+       "value": 5
+      },
+      "B1": {
+       "content": "'hello",
+       "type": "App::PropertyString",
+       "value": "hello"
+      },
+      "C1": {
+       "content": "=A1",
+       "type": "App::PropertyInteger",
+       "value": 5
+      },
+      "A2": {
+       "content": "-3",
+       "type": "App::PropertyInteger",
+       "value": -3
+      },
+      "C2": {
+       "content": "=-A1",
+       "type": "App::PropertyInteger",
+       "value": -5
+      },
+      "A3": {
+       "content": "7",
+       "type": "App::PropertyInteger",
+       "value": 7
+      },
+      "B3": {
+       "content": "''x",
+       "type": "App::PropertyString",
+       "value": "'x"
+      },
+      "C3": {
+       "content": "=A1 > 2 ? 1 mm : 2 mm",
+       "type": "Spreadsheet::PropertySpreadsheetQuantity",
+       "value": {
+        "q": 1.0,
+        "unit": [
+         1,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0
+        ],
+        "s": "1.0 mm"
+       }
+      },
+      "A4": {
+       "content": "5",
+       "type": "App::PropertyInteger",
+       "value": 5
+      },
+      "B4": {
+       "content": "2.5",
+       "type": "App::PropertyFloat",
+       "value": 2.5
+      },
+      "C4": {
+       "content": "=str(A1)",
+       "type": "App::PropertyString",
+       "value": "5"
+      },
+      "A5": {
+       "content": "5",
+       "type": "App::PropertyInteger",
+       "value": 5
+      },
+      "B5": {
+       "content": "=A1 * 2",
+       "type": "App::PropertyInteger",
+       "value": 10
+      },
+      "C5": {
+       "content": "=<<x>> + <<y>>",
+       "type": "App::PropertyString",
+       "value": "xy"
+      },
+      "A6": {
+       "content": "2.5",
+       "type": "App::PropertyFloat",
+       "value": 2.5
+      },
+      "B6": {
+       "content": "'=A1 mm",
+       "type": "App::PropertyString",
+       "value": "=A1 mm"
+      },
+      "C6": {
+       "content": "=A1 / 0",
+       "type": "App::PropertyString",
+       "value": "ERR: division by zero\nin expression: A1 / 0"
+      },
+      "A7": {
+       "content": "0.5",
+       "type": "App::PropertyFloat",
+       "value": 0.5
+      },
+      "B7": {
+       "content": "'=foo(",
+       "type": "App::PropertyString",
+       "value": "=foo("
+      },
+      "C7": {
+       "content": "=7 % 3",
+       "type": "App::PropertyInteger",
+       "value": 1
+      },
+      "A8": {
+       "content": "5",
+       "type": "App::PropertyInteger",
+       "value": 5
+      },
+      "B8": {
+       "content": "'abc",
+       "type": "App::PropertyString",
+       "value": "abc"
+      },
+      "C8": {
+       "content": "=-0",
+       "type": "App::PropertyInteger",
+       "value": 0
+      },
+      "A9": {
+       "content": "1000",
+       "type": "App::PropertyInteger",
+       "value": 1000
+      },
+      "B9": {
+       "content": "=True",
+       "type": "App::PropertyPythonObject",
+       "value": true
+      },
+      "C9": {
+       "content": "'1 2",
+       "type": "App::PropertyString",
+       "value": "1 2"
+      },
+      "A10": {
+       "content": "12.5",
+       "type": "App::PropertyFloat",
+       "value": 12.5
+      },
+      "B10": {
+       "content": "=None",
+       "type": "App::PropertyPythonObject",
+       "value": null
+      },
+      "C10": {
+       "content": "=$A$1 + $A1 + A$1",
+       "type": "App::PropertyInteger",
+       "value": 15
+      },
+      "A11": {
+       "content": "16",
+       "type": "App::PropertyInteger",
+       "value": 16
+      },
+      "B11": {
+       "content": "=list(1; 2)",
+       "type": "App::PropertyPythonObject",
+       "value": {
+        "seq": "list",
+        "items": [
+         1,
+         2
+        ],
+        "s": "[1, 2]"
+       }
+      },
+      "A12": {
+       "content": "'1e999",
+       "type": "App::PropertyString",
+       "value": "1e999"
+      },
+      "B12": {
+       "content": "=vector(1; 2; 3)",
+       "type": "App::PropertyPythonObject",
+       "value": {
+        "obj": "Vector",
+        "s": "Vector (1.0, 2.0, 3.0)"
+       }
+      },
+      "A13": {
+       "content": "'1e-999",
+       "type": "App::PropertyString",
+       "value": "1e-999"
+      },
+      "B13": {
+       "content": "=4 / 2",
+       "type": "App::PropertyInteger",
+       "value": 2
+      },
+      "A14": {
+       "content": "=3 mm",
+       "type": "Spreadsheet::PropertySpreadsheetQuantity",
+       "value": {
+        "q": 3.0,
+        "unit": [
+         1,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0
+        ],
+        "s": "3.0 mm"
+       }
+      },
+      "B14": {
+       "content": "=pi",
+       "type": "App::PropertyFloat",
+       "value": 3.141592653589793
+      },
+      "A15": {
+       "content": "=1 / 2",
+       "type": "App::PropertyFloat",
+       "value": 0.5
+      },
+      "B15": {
+       "content": "inf",
+       "type": "App::PropertyFloat",
+       "value": "inf"
+      },
+      "A16": {
+       "content": "=1 m / 2 s",
+       "type": "Spreadsheet::PropertySpreadsheetQuantity",
+       "value": {
+        "q": 500.0,
+        "unit": [
+         1,
+         0,
+         -1,
+         0,
+         0,
+         0,
+         0,
+         0
+        ],
+        "s": "500.0 mm/s"
+       }
+      },
+      "B16": {
+       "content": "'12 mm 3",
+       "type": "App::PropertyString",
+       "value": "12 mm 3"
+      },
+      "A17": {
+       "content": "=1 / m",
+       "type": "Spreadsheet::PropertySpreadsheetQuantity",
+       "value": {
+        "q": 0.001,
+        "unit": [
+         -1,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0
+        ],
+        "s": "0.001 1/mm"
+       }
+      },
+      "B17": {
+       "content": "=3 in",
+       "type": "Spreadsheet::PropertySpreadsheetQuantity",
+       "value": {
+        "q": 76.19999999999999,
+        "unit": [
+         1,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0
+        ],
+        "s": "76.19999999999999 mm"
+       }
+      },
+      "A18": {
+       "content": "'2*3",
+       "type": "App::PropertyString",
+       "value": "2*3"
+      },
+      "B18": {
+       "content": "=1 m * 1 m",
+       "type": "Spreadsheet::PropertySpreadsheetQuantity",
+       "value": {
+        "q": 1000000.0,
+        "unit": [
+         2,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0
+        ],
+        "s": "1000000.0 mm^2"
+       }
+      },
+      "A19": {
+       "content": "'-3 mm",
+       "type": "App::PropertyString",
+       "value": "-3 mm"
+      },
+      "B19": {
+       "content": "=(1 + 2) * 3",
+       "type": "App::PropertyInteger",
+       "value": 9
+      },
+      "A20": {
+       "content": "'hello",
+       "type": "App::PropertyString",
+       "value": "hello"
+      },
+      "B20": {
+       "content": "=2 ^ 0.5",
+       "type": "App::PropertyFloat",
+       "value": 1.4142135623730951
+      }
+     },
+     "column_widths": {},
+     "row_heights": {},
+     "used_range": [
+      "A1",
+      "C20"
+     ],
+     "state": [
+      "Touched",
+      "Invalid"
+     ],
+     "saved": {
+      "cells": [
+       [
+        "A1",
+        {
+         "content": "5"
+        }
+       ],
+       [
+        "B1",
+        {
+         "content": "'hello"
+        }
+       ],
+       [
+        "C1",
+        {
+         "content": "=A1"
+        }
+       ],
+       [
+        "A2",
+        {
+         "content": "-3"
+        }
+       ],
+       [
+        "C2",
+        {
+         "content": "=-A1"
+        }
+       ],
+       [
+        "A3",
+        {
+         "content": "7"
+        }
+       ],
+       [
+        "B3",
+        {
+         "content": "''x"
+        }
+       ],
+       [
+        "C3",
+        {
+         "content": "=A1 > 2 ? 1 mm : 2 mm"
+        }
+       ],
+       [
+        "A4",
+        {
+         "content": "5"
+        }
+       ],
+       [
+        "B4",
+        {
+         "content": "2.5"
+        }
+       ],
+       [
+        "C4",
+        {
+         "content": "=str(A1)"
+        }
+       ],
+       [
+        "A5",
+        {
+         "content": "5"
+        }
+       ],
+       [
+        "B5",
+        {
+         "content": "=A1 * 2"
+        }
+       ],
+       [
+        "C5",
+        {
+         "content": "=<<x>> + <<y>>"
+        }
+       ],
+       [
+        "A6",
+        {
+         "content": "2.5"
+        }
+       ],
+       [
+        "B6",
+        {
+         "content": "'=A1 mm"
+        }
+       ],
+       [
+        "C6",
+        {
+         "content": "=A1 / 0"
+        }
+       ],
+       [
+        "A7",
+        {
+         "content": "0.5"
+        }
+       ],
+       [
+        "B7",
+        {
+         "content": "'=foo("
+        }
+       ],
+       [
+        "C7",
+        {
+         "content": "=7 % 3"
+        }
+       ],
+       [
+        "A8",
+        {
+         "content": "5"
+        }
+       ],
+       [
+        "B8",
+        {
+         "content": "'abc"
+        }
+       ],
+       [
+        "C8",
+        {
+         "content": "=-0"
+        }
+       ],
+       [
+        "A9",
+        {
+         "content": "1000"
+        }
+       ],
+       [
+        "B9",
+        {
+         "content": "=True"
+        }
+       ],
+       [
+        "C9",
+        {
+         "content": "'1 2"
+        }
+       ],
+       [
+        "A10",
+        {
+         "content": "12.5"
+        }
+       ],
+       [
+        "B10",
+        {
+         "content": "=None"
+        }
+       ],
+       [
+        "C10",
+        {
+         "content": "=$A$1 + $A1 + A$1"
+        }
+       ],
+       [
+        "A11",
+        {
+         "content": "16"
+        }
+       ],
+       [
+        "B11",
+        {
+         "content": "=list(1; 2)"
+        }
+       ],
+       [
+        "A12",
+        {
+         "content": "'1e999"
+        }
+       ],
+       [
+        "B12",
+        {
+         "content": "=vector(1; 2; 3)"
+        }
+       ],
+       [
+        "A13",
+        {
+         "content": "'1e-999"
+        }
+       ],
+       [
+        "B13",
+        {
+         "content": "=4 / 2"
+        }
+       ],
+       [
+        "A14",
+        {
+         "content": "=3 mm"
+        }
+       ],
+       [
+        "B14",
+        {
+         "content": "=pi"
+        }
+       ],
+       [
+        "A15",
+        {
+         "content": "=1 / 2"
+        }
+       ],
+       [
+        "B15",
+        {
+         "content": "inf"
+        }
+       ],
+       [
+        "A16",
+        {
+         "content": "=1 m / 2 s"
+        }
+       ],
+       [
+        "B16",
+        {
+         "content": "'12 mm 3"
+        }
+       ],
+       [
+        "A17",
+        {
+         "content": "=1 / m"
+        }
+       ],
+       [
+        "B17",
+        {
+         "content": "=3 in"
+        }
+       ],
+       [
+        "A18",
+        {
+         "content": "'2*3"
+        }
+       ],
+       [
+        "B18",
+        {
+         "content": "=1 m * 1 m"
+        }
+       ],
+       [
+        "A19",
+        {
+         "content": "'-3 mm"
+        }
+       ],
+       [
+        "B19",
+        {
+         "content": "=(1 + 2) * 3"
+        }
+       ],
+       [
+        "A20",
+        {
+         "content": "'hello"
+        }
+       ],
+       [
+        "B20",
+        {
+         "content": "=2 ^ 0.5"
+        }
+       ]
+      ],
+      "columnWidths": {},
+      "rowHeights": {}
+     }
+    }
+   }
+  },
+  {
+   "step": "restore",
+   "return": 1,
+   "objects": {
+    "Spreadsheet": {
+     "label": "Spreadsheet",
+     "cells": {
+      "A1": {
+       "content": "5",
+       "type": "App::PropertyInteger",
+       "value": 5
+      },
+      "B1": {
+       "content": "'hello",
+       "type": "App::PropertyString",
+       "value": "hello"
+      },
+      "C1": {
+       "content": "=A1",
+       "type": "App::PropertyInteger",
+       "value": 5
+      },
+      "A2": {
+       "content": "-3",
+       "type": "App::PropertyInteger",
+       "value": -3
+      },
+      "C2": {
+       "content": "=-A1",
+       "type": "App::PropertyInteger",
+       "value": -5
+      },
+      "A3": {
+       "content": "7",
+       "type": "App::PropertyInteger",
+       "value": 7
+      },
+      "B3": {
+       "content": "''x",
+       "type": "App::PropertyString",
+       "value": "'x"
+      },
+      "C3": {
+       "content": "=A1 > 2 ? 1 mm : 2 mm",
+       "type": "Spreadsheet::PropertySpreadsheetQuantity",
+       "value": {
+        "q": 1.0,
+        "unit": [
+         1,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0
+        ],
+        "s": "1.0 mm"
+       }
+      },
+      "A4": {
+       "content": "5",
+       "type": "App::PropertyInteger",
+       "value": 5
+      },
+      "B4": {
+       "content": "2.5",
+       "type": "App::PropertyFloat",
+       "value": 2.5
+      },
+      "C4": {
+       "content": "=str(A1)",
+       "type": "App::PropertyString",
+       "value": "5"
+      },
+      "A5": {
+       "content": "5",
+       "type": "App::PropertyInteger",
+       "value": 5
+      },
+      "B5": {
+       "content": "=A1 * 2",
+       "type": "App::PropertyInteger",
+       "value": 10
+      },
+      "C5": {
+       "content": "=<<x>> + <<y>>",
+       "type": "App::PropertyString",
+       "value": "xy"
+      },
+      "A6": {
+       "content": "2.5",
+       "type": "App::PropertyFloat",
+       "value": 2.5
+      },
+      "B6": {
+       "content": "'=A1 mm",
+       "type": "App::PropertyString",
+       "value": "=A1 mm"
+      },
+      "C6": {
+       "content": "=A1 / 0",
+       "type": "App::PropertyString",
+       "value": "ERR: division by zero\nin expression: A1 / 0"
+      },
+      "A7": {
+       "content": "0.5",
+       "type": "App::PropertyFloat",
+       "value": 0.5
+      },
+      "B7": {
+       "content": "'=foo(",
+       "type": "App::PropertyString",
+       "value": "=foo("
+      },
+      "C7": {
+       "content": "=7 % 3",
+       "type": "App::PropertyInteger",
+       "value": 1
+      },
+      "A8": {
+       "content": "5",
+       "type": "App::PropertyInteger",
+       "value": 5
+      },
+      "B8": {
+       "content": "'abc",
+       "type": "App::PropertyString",
+       "value": "abc"
+      },
+      "C8": {
+       "content": "=-0",
+       "type": "App::PropertyInteger",
+       "value": 0
+      },
+      "A9": {
+       "content": "1000",
+       "type": "App::PropertyInteger",
+       "value": 1000
+      },
+      "B9": {
+       "content": "=True",
+       "type": "App::PropertyPythonObject",
+       "value": true
+      },
+      "C9": {
+       "content": "'1 2",
+       "type": "App::PropertyString",
+       "value": "1 2"
+      },
+      "A10": {
+       "content": "12.5",
+       "type": "App::PropertyFloat",
+       "value": 12.5
+      },
+      "B10": {
+       "content": "=None",
+       "type": "App::PropertyPythonObject",
+       "value": null
+      },
+      "C10": {
+       "content": "=$A$1 + $A1 + A$1",
+       "type": "App::PropertyInteger",
+       "value": 15
+      },
+      "A11": {
+       "content": "16",
+       "type": "App::PropertyInteger",
+       "value": 16
+      },
+      "B11": {
+       "content": "=list(1; 2)",
+       "type": "App::PropertyPythonObject",
+       "value": {
+        "seq": "list",
+        "items": [
+         1,
+         2
+        ],
+        "s": "[1, 2]"
+       }
+      },
+      "A12": {
+       "content": "'1e999",
+       "type": "App::PropertyString",
+       "value": "1e999"
+      },
+      "B12": {
+       "content": "=vector(1; 2; 3)",
+       "type": "App::PropertyPythonObject",
+       "value": {
+        "obj": "Vector",
+        "s": "Vector (1.0, 2.0, 3.0)"
+       }
+      },
+      "A13": {
+       "content": "'1e-999",
+       "type": "App::PropertyString",
+       "value": "1e-999"
+      },
+      "B13": {
+       "content": "=4 / 2",
+       "type": "App::PropertyInteger",
+       "value": 2
+      },
+      "A14": {
+       "content": "=3 mm",
+       "type": "Spreadsheet::PropertySpreadsheetQuantity",
+       "value": {
+        "q": 3.0,
+        "unit": [
+         1,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0
+        ],
+        "s": "3.0 mm"
+       }
+      },
+      "B14": {
+       "content": "=pi",
+       "type": "App::PropertyFloat",
+       "value": 3.141592653589793
+      },
+      "A15": {
+       "content": "=1 / 2",
+       "type": "App::PropertyFloat",
+       "value": 0.5
+      },
+      "B15": {
+       "content": "inf",
+       "type": "App::PropertyFloat",
+       "value": "inf"
+      },
+      "A16": {
+       "content": "=1 m / 2 s",
+       "type": "Spreadsheet::PropertySpreadsheetQuantity",
+       "value": {
+        "q": 500.0,
+        "unit": [
+         1,
+         0,
+         -1,
+         0,
+         0,
+         0,
+         0,
+         0
+        ],
+        "s": "500.0 mm/s"
+       }
+      },
+      "B16": {
+       "content": "'12 mm 3",
+       "type": "App::PropertyString",
+       "value": "12 mm 3"
+      },
+      "A17": {
+       "content": "=1 / m",
+       "type": "Spreadsheet::PropertySpreadsheetQuantity",
+       "value": {
+        "q": 0.001,
+        "unit": [
+         -1,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0
+        ],
+        "s": "0.001 1/mm"
+       }
+      },
+      "B17": {
+       "content": "=3 in",
+       "type": "Spreadsheet::PropertySpreadsheetQuantity",
+       "value": {
+        "q": 76.19999999999999,
+        "unit": [
+         1,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0
+        ],
+        "s": "76.19999999999999 mm"
+       }
+      },
+      "A18": {
+       "content": "'2*3",
+       "type": "App::PropertyString",
+       "value": "2*3"
+      },
+      "B18": {
+       "content": "=1 m * 1 m",
+       "type": "Spreadsheet::PropertySpreadsheetQuantity",
+       "value": {
+        "q": 1000000.0,
+        "unit": [
+         2,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0
+        ],
+        "s": "1000000.0 mm^2"
+       }
+      },
+      "A19": {
+       "content": "'-3 mm",
+       "type": "App::PropertyString",
+       "value": "-3 mm"
+      },
+      "B19": {
+       "content": "=(1 + 2) * 3",
+       "type": "App::PropertyInteger",
+       "value": 9
+      },
+      "A20": {
+       "content": "'hello",
+       "type": "App::PropertyString",
+       "value": "hello"
+      },
+      "B20": {
+       "content": "=2 ^ 0.5",
+       "type": "App::PropertyFloat",
+       "value": 1.4142135623730951
+      }
+     },
+     "column_widths": {},
+     "row_heights": {},
+     "used_range": [
+      "A1",
+      "C20"
+     ],
+     "state": [
+      "Touched",
+      "Invalid"
+     ],
+     "saved": {
+      "cells": [
+       [
+        "A1",
+        {
+         "content": "5"
+        }
+       ],
+       [
+        "B1",
+        {
+         "content": "'hello"
+        }
+       ],
+       [
+        "C1",
+        {
+         "content": "=A1"
+        }
+       ],
+       [
+        "A2",
+        {
+         "content": "-3"
+        }
+       ],
+       [
+        "C2",
+        {
+         "content": "=-A1"
+        }
+       ],
+       [
+        "A3",
+        {
+         "content": "7"
+        }
+       ],
+       [
+        "B3",
+        {
+         "content": "''x"
+        }
+       ],
+       [
+        "C3",
+        {
+         "content": "=A1 > 2 ? 1 mm : 2 mm"
+        }
+       ],
+       [
+        "A4",
+        {
+         "content": "5"
+        }
+       ],
+       [
+        "B4",
+        {
+         "content": "2.5"
+        }
+       ],
+       [
+        "C4",
+        {
+         "content": "=str(A1)"
+        }
+       ],
+       [
+        "A5",
+        {
+         "content": "5"
+        }
+       ],
+       [
+        "B5",
+        {
+         "content": "=A1 * 2"
+        }
+       ],
+       [
+        "C5",
+        {
+         "content": "=<<x>> + <<y>>"
+        }
+       ],
+       [
+        "A6",
+        {
+         "content": "2.5"
+        }
+       ],
+       [
+        "B6",
+        {
+         "content": "'=A1 mm"
+        }
+       ],
+       [
+        "C6",
+        {
+         "content": "=A1 / 0"
+        }
+       ],
+       [
+        "A7",
+        {
+         "content": "0.5"
+        }
+       ],
+       [
+        "B7",
+        {
+         "content": "'=foo("
+        }
+       ],
+       [
+        "C7",
+        {
+         "content": "=7 % 3"
+        }
+       ],
+       [
+        "A8",
+        {
+         "content": "5"
+        }
+       ],
+       [
+        "B8",
+        {
+         "content": "'abc"
+        }
+       ],
+       [
+        "C8",
+        {
+         "content": "=-0"
+        }
+       ],
+       [
+        "A9",
+        {
+         "content": "1000"
+        }
+       ],
+       [
+        "B9",
+        {
+         "content": "=True"
+        }
+       ],
+       [
+        "C9",
+        {
+         "content": "'1 2"
+        }
+       ],
+       [
+        "A10",
+        {
+         "content": "12.5"
+        }
+       ],
+       [
+        "B10",
+        {
+         "content": "=None"
+        }
+       ],
+       [
+        "C10",
+        {
+         "content": "=$A$1 + $A1 + A$1"
+        }
+       ],
+       [
+        "A11",
+        {
+         "content": "16"
+        }
+       ],
+       [
+        "B11",
+        {
+         "content": "=list(1; 2)"
+        }
+       ],
+       [
+        "A12",
+        {
+         "content": "'1e999"
+        }
+       ],
+       [
+        "B12",
+        {
+         "content": "=vector(1; 2; 3)"
+        }
+       ],
+       [
+        "A13",
+        {
+         "content": "'1e-999"
+        }
+       ],
+       [
+        "B13",
+        {
+         "content": "=4 / 2"
+        }
+       ],
+       [
+        "A14",
+        {
+         "content": "=3 mm"
+        }
+       ],
+       [
+        "B14",
+        {
+         "content": "=pi"
+        }
+       ],
+       [
+        "A15",
+        {
+         "content": "=1 / 2"
+        }
+       ],
+       [
+        "B15",
+        {
+         "content": "inf"
+        }
+       ],
+       [
+        "A16",
+        {
+         "content": "=1 m / 2 s"
+        }
+       ],
+       [
+        "B16",
+        {
+         "content": "'12 mm 3"
+        }
+       ],
+       [
+        "A17",
+        {
+         "content": "=1 / m"
+        }
+       ],
+       [
+        "B17",
+        {
+         "content": "=3 in"
+        }
+       ],
+       [
+        "A18",
+        {
+         "content": "'2*3"
+        }
+       ],
+       [
+        "B18",
+        {
+         "content": "=1 m * 1 m"
+        }
+       ],
+       [
+        "A19",
+        {
+         "content": "'-3 mm"
+        }
+       ],
+       [
+        "B19",
+        {
+         "content": "=(1 + 2) * 3"
+        }
+       ],
+       [
+        "A20",
+        {
+         "content": "'hello"
+        }
+       ],
+       [
+        "B20",
+        {
+         "content": "=2 ^ 0.5"
+        }
+       ]
+      ],
+      "columnWidths": {},
+      "rowHeights": {}
+     }
+    }
+   }
+  }
+ ],
+ "aggregates": [
+  {
+   "step": "recompute",
+   "return": 1,
+   "objects": {
+    "Spreadsheet": {
+     "label": "Spreadsheet",
+     "cells": {
+      "A1": {
+       "content": "1",
+       "type": "App::PropertyInteger",
+       "value": 1
+      },
+      "B1": {
+       "content": "=1 mm",
+       "type": "Spreadsheet::PropertySpreadsheetQuantity",
+       "value": {
+        "q": 1.0,
+        "unit": [
+         1,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0
+        ],
+        "s": "1.0 mm"
+       }
+      },
+      "C1": {
+       "content": "=sum(A1:A3)",
+       "type": "App::PropertyFloat",
+       "value": 7.5
+      },
+      "D1": {
+       "content": "=and(A1:A3)",
+       "type": "App::PropertyInteger",
+       "value": 1
+      },
+      "A2": {
+       "content": "2.5",
+       "type": "App::PropertyFloat",
+       "value": 2.5
+      },
+      "B2": {
+       "content": "=2 mm",
+       "type": "Spreadsheet::PropertySpreadsheetQuantity",
+       "value": {
+        "q": 2.0,
+        "unit": [
+         1,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0
+        ],
+        "s": "2.0 mm"
+       }
+      },
+      "C2": {
+       "content": "=average(A1:A3)",
+       "type": "App::PropertyFloat",
+       "value": 2.5
+      },
+      "D2": {
+       "content": "=or(A1; 0)",
+       "type": "App::PropertyInteger",
+       "value": 1
+      },
+      "A3": {
+       "content": "4",
+       "type": "App::PropertyInteger",
+       "value": 4
+      },
+      "B3": {
+       "content": "=4 mm",
+       "type": "Spreadsheet::PropertySpreadsheetQuantity",
+       "value": {
+        "q": 4.0,
+        "unit": [
+         1,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0
+        ],
+        "s": "4.0 mm"
+       }
+      },
+      "C3": {
+       "content": "=min(A1:A3)",
+       "type": "App::PropertyInteger",
+       "value": 1
+      },
+      "D3": {
+       "content": "=A1 + B1",
+       "type": "App::PropertyString",
+       "value": "ERR: Quantity::operator +(): Unit mismatch in plus operation\nin expression: A1 + B1"
+      },
+      "A4": {
+       "content": "'text",
+       "type": "App::PropertyString",
+       "value": "text"
+      },
+      "C4": {
+       "content": "=max(A1:A3)",
+       "type": "App::PropertyInteger",
+       "value": 4
+      },
+      "D4": {
+       "content": "=A4 + 1",
+       "type": "App::PropertyString",
+       "value": "ERR: can only concatenate str (not \"int\") to str\nin expression: A4 + 1"
+      },
+      "B5": {
+       "content": "=1 s",
+       "type": "Spreadsheet::PropertySpreadsheetQuantity",
+       "value": {
+        "q": 1.0,
+        "unit": [
+         0,
+         0,
+         1,
+         0,
+         0,
+         0,
+         0,
+         0
+        ],
+        "s": "1.0 s"
+       }
+      },
+      "C5": {
+       "content": "=count(A1:A3)",
+       "type": "App::PropertyInteger",
+       "value": 3
+      },
+      "D5": {
+       "content": "=E9",
+       "type": "App::PropertyString",
+       "value": "ERR: Property 'E9' not found in 'Spreadsheet'"
+      },
+      "C6": {
+       "content": "=stddev(A1:A3)",
+       "type": "App::PropertyFloat",
+       "value": 1.5
+      },
+      "D6": {
+       "content": "=A2 * B2",
+       "type": "Spreadsheet::PropertySpreadsheetQuantity",
+       "value": {
+        "q": 5.0,
+        "unit": [
+         1,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0
+        ],
+        "s": "5.0 mm"
+       }
+      },
+      "C7": {
+       "content": "=sum(B1:B3)",
+       "type": "Spreadsheet::PropertySpreadsheetQuantity",
+       "value": {
+        "q": 7.0,
+        "unit": [
+         1,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0
+        ],
+        "s": "7.0 mm"
+       }
+      },
+      "D7": {
+       "content": "=sum(Q1:Q4)",
+       "type": "App::PropertyInteger",
+       "value": 0
+      },
+      "C8": {
+       "content": "=average(B1:B3)",
+       "type": "Spreadsheet::PropertySpreadsheetQuantity",
+       "value": {
+        "q": 2.3333333333333335,
+        "unit": [
+         1,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0
+        ],
+        "s": "2.3333333333333335 mm"
+       }
+      },
+      "D8": {
+       "content": "=average(Q1:Q4)",
+       "type": "App::PropertyFloat",
+       "value": "nan"
+      },
+      "C9": {
+       "content": "=stddev(B1:B3)",
+       "type": "Spreadsheet::PropertySpreadsheetQuantity",
+       "value": {
+        "q": 1.5275252316519465,
+        "unit": [
+         1,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0
+        ],
+        "s": "1.5275252316519465 mm"
+       }
+      },
+      "C10": {
+       "content": "=sum(A1:A4)",
+       "type": "App::PropertyString",
+       "value": "ERR: Invalid property type for aggregate.\nin expression: sum(A1:A4)"
+      },
+      "C11": {
+       "content": "=sum(B1:B5)",
+       "type": "App::PropertyString",
+       "value": "ERR: Quantity::operator +=(): Unit mismatch in plus operation"
+      },
+      "C12": {
+       "content": "=sum(A3:A1)",
+       "type": "App::PropertyInteger",
+       "value": 4
+      },
+      "C13": {
+       "content": "=sum(A1:B3)",
+       "type": "App::PropertyString",
+       "value": "ERR: Quantity::operator +=(): Unit mismatch in plus operation"
+      },
+      "C14": {
+       "content": "=count(A1:A9)",
+       "type": "App::PropertyString",
+       "value": "ERR: Invalid property type for aggregate.\nin expression: count(A1:A9)"
+      },
+      "C15": {
+       "content": "=sum(A1:A3; 10)",
+       "type": "App::PropertyFloat",
+       "value": 17.5
+      },
+      "C16": {
+       "content": "=list(A1:B2)",
+       "type": "App::PropertyPythonObject",
+       "value": {
+        "seq": "list",
+        "items": [
+         1,
+         2.5,
+         {
+          "q": 1.0,
+          "unit": [
+           1,
+           0,
+           0,
+           0,
+           0,
+           0,
+           0,
+           0
+          ],
+          "s": "1.0 mm"
+         },
+         {
+          "q": 2.0,
+          "unit": [
+           1,
+           0,
+           0,
+           0,
+           0,
+           0,
+           0,
+           0
+          ],
+          "s": "2.0 mm"
+         }
+        ],
+        "s": "[1, 2.5, 1.0 mm, 2.0 mm]"
+       }
+      },
+      "C17": {
+       "content": "=stddev(A1:A1)",
+       "type": "App::PropertyString",
+       "value": "ERR: Invalid number of entries: at least two required."
+      },
+      "C18": {
+       "content": "=max(B1:B3) * 2",
+       "type": "Spreadsheet::PropertySpreadsheetQuantity",
+       "value": {
+        "q": 8.0,
+        "unit": [
+         1,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0
+        ],
+        "s": "8.0 mm"
+       }
+      },
+      "C19": {
+       "content": "=min(A1; B1)",
+       "type": "App::PropertyString",
+       "value": "ERR: Quantity::operator <(): quantities need to have same unit to compare"
+      },
+      "C20": {
+       "content": "=sum(A1:A3) / count(A1:A3)",
+       "type": "App::PropertyFloat",
+       "value": 2.5
+      }
+     },
+     "column_widths": {},
+     "row_heights": {},
+     "used_range": [
+      "A1",
+      "D20"
+     ],
+     "state": [
+      "Touched",
+      "Invalid"
+     ],
+     "saved": {
+      "cells": [
+       [
+        "A1",
+        {
+         "content": "1"
+        }
+       ],
+       [
+        "B1",
+        {
+         "content": "=1 mm"
+        }
+       ],
+       [
+        "C1",
+        {
+         "content": "=sum(A1:A3)"
+        }
+       ],
+       [
+        "D1",
+        {
+         "content": "=and(A1:A3)"
+        }
+       ],
+       [
+        "A2",
+        {
+         "content": "2.5"
+        }
+       ],
+       [
+        "B2",
+        {
+         "content": "=2 mm"
+        }
+       ],
+       [
+        "C2",
+        {
+         "content": "=average(A1:A3)"
+        }
+       ],
+       [
+        "D2",
+        {
+         "content": "=or(A1; 0)"
+        }
+       ],
+       [
+        "A3",
+        {
+         "content": "4"
+        }
+       ],
+       [
+        "B3",
+        {
+         "content": "=4 mm"
+        }
+       ],
+       [
+        "C3",
+        {
+         "content": "=min(A1:A3)"
+        }
+       ],
+       [
+        "D3",
+        {
+         "content": "=A1 + B1"
+        }
+       ],
+       [
+        "A4",
+        {
+         "content": "'text"
+        }
+       ],
+       [
+        "C4",
+        {
+         "content": "=max(A1:A3)"
+        }
+       ],
+       [
+        "D4",
+        {
+         "content": "=A4 + 1"
+        }
+       ],
+       [
+        "B5",
+        {
+         "content": "=1 s"
+        }
+       ],
+       [
+        "C5",
+        {
+         "content": "=count(A1:A3)"
+        }
+       ],
+       [
+        "D5",
+        {
+         "content": "=E9"
+        }
+       ],
+       [
+        "C6",
+        {
+         "content": "=stddev(A1:A3)"
+        }
+       ],
+       [
+        "D6",
+        {
+         "content": "=A2 * B2"
+        }
+       ],
+       [
+        "C7",
+        {
+         "content": "=sum(B1:B3)"
+        }
+       ],
+       [
+        "D7",
+        {
+         "content": "=sum(Q1:Q4)"
+        }
+       ],
+       [
+        "C8",
+        {
+         "content": "=average(B1:B3)"
+        }
+       ],
+       [
+        "D8",
+        {
+         "content": "=average(Q1:Q4)"
+        }
+       ],
+       [
+        "C9",
+        {
+         "content": "=stddev(B1:B3)"
+        }
+       ],
+       [
+        "C10",
+        {
+         "content": "=sum(A1:A4)"
+        }
+       ],
+       [
+        "C11",
+        {
+         "content": "=sum(B1:B5)"
+        }
+       ],
+       [
+        "C12",
+        {
+         "content": "=sum(A3:A1)"
+        }
+       ],
+       [
+        "C13",
+        {
+         "content": "=sum(A1:B3)"
+        }
+       ],
+       [
+        "C14",
+        {
+         "content": "=count(A1:A9)"
+        }
+       ],
+       [
+        "C15",
+        {
+         "content": "=sum(A1:A3; 10)"
+        }
+       ],
+       [
+        "C16",
+        {
+         "content": "=list(A1:B2)"
+        }
+       ],
+       [
+        "C17",
+        {
+         "content": "=stddev(A1:A1)"
+        }
+       ],
+       [
+        "C18",
+        {
+         "content": "=max(B1:B3) * 2"
+        }
+       ],
+       [
+        "C19",
+        {
+         "content": "=min(A1; B1)"
+        }
+       ],
+       [
+        "C20",
+        {
+         "content": "=sum(A1:A3) / count(A1:A3)"
+        }
+       ]
+      ],
+      "columnWidths": {},
+      "rowHeights": {}
+     }
+    }
+   }
+  },
+  {
+   "step": "restore",
+   "return": 1,
+   "objects": {
+    "Spreadsheet": {
+     "label": "Spreadsheet",
+     "cells": {
+      "A1": {
+       "content": "1",
+       "type": "App::PropertyInteger",
+       "value": 1
+      },
+      "B1": {
+       "content": "=1 mm",
+       "type": "Spreadsheet::PropertySpreadsheetQuantity",
+       "value": {
+        "q": 1.0,
+        "unit": [
+         1,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0
+        ],
+        "s": "1.0 mm"
+       }
+      },
+      "C1": {
+       "content": "=sum(A1:A3)",
+       "type": "App::PropertyFloat",
+       "value": 7.5
+      },
+      "D1": {
+       "content": "=and(A1:A3)",
+       "type": "App::PropertyInteger",
+       "value": 1
+      },
+      "A2": {
+       "content": "2.5",
+       "type": "App::PropertyFloat",
+       "value": 2.5
+      },
+      "B2": {
+       "content": "=2 mm",
+       "type": "Spreadsheet::PropertySpreadsheetQuantity",
+       "value": {
+        "q": 2.0,
+        "unit": [
+         1,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0
+        ],
+        "s": "2.0 mm"
+       }
+      },
+      "C2": {
+       "content": "=average(A1:A3)",
+       "type": "App::PropertyFloat",
+       "value": 2.5
+      },
+      "D2": {
+       "content": "=or(A1; 0)",
+       "type": "App::PropertyInteger",
+       "value": 1
+      },
+      "A3": {
+       "content": "4",
+       "type": "App::PropertyInteger",
+       "value": 4
+      },
+      "B3": {
+       "content": "=4 mm",
+       "type": "Spreadsheet::PropertySpreadsheetQuantity",
+       "value": {
+        "q": 4.0,
+        "unit": [
+         1,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0
+        ],
+        "s": "4.0 mm"
+       }
+      },
+      "C3": {
+       "content": "=min(A1:A3)",
+       "type": "App::PropertyInteger",
+       "value": 1
+      },
+      "D3": {
+       "content": "=A1 + B1",
+       "type": "App::PropertyString",
+       "value": "ERR: Quantity::operator +(): Unit mismatch in plus operation\nin expression: A1 + B1"
+      },
+      "A4": {
+       "content": "'text",
+       "type": "App::PropertyString",
+       "value": "text"
+      },
+      "C4": {
+       "content": "=max(A1:A3)",
+       "type": "App::PropertyInteger",
+       "value": 4
+      },
+      "D4": {
+       "content": "=A4 + 1",
+       "type": "App::PropertyString",
+       "value": "ERR: can only concatenate str (not \"int\") to str\nin expression: A4 + 1"
+      },
+      "B5": {
+       "content": "=1 s",
+       "type": "Spreadsheet::PropertySpreadsheetQuantity",
+       "value": {
+        "q": 1.0,
+        "unit": [
+         0,
+         0,
+         1,
+         0,
+         0,
+         0,
+         0,
+         0
+        ],
+        "s": "1.0 s"
+       }
+      },
+      "C5": {
+       "content": "=count(A1:A3)",
+       "type": "App::PropertyInteger",
+       "value": 3
+      },
+      "D5": {
+       "content": "=E9",
+       "type": "App::PropertyString",
+       "value": "ERR: Property 'E9' not found in 'Spreadsheet'"
+      },
+      "C6": {
+       "content": "=stddev(A1:A3)",
+       "type": "App::PropertyFloat",
+       "value": 1.5
+      },
+      "D6": {
+       "content": "=A2 * B2",
+       "type": "Spreadsheet::PropertySpreadsheetQuantity",
+       "value": {
+        "q": 5.0,
+        "unit": [
+         1,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0
+        ],
+        "s": "5.0 mm"
+       }
+      },
+      "C7": {
+       "content": "=sum(B1:B3)",
+       "type": "Spreadsheet::PropertySpreadsheetQuantity",
+       "value": {
+        "q": 7.0,
+        "unit": [
+         1,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0
+        ],
+        "s": "7.0 mm"
+       }
+      },
+      "D7": {
+       "content": "=sum(Q1:Q4)",
+       "type": "App::PropertyInteger",
+       "value": 0
+      },
+      "C8": {
+       "content": "=average(B1:B3)",
+       "type": "Spreadsheet::PropertySpreadsheetQuantity",
+       "value": {
+        "q": 2.3333333333333335,
+        "unit": [
+         1,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0
+        ],
+        "s": "2.3333333333333335 mm"
+       }
+      },
+      "D8": {
+       "content": "=average(Q1:Q4)",
+       "type": "App::PropertyFloat",
+       "value": "nan"
+      },
+      "C9": {
+       "content": "=stddev(B1:B3)",
+       "type": "Spreadsheet::PropertySpreadsheetQuantity",
+       "value": {
+        "q": 1.5275252316519465,
+        "unit": [
+         1,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0
+        ],
+        "s": "1.5275252316519465 mm"
+       }
+      },
+      "C10": {
+       "content": "=sum(A1:A4)",
+       "type": "App::PropertyString",
+       "value": "ERR: Invalid property type for aggregate.\nin expression: sum(A1:A4)"
+      },
+      "C11": {
+       "content": "=sum(B1:B5)",
+       "type": "App::PropertyString",
+       "value": "ERR: Quantity::operator +=(): Unit mismatch in plus operation"
+      },
+      "C12": {
+       "content": "=sum(A3:A1)",
+       "type": "App::PropertyInteger",
+       "value": 4
+      },
+      "C13": {
+       "content": "=sum(A1:B3)",
+       "type": "App::PropertyString",
+       "value": "ERR: Quantity::operator +=(): Unit mismatch in plus operation"
+      },
+      "C14": {
+       "content": "=count(A1:A9)",
+       "type": "App::PropertyString",
+       "value": "ERR: Invalid property type for aggregate.\nin expression: count(A1:A9)"
+      },
+      "C15": {
+       "content": "=sum(A1:A3; 10)",
+       "type": "App::PropertyFloat",
+       "value": 17.5
+      },
+      "C16": {
+       "content": "=list(A1:B2)",
+       "type": "App::PropertyPythonObject",
+       "value": {
+        "seq": "list",
+        "items": [
+         1,
+         2.5,
+         {
+          "q": 1.0,
+          "unit": [
+           1,
+           0,
+           0,
+           0,
+           0,
+           0,
+           0,
+           0
+          ],
+          "s": "1.0 mm"
+         },
+         {
+          "q": 2.0,
+          "unit": [
+           1,
+           0,
+           0,
+           0,
+           0,
+           0,
+           0,
+           0
+          ],
+          "s": "2.0 mm"
+         }
+        ],
+        "s": "[1, 2.5, 1.0 mm, 2.0 mm]"
+       }
+      },
+      "C17": {
+       "content": "=stddev(A1:A1)",
+       "type": "App::PropertyString",
+       "value": "ERR: Invalid number of entries: at least two required."
+      },
+      "C18": {
+       "content": "=max(B1:B3) * 2",
+       "type": "Spreadsheet::PropertySpreadsheetQuantity",
+       "value": {
+        "q": 8.0,
+        "unit": [
+         1,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0
+        ],
+        "s": "8.0 mm"
+       }
+      },
+      "C19": {
+       "content": "=min(A1; B1)",
+       "type": "App::PropertyString",
+       "value": "ERR: Quantity::operator <(): quantities need to have same unit to compare"
+      },
+      "C20": {
+       "content": "=sum(A1:A3) / count(A1:A3)",
+       "type": "App::PropertyFloat",
+       "value": 2.5
+      }
+     },
+     "column_widths": {},
+     "row_heights": {},
+     "used_range": [
+      "A1",
+      "D20"
+     ],
+     "state": [
+      "Touched",
+      "Invalid"
+     ],
+     "saved": {
+      "cells": [
+       [
+        "A1",
+        {
+         "content": "1"
+        }
+       ],
+       [
+        "B1",
+        {
+         "content": "=1 mm"
+        }
+       ],
+       [
+        "C1",
+        {
+         "content": "=sum(A1:A3)"
+        }
+       ],
+       [
+        "D1",
+        {
+         "content": "=and(A1:A3)"
+        }
+       ],
+       [
+        "A2",
+        {
+         "content": "2.5"
+        }
+       ],
+       [
+        "B2",
+        {
+         "content": "=2 mm"
+        }
+       ],
+       [
+        "C2",
+        {
+         "content": "=average(A1:A3)"
+        }
+       ],
+       [
+        "D2",
+        {
+         "content": "=or(A1; 0)"
+        }
+       ],
+       [
+        "A3",
+        {
+         "content": "4"
+        }
+       ],
+       [
+        "B3",
+        {
+         "content": "=4 mm"
+        }
+       ],
+       [
+        "C3",
+        {
+         "content": "=min(A1:A3)"
+        }
+       ],
+       [
+        "D3",
+        {
+         "content": "=A1 + B1"
+        }
+       ],
+       [
+        "A4",
+        {
+         "content": "'text"
+        }
+       ],
+       [
+        "C4",
+        {
+         "content": "=max(A1:A3)"
+        }
+       ],
+       [
+        "D4",
+        {
+         "content": "=A4 + 1"
+        }
+       ],
+       [
+        "B5",
+        {
+         "content": "=1 s"
+        }
+       ],
+       [
+        "C5",
+        {
+         "content": "=count(A1:A3)"
+        }
+       ],
+       [
+        "D5",
+        {
+         "content": "=E9"
+        }
+       ],
+       [
+        "C6",
+        {
+         "content": "=stddev(A1:A3)"
+        }
+       ],
+       [
+        "D6",
+        {
+         "content": "=A2 * B2"
+        }
+       ],
+       [
+        "C7",
+        {
+         "content": "=sum(B1:B3)"
+        }
+       ],
+       [
+        "D7",
+        {
+         "content": "=sum(Q1:Q4)"
+        }
+       ],
+       [
+        "C8",
+        {
+         "content": "=average(B1:B3)"
+        }
+       ],
+       [
+        "D8",
+        {
+         "content": "=average(Q1:Q4)"
+        }
+       ],
+       [
+        "C9",
+        {
+         "content": "=stddev(B1:B3)"
+        }
+       ],
+       [
+        "C10",
+        {
+         "content": "=sum(A1:A4)"
+        }
+       ],
+       [
+        "C11",
+        {
+         "content": "=sum(B1:B5)"
+        }
+       ],
+       [
+        "C12",
+        {
+         "content": "=sum(A3:A1)"
+        }
+       ],
+       [
+        "C13",
+        {
+         "content": "=sum(A1:B3)"
+        }
+       ],
+       [
+        "C14",
+        {
+         "content": "=count(A1:A9)"
+        }
+       ],
+       [
+        "C15",
+        {
+         "content": "=sum(A1:A3; 10)"
+        }
+       ],
+       [
+        "C16",
+        {
+         "content": "=list(A1:B2)"
+        }
+       ],
+       [
+        "C17",
+        {
+         "content": "=stddev(A1:A1)"
+        }
+       ],
+       [
+        "C18",
+        {
+         "content": "=max(B1:B3) * 2"
+        }
+       ],
+       [
+        "C19",
+        {
+         "content": "=min(A1; B1)"
+        }
+       ],
+       [
+        "C20",
+        {
+         "content": "=sum(A1:A3) / count(A1:A3)"
+        }
+       ]
+      ],
+      "columnWidths": {},
+      "rowHeights": {}
+     }
+    }
+   }
+  }
+ ],
+ "aliases": [
+  {
+   "step": "recompute",
+   "return": 1,
+   "objects": {
+    "Spreadsheet": {
+     "label": "Spreadsheet",
+     "cells": {
+      "A1": {
+       "content": "=7.5 mm",
+       "type": "Spreadsheet::PropertySpreadsheetQuantity",
+       "value": {
+        "q": 7.5,
+        "unit": [
+         1,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0
+        ],
+        "s": "7.5 mm"
+       },
+       "alias": "thick"
+      },
+      "B1": {
+       "content": "=thick * 2",
+       "type": "Spreadsheet::PropertySpreadsheetQuantity",
+       "value": {
+        "q": 15.0,
+        "unit": [
+         1,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0
+        ],
+        "s": "15.0 mm"
+       }
+      },
+      "A2": {
+       "content": "3",
+       "type": "App::PropertyInteger",
+       "value": 3,
+       "alias": "later"
+      },
+      "B2": {
+       "content": "=later + 1",
+       "type": "App::PropertyString",
+       "value": "ERR: Property 'later' not found in 'Spreadsheet'"
+      },
+      "B3": {
+       "content": "=thick",
+       "type": "Spreadsheet::PropertySpreadsheetQuantity",
+       "value": {
+        "q": 7.5,
+        "unit": [
+         1,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0
+        ],
+        "s": "7.5 mm"
+       }
+      },
+      "B4": {
+       "content": "=sum(thick:A2)",
+       "type": "App::PropertyString",
+       "value": "ERR: Quantity::operator +=(): Unit mismatch in plus operation"
+      }
+     },
+     "column_widths": {},
+     "row_heights": {},
+     "used_range": [
+      "A1",
+      "B4"
+     ],
+     "state": [
+      "Touched",
+      "Invalid"
+     ],
+     "saved": {
+      "cells": [
+       [
+        "A1",
+        {
+         "content": "=7.5 mm",
+         "alias": "thick"
+        }
+       ],
+       [
+        "B1",
+        {
+         "content": "=thick * 2"
+        }
+       ],
+       [
+        "A2",
+        {
+         "content": "3",
+         "alias": "later"
+        }
+       ],
+       [
+        "B2",
+        {
+         "content": "=later + 1"
+        }
+       ],
+       [
+        "B3",
+        {
+         "content": "=thick"
+        }
+       ],
+       [
+        "B4",
+        {
+         "content": "=sum(thick:A2)"
+        }
+       ]
+      ],
+      "columnWidths": {},
+      "rowHeights": {}
+     }
+    }
+   }
+  },
+  {
+   "step": "recompute",
+   "return": 1,
+   "objects": {
+    "Spreadsheet": {
+     "label": "Spreadsheet",
+     "cells": {
+      "A1": {
+       "content": "=7.5 mm",
+       "type": "Spreadsheet::PropertySpreadsheetQuantity",
+       "value": {
+        "q": 7.5,
+        "unit": [
+         1,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0
+        ],
+        "s": "7.5 mm"
+       },
+       "alias": "thick"
+      },
+      "B1": {
+       "content": "=thick * 2",
+       "type": "Spreadsheet::PropertySpreadsheetQuantity",
+       "value": {
+        "q": 15.0,
+        "unit": [
+         1,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0
+        ],
+        "s": "15.0 mm"
+       }
+      },
+      "A2": {
+       "content": "3",
+       "type": "App::PropertyInteger",
+       "value": 3,
+       "alias": "later"
+      },
+      "B2": {
+       "content": "=later + 1",
+       "type": "App::PropertyInteger",
+       "value": 4
+      },
+      "B3": {
+       "content": "=thick",
+       "type": "Spreadsheet::PropertySpreadsheetQuantity",
+       "value": {
+        "q": 7.5,
+        "unit": [
+         1,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0
+        ],
+        "s": "7.5 mm"
+       }
+      },
+      "B4": {
+       "content": "=sum(thick:A2)",
+       "type": "App::PropertyString",
+       "value": "ERR: Quantity::operator +=(): Unit mismatch in plus operation"
+      }
+     },
+     "column_widths": {},
+     "row_heights": {},
+     "used_range": [
+      "A1",
+      "B4"
+     ],
+     "state": [
+      "Touched",
+      "Invalid"
+     ],
+     "saved": {
+      "cells": [
+       [
+        "A1",
+        {
+         "content": "=7.5 mm",
+         "alias": "thick"
+        }
+       ],
+       [
+        "B1",
+        {
+         "content": "=thick * 2"
+        }
+       ],
+       [
+        "A2",
+        {
+         "content": "3",
+         "alias": "later"
+        }
+       ],
+       [
+        "B2",
+        {
+         "content": "=later + 1"
+        }
+       ],
+       [
+        "B3",
+        {
+         "content": "=thick"
+        }
+       ],
+       [
+        "B4",
+        {
+         "content": "=sum(thick:A2)"
+        }
+       ]
+      ],
+      "columnWidths": {},
+      "rowHeights": {}
+     }
+    }
+   }
+  },
+  {
+   "step": "recompute",
+   "return": 1,
+   "objects": {
+    "Spreadsheet": {
+     "label": "Spreadsheet",
+     "cells": {
+      "A1": {
+       "content": "=7.5 mm",
+       "type": "Spreadsheet::PropertySpreadsheetQuantity",
+       "value": {
+        "q": 7.5,
+        "unit": [
+         1,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0
+        ],
+        "s": "7.5 mm"
+       },
+       "alias": "wall"
+      },
+      "B1": {
+       "content": "=wall * 2",
+       "type": "Spreadsheet::PropertySpreadsheetQuantity",
+       "value": {
+        "q": 15.0,
+        "unit": [
+         1,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0
+        ],
+        "s": "15.0 mm"
+       }
+      },
+      "A2": {
+       "content": "3",
+       "type": "App::PropertyInteger",
+       "value": 3,
+       "alias": "later"
+      },
+      "B2": {
+       "content": "=later + 1",
+       "type": "App::PropertyInteger",
+       "value": 4
+      },
+      "B3": {
+       "content": "=Spreadsheet.wall",
+       "type": "Spreadsheet::PropertySpreadsheetQuantity",
+       "value": {
+        "q": 7.5,
+        "unit": [
+         1,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0
+        ],
+        "s": "7.5 mm"
+       }
+      },
+      "B4": {
+       "content": "=sum(wall:A2)",
+       "type": "App::PropertyString",
+       "value": "ERR: Quantity::operator +=(): Unit mismatch in plus operation"
+      }
+     },
+     "column_widths": {},
+     "row_heights": {},
+     "used_range": [
+      "A1",
+      "B4"
+     ],
+     "state": [
+      "Touched",
+      "Invalid"
+     ],
+     "saved": {
+      "cells": [
+       [
+        "A1",
+        {
+         "content": "=7.5 mm",
+         "alias": "wall"
+        }
+       ],
+       [
+        "B1",
+        {
+         "content": "=wall * 2"
+        }
+       ],
+       [
+        "A2",
+        {
+         "content": "3",
+         "alias": "later"
+        }
+       ],
+       [
+        "B2",
+        {
+         "content": "=later + 1"
+        }
+       ],
+       [
+        "B3",
+        {
+         "content": "=Spreadsheet.wall"
+        }
+       ],
+       [
+        "B4",
+        {
+         "content": "=sum(wall:A2)"
+        }
+       ]
+      ],
+      "columnWidths": {},
+      "rowHeights": {}
+     }
+    }
+   }
+  },
+  {
+   "step": 13,
+   "error": "ValueError",
+   "message": "Alias already defined"
+  },
+  {
+   "step": 14,
+   "error": "ValueError",
+   "message": "Invalid alias: name conflicts with a reserved constant token"
+  },
+  {
+   "step": 15,
+   "error": "ValueError",
+   "message": "Invalid alias: name conflicts with a reserved unit token"
+  },
+  {
+   "step": 16,
+   "error": "ValueError",
+   "message": "Invalid alias"
+  },
+  {
+   "step": 17,
+   "error": "ValueError",
+   "message": "Invalid alias"
+  },
+  {
+   "step": 18,
+   "error": "ValueError",
+   "message": "Invalid alias"
+  },
+  {
+   "step": 19,
+   "error": "ValueError",
+   "message": "Invalid alias"
+  },
+  {
+   "step": 23,
+   "error": "ValueError",
+   "message": "Invalid alias: name conflicts with a reserved unit token"
+  },
+  {
+   "step": 24,
+   "error": "ValueError",
+   "message": "Invalid alias: name conflicts with a reserved constant token"
+  },
+  {
+   "step": "recompute",
+   "return": 1,
+   "objects": {
+    "Spreadsheet": {
+     "label": "Spreadsheet",
+     "cells": {
+      "A1": {
+       "content": "=7.5 mm",
+       "type": "Spreadsheet::PropertySpreadsheetQuantity",
+       "value": {
+        "q": 7.5,
+        "unit": [
+         1,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0
+        ],
+        "s": "7.5 mm"
+       },
+       "alias": "wall"
+      },
+      "B1": {
+       "content": "=wall * 2",
+       "type": "Spreadsheet::PropertySpreadsheetQuantity",
+       "value": {
+        "q": 15.0,
+        "unit": [
+         1,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0
+        ],
+        "s": "15.0 mm"
+       }
+      },
+      "A2": {
+       "content": "3",
+       "type": "App::PropertyInteger",
+       "value": 3,
+       "alias": "later"
+      },
+      "B2": {
+       "content": "=later + 1",
+       "type": "App::PropertyInteger",
+       "value": 4
+      },
+      "A3": {
+       "content": "",
+       "type": null,
+       "get_error": "Invalid cell address or property: A3",
+       "alias": "Spreadsheet"
+      },
+      "B3": {
+       "content": "=Spreadsheet.wall",
+       "type": "Spreadsheet::PropertySpreadsheetQuantity",
+       "value": {
+        "q": 7.5,
+        "unit": [
+         1,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0
+        ],
+        "s": "7.5 mm"
+       }
+      },
+      "B4": {
+       "content": "=sum(wall:A2)",
+       "type": "App::PropertyString",
+       "value": "ERR: Quantity::operator +=(): Unit mismatch in plus operation"
+      }
+     },
+     "column_widths": {},
+     "row_heights": {},
+     "used_range": [
+      "A1",
+      "B4"
+     ],
+     "state": [
+      "Touched",
+      "Invalid"
+     ],
+     "saved": {
+      "cells": [
+       [
+        "A1",
+        {
+         "content": "=7.5 mm",
+         "alias": "wall"
+        }
+       ],
+       [
+        "B1",
+        {
+         "content": "=wall * 2"
+        }
+       ],
+       [
+        "A2",
+        {
+         "content": "3",
+         "alias": "later"
+        }
+       ],
+       [
+        "B2",
+        {
+         "content": "=later + 1"
+        }
+       ],
+       [
+        "A3",
+        {
+         "alias": "Spreadsheet"
+        }
+       ],
+       [
+        "B3",
+        {
+         "content": "=Spreadsheet.wall"
+        }
+       ],
+       [
+        "B4",
+        {
+         "content": "=sum(wall:A2)"
+        }
+       ]
+      ],
+      "columnWidths": {},
+      "rowHeights": {}
+     }
+    }
+   }
+  },
+  {
+   "step": "restore",
+   "return": 1,
+   "objects": {
+    "Spreadsheet": {
+     "label": "Spreadsheet",
+     "cells": {
+      "A1": {
+       "content": "=7.5 mm",
+       "type": "Spreadsheet::PropertySpreadsheetQuantity",
+       "value": {
+        "q": 7.5,
+        "unit": [
+         1,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0
+        ],
+        "s": "7.5 mm"
+       },
+       "alias": "wall"
+      },
+      "B1": {
+       "content": "=wall * 2",
+       "type": "Spreadsheet::PropertySpreadsheetQuantity",
+       "value": {
+        "q": 15.0,
+        "unit": [
+         1,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0
+        ],
+        "s": "15.0 mm"
+       }
+      },
+      "A2": {
+       "content": "3",
+       "type": "App::PropertyInteger",
+       "value": 3,
+       "alias": "later"
+      },
+      "B2": {
+       "content": "=later + 1",
+       "type": "App::PropertyInteger",
+       "value": 4
+      },
+      "A3": {
+       "content": "",
+       "type": null,
+       "get_error": "Invalid cell address or property: A3",
+       "alias": "Spreadsheet"
+      },
+      "B3": {
+       "content": "=wall",
+       "type": "Spreadsheet::PropertySpreadsheetQuantity",
+       "value": {
+        "q": 7.5,
+        "unit": [
+         1,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0
+        ],
+        "s": "7.5 mm"
+       }
+      },
+      "B4": {
+       "content": "=sum(wall:A2)",
+       "type": "App::PropertyString",
+       "value": "ERR: Quantity::operator +=(): Unit mismatch in plus operation"
+      }
+     },
+     "column_widths": {},
+     "row_heights": {},
+     "used_range": [
+      "A1",
+      "B4"
+     ],
+     "state": [
+      "Touched",
+      "Invalid"
+     ],
+     "saved": {
+      "cells": [
+       [
+        "A1",
+        {
+         "content": "=7.5 mm",
+         "alias": "wall"
+        }
+       ],
+       [
+        "B1",
+        {
+         "content": "=wall * 2"
+        }
+       ],
+       [
+        "A2",
+        {
+         "content": "3",
+         "alias": "later"
+        }
+       ],
+       [
+        "B2",
+        {
+         "content": "=later + 1"
+        }
+       ],
+       [
+        "A3",
+        {
+         "alias": "Spreadsheet"
+        }
+       ],
+       [
+        "B3",
+        {
+         "content": "=wall"
+        }
+       ],
+       [
+        "B4",
+        {
+         "content": "=sum(wall:A2)"
+        }
+       ]
+      ],
+      "columnWidths": {},
+      "rowHeights": {}
+     }
+    }
+   }
+  }
+ ],
+ "cycles": [
+  {
+   "step": "recompute",
+   "return": 1,
+   "objects": {
+    "Spreadsheet": {
+     "label": "Spreadsheet",
+     "cells": {
+      "A1": {
+       "content": "=A2 + 1",
+       "type": null,
+       "get_error": "Invalid cell address or property: A1"
+      },
+      "B1": {
+       "content": "5",
+       "type": null,
+       "get_error": "Invalid cell address or property: B1"
+      },
+      "A2": {
+       "content": "=A1",
+       "type": null,
+       "get_error": "Invalid cell address or property: A2"
+      },
+      "B2": {
+       "content": "=B1 * 2",
+       "type": null,
+       "get_error": "Invalid cell address or property: B2"
+      },
+      "A3": {
+       "content": "=A3",
+       "type": null,
+       "get_error": "Invalid cell address or property: A3"
+      }
+     },
+     "column_widths": {},
+     "row_heights": {},
+     "used_range": [
+      "A1",
+      "B3"
+     ],
+     "state": [
+      "Touched",
+      "Invalid"
+     ],
+     "saved": {
+      "cells": [
+       [
+        "A1",
+        {
+         "content": "=A2 + 1"
+        }
+       ],
+       [
+        "B1",
+        {
+         "content": "5"
+        }
+       ],
+       [
+        "A2",
+        {
+         "content": "=A1"
+        }
+       ],
+       [
+        "B2",
+        {
+         "content": "=B1 * 2"
+        }
+       ],
+       [
+        "A3",
+        {
+         "content": "=A3"
+        }
+       ]
+      ],
+      "columnWidths": {},
+      "rowHeights": {}
+     }
+    }
+   }
+  },
+  {
+   "step": "recompute",
+   "return": 1,
+   "objects": {
+    "Spreadsheet": {
+     "label": "Spreadsheet",
+     "cells": {
+      "A1": {
+       "content": "=A2 + 1",
+       "type": "App::PropertyInteger",
+       "value": 5
+      },
+      "B1": {
+       "content": "5",
+       "type": "App::PropertyInteger",
+       "value": 5
+      },
+      "A2": {
+       "content": "4",
+       "type": "App::PropertyInteger",
+       "value": 4
+      },
+      "B2": {
+       "content": "=B1 * 2",
+       "type": "App::PropertyInteger",
+       "value": 10
+      },
+      "A3": {
+       "content": "1",
+       "type": "App::PropertyInteger",
+       "value": 1
+      }
+     },
+     "column_widths": {},
+     "row_heights": {},
+     "used_range": [
+      "A1",
+      "B3"
+     ],
+     "state": [
+      "Up-to-date"
+     ],
+     "saved": {
+      "cells": [
+       [
+        "A1",
+        {
+         "content": "=A2 + 1"
+        }
+       ],
+       [
+        "B1",
+        {
+         "content": "5"
+        }
+       ],
+       [
+        "A2",
+        {
+         "content": "4"
+        }
+       ],
+       [
+        "B2",
+        {
+         "content": "=B1 * 2"
+        }
+       ],
+       [
+        "A3",
+        {
+         "content": "1"
+        }
+       ]
+      ],
+      "columnWidths": {},
+      "rowHeights": {}
+     }
+    }
+   }
+  }
+ ],
+ "cycle_long": [
+  {
+   "step": "recompute",
+   "return": 1,
+   "objects": {
+    "Spreadsheet": {
+     "label": "Spreadsheet",
+     "cells": {
+      "A1": {
+       "content": "=A4",
+       "type": null,
+       "get_error": "Invalid cell address or property: A1"
+      },
+      "C1": {
+       "content": "=D1",
+       "type": null,
+       "get_error": "Invalid cell address or property: C1"
+      },
+      "D1": {
+       "content": "=C1",
+       "type": null,
+       "get_error": "Invalid cell address or property: D1"
+      },
+      "E1": {
+       "content": "2",
+       "type": null,
+       "get_error": "Invalid cell address or property: E1"
+      },
+      "A2": {
+       "content": "=A1",
+       "type": null,
+       "get_error": "Invalid cell address or property: A2"
+      },
+      "A3": {
+       "content": "=A2",
+       "type": null,
+       "get_error": "Invalid cell address or property: A3"
+      },
+      "A4": {
+       "content": "=A3",
+       "type": null,
+       "get_error": "Invalid cell address or property: A4"
+      }
+     },
+     "column_widths": {},
+     "row_heights": {},
+     "used_range": [
+      "A1",
+      "E4"
+     ],
+     "state": [
+      "Touched",
+      "Invalid"
+     ],
+     "saved": {
+      "cells": [
+       [
+        "A1",
+        {
+         "content": "=A4"
+        }
+       ],
+       [
+        "C1",
+        {
+         "content": "=D1"
+        }
+       ],
+       [
+        "D1",
+        {
+         "content": "=C1"
+        }
+       ],
+       [
+        "E1",
+        {
+         "content": "2"
+        }
+       ],
+       [
+        "A2",
+        {
+         "content": "=A1"
+        }
+       ],
+       [
+        "A3",
+        {
+         "content": "=A2"
+        }
+       ],
+       [
+        "A4",
+        {
+         "content": "=A3"
+        }
+       ]
+      ],
+      "columnWidths": {},
+      "rowHeights": {}
+     }
+    }
+   }
+  }
+ ],
+ "order": [
+  {
+   "step": "recompute",
+   "return": 1,
+   "objects": {
+    "Spreadsheet": {
+     "label": "Spreadsheet",
+     "cells": {
+      "A1": {
+       "content": "3",
+       "type": "App::PropertyInteger",
+       "value": 3
+      },
+      "B2": {
+       "content": "=A1 * 2",
+       "type": "App::PropertyInteger",
+       "value": 6
+      },
+      "C3": {
+       "content": "=B2 + A1",
+       "type": "App::PropertyInteger",
+       "value": 9
+      },
+      "D4": {
+       "content": "=C3 + B2",
+       "type": "App::PropertyInteger",
+       "value": 15
+      },
+      "A5": {
+       "content": "=total",
+       "type": "App::PropertyInteger",
+       "value": 10
+      },
+      "B5": {
+       "content": "10",
+       "type": "App::PropertyInteger",
+       "value": 10,
+       "alias": "total"
+      }
+     },
+     "column_widths": {},
+     "row_heights": {},
+     "used_range": [
+      "A1",
+      "D5"
+     ],
+     "state": [
+      "Up-to-date"
+     ],
+     "saved": {
+      "cells": [
+       [
+        "A1",
+        {
+         "content": "3"
+        }
+       ],
+       [
+        "B2",
+        {
+         "content": "=A1 * 2"
+        }
+       ],
+       [
+        "C3",
+        {
+         "content": "=B2 + A1"
+        }
+       ],
+       [
+        "D4",
+        {
+         "content": "=C3 + B2"
+        }
+       ],
+       [
+        "A5",
+        {
+         "content": "=total"
+        }
+       ],
+       [
+        "B5",
+        {
+         "content": "10",
+         "alias": "total"
+        }
+       ]
+      ],
+      "columnWidths": {},
+      "rowHeights": {}
+     }
+    }
+   }
+  },
+  {
+   "step": "recompute",
+   "return": 1,
+   "objects": {
+    "Spreadsheet": {
+     "label": "Spreadsheet",
+     "cells": {
+      "A1": {
+       "content": "4",
+       "type": "App::PropertyInteger",
+       "value": 4
+      },
+      "B2": {
+       "content": "=A1 * 2",
+       "type": "App::PropertyInteger",
+       "value": 8
+      },
+      "C3": {
+       "content": "=B2 + A1",
+       "type": "App::PropertyInteger",
+       "value": 12
+      },
+      "D4": {
+       "content": "=C3 + B2",
+       "type": "App::PropertyInteger",
+       "value": 20
+      },
+      "A5": {
+       "content": "=total",
+       "type": "App::PropertyInteger",
+       "value": 10
+      },
+      "B5": {
+       "content": "10",
+       "type": "App::PropertyInteger",
+       "value": 10,
+       "alias": "total"
+      }
+     },
+     "column_widths": {},
+     "row_heights": {},
+     "used_range": [
+      "A1",
+      "D5"
+     ],
+     "state": [
+      "Up-to-date"
+     ],
+     "saved": {
+      "cells": [
+       [
+        "A1",
+        {
+         "content": "4"
+        }
+       ],
+       [
+        "B2",
+        {
+         "content": "=A1 * 2"
+        }
+       ],
+       [
+        "C3",
+        {
+         "content": "=B2 + A1"
+        }
+       ],
+       [
+        "D4",
+        {
+         "content": "=C3 + B2"
+        }
+       ],
+       [
+        "A5",
+        {
+         "content": "=total"
+        }
+       ],
+       [
+        "B5",
+        {
+         "content": "10",
+         "alias": "total"
+        }
+       ]
+      ],
+      "columnWidths": {},
+      "rowHeights": {}
+     }
+    }
+   }
+  },
+  {
+   "step": "recompute",
+   "return": 0,
+   "objects": {
+    "Spreadsheet": {
+     "label": "Spreadsheet",
+     "cells": {
+      "A1": {
+       "content": "4",
+       "type": "App::PropertyInteger",
+       "value": 4
+      },
+      "B2": {
+       "content": "=A1 * 2",
+       "type": "App::PropertyInteger",
+       "value": 8
+      },
+      "C3": {
+       "content": "=B2 + A1",
+       "type": "App::PropertyInteger",
+       "value": 12
+      },
+      "D4": {
+       "content": "=C3 + B2",
+       "type": "App::PropertyInteger",
+       "value": 20
+      },
+      "A5": {
+       "content": "=total",
+       "type": "App::PropertyInteger",
+       "value": 10
+      },
+      "B5": {
+       "content": "10",
+       "type": "App::PropertyInteger",
+       "value": 10,
+       "alias": "total"
+      }
+     },
+     "column_widths": {},
+     "row_heights": {},
+     "used_range": [
+      "A1",
+      "D5"
+     ],
+     "state": [
+      "Up-to-date"
+     ],
+     "saved": {
+      "cells": [
+       [
+        "A1",
+        {
+         "content": "4"
+        }
+       ],
+       [
+        "B2",
+        {
+         "content": "=A1 * 2"
+        }
+       ],
+       [
+        "C3",
+        {
+         "content": "=B2 + A1"
+        }
+       ],
+       [
+        "D4",
+        {
+         "content": "=C3 + B2"
+        }
+       ],
+       [
+        "A5",
+        {
+         "content": "=total"
+        }
+       ],
+       [
+        "B5",
+        {
+         "content": "10",
+         "alias": "total"
+        }
+       ]
+      ],
+      "columnWidths": {},
+      "rowHeights": {}
+     }
+    }
+   }
+  }
+ ],
+ "errors": [
+  {
+   "step": "recompute",
+   "return": 1,
+   "objects": {
+    "Spreadsheet": {
+     "label": "Spreadsheet",
+     "cells": {
+      "A1": {
+       "content": "=1 / 0",
+       "type": "App::PropertyString",
+       "value": "ERR: division by zero\nin expression: 1 / 0"
+      },
+      "A2": {
+       "content": "=nothing",
+       "type": "App::PropertyString",
+       "value": "ERR: Property 'nothing' not found in 'Spreadsheet'"
+      },
+      "A3": {
+       "content": "=1 mm + 1 s",
+       "type": "App::PropertyString",
+       "value": "ERR: Quantity::operator +(): Unit mismatch in plus operation\nin expression: 1 mm + 1 s"
+      },
+      "A4": {
+       "content": "=sqrt(-1 (mm ^ 2))",
+       "type": "Spreadsheet::PropertySpreadsheetQuantity",
+       "value": {
+        "q": "nan",
+        "unit": [
+         1,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0
+        ],
+        "s": "nan mm"
+       }
+      },
+      "A5": {
+       "content": "=<<a>> * <<b>>",
+       "type": "App::PropertyString",
+       "value": "ERR: can't multiply sequence by non-int of type 'str'\nin expression: <<a>> * <<b>>"
+      },
+      "A6": {
+       "content": "=A1 + 1",
+       "type": "App::PropertyString",
+       "value": "ERR: can only concatenate str (not \"int\") to str\nin expression: A1 + 1"
+      },
+      "A7": {
+       "content": "=sin(1 mm)",
+       "type": "App::PropertyString",
+       "value": "ERR: Unit must be either empty or an angle.\nin expression: sin(1 mm)"
+      },
+      "A8": {
+       "content": "=pow(2 mm; 0.5)",
+       "type": "App::PropertyString",
+       "value": "ERR: pow() of unit not possible"
+      },
+      "A9": {
+       "content": "=Spreadsheet002.A1",
+       "type": "App::PropertyString",
+       "value": "ERR: Property 'Spreadsheet002' not found in 'Spreadsheet'"
+      },
+      "A10": {
+       "content": "=Label",
+       "type": "App::PropertyString",
+       "value": "Spreadsheet"
+      },
+      "A11": {
+       "content": "=Label2",
+       "type": "App::PropertyString",
+       "value": ""
+      },
+      "A12": {
+       "content": "=.A1.Value",
+       "type": "App::PropertyString",
+       "value": "ERR: No attribute named 'Value'"
+      }
+     },
+     "column_widths": {},
+     "row_heights": {},
+     "used_range": [
+      "A1",
+      "A12"
+     ],
+     "state": [
+      "Touched",
+      "Invalid"
+     ],
+     "saved": {
+      "cells": [
+       [
+        "A1",
+        {
+         "content": "=1 / 0"
+        }
+       ],
+       [
+        "A2",
+        {
+         "content": "=nothing"
+        }
+       ],
+       [
+        "A3",
+        {
+         "content": "=1 mm + 1 s"
+        }
+       ],
+       [
+        "A4",
+        {
+         "content": "=sqrt(-1 (mm ^ 2))"
+        }
+       ],
+       [
+        "A5",
+        {
+         "content": "=<<a>> * <<b>>"
+        }
+       ],
+       [
+        "A6",
+        {
+         "content": "=A1 + 1"
+        }
+       ],
+       [
+        "A7",
+        {
+         "content": "=sin(1 mm)"
+        }
+       ],
+       [
+        "A8",
+        {
+         "content": "=pow(2 mm; 0.5)"
+        }
+       ],
+       [
+        "A9",
+        {
+         "content": "=Spreadsheet002.A1"
+        }
+       ],
+       [
+        "A10",
+        {
+         "content": "=Label"
+        }
+       ],
+       [
+        "A11",
+        {
+         "content": "=Label2"
+        }
+       ],
+       [
+        "A12",
+        {
+         "content": "=.A1.Value"
+        }
+       ]
+      ],
+      "columnWidths": {},
+      "rowHeights": {}
+     }
+    }
+   }
+  },
+  {
+   "step": "restore",
+   "return": 1,
+   "objects": {
+    "Spreadsheet": {
+     "label": "Spreadsheet",
+     "cells": {
+      "A1": {
+       "content": "=1 / 0",
+       "type": "App::PropertyString",
+       "value": "ERR: division by zero\nin expression: 1 / 0"
+      },
+      "A2": {
+       "content": "=nothing",
+       "type": "App::PropertyString",
+       "value": "ERR: Property 'nothing' not found in 'Spreadsheet'"
+      },
+      "A3": {
+       "content": "=1 mm + 1 s",
+       "type": "App::PropertyString",
+       "value": "ERR: Quantity::operator +(): Unit mismatch in plus operation\nin expression: 1 mm + 1 s"
+      },
+      "A4": {
+       "content": "=sqrt(-1 (mm ^ 2))",
+       "type": "Spreadsheet::PropertySpreadsheetQuantity",
+       "value": {
+        "q": "nan",
+        "unit": [
+         1,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0
+        ],
+        "s": "nan mm"
+       }
+      },
+      "A5": {
+       "content": "=<<a>> * <<b>>",
+       "type": "App::PropertyString",
+       "value": "ERR: can't multiply sequence by non-int of type 'str'\nin expression: <<a>> * <<b>>"
+      },
+      "A6": {
+       "content": "=A1 + 1",
+       "type": "App::PropertyString",
+       "value": "ERR: can only concatenate str (not \"int\") to str\nin expression: A1 + 1"
+      },
+      "A7": {
+       "content": "=sin(1 mm)",
+       "type": "App::PropertyString",
+       "value": "ERR: Unit must be either empty or an angle.\nin expression: sin(1 mm)"
+      },
+      "A8": {
+       "content": "=pow(2 mm; 0.5)",
+       "type": "App::PropertyString",
+       "value": "ERR: pow() of unit not possible"
+      },
+      "A9": {
+       "content": "=Spreadsheet002.A1",
+       "type": "App::PropertyString",
+       "value": "ERR: Property 'Spreadsheet002' not found in 'Spreadsheet'"
+      },
+      "A10": {
+       "content": "=Label",
+       "type": "App::PropertyString",
+       "value": "Spreadsheet"
+      },
+      "A11": {
+       "content": "=Label2",
+       "type": "App::PropertyString",
+       "value": ""
+      },
+      "A12": {
+       "content": "=.A1.Value",
+       "type": "App::PropertyString",
+       "value": "ERR: No attribute named 'Value'"
+      }
+     },
+     "column_widths": {},
+     "row_heights": {},
+     "used_range": [
+      "A1",
+      "A12"
+     ],
+     "state": [
+      "Touched",
+      "Invalid"
+     ],
+     "saved": {
+      "cells": [
+       [
+        "A1",
+        {
+         "content": "=1 / 0"
+        }
+       ],
+       [
+        "A2",
+        {
+         "content": "=nothing"
+        }
+       ],
+       [
+        "A3",
+        {
+         "content": "=1 mm + 1 s"
+        }
+       ],
+       [
+        "A4",
+        {
+         "content": "=sqrt(-1 (mm ^ 2))"
+        }
+       ],
+       [
+        "A5",
+        {
+         "content": "=<<a>> * <<b>>"
+        }
+       ],
+       [
+        "A6",
+        {
+         "content": "=A1 + 1"
+        }
+       ],
+       [
+        "A7",
+        {
+         "content": "=sin(1 mm)"
+        }
+       ],
+       [
+        "A8",
+        {
+         "content": "=pow(2 mm; 0.5)"
+        }
+       ],
+       [
+        "A9",
+        {
+         "content": "=Spreadsheet002.A1"
+        }
+       ],
+       [
+        "A10",
+        {
+         "content": "=Label"
+        }
+       ],
+       [
+        "A11",
+        {
+         "content": "=Label2"
+        }
+       ],
+       [
+        "A12",
+        {
+         "content": "=.A1.Value"
+        }
+       ]
+      ],
+      "columnWidths": {},
+      "rowHeights": {}
+     }
+    }
+   }
+  }
+ ],
+ "look": [
+  {
+   "step": 22,
+   "error": "ValueError",
+   "message": "Expression is not a unit."
+  },
+  {
+   "step": "recompute",
+   "return": 1,
+   "objects": {
+    "Spreadsheet": {
+     "label": "Spreadsheet",
+     "cells": {
+      "A1": {
+       "content": "1.234",
+       "type": "App::PropertyFloat",
+       "value": 1.234,
+       "alignment": [
+        "right",
+        "vcenter"
+       ],
+       "foreground": [
+        1.0,
+        0.0,
+        0.0,
+        1.0
+       ],
+       "background": [
+        0.5,
+        0.25,
+        1.0,
+        1.0
+       ],
+       "display_unit": "mm"
+      },
+      "B1": {
+       "content": "'x",
+       "type": "App::PropertyString",
+       "value": "x"
+      },
+      "D1": {
+       "content": "=B1",
+       "type": "App::PropertyString",
+       "value": "x"
+      },
+      "E1": {
+       "content": "'e",
+       "type": "App::PropertyString",
+       "value": "e"
+      },
+      "A2": {
+       "content": "=1 m",
+       "type": "Spreadsheet::PropertySpreadsheetQuantity",
+       "value": {
+        "q": 1000.0,
+        "unit": [
+         1,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0
+        ],
+        "s": "1000.0 mm"
+       },
+       "style": [
+        "bold",
+        "italic"
+       ],
+       "alignment": [
+        "center",
+        "top"
+       ],
+       "background": [
+        0.5,
+        0.25,
+        1.0,
+        1.0
+       ],
+       "display_unit": "cm"
+      },
+      "A3": {
+       "content": "=12 mm",
+       "type": "Spreadsheet::PropertySpreadsheetQuantity",
+       "value": {
+        "q": 12.0,
+        "unit": [
+         1,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0
+        ],
+        "s": "12.0 mm"
+       },
+       "style": [
+        "bold",
+        "underline"
+       ],
+       "alignment": [
+        "bottom",
+        "left"
+       ],
+       "display_unit": "s"
+      },
+      "A4": {
+       "content": "'abc",
+       "type": "App::PropertyString",
+       "value": "abc",
+       "style": [
+        "bold"
+       ],
+       "alignment": [
+        "left",
+        "vcenter"
+       ]
+      }
+     },
+     "column_widths": {
+      "A": 140,
+      "C": 60
+     },
+     "row_heights": {
+      "2": 45
+     },
+     "used_range": [
+      "A1",
+      "E4"
+     ],
+     "state": [
+      "Up-to-date"
+     ],
+     "saved": {
+      "cells": [
+       [
+        "A1",
+        {
+         "content": "1.234",
+         "alignment": "right|vcenter|vimplied",
+         "foregroundColor": "#ff0000ff",
+         "backgroundColor": "#7f3fffff",
+         "displayUnit": "mm"
+        }
+       ],
+       [
+        "B1",
+        {
+         "content": "'x",
+         "rowSpan": "2",
+         "colSpan": "2"
+        }
+       ],
+       [
+        "D1",
+        {
+         "content": "=B1"
+        }
+       ],
+       [
+        "E1",
+        {
+         "content": "'e"
+        }
+       ],
+       [
+        "A2",
+        {
+         "content": "=1 m",
+         "alignment": "center|top",
+         "style": "bold|italic",
+         "backgroundColor": "#7f3fffff",
+         "displayUnit": "cm"
+        }
+       ],
+       [
+        "A3",
+        {
+         "content": "=12 mm",
+         "alignment": "left|himplied|bottom",
+         "style": "bold|underline",
+         "displayUnit": "s"
+        }
+       ],
+       [
+        "A4",
+        {
+         "content": "'abc",
+         "alignment": "left|himplied|vcenter",
+         "style": "bold"
+        }
+       ]
+      ],
+      "columnWidths": {
+       "A": 140,
+       "C": 60
+      },
+      "rowHeights": {
+       "2": 45
+      }
+     }
+    }
+   }
+  },
+  {
+   "step": "restore",
+   "return": 0,
+   "objects": {
+    "Spreadsheet": {
+     "label": "Spreadsheet",
+     "cells": {
+      "A1": {
+       "content": "1.234",
+       "type": "App::PropertyFloat",
+       "value": 1.234,
+       "alignment": [
+        "right",
+        "vcenter"
+       ],
+       "foreground": [
+        1.0,
+        0.0,
+        0.0,
+        1.0
+       ],
+       "background": [
+        0.498039,
+        0.247059,
+        1.0,
+        1.0
+       ],
+       "display_unit": "mm"
+      },
+      "B1": {
+       "content": "'x",
+       "type": "App::PropertyString",
+       "value": "x"
+      },
+      "D1": {
+       "content": "=B1",
+       "type": "App::PropertyString",
+       "value": "x"
+      },
+      "E1": {
+       "content": "'e",
+       "type": "App::PropertyString",
+       "value": "e"
+      },
+      "A2": {
+       "content": "=1 m",
+       "type": "Spreadsheet::PropertySpreadsheetQuantity",
+       "value": {
+        "q": 1000.0,
+        "unit": [
+         1,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0
+        ],
+        "s": "1000.0 mm"
+       },
+       "style": [
+        "bold",
+        "italic"
+       ],
+       "alignment": [
+        "center",
+        "top"
+       ],
+       "background": [
+        0.498039,
+        0.247059,
+        1.0,
+        1.0
+       ],
+       "display_unit": "cm"
+      },
+      "A3": {
+       "content": "=12 mm",
+       "type": "Spreadsheet::PropertySpreadsheetQuantity",
+       "value": {
+        "q": 12.0,
+        "unit": [
+         1,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0
+        ],
+        "s": "12.0 mm"
+       },
+       "style": [
+        "bold",
+        "underline"
+       ],
+       "alignment": [
+        "bottom",
+        "left"
+       ],
+       "display_unit": "s"
+      },
+      "A4": {
+       "content": "'abc",
+       "type": "App::PropertyString",
+       "value": "abc",
+       "style": [
+        "bold"
+       ],
+       "alignment": [
+        "left",
+        "vcenter"
+       ]
+      }
+     },
+     "column_widths": {
+      "A": 140,
+      "C": 60
+     },
+     "row_heights": {
+      "2": 45
+     },
+     "used_range": [
+      "A1",
+      "E4"
+     ],
+     "state": [
+      "Up-to-date"
+     ],
+     "saved": {
+      "cells": [
+       [
+        "A1",
+        {
+         "content": "1.234",
+         "alignment": "right|vcenter|vimplied",
+         "foregroundColor": "#ff0000ff",
+         "backgroundColor": "#7f3fffff",
+         "displayUnit": "mm"
+        }
+       ],
+       [
+        "B1",
+        {
+         "content": "'x",
+         "rowSpan": "2",
+         "colSpan": "2"
+        }
+       ],
+       [
+        "D1",
+        {
+         "content": "=B1"
+        }
+       ],
+       [
+        "E1",
+        {
+         "content": "'e"
+        }
+       ],
+       [
+        "A2",
+        {
+         "content": "=1 m",
+         "alignment": "center|top",
+         "style": "bold|italic",
+         "backgroundColor": "#7f3fffff",
+         "displayUnit": "cm"
+        }
+       ],
+       [
+        "A3",
+        {
+         "content": "=12 mm",
+         "alignment": "left|himplied|bottom",
+         "style": "bold|underline",
+         "displayUnit": "s"
+        }
+       ],
+       [
+        "A4",
+        {
+         "content": "'abc",
+         "alignment": "left|himplied|vcenter",
+         "style": "bold"
+        }
+       ]
+      ],
+      "columnWidths": {
+       "A": 140,
+       "C": 60
+      },
+      "rowHeights": {
+       "2": 45
+      }
+     }
+    }
+   }
+  }
+ ],
+ "rows_columns": [
+  {
+   "step": "recompute",
+   "return": 1,
+   "objects": {
+    "Spreadsheet": {
+     "label": "Spreadsheet",
+     "cells": {
+      "A1": {
+       "content": "1",
+       "type": "App::PropertyInteger",
+       "value": 1
+      },
+      "B1": {
+       "content": "=A3 * 10",
+       "type": "App::PropertyInteger",
+       "value": 30
+      },
+      "C1": {
+       "content": "'c",
+       "type": "App::PropertyString",
+       "value": "c"
+      },
+      "A2": {
+       "content": "2",
+       "type": "App::PropertyInteger",
+       "value": 2
+      },
+      "B2": {
+       "content": "=sum(A1:A3)",
+       "type": "App::PropertyInteger",
+       "value": 6
+      },
+      "A3": {
+       "content": "3",
+       "type": "App::PropertyInteger",
+       "value": 3,
+       "alias": "three"
+      },
+      "B3": {
+       "content": "=$A$2",
+       "type": "App::PropertyInteger",
+       "value": 2
+      },
+      "B4": {
+       "content": "=three + 1",
+       "type": "App::PropertyInteger",
+       "value": 4
+      }
+     },
+     "column_widths": {
+      "B": 120,
+      "D": 70
+     },
+     "row_heights": {
+      "3": 50
+     },
+     "used_range": [
+      "A1",
+      "C4"
+     ],
+     "state": [
+      "Up-to-date"
+     ],
+     "saved": {
+      "cells": [
+       [
+        "A1",
+        {
+         "content": "1"
+        }
+       ],
+       [
+        "B1",
+        {
+         "content": "=A3 * 10"
+        }
+       ],
+       [
+        "C1",
+        {
+         "content": "'c",
+         "rowSpan": "2",
+         "colSpan": "2"
+        }
+       ],
+       [
+        "A2",
+        {
+         "content": "2"
+        }
+       ],
+       [
+        "B2",
+        {
+         "content": "=sum(A1:A3)"
+        }
+       ],
+       [
+        "A3",
+        {
+         "content": "3",
+         "alias": "three"
+        }
+       ],
+       [
+        "B3",
+        {
+         "content": "=$A$2"
+        }
+       ],
+       [
+        "B4",
+        {
+         "content": "=three + 1"
+        }
+       ]
+      ],
+      "columnWidths": {
+       "B": 120,
+       "D": 70
+      },
+      "rowHeights": {
+       "3": 50
+      }
+     }
+    }
+   }
+  },
+  {
+   "step": "recompute",
+   "return": 1,
+   "objects": {
+    "Spreadsheet": {
+     "label": "Spreadsheet",
+     "cells": {
+      "A1": {
+       "content": "1",
+       "type": "App::PropertyInteger",
+       "value": 1
+      },
+      "B1": {
+       "content": "=A5 * 10",
+       "type": "App::PropertyInteger",
+       "value": 30
+      },
+      "C1": {
+       "content": "'c",
+       "type": "App::PropertyString",
+       "value": "c"
+      },
+      "A4": {
+       "content": "2",
+       "type": "App::PropertyInteger",
+       "value": 2
+      },
+      "B4": {
+       "content": "=sum(A1:A5)",
+       "type": "App::PropertyInteger",
+       "value": 6
+      },
+      "A5": {
+       "content": "3",
+       "type": "App::PropertyInteger",
+       "value": 3,
+       "alias": "three"
+      },
+      "B5": {
+       "content": "=$A$4",
+       "type": "App::PropertyInteger",
+       "value": 2
+      },
+      "B6": {
+       "content": "=three + 1",
+       "type": "App::PropertyInteger",
+       "value": 4
+      }
+     },
+     "column_widths": {
+      "B": 120,
+      "D": 70
+     },
+     "row_heights": {
+      "5": 50
+     },
+     "used_range": [
+      "A1",
+      "C6"
+     ],
+     "state": [
+      "Up-to-date"
+     ],
+     "saved": {
+      "cells": [
+       [
+        "A1",
+        {
+         "content": "1"
+        }
+       ],
+       [
+        "B1",
+        {
+         "content": "=A5 * 10"
+        }
+       ],
+       [
+        "C1",
+        {
+         "content": "'c",
+         "rowSpan": "2",
+         "colSpan": "2"
+        }
+       ],
+       [
+        "A4",
+        {
+         "content": "2"
+        }
+       ],
+       [
+        "B4",
+        {
+         "content": "=sum(A1:A5)"
+        }
+       ],
+       [
+        "A5",
+        {
+         "content": "3",
+         "alias": "three"
+        }
+       ],
+       [
+        "B5",
+        {
+         "content": "=$A$4"
+        }
+       ],
+       [
+        "B6",
+        {
+         "content": "=three + 1"
+        }
+       ]
+      ],
+      "columnWidths": {
+       "B": 120,
+       "D": 70
+      },
+      "rowHeights": {
+       "5": 50
+      }
+     }
+    }
+   }
+  },
+  {
+   "step": "recompute",
+   "return": 1,
+   "objects": {
+    "Spreadsheet": {
+     "label": "Spreadsheet",
+     "cells": {
+      "B1": {
+       "content": "1",
+       "type": "App::PropertyInteger",
+       "value": 1
+      },
+      "C1": {
+       "content": "=B5 * 10",
+       "type": "App::PropertyInteger",
+       "value": 30
+      },
+      "D1": {
+       "content": "'c",
+       "type": "App::PropertyString",
+       "value": "c"
+      },
+      "B4": {
+       "content": "2",
+       "type": "App::PropertyInteger",
+       "value": 2
+      },
+      "C4": {
+       "content": "=sum(B1:B5)",
+       "type": "App::PropertyInteger",
+       "value": 6
+      },
+      "B5": {
+       "content": "3",
+       "type": "App::PropertyInteger",
+       "value": 3,
+       "alias": "three"
+      },
+      "C5": {
+       "content": "=$B$4",
+       "type": "App::PropertyInteger",
+       "value": 2
+      },
+      "C6": {
+       "content": "=three + 1",
+       "type": "App::PropertyInteger",
+       "value": 4
+      }
+     },
+     "column_widths": {
+      "C": 120,
+      "E": 70
+     },
+     "row_heights": {
+      "5": 50
+     },
+     "used_range": [
+      "B1",
+      "D6"
+     ],
+     "state": [
+      "Up-to-date"
+     ],
+     "saved": {
+      "cells": [
+       [
+        "B1",
+        {
+         "content": "1"
+        }
+       ],
+       [
+        "C1",
+        {
+         "content": "=B5 * 10"
+        }
+       ],
+       [
+        "D1",
+        {
+         "content": "'c",
+         "rowSpan": "2",
+         "colSpan": "2"
+        }
+       ],
+       [
+        "B4",
+        {
+         "content": "2"
+        }
+       ],
+       [
+        "C4",
+        {
+         "content": "=sum(B1:B5)"
+        }
+       ],
+       [
+        "B5",
+        {
+         "content": "3",
+         "alias": "three"
+        }
+       ],
+       [
+        "C5",
+        {
+         "content": "=$B$4"
+        }
+       ],
+       [
+        "C6",
+        {
+         "content": "=three + 1"
+        }
+       ]
+      ],
+      "columnWidths": {
+       "C": 120,
+       "E": 70
+      },
+      "rowHeights": {
+       "5": 50
+      }
+     }
+    }
+   }
+  },
+  {
+   "step": "recompute",
+   "return": 1,
+   "objects": {
+    "Spreadsheet": {
+     "label": "Spreadsheet",
+     "cells": {
+      "B1": {
+       "content": "1",
+       "type": "App::PropertyInteger",
+       "value": 1
+      },
+      "C1": {
+       "content": "=B4 * 10",
+       "type": "App::PropertyInteger",
+       "value": 30
+      },
+      "D1": {
+       "content": "'c",
+       "type": "App::PropertyString",
+       "value": "c"
+      },
+      "B3": {
+       "content": "2",
+       "type": "App::PropertyInteger",
+       "value": 2
+      },
+      "C3": {
+       "content": "=sum(B1:B4)",
+       "type": "App::PropertyInteger",
+       "value": 6
+      },
+      "B4": {
+       "content": "3",
+       "type": "App::PropertyInteger",
+       "value": 3,
+       "alias": "three"
+      },
+      "C4": {
+       "content": "=$B$3",
+       "type": "App::PropertyInteger",
+       "value": 2
+      },
+      "C5": {
+       "content": "=three + 1",
+       "type": "App::PropertyInteger",
+       "value": 4
+      }
+     },
+     "column_widths": {
+      "C": 120,
+      "E": 70
+     },
+     "row_heights": {
+      "4": 50
+     },
+     "used_range": [
+      "B1",
+      "D5"
+     ],
+     "state": [
+      "Up-to-date"
+     ],
+     "saved": {
+      "cells": [
+       [
+        "B1",
+        {
+         "content": "1"
+        }
+       ],
+       [
+        "C1",
+        {
+         "content": "=B4 * 10"
+        }
+       ],
+       [
+        "D1",
+        {
+         "content": "'c",
+         "rowSpan": "-2",
+         "colSpan": "2"
+        }
+       ],
+       [
+        "B3",
+        {
+         "content": "2"
+        }
+       ],
+       [
+        "C3",
+        {
+         "content": "=sum(B1:B4)"
+        }
+       ],
+       [
+        "B4",
+        {
+         "content": "3",
+         "alias": "three"
+        }
+       ],
+       [
+        "C4",
+        {
+         "content": "=$B$3"
+        }
+       ],
+       [
+        "C5",
+        {
+         "content": "=three + 1"
+        }
+       ]
+      ],
+      "columnWidths": {
+       "C": 120,
+       "E": 70
+      },
+      "rowHeights": {
+       "4": 50
+      }
+     }
+    }
+   }
+  },
+  {
+   "step": "recompute",
+   "return": 1,
+   "objects": {
+    "Spreadsheet": {
+     "label": "Spreadsheet",
+     "cells": {
+      "A1": {
+       "content": "1",
+       "type": "App::PropertyInteger",
+       "value": 1
+      },
+      "B1": {
+       "content": "=A4 * 10",
+       "type": "App::PropertyInteger",
+       "value": 30
+      },
+      "C1": {
+       "content": "'c",
+       "type": "App::PropertyString",
+       "value": "c"
+      },
+      "A3": {
+       "content": "2",
+       "type": "App::PropertyInteger",
+       "value": 2
+      },
+      "B3": {
+       "content": "=sum(A1:A4)",
+       "type": "App::PropertyInteger",
+       "value": 6
+      },
+      "A4": {
+       "content": "3",
+       "type": "App::PropertyInteger",
+       "value": 3,
+       "alias": "three"
+      },
+      "B4": {
+       "content": "=$A$3",
+       "type": "App::PropertyInteger",
+       "value": 2
+      },
+      "B5": {
+       "content": "=three + 1",
+       "type": "App::PropertyInteger",
+       "value": 4
+      }
+     },
+     "column_widths": {
+      "B": 120,
+      "D": 70
+     },
+     "row_heights": {
+      "4": 50
+     },
+     "used_range": [
+      "A1",
+      "C5"
+     ],
+     "state": [
+      "Up-to-date"
+     ],
+     "saved": {
+      "cells": [
+       [
+        "A1",
+        {
+         "content": "1"
+        }
+       ],
+       [
+        "B1",
+        {
+         "content": "=A4 * 10"
+        }
+       ],
+       [
+        "C1",
+        {
+         "content": "'c",
+         "rowSpan": "-2",
+         "colSpan": "2"
+        }
+       ],
+       [
+        "A3",
+        {
+         "content": "2"
+        }
+       ],
+       [
+        "B3",
+        {
+         "content": "=sum(A1:A4)"
+        }
+       ],
+       [
+        "A4",
+        {
+         "content": "3",
+         "alias": "three"
+        }
+       ],
+       [
+        "B4",
+        {
+         "content": "=$A$3"
+        }
+       ],
+       [
+        "B5",
+        {
+         "content": "=three + 1"
+        }
+       ]
+      ],
+      "columnWidths": {
+       "B": 120,
+       "D": 70
+      },
+      "rowHeights": {
+       "4": 50
+      }
+     }
+    }
+   }
+  },
+  {
+   "step": "restore",
+   "return": 0,
+   "objects": {
+    "Spreadsheet": {
+     "label": "Spreadsheet",
+     "cells": {
+      "A1": {
+       "content": "1",
+       "type": "App::PropertyInteger",
+       "value": 1
+      },
+      "B1": {
+       "content": "=A4 * 10",
+       "type": "App::PropertyInteger",
+       "value": 30
+      },
+      "C1": {
+       "content": "'c",
+       "type": "App::PropertyString",
+       "value": "c"
+      },
+      "A3": {
+       "content": "2",
+       "type": "App::PropertyInteger",
+       "value": 2
+      },
+      "B3": {
+       "content": "=sum(A1:A4)",
+       "type": "App::PropertyInteger",
+       "value": 6
+      },
+      "A4": {
+       "content": "3",
+       "type": "App::PropertyInteger",
+       "value": 3,
+       "alias": "three"
+      },
+      "B4": {
+       "content": "=$A$3",
+       "type": "App::PropertyInteger",
+       "value": 2
+      },
+      "B5": {
+       "content": "=three + 1",
+       "type": "App::PropertyInteger",
+       "value": 4
+      }
+     },
+     "column_widths": {
+      "B": 120,
+      "D": 70
+     },
+     "row_heights": {
+      "4": 50
+     },
+     "used_range": [
+      "A1",
+      "C5"
+     ],
+     "state": [
+      "Up-to-date"
+     ],
+     "saved": {
+      "cells": [
+       [
+        "A1",
+        {
+         "content": "1"
+        }
+       ],
+       [
+        "B1",
+        {
+         "content": "=A4 * 10"
+        }
+       ],
+       [
+        "C1",
+        {
+         "content": "'c",
+         "rowSpan": "-2",
+         "colSpan": "2"
+        }
+       ],
+       [
+        "A3",
+        {
+         "content": "2"
+        }
+       ],
+       [
+        "B3",
+        {
+         "content": "=sum(A1:A4)"
+        }
+       ],
+       [
+        "A4",
+        {
+         "content": "3",
+         "alias": "three"
+        }
+       ],
+       [
+        "B4",
+        {
+         "content": "=$A$3"
+        }
+       ],
+       [
+        "B5",
+        {
+         "content": "=three + 1"
+        }
+       ]
+      ],
+      "columnWidths": {
+       "B": 120,
+       "D": 70
+      },
+      "rowHeights": {
+       "4": 50
+      }
+     }
+    }
+   }
+  }
+ ],
+ "clear": [
+  {
+   "step": "recompute",
+   "return": 1,
+   "objects": {
+    "Spreadsheet": {
+     "label": "Spreadsheet",
+     "cells": {
+      "A1": {
+       "content": "1",
+       "type": "App::PropertyInteger",
+       "value": 1,
+       "alias": "one"
+      },
+      "B1": {
+       "content": "'b",
+       "type": "App::PropertyString",
+       "value": "b"
+      },
+      "A2": {
+       "content": "=A1 + 1",
+       "type": "App::PropertyInteger",
+       "value": 2
+      },
+      "B2": {
+       "content": "",
+       "type": null,
+       "get_error": "Invalid cell address or property: B2",
+       "style": [
+        "bold"
+       ]
+      }
+     },
+     "column_widths": {},
+     "row_heights": {},
+     "used_range": [
+      "A1",
+      "B2"
+     ],
+     "state": [
+      "Up-to-date"
+     ],
+     "saved": {
+      "cells": [
+       [
+        "A1",
+        {
+         "content": "1",
+         "alias": "one"
+        }
+       ],
+       [
+        "B1",
+        {
+         "content": "'b"
+        }
+       ],
+       [
+        "A2",
+        {
+         "content": "=A1 + 1"
+        }
+       ],
+       [
+        "B2",
+        {
+         "style": "bold"
+        }
+       ]
+      ],
+      "columnWidths": {},
+      "rowHeights": {}
+     }
+    }
+   }
+  },
+  {
+   "step": "recompute",
+   "return": 1,
+   "objects": {
+    "Spreadsheet": {
+     "label": "Spreadsheet",
+     "cells": {
+      "B1": {
+       "content": "'b",
+       "type": "App::PropertyString",
+       "value": "b"
+      },
+      "A2": {
+       "content": "=A1 + 1",
+       "type": "App::PropertyString",
+       "value": "ERR: Property 'A1' not found in 'Spreadsheet'"
+      },
+      "B2": {
+       "content": "",
+       "type": null,
+       "get_error": "Invalid cell address or property: B2",
+       "style": [
+        "bold"
+       ]
+      }
+     },
+     "column_widths": {},
+     "row_heights": {},
+     "used_range": [
+      "A1",
+      "B2"
+     ],
+     "state": [
+      "Touched",
+      "Invalid"
+     ],
+     "saved": {
+      "cells": [
+       [
+        "B1",
+        {
+         "content": "'b"
+        }
+       ],
+       [
+        "A2",
+        {
+         "content": "=A1 + 1"
+        }
+       ],
+       [
+        "B2",
+        {
+         "style": "bold"
+        }
+       ]
+      ],
+      "columnWidths": {},
+      "rowHeights": {}
+     }
+    }
+   }
+  },
+  {
+   "step": "recompute",
+   "return": 1,
+   "objects": {
+    "Spreadsheet": {
+     "label": "Spreadsheet",
+     "cells": {
+      "A1": {
+       "content": "5",
+       "type": "App::PropertyInteger",
+       "value": 5
+      },
+      "B1": {
+       "content": "'b",
+       "type": "App::PropertyString",
+       "value": "b"
+      },
+      "A2": {
+       "content": "=A1 + 1",
+       "type": "App::PropertyInteger",
+       "value": 6
+      },
+      "B2": {
+       "content": "",
+       "type": null,
+       "get_error": "Invalid cell address or property: B2",
+       "style": [
+        "bold"
+       ]
+      }
+     },
+     "column_widths": {},
+     "row_heights": {},
+     "used_range": [
+      "A1",
+      "B2"
+     ],
+     "state": [
+      "Up-to-date"
+     ],
+     "saved": {
+      "cells": [
+       [
+        "A1",
+        {
+         "content": "5"
+        }
+       ],
+       [
+        "B1",
+        {
+         "content": "'b"
+        }
+       ],
+       [
+        "A2",
+        {
+         "content": "=A1 + 1"
+        }
+       ],
+       [
+        "B2",
+        {
+         "style": "bold"
+        }
+       ]
+      ],
+      "columnWidths": {},
+      "rowHeights": {}
+     }
+    }
+   }
+  },
+  {
+   "step": "recompute",
+   "return": 1,
+   "objects": {
+    "Spreadsheet": {
+     "label": "Spreadsheet",
+     "cells": {},
+     "column_widths": {},
+     "row_heights": {},
+     "used_range": null,
+     "state": [
+      "Up-to-date"
+     ],
+     "saved": {
+      "cells": [],
+      "columnWidths": {},
+      "rowHeights": {}
+     }
+    }
+   }
+  }
+ ],
+ "two_sheets": [
+  {
+   "step": "recompute",
+   "return": 2,
+   "objects": {
+    "Spreadsheet": {
+     "label": "Params",
+     "cells": {
+      "A1": {
+       "content": "=10 mm",
+       "type": "Spreadsheet::PropertySpreadsheetQuantity",
+       "value": {
+        "q": 10.0,
+        "unit": [
+         1,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0
+        ],
+        "s": "10.0 mm"
+       },
+       "alias": "len"
+      },
+      "A2": {
+       "content": "=A1",
+       "type": "Spreadsheet::PropertySpreadsheetQuantity",
+       "value": {
+        "q": 10.0,
+        "unit": [
+         1,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0
+        ],
+        "s": "10.0 mm"
+       }
+      }
+     },
+     "column_widths": {},
+     "row_heights": {},
+     "used_range": [
+      "A1",
+      "A2"
+     ],
+     "state": [
+      "Up-to-date"
+     ],
+     "saved": {
+      "cells": [
+       [
+        "A1",
+        {
+         "content": "=10 mm",
+         "alias": "len"
+        }
+       ],
+       [
+        "A2",
+        {
+         "content": "=A1"
+        }
+       ]
+      ],
+      "columnWidths": {},
+      "rowHeights": {}
+     }
+    },
+    "Spreadsheet001": {
+     "label": "Spreadsheet001",
+     "cells": {
+      "A1": {
+       "content": "=Spreadsheet.len * 2",
+       "type": "Spreadsheet::PropertySpreadsheetQuantity",
+       "value": {
+        "q": 20.0,
+        "unit": [
+         1,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0
+        ],
+        "s": "20.0 mm"
+       }
+      },
+      "A2": {
+       "content": "=<<Params>>.A1",
+       "type": "Spreadsheet::PropertySpreadsheetQuantity",
+       "value": {
+        "q": 10.0,
+        "unit": [
+         1,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0
+        ],
+        "s": "10.0 mm"
+       }
+      },
+      "A3": {
+       "content": "=<<Params>>.len + 1 mm",
+       "type": "Spreadsheet::PropertySpreadsheetQuantity",
+       "value": {
+        "q": 11.0,
+        "unit": [
+         1,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0
+        ],
+        "s": "11.0 mm"
+       }
+      },
+      "A4": {
+       "content": "=<<Params>>.nothing",
+       "type": "App::PropertyString",
+       "value": "ERR: Property 'nothing' not found in 'Params'"
+      },
+      "A5": {
+       "content": "=Nope.A1",
+       "type": "App::PropertyString",
+       "value": "ERR: Property 'Nope' not found in 'Spreadsheet001'"
+      },
+      "A6": {
+       "content": "=Nope.A1",
+       "type": "App::PropertyString",
+       "value": "ERR: Property 'Nope' not found in 'Spreadsheet001'"
+      }
+     },
+     "column_widths": {},
+     "row_heights": {},
+     "used_range": [
+      "A1",
+      "A6"
+     ],
+     "state": [
+      "Touched",
+      "Invalid"
+     ],
+     "saved": {
+      "cells": [
+       [
+        "A1",
+        {
+         "content": "=Spreadsheet.len * 2"
+        }
+       ],
+       [
+        "A2",
+        {
+         "content": "=<<Params>>.A1"
+        }
+       ],
+       [
+        "A3",
+        {
+         "content": "=<<Params>>.len + 1 mm"
+        }
+       ],
+       [
+        "A4",
+        {
+         "content": "=<<Params>>.nothing"
+        }
+       ],
+       [
+        "A5",
+        {
+         "content": "=Nope.A1"
+        }
+       ],
+       [
+        "A6",
+        {
+         "content": "=Nope.A1"
+        }
+       ]
+      ],
+      "columnWidths": {},
+      "rowHeights": {}
+     }
+    }
+   }
+  },
+  {
+   "step": "recompute",
+   "return": 2,
+   "objects": {
+    "Spreadsheet": {
+     "label": "Params",
+     "cells": {
+      "A1": {
+       "content": "=12 mm",
+       "type": "Spreadsheet::PropertySpreadsheetQuantity",
+       "value": {
+        "q": 12.0,
+        "unit": [
+         1,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0
+        ],
+        "s": "12.0 mm"
+       },
+       "alias": "len"
+      },
+      "A2": {
+       "content": "=A1",
+       "type": "Spreadsheet::PropertySpreadsheetQuantity",
+       "value": {
+        "q": 12.0,
+        "unit": [
+         1,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0
+        ],
+        "s": "12.0 mm"
+       }
+      }
+     },
+     "column_widths": {},
+     "row_heights": {},
+     "used_range": [
+      "A1",
+      "A2"
+     ],
+     "state": [
+      "Up-to-date"
+     ],
+     "saved": {
+      "cells": [
+       [
+        "A1",
+        {
+         "content": "=12 mm",
+         "alias": "len"
+        }
+       ],
+       [
+        "A2",
+        {
+         "content": "=A1"
+        }
+       ]
+      ],
+      "columnWidths": {},
+      "rowHeights": {}
+     }
+    },
+    "Spreadsheet001": {
+     "label": "Spreadsheet001",
+     "cells": {
+      "A1": {
+       "content": "=Spreadsheet.len * 2",
+       "type": "Spreadsheet::PropertySpreadsheetQuantity",
+       "value": {
+        "q": 24.0,
+        "unit": [
+         1,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0
+        ],
+        "s": "24.0 mm"
+       }
+      },
+      "A2": {
+       "content": "=<<Params>>.A1",
+       "type": "Spreadsheet::PropertySpreadsheetQuantity",
+       "value": {
+        "q": 12.0,
+        "unit": [
+         1,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0
+        ],
+        "s": "12.0 mm"
+       }
+      },
+      "A3": {
+       "content": "=<<Params>>.len + 1 mm",
+       "type": "Spreadsheet::PropertySpreadsheetQuantity",
+       "value": {
+        "q": 13.0,
+        "unit": [
+         1,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0
+        ],
+        "s": "13.0 mm"
+       }
+      },
+      "A4": {
+       "content": "=<<Params>>.nothing",
+       "type": "App::PropertyString",
+       "value": "ERR: Property 'nothing' not found in 'Params'"
+      },
+      "A5": {
+       "content": "=Nope.A1",
+       "type": "App::PropertyString",
+       "value": "ERR: Property 'Nope' not found in 'Spreadsheet001'"
+      },
+      "A6": {
+       "content": "=Nope.A1",
+       "type": "App::PropertyString",
+       "value": "ERR: Property 'Nope' not found in 'Spreadsheet001'"
+      }
+     },
+     "column_widths": {},
+     "row_heights": {},
+     "used_range": [
+      "A1",
+      "A6"
+     ],
+     "state": [
+      "Touched",
+      "Invalid"
+     ],
+     "saved": {
+      "cells": [
+       [
+        "A1",
+        {
+         "content": "=Spreadsheet.len * 2"
+        }
+       ],
+       [
+        "A2",
+        {
+         "content": "=<<Params>>.A1"
+        }
+       ],
+       [
+        "A3",
+        {
+         "content": "=<<Params>>.len + 1 mm"
+        }
+       ],
+       [
+        "A4",
+        {
+         "content": "=<<Params>>.nothing"
+        }
+       ],
+       [
+        "A5",
+        {
+         "content": "=Nope.A1"
+        }
+       ],
+       [
+        "A6",
+        {
+         "content": "=Nope.A1"
+        }
+       ]
+      ],
+      "columnWidths": {},
+      "rowHeights": {}
+     }
+    }
+   }
+  },
+  {
+   "step": "restore",
+   "return": 1,
+   "objects": {
+    "Spreadsheet": {
+     "label": "Params",
+     "cells": {
+      "A1": {
+       "content": "=12 mm",
+       "type": "Spreadsheet::PropertySpreadsheetQuantity",
+       "value": {
+        "q": 12.0,
+        "unit": [
+         1,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0
+        ],
+        "s": "12.0 mm"
+       },
+       "alias": "len"
+      },
+      "A2": {
+       "content": "=A1",
+       "type": "Spreadsheet::PropertySpreadsheetQuantity",
+       "value": {
+        "q": 12.0,
+        "unit": [
+         1,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0
+        ],
+        "s": "12.0 mm"
+       }
+      }
+     },
+     "column_widths": {},
+     "row_heights": {},
+     "used_range": [
+      "A1",
+      "A2"
+     ],
+     "state": [
+      "Up-to-date"
+     ],
+     "saved": {
+      "cells": [
+       [
+        "A1",
+        {
+         "content": "=12 mm",
+         "alias": "len"
+        }
+       ],
+       [
+        "A2",
+        {
+         "content": "=A1"
+        }
+       ]
+      ],
+      "columnWidths": {},
+      "rowHeights": {}
+     }
+    },
+    "Spreadsheet001": {
+     "label": "Spreadsheet001",
+     "cells": {
+      "A1": {
+       "content": "=Spreadsheet.len * 2",
+       "type": "Spreadsheet::PropertySpreadsheetQuantity",
+       "value": {
+        "q": 24.0,
+        "unit": [
+         1,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0
+        ],
+        "s": "24.0 mm"
+       }
+      },
+      "A2": {
+       "content": "=<<Params>>.A1",
+       "type": "Spreadsheet::PropertySpreadsheetQuantity",
+       "value": {
+        "q": 12.0,
+        "unit": [
+         1,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0
+        ],
+        "s": "12.0 mm"
+       }
+      },
+      "A3": {
+       "content": "=<<Params>>.len + 1 mm",
+       "type": "Spreadsheet::PropertySpreadsheetQuantity",
+       "value": {
+        "q": 13.0,
+        "unit": [
+         1,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0
+        ],
+        "s": "13.0 mm"
+       }
+      },
+      "A4": {
+       "content": "=<<Params>>.nothing",
+       "type": "App::PropertyString",
+       "value": "ERR: Property 'nothing' not found in 'Params'"
+      },
+      "A5": {
+       "content": "=Nope.A1",
+       "type": "App::PropertyString",
+       "value": "ERR: Property 'Nope' not found in 'Spreadsheet001'"
+      },
+      "A6": {
+       "content": "=Nope.A1",
+       "type": "App::PropertyString",
+       "value": "ERR: Property 'Nope' not found in 'Spreadsheet001'"
+      }
+     },
+     "column_widths": {},
+     "row_heights": {},
+     "used_range": [
+      "A1",
+      "A6"
+     ],
+     "state": [
+      "Touched",
+      "Invalid"
+     ],
+     "saved": {
+      "cells": [
+       [
+        "A1",
+        {
+         "content": "=Spreadsheet.len * 2"
+        }
+       ],
+       [
+        "A2",
+        {
+         "content": "=<<Params>>.A1"
+        }
+       ],
+       [
+        "A3",
+        {
+         "content": "=<<Params>>.len + 1 mm"
+        }
+       ],
+       [
+        "A4",
+        {
+         "content": "=<<Params>>.nothing"
+        }
+       ],
+       [
+        "A5",
+        {
+         "content": "=Nope.A1"
+        }
+       ],
+       [
+        "A6",
+        {
+         "content": "=Nope.A1"
+        }
+       ]
+      ],
+      "columnWidths": {},
+      "rowHeights": {}
+     }
+    }
+   }
+  }
+ ],
+ "sheet_cycle": [
+  {
+   "step": "recompute",
+   "return": 1,
+   "objects": {
+    "Spreadsheet": {
+     "label": "Spreadsheet",
+     "cells": {
+      "A1": {
+       "content": "=Spreadsheet001.A1 + 1",
+       "type": null,
+       "get_error": "Invalid cell address or property: A1"
+      },
+      "B1": {
+       "content": "3",
+       "type": null,
+       "get_error": "Invalid cell address or property: B1"
+      }
+     },
+     "column_widths": {},
+     "row_heights": {},
+     "used_range": [
+      "A1",
+      "B1"
+     ],
+     "state": [
+      "Touched"
+     ],
+     "saved": {
+      "cells": [
+       [
+        "A1",
+        {
+         "content": "=Spreadsheet001.A1 + 1"
+        }
+       ],
+       [
+        "B1",
+        {
+         "content": "3"
+        }
+       ]
+      ],
+      "columnWidths": {},
+      "rowHeights": {}
+     }
+    },
+    "Spreadsheet001": {
+     "label": "Spreadsheet001",
+     "cells": {
+      "A1": {
+       "content": "=Spreadsheet.A1",
+       "type": "App::PropertyString",
+       "value": "ERR: Property 'A1' not found in 'Spreadsheet'"
+      }
+     },
+     "column_widths": {},
+     "row_heights": {},
+     "used_range": [
+      "A1",
+      "A1"
+     ],
+     "state": [
+      "Touched",
+      "Invalid"
+     ],
+     "saved": {
+      "cells": [
+       [
+        "A1",
+        {
+         "content": "=Spreadsheet.A1"
+        }
+       ]
+      ],
+      "columnWidths": {},
+      "rowHeights": {}
+     }
+    }
+   }
+  }
+ ],
+ "pad": [
+  {
+   "step": "recompute",
+   "return": 13,
+   "objects": {
+    "Spreadsheet": {
+     "label": "Spreadsheet",
+     "cells": {
+      "A1": {
+       "content": "=7.5 mm",
+       "type": "Spreadsheet::PropertySpreadsheetQuantity",
+       "value": {
+        "q": 7.5,
+        "unit": [
+         1,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0
+        ],
+        "s": "7.5 mm"
+       },
+       "alias": "thick"
+      }
+     },
+     "column_widths": {},
+     "row_heights": {},
+     "used_range": [
+      "A1",
+      "A1"
+     ],
+     "state": [
+      "Up-to-date"
+     ],
+     "saved": {
+      "cells": [
+       [
+        "A1",
+        {
+         "content": "=7.5 mm",
+         "alias": "thick"
+        }
+       ]
+      ],
+      "columnWidths": {},
+      "rowHeights": {}
+     }
+    },
+    "plate": {
+     "length": 7.5,
+     "pad_length": 7.5,
+     "volume": 6000.0,
+     "state": [
+      "Up-to-date"
+     ],
+     "expressions": {
+      "length": "Spreadsheet.thick"
+     }
+    }
+   }
+  },
+  {
+   "step": "recompute",
+   "return": 1,
+   "objects": {
+    "Spreadsheet": {
+     "label": "Spreadsheet",
+     "cells": {
+      "A1": {
+       "content": "=3 mm + 1 mm",
+       "type": "Spreadsheet::PropertySpreadsheetQuantity",
+       "value": {
+        "q": 4.0,
+        "unit": [
+         1,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0
+        ],
+        "s": "4.0 mm"
+       },
+       "alias": "thick"
+      }
+     },
+     "column_widths": {},
+     "row_heights": {},
+     "used_range": [
+      "A1",
+      "A1"
+     ],
+     "state": [
+      "Up-to-date"
+     ],
+     "saved": {
+      "cells": [
+       [
+        "A1",
+        {
+         "content": "=3 mm + 1 mm",
+         "alias": "thick"
+        }
+       ]
+      ],
+      "columnWidths": {},
+      "rowHeights": {}
+     }
+    },
+    "plate": {
+     "length": 7.5,
+     "pad_length": 7.5,
+     "volume": 6000.0,
+     "state": [
+      "Up-to-date"
+     ],
+     "expressions": {
+      "length": "Spreadsheet.thick"
+     }
+    }
+   }
+  },
+  {
+   "step": "recompute",
+   "return": 1,
+   "objects": {
+    "Spreadsheet": {
+     "label": "Spreadsheet",
+     "cells": {
+      "A1": {
+       "content": "=2 cm",
+       "type": "Spreadsheet::PropertySpreadsheetQuantity",
+       "value": {
+        "q": 20.0,
+        "unit": [
+         1,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0
+        ],
+        "s": "20.0 mm"
+       },
+       "alias": "thick"
+      }
+     },
+     "column_widths": {},
+     "row_heights": {},
+     "used_range": [
+      "A1",
+      "A1"
+     ],
+     "state": [
+      "Up-to-date"
+     ],
+     "saved": {
+      "cells": [
+       [
+        "A1",
+        {
+         "content": "=2 cm",
+         "alias": "thick"
+        }
+       ]
+      ],
+      "columnWidths": {},
+      "rowHeights": {}
+     }
+    },
+    "plate": {
+     "length": 7.5,
+     "pad_length": 7.5,
+     "volume": 6000.0,
+     "state": [
+      "Up-to-date"
+     ],
+     "expressions": {
+      "length": "Spreadsheet.thick"
+     }
+    }
+   }
+  },
+  {
+   "step": "restore",
+   "return": 0,
+   "objects": {
+    "Spreadsheet": {
+     "label": "Spreadsheet",
+     "cells": {
+      "A1": {
+       "content": "=2 cm",
+       "type": "Spreadsheet::PropertySpreadsheetQuantity",
+       "value": {
+        "q": 20.0,
+        "unit": [
+         1,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0
+        ],
+        "s": "20.0 mm"
+       },
+       "alias": "thick"
+      }
+     },
+     "column_widths": {},
+     "row_heights": {},
+     "used_range": [
+      "A1",
+      "A1"
+     ],
+     "state": [
+      "Up-to-date"
+     ],
+     "saved": {
+      "cells": [
+       [
+        "A1",
+        {
+         "content": "=2 cm",
+         "alias": "thick"
+        }
+       ]
+      ],
+      "columnWidths": {},
+      "rowHeights": {}
+     }
+    },
+    "plate": {
+     "length": 7.5,
+     "pad_length": 7.5,
+     "volume": 6000.0,
+     "state": [
+      "Up-to-date"
+     ],
+     "expressions": {
+      "length": "Spreadsheet.thick"
+     }
+    }
+   }
+  }
+ ],
+ "pad_expression": [
+  {
+   "step": "recompute",
+   "return": 13,
+   "objects": {
+    "Spreadsheet": {
+     "label": "Dims",
+     "cells": {
+      "A1": {
+       "content": "4",
+       "type": "App::PropertyInteger",
+       "value": 4
+      },
+      "A2": {
+       "content": "=A1 * 1.5 mm",
+       "type": "Spreadsheet::PropertySpreadsheetQuantity",
+       "value": {
+        "q": 6.0,
+        "unit": [
+         1,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0
+        ],
+        "s": "6.0 mm"
+       }
+      }
+     },
+     "column_widths": {},
+     "row_heights": {},
+     "used_range": [
+      "A1",
+      "A2"
+     ],
+     "state": [
+      "Up-to-date"
+     ],
+     "saved": {
+      "cells": [
+       [
+        "A1",
+        {
+         "content": "4"
+        }
+       ],
+       [
+        "A2",
+        {
+         "content": "=A1 * 1.5 mm"
+        }
+       ]
+      ],
+      "columnWidths": {},
+      "rowHeights": {}
+     }
+    },
+    "plate": {
+     "length": 7.0,
+     "pad_length": 7.0,
+     "volume": 5600.0,
+     "state": [
+      "Up-to-date"
+     ],
+     "expressions": {
+      "length": "<<Dims>>.A2 + 1 mm"
+     }
+    }
+   }
+  },
+  {
+   "step": "recompute",
+   "return": 4,
+   "objects": {
+    "Spreadsheet": {
+     "label": "Dims",
+     "cells": {
+      "A1": {
+       "content": "10",
+       "type": "App::PropertyInteger",
+       "value": 10
+      },
+      "A2": {
+       "content": "=A1 * 1.5 mm",
+       "type": "Spreadsheet::PropertySpreadsheetQuantity",
+       "value": {
+        "q": 15.0,
+        "unit": [
+         1,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0
+        ],
+        "s": "15.0 mm"
+       }
+      }
+     },
+     "column_widths": {},
+     "row_heights": {},
+     "used_range": [
+      "A1",
+      "A2"
+     ],
+     "state": [
+      "Up-to-date"
+     ],
+     "saved": {
+      "cells": [
+       [
+        "A1",
+        {
+         "content": "10"
+        }
+       ],
+       [
+        "A2",
+        {
+         "content": "=A1 * 1.5 mm"
+        }
+       ]
+      ],
+      "columnWidths": {},
+      "rowHeights": {}
+     }
+    },
+    "plate": {
+     "length": 16.0,
+     "pad_length": 16.0,
+     "volume": 12800.0,
+     "state": [
+      "Up-to-date"
+     ],
+     "expressions": {
+      "length": "<<Dims>>.A2 + 1 mm"
+     }
+    }
+   }
+  }
+ ],
+ "pad_cycle": [
+  {
+   "step": "recompute",
+   "return": 13,
+   "objects": {
+    "Spreadsheet": {
+     "label": "Spreadsheet",
+     "cells": {
+      "A1": {
+       "content": "=2 mm",
+       "type": "Spreadsheet::PropertySpreadsheetQuantity",
+       "value": {
+        "q": 2.0,
+        "unit": [
+         1,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0
+        ],
+        "s": "2.0 mm"
+       }
+      }
+     },
+     "column_widths": {},
+     "row_heights": {},
+     "used_range": [
+      "A1",
+      "A1"
+     ],
+     "state": [
+      "Up-to-date"
+     ],
+     "saved": {
+      "cells": [
+       [
+        "A1",
+        {
+         "content": "=2 mm"
+        }
+       ]
+      ],
+      "columnWidths": {},
+      "rowHeights": {}
+     }
+    },
+    "plate": {
+     "length": 6.0,
+     "pad_length": 6.0,
+     "volume": 4800.0,
+     "state": [
+      "Up-to-date"
+     ],
+     "expressions": {
+      "length": "Spreadsheet.A1 * 3"
+     }
+    }
+   }
+  },
+  {
+   "step": "recompute",
+   "return": 1,
+   "objects": {
+    "Spreadsheet": {
+     "label": "Spreadsheet",
+     "cells": {
+      "A1": {
+       "content": "=2 mm",
+       "type": "Spreadsheet::PropertySpreadsheetQuantity",
+       "value": {
+        "q": 2.0,
+        "unit": [
+         1,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0
+        ],
+        "s": "2.0 mm"
+       }
+      },
+      "A2": {
+       "content": "=plate.length * 2",
+       "type": "Spreadsheet::PropertySpreadsheetQuantity",
+       "value": {
+        "q": 12.0,
+        "unit": [
+         1,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0
+        ],
+        "s": "12.0 mm"
+       }
+      }
+     },
+     "column_widths": {},
+     "row_heights": {},
+     "used_range": [
+      "A1",
+      "A2"
+     ],
+     "state": [
+      "Up-to-date"
+     ],
+     "saved": {
+      "cells": [
+       [
+        "A1",
+        {
+         "content": "=2 mm"
+        }
+       ],
+       [
+        "A2",
+        {
+         "content": "=plate.length * 2"
+        }
+       ]
+      ],
+      "columnWidths": {},
+      "rowHeights": {}
+     }
+    },
+    "plate": {
+     "length": 6.0,
+     "pad_length": 6.0,
+     "volume": 4800.0,
+     "state": [
+      "Up-to-date"
+     ],
+     "expressions": {
+      "length": "Spreadsheet.A1 * 3"
+     }
+    }
+   }
+  },
+  {
+   "step": 6,
+   "error": "RuntimeError",
+   "message": "cyclic reference to T#Spreadsheet.A2"
+  },
+  {
+   "step": "recompute",
+   "return": 0,
+   "objects": {
+    "Spreadsheet": {
+     "label": "Spreadsheet",
+     "cells": {
+      "A1": {
+       "content": "=2 mm",
+       "type": "Spreadsheet::PropertySpreadsheetQuantity",
+       "value": {
+        "q": 2.0,
+        "unit": [
+         1,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0
+        ],
+        "s": "2.0 mm"
+       }
+      },
+      "A2": {
+       "content": "=plate.length * 2",
+       "type": "Spreadsheet::PropertySpreadsheetQuantity",
+       "value": {
+        "q": 12.0,
+        "unit": [
+         1,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0
+        ],
+        "s": "12.0 mm"
+       }
+      }
+     },
+     "column_widths": {},
+     "row_heights": {},
+     "used_range": [
+      "A1",
+      "A2"
+     ],
+     "state": [
+      "Up-to-date"
+     ],
+     "saved": {
+      "cells": [
+       [
+        "A1",
+        {
+         "content": "=2 mm"
+        }
+       ],
+       [
+        "A2",
+        {
+         "content": "=plate.length * 2"
+        }
+       ]
+      ],
+      "columnWidths": {},
+      "rowHeights": {}
+     }
+    },
+    "plate": {
+     "length": 6.0,
+     "pad_length": 6.0,
+     "volume": 4800.0,
+     "state": [
+      "Up-to-date"
+     ],
+     "expressions": {
+      "length": "Spreadsheet.A1 * 3"
+     }
+    }
+   }
+  }
+ ],
+ "csv": [
+  {
+   "step": "recompute",
+   "return": 1,
+   "objects": {
+    "Spreadsheet": {
+     "label": "Spreadsheet",
+     "cells": {
+      "A1": {
+       "content": "'name",
+       "type": "App::PropertyString",
+       "value": "name"
+      },
+      "B1": {
+       "content": "'value",
+       "type": "App::PropertyString",
+       "value": "value"
+      },
+      "A2": {
+       "content": "'a\tb",
+       "type": "App::PropertyString",
+       "value": "a\tb"
+      },
+      "B2": {
+       "content": "1.5",
+       "type": "App::PropertyFloat",
+       "value": 1.5
+      },
+      "A3": {
+       "content": "'say \"hi\"",
+       "type": "App::PropertyString",
+       "value": "say \"hi\""
+      },
+      "B3": {
+       "content": "=2 mm",
+       "type": "Spreadsheet::PropertySpreadsheetQuantity",
+       "value": {
+        "q": 2.0,
+        "unit": [
+         1,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0
+        ],
+        "s": "2.0 mm"
+       }
+      },
+      "C4": {
+       "content": "=1 / 3",
+       "type": "App::PropertyFloat",
+       "value": 0.3333333333333333
+      },
+      "B5": {
+       "content": "12",
+       "type": "App::PropertyInteger",
+       "value": 12
+      }
+     },
+     "column_widths": {},
+     "row_heights": {},
+     "used_range": [
+      "A1",
+      "C5"
+     ],
+     "state": [
+      "Up-to-date"
+     ],
+     "saved": {
+      "cells": [
+       [
+        "A1",
+        {
+         "content": "'name"
+        }
+       ],
+       [
+        "B1",
+        {
+         "content": "'value"
+        }
+       ],
+       [
+        "A2",
+        {
+         "content": "'a\tb"
+        }
+       ],
+       [
+        "B2",
+        {
+         "content": "1.5"
+        }
+       ],
+       [
+        "A3",
+        {
+         "content": "'say \"hi\""
+        }
+       ],
+       [
+        "B3",
+        {
+         "content": "=2 mm"
+        }
+       ],
+       [
+        "C4",
+        {
+         "content": "=1 / 3"
+        }
+       ],
+       [
+        "B5",
+        {
+         "content": "12"
+        }
+       ]
+      ],
+      "columnWidths": {},
+      "rowHeights": {}
+     }
+    }
+   }
+  },
+  {
+   "step": "export",
+   "text": "name\tvalue\n\"a\tb\"\t1.5\nsay \"hi\"\t2\n\t\t0.333333\n\t12\n"
+  },
+  {
+   "step": "import",
+   "ok": true
+  },
+  {
+   "step": "recompute",
+   "return": 1,
+   "objects": {
+    "Spreadsheet": {
+     "label": "Spreadsheet",
+     "cells": {
+      "A1": {
+       "content": "'x",
+       "type": "App::PropertyString",
+       "value": "x"
+      },
+      "B1": {
+       "content": "'y",
+       "type": "App::PropertyString",
+       "value": "y"
+      },
+      "A2": {
+       "content": "1",
+       "type": "App::PropertyInteger",
+       "value": 1
+      },
+      "B2": {
+       "content": "=A2 * 2",
+       "type": "App::PropertyInteger",
+       "value": 2
+      },
+      "A3": {
+       "content": "'q\tr",
+       "type": "App::PropertyString",
+       "value": "q\tr"
+      },
+      "B3": {
+       "content": "=3 mm",
+       "type": "Spreadsheet::PropertySpreadsheetQuantity",
+       "value": {
+        "q": 3.0,
+        "unit": [
+         1,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0
+        ],
+        "s": "3.0 mm"
+       }
+      },
+      "B5": {
+       "content": "'last",
+       "type": "App::PropertyString",
+       "value": "last"
+      }
+     },
+     "column_widths": {},
+     "row_heights": {},
+     "used_range": [
+      "A1",
+      "B5"
+     ],
+     "state": [
+      "Up-to-date"
+     ],
+     "saved": {
+      "cells": [
+       [
+        "A1",
+        {
+         "content": "'x"
+        }
+       ],
+       [
+        "B1",
+        {
+         "content": "'y"
+        }
+       ],
+       [
+        "A2",
+        {
+         "content": "1"
+        }
+       ],
+       [
+        "B2",
+        {
+         "content": "=A2 * 2"
+        }
+       ],
+       [
+        "A3",
+        {
+         "content": "'q\tr"
+        }
+       ],
+       [
+        "B3",
+        {
+         "content": "=3 mm"
+        }
+       ],
+       [
+        "B5",
+        {
+         "content": "'last"
+        }
+       ]
+      ],
+      "columnWidths": {},
+      "rowHeights": {}
+     }
+    }
+   }
+  },
+  {
+   "step": "export",
+   "text": "x\ty\n1\t2\n\"q\tr\"\t3\n\n\tlast\n"
+  }
+ ]
+}
