@@ -37,6 +37,8 @@
                                                                       _2PointCenterLine (TaskCenterLine)
     {"op": "centerline_edit", "view": v, "edge": "Edge7", ...}       TaskCenterLine on a centre line
     {"op": "erase", "view": v, "subs": ["Edge7", "Vertex9"]}         TechDraw_CosmeticEraser
+    {"op": "geomhatch", "view": v, "faces": ["Face0"], "name_pattern"?, "scale_pattern"?, ...}   TechDraw_GeometricHatch
+    {"op": "hatch", "view": v, "faces": ["Face1"], "hatch_pattern"?, "hatch_scale"?, "replace"?: bool}   TechDraw_Hatch
 
 A point is conventional (y up), unscaled, unrotated, about the view's centre, as the task panels show it. An
 "EdgeN" or "VertexN" is the number in the view's geometry, which counts the cosmetic ones after the HLR ones.
@@ -54,7 +56,7 @@ STEP_NAMES = {"cosmetic_vertex": "Add Cosmetic Vertex", "midpoints": "Add midpoi
               "cosmetic_line_edit": "Update Cosmetic Line", "cosmetic_circle": "Create Cosmetic Circle",
               "cosmetic_circle_edit": "Update Cosmetic Circle", "centerline": "Create Centerline",
               "centerline_edit": "Edit Centerline", "erase": "Remove Cosmetic Object", "format": "Edit Line Appearance",
-              "restore_lines": "Restore Invisible Lines"}
+              "restore_lines": "Restore Invisible Lines", "hatch": "Create Hatch", "geomhatch": "Create GeomHatch"}
 OPS = tuple(STEP_NAMES)
 
 
@@ -457,3 +459,61 @@ def _restore_lines(s, E, v, op):
                                  for c in _list(v, "center_lines")]
     _replace(s, E, v, **props)
     return f"made the lines of {v.name} visible"
+
+
+# hatching (CommandDecorate.cpp)
+
+def _faces_of(s, E, v, op):
+    faces = list(op.get("faces") or [])
+    if not faces:
+        raise E.TechDrawEditError("No faces to hatch in this selection")
+    from . import techdraw_cosmetic as C
+    n = len(C.faces_of(_geo(s, E, v), v))
+    for f in faces:
+        if not (isinstance(f, str) and f.startswith("Face") and f[4:].isdigit() and int(f[4:]) < n):
+            raise E.TechDrawEditError(f"{v.name} has no {f} ({n} faces)")
+    return faces
+
+
+HATCH_KEYS = {"hatch": ("hatch_pattern", "hatch_color", "hatch_scale", "hatch_rotation", "hatch_offset"),
+              "geomhatch": ("file_pattern", "name_pattern", "scale_pattern", "pattern_rotation", "pattern_offset", "color_pattern",
+                            "weight_pattern")}
+
+
+def _geomhatch(s, E, v, op):
+    """CmdTechDrawGeometricHatch: a DrawGeomHatch of the faces; TaskGeomHatch's values."""
+    faces = _faces_of(s, E, v, op)
+    n = s.name("GeomHatch", op.get("name"))
+    props = {k: op[k] for k in HATCH_KEYS["geomhatch"] if k in op}
+    try:
+        h = T.DrawGeomHatch(n, source=v.name, faces=faces, **props)
+    except (ValueError, TypeError) as e:
+        raise E.TechDrawEditError(str(e)) from None
+    s.add(h)
+    return f"made {n} on {', '.join(faces)} of {v.name}"
+
+
+def _hatch(s, E, v, op):
+    """CmdTechDrawHatch and TaskHatch::createHatch: a DrawHatch of the faces. Faces another hatch has are an error unless
+    `replace` (the question "Replace hatch?" answered yes: the old hatch loses them, and goes if it has none left)."""
+    faces = _faces_of(s, E, v, op)
+    olds = [o for o in s.objs if isinstance(o, T.DrawHatch) and o.source == v.name and any(f in o.faces for f in faces)]
+    if olds and not op.get("replace"):
+        raise E.TechDrawEditError("Some faces in the selection are already hatched. Replace?")
+    for o in olds:
+        left = [f for f in o.faces if f not in faces]
+        if left:
+            d = T.as_dict(o)
+            d["faces"] = left
+            s.objs[s.objs.index(o)] = E._rebuilt(o, d)
+        else:
+            s.objs.remove(o)
+            s.taken.discard(o.name)          # (the old hatch is gone before the new one is named)
+    n = s.name("Hatch", op.get("name"))
+    props = {k: op[k] for k in HATCH_KEYS["hatch"] if k in op}
+    try:
+        h = T.DrawHatch(n, source=v.name, faces=faces, **props)
+    except (ValueError, TypeError) as e:
+        raise E.TechDrawEditError(str(e)) from None
+    s.add(h)
+    return f"made {n} on {', '.join(faces)} of {v.name}"

@@ -139,7 +139,8 @@ TREE_ICONS = {"DrawPage": "TechDraw_TreePage", "DrawSVGTemplate": "TechDraw_Tree
               "DrawViewPart": "TechDraw_TreeView", "DrawProjGroupItem": "TechDraw_TreeView",
               "DrawProjGroup": "TechDraw_TreeProjGroup", "DrawViewSection": "TechDraw_TreeSection",
               "DrawViewDimension": "TechDraw_Dimension", "DrawViewBalloon": "TechDraw_Balloon",
-              "DrawViewAnnotation": "TechDraw_TreeAnnotation"}
+              "DrawViewAnnotation": "TechDraw_TreeAnnotation", "DrawHatch": "TechDraw_TreeHatch",
+              "DrawGeomHatch": "TechDraw_TreeView"}
 DIM_ICONS = {"Distance": "TechDraw_LengthDimension", "DistanceX": "TechDraw_HorizontalDimension",
              "DistanceY": "TechDraw_VerticalDimension", "Radius": "TechDraw_RadiusDimension",
              "Diameter": "TechDraw_DiameterDimension", "Angle": "TechDraw_AngleDimension",
@@ -161,6 +162,8 @@ def tree(objs) -> list:
             parent = o.view()
         elif isinstance(o, T.DrawViewBalloon):
             parent = o.source_view
+        elif isinstance(o, (T.DrawHatch, T.DrawGeomHatch)):
+            parent = o.source                     # ViewProviderViewPart::claimChildren: its hatches
         elif isinstance(o, T.DrawProjGroupItem) and doc.group_of(o.name) is not None:
             parent = doc.group_of(o.name).name
         if parent in by:
@@ -832,6 +835,8 @@ def _dependents(s: Session, name) -> list:
             out.append(o)
         elif isinstance(o, T.DrawViewBalloon) and o.source_view == name:
             out.append(o)
+        elif isinstance(o, (T.DrawHatch, T.DrawGeomHatch)) and o.source == name:
+            out.append(o)
     return out
 
 
@@ -877,6 +882,8 @@ def _rename(s: Session, name, to) -> str:
         for k in ("template", "anchor", "base_view", "source_view"):
             if d.get(k) == name and k in x.DEFAULTS and (k != "template" or isinstance(x, T.DrawPage)):
                 d[k] = to
+        if isinstance(x, (T.DrawHatch, T.DrawGeomHatch)) and d.get("source") == name:
+            d["source"] = to
         if "views" in d and isinstance(x, T.DrawProjGroup):
             d["views"] = [to if v == name else v for v in d["views"]]
         if "references_2d" in d:

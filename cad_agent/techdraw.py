@@ -145,7 +145,7 @@ def autofill(name: str, title: str, author: str = "", company: str = "", today=N
 # ─── the objects ─────────────────────────────────────────────────────────────────────────────────────────────
 
 VEC = ("direction", "x_direction", "section_normal", "section_origin", "caption_location", "hatch_offset",
-       "area_leader_point")
+       "area_leader_point", "pattern_offset")
 
 
 class TDObject(KW.KwFeature):
@@ -385,8 +385,77 @@ class DrawViewAnnotation(TDObject):
     TRANSACTION = "Create Annotation"
 
 
+class _Hatch(TDObject):
+    """What DrawHatch and DrawGeomHatch share: Source is a view and some of its faces (a PropertyLinkSub), kept here as the
+    view's name and `faces`, ["Face0", ...]; the properties of their view providers (the colour, the scale ...) are held
+    beside the object's, as the property view shows them."""
+    REFS = ("source",)
+
+    def normalize(self, key, v):
+        if key == "source":
+            if v is not None and not isinstance(v, str):
+                raise TechDrawError(f"{self.name}.source: {v!r} is not a view's name")
+            return v
+        if key == "faces":
+            out = tuple(v or ())
+            for f in out:
+                if not (isinstance(f, str) and re.fullmatch(r"Face[0-9]+", f)):
+                    raise TechDrawError(f"{self.name}.faces: {f!r} is not \"Face<n>\"")
+            return out
+        if key in ("hatch_color", "color_pattern"):
+            c = tuple(float(x) for x in v)
+            if len(c) == 3:
+                c += (1.0,)
+            if len(c) != 4:
+                raise TechDrawError(f"{self.name}.{key}: {v!r} is not a colour (r, g, b)")
+            return c
+        return super().normalize(key, v)
+
+    def source_value(self, key, v=None):
+        v = getattr(self, key) if v is None else v
+        if key in ("hatch_color", "color_pattern", "faces"):
+            return list(v)
+        return super().source_value(key, v)
+
+    def affects(self, face: str) -> bool:
+        return face in self.faces
+
+
+class DrawHatch(_Hatch):
+    """TechDraw::DrawHatch: an image (SVG tile) hatch on faces of a view; TaskHatch's HatchColor, HatchScale, HatchRotation
+    and HatchOffset belong to its view provider."""
+    kind = "DrawHatch"
+    TYPE_ID = "TechDraw::DrawHatch"
+    DEFAULTS = {"source": None, "faces": (), "hatch_pattern": "simple.svg", "hatch_color": (0.0, 1.0, 0.0, 1.0),
+                "hatch_scale": 1.0, "hatch_rotation": 0.0, "hatch_offset": (0.0, 0.0, 0.0), "label": None}
+    TRANSACTION = "Create Hatch"
+
+    def validate(self):
+        from .techdraw_hatch import svg_path
+        svg_path(self.hatch_pattern)
+
+
+class DrawGeomHatch(_Hatch):
+    """TechDraw::DrawGeomHatch: a PAT hatch on faces of a view (techdraw_hatch.py); ColorPattern and WeightPattern belong
+    to its view provider."""
+    kind = "DrawGeomHatch"
+    TYPE_ID = "TechDraw::DrawGeomHatch"
+    DEFAULTS = {"source": None, "faces": (), "file_pattern": "FCPAT.pat", "name_pattern": "Diamond", "scale_pattern": 1.0,
+                "pattern_rotation": 0.0, "pattern_offset": (0.0, 0.0, 0.0), "color_pattern": (0.0, 1.0, 0.0, 1.0),
+                "weight_pattern": 0.5, "label": None}
+    TRANSACTION = "Create GeomHatch"
+
+    def validate(self):
+        from .techdraw_hatch import pattern_names, pat_path
+        pat_path(self.file_pattern)
+        if self.name_pattern not in pattern_names(self.file_pattern):
+            raise TechDrawError(f"{self.name_pattern!r} is not a pattern of {self.file_pattern} "
+                                f"({', '.join(pattern_names(self.file_pattern))})")
+
+
 CLASSES = {c.kind: c for c in (DrawPage, DrawSVGTemplate, DrawViewPart, DrawProjGroupItem, DrawProjGroup,
-                               DrawViewSection, DrawViewDimension, DrawViewBalloon, DrawViewAnnotation)}
+                               DrawViewSection, DrawViewDimension, DrawViewBalloon, DrawViewAnnotation, DrawHatch,
+                               DrawGeomHatch)}
 VIEW_KINDS = ("DrawViewPart", "DrawProjGroupItem", "DrawViewSection")
 
 
@@ -648,9 +717,13 @@ class PageDocument:
             line = self.section_line(s)
             if line is not None:
                 sections[s.name] = line
+        hatches = {}
+        if any(isinstance(o, (DrawHatch, DrawGeomHatch)) for o in self.objects):
+            from . import techdraw_hatch as H
+            hatches = H.results(self)
         return {"page": self.page.name if self.page else None, "width": w, "height": h,
                 "template": t.template if t else None, "texts": dict(t.editable_texts) if t else {},
-                "views": views, "dimensions": dims, "sections": sections, "errors": dict(self.errors)}
+                "views": views, "dimensions": dims, "sections": sections, "hatches": hatches, "errors": dict(self.errors)}
 
     def section_line(self, s) -> dict | None:
         """DrawViewSection::sectionLineEnds: the section line on its base view, in the base view's paper
