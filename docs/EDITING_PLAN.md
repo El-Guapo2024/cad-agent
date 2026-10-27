@@ -256,3 +256,99 @@ PAGE = [
   and hidden edges in FreeCAD's order, each dimension's value and text, section faces, the projection group's
   positions, the DXF page), and ui/scripts/techdrawcheck.mjs against ui/scripts/fctechdraw.json (the real GUI's
   TechDraw menu and toolbars, task panels, tree, property view and undo).
+
+## Spreadsheets in a project (decided 2026-10-27, branch spreadsheet)
+
+FreeCAD's Spreadsheet::Sheet is a document object whose cells are its properties (A1, B2 and each alias, Sheet.cpp's
+dynamic properties) and whose ExpressionEngine-like PropertySheet holds each cell's content and look. Here a sheet is one
+file of the project, `spreadsheet/<Name>.py`, holding the Sheet and its used cells in FreeCAD's order (PropertySheet::Save:
+row by row, left to right) under the name `Spreadsheet`, as PAGE holds a TechDraw page:
+
+```python
+"""Spreadsheet: a Spreadsheet::Sheet of the project; the app and `cad sheet ...` edit it (cad_agent/spreadsheet_edit.py)."""
+from cad_agent import spreadsheet as Spreadsheet
+
+SHEET = [
+    Spreadsheet.Sheet("Spreadsheet", label="Params", column_widths={"A": 140}, row_heights={"1": 40}),
+    Spreadsheet.Cell("A1", "'Thickness", style="bold"),
+    Spreadsheet.Cell("B1", "=5 mm", alias="thick", alignment="center|vcenter|vimplied"),
+    Spreadsheet.Cell("B2", "=thick * 2 + 1 mm", display_unit="cm", foreground_color="#ff0000ff"),
+    Spreadsheet.Cell("A3", "12.5", background_color="#ffff00ff", row_span=1, col_span=2),
+]
+```
+
+- A cell's content is what FreeCAD stores (Cell::getStringContent(persistent)): a formula as `=` and the expression as
+  Expression::toString prints it (`=A1*2` is kept as `=A1 * 2`, `=Params.A1` on the sheet Params as `=A1`), a string as
+  `'text`, a number as its NumberExpression (`12,5` is kept as `12.5`, `1e3` as `1000`), a quantity or fraction typed
+  without `=` as a formula (`3 mm` is `=3 mm`, `1/2` is `=1 / 2`), text FreeCAD cannot parse after `=` as the string it
+  keeps (`'=foo(`). What is typed goes through Cell::setContent's rules, so the file holds FreeCAD's text.
+- The look is the `<Cell>` element's attributes of a FreeCAD document, in snake_case and in FreeCAD's encoding: alignment
+  (Cell::encodeAlignment, "left|vcenter|vimplied"), style ("bold|italic|underline", sorted), foreground_color and
+  background_color ("#rrggbbaa", encodeColor), display_unit (the unit's text, "cm"), alias, row_span and col_span (a merged
+  cell's anchor). Column widths and row heights are PropertyColumnWidths/PropertyRowHeights: {"A": 140}, {"3": 40}; the
+  defaults (100 and 30) are left out. Nothing computed is stored: values, units and errors are a recompute.
+- Names: a sheet's Name is unique among the project's sheets and parts (FreeCAD's one document: getUniqueObjectName gives
+  Spreadsheet, Spreadsheet001 ...); its Label defaults to its Name. An alias follows Sheet::setAlias (PropertySheet::
+  isValidAlias: a letter, then letters, digits and `_`; not a cell address, a unit or a constant; unique in the sheet) with
+  FreeCAD's messages ("Invalid alias", "Alias already defined", "... reserved unit token").
+
+### What binds to a cell
+
+A part's PARAMS are the properties of its Body (the document object the part is). An expression bound to one is FreeCAD's
+ExpressionEngine of that object, kept beside PARAMS in the part module:
+
+```python
+PARAMS = {"thick": 5.0, "width": 40.0}
+EXPRESSIONS = {"thick": "Spreadsheet.thick", "width": "<<Params>>.B2 * 4"}   # FreeCAD's ExpressionEngine
+```
+
+- An EXPRESSIONS entry is a FreeCAD expression (cad_agent/fcexpr.py, the port of ui/src/expr.ts, held to the same 75,558
+  FreeCAD answers) evaluated with the part as its owner, as ObjectIdentifier resolves names: a bare name is one of the
+  part's own PARAMS; `Obj.prop` names the object Obj by its Name, else by its Label, `<<Label>>.prop` by Label only, and
+  `Spreadsheet.A1` / `Spreadsheet.thick` is the cell's computed property (by address or alias, absolute `$A$1` too). The
+  result is written to the PARAMS entry in that entry's type, as setting a PropertyFloat from a Quantity takes its value
+  in internal units (mm, degrees): 7.5 mm makes thick 7.5.
+- The literal in PARAMS stays what FreeCAD saves as the property's value (the last recompute's), and `cad set` /
+  params.write refuse a bound entry ("thick is bound to Spreadsheet.thick ..."), as FreeCAD's property editor makes a
+  bound property read only. A FEATURES value keeps naming a PARAMS entry ("thick"), so a Pad's Length follows a cell
+  through the parameter: Pad.Length = thick = Spreadsheet.thick.
+- A cell may read a part's PARAMS the same way (`=plate.thick`, `=<<plate>>.width`): the part's parameters as its
+  EXPRESSIONS leave them, read from its source without running it.
+- The binding is applied wherever a part module is run (state._load_module and feature_edit's loader): the module's PARAMS
+  are the bound values, so every build, gate and drawing sees them. The build cache keys every part on the project's
+  spreadsheet files (they are helper sources to buildcache.key), so an edited cell rebuilds the parts that read it.
+
+### Recompute and dependency errors
+
+- Inside a sheet, Sheet::execute is ported as it is: the dirty cells and those depending on them in a graph built in
+  CellAddress order, boost::topological_sort's order (depth first over the vertices as added, finishing order reversed),
+  each cell's value set as FreeCAD sets its property (PropertyInteger for a whole number, PropertyFloat, a
+  PropertySpreadsheetQuantity for a quantity with a unit, PropertyString, PropertyPythonObject for True, None, a list or a
+  Vector), an evaluation error as the cell's exception and the property "ERR: <message>". A cycle fails the whole sheet
+  ("Pending computation due to cyclic dependency", then each loop's cells "Cyclic dependency\nA1, A2"), and the sheet's
+  recompute says "One or more cells failed contains errors.". Dependencies are PropertySheet::addDependencies' (an alias
+  counts only if it existed when the cell was set, as in FreeCAD).
+- Between objects (sheets and parts) the document's order is the dependency order. A cycle between objects is FreeCAD's
+  "The graph must be a DAG": nothing is recomputed and the binding reports it. Setting an expression that would close a
+  cycle is refused as PropertyExpressionEngine::validateExpression refuses it ("cyclic reference to <slug>#Spreadsheet.A2").
+
+### Edits, the CLI and the page
+
+- cad_agent/spreadsheet.py has the Sheet, Cell and PropertySheet ports (Sheet.cpp, Cell.cpp, PropertySheet.cpp, Range.cpp's
+  CellAddress and Range) and SheetPy's methods by their names (set, setAlias, setStyle(range, value, 'add'), setAlignment
+  (range, value, 'keep'), setForeground, setBackground, clearForeground, setDisplayUnit, mergeCells, splitCell,
+  insertRows, removeColumns ..., setColumnWidth, setRowHeight, clear, importFile, exportFile). An edit is a list of those
+  calls, as FreeCAD's GUI commands send them (Gui::Command::doCommand lines), applied all or nothing by
+  cad_agent/spreadsheet_edit.py; an entry the edit did not change keeps its text.
+- `cad sheet ...` (cad_agent/spreadsheetcmd.py) and /api/<slug>/spreadsheet[/<Sheet>]; each change one undo step named as
+  FreeCAD's transaction ("Create Spreadsheet", "Edit cell", "Set cell properties", "Merge cells", "Set bold text",
+  "Insert Rows", "Clear Cells", "Paste Cell" ...).
+- CSV: Spreadsheet_Import / Spreadsheet_Export as Sheet::importFromFile / exportToFile with the preferences' delimiter,
+  quote and escape characters (tab, `"`, `\`).
+- The page (ui/src/spreadsheet*.tsx): the Spreadsheet workbench, the sheet as an MDI tab (SheetView: the Content and Alias
+  line edits above SheetTableView), its menu and toolbar, the tree, the property view and undo. Charts, Bind, the
+  Configuration Table and xlsx import are cut.
+- Checked like the rest: tests/golden/spreadsheet (freecadcmd: each case's contents, values and property types, the
+  errors, recompute through to a Pad whose Length a cell drives), and ui/scripts/spreadsheetcheck.mjs against
+  ui/scripts/fcspreadsheet.json (the real GUI's menus, toolbars, context menu, Properties dialog, the sheet's display
+  strings, colours and alignment, the tree, the property view and undo).
