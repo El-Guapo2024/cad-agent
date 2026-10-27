@@ -90,6 +90,9 @@ def _load_module(path: Path):
     mod = types.ModuleType(f"_cad_{path.stem}")
     mod.__file__ = str(path)
     exec(compile(path.read_bytes(), str(path), "exec"), mod.__dict__)
+    if mod.__dict__.get("EXPRESSIONS"):            # PARAMS bound to the project's spreadsheets (spreadsheet_doc.bind)
+        from .spreadsheet_doc import bind
+        bind(mod, path)
     return mod
 
 

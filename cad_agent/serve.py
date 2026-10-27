@@ -84,6 +84,8 @@ FEATURES_PATH = re.compile(r"^/api/([A-Za-z0-9_][A-Za-z0-9_-]{0,63})/features(?:
 # /api/<slug>/assembly: the project's Assembly (`cad assembly show` / `cad assembly apply`); .../jcs, a pick's JCS.
 ASSEMBLY_PATH = re.compile(r"^/api/([A-Za-z0-9_][A-Za-z0-9_-]{0,63})/assembly(/jcs)?/?$")
 # /api/<slug>/techdraw[/<page>]: the project's TechDraw pages (`cad techdraw ls|show --svg|apply --svg`).
+# /api/<slug>/spreadsheet[/<sheet>]: the project's spreadsheets (`cad sheet ls|show|apply`).
+SHEET_PATH = re.compile(r"^/api/([A-Za-z0-9_][A-Za-z0-9_-]{0,63})/spreadsheet(?:/([A-Za-z_][A-Za-z0-9_]*))?/?$")
 TECHDRAW_PATH = re.compile(r"^/api/([A-Za-z0-9_][A-Za-z0-9_-]{0,63})/techdraw(?:/([A-Za-z_][A-Za-z0-9_]*))?/?$")
 # POST /api/<slug>/features/<part>/shape: `cad feature shape`, a feature built after ops, nothing written.
 FEATURE_SHAPE_PATH = re.compile(r"^/api/([A-Za-z0-9_][A-Za-z0-9_-]{0,63})/features/([A-Za-z0-9_]+)/shape/?$")
@@ -389,6 +391,27 @@ class Bench:
         r = self.cad(slug, "techdraw", args)
         if r["exit"] in (0, 1, 2) and not r["data"].get("error"):
             self.broadcast({"type": "techdraw", "slug": slug, "page": page})
+        return r
+
+    # ── spreadsheets (`cad sheet`, cad_agent/spreadsheetcmd.py) ──────────────────────────────────────────
+    def sheet_get(self, slug: str, sheet: str | None) -> dict:
+        """GET /api/<slug>/spreadsheet[/<sheet>]: `cad sheet ls`, or one sheet recomputed (show)."""
+        if not sheet:
+            return self.run(self.root_of(slug), ["--actor", "ui", "sheet", "ls", slug])
+        return self.run(self.root_of(slug), ["--actor", "ui", "sheet", "show", slug, sheet])
+
+    def sheet_post(self, slug: str, sheet: str, ops, name=None) -> dict:
+        """POST /api/<slug>/spreadsheet/<sheet> {ops, name?}: `cad sheet apply`, one undo step. A bound part rebuilds,
+        so a full check follows."""
+        self.root_of(slug)
+        if not isinstance(ops, list) or not ops:
+            raise ValueError("ops must be a non-empty list")
+        args = ["--with-text", "sheet", "apply", slug, sheet, "--ops", json.dumps(ops, separators=(",", ":")),
+                *(["--name", str(name)] if name else [])]
+        r = self.cad(slug, "sheet", args)
+        if r["exit"] in (0, 1, 2) and not r["data"].get("error"):
+            self.schedule(slug, "check")
+            self.broadcast({"type": "spreadsheet", "slug": slug, "sheet": sheet})
         return r
 
     # ── the Assembly (`cad assembly`, cad_agent/assemblycmd.py) ──────────────────────────────────────────
@@ -779,6 +802,12 @@ def make_handler(bench: Bench):
                 if path == "/api/macro":
                     name = q.get("name", "")
                     return self._json({"name": name, "text": macro.read_macro(name)})
+                m = SHEET_PATH.match(path)
+                if m:
+                    try:
+                        return self._json(bench.sheet_get(m.group(1), m.group(2)))
+                    except KeyError:
+                        return self._json({"error": f"no project {m.group(1)!r}"}, 404)
                 m = TECHDRAW_PATH.match(path)
                 if m:
                     try:
@@ -925,6 +954,14 @@ def make_handler(bench: Bench):
                 try:
                     return self._json(bench.features_shape(m.group(1), m.group(2), body.get("ops") or [],
                                                            body.get("feature")))
+                except KeyError:
+                    return self._json({"error": f"no project {m.group(1)!r}"}, 404)
+                except (TypeError, ValueError) as e:
+                    return self._json({"error": f"bad request: {e}"}, 400)
+            m = SHEET_PATH.match(path)
+            if m and m.group(2):
+                try:
+                    return self._json(bench.sheet_post(m.group(1), m.group(2), body.get("ops"), body.get("name")))
                 except KeyError:
                     return self._json({"error": f"no project {m.group(1)!r}"}, 404)
                 except (TypeError, ValueError) as e:

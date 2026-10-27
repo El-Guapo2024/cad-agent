@@ -493,24 +493,35 @@ class Document:
         objs, cycle = self.order(strict=False)
         if cycle:
             failed["document"] = "The graph must be a DAG. (" + " -> ".join(cycle) + ")"
-        for o in objs:
-            if isinstance(o, Sheet):
-                msg = o.execute()
-                if msg:
-                    failed[o.name] = msg
-            else:
-                before = dict(o.bound)
-                self._bind_part(o)
-                for k, v in o.bound.items():
-                    if before.get(k) != v:
-                        self.changed(o, k)
-                if o.errors:
-                    failed[o.name] = "; ".join(f"{k}: {v}" for k, v in o.errors.items())
+        # objects that read each other (a cell reading a part's parameter that reads another cell) are run in document
+        # order again until nothing changes: FreeCAD's fine-grained recompute orders their properties
+        for _ in range(3 if cycle else 1):
+            changed = False
+            for o in objs:
+                if isinstance(o, Sheet):
+                    dirty = bool(o.cells.dirty) or bool(o.cell_errors)
+                    msg = o.execute()
+                    changed |= dirty
+                    failed.pop(o.name, None)
+                    if msg:
+                        failed[o.name] = msg
+                else:
+                    before = dict(o.bound)
+                    self._bind_part(o)
+                    for k, v in o.bound.items():
+                        if before.get(k) != v:
+                            self.changed(o, k)
+                            changed = True
+                    failed.pop(o.name, None)
+                    if o.errors:
+                        failed[o.name] = "; ".join(f"{k}: {v}" for k, v in o.errors.items())
+            if not changed:
+                break
         return failed
 
     def _bind_part(self, part: PartObject):
         """PropertyExpressionEngine::execute for a part: each bound parameter set from its expression's value."""
-        part.bound = dict(part.params)
+        part.bound = {**part.params, **{k: v for k, v in part.bound.items() if k in part.expressions}}
         part.errors = {}
         for prop, text in part.expressions.items():
             if prop not in part.params:

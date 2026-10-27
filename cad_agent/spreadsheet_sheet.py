@@ -1637,7 +1637,9 @@ def _has_cycle(verts, edges) -> bool:
 
 # ── what the view shows (SheetModel::data) ───────────────────────────────────────────────────────────────
 
-ALIAS_BG = "#feff9e"            # SheetParameter: AliasedCellBackgroundColor
+# SheetParameter's colours as the "FreeCAD Light" preference pack sets them (the app's theme; FreeCAD's own defaults
+# without a pack are #feff9e and #000000)
+LIGHT = {"alias_bg": "#bac8ff", "text_fg": "#212529", "positive_fg": "#212529", "negative_fg": "#212529"}
 
 
 def _qcolor(c) -> str:
@@ -1650,8 +1652,9 @@ def display(sheet: Sheet, addr: CellAddress, prefs: dict | None = None) -> dict:
     """SheetModel::data for one cell, the roles the table draws: display (DisplayRole), edit (EditRole), tooltip,
     fg / bg (ForegroundRole / BackgroundRole, None when the role gives nothing), align (Qt flags as names),
     font (bold/italic/underline). prefs: decimals, schema (UnitsApi), show_alias (showAliasName), alias_format."""
-    prefs = prefs or {}
+    prefs = {**LIGHT, **(prefs or {})}
     decimals = prefs.get("decimals", 2)
+    ALIAS_BG = prefs["alias_bg"]
     cell = sheet.cells.get(addr)
     empty = cell is None
     if empty:
@@ -1663,7 +1666,7 @@ def display(sheet: Sheet, addr: CellAddress, prefs: dict | None = None) -> dict:
     out["edit"] = s
     if cell.has_exception():
         import html
-        out["tooltip"] = "<pre>" + html.escape(cell.exception, quote=True) + "</pre>"
+        out["tooltip"] = "<pre>" + html.escape(cell.exception, quote=False).replace('"', "&quot;") + "</pre>"   # toHtmlEscaped
         out["display"] = s if s is not None else "#ERR"
         out["fg"] = "#ff0000"
         out["align"] = ["left", "vcenter"]
@@ -1712,16 +1715,14 @@ def display(sheet: Sheet, addr: CellAddress, prefs: dict | None = None) -> dict:
         if cell.expression is not None and s is not None:
             out["display"] = "#PENDING" if s.startswith("=") else s
         out["pending"] = True
-        if empty:
-            out["fg"] = out["align"] = None
         return out
     if prop.kind == "string":
-        out["fg"] = _qcolor(cell.foreground) if fg_set else "#000000"
+        out["fg"] = _qcolor(cell.foreground) if fg_set else prefs["text_fg"]
         out["display"] = fmt(prop.value)
         out["align"] = implied("left")
     elif prop.kind == "quantity":
         q = prop.value
-        out["fg"] = _qcolor(cell.foreground) if fg_set else "#000000"
+        out["fg"] = _qcolor(cell.foreground) if fg_set else prefs["negative_fg" if q.value < 0 else "positive_fg"]
         out["align"] = implied("right")
         if cell.is_used(DISPLAY_UNIT_SET):
             du = cell.display_unit
@@ -1733,7 +1734,7 @@ def display(sheet: Sheet, addr: CellAddress, prefs: dict | None = None) -> dict:
             out["display"] = fmt(X.user_string(q, prefs.get("schema", 0), decimals, prefs.get("denominator", 8))[0])
     elif prop.kind in ("float", "int"):
         d = float(prop.value)
-        out["fg"] = _qcolor(cell.foreground) if fg_set else "#000000"
+        out["fg"] = _qcolor(cell.foreground) if fg_set else prefs["negative_fg" if d < 0 else "positive_fg"]
         out["align"] = implied("right")
         if cell.is_used(DISPLAY_UNIT_SET):
             out["display"] = fmt(_qlocale_fixed(d / cell.display_unit.scaler, decimals) + " " + cell.display_unit.string_rep)
@@ -1742,7 +1743,7 @@ def display(sheet: Sheet, addr: CellAddress, prefs: dict | None = None) -> dict:
         else:
             out["display"] = fmt(str(prop.value))
     else:
-        out["fg"] = _qcolor(cell.foreground) if fg_set else "#000000"
+        out["fg"] = _qcolor(cell.foreground) if fg_set else prefs["text_fg"]
         out["align"] = implied("hcenter")
         out["display"] = fmt(X.py_str(prop.value))
     return out
