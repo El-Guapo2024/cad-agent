@@ -77,11 +77,13 @@ def plain(v):
     return repr(v)
 
 
-def defaults():
-    """{TypeId: {property: value}} of a fresh object of each type, made as the Part commands make it."""
+def defaults(only=None):
+    """{TypeId: {property: value}} of a fresh object of each type, made as the Part commands make it (only: those kinds)."""
     out = {}
     doc = App.newDocument("defaults")
     for kind, cls in sorted(Part.OBJECTS.items()):
+        if only is not None and kind not in only:
+            continue
         try:
             obj = doc.addObject(getattr(cls, "FC_TYPE", cls.TYPE_ID), kind.split(".")[1])
             cls.fc_setup(Part.KwFeature.__new__(cls), obj, None)
@@ -95,13 +97,15 @@ def defaults():
     return out
 
 
-def extension_defaults():
+def extension_defaults(only=None):
     """{TypeId: {property: value}} of AttachExtension on a fresh object of each type: its properties where the type has
     the extension, else those Part::AttachExtensionPython gives it, added as TaskAttachmentEditor.__init__ adds it. The
     Attachment editor of Part_EditAttachment works on any object with a Placement."""
     out = {}
     doc = App.newDocument("extension")
     for kind, cls in sorted(Part.OBJECTS.items()):
+        if only is not None and kind not in only:
+            continue
         try:
             obj = doc.addObject(getattr(cls, "FC_TYPE", cls.TYPE_ID), kind.split(".")[1])
             if not hasattr(obj, "AttacherType"):
@@ -124,6 +128,9 @@ elif AREA == "base":
     out["defaults"] = defaults()
 if AREA == "attach":
     out["extension"] = extension_defaults()
+if AREA == "static":                              # the new types' fresh objects, which the base file does not hold
+    _kinds = {o.kind for c in CASES.values() for o in c["objects"] if hasattr(o, "kind")}
+    out["defaults"], out["extension"] = defaults(_kinds), extension_defaults(_kinds)
 for name, case in CASES.items():
     if only and name != only:
         continue
