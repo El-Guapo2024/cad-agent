@@ -83,6 +83,8 @@ def projectless(argv: list[str]) -> bool:
 FEATURES_PATH = re.compile(r"^/api/([A-Za-z0-9_][A-Za-z0-9_-]{0,63})/features(?:/([A-Za-z0-9_]+))?/?$")
 # /api/<slug>/assembly: the project's Assembly (`cad assembly show` / `cad assembly apply`); .../jcs, a pick's JCS.
 ASSEMBLY_PATH = re.compile(r"^/api/([A-Za-z0-9_][A-Za-z0-9_-]{0,63})/assembly(/jcs)?/?$")
+# /api/<slug>/techdraw[/<page>]: the project's TechDraw pages (`cad techdraw ls|show --svg|apply --svg`).
+TECHDRAW_PATH = re.compile(r"^/api/([A-Za-z0-9_][A-Za-z0-9_-]{0,63})/techdraw(?:/([A-Za-z_][A-Za-z0-9_]*))?/?$")
 # POST /api/<slug>/features/<part>/shape: `cad feature shape`, a feature built after ops, nothing written.
 FEATURE_SHAPE_PATH = re.compile(r"^/api/([A-Za-z0-9_][A-Za-z0-9_-]{0,63})/features/([A-Za-z0-9_]+)/shape/?$")
 
@@ -367,6 +369,27 @@ class Bench:
         return self.run(self.root_of(slug), ["--actor", "ui", "feature", "shape", slug, part,
                                              "--ops", json.dumps(ops, separators=(",", ":")),
                                              *(["--feature", str(feature)] if feature else [])])
+
+    # ── TechDraw pages (`cad techdraw`, cad_agent/techdrawcmd.py) ─────────────────────────────────────────
+    def techdraw_get(self, slug: str, page: str | None) -> dict:
+        """GET /api/<slug>/techdraw[/<page>]: `cad techdraw ls`, or one page recomputed with its SVG (show --svg)."""
+        if not page:
+            return self.run(self.root_of(slug), ["--actor", "ui", "techdraw", "ls", slug])
+        return self.run(self.root_of(slug), ["--actor", "ui", "techdraw", "show", slug, page, "--svg"])
+
+    def techdraw_post(self, slug: str, page: str, ops, name=None, dry_run=False) -> dict:
+        """POST /api/<slug>/techdraw/<page> {ops, name?, dry_run?}: `cad techdraw apply --svg`, one undo step."""
+        self.root_of(slug)
+        if not isinstance(ops, list) or not ops:
+            raise ValueError("ops must be a non-empty list")
+        args = ["--with-text", "techdraw", "apply", slug, page, "--ops", json.dumps(ops, separators=(",", ":")), "--svg",
+                *(["--name", str(name)] if name else []), *(["--dry-run"] if dry_run else [])]
+        if dry_run:
+            return self.run(self.root_of(slug), ["--actor", "ui", *args])
+        r = self.cad(slug, "techdraw", args)
+        if r["exit"] in (0, 1, 2) and not r["data"].get("error"):
+            self.broadcast({"type": "techdraw", "slug": slug, "page": page})
+        return r
 
     # ── the Assembly (`cad assembly`, cad_agent/assemblycmd.py) ──────────────────────────────────────────
     def assembly_get(self, slug: str) -> dict:
@@ -756,6 +779,12 @@ def make_handler(bench: Bench):
                 if path == "/api/macro":
                     name = q.get("name", "")
                     return self._json({"name": name, "text": macro.read_macro(name)})
+                m = TECHDRAW_PATH.match(path)
+                if m:
+                    try:
+                        return self._json(bench.techdraw_get(m.group(1), m.group(2)))
+                    except KeyError:
+                        return self._json({"error": f"no project {m.group(1)!r}"}, 404)
                 m = ASSEMBLY_PATH.match(path)
                 if m and not m.group(2):
                     try:
@@ -896,6 +925,15 @@ def make_handler(bench: Bench):
                 try:
                     return self._json(bench.features_shape(m.group(1), m.group(2), body.get("ops") or [],
                                                            body.get("feature")))
+                except KeyError:
+                    return self._json({"error": f"no project {m.group(1)!r}"}, 404)
+                except (TypeError, ValueError) as e:
+                    return self._json({"error": f"bad request: {e}"}, 400)
+            m = TECHDRAW_PATH.match(path)
+            if m and m.group(2):
+                try:
+                    return self._json(bench.techdraw_post(m.group(1), m.group(2), body.get("ops"), body.get("name"),
+                                                          bool(body.get("dry_run"))))
                 except KeyError:
                     return self._json({"error": f"no project {m.group(1)!r}"}, 404)
                 except (TypeError, ValueError) as e:

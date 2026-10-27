@@ -172,3 +172,48 @@ def test_template(case):
     for k in ("FC-Date",):              # the day each was made
         ours.pop(k, None), theirs.pop(k, None)
     assert ours == theirs
+
+
+def _f(e, code, i=0):
+    return float(e[code][i])
+
+
+def dxf_key(e):
+    """An entity as what it draws, rounded to 1e-3 mm: a line's ends, a circle's centre and radius, an arc's centre,
+    radius and ends, an ellipse's centre and axes, a spline's ends (FreeCAD re-fits a spline; dxf.py writes the edge's
+    own poles, as for the laser DXF)."""
+    def r(v):
+        return round(v, 3) + 0.0
+    t = e["type"]
+    if t == "LINE":
+        return ("LINE",) + tuple(sorted([(r(_f(e, "10")), r(_f(e, "20"))), (r(_f(e, "11")), r(_f(e, "21")))]))
+    if t == "CIRCLE":
+        return ("CIRCLE", r(_f(e, "10")), r(_f(e, "20")), r(_f(e, "40")))
+    if t == "ARC":
+        cx, cy, rad = _f(e, "10"), _f(e, "20"), _f(e, "40")
+        ends = sorted((r(cx + rad * math.cos(math.radians(_f(e, c)))), r(cy + rad * math.sin(math.radians(_f(e, c)))))
+                      for c in ("50", "51"))
+        return ("ARC", r(cx), r(cy), r(rad), *ends)
+    if t == "ELLIPSE":
+        return ("ELLIPSE", r(_f(e, "10")), r(_f(e, "20")), r(math.hypot(_f(e, "11"), _f(e, "21"))), round(_f(e, "40"), 4))
+    if t == "SPLINE":
+        xs, ys = e["10"], e["20"]
+        return ("SPLINE",) + tuple(sorted([(r(float(xs[0])), r(float(ys[0]))), (r(float(xs[-1])), r(float(ys[-1])))]))
+    return (t,)
+
+
+@pytest.mark.parametrize("case", sorted(CASES))
+def test_page_dxf_views(case):
+    """TechDraw.writeDXFPage's view layers: the same entities, view by view, at the same places on the page."""
+    from collections import Counter
+    from cad_agent.techdraw_export import page_dxf
+    ours = dxf_entities(page_dxf(doc(case)).decode())
+    theirs = dxf_entities(FREECAD[case]["dxf"])
+    views = {n for n, r in FREECAD[case]["views"].items() if "edges" in r}
+    for v in sorted(views):
+        a = Counter(dxf_key(e) for e in ours if e["8"][0] == v and e["type"] != "TEXT")
+        b = Counter(dxf_key(e) for e in theirs if e["8"][0] == v)
+        assert a == b, f"{v}: ours not FreeCAD's {sorted((a - b).elements())[:4]}; FreeCAD's not ours {sorted((b - a).elements())[:4]}"
+    ta = sorted(e["1"][0] for e in ours if e["type"] == "TEXT" and e["8"][0].startswith("Annotation"))
+    tb = sorted(e["1"][0] for e in theirs if e["type"] == "TEXT")
+    assert ta == tb

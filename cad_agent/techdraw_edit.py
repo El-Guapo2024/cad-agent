@@ -4,11 +4,15 @@
 # licence, the GNU Lesser General Public License, version 2.1 or (at your option) any later version; the text is in
 # ../ui/LICENSE.
 #
-#   Derived from: src/Mod/TechDraw/Gui/Command.cpp, CommandCreateDims.cpp, CommandAnnotate.cpp, TaskProjGroup.cpp,
-#                 TaskSectionView.cpp, QGVPage.cpp (balloon placing), and src/Mod/TechDraw/App/DrawPage.cpp
-#                 (addView), DrawProjGroup.cpp (addProjection, removeProjection), DrawViewPart.cpp
-#                 (localVectorToCS) (Copyright (c) 2007 Jürgen Riegel, 2012 Luke Parry, 2014 Joe Dowsett,
-#                 2016-2023 WandererFan)
+#   Derived from: src/Mod/TechDraw/Gui/Command.cpp (Copyright (c) 2002 Jürgen Riegel, 2014 Luke Parry),
+#                 src/Mod/TechDraw/Gui/CommandCreateDims.cpp (Copyright (c) 2014 Luke Parry, 2022 WandererFan),
+#                 src/Mod/TechDraw/Gui/CommandAnnotate.cpp (Copyright (c) 2019 WandererFan),
+#                 src/Mod/TechDraw/Gui/TaskProjGroup.cpp (Copyright (c) 2014 Joe Dowsett, 2014 Luke Parry),
+#                 src/Mod/TechDraw/Gui/TaskSectionView.cpp (Copyright (c) 2016 WandererFan),
+#                 src/Mod/TechDraw/Gui/QGVPage.cpp (Copyright (c) 2013 Luke Parry),
+#                 src/Mod/TechDraw/App/DrawPage.cpp (Copyright (c) 2002 Jürgen Riegel),
+#                 src/Mod/TechDraw/App/DrawProjGroup.cpp (Copyright (c) 2014 Joe Dowsett),
+#                 src/Mod/TechDraw/App/DrawViewPart.cpp (Copyright (c) 2002 Jürgen Riegel, 2013 Luke Parry, 2016 WandererFan)
 #                 FreeCAD (https://github.com/FreeCAD/FreeCAD), commit 3160daf1e2b62b0472854da4848255c6b3ad554c
 #
 #   This library is free software; you can redistribute it and/or modify it under the terms of the GNU Library
@@ -220,14 +224,27 @@ def shape_loader(slug: str):
     return shape_of
 
 
-def recomputed(pdir, page: str, objs=None) -> dict:
-    """read() and the page recomputed (techdraw.PageDocument.result())."""
+def recomputed(pdir, page: str, objs=None, svg: bool = False) -> dict:
+    """read() and the page recomputed (techdraw.PageDocument.result()); with svg the page drawn
+    (techdraw_export.page_svg), which the workbench shows."""
     pdir = Path(pdir)
     out = read(pdir, page) if objs is None else read_src_objs(objs, page, pdir.name)
     objs = objs if objs is not None else objects_of(page_file(pdir, page).read_text())
     doc = T.PageDocument(objs, shape_loader(pdir.name), pdir.name).recompute()
     out["result"] = doc.result()
+    if svg:
+        from .techdraw_export import page_svg
+        out["svg"] = page_svg(doc, interactive=True)
     return out
+
+
+def page_document(pdir, page: str):
+    """The page's techdraw.PageDocument, recomputed."""
+    pdir = Path(pdir)
+    objs = objects_of(page_file(pdir, page).read_text()) if page_file(pdir, page).exists() else None
+    if objs is None:
+        raise TechDrawEditError(f"there is no page {page!r} (techdraw/{page}.py)")
+    return T.PageDocument(objs, shape_loader(pdir.name), pdir.name).recompute()
 
 
 def read_src_objs(objs, page, slug):
@@ -508,10 +525,25 @@ def run_ops(s: Session, ops) -> list:
                 if t != "Front":
                     done.append(_projection(s, s.get(g, T.DrawProjGroup), t, True))
         elif kind == "projection":
-            g = s.get(op.get("group"), T.DrawProjGroup, "projection group")
-            done.append(_projection(s, g, op.get("type"), op.get("on", True)))
+            o = s.get(op.get("group"))
+            if isinstance(o, T.DrawProjGroupItem) and s.doc().group_of(o.name) is None:
+                if not op.get("on", True) or op.get("type") == "Front":
+                    done.append(f"{o.name} has no {op.get('type')}")
+                    continue
+                o = _view_to_group(s, o)          # TaskProjGroup::turnViewToProjGroup, on the first box ticked
+                done.append(f"made {o.name} of {o.views[0]}")
+            if not isinstance(o, T.DrawProjGroup):
+                raise TechDrawEditError(f"there is no projection group {op.get('group')!r} on {s.page}")
+            done.append(_projection(s, o, op.get("type"), op.get("on", True)))
+            g = s.get(o.name)
+            if len(g.views) == 1 and not op.get("on", True):
+                done.append(_group_to_view(s, g))  # turnProjGroupToView: only the Front is left
+        elif kind == "rotate":
+            done.append(_rotate(s, s.get(op.get("name")), op.get("motion")))
         elif kind == "section":
             done.append(_section(s, op))
+        elif kind == "section_edit":
+            done.append(_section_edit(s, op))
         elif kind == "dimension":
             done.append(_dimension(s, op))
         elif kind == "balloon":
@@ -619,6 +651,76 @@ def _projection(s: Session, g, t, on: bool) -> str:
     return f"removed {n} ({t}) from {g.name}"
 
 
+def _view_to_group(s: Session, v) -> T.DrawProjGroup:
+    """TaskProjGroup::turnViewToProjGroup: a group at the view's place, scale and scale type, with the view as its
+    anchor: labelled Front, at the group's origin, ScaleType Custom, its position locked."""
+    g = s.name("ProjGroup")
+    grp = T.DrawProjGroup(g, source=v.source, views=(v.name,), anchor=v.name, x=v.x, y=v.y, scale=v.scale,
+                          scale_type=v.scale_type, projection_type="First angle")   # Preferences::projectionAngle()
+    d = T.as_dict(v)
+    d.update(x=0.0, y=0.0, scale_type="Custom", label="Front", lock_position=True, source=[])
+    i = s.objs.index(v)
+    s.objs[i] = _rebuilt(v, d)
+    s.objs.insert(i, grp)
+    return grp
+
+
+def _group_to_view(s: Session, g) -> str:
+    """TaskProjGroup::turnProjGroupToView: the anchor back on the page at the group's place, the group deleted."""
+    a = s.get(g.anchor, T.DrawProjGroupItem)
+    d = T.as_dict(a)
+    d.update(x=g.x, y=g.y, scale=g.scale, scale_type=g.scale_type, label="View", lock_position=False,
+             source=list(g.source))
+    i = s.objs.index(g)
+    s.objs[s.objs.index(a)] = _rebuilt(a, d)
+    s.objs.pop(i)
+    return f"{a.name} is a view again"
+
+
+ROTATIONS = {"Right": "Left", "Left": "Right", "Up": "Bottom", "Down": "Top"}     # DrawViewPart::rotate
+
+
+def _rotate(s: Session, o, motion) -> str:
+    """TaskProjGroup::rotateButtonClicked: DrawViewPart::rotate / spin, or the group's anchor turned and
+    updateSecondaryDirs; Front puts the view back to (0, -1, 0)."""
+    from .techdraw_view import dirs_from_front
+    group = o if isinstance(o, T.DrawProjGroup) else None
+    view = s.get(group.anchor, T.DrawProjGroupItem) if group else o
+    if not isinstance(view, T.DrawViewPart):
+        raise TechDrawEditError(f"{o.name} is not a view or a projection group")
+    if motion in ROTATIONS:
+        d, x = dirs_from_front(view.direction, view.x_direction, ROTATIONS[motion])
+    elif motion in ("CW", "CCW"):
+        d = view.direction
+        x = _vec_rotate(view.x_direction, math.pi / 2.0 if motion == "CW" else -math.pi / 2.0, d)
+    elif motion == "Front":
+        d, x = (0.0, -1.0, 0.0), (1.0, 0.0, 0.0)
+    else:
+        raise TechDrawEditError(f"{motion!r} is not a rotation (Up, Down, Left, Right, CW, CCW, Front)")
+    vd = T.as_dict(view)
+    vd.update(direction=list(d), x_direction=list(x))
+    s.objs[s.objs.index(view)] = _rebuilt(view, vd)
+    if group is not None:                   # DrawProjGroup::updateSecondaryDirs
+        for n in group.views:
+            it = s.get(n)
+            if it.name == view.name:
+                continue
+            nd, nx = dirs_from_front(d, x, it.type)
+            itd = T.as_dict(it)
+            itd.update(direction=list(nd), x_direction=list(nx))
+            s.objs[s.objs.index(it)] = _rebuilt(it, itd)
+    return f"turned {o.name} {motion}"
+
+
+def _vec_rotate(v, angle, axis):
+    """DrawUtil::vecRotate about an axis through the origin (Base::Matrix4D::rotLine)."""
+    from OCP.gp import gp_Ax1, gp_Dir, gp_Pnt, gp_Trsf, gp_Vec
+    t = gp_Trsf()
+    t.SetRotation(gp_Ax1(gp_Pnt(0, 0, 0), gp_Dir(*axis)), angle)
+    r = gp_Vec(*v).Transformed(t)
+    return (r.X(), r.Y(), r.Z())
+
+
 def _section(s: Session, op) -> str:
     """TaskSectionView: createSectionView with the arrow's view direction (setCSFromBase(localUnit * -1)), the
     Rotation that turns it upright (requiredRotation of the compass angle), OK."""
@@ -647,6 +749,29 @@ def _section(s: Session, op) -> str:
                             rotation=required_rotation(angle), x=cx, y=cy, label=label,
                             caption="SECTION <REF> - <REF>"))
     return f"made {n} of {base.name}"
+
+
+def _section_edit(s: Session, op) -> str:
+    """TaskSectionView in edit (updateSectionView, "Edit Section View"): a new arrow, origin, symbol or scale."""
+    sec = s.get(op.get("name"), T.DrawViewSection, "section view")
+    base = s.get(sec.base_view, T.DrawViewPart, "view")
+    d = T.as_dict(sec)
+    if op.get("direction"):
+        if op["direction"] not in SECTION_ARROWS:
+            raise TechDrawEditError(f"{op['direction']!r} is not a section direction (Up, Down, Left, Right)")
+        local, angle = SECTION_ARROWS[op["direction"]]
+        normal, xdir = local_vector_to_cs(base.direction, base.x_direction, tuple(-c for c in local))
+        d.update(section_normal=list(normal), direction=list(normal), x_direction=list(xdir),
+                 rotation=required_rotation(angle))
+    if op.get("origin") is not None:
+        d["section_origin"] = list(_vec(op["origin"], "origin", (0.0, 0.0, 0.0)))
+    if "symbol" in op:
+        d["section_symbol"] = op["symbol"]
+    for k in ("scale", "scale_type"):
+        if k in op:
+            d[k] = op[k]
+    s.objs[s.objs.index(sec)] = _rebuilt(sec, d)
+    return f"edited {sec.name}"
 
 
 DIM_REF_KINDS = {"Distance": ("oneEdge", "twoEdge", "twoVertex", "vertexEdge"),
@@ -679,11 +804,14 @@ def _dimension(s: Session, op) -> str:
         if geo is None:
             raise TechDrawEditError(f"{v.name} has no geometry: {doc.errors.get(v.name, 'nothing to draw')}")
         if t.startswith("Angle"):
-            m = D.measure(dim, geo)
-            mid = ((m["first"][0] + m["second"][0]) / 2, (m["first"][1] + m["second"][1]) / 2)
+            D.measure(dim, geo)                 # a bad selection fails here, as dimMaker's recompute would
+            mid = (0.0, 0.0)                    # positionDimText reads getLinearPoints, which an angle leaves at 0, 0
         else:
-            p0, p1 = D.linear_points(dim, geo)
-            mid = ((p0[0] + p1[0]) / 2, (p0[1] + p1[1]) / 2)
+            try:
+                p0, p1 = D.linear_points(dim, geo)
+                mid = ((p0[0] + p1[0]) / 2, (p0[1] + p1[1]) / 2)
+            except D.DimensionError:            # its recompute fails: getLinearPoints is still 0, 0 (it is made all the same)
+                mid = (0.0, 0.0)
         dim = T.DrawViewDimension(n, type=t, references_2d=refs, measure_type="Projected", x=mid[0],
                                   y=-mid[1] + 0.5 * D.DIM_FONT_SIZE)
     s.add(dim)
@@ -751,7 +879,7 @@ def _rename(s: Session, name, to) -> str:
     return f"renamed {name} to {to}"
 
 
-def apply(pdir, page: str, ops, write: bool = True, recompute: bool = True) -> dict:
+def apply(pdir, page: str, ops, write: bool = True, recompute: bool = True, svg: bool = False) -> dict:
     """The ops on techdraw/<page>.py, all or nothing; returns read() (and the recompute) of the result."""
     from . import state
     pdir = Path(pdir)
@@ -774,7 +902,11 @@ def apply(pdir, page: str, ops, write: bool = True, recompute: bool = True) -> d
         path.parent.mkdir(exist_ok=True)
         state.write_atomic(path, new)
     out = read_src_objs(s.objs, page, pdir.name)
-    if recompute:
-        out["result"] = T.PageDocument(s.objs, shape_loader(pdir.name), pdir.name).recompute().result()
+    if recompute or svg:
+        doc = T.PageDocument(s.objs, shape_loader(pdir.name), pdir.name).recompute()
+        out["result"] = doc.result()
+        if svg:
+            from .techdraw_export import page_svg
+            out["svg"] = page_svg(doc, interactive=True)
     out["done"] = done
     return out

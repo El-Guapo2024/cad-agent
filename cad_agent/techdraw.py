@@ -3,11 +3,19 @@
 # This file is not MIT. It re-expresses FreeCAD's TechDraw document objects and keeps FreeCAD's licence, the GNU Lesser
 # General Public License, version 2.1 or (at your option) any later version; the text is in ../ui/LICENSE.
 #
-#   Derived from: src/Mod/TechDraw/App/DrawPage.cpp, DrawSVGTemplate.cpp, DrawTemplate.cpp, DrawView.cpp,
-#                 DrawViewPart.cpp, DrawProjGroup.cpp, DrawProjGroupItem.cpp, DrawViewSection.cpp,
-#                 DrawViewDimension.cpp, DrawViewBalloon.cpp, DrawViewAnnotation.cpp, DrawUtil.cpp (sensibleScale),
-#                 Preferences.cpp (Copyright (c) 2007 Jürgen Riegel, 2012 Luke Parry, 2014 Joe Dowsett,
-#                 2016-2023 WandererFan, 2019 Franck Jullien)
+#   Derived from: src/Mod/TechDraw/App/DrawPage.cpp (Copyright (c) 2002 Jürgen Riegel),
+#                 src/Mod/TechDraw/App/DrawSVGTemplate.cpp (Copyright (c) 2002 Jürgen Riegel, 2014 Luke Parry),
+#                 src/Mod/TechDraw/App/DrawTemplate.cpp (Copyright (c) 2014 Luke Parry),
+#                 src/Mod/TechDraw/App/DrawView.cpp (Copyright (c) 2002 Jürgen Riegel),
+#                 src/Mod/TechDraw/App/DrawViewPart.cpp (Copyright (c) 2002 Jürgen Riegel, 2013 Luke Parry, 2016 WandererFan),
+#                 src/Mod/TechDraw/App/DrawProjGroup.cpp (Copyright (c) 2014 Joe Dowsett),
+#                 src/Mod/TechDraw/App/DrawProjGroupItem.cpp (Copyright (c) 2014 Luke Parry),
+#                 src/Mod/TechDraw/App/DrawViewSection.cpp (Copyright (c) 2002 Jürgen Riegel, 2013 Luke Parry),
+#                 src/Mod/TechDraw/App/DrawViewDimension.cpp (Copyright (c) 2013 Luke Parry),
+#                 src/Mod/TechDraw/App/DrawViewBalloon.cpp (Copyright (c) 2013 Luke Parry),
+#                 src/Mod/TechDraw/App/DrawViewAnnotation.cpp (Copyright (c) 2012 Yorik van Havre, 2013 Luke Parry),
+#                 src/Mod/TechDraw/App/DrawUtil.cpp (Copyright (c) 2015 WandererFan),
+#                 src/Mod/TechDraw/App/Preferences.cpp (Copyright (c) 2020 WandererFan)
 #                 FreeCAD (https://github.com/FreeCAD/FreeCAD), commit 3160daf1e2b62b0472854da4848255c6b3ad554c
 #
 #   This library is free software; you can redistribute it and/or modify it under the terms of the GNU Library
@@ -501,6 +509,7 @@ class PageDocument:
     def recompute(self):
         from . import techdraw_view as V
         self.geo, self.pos, self.scales, self.dims, self.errors = {}, {}, {}, {}, {}
+        self._result = None
         w, h = self.page_size()
         order = [o for o in self.objects if isinstance(o, DrawViewPart) and not isinstance(o, DrawViewSection)]
         order += [o for o in self.objects if isinstance(o, DrawViewSection)]
@@ -602,6 +611,11 @@ class PageDocument:
 
     # ── what the page, the CLI and the goldens read ──
     def result(self) -> dict:
+        if getattr(self, "_result", None) is None:
+            self._result = self._make_result()
+        return self._result
+
+    def _make_result(self) -> dict:
         from .techdraw_view import geometry_json
         w, h = self.page_size()
         t = self.template

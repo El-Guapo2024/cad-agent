@@ -99,6 +99,7 @@ def _lines(doc: dict) -> list[str]:
 
 
 def apply_ops(a, page: str, ops: list, cmd: str, step: str | None = None) -> Result:
+    svg = bool(getattr(a, "svg", False))
     from . import techdraw_edit as E
     if not isinstance(ops, list) or not ops or not all(isinstance(o, dict) and o.get("op") for o in ops):
         raise UsageError('ops is a list of {"op": "view"|"projgroup"|"section"|"dimension"|"set"|..., ...}')
@@ -109,7 +110,7 @@ def apply_ops(a, page: str, ops: list, cmd: str, step: str | None = None) -> Res
         raise UsageError(str(e)) from None
     before = path.read_text() if path.exists() else None
     try:
-        doc = E.apply(pdir, page, ops)
+        doc = E.apply(pdir, page, ops, svg=svg)
     except (ValueError, KeyError) as e:
         raise UsageError(str(e)) from None
     except Exception as e:
@@ -156,7 +157,7 @@ def cmd_show(a) -> Result:
     from . import techdraw_edit as E
     pdir = project(a.slug)
     try:
-        doc = E.recomputed(pdir, a.page) if not a.no_recompute else E.read(pdir, a.page)
+        doc = E.recomputed(pdir, a.page, svg=a.svg) if not a.no_recompute else E.read(pdir, a.page)
     except E.TechDrawEditError as e:
         raise UsageError(str(e)) from None
     except Exception as e:
@@ -277,7 +278,7 @@ def cmd_apply(a) -> Result:
     if a.dry_run:
         from . import techdraw_edit as E
         try:
-            doc = E.apply(project(a.slug), a.page, ops, write=False)
+            doc = E.apply(project(a.slug), a.page, ops, write=False, svg=a.svg)
         except (ValueError, KeyError) as e:
             raise UsageError(str(e)) from None
         return Result(OK, {"project": a.slug, "page": a.page, "doc": doc, "dry_run": True}, "\n".join(_lines(doc)),
@@ -310,7 +311,7 @@ def cmd_export(a) -> Result:
     if bad or not fmts:
         raise UsageError(f"--format takes svg, dxf and pdf, got {a.format!r}")
     try:
-        doc = E.recomputed(pdir, a.page)
+        doc = E.page_document(pdir, a.page)
     except E.TechDrawEditError as e:
         raise UsageError(str(e)) from None
     out = Path(a.out).expanduser() if a.out else pdir / "out" / "techdraw"
@@ -347,6 +348,7 @@ def add_parsers(add, sub) -> None:
     one("ls", cmd_ls, "the project's pages", page=False)
     sp = one("show", cmd_show, "the page's tree, each view's edges and each dimension's text (a recompute)")
     sp.add_argument("--no-recompute", action="store_true", help="the objects only")
+    sp.add_argument("--svg", action="store_true", help="the page drawn, as data.svg (what the workbench shows)")
     sp = one("new", cmd_new, "TechDraw_PageDefault: a page with the default template (or --template)", page=False)
     sp.add_argument("--page", help="the page's Name (default Page, Page001, ...)")
     sp.add_argument("--template", help="Default_Template_A4_Landscape.svg, ISO/A4_Landscape_TD.svg, "
@@ -393,6 +395,7 @@ def add_parsers(add, sub) -> None:
     sp.add_argument("--ops", required=True, metavar="JSON")
     sp.add_argument("--name", help="the undo step's name (default: FreeCAD's transaction's)")
     sp.add_argument("--dry-run", action="store_true", help="the result, nothing written")
+    sp.add_argument("--svg", action="store_true", help="the page drawn after the ops, as data.doc.svg")
     sp = one("export", cmd_export, "TechDraw_ExportPageSVG / _ExportPageDXF / _ExportPagePDF: out/techdraw/<Page>.*")
     sp.add_argument("--format", default="svg,dxf,pdf")
     sp.add_argument("--out", metavar="DIR")

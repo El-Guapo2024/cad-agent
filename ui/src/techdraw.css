@@ -1,0 +1,21 @@
+/* SPDX-License-Identifier: LGPL-2.1-or-later */
+/* TechDraw's MDIViewPage (techdraw.tsx): QGVPage's grey scene, the page on it, QGIEdge's selection and preselection colours
+   (Preferences > Selection, as the 3D view's), the cross while a balloon waits for its click. */
+.td-page { display: flex; flex-direction: column; width: 100%; height: 100%; background: #d3d3d3; }
+.td-page.empty { align-items: center; justify-content: center; color: #555; }
+.td-scene { position: relative; flex: 1; overflow: hidden; cursor: default; touch-action: none; outline: none; }
+.td-scene.placing { cursor: crosshair; }
+.td-sheet { position: absolute; left: 0; top: 0; transform-origin: 0 0; }
+.td-svg { background: #fff; box-shadow: 0 1px 6px rgba(0, 0, 0, 0.35); line-height: 0; }
+.td-svg svg { display: block; }
+.td-svg text { font-family: osifont, 'DejaVu Sans', 'Helvetica', sans-serif; user-select: none; }
+.td-svg [data-sub], .td-svg [data-dim], .td-svg [data-name] { cursor: pointer; }
+.td-svg .td-pre { stroke: #0ac8ff; }
+.td-svg text.td-pre { fill: #0ac8ff; }
+.td-svg .td-sel { stroke: #00abff; }
+.td-svg text.td-sel { fill: #00abff; }
+.td-svg path.td-face.td-sel, .td-svg path.td-face.td-pre { stroke: none; }
+.qf-btn.on { outline: 2px solid #00abff; }
+.td-svg .td-frame { fill: transparent; pointer-events: all; }
+.td-svg.noframes .td-frame { stroke: none; }
+.td-svg .td-frame.td-sel, .td-svg .td-frame.td-pre { stroke-dasharray: none; }

@@ -26,6 +26,8 @@ import { BinderTask } from './pd_binder'
 import { PdxTask } from './pd_transform'
 import { ExtrudeTask, FeatureProps, featureTreeEntries, isBodyDoc, PdBodyRows, refOf, toggleActiveBody, type TreeCtx } from './partdesign'
 import { isObjectRef, isPartDoc, PartDocRows, PartObjectProps, partTreeEntries } from './part_wb'
+import { TechDrawProps, TechDrawRows, useTd } from './techdraw'
+import { TechDrawTask } from './techdraw_tasks'
 import { PartTask } from './part_tasks'
 import { HoleTask, RevolveTask } from './pd_revolve'
 import { SweepTask } from './pd_sweep'
@@ -394,6 +396,8 @@ function ModelTree() {
         if (pdoc) return <PartDocRows key={b.name} ctx={pdCtx} part={pdoc} row={row} bodyRows={(depth) => <PdBodyRows ctx={pdCtx} part={pdoc} body={b} bodyRow={(tw) => bodyRowOf(pdoc, depth, tw)} />} />
         return pd ? <PdBodyRows key={b.name} ctx={pdCtx} part={pd} body={b} bodyRow={row} /> : row(null)
       })}
+      {/* the project's TechDraw pages (techdraw.tsx): each page with its template, views, dimensions, balloons, annotations */}
+      {open && <TechDrawRows iconSize={iconSize} />}
       {/* A Body the scene does not draw (nothing built yet, or not in assembly.py): its own row, as FreeCAD lists every Body */}
       {open && Object.keys(features).filter((p) => isPartDoc(features[p]) && !scene?.bodies.some((b) => b.part === p)).map((p) => (
         <PartDocRows key={'pt:' + p} ctx={pdCtx} part={p} bodyRows={(depth) => <PdBodyRows ctx={pdCtx} part={p} body={undefined} bodyRow={(tw) => bodyRowOf(p, depth, tw)} />} row={(twisty) => (
@@ -465,6 +469,7 @@ function PropertyView() {
   const lastFeat = useStore((s) => s.featSel[s.featSel.length - 1])
   const feat = lastFeat && (!lastFeat.endsWith('/') || !b) ? lastFeat : null
   const asmProp = useStore((s) => s.asmSel[s.asmSel.length - 1] ?? null)
+  const tdProp = useTd((s) => s.sel.some((r) => !r.includes('.')))
   // Auto Expand / Auto Collapse: a new object opens with everything expanded or collapsed.
   useEffect(() => { if (mode !== 'default') setExpand((e) => ({ gen: e.gen + 1, open: mode === 'auto-expand' })) }, [b?.name, mode])
   const bump = (open: boolean | null) => setExpand((e) => ({ gen: e.gen + 1, open }))
@@ -490,6 +495,7 @@ function PropertyView() {
         <PropExpand.Provider value={expand}>
           {/* a Body's feature, sketch or Origin row (partdesign.tsx); the Body's own row shows its part's properties */}
           {asmProp && tab === 'data' && <AssemblyProps key={asmProp} name={asmProp} />}
+          {tdProp && tab === 'data' && <TechDrawProps />}
           {feat && isObjectRef(getState(), feat) && (tab === 'data' ? <PartObjectProps key={feat} refKey={feat} /> : <Row k="Visibility" v="Space toggles it (the part file's visibility=)" />)}
           {feat && !isObjectRef(getState(), feat) && (tab === 'data' ? <FeatureProps key={feat} refKey={feat} /> : <Row k="Visibility" v="the Body shows its Tip" />)}
           {!feat && b && (tab === 'data' ? <DataProps key={b.name + scene!.source_hash} b={b} />
@@ -912,6 +918,7 @@ function TaskContent() {
   if (task?.kind === 'pad' || task?.kind === 'pocket') return <ExtrudeTask key={`${task.kind}:${task.body}:${task.other}`} kind={task.kind} part={task.body} name={task.other ?? ''} edit={!!task.edit} />
   if (task?.kind === 'revolution' || task?.kind === 'groove') return <RevolveTask key={`${task.kind}:${task.body}:${task.other}`} kind={task.kind} part={task.body} name={task.other ?? ''} edit={!!task.edit} />
   if (task?.kind === 'part') return <PartTask part={task.body} other={task.other ?? ''} />   // the Part workbench's (part_tasks.tsx)
+  if (task?.kind === 'techdraw') return <TechDrawTask page={task.body} other={task.other ?? ''} />   // TechDraw's panels (techdraw_tasks.tsx)
   if (task?.kind === 'assembly') return <AssemblyTask body={task.body} other={task.other ?? ''} />   // the Assembly workbench's (assembly_wb.tsx)
   if (task?.kind === 'pdSweep') return <SweepTask key={`sweep:${task.body}:${task.other}`} part={task.body} other={task.other ?? ''} edit={!!task.edit} />
   if (task?.kind === 'hole') return <HoleTask key={`hole:${task.body}:${task.other}`} part={task.body} name={task.other ?? ''} edit={!!task.edit} />

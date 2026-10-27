@@ -3,15 +3,16 @@
 # This file is not MIT. It re-expresses FreeCAD's TechDraw view geometry and keeps FreeCAD's licence, the GNU Lesser
 # General Public License, version 2.1 or (at your option) any later version; the text is in ../ui/LICENSE.
 #
-#   Derived from: src/Mod/TechDraw/App/DrawViewPart.cpp (Copyright (c) 2007 Jürgen Riegel, 2012 Luke Parry, WandererFan),
+#   Derived from: src/Mod/TechDraw/App/DrawViewPart.cpp (Copyright (c) 2002 Jürgen Riegel, 2013 Luke Parry, 2016 WandererFan),
 #                 src/Mod/TechDraw/App/GeometryObject.cpp (Copyright (c) 2013 Luke Parry),
-#                 src/Mod/TechDraw/App/ShapeUtils.cpp (Copyright (c) 2022 WandererFan),
+#                 src/Mod/TechDraw/App/ShapeUtils.cpp (Copyright (c) 2023 WandererFan),
 #                 src/Mod/TechDraw/App/ShapeExtractor.cpp (Copyright (c) 2019 WandererFan),
 #                 src/Mod/TechDraw/App/DrawProjectSplit.cpp (Copyright (c) 2016 WandererFan),
 #                 src/Mod/TechDraw/App/Geometry.cpp (Copyright (c) 2012 Luke Parry),
 #                 src/Mod/TechDraw/App/DrawUtil.cpp (Copyright (c) 2015 WandererFan),
 #                 src/Mod/TechDraw/App/DrawProjGroup.cpp (Copyright (c) 2014 Joe Dowsett),
-#                 src/Mod/TechDraw/App/DrawViewSection.cpp (Copyright (c) 2007 Jürgen Riegel, 2016 WandererFan)
+#                 src/Mod/TechDraw/App/DrawViewSection.cpp (Copyright (c) 2002 Jürgen Riegel, 2013 Luke Parry),
+#                 src/Mod/TechDraw/App/EdgeWalker.cpp (Copyright (c) 2016 WandererFan)
 #                 FreeCAD (https://github.com/FreeCAD/FreeCAD), commit 3160daf1e2b62b0472854da4848255c6b3ad554c
 #
 #   This library is free software; you can redistribute it and/or modify it under the terms of the GNU Library
@@ -107,6 +108,7 @@ class ViewGeometry:
     cs: object = None                       # the projection CS (gp_Ax2 at the origin)
     scale: float = 1.0
     faces: list = field(default_factory=list)   # section faces (TopoDS_Face, paper coords), DrawViewSection only
+    comps: dict = field(default_factory=dict)   # HLRBRep_HLRToShape's compounds as GeometryObject keeps them (getVisHard ...)
 
 
 # ─── ShapeExtractor, ShapeUtils ──────────────────────────────────────────────────────────────────────────────
@@ -572,7 +574,8 @@ def project_centered(centered, cs, scale, rotation, flags, centroid) -> ViewGeom
     if abs(rotation) >= 1e-12:              # DrawUtil::fpCompare(Rotation, 0.0)
         s = rotate_shape(s, cs, rotation)
     geo = ViewGeometry(centroid=tuple(centroid), cs=cs, scale=scale)
-    make_td_geometry(geo, hlr_compounds(s, cs, flags.iso_count), flags)
+    geo.comps = hlr_compounds(s, cs, flags.iso_count)
+    make_td_geometry(geo, geo.comps, flags)
     geo.box = bounding_box(geo.edges)
     return geo
 

@@ -86,3 +86,9 @@ Assembly object's tree icon). Their metadata says `FreeCAD LGPL2+`, but for `Ass
 `Assembly_CreateJointRigidGroup.svg`, which carry no licence and come under FreeCAD's LGPL-2.1.
 The Multi-Transform panel's Scale transformation (ui/src/pd_transform.tsx, PartDesign::Scaled) adds `PartDesign_Scaled.svg`
 (`src/Mod/PartDesign/Gui/Resources/icons` at 3160daf1e2b6, ViewProviderScaled's icon); its metadata says `FreeCAD LGPL2+`.
+
+The TechDraw workbench's icons (ui/src/techdraw.tsx, techdraw_tasks.tsx) are in `techdraw/`: every SVG of
+`src/Mod/TechDraw/Gui/Resources/icons` and its `actions/` folder at 3160daf1e2b6, flattened and unmodified, 169 files;
+the rich text editor's `MRTE/` folder and `actions/TechDraw_MoveView.svg` (CC-BY-SA 2.0) are left out. Their metadata
+says `FreeCAD LGPL2+` (some link the LGPL 3.0 text from their `cc:license` while their rights say FreeCAD LGPL2+), or
+carries no licence and they come under FreeCAD's LGPL-2.1.

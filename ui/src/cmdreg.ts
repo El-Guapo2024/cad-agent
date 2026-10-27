@@ -55,6 +55,7 @@ import { pdDatumCommands } from './pd_datum'
 import { dressUpEntries } from './pd_dressup'
 import { shapeBinder } from './pd_binder'
 import { partCommands, partEnabled, partRun } from './part_wb'
+import { deleteTd, tdState, techdrawCommands, techdrawEnabled, techdrawRun } from './techdraw'
 import { assemblyCommands, assemblyEnabled, assemblyRun } from './assembly_wb'
 import { sweepCommands } from './pd_sweep'
 
@@ -227,13 +228,15 @@ const COMMANDS: Record<string, RegCommand> = {
   PartDesign_ShapeBinder: reg('Shape Binder', () => void shapeBinder(), () => !!getState().slug),   // pd_binder.tsx
   PartDesign_MoveTip: reg('Set Tip', () => void setTip(), () => getState().featSel.length === 1),
   PartDesign_MoveFeatureInTree: reg('Move Feature After…', moveFeatureAfter, () => getState().featSel.length > 0),
-  Std_Delete: reg('Delete', () => void deleteFeatures(), () => getState().featSel.length > 0),
+  Std_Delete: reg('Delete', () => { if (tdState().sel.length) void deleteTd(); else void deleteFeatures() }, () => getState().featSel.length > 0 || tdState().sel.length > 0),
   // pd_transform.tsx: Mirror, Linear/Polar Pattern, Multi-Transform (Command.cpp), the primitives (CommandPrimitive.cpp)
   ...Object.fromEntries(pdxCommands().map(([c, label, run]) => [c, reg(label, run, () => !!getState().slug)])),
   ...pdDatumCommands(reg),                    // pd_datum.tsx: PartDesign_Plane, _Line, _Point, _CoordinateSystem
   ...Object.fromEntries(dressUpEntries(true).flatMap((e) => (e === 'sep' || !e.cmd ? [] : [[e.cmd, reg(e.label, () => e.onSelect?.(), () => !!getState().slug)]]))),  // pd_dressup.tsx
   // part_wb.tsx: the Part workbench's commands (Command.cpp, CommandParametric.cpp, BOPTools, CompoundTools)
   ...Object.fromEntries(partCommands().map(([c, e]) => [c, reg(e.label, () => partRun(c), () => partEnabled(c))])),
+  // techdraw.tsx: the TechDraw workbench's commands (Command.cpp, CommandCreateDims.cpp, CommandAnnotate.cpp)
+  ...Object.fromEntries(techdrawCommands().map(([c, e]) => [c, reg(e.label, () => techdrawRun(c), () => techdrawEnabled(c))])),
   ...Object.fromEntries(assemblyCommands().map(([c, e]) => [c, reg(e.label, () => assemblyRun(c), () => assemblyEnabled(c))])),
   ...Object.fromEntries(sweepCommands().map(([c, label, run]) => [c, reg(label, run, () => !!getState().slug)])),   // pd_sweep.tsx
 

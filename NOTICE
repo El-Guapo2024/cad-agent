@@ -234,9 +234,10 @@ that commit.
       DrawViewBalloon.cpp, DrawViewAnnotation.cpp, Preferences.cpp and AppTechDrawPy.cpp
       (writeDXFPage), and src/Mod/TechDraw/Gui: Command.cpp, CommandCreateDims.cpp,
       CommandAnnotate.cpp, TaskProjGroup.cpp, TaskSectionView.cpp, QGIViewPart.cpp,
-      QGIViewDimension.cpp, QGIViewBalloon.cpp, MDIViewPage.cpp. Copyright (c) 2007 Jürgen Riegel,
-      2012-2013 Luke Parry, 2014 Joe Dowsett, 2015-2023 WandererFan, 2019 Franck Jullien, 2023
-      Benjamin Bræstrup Sayoc. SPDX-License-Identifier: LGPL-2.1-or-later. The page's DXF reuses
+      QGIViewDimension.cpp, QGIViewBalloon.cpp, QGIViewAnnotation.cpp, QGISectionLine.cpp, QGIFace.cpp,
+      QGSPage.cpp, PagePrinter.cpp, Rez.cpp. Copyright (c) 2002 Jürgen Riegel, 2012-2014 Luke Parry, 2014
+      Joe Dowsett, 2012 Yorik van Havre, 2015-2023 WandererFan, 2019 Franck Jullien (each file's header
+      names its own). SPDX-License-Identifier: LGPL-2.1-or-later. The page's DXF reuses
       cad_agent/dxf.py's writer (above).
 
   These are close translations or re-expressions and keep their code; each file says so in its

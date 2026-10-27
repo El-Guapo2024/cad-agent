@@ -1542,8 +1542,8 @@
     "angle_override": false,
     "line_angle": 0.0,
     "extension_angle": 0.0,
-    "x": 19.999999999999993,
-    "y": -14.999999999999993,
+    "x": 0.0,
+    "y": 2.5,
     "label": null,
     "dim_type": "Angle"
    },
@@ -1581,8 +1581,8 @@
     "angle_override": false,
     "line_angle": 0.0,
     "extension_angle": 0.0,
-    "x": 19.999999999999993,
-    "y": -14.999999999999993,
+    "x": 0.0,
+    "y": 2.5,
     "label": null,
     "dim_type": "Angle3Pt"
    },
@@ -1616,8 +1616,8 @@
     "angle_override": false,
     "line_angle": 0.0,
     "extension_angle": 0.0,
-    "x": 34.999999999999986,
-    "y": -14.5,
+    "x": 0.0,
+    "y": 2.5,
     "label": null,
     "dim_type": "Angle"
    },
@@ -1918,7 +1918,7 @@
     "angle_override": false,
     "line_angle": 0.0,
     "extension_angle": 0.0,
-    "x": 8.0,
+    "x": 0.0,
     "y": 2.5,
     "label": null,
     "dim_type": "DistanceX"

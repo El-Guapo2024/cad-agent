@@ -4,9 +4,9 @@
 # General Public License, version 2.1 or (at your option) any later version; the text is in ../ui/LICENSE.
 #
 #   Derived from: src/Mod/TechDraw/App/DrawViewDimension.cpp (Copyright (c) 2013 Luke Parry),
-#                 src/Mod/TechDraw/App/DimensionFormatter.cpp (Copyright (c) 2023 WandererFan),
-#                 src/Mod/TechDraw/App/Geometry.cpp (Generic::apparentInter; Copyright (c) 2012 Luke Parry),
-#                 src/Base/UnitsSchemasData.h (the Standard schema's length, area and angle rows)
+#                 src/Mod/TechDraw/App/DimensionFormatter.cpp (Copyright (c) 2022 WandererFan),
+#                 src/Mod/TechDraw/App/Geometry.cpp (Copyright (c) 2012 Luke Parry),
+#                 src/Base/UnitsSchemasData.h (no copyright line)
 #                 FreeCAD (https://github.com/FreeCAD/FreeCAD), commit 3160daf1e2b62b0472854da4848255c6b3ad554c
 #
 #   This library is free software; you can redistribute it and/or modify it under the terms of the GNU Library
