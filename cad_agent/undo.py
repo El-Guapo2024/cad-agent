@@ -114,6 +114,24 @@ def record(pdir: Path, name: str, cmd: str, files: list[dict], by: str | None = 
     return entry
 
 
+def amend(pdir: Path, files: list[dict], by: str | None = None) -> dict | None:
+    """Fold a change into the latest transaction (FreeCAD's panel edits an object inside the transaction that made it):
+    every file keeps the entry's own "before" and takes the new "after". The files must be the entry's; if the stack is
+    empty or the entry did not touch them, the change is recorded as a transaction of its own (`record`, named after the
+    file). A no-op is not journaled."""
+    data = load(pdir)
+    if data["undo"]:
+        entry = data["undo"][-1]
+        have = {f["path"]: f for f in entry["files"]}
+        if files and all(f["path"] in have and have[f["path"]]["after"] == f["before"] for f in files):
+            for f in files:
+                have[f["path"]]["after"] = f["after"]
+            data["redo"] = []
+            _save(pdir, data)
+            return entry
+    return record(pdir, "Edit", "amend", files, by=by)
+
+
 def _check(pdir: Path, entry: dict, field: str, direction: str) -> None:
     """Raise UndoError, naming the file, if any file the entry touched no
     longer holds what was recorded for `field` ("after" to undo, "before"

@@ -179,9 +179,9 @@ class TDObject(KW.KwFeature):
             return tuple(str(x) for x in v)
         if key == "editable_texts":
             return dict(v or {})
-        if key in ("cosmetic_edges", "center_lines", "cosmetic_vertexes"):
+        if key in LIST_KEYS:
             from . import techdraw_cosmetic as C
-            kind = {"cosmetic_edges": "edge", "center_lines": "centerline", "cosmetic_vertexes": "vertex"}[key]
+            kind = LIST_KEYS[key]
             try:
                 return tuple(_frozen(C.clean(kind, _thawed(x) if not isinstance(x, dict) else x)) for x in (v or ()))
             except (KeyError, C.CosmeticError) as e:
@@ -205,7 +205,7 @@ class TDObject(KW.KwFeature):
             return tuple(v)
         if key == "editable_texts":
             return dict(v)
-        if key in ("cosmetic_edges", "center_lines", "cosmetic_vertexes"):
+        if key in LIST_KEYS:
             return [_thawed(x) for x in v]
         if isinstance(v, tuple):
             return list(v)
@@ -271,8 +271,11 @@ VIEW_DEFAULTS = {
     "source": (), "direction": (0.0, -1.0, 0.0), "x_direction": (1.0, 0.0, 0.0), "perspective": False, "focus": 100.0,
     "coarse_view": False, "smooth_visible": True, "seam_visible": False, "iso_visible": False, "hard_hidden": False,
     "smooth_hidden": False, "seam_hidden": False, "iso_hidden": False, "iso_count": 0, "scrub_count": 1,
-    "cosmetic_edges": (), "center_lines": (), "cosmetic_vertexes": (),
+    "cosmetic_edges": (), "center_lines": (), "cosmetic_vertexes": (), "geom_formats": (),
 }
+# the view's lists of dicts (techdraw_cosmetic.py), and the kind each holds
+LIST_KEYS = {"cosmetic_edges": "edge", "center_lines": "centerline", "cosmetic_vertexes": "vertex",
+             "geom_formats": "geomformat"}
 
 
 class DrawViewPart(TDObject):
@@ -390,7 +393,7 @@ VIEW_KINDS = ("DrawViewPart", "DrawProjGroupItem", "DrawViewSection")
 def as_dict(o: TDObject) -> dict:
     d = {"name": o.name, "kind": o.kind, "type_id": o.TYPE_ID}
     for k in o.DEFAULTS:
-        d[k] = KW._json(o.source_value(k) if k in ("cosmetic_edges", "center_lines", "cosmetic_vertexes")
+        d[k] = KW._json(o.source_value(k) if k in LIST_KEYS
                         else getattr(o, k))
     if isinstance(o, DrawViewDimension):
         d["dim_type"] = d.pop("type")

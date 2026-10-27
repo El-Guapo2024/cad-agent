@@ -558,25 +558,6 @@ def main():
         return run_tool("TechDraw_2LineCenterLine", [("View", "Edge%d" % idx)], None)
     safe("cl_edit_existing", cl_edit_existing)
 
-    # line decoration
-    def deco_edit():
-        st = child("cb_Style", QtWidgets.QComboBox)
-        info = {}
-        if st is not None:
-            st.setCurrentIndex(3)
-            pump(0.5)
-            info["style"] = st.currentText()
-        info["weight"] = set_quantity("dsb_Weight", "0.9 mm")
-        cb = child("cb_Visible", QtWidgets.QCheckBox)
-        if cb is not None:
-            cb.setChecked(False)
-            pump(0.4)
-            info["visible"] = False
-        return info
-    safe("decorate_hlr", lambda: run_tool("TechDraw_DecorateLine", [("View", "Edge0"), ("View", "Edge1")], deco_edit))
-    safe("decorate_cancel", lambda: run_tool("TechDraw_DecorateLine", [("View", "Edge3")], deco_edit, ok=False))
-    safe("decorate_view_only", lambda: run_tool("TechDraw_DecorateLine", ["View"], None))
-
     # the property view with cosmetic geometry
     safe("props_View", lambda: property_view(doc.getObject("View")))
 
@@ -597,6 +578,35 @@ def main():
         return open(p, encoding="utf-8", errors="replace").read()
     safe("page_dxf", dxf)
 
+    # line decoration: Line Decoration on a cosmetic edge and a centre line, then on HLR edges
+    def deco_edit():
+        st = child("cb_Style", QtWidgets.QComboBox)
+        info = {}
+        if st is not None:
+            st.setCurrentIndex(3)
+            pump(0.5)
+            info["style"] = st.currentText()
+        info["weight"] = set_quantity("dsb_Weight", "0.9 mm")
+        cb = child("cb_Visible", QtWidgets.QCheckBox)
+        if cb is not None:
+            cb.setChecked(False)
+            pump(0.4)
+            info["visible"] = False
+        return info
+
+    def deco_cosmetic():
+        v = doc.getObject("View")
+        st = view_state(v)
+        first_ce = len(st["edges"]) - len(st["CosmeticEdges"]) - len(st["CenterLines"])
+        first_cl = len(st["edges"]) - len(st["CenterLines"])
+        return run_tool("TechDraw_DecorateLine", [("View", "Edge%d" % first_ce), ("View", "Edge%d" % first_cl)], deco_edit)
+    safe("decorate_cosmetic", deco_cosmetic)
+    safe("page_svg_formatted", svg)
+    safe("page_dxf_formatted", dxf)
+    safe("decorate_hlr", lambda: run_tool("TechDraw_DecorateLine", [("View", "Edge0"), ("View", "Edge1")], deco_edit))
+    safe("decorate_view_only", lambda: run_tool("TechDraw_DecorateLine", ["View"], None))
+    safe("page_svg_hlr_formatted", svg)
+
     # the eraser: the cosmetic line, a centre line and a cosmetic vertex
     def eraser():
         v = doc.getObject("View")
@@ -611,6 +621,8 @@ def main():
                 "hlr_edge": run_plain("TechDraw_CosmeticEraser", [("View", "Edge0")])}
     safe("eraser", eraser)
     safe("undo_names", lambda: list(doc.UndoNames))
+    # last: Cancel of an HLR edge's Line Decoration panel may take FreeCAD down
+    safe("decorate_cancel", lambda: run_tool("TechDraw_DecorateLine", [("View", "Edge3")], deco_edit, ok=False))
     save()
     os._exit(0)
 

@@ -52,7 +52,9 @@ TYPES = ("Face", "Edge", "Vertex")
 GEOMS = ("line", "circle", "arc")
 # LineFormat's defaults of a fresh profile: Decorations/CenterLineStyle 2 (dashed), the "Graphic" width of the default
 # line group, Preferences::normalColor (black)
-DEFAULT_FORMAT = {"style": 2, "weight": 0.5, "color": [0.0, 0.0, 0.0, 1.0], "visible": True}
+DEFAULT_FORMAT = {"style": 2, "weight": 0.5, "color": [0.0, 0.0, 0.0, 1.0], "visible": True, "line_number": 2}
+CENTER_LINE_NUMBER = 5            # Preferences::CenterLineStyle(): TaskCenterLine's style box opens on "Symmetry"
+CENTER_EXTEND = 3.0               # Decorations/CosmoCLExtend
 
 
 class CosmeticError(ValueError):
@@ -74,6 +76,8 @@ def format_of(d: dict) -> dict:
     f = dict(DEFAULT_FORMAT)
     f.update(d.get("format") or {})
     f["color"] = [float(c) for c in f["color"]]
+    f["style"], f["line_number"], f["weight"] = int(f["style"]), int(f["line_number"]), float(f["weight"])
+    f["visible"] = bool(f["visible"])
     return f
 
 
@@ -95,6 +99,11 @@ def make_circle(center, radius, tag=None, fmt=None) -> dict:
 def make_arc(center, radius, start_angle, end_angle, tag=None, fmt=None) -> dict:
     return _with_format({"tag": tag or new_tag(), "geom": "arc", "center": v3(center), "radius": float(radius),
                          "start_angle": float(start_angle), "end_angle": float(end_angle)}, fmt)
+
+
+def make_geomformat(index, fmt=None) -> dict:
+    """A GeomFormat: the format of the HLR edge Edge<index> (TaskLineDecor)."""
+    return {"index": int(index), **format_of({"format": fmt})}
 
 
 def make_centerline(type_, mode, subs, tag=None, h_shift=0.0, v_shift=0.0, rotate=0.0, extend=0.0, flip=False,
@@ -132,6 +141,8 @@ def clean(kind: str, d: dict) -> dict:
         if g == "arc":
             return make_arc(d["center"], d["radius"], d["start_angle"], d["end_angle"], d.get("tag"), d.get("format"))
         raise CosmeticError(f"{g!r} is not a cosmetic edge ({', '.join(GEOMS)})")
+    if kind == "geomformat":
+        return make_geomformat(d["index"], {k: d[k] for k in DEFAULT_FORMAT if k in d})
     if kind == "centerline":
         t = d.get("type", "Face")
         subs = d.get({"Face": "faces", "Edge": "edges", "Vertex": "vertexes"}[t]) or []
@@ -218,6 +229,10 @@ def apply(geo, o, scale: float, rotation: float, faces=None) -> None:
         e = Edge(occ, geom_kind(occ), "cosmetic", True, -1, ce["tag"])
         e.format = format_of(ce)
         geo.edges.append(e)
+    for gf in o.geom_formats:           # DrawViewPart::GeomFormats: the HLR edge with that index looks as it says
+        gf = _thaw(gf)
+        if 0 <= gf["index"] < len(geo.edges) and geo.edges[gf["index"]].cls not in ("cosmetic", "centerline"):
+            geo.edges[gf["index"]].format = format_of({"format": gf})
     for cl in o.center_lines:
         cl = _thaw(cl)
         try:

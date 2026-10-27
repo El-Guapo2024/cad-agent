@@ -100,6 +100,60 @@ def _edge_segs(ej: dict, ox: float, oy: float) -> list:
     return [("M", *P(ej["start"])), ("L", *P(ej["end"]))]
 
 
+def _hex(color) -> str:
+    return "#" + "".join(f"{max(0, min(255, round(c * 255))):02x}" for c in color[:3])
+
+
+VERTEX_PICK = 1.2               # mm: the radius a click finds a vertex within
+COSMETIC_VERTEX_SIZE = 2.1      # CosmeticVertex::size: Preferences::vertexScale (3) x the thick line's width (0.70)
+
+
+def _circle(cx: float, cy: float, r: float) -> list:
+    return [("M", cx + r, cy), ("A", r, 0, 1, cx - r, cy), ("A", r, 0, 1, cx + r, cy), ("Z",)]
+
+
+def _vertex_targets(v: dict, name: str, ox: float, oy: float) -> list:
+    """What the page picks a vertex by (QGIVertex: a click near one selects it), and a cosmetic vertex's dot."""
+    out = []
+    for i, vt in enumerate(v["vertices"]):
+        cx, cy = ox + vt["x"], oy + vt["y"]
+        if vt.get("tag"):
+            out.append(Prim("path", _circle(cx, cy, COSMETIC_VERTEX_SIZE / 2.0), width=0.0, fill="#000000", stroke="none",
+                            attrs={"data-view": name, "class": "td-cv", "data-sub": f"Vertex{i}"}))
+        out.append(Prim("path", _circle(cx, cy, VERTEX_PICK), width=0.0, fill="transparent", stroke="none",
+                        attrs={"data-view": name, "class": "td-vertex", "data-sub": f"Vertex{i}"}))
+    return out
+
+
+def _face_targets(doc, name: str, ox: float, oy: float) -> list:
+    """The view's faces as what a click inside picks (QGIFace), the biggest first so a hole's own face is on top."""
+    from OCP.BRepAdaptor import BRepAdaptor_Curve
+    from OCP.BRepTools import BRepTools_WireExplorer
+    from OCP.TopAbs import TopAbs_REVERSED
+    from . import techdraw_cosmetic as C
+    o, geo = doc.get(name), doc.geo.get(name)
+    if o is None or geo is None:
+        return []
+    out = []
+    for i, w in enumerate(C.faces_of(geo, o)):
+        pts = []
+        ex = BRepTools_WireExplorer(w)
+        while ex.More():
+            e = ex.Current()
+            a = BRepAdaptor_Curve(e)
+            f, l = a.FirstParameter(), a.LastParameter()
+            n = 1 if a.GetType() == 0 else 24
+            seg = [a.Value(f + (l - f) * k / n) for k in range(n + 1)]
+            if e.Orientation() == TopAbs_REVERSED:
+                seg.reverse()
+            pts += [(ox + p.X(), oy + p.Y()) for p in (seg if not pts else seg[1:])]
+            ex.Next()
+        if len(pts) > 2:
+            out.append(Prim("path", [("M", *pts[0])] + [("L", *p) for p in pts[1:]] + [("Z",)], width=0.0, fill="transparent",
+                            stroke="none", attrs={"data-view": name, "class": "td-facepick", "data-sub": f"Face{i}"}))
+    return out
+
+
 def view_origin(res: dict, name: str):
     """A view's centre on the page, y down."""
     v = res["views"][name]
@@ -326,11 +380,26 @@ def display(doc, frames: bool = False) -> list:
                 segs.append(("Z",))
             out.append(Prim("path", segs, width=0.0, fill="#D3D3D3", stroke="none", attrs={"data-view": name,
                                                                                          "class": "td-face"}))
+        if frames:
+            out += _face_targets(doc, name, ox, oy)
         for i, e in enumerate(v["edges"]):
             hidden = not e["visible"]
             width = THIN if (hidden or e["cls"] in ("smooth", "seam", "iso")) else THICK
-            out.append(Prim("path", _edge_segs(e, ox, oy), width=width, dash=HIDDEN_DASH if hidden else (),
+            dash, stroke = HIDDEN_DASH if hidden else (), "#000000"
+            f = e.get("format")
+            if f is not None:                   # a cosmetic edge, a centre line, or an edge given a GeomFormat
+                if not f["visible"]:
+                    continue
+                from .techdraw_lines import pen
+                width, stroke = f["weight"], _hex(f["color"])
+                pattern, drawn = pen(f["line_number"], f["style"])
+                if not drawn:
+                    continue
+                dash = tuple(x * width for x in pattern) if pattern else ()
+            out.append(Prim("path", _edge_segs(e, ox, oy), width=width, dash=dash, stroke=stroke,
                             attrs={"data-view": name, "data-sub": f"Edge{i}"}))
+        if frames:
+            out += _vertex_targets(v, name, ox, oy)
     for name, line in res.get("sections", {}).items():
         out += _section_line(name, line, res)
     for name, d in res["dimensions"].items():

@@ -257,7 +257,7 @@ def walk(edges: list) -> list:
         a, b = _ends(e)
         ev.append((vid(a), vid(b)))
     # half edges (edge, 0) leaves its first vertex and arrives at its last, (edge, 1) the reverse
-    keep = _prune(ev)
+    keep = list(range(len(edges)))
     rows: dict = {}
     for i in keep:
         e = edges[i]
@@ -303,19 +303,3 @@ def walk(edges: list) -> list:
             wires.append(w)
     wires.sort(key=lambda w: -abs(ShapeAnalysis.ContourArea_s(w)))
     return wires
-
-
-def _prune(ev: list) -> list:
-    """The edges that lie on a cycle: those hanging off the graph (a vertex with one edge) are taken away, again and
-    again; a loop (an edge from a vertex to itself) stays."""
-    alive = list(range(len(ev)))
-    while True:
-        deg: dict = {}
-        for i in alive:
-            a, b = ev[i]
-            deg[a] = deg.get(a, 0) + 1
-            deg[b] = deg.get(b, 0) + 1
-        drop = [i for i in alive if ev[i][0] != ev[i][1] and (deg[ev[i][0]] == 1 or deg[ev[i][1]] == 1)]
-        if not drop:
-            return alive
-        alive = [i for i in alive if i not in drop]

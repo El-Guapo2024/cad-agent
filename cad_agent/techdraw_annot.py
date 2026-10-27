@@ -52,7 +52,8 @@ STEP_NAMES = {"cosmetic_vertex": "Add Cosmetic Vertex", "midpoints": "Add midpoi
               "quadrants": "Add Quadrant vertices", "cosmetic_line": "Create Cosmetic Line",
               "cosmetic_line_edit": "Update Cosmetic Line", "cosmetic_circle": "Create Cosmetic Circle",
               "cosmetic_circle_edit": "Update Cosmetic Circle", "centerline": "Create Centerline",
-              "centerline_edit": "Edit Centerline", "erase": "Remove Cosmetic Object"}
+              "centerline_edit": "Edit Centerline", "erase": "Remove Cosmetic Object", "format": "Edit Line Appearance",
+              "restore_lines": "Restore Invisible Lines"}
 OPS = tuple(STEP_NAMES)
 
 
@@ -205,12 +206,20 @@ def _cosmetic_line(s, E, v, op):
     return f"made a cosmetic line on {v.name}"
 
 
-def _edit_target(s, E, v, op, kinds, what):
+def _tag_of(s, E, v, op, cls):
+    """The tag of the cosmetic edge or centre line an op names: by "tag", or by the "EdgeN" it is selected as."""
+    if op.get("tag") is not None and op.get("edge") is None:
+        return op["tag"]
     geo = _geo(s, E, v)
     i = _index(op.get("edge"), "Edge", geo.edges, "edges")
     e = geo.edges[i]
+    return e.cosmetic_tag if e.cls == cls else None
+
+
+def _edit_target(s, E, v, op, kinds, what):
+    tag = _tag_of(s, E, v, op, "cosmetic")
     edges = _list(v, "cosmetic_edges")
-    k = next((n for n, c in enumerate(edges) if c["tag"] == e.cosmetic_tag and e.cls == "cosmetic"), None)
+    k = next((n for n, c in enumerate(edges) if tag is not None and c["tag"] == tag), None)
     if k is None or edges[k]["geom"] not in kinds:
         raise E.TechDrawEditError(f"Selection is not a {what}")
     return edges, k
@@ -233,6 +242,10 @@ def _circle_params(s, E, v, op):
         center = pts[0]
         # TaskCosmeticCircle::setUiPrimary: the radius is the distance of the first two points, unscaled
         radius = math.dist(pts[0][:2], pts[1][:2]) if len(pts) > 1 else 0.0
+        if op.get("center") is not None:        # (what the panel shows, then typed over)
+            center = _point(op["center"], "center")
+        if op.get("radius") is not None:
+            radius = float(op["radius"])
     else:
         center = _point(op.get("center"), "center")
         radius = float(op.get("radius", 0.0))
@@ -299,8 +312,9 @@ def _centerline(s, E, v, op):
         raise E.TechDrawEditError("You must select 2 vertices or an existing centerline")
     geo = _geo(s, E, v)
     mode = _pathological(geo, v, typ, subs, mode, E)
+    fmt = {"line_number": C.CENTER_LINE_NUMBER, **(op.get("format") or {})}      # the panel's style box opens on Symmetry
     cl = C.make_centerline(typ, mode, subs, op.get("tag"), op.get("h_shift", 0.0), op.get("v_shift", 0.0),
-                           op.get("rotate", 0.0), op.get("extend", 0.0), False, op.get("format"))
+                           op.get("rotate", 0.0), op.get("extend", C.CENTER_EXTEND), False, fmt)
     # CenterLineBuilder returns nothing for end points that coincide (a vertical line of two points on one vertical)
     try:
         ends = C.center_line_ends({**cl, "extend": 0.0, "h_shift": 0.0, "v_shift": 0.0, "rotate": 0.0}, geo, v,
@@ -339,11 +353,9 @@ def _pathological(geo, v, typ, subs, mode, E):
 
 def _centerline_edit(s, E, v, op):
     """TaskCenterLine on an existing centre line: the panel's values replace the line's."""
-    geo = _geo(s, E, v)
-    i = _index(op.get("edge"), "Edge", geo.edges, "edges")
-    e = geo.edges[i]
+    tag = _tag_of(s, E, v, op, "centerline")
     lines = _list(v, "center_lines")
-    k = next((n for n, c in enumerate(lines) if c["tag"] == e.cosmetic_tag and e.cls == "centerline"), None)
+    k = next((n for n, c in enumerate(lines) if tag is not None and c["tag"] == tag), None)
     if k is None:
         raise E.TechDrawEditError("Selection is not a centerline")
     cl = dict(lines[k])
@@ -351,7 +363,7 @@ def _centerline_edit(s, E, v, op):
         if key in op:
             cl[key] = op[key]
     if "format" in op:
-        cl["format"] = op["format"]
+        cl["format"] = {**C.format_of(cl), **op["format"]}
     if cl["mode"] not in C.MODES:
         raise E.TechDrawEditError(f"{cl['mode']!r} is not a centerline mode ({', '.join(C.MODES)})")
     lines[k] = C.clean("centerline", cl)
@@ -389,3 +401,58 @@ def _erase(s, E, v, op):
     if props:
         _replace(s, E, v, **props)
     return f"removed {len(cv_tags) + len(ce_tags) + len(cl_tags)} cosmetic object(s) from {v.name}"
+
+
+# line appearance (TaskLineDecor)
+
+FORMAT_KEYS = ("style", "weight", "color", "visible", "line_number")
+
+
+def _format(s, E, v, op):
+    """TaskLineDecor::applyDecorations: the selected lines take the panel's style, colour, weight, visibility and
+    line number. A cosmetic edge or centre line has a format of its own; an HLR edge gets a GeomFormat (made, as
+    getFormatAccessPtr makes it, when it has none)."""
+    geo = _geo(s, E, v)
+    subs = [n for n in (op.get("subs") or []) if n.startswith("Edge")]
+    new = {k: op[k] for k in FORMAT_KEYS if k in op}
+    bad = [k for k in new if k not in FORMAT_KEYS]
+    if bad:
+        raise E.TechDrawEditError(f"{bad} are not line appearances ({', '.join(FORMAT_KEYS)})")
+    cur = C.format_of({"format": {}})            # LineFormat::getCurrentLineFormat
+    ce, cl, gf = _list(v, "cosmetic_edges"), _list(v, "center_lines"), _list(v, "geom_formats")
+    for n in subs:
+        i = _index(n, "Edge", geo.edges, "edges")
+        e = geo.edges[i]
+        if e.cls == "cosmetic":
+            k = next(j for j, c in enumerate(ce) if c["tag"] == e.cosmetic_tag)
+            ce[k] = C.clean("edge", {**ce[k], "format": {**C.format_of(ce[k]), **new}})
+        elif e.cls == "centerline":
+            k = next(j for j, c in enumerate(cl) if c["tag"] == e.cosmetic_tag)
+            cl[k] = C.clean("centerline", {**cl[k], "format": {**C.format_of(cl[k]), **new}})
+        else:
+            k = next((j for j, g in enumerate(gf) if g["index"] == i), None)
+            base = C.format_of({"format": gf[k]}) if k is not None else cur
+            made = C.make_geomformat(i, {**base, **new})
+            if k is None:
+                gf.append(made)
+            else:
+                gf[k] = made
+    _replace(s, E, v, cosmetic_edges=ce, center_lines=cl, geom_formats=gf)
+    return f"formatted {len(subs)} line(s) of {v.name}"
+
+
+def _restore_lines(s, E, v, op):
+    """TaskRestoreLines: the invisible lines (kind "geometry", "cosmetic", "center" or "all") visible again."""
+    kinds = op.get("kinds") or ["all"]
+    every = "all" in kinds
+    props = {}
+    if every or "geometry" in kinds:
+        props["geom_formats"] = [{**g, "visible": True} for g in _list(v, "geom_formats")]
+    if every or "cosmetic" in kinds:
+        props["cosmetic_edges"] = [C.clean("edge", {**c, "format": {**C.format_of(c), "visible": True}})
+                                   for c in _list(v, "cosmetic_edges")]
+    if every or "center" in kinds:
+        props["center_lines"] = [C.clean("centerline", {**c, "format": {**C.format_of(c), "visible": True}})
+                                 for c in _list(v, "center_lines")]
+    _replace(s, E, v, **props)
+    return f"made the lines of {v.name} visible"
