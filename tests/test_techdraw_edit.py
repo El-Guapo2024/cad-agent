@@ -162,3 +162,15 @@ def test_the_object_classes_round_trip_through_their_dicts():
         o = cls(*args)
         again = T.from_dict(json.loads(json.dumps(T.as_dict(o))))
         assert T.as_dict(again) == T.as_dict(o), cls.kind
+
+
+def test_every_techdraw_help_runs(capsys):
+    """argparse %-formats help strings: a bare % in one (format_spec='%.1f') made `cad techdraw --help` exit 4."""
+    import argparse
+    parser = cli.build_parser()
+    top = next(a for a in parser._actions if isinstance(a, argparse._SubParsersAction)).choices["techdraw"]
+    names = next(a for a in top._actions if isinstance(a, argparse._SubParsersAction)).choices
+    assert len(names) > 5
+    for argv in (["techdraw", "--help"], *(["techdraw", n, "--help"] for n in names)):
+        assert cli.main(argv) == 0, argv
+    capsys.readouterr()

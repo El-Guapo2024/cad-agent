@@ -380,7 +380,7 @@ def add_parsers(add, sub) -> None:
     sp = one("annotation", cmd_annotation, "TechDraw_Annotation: a text on the page")
     sp.add_argument("text", nargs="*", metavar="LINE")
     sp.add_argument("--at", metavar="X,Y")
-    sp = one("set", cmd_set, "change an object's properties (scale=0.5 hard_hidden=true format_spec='%.1f')")
+    sp = one("set", cmd_set, "change an object's properties (scale=0.5 hard_hidden=true format_spec='%%.1f')")
     sp.add_argument("name")
     sp.add_argument("props", nargs="+", metavar="KEY=VALUE")
     sp = one("move", cmd_move, "a view's X and Y on the page (a drag)")
