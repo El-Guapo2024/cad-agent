@@ -302,16 +302,15 @@ def _centerline(s, E, v, op):
     cl = C.make_centerline(typ, mode, subs, op.get("tag"), op.get("h_shift", 0.0), op.get("v_shift", 0.0),
                            op.get("rotate", 0.0), op.get("extend", 0.0), False, op.get("format"))
     # CenterLineBuilder returns nothing for end points that coincide (a vertical line of two points on one vertical)
-    ends = C.center_line_ends({**cl, "extend": 0.0, "h_shift": 0.0, "v_shift": 0.0, "rotate": 0.0}, geo, v,
-                              geo.scale, v.rotation, _faces(s, E, v))
+    try:
+        ends = C.center_line_ends({**cl, "extend": 0.0, "h_shift": 0.0, "v_shift": 0.0, "rotate": 0.0}, geo, v,
+                                  geo.scale, v.rotation)
+    except C.CosmeticError as err:
+        raise E.TechDrawEditError(str(err)) from None
     if ends is None or math.dist(ends[0], ends[1]) < 1e-7:
         raise E.TechDrawEditError("the centerline's end points are equal: check the orientation")
     _replace(s, E, v, center_lines=_list(v, "center_lines") + [cl])
     return f"made a {typ.lower()} centerline on {v.name}"
-
-
-def _faces(s, E, v):
-    return None
 
 
 def _pathological(geo, v, typ, subs, mode, E):

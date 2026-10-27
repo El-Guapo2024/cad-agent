@@ -2751,7 +2751,7 @@
        15.0,
        0.0
       ],
-      "tag": "7974bcca-4468-4c6e-afe9-74354d37cf36"
+      "tag": "89914764-8157-4a36-9b6c-ae18a417984f"
      },
      {
       "point": [
@@ -2759,7 +2759,7 @@
        12.0,
        0.0
       ],
-      "tag": "71ab082e-6ffe-49c6-8e4f-fbcfab91718b"
+      "tag": "153ed8c3-05e0-4808-96b1-c1ef6527473c"
      },
      {
       "point": [
@@ -2767,7 +2767,7 @@
        7.999999999999994,
        0.0
       ],
-      "tag": "c177d850-1dd1-45e9-84f3-0dcb8c933856"
+      "tag": "e53db584-800a-42b4-84dd-cf261beb402e"
      },
      {
       "point": [
@@ -2775,7 +2775,7 @@
        4.0,
        0.0
       ],
-      "tag": "91af6b3e-e819-43ec-bb83-b4f3daf6a4b8"
+      "tag": "b0a4a490-de40-4b24-8941-cf26362d5392"
      },
      {
       "point": [
@@ -2783,7 +2783,7 @@
        -13.14805029709527,
        0.0
       ],
-      "tag": "6f4ceb80-a42c-44fa-b444-ff8deeb7b75b"
+      "tag": "1fea325b-5f76-4061-bea3-c9be374ea22b"
      },
      {
       "point": [
@@ -2791,7 +2791,7 @@
        -14.121320343559645,
        0.0
       ],
-      "tag": "3fc70361-d69a-4555-bfb3-c997bd2586e1"
+      "tag": "6871a563-6972-41c0-87c9-b8e7aa2dfd27"
      },
      {
       "point": [
@@ -2799,7 +2799,7 @@
        -14.771638597533864,
        0.0
       ],
-      "tag": "d1ead52d-47c0-4658-b911-a25b162fd716"
+      "tag": "4ad72536-6b29-4059-8a35-6a3b267a7ccb"
      }
     ],
     "item_type": "Front"
@@ -2943,7 +2943,7 @@
        14.999999999999998,
        0.0
       ],
-      "tag": "a904ea65-b618-4cc4-8cba-7beca6699aad"
+      "tag": "a9017a8b-28d3-472f-869a-278e6689a210"
      },
      {
       "point": [
@@ -2951,7 +2951,7 @@
        12.0,
        0.0
       ],
-      "tag": "14ff472b-f261-4982-a271-2c72a7326497"
+      "tag": "109d5d61-3744-41d4-b751-93b5949e3801"
      },
      {
       "point": [
@@ -2959,7 +2959,7 @@
        7.999999999999995,
        0.0
       ],
-      "tag": "d1b284b4-a797-4ad3-b729-ce11cd799777"
+      "tag": "c824a7ac-fa69-4d02-9084-2c87b737cb98"
      },
      {
       "point": [
@@ -2967,7 +2967,7 @@
        3.9999999999999996,
        0.0
       ],
-      "tag": "7c64dc3d-33fd-4b1e-a921-b7c0c4ef8a6c"
+      "tag": "e6e2c02f-e6e8-441c-86fe-3afde5f6b7f3"
      },
      {
       "point": [
@@ -2975,7 +2975,7 @@
        -13.148050297095274,
        0.0
       ],
-      "tag": "2a6954d9-23d3-4c0e-9970-391f139c8fbf"
+      "tag": "e5761041-53d0-424f-b428-99df1e74e650"
      },
      {
       "point": [
@@ -2983,7 +2983,7 @@
        -14.121320343559645,
        0.0
       ],
-      "tag": "65d19bf1-cf06-4b82-9ab5-bf8ffb0d01aa"
+      "tag": "3597709d-b6de-4835-8df3-8ed12c35bc4b"
      },
      {
       "point": [
@@ -2991,7 +2991,7 @@
        -14.771638597533862,
        0.0
       ],
-      "tag": "45ae2882-6264-484a-bd45-07f15251a605"
+      "tag": "527c36af-7227-4358-8f06-d76ca751a924"
      }
     ],
     "item_type": "Front"
@@ -3283,6 +3283,717 @@
       "rotate": 0.0,
       "tag": "k-5",
       "type": "Edge",
+      "v_shift": 0.0,
+      "vertexes": []
+     }
+    ],
+    "cosmetic_vertexes": [],
+    "item_type": "Front"
+   }
+  ],
+  "template": null
+ },
+ "bracket_face_centerlines": {
+  "objects": [
+   {
+    "name": "Page",
+    "kind": "DrawPage",
+    "type_id": "TechDraw::DrawPage",
+    "template": "Template",
+    "projection_type": "First angle",
+    "scale": 1.0,
+    "keep_updated": true,
+    "next_balloon_index": 1,
+    "label": null
+   },
+   {
+    "name": "Template",
+    "kind": "DrawSVGTemplate",
+    "type_id": "TechDraw::DrawSVGTemplate",
+    "template": "Default_Template_A4_Landscape.svg",
+    "editable_texts": {},
+    "label": null
+   },
+   {
+    "name": "View",
+    "kind": "DrawProjGroupItem",
+    "type_id": "TechDraw::DrawProjGroupItem",
+    "x": 148.5,
+    "y": 105.0,
+    "lock_position": false,
+    "rotation": 0.0,
+    "scale_type": "Page",
+    "scale": 1.0,
+    "caption": "",
+    "label": null,
+    "source": [
+     "bracket"
+    ],
+    "direction": [
+     0.0,
+     -1.0,
+     0.0
+    ],
+    "x_direction": [
+     1.0,
+     0.0,
+     0.0
+    ],
+    "perspective": false,
+    "focus": 100.0,
+    "coarse_view": false,
+    "smooth_visible": true,
+    "seam_visible": false,
+    "iso_visible": false,
+    "hard_hidden": false,
+    "smooth_hidden": false,
+    "seam_hidden": false,
+    "iso_hidden": false,
+    "iso_count": 0,
+    "scrub_count": 1,
+    "cosmetic_edges": [],
+    "center_lines": [
+     {
+      "edges": [],
+      "extend": 0.0,
+      "faces": [
+       "Face0"
+      ],
+      "flip": false,
+      "h_shift": 0.0,
+      "mode": "Vertical",
+      "rotate": 0.0,
+      "tag": "f-1",
+      "type": "Face",
+      "v_shift": 0.0,
+      "vertexes": []
+     },
+     {
+      "edges": [],
+      "extend": 1.0,
+      "faces": [
+       "Face1"
+      ],
+      "flip": false,
+      "h_shift": 0.0,
+      "mode": "Horizontal",
+      "rotate": 0.0,
+      "tag": "f-2",
+      "type": "Face",
+      "v_shift": 0.0,
+      "vertexes": []
+     },
+     {
+      "edges": [],
+      "extend": 0.0,
+      "faces": [
+       "Face2",
+       "Face3"
+      ],
+      "flip": false,
+      "h_shift": 2.0,
+      "mode": "Vertical",
+      "rotate": 0.0,
+      "tag": "f-3",
+      "type": "Face",
+      "v_shift": 0.0,
+      "vertexes": []
+     },
+     {
+      "edges": [],
+      "extend": 0.0,
+      "faces": [
+       "Face4"
+      ],
+      "flip": false,
+      "h_shift": 0.0,
+      "mode": "Horizontal",
+      "rotate": 20.0,
+      "tag": "f-4",
+      "type": "Face",
+      "v_shift": 0.0,
+      "vertexes": []
+     }
+    ],
+    "cosmetic_vertexes": [],
+    "item_type": "Front"
+   }
+  ],
+  "template": null
+ },
+ "bracket_iso_face_centerlines": {
+  "objects": [
+   {
+    "name": "Page",
+    "kind": "DrawPage",
+    "type_id": "TechDraw::DrawPage",
+    "template": "Template",
+    "projection_type": "First angle",
+    "scale": 1.0,
+    "keep_updated": true,
+    "next_balloon_index": 1,
+    "label": null
+   },
+   {
+    "name": "Template",
+    "kind": "DrawSVGTemplate",
+    "type_id": "TechDraw::DrawSVGTemplate",
+    "template": "Default_Template_A4_Landscape.svg",
+    "editable_texts": {},
+    "label": null
+   },
+   {
+    "name": "View",
+    "kind": "DrawProjGroupItem",
+    "type_id": "TechDraw::DrawProjGroupItem",
+    "x": 148.5,
+    "y": 105.0,
+    "lock_position": false,
+    "rotation": 0.0,
+    "scale_type": "Page",
+    "scale": 1.0,
+    "caption": "",
+    "label": null,
+    "source": [
+     "bracket"
+    ],
+    "direction": [
+     1.0,
+     -1.0,
+     1.0
+    ],
+    "x_direction": [
+     1.0,
+     1.0,
+     0.0
+    ],
+    "perspective": false,
+    "focus": 100.0,
+    "coarse_view": false,
+    "smooth_visible": true,
+    "seam_visible": false,
+    "iso_visible": false,
+    "hard_hidden": false,
+    "smooth_hidden": false,
+    "seam_hidden": false,
+    "iso_hidden": false,
+    "iso_count": 0,
+    "scrub_count": 1,
+    "cosmetic_edges": [],
+    "center_lines": [
+     {
+      "edges": [],
+      "extend": 0.0,
+      "faces": [
+       "Face0"
+      ],
+      "flip": false,
+      "h_shift": 0.0,
+      "mode": "Vertical",
+      "rotate": 0.0,
+      "tag": "f-1",
+      "type": "Face",
+      "v_shift": 0.0,
+      "vertexes": []
+     },
+     {
+      "edges": [],
+      "extend": 0.0,
+      "faces": [
+       "Face1"
+      ],
+      "flip": false,
+      "h_shift": 0.0,
+      "mode": "Horizontal",
+      "rotate": 0.0,
+      "tag": "f-2",
+      "type": "Face",
+      "v_shift": 0.0,
+      "vertexes": []
+     },
+     {
+      "edges": [],
+      "extend": 0.0,
+      "faces": [
+       "Face5"
+      ],
+      "flip": false,
+      "h_shift": 0.0,
+      "mode": "Vertical",
+      "rotate": 0.0,
+      "tag": "f-3",
+      "type": "Face",
+      "v_shift": 0.0,
+      "vertexes": []
+     }
+    ],
+    "cosmetic_vertexes": [],
+    "item_type": "Front"
+   }
+  ],
+  "template": null
+ },
+ "plate_face_centerlines_rotated": {
+  "objects": [
+   {
+    "name": "Page",
+    "kind": "DrawPage",
+    "type_id": "TechDraw::DrawPage",
+    "template": "Template",
+    "projection_type": "First angle",
+    "scale": 1.0,
+    "keep_updated": true,
+    "next_balloon_index": 1,
+    "label": null
+   },
+   {
+    "name": "Template",
+    "kind": "DrawSVGTemplate",
+    "type_id": "TechDraw::DrawSVGTemplate",
+    "template": "Default_Template_A4_Landscape.svg",
+    "editable_texts": {},
+    "label": null
+   },
+   {
+    "name": "View",
+    "kind": "DrawProjGroupItem",
+    "type_id": "TechDraw::DrawProjGroupItem",
+    "x": 148.5,
+    "y": 105.0,
+    "lock_position": false,
+    "rotation": 30.0,
+    "scale_type": "Custom",
+    "scale": 2.0,
+    "caption": "",
+    "label": null,
+    "source": [
+     "plate"
+    ],
+    "direction": [
+     0.0,
+     0.0,
+     1.0
+    ],
+    "x_direction": [
+     1.0,
+     0.0,
+     0.0
+    ],
+    "perspective": false,
+    "focus": 100.0,
+    "coarse_view": false,
+    "smooth_visible": true,
+    "seam_visible": false,
+    "iso_visible": false,
+    "hard_hidden": false,
+    "smooth_hidden": false,
+    "seam_hidden": false,
+    "iso_hidden": false,
+    "iso_count": 0,
+    "scrub_count": 1,
+    "cosmetic_edges": [
+     {
+      "end": [
+       12.0,
+       0.0,
+       0.0
+      ],
+      "geom": "line",
+      "start": [
+       -12.0,
+       0.0,
+       0.0
+      ],
+      "tag": "cl-1"
+     }
+    ],
+    "center_lines": [
+     {
+      "edges": [],
+      "extend": 0.0,
+      "faces": [
+       "Face0"
+      ],
+      "flip": false,
+      "h_shift": 0.0,
+      "mode": "Vertical",
+      "rotate": 0.0,
+      "tag": "f-1",
+      "type": "Face",
+      "v_shift": 0.0,
+      "vertexes": []
+     },
+     {
+      "edges": [],
+      "extend": 0.0,
+      "faces": [
+       "Face1"
+      ],
+      "flip": false,
+      "h_shift": 0.0,
+      "mode": "Horizontal",
+      "rotate": 0.0,
+      "tag": "f-2",
+      "type": "Face",
+      "v_shift": 1.0,
+      "vertexes": []
+     },
+     {
+      "edges": [],
+      "extend": 0.0,
+      "faces": [
+       "Face1"
+      ],
+      "flip": false,
+      "h_shift": 0.0,
+      "mode": "Vertical",
+      "rotate": 5.0,
+      "tag": "f-3",
+      "type": "Face",
+      "v_shift": 0.0,
+      "vertexes": []
+     }
+    ],
+    "cosmetic_vertexes": [],
+    "item_type": "Front"
+   }
+  ],
+  "template": null
+ },
+ "shaft_face_centerlines": {
+  "objects": [
+   {
+    "name": "Page",
+    "kind": "DrawPage",
+    "type_id": "TechDraw::DrawPage",
+    "template": "Template",
+    "projection_type": "First angle",
+    "scale": 1.0,
+    "keep_updated": true,
+    "next_balloon_index": 1,
+    "label": null
+   },
+   {
+    "name": "Template",
+    "kind": "DrawSVGTemplate",
+    "type_id": "TechDraw::DrawSVGTemplate",
+    "template": "Default_Template_A4_Landscape.svg",
+    "editable_texts": {},
+    "label": null
+   },
+   {
+    "name": "View",
+    "kind": "DrawProjGroupItem",
+    "type_id": "TechDraw::DrawProjGroupItem",
+    "x": 148.5,
+    "y": 105.0,
+    "lock_position": false,
+    "rotation": 0.0,
+    "scale_type": "Page",
+    "scale": 1.0,
+    "caption": "",
+    "label": null,
+    "source": [
+     "shaft"
+    ],
+    "direction": [
+     0.0,
+     -1.0,
+     0.0
+    ],
+    "x_direction": [
+     1.0,
+     0.0,
+     0.0
+    ],
+    "perspective": false,
+    "focus": 100.0,
+    "coarse_view": false,
+    "smooth_visible": true,
+    "seam_visible": false,
+    "iso_visible": false,
+    "hard_hidden": false,
+    "smooth_hidden": false,
+    "seam_hidden": false,
+    "iso_hidden": false,
+    "iso_count": 0,
+    "scrub_count": 1,
+    "cosmetic_edges": [],
+    "center_lines": [
+     {
+      "edges": [],
+      "extend": 0.0,
+      "faces": [
+       "Face0"
+      ],
+      "flip": false,
+      "h_shift": 0.0,
+      "mode": "Vertical",
+      "rotate": 0.0,
+      "tag": "s-0V",
+      "type": "Face",
+      "v_shift": 0.0,
+      "vertexes": []
+     },
+     {
+      "edges": [],
+      "extend": 0.0,
+      "faces": [
+       "Face0"
+      ],
+      "flip": false,
+      "h_shift": 0.0,
+      "mode": "Horizontal",
+      "rotate": 0.0,
+      "tag": "s-0H",
+      "type": "Face",
+      "v_shift": 0.0,
+      "vertexes": []
+     },
+     {
+      "edges": [],
+      "extend": 0.0,
+      "faces": [
+       "Face1"
+      ],
+      "flip": false,
+      "h_shift": 0.0,
+      "mode": "Vertical",
+      "rotate": 0.0,
+      "tag": "s-1V",
+      "type": "Face",
+      "v_shift": 0.0,
+      "vertexes": []
+     },
+     {
+      "edges": [],
+      "extend": 0.0,
+      "faces": [
+       "Face1"
+      ],
+      "flip": false,
+      "h_shift": 0.0,
+      "mode": "Horizontal",
+      "rotate": 0.0,
+      "tag": "s-1H",
+      "type": "Face",
+      "v_shift": 0.0,
+      "vertexes": []
+     },
+     {
+      "edges": [],
+      "extend": 0.0,
+      "faces": [
+       "Face2"
+      ],
+      "flip": false,
+      "h_shift": 0.0,
+      "mode": "Vertical",
+      "rotate": 0.0,
+      "tag": "s-2V",
+      "type": "Face",
+      "v_shift": 0.0,
+      "vertexes": []
+     },
+     {
+      "edges": [],
+      "extend": 0.0,
+      "faces": [
+       "Face2"
+      ],
+      "flip": false,
+      "h_shift": 0.0,
+      "mode": "Horizontal",
+      "rotate": 0.0,
+      "tag": "s-2H",
+      "type": "Face",
+      "v_shift": 0.0,
+      "vertexes": []
+     },
+     {
+      "edges": [],
+      "extend": 0.0,
+      "faces": [
+       "Face3"
+      ],
+      "flip": false,
+      "h_shift": 0.0,
+      "mode": "Vertical",
+      "rotate": 0.0,
+      "tag": "s-3V",
+      "type": "Face",
+      "v_shift": 0.0,
+      "vertexes": []
+     },
+     {
+      "edges": [],
+      "extend": 0.0,
+      "faces": [
+       "Face3"
+      ],
+      "flip": false,
+      "h_shift": 0.0,
+      "mode": "Horizontal",
+      "rotate": 0.0,
+      "tag": "s-3H",
+      "type": "Face",
+      "v_shift": 0.0,
+      "vertexes": []
+     }
+    ],
+    "cosmetic_vertexes": [],
+    "item_type": "Front"
+   }
+  ],
+  "template": null
+ },
+ "plate_front_face_centerlines": {
+  "objects": [
+   {
+    "name": "Page",
+    "kind": "DrawPage",
+    "type_id": "TechDraw::DrawPage",
+    "template": "Template",
+    "projection_type": "First angle",
+    "scale": 1.0,
+    "keep_updated": true,
+    "next_balloon_index": 1,
+    "label": null
+   },
+   {
+    "name": "Template",
+    "kind": "DrawSVGTemplate",
+    "type_id": "TechDraw::DrawSVGTemplate",
+    "template": "Default_Template_A4_Landscape.svg",
+    "editable_texts": {},
+    "label": null
+   },
+   {
+    "name": "View",
+    "kind": "DrawProjGroupItem",
+    "type_id": "TechDraw::DrawProjGroupItem",
+    "x": 148.5,
+    "y": 105.0,
+    "lock_position": false,
+    "rotation": 0.0,
+    "scale_type": "Page",
+    "scale": 1.0,
+    "caption": "",
+    "label": null,
+    "source": [
+     "plate"
+    ],
+    "direction": [
+     0.0,
+     -1.0,
+     0.0
+    ],
+    "x_direction": [
+     1.0,
+     0.0,
+     0.0
+    ],
+    "perspective": false,
+    "focus": 100.0,
+    "coarse_view": false,
+    "smooth_visible": true,
+    "seam_visible": false,
+    "iso_visible": false,
+    "hard_hidden": false,
+    "smooth_hidden": false,
+    "seam_hidden": false,
+    "iso_hidden": false,
+    "iso_count": 0,
+    "scrub_count": 1,
+    "cosmetic_edges": [],
+    "center_lines": [
+     {
+      "edges": [],
+      "extend": 0.0,
+      "faces": [
+       "Face0"
+      ],
+      "flip": false,
+      "h_shift": 0.0,
+      "mode": "Vertical",
+      "rotate": 0.0,
+      "tag": "p-0V",
+      "type": "Face",
+      "v_shift": 0.0,
+      "vertexes": []
+     },
+     {
+      "edges": [],
+      "extend": 0.0,
+      "faces": [
+       "Face0"
+      ],
+      "flip": false,
+      "h_shift": 0.0,
+      "mode": "Horizontal",
+      "rotate": 0.0,
+      "tag": "p-0H",
+      "type": "Face",
+      "v_shift": 0.0,
+      "vertexes": []
+     },
+     {
+      "edges": [],
+      "extend": 0.0,
+      "faces": [
+       "Face1"
+      ],
+      "flip": false,
+      "h_shift": 0.0,
+      "mode": "Vertical",
+      "rotate": 0.0,
+      "tag": "p-1V",
+      "type": "Face",
+      "v_shift": 0.0,
+      "vertexes": []
+     },
+     {
+      "edges": [],
+      "extend": 0.0,
+      "faces": [
+       "Face1"
+      ],
+      "flip": false,
+      "h_shift": 0.0,
+      "mode": "Horizontal",
+      "rotate": 0.0,
+      "tag": "p-1H",
+      "type": "Face",
+      "v_shift": 0.0,
+      "vertexes": []
+     },
+     {
+      "edges": [],
+      "extend": 0.0,
+      "faces": [
+       "Face2"
+      ],
+      "flip": false,
+      "h_shift": 0.0,
+      "mode": "Vertical",
+      "rotate": 0.0,
+      "tag": "p-2V",
+      "type": "Face",
+      "v_shift": 0.0,
+      "vertexes": []
+     },
+     {
+      "edges": [],
+      "extend": 0.0,
+      "faces": [
+       "Face2"
+      ],
+      "flip": false,
+      "h_shift": 0.0,
+      "mode": "Horizontal",
+      "rotate": 0.0,
+      "tag": "p-2H",
+      "type": "Face",
       "v_shift": 0.0,
       "vertexes": []
      }

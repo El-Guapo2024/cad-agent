@@ -177,6 +177,38 @@ CASES = {
         setp("View", scale_type="Custom", scale=1.5, rotation=30.0),
         *centerlines(),
     ]},
+    # centre lines on faces: the faces of a view are its closed wires, the biggest first
+    "bracket_face_centerlines": {"ops": [
+        {"op": "view", "source": ["bracket"]},
+        {"op": "centerline", "view": "View", "subs": ["Face0"], "mode": "Vertical", "tag": "f-1"},
+        {"op": "centerline", "view": "View", "subs": ["Face1"], "mode": "Horizontal", "extend": 1.0, "tag": "f-2"},
+        {"op": "centerline", "view": "View", "subs": ["Face2", "Face3"], "mode": "Vertical", "h_shift": 2.0, "tag": "f-3"},
+        {"op": "centerline", "view": "View", "subs": ["Face4"], "mode": "Horizontal", "rotate": 20.0, "tag": "f-4"},
+    ]},
+    "bracket_iso_face_centerlines": {"ops": [
+        {"op": "view", "source": ["bracket"], "direction": [1, -1, 1], "x_direction": [1, 1, 0]},
+        {"op": "centerline", "view": "View", "subs": ["Face0"], "mode": "Vertical", "tag": "f-1"},
+        {"op": "centerline", "view": "View", "subs": ["Face1"], "mode": "Horizontal", "tag": "f-2"},
+        {"op": "centerline", "view": "View", "subs": ["Face5"], "mode": "Vertical", "tag": "f-3"},
+    ]},
+    "plate_face_centerlines_rotated": {"ops": [
+        {"op": "view", "source": ["plate"], "direction": [0, 0, 1]},
+        setp("View", scale_type="Custom", scale=2.0, rotation=30.0),
+        {"op": "cosmetic_line", "view": "View", "p0": [-12, 0], "p1": [12, 0], "tag": "cl-1"},
+        {"op": "centerline", "view": "View", "subs": ["Face0"], "mode": "Vertical", "tag": "f-1"},
+        {"op": "centerline", "view": "View", "subs": ["Face1"], "mode": "Horizontal", "v_shift": 1.0, "tag": "f-2"},
+        {"op": "centerline", "view": "View", "subs": ["Face1"], "mode": "Vertical", "rotate": 5.0, "tag": "f-3"},
+    ]},
+    "shaft_face_centerlines": {"ops": [
+        {"op": "view", "source": ["shaft"]},
+        *[{"op": "centerline", "view": "View", "subs": [f"Face{i}"], "mode": m, "tag": f"s-{i}{m[0]}"}
+          for i in range(4) for m in ("Vertical", "Horizontal")],
+    ]},
+    "plate_front_face_centerlines": {"ops": [
+        {"op": "view", "source": ["plate"]},
+        *[{"op": "centerline", "view": "View", "subs": [f"Face{i}"], "mode": m, "tag": f"p-{i}{m[0]}"}
+          for i in range(3) for m in ("Vertical", "Horizontal")],
+    ]},
     # an eraser: the cosmetic edge and vertex taken away again
     "plate_cosmetic_erased": {"ops": [
         {"op": "view", "source": ["plate"], "direction": [0, 0, 1]},

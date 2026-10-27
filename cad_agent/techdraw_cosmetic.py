@@ -376,5 +376,52 @@ def _ends_2points(cl, geo, o, scale, rotation):
     return _finish(p1, p2, mid, cl, scale)
 
 
+def faces_of(geo, o):
+    """The view's faces (techdraw_faces.py), found once: the wires of Face0, Face1, ..."""
+    if getattr(geo, "face_wires", None) is None:
+        from . import techdraw_faces as F
+        geo.face_wires = F.find_faces(F.face_edges(geo, o.smooth_visible, o.seam_visible))
+    return geo.face_wires
+
+
 def _ends_faces(cl, geo, o, scale, rotation, faces):
-    raise CosmeticError("a face centre line needs the view's faces")
+    """CenterLine::calcEndPoints: the box of the faces' edges (turned back by the view's Rotation, centred on
+    ShapeUtils::findCentroid, which measures it in the view's CS), a line through its middle, vertical or horizontal."""
+    from OCP.Bnd import Bnd_Box
+    from OCP.BRepBndLib import BRepBndLib
+    from OCP.BRepTools import BRepTools_WireExplorer
+    from .techdraw_view import _compound, _box, find_centroid, move_shape, projection_cs, rotate_shape
+    wires = faces_of(geo, o)
+    edges = []
+    for name in cl["faces"]:
+        i = _sub_index(name)
+        if not (0 <= i < len(wires)):
+            continue
+        ex = BRepTools_WireExplorer(wires[i])
+        while ex.More():
+            edges.append(ex.Current())
+            ex.Next()
+    if not edges:
+        raise CosmeticError("CenterLine wrong number of faces.")
+    comp = invert_geometry(_compound(edges))    # FreeCAD's face wires are y up here
+    cs = projection_cs(o.direction, o.x_direction)
+    if rotation != 0.0:
+        comp = rotate_shape(comp, cs, -rotation)
+    center = find_centroid(comp, cs)
+    comp = move_shape(comp, (-center[0], -center[1], -center[2]))
+    box = Bnd_Box()
+    box.SetGap(0.0)
+    BRepBndLib.AddOptimal_s(comp, box, True, False)
+    if box.IsVoid():
+        raise CosmeticError("faceBox is void!")
+    x0, y0, _, x1, y1, _ = _box(box)
+    xs, ys = abs(x1 - x0) / 2.0, abs(y1 - y0) / 2.0
+    if cl["mode"] == "Horizontal":
+        p1, p2 = [-xs, 0.0, 0.0], [xs, 0.0, 0.0]
+    else:                                   # vertical; aligned means nothing for a face
+        p1, p2 = [0.0, ys, 0.0], [0.0, -ys, 0.0]
+    p1 = [p1[i] + center[i] for i in range(3)]
+    p2 = [p2[i] + center[i] for i in range(3)]
+    mid = [(p1[i] + p2[i]) / 2.0 for i in range(3)]
+    p1, p2, _ = _shift_and_unscale(p1, p2, mid, cl, scale)
+    return _finish(p1, p2, mid, cl, scale)
