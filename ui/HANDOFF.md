@@ -115,6 +115,14 @@ Step 5, round 3 (six branches) is all in main (7526c0c, CI green, 6977 passed, 2
 - Juan's rules from here (2026-10-27): keep the ports already written; for the remaining work recycle code (packages,
   FreeCAD's code vendored, the repo's own) wherever it is faster and simpler; keep a rewrite that is faster or must run
   in the browser. The end goal is a Rust implementation, later; not started.
+- Step 5, round 7 (2026-10-27/28): sketcher-ext (projection of non-flat faces, External Intersection, reversed arcs
+  and Validate's swap; the sketch kernel's import order), techdraw-3 (leader, rich text, symbols, weld, surface finish,
+  image, clip group) and part-wb-2 (Simple/Transformed/Element copy, Convert to solid, Set tolerance, Cross-sections,
+  Shape builder; Check geometry, Box selection, section cut, per-face appearance, mesh commands cut) are in main,
+  8290 passed. At merge: partcheck 564 ok, 0 FAIL; techdrawcheck 737 ok, 2 FAIL: the view-frame click (on main too)
+  and a cosmetic-object step in the annot part that fails only in the full run (--only=annot: 260 ok, 0 FAIL, twice).
+- Speed (Juan): agents run only their own tests and one GUI check at the end; the lead runs the full suite and the
+  touched areas' GUI checks once at merge, with both native solvers built from the merged worktree's own sources.
 - pd-last (2026-10-27): PartDesign's last commands, each a KwFeature: Involute Gear and Sprocket (cad_agent/feature_gear.py,
   a profile as a sketch is), Defeaturing (feature_defeaturing.py), Sub-Shape Binder (feature_subbinder.py), Boolean and Clone
   (feature_boolean.py, `cad feature clone`): a Body is a part module, so a Boolean's tool or a Clone's source is another part's
