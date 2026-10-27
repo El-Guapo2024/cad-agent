@@ -283,6 +283,8 @@ def build_scene(slug: str, deviation: float | None = None, angular: float | None
     from .geom import bbox, mass_g
     from .verify import source_hash
     pdir = st.project_dir(slug)
+    # the sources' hash as the build starts: a file written while it builds leaves the scene stale, not marked fresh
+    src_hash = source_hash(pdir)[0]
     part_names = st.part_names(slug)
     machine = st.load_machine(slug, placed=False, describe=False)
     base, axes = (machine.parts, machine.axes) if machine is not None else (None, {})
@@ -381,7 +383,7 @@ def build_scene(slug: str, deviation: float | None = None, angular: float | None
     return {
         "format": FORMAT, "project": slug, "root": str(st.ROOT), "units": "mm",
         "written_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
-        "source_hash": source_hash(pdir)[0],
+        "source_hash": src_hash,
         "assembly": assembly, "triangles": triangles,
         "bbox": [[round(v, 4) for v in lo_all], [round(v, 4) for v in hi_all]] if bodies else None,
         "bodies": bodies,

@@ -22431,6 +22431,509 @@
     }
    }
   },
+  "subasm_rigid_distance": {
+   "names": {
+    "Plate": "Plate"
+   },
+   "steps": [
+    {
+     "placements": {
+      "Plate": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ],
+      "Assembly001": [
+       50.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ],
+      "Plate001": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ],
+      "Pin": [
+       20.0,
+       14.999999999999996,
+       -15.0,
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     "joints": {},
+     "assembly_links": {
+      "Assembly001": {
+       "rigid": true,
+       "children": [
+        "Plate001",
+        "Pin"
+       ],
+       "labels": [
+        "Plate001",
+        "Pin"
+       ]
+      }
+     },
+     "printed": "MbD: Assembling system. \nMbD: Convergence = 0\nTime = 0\n"
+    },
+    {
+     "placements": {
+      "Plate": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ],
+      "Assembly001": [
+       50.0,
+       0.0,
+       15.0,
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ],
+      "Plate001": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ],
+      "Pin": [
+       20.0,
+       14.999999999999996,
+       -15.0,
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     "joints": {
+      "Joint": {
+       "label": "Distance",
+       "type": "Distance",
+       "reference1": [
+        "Plate",
+        [
+         "Face6",
+         "Face6"
+        ]
+       ],
+       "reference2": [
+        "Assembly001",
+        [
+         "Plate001.Face5",
+         "Plate001.Face5"
+        ]
+       ],
+       "placement1": [
+        5.0,
+        5.0,
+        10.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+       ],
+       "placement2": [
+        20.0,
+        14.999999999999996,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+       ],
+       "offset1": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+       ],
+       "offset2": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+       ],
+       "distance": 5.0,
+       "distance2": 0.0,
+       "angle": 0.0,
+       "enable_length_min": false,
+       "enable_length_max": false,
+       "enable_angle_min": false,
+       "enable_angle_max": false,
+       "length_min": 0.0,
+       "length_max": 0.0,
+       "angle_min": 0.0,
+       "angle_max": 0.0,
+       "suppressed": false
+      }
+     },
+     "assembly_links": {
+      "Assembly001": {
+       "rigid": true,
+       "children": [
+        "Plate001",
+        "Pin"
+       ],
+       "labels": [
+        "Plate001",
+        "Pin"
+       ]
+      }
+     },
+     "printed": "MbD: Assembling system. \nMbD: Convergence = 159923740.83612123\nMbD: Convergence = 13749792.45126377\nMbD: Convergence = 0\nTime = 0\nMbD: Assembling system. \nMbD: Convergence = 79070273.342230797\nMbD: Convergence = 3437448.1128159426\nMbD: Convergence = 0\nTime = 0\nMbD: Assembling system. \nMbD: Convergence = 0\nTime = 0\nMbD: Assembling system. \nMbD: Convergence = 0\nTime = 0\nMbD: Assembling system. \nMbD: Convergence = 0\nTime = 0\n"
+    }
+   ],
+   "solve": 0,
+   "solve_printed": "MbD: Assembling system. \nMbD: Convergence = 0\nTime = 0\n",
+   "after_solve": {
+    "placements": {
+     "Plate": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      1.0
+     ],
+     "Assembly001": [
+      50.0,
+      0.0,
+      15.0,
+      0.0,
+      0.0,
+      0.0,
+      1.0
+     ],
+     "Plate001": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      1.0
+     ],
+     "Pin": [
+      20.0,
+      14.999999999999996,
+      -15.0,
+      0.0,
+      0.0,
+      0.0,
+      1.0
+     ]
+    },
+    "joints": {
+     "Joint": {
+      "label": "Distance",
+      "type": "Distance",
+      "reference1": [
+       "Plate",
+       [
+        "Face6",
+        "Face6"
+       ]
+      ],
+      "reference2": [
+       "Assembly001",
+       [
+        "Plate001.Face5",
+        "Plate001.Face5"
+       ]
+      ],
+      "placement1": [
+       5.0,
+       5.0,
+       10.0,
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ],
+      "placement2": [
+       20.0,
+       14.999999999999996,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ],
+      "offset1": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ],
+      "offset2": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ],
+      "distance": 5.0,
+      "distance2": 0.0,
+      "angle": 0.0,
+      "enable_length_min": false,
+      "enable_length_max": false,
+      "enable_angle_min": false,
+      "enable_angle_max": false,
+      "length_min": 0.0,
+      "length_max": 0.0,
+      "angle_min": 0.0,
+      "angle_max": 0.0,
+      "suppressed": false
+     }
+    },
+    "assembly_links": {
+     "Assembly001": {
+      "rigid": true,
+      "children": [
+       "Plate001",
+       "Pin"
+      ],
+      "labels": [
+       "Plate001",
+       "Pin"
+      ]
+     }
+    }
+   },
+   "asmt": "OndselSolver\nAssembly\n\tNotes\n\t\t(Text string: '' runs: (Core.RunArray runs: #() values: #()))\n\tName\n\t\tOndselAssembly\n\tPosition3D\n\t\t0\t0\t0\t\n\tRotationMatrix\n\t\t1\t0\t0\t\n\t\t0\t1\t0\t\n\t\t0\t0\t1\t\n\tVelocity3D\n\t\t0\t0\t0\t\n\tOmega3D\n\t\t0\t0\t0\t\n\tRefPoints\n\t\tRefPoint\n\t\t\tPosition3D\n\t\t\t\t0\t0\t0\t\n\t\t\tRotationMatrix\n\t\t\t\t1\t0\t0\t\n\t\t\t\t0\t1\t0\t\n\t\t\t\t0\t0\t1\t\n\t\t\tMarkers\n\t\t\t\tMarker\n\t\t\t\t\tName\n\t\t\t\t\t\tmarker-Unnamed#Origin\n\t\t\t\t\tPosition3D\n\t\t\t\t\t\t0\t0\t0\t\n\t\t\t\t\tRotationMatrix\n\t\t\t\t\t\t1\t0\t0\t\n\t\t\t\t\t\t0\t1\t0\t\n\t\t\t\t\t\t0\t0\t1\t\n\t\tRefPoint\n\t\t\tPosition3D\n\t\t\t\t0\t0\t0\t\n\t\t\tRotationMatrix\n\t\t\t\t1\t0\t0\t\n\t\t\t\t0\t1\t0\t\n\t\t\t\t0\t0\t1\t\n\t\t\tMarkers\n\t\t\t\tMarker\n\t\t\t\t\tName\n\t\t\t\t\t\tmarker-Unnamed#Plate\n\t\t\t\t\tPosition3D\n\t\t\t\t\t\t0\t0\t0\t\n\t\t\t\t\tRotationMatrix\n\t\t\t\t\t\t1\t0\t0\t\n\t\t\t\t\t\t0\t1\t0\t\n\t\t\t\t\t\t0\t0\t1\t\n\tRefCurves\n\tRefSurfaces\n\tParts\n\t\tPart\n\t\t\tName\n\t\t\t\tUnnamed#Origin\n\t\t\tPosition3D\n\t\t\t\t0\t0\t0\t\n\t\t\tRotationMatrix\n\t\t\t\t1\t0\t0\t\n\t\t\t\t0\t1\t0\t\n\t\t\t\t0\t0\t1\t\n\t\t\tVelocity3D\n\t\t\t\t0\t0\t0\t\n\t\t\tOmega3D\n\t\t\t\t0\t0\t0\t\n\t\t\tFeatureOrder\n\t\t\tPrincipalMassMarker\n\t\t\t\tName\n\t\t\t\t\tMassMarker\n\t\t\t\tPosition3D\n\t\t\t\t\t0\t0\t0\t\n\t\t\t\tRotationMatrix\n\t\t\t\t\t1\t0\t0\t\n\t\t\t\t\t0\t1\t0\t\n\t\t\t\t\t0\t0\t1\t\n\t\t\t\tMass\n\t\t\t\t\t1\n\t\t\t\tMomentOfInertias\n\t\t\t\t\t1\t1\t1\t\n\t\t\t\tDensity\n\t\t\t\t\t1\n\t\t\tRefPoints\n\t\t\t\tRefPoint\n\t\t\t\t\tPosition3D\n\t\t\t\t\t\t0\t0\t0\t\n\t\t\t\t\tRotationMatrix\n\t\t\t\t\t\t1\t0\t0\t\n\t\t\t\t\t\t0\t1\t0\t\n\t\t\t\t\t\t0\t0\t1\t\n\t\t\t\t\tMarkers\n\t\t\t\t\t\tMarker\n\t\t\t\t\t\t\tName\n\t\t\t\t\t\t\t\tFixingMarker\n\t\t\t\t\t\t\tPosition3D\n\t\t\t\t\t\t\t\t0\t0\t0\t\n\t\t\t\t\t\t\tRotationMatrix\n\t\t\t\t\t\t\t\t1\t0\t0\t\n\t\t\t\t\t\t\t\t0\t1\t0\t\n\t\t\t\t\t\t\t\t0\t0\t1\t\n\t\t\tRefCurves\n\t\t\tRefSurfaces\n\t\tPart\n\t\t\tName\n\t\t\t\tUnnamed#Plate\n\t\t\tPosition3D\n\t\t\t\t0\t0\t0\t\n\t\t\tRotationMatrix\n\t\t\t\t1\t0\t0\t\n\t\t\t\t0\t1\t0\t\n\t\t\t\t0\t0\t1\t\n\t\t\tVelocity3D\n\t\t\t\t0\t0\t0\t\n\t\t\tOmega3D\n\t\t\t\t0\t0\t0\t\n\t\t\tFeatureOrder\n\t\t\tPrincipalMassMarker\n\t\t\t\tName\n\t\t\t\t\tMassMarker\n\t\t\t\tPosition3D\n\t\t\t\t\t0\t0\t0\t\n\t\t\t\tRotationMatrix\n\t\t\t\t\t1\t0\t0\t\n\t\t\t\t\t0\t1\t0\t\n\t\t\t\t\t0\t0\t1\t\n\t\t\t\tMass\n\t\t\t\t\t1\n\t\t\t\tMomentOfInertias\n\t\t\t\t\t1\t1\t1\t\n\t\t\t\tDensity\n\t\t\t\t\t1\n\t\t\tRefPoints\n\t\t\t\tRefPoint\n\t\t\t\t\tPosition3D\n\t\t\t\t\t\t0\t0\t0\t\n\t\t\t\t\tRotationMatrix\n\t\t\t\t\t\t1\t0\t0\t\n\t\t\t\t\t\t0\t1\t0\t\n\t\t\t\t\t\t0\t0\t1\t\n\t\t\t\t\tMarkers\n\t\t\t\t\t\tMarker\n\t\t\t\t\t\t\tName\n\t\t\t\t\t\t\t\tFixingMarker\n\t\t\t\t\t\t\tPosition3D\n\t\t\t\t\t\t\t\t0\t0\t0\t\n\t\t\t\t\t\t\tRotationMatrix\n\t\t\t\t\t\t\t\t1\t0\t0\t\n\t\t\t\t\t\t\t\t0\t1\t0\t\n\t\t\t\t\t\t\t\t0\t0\t1\t\n\t\t\t\tRefPoint\n\t\t\t\t\tPosition3D\n\t\t\t\t\t\t0\t0\t0\t\n\t\t\t\t\tRotationMatrix\n\t\t\t\t\t\t1\t0\t0\t\n\t\t\t\t\t\t0\t1\t0\t\n\t\t\t\t\t\t0\t0\t1\t\n\t\t\t\t\tMarkers\n\t\t\t\t\t\tMarker\n\t\t\t\t\t\t\tName\n\t\t\t\t\t\t\t\tUnnamed#Joint\n\t\t\t\t\t\t\tPosition3D\n\t\t\t\t\t\t\t\t5\t5\t10\t\n\t\t\t\t\t\t\tRotationMatrix\n\t\t\t\t\t\t\t\t1\t0\t0\t\n\t\t\t\t\t\t\t\t0\t1\t0\t\n\t\t\t\t\t\t\t\t0\t0\t1\t\n\t\t\tRefCurves\n\t\t\tRefSurfaces\n\t\tPart\n\t\t\tName\n\t\t\t\tUnnamed#Assembly001\n\t\t\tPosition3D\n\t\t\t\t50\t0\t15\t\n\t\t\tRotationMatrix\n\t\t\t\t1\t0\t0\t\n\t\t\t\t0\t1\t0\t\n\t\t\t\t0\t0\t1\t\n\t\t\tVelocity3D\n\t\t\t\t0\t0\t0\t\n\t\t\tOmega3D\n\t\t\t\t0\t0\t0\t\n\t\t\tFeatureOrder\n\t\t\tPrincipalMassMarker\n\t\t\t\tName\n\t\t\t\t\tMassMarker\n\t\t\t\tPosition3D\n\t\t\t\t\t0\t0\t0\t\n\t\t\t\tRotationMatrix\n\t\t\t\t\t1\t0\t0\t\n\t\t\t\t\t0\t1\t0\t\n\t\t\t\t\t0\t0\t1\t\n\t\t\t\tMass\n\t\t\t\t\t1\n\t\t\t\tMomentOfInertias\n\t\t\t\t\t1\t1\t1\t\n\t\t\t\tDensity\n\t\t\t\t\t1\n\t\t\tRefPoints\n\t\t\t\tRefPoint\n\t\t\t\t\tPosition3D\n\t\t\t\t\t\t0\t0\t0\t\n\t\t\t\t\tRotationMatrix\n\t\t\t\t\t\t1\t0\t0\t\n\t\t\t\t\t\t0\t1\t0\t\n\t\t\t\t\t\t0\t0\t1\t\n\t\t\t\t\tMarkers\n\t\t\t\t\t\tMarker\n\t\t\t\t\t\t\tName\n\t\t\t\t\t\t\t\tUnnamed#Joint\n\t\t\t\t\t\t\tPosition3D\n\t\t\t\t\t\t\t\t20\t14.999999999999996\t0\t\n\t\t\t\t\t\t\tRotationMatrix\n\t\t\t\t\t\t\t\t1\t0\t0\t\n\t\t\t\t\t\t\t\t0\t1\t0\t\n\t\t\t\t\t\t\t\t0\t0\t1\t\n\t\t\tRefCurves\n\t\t\tRefSurfaces\n\tKinematicIJs\n\tConstraintSets\n\t\tJoints\n\t\t\tdJointE\n\t\t\t\tName\n\t\t\t\t\tUnnamed#Origin\n\t\t\t\tMarkerI\n\t\t\t\t\t/OndselAssembly/marker-Unnamed#Origin\n\t\t\t\tMarkerJ\n\t\t\t\t\t/OndselAssembly/Unnamed#Origin/FixingMarker\n\t\t\tdJointE\n\t\t\t\tName\n\t\t\t\t\tUnnamed#Plate\n\t\t\t\tMarkerI\n\t\t\t\t\t/OndselAssembly/marker-Unnamed#Plate\n\t\t\t\tMarkerJ\n\t\t\t\t\t/OndselAssembly/Unnamed#Plate/FixingMarker\n\t\t\tarJointE\n\t\t\t\tName\n\t\t\t\t\tUnnamed#Joint\n\t\t\t\tMarkerI\n\t\t\t\t\t/OndselAssembly/Unnamed#Plate/Unnamed#Joint\n\t\t\t\tMarkerJ\n\t\t\t\t\t/OndselAssembly/Unnamed#Assembly001/Unnamed#Joint\n\t\t\t\toffset\n\t\t\t\t\t5\n\t\tMotions\n\t\tLimits\n\t\tGeneralConstraintSets\n\tForceTorques\n\tConstantGravity\n\t\t0\t0\t0\t\n\tSimulationParameters\n\t\ttstart\n\t\t\t0\n\t\ttend\n\t\t\t1\n\t\thmin\n\t\t\t1.0000000000000001e-09\n\t\thmax\n\t\t\t1000000000\n\t\thout\n\t\t\t0.10000000000000001\n\t\terrorTol\n\t\t\t9.9999999999999995e-07\n\tAnimationParameters\n\t\tnframe\n\t\t\t1000000\n\t\ticurrent\n\t\t\t1\n\t\tistart\n\t\t\t1\n\t\tiend\n\t\t\t1000000\n\t\tisForward\n\t\t\ttrue\n\t\tframesPerSecond\n\t\t\t30\n",
+   "subs": {
+    "Sub": {
+     "names": {
+      "Plate": "Plate",
+      "Pin": "Pin"
+     },
+     "steps": [
+      {
+       "placements": {
+        "Plate": [
+         0.0,
+         0.0,
+         0.0,
+         0.0,
+         0.0,
+         0.0,
+         1.0
+        ],
+        "Pin": [
+         20.0,
+         14.999999999999996,
+         -15.0,
+         0.0,
+         0.0,
+         0.0,
+         1.0
+        ]
+       },
+       "joints": {
+        "Joint": {
+         "label": "Revolute",
+         "type": "Revolute",
+         "reference1": [
+          "Plate",
+          [
+           "Face6",
+           "Face6"
+          ]
+         ],
+         "reference2": [
+          "Pin",
+          [
+           "Face3",
+           "Edge1"
+          ]
+         ],
+         "placement1": [
+          20.0,
+          14.999999999999996,
+          5.0,
+          0.0,
+          0.0,
+          0.0,
+          1.0
+         ],
+         "placement2": [
+          0.0,
+          0.0,
+          20.0,
+          0.0,
+          0.0,
+          0.0,
+          1.0
+         ],
+         "offset1": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          1.0
+         ],
+         "offset2": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          1.0
+         ],
+         "distance": 0.0,
+         "distance2": 0.0,
+         "angle": 0.0,
+         "enable_length_min": false,
+         "enable_length_max": false,
+         "enable_angle_min": false,
+         "enable_angle_max": false,
+         "length_min": 0.0,
+         "length_max": 0.0,
+         "angle_min": 0.0,
+         "angle_max": 0.0,
+         "suppressed": false
+        }
+       },
+       "printed": "MbD: Assembling system. \nMbD: Convergence = 9.7918912052141657e-08\nMbD: Convergence = 1.0076983312607357e-08\nMbD: Convergence = 1.1682175540471654e-23\nTime = 0\nMbD: Assembling system. \nMbD: Convergence = 0\nTime = 0\nMbD: Assembling system. \nMbD: Convergence = 0\nTime = 0\nMbD: Assembling system. \nMbD: Convergence = 0\nTime = 0\n"
+      }
+     ],
+     "solve": 0,
+     "solve_printed": "MbD: Assembling system. \nMbD: Convergence = 0\nTime = 0\n",
+     "after_solve": {
+      "placements": {
+       "Plate": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+       ],
+       "Pin": [
+        20.0,
+        14.999999999999996,
+        -15.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+       ]
+      },
+      "joints": {
+       "Joint": {
+        "label": "Revolute",
+        "type": "Revolute",
+        "reference1": [
+         "Plate",
+         [
+          "Face6",
+          "Face6"
+         ]
+        ],
+        "reference2": [
+         "Pin",
+         [
+          "Face3",
+          "Edge1"
+         ]
+        ],
+        "placement1": [
+         20.0,
+         14.999999999999996,
+         5.0,
+         0.0,
+         0.0,
+         0.0,
+         1.0
+        ],
+        "placement2": [
+         0.0,
+         0.0,
+         20.0,
+         0.0,
+         0.0,
+         0.0,
+         1.0
+        ],
+        "offset1": [
+         0.0,
+         0.0,
+         0.0,
+         0.0,
+         0.0,
+         0.0,
+         1.0
+        ],
+        "offset2": [
+         0.0,
+         0.0,
+         0.0,
+         0.0,
+         0.0,
+         0.0,
+         1.0
+        ],
+        "distance": 0.0,
+        "distance2": 0.0,
+        "angle": 0.0,
+        "enable_length_min": false,
+        "enable_length_max": false,
+        "enable_angle_min": false,
+        "enable_angle_max": false,
+        "length_min": 0.0,
+        "length_max": 0.0,
+        "angle_min": 0.0,
+        "angle_max": 0.0,
+        "suppressed": false
+       }
+      }
+     },
+     "asmt": "OndselSolver\nAssembly\n\tNotes\n\t\t(Text string: '' runs: (Core.RunArray runs: #() values: #()))\n\tName\n\t\tOndselAssembly\n\tPosition3D\n\t\t0\t0\t0\t\n\tRotationMatrix\n\t\t1\t0\t0\t\n\t\t0\t1\t0\t\n\t\t0\t0\t1\t\n\tVelocity3D\n\t\t0\t0\t0\t\n\tOmega3D\n\t\t0\t0\t0\t\n\tRefPoints\n\t\tRefPoint\n\t\t\tPosition3D\n\t\t\t\t0\t0\t0\t\n\t\t\tRotationMatrix\n\t\t\t\t1\t0\t0\t\n\t\t\t\t0\t1\t0\t\n\t\t\t\t0\t0\t1\t\n\t\t\tMarkers\n\t\t\t\tMarker\n\t\t\t\t\tName\n\t\t\t\t\t\tmarker-Sub#Origin\n\t\t\t\t\tPosition3D\n\t\t\t\t\t\t0\t0\t0\t\n\t\t\t\t\tRotationMatrix\n\t\t\t\t\t\t1\t0\t0\t\n\t\t\t\t\t\t0\t1\t0\t\n\t\t\t\t\t\t0\t0\t1\t\n\t\tRefPoint\n\t\t\tPosition3D\n\t\t\t\t0\t0\t0\t\n\t\t\tRotationMatrix\n\t\t\t\t1\t0\t0\t\n\t\t\t\t0\t1\t0\t\n\t\t\t\t0\t0\t1\t\n\t\t\tMarkers\n\t\t\t\tMarker\n\t\t\t\t\tName\n\t\t\t\t\t\tmarker-Sub#Plate\n\t\t\t\t\tPosition3D\n\t\t\t\t\t\t0\t0\t0\t\n\t\t\t\t\tRotationMatrix\n\t\t\t\t\t\t1\t0\t0\t\n\t\t\t\t\t\t0\t1\t0\t\n\t\t\t\t\t\t0\t0\t1\t\n\tRefCurves\n\tRefSurfaces\n\tParts\n\t\tPart\n\t\t\tName\n\t\t\t\tSub#Origin\n\t\t\tPosition3D\n\t\t\t\t0\t0\t0\t\n\t\t\tRotationMatrix\n\t\t\t\t1\t0\t0\t\n\t\t\t\t0\t1\t0\t\n\t\t\t\t0\t0\t1\t\n\t\t\tVelocity3D\n\t\t\t\t0\t0\t0\t\n\t\t\tOmega3D\n\t\t\t\t0\t0\t0\t\n\t\t\tFeatureOrder\n\t\t\tPrincipalMassMarker\n\t\t\t\tName\n\t\t\t\t\tMassMarker\n\t\t\t\tPosition3D\n\t\t\t\t\t0\t0\t0\t\n\t\t\t\tRotationMatrix\n\t\t\t\t\t1\t0\t0\t\n\t\t\t\t\t0\t1\t0\t\n\t\t\t\t\t0\t0\t1\t\n\t\t\t\tMass\n\t\t\t\t\t1\n\t\t\t\tMomentOfInertias\n\t\t\t\t\t1\t1\t1\t\n\t\t\t\tDensity\n\t\t\t\t\t1\n\t\t\tRefPoints\n\t\t\t\tRefPoint\n\t\t\t\t\tPosition3D\n\t\t\t\t\t\t0\t0\t0\t\n\t\t\t\t\tRotationMatrix\n\t\t\t\t\t\t1\t0\t0\t\n\t\t\t\t\t\t0\t1\t0\t\n\t\t\t\t\t\t0\t0\t1\t\n\t\t\t\t\tMarkers\n\t\t\t\t\t\tMarker\n\t\t\t\t\t\t\tName\n\t\t\t\t\t\t\t\tFixingMarker\n\t\t\t\t\t\t\tPosition3D\n\t\t\t\t\t\t\t\t0\t0\t0\t\n\t\t\t\t\t\t\tRotationMatrix\n\t\t\t\t\t\t\t\t1\t0\t0\t\n\t\t\t\t\t\t\t\t0\t1\t0\t\n\t\t\t\t\t\t\t\t0\t0\t1\t\n\t\t\tRefCurves\n\t\t\tRefSurfaces\n\t\tPart\n\t\t\tName\n\t\t\t\tSub#Plate\n\t\t\tPosition3D\n\t\t\t\t0\t0\t0\t\n\t\t\tRotationMatrix\n\t\t\t\t1\t0\t0\t\n\t\t\t\t0\t1\t0\t\n\t\t\t\t0\t0\t1\t\n\t\t\tVelocity3D\n\t\t\t\t0\t0\t0\t\n\t\t\tOmega3D\n\t\t\t\t0\t0\t0\t\n\t\t\tFeatureOrder\n\t\t\tPrincipalMassMarker\n\t\t\t\tName\n\t\t\t\t\tMassMarker\n\t\t\t\tPosition3D\n\t\t\t\t\t0\t0\t0\t\n\t\t\t\tRotationMatrix\n\t\t\t\t\t1\t0\t0\t\n\t\t\t\t\t0\t1\t0\t\n\t\t\t\t\t0\t0\t1\t\n\t\t\t\tMass\n\t\t\t\t\t1\n\t\t\t\tMomentOfInertias\n\t\t\t\t\t1\t1\t1\t\n\t\t\t\tDensity\n\t\t\t\t\t1\n\t\t\tRefPoints\n\t\t\t\tRefPoint\n\t\t\t\t\tPosition3D\n\t\t\t\t\t\t0\t0\t0\t\n\t\t\t\t\tRotationMatrix\n\t\t\t\t\t\t1\t0\t0\t\n\t\t\t\t\t\t0\t1\t0\t\n\t\t\t\t\t\t0\t0\t1\t\n\t\t\t\t\tMarkers\n\t\t\t\t\t\tMarker\n\t\t\t\t\t\t\tName\n\t\t\t\t\t\t\t\tFixingMarker\n\t\t\t\t\t\t\tPosition3D\n\t\t\t\t\t\t\t\t0\t0\t0\t\n\t\t\t\t\t\t\tRotationMatrix\n\t\t\t\t\t\t\t\t1\t0\t0\t\n\t\t\t\t\t\t\t\t0\t1\t0\t\n\t\t\t\t\t\t\t\t0\t0\t1\t\n\t\t\t\tRefPoint\n\t\t\t\t\tPosition3D\n\t\t\t\t\t\t0\t0\t0\t\n\t\t\t\t\tRotationMatrix\n\t\t\t\t\t\t1\t0\t0\t\n\t\t\t\t\t\t0\t1\t0\t\n\t\t\t\t\t\t0\t0\t1\t\n\t\t\t\t\tMarkers\n\t\t\t\t\t\tMarker\n\t\t\t\t\t\t\tName\n\t\t\t\t\t\t\t\tSub#Joint\n\t\t\t\t\t\t\tPosition3D\n\t\t\t\t\t\t\t\t20\t14.999999999999996\t5\t\n\t\t\t\t\t\t\tRotationMatrix\n\t\t\t\t\t\t\t\t1\t0\t0\t\n\t\t\t\t\t\t\t\t0\t1\t0\t\n\t\t\t\t\t\t\t\t0\t0\t1\t\n\t\t\tRefCurves\n\t\t\tRefSurfaces\n\t\tPart\n\t\t\tName\n\t\t\t\tSub#Pin\n\t\t\tPosition3D\n\t\t\t\t20\t14.999999999999996\t-15\t\n\t\t\tRotationMatrix\n\t\t\t\t1\t0\t0\t\n\t\t\t\t0\t1\t0\t\n\t\t\t\t0\t0\t1\t\n\t\t\tVelocity3D\n\t\t\t\t0\t0\t0\t\n\t\t\tOmega3D\n\t\t\t\t0\t0\t0\t\n\t\t\tFeatureOrder\n\t\t\tPrincipalMassMarker\n\t\t\t\tName\n\t\t\t\t\tMassMarker\n\t\t\t\tPosition3D\n\t\t\t\t\t0\t0\t0\t\n\t\t\t\tRotationMatrix\n\t\t\t\t\t1\t0\t0\t\n\t\t\t\t\t0\t1\t0\t\n\t\t\t\t\t0\t0\t1\t\n\t\t\t\tMass\n\t\t\t\t\t1\n\t\t\t\tMomentOfInertias\n\t\t\t\t\t1\t1\t1\t\n\t\t\t\tDensity\n\t\t\t\t\t1\n\t\t\tRefPoints\n\t\t\t\tRefPoint\n\t\t\t\t\tPosition3D\n\t\t\t\t\t\t0\t0\t0\t\n\t\t\t\t\tRotationMatrix\n\t\t\t\t\t\t1\t0\t0\t\n\t\t\t\t\t\t0\t1\t0\t\n\t\t\t\t\t\t0\t0\t1\t\n\t\t\t\t\tMarkers\n\t\t\t\t\t\tMarker\n\t\t\t\t\t\t\tName\n\t\t\t\t\t\t\t\tSub#Joint\n\t\t\t\t\t\t\tPosition3D\n\t\t\t\t\t\t\t\t0\t0\t20\t\n\t\t\t\t\t\t\tRotationMatrix\n\t\t\t\t\t\t\t\t1\t0\t0\t\n\t\t\t\t\t\t\t\t0\t1\t0\t\n\t\t\t\t\t\t\t\t0\t0\t1\t\n\t\t\tRefCurves\n\t\t\tRefSurfaces\n\tKinematicIJs\n\tConstraintSets\n\t\tJoints\n\t\t\tdJointE\n\t\t\t\tName\n\t\t\t\t\tSub#Origin\n\t\t\t\tMarkerI\n\t\t\t\t\t/OndselAssembly/marker-Sub#Origin\n\t\t\t\tMarkerJ\n\t\t\t\t\t/OndselAssembly/Sub#Origin/FixingMarker\n\t\t\tdJointE\n\t\t\t\tName\n\t\t\t\t\tSub#Plate\n\t\t\t\tMarkerI\n\t\t\t\t\t/OndselAssembly/marker-Sub#Plate\n\t\t\t\tMarkerJ\n\t\t\t\t\t/OndselAssembly/Sub#Plate/FixingMarker\n\t\t\tluteJointE\n\t\t\t\tName\n\t\t\t\t\tSub#Joint\n\t\t\t\tMarkerI\n\t\t\t\t\t/OndselAssembly/Sub#Plate/Sub#Joint\n\t\t\t\tMarkerJ\n\t\t\t\t\t/OndselAssembly/Sub#Pin/Sub#Joint\n\t\tMotions\n\t\tLimits\n\t\tGeneralConstraintSets\n\tForceTorques\n\tConstantGravity\n\t\t0\t0\t0\t\n\tSimulationParameters\n\t\ttstart\n\t\t\t0\n\t\ttend\n\t\t\t1\n\t\thmin\n\t\t\t1.0000000000000001e-09\n\t\thmax\n\t\t\t1000000000\n\t\thout\n\t\t\t0.10000000000000001\n\t\terrorTol\n\t\t\t9.9999999999999995e-07\n\tAnimationParameters\n\t\tnframe\n\t\t\t1000000\n\t\ticurrent\n\t\t\t1\n\t\tistart\n\t\t\t1\n\t\tiend\n\t\t\t1000000\n\t\tisForward\n\t\t\ttrue\n\t\tframesPerSecond\n\t\t\t30\n",
+     "subs": {}
+    }
+   }
+  },
   "subasm_flexible_inserted": {
    "names": {
     "Plate": "Plate"
@@ -25283,6 +25786,1207 @@
      "subs": {}
     }
    }
+  },
+  "exploded_two_moves": {
+   "names": {
+    "Plate": "Plate",
+    "Arm": "Arm",
+    "Pin": "Pin"
+   },
+   "steps": [
+    {
+     "placements": {
+      "Plate": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ],
+      "Arm": [
+       40.0,
+       30.0,
+       -4.0,
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ],
+      "Pin": [
+       -20.0,
+       40.0,
+       15.0,
+       0.48776392296296117,
+       -0.11418266476504209,
+       -0.28097127493980556,
+       0.8185986911678008
+      ]
+     },
+     "joints": {
+      "Joint": {
+       "label": "Revolute",
+       "type": "Revolute",
+       "reference1": [
+        "Plate",
+        [
+         "Face6",
+         "Vertex8"
+        ]
+       ],
+       "reference2": [
+        "Arm",
+        [
+         "Face5",
+         "Vertex1"
+        ]
+       ],
+       "placement1": [
+        40.0,
+        30.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+       ],
+       "placement2": [
+        0.0,
+        0.0,
+        4.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+       ],
+       "offset1": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+       ],
+       "offset2": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+       ],
+       "distance": 0.0,
+       "distance2": 0.0,
+       "angle": 0.0,
+       "enable_length_min": false,
+       "enable_length_max": false,
+       "enable_angle_min": false,
+       "enable_angle_max": false,
+       "length_min": 0.0,
+       "length_max": 0.0,
+       "angle_min": 0.0,
+       "angle_max": 0.0,
+       "suppressed": false
+      }
+     },
+     "printed": "MbD: Assembling system. \nMbD: Convergence = 5.4009024676717179e-08\nMbD: Convergence = 2.7858042095409958e-09\nMbD: Convergence = 5.8460826800469357e-25\nTime = 0\nMbD: Assembling system. \nMbD: Convergence = 0\nTime = 0\nMbD: Assembling system. \nMbD: Convergence = 0\nTime = 0\nMbD: Assembling system. \nMbD: Convergence = 0\nTime = 0\n"
+    },
+    {
+     "placements": {
+      "Plate": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ],
+      "Arm": [
+       40.0,
+       30.0,
+       -4.0,
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ],
+      "Pin": [
+       -20.0,
+       40.0,
+       15.0,
+       0.48776392296296117,
+       -0.11418266476504209,
+       -0.28097127493980556,
+       0.8185986911678008
+      ]
+     },
+     "joints": {
+      "Joint": {
+       "label": "Revolute",
+       "type": "Revolute",
+       "reference1": [
+        "Plate",
+        [
+         "Face6",
+         "Vertex8"
+        ]
+       ],
+       "reference2": [
+        "Arm",
+        [
+         "Face5",
+         "Vertex1"
+        ]
+       ],
+       "placement1": [
+        40.0,
+        30.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+       ],
+       "placement2": [
+        0.0,
+        0.0,
+        4.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+       ],
+       "offset1": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+       ],
+       "offset2": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+       ],
+       "distance": 0.0,
+       "distance2": 0.0,
+       "angle": 0.0,
+       "enable_length_min": false,
+       "enable_length_max": false,
+       "enable_angle_min": false,
+       "enable_angle_max": false,
+       "length_min": 0.0,
+       "length_max": 0.0,
+       "angle_min": 0.0,
+       "angle_max": 0.0,
+       "suppressed": false
+      }
+     },
+     "exploded": {
+      "Exploded_View": {
+       "group": "Exploded_Views",
+       "label": "Exploded_View",
+       "moves": [
+        "Move",
+        "Move001"
+       ],
+       "placements": {
+        "Arm": [
+         40.0,
+         30.0,
+         21.0,
+         0.0,
+         0.0,
+         0.0,
+         1.0
+        ],
+        "Pin": [
+         -10.0,
+         35.0,
+         40.0,
+         0.4877639229629612,
+         -0.1141826647650421,
+         -0.2809712749398056,
+         0.8185986911678009
+        ]
+       },
+       "lines": [
+        [
+         [
+          55.0,
+          33.0,
+          -2.0
+         ],
+         [
+          55.0,
+          33.0,
+          23.0
+         ]
+        ],
+        [
+         [
+          -24.610348624705193,
+          32.655982799174126,
+          19.98097349045873
+         ],
+         [
+          -24.61034862470519,
+          32.65598279917412,
+          44.98097349045872
+         ]
+        ],
+        [
+         [
+          -24.610348624705193,
+          32.655982799174126,
+          19.98097349045873
+         ],
+         [
+          -14.610348624705189,
+          27.65598279917412,
+          19.980973490458723
+         ]
+        ]
+       ]
+      }
+     },
+     "printed": "MbD: Assembling system. \nMbD: Convergence = 0\nTime = 0\n"
+    }
+   ],
+   "solve": 0,
+   "solve_printed": "MbD: Assembling system. \nMbD: Convergence = 0\nTime = 0\n",
+   "after_solve": {
+    "placements": {
+     "Plate": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      1.0
+     ],
+     "Arm": [
+      40.0,
+      30.0,
+      -4.0,
+      0.0,
+      0.0,
+      0.0,
+      1.0
+     ],
+     "Pin": [
+      -20.0,
+      40.0,
+      15.0,
+      0.48776392296296117,
+      -0.11418266476504209,
+      -0.28097127493980556,
+      0.8185986911678008
+     ]
+    },
+    "joints": {
+     "Joint": {
+      "label": "Revolute",
+      "type": "Revolute",
+      "reference1": [
+       "Plate",
+       [
+        "Face6",
+        "Vertex8"
+       ]
+      ],
+      "reference2": [
+       "Arm",
+       [
+        "Face5",
+        "Vertex1"
+       ]
+      ],
+      "placement1": [
+       40.0,
+       30.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ],
+      "placement2": [
+       0.0,
+       0.0,
+       4.0,
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ],
+      "offset1": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ],
+      "offset2": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ],
+      "distance": 0.0,
+      "distance2": 0.0,
+      "angle": 0.0,
+      "enable_length_min": false,
+      "enable_length_max": false,
+      "enable_angle_min": false,
+      "enable_angle_max": false,
+      "length_min": 0.0,
+      "length_max": 0.0,
+      "angle_min": 0.0,
+      "angle_max": 0.0,
+      "suppressed": false
+     }
+    },
+    "exploded": {
+     "Exploded_View": {
+      "group": "Exploded_Views",
+      "label": "Exploded_View",
+      "moves": [
+       "Move",
+       "Move001"
+      ],
+      "placements": {
+       "Arm": [
+        40.0,
+        30.0,
+        21.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+       ],
+       "Pin": [
+        -10.0,
+        35.0,
+        40.0,
+        0.4877639229629612,
+        -0.1141826647650421,
+        -0.2809712749398056,
+        0.8185986911678009
+       ]
+      },
+      "lines": [
+       [
+        [
+         55.0,
+         33.0,
+         -2.0
+        ],
+        [
+         55.0,
+         33.0,
+         23.0
+        ]
+       ],
+       [
+        [
+         -24.610348624705193,
+         32.655982799174126,
+         19.98097349045873
+        ],
+        [
+         -24.61034862470519,
+         32.65598279917412,
+         44.98097349045872
+        ]
+       ],
+       [
+        [
+         -24.610348624705193,
+         32.655982799174126,
+         19.98097349045873
+        ],
+        [
+         -14.610348624705189,
+         27.65598279917412,
+         19.980973490458723
+        ]
+       ]
+      ]
+     }
+    }
+   },
+   "asmt": "OndselSolver\nAssembly\n\tNotes\n\t\t(Text string: '' runs: (Core.RunArray runs: #() values: #()))\n\tName\n\t\tOndselAssembly\n\tPosition3D\n\t\t0\t0\t0\t\n\tRotationMatrix\n\t\t1\t0\t0\t\n\t\t0\t1\t0\t\n\t\t0\t0\t1\t\n\tVelocity3D\n\t\t0\t0\t0\t\n\tOmega3D\n\t\t0\t0\t0\t\n\tRefPoints\n\t\tRefPoint\n\t\t\tPosition3D\n\t\t\t\t0\t0\t0\t\n\t\t\tRotationMatrix\n\t\t\t\t1\t0\t0\t\n\t\t\t\t0\t1\t0\t\n\t\t\t\t0\t0\t1\t\n\t\t\tMarkers\n\t\t\t\tMarker\n\t\t\t\t\tName\n\t\t\t\t\t\tmarker-Unnamed#Origin\n\t\t\t\t\tPosition3D\n\t\t\t\t\t\t0\t0\t0\t\n\t\t\t\t\tRotationMatrix\n\t\t\t\t\t\t1\t0\t0\t\n\t\t\t\t\t\t0\t1\t0\t\n\t\t\t\t\t\t0\t0\t1\t\n\t\tRefPoint\n\t\t\tPosition3D\n\t\t\t\t0\t0\t0\t\n\t\t\tRotationMatrix\n\t\t\t\t1\t0\t0\t\n\t\t\t\t0\t1\t0\t\n\t\t\t\t0\t0\t1\t\n\t\t\tMarkers\n\t\t\t\tMarker\n\t\t\t\t\tName\n\t\t\t\t\t\tmarker-Unnamed#Plate\n\t\t\t\t\tPosition3D\n\t\t\t\t\t\t0\t0\t0\t\n\t\t\t\t\tRotationMatrix\n\t\t\t\t\t\t1\t0\t0\t\n\t\t\t\t\t\t0\t1\t0\t\n\t\t\t\t\t\t0\t0\t1\t\n\tRefCurves\n\tRefSurfaces\n\tParts\n\t\tPart\n\t\t\tName\n\t\t\t\tUnnamed#Origin\n\t\t\tPosition3D\n\t\t\t\t0\t0\t0\t\n\t\t\tRotationMatrix\n\t\t\t\t1\t0\t0\t\n\t\t\t\t0\t1\t0\t\n\t\t\t\t0\t0\t1\t\n\t\t\tVelocity3D\n\t\t\t\t0\t0\t0\t\n\t\t\tOmega3D\n\t\t\t\t0\t0\t0\t\n\t\t\tFeatureOrder\n\t\t\tPrincipalMassMarker\n\t\t\t\tName\n\t\t\t\t\tMassMarker\n\t\t\t\tPosition3D\n\t\t\t\t\t0\t0\t0\t\n\t\t\t\tRotationMatrix\n\t\t\t\t\t1\t0\t0\t\n\t\t\t\t\t0\t1\t0\t\n\t\t\t\t\t0\t0\t1\t\n\t\t\t\tMass\n\t\t\t\t\t1\n\t\t\t\tMomentOfInertias\n\t\t\t\t\t1\t1\t1\t\n\t\t\t\tDensity\n\t\t\t\t\t1\n\t\t\tRefPoints\n\t\t\t\tRefPoint\n\t\t\t\t\tPosition3D\n\t\t\t\t\t\t0\t0\t0\t\n\t\t\t\t\tRotationMatrix\n\t\t\t\t\t\t1\t0\t0\t\n\t\t\t\t\t\t0\t1\t0\t\n\t\t\t\t\t\t0\t0\t1\t\n\t\t\t\t\tMarkers\n\t\t\t\t\t\tMarker\n\t\t\t\t\t\t\tName\n\t\t\t\t\t\t\t\tFixingMarker\n\t\t\t\t\t\t\tPosition3D\n\t\t\t\t\t\t\t\t0\t0\t0\t\n\t\t\t\t\t\t\tRotationMatrix\n\t\t\t\t\t\t\t\t1\t0\t0\t\n\t\t\t\t\t\t\t\t0\t1\t0\t\n\t\t\t\t\t\t\t\t0\t0\t1\t\n\t\t\tRefCurves\n\t\t\tRefSurfaces\n\t\tPart\n\t\t\tName\n\t\t\t\tUnnamed#Plate\n\t\t\tPosition3D\n\t\t\t\t0\t0\t0\t\n\t\t\tRotationMatrix\n\t\t\t\t1\t0\t0\t\n\t\t\t\t0\t1\t0\t\n\t\t\t\t0\t0\t1\t\n\t\t\tVelocity3D\n\t\t\t\t0\t0\t0\t\n\t\t\tOmega3D\n\t\t\t\t0\t0\t0\t\n\t\t\tFeatureOrder\n\t\t\tPrincipalMassMarker\n\t\t\t\tName\n\t\t\t\t\tMassMarker\n\t\t\t\tPosition3D\n\t\t\t\t\t0\t0\t0\t\n\t\t\t\tRotationMatrix\n\t\t\t\t\t1\t0\t0\t\n\t\t\t\t\t0\t1\t0\t\n\t\t\t\t\t0\t0\t1\t\n\t\t\t\tMass\n\t\t\t\t\t1\n\t\t\t\tMomentOfInertias\n\t\t\t\t\t1\t1\t1\t\n\t\t\t\tDensity\n\t\t\t\t\t1\n\t\t\tRefPoints\n\t\t\t\tRefPoint\n\t\t\t\t\tPosition3D\n\t\t\t\t\t\t0\t0\t0\t\n\t\t\t\t\tRotationMatrix\n\t\t\t\t\t\t1\t0\t0\t\n\t\t\t\t\t\t0\t1\t0\t\n\t\t\t\t\t\t0\t0\t1\t\n\t\t\t\t\tMarkers\n\t\t\t\t\t\tMarker\n\t\t\t\t\t\t\tName\n\t\t\t\t\t\t\t\tFixingMarker\n\t\t\t\t\t\t\tPosition3D\n\t\t\t\t\t\t\t\t0\t0\t0\t\n\t\t\t\t\t\t\tRotationMatrix\n\t\t\t\t\t\t\t\t1\t0\t0\t\n\t\t\t\t\t\t\t\t0\t1\t0\t\n\t\t\t\t\t\t\t\t0\t0\t1\t\n\t\t\t\tRefPoint\n\t\t\t\t\tPosition3D\n\t\t\t\t\t\t0\t0\t0\t\n\t\t\t\t\tRotationMatrix\n\t\t\t\t\t\t1\t0\t0\t\n\t\t\t\t\t\t0\t1\t0\t\n\t\t\t\t\t\t0\t0\t1\t\n\t\t\t\t\tMarkers\n\t\t\t\t\t\tMarker\n\t\t\t\t\t\t\tName\n\t\t\t\t\t\t\t\tUnnamed#Joint\n\t\t\t\t\t\t\tPosition3D\n\t\t\t\t\t\t\t\t40\t30\t0\t\n\t\t\t\t\t\t\tRotationMatrix\n\t\t\t\t\t\t\t\t1\t0\t0\t\n\t\t\t\t\t\t\t\t0\t1\t0\t\n\t\t\t\t\t\t\t\t0\t0\t1\t\n\t\t\tRefCurves\n\t\t\tRefSurfaces\n\t\tPart\n\t\t\tName\n\t\t\t\tUnnamed#Arm\n\t\t\tPosition3D\n\t\t\t\t40\t30\t-4\t\n\t\t\tRotationMatrix\n\t\t\t\t1\t0\t0\t\n\t\t\t\t0\t1\t0\t\n\t\t\t\t0\t0\t1\t\n\t\t\tVelocity3D\n\t\t\t\t0\t0\t0\t\n\t\t\tOmega3D\n\t\t\t\t0\t0\t0\t\n\t\t\tFeatureOrder\n\t\t\tPrincipalMassMarker\n\t\t\t\tName\n\t\t\t\t\tMassMarker\n\t\t\t\tPosition3D\n\t\t\t\t\t0\t0\t0\t\n\t\t\t\tRotationMatrix\n\t\t\t\t\t1\t0\t0\t\n\t\t\t\t\t0\t1\t0\t\n\t\t\t\t\t0\t0\t1\t\n\t\t\t\tMass\n\t\t\t\t\t1\n\t\t\t\tMomentOfInertias\n\t\t\t\t\t1\t1\t1\t\n\t\t\t\tDensity\n\t\t\t\t\t1\n\t\t\tRefPoints\n\t\t\t\tRefPoint\n\t\t\t\t\tPosition3D\n\t\t\t\t\t\t0\t0\t0\t\n\t\t\t\t\tRotationMatrix\n\t\t\t\t\t\t1\t0\t0\t\n\t\t\t\t\t\t0\t1\t0\t\n\t\t\t\t\t\t0\t0\t1\t\n\t\t\t\t\tMarkers\n\t\t\t\t\t\tMarker\n\t\t\t\t\t\t\tName\n\t\t\t\t\t\t\t\tUnnamed#Joint\n\t\t\t\t\t\t\tPosition3D\n\t\t\t\t\t\t\t\t0\t0\t4\t\n\t\t\t\t\t\t\tRotationMatrix\n\t\t\t\t\t\t\t\t1\t0\t0\t\n\t\t\t\t\t\t\t\t0\t1\t0\t\n\t\t\t\t\t\t\t\t0\t0\t1\t\n\t\t\tRefCurves\n\t\t\tRefSurfaces\n\tKinematicIJs\n\tConstraintSets\n\t\tJoints\n\t\t\tdJointE\n\t\t\t\tName\n\t\t\t\t\tUnnamed#Origin\n\t\t\t\tMarkerI\n\t\t\t\t\t/OndselAssembly/marker-Unnamed#Origin\n\t\t\t\tMarkerJ\n\t\t\t\t\t/OndselAssembly/Unnamed#Origin/FixingMarker\n\t\t\tdJointE\n\t\t\t\tName\n\t\t\t\t\tUnnamed#Plate\n\t\t\t\tMarkerI\n\t\t\t\t\t/OndselAssembly/marker-Unnamed#Plate\n\t\t\t\tMarkerJ\n\t\t\t\t\t/OndselAssembly/Unnamed#Plate/FixingMarker\n\t\t\tluteJointE\n\t\t\t\tName\n\t\t\t\t\tUnnamed#Joint\n\t\t\t\tMarkerI\n\t\t\t\t\t/OndselAssembly/Unnamed#Plate/Unnamed#Joint\n\t\t\t\tMarkerJ\n\t\t\t\t\t/OndselAssembly/Unnamed#Arm/Unnamed#Joint\n\t\tMotions\n\t\tLimits\n\t\tGeneralConstraintSets\n\tForceTorques\n\tConstantGravity\n\t\t0\t0\t0\t\n\tSimulationParameters\n\t\ttstart\n\t\t\t0\n\t\ttend\n\t\t\t1\n\t\thmin\n\t\t\t1.0000000000000001e-09\n\t\thmax\n\t\t\t1000000000\n\t\thout\n\t\t\t0.10000000000000001\n\t\terrorTol\n\t\t\t9.9999999999999995e-07\n\tAnimationParameters\n\t\tnframe\n\t\t\t1000000\n\t\ticurrent\n\t\t\t1\n\t\tistart\n\t\t\t1\n\t\tiend\n\t\t\t1000000\n\t\tisForward\n\t\t\ttrue\n\t\tframesPerSecond\n\t\t\t30\n",
+   "subs": {}
+  },
+  "exploded_rotation_and_radial": {
+   "names": {
+    "Plate": "Plate",
+    "Arm": "Arm",
+    "Pin": "Pin"
+   },
+   "steps": [
+    {
+     "placements": {
+      "Plate": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ],
+      "Arm": [
+       30.0,
+       5.0,
+       2.0,
+       0.23929833774473033,
+       0.189307857412,
+       0.038134576474850156,
+       0.9515485246437886
+      ],
+      "Pin": [
+       -20.0,
+       40.0,
+       15.0,
+       0.48776392296296117,
+       -0.11418266476504209,
+       -0.28097127493980556,
+       0.8185986911678008
+      ]
+     },
+     "joints": {},
+     "exploded": {
+      "Exploded_View": {
+       "group": "Exploded_Views",
+       "label": "Exploded_View",
+       "moves": [
+        "Move",
+        "Move001",
+        "Move002"
+       ],
+       "placements": {
+        "Arm": [
+         20.138940023840203,
+         23.33012701892219,
+         -17.310512899094014,
+         0.27662583490603654,
+         0.574115564846199,
+         0.19185827003241346,
+         0.7463644350342785
+        ],
+        "Pin": [
+         -20.0,
+         40.0,
+         15.0,
+         0.48776392296296117,
+         -0.11418266476504209,
+         -0.28097127493980556,
+         0.8185986911678008
+        ]
+       },
+       "lines": [
+        [
+         [
+          44.69237822242333,
+          9.213391804216414,
+          -0.09316785600742161
+         ],
+         [
+          37.098038994052814,
+          34.325220468682424,
+          -0.09316785600742368
+         ]
+        ],
+        [
+         [
+          44.69237822242333,
+          9.213391804216414,
+          -0.09316785600742161
+         ],
+         [
+          44.69237822242332,
+          9.213391804216403,
+          -0.09316785600742339
+         ]
+        ],
+        [
+         [
+          -24.610348624705193,
+          32.655982799174126,
+          19.98097349045873
+         ],
+         [
+          -24.610348624705193,
+          32.65598279917413,
+          19.98097349045873
+         ]
+        ],
+        [
+         [
+          44.69237822242333,
+          9.213391804216414,
+          -0.09316785600742161
+         ],
+         [
+          31.536404085658045,
+          9.21339180421641,
+          -31.668163331200965
+         ]
+        ]
+       ]
+      }
+     },
+     "printed": "MbD: Assembling system. \nMbD: Convergence = 0\nTime = 0\n"
+    },
+    {
+     "placements": {
+      "Plate": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ],
+      "Arm": [
+       30.0,
+       5.0,
+       2.0,
+       0.23929833774473033,
+       0.189307857412,
+       0.038134576474850156,
+       0.9515485246437886
+      ],
+      "Pin": [
+       -20.0,
+       40.0,
+       15.0,
+       0.48776392296296117,
+       -0.11418266476504209,
+       -0.28097127493980556,
+       0.8185986911678008
+      ]
+     },
+     "joints": {},
+     "exploded": {
+      "Exploded_View": {
+       "group": "Exploded_Views",
+       "label": "Exploded_View",
+       "moves": [
+        "Move",
+        "Move001",
+        "Move002"
+       ],
+       "placements": {
+        "Arm": [
+         20.138940023840203,
+         23.33012701892219,
+         -17.310512899094014,
+         0.27662583490603654,
+         0.574115564846199,
+         0.19185827003241346,
+         0.7463644350342785
+        ],
+        "Pin": [
+         -20.0,
+         40.0,
+         15.0,
+         0.48776392296296117,
+         -0.11418266476504209,
+         -0.28097127493980556,
+         0.8185986911678008
+        ]
+       },
+       "lines": [
+        [
+         [
+          44.69237822242333,
+          9.213391804216414,
+          -0.09316785600742161
+         ],
+         [
+          37.098038994052814,
+          34.325220468682424,
+          -0.09316785600742368
+         ]
+        ],
+        [
+         [
+          44.69237822242333,
+          9.213391804216414,
+          -0.09316785600742161
+         ],
+         [
+          44.69237822242332,
+          9.213391804216403,
+          -0.09316785600742339
+         ]
+        ],
+        [
+         [
+          -24.610348624705193,
+          32.655982799174126,
+          19.98097349045873
+         ],
+         [
+          -24.610348624705193,
+          32.65598279917413,
+          19.98097349045873
+         ]
+        ],
+        [
+         [
+          44.69237822242333,
+          9.213391804216414,
+          -0.09316785600742161
+         ],
+         [
+          31.536404085658045,
+          9.21339180421641,
+          -31.668163331200965
+         ]
+        ]
+       ]
+      },
+      "Exploded_View001": {
+       "group": "Exploded_Views",
+       "label": "Exploded_View001",
+       "moves": [
+        "Move003"
+       ],
+       "placements": {
+        "Plate": [
+         0.0,
+         0.0,
+         -10.0,
+         0.0,
+         0.0,
+         0.0,
+         1.0
+        ]
+       },
+       "lines": [
+        [
+         [
+          20.0,
+          15.0,
+          2.5
+         ],
+         [
+          20.0,
+          15.0,
+          -7.5
+         ]
+        ]
+       ]
+      }
+     },
+     "printed": "MbD: Assembling system. \nMbD: Convergence = 0\nTime = 0\n"
+    }
+   ],
+   "solve": 0,
+   "solve_printed": "MbD: Assembling system. \nMbD: Convergence = 0\nTime = 0\n",
+   "after_solve": {
+    "placements": {
+     "Plate": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      1.0
+     ],
+     "Arm": [
+      30.0,
+      5.0,
+      2.0,
+      0.23929833774473033,
+      0.189307857412,
+      0.038134576474850156,
+      0.9515485246437886
+     ],
+     "Pin": [
+      -20.0,
+      40.0,
+      15.0,
+      0.48776392296296117,
+      -0.11418266476504209,
+      -0.28097127493980556,
+      0.8185986911678008
+     ]
+    },
+    "joints": {},
+    "exploded": {
+     "Exploded_View": {
+      "group": "Exploded_Views",
+      "label": "Exploded_View",
+      "moves": [
+       "Move",
+       "Move001",
+       "Move002"
+      ],
+      "placements": {
+       "Arm": [
+        20.138940023840203,
+        23.33012701892219,
+        -17.310512899094014,
+        0.27662583490603654,
+        0.574115564846199,
+        0.19185827003241346,
+        0.7463644350342785
+       ],
+       "Pin": [
+        -20.0,
+        40.0,
+        15.0,
+        0.48776392296296117,
+        -0.11418266476504209,
+        -0.28097127493980556,
+        0.8185986911678008
+       ]
+      },
+      "lines": [
+       [
+        [
+         44.69237822242333,
+         9.213391804216414,
+         -0.09316785600742161
+        ],
+        [
+         37.098038994052814,
+         34.325220468682424,
+         -0.09316785600742368
+        ]
+       ],
+       [
+        [
+         44.69237822242333,
+         9.213391804216414,
+         -0.09316785600742161
+        ],
+        [
+         44.69237822242332,
+         9.213391804216403,
+         -0.09316785600742339
+        ]
+       ],
+       [
+        [
+         -24.610348624705193,
+         32.655982799174126,
+         19.98097349045873
+        ],
+        [
+         -24.610348624705193,
+         32.65598279917413,
+         19.98097349045873
+        ]
+       ],
+       [
+        [
+         44.69237822242333,
+         9.213391804216414,
+         -0.09316785600742161
+        ],
+        [
+         31.536404085658045,
+         9.21339180421641,
+         -31.668163331200965
+        ]
+       ]
+      ]
+     },
+     "Exploded_View001": {
+      "group": "Exploded_Views",
+      "label": "Exploded_View001",
+      "moves": [
+       "Move003"
+      ],
+      "placements": {
+       "Plate": [
+        0.0,
+        0.0,
+        -10.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+       ]
+      },
+      "lines": [
+       [
+        [
+         20.0,
+         15.0,
+         2.5
+        ],
+        [
+         20.0,
+         15.0,
+         -7.5
+        ]
+       ]
+      ]
+     }
+    }
+   },
+   "asmt": "OndselSolver\nAssembly\n\tNotes\n\t\t(Text string: '' runs: (Core.RunArray runs: #() values: #()))\n\tName\n\t\tOndselAssembly\n\tPosition3D\n\t\t0\t0\t0\t\n\tRotationMatrix\n\t\t1\t0\t0\t\n\t\t0\t1\t0\t\n\t\t0\t0\t1\t\n\tVelocity3D\n\t\t0\t0\t0\t\n\tOmega3D\n\t\t0\t0\t0\t\n\tRefPoints\n\t\tRefPoint\n\t\t\tPosition3D\n\t\t\t\t0\t0\t0\t\n\t\t\tRotationMatrix\n\t\t\t\t1\t0\t0\t\n\t\t\t\t0\t1\t0\t\n\t\t\t\t0\t0\t1\t\n\t\t\tMarkers\n\t\t\t\tMarker\n\t\t\t\t\tName\n\t\t\t\t\t\tmarker-Unnamed#Origin\n\t\t\t\t\tPosition3D\n\t\t\t\t\t\t0\t0\t0\t\n\t\t\t\t\tRotationMatrix\n\t\t\t\t\t\t1\t0\t0\t\n\t\t\t\t\t\t0\t1\t0\t\n\t\t\t\t\t\t0\t0\t1\t\n\t\tRefPoint\n\t\t\tPosition3D\n\t\t\t\t0\t0\t0\t\n\t\t\tRotationMatrix\n\t\t\t\t1\t0\t0\t\n\t\t\t\t0\t1\t0\t\n\t\t\t\t0\t0\t1\t\n\t\t\tMarkers\n\t\t\t\tMarker\n\t\t\t\t\tName\n\t\t\t\t\t\tmarker-Unnamed#Plate\n\t\t\t\t\tPosition3D\n\t\t\t\t\t\t0\t0\t0\t\n\t\t\t\t\tRotationMatrix\n\t\t\t\t\t\t1\t0\t0\t\n\t\t\t\t\t\t0\t1\t0\t\n\t\t\t\t\t\t0\t0\t1\t\n\tRefCurves\n\tRefSurfaces\n\tParts\n\t\tPart\n\t\t\tName\n\t\t\t\tUnnamed#Origin\n\t\t\tPosition3D\n\t\t\t\t0\t0\t0\t\n\t\t\tRotationMatrix\n\t\t\t\t1\t0\t0\t\n\t\t\t\t0\t1\t0\t\n\t\t\t\t0\t0\t1\t\n\t\t\tVelocity3D\n\t\t\t\t0\t0\t0\t\n\t\t\tOmega3D\n\t\t\t\t0\t0\t0\t\n\t\t\tFeatureOrder\n\t\t\tPrincipalMassMarker\n\t\t\t\tName\n\t\t\t\t\tMassMarker\n\t\t\t\tPosition3D\n\t\t\t\t\t0\t0\t0\t\n\t\t\t\tRotationMatrix\n\t\t\t\t\t1\t0\t0\t\n\t\t\t\t\t0\t1\t0\t\n\t\t\t\t\t0\t0\t1\t\n\t\t\t\tMass\n\t\t\t\t\t1\n\t\t\t\tMomentOfInertias\n\t\t\t\t\t1\t1\t1\t\n\t\t\t\tDensity\n\t\t\t\t\t1\n\t\t\tRefPoints\n\t\t\t\tRefPoint\n\t\t\t\t\tPosition3D\n\t\t\t\t\t\t0\t0\t0\t\n\t\t\t\t\tRotationMatrix\n\t\t\t\t\t\t1\t0\t0\t\n\t\t\t\t\t\t0\t1\t0\t\n\t\t\t\t\t\t0\t0\t1\t\n\t\t\t\t\tMarkers\n\t\t\t\t\t\tMarker\n\t\t\t\t\t\t\tName\n\t\t\t\t\t\t\t\tFixingMarker\n\t\t\t\t\t\t\tPosition3D\n\t\t\t\t\t\t\t\t0\t0\t0\t\n\t\t\t\t\t\t\tRotationMatrix\n\t\t\t\t\t\t\t\t1\t0\t0\t\n\t\t\t\t\t\t\t\t0\t1\t0\t\n\t\t\t\t\t\t\t\t0\t0\t1\t\n\t\t\tRefCurves\n\t\t\tRefSurfaces\n\t\tPart\n\t\t\tName\n\t\t\t\tUnnamed#Plate\n\t\t\tPosition3D\n\t\t\t\t0\t0\t0\t\n\t\t\tRotationMatrix\n\t\t\t\t1\t0\t0\t\n\t\t\t\t0\t1\t0\t\n\t\t\t\t0\t0\t1\t\n\t\t\tVelocity3D\n\t\t\t\t0\t0\t0\t\n\t\t\tOmega3D\n\t\t\t\t0\t0\t0\t\n\t\t\tFeatureOrder\n\t\t\tPrincipalMassMarker\n\t\t\t\tName\n\t\t\t\t\tMassMarker\n\t\t\t\tPosition3D\n\t\t\t\t\t0\t0\t0\t\n\t\t\t\tRotationMatrix\n\t\t\t\t\t1\t0\t0\t\n\t\t\t\t\t0\t1\t0\t\n\t\t\t\t\t0\t0\t1\t\n\t\t\t\tMass\n\t\t\t\t\t1\n\t\t\t\tMomentOfInertias\n\t\t\t\t\t1\t1\t1\t\n\t\t\t\tDensity\n\t\t\t\t\t1\n\t\t\tRefPoints\n\t\t\t\tRefPoint\n\t\t\t\t\tPosition3D\n\t\t\t\t\t\t0\t0\t0\t\n\t\t\t\t\tRotationMatrix\n\t\t\t\t\t\t1\t0\t0\t\n\t\t\t\t\t\t0\t1\t0\t\n\t\t\t\t\t\t0\t0\t1\t\n\t\t\t\t\tMarkers\n\t\t\t\t\t\tMarker\n\t\t\t\t\t\t\tName\n\t\t\t\t\t\t\t\tFixingMarker\n\t\t\t\t\t\t\tPosition3D\n\t\t\t\t\t\t\t\t0\t0\t0\t\n\t\t\t\t\t\t\tRotationMatrix\n\t\t\t\t\t\t\t\t1\t0\t0\t\n\t\t\t\t\t\t\t\t0\t1\t0\t\n\t\t\t\t\t\t\t\t0\t0\t1\t\n\t\t\tRefCurves\n\t\t\tRefSurfaces\n\tKinematicIJs\n\tConstraintSets\n\t\tJoints\n\t\t\tdJointE\n\t\t\t\tName\n\t\t\t\t\tUnnamed#Origin\n\t\t\t\tMarkerI\n\t\t\t\t\t/OndselAssembly/marker-Unnamed#Origin\n\t\t\t\tMarkerJ\n\t\t\t\t\t/OndselAssembly/Unnamed#Origin/FixingMarker\n\t\t\tdJointE\n\t\t\t\tName\n\t\t\t\t\tUnnamed#Plate\n\t\t\t\tMarkerI\n\t\t\t\t\t/OndselAssembly/marker-Unnamed#Plate\n\t\t\t\tMarkerJ\n\t\t\t\t\t/OndselAssembly/Unnamed#Plate/FixingMarker\n\t\tMotions\n\t\tLimits\n\t\tGeneralConstraintSets\n\tForceTorques\n\tConstantGravity\n\t\t0\t0\t0\t\n\tSimulationParameters\n\t\ttstart\n\t\t\t0\n\t\ttend\n\t\t\t1\n\t\thmin\n\t\t\t1.0000000000000001e-09\n\t\thmax\n\t\t\t1000000000\n\t\thout\n\t\t\t0.10000000000000001\n\t\terrorTol\n\t\t\t9.9999999999999995e-07\n\tAnimationParameters\n\t\tnframe\n\t\t\t1000000\n\t\ticurrent\n\t\t\t1\n\t\tistart\n\t\t\t1\n\t\tiend\n\t\t\t1000000\n\t\tisForward\n\t\t\ttrue\n\t\tframesPerSecond\n\t\t\t30\n",
+   "subs": {}
+  },
+  "origin_on_a_rigid_group": {
+   "names": {
+    "Plate": "Plate",
+    "Pin": "Pin",
+    "Bar": "Bar"
+   },
+   "steps": [
+    {
+     "placements": {
+      "Plate": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ],
+      "Pin": [
+       30.0,
+       5.0,
+       2.0,
+       0.23929833774473033,
+       0.189307857412,
+       0.038134576474850156,
+       0.9515485246437886
+      ],
+      "Bar": [
+       -20.0,
+       40.0,
+       15.0,
+       0.48776392296296117,
+       -0.11418266476504209,
+       -0.28097127493980556,
+       0.8185986911678008
+      ]
+     },
+     "joints": {},
+     "rigid_groups": {
+      "RigidGroupJoint": {
+       "label": "RigidGroupJoint",
+       "members": [
+        "Pin",
+        "Bar"
+       ],
+       "rigid_placements": [
+        [
+         0.0,
+         0.0,
+         0.0,
+         0.0,
+         6.938893903907228e-18,
+         0.0,
+         1.0
+        ],
+        [
+         -45.00593389232114,
+         36.09633064737204,
+         -23.780681829493652,
+         0.3170774976849936,
+         -0.3494541401713331,
+         -0.17891345147027865,
+         0.8633270766412516
+        ]
+       ],
+       "suppressed": false
+      }
+     },
+     "printed": "Traceback (most recent call last):\n  File \"<FreeCAD>/Mod/Assembly/JointObject.py\", line 1404, in onChanged\n    self.updateStoredPositions(fp, True)\n  File \"<FreeCAD>/Mod/Assembly/JointObject.py\", line 1373, in updateStoredPositions\n    self._write_rigid_placements(fp, placements)\n  File \"<FreeCAD>/Mod/Assembly/JointObject.py\", line 1380, in _write_rigid_placements\n    fp.setPropertyStatus(\"RigidPlacements\", \"-ReadOnly\")\n<class 'AttributeError'>: Property container has no property 'RigidPlacements'\nAssembly: Rigid group positions updated.\nMbD: Assembling system. \nMbD: Convergence = 0\nTime = 0\n"
+    },
+    {
+     "placements": {
+      "Plate": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ],
+      "Pin": [
+       46.933553997819416,
+       -9.604540429499302,
+       -3.822948458231741,
+       -0.3170774976849936,
+       0.3494541401713331,
+       0.17891345147027868,
+       0.8633270766412516
+      ],
+      "Bar": [
+       -15.0,
+       -3.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     "joints": {
+      "Joint": {
+       "label": "Fixed",
+       "type": "Fixed",
+       "reference1": [
+        "Origin",
+        [
+         "XY_Plane.",
+         "XY_Plane."
+        ]
+       ],
+       "reference2": [
+        "Bar",
+        [
+         "Face5",
+         "Face5"
+        ]
+       ],
+       "placement1": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+       ],
+       "placement2": [
+        15.0,
+        3.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+       ],
+       "offset1": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+       ],
+       "offset2": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+       ],
+       "distance": 0.0,
+       "distance2": 0.0,
+       "angle": 0.0,
+       "enable_length_min": false,
+       "enable_length_max": false,
+       "enable_angle_min": false,
+       "enable_angle_max": false,
+       "length_min": 0.0,
+       "length_max": 0.0,
+       "angle_min": 0.0,
+       "angle_max": 0.0,
+       "suppressed": false
+      }
+     },
+     "rigid_groups": {
+      "RigidGroupJoint": {
+       "label": "RigidGroupJoint",
+       "members": [
+        "Pin",
+        "Bar"
+       ],
+       "rigid_placements": [
+        [
+         0.0,
+         0.0,
+         0.0,
+         0.0,
+         6.938893903907228e-18,
+         0.0,
+         1.0
+        ],
+        [
+         -45.00593389232114,
+         36.09633064737204,
+         -23.780681829493652,
+         0.3170774976849936,
+         -0.3494541401713331,
+         -0.17891345147027865,
+         0.8633270766412516
+        ]
+       ],
+       "suppressed": false
+      }
+     },
+     "printed": "MbD: Assembling system. \nMbD: Convergence = 2.9558028766547286e-08\nMbD: Convergence = 7.4992940711777484e-10\nMbD: Convergence = 2.2497281697758125e-24\nTime = 0\nMbD: Assembling system. \nMbD: Convergence = 0\nTime = 0\nMbD: Assembling system. \nMbD: Convergence = 0\nTime = 0\nMbD: Assembling system. \nMbD: Convergence = 0\nTime = 0\n"
+    }
+   ],
+   "solve": 0,
+   "solve_printed": "MbD: Assembling system. \nMbD: Convergence = 0\nTime = 0\n",
+   "after_solve": {
+    "placements": {
+     "Plate": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      1.0
+     ],
+     "Pin": [
+      46.933553997819416,
+      -9.604540429499302,
+      -3.822948458231741,
+      -0.3170774976849936,
+      0.3494541401713331,
+      0.17891345147027868,
+      0.8633270766412516
+     ],
+     "Bar": [
+      -15.0,
+      -3.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      1.0
+     ]
+    },
+    "joints": {
+     "Joint": {
+      "label": "Fixed",
+      "type": "Fixed",
+      "reference1": [
+       "Origin",
+       [
+        "XY_Plane.",
+        "XY_Plane."
+       ]
+      ],
+      "reference2": [
+       "Bar",
+       [
+        "Face5",
+        "Face5"
+       ]
+      ],
+      "placement1": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ],
+      "placement2": [
+       15.0,
+       3.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ],
+      "offset1": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ],
+      "offset2": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ],
+      "distance": 0.0,
+      "distance2": 0.0,
+      "angle": 0.0,
+      "enable_length_min": false,
+      "enable_length_max": false,
+      "enable_angle_min": false,
+      "enable_angle_max": false,
+      "length_min": 0.0,
+      "length_max": 0.0,
+      "angle_min": 0.0,
+      "angle_max": 0.0,
+      "suppressed": false
+     }
+    },
+    "rigid_groups": {
+     "RigidGroupJoint": {
+      "label": "RigidGroupJoint",
+      "members": [
+       "Pin",
+       "Bar"
+      ],
+      "rigid_placements": [
+       [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        6.938893903907228e-18,
+        0.0,
+        1.0
+       ],
+       [
+        -45.00593389232114,
+        36.09633064737204,
+        -23.780681829493652,
+        0.3170774976849936,
+        -0.3494541401713331,
+        -0.17891345147027865,
+        0.8633270766412516
+       ]
+      ],
+      "suppressed": false
+     }
+    }
+   },
+   "asmt": "OndselSolver\nAssembly\n\tNotes\n\t\t(Text string: '' runs: (Core.RunArray runs: #() values: #()))\n\tName\n\t\tOndselAssembly\n\tPosition3D\n\t\t0\t0\t0\t\n\tRotationMatrix\n\t\t1\t0\t0\t\n\t\t0\t1\t0\t\n\t\t0\t0\t1\t\n\tVelocity3D\n\t\t0\t0\t0\t\n\tOmega3D\n\t\t0\t0\t0\t\n\tRefPoints\n\t\tRefPoint\n\t\t\tPosition3D\n\t\t\t\t0\t0\t0\t\n\t\t\tRotationMatrix\n\t\t\t\t1\t0\t0\t\n\t\t\t\t0\t1\t0\t\n\t\t\t\t0\t0\t1\t\n\t\t\tMarkers\n\t\t\t\tMarker\n\t\t\t\t\tName\n\t\t\t\t\t\tmarker-Unnamed#Origin\n\t\t\t\t\tPosition3D\n\t\t\t\t\t\t0\t0\t0\t\n\t\t\t\t\tRotationMatrix\n\t\t\t\t\t\t1\t0\t0\t\n\t\t\t\t\t\t0\t1\t0\t\n\t\t\t\t\t\t0\t0\t1\t\n\t\tRefPoint\n\t\t\tPosition3D\n\t\t\t\t0\t0\t0\t\n\t\t\tRotationMatrix\n\t\t\t\t1\t0\t0\t\n\t\t\t\t0\t1\t0\t\n\t\t\t\t0\t0\t1\t\n\t\t\tMarkers\n\t\t\t\tMarker\n\t\t\t\t\tName\n\t\t\t\t\t\tmarker-Unnamed#Plate\n\t\t\t\t\tPosition3D\n\t\t\t\t\t\t0\t0\t0\t\n\t\t\t\t\tRotationMatrix\n\t\t\t\t\t\t1\t0\t0\t\n\t\t\t\t\t\t0\t1\t0\t\n\t\t\t\t\t\t0\t0\t1\t\n\tRefCurves\n\tRefSurfaces\n\tParts\n\t\tPart\n\t\t\tName\n\t\t\t\tUnnamed#Origin\n\t\t\tPosition3D\n\t\t\t\t0\t0\t0\t\n\t\t\tRotationMatrix\n\t\t\t\t1\t0\t0\t\n\t\t\t\t0\t1\t0\t\n\t\t\t\t0\t0\t1\t\n\t\t\tVelocity3D\n\t\t\t\t0\t0\t0\t\n\t\t\tOmega3D\n\t\t\t\t0\t0\t0\t\n\t\t\tFeatureOrder\n\t\t\tPrincipalMassMarker\n\t\t\t\tName\n\t\t\t\t\tMassMarker\n\t\t\t\tPosition3D\n\t\t\t\t\t0\t0\t0\t\n\t\t\t\tRotationMatrix\n\t\t\t\t\t1\t0\t0\t\n\t\t\t\t\t0\t1\t0\t\n\t\t\t\t\t0\t0\t1\t\n\t\t\t\tMass\n\t\t\t\t\t1\n\t\t\t\tMomentOfInertias\n\t\t\t\t\t1\t1\t1\t\n\t\t\t\tDensity\n\t\t\t\t\t1\n\t\t\tRefPoints\n\t\t\t\tRefPoint\n\t\t\t\t\tPosition3D\n\t\t\t\t\t\t0\t0\t0\t\n\t\t\t\t\tRotationMatrix\n\t\t\t\t\t\t1\t0\t0\t\n\t\t\t\t\t\t0\t1\t0\t\n\t\t\t\t\t\t0\t0\t1\t\n\t\t\t\t\tMarkers\n\t\t\t\t\t\tMarker\n\t\t\t\t\t\t\tName\n\t\t\t\t\t\t\t\tFixingMarker\n\t\t\t\t\t\t\tPosition3D\n\t\t\t\t\t\t\t\t0\t0\t0\t\n\t\t\t\t\t\t\tRotationMatrix\n\t\t\t\t\t\t\t\t1\t0\t0\t\n\t\t\t\t\t\t\t\t0\t1\t0\t\n\t\t\t\t\t\t\t\t0\t0\t1\t\n\t\t\t\tRefPoint\n\t\t\t\t\tPosition3D\n\t\t\t\t\t\t0\t0\t0\t\n\t\t\t\t\tRotationMatrix\n\t\t\t\t\t\t1\t0\t0\t\n\t\t\t\t\t\t0\t1\t0\t\n\t\t\t\t\t\t0\t0\t1\t\n\t\t\t\t\tMarkers\n\t\t\t\t\t\tMarker\n\t\t\t\t\t\t\tName\n\t\t\t\t\t\t\t\tUnnamed#Joint\n\t\t\t\t\t\t\tPosition3D\n\t\t\t\t\t\t\t\t0\t0\t0\t\n\t\t\t\t\t\t\tRotationMatrix\n\t\t\t\t\t\t\t\t1\t0\t0\t\n\t\t\t\t\t\t\t\t0\t1\t0\t\n\t\t\t\t\t\t\t\t0\t0\t1\t\n\t\t\tRefCurves\n\t\t\tRefSurfaces\n\t\tPart\n\t\t\tName\n\t\t\t\tUnnamed#Plate\n\t\t\tPosition3D\n\t\t\t\t0\t0\t0\t\n\t\t\tRotationMatrix\n\t\t\t\t1\t0\t0\t\n\t\t\t\t0\t1\t0\t\n\t\t\t\t0\t0\t1\t\n\t\t\tVelocity3D\n\t\t\t\t0\t0\t0\t\n\t\t\tOmega3D\n\t\t\t\t0\t0\t0\t\n\t\t\tFeatureOrder\n\t\t\tPrincipalMassMarker\n\t\t\t\tName\n\t\t\t\t\tMassMarker\n\t\t\t\tPosition3D\n\t\t\t\t\t0\t0\t0\t\n\t\t\t\tRotationMatrix\n\t\t\t\t\t1\t0\t0\t\n\t\t\t\t\t0\t1\t0\t\n\t\t\t\t\t0\t0\t1\t\n\t\t\t\tMass\n\t\t\t\t\t1\n\t\t\t\tMomentOfInertias\n\t\t\t\t\t1\t1\t1\t\n\t\t\t\tDensity\n\t\t\t\t\t1\n\t\t\tRefPoints\n\t\t\t\tRefPoint\n\t\t\t\t\tPosition3D\n\t\t\t\t\t\t0\t0\t0\t\n\t\t\t\t\tRotationMatrix\n\t\t\t\t\t\t1\t0\t0\t\n\t\t\t\t\t\t0\t1\t0\t\n\t\t\t\t\t\t0\t0\t1\t\n\t\t\t\t\tMarkers\n\t\t\t\t\t\tMarker\n\t\t\t\t\t\t\tName\n\t\t\t\t\t\t\t\tFixingMarker\n\t\t\t\t\t\t\tPosition3D\n\t\t\t\t\t\t\t\t0\t0\t0\t\n\t\t\t\t\t\t\tRotationMatrix\n\t\t\t\t\t\t\t\t1\t0\t0\t\n\t\t\t\t\t\t\t\t0\t1\t0\t\n\t\t\t\t\t\t\t\t0\t0\t1\t\n\t\t\tRefCurves\n\t\t\tRefSurfaces\n\t\tPart\n\t\t\tName\n\t\t\t\tUnnamed#Bar\n\t\t\tPosition3D\n\t\t\t\t-15\t-3\t0\t\n\t\t\tRotationMatrix\n\t\t\t\t1\t0\t0\t\n\t\t\t\t0\t1\t0\t\n\t\t\t\t0\t0\t1\t\n\t\t\tVelocity3D\n\t\t\t\t0\t0\t0\t\n\t\t\tOmega3D\n\t\t\t\t0\t0\t0\t\n\t\t\tFeatureOrder\n\t\t\tPrincipalMassMarker\n\t\t\t\tName\n\t\t\t\t\tMassMarker\n\t\t\t\tPosition3D\n\t\t\t\t\t0\t0\t0\t\n\t\t\t\tRotationMatrix\n\t\t\t\t\t1\t0\t0\t\n\t\t\t\t\t0\t1\t0\t\n\t\t\t\t\t0\t0\t1\t\n\t\t\t\tMass\n\t\t\t\t\t1\n\t\t\t\tMomentOfInertias\n\t\t\t\t\t1\t1\t1\t\n\t\t\t\tDensity\n\t\t\t\t\t1\n\t\t\tRefPoints\n\t\t\t\tRefPoint\n\t\t\t\t\tPosition3D\n\t\t\t\t\t\t0\t0\t0\t\n\t\t\t\t\tRotationMatrix\n\t\t\t\t\t\t1\t0\t0\t\n\t\t\t\t\t\t0\t1\t0\t\n\t\t\t\t\t\t0\t0\t1\t\n\t\t\t\t\tMarkers\n\t\t\t\t\t\tMarker\n\t\t\t\t\t\t\tName\n\t\t\t\t\t\t\t\tUnnamed#Joint\n\t\t\t\t\t\t\tPosition3D\n\t\t\t\t\t\t\t\t15\t3\t0\t\n\t\t\t\t\t\t\tRotationMatrix\n\t\t\t\t\t\t\t\t1\t0\t0\t\n\t\t\t\t\t\t\t\t0\t1\t0\t\n\t\t\t\t\t\t\t\t0\t0\t1\t\n\t\t\tRefCurves\n\t\t\tRefSurfaces\n\tKinematicIJs\n\tConstraintSets\n\t\tJoints\n\t\t\tdJointE\n\t\t\t\tName\n\t\t\t\t\tUnnamed#Origin\n\t\t\t\tMarkerI\n\t\t\t\t\t/OndselAssembly/marker-Unnamed#Origin\n\t\t\t\tMarkerJ\n\t\t\t\t\t/OndselAssembly/Unnamed#Origin/FixingMarker\n\t\t\tdJointE\n\t\t\t\tName\n\t\t\t\t\tUnnamed#Plate\n\t\t\t\tMarkerI\n\t\t\t\t\t/OndselAssembly/marker-Unnamed#Plate\n\t\t\t\tMarkerJ\n\t\t\t\t\t/OndselAssembly/Unnamed#Plate/FixingMarker\n\t\t\tdJointE\n\t\t\t\tName\n\t\t\t\t\tUnnamed#Joint\n\t\t\t\tMarkerI\n\t\t\t\t\t/OndselAssembly/Unnamed#Origin/Unnamed#Joint\n\t\t\t\tMarkerJ\n\t\t\t\t\t/OndselAssembly/Unnamed#Bar/Unnamed#Joint\n\t\tMotions\n\t\tLimits\n\t\tGeneralConstraintSets\n\tForceTorques\n\tConstantGravity\n\t\t0\t0\t0\t\n\tSimulationParameters\n\t\ttstart\n\t\t\t0\n\t\ttend\n\t\t\t1\n\t\thmin\n\t\t\t1.0000000000000001e-09\n\t\thmax\n\t\t\t1000000000\n\t\thout\n\t\t\t0.10000000000000001\n\t\terrorTol\n\t\t\t9.9999999999999995e-07\n\tAnimationParameters\n\t\tnframe\n\t\t\t1000000\n\t\ticurrent\n\t\t\t1\n\t\tistart\n\t\t\t1\n\t\tiend\n\t\t\t1000000\n\t\tisForward\n\t\t\ttrue\n\t\tframesPerSecond\n\t\t\t30\n",
+   "subs": {}
   }
  }
 }

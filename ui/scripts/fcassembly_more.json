@@ -1,0 +1,3816 @@
+{
+ "errors": {},
+ "setup": true,
+ "menus": [
+  {
+   "text": "New Assembly",
+   "name": "Assembly_CreateAssembly",
+   "enabled": true,
+   "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>New Assembly</b> (A)</p><p style='white-space:pre; margin:0;'>Creates an assembly object in the current document, or in the current active assembly (if</p>any). Limit of one root assembly per file.<p style='white-space:pre; margin-top:0.5em;'><i>Assembly_CreateAssembly</i></p>"
+  },
+  {
+   "text": "Insert Component",
+   "name": "Assembly_Insert",
+   "enabled": true,
+   "tip": "Insert Component",
+   "menu": [
+    {
+     "text": "Insert Component",
+     "name": null,
+     "enabled": true,
+     "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Insert Component</b> (I)</p><p>Inserts a component into the active assembly. This will create dynamic links to parts, bodies, primitives, and assemblies. To insert external components, make sure that the file is <b>open in the current session</b></p><ul><li>Insert by left clicking items in the list.</li><li>Remove by right clicking items in the list.</li><li>Press shift to add several instances of the component while clicking on the view.</li></ul><p style='white-space:pre; margin-top:0.5em;'><i>Assembly_InsertLink</i></p>"
+    },
+    {
+     "text": "New Part",
+     "name": null,
+     "enabled": true,
+     "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>New Part</b> (P)</p><p style='white-space:pre; margin:0;'>Insert a new part into the active assembly. The new part's origin can be positioned in the</p>assembly.<p style='white-space:pre; margin-top:0.5em;'><i>Assembly_InsertNewPart</i></p>"
+    }
+   ]
+  },
+  {
+   "text": "Link Arrays",
+   "name": "Part_LinkArrays",
+   "enabled": true,
+   "tip": "Link Arrays",
+   "menu": [
+    {
+     "text": "Circular Link Array",
+     "name": "Part_LinkArrayCircular",
+     "enabled": true,
+     "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Circular Link Array</b></p><p style='white-space:pre; margin:0;'>Creates a concentric circular array of linked objects</p><p style='white-space:pre; margin-top:0.5em;'><i>Part_LinkArrayCircular</i></p>"
+    },
+    {
+     "text": "Linear Link Array",
+     "name": "Part_LinkArrayLinear",
+     "enabled": true,
+     "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Linear Link Array</b></p><p style='white-space:pre; margin:0;'>Creates a linear array of linked objects</p><p style='white-space:pre; margin-top:0.5em;'><i>Part_LinkArrayLinear</i></p>"
+    },
+    {
+     "text": "Path Link Array",
+     "name": "Part_LinkArrayPath",
+     "enabled": true,
+     "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Path Link Array</b></p><p style='white-space:pre; margin:0;'>Creates an array of linked objects along a path</p><p style='white-space:pre; margin-top:0.5em;'><i>Part_LinkArrayPath</i></p>"
+    },
+    {
+     "text": "Point Link Array",
+     "name": "Part_LinkArrayPoint",
+     "enabled": true,
+     "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Point Link Array</b></p><p style='white-space:pre; margin:0;'>Creates an array of linked objects at each point of a sketch or shape</p><p style='white-space:pre; margin-top:0.5em;'><i>Part_LinkArrayPoint</i></p>"
+    },
+    {
+     "text": "Polar Link Array",
+     "name": "Part_LinkArrayPolar",
+     "enabled": true,
+     "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Polar Link Array</b></p><p style='white-space:pre; margin:0;'>Creates a polar array of linked objects</p><p style='white-space:pre; margin-top:0.5em;'><i>Part_LinkArrayPolar</i></p>"
+    }
+   ]
+  },
+  {
+   "text": "Solve Assembly",
+   "name": "Assembly_SolveAssembly",
+   "enabled": true,
+   "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Solve Assembly</b> (Z)</p><p style='white-space:pre; margin:0;'>Solves the currently active assembly.</p><p style='white-space:pre; margin-top:0.5em;'><i>Assembly_SolveAssembly</i></p>"
+  },
+  {
+   "text": "Exploded View",
+   "name": "Assembly_CreateView",
+   "enabled": true,
+   "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Exploded View</b> (E)</p><p style='white-space:pre; margin:0;'>Creates an exploded view of the current assembly</p><p style='white-space:pre; margin-top:0.5em;'><i>Assembly_CreateView</i></p>"
+  },
+  {
+   "text": "Snapshot",
+   "name": "Assembly_CreateSnapshot",
+   "enabled": true,
+   "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Snapshot</b></p><p style='white-space:pre; margin:0;'>Captures the current assembly state (placements and visibility). Double-clicking the Snapshot</p>object restores the assembly to that state.<p style='white-space:pre; margin-top:0.5em;'><i>Assembly_CreateSnapshot</i></p>"
+  },
+  {
+   "text": "Simulation",
+   "name": "Assembly_CreateSimulation",
+   "enabled": false,
+   "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Simulation</b> (V)</p><p style='white-space:pre; margin:0;'>Creates a new simulation of the current assembly</p><p style='white-space:pre; margin-top:0.5em;'><i>Assembly_CreateSimulation</i></p>"
+  },
+  {
+   "text": "Bill of Materials",
+   "name": "Assembly_CreateBom",
+   "enabled": true,
+   "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Bill of Materials</b> (O)</p><p>Creates a bill of materials of the current assembly. If an assembly is active, it will be a BOM of this assembly. Else it will be a BOM of the whole document.</p><p>The BOM object is a document object that stores the settings of your BOM. It is also a spreadsheet object so you can easily visualize the BOM. If you do not need the BOM object to be saved as a document object, you can simply export and cancel the task.</p><p>The columns 'Index', 'Name', 'File Name' and 'Quantity' are automatically generated on recompute. The 'Description' and custom columns are not overwritten.</p><p style='white-space:pre; margin-top:0.5em;'><i>Assembly_CreateBom</i></p>"
+  },
+  {
+   "text": "Go to Linked Assembly",
+   "name": "Assembly_LinkSelectLinked",
+   "enabled": false,
+   "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Go to Linked Assembly</b> (S, G)</p><p style='white-space:pre; margin:0;'>Selects the linked assembly and switches to its original document</p><p style='white-space:pre; margin-top:0.5em;'><i>Assembly_LinkSelectLinked</i></p>"
+  },
+  {
+   "text": "Export ASMT File",
+   "name": "Assembly_ExportASMT",
+   "enabled": true,
+   "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Export ASMT File</b></p><p style='white-space:pre; margin:0;'>Export currently active assembly as a ASMT file.</p><p style='white-space:pre; margin-top:0.5em;'><i>Assembly_ExportASMT</i></p>"
+  },
+  {
+   "text": "Select Component Joints",
+   "name": "Assembly_SelectJointsOfComponent",
+   "enabled": false,
+   "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Select Component Joints</b></p><p style='white-space:pre; margin:0;'>Selects all joints referencing the selected component</p><p style='white-space:pre; margin-top:0.5em;'><i>Assembly_SelectJointsOfComponent</i></p>"
+  },
+  {
+   "sep": true
+  },
+  {
+   "text": "Toggle Grounded",
+   "name": "Assembly_ToggleGrounded",
+   "enabled": true,
+   "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Toggle Grounded</b> (G)</p><p>Toggles the grounding of a part.</p><p>Grounding a part permanently locks its position in the assembly, preventing any movement or rotation.<p style='white-space:pre; margin-top:0.5em;'><i>Assembly_ToggleGrounded</i></p>"
+  },
+  {
+   "text": "Create Rigid Group",
+   "name": "Assembly_CreateJointRigidGroup",
+   "enabled": true,
+   "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Create Rigid Group</b> (Y)</p><p>Create a rigid group.</p><p>Creates a rigid group that permanently locks the selected components together.</p><p style='white-space:pre; margin-top:0.5em;'><i>Assembly_CreateJointRigidGroup</i></p>"
+  },
+  {
+   "sep": true
+  },
+  {
+   "text": "Fixed Joint",
+   "name": "Assembly_CreateJointFixed",
+   "enabled": true,
+   "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Fixed Joint</b> (F)</p><p>1 - If an assembly is active : Creates a joint statically locking two parts together, preventing any movement or rotation</p><p>2 - If a part is active: Positions sub-parts by matching selected coordinate systems. The second part selected will move.</p><p style='white-space:pre; margin-top:0.5em;'><i>Assembly_CreateJointFixed</i></p>"
+  },
+  {
+   "text": "Revolute Joint",
+   "name": "Assembly_CreateJointRevolute",
+   "enabled": true,
+   "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Revolute Joint</b> (R)</p><p style='white-space:pre; margin:0;'>Creates a revolute joint allowing rotation around a single axis between selected parts</p><p style='white-space:pre; margin-top:0.5em;'><i>Assembly_CreateJointRevolute</i></p>"
+  },
+  {
+   "text": "Cylindrical Joint",
+   "name": "Assembly_CreateJointCylindrical",
+   "enabled": true,
+   "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Cylindrical Joint</b> (C)</p><p style='white-space:pre; margin:0;'>Creates a cylindrical joint that allows rotation around and translation along a single axis</p>between assembled parts<p style='white-space:pre; margin-top:0.5em;'><i>Assembly_CreateJointCylindrical</i></p>"
+  },
+  {
+   "text": "Slider Joint",
+   "name": "Assembly_CreateJointSlider",
+   "enabled": true,
+   "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Slider Joint</b> (S)</p><p style='white-space:pre; margin:0;'>Creates a slider joint that allows linear movement along a single axis, but restricts rotation</p>between selected parts<p style='white-space:pre; margin-top:0.5em;'><i>Assembly_CreateJointSlider</i></p>"
+  },
+  {
+   "text": "Ball Joint",
+   "name": "Assembly_CreateJointBall",
+   "enabled": true,
+   "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Ball Joint</b> (B)</p><p style='white-space:pre; margin:0;'>Creates a ball joint that connects parts at a point, allowing unrestricted movement as long</p>as the connection points remain in contact<p style='white-space:pre; margin-top:0.5em;'><i>Assembly_CreateJointBall</i></p>"
+  },
+  {
+   "sep": true
+  },
+  {
+   "text": "Distance Joint",
+   "name": "Assembly_CreateJointDistance",
+   "enabled": true,
+   "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Distance Joint</b> (D)</p><p>Creates a distance joint that fixes the distance between the selected objects</p><p>Creates one of several different joints based on the selection. For example, a distance of 0 between a plane and a cylinder creates a tangent joint. A distance of 0 between planes will make them co-planar.</p><p style='white-space:pre; margin-top:0.5em;'><i>Assembly_CreateJointDistance</i></p>"
+  },
+  {
+   "text": "Parallel Joint",
+   "name": "Assembly_CreateJointParallel",
+   "enabled": true,
+   "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Parallel Joint</b> (N)</p><p style='white-space:pre; margin:0;'>Creates a parallel joint that makes the Z-axis of the selected coordinate systems parallel</p><p style='white-space:pre; margin-top:0.5em;'><i>Assembly_CreateJointParallel</i></p>"
+  },
+  {
+   "text": "Perpendicular Joint",
+   "name": "Assembly_CreateJointPerpendicular",
+   "enabled": true,
+   "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Perpendicular Joint</b> (M)</p><p style='white-space:pre; margin:0;'>Creates a perpendicular joint that makes the Z-axis of the selected coordinate systems</p>perpendicular<p style='white-space:pre; margin-top:0.5em;'><i>Assembly_CreateJointPerpendicular</i></p>"
+  },
+  {
+   "text": "Angle Joint",
+   "name": "Assembly_CreateJointAngle",
+   "enabled": true,
+   "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Angle Joint</b> (X)</p><p style='white-space:pre; margin:0;'>Creates an angle joint that fixes the angle between the Z-axis of the selected coordinate</p>systems<p style='white-space:pre; margin-top:0.5em;'><i>Assembly_CreateJointAngle</i></p>"
+  },
+  {
+   "sep": true
+  },
+  {
+   "text": "Rack and Pinion Joint",
+   "name": "Assembly_CreateJointRackPinion",
+   "enabled": true,
+   "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Rack and Pinion Joint</b> (Q)</p><p>Creates a rack and pinion joint that links a part with a slider joint to a part with a revolute joint</p><p>Select the same coordinate systems as the revolute and slider joints. The pitch radius defines the movement ratio between the rack and the pinion.</p><p style='white-space:pre; margin-top:0.5em;'><i>Assembly_CreateJointRackPinion</i></p>"
+  },
+  {
+   "text": "Screw Joint",
+   "name": "Assembly_CreateJointScrew",
+   "enabled": true,
+   "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Screw Joint</b> (W)</p><p>Creates a screw joint that links a part with a slider joint to a part with a revolute joint</p><p>Select the same coordinate systems as the revolute and slider joints. The pitch radius defines the movement ratio between the rotating screw and the sliding part.</p><p style='white-space:pre; margin-top:0.5em;'><i>Assembly_CreateJointScrew</i></p>"
+  },
+  {
+   "text": "Gears/Belt Joint",
+   "name": "Assembly_CreateJointGearBelt",
+   "enabled": true,
+   "tip": "Gears/Belt Joint",
+   "menu": [
+    {
+     "text": "Gears Joint",
+     "name": null,
+     "enabled": true,
+     "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Gears Joint</b> (T)</p><p>Creates a gears joint that links 2 rotating gears together. They will have inverse rotation direction.</p><p>Select the same coordinate systems as the revolute joints.</p><p style='white-space:pre; margin-top:0.5em;'><i>Assembly_CreateJointGears</i></p>"
+    },
+    {
+     "text": "Belt Joint",
+     "name": null,
+     "enabled": true,
+     "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Belt Joint</b> (L)</p><p>Creates a belt joint that links 2 rotating objects together. They will have the same rotation direction.</p><p>Select the same coordinate systems as the revolute joints.</p><p style='white-space:pre; margin-top:0.5em;'><i>Assembly_CreateJointBelt</i></p>"
+    }
+   ]
+  }
+ ],
+ "toolbars": [
+  {
+   "title": "Assembly",
+   "buttons": [
+    {
+     "name": "Assembly_CreateAssembly",
+     "text": "New Assembly",
+     "enabled": true
+    },
+    {
+     "name": "Assembly_Insert",
+     "text": "Insert Component",
+     "enabled": true
+    },
+    {
+     "name": "Part_LinkArrays",
+     "text": "Link Arrays",
+     "enabled": true
+    },
+    {
+     "name": "Assembly_SolveAssembly",
+     "text": "Solve Assembly",
+     "enabled": true
+    },
+    {
+     "name": "Assembly_CreateView",
+     "text": "Exploded View",
+     "enabled": true
+    },
+    {
+     "name": "Assembly_CreateSnapshot",
+     "text": "Snapshot",
+     "enabled": true
+    },
+    {
+     "name": "Assembly_CreateSimulation",
+     "text": "Simulation",
+     "enabled": false
+    },
+    {
+     "name": "Assembly_CreateBom",
+     "text": "Bill of Materials",
+     "enabled": true
+    }
+   ]
+  },
+  {
+   "title": "Assembly Joints",
+   "buttons": [
+    {
+     "name": "Assembly_ToggleGrounded",
+     "text": "Toggle Grounded",
+     "enabled": true
+    },
+    {
+     "name": "Assembly_CreateJointRigidGroup",
+     "text": "Create Rigid Group",
+     "enabled": true
+    },
+    {
+     "sep": true
+    },
+    {
+     "name": "Assembly_CreateJointFixed",
+     "text": "Fixed Joint",
+     "enabled": true
+    },
+    {
+     "name": "Assembly_CreateJointRevolute",
+     "text": "Revolute Joint",
+     "enabled": true
+    },
+    {
+     "name": "Assembly_CreateJointCylindrical",
+     "text": "Cylindrical Joint",
+     "enabled": true
+    },
+    {
+     "name": "Assembly_CreateJointSlider",
+     "text": "Slider Joint",
+     "enabled": true
+    },
+    {
+     "name": "Assembly_CreateJointBall",
+     "text": "Ball Joint",
+     "enabled": true
+    },
+    {
+     "sep": true
+    },
+    {
+     "name": "Assembly_CreateJointDistance",
+     "text": "Distance Joint",
+     "enabled": true
+    },
+    {
+     "name": "Assembly_CreateJointParallel",
+     "text": "Parallel Joint",
+     "enabled": true
+    },
+    {
+     "name": "Assembly_CreateJointPerpendicular",
+     "text": "Perpendicular Joint",
+     "enabled": true
+    },
+    {
+     "name": "Assembly_CreateJointAngle",
+     "text": "Angle Joint",
+     "enabled": true
+    },
+    {
+     "sep": true
+    },
+    {
+     "name": "Assembly_CreateJointRackPinion",
+     "text": "Rack and Pinion Joint",
+     "enabled": true
+    },
+    {
+     "name": "Assembly_CreateJointScrew",
+     "text": "Screw Joint",
+     "enabled": true
+    },
+    {
+     "name": "Assembly_CreateJointGearBelt",
+     "text": "Gears/Belt Joint",
+     "enabled": true
+    }
+   ]
+  }
+ ],
+ "rigid": {
+  "undo": [
+   "Create Rigid Group"
+  ],
+  "report": "06:20:24  pyException: Traceback (most recent call last):\n  File \"<FreeCAD>/Mod/Assembly/JointObject.py\", line 1404, in onChanged\n    self.updateStoredPositions(fp, True)\n  File \"<FreeCAD>/Mod/Assembly/JointObject.py\", line 1373, in updateStoredPositions\n    self._write_rigid_placements(fp, placements)\n  File \"<FreeCAD>/Mod/Assembly/JointObject.py\", line 1380, in _write_rigid_placements\n    fp.setPropertyStatus(\"RigidPlacements\", \"-ReadOnly\")\n<class 'AttributeError'>: Property container has no property 'RigidPlacements'\n06:20:24  Assembly: Rigid group positions updated.\n",
+  "name": "RigidGroupJoint",
+  "label": "RigidGroupJoint",
+  "members": [
+   "Pin",
+   "Bar"
+  ],
+  "rigid_placements": [
+   [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    6.938893903907228e-18,
+    0.0,
+    1.0
+   ],
+   [
+    -45.00593389232114,
+    36.09633064737204,
+    -23.780681829493652,
+    0.3170774976849936,
+    -0.3494541401713331,
+    -0.17891345147027865,
+    0.8633270766412516
+   ]
+  ],
+  "tree": [
+   {
+    "text": "Unnamed",
+    "depth": 0
+   },
+   {
+    "text": "Box",
+    "depth": 1
+   },
+   {
+    "text": "Cylinder",
+    "depth": 1
+   },
+   {
+    "text": "Box001",
+    "depth": 1
+   },
+   {
+    "text": "Assembly",
+    "depth": 1
+   },
+   {
+    "text": "Origin",
+    "depth": 2
+   },
+   {
+    "text": "X-axis",
+    "depth": 3
+   },
+   {
+    "text": "Y-axis",
+    "depth": 3
+   },
+   {
+    "text": "Z-axis",
+    "depth": 3
+   },
+   {
+    "text": "XY-plane",
+    "depth": 3
+   },
+   {
+    "text": "XZ-plane",
+    "depth": 3
+   },
+   {
+    "text": "YZ-plane",
+    "depth": 3
+   },
+   {
+    "text": "Origin-Point",
+    "depth": 3
+   },
+   {
+    "text": "Joints",
+    "depth": 2
+   },
+   {
+    "text": "GroundedJoint",
+    "depth": 3
+   },
+   {
+    "text": "RigidGroupJoint",
+    "depth": 3
+   },
+   {
+    "text": "Plate",
+    "depth": 2
+   },
+   {
+    "text": "Pin",
+    "depth": 2
+   },
+   {
+    "text": "Bar",
+    "depth": 2
+   }
+  ],
+  "props": [
+   [
+    {
+     "depth": 0,
+     "name": " Link",
+     "value": null
+    },
+    {
+     "depth": 0,
+     "name": "Base",
+     "value": null
+    },
+    {
+     "depth": 1,
+     "name": "Label",
+     "value": "RigidGroupJoint"
+    },
+    {
+     "depth": 1,
+     "name": "Suppressed",
+     "value": "false"
+    },
+    {
+     "depth": 0,
+     "name": "Rigid Group",
+     "value": null
+    },
+    {
+     "depth": 1,
+     "name": "Objects To Rigid Group",
+     "value": "[Pin, Bar]"
+    }
+   ]
+  ],
+  "menu": [
+   "Update Stored Positions"
+  ],
+  "placements": {
+   "Plate": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "Pin": [
+    30.0,
+    5.0,
+    2.0,
+    0.23929833774473033,
+    0.189307857412,
+    0.038134576474850156,
+    0.9515485246437886
+   ],
+   "Bar": [
+    -20.0,
+    40.0,
+    15.0,
+    0.48776392296296117,
+    -0.11418266476504209,
+    -0.28097127493980556,
+    0.8185986911678008
+   ]
+  }
+ },
+ "isolate": {
+  "Transparent": {
+   "Plate": {
+    "visibility": true,
+    "selectable": true
+   },
+   "Pin": {
+    "visibility": true,
+    "selectable": true
+   },
+   "Bar": {
+    "visibility": true,
+    "selectable": false
+   }
+  },
+  "Wireframe": {
+   "Plate": {
+    "visibility": true,
+    "selectable": true
+   },
+   "Pin": {
+    "visibility": true,
+    "selectable": true
+   },
+   "Bar": {
+    "visibility": true,
+    "selectable": false
+   }
+  },
+  "Hidden": {
+   "Plate": {
+    "visibility": true,
+    "selectable": true
+   },
+   "Pin": {
+    "visibility": true,
+    "selectable": true
+   },
+   "Bar": {
+    "visibility": false,
+    "selectable": true
+   }
+  },
+  "Disabled": {
+   "Plate": {
+    "visibility": true,
+    "selectable": true
+   },
+   "Pin": {
+    "visibility": true,
+    "selectable": true
+   },
+   "Bar": {
+    "visibility": true,
+    "selectable": true
+   }
+  },
+  "after": {
+   "Plate": {
+    "visibility": true,
+    "selectable": true
+   },
+   "Pin": {
+    "visibility": true,
+    "selectable": true
+   },
+   "Bar": {
+    "visibility": true,
+    "selectable": true
+   }
+  }
+ },
+ "offsets": {
+  "panel": [
+   [
+    {
+     "class": "QPushButton",
+     "name": "",
+     "y": 9,
+     "x": 137,
+     "enabled": true,
+     "text": "OK"
+    },
+    {
+     "class": "QPushButton",
+     "name": "",
+     "y": 9,
+     "x": 249,
+     "enabled": true,
+     "text": "Cancel"
+    },
+    {
+     "class": "QSint::TaskHeader",
+     "name": "",
+     "y": 50,
+     "x": 4,
+     "enabled": true,
+     "text": ""
+    },
+    {
+     "class": "QSint::ActionLabel",
+     "name": "",
+     "y": 53,
+     "x": 9,
+     "enabled": true,
+     "text": ""
+    },
+    {
+     "class": "QComboBox",
+     "name": "jointType",
+     "y": 87,
+     "x": 20,
+     "enabled": true,
+     "items": [
+      "Fixed",
+      "Revolute",
+      "Cylindrical",
+      "Slider",
+      "Ball",
+      "Distance",
+      "Parallel",
+      "Perpendicular",
+      "Angle",
+      "RackPinion",
+      "Screw",
+      "Gears",
+      "Belt"
+     ],
+     "current": "Fixed"
+    },
+    {
+     "class": "QListWidget",
+     "name": "featureList",
+     "y": 117,
+     "x": 20,
+     "enabled": true,
+     "items": []
+    },
+    {
+     "class": "QToolButton",
+     "name": "PushButtonReverse",
+     "y": 198,
+     "x": 20,
+     "enabled": true,
+     "text": "Reverse"
+    },
+    {
+     "class": "QToolButton",
+     "name": "PushButtonRotate90",
+     "y": 198,
+     "x": 49,
+     "enabled": true,
+     "text": "Rotate"
+    },
+    {
+     "class": "QLabel",
+     "name": "offset1Label",
+     "y": 227,
+     "x": 20,
+     "enabled": true,
+     "text": "Offset1"
+    },
+    {
+     "class": "QPushButton",
+     "name": "offset1Button",
+     "y": 227,
+     "x": 249,
+     "enabled": true,
+     "text": "(0.0, 0.0, 0.0)"
+    },
+    {
+     "class": "QLabel",
+     "name": "offset2Label",
+     "y": 253,
+     "x": 20,
+     "enabled": true,
+     "text": "Offset2"
+    },
+    {
+     "class": "QPushButton",
+     "name": "offset2Button",
+     "y": 253,
+     "x": 249,
+     "enabled": true,
+     "text": "(0.0, 0.0, 0.0)"
+    },
+    {
+     "class": "QCheckBox",
+     "name": "advancedOffsetCheckbox",
+     "y": 279,
+     "x": 20,
+     "enabled": true,
+     "text": "Show advanced offsets",
+     "checked": true
+    },
+    {
+     "class": "QLabel",
+     "name": "isolateLabel2",
+     "y": 305,
+     "x": 20,
+     "enabled": true,
+     "text": "Isolate"
+    },
+    {
+     "class": "QComboBox",
+     "name": "isolateType",
+     "y": 305,
+     "x": 249,
+     "enabled": true,
+     "items": [
+      "Transparent",
+      "Wireframe",
+      "Hidden",
+      "Disabled"
+     ],
+     "current": "Transparent"
+    }
+   ]
+  ],
+  "dialog": {
+   "title": "Placement",
+   "widgets": [
+    {
+     "class": "QGroupBox",
+     "name": "GroupBox5",
+     "y": 11,
+     "x": 11,
+     "enabled": true,
+     "text": "Translation"
+    },
+    {
+     "class": "QGroupBox",
+     "name": "GroupBox5_3",
+     "y": 11,
+     "x": 231,
+     "enabled": true,
+     "text": "Center"
+    },
+    {
+     "class": "Gui::QuantitySpinBox",
+     "name": "xPos",
+     "y": 39,
+     "x": 53,
+     "enabled": true,
+     "text": "0.00 mm"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 40,
+     "x": 58,
+     "enabled": true,
+     "text": "0.00 mm"
+    },
+    {
+     "class": "QLabel",
+     "name": "TextLabelX",
+     "y": 45,
+     "x": 21,
+     "enabled": true,
+     "text": "X"
+    },
+    {
+     "class": "Gui::QuantitySpinBox",
+     "name": "xCnt",
+     "y": 45,
+     "x": 256,
+     "enabled": true,
+     "text": "0.00 mm"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 46,
+     "x": 261,
+     "enabled": true,
+     "text": "0.00 mm"
+    },
+    {
+     "class": "QLabel",
+     "name": "TextLabelX_2",
+     "y": 51,
+     "x": 241,
+     "enabled": true,
+     "text": "X"
+    },
+    {
+     "class": "Gui::QuantitySpinBox",
+     "name": "yPos",
+     "y": 70,
+     "x": 53,
+     "enabled": true,
+     "text": "0.00 mm"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 71,
+     "x": 58,
+     "enabled": true,
+     "text": "0.00 mm"
+    },
+    {
+     "class": "QLabel",
+     "name": "TextLabelY",
+     "y": 76,
+     "x": 21,
+     "enabled": true,
+     "text": "Y"
+    },
+    {
+     "class": "Gui::QuantitySpinBox",
+     "name": "yCnt",
+     "y": 82,
+     "x": 256,
+     "enabled": true,
+     "text": "0.00 mm"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 83,
+     "x": 261,
+     "enabled": true,
+     "text": "0.00 mm"
+    },
+    {
+     "class": "QLabel",
+     "name": "TextLabelY_2",
+     "y": 88,
+     "x": 241,
+     "enabled": true,
+     "text": "Y"
+    },
+    {
+     "class": "Gui::QuantitySpinBox",
+     "name": "zPos",
+     "y": 101,
+     "x": 53,
+     "enabled": true,
+     "text": "0.00 mm"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 102,
+     "x": 58,
+     "enabled": true,
+     "text": "0.00 mm"
+    },
+    {
+     "class": "QLabel",
+     "name": "TextLabelZ",
+     "y": 107,
+     "x": 21,
+     "enabled": true,
+     "text": "Z"
+    },
+    {
+     "class": "Gui::QuantitySpinBox",
+     "name": "zCnt",
+     "y": 119,
+     "x": 256,
+     "enabled": true,
+     "text": "0.00 mm"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 120,
+     "x": 261,
+     "enabled": true,
+     "text": "0.00 mm"
+    },
+    {
+     "class": "QLabel",
+     "name": "TextLabelZ_5",
+     "y": 125,
+     "x": 241,
+     "enabled": true,
+     "text": "Z"
+    },
+    {
+     "class": "Gui::QuantitySpinBox",
+     "name": "axialPos",
+     "y": 132,
+     "x": 53,
+     "enabled": true,
+     "text": "0.00 mm"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 133,
+     "x": 58,
+     "enabled": true,
+     "text": "0.00 mm"
+    },
+    {
+     "class": "QLabel",
+     "name": "TextLabelAxial",
+     "y": 138,
+     "x": 21,
+     "enabled": true,
+     "text": "Axial"
+    },
+    {
+     "class": "QCheckBox",
+     "name": "centerOfMass",
+     "y": 156,
+     "x": 241,
+     "enabled": true,
+     "text": "Use center of mass",
+     "checked": false
+    },
+    {
+     "class": "QPushButton",
+     "name": "applyAxial",
+     "y": 163,
+     "x": 53,
+     "enabled": true,
+     "text": "Apply Axial"
+    },
+    {
+     "class": "QGroupBox",
+     "name": "GroupBox5_2",
+     "y": 201,
+     "x": 11,
+     "enabled": true,
+     "text": "Rotation"
+    },
+    {
+     "class": "QComboBox",
+     "name": "rotationInput",
+     "y": 229,
+     "x": 21,
+     "enabled": true,
+     "items": [
+      "Rotation axis and angle",
+      "Euler angles (Z\u2013Y\u2032\u2013X\u2033)"
+     ],
+     "current": "Rotation axis and angle"
+    },
+    {
+     "class": "Gui::QuantitySpinBox",
+     "name": "xAxis",
+     "y": 276,
+     "x": 66,
+     "enabled": true,
+     "text": "0.00"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 277,
+     "x": 71,
+     "enabled": true,
+     "text": "0.00"
+    },
+    {
+     "class": "QLabel",
+     "name": "TextLabelAxis",
+     "y": 282,
+     "x": 30,
+     "enabled": true,
+     "text": "Axis"
+    },
+    {
+     "class": "Gui::QuantitySpinBox",
+     "name": "yAxis",
+     "y": 307,
+     "x": 66,
+     "enabled": true,
+     "text": "0.00"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 308,
+     "x": 71,
+     "enabled": true,
+     "text": "0.00"
+    },
+    {
+     "class": "Gui::QuantitySpinBox",
+     "name": "zAxis",
+     "y": 338,
+     "x": 66,
+     "enabled": true,
+     "text": "1.00"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 339,
+     "x": 71,
+     "enabled": true,
+     "text": "1.00"
+    },
+    {
+     "class": "Gui::QuantitySpinBox",
+     "name": "angle",
+     "y": 369,
+     "x": 66,
+     "enabled": true,
+     "text": "0.00\u00b0"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 370,
+     "x": 71,
+     "enabled": true,
+     "text": "0.00\u00b0"
+    },
+    {
+     "class": "QLabel",
+     "name": "textLabelAngle",
+     "y": 375,
+     "x": 30,
+     "enabled": true,
+     "text": "Angle"
+    },
+    {
+     "class": "QCheckBox",
+     "name": "applyIncrementalPlacement",
+     "y": 430,
+     "x": 11,
+     "enabled": true,
+     "text": "Apply incremental changes",
+     "checked": false
+    },
+    {
+     "class": "QPushButton",
+     "name": "resetButton",
+     "y": 430,
+     "x": 339,
+     "enabled": true,
+     "text": "Reset"
+    },
+    {
+     "class": "QPushButton",
+     "name": "",
+     "y": 457,
+     "x": 115,
+     "enabled": true,
+     "text": "OK"
+    },
+    {
+     "class": "QPushButton",
+     "name": "",
+     "y": 457,
+     "x": 227,
+     "enabled": true,
+     "text": "Cancel"
+    },
+    {
+     "class": "QPushButton",
+     "name": "",
+     "y": 457,
+     "x": 339,
+     "enabled": true,
+     "text": "Apply"
+    }
+   ]
+  }
+ },
+ "origin": {
+  "panel": [
+   [
+    {
+     "class": "QPushButton",
+     "name": "",
+     "y": 9,
+     "x": 137,
+     "enabled": true,
+     "text": "OK"
+    },
+    {
+     "class": "QPushButton",
+     "name": "",
+     "y": 9,
+     "x": 249,
+     "enabled": true,
+     "text": "Cancel"
+    },
+    {
+     "class": "QSint::TaskHeader",
+     "name": "",
+     "y": 50,
+     "x": 4,
+     "enabled": true,
+     "text": ""
+    },
+    {
+     "class": "QSint::ActionLabel",
+     "name": "",
+     "y": 53,
+     "x": 9,
+     "enabled": true,
+     "text": ""
+    },
+    {
+     "class": "QComboBox",
+     "name": "jointType",
+     "y": 87,
+     "x": 20,
+     "enabled": true,
+     "items": [
+      "Fixed",
+      "Revolute",
+      "Cylindrical",
+      "Slider",
+      "Ball",
+      "Distance",
+      "Parallel",
+      "Perpendicular",
+      "Angle",
+      "RackPinion",
+      "Screw",
+      "Gears",
+      "Belt"
+     ],
+     "current": "Fixed"
+    },
+    {
+     "class": "QListWidget",
+     "name": "featureList",
+     "y": 117,
+     "x": 20,
+     "enabled": true,
+     "items": [
+      "XY-plane",
+      "Bar.Face5"
+     ]
+    },
+    {
+     "class": "QToolButton",
+     "name": "PushButtonReverse",
+     "y": 198,
+     "x": 20,
+     "enabled": true,
+     "text": "Reverse"
+    },
+    {
+     "class": "QToolButton",
+     "name": "PushButtonRotate90",
+     "y": 198,
+     "x": 49,
+     "enabled": true,
+     "text": "Rotate"
+    },
+    {
+     "class": "QLabel",
+     "name": "offsetLabel",
+     "y": 227,
+     "x": 20,
+     "enabled": true,
+     "text": "Offset"
+    },
+    {
+     "class": "Gui::QuantitySpinBox",
+     "name": "offsetSpinbox",
+     "y": 227,
+     "x": 55,
+     "enabled": true,
+     "text": "0.00 mm"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 228,
+     "x": 60,
+     "enabled": true,
+     "text": "0.00 mm"
+    },
+    {
+     "class": "QLabel",
+     "name": "rotationLabel",
+     "y": 258,
+     "x": 20,
+     "enabled": true,
+     "text": "Rotation"
+    },
+    {
+     "class": "Gui::QuantitySpinBox",
+     "name": "rotationSpinbox",
+     "y": 258,
+     "x": 66,
+     "enabled": true,
+     "text": "0.00\u00b0"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 259,
+     "x": 71,
+     "enabled": true,
+     "text": "0.00\u00b0"
+    },
+    {
+     "class": "QCheckBox",
+     "name": "advancedOffsetCheckbox",
+     "y": 289,
+     "x": 20,
+     "enabled": true,
+     "text": "Show advanced offsets",
+     "checked": false
+    },
+    {
+     "class": "QLabel",
+     "name": "isolateLabel2",
+     "y": 315,
+     "x": 20,
+     "enabled": true,
+     "text": "Isolate"
+    },
+    {
+     "class": "QComboBox",
+     "name": "isolateType",
+     "y": 315,
+     "x": 249,
+     "enabled": true,
+     "items": [
+      "Transparent",
+      "Wireframe",
+      "Hidden",
+      "Disabled"
+     ],
+     "current": "Transparent"
+    }
+   ]
+  ],
+  "undo": [
+   "Create Fixed Joint"
+  ],
+  "joint": {
+   "name": "Joint",
+   "label": "Fixed",
+   "reference1": [
+    "Origin",
+    [
+     "XY_Plane.",
+     "XY_Plane."
+    ]
+   ],
+   "reference2": [
+    "Bar",
+    [
+     "Face5",
+     "Face5"
+    ]
+   ],
+   "placement1": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "placement2": [
+    15.0,
+    3.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ]
+  },
+  "placements": {
+   "Plate": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "Pin": [
+    46.93355399781943,
+    -9.604540429499298,
+    -3.822948458231755,
+    -0.3170774976849936,
+    0.3494541401713331,
+    0.1789134514702786,
+    0.8633270766412515
+   ],
+   "Bar": [
+    -15.0,
+    -3.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ]
+  }
+ },
+ "explode": {
+  "panel": [
+   [
+    {
+     "class": "QPushButton",
+     "name": "",
+     "y": 9,
+     "x": 137,
+     "enabled": true,
+     "text": "OK"
+    },
+    {
+     "class": "QPushButton",
+     "name": "",
+     "y": 9,
+     "x": 249,
+     "enabled": true,
+     "text": "Cancel"
+    },
+    {
+     "class": "QSint::TaskHeader",
+     "name": "",
+     "y": 50,
+     "x": 4,
+     "enabled": true,
+     "text": ""
+    },
+    {
+     "class": "QSint::ActionLabel",
+     "name": "",
+     "y": 53,
+     "x": 9,
+     "enabled": true,
+     "text": "Exploded View"
+    },
+    {
+     "class": "Gui::PrefCheckBox",
+     "name": "CheckBox_PartsAsSingleSolid",
+     "y": 87,
+     "x": 20,
+     "enabled": true,
+     "text": "Parts as single solid",
+     "checked": true
+    },
+    {
+     "class": "QListWidget",
+     "name": "stepList",
+     "y": 113,
+     "x": 20,
+     "enabled": true,
+     "items": []
+    },
+    {
+     "class": "QPushButton",
+     "name": "btnAlignDragger",
+     "y": 311,
+     "x": 20,
+     "enabled": false,
+     "text": "Select a part"
+    },
+    {
+     "class": "QPushButton",
+     "name": "btnRadialExplosion",
+     "y": 335,
+     "x": 20,
+     "enabled": true,
+     "text": "Explode Radially"
+    }
+   ]
+  ],
+  "selected": [
+   [
+    {
+     "class": "QPushButton",
+     "name": "",
+     "y": 9,
+     "x": 137,
+     "enabled": true,
+     "text": "OK"
+    },
+    {
+     "class": "QPushButton",
+     "name": "",
+     "y": 9,
+     "x": 249,
+     "enabled": true,
+     "text": "Cancel"
+    },
+    {
+     "class": "QSint::TaskHeader",
+     "name": "",
+     "y": 50,
+     "x": 4,
+     "enabled": true,
+     "text": ""
+    },
+    {
+     "class": "QSint::ActionLabel",
+     "name": "",
+     "y": 53,
+     "x": 9,
+     "enabled": true,
+     "text": "Exploded View"
+    },
+    {
+     "class": "Gui::PrefCheckBox",
+     "name": "CheckBox_PartsAsSingleSolid",
+     "y": 87,
+     "x": 20,
+     "enabled": true,
+     "text": "Parts as single solid",
+     "checked": true
+    },
+    {
+     "class": "QListWidget",
+     "name": "stepList",
+     "y": 113,
+     "x": 20,
+     "enabled": true,
+     "items": []
+    },
+    {
+     "class": "QPushButton",
+     "name": "btnAlignDragger",
+     "y": 311,
+     "x": 20,
+     "enabled": true,
+     "text": "Align dragger to..."
+    },
+    {
+     "class": "QPushButton",
+     "name": "btnRadialExplosion",
+     "y": 335,
+     "x": 20,
+     "enabled": true,
+     "text": "Explode Radially"
+    }
+   ]
+  ],
+  "dragger_initial": [
+   51.83283042907715,
+   -2.879268169403077,
+   1.7239246368408212,
+   -0.3170774976849936,
+   0.3494541401713331,
+   0.1789134514702786,
+   0.8633270766412515
+  ],
+  "moved": [
+   [
+    {
+     "class": "QPushButton",
+     "name": "",
+     "y": 9,
+     "x": 137,
+     "enabled": true,
+     "text": "OK"
+    },
+    {
+     "class": "QPushButton",
+     "name": "",
+     "y": 9,
+     "x": 249,
+     "enabled": true,
+     "text": "Cancel"
+    },
+    {
+     "class": "QSint::TaskHeader",
+     "name": "",
+     "y": 50,
+     "x": 4,
+     "enabled": true,
+     "text": ""
+    },
+    {
+     "class": "QSint::ActionLabel",
+     "name": "",
+     "y": 53,
+     "x": 9,
+     "enabled": true,
+     "text": "Exploded View"
+    },
+    {
+     "class": "Gui::PrefCheckBox",
+     "name": "CheckBox_PartsAsSingleSolid",
+     "y": 87,
+     "x": 20,
+     "enabled": true,
+     "text": "Parts as single solid",
+     "checked": true
+    },
+    {
+     "class": "QListWidget",
+     "name": "stepList",
+     "y": 113,
+     "x": 20,
+     "enabled": true,
+     "items": [
+      ""
+     ]
+    },
+    {
+     "class": "QLabel",
+     "name": "",
+     "y": 114,
+     "x": 25,
+     "enabled": true,
+     "text": "TranslationZ"
+    },
+    {
+     "class": "Gui::QuantitySpinBox",
+     "name": "",
+     "y": 114,
+     "x": 354,
+     "enabled": true,
+     "text": "25.00 mm"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 115,
+     "x": 359,
+     "enabled": true,
+     "text": "25.00 mm"
+    },
+    {
+     "class": "QPushButton",
+     "name": "btnAlignDragger",
+     "y": 311,
+     "x": 20,
+     "enabled": true,
+     "text": "Align dragger to..."
+    },
+    {
+     "class": "QPushButton",
+     "name": "btnRadialExplosion",
+     "y": 335,
+     "x": 20,
+     "enabled": true,
+     "text": "Explode Radially"
+    }
+   ]
+  ],
+  "exploded": {
+   "Plate": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "Pin": [
+    46.93355590516806,
+    -9.604540429499298,
+    21.177051541768243,
+    -0.3170774976849936,
+    0.3494541401713331,
+    0.1789134514702786,
+    0.8633270766412515
+   ],
+   "Bar": [
+    -15.0,
+    -3.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ]
+  },
+  "undo": [
+   "Create Exploded View"
+  ],
+  "after_ok": {
+   "Plate": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "Pin": [
+    46.93355399781943,
+    -9.604540429499298,
+    -3.822948458231755,
+    -0.3170774976849936,
+    0.3494541401713331,
+    0.1789134514702786,
+    0.8633270766412515
+   ],
+   "Bar": [
+    -15.0,
+    -3.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ]
+  },
+  "tree": [
+   {
+    "text": "Unnamed",
+    "depth": 0
+   },
+   {
+    "text": "Box",
+    "depth": 1
+   },
+   {
+    "text": "Cylinder",
+    "depth": 1
+   },
+   {
+    "text": "Box001",
+    "depth": 1
+   },
+   {
+    "text": "Assembly",
+    "depth": 1
+   },
+   {
+    "text": "Origin",
+    "depth": 2
+   },
+   {
+    "text": "X-axis",
+    "depth": 3
+   },
+   {
+    "text": "Y-axis",
+    "depth": 3
+   },
+   {
+    "text": "Z-axis",
+    "depth": 3
+   },
+   {
+    "text": "XY-plane",
+    "depth": 3
+   },
+   {
+    "text": "XZ-plane",
+    "depth": 3
+   },
+   {
+    "text": "YZ-plane",
+    "depth": 3
+   },
+   {
+    "text": "Origin-Point",
+    "depth": 3
+   },
+   {
+    "text": "Joints",
+    "depth": 2
+   },
+   {
+    "text": "GroundedJoint",
+    "depth": 3
+   },
+   {
+    "text": "RigidGroupJoint",
+    "depth": 3
+   },
+   {
+    "text": "Fixed",
+    "depth": 3
+   },
+   {
+    "text": "Plate",
+    "depth": 2
+   },
+   {
+    "text": "Pin",
+    "depth": 2
+   },
+   {
+    "text": "Bar",
+    "depth": 2
+   },
+   {
+    "text": "Exploded_Views",
+    "depth": 2
+   },
+   {
+    "text": "Exploded_View",
+    "depth": 3
+   },
+   {
+    "text": "TranslationZ",
+    "depth": 4
+   }
+  ],
+  "view": {
+   "name": "Exploded_View",
+   "label": "Exploded_View",
+   "moves": [
+    {
+     "name": "Move",
+     "label": "TranslationZ",
+     "type": "Normal",
+     "transform": [
+      0.0,
+      0.0,
+      25.0,
+      0.0,
+      0.0,
+      0.0,
+      1.0
+     ],
+     "references": [
+      "Assembly",
+      [
+       "Pin."
+      ]
+     ]
+    }
+   ]
+  },
+  "view_props": [
+   [
+    {
+     "depth": 0,
+     "name": " Link",
+     "value": null
+    },
+    {
+     "depth": 0,
+     "name": "Attachment",
+     "value": null
+    },
+    {
+     "depth": 0,
+     "name": "Base",
+     "value": null
+    },
+    {
+     "depth": 1,
+     "name": "Label",
+     "value": "TranslationZ"
+    },
+    {
+     "depth": 0,
+     "name": "Box",
+     "value": null
+    },
+    {
+     "depth": 0,
+     "name": "Cylinder",
+     "value": null
+    },
+    {
+     "depth": 0,
+     "name": "Exploded Move",
+     "value": null
+    },
+    {
+     "depth": 1,
+     "name": "Move Type",
+     "value": "Normal"
+    },
+    {
+     "depth": 1,
+     "name": "Movement Transform",
+     "value": "[(0.00 0.00 1.00); 0.00\u00b0; (0.00 mm  0.00 mm  25.00 mm)]"
+    },
+    {
+     "depth": 1,
+     "name": "References",
+     "value": "Assembly [Pin.]"
+    },
+    {
+     "depth": 0,
+     "name": "Prism",
+     "value": null
+    },
+    {
+     "depth": 0,
+     "name": "Rigid Group",
+     "value": null
+    }
+   ]
+  ],
+  "selected_view": {
+   "Plate": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "Pin": [
+    46.93355399781943,
+    -9.604540429499298,
+    21.177051541768243,
+    -0.3170774976849936,
+    0.3494541401713331,
+    0.1789134514702786,
+    0.8633270766412515
+   ],
+   "Bar": [
+    -15.0,
+    -3.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ]
+  },
+  "unselected_view": {
+   "Plate": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "Pin": [
+    46.93355399781943,
+    -9.604540429499298,
+    -3.822948458231755,
+    -0.3170774976849936,
+    0.3494541401713331,
+    0.1789134514702786,
+    0.8633270766412515
+   ],
+   "Bar": [
+    -15.0,
+    -3.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ]
+  }
+ },
+ "newpart": {
+  "panel": [
+   [
+    {
+     "class": "QPushButton",
+     "name": "",
+     "y": 9,
+     "x": 137,
+     "enabled": true,
+     "text": "OK"
+    },
+    {
+     "class": "QPushButton",
+     "name": "",
+     "y": 9,
+     "x": 249,
+     "enabled": true,
+     "text": "Cancel"
+    },
+    {
+     "class": "QSint::TaskHeader",
+     "name": "",
+     "y": 50,
+     "x": 4,
+     "enabled": true,
+     "text": ""
+    },
+    {
+     "class": "QSint::ActionLabel",
+     "name": "",
+     "y": 53,
+     "x": 9,
+     "enabled": true,
+     "text": ""
+    },
+    {
+     "class": "QLabel",
+     "name": "",
+     "y": 85,
+     "x": 18,
+     "enabled": true,
+     "text": "Part name"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "",
+     "y": 85,
+     "x": 72,
+     "enabled": true,
+     "text": "Part"
+    },
+    {
+     "class": "QCheckBox",
+     "name": "",
+     "y": 113,
+     "x": 18,
+     "enabled": true,
+     "text": "Create part in new file",
+     "checked": true
+    },
+    {
+     "class": "QGroupBox",
+     "name": "",
+     "y": 139,
+     "x": 18,
+     "enabled": true,
+     "text": "Joint new part origin"
+    },
+    {
+     "class": "QComboBox",
+     "name": "jointType",
+     "y": 169,
+     "x": 30,
+     "enabled": true,
+     "items": [
+      "Fixed",
+      "Revolute",
+      "Cylindrical",
+      "Slider",
+      "Ball",
+      "Distance",
+      "Parallel",
+      "Perpendicular",
+      "Angle",
+      "RackPinion",
+      "Screw",
+      "Gears",
+      "Belt"
+     ],
+     "current": "Fixed"
+    },
+    {
+     "class": "QListWidget",
+     "name": "featureList",
+     "y": 199,
+     "x": 30,
+     "enabled": true,
+     "items": [
+      "Link"
+     ]
+    },
+    {
+     "class": "QToolButton",
+     "name": "PushButtonReverse",
+     "y": 280,
+     "x": 30,
+     "enabled": true,
+     "text": "Reverse"
+    },
+    {
+     "class": "QToolButton",
+     "name": "PushButtonRotate90",
+     "y": 280,
+     "x": 59,
+     "enabled": true,
+     "text": "Rotate"
+    },
+    {
+     "class": "QLabel",
+     "name": "offsetLabel",
+     "y": 309,
+     "x": 30,
+     "enabled": true,
+     "text": "Offset"
+    },
+    {
+     "class": "Gui::QuantitySpinBox",
+     "name": "offsetSpinbox",
+     "y": 309,
+     "x": 65,
+     "enabled": true,
+     "text": "0.00 mm"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 310,
+     "x": 70,
+     "enabled": true,
+     "text": "0.00 mm"
+    },
+    {
+     "class": "QLabel",
+     "name": "rotationLabel",
+     "y": 340,
+     "x": 30,
+     "enabled": true,
+     "text": "Rotation"
+    },
+    {
+     "class": "Gui::QuantitySpinBox",
+     "name": "rotationSpinbox",
+     "y": 340,
+     "x": 76,
+     "enabled": true,
+     "text": "0.00\u00b0"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 341,
+     "x": 81,
+     "enabled": true,
+     "text": "0.00\u00b0"
+    },
+    {
+     "class": "QCheckBox",
+     "name": "advancedOffsetCheckbox",
+     "y": 371,
+     "x": 30,
+     "enabled": true,
+     "text": "Show advanced offsets",
+     "checked": false
+    },
+    {
+     "class": "QLabel",
+     "name": "isolateLabel2",
+     "y": 397,
+     "x": 30,
+     "enabled": true,
+     "text": "Isolate"
+    },
+    {
+     "class": "QComboBox",
+     "name": "isolateType",
+     "y": 397,
+     "x": 249,
+     "enabled": true,
+     "items": [
+      "Transparent",
+      "Wireframe",
+      "Hidden",
+      "Disabled"
+     ],
+     "current": "Transparent"
+    }
+   ]
+  ],
+  "picked": [
+   [
+    {
+     "class": "QPushButton",
+     "name": "",
+     "y": 9,
+     "x": 137,
+     "enabled": true,
+     "text": "OK"
+    },
+    {
+     "class": "QPushButton",
+     "name": "",
+     "y": 9,
+     "x": 249,
+     "enabled": true,
+     "text": "Cancel"
+    },
+    {
+     "class": "QSint::TaskHeader",
+     "name": "",
+     "y": 50,
+     "x": 4,
+     "enabled": true,
+     "text": ""
+    },
+    {
+     "class": "QSint::ActionLabel",
+     "name": "",
+     "y": 53,
+     "x": 9,
+     "enabled": true,
+     "text": ""
+    },
+    {
+     "class": "QLabel",
+     "name": "",
+     "y": 85,
+     "x": 18,
+     "enabled": true,
+     "text": "Part name"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "",
+     "y": 85,
+     "x": 72,
+     "enabled": true,
+     "text": "Part"
+    },
+    {
+     "class": "QCheckBox",
+     "name": "",
+     "y": 113,
+     "x": 18,
+     "enabled": true,
+     "text": "Create part in new file",
+     "checked": true
+    },
+    {
+     "class": "QGroupBox",
+     "name": "",
+     "y": 139,
+     "x": 18,
+     "enabled": true,
+     "text": "Joint new part origin"
+    },
+    {
+     "class": "QComboBox",
+     "name": "jointType",
+     "y": 169,
+     "x": 30,
+     "enabled": true,
+     "items": [
+      "Fixed",
+      "Revolute",
+      "Cylindrical",
+      "Slider",
+      "Ball",
+      "Distance",
+      "Parallel",
+      "Perpendicular",
+      "Angle",
+      "RackPinion",
+      "Screw",
+      "Gears",
+      "Belt"
+     ],
+     "current": "Fixed"
+    },
+    {
+     "class": "QListWidget",
+     "name": "featureList",
+     "y": 199,
+     "x": 30,
+     "enabled": true,
+     "items": [
+      "Plate.Face6",
+      "Link"
+     ]
+    },
+    {
+     "class": "QToolButton",
+     "name": "PushButtonReverse",
+     "y": 280,
+     "x": 30,
+     "enabled": true,
+     "text": "Reverse"
+    },
+    {
+     "class": "QToolButton",
+     "name": "PushButtonRotate90",
+     "y": 280,
+     "x": 59,
+     "enabled": true,
+     "text": "Rotate"
+    },
+    {
+     "class": "QLabel",
+     "name": "offsetLabel",
+     "y": 309,
+     "x": 30,
+     "enabled": true,
+     "text": "Offset"
+    },
+    {
+     "class": "Gui::QuantitySpinBox",
+     "name": "offsetSpinbox",
+     "y": 309,
+     "x": 65,
+     "enabled": true,
+     "text": "0.00 mm"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 310,
+     "x": 70,
+     "enabled": true,
+     "text": "0.00 mm"
+    },
+    {
+     "class": "QLabel",
+     "name": "rotationLabel",
+     "y": 340,
+     "x": 30,
+     "enabled": true,
+     "text": "Rotation"
+    },
+    {
+     "class": "Gui::QuantitySpinBox",
+     "name": "rotationSpinbox",
+     "y": 340,
+     "x": 76,
+     "enabled": true,
+     "text": "0.00\u00b0"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "qt_spinbox_lineedit",
+     "y": 341,
+     "x": 81,
+     "enabled": true,
+     "text": "0.00\u00b0"
+    },
+    {
+     "class": "QCheckBox",
+     "name": "advancedOffsetCheckbox",
+     "y": 371,
+     "x": 30,
+     "enabled": true,
+     "text": "Show advanced offsets",
+     "checked": false
+    },
+    {
+     "class": "QLabel",
+     "name": "isolateLabel2",
+     "y": 397,
+     "x": 30,
+     "enabled": true,
+     "text": "Isolate"
+    },
+    {
+     "class": "QComboBox",
+     "name": "isolateType",
+     "y": 397,
+     "x": 249,
+     "enabled": true,
+     "items": [
+      "Transparent",
+      "Wireframe",
+      "Hidden",
+      "Disabled"
+     ],
+     "current": "Transparent"
+    }
+   ]
+  ],
+  "made": [
+   {
+    "name": "Joint001",
+    "label": "Fixed001",
+    "type": "App::FeaturePython"
+   },
+   {
+    "name": "Link",
+    "label": "Part001",
+    "type": "App::Link"
+   },
+   {
+    "name": "Part",
+    "label": "Part",
+    "type": "App::Part"
+   },
+   {
+    "name": "Origin002",
+    "label": "Origin001",
+    "type": "App::Origin"
+   },
+   {
+    "name": "X_Axis001",
+    "label": "X-axis001",
+    "type": "App::Line"
+   },
+   {
+    "name": "Y_Axis001",
+    "label": "Y-axis001",
+    "type": "App::Line"
+   },
+   {
+    "name": "Z_Axis001",
+    "label": "Z-axis001",
+    "type": "App::Line"
+   },
+   {
+    "name": "XY_Plane001",
+    "label": "XY-plane001",
+    "type": "App::Plane"
+   },
+   {
+    "name": "XZ_Plane001",
+    "label": "XZ-plane001",
+    "type": "App::Plane"
+   },
+   {
+    "name": "YZ_Plane001",
+    "label": "YZ-plane001",
+    "type": "App::Plane"
+   },
+   {
+    "name": "Origin003",
+    "label": "Origin-Point001",
+    "type": "App::Point"
+   },
+   {
+    "name": "Body",
+    "label": "Body",
+    "type": "PartDesign::Body"
+   },
+   {
+    "name": "Origin004",
+    "label": "Origin002",
+    "type": "App::Origin"
+   },
+   {
+    "name": "X_Axis002",
+    "label": "X-axis002",
+    "type": "App::Line"
+   },
+   {
+    "name": "Y_Axis002",
+    "label": "Y-axis002",
+    "type": "App::Line"
+   },
+   {
+    "name": "Z_Axis002",
+    "label": "Z-axis002",
+    "type": "App::Line"
+   },
+   {
+    "name": "XY_Plane002",
+    "label": "XY-plane002",
+    "type": "App::Plane"
+   },
+   {
+    "name": "XZ_Plane002",
+    "label": "XZ-plane002",
+    "type": "App::Plane"
+   },
+   {
+    "name": "YZ_Plane002",
+    "label": "YZ-plane002",
+    "type": "App::Plane"
+   },
+   {
+    "name": "Origin005",
+    "label": "Origin-Point002",
+    "type": "App::Point"
+   },
+   {
+    "name": "Sketch",
+    "label": "Sketch",
+    "type": "Sketcher::SketchObject"
+   }
+  ],
+  "undo": [],
+  "dialogs": [],
+  "link": {
+   "name": "Link",
+   "label": "Part001",
+   "placement": [
+    20.0,
+    14.999999999999996,
+    5.0,
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "linked": "Part"
+  },
+  "joint": {
+   "name": "Joint001",
+   "label": "Fixed001",
+   "reference1": [
+    "Plate",
+    [
+     "Face6",
+     "Face6"
+    ]
+   ],
+   "reference2": [
+    "Link",
+    [
+     "",
+     ""
+    ]
+   ]
+  }
+ },
+ "subasm": {
+  "insert_panel": [
+   [
+    {
+     "class": "QPushButton",
+     "name": "",
+     "y": 9,
+     "x": 137,
+     "enabled": true,
+     "text": "OK"
+    },
+    {
+     "class": "QPushButton",
+     "name": "",
+     "y": 9,
+     "x": 249,
+     "enabled": true,
+     "text": "Cancel"
+    },
+    {
+     "class": "QSint::TaskHeader",
+     "name": "",
+     "y": 50,
+     "x": 4,
+     "enabled": true,
+     "text": ""
+    },
+    {
+     "class": "QSint::ActionLabel",
+     "name": "",
+     "y": 53,
+     "x": 9,
+     "enabled": true,
+     "text": "Insert"
+    },
+    {
+     "class": "QLineEdit",
+     "name": "filterPartList",
+     "y": 87,
+     "x": 20,
+     "enabled": true,
+     "text": ""
+    },
+    {
+     "class": "QTreeWidget",
+     "name": "partList",
+     "y": 115,
+     "x": 20,
+     "enabled": true,
+     "items": [
+      {
+       "text": "Sub",
+       "depth": 0
+      },
+      {
+       "text": "Box",
+       "depth": 1
+      },
+      {
+       "text": "Assembly",
+       "depth": 1
+      },
+      {
+       "text": "Cylinder",
+       "depth": 1
+      },
+      {
+       "text": "Unnamed",
+       "depth": 0
+      },
+      {
+       "text": "Box001",
+       "depth": 1
+      },
+      {
+       "text": "Part",
+       "depth": 1
+      },
+      {
+       "text": "Body",
+       "depth": 2
+      },
+      {
+       "text": "Box",
+       "depth": 1
+      },
+      {
+       "text": "Cylinder",
+       "depth": 1
+      }
+     ]
+    },
+    {
+     "class": "QLabel",
+     "name": "label1",
+     "y": 319,
+     "x": 20,
+     "enabled": true,
+     "text": "Cannot find the part?"
+    },
+    {
+     "class": "QPushButton",
+     "name": "openFileButton",
+     "y": 319,
+     "x": 249,
+     "enabled": true,
+     "text": "Open File"
+    },
+    {
+     "class": "Gui::PrefCheckBox",
+     "name": "CheckBox_ShowOnlyParts",
+     "y": 343,
+     "x": 20,
+     "enabled": true,
+     "text": "Show only parts",
+     "checked": false
+    },
+    {
+     "class": "Gui::PrefCheckBox",
+     "name": "CheckBox_RigidSubAsm",
+     "y": 369,
+     "x": 20,
+     "enabled": true,
+     "text": "Rigid sub-assemblies",
+     "checked": true
+    }
+   ]
+  ],
+  "rigid": {
+   "name": "Assembly001",
+   "label": "Assembly",
+   "children": [
+    [
+     "Plate001",
+     "Plate001",
+     [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      1.0
+     ]
+    ],
+    [
+     "Pin001",
+     "Pin001",
+     [
+      5.0,
+      5.0,
+      -10.0,
+      0.0,
+      0.0,
+      0.0,
+      1.0
+     ]
+    ]
+   ],
+   "tree": [
+    {
+     "text": "Unnamed",
+     "depth": 0
+    },
+    {
+     "text": "Box",
+     "depth": 1
+    },
+    {
+     "text": "Cylinder",
+     "depth": 1
+    },
+    {
+     "text": "Box001",
+     "depth": 1
+    },
+    {
+     "text": "Assembly",
+     "depth": 1
+    },
+    {
+     "text": "Origin",
+     "depth": 2
+    },
+    {
+     "text": "X-axis",
+     "depth": 3
+    },
+    {
+     "text": "Y-axis",
+     "depth": 3
+    },
+    {
+     "text": "Z-axis",
+     "depth": 3
+    },
+    {
+     "text": "XY-plane",
+     "depth": 3
+    },
+    {
+     "text": "XZ-plane",
+     "depth": 3
+    },
+    {
+     "text": "YZ-plane",
+     "depth": 3
+    },
+    {
+     "text": "Origin-Point",
+     "depth": 3
+    },
+    {
+     "text": "Joints",
+     "depth": 2
+    },
+    {
+     "text": "GroundedJoint",
+     "depth": 3
+    },
+    {
+     "text": "RigidGroupJoint",
+     "depth": 3
+    },
+    {
+     "text": "Fixed",
+     "depth": 3
+    },
+    {
+     "text": "Fixed001",
+     "depth": 3
+    },
+    {
+     "text": "Plate",
+     "depth": 2
+    },
+    {
+     "text": "Pin",
+     "depth": 2
+    },
+    {
+     "text": "Bar",
+     "depth": 2
+    },
+    {
+     "text": "Exploded_Views",
+     "depth": 2
+    },
+    {
+     "text": "Exploded_View",
+     "depth": 3
+    },
+    {
+     "text": "TranslationZ",
+     "depth": 4
+    },
+    {
+     "text": "Part001",
+     "depth": 2
+    },
+    {
+     "text": "Origin001",
+     "depth": 3
+    },
+    {
+     "text": "X-axis001",
+     "depth": 4
+    },
+    {
+     "text": "Y-axis001",
+     "depth": 4
+    },
+    {
+     "text": "Z-axis001",
+     "depth": 4
+    },
+    {
+     "text": "XY-plane001",
+     "depth": 4
+    },
+    {
+     "text": "XZ-plane001",
+     "depth": 4
+    },
+    {
+     "text": "YZ-plane001",
+     "depth": 4
+    },
+    {
+     "text": "Origin-Point001",
+     "depth": 4
+    },
+    {
+     "text": "Body",
+     "depth": 3
+    },
+    {
+     "text": "Origin002",
+     "depth": 4
+    },
+    {
+     "text": "X-axis002",
+     "depth": 5
+    },
+    {
+     "text": "Y-axis002",
+     "depth": 5
+    },
+    {
+     "text": "Z-axis002",
+     "depth": 5
+    },
+    {
+     "text": "XY-plane002",
+     "depth": 5
+    },
+    {
+     "text": "XZ-plane002",
+     "depth": 5
+    },
+    {
+     "text": "YZ-plane002",
+     "depth": 5
+    },
+    {
+     "text": "Origin-Point002",
+     "depth": 5
+    },
+    {
+     "text": "Sketch",
+     "depth": 4
+    },
+    {
+     "text": "Assembly",
+     "depth": 2
+    },
+    {
+     "text": "Origin003",
+     "depth": 3
+    },
+    {
+     "text": "X-axis003",
+     "depth": 4
+    },
+    {
+     "text": "Y-axis003",
+     "depth": 4
+    },
+    {
+     "text": "Z-axis003",
+     "depth": 4
+    },
+    {
+     "text": "XY-plane003",
+     "depth": 4
+    },
+    {
+     "text": "XZ-plane003",
+     "depth": 4
+    },
+    {
+     "text": "YZ-plane003",
+     "depth": 4
+    },
+    {
+     "text": "Origin-Point003",
+     "depth": 4
+    },
+    {
+     "text": "Plate001",
+     "depth": 3
+    },
+    {
+     "text": "Pin001",
+     "depth": 3
+    },
+    {
+     "text": "Part",
+     "depth": 1
+    },
+    {
+     "text": "Origin001",
+     "depth": 2
+    },
+    {
+     "text": "X-axis001",
+     "depth": 3
+    },
+    {
+     "text": "Y-axis001",
+     "depth": 3
+    },
+    {
+     "text": "Z-axis001",
+     "depth": 3
+    },
+    {
+     "text": "XY-plane001",
+     "depth": 3
+    },
+    {
+     "text": "XZ-plane001",
+     "depth": 3
+    },
+    {
+     "text": "YZ-plane001",
+     "depth": 3
+    },
+    {
+     "text": "Origin-Point001",
+     "depth": 3
+    },
+    {
+     "text": "Body",
+     "depth": 2
+    },
+    {
+     "text": "Origin002",
+     "depth": 3
+    },
+    {
+     "text": "X-axis002",
+     "depth": 4
+    },
+    {
+     "text": "Y-axis002",
+     "depth": 4
+    },
+    {
+     "text": "Z-axis002",
+     "depth": 4
+    },
+    {
+     "text": "XY-plane002",
+     "depth": 4
+    },
+    {
+     "text": "XZ-plane002",
+     "depth": 4
+    },
+    {
+     "text": "YZ-plane002",
+     "depth": 4
+    },
+    {
+     "text": "Origin-Point002",
+     "depth": 4
+    },
+    {
+     "text": "Sketch",
+     "depth": 3
+    },
+    {
+     "text": "Sub",
+     "depth": 0
+    },
+    {
+     "text": "Box",
+     "depth": 1
+    },
+    {
+     "text": "Cylinder",
+     "depth": 1
+    },
+    {
+     "text": "Assembly",
+     "depth": 1
+    },
+    {
+     "text": "Origin",
+     "depth": 2
+    },
+    {
+     "text": "X-axis",
+     "depth": 3
+    },
+    {
+     "text": "Y-axis",
+     "depth": 3
+    },
+    {
+     "text": "Z-axis",
+     "depth": 3
+    },
+    {
+     "text": "XY-plane",
+     "depth": 3
+    },
+    {
+     "text": "XZ-plane",
+     "depth": 3
+    },
+    {
+     "text": "YZ-plane",
+     "depth": 3
+    },
+    {
+     "text": "Origin-Point",
+     "depth": 3
+    },
+    {
+     "text": "Joints",
+     "depth": 2
+    },
+    {
+     "text": "GroundedJoint",
+     "depth": 3
+    },
+    {
+     "text": "Revolute",
+     "depth": 3
+    },
+    {
+     "text": "Plate",
+     "depth": 2
+    },
+    {
+     "text": "Pin",
+     "depth": 2
+    }
+   ],
+   "props": [
+    [
+     {
+      "depth": 0,
+      "name": " Link",
+      "value": null
+     },
+     {
+      "depth": 0,
+      "name": "Attachment",
+      "value": null
+     },
+     {
+      "depth": 0,
+      "name": "Base",
+      "value": null
+     },
+     {
+      "depth": 1,
+      "name": "Type",
+      "value": ""
+     },
+     {
+      "depth": 1,
+      "name": "Material",
+      "value": ""
+     },
+     {
+      "depth": 1,
+      "name": "Meta",
+      "value": "{  }"
+     },
+     {
+      "depth": 1,
+      "name": "Id",
+      "value": ""
+     },
+     {
+      "depth": 1,
+      "name": "License",
+      "value": ""
+     },
+     {
+      "depth": 1,
+      "name": "License URL",
+      "value": ""
+     },
+     {
+      "depth": 1,
+      "name": "Color",
+      "value": "[255, 255, 255]"
+     },
+     {
+      "depth": 1,
+      "name": "Placement",
+      "value": "[(0.00 0.00 1.00); 0.00\u00b0; (50.00 mm  0.00 mm  0.00 mm)]"
+     },
+     {
+      "depth": 1,
+      "name": "Label",
+      "value": "Assembly"
+     },
+     {
+      "depth": 1,
+      "name": "Group",
+      "value": "[Plate001, Pin001]"
+     },
+     {
+      "depth": 0,
+      "name": "Box",
+      "value": null
+     },
+     {
+      "depth": 0,
+      "name": "Cylinder",
+      "value": null
+     },
+     {
+      "depth": 0,
+      "name": "Exploded Move",
+      "value": null
+     },
+     {
+      "depth": 0,
+      "name": "General",
+      "value": null
+     },
+     {
+      "depth": 1,
+      "name": "Rigid",
+      "value": "true"
+     },
+     {
+      "depth": 1,
+      "name": "Linked Object",
+      "value": "Sub#Assembly"
+     },
+     {
+      "depth": 0,
+      "name": "Prism",
+      "value": null
+     },
+     {
+      "depth": 0,
+      "name": "Rigid Group",
+      "value": null
+     }
+    ]
+   ]
+  },
+  "flexible": {
+   "children": [
+    [
+     "Plate001",
+     "Plate001",
+     [
+      50.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      1.0
+     ]
+    ],
+    [
+     "Pin001",
+     "Pin001",
+     [
+      55.0,
+      5.0,
+      -10.0,
+      0.0,
+      0.0,
+      0.0,
+      1.0
+     ]
+    ]
+   ],
+   "tree": [
+    {
+     "text": "Unnamed",
+     "depth": 0
+    },
+    {
+     "text": "Box",
+     "depth": 1
+    },
+    {
+     "text": "Cylinder",
+     "depth": 1
+    },
+    {
+     "text": "Box001",
+     "depth": 1
+    },
+    {
+     "text": "Assembly",
+     "depth": 1
+    },
+    {
+     "text": "Origin",
+     "depth": 2
+    },
+    {
+     "text": "X-axis",
+     "depth": 3
+    },
+    {
+     "text": "Y-axis",
+     "depth": 3
+    },
+    {
+     "text": "Z-axis",
+     "depth": 3
+    },
+    {
+     "text": "XY-plane",
+     "depth": 3
+    },
+    {
+     "text": "XZ-plane",
+     "depth": 3
+    },
+    {
+     "text": "YZ-plane",
+     "depth": 3
+    },
+    {
+     "text": "Origin-Point",
+     "depth": 3
+    },
+    {
+     "text": "Joints",
+     "depth": 2
+    },
+    {
+     "text": "GroundedJoint",
+     "depth": 3
+    },
+    {
+     "text": "RigidGroupJoint",
+     "depth": 3
+    },
+    {
+     "text": "Fixed",
+     "depth": 3
+    },
+    {
+     "text": "Fixed001",
+     "depth": 3
+    },
+    {
+     "text": "Plate",
+     "depth": 2
+    },
+    {
+     "text": "Pin",
+     "depth": 2
+    },
+    {
+     "text": "Bar",
+     "depth": 2
+    },
+    {
+     "text": "Exploded_Views",
+     "depth": 2
+    },
+    {
+     "text": "Exploded_View",
+     "depth": 3
+    },
+    {
+     "text": "TranslationZ",
+     "depth": 4
+    },
+    {
+     "text": "Part001",
+     "depth": 2
+    },
+    {
+     "text": "Origin001",
+     "depth": 3
+    },
+    {
+     "text": "X-axis001",
+     "depth": 4
+    },
+    {
+     "text": "Y-axis001",
+     "depth": 4
+    },
+    {
+     "text": "Z-axis001",
+     "depth": 4
+    },
+    {
+     "text": "XY-plane001",
+     "depth": 4
+    },
+    {
+     "text": "XZ-plane001",
+     "depth": 4
+    },
+    {
+     "text": "YZ-plane001",
+     "depth": 4
+    },
+    {
+     "text": "Origin-Point001",
+     "depth": 4
+    },
+    {
+     "text": "Body",
+     "depth": 3
+    },
+    {
+     "text": "Origin002",
+     "depth": 4
+    },
+    {
+     "text": "X-axis002",
+     "depth": 5
+    },
+    {
+     "text": "Y-axis002",
+     "depth": 5
+    },
+    {
+     "text": "Z-axis002",
+     "depth": 5
+    },
+    {
+     "text": "XY-plane002",
+     "depth": 5
+    },
+    {
+     "text": "XZ-plane002",
+     "depth": 5
+    },
+    {
+     "text": "YZ-plane002",
+     "depth": 5
+    },
+    {
+     "text": "Origin-Point002",
+     "depth": 5
+    },
+    {
+     "text": "Sketch",
+     "depth": 4
+    },
+    {
+     "text": "Assembly",
+     "depth": 2
+    },
+    {
+     "text": "Origin003",
+     "depth": 3
+    },
+    {
+     "text": "X-axis003",
+     "depth": 4
+    },
+    {
+     "text": "Y-axis003",
+     "depth": 4
+    },
+    {
+     "text": "Z-axis003",
+     "depth": 4
+    },
+    {
+     "text": "XY-plane003",
+     "depth": 4
+    },
+    {
+     "text": "XZ-plane003",
+     "depth": 4
+    },
+    {
+     "text": "YZ-plane003",
+     "depth": 4
+    },
+    {
+     "text": "Origin-Point003",
+     "depth": 4
+    },
+    {
+     "text": "Joints001",
+     "depth": 3
+    },
+    {
+     "text": "Revolute",
+     "depth": 4
+    },
+    {
+     "text": "Plate001",
+     "depth": 3
+    },
+    {
+     "text": "Pin001",
+     "depth": 3
+    },
+    {
+     "text": "Part",
+     "depth": 1
+    },
+    {
+     "text": "Origin001",
+     "depth": 2
+    },
+    {
+     "text": "X-axis001",
+     "depth": 3
+    },
+    {
+     "text": "Y-axis001",
+     "depth": 3
+    },
+    {
+     "text": "Z-axis001",
+     "depth": 3
+    },
+    {
+     "text": "XY-plane001",
+     "depth": 3
+    },
+    {
+     "text": "XZ-plane001",
+     "depth": 3
+    },
+    {
+     "text": "YZ-plane001",
+     "depth": 3
+    },
+    {
+     "text": "Origin-Point001",
+     "depth": 3
+    },
+    {
+     "text": "Body",
+     "depth": 2
+    },
+    {
+     "text": "Origin002",
+     "depth": 3
+    },
+    {
+     "text": "X-axis002",
+     "depth": 4
+    },
+    {
+     "text": "Y-axis002",
+     "depth": 4
+    },
+    {
+     "text": "Z-axis002",
+     "depth": 4
+    },
+    {
+     "text": "XY-plane002",
+     "depth": 4
+    },
+    {
+     "text": "XZ-plane002",
+     "depth": 4
+    },
+    {
+     "text": "YZ-plane002",
+     "depth": 4
+    },
+    {
+     "text": "Origin-Point002",
+     "depth": 4
+    },
+    {
+     "text": "Sketch",
+     "depth": 3
+    },
+    {
+     "text": "Sub",
+     "depth": 0
+    },
+    {
+     "text": "Box",
+     "depth": 1
+    },
+    {
+     "text": "Cylinder",
+     "depth": 1
+    },
+    {
+     "text": "Assembly",
+     "depth": 1
+    },
+    {
+     "text": "Origin",
+     "depth": 2
+    },
+    {
+     "text": "X-axis",
+     "depth": 3
+    },
+    {
+     "text": "Y-axis",
+     "depth": 3
+    },
+    {
+     "text": "Z-axis",
+     "depth": 3
+    },
+    {
+     "text": "XY-plane",
+     "depth": 3
+    },
+    {
+     "text": "XZ-plane",
+     "depth": 3
+    },
+    {
+     "text": "YZ-plane",
+     "depth": 3
+    },
+    {
+     "text": "Origin-Point",
+     "depth": 3
+    },
+    {
+     "text": "Joints",
+     "depth": 2
+    },
+    {
+     "text": "GroundedJoint",
+     "depth": 3
+    },
+    {
+     "text": "Revolute",
+     "depth": 3
+    },
+    {
+     "text": "Plate",
+     "depth": 2
+    },
+    {
+     "text": "Pin",
+     "depth": 2
+    }
+   ],
+   "props": [
+    [
+     {
+      "depth": 0,
+      "name": " Link",
+      "value": null
+     },
+     {
+      "depth": 0,
+      "name": "Attachment",
+      "value": null
+     },
+     {
+      "depth": 0,
+      "name": "Base",
+      "value": null
+     },
+     {
+      "depth": 1,
+      "name": "Type",
+      "value": ""
+     },
+     {
+      "depth": 1,
+      "name": "Material",
+      "value": ""
+     },
+     {
+      "depth": 1,
+      "name": "Meta",
+      "value": "{  }"
+     },
+     {
+      "depth": 1,
+      "name": "Id",
+      "value": ""
+     },
+     {
+      "depth": 1,
+      "name": "License",
+      "value": ""
+     },
+     {
+      "depth": 1,
+      "name": "License URL",
+      "value": ""
+     },
+     {
+      "depth": 1,
+      "name": "Color",
+      "value": "[255, 255, 255]"
+     },
+     {
+      "depth": 1,
+      "name": "Placement",
+      "value": "[(0.00 0.00 1.00); 0.00\u00b0; (0.00 mm  0.00 mm  0.00 mm)]"
+     },
+     {
+      "depth": 1,
+      "name": "Label",
+      "value": "Assembly"
+     },
+     {
+      "depth": 1,
+      "name": "Group",
+      "value": "[Joints001, Plate001, Pin001 ...]"
+     },
+     {
+      "depth": 0,
+      "name": "Box",
+      "value": null
+     },
+     {
+      "depth": 0,
+      "name": "Cylinder",
+      "value": null
+     },
+     {
+      "depth": 0,
+      "name": "Exploded Move",
+      "value": null
+     },
+     {
+      "depth": 0,
+      "name": "General",
+      "value": null
+     },
+     {
+      "depth": 1,
+      "name": "Rigid",
+      "value": "false"
+     },
+     {
+      "depth": 1,
+      "name": "Linked Object",
+      "value": "Sub#Assembly"
+     },
+     {
+      "depth": 0,
+      "name": "Prism",
+      "value": null
+     },
+     {
+      "depth": 0,
+      "name": "Rigid Group",
+      "value": null
+     }
+    ]
+   ],
+   "placement": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ]
+  },
+  "menu_with_link": [
+   {
+    "text": "New Assembly",
+    "name": "Assembly_CreateAssembly",
+    "enabled": true,
+    "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>New Assembly</b> (A)</p><p style='white-space:pre; margin:0;'>Creates an assembly object in the current document, or in the current active assembly (if</p>any). Limit of one root assembly per file.<p style='white-space:pre; margin-top:0.5em;'><i>Assembly_CreateAssembly</i></p>"
+   },
+   {
+    "text": "Insert Component",
+    "name": "Assembly_Insert",
+    "enabled": true,
+    "tip": "Insert Component",
+    "menu": [
+     {
+      "text": "Insert Component",
+      "name": null,
+      "enabled": true,
+      "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Insert Component</b> (I)</p><p>Inserts a component into the active assembly. This will create dynamic links to parts, bodies, primitives, and assemblies. To insert external components, make sure that the file is <b>open in the current session</b></p><ul><li>Insert by left clicking items in the list.</li><li>Remove by right clicking items in the list.</li><li>Press shift to add several instances of the component while clicking on the view.</li></ul><p style='white-space:pre; margin-top:0.5em;'><i>Assembly_InsertLink</i></p>"
+     },
+     {
+      "text": "New Part",
+      "name": null,
+      "enabled": true,
+      "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>New Part</b> (P)</p><p style='white-space:pre; margin:0;'>Insert a new part into the active assembly. The new part's origin can be positioned in the</p>assembly.<p style='white-space:pre; margin-top:0.5em;'><i>Assembly_InsertNewPart</i></p>"
+     }
+    ]
+   },
+   {
+    "text": "Link Arrays",
+    "name": "Part_LinkArrays",
+    "enabled": true,
+    "tip": "Link Arrays",
+    "menu": [
+     {
+      "text": "Circular Link Array",
+      "name": "Part_LinkArrayCircular",
+      "enabled": true,
+      "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Circular Link Array</b></p><p style='white-space:pre; margin:0;'>Creates a concentric circular array of linked objects</p><p style='white-space:pre; margin-top:0.5em;'><i>Part_LinkArrayCircular</i></p>"
+     },
+     {
+      "text": "Linear Link Array",
+      "name": "Part_LinkArrayLinear",
+      "enabled": true,
+      "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Linear Link Array</b></p><p style='white-space:pre; margin:0;'>Creates a linear array of linked objects</p><p style='white-space:pre; margin-top:0.5em;'><i>Part_LinkArrayLinear</i></p>"
+     },
+     {
+      "text": "Path Link Array",
+      "name": "Part_LinkArrayPath",
+      "enabled": true,
+      "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Path Link Array</b></p><p style='white-space:pre; margin:0;'>Creates an array of linked objects along a path</p><p style='white-space:pre; margin-top:0.5em;'><i>Part_LinkArrayPath</i></p>"
+     },
+     {
+      "text": "Point Link Array",
+      "name": "Part_LinkArrayPoint",
+      "enabled": true,
+      "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Point Link Array</b></p><p style='white-space:pre; margin:0;'>Creates an array of linked objects at each point of a sketch or shape</p><p style='white-space:pre; margin-top:0.5em;'><i>Part_LinkArrayPoint</i></p>"
+     },
+     {
+      "text": "Polar Link Array",
+      "name": "Part_LinkArrayPolar",
+      "enabled": true,
+      "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Polar Link Array</b></p><p style='white-space:pre; margin:0;'>Creates a polar array of linked objects</p><p style='white-space:pre; margin-top:0.5em;'><i>Part_LinkArrayPolar</i></p>"
+     }
+    ]
+   },
+   {
+    "text": "Solve Assembly",
+    "name": "Assembly_SolveAssembly",
+    "enabled": true,
+    "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Solve Assembly</b> (Z)</p><p style='white-space:pre; margin:0;'>Solves the currently active assembly.</p><p style='white-space:pre; margin-top:0.5em;'><i>Assembly_SolveAssembly</i></p>"
+   },
+   {
+    "text": "Exploded View",
+    "name": "Assembly_CreateView",
+    "enabled": true,
+    "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Exploded View</b> (E)</p><p style='white-space:pre; margin:0;'>Creates an exploded view of the current assembly</p><p style='white-space:pre; margin-top:0.5em;'><i>Assembly_CreateView</i></p>"
+   },
+   {
+    "text": "Snapshot",
+    "name": "Assembly_CreateSnapshot",
+    "enabled": true,
+    "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Snapshot</b></p><p style='white-space:pre; margin:0;'>Captures the current assembly state (placements and visibility). Double-clicking the Snapshot</p>object restores the assembly to that state.<p style='white-space:pre; margin-top:0.5em;'><i>Assembly_CreateSnapshot</i></p>"
+   },
+   {
+    "text": "Simulation",
+    "name": "Assembly_CreateSimulation",
+    "enabled": false,
+    "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Simulation</b> (V)</p><p style='white-space:pre; margin:0;'>Creates a new simulation of the current assembly</p><p style='white-space:pre; margin-top:0.5em;'><i>Assembly_CreateSimulation</i></p>"
+   },
+   {
+    "text": "Bill of Materials",
+    "name": "Assembly_CreateBom",
+    "enabled": true,
+    "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Bill of Materials</b> (O)</p><p>Creates a bill of materials of the current assembly. If an assembly is active, it will be a BOM of this assembly. Else it will be a BOM of the whole document.</p><p>The BOM object is a document object that stores the settings of your BOM. It is also a spreadsheet object so you can easily visualize the BOM. If you do not need the BOM object to be saved as a document object, you can simply export and cancel the task.</p><p>The columns 'Index', 'Name', 'File Name' and 'Quantity' are automatically generated on recompute. The 'Description' and custom columns are not overwritten.</p><p style='white-space:pre; margin-top:0.5em;'><i>Assembly_CreateBom</i></p>"
+   },
+   {
+    "text": "Go to Linked Assembly",
+    "name": "Assembly_LinkSelectLinked",
+    "enabled": true,
+    "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Go to Linked Assembly</b> (S, G)</p><p style='white-space:pre; margin:0;'>Selects the linked assembly and switches to its original document</p><p style='white-space:pre; margin-top:0.5em;'><i>Assembly_LinkSelectLinked</i></p>"
+   },
+   {
+    "text": "Export ASMT File",
+    "name": "Assembly_ExportASMT",
+    "enabled": true,
+    "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Export ASMT File</b></p><p style='white-space:pre; margin:0;'>Export currently active assembly as a ASMT file.</p><p style='white-space:pre; margin-top:0.5em;'><i>Assembly_ExportASMT</i></p>"
+   },
+   {
+    "text": "Select Component Joints",
+    "name": "Assembly_SelectJointsOfComponent",
+    "enabled": true,
+    "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Select Component Joints</b></p><p style='white-space:pre; margin:0;'>Selects all joints referencing the selected component</p><p style='white-space:pre; margin-top:0.5em;'><i>Assembly_SelectJointsOfComponent</i></p>"
+   },
+   {
+    "sep": true
+   },
+   {
+    "text": "Toggle Grounded",
+    "name": "Assembly_ToggleGrounded",
+    "enabled": true,
+    "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Toggle Grounded</b> (G)</p><p>Toggles the grounding of a part.</p><p>Grounding a part permanently locks its position in the assembly, preventing any movement or rotation.<p style='white-space:pre; margin-top:0.5em;'><i>Assembly_ToggleGrounded</i></p>"
+   },
+   {
+    "text": "Create Rigid Group",
+    "name": "Assembly_CreateJointRigidGroup",
+    "enabled": true,
+    "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Create Rigid Group</b> (Y)</p><p>Create a rigid group.</p><p>Creates a rigid group that permanently locks the selected components together.</p><p style='white-space:pre; margin-top:0.5em;'><i>Assembly_CreateJointRigidGroup</i></p>"
+   },
+   {
+    "sep": true
+   },
+   {
+    "text": "Fixed Joint",
+    "name": "Assembly_CreateJointFixed",
+    "enabled": true,
+    "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Fixed Joint</b> (F)</p><p>1 - If an assembly is active : Creates a joint statically locking two parts together, preventing any movement or rotation</p><p>2 - If a part is active: Positions sub-parts by matching selected coordinate systems. The second part selected will move.</p><p style='white-space:pre; margin-top:0.5em;'><i>Assembly_CreateJointFixed</i></p>"
+   },
+   {
+    "text": "Revolute Joint",
+    "name": "Assembly_CreateJointRevolute",
+    "enabled": true,
+    "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Revolute Joint</b> (R)</p><p style='white-space:pre; margin:0;'>Creates a revolute joint allowing rotation around a single axis between selected parts</p><p style='white-space:pre; margin-top:0.5em;'><i>Assembly_CreateJointRevolute</i></p>"
+   },
+   {
+    "text": "Cylindrical Joint",
+    "name": "Assembly_CreateJointCylindrical",
+    "enabled": true,
+    "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Cylindrical Joint</b> (C)</p><p style='white-space:pre; margin:0;'>Creates a cylindrical joint that allows rotation around and translation along a single axis</p>between assembled parts<p style='white-space:pre; margin-top:0.5em;'><i>Assembly_CreateJointCylindrical</i></p>"
+   },
+   {
+    "text": "Slider Joint",
+    "name": "Assembly_CreateJointSlider",
+    "enabled": true,
+    "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Slider Joint</b> (S)</p><p style='white-space:pre; margin:0;'>Creates a slider joint that allows linear movement along a single axis, but restricts rotation</p>between selected parts<p style='white-space:pre; margin-top:0.5em;'><i>Assembly_CreateJointSlider</i></p>"
+   },
+   {
+    "text": "Ball Joint",
+    "name": "Assembly_CreateJointBall",
+    "enabled": true,
+    "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Ball Joint</b> (B)</p><p style='white-space:pre; margin:0;'>Creates a ball joint that connects parts at a point, allowing unrestricted movement as long</p>as the connection points remain in contact<p style='white-space:pre; margin-top:0.5em;'><i>Assembly_CreateJointBall</i></p>"
+   },
+   {
+    "sep": true
+   },
+   {
+    "text": "Distance Joint",
+    "name": "Assembly_CreateJointDistance",
+    "enabled": true,
+    "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Distance Joint</b> (D)</p><p>Creates a distance joint that fixes the distance between the selected objects</p><p>Creates one of several different joints based on the selection. For example, a distance of 0 between a plane and a cylinder creates a tangent joint. A distance of 0 between planes will make them co-planar.</p><p style='white-space:pre; margin-top:0.5em;'><i>Assembly_CreateJointDistance</i></p>"
+   },
+   {
+    "text": "Parallel Joint",
+    "name": "Assembly_CreateJointParallel",
+    "enabled": true,
+    "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Parallel Joint</b> (N)</p><p style='white-space:pre; margin:0;'>Creates a parallel joint that makes the Z-axis of the selected coordinate systems parallel</p><p style='white-space:pre; margin-top:0.5em;'><i>Assembly_CreateJointParallel</i></p>"
+   },
+   {
+    "text": "Perpendicular Joint",
+    "name": "Assembly_CreateJointPerpendicular",
+    "enabled": true,
+    "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Perpendicular Joint</b> (M)</p><p style='white-space:pre; margin:0;'>Creates a perpendicular joint that makes the Z-axis of the selected coordinate systems</p>perpendicular<p style='white-space:pre; margin-top:0.5em;'><i>Assembly_CreateJointPerpendicular</i></p>"
+   },
+   {
+    "text": "Angle Joint",
+    "name": "Assembly_CreateJointAngle",
+    "enabled": true,
+    "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Angle Joint</b> (X)</p><p style='white-space:pre; margin:0;'>Creates an angle joint that fixes the angle between the Z-axis of the selected coordinate</p>systems<p style='white-space:pre; margin-top:0.5em;'><i>Assembly_CreateJointAngle</i></p>"
+   },
+   {
+    "sep": true
+   },
+   {
+    "text": "Rack and Pinion Joint",
+    "name": "Assembly_CreateJointRackPinion",
+    "enabled": true,
+    "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Rack and Pinion Joint</b> (Q)</p><p>Creates a rack and pinion joint that links a part with a slider joint to a part with a revolute joint</p><p>Select the same coordinate systems as the revolute and slider joints. The pitch radius defines the movement ratio between the rack and the pinion.</p><p style='white-space:pre; margin-top:0.5em;'><i>Assembly_CreateJointRackPinion</i></p>"
+   },
+   {
+    "text": "Screw Joint",
+    "name": "Assembly_CreateJointScrew",
+    "enabled": true,
+    "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Screw Joint</b> (W)</p><p>Creates a screw joint that links a part with a slider joint to a part with a revolute joint</p><p>Select the same coordinate systems as the revolute and slider joints. The pitch radius defines the movement ratio between the rotating screw and the sliding part.</p><p style='white-space:pre; margin-top:0.5em;'><i>Assembly_CreateJointScrew</i></p>"
+   },
+   {
+    "text": "Gears/Belt Joint",
+    "name": "Assembly_CreateJointGearBelt",
+    "enabled": true,
+    "tip": "Gears/Belt Joint",
+    "menu": [
+     {
+      "text": "Gears Joint",
+      "name": null,
+      "enabled": true,
+      "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Gears Joint</b> (T)</p><p>Creates a gears joint that links 2 rotating gears together. They will have inverse rotation direction.</p><p>Select the same coordinate systems as the revolute joints.</p><p style='white-space:pre; margin-top:0.5em;'><i>Assembly_CreateJointGears</i></p>"
+     },
+     {
+      "text": "Belt Joint",
+      "name": null,
+      "enabled": true,
+      "tip": "<p style='white-space:pre; margin-bottom:0.5em;'><b>Belt Joint</b> (L)</p><p>Creates a belt joint that links 2 rotating objects together. They will have the same rotation direction.</p><p>Select the same coordinate systems as the revolute joints.</p><p style='white-space:pre; margin-top:0.5em;'><i>Assembly_CreateJointBelt</i></p>"
+     }
+    ]
+   }
+  ],
+  "goto": {
+   "active": "Sub",
+   "selection": [
+    [
+     "Sub",
+     "Assembly"
+    ]
+   ]
+  },
+  "undo": [
+   "Insert Component"
+  ]
+ },
+ "undo_names": [
+  "Insert Component",
+  "Create Fixed Joint",
+  "Create Exploded View",
+  "Create Fixed Joint",
+  "Create Rigid Group",
+  "New assembly"
+ ]
+}

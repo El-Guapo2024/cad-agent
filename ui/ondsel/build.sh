@@ -37,11 +37,15 @@ common=(-std=c++20 -O2 -DNDEBUG -w)
 compile_all() {   # compile_all <compiler> <objdir> <flags...>
     local cc="$1" objdir="$2"; shift 2
     mkdir -p "$objdir"
+    # an object is rebuilt when its source, or for the port's two files the port's headers, are newer
     printf '%s\n' "${sources[@]}" | xargs -P "$jobs" -I{} sh -c '
-        src="$1"; shift; cc="$1"; shift; objdir="$1"; shift
+        src="$1"; shift; cc="$1"; shift; objdir="$1"; shift; here="$1"; shift
         obj="$objdir/$(basename "${src%.cpp}").o"
-        if [ ! -f "$obj" ] || [ "$src" -nt "$obj" ]; then "$cc" "$@" -c "$src" -o "$obj"; fi
-    ' _ {} "$cc" "$objdir" "$@"
+        stale=0
+        if [ ! -f "$obj" ] || [ "$src" -nt "$obj" ]; then stale=1; fi
+        case "$src" in "$here"/*) for h in "$here/assembly.h" "$here/json.h"; do [ "$h" -nt "$obj" ] && stale=1; done ;; esac
+        if [ "$stale" = 1 ]; then "$cc" "$@" -c "$src" -o "$obj"; fi
+    ' _ {} "$cc" "$objdir" "$here" "$@"
 }
 
 objects() {   # objects <objdir>

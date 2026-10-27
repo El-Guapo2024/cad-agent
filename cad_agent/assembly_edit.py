@@ -147,16 +147,43 @@ def tree(objs) -> list:
             rows.append({"name": o.name, "label": o.label or o.name, "type": "Assembly::AssemblyLink", "depth": 1,
                          "linked_object": o.linked_object, "rigid": o.rigid, "grounded": o.name in grounded,
                          "icon": "Assembly_AssemblyLinkRigid" if o.rigid else "Assembly_AssemblyLink"})
+            # an AssemblyLink is an App::Part: its own Origin, labelled after the document's first (Origin001, X-axis001)
+            k = sum(1 for x in objs[:objs.index(o) + 1] if isinstance(x, W.AssemblyLink))
+            suffix = f"{k:03d}"
+            rows.append({"name": f"{o.name}.Origin", "label": f"Origin{suffix}", "type": "App::Origin", "depth": 2,
+                         "icon": "Std_CoordinateSystem", "parent": o.name})
+            for name, label, kind in (("X_Axis", "X-axis", "App::Line"), ("Y_Axis", "Y-axis", "App::Line"),
+                                      ("Z_Axis", "Z-axis", "App::Line"), ("XY_Plane", "XY-plane", "App::Plane"),
+                                      ("XZ_Plane", "XZ-plane", "App::Plane"), ("YZ_Plane", "YZ-plane", "App::Plane"),
+                                      ("Origin_Point", "Origin-Point", "App::Point")):
+                rows.append({"name": f"{o.name}.{name}", "label": f"{label}{suffix}", "type": kind, "depth": 3,
+                             "icon": kind, "parent": f"{o.name}.Origin"})
             if not o.rigid:
-                rows.append({"name": f"{o.name}.Joints", "label": "Joints", "type": "Assembly::JointGroup",
+                # ensureJointGroup: a JointGroup "Joints", its Label made unique (Joints001 for the first link)
+                rows.append({"name": f"{o.name}.Joints", "label": f"Joints{suffix}", "type": "Assembly::JointGroup",
                              "depth": 2, "icon": "Assembly_JointGroup", "parent": o.name})
-                for copy, src in o.joints:
+                for copy, src, *_ in o.joints:
                     rows.append({"name": copy, "label": copy, "type": "Joint", "depth": 3, "parent": f"{o.name}.Joints",
                                  "icon": "Assembly_CreateJointFixed", "source": src, "copy": True})
-            for child, src in o.components:
-                rows.append({"name": child, "label": child, "type": "App::Link", "depth": 2, "parent": o.name,
-                             "source": src, "grounded": child in grounded, "icon": "Assembly_AssemblyLink",
-                             "component": not o.rigid})
+            for child, src, *label in o.components:
+                rows.append({"name": child, "label": label[0] if label else child, "type": "App::Link", "depth": 2,
+                             "parent": o.name, "source": src, "grounded": child in grounded,
+                             "icon": "Assembly_AssemblyLink", "component": not o.rigid})
+    # the ViewGroup ("Exploded Views") with its views, each with its moves (ViewProviderExplodedView.claimChildren)
+    for o in objs:
+        if isinstance(o, W.ViewGroup):
+            rows.append({"name": o.name, "label": o.label or o.name, "type": "Assembly::ViewGroup", "depth": 1,
+                         "icon": "Assembly_ExplodedViewGroup"})
+            for v in objs:
+                if isinstance(v, W.ExplodedView):
+                    rows.append({"name": v.name, "label": v.label or v.name, "type": "ExplodedView", "depth": 2,
+                                 "icon": "Assembly_ExplodedView", "parent": o.name})
+                    for m in v.group:
+                        step = next((x for x in objs if x.name == m), None)
+                        if step is not None:
+                            rows.append({"name": m, "label": step.label or m, "type": "ExplodedViewStep", "depth": 3,
+                                         "icon": "Assembly_ExplodedView", "parent": v.name,
+                                         "move_type": step.move_type})
     for r in rows:                           # each row's parent row, for the tree's expanding and collapsing
         if "parent" not in r:
             r["parent"] = (None if r["depth"] == 0 else "Assembly" if r["depth"] == 1 else
@@ -214,8 +241,17 @@ def _solved_of(doc) -> dict:
                            "part": doc.get(name).linked_object, "project": doc.document})
     out["leaves"] = leaves
     out["solver_parts"] = doc.solver_parts()
+    out["child_plc"] = {c: W.placement_json(p) for c, p in doc.child_plc.items()}   # a rigid link's children, in it
     # the copies of a flexible sub-assembly's joints, as the tree and the property view show them
     out["copies"] = [W.as_dict(j) for js in doc.sub_joints.values() for j in js]
+    # each exploded view as it is shown: the components' exploded placements and the explosion lines
+    from . import assembly_view as AV
+    out["exploded"] = {}
+    for v in AV.views(doc):
+        final, lines = AV.exploded_placements(doc, v)
+        out["exploded"][v.name] = {"placements": {n: W.placement_json(p) for n, p in final.items()},
+                                   "lines": [[list(a), list(b)] for a, b in lines],
+                                   "edit": {m.name: AV.edit_mode(m) for m in AV.steps_of(doc, v)}}
     out["copy_rows"] = {j.name: {"label": j.label or j.name, "joint_type": j.joint_type,
                                  "icon": f"Assembly_CreateJoint{j.joint_type}", "suppressed": j.suppressed}
                         for js in doc.sub_joints.values() for j in js}
@@ -593,6 +629,15 @@ def run_ops(doc: W.AssemblyDocument, ops, slug: str, part_names=None, hand_parts
             o = _get(doc, op.get("name"))
             if o not in doc.objects:
                 raise AssemblyEditError(f"{o.name} is a copy of a joint of the sub-assembly: change it in its project")
+            if isinstance(o, W.ExplodedView):
+                from . import assembly_view as AV
+                AV.delete_view(doc, o)
+                done.append(f"deleted {o.name}")
+                continue
+            if isinstance(o, W.ExplodedViewStep):
+                for v in doc.objects:
+                    if isinstance(v, W.ExplodedView) and o.name in v.group:
+                        v.group = tuple(n for n in v.group if n != o.name)
             gone = [o]
             if isinstance(o, (W.Link, W.AssemblyLink)):
                 # the component, and its children for a sub-assembly, take their joints and GroundedJoints with them
@@ -612,6 +657,9 @@ def run_ops(doc: W.AssemblyDocument, ops, slug: str, part_names=None, hand_parts
             names_gone = {x.name for x in gone}
             for g in doc.rigid_groups():           # a deleted component leaves the PropertyLinkList
                 g.objects_to_rigid_group = tuple(n for n in g.objects_to_rigid_group if n not in names_gone)
+            for m in doc.objects:                  # and the exploded views' moves
+                if isinstance(m, W.ExplodedViewStep):
+                    m.references = tuple(n for n in m.references if n not in names_gone)
             doc.recompute()
             done.append("deleted " + ", ".join(x.name for x in gone))
         elif kind == "rename":
@@ -625,6 +673,10 @@ def run_ops(doc: W.AssemblyDocument, ops, slug: str, part_names=None, hand_parts
                     x.object_to_ground = to
                 if isinstance(x, W.RigidGroupJoint):
                     x.objects_to_rigid_group = tuple(to if n == old else n for n in x.objects_to_rigid_group)
+                if isinstance(x, W.ExplodedViewStep):
+                    x.references = tuple(to if n == old else n for n in x.references)
+                if isinstance(x, W.ExplodedView):
+                    x.group = tuple(to if n == old else n for n in x.group)
                 if isinstance(x, W.Joint):
                     for key in ("reference1", "reference2"):
                         r = getattr(x, key)
@@ -639,6 +691,14 @@ def run_ops(doc: W.AssemblyDocument, ops, slug: str, part_names=None, hand_parts
             o = _get(doc, op.get("name"))
             o.label = op.get("to") or None
             done.append(f"labelled {o.name} {o.label!r}")
+        elif kind == "exploded_view":
+            # TaskAssemblyCreateView's OK: the view (made, or the one double-clicked) with the panel's moves
+            from . import assembly_view as AV
+            try:
+                v = AV.set_view(doc, list(op.get("moves") or []), name=op.get("name"))
+            except W.AssemblyError as e:
+                raise AssemblyEditError(str(e)) from None
+            done.append(f"{'edited' if op.get('name') else 'made'} {v.name} ({len(v.group)} moves)")
         elif kind == "new_part":
             # Assembly_InsertNewPart: an empty App::Link "Link" (the panel's first reference, the whole of it: its
             # origin), the Fixed joint to the element picked when there is one, then createPart: parts/<Part>.py

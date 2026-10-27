@@ -297,6 +297,9 @@ sub_case("subasm_rigid_fixed",
 sub_case("subasm_rigid_revolute_on_child",
          [joint("Revolute", ("Plate", ["Face6", "Vertex8"]), ("Assembly001", ["Pin.Face2", "Pin.Edge1"]))])
 sub_case("subasm_rigid_move", [{"op": "move", "link": "Assembly001", "placement": T2}])
+sub_case("subasm_rigid_distance",           # getDistanceType reads the child's face: the element after "Plate001."
+         [joint("Distance", ("Plate", ["Face6", "Face6"]), ("Assembly001", ["Plate001.Face5", "Plate001.Face5"]),
+                distance=5.0)])
 sub_case("subasm_flexible_inserted", [], rigid=False)
 sub_case("subasm_flexible_fixed",
          [joint("Fixed", ("Plate", ["Face6", "Face6"]), ("Plate001", ["Face5", "Face5"]))], rigid=False)
@@ -308,4 +311,35 @@ sub_case("subasm_turn_flexible_and_back", [
     joint("Fixed", ("Plate", ["Face6", "Face6"]), ("Assembly001", ["Plate001.Face5", "Plate001.Face5"])),
     {"op": "set_rigid", "link": "Assembly001", "value": False},
     {"op": "set_rigid", "link": "Assembly001", "value": True},
+])
+
+# ── exploded views (Assembly_CreateView): a view of moves, each a MovementTransform on some components, applied one
+#    after the other from where the ones before left them (_calculateExplodedPlacements; headless FreeCAD has no
+#    bounding boxes, so a Radial move pushes nothing) ──
+#    {"op": "exploded_view", "moves": [{"references": [link, ...], "movement_transform": P, "move_type": "Normal"}]}
+case("exploded_two_moves", *CHAIN, [
+    joint("Revolute", ("Plate", ["Face6", "Vertex8"]), ("Arm", ["Face5", "Vertex1"])),
+    {"op": "exploded_view", "moves": [
+        {"references": ["Arm", "Pin"], "movement_transform": ((0.0, 0.0, 25.0), (0.0, 0.0, 0.0))},
+        {"references": ["Pin"], "movement_transform": ((10.0, -5.0, 0.0), (0.0, 0.0, 0.0))},
+    ]},
+])
+case("exploded_rotation_and_radial", *CHAIN, [
+    {"op": "exploded_view", "moves": [
+        {"references": ["Arm"], "movement_transform": ((3.0, 4.0, 0.0), (30.0, 0.0, 0.0))},
+        {"references": ["Arm", "Pin"], "movement_transform": ((20.0, 0.0, 0.0), (0.0, 0.0, 0.0)), "move_type": "Radial"},
+        {"references": ["Arm"], "movement_transform": ((0.0, 0.0, 0.0), (0.0, 45.0, 0.0))},
+    ]},
+    {"op": "exploded_view", "moves": [
+        {"references": ["Plate"], "movement_transform": ((0.0, 0.0, -10.0), (0.0, 0.0, 0.0))},
+    ]},
+])
+
+# ── the GUI check's sequence (fcassembly_more_dump.py): a rigid group, then a joint from the Origin's XY-plane to one of
+#    its members, whose presolve takes the other member along ──
+GUI_PARTS = ({"plate": PLATE, "pin": PIN, "bar": BAR},
+             [("Plate", "plate", None), ("Pin", "pin", T), ("Bar", "bar", T2)], ["Plate"])
+case("origin_on_a_rigid_group", *GUI_PARTS, [
+    {"op": "rigid", "parts": ["Pin", "Bar"]},
+    joint("Fixed", ("Origin", ["XY_Plane.", "XY_Plane."]), ("Bar", ["Face5", "Face5"])),
 ])

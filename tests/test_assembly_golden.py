@@ -79,6 +79,10 @@ def replay(c, document="Unnamed"):
         elif op == "set_rigid":
             AL.set_rigid(doc, doc.get(step["link"]), step["value"])
             doc.recompute()
+        elif op == "exploded_view":
+            from cad_agent import assembly_view as AV
+            AV.set_view(doc, step["moves"])
+            doc.recompute()
         steps.append(state(doc))
     final = doc.solve()
     return doc, steps, final
@@ -112,6 +116,15 @@ def state(doc):
              for o in doc.asm_links()}
     if links:
         out["assembly_links"] = links
+    from cad_agent import assembly_view as AV
+    exploded = {}
+    for v in AV.views(doc):
+        final, lines = AV.exploded_placements(doc, v, headless=True, applied=False)
+        exploded[v.name] = {"label": v.label or v.name, "moves": list(v.group),
+                            "placements": {n: plc_list(p) for n, p in final.items()},
+                            "lines": [[list(a), list(b)] for a, b in lines]}
+    if exploded:
+        out["exploded"] = exploded
     return out
 
 
@@ -143,6 +156,21 @@ def diff_state(ours, theirs, where):
         mine = ours.get("assembly_links", {}).get(n)
         if mine != a:
             out.append(f"{where} {n} {mine!r} != FreeCAD {a!r}")
+    for n, e in theirs.get("exploded", {}).items():
+        mine = ours.get("exploded", {}).get(n)
+        if mine is None:
+            out.append(f"{where} no exploded view {n}")
+            continue
+        for k in ("label", "moves"):
+            if mine[k] != e[k]:
+                out.append(f"{where} {n}.{k} {mine[k]!r} != FreeCAD {e[k]!r}")
+        for c, p in e["placements"].items():
+            if c not in mine["placements"] or not same_plc(mine["placements"][c], p):
+                out.append(f"{where} {n} exploded {c} {mine['placements'].get(c)} != FreeCAD {p}")
+        if len(mine["lines"]) != len(e["lines"]) or any(
+                max(abs(x - y) for x, y in zip(a + b, c + d)) > POS_TOL
+                for (a, b), (c, d) in zip(mine["lines"], e["lines"])):
+            out.append(f"{where} {n} lines {mine['lines']} != FreeCAD {e['lines']}")
     for n, g in theirs.get("rigid_groups", {}).items():
         mine = ours.get("rigid_groups", {}).get(n)
         if mine is None:

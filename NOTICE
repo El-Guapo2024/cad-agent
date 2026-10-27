@@ -48,8 +48,9 @@ that commit.
                            (FreeCAD's refine and booleans, tapered extrusions, Scaled, start
                            references). See section 2.
 
-  LGPL-2.1-or-later        cad_agent/assembly_wb.py and cad_agent/assembly_jcs.py, all of them (the
-                           Assembly workbench's objects and joint coordinate systems). See section 2.
+  LGPL-2.1-or-later        cad_agent/assembly_wb.py, assembly_jcs.py, assembly_link.py, assembly_view.py
+                           and assembly_newpart.py, all of them (the Assembly workbench's objects, joint
+                           coordinate systems, sub-assemblies, exploded views and New Part). See section 2.
 
   LGPL-2.1-or-later        cad_agent/techdraw.py, techdraw_view.py, techdraw_dim.py, techdraw_edit.py and
                            techdraw_export.py, all of them (the TechDraw workbench's page objects,
@@ -247,11 +248,13 @@ that commit.
       src/Mod/Import/App/dxf/ImpExpDxf.cpp, Copyright (c) 2015 Yorik van Havre (SPDX
       LGPL-2.1-or-later; the Library General Public License, version 2 or later).
 
-  cad_agent/assembly_wb.py and cad_agent/assembly_jcs.py
-      Re-express src/Mod/Assembly/JointObject.py (Joint, GroundedJoint, TaskAssemblyCreateJoint's
-      create and accept), UtilsAssembly.py (findPlacement, findElementClosestVertex and the JCS
-      helpers), CommandInsertLink.py and CommandCreateJoint.py, and the element queries of
-      src/Mod/Assembly/App/AssemblyUtils.cpp, function by function.
+  cad_agent/assembly_wb.py, assembly_jcs.py, assembly_link.py, assembly_view.py, assembly_newpart.py
+      Re-express src/Mod/Assembly/JointObject.py (Joint, GroundedJoint, RigidGroupJoint,
+      TaskAssemblyCreateJoint's create and accept), UtilsAssembly.py (findPlacement, findElementClosestVertex,
+      findCylindersIntersection and the JCS helpers, createPart, getViewGroup), CommandInsertLink.py,
+      CommandCreateJoint.py, CommandCreateView.py (ExplodedView, ExplodedViewStep and the panel's move
+      arithmetic), CommandInsertNewPart.py, src/Mod/Assembly/App/AssemblyLink.cpp (the sub-assembly link)
+      and the element queries of src/Mod/Assembly/App/AssemblyUtils.cpp, function by function.
       Copyright (c) 2023 Ondsel <development@ondsel.com>. SPDX-License-Identifier:
       LGPL-2.1-or-later. The solving half of AssemblyObject.cpp is ported in ui/ondsel/assembly.cpp
       (part of ui/, LGPL-2.1-or-later), which cad_agent/ondsel.py loads.

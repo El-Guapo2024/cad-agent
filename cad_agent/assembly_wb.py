@@ -1080,3 +1080,4 @@ def angle_of(p: Placement) -> float:
 # AssemblyLink (assembly_link.py) is an ASSEMBLY entry too: Assembly.AssemblyLink(...) in assembly.py; the module
 # registers it here (CLASSES, and this module's AssemblyLink) whichever of the two is imported first
 from . import assembly_link  # noqa: E402,F401
+from . import assembly_view  # noqa: E402,F401

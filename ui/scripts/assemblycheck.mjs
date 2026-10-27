@@ -16,6 +16,11 @@
 //              component's Placement, the undo step and the Solver messages after each, against FreeCAD's
 //   tree       the Assembly's rows; props, a joint's property view
 //   undo       Std_Undo takes the last joint back
+// and, against fcassembly_more.json (fcassembly.py --more) on a second project and a sub-assembly project:
+//   menus2     the menu with three components   rigid    Create Rigid Group: object, tree, properties, context menu
+//   isolate    the joint panel's Isolate modes  offsets  Show advanced offsets, Offset1's TaskPlacement
+//   origin     a joint on the Origin's XY-plane explode  Exploded View: panel, a dragged move, the view, its display
+//   newpart    New Part: panel, pick, the part  subasm   a sub-assembly: Insert, rigid/flexible, tree, properties, Go to
 // A difference prints as FAIL; the deliberate ones (PARITY.md, "Assembly workbench") as `known`. Exit 1 on a FAIL.
 import { createRequire } from 'module'
 import { spawn, spawnSync } from 'child_process'
@@ -33,6 +38,9 @@ const REPO = resolve(HERE, '..', '..')
 const args = process.argv.slice(2)
 const flag = (name, d) => { const a = args.find((x) => x.startsWith(`--${name}=`)); return a ? a.slice(name.length + 3) : d }
 const FC = JSON.parse(readFileSync(flag('fc', join(HERE, 'fcassembly.json')), 'utf8'))
+// the second round's commands (fcassembly.py --more): rigid groups, Isolate, the advanced offsets, a joint on the Origin,
+// Exploded View, New Part, sub-assemblies
+const FC2 = (() => { try { return JSON.parse(readFileSync(flag('fc2', join(HERE, 'fcassembly_more.json')), 'utf8')) } catch { return null } })()
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms))
 let pass = 0, fail = 0, known = 0
 const ok = (what) => { pass++; if (args.includes('--verbose')) console.log(`  ok    ${what}`) }
@@ -45,8 +53,7 @@ const want = (section) => !ONLY.length || ONLY.includes(section)
 const clean = (t) => String(t ?? '').replace(/&(.)/g, '$1').replace(/…$/, '').trim()
 
 // What is deliberately different (PARITY.md, "Assembly workbench"), by the FreeCAD command
-const NOT_PORTED = new Set(['Part_LinkArrays', 'Assembly_CreateView', 'Assembly_CreateSnapshot', 'Assembly_CreateSimulation', 'Assembly_CreateBom', 'Assembly_SelectJointsOfComponent',
-  'Assembly_LinkSelectLinked', 'Assembly_CreateJointRigidGroup', 'Assembly_InsertNewPart'])
+const NOT_PORTED = new Set(['Part_LinkArrays', 'Assembly_CreateSnapshot', 'Assembly_CreateSimulation', 'Assembly_CreateBom', 'Assembly_SelectJointsOfComponent'])
 
 // ── a scratch workbench with three parts ─────────────────────────────────────────────────────────────────────────────
 const freePort = (from) => new Promise((res, rej) => {
@@ -302,6 +309,285 @@ try {
     const n = (await assembly()).objects.length
     await runCmd('Std_Undo')
     await until(`(cadui.getState().assembly?.objects ?? []).length === ${n - 1}`, 'Std_Undo takes the last joint back', 120000) && ok('Std_Undo takes the last joint back')
+  }
+  // ── the second round (fcassembly_more.json, fcassembly.py --more): a fresh project ac2 with Plate, Pin and Bar, and
+  // acsub, whose Assembly (Plate grounded, Pin on a Revolute) is the sub-assembly ───────────────────────────────────────
+  const MORE = ['menus2', 'rigid', 'isolate', 'offsets', 'origin', 'explode', 'newpart', 'subasm']
+  if (FC2 && MORE.some(want)) {
+    const S2 = 'ac2', SUB = 'acsub'
+    const cad = (...a) => spawnSync(python, ['-m', 'cad_agent', '--projects', ROOT, ...a], { env, cwd: REPO })
+    for (const p of [S2, SUB]) {
+      cad('init', p, '--brief', 'assemblycheck')
+      // fcassembly_more_dump.py's: the main document's Box 40 x 30 x 5, the sub-assembly's a default Part::Box (10 mm)
+      writeFileSync(join(ROOT, p, 'parts', 'plate.py'), part('plate', p === SUB ? 'Part.Box("Box")' : 'Part.Box("Box", length=40, width=30, height=5)'))
+      writeFileSync(join(ROOT, p, 'parts', 'pin.py'), part('pin', 'Part.Cylinder("Cylinder", radius=3, height=20)'))
+      writeFileSync(join(ROOT, p, 'parts', 'bar.py'), part('bar', 'Part.Box("Box", length=30, width=6, height=4)'))
+    }
+    cad('assembly', 'apply', SUB, '--ops', JSON.stringify([{ op: 'insert', part: 'plate', name: 'Plate' },
+      { op: 'insert', part: 'pin', name: 'Pin', placement: [[30, 5, 2], [10, 20, 30]] },
+      { op: 'joint', type: 'Revolute', ref1: ['Plate', ['Face6', 'Face6']], ref2: ['Pin', ['Face3', 'Edge1']] }]))
+    await page.goto(`${BASE}/next/#${S2}`)
+    await until(`window.cadui && cadui.getState().slug === ${JSON.stringify(S2)}`, 'the second project')
+    await st('cadui.setState({ workbench: "assembly" })')
+    await runCmd('Assembly_CreateAssembly')
+    await until('!!cadui.getState().assembly', 'the Assembly of ac2')
+    await st(`fetch('/api/${S2}/assembly', { method: 'POST', headers: { 'X-CAD': '1', 'Content-Type': 'application/json' }, body: JSON.stringify({ ops: [
+      { op: 'insert', part: 'plate', name: 'Plate' },
+      { op: 'insert', part: 'pin', name: 'Pin', placement: [[30, 5, 2], [10, 20, 30]] },
+      { op: 'insert', part: 'bar', name: 'Bar', placement: [[-20, 40, 15], [-35, 5, 60]] }], name: 'Insert Component' }) })`)
+    await until('(cadui.getState().assembly?.objects ?? []).length >= 4', 'the three components of ac2', 120000)
+    // the page opened afresh on ac2, its scene built from the files (a project made after the workbench started)
+    await page.goto(`${BASE}/next/#${S2}`)
+    await page.reload()
+    await until(`window.cadui && cadui.getState().slug === ${JSON.stringify(S2)}`, 'the second project again')
+    await st('cadui.setState({ workbench: "assembly" })')
+    if (!await until('cadui.getState().scene?.bodies.some((b) => b.name === "Bar") && !!cadui.getState().assembly', 'the scene of ac2', 180000))
+      console.log('        ac2:', JSON.stringify(await st(`({ slug: cadui.getState().slug, err: cadui.getState().sceneError, bodies: cadui.getState().scene?.bodies.map((b) => b.name), asm: !!cadui.getState().assembly, projects: cadui.getState().projects.map((p) => p.slug) })`)))
+    await st('cadui.setState({ asmActive: true, task: null })')
+    await sleep(500)
+    const objs = async () => (await assembly())?.objects ?? []
+    const plcs = async () => Object.fromEntries(Object.entries((await assembly())?.placements ?? {}).map(([n, p]) => [n, [...p.base, ...p.rotation]]))
+    const fcTree = (rows) => rows.filter((r) => r.depth >= 2).map((r) => `${r.depth - 2}:${r.text}`)
+    const ourTree = async (from) => {
+      const t = (await assembly())?.tree ?? []
+      return t.filter((r) => r.depth >= 1).map((r) => `${r.depth - 1}:${r.label}`).slice(0, from ?? undefined)
+    }
+    const propRows = async () => (await st('cadui.showPanel("model")'), await sleep(300), st(`[...document.querySelectorAll('.props .prow')].map((e) => [e.querySelector('.pk')?.textContent.trim(), e.querySelector('.pv')?.textContent.trim() || (e.querySelector('.pv input[type=checkbox]')?.checked ? 'true' : 'false')])`))
+    const fcProps = (p, names) => Object.fromEntries((p?.[0] ?? []).filter((r) => r.depth === 1 && names.includes(r.name)).map((r) => [r.name, r.value]))
+    const pickOn = async (body, sub) => {
+      const n = await st(`document.querySelectorAll('.taskview [data-qf="featureList"] .as-item').length`)
+      await st(`cadui.getView().pointPicker(${JSON.stringify(body)}, null, ${JSON.stringify(sub)})`)
+      await until(`document.querySelectorAll('.taskview [data-qf="featureList"] .as-item').length > ${n}`, `${body}.${sub} picked`, 30000)
+    }
+    const featureList = () => st(`[...document.querySelectorAll('.taskview [data-qf="featureList"] .as-item')].map((e) => e.textContent)`)
+    const fcList = (task) => task.flat().find((w) => w.name === 'featureList')?.items
+    if (want('menus2')) {
+      console.log('menus2')
+      compareEntries(FC2.menus, (await st('cadui.assembly()')).assembly, 'Assembly menu (second round)')
+    }
+    if (want('rigid')) {
+      console.log('rigid')
+      const fc = FC2.rigid
+      await st('cadui.setState({ selected: ["Pin", "Bar"], asmSel: [] })')
+      await runCmd('Assembly_CreateJointRigidGroup')
+      await until(`(cadui.getState().assembly?.objects ?? []).some((o) => o.kind === 'RigidGroupJoint')`, 'the rigid group', 120000)
+      await idle()
+      const g = (await objs()).find((o) => o.kind === 'RigidGroupJoint')
+      same([g.name, g.label ?? g.name, g.objects_to_rigid_group], [fc.name, fc.label, fc.members], 'rigid: Name, Label, ObjectsToRigidGroup')
+      const rp = g.rigid_placements.map((p) => [...p[0], ...p[1]])
+      check(rp.length === fc.rigid_placements.length && rp.every((p, i) => samePlc(p, fc.rigid_placements[i])), 'rigid: RigidPlacements', `${JSON.stringify(rp)} FreeCAD ${JSON.stringify(fc.rigid_placements)}`)
+      same(await undoName(), fc.undo[0], 'rigid: its undo step')
+      same(await ourTree(), fcTree(fc.tree).filter((r) => !/:(Box|Cylinder|Box001)$/.test(r)), 'rigid: the tree')
+      await st(`cadui.setState({ asmSel: [${JSON.stringify(g.name)}], selected: [] })`)
+      await sleep(500)
+      const rows = Object.fromEntries(await propRows())
+      for (const [k, val] of Object.entries(fcProps(fc.props, ['Label', 'Suppressed', 'Objects To Rigid Group'])))
+        check(String(rows[k]) === String(val), `rigid: property ${k} = ${val}`, `ours ${rows[k]}`)
+      const entries = await st('cadui.asmTree().filter((e) => e !== "sep").map((e) => e.label)')
+      for (const m of fc.menu ?? []) check(entries.includes(m), `rigid: the context menu has ${m}`, JSON.stringify(entries))
+      note("rigid: FreeCAD's Report view first shows the AttributeError RigidGroupJoint's onChanged raises before RigidPlacements exists; the page shows only \"Assembly: Rigid group positions updated.\"")
+      await st('cadui.setState({ asmSel: [] })')
+    }
+    if (want('isolate')) {
+      console.log('isolate')
+      await runCmd('Assembly_CreateJointRevolute')
+      await until(`!!document.querySelector('.taskview .as-task[data-task="joint"]')`, 'the Revolute panel', 20000)
+      await pickOn('Plate', 'Face6')
+      await pickOn('Pin', 'Face3')
+      const modes = ['Transparent', 'Wireframe', 'Hidden', 'Disabled']
+      for (const [i, mode] of modes.entries()) {
+        // the Isolate combo box: Down moves to the next mode while it is closed
+        if (i > 0) { await st(`document.querySelector('.taskview [data-qf="isolateType"]')?.focus()`); await page.keyboard.press('ArrowDown') }
+        await sleep(600)
+        const s = await st('({ hidden: cadui.getState().hidden, unselectable: cadui.getState().unselectable })')
+        for (const [n, w] of Object.entries(FC2.isolate[mode])) {
+          check((!s.hidden.includes(n)) === w.visibility && (!s.unselectable.includes(n)) === w.selectable, `isolate ${mode}: ${n} visible ${w.visibility}, selectable ${w.selectable}`,
+            `ours visible ${!s.hidden.includes(n)}, selectable ${!s.unselectable.includes(n)}`)
+        }
+      }
+      note('isolate: the faces of the parts left out are drawn at 80% (Transparent) or 100% transparency (Wireframe) in the default appearance, as SoSelectionElementAction swaps their colour; read from the page, not from FreeCAD')
+      await page.click('.taskview .as-task .tbuttons .qbtn:not(.default)')
+      await sleep(500)
+      const s = await st('({ hidden: cadui.getState().hidden, unselectable: cadui.getState().unselectable })')
+      check(!s.hidden.length && !s.unselectable.length, 'isolate: Cancel restores every component', JSON.stringify(s))
+    }
+    if (want('offsets')) {
+      console.log('offsets')
+      await runCmd('Assembly_CreateJointFixed')
+      await until(`!!document.querySelector('.taskview .as-task[data-task="joint"]')`, 'the Fixed panel', 20000)
+      await page.click('.taskview [data-qf="advancedOffsetCheckbox"] input')
+      await sleep(300)
+      same(await ourPanel(), fcPanel(FC2.offsets.panel), 'offsets: the panel with Show advanced offsets')
+      same(await st(`[...document.querySelectorAll('.taskview [data-qf="offset1Button"], .taskview [data-qf="offset2Button"]')].map((e) => e.textContent)`),
+        FC2.offsets.panel.flat().filter((w) => /^offset\dButton$/.test(w.name)).map((w) => w.text), "offsets: the buttons' text")
+      await page.click('.taskview [data-qf="offset1Button"]')
+      await until(`!!document.querySelector('[data-dialog="TaskPlacement"]')`, "Offset1's Placement dialog", 10000)
+      const ours = await st(`[...document.querySelectorAll('[data-dialog="TaskPlacement"] [data-qf]')].map((e) => e.getAttribute('data-qf'))`)
+      const want2 = ['GroupBox5', 'GroupBox5_3', 'xPos', 'yPos', 'zPos', 'axialPos', 'applyAxial', 'xCnt', 'yCnt', 'zCnt', 'centerOfMass', 'GroupBox5_2', 'rotationInput', 'xAxis', 'yAxis', 'zAxis', 'angle', 'applyIncrementalPlacement', 'resetButton']
+      const fcNames = (FC2.offsets.dialog.widgets ?? []).map((w) => w.name)
+      for (const n of want2) check(fcNames.includes(n) && ours.includes(n), `offsets: TaskPlacement's ${n}`, `FreeCAD ${fcNames.includes(n)}, ours ${ours.includes(n)}`)
+      check(!fcNames.includes('selectedVertex') && !ours.includes('selectedVertex'), 'offsets: Selected points hidden (openEditingPlacementDialog)')
+      await page.fill('[data-dialog="TaskPlacement"] [data-qf="zPos"] input', '3 mm')
+      await page.press('[data-dialog="TaskPlacement"] [data-qf="zPos"] input', 'Tab')
+      await page.click('[data-dialog="TaskPlacement"] .msgbox-buttons .qbtn.default')
+      await sleep(300)
+      same(await st(`document.querySelector('.taskview [data-qf="offset1Button"]')?.textContent`), '(0.0, 0.0, 3.0)', 'offsets: Offset1 set from the dialog')
+      await page.click('.taskview .as-task .tbuttons .qbtn:not(.default)')
+      await sleep(300)
+    }
+    if (want('origin')) {
+      console.log('origin')
+      const fc = FC2.origin
+      const before = (await objs()).length
+      await runCmd('Assembly_CreateJointFixed')
+      await until(`!!document.querySelector('.taskview .as-task[data-task="joint"]')`, 'the Fixed panel', 20000)
+      // a tree click on the Origin's XY-plane (the Origin row opened first)
+      // the tree (the Model tab) while the panel is open, as FreeCAD's tree beside its Tasks
+      await st('cadui.showPanel("model")')
+      await sleep(300)
+      await st(`document.querySelector('[data-ref="assembly/Origin"] .twisty')?.click()`)
+      await sleep(300)
+      await page.click('[data-ref="assembly/XY_Plane"]')
+      await st('cadui.showPanel("tasks")')
+      await until(`document.querySelectorAll('.taskview [data-qf="featureList"] .as-item').length >= 1`, 'the XY-plane picked', 20000)
+      await pickOn('Bar', 'Face5')
+      await sleep(800)
+      same(await featureList(), fcList(fc.panel), 'origin: the picks in the list')
+      await page.click('.taskview .as-task .qbtn.default')
+      await until(`(cadui.getState().assembly?.objects ?? []).length > ${before}`, 'origin: the joint made', 120000)
+      await idle()
+      const j = (await objs()).filter((o) => o.kind === 'Joint').pop()
+      same([j.name, j.label, j.reference1, j.reference2], [fc.joint.name, fc.joint.label, fc.joint.reference1, fc.joint.reference2], 'origin: Name, Label, References')
+      const p = await plcs()
+      for (const [n, q] of Object.entries(fc.placements)) check(p[n] && samePlc(p[n], q), `origin: ${n}'s Placement`, `ours ${JSON.stringify(p[n])} FreeCAD ${JSON.stringify(q)}`)
+      same(await undoName(), fc.undo[0], 'origin: its undo step')
+    }
+    if (want('explode')) {
+      console.log('explode')
+      const fc = FC2.explode
+      const panelNames = (t) => t.flat().map((w) => w.name).filter((n) => n && n !== 'qt_spinbox_lineedit')
+      await runCmd('Assembly_CreateView')
+      await until(`!!document.querySelector('.taskview .as-task[data-task="explode"]')`, 'the Exploded View panel', 20000)
+      same(await ourPanel(), panelNames(fc.panel), 'explode: the panel')
+      const texts = async () => st(`[...document.querySelectorAll('.taskview .as-task [data-qf="btnAlignDragger"], .taskview .as-task [data-qf="btnRadialExplosion"], .taskview .as-task [data-qf="CheckBox_PartsAsSingleSolid"]')].map((e) => e.textContent.trim())`)
+      same(await texts(), fc.panel.flat().filter((w) => ['CheckBox_PartsAsSingleSolid', 'btnAlignDragger', 'btnRadialExplosion'].includes(w.name)).map((w) => w.text), 'explode: the buttons')
+      await st(`cadui.getView().pointPicker('Pin', null, 'Face1')`)
+      await sleep(800)
+      same((await texts())[1], fc.selected.flat().find((w) => w.name === 'btnAlignDragger').text, 'explode: Pin selected, the dragger shown')
+      // the dragger moved 25 mm up and let go (draggerMoved, draggerFinished)
+      await st(`(() => { const v = cadui.getView(), f = v.tf; const m = f.proxy.matrixWorld.clone(); m.elements[14] += 25; f.t.onChange(m, null, 'motion'); f.t.onChange(m, null, 'finish') })()`)
+      await sleep(800)
+      const row = await st(`[...document.querySelectorAll('.taskview [data-qf="stepList"] .as-step')].map((e) => [e.querySelector('span')?.textContent, e.querySelector('input')?.value])`)
+      const fcRow = fc.moved.flat().filter((w) => w.y > 0 && (w.class === 'QLabel' || w.class === 'Gui::QuantitySpinBox') && !w.name)
+      same(row, [[fcRow.find((w) => w.class === 'QLabel').text, fcRow.find((w) => w.class === 'Gui::QuantitySpinBox').text]], 'explode: the move in the list (label, distance)')
+      await page.click('.taskview .as-task .qbtn.default')
+      await until(`(cadui.getState().assembly?.objects ?? []).some((o) => o.kind === 'ExplodedView')`, 'explode: the view made', 120000)
+      await idle()
+      same(await undoName(), fc.undo[0], 'explode: its undo step')
+      const v = await assembly()
+      const view = v.objects.find((o) => o.kind === 'ExplodedView'), mv = v.objects.find((o) => o.kind === 'ExplodedViewStep')
+      same([view.name, view.label ?? view.name, view.group], [fc.view.name, fc.view.label, fc.view.moves.map((m) => m.name)], 'explode: the view')
+      same([mv.name, mv.label, mv.move_type, mv.references], [fc.view.moves[0].name, fc.view.moves[0].label, fc.view.moves[0].type, fc.view.moves[0].references[1].map((s) => s.replace(/\.$/, ''))], 'explode: the move')
+      check(samePlc([...mv.movement_transform[0], ...mv.movement_transform[1]], fc.view.moves[0].transform), 'explode: its MovementTransform', JSON.stringify(mv.movement_transform))
+      const t = await ourTree()
+      for (const r of fcTree(fc.tree).filter((x) => /Exploded|Translation/.test(x))) check(t.includes(r), `explode: the tree has ${r}`, JSON.stringify(t))
+      const ex = v.exploded?.[view.name]?.placements?.Pin
+      check(ex && samePlc([...ex.base, ...ex.rotation], fc.selected_view.Pin), "explode: the view selected shows the Pin where FreeCAD's explodeTemporarily puts it",
+        `ours ${JSON.stringify(ex)} FreeCAD ${JSON.stringify(fc.selected_view.Pin)}`)
+      const p = await plcs()
+      check(samePlc(p.Pin, fc.unselected_view.Pin), 'explode: the document keeps the Pin where it was')
+      await st(`cadui.setState({ asmSel: [${JSON.stringify(mv.name)}] })`)
+      await sleep(400)
+      const rows = Object.fromEntries(await propRows())
+      for (const [k, val] of Object.entries(fcProps(fc.view_props, ['Label', 'Move Type', 'Movement Transform', 'References'])))
+        check(String(rows[k]) === String(val), `explode: the move's ${k} = ${val}`, `ours ${rows[k]}`)
+      await st('cadui.setState({ asmSel: [] })')
+    }
+    if (want('newpart')) {
+      console.log('newpart')
+      const fc = FC2.newpart
+      const before = (await objs()).length
+      await runCmd('Assembly_InsertNewPart')
+      await until(`!!document.querySelector('.taskview .as-task[data-task="newpart"]')`, 'the New Part panel', 20000)
+      same(await featureList(), fcList(fc.panel), 'newpart: the list with the new link')
+      const labels = await st(`[...document.querySelectorAll('.taskview .as-task legend, .taskview .as-task .tfield > span:first-child, .taskview .as-task .tcheck')].map((e) => e.textContent.trim()).slice(0, 3)`)
+      same(labels, ['Part name', 'Create part in new file', 'Joint new part origin'], 'newpart: Part name, Create part in new file, the group')
+      check(fc.panel.flat().some((w) => w.text === 'Joint new part origin') && fc.panel.flat().some((w) => w.text === 'Create part in new file' && w.checked), "newpart: FreeCAD's panel has them, the box checked")
+      await pickOn('Plate', 'Face6')
+      await sleep(1000)
+      same(await featureList(), fcList(fc.picked), 'newpart: the picks in the list (the unconnected link second)')
+      await page.click('.taskview .as-task .qbtn.default')
+      await until(`(cadui.getState().assembly?.objects ?? []).length > ${before}`, 'newpart: the part made', 120000)
+      await idle()
+      const link = (await objs()).find((o) => o.kind === 'Link' && o.name === 'Link')
+      same([link?.name, link?.linked_object], [fc.link.name, 'Part'], 'newpart: the link "Link" to the new part')
+      note(`newpart: the link's Label is the part's ("Part"); FreeCAD labels it ${fc.link.label} when the part is made in the same document (here every part is a file of its own: "Create part in new file")`)
+      const p = await plcs()
+      check(p.Link && samePlc(p.Link, fc.link.placement), "newpart: the new part's origin on Plate.Face6", `ours ${JSON.stringify(p.Link)} FreeCAD ${JSON.stringify(fc.link.placement)}`)
+      const j = (await objs()).filter((o) => o.kind === 'Joint').pop()
+      same([j.reference1, j.reference2], [fc.joint.reference1, fc.joint.reference2], 'newpart: the joint\'s References')
+      same(await undoName(), 'Create Fixed Joint', "newpart: its undo step (the joint panel's)")
+    }
+    if (want('subasm')) {
+      console.log('subasm')
+      const fc = FC2.subasm
+      await runCmd('Assembly_InsertLink')
+      await until(`!!document.querySelector('.taskview .as-task[data-task="insert"]')`, 'the Insert panel', 20000)
+      const list = await st(`[...document.querySelectorAll('.taskview [data-qf="partList"] .as-item')].map((e) => e.textContent.trim())`)
+      check(list.includes(SUB) && list.includes('Assembly'), "subasm: Insert Component lists the other project's Assembly", JSON.stringify(list))
+      check(fc.insert_panel.flat().find((w) => w.class === 'QTreeWidget')?.items.some((i) => i.text === 'Assembly' && i.depth === 1), 'subasm: FreeCAD lists the Assembly under its document')
+      await st('cadui.setState({ task: null })')
+      await st(`fetch('/api/${S2}/assembly', { method: 'POST', headers: { 'X-CAD': '1', 'Content-Type': 'application/json' }, body: JSON.stringify({ ops: [
+        { op: 'insert', assembly: ${JSON.stringify(SUB)}, rigid: true, placement: [[50, 0, 0], [0, 0, 0]] }], name: 'Insert Component' }) })`)
+      await until(`(cadui.getState().assembly?.objects ?? []).some((o) => o.kind === 'AssemblyLink')`, 'subasm: the AssemblyLink', 120000)
+      await st('cadui.loadAssembly()')
+      await idle()
+      const al = (await objs()).find((o) => o.kind === 'AssemblyLink')
+      same([al.name, al.label], [fc.rigid.name, fc.rigid.label], 'subasm: the AssemblyLink\'s Name and Label')
+      same(al.components.map((c) => c[0]), fc.rigid.children.map((c) => c[0]), 'subasm: its children, named in this document')
+      const v = await assembly()
+      for (const c of fc.rigid.children) {
+        const o = v.child_plc?.[c[0]]
+        check(o && samePlc([...o.base, ...o.rotation], c[2]), `subasm: rigid, ${c[0]} where its source is`, `ours ${JSON.stringify(o)} FreeCAD ${JSON.stringify(c[2])}`)
+      }
+      // the link's rows: from its row ("0:Assembly", a child of the Assembly) to the next row at its depth
+      const block = (t) => { const i = t.indexOf('0:Assembly'); if (i < 0) return []; const out = [t[i]]; for (const r of t.slice(i + 1)) { if (parseInt(r, 10) <= 0) break; out.push(r) } return out }
+      // an Origin's Labels count the document's Origins (FreeCAD's has the New Part's two more): the number left out
+      const unnum = (t) => t.map((r) => r.replace(/^(\d+:(?:Origin|X-axis|Y-axis|Z-axis|XY-plane|XZ-plane|YZ-plane|Origin-Point))\d{3}$/, '$1###'))
+      const sub = (t) => unnum(block(t))
+      const fcSub = (rows) => unnum(block(rows.map((r) => `${r.depth - 2}:${r.text}`)))
+      note("subasm: the AssemblyLink's Origin is labelled after the document's Origins (Origin003 in FreeCAD's, which New Part's Part and Body added two to), compared without the number")
+      same(sub(await ourTree()).slice(0, fcSub(fc.rigid.tree).length), fcSub(fc.rigid.tree), 'subasm: the rigid link\'s rows (its Origin, its children)')
+      await st(`cadui.setState({ asmSel: [${JSON.stringify(al.name)}], selected: [] })`)
+      await sleep(500)
+      let rows = Object.fromEntries(await propRows())
+      for (const [k, val] of Object.entries(fcProps(fc.rigid.props, ['Placement', 'Label', 'Group', 'Rigid', 'Linked Object'])))
+        check(String(rows[k]).replace(SUB, 'Sub') === String(val), `subasm: rigid, property ${k} = ${val}`, `ours ${rows[k]}`)
+      const entries = await st('cadui.asmTree().filter((e) => e !== "sep").map((e) => e.label)')
+      check(entries.includes('Turn flexible'), 'subasm: the context menu turns it flexible', JSON.stringify(entries))
+      await st(`cadui.asmTree().find((e) => e.label === 'Turn flexible').onSelect()`)
+      await until(`(cadui.getState().assembly?.objects ?? []).some((o) => o.kind === 'AssemblyLink' && !o.rigid)`, 'subasm: flexible', 120000)
+      await idle()
+      const p = await plcs()
+      for (const c of fc.flexible.children) check(p[c[0]] && samePlc(p[c[0]], c[2]), `subasm: flexible, ${c[0]} placed in this Assembly`, `ours ${JSON.stringify(p[c[0]])} FreeCAD ${JSON.stringify(c[2])}`)
+      same(sub(await ourTree()).slice(0, fcSub(fc.flexible.tree).length), fcSub(fc.flexible.tree), 'subasm: the flexible link\'s rows (its Joints with the copy, its children)')
+      await st(`cadui.setState({ asmSel: [${JSON.stringify(al.name)}], selected: [] })`)
+      await sleep(500)
+      rows = Object.fromEntries(await propRows())
+      for (const [k, val] of Object.entries(fcProps(fc.flexible.props, ['Placement', 'Group', 'Rigid'])))
+        check(String(rows[k]) === String(val), `subasm: flexible, property ${k} = ${val}`, `ours ${rows[k]}`)
+      await st(`cadui.asmTree().find((e) => e.label === 'Turn rigid').onSelect()`)
+      await until(`(cadui.getState().assembly?.objects ?? []).some((o) => o.kind === 'AssemblyLink' && o.rigid)`, 'subasm: rigid again', 120000)
+      await idle()
+      same(await undoName(), 'Toggle Rigid', 'subasm: Turn rigid\'s undo step')
+      await st(`cadui.setState({ asmSel: [${JSON.stringify(al.name)}], selected: [] })`)
+      await sleep(300)
+      compareEntries(fc.menu_with_link, (await st('cadui.assembly()')).assembly, 'Assembly menu with the AssemblyLink selected')
+      await runCmd('Assembly_LinkSelectLinked')
+      await until(`cadui.getState().slug === ${JSON.stringify(SUB)}`, 'Go to Linked Assembly opens the sub-assembly\'s project', 60000)
+        && ok(`subasm: Go to Linked Assembly makes ${SUB} the active document (FreeCAD: ${fc.goto.active}), its Assembly selected`)
+      await until(`JSON.stringify(cadui.getState().asmSel) === '["Assembly"]'`, 'subasm: the linked Assembly selected', 30000) && ok('subasm: the linked Assembly selected')
+    }
   }
 } catch (e) {
   bad('assemblycheck stopped', e.stack ?? String(e))

@@ -14,7 +14,7 @@ import { initTooltips } from './tooltip'
 import { initSliders } from './qslider'
 import { newSketch, pdMenus } from './partdesign'
 import { partMenus } from './part_wb'
-import { assemblyMenus, loadAssembly } from './assembly_wb'
+import { assemblyMenus, assemblyTreeEntries, loadAssembly } from './assembly_wb'
 import { applyTd, loadTechDraw, tdSelect, tdState, techdrawMenus } from './techdraw'
 import { createDatum, editAttachment } from './pd_attach'
 import { panelFields } from './pd_revolve'
@@ -36,4 +36,4 @@ Object.assign((window as unknown as { cadui: object }).cadui, { setSketcherParam
 import { panelState as sketchPanel, resetPanelParams as sketchPanelReset } from './sketchpanels'
 Object.assign((window as unknown as { cadui: object }).cadui, { sketchPanel, sketchPanelReset })   // sketchcheck.mjs: the Sketcher's task panel
 Object.assign((window as unknown as { cadui: object }).cadui, { part: partMenus, assembly: assemblyMenus, loadAssembly,
-  techdraw: techdrawMenus, td: { state: tdState, apply: applyTd, load: loadTechDraw, select: tdSelect } })   // partcheck.mjs, assemblycheck.mjs
+  techdraw: techdrawMenus, td: { state: tdState, apply: applyTd, load: loadTechDraw, select: tdSelect }, asmTree: assemblyTreeEntries })   // partcheck.mjs, assemblycheck.mjs

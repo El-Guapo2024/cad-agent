@@ -7,6 +7,11 @@
 //   src/Mod/Assembly/CommandCreateJoint.py: 2023 Ondsel
 //   src/Mod/Assembly/CommandSolveAssembly.py: 2023 Ondsel
 //   src/Mod/Assembly/CommandExportASMT.py: 2023 Ondsel
+//   src/Mod/Assembly/CommandInsertNewPart.py: 2024 Ondsel
+//   src/Mod/Assembly/CommandCreateView.py: 2023 Ondsel
+//   src/Mod/Assembly/Gui/ViewProviderAssemblyLink.cpp: 2024 Ondsel
+//   src/Mod/Assembly/Gui/Commands.cpp: 2025 Pierre-Louis Boyer
+//   src/Gui/Placement.cpp: 2008 Werner Mayer
 //   src/Mod/Assembly/JointObject.py: 2023 Ondsel
 //   src/Mod/Assembly/UtilsAssembly.py: 2023 Ondsel
 //   src/Mod/Assembly/Gui/ViewProviderAssembly.cpp: 2023 Ondsel
@@ -14,7 +19,7 @@
 //   src/Gui/View3DInventorViewer.cpp: 2004 Jürgen Riegel
 //   src/Base/Rotation.cpp: 2006 Werner Mayer
 //   No copyright line in the file: src/Mod/Assembly/Gui/Resources/panels/TaskAssemblyCreateJoint.ui,
-//       src/Mod/Assembly/Gui/Resources/panels/TaskAssemblyInsertLink.ui
+//       src/Mod/Assembly/Gui/Resources/panels/TaskAssemblyInsertLink.ui, src/Gui/Placement.ui
 // The Assembly workbench, for the project's Assembly (assembly.py's ASSEMBLY: cad_agent/assembly_wb.py): the workbench's
 // Assembly menu and its Assembly and Assembly Joints toolbars, the commands as FreeCAD's (Assembly_InsertLink,
 // Assembly_CreateJoint<Type>, Assembly_ToggleGrounded, Assembly_SolveAssembly, Assembly_ExportASMT ...), the tree of the
@@ -29,7 +34,7 @@ import { createPortal } from 'react-dom'
 import * as THREE from 'three'
 import { api, resultText } from './api'
 import { consoleLog, getState, report, setState, useStore } from './store'
-import { closeTask, getView, loadHistory, openTask, select } from './actions'
+import { closeTask, getView, loadHistory, openProject, openTask, select } from './actions'
 import { Icon, type IconName } from './icons'
 import { cls, Group, Row, TaskBox } from './panels'
 import { QuantityBox, LENGTH, ANGLE, NUMBER } from './qsb'
@@ -40,14 +45,19 @@ import type { Entry } from './chrome'
 import type { TreeCtx } from './partdesign'
 import { loadAssemblySolver, type AsmDoc, type AsmResult, type Plc } from './ondsel'
 import type { NavEvent, V2 } from './nav'
+import { ExplodedViewTask, InsertTask } from './assembly_tasks'
 
 // ── the model (cad_agent/assembly_edit.py's read/solved) ──────────────────────────────────────────────────────────
-export interface AsmObj { name: string; kind: 'Link' | 'GroundedJoint' | 'Joint' | 'RigidGroupJoint'; type: string; label?: string | null; [k: string]: unknown }
+export interface AsmObj { name: string; kind: 'Link' | 'GroundedJoint' | 'Joint' | 'RigidGroupJoint' | 'AssemblyLink' | 'ViewGroup' | 'ExplodedView' | 'ExplodedViewStep'
+  type: string; label?: string | null; [k: string]: unknown }
 export interface AsmRow {
-  name: string; label: string; type: string; depth: number; icon: string
+  name: string; label: string; type: string; depth: number; icon: string; parent?: string | null
   linked_object?: string; grounded?: boolean; joint_type?: string; suppressed?: boolean; object_to_ground?: string
-  members?: string[]
+  members?: string[]; rigid?: boolean; source?: string; copy?: boolean; component?: boolean; move_type?: string
 }
+/** A body the Assembly shows: its component (a Link, a flexible sub-assembly's child) or the rigid sub-assembly that
+ *  moves it (moving), the sub-assembly it is in (link), its part and project. */
+export interface AsmLeaf { name: string; label: string; moving: string; link: string | null; source?: string; part: string; project: string }
 export interface AsmView {
   project: string; assembly: boolean; objects: AsmObj[]; tree: AsmRow[]
   placements?: Record<string, Plc>
@@ -57,6 +67,8 @@ export interface AsmView {
   messages?: { kind: string; text: string }[]
   dof?: number | null
   done?: string[]
+  leaves?: AsmLeaf[]; solver_parts?: string[]; child_plc?: Record<string, Plc>; copies?: AsmObj[]
+  exploded?: Record<string, { placements: Record<string, Plc>; lines: [number[], number[]][]; edit: Record<string, string> }>
 }
 type Ref = [string, string[]]
 
@@ -82,10 +94,22 @@ function Combo({ value, items, onChange, name }: { value: number; items: readonl
   return <QComboBox data-qf={name} value={String(value)} onChange={(e) => onChange(Number(e.target.value))}>
     {items.map((t, i) => <option key={t} value={i}>{t}</option>)}</QComboBox>
 }
-export const asmObject = (v: AsmView | null | undefined, name: string) => v?.objects.find((o) => o.name === name)
+export const asmObject = (v: AsmView | null | undefined, name: string) => v?.objects.find((o) => o.name === name) ?? v?.copies?.find((o) => o.name === name)
 export const components = (v: AsmView | null | undefined) => (v?.objects ?? []).filter((o) => o.kind === 'Link')
-export const isComponent = (name: string) => components(getState().assembly).some((o) => o.name === name)
-const labelOf = (o: AsmObj) => (typeof o.label === 'string' && o.label ? o.label : o.name)
+/** Every body the Assembly shows (its Links and its sub-assemblies' children). */
+export const leaves = (v: AsmView | null | undefined): AsmLeaf[] => v?.leaves ?? components(v).map((o) => ({ name: o.name, label: labelOf(o),
+  moving: o.name, link: null, part: String(o.linked_object), project: v?.project ?? '' }))
+export const isComponent = (name: string) => leaves(getState().assembly).some((o) => o.name === name)
+/** getComponentReference: the component a pick on a body moves (a rigid sub-assembly for its children). */
+export const movingOf = (name: string) => leaves(getState().assembly).find((o) => o.name === name)?.moving ?? name
+/** The parts of the solve (getAssemblyComponents): assembly_has_at_least_n_parts counts these. */
+const solverParts = (v: AsmView | null | undefined) => v?.solver_parts ?? components(v).map((o) => o.name)
+/** A pick on a body as a reference: (component, element), a rigid sub-assembly's child's name before the element. */
+export function pickRef(body: string, sub: string): [string, string] {
+  const l = leaves(getState().assembly).find((o) => o.name === body)
+  return l && l.moving !== body ? [l.moving, `${body}.${sub}`] : [body, sub]
+}
+export const labelOf = (o: AsmObj) => (typeof o.label === 'string' && o.label ? o.label : o.name)
 
 /** `cad assembly show`: the Assembly, recomputed, into the store (null when the project has none). */
 export async function loadAssembly() {
@@ -121,7 +145,7 @@ export async function applyAssembly(ops: Record<string, unknown>[], name?: strin
   } catch (e) { report('err', `${name ?? 'Assembly'}: ${msg(e)}`); return null }
 }
 /** The ops' result without writing anything (a panel's preview before OK). */
-async function previewAssembly(ops: Record<string, unknown>[]): Promise<AsmView | null> {
+export async function previewAssembly(ops: Record<string, unknown>[]): Promise<AsmView | null> {
   const s = getState()
   if (!s.slug) return null
   try {
@@ -132,8 +156,8 @@ async function previewAssembly(ops: Record<string, unknown>[]): Promise<AsmView 
 }
 
 // ── placements: the scene's, and the view drawn at a solve's ─────────────────────────────────────────────────────
-const plcMatrix = (p: Plc) => new THREE.Matrix4().compose(new THREE.Vector3(...p.base), new THREE.Quaternion(...p.rotation), new THREE.Vector3(1, 1, 1))
-function sceneMatrix(name: string): THREE.Matrix4 | null {
+export const plcMatrix = (p: Plc) => new THREE.Matrix4().compose(new THREE.Vector3(...p.base), new THREE.Quaternion(...p.rotation), new THREE.Vector3(1, 1, 1))
+export function sceneMatrix(name: string): THREE.Matrix4 | null {
   const b = getState().scene?.bodies.find((x) => x.name === name) as { matrix?: number[] | null } | undefined
   if (!b?.matrix || b.matrix.length !== 16) return null
   return new THREE.Matrix4().set(...(b.matrix as [number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number]))
@@ -143,16 +167,20 @@ export function showPlacements(placements: Record<string, Plc> | null) {
   const view = getView()
   if (!view) return
   if (!placements) { view.placeBodies(null); return }
+  const v = getState().assembly
   const deltas: Record<string, THREE.Matrix4> = {}
+  const put = (body: string, m: THREE.Matrix4) => { const m0 = sceneMatrix(body); if (m0) deltas[body] = m.multiply(m0.clone().invert()) }
   for (const [n, p] of Object.entries(placements)) {
-    const m0 = sceneMatrix(n)
-    if (m0) deltas[n] = plcMatrix(p).multiply(m0.clone().invert())
+    // a rigid sub-assembly's placement: its children are drawn at it times their own (synchronized) placements
+    const kids = leaves(v).filter((l) => l.moving === n && l.name !== n && v?.child_plc?.[l.name])
+    if (kids.length) for (const k of kids) put(k.name, plcMatrix(p).multiply(plcMatrix(v!.child_plc![k.name])))
+    else put(n, plcMatrix(p))
   }
   view.placeBodies(deltas)
 }
 
 // ── Base::Placement and Base::Rotation, as far as the drag uses them ───────────────────────────────────────────
-type V3 = [number, number, number]
+export type V3 = [number, number, number]
 const add = (a: V3, b: V3): V3 => [a[0] + b[0], a[1] + b[1], a[2] + b[2]]
 const sub = (a: V3, b: V3): V3 => [a[0] - b[0], a[1] - b[1], a[2] - b[2]]
 const dot = (a: V3, b: V3) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2]
@@ -211,7 +239,8 @@ function asmState() {
   const v = s.assembly
   const active = !!v && s.asmActive && !s.task                      // UtilsAssembly.isAssemblyCommandActive
   // isCreateJointActive / CommandToggleGrounded: an active assembly with a component at least
-  return { s, v, has: !!v, active, parts: active && components(v).length >= 1, doc: !!s.slug }
+  const n = solverParts(v).length
+  return { s, v, has: !!v, active, parts: active && n >= 1, two: active && n >= 2, doc: !!s.slug }
 }
 /** Activate the Assembly (Assembly_ActivateAssembly, a double-click on it): it is in edit, parts drag with the solver. */
 export function activateAssembly(on = true) {
@@ -220,7 +249,7 @@ export function activateAssembly(on = true) {
 }
 async function createAssembly() {
   const { has } = asmState()
-  if (has) return void messageBox('warning', 'New Assembly', 'Sub-assemblies (an Assembly in the active one) are not ported: a sub-project is assembly.py\'s SUBASSEMBLIES.')
+  if (has) return void messageBox('warning', 'New Assembly', 'An Assembly inside the active one is not ported: a sub-assembly is another project\'s Assembly. Make it there (New Assembly in that project), then insert it here with Insert Component.')
   if (await applyAssembly([{ op: 'new' }], 'New assembly')) activateAssembly(true)
 }
 async function solveAssembly() {
@@ -229,7 +258,7 @@ async function solveAssembly() {
 }
 async function toggleGrounded() {
   const { s, v } = asmState()
-  const comps = s.selected.filter((n) => isComponent(n))
+  const comps = [...new Set(s.selected.filter((n) => isComponent(n)).map(movingOf))]
   const joints = s.asmSel.filter((n) => asmObject(v, n)?.kind === 'GroundedJoint')
   const names = [...comps, ...joints.map((n) => String(asmObject(v, n)!.object_to_ground))]
   if (!names.length) return void messageBox('warning', 'Toggle Grounded', 'Select the part to ground, please.')
@@ -239,7 +268,7 @@ async function toggleGrounded() {
  *  two, the Console's warning and nothing made. */
 async function createRigidGroup() {
   const { s } = asmState()
-  const parts = s.selected.filter((n) => isComponent(n))
+  const parts = [...new Set(s.selected.filter((n) => isComponent(n)).map(movingOf))]
   if (!s.selected.length) return
   if (parts.length < 2) return void report('warn', 'Select at least 2 components to create a rigid group')
   await applyAssembly([{ op: 'rigid', parts }], 'Create Rigid Group')
@@ -256,10 +285,29 @@ async function exportAsmt() {
     setTimeout(() => URL.revokeObjectURL(a.href), 1000)
   } catch (e) { report('err', `Export ASMT File: ${msg(e)}`) }
 }
+/** The AssemblyLink selected alone (in the tree, or one of its bodies in the 3D view), if any. */
+function selectedLink(): AsmObj | null {
+  const s = getState(), v = s.assembly
+  const names = [...s.asmSel, ...[...new Set(s.selected.filter(isComponent).map(movingOf))]]
+  if (names.length !== 1) return null
+  const o = asmObject(v, names[0])
+  return o?.kind === 'AssemblyLink' ? o : null
+}
+/** Assembly_LinkSelectLinked: the linked Assembly's document made the active one: its project opened, its Assembly
+ *  selected. */
+async function goToLinked() {
+  const o = selectedLink()
+  if (!o) return
+  const slug = String(o.linked_object)
+  await openProject(slug)
+  // the linked Assembly selected once its document has loaded
+  for (let k = 0; k < 200 && getState().assembly?.project !== slug; k++) await new Promise((r) => setTimeout(r, 100))
+  setState({ asmSel: ['Assembly'], featSel: [], selected: [] })
+}
 /** Assembly_SelectJointsOfComponent: the joints of the selected components selected in the tree. */
 function selectJointsOf() {
   const { s, v } = asmState()
-  const comps = new Set(s.selected.filter((n) => isComponent(n)))
+  const comps = new Set(s.selected.filter((n) => isComponent(n)).map(movingOf))
   const joints = (v?.objects ?? []).filter((o) => (o.kind === 'Joint' && [o.reference1, o.reference2].some((r) => Array.isArray(r) && comps.has(String(r[0]))))
     || (o.kind === 'GroundedJoint' && comps.has(String(o.object_to_ground)))).map((o) => o.name)
   setState({ asmSel: joints, featSel: [] })
@@ -284,7 +332,8 @@ function insertEntries(): Entry[] {
   const { active } = asmState()
   return [
     { label: 'Insert Component', icon: 'as-insert', cmd: 'Assembly_InsertLink', kbd: 'I', disabled: !active, onSelect: () => openTask('assembly', 'insert', 'insert') },
-    NA('New Part', 'std-part', 'Assembly_InsertNewPart', 'a component is a part file of the project: make the part (File > New), then insert it'),
+    // CommandInsertNewPart.IsActive: isAssemblyCommandActive
+    { label: 'New Part', icon: 'std-part', cmd: 'Assembly_InsertNewPart', kbd: 'P', disabled: !active, onSelect: () => openTask('assembly', 'newpart', 'Fixed') },
   ]
 }
 /** The Assembly toolbar's and menu's commands (cmdList of InitGui.py), the menu-only ones and the joints'. */
@@ -297,7 +346,8 @@ function cmdList(): Entry[] {
     { label: 'Insert Component', icon: 'as-insert', cmd: 'Assembly_Insert', sub: ins },
     NA('Link Arrays', 'link', 'Part_LinkArrays', 'link arrays are not ported: insert the part several times'),
     { label: 'Solve Assembly', icon: 'as-solve', cmd: 'Assembly_SolveAssembly', kbd: 'Z', disabled: !has || !active, onSelect: () => void solveAssembly() },
-    NA('Exploded View', 'as-exploded', 'Assembly_CreateView', 'exploded views are not ported yet (poses show the machine moved: CADAgent_Pose)'),
+    // CommandCreateView.IsActive: isAssemblyCommandActive and assembly_has_at_least_n_parts(2)
+    { label: 'Exploded View', icon: 'as-exploded', cmd: 'Assembly_CreateView', kbd: 'E', disabled: !asmState().two, onSelect: () => openTask('assembly', 'explode', '') },
     NA('Snapshot', 'shot', 'Assembly_CreateSnapshot', 'snapshots are not ported'),
     NA('Simulation', 'as-simulation', 'Assembly_CreateSimulation', 'simulations (motions) are not ported'),
     NA('Bill of Materials', 'as-bom', 'Assembly_CreateBom', 'the bill of materials is `cad bom` (CAD Agent > Bill of Materials)'),
@@ -309,8 +359,8 @@ function jointsToolbar(): Entry[] {
   return [
     { label: 'Toggle Grounded', icon: 'as-ground', cmd: 'Assembly_ToggleGrounded', kbd: 'G', disabled: !parts, onSelect: () => void toggleGrounded() },
     // IsActive: isAssemblyCommandActive and assembly_has_at_least_n_parts(2)
-    { label: 'Create Rigid Group', icon: 'as-rigid', cmd: 'Assembly_CreateJointRigidGroup', kbd: 'Y', disabled: !(asmState().active && components(asmState().v).length >= 2),
-      title: asmState().active && components(asmState().v).length >= 2 ? undefined : 'needs an active assembly with 2 components at least', onSelect: () => void createRigidGroup() },
+    { label: 'Create Rigid Group', icon: 'as-rigid', cmd: 'Assembly_CreateJointRigidGroup', kbd: 'Y', disabled: !asmState().two,
+      title: asmState().two ? undefined : 'needs an active assembly with 2 components at least', onSelect: () => void createRigidGroup() },
     'sep', ...jointEntries().slice(0, 5), 'sep', ...jointEntries().slice(5, 9), 'sep', ...jointEntries().slice(9),
     { label: 'Gears/Belt Joint', icon: 'as-Gears', cmd: 'Assembly_CreateJointGearBelt', sub: g },
   ]
@@ -320,7 +370,9 @@ export function assemblyMenu(): Entry[] {
   const { s, has, active } = asmState()
   return [
     ...cmdList(),
-    { ...(NA('Go to Linked Assembly', 'link', 'Assembly_LinkSelectLinked', 'sub-assemblies (AssemblyLink) are not ported') as Exclude<Entry, 'sep'>), kbd: 'S, G' },
+    // CmdAssemblyLinkSelectLinked.isActive: one AssemblyLink selected
+    { label: 'Go to Linked Assembly', icon: 'link', cmd: 'Assembly_LinkSelectLinked', kbd: 'S, G', disabled: !selectedLink(),
+      title: 'Selects the linked assembly and switches to its original document', onSelect: () => void goToLinked() },
     { label: 'Export ASMT File', icon: 'as-asmt', cmd: 'Assembly_ExportASMT', disabled: !active, onSelect: () => void exportAsmt() },
     { label: 'Select Component Joints', icon: 'as-select-joints', cmd: 'Assembly_SelectJointsOfComponent', disabled: !has || !s.selected.some(isComponent),
       onSelect: selectJointsOf },
@@ -355,16 +407,67 @@ function rowIcon(r: AsmRow): IconName {
   if (r.type === 'GroundedJoint') return 'as-ground'
   if (r.type === 'RigidGroupJoint') return 'as-rigid'
   if (r.type === 'Joint') return jointIcon(r.joint_type ?? 'Fixed')
+  // ViewProviderAssemblyLink::getIcon: Assembly_AssemblyLinkRigid.svg or Assembly_AssemblyLink.svg
+  if (r.type === 'Assembly::AssemblyLink') return r.rigid ? 'as-link-rigid' : 'as-link-flexible'
+  if (r.type === 'Assembly::ViewGroup') return 'as-exploded-group'
+  if (r.type === 'ExplodedView' || r.type === 'ExplodedViewStep') return 'as-exploded'
   return 'link'
 }
-/** The Assembly's rows, as FreeCAD's tree shows an Assembly: under it the Joints group (its GroundedJoints and joints, in
- *  the group's order) and the components, each an App::Link (the part it links in the Description column). */
+/** ViewProviderAssembly::onSelectionChanged with one object selected: a joint isolates the parts it holds
+ *  (isolateJointReferences, Transparent), an exploded view shows itself exploded (explodeTemporarily); anything else, or
+ *  nothing, clears both. */
+let selectionEffect: string | null = null
+function selectionEffects(names: string[]) {
+  const key = names.length === 1 ? names[0] : null
+  if (key === selectionEffect) return
+  selectionEffect = key
+  const v = getState().assembly
+  const o = key ? asmObject(v, key) : undefined
+  clearIsolate()
+  showExploded(null)
+  if (!o || getState().task) return
+  if (o.kind === 'Joint' || o.kind === 'GroundedJoint') {
+    const parts = o.kind === 'GroundedJoint' ? [String(o.object_to_ground)]
+      : [o.reference1, o.reference2].filter(Array.isArray).map((r) => String((r as unknown[])[0]))
+    isolateComponents(bodiesOf(parts), 0)
+  } else if (o.kind === 'ExplodedView') showExploded(o.name)
+}
+/** The bodies of components (a rigid sub-assembly's are its children's). */
+const bodiesOf = (parts: string[]) => leaves(getState().assembly).filter((l) => parts.includes(l.moving) || parts.includes(l.name)).map((l) => l.name)
+/** ExplodedView.explodeTemporarily / restoreAssembly: the view's exploded placements drawn, with its explosion lines. */
+export function showExploded(name: string | null) {
+  const view = getView()
+  const e = name ? getState().assembly?.exploded?.[name] : undefined
+  if (!e) { showPlacements(null); view?.setHelper?.('as-explode', null); return }
+  showPlacements(e.placements)
+  const g = new THREE.Group()
+  for (const [a, b] of e.lines) {
+    const geo = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(...a), new THREE.Vector3(...b)])
+    // ViewProviderExplodedViewStep: dashed lines of LineWidth 1 in the move's colour
+    const l = new THREE.Line(geo, new THREE.LineDashedMaterial({ color: 0x000000, dashSize: 2, gapSize: 1.5 }))
+    l.computeLineDistances()
+    g.add(l)
+  }
+  g.userData.cadHelper = true
+  view?.setHelper?.('as-explode', g.children.length ? g : null)
+}
+/** The Assembly's rows, as FreeCAD's tree shows an Assembly: under it the Origin, the Joints group (its GroundedJoints,
+ *  joints and rigid groups, in the group's order), the components (App::Link) and sub-assemblies (AssemblyLink: a flexible
+ *  one's Joints group of copies, then its children), and the Exploded Views group with each view's moves. A row shows
+ *  when every row above it is open. */
 export function AssemblyRows({ ctx, onMenu }: { ctx: TreeCtx; onMenu(at: { x: number; y: number }): void }) {
   const v = useStore((s) => s.assembly), asmSel = useStore((s) => s.asmSel), selected = useStore((s) => s.selected), active = useStore((s) => s.asmActive)
   const hidden = useStore((s) => s.hidden), pre = useStore((s) => s.preselected)
   const [open, setOpen] = useState<Record<string, boolean>>({ Assembly: true, Joints: true, Origin: false })
+  useEffect(() => { selectionEffects(asmSel) }, [asmSel.join('\n')])
   if (!v) return null
-  const pickRow = (name: string, e: React.MouseEvent) => {
+  const byName = new Map(v.tree.map((r) => [r.name, r]))
+  const parents = new Set(v.tree.map((r) => r.parent).filter((p): p is string => !!p))
+  // an Origin starts folded, as FreeCAD's tree shows it
+  const isOpen = (name: string) => open[name] ?? byName.get(name)?.type !== 'App::Origin'
+  const shown = (r: AsmRow) => { for (let p = r.parent; p; p = byName.get(p)?.parent) if (!isOpen(p)) return false; return true }
+  const pickRow = (r: AsmRow, e: React.MouseEvent) => {
+    const name = r.name
     ctx.cancelPreselect()
     if (treePick?.(name)) return                    // a joint panel's selection observer takes a tree selection too
     if (isComponent(name)) { select(name, e.metaKey || e.ctrlKey); setState({ asmSel: [], featSel: [] }); return }
@@ -373,24 +476,24 @@ export function AssemblyRows({ ctx, onMenu }: { ctx: TreeCtx; onMenu(at: { x: nu
   }
   const rows: ReactNode[] = []
   for (const r of v.tree) {
-    const under = r.depth === 2 ? (r.type.startsWith('App::') && r.type !== 'App::Link' ? 'Origin' : 'Joints') : null
-    if (under && !open[under]) continue
-    if (r.depth >= 1 && !open.Assembly) continue
-    const isComp = r.type === 'App::Link'
+    if (!shown(r)) continue
+    const isComp = r.type === 'App::Link' && isComponent(r.name)
     const sel = isComp ? selected.includes(r.name) : asmSel.includes(r.name)
     const off = isComp && hidden.includes(r.name)
-    const twisty = r.type === 'Assembly::AssemblyObject' || r.type === 'Assembly::JointGroup' || r.type === 'App::Origin'
-    const desc = isComp ? (r.linked_object ?? '') : r.type === 'Joint' ? (r.joint_type ?? '') : r.type === 'GroundedJoint' ? (r.object_to_ground ?? '') : ''
+    const twisty = parents.has(r.name)
+    const desc = r.type === 'App::Link' ? (r.source ?? r.linked_object ?? '') : r.type === 'Joint' ? (r.joint_type ?? '')
+      : r.type === 'GroundedJoint' ? (r.object_to_ground ?? '') : r.type === 'Assembly::AssemblyLink' ? (r.linked_object ?? '') : ''
     rows.push(
       <div key={r.name} className={cls('trow', 'asrow', sel && 'sel', pre === r.name && 'pre', off && 'hid', r.suppressed && 'hid')} data-ref={`assembly/${r.name}`} data-name={isComp ? r.name : undefined}
-        onClick={(e) => pickRow(r.name, e)} onMouseEnter={() => ctx.enter(isComp ? r.name : null)}
+        data-type={r.type} onClick={(e) => pickRow(r, e)} onMouseEnter={() => ctx.enter(isComp ? r.name : null)}
         onDoubleClick={() => {
           if (r.type === 'Assembly::AssemblyObject') activateAssembly(!getState().asmActive)
-          else if (r.type === 'Joint') openJoint((r.joint_type ?? 'Fixed') as JointType, r.name)
+          else if (r.type === 'Joint' && !r.copy) openJoint((r.joint_type ?? 'Fixed') as JointType, r.name)
+          else if (r.type === 'ExplodedView') openExplodedView(r.name)          // ViewProviderExplodedView.doubleClicked
         }}
-        onContextMenu={(e) => { e.preventDefault(); if (!sel) pickRow(r.name, e); onMenu({ x: e.clientX, y: e.clientY }) }}>
+        onContextMenu={(e) => { e.preventDefault(); if (!sel) pickRow(r, e); onMenu({ x: e.clientX, y: e.clientY }) }}>
         <span className="tlab"><span className="pdindent" style={{ width: 6 + 12 * r.depth }} />
-          {twisty ? <span className={cls('twisty', open[r.name] ? 'open' : '')} onClick={(e) => { e.stopPropagation(); setOpen((o) => ({ ...o, [r.name]: !o[r.name] })) }} /> : <span className="tindent" />}
+          {twisty ? <span className={cls('twisty', isOpen(r.name) ? 'open' : '')} onClick={(e) => { e.stopPropagation(); setOpen((o) => ({ ...o, [r.name]: !isOpen(r.name) })) }} /> : <span className="tindent" />}
           <span className="ticon"><Icon name={rowIcon(r)} size={ctx.iconSize} />{r.grounded && <Icon name="as-ground" className="tov" size={10} />}</span>
           <span className="tname" style={r.type === 'Assembly::AssemblyObject' && active ? { fontWeight: 700 } : undefined}>{r.label}</span></span>
         {ctx.showDesc && <span className="tdesc">{desc}</span>}
@@ -399,22 +502,35 @@ export function AssemblyRows({ ctx, onMenu }: { ctx: TreeCtx; onMenu(at: { x: nu
   }
   return <>{rows}</>
 }
+/** Assembly_CreateView's panel on an existing view (a double-click on it). */
+export function openExplodedView(name: string) {
+  if (!getState().assembly) return
+  if (!getState().asmActive) activateAssembly(true)                 // setEdit(assembly) when it is not the active one
+  openTask('assembly', 'explode', name)
+}
 /** The tree's context menu on Assembly rows. */
 export function assemblyTreeEntries(): Entry[] {
   const { s, v } = asmState()
   const sel = s.asmSel.map((n) => asmObject(v, n)).filter((o): o is AsmObj => !!o)
   const one = sel.length === 1 ? sel[0] : null
+  const copy = !!one && !!v?.copies?.some((c) => c.name === one.name)
   return [
     ...(s.asmSel.includes('Assembly') ? [{ label: s.asmActive ? 'Leave Edit Mode' : 'Activate Assembly', icon: 'as-activate' as IconName, onSelect: () => activateAssembly(!s.asmActive) }] : []),
-    { label: 'Edit', disabled: one?.kind !== 'Joint', onSelect: () => one && openJoint(String(one.joint_type) as JointType, one.name) },
-    { label: one?.suppressed ? 'Unsuppress' : 'Suppress', disabled: one?.kind !== 'Joint' && one?.kind !== 'RigidGroupJoint',
+    { label: 'Edit', disabled: !(one?.kind === 'Joint' && !copy) && one?.kind !== 'ExplodedView',
+      onSelect: () => one && (one.kind === 'ExplodedView' ? openExplodedView(one.name) : openJoint(String(one.joint_type) as JointType, one.name)) },
+    { label: one?.suppressed ? 'Unsuppress' : 'Suppress', disabled: !((one?.kind === 'Joint' && !copy) || one?.kind === 'RigidGroupJoint'),
       onSelect: () => one && void applyAssembly([{ op: 'set', name: one.name, props: { suppressed: !one.suppressed } }], 'Toggle suppress') },
     // ViewProviderRigidGroupJoint.setupContextMenu
     ...(one?.kind === 'RigidGroupJoint' ? [{ label: 'Update Stored Positions', icon: 'as-rigid' as IconName,
       onSelect: () => void (one.suppressed ? applyAssembly([{ op: 'update_rigid', name: one.name }], 'Update Stored Positions')
         : report('warn', "Assembly: 'updateStoredPositions' is only available while suppressed.")) }] : []),
-    { label: 'Rename', kbd: 'F2', disabled: !one, onSelect: () => one && renameObject(one.name) },
-    { label: 'Delete', kbd: 'Del', disabled: !sel.length, onSelect: () => void deleteAssemblyObjects(sel.map((o) => o.name)) },
+    // ViewProviderAssemblyLink::setupContextMenu: Turn flexible / Turn rigid ("Toggle Rigid")
+    ...(one?.kind === 'AssemblyLink' ? [{ label: one.rigid ? 'Turn flexible' : 'Turn rigid', icon: (one.rigid ? 'as-link-flexible' : 'as-link-rigid') as IconName,
+      title: one.rigid ? 'Your sub-assembly is currently rigid. This will make it flexible instead.' : 'Your sub-assembly is currently flexible. This will make it rigid instead.',
+      onSelect: () => void applyAssembly([{ op: 'set', name: one.name, props: { rigid: !one.rigid } }], 'Toggle Rigid') },
+    { label: 'Go to Linked Assembly', icon: 'link' as IconName, kbd: 'S, G', onSelect: () => void goToLinked() }] : []),
+    { label: 'Rename', kbd: 'F2', disabled: !one || copy, onSelect: () => one && renameObject(one.name) },
+    { label: 'Delete', kbd: 'Del', disabled: !sel.length || copy, onSelect: () => void deleteAssemblyObjects(sel.map((o) => o.name)) },
   ]
 }
 async function renameObject(name: string) {
@@ -464,7 +580,7 @@ export function AssemblyWatchers() {
       onClick={() => cmds[c].onSelect?.()}><Icon name={cmds[c].icon ?? 'as-assembly'} size={16} /> {cmds[c].label}</button>
       : <button key={c} className="qbtn as-watch" data-cmd={c} disabled><Icon name="as-assembly" size={16} /> {NOT_HERE[c] ?? c}</button>)}
   </TaskBox>
-  const n = components(v).length
+  const n = solverParts(v).length
   const grounded = (v?.objects ?? []).some((o) => o.kind === 'GroundedJoint')
   const motion = (v?.objects ?? []).some((o) => o.kind === 'Joint' && ['Revolute', 'Slider', 'Cylindrical'].includes(String(o.joint_type)))
   return <>
@@ -483,42 +599,18 @@ export function AssemblyWatchers() {
 /** The watchers' commands that are greyed here (assemblyMenu's NA entries have no onSelect). */
 const NOT_HERE: Record<string, string> = { Assembly_InsertNewPart: 'New Part', Assembly_CreateView: 'Exploded View',
   Assembly_CreateBom: 'Bill of Materials', Assembly_CreateSimulation: 'Simulation' }
+// each task opened is a panel of its own (FreeCAD makes a new TaskAssemblyCreateJoint every time): its key
+const taskIds = new WeakMap<object, number>()
+let lastTaskId = 0
 export function AssemblyTask({ body, other }: { body: string; other: string }) {
-  if (body === 'insert') return <InsertTask />
+  const task = useStore((s) => s.task)
+  if (task && !taskIds.has(task)) taskIds.set(task, ++lastTaskId)
+  const id = task ? taskIds.get(task) : 0
+  if (body === 'insert') return <InsertTask key={id} />
+  if (body === 'newpart') return <NewPartTask key={id} />
+  if (body === 'explode') return <ExplodedViewTask key={id} edit={other || undefined} />
   const [type, edit] = other.split(':')
-  return <JointTask key={other} type0={type as JointType} edit={edit} />
-}
-
-/** TaskAssemblyInsertLink: the project's parts; each one clicked goes in (OK inserts them, the first one of an
- *  ungrounded Assembly grounded: GroundFirstPart). */
-function InsertTask() {
-  const features = useStore((s) => s.features), scene = useStore((s) => s.scene)
-  const [filter, setFilter] = useState('')
-  const [picked, setPicked] = useState<string[]>([])
-  const parts = useMemo(() => [...new Set([...Object.keys(features), ...(scene?.bodies.map((b) => b.part).filter((p): p is string => !!p) ?? [])])].sort(), [features, scene])
-  const shown = parts.filter((p) => !filter || p.toLowerCase().includes(filter.toLowerCase()))
-  const counts = (p: string) => picked.filter((x) => x === p).length
-  const ok = async () => {
-    closeTask()
-    if (!picked.length) return
-    await applyAssembly(picked.map((part) => ({ op: 'insert', part })), 'Insert Component')
-  }
-  return <div className="tasks as-task" data-task="insert">
-    <TaskBox title="Insert" icon="as-insert">
-      <input className="qline" data-qf="filterPartList" placeholder="Search parts..." value={filter} onChange={(e) => setFilter(e.target.value)} />
-      <div className="as-list" data-qf="partList">
-        {shown.map((p) => <div key={p} className="as-item" onClick={() => setPicked((x) => [...x, p])}>
-          <Icon name="part" size={16} /> {p}{counts(p) ? ` (${counts(p)} inserted)` : ''}</div>)}
-      </div>
-      <div className="tfield"><span>Cannot find the part?</span><button className="qbtn" disabled title="n/a: a component is a part file of this project">Open File</button></div>
-      <label className="tcheck" data-qf="CheckBox_ShowOnlyParts"><input type="checkbox" disabled /> Show only parts</label>
-      <label className="tcheck" data-qf="CheckBox_RigidSubAsm"><input type="checkbox" checked disabled /> Rigid sub-assemblies</label>
-    </TaskBox>
-    <div className="tbuttons pd-buttons">
-      <button className="qbtn default" onClick={() => void ok()}>OK</button>
-      <button className="qbtn" onClick={() => closeTask()}>Cancel</button>
-    </div>
-  </div>
+  return <JointTask key={id} type0={type as JointType} edit={edit} />
 }
 
 /** The JCS preview (SoSwitchMarker): three axes at a placement. */
@@ -538,7 +630,7 @@ function jcsMarker(p: Plc, size: number): THREE.Object3D {
 }
 
 /** An offset as the panel edits it: Base, and the rotation as yaw, pitch, roll (Rotation::getYawPitchRoll). */
-interface Off { pos: V3; ypr: V3 }
+export interface Off { pos: V3; ypr: V3 }
 const OFF0: Off = { pos: [0, 0, 0], ypr: [0, 0, 0] }
 const isOff0 = (o: Off) => o.pos.every((x) => x === 0) && o.ypr.every((x) => x === 0)
 /** A placement literal of the file ((x, y, z), (yaw, pitch, roll) or a quaternion) as an Off. */
@@ -570,7 +662,7 @@ function clearIsolate() {
 function isolateComponents(keep: string[], mode: number) {
   clearIsolate()
   const s = getState()
-  const others = components(s.assembly).map((o) => o.name).filter((n) => !keep.includes(n))
+  const others = leaves(s.assembly).map((o) => o.name).filter((n) => !keep.includes(n))
   if (mode === 3 || !others.length) return
   isolated = { hidden: s.hidden, unselectable: s.unselectable, view: s.view }
   // Hidden: Visibility is whether the component is isolated, and nothing else changes
@@ -581,42 +673,71 @@ function isolateComponents(keep: string[], mode: number) {
 }
 /** TaskPlacement opened on a joint's Offset1 or Offset2 (UtilsAssembly.openEditingPlacementDialog, modal, its Selected
  *  points button hidden): Translation, Center, Rotation by axis and angle or Euler angles, Reset, OK/Apply/Cancel. */
-function OffsetDialog({ title, value, onApply, onClose }: { title: string; value: Off; onApply(o: Off): void; onClose(): void }) {
+export function OffsetDialog({ title, value, onApply, onClose }: { title: string; value: Off; onApply(o: Off): void; onClose(): void }) {
   const q0 = quatOfYpr(...value.ypr), aa0 = axisAngleOf(q0)
+  const fresh = { pos: [0, 0, 0] as V3, cnt: [0, 0, 0] as V3, axis: [0, 0, 1] as V3, angle: 0, ypr: [0, 0, 0] as V3 }
   const [f, setF] = useState({ pos: value.pos, cnt: [0, 0, 0] as V3, axis: aa0.axis as V3, angle: aa0.angle, ypr: value.ypr })
   const [mode, setMode] = useState<'axis' | 'euler'>('axis')
-  const rot = () => mode === 'euler' ? quatOfYpr(...f.ypr)
-    : new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(...f.axis).lengthSq() < 1e-12 ? new THREE.Vector3(0, 0, 1) : new THREE.Vector3(...f.axis).normalize(), f.angle * Math.PI / 180)
-  // Placement(position, rotation, center): p -> R (p - c) + c + position, so Base = position + c - R c
-  const result = (): Off => {
-    const q = rot(), c = new THREE.Vector3(...f.cnt)
+  const [axial, setAxial] = useState(0)
+  const [com, setCom] = useState(false)
+  // Apply incremental changes: the fields start from nothing and go on top of the placement as it was (setRefPlacement)
+  const [incr, setIncr] = useState<Off | null>(null)
+  const rot = (x = f) => mode === 'euler' ? quatOfYpr(...x.ypr)
+    : new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(...x.axis).lengthSq() < 1e-12 ? new THREE.Vector3(0, 0, 1) : new THREE.Vector3(...x.axis).normalize(), x.angle * Math.PI / 180)
+  // getPlacementData: Placement(position, rotation, center) moves p to R (p - c) + c + position: Base = position + c - R c
+  // (Use center of mass: a joint has no shape, so the centre is the origin)
+  const fields = (): THREE.Matrix4 => {
+    const q = rot(), c = com ? new THREE.Vector3() : new THREE.Vector3(...f.cnt)
     const base = new THREE.Vector3(...f.pos).add(c).sub(c.clone().applyQuaternion(q))
-    return { pos: base.toArray().map((x) => Math.round(x * 1e9) / 1e9 + 0) as V3, ypr: yprOfQuat(q).map((x) => Math.round(x * 1e9) / 1e9 + 0) as V3 }
+    return new THREE.Matrix4().compose(base, q, new THREE.Vector3(1, 1, 1))
+  }
+  const result = (): Off => {
+    let m = fields()
+    if (incr) m = m.multiply(new THREE.Matrix4().compose(new THREE.Vector3(...incr.pos), quatOfYpr(...incr.ypr), new THREE.Vector3(1, 1, 1)))
+    const p = new THREE.Vector3(), q = new THREE.Quaternion()
+    m.decompose(p, q, new THREE.Vector3())
+    return { pos: p.toArray().map((x) => Math.round(x * 1e9) / 1e9 + 0) as V3, ypr: yprOfQuat(q).map((x) => Math.round(x * 1e9) / 1e9 + 0) as V3 }
   }
   const setAt = (k: 'pos' | 'cnt' | 'axis' | 'ypr', i: number) => (x: number) => setF((y) => ({ ...y, [k]: y[k].map((t, j) => (j === i ? x : t)) as V3 }))
-  const xyz = (k: 'pos' | 'cnt') => ['X', 'Y', 'Z'].map((l, i) => <label key={l} className="tfield"><span>{l}</span><QuantityBox value={f[k][i]} dims={LENGTH} onChange={setAt(k, i)} /></label>)
+  const xyz = (k: 'pos' | 'cnt', names: string[], disabled = false) => ['X', 'Y', 'Z'].map((l, i) =>
+    <label key={l} className="tfield"><span>{l}</span><span data-qf={names[i]}><QuantityBox value={f[k][i]} dims={LENGTH} disabled={disabled} onChange={setAt(k, i)} /></span></label>)
+  /** onApplyAxialClicked: Position moved along the rotation's axis by Axial (Shift: the other way). */
+  const applyAxial = (e: React.MouseEvent) => {
+    const a = axisAngleOf(rot()).axis, sign = e.shiftKey ? -1 : 1
+    setF((x) => ({ ...x, pos: x.pos.map((p, i) => p + sign * a[i] * axial) as V3 }))
+  }
   return createPortal(<div className="msgbox-back" onKeyDown={(e) => { e.stopPropagation(); if (e.key === 'Escape') onClose() }}>
     <div className="msgbox as-placement" role="dialog" aria-label={title} data-dialog="TaskPlacement">
       <div className="msgbox-title">Placement</div>
       <div className="tasks">
         <div className="tcols">
-          <fieldset className="tgroup tg"><legend>Translation</legend>{xyz('pos')}</fieldset>
-          <fieldset className="tgroup tg"><legend>Center</legend>{xyz('cnt')}</fieldset>
+          <fieldset className="tgroup tg" data-qf="GroupBox5"><legend>Translation</legend>{xyz('pos', ['xPos', 'yPos', 'zPos'])}
+            <label className="tfield"><span>Axial</span><span data-qf="axialPos"><QuantityBox value={axial} dims={LENGTH} onChange={setAxial} /></span></label>
+            <div className="tfield"><span /><button className="qbtn" data-qf="applyAxial" title="Shift-click for opposite direction" onClick={applyAxial}>Apply Axial</button></div>
+          </fieldset>
+          <fieldset className="tgroup tg" data-qf="GroupBox5_3"><legend>Center</legend>{xyz('cnt', ['xCnt', 'yCnt', 'zCnt'], com)}
+            <label className="tcheck" data-qf="centerOfMass"><input type="checkbox" checked={com} onChange={(e) => setCom(e.target.checked)} /> Use center of mass</label>
+          </fieldset>
         </div>
-        <fieldset className="tgroup tg"><legend>Rotation</legend>
-          <QComboBox value={mode} onChange={(e) => {
+        <fieldset className="tgroup tg" data-qf="GroupBox5_2"><legend>Rotation</legend>
+          <span data-qf="rotationInput"><QComboBox value={mode} onChange={(e) => {
             const m = e.target.value as 'axis' | 'euler', q = rot()
             if (m === 'euler') setF((x) => ({ ...x, ypr: yprOfQuat(q) }))
             else { const a = axisAngleOf(q); setF((x) => ({ ...x, axis: a.axis as V3, angle: a.angle })) }
             setMode(m)
-          }}><option value="axis">Rotation axis and angle</option><option value="euler">Euler angles (Z–Y′–X″)</option></QComboBox>
+          }}><option value="axis">Rotation axis and angle</option><option value="euler">Euler angles (Z–Y′–X″)</option></QComboBox></span>
           {mode === 'axis' ? <>
-            <div className="tfield top"><span>Axis</span><span className="tstack">{[0, 1, 2].map((i) => <span key={i}><QuantityBox value={f.axis[i]} dims={NUMBER} onChange={setAt('axis', i)} /></span>)}</span></div>
-            <label className="tfield"><span>Angle</span><QuantityBox value={f.angle} dims={ANGLE} onChange={(x) => setF((y) => ({ ...y, angle: x }))} /></label></>
+            <div className="tfield top"><span>Axis</span><span className="tstack">{['xAxis', 'yAxis', 'zAxis'].map((n, i) => <span key={n} data-qf={n}><QuantityBox value={f.axis[i]} dims={NUMBER} onChange={setAt('axis', i)} /></span>)}</span></div>
+            <label className="tfield"><span>Angle</span><span data-qf="angle"><QuantityBox value={f.angle} dims={ANGLE} onChange={(x) => setF((y) => ({ ...y, angle: x }))} /></span></label></>
             : ['Yaw (around Z-axis)', 'Pitch (around Y-axis)', 'Roll (around X-axis)'].map((l, i) =>
-              <label key={l} className="tfield"><span>{l}</span><QuantityBox value={f.ypr[i]} dims={ANGLE} onChange={setAt('ypr', i)} /></label>)}
+              <label key={l} className="tfield"><span>{l}</span><span data-qf={['yawAngle', 'pitchAngle', 'rollAngle'][i]}><QuantityBox value={f.ypr[i]} dims={ANGLE} onChange={setAt('ypr', i)} /></span></label>)}
         </fieldset>
-        <div className="hbox spread"><span /><button className="qbtn" onClick={() => setF({ pos: [0, 0, 0], cnt: [0, 0, 0], axis: [0, 0, 1], angle: 0, ypr: [0, 0, 0] })}>Reset</button></div>
+        <div className="hbox spread">
+          <label className="tcheck" data-qf="applyIncrementalPlacement"><input type="checkbox" checked={!!incr} onChange={(e) => {
+            if (e.target.checked) { setIncr(result()); setF(fresh); setAxial(0) } else { if (incr) { const r = result(); setIncr(null); const q = quatOfYpr(...r.ypr), a = axisAngleOf(q); setF({ pos: r.pos, cnt: [0, 0, 0], axis: a.axis as V3, angle: a.angle, ypr: r.ypr }) } }
+          }} /> Apply incremental changes</label>
+          <button className="qbtn" data-qf="resetButton" onClick={() => { setF(fresh); setAxial(0) }}>Reset</button>
+        </div>
       </div>
       <div className="msgbox-buttons">
         <button className="qbtn default" onClick={() => { onApply(result()); onClose() }}>OK</button>
@@ -631,11 +752,20 @@ const fmtPy = (x: number) => (Number.isInteger(x) ? `${x}.0` : String(x))
  *  of the Assembly's Origin picked in the tree; the vertex or centre nearest the click, as findElementClosestVertex takes
  *  it), the fields adaptUi shows for the type, Reverse and Rotate, the limits, Show advanced offsets' Offset1/2 editors
  *  (TaskPlacement), Isolate; the solve previewed from the second pick on, written at OK. */
-function JointTask({ type0, edit }: { type0: JointType; edit?: string }) {
+/** Assembly_InsertNewPart's panel (TaskAssemblyNewPart): the joint panel, a Fixed joint whose first reference is the new
+ *  part's empty App::Link (its whole, at its origin), with "Part name" and "Create part in new file" above it and the
+ *  joint's form in "Joint new part origin". */
+export function NewPartTask() {
+  return <JointTask type0="Fixed" newPart />
+}
+// the new part's link while the panel is open: TaskAssemblyNewPart's assembly.newObject("App::Link", "Link")
+const NEW_LINK: Ref = ['Link', ['', '']]
+function JointTask({ type0, edit, newPart }: { type0: JointType; edit?: string; newPart?: boolean }) {
   const v = useStore((s) => s.assembly)
   const existing = edit ? asmObject(v, edit) : undefined
   const [type, setType] = useState<JointType>(type0)
-  const [refs, setRefs] = useState<Ref[]>(() => existing ? [existing.reference1, existing.reference2].filter(Array.isArray).map((r) => [String((r as unknown[])[0]), [...((r as unknown[])[1] as string[])]] as Ref) : [])
+  const [refs, setRefs] = useState<Ref[]>(() => newPart ? [NEW_LINK] : existing ? [existing.reference1, existing.reference2].filter(Array.isArray).map((r) => [String((r as unknown[])[0]), [...((r as unknown[])[1] as string[])]] as Ref) : [])
+  const [partName, setPartName] = useState('Part')
   const [vals, setVals] = useState<JointVals>(() => ({
     angle: Number(existing?.angle ?? 0), distance: Number(existing?.distance ?? (NO_NEGATIVE_DISTANCE.includes(type0) ? 1 : 0)),
     distance2: Number(existing?.distance2 ?? (type0 === 'Gears' || type0 === 'Belt' ? 1 : 0)),
@@ -671,6 +801,7 @@ function JointTask({ type0, edit }: { type0: JointType; edit?: string }) {
     return p
   }
   const ops = (): Record<string, unknown>[] => {
+    if (newPart) return [{ op: 'new_part', name: partName, type, ref: refs[1] ?? null, props: { ...props(), ...(vals.reverse ? { reverse: true } : {}) } }]
     if (refs.length !== 2) return []
     if (existing) return [{ op: 'edit', name: existing.name, ref1: refs[0], ref2: refs[1], props: { ...props(), ...(type !== existing.joint_type ? { joint_type: type } : {}) }, reverse: vals.reverse }]
     return [{ op: 'joint', type, ref1: refs[0], ref2: refs[1], props: { ...props(), ...(vals.reverse ? { reverse: true } : {}) } }]
@@ -689,7 +820,7 @@ function JointTask({ type0, edit }: { type0: JointType; edit?: string }) {
   }, [JSON.stringify(refs), JSON.stringify(vals), type])
   // updateIsolation: the two picks' moving parts isolated (the Origin is no component), cleared with fewer picks
   useEffect(() => {
-    if (refs.length === 2) isolateComponents([...new Set(refs.map((r) => r[0]))], isolate)
+    if (refs.length === 2) isolateComponents(bodiesOf([...new Set(refs.map((r) => r[0]))]), isolate)
     else clearIsolate()
   }, [JSON.stringify(refs), isolate])
   useEffect(() => () => clearIsolate(), [])
@@ -727,7 +858,8 @@ function JointTask({ type0, edit }: { type0: JointType; edit?: string }) {
     view.pointPicker = async (body, point, subName) => {
       if (!body || !subName || !isComponent(body)) { report('warn', 'Select 2 elements from 2 separate parts'); return }
       if (getState().unselectable.includes(body)) return
-      await add(body, subName, point)
+      const [comp, element] = pickRef(body, subName)    // getComponentReference: the moving part, its sub-name
+      await add(comp, element, point)
     }
     treePick = (row) => {
       if (!(row in ORIGIN_LABELS)) return false
@@ -737,21 +869,32 @@ function JointTask({ type0, edit }: { type0: JointType; edit?: string }) {
     return () => { view.pointPicker = null; treePick = null; view.setHelper?.('as-jcs', null); showPlacements(null) }
   }, [type])
   const accept = async () => {
-    if (refs.length !== 2) { report('warn', 'Select 2 elements from 2 separate parts'); return }
+    if (refs.length !== 2 && !newPart) { report('warn', 'Select 2 elements from 2 separate parts'); return }
     const o = ops()
     clearIsolate()
     closeTask()
     showPlacements(null)
-    await applyAssembly(o, existing ? `Edit ${labelOf(existing)} Joint` : `Create ${type0} Joint`)
+    // TaskAssemblyNewPart: its joint panel's transaction, the joint kept only with both references
+    await applyAssembly(o, existing ? `Edit ${labelOf(existing)} Joint` : `Create ${newPart ? type : type0} Joint`)
   }
   const reject = () => { clearIsolate(); closeTask(); showPlacements(null) }
   /** updateJointList: the object's Label, and the element when there is one. */
   const featName = (r: Ref) => {
+    if (newPart && r === refs[0]) return "Link"
     if (r[0] === 'Origin') { const d = r[1][0].replace(/\.$/, ''); return ORIGIN_LABELS[d] ?? d }
     const o = asmObject(v, r[0])
     const el = r[1][0] ? `.${r[1][0].split('.').filter(Boolean).pop()}` : ''
     return `${o ? labelOf(o) : r[0]}${el}`
   }
+  /** updateTaskboxFromJoint: the list follows the joint's references, which ensureUnconnectedIsSecondRef may have
+   *  swapped (the unconnected part second): in the preview's joint's order when it is the picks' swapped. */
+  const shownRefs = (): Ref[] => {
+    if (refs.length !== 2 || !preview) return refs
+    const j = existing ? asmObject(preview, existing.name) : [...preview.objects].reverse().find((o) => o.kind === 'Joint')
+    const r1 = j?.reference1 as Ref | undefined
+    return r1 && r1[0] === refs[1][0] && r1[0] !== refs[0][0] ? [refs[1], refs[0]] : refs
+  }
+  const removeRef = (r: Ref) => { if (!(newPart && r === refs[0])) setRefs((x) => x.filter((y) => y !== r)) }
   const needLimits = USING_LIMIT_LENGTH.includes(type) || USING_LIMIT_ANGLE.includes(type)
   const distanceLabel = type === 'Distance' ? 'Distance' : type === 'Gears' || type === 'Belt' ? 'Radius 1' : type === 'Screw' ? 'Thread pitch' : 'Pitch radius'
   const Q = ({ label, labelName, value, dims, onChange, name, min, max, disabled }: { label: string; labelName?: string; value: number; dims: typeof LENGTH
@@ -765,12 +908,19 @@ function JointTask({ type0, edit }: { type0: JointType; edit?: string }) {
   // updateOffsetWidgets: the buttons show Base as Python prints a Vector's coordinates
   const offText = (o: Off) => `(${o.pos.map(fmtPy).join(', ')})`
   // the panel's rows top to bottom as TaskAssemblyCreateJoint.ui lays them out and adaptUi shows them (fcassembly.json)
-  return <div className="tasks as-task" data-task="joint">
-    <TaskBox title="Joint" icon={jointIcon(type)}>
+  const form = (body: ReactNode) => !newPart ? body : <>
+    <TaskBox title="New Part" icon="std-part">
+      <label className="tfield"><span>Part name</span><input className="qline" data-qf="partName" value={partName} onChange={(e) => setPartName(e.target.value)} /></label>
+      <label className="tcheck" data-qf="createInNewFile" title="n/a: a part is always a part file of its own here (parts/<name>.py)"><input type="checkbox" checked disabled /> Create part in new file</label>
+    </TaskBox>
+    <fieldset className="tgroup" data-qf="jointNewPartOrigin"><legend>Joint new part origin</legend>{body}</fieldset>
+  </>
+  return <div className="tasks as-task" data-task={newPart ? 'newpart' : 'joint'}>
+    {form(<TaskBox title="Joint" icon={jointIcon(type)}>
       <Combo name="jointType" value={JOINT_TYPES.indexOf(type)} items={JOINT_TYPES} onChange={(i) => setType(JOINT_TYPES[i])} />
       <div className="as-list" data-qf="featureList">
-        {refs.map((r, i) => <div key={i} className="as-item" title="Remove (Delete)" onContextMenu={(e) => { e.preventDefault(); setRefs((x) => x.filter((_, k) => k !== i)) }}
-          onKeyDown={(e) => { if (e.key === 'Delete') setRefs((x) => x.filter((_, k) => k !== i)) }} tabIndex={0}>{featName(r)}</div>)}
+        {shownRefs().map((r, i) => <div key={i} className="as-item" title="Remove (Delete)" onContextMenu={(e) => { e.preventDefault(); removeRef(r) }}
+          onKeyDown={(e) => { if (e.key === 'Delete') removeRef(r) }} tabIndex={0}>{featName(r)}</div>)}
       </div>
       {USING_REVERSE.includes(type) && <div className="tbuttons">
         <button className="qbtn" data-qf="PushButtonReverse" title="Reverse the direction of the joint" onClick={() => set({ reverse: !vals.reverse })}>Reverse</button>
@@ -799,7 +949,7 @@ function JointTask({ type0, edit }: { type0: JointType; edit?: string }) {
       {USING_DISTANCE2.includes(type) && <label className="tcheck" data-qf="reverseRotCheckbox"><input type="checkbox" checked={type === 'Gears'}
         onChange={(e) => setType(e.target.checked ? 'Gears' : 'Belt')} /> Reverse rotation</label>}
       <label className="tfield"><span data-qf="isolateLabel2">Isolate</span><Combo name="isolateType" value={isolate} items={['Transparent', 'Wireframe', 'Hidden', 'Disabled']} onChange={setIsolate} /></label>
-    </TaskBox>
+    </TaskBox>)}
     {preview?.status && <TaskBox title="Solver messages" icon="as-assembly"><div className="as-solver" data-state={preview.status.state}>{preview.status.text}{preview.status.link}</div></TaskBox>}
     <div className="tbuttons pd-buttons">
       <button className="qbtn default" onClick={() => void accept()}>OK</button>
@@ -847,9 +997,35 @@ function plcOfLiteral(v: unknown): Plc | null {
 export function AssemblyProps({ name }: { name: string }) {
   const v = useStore((s) => s.assembly)
   const o = asmObject(v, name)
+  const leaf = leaves(v).find((l) => l.name === name && l.link)
+  if (!o && leaf) {
+    // a sub-assembly's child: an App::Link of this document to the sub-assembly's component
+    const p = v?.child_plc?.[name] ?? v?.placements?.[name] ?? null
+    return <><Group title="Base"><Row k="Placement" v={plcText(p)} /><Row k="Label" v={leaf.label} /></Group>
+      <Group title="Link"><Row k="Linked Object" v={`${leaf.project}#${leaf.source ?? ''}`} /></Group></>
+  }
   if (!o) return null
   const commit = (key: string, prop: string, value: unknown) =>
     void applyAssembly([{ op: 'set', name, props: { [key]: value } }], `Edit ${name}.${prop.replace(/ /g, '')}`)
+  if (o.kind === 'AssemblyLink') {
+    // App::Part's Base rows (Placement, Label, Group: a flexible link's JointGroup first), then General: Rigid, Linked Object
+    const kids = ((o.components as [string, string][]) ?? []).map((c) => c[0])
+    // a flexible link's Group: its JointGroup (Joints001 for the first link), its children, its joint copies
+    const copies = ((o.joints as [string, string][]) ?? []).map((c) => c[0])
+    const k = (v?.objects ?? []).filter((x) => x.kind === 'AssemblyLink').findIndex((x) => x.name === name) + 1
+    const group = o.rigid ? kids : [`Joints${String(k).padStart(3, '0')}`, ...kids, ...copies]
+    return <><Group title="Base"><Row k="Placement" v={plcText(v?.placements?.[name] ?? { base: [0, 0, 0], rotation: [0, 0, 0, 1] })} />
+      <Row k="Label" v={labelOf(o)} /><Row k="Group" v={`[${group.slice(0, 3).join(', ')}${group.length > 3 ? ' ...' : ''}]`} /></Group>
+      <Group title="General">
+        <div className="prow" data-prop="Rigid"><span className="pk">Rigid</span><span className="pv"><input type="checkbox" checked={!!o.rigid}
+          onChange={(e) => void applyAssembly([{ op: 'set', name, props: { rigid: e.target.checked } }], 'Toggle Rigid')} /></span></div>
+        <Row k="Linked Object" v={`${String(o.linked_object)}#Assembly`} /></Group></>
+  }
+  if (o.kind === 'ExplodedViewStep') return <><Group title="Base"><Row k="Label" v={labelOf(o)} /></Group>
+    <Group title="Exploded Move"><Row k="Move Type" v={String(o.move_type ?? 'Normal')} /><Row k="Movement Transform" v={plcText(plcOfLiteral(o.movement_transform))} />
+      <Row k="References" v={`Assembly [${((o.references as string[]) ?? []).map((n) => `${n}.`).join(', ')}]`} /></Group></>
+  if (o.kind === 'ExplodedView' || o.kind === 'ViewGroup') return <><Group title="Base"><Row k="Label" v={labelOf(o)} /></Group>
+    {o.kind === 'ExplodedView' && <Group title="Base"><Row k="Group" v={`[${((o.group as string[]) ?? []).join(', ')}]`} /></Group>}</>
   if (o.kind === 'GroundedJoint') return <><Group title="Base"><Row k="Label" v={labelOf(o)} /></Group>
     <Group title="Ground"><Row k="Object To Ground" v={String(o.object_to_ground)} /></Group></>
   if (o.kind === 'RigidGroupJoint') {
@@ -859,7 +1035,7 @@ export function AssemblyProps({ name }: { name: string }) {
     return <><Group title="Base"><Row k="Label" v={labelOf(o)} />
       <div className="prow" data-prop="Suppressed"><span className="pk">Suppressed</span><span className="pv"><input type="checkbox" checked={!!o.suppressed}
         onChange={(e) => commit('suppressed', 'Suppressed', e.target.checked)} /></span></div></Group>
-      <Group title="RigidGroup"><Row k="Objects To Rigid Group" v={`[${members.map(lab).join(', ')}]`} /></Group></>
+      <Group title="Rigid Group"><Row k="Objects To Rigid Group" v={`[${members.map(lab).join(', ')}]`} /></Group></>
   }
   if (o.kind === 'Link') return <><Group title="Base"><Row k="Placement" v={plcText(v?.placements?.[name] ?? null)} /><Row k="Label" v={labelOf(o)} /></Group>
     <Group title="Link"><Row k="Linked Object" v={String(o.linked_object)} /></Group></>
@@ -962,13 +1138,20 @@ async function findDragMode(part: string, doc: AsmDoc, solver: NonNullable<Drag[
       : jt.type === 'Distance' && ['PlanePlane', 'Other'].includes(String(q('getDistanceType', joint))) ? 'TranslationOnPlane' : 'Translation'
   return { mode, docs, jcs, ungrounded }
 }
-async function initMove(part: string, pos: V2) {
+async function initMove(body: string, pos: V2, ctrl = false) {
+  const part = movingOf(body)                    // getMovingPartFromSel: a rigid sub-assembly for its children
   const v = getState().assembly
   if (!v?.solver) return false
   const solver = await loadAssemblySolver()
   const doc = v.solver
   if (doc.parts.find((p) => p.name === part)?.grounded) return false      // canDragObjectIn3d: not a grounded part
-  const m = await findDragMode(part, doc, solver)
+  // getSelectedObjectsWithinAssembly: with Ctrl the selected components move too (docsToMove is not cleared before the
+  // preselected one goes in); several move by Translation on the focal plane (findDragMode with docsToMove.size() > 1)
+  const many = ctrl ? [...new Set([...getState().selected.filter(isComponent).map(movingOf), part])]
+    .filter((n) => !doc.parts.find((p) => p.name === n)?.grounded) : [part]
+  const plcOf = (n: string): P => { const p = doc.parts.find((x) => x.name === n)?.placement; return p ? ofPlc(p) : P0 }
+  const m = many.length > 1 ? { mode: 'Translation' as DragMode, docs: many.map((n) => ({ obj: n, plc: plcOf(n) })), jcs: P0, ungrounded: false }
+    : await findDragMode(part, doc, solver)
   if (m.mode === 'None' || !m.docs.length) return false
   // requiresRigidSolveForMove: a rigid group's member is moved by a full solve on each move (its group follows)
   const rigid = !!solver.query(doc, 'requiresRigidSolveForMove', ...m.docs.map((x) => x.obj))
@@ -1072,14 +1255,14 @@ export function assemblyViewHook(ev: NavEvent): boolean {
   if (ev.type === 'press' && ev.button === 1) {
     const h = getView()?.hitAtPos(ev.pos)
     if (!h || !isComponent(h.body)) return false
-    pending = { part: h.body, pos: ev.pos }
+    pending = { part: h.body, pos: ev.pos, ctrl: ev.ctrl }
     return false
   }
   if (ev.type === 'move' && pending && !drag && !starting) {
     const p = pending
     if (Math.abs(ev.pos[0] - p.pos[0]) + Math.abs(ev.pos[1] - p.pos[1]) < 3) return false
     starting = true
-    void initMove(p.part, p.pos).finally(() => { starting = false })
+    void initMove(p.part, p.pos, p.ctrl).finally(() => { starting = false })
     return true
   }
   if (ev.type === 'move' && drag) { moveTo(ev.pos); return true }
@@ -1089,5 +1272,5 @@ export function assemblyViewHook(ev: NavEvent): boolean {
   }
   return false
 }
-let pending: { part: string; pos: V2 } | null = null
+let pending: { part: string; pos: V2; ctrl: boolean } | null = null
 let starting = false

@@ -426,10 +426,10 @@ src/Gui/OverlayWidgets.h   [licence: LGPL-2.0-or-later]
     followed by src/actions.ts, src/chrome.tsx
 src/Gui/Placement.cpp   [licence: LGPL-2.0-or-later]
     copyright 2008 Werner Mayer
-    followed by src/panels.tsx
+    followed by src/panels.tsx, src/assembly_wb.tsx
 src/Gui/Placement.ui   [licence: none]
     copyright: no line in the file
-    followed by src/freecad.css
+    followed by src/freecad.css, src/assembly_wb.tsx
 src/Gui/PrefWidgets.cpp   [licence: LGPL-2.0-or-later]
     copyright 2004 Werner Mayer
     followed by src/qtform.tsx
@@ -664,33 +664,39 @@ src/Mod/Assembly/CommandCreateSnapshot.py   [licence: LGPL-2.1-or-later]
     followed by src/fctips.ts
 src/Mod/Assembly/CommandCreateView.py   [licence: LGPL-2.1-or-later]
     copyright 2023 Ondsel
-    followed by src/fctips.ts
+    followed by src/fctips.ts, src/assembly_wb.tsx, src/assembly_tasks.tsx
 src/Mod/Assembly/CommandExportASMT.py   [licence: LGPL-2.1-or-later]
     copyright 2023 Ondsel
     followed by src/assembly_wb.tsx, src/fctips.ts
 src/Mod/Assembly/CommandInsertLink.py   [licence: LGPL-2.1-or-later]
     copyright 2023 Ondsel
-    followed by src/assembly_wb.tsx, src/fctips.ts
+    followed by src/assembly_wb.tsx, src/fctips.ts, src/assembly_tasks.tsx
 src/Mod/Assembly/CommandInsertNewPart.py   [licence: LGPL-2.1-or-later]
     copyright 2024 Ondsel
-    followed by src/fctips.ts
+    followed by src/fctips.ts, src/assembly_wb.tsx
 src/Mod/Assembly/CommandSolveAssembly.py   [licence: LGPL-2.1-or-later]
     copyright 2023 Ondsel
     followed by src/assembly_wb.tsx, src/fctips.ts
 src/Mod/Assembly/Gui/Commands.cpp   [licence: LGPL-2.1-or-later]
     copyright 2025 Pierre-Louis Boyer
-    followed by src/fctips.ts
+    followed by src/fctips.ts, src/assembly_wb.tsx
 src/Mod/Assembly/Gui/Resources/panels/TaskAssemblyCreateJoint.ui   [licence: none]
     copyright: no line in the file
     followed by src/assembly_wb.tsx
 src/Mod/Assembly/Gui/Resources/panels/TaskAssemblyInsertLink.ui   [licence: none]
     copyright: no line in the file
-    followed by src/assembly_wb.tsx
+    followed by src/assembly_wb.tsx, src/assembly_tasks.tsx
+src/Mod/Assembly/Gui/Resources/panels/TaskAssemblyCreateView.ui   [licence: none]
+    copyright: no line in the file
+    followed by src/assembly_tasks.tsx
 src/Mod/Assembly/Gui/TaskAssemblyMessages.cpp   [licence: LGPL-2.1-or-later]
     copyright 2025 Pierre-Louis Boyer
     followed by src/assembly_wb.tsx
 src/Mod/Assembly/Gui/ViewProviderAssembly.cpp   [licence: LGPL-2.1-or-later]
     copyright 2023 Ondsel
+    followed by src/assembly_wb.tsx
+src/Mod/Assembly/Gui/ViewProviderAssemblyLink.cpp   [licence: LGPL-2.1-or-later]
+    copyright 2024 Ondsel
     followed by src/assembly_wb.tsx
 src/Mod/Assembly/InitGui.py   [licence: LGPL-2.1-or-later]
     copyright 2023 Ondsel
@@ -700,7 +706,7 @@ src/Mod/Assembly/JointObject.py   [licence: LGPL-2.1-or-later]
     followed by src/assembly_wb.tsx
 src/Mod/Assembly/UtilsAssembly.py   [licence: LGPL-2.1-or-later]
     copyright 2023 Ondsel
-    followed by src/assembly_wb.tsx
+    followed by src/assembly_wb.tsx, src/assembly_tasks.tsx
 src/Mod/Material/Gui/DlgDisplayProperties.ui   [licence: none]
     copyright: no line in the file
     followed by src/panels.tsx

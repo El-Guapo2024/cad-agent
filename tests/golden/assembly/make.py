@@ -132,6 +132,18 @@ def state(asm, jg, links):
             for o in asm.Group if o.TypeId == "Assembly::AssemblyLink"}
     if subs:
         out["assembly_links"] = subs
+    # each exploded view as _calculateExplodedPlacements has it: the exploded placements and the explosion lines
+    exploded = {}
+    for g in asm.Group:
+        if g.TypeId != "Assembly::ViewGroup":
+            continue
+        for v in g.Group:
+            final, lines = v.Proxy._calculateExplodedPlacements(v)
+            exploded[v.Name] = {"group": g.Name, "label": v.Label, "moves": [m.Name for m in v.Group],
+                                "placements": {o.Name: plc_json(p) for o, p in final.items()},
+                                "lines": [[list(a), list(b)] for a, b in lines]}
+    if exploded:
+        out["exploded"] = exploded
     return out
 
 
@@ -223,6 +235,26 @@ def run(name, c, docname="Unnamed"):
                 if step.get("placement"):
                     al.Placement.Base = V(*step["placement"])
                 al.Rigid = step.get("rigid", True)
+                doc.recompute()
+            elif step["op"] == "exploded_view":
+                # TaskAssemblyCreateView: the view in the ViewGroup (createExplodedViewObject), each move made in the
+                # Assembly (createExplodedStepObject: MovementTransform, References [assembly, subs]) and listed in
+                # the view's Group, then the accept's recompute
+                import builtins
+                from PySide import QtCore, QtWidgets
+                builtins.QtCore, builtins.QtWidgets = QtCore, QtWidgets    # its panel's class is made at import
+                import CommandCreateView as CV
+                view_group = UtilsAssembly.getViewGroup(asm)
+                view = view_group.newObject("App::FeaturePython", "Exploded View")
+                CV.ExplodedView(view)
+                moves = []
+                for m in step["moves"]:
+                    mv = asm.newObject("App::FeaturePython", "Move")
+                    CV.ExplodedViewStep(mv, CV.ExplodedViewStepTypes.index(m.get("move_type", "Normal")))
+                    mv.MovementTransform = plc(m["movement_transform"])
+                    mv.References = [asm, [n + "." for n in m["references"]]]
+                    moves.append(mv)
+                view.Group = moves
                 doc.recompute()
             elif step["op"] == "set_rigid":
                 # ViewProviderAssemblyLink's Turn rigid / Turn flexible ("Toggle Rigid"), then a recompute

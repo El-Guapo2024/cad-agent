@@ -18,4 +18,6 @@ export const ASSEMBLY_FILES = {
   'as-Angle': 'assembly/Assembly_CreateJointAngle', 'as-RackPinion': 'assembly/Assembly_CreateJointRackPinion',
   'as-Screw': 'assembly/Assembly_CreateJointScrew', 'as-Gears': 'assembly/Assembly_CreateJointGears',
   'as-Belt': 'assembly/Assembly_CreateJointPulleys', 'wb-assembly-own': 'assembly/AssemblyWorkbench',
+  'as-link-flexible': 'assembly/Assembly_AssemblyLink', 'as-exploded-group': 'assembly/Assembly_ExplodedViewGroup',
+  'as-simulation-group': 'assembly/Assembly_SimulationGroup', 'as-snapshot-group': 'assembly/Assembly_SnapshotGroup',
 } as const

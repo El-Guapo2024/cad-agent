@@ -41,11 +41,12 @@ class AssemblyLink(W.AsmObject):
 
     def normalize(self, key, v):
         if key in ("components", "joints"):
+            # [name here, name in the sub-assembly] and, when it is not the name, the Label here
             out = []
             for x in v or ():
-                if not (isinstance(x, (list, tuple)) and len(x) == 2 and all(isinstance(s, str) and s for s in x)):
+                if not (isinstance(x, (list, tuple)) and len(x) in (2, 3) and all(isinstance(s, str) and s for s in x)):
                     raise W.AssemblyError(f"{self.name}.{key}: {x!r} is not [name here, name in the sub-assembly]")
-                out.append((x[0], x[1]))
+                out.append(tuple(x) if len(x) == 3 and x[2] != x[0] else (x[0], x[1]))
             return tuple(out)
         if key == "placements":
             out = []
@@ -72,7 +73,7 @@ class AssemblyLink(W.AsmObject):
         return []
 
     def children(self) -> list[str]:
-        return [c for c, _ in self.components]
+        return [c[0] for c in self.components]
 
 
 class SubSource:
@@ -147,25 +148,29 @@ def synchronize_components(doc, link: AssemblyLink):
     unique in this document, Label the source's, unique too), the ones whose source went removed; a rigid link's
     children placed as their sources are (syncPlacements)."""
     src = doc.subs[link.name]
-    have = {s: c for c, s in link.components}
+    have = {c[1]: c for c in link.components}
     out = []
     for o in src.components():
-        child = have.get(o.name)
-        if child is None:
+        entry = have.get(o.name)
+        if entry is None:
             child = W.unique_name(doc.all_names(), o.name)
-            doc.child_labels[child] = W.unique_name(set(doc.labels()), o.label or o.name)
+            label = W.unique_name(set(doc.labels()), o.label or o.name)
+            entry = (child, o.name) if label == child else (child, o.name, label)
             if not link.rigid:
                 doc.plc[child] = src.placement(o.name)
-        out.append((child, o.name))
+        child = entry[0]
+        doc.child_labels[child] = entry[2] if len(entry) == 3 else child
+        out.append(entry)
         doc.child_of[child] = (link.name, o.name)
-    gone = [c for c, s in link.components if (c, s) not in out]
-    for c in gone:
+    kept = {e[0] for e in out}
+    for c in [e[0] for e in link.components if e[0] not in kept]:
         doc.child_of.pop(c, None)
         doc.plc.pop(c, None)
         doc.child_plc.pop(c, None)
+        doc.child_labels.pop(c, None)
     link.components = tuple(out)
-    for child, s in out:
-        doc.child_labels.setdefault(child, s)
+    for entry in out:
+        child, s = entry[0], entry[1]
         if link.rigid:
             doc.child_plc[child] = src.placement(s)
             doc.plc.pop(child, None)
@@ -179,8 +184,7 @@ def synchronize_joints(doc, link: AssemblyLink):
     here), its properties copied from the source (copyPropertyIfDifferent's list) and its references pointed at this
     link's children (handleJointReference)."""
     src = doc.subs[link.name]
-    by_source = {c: s for c, s in link.components}
-    to_child = {s: c for c, s in by_source.items()}
+    to_child = {c[1]: c[0] for c in link.components}
     old = list(link.joints)
     copies, pairs = [], []
     for i, j in enumerate(src.joints()):
@@ -224,7 +228,7 @@ def set_rigid(doc, link: AssemblyLink, rigid: bool):
     if link.rigid:
         # movePlc, before updateContents: the first child's placement relative to its source's
         if link.components:
-            first, src_name = link.components[0]
+            first, src_name = link.components[0][:2]
             move = doc.plc.get(first, Placement()) * doc.subs[link.name].placement(src_name).inverse()
         for c in children:
             doc.plc.pop(c, None)
@@ -289,7 +293,7 @@ def insert_assembly_link(doc, project: str, source: SubSource, name: str | None 
         if not link.rigid:
             src_grounded = source.grounded()
             target = None
-            for child, s in link.components:
+            for child, s, *_ in link.components:
                 if target is None:
                     target = child
                 if src_grounded and s == src_grounded[0]:
