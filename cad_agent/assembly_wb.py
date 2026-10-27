@@ -58,6 +58,34 @@ class AssemblyError(ValueError):
     pass
 
 
+# The Assembly's Origin features (App::Origin, made with the Assembly, so the first of their names in the document):
+# Name -> (Role, Placement's rotation) as FreeCAD 26.3 makes them; the Origin's point is "Origin001", the Origin being
+# "Origin"
+ORIGIN_DATUMS = {
+    "X_Axis": ("X_Axis", (0.0, 0.0, 0.0, 1.0)),
+    "Y_Axis": ("Y_Axis", (0.5, 0.5, 0.5, 0.5000000000000001)),
+    "Z_Axis": ("Z_Axis", (0.5, -0.5, 0.5, 0.5000000000000001)),
+    "XY_Plane": ("XY_Plane", (0.0, 0.0, 0.0, 1.0)),
+    "XZ_Plane": ("XZ_Plane", (0.7071067811865475, 0.0, 0.0, 0.7071067811865475)),
+    "YZ_Plane": ("YZ_Plane", (0.5, 0.5, 0.5, 0.5000000000000001)),
+    "Origin001": ("Origin", (0.0, 0.0, 0.0, 1.0)),
+}
+# UtilsAssembly.findPlacement's whole-part case: an App::Line by its Role (App.Rotation(0.5, 0.5, 0.5, 0.5) for X and
+# Y, App.Rotation(-0.5, 0.5, -0.5, 0.5) for Z), every other datum the identity
+DATUM_JCS = {"X_Axis": (0.5, 0.5, 0.5, 0.5), "Y_Axis": (0.5, 0.5, 0.5, 0.5), "Z_Axis": (-0.5, 0.5, -0.5, 0.5)}
+
+
+class Resolved:
+    """A reference's target: the moving part and its global placement, the object's placement in the part (None: the
+    part is the object), the object's shape at the origin (None for a datum), the placement findPlacement takes off
+    (the object's own: the component's, a sub-assembly child's), the datum's name."""
+    __slots__ = ("part", "part_plc", "obj", "shape", "frame", "datum")
+
+    def __init__(self, part, part_plc, obj, shape, frame, datum):
+        self.part, self.part_plc, self.obj, self.shape, self.frame = part, part_plc, obj, shape, frame
+        self.datum = datum
+
+
 # ── placements as the file writes them ─────────────────────────────────────────────────────────────────
 
 def to_placement(v) -> Placement:
@@ -207,7 +235,41 @@ class Joint(AsmObject):
         return out
 
 
-CLASSES = {c.kind: c for c in (Link, GroundedJoint, Joint)}
+class RigidGroupJoint(AsmObject):
+    """JointObject.RigidGroupJoint (Assembly_CreateJointRigidGroup): ObjectsToRigidGroup, the components locked
+    together (the solver makes them one body: AssemblyObject::rebuildRigidClusters), RigidPlacements (hidden: each
+    member's placement relative to the first, kept for restoreFromPlacements), and Suppressed."""
+    kind = "RigidGroupJoint"
+    TYPE_ID = "App::FeaturePython"
+    PROXY = "RigidGroupJoint"
+    POS = ("objects_to_rigid_group",)
+    DEFAULTS = {"objects_to_rigid_group": (), "rigid_placements": (), "suppressed": False, "label": None}
+    TRANSACTION = "Create Rigid Group"
+
+    def normalize(self, key, v):
+        if key == "objects_to_rigid_group":
+            if isinstance(v, str):
+                v = [v]
+            if not all(isinstance(x, str) and x for x in (v or ())):
+                raise AssemblyError(f"{self.name}: ObjectsToRigidGroup names components: {v!r}")
+            return tuple(v or ())
+        if key == "rigid_placements":
+            return tuple(placement_literal(to_placement(p)) for p in (v or ()))
+        return super().normalize(key, v)
+
+    def source_value(self, key, v=None):
+        v = getattr(self, key) if v is None else v
+        if key == "objects_to_rigid_group":
+            return list(v)
+        if key == "rigid_placements":
+            return list(v)
+        return super().source_value(key, v)
+
+    def references(self):
+        return list(self.objects_to_rigid_group)
+
+
+CLASSES = {c.kind: c for c in (Link, GroundedJoint, Joint, RigidGroupJoint)}
 
 
 def from_dict(d: dict) -> AsmObject:
@@ -249,6 +311,11 @@ class AssemblyDocument:
         self.last = None            # the last solve's result
         self._presolve_backup = {}  # Joint.partsMovedByPresolved, per joint
         self._previous = []         # AssemblyObject::previousPositions (solve(storePrev))
+        # AssemblyObject::rigidPlacementCache: each active rigid group member's placement at the last solve. A
+        # document read from its file starts where that solve left it, so the members' placements are the cache
+        # (a member moved before the next solve then drags the others: syncActiveRigidGroupPlacements)
+        self.rigid_cache = [(m, self.plc[m]) for g in self.rigid_groups() if not g.suppressed
+                            for m in dict.fromkeys(g.objects_to_rigid_group) if m in self.plc]
         for j in self.joints():
             self.update_jcs(j)
 
@@ -261,6 +328,9 @@ class AssemblyDocument:
 
     def grounded_joints(self) -> list[GroundedJoint]:
         return [o for o in self.objects if isinstance(o, GroundedJoint)]
+
+    def rigid_groups(self) -> list[RigidGroupJoint]:
+        return [o for o in self.objects if isinstance(o, RigidGroupJoint)]
 
     def labels(self) -> list[str]:
         """Every Label in the document: the objects', and the Assembly's own and its Origin's."""
@@ -287,16 +357,40 @@ class AssemblyDocument:
         except KeyError:
             raise AssemblyError(f"{comp}: its part {link.linked_object!r} is not built") from None
 
+    # ── what a reference names (UtilsAssembly.getObject, getGlobalPlacement) ──
+    def resolve(self, ref) -> Resolved | None:
+        """The object a reference's sub-name reaches from its moving part: a component's own shape, or a feature of
+        the Assembly's Origin (the moving part is the Origin, the object its datum: UtilsAssembly.getObject's
+        LocalCoordinateSystem branch); None when it names nothing."""
+        if ref is None or not ref[0]:
+            return None
+        comp = ref[0]
+        first = ref[1][0].split(".")[0] if ref[1] else ""
+        if comp == self.origin:
+            datum = ORIGIN_DATUMS.get(first)
+            if datum is None:
+                return None
+            return Resolved(comp, Placement(), Placement((0.0, 0.0, 0.0), Rotation(datum[1], normalize=False)), None, Placement(), first)
+        o = self.get(comp)
+        if isinstance(o, Link):
+            return Resolved(comp, self.plc[comp], None, self.shape_of(comp), self.plc[comp], None)
+        return None
+
     # ── JointObject.Joint ──
     def find_placement(self, joint: Joint, ref, index: int) -> Placement:
         """Joint.findPlacement: UtilsAssembly.findPlacement times Offset1/2."""
+        return self.raw_jcs(joint, ref) * to_placement(joint.offset1 if index == 0 else joint.offset2)
+
+    def raw_jcs(self, joint: Joint, ref) -> Placement:
+        """UtilsAssembly.findPlacement(ref, ignoreVertex): the JCS relative to the object the reference names; a datum
+        (an element name that is empty) is the whole-part case: an axis's own rotation, else the identity."""
         from . import assembly_jcs as J
-        if not J.is_ref_valid(ref, 2) or self.get(ref[0]) is None:
-            plc = Placement()
-        else:
-            ignore = joint.joint_type == "Distance"
-            plc = J.find_placement(self.shape_of(ref[0]), self.plc[ref[0]], list(ref[1]), ignore)
-        return plc * to_placement(joint.offset1 if index == 0 else joint.offset2)
+        r = self.resolve(ref) if J.is_ref_valid(ref, 2) else None
+        if r is None:
+            return Placement()
+        if r.datum is not None:
+            return Placement((0.0, 0.0, 0.0), Rotation(DATUM_JCS.get(r.datum, (0.0, 0.0, 0.0, 1.0))))
+        return J.find_placement(r.shape, r.frame, list(ref[1]), joint.joint_type == "Distance")
 
     def update_jcs(self, joint: Joint):
         """updateJCSPlacements."""
@@ -311,9 +405,10 @@ class AssemblyDocument:
         """UtilsAssembly.getJcsGlobalPlc(Placement1/2, Reference1/2)."""
         ref = joint.reference1 if index == 0 else joint.reference2
         p = self.jcs[joint.name][index]
-        if ref is None or ref[0] not in self.plc:
+        r = self.resolve(ref)
+        if r is None:
             return p
-        return self.plc[ref[0]] * p
+        return r.part_plc * p if r.obj is None else r.part_plc * r.obj * p
 
     def set_joint_connectors(self, joint: Joint, refs):
         """Joint.setJointConnectors(joint, refs): the panel's picks, one then two."""
@@ -512,14 +607,18 @@ class AssemblyDocument:
         for j in self.joints():
             p1, p2 = self.jcs[j.name]
 
-            def ref(r):
+            def ref(r, j=j):
                 if r is None:
                     return None
-                part = r[0] if self.get(r[0]) is not None else ""
-                geo = J.element_geometry(self.shape_of(r[0]), r[1][0]) if part and r[1] else {"geom": "", "radius": 0}
-                raw = J.find_placement(self.shape_of(r[0]), self.plc[r[0]], list(r[1]),
-                                       j.joint_type == "Distance") if part and len(r[1]) >= 2 else Placement()
-                return {"part": part, "subs": list(r[1]), **geo, "jcs": placement_json(raw)}
+                res = self.resolve(r)
+                part = res.part if res is not None else ""
+                geo = J.element_geometry(res.shape, r[1][0]) if res is not None and res.shape is not None and r[1] \
+                    else {"geom": "", "radius": 0}
+                raw = self.raw_jcs(j, r) if part else Placement()
+                out = {"part": part, "subs": list(r[1]), **geo, "jcs": placement_json(raw)}
+                if res is not None and res.obj is not None:
+                    out["obj"] = placement_json(res.obj)
+                return out
             joints.append({
                 "name": j.name, "label": j.label or j.name, "type": j.joint_type, "suppressed": j.suppressed,
                 "reference1": ref(j.reference1), "reference2": ref(j.reference2),
@@ -531,7 +630,10 @@ class AssemblyDocument:
                 "enable_angle_min": j.enable_angle_min, "enable_angle_max": j.enable_angle_max,
                 "length_min": float(j.length_min), "length_max": float(j.length_max),
                 "angle_min": float(j.angle_min), "angle_max": float(j.angle_max)})
-        return {"document": self.document, "origin": self.origin, "parts": parts, "joints": joints}
+        rigid = [{"name": g.name, "suppressed": g.suppressed, "members": list(g.objects_to_rigid_group)}
+                 for g in self.rigid_groups()]
+        return {"document": self.document, "origin": self.origin, "parts": parts, "joints": joints,
+                "rigid_groups": rigid, "rigid_cache": [[n, placement_json(p)] for n, p in self.rigid_cache]}
 
     def query(self, op, *args):
         from . import ondsel
@@ -565,6 +667,12 @@ class AssemblyDocument:
                 for k in ("enable_length_min", "enable_length_max", "enable_angle_min", "enable_angle_max",
                           "length_min", "length_max", "angle_min", "angle_max"):
                     setattr(j, k, jd[k])
+        if "rigid_cache" in out:
+            self.rigid_cache = [(n, to_placement(p)) for n, p in out["rigid_cache"]]
+        for name, members in (out.get("rigid_groups") or {}).items():
+            g = self.get(name)                  # getRigidGroups' prop->setValue(validMembers)
+            if isinstance(g, RigidGroupJoint):
+                g.objects_to_rigid_group = tuple(members)
         self.messages += [("warning", w) for w in out.get("warnings", [])]
         self.messages += [("error", e) for e in out.get("errors", [])]
         self.log += out.get("log", "")
@@ -719,6 +827,78 @@ def toggle_grounded(doc: AssemblyDocument, comp: str):
             return None
     g = GroundedJoint(unique_name([o.name for o in doc.objects], "GroundedJoint"), comp)
     doc.objects.append(g)
+    return g
+
+
+# ── JointObject.RigidGroupJoint and CommandCreateJoint.createJointRigidGroupJoint ─────────────────────────────
+
+def _valid_members(doc: AssemblyDocument, g: RigidGroupJoint) -> list:
+    """RigidGroupJoint._validMembers: the members that exist and have a Placement, each once."""
+    out = []
+    for n in g.objects_to_rigid_group:
+        if n in doc.plc and n not in out:
+            out.append(n)
+    return out
+
+
+def update_stored_positions(doc: AssemblyDocument, g: RigidGroupJoint, force: bool = False) -> bool:
+    """RigidGroupJoint.updateStoredPositions: each member's placement relative to the first (the anchor), only
+    while the group is suppressed unless forced (as at creation)."""
+    if not force and not g.suppressed:
+        doc.messages.append(("warning", "Assembly: 'updateStoredPositions' is only available while suppressed."))
+        return False
+    members = _valid_members(doc, g)
+    if len(members) < 2:
+        g.rigid_placements = ()
+        doc.messages.append(("error", "Assembly: Rigid group needs at least 2 valid components."))
+        return False
+    if tuple(members) != g.objects_to_rigid_group:
+        g.objects_to_rigid_group = tuple(members)
+    anchor = doc.plc[members[0]]
+    g.rigid_placements = tuple(placement_literal(anchor.inverse() * doc.plc[m]) for m in members)
+    doc.messages.append(("message", "Assembly: Rigid group positions updated."))
+    return True
+
+
+def restore_from_placements(doc: AssemblyDocument, g: RigidGroupJoint):
+    """RigidGroupJoint.restoreFromPlacements: the members put back where RigidPlacements has them, relative to
+    where the anchor is now."""
+    members = _valid_members(doc, g)
+    placements = list(g.rigid_placements or ())
+    if len(members) < 2 or len(members) != len(placements):
+        doc.messages.append(("warning", "Assembly: Rigid group sync broken, skipping restore."))
+        return
+    anchor_now = doc.plc[members[0]]
+    for m, rel in zip(members, placements):
+        doc.plc[m] = anchor_now * to_placement(rel)
+
+
+def set_rigid(doc: AssemblyDocument, g: RigidGroupJoint, prop: str, value):
+    """A RigidGroupJoint's property set, then its onChanged: a new member list stores the positions again;
+    unsuppressing restores the members from RigidPlacements and solves (solveIfAllowed)."""
+    if prop not in ("objects_to_rigid_group", "suppressed", "label"):
+        raise AssemblyError(f"{prop} is not a property the app sets on a RigidGroupJoint")
+    setattr(g, prop, g.normalize(prop, value))
+    if prop == "objects_to_rigid_group":
+        update_stored_positions(doc, g, True)
+    elif prop == "suppressed" and not g.suppressed:
+        restore_from_placements(doc, g)
+        doc.solve_if_allowed()
+
+
+def create_rigid_group(doc: AssemblyDocument, parts, name: str | None = None) -> RigidGroupJoint | None:
+    """Assembly_CreateJointRigidGroup: the selected components locked together (createJointRigidGroupJoint: a
+    RigidGroupJoint in the JointGroup, its positions stored, the document recomputed). Fewer than two: a warning."""
+    if len(parts) < 2:
+        doc.messages.append(("warning", "Select at least 2 components to create a rigid group"))
+        return None
+    names = [o.name for o in doc.objects]
+    gname = name or unique_name(names, "RigidGroupJoint")
+    label = unique_name(set(doc.labels()), "RigidGroupJoint")
+    g = RigidGroupJoint(gname, list(parts), label=label if label != gname else None)
+    doc.objects.append(g)
+    update_stored_positions(doc, g, True)
+    doc.recompute()
     return g
 
 

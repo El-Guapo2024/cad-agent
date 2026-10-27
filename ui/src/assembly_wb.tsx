@@ -25,13 +25,15 @@
 // (ondsel.ts). Every edit is `cad assembly apply` on the server (POST /api/<slug>/assembly), one undo step; the server
 // replays JointObject.py's sequence (presolve, solve, accept) and writes the solved placements back.
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
+import { createPortal } from 'react-dom'
 import * as THREE from 'three'
 import { api, resultText } from './api'
 import { consoleLog, getState, report, setState, useStore } from './store'
 import { closeTask, getView, loadHistory, openTask, select } from './actions'
 import { Icon, type IconName } from './icons'
 import { cls, Group, Row, TaskBox } from './panels'
-import { QuantityBox, LENGTH, ANGLE } from './qsb'
+import { QuantityBox, LENGTH, ANGLE, NUMBER } from './qsb'
+import { axisAngleOf, quatOfYpr, yprOfQuat } from './rotation'
 import { QComboBox } from './combo'
 import { messageBox } from './msgbox'
 import type { Entry } from './chrome'
@@ -40,10 +42,11 @@ import { loadAssemblySolver, type AsmDoc, type AsmResult, type Plc } from './ond
 import type { NavEvent, V2 } from './nav'
 
 // ── the model (cad_agent/assembly_edit.py's read/solved) ──────────────────────────────────────────────────────────
-export interface AsmObj { name: string; kind: 'Link' | 'GroundedJoint' | 'Joint'; type: string; label?: string | null; [k: string]: unknown }
+export interface AsmObj { name: string; kind: 'Link' | 'GroundedJoint' | 'Joint' | 'RigidGroupJoint'; type: string; label?: string | null; [k: string]: unknown }
 export interface AsmRow {
   name: string; label: string; type: string; depth: number; icon: string
   linked_object?: string; grounded?: boolean; joint_type?: string; suppressed?: boolean; object_to_ground?: string
+  members?: string[]
 }
 export interface AsmView {
   project: string; assembly: boolean; objects: AsmObj[]; tree: AsmRow[]
@@ -95,9 +98,11 @@ export async function loadAssembly() {
     const v = r.data as unknown as AsmView
     setState((s) => ({ assembly: v.assembly ? v : null, asmSel: s.asmSel.filter((n) => !!asmObject(v, n) || n === 'Assembly' || n === 'Joints'),
       asmActive: s.asmActive && v.assembly }))
-    for (const m of v.messages ?? []) report(m.kind === 'error' ? 'err' : 'warn', m.text)
+    for (const m of v.messages ?? []) report(levelOf(m.kind), m.text)
   } catch (e) { report('err', `Assembly: ${msg(e)}`) }
 }
+/** A Console line's level: PrintError, PrintWarning, PrintMessage. */
+const levelOf = (kind: string) => (kind === 'error' ? 'err' : kind === 'message' ? 'msg' : 'warn')
 /** `cad assembly apply`: one undo step named `name` (FreeCAD's transaction), echoed to the Python console's
  *  counterpart as the command line. The Assembly after it goes into the store. */
 export async function applyAssembly(ops: Record<string, unknown>[], name?: string): Promise<AsmView | null> {
@@ -109,7 +114,7 @@ export async function applyAssembly(ops: Record<string, unknown>[], name?: strin
     if (r.exit !== 0) { report('err', `${name ?? 'Assembly'}: ${resultText(r)}`); return null }
     const doc = r.data?.doc as unknown as AsmView
     setState({ assembly: doc?.assembly ? doc : null })
-    for (const m of doc?.messages ?? []) report(m.kind === 'error' ? 'err' : 'warn', m.text)
+    for (const m of doc?.messages ?? []) report(levelOf(m.kind), m.text)
     report('msg', String(r.data?.step ?? name ?? 'Assembly'))
     loadHistory()
     return doc
@@ -230,6 +235,15 @@ async function toggleGrounded() {
   if (!names.length) return void messageBox('warning', 'Toggle Grounded', 'Select the part to ground, please.')
   await applyAssembly(names.map((name) => ({ op: 'ground', name })), 'Toggle grounded')
 }
+/** Assembly_CreateJointRigidGroup: the selected components locked together (createJointRigidGroupJoint); fewer than
+ *  two, the Console's warning and nothing made. */
+async function createRigidGroup() {
+  const { s } = asmState()
+  const parts = s.selected.filter((n) => isComponent(n))
+  if (!s.selected.length) return
+  if (parts.length < 2) return void report('warn', 'Select at least 2 components to create a rigid group')
+  await applyAssembly([{ op: 'rigid', parts }], 'Create Rigid Group')
+}
 async function exportAsmt() {
   const s = getState()
   if (!s.slug) return
@@ -294,7 +308,9 @@ function jointsToolbar(): Entry[] {
   const g = gearEntries()
   return [
     { label: 'Toggle Grounded', icon: 'as-ground', cmd: 'Assembly_ToggleGrounded', kbd: 'G', disabled: !parts, onSelect: () => void toggleGrounded() },
-    NA('Create Rigid Group', 'as-rigid', 'Assembly_CreateJointRigidGroup', 'rigid groups are not ported'),
+    // IsActive: isAssemblyCommandActive and assembly_has_at_least_n_parts(2)
+    { label: 'Create Rigid Group', icon: 'as-rigid', cmd: 'Assembly_CreateJointRigidGroup', kbd: 'Y', disabled: !(asmState().active && components(asmState().v).length >= 2),
+      title: asmState().active && components(asmState().v).length >= 2 ? undefined : 'needs an active assembly with 2 components at least', onSelect: () => void createRigidGroup() },
     'sep', ...jointEntries().slice(0, 5), 'sep', ...jointEntries().slice(5, 9), 'sep', ...jointEntries().slice(9),
     { label: 'Gears/Belt Joint', icon: 'as-Gears', cmd: 'Assembly_CreateJointGearBelt', sub: g },
   ]
@@ -337,6 +353,7 @@ function rowIcon(r: AsmRow): IconName {
   if (r.type === 'App::Plane') return 'std-plane'
   if (r.type === 'App::Point') return 'std-point'
   if (r.type === 'GroundedJoint') return 'as-ground'
+  if (r.type === 'RigidGroupJoint') return 'as-rigid'
   if (r.type === 'Joint') return jointIcon(r.joint_type ?? 'Fixed')
   return 'link'
 }
@@ -349,6 +366,7 @@ export function AssemblyRows({ ctx, onMenu }: { ctx: TreeCtx; onMenu(at: { x: nu
   if (!v) return null
   const pickRow = (name: string, e: React.MouseEvent) => {
     ctx.cancelPreselect()
+    if (treePick?.(name)) return                    // a joint panel's selection observer takes a tree selection too
     if (isComponent(name)) { select(name, e.metaKey || e.ctrlKey); setState({ asmSel: [], featSel: [] }); return }
     select(null)
     setState((s) => ({ asmSel: e.metaKey || e.ctrlKey ? (s.asmSel.includes(name) ? s.asmSel.filter((x) => x !== name) : [...s.asmSel, name]) : [name], featSel: [] }))
@@ -389,8 +407,12 @@ export function assemblyTreeEntries(): Entry[] {
   return [
     ...(s.asmSel.includes('Assembly') ? [{ label: s.asmActive ? 'Leave Edit Mode' : 'Activate Assembly', icon: 'as-activate' as IconName, onSelect: () => activateAssembly(!s.asmActive) }] : []),
     { label: 'Edit', disabled: one?.kind !== 'Joint', onSelect: () => one && openJoint(String(one.joint_type) as JointType, one.name) },
-    { label: one?.suppressed ? 'Unsuppress' : 'Suppress', disabled: one?.kind !== 'Joint',
+    { label: one?.suppressed ? 'Unsuppress' : 'Suppress', disabled: one?.kind !== 'Joint' && one?.kind !== 'RigidGroupJoint',
       onSelect: () => one && void applyAssembly([{ op: 'set', name: one.name, props: { suppressed: !one.suppressed } }], 'Toggle suppress') },
+    // ViewProviderRigidGroupJoint.setupContextMenu
+    ...(one?.kind === 'RigidGroupJoint' ? [{ label: 'Update Stored Positions', icon: 'as-rigid' as IconName,
+      onSelect: () => void (one.suppressed ? applyAssembly([{ op: 'update_rigid', name: one.name }], 'Update Stored Positions')
+        : report('warn', "Assembly: 'updateStoredPositions' is only available while suppressed.")) }] : []),
     { label: 'Rename', kbd: 'F2', disabled: !one, onSelect: () => one && renameObject(one.name) },
     { label: 'Delete', kbd: 'Del', disabled: !sel.length, onSelect: () => void deleteAssemblyObjects(sel.map((o) => o.name)) },
   ]
@@ -515,40 +537,129 @@ function jcsMarker(p: Plc, size: number): THREE.Object3D {
   return g
 }
 
-interface JointVals {
-  angle: number; distance: number; distance2: number; offset: number; rotation: number
-  limits: [boolean, boolean, boolean, boolean]; lengthMin: number; lengthMax: number; angleMin: number; angleMax: number
-  reverse: boolean; advanced: boolean
+/** An offset as the panel edits it: Base, and the rotation as yaw, pitch, roll (Rotation::getYawPitchRoll). */
+interface Off { pos: V3; ypr: V3 }
+const OFF0: Off = { pos: [0, 0, 0], ypr: [0, 0, 0] }
+const isOff0 = (o: Off) => o.pos.every((x) => x === 0) && o.ypr.every((x) => x === 0)
+/** A placement literal of the file ((x, y, z), (yaw, pitch, roll) or a quaternion) as an Off. */
+function offOf(v: unknown): Off {
+  if (!Array.isArray(v) || v.length !== 2) return OFF0
+  const [pos, rot] = v as [number[], number[]]
+  if (rot.length === 3) return { pos: [...pos] as V3, ypr: [...rot] as V3 }
+  return { pos: [...pos] as V3, ypr: yprOfQuat(new THREE.Quaternion(rot[0], rot[1], rot[2], rot[3])) }
 }
-/** TaskAssemblyCreateJoint: the joint's type, its two picks (a face, an edge or a vertex of two components; the vertex
- *  or centre nearest the click, as findElementClosestVertex takes it), the fields adaptUi shows for the type, Reverse and
- *  Rotate, the limits; the solve previewed from the second pick on, written at OK. */
+interface JointVals {
+  angle: number; distance: number; distance2: number; off1: Off; off2: Off
+  limits: [boolean, boolean, boolean, boolean]; lengthMin: number; lengthMax: number; angleMin: number; angleMax: number
+  reverse: boolean; advanced: boolean; touched1: boolean; touched2: boolean
+}
+// The Assembly's Origin features as the tree names them, with their Labels (App::Origin's)
+const ORIGIN_LABELS: Record<string, string> = { X_Axis: 'X-axis', Y_Axis: 'Y-axis', Z_Axis: 'Z-axis', XY_Plane: 'XY-plane', XZ_Plane: 'XZ-plane',
+  YZ_Plane: 'YZ-plane', Origin001: 'Origin-Point' }
+/** A tree click while a joint's panel is open: the panel takes it as a selection (a feature of the Assembly's Origin). */
+let treePick: ((row: string) => boolean) | null = null
+/** ViewProviderAssembly::isolateComponents (IsolateMode Transparent, Wireframe, Hidden) and clearIsolate: the components
+ *  other than `keep` faded to the default appearance at 80% transparency, made invisible but for their lines, or hidden,
+ *  and not selectable; the state before restored on clear. */
+let isolated: { hidden: string[]; unselectable: string[]; view: ReturnType<typeof getState>['view'] } | null = null
+function clearIsolate() {
+  if (!isolated) return
+  setState({ hidden: isolated.hidden, unselectable: isolated.unselectable, view: isolated.view })
+  isolated = null
+}
+function isolateComponents(keep: string[], mode: number) {
+  clearIsolate()
+  const s = getState()
+  const others = components(s.assembly).map((o) => o.name).filter((n) => !keep.includes(n))
+  if (mode === 3 || !others.length) return
+  isolated = { hidden: s.hidden, unselectable: s.unselectable, view: s.view }
+  // Hidden: Visibility is whether the component is isolated, and nothing else changes
+  if (mode === 2) { setState({ hidden: [...new Set([...s.hidden.filter((n) => !keep.includes(n)), ...others])] }); return }
+  const view = { ...s.view }
+  for (const n of others) view[n] = { ...view[n], transparency: mode === 0 ? 80 : 100, shapeColor: 0xcccccc }
+  setState({ view, hidden: s.hidden.filter((n) => !keep.includes(n)), unselectable: [...new Set([...s.unselectable, ...others])] })
+}
+/** TaskPlacement opened on a joint's Offset1 or Offset2 (UtilsAssembly.openEditingPlacementDialog, modal, its Selected
+ *  points button hidden): Translation, Center, Rotation by axis and angle or Euler angles, Reset, OK/Apply/Cancel. */
+function OffsetDialog({ title, value, onApply, onClose }: { title: string; value: Off; onApply(o: Off): void; onClose(): void }) {
+  const q0 = quatOfYpr(...value.ypr), aa0 = axisAngleOf(q0)
+  const [f, setF] = useState({ pos: value.pos, cnt: [0, 0, 0] as V3, axis: aa0.axis as V3, angle: aa0.angle, ypr: value.ypr })
+  const [mode, setMode] = useState<'axis' | 'euler'>('axis')
+  const rot = () => mode === 'euler' ? quatOfYpr(...f.ypr)
+    : new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(...f.axis).lengthSq() < 1e-12 ? new THREE.Vector3(0, 0, 1) : new THREE.Vector3(...f.axis).normalize(), f.angle * Math.PI / 180)
+  // Placement(position, rotation, center): p -> R (p - c) + c + position, so Base = position + c - R c
+  const result = (): Off => {
+    const q = rot(), c = new THREE.Vector3(...f.cnt)
+    const base = new THREE.Vector3(...f.pos).add(c).sub(c.clone().applyQuaternion(q))
+    return { pos: base.toArray().map((x) => Math.round(x * 1e9) / 1e9 + 0) as V3, ypr: yprOfQuat(q).map((x) => Math.round(x * 1e9) / 1e9 + 0) as V3 }
+  }
+  const setAt = (k: 'pos' | 'cnt' | 'axis' | 'ypr', i: number) => (x: number) => setF((y) => ({ ...y, [k]: y[k].map((t, j) => (j === i ? x : t)) as V3 }))
+  const xyz = (k: 'pos' | 'cnt') => ['X', 'Y', 'Z'].map((l, i) => <label key={l} className="tfield"><span>{l}</span><QuantityBox value={f[k][i]} dims={LENGTH} onChange={setAt(k, i)} /></label>)
+  return createPortal(<div className="msgbox-back" onKeyDown={(e) => { e.stopPropagation(); if (e.key === 'Escape') onClose() }}>
+    <div className="msgbox as-placement" role="dialog" aria-label={title} data-dialog="TaskPlacement">
+      <div className="msgbox-title">Placement</div>
+      <div className="tasks">
+        <div className="tcols">
+          <fieldset className="tgroup tg"><legend>Translation</legend>{xyz('pos')}</fieldset>
+          <fieldset className="tgroup tg"><legend>Center</legend>{xyz('cnt')}</fieldset>
+        </div>
+        <fieldset className="tgroup tg"><legend>Rotation</legend>
+          <QComboBox value={mode} onChange={(e) => {
+            const m = e.target.value as 'axis' | 'euler', q = rot()
+            if (m === 'euler') setF((x) => ({ ...x, ypr: yprOfQuat(q) }))
+            else { const a = axisAngleOf(q); setF((x) => ({ ...x, axis: a.axis as V3, angle: a.angle })) }
+            setMode(m)
+          }}><option value="axis">Rotation axis and angle</option><option value="euler">Euler angles (Z–Y′–X″)</option></QComboBox>
+          {mode === 'axis' ? <>
+            <div className="tfield top"><span>Axis</span><span className="tstack">{[0, 1, 2].map((i) => <span key={i}><QuantityBox value={f.axis[i]} dims={NUMBER} onChange={setAt('axis', i)} /></span>)}</span></div>
+            <label className="tfield"><span>Angle</span><QuantityBox value={f.angle} dims={ANGLE} onChange={(x) => setF((y) => ({ ...y, angle: x }))} /></label></>
+            : ['Yaw (around Z-axis)', 'Pitch (around Y-axis)', 'Roll (around X-axis)'].map((l, i) =>
+              <label key={l} className="tfield"><span>{l}</span><QuantityBox value={f.ypr[i]} dims={ANGLE} onChange={setAt('ypr', i)} /></label>)}
+        </fieldset>
+        <div className="hbox spread"><span /><button className="qbtn" onClick={() => setF({ pos: [0, 0, 0], cnt: [0, 0, 0], axis: [0, 0, 1], angle: 0, ypr: [0, 0, 0] })}>Reset</button></div>
+      </div>
+      <div className="msgbox-buttons">
+        <button className="qbtn default" onClick={() => { onApply(result()); onClose() }}>OK</button>
+        <button className="qbtn" onClick={() => onApply(result())}>Apply</button>
+        <button className="qbtn" onClick={onClose}>Cancel</button>
+      </div>
+    </div>
+  </div>, document.body)
+}
+const fmtPy = (x: number) => (Number.isInteger(x) ? `${x}.0` : String(x))
+/** TaskAssemblyCreateJoint: the joint's type, its two picks (a face, an edge or a vertex of two components, or a feature
+ *  of the Assembly's Origin picked in the tree; the vertex or centre nearest the click, as findElementClosestVertex takes
+ *  it), the fields adaptUi shows for the type, Reverse and Rotate, the limits, Show advanced offsets' Offset1/2 editors
+ *  (TaskPlacement), Isolate; the solve previewed from the second pick on, written at OK. */
 function JointTask({ type0, edit }: { type0: JointType; edit?: string }) {
   const v = useStore((s) => s.assembly)
   const existing = edit ? asmObject(v, edit) : undefined
   const [type, setType] = useState<JointType>(type0)
   const [refs, setRefs] = useState<Ref[]>(() => existing ? [existing.reference1, existing.reference2].filter(Array.isArray).map((r) => [String((r as unknown[])[0]), [...((r as unknown[])[1] as string[])]] as Ref) : [])
-  const off2 = existing?.offset2 as [V3, number[]] | null | undefined
   const [vals, setVals] = useState<JointVals>(() => ({
     angle: Number(existing?.angle ?? 0), distance: Number(existing?.distance ?? (NO_NEGATIVE_DISTANCE.includes(type0) ? 1 : 0)),
     distance2: Number(existing?.distance2 ?? (type0 === 'Gears' || type0 === 'Belt' ? 1 : 0)),
-    offset: off2 ? Number(off2[0][2]) : 0, rotation: off2 && off2[1].length === 3 ? Number(off2[1][0]) : 0,
+    off1: offOf(existing?.offset1), off2: offOf(existing?.offset2),
     limits: [!!existing?.enable_length_min, !!existing?.enable_length_max, !!existing?.enable_angle_min, !!existing?.enable_angle_max],
     lengthMin: Number(existing?.length_min ?? 0), lengthMax: Number(existing?.length_max ?? 0), angleMin: Number(existing?.angle_min ?? 0),
-    angleMax: Number(existing?.angle_max ?? 0), reverse: false, advanced: false,
+    angleMax: Number(existing?.angle_max ?? 0), reverse: false, advanced: false, touched1: false, touched2: false,
   }))
   const [isolate, setIsolate] = useState(0)
+  const [dialog, setDialog] = useState<0 | 1 | 2>(0)
   const [preview, setPreview] = useState<AsmView | null>(null)
   const timer = useRef<number | undefined>(undefined)
   const set = (p: Partial<JointVals>) => setVals((x) => ({ ...x, ...p }))
+  const lit = (o: Off) => [o.pos, o.ypr]
   const props = (): Record<string, unknown> => {
     const p: Record<string, unknown> = {}
     if (USING_ANGLE.includes(type)) p.angle = vals.angle
     if (USING_DISTANCE.includes(type)) p.distance = vals.distance
     if (USING_DISTANCE2.includes(type)) p.distance2 = vals.distance2
-    if ((USING_OFFSET.includes(type) && vals.offset) || (USING_ROTATION.includes(type) && vals.rotation)) {
-      p.offset2 = [[0, 0, USING_OFFSET.includes(type) ? vals.offset : 0], [USING_ROTATION.includes(type) ? vals.rotation : 0, 0, 0]]
+    // the simple fields write Offset2.Base.z and its yaw; the advanced editors the whole of Offset1 and Offset2
+    if (vals.touched2 ? !isOff0(vals.off2) || existing?.offset2 : (USING_OFFSET.includes(type) && vals.off2.pos[2]) || (USING_ROTATION.includes(type) && vals.off2.ypr[0])) {
+      p.offset2 = vals.touched2 ? lit(vals.off2) : [[0, 0, USING_OFFSET.includes(type) ? vals.off2.pos[2] : 0], [USING_ROTATION.includes(type) ? vals.off2.ypr[0] : 0, 0, 0]]
     }
+    if (vals.touched1 && (!isOff0(vals.off1) || existing?.offset1)) p.offset1 = lit(vals.off1)
     if (USING_LIMIT_LENGTH.includes(type) || USING_LIMIT_ANGLE.includes(type)) {
       const [a, b, c, d] = vals.limits
       Object.assign(p, { enable_length_min: a, enable_length_max: b, enable_angle_min: c, enable_angle_max: d })
@@ -576,52 +687,69 @@ function JointTask({ type0, edit }: { type0: JointType; edit?: string }) {
     }, 150)
     return () => clearTimeout(timer.current)
   }, [JSON.stringify(refs), JSON.stringify(vals), type])
+  // updateIsolation: the two picks' moving parts isolated (the Origin is no component), cleared with fewer picks
+  useEffect(() => {
+    if (refs.length === 2) isolateComponents([...new Set(refs.map((r) => r[0]))], isolate)
+    else clearIsolate()
+  }, [JSON.stringify(refs), isolate])
+  useEffect(() => () => clearIsolate(), [])
   // the JCS markers of the picks
   useEffect(() => {
     const view = getView()
     if (!view) return
-    const name = edit ?? 'new'
     const g = preview?.jcs?.[existing?.name ?? ''] ?? null
     const root = new THREE.Group()
-    const size = (getState().scene?.bbox ? 0 : 0) || 10
+    const size = 10
     if (g) { root.add(jcsMarker(g.global1, size)); root.add(jcsMarker(g.global2, size)) }
     else for (const r of pickedJcs.current) root.add(jcsMarker(r, size))
     view.setHelper?.('as-jcs', root.children.length ? root : null)
-    void name
   }, [preview, refs])
   const pickedJcs = useRef<Plc[]>([])
-  // picks in the 3D view (TaskAssemblyCreateJoint.addSelection through MakeJointSelGate)
+  const refsRef = useRef(refs)
+  refsRef.current = refs
+  /** TaskAssemblyCreateJoint.addSelection: no more than 2, never twice the same moving part. */
+  const add = async (comp: string, element: string, point: THREE.Vector3 | null) => {
+    const cur = refsRef.current
+    if (cur.length >= 2 || cur.some((r) => r[0] === comp)) return
+    const s = getState()
+    try {
+      const r = await api.assemblyJcs(s.slug!, comp, element, point ? point.toArray() : null, type)
+      if (r.exit !== 0) { report('warn', resultText(r)); return }
+      const subs = (r.data?.subs as string[]) ?? [element, element]
+      pickedJcs.current = [...pickedJcs.current.slice(0, cur.length), r.data?.global as Plc]
+      setRefs((x) => (x.length >= 2 || x.some((y) => y[0] === comp) ? x : [...x, [comp, subs]]))
+    } catch (e) { report('err', msg(e)) }
+  }
+  // picks in the 3D view (through MakeJointSelGate) and of the Origin's features in the tree
   useEffect(() => {
     const view = getView()
     if (!view) return
     view.pointPicker = async (body, point, subName) => {
       if (!body || !subName || !isComponent(body)) { report('warn', 'Select 2 elements from 2 separate parts'); return }
-      const cur = refsRef.current
-      if (cur.length >= 2 || cur.some((r) => r[0] === body)) return       // no more than 2, and not twice the same part
-      const s = getState()
-      try {
-        const r = await api.assemblyJcs(s.slug!, body, subName, point ? point.toArray() : null, type)
-        if (r.exit !== 0) { report('warn', resultText(r)); return }
-        const subs = (r.data?.subs as string[]) ?? [subName, subName]
-        pickedJcs.current = [...pickedJcs.current.slice(0, cur.length), r.data?.global as Plc]
-        setRefs((x) => (x.length >= 2 || x.some((y) => y[0] === body) ? x : [...x, [body, subs]]))
-      } catch (e) { report('err', msg(e)) }
+      if (getState().unselectable.includes(body)) return
+      await add(body, subName, point)
     }
-    return () => { view.pointPicker = null; view.setHelper?.('as-jcs', null); showPlacements(null) }
+    treePick = (row) => {
+      if (!(row in ORIGIN_LABELS)) return false
+      void add('Origin', `${row}.`, null)
+      return true
+    }
+    return () => { view.pointPicker = null; treePick = null; view.setHelper?.('as-jcs', null); showPlacements(null) }
   }, [type])
-  const refsRef = useRef(refs)
-  refsRef.current = refs
   const accept = async () => {
     if (refs.length !== 2) { report('warn', 'Select 2 elements from 2 separate parts'); return }
     const o = ops()
+    clearIsolate()
     closeTask()
     showPlacements(null)
     await applyAssembly(o, existing ? `Edit ${labelOf(existing)} Joint` : `Create ${type0} Joint`)
   }
-  const reject = () => { closeTask(); showPlacements(null) }
+  const reject = () => { clearIsolate(); closeTask(); showPlacements(null) }
+  /** updateJointList: the object's Label, and the element when there is one. */
   const featName = (r: Ref) => {
+    if (r[0] === 'Origin') { const d = r[1][0].replace(/\.$/, ''); return ORIGIN_LABELS[d] ?? d }
     const o = asmObject(v, r[0])
-    const el = r[1][0] ? `.${r[1][0]}` : ''
+    const el = r[1][0] ? `.${r[1][0].split('.').filter(Boolean).pop()}` : ''
     return `${o ? labelOf(o) : r[0]}${el}`
   }
   const needLimits = USING_LIMIT_LENGTH.includes(type) || USING_LIMIT_ANGLE.includes(type)
@@ -634,6 +762,8 @@ function JointTask({ type0, edit }: { type0: JointType; edit?: string }) {
       <label className="tcheck" data-qf={box}><input type="checkbox" checked={vals.limits[i]} onChange={(e) => { const l = [...vals.limits] as JointVals['limits']; l[i] = e.target.checked; set({ limits: l }) }} /> {text}</label>
       <Q label="" name={spin} value={value} dims={dims} disabled={!vals.limits[i]} min={minmax?.[0]} max={minmax?.[1]} onChange={onValue} />
     </div>
+  // updateOffsetWidgets: the buttons show Base as Python prints a Vector's coordinates
+  const offText = (o: Off) => `(${o.pos.map(fmtPy).join(', ')})`
   // the panel's rows top to bottom as TaskAssemblyCreateJoint.ui lays them out and adaptUi shows them (fcassembly.json)
   return <div className="tasks as-task" data-task="joint">
     <TaskBox title="Joint" icon={jointIcon(type)}>
@@ -644,16 +774,16 @@ function JointTask({ type0, edit }: { type0: JointType; edit?: string }) {
       </div>
       {USING_REVERSE.includes(type) && <div className="tbuttons">
         <button className="qbtn" data-qf="PushButtonReverse" title="Reverse the direction of the joint" onClick={() => set({ reverse: !vals.reverse })}>Reverse</button>
-        <button className="qbtn" data-qf="PushButtonRotate90" title="Rotate the joint 90 degrees" onClick={() => set({ rotation: (vals.rotation + 90) % 360 })}>Rotate</button>
+        <button className="qbtn" data-qf="PushButtonRotate90" title="Rotate the joint 90 degrees" onClick={() => set({ off2: { ...vals.off2, ypr: [(vals.off2.ypr[0] + 90) % 360, vals.off2.ypr[1], vals.off2.ypr[2]] } })}>Rotate</button>
       </div>}
       {USING_ANGLE.includes(type) && <Q label="Angle" labelName="angleLabel" name="angleSpinbox" value={vals.angle} dims={ANGLE} onChange={(x) => set({ angle: x })} />}
       {USING_DISTANCE.includes(type) && <Q label={distanceLabel} labelName="distanceLabel" name="distanceSpinbox" value={vals.distance} dims={LENGTH} min={NO_NEGATIVE_DISTANCE.includes(type) ? 1e-7 : undefined} onChange={(x) => set({ distance: x })} />}
       {USING_DISTANCE2.includes(type) && <Q label="Radius 2" labelName="distanceLabel2" name="distanceSpinbox2" value={vals.distance2} dims={LENGTH} min={1e-7} onChange={(x) => set({ distance2: x })} />}
-      {!vals.advanced && USING_OFFSET.includes(type) && <Q label="Offset" labelName="offsetLabel" name="offsetSpinbox" value={vals.offset} dims={LENGTH} onChange={(x) => set({ offset: x })} />}
-      {!vals.advanced && USING_ROTATION.includes(type) && <Q label="Rotation" labelName="rotationLabel" name="rotationSpinbox" value={vals.rotation} dims={ANGLE} onChange={(x) => set({ rotation: x })} />}
+      {!vals.advanced && USING_OFFSET.includes(type) && <Q label="Offset" labelName="offsetLabel" name="offsetSpinbox" value={vals.off2.pos[2]} dims={LENGTH} onChange={(x) => set({ off2: { ...vals.off2, pos: [0, 0, x] } })} />}
+      {!vals.advanced && USING_ROTATION.includes(type) && <Q label="Rotation" labelName="rotationLabel" name="rotationSpinbox" value={vals.off2.ypr[0]} dims={ANGLE} onChange={(x) => set({ off2: { ...vals.off2, ypr: [x, vals.off2.ypr[1], vals.off2.ypr[2]] } })} />}
       {vals.advanced && <>
-        <label className="tfield"><span data-qf="offset1Label">Offset1</span><button className="qbtn" data-qf="offset1Button" disabled title="n/a: Offset1 is set with `cad assembly set ... offset1=...`">(0.0, 0.0, 0.0)</button></label>
-        <label className="tfield"><span data-qf="offset2Label">Offset2</span><button className="qbtn" data-qf="offset2Button" disabled title="n/a: Offset2 is set with the Offset and Rotation fields">({`0.0, 0.0, ${vals.offset}`})</button></label>
+        <label className="tfield"><span data-qf="offset1Label">Offset1</span><button className="qbtn" data-qf="offset1Button" onClick={() => setDialog(1)}>{offText(vals.off1)}</button></label>
+        <label className="tfield"><span data-qf="offset2Label">Offset2</span><button className="qbtn" data-qf="offset2Button" onClick={() => setDialog(2)}>{offText(vals.off2)}</button></label>
       </>}
       <label className="tcheck" data-qf="advancedOffsetCheckbox"><input type="checkbox" checked={vals.advanced} onChange={(e) => set({ advanced: e.target.checked })} /> Show advanced offsets</label>
       {needLimits && <fieldset className="tgroup" data-qf="groupBox_limits"><legend>Limits</legend>
@@ -675,6 +805,8 @@ function JointTask({ type0, edit }: { type0: JointType; edit?: string }) {
       <button className="qbtn default" onClick={() => void accept()}>OK</button>
       <button className="qbtn" onClick={reject}>Cancel</button>
     </div>
+    {dialog !== 0 && <OffsetDialog title={dialog === 1 ? 'Offset1' : 'Offset2'} value={dialog === 1 ? vals.off1 : vals.off2}
+      onApply={(o) => set(dialog === 1 ? { off1: o, touched1: true } : { off2: o, touched2: true })} onClose={() => setDialog(0)} />}
   </div>
 }
 
@@ -720,6 +852,15 @@ export function AssemblyProps({ name }: { name: string }) {
     void applyAssembly([{ op: 'set', name, props: { [key]: value } }], `Edit ${name}.${prop.replace(/ /g, '')}`)
   if (o.kind === 'GroundedJoint') return <><Group title="Base"><Row k="Label" v={labelOf(o)} /></Group>
     <Group title="Ground"><Row k="Object To Ground" v={String(o.object_to_ground)} /></Group></>
+  if (o.kind === 'RigidGroupJoint') {
+    // RigidGroupJoint's properties (RigidPlacements is hidden), Suppressed from its SuppressibleExtension
+    const members = (o.objects_to_rigid_group as string[] | undefined) ?? []
+    const lab = (n: string) => { const x = asmObject(v, n); return x ? labelOf(x) : n }
+    return <><Group title="Base"><Row k="Label" v={labelOf(o)} />
+      <div className="prow" data-prop="Suppressed"><span className="pk">Suppressed</span><span className="pv"><input type="checkbox" checked={!!o.suppressed}
+        onChange={(e) => commit('suppressed', 'Suppressed', e.target.checked)} /></span></div></Group>
+      <Group title="RigidGroup"><Row k="Objects To Rigid Group" v={`[${members.map(lab).join(', ')}]`} /></Group></>
+  }
   if (o.kind === 'Link') return <><Group title="Base"><Row k="Placement" v={plcText(v?.placements?.[name] ?? null)} /><Row k="Label" v={labelOf(o)} /></Group>
     <Group title="Link"><Row k="Linked Object" v={String(o.linked_object)} /></Group></>
   const groups = [...new Set(PROP_ROWS.map((r) => r[0]))]
@@ -745,7 +886,7 @@ interface Drag {
   mode: DragMode; docs: { obj: string; plc: P }[]; jcs: P; ungrounded: boolean
   initialPosition: V3; initialPositionRot: V3; prevPosition: V3; initialUngrounded: V3
   solver: Awaited<ReturnType<typeof loadAssemblySolver>> | null; handle: ReturnType<Awaited<ReturnType<typeof loadAssemblySolver>>['drag']> | null
-  placements: Record<string, Plc>; moved: boolean
+  placements: Record<string, Plc>; moved: boolean; rigid: boolean
 }
 let drag: Drag | null = null
 /** The view's projections (View3DInventorViewer::getPointOnFocalPlane, getPointOnXYPlaneOfPlacement, getPointOnLine). */
@@ -784,7 +925,7 @@ function pointOnLine(pos: V2, center: V3, axis: V3): V3 | null {
   return add(onLine, scale(da, s))
 }
 /** ViewProviderAssembly::findDragMode, on the page's own solver (its queries are AssemblyObject's). */
-async function findDragMode(part: string, doc: AsmDoc, solver: NonNullable<Drag['solver']>): Promise<Omit<Drag, 'initialPosition' | 'initialPositionRot' | 'prevPosition' | 'initialUngrounded' | 'solver' | 'handle' | 'placements' | 'moved'>> {
+async function findDragMode(part: string, doc: AsmDoc, solver: NonNullable<Drag['solver']>): Promise<Omit<Drag, 'initialPosition' | 'initialPositionRot' | 'prevPosition' | 'initialUngrounded' | 'solver' | 'handle' | 'placements' | 'moved' | 'rigid'>> {
   const q = (op: string, ...args: string[]) => solver.query(doc, op, ...args)
   const plcOf = (n: string): P => { const p = doc.parts.find((x) => x.name === n)?.placement; return p ? ofPlc(p) : P0 }
   let docs = [{ obj: part, plc: plcOf(part) }]
@@ -813,7 +954,8 @@ async function findDragMode(part: string, doc: AsmDoc, solver: NonNullable<Drag[
   if (!jt) return { mode: 'Translation', docs, jcs: P0, ungrounded }
   const ref = pName === 'Reference1' ? jt.reference1 : jt.reference2
   const jcsPlc = ofPlc(pName === 'Reference1' ? jt.placement1 : jt.placement2)
-  const jcs = pmul(ref ? plcOf(ref.part) : P0, jcsPlc)
+  // getJcsGlobalPlc: the part's placement, the referenced object's in it (a datum, a sub-assembly's child), the JCS
+  const jcs = pmul(ref ? plcOf(ref.part) : P0, ref?.obj ? pmul(ofPlc(ref.obj), jcsPlc) : jcsPlc)
   if (!ungrounded) addParts(q('getDownstreamParts', docs[0].obj, joint) as string[])
   const mode: DragMode = jt.type === 'Revolute' ? 'RotationOnPlane' : jt.type === 'Slider' ? 'TranslationOnAxis'
     : jt.type === 'Cylindrical' ? 'TranslationOnAxisAndRotationOnePlane' : jt.type === 'Ball' ? 'Ball'
@@ -828,8 +970,10 @@ async function initMove(part: string, pos: V2) {
   if (doc.parts.find((p) => p.name === part)?.grounded) return false      // canDragObjectIn3d: not a grounded part
   const m = await findDragMode(part, doc, solver)
   if (m.mode === 'None' || !m.docs.length) return false
+  // requiresRigidSolveForMove: a rigid group's member is moved by a full solve on each move (its group follows)
+  const rigid = !!solver.query(doc, 'requiresRigidSolveForMove', ...m.docs.map((x) => x.obj))
   const d: Drag = { ...m, initialPosition: [0, 0, 0], initialPositionRot: [0, 0, 0], prevPosition: [0, 0, 0], initialUngrounded: [0, 0, 0],
-    solver, handle: null, placements: Object.fromEntries(doc.parts.map((p) => [p.name, p.placement])), moved: false }
+    solver, handle: null, placements: Object.fromEntries(doc.parts.map((p) => [p.name, p.placement])), moved: false, rigid }
   const axisZ = qrot(d.jcs.rot, [0, 0, 1])
   if (d.ungrounded) d.initialUngrounded = pointOnFocalPlane(pos) ?? [0, 0, 0]
   if (d.mode === 'RotationOnPlane') d.initialPositionRot = pointOnXYPlaneOf(pos, d.jcs) ?? [0, 0, 0]
@@ -839,7 +983,7 @@ async function initMove(part: string, pos: V2) {
     d.initialPosition = pointOnLine(pos, d.jcs.pos, axisZ) ?? [0, 0, 0]
   } else if (d.mode === 'TranslationOnPlane') d.initialPosition = pointOnXYPlaneOf(pos, d.jcs) ?? [0, 0, 0]
   else { d.initialPosition = pointOnFocalPlane(pos) ?? [0, 0, 0]; d.prevPosition = d.initialPosition }
-  if (d.mode !== 'TranslationNoSolve') d.handle = solver.drag(doc, d.docs.map((x) => x.obj))      // SolveOnMove: preDrag
+  if (d.mode !== 'TranslationNoSolve' || rigid) d.handle = solver.drag(doc, d.docs.map((x) => x.obj))      // SolveOnMove: preDrag
   drag = d
   return true
 }
@@ -898,7 +1042,7 @@ function moveTo(pos: V2) {
   Object.assign(d.placements, set)
   if (d.handle) {
     try {
-      const r: AsmResult = d.handle.step(set)
+      const r: AsmResult = d.rigid ? d.handle.rigidStep(set) : d.handle.step(set)
       if (!r.drag_failed) Object.assign(d.placements, r.placements)
     } catch { /* a step that fails is ignored, as doDragStep does */ }
   }

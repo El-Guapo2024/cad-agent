@@ -192,3 +192,85 @@ case("three_part_chain", {"plate": PLATE, "bar": BAR, "pin": PIN, "disc": DISC},
          joint("Fixed", ("Pin", ["Face2", "Edge1"]), ("Disc", ["Face3", "Edge1"])),
          {"op": "suppress", "joint": "Joint", "value": True},
      ])
+
+# ── rigid groups (Assembly_CreateJointRigidGroup: JointObject.RigidGroupJoint, AssemblyObject's rigid clusters) ──
+#    {"op": "rigid", "parts": [link, ...]}       the selection's components made one rigid group, then a recompute
+#    {"op": "update_rigid", "joint": name}       the group's "Update Stored Positions" (while it is suppressed)
+case("rigid_pair_revolute", *CHAIN, [
+    {"op": "rigid", "parts": ["Arm", "Pin"]},
+    joint("Revolute", ("Plate", ["Face6", "Vertex8"]), ("Arm", ["Face5", "Vertex1"])),
+])
+case("rigid_with_grounded", *CHAIN, [
+    {"op": "rigid", "parts": ["Plate", "Arm"]},
+    joint("Fixed", ("Arm", ["Face6", "Vertex8"]), ("Pin", ["Face3", "Edge1"])),
+])
+case("rigid_move_member", *CHAIN, [
+    {"op": "rigid", "parts": ["Arm", "Pin"]},
+    joint("Revolute", ("Plate", ["Face6", "Vertex8"]), ("Arm", ["Face5", "Vertex1"])),
+    {"op": "move", "link": "Pin", "placement": T3},
+])
+case("rigid_joint_inside", *CHAIN, [         # a joint between two members: its parts share one solver body
+    {"op": "rigid", "parts": ["Arm", "Pin"]},
+    joint("Revolute", ("Plate", ["Face6", "Vertex8"]), ("Arm", ["Face5", "Vertex1"])),
+    joint("Fixed", ("Arm", ["Face6", "Vertex8"]), ("Pin", ["Face3", "Edge1"])),
+])
+case("rigid_suppress_restore", *CHAIN, [
+    {"op": "rigid", "parts": ["Arm", "Pin"]},
+    joint("Revolute", ("Plate", ["Face6", "Vertex8"]), ("Arm", ["Face5", "Vertex1"])),
+    {"op": "suppress", "joint": "RigidGroupJoint", "value": True},
+    {"op": "move", "link": "Pin", "placement": T3},
+    {"op": "suppress", "joint": "RigidGroupJoint", "value": False},
+])
+case("rigid_update_stored", *CHAIN, [
+    {"op": "rigid", "parts": ["Arm", "Pin"]},
+    {"op": "suppress", "joint": "RigidGroupJoint", "value": True},
+    {"op": "move", "link": "Pin", "placement": T3},
+    {"op": "update_rigid", "joint": "RigidGroupJoint"},
+    {"op": "suppress", "joint": "RigidGroupJoint", "value": False},
+    joint("Revolute", ("Plate", ["Face6", "Vertex8"]), ("Arm", ["Face5", "Vertex1"])),
+])
+case("rigid_two_groups_chained", {"plate": PLATE, "bar": BAR, "pin": PIN, "disc": DISC},
+     [("Plate", "plate", None), ("Arm", "bar", T), ("Pin", "pin", T2), ("Disc", "disc", T3)], ["Plate"], [
+         {"op": "rigid", "parts": ["Arm", "Pin"]},
+         {"op": "rigid", "parts": ["Pin", "Disc"]},
+         joint("Slider", ("Plate", ["Face6", "Face6"]), ("Disc", ["Face3", "Edge1"])),
+     ])
+
+# ── joints on the Assembly's Origin: a pick on one of its features is (Origin, ["XY_Plane.", "XY_Plane."]), the
+#    Origin grounded as it always is (getGroundedParts), the JCS findPlacement's whole-part case ──
+NO_GROUND = ({"box10": BOX10, "bar": BAR, "pin": PIN, "ball": BALL},
+             [("Arm", "bar", T), ("Pin", "pin", T2), ("Ball", "ball", T3)], [])
+case("origin_fixed_xy", *NO_GROUND, [joint("Fixed", ("Origin", ["XY_Plane.", "XY_Plane."]), ("Arm", ["Face5", "Face5"]))])
+case("origin_fixed_xz_first_part", *NO_GROUND,
+     [joint("Fixed", ("Arm", ["Face5", "Vertex1"]), ("Origin", ["XZ_Plane.", "XZ_Plane."]))])
+case("origin_revolute_z_axis", *NO_GROUND,
+     [joint("Revolute", ("Origin", ["Z_Axis.", "Z_Axis."]), ("Pin", ["Face3", "Edge1"]))])
+case("origin_slider_x_axis", *NO_GROUND,
+     [joint("Slider", ("Origin", ["X_Axis.", "X_Axis."]), ("Arm", ["Edge1", "Edge1"]))])
+case("origin_cylindrical_y_axis", *NO_GROUND,
+     [joint("Cylindrical", ("Origin", ["Y_Axis.", "Y_Axis."]), ("Pin", ["Face1", "Face1"]))])
+case("origin_ball_point", *NO_GROUND,
+     [joint("Ball", ("Origin", ["Origin001.", "Origin001."]), ("Ball", ["Face1", "Face1"]))])
+case("origin_yz_parallel_grounded", {"box10": BOX10, "bar": BAR}, [("Base", "box10", None), ("Arm", "bar", T)], ["Base"],
+     [joint("Parallel", ("Origin", ["YZ_Plane.", "YZ_Plane."]), ("Arm", ["Face1", "Face1"]))])
+case("origin_angle_xy", *NO_GROUND,
+     [joint("Angle", ("Origin", ["XY_Plane.", "XY_Plane."]), ("Arm", ["Face5", "Face5"]), angle=30.0)])
+case("origin_distance_xz", *NO_GROUND,
+     [joint("Distance", ("Origin", ["XZ_Plane.", "XZ_Plane."]), ("Arm", ["Face3", "Face3"]), distance=5.0)])
+case("origin_chain", *NO_GROUND, [
+    joint("Revolute", ("Origin", ["Z_Axis.", "Z_Axis."]), ("Pin", ["Face3", "Edge1"])),
+    joint("Fixed", ("Pin", ["Face2", "Edge1"]), ("Arm", ["Face5", "Vertex1"])),
+    {"op": "set", "joint": "Joint", "prop": "offset2", "value": ((0.0, 0.0, 2.0), (30.0, 0.0, 0.0))},
+])
+
+# ── the JCS where two cylinders' axes cross: a cylinder face at its B-spline seam with the other cylinder
+#    (findElementClosestVertex's and findPlacement's findCylindersIntersection) ──
+TEE = [Part.Cylinder("Cylinder", radius=4, height=30),
+       Part.Cylinder("Cylinder001", radius=3, height=20, placement=((0.0, -10.0, 15.0), (0.0, 0.0, -90.0))),
+       Part.MultiFuse("Fusion", ["Cylinder", "Cylinder001"])]
+case("cylinders_intersection_revolute", {"tee": TEE, "pin": PIN}, [("Tee", "tee", None), ("Pin", "pin", T)], ["Tee"],
+     [joint("Revolute", ("Tee", ["Face4", "Edge3"]), ("Pin", ["Face3", "Edge1"]))])
+case("cylinders_intersection_moving", {"plate": PLATE, "tee": TEE}, [("Plate", "plate", None), ("Tee", "tee", T)],
+     ["Plate"], [joint("Fixed", ("Plate", ["Face6", "Vertex8"]), ("Tee", ["Face1", "Edge4"]))])
+case("cylinders_intersection_ball", {"plate": PLATE, "tee": TEE}, [("Plate", "plate", None), ("Tee", "tee", T)],
+     ["Plate"], [joint("Ball", ("Plate", ["Vertex8", "Vertex8"]), ("Tee", ["Face5", "Edge1"]))])

@@ -16,7 +16,9 @@
 #include <fstream>
 #include <functional>
 #include <limits>
+#include <map>
 #include <numbers>
+#include <set>
 #include <sstream>
 #include <unordered_set>
 #if !defined(__EMSCRIPTEN__)
@@ -635,6 +637,9 @@ AssemblyObject::AssemblyObject(Document d)
     : doc(std::move(d))
 {
     lastDoF = int(doc.parts.size()) * 6;
+    // FreeCAD's rigid clusters are those of the last solve's rebuildRigidClusters; a document here is the state a
+    // solve left, so its clusters are rebuilt once for the queries asked before any solve
+    rebuildRigidClusters();
 }
 
 AssemblyObject::~AssemblyObject() = default;
@@ -674,6 +679,8 @@ int AssemblyObject::solve(bool enableRedo)
     mbdAssembly = makeMbdAssembly();
     objectPartMap.clear();
     objectPartOrder.clear();
+    rebuildRigidClusters();
+    syncActiveRigidGroupPlacements();
 
     auto groundedObjs = fixGroundedParts();
     if (groundedObjs.empty()) {
@@ -709,6 +716,7 @@ int AssemblyObject::solve(bool enableRedo)
     }
 
     setNewPlacements();
+    updateRigidPlacementCache();
 
     updateSolveStatus();
 
@@ -805,15 +813,24 @@ void AssemblyObject::preDrag(const std::vector<std::string>& dragParts)
     draggedParts.clear();
 
     for (const auto& part : dragParts) {
+        const bool isRigidClustered = !getRigidRepresentative(part).empty();
+
         // make sure no duplicate
         if (std::find(draggedParts.begin(), draggedParts.end(), part) != draggedParts.end()) {
             continue;
         }
 
-        // Free-floating parts are ignored by the solver. (FreeCAD keeps an unconnected part that an
-        // island drag seeded only when it belongs to a rigid cluster; there are none here.)
-        if (!isPartConnected(part)) {
+        // - Free-floating parts should not be added since they are ignored by the solver.
+        // During ungrounded island dragging, prepareMbdForIslandDrag seeds the MBD system from
+        // the dragged parts, so objectPartMap is the source of truth instead.
+        // - Active rigid-cluster members are solver-connected through the shared MbD part.
+        if (!isPartConnected(part) && (!objectPartMap.contains(part) || !isRigidClustered)) {
             continue;
+        }
+
+        // Rigid-cluster members stay draggable because they share one MbD part.
+        if (isRigidClustered) {
+            draggedParts.push_back(part);
         }
 
         Placement plc;
@@ -910,6 +927,7 @@ void AssemblyObject::doDragStep()
 
         if (validateNewPlacements()) {
             setNewPlacements();
+            updateRigidPlacementCache();
         }
         else {
             dragFailed = true;
@@ -998,6 +1016,7 @@ std::string AssemblyObject::exportAsASMT()
     mbdAssembly = makeMbdAssembly();
     objectPartMap.clear();
     objectPartOrder.clear();
+    rebuildRigidClusters();
     fixGroundedParts();
 
     std::vector<Joint*> joints = getJoints();
@@ -1069,6 +1088,19 @@ std::vector<std::string> AssemblyObject::getGroundedParts()
         }
     }
     inserted.push_back(doc.origin);
+
+    // Propagate grounding through active rigid clusters: each grounded object's members go into the set, walked in
+    // the set's order at that point (the last inserted first)
+    std::vector<std::string> groundedSnapshot(inserted.rbegin(), inserted.rend());
+    for (const auto& groundedObj : groundedSnapshot) {
+        if (const auto* members = getRigidMembers(groundedObj)) {
+            for (const auto& member : *members) {
+                if (std::find(inserted.begin(), inserted.end(), member) == inserted.end()) {
+                    inserted.push_back(member);
+                }
+            }
+        }
+    }
     std::reverse(inserted.begin(), inserted.end());
     return inserted;
 }
@@ -1228,6 +1260,17 @@ std::vector<std::string> AssemblyObject::getConnectedParts(const std::string& pa
         }
         else if (obj2 == part) {
             connectedParts.push_back(obj1);
+        }
+    }
+
+    // Add rigid-cluster neighbors as fixed-like connectivity edges.
+    if (const auto* members = getRigidMembers(part)) {
+        for (const auto& member : *members) {
+            if (member == part
+                || std::find(connectedParts.begin(), connectedParts.end(), member) != connectedParts.end()) {
+                continue;
+            }
+            connectedParts.push_back(member);
         }
     }
     return connectedParts;
@@ -1810,7 +1853,7 @@ std::string AssemblyObject::handleOneSideOfJoint(Joint* joint, int side, const s
     Placement plc = side == 1 ? joint->plc1 : joint->plc2;
     // The JCS placement is relative to the Object, not to the containing Part: a component is its
     // own object here, so its global placement is applied and taken off again, as FreeCAD does.
-    Placement obj_global_plc = placementOf(part);
+    Placement obj_global_plc = placementOf(part) * ref.objPlc;
     plc = obj_global_plc * plc;
     Placement part_global_plc = placementOf(part);
     plc = part_global_plc.inverse() * plc;
@@ -1952,6 +1995,40 @@ MbDPartData AssemblyObject::getMbDData(const std::string& part)
         return it->second;
     }
 
+    // Associate objects that belong to an active rigid cluster.
+    if (std::string rep = getRigidRepresentative(part); !rep.empty()) {
+        Placement repPlc = placementOf(rep);
+
+        std::shared_ptr<ASMTPart> mbdPart;
+        const auto repMapped = objectPartMap.find(rep);
+        if (repMapped != objectPartMap.end()) {
+            mbdPart = repMapped->second.part;
+        }
+        else {
+            std::string repName = doc.fullName(rep);
+            mbdPart = makeMbdPart(repName, repPlc);
+            mbdAssembly->addPart(mbdPart);
+            objectPartMap[rep] = {mbdPart, Placement()};
+            objectPartOrder.push_back(rep);
+        }
+
+        if (const auto* members = getRigidMembers(rep)) {
+            for (const auto& member : *members) {
+                if (objectPartMap.find(member) != objectPartMap.end()) {
+                    continue;
+                }
+                Placement memberPlc = placementOf(member);
+                objectPartMap[member] = {mbdPart, repPlc.inverse() * memberPlc};
+                objectPartOrder.push_back(member);
+            }
+        }
+
+        auto mapped = objectPartMap.find(part);
+        if (mapped != objectPartMap.end()) {
+            return mapped->second;
+        }
+    }
+
     std::string str = doc.fullName(part);
     Placement plc = placementOf(part);
     std::shared_ptr<ASMTPart> mbdPart = makeMbdPart(str, plc);
@@ -1982,6 +2059,236 @@ MbDPartData AssemblyObject::getMbDData(const std::string& part)
         addConnectedFixedParts(part);
     }
     return data;
+}
+
+// ── the rigid groups (RigidGroupJoint) ─────────────────────────────────────────────────────────────
+
+std::vector<RigidGroup*> AssemblyObject::getRigidGroups()
+{
+    std::vector<RigidGroup*> rigid_groups;
+    for (auto& group : doc.rigidGroups) {
+        if (group.isError || group.suppressed) {
+            continue;
+        }
+        std::vector<std::string> validMembers;
+        std::set<std::string> seen;
+        for (const auto& member : group.members) {
+            // Keep only parts that belong to this assembly and have placement.
+            if (!doc.part(member)) {
+                continue;
+            }
+            // Ignore duplicates.
+            if (!seen.insert(member).second) {
+                continue;
+            }
+            validMembers.push_back(member);
+        }
+        // Ignore entire rigid group if it has less than 2 members remaining.
+        if (validMembers.size() < 2) {
+            continue;
+        }
+        if (validMembers.size() != group.members.size()) {
+            group.members = validMembers;
+            cleanedRigidGroups.emplace_back(group.name, validMembers);
+        }
+        rigid_groups.push_back(&group);
+    }
+    return rigid_groups;
+}
+
+// FreeCAD walks its union-find map (an unordered_map of pointers) to gather each cluster; the members are taken here
+// in the order the groups name them, which only decides which of several members moved at once drives the others.
+void AssemblyObject::rebuildRigidClusters()
+{
+    rigidRepByPart.clear();
+    rigidMembersByRep.clear();
+
+    std::map<std::string, std::string> parent;
+    std::vector<std::string> order;
+
+    std::function<std::string(const std::string&)> findRoot = [&](const std::string& node) -> std::string {
+        auto [it, inserted] = parent.emplace(node, node);
+        if (inserted) {
+            order.push_back(node);
+        }
+        if (inserted || it->second == node) {
+            return it->second;
+        }
+        std::string root = findRoot(it->second);
+        parent[node] = root;
+        return root;
+    };
+
+    auto unite = [&](const std::string& a, const std::string& b) {
+        const std::string rootA = findRoot(a);
+        const std::string rootB = findRoot(b);
+        if (rootA != rootB) {
+            parent[rootB] = rootA;
+        }
+    };
+
+    for (auto* rigidGroup : getRigidGroups()) {
+        const auto& members = rigidGroup->members;
+        if (members.size() < 2) {
+            continue;
+        }
+        for (size_t k = 1; k < members.size(); ++k) {
+            unite(members.front(), members[k]);
+        }
+    }
+
+    std::map<std::string, std::vector<std::string>> clusters;
+    std::vector<std::string> roots;
+    for (const auto& node : order) {
+        const std::string root = findRoot(node);
+        if (!clusters.contains(root)) {
+            roots.push_back(root);
+        }
+        clusters[root].push_back(node);
+    }
+
+    for (const auto& root : roots) {
+        auto& members = clusters[root];
+        if (members.size() < 2) {
+            continue;
+        }
+        // the member with the smallest Name (getNameInDocument) represents the cluster
+        const std::string rep = *std::min_element(members.begin(), members.end());
+        for (const auto& member : members) {
+            rigidRepByPart[member] = rep;
+        }
+        rigidMembersByRep[rep] = members;
+    }
+}
+
+std::string AssemblyObject::getRigidRepresentative(const std::string& part) const
+{
+    if (auto it = rigidRepByPart.find(part); it != rigidRepByPart.end()) {
+        return it->second;
+    }
+    return "";
+}
+
+const std::vector<std::string>* AssemblyObject::getRigidMembers(const std::string& part) const
+{
+    std::string rep = getRigidRepresentative(part);
+    if (!rep.empty()) {
+        if (auto it = rigidMembersByRep.find(rep); it != rigidMembersByRep.end()) {
+            return &it->second;
+        }
+    }
+    return nullptr;
+}
+
+std::vector<std::string> AssemblyObject::getRigidMembersOf(const std::string& part)
+{
+    const auto* m = getRigidMembers(part);
+    return m ? *m : std::vector<std::string>();
+}
+
+Placement* AssemblyObject::cached(const std::string& part)
+{
+    for (auto& [name, plc] : doc.rigidPlacementCache) {
+        if (name == part) {
+            return &plc;
+        }
+    }
+    return nullptr;
+}
+
+void AssemblyObject::syncActiveRigidGroupPlacements()
+{
+    auto store = [&](const std::string& member) {
+        if (auto* c = cached(member)) {
+            *c = placementOf(member);
+        }
+        else {
+            doc.rigidPlacementCache.emplace_back(member, placementOf(member));
+        }
+    };
+    for (const auto& [rep, members] : rigidMembersByRep) {
+        if (rep.empty() || members.size() < 2) {
+            continue;
+        }
+
+        bool hasCompleteCache = true;
+        std::vector<std::string> movedMembers;
+
+        for (const auto& member : members) {
+            auto* c = cached(member);
+            if (!c) {
+                hasCompleteCache = false;
+                break;
+            }
+            Placement currentPlc = placementOf(member);
+            if (!c->isSame(currentPlc)) {
+                movedMembers.push_back(member);
+            }
+        }
+
+        if (!hasCompleteCache) {
+            for (const auto& member : members) {
+                store(member);
+            }
+            continue;
+        }
+
+        if (movedMembers.empty()) {
+            continue;
+        }
+
+        const std::string driver = movedMembers.front();
+        const Placement oldDriverPlc = *cached(driver);
+        const Placement newDriverPlc = placementOf(driver);
+        const Placement delta = newDriverPlc * oldDriverPlc.inverse();
+
+        for (const auto& member : members) {
+            if (member == driver) {
+                continue;
+            }
+            if (auto* c = cached(member)) {
+                Placement targetPlc = delta * *c;
+                auto* p = doc.part(member);
+                if (p && !p->plc.isSame(targetPlc)) {
+                    p->plc = targetPlc;
+                }
+            }
+        }
+
+        for (const auto& member : members) {
+            store(member);
+        }
+    }
+}
+
+void AssemblyObject::updateRigidPlacementCache()
+{
+    std::set<std::string> activeMembers;
+    for (const auto& [rep, members] : rigidMembersByRep) {
+        for (const auto& member : members) {
+            activeMembers.insert(member);
+            if (auto* c = cached(member)) {
+                *c = placementOf(member);
+            }
+            else {
+                doc.rigidPlacementCache.emplace_back(member, placementOf(member));
+            }
+        }
+    }
+    std::vector<std::pair<std::string, Placement>> kept;
+    for (auto& entry : doc.rigidPlacementCache) {
+        if (activeMembers.contains(entry.first)) {
+            kept.push_back(entry);
+        }
+    }
+    doc.rigidPlacementCache = std::move(kept);
+}
+
+bool AssemblyObject::requiresRigidSolveForMove(const std::vector<std::string>& movedParts)
+{
+    rebuildRigidClusters();
+    return std::any_of(movedParts.begin(), movedParts.end(),
+                       [&](const std::string& part) { return !getRigidRepresentative(part).empty(); });
 }
 
 std::shared_ptr<ASMTPart> AssemblyObject::getMbDPart(const std::string& part)

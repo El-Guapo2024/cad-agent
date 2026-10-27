@@ -15,7 +15,7 @@ import wasmUrl from '../ondsel/dist/ondsel.wasm?url'
 export type Vec3 = [number, number, number]
 // FreeCAD's Placement: Base, and Rotation.Q (x, y, z, w)
 export interface Plc { base: Vec3; rotation: [number, number, number, number] }
-export interface AsmRef { part: string; subs: string[]; geom: string; radius: number }
+export interface AsmRef { part: string; subs: string[]; geom: string; radius: number; obj?: Plc }
 export interface AsmJoint {
   name: string; label?: string; type: string; suppressed?: boolean
   reference1: AsmRef | null; reference2: AsmRef | null; placement1: Plc; placement2: Plc
@@ -27,6 +27,8 @@ export interface AsmDoc {
   document?: string; origin?: string
   parts: { name: string; label?: string; placement: Plc; grounded?: boolean }[]
   joints: AsmJoint[]
+  rigid_groups?: { name: string; suppressed?: boolean; members: string[] }[]   // the RigidGroupJoints
+  rigid_cache?: [string, Plc][]                                               // AssemblyObject::rigidPlacementCache
 }
 export interface AsmResult {
   status: number           // AssemblyObject::solve()'s return: 0, -1 failed, -6 nothing grounded
@@ -45,6 +47,8 @@ export interface AsmResult {
 export interface AsmDrag {
   // the view provider's new placements for the dragged parts, one mouse move; the solve's answer back
   step(placements: Record<string, Plc>): AsmResult
+  // a rigid group's member dragged: the placements, then a full solve (forceSolveOnMoveForRigid)
+  rigidStep(placements: Record<string, Plc>): AsmResult
   end(): AsmResult
   dragged: string[]
 }
@@ -96,6 +100,10 @@ export function loadAssemblySolver(): Promise<AsmSolver> {
           step(placements: Record<string, Plc>): AsmResult {
             if (!open) throw new Error('ondsel: drag already ended')
             return parse<AsmResult>(call('ondsel_drag_step', 'string', ['number', 'string'], h, JSON.stringify(placements)))
+          },
+          rigidStep(placements: Record<string, Plc>): AsmResult {
+            if (!open) throw new Error('ondsel: drag already ended')
+            return parse<AsmResult>(call('ondsel_rigid_step', 'string', ['number', 'string'], h, JSON.stringify(placements)))
           },
           end(): AsmResult {
             if (!open) throw new Error('ondsel: drag already ended')

@@ -10,20 +10,25 @@
 //                "reference1": R, "reference2": R, "placement1": P, "placement2": P,
 //                "distance", "distance2", "angle" (degrees),
 //                "enable_length_min", "enable_length_max", "enable_angle_min", "enable_angle_max",
-//                "length_min", "length_max", "angle_min", "angle_max"}, ...]}  (the JointGroup's joints)
+//                "length_min", "length_max", "angle_min", "angle_max"}, ...],  (the JointGroup's joints)
+//    "rigid_groups": [{"name", "suppressed": bool, "members": [part, ...]}, ...]   (its RigidGroupJoints)
+//    "rigid_cache": [[part, P], ...]}  (AssemblyObject::rigidPlacementCache, as the last solve left it)
 //   P = {"base": [x, y, z], "rotation": [x, y, z, w]} (FreeCAD's Placement: Base and Rotation.Q)
 //   R = {"part": name, "subs": ["Face6", "Vertex8"], "geom": "Plane"|"Cylinder"|"Sphere"|"Cone"|"Torus"|
-//        "Line"|"Circle"|..., "radius": r}  or null: the component it moves, its element and vertex
-//        names, and the element's type and radius as AssemblyUtils reads them from the shape.
+//        "Line"|"Circle"|..., "radius": r, "obj": P}  or null: the component it moves, its element and vertex
+//        names, the element's type and radius as AssemblyUtils reads them from the shape, and where the object
+//        the element belongs to sits in the component (a child of a rigid sub-assembly, a datum; default identity).
 // A result is
 //   {"status": solve()'s return (0 solved, -1 failed, -6 nothing grounded), "solver_status",
 //    "dof", "redundant": [joint names], "placements": {part: P} (every component),
 //    "joints": [the joints as the solve left them: a swap moves Reference1/2 and Placement1/2],
-//    "swapped": [joint names], "warnings": [...], "errors": [...], "log": the solver's own output}
+//    "swapped": [joint names], "rigid_cache": [[part, P], ...], "rigid_groups": {group: [members]} (the groups
+//    getRigidGroups cleaned), "warnings": [...], "errors": [...], "log": the solver's own output}
 //   or {"error": "..."}.
 //
 // Stateless: ondsel_solve(doc), ondsel_query(doc, op, args) (isPartConnected, isPartGrounded,
-// isJointConnectingPartToGround, getDownstreamParts), ondsel_export(doc) (exportAsASMT's file).
+// isJointConnectingPartToGround, getDownstreamParts, requiresRigidSolveForMove, getRigidMembers, ...),
+// ondsel_export(doc) (exportAsASMT's file).
 // For a drag: ondsel_new(doc) -> handle, ondsel_pre_drag(h, ["part", ...]), ondsel_drag_step(h,
 // {part: P}) (the view provider's new placements for the dragged parts), ondsel_post_drag(h),
 // ondsel_free(h). Returned strings belong to the library and stay valid until the next call.
@@ -109,6 +114,7 @@ Ref toRef(const Json* j)
     r.geom = str(*j, "geom");
     r.radius = num(*j, "radius");
     r.jcs = toPlacement(j->get("jcs"));
+    r.objPlc = toPlacement(j->get("obj"));
     return r;
 }
 
@@ -158,6 +164,28 @@ Document toDocument(const Json& j)
             jt.angleMin = num(jj, "angle_min");
             jt.angleMax = num(jj, "angle_max");
             d.joints.push_back(jt);
+        }
+    }
+    if (const Json* gs = j.get("rigid_groups")) {
+        for (auto& gj : gs->items) {
+            RigidGroup g;
+            g.name = str(gj, "name");
+            g.suppressed = flag(gj, "suppressed");
+            g.isError = flag(gj, "error");
+            if (const Json* ms = gj.get("members")) {
+                for (auto& m : ms->items) {
+                    g.members.push_back(m.str);
+                }
+            }
+            d.rigidGroups.push_back(g);
+        }
+    }
+    if (const Json* cs = j.get("rigid_cache")) {
+        for (auto& c : cs->items) {
+            if (c.kind != Json::Array || c.items.size() != 2) {
+                throw std::invalid_argument("a rigid_cache entry is [part, placement]");
+            }
+            d.rigidPlacementCache.emplace_back(c.items[0].str, toPlacement(&c.items[1]));
         }
     }
     return d;
@@ -270,6 +298,29 @@ std::string result(AssemblyObject& a, int status, const std::string& log)
     w.out += ']';
     w.key("swapped");
     writeStrings(w, a.swapped);
+    w.key("rigid_cache");
+    w.out += '[';
+    for (size_t k = 0; k < a.doc.rigidPlacementCache.size(); ++k) {
+        if (k) {
+            w.out += ',';
+        }
+        w.out += '[';
+        w.str(a.doc.rigidPlacementCache[k].first);
+        w.out += ',';
+        writePlacement(w, a.doc.rigidPlacementCache[k].second);
+        w.out += ']';
+    }
+    w.out += ']';
+    w.key("rigid_groups");
+    w.out += '{';
+    for (size_t k = 0; k < a.cleanedRigidGroups.size(); ++k) {
+        if (k) {
+            w.out += ',';
+        }
+        w.key(a.cleanedRigidGroups[k].first.c_str());
+        writeStrings(w, a.cleanedRigidGroups[k].second);
+    }
+    w.out += '}';
     w.key("dragged");
     writeStrings(w, a.draggedParts);
     w.key("drag_failed");
@@ -384,6 +435,7 @@ const char* ondsel_export(const char* json)
         AssemblyObject a(toDocument(j));
         Capture cap;
         std::string text = a.exportAsASMT();
+        (void)cap;
         Writer w;
         w.out += '{';
         w.key("asmt");
@@ -438,6 +490,16 @@ const char* ondsel_query(const char* json, const char* op, const char* args)
         }
         else if (o == "getDownstreamParts") {
             writeStrings(w, a.getDownstreamParts(arg(0), as.items.size() > 1 ? arg(1) : std::string()));
+        }
+        else if (o == "requiresRigidSolveForMove") {
+            std::vector<std::string> parts;
+            for (auto& it : as.items) {
+                parts.push_back(it.str);
+            }
+            w.out += a.requiresRigidSolveForMove(parts) ? "true" : "false";
+        }
+        else if (o == "getRigidMembers") {
+            writeStrings(w, a.getRigidMembersOf(arg(0)));
         }
         else {
             throw std::invalid_argument(o + " is not a query");
@@ -515,6 +577,25 @@ const char* ondsel_drag_step(int h, const char* placements)
         Capture cap;
         a.doDragStep();
         return result(a, 0, cap.ss.str());
+    });
+}
+
+// ViewProviderAssembly::tryMouseMove with forceSolveOnMoveForRigid: the dragged parts' new placements, then a full
+// solve() (its syncActiveRigidGroupPlacements drags each moved member's group along) instead of doDragStep.
+const char* ondsel_rigid_step(int h, const char* placements)
+{
+    return guarded([&] {
+        auto& a = handle(h);
+        clearMessages(a);
+        Json ps = Parser(placements).parse();
+        for (size_t k = 0; k < ps.keys.size(); ++k) {
+            if (auto* p = a.doc.part(ps.keys[k])) {
+                p->plc = toPlacement(&ps.values[k]);
+            }
+        }
+        Capture cap;
+        int status = a.solve();
+        return result(a, status, cap.ss.str());
     });
 }
 

@@ -70,7 +70,7 @@ def _lib():
             ("ondsel_version", [], s), ("ondsel_solve", [s], s), ("ondsel_export", [s], s),
             ("ondsel_query", [s, s, s], s), ("ondsel_new", [s], i), ("ondsel_last_error", [], s),
             ("ondsel_free", [i], None), ("ondsel_handle_solve", [i], s), ("ondsel_pre_drag", [i, s], s),
-            ("ondsel_drag_step", [i, s], s), ("ondsel_post_drag", [i], s)):
+            ("ondsel_drag_step", [i, s], s), ("ondsel_rigid_step", [i, s], s), ("ondsel_post_drag", [i], s)):
         f = getattr(lib, name)
         f.argtypes, f.restype = args, res
     _LIB = lib
@@ -85,7 +85,7 @@ class _NodeLib:
             "ondsel_new": (["string"], "number"), "ondsel_last_error": ([], "string"),
             "ondsel_free": (["number"], None), "ondsel_handle_solve": (["number"], "string"),
             "ondsel_pre_drag": (["number", "string"], "string"), "ondsel_drag_step": (["number", "string"], "string"),
-            "ondsel_post_drag": (["number"], "string")}
+            "ondsel_rigid_step": (["number", "string"], "string"), "ondsel_post_drag": (["number"], "string")}
 
     def __init__(self, node: str = "node"):
         import subprocess
@@ -183,6 +183,10 @@ class Drag:
 
     def step(self, placements: dict) -> dict:
         return _out(_lib().ondsel_drag_step(self._h, _enc(placements)))
+
+    def rigid_step(self, placements: dict) -> dict:
+        """A drag step of a rigid group's member: the new placements, then a full solve (forceSolveOnMoveForRigid)."""
+        return _out(_lib().ondsel_rigid_step(self._h, _enc(placements)))
 
     def post_drag(self) -> dict:
         return _out(_lib().ondsel_post_drag(self._h))

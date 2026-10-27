@@ -17,6 +17,8 @@ The ops:
                                                             (setJointConnectors), values, Reverse, then OK
     {"op": "reverse", "name": joint}                        the panel's Reverse button, then OK
     {"op": "ground", "name": comp}                          Assembly_ToggleGrounded
+    {"op": "rigid", "parts": [comp, ...], "name"?}          Assembly_CreateJointRigidGroup (a RigidGroupJoint)
+    {"op": "update_rigid", "name": group}                   the group's "Update Stored Positions" (while suppressed)
     {"op": "move", "name": comp, "placement": P}            the component's Placement set, then a recompute
     {"op": "drag", "placements": {comp: P}}                 where a drag with the solver left the parts
     {"op": "solve"}                                         Assembly_SolveAssembly
@@ -117,7 +119,7 @@ def tree(objs) -> list:
     for name, label, kind in (("X_Axis", "X-axis", "App::Line"), ("Y_Axis", "Y-axis", "App::Line"),
                               ("Z_Axis", "Z-axis", "App::Line"), ("XY_Plane", "XY-plane", "App::Plane"),
                               ("XZ_Plane", "XZ-plane", "App::Plane"), ("YZ_Plane", "YZ-plane", "App::Plane"),
-                              ("Origin_Point", "Origin-Point", "App::Point")):
+                              ("Origin001", "Origin-Point", "App::Point")):
         rows.append({"name": name, "label": label, "type": kind, "depth": 2, "icon": kind})
     rows.append({"name": "Joints", "label": "Joints", "type": "Assembly::JointGroup", "depth": 1,
                  "icon": "Assembly_JointGroup"})
@@ -129,6 +131,10 @@ def tree(objs) -> list:
             rows.append({"name": o.name, "label": o.label or o.name, "type": "Joint", "depth": 2,
                          "icon": f"Assembly_CreateJoint{o.joint_type}", "joint_type": o.joint_type,
                          "suppressed": o.suppressed})
+        elif isinstance(o, W.RigidGroupJoint):
+            rows.append({"name": o.name, "label": o.label or o.name, "type": "RigidGroupJoint", "depth": 2,
+                         "icon": "Assembly_CreateJointRigidGroup", "suppressed": o.suppressed,
+                         "members": list(o.objects_to_rigid_group)})
     grounded = {o.object_to_ground for o in objs if isinstance(o, W.GroundedJoint)}
     for o in objs:
         if isinstance(o, W.Link):
@@ -320,6 +326,17 @@ def _get(doc, name, cls=None, what="object"):
     return o
 
 
+def _check_target(doc, r):
+    """A reference's moving part is a component, or the Assembly's Origin with one of its features (MakeJointSelGate
+    takes an App::Origin's datum elements)."""
+    if r[0] == doc.origin:
+        if doc.resolve(r) is None:
+            raise AssemblyEditError(f"{r[1][0]!r} is not a feature of the Assembly's Origin "
+                                    f"({', '.join(n + '.' for n in W.ORIGIN_DATUMS)})")
+        return
+    _get(doc, r[0], W.Link, "component")
+
+
 def _ref(v, where):
     if v is None:
         return None
@@ -362,7 +379,7 @@ def run_ops(doc: W.AssemblyDocument, ops, slug: str, part_names=None, hand_parts
                 if r is None:
                     raise AssemblyEditError("a joint needs two references (ref1 and ref2): select 2 elements from "
                                             "2 separate parts")
-                _get(doc, r[0], W.Link, "component")
+                _check_target(doc, r)
             if r1[0] == r2[0]:
                 raise AssemblyEditError("Select 2 elements from 2 separate parts")
             props = dict(op.get("props") or {})
@@ -403,6 +420,16 @@ def run_ops(doc: W.AssemblyDocument, ops, slug: str, part_names=None, hand_parts
                     except (W.AssemblyError, ValueError) as e:
                         raise AssemblyEditError(str(e)) from None
                 doc.recompute()
+            elif isinstance(o, W.RigidGroupJoint):
+                for key, v in props.items():
+                    if key == "objects_to_rigid_group":
+                        for n in (v or ()):
+                            _get(doc, n, W.Link, "component")
+                    try:
+                        W.set_rigid(doc, o, key, v)
+                    except (W.AssemblyError, ValueError) as e:
+                        raise AssemblyEditError(str(e)) from None
+                doc.recompute()
             else:
                 for key, v in props.items():
                     if key != "label":
@@ -432,6 +459,23 @@ def run_ops(doc: W.AssemblyDocument, ops, slug: str, part_names=None, hand_parts
             g = W.toggle_grounded(doc, c.name)
             doc.recompute()
             done.append(f"grounded {c.name}" if g else f"{c.name} no longer grounded")
+        elif kind == "rigid":
+            parts = list(op.get("parts") or [])
+            for n in parts:
+                _get(doc, n, W.Link, "component")
+            name = op.get("name")
+            if name is not None:
+                _check_name(doc, name, "object")
+            g = W.create_rigid_group(doc, parts, name=name)
+            if g is None:
+                raise AssemblyEditError("Select at least 2 components to create a rigid group")
+            done.append(f"made {g.name} ({', '.join(g.objects_to_rigid_group)})")
+        elif kind == "update_rigid":
+            g = _get(doc, op.get("name"), W.RigidGroupJoint, "rigid group")
+            if not W.update_stored_positions(doc, g):
+                raise AssemblyEditError(doc.messages[-1][1])
+            doc.recompute()
+            done.append(f"stored the positions of {g.name}")
         elif kind == "move":
             c = _get(doc, op.get("name"), W.Link, "component")
             if c.name in doc.grounded():
@@ -456,6 +500,9 @@ def run_ops(doc: W.AssemblyDocument, ops, slug: str, part_names=None, hand_parts
                 doc.objects.remove(x)
                 doc.jcs.pop(x.name, None)
                 doc.plc.pop(x.name, None)
+            names_gone = {x.name for x in gone}
+            for g in doc.rigid_groups():           # a deleted component leaves the PropertyLinkList
+                g.objects_to_rigid_group = tuple(n for n in g.objects_to_rigid_group if n not in names_gone)
             doc.recompute()
             done.append("deleted " + ", ".join(x.name for x in gone))
         elif kind == "rename":
@@ -467,6 +514,8 @@ def run_ops(doc: W.AssemblyDocument, ops, slug: str, part_names=None, hand_parts
             for x in doc.objects:
                 if isinstance(x, W.GroundedJoint) and x.object_to_ground == old:
                     x.object_to_ground = to
+                if isinstance(x, W.RigidGroupJoint):
+                    x.objects_to_rigid_group = tuple(to if n == old else n for n in x.objects_to_rigid_group)
                 if isinstance(x, W.Joint):
                     for key in ("reference1", "reference2"):
                         r = getattr(x, key)
@@ -483,7 +532,7 @@ def run_ops(doc: W.AssemblyDocument, ops, slug: str, part_names=None, hand_parts
             done.append(f"labelled {o.name} {o.label!r}")
         else:
             raise AssemblyEditError(f"{kind!r} is not an assembly edit (new, insert, joint, set, edit, reverse, "
-                                    "ground, move, drag, solve, delete, rename, label)")
+                                    "ground, rigid, update_rigid, move, drag, solve, delete, rename, label)")
     return done
 
 

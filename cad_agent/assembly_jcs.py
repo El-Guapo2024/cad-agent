@@ -204,6 +204,46 @@ def is_ref_valid(ref, number_sub: int) -> bool:
     return ref[1][0].find("?") == -1
 
 
+def _length(edge) -> float:
+    prop = GProp_GProps()
+    BRepGProp.LinearProperties_s(edge, prop)
+    return prop.Mass()
+
+
+def find_cylinders_intersection(obj_shape, surface_s: dict, edge, elt_index: int):
+    """UtilsAssembly.findCylindersIntersection: for a cylinder's B-spline edge that another cylinder face shares (the
+    same centre of gravity and length), the point where the two cylinders' axes meet (Part.Line.intersect, OCCT's
+    GeomAPI_ExtremaCurveCurve within Precision::Confusion); else the cylinder's own Center."""
+    from OCP.GeomAPI import GeomAPI_ExtremaCurveCurve
+    from OCP.Geom import Geom_Line
+    from OCP.gp import gp_Lin
+    cog, length = center_of_gravity(edge), _length(edge)
+
+    def line(center, axis):
+        # Part.Line(Center, Center + Axis): GC_MakeLine through the two points
+        p1 = gp_Pnt(*center)
+        p2 = _add(center, axis)
+        return Geom_Line(gp_Lin(p1, gp_Dir(p2[0] - center[0], p2[1] - center[1], p2[2] - center[2])))
+
+    for j, facej in enumerate(_sub_list(obj_shape, TopAbs_FACE)):
+        sj = surface(facej)
+        if (elt_index - 1) == j or sj["type"] != "Cylinder":
+            continue
+        for edgej in _sub_list(facej, TopAbs_EDGE):
+            if curve(edgej)["type"] == "BSplineCurve" and center_of_gravity(edgej) == cog and _length(edgej) == length:
+                ext = GeomAPI_ExtremaCurveCurve(line(surface_s["center"], surface_s["axis"]),
+                                                line(sj["center"], sj["axis"]))
+                if ext.NbExtrema() == 0 or ext.LowerDistance() > 1e-7:
+                    continue
+                for k in range(1, ext.NbExtrema() + 1):
+                    if ext.Distance(k) > 1e-7:
+                        continue
+                    p1, p2 = gp_Pnt(), gp_Pnt()
+                    ext.Points(k, p1, p2)
+                    return _xyz(p1)
+    return surface_s["center"]
+
+
 def find_placement(shape, comp_plc: Placement, subs, ignore_vertex: bool = False) -> Placement:
     """UtilsAssembly.findPlacement(ref, ignoreVertex): the JCS on the element subs[0] at the vertex subs[1] of a
     component whose part's shape is shape and whose Placement is comp_plc, relative to the component."""
@@ -278,8 +318,8 @@ def find_placement(shape, comp_plc: Placement, subs, ignore_vertex: bool = False
             if c["type"] == "Circle":
                 pos = c["location"]
             elif s["type"] == "Cylinder" and c["type"] == "BSplineCurve":
-                raise NotImplementedError("the JCS at the intersection of two cylinders (findCylindersIntersection) "
-                                          "is not ported")
+                # handle special case of 2 cylinder intersecting.
+                pos = find_cylinders_intersection(obj_shape, s, edge, elt_index)
         else:
             vertex = get(vtx)
             if vertex is None:
@@ -357,6 +397,16 @@ def find_element_closest_vertex(shape, comp_plc: Placement, element: str, mouse)
             if c["type"] in ("Circle", "Ellipse"):
                 centers.append(c["location"])
                 center_edges.append(i)
+            elif s["type"] == "Cylinder" and c["type"] == "BSplineCurve":
+                # handle special case of 2 cylinder intersecting: the shared edge's centre of gravity
+                cog, length = center_of_gravity(e), _length(e)
+                for j, facej in enumerate(_sub_list(obj_shape, TopAbs_FACE)):
+                    if (elt_index - 1) != j and surface(facej)["type"] == "Cylinder":
+                        for edgej in _sub_list(facej, TopAbs_EDGE):
+                            if curve(edgej)["type"] == "BSplineCurve":
+                                if center_of_gravity(edgej) == cog and _length(edgej) == length:
+                                    centers.append(center_of_gravity(edgej))
+                                    center_edges.append(i)
         if centers:
             ci, cd = closest(centers)
         face_verts = _vertexes(face)

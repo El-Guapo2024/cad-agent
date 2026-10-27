@@ -11,7 +11,11 @@
 // What FreeCAD reads from its document (a component's Placement and whether it is grounded, a joint's
 // properties, the type of the element a reference names, its radius) comes in as a Document; what the
 // solve writes back (placements, the joints whose references it swapped, the solver's status) goes out.
-// RigidGroup joints, simulations (motions) and sub-assemblies (AssemblyLink) are not ported.
+//   the rigid groups (JointObject.RigidGroupJoint): getRigidGroups, rebuildRigidClusters,
+//     getRigidRepresentative/getRigidMembers, syncActiveRigidGroupPlacements, updateRigidPlacementCache,
+//     requiresRigidSolveForMove, and the rigid clusters in getGroundedParts, getConnectedParts, getMbDData, preDrag.
+// A sub-assembly (AssemblyLink) comes in already resolved: a rigid one is a component whose references name an
+// object inside it (Ref::objPlc), a flexible one's components and joints are the document's own.
 #pragma once
 
 #include <map>
@@ -171,9 +175,21 @@ struct Ref
     std::string geom;              // "Plane", "Cylinder", "Sphere", "Cone", "Torus", "Line", "Circle", ...
     double radius = 0;             // getFaceRadius / getEdgeRadius
     Placement jcs;                 // UtilsAssembly.findPlacement(ref): the JCS before the joint's Offset
-    std::string element() const    // getElementFromProp: the first sub's last name
+    Placement objPlc;              // the referenced object's placement in the moving part's frame: the identity
+                                   // when the part is the object (a Link to a Body), a child's placement in a rigid
+                                   // sub-assembly, a datum's in its part (getGlobalPlacement(nullptr, ref) taken
+                                   // relative to getGlobalPlacement(part, ref))
+    std::string element() const    // getElementFromProp: the first sub's last name (splitSubName's last)
     {
-        return subs.empty() ? std::string() : subs[0];
+        if (subs.empty()) {
+            return std::string();
+        }
+        std::string s = subs[0];
+        while (!s.empty() && s.back() == '.') {
+            s.pop_back();
+        }
+        size_t dot = s.rfind('.');
+        return dot == std::string::npos ? s : s.substr(dot + 1);
     }
     std::string elementType() const;  // getElementTypeFromProp: "Face", "Edge", "Vertex", ""
 };
@@ -203,12 +219,25 @@ struct Component
     bool grounded = false;  // its Placement is read-only (a GroundedJoint holds it)
 };
 
+// A JointObject.RigidGroupJoint: ObjectsToRigidGroup, Suppressed (and isError)
+struct RigidGroup
+{
+    std::string name;
+    bool suppressed = false;
+    bool isError = false;
+    std::vector<std::string> members;
+};
+
 struct Document
 {
     std::string name = "Unnamed";   // the FreeCAD document's Name: getFullName() is "Doc#Obj"
     std::string origin = "Origin";  // the Assembly's App::Origin
     std::vector<Component> parts;   // getAssemblyComponents, in the Assembly's Group order
     std::vector<Joint> joints;      // the JointGroup's joints (GroundedJoints are the parts' flags)
+    std::vector<RigidGroup> rigidGroups;  // the JointGroup's RigidGroupJoints, in its order
+    // AssemblyObject::rigidPlacementCache as the last solve left it (the object lives across solves in FreeCAD;
+    // here it travels with the document)
+    std::vector<std::pair<std::string, Placement>> rigidPlacementCache;
     bool logDebug = false;
 
     Component* part(const std::string& n);
@@ -256,6 +285,8 @@ public:
     std::string getUpstreamMovingPart(const std::string& part, std::string& joint, std::string& name,
                                       std::vector<std::string> excludeJoints = {});
     std::string distanceTypeName(const std::string& joint);
+    bool requiresRigidSolveForMove(const std::vector<std::string>& movedParts);
+    std::vector<std::string> getRigidMembersOf(const std::string& part);
 
     // last solve
     int lastDoF = 0;
@@ -267,6 +298,7 @@ public:
     std::vector<std::string> errors;    // FC_ERR
     std::vector<std::string> draggedParts;
     bool dragFailed = false;
+    std::vector<std::pair<std::string, std::vector<std::string>>> cleanedRigidGroups;  // getRigidGroups' setValue
 
 private:
     std::shared_ptr<MbD::ASMTAssembly> mbdAssembly;
@@ -275,6 +307,16 @@ private:
     std::vector<std::pair<std::string, Placement>> previousPositions;
     bool bundleFixed = false;
     bool solveInProgress = false;
+    std::map<std::string, std::string> rigidRepByPart;
+    std::map<std::string, std::vector<std::string>> rigidMembersByRep;
+
+    std::vector<RigidGroup*> getRigidGroups();
+    void rebuildRigidClusters();
+    std::string getRigidRepresentative(const std::string& part) const;
+    const std::vector<std::string>* getRigidMembers(const std::string& part) const;
+    void syncActiveRigidGroupPlacements();
+    void updateRigidPlacementCache();
+    Placement* cached(const std::string& part);
 
     std::shared_ptr<MbD::ASMTAssembly> makeMbdAssembly();
     void setNewPlacements();

@@ -77,13 +77,18 @@ class Capture:
         os.close(self.saved[0])
         os.close(self.saved[1])
         self.f.seek(0)
-        self.text = self.f.read().decode(errors="replace")
+        self.text = self.f.read().decode(errors="replace").replace(os.path.normpath(App.getHomePath()) + "/", "<FreeCAD>/")
         self.f.close()
 
 
 def state(asm, jg, links):
     joints = {}
+    rigid = {}
     for j in jg.Group:
+        if hasattr(j, "ObjectsToRigidGroup"):
+            rigid[j.Name] = {"label": j.Label, "members": [o.Name for o in j.ObjectsToRigidGroup],
+                             "rigid_placements": [plc_json(p) for p in j.RigidPlacements], "suppressed": j.Suppressed}
+            continue
         if not hasattr(j, "JointType"):
             continue
 
@@ -98,7 +103,10 @@ def state(asm, jg, links):
             "enable_angle_min": j.EnableAngleMin, "enable_angle_max": j.EnableAngleMax,
             "length_min": q(j.LengthMin), "length_max": q(j.LengthMax), "angle_min": q(j.AngleMin),
             "angle_max": q(j.AngleMax), "suppressed": j.Suppressed}
-    return {"placements": {n: plc_json(l.Placement) for n, l in links.items()}, "joints": joints}
+    out = {"placements": {n: plc_json(l.Placement) for n, l in links.items()}, "joints": joints}
+    if rigid:
+        out["rigid_groups"] = rigid
+    return out
 
 
 def accept(asm, joint):
@@ -132,6 +140,10 @@ def run(name, c):
     with Capture() as cap:
         doc.recompute()
     out = {"names": {n: l.Name for n, l in links.items()}, "steps": []}
+
+    def target(name):
+        """A reference's moving part: a component, or the Assembly's Origin (a pick on one of its features)."""
+        return asm.Origin if name == "Origin" else links[name]
     for step in c["steps"]:
         with Capture() as cap:
             if step["op"] == "joint":
@@ -145,8 +157,8 @@ def run(name, c):
                         j.Distance = 1.0
                     if t in ("Gears", "Belt") and j.Distance2 == 0.0:
                         j.Distance2 = 1.0
-                r1 = [links[step["ref1"][0]], list(step["ref1"][1])]
-                r2 = [links[step["ref2"][0]], list(step["ref2"][1])]
+                r1 = [target(step["ref1"][0]), list(step["ref1"][1])]
+                r2 = [target(step["ref2"][0]), list(step["ref2"][1])]
                 j.Proxy.setJointConnectors(j, [r1])
                 j.Proxy.setJointConnectors(j, [r1, r2])
                 for k, v in step["props"].items():
@@ -162,6 +174,16 @@ def run(name, c):
                 accept(asm, j)
             elif step["op"] == "move":
                 links[step["link"]].Placement = plc(step["placement"])
+                doc.recompute()
+            elif step["op"] == "rigid":
+                # CommandCreateJointRigidGroup.Activated: createJointRigidGroupJoint(parts), then the recompute
+                rg = jg.newObject("App::FeaturePython", "RigidGroupJoint")
+                JointObject.RigidGroupJoint(rg, [links[n] for n in step["parts"]])
+                doc.recompute()
+            elif step["op"] == "update_rigid":
+                # ViewProviderRigidGroupJoint's "Update Stored Positions"
+                j = doc.getObject(step["joint"])
+                j.Proxy.updateStoredPositions(j)
                 doc.recompute()
             elif step["op"] == "suppress":
                 doc.getObject(step["joint"]).Suppressed = step["value"]

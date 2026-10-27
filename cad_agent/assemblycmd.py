@@ -14,6 +14,8 @@ the transaction:
     cad assembly set     SLUG NAME KEY=VALUE ...           a joint's or a component's properties
     cad assembly reverse SLUG JOINT                        the joint panel's Reverse
     cad assembly ground  SLUG COMP                         Assembly_ToggleGrounded ("Toggle grounded")
+    cad assembly rigid   SLUG COMP COMP ... [--name N]     Assembly_CreateJointRigidGroup ("Create Rigid Group")
+    cad assembly update-rigid SLUG GROUP                   a suppressed rigid group's "Update Stored Positions"
     cad assembly move    SLUG COMP --at X,Y,Z [--ypr Y,P,R]   a component's Placement, then a recompute
     cad assembly solve   SLUG                              Assembly_SolveAssembly
     cad assembly delete  SLUG NAME ...                     Std_Delete (a component's joints go with it)
@@ -39,12 +41,15 @@ from .cmdbase import OK, Result, UsageError, actor, pairs, project
 
 KEYS = {"distance", "distance2", "angle", "offset1", "offset2", "detach1", "detach2", "enable_length_min",
         "enable_length_max", "enable_angle_min", "enable_angle_max", "length_min", "length_max", "angle_min",
-        "angle_max", "suppressed", "label", "joint_type", "placement", "reference1", "reference2", "visibility"}
+        "angle_max", "suppressed", "label", "joint_type", "placement", "reference1", "reference2", "visibility",
+        "objects_to_rigid_group"}
 
 
 def _ref(text: str):
     """COMP:ELEMENT[:VERTEX] as FreeCAD's (component, [element, vertex])."""
     bits = text.split(":")
+    if len(bits) == 2 and bits[0] == "Origin" and not bits[1].endswith("."):
+        bits[1] += "."                         # a feature of the Assembly's Origin: "XY_Plane." as a pick names it
     if len(bits) == 2:
         return [bits[0], [bits[1], bits[1]]]
     if len(bits) == 3:
@@ -79,6 +84,10 @@ def step_name(ops: list, before: dict) -> str:
         return f"Edit {label} Joint"
     if kind == "ground":
         return "Toggle grounded"
+    if kind == "rigid":
+        return "Create Rigid Group"
+    if kind == "update_rigid":
+        return "Update Stored Positions"
     if kind in ("move", "drag"):
         return "Move part"
     if kind == "solve":
@@ -107,6 +116,8 @@ def _status_lines(doc: dict) -> list[str]:
             extra = f"  {row['joint_type']}" + (" (suppressed)" if row.get("suppressed") else "")
         elif row["type"] == "GroundedJoint":
             extra = f"  grounds {row['object_to_ground']}"
+        elif row["type"] == "RigidGroupJoint":
+            extra = f"  rigid: {', '.join(row.get('members') or [])}" + (" (suppressed)" if row.get("suppressed") else "")
         label = row["label"] if row["label"] == row["name"] else f"{row['label']} ({row['name']})"
         lines.append(f"{ind}{label}{extra}")
     s = doc.get("status")
@@ -216,6 +227,17 @@ def cmd_ground(a) -> Result:
     return apply_ops(a, [{"op": "ground", "name": a.name}], _cmd(a, a.name))
 
 
+def cmd_rigid(a) -> Result:
+    op = {"op": "rigid", "parts": list(a.parts)}
+    if a.name:
+        op["name"] = a.name
+    return apply_ops(a, [op], _cmd(a, *a.parts, *(["--name", a.name] if a.name else [])))
+
+
+def cmd_update_rigid(a) -> Result:
+    return apply_ops(a, [{"op": "update_rigid", "name": a.name}], _cmd(a, a.name))
+
+
 def cmd_move(a) -> Result:
     ypr = _triple(a.ypr, "--ypr") if a.ypr else [0.0, 0.0, 0.0]
     words = [a.name, "--at", a.at] + (["--ypr", a.ypr] if a.ypr else [])
@@ -272,6 +294,20 @@ def cmd_jcs(a) -> Result:
     objs = E.objects_of((pdir / E.FILE).read_text()) if (pdir / E.FILE).exists() else None
     if not objs:
         raise UsageError(f"{a.slug} has no Assembly")
+    if a.comp == "Origin":
+        # a feature of the Assembly's Origin: the whole-part JCS, at the datum's placement
+        name = a.element.rstrip(".")
+        if name not in W.ORIGIN_DATUMS:
+            raise UsageError(f"{a.element!r} is not a feature of the Assembly's Origin ({', '.join(W.ORIGIN_DATUMS)})")
+        sub = name + "."
+        doc = W.AssemblyDocument([], {})
+        joint = W.Joint("Joint", a.type)
+        r = doc.resolve(("Origin", (sub, sub)))
+        jcs = doc.raw_jcs(joint, ("Origin", (sub, sub)))
+        g = r.obj * jcs
+        data = {"component": "Origin", "subs": [sub, sub], "placement": W.placement_json(jcs),
+                "global": W.placement_json(g), "geom": "", "radius": 0.0}
+        return Result(OK, data, f"Origin.{sub}: JCS at (0, 0, 0)", f"Origin.{sub}")
     link = next((o for o in objs if isinstance(o, W.Link) and o.name == a.comp), None)
     if link is None:
         raise UsageError(f"there is no component {a.comp!r}")
@@ -342,6 +378,11 @@ def add_parsers(add, sub) -> None:
     sp = one("reverse", cmd_reverse, "the joint panel's Reverse: the moving part flipped onto the other side")
     sp.add_argument("name")
     sp = one("ground", cmd_ground, "Assembly_ToggleGrounded")
+    sp.add_argument("name")
+    sp = one("rigid", cmd_rigid, "Assembly_CreateJointRigidGroup: lock two or more components together")
+    sp.add_argument("parts", nargs="+", metavar="COMP")
+    sp.add_argument("--name", help="the group's Name (default RigidGroupJoint, RigidGroupJoint001, ...)")
+    sp = one("update-rigid", cmd_update_rigid, "a suppressed rigid group's Update Stored Positions")
     sp.add_argument("name")
     sp = one("move", cmd_move, "set a component's Placement, then recompute (the solver pulls it back to its joints)")
     sp.add_argument("name")

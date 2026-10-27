@@ -53,7 +53,16 @@ def replay(c):
             doc.plc[step["link"]] = W.to_placement(step["placement"])
             doc.recompute()
         elif op == "suppress":
-            doc.get(step["joint"]).suppressed = step["value"]
+            o = doc.get(step["joint"])
+            if isinstance(o, W.RigidGroupJoint):
+                W.set_rigid(doc, o, "suppressed", step["value"])
+            else:
+                o.suppressed = step["value"]
+            doc.recompute()
+        elif op == "rigid":
+            W.create_rigid_group(doc, step["parts"])
+        elif op == "update_rigid":
+            W.update_stored_positions(doc, doc.get(step["joint"]))
             doc.recompute()
         steps.append(state(doc))
     final = doc.solve()
@@ -65,6 +74,7 @@ def plc_list(p):
 
 
 def state(doc):
+    from cad_agent import assembly_wb as W
     joints = {}
     for j in doc.joints():
         p1, p2 = doc.jcs[j.name]
@@ -72,7 +82,13 @@ def state(doc):
                           "reference1": None if j.reference1 is None else [j.reference1[0], list(j.reference1[1])],
                           "reference2": None if j.reference2 is None else [j.reference2[0], list(j.reference2[1])],
                           "placement1": plc_list(p1), "placement2": plc_list(p2)}
-    return {"placements": {n: plc_list(p) for n, p in doc.plc.items()}, "joints": joints}
+    rigid = {g.name: {"label": g.label or g.name, "members": list(g.objects_to_rigid_group),
+                      "rigid_placements": [plc_list(W.to_placement(p)) for p in g.rigid_placements],
+                      "suppressed": g.suppressed} for g in doc.rigid_groups()}
+    out = {"placements": {n: plc_list(p) for n, p in doc.plc.items()}, "joints": joints}
+    if rigid:
+        out["rigid_groups"] = rigid
+    return out
 
 
 def same_plc(a, b):
@@ -99,6 +115,17 @@ def diff_state(ours, theirs, where):
         for k in ("placement1", "placement2"):
             if not same_plc(mine[k], j[k]):
                 out.append(f"{where} {n}.{k} {fmt(mine[k])} != FreeCAD {fmt(j[k])}")
+    for n, g in theirs.get("rigid_groups", {}).items():
+        mine = ours.get("rigid_groups", {}).get(n)
+        if mine is None:
+            out.append(f"{where} no rigid group {n}")
+            continue
+        for k in ("label", "members", "suppressed"):
+            if mine[k] != g[k]:
+                out.append(f"{where} {n}.{k} {mine[k]!r} != FreeCAD {g[k]!r}")
+        if len(mine["rigid_placements"]) != len(g["rigid_placements"]) or not all(
+                same_plc(a, b) for a, b in zip(mine["rigid_placements"], g["rigid_placements"])):
+            out.append(f"{where} {n}.RigidPlacements {mine['rigid_placements']} != FreeCAD {g['rigid_placements']}")
     return out
 
 
