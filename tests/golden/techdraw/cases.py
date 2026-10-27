@@ -17,6 +17,36 @@ def setp(name, **props):
     return {"op": "set", "name": name, "props": props}
 
 
+def cosmetics(view="View"):
+    """Cosmetic vertices, lines, circles and arcs (TaskCosVertex, TaskCosmeticLine / TaskCosmeticCircle), the midpoint
+    and quadrant vertices of an edge and an arc, and a line through two of the view's vertices."""
+    return [
+        {"op": "cosmetic_vertex", "view": view, "point": [5, 6], "tag": "cv-1"},
+        {"op": "cosmetic_line", "view": view, "p0": [-5, -4], "p1": [12, 9], "tag": "cl-1"},
+        {"op": "cosmetic_circle", "view": view, "center": [3, 4], "radius": 2.5, "tag": "cc-1"},
+        {"op": "cosmetic_circle", "view": view, "center": [1, 2], "radius": 3.0, "arc": True, "start_angle": 10,
+         "end_angle": 100, "tag": "ca-1"},
+        {"op": "midpoints", "view": view, "edges": ["Edge2"]},
+        {"op": "quadrants", "view": view, "edges": ["Edge5", "Edge1"]},
+        {"op": "cosmetic_line", "view": view, "vertices": ["Vertex1", "Vertex4"], "tag": "cl-2"},
+        {"op": "cosmetic_circle", "view": view, "vertices": ["Vertex6", "Vertex8"], "tag": "cc-2"},
+    ]
+
+
+def centerlines(view="View"):
+    """Centre lines between two edges (vertical and horizontal), between two points, with a shift, a rotation and an
+    extension (TaskCenterLine)."""
+    return [
+        {"op": "centerline", "view": view, "subs": ["Edge0", "Edge4"], "mode": "Vertical", "tag": "k-1"},
+        {"op": "centerline", "view": view, "subs": ["Edge2", "Edge3"], "mode": "Horizontal", "extend": 2.0, "tag": "k-2"},
+        {"op": "centerline", "view": view, "subs": ["Vertex3", "Vertex8"], "mode": "Vertical", "h_shift": 1.5,
+         "v_shift": -2.0, "tag": "k-3"},
+        {"op": "centerline", "view": view, "subs": ["Vertex0", "Vertex4"], "mode": "Aligned", "rotate": 15.0,
+         "tag": "k-4"},
+        {"op": "centerline", "view": view, "subs": ["Edge1", "Edge4"], "mode": "Aligned", "tag": "k-5"},
+    ]
+
+
 CASES = {
     # one view of the plate from above, hidden lines on, and every dimension type the app makes on it
     "plate_top_dims": {"template": "ISO/A4_Landscape_TD.svg", "ops": [
@@ -126,5 +156,33 @@ CASES = {
         {"op": "annotation", "text": ["GENERAL TOLERANCE", "ISO 2768-m"], "at": [60.0, 40.0]},
         {"op": "balloon", "view": "View", "origin": [14.0, 8.0], "at": [30.0, 25.0]},
         {"op": "balloon", "view": "View", "origin": [-17.0, 15.0]},
+    ]},
+    # cosmetic geometry on a view at scale 1, and on one at 2:1 turned 30 degrees (rotated and scaled by the view's)
+    "plate_cosmetic": {"ops": [
+        {"op": "view", "source": ["plate"], "direction": [0, 0, 1]},
+        *cosmetics(),
+    ]},
+    "plate_cosmetic_rotated": {"ops": [
+        {"op": "view", "source": ["plate"], "direction": [0, 0, 1]},
+        setp("View", scale_type="Custom", scale=2.0, rotation=30.0),
+        *cosmetics(),
+    ]},
+    # centre lines
+    "plate_centerlines": {"ops": [
+        {"op": "view", "source": ["plate"], "direction": [0, 0, 1]},
+        *centerlines(),
+    ]},
+    "plate_centerlines_rotated": {"ops": [
+        {"op": "view", "source": ["plate"], "direction": [0, 0, 1]},
+        setp("View", scale_type="Custom", scale=1.5, rotation=30.0),
+        *centerlines(),
+    ]},
+    # an eraser: the cosmetic edge and vertex taken away again
+    "plate_cosmetic_erased": {"ops": [
+        {"op": "view", "source": ["plate"], "direction": [0, 0, 1]},
+        {"op": "cosmetic_vertex", "view": "View", "point": [5, 6], "tag": "cv-1"},
+        {"op": "cosmetic_line", "view": "View", "p0": [-5, -4], "p1": [12, 9], "tag": "cl-1"},
+        {"op": "cosmetic_vertex", "view": "View", "point": [-5, 6], "tag": "cv-2"},
+        {"op": "erase", "view": "View", "subs": ["Edge6", "Vertex9"]},
     ]},
 }

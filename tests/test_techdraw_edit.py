@@ -127,6 +127,58 @@ def test_delete_takes_a_views_dimensions_with_it_and_undo_brings_them_back(proj,
     assert code == cli.OK and page_src(proj) == before
 
 
+def test_cosmetic_geometry_and_centerlines_from_the_cli_and_back(proj, capsys):
+    """Each tool of the Add Lines / Add Vertices menus: written into the view's entry as FreeCAD's properties, read
+    again the same, one undo step named as FreeCAD's transaction, and drawn on the page."""
+    run(capsys, "techdraw", "new", "td")
+    run(capsys, "techdraw", "view", "td", "Page", "plate", "--direction", "0,0,1")
+    steps = {}
+    for argv, step in (
+            (("cosmetic-vertex", "Page", "View", "5,6"), "Add Cosmetic Vertex"),
+            (("cosmetic-line", "Page", "View", "--p0=-5,-4", "--p1=12,9"), "Create Cosmetic Line"),
+            (("cosmetic-circle", "Page", "View", "--center", "3,4", "--radius", "2.5"), "Create Cosmetic Circle"),
+            (("cosmetic-circle", "Page", "View", "--center", "1,2", "--radius", "3", "--arc", "10,100"), "Create Cosmetic Circle"),
+            (("midpoints", "Page", "View", "Edge2"), "Add midpoint vertices"),
+            (("quadrants", "Page", "View", "Edge5"), "Add Quadrant vertices"),
+            (("centerline", "Page", "View", "Edge0", "Edge4", "--mode", "Vertical"), "Create Centerline"),
+            (("centerline", "Page", "View", "Vertex3", "Vertex8", "--mode", "Horizontal", "--extend", "2"), "Create Centerline")):
+        code, data = run(capsys, "techdraw", *argv[:1], "td", *argv[1:])
+        assert code == cli.OK and data["step"] == step, (argv, data)
+        steps[argv[0]] = data
+    v = E.objects_of(page_src(proj))[2]
+    assert [c["point"][:2] for c in v.source_value("cosmetic_vertexes")][0] == [5.0, 6.0]
+    assert len(v.cosmetic_vertexes) == 5 and len(v.cosmetic_edges) == 3 and len(v.center_lines) == 2
+    assert [c["geom"] for c in v.source_value("cosmetic_edges")] == ["line", "circle", "arc"]
+    cl = v.source_value("center_lines")
+    assert (cl[0]["type"], cl[0]["edges"], cl[0]["mode"]) == ("Edge", ["Edge0", "Edge4"], "Vertical")
+    assert (cl[1]["type"], cl[1]["vertexes"], cl[1]["extend"]) == ("Vertex", ["Vertex3", "Vertex8"], 2.0)
+    assert "cosmetic_vertexes=[" in page_src(proj) and "center_lines=[" in page_src(proj)
+    # the geometry: FreeCAD numbers the cosmetic edges after the HLR ones, the centre lines after those
+    res = E.recomputed(proj, "Page", svg=True)["result"]["views"]["View"]
+    assert [e["cls"] for e in res["edges"]][6:] == ["cosmetic"] * 3 + ["centerline"] * 2
+    assert [bool(x.get("tag")) for x in res["vertices"]][9:] == [True] * 5
+    assert 'data-sub="Edge9"' in E.recomputed(proj, "Page", svg=True)["svg"]
+    # the eraser takes the circle (Edge7), a centre line (Edge9) and a vertex (Vertex9) away
+    code, data = run(capsys, "techdraw", "erase", "td", "Page", "View", "Edge7", "Edge9", "Vertex9", "Edge0")
+    assert code == cli.OK and data["step"] == "Remove Cosmetic Object"
+    v = E.objects_of(page_src(proj))[2]
+    assert (len(v.cosmetic_vertexes), len(v.cosmetic_edges), len(v.center_lines)) == (4, 2, 1)
+    code, _ = run(capsys, "undo", "td")
+    assert code == cli.OK
+    assert len(E.objects_of(page_src(proj))[2].cosmetic_edges) == 3
+    # a cosmetic line changed, as TaskCosmeticLine's edit does
+    code, data = run(capsys, "techdraw", "cosmetic-line", "td", "Page", "View", "--edge", "Edge6", "--p0", "0,0", "--p1", "1,1")
+    assert code == cli.OK and data["step"] == "Update Cosmetic Line"
+    assert E.objects_of(page_src(proj))[2].source_value("cosmetic_edges")[0]["end"] == [1.0, 1.0, 0.0]
+    # a wrong selection is refused, nothing is written
+    before = page_src(proj)
+    for argv in (("cosmetic-line", "Page", "View", "--edge", "Edge0", "--p0", "0,0", "--p1", "1,1"),
+                 ("centerline", "Page", "View", "Edge0", "--mode", "Vertical"),
+                 ("cosmetic-circle", "Page", "View", "--center", "1,1", "--radius", "0")):
+        code, _ = run(capsys, "techdraw", argv[0], "td", *argv[1:])
+        assert code == cli.USAGE and page_src(proj) == before, argv
+
+
 def test_a_wrong_selection_is_refused_and_nothing_is_written(proj, capsys):
     run(capsys, "techdraw", "new", "td")
     run(capsys, "techdraw", "view", "td", "Page", "plate", "--direction", "0,0,1")

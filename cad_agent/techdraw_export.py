@@ -471,6 +471,15 @@ def page_dxf(doc) -> bytes:
                     except dxf.Unsupported:
                         continue
                     items.append((o.name, _moved(p, x, y)))
+            # the cosmetic edges and centre lines (write1ViewDxf adds them moved, not mirrored, and the file has them
+            # y up like the others: FreeCAD 26.3's headless writeDXFPage, tests/golden/techdraw)
+            for e in geo.edges:
+                if e.cls in ("cosmetic", "centerline"):
+                    try:
+                        p = dxf.primitive(Edge(invert_geometry(e.occ)), frame)
+                    except dxf.Unsupported:
+                        continue
+                    items.append((o.name, _moved(p, x, y)))
         elif isinstance(o, T.DrawViewAnnotation):
             layers.append(dxf.Layer(o.name))
             items.append((o.name, ("text", (o.x, o.y), o.text_size, o.text[0] if o.text else "")))

@@ -562,6 +562,9 @@ def run_ops(s: Session, ops) -> list:
             text = op.get("text") or ["Default Text"]
             s.add(T.DrawViewAnnotation(n, text=text, x=float(at[0]), y=float(at[1])))
             done.append(f"made {n}")
+        elif kind in _annot_ops():
+            from . import techdraw_annot as A
+            done.append(A.run(s, op))
         elif kind == "set":
             o = s.get(op.get("name"))
             props = dict(op.get("props") or {})
@@ -608,8 +611,14 @@ def run_ops(s: Session, ops) -> list:
             done.append(f"labelled {o.name} {op.get('to')!r}")
         else:
             raise TechDrawEditError(f"{kind!r} is not a TechDraw edit (new_page, view, projgroup, projection, "
-                                    "section, dimension, balloon, annotation, set, move, delete, rename, label)")
+                                    "section, dimension, balloon, annotation, set, move, delete, rename, label, and the cosmetic and centerline "
+                                    "ops of techdraw_annot.py)")
     return done
+
+
+def _annot_ops():
+    from . import techdraw_annot as A
+    return A.OPS
 
 
 def _rebuilt(o, d):

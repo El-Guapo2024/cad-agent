@@ -87,6 +87,7 @@ class Edge:
     visible: bool
     source_index: int = 0
     cosmetic_tag: str = ""
+    format: dict | None = None      # a cosmetic edge's or centre line's LineFormat (techdraw_cosmetic.py)
 
 
 @dataclass
@@ -591,6 +592,8 @@ def edge_json(e: Edge, samples: int = 48) -> dict:
     d = {"kind": e.kind, "cls": e.cls, "visible": e.visible, "start": [s[0], s[1]], "end": [t[0], t[1]]}
     if e.cosmetic_tag:
         d["tag"] = e.cosmetic_tag
+    if e.format is not None:
+        d["format"] = e.format
     if e.kind in ("CIRCLE", "ARCOFCIRCLE"):
         circ = a.Circle()
         c = circ.Location()

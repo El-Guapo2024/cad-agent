@@ -147,6 +147,49 @@ def build(doc, case):
     return page, made
 
 
+MODES = {"Vertical": 0, "Horizontal": 1, "Aligned": 2}
+
+
+def add_cosmetics(doc, case, made):
+    """The cosmetic vertices, cosmetic edges and centre lines of each view, made as the Python interface of
+    DrawViewPart makes them (makeCosmeticVertex, makeCosmeticLine, makeCosmeticCircle, makeCosmeticCircleArc,
+    makeCenterLine), in the case's order, a recompute between the kinds. Returns {view: {tag kind lists}}."""
+    for o in case["objects"]:
+        cv, ce, cl = o.get("cosmetic_vertexes") or [], o.get("cosmetic_edges") or [], o.get("center_lines") or []
+        if not (cv or ce or cl):
+            continue
+        v = made[o["name"]]
+        for c in cv:
+            v.makeCosmeticVertex(V(*c["point"]))
+        for c in ce:
+            if c["geom"] == "line":
+                v.makeCosmeticLine(V(*c["start"]), V(*c["end"]))
+            elif c["geom"] == "circle":
+                v.makeCosmeticCircle(V(*c["center"]), c["radius"])
+            else:
+                v.makeCosmeticCircleArc(V(*c["center"]), c["radius"], c["start_angle"], c["end_angle"])
+        doc.recompute()
+        for c in cl:
+            subs = c["faces"] or c["edges"] or c["vertexes"]
+            tag = v.makeCenterLine(list(subs), MODES[c["mode"]])
+            line = v.getCenterLine(tag)
+            line.HorizShift, line.VertShift, line.Rotation, line.Extension = c["h_shift"], c["v_shift"], c["rotate"], c["extend"]
+            line.Flip = c["flip"]
+            v.touch()
+        doc.recompute()
+
+
+def cosmetic_record(v):
+    """What the Python objects of a view's cosmetic geometry say: CosmeticVertex.Point, CosmeticEdge.Format, ..."""
+    out = {"vertexes": [vec(c.Point) for c in v.CosmeticVertexes],
+           "edges": [dict(c.Format) for c in v.CosmeticEdges],
+           "centerlines": [{"Format": dict(c.Format), "Mode": c.Mode, "Type": c.Type, "Edges": list(c.Edges),
+                            "Faces": list(c.Faces), "Points": list(c.Points), "HorizShift": c.HorizShift,
+                            "VertShift": c.VertShift, "Rotation": c.Rotation, "Extension": c.Extension,
+                            "Flip": c.Flip} for c in v.CenterLines]}
+    return out
+
+
 def view_record(v):
     out = {"X": q(v.X), "Y": q(v.Y), "Scale": v.Scale, "ScaleType": v.ScaleType, "Direction": vec(v.Direction),
            "XDirection": vec(v.XDirection), "Rotation": q(v.Rotation), "nvis": len(v.getVisibleEdges()),
@@ -176,6 +219,8 @@ def view_record(v):
             break
         i += 1
     out["edges"], out["vertices"] = edges, verts
+    if len(v.CosmeticVertexes) or len(v.CosmeticEdges) or len(v.CenterLines):
+        out["cosmetic"] = cosmetic_record(v)
     return out
 
 
@@ -200,6 +245,7 @@ def run(name, case):
         f.Shape = Part.read(str(HERE / "breps" / f"{p}.brep"))
     page, made = build(doc, case)
     doc.recompute()
+    add_cosmetics(doc, case, made)
     out = {"views": {}, "dims": {}, "page": {"Scale": page.Scale, "ProjectionType": page.ProjectionType,
                                              "Views": [v.Name for v in page.Views]}}
     t = page.Template

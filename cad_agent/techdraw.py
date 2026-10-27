@@ -180,7 +180,12 @@ class TDObject(KW.KwFeature):
         if key == "editable_texts":
             return dict(v or {})
         if key in ("cosmetic_edges", "center_lines", "cosmetic_vertexes"):
-            return tuple(_frozen(x) for x in (v or ()))
+            from . import techdraw_cosmetic as C
+            kind = {"cosmetic_edges": "edge", "center_lines": "centerline", "cosmetic_vertexes": "vertex"}[key]
+            try:
+                return tuple(_frozen(C.clean(kind, _thawed(x) if not isinstance(x, dict) else x)) for x in (v or ()))
+            except (KeyError, C.CosmeticError) as e:
+                raise TechDrawError(f"{self.name}.{self.prop_name(key)}: {e!r}") from None
         d = self.DEFAULTS.get(key)
         if isinstance(d, float) and isinstance(v, int) and not isinstance(v, bool):
             return float(v)
@@ -563,6 +568,8 @@ class PageDocument:
                                             o.direction, o.x_direction, new, o.rotation, o.flags())
                 else:
                     geo = V.project(shape, o.direction, o.x_direction, new, o.rotation, o.flags())
+        from . import techdraw_cosmetic as C
+        C.apply(geo, o, geo.scale, o.rotation)
         self.geo[o.name] = geo
 
     def _group(self, g, w, h):

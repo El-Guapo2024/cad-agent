@@ -26,6 +26,12 @@ transaction:
     cad techdraw export     SLUG PAGE [--format svg,dxf,pdf] [--out DIR]
                                                                  TechDraw_ExportPageSVG / DXF / PDF
     cad techdraw delete-page SLUG PAGE                            Std_Delete of the page and everything on it
+    cad techdraw cosmetic-vertex SLUG PAGE VIEW X,Y               TechDraw_CosmeticVertex
+    cad techdraw midpoints|quadrants SLUG PAGE VIEW EDGE ...      TechDraw_Midpoints, TechDraw_Quadrants
+    cad techdraw cosmetic-line SLUG PAGE VIEW --p0 X,Y --p1 X,Y   TechDraw_2PointCosmeticLine (--vertices V V, --edge E)
+    cad techdraw cosmetic-circle SLUG PAGE VIEW --center X,Y --radius R [--arc A,B]   TechDraw_CosmeticCircle
+    cad techdraw centerline SLUG PAGE VIEW SUB ... [--mode M]     TechDraw_FaceCenterLine, _2LineCenterLine, _2PointCenterLine
+    cad techdraw erase      SLUG PAGE VIEW SUB ...                TechDraw_CosmeticEraser
 
 TYPE is Distance, DistanceX, DistanceY, Radius, Diameter, Angle or Angle3Pt (Length, Horizontal, Vertical, Radius,
 Diameter, Angle and 3-point Angle Dimension). A view's X and Y are the page's millimetres from its lower left corner;
@@ -47,8 +53,11 @@ STEP_NAMES = {"new_page": "Drawing create page", "view": "Create view", "projgro
 
 
 def step_name(ops: list) -> str:
+    from .techdraw_annot import STEP_NAMES as ANNOT
     op = ops[-1] if ops else {}
     kind = op.get("op")
+    if kind in ANNOT:
+        return ANNOT[kind]
     if kind in STEP_NAMES:
         return STEP_NAMES[kind]
     if kind in ("rename", "label"):
@@ -267,6 +276,70 @@ def cmd_rename(a) -> Result:
     return apply_ops(a, a.page, [{"op": "rename", "name": a.name, "to": a.to}], _cmd(a, a.page, a.name, a.to))
 
 
+# ── cosmetic geometry and centre lines (techdraw_annot.py) ──────────────────────────────────────────────────
+
+def cmd_cosmetic_vertex(a) -> Result:
+    return apply_ops(a, a.page, [{"op": "cosmetic_vertex", "view": a.view, "point": _floats(a.point, 2, "POINT")}],
+                     _cmd(a, a.page, a.view, a.point))
+
+
+def cmd_points(a) -> Result:
+    op = "midpoints" if a.techdraw_cmd == "midpoints" else "quadrants"
+    return apply_ops(a, a.page, [{"op": op, "view": a.view, "edges": a.edges}], _cmd(a, a.page, a.view, *a.edges))
+
+
+def cmd_cosmetic_line(a) -> Result:
+    op = {"op": "cosmetic_line", "view": a.view}
+    if a.vertices:
+        op["vertices"] = a.vertices
+    elif a.p0 and a.p1:
+        op["p0"], op["p1"] = _floats(a.p0, 2, "--p0"), _floats(a.p1, 2, "--p1")
+    else:
+        raise UsageError("say the line: --p0 X,Y --p1 X,Y, or --vertices Vertex1 Vertex2")
+    if a.edge:
+        op["op"], op["edge"] = "cosmetic_line_edit", a.edge
+    return apply_ops(a, a.page, [op], _cmd(a, a.page, a.view, *(["--edge", a.edge] if a.edge else []),
+                                           *(["--vertices", *a.vertices] if a.vertices else
+                                             ["--p0", a.p0, "--p1", a.p1])))
+
+
+def cmd_cosmetic_circle(a) -> Result:
+    op = {"op": "cosmetic_circle_edit" if a.edge else "cosmetic_circle", "view": a.view}
+    if a.edge:
+        op["edge"] = a.edge
+    elif not (a.vertices or (a.center and a.radius is not None)):
+        raise UsageError("say the circle: --center X,Y --radius R, or --vertices CENTRE RIM")
+    if a.vertices:
+        op["vertices"] = a.vertices
+    if a.center:
+        op["center"] = _floats(a.center, 2, "--center")
+    if a.radius is not None:
+        op["radius"] = a.radius
+    if a.arc:
+        op["arc"] = True
+        op["start_angle"], op["end_angle"] = _floats(a.arc, 2, "--arc")
+    words = [a.page, a.view] + (["--edge", a.edge] if a.edge else []) + (["--vertices", *a.vertices] if a.vertices else []) + \
+        (["--center", a.center] if a.center else []) + (["--radius", repr(a.radius)] if a.radius is not None else []) + \
+        (["--arc", a.arc] if a.arc else [])
+    return apply_ops(a, a.page, [op], _cmd(a, *words))
+
+
+def cmd_centerline(a) -> Result:
+    op = {"op": "centerline", "view": a.view, "subs": a.subs, "mode": a.mode}
+    for key in ("h_shift", "v_shift", "rotate", "extend"):
+        v = getattr(a, key)
+        if v is not None:
+            op[key] = v
+    words = [a.page, a.view, *a.subs, "--mode", a.mode] + sum(([f"--{k.replace('_', '-')}", repr(getattr(a, k))]
+                                                              for k in ("h_shift", "v_shift", "rotate", "extend")
+                                                              if getattr(a, k) is not None), [])
+    return apply_ops(a, a.page, [op], _cmd(a, *words))
+
+
+def cmd_erase(a) -> Result:
+    return apply_ops(a, a.page, [{"op": "erase", "view": a.view, "subs": a.subs}], _cmd(a, a.page, a.view, *a.subs))
+
+
 def cmd_apply(a) -> Result:
     text = a.ops
     if text.startswith("@"):
@@ -377,6 +450,39 @@ def add_parsers(add, sub) -> None:
     sp.add_argument("view")
     sp.add_argument("--origin", required=True, metavar="X,Y", help="where it points, relative to the view's centre")
     sp.add_argument("--at", metavar="X,Y", help="where the bubble goes (default origin + (10, 10))")
+    sp = one("cosmetic-vertex", cmd_cosmetic_vertex, "TechDraw_CosmeticVertex: a cosmetic vertex at X,Y of a view")
+    sp.add_argument("view")
+    sp.add_argument("point", metavar="X,Y", help="unscaled, unrotated, y up, about the view's centre")
+    for name, what in (("midpoints", "TechDraw_Midpoints: cosmetic vertices at the midpoints of edges"),
+                       ("quadrants", "TechDraw_Quadrants: cosmetic vertices at the quadrant points of edges")):
+        sp = one(name, cmd_points, what)
+        sp.add_argument("view")
+        sp.add_argument("edges", nargs="+", metavar="EDGE")
+    sp = one("cosmetic-line", cmd_cosmetic_line, "TechDraw_2PointCosmeticLine: a cosmetic line (--edge: change one)")
+    sp.add_argument("view")
+    sp.add_argument("--p0", metavar="X,Y")
+    sp.add_argument("--p1", metavar="X,Y")
+    sp.add_argument("--vertices", nargs=2, metavar="VERTEX")
+    sp.add_argument("--edge", metavar="EDGE", help="the cosmetic line to change (TaskCosmeticLine, edit)")
+    sp = one("cosmetic-circle", cmd_cosmetic_circle, "TechDraw_CosmeticCircle: a cosmetic circle or arc (--edge: change one)")
+    sp.add_argument("view")
+    sp.add_argument("--center", metavar="X,Y")
+    sp.add_argument("--radius", type=float)
+    sp.add_argument("--vertices", nargs=2, metavar="VERTEX", help="the centre and a point on the circle")
+    sp.add_argument("--arc", metavar="START,END", help="an arc from START to END degrees, anticlockwise")
+    sp.add_argument("--edge", metavar="EDGE")
+    sp = one("centerline", cmd_centerline, "TechDraw_FaceCenterLine, _2LineCenterLine, _2PointCenterLine: a centerline on "
+             "Face0, or between Edge1 Edge2, or between Vertex1 Vertex2")
+    sp.add_argument("view")
+    sp.add_argument("subs", nargs="+", metavar="SUB")
+    sp.add_argument("--mode", default="Vertical", choices=["Vertical", "Horizontal", "Aligned"])
+    sp.add_argument("--h-shift", dest="h_shift", type=float)
+    sp.add_argument("--v-shift", dest="v_shift", type=float)
+    sp.add_argument("--rotate", type=float, help="degrees")
+    sp.add_argument("--extend", type=float)
+    sp = one("erase", cmd_erase, "TechDraw_CosmeticEraser: remove cosmetic edges, centerlines and vertices")
+    sp.add_argument("view")
+    sp.add_argument("subs", nargs="+", metavar="SUB", help="Edge7 / Vertex9 of the view")
     sp = one("annotation", cmd_annotation, "TechDraw_Annotation: a text on the page")
     sp.add_argument("text", nargs="*", metavar="LINE")
     sp.add_argument("--at", metavar="X,Y")
