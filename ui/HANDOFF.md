@@ -101,6 +101,12 @@ Step 5, round 3 (six branches) is all in main (7526c0c, CI green, 6977 passed, 2
 - Step 5, round 4 (2026-10-26): Assembly (below) is in main; Sketcher text and the out-of-edit sketch commands are on
   branch sketcher-text. Each golden folder has a cases.py: load it under its own name (importlib, as the tests do),
   never `sys.path.insert` + `from cases import`, or it shadows another folder's in the full run.
+- Step 5, round 5 (2026-10-27): pd-last (Boolean, Clone, Sub-Shape Binder, Defeaturing, Involute Gear, Sprocket; one Body per
+  part module, a link to another Body is its part's name, docs/EDITING_PLAN.md "Several Bodies"; refine.py now keeps conic
+  edges as modelRefine.cpp does on OCCT 8) and techdraw (pages edited in the app, techdraw/<Page>.py, `cad techdraw`, docs/
+  EDITING_PLAN.md "TechDraw pages in a project"; techdrawcheck 361 ok, 104 known) are in main, 7691 passed. wirecheck on
+  menus, toolbars, tree and panels after round 4: 0 NO-OP, ERROR or WRONG (the joint commands' greyed reason added).
+  Left: Spreadsheet, Assembly's cut features, TechDraw's cosmetic edges, centre lines, leaders, hatching and symbols.
 - pd-last (2026-10-27): PartDesign's last commands, each a KwFeature: Involute Gear and Sprocket (cad_agent/feature_gear.py,
   a profile as a sketch is), Defeaturing (feature_defeaturing.py), Sub-Shape Binder (feature_subbinder.py), Boolean and Clone
   (feature_boolean.py, `cad feature clone`): a Body is a part module, so a Boolean's tool or a Clone's source is another part's
