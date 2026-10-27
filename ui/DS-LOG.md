@@ -602,3 +602,67 @@ spacing labels) were left alone here, and so were the files that carry them.
 - None of the three needed a design decision. The Data tab's Origin form ("Origin [XY_Plane.]") follows
   `pd_attach.tsx` and `fcedit.json`; the ShapeBinder row now records "Edit Shape Binder" as both the panel's step and
   the tree menu's label.
+
+## 8. PARITY corrections (docs only)
+
+A Claude lane asked for three out-of-date PARITY passages to be corrected against the code, one commit per item
+(`parity: …`); `ui/PARITY.md` and this log are the only files changed.
+
+### 8a. Toolbars: the workbench selector and the Part Design toolbars — commit `parity: toolbars — the workbench selector's six workbenches and the Part Design buttons that run`
+
+What: the "Workbench" row now lists the workbenches the selector actually offers; the "Part Design Helper /
+Modeling / Dress-Up / Transformation Features" row names the commands that work and the ones still greyed "not yet".
+
+Verified against `ui/src`: `chrome.tsx`'s `WORKBENCHES` has agent (CAD Agent), design (Part Design), assembly
+(Assembly), inspection (Inspection), sketcher (Sketcher) and part (Part), and `workbenchList()` filters only what
+Preferences > Workbenches disabled (`WB_DEFAULTS` disables none); the toolbar's combo/TabBar and View > Workbench
+both draw that list. In `partdesign.tsx`, `pdToolbars()` builds the four toolbars from `partDesignMenu()`/`sketchMenu()`:
+New Body, New Sketch (cmd `PartDesign_CompSketches`), Validate Sketch, Pad, Revolve, Additive Loft/Pipe/Helix, the
+additive and subtractive primitive groups, Pocket, Hole, Groove, Subtractive Loft/Pipe/Helix, Mirror, Linear Pattern,
+Polar Pattern, Multi-Transform, Fillet, Chamfer, Draft and Thickness are not disabled (the entity panels behind them are
+in `pd_revolve.tsx`, `pd_sweep.tsx`, `pd_dressup.tsx`, `pd_transform.tsx`, and the build modules `cad_agent/feature_*.py`
+exist); `soon()` marks Sub-Shape Binder, Clone, Boolean Operation and Defeaturing disabled with the "not yet" title,
+and Check Geometry is disabled with its n/a reason. `editcheck.mjs` compares the toolbar buttons' commands to
+`fcedit.json` and passes 79 ok (the count in PARITY.md is left as it was; it was not run here).
+
+Unsure: none.
+
+### 8b. PartDesign: the menus row and editcheck's 12 known lines — commit `parity: PartDesign menus — what is still greyed and the 12 known editcheck lines`
+
+What: the "Sketch and Part Design menus" row no longer says "what step 5 builds later is greyed"; it names the
+commands still greyed "not yet". The "PartDesign, 2026-10-24" paragraph's "12 known lines" keeps its count but now
+says what the 12 are.
+
+Verified against `ui/src/partdesign.tsx`: `partDesignMenu()` has `soon()` on Sub-Shape Binder and Clone (line 1135),
+Defeaturing in Dress-Up (1147), Boolean Operation (1151), Involute Gear and Sprocket (1158) and Shaft Design Wizard
+(1160); the material inspectors and Check Geometry are `disabled: true` with an n/a title, not "not yet". Counted
+what `ui/scripts/editcheck.mjs` records as `known`, without running it: `compare()` notes each FreeCAD menu entry that is
+enabled there and disabled here unless it is in `GREYED` — the Part Design menu gives 9 (the seven above plus
+Inspect Appearance and Inspect Material, both enabled in `fcedit.json`), the Sketch menu gives 0 (`fcedit.json` has
+Edit/Attach/Reorient/Validate/Merge/Mirror Sketch disabled); the tree-menu loop notes "Send to Console" once for
+each of `menu_pad`, `menu_sketch` and `menu_body`, which all list FreeCAD's "Send to Python Console": 3. 9 + 3 = 12,
+so the count stands.
+
+Unsure: none.
+
+### 8c. Still missing: the list of what is not done — commit `parity: still missing — the greyed and cut features, section by section`
+
+What: "## Still missing" was one bullet that said only that PartDesign's features "after Pad and Pocket" come later (a
+promise now met: Revolution, Groove, Hole, the patterns, the primitives, the dress-ups, Loft, Pipe and Helix all work). It is
+now nine one-line bullets of what is left, each naming FreeCAD's commands and the section that explains it: PartDesign's
+seven "not yet" commands and its four greyed tree entries; the Part workbench's greyed or unported commands; the Assembly
+features cut whole, the drag and panel gaps; the Sketcher's external intersection, the external geometry refused, Validate's
+Swap Endpoints; Loft/Pipe/Helix's non-planar ends and a solid face as Profile; TechDraw editing; and the workbenches the
+selector does not offer.
+
+Verified against the sections quoted and the code behind them: `ui/src/partdesign.tsx` (`soon()` at lines 1135, 1147, 1151,
+1158, 1160; the tree's `na()` entries at 546-557), `ui/src/part_wb.tsx` (the greyed Part commands, as "Part workbench" line
+655 lists them), `ui/src/assembly_wb.tsx` (`NA()`: Link Arrays, Exploded View, Snapshot, Simulation, Create Rigid Group, New
+Part, Go to Linked Assembly, Bill of Materials) with "Assembly workbench, 2026-10-26" for the rest, `ui/src/sketchcmds.ts`
+(`why()` returns "Not in this workbench yet" for an unimplemented command; Sketcher_Intersection is not in `RUN`),
+"Attachment and datums, 2026-10-24" (line 457, the refused external geometry), "Sketcher text and the commands on sketch
+objects, 2026-10-26" (Swap Endpoints, port_reversedExternalArcs), "PartDesign Loft, Pipe and Helix, 2026-10-24" (the
+non-planar Pipe ends and the solid face as Profile), `ui/src/shopwb.tsx` (the drawing tab is `cad drawing`'s page, DXF/SVG/PDF
+exports; no TechDraw editing code), and `ui/src/chrome.tsx`'s `WORKBENCHES` (six workbenches; no Spreadsheet or Draft).
+
+Unsure: none.

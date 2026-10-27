@@ -106,13 +106,13 @@ agent's job, in the code.
 | FreeCAD toolbar | Ours |
 |---|---|
 | Edit: Undo, Redo, Recompute | done |
-| Workbench | done: Part Design, Assembly, Inspection |
+| Workbench | done: Assembly, CAD Agent, Inspection, Part Design, Part and Sketcher — every entry of `chrome.tsx`'s `WORKBENCHES`, in internal-name order as `workbenchList` sorts them; Preferences > Workbenches hides the disabled ones (the start-up one always stays) |
 | View: Fit all, Fit selection, Standard views ▾, Draw style ▾, Measure | done |
 | View: Align to selection | done |
 | View: Mass properties | done |
 | Individual views: Isometric … Left | done |
 | File, Clipboard, Macro, Structure | n/a |
-| Part Design Helper / Modeling / Dress-Up / Transformation Features | done, button by button as PartDesignGui::Workbench::setupToolBars (`scripts/editcheck.mjs` against the real FreeCAD): New Body, New Sketch (Create Datum's group shows its default), Pad and Pocket work; the rest is greyed "not yet" (docs/EDITING_PLAN.md step 5) |
+| Part Design Helper / Modeling / Dress-Up / Transformation Features | done, button by button as PartDesignGui::Workbench::setupToolBars (`scripts/editcheck.mjs` against the real FreeCAD): New Body, New Sketch (Create Datum's group shows its default), Validate Sketch, Pad, Pocket, Revolve, Groove, Hole, Additive and Subtractive Loft, Pipe and Helix, the additive and subtractive primitives, Mirror, Linear Pattern, Polar Pattern, Multi-Transform, Fillet, Chamfer, Draft and Thickness work; Sub-Shape Binder, Clone, Boolean Operation and Defeaturing are greyed "not yet" (Check Geometry is greyed n/a: Recompute runs the checks) |
 
 We add our own workbench toolbar: Toggle visibility, Edit parameters, Transform, Placement (Verify in Inspection).
 
@@ -382,7 +382,7 @@ A part whose shape is a FEATURES list (cad_agent/feature.py) is FreeCAD's PartDe
 "Make Pad", "Edit Pad", "Edit Pad.Length", "Move tip to selected feature", "Move a feature inside body", "Delete", "Rename Pad.Label"),
 and the part is built (a change that breaks it is put back), its gates run, the scene reloads and a check follows, as after `cad set`.
 `scripts/editcheck.mjs` holds the page to the real FreeCAD 26.3 (`scripts/fcedit.py` writes `scripts/fcedit.json` from its GUI):
-79 checks pass (2026-10-25, with the patterns, primitives and ShapeBinder built, its panel driven: Add/Remove Geometry, OK and the Data tab); its 12 "known" lines are the commands greyed "not yet" and the console's "Send to Console".
+79 checks pass (2026-10-25, with the patterns, primitives and ShapeBinder built, its panel driven: Add/Remove Geometry, OK and the Data tab); its 12 "known" lines are the seven commands the Part Design menu greys "not yet" (Sub-Shape Binder, Clone, Defeaturing, Boolean Operation, Involute Gear, Sprocket and Shaft Design Wizard), the two material inspectors greyed n/a, and the three tree menus' "Send to Python Console", shown as "Send to Console" here.
 
 | FreeCAD | Ours |
 |---|---|
@@ -395,7 +395,7 @@ and the part is built (a change that breaks it is put back), its gates run, the 
 | PartDesign_MoveTip, PartDesign_MoveFeatureInTree | done: Set Tip (FreeCAD's selection errors, "already the tip"), Move Feature After… (QInputDialog's list, "Beginning of the body", and the Move Tip question when the feature lands after the Tip) |
 | Std_Delete, Rename (F2), Std_ToggleVisibility | done on a Body's rows: Delete with the Object Dependencies warning (FreeCAD's words), F2 edits the row in place, Space shows or hides the Body (its Tip) or a sketch, which is then drawn over the model in SketchEdgeColor |
 | Undo / Redo | done: the shared journal; Edit > Undo after any of the above, in the page or `cad undo` in a terminal, and the tree follows |
-| Sketch and Part Design menus | done, entry by entry as the real FreeCAD's (editcheck); what step 5 builds later is greyed "not yet" |
+| Sketch and Part Design menus | done, entry by entry as the real FreeCAD's (editcheck); Sub-Shape Binder, Clone, Defeaturing, Boolean Operation, Involute Gear, Sprocket and Shaft Design Wizard are greyed "not yet" (the material inspectors and Check Geometry are greyed n/a) |
 | PartDesign_Revolution / PartDesign_Groove | done (`src/pd_revolve.tsx`, cad_agent/feature_revolve.py): Command.cpp's worker (ReferenceAxis the sketch's V_Axis, Angle 360, Reversed as suggestReversed says; a Groove refused with FreeCAD's words when there is no solid), TaskRevolutionParameters.ui as setupDialog/updateWholeUI lay it out (Start and its Offset, Direction One/Two sided/Symmetric with Side 1 and Side 2, Axis with FreeCAD's list: Vertical/Horizontal sketch axis, Construction line N, Base X/Y/Z-axis, Select reference…, the current link; Type Angle/To last (Groove: Through all)/To first/Up to face, Angle, the face field, Project selected axis to profile plane, Reversed greyed for a symmetric angle, a Groove's Operation, Recompute on change), the preview (the profile turned about the axis), "Make Revolution"/"Edit Revolution", the property view's groups. Different: Axis's Select reference… and Select Face pick in the 3D view or the tree ("Picking in the 3D view"); Start Reference with Pick Reference and a Groove's Operation Common work |
 | PartDesign_Hole | done (`src/pd_revolve.tsx`, cad_agent/feature_hole.py): TaskHoleParameters.ui with its constructor's and slots' show/hide/enable rules (Base profile types, Start, Standard with FreeCAD's display names, Size, Head type with the screw norms, Depth type, Custom head values, Head diameter/depth, Countersink angle, Depth, Diameter, Drill angle, Include in depth, Tapered, Switch direction, Hole type Clearance/Tap drill/Threaded, Clearance with ISO/UTS/other names, the Thread group: Model Thread, Update thread view, Class, Direction, Thread Depth Type, Custom Clearance), every derived value from the server's port of Hole::onChanged (`cad feature resolve`), the preview (the drill profile at each centre), "Make Hole"/"Edit Hole", the property view with FreeCAD's read-only states |
 
@@ -923,4 +923,12 @@ Known differences:
 
 ## Still missing
 
-- Nothing from FreeCAD's standard menus, toolbars, context menus, keys or panels that applies to these projects. What is left is n/a (no FreeCAD document) or listed as n/a above; PartDesign's features after Pad and Pocket come with docs/EDITING_PLAN.md step 5 (Revolution, Groove, Hole, the patterns, Mirror, the primitives and the dress-ups Fillet, Chamfer, Draft and Thickness, the Additive and Subtractive Loft, Pipe and Helix are above; Defeaturing is not there yet); the Sketcher's tools still to come are listed above.
+- PartDesign: Sub-Shape Binder, Clone, Boolean Operation, Defeaturing, Involute Gear, Sprocket and Shaft Design Wizard are greyed "not yet"; Move Object To…, Set Face Colors, Toggle Suppressed and Toggle Freeze are greyed with FreeCAD's reasons ("PartDesign, 2026-10-24").
+- Part: Shape builder, Cross-sections, Simple / Transformed / Element copy, Convert to solid, Set tolerance, Shape from mesh, Points from shape, Box selection, Persistent section cut, Check geometry and Appearance per face are greyed or not ported ("Part workbench, 2026-10-25").
+- Assembly: Create Rigid Group, sub-assemblies (AssemblyLink, Go to Linked Assembly, New Part), Link Arrays, Exploded View, Snapshot, Simulation, the BOM object, joints on the Origin or on datums, and the JCS at two cylinders' intersection are cut ("Assembly workbench, 2026-10-26").
+- Assembly: Ctrl-drag of several parts and the Std_TransformManip dragger are not ported; Isolate does not isolate; Show advanced offsets leaves Offset1/2 greyed (same section).
+- Sketcher: external intersection is greyed "Not in this workbench yet"; external geometry of an ellipse or a B-spline, of a circle at an angle (read as an ellipse) or of a non-flat face is refused "not supported yet" ("Sketcher, 2026-10-24", "Attachment and datums, 2026-10-24").
+- Sketcher: Validate's Swap Endpoints in Constraints never enables, and the swap itself (port_reversedExternalArcs) is not ported ("Sketcher text and the commands on sketch objects, 2026-10-26").
+- Loft, Pipe and Helix: a Pipe whose end sections are not planar is refused, and a solid's face as a Pipe's or Helix's Profile is not offered ("PartDesign Loft, Pipe and Helix, 2026-10-24").
+- TechDraw: the Drawing tab is `cad drawing`'s finished page, opened as TechDraw opens a page, with its DXF, SVG and PDF to save; it is not a TechDraw page to edit, and there are no dimension, view or page tools ("Every cad command from the page (2026-10-13)").
+- Spreadsheet and the other workbenches: the selector offers only Assembly, CAD Agent, Inspection, Part Design, Part and Sketcher, so Spreadsheet, Draft, FEM, Mesh and the rest are not offered ("Toolbars").
