@@ -19,7 +19,7 @@ on:
 jobs:
   harness:
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
 
@@ -57,7 +57,12 @@ jobs:
       - name: Tests
         env:
           CAD_RENDER_BACKEND: numpy
-        run: .venv/bin/python -m pytest -q tests
+        run: |
+          timeout 2500 .venv/bin/python -m pytest -v tests -p no:cacheprovider --durations=30 > pytest.log 2>&1; rc=$?
+          echo "::warning title=last::$(tail -8 pytest.log | tr '\n' '|' | cut -c1-3000)"
+          echo "::warning title=durations::$(grep -A32 'slowest' pytest.log | tr '\n' '|' | cut -c1-6000)"
+          echo "::warning title=running::$(grep -E 'PASSED|FAILED|ERROR|SKIPPED' pytest.log | tail -3 | tr '\n' '|' | cut -c1-2000)"
+          exit $rc
 
       - name: Verify the regression designs
         env:
