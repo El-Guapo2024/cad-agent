@@ -53,7 +53,7 @@ const want = (section) => !ONLY.length || ONLY.includes(section)
 const clean = (t) => String(t ?? '').replace(/&(.)/g, '$1').replace(/…$/, '').trim()
 
 // What is deliberately different (PARITY.md, "Assembly workbench"), by the FreeCAD command
-const NOT_PORTED = new Set(['Part_LinkArrays', 'Assembly_CreateSnapshot', 'Assembly_CreateSimulation', 'Assembly_CreateBom', 'Assembly_SelectJointsOfComponent'])
+const NOT_PORTED = new Set(['Part_LinkArrays', 'Assembly_CreateSnapshot', 'Assembly_CreateBom', 'Assembly_SelectJointsOfComponent'])
 
 // ── a scratch workbench with three parts ─────────────────────────────────────────────────────────────────────────────
 const freePort = (from) => new Promise((res, rej) => {
@@ -312,7 +312,7 @@ try {
   }
   // ── the second round (fcassembly_more.json, fcassembly.py --more): a fresh project ac2 with Plate, Pin and Bar, and
   // acsub, whose Assembly (Plate grounded, Pin on a Revolute) is the sub-assembly ───────────────────────────────────────
-  const MORE = ['menus2', 'rigid', 'isolate', 'offsets', 'origin', 'explode', 'newpart', 'subasm']
+  const MORE = ['menus2', 'rigid', 'isolate', 'offsets', 'origin', 'explode', 'newpart', 'subasm', 'sim']
   if (FC2 && MORE.some(want)) {
     const S2 = 'ac2', SUB = 'acsub'
     const cad = (...a) => spawnSync(python, ['-m', 'cad_agent', '--projects', ROOT, ...a], { env, cwd: REPO })
@@ -587,6 +587,81 @@ try {
       await until(`cadui.getState().slug === ${JSON.stringify(SUB)}`, 'Go to Linked Assembly opens the sub-assembly\'s project', 60000)
         && ok(`subasm: Go to Linked Assembly makes ${SUB} the active document (FreeCAD: ${fc.goto.active}), its Assembly selected`)
       await until(`JSON.stringify(cadui.getState().asmSel) === '["Assembly"]'`, 'subasm: the linked Assembly selected', 30000) && ok('subasm: the linked Assembly selected')
+    }
+    if (want('sim') && FC2.sim) {
+      // fcassembly_more_dump.py's sim(): a third document, Plate (a 10 mm Box) grounded, Pin on a Revolute to it
+      console.log('sim')
+      const fc = FC2.sim, S3 = 'acsim'
+      cad('init', S3, '--brief', 'assemblycheck')
+      writeFileSync(join(ROOT, S3, 'parts', 'plate.py'), part('plate', 'Part.Box("Box")'))
+      writeFileSync(join(ROOT, S3, 'parts', 'pin.py'), part('pin', 'Part.Cylinder("Cylinder", radius=3, height=20)'))
+      cad('assembly', 'apply', S3, '--ops', JSON.stringify([{ op: 'insert', part: 'plate', name: 'Plate' },
+        { op: 'insert', part: 'pin', name: 'Pin', placement: [[30, 5, 2], [10, 20, 30]] },
+        { op: 'joint', type: 'Revolute', ref1: ['Plate', ['Face6', 'Face6']], ref2: ['Pin', ['Face3', 'Edge1']] }]))
+      await page.goto(`${BASE}/next/#${S3}`)
+      await page.reload()
+      await until(`window.cadui && cadui.getState().slug === ${JSON.stringify(S3)}`, 'sim: the third project')
+      await st('cadui.setState({ workbench: "assembly" })')
+      await until('cadui.getState().scene?.bodies.some((b) => b.name === "Pin") && !!cadui.getState().assembly', 'sim: the scene of acsim', 180000)
+      await st('cadui.setState({ asmActive: true, task: null })')
+      await sleep(500)
+      const p0 = await plcs()
+      check(samePlc(p0.Pin, fc.before.Pin), "sim: the Pin on its Revolute, as FreeCAD's", `ours ${JSON.stringify(p0.Pin)}`)
+      compareEntries(fc.menu, (await st('cadui.assembly()')).assembly, 'sim: the Assembly menu with a Revolute (Simulation enabled)')
+      await runCmd('Assembly_CreateSimulation')
+      await until(`!!document.querySelector('.taskview .as-task[data-task="simulation"]')`, 'the Simulation panel', 20000)
+      const fcNames = (t) => t.flat().map((w) => w.name).filter((n) => n && n !== 'qt_spinbox_lineedit' && !/Label$/.test(n))
+      const ourNames = async () => (await ourPanel()).filter((n) => !/Label$/.test(n) || n === 'FrameLabel' || n === 'FrameTimeLabel')
+      same((await ourNames()).filter((n) => !/Label$/.test(n)), fcNames(fc.panel).filter((n) => !/SpinBox$/.test(n) || true).filter((n) => ![
+        'TimeStartSpinBox', 'TimeEndSpinBox', 'TimeStepOutputSpinBox', 'GlobalErrorToleranceSpinBox'].includes(n)), 'sim: the panel (its groups, the list, the buttons)')
+      const box = async () => st(`(() => { const t = document.querySelector('.taskview .as-task[data-task="simulation"]'); return { title: t.querySelector('.tbox-title, .taskbox-title, header')?.textContent.trim() ?? null,
+        legends: [...t.querySelectorAll('legend')].map((e) => e.textContent.trim()), fields: [...t.querySelectorAll('.tfield')].map((f) => [f.querySelector('span')?.textContent.trim(), f.querySelector('input')?.value]) } })()`)
+      const b0 = await box()
+      same(b0.legends, fc.panel.flat().filter((w) => w.class === 'QGroupBox').map((w) => w.text), 'sim: the group boxes')
+      const fcFields = fc.panel.flat().filter((w) => /^Gui::.*SpinBox$/.test(w.class)).map((w) => w.text)
+      same(b0.fields.map((f) => f[0]), fc.panel.flat().filter((w) => w.class === 'QLabel').map((w) => w.text), 'sim: Start, End, Step, Tolerance')
+      same(b0.fields.map((f) => f[1]), fcFields, 'sim: their values, as FreeCAD writes them')
+      // Add: MotionEditDialog with its defaults (the Revolute, Angular, initialValue + 5*time), OK
+      await page.click('.taskview [data-qf="AddButton"]')
+      await until(`!!document.querySelector('[data-dialog="motion"]')`, 'sim: the motion dialog', 10000)
+      const dlg = await st(`(() => { const d = document.querySelector('[data-dialog="motion"]'); return [d.querySelector('[data-qf="joint"]').selectedOptions[0]?.textContent, d.querySelector('[data-qf="motionType"]').value, d.querySelector('[data-qf="formula"]').value] })()`)
+      same(dlg, ['Revolute', fc.simulation.motions[0].type, fc.simulation.motions[0].formula], 'sim: the dialog\'s joint, motion type and formula')
+      await page.click('[data-dialog="motion"] .qbtn.default')
+      await sleep(300)
+      const list = await st(`[...document.querySelectorAll('.taskview [data-qf="motionList"] .as-item')].map((e) => e.textContent.trim())`)
+      same(list, fc.motion.flat().find((w) => w.name === 'motionList').items, 'sim: the motion in the list')
+      await page.click('.taskview [data-qf="RunKinematicsButton"]')
+      await until(`!!document.querySelector('.taskview [data-qf="groupBox_player"]')`, 'sim: Generate shows the player', 60000)
+      const player = async () => st(`(() => { const t = document.querySelector('.taskview .as-task[data-task="simulation"]'); const s = t.querySelector('[data-qf="frameSlider"]');
+        return { frame: t.querySelector('[data-qf="FrameLabel"]').textContent.trim(), time: t.querySelector('[data-qf="FrameTimeLabel"]').textContent.trim(), value: Number(s.value), max: Number(s.max),
+          fps: t.querySelector('[data-qf="FramesPerSecondSpinBox"]').value, placements: JSON.parse(t.querySelector('[data-qf="groupBox_player"]').dataset.placements) } })()`)
+      const fw = (t, n) => t.flat().find((w) => w.name === n)
+      let pl = await player()
+      same([pl.frame, pl.time, pl.value, pl.max, pl.fps], [fw(fc.generated, 'FrameLabel').text, fw(fc.generated, 'FrameTimeLabel').text, fw(fc.generated, 'frameSlider').value,
+        fw(fc.generated, 'frameSlider').max, fw(fc.generated, 'FramesPerSecondSpinBox').text], 'sim: the player at the last frame (Frame, time, slider, frames per second)')
+      same(pl.max + 1, fc.frames, 'sim: numberOfFrames')
+      const pin = (x) => x.placements.Pin && [...x.placements.Pin.base, ...x.placements.Pin.rotation]
+      check(pin(pl) && samePlc(pin(pl), fc.last.Pin), "sim: the Pin at the last frame where FreeCAD's updateForFrame puts it", `ours ${JSON.stringify(pin(pl))} FreeCAD ${JSON.stringify(fc.last.Pin)}`)
+      await st(`(() => { const s = document.querySelector('.taskview [data-qf="frameSlider"]'); const set = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value').set; set.call(s, '50'); s.dispatchEvent(new Event('input', { bubbles: true })) })()`)
+      await sleep(300)
+      pl = await player()
+      same([pl.frame, pl.time, pl.value], [fw(fc.frame50.widgets, 'FrameLabel').text, fw(fc.frame50.widgets, 'FrameTimeLabel').text, fw(fc.frame50.widgets, 'frameSlider').value], 'sim: the slider at frame 50')
+      check(pin(pl) && samePlc(pin(pl), fc.frame50.Pin), 'sim: the Pin at frame 50', `ours ${JSON.stringify(pin(pl))} FreeCAD ${JSON.stringify(fc.frame50.Pin)}`)
+      await page.click('.taskview .as-task[data-task="simulation"] .tbuttons .qbtn.default')
+      await until(`(cadui.getState().assembly?.objects ?? []).some((o) => o.kind === 'Simulation')`, 'sim: the Simulation made', 120000)
+      await idle()
+      same(await undoName(), fc.undo[0], 'sim: its undo step')
+      const o = await objs()
+      const sim = o.find((x) => x.kind === 'Simulation'), mo = o.find((x) => x.kind === 'Motion')
+      same([sim.name, sim.label ?? sim.name, sim.group], [fc.simulation.name, fc.simulation.label, fc.simulation.group], 'sim: the Simulation (Name, Label, Group)')
+      same([sim.a_time_start, sim.b_time_end, sim.c_time_step_output, sim.f_global_error_tolerance, sim.j_frames_per_second], fc.simulation.settings, 'sim: its settings')
+      same([mo.name, mo.label, mo.motion_type, mo.formula, mo.joint], ['name', 'label', 'type', 'formula', 'joint'].map((k) => fc.simulation.motions[0][k]), 'sim: the Motion')
+      check(o.some((x) => x.kind === 'SimulationGroup' && x.name === fc.simulation.parent[0]), 'sim: in the SimulationGroup "Simulations"')
+      const t = await ourTree()
+      const fcRows = fcTree(fc.tree.filter((r) => true)).filter((r) => /Simulation|\(Angular\)/.test(r))
+      check(fcRows.every((r) => t.includes(r)), 'sim: the tree (Simulations, Simulation, Revolute (Angular))', `ours ${JSON.stringify(t)} FreeCAD ${JSON.stringify(fcRows)}`)
+      const p1 = await plcs()
+      check(samePlc(p1.Pin, fc.after_ok.Pin), 'sim: OK puts the Pin back (restoreAssemblyPartsPlacements)', `ours ${JSON.stringify(p1.Pin)}`)
     }
   }
 } catch (e) {

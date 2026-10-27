@@ -83,6 +83,16 @@ def replay(c, document="Unnamed"):
             from cad_agent import assembly_view as AV
             AV.set_view(doc, step["moves"])
             doc.recompute()
+        elif op == "simulation":
+            from cad_agent import assembly_sim as AS
+            sim = AS.set_simulation(doc, step.get("settings", {}), step["motions"])
+            out = AS.run(doc, sim)
+            n = len(out["frames"])
+            doc.simulated = getattr(doc, "simulated", {})
+            doc.simulated[sim.name] = {
+                "status": out["status"], "frames": n, "motions": list(sim.group),
+                "sampled": {str(k): {c: plc_list(W.to_placement(p)) for c, p in out["frames"][k].items()}
+                            for k in (sorted({0, n // 2, n - 1}) if n else [])}}
         steps.append(state(doc))
     final = doc.solve()
     return doc, steps, final
@@ -228,6 +238,19 @@ def test_assembly_case_matches_freecad(build, name):
         problems += diff_state(mine, theirs, f"step {i + 1}")
     assert final["status"] == gold["solve"]
     problems += diff_state(state(doc), gold["after_solve"], "after solve()")
+    for n, g in gold.get("simulations", {}).items():
+        mine = getattr(doc, "simulated", {}).get(n)
+        if mine is None:
+            problems.append(f"no simulation {n}")
+            continue
+        for k in ("status", "frames", "motions"):
+            if mine[k] != g[k]:
+                problems.append(f"simulation {n}.{k} {mine[k]!r} != FreeCAD {g[k]!r}")
+        for f, plcs in g["sampled"].items():
+            for c, p in plcs.items():
+                q = mine["sampled"].get(f, {}).get(c)
+                if q is None or not same_plc(q, p):
+                    problems.append(f"simulation {n} frame {f} {c} {q} != FreeCAD {fmt(p)}")
     bad = same_asmt(doc.export_asmt(), gold["asmt"])
     if bad:
         problems.append(f"exportAsASMT: {bad}")

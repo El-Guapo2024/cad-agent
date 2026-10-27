@@ -27,6 +27,9 @@ the transaction:
     cad assembly jcs     SLUG COMP ELEMENT [--vertex V | --at X,Y,Z] [--type T]
                                                            where a pick puts the JCS (nothing written)
     cad assembly asmt    SLUG [--out FILE]                 exportAsASMT: the system given to the solver
+    cad assembly simulation SLUG JOINT:TYPE:FORMULA ... [--edit SIM] [--start T] [--end T] [--step T] [--tolerance E]
+                                                           Assembly_CreateSimulation ("Create Simulation"): motions
+    cad assembly simulate SLUG SIM [--frame N]             Generate: the frames (nothing written)
 
 TYPE is one of Fixed, Revolute, Cylindrical, Slider, Ball, Distance, Parallel, Perpendicular, Angle, RackPinion,
 Screw, Gears, Belt. A reference is the component, the element and the vertex FreeCAD keeps with it: arm:Face3:Edge2
@@ -93,6 +96,12 @@ def step_name(ops: list, before: dict) -> str:
         return "Create Rigid Group"
     if kind == "update_rigid":
         return "Update Stored Positions"
+    if kind == "simulation":                    # TaskAssemblyCreateSimulation's openCommand
+        if op.get("name"):
+            label = next((o.get("label") or o["name"] for o in before.get("objects", []) if o["name"] == op["name"]),
+                         op["name"])
+            return f"Edit {label} Simulation"
+        return "Create Simulation"
     if kind in ("move", "drag"):
         return "Move part"
     if kind == "solve":
@@ -383,6 +392,67 @@ def _jcs_in_sub_assembly(a, objs) -> Result:
     return Result(OK, data, text, text)
 
 
+def _motion(text: str) -> dict:
+    """JOINT:TYPE:FORMULA (Joint:Angular:initialValue + 5*time) as a motion of the panel."""
+    bits = text.split(":", 2)
+    if len(bits) != 3 or bits[1] not in ("Angular", "Linear"):
+        raise UsageError(f"{text!r} is not JOINT:Angular:FORMULA or JOINT:Linear:FORMULA")
+    return {"joint": bits[0], "motion_type": bits[1], "formula": bits[2]}
+
+
+def cmd_simulation(a) -> Result:
+    settings = {k: v for k, v in (("a_time_start", a.start), ("b_time_end", a.end), ("c_time_step_output", a.step),
+                                  ("f_global_error_tolerance", a.tolerance), ("j_frames_per_second", a.fps))
+                if v is not None}
+    op = {"op": "simulation", "motions": [_motion(m) for m in a.motions], "settings": settings}
+    words = list(a.motions)
+    if a.edit:
+        op["name"] = a.edit
+        from . import assembly_edit as E
+        pdir = project(a.slug)
+        objs = E.objects_of((pdir / E.FILE).read_text()) if (pdir / E.FILE).exists() else []
+        old = {o.name: o for o in objs}.get(a.edit)
+        if old is not None:            # the motions kept by joint and type, the panel's list edited in place
+            mine = [o for o in objs if o.name in getattr(old, "group", ())]
+            for m in op["motions"]:
+                same = next((x for x in mine if x.joint == m["joint"] and x.motion_type == m["motion_type"]), None)
+                if same is not None:
+                    m["name"] = same.name
+                    mine.remove(same)
+        words += ["--edit", a.edit]
+    for k, v in (("--start", a.start), ("--end", a.end), ("--step", a.step), ("--tolerance", a.tolerance), ("--fps", a.fps)):
+        if v is not None:
+            words += [k, str(v)]
+    return apply_ops(a, [op], _cmd(a, *words))
+
+
+def cmd_simulate(a) -> Result:
+    from . import assembly_edit as E
+    from . import assembly_sim as AS
+    from . import assembly_wb as W
+    pdir = project(a.slug)
+    objs = E.objects_of((pdir / E.FILE).read_text()) if (pdir / E.FILE).exists() else None
+    if not objs:
+        raise UsageError(f"{a.slug} has no Assembly")
+    doc = W.load(a.slug, objs)
+    sim = doc.get(a.name)
+    if not isinstance(sim, W.Simulation):
+        raise UsageError(f"{a.name!r} is not a simulation of {a.slug}")
+    out = AS.run(doc, sim)
+    frames = out.get("frames") or []
+    if out["status"] != 0 or not frames:
+        raise UsageError("Generation of simulation failed: " + "; ".join(out.get("errors") or [str(out["status"])]))
+    k = len(frames) - 1 if a.frame is None else a.frame
+    if not 0 <= k < len(frames):
+        raise UsageError(f"--frame {k}: there are frames 0 to {len(frames) - 1}")
+    lines = [f"{sim.name}: {len(frames)} frames, {sim.a_time_start:g} s to {sim.b_time_end:g} s every "
+             f"{sim.c_time_step_output:g} s; Frame {k} at {out['times'][k]:.2f} s:"]
+    for n, p in frames[k].items():
+        lines.append(f"  {n} at (" + ", ".join(f"{c:.6g}" for c in p["base"]) + ")")
+    data = {"status": out["status"], "frames": frames, "times": out["times"], "frame": k}
+    return Result(OK, data, "\n".join(lines), f"{sim.name}: {len(frames)} frames")
+
+
 def cmd_asmt(a) -> Result:
     from . import assembly_edit as E
     from . import assembly_wb as W
@@ -467,5 +537,17 @@ def add_parsers(add, sub) -> None:
     sp.add_argument("--at", metavar="X,Y,Z", help="the picked point: the nearest vertex or centre is taken, as FreeCAD does "
                     "(default: the element's centre)")
     sp.add_argument("--type", default="Fixed", help="the joint's type (Distance ignores the vertex)")
+    sp = one("simulation", cmd_simulation, "Assembly_CreateSimulation: motions driving Revolute, Slider or Cylindrical "
+             "joints by a formula of time (JOINT:Angular:'initialValue + 5*time')")
+    sp.add_argument("motions", nargs="*", metavar="JOINT:TYPE:FORMULA")
+    sp.add_argument("--edit", metavar="SIM", help="change this simulation (its motions become these)")
+    sp.add_argument("--start", type=float, help="aTimeStart, s (default 0)")
+    sp.add_argument("--end", type=float, help="bTimeEnd, s (default 1)")
+    sp.add_argument("--step", type=float, help="cTimeStepOutput, s (default 0.01)")
+    sp.add_argument("--tolerance", type=float, help="fGlobalErrorTolerance (default 1e-6)")
+    sp.add_argument("--fps", type=int, help="jFramesPerSecond (default 30)")
+    sp = one("simulate", cmd_simulate, "the simulation panel's Generate: the frames, the parts where one leaves them")
+    sp.add_argument("name", metavar="SIM")
+    sp.add_argument("--frame", type=int, help="the frame shown (default the last)")
     sp = one("asmt", cmd_asmt, "exportAsASMT: the system the solver is given, in OndselSolver's format")
     sp.add_argument("--out", metavar="FILE")

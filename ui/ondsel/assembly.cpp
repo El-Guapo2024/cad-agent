@@ -31,6 +31,10 @@
 #include <OndselSolver/ASMTPart.h>
 #include <OndselSolver/ASMTPrincipalMassMarker.h>
 #include <OndselSolver/ASMTJoint.h>
+#include <OndselSolver/ASMTSimulationParameters.h>
+#include <OndselSolver/ASMTGeneralMotion.h>
+#include <OndselSolver/ASMTTranslationalMotion.h>
+#include <OndselSolver/ASMTRotationalMotion.h>
 #include <OndselSolver/ASMTAngleJoint.h>
 #include <OndselSolver/ASMTFixedJoint.h>
 #include <OndselSolver/ASMTGearJoint.h>
@@ -651,6 +655,13 @@ Placement AssemblyObject::placementOf(const std::string& obj)
         return p->plc;
     }
     return Placement();
+}
+
+// getGlobalPlacement(nullptr, ref): where the referenced object is, its part's placement and its own in the part
+Placement AssemblyObject::objectPlacement(const Ref& ref)
+{
+    Placement plc = placementOf(ref.part);
+    return ref.objPlc.isIdentity() ? plc : plc * ref.objPlc;
 }
 
 std::shared_ptr<ASMTAssembly> AssemblyObject::makeMbdAssembly()
@@ -1656,7 +1667,7 @@ bool AssemblyObject::findRotationCarrierForGearSide(Joint* gearJoint, int gearSi
         return false;
     }
     // getJointSideGlobalPlacement: getGlobalPlacement(ref) * Placement
-    const Placement gearPlc = placementOf(gearRef.part) * (gearSide == 1 ? gearJoint->plc1 : gearJoint->plc2);
+    const Placement gearPlc = objectPlacement(gearRef) * (gearSide == 1 ? gearJoint->plc1 : gearJoint->plc2);
     bool foundCarrier = false;
     bool ambiguousCarrier = false;
 
@@ -1672,7 +1683,7 @@ bool AssemblyObject::findRotationCarrierForGearSide(Joint* gearJoint, int gearSi
             if (movingRef.part != gearRef.part) {
                 return false;
             }
-            const Placement rotationPlc = placementOf(movingRef.part) * (movingSide == 1 ? joint->plc1 : joint->plc2);
+            const Placement rotationPlc = objectPlacement(movingRef) * (movingSide == 1 ? joint->plc1 : joint->plc2);
             if (!axesAreCoaxial(gearPlc, rotationPlc)) {
                 return false;
             }
@@ -1738,8 +1749,8 @@ std::vector<std::shared_ptr<MbD::ASMTJoint>> AssemblyObject::makeMbdJoint(Joint*
         return {};
     }
     if (jointType == JointType::Gears || jointType == JointType::Belt) {
-        const Placement plc1 = placementOf(joint->ref1.part) * joint->plc1;
-        const Placement plc2 = placementOf(joint->ref2.part) * joint->plc2;
+        const Placement plc1 = objectPlacement(joint->ref1) * joint->plc1;
+        const Placement plc2 = objectPlacement(joint->ref2) * joint->plc2;
         if (axesAreCoaxial(plc1, plc2)) {
             setGearJointCarrierMarkerIfAvailable(joint, mbdJoint);
         }
@@ -1762,8 +1773,8 @@ std::vector<std::shared_ptr<MbD::ASMTJoint>> AssemblyObject::makeMbdJoint(Joint*
     mbdJoint->setMarkerI(fullMarkerNameI);
     mbdJoint->setMarkerJ(fullMarkerNameJ);
 
-    // Add limits if needed (no simulation motions here).
-    if (jointType == JointType::Slider || jointType == JointType::Cylindrical) {
+    // Add limits if needed. We do not add if this is a simulation or their might clash.
+    if (motions.empty() && (jointType == JointType::Slider || jointType == JointType::Cylindrical)) {
         bool minEnabled = joint->enableLengthMin;
         bool maxEnabled = joint->enableLengthMax;
         double minLength = joint->lengthMin;
@@ -1799,7 +1810,7 @@ std::vector<std::shared_ptr<MbD::ASMTJoint>> AssemblyObject::makeMbdJoint(Joint*
             mbdAssembly->addLimit(limit2);
         }
     }
-    if (jointType == JointType::Revolute || jointType == JointType::Cylindrical) {
+    if (motions.empty() && (jointType == JointType::Revolute || jointType == JointType::Cylindrical)) {
         bool minEnabled = joint->enableAngleMin;
         bool maxEnabled = joint->enableAngleMax;
         double minAngle = joint->angleMin;
@@ -1835,7 +1846,168 @@ std::vector<std::shared_ptr<MbD::ASMTJoint>> AssemblyObject::makeMbdJoint(Joint*
             mbdAssembly->addLimit(limit2);
         }
     }
+
+    std::vector<Motion*> done;
+    auto replaceInitialValue = [&](std::string& form, Joint* jnt, const std::string& mType) {
+        if (form.find("initialValue") != std::string::npos) {
+            double val = getJointCurrentValue(jnt, mType == "Angular");
+            std::ostringstream out;
+            out.precision(10);
+            out << val;
+            std::string valStr = out.str();
+            size_t pos;
+            while ((pos = form.find("initialValue")) != std::string::npos) {
+                form.replace(pos, 12, valStr);
+            }
+        }
+    };
+
+    // Add motions if needed
+    for (auto* motion : motions) {
+        if (std::find(done.begin(), done.end(), motion) != done.end()) {
+            continue;  // don't process twice (can happen in case of cylindrical)
+        }
+        if (motion->joint != joint->name) {
+            continue;
+        }
+        std::string formula = motion->formula;
+        if (formula.empty()) {
+            continue;
+        }
+        std::string motionType = motion->type;
+        replaceInitialValue(formula, joint, motionType);
+
+        // check if there is a second motion as cylindrical can have both,
+        // in which case the solver needs a general motion.
+        for (auto* motion2 : motions) {
+            if (motion2->joint != joint->name || motion2 == motion) {
+                continue;
+            }
+            std::string formula2 = motion2->formula;
+            if (formula2.empty()) {
+                continue;
+            }
+            std::string motionType2 = motion2->type;
+            if (motionType2 == motionType) {
+                continue;  // only if both motions are different. ie one angular and one linear.
+            }
+            replaceInitialValue(formula2, joint, motionType2);
+
+            auto ASMTmotion = CREATE<ASMTGeneralMotion>::With();
+            ASMTmotion->setName(fullName + "-ScrewMotion");
+            ASMTmotion->setMarkerI(fullMarkerNameI);
+            ASMTmotion->setMarkerJ(fullMarkerNameJ);
+            ASMTmotion->rIJI->atiput(2, motionType == "Angular" ? formula2 : formula);
+            ASMTmotion->angIJJ->atiput(2, motionType == "Angular" ? formula : formula2);
+            mbdAssembly->addMotion(ASMTmotion);
+
+            done.push_back(motion2);
+        }
+
+        if (motionType == "Angular") {
+            auto ASMTmotion = CREATE<ASMTRotationalMotion>::With();
+            ASMTmotion->setName(fullName + "-AngularMotion");
+            ASMTmotion->setMarkerI(fullMarkerNameI);
+            ASMTmotion->setMarkerJ(fullMarkerNameJ);
+            ASMTmotion->setRotationZ(formula);
+            mbdAssembly->addMotion(ASMTmotion);
+        }
+        else if (motionType == "Linear") {
+            auto ASMTmotion = CREATE<ASMTTranslationalMotion>::With();
+            ASMTmotion->setName(fullName + "-LinearMotion");
+            ASMTmotion->setMarkerI(fullMarkerNameI);
+            ASMTmotion->setMarkerJ(fullMarkerNameJ);
+            ASMTmotion->setTranslationZ(formula);
+            mbdAssembly->addMotion(ASMTmotion);
+        }
+    }
     return {mbdJoint};
+}
+
+// ── the simulations (AssemblyObject::generateSimulation and AssemblyUtils' getJointCurrentValue) ──────────────
+
+double AssemblyObject::getJointCurrentValue(Joint* joint, bool isAngle)
+{
+    Placement plc1 = joint->plc1;
+    Placement plc2 = joint->plc2;
+    plc1 = objectPlacement(joint->ref1) * plc1;
+    plc2 = objectPlacement(joint->ref2) * plc2;
+    Placement plc3 = plc1.inverse() * plc2;
+    if (isAngle) {
+        Vec x_axis = plc3.rot.multVec(Vec {1, 0, 0});
+        return std::atan2(x_axis.y, x_axis.x);
+    }
+    return (plc1.pos - plc2.pos).length() * (plc3.pos.z < 0 ? -1.0 : 1.0);
+}
+
+void AssemblyObject::create_mbdSimulationParameters()
+{
+    auto mbdSim = mbdAssembly->simulationParameters;
+    mbdSim->settstart(doc.simulation.tstart);
+    mbdSim->settend(doc.simulation.tend);
+    mbdSim->sethout(doc.simulation.hout);
+    mbdSim->sethmin(1.0e-9);
+    mbdSim->sethmax(1.0);
+    mbdSim->seterrorTol(doc.simulation.errorTol);
+}
+
+int AssemblyObject::generateSimulation()
+{
+    mbdAssembly = makeMbdAssembly();
+    objectPartMap.clear();
+    objectPartOrder.clear();
+
+    motions.clear();
+    for (auto& m : doc.simulationMotions) {
+        motions.push_back(&m);
+    }
+
+    auto groundedObjs = fixGroundedParts();
+    if (groundedObjs.empty()) {
+        // If no part fixed we can't solve.
+        motions.clear();
+        return -6;
+    }
+
+    std::vector<Joint*> joints = getJoints();
+
+    removeUnconnectedJoints(joints, groundedObjs);
+
+    jointParts(joints);
+
+    create_mbdSimulationParameters();
+
+    try {
+        mbdAssembly->runKINEMATIC();
+    }
+    catch (...) {
+        errors.push_back("Generation of simulation failed");
+        motions.clear();
+        return -1;
+    }
+
+    motions.clear();
+
+    return 0;
+}
+
+int AssemblyObject::updateForFrame(size_t index)
+{
+    if (!mbdAssembly) {
+        return -1;
+    }
+    auto nfrms = mbdAssembly->numberOfFrames();
+    if (index >= nfrms) {
+        return -1;
+    }
+    mbdAssembly->updateForFrame(index);
+    setNewPlacements();
+    return 0;
+}
+
+size_t AssemblyObject::numberOfFrames()
+{
+    return mbdAssembly ? mbdAssembly->numberOfFrames() : 0;
 }
 
 std::string AssemblyObject::handleOneSideOfJoint(Joint* joint, int side, const std::string& markerName)
@@ -1853,7 +2025,7 @@ std::string AssemblyObject::handleOneSideOfJoint(Joint* joint, int side, const s
     Placement plc = side == 1 ? joint->plc1 : joint->plc2;
     // The JCS placement is relative to the Object, not to the containing Part: a component is its
     // own object here, so its global placement is applied and taken off again, as FreeCAD does.
-    Placement obj_global_plc = placementOf(part) * ref.objPlc;
+    Placement obj_global_plc = objectPlacement(ref);
     plc = obj_global_plc * plc;
     Placement part_global_plc = placementOf(part);
     plc = part_global_plc.inverse() * plc;

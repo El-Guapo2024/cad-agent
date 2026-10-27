@@ -343,3 +343,27 @@ case("origin_on_a_rigid_group", *GUI_PARTS, [
     {"op": "rigid", "parts": ["Pin", "Bar"]},
     joint("Fixed", ("Origin", ["XY_Plane.", "XY_Plane."]), ("Bar", ["Face5", "Face5"])),
 ])
+
+# ── simulations (Assembly_CreateSimulation): motions driving joints by a formula of time, run by the solver's
+#    KINEMATIC analysis (generateSimulation), the frames read back (updateForFrame): the first, the middle, the last ──
+#    {"op": "simulation", "motions": [{"joint": name, "motion_type": "Angular", "formula": "..."}], "settings": {...}}
+case("simulation_revolute", *PLATE_PIN, [
+    joint("Revolute", ("Plate", ["Face6", "Face6"]), ("Pin", ["Face3", "Edge1"])),
+    {"op": "simulation", "motions": [{"joint": "Joint", "motion_type": "Angular", "formula": "initialValue + 5*time"}]},
+])
+case("simulation_slider_limits_left_out", *TWO_BOXES, [
+    joint("Slider", ("Base", ["Face6", "Face6"]), ("Arm", ["Face5", "Face5"]), enable_length_max=True, length_max=8.0),
+    {"op": "simulation", "motions": [{"joint": "Joint", "motion_type": "Linear", "formula": "20*time"}],
+     "settings": {"b_time_end": 2.0, "c_time_step_output": 0.05}},
+])
+case("simulation_cylindrical_screw", *PLATE_PIN, [
+    joint("Cylindrical", ("Plate", ["Face6", "Face6"]), ("Pin", ["Face1", "Face1"])),
+    {"op": "simulation", "motions": [{"joint": "Joint", "motion_type": "Angular", "formula": "2*pi*time"},
+                                     {"joint": "Joint", "motion_type": "Linear", "formula": "initialValue + 3*time"}]},
+])
+case("simulation_chain_harmonic", *CHAIN, [
+    joint("Revolute", ("Plate", ["Face6", "Vertex8"]), ("Arm", ["Face5", "Vertex1"])),
+    joint("Revolute", ("Arm", ["Face6", "Vertex8"]), ("Pin", ["Face3", "Edge1"])),
+    {"op": "simulation", "motions": [{"joint": "Joint", "motion_type": "Angular", "formula": "0.5*sin(2*pi*time)"},
+                                     {"joint": "Joint001", "motion_type": "Angular", "formula": "initialValue - 3*time"}]},
+])

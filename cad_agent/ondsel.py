@@ -67,7 +67,7 @@ def _lib():
                              "`ui/ondsel/build.sh native` (a C++ compiler is all it needs).")
     s, i = ctypes.c_char_p, ctypes.c_int
     for name, args, res in (
-            ("ondsel_version", [], s), ("ondsel_solve", [s], s), ("ondsel_export", [s], s),
+            ("ondsel_version", [], s), ("ondsel_solve", [s], s), ("ondsel_export", [s], s), ("ondsel_simulate", [s], s),
             ("ondsel_query", [s, s, s], s), ("ondsel_new", [s], i), ("ondsel_last_error", [], s),
             ("ondsel_free", [i], None), ("ondsel_handle_solve", [i], s), ("ondsel_pre_drag", [i, s], s),
             ("ondsel_drag_step", [i, s], s), ("ondsel_rigid_step", [i, s], s), ("ondsel_post_drag", [i], s)):
@@ -82,6 +82,7 @@ class _NodeLib:
     what the browser runs, for the tests to hold to FreeCAD as they hold the native library."""
     _SIG = {"ondsel_version": ([], "string"), "ondsel_solve": (["string"], "string"),
             "ondsel_export": (["string"], "string"), "ondsel_query": (["string", "string", "string"], "string"),
+            "ondsel_simulate": (["string"], "string"),
             "ondsel_new": (["string"], "number"), "ondsel_last_error": ([], "string"),
             "ondsel_free": (["number"], None), "ondsel_handle_solve": (["number"], "string"),
             "ondsel_pre_drag": (["number", "string"], "string"), "ondsel_drag_step": (["number", "string"], "string"),
@@ -152,6 +153,12 @@ def _enc(v) -> bytes:
 def solve(doc: dict, enable_redo: bool = False) -> dict:
     """AssemblyObject::solve() on the document; see the module docstring for the result."""
     return _out(_lib().ondsel_solve(_enc({**doc, "enable_redo": bool(enable_redo)})))
+
+
+def simulate(doc: dict) -> dict:
+    """AssemblyObject::generateSimulation with the document's motions and settings, then updateForFrame for every
+    frame: {"status", "frames": [{part: placement}, ...], "warnings", "errors", "log"}."""
+    return _out(_lib().ondsel_simulate(_enc(doc)))
 
 
 def export_asmt(doc: dict) -> dict:

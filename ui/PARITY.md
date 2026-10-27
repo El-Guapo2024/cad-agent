@@ -869,16 +869,62 @@ Deliberate or known differences:
 - A component is a part file of the project, named after it (FreeCAD names a link after the inserted object's Label); Insert
   Component lists the project's parts, queues the ones clicked and inserts them at OK, each at the origin (FreeCAD inserts at
   once and offsets the next ones by a share of their box while the view has not moved).
-- Isolate in the joint panel shows FreeCAD's modes but does not isolate; Show advanced offsets shows Offset1/2 greyed (they
-  are set with `cad assembly set ... offset1=...`); the JCS markers are three plain axes (SoSwitchMarker draws more), and the
+- The JCS markers are three plain axes (SoSwitchMarker draws more), and the
   hovered element's preview JCS is not drawn.
 - Dragging: findDragMode, initMove and tryMouseMove are ported (rotation about a revolute, along a slider, both for a
   cylindrical, a ball, a plane-plane distance in its plane, the rest on the focal plane, with the solver's preDrag/doDragStep/
-  postDrag in the page's wasm). Not ported: Ctrl to drag several parts, and the Std_TransformManip dragger FreeCAD shows on an
-  unconnected part. The drag is checked in the page, not against FreeCAD's numbers (preDrag is not exposed to Python).
-- Not ported, whole features, greyed with the reason: Create Rigid Group, sub-assemblies (AssemblyLink, Go to Linked Assembly,
-  New Part), Link Arrays, Exploded View, Snapshot, Simulation (motions), the BOM object (`cad bom` is the bill of materials),
-  joints on the Assembly's Origin or on datums, the JCS at the intersection of two cylinders (findCylindersIntersection).
+  postDrag in the page's wasm). Not ported: the Std_TransformManip dragger FreeCAD shows on an unconnected part. The drag is checked in the page, not against FreeCAD's numbers (preDrag is not exposed to Python).
+- Not ported, whole features, greyed with the reason: Link Arrays, Snapshot, the BOM object (`cad bom` is the bill of
+  materials). Rigid groups, sub-assemblies, New Part, Exploded View, Simulation, Isolate, the offsets' editors, Ctrl-drag,
+  joints on the Origin and the cylinders' intersection came later ("Assembly's later commands, 2026-10-27").
+
+## Assembly's later commands, 2026-10-27
+
+Create Rigid Group, sub-assemblies (Assembly::AssemblyLink, rigid and flexible, Turn rigid/flexible, Go to Linked
+Assembly), New Part, Exploded View, joints on the Assembly's Origin, the JCS at two cylinders' intersection, Isolate, the
+Offset1/2 editors, Ctrl-drag of several parts and Simulation, cut from the first round, are ported as FreeCAD 3160daf1e2b6
+does them: AssemblyObject.cpp's rigid clusters (rigidPlacementCache, getRigidGroups, requiresRigidSolveForMove) and
+generateSimulation (motions, create_mbdSimulationParameters, runKINEMATIC, updateForFrame) in ui/ondsel/assembly.cpp;
+JointObject.py's RigidGroupJoint and UtilsAssembly's origin and cylinder helpers in cad_agent/assembly_wb.py and
+assembly_jcs.py; AssemblyLink.cpp in cad_agent/assembly_link.py; CommandCreateView.py in cad_agent/assembly_view.py;
+CommandCreateSimulation.py in cad_agent/assembly_sim.py; CommandInsertNewPart.py in cad_agent/assembly_newpart.py. The
+page's panels are src/assembly_wb.tsx, src/assembly_tasks.tsx (Insert, Exploded View) and src/assembly_sim.tsx
+(Simulation).
+
+Checked against the real FreeCAD:
+- tests/golden/assembly: 36 more freecadcmd cases (84 in all), each step's placements to 1e-6 mm and the exportAsASMT file
+  number by number, native and wasm: rigid groups (7: made, a joint on a member, suppressed and Update Stored Positions,
+  two groups sharing a part, a group on a grounded part), the Origin's planes, axes and point (11), the JCS at two
+  cylinders' intersection (3), sub-assemblies (9: rigid, flexible with the copied joints, turned each way, a joint into a
+  rigid one's child), exploded views (2: Normal and Radial moves, the explosion lines) and simulations (4: a Revolute, a
+  Slider whose limits the motion ignores, a Cylindrical driven both ways, a chain driven harmonically; the frame count
+  and the parts at the first, middle and last frames).
+- ui/scripts/assemblycheck.mjs against fcassembly_more.json (fcassembly.py --more, the GUI): the menus with three
+  components, Create Rigid Group (object, tree, property view, context menu, undo), Isolate's modes, the advanced offsets'
+  TaskPlacement dialog, a Fixed joint from the Origin's XY_Plane, Exploded View (panel, a move by the dragger, the view
+  selected and not), New Part, a sub-assembly inserted rigid, turned flexible and rigid again, Go to Linked Assembly, and
+  the Simulation panel (its groups and fields as FreeCAD writes them, the motion dialog's defaults, Generate, the player at
+  the last frame and at frame 50 with the Pin where updateForFrame puts it, OK, the objects and the tree): with the first
+  round, 338 ok, 0 FAIL, 30 known (the commands still cut, the tie, the numbering and labels above).
+
+Deliberate or known differences:
+- A sub-assembly is another project's Assembly (its assembly.py), not an Assembly of another FreeCAD document; the
+  AssemblyLink is named "Assembly" made unique, as FreeCAD names it after the linked Assembly's Label. A sub-assembly
+  inside a sub-assembly is refused, and New Assembly inside the active one (a nested AssemblyObject) is not ported.
+- The AssemblyLink's Origin is labelled after the project's own Origins (FreeCAD's count the document's, which New Part's
+  Part and Body add to); the check compares the rows without the number.
+- New Part always makes a part file ("Create part in new file"): the link's Label is the part's ("Part"), where FreeCAD
+  labels it Part001 when the part is made in the same document.
+- Datums inside a part (a Body's own planes and lines) are not offered as references; the Assembly's Origin is.
+- Exploded View: "Align to..." (the dragger on a hovered feature) is not ported; the dragger is the page's transform gizmo.
+- Isolate draws the other parts Transparent the page's way (opacity), not with Coin's transparency type.
+- Ctrl-drag moves several parts with the solver as FreeCAD's tryMouseMove does; the Std_TransformManip dragger on an
+  unconnected part is still not ported.
+- Simulation: Save Animation (a GIF or video) is greyed; a Motion's double-click opens its simulation's panel (FreeCAD opens
+  MotionEditDialog on its own); the help labels' tooltips are short. The animation timer runs in the page at
+  jFramesPerSecond as FreeCAD's QTimer does.
+- Snapshot, Link Arrays and the BOM object stay cut (greyed with the reason).
+
 
 ## Sketcher text and the commands on sketch objects, 2026-10-26
 
@@ -1016,8 +1062,7 @@ Known differences, each marked `known` by techdrawcheck:
 
 - PartDesign: the Shaft Design Wizard is cut (a Python wizard with its own table, charts and calculation); a Sub-Shape Binder binds its own Body only, and only Synchronized; a Boolean's tools and a Clone's source are other part modules ("PartDesign's last commands, 2026-10-27"); Move Object To…, Set Face Colors, Toggle Suppressed and Toggle Freeze are greyed with FreeCAD's reasons ("PartDesign, 2026-10-24").
 - Part: Shape builder, Cross-sections, Simple / Transformed / Element copy, Convert to solid, Set tolerance, Shape from mesh, Points from shape, Box selection, Persistent section cut, Check geometry and Appearance per face are greyed or not ported ("Part workbench, 2026-10-25").
-- Assembly: Create Rigid Group, sub-assemblies (AssemblyLink, Go to Linked Assembly, New Part), Link Arrays, Exploded View, Snapshot, Simulation, the BOM object, joints on the Origin or on datums, and the JCS at two cylinders' intersection are cut ("Assembly workbench, 2026-10-26").
-- Assembly: Ctrl-drag of several parts and the Std_TransformManip dragger are not ported; Isolate does not isolate; Show advanced offsets leaves Offset1/2 greyed (same section).
+- Assembly: Link Arrays, Snapshot and the BOM object are cut; datums inside parts, nested sub-assemblies, Exploded View's Align to..., Save Animation and the Std_TransformManip dragger are not ported ("Assembly's later commands, 2026-10-27").
 - Sketcher: external intersection is greyed "Not in this workbench yet"; external geometry of an ellipse or a B-spline, of a circle at an angle (read as an ellipse) or of a non-flat face is refused "not supported yet" ("Sketcher, 2026-10-24", "Attachment and datums, 2026-10-24").
 - Sketcher: Validate's Swap Endpoints in Constraints never enables, and the swap itself (port_reversedExternalArcs) is not ported ("Sketcher text and the commands on sketch objects, 2026-10-26").
 - Loft, Pipe and Helix: a Pipe whose end sections are not planar is refused, and a solid's face as a Pipe's or Helix's Profile is not offered ("PartDesign Loft, Pipe and Helix, 2026-10-24").

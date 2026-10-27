@@ -180,6 +180,22 @@ Document toDocument(const Json& j)
             d.rigidGroups.push_back(g);
         }
     }
+    if (const Json* ms = j.get("motions")) {
+        for (auto& mj : ms->items) {
+            Motion m;
+            m.name = str(mj, "name");
+            m.joint = str(mj, "joint");
+            m.type = str(mj, "type", "Angular");
+            m.formula = str(mj, "formula");
+            d.simulationMotions.push_back(m);
+        }
+    }
+    if (const Json* sj = j.get("simulation")) {
+        d.simulation.tstart = num(*sj, "start", 0.0);
+        d.simulation.tend = num(*sj, "end", 1.0);
+        d.simulation.hout = num(*sj, "step", 1.0e-2);
+        d.simulation.errorTol = num(*sj, "tolerance", 1.0e-6);
+    }
     if (const Json* cs = j.get("rigid_cache")) {
         for (auto& c : cs->items) {
             if (c.kind != Json::Array || c.items.size() != 2) {
@@ -504,6 +520,46 @@ const char* ondsel_query(const char* json, const char* op, const char* args)
         else {
             throw std::invalid_argument(o + " is not a query");
         }
+        w.out += '}';
+        return w.out;
+    });
+}
+
+// generateSimulation, then every frame: {"status", "frames": [{part: P}, ...] (updateForFrame(i)'s placements),
+// "warnings", "errors", "log"}
+const char* ondsel_simulate(const char* json)
+{
+    return guarded([&] {
+        Json j = Parser(json).parse();
+        AssemblyObject a(toDocument(j));
+        Capture cap;
+        int status = a.generateSimulation();
+        Writer w;
+        w.out += '{';
+        w.key("status");
+        w.integer(status);
+        w.key("frames");
+        w.out += '[';
+        size_t n = status == 0 ? a.numberOfFrames() : 0;
+        for (size_t k = 0; k < n; ++k) {
+            a.updateForFrame(k);
+            if (k) {
+                w.out += ',';
+            }
+            w.out += '{';
+            for (auto& p : a.doc.parts) {
+                w.key(p.name.c_str());
+                writePlacement(w, p.plc);
+            }
+            w.out += '}';
+        }
+        w.out += ']';
+        w.key("warnings");
+        writeStrings(w, a.warnings);
+        w.key("errors");
+        writeStrings(w, a.errors);
+        w.key("log");
+        w.str(cap.ss.str());
         w.out += '}';
         return w.out;
     });

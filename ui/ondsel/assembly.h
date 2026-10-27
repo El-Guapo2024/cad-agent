@@ -14,6 +14,8 @@
 //   the rigid groups (JointObject.RigidGroupJoint): getRigidGroups, rebuildRigidClusters,
 //     getRigidRepresentative/getRigidMembers, syncActiveRigidGroupPlacements, updateRigidPlacementCache,
 //     requiresRigidSolveForMove, and the rigid clusters in getGroundedParts, getConnectedParts, getMbDData, preDrag.
+//   the simulations (CommandCreateSimulation.py's Simulation and Motions): generateSimulation, makeMbdJoint's motions
+//     (getJointCurrentValue for initialValue), create_mbdSimulationParameters, numberOfFrames, updateForFrame.
 // A sub-assembly (AssemblyLink) comes in already resolved: a rigid one is a component whose references name an
 // object inside it (Ref::objPlc), a flexible one's components and joints are the document's own.
 #pragma once
@@ -228,6 +230,21 @@ struct RigidGroup
     std::vector<std::string> members;
 };
 
+// A Motion of a simulation: the joint it drives, MotionType ("Angular" or "Linear") and its Formula
+struct Motion
+{
+    std::string name;
+    std::string joint;
+    std::string type = "Angular";
+    std::string formula;
+};
+
+// The Simulation's settings (aTimeStart, bTimeEnd, cTimeStepOutput, fGlobalErrorTolerance)
+struct SimulationParameters
+{
+    double tstart = 0.0, tend = 1.0, hout = 1.0e-2, errorTol = 1.0e-6;
+};
+
 struct Document
 {
     std::string name = "Unnamed";   // the FreeCAD document's Name: getFullName() is "Doc#Obj"
@@ -238,6 +255,8 @@ struct Document
     // AssemblyObject::rigidPlacementCache as the last solve left it (the object lives across solves in FreeCAD;
     // here it travels with the document)
     std::vector<std::pair<std::string, Placement>> rigidPlacementCache;
+    std::vector<Motion> simulationMotions;  // the Simulation's Group, for generateSimulation
+    SimulationParameters simulation;
     bool logDebug = false;
 
     Component* part(const std::string& n);
@@ -265,6 +284,9 @@ public:
     Document doc;
 
     int solve(bool enableRedo = false);
+    int generateSimulation();               // generateSimulation(sim): the motions and settings in the document
+    size_t numberOfFrames();
+    int updateForFrame(size_t index);
     void updateSolveStatus();
     void preDrag(const std::vector<std::string>& dragParts);
     void doDragStep();  // the dragged parts' placements are set in doc first, as the view provider does
@@ -307,6 +329,9 @@ private:
     std::vector<std::pair<std::string, Placement>> previousPositions;
     bool bundleFixed = false;
     bool solveInProgress = false;
+    std::vector<Motion*> motions;           // AssemblyObject::motions: those of the simulation being generated
+    double getJointCurrentValue(Joint* joint, bool isAngle);
+    void create_mbdSimulationParameters();
     std::map<std::string, std::string> rigidRepByPart;
     std::map<std::string, std::vector<std::string>> rigidMembersByRep;
 
@@ -353,6 +378,7 @@ private:
     std::shared_ptr<MbD::ASMTMarker> makeMbdMarker(const std::string& name, const Placement& plc);
 
     Placement placementOf(const std::string& obj);
+    Placement objectPlacement(const Ref& ref);
     void swapJCS(Joint* joint);
     DistanceType getDistanceType(Joint* joint);
 };

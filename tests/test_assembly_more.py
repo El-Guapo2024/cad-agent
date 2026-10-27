@@ -208,3 +208,36 @@ def test_a_flexible_sub_assembly_and_back(proj, sub, capsys):
     assert j.reference2 == ("Assembly001", ("plate001.Face5", "plate001.Face5"))
     code, data = run(capsys, "assembly", "delete", "asm", "Assembly001")
     assert code == cli.OK and not any(isinstance(o, (W.AssemblyLink, W.Joint)) for o in objs(proj))
+
+
+def test_simulation_drives_a_revolute_and_round_trips(proj, capsys):
+    three(capsys)
+    code, data = run(capsys, "assembly", "joint", "asm", "Revolute", "plate:Face6:Vertex8", "bar:Face5:Vertex1")
+    assert code == cli.OK
+    code, data = run(capsys, "assembly", "simulation", "asm", "Joint:Angular:initialValue + 2*pi*time", "--end", "0.5")
+    assert code == cli.OK and data["step"] == "Create Simulation"
+    src = (proj / "assembly.py").read_text()
+    assert 'Assembly.SimulationGroup("Simulations")' in src
+    assert 'Assembly.Motion("Motion", joint="Joint", formula="initialValue + 2*pi*time", label="Revolute (Angular)")' in src
+    tree = {r["name"]: r for r in data["doc"]["tree"]}
+    assert tree["Simulation"]["parent"] == "Simulations" and tree["Motion"]["parent"] == "Simulation"
+    sim = next(o for o in objs(proj) if isinstance(o, W.Simulation))
+    assert sim.group == ("Motion",) and sim.b_time_end == 0.5
+    # Generate: 0.5 s every 0.01 s, the bar half a turn about the joint's axis, nothing written
+    before = (proj / "assembly.py").read_text()
+    code, data = run(capsys, "assembly", "simulate", "asm", "Simulation")
+    assert code == cli.OK and (proj / "assembly.py").read_text() == before
+    frames = data["frames"]
+    a, b = (W.to_placement(frames[k]["bar"]) for k in (1, len(frames) - 1))
+    turn = a.rot.inverse() * b.rot
+    assert abs(turn.q[3]) < 0.05                         # about half a turn between the first frame and the last
+    # the panel's edit keeps the motion
+    code, data = run(capsys, "assembly", "simulation", "asm", "Joint:Angular:3*time", "--edit", "Simulation")
+    assert code == cli.OK and data["step"] == "Edit Simulation Simulation"
+    m = next(o for o in objs(proj) if isinstance(o, W.Motion))
+    assert m.name == "Motion" and m.formula == "3*time"
+    # a Revolute takes no Linear motion
+    code, data = run(capsys, "assembly", "simulation", "asm", "Joint:Linear:3*time")
+    assert code != cli.OK
+    code, data = run(capsys, "assembly", "delete", "asm", "Simulation")
+    assert code == cli.OK and not any(isinstance(o, (W.Simulation, W.Motion)) for o in objs(proj))

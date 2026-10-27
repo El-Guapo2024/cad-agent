@@ -139,6 +139,13 @@ Step 5, round 3 (six branches) is all in main (7526c0c, CI green, 6977 passed, 2
   the page (src/assembly_wb.tsx) checked by scripts/assemblycheck.mjs against scripts/fcassembly.json (scripts/fcassembly.py):
   124 ok, 0 FAIL. Cut: rigid groups, sub-assemblies, link arrays, exploded views, snapshots, simulation, the BOM object
   (PARITY.md "Assembly workbench"). Run assemblycheck with CAD_PYTHON set in a worktree without its own .venv.
+- assembly-2 (2026-10-27): the cut Assembly features but Link Arrays, Snapshot and the BOM object: Create Rigid Group,
+  sub-assemblies (another project's Assembly, rigid or flexible; Go to Linked Assembly), New Part, Exploded View, joints on
+  the Origin, the cylinders' intersection, Isolate, Offset1/2, Ctrl-drag, Simulation (generateSimulation in
+  ui/ondsel/assembly.cpp; cad_agent/assembly_{link,view,sim,newpart}.py; src/assembly_tasks.tsx, src/assembly_sim.tsx;
+  `cad assembly rigid|new-part|simulation|simulate`, `insert --assembly`). 84 freecadcmd cases on both builds;
+  assemblycheck also against scripts/fcassembly_more.json (`fcassembly.py OUT --more`): 338 ok, 0 FAIL, 30 known.
+  PARITY.md "Assembly's later commands". After an assembly.h change, `build.sh` rebuilds the port's objects itself.
 
 TechDraw (branch techdraw, 2026-10-27): pages as techdraw/<Page>.py, `cad techdraw`, the workbench in the page (views,
 projection groups, sections, dimensions, balloons, annotations, SVG/DXF/PDF). HLR numbering equals FreeCAD's; checks are

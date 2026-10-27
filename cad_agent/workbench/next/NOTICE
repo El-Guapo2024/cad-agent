@@ -658,7 +658,7 @@ src/Mod/Assembly/CommandCreateJoint.py   [licence: LGPL-2.1-or-later]
     followed by src/assembly_wb.tsx, src/fctips.ts
 src/Mod/Assembly/CommandCreateSimulation.py   [licence: LGPL-2.1-or-later]
     copyright 2024 Ondsel
-    followed by src/fctips.ts
+    followed by src/fctips.ts, src/assembly_sim.tsx
 src/Mod/Assembly/CommandCreateSnapshot.py   [licence: LGPL-2.1-or-later]
     copyright 2026 AstoCAD
     followed by src/fctips.ts
@@ -686,6 +686,9 @@ src/Mod/Assembly/Gui/Resources/panels/TaskAssemblyCreateJoint.ui   [licence: non
 src/Mod/Assembly/Gui/Resources/panels/TaskAssemblyInsertLink.ui   [licence: none]
     copyright: no line in the file
     followed by src/assembly_wb.tsx, src/assembly_tasks.tsx
+src/Mod/Assembly/Gui/Resources/panels/TaskAssemblyCreateSimulation.ui   [licence: none]
+    copyright: no line in the file
+    followed by src/assembly_sim.tsx
 src/Mod/Assembly/Gui/Resources/panels/TaskAssemblyCreateView.ui   [licence: none]
     copyright: no line in the file
     followed by src/assembly_tasks.tsx

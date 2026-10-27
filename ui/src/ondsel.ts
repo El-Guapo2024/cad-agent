@@ -44,6 +44,16 @@ export interface AsmResult {
   errors: string[]
   log: string
 }
+/** A Motion of a simulation (CommandCreateSimulation.Motion) and the Simulation's settings, for simulate(). */
+export interface AsmMotion { name: string; joint: string; type: 'Angular' | 'Linear'; formula: string }
+export interface AsmSimSettings { start: number; end: number; step: number; tolerance: number }
+export interface AsmSimResult {
+  status: number           // generateSimulation's: 0, -1 the generation failed, -6 nothing grounded
+  frames: Record<string, Plc>[]   // updateForFrame(i)'s placements, every frame
+  warnings: string[]
+  errors: string[]
+  log: string
+}
 export interface AsmDrag {
   // the view provider's new placements for the dragged parts, one mouse move; the solve's answer back
   step(placements: Record<string, Plc>): AsmResult
@@ -57,6 +67,8 @@ export interface AsmSolver {
   query(doc: AsmDoc, op: string, ...args: string[]): unknown
   // AssemblyObject::preDrag(parts); the result's "dragged" are the parts the solver moves
   drag(doc: AsmDoc, parts: string[]): AsmDrag
+  // AssemblyObject::generateSimulation (runKINEMATIC), then every frame
+  simulate(doc: AsmDoc, motions: AsmMotion[], settings: AsmSimSettings): AsmSimResult
 }
 
 type Module = {
@@ -79,6 +91,9 @@ export function loadAssemblySolver(): Promise<AsmSolver> {
     return {
       solve(doc: AsmDoc): AsmResult {
         return parse<AsmResult>(call('ondsel_solve', 'string', ['string'], JSON.stringify(doc)))
+      },
+      simulate(doc: AsmDoc, motions: AsmMotion[], settings: AsmSimSettings): AsmSimResult {
+        return parse<AsmSimResult>(call('ondsel_simulate', 'string', ['string'], JSON.stringify({ ...doc, motions, simulation: settings })))
       },
       query(doc: AsmDoc, op: string, ...args: string[]): unknown {
         return parse<{ value: unknown }>(call('ondsel_query', 'string', ['string', 'string', 'string'],

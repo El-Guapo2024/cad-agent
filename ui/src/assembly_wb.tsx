@@ -46,14 +46,16 @@ import type { TreeCtx } from './partdesign'
 import { loadAssemblySolver, type AsmDoc, type AsmResult, type Plc } from './ondsel'
 import type { NavEvent, V2 } from './nav'
 import { ExplodedViewTask, InsertTask } from './assembly_tasks'
+import { SimulationTask } from './assembly_sim'
 
 // ── the model (cad_agent/assembly_edit.py's read/solved) ──────────────────────────────────────────────────────────
 export interface AsmObj { name: string; kind: 'Link' | 'GroundedJoint' | 'Joint' | 'RigidGroupJoint' | 'AssemblyLink' | 'ViewGroup' | 'ExplodedView' | 'ExplodedViewStep'
+    | 'SimulationGroup' | 'Simulation' | 'Motion'
   type: string; label?: string | null; [k: string]: unknown }
 export interface AsmRow {
   name: string; label: string; type: string; depth: number; icon: string; parent?: string | null
   linked_object?: string; grounded?: boolean; joint_type?: string; suppressed?: boolean; object_to_ground?: string
-  members?: string[]; rigid?: boolean; source?: string; copy?: boolean; component?: boolean; move_type?: string
+  members?: string[]; rigid?: boolean; source?: string; copy?: boolean; component?: boolean; move_type?: string; motion_type?: string
 }
 /** A body the Assembly shows: its component (a Link, a flexible sub-assembly's child) or the rigid sub-assembly that
  *  moves it (moving), the sub-assembly it is in (link), its part and project. */
@@ -336,6 +338,7 @@ function insertEntries(): Entry[] {
     { label: 'New Part', icon: 'std-part', cmd: 'Assembly_InsertNewPart', kbd: 'P', disabled: !active, onSelect: () => openTask('assembly', 'newpart', 'Fixed') },
   ]
 }
+const hasMotionJoint = () => (getState().assembly?.objects ?? []).some((o) => o.kind === 'Joint' && ['Revolute', 'Slider', 'Cylindrical'].includes(String(o.joint_type)))
 /** The Assembly toolbar's and menu's commands (cmdList of InitGui.py), the menu-only ones and the joints'. */
 function cmdList(): Entry[] {
   const { has, active, doc } = asmState()
@@ -349,7 +352,9 @@ function cmdList(): Entry[] {
     // CommandCreateView.IsActive: isAssemblyCommandActive and assembly_has_at_least_n_parts(2)
     { label: 'Exploded View', icon: 'as-exploded', cmd: 'Assembly_CreateView', kbd: 'E', disabled: !asmState().two, onSelect: () => openTask('assembly', 'explode', '') },
     NA('Snapshot', 'shot', 'Assembly_CreateSnapshot', 'snapshots are not ported'),
-    NA('Simulation', 'as-simulation', 'Assembly_CreateSimulation', 'simulations (motions) are not ported'),
+    // CommandCreateSimulation.IsActive: isAssemblyCommandActive and a Revolute, Slider or Cylindrical joint
+    { label: 'Simulation', icon: 'as-simulation', cmd: 'Assembly_CreateSimulation', kbd: 'V', disabled: !active || !hasMotionJoint(),
+      title: active && !hasMotionJoint() ? 'needs a Revolute, Slider or Cylindrical joint to drive' : undefined, onSelect: () => openTask('assembly', 'simulation', '') },
     NA('Bill of Materials', 'as-bom', 'Assembly_CreateBom', 'the bill of materials is `cad bom` (CAD Agent > Bill of Materials)'),
   ]
 }
@@ -411,6 +416,10 @@ function rowIcon(r: AsmRow): IconName {
   if (r.type === 'Assembly::AssemblyLink') return r.rigid ? 'as-link-rigid' : 'as-link-flexible'
   if (r.type === 'Assembly::ViewGroup') return 'as-exploded-group'
   if (r.type === 'ExplodedView' || r.type === 'ExplodedViewStep') return 'as-exploded'
+  if (r.type === 'Assembly::SimulationGroup') return 'as-simulation-group'
+  if (r.type === 'Simulation') return 'as-simulation'
+  // ViewProviderMotion.getIcon: button_rotate.svg for an Angular motion, button_right.svg for a Linear one
+  if (r.type === 'Motion') return r.motion_type === 'Linear' ? 'as-motion-linear' : 'as-motion-angular'
   return 'link'
 }
 /** ViewProviderAssembly::onSelectionChanged with one object selected: a joint isolates the parts it holds
@@ -490,6 +499,8 @@ export function AssemblyRows({ ctx, onMenu }: { ctx: TreeCtx; onMenu(at: { x: nu
           if (r.type === 'Assembly::AssemblyObject') activateAssembly(!getState().asmActive)
           else if (r.type === 'Joint' && !r.copy) openJoint((r.joint_type ?? 'Fixed') as JointType, r.name)
           else if (r.type === 'ExplodedView') openExplodedView(r.name)          // ViewProviderExplodedView.doubleClicked
+          else if (r.type === 'Simulation') openSimulation(r.name)              // ViewProviderSimulation.doubleClicked
+          else if (r.type === 'Motion' && r.parent) openSimulation(r.parent)    // its simulation's panel, the motion in it
         }}
         onContextMenu={(e) => { e.preventDefault(); if (!sel) pickRow(r, e); onMenu({ x: e.clientX, y: e.clientY }) }}>
         <span className="tlab"><span className="pdindent" style={{ width: 6 + 12 * r.depth }} />
@@ -508,6 +519,12 @@ export function openExplodedView(name: string) {
   if (!getState().asmActive) activateAssembly(true)                 // setEdit(assembly) when it is not the active one
   openTask('assembly', 'explode', name)
 }
+/** Assembly_CreateSimulation's panel on an existing simulation (a double-click on it). */
+export function openSimulation(name: string) {
+  if (!getState().assembly) return
+  if (!getState().asmActive) activateAssembly(true)
+  openTask('assembly', 'simulation', name)
+}
 /** The tree's context menu on Assembly rows. */
 export function assemblyTreeEntries(): Entry[] {
   const { s, v } = asmState()
@@ -516,8 +533,9 @@ export function assemblyTreeEntries(): Entry[] {
   const copy = !!one && !!v?.copies?.some((c) => c.name === one.name)
   return [
     ...(s.asmSel.includes('Assembly') ? [{ label: s.asmActive ? 'Leave Edit Mode' : 'Activate Assembly', icon: 'as-activate' as IconName, onSelect: () => activateAssembly(!s.asmActive) }] : []),
-    { label: 'Edit', disabled: !(one?.kind === 'Joint' && !copy) && one?.kind !== 'ExplodedView',
-      onSelect: () => one && (one.kind === 'ExplodedView' ? openExplodedView(one.name) : openJoint(String(one.joint_type) as JointType, one.name)) },
+    { label: 'Edit', disabled: !(one?.kind === 'Joint' && !copy) && one?.kind !== 'ExplodedView' && one?.kind !== 'Simulation',
+      onSelect: () => one && (one.kind === 'ExplodedView' ? openExplodedView(one.name) : one.kind === 'Simulation' ? openSimulation(one.name)
+        : openJoint(String(one.joint_type) as JointType, one.name)) },
     { label: one?.suppressed ? 'Unsuppress' : 'Suppress', disabled: !((one?.kind === 'Joint' && !copy) || one?.kind === 'RigidGroupJoint'),
       onSelect: () => one && void applyAssembly([{ op: 'set', name: one.name, props: { suppressed: !one.suppressed } }], 'Toggle suppress') },
     // ViewProviderRigidGroupJoint.setupContextMenu
@@ -598,7 +616,7 @@ export function AssemblyWatchers() {
 }
 /** The watchers' commands that are greyed here (assemblyMenu's NA entries have no onSelect). */
 const NOT_HERE: Record<string, string> = { Assembly_InsertNewPart: 'New Part', Assembly_CreateView: 'Exploded View',
-  Assembly_CreateBom: 'Bill of Materials', Assembly_CreateSimulation: 'Simulation' }
+  Assembly_CreateBom: 'Bill of Materials' }
 // each task opened is a panel of its own (FreeCAD makes a new TaskAssemblyCreateJoint every time): its key
 const taskIds = new WeakMap<object, number>()
 let lastTaskId = 0
@@ -609,6 +627,7 @@ export function AssemblyTask({ body, other }: { body: string; other: string }) {
   if (body === 'insert') return <InsertTask key={id} />
   if (body === 'newpart') return <NewPartTask key={id} />
   if (body === 'explode') return <ExplodedViewTask key={id} edit={other || undefined} />
+  if (body === 'simulation') return <SimulationTask key={id} edit={other || undefined} />
   const [type, edit] = other.split(':')
   return <JointTask key={id} type0={type as JointType} edit={edit} />
 }

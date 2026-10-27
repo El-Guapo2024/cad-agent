@@ -20,4 +20,8 @@ export const ASSEMBLY_FILES = {
   'as-Belt': 'assembly/Assembly_CreateJointPulleys', 'wb-assembly-own': 'assembly/AssemblyWorkbench',
   'as-link-flexible': 'assembly/Assembly_AssemblyLink', 'as-exploded-group': 'assembly/Assembly_ExplodedViewGroup',
   'as-simulation-group': 'assembly/Assembly_SimulationGroup', 'as-snapshot-group': 'assembly/Assembly_SnapshotGroup',
+  // the simulation panel's player and the Motions (src/Gui/Icons)
+  'as-play': 'media-playback-start', 'as-play-back': 'media-playback-start-back', 'as-stop': 'media-playback-stop',
+  'as-step': 'media-playback-step', 'as-step-back': 'media-playback-step-back',
+  'as-motion-angular': 'button_rotate', 'as-motion-linear': 'button_right',
 } as const

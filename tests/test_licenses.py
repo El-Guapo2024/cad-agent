@@ -187,4 +187,4 @@ def test_the_bundles_licence_file_lists_every_package_the_ui_depends_on_and_give
 def test_the_bundles_icons_carry_their_licence_and_readme():
     icons = NEXT / "freecad-icons"
     assert (icons / "LICENSE").is_file() and (icons / "README.md").is_file()
-    assert len(list(icons.glob("*.svg"))) == 274
+    assert len(list(icons.glob("*.svg"))) == 279

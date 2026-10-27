@@ -33,14 +33,17 @@ Licences, as each file's metadata states:
 - CC-BY-SA 2.0 (Tango Desktop Project and derivatives): `Std_ViewScreenShot.svg`,
   `help-browser.svg`, `utilities-terminal.svg`, `zoom-selection.svg`, `view-fullscreen.svg`,
   `zoom-border.svg`, `zoom-in.svg`, `zoom-out.svg`, `accessories-text-editor.svg`,
-  `media-playback-start.svg`, `media-playback-stop.svg`, `applications-accessories.svg`, and
+  `media-playback-start.svg`, `media-playback-stop.svg`, `media-playback-step.svg`, `media-playback-step-back.svg`,
+  `media-playback-start-back.svg` (Jakub Steiner, Lapo Calamandrei; the simulation panel's player, added with the
+  Assembly's simulations), `applications-accessories.svg`, and
   `button_sort.svg` (the Switch button of Preferences > Display > Colors; its metadata names the licence, no creator).
 - CC-BY-SA 4.0 as well as `FreeCAD LGPL2+` (both in the metadata): `Std_UserEditModeDefault.svg`,
   `Std_UserEditModeTransform.svg`, `Std_UserEditModeCutting.svg`, `Std_UserEditModeColor.svg`.
 - Public domain: `process-stop.svg`, `accessories-calculator.svg` (CC0 1.0, Jakub Steiner),
   and `internet-web-browser.svg`.
 - `cursor-pan.svg`, `cursor-rotate.svg`, `cursor-zoom.svg`, `MassPropertiesIcon.svg`, `media-record.svg`,
-  `Std_WindowTileVer.svg`, `Std_WindowCascade.svg`, `Std_WindowNext.svg` and `Std_WindowPrev.svg`
+  `Std_WindowTileVer.svg`, `Std_WindowCascade.svg`, `Std_WindowNext.svg`, `Std_WindowPrev.svg`, `button_rotate.svg`
+  and `button_right.svg` (a Motion's icons, ViewProviderMotion.getIcon)
   carry no licence metadata, so FreeCAD's LGPL-2.1 applies.
 
 Credit: the FreeCAD project and the icon authors named in each file's metadata.

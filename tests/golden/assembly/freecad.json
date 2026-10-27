@@ -26987,6 +26987,1781 @@
    },
    "asmt": "OndselSolver\nAssembly\n\tNotes\n\t\t(Text string: '' runs: (Core.RunArray runs: #() values: #()))\n\tName\n\t\tOndselAssembly\n\tPosition3D\n\t\t0\t0\t0\t\n\tRotationMatrix\n\t\t1\t0\t0\t\n\t\t0\t1\t0\t\n\t\t0\t0\t1\t\n\tVelocity3D\n\t\t0\t0\t0\t\n\tOmega3D\n\t\t0\t0\t0\t\n\tRefPoints\n\t\tRefPoint\n\t\t\tPosition3D\n\t\t\t\t0\t0\t0\t\n\t\t\tRotationMatrix\n\t\t\t\t1\t0\t0\t\n\t\t\t\t0\t1\t0\t\n\t\t\t\t0\t0\t1\t\n\t\t\tMarkers\n\t\t\t\tMarker\n\t\t\t\t\tName\n\t\t\t\t\t\tmarker-Unnamed#Origin\n\t\t\t\t\tPosition3D\n\t\t\t\t\t\t0\t0\t0\t\n\t\t\t\t\tRotationMatrix\n\t\t\t\t\t\t1\t0\t0\t\n\t\t\t\t\t\t0\t1\t0\t\n\t\t\t\t\t\t0\t0\t1\t\n\t\tRefPoint\n\t\t\tPosition3D\n\t\t\t\t0\t0\t0\t\n\t\t\tRotationMatrix\n\t\t\t\t1\t0\t0\t\n\t\t\t\t0\t1\t0\t\n\t\t\t\t0\t0\t1\t\n\t\t\tMarkers\n\t\t\t\tMarker\n\t\t\t\t\tName\n\t\t\t\t\t\tmarker-Unnamed#Plate\n\t\t\t\t\tPosition3D\n\t\t\t\t\t\t0\t0\t0\t\n\t\t\t\t\tRotationMatrix\n\t\t\t\t\t\t1\t0\t0\t\n\t\t\t\t\t\t0\t1\t0\t\n\t\t\t\t\t\t0\t0\t1\t\n\tRefCurves\n\tRefSurfaces\n\tParts\n\t\tPart\n\t\t\tName\n\t\t\t\tUnnamed#Origin\n\t\t\tPosition3D\n\t\t\t\t0\t0\t0\t\n\t\t\tRotationMatrix\n\t\t\t\t1\t0\t0\t\n\t\t\t\t0\t1\t0\t\n\t\t\t\t0\t0\t1\t\n\t\t\tVelocity3D\n\t\t\t\t0\t0\t0\t\n\t\t\tOmega3D\n\t\t\t\t0\t0\t0\t\n\t\t\tFeatureOrder\n\t\t\tPrincipalMassMarker\n\t\t\t\tName\n\t\t\t\t\tMassMarker\n\t\t\t\tPosition3D\n\t\t\t\t\t0\t0\t0\t\n\t\t\t\tRotationMatrix\n\t\t\t\t\t1\t0\t0\t\n\t\t\t\t\t0\t1\t0\t\n\t\t\t\t\t0\t0\t1\t\n\t\t\t\tMass\n\t\t\t\t\t1\n\t\t\t\tMomentOfInertias\n\t\t\t\t\t1\t1\t1\t\n\t\t\t\tDensity\n\t\t\t\t\t1\n\t\t\tRefPoints\n\t\t\t\tRefPoint\n\t\t\t\t\tPosition3D\n\t\t\t\t\t\t0\t0\t0\t\n\t\t\t\t\tRotationMatrix\n\t\t\t\t\t\t1\t0\t0\t\n\t\t\t\t\t\t0\t1\t0\t\n\t\t\t\t\t\t0\t0\t1\t\n\t\t\t\t\tMarkers\n\t\t\t\t\t\tMarker\n\t\t\t\t\t\t\tName\n\t\t\t\t\t\t\t\tFixingMarker\n\t\t\t\t\t\t\tPosition3D\n\t\t\t\t\t\t\t\t0\t0\t0\t\n\t\t\t\t\t\t\tRotationMatrix\n\t\t\t\t\t\t\t\t1\t0\t0\t\n\t\t\t\t\t\t\t\t0\t1\t0\t\n\t\t\t\t\t\t\t\t0\t0\t1\t\n\t\t\t\tRefPoint\n\t\t\t\t\tPosition3D\n\t\t\t\t\t\t0\t0\t0\t\n\t\t\t\t\tRotationMatrix\n\t\t\t\t\t\t1\t0\t0\t\n\t\t\t\t\t\t0\t1\t0\t\n\t\t\t\t\t\t0\t0\t1\t\n\t\t\t\t\tMarkers\n\t\t\t\t\t\tMarker\n\t\t\t\t\t\t\tName\n\t\t\t\t\t\t\t\tUnnamed#Joint\n\t\t\t\t\t\t\tPosition3D\n\t\t\t\t\t\t\t\t0\t0\t0\t\n\t\t\t\t\t\t\tRotationMatrix\n\t\t\t\t\t\t\t\t1\t0\t0\t\n\t\t\t\t\t\t\t\t0\t1\t0\t\n\t\t\t\t\t\t\t\t0\t0\t1\t\n\t\t\tRefCurves\n\t\t\tRefSurfaces\n\t\tPart\n\t\t\tName\n\t\t\t\tUnnamed#Plate\n\t\t\tPosition3D\n\t\t\t\t0\t0\t0\t\n\t\t\tRotationMatrix\n\t\t\t\t1\t0\t0\t\n\t\t\t\t0\t1\t0\t\n\t\t\t\t0\t0\t1\t\n\t\t\tVelocity3D\n\t\t\t\t0\t0\t0\t\n\t\t\tOmega3D\n\t\t\t\t0\t0\t0\t\n\t\t\tFeatureOrder\n\t\t\tPrincipalMassMarker\n\t\t\t\tName\n\t\t\t\t\tMassMarker\n\t\t\t\tPosition3D\n\t\t\t\t\t0\t0\t0\t\n\t\t\t\tRotationMatrix\n\t\t\t\t\t1\t0\t0\t\n\t\t\t\t\t0\t1\t0\t\n\t\t\t\t\t0\t0\t1\t\n\t\t\t\tMass\n\t\t\t\t\t1\n\t\t\t\tMomentOfInertias\n\t\t\t\t\t1\t1\t1\t\n\t\t\t\tDensity\n\t\t\t\t\t1\n\t\t\tRefPoints\n\t\t\t\tRefPoint\n\t\t\t\t\tPosition3D\n\t\t\t\t\t\t0\t0\t0\t\n\t\t\t\t\tRotationMatrix\n\t\t\t\t\t\t1\t0\t0\t\n\t\t\t\t\t\t0\t1\t0\t\n\t\t\t\t\t\t0\t0\t1\t\n\t\t\t\t\tMarkers\n\t\t\t\t\t\tMarker\n\t\t\t\t\t\t\tName\n\t\t\t\t\t\t\t\tFixingMarker\n\t\t\t\t\t\t\tPosition3D\n\t\t\t\t\t\t\t\t0\t0\t0\t\n\t\t\t\t\t\t\tRotationMatrix\n\t\t\t\t\t\t\t\t1\t0\t0\t\n\t\t\t\t\t\t\t\t0\t1\t0\t\n\t\t\t\t\t\t\t\t0\t0\t1\t\n\t\t\tRefCurves\n\t\t\tRefSurfaces\n\t\tPart\n\t\t\tName\n\t\t\t\tUnnamed#Bar\n\t\t\tPosition3D\n\t\t\t\t-15\t-3\t0\t\n\t\t\tRotationMatrix\n\t\t\t\t1\t0\t0\t\n\t\t\t\t0\t1\t0\t\n\t\t\t\t0\t0\t1\t\n\t\t\tVelocity3D\n\t\t\t\t0\t0\t0\t\n\t\t\tOmega3D\n\t\t\t\t0\t0\t0\t\n\t\t\tFeatureOrder\n\t\t\tPrincipalMassMarker\n\t\t\t\tName\n\t\t\t\t\tMassMarker\n\t\t\t\tPosition3D\n\t\t\t\t\t0\t0\t0\t\n\t\t\t\tRotationMatrix\n\t\t\t\t\t1\t0\t0\t\n\t\t\t\t\t0\t1\t0\t\n\t\t\t\t\t0\t0\t1\t\n\t\t\t\tMass\n\t\t\t\t\t1\n\t\t\t\tMomentOfInertias\n\t\t\t\t\t1\t1\t1\t\n\t\t\t\tDensity\n\t\t\t\t\t1\n\t\t\tRefPoints\n\t\t\t\tRefPoint\n\t\t\t\t\tPosition3D\n\t\t\t\t\t\t0\t0\t0\t\n\t\t\t\t\tRotationMatrix\n\t\t\t\t\t\t1\t0\t0\t\n\t\t\t\t\t\t0\t1\t0\t\n\t\t\t\t\t\t0\t0\t1\t\n\t\t\t\t\tMarkers\n\t\t\t\t\t\tMarker\n\t\t\t\t\t\t\tName\n\t\t\t\t\t\t\t\tUnnamed#Joint\n\t\t\t\t\t\t\tPosition3D\n\t\t\t\t\t\t\t\t15\t3\t0\t\n\t\t\t\t\t\t\tRotationMatrix\n\t\t\t\t\t\t\t\t1\t0\t0\t\n\t\t\t\t\t\t\t\t0\t1\t0\t\n\t\t\t\t\t\t\t\t0\t0\t1\t\n\t\t\tRefCurves\n\t\t\tRefSurfaces\n\tKinematicIJs\n\tConstraintSets\n\t\tJoints\n\t\t\tdJointE\n\t\t\t\tName\n\t\t\t\t\tUnnamed#Origin\n\t\t\t\tMarkerI\n\t\t\t\t\t/OndselAssembly/marker-Unnamed#Origin\n\t\t\t\tMarkerJ\n\t\t\t\t\t/OndselAssembly/Unnamed#Origin/FixingMarker\n\t\t\tdJointE\n\t\t\t\tName\n\t\t\t\t\tUnnamed#Plate\n\t\t\t\tMarkerI\n\t\t\t\t\t/OndselAssembly/marker-Unnamed#Plate\n\t\t\t\tMarkerJ\n\t\t\t\t\t/OndselAssembly/Unnamed#Plate/FixingMarker\n\t\t\tdJointE\n\t\t\t\tName\n\t\t\t\t\tUnnamed#Joint\n\t\t\t\tMarkerI\n\t\t\t\t\t/OndselAssembly/Unnamed#Origin/Unnamed#Joint\n\t\t\t\tMarkerJ\n\t\t\t\t\t/OndselAssembly/Unnamed#Bar/Unnamed#Joint\n\t\tMotions\n\t\tLimits\n\t\tGeneralConstraintSets\n\tForceTorques\n\tConstantGravity\n\t\t0\t0\t0\t\n\tSimulationParameters\n\t\ttstart\n\t\t\t0\n\t\ttend\n\t\t\t1\n\t\thmin\n\t\t\t1.0000000000000001e-09\n\t\thmax\n\t\t\t1000000000\n\t\thout\n\t\t\t0.10000000000000001\n\t\terrorTol\n\t\t\t9.9999999999999995e-07\n\tAnimationParameters\n\t\tnframe\n\t\t\t1000000\n\t\ticurrent\n\t\t\t1\n\t\tistart\n\t\t\t1\n\t\tiend\n\t\t\t1000000\n\t\tisForward\n\t\t\ttrue\n\t\tframesPerSecond\n\t\t\t30\n",
    "subs": {}
+  },
+  "simulation_revolute": {
+   "names": {
+    "Plate": "Plate",
+    "Pin": "Pin"
+   },
+   "steps": [
+    {
+     "placements": {
+      "Plate": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ],
+      "Pin": [
+       20.0,
+       14.999999999999996,
+       -15.0,
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     "joints": {
+      "Joint": {
+       "label": "Revolute",
+       "type": "Revolute",
+       "reference1": [
+        "Plate",
+        [
+         "Face6",
+         "Face6"
+        ]
+       ],
+       "reference2": [
+        "Pin",
+        [
+         "Face3",
+         "Edge1"
+        ]
+       ],
+       "placement1": [
+        20.0,
+        14.999999999999996,
+        5.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+       ],
+       "placement2": [
+        0.0,
+        0.0,
+        20.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+       ],
+       "offset1": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+       ],
+       "offset2": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+       ],
+       "distance": 0.0,
+       "distance2": 0.0,
+       "angle": 0.0,
+       "enable_length_min": false,
+       "enable_length_max": false,
+       "enable_angle_min": false,
+       "enable_angle_max": false,
+       "length_min": 0.0,
+       "length_max": 0.0,
+       "angle_min": 0.0,
+       "angle_max": 0.0,
+       "suppressed": false
+      }
+     },
+     "printed": "MbD: Assembling system. \nMbD: Convergence = 9.7918912052141657e-08\nMbD: Convergence = 1.0076983312607357e-08\nMbD: Convergence = 1.1682175540471654e-23\nTime = 0\nMbD: Assembling system. \nMbD: Convergence = 0\nTime = 0\nMbD: Assembling system. \nMbD: Convergence = 0\nTime = 0\nMbD: Assembling system. \nMbD: Convergence = 0\nTime = 0\n"
+    },
+    {
+     "placements": {
+      "Plate": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ],
+      "Pin": [
+       20.0,
+       14.999999999999996,
+       -15.0,
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     "joints": {
+      "Joint": {
+       "label": "Revolute",
+       "type": "Revolute",
+       "reference1": [
+        "Plate",
+        [
+         "Face6",
+         "Face6"
+        ]
+       ],
+       "reference2": [
+        "Pin",
+        [
+         "Face3",
+         "Edge1"
+        ]
+       ],
+       "placement1": [
+        20.0,
+        14.999999999999996,
+        5.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+       ],
+       "placement2": [
+        0.0,
+        0.0,
+        20.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+       ],
+       "offset1": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+       ],
+       "offset2": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+       ],
+       "distance": 0.0,
+       "distance2": 0.0,
+       "angle": 0.0,
+       "enable_length_min": false,
+       "enable_length_max": false,
+       "enable_angle_min": false,
+       "enable_angle_max": false,
+       "length_min": 0.0,
+       "length_max": 0.0,
+       "angle_min": 0.0,
+       "angle_max": 0.0,
+       "suppressed": false
+      }
+     },
+     "printed": "(5*imeE)\nTime = 0\nMbD: Assembling system. \nMbD: Convergence = 0\nMbD: Solving for velocity initial conditions.\nMbD: Solving for acceleration initial conditions.\nMbD: Convergence = 3.4435822813708734\nMbD: Convergence = 1.0236797010921983e-30\nTime = 0\nMbD: Starting kinematic analysis.\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0047284969836604877\nMbD: Convergence = 5.9210729851711779e-05\nMbD: Convergence = 9.3217339465277169e-09\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 3.4435822813708818\nMbD: Convergence = 4.8127051414502026e-16\nTime = 0.01\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0047284969836604374\nMbD: Convergence = 5.9210729851690637e-05\nMbD: Convergence = 9.3217339464627022e-09\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 3.443582281371067\nMbD: Convergence = 7.3594381556628227e-13\nTime = 0.02\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0047284969836604365\nMbD: Convergence = 5.9210729851690502e-05\nMbD: Convergence = 9.321733946332633e-09\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 3.4435822813708801\nMbD: Convergence = 0\nTime = 0.03\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0047284969836604365\nMbD: Convergence = 5.9210729851690759e-05\nMbD: Convergence = 9.3217339463326346e-09\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 3.4435822813709733\nMbD: Convergence = 3.3963851763546455e-13\nTime = 0.04\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0047284969836604374\nMbD: Convergence = 5.9210729851711447e-05\nMbD: Convergence = 9.3217339463326164e-09\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 3.4435822813708814\nMbD: Convergence = 5.1421967826894893e-16\nTime = 0.05\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0047284969836604426\nMbD: Convergence = 5.9210729851690508e-05\nMbD: Convergence = 9.321733946592768e-09\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 3.4435822813708818\nMbD: Convergence = 1.1305392884052203e-13\nTime = 0.06\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0047284969836604374\nMbD: Convergence = 5.9210729851711183e-05\nMbD: Convergence = 9.3217339262352427e-09\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 3.4435822813709733\nMbD: Convergence = 1.6982194624012052e-13\nTime = 0.07\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0047284969836604365\nMbD: Convergence = 5.921072985171144e-05\nMbD: Convergence = 9.321733946072478e-09\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 3.4435822813707895\nMbD: Convergence = 2.264296893619411e-13\nTime = 0.08\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0047284969836604279\nMbD: Convergence = 5.9210729851711718e-05\nMbD: Convergence = 9.321733946072483e-09\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 3.4435822813710657\nMbD: Convergence = 2.8296720559206007e-13\nTime = 0.09\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0047284969836604365\nMbD: Convergence = 5.9210729851690766e-05\nMbD: Convergence = 9.321733946592768e-09\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 3.4435822813710653\nMbD: Convergence = 5.0934969272207619e-13\nTime = 0.1\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0047284969836604261\nMbD: Convergence = 5.9210729851711434e-05\nMbD: Convergence = 9.3217339455522129e-09\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 3.443582281371067\nMbD: Convergence = 2.2640942014755924e-13\nTime = 0.11\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0047284969836604426\nMbD: Convergence = 5.921072985171144e-05\nMbD: Convergence = 9.3217339465927449e-09\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 3.4435822813706962\nMbD: Convergence = 5.0963816092964253e-13\nTime = 0.12\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0047284969836604252\nMbD: Convergence = 5.9210729851689987e-05\nMbD: Convergence = 9.3217339471130332e-09\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 3.4435822813710648\nMbD: Convergence = 4.5298347262896139e-13\nTime = 0.13\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0047284969836604426\nMbD: Convergence = 5.9210729851690495e-05\nMbD: Convergence = 9.3217339465927664e-09\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 3.4435822813710653\nMbD: Convergence = 2.2642329916217042e-13\nTime = 0.14\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0047284969836604322\nMbD: Convergence = 5.9210729851711454e-05\nMbD: Convergence = 9.3217339465927465e-09\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 3.4435822813709742\nMbD: Convergence = 7.0071160937748886e-16\nTime = 0.15\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.00472849698366044\nMbD: Convergence = 5.921072985168998e-05\nMbD: Convergence = 9.3217339669502702e-09\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 3.4435822813708823\nMbD: Convergence = 2.2642025036059539e-13\nTime = 0.16\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0047284969836604478\nMbD: Convergence = 5.9210729851711976e-05\nMbD: Convergence = 9.3217339267554963e-09\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 3.4435822813709742\nMbD: Convergence = 4.6781581450839524e-16\nTime = 0.17\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0047284969836604409\nMbD: Convergence = 5.9210729851711176e-05\nMbD: Convergence = 9.321733947113015e-09\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 3.4435822813708534\nMbD: Convergence = 3.0241604669505137e-16\nTime = 0.18\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0047284969836604513\nMbD: Convergence = 5.9210729851690488e-05\nMbD: Convergence = 9.321733966430005e-09\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 3.4435822813708525\nMbD: Convergence = 9.790975744719954e-16\nTime = 0.19\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0047284969836604313\nMbD: Convergence = 5.9210729851690766e-05\nMbD: Convergence = 9.3217339445117057e-09\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 3.4435822813708197\nMbD: Convergence = 5.0935565652285043e-13\nTime = 0.2\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0047284969836604365\nMbD: Convergence = 5.9210729851690237e-05\nMbD: Convergence = 9.3217339476332984e-09\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 3.4435822813709733\nMbD: Convergence = 2.8283712294962847e-13\nTime = 0.21\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0047284969836604365\nMbD: Convergence = 5.9210729851690759e-05\nMbD: Convergence = 9.321733967470537e-09\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 3.443582281370881\nMbD: Convergence = 5.647065733097272e-14\nTime = 0.22\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0047284969836604374\nMbD: Convergence = 5.9210729851689458e-05\nMbD: Convergence = 9.3217339476332984e-09\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 3.443582281370849\nMbD: Convergence = 1.4795462992359318e-15\nTime = 0.23\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0047284969836604409\nMbD: Convergence = 5.9210729851690502e-05\nMbD: Convergence = 9.3217339460725012e-09\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 3.4435822813709409\nMbD: Convergence = 4.5306365828570677e-13\nTime = 0.24\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0047284969836604174\nMbD: Convergence = 5.9210729851690237e-05\nMbD: Convergence = 9.3217339465927664e-09\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 3.4435822813708818\nMbD: Convergence = 5.9343916872217598e-16\nTime = 0.25\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0047284969836604357\nMbD: Convergence = 5.921072985171144e-05\nMbD: Convergence = 9.3217339257149775e-09\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 3.4435822813708836\nMbD: Convergence = 2.642644345039921e-15\nTime = 0.26\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0047284969836604409\nMbD: Convergence = 5.9210729851691152e-05\nMbD: Convergence = 9.3217339473731666e-09\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 3.4435822813710302\nMbD: Convergence = 6.5670675465830447e-16\nTime = 0.27\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0047284969836604435\nMbD: Convergence = 5.9210729851690102e-05\nMbD: Convergence = 9.3217339471130332e-09\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 3.443582281370789\nMbD: Convergence = 3.39529174143659e-13\nTime = 0.28\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0047284969836604461\nMbD: Convergence = 5.9210729851690895e-05\nMbD: Convergence = 9.321733944511704e-09\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 3.4435822813708818\nMbD: Convergence = 2.2642667074569316e-13\nTime = 0.29\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.00472849698366044\nMbD: Convergence = 5.9210729851690434e-05\nMbD: Convergence = 9.3217339456823036e-09\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 3.4435822813709742\nMbD: Convergence = 2.266138318370723e-13\nTime = 0.3\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0047284969836604391\nMbD: Convergence = 5.9210729851690583e-05\nMbD: Convergence = 9.3217339470805167e-09\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 3.4435822813708818\nMbD: Convergence = 2.763961984345001e-15\nTime = 0.31\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0047284969836604461\nMbD: Convergence = 5.9210729851711569e-05\nMbD: Convergence = 9.3217339467228108e-09\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 3.4435822813709733\nMbD: Convergence = 1.4237986671701031e-15\nTime = 0.32\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0047284969836604365\nMbD: Convergence = 5.9210729851689973e-05\nMbD: Convergence = 9.3217339463326346e-09\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 3.443582281370789\nMbD: Convergence = 2.2626708859845475e-13\nTime = 0.33\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0047284969836604478\nMbD: Convergence = 5.9210729851690237e-05\nMbD: Convergence = 9.321733967210402e-09\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 3.443582281370881\nMbD: Convergence = 1.6993782176731191e-13\nTime = 0.34\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0047284969836604391\nMbD: Convergence = 5.9210729851669563e-05\nMbD: Convergence = 9.3217339460725012e-09\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 3.4435822813708348\nMbD: Convergence = 2.8282626942518682e-13\nTime = 0.35\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0047284969836604339\nMbD: Convergence = 5.9210729851711054e-05\nMbD: Convergence = 9.3217339478934119e-09\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 3.4435822813708814\nMbD: Convergence = 2.2614821053237459e-13\nTime = 0.36\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0047284969836604391\nMbD: Convergence = 5.9210729851691023e-05\nMbD: Convergence = 9.3217339455522377e-09\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 3.4435822813708308\nMbD: Convergence = 2.263984903707458e-13\nTime = 0.37\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0047284969836604478\nMbD: Convergence = 5.9210729851691017e-05\nMbD: Convergence = 9.3217339465927664e-09\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 3.443582281370932\nMbD: Convergence = 2.830138747106144e-13\nTime = 0.38\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.004728496983660453\nMbD: Convergence = 5.9210729851732386e-05\nMbD: Convergence = 9.321733946072483e-09\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 3.4435822813709316\nMbD: Convergence = 5.0922850880874417e-13\nTime = 0.39\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0047284969836604383\nMbD: Convergence = 5.9210729851711183e-05\nMbD: Convergence = 9.3217339471130167e-09\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 3.4435822813708827\nMbD: Convergence = 3.3989409753336632e-13\nTime = 0.4\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0047284969836604686\nMbD: Convergence = 5.9210729851711434e-05\nMbD: Convergence = 9.3217339465927432e-09\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 3.4435822813711043\nMbD: Convergence = 2.8320796272517553e-13\nTime = 0.41\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0047284969836604244\nMbD: Convergence = 5.9210729851689966e-05\nMbD: Convergence = 9.3217339465927664e-09\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 3.4435822813708077\nMbD: Convergence = 8.0289535849728401e-16\nTime = 0.42\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0047284969836604617\nMbD: Convergence = 5.9210729851691017e-05\nMbD: Convergence = 9.321733945552236e-09\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 3.443582281370773\nMbD: Convergence = 9.8659896937775015e-16\nTime = 0.43\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0047284969836604192\nMbD: Convergence = 5.9210729851690502e-05\nMbD: Convergence = 9.3217339471130332e-09\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 3.4435822813706976\nMbD: Convergence = 1.005228400194972e-15\nTime = 0.44\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0047284969836604634\nMbD: Convergence = 5.9210729851690502e-05\nMbD: Convergence = 9.3217339465927664e-09\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 3.4435822813709751\nMbD: Convergence = 2.8303854070362309e-13\nTime = 0.45\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0047284969836604417\nMbD: Convergence = 5.9210729851711711e-05\nMbD: Convergence = 9.3217339481535404e-09\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 3.4435822813708654\nMbD: Convergence = 2.2632890256639889e-13\nTime = 0.46\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0047284969836604565\nMbD: Convergence = 5.921072985171144e-05\nMbD: Convergence = 9.3217339465927416e-09\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 3.4435822813709596\nMbD: Convergence = 2.2661565891836257e-13\nTime = 0.47\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0047284969836604226\nMbD: Convergence = 5.9210729851711169e-05\nMbD: Convergence = 9.3217339455522178e-09\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 3.443582281370869\nMbD: Convergence = 2.2661278205719552e-13\nTime = 0.48\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0047284969836604582\nMbD: Convergence = 5.921072985171144e-05\nMbD: Convergence = 9.32173394711301e-09\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 3.4435822813709844\nMbD: Convergence = 2.83000542233705e-13\nTime = 0.49\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0047284969836603958\nMbD: Convergence = 5.9210729851711711e-05\nMbD: Convergence = 9.3217339257149659e-09\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 3.4435822813710653\nMbD: Convergence = 8.7753185058616886e-16\nTime = 0.5\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0047284969836604704\nMbD: Convergence = 5.9210729851711454e-05\nMbD: Convergence = 9.3217339262352295e-09\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 3.4435822813708823\nMbD: Convergence = 2.2640948280907591e-13\nTime = 0.51\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0047284969836604634\nMbD: Convergence = 5.9210729851690766e-05\nMbD: Convergence = 9.3217339455522344e-09\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 3.4435822813707908\nMbD: Convergence = 5.6650033266194402e-14\nTime = 0.52\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0047284969836604105\nMbD: Convergence = 5.9210729851690244e-05\nMbD: Convergence = 9.3217339465927664e-09\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 3.443582281370789\nMbD: Convergence = 2.8299119454505973e-13\nTime = 0.53\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0047284969836604261\nMbD: Convergence = 5.9210729851690502e-05\nMbD: Convergence = 9.3217339674705354e-09\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 3.4435822813707899\nMbD: Convergence = 4.7113707539221556e-16\nTime = 0.54\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0047284969836604573\nMbD: Convergence = 5.9210729851690759e-05\nMbD: Convergence = 9.3217339251947008e-09\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 3.4435822813708841\nMbD: Convergence = 3.0468952602627014e-16\nTime = 0.55\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0047284969836604686\nMbD: Convergence = 5.921072985171144e-05\nMbD: Convergence = 9.3217339257149775e-09\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 3.4435822813708814\nMbD: Convergence = 5.6632305251741641e-14\nTime = 0.56\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.00472849698366042\nMbD: Convergence = 5.9210729851711969e-05\nMbD: Convergence = 9.321733946072478e-09\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 3.4435822813709707\nMbD: Convergence = 2.263849012280137e-13\nTime = 0.57\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0047284969836604148\nMbD: Convergence = 5.9210729851690237e-05\nMbD: Convergence = 9.3217339468528998e-09\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 3.4435822813707904\nMbD: Convergence = 2.829960286338389e-13\nTime = 0.58\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0047284969836604678\nMbD: Convergence = 5.9210729851690637e-05\nMbD: Convergence = 9.321733946332633e-09\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 3.4435822813708818\nMbD: Convergence = 5.6603234402448351e-14\nTime = 0.59\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.004728496983660453\nMbD: Convergence = 5.9210729851690502e-05\nMbD: Convergence = 9.3217339463326346e-09\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 3.4435822813707895\nMbD: Convergence = 4.4308634801169737e-16\nTime = 0.6\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0047284969836604174\nMbD: Convergence = 5.9210729851711569e-05\nMbD: Convergence = 9.3217339254548325e-09\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 3.4435822813709747\nMbD: Convergence = 5.6551038520683398e-14\nTime = 0.61\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0047284969836604174\nMbD: Convergence = 5.9210729851690536e-05\nMbD: Convergence = 9.3217339255198638e-09\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 3.4435822813708801\nMbD: Convergence = 2.8302520358123213e-13\nTime = 0.62\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0047284969836604617\nMbD: Convergence = 5.9210729851711522e-05\nMbD: Convergence = 9.3217339464626757e-09\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 3.4435822813709711\nMbD: Convergence = 3.4466812865506631e-18\nTime = 0.63\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0047284969836604617\nMbD: Convergence = 5.9210729851669651e-05\nMbD: Convergence = 9.3217339673404712e-09\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 3.4435822813708814\nMbD: Convergence = 5.6425256211062456e-14\nTime = 0.64\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.00472849698366042\nMbD: Convergence = 5.9210729851690563e-05\nMbD: Convergence = 9.3217339464627022e-09\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 3.4435822813708814\nMbD: Convergence = 2.8318557460298799e-13\nTime = 0.65\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0047284969836604192\nMbD: Convergence = 5.9210729851690515e-05\nMbD: Convergence = 9.3217339259750977e-09\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 3.4435822813708814\nMbD: Convergence = 4.7821688217623639e-18\nTime = 0.66\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0047284969836604625\nMbD: Convergence = 5.9210729851711434e-05\nMbD: Convergence = 9.3217339465927432e-09\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 3.443582281370881\nMbD: Convergence = 5.0580481802760218e-16\nTime = 0.67\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0047284969836604651\nMbD: Convergence = 5.9210729851690888e-05\nMbD: Convergence = 9.3217339463326346e-09\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 3.4435822813707899\nMbD: Convergence = 2.2636211895396709e-13\nTime = 0.68\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0047284969836604157\nMbD: Convergence = 5.9210729851690773e-05\nMbD: Convergence = 9.3217339460725012e-09\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 3.4435822813708805\nMbD: Convergence = 2.2643234704482829e-13\nTime = 0.69\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0047284969836604157\nMbD: Convergence = 5.9210729851690502e-05\nMbD: Convergence = 9.3217339669502702e-09\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 3.4435822813708792\nMbD: Convergence = 2.2645089304247721e-13\nTime = 0.7\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0047284969836604591\nMbD: Convergence = 5.921072985171144e-05\nMbD: Convergence = 9.3217339262352311e-09\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 3.4435822813709733\nMbD: Convergence = 5.8169910497976289e-16\nTime = 0.71\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0047284969836604634\nMbD: Convergence = 5.9210729851691017e-05\nMbD: Convergence = 9.321733945552236e-09\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 3.4435822813708752\nMbD: Convergence = 2.2632053986413484e-13\nTime = 0.72\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.004728496983660414\nMbD: Convergence = 5.9210729851710912e-05\nMbD: Convergence = 9.3217339471130084e-09\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 3.443582281370881\nMbD: Convergence = 2.1054120500805954e-16\nTime = 0.73\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0047284969836604313\nMbD: Convergence = 5.921072985171119e-05\nMbD: Convergence = 9.3217339476332785e-09\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 3.4435822813708814\nMbD: Convergence = 3.3964153979022642e-13\nTime = 0.74\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0047284969836604738\nMbD: Convergence = 5.921072985171144e-05\nMbD: Convergence = 9.3217339257149775e-09\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 3.4435822813707895\nMbD: Convergence = 5.6714293498506092e-14\nTime = 0.75\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0047284969836604469\nMbD: Convergence = 5.9210729851710919e-05\nMbD: Convergence = 9.321733946072478e-09\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 3.443582281370881\nMbD: Convergence = 2.8299948387123026e-13\nTime = 0.76\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0047284969836604157\nMbD: Convergence = 5.9210729851690244e-05\nMbD: Convergence = 9.3217339471130316e-09\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 3.4435822813710533\nMbD: Convergence = 2.2661656918866913e-13\nTime = 0.77\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0047284969836604261\nMbD: Convergence = 5.9210729851690766e-05\nMbD: Convergence = 9.3217339669502702e-09\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 3.4435822813708801\nMbD: Convergence = 5.6412778116543162e-14\nTime = 0.78\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0047284969836604721\nMbD: Convergence = 5.9210729851691552e-05\nMbD: Convergence = 9.3217339476332984e-09\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 3.4435822813707744\nMbD: Convergence = 2.8292812123543597e-13\nTime = 0.79\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0047284969836604625\nMbD: Convergence = 5.9210729851710912e-05\nMbD: Convergence = 9.3217339455522112e-09\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 3.4435822813709733\nMbD: Convergence = 2.8303034402893279e-13\nTime = 0.8\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0047284969836604157\nMbD: Convergence = 5.9210729851690766e-05\nMbD: Convergence = 9.3217339664300034e-09\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 3.4435822813711576\nMbD: Convergence = 7.3585925424258081e-13\nTime = 0.81\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.004728496983660427\nMbD: Convergence = 5.9210729851711962e-05\nMbD: Convergence = 9.3217339471130084e-09\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 3.4435822813707908\nMbD: Convergence = 2.8294278418274947e-13\nTime = 0.82\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0047284969836604226\nMbD: Convergence = 5.9210729851711698e-05\nMbD: Convergence = 9.3217339455522112e-09\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 3.4435822813708987\nMbD: Convergence = 1.0545310380397039e-15\nTime = 0.83\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0047284969836604938\nMbD: Convergence = 5.9210729851710654e-05\nMbD: Convergence = 9.3217339471130084e-09\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 3.4435822813709724\nMbD: Convergence = 2.2617906465213391e-13\nTime = 0.84\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0047284969836604166\nMbD: Convergence = 5.921072985173265e-05\nMbD: Convergence = 9.3217339043169185e-09\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 3.4435822813708818\nMbD: Convergence = 8.4850373155793333e-16\nTime = 0.85\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0047284969836604183\nMbD: Convergence = 5.9210729851690766e-05\nMbD: Convergence = 9.3217339471130332e-09\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 3.4435822813708414\nMbD: Convergence = 1.6975894837400366e-13\nTime = 0.86\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0047284969836605042\nMbD: Convergence = 5.9210729851690244e-05\nMbD: Convergence = 9.3217339471130332e-09\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 3.4435822813708405\nMbD: Convergence = 5.656565938460385e-14\nTime = 0.87\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0047284969836604218\nMbD: Convergence = 5.9210729851732386e-05\nMbD: Convergence = 9.3217339272757615e-09\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 3.4435822813709311\nMbD: Convergence = 7.9290669155171287e-16\nTime = 0.88\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0047284969836604252\nMbD: Convergence = 5.9210729851690495e-05\nMbD: Convergence = 9.321733945552236e-09\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 3.4435822813708814\nMbD: Convergence = 5.6609490439179119e-14\nTime = 0.89\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0047284969836604122\nMbD: Convergence = 5.921072985171079e-05\nMbD: Convergence = 9.321733926235241e-09\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 3.4435822813707424\nMbD: Convergence = 1.012217720891821e-15\nTime = 0.9\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0047284969836604305\nMbD: Convergence = 5.9210729851691538e-05\nMbD: Convergence = 9.3217339468529014e-09\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 3.443582281370881\nMbD: Convergence = 1.0985317282366338e-15\nTime = 0.91\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0047284969836605103\nMbD: Convergence = 5.921072985169122e-05\nMbD: Convergence = 9.3217339670803361e-09\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 3.4435822813708357\nMbD: Convergence = 2.1630807877377509e-16\nTime = 0.92\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0047284969836604027\nMbD: Convergence = 5.9210729851711569e-05\nMbD: Convergence = 9.3217339454221453e-09\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 3.4435822813709733\nMbD: Convergence = 6.0479826177307375e-16\nTime = 0.93\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0047284969836604192\nMbD: Convergence = 5.9210729851689932e-05\nMbD: Convergence = 9.3217339469341918e-09\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 3.4435822813707908\nMbD: Convergence = 5.6517157728167332e-14\nTime = 0.94\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0047284969836604912\nMbD: Convergence = 5.9210729851711345e-05\nMbD: Convergence = 9.321733967210392e-09\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 3.4435822813706576\nMbD: Convergence = 2.2639252901204695e-13\nTime = 0.95\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.004728496983660414\nMbD: Convergence = 5.9210729851711766e-05\nMbD: Convergence = 9.3217339261051652e-09\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 3.4435822813708836\nMbD: Convergence = 6.6952758359291501e-16\nTime = 0.96\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0047284969836604252\nMbD: Convergence = 5.9210729851691017e-05\nMbD: Convergence = 9.3217339690313326e-09\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 3.4435822813709209\nMbD: Convergence = 2.2663634625317883e-13\nTime = 0.97\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0047284969836604192\nMbD: Convergence = 5.9210729851711569e-05\nMbD: Convergence = 9.3217339452920795e-09\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 3.4435822813707522\nMbD: Convergence = 4.5290822129431605e-13\nTime = 0.98\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0047284969836604148\nMbD: Convergence = 5.9210729851690366e-05\nMbD: Convergence = 9.3217339458123678e-09\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 3.4435822813707895\nMbD: Convergence = 2.2648703462208376e-13\nTime = 0.99\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0047284969836604868\nMbD: Convergence = 5.9210729851690495e-05\nMbD: Convergence = 9.3217339664300067e-09\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 3.4435822813708219\nMbD: Convergence = 2.2664988455888952e-13\nTime = 1\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0047284969836604174\nMbD: Convergence = 5.9210729851690231e-05\nMbD: Convergence = 9.3217339486738271e-09\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 3.4435822813708219\nMbD: Convergence = 2.2644617948965747e-13\n"
+    }
+   ],
+   "simulations": {
+    "Simulation": {
+     "status": 0,
+     "frames": 102,
+     "sampled": {
+      "0": {
+       "Plate": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+       ],
+       "Pin": [
+        20.0,
+        14.999999999999996,
+        -15.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+       ]
+      },
+      "51": {
+       "Plate": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+       ],
+       "Pin": [
+        20.0,
+        14.999999999999996,
+        -14.999999999999998,
+        0.0,
+        0.0,
+        0.9489846193555864,
+        0.31532236239526806
+       ]
+      },
+      "101": {
+       "Plate": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+       ],
+       "Pin": [
+        20.0,
+        14.999999999999996,
+        -15.000000000000002,
+        0.0,
+        0.0,
+        -0.5984721441039549,
+        0.8011436155469349
+       ]
+      }
+     },
+     "motions": [
+      "Motion"
+     ]
+    }
+   },
+   "solve": 0,
+   "solve_printed": "MbD: Assembling system. \nMbD: Convergence = 0\nTime = 0\n",
+   "after_solve": {
+    "placements": {
+     "Plate": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      1.0
+     ],
+     "Pin": [
+      20.0,
+      14.999999999999996,
+      -15.0,
+      0.0,
+      0.0,
+      0.0,
+      1.0
+     ]
+    },
+    "joints": {
+     "Joint": {
+      "label": "Revolute",
+      "type": "Revolute",
+      "reference1": [
+       "Plate",
+       [
+        "Face6",
+        "Face6"
+       ]
+      ],
+      "reference2": [
+       "Pin",
+       [
+        "Face3",
+        "Edge1"
+       ]
+      ],
+      "placement1": [
+       20.0,
+       14.999999999999996,
+       5.0,
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ],
+      "placement2": [
+       0.0,
+       0.0,
+       20.0,
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ],
+      "offset1": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ],
+      "offset2": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ],
+      "distance": 0.0,
+      "distance2": 0.0,
+      "angle": 0.0,
+      "enable_length_min": false,
+      "enable_length_max": false,
+      "enable_angle_min": false,
+      "enable_angle_max": false,
+      "length_min": 0.0,
+      "length_max": 0.0,
+      "angle_min": 0.0,
+      "angle_max": 0.0,
+      "suppressed": false
+     }
+    }
+   },
+   "asmt": "OndselSolver\nAssembly\n\tNotes\n\t\t(Text string: '' runs: (Core.RunArray runs: #() values: #()))\n\tName\n\t\tOndselAssembly\n\tPosition3D\n\t\t0\t0\t0\t\n\tRotationMatrix\n\t\t1\t0\t0\t\n\t\t0\t1\t0\t\n\t\t0\t0\t1\t\n\tVelocity3D\n\t\t0\t0\t0\t\n\tOmega3D\n\t\t0\t0\t0\t\n\tRefPoints\n\t\tRefPoint\n\t\t\tPosition3D\n\t\t\t\t0\t0\t0\t\n\t\t\tRotationMatrix\n\t\t\t\t1\t0\t0\t\n\t\t\t\t0\t1\t0\t\n\t\t\t\t0\t0\t1\t\n\t\t\tMarkers\n\t\t\t\tMarker\n\t\t\t\t\tName\n\t\t\t\t\t\tmarker-Unnamed#Origin\n\t\t\t\t\tPosition3D\n\t\t\t\t\t\t0\t0\t0\t\n\t\t\t\t\tRotationMatrix\n\t\t\t\t\t\t1\t0\t0\t\n\t\t\t\t\t\t0\t1\t0\t\n\t\t\t\t\t\t0\t0\t1\t\n\t\tRefPoint\n\t\t\tPosition3D\n\t\t\t\t0\t0\t0\t\n\t\t\tRotationMatrix\n\t\t\t\t1\t0\t0\t\n\t\t\t\t0\t1\t0\t\n\t\t\t\t0\t0\t1\t\n\t\t\tMarkers\n\t\t\t\tMarker\n\t\t\t\t\tName\n\t\t\t\t\t\tmarker-Unnamed#Plate\n\t\t\t\t\tPosition3D\n\t\t\t\t\t\t0\t0\t0\t\n\t\t\t\t\tRotationMatrix\n\t\t\t\t\t\t1\t0\t0\t\n\t\t\t\t\t\t0\t1\t0\t\n\t\t\t\t\t\t0\t0\t1\t\n\tRefCurves\n\tRefSurfaces\n\tParts\n\t\tPart\n\t\t\tName\n\t\t\t\tUnnamed#Origin\n\t\t\tPosition3D\n\t\t\t\t0\t0\t0\t\n\t\t\tRotationMatrix\n\t\t\t\t1\t0\t0\t\n\t\t\t\t0\t1\t0\t\n\t\t\t\t0\t0\t1\t\n\t\t\tVelocity3D\n\t\t\t\t0\t0\t0\t\n\t\t\tOmega3D\n\t\t\t\t0\t0\t0\t\n\t\t\tFeatureOrder\n\t\t\tPrincipalMassMarker\n\t\t\t\tName\n\t\t\t\t\tMassMarker\n\t\t\t\tPosition3D\n\t\t\t\t\t0\t0\t0\t\n\t\t\t\tRotationMatrix\n\t\t\t\t\t1\t0\t0\t\n\t\t\t\t\t0\t1\t0\t\n\t\t\t\t\t0\t0\t1\t\n\t\t\t\tMass\n\t\t\t\t\t1\n\t\t\t\tMomentOfInertias\n\t\t\t\t\t1\t1\t1\t\n\t\t\t\tDensity\n\t\t\t\t\t1\n\t\t\tRefPoints\n\t\t\t\tRefPoint\n\t\t\t\t\tPosition3D\n\t\t\t\t\t\t0\t0\t0\t\n\t\t\t\t\tRotationMatrix\n\t\t\t\t\t\t1\t0\t0\t\n\t\t\t\t\t\t0\t1\t0\t\n\t\t\t\t\t\t0\t0\t1\t\n\t\t\t\t\tMarkers\n\t\t\t\t\t\tMarker\n\t\t\t\t\t\t\tName\n\t\t\t\t\t\t\t\tFixingMarker\n\t\t\t\t\t\t\tPosition3D\n\t\t\t\t\t\t\t\t0\t0\t0\t\n\t\t\t\t\t\t\tRotationMatrix\n\t\t\t\t\t\t\t\t1\t0\t0\t\n\t\t\t\t\t\t\t\t0\t1\t0\t\n\t\t\t\t\t\t\t\t0\t0\t1\t\n\t\t\tRefCurves\n\t\t\tRefSurfaces\n\t\tPart\n\t\t\tName\n\t\t\t\tUnnamed#Plate\n\t\t\tPosition3D\n\t\t\t\t0\t0\t0\t\n\t\t\tRotationMatrix\n\t\t\t\t1\t0\t0\t\n\t\t\t\t0\t1\t0\t\n\t\t\t\t0\t0\t1\t\n\t\t\tVelocity3D\n\t\t\t\t0\t0\t0\t\n\t\t\tOmega3D\n\t\t\t\t0\t0\t0\t\n\t\t\tFeatureOrder\n\t\t\tPrincipalMassMarker\n\t\t\t\tName\n\t\t\t\t\tMassMarker\n\t\t\t\tPosition3D\n\t\t\t\t\t0\t0\t0\t\n\t\t\t\tRotationMatrix\n\t\t\t\t\t1\t0\t0\t\n\t\t\t\t\t0\t1\t0\t\n\t\t\t\t\t0\t0\t1\t\n\t\t\t\tMass\n\t\t\t\t\t1\n\t\t\t\tMomentOfInertias\n\t\t\t\t\t1\t1\t1\t\n\t\t\t\tDensity\n\t\t\t\t\t1\n\t\t\tRefPoints\n\t\t\t\tRefPoint\n\t\t\t\t\tPosition3D\n\t\t\t\t\t\t0\t0\t0\t\n\t\t\t\t\tRotationMatrix\n\t\t\t\t\t\t1\t0\t0\t\n\t\t\t\t\t\t0\t1\t0\t\n\t\t\t\t\t\t0\t0\t1\t\n\t\t\t\t\tMarkers\n\t\t\t\t\t\tMarker\n\t\t\t\t\t\t\tName\n\t\t\t\t\t\t\t\tFixingMarker\n\t\t\t\t\t\t\tPosition3D\n\t\t\t\t\t\t\t\t0\t0\t0\t\n\t\t\t\t\t\t\tRotationMatrix\n\t\t\t\t\t\t\t\t1\t0\t0\t\n\t\t\t\t\t\t\t\t0\t1\t0\t\n\t\t\t\t\t\t\t\t0\t0\t1\t\n\t\t\t\tRefPoint\n\t\t\t\t\tPosition3D\n\t\t\t\t\t\t0\t0\t0\t\n\t\t\t\t\tRotationMatrix\n\t\t\t\t\t\t1\t0\t0\t\n\t\t\t\t\t\t0\t1\t0\t\n\t\t\t\t\t\t0\t0\t1\t\n\t\t\t\t\tMarkers\n\t\t\t\t\t\tMarker\n\t\t\t\t\t\t\tName\n\t\t\t\t\t\t\t\tUnnamed#Joint\n\t\t\t\t\t\t\tPosition3D\n\t\t\t\t\t\t\t\t20\t14.999999999999996\t5\t\n\t\t\t\t\t\t\tRotationMatrix\n\t\t\t\t\t\t\t\t1\t0\t0\t\n\t\t\t\t\t\t\t\t0\t1\t0\t\n\t\t\t\t\t\t\t\t0\t0\t1\t\n\t\t\tRefCurves\n\t\t\tRefSurfaces\n\t\tPart\n\t\t\tName\n\t\t\t\tUnnamed#Pin\n\t\t\tPosition3D\n\t\t\t\t20\t14.999999999999996\t-15\t\n\t\t\tRotationMatrix\n\t\t\t\t1\t0\t0\t\n\t\t\t\t0\t1\t0\t\n\t\t\t\t0\t0\t1\t\n\t\t\tVelocity3D\n\t\t\t\t0\t0\t0\t\n\t\t\tOmega3D\n\t\t\t\t0\t0\t0\t\n\t\t\tFeatureOrder\n\t\t\tPrincipalMassMarker\n\t\t\t\tName\n\t\t\t\t\tMassMarker\n\t\t\t\tPosition3D\n\t\t\t\t\t0\t0\t0\t\n\t\t\t\tRotationMatrix\n\t\t\t\t\t1\t0\t0\t\n\t\t\t\t\t0\t1\t0\t\n\t\t\t\t\t0\t0\t1\t\n\t\t\t\tMass\n\t\t\t\t\t1\n\t\t\t\tMomentOfInertias\n\t\t\t\t\t1\t1\t1\t\n\t\t\t\tDensity\n\t\t\t\t\t1\n\t\t\tRefPoints\n\t\t\t\tRefPoint\n\t\t\t\t\tPosition3D\n\t\t\t\t\t\t0\t0\t0\t\n\t\t\t\t\tRotationMatrix\n\t\t\t\t\t\t1\t0\t0\t\n\t\t\t\t\t\t0\t1\t0\t\n\t\t\t\t\t\t0\t0\t1\t\n\t\t\t\t\tMarkers\n\t\t\t\t\t\tMarker\n\t\t\t\t\t\t\tName\n\t\t\t\t\t\t\t\tUnnamed#Joint\n\t\t\t\t\t\t\tPosition3D\n\t\t\t\t\t\t\t\t0\t0\t20\t\n\t\t\t\t\t\t\tRotationMatrix\n\t\t\t\t\t\t\t\t1\t0\t0\t\n\t\t\t\t\t\t\t\t0\t1\t0\t\n\t\t\t\t\t\t\t\t0\t0\t1\t\n\t\t\tRefCurves\n\t\t\tRefSurfaces\n\tKinematicIJs\n\tConstraintSets\n\t\tJoints\n\t\t\tdJointE\n\t\t\t\tName\n\t\t\t\t\tUnnamed#Origin\n\t\t\t\tMarkerI\n\t\t\t\t\t/OndselAssembly/marker-Unnamed#Origin\n\t\t\t\tMarkerJ\n\t\t\t\t\t/OndselAssembly/Unnamed#Origin/FixingMarker\n\t\t\tdJointE\n\t\t\t\tName\n\t\t\t\t\tUnnamed#Plate\n\t\t\t\tMarkerI\n\t\t\t\t\t/OndselAssembly/marker-Unnamed#Plate\n\t\t\t\tMarkerJ\n\t\t\t\t\t/OndselAssembly/Unnamed#Plate/FixingMarker\n\t\t\tluteJointE\n\t\t\t\tName\n\t\t\t\t\tUnnamed#Joint\n\t\t\t\tMarkerI\n\t\t\t\t\t/OndselAssembly/Unnamed#Plate/Unnamed#Joint\n\t\t\t\tMarkerJ\n\t\t\t\t\t/OndselAssembly/Unnamed#Pin/Unnamed#Joint\n\t\tMotions\n\t\tLimits\n\t\tGeneralConstraintSets\n\tForceTorques\n\tConstantGravity\n\t\t0\t0\t0\t\n\tSimulationParameters\n\t\ttstart\n\t\t\t0\n\t\ttend\n\t\t\t1\n\t\thmin\n\t\t\t1.0000000000000001e-09\n\t\thmax\n\t\t\t1000000000\n\t\thout\n\t\t\t0.10000000000000001\n\t\terrorTol\n\t\t\t9.9999999999999995e-07\n\tAnimationParameters\n\t\tnframe\n\t\t\t1000000\n\t\ticurrent\n\t\t\t1\n\t\tistart\n\t\t\t1\n\t\tiend\n\t\t\t1000000\n\t\tisForward\n\t\t\ttrue\n\t\tframesPerSecond\n\t\t\t30\n",
+   "subs": {}
+  },
+  "simulation_slider_limits_left_out": {
+   "names": {
+    "Base": "Base",
+    "Arm": "Arm"
+   },
+   "steps": [
+    {
+     "placements": {
+      "Base": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ],
+      "Arm": [
+       -10.0,
+       1.9999999999999996,
+       10.0,
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     "joints": {
+      "Joint": {
+       "label": "Slider",
+       "type": "Slider",
+       "reference1": [
+        "Base",
+        [
+         "Face6",
+         "Face6"
+        ]
+       ],
+       "reference2": [
+        "Arm",
+        [
+         "Face5",
+         "Face5"
+        ]
+       ],
+       "placement1": [
+        5.0,
+        5.0,
+        10.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+       ],
+       "placement2": [
+        15.0,
+        3.0000000000000004,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+       ],
+       "offset1": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+       ],
+       "offset2": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+       ],
+       "distance": 0.0,
+       "distance2": 0.0,
+       "angle": 0.0,
+       "enable_length_min": false,
+       "enable_length_max": true,
+       "enable_angle_min": false,
+       "enable_angle_max": false,
+       "length_min": 0.0,
+       "length_max": 8.0,
+       "angle_min": 0.0,
+       "angle_max": 0.0,
+       "suppressed": false
+      }
+     },
+     "printed": "MbD: Assembling system. \nMbD: Convergence = 1.047942527313515e-08\nMbD: Convergence = 3.5639143708073373e-10\nMbD: Convergence = 6.9500181906295276e-25\nTime = 0\nMbD: Assembling system. \nMbD: Convergence = 0\nTime = 0\nMbD: Assembling system. \nMbD: Convergence = 0\nTime = 0\nMbD: Assembling system. \nMbD: Convergence = 0\nTime = 0\n"
+    },
+    {
+     "placements": {
+      "Base": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ],
+      "Arm": [
+       -10.0,
+       1.9999999999999996,
+       10.0,
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     "joints": {
+      "Joint": {
+       "label": "Slider",
+       "type": "Slider",
+       "reference1": [
+        "Base",
+        [
+         "Face6",
+         "Face6"
+        ]
+       ],
+       "reference2": [
+        "Arm",
+        [
+         "Face5",
+         "Face5"
+        ]
+       ],
+       "placement1": [
+        5.0,
+        5.0,
+        10.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+       ],
+       "placement2": [
+        15.0,
+        3.0000000000000004,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+       ],
+       "offset1": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+       ],
+       "offset2": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+       ],
+       "distance": 0.0,
+       "distance2": 0.0,
+       "angle": 0.0,
+       "enable_length_min": false,
+       "enable_length_max": true,
+       "enable_angle_min": false,
+       "enable_angle_max": false,
+       "length_min": 0.0,
+       "length_max": 8.0,
+       "angle_min": 0.0,
+       "angle_max": 0.0,
+       "suppressed": false
+      }
+     },
+     "printed": "Time = 0\nMbD: Assembling system. \nMbD: Convergence = 0\nMbD: Solving for velocity initial conditions.\nMbD: Solving for acceleration initial conditions.\nMbD: Convergence = 0\nTime = 0\nMbD: Starting kinematic analysis.\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.1889822365046136\nMbD: Convergence = 0\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 0\nTime = 0.05\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.1889822365046136\nMbD: Convergence = 0\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 0\nTime = 0.1\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.1889822365046136\nMbD: Convergence = 0\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 0\nTime = 0.15\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.1889822365046136\nMbD: Convergence = 0\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 0\nTime = 0.2\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.1889822365046136\nMbD: Convergence = 0\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 0\nTime = 0.25\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.1889822365046136\nMbD: Convergence = 0\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 0\nTime = 0.3\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.1889822365046136\nMbD: Convergence = 0\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 0\nTime = 0.35\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.1889822365046136\nMbD: Convergence = 0\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 0\nTime = 0.4\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.1889822365046136\nMbD: Convergence = 0\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 0\nTime = 0.45\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.1889822365046136\nMbD: Convergence = 0\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 0\nTime = 0.5\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.1889822365046136\nMbD: Convergence = 0\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 0\nTime = 0.55\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.1889822365046136\nMbD: Convergence = 0\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 0\nTime = 0.6\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.1889822365046136\nMbD: Convergence = 0\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 0\nTime = 0.65\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.1889822365046136\nMbD: Convergence = 0\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 0\nTime = 0.7\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.1889822365046136\nMbD: Convergence = 0\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 0\nTime = 0.75\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.18898223650461429\nMbD: Convergence = 0\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 0\nTime = 0.8\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.1889822365046136\nMbD: Convergence = 0\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 0\nTime = 0.85\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.1889822365046136\nMbD: Convergence = 0\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 0\nTime = 0.9\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.18898223650461429\nMbD: Convergence = 0\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 0\nTime = 0.95\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.18898223650461293\nMbD: Convergence = 0\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 0\nTime = 1\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.18898223650461429\nMbD: Convergence = 0\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 0\nTime = 1.05\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.1889822365046136\nMbD: Convergence = 0\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 0\nTime = 1.1\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.1889822365046136\nMbD: Convergence = 0\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 0\nTime = 1.15\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.1889822365046136\nMbD: Convergence = 0\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 0\nTime = 1.2\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.1889822365046136\nMbD: Convergence = 0\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 0\nTime = 1.25\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.18898223650461496\nMbD: Convergence = 0\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 0\nTime = 1.3\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.1889822365046136\nMbD: Convergence = 0\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 0\nTime = 1.35\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.1889822365046136\nMbD: Convergence = 0\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 0\nTime = 1.4\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.1889822365046136\nMbD: Convergence = 0\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 0\nTime = 1.45\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.1889822365046136\nMbD: Convergence = 0\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 0\nTime = 1.5\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.1889822365046136\nMbD: Convergence = 0\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 0\nTime = 1.55\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.1889822365046136\nMbD: Convergence = 0\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 0\nTime = 1.6\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.1889822365046136\nMbD: Convergence = 0\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 0\nTime = 1.65\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.1889822365046136\nMbD: Convergence = 0\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 0\nTime = 1.7\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.1889822365046136\nMbD: Convergence = 0\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 0\nTime = 1.75\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.18898223650461496\nMbD: Convergence = 0\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 0\nTime = 1.8\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.1889822365046136\nMbD: Convergence = 0\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 0\nTime = 1.85\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.1889822365046136\nMbD: Convergence = 0\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 0\nTime = 1.9\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.1889822365046136\nMbD: Convergence = 0\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 0\nTime = 1.95\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.18898223650461227\nMbD: Convergence = 0\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 0\nTime = 2\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.1889822365046136\nMbD: Convergence = 0\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 0\n"
+    }
+   ],
+   "simulations": {
+    "Simulation": {
+     "status": 0,
+     "frames": 42,
+     "sampled": {
+      "0": {
+       "Base": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+       ],
+       "Arm": [
+        -10.0,
+        1.9999999999999996,
+        10.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+       ]
+      },
+      "21": {
+       "Base": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+       ],
+       "Arm": [
+        -10.0,
+        1.9999999999999996,
+        30.000000000000004,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+       ]
+      },
+      "41": {
+       "Base": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+       ],
+       "Arm": [
+        -10.0,
+        1.9999999999999996,
+        50.000000000000014,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+       ]
+      }
+     },
+     "motions": [
+      "Motion"
+     ]
+    }
+   },
+   "solve": 0,
+   "solve_printed": "MbD: Assembling system. \nMbD: Convergence = 0\nTime = 0\n",
+   "after_solve": {
+    "placements": {
+     "Base": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      1.0
+     ],
+     "Arm": [
+      -10.0,
+      1.9999999999999996,
+      10.0,
+      0.0,
+      0.0,
+      0.0,
+      1.0
+     ]
+    },
+    "joints": {
+     "Joint": {
+      "label": "Slider",
+      "type": "Slider",
+      "reference1": [
+       "Base",
+       [
+        "Face6",
+        "Face6"
+       ]
+      ],
+      "reference2": [
+       "Arm",
+       [
+        "Face5",
+        "Face5"
+       ]
+      ],
+      "placement1": [
+       5.0,
+       5.0,
+       10.0,
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ],
+      "placement2": [
+       15.0,
+       3.0000000000000004,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ],
+      "offset1": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ],
+      "offset2": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ],
+      "distance": 0.0,
+      "distance2": 0.0,
+      "angle": 0.0,
+      "enable_length_min": false,
+      "enable_length_max": true,
+      "enable_angle_min": false,
+      "enable_angle_max": false,
+      "length_min": 0.0,
+      "length_max": 8.0,
+      "angle_min": 0.0,
+      "angle_max": 0.0,
+      "suppressed": false
+     }
+    }
+   },
+   "asmt": "OndselSolver\nAssembly\n\tNotes\n\t\t(Text string: '' runs: (Core.RunArray runs: #() values: #()))\n\tName\n\t\tOndselAssembly\n\tPosition3D\n\t\t0\t0\t0\t\n\tRotationMatrix\n\t\t1\t0\t0\t\n\t\t0\t1\t0\t\n\t\t0\t0\t1\t\n\tVelocity3D\n\t\t0\t0\t0\t\n\tOmega3D\n\t\t0\t0\t0\t\n\tRefPoints\n\t\tRefPoint\n\t\t\tPosition3D\n\t\t\t\t0\t0\t0\t\n\t\t\tRotationMatrix\n\t\t\t\t1\t0\t0\t\n\t\t\t\t0\t1\t0\t\n\t\t\t\t0\t0\t1\t\n\t\t\tMarkers\n\t\t\t\tMarker\n\t\t\t\t\tName\n\t\t\t\t\t\tmarker-Unnamed#Origin\n\t\t\t\t\tPosition3D\n\t\t\t\t\t\t0\t0\t0\t\n\t\t\t\t\tRotationMatrix\n\t\t\t\t\t\t1\t0\t0\t\n\t\t\t\t\t\t0\t1\t0\t\n\t\t\t\t\t\t0\t0\t1\t\n\t\tRefPoint\n\t\t\tPosition3D\n\t\t\t\t0\t0\t0\t\n\t\t\tRotationMatrix\n\t\t\t\t1\t0\t0\t\n\t\t\t\t0\t1\t0\t\n\t\t\t\t0\t0\t1\t\n\t\t\tMarkers\n\t\t\t\tMarker\n\t\t\t\t\tName\n\t\t\t\t\t\tmarker-Unnamed#Base\n\t\t\t\t\tPosition3D\n\t\t\t\t\t\t0\t0\t0\t\n\t\t\t\t\tRotationMatrix\n\t\t\t\t\t\t1\t0\t0\t\n\t\t\t\t\t\t0\t1\t0\t\n\t\t\t\t\t\t0\t0\t1\t\n\tRefCurves\n\tRefSurfaces\n\tParts\n\t\tPart\n\t\t\tName\n\t\t\t\tUnnamed#Origin\n\t\t\tPosition3D\n\t\t\t\t0\t0\t0\t\n\t\t\tRotationMatrix\n\t\t\t\t1\t0\t0\t\n\t\t\t\t0\t1\t0\t\n\t\t\t\t0\t0\t1\t\n\t\t\tVelocity3D\n\t\t\t\t0\t0\t0\t\n\t\t\tOmega3D\n\t\t\t\t0\t0\t0\t\n\t\t\tFeatureOrder\n\t\t\tPrincipalMassMarker\n\t\t\t\tName\n\t\t\t\t\tMassMarker\n\t\t\t\tPosition3D\n\t\t\t\t\t0\t0\t0\t\n\t\t\t\tRotationMatrix\n\t\t\t\t\t1\t0\t0\t\n\t\t\t\t\t0\t1\t0\t\n\t\t\t\t\t0\t0\t1\t\n\t\t\t\tMass\n\t\t\t\t\t1\n\t\t\t\tMomentOfInertias\n\t\t\t\t\t1\t1\t1\t\n\t\t\t\tDensity\n\t\t\t\t\t1\n\t\t\tRefPoints\n\t\t\t\tRefPoint\n\t\t\t\t\tPosition3D\n\t\t\t\t\t\t0\t0\t0\t\n\t\t\t\t\tRotationMatrix\n\t\t\t\t\t\t1\t0\t0\t\n\t\t\t\t\t\t0\t1\t0\t\n\t\t\t\t\t\t0\t0\t1\t\n\t\t\t\t\tMarkers\n\t\t\t\t\t\tMarker\n\t\t\t\t\t\t\tName\n\t\t\t\t\t\t\t\tFixingMarker\n\t\t\t\t\t\t\tPosition3D\n\t\t\t\t\t\t\t\t0\t0\t0\t\n\t\t\t\t\t\t\tRotationMatrix\n\t\t\t\t\t\t\t\t1\t0\t0\t\n\t\t\t\t\t\t\t\t0\t1\t0\t\n\t\t\t\t\t\t\t\t0\t0\t1\t\n\t\t\tRefCurves\n\t\t\tRefSurfaces\n\t\tPart\n\t\t\tName\n\t\t\t\tUnnamed#Base\n\t\t\tPosition3D\n\t\t\t\t0\t0\t0\t\n\t\t\tRotationMatrix\n\t\t\t\t1\t0\t0\t\n\t\t\t\t0\t1\t0\t\n\t\t\t\t0\t0\t1\t\n\t\t\tVelocity3D\n\t\t\t\t0\t0\t0\t\n\t\t\tOmega3D\n\t\t\t\t0\t0\t0\t\n\t\t\tFeatureOrder\n\t\t\tPrincipalMassMarker\n\t\t\t\tName\n\t\t\t\t\tMassMarker\n\t\t\t\tPosition3D\n\t\t\t\t\t0\t0\t0\t\n\t\t\t\tRotationMatrix\n\t\t\t\t\t1\t0\t0\t\n\t\t\t\t\t0\t1\t0\t\n\t\t\t\t\t0\t0\t1\t\n\t\t\t\tMass\n\t\t\t\t\t1\n\t\t\t\tMomentOfInertias\n\t\t\t\t\t1\t1\t1\t\n\t\t\t\tDensity\n\t\t\t\t\t1\n\t\t\tRefPoints\n\t\t\t\tRefPoint\n\t\t\t\t\tPosition3D\n\t\t\t\t\t\t0\t0\t0\t\n\t\t\t\t\tRotationMatrix\n\t\t\t\t\t\t1\t0\t0\t\n\t\t\t\t\t\t0\t1\t0\t\n\t\t\t\t\t\t0\t0\t1\t\n\t\t\t\t\tMarkers\n\t\t\t\t\t\tMarker\n\t\t\t\t\t\t\tName\n\t\t\t\t\t\t\t\tFixingMarker\n\t\t\t\t\t\t\tPosition3D\n\t\t\t\t\t\t\t\t0\t0\t0\t\n\t\t\t\t\t\t\tRotationMatrix\n\t\t\t\t\t\t\t\t1\t0\t0\t\n\t\t\t\t\t\t\t\t0\t1\t0\t\n\t\t\t\t\t\t\t\t0\t0\t1\t\n\t\t\t\tRefPoint\n\t\t\t\t\tPosition3D\n\t\t\t\t\t\t0\t0\t0\t\n\t\t\t\t\tRotationMatrix\n\t\t\t\t\t\t1\t0\t0\t\n\t\t\t\t\t\t0\t1\t0\t\n\t\t\t\t\t\t0\t0\t1\t\n\t\t\t\t\tMarkers\n\t\t\t\t\t\tMarker\n\t\t\t\t\t\t\tName\n\t\t\t\t\t\t\t\tUnnamed#Joint\n\t\t\t\t\t\t\tPosition3D\n\t\t\t\t\t\t\t\t5\t5\t10\t\n\t\t\t\t\t\t\tRotationMatrix\n\t\t\t\t\t\t\t\t1\t0\t0\t\n\t\t\t\t\t\t\t\t0\t1\t0\t\n\t\t\t\t\t\t\t\t0\t0\t1\t\n\t\t\tRefCurves\n\t\t\tRefSurfaces\n\t\tPart\n\t\t\tName\n\t\t\t\tUnnamed#Arm\n\t\t\tPosition3D\n\t\t\t\t-10\t1.9999999999999996\t10\t\n\t\t\tRotationMatrix\n\t\t\t\t1\t0\t0\t\n\t\t\t\t0\t1\t0\t\n\t\t\t\t0\t0\t1\t\n\t\t\tVelocity3D\n\t\t\t\t0\t0\t0\t\n\t\t\tOmega3D\n\t\t\t\t0\t0\t0\t\n\t\t\tFeatureOrder\n\t\t\tPrincipalMassMarker\n\t\t\t\tName\n\t\t\t\t\tMassMarker\n\t\t\t\tPosition3D\n\t\t\t\t\t0\t0\t0\t\n\t\t\t\tRotationMatrix\n\t\t\t\t\t1\t0\t0\t\n\t\t\t\t\t0\t1\t0\t\n\t\t\t\t\t0\t0\t1\t\n\t\t\t\tMass\n\t\t\t\t\t1\n\t\t\t\tMomentOfInertias\n\t\t\t\t\t1\t1\t1\t\n\t\t\t\tDensity\n\t\t\t\t\t1\n\t\t\tRefPoints\n\t\t\t\tRefPoint\n\t\t\t\t\tPosition3D\n\t\t\t\t\t\t0\t0\t0\t\n\t\t\t\t\tRotationMatrix\n\t\t\t\t\t\t1\t0\t0\t\n\t\t\t\t\t\t0\t1\t0\t\n\t\t\t\t\t\t0\t0\t1\t\n\t\t\t\t\tMarkers\n\t\t\t\t\t\tMarker\n\t\t\t\t\t\t\tName\n\t\t\t\t\t\t\t\tUnnamed#Joint\n\t\t\t\t\t\t\tPosition3D\n\t\t\t\t\t\t\t\t15\t3.0000000000000004\t0\t\n\t\t\t\t\t\t\tRotationMatrix\n\t\t\t\t\t\t\t\t1\t0\t0\t\n\t\t\t\t\t\t\t\t0\t1\t0\t\n\t\t\t\t\t\t\t\t0\t0\t1\t\n\t\t\tRefCurves\n\t\t\tRefSurfaces\n\tKinematicIJs\n\tConstraintSets\n\t\tJoints\n\t\t\tdJointE\n\t\t\t\tName\n\t\t\t\t\tUnnamed#Origin\n\t\t\t\tMarkerI\n\t\t\t\t\t/OndselAssembly/marker-Unnamed#Origin\n\t\t\t\tMarkerJ\n\t\t\t\t\t/OndselAssembly/Unnamed#Origin/FixingMarker\n\t\t\tdJointE\n\t\t\t\tName\n\t\t\t\t\tUnnamed#Base\n\t\t\t\tMarkerI\n\t\t\t\t\t/OndselAssembly/marker-Unnamed#Base\n\t\t\t\tMarkerJ\n\t\t\t\t\t/OndselAssembly/Unnamed#Base/FixingMarker\n\t\t\tslationalJointE\n\t\t\t\tName\n\t\t\t\t\tUnnamed#Joint\n\t\t\t\tMarkerI\n\t\t\t\t\t/OndselAssembly/Unnamed#Base/Unnamed#Joint\n\t\t\t\tMarkerJ\n\t\t\t\t\t/OndselAssembly/Unnamed#Arm/Unnamed#Joint\n\t\tMotions\n\t\tLimits\n\t\t\tTranslationLimit\n\t\t\t\tName\n\t\t\t\t\tUnnamed#Joint-LimitLenMax\n\t\t\t\tMarkerI\n\t\t\t\t\t/OndselAssembly/Unnamed#Base/Unnamed#Joint\n\t\t\t\tMarkerJ\n\t\t\t\t\t/OndselAssembly/Unnamed#Arm/Unnamed#Joint\n\t\t\t\tMotionJoint\n\t\t\t\t\t\n\t\t\t\tLimit\n\t\t\t\t\t8.000000\n\t\t\t\tType\n\t\t\t\t\t=<\n\t\t\t\tTol\n\t\t\t\t\t1.0e-9\n\t\tGeneralConstraintSets\n\tForceTorques\n\tConstantGravity\n\t\t0\t0\t0\t\n\tSimulationParameters\n\t\ttstart\n\t\t\t0\n\t\ttend\n\t\t\t1\n\t\thmin\n\t\t\t1.0000000000000001e-09\n\t\thmax\n\t\t\t1000000000\n\t\thout\n\t\t\t0.10000000000000001\n\t\terrorTol\n\t\t\t9.9999999999999995e-07\n\tAnimationParameters\n\t\tnframe\n\t\t\t1000000\n\t\ticurrent\n\t\t\t1\n\t\tistart\n\t\t\t1\n\t\tiend\n\t\t\t1000000\n\t\tisForward\n\t\t\ttrue\n\t\tframesPerSecond\n\t\t\t30\n",
+   "subs": {}
+  },
+  "simulation_cylindrical_screw": {
+   "names": {
+    "Plate": "Plate",
+    "Pin": "Pin"
+   },
+   "steps": [
+    {
+     "placements": {
+      "Plate": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ],
+      "Pin": [
+       20.0,
+       14.999999999999996,
+       -5.0,
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     "joints": {
+      "Joint": {
+       "label": "Cylindrical",
+       "type": "Cylindrical",
+       "reference1": [
+        "Plate",
+        [
+         "Face6",
+         "Face6"
+        ]
+       ],
+       "reference2": [
+        "Pin",
+        [
+         "Face1",
+         "Face1"
+        ]
+       ],
+       "placement1": [
+        20.0,
+        14.999999999999996,
+        5.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+       ],
+       "placement2": [
+        0.0,
+        0.0,
+        10.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+       ],
+       "offset1": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+       ],
+       "offset2": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+       ],
+       "distance": 0.0,
+       "distance2": 0.0,
+       "angle": 0.0,
+       "enable_length_min": false,
+       "enable_length_max": false,
+       "enable_angle_min": false,
+       "enable_angle_max": false,
+       "length_min": 0.0,
+       "length_max": 0.0,
+       "angle_min": 0.0,
+       "angle_max": 0.0,
+       "suppressed": false
+      }
+     },
+     "printed": "MbD: Assembling system. \nMbD: Convergence = 1.6509817143097552e-08\nMbD: Convergence = 3.7652020288783939e-09\nMbD: Convergence = 2.2813106686657255e-24\nTime = 0\nMbD: Assembling system. \nMbD: Convergence = 0\nTime = 0\nMbD: Assembling system. \nMbD: Convergence = 0\nTime = 0\nMbD: Assembling system. \nMbD: Convergence = 0\nTime = 0\n"
+    },
+    {
+     "placements": {
+      "Plate": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ],
+      "Pin": [
+       20.0,
+       14.999999999999996,
+       -5.0,
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     "joints": {
+      "Joint": {
+       "label": "Cylindrical",
+       "type": "Cylindrical",
+       "reference1": [
+        "Plate",
+        [
+         "Face6",
+         "Face6"
+        ]
+       ],
+       "reference2": [
+        "Pin",
+        [
+         "Face1",
+         "Face1"
+        ]
+       ],
+       "placement1": [
+        20.0,
+        14.999999999999996,
+        5.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+       ],
+       "placement2": [
+        0.0,
+        0.0,
+        10.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+       ],
+       "offset1": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+       ],
+       "offset2": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+       ],
+       "distance": 0.0,
+       "distance2": 0.0,
+       "angle": 0.0,
+       "enable_length_min": false,
+       "enable_length_max": false,
+       "enable_angle_min": false,
+       "enable_angle_max": false,
+       "length_min": 0.0,
+       "length_max": 0.0,
+       "angle_min": 0.0,
+       "angle_max": 0.0,
+       "suppressed": false
+      }
+     },
+     "printed": "(6.28319*imeE)\nTime = 0\nMbD: Assembling system. \nMbD: Checking for redundant constraints.\nMbD: MotionE /OndselAssembly/Unnamed#Joint-ScrewMotion has the following constraint(s) removed: \nMbD:     RedundantConstraintTranslationConstraintIxJ\nMbD:     RedundantConstraintTranslationConstraintIyJ\nMbD:     RedundantConstraintDirectionCosineConstraintIyJx\nMbD:     RedundantConstraintDirectionCosineConstraintIzJx\nMbD:     RedundantConstraintDirectionCosineConstraintIzJy\nMbD: Assembling system. \nMbD: Convergence = 0\nMbD: Assembling system. \nMbD: Checking for redundant constraints.\nMbD: MotionE /OndselAssembly/Unnamed#Joint-ScrewMotion has the following constraint(s) removed: \nMbD:     RedundantConstraintTranslationConstraintIxJ\nMbD:     RedundantConstraintTranslationConstraintIyJ\nMbD:     RedundantConstraintDirectionCosineConstraintIyJx\nMbD:     RedundantConstraintDirectionCosineConstraintIzJx\nMbD:     RedundantConstraintDirectionCosineConstraintIzJy\nMbD: Assembling system. \nMbD: Convergence = 0\nMbD: Solving for velocity initial conditions.\nMbD: Solving for acceleration initial conditions.\nMbD: Convergence = 5.4378871743569634\nMbD: Convergence = 2.1665312412617224e-13\nMbD: Convergence = 5.5611792554319471e-29\nTime = 0\nMbD: Starting kinematic analysis.\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0082148903107827458\nMbD: Convergence = 9.3642456402054939e-05\nMbD: Convergence = 2.3380978428333602e-08\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 5.437887174357046\nMbD: Convergence = 9.5476677965410192e-17\nTime = 0.01\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0082148903107823953\nMbD: Convergence = 9.3642456402031045e-05\nMbD: Convergence = 2.3380978448664699e-08\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 5.4378871743570905\nMbD: Convergence = 7.3771497663351402e-17\nTime = 0.02\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0082148903107825098\nMbD: Convergence = 9.3642456402031344e-05\nMbD: Convergence = 2.3380978469971902e-08\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 5.4378871743571366\nMbD: Convergence = 5.4206487408944394e-14\nTime = 0.03\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0082148903107826295\nMbD: Convergence = 9.3642456402030815e-05\nMbD: Convergence = 2.3380978448827385e-08\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 5.4378871743570905\nMbD: Convergence = 2.166909891087039e-13\nTime = 0.04\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0082148903107825029\nMbD: Convergence = 9.3642456402031154e-05\nMbD: Convergence = 2.3380978469646535e-08\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 5.4378871743571366\nMbD: Convergence = 5.4110095618757722e-14\nTime = 0.05\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0082148903107825133\nMbD: Convergence = 9.3642456402031154e-05\nMbD: Convergence = 2.3380978448827389e-08\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 5.4378871743570913\nMbD: Convergence = 5.4350895235486844e-14\nTime = 0.06\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0082148903107823971\nMbD: Convergence = 9.3642456402030517e-05\nMbD: Convergence = 2.3380978450128861e-08\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 5.437887174357134\nMbD: Convergence = 2.1675248265238144e-13\nTime = 0.07\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0082148903107823364\nMbD: Convergence = 9.3642456402051754e-05\nMbD: Convergence = 2.3380978449478122e-08\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 5.4378871743570896\nMbD: Convergence = 2.1677940369914119e-13\nTime = 0.08\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0082148903107822774\nMbD: Convergence = 9.3642456402030829e-05\nMbD: Convergence = 2.3380978470297278e-08\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 5.4378871743570709\nMbD: Convergence = 5.4472405661249044e-14\nTime = 0.09\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0082148903107825706\nMbD: Convergence = 9.3642456402052404e-05\nMbD: Convergence = 2.3380978449478122e-08\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 5.4378871743571429\nMbD: Convergence = 5.2074610712294462e-15\nTime = 0.1\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0082148903107825081\nMbD: Convergence = 9.3642456402031479e-05\nMbD: Convergence = 2.3380978450128861e-08\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 5.4378871743571171\nMbD: Convergence = 4.1458109109315939e-16\nTime = 0.11\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0082148903107823364\nMbD: Convergence = 9.3642456402010879e-05\nMbD: Convergence = 2.3380978449478122e-08\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 5.4378871743571153\nMbD: Convergence = 2.7097751565829493e-13\nTime = 0.12\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0082148903107824005\nMbD: Convergence = 9.3642456402030815e-05\nMbD: Convergence = 2.3380978470948011e-08\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 5.4378871743570691\nMbD: Convergence = 2.1694358845558216e-13\nTime = 0.13\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0082148903107826399\nMbD: Convergence = 9.364245640203049e-05\nMbD: Convergence = 2.3380978450128865e-08\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 5.437887174357094\nMbD: Convergence = 2.7096227637557928e-13\nTime = 0.14\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0082148903107825202\nMbD: Convergence = 9.3642456402029528e-05\nMbD: Convergence = 2.3380978471598751e-08\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 5.4378871743570425\nMbD: Convergence = 2.1682786048734787e-13\nTime = 0.15\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0082148903107825792\nMbD: Convergence = 9.3642456402031154e-05\nMbD: Convergence = 2.3380978448827382e-08\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 5.4378871743571153\nMbD: Convergence = 2.1676334597018062e-13\nTime = 0.16\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0082148903107822375\nMbD: Convergence = 9.3642456402030829e-05\nMbD: Convergence = 2.3380978448176649e-08\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 5.43788717435711\nMbD: Convergence = 2.1677131284239541e-13\nTime = 0.17\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0082148903107823225\nMbD: Convergence = 9.3642456402031466e-05\nMbD: Convergence = 2.3380978468995799e-08\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 5.4378871743570452\nMbD: Convergence = 2.7093265640203559e-13\nTime = 0.18\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0082148903107826399\nMbD: Convergence = 9.3642456402031804e-05\nMbD: Convergence = 2.3380978448827389e-08\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 5.4378871743571366\nMbD: Convergence = 3.2763008453669811e-15\nTime = 0.19\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0082148903107823502\nMbD: Convergence = 9.364245640205273e-05\nMbD: Convergence = 2.3380978447525909e-08\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 5.4378871743570434\nMbD: Convergence = 1.5755379087509771e-15\nTime = 0.2\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0082148903107823849\nMbD: Convergence = 9.3642456402051415e-05\nMbD: Convergence = 2.3380978449478125e-08\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 5.4378871743570434\nMbD: Convergence = 5.4210484432507296e-14\nTime = 0.21\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0082148903107823381\nMbD: Convergence = 9.3642456402031303e-05\nMbD: Convergence = 2.3380978448502016e-08\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 5.4378871743570931\nMbD: Convergence = 7.3364219167595405e-16\nTime = 0.22\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0082148903107825185\nMbD: Convergence = 9.3642456402052242e-05\nMbD: Convergence = 2.3380978468995799e-08\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 5.4378871743570887\nMbD: Convergence = 5.1910812898357029e-16\nTime = 0.23\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0082148903107825758\nMbD: Convergence = 9.3642456402052391e-05\nMbD: Convergence = 2.3380978429309705e-08\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 5.4378871743571287\nMbD: Convergence = 1.1895551046731314e-15\nTime = 0.24\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0082148903107823971\nMbD: Convergence = 9.3642456402009917e-05\nMbD: Convergence = 2.3380978469713603e-08\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 5.4378871743571162\nMbD: Convergence = 2.1687858311854314e-13\nTime = 0.25\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0082148903107826139\nMbD: Convergence = 9.3642456402031154e-05\nMbD: Convergence = 2.3380978449315439e-08\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 5.4378871743571082\nMbD: Convergence = 2.1708704657842594e-13\nTime = 0.26\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0082148903107822305\nMbD: Convergence = 9.3642456402031479e-05\nMbD: Convergence = 2.3380978448502016e-08\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 5.4378871743571153\nMbD: Convergence = 2.170441849224887e-13\nTime = 0.27\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0082148903107822288\nMbD: Convergence = 9.3642456402052892e-05\nMbD: Convergence = 2.3380978449803492e-08\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 5.4378871743570709\nMbD: Convergence = 2.1693289060305272e-13\nTime = 0.28\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0082148903107823919\nMbD: Convergence = 9.3642456402030666e-05\nMbD: Convergence = 2.3380978449478125e-08\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 5.4378871743570611\nMbD: Convergence = 2.1700485879186292e-13\nTime = 0.29\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0082148903107823953\nMbD: Convergence = 9.3642456402052404e-05\nMbD: Convergence = 2.3380978447525909e-08\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 5.4378871743570896\nMbD: Convergence = 2.1704707159240505e-13\nTime = 0.3\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0082148903107824023\nMbD: Convergence = 9.364245640203049e-05\nMbD: Convergence = 2.3380978468995799e-08\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 5.4378871743570869\nMbD: Convergence = 2.7111007084935514e-13\nTime = 0.31\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0082148903107826174\nMbD: Convergence = 9.3642456402031154e-05\nMbD: Convergence = 2.338097844687517e-08\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 5.4378871743571215\nMbD: Convergence = 2.1692868937293715e-13\nTime = 0.32\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0082148903107823953\nMbD: Convergence = 9.3642456402030815e-05\nMbD: Convergence = 2.3380978468995799e-08\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 5.4378871743571358\nMbD: Convergence = 2.1702055872169636e-13\nTime = 0.33\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0082148903107825775\nMbD: Convergence = 9.3642456402030815e-05\nMbD: Convergence = 2.3380978469646535e-08\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 5.4378871743570363\nMbD: Convergence = 2.1704923106508649e-13\nTime = 0.34\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0082148903107826295\nMbD: Convergence = 9.3642456402030815e-05\nMbD: Convergence = 2.3380978448176646e-08\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 5.4378871743571278\nMbD: Convergence = 2.1717836487123079e-13\nTime = 0.35\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0082148903107823416\nMbD: Convergence = 9.3642456402051727e-05\nMbD: Convergence = 2.3380978471598748e-08\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 5.4378871743570478\nMbD: Convergence = 2.7143020582849842e-13\nTime = 0.36\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0082148903107825862\nMbD: Convergence = 9.364245640203049e-05\nMbD: Convergence = 2.3380978450779598e-08\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 5.4378871743571366\nMbD: Convergence = 3.2567354674090959e-13\nTime = 0.37\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0082148903107824075\nMbD: Convergence = 9.3642456402030815e-05\nMbD: Convergence = 2.3380978470948008e-08\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 5.4378871743570896\nMbD: Convergence = 6.2074879166884146e-16\nTime = 0.38\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.008214890310782574\nMbD: Convergence = 9.3642456402052079e-05\nMbD: Convergence = 2.3380978449478122e-08\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 5.4378871743570869\nMbD: Convergence = 1.0100198628367523e-15\nTime = 0.39\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0082148903107822236\nMbD: Convergence = 9.3642456402010554e-05\nMbD: Convergence = 2.3380978448827389e-08\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 5.4378871743570869\nMbD: Convergence = 2.1730073365458845e-13\nTime = 0.4\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0082148903107824005\nMbD: Convergence = 9.3642456402031154e-05\nMbD: Convergence = 2.3380978448176646e-08\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 5.4378871743570389\nMbD: Convergence = 1.2823963763003273e-16\nTime = 0.41\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0082148903107824717\nMbD: Convergence = 9.3642456402052079e-05\nMbD: Convergence = 2.3380978450128865e-08\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 5.437887174357134\nMbD: Convergence = 1.626504530114451e-13\nTime = 0.42\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0082148903107823745\nMbD: Convergence = 9.3642456402030815e-05\nMbD: Convergence = 2.3380978470297278e-08\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 5.4378871743570869\nMbD: Convergence = 6.359771602542655e-16\nTime = 0.43\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0082148903107824509\nMbD: Convergence = 9.364245640203049e-05\nMbD: Convergence = 2.3380978470948011e-08\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 5.4378871743570922\nMbD: Convergence = 5.419665382306709e-14\nTime = 0.44\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0082148903107826989\nMbD: Convergence = 9.3642456402031127e-05\nMbD: Convergence = 2.3380978469646535e-08\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 5.4378871743570878\nMbD: Convergence = 2.1733552747759642e-13\nTime = 0.45\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.008214890310782633\nMbD: Convergence = 9.3642456402031154e-05\nMbD: Convergence = 2.3380978448502019e-08\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 5.4378871743570434\nMbD: Convergence = 7.8742307307245765e-16\nTime = 0.46\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0082148903107825116\nMbD: Convergence = 9.3642456402030978e-05\nMbD: Convergence = 2.3380978449152759e-08\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 5.4378871743570869\nMbD: Convergence = 5.4299905441699046e-14\nTime = 0.47\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0082148903107824005\nMbD: Convergence = 9.3642456402031073e-05\nMbD: Convergence = 2.3380978469971909e-08\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 5.4378871743570434\nMbD: Convergence = 2.1721910268299146e-13\nTime = 0.48\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0082148903107825202\nMbD: Convergence = 9.3642456402010229e-05\nMbD: Convergence = 2.3380978448990069e-08\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 5.4378871743570425\nMbD: Convergence = 2.7135694798323782e-13\nTime = 0.49\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0082148903107824855\nMbD: Convergence = 9.36424564020311e-05\nMbD: Convergence = 2.3380978448939382e-08\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 5.4378871743570425\nMbD: Convergence = 3.4536540507317118e-28\nTime = 0.5\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0082148903107823433\nMbD: Convergence = 9.3642456402031154e-05\nMbD: Convergence = 2.3380978428496289e-08\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 5.4378871743570896\nMbD: Convergence = 7.2740856102384076e-17\nTime = 0.51\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.008214890310782404\nMbD: Convergence = 9.3642456402031073e-05\nMbD: Convergence = 2.3380978448827382e-08\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 5.437887174357046\nMbD: Convergence = 2.1726885278797733e-13\nTime = 0.52\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0082148903107823433\nMbD: Convergence = 9.3642456402010188e-05\nMbD: Convergence = 2.3380978469646535e-08\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 5.4378871743571366\nMbD: Convergence = 2.7172594807187847e-13\nTime = 0.53\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0082148903107826313\nMbD: Convergence = 9.3642456402031154e-05\nMbD: Convergence = 2.3380978448827382e-08\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 5.4378871743570434\nMbD: Convergence = 2.7168733970439423e-13\nTime = 0.54\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0082148903107824075\nMbD: Convergence = 9.3642456402031154e-05\nMbD: Convergence = 2.3380978449478125e-08\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 5.4378871743570869\nMbD: Convergence = 5.4187298316085339e-14\nTime = 0.55\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0082148903107825272\nMbD: Convergence = 9.3642456402031479e-05\nMbD: Convergence = 2.3380978449478125e-08\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 5.4378871743570896\nMbD: Convergence = 2.7139544813461233e-13\nTime = 0.56\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0082148903107823936\nMbD: Convergence = 9.3642456402030815e-05\nMbD: Convergence = 2.3380978448176646e-08\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 5.4378871743570869\nMbD: Convergence = 2.4390856389177385e-16\nTime = 0.57\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.008214890310782522\nMbD: Convergence = 9.3642456402052079e-05\nMbD: Convergence = 2.3380978448827382e-08\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 5.4378871743570896\nMbD: Convergence = 5.4224887900928617e-14\nTime = 0.58\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0082148903107823693\nMbD: Convergence = 9.3642456402031804e-05\nMbD: Convergence = 2.3380978448827385e-08\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 5.4378871743570869\nMbD: Convergence = 4.3951207119646335e-16\nTime = 0.59\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.008214890310782411\nMbD: Convergence = 9.3642456402030815e-05\nMbD: Convergence = 2.3380978450779598e-08\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 5.4378871743570434\nMbD: Convergence = 2.7177255297166147e-13\nTime = 0.6\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.008214890310782515\nMbD: Convergence = 9.3642456402052404e-05\nMbD: Convergence = 2.3380978448176646e-08\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 5.4378871743570478\nMbD: Convergence = 6.2075895882743078e-16\nTime = 0.61\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.008214890310782326\nMbD: Convergence = 9.364245640205174e-05\nMbD: Convergence = 2.3380978428658975e-08\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 5.4378871743570372\nMbD: Convergence = 2.1742288310533816e-13\nTime = 0.62\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0082148903107822323\nMbD: Convergence = 9.3642456402031127e-05\nMbD: Convergence = 2.3380978448176646e-08\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 5.4378871743570443\nMbD: Convergence = 1.0980534338171819e-15\nTime = 0.63\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0082148903107825116\nMbD: Convergence = 9.3642456402031167e-05\nMbD: Convergence = 2.3380978450128858e-08\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 5.4378871743570398\nMbD: Convergence = 5.4450692227258564e-14\nTime = 0.64\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.00821489031078243\nMbD: Convergence = 9.3642456402051727e-05\nMbD: Convergence = 2.3380978428658975e-08\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 5.4378871743571375\nMbD: Convergence = 2.173762591602097e-13\nTime = 0.65\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0082148903107823121\nMbD: Convergence = 9.3642456402010229e-05\nMbD: Convergence = 2.3380978470297272e-08\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 5.4378871743570754\nMbD: Convergence = 5.4538900000958052e-14\nTime = 0.66\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0082148903107826087\nMbD: Convergence = 9.3642456402050764e-05\nMbD: Convergence = 2.3380978426706763e-08\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 5.4378871743570896\nMbD: Convergence = 2.17540892973628e-13\nTime = 0.67\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0082148903107822514\nMbD: Convergence = 9.364245640200989e-05\nMbD: Convergence = 2.3380978469646535e-08\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 5.4378871743570896\nMbD: Convergence = 2.718395153478942e-13\nTime = 0.68\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0082148903107826157\nMbD: Convergence = 9.3642456402031804e-05\nMbD: Convergence = 2.3380978449478125e-08\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 5.4378871743571047\nMbD: Convergence = 2.1728457467325929e-13\nTime = 0.69\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0082148903107823676\nMbD: Convergence = 9.3642456402031127e-05\nMbD: Convergence = 2.3380978448827389e-08\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 5.4378871743570443\nMbD: Convergence = 2.1758398297692908e-13\nTime = 0.7\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0082148903107823676\nMbD: Convergence = 9.3642456402009904e-05\nMbD: Convergence = 2.3380978470297278e-08\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 5.4378871743570256\nMbD: Convergence = 4.3499500376659828e-13\nTime = 0.71\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0082148903107826694\nMbD: Convergence = 9.3642456402031466e-05\nMbD: Convergence = 2.3380978468345063e-08\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 5.4378871743570611\nMbD: Convergence = 2.1752900090770434e-13\nTime = 0.72\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0082148903107825983\nMbD: Convergence = 9.3642456402031384e-05\nMbD: Convergence = 2.3380978470622642e-08\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 5.4378871743571082\nMbD: Convergence = 4.8950456725866747e-13\nTime = 0.73\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0082148903107825966\nMbD: Convergence = 9.3642456402010879e-05\nMbD: Convergence = 2.3380978469809222e-08\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 5.4378871743571171\nMbD: Convergence = 5.4564665006376056e-14\nTime = 0.74\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0082148903107825411\nMbD: Convergence = 9.3642456402051171e-05\nMbD: Convergence = 2.3380978450330055e-08\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 5.437887174357134\nMbD: Convergence = 4.0034212694941387e-16\nTime = 0.75\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.008214890310782378\nMbD: Convergence = 9.3642456402030585e-05\nMbD: Convergence = 2.3380978448176646e-08\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 5.4378871743570629\nMbD: Convergence = 5.4378333551147966e-14\nTime = 0.76\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0082148903107824179\nMbD: Convergence = 9.3642456402052635e-05\nMbD: Convergence = 2.3380978448339332e-08\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 5.4378871743570647\nMbD: Convergence = 3.2184378630330548e-16\nTime = 0.77\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0082148903107823659\nMbD: Convergence = 9.3642456402030652e-05\nMbD: Convergence = 2.3380978468995796e-08\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 5.437887174357134\nMbD: Convergence = 2.6279973911740465e-15\nTime = 0.78\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0082148903107825983\nMbD: Convergence = 9.3642456402010541e-05\nMbD: Convergence = 2.3380978469971909e-08\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 5.4378871743569972\nMbD: Convergence = 2.0704293613980825e-15\nTime = 0.79\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0082148903107826087\nMbD: Convergence = 9.3642456402009253e-05\nMbD: Convergence = 2.3380978470948011e-08\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 5.4378871743571144\nMbD: Convergence = 2.1780419500559071e-13\nTime = 0.8\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.008214890310782659\nMbD: Convergence = 9.3642456402030815e-05\nMbD: Convergence = 2.3380978470948011e-08\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 5.4378871743571127\nMbD: Convergence = 1.5855878395497535e-15\nTime = 0.81\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0082148903107826694\nMbD: Convergence = 9.3642456402030815e-05\nMbD: Convergence = 2.3380978448827385e-08\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 5.4378871743570416\nMbD: Convergence = 5.4455964761218749e-14\nTime = 0.82\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0082148903107824214\nMbD: Convergence = 9.3642456402031154e-05\nMbD: Convergence = 2.3380978448176649e-08\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 5.4378871743570674\nMbD: Convergence = 5.4385538326115879e-14\nTime = 0.83\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0082148903107823121\nMbD: Convergence = 9.364245640205174e-05\nMbD: Convergence = 2.3380978449478125e-08\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 5.4378871743570922\nMbD: Convergence = 4.0927739789354587e-15\nTime = 0.84\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0082148903107824873\nMbD: Convergence = 9.3642456402052079e-05\nMbD: Convergence = 2.3380978427357492e-08\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 5.4378871743571153\nMbD: Convergence = 2.1778804353430153e-13\nTime = 0.85\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0082148903107823641\nMbD: Convergence = 9.3642456402030165e-05\nMbD: Convergence = 2.3380978471598748e-08\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 5.4378871743570709\nMbD: Convergence = 2.7213677658582292e-13\nTime = 0.86\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0082148903107826122\nMbD: Convergence = 9.3642456402030815e-05\nMbD: Convergence = 2.3380978469646535e-08\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 5.4378871743570238\nMbD: Convergence = 2.1768458692396232e-13\nTime = 0.87\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0082148903107825428\nMbD: Convergence = 9.3642456402031804e-05\nMbD: Convergence = 2.3380978448176649e-08\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 5.4378871743570887\nMbD: Convergence = 2.1774626813694516e-13\nTime = 0.88\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0082148903107824491\nMbD: Convergence = 9.3642456402032143e-05\nMbD: Convergence = 2.3380978449478122e-08\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 5.4378871743570896\nMbD: Convergence = 2.1754514596293421e-13\nTime = 0.89\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0082148903107824751\nMbD: Convergence = 9.3642456402052404e-05\nMbD: Convergence = 2.3380978448827382e-08\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 5.4378871743570922\nMbD: Convergence = 5.4417164887414582e-14\nTime = 0.9\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0082148903107824404\nMbD: Convergence = 9.3642456402031466e-05\nMbD: Convergence = 2.3380978448176649e-08\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 5.4378871743570985\nMbD: Convergence = 2.1783552661654359e-13\nTime = 0.91\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0082148903107823589\nMbD: Convergence = 9.3642456402031154e-05\nMbD: Convergence = 2.3380978470297278e-08\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 5.4378871743571171\nMbD: Convergence = 2.7203388874739071e-13\nTime = 0.92\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0082148903107825983\nMbD: Convergence = 9.3642456402009917e-05\nMbD: Convergence = 2.3380978470297278e-08\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 5.4378871743570896\nMbD: Convergence = 2.5187835724045841e-16\nTime = 0.93\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.008214890310782607\nMbD: Convergence = 9.3642456402030829e-05\nMbD: Convergence = 2.3380978470297275e-08\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 5.4378871743570896\nMbD: Convergence = 2.1768887648459143e-13\nTime = 0.94\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0082148903107824266\nMbD: Convergence = 9.3642456402030842e-05\nMbD: Convergence = 2.3380978448827392e-08\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 5.4378871743570896\nMbD: Convergence = 2.1785924861172407e-13\nTime = 0.95\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0082148903107825445\nMbD: Convergence = 9.3642456402030964e-05\nMbD: Convergence = 2.3380978448176649e-08\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 5.4378871743571393\nMbD: Convergence = 5.4543393050479956e-14\nTime = 0.96\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0082148903107821889\nMbD: Convergence = 9.3642456402031154e-05\nMbD: Convergence = 2.3380978448827389e-08\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 5.4378871743570887\nMbD: Convergence = 2.7238118049303409e-13\nTime = 0.97\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.008214890310782548\nMbD: Convergence = 9.3642456402052309e-05\nMbD: Convergence = 2.3380978449315442e-08\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 5.4378871743570896\nMbD: Convergence = 2.2224225326817557e-16\nTime = 0.98\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0082148903107823763\nMbD: Convergence = 9.3642456402031371e-05\nMbD: Convergence = 2.3380978448827382e-08\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 5.4378871743570913\nMbD: Convergence = 2.1776770391159434e-13\nTime = 0.99\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0082148903107822583\nMbD: Convergence = 9.3642456402031167e-05\nMbD: Convergence = 2.3380978448939425e-08\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 5.4378871743570425\nMbD: Convergence = 1.4091012055854996e-15\nTime = 1\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0082148903107823121\nMbD: Convergence = 9.3642456402031059e-05\nMbD: Convergence = 2.3380978449152759e-08\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 5.437887174357134\nMbD: Convergence = 1.6346876267855765e-13\n"
+    }
+   ],
+   "simulations": {
+    "Simulation": {
+     "status": 0,
+     "frames": 102,
+     "sampled": {
+      "0": {
+       "Plate": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+       ],
+       "Pin": [
+        20.0,
+        14.999999999999996,
+        -5.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+       ]
+      },
+      "51": {
+       "Plate": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+       ],
+       "Pin": [
+        20.0,
+        14.999999999999996,
+        -3.4999999999999987,
+        0.0,
+        0.0,
+        1.0,
+        -2.503722994132712e-15
+       ]
+      },
+      "101": {
+       "Plate": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+       ],
+       "Pin": [
+        20.0,
+        14.999999999999996,
+        -1.9999999999999973,
+        0.0,
+        0.0,
+        3.9822814716080916e-15,
+        1.0
+       ]
+      }
+     },
+     "motions": [
+      "Motion",
+      "Motion001"
+     ]
+    }
+   },
+   "solve": 0,
+   "solve_printed": "MbD: Assembling system. \nMbD: Convergence = 0\nTime = 0\n",
+   "after_solve": {
+    "placements": {
+     "Plate": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      1.0
+     ],
+     "Pin": [
+      20.0,
+      14.999999999999996,
+      -5.0,
+      0.0,
+      0.0,
+      0.0,
+      1.0
+     ]
+    },
+    "joints": {
+     "Joint": {
+      "label": "Cylindrical",
+      "type": "Cylindrical",
+      "reference1": [
+       "Plate",
+       [
+        "Face6",
+        "Face6"
+       ]
+      ],
+      "reference2": [
+       "Pin",
+       [
+        "Face1",
+        "Face1"
+       ]
+      ],
+      "placement1": [
+       20.0,
+       14.999999999999996,
+       5.0,
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ],
+      "placement2": [
+       0.0,
+       0.0,
+       10.0,
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ],
+      "offset1": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ],
+      "offset2": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ],
+      "distance": 0.0,
+      "distance2": 0.0,
+      "angle": 0.0,
+      "enable_length_min": false,
+      "enable_length_max": false,
+      "enable_angle_min": false,
+      "enable_angle_max": false,
+      "length_min": 0.0,
+      "length_max": 0.0,
+      "angle_min": 0.0,
+      "angle_max": 0.0,
+      "suppressed": false
+     }
+    }
+   },
+   "asmt": "OndselSolver\nAssembly\n\tNotes\n\t\t(Text string: '' runs: (Core.RunArray runs: #() values: #()))\n\tName\n\t\tOndselAssembly\n\tPosition3D\n\t\t0\t0\t0\t\n\tRotationMatrix\n\t\t1\t0\t0\t\n\t\t0\t1\t0\t\n\t\t0\t0\t1\t\n\tVelocity3D\n\t\t0\t0\t0\t\n\tOmega3D\n\t\t0\t0\t0\t\n\tRefPoints\n\t\tRefPoint\n\t\t\tPosition3D\n\t\t\t\t0\t0\t0\t\n\t\t\tRotationMatrix\n\t\t\t\t1\t0\t0\t\n\t\t\t\t0\t1\t0\t\n\t\t\t\t0\t0\t1\t\n\t\t\tMarkers\n\t\t\t\tMarker\n\t\t\t\t\tName\n\t\t\t\t\t\tmarker-Unnamed#Origin\n\t\t\t\t\tPosition3D\n\t\t\t\t\t\t0\t0\t0\t\n\t\t\t\t\tRotationMatrix\n\t\t\t\t\t\t1\t0\t0\t\n\t\t\t\t\t\t0\t1\t0\t\n\t\t\t\t\t\t0\t0\t1\t\n\t\tRefPoint\n\t\t\tPosition3D\n\t\t\t\t0\t0\t0\t\n\t\t\tRotationMatrix\n\t\t\t\t1\t0\t0\t\n\t\t\t\t0\t1\t0\t\n\t\t\t\t0\t0\t1\t\n\t\t\tMarkers\n\t\t\t\tMarker\n\t\t\t\t\tName\n\t\t\t\t\t\tmarker-Unnamed#Plate\n\t\t\t\t\tPosition3D\n\t\t\t\t\t\t0\t0\t0\t\n\t\t\t\t\tRotationMatrix\n\t\t\t\t\t\t1\t0\t0\t\n\t\t\t\t\t\t0\t1\t0\t\n\t\t\t\t\t\t0\t0\t1\t\n\tRefCurves\n\tRefSurfaces\n\tParts\n\t\tPart\n\t\t\tName\n\t\t\t\tUnnamed#Origin\n\t\t\tPosition3D\n\t\t\t\t0\t0\t0\t\n\t\t\tRotationMatrix\n\t\t\t\t1\t0\t0\t\n\t\t\t\t0\t1\t0\t\n\t\t\t\t0\t0\t1\t\n\t\t\tVelocity3D\n\t\t\t\t0\t0\t0\t\n\t\t\tOmega3D\n\t\t\t\t0\t0\t0\t\n\t\t\tFeatureOrder\n\t\t\tPrincipalMassMarker\n\t\t\t\tName\n\t\t\t\t\tMassMarker\n\t\t\t\tPosition3D\n\t\t\t\t\t0\t0\t0\t\n\t\t\t\tRotationMatrix\n\t\t\t\t\t1\t0\t0\t\n\t\t\t\t\t0\t1\t0\t\n\t\t\t\t\t0\t0\t1\t\n\t\t\t\tMass\n\t\t\t\t\t1\n\t\t\t\tMomentOfInertias\n\t\t\t\t\t1\t1\t1\t\n\t\t\t\tDensity\n\t\t\t\t\t1\n\t\t\tRefPoints\n\t\t\t\tRefPoint\n\t\t\t\t\tPosition3D\n\t\t\t\t\t\t0\t0\t0\t\n\t\t\t\t\tRotationMatrix\n\t\t\t\t\t\t1\t0\t0\t\n\t\t\t\t\t\t0\t1\t0\t\n\t\t\t\t\t\t0\t0\t1\t\n\t\t\t\t\tMarkers\n\t\t\t\t\t\tMarker\n\t\t\t\t\t\t\tName\n\t\t\t\t\t\t\t\tFixingMarker\n\t\t\t\t\t\t\tPosition3D\n\t\t\t\t\t\t\t\t0\t0\t0\t\n\t\t\t\t\t\t\tRotationMatrix\n\t\t\t\t\t\t\t\t1\t0\t0\t\n\t\t\t\t\t\t\t\t0\t1\t0\t\n\t\t\t\t\t\t\t\t0\t0\t1\t\n\t\t\tRefCurves\n\t\t\tRefSurfaces\n\t\tPart\n\t\t\tName\n\t\t\t\tUnnamed#Plate\n\t\t\tPosition3D\n\t\t\t\t0\t0\t0\t\n\t\t\tRotationMatrix\n\t\t\t\t1\t0\t0\t\n\t\t\t\t0\t1\t0\t\n\t\t\t\t0\t0\t1\t\n\t\t\tVelocity3D\n\t\t\t\t0\t0\t0\t\n\t\t\tOmega3D\n\t\t\t\t0\t0\t0\t\n\t\t\tFeatureOrder\n\t\t\tPrincipalMassMarker\n\t\t\t\tName\n\t\t\t\t\tMassMarker\n\t\t\t\tPosition3D\n\t\t\t\t\t0\t0\t0\t\n\t\t\t\tRotationMatrix\n\t\t\t\t\t1\t0\t0\t\n\t\t\t\t\t0\t1\t0\t\n\t\t\t\t\t0\t0\t1\t\n\t\t\t\tMass\n\t\t\t\t\t1\n\t\t\t\tMomentOfInertias\n\t\t\t\t\t1\t1\t1\t\n\t\t\t\tDensity\n\t\t\t\t\t1\n\t\t\tRefPoints\n\t\t\t\tRefPoint\n\t\t\t\t\tPosition3D\n\t\t\t\t\t\t0\t0\t0\t\n\t\t\t\t\tRotationMatrix\n\t\t\t\t\t\t1\t0\t0\t\n\t\t\t\t\t\t0\t1\t0\t\n\t\t\t\t\t\t0\t0\t1\t\n\t\t\t\t\tMarkers\n\t\t\t\t\t\tMarker\n\t\t\t\t\t\t\tName\n\t\t\t\t\t\t\t\tFixingMarker\n\t\t\t\t\t\t\tPosition3D\n\t\t\t\t\t\t\t\t0\t0\t0\t\n\t\t\t\t\t\t\tRotationMatrix\n\t\t\t\t\t\t\t\t1\t0\t0\t\n\t\t\t\t\t\t\t\t0\t1\t0\t\n\t\t\t\t\t\t\t\t0\t0\t1\t\n\t\t\t\tRefPoint\n\t\t\t\t\tPosition3D\n\t\t\t\t\t\t0\t0\t0\t\n\t\t\t\t\tRotationMatrix\n\t\t\t\t\t\t1\t0\t0\t\n\t\t\t\t\t\t0\t1\t0\t\n\t\t\t\t\t\t0\t0\t1\t\n\t\t\t\t\tMarkers\n\t\t\t\t\t\tMarker\n\t\t\t\t\t\t\tName\n\t\t\t\t\t\t\t\tUnnamed#Joint\n\t\t\t\t\t\t\tPosition3D\n\t\t\t\t\t\t\t\t20\t14.999999999999996\t5\t\n\t\t\t\t\t\t\tRotationMatrix\n\t\t\t\t\t\t\t\t1\t0\t0\t\n\t\t\t\t\t\t\t\t0\t1\t0\t\n\t\t\t\t\t\t\t\t0\t0\t1\t\n\t\t\tRefCurves\n\t\t\tRefSurfaces\n\t\tPart\n\t\t\tName\n\t\t\t\tUnnamed#Pin\n\t\t\tPosition3D\n\t\t\t\t20\t14.999999999999996\t-5\t\n\t\t\tRotationMatrix\n\t\t\t\t1\t0\t0\t\n\t\t\t\t0\t1\t0\t\n\t\t\t\t0\t0\t1\t\n\t\t\tVelocity3D\n\t\t\t\t0\t0\t0\t\n\t\t\tOmega3D\n\t\t\t\t0\t0\t0\t\n\t\t\tFeatureOrder\n\t\t\tPrincipalMassMarker\n\t\t\t\tName\n\t\t\t\t\tMassMarker\n\t\t\t\tPosition3D\n\t\t\t\t\t0\t0\t0\t\n\t\t\t\tRotationMatrix\n\t\t\t\t\t1\t0\t0\t\n\t\t\t\t\t0\t1\t0\t\n\t\t\t\t\t0\t0\t1\t\n\t\t\t\tMass\n\t\t\t\t\t1\n\t\t\t\tMomentOfInertias\n\t\t\t\t\t1\t1\t1\t\n\t\t\t\tDensity\n\t\t\t\t\t1\n\t\t\tRefPoints\n\t\t\t\tRefPoint\n\t\t\t\t\tPosition3D\n\t\t\t\t\t\t0\t0\t0\t\n\t\t\t\t\tRotationMatrix\n\t\t\t\t\t\t1\t0\t0\t\n\t\t\t\t\t\t0\t1\t0\t\n\t\t\t\t\t\t0\t0\t1\t\n\t\t\t\t\tMarkers\n\t\t\t\t\t\tMarker\n\t\t\t\t\t\t\tName\n\t\t\t\t\t\t\t\tUnnamed#Joint\n\t\t\t\t\t\t\tPosition3D\n\t\t\t\t\t\t\t\t0\t0\t10\t\n\t\t\t\t\t\t\tRotationMatrix\n\t\t\t\t\t\t\t\t1\t0\t0\t\n\t\t\t\t\t\t\t\t0\t1\t0\t\n\t\t\t\t\t\t\t\t0\t0\t1\t\n\t\t\tRefCurves\n\t\t\tRefSurfaces\n\tKinematicIJs\n\tConstraintSets\n\t\tJoints\n\t\t\tdJointE\n\t\t\t\tName\n\t\t\t\t\tUnnamed#Origin\n\t\t\t\tMarkerI\n\t\t\t\t\t/OndselAssembly/marker-Unnamed#Origin\n\t\t\t\tMarkerJ\n\t\t\t\t\t/OndselAssembly/Unnamed#Origin/FixingMarker\n\t\t\tdJointE\n\t\t\t\tName\n\t\t\t\t\tUnnamed#Plate\n\t\t\t\tMarkerI\n\t\t\t\t\t/OndselAssembly/marker-Unnamed#Plate\n\t\t\t\tMarkerJ\n\t\t\t\t\t/OndselAssembly/Unnamed#Plate/FixingMarker\n\t\t\tndricalJointE\n\t\t\t\tName\n\t\t\t\t\tUnnamed#Joint\n\t\t\t\tMarkerI\n\t\t\t\t\t/OndselAssembly/Unnamed#Plate/Unnamed#Joint\n\t\t\t\tMarkerJ\n\t\t\t\t\t/OndselAssembly/Unnamed#Pin/Unnamed#Joint\n\t\tMotions\n\t\tLimits\n\t\tGeneralConstraintSets\n\tForceTorques\n\tConstantGravity\n\t\t0\t0\t0\t\n\tSimulationParameters\n\t\ttstart\n\t\t\t0\n\t\ttend\n\t\t\t1\n\t\thmin\n\t\t\t1.0000000000000001e-09\n\t\thmax\n\t\t\t1000000000\n\t\thout\n\t\t\t0.10000000000000001\n\t\terrorTol\n\t\t\t9.9999999999999995e-07\n\tAnimationParameters\n\t\tnframe\n\t\t\t1000000\n\t\ticurrent\n\t\t\t1\n\t\tistart\n\t\t\t1\n\t\tiend\n\t\t\t1000000\n\t\tisForward\n\t\t\ttrue\n\t\tframesPerSecond\n\t\t\t30\n",
+   "subs": {}
+  },
+  "simulation_chain_harmonic": {
+   "names": {
+    "Plate": "Plate",
+    "Arm": "Arm",
+    "Pin": "Pin"
+   },
+   "steps": [
+    {
+     "placements": {
+      "Plate": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ],
+      "Arm": [
+       40.0,
+       30.0,
+       -4.0,
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ],
+      "Pin": [
+       -20.0,
+       40.0,
+       15.0,
+       0.48776392296296117,
+       -0.11418266476504209,
+       -0.28097127493980556,
+       0.8185986911678008
+      ]
+     },
+     "joints": {
+      "Joint": {
+       "label": "Revolute",
+       "type": "Revolute",
+       "reference1": [
+        "Plate",
+        [
+         "Face6",
+         "Vertex8"
+        ]
+       ],
+       "reference2": [
+        "Arm",
+        [
+         "Face5",
+         "Vertex1"
+        ]
+       ],
+       "placement1": [
+        40.0,
+        30.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+       ],
+       "placement2": [
+        0.0,
+        0.0,
+        4.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+       ],
+       "offset1": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+       ],
+       "offset2": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+       ],
+       "distance": 0.0,
+       "distance2": 0.0,
+       "angle": 0.0,
+       "enable_length_min": false,
+       "enable_length_max": false,
+       "enable_angle_min": false,
+       "enable_angle_max": false,
+       "length_min": 0.0,
+       "length_max": 0.0,
+       "angle_min": 0.0,
+       "angle_max": 0.0,
+       "suppressed": false
+      }
+     },
+     "printed": "MbD: Assembling system. \nMbD: Convergence = 5.4009024676717179e-08\nMbD: Convergence = 2.7858042095409958e-09\nMbD: Convergence = 5.8460826800469357e-25\nTime = 0\nMbD: Assembling system. \nMbD: Convergence = 0\nTime = 0\nMbD: Assembling system. \nMbD: Convergence = 0\nTime = 0\nMbD: Assembling system. \nMbD: Convergence = 0\nTime = 0\n"
+    },
+    {
+     "placements": {
+      "Plate": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ],
+      "Arm": [
+       40.0,
+       30.0,
+       -4.0,
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ],
+      "Pin": [
+       70.0,
+       36.0,
+       -24.0,
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     "joints": {
+      "Joint": {
+       "label": "Revolute",
+       "type": "Revolute",
+       "reference1": [
+        "Plate",
+        [
+         "Face6",
+         "Vertex8"
+        ]
+       ],
+       "reference2": [
+        "Arm",
+        [
+         "Face5",
+         "Vertex1"
+        ]
+       ],
+       "placement1": [
+        40.0,
+        30.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+       ],
+       "placement2": [
+        0.0,
+        0.0,
+        4.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+       ],
+       "offset1": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+       ],
+       "offset2": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+       ],
+       "distance": 0.0,
+       "distance2": 0.0,
+       "angle": 0.0,
+       "enable_length_min": false,
+       "enable_length_max": false,
+       "enable_angle_min": false,
+       "enable_angle_max": false,
+       "length_min": 0.0,
+       "length_max": 0.0,
+       "angle_min": 0.0,
+       "angle_max": 0.0,
+       "suppressed": false
+      },
+      "Joint001": {
+       "label": "Revolute001",
+       "type": "Revolute",
+       "reference1": [
+        "Arm",
+        [
+         "Face6",
+         "Vertex8"
+        ]
+       ],
+       "reference2": [
+        "Pin",
+        [
+         "Face3",
+         "Edge1"
+        ]
+       ],
+       "placement1": [
+        30.0,
+        6.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+       ],
+       "placement2": [
+        0.0,
+        0.0,
+        20.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+       ],
+       "offset1": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+       ],
+       "offset2": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+       ],
+       "distance": 0.0,
+       "distance2": 0.0,
+       "angle": 0.0,
+       "enable_length_min": false,
+       "enable_length_max": false,
+       "enable_angle_min": false,
+       "enable_angle_max": false,
+       "length_min": 0.0,
+       "length_max": 0.0,
+       "angle_min": 0.0,
+       "angle_max": 0.0,
+       "suppressed": false
+      }
+     },
+     "printed": "MbD: Assembling system. \nMbD: Convergence = 3.9842826690167034e-07\nMbD: Convergence = 4.1732698365218475e-09\nMbD: Convergence = 8.6888798042789548e-16\nMbD: Convergence = 8.6881078405384247e-16\nMbD: Convergence = 8.6873358424574648e-16\nTime = 0\nMbD: Assembling system. \nMbD: Convergence = 6.0316295743272082e-09\nMbD: Convergence = 5.6878579287880924e-24\nTime = 0\nMbD: Assembling system. \nMbD: Convergence = 0\nTime = 0\nMbD: Assembling system. \nMbD: Convergence = 0\nTime = 0\n"
+    },
+    {
+     "placements": {
+      "Plate": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ],
+      "Arm": [
+       40.0,
+       30.0,
+       -4.0,
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ],
+      "Pin": [
+       70.0,
+       36.0,
+       -24.0,
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     "joints": {
+      "Joint": {
+       "label": "Revolute",
+       "type": "Revolute",
+       "reference1": [
+        "Plate",
+        [
+         "Face6",
+         "Vertex8"
+        ]
+       ],
+       "reference2": [
+        "Arm",
+        [
+         "Face5",
+         "Vertex1"
+        ]
+       ],
+       "placement1": [
+        40.0,
+        30.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+       ],
+       "placement2": [
+        0.0,
+        0.0,
+        4.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+       ],
+       "offset1": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+       ],
+       "offset2": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+       ],
+       "distance": 0.0,
+       "distance2": 0.0,
+       "angle": 0.0,
+       "enable_length_min": false,
+       "enable_length_max": false,
+       "enable_angle_min": false,
+       "enable_angle_max": false,
+       "length_min": 0.0,
+       "length_max": 0.0,
+       "angle_min": 0.0,
+       "angle_max": 0.0,
+       "suppressed": false
+      },
+      "Joint001": {
+       "label": "Revolute001",
+       "type": "Revolute",
+       "reference1": [
+        "Arm",
+        [
+         "Face6",
+         "Vertex8"
+        ]
+       ],
+       "reference2": [
+        "Pin",
+        [
+         "Face3",
+         "Edge1"
+        ]
+       ],
+       "placement1": [
+        30.0,
+        6.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+       ],
+       "placement2": [
+        0.0,
+        0.0,
+        20.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+       ],
+       "offset1": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+       ],
+       "offset2": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+       ],
+       "distance": 0.0,
+       "distance2": 0.0,
+       "angle": 0.0,
+       "enable_length_min": false,
+       "enable_length_max": false,
+       "enable_angle_min": false,
+       "enable_angle_max": false,
+       "length_min": 0.0,
+       "length_max": 0.0,
+       "angle_min": 0.0,
+       "angle_max": 0.0,
+       "suppressed": false
+      }
+     },
+     "printed": "(0.5*sin((6.28319*imeE)))\n-((3*imeE))\nTime = 0\nMbD: Assembling system. \nMbD: Convergence = 0\nMbD: Solving for velocity initial conditions.\nMbD: Solving for acceleration initial conditions.\nMbD: Convergence = 3454.2135057329547\nMbD: Convergence = 3.334226070945364e-12\nMbD: Convergence = 1.8135717601181709e-13\nMbD: Convergence = 2.5781764710904855e-13\nMbD: Convergence = 8.5939569992640344e-14\nTime = 0\nMbD: Starting kinematic analysis.\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.1624309598444342\nMbD: Convergence = 0.0025497344722752776\nMbD: Convergence = 1.2976740285552597e-09\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 3166.8395363743302\nMbD: Convergence = 5.4381133346220654e-12\nTime = 0.01\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.1617894931512478\nMbD: Convergence = 0.0025296407246223765\nMbD: Convergence = 1.2770821220128566e-09\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 3123.0336864953779\nMbD: Convergence = 3.9482148607554145e-12\nTime = 0.02\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.16050910806580898\nMbD: Convergence = 0.0024897705048530904\nMbD: Convergence = 1.2367338818597498e-09\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 3345.2627807677109\nMbD: Convergence = 6.6567579907886642e-12\nTime = 0.03\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.1585948906892172\nMbD: Convergence = 0.0024307533361454404\nMbD: Convergence = 1.1782548927240904e-09\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 3791.2693263432316\nMbD: Convergence = 1.8177088913654933e-12\nTime = 0.04\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.15605444398877372\nMbD: Convergence = 0.0023535210144262158\nMbD: Convergence = 1.1039657164449734e-09\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 4390.8351576106006\nMbD: Convergence = 1.4333376913319935e-12\nTime = 0.05\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.15289785656622445\nMbD: Convergence = 0.0022592928467874214\nMbD: Convergence = 1.0167553007280046e-09\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 5082.4134465332208\nMbD: Convergence = 4.4061694713294665e-12\nTime = 0.06\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.14913766133194384\nMbD: Convergence = 0.0021495563404040981\nMbD: Convergence = 9.1992236745668212e-10\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 5822.4333292316396\nMbD: Convergence = 2.6815223183512989e-12\nTime = 0.07\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.14478878435884393\nMbD: Convergence = 0.00202604365200821\nMbD: Convergence = 8.1699670679493775e-10\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 6581.570812189987\nMbD: Convergence = 1.2657604491836184e-11\nTime = 0.08\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.13986848426374959\nMbD: Convergence = 0.0018907041756720227\nMbD: Convergence = 7.1155857108030027e-10\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 7339.7510201861824\nMbD: Convergence = 3.226750933194024e-12\nTime = 0.09\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.13439628254604027\nMbD: Convergence = 0.0017456737082963787\nMbD: Convergence = 6.0705864673221622e-10\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 8082.7187326256535\nMbD: Convergence = 2.3501682059440614e-12\nTime = 0.1\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.12839388541181559\nMbD: Convergence = 0.0015932406868422019\nMbD: Convergence = 5.0665750664025639e-10\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 8800.0033481293103\nMbD: Convergence = 6.3137857167178556e-12\nTime = 0.11\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.12188509774154248\nMbD: Convergence = 0.001435810038452947\nMbD: Convergence = 4.1309602156784894e-10\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 9483.7394888358249\nMbD: Convergence = 8.731961511759311e-12\nTime = 0.12\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.11489573004936435\nMbD: Convergence = 0.0012758652242289338\nMbD: Convergence = 3.2860925279410835e-10\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 10127.964451085863\nMbD: Convergence = 3.4612477382925908e-12\nTime = 0.13\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.10745349958961137\nMbD: Convergence = 0.0011159290903033532\nMbD: Convergence = 2.5492918512425804e-10\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 10728.17466600345\nMbD: Convergence = 3.112528653969924e-12\nTime = 0.14\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.099587927307485988\nMbD: Convergence = 0.00095852416898562452\nMbD: Convergence = 1.9349249692453327e-10\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 11281.022736454786\nMbD: Convergence = 3.1804907888640434e-12\nTime = 0.15\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.091330233358133839\nMbD: Convergence = 0.00080613310537325797\nMbD: Convergence = 1.4619912092770622e-10\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 11784.091797372197\nMbD: Convergence = 1.2285349515166897e-11\nTime = 0.16\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.082713236008644428\nMbD: Convergence = 0.00066115994119547066\nMbD: Convergence = 1.1727312288385466e-10\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 12235.713864949597\nMbD: Convergence = 2.2370682765857263e-11\nTime = 0.17\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.073771263313116328\nMbD: Convergence = 0.00052589312283805054\nMbD: Convergence = 1.1425495067140073e-10\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 12634.815082679625\nMbD: Convergence = 1.4267528523030911e-11\nTime = 0.18\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.064540097835518381\nMbD: Convergence = 0.00040247148537116394\nMbD: Convergence = 1.4119910352711991e-10\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 12980.779622713038\nMbD: Convergence = 2.3610934190191657e-11\nTime = 0.19\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.055057003337444552\nMbD: Convergence = 0.00029285568710476318\nMbD: Convergence = 1.9532721090938328e-10\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 13273.328787486691\nMbD: Convergence = 6.911415956570429e-12\nTime = 0.2\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.045360968076201949\nMbD: Convergence = 0.00019881199370762152\nMbD: Convergence = 2.7553709610794908e-10\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 13512.414363319398\nMbD: Convergence = 1.0633892123683591e-11\nTime = 0.21\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.035493604366077458\nMbD: Convergence = 0.00012193448545897075\nMbD: Convergence = 3.8469714996392639e-10\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 13698.126490450062\nMbD: Convergence = 9.9140653207196906e-12\nTime = 0.22\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.025502536842206571\nMbD: Convergence = 6.3838339735312915e-05\nMbD: Convergence = 5.2779118949796446e-10\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 13830.61679748984\nMbD: Convergence = 9.7860679954134428e-12\nTime = 0.23\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.015458683387410743\nMbD: Convergence = 2.7385603918357498e-05\nMbD: Convergence = 7.1072139887013511e-10\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 13910.037636046012\nMbD: Convergence = 1.2824000951713138e-11\nTime = 0.24\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0056618214266497893\nMbD: Convergence = 1.7981696501695379e-05\nMbD: Convergence = 9.3977096519697694e-10\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 13936.498142120268\nMbD: Convergence = 1.0155080284463547e-11\nTime = 0.25\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.005736040773558655\nMbD: Convergence = 2.0459592542262745e-05\nMbD: Convergence = 1.2212808814105286e-09\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 13910.037659393725\nMbD: Convergence = 6.3949219344614868e-12\nTime = 0.26\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.015540443550677588\nMbD: Convergence = 3.221515203050921e-05\nMbD: Convergence = 1.5613639383242814e-09\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 13830.616844962839\nMbD: Convergence = 1.8665004774287233e-11\nTime = 0.27\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.025585004354447209\nMbD: Convergence = 6.7542036400391813e-05\nMbD: Convergence = 1.9656105411439682e-09\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 13698.126563610775\nMbD: Convergence = 1.0415678376879251e-11\nTime = 0.28\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.035576269994017938\nMbD: Convergence = 0.00012475298663134553\nMbD: Convergence = 2.4387844074104058e-09\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 13512.414464530635\nMbD: Convergence = 8.6352773476485901e-12\nTime = 0.29\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.045443715633817022\nMbD: Convergence = 0.0002011056239150744\nMbD: Convergence = 2.9845165632236051e-09\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 13273.328919938711\nMbD: Convergence = 2.3179096679041909e-11\nTime = 0.3\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.055139792444274527\nMbD: Convergence = 0.00029482143758987814\nMbD: Convergence = 3.6050104269556422e-09\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 12980.779790466295\nMbD: Convergence = 1.6389086517415884e-11\nTime = 0.31\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.064622910850092322\nMbD: Convergence = 0.00040422076786712086\nMbD: Convergence = 4.3007695195070646e-09\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 12634.815290730003\nMbD: Convergence = 1.8487068673534786e-11\nTime = 0.32\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.073854091319547774\nMbD: Convergence = 0.00052749373781452212\nMbD: Convergence = 5.0703607597441157e-09\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 12235.714119324864\nMbD: Convergence = 1.0196223225564439e-11\nTime = 0.33\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.082796074019245103\nMbD: Convergence = 0.0006626557447457108\nMbD: Convergence = 5.9102262745986911e-09\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 11784.092105272139\nMbD: Convergence = 5.304113898826933e-12\nTime = 0.34\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.091413078364925737\nMbD: Convergence = 0.00080755381826955934\nMbD: Convergence = 6.8145555532426662e-09\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 11281.023106452685\nMbD: Convergence = 4.8662829376191126e-12\nTime = 0.35\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.099670777387848922\nMbD: Convergence = 0.00095989064645737431\nMbD: Convergence = 7.7752296515174328e-09\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 10728.175108332667\nMbD: Convergence = 3.5012734137043463e-12\nTime = 0.36\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.10753635345618448\nMbD: Convergence = 0.0011172563445052566\nMbD: Convergence = 8.7818454236018824e-09\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 10127.964978046144\nMbD: Convergence = 3.9169724115609337e-12\nTime = 0.37\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.11497858680648528\nMbD: Convergence = 0.0012771642560046727\nMbD: Convergence = 9.8218272543903907e-09\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 9483.7401153679457\nMbD: Convergence = 9.4722501618270048e-12\nTime = 0.38\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.1219679567455545\nMbD: Convergence = 0.0014370890003964926\nMbD: Convergence = 1.0880627160319079e-08\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 8800.004092626772\nMbD: Convergence = 9.0542301380318173e-12\nTime = 0.39\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.12847674618697777\nMbD: Convergence = 0.0015945056518482392\nMbD: Convergence = 1.1942013459641785e-08\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 8082.7196180762803\nMbD: Convergence = 5.4467986582083707e-12\nTime = 0.4\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.13447914473180028\nMbD: Convergence = 0.0017469291955426586\nMbD: Convergence = 1.2988440750468921e-08\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 7339.7520757541452\nMbD: Convergence = 5.0180659626362953e-12\nTime = 0.41\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.1399513475805067\nMbD: Convergence = 0.001891953522052742\nMbD: Convergence = 1.4001492459328076e-08\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 6581.5720753166579\nMbD: Convergence = 3.5322286993557715e-12\nTime = 0.42\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.14487164858500523\nMbD: Convergence = 0.002027289282140392\nMbD: Convergence = 1.4962380534247424e-08\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 5822.4348480999424\nMbD: Convergence = 6.9703481724635002e-12\nTime = 0.43\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.14922052628811794\nMbD: Convergence = 0.0021507999683688483\nMbD: Convergence = 1.5852486202283811e-08\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 5082.4152818240491\nMbD: Convergence = 1.4250511529774264e-12\nTime = 0.44\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.15298072210404412\nMbD: Convergence = 0.0022605356310277528\nMbD: Convergence = 1.665392022162434e-08\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 4390.8373795496227\nMbD: Convergence = 4.1207066649709523e-12\nTime = 0.45\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.15613730998276229\nMbD: Convergence = 0.0023547636799204877\nMbD: Convergence = 1.7350081604563912e-08\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 3791.2719956343594\nMbD: Convergence = 2.6311593352702828e-12\nTime = 0.46\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.15867775703072659\nMbD: Convergence = 0.0024319962735371149\nMbD: Convergence = 1.7926191236034448e-08\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 3345.2658930783723\nMbD: Convergence = 5.2796656755312133e-12\nTime = 0.47\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.16059197465834837\nMbD: Convergence = 0.0024910138533511495\nMbD: Convergence = 1.8369777804712147e-08\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 3123.0370884366916\nMbD: Convergence = 1.4448378641882186e-12\nTime = 0.48\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.16187235990674606\nMbD: Convergence = 0.002530884443516642\nMbD: Convergence = 1.8671095874004808e-08\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 3166.8429321905787\nMbD: Convergence = 5.1788904838118446e-12\nTime = 0.49\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.16251382668013045\nMbD: Convergence = 0.0025509784048096708\nMbD: Convergence = 1.882345644537474e-08\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 3454.2166316355479\nMbD: Convergence = 4.6448249046309896e-12\nTime = 0.5\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.16251382668013167\nMbD: Convergence = 0.0025509784048118539\nMbD: Convergence = 1.8823456456592808e-08\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 3915.0104071249939\nMbD: Convergence = 3.0710257316724823e-12\nTime = 0.51\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.16187235990674681\nMbD: Convergence = 0.0025308844435145117\nMbD: Convergence = 1.8671095879743807e-08\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 4476.6917892718457\nMbD: Convergence = 4.6251243026720107e-12\nTime = 0.52\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.16059197465834893\nMbD: Convergence = 0.0024910138533478024\nMbD: Convergence = 1.8369777815729488e-08\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 5085.7892129689117\nMbD: Convergence = 4.8149289909749872e-12\nTime = 0.53\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.15867775703072859\nMbD: Convergence = 0.0024319962735363304\nMbD: Convergence = 1.7926191214160041e-08\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 5707.2986053360801\nMbD: Convergence = 8.1009180771575608e-12\nTime = 0.54\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.15613730998276326\nMbD: Convergence = 0.0023547636799201013\nMbD: Convergence = 1.7350081614206836e-08\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 6318.8518293660163\nMbD: Convergence = 5.7688748831757964e-12\nTime = 0.55\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.1529807221040442\nMbD: Convergence = 0.0022605356310280151\nMbD: Convergence = 1.6653920233529616e-08\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 6906.0799403077317\nMbD: Convergence = 2.2505629496648583e-12\nTime = 0.56\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.14922052628811877\nMbD: Convergence = 0.0021507999683680781\nMbD: Convergence = 1.5852486206829565e-08\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 7459.7582506647677\nMbD: Convergence = 3.3707197303174161e-12\nTime = 0.57\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.14487164858500601\nMbD: Convergence = 0.0020272892821374317\nMbD: Convergence = 1.4962380552330872e-08\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 7974.1388481491977\nMbD: Convergence = 9.2470406547218859e-13\nTime = 0.58\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.13995134758050415\nMbD: Convergence = 0.0018919535220527832\nMbD: Convergence = 1.4001492472700329e-08\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 8445.9550822734691\nMbD: Convergence = 6.3631639859896288e-12\nTime = 0.59\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.13447914473180048\nMbD: Convergence = 0.0017469291955427197\nMbD: Convergence = 1.2988440749774437e-08\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 8873.7890882356442\nMbD: Convergence = 2.1899344004880073e-12\nTime = 0.6\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.12847674618697635\nMbD: Convergence = 0.0015945056518487277\nMbD: Convergence = 1.194201341121488e-08\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 9257.6339799636571\nMbD: Convergence = 2.1654858846581418e-12\nTime = 0.61\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.12196795674555241\nMbD: Convergence = 0.001437089000396062\nMbD: Convergence = 1.0880627173205241e-08\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 9598.5619307406596\nMbD: Convergence = 4.363461557800792e-12\nTime = 0.62\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.11497858680648317\nMbD: Convergence = 0.0012771642560088245\nMbD: Convergence = 9.8218272310809092e-09\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 9898.4525156173058\nMbD: Convergence = 4.0476589022244388e-12\nTime = 0.63\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.10753635345618413\nMbD: Convergence = 0.0011172563445079413\nMbD: Convergence = 8.7818454633545994e-09\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 10159.758995276268\nMbD: Convergence = 6.6964927621185803e-12\nTime = 0.64\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.099670777387851503\nMbD: Convergence = 0.00095989064645663337\nMbD: Convergence = 7.7752296333024905e-09\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 10385.302785087857\nMbD: Convergence = 5.7630868374960693e-12\nTime = 0.65\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.091413078364924363\nMbD: Convergence = 0.00080755381826936516\nMbD: Convergence = 6.8145555538135954e-09\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 10578.092930980269\nMbD: Convergence = 4.3792744872471488e-12\nTime = 0.66\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.082796074019245006\nMbD: Convergence = 0.00066265574474521835\nMbD: Convergence = 5.910226275256097e-09\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 10741.170497395224\nMbD: Convergence = 4.1988879612062812e-12\nTime = 0.67\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.073854091319546913\nMbD: Convergence = 0.000527493737812687\nMbD: Convergence = 5.0703607780366186e-09\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 10877.478726714378\nMbD: Convergence = 4.6090365152066036e-12\nTime = 0.68\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.064622910850092918\nMbD: Convergence = 0.00040422076786561246\nMbD: Convergence = 4.3007695194270068e-09\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 10989.759473132126\nMbD: Convergence = 3.4434089325731398e-12\nTime = 0.69\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.055139792444273923\nMbD: Convergence = 0.00029482143759232199\nMbD: Convergence = 3.6050104452574963e-09\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 11080.475308326017\nMbD: Convergence = 1.3778647980885056e-11\nTime = 0.7\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.045443715633817258\nMbD: Convergence = 0.0002011056239141071\nMbD: Convergence = 2.9845165819701126e-09\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 11151.755277818214\nMbD: Convergence = 4.3145275090388178e-12\nTime = 0.71\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.035576269994017813\nMbD: Convergence = 0.00012475298663165265\nMbD: Convergence = 2.438784426715673e-09\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 11205.360916032916\nMbD: Convergence = 6.7948524049598941e-12\nTime = 0.72\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.025585004354446383\nMbD: Convergence = 6.754203640222421e-05\nMbD: Convergence = 1.9656105593678365e-09\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 11242.668094194278\nMbD: Convergence = 5.2140870845647213e-12\nTime = 0.73\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.015540443550677284\nMbD: Convergence = 3.2215152030251665e-05\nMbD: Convergence = 1.561363920211843e-09\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 11264.659783230529\nMbD: Convergence = 5.2361695546545106e-12\nTime = 0.74\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0057360407735596412\nMbD: Convergence = 2.0459592541990807e-05\nMbD: Convergence = 1.2212808624177423e-09\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 11271.924968661819\nMbD: Convergence = 4.1728083372484964e-12\nTime = 0.75\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.0056618214266508588\nMbD: Convergence = 1.7981696501551803e-05\nMbD: Convergence = 9.3977096535068199e-10\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 11264.659754399892\nMbD: Convergence = 2.8655503015726616e-12\nTime = 0.76\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.015458683387410597\nMbD: Convergence = 2.738560391684548e-05\nMbD: Convergence = 7.1072139886735506e-10\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 11242.668035793458\nMbD: Convergence = 3.230286575013037e-12\nTime = 0.77\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.025502536842209128\nMbD: Convergence = 6.3838339732665605e-05\nMbD: Convergence = 5.2779122710259414e-10\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 11205.360826596743\nMbD: Convergence = 9.289954660729467e-12\nTime = 0.78\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.035493604366077264\nMbD: Convergence = 0.00012193448546133055\nMbD: Convergence = 3.8469718641093008e-10\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 11151.755155182069\nMbD: Convergence = 3.4104667035512566e-12\nTime = 0.79\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.045360968076202053\nMbD: Convergence = 0.00019881199370930727\nMbD: Convergence = 2.7553709654621382e-10\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 11080.475149661439\nMbD: Convergence = 5.8769549138054052e-12\nTime = 0.8\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.055057003337444253\nMbD: Convergence = 0.0002928556871037146\nMbD: Convergence = 1.9532721346390424e-10\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 10989.759274986927\nMbD: Convergence = 1.2006580095071368e-11\nTime = 0.81\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.064540097835517382\nMbD: Convergence = 0.00040247148536824137\nMbD: Convergence = 1.411991105237871e-10\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 10877.478485051892\nMbD: Convergence = 6.0283553319816109e-12\nTime = 0.82\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.073771263313117827\nMbD: Convergence = 0.00052589312283829188\nMbD: Convergence = 1.142549439415638e-10\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 10741.170207625775\nMbD: Convergence = 5.4221283746591126e-12\nTime = 0.83\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.082713236008642096\nMbD: Convergence = 0.00066115994119309604\nMbD: Convergence = 1.1727319009066835e-10\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 10578.092587976907\nMbD: Convergence = 7.4381339898187567e-12\nTime = 0.84\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.091330233358136281\nMbD: Convergence = 0.00080613310537034548\nMbD: Convergence = 1.4619924261983211e-10\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 10385.302383178027\nMbD: Convergence = 1.0808051264403667e-11\nTime = 0.85\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.099587927307487306\nMbD: Convergence = 0.00095852416898679687\nMbD: Convergence = 1.9349242163514202e-10\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 10159.758528199696\nMbD: Convergence = 5.0080214986563291e-12\nTime = 0.86\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.10745349958961181\nMbD: Convergence = 0.0011159290903062415\nMbD: Convergence = 2.5492902512458159e-10\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 9898.4519764385186\nMbD: Convergence = 1.0557338552272448e-11\nTime = 0.87\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.11489573004936274\nMbD: Convergence = 0.0012758652242264184\nMbD: Convergence = 3.2860930346226521e-10\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 9598.5613117033299\nMbD: Convergence = 3.902457292860861e-12\nTime = 0.88\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.12188509774154389\nMbD: Convergence = 0.0014358100384525886\nMbD: Convergence = 4.1309613246635245e-10\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 9257.6332722686675\nMbD: Convergence = 6.6207200891925761e-12\nTime = 0.89\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.12839388541181568\nMbD: Convergence = 0.0015932406868443328\nMbD: Convergence = 5.0665740395206319e-10\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 8873.7882817200134\nMbD: Convergence = 8.7406811923660771e-12\nTime = 0.9\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.13439628254604227\nMbD: Convergence = 0.0017456737082969464\nMbD: Convergence = 6.070583521131871e-10\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 8445.9541649577423\nMbD: Convergence = 6.7089146239029588e-12\nTime = 0.91\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.13986848426374868\nMbD: Convergence = 0.0018907041756685602\nMbD: Convergence = 7.1155856253958062e-10\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 7974.1378056091053\nMbD: Convergence = 3.0575772731492589e-12\nTime = 0.92\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.14478878435884446\nMbD: Convergence = 0.0020260436520052193\nMbD: Convergence = 8.1699664174474394e-10\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 7459.7570651690276\nMbD: Convergence = 4.8961197479007584e-12\nTime = 0.93\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.14913766133194573\nMbD: Convergence = 0.002149556340401274\nMbD: Convergence = 9.1992262855034229e-10\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 6906.0785896558491\nMbD: Convergence = 7.7853642966274012e-12\nTime = 0.94\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.15289785656622459\nMbD: Convergence = 0.0022592928467850214\nMbD: Convergence = 1.0167552028168581e-09\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 6318.850285387417\nMbD: Convergence = 7.5943111535430283e-12\nTime = 0.95\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.15605444398877533\nMbD: Convergence = 0.0023535210144275164\nMbD: Convergence = 1.1039652802971406e-09\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 5707.296832166714\nMbD: Convergence = 4.1409165270216218e-12\nTime = 0.96\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.15859489068921614\nMbD: Convergence = 0.0024307533361431319\nMbD: Convergence = 1.1782548876646053e-09\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 5085.7871657931792\nMbD: Convergence = 4.8857705950544665e-12\nTime = 0.97\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.16050910806581001\nMbD: Convergence = 0.0024897705048517148\nMbD: Convergence = 1.2367342140099878e-09\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 4476.6894160045613\nMbD: Convergence = 3.7174540999525187e-12\nTime = 0.98\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.16178949315124685\nMbD: Convergence = 0.0025296407246225383\nMbD: Convergence = 1.2770820972050762e-09\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 3915.0076602575045\nMbD: Convergence = 1.9912649702055628e-12\nTime = 0.99\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.16243095984443526\nMbD: Convergence = 0.00254973447227706\nMbD: Convergence = 1.2976739225496929e-09\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 3454.2135057329269\nMbD: Convergence = 5.3958279082948679e-12\nTime = 1\nMbD: Solving for kinematic position.\nMbD: Convergence = 0.16243095984443329\nMbD: Convergence = 0.0025497344722752776\nMbD: Convergence = 1.2976740284679758e-09\nMbD: Solving for kinematic velocity.\nMbD: Solving for kinematic acceleration.\nMbD: Convergence = 3166.8395363743271\nMbD: Convergence = 3.1371479581485338e-12\n"
+    }
+   ],
+   "simulations": {
+    "Simulation": {
+     "status": 0,
+     "frames": 102,
+     "sampled": {
+      "0": {
+       "Plate": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+       ],
+       "Arm": [
+        40.0,
+        30.0,
+        -4.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+       ],
+       "Pin": [
+        70.0,
+        36.0,
+        -24.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+       ]
+      },
+      "51": {
+       "Plate": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+       ],
+       "Arm": [
+        40.0,
+        30.0,
+        -4.0,
+        0.0,
+        0.0,
+        -3.0607832093283743e-16,
+        1.0
+       ],
+       "Pin": [
+        70.0,
+        35.99999999999998,
+        -24.0,
+        0.0,
+        0.0,
+        -0.6816387600233341,
+        0.7316888688738209
+       ]
+      },
+      "101": {
+       "Plate": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+       ],
+       "Arm": [
+        40.0,
+        30.0,
+        -4.0,
+        0.0,
+        0.0,
+        1.0526182644776736e-15,
+        1.0
+       ],
+       "Pin": [
+        69.99999999999999,
+        36.000000000000064,
+        -24.0,
+        0.0,
+        0.0,
+        0.9974949866040544,
+        -0.07073720166770313
+       ]
+      }
+     },
+     "motions": [
+      "Motion",
+      "Motion001"
+     ]
+    }
+   },
+   "solve": 0,
+   "solve_printed": "MbD: Assembling system. \nMbD: Convergence = 0\nTime = 0\n",
+   "after_solve": {
+    "placements": {
+     "Plate": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      1.0
+     ],
+     "Arm": [
+      40.0,
+      30.0,
+      -4.0,
+      0.0,
+      0.0,
+      0.0,
+      1.0
+     ],
+     "Pin": [
+      70.0,
+      36.0,
+      -24.0,
+      0.0,
+      0.0,
+      0.0,
+      1.0
+     ]
+    },
+    "joints": {
+     "Joint": {
+      "label": "Revolute",
+      "type": "Revolute",
+      "reference1": [
+       "Plate",
+       [
+        "Face6",
+        "Vertex8"
+       ]
+      ],
+      "reference2": [
+       "Arm",
+       [
+        "Face5",
+        "Vertex1"
+       ]
+      ],
+      "placement1": [
+       40.0,
+       30.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ],
+      "placement2": [
+       0.0,
+       0.0,
+       4.0,
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ],
+      "offset1": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ],
+      "offset2": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ],
+      "distance": 0.0,
+      "distance2": 0.0,
+      "angle": 0.0,
+      "enable_length_min": false,
+      "enable_length_max": false,
+      "enable_angle_min": false,
+      "enable_angle_max": false,
+      "length_min": 0.0,
+      "length_max": 0.0,
+      "angle_min": 0.0,
+      "angle_max": 0.0,
+      "suppressed": false
+     },
+     "Joint001": {
+      "label": "Revolute001",
+      "type": "Revolute",
+      "reference1": [
+       "Arm",
+       [
+        "Face6",
+        "Vertex8"
+       ]
+      ],
+      "reference2": [
+       "Pin",
+       [
+        "Face3",
+        "Edge1"
+       ]
+      ],
+      "placement1": [
+       30.0,
+       6.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ],
+      "placement2": [
+       0.0,
+       0.0,
+       20.0,
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ],
+      "offset1": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ],
+      "offset2": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ],
+      "distance": 0.0,
+      "distance2": 0.0,
+      "angle": 0.0,
+      "enable_length_min": false,
+      "enable_length_max": false,
+      "enable_angle_min": false,
+      "enable_angle_max": false,
+      "length_min": 0.0,
+      "length_max": 0.0,
+      "angle_min": 0.0,
+      "angle_max": 0.0,
+      "suppressed": false
+     }
+    }
+   },
+   "asmt": "OndselSolver\nAssembly\n\tNotes\n\t\t(Text string: '' runs: (Core.RunArray runs: #() values: #()))\n\tName\n\t\tOndselAssembly\n\tPosition3D\n\t\t0\t0\t0\t\n\tRotationMatrix\n\t\t1\t0\t0\t\n\t\t0\t1\t0\t\n\t\t0\t0\t1\t\n\tVelocity3D\n\t\t0\t0\t0\t\n\tOmega3D\n\t\t0\t0\t0\t\n\tRefPoints\n\t\tRefPoint\n\t\t\tPosition3D\n\t\t\t\t0\t0\t0\t\n\t\t\tRotationMatrix\n\t\t\t\t1\t0\t0\t\n\t\t\t\t0\t1\t0\t\n\t\t\t\t0\t0\t1\t\n\t\t\tMarkers\n\t\t\t\tMarker\n\t\t\t\t\tName\n\t\t\t\t\t\tmarker-Unnamed#Origin\n\t\t\t\t\tPosition3D\n\t\t\t\t\t\t0\t0\t0\t\n\t\t\t\t\tRotationMatrix\n\t\t\t\t\t\t1\t0\t0\t\n\t\t\t\t\t\t0\t1\t0\t\n\t\t\t\t\t\t0\t0\t1\t\n\t\tRefPoint\n\t\t\tPosition3D\n\t\t\t\t0\t0\t0\t\n\t\t\tRotationMatrix\n\t\t\t\t1\t0\t0\t\n\t\t\t\t0\t1\t0\t\n\t\t\t\t0\t0\t1\t\n\t\t\tMarkers\n\t\t\t\tMarker\n\t\t\t\t\tName\n\t\t\t\t\t\tmarker-Unnamed#Plate\n\t\t\t\t\tPosition3D\n\t\t\t\t\t\t0\t0\t0\t\n\t\t\t\t\tRotationMatrix\n\t\t\t\t\t\t1\t0\t0\t\n\t\t\t\t\t\t0\t1\t0\t\n\t\t\t\t\t\t0\t0\t1\t\n\tRefCurves\n\tRefSurfaces\n\tParts\n\t\tPart\n\t\t\tName\n\t\t\t\tUnnamed#Origin\n\t\t\tPosition3D\n\t\t\t\t0\t0\t0\t\n\t\t\tRotationMatrix\n\t\t\t\t1\t0\t0\t\n\t\t\t\t0\t1\t0\t\n\t\t\t\t0\t0\t1\t\n\t\t\tVelocity3D\n\t\t\t\t0\t0\t0\t\n\t\t\tOmega3D\n\t\t\t\t0\t0\t0\t\n\t\t\tFeatureOrder\n\t\t\tPrincipalMassMarker\n\t\t\t\tName\n\t\t\t\t\tMassMarker\n\t\t\t\tPosition3D\n\t\t\t\t\t0\t0\t0\t\n\t\t\t\tRotationMatrix\n\t\t\t\t\t1\t0\t0\t\n\t\t\t\t\t0\t1\t0\t\n\t\t\t\t\t0\t0\t1\t\n\t\t\t\tMass\n\t\t\t\t\t1\n\t\t\t\tMomentOfInertias\n\t\t\t\t\t1\t1\t1\t\n\t\t\t\tDensity\n\t\t\t\t\t1\n\t\t\tRefPoints\n\t\t\t\tRefPoint\n\t\t\t\t\tPosition3D\n\t\t\t\t\t\t0\t0\t0\t\n\t\t\t\t\tRotationMatrix\n\t\t\t\t\t\t1\t0\t0\t\n\t\t\t\t\t\t0\t1\t0\t\n\t\t\t\t\t\t0\t0\t1\t\n\t\t\t\t\tMarkers\n\t\t\t\t\t\tMarker\n\t\t\t\t\t\t\tName\n\t\t\t\t\t\t\t\tFixingMarker\n\t\t\t\t\t\t\tPosition3D\n\t\t\t\t\t\t\t\t0\t0\t0\t\n\t\t\t\t\t\t\tRotationMatrix\n\t\t\t\t\t\t\t\t1\t0\t0\t\n\t\t\t\t\t\t\t\t0\t1\t0\t\n\t\t\t\t\t\t\t\t0\t0\t1\t\n\t\t\tRefCurves\n\t\t\tRefSurfaces\n\t\tPart\n\t\t\tName\n\t\t\t\tUnnamed#Plate\n\t\t\tPosition3D\n\t\t\t\t0\t0\t0\t\n\t\t\tRotationMatrix\n\t\t\t\t1\t0\t0\t\n\t\t\t\t0\t1\t0\t\n\t\t\t\t0\t0\t1\t\n\t\t\tVelocity3D\n\t\t\t\t0\t0\t0\t\n\t\t\tOmega3D\n\t\t\t\t0\t0\t0\t\n\t\t\tFeatureOrder\n\t\t\tPrincipalMassMarker\n\t\t\t\tName\n\t\t\t\t\tMassMarker\n\t\t\t\tPosition3D\n\t\t\t\t\t0\t0\t0\t\n\t\t\t\tRotationMatrix\n\t\t\t\t\t1\t0\t0\t\n\t\t\t\t\t0\t1\t0\t\n\t\t\t\t\t0\t0\t1\t\n\t\t\t\tMass\n\t\t\t\t\t1\n\t\t\t\tMomentOfInertias\n\t\t\t\t\t1\t1\t1\t\n\t\t\t\tDensity\n\t\t\t\t\t1\n\t\t\tRefPoints\n\t\t\t\tRefPoint\n\t\t\t\t\tPosition3D\n\t\t\t\t\t\t0\t0\t0\t\n\t\t\t\t\tRotationMatrix\n\t\t\t\t\t\t1\t0\t0\t\n\t\t\t\t\t\t0\t1\t0\t\n\t\t\t\t\t\t0\t0\t1\t\n\t\t\t\t\tMarkers\n\t\t\t\t\t\tMarker\n\t\t\t\t\t\t\tName\n\t\t\t\t\t\t\t\tFixingMarker\n\t\t\t\t\t\t\tPosition3D\n\t\t\t\t\t\t\t\t0\t0\t0\t\n\t\t\t\t\t\t\tRotationMatrix\n\t\t\t\t\t\t\t\t1\t0\t0\t\n\t\t\t\t\t\t\t\t0\t1\t0\t\n\t\t\t\t\t\t\t\t0\t0\t1\t\n\t\t\t\tRefPoint\n\t\t\t\t\tPosition3D\n\t\t\t\t\t\t0\t0\t0\t\n\t\t\t\t\tRotationMatrix\n\t\t\t\t\t\t1\t0\t0\t\n\t\t\t\t\t\t0\t1\t0\t\n\t\t\t\t\t\t0\t0\t1\t\n\t\t\t\t\tMarkers\n\t\t\t\t\t\tMarker\n\t\t\t\t\t\t\tName\n\t\t\t\t\t\t\t\tUnnamed#Joint\n\t\t\t\t\t\t\tPosition3D\n\t\t\t\t\t\t\t\t40\t30\t0\t\n\t\t\t\t\t\t\tRotationMatrix\n\t\t\t\t\t\t\t\t1\t0\t0\t\n\t\t\t\t\t\t\t\t0\t1\t0\t\n\t\t\t\t\t\t\t\t0\t0\t1\t\n\t\t\tRefCurves\n\t\t\tRefSurfaces\n\t\tPart\n\t\t\tName\n\t\t\t\tUnnamed#Arm\n\t\t\tPosition3D\n\t\t\t\t40\t30\t-4\t\n\t\t\tRotationMatrix\n\t\t\t\t1\t0\t0\t\n\t\t\t\t0\t1\t0\t\n\t\t\t\t0\t0\t1\t\n\t\t\tVelocity3D\n\t\t\t\t0\t0\t0\t\n\t\t\tOmega3D\n\t\t\t\t0\t0\t0\t\n\t\t\tFeatureOrder\n\t\t\tPrincipalMassMarker\n\t\t\t\tName\n\t\t\t\t\tMassMarker\n\t\t\t\tPosition3D\n\t\t\t\t\t0\t0\t0\t\n\t\t\t\tRotationMatrix\n\t\t\t\t\t1\t0\t0\t\n\t\t\t\t\t0\t1\t0\t\n\t\t\t\t\t0\t0\t1\t\n\t\t\t\tMass\n\t\t\t\t\t1\n\t\t\t\tMomentOfInertias\n\t\t\t\t\t1\t1\t1\t\n\t\t\t\tDensity\n\t\t\t\t\t1\n\t\t\tRefPoints\n\t\t\t\tRefPoint\n\t\t\t\t\tPosition3D\n\t\t\t\t\t\t0\t0\t0\t\n\t\t\t\t\tRotationMatrix\n\t\t\t\t\t\t1\t0\t0\t\n\t\t\t\t\t\t0\t1\t0\t\n\t\t\t\t\t\t0\t0\t1\t\n\t\t\t\t\tMarkers\n\t\t\t\t\t\tMarker\n\t\t\t\t\t\t\tName\n\t\t\t\t\t\t\t\tUnnamed#Joint\n\t\t\t\t\t\t\tPosition3D\n\t\t\t\t\t\t\t\t0\t0\t4\t\n\t\t\t\t\t\t\tRotationMatrix\n\t\t\t\t\t\t\t\t1\t0\t0\t\n\t\t\t\t\t\t\t\t0\t1\t0\t\n\t\t\t\t\t\t\t\t0\t0\t1\t\n\t\t\t\tRefPoint\n\t\t\t\t\tPosition3D\n\t\t\t\t\t\t0\t0\t0\t\n\t\t\t\t\tRotationMatrix\n\t\t\t\t\t\t1\t0\t0\t\n\t\t\t\t\t\t0\t1\t0\t\n\t\t\t\t\t\t0\t0\t1\t\n\t\t\t\t\tMarkers\n\t\t\t\t\t\tMarker\n\t\t\t\t\t\t\tName\n\t\t\t\t\t\t\t\tUnnamed#Joint001\n\t\t\t\t\t\t\tPosition3D\n\t\t\t\t\t\t\t\t30\t6\t0\t\n\t\t\t\t\t\t\tRotationMatrix\n\t\t\t\t\t\t\t\t1\t0\t0\t\n\t\t\t\t\t\t\t\t0\t1\t0\t\n\t\t\t\t\t\t\t\t0\t0\t1\t\n\t\t\tRefCurves\n\t\t\tRefSurfaces\n\t\tPart\n\t\t\tName\n\t\t\t\tUnnamed#Pin\n\t\t\tPosition3D\n\t\t\t\t70\t36\t-24\t\n\t\t\tRotationMatrix\n\t\t\t\t1\t0\t0\t\n\t\t\t\t0\t1\t0\t\n\t\t\t\t0\t0\t1\t\n\t\t\tVelocity3D\n\t\t\t\t0\t0\t0\t\n\t\t\tOmega3D\n\t\t\t\t0\t0\t0\t\n\t\t\tFeatureOrder\n\t\t\tPrincipalMassMarker\n\t\t\t\tName\n\t\t\t\t\tMassMarker\n\t\t\t\tPosition3D\n\t\t\t\t\t0\t0\t0\t\n\t\t\t\tRotationMatrix\n\t\t\t\t\t1\t0\t0\t\n\t\t\t\t\t0\t1\t0\t\n\t\t\t\t\t0\t0\t1\t\n\t\t\t\tMass\n\t\t\t\t\t1\n\t\t\t\tMomentOfInertias\n\t\t\t\t\t1\t1\t1\t\n\t\t\t\tDensity\n\t\t\t\t\t1\n\t\t\tRefPoints\n\t\t\t\tRefPoint\n\t\t\t\t\tPosition3D\n\t\t\t\t\t\t0\t0\t0\t\n\t\t\t\t\tRotationMatrix\n\t\t\t\t\t\t1\t0\t0\t\n\t\t\t\t\t\t0\t1\t0\t\n\t\t\t\t\t\t0\t0\t1\t\n\t\t\t\t\tMarkers\n\t\t\t\t\t\tMarker\n\t\t\t\t\t\t\tName\n\t\t\t\t\t\t\t\tUnnamed#Joint001\n\t\t\t\t\t\t\tPosition3D\n\t\t\t\t\t\t\t\t0\t0\t20\t\n\t\t\t\t\t\t\tRotationMatrix\n\t\t\t\t\t\t\t\t1\t0\t0\t\n\t\t\t\t\t\t\t\t0\t1\t0\t\n\t\t\t\t\t\t\t\t0\t0\t1\t\n\t\t\tRefCurves\n\t\t\tRefSurfaces\n\tKinematicIJs\n\tConstraintSets\n\t\tJoints\n\t\t\tdJointE\n\t\t\t\tName\n\t\t\t\t\tUnnamed#Origin\n\t\t\t\tMarkerI\n\t\t\t\t\t/OndselAssembly/marker-Unnamed#Origin\n\t\t\t\tMarkerJ\n\t\t\t\t\t/OndselAssembly/Unnamed#Origin/FixingMarker\n\t\t\tdJointE\n\t\t\t\tName\n\t\t\t\t\tUnnamed#Plate\n\t\t\t\tMarkerI\n\t\t\t\t\t/OndselAssembly/marker-Unnamed#Plate\n\t\t\t\tMarkerJ\n\t\t\t\t\t/OndselAssembly/Unnamed#Plate/FixingMarker\n\t\t\tluteJointE\n\t\t\t\tName\n\t\t\t\t\tUnnamed#Joint\n\t\t\t\tMarkerI\n\t\t\t\t\t/OndselAssembly/Unnamed#Plate/Unnamed#Joint\n\t\t\t\tMarkerJ\n\t\t\t\t\t/OndselAssembly/Unnamed#Arm/Unnamed#Joint\n\t\t\tluteJointE\n\t\t\t\tName\n\t\t\t\t\tUnnamed#Joint001\n\t\t\t\tMarkerI\n\t\t\t\t\t/OndselAssembly/Unnamed#Arm/Unnamed#Joint001\n\t\t\t\tMarkerJ\n\t\t\t\t\t/OndselAssembly/Unnamed#Pin/Unnamed#Joint001\n\t\tMotions\n\t\tLimits\n\t\tGeneralConstraintSets\n\tForceTorques\n\tConstantGravity\n\t\t0\t0\t0\t\n\tSimulationParameters\n\t\ttstart\n\t\t\t0\n\t\ttend\n\t\t\t1\n\t\thmin\n\t\t\t1.0000000000000001e-09\n\t\thmax\n\t\t\t1000000000\n\t\thout\n\t\t\t0.10000000000000001\n\t\terrorTol\n\t\t\t9.9999999999999995e-07\n\tAnimationParameters\n\t\tnframe\n\t\t\t1000000\n\t\ticurrent\n\t\t\t1\n\t\tistart\n\t\t\t1\n\t\tiend\n\t\t\t1000000\n\t\tisForward\n\t\t\ttrue\n\t\tframesPerSecond\n\t\t\t30\n",
+   "subs": {}
   }
  }
 }

@@ -83,7 +83,7 @@ build_wasm() {
         -sMODULARIZE=1 -sEXPORT_ES6=1 -sEXPORT_NAME=createOndsel \
         -sENVIRONMENT=web,worker,node \
         -sALLOW_MEMORY_GROWTH=1 -sSTACK_SIZE=4194304 \
-        -sEXPORTED_FUNCTIONS=_ondsel_version,_ondsel_solve,_ondsel_export,_ondsel_query,_ondsel_new,_ondsel_last_error,_ondsel_free,_ondsel_handle_solve,_ondsel_pre_drag,_ondsel_drag_step,_ondsel_rigid_step,_ondsel_post_drag,_malloc,_free \
+        -sEXPORTED_FUNCTIONS=_ondsel_version,_ondsel_solve,_ondsel_export,_ondsel_query,_ondsel_new,_ondsel_last_error,_ondsel_free,_ondsel_handle_solve,_ondsel_pre_drag,_ondsel_drag_step,_ondsel_rigid_step,_ondsel_simulate,_ondsel_post_drag,_malloc,_free \
         -sEXPORTED_RUNTIME_METHODS=ccall,cwrap,UTF8ToString
     ls -l "$out"/ondsel.mjs "$out"/ondsel.wasm
 }

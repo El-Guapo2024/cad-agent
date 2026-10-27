@@ -153,6 +153,18 @@ def parts():
   ("Insert Component", "Create Revolute Joint", "Toggle grounded", "Move part").
 - Checked like the Body: tests/golden/assembly (freecadcmd builds each case through the GUI's command sequence;
   every step's placements, references, JCS and the exportAsASMT file), the native and the wasm build both.
+- The later commands (2026-10-27, branch assembly-2) are more entries of the same list, FreeCAD's objects again:
+  `Assembly.RigidGroupJoint("RigidGroupJoint", ["bar", "pin"], rigid_placements=...)` (Create Rigid Group; the
+  members' placements relative to the first, kept for a suppressed group's Update Stored Positions);
+  `Assembly.AssemblyLink("Assembly", "other_project", rigid=True, components=[...], joints=[...])` (a sub-assembly:
+  another project's assembly.py ASSEMBLY, its components named uniquely here, a flexible one's joints copied in as
+  synchronizeJoints does; a reference into a rigid one is `("Assembly", ["Plate.Face6", ...])`); the Assembly's
+  Origin as a reference (`("Origin", ["XY_Plane.", "XY_Plane."])`); `Assembly.ViewGroup`, `ExplodedView` and its
+  `ExplodedViewStep` moves (Exploded View); `Assembly.SimulationGroup`, `Simulation` (aTimeStart ... jFramesPerSecond
+  in snake_case, `group=` its motions) and `Motion` (joint, motion_type, formula). New Part writes parts/<Part>.py (a Body
+  with a sketch) and links it in with a Fixed joint at the element picked. Their code: assembly_link.py,
+  assembly_view.py, assembly_sim.py, assembly_newpart.py, each registering its classes into assembly_wb; the solver
+  side (rigid clusters, generateSimulation) is in ui/ondsel/assembly.cpp.
 
 ## Several Bodies (decided 2026-10-27, branch pd-last)
 

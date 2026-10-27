@@ -256,6 +256,37 @@ def run(name, c, docname="Unnamed"):
                     moves.append(mv)
                 view.Group = moves
                 doc.recompute()
+            elif step["op"] == "simulation":
+                # TaskAssemblyCreateSimulation: the Simulation in the SimulationGroup, each motion made in the Assembly
+                # (createMotionObject) and listed in its Group, the settings, then Generate (runKinematics:
+                # generateSimulation) and the frames (updateForFrame); OK puts the parts back (initialPlcs)
+                import builtins
+                from PySide import QtCore, QtWidgets
+                builtins.QtCore, builtins.QtWidgets = QtCore, QtWidgets
+                import CommandCreateSimulation as CS
+                sim_group = UtilsAssembly.getSimulationGroup(asm)
+                sim = sim_group.newObject("App::FeaturePython", "Simulation")
+                CS.Simulation(sim)
+                for k, v in step.get("settings", {}).items():
+                    setattr(sim, {"a_time_start": "aTimeStart", "b_time_end": "bTimeEnd",
+                                  "c_time_step_output": "cTimeStepOutput",
+                                  "f_global_error_tolerance": "fGlobalErrorTolerance"}[k], v)
+                motions = []
+                for m in step["motions"]:
+                    mo = asm.newObject("App::FeaturePython", "Motion")
+                    CS.Motion(mo, m["motion_type"], doc.getObject(m["joint"]), m["formula"])
+                    motions.append(mo)
+                sim.Group = motions
+                initial = UtilsAssembly.saveAssemblyPartsPlacements(asm)
+                status = asm.generateSimulation(sim)
+                n = asm.numberOfFrames()
+                frames = {}
+                for k in sorted({0, n // 2, n - 1}) if n else []:
+                    asm.updateForFrame(k)
+                    frames[str(k)] = {nm: plc_json(lk.Placement) for nm, lk in links_of(asm).items()}
+                UtilsAssembly.restoreAssemblyPartsPlacements(asm, initial)
+                out.setdefault("simulations", {})[sim.Name] = {"status": status, "frames": n, "sampled": frames,
+                                                              "motions": [mo.Name for mo in motions]}
             elif step["op"] == "set_rigid":
                 # ViewProviderAssemblyLink's Turn rigid / Turn flexible ("Toggle Rigid"), then a recompute
                 doc.getObject(step["link"]).Rigid = step["value"]

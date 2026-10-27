@@ -184,6 +184,21 @@ def tree(objs) -> list:
                             rows.append({"name": m, "label": step.label or m, "type": "ExplodedViewStep", "depth": 3,
                                          "icon": "Assembly_ExplodedView", "parent": v.name,
                                          "move_type": step.move_type})
+    # the SimulationGroup ("Simulations") with its simulations, each with its motions (ViewProviderSimulation.claimChildren)
+    for o in objs:
+        if isinstance(o, W.SimulationGroup):
+            rows.append({"name": o.name, "label": o.label or o.name, "type": "Assembly::SimulationGroup", "depth": 1,
+                         "icon": "Assembly_SimulationGroup"})
+            for sim in objs:
+                if isinstance(sim, W.Simulation):
+                    rows.append({"name": sim.name, "label": sim.label or sim.name, "type": "Simulation", "depth": 2,
+                                 "icon": "Assembly_CreateSimulation", "parent": o.name})
+                    for m in sim.group:
+                        mo = next((x for x in objs if x.name == m), None)
+                        if mo is not None:
+                            rows.append({"name": m, "label": mo.label or m, "type": "Motion", "depth": 3,
+                                         "icon": "button_rotate" if mo.motion_type == "Angular" else "button_right",
+                                         "parent": sim.name, "motion_type": mo.motion_type, "joint": mo.joint})
     for r in rows:                           # each row's parent row, for the tree's expanding and collapsing
         if "parent" not in r:
             r["parent"] = (None if r["depth"] == 0 else "Assembly" if r["depth"] == 1 else
@@ -634,6 +649,15 @@ def run_ops(doc: W.AssemblyDocument, ops, slug: str, part_names=None, hand_parts
                 AV.delete_view(doc, o)
                 done.append(f"deleted {o.name}")
                 continue
+            if isinstance(o, W.Simulation):
+                from . import assembly_sim as AS
+                AS.delete_simulation(doc, o)
+                done.append(f"deleted {o.name}")
+                continue
+            if isinstance(o, W.Motion):
+                for sim in doc.objects:
+                    if isinstance(sim, W.Simulation) and o.name in sim.group:
+                        sim.group = tuple(n for n in sim.group if n != o.name)
             if isinstance(o, W.ExplodedViewStep):
                 for v in doc.objects:
                     if isinstance(v, W.ExplodedView) and o.name in v.group:
@@ -660,6 +684,8 @@ def run_ops(doc: W.AssemblyDocument, ops, slug: str, part_names=None, hand_parts
             for m in doc.objects:                  # and the exploded views' moves
                 if isinstance(m, W.ExplodedViewStep):
                     m.references = tuple(n for n in m.references if n not in names_gone)
+                if isinstance(m, W.Motion) and m.joint in names_gone:      # the Joint link left empty
+                    m.joint = None
             doc.recompute()
             done.append("deleted " + ", ".join(x.name for x in gone))
         elif kind == "rename":
@@ -675,8 +701,10 @@ def run_ops(doc: W.AssemblyDocument, ops, slug: str, part_names=None, hand_parts
                     x.objects_to_rigid_group = tuple(to if n == old else n for n in x.objects_to_rigid_group)
                 if isinstance(x, W.ExplodedViewStep):
                     x.references = tuple(to if n == old else n for n in x.references)
-                if isinstance(x, W.ExplodedView):
+                if isinstance(x, (W.ExplodedView, W.Simulation)):
                     x.group = tuple(to if n == old else n for n in x.group)
+                if isinstance(x, W.Motion) and x.joint == old:
+                    x.joint = to
                 if isinstance(x, W.Joint):
                     for key in ("reference1", "reference2"):
                         r = getattr(x, key)
@@ -699,6 +727,15 @@ def run_ops(doc: W.AssemblyDocument, ops, slug: str, part_names=None, hand_parts
             except W.AssemblyError as e:
                 raise AssemblyEditError(str(e)) from None
             done.append(f"{'edited' if op.get('name') else 'made'} {v.name} ({len(v.group)} moves)")
+        elif kind == "simulation":
+            # TaskAssemblyCreateSimulation's OK: the Simulation (made, or the one double-clicked), its settings and its
+            # motions as the panel left them
+            from . import assembly_sim as AS
+            try:
+                sim = AS.set_simulation(doc, op.get("settings") or {}, list(op.get("motions") or []), name=op.get("name"))
+            except W.AssemblyError as e:
+                raise AssemblyEditError(str(e)) from None
+            done.append(f"{'edited' if op.get('name') else 'made'} {sim.name} ({len(sim.group)} motions)")
         elif kind == "new_part":
             # Assembly_InsertNewPart: an empty App::Link "Link" (the panel's first reference, the whole of it: its
             # origin), the Fixed joint to the element picked when there is one, then createPart: parts/<Part>.py

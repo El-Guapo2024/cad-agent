@@ -14,6 +14,8 @@
 #   newpart                Assembly_InsertNewPart: its panel, a pick, OK
 #   subasm                 a second document's Assembly inserted (Insert Component's panel lists it), rigid then turned
 #                          flexible: the tree, the AssemblyLink's property view, Go to Linked Assembly
+#   sim                    a third document (Plate grounded, Pin on a Revolute): Assembly_CreateSimulation's panel, a
+#                          motion added, Generate, the player at its last frame and at frame 50, OK, the tree
 import json
 import os
 import tempfile
@@ -144,6 +146,8 @@ def widgets_of(root):
                     walk(it.child(k), depth + 1)
             for k in range(w.topLevelItemCount()):
                 walk(w.topLevelItem(k), 0)
+        elif isinstance(w, QtWidgets.QSlider):
+            d["value"], d["max"] = w.value(), w.maximum()
         elif isinstance(w, QtWidgets.QGroupBox):
             d["text"] = w.title()
         elif cls.endswith("TaskHeader"):
@@ -523,6 +527,77 @@ def subasm():
     return out
 
 
+def sim():
+    import JointObject
+    import CommandCreateSimulation as CS
+    sd = App.newDocument("Sim")
+    box = sd.addObject("Part::Box", "Box")
+    cyl = sd.addObject("Part::Cylinder", "Cylinder")
+    cyl.Radius, cyl.Height = 3, 20
+    sd.recompute()
+    box.ViewObject.Visibility = cyl.ViewObject.Visibility = False
+    sa = sd.addObject("Assembly::AssemblyObject", "Assembly")
+    sa.Type = "Assembly"
+    jg = sa.newObject("Assembly::JointGroup", "Joints")
+    l1 = sa.newObject("App::Link", "Plate")
+    l1.LinkedObject = box
+    l2 = sa.newObject("App::Link", "Pin")
+    l2.LinkedObject = cyl
+    l2.Placement = App.Placement(V(30, 5, 2), App.Rotation(10, 20, 30))
+    g = jg.newObject("App::FeaturePython", "GroundedJoint")
+    JointObject.GroundedJoint(g, l1)
+    j = jg.newObject("App::FeaturePython", "Joint")
+    j.Label = "Revolute"
+    JointObject.Joint(j, JointObject.JointTypes.index("Revolute"))
+    j.Proxy.setJointConnectors(j, [[l1, ["Face6", "Face6"]], [l2, ["Face3", "Edge1"]]])
+    sa.recompute(True)
+    sd.recompute()
+    sd.saveAs(os.path.join(TMP, "Sim.FCStd"))
+    App.setActiveDocument(sd.Name)
+    Gui.ActiveDocument = Gui.getDocument(sd.Name)
+    Gui.ActiveDocument.setEdit(sa)
+    pump(1.0)
+    made = []
+    init0 = CS.TaskAssemblyCreateSimulation.__init__
+
+    def init(self, *a, **k):
+        made.append(self)
+        init0(self, *a, **k)
+    CS.TaskAssemblyCreateSimulation.__init__ = init
+    undo = list(sd.UndoNames)
+    out = {"before": {"Pin": plc(l2.Placement)}, "menu": menus()}
+    Gui.runCommand("Assembly_CreateSimulation", 0)
+    pump(1.5)
+    CS.TaskAssemblyCreateSimulation.__init__ = init0
+    panel = made[0]
+    out["panel"] = task_widgets()
+    panel.createMotionObject("Angular", j, "initialValue + 5*time")
+    pump(0.5)
+    out["motion"] = task_widgets()
+    panel.runKinematics()
+    pump(1.0)
+    out["generated"] = task_widgets()
+    out["frames"] = sa.numberOfFrames()
+    out["last"] = {"Pin": plc(l2.Placement)}
+    panel.setFrameValue(50)
+    pump(0.5)
+    out["frame50"] = {"Pin": plc(l2.Placement), "widgets": task_widgets()}
+    click_button("OK")
+    pump(1.0)
+    out["undo"] = [u for u in sd.UndoNames if u not in undo][:1]
+    out["after_ok"] = {"Pin": plc(l2.Placement)}
+    out["tree"] = tree_rows()
+    s0 = next((o for o in sd.Objects if o.Name == "Simulation"), None)
+    if s0 is not None:
+        out["simulation"] = {"name": s0.Name, "label": s0.Label, "group": [m.Name for m in s0.Group],
+                             "motions": [{"name": m.Name, "label": m.Label, "type": m.MotionType, "formula": m.Formula,
+                                          "joint": m.Joint[0].Name if m.Joint else None} for m in s0.Group],
+                             "parent": [o.Name for o in s0.InList],
+                             "settings": [s0.aTimeStart.Value, s0.bTimeEnd.Value, s0.cTimeStepOutput.Value,
+                                          s0.fGlobalErrorTolerance, s0.jFramesPerSecond]}
+    return out
+
+
 def main():
     pump(1.5)
     Gui.activateWorkbench("AssemblyWorkbench")
@@ -537,6 +612,7 @@ def main():
     safe("explode", explode)
     safe("newpart", newpart)
     safe("subasm", subasm)
+    safe("sim", sim)
     safe("undo_names", lambda: list(doc.UndoNames))
     save()
     os._exit(0)
