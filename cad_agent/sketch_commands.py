@@ -1285,7 +1285,7 @@ def validate(path, name: str, what: str, tolerance: float = CONFUSION * 1000, in
             from .feature_attach_ext import swap_reversed
             swapped, n = swap_reversed(sk["external"], cons)
             kept = _carry_values(file_cons, swapped)
-            set_op(_solve(sk, kept, params), kept, "Sketch porting")
+            set_op(geo, kept, "Sketch porting")    # Constraints.setValues, no solve: the next recompute moves it
             note("notification", "Reversed external geometry",
                  f"{n} changes were made to constraints linking to endpoints of reversed arcs.")
         elif not pts:

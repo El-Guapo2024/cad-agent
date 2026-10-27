@@ -2,7 +2,8 @@
 # Runs inside FreeCAD's GUI (fcsketchobj.py starts it under fclaunch, windows kept off the screen): what the real FreeCAD
 # does with the Sketcher's commands on sketch objects, for sketchobjcheck.mjs to hold the page to. On a Body with a
 # 40 x 20 x 5 plate (Sketch on XY, Pad), Sketch001 on the XZ plane (offset 3) and Sketch002 on the Pad's top face with
-# external geometry, each case selects in the tree, runs the command and answers its dialogs as a person does:
+# external geometry, Sketch003 flipped onto XY with an arc and Sketch004 above it with that arc as external geometry (a
+# reversed arc), each case selects in the tree, runs the command and answers its dialogs as a person does:
 #   enabled      each command's enabled state with nothing, one sketch, two sketches, a face selected
 #   mirror_*     Sketcher_MirrorSketch: SketchMirrorDialog's widgets, the sketch(es) made (name, group, placement,
 #                attachment, geometry, constraints), the transaction; Cancel makes nothing
@@ -283,10 +284,28 @@ s2.addGeometry(Part.LineSegment(V(5, 5, 0), V(15, 8, 0)), False)
 s2.addGeometry(Part.LineSegment(V(50, 50, 0), V(50 + 1e-9, 50, 0)), False)
 s2.addConstraint(Sketcher.Constraint("PointOnObject", 0, 1, -3))
 doc.recompute()
+# Sketch003 flipped onto XY (its normal -Z) with an arc, and Sketch004 above it with that arc as external geometry: a
+# circle about -Z, which FreeCAD keeps as a reversed arc, a line's start on its (counter-clockwise) start
+s3 = body.newObject("Sketcher::SketchObject", "Sketch003")
+s3.AttachmentSupport = [(planes["XY_Plane"], "")]
+s3.MapMode = "FlatFace"
+s3.MapReversed = True
+s3.addGeometry(Part.ArcOfCircle(Part.Circle(V(20, 30, 0), V(0, 0, 1), 5), 0.0, round(math.pi, 9)), False)
+doc.recompute()
+s4 = body.newObject("Sketcher::SketchObject", "Sketch004")
+s4.AttachmentSupport = [(planes["XY_Plane"], "")]
+s4.MapMode = "FlatFace"
+s4.AttachmentOffset = App.Placement(V(0, 0, 7), App.Rotation())
+doc.recompute()
+s4.addExternal("Sketch003", "Edge1")
+s4.addGeometry(Part.LineSegment(V(10, 10, 0), V(14, 6, 0)), False)
+s4.addConstraint(Sketcher.Constraint("Coincident", 0, 1, -3, 1))
+doc.recompute()
+s3.Visibility = False
 Gui.ActiveDocument.ActiveView.viewIsometric()
 Gui.activateWorkbench("SketcherWorkbench")
 pump(1.0)
-res["setup"] = {o.Name: sketch_state(o) for o in (sk, s1, s2)}
+res["setup"] = {o.Name: sketch_state(o) for o in (sk, s1, s2, s3, s4)}
 COMMANDS = ["Sketcher_NewSketch", "Sketcher_EditSketch", "Sketcher_MapSketch", "Sketcher_ReorientSketch",
             "Sketcher_ValidateSketch", "Sketcher_MergeSketches", "Sketcher_MirrorSketch"]
 
@@ -408,7 +427,7 @@ def validate(name):
     pump(1.5)
     out = {"panel": widgets(task_root()), "steps": []}
     for b in ("highlightButton", "findButton", "fixButton", "findConstraint", "findDegenerated", "fixDegenerated",
-              "findReversed", "orientLockEnable", "orientLockDisable"):
+              "findReversed", "swapReversed", "orientLockEnable", "orientLockDisable"):
         try:
             out["steps"].append(press(b))
         except Exception:
@@ -433,5 +452,6 @@ def validate(name):
 
 safe("validate_sketch001", lambda: validate("Sketch001"))
 safe("validate_sketch002", lambda: validate("Sketch002"))
+safe("validate_sketch004", lambda: validate("Sketch004"))
 json.dump(res, open(os.path.join(OUT, "fcsketchobj.json"), "w"), indent=1)
 os._exit(0)

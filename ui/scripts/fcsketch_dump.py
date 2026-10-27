@@ -155,38 +155,7 @@ def geo_out(sk):
     out = []
     for i, g in enumerate(sk.Geometry):
         c = bool(sk.getConstruction(i))
-        t = type(g).__name__
-        if t == "Point":
-            d = {"type": "Point", "at": [g.X, g.Y]}
-        elif t == "LineSegment":
-            d = {"type": "LineSegment", "start": [g.StartPoint.x, g.StartPoint.y], "end": [g.EndPoint.x, g.EndPoint.y]}
-        elif t == "Circle":
-            d = {"type": "Circle", "center": [g.Center.x, g.Center.y], "radius": g.Radius}
-        elif t == "ArcOfCircle":
-            x0 = math.atan2(g.XAxis.y, g.XAxis.x)
-            d = {"type": "ArcOfCircle", "center": [g.Center.x, g.Center.y], "radius": g.Radius,
-                 "start_angle": g.FirstParameter + x0, "end_angle": g.LastParameter + x0}
-            if g.Axis.z < 0:
-                # a reversed arc (a mirrored copy): the Sketcher reads it counter-clockwise about +Z from its end
-                # (getRange with emulateCCWXY)
-                e = g.EndPoint
-                a1 = math.atan2(e.y - g.Center.y, e.x - g.Center.x)
-                d.update({"start_angle": a1, "end_angle": a1 + (g.LastParameter - g.FirstParameter)})
-        elif t in ("Ellipse", "ArcOfEllipse", "ArcOfHyperbola", "ArcOfParabola"):
-            d = {"type": t, "center": [g.Location.x, g.Location.y]}
-            if t == "ArcOfParabola":
-                d["focal"] = g.Focal
-            else:
-                d["major_radius"], d["minor_radius"] = g.MajorRadius, g.MinorRadius
-            d["x_axis"] = [g.XAxis.x, g.XAxis.y]
-            if t != "Ellipse":
-                d["start_angle"], d["end_angle"] = g.FirstParameter, g.LastParameter
-        elif t == "BSplineCurve":
-            d = {"type": t, "poles": [[q.x, q.y] for q in g.getPoles()], "weights": list(g.getWeights()),
-                 "knots": list(g.getKnots()), "mults": list(g.getMultiplicities()), "degree": g.Degree,
-                 "periodic": g.isPeriodic()}
-        else:
-            d = {"type": t}
+        d = geo_one(g)
         if c:
             d["construction"] = True
         layer = geom_layer(sk, i)
@@ -194,6 +163,46 @@ def geo_out(sk):
             d["layer"] = layer
         out.append(d)
     return out
+
+
+def geo_one(g):
+    """One geometry in the solver's form (arcs counter-clockwise, as the Sketcher reads them)."""
+    t = type(g).__name__
+    if t == "Point":
+        d = {"type": "Point", "at": [g.X, g.Y]}
+    elif t == "LineSegment":
+        d = {"type": "LineSegment", "start": [g.StartPoint.x, g.StartPoint.y], "end": [g.EndPoint.x, g.EndPoint.y]}
+    elif t == "Circle":
+        d = {"type": "Circle", "center": [g.Center.x, g.Center.y], "radius": g.Radius}
+    elif t == "ArcOfCircle":
+        x0 = math.atan2(g.XAxis.y, g.XAxis.x)
+        d = {"type": "ArcOfCircle", "center": [g.Center.x, g.Center.y], "radius": g.Radius,
+             "start_angle": g.FirstParameter + x0, "end_angle": g.LastParameter + x0}
+        if g.Axis.z < 0:
+            # a reversed arc (a mirrored copy): the Sketcher reads it counter-clockwise about +Z from its end
+            # (getRange with emulateCCWXY)
+            e = g.EndPoint
+            a1 = math.atan2(e.y - g.Center.y, e.x - g.Center.x)
+            d.update({"start_angle": a1, "end_angle": a1 + (g.LastParameter - g.FirstParameter)})
+    elif t in ("Ellipse", "ArcOfEllipse", "ArcOfHyperbola", "ArcOfParabola"):
+        d = {"type": t, "center": [g.Location.x, g.Location.y]}
+        if t == "ArcOfParabola":
+            d["focal"] = g.Focal
+        else:
+            d["major_radius"], d["minor_radius"] = g.MajorRadius, g.MinorRadius
+        d["x_axis"] = [g.XAxis.x, g.XAxis.y]
+        if t != "Ellipse":
+            d["start_angle"], d["end_angle"] = g.FirstParameter, g.LastParameter
+            if g.Axis.z < 0:
+                # about -Z (an arc hidden-line removal gave): its frame's Y turns over in the sketch's own
+                d["start_angle"], d["end_angle"] = -g.LastParameter, -g.FirstParameter
+    elif t == "BSplineCurve":
+        d = {"type": t, "poles": [[q.x, q.y] for q in g.getPoles()], "weights": list(g.getWeights()),
+             "knots": list(g.getKnots()), "mults": list(g.getMultiplicities()), "degree": g.Degree,
+             "periodic": g.isPeriodic()}
+    else:
+        d = {"type": t}
+    return d
 
 
 def cons_args(c):
@@ -703,7 +712,10 @@ def panel_out(doc, sk=None):
 def plate_sketch(name, case=None):
     """A case with "plate": a document of its own holding a Body with the 40 x 20 x 5 plate (a rectangle on XY padded
     5 mm), and the case's sketch on the plate's top face (Pad.Face6, FlatFace), after the Pad; the case's "sources"
-    (other sketches: name, support [[object, element]], map_mode, geometry, constraints) between the two."""
+    (other sketches: name, support [[object, element]], map_mode, geometry, constraints) between the two. "solid":
+    "cylinder" pads a circle (r 5 about the origin) 8 mm instead, "dflip" a half disc (r 5, its arc from +X to -X) on
+    XY flipped (MapReversed) 4 mm; "support" ([[object, element]], an origin plane by its role) and "offset" ([x, y,
+    z], the AttachmentOffset) place the case's sketch instead."""
     import Part
     import Sketcher
     doc = App.newDocument("P_" + name.replace("-", "_"))
@@ -711,12 +723,21 @@ def plate_sketch(name, case=None):
     base = body.newObject("Sketcher::SketchObject", "Sketch")
     base.AttachmentSupport = (body.Origin.OriginFeatures[3], [""])
     base.MapMode = "FlatFace"
-    pts = [App.Vector(0, 0, 0), App.Vector(40, 0, 0), App.Vector(40, 20, 0), App.Vector(0, 20, 0)]
-    for i in range(4):
-        base.addGeometry(Part.LineSegment(pts[i], pts[(i + 1) % 4]))
+    solid = (case or {}).get("solid")
+    if solid == "cylinder":
+        base.addGeometry(Part.Circle(App.Vector(0, 0, 0), App.Vector(0, 0, 1), 5))
+    elif solid == "dflip":
+        base.MapReversed = True
+        base.addGeometry(Part.ArcOfCircle(Part.Circle(App.Vector(0, 0, 0), App.Vector(0, 0, 1), 5), 0.0, round(math.pi, 9)))
+        base.addGeometry(Part.LineSegment(App.Vector(-5, 0, 0), App.Vector(5, 0, 0)))
+        base.addConstraint([Sketcher.Constraint("Coincident", 0, 1, 1, 2), Sketcher.Constraint("Coincident", 0, 2, 1, 1)])
+    else:
+        pts = [App.Vector(0, 0, 0), App.Vector(40, 0, 0), App.Vector(40, 20, 0), App.Vector(0, 20, 0)]
+        for i in range(4):
+            base.addGeometry(Part.LineSegment(pts[i], pts[(i + 1) % 4]))
     pad = body.newObject("PartDesign::Pad", "Pad")
     pad.Profile = base
-    pad.Length = 5
+    pad.Length = {"cylinder": 8, "dflip": 4}.get(solid, 5)
     doc.recompute()
     base.Visibility = False
     for src in (case or {}).get("sources", []):
@@ -738,25 +759,19 @@ def plate_sketch(name, case=None):
         doc.recompute()
         o.Visibility = False
     sk = body.newObject("Sketcher::SketchObject", "S")
-    sk.AttachmentSupport = (pad, ["Face6"])
+    roles = {f.Role: f for f in body.Origin.OriginFeatures}
+    sup = (case or {}).get("support")
+    sk.AttachmentSupport = [(roles[o] if o in roles else doc.getObject(o), [e]) for o, e in sup] if sup else (pad, ["Face6"])
     sk.MapMode = "FlatFace"
+    if (case or {}).get("offset"):
+        sk.AttachmentOffset = App.Placement(App.Vector(*case["offset"]), App.Rotation())
     doc.recompute()
     return doc, sk
 
 
 def ext_out(sk):
     """The external geometry after the two axes (ExternalGeo[2:]), in the solver's form, and the references."""
-    out = []
-    for g in sk.ExternalGeo[2:]:
-        t = type(g).__name__
-        if t == "Point":
-            out.append({"type": "Point", "at": [g.X, g.Y]})
-        elif t == "LineSegment":
-            out.append({"type": "LineSegment", "start": [g.StartPoint.x, g.StartPoint.y], "end": [g.EndPoint.x, g.EndPoint.y]})
-        elif t == "Circle":
-            out.append({"type": "Circle", "center": [g.Center.x, g.Center.y], "radius": g.Radius})
-        else:
-            out.append({"type": t})
+    out = [geo_one(g) for g in sk.ExternalGeo[2:]]
     refs = [[o.Name, s] for o, subs in sk.ExternalGeometry for s in (subs if isinstance(subs, (list, tuple)) else [subs])]
     return out, refs
 
@@ -938,7 +953,8 @@ def run_case(doc, case, k):
                                   "report": report_text()[report_at:]}
     if case.get("plate"):
         ext, refs = ext_out(sk)
-        res["cases"][case["name"]].update({"external": ext, "external_geometry": refs})
+        res["cases"][case["name"]].update({"external": ext, "external_geometry": refs,
+                                           "external_types": list(sk.ExternalTypes)})
     tw = tool_widget_out()
     if tw is not None:
         res["cases"][case["name"]]["tool_widget"] = tw

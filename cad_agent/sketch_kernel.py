@@ -79,6 +79,7 @@ def geom(d: dict):
     if t in ("Circle", "ArcOfCircle"):
         c = Geom_Circle(gp_Ax2(gp_Pnt(*d["center"], 0), gp_Dir(0, 0, 1)), d["radius"])
         return c if t == "Circle" else Geom_TrimmedCurve(c, d["start_angle"], d["end_angle"], True)
+    from . import feature  # noqa: F401  first: feature imports feature_curves, then feature_gear subclasses its curves
     from . import feature_curves as FC
     return FC.curve(FC.from_dict(d))
 

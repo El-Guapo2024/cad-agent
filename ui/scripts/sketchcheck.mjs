@@ -208,13 +208,20 @@ for (const [k, c] of CASES.cases.entries()) {
     const part = `Plate${k}x${Date.now().toString(36)}` // a part of its own each run
     await api('/api/cad', { slug: PROJECT, argv: ['feature', 'new', PROJECT, part] })
     const L = (a, b) => ({ type: 'LineSegment', start: a, end: b, construction: false })
+    // "solid": the cylinder (a circle r 5 padded 8) or the flipped half disc (MapReversed, padded 4) instead of the plate
+    const base = c.solid === 'cylinder' ? { support: 'XY', geometry: [{ type: 'Circle', center: [0, 0], radius: 5, construction: false }], constraints: [] }
+      : c.solid === 'dflip' ? { attachment_support: [['XY_Plane', '']], map_mode: 'FlatFace', map_reversed: true,
+        geometry: [{ type: 'ArcOfCircle', center: [0, 0], radius: 5, start_angle: 0, end_angle: 3.141592654, construction: false }, L([-5, 0], [5, 0])],
+        constraints: [{ type: 'Coincident', args: [0, 1, 1, 2] }, { type: 'Coincident', args: [0, 2, 1, 1] }] }
+        : { support: 'XY', geometry: [L([0, 0], [40, 0]), L([40, 0], [40, 20]), L([40, 20], [0, 20]), L([0, 20], [0, 0])], constraints: [] }
     const ops = [
-      { op: 'add', feature: { name: 'Sketch', type: 'Sketcher::SketchObject', support: 'XY', geometry: [L([0, 0], [40, 0]), L([40, 0], [40, 20]), L([40, 20], [0, 20]), L([0, 20], [0, 0])], constraints: [] } },
-      { op: 'add', feature: { name: 'Pad', type: 'PartDesign::Pad', profile: 'Sketch', length: 5 } },
+      { op: 'add', feature: { name: 'Sketch', type: 'Sketcher::SketchObject', ...base } },
+      { op: 'add', feature: { name: 'Pad', type: 'PartDesign::Pad', profile: 'Sketch', length: c.solid === 'cylinder' ? 8 : c.solid === 'dflip' ? 4 : 5 } },
       // the case's other sketches (Carbon Copy's sources), between the Pad and S
       ...(c.sources ?? []).map((src) => ({ op: 'add', feature: { name: src.name, type: 'Sketcher::SketchObject', attachment_support: src.support,
         map_mode: src.map_mode ?? 'FlatFace', geometry: (src.geometry ?? []).map((g) => ({ construction: false, ...g })), constraints: src.constraints ?? [] } })),
-      { op: 'add', feature: { name: 'S', type: 'Sketcher::SketchObject', attachment_support: [['Pad', 'Face6']], map_mode: 'FlatFace', geometry: [], constraints: [] } }]
+      { op: 'add', feature: { name: 'S', type: 'Sketcher::SketchObject', attachment_support: c.support ?? [['Pad', 'Face6']], map_mode: 'FlatFace',
+        ...(c.offset ? { attachment_offset: c.offset } : {}), geometry: [], constraints: [] } }]
     const r = await api(`/api/${encodeURIComponent(PROJECT)}/features/${part}`, { ops })
     if (r.exit > 2) { bad(`${c.name}: the plate was not made: ${JSON.stringify(r).slice(0, 300)}`); continue }
     for (let i = 0; i < 80 && !(await p.evaluate((pt) => !!window.cadui.getState().features[pt]?.features.find((f) => f.name === 'S')?.attached
@@ -427,8 +434,12 @@ for (const [k, c] of CASES.cases.entries()) {
     if (want.external) { // ExternalGeo after the axes, and ExternalGeometry's references
       const e = (got.external ?? []).map((x) => ({ ...x, construction: undefined })), ew = want.external
       if (e.length !== ew.length || !e.every((x, i) => sameGeo(x, ew[i]))) diffs.push(`external geometry\n     ours     ${e.map(fmtG).join(' ')}\n     FreeCAD  ${ew.map(fmtG).join(' ')}`)
-      const r = JSON.stringify(got.external_geometry ?? []), rw = JSON.stringify(want.external_geometry)
+      const r = JSON.stringify((got.external_geometry ?? []).map((x) => x.slice(0, 2))), rw = JSON.stringify(want.external_geometry)
       if (r !== rw) diffs.push(`external references: ${r} (FreeCAD: ${rw})`)
+      if (want.external_types) { // ExternalTypes: 0 Projection, 1 Intersection, 2 Both
+        const t = JSON.stringify((got.external_geometry ?? []).map((x) => ['Projection', 'Intersection', 'Both'].indexOf(x[2] ?? 'Projection')))
+        if (t !== JSON.stringify(want.external_types)) diffs.push(`external types: ${t} (FreeCAD: ${JSON.stringify(want.external_types)})`)
+      }
     }
   }
   // "check": ["widget", "ovp"]: the Tool Parameters box (title, each control's label, items, state) and the on-view

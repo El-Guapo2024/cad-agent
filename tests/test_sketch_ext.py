@@ -185,7 +185,8 @@ FEATURES = [
 
 def test_validate_swaps_reversed_arcs(tmp_path):
     """Find: the reversed arc's two ends and the one constraint on them; Swap Endpoints in Constraints: the
-    constraint on its other end, the line's start moved there, in "Sketch porting"."""
+    constraint on its other end, in "Sketch porting", the geometry left as it is (FreeCAD's panel does not solve: the
+    next recompute moves the line's start there)."""
     from cad_agent.sketch_commands import validate
     p = tmp_path / "p.py"
     p.write_text(REVERSED_SRC)
@@ -197,5 +198,22 @@ def test_validate_swaps_reversed_arcs(tmp_path):
     assert out["notification"]["text"] == "1 changes were made to constraints linking to endpoints of reversed arcs."
     props = out["ops"][0]["props"]
     assert props["constraints"][0]["args"] == [0, 1, -3, 2]
-    start = props["geometry"][0]["start"]
-    assert math.dist(start, (-5.0, 0.0)) < 1e-9         # from the start, (5, 0), to the arc's other end
+    assert math.dist(props["geometry"][0]["start"], (5.0, 0.0)) < 1e-9
+    src = p.read_text().replace("Constraint(\"Coincident\", 0, 1, -3, 1)", "Constraint(\"Coincident\", 0, 1, -3, 2)")
+    p.write_text(src)
+    from cad_agent.sketch_commands import solved_sketch
+    start = solved_sketch(p, "Sketch001")["geometry"][0]["start"]
+    assert math.dist(start, (-5.0, 0.0)) < 1e-9         # the recompute: from (5, 0) to the arc's other end
+
+
+def test_sketch_kernel_in_a_fresh_process():
+    """`cad feature sketchkernel` runs in a process of its own: a B-spline request there must not trip over the import
+    order of feature, feature_curves and feature_gear (feature_gear subclasses feature_curves' BSplineCurve)."""
+    import subprocess
+    import sys
+    code = ("from cad_agent.sketch_kernel import closest; print(round(closest({'type': 'BSplineCurve', 'poles': "
+            "[[5, 5], [15, 30], [30, 5], [45, 30]], 'weights': [1, 1, 1, 1], 'knots': [0, 1], 'mults': [4, 4], "
+            "'degree': 3, 'periodic': False}, [23.125, 17.5]), 6))")
+    r = subprocess.run([sys.executable, "-c", code], capture_output=True, text=True, cwd=Path(__file__).parent.parent)
+    assert r.returncode == 0, r.stderr
+    assert float(r.stdout) == pytest.approx(0.5, abs=1e-6)
