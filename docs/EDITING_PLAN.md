@@ -391,3 +391,81 @@ on the server, and the page shows them; CSV import reads with the standard libra
   errors, recompute through to a Pad whose Length a cell drives), and ui/scripts/spreadsheetcheck.mjs against
   ui/scripts/fcspreadsheet.json (the real GUI's menus, toolbars, context menu, Properties dialog, the sheet's display
   strings, colours and alignment, the tree, the property view and undo).
+
+## CAM in a project (decided 2026-10-27, branch cam)
+
+FreeCAD's CAM workbench is a Job (a Path::FeaturePython with ObjectJob as its proxy) holding a clone of each part it
+machines (Model), a Stock, a SetupSheet, the tool controllers (Tools) with their tool bits, and the operations and dressups
+(Operations), each a Path::FeaturePython whose Path is a list of Path.Command. Almost all of it is Python
+(src/Mod/CAM/Path, LGPL-2.1-or-later). Here a Job is one file of the project, `cam/<Job>.py`, holding the Job's objects in
+FreeCAD's document order under the name `JOB`, as PAGE holds a TechDraw page:
+
+```python
+"""Job: a CAM job of the project (FreeCAD's CAM workbench); the app and `cad cam ...` edit it (cad_agent/cam_edit.py)."""
+from cad_agent import cam as CAM
+
+JOB = [
+    CAM.Job("Job", Model=["plate"], PostProcessor="linuxcnc", Description="Plate, 6 mm aluminium"),
+    CAM.Stock("Stock", ExtXneg="2 mm", ExtXpos="2 mm"),                  # Stock.CreateFromBase, a box or a cylinder
+    CAM.SetupSheet("SetupSheet", SafeHeightOffset="5 mm"),
+    CAM.ToolBit("ToolBit", ShapeID="endmill", Label="6 mm Endmill", Diameter="6 mm", Flutes=3),
+    CAM.ToolController("TC__6_mm_Endmill", Tool="ToolBit", ToolNumber=1, SpindleSpeed=12000.0,
+                       HorizFeed="600 mm/min", VertFeed="200 mm/min"),
+    CAM.Profile("Profile", ToolController="TC__6_mm_Endmill", StepDown="2 mm"),            # the model's outline
+    CAM.PocketShape("Pocket_Shape", Base=[("plate", ["Face15"])], StepOver=40),
+    CAM.Drilling("Drilling", Base=[("plate", ["Face7", "Face8"])], PeckEnabled=True,
+                 ExpressionEngine={"PeckDepth": "OpToolDiameter * 0.5"}),
+    CAM.DressupTag("DressupTag", Base="Profile", Width="8 mm", Height="2 mm"),
+]
+```
+
+- How it runs: FreeCAD's own CAM Python, vendored unchanged in cad_agent/fccam/ (Path/Op, Path/Dressup, Path/Main,
+  Path/Base, Path/Tool, Path/Post, PathScripts, the tool bits and shapes of Mod/CAM/Tools), imported over stand-ins for the
+  C++ it calls (cad_agent/fcshim/: FreeCAD's Base types, App's document objects and properties, Part's TopoShape and
+  geometry over OCP, Path.Command, Path.Path, Path.Area and Path.fromShapes/sortWires as ports of App/Command.cpp,
+  Path.cpp and Area.cpp). libarea, Adaptive2d and the tsp solver are FreeCAD's C++ itself (src/Mod/CAM/libarea with its
+  pybind11 binding pyarea.cpp, src/3rdParty/Clipper2, App/tsp_solver.cpp), built as Python modules by
+  `ui/libarea/build.sh native`. A Job's recompute makes a document of the stand-in App, creates each entry as FreeCAD's
+  Create() does (Path.Main.Job.Create, Path.Tool.Controller.Create, Path.Op.Profile.Create ...), sets the properties the
+  file holds, recomputes in document order and reads each object's Path.
+- Each entry is FreeCAD's object by its Name with the properties FreeCAD's property view shows, by FreeCAD's own names
+  (Base, StepDown, Side, HorizFeed, ...), only those that differ from what Create() gives; a quantity is written with its
+  unit ("2 mm", "600 mm/min", "90 °"), a link by the linked entry's Name, an element link as (part, [sub, ...]).
+  ExpressionEngine is FreeCAD's ExpressionEngine where it differs from Create()'s (a property set by value clears the
+  expression FreeCAD bound it with, as the property view does; None clears one).
+- The Model is the project's parts by their module names (the part's build(), in its own frame); FreeCAD's Job clones
+  each into Model (Draft.clone, Label "Model-<part>"), and an op's Base names the part, not the clone. The stock, the
+  depths and the heights follow from the part's shape as they do in FreeCAD (Stock.CreateFromBase's extents, the ops'
+  OpStartDepth / OpFinalDepth expressions).
+- Names are unique over all of a project's jobs (FreeCAD's one document: Job001 has Stock001, Operations001 ...).
+- Nothing computed is stored: each op's Path, the stock's shape and the cycle time are a recompute. The G-code is
+  written by `cad cam post` with FreeCAD's own post-processors, unchanged (Path/Post/scripts/linuxcnc_post.py,
+  grbl_post.py, generic_post.py over Path/Post/Processor.py), to out/cam/<Job>.<ext> (the Job's PostProcessorOutputFile
+  pattern, as FreeCAD's CAM_Post resolves it, under out/cam/).
+- Edits: cad_agent/cam_edit.py (read/apply, all or nothing, untouched entries keep their text) behind `cad cam ...`
+  (cad_agent/camcmd.py) and /api/<slug>/cam[/<Job>]; each change one undo step named as FreeCAD's transaction:
+
+      cad cam ls       SLUG                                the project's jobs
+      cad cam show     SLUG JOB [--path]                   the tree, each op's commands (counts, or the commands)
+      cad cam new      SLUG PART... [--job NAME]           CAM_Job ("Create Job")
+      cad cam tool     SLUG JOB --shape endmill [--diameter D] [--number N] [KEY=VALUE ...]
+                                                           a tool bit and its controller (CAM_ToolBitDock's Add)
+      cad cam op       SLUG JOB TYPE [--base PART:Face3 ...] [--tc TC] [KEY=VALUE ...]
+                                                           CAM_Profile, CAM_Pocket_Shape, CAM_MillFace, CAM_Drilling,
+                                                           CAM_Adaptive ("Create Profile" ...)
+      cad cam dressup  SLUG JOB TYPE OP [KEY=VALUE ...]    CAM_DressupTag, CAM_DressupDogbone
+      cad cam set      SLUG JOB NAME KEY=VALUE ...         the property view / task panel
+      cad cam delete   SLUG JOB NAME ...                   Std_Delete
+      cad cam rename   SLUG JOB NAME TO
+      cad cam apply    SLUG JOB --ops JSON                 several ops as one step (what the workbench sends)
+      cad cam post     SLUG JOB [--post linuxcnc|grbl|generic] [--args ARGS] [--out FILE]
+                                                           CAM_Post
+- cam/ is not a design input (verify.DESIGN), so a job never makes a verdict stale.
+- The page: the CAM workbench (its menus and toolbars from FreeCAD's InitGui.py, every command we do not run greyed with
+  a reason), the Job and op task panels from FreeCAD's own .ui files (src/Mod/CAM/Gui/Resources/panels) drawn by
+  qtform.tsx, the tree (Job > Model, Stock, Tools, Operations), the property view, undo, and each op's toolpath drawn in
+  the 3D view as ViewProviderPath draws it (rapid moves red, feed moves in the path colour). Simulation is cut.
+- Checked like the rest: tests/golden/cam (freecadcmd builds the same Job on the same BREP: each op's Path commands
+  number by number, to 1e-6, and each post-processor's G-code text), and ui/scripts/camcheck.mjs against
+  ui/scripts/fccam.json (the real GUI's CAM menu and toolbars, the Job and op task panels, the tree, the property view
+  and undo), recorded once by ui/scripts/fccam.py.
