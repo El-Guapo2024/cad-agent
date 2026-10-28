@@ -240,11 +240,13 @@ async function loadScene({ fresh = false, force = false } = {}) {
     hideOverlay();
     $('#banner').hidden = true;
     if (fresh || force || sc.source_hash !== S.sceneHash) {
+      const changed = fresh ? [] : changedBodies(S.scene, sc);
       S.scene = sc;
       S.sceneHash = sc.source_hash;
       if (S.selected && !sc.bodies.some((b) => b.name === S.selected)) S.selected = null;
       show(sc, !fresh);
       renderInspect(); renderTools();
+      if (changed.length) followChanges(changed);
     }
   } catch (e) {
     if (slug !== S.slug) return;
@@ -259,6 +261,38 @@ async function loadScene({ fresh = false, force = false } = {}) {
 async function loadChecks() { const slug = S.slug; let c = {}; try { c = await get('/api/checks', { slug }); } catch { c = {}; } if (slug === S.slug) { S.checks = c; renderChecks(); renderInspect(); } }
 async function loadStatus() { const slug = S.slug; let st = null; try { st = await get('/api/status', { slug }); } catch { st = null; } if (slug === S.slug) { S.status = st; renderVerdict(); renderChecks(); } }
 async function loadLog() { const slug = S.slug; let e = []; try { e = (await get('/api/log', { slug, limit: 300 })).entries; } catch { e = []; } if (slug === S.slug) { S.log = e.reverse(); renderActivity(); } }
+
+// ── following edits ─────────────────────────────────────────────────────────
+// A body changed when it is new, or its box, mass, parameters or hand move differ from the scene before: what an
+// edit to its part, its place in assembly.py or its parameters shows. With Follow on, the view pans (keeping its
+// angle and zoom) to the changed bodies and they glow for a moment, so whoever watches sees where the edit landed.
+const bodySig = (b) => JSON.stringify([b.bbox, b.mass_g, b.params, b.placement]);
+function changedBodies(before, after) {
+  if (!before) return [];
+  const old = new Map(before.bodies.map((b) => [b.name, bodySig(b)]));
+  return after.bodies.filter((b) => old.get(b.name) !== bodySig(b)).map((b) => b.name);
+}
+let glowTimer = null;
+function followChanges(names) {
+  toast(`Changed: ${names.slice(0, 6).join(', ')}${names.length > 6 ? ` and ${names.length - 6} more` : ''}`, 'ok', 5000);
+  if (!S.follow) return;
+  const boxes = S.scene.bodies.filter((b) => names.includes(b.name)).map((b) => b.bbox);
+  if (boxes.length && boxes.length < S.scene.bodies.length) {
+    const c = [0, 1, 2].map((i) => (Math.min(...boxes.map((b) => b[0][i])) + Math.max(...boxes.map((b) => b[1][i]))) / 2);
+    const t = viewer.getCameraTarget(), p = viewer.getCameraPosition();
+    viewer.setCameraPosition(p.map((v, i) => v + c[i] - t[i]), false, false);
+    viewer.setCameraTarget(c);
+  }
+  const lit = [];
+  for (const n of names) {
+    groupOf(n)?.traverse((o) => {
+      if (o.isMesh && o.material?.emissive) { lit.push([o.material, o.material.emissive.getHex()]); o.material.emissive.setHex(0x00b4ff); }
+    });
+  }
+  viewer.update(true);
+  clearTimeout(glowTimer);
+  glowTimer = setTimeout(() => { for (const [m, h] of lit) m.emissive.setHex(h); viewer.update(true); }, 4000);
+}
 
 // ── live events ──────────────────────────────────────────────────────────────
 let designTimer = null;
@@ -308,6 +342,7 @@ function renderTools() {
   $('#undo').disabled = !S.undo.length;
   $('#redo').disabled = !S.redo.length;
   $('#snap').classList.toggle('on', S.snap.on);
+  $('#follow').classList.toggle('on', !!S.follow);
 }
 
 function renderInspect() {
@@ -485,6 +520,7 @@ function setSnap(on) {
 }
 $('#snap').onclick = () => setSnap(!S.snap.on);
 $('#snapmm').onchange = $('#snapdeg').onchange = () => setSnap(S.snap.on);
+$('#follow').onclick = () => { S.follow = !S.follow; store.set('follow', S.follow); renderTools(); };
 $('#undo').onclick = undo;
 $('#redo').onclick = redo;
 $('#project').onchange = async (e) => {
@@ -521,6 +557,7 @@ function toast(text, kind = '', ms = 3500) {
 function showOverlay(text, spinning = true) { $('#overlay').hidden = false; $('#overlay').classList.toggle('static', !spinning); $('#overlay-text').textContent = text; }
 function hideOverlay() { $('#overlay').hidden = true; }
 
+S.follow = store.get('follow', true);
 const snap = store.get('snap', S.snap);
 $('#snapmm').value = snap.mm; $('#snapdeg').value = snap.deg;
 setSnap(snap.on);
