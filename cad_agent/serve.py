@@ -793,6 +793,9 @@ def make_handler(bench: Bench):
                     return self._json({"projects": items, "roots": [str(r) for r in bench.roots]})
                 if path == "/api/scene":
                     code, body = bench.scene(q.get("slug", ""))
+                    if "gzip" in self.headers.get("Accept-Encoding", "") and len(body) > 1 << 20:
+                        import gzip     # a vendor machine's scene is tens of MB: a quarter of that over a tunnel
+                        return self._send(code, gzip.compress(body, 1), headers={"Content-Encoding": "gzip"})
                     return self._send(code, body)
                 if path == "/api/checks":
                     p = bench.root_of(q.get("slug", "")) / q["slug"] / "checks.json"

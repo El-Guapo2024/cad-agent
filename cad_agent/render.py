@@ -48,6 +48,8 @@ def _triangulation(shape, tolerance: float, angular: float):
     for face in shape.faces():
         loc = TopLoc_Location()
         poly = BRep_Tool.Triangulation_s(face.wrapped, loc)
+        if poly is None:            # a face OCCT could not mesh (a vendor STEP's degenerate face): left out of the picture
+            continue
         trsf = loc.Transformation()
         flip = face.wrapped.Orientation() == TopAbs_Orientation.TopAbs_REVERSED
         base = len(verts) - 1
