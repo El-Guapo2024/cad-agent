@@ -117,7 +117,14 @@ export async function loadTechDraw() {
 
 /** `cad techdraw apply`: the ops as one undo step named as FreeCAD's transaction. With dryRun the page as the ops would
  *  leave it, nothing written (a task panel's preview, setTd preview). */
+/** The edits sent and not yet in the page (the document and the undo journal both loaded): the checks wait for it to reach 0. */
+let inflight = 0
+export const tdInflight = () => inflight
 export async function applyTd(page: string, ops: Record<string, unknown>[], name?: string, dryRun = false, amend = false, keepStep = false): Promise<TdDoc | null> {
+  inflight++
+  try { return await applyTd1(page, ops, name, dryRun, amend, keepStep) } finally { inflight-- }
+}
+async function applyTd1(page: string, ops: Record<string, unknown>[], name?: string, dryRun = false, amend = false, keepStep = false): Promise<TdDoc | null> {
   const s = getState()
   if (!s.slug) return null
   if (!dryRun && s.scriptToPyConsole) consoleLog('in', `cad techdraw apply ${s.slug} ${page} --ops '${JSON.stringify(ops)}'${name ? ` --name '${name}'` : ''}${amend ? ' --amend' : ''}${keepStep ? ' --keep-step' : ''}`)
@@ -133,7 +140,7 @@ export async function applyTd(page: string, ops: Record<string, unknown>[], name
       return { docs: { ...x.docs, [page]: doc }, pages: x.pages.includes(page) ? x.pages : [...x.pages, page].sort(), preview }
     })
     for (const [n, err] of Object.entries(doc.result?.errors ?? {})) report('warn', `${page}: ${n}: ${err}`)
-    loadHistory()
+    await loadHistory()
     return doc
   } catch (e) { report('err', `${name ?? 'TechDraw'}: ${msg(e)}`); return null }
 }

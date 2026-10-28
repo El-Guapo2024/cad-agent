@@ -112,7 +112,8 @@ const td = () => st('cadui.td.state()')
 const objs = async () => (await td()).docs.Page?.objects ?? []
 const obj = async (n) => (await objs()).find((o) => o.name === n)
 const undoHead = () => st('cadui.getState().undo[0]?.name ?? null')
-const idle = () => until('!cadui.getState().busy.length', 'the server idle', 120000)
+// idle: the server not rebuilding and no edit sent by the page still on its way (applyTd's request, then the document and the undo journal)
+const idle = () => until('!cadui.getState().busy.length && !cadui.td.inflight()', 'the server idle', 120000)
 const select = (refs) => st(`cadui.td.select(null); ${refs.map((r, i) => `cadui.td.select(${JSON.stringify(r)}, ${i > 0})`).join(';')}`)
 
 /** A menu's entries, FreeCAD's and ours side by side by command (texts, then greyed or not). */
