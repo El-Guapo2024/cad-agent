@@ -728,11 +728,12 @@ function connect() {
       case 'assembly': void import('./assembly_wb').then((m) => m.loadAssembly()); break // POST /api/<slug>/assembly
       case 'techdraw': void import('./techdraw').then((m) => m.loadTechDraw()); break // POST /api/<slug>/techdraw/<page>
       case 'spreadsheet': void import('./spreadsheet').then((m) => m.loadSheets()); break // POST /api/<slug>/spreadsheet/<sheet>
+      case 'cam': void import('./cam').then((m) => m.loadCam()); break // POST /api/<slug>/cam/<job>
       case 'scene': loadScene(); break
       case 'checks': loadChecks(); break
       case 'verify': loadStatus(); break
       // The journal changed: our own undo/redo, the agent's `cad undo`/`cad redo`, or a new change.
-      case 'history': loadHistory(); void import('./techdraw').then((m) => m.loadTechDraw()); void import('./spreadsheet').then((m) => m.loadSheets()); break   // an undo may change a page or a sheet
+      case 'history': loadHistory(); void import('./techdraw').then((m) => m.loadTechDraw()); void import('./spreadsheet').then((m) => m.loadSheets()); void import('./cam').then((m) => m.loadCam()); break   // an undo may change a page, a sheet or a job
       case 'log': setState((s) => ({ log: [...s.log, ...ev.entries].slice(-500) })); break
       case 'busy': setState({ busy: ev.busy ?? [] }); break
       case 'checked':

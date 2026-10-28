@@ -73,6 +73,10 @@ const base = (c: string) => c.replace(/^Gui::(Pref)?/, 'Q').replace(/^QColorButt
   .replace(/^QUnitSpinBox$|^QQuantitySpinBox$|^QUIntSpinBox$/, 'QSpinBox').replace(/^QAccelLineEdit$|^QModifierLineEdit$/, 'QLineEdit')
   .replace(/^QDoubleSpinBox$/, 'QDoubleSpinBox')
   .replace(/^QFontBox$/, 'QComboBox') // Gui::PrefFontBox is a QFontComboBox
+  // the CAM panels': a QFrame or a QDialog is a plain container, Gui::InputField a line edit holding a quantity, Gui::IntSpinBox a
+  // spin box, a QPlainTextEdit a text box, a QTreeView a tree
+  .replace(/^QFrame$|^QDialog$/, 'QWidget').replace(/^QInputField$/, 'QLineEdit').replace(/^QIntSpinBox$/, 'QSpinBox')
+  .replace(/^QPlainTextEdit$/, 'QTextEdit').replace(/^QTreeView$/, 'QTreeWidget')
 const polOf = (w: UiWidget) => w.fc?.pol ?? DEFAULT_POL[base(w.c)] ?? 'PP'
 /** Can it grow beyond its hint? (Preferred, Minimum, Expanding, MinimumExpanding, Ignored: yes. Fixed, Maximum: no.) */
 const grows = (p: string) => 'PmEXI'.includes(p)
@@ -222,6 +226,8 @@ function Widget({ w, slot }: WProps) {
   switch (c) {
     case 'QGroupBox': return <GroupBox w={w} b={b} off={off} style={style} tip={tip} />
     case 'QWidget': return <Container w={w} style={style} />
+    case 'QTabWidget': case 'QToolBox': return <Pages w={w} b={b} style={style} toolbox={c === 'QToolBox'} />
+    case 'QDialogButtonBox': return null   // the dialog draws its own buttons
     case 'QLabel': {
       const al = (p.alignment as string[] | undefined) ?? []
       const rich = isRich(txt, w)
@@ -320,6 +326,34 @@ function GroupBox({ w, b, off, style, tip }: { w: UiWidget; b: Binding | undefin
       <OffCtx.Provider value={off || !checked}>
         <LayoutBox l={w.l} margins={w.l?.m} className="qf-gb-frame" kids={w.ch} />
       </OffCtx.Provider>
+    </div>)
+}
+
+/** QTabWidget (its pages' `title`s on a tab bar, the current page under it) and QToolBox (each page's `label` on a button, the
+ *  current page open under its button). The binding's value is the current index (else the form's currentIndex), set is told
+ *  of a click; a page's binding with hide leaves its tab out. */
+function Pages({ w, b, style, toolbox }: { w: UiWidget; b: Binding | undefined; style: CSSProperties; toolbox: boolean }) {
+  const bind = useContext(BindCtx)
+  const pages = (w.ch ?? []).filter((p) => !bind[p.n]?.hide)
+  const [own, setOwn] = useState(() => Number(P(w).currentIndex ?? 0))
+  const cur = Math.min(typeof b?.value === 'number' ? b.value : own, Math.max(0, pages.length - 1))
+  const pick = (i: number) => { setOwn(i); (b?.set as ((v: number) => void) | undefined)?.(i) }
+  const title = (p: UiWidget) => plain(String(bind[p.n]?.text ?? P(p)[toolbox ? 'label' : 'title'] ?? ''))
+  if (toolbox) {
+    return (
+      <div data-qf={w.n} className="qf-toolbox" style={style}>
+        {pages.map((p, i) => <div key={p.n} className={cls('qf-tb-page', i === cur && 'cur')}>
+          <button type="button" className="qf-tb-btn" data-qf-page={p.n} onClick={() => pick(i)}>{title(p)}</button>
+          {i === cur && <Container w={p} style={{}} />}
+        </div>)}
+      </div>)
+  }
+  return (
+    <div data-qf={w.n} className="qf-tabs" style={style}>
+      <div className="qf-tabbar" role="tablist">
+        {pages.map((p, i) => <button key={p.n} type="button" role="tab" aria-selected={i === cur} className={cls('qf-tab', i === cur && 'cur')} data-qf-page={p.n} onClick={() => pick(i)}>{title(p)}</button>)}
+      </div>
+      <div className="qf-tabpage">{pages[cur] && <Container key={pages[cur].n} w={pages[cur]} style={{}} />}</div>
     </div>)
 }
 
@@ -594,6 +628,8 @@ export function QtForm({ form, bind }: { form: UiForm; bind: Bindings }) {
 }
 /** The page widget: DlgPreferencesImp::createPreferencePage resets its margins, and its layout's, to 0. */
 function PageRoot({ w }: { w: UiWidget }) {
+  // a form whose top widget is a QTabWidget or QToolBox itself (the CAM Job panel's PathEdit.ui): its pages, one at a time
+  if (/^Q(TabWidget|ToolBox)$/.test(base(w.c))) return <div className="qf-page"><Widget w={w} slot={{}} /></div>
   return <div className="qf-page" data-qf={w.n}><LayoutBox l={w.l} margins={[0, 0, 0, 0]} kids={w.ch} /></div>
 }
 

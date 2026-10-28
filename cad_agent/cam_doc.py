@@ -21,7 +21,7 @@ from .cam_replay import Replayer, ReplayError, kind_of
 
 ICONS = {"Job": "CAM_Job", "Stock": "CAM_Stock", "SetupSheet": "CAM_SetupSheet", "ToolBit": "CAM_ToolBit",
          "ToolController": "CAM_ToolController", "Profile": "CAM_Profile", "PocketShape": "CAM_Pocket",
-         "MillFace": "CAM_Face", "Drilling": "CAM_Drilling", "Adaptive": "CAM_Adaptive", "DressupTag": "CAM_Dressup",
+         "MillFace": "CAM_Face", "Drilling": "CAM_Drilling", "DressupTag": "CAM_Dressup",
          "DressupDogbone": "CAM_Dressup"}
 GROUP_ICONS = {"Operations": "CAM_OpActive", "Model": "CAM_BaseGeometry", "Tools": "CAM_ToolTable"}
 
@@ -104,6 +104,41 @@ class CamDocument:
                "icon": ICONS.get(k or "") or GROUP_ICONS.get(re.sub(r"\d+$", "", o.Name)),
                "file": self.job_of.get(o.Name), "props": props, "valid": o.isValid(),
                "status": o.getStatusString() if not o.isValid() else None}
+        proxy = getattr(o, "Proxy", None)
+        if k in C.OPS:
+            # what the op's task panel shows (Path/Op/Gui/Base.py TaskPanel: a page per feature) and the combo boxes'
+            # texts (PathGuiUtil.populateCombobox over the op's property enumerations, "raw": (text, value))
+            out["features"] = int(proxy.opFeatures(o))
+            labels = {}
+            for meth in ("opPropertyEnumerations", "areaOpPropertyEnumerations", "pocketPropertyEnumerations",
+                         "propertyEnumerations"):
+                f = getattr(proxy, meth, None)
+                if f is None:
+                    continue
+                try:
+                    got = f(dataType="raw")
+                except TypeError:
+                    continue
+                for prop, pairs in (got or {}).items():
+                    labels[prop] = [[str(t), str(v)] for t, v in pairs]
+            out["enum_labels"] = labels
+        if k == "Drilling":
+            # TaskPanelHoleGeometryPage.setFields (Path/Op/Gui/CircularHoleBase.py): each hole's feature, diameter, X, Y,
+            # whether it is blind and whether it is enabled, by the op's own holeDiameter/holePosition/isHoleEnabled
+            from Path.Base import Drillable
+            holes = []
+            for base, subs in o.Base:
+                for sub in subs:
+                    pos = proxy.holePosition(base, sub)
+                    try:
+                        blind = Drillable.isBlind(base, sub)
+                    except Exception:
+                        blind = None
+                    holes.append({"feature": f"{base.Label}.{sub}", "part": self.r.part_of(base), "sub": sub,
+                                  "diameter": float(proxy.holeDiameter(base, sub)) if pos else None,
+                                  "x": float(pos[0]) if pos else None, "y": float(pos[1]) if pos else None,
+                                  "blind": blind, "enabled": bool(proxy.isHoleEnabled(o, base, sub))})
+            out["holes"] = holes
         if o.TypeId == "Path::FeaturePython" and "Path" in o._props:
             path = o._props["Path"].value
             if path is not None:
@@ -164,11 +199,19 @@ class CamDocument:
             if base is not None and base.type == "App::PropertyLink" and base.value is not None:
                 kids = [op_node(base.value)]
             return node(op, kids)
-        ops = [op_node(op) for op in job.Operations.Group]
+        # the tree leaves out of a group what a sibling claims (a dress-up's base op stays in Operations.Group)
+        group = job.Operations.Group
+        claimed = {b.Name for b in (getattr(o, "Base", None) for o in group) if hasattr(b, "Name")}
+        ops = [op_node(op) for op in group if op.Name not in claimed]
         tools = [node(tc, [node(tc.Tool)] if getattr(tc, "Tool", None) is not None else [])
                  for tc in job.Tools.Group]
-        return node(job, [node(job.Operations, ops), node(job.Model, [node(c) for c in job.Model.Group]),
-                          node(job.Stock), node(job.Tools, tools)])
+        kids = [node(job.Operations, ops), node(job.Model, [node(c) for c in job.Model.Group]), node(job.Stock)]
+        if getattr(job, "SetupSheet", None) is not None:
+            kids.append(node(job.SetupSheet))
+        kids.append(node(job.Tools, tools))
+        if getattr(job, "Workplanes", None) is not None:
+            kids.append(node(job.Workplanes))
+        return node(job, kids)
 
     # ── G-code ──
     def post(self, job_name, post="linuxcnc", args=None):

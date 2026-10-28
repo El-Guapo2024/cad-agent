@@ -137,6 +137,12 @@ class Replayer:
                     PathUtils.findParentJob(base).Proxy.addOperation(obj, base)
                 else:
                     obj = mod.Create(base, C.DEFAULT_NAMES[e.kind])
+                # the dress-up's view provider, attached as the GUI makes it (DogboneII.py ViewProviderDressup.attach,
+                # Tags.py PathDressupTagViewProvider.attach): the base op leaves every group it is in, so the job posts
+                # the dress-up and not its base as well
+                for parent in base.InList:
+                    if hasattr(parent, "Group") and base.Name in [o.Name for o in parent.Group]:
+                        parent.Group = [o for o in parent.Group if o.Name != base.Name]
         if obj is None:
             raise ReplayError(f"{e.name}: FreeCAD did not make the {e.kind}")
         self._check(obj, e)

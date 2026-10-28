@@ -1,6 +1,10 @@
 """The app's CAM (cad_agent/cam_doc.py: FreeCAD's CAM Python over cad_agent/fcshim, libarea built from FreeCAD's
 sources) against what FreeCAD 26.3 makes of the same jobs (tests/golden/cam/freecad.json, make.py): every Path object's
-commands number by number to 1e-6, the document's objects and their names, and each post-processor's G-code text."""
+commands number by number to 1e-6, the document's objects and their names, and each post-processor's G-code text.
+
+FreeCAD's Path::Area joins wires in the order of its edges' memory addresses (WireJoiner's std::set<EdgeInfo*>), so some
+cases come out of FreeCAD one of two ways from run to run (a profile that starts at another corner, or goes round the
+other way); make.py keeps every outcome FreeCAD gave, and the app's must be one of them, paths and G-code alike."""
 import importlib.util
 import json
 from pathlib import Path
@@ -51,19 +55,40 @@ def _same_cmd(a, b):
     return all(abs(a[1][k] - b[1][k]) <= 1e-6 for k in a[1])
 
 
+def _ours(doc):
+    return {o.Name: [[c.Name, dict(c._params)] for c in o.Path._cmds] for o in doc.doc.Objects
+            if o.TypeId == "Path::FeaturePython" and o._props.get("Path") is not None and o._props["Path"].value}
+
+
+def _differs(want, ours):
+    """Where ours first differs from one of FreeCAD's outcomes, or None."""
+    for op, cmds in want["paths"].items():
+        mine = ours.get(op, [])
+        if len(mine) != len(cmds):
+            return f"{op}: FreeCAD {len(cmds)} commands, ours {len(mine)}"
+        for i, (a, b) in enumerate(zip(cmds, mine)):
+            if not _same_cmd(a, b):
+                return f"{op} command {i}: FreeCAD {a}, ours {b}"
+    return None
+
+
+def _outcome(name):
+    """The FreeCAD outcome the app's paths are (the first that matches), else why each is not."""
+    ours = _ours(built(name))
+    why = [_differs(o, ours) for o in FC[name]["outcomes"]]
+    for o, w in zip(FC[name]["outcomes"], why):
+        if w is None:
+            return o, None
+    return None, why
+
+
 @pytest.mark.parametrize("name", sorted(_cases.CASES))
 def test_paths(name):
     doc = built(name)
-    fc = FC[name]
-    assert not fc["errors"]
+    assert not FC[name]["errors"]
     assert [e[1] for e in doc.doc._errors] == []
-    ours = {o.Name: [[c.Name, dict(c._params)] for c in o.Path._cmds] for o in doc.doc.Objects
-            if o.TypeId == "Path::FeaturePython" and o._props.get("Path") is not None and o._props["Path"].value}
-    for op, cmds in fc["paths"].items():
-        mine = ours.get(op, [])
-        assert len(mine) == len(cmds), op
-        for i, (a, b) in enumerate(zip(cmds, mine)):
-            assert _same_cmd(a, b), f"{op} command {i}: FreeCAD {a}, ours {b}"
+    o, why = _outcome(name)
+    assert o is not None, f"none of FreeCAD's {len(FC[name]['outcomes'])} outcomes: {why}"
 
 
 @pytest.mark.parametrize("name", sorted(_cases.CASES))
@@ -89,9 +114,11 @@ def _text(g):
 def test_posts(name):
     doc = built(name)
     case = _cases.CASES[name]
+    outcome, why = _outcome(name)
+    assert outcome is not None, why
     for file, job in case["jobs"].items():
         for post, args in case.get("posts", []):
-            want = FC[name]["posts"][f"{file}/{post}"]
+            want = outcome["posts"][f"{file}/{post}"]
             got = doc.post(job[0][1], post, args)
             assert [s for s, _ in got] == [s for s, _ in want]
             for (_, g), (_, w) in zip(got, want):

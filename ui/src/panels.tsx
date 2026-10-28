@@ -31,6 +31,8 @@ import { isObjectRef, isPartDoc, PartDocRows, PartObjectProps, partTreeEntries }
 import { TechDrawProps, TechDrawRows, useTd } from './techdraw'
 import { bindParam, boundExpression, boundValue, namesSheet, SpreadsheetProps, SpreadsheetRows, useSs } from './spreadsheet'
 import { TechDrawTask } from './techdraw_tasks'
+import { CamProps, CamRows, useCam } from './cam'
+import { CamTask } from './cam_tasks'
 import { PartTask } from './part_tasks'
 import { CrossSectionsTask, ShapeBuilderTask } from './part_static'
 import { HoleTask, RevolveTask } from './pd_revolve'
@@ -404,6 +406,8 @@ function ModelTree() {
       {open && <TechDrawRows iconSize={iconSize} />}
       {/* the project's spreadsheets (spreadsheet.tsx): each Sheet, as the document's objects */}
       {open && <SpreadsheetRows iconSize={iconSize} />}
+      {/* the project's CAM jobs (cam.tsx): each Job with its Operations, Model, Stock, SetupSheet, Tools */}
+      {open && <CamRows iconSize={iconSize} />}
       {/* A Body the scene does not draw (nothing built yet, or not in assembly.py): its own row, as FreeCAD lists every Body */}
       {open && Object.keys(features).filter((p) => isPartDoc(features[p]) && !scene?.bodies.some((b) => b.part === p)).map((p) => (
         <PartDocRows key={'pt:' + p} ctx={pdCtx} part={p} bodyRows={(depth) => <PdBodyRows ctx={pdCtx} part={p} body={undefined} bodyRow={(tw) => bodyRowOf(p, depth, tw)} />} row={(twisty) => (
@@ -477,6 +481,7 @@ function PropertyView() {
   const asmProp = useStore((s) => s.asmSel[s.asmSel.length - 1] ?? null)
   const tdProp = useTd((s) => s.sel.some((r) => !r.includes('.')))
   const ssProp = useSs((s) => s.sel.length > 0)
+  const camProp = useCam((s) => s.sel.length > 0)
   // Auto Expand / Auto Collapse: a new object opens with everything expanded or collapsed.
   useEffect(() => { if (mode !== 'default') setExpand((e) => ({ gen: e.gen + 1, open: mode === 'auto-expand' })) }, [b?.name, mode])
   const bump = (open: boolean | null) => setExpand((e) => ({ gen: e.gen + 1, open }))
@@ -505,6 +510,7 @@ function PropertyView() {
           {tdProp && tab === 'data' && <TechDrawProps />}
           {tdProp && tab === 'view' && <TechDrawProps view />}
           {ssProp && tab === 'data' && <SpreadsheetProps />}
+          {camProp && tab === 'data' && <CamProps />}
           {feat && isObjectRef(getState(), feat) && (tab === 'data' ? <PartObjectProps key={feat} refKey={feat} /> : <Row k="Visibility" v="Space toggles it (the part file's visibility=)" />)}
           {feat && !isObjectRef(getState(), feat) && (tab === 'data' ? <FeatureProps key={feat} refKey={feat} /> : <Row k="Visibility" v="the Body shows its Tip" />)}
           {!feat && b && (tab === 'data' ? <DataProps key={b.name + scene!.source_hash} b={b} />
@@ -942,6 +948,7 @@ function TaskContent() {
   if (task?.kind === 'part' && task.other === 'crosssections') return <CrossSectionsTask key={task.body} part={task.body} />   // part_static.tsx
   if (task?.kind === 'part' && task.other === 'builder') return <ShapeBuilderTask key={task.body} part={task.body} />
   if (task?.kind === 'part') return <PartTask part={task.body} other={task.other ?? ''} />   // the Part workbench's (part_tasks.tsx)
+  if (task?.kind === 'cam') return <CamTask job={task.body} other={task.other ?? ''} />   // the CAM workbench's (cam_tasks.tsx)
   if (task?.kind === 'techdraw') return <TechDrawTask page={task.body} other={task.other ?? ''} />   // TechDraw's panels (techdraw_tasks.tsx)
   if (task?.kind === 'assembly') return <AssemblyTask body={task.body} other={task.other ?? ''} />   // the Assembly workbench's (assembly_wb.tsx)
   if (task?.kind === 'pdSweep') return <SweepTask key={`sweep:${task.body}:${task.other}`} part={task.body} other={task.other ?? ''} edit={!!task.edit} />

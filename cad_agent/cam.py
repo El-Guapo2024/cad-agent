@@ -48,13 +48,11 @@ KINDS = {
     "PocketShape": Kind("PocketShape", "Path::FeaturePython", "Path.Op.PocketShape", "CAM_Pocket_Shape",
                         "Pocket Shape", "Create Pocket Shape", "CAM_Pocket", op=True),
     "MillFace": Kind("MillFace", "Path::FeaturePython", "Path.Op.MillFace", "CAM_MillFace", "Face",
-                     "Create Face", "CAM_Face", op=True),
+                     "Create MillFace", "CAM_Face", op=True),
     "Drilling": Kind("Drilling", "Path::FeaturePython", "Path.Op.Drilling", "CAM_Drilling", "Drilling",
                      "Create Drilling", "CAM_Drilling", op=True),
-    "Adaptive": Kind("Adaptive", "Path::FeaturePython", "Path.Op.Adaptive", "CAM_Adaptive", "Adaptive",
-                     "Create Adaptive", "CAM_Adaptive", op=True),
     "DressupTag": Kind("DressupTag", "Path::FeaturePython", "Path.Dressup.Tags", "CAM_DressupTag", "Tag",
-                       "Create Tag Dress-up", "CAM_Dressup", dressup=True),
+                       "Create a Tag dressup", "CAM_Dressup", dressup=True),
     "DressupDogbone": Kind("DressupDogbone", "Path::FeaturePython", "Path.Dressup.DogboneII", "CAM_DressupDogbone",
                            "Dogbone", "Create Dogbone Dress-up", "CAM_Dressup", dressup=True),
 }
@@ -62,7 +60,7 @@ OPS = tuple(k for k, v in KINDS.items() if v.op)
 DRESSUPS = tuple(k for k, v in KINDS.items() if v.dressup)
 # the Create() name each kind's FreeCAD command gives the object
 DEFAULT_NAMES = {"Job": "Job", "Profile": "Profile", "PocketShape": "Pocket_Shape", "MillFace": "MillFace",
-                 "Drilling": "Drilling", "Adaptive": "Adaptive", "DressupTag": "DressupTag",
+                 "Drilling": "Drilling", "DressupTag": "DressupTag",
                  "DressupDogbone": "DressupDogbone"}
 
 
@@ -127,7 +125,6 @@ Profile = _maker("Profile")
 PocketShape = _maker("PocketShape")
 MillFace = _maker("MillFace")
 Drilling = _maker("Drilling")
-Adaptive = _maker("Adaptive")
 DressupTag = _maker("DressupTag")
 DressupDogbone = _maker("DressupDogbone")
 

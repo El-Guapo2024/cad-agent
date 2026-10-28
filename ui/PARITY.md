@@ -1164,6 +1164,48 @@ Deliberately or knowingly different:
   links without ExternalTypes, so the next rebuild projects them too).
 - Intersection geometry is reference geometry, as the projections are (the part file has no defining flag).
 
+## CAM workbench, 2026-10-28
+
+A project's CAM jobs edited in the app as FreeCAD 3160daf1e2b6's CAM workbench edits them, written back as `cam/<Job>.py`
+(docs/EDITING_PLAN.md, "CAM in a project"). The toolpaths are FreeCAD's own CAM Python, vendored unchanged in
+`cad_agent/fccam/Mod/CAM`, run over stand-ins for the C++ it calls (`cad_agent/fcshim`: Base, App's objects and properties,
+Part's TopoShape over OCP, Path.Command, Path.Path and Path.Area ported from Area.cpp), with FreeCAD's libarea, Clipper2
+and tsp_solver built from FreeCAD's sources (`ui/libarea/build.sh native`). The Python is `cad_agent/cam*.py` (`cad cam ...`,
+/api/<slug>/cam); the page is `src/cam.tsx` and `src/cam_tasks.tsx`, the panels FreeCAD's own .ui files (`src/uiforms-cam.ts`,
+`uigen.py --cam`). The checks: tests/test_cam_golden.py (4 freecadcmd cases, tests/golden/cam: every Path command of every op
+and dress-up to 1e-6, the document's objects, and the linuxcnc, grbl and generic G-code), tests/test_cam_edit.py (FreeCAD's
+names, kept text, undo steps, post) and `ui/scripts/camcheck.mjs` (the page against ui/scripts/fccam.json, recorded once from
+the real GUI by fccam.py: 640 ok, 35 known, 0 FAIL).
+
+| Item | Status |
+|---|---|
+| Job | done: CAM_Job's dialog (DlgJobCreate.ui: the solids, the template and units combos), Job.Create (the clone of each part, the stock from the model's bounding box, the setup sheet, the default 5 mm endmill and its controller), the Job panel (PathEdit.ui: Setup's stock extents, General's label and description, Output's post-processor, arguments and output file, order and split, Tools' table, Workplan's list) |
+| Tools | done: a library bit or a shape's bit and its controller (`cad cam tool`, the tool bit dock's Add to Job), the controller's panel (ToolControllerEdit.ui: name, number, feeds, rapids, spindle) |
+| Operations | done: Profile, Pocket Shape, Face (MillFace) and Drilling, each made by its command's Create with the 3D view's faces as Base; the op panel (Base.py TaskPanel: a tab per feature the op has; Base Geometry with Add / Remove / Clear and the import from another op, the hole table, Extensions, Heights with Linking and the diagram, Tool Controller with the controller's editor, and the op's own page) |
+| Dress-ups | done: Tag (the Holding Tags panel: width, height, angle, radius, the tags, Clear / Remove / Enable All) and Dogbone; the base op leaves Operations.Group, as the dress-up's view provider takes it out |
+| Posts | done: FreeCAD's linuxcnc, grbl and generic post-processors, unchanged; CAM_Post with the job's post-processor or the choice of one, the G-code saved |
+| Page | done: the CAM menu and its four toolbars (InitGui.py's lists and groups, P, J and the other shortcuts), the tree (the job's groups, a dress-up holding its base, an inactive op's icon), the property view (FreeCAD's groups and display names, PropertyItem's texts, expressions as `16.00 mm  ( OpStockZMax + SetupSheet.ClearanceHeightOffset )`, the values the file can hold editable), Toggle Operation, Std_Delete, undo and redo, each op's toolpath in the 3D view (feed moves green, rapid moves red, the selected op in the selection colour) |
+
+Known differences:
+- Commands not run here are greyed with the reason: Work Plane, Sanity Check, Post Process Selected, Export Template, both
+  simulators (simulation is cut), Inspect, Finish Selecting Loop, the tool bit library and dock (`cad cam tool` adds a
+  bit), Mill Facing, Helix, Adaptive (its op needs TechDraw's findShapeOutline, not ported), Slot, Thread Milling, Engrave,
+  Deburr, Vcarve, 3D Pocket, the other ten dress-ups, Comment, Stop, Custom, Probe, the copy and array commands and the
+  property bag. CAM_MillFace (Face), on no menu in 3160daf1e2b6, runs from the console as in FreeCAD.
+- FreeCAD's Path::Area joins wires in the order of its edges' memory addresses (WireJoiner's std::set<EdgeInfo*>), so the
+  same job comes out of FreeCAD one of two ways from run to run in three of the four golden cases (a profile starting at
+  another corner or going the other way round). make.py keeps each outcome FreeCAD gave (12 runs each); the app's paths and
+  G-code are one of them. On the symmetric plate of the GUI recording the Holding Tags therefore sit at other places.
+- A panel's OK with nothing changed adds no step here; FreeCAD's TaskPanel opens its transaction ("AreaOp Operation",
+  "Edit Job") on opening and keeps it empty.
+- A tool bit is made from its shape file's parameters; its PartDesign Body (origin, sketch, revolution) is not copied, so
+  the tree shows the bit without them, and its Tool Bit ID is new each time.
+- The Job panel: the stock is always the model's bounding box extended (the other stock types, the material, and moving or
+  rotating the model are greyed); the post-processor combo lists the three post-processors this app has; the work
+  coordinate systems are shown, not edited; the setup sheet's op defaults are not edited.
+- The op panels: work planes, the start point and depth picks from the 3D view, Reset to defaults, choosing pocket
+  extensions and a tag's position picked on the path are greyed; locations are listed, not added.
+
 ## Still missing
 
 - PartDesign: the Shaft Design Wizard is cut (a Python wizard with its own table, charts and calculation); a Sub-Shape Binder binds its own Body only, and only Synchronized; a Boolean's tools and a Clone's source are other part modules ("PartDesign's last commands, 2026-10-27"); Move Object To…, Set Face Colors, Toggle Suppressed and Toggle Freeze are greyed with FreeCAD's reasons ("PartDesign, 2026-10-24").
@@ -1172,4 +1214,5 @@ Deliberately or knowingly different:
 - Loft, Pipe and Helix: a Pipe whose end sections are not planar is refused, and a solid's face as a Pipe's or Helix's Profile is not offered ("PartDesign Loft, Pipe and Helix, 2026-10-24").
 - TechDraw: Broken View, Complex Section, Project Shape, views from other workbenches, Toggle Edge Visibility and the extension commands are greyed; a section is one undo step, not two ("TechDraw workbench, 2026-10-27").
 - Spreadsheet: Bind…, Configuration Table, zoom, printing, the line edits' completer, xlsx import and charts are cut ("Spreadsheet workbench, 2026-10-27").
-- The other workbenches: the selector offers only Assembly, CAD Agent, Inspection, Part Design, Part, Sketcher, Spreadsheet and TechDraw, so Draft, FEM, Mesh and the rest are not offered ("Toolbars").
+- CAM: the ops but Profile, Pocket Shape, Face and Drilling, the dress-ups but Tag and Dogbone, the simulators, work planes, templates and the tool bit library are cut ("CAM workbench, 2026-10-28").
+- The other workbenches: the selector offers only Assembly, CAD Agent, CAM, Inspection, Part Design, Part, Sketcher, Spreadsheet and TechDraw, so Draft, FEM, Mesh and the rest are not offered ("Toolbars").

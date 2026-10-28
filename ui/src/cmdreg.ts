@@ -59,6 +59,7 @@ import { booleanCommand, cloneCommand, cloneEnabled } from './pd_boolean'
 import { partCommands, partEnabled, partRun } from './part_wb'
 import { deleteTd, tdState, techdrawCommands, techdrawEnabled, techdrawRun } from './techdraw'
 import { deleteSelectedSheets, sheetActive, sheetMsg, spreadsheetCommands, spreadsheetEnabled, spreadsheetRun, ssState } from './spreadsheet'
+import { camCommands, camEnabled, camRun, camState, deleteSelectedCam } from './cam'
 import { assemblyCommands, assemblyEnabled, assemblyRun } from './assembly_wb'
 import { sweepCommands } from './pd_sweep'
 
@@ -240,8 +241,8 @@ const COMMANDS: Record<string, RegCommand> = {
   PartDesign_Boolean: reg('Boolean Operation', () => void booleanCommand(), () => !!getState().slug),
   PartDesign_MoveTip: reg('Set Tip', () => void setTip(), () => getState().featSel.length === 1),
   PartDesign_MoveFeatureInTree: reg('Move Feature After…', moveFeatureAfter, () => getState().featSel.length > 0),
-  Std_Delete: reg('Delete', () => { if (tdState().sel.length) void deleteTd(); else if (sheetActive()) sheetMsg('Std_Delete'); else if (ssState().sel.length) void deleteSelectedSheets(); else void deleteFeatures() },
-    () => getState().featSel.length > 0 || tdState().sel.length > 0 || sheetActive() || ssState().sel.length > 0),
+  Std_Delete: reg('Delete', () => { if (tdState().sel.length) void deleteTd(); else if (camState().sel.length) void deleteSelectedCam(); else if (sheetActive()) sheetMsg('Std_Delete'); else if (ssState().sel.length) void deleteSelectedSheets(); else void deleteFeatures() },
+    () => getState().featSel.length > 0 || tdState().sel.length > 0 || camState().sel.length > 0 || sheetActive() || ssState().sel.length > 0),
   // pd_transform.tsx: Mirror, Linear/Polar Pattern, Multi-Transform (Command.cpp), the primitives (CommandPrimitive.cpp)
   ...Object.fromEntries(pdxCommands().map(([c, label, run]) => [c, reg(label, run, () => !!getState().slug)])),
   ...pdDatumCommands(reg),                    // pd_datum.tsx: PartDesign_Plane, _Line, _Point, _CoordinateSystem
@@ -253,6 +254,8 @@ const COMMANDS: Record<string, RegCommand> = {
   ...Object.fromEntries(assemblyCommands().map(([c, e]) => [c, reg(e.label, () => assemblyRun(c), () => assemblyEnabled(c))])),
   // spreadsheet.tsx: the Spreadsheet workbench's commands (Command.cpp)
   ...Object.fromEntries(spreadsheetCommands().map(([c, e]) => [c, reg(e.text.replace(/&(.)/g, '$1'), () => spreadsheetRun(c), () => spreadsheetEnabled(c))])),
+  // cam.tsx: the CAM workbench's commands (InitGui.py's lists; each command's GetResources and IsActive)
+  ...Object.fromEntries(camCommands().map(([c, e]) => [c, reg(e.text, () => camRun(c), () => camEnabled(c))])),
   ...Object.fromEntries(sweepCommands().map(([c, label, run]) => [c, reg(label, run, () => !!getState().slug)])),   // pd_sweep.tsx
 
   // ── CAD Agent workbench (chrome.tsx's agentEntries/agentwb.tsx: no FreeCAD equivalent) ──

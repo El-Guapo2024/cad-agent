@@ -193,6 +193,24 @@
 .wb-row.off .wb-text, .wb-row.off .wb-auto, .wb-row.off .wb-loaded { color: var(--text-disabled); }
 .wb-row.off .wb-ico { opacity: .5; }
 
+/* QTabWidget and QToolBox (the CAM panels): the tab bar over the current page; a tool box's page buttons, the current one open */
+.qf-tabs { display: flex; flex-direction: column; min-width: 0; }
+.qf-tabbar { display: flex; flex-wrap: wrap; border-bottom: 1px solid var(--border); }
+.qf-tab { font: inherit; padding: 3px 10px; border: 1px solid transparent; border-bottom: none; background: none; color: inherit; border-radius: var(--radius) var(--radius) 0 0; }
+.qf-tab.cur { border-color: var(--border); background: var(--field-bg); margin-bottom: -1px; }
+.qf-tabpage { display: flex; flex-direction: column; padding-top: 4px; min-width: 0; }
+.qf-toolbox { display: flex; flex-direction: column; min-width: 0; gap: 2px; }
+.qf-tb-btn { font: inherit; text-align: left; width: 100%; padding: 3px 6px; border: 1px solid var(--border); color: inherit; border-radius: var(--radius);
+  background: linear-gradient(var(--btn-top), var(--btn-bottom)); }
+.qf-tb-page.cur > .qf-tb-btn { font-weight: 600; }
+/* a list the page fills (the CAM panels' base geometry, tags, tool controllers) */
+.qf-list { border: 1px solid var(--border); background: var(--field-bg); overflow: auto; min-height: 60px; max-height: 180px; }
+.qf-list-row { padding: 1px 4px; white-space: nowrap; display: flex; gap: 4px; align-items: center; }
+.qf-list-row.sel { background: var(--accent-bg); }
+.qf-list table { border-collapse: collapse; width: 100%; }
+.qf-list th, .qf-list td { text-align: left; padding: 1px 4px; white-space: nowrap; }
+.qf-list tr.sel { background: var(--accent-bg); }
+
 /* The Light Sources preview: the viewer fills its widget */
 .light-view { box-sizing: border-box; overflow: hidden; }
 .light-view canvas { display: block; }

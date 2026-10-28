@@ -44,7 +44,9 @@ them carry.
   Alfredo Monclus: Mod/Start/Gui/NewFileButton.cpp
   AstoCAD: Mod/Part/Gui/PatternParametersWidget.cpp
   Bas Ruigrok (Rexbas): Gui/Navigation/NavigationAnimation.cpp
+  Billy Huddleston: Mod/CAM/Path/Op/Gui/CircularHoleBase.py
   Chris Hennes: Gui/PreferencePages/DlgSettingsWorkbenchesImp.cpp
+  Dan Falck: Mod/CAM/Path/Post/Command.py
   David Friedli: Mod/Measure/Gui/Command.cpp, Mod/Measure/Gui/TaskMeasure.cpp,
       Mod/Measure/Gui/ViewProviderMeasureAngle.cpp, Mod/Measure/Gui/ViewProviderMeasureBase.cpp,
       Mod/Measure/Gui/ViewProviderMeasureDistance.cpp
@@ -113,6 +115,9 @@ them carry.
       Mod/Sketcher/Gui/DrawSketchHandlerTranslate.h, Mod/Sketcher/Gui/SketcherToolDefaultWidget.cpp,
       Mod/Sketcher/Gui/SnapManager.cpp, Mod/Sketcher/Gui/TaskSketcherTool.cpp
   Pieter Hijma: Gui/Dialogs/DlgExpressionInput.cpp
+  sliptonic: Mod/CAM/Path/Main/Gui/Job.py, JobCmd.py, JobDlg.py, Path/Op/Gui/Base.py, Profile.py, PocketBase.py,
+      PocketShape.py, MillFace.py, Drilling.py, CircularHoleBase.py, FeatureExtension.py,
+      Path/Tool/Gui/Controller.py, Path/Dressup/Gui/Tags.py, DogboneII.py
   Stefan Tröger: Gui/CommandStructure.cpp, Mod/Part/Gui/ViewProviderAttachExtension.cpp,
       Mod/PartDesign/Gui/CommandPrimitive.cpp, Mod/PartDesign/Gui/TaskPrimitiveParameters.cpp,
       Mod/PartDesign/Gui/TaskThicknessParameters.cpp
@@ -154,6 +159,7 @@ them carry.
       Mod/PartDesign/Gui/Workbench.cpp, Mod/Sketcher/Gui/EditDatumDialog.cpp,
       Mod/Sketcher/Gui/SoZoomTranslation.cpp, Mod/Sketcher/Gui/SketcherSettings.cpp,
       Base/Tools.cpp
+  Yorik van Havre: Mod/CAM/InitGui.py, Mod/CAM/Gui/ViewProviderPath.cpp
   Zheng Lei (realthunder): Gui/ViewParams.cpp, Gui/CommandCompleter.cpp, Gui/CommandLink.cpp, Gui/OverlayManager.cpp,
       Gui/OverlayParams.py, Gui/OverlayWidgets.cpp, Gui/OverlayWidgets.h,
       Gui/PreferencePages/DlgSettingsAdvanced.cpp, Gui/ShortcutManager.cpp, Gui/TreeParams.py,
@@ -647,6 +653,9 @@ src/Gui/Workbench.cpp   [licence: LGPL-2.0-or-later]
 src/Gui/propertyeditor/PropertyEditor.cpp   [licence: LGPL-2.1-or-later]
     copyright 2004 Werner Mayer
     followed by src/freecad.css, src/panels.tsx, src/partdesign.tsx
+src/Gui/propertyeditor/PropertyItem.cpp   [licence: LGPL-2.0-or-later]
+    copyright 2004 Werner Mayer
+    followed by src/cam.tsx
 src/Gui/resource.cpp   [licence: LGPL-2.0-or-later]
     copyright 2004 Werner Mayer
     followed by src/customize.tsx, src/prefs.tsx
@@ -716,6 +725,97 @@ src/Mod/Assembly/JointObject.py   [licence: LGPL-2.1-or-later]
 src/Mod/Assembly/UtilsAssembly.py   [licence: LGPL-2.1-or-later]
     copyright 2023 Ondsel
     followed by src/assembly_wb.tsx, src/assembly_tasks.tsx
+src/Mod/CAM/Gui/Resources/panels/DlgJobCreate.ui   [licence: none]
+    copyright: no line in the file
+    followed by src/cam_tasks.tsx, src/uiforms-cam.ts
+src/Mod/CAM/Gui/Resources/panels/HoldingTagsEdit.ui   [licence: none]
+    copyright: no line in the file
+    followed by src/cam_tasks.tsx, src/uiforms-cam.ts
+src/Mod/CAM/Gui/Resources/panels/PageBaseGeometryEdit.ui   [licence: none]
+    copyright: no line in the file
+    followed by src/cam_tasks.tsx, src/uiforms-cam.ts
+src/Mod/CAM/Gui/Resources/panels/PageBaseHoleGeometryEdit.ui   [licence: none]
+    copyright: no line in the file
+    followed by src/cam_tasks.tsx, src/uiforms-cam.ts
+src/Mod/CAM/Gui/Resources/panels/PageBaseLocationEdit.ui   [licence: none]
+    copyright: no line in the file
+    followed by src/cam_tasks.tsx, src/uiforms-cam.ts
+src/Mod/CAM/Gui/Resources/panels/PageHeightsEdit.ui   [licence: none]
+    copyright: no line in the file
+    followed by src/cam_tasks.tsx, src/uiforms-cam.ts
+src/Mod/CAM/Gui/Resources/panels/PageOpDrillingEdit.ui   [licence: none]
+    copyright: no line in the file
+    followed by src/cam_tasks.tsx, src/uiforms-cam.ts
+src/Mod/CAM/Gui/Resources/panels/PageOpPocketExtEdit.ui   [licence: none]
+    copyright: no line in the file
+    followed by src/cam_tasks.tsx, src/uiforms-cam.ts
+src/Mod/CAM/Gui/Resources/panels/PageOpPocketFullEdit.ui   [licence: none]
+    copyright: no line in the file
+    followed by src/cam_tasks.tsx, src/uiforms-cam.ts
+src/Mod/CAM/Gui/Resources/panels/PageOpProfileFullEdit.ui   [licence: none]
+    copyright: no line in the file
+    followed by src/cam_tasks.tsx, src/uiforms-cam.ts
+src/Mod/CAM/Gui/Resources/panels/PageToolControllerEdit.ui   [licence: none]
+    copyright: no line in the file
+    followed by src/cam_tasks.tsx, src/uiforms-cam.ts
+src/Mod/CAM/Gui/Resources/panels/PathEdit.ui   [licence: none]
+    copyright: no line in the file
+    followed by src/cam_tasks.tsx, src/uiforms-cam.ts
+src/Mod/CAM/Gui/Resources/panels/ToolControllerEdit.ui   [licence: none]
+    copyright: no line in the file
+    followed by src/cam_tasks.tsx, src/uiforms-cam.ts
+src/Mod/CAM/Gui/ViewProviderPath.cpp   [licence: LGPL-2.0-or-later]
+    copyright 2014 Yorik van Havre
+    followed by src/cam.tsx
+src/Mod/CAM/InitGui.py   [licence: LGPL-2.1-or-later]
+    copyright 2014 Yorik van Havre
+    followed by src/cam.tsx
+src/Mod/CAM/Path/Dressup/Gui/DogboneII.py   [licence: LGPL-2.1-or-later]
+    copyright 2022 sliptonic
+    followed by src/cam.tsx
+src/Mod/CAM/Path/Dressup/Gui/Tags.py   [licence: LGPL-2.1-or-later]
+    copyright 2017 sliptonic
+    followed by src/cam.tsx, src/cam_tasks.tsx
+src/Mod/CAM/Path/Main/Gui/Job.py   [licence: LGPL-2.1-or-later]
+    copyright 2017 sliptonic
+    followed by src/cam.tsx, src/cam_tasks.tsx
+src/Mod/CAM/Path/Main/Gui/JobCmd.py   [licence: LGPL-2.1-or-later]
+    copyright 2017 sliptonic
+    followed by src/cam.tsx
+src/Mod/CAM/Path/Main/Gui/JobDlg.py   [licence: LGPL-2.1-or-later]
+    copyright 2018 sliptonic
+    followed by src/cam.tsx, src/cam_tasks.tsx
+src/Mod/CAM/Path/Op/Gui/Base.py   [licence: LGPL-2.1-or-later]
+    copyright 2017 sliptonic
+    followed by src/cam.tsx, src/cam_tasks.tsx
+src/Mod/CAM/Path/Op/Gui/CircularHoleBase.py   [licence: LGPL-2.1-or-later]
+    copyright 2017 sliptonic
+    copyright 2025 Billy Huddleston
+    followed by src/cam_tasks.tsx
+src/Mod/CAM/Path/Op/Gui/Drilling.py   [licence: LGPL-2.1-or-later]
+    copyright 2017 sliptonic
+    followed by src/cam_tasks.tsx
+src/Mod/CAM/Path/Op/Gui/FeatureExtension.py   [licence: LGPL-2.1-or-later]
+    copyright 2019 sliptonic
+    followed by src/cam_tasks.tsx
+src/Mod/CAM/Path/Op/Gui/MillFace.py   [licence: LGPL-2.1-or-later]
+    copyright 2017 sliptonic
+    followed by src/cam_tasks.tsx
+src/Mod/CAM/Path/Op/Gui/PocketBase.py   [licence: LGPL-2.1-or-later]
+    copyright 2017 sliptonic
+    followed by src/cam_tasks.tsx
+src/Mod/CAM/Path/Op/Gui/PocketShape.py   [licence: LGPL-2.1-or-later]
+    copyright 2017 sliptonic
+    followed by src/cam_tasks.tsx
+src/Mod/CAM/Path/Op/Gui/Profile.py   [licence: LGPL-2.1-or-later]
+    copyright 2017 sliptonic
+    followed by src/cam_tasks.tsx
+src/Mod/CAM/Path/Post/Command.py   [licence: LGPL-2.1-or-later]
+    copyright 2015 Dan Falck
+    followed by src/cam.tsx, src/cam_tasks.tsx
+src/Mod/CAM/Path/Tool/Gui/Controller.py   [licence: LGPL-2.1-or-later]
+    copyright 2019 sliptonic
+    followed by src/cam_tasks.tsx
 src/Mod/Material/Gui/DlgDisplayProperties.ui   [licence: none]
     copyright: no line in the file
     followed by src/panels.tsx
@@ -1625,6 +1725,7 @@ src/Mod/Tux/NavigationIndicatorGui.py   [licence: LGPL-2.1-or-later]
     copyright 2016, 2017, 2018 triplus @ FreeCAD
     followed by src/chrome.tsx
 
+
 3. Other code these files follow
 ---------------------------------
 
@@ -1660,7 +1761,7 @@ planegcs/api.cpp's JSON reader and writer. ondsel/dist is that code built to Web
 4. Icons and style sheets
 -------------------------
 
-public/freecad-icons/ holds 203 icons copied unmodified from FreeCAD, plus the style sheet
+public/freecad-icons/ holds 223 icons copied unmodified from FreeCAD, plus the style sheet
 indicators (qss-*.svg) and the overlay buttons (overlay-*.svg); public/freecad-icons/sketcher/ holds
 the Sketcher's 286 icons (src/Mod/Sketcher/Gui/Resources/icons), unmodified, and two cursors drawn pixel for pixel
 from the XPM ones in src/Mod/Sketcher/Gui/CommandSketcherTools.cpp (Sketcher_Pointer_Create_Copy.svg from
@@ -1670,7 +1771,9 @@ PartDesign primitives (PartDesign_Additive*.svg, PartDesign_Subtractive*.svg). p
 workbench's 80 icons (src/Mod/Part/Gui/Resources/icons and its booleans, create, parametric and tools folders),
 unmodified; four of them also carry CC-BY-SA 4.0, as README.md there says. public/freecad-icons/assembly/ holds the
 Assembly workbench's 34 icons (src/Mod/Assembly/Gui/Resources/icons) and src/Gui/Icons/Geoassembly.svg, unmodified
-(LGPL-2.0-or-later, or FreeCAD's LGPL-2.1 for the two with no licence of their own). README.md in that folder says which
+(LGPL-2.0-or-later, or FreeCAD's LGPL-2.1 for the two with no licence of their own). public/freecad-icons/cam/ holds the CAM
+workbench's 46 icons (src/Mod/CAM/Gui/Resources/icons), unmodified, and the CAM panels' buttons (that folder's arrow-*,
+origin-*, stock, model and the others, and src/Gui/Icons/button_left, button_up and button_down) are among the first. README.md in that folder says which
 licence each icon has, as its own metadata states it (mostly LGPL-2.0-or-later; a few are CC-BY-SA
 2.0 or 4.0 or public domain), and LICENSE is FreeCAD's. THIRD_PARTY_LICENSES at the top of the
 repository has the CC-BY-SA texts, and NOTICE there names the authors.

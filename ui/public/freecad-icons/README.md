@@ -36,7 +36,8 @@ Licences, as each file's metadata states:
   `media-playback-start.svg`, `media-playback-stop.svg`, `media-playback-step.svg`, `media-playback-step-back.svg`,
   `media-playback-start-back.svg` (Jakub Steiner, Lapo Calamandrei; the simulation panel's player, added with the
   Assembly's simulations), `applications-accessories.svg`, and
-  `button_sort.svg` (the Switch button of Preferences > Display > Colors; its metadata names the licence, no creator).
+  `button_sort.svg` (the Switch button of Preferences > Display > Colors; its metadata names the licence, no creator),
+  and `button_left.svg`, `button_up.svg`, `button_down.svg` (the CAM panels' buttons; the same metadata).
 - CC-BY-SA 4.0 as well as `FreeCAD LGPL2+` (both in the metadata): `Std_UserEditModeDefault.svg`,
   `Std_UserEditModeTransform.svg`, `Std_UserEditModeCutting.svg`, `Std_UserEditModeColor.svg`.
 - Public domain: `process-stop.svg`, `accessories-calculator.svg` (CC0 1.0, Jakub Steiner),
@@ -101,3 +102,12 @@ The Spreadsheet workbench's icons (ui/src/spreadsheet.tsx) are in `spreadsheet/`
 (drawn by Eivind Kvedalen), but for SpreadsheetStyleBold.svg, SpreadsheetStyleItalic.svg and SpreadsheetStyleUnderline.svg
 (Tango's format-text icons, by Lapo Calamandrei and Andreas Nilsson), which are in the public domain as their
 `cc:license` says.
+
+The CAM workbench's icons (ui/src/cam.tsx) are in `cam/`: 46 SVGs of `src/Mod/CAM/Gui/Resources/icons` at 3160daf1e2b6,
+unmodified (the ones its menus, toolbars, tree and task panels draw; CAM_Vcarve.svg, which says CC-BY 4.0, is left out and
+the Vcarve command is drawn without an icon). Their metadata says `FreeCAD LGPL2+` (drawn by Alexander Gryson and others),
+or carries no licence and they come under FreeCAD's LGPL-2.1. The buttons of the CAM panels' Qt Designer files, from the same folder, are
+at the top of freecad-icons/ where the forms name them: `arrow-ccw.svg`, `arrow-cw.svg`, `arrow-down-y.svg`, `arrow-down-z.svg`,
+`arrow-left-x.svg`, `arrow-right-x.svg`, `arrow-up-y.svg`, `arrow-up-z.svg` (`FreeCAD LGPL2+`), `center-in-stock.svg`, `model.svg`,
+`move-to-origin.svg`, `origin-x.svg`, `origin-y.svg`, `origin-z.svg`, `set-origin.svg`, `stock.svg`, `xy-in-stock.svg` (no licence
+metadata: FreeCAD's LGPL-2.1).

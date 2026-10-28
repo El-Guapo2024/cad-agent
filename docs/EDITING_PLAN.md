@@ -440,32 +440,44 @@ JOB = [
 - Names are unique over all of a project's jobs (FreeCAD's one document: Job001 has Stock001, Operations001 ...).
 - Nothing computed is stored: each op's Path, the stock's shape and the cycle time are a recompute. The G-code is
   written by `cad cam post` with FreeCAD's own post-processors, unchanged (Path/Post/scripts/linuxcnc_post.py,
-  grbl_post.py, generic_post.py over Path/Post/Processor.py), to out/cam/<Job>.<ext> (the Job's PostProcessorOutputFile
-  pattern, as FreeCAD's CAM_Post resolves it, under out/cam/).
+  grbl_post.py, generic_post.py over Path/Post/Processor.py), to out/cam/<Job>.nc (one file per section when the job
+  splits its output: <Job>-<section>.nc).
 - Edits: cad_agent/cam_edit.py (read/apply, all or nothing, untouched entries keep their text) behind `cad cam ...`
   (cad_agent/camcmd.py) and /api/<slug>/cam[/<Job>]; each change one undo step named as FreeCAD's transaction:
 
       cad cam ls       SLUG                                the project's jobs
-      cad cam show     SLUG JOB [--path]                   the tree, each op's commands (counts, or the commands)
+      cad cam show     SLUG JOB [--commands]               the tree, each op's Path (its size, or every command)
       cad cam new      SLUG PART... [--job NAME]           CAM_Job ("Create Job")
-      cad cam tool     SLUG JOB --shape endmill [--diameter D] [--number N] [KEY=VALUE ...]
-                                                           a tool bit and its controller (CAM_ToolBitDock's Add)
-      cad cam op       SLUG JOB TYPE [--base PART:Face3 ...] [--tc TC] [KEY=VALUE ...]
-                                                           CAM_Profile, CAM_Pocket_Shape, CAM_MillFace, CAM_Drilling,
-                                                           CAM_Adaptive ("Create Profile" ...)
-      cad cam dressup  SLUG JOB TYPE OP [KEY=VALUE ...]    CAM_DressupTag, CAM_DressupDogbone
-      cad cam set      SLUG JOB NAME KEY=VALUE ...         the property view / task panel
+      cad cam tool     SLUG JOB [KEY=VALUE ...] (--bit 5mm_Endmill | --shape endmill) [--number N]
+                                                           the tool bit dock's Add to Job: a bit and its controller
+                                                           ("Add Tool Controller to the Job")
+      cad cam op       SLUG JOB TYPE [KEY=VALUE ...] [--base PART:Face3,Face4 ...]
+                                                           CAM_Profile, CAM_Pocket_Shape, CAM_MillFace, CAM_Drilling
+                                                           ("Create Profile", "Create Pocket Shape", "Create MillFace",
+                                                           "Create Drilling")
+      cad cam dressup  SLUG JOB TYPE OP [KEY=VALUE ...]    CAM_DressupTag ("Create a Tag dressup"),
+                                                           CAM_DressupDogbone ("Create Dogbone Dress-up")
+      cad cam set      SLUG JOB NAME KEY=VALUE ...         the property view / task panel (KEY=expr:EXPR binds one)
       cad cam delete   SLUG JOB NAME ...                   Std_Delete
-      cad cam rename   SLUG JOB NAME TO
-      cad cam apply    SLUG JOB --ops JSON                 several ops as one step (what the workbench sends)
-      cad cam post     SLUG JOB [--post linuxcnc|grbl|generic] [--args ARGS] [--out FILE]
-                                                           CAM_Post
+      cad cam label    SLUG JOB NAME TEXT                  Std_Rename
+      cad cam apply    SLUG JOB --ops JSON [--step NAME] [--amend]
+                                                           several ops as one step (what the workbench sends)
+      cad cam post     SLUG JOB [--post linuxcnc|grbl|generic] [--args ARGS] [--out FILE] [--print]
+                                                           CAM_Post, to out/cam/<Job>.nc
+      cad cam delete-job SLUG JOB                          Std_Delete of the Job and everything in it
+
+  KEY=VALUE pairs come before the options. Adaptive is cut: its op needs TechDraw's findShapeOutline (the edge walker
+  and DrawProjectSplit), which is not ported; CAM_Adaptive is greyed with that reason.
+- All of a project's jobs are one document (cam/*.py in file-name order), as FreeCAD's document holds them all.
+- A dress-up's base op leaves Operations.Group when the dress-up is made, as the dress-up's view provider (attach) takes
+  it out in FreeCAD's GUI, so the job posts the dress-up and not its base as well.
 - cam/ is not a design input (verify.DESIGN), so a job never makes a verdict stale.
 - The page: the CAM workbench (its menus and toolbars from FreeCAD's InitGui.py, every command we do not run greyed with
   a reason), the Job and op task panels from FreeCAD's own .ui files (src/Mod/CAM/Gui/Resources/panels) drawn by
-  qtform.tsx, the tree (Job > Model, Stock, Tools, Operations), the property view, undo, and each op's toolpath drawn in
+  qtform.tsx, the tree (Job > Operations, Model, Stock, SetupSheet, Tools, Workplanes), the property view, undo, and each op's toolpath drawn in
   the 3D view as ViewProviderPath draws it (rapid moves red, feed moves in the path colour). Simulation is cut.
 - Checked like the rest: tests/golden/cam (freecadcmd builds the same Job on the same BREP: each op's Path commands
-  number by number, to 1e-6, and each post-processor's G-code text), and ui/scripts/camcheck.mjs against
+  number by number, to 1e-6, and each post-processor's G-code text, against each of the outcomes FreeCAD gives from run
+  to run), and ui/scripts/camcheck.mjs against
   ui/scripts/fccam.json (the real GUI's CAM menu and toolbars, the Job and op task panels, the tree, the property view
   and undo), recorded once by ui/scripts/fccam.py.

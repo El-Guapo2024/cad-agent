@@ -63,6 +63,7 @@ import { partMenu, partToolbars } from './part_wb'
 import { assemblyMenu, assemblyToolbars } from './assembly_wb'
 import { deleteTd, tdState, TECHDRAW_TOOLBARS, techdrawMenu, techdrawToolbars } from './techdraw'
 import { ColorPickers, deleteSelectedSheets, sheetActive, sheetMsg, spreadsheetMenu, spreadsheetToolbar, ssState } from './spreadsheet'
+import { camMenu, camState, camToolbars, CAM_TOOLBARS, deleteSelectedCam } from './cam'
 import { createDatum, datumsMenu } from './pd_attach'
 /** Edit > Create's entries other than Datums: a project's parts are its modules here, not document objects. */
 const CREATE_NA = 'n/a: a project\'s parts are its part modules; there is no document to add this to'
@@ -98,6 +99,7 @@ const WORKBENCHES: Record<Workbench, { label: string; icon: IconName; name: stri
   part: { label: 'Part', icon: 'wb-part', name: 'PartWorkbench' },
   techdraw: { label: 'TechDraw', icon: 'td-preferences-techdraw', name: 'TechDrawWorkbench' },   // TechDraw's InitGui.py
   spreadsheet: { label: 'Spreadsheet', icon: 'ss-SpreadsheetWorkbench', name: 'SpreadsheetWorkbench' },   // Spreadsheet's InitGui.py
+  cam: { label: 'CAM', icon: 'cam-CAMWorkbench', name: 'CAMWorkbench' },   // CAM's InitGui.py
 }
 /** WorkbenchGroup::refreshWorkbenchList: the workbenches in the order of their internal names
  *  (Gui.listWorkbenches()), the first nine on W, 1 … W, 9. */
@@ -467,6 +469,7 @@ export function MenuBar() {
         { label: 'Duplicate Selection', icon: 'duplicate', disabled: true, title: 'n/a: parts are source code; duplicating one is an edit to it' },
         // Std_Delete: a Body's features (partdesign.tsx), with FreeCAD's dependency warning; a part is its source code
         tdState().sel.length ? { label: 'Delete', kbd: '⌫', icon: 'edit-delete', cmd: 'Std_Delete', onSelect: () => void deleteTd() } :
+        camState().sel.length ? { label: 'Delete', kbd: '⌫', icon: 'edit-delete', cmd: 'Std_Delete', onSelect: () => void deleteSelectedCam() } :
         sheetActive() ? { label: 'Delete', kbd: '⌫', icon: 'edit-delete', cmd: 'Std_Delete', onSelect: () => sheetMsg('Std_Delete') } :
         ssState().sel.length ? { label: 'Delete', kbd: '⌫', icon: 'edit-delete', cmd: 'Std_Delete', onSelect: () => void deleteSelectedSheets() } :
         getState().featSel.length ? { label: 'Delete', kbd: '⌫', icon: 'edit-delete', cmd: 'Std_Delete', onSelect: () => void deleteFeatures() }
@@ -616,6 +619,8 @@ export function MenuBar() {
       {wb === 'techdraw' && <Menu label="TechDraw" entries={techdrawMenu()} />}
       {/* SpreadsheetGui::Workbench::setupMenuBar: "&Spreadsheet", inserted before Windows (spreadsheet.tsx) */}
       {wb === 'spreadsheet' && <Menu label="Spreadsheet" entries={spreadsheetMenu()} />}
+      {/* CAMWorkbench.Initialize: "&CAM", before Windows (cam.tsx) */}
+      {wb === 'cam' && <Menu label="CAM" entries={camMenu()} />}
       <Menu label="Windows" entries={windowsEntries()} />
       <Menu label="Help" entries={[
         { label: "What's This?", kbd: '⇧F1', icon: 'whats-this', onSelect: whatsThis },
@@ -832,11 +837,11 @@ function UndoRedoButton({ kind }: { kind: 'undo' | 'redo' }) {
 export const TOOLBARS = ['File', 'Edit', 'Clipboard', 'Workbench', 'Macro', 'View', 'Individual Views', 'Structure', 'Help', 'CAD Agent', 'Part Tools',
   'Solids', 'Boolean Tools', 'Assembly', 'Assembly Joints', 'Part Design Helper Features', 'Part Design Modeling Features', 'Part Design Dress-Up Features', 'Part Design Transformation Features',
   'TechDraw Pages', 'TechDraw Views', 'TechDraw Stacking', 'TechDraw Dimensions', 'TechDraw Attributes', 'TechDraw Centerlines', 'TechDraw Extend Dimensions',
-  'TechDraw File Access', 'TechDraw Decoration', 'TechDraw Annotation', 'Spreadsheet'] as const
+  'TechDraw File Access', 'TechDraw Decoration', 'TechDraw Annotation', 'Spreadsheet', 'Project Setup', 'Tool Commands', 'New Operations', 'Path Modification'] as const
 /** A workbench's own toolbars, listed in View > Toolbars only while it is active. */
 const WB_TOOLBARS: Record<string, string> = { 'CAD Agent': 'agent', Solids: 'part', 'Boolean Tools': 'part', Assembly: 'assembly', 'Assembly Joints': 'assembly', 'Part Design Helper Features': 'design', 'Part Design Modeling Features': 'design',
   'Part Design Dress-Up Features': 'design', 'Part Design Transformation Features': 'design',
-  ...Object.fromEntries(TECHDRAW_TOOLBARS.map((t) => [t, 'techdraw'])), Spreadsheet: 'spreadsheet' }
+  ...Object.fromEntries(TECHDRAW_TOOLBARS.map((t) => [t, 'techdraw'])), Spreadsheet: 'spreadsheet', ...Object.fromEntries(CAM_TOOLBARS.map((t) => [t, 'cam'])) }
 const HIDDEN_TOOLBARS: readonly string[] = ['Clipboard', 'Macro', 'Individual Views']
 const toolbarOn = (shown: Record<string, boolean>, name: string) => shown[name] ?? !HIDDEN_TOOLBARS.includes(name)
 /** QToolBar::handle: the 8px grip each toolbar starts with (FreeCAD.qss), gone when locked. */
@@ -940,7 +945,10 @@ export function ToolBar() {
         <span key={t} className="tb-group" title={t}><TGrip />{es.map((e, i) => <EntryBtn key={i} e={e} />)}</span>))}
       {/* SpreadsheetGui::Workbench::setupToolBars and activated(): the Spreadsheet toolbar and its two colour pickers */}
       {wb === 'spreadsheet' && on('Spreadsheet') && <span className="tb-group" title="Spreadsheet"><TGrip />{spreadsheetToolbar().map((e, i) => <EntryBtn key={i} e={e} />)}<ColorPickers /></span>}
-      {wb !== 'part' && wb !== 'assembly' && wb !== 'techdraw' && wb !== 'spreadsheet' && on('Part Tools') && <><TGrip />
+      {/* CAMWorkbench.Initialize: Project Setup, Tool Commands, New Operations, Path Modification (cam.tsx) */}
+      {wb === 'cam' && camToolbars().filter(([t]) => on(t as (typeof TOOLBARS)[number])).map(([t, es]) => (
+        <span key={t} className="tb-group" title={t}><TGrip />{es.map((e, i) => <EntryBtn key={i} e={e} />)}</span>))}
+      {wb !== 'part' && wb !== 'assembly' && wb !== 'techdraw' && wb !== 'spreadsheet' && wb !== 'cam' && on('Part Tools') && <><TGrip />
         <Btn icon="visibility" cmd="Std_ToggleVisibility" disabled={!selected.length} onClick={() => toggleVisibility()} />
         {wb === 'design' && <Btn icon="body" cmd="Std_Edit" disabled={!one} onClick={() => one && editDefault(one)} />}
         {wb !== 'inspection' && <Btn icon="transform" cmd="Std_TransformManip" disabled={!one} onClick={() => one && openTask('transform', one)} />}
