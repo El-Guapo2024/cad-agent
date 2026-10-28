@@ -263,6 +263,16 @@ class Shape:
             raise IndexError(f"Index out of bound: {name}")
         return wrap(lst[i - 1])
 
+    def __getattr__(self, name):
+        """TopoShapePy::getCustomAttributes: shape.Face3, shape.Edge12 ... are its sub-shapes."""
+        import re
+        if re.fullmatch(r"(Vertex|Edge|Wire|Face|Shell|Solid|CompSolid)\d+", name):
+            try:
+                return self.getElement(name)
+            except (IndexError, ValueError):
+                pass
+        raise AttributeError(f"'{type(self).__name__}' object has no attribute '{name}'")
+
     def countElement(self, kind):
         return len(_subs(self._s, NAME_TYPES[kind]))
 

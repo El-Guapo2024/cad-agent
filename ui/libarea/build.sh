@@ -8,8 +8,10 @@
 #               libarea/CMakeLists.txt and cMake/FreeCAD_Helpers/SetupClipper2.cmake build them
 #   tsp_solver  src/Mod/CAM/App/tsp_solver.cpp and tsp_solver_pybind.cpp (PathUtils.sort_locations_tsp)
 #
-#   ui/libarea/build.sh native  ->  ui/libarea/build/area<EXT_SUFFIX> and tsp_solver<EXT_SUFFIX>, which
-#                                   cad_agent/cam_native.py puts on sys.path for FreeCAD's CAM Python
+#   ui/libarea/build.sh native  ->  ui/libarea/build/libarea-native.so (FreeCAD's area-native), and the modules
+#                                   area<EXT_SUFFIX> (pyarea.cpp), cam_areaext<EXT_SUFFIX> (areaext.cpp: what the
+#                                   port of Path::Area needs of libarea) and tsp_solver<EXT_SUFFIX>, which
+#                                   cad_agent/cam_runtime.py puts on sys.path for FreeCAD's CAM Python
 #
 # Needs a C++20 compiler (FreeCAD builds as C++20), the Python headers of the Python that will import them (PYTHON_INCLUDE, default from
 # sysconfig; a folder holding Python.h, and pyconfig.h in it or in PYCONFIG_INCLUDE) and pybind11's headers
@@ -57,7 +59,7 @@ incs+=(-I "$pb")
 out="$here/build"
 obj="$out/obj"
 mkdir -p "$obj"
-common=(-std=c++20 -O2 -DNDEBUG -fPIC -w -fvisibility=hidden)
+common=(-std=c++20 -O2 -DNDEBUG -fPIC -w)
 clip=(-DUSINGZ -DCLIPPER2_MAX_DECIMAL_PRECISION=8 -I "$up/Clipper2/Clipper2Lib/include" -I "$out/gen")
 
 # clipper.version.h, as Clipper2's CMakeLists.txt configures it from clipper.version.in (PROJECT_VERSION 2.0.1)
@@ -67,12 +69,15 @@ if [[ ! -f "$ver" ]]; then
     printf '#ifndef CLIPPER_VERSION_H\n#define CLIPPER_VERSION_H\n\nconstexpr auto CLIPPER2_VERSION = "2.0.1";\n\n#endif  // CLIPPER_VERSION_H\n' > "$ver"
 fi
 
-area_sources=(
+# libarea-native (FreeCAD's area-native target: libarea and Clipper2Z), and the two modules that link it
+native_sources=(
     "$up/Clipper2/Clipper2Lib/src/clipper.engine.cpp" "$up/Clipper2/Clipper2Lib/src/clipper.offset.cpp"
     "$up/Clipper2/Clipper2Lib/src/clipper.rectclip.cpp" "$up/Clipper2/Clipper2Lib/src/clipper.triangulation.cpp"
     "$up/libarea/Area.cpp" "$up/libarea/AreaOrderer.cpp" "$up/libarea/AreaPocket.cpp" "$up/libarea/Curve.cpp"
-    "$up/libarea/AreaClipper.cpp" "$up/libarea/Adaptive.cpp" "$up/libarea/clipper.cpp" "$up/libarea/pyarea.cpp"
+    "$up/libarea/AreaClipper.cpp" "$up/libarea/Adaptive.cpp" "$up/libarea/clipper.cpp"
 )
+area_sources=("$up/libarea/pyarea.cpp")
+ext_sources=("$here/areaext.cpp")
 tsp_sources=("$up/tsp_solver/tsp_solver.cpp" "$up/tsp_solver/tsp_solver_pybind.cpp")
 
 compile() {   # compile <tag> <sources...>: objects in $obj/<tag>-<name>.o, rebuilt when the source is newer
@@ -90,15 +95,29 @@ objects() {   # objects <tag> <sources...>
 }
 
 build_native() {
-    local link=(-shared)
-    if [[ "$(uname -s)" == Darwin ]]; then link+=(-undefined dynamic_lookup); fi
+    local link=(-shared) rpath lib libflags=()
+    if [[ "$(uname -s)" == Darwin ]]; then
+        link+=(-undefined dynamic_lookup)
+        rpath=(-Wl,-rpath,@loader_path)
+        lib=libarea-native.dylib
+        libflags=(-Wl,-install_name,@rpath/$lib)
+    else
+        rpath=(-Wl,-rpath,'$ORIGIN')
+        lib=libarea-native.so
+    fi
+    compile native "${native_sources[@]}"
+    mapfile -t objs < <(objects native "${native_sources[@]}")
+    "$cxx" -shared -o "$out/$lib" "${objs[@]}" "${libflags[@]}"
     compile area "${area_sources[@]}"
     mapfile -t objs < <(objects area "${area_sources[@]}")
-    "$cxx" "${link[@]}" -o "$out/area$ext" "${objs[@]}"
+    "$cxx" "${link[@]}" -o "$out/area$ext" "${objs[@]}" -L "$out" -larea-native "${rpath[@]}"
+    compile ext "${ext_sources[@]}"
+    mapfile -t objs < <(objects ext "${ext_sources[@]}")
+    "$cxx" "${link[@]}" -o "$out/cam_areaext$ext" "${objs[@]}" -L "$out" -larea-native "${rpath[@]}"
     compile tsp "${tsp_sources[@]}"
     mapfile -t objs < <(objects tsp "${tsp_sources[@]}")
     "$cxx" "${link[@]}" -o "$out/tsp_solver$ext" "${objs[@]}"
-    echo "built $out/area$ext $out/tsp_solver$ext"
+    echo "built $out/$lib $out/area$ext $out/cam_areaext$ext $out/tsp_solver$ext"
 }
 
 case "$target" in

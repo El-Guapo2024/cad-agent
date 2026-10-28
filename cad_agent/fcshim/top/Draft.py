@@ -16,18 +16,22 @@ class Clone:
         obj.Proxy = self
 
     def execute(self, obj):
-        if not obj.Objects:
-            return
-        src = obj.Objects[0]
-        shape = src.Shape.copy()
+        """draftobjects/clone.py's execute for one 3D object: its shape (Part.getShape), the clone's placement kept."""
+        import Part
         pl = obj.Placement
-        shape.Placement = FreeCAD.Placement()
-        if obj.Scale != FreeCAD.Vector(1, 1, 1):
-            m = FreeCAD.Matrix()
-            m.m[0][0], m.m[1][1], m.m[2][2] = obj.Scale.x, obj.Scale.y, obj.Scale.z
-            shape = shape.transformGeometry(m)
-        shape.Placement = pl
-        obj._props["Shape"].value = shape
+        shapes = [Part.getShape(o) for o in obj.Objects]
+        shapes = [s for s in shapes if not s.isNull()]
+        if shapes:
+            sh = shapes[0] if len(shapes) == 1 else Part.makeCompound(shapes)
+            if obj.Scale != FreeCAD.Vector(1, 1, 1):
+                op = sh.Placement
+                sh.Placement = FreeCAD.Placement()
+                m = FreeCAD.Matrix()
+                m.m[0][0], m.m[1][1], m.m[2][2] = obj.Scale.x, obj.Scale.y, obj.Scale.z
+                sh.transformShape(m, False, True)
+                sh.Placement = op
+            obj.Shape = sh
+        obj.Placement = pl
 
     def onChanged(self, obj, prop):
         pass

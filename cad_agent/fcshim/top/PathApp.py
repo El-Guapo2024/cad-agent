@@ -6,14 +6,8 @@
 # 3160daf1e2b6. See ../../../NOTICE.
 """PathApp, the C++ half of FreeCAD's `Path` package (Path/__init__.py does `from PathApp import *`): Command, Path,
 Area, fromShapes and sortWires (cad_agent/fcshim/_fc_path.py, _fc_area.py)."""
+from cad_agent.fcshim._fc_area import Area, fromShapes, sortWires  # noqa: F401
 from cad_agent.fcshim._fc_path import Command, Path  # noqa: F401
-
-
-def __getattr__(name):
-    if name in ("Area", "fromShapes", "sortWires", "FeatureArea", "FeatureAreaView"):
-        from cad_agent.fcshim import _fc_area
-        return getattr(_fc_area, name)
-    raise AttributeError(f"module 'PathApp' has no attribute '{name}'")
 
 
 def write(obj, filename):

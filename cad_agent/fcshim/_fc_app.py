@@ -217,13 +217,20 @@ def _coerce(p: _Prop, v, obj=None):
             return Part.Shape()
         if not isinstance(v, Part.Shape):
             raise TypeError("type must be 'Shape'")
-        return v.copy() if hasattr(v, "copy") else v
+        return _shallow(v)
     if t == "Path::PropertyPath":
         import PathApp
         if not isinstance(v, PathApp.Path):
             raise TypeError("type must be 'Path'")
         return PathApp.Path(v)
     return v
+
+
+def _shallow(shape):
+    """A TopoShape copy as PropertyPartShape hands it out: the same TShape, its own location and orientation."""
+    from cad_agent.fcshim._fc_part import wrap
+    t = shape._s
+    return wrap(t.Oriented(t.Orientation())) if not t.IsNull() else type(shape)()
 
 
 def _linksub(v):
@@ -305,7 +312,7 @@ def _get(p: _Prop):
         import Part
         if v is None:
             return Part.Shape()
-        return v.copy() if hasattr(v, "copy") else v
+        return _shallow(v)
     if t == "Path::PropertyPath":
         import PathApp
         return PathApp.Path(v) if v is not None else PathApp.Path()
@@ -448,12 +455,29 @@ class DocumentObject:
     def _on_changed(self, name):
         if name == "Label":
             self._doc._unique_label(self)
+        if derived_from(self.TypeId, "Part::Feature") and name in ("Placement", "Shape"):
+            self._part_feature_changed(name)
         proxy = self._props.get("Proxy")
         px = proxy.value if proxy is not None else None
         if px is not None and hasattr(px, "onChanged") and not self._doc._restoring:
             px.onChanged(self, name)
         if name == "Group" and derived_from(self.TypeId, "App::DocumentObjectGroup") or (name == "Group" and self._ext):
             pass
+
+    def _part_feature_changed(self, name):
+        """Part::Feature::onChanged: a new Placement moves the shape; a new Shape gives its placement to the
+        object, or while recomputing takes the object's."""
+        sp, pp = self._props["Shape"], self._props["Placement"]
+        shape = sp.value
+        if shape is None or shape.isNull():
+            return
+        if name == "Placement":
+            pl = pp.value if pp.value is not None else _base_placement()
+            shape.Placement = pl
+        elif self._in_change:
+            shape.Placement = pp.value if pp.value is not None else _base_placement()
+        else:
+            pp.value = shape.Placement
 
     def __repr__(self):
         px = self._props.get("Proxy")
@@ -775,6 +799,18 @@ class Document:
     def Objects(self):
         return list(self._objects)
 
+    @property
+    def Restoring(self):
+        return self._restoring
+
+    @property
+    def Recomputing(self):
+        return False
+
+    @property
+    def Partial(self):
+        return False
+
     def addObject(self, type_, name=None, *args, **kw):
         if isinstance(type_, str) and type_.startswith("Part::") and type_ not in BASES and type_ != "Part::Feature":
             pass
@@ -986,6 +1022,10 @@ class Document:
         if isinstance(r, X.Vector):
             return B.Vector(r.x, r.y, r.z)
         return r
+
+
+def _base_placement():
+    return B.Placement()
 
 
 def _from_expr(v, p):
