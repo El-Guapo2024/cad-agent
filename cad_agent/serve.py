@@ -86,6 +86,8 @@ ASSEMBLY_PATH = re.compile(r"^/api/([A-Za-z0-9_][A-Za-z0-9_-]{0,63})/assembly(/j
 # /api/<slug>/techdraw[/<page>]: the project's TechDraw pages (`cad techdraw ls|show --svg|apply --svg`).
 # /api/<slug>/spreadsheet[/<sheet>]: the project's spreadsheets (`cad sheet ls|show|apply`).
 SHEET_PATH = re.compile(r"^/api/([A-Za-z0-9_][A-Za-z0-9_-]{0,63})/spreadsheet(?:/([A-Za-z_][A-Za-z0-9_]*))?/?$")
+# /api/<slug>/cam[/<job>[/post]]: the project's CAM jobs (`cad cam ls|show|apply|post`).
+CAM_PATH = re.compile(r"^/api/([A-Za-z0-9_][A-Za-z0-9_-]{0,63})/cam(?:/([A-Za-z_][A-Za-z0-9_]*))?(/post)?/?$")
 TECHDRAW_PATH = re.compile(r"^/api/([A-Za-z0-9_][A-Za-z0-9_-]{0,63})/techdraw(?:/([A-Za-z_][A-Za-z0-9_]*))?/?$")
 # POST /api/<slug>/features/<part>/shape: `cad feature shape`, a feature built after ops, nothing written.
 FEATURE_SHAPE_PATH = re.compile(r"^/api/([A-Za-z0-9_][A-Za-z0-9_-]{0,63})/features/([A-Za-z0-9_]+)/shape/?$")
@@ -394,6 +396,31 @@ class Bench:
         if r["exit"] in (0, 1, 2) and not r["data"].get("error"):
             self.broadcast({"type": "techdraw", "slug": slug, "page": page})
         return r
+
+    # ── CAM jobs (`cad cam`, cad_agent/camcmd.py) ───────────────────────────────────────────────────────
+    def cam_get(self, slug: str, job: str | None) -> dict:
+        """GET /api/<slug>/cam[/<job>]: `cad cam ls`, or one job recomputed (show: the tree, the objects with their
+        properties, each op's commands)."""
+        if not job:
+            return self.run(self.root_of(slug), ["--actor", "ui", "cam", "ls", slug])
+        return self.run(self.root_of(slug), ["--actor", "ui", "cam", "show", slug, job])
+
+    def cam_post(self, slug: str, job: str, ops, name=None, amend=False) -> dict:
+        """POST /api/<slug>/cam/<job> {ops, name?, amend?}: `cad cam apply`, one undo step."""
+        self.root_of(slug)
+        if not isinstance(ops, list) or not ops:
+            raise ValueError("ops must be a non-empty list")
+        args = ["--with-text", "cam", "apply", slug, job, "--ops", json.dumps(ops, separators=(",", ":")),
+                *(["--step", str(name)] if name else []), *(["--amend"] if amend else [])]
+        r = self.cad(slug, "cam", args)
+        if r["exit"] in (0, 1, 2) and not r["data"].get("error"):
+            self.broadcast({"type": "cam", "slug": slug, "job": job})
+        return r
+
+    def cam_gcode(self, slug: str, job: str, post: str = "linuxcnc", args=None) -> dict:
+        """POST /api/<slug>/cam/<job>/post {post, args?}: `cad cam post --print`, the G-code FreeCAD's post writes."""
+        return self.run(self.root_of(slug), ["--actor", "ui", "cam", "post", slug, job, "--post", str(post),
+                                             *(["--args", str(args)] if args is not None else []), "--print"])
 
     # ── spreadsheets (`cad sheet`, cad_agent/spreadsheetcmd.py) ──────────────────────────────────────────
     def sheet_get(self, slug: str, sheet: str | None) -> dict:
@@ -811,6 +838,12 @@ def make_handler(bench: Bench):
                         return self._json(bench.sheet_get(m.group(1), m.group(2)))
                     except KeyError:
                         return self._json({"error": f"no project {m.group(1)!r}"}, 404)
+                m = CAM_PATH.match(path)
+                if m and not m.group(3):
+                    try:
+                        return self._json(bench.cam_get(m.group(1), m.group(2)))
+                    except KeyError:
+                        return self._json({"error": f"no project {m.group(1)!r}"}, 404)
                 m = TECHDRAW_PATH.match(path)
                 if m:
                     try:
@@ -965,6 +998,18 @@ def make_handler(bench: Bench):
             if m and m.group(2):
                 try:
                     return self._json(bench.sheet_post(m.group(1), m.group(2), body.get("ops"), body.get("name")))
+                except KeyError:
+                    return self._json({"error": f"no project {m.group(1)!r}"}, 404)
+                except (TypeError, ValueError) as e:
+                    return self._json({"error": f"bad request: {e}"}, 400)
+            m = CAM_PATH.match(path)
+            if m and m.group(2):
+                try:
+                    if m.group(3):
+                        return self._json(bench.cam_gcode(m.group(1), m.group(2), body.get("post") or "linuxcnc",
+                                                          body.get("args")))
+                    return self._json(bench.cam_post(m.group(1), m.group(2), body.get("ops"), body.get("name"),
+                                                     bool(body.get("amend"))))
                 except KeyError:
                     return self._json({"error": f"no project {m.group(1)!r}"}, 404)
                 except (TypeError, ValueError) as e:

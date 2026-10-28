@@ -68,6 +68,24 @@ that commit.
   LGPL-2.1-or-later and    cad_agent/techdraw_templates/: FreeCAD's TechDraw templates, unmodified.
   CC0-1.0                  See section 3.
 
+  LGPL-2.1-or-later        cad_agent/fccam/Mod/CAM/: FreeCAD's CAM workbench Python (Path/, PathScripts/,
+                           Machine/, Constants.py) and its tool bits, shapes and library (Tools/), copied
+                           unmodified at FreeCAD 3160daf1e2b6 (src/Mod/CAM), only the modules the CAM ops,
+                           dress-ups and post-processors the app runs import. See section 3.
+
+  LGPL-2.1-or-later        cad_agent/fcshim/ (stand-ins for FreeCAD's C++ that the CAM Python calls:
+                           Base, App, Part, PathApp with Path::Area ported from Area.cpp), cad_agent/cam.py,
+                           cam_replay.py, cam_doc.py, cam_edit.py, cam_runtime.py and camcmd.py. See section 2.
+
+  BSD-3-Clause, LGPL-2.1-  ui/libarea/upstream/: FreeCAD's libarea (src/Mod/CAM/libarea: BSD-3-Clause,
+  or-later and BSL-1.0     Copyright (c) 2009-2015 Dan Heeks and others; its Adaptive.cpp LGPL-2.1-or-later,
+                           Copyright (c) 2018 Kresimir Tusek; pyarea.cpp BSD-3-Clause, Copyright (c) 2017
+                           Lorenz Lechner), Clipper2 2.0.1 (src/3rdParty/Clipper2, BSL-1.0, Copyright (c)
+                           Angus Johnson), FreeCAD's tsp_solver (src/Mod/CAM/App/tsp_solver*, LGPL-2.1-or-
+                           later, Copyright (c) 2025 Billy Huddleston) and src/Base/Precision.h, copied
+                           unmodified at 3160daf1e2b6; ui/libarea/areaext.cpp and shim/Precision.hxx are the
+                           glue (LGPL-2.1-or-later). See section 3 and THIRD_PARTY_LICENSES.
+
   LGPL-2.1                 ui/ondsel/upstream/, OndselSolver, FreeCAD's assembly solver: under its own
                            licence, the GNU Lesser General Public License version 2.1 (its LICENSE,
                            which names no later version). See section 3.

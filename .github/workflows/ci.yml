@@ -54,6 +54,13 @@ jobs:
       - name: Assembly solver
         run: JOBS=4 bash ui/ondsel/build.sh native
 
+      # The CAM workbench's libarea, Adaptive2d and tsp_solver (FreeCAD's C++, ui/libarea/build.sh native): the CAM
+      # ops run FreeCAD's own CAM Python over them, and tests/test_cam_golden.py holds them to freecadcmd's answers.
+      - name: CAM libarea
+        run: |
+          .venv/bin/pip install pybind11
+          JOBS=4 PYTHON=.venv/bin/python bash ui/libarea/build.sh native
+
       - name: Tests
         env:
           CAD_RENDER_BACKEND: numpy

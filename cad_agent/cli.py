@@ -1580,6 +1580,8 @@ def build_parser() -> argparse.ArgumentParser:
     techdraw_parsers(add, sub)
     from .spreadsheetcmd import add_parsers as sheet_parsers     # cad sheet new|set|alias|style|merge|import|bind|...
     sheet_parsers(add, sub)
+    from .camcmd import add_parsers as cam_parsers               # cad cam new|tool|op|dressup|set|post|...
+    cam_parsers(add, sub)
 
     bp = add("bought", None, "bought parts: vendor STEP or measured, always with a source")
     bsub = bp.add_subparsers(dest="bought_cmd", metavar="<action>", parser_class=_Parser)
