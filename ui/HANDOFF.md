@@ -130,6 +130,20 @@ Step 5, round 3 (six branches) is all in main (7526c0c, CI green, 6977 passed, 2
   PYTHON_INCLUDE=$tc/py312dev/root/usr/include/python3.12 PYCONFIG_INCLUDE=$tc/py312dev/root/usr/include
   PYBIND11_INCLUDE=$tc/pybind11-2.13.6/include PYTHON=.venv/bin/python bash ui/libarea/build.sh native (CI has headers).
   Without it the CAM tests skip. A new CAD_* variable a command reads goes in warm.py's ENV_PASS (test_warm checks).
+- Round 8 (2026-10-28) is in main (a448573): techdraw-4 (the extension commands), the techdraw-race fix (the check waits
+  for the page's own edits), cam. Mechanical parity ~93%. PAUSED here by Juan (credits), with a YC demo coming.
+- Demo prep, next steps in order: (1) the TechDraw page shows no template (no frame or title block) in the page: fix;
+  (2) plugin/install.sh never builds the native solvers (ui/planegcs, ui/ondsel, ui/libarea), so on a fresh install
+  every sketch fails ("the sketch solver library is not built"): build them in install.sh or ship them as wheels;
+  (3) open the demo project straight to the 3D view, not the Start page; (4) a scripted demo flow, run until smooth,
+  and a backup recording. The basic flow (Body sketch/Pad/Pocket/Fillet, a PARAMS edit, a TechDraw page to PDF, a
+  CAM Profile to grbl G-code) was checked end to end in the page on 2026-10-28.
+- Demo server: ~/cad-demo (outside the repo) holds the bracket demo; `CAD_PROJECTS=~/cad-demo bin/cad serve --port
+  8733 --keep-warm ~/cad-demo` on the VM, reached from a laptop with `gcloud compute ssh ws-cad-agent --zone us-west1-c
+  -- -L 8733:localhost:8733`, then http://localhost:8733/next/.
+- Left after the demo: FEM (Gmsh and CalculiX as separate programs), Draft, Part's cut commands, PARITY's known
+  differences. Temporary branches on GitHub (ds-merge, ds-fix, asm-merge, st-merge, r5-merge, r6-merge, r7-merge,
+  r7b-merge, cam-merge, ci-diag) are all in main; delete them when Juan says so.
 - pd-last (2026-10-27): PartDesign's last commands, each a KwFeature: Involute Gear and Sprocket (cad_agent/feature_gear.py,
   a profile as a sketch is), Defeaturing (feature_defeaturing.py), Sub-Shape Binder (feature_subbinder.py), Boolean and Clone
   (feature_boolean.py, `cad feature clone`): a Body is a part module, so a Boolean's tool or a Clone's source is another part's
