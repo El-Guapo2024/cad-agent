@@ -583,6 +583,9 @@ def run_ops(s: Session, ops) -> list:
         elif kind in _more_ops():
             from . import techdraw_more as M
             done.append(M.run(s, op))
+        elif kind in _ext_ops():
+            from . import techdraw_ext as X
+            done.append(X.run(s, op))
         elif kind == "set":
             o = s.get(op.get("name"))
             props = dict(op.get("props") or {})
@@ -644,6 +647,11 @@ def _annot_ops():
 def _more_ops():
     from . import techdraw_more as M
     return M.OPS
+
+
+def _ext_ops():
+    from . import techdraw_ext as X
+    return X.OPS
 
 
 def _rebuilt(o, d):

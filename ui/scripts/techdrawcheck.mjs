@@ -27,6 +27,9 @@
 //              first values, what OK makes (the object, the drawn lines), the undo steps
 //   more       the leader line, rich text, symbol, weld symbol, surface finish, image and clip tools (ui/scripts/fctechdraw_more.json): the wrong selections,
 //              the panels' widgets, the clicks on the page, what each makes (properties, tree place), the undo steps, the property view's rows (with annot)
+//   ext        (only with --only=ext, alone: it makes its own page) the extension commands (CommandExtensionPack.cpp, CommandExtensionDims.cpp,
+//              Toggle Edge Visibility, Position Section View; ui/scripts/fctechdraw_ext.json): each command on the recording's selection, the geometry in
+//              FreeCAD's numbering, the cosmetic edges, dimensions and balloons, the message boxes, the undo step; Select Line Attributes' panel
 //   export     TechDraw_ExportPageSVG: the file's page size
 // A difference prints as FAIL; the deliberate ones (PARITY.md, "TechDraw") as `known`. Exit 1 on a FAIL.
 import { createRequire } from 'module'
@@ -36,6 +39,7 @@ import { createServer } from 'net'
 import { tmpdir } from 'os'
 import { dirname, join, resolve } from 'path'
 import { fileURLToPath } from 'url'
+import { extChecks } from './techdrawcheck_ext.mjs'
 const require = createRequire(import.meta.url)
 let chromium
 try { ({ chromium } = require('playwright')) } catch { ({ chromium } = createRequire('/opt/node-tools/node_modules/')('playwright')) }
@@ -89,7 +93,7 @@ const part = (name) => {
   copyFileSync(join(REPO, 'tests', 'golden', 'techdraw', 'breps', `${name}.brep`), join(ROOT, SLUG, 'parts', `${name}.brep`))
   writeFileSync(join(ROOT, SLUG, 'parts', `${name}.py`), `"""${name}: the golden BREP (tests/golden/techdraw), the shape FreeCAD drew."""\nfrom pathlib import Path\nfrom build123d import import_brep\n\nMATERIAL = "al6061"\nPROCESS = "cnc"\nPARAMS = {}\n\n\ndef build(**p):\n    return import_brep(str(Path(__file__).with_suffix(".brep")))\n`)
 }
-part('plate'); part('bracket')
+part('plate'); part('bracket'); part('flange'); part('shaft')
 const port = await freePort(9011)
 const server = spawn(python, ['-c', `import sys; from pathlib import Path; from cad_agent import serve; serve.run([Path(sys.argv[1])], host="127.0.0.1", port=${port})`, ROOT],
   { env, cwd: REPO, stdio: ['ignore', 'pipe', 'pipe'] })
@@ -100,7 +104,7 @@ await new Promise((res, rej) => {
 })
 const browser = await chromium.launch({ args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader'] })
 const page = await browser.newPage({ viewport: { width: 1400, height: 950 } })
-page.on('pageerror', (e) => bad('page error', e.message))
+page.on('pageerror', (e) => bad('page error', args.includes('--verbose') ? String(e.stack).slice(0, 900) : e.message))
 const st = (expr) => page.evaluate(expr)
 const until = async (expr, what, ms = 90000) => { const t0 = Date.now(); while (Date.now() - t0 < ms) { if (await st(expr)) return true; await sleep(250) } bad(`timed out waiting: ${what}`); return false }
 const runCmd = (c) => st(`cadui.getCommand(${JSON.stringify(c)})?.run([])`)
@@ -108,7 +112,8 @@ const td = () => st('cadui.td.state()')
 const objs = async () => (await td()).docs.Page?.objects ?? []
 const obj = async (n) => (await objs()).find((o) => o.name === n)
 const undoHead = () => st('cadui.getState().undo[0]?.name ?? null')
-const idle = () => until('!cadui.getState().busy.length', 'the server idle', 120000)
+// idle: the server not rebuilding and no edit sent by the page still on its way (applyTd's request, then the document and the undo journal)
+const idle = () => until('!cadui.getState().busy.length && !cadui.td.inflight()', 'the server idle', 120000)
 const select = (refs) => st(`cadui.td.select(null); ${refs.map((r, i) => `cadui.td.select(${JSON.stringify(r)}, ${i > 0})`).join(';')}`)
 
 /** A menu's entries, FreeCAD's and ours side by side by command (texts, then greyed or not). */
@@ -144,6 +149,14 @@ try {
   await until(`window.cadui && cadui.getState().slug === "${SLUG}" && cadui.getState().scene?.bodies.length >= 2`, 'the page and its scene')
   await st('cadui.setState({ workbench: "techdraw" })')
   await sleep(500)
+  if (ONLY.includes('ext')) {      // its own page, made from nothing: run alone (--only=ext), before the page the other sections share
+    await extChecks({ page, st, until, runCmd, td, idle, select, sleep, check, same, near, bad, note, undoHead, ok, ROOT, SLUG, REPO, extFile: flag('ext', join(HERE, 'fctechdraw_ext.json')) })
+    await browser.close()
+    server.kill()
+    if (!args.includes('--keep')) { rmSync(scratch, { recursive: true, force: true }); rmSync(warmDir, { recursive: true, force: true }) }
+    console.log(`techdrawcheck: ${pass} ok, ${known} known, ${fail} FAIL`)
+    process.exit(fail ? 1 : 0)
+  }
   if (want('menus')) {
     console.log('menus')
     const bar = await st(`[...document.querySelectorAll('.menubar > *')].map((e) => e.textContent.trim()).filter(Boolean)`)
@@ -236,7 +249,9 @@ try {
     }
     if (symbol) await page.fill('[data-qf="leSymbol"]', symbol)
     await page.click(`[data-qf="${arrow}"]`); await sleep(1500)
-    await page.click('.tasks .tbuttons .qbtn.default'); await idle(); await sleep(500)
+    await page.click('.tasks .tbuttons .qbtn.default'); await idle()
+    await until('cadui.getState().undo[0]?.name === "Edit Section View"', 'the second undo step: "Edit Section View"')   // accept(): createSectionView, then updateSectionView
+    await idle(); await sleep(500)
     if (!want('sections')) continue
     const f = made(key)[0], o = await obj(f.Name)
     if (!o) { bad(`${arrow}: ${f.Name}`, 'not made'); continue }
@@ -244,9 +259,8 @@ try {
       `${arrow}: SectionNormal, Direction, XDirection`, JSON.stringify([o.section_normal, o.direction, o.x_direction]))
     same([o.rotation, o.label, o.section_symbol, o.section_direction, o.x, o.y, o.caption], [f.Rotation, f.Label, f.SectionSymbol, f.SectionDirection, f.X, f.Y, f.Caption],
       `${arrow}: Rotation, Label, SectionSymbol, SectionDirection, X, Y, Caption`)
-    const head = await undoHead()
-    if (head === f.undo?.head?.[0]) ok(`${arrow}: the undo step`)
-    else note(`${arrow}: one undo step "${head}" (FreeCAD commits two, "Create Section View" then "Edit Section View")`)
+    const names = await st('cadui.getState().undo.slice(0, 2).map((u) => u.name)')
+    same(names, FC[key].undo.head.slice(0, 2), `${arrow}: the two undo steps`)
   }
   // ── the dimensions, on the View from above ──
   await st(`cadui.td.apply("Page", [{ op: "set", name: "View", props: { direction: ${JSON.stringify(FC.view_top.Direction)} } }], "Edit View.Direction")`)

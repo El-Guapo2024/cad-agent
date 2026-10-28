@@ -419,7 +419,7 @@ def display(doc, frames: bool = False) -> list:
             dash, stroke = HIDDEN_DASH if hidden else (), "#000000"
             f = e.get("format")
             if f is not None:                   # a cosmetic edge, a centre line, or an edge given a GeomFormat
-                if not f["visible"]:
+                if not f["visible"] and not v.get("show_all_edges"):      # ViewProviderViewPart::ShowAllEdges draws them
                     continue
                 from .techdraw_lines import pen
                 width, stroke = f["weight"], _hex(f["color"])

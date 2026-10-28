@@ -96,9 +96,15 @@ def make_circle(center, radius, tag=None, fmt=None) -> dict:
     return _with_format({"tag": tag or new_tag(), "geom": "circle", "center": v3(center), "radius": float(radius)}, fmt)
 
 
-def make_arc(center, radius, start_angle, end_angle, tag=None, fmt=None) -> dict:
-    return _with_format({"tag": tag or new_tag(), "geom": "arc", "center": v3(center), "radius": float(radius),
-                         "start_angle": float(start_angle), "end_angle": float(end_angle)}, fmt)
+def make_arc(center, radius, start_angle, end_angle, tag=None, fmt=None, stored=False) -> dict:
+    """An arc: anticlockwise from the start angle to the end angle in the conventional (y up) plane; with `stored` the
+    angles are those of the arc FreeCAD keeps, which is in the plane turned over (the thread arcs of TechDraw's
+    extension pack are added that way): the same points, the other way round."""
+    d = {"tag": tag or new_tag(), "geom": "arc", "center": v3(center), "radius": float(radius),
+         "start_angle": float(start_angle), "end_angle": float(end_angle)}
+    if stored:
+        d["stored"] = True
+    return _with_format(d, fmt)
 
 
 def make_geomformat(index, fmt=None) -> dict:
@@ -139,7 +145,8 @@ def clean(kind: str, d: dict) -> dict:
         if g == "circle":
             return make_circle(d["center"], d["radius"], d.get("tag"), d.get("format"))
         if g == "arc":
-            return make_arc(d["center"], d["radius"], d["start_angle"], d["end_angle"], d.get("tag"), d.get("format"))
+            return make_arc(d["center"], d["radius"], d["start_angle"], d["end_angle"], d.get("tag"), d.get("format"),
+                            bool(d.get("stored")))
         raise CosmeticError(f"{g!r} is not a cosmetic edge ({', '.join(GEOMS)})")
     if kind == "geomformat":
         return make_geomformat(d["index"], {k: d[k] for k in DEFAULT_FORMAT if k in d})
@@ -168,6 +175,9 @@ def _stored_edge(ce: dict):
     if g == "circle":
         edge = BRepBuilderAPI_MakeEdge(circ, 0.0, 2.0 * math.pi).Edge()
     else:
+        if ce.get("stored"):                    # the angles are those of the plane turned over: the arc as it is kept
+            circ = Geom_Circle(gp_Ax2(gp_Pnt(c[0], -c[1], c[2]), gp_Dir(0, 0, 1)), r)
+            return BRepBuilderAPI_MakeEdge(circ, math.radians(ce["start_angle"]), math.radians(ce["end_angle"])).Edge()
         edge = BRepBuilderAPI_MakeEdge(circ, math.radians(ce["start_angle"]), math.radians(ce["end_angle"])).Edge()
     return invert_geometry(edge)
 

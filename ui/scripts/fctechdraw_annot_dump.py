@@ -38,7 +38,7 @@ doc = None
 
 
 def save():
-    json.dump(res, open(os.path.join(OUT, "fctechdraw_annot.json"), "w"), indent=1, default=repr)
+    json.dump(res, open(os.path.join(OUT, os.environ.get("FCTECHDRAW_JSON", "fctechdraw_annot.json")), "w"), indent=1, default=repr)
 
 
 def bail():

@@ -381,7 +381,7 @@ class Bench:
             return self.run(self.root_of(slug), ["--actor", "ui", "techdraw", "ls", slug])
         return self.run(self.root_of(slug), ["--actor", "ui", "techdraw", "show", slug, page, "--svg"])
 
-    def techdraw_post(self, slug: str, page: str, ops, name=None, dry_run=False, amend=False) -> dict:
+    def techdraw_post(self, slug: str, page: str, ops, name=None, dry_run=False, amend=False, keep_step=False) -> dict:
         """POST /api/<slug>/techdraw/<page> {ops, name?, dry_run?, amend?}: `cad techdraw apply --svg`, one undo step
         (with amend, folded into the last one)."""
         self.root_of(slug)
@@ -389,7 +389,7 @@ class Bench:
             raise ValueError("ops must be a non-empty list")
         args = ["--with-text", "techdraw", "apply", slug, page, "--ops", json.dumps(ops, separators=(",", ":")), "--svg",
                 *(["--name", str(name)] if name else []), *(["--dry-run"] if dry_run else []),
-                *(["--amend"] if amend else [])]
+                *(["--amend"] if amend else []), *(["--keep-step"] if keep_step else [])]
         if dry_run:
             return self.run(self.root_of(slug), ["--actor", "ui", *args])
         r = self.cad(slug, "techdraw", args)
@@ -1018,7 +1018,8 @@ def make_handler(bench: Bench):
             if m and m.group(2):
                 try:
                     return self._json(bench.techdraw_post(m.group(1), m.group(2), body.get("ops"), body.get("name"),
-                                                          bool(body.get("dry_run")), bool(body.get("amend"))))
+                                                          bool(body.get("dry_run")), bool(body.get("amend")),
+                                                          bool(body.get("keep_step"))))
                 except KeyError:
                     return self._json({"error": f"no project {m.group(1)!r}"}, 404)
                 except (TypeError, ValueError) as e:

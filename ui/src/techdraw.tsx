@@ -32,6 +32,7 @@ import type { Entry } from './chrome'
 import { TD_CMDS } from './techdraw_cmds'
 import { annotActions } from './techdraw_annot'
 import { moreActions, TrackerOverlay, MORE_EDIT } from './techdraw_more'
+import { extActions, PrefixDialogHost } from './techdraw_ext'
 import { TD_PROPS, TD_VIEW_PROPS, type TdProp } from './techdraw_props'
 import { TD_PROPS_MORE, TD_VIEW_PROPS_MORE } from './techdraw_props_more'
 import './techdraw.css'
@@ -116,12 +117,19 @@ export async function loadTechDraw() {
 
 /** `cad techdraw apply`: the ops as one undo step named as FreeCAD's transaction. With dryRun the page as the ops would
  *  leave it, nothing written (a task panel's preview, setTd preview). */
-export async function applyTd(page: string, ops: Record<string, unknown>[], name?: string, dryRun = false, amend = false): Promise<TdDoc | null> {
+/** The edits sent and not yet in the page (the document and the undo journal both loaded): the checks wait for it to reach 0. */
+let inflight = 0
+export const tdInflight = () => inflight
+export async function applyTd(page: string, ops: Record<string, unknown>[], name?: string, dryRun = false, amend = false, keepStep = false): Promise<TdDoc | null> {
+  inflight++
+  try { return await applyTd1(page, ops, name, dryRun, amend, keepStep) } finally { inflight-- }
+}
+async function applyTd1(page: string, ops: Record<string, unknown>[], name?: string, dryRun = false, amend = false, keepStep = false): Promise<TdDoc | null> {
   const s = getState()
   if (!s.slug) return null
-  if (!dryRun && s.scriptToPyConsole) consoleLog('in', `cad techdraw apply ${s.slug} ${page} --ops '${JSON.stringify(ops)}'${name ? ` --name '${name}'` : ''}${amend ? ' --amend' : ''}`)
+  if (!dryRun && s.scriptToPyConsole) consoleLog('in', `cad techdraw apply ${s.slug} ${page} --ops '${JSON.stringify(ops)}'${name ? ` --name '${name}'` : ''}${amend ? ' --amend' : ''}${keepStep ? ' --keep-step' : ''}`)
   try {
-    const r = await http('POST', `/api/${enc(s.slug)}/techdraw/${enc(page)}`, { ops, ...(name ? { name } : {}), ...(dryRun ? { dry_run: true } : {}), ...(amend ? { amend: true } : {}) })
+    const r = await http('POST', `/api/${enc(s.slug)}/techdraw/${enc(page)}`, { ops, ...(name ? { name } : {}), ...(dryRun ? { dry_run: true } : {}), ...(amend ? { amend: true } : {}), ...(keepStep ? { keep_step: true } : {}) })
     if (r.exit !== 0) { if (!dryRun) report('err', `${name ?? 'TechDraw'}: ${resultText(r)}`); return null }
     const doc = (r.data?.doc ?? null) as unknown as TdDoc | null
     if (!doc) return null
@@ -132,7 +140,7 @@ export async function applyTd(page: string, ops: Record<string, unknown>[], name
       return { docs: { ...x.docs, [page]: doc }, pages: x.pages.includes(page) ? x.pages : [...x.pages, page].sort(), preview }
     })
     for (const [n, err] of Object.entries(doc.result?.errors ?? {})) report('warn', `${page}: ${n}: ${err}`)
-    loadHistory()
+    await loadHistory()
     return doc
   } catch (e) { report('err', `${name ?? 'TechDraw'}: ${msg(e)}`); return null }
 }
@@ -382,6 +390,7 @@ function actions(): Record<string, [() => void, boolean]> {
     TechDraw_3PtAngleDimension: dim('Angle3Pt'),
     ...annotActions(c.havePage && c.haveView),
     ...moreActions(c.havePage, c.havePage && c.haveView),
+    ...extActions(c.havePage && c.haveView),
     TechDraw_Balloon: [() => balloon(), c.havePage && c.haveView && !getState().task], TechDraw_Annotation: [() => void annotation(), c.havePage],
     // ToggleFrame's isActive: Preferences > TechDraw > View Frames set to Manual, which a fresh profile is not
     TechDraw_ToggleFrame: [() => setTd((s) => ({ frames: !s.frames })), false],
@@ -678,6 +687,7 @@ export const TechDrawPage: FC<IDockviewPanelProps<PageParams>> = (props) => {
         <div className="td-sheet" style={{ transform: `translate(${view.x}px, ${view.y}px) scale(${view.k})` }}>
           <div ref={host} className={cls('td-svg', !useTd((s) => s.frames) && 'noframes')} />
           <TrackerOverlay page={page} width={w * PX} height={h * PX} sheetH={h} />
+          <PrefixDialogHost />
         </div>
       </div>
     </div>

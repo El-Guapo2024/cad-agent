@@ -63,6 +63,9 @@ def step_name(ops: list) -> str:
         return ANNOT[kind]
     if kind in MORE:
         return MORE[kind]
+    from . import techdraw_ext
+    if kind in techdraw_ext.OPS:
+        return techdraw_ext.step_name(op) or "Edit page"
     if kind in STEP_NAMES:
         return STEP_NAMES[kind]
     if kind in ("rename", "label"):
@@ -140,7 +143,8 @@ def apply_ops(a, page: str, ops: list, cmd: str, step: str | None = None) -> Res
     if getattr(a, "amend", False):          # a task panel's edit of what its command just made: the same undo step
         un.amend(pdir, [{"path": rel, "before": before, "after": after}], by=actor(a))
     else:
-        un.record(pdir, name, cmd, [{"path": rel, "before": before, "after": after}], by=actor(a))
+        un.record(pdir, name, cmd, [{"path": rel, "before": before, "after": after}], by=actor(a),
+                  keep=bool(getattr(a, "keep_step", False)))
     lines = [f"{a.slug}/{page}: {name}"] + [f"  {d}" for d in doc.get("done", [])] + _lines(doc)
     data = {"project": a.slug, "page": page, "step": name, "doc": doc, "file": str(path)}
     return Result(OK, data, "\n".join(lines), f"{a.slug}/{page}: {name}", [str(path)])
@@ -385,7 +389,7 @@ def cmd_apply(a) -> Result:
         return Result(OK, {"project": a.slug, "page": a.page, "doc": doc, "dry_run": True}, "\n".join(_lines(doc)),
                       f"{a.slug}/{a.page}: preview")
     words = [a.page, "--ops", json.dumps(ops, separators=(",", ":"))] + (["--name", a.name] if a.name else []) + \
-        (["--amend"] if getattr(a, "amend", False) else [])
+        (["--amend"] if getattr(a, "amend", False) else []) + (["--keep-step"] if getattr(a, "keep_step", False) else [])
     return apply_ops(a, a.page, ops, _cmd(a, *words), a.name)
 
 
@@ -544,9 +548,13 @@ def add_parsers(add, sub) -> None:
     sp.add_argument("--amend", action="store_true", help="fold the change into the last undo step (a panel's edit of "
                     "what its command just made)")
     sp.add_argument("--svg", action="store_true", help="the page drawn after the ops, as data.doc.svg")
+    sp.add_argument("--keep-step", action="store_true", help="make the undo step even if the ops change nothing (a FreeCAD "
+                    "transaction that sets a property to its value is not empty)")
     sp = one("export", cmd_export, "TechDraw_ExportPageSVG / _ExportPageDXF / _ExportPagePDF: out/techdraw/<Page>.*")
     sp.add_argument("--format", default="svg,dxf,pdf")
     sp.add_argument("--out", metavar="DIR")
     one("delete-page", cmd_delete_page, "delete a page and everything on it")
     from . import techdrawcmd_more
     techdrawcmd_more.add(one, apply_ops, _cmd)
+    from . import techdrawcmd_ext
+    techdrawcmd_ext.add(one, apply_ops, _cmd)

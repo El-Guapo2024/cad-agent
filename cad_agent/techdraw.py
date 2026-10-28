@@ -272,6 +272,8 @@ VIEW_DEFAULTS = {
     "coarse_view": False, "smooth_visible": True, "seam_visible": False, "iso_visible": False, "hard_hidden": False,
     "smooth_hidden": False, "seam_hidden": False, "iso_hidden": False, "iso_count": 0, "scrub_count": 1,
     "cosmetic_edges": (), "center_lines": (), "cosmetic_vertexes": (), "geom_formats": (),
+    # ViewProviderViewPart::ShowAllEdges, which TechDraw_ShowAll (Toggle Edge Visibility) turns over
+    "show_all_edges": False,
 }
 # the view's lists of dicts (techdraw_cosmetic.py), and the kind each holds
 LIST_KEYS = {"cosmetic_edges": "edge", "center_lines": "centerline", "cosmetic_vertexes": "vertex",
@@ -367,7 +369,9 @@ class DrawViewBalloon(TDObject):
     TYPE_ID = "TechDraw::DrawViewBalloon"
     DEFAULTS = {"source_view": None, "text": "", "origin_x": 0.0, "origin_y": 0.0, "bubble_shape": "Circular",
                 "end_type": "Filled arrow", "end_type_scale": 1.0, "shape_scale": 1.0, "kink_length": 5.0,
-                "text_wrap_len": -1.0, "x": 0.0, "y": 0.0, "lock_position": False, "label": None}
+                "text_wrap_len": -1.0, "x": 0.0, "y": 0.0, "lock_position": False, "label": None,
+                # ViewProviderBalloon: Fontsize, LineWidth, LineVisible, Color
+                "font_size": 5.0, "line_width": 0.35, "line_visible": True, "color": (0.0, 0.0, 0.0, 1.0)}
     REFS = ("source_view",)
     ENUMS = {"bubble_shape": BUBBLE_SHAPES, "end_type": END_TYPES}
     PROP_NAMES = {"x": "X", "y": "Y"}
@@ -708,7 +712,8 @@ class PageDocument:
         for name, geo in self.geo.items():
             o = self.get(name)
             x, y = self.pos.get(name, (o.x, o.y))
-            views[name] = {"x": x, "y": y, "scale": geo.scale, "rotation": o.rotation, **geometry_json(geo)}
+            views[name] = {"x": x, "y": y, "scale": geo.scale, "rotation": o.rotation, **geometry_json(geo),
+                           **({"show_all_edges": True} if o.show_all_edges else {})}
         for g in (o for o in self.objects if isinstance(o, DrawProjGroup)):
             views.setdefault(g.name, {"x": g.x, "y": g.y, "scale": self.view_scale(g), "group": True})
             for n in g.views:

@@ -86,12 +86,13 @@ def _save(pdir: Path, data: dict) -> Path:
     return path
 
 
-def record(pdir: Path, name: str, cmd: str, files: list[dict], by: str | None = None) -> dict | None:
+def record(pdir: Path, name: str, cmd: str, files: list[dict], by: str | None = None, keep: bool = False) -> dict | None:
     """Journal one transaction: `files` is `[{"path", "before", "after"}, ...]`,
     each path relative to `pdir`, "before"/"after" the file's whole text
     (`None` when it did not exist at that end). A no-op (every file's before
     equals its after) is not journaled — an empty transaction, the way
-    FreeCAD discards one — and this returns `None` in that case.
+    FreeCAD discards one — and this returns `None` in that case; with `keep` the step is journaled all the same (a
+    transaction that sets a property to the value it has is not empty in FreeCAD: TaskSectionView's second step).
 
     `by`, when given, wins over `actor()` — the CLI passes the `--actor`
     argv flag through explicitly, since an env var set in the workbench
@@ -102,7 +103,7 @@ def record(pdir: Path, name: str, cmd: str, files: list[dict], by: str | None = 
     undo/redo system: the entries being redone described a future that this
     new change has just replaced.
     """
-    if all(f.get("before") == f.get("after") for f in files):
+    if not keep and all(f.get("before") == f.get("after") for f in files):
         return None
     entry = {"id": uuid.uuid4().hex, "t": datetime.now(timezone.utc).isoformat(timespec="seconds"),
              "by": by or actor(), "name": name, "cmd": cmd, "files": files}
