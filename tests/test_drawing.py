@@ -105,10 +105,10 @@ def test_a_plate_is_recognised_with_its_outline_and_every_cutout():
     pl = P.analyse(panel())
     assert (pl.width, pl.height, pl.thickness, pl.corner_r) == pytest.approx((100, 60, 3, 5))
     assert pl.axis == 2 and (pl.lo, pl.hi) == ((-50.0, -30.0), (50.0, 30.0))
-    assert sorted((h.u, h.v, h.dia) for h in pl.holes) == pytest.approx(sorted(
-        [(-45, -25, 3.4), (-45, 25, 3.4), (45, -25, 3.4), (45, 25, 3.4), (-22.5, 0, 16)]))
+    assert sorted((h.u, h.v, h.dia) for h in pl.holes) == [pytest.approx(t) for t in sorted(   # one approx per row:
+        [(-45, -25, 3.4), (-45, 25, 3.4), (45, -25, 3.4), (45, 25, 3.4), (-22.5, 0, 16)])]    # pytest 9.2 refuses nesting
     assert [(s.u, s.v, s.width, s.length, s.along) for s in pl.slots] == [(-5.0, -20.0, 6.0, 20.0, "u")]
-    assert [(w.u, w.v, w.w, w.h, w.r) for w in pl.windows] == pytest.approx([(17.5, 0, 27.2, 19.76, 0.4)])
+    assert [(w.u, w.v, w.w, w.h, w.r) for w in pl.windows] == [pytest.approx((17.5, 0, 27.2, 19.76, 0.4))]
     assert pl.describe() == "100 x 60 x 3 mm, thin in z, corners R5, 5 holes, 1 slot, 1 window"
     assert pl.n_range == pytest.approx((-1.5, 1.5)) and "end face" in pl.source
 
