@@ -63,6 +63,9 @@ def step_name(ops: list) -> str:
         return ANNOT[kind]
     if kind in MORE:
         return MORE[kind]
+    from . import techdraw_ext
+    if kind in techdraw_ext.OPS:
+        return techdraw_ext.step_name(op) or "Edit page"
     if kind in STEP_NAMES:
         return STEP_NAMES[kind]
     if kind in ("rename", "label"):
@@ -550,3 +553,5 @@ def add_parsers(add, sub) -> None:
     one("delete-page", cmd_delete_page, "delete a page and everything on it")
     from . import techdrawcmd_more
     techdrawcmd_more.add(one, apply_ops, _cmd)
+    from . import techdrawcmd_ext
+    techdrawcmd_ext.add(one, apply_ops, _cmd)

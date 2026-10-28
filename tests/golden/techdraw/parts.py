@@ -35,4 +35,12 @@ def big():
     return Box(600, 400, 20) - Cylinder(50, 40)
 
 
-PARTS = {"plate": plate, "bracket": bracket, "shaft": shaft, "big": big}
+def flange():
+    """A r 25 x 8 flange with four r 3 holes on a r 15 bolt circle and a r 6 centre hole."""
+    b = Cylinder(25, 8) - Cylinder(6, 20)
+    for a in (0, 90, 180, 270):
+        b = b - Rot(0, 0, a) * Pos(15, 0, 0) * Cylinder(3, 20)
+    return b
+
+
+PARTS = {"plate": plate, "bracket": bracket, "shaft": shaft, "big": big, "flange": flange}
