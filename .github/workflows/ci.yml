@@ -61,8 +61,8 @@ jobs:
         run: |
           rc=0; timeout 1800 .venv/bin/python -m pytest -q -rfE tests > pytest.log 2>&1 || rc=$?
           tail -40 pytest.log
-          grep -E "^(FAILED|ERROR) " pytest.log | head -20 | while read -r l; do echo "::error title=test::$l"; done
-          [ "$rc" = 124 ] && echo "::error title=tests::pytest did not finish in 30 minutes"
+          { grep -E "^(FAILED|ERROR) " pytest.log || true; } | head -20 | while read -r l; do echo "::error title=test::$l"; done
+          if [ "$rc" = 124 ]; then echo "::error title=tests::pytest did not finish in 30 minutes"; fi
           exit $rc
 
       - name: Verify the regression designs
