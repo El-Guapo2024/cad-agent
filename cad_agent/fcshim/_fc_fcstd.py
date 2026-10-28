@@ -29,7 +29,12 @@ class _quiet_stdout:
         os.dup2(self._null, 1)
 
     def __exit__(self, *a):
+        import ctypes
         import os
+        try:
+            ctypes.CDLL(None).fflush(None)     # what OCCT wrote is still in the C library's buffer
+        except (OSError, AttributeError):
+            pass
         os.dup2(self._saved, 1)
         os.close(self._saved)
         os.close(self._null)
