@@ -123,6 +123,13 @@ Step 5, round 3 (six branches) is all in main (7526c0c, CI green, 6977 passed, 2
   and a cosmetic-object step in the annot part that fails only in the full run (--only=annot: 260 ok, 0 FAIL, twice).
 - Speed (Juan): agents run only their own tests and one GUI check at the end; the lead runs the full suite and the
   touched areas' GUI checks once at merge, with both native solvers built from the merged worktree's own sources.
+- CAM (branch cam, 2026-10-28): FreeCAD's CAM Python vendored in cad_agent/fccam over stand-ins (cad_agent/fcshim), libarea/
+  Clipper2/tsp_solver built from FreeCAD's sources by ui/libarea/build.sh; cam/<Job>.py, `cad cam`, the CAM workbench in the page;
+  Profile, Pocket Shape, Face, Drilling, Tag and Dogbone, the linuxcnc/grbl/generic posts (PARITY.md "CAM workbench").
+  This box's python3.12 has no headers: build with PLANEGCS_TOOLCHAIN=~/work/research/toolchain
+  PYTHON_INCLUDE=$tc/py312dev/root/usr/include/python3.12 PYCONFIG_INCLUDE=$tc/py312dev/root/usr/include
+  PYBIND11_INCLUDE=$tc/pybind11-2.13.6/include PYTHON=.venv/bin/python bash ui/libarea/build.sh native (CI has headers).
+  Without it the CAM tests skip. A new CAD_* variable a command reads goes in warm.py's ENV_PASS (test_warm checks).
 - pd-last (2026-10-27): PartDesign's last commands, each a KwFeature: Involute Gear and Sprocket (cad_agent/feature_gear.py,
   a profile as a sketch is), Defeaturing (feature_defeaturing.py), Sub-Shape Binder (feature_subbinder.py), Boolean and Clone
   (feature_boolean.py, `cad feature clone`): a Body is a part module, so a Boolean's tool or a Clone's source is another part's
