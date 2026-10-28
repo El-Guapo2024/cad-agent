@@ -609,7 +609,7 @@ class WireJoiner:
                 to_visit.append(info)
             else:
                 skips += 1
-        to_visit.sort(key=lambda x: x.serial)        # std::set<EdgeInfo*>: allocation order
+        to_visit.sort(key=lambda x: x.serial, reverse=True)        # std::set<EdgeInfo*>: allocation order
         iteration = 0
         while to_visit:
             iteration += 1
