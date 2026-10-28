@@ -301,7 +301,7 @@ def test_every_step_equals_freecads():
         changed = snapshot_of(s) != before
         from cad_agent import techdraw_annot as A
         step = X.step_name(op) if op["op"] in X.OPS else A.STEP_NAMES[op["op"]]
-        if key in NO_STEP_IN_FREECAD:               # the centre line's ExtendBy changes without a property change: no step there
+        if key in NO_STEP_IN_FREECAD or op["op"] in X.NO_STEP_IN_FREECAD:       # no property changes, no step there
             assert rec["undo"]["head"] == [] and changed, key
             continue
         assert rec["undo"]["head"] == ([step] if changed and step else []), f"{key}: step {rec['undo']['head']} vs {step} changed={changed}"
@@ -319,7 +319,7 @@ def test_the_step_names():
     assert X.step_name({"op": "dim_position", "dir": "v", "cascade": True}) == "Cascade Vertical Dimension"
     assert X.step_name({"op": "dim_position", "dir": "v"}) == "Position Vert Chain Dimension"
     assert X.step_name({"op": "thread", "kind": "hole_bottom"}) == "Cosmetic thread hole bottom"
-    assert X.step_name({"op": "line_attributes"}) is None and X.step_name({"op": "show_all_edges"}) is None
+    assert X.step_name({"op": "position_section"}) == "Position Section View" and set(X.NO_STEP_IN_FREECAD) >= {"show_all_edges"}
 
 
 def test_the_decimals_stop_at_nought_and_nine():
@@ -420,7 +420,7 @@ def test_the_commands_round_trip_through_the_page_file_and_the_cli(tmp_path, mon
         "Create Horizontal Chain Dimension"
     assert step("dim-prefix", "td", "Page", "Dimension", "--prefix", "⌀") == "Insert Prefix"
     assert step("dim-decimals", "td", "Page", "Dimension001", "--delta", "1") == "Increase/Decrease Decimal"
-    assert step("toggle-edges", "td", "Page", "View") == "Edit page"
+    assert step("toggle-edges", "td", "Page", "View") == "Toggle Edge Visibility"
     assert step("lock-view", "td", "Page", "View") == "Lock/Unlock View"
     src = (d / "techdraw" / "Page.py").read_text()
     objs = E.objects_of(src)
@@ -438,3 +438,57 @@ def test_the_commands_round_trip_through_the_page_file_and_the_cli(tmp_path, mon
     # undo: each command went; the last step is Edit page's Toggle...
     code, data = run(capsys, "undo", "td")
     assert code == cli.OK
+
+
+def test_a_section_view_is_two_undo_steps_as_freecads(tmp_path, monkeypatch, capsys):
+    """TaskSectionView::apply in create mode: createSectionView ("Create Section View") and then updateSectionView ("Edit
+    Section View"); the second is a step even where it sets what is there (--keep-step), and undo takes them one at a time."""
+    import sys
+    sys.path.insert(0, str(ROOT / "tests"))
+    from cad_agent import cli
+    from cad_agent import state as st
+    from test_cli import run
+    from test_techdraw_edit import PLATE
+    monkeypatch.setattr(st, "ROOT", tmp_path)
+    monkeypatch.delenv("CAD_PROJECTS", raising=False)
+    monkeypatch.setenv("CAD_WARM_DIR", str(tmp_path / ".warm"))
+    monkeypatch.setenv("CAD_WARM", "0")
+    d = tmp_path / "td"
+    (d / "parts").mkdir(parents=True)
+    (d / "parts" / "plate.py").write_text(PLATE)
+    run(capsys, "techdraw", "new", "td")
+    run(capsys, "techdraw", "view", "td", "Page", "plate", "--direction", "0,0,1")
+    code, data = run(capsys, "techdraw", "apply", "td", "Page", "--name", "Create Section View", "--ops",
+                     json.dumps([{"op": "section", "base_view": "View", "direction": "Right", "origin": [0.0, 0.0, 0.0], "symbol": "A"}]))
+    assert code == cli.OK and data["step"] == "Create Section View"
+    code, data = run(capsys, "techdraw", "apply", "td", "Page", "--name", "Edit Section View", "--keep-step", "--ops",
+                     json.dumps([{"op": "section_edit", "name": "SectionView", "origin": [0.0, 0.0, 0.0], "symbol": "A", "scale": 1.0}]))
+    assert code == cli.OK and data["step"] == "Edit Section View"
+    code, data = run(capsys, "history", "td")
+    names = [u["name"] for u in data["undo"][:3]]
+    assert names[:2] == ["Edit Section View", "Create Section View"], names
+    # without --keep-step the same edit is an empty transaction and makes no step
+    code, data = run(capsys, "techdraw", "apply", "td", "Page", "--name", "Edit Section View", "--ops",
+                     json.dumps([{"op": "section_edit", "name": "SectionView", "origin": [0.0, 0.0, 0.0], "symbol": "A", "scale": 1.0}]))
+    code, data = run(capsys, "history", "td")
+    assert [u["name"] for u in data["undo"][:2]] == ["Edit Section View", "Create Section View"]
+
+
+def test_toggle_edge_visibility_draws_the_invisible_lines():
+    """ShowAllEdges (TechDraw_ShowAll): a line whose pen is not visible (Edit Line Appearance) is drawn all the same while the
+    view's flag is on (QGIViewPart: `if (!vp->ShowAllEdges.getValue() && !showItem) item->hide()`)."""
+    from cad_agent import techdraw as T
+    from cad_agent import techdraw_edit as E
+    from cad_agent.techdraw_export import page_svg
+    s = new_session()
+    E.run_ops(s, [{"op": "cosmetic_circle2", "view": "View", "vertices": ["Vertex6", "Vertex8"]},
+                  {"op": "format", "view": "View", "subs": ["Edge6"], "visible": False}])
+    sub = 'data-view="View" data-sub="Edge6"'
+
+    def drawn():
+        return sub in page_svg(T.PageDocument(s.objs, _prep.shape_of, "Unnamed").recompute())
+    assert not drawn()
+    E.run_ops(s, [{"op": "show_all_edges", "view": "View"}])
+    assert drawn()
+    E.run_ops(s, [{"op": "show_all_edges", "view": "View"}])
+    assert not drawn()

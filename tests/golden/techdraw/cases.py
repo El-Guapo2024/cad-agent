@@ -209,6 +209,45 @@ CASES = {
         *[{"op": "centerline", "view": "View", "subs": [f"Face{i}"], "mode": m, "tag": f"p-{i}{m[0]}"}
           for i in range(3) for m in ("Vertical", "Horizontal")],
     ]},
+    # the extension pack's cosmetic geometry (cad_agent/techdraw_ext.py): 2 and 3 point circles, an arc, a parallel and a
+    # perpendicular line, circle centre lines, and a longer line
+    "ext_plate_cosmetics": {"ops": [
+        {"op": "view", "source": ["plate"], "direction": [0, 0, 1]},
+        {"op": "cosmetic_circle2", "view": "View", "vertices": ["Vertex6", "Vertex8"]},
+        {"op": "cosmetic_circle3", "view": "View", "vertices": ["Vertex1", "Vertex4", "Vertex5"]},
+        {"op": "cosmetic_arc", "view": "View", "vertices": ["Vertex6", "Vertex8", "Vertex4"]},
+        {"op": "cosmetic_pline", "view": "View", "subs": ["Edge2", "Vertex8"], "parallel": True},
+        {"op": "cosmetic_pline", "view": "View", "subs": ["Edge0", "Vertex4"], "parallel": False},
+        {"op": "circle_centerlines", "view": "View", "edges": ["Edge5", "Edge1"]},
+        {"op": "extend_line", "view": "View", "sub": "Edge9", "extend": True},
+    ]},
+    "ext_flange_bolt_circle": {"ops": [
+        {"op": "view", "source": ["flange"], "direction": [0, 0, 1]},
+        {"op": "bolt_circle", "view": "View", "edges": ["Edge1", "Edge2", "Edge4"]},
+        {"op": "circle_centerlines", "view": "View", "edges": ["Edge1"]},
+    ]},
+    "ext_shaft_threads": {"ops": [
+        {"op": "view", "source": ["shaft"], "direction": [0, -1, 0], "name": "Front"},
+        {"op": "thread", "view": "Front", "kind": "hole_side", "subs": ["Edge5", "Edge9"]},
+        {"op": "thread", "view": "Front", "kind": "bolt_side", "subs": ["Edge0", "Edge7"]},
+        {"op": "line_attributes", "view": "Front", "subs": ["Edge11"], "active": {"style": 5, "line_number": 5, "weight": 0.7}},
+    ]},
+    # the extension pack's dimensions, their prefixes and decimals, and an arc length
+    "ext_plate_dims": {"ops": [
+        {"op": "view", "source": ["plate"], "direction": [0, 0, 1]},
+        {"op": "chain_dim", "view": "View", "vertices": ["Vertex1", "Vertex3", "Vertex8", "Vertex4"], "dir": "h"},
+        {"op": "chain_dim", "view": "View", "vertices": ["Vertex5", "Vertex3", "Vertex6", "Vertex4"], "dir": "v"},
+        {"op": "chain_dim", "view": "View", "vertices": ["Vertex0", "Vertex8", "Vertex4"], "dir": "o"},
+        {"op": "coord_dim", "view": "View", "vertices": ["Vertex1", "Vertex3", "Vertex8", "Vertex4"], "dir": "h"},
+        {"op": "coord_dim", "view": "View", "vertices": ["Vertex3", "Vertex5", "Vertex6", "Vertex4"], "dir": "v"},
+        {"op": "chamfer_dim", "view": "View", "vertices": ["Vertex2", "Vertex0"], "dir": "h"},
+        {"op": "chamfer_dim", "view": "View", "vertices": ["Vertex0", "Vertex2"], "dir": "v"},
+        {"op": "arc_length_dim", "view": "View", "edge": "Edge1"},
+        {"op": "dim_prefix", "names": ["Dimension"], "prefix": "⌀"},
+        {"op": "dim_prefix", "names": ["Dimension001"], "prefix": "%s× ", "text": "4"},
+        {"op": "dim_decimals", "names": ["Dimension002"], "delta": 1},
+        {"op": "dim_position", "names": ["Dimension003", "Dimension004"], "dir": "v", "cascade": True},
+    ]},
     # an eraser: the cosmetic edge and vertex taken away again
     "plate_cosmetic_erased": {"ops": [
         {"op": "view", "source": ["plate"], "direction": [0, 0, 1]},

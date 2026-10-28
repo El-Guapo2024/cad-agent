@@ -23,6 +23,7 @@ import { applyTd, clearPreview, objOf, tdState, useTd, type TdObj } from './tech
 import type { IconName } from './icons'
 import { AnnotTask } from './techdraw_annot'
 import { MoreTask, MORE_KINDS } from './techdraw_more'
+import { LineAttrsTask } from './techdraw_ext'
 
 const icon = (file: string, size: number) => <img src={`./freecad-icons/techdraw/${file}.svg`} width={size} height={size} alt="" />
 
@@ -38,6 +39,7 @@ export function TechDrawTask({ page, other }: { page: string; other: string }) {
   const [kind, name, mode] = other.split(':')
   const create = mode === 'create'
   if (MORE_KINDS.includes(kind)) return <MoreTask page={page} other={other} />
+  if (kind === 'lineattrs') return <LineAttrsTask />
   if (['cosvertex', 'cosline', 'coscircle', 'centerline', 'linedecor', 'hatch', 'geomhatch'].includes(kind)) return <AnnotTask page={page} other={other} />
   useEffect(() => () => clearPreview(page), [page])
   if (kind === 'projgroup') return <ProjGroupTask key={other} page={page} name={name} create={create} />
@@ -129,6 +131,20 @@ function ProjGroupTask({ page, name, create }: { page: string; name: string; cre
 }
 
 // ── TaskSectionView ──────────────────────────────────────────────────────────────────────────────────────────────
+/** TaskSectionView::apply in create mode: createSectionView ("Create Section View": the origin to six decimals) and then, the
+ *  section being valid, updateSectionView ("Edit Section View": the origin to three, the symbol, the scale), two undo steps; the
+ *  second is made even when it sets what is there already (a FreeCAD transaction that sets a property is not empty). */
+async function createSection(page: string, base: string, op: Record<string, unknown>) {
+  const before = new Set(tdState().docs[page]?.objects.map((o) => o.name))
+  const round = (v: unknown, n: number) => (v as number[]).map((x) => Number(x.toFixed(n)))
+  const made = await applyTd(page, [{ ...op, origin: round(op.origin, 6) }], 'Create Section View')
+  const sec = made?.objects.find((o) => o.kind === 'DrawViewSection' && !before.has(o.name))
+  if (!sec) return
+  const scale = Number(sec.scale)
+  await applyTd(page, [{ op: 'section_edit', name: sec.name, origin: round(op.origin, 3), symbol: op.symbol, scale: Number(scale.toFixed(7)) }],
+    'Edit Section View', false, false, true)
+  void base
+}
 function SectionTask({ page, name, create }: { page: string; name: string; create: boolean }) {
   const doc = useTd((s) => s.docs[page])
   const section = !create ? objOf(page, name) : undefined
@@ -162,9 +178,10 @@ function SectionTask({ page, name, create }: { page: string; name: string; creat
     bind[w] = { node: icon(file, 48), click: () => setArrow(dir), cls: arrow === dir ? 'on' : undefined }
   const ok = async () => {
     if (create && !arrow) { closeTask(); return }
-    await applyTd(page, ops, create ? 'Create Section View' : 'Edit Section View')
     clearPreview(page)
     closeTask()
+    if (!create) await applyTd(page, ops, 'Edit Section View')
+    else await createSection(page, name, ops[0])
   }
   return (
     <div className="tasks">

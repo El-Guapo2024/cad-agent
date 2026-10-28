@@ -66,7 +66,8 @@ STEP_NAMES = {"cosmetic_circle2": "Cosmetic Circle", "cosmetic_circle3": "Cosmet
               "circle_centerlines": "Circle Centerlines", "bolt_circle": "Bolt circle centerlines",
               "thread:hole_side": "Cosmetic Thread Hole Side", "thread:bolt_side": "Cosmetic Thread Bolt Side",
               "thread:hole_bottom": "Cosmetic thread hole bottom", "thread:bolt_bottom": "Cosmetic Thread Bolt Bottom",
-              "line_attributes": None, "lock_view": "Lock/Unlock View", "show_all_edges": None, "position_section": None,
+              "line_attributes": "Change line attributes", "lock_view": "Lock/Unlock View", "show_all_edges": "Toggle Edge Visibility",
+              "position_section": "Position Section View",
               "chain_dim:h": "Create Horizontal Chain Dimension", "chain_dim:v": "Create Vert Chain dimension",
               "chain_dim:o": "Create oblique chain dimension", "coord_dim:h": "Create Horizontal Coord Dimension",
               "coord_dim:v": "Create vert coord dimension", "coord_dim:o": "Create oblique coord dimension",
@@ -90,8 +91,13 @@ TYPE_NAMES = {"GENERIC": "Line", "CIRCLE": "Circle", "ARCOFCIRCLE": "Arc of Circ
               "ARCOFELLIPSE": "Arc of Ellipse", "BEZIER": "Bezier Curve", "BSPLINE": "B-spline Curve"}
 
 
+# FreeCAD makes no undo step for these (they change an object or a view provider, not a property; the Python command
+# sets X and Y outside a transaction): here each is a step, named as the command's transaction would be
+NO_STEP_IN_FREECAD = ("line_attributes", "show_all_edges", "position_section")
+
+
 def step_name(op: dict) -> str | None:
-    """The undo step a command makes (None: FreeCAD's makes none, its change is not a property change)."""
+    """The undo step a command makes."""
     k = op["op"]
     if k == "dim_position":
         k = "cascade" if op.get("cascade") else "dim_position"

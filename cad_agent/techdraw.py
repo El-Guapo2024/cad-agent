@@ -712,7 +712,8 @@ class PageDocument:
         for name, geo in self.geo.items():
             o = self.get(name)
             x, y = self.pos.get(name, (o.x, o.y))
-            views[name] = {"x": x, "y": y, "scale": geo.scale, "rotation": o.rotation, **geometry_json(geo)}
+            views[name] = {"x": x, "y": y, "scale": geo.scale, "rotation": o.rotation, **geometry_json(geo),
+                           **({"show_all_edges": True} if o.show_all_edges else {})}
         for g in (o for o in self.objects if isinstance(o, DrawProjGroup)):
             views.setdefault(g.name, {"x": g.x, "y": g.y, "scale": self.view_scale(g), "group": True})
             for n in g.views:

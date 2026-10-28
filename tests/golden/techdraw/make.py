@@ -46,7 +46,7 @@ def q(v):
 
 
 VIEW_SKIP = {"name", "kind", "type_id", "source", "label", "cosmetic_edges", "center_lines", "cosmetic_vertexes",
-             "item_type", "views", "anchor", "base_view", "template"}
+             "item_type", "views", "anchor", "base_view", "template", "show_all_edges"}
 
 
 def set_props(o, d, keys):
@@ -168,6 +168,10 @@ def add_cosmetics(doc, case, made):
                 v.makeCosmeticCircle(V(*c["center"]), c["radius"])
             else:
                 v.makeCosmeticCircleArc(V(*c["center"]), c["radius"], c["start_angle"], c["end_angle"])
+            f = c.get("format")
+            if f:                                   # the pen of a command that set one (cad_agent/techdraw_ext.py)
+                v.CosmeticEdges[-1].Format = {"style": f["style"], "weight": f["weight"], "color": tuple(f["color"]),
+                                              "visible": f["visible"]}
         doc.recompute()
         for c in cl:
             subs = c["faces"] or c["edges"] or c["vertexes"]
