@@ -348,11 +348,11 @@ class Shape:
     def CenterOfMass(self):
         return self.CenterOfGravity
 
-    @property
-    def Tolerance(self):
-        """TopoShape::getTolerance (the maximum of its sub-shapes')."""
+    def getTolerance(self, mode=0, kind=None):
+        """TopoShapePy::getTolerance(mode, ShapeType): ShapeAnalysis_ShapeTolerance, mode 0 average, 1 max, -1 min."""
         from OCP.ShapeAnalysis import ShapeAnalysis_ShapeTolerance
-        return ShapeAnalysis_ShapeTolerance().Tolerance(self._s, 1, TopAbs_SHAPE)
+        k = TopAbs_SHAPE if kind is None else (kind if not isinstance(kind, str) else NAME_TYPES.get(kind, TopAbs_SHAPE))
+        return ShapeAnalysis_ShapeTolerance().Tolerance(self._s, int(mode), k)
 
     def isClosed(self):
         """TopoShape::isClosed."""
@@ -693,6 +693,14 @@ class Vertex(Shape):
         return G.V(BRep_Tool.Pnt_s(TopoDS.Vertex(self._s)))
 
     @property
+    def Tolerance(self):
+        return BRep_Tool.Tolerance_s(TopoDS.Vertex(self._s))
+
+    @Tolerance.setter
+    def Tolerance(self, tol):
+        BRep_Builder().UpdateVertex(TopoDS.Vertex(self._s), float(tol))
+
+    @property
     def X(self):
         return self.Point.x
 
@@ -736,6 +744,14 @@ class Edge(Shape):
 
     def _adapt(self):
         return BRepAdaptor_Curve(TopoDS.Edge(self._s))
+
+    @property
+    def Tolerance(self):
+        return BRep_Tool.Tolerance_s(TopoDS.Edge(self._s))
+
+    @Tolerance.setter
+    def Tolerance(self, tol):
+        BRep_Builder().UpdateEdge(TopoDS.Edge(self._s), float(tol))
 
     @property
     def Curve(self):
@@ -1022,6 +1038,14 @@ class Face(Shape):
 
     def _adapt(self):
         return BRepAdaptor_Surface(TopoDS.Face(self._s))
+
+    @property
+    def Tolerance(self):
+        return BRep_Tool.Tolerance_s(TopoDS.Face(self._s))
+
+    @Tolerance.setter
+    def Tolerance(self, tol):
+        BRep_Builder().UpdateFace(TopoDS.Face(self._s), float(tol))
 
     @property
     def Surface(self):
