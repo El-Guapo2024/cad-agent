@@ -52,6 +52,7 @@ TECHDRAW_PAGES = {
     "leader": "src/Mod/TechDraw/Gui/TaskLeaderLine.ui", "richanno": "src/Mod/TechDraw/Gui/TaskRichAnno.ui",
     "weld": "src/Mod/TechDraw/Gui/TaskWeldingSymbol.ui", "symbolchooser": "src/Mod/TechDraw/Gui/SymbolChooser.ui",
     "surface": "src/Mod/TechDraw/Gui/TaskSurfaceFinishSymbols.ui", "lineattrs": "src/Mod/TechDraw/Gui/TaskSelectLineAttributes.ui",
+    "customize": "src/Mod/TechDraw/Gui/TaskCustomizeFormat.ui", "offsetvertex": "src/Mod/TechDraw/Gui/TaskAddOffsetVertex.ui",
 }
 # the properties the renderer reads; every other property of a .ui (geometry, focus policy, drag and drop modes, ...) has no effect on the layout
 KEEP = {"text", "title", "toolTip", "checkable", "checked", "enabled", "flat", "value", "minimum", "maximum", "singleStep", "decimals", "suffix",
@@ -394,7 +395,7 @@ def main_techdraw(args: list) -> int:
 // src/techdraw_tasks.tsx binds their widgets as the panels' code (TaskProjGroup.cpp, TaskSectionView.cpp, TaskDimension.cpp,
 // TaskBalloon.cpp, TaskCosVertex.cpp, TaskCosmeticLine.cpp, TaskCosmeticCircle.cpp, TaskCenterLine.cpp,
 // TaskLineDecor.cpp, TaskHatch.cpp, TaskGeomHatch.cpp, TaskLeaderLine.cpp, TaskRichAnno.cpp, TaskWeldingSymbol.cpp, SymbolChooser.cpp,
-// TaskSurfaceFinishSymbols.cpp, TaskSelectLineAttributes.cpp) fills them.
+// TaskSurfaceFinishSymbols.cpp, TaskSelectLineAttributes.cpp, TaskCustomizeFormat.cpp, TaskAddOffsetVertex.py) fills them.
 import type {{ UiForm }} from './uiforms'
 """
     body = "export const TECHDRAW_FORMS: Record<string, UiForm> = {\n"

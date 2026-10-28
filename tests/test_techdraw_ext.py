@@ -78,6 +78,8 @@ BUILD = {
     "dims_chamfer_h_neg": dim("chamfer_dim", dir="h"),
     "dims_arc": lambda v, s: {"op": "arc_length_dim", "view": v, "edge": s[0]},
     "dims_arc_line": lambda v, s: {"op": "arc_length_dim", "view": v, "edge": s[0]}, "dims_chain_h_one": dim("chain_dim", dir="h"),
+    "verts_intersection_lines": edges_op("vertex_at_intersection"), "verts_intersection_circle": edges_op("vertex_at_intersection"),
+    "verts_intersection_one": edges_op("vertex_at_intersection"), "verts_intersection_vertex": edges_op("vertex_at_intersection"),
     "notes_area": lambda v, s: {"op": "area_annotation", "view": v, "faces": s},
     "notes_area_none": lambda v, s: {"op": "area_annotation", "view": v, "faces": s},
     "notes_arclength": lambda v, s: {"op": "arc_length_annotation", "view": v, "edges": s},
@@ -97,6 +99,7 @@ DIMS = {"lock": (None, {"op": "lock_view"}), "lock_back": (None, {"op": "lock_vi
         "dims_prefix_remove": (None, {"op": "dim_remove_prefix"}), "dims_prefix_remove_again": (None, {"op": "dim_remove_prefix"}),
         "dims_decimal_up": (None, {"op": "dim_decimals", "delta": 1}), "dims_decimal_down": (None, {"op": "dim_decimals", "delta": -1})}
 SKIP = {"dims_decimal_limits", "dims_prefix_on_view"}
+RUN_TOOL = ("attrs_select", "pack_cl_make", "offset_vertex", "customize_dim", "customize_balloon")      # recorded by run_tool: a "view", not a "state"
 LIVE_ORDER = {"attrs_extend"}
 LIVE_ORDER_AFTER = {"attrs_change", "pack_thread_bottom_line", "dims_chain_h_one"} | {k for k in DIMS if k.startswith("dims_")}
 NO_STEP_IN_FREECAD = {"pack_extend_cl", "pack_shorten_cl"}
@@ -245,7 +248,7 @@ def replay_all():
             two = REC["dims_prefix_square"]["selection"][0][0]
             E.run_ops(s, [{"op": "dim_decimals", "names": [two], "delta": d} for d in [-1] * 3 + [1] * 11])
             continue
-        if key in SKIP or not isinstance(REC[key], dict) or ("state" not in REC[key] and key not in ("attrs_select", "pack_cl_make")):
+        if key in SKIP or not isinstance(REC[key], dict) or ("state" not in REC[key] and key not in RUN_TOOL):
             continue
         if key == "attrs_select":
             on = True
@@ -261,6 +264,16 @@ def replay_all():
                 before = snapshot_of(s)
             op = {**op, "names": names}
             view = "View"
+        elif key == "offset_vertex":      # TaskAddOffsetVertex: the offset typed, OK
+            (view, subs), = [REC[key]["selection"][0]]
+            op = {"op": "offset_vertex", "view": view, "vertex": subs[0], "offset": [REC[key]["edit"]["dSpinBoxX"], REC[key]["edit"]["dSpinBoxY"]]}
+        elif key.startswith("customize_"):
+            name = REC[key]["selection"][0][0]
+            prop = "format_spec" if key.endswith("dim") else "text"
+            op = {"op": "set", "name": name, "props": {prop: REC[key]["after"]["FormatSpec" if prop == "format_spec" else "Text"]}}
+            view = "View"
+        elif key == "offset_vertex_cancel":
+            continue                      # Cancel takes the preview away: nothing is made
         elif key in BUILD:
             op, view = op_of(key, s)
         else:
@@ -285,6 +298,7 @@ def test_every_step_equals_freecads():
     same_view(state_of(s0, "ShaftF"), REC["start_shaftf"], "start_shaftf")
     same_view(state_of(s0, "ShaftT"), REC["start_shaftt"], "start_shaftt")
     n = 0
+    last = {"dims": {}, "balloons": {}}
     for key, s, E, X, op, view, before, err in replay_all():
         rec = REC[key]
         dialogs = [d["text"] for d in rec["dialogs"] if d["title"] != "Prefix Text"]
@@ -292,7 +306,15 @@ def test_every_step_equals_freecads():
             assert err == dialogs[0], f"{key}: error {err!r}, FreeCAD's dialog {dialogs!r}"
         else:
             assert err is None, f"{key}: {err}"
-        st = rec.get("state") or {**rec["view"], "dims": {}, "balloons": {}, "lock": {}, "showall": {}}      # run_tool's record
+        st = rec.get("state")
+        if st is None:      # run_tool's record: the view, and the dimensions and balloons the step before left (a customized one changed)
+            st = {**rec["view"], "dims": json.loads(json.dumps(last["dims"])), "balloons": json.loads(json.dumps(last["balloons"])),
+                  "lock": {}, "showall": {}}
+            if key.startswith("customize_"):
+                tgt = rec["selection"][0][0]
+                (st["dims"] if key.endswith("dim") else st["balloons"])[tgt]["FormatSpec" if key.endswith("dim") else "Text"] = \
+                    rec["after"]["FormatSpec" if key.endswith("dim") else "Text"]
+        last = st
         same_view(state_of(s, view), st, key, unordered=key in LIVE_ORDER_AFTER)
         same_cosmetics(s, view, st, key)
         moved = set(rec.get("new_objects") or []) | (set(op.get("names") or []) if op["op"] == "dim_position" and err is None else set())
@@ -300,7 +322,7 @@ def test_every_step_equals_freecads():
         same_balloons(s, st, key)
         changed = snapshot_of(s) != before
         from cad_agent import techdraw_annot as A
-        step = X.step_name(op) if op["op"] in X.OPS else A.STEP_NAMES[op["op"]]
+        step = "Customize Format" if op["op"] == "set" else X.step_name(op) if op["op"] in X.OPS else A.STEP_NAMES[op["op"]]
         if key in NO_STEP_IN_FREECAD or op["op"] in X.NO_STEP_IN_FREECAD:       # no property changes, no step there
             assert rec["undo"]["head"] == [] and changed, key
             continue
@@ -420,6 +442,9 @@ def test_the_commands_round_trip_through_the_page_file_and_the_cli(tmp_path, mon
         "Create Horizontal Chain Dimension"
     assert step("dim-prefix", "td", "Page", "Dimension", "--prefix", "⌀") == "Insert Prefix"
     assert step("dim-decimals", "td", "Page", "Dimension001", "--delta", "1") == "Increase/Decrease Decimal"
+    assert step("intersection-vertices", "td", "Page", "View", "Edge2", "Edge4") == "Cosmetic intersection vertices"
+    assert step("offset-vertex", "td", "Page", "View", "Vertex8", "--dx", "3", "--dy", "-2") == "Add offset vertex"
+    assert step("customize-format", "td", "Page", "Dimension", "%.1f mm") == "Customize Format"
     assert step("toggle-edges", "td", "Page", "View") == "Toggle Edge Visibility"
     assert step("lock-view", "td", "Page", "View") == "Lock/Unlock View"
     src = (d / "techdraw" / "Page.py").read_text()
@@ -429,7 +454,9 @@ def test_the_commands_round_trip_through_the_page_file_and_the_cli(tmp_path, mon
     assert [c["geom"] for c in map(__import__("cad_agent.techdraw_cosmetic", fromlist=["x"])._thaw, v.cosmetic_edges)][:3] == \
         ["circle", "circle", "arc"]
     dims = {o.name: o for o in objs if o.kind == "DrawViewDimension"}
-    assert dims["Dimension"].format_spec == "⌀%.2w" and dims["Dimension001"].format_spec == "%.3w"
+    assert dims["Dimension"].format_spec == "%.1f mm" and dims["Dimension001"].format_spec == "%.3w"
+    assert [C["point"] for C in map(__import__("cad_agent.techdraw_cosmetic", fromlist=["x"])._thaw, v.cosmetic_vertexes)][-2:] == \
+        [[20.0, 15.0, 0.0], [13.0, 6.0, 0.0]]
     # written and read again: the same objects
     from cad_agent import techdraw as T
     again = E.read_src(src, "Page", "td")

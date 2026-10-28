@@ -1042,7 +1042,8 @@ TechDraw pages edited in the app as FreeCAD 3160daf1e2b6 does, written back as `
 (docs/EDITING_PLAN.md, "TechDraw pages in a project"). `cad drawing` and its Drawing tab are unchanged beside it. The Python is
 `cad_agent/techdraw*.py` (`cad techdraw ...`); the page is `src/techdraw.tsx` and `src/techdraw_tasks.tsx`. The checks are
 tests/test_techdraw_golden.py (freecadcmd's numbers, tests/golden/techdraw), tests/test_techdraw_svg.py (the GUI's own SVG export
-and objects, ui/scripts/fctechdraw.json) and `ui/scripts/techdrawcheck.mjs` (the GUI against fctechdraw.json: 361 ok, 104 known, 0 FAIL).
+and objects, ui/scripts/fctechdraw.json) and `ui/scripts/techdrawcheck.mjs` (the GUI against fctechdraw.json: 361 ok, 104 known, 0 FAIL;
+its `--only=ext` section, run alone, against ui/scripts/fctechdraw_ext.json: see "Extension commands" below).
 
 | Item | Status |
 |---|---|
@@ -1062,6 +1063,7 @@ and objects, ui/scripts/fctechdraw.json) and `ui/scripts/techdrawcheck.mjs` (the
 | Symbols | done: TechDraw_Symbol (a list of FreeCAD's 113 SVG symbols, unchanged in `cad_agent/techdraw_symbols/`, or a file of one's own; Symbol is the file's text; EditableTexts rewrite the SVG byte for byte as QDom writes it, 113 of 113), TechDraw_WeldSymbol (TaskWeldingSymbol with SymbolChooser; the two tiles and the symbol are made in FreeCAD's order, "Create Weld Symbol", the edit panel "Edit Weld Symbol"), TechDraw_SurfaceFinishSymbols (TaskSurfaceFinishSymbols: the six icons, ISO and ASME, the symbol's SVG text and its place on a vertex, edge, face, leader or the page equal the GUI's) |
 | Images, clip groups | done: TechDraw_Image (a bitmap of the project, or one uploaded into techdraw/images/), TechDraw_ClipGroup, ClipGroupAdd and ClipGroupRemove (DrawViewClip::addView's positions equal freecadcmd's), the views of a clip clipped on the page |
 | Property view | the new objects' rows and groups are FreeCAD's (techdraw_props_more.ts, from the real GUI) |
+| Extension commands | done (CommandExtensionPack.cpp, CommandExtensionDims.cpp, TechDraw_ShowAll, TechDrawTools; `cad_agent/techdraw_ext.py`, `ui/src/techdraw_ext.tsx`, `cad techdraw cosmetic-circle2 ... customize-format`): **cosmetic geometry** Cosmetic 2 and 3 Point Circle, Cosmetic Arc (anticlockwise, centre-start-end), Cosmetic Parallel and Perpendicular Line (an edge and a vertex in either order), Extend and Shorten Line (a cosmetic line is replaced by the longer one at the end of the list with its old pen; a centre line's Extension grows by the delta distance), Circle Centerlines, Bolt Circle Centerlines, the four Cosmetic Threads (side: two lines a thread's width apart, the hole's closed by a line; bottom: the 15 to 285 degree arc at 1.176 / 0.85 of the radius, stored in FreeCAD's turned-over plane), Cosmetic Intersection Vertices (the curves completed as BaseGeom::completeEdge does, BRepAlgoAPI_Section), Offset Vertex (its panel); **attributes** Select Line Attributes (TaskSelectLineAttributes: style, width, colour, Cascade spacing, Delta distance, kept for the session as FreeCAD keeps LineFormat::getCurrentLineFormat and activeDimAttributes; every command reads them), Change Line Attributes, Toggle View Lock, Position Section View (the Python command: a section view in line with its base, a projection group's item taking the group; an edge and a vertex), Toggle Edge Visibility (ShowAllEdges: the lines whose pen is invisible are drawn); **dimensions** Horizontal, Vertical and Oblique Chain, Coordinate and (Horizontal, Vertical) Chamfer Dimension, Arc Length Dimension (cosmetic vertices at the ends, FormatSpec "◠ length"), the oblique ones' carrier vertices and thin lines, Insert Diameter, Square and n× Prefix (its Prefix Text dialog), Remove Prefix, Increase and Decrease Decimal Places (0 to 9), Align (Position) and Cascade Horizontal, Vertical and Oblique Dimensions, Area and Arc Length Annotation (a balloon), Customize Format Label (its panel with the symbols). The float arithmetic of the C++ (`float yMaster`, getTrianglePoint) is done in float32. Each is one `cad techdraw apply` step named as FreeCAD's `openCommand`; the warnings are the commands' own QMessageBoxes with their titles |
 
 Source: `cad_agent/techdraw_objs.py`, `techdraw_more.py` (ops; `cad techdraw leader|rich-text|symbol|weld|surface|image|clip|clip-add|clip-remove`),
 `techdraw_draw.py` (the page's drawing), `ui/src/techdraw_more.tsx` (commands, panels, tracker, rich text editor, file choosers). Checked by
@@ -1073,12 +1075,26 @@ bold, italic, underline, colour and size (not MRichTextEdit's whole set) and the
 frame's size and the weld tiles' texts are near FreeCAD's, not equal); SymbolChooser lists each symbol once (FreeCAD loads the folder twice); the file
 dialogs are lists of FreeCAD's symbols and the project's files with Browse for a file of one's own; an uploaded image is kept in
 techdraw/images/ and stays when the step is undone; PDF and DXF leave out symbols, images and rich text; a weld's tile symbol is drawn at the
-symbol factor 1.25 without Qt's font metrics; Toggle Edge Visibility, Broken View, Complex Section and the extension commands are not ported.
+symbol factor 1.25 without Qt's font metrics; Broken View and Complex Section are not ported.
+
+The extension commands are checked by tests/test_techdraw_ext.py (every command of ui/scripts/fctechdraw_ext.json replayed in the recording's order on
+the plate, a flange and a shaft: the view's edges and vertices in FreeCAD's numbering, the cosmetic edges and vertices, dimensions, balloons, the
+dialogs and the undo steps; the recording is ui/scripts/fctechdraw_ext.py, driving the real GUI), tests/golden/techdraw's `ext_*` cases
+(freecadcmd recomputes the pages these ops write: edges, dimension texts and points) and `techdrawcheck.mjs --only=ext` (the app's commands on the
+same selections).
 
 Known differences, each marked `known` by techdrawcheck:
-- Commands not ported are greyed (Broken View, Complex Section, Project Shape, Active/Draft/BIM/Spreadsheet views, Print All, Toggle Edge
-  Visibility, the extension commands: cosmetic 2/3-point circles, arcs, parallel and perpendicular lines, threads, chain, coordinate and chamfer
-  dimensions and the rest); FreeCAD enables some of these where we grey them.
+- Commands not ported are greyed (Broken View, Complex Section, Project Shape, Active/Draft/BIM/Spreadsheet views, Print All, ...);
+  FreeCAD enables some of these where we grey them.
+- Extension commands: Change Line Attributes, Extend and Shorten Line on a centre line, Toggle Edge Visibility and Position Section View make no
+  undo step in FreeCAD (they change an object or a view provider, not a property; the Python command sets X and Y outside a transaction); each is a
+  step here, the page being a file. After Change Line Attributes FreeCAD's live view lists the centre lines before the cosmetic edges (refreshCEGeoms
+  appends the cosmetic ones to what is left) until it is recomputed, so the Edge<n> picked in that moment differ by the number of cosmetic edges;
+  here the cosmetic edges always come first (the same lists after a recompute). The GUI moves a dimension's text when it draws it ("Drag
+  Dimension", X and Y written with %f), which no command here does, so the dimensions the commands did not touch keep the place they were given.
+  The property view shows no ShowAllEdges row and none of the balloon's view provider properties the area and arc length annotations set (font
+  size 2 or 5, line width, line visibility, colour: they are kept in the page file as `font_size`, `line_width`, `line_visible` and `color`, and the
+  page draws the balloon with its defaults). The Prefix Text dialog is a box in the page's window (a prompt where no page window is open).
 - Line Decoration and Remove Cosmetic Object make no undo step in FreeCAD (no transaction is open); each is a step here. Cancel of
   Line Decoration on an HLR edge crashes FreeCAD. The centreline edit panel's style box shows Format.Style in FreeCAD, the line
   number here. The 3D-point radio buttons of the cosmetic panels are greyed. A cosmetic circle with one vertex has radius 0 and OK
@@ -1086,7 +1102,8 @@ Known differences, each marked `known` by techdrawcheck:
 - Image Hatch: FreeCAD makes "Remove old hatch", "Create Hatch" and several "Update Hatch" steps; here "Create Hatch" is one step
   (the old hatch of a face is replaced in it). FreeCAD exports a bitmap or svg hatch to the page SVG as an embedded image; here it is a
   vector `<pattern>` (PDF omits it). The pattern file box cycles through the shipped files instead of opening a file dialog.
-- A section is one undo step; FreeCAD commits "Create Section View" then "Edit Section View". The GUI's "Drag Dimension" step is not made.
+- A section is the two undo steps FreeCAD commits, "Create Section View" and "Edit Section View" (the origin to six places, then to three; the
+  second is made all the same when it changes nothing: `cad techdraw apply --keep-step`). The GUI's "Drag Dimension" step is not made.
 - TaskSectionView's CompassWidget and VectorEditWidget are not ported (the four arrows are).
 - Dimension, balloon and section line drawing (arrow sizes, text gap) approximate QGIViewDimension; DXF dimensions are lines and
   TEXT, not DIMENSION entities; the page's text falls back to DejaVu Sans where osifont is not installed.
@@ -1170,6 +1187,6 @@ Deliberately or knowingly different:
 - Part: Shape from mesh, Points from shape, Box selection, Persistent section cut, Check geometry, Appearance per face and Defeaturing are greyed or not ported ("Part workbench, 2026-10-25").
 - Assembly: Link Arrays, Snapshot and the BOM object are cut; datums inside parts, nested sub-assemblies, Exploded View's Align to..., Save Animation and the Std_TransformManip dragger are not ported ("Assembly's later commands, 2026-10-27").
 - Loft, Pipe and Helix: a Pipe whose end sections are not planar is refused, and a solid's face as a Pipe's or Helix's Profile is not offered ("PartDesign Loft, Pipe and Helix, 2026-10-24").
-- TechDraw: Broken View, Complex Section, Project Shape, views from other workbenches, Toggle Edge Visibility and the extension commands are greyed; a section is one undo step, not two ("TechDraw workbench, 2026-10-27").
+- TechDraw: Broken View and Complex Section (they need break and profile objects, sketches or wires of the page's document, which a project's page does not have; DrawBrokenView.cpp, DrawComplexSection.cpp and TaskComplexSection.cpp are about 4000 lines), Project Shape and the views from other workbenches are greyed ("TechDraw workbench, 2026-10-27").
 - Spreadsheet: Bind…, Configuration Table, zoom, printing, the line edits' completer, xlsx import and charts are cut ("Spreadsheet workbench, 2026-10-27").
 - The other workbenches: the selector offers only Assembly, CAD Agent, Inspection, Part Design, Part, Sketcher, Spreadsheet and TechDraw, so Draft, FEM, Mesh and the rest are not offered ("Toolbars").

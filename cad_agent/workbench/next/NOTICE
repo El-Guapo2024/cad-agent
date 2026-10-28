@@ -1495,10 +1495,10 @@ src/Mod/TechDraw/Gui/CommandDecorate.cpp   [licence: LGPL-2.1-or-later]
     followed by src/techdraw_cmds.ts, src/techdraw_annot.tsx
 src/Mod/TechDraw/Gui/CommandExtensionDims.cpp   [licence: LGPL-2.1-or-later]
     copyright 2021 edi
-    followed by src/techdraw_cmds.ts
+    followed by src/techdraw_cmds.ts, src/techdraw_ext.tsx
 src/Mod/TechDraw/Gui/CommandExtensionPack.cpp   [licence: LGPL-2.1-or-later]
     copyright 2021 edi
-    followed by src/techdraw_cmds.ts, src/techdraw_annot.tsx
+    followed by src/techdraw_cmds.ts, src/techdraw_annot.tsx, src/techdraw_ext.tsx
 src/Mod/TechDraw/Gui/CommandHelpers.cpp   [licence: LGPL-2.0-or-later]
     copyright 2024 WandererFan
     followed by src/techdraw_cmds.ts, src/techdraw_annot.tsx
@@ -1547,6 +1547,17 @@ src/Mod/TechDraw/Gui/TaskCosmeticLine.cpp   [licence: LGPL-2.1-or-later]
 src/Mod/TechDraw/Gui/TaskCosmeticLine.ui   [licence: none]
     copyright: no line in the file
     followed by src/techdraw_annot.tsx, src/uiforms-techdraw.ts
+src/Mod/TechDraw/Gui/TaskCustomizeFormat.cpp   [licence: LGPL-2.1-or-later]
+    copyright 2021 edi
+    followed by src/techdraw_ext.tsx
+src/Mod/TechDraw/Gui/TaskAddOffsetVertex.ui   [licence: none]
+src/Mod/TechDraw/Gui/TaskCustomizeFormat.ui   [licence: none]
+src/Mod/TechDraw/Gui/TaskSelectLineAttributes.ui   [licence: none]
+    copyright: no line in the file
+    followed by src/techdraw_ext.tsx, src/uiforms-techdraw.ts
+src/Mod/TechDraw/Gui/TaskSelectLineAttributes.cpp   [licence: LGPL-2.1-or-later]
+    copyright 2021 edi
+    followed by src/techdraw_ext.tsx
 src/Mod/TechDraw/Gui/TaskDimension.cpp   [licence: LGPL-2.1-or-later]
     copyright 2021 Uwe Stöhr
     followed by src/techdraw_tasks.tsx
@@ -1614,13 +1625,16 @@ src/Mod/TechDraw/TechDrawTools/CommandMoveView.py   [licence: LGPL-2.1-or-later]
     followed by src/techdraw_cmds.ts
 src/Mod/TechDraw/TechDrawTools/CommandPositionSectionView.py   [licence: LGPL-2.1-or-later]
     copyright 2023 edi
-    followed by src/techdraw_cmds.ts
+    followed by src/techdraw_cmds.ts, src/techdraw_ext.tsx
 src/Mod/TechDraw/TechDrawTools/CommandShareView.py   [licence: LGPL-2.1-or-later]
     copyright 2022 WandererFan
     followed by src/techdraw_cmds.ts
 src/Mod/TechDraw/TechDrawTools/CommandVertexCreations.py   [licence: LGPL-2.1-or-later]
     copyright 2023 edi
-    followed by src/techdraw_cmds.ts
+    followed by src/techdraw_cmds.ts, src/techdraw_ext.tsx
+src/Mod/TechDraw/TechDrawTools/TaskAddOffsetVertex.py   [licence: LGPL-2.1-or-later]
+    copyright 2023 edi
+    followed by src/techdraw_ext.tsx
 src/Mod/Tux/NavigationIndicatorGui.py   [licence: LGPL-2.1-or-later]
     copyright 2016, 2017, 2018 triplus @ FreeCAD
     followed by src/chrome.tsx

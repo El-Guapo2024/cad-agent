@@ -23,7 +23,7 @@ import { applyTd, clearPreview, objOf, tdState, useTd, type TdObj } from './tech
 import type { IconName } from './icons'
 import { AnnotTask } from './techdraw_annot'
 import { MoreTask, MORE_KINDS } from './techdraw_more'
-import { LineAttrsTask } from './techdraw_ext'
+import { LineAttrsTask, CustomizeTask, OffsetVertexTask } from './techdraw_ext'
 
 const icon = (file: string, size: number) => <img src={`./freecad-icons/techdraw/${file}.svg`} width={size} height={size} alt="" />
 
@@ -40,6 +40,8 @@ export function TechDrawTask({ page, other }: { page: string; other: string }) {
   const create = mode === 'create'
   if (MORE_KINDS.includes(kind)) return <MoreTask page={page} other={other} />
   if (kind === 'lineattrs') return <LineAttrsTask />
+  if (kind === 'customize') return <CustomizeTask key={other} page={page} name={name} />
+  if (kind === 'offsetvertex') return <OffsetVertexTask key={other} page={page} view={name} vertex={mode} />
   if (['cosvertex', 'cosline', 'coscircle', 'centerline', 'linedecor', 'hatch', 'geomhatch'].includes(kind)) return <AnnotTask page={page} other={other} />
   useEffect(() => () => clearPreview(page), [page])
   if (kind === 'projgroup') return <ProjGroupTask key={other} page={page} name={name} create={create} />

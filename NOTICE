@@ -271,7 +271,7 @@ that commit.
       (part of ui/, LGPL-2.1-or-later), which cad_agent/ondsel.py loads.
 
   cad_agent/techdraw.py, techdraw_view.py, techdraw_dim.py, techdraw_edit.py, techdraw_export.py,
-  techdraw_cosmetic.py, techdraw_annot.py, techdraw_faces.py, techdraw_lines.py, techdraw_hatch.py
+  techdraw_cosmetic.py, techdraw_annot.py, techdraw_faces.py, techdraw_lines.py, techdraw_hatch.py, techdraw_ext.py
       Re-express src/Mod/TechDraw/App (the last four: Cosmetic.cpp, CosmeticVertex.cpp, CosmeticExtension.cpp,
       CenterLine.cpp, LineFormat.cpp, LineGenerator.cpp and the ASME line definitions of LineGroup/, and
       the Gui task panels TaskCosVertex.cpp, TaskCosmeticLine.cpp, TaskCosmeticCircle.cpp, TaskCenterLine.cpp,
@@ -281,7 +281,10 @@ that commit.
       DrawProjectSplit.cpp, Geometry.cpp, DrawUtil.cpp, DrawProjGroup.cpp, DrawProjGroupItem.cpp,
       DrawViewSection.cpp, EdgeWalker.cpp, DrawViewDimension.cpp, DimensionFormatter.cpp,
       DrawViewBalloon.cpp, DrawViewAnnotation.cpp, Preferences.cpp and AppTechDrawPy.cpp
-      (and, for techdraw_hatch.py, DrawHatch.cpp, DrawGeomHatch.cpp, HatchLine.cpp, QGIFace.cpp and PATPathMaker.cpp)
+      (and, for techdraw_hatch.py, DrawHatch.cpp, DrawGeomHatch.cpp, HatchLine.cpp, QGIFace.cpp and PATPathMaker.cpp; for
+      techdraw_ext.py, Gui/CommandExtensionPack.cpp, CommandExtensionDims.cpp, TaskSelectLineAttributes.cpp, CommandAnnotate.cpp,
+      TechDrawTools/CommandPositionSectionView.py and TaskAddOffsetVertex.py, copyright 2021 and 2023 edi, 2019 WandererFan, and
+      Part/App/Geometry2d.cpp's getCircleCenter, copyright 2016 Werner Mayer)
       (writeDXFPage), and src/Mod/TechDraw/Gui: Command.cpp, CommandCreateDims.cpp,
       CommandAnnotate.cpp, TaskProjGroup.cpp, TaskSectionView.cpp, QGIViewPart.cpp,
       QGIViewDimension.cpp, QGIViewBalloon.cpp, QGIViewAnnotation.cpp, QGISectionLine.cpp, QGIFace.cpp,

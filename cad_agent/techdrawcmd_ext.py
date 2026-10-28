@@ -172,6 +172,25 @@ def add(one, apply_ops, cmd) -> None:
              "TechDraw_ExtensionAreaAnnotation: a balloon with the area of the faces")
     sp.add_argument("view")
     sp.add_argument("faces", nargs="+", metavar="FaceN")
+    sp = one("intersection-vertices", lambda a: run(a, {"op": "vertex_at_intersection", "view": a.view, "edges": [a.edge1, a.edge2]},
+                                                     a.view, a.edge1, a.edge2),
+             "TechDraw_ExtensionVertexAtIntersection: cosmetic vertices where two edges (completed: a line to 10 m, a whole circle) meet")
+    sp.add_argument("view")
+    sp.add_argument("edge1", metavar="EdgeN")
+    sp.add_argument("edge2", metavar="EdgeM")
+    sp = one("offset-vertex", lambda a: run(a, {"op": "offset_vertex", "view": a.view, "vertex": a.vertex, "offset": [a.dx, a.dy]},
+                                            a.view, a.vertex, "--dx", str(a.dx), "--dy", str(a.dy)),
+             "TechDraw_CommandAddOffsetVertex: a cosmetic vertex at the vertex's place moved by --dx, --dy (unscaled, y up)")
+    sp.add_argument("view")
+    sp.add_argument("vertex", metavar="VertexN")
+    sp.add_argument("--dx", type=float, default=0.0)
+    sp.add_argument("--dy", type=float, default=0.0)
+    sp = one("customize-format", lambda a: apply_ops(a, a.page, [{"op": "set", "name": a.name, "props": {a.prop: a.text}}],
+                                                     cmd(a, a.page, a.name, a.text), "Customize Format"),
+             "TechDraw_ExtensionCustomizeFormat: a dimension's FormatSpec or a balloon's Text")
+    sp.add_argument("name", metavar="DIMENSION_OR_BALLOON")
+    sp.add_argument("text")
+    sp.add_argument("--prop", choices=["format_spec", "text"], default="format_spec", help="format_spec for a dimension, text for a balloon")
     sp = one("arc-length-note", lambda a: run(a, {"op": "arc_length_annotation", "view": a.view, "edges": a.edges}, a.view, *a.edges),
              "TechDraw_ExtensionArcLengthAnnotation: a balloon with the length of the edges")
     sp.add_argument("view")

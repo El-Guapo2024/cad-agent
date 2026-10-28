@@ -5,8 +5,10 @@
 //   src/Mod/TechDraw/Gui/CommandExtensionDims.cpp: 2021 edi
 //   src/Mod/TechDraw/Gui/CommandAnnotate.cpp: 2019 WandererFan
 //   src/Mod/TechDraw/Gui/TaskSelectLineAttributes.cpp: 2021 edi
-//   src/Mod/TechDraw/TechDrawTools/CommandPositionSectionView.py: 2021 edi
-//   No copyright line in the file: src/Mod/TechDraw/Gui/TaskSelectLineAttributes.ui
+//   src/Mod/TechDraw/Gui/TaskCustomizeFormat.cpp: 2021 edi
+//   src/Mod/TechDraw/TechDrawTools/TaskAddOffsetVertex.py, CommandVertexCreations.py, CommandPositionSectionView.py: 2023 edi
+//   No copyright line in the file: src/Mod/TechDraw/Gui/TaskSelectLineAttributes.ui, src/Mod/TechDraw/Gui/TaskCustomizeFormat.ui,
+//       src/Mod/TechDraw/Gui/TaskAddOffsetVertex.ui
 // TechDraw's extension commands (the Attributes/Modifications, Centerlines/Threading and Format/Organize Dimensions menus),
 // TechDraw_ShowAll and the Select Line Attributes panel. Each is one `cad techdraw apply` of the ops of
 // cad_agent/techdraw_ext.py: one undo step named as FreeCAD's transaction. The session's line attributes (the panel's
@@ -22,7 +24,7 @@ import { TaskBox } from './panels'
 import { messageBox } from './msgbox'
 import type { IconName } from './icons'
 import { LINE_NAMES } from './techdraw_annot'
-import { applyTd, objOf, setTd, splitRef, tdState, isView, activePage, type TdEdge } from './techdraw'
+import { applyTd, clearPreview, labelOf, objOf, setTd, splitRef, tdState, isView, activePage, type TdEdge } from './techdraw'
 
 const warn = (title: string, text: string) => void messageBox('warning', title, text)
 
@@ -96,7 +98,7 @@ function lineCommand(parallel: boolean) {
       const ks = [kindOf(s.subs[0]), kindOf(s.subs[1])].sort().join()
       if (ks === 'Edge,Vertex') {
         const edge = s.subs.slice(0, 2).find((x) => kindOf(x) === 'Edge')!
-        if (edgeOf(s.page, s.name, edge)?.kind !== 'GENERIC') { void messageBox('critical', 'Error', 'Bad Cast'); return }
+        if (edgeOf(s.page, s.name, edge)?.kind !== 'GENERIC') return      // (FreeCAD casts the edge to a line whatever it is)
         await run(s.page, { op: 'cosmetic_pline', view: s.name, subs: s.subs.slice(0, 2), parallel })
         clearSel()
       }
@@ -267,6 +269,34 @@ function decimalsCommand(delta: 1 | -1) {
   }
 }
 
+/** TechDraw_ExtensionVertexAtIntersection: the first two selected edges; where they meet, cosmetic vertices. */
+async function intersectionVertices() {
+  const s = checkSel('TechDraw cosmetic intersection vertices')
+  if (!s) return
+  if (s.subs.length >= 2 && kindOf(s.subs[0]) === 'Edge' && kindOf(s.subs[1]) === 'Edge')
+    await run(s.page, { op: 'vertex_at_intersection', view: s.name, edges: s.subs.slice(0, 2) })
+  clearSel()
+}
+/** TechDraw_CommandAddOffsetVertex (CommandVertexCreations.py): Utils.getSelView() and Utils.getSelVertexes(); TaskAddOffsetVertex. */
+function offsetVertex() {
+  if (!needPage()) return
+  const sel = selObjects()
+  const msg = (text: string) => void messageBox(null, 'TechDraw_Utils', text)
+  if (!sel.length) { msg('No view selected'); return }
+  const vertex = sel[0].subs.find((x) => kindOf(x) === 'Vertex')
+  if (!vertex) { msg('Select at least 1 vertexes'); return }
+  openTask('techdraw', sel[0].page, `offsetvertex:${sel[0].name}:${vertex}`)
+  clearSel()
+}
+/** TechDraw_ExtensionCustomizeFormat: TaskDlgCustomizeFormat for the first selected object, a dimension or a balloon. */
+function customizeFormat() {
+  if (!needPage()) return
+  const sel = selObjects()
+  if (!sel.length) { warn('TechDraw Customize Format', 'Selection is empty'); return }
+  const o = objOf(sel[0].page, sel[0].name)
+  if (o?.kind === 'DrawViewDimension' || o?.kind === 'DrawViewBalloon') openTask('techdraw', sel[0].page, `customize:${o.name}`)
+}
+
 // ── CommandExtensionPack.cpp: the annotations ───────────────────────────────────────────────────────────────────────
 async function areaAnnotation() {
   const s = checkSel('TechDraw Calculate Selected Area')
@@ -317,6 +347,8 @@ export function extActions(on: boolean): Record<string, [() => void, boolean]> {
     TechDraw_ExtensionInsertRepetition: go(prefixCommand('%s× ')), TechDraw_ExtensionRemovePrefixChar: go(removePrefix),
     TechDraw_ExtensionIncreaseDecimal: go(decimalsCommand(1)), TechDraw_ExtensionDecreaseDecimal: go(decimalsCommand(-1)),
     TechDraw_ExtensionAreaAnnotation: go(areaAnnotation), TechDraw_ExtensionArcLengthAnnotation: go(arcLengthAnnotation),
+    TechDraw_ExtensionVertexAtIntersection: go(intersectionVertices), TechDraw_CommandAddOffsetVertex: [offsetVertex, on],
+    TechDraw_ExtensionCustomizeFormat: [customizeFormat, on],
   }
 }
 
@@ -384,3 +416,80 @@ export function LineAttrsTask() {
 }
 /** For techdrawcheck.mjs: the session's attributes. */
 export const extAttrs = () => attrs
+
+// ── TaskCustomizeFormat and TaskAddOffsetVertex ─────────────────────────────────────────────────────────────────────
+type FormNode = { w?: { n?: string; p?: Record<string, unknown>; l?: FormNode }; l?: FormNode; i?: FormNode[] }
+/** The text of each push button of a form by its object name (TaskCustomizeFormat's symbols). */
+function buttonTexts(node: unknown, out: Record<string, string> = {}): Record<string, string> {
+  if (Array.isArray(node)) { for (const x of node) buttonTexts(x, out); return out }
+  if (node && typeof node === 'object') {
+    const o = node as { c?: string; n?: string; p?: { text?: string } }
+    if (o.c === 'QPushButton' && o.n && o.p?.text) out[o.n] = o.p.text
+    for (const v of Object.values(o)) if (v && typeof v === 'object') buttonTexts(v, out)
+  }
+  return out
+}
+/** QString::asprintf(format, double), as far as a preview needs: the floating point conversions (an integer conversion is given
+ *  a double, whose bits are not shown here). */
+export function asprintf(fmt: string, v: number): string {
+  return fmt.replace(/%([-+ 0#]*)(\d+)?(?:\.(\d+))?([diouxXeEfFgGaAcspn%])/g, (m, flags: string, width: string | undefined, prec: string | undefined, conv: string) => {
+    if (conv === '%') return '%'
+    let s: string
+    if (conv === 'f' || conv === 'F') s = v.toFixed(prec === undefined ? 6 : Number(prec))
+    else if (conv === 'e' || conv === 'E') { s = v.toExponential(prec === undefined ? 6 : Number(prec)).replace(/e([+-])(\d)$/, 'e$10$2'); if (conv === 'E') s = s.toUpperCase() }
+    else if (conv === 'g' || conv === 'G') { const p = prec === undefined ? 6 : Math.max(1, Number(prec)); s = String(Number(v.toPrecision(p))) }
+    else return m
+    if (flags.includes('+') && v >= 0) s = '+' + s
+    else if (flags.includes(' ') && v >= 0) s = ' ' + s
+    if (width && s.length < Number(width)) s = flags.includes('-') ? s.padEnd(Number(width)) : flags.includes('0') ? s.replace(/^([+-]?)/, (g) => g + '0'.repeat(Number(width) - s.length)) : s.padStart(Number(width))
+    return s
+  })
+}
+/** TaskCustomizeFormat: a line edit with the dimension's FormatSpec (a balloon's Text) and buttons that insert symbols; the preview
+ *  is the format applied to the dimension's value. OK is one transaction, "Customize Format". */
+export function CustomizeTask({ page, name }: { page: string; name: string }) {
+  const o = objOf(page, name)
+  const isDim = o?.kind === 'DrawViewDimension'
+  const raw = Number(tdState().docs[page]?.result?.dimensions?.[name]?.value ?? 0)
+  const [text, setText] = useState(String(isDim ? o?.format_spec ?? '' : o?.text ?? ''))
+  const texts = buttonTexts(TECHDRAW_FORMS.customize)
+  const bind: Bindings = {
+    leFormat: { value: text, set: (v: string) => setText(v) },
+    lbShowPreview: { text: isDim ? asprintf(text, raw) : text },
+  }
+  for (const [n, t] of Object.entries(texts)) bind[n] = { click: () => setText((x) => x + t) }
+  const ok = async () => {
+    closeTask()
+    await applyTd(page, [{ op: 'set', name, props: isDim ? { format_spec: text } : { text } }], 'Customize Format')
+  }
+  return (
+    <div className="tasks">
+      <div className="tbuttons"><button className="qbtn default" onClick={() => void ok()}>OK</button><button className="qbtn" onClick={closeTask}>Cancel</button></div>
+      <TaskBox title="Customize Format" icon={'td-TechDraw_ExtensionCustomizeFormat' as IconName}><QtForm form={TECHDRAW_FORMS.customize} bind={bind} /></TaskBox>
+    </div>)
+}
+/** TechDrawTools/TaskAddOffsetVertex.py: a cosmetic vertex offset from the selected vertex; the page shows it as the offset is
+ *  typed, OK is one transaction, "Add offset vertex", Cancel takes the preview away. */
+export function OffsetVertexTask({ page, view, vertex }: { page: string; view: string; vertex: string }) {
+  const [off, setOff] = useState<[number, number]>([0, 0])
+  const op = { op: 'offset_vertex', view, vertex, offset: off }
+  useEffect(() => { if (off[0] || off[1]) void applyTd(page, [op], undefined, true); else clearPreview(page) }, [off[0], off[1]]) // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => () => clearPreview(page), [page])
+  const bind: Bindings = {
+    le_SourceVertex: { value: `${labelOf(objOf(page, view))}.${vertex}` },
+    dSpinBoxX: { value: off[0], dec: 2, min: -900, max: 900, step: 1, set: (v: number) => setOff([v, off[1]]) },
+    dSpinBoxY: { value: off[1], dec: 2, min: -900, max: 900, step: 1, set: (v: number) => setOff([off[0], v]) },
+    groupBox: {},
+  }
+  const ok = async () => {
+    clearPreview(page)
+    closeTask()
+    await applyTd(page, [op], 'Add offset vertex')
+  }
+  const cancel = () => { clearPreview(page); closeTask() }
+  return (
+    <div className="tasks">
+      <div className="tbuttons"><button className="qbtn default" onClick={() => void ok()}>OK</button><button className="qbtn" onClick={cancel}>Cancel</button></div>
+      <TaskBox title="Offset Vertex" icon={'td-TechDraw_AddOffsetVertex' as IconName}><QtForm form={TECHDRAW_FORMS.offsetvertex} bind={bind} /></TaskBox>
+    </div>)
+}

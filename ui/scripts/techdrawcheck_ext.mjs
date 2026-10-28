@@ -36,6 +36,8 @@ const CMD = {
   dims_prefix_remove_again: 'TechDraw_ExtensionRemovePrefixChar', dims_decimal_up: 'TechDraw_ExtensionIncreaseDecimal', dims_decimal_down: 'TechDraw_ExtensionDecreaseDecimal',
   notes_area: 'TechDraw_ExtensionAreaAnnotation', notes_area_none: 'TechDraw_ExtensionAreaAnnotation', notes_arclength: 'TechDraw_ExtensionArcLengthAnnotation',
   notes_arclength_circle: 'TechDraw_ExtensionArcLengthAnnotation',
+  verts_intersection_lines: 'TechDraw_ExtensionVertexAtIntersection', verts_intersection_circle: 'TechDraw_ExtensionVertexAtIntersection',
+  verts_intersection_one: 'TechDraw_ExtensionVertexAtIntersection', verts_intersection_vertex: 'TechDraw_ExtensionVertexAtIntersection',
 }
 // FreeCAD makes no undo step for these (the object changes, not a property); here they are one, the page being a file
 const NO_STEP_THERE = new Set(['pack_extend_cl', 'pack_shorten_cl', 'showall', 'showall_back', 'attrs_change'])
@@ -170,10 +172,64 @@ export async function extChecks(h) {
     } else same(head, f, `${what}: the undo step`)
     if (after) await after()
   }
-  const order = Object.keys(EXT).filter((k) => CMD[k] || k === 'dims_decimal_limits')
+  const panelNames = () => st(`[...document.querySelectorAll('.tasks [data-qf]')].map((e) => e.getAttribute('data-qf')).filter((n) => n && !n.includes('::'))`)
+  const fcNames = (p) => [...new Set(p.flat().map((w) => w.name).filter((n) => n && !n.startsWith('qt_')))].sort()
+  const fill = async (sel, text) => { await page.fill(sel, text); await page.locator(sel).evaluate((e) => e.blur()); await sleep(250) }
+  const title = () => st(`document.querySelector('.tasks .tbox-head span')?.textContent`)
+  const order = Object.keys(EXT).filter((k) => CMD[k] || k === 'dims_decimal_limits' || k === 'offset_vertex' || k.startsWith('customize_'))
   const done = new Set()
   for (const key of order) {
     if (key === 'pack_cl_make') continue
+    if (key === 'offset_vertex') {
+      // Offset Vertex (TaskAddOffsetVertex.py): the panel, the offset typed, OK; and Cancel of another
+      const rec = EXT.offset_vertex
+      for (const [ok_, vertex, r] of [[true, 'Vertex8', rec], [false, 'Vertex3', EXT.offset_vertex_cancel]]) {
+        const n0 = await st('cadui.getState().undo[0]?.id ?? null'), cv0 = ((await objectOf('View')).cosmetic_vertexes ?? []).length
+        await select([`Page/View.${vertex}`])
+        await runCmd('TechDraw_CommandAddOffsetVertex')
+        await until('cadui.getState().task?.other?.startsWith("offsetvertex:")', 'the Offset Vertex panel')
+        await sleep(500)
+        same((await panelNames()).filter((n, i, a) => a.indexOf(n) === i).sort(), fcNames(r.panel), `Offset Vertex: the panel's widgets`)
+        same(await title(), 'Offset Vertex', 'Offset Vertex: the panel\'s title')
+        same(await st(`document.querySelector('.tasks [data-qf="le_SourceVertex"]')?.value`), r.edit.source, 'Offset Vertex: the reference')
+        await fill('.tasks [data-qf="dSpinBoxX"] input', String(r.edit.dSpinBoxX)); await fill('.tasks [data-qf="dSpinBoxY"] input', String(r.edit.dSpinBoxY))
+        await idle(); await sleep(500)
+        if (ok_) {
+          await page.click('.tasks .tbuttons .qbtn.default'); await idle(); await sleep(500)
+          const cv = (await objectOf('View')).cosmetic_vertexes
+          same(cv.at(-1).point.slice(0, 2), r.view.CosmeticVertexes.at(-1).Point.slice(0, 2), 'Offset Vertex: the vertex')
+          same(cv.length, cv0 + 1, 'Offset Vertex: one vertex')
+          same(await undoHead(), r.undo.head[0], 'Offset Vertex: the undo step')
+        } else {
+          await page.click('.tasks .tbuttons .qbtn:not(.default)'); await idle(); await sleep(500)
+          same(((await objectOf('View')).cosmetic_vertexes ?? []).length, cv0, 'Offset Vertex, Cancel: no vertex')
+          same(await st('cadui.getState().undo[0]?.id ?? null'), n0, 'Offset Vertex, Cancel: no undo step')
+        }
+      }
+      continue
+    }
+    if (key.startsWith('customize_')) {
+      // Customize Format Label (TaskCustomizeFormat): the format typed, two symbols clicked, the preview, OK
+      const rec = EXT[key], name = rec.selection[0][0]
+      await select([`Page/${name}`])
+      await runCmd('TechDraw_ExtensionCustomizeFormat')
+      await until('cadui.getState().task?.other?.startsWith("customize:")', 'the Customize Format panel')
+      await sleep(500)
+      same([...new Set(await panelNames())].sort(), fcNames(rec.panel), `${key}: the panel's widgets`)
+      same(await title(), 'Customize Format', `${key}: the panel's title`)
+      same(await st(`document.querySelector('.tasks [data-qf="leFormat"]')?.value`), rec.edit.before[0], `${key}: the format`)
+      same(await st(`document.querySelector('.tasks [data-qf="lbShowPreview"]')?.textContent`), rec.edit.before[1], `${key}: the preview`)
+      await fill('.tasks [data-qf="leFormat"]', '%.1f mm')
+      same(await st(`document.querySelector('.tasks [data-qf="lbShowPreview"]')?.textContent`), rec.edit.typed[1], `${key}: the preview of what is typed`)
+      for (const b of ['pbA01', 'pbC01']) { await page.click(`.tasks [data-qf="${b}"]`); await sleep(150) }
+      same(await st(`document.querySelector('.tasks [data-qf="leFormat"]')?.value`), rec.edit.clicked[0], `${key}: the symbols inserted`)
+      same(await st(`document.querySelector('.tasks [data-qf="lbShowPreview"]')?.textContent`), rec.edit.clicked[1], `${key}: the preview after the symbols`)
+      await page.click('.tasks .tbuttons .qbtn.default'); await idle(); await sleep(500)
+      const o = await objectOf(name)
+      same(key.endsWith('dim') ? o.format_spec : o.text, key.endsWith('dim') ? rec.after.FormatSpec : rec.after.Text, `${key}: the result`)
+      same(await undoHead(), rec.undo.head[0], `${key}: the undo step`)
+      continue
+    }
     if (key === 'dims_decimal_limits') {
       // three decreases and eleven increases of the second dimension's decimals: they stop at 0 and at 9
       const two = EXT.dims_prefix_square.selection[0][0]

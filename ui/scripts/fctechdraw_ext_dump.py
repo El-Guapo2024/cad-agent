@@ -12,6 +12,9 @@
 #   notes_*        TechDraw_ExtensionAreaAnnotation and TechDraw_ExtensionArcLengthAnnotation: the balloon and its view provider
 #   section_*      TechDraw_ExtensionPositionSectionView on a section view and on an edge and a vertex
 #   showall        TechDraw_ShowAll (Toggle Edge Visibility)
+#   verts_*        TechDraw_ExtensionVertexAtIntersection
+#   offset_vertex* TechDraw_CommandAddOffsetVertex (TechDrawTools/TaskAddOffsetVertex.py): the panel, OK and Cancel
+#   customize_*    TechDraw_ExtensionCustomizeFormat (TaskCustomizeFormat) on a dimension and a balloon
 import os
 
 SRC = os.environ["FCTECHDRAW_ANNOT_DUMP"]
@@ -385,6 +388,54 @@ def main():
     safe("notes_area_none", lambda: run_ext("TechDraw_ExtensionAreaAnnotation", [("View", "Edge0")]))
     safe("notes_arclength", lambda: run_ext("TechDraw_ExtensionArcLengthAnnotation", [("View", "Edge1"), ("View", "Edge3")]))
     safe("notes_arclength_circle", lambda: run_ext("TechDraw_ExtensionArcLengthAnnotation", [("View", "Edge5")]))
+
+    # cosmetic intersection vertices, Offset Vertex (TechDrawTools) and Customize Format Label
+    safe("verts_intersection_lines", lambda: run_ext("TechDraw_ExtensionVertexAtIntersection", [("View", "Edge2"), ("View", "Edge4")]))
+    safe("verts_intersection_circle", lambda: run_ext("TechDraw_ExtensionVertexAtIntersection", [("View", "Edge2"), ("View", "Edge7")]))
+    safe("verts_intersection_one", lambda: run_ext("TechDraw_ExtensionVertexAtIntersection", [("View", "Edge2")]))
+    safe("verts_intersection_vertex", lambda: run_ext("TechDraw_ExtensionVertexAtIntersection", [("View", "Edge2"), ("View", "Vertex1")]))
+
+    def offset_edit():
+        info = {}
+        for n, v in (("dSpinBoxX", 3.0), ("dSpinBoxY", -2.0)):
+            w = child(n, QtWidgets.QDoubleSpinBox)
+            if w is not None:
+                w.setValue(v)
+                pump(0.4)
+                info[n] = w.value()
+        le = child("le_SourceVertex", QtWidgets.QLineEdit)
+        info["source"] = le.text() if le else None
+        return info
+    safe("offset_vertex", lambda: run_tool("TechDraw_CommandAddOffsetVertex", [("View", "Vertex8")], offset_edit))
+    safe("offset_vertex_cancel", lambda: run_tool("TechDraw_CommandAddOffsetVertex", [("View", "Vertex3")], offset_edit, ok=False))
+
+    def customize_edit():
+        info = {}
+        le = child("leFormat", QtWidgets.QLineEdit)
+        lb = child("lbShowPreview", QtWidgets.QLabel)
+        info["before"] = [le.text(), lb.text()]
+        le.setText("%.1f mm")
+        pump(0.4)
+        info["typed"] = [le.text(), lb.text()]
+        buttons = {}
+        for b in mw.findChildren(QtWidgets.QPushButton):
+            if b.isVisible() and b.objectName()[:2] == "pb" and len(b.objectName()) == 5 and b.objectName()[2] in "ABCDEF":
+                buttons[b.objectName()] = [b.text(), b.toolTip()]
+        info["buttons"] = buttons
+        for n in ("pbA01", "pbC01"):
+            b = child(n, QtWidgets.QPushButton)
+            if b is not None:
+                b.click()
+                pump(0.3)
+        info["clicked"] = [le.text(), lb.text()]
+        return info
+
+    def customize(name):
+        r = run_tool("TechDraw_ExtensionCustomizeFormat", [name], customize_edit)
+        r["after"] = {k: val(getattr(doc.getObject(name), k)) for k in ("FormatSpec", "Text") if hasattr(doc.getObject(name), k)}
+        return r
+    safe("customize_dim", lambda: customize("Dimension001"))
+    safe("customize_balloon", lambda: customize("Balloon001"))
 
     # position section view: a section of a projection group's item (the command takes the group as the base), of a
     # single view (a DrawProjGroupItem outside a group: the Python command fails), and the edge and vertex form

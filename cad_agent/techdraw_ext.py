@@ -7,9 +7,11 @@
 #                 src/Mod/TechDraw/Gui/CommandExtensionDims.cpp (Copyright (c) 2021 edi),
 #                 src/Mod/TechDraw/Gui/CommandAnnotate.cpp (Copyright (c) 2019 WandererFan),
 #                 src/Mod/TechDraw/Gui/TaskSelectLineAttributes.cpp (Copyright (c) 2021 edi),
-#                 src/Mod/TechDraw/TechDrawTools/CommandPositionSectionView.py (Copyright (c) 2021 edi),
+#                 src/Mod/TechDraw/TechDrawTools/CommandPositionSectionView.py (Copyright (c) 2023 edi),
+#                 src/Mod/TechDraw/TechDrawTools/TaskAddOffsetVertex.py (Copyright (c) 2023 edi),
+#                 src/Mod/TechDraw/App/Geometry.cpp (Copyright (c) 2012 Luke Parry),
 #                 src/Mod/TechDraw/App/DrawUtil.cpp (Copyright (c) 2013 Luke Parry),
-#                 src/Mod/Part/App/Geometry2d.cpp (Copyright (c) 2011 Werner Mayer, Yorik van Havre)
+#                 src/Mod/Part/App/Geometry2d.cpp (Copyright (c) 2016 Werner Mayer)
 #                 FreeCAD (https://github.com/FreeCAD/FreeCAD), commit 3160daf1e2b62b0472854da4848255c6b3ad554c
 #
 #   This library is free software; you can redistribute it and/or modify it under the terms of the GNU Library
@@ -45,6 +47,8 @@ arithmetic included (FreeCAD does a good part of it in `float`: `f32` rounds as 
   {"op": "dim_decimals",      "names": [...], "delta": 1|-1}
   {"op": "area_annotation",   "view": v, "faces": ["Face0", ...]}
   {"op": "arc_length_annotation", "view": v, "edges": ["Edge1", ...]}
+  {"op": "vertex_at_intersection", "view": v, "edges": ["Edge2", "Edge4"]}           TechDraw_ExtensionVertexAtIntersection
+  {"op": "offset_vertex", "view": v, "vertex": "Vertex8", "offset": [dx, dy]}        TechDraw_CommandAddOffsetVertex
 
 Any op may carry "active": {"style", "weight", "color", "visible", "line_number"}, "line_stretch" and "cascade_spacing":
 the session's line attributes (TaskSelectLineAttributes; LineFormat::getCurrentLineFormat and activeDimAttributes),
@@ -77,11 +81,12 @@ STEP_NAMES = {"cosmetic_circle2": "Cosmetic Circle", "cosmetic_circle3": "Cosmet
               "dim_position:h": "Position Horizontal Chain Dimension", "dim_position:v": "Position Vert Chain Dimension",
               "dim_position:o": "Position Oblique Chain Dimension", "cascade:h": "Cascade Horizontal Dimension",
               "cascade:v": "Cascade Vertical Dimension", "cascade:o": "Cascade Oblique Dimension",
-              "area_annotation": "Calculate Face Area", "arc_length_annotation": "Calculate Edge Length"}
+              "area_annotation": "Calculate Face Area", "arc_length_annotation": "Calculate Edge Length",
+              "vertex_at_intersection": "Cosmetic intersection vertices", "offset_vertex": "Add offset vertex"}
 OPS = ("cosmetic_circle2", "cosmetic_circle3", "cosmetic_arc", "cosmetic_pline", "extend_line", "circle_centerlines", "bolt_circle",
        "thread", "line_attributes", "lock_view", "show_all_edges", "position_section", "chain_dim", "coord_dim", "chamfer_dim",
        "arc_length_dim", "dim_position", "dim_prefix", "dim_remove_prefix", "dim_decimals", "area_annotation",
-       "arc_length_annotation")
+       "arc_length_annotation", "vertex_at_intersection", "offset_vertex")
 
 THIN, GRAPHIC, THICK = 0.35, 0.5, 0.7           # LineGroup::getDefaultWidth("Thin" | "Graphic" | "Thick")
 CASCADE_SPACING = 7.0                           # activeDimAttributes: TaskSelectLineAttributes.cpp
@@ -968,3 +973,71 @@ def _arc_length_annotation(s, E, op):
     _balloon(s, E, v, text, ax + off, ay + off, ax, ay, "Line", "Filled arrow", 1.0 * line_width,
              {"font_size": 5.0, "line_width": line_width, "line_visible": True, "color": C.DEFAULT_FORMAT["color"]})
     return f"made an arc length balloon on {v.name}"
+
+
+# ── Cosmetic Intersection Vertices (BaseGeom::intersection) and Offset Vertex (TechDrawTools/TaskAddOffsetVertex.py) ─────
+
+def complete_edge(edge):
+    """BaseGeom::completeEdge: the edge's curve made whole (a line up to 10 m either way, a full circle or ellipse)."""
+    from OCP.BRepAdaptor import BRepAdaptor_Curve
+    from OCP.BRepBuilderAPI import BRepBuilderAPI_MakeEdge
+    from OCP.GeomAbs import GeomAbs_Circle, GeomAbs_Ellipse, GeomAbs_Line
+    c = BRepAdaptor_Curve(edge)
+    t = c.GetType()
+    if t == GeomAbs_Line:
+        return BRepBuilderAPI_MakeEdge(c.Line(), -10000.0, 10000.0).Edge()
+    if t == GeomAbs_Circle:
+        return BRepBuilderAPI_MakeEdge(c.Circle()).Edge()
+    if t == GeomAbs_Ellipse:
+        return BRepBuilderAPI_MakeEdge(c.Ellipse()).Edge()
+    return BRepBuilderAPI_MakeEdge(c.Curve().Curve()).Edge()
+
+
+def intersection(edge1, edge2) -> list:
+    """BaseGeom::intersection: the points where the two curves, completed, meet (BRepAlgoAPI_Section, fuzzy 4 * EWTOLERANCE)."""
+    from OCP.BRep import BRep_Tool
+    from OCP.BRepAlgoAPI import BRepAlgoAPI_Section
+    from OCP.TopAbs import TopAbs_VERTEX
+    from OCP.TopExp import TopExp_Explorer
+    from OCP.TopoDS import TopoDS
+    from .techdraw_view import EWTOLERANCE, FUZZYADJUST
+    op = BRepAlgoAPI_Section(complete_edge(edge1), complete_edge(edge2), False)
+    op.SetFuzzyValue(FUZZYADJUST * EWTOLERANCE)
+    op.SetNonDestructive(True)
+    op.Build()
+    out = []
+    if op.IsDone() and not op.Shape().IsNull():
+        ex = TopExp_Explorer(op.Shape(), TopAbs_VERTEX)
+        while ex.More():
+            p = BRep_Tool.Pnt_s(TopoDS.Vertex(ex.Current()))
+            out.append((p.X(), p.Y(), p.Z()))
+            ex.Next()
+    return out
+
+
+def _vertex_at_intersection(s, E, op):
+    """TechDraw_ExtensionVertexAtIntersection: a cosmetic vertex at each point where the first two selected edges meet."""
+    v = _view(s, op)
+    geo = _geo(s, E, v)
+    subs = [n for n in (op.get("edges") or [])]
+    if len(subs) < 2 or not (subs[0].startswith("Edge") and subs[1].startswith("Edge")):
+        return "nothing made"
+    e1, e2 = _edge(geo, subs[0]), _edge(geo, subs[1])
+    new = []
+    for p in intersection(e1.occ, e2.occ):
+        c = _stored(geo, v, p)                          # makeCanonicalPointInverted, then addCosmeticVertex(temp, false)
+        new.append(C.make_vertex([c[0], -c[1], 0.0]))
+    A._replace(s, E, v, cosmetic_vertexes=A._list(v, "cosmetic_vertexes") + new)
+    return f"made {len(new)} cosmetic vertices on {v.name}"
+
+
+def _offset_vertex(s, E, op):
+    """TaskAddOffsetVertex: a cosmetic vertex at the selected vertex's place plus the offset (about the view's centre,
+    unscaled and unrotated, y up)."""
+    v = _view(s, op)
+    geo = _geo(s, E, v)
+    p = _vertex_paper(geo, op["vertex"])
+    u = _user(geo, v, p)
+    off = op.get("offset") or [0.0, 0.0]
+    A._replace(s, E, v, cosmetic_vertexes=A._list(v, "cosmetic_vertexes") + [C.make_vertex([u[0] + float(off[0]), u[1] + float(off[1]), 0.0])])
+    return f"made a cosmetic vertex offset from {op['vertex']} on {v.name}"
