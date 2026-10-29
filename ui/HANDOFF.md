@@ -142,16 +142,16 @@ Step 5, round 3 (six branches) is all in main (7526c0c, CI green, 6977 passed, 2
   8733 --keep-warm ~/cad-demo` on the VM, reached from a laptop with `gcloud compute ssh ws-cad-agent --zone us-west1-c
   -- -L 8733:localhost:8733`, then http://localhost:8733/next/. Add `--project braneboard-sims`. Juan's Mac runs its
   own workbench on 8733 (from ~/ws/cad-agent, restarted by the Claude app's launch.json), so tunnel to 8744 there.
-- The demo machine (2026-10-28, Juan's spec in memory pcb-fab-demo): ~/cad-demo/pcbfab = the LumenPnP v4.2.0 base
-  (~/cad-demo/lumenpnp, Opulo's FreeCAD assembly exported group by group to STEP with FreeCAD; the sparse clone is
-  ~/cad-demo/vendor/lumenpnp) linked as a subassembly, a laser bay left of it (2020 box, fiber source on the floor,
-  pinned laser bed on a shelf, SG7110 galvo + F160 lens from a top plate, focus on the board top) and a pinned hot
-  plate under the head. Galvo, lens (height assumed 45) and source are datasheet envelopes, unverified. The old
-  hand-drawn skeleton is ~/cad-demo/archive/pcbfab_v1_skeleton. `cad check pcbfab` runs past 25 min (every body
-  against LumenPnP's big compounds); a per-solid fit script (scratch fit.py) found nothing of ours hitting LumenPnP.
-  Its scene is ~9 MB gzipped with the per-body Deviation 1.0 in out/gui.json (branch wb-vendor-scene: gzip).
-  Next: the bay's panels and 1064 nm window, fume extraction, our electronics box, tool heads (paste x2) on their
-  head, a laser-drilling test cut. ~/cad-demo is not a git repo, so `cad verify` can't run there yet.
+- The demo machine (2026-10-29, Juan's spec in memory pcb-fab-demo): ~/cad-demo/pcbfab, ONE machine. It links
+  ~/cad-demo/lumenpnp_long: Opulo's STEPs (lumenpnp/bought) with the Y axis stretched 300 mm at y=400 (the long
+  extrusions, rail and belts cut and their own section extruded; parts behind moved back; strip feeders 40 mm back
+  off the hot plate). pcbfab adds the hot plate (150 sq, 3/8") at the front, a raised laser bed at the back with the
+  fiber source on the table under it, and a galvo + F160 lens on a 2040 bridge (posts outside the frame). The full
+  `cad check pcbfab` does not finish in an hour (fit of every body against LumenPnP's compounds); run the rest with
+  scratch spec_only.py (spec, poses, stance, com: all PASS but com UNCHECKED, no vendor masses) and fit3.py (per-solid
+  fit and the gantry at pose pick_laser: 0 problems). Old layouts in ~/cad-demo/archive. Not drawn yet: the whole-
+  machine enclosure (window, door interlock, fume port), printed brackets, paste dispensers on the head, our
+  electronics box. ~/cad-demo is not a git repo, so `cad verify` can't run there yet.
 - Left after the demo: FEM (Gmsh and CalculiX as separate programs), Draft, Part's cut commands, PARITY's known
   differences. Temporary branches on GitHub (ds-merge, ds-fix, asm-merge, st-merge, r5-merge, r6-merge, r7-merge,
   r7b-merge, cam-merge, ci-diag) are all in main; delete them when Juan says so.
