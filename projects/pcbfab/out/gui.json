@@ -1,0 +1,48 @@
+{
+  "view_props": {
+    "lumenpnp_long/y_gantry_left": {
+      "deviation": 1.0,
+      "angularDeflection": 45
+    },
+    "lumenpnp_long/y_gantry_right": {
+      "deviation": 1.0,
+      "angularDeflection": 45
+    },
+    "lumenpnp_long/x_gantry": {
+      "deviation": 1.0,
+      "angularDeflection": 45
+    },
+    "lumenpnp_long/front_feeder_rail": {
+      "deviation": 1.0,
+      "angularDeflection": 45
+    },
+    "lumenpnp_long/rear_feeder_rail": {
+      "deviation": 1.0,
+      "angularDeflection": 45
+    },
+    "lumenpnp_long/y_limit_striker": {
+      "deviation": 1.0,
+      "angularDeflection": 45
+    },
+    "lumenpnp_long/x_drag_chain_asm": {
+      "deviation": 1.0,
+      "angularDeflection": 45
+    },
+    "lumenpnp_long/y_drag_chain_asm": {
+      "deviation": 1.0,
+      "angularDeflection": 45
+    },
+    "lumenpnp_long/primary_staging_plate": {
+      "deviation": 1.0,
+      "angularDeflection": 45
+    },
+    "lumenpnp_long/optional_strip_feeders": {
+      "deviation": 1.0,
+      "angularDeflection": 45
+    },
+    "lumenpnp_long/components_installed_by_user": {
+      "deviation": 1.0,
+      "angularDeflection": 45
+    }
+  }
+}

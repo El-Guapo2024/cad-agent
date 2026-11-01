@@ -1,0 +1,40 @@
+# What the fab must do, as the kernel can measure it.
+
+[envelope]                   # LumenPnP 300 mm longer, the bridge posts outside it: a bench machine
+max_mm = [800, 1000, 560]
+
+[[heat]]                     # reflow: the plate's zone (the board is the work, rated for a reflow pass, and not shown on it)
+source = "hot_plate"
+temp_c = 250
+radius_mm = 15
+
+[[clearance]]                # the lens over the laser board: its working distance, nothing in the beam
+a = "ftheta_lens"
+b = "pcb_blank"
+min_mm = 175.5
+max_mm = 176.0
+
+[[clearance]]                # the gantry passes under the lens to reach the laser bed
+a = "lumenpnp_long/x_gantry"
+b = "ftheta_lens"
+min_mm = 10.0
+pose = "pick_laser"
+
+[[clearance]]                # ... and over the laser bed's pins
+a = "lumenpnp_long/x_gantry"
+b = "reg_pin_1"
+min_mm = 5.0
+pose = "pick_laser"
+
+[[shaft_fit]]                # the board's tooling holes over the laser bed's pins: a slip fit
+shaft = "reg_pin_1"
+bore = "pcb_blank"
+min_mm = 0.05
+max_mm = 0.2
+
+[[deflection]]               # the bridge under the galvo and lens: 2.2 kg (heaviest galvo listing) + 0.5 kg lens, mid-span
+body = "bridge_beam"
+support = "simple"
+span_mm = 780
+load_g = 2700
+max_um = 100

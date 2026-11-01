@@ -1,0 +1,48 @@
+{
+  "view_props": {
+    "y_gantry_left": {
+      "deviation": 1.0,
+      "angularDeflection": 45
+    },
+    "y_gantry_right": {
+      "deviation": 1.0,
+      "angularDeflection": 45
+    },
+    "x_gantry": {
+      "deviation": 1.0,
+      "angularDeflection": 45
+    },
+    "front_feeder_rail": {
+      "deviation": 1.0,
+      "angularDeflection": 45
+    },
+    "rear_feeder_rail": {
+      "deviation": 1.0,
+      "angularDeflection": 45
+    },
+    "y_limit_striker": {
+      "deviation": 1.0,
+      "angularDeflection": 45
+    },
+    "x_drag_chain_asm": {
+      "deviation": 1.0,
+      "angularDeflection": 45
+    },
+    "y_drag_chain_asm": {
+      "deviation": 1.0,
+      "angularDeflection": 45
+    },
+    "primary_staging_plate": {
+      "deviation": 1.0,
+      "angularDeflection": 45
+    },
+    "optional_strip_feeders": {
+      "deviation": 1.0,
+      "angularDeflection": 45
+    },
+    "components_installed_by_user": {
+      "deviation": 1.0,
+      "angularDeflection": 45
+    }
+  }
+}
