@@ -1,4 +1,13 @@
 {
+  "hidden": [
+    "back_panel",
+    "door",
+    "front_panel",
+    "laser_window",
+    "side_panel_1",
+    "side_panel_2",
+    "top_panel"
+  ],
   "view_props": {
     "lumenpnp_long/y_gantry_left": {
       "deviation": 1.0,
@@ -65,5 +74,6 @@
     "laser_window": {
       "transparency": 80
     }
-  }
+  },
+  "unselectable": []
 }
