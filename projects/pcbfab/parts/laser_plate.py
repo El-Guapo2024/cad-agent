@@ -10,7 +10,7 @@ MATERIAL = "aluminium"
 PROCESS = "cnc"
 MIN_FEATURE_MM = 3.0
 
-PARAMS = {"size_x": 470.0, "size_y": 150.0, "thickness": 10.0}
+PARAMS = {"size_x": 430.0, "size_y": 150.0, "thickness": 10.0}
 
 
 def build(size_x, size_y, thickness):

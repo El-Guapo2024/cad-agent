@@ -7,11 +7,11 @@ nobody checked.
 """
 from build123d import Box, Cylinder, Pos
 
-SOURCE = "JPT Lark-355-5A 5 W 355 nm DPSS UV laser, air cooled (no chiller), head 348.5 x 144.6 x 126.2 mm without expander, about 6.5 kg, 10x beam expander built in, 0.7 mm beam at the output window, built-in PSU: https://haotianlasers.com/product/uv-laser-marking-machine-5w/ ; JPT's own page gives 272.5-307.5 x 144.6 x 121-125 by variant: https://en.jptoe.com/products/lasers/dpss-lasers/lark-355-3-5"
+SOURCE = "JPT Lark-355-5A 5 W 355 nm DPSS UV laser, air cooled, 12 V DC, <200 W, 307.5 x 144.6 x 121.2 mm (L x W x H), 6.5 kg, beam 0.5 mm: JPT's own spec table https://en.jptoe.com/products/lasers/dpss-lasers/lark-355-3-5 (a reseller lists 348.5 x 144.6 x 126.2 'without expander': https://haotianlasers.com/product/uv-laser-marking-machine-5w/)"
 VENDOR = 'JPT'
 VERIFIED = False
 
-PARAMS = {'length': 348.5, 'width': 144.6, 'height': 126.2}
+PARAMS = {'length': 307.5, 'width': 144.6, 'height': 121.2}
 
 
 def build(length, width, height):
