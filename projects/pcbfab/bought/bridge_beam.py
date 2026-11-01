@@ -1,36 +1,38 @@
-"""bridge_beam: 20 x 40 T-slot aluminium extrusion, 6 mm slots, the real section, length 800 mm, axis x.
+"""bridge_beam: 40 x 40 T-slot aluminium extrusion, 8 mm slots, the real section, length 800 mm, axis x.
 
-Copied from the library entry extrusion-2040 by `cad lib use`; where each number came from is in bridge_beam.json
-and in `cad lib info extrusion-2040`.
-It is meant to be left alone: `cad lib use <project> extrusion-2040 length=800 axis=x --as bridge_beam --replace`
+Copied from the library entry extrusion-4040 by `cad lib use`; where each number came from is in bridge_beam.json
+and in `cad lib info extrusion-4040`.
+It is meant to be left alone: `cad lib use <project> extrusion-4040 length=800 axis=x --as bridge_beam --replace`
 writes it again, and `cad lib check <project>` fails when this file no longer hashes to the pin in the sidecar.
 """
 
 PARAMS = {}                      # fixed: the sidecar's mass is the mass of exactly this part
 
 ARGS = {
-    'width': 20.0,
-    'height': 40.0,
-    'corner': 1.3,
-    'neck': 3.0,
-    'lead': 3.75,
-    'lead_t': 0.75,
-    'lip': 1.56,
-    'cavity': 6.0,
-    'shoulder_t': 3.0,
-    'floor': 5.5,
-    'floor_s': 3.431,
-    'notch_s': 0.901,
-    'notch_t': 6.02,
-    'core_r': 2.75,
-    'ear_root': [1.259, 2.508],
-    'ear_tip': [1.788, 2.931],
-    'chamber': [[0.0, 6.016], [0.901, 5.496], [3.432, 5.496], [6.3, 2.55], [8.44, 2.55]],
+    'width': 40.0,
+    'corner': 4.0,
+    'neck': 4.1,
+    'lead': 5.6,
+    'hook_t': 3.65,
+    'hook_r': 1.0,
+    'hook_top': 4.65,
+    'hook_out': 7.1,
+    'wing_c': [7.6, 4.485],
+    'wing_r': 2.5,
+    'wall': 10.1,
+    'shoulder_r': 5.0,
+    'shoulder_t': 5.708,
+    'floor': 12.4,
+    'floor_half': 3.408,
+    'chamber_lo': 11.8,
+    'chamber_hi': 18.2,
+    'chamber_r': 2.2,
+    'bore_r': 3.35,
     'length': 800.0,
     'axis': 'x',
 }
 
 
 def build():
-    from cad_agent.library.gen.extrusion import tslot6
-    return tslot6(**ARGS)
+    from cad_agent.library.gen.extrusion import tslot8
+    return tslot8(**ARGS)

@@ -7,7 +7,7 @@ nobody checked.
 """
 from build123d import Box, Cylinder, Pos
 
-SOURCE = 'SG7110 10 mm aperture galvo head, body 118.5 x 96.5 x 93.6 mm per vendor listing https://bestsuppliers.com/products/5rf2i14leee2/free-shipping-1064nm-fiber-laser-scanning-galvo-head-rc7110-sg7110-red-pointer-0100w-input-aperture (other listings: 114-118 x 96.5 x 93.7)'
+SOURCE = 'SG7110 10 mm aperture galvo head with high-reflectance UV (355 nm) mirrors, as in JPT Lark UV marking machines (https://haotianlasers.com/product/uv-laser-marking-machine-5w/); body 118.5 x 96.5 x 93.6 mm, about 1.65 kg, 355 nm among its wavelengths, per https://bestsuppliers.com/products/mentfcbyzgr9/high-quality-sg7110-sg7210-jd2206-galvo-scan-head-zbtk-galvanometer-scanner-for-fiber-laser-marking'
 VENDOR = 'Sino-Galvo'
 VERIFIED = False
 
