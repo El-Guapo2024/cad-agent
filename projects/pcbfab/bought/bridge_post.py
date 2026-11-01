@@ -1,8 +1,8 @@
-"""bridge_post: 40 x 40 T-slot aluminium extrusion, 8 mm slots, the real section, length 571.25 mm, axis z.
+"""bridge_post: 40 x 40 T-slot aluminium extrusion, 8 mm slots, the real section, length 616.7 mm, axis z.
 
 Copied from the library entry extrusion-4040 by `cad lib use`; where each number came from is in bridge_post.json
 and in `cad lib info extrusion-4040`.
-It is meant to be left alone: `cad lib use <project> extrusion-4040 length=571.25 axis=z --as bridge_post --replace`
+It is meant to be left alone: `cad lib use <project> extrusion-4040 length=616.7 axis=z --as bridge_post --replace`
 writes it again, and `cad lib check <project>` fails when this file no longer hashes to the pin in the sidecar.
 """
 
@@ -28,7 +28,7 @@ ARGS = {
     'chamber_hi': 18.2,
     'chamber_r': 2.2,
     'bore_r': 3.35,
-    'length': 571.25,
+    'length': 616.7,
     'axis': 'z',
 }
 

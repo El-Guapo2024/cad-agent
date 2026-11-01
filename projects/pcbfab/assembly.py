@@ -5,7 +5,7 @@
     laser zone   behind it, in the length the stretch added: the vacuum bed (pinned like the hot plate, a plenum
                  under a hole grid for the via paste) on a deck on four legs; the UV
                  laser (JPT Lark 355 nm, as CircuitJet IV and LPKF's ProtoLaser U4 use UV) and the SG7110 galvo hang
-                 in line from a plate under a bridge of two 4040s on two 4040 posts outside the frame, the 355 nm F160 lens down,
+                 in line from a plate under a bridge of two 4040s on two 4040 posts outside the frame, Jenoptik's telecentric 355 nm F170 lens down (straight vias across the field),
                  its focus on the board top. Drill, etch, fill vias, open the solder mask
                  over the pads and mark the legend.
     uv lamp      a 395 nm LED lamp beside the head: the gantry sweeps it over the board on the vacuum bed to cure
@@ -17,8 +17,8 @@ Opulo's model) and the pins clear the head's lowest point (z ~90), so the head c
 bed to the hot plate. The flip stays by hand, onto the same two 3 mm pins.
 LumenPnP is the `lumenpnp_long` project at its own origin (x along the front feeder rail, the table at z -101).
 
-The laser stack, bottom up: the board top (LASER_TOP); the lens's 213.35 working distance; the lens 57 (Wavelength
-SL-355-110-160); the SG7110 93.6; the spacer; the laser plate, the UV source hanging from it beside the galvo; the
+The laser stack, bottom up: the board top (LASER_TOP); the lens's 315.8 flange-to-focus (Jenoptik JENar
+170-355-140, its input end screwed up into the galvo); the SG7110 93.6; the spacer; the laser plate, the UV source hanging from it beside the galvo; the
 bridge beam on top.
 """
 from build123d import Pos, Rot
@@ -40,8 +40,10 @@ HP_LEG = (80.0, 75.0)
 # laser zone
 LC = (230.0, 560.0)                     # the laser bed's centre: left of mid-frame so the UV source, in line with the
                                         # galvo, ends clear of the right bridge post; in the added length in y
-LASER_TOP = 80.0                        # the board top: pins at 81.4 under the head's ~90, lens at 293.4 over 240.4
-GALVO_H, LENS_H, LENS_WD = 93.6, 57.0, 213.35                   # SG7110 (UV mirrors); Wavelength SL-355-110-160
+LASER_TOP = 80.0                        # the board top: pins at 81.4 under the head's ~90, lens at 315.8 over 240.4
+GALVO_H = 93.6                          # SG7110 (UV mirrors)
+LENS_WD, LENS_FF = 235.8, 315.8         # Jenoptik JENar 170-355-140: back working distance, flange to focus (data sheet)
+LENS_OUT = 129.1                        # its STEP's output face, z in the file (input end at 22.51, 106.6 long)
 LENS_SHIFT = 118.5 / 2.0 - 45.0         # the lens under the galvo's output end, not its middle
 SOURCE = (348.5, 126.2)                 # JPT Lark-355-5A: length, height (beam axis at mid-height)
 SPACER_T = SOURCE[1] / 2.0 - GALVO_H / 2.0                      # galvo_spacer.py: the galvo's input on the beam axis
@@ -49,9 +51,9 @@ LPLATE_T = 10.0                         # laser_plate.py
 LASER_LEG = (105.0, 135.0)
 LBED_TOP = LASER_TOP - BOARD_T
 LDECK_TOP = LBED_TOP - PLATE_T - STANDOFF_H                     # 43.875; legs 138.875
-GALVO_TOP = LASER_TOP + LENS_WD + LENS_H + GALVO_H              # 443.95
+GALVO_TOP = LASER_TOP + LENS_FF + GALVO_H                        # 489.4: the lens's flange on the galvo's underside
 LPLATE_BOT = GALVO_TOP + SPACER_T                                # the source and the spacer hang from here
-BEAM_BOT = LPLATE_BOT + LPLATE_T                                 # 470.25: the 4040 bridge beam's underside
+BEAM_BOT = LPLATE_BOT + LPLATE_T                                 # 515.7: the 4040 bridge beams' underside
 BRIDGE_X = (-100.0, 680.0)              # the 4040 posts: 15 clear of the gantry's left end (x -65), 18 of its right (x 642)
 
 UV_Y, UV_BOT = (302.0, 322.0), 95.0     # the UV lamps' two rows behind the X chain; their bottoms 15 over the board
@@ -59,7 +61,7 @@ TRAY = (240.0, 292.0, 134.768)          # lamp_plate.py's corner: the tray's und
 UV_X = (-55.0, 55.0, 0.0)               # from LC: two in the front row, one behind between them, so the 72 mm beams overlap
 PUMP = (470.0, 560.0)                   # the vacuum pump on the table, beside the laser deck's legs
 # the enclosure: 2020 post centres, the frame from the table to ENC_TOP
-ENC_X, ENC_Y, ENC_TOP = (-140.0, 720.0), (-140.0, 925.0), 530.0
+ENC_X, ENC_Y, ENC_TOP = (-140.0, 720.0), (-140.0, 925.0), 575.0
 DOOR_Z = 25.0                           # front_panel.py open_z; door.py win_z 20
 
 GANTRY = ("lumenpnp_long/x_gantry", "lumenpnp_long/x_drag_chain_asm", "lamp_plate", "uv_lamp_1", "uv_lamp_2",
@@ -120,7 +122,8 @@ def parts():
     out["galvo_spacer"] = Pos(gx, LC[1], GALVO_TOP + SPACER_T / 2.0) * p("galvo_spacer")
     out["uv_source"] = Pos(s1 - SOURCE[0] / 2.0, LC[1], LPLATE_BOT - SOURCE[1] / 2.0) * b("uv_source")
     out["galvo"] = Pos(gx, LC[1], GALVO_TOP - GALVO_H / 2.0) * b("galvo")
-    out["ftheta_lens"] = Pos(LC[0], LC[1], GALVO_TOP - GALVO_H - LENS_H / 2.0) * b("ftheta_lens")
+    flange = LENS_OUT - (LENS_FF - LENS_WD)                      # the flange's z in the STEP: 49.1
+    out["ftheta_lens"] = Pos(LC[0], LC[1], GALVO_TOP - GALVO_H + flange) * Rot(180, 0, 0) * b("ftheta_lens")
     # pnp zone: the hot plate
     out["hp_deck"] = Pos(HC[0], HC[1], HP_TOP - PLATE_T - STANDOFF_H - DECK_T / 2.0) * p("hp_deck")
     for i, (sx, sy) in enumerate(CORNERS, 1):

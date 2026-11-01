@@ -43,6 +43,27 @@
     "lumenpnp_long/components_installed_by_user": {
       "deviation": 1.0,
       "angularDeflection": 45
+    },
+    "front_panel": {
+      "transparency": 80
+    },
+    "back_panel": {
+      "transparency": 80
+    },
+    "side_panel_1": {
+      "transparency": 80
+    },
+    "side_panel_2": {
+      "transparency": 80
+    },
+    "top_panel": {
+      "transparency": 80
+    },
+    "door": {
+      "transparency": 80
+    },
+    "laser_window": {
+      "transparency": 80
     }
   }
 }

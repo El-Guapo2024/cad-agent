@@ -1,8 +1,8 @@
-"""encl_post: 20 x 20 T-slot aluminium extrusion, 6 mm slots, the real section, length 631 mm, axis z.
+"""encl_post: 20 x 20 T-slot aluminium extrusion, 6 mm slots, the real section, length 676 mm, axis z.
 
 Copied from the library entry extrusion-2020 by `cad lib use`; where each number came from is in encl_post.json
 and in `cad lib info extrusion-2020`.
-It is meant to be left alone: `cad lib use <project> extrusion-2020 length=631 axis=z --as encl_post --replace`
+It is meant to be left alone: `cad lib use <project> extrusion-2020 length=676 axis=z --as encl_post --replace`
 writes it again, and `cad lib check <project>` fails when this file no longer hashes to the pin in the sidecar.
 """
 
@@ -25,7 +25,7 @@ ARGS = {
     'core_r': 2.8,
     'ear_root': [1.285, 2.488],
     'ear_tip': [1.887, 2.948],
-    'length': 631.0,
+    'length': 676.0,
     'axis': 'z',
 }
 

@@ -1,7 +1,7 @@
 # What the fab must do, as the kernel can measure it.
 
 [envelope]                   # LumenPnP 300 mm longer in its enclosure: a bench machine
-max_mm = [900, 1100, 640]
+max_mm = [900, 1100, 690]
 
 [[heat]]                     # reflow: the plate's zone (the board is the work, rated for a reflow pass, and not shown on it)
 source = "hot_plate"
@@ -11,8 +11,8 @@ radius_mm = 15
 [[clearance]]                # the lens over the laser board: its working distance, nothing in the beam
 a = "ftheta_lens"
 b = "pcb_blank"
-min_mm = 213.1
-max_mm = 213.6
+min_mm = 235.5
+max_mm = 236.1
 
 [[clearance]]                # the gantry passes under the lens to reach the laser bed
 a = "lumenpnp_long/x_gantry"
@@ -52,9 +52,9 @@ bore = "pcb_blank"
 min_mm = 0.05
 max_mm = 0.2
 
-[[deflection]]               # the bridge under the laser plate: UV source 6.5 kg, galvo 2.2 (heaviest listing), plate 1.9, spacer 0.5, lens ~0.5 (not on its page), all at mid-span, shared by the two beams
+[[deflection]]               # the bridge under the laser plate: UV source 6.5 kg, galvo 2.2 (heaviest listing), plate 1.9, spacer 0.5, lens 1.85 (Jenoptik), all at mid-span, shared by the two beams
 body = "bridge_beam_1"
 support = "simple"
 span_mm = 780
-load_g = 5800
+load_g = 6475
 max_um = 100
