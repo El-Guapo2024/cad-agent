@@ -81,7 +81,8 @@ def _contact():
          "ftheta_lens|galvo", "lamp_plate|lumenpnp_long/x_drag_chain_asm", "uv_lamp_1|lamp_plate",
          "uv_lamp_2|lamp_plate", "uv_lamp_1|uv_lamp_2", "uv_lamp_1|uv_lamp_3", "uv_lamp_2|uv_lamp_3", 
          "pcb_blank|vacuum_bed", "reg_pin_1|vacuum_bed", "reg_pin_2|vacuum_bed", "vacuum_bed|laser_deck",
-         "reg_pin_3|hot_plate", "reg_pin_4|hot_plate", "pt1000_probe|hot_plate", "door|front_panel", "laser_window|door"}
+         "reg_pin_3|hot_plate", "reg_pin_4|hot_plate", "pt1000_probe|hot_plate", "cutout|hot_plate",
+         "door|front_panel", "laser_window|door"}
     for i in range(1, 5):
         c |= {f"laser_leg_{i}|laser_deck", f"standoff_{i}|hp_deck", f"standoff_{i}|hot_plate", f"leg_{i}|hp_deck"}
     frame = {f"encl_post_{i}" for i in range(1, 5)} | {f"encl_rail_{a}{i}" for a in "xy" for i in range(1, 5)}
@@ -134,6 +135,8 @@ def parts():
     out["hot_plate"] = Pos(HC[0], HC[1], HP_TOP - PLATE_T / 2.0) * p("hot_plate")
     out["pt1000_probe"] = (Pos(HC[0] + 75.0 + 25.0 - 50.0, HC[1] + 20.0, HP_TOP - PLATE_T / 2.0) * Rot(0, 90, 0)
                            * b("pt1000_probe"))           # 75 in the plate's bore (hot_plate.py), 25 out of its +x edge
+    out["cutout"] = (Pos(HC[0] - 75.0 - 5.0, HC[1], HP_TOP - PLATE_T / 2.0) * Rot(0, 90, 0) * Rot(0, 0, 90)
+                     * b("cutout"))                       # its disc face on the plate's -x edge
     for i, sx in ((3, -1), (4, 1)):
         out[f"reg_pin_{i}"] = Pos(HC[0] + sx * PIN_X, HC[1], HP_TOP - PLATE_T + PIN_L / 2.0) * p("reg_pin")
     # the uv lamps, behind the X chain's tray (they move with the gantry)

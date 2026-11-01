@@ -9,7 +9,8 @@ and LPKF's ProtoLaser U4 use (UV ablates copper cleanly; copper reflects most 10
 One machine: Opulo's LumenPnP v4.2.0 with its Y axis 300 mm longer (`projects/lumenpnp_long`), and
 `projects/pcbfab` adds:
 
-- **pnp zone (front):** a 150 x 150 hot plate under the head for reflow and the via-paste cure (160 C, 30 min).
+- **pnp zone (front):** a 150 x 150 hot plate under the head for reflow (tin-bismuth solder, plate capped at 240 C)
+  and the via-paste cure (160 C, 30 min). Mains is 120 V (US).
 - **laser zone (back):** a JPT Lark 355 nm UV laser in line with an SG7110 galvo (UV mirrors) and a 355 nm F160 lens,
   hanging from a bridge over a vacuum laser bed. The laser drills, etches, opens the solder mask over the pads, and
   marks the legend.
@@ -38,7 +39,7 @@ onto two registration pins; the camera finds the board's fiducials after every m
 |---|---|---|
 | UV laser | JPT Lark-355-5A, 5 W 355 nm, air cooled, built-in PSU | Mains (a complete 5 W machine built on it is listed at under 500 W total); enable / gate / frequency and alarm from the JCZ board; its fans need free air |
 | Galvo | SG7110, 10 mm aperture, UV mirrors | Its driver's supply (commonly +/-15 V; check the unit), XY2-100 from the JCZ board |
-| Hot plate | Misumi MPHK-150-150 500 W mica heater, to 250 C | Mains through an SSR (Fotek class); PT1000 + MAX31865; KSD301 hardware cut-out (pick a trip temperature above 250 C, below the heater's 300 C) |
+| Hot plate | Misumi MPHK-150-150 500 W mica heater wound for **120 V**, capped at **240 C** (tin-bismuth solder for the demo) | Omron G3NA-210B SSR on its Y92B-N50 heatsink; RS PRO PT1000 3 x 100 mm (400 C) in a bore in the plate's edge + Adafruit MAX31865 (#3648); Selco ORA-500-QC cut-out (opens 249-271 C) on the plate's other edge, in series with the heater |
 | Via vacuum bed | SainSmart 24 V vacuum pump, 42 W, -85 kPa | 24 V switched (relay or MOSFET), plus a valve to release the board |
 | UV mask cure | 3 x LedWV 100 W 395 nm LED lamps, on the gantry (moving with Y) | 48 V 3 A each (9 A total), enable/PWM from the MCU, lamp fans; off unless the door is shut; cable along the X chain |
 | Height sensing | Laser distance sensor on the head (to pick) | Focus and board flatness, as CircuitJet does |
@@ -54,7 +55,7 @@ onto two registration pins; the camera finds the board's fiducials after every m
   the key switch and e-stop to the laser's hardware interlock / enable (through a safety relay), not only to the MCU.
   The UV lamps go on the same chain.
 - The window is OptoSigma YL-510C-Y2(5): OD 8 at 355 nm.
-- The hot plate's KSD301 cut-out is independent of the controller.
+- The hot plate's Selco ORA-500-QC cut-out is independent of the controller.
 - Mains (UV laser, hot plate, PSUs) is fused, earthed and separated from low voltage.
 
 ## Power (estimate, to size by the EE)
@@ -74,6 +75,5 @@ the steps that need hands (the flip, the mask coat, loading parts). The agent ca
 ## Open questions for the EE
 
 1. The galvo driver's supply voltage; the UV laser's control pinout and mains draw (from the units' manuals).
-2. The KSD301 trip temperature.
-3. Solder-paste dispenser: auger or pneumatic.
-4. Which laser distance sensor.
+2. Solder-paste dispenser: auger or pneumatic.
+3. Which laser distance sensor.

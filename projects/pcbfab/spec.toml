@@ -3,9 +3,9 @@
 [envelope]                   # LumenPnP 300 mm longer in its enclosure: a bench machine
 max_mm = [900, 1100, 690]
 
-[[heat]]                     # reflow: the plate's zone (the board is the work, rated for a reflow pass, and not shown on it)
-source = "hot_plate"
-temp_c = 250
+[[heat]]                     # reflow and via cure: the plate is capped at 240 C (Juan, 2026-11-01; tin-bismuth solder for the
+source = "hot_plate"         # demo, ~180 C), under the Selco cut-out's 249-271 C trip
+temp_c = 240
 radius_mm = 15
 
 [[clearance]]                # the lens over the laser board: its working distance, nothing in the beam
