@@ -1,0 +1,13 @@
+# What the head's process tools must do, as the kernel can measure it.
+
+[envelope]
+max_mm = [200, 120, 240]
+
+[[axis]]
+name = "tool_z"
+direction = [0, 0, 1]
+travel_min_mm = 8
+
+[[mass]]                     # what the tools add to LumenPnP's X carriage (belt driven): keep it near a kilogram and a half
+moving = "tool_z"
+max_g = 1500
