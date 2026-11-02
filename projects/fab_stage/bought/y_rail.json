@@ -1,0 +1,15 @@
+{
+ "source": "HIWIN MG series catalog GW-11-5-EN-2207-K, table 3.81 (page 99): MGNR15R, 15 wide and 10.0 high, holes every 40 mm, counterbore D 6.0 x 4.5 deep, through hole d 3.5, cut to length with the most holes that leave E at least 6 (F 3.16, note 2). An envelope: no ball grooves.",
+ "vendor": "HIWIN",
+ "verified": true,
+ "library": "mgn15-rail",
+ "licence": "MIT",
+ "geometry": "envelope",
+ "pn": "MGNR15R",
+ "mass_g": 508.8,
+ "mass_source": "HIWIN MG series catalog GW-11-5-EN-2207-K, table 3.81: weight 1.06 kg/m; 1060 g/m x 0.48 m = 508.8 g",
+ "library_params": {
+  "length": 480.0
+ },
+ "sha256": "8bf215be4de1038668eb96e465da8c7f4bf08ce317b87f81d1ea9fad11b1dac4"
+}
