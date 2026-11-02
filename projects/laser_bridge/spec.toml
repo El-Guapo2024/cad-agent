@@ -1,0 +1,15 @@
+# What the fab's laser bridge must do, as the kernel can measure it.
+
+[envelope]                   # the two posts outside LumenPnP's frame (machine x -120 to 730)
+max_mm = [855, 200, 665]
+
+[[deflection]]               # the bridge under the laser plate: UV source 6.5 kg, galvo 2.2 (heaviest listing), plate 1.73, spacer 0.43, lens 1.85 (Jenoptik): 12.71 kg at mid-span, half on each beam
+body = "bridge_beam_1"
+support = "simple"
+load_g = 6355
+max_um = 100
+
+[[axis]]
+name = "z"
+direction = [0, 0, 1]
+travel_min_mm = 20

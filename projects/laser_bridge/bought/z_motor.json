@@ -1,0 +1,17 @@
+{
+ "source": "Novanta IMS (Schneider Electric Motion) NEMA 17 stepper motors datasheet, M-1713-1.5, M-1715-1.5 and M-1719-1.5: the dimensions drawing (page 4), the weights and ambient range (page 3). A 42.3 mm square flange, pilot 22.0 x 2.03, shaft 5.0 out 23.88 from the face, four M3 holes 4.5 deep on a 31.0 square.",
+ "vendor": "Novanta IMS",
+ "verified": true,
+ "library": "nema17",
+ "licence": "MIT",
+ "geometry": "envelope",
+ "pn": "M-17nn-1.5",
+ "mass_g": 210.0,
+ "mass_source": "IMS NEMA 17 datasheet, page 3: weight 7.4, 8.1 and 12.7 oz (210, 230 and 360 g) for M-1713-1.5, M-1715-1.5 and M-1719-1.5 (for length 34)",
+ "max_temp_c": 40.0,
+ "max_temp_source": "IMS NEMA 17 datasheet, page 3 'Characteristics': ambient temperature -25 ... +40 C (thermal class 130 (B) is the winding's, which adds the motor's own rise)",
+ "library_params": {
+  "length": 34
+ },
+ "sha256": "80ea489a22b9b56bc52631a0ba980b2af6f9c31cf2fb36d5bf3b3abc3f0dfe88"
+}

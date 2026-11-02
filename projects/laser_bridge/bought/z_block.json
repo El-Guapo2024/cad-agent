@@ -1,0 +1,13 @@
+{
+ "source": "HIWIN MG series catalog GW-11-5-EN-2207-K, table 3.79 (page 97): MGN15H, 58.8 x 32, H 16 above the rail's base and H1 4.0 clear of it, four M3 x 4 holes 25 x 25 apart, weight 0.090 kg; it runs on the 15 wide rail of table 3.81. An envelope: no balls, end caps, seals or grease nipple.",
+ "vendor": "HIWIN",
+ "verified": true,
+ "library": "mgn15h",
+ "licence": "MIT",
+ "geometry": "envelope",
+ "pn": "MGN15H",
+ "mass_g": 90.0,
+ "mass_source": "HIWIN MG series catalog GW-11-5-EN-2207-K, table 3.79: weight 0.090 kg",
+ "library_params": {},
+ "sha256": "dd987db056e1c87efe383af106082779ba51a2b97838f561ed23b26ace947b58"
+}
