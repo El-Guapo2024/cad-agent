@@ -8,7 +8,7 @@ LumenPnP's frame (its gantry runs x -65 to 642 under the bridge), so the whole s
 to 3 mm boards and the flip's mid-plane hold. Each post has a Tr8x8 screw on a NEMA 17 under its nut (Klipper's two
 z steppers, levelled together).
 
-The frame: x, y from the optical axis, z the machine's. The posts stand on the cabinet's top rails (z -101).
+The frame: x, y from the optical axis, z the machine's. The posts stand on the cabinet's top rails (z -100).
 """
 from build123d import Pos, Rot
 from cad_agent.state import build_part, bought_solid
@@ -28,7 +28,7 @@ PLATE_T = 10.0
 PT = PLATE_BOT + PLATE_T                 # 470.2: the beams' underside
 PLATE_X = (-45.0, 383.0)                 # the galvo's left end to the source's right end
 POST_X = (-360.0, 450.0)                 # the posts' centres: machine x -100 and 710, clear of the gantry and the source
-CAB_TOP, POST_TOP = -101.0, 560.0
+CAB_TOP, POST_TOP = -100.02, 560.0
 Z_TRAVEL = 10.0
 RAIL_Y, SCREW_Y = 12.0, -65.0            # the rail on the post's inner face; the screw beside the end plate
 BEAM_Z = PT + 20.0                       # 490.2

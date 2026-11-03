@@ -1,4 +1,5 @@
 {
+  "hidden": [],
   "view_props": {
     "y_gantry_left": {
       "deviation": 1.0,
@@ -44,5 +45,6 @@
       "deviation": 1.0,
       "angularDeflection": 45
     }
-  }
+  },
+  "unselectable": []
 }

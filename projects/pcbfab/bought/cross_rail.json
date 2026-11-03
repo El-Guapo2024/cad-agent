@@ -1,0 +1,17 @@
+{
+ "source": "Framing Tech's model of its 40 x 40 profile with four 8 mm slots, 40x40-08.STEP (SolidWorks 2014): the section at mid length, 648.495 mm2 with Ix = Iy = 91742.9 mm4; its page says 6063-T6, a centre bore for M8, 6.49 cm2 and 9.18 cm4. The model's slot edges rounded 0.5 mm or less are drawn sharp. A stiffness rule may stand on it.",
+ "vendor": "Framing Tech",
+ "verified": true,
+ "library": "extrusion-4040",
+ "licence": "MIT",
+ "geometry": "exact",
+ "pn": "40x40-08",
+ "material": "aluminium",
+ "mass_g": 1348.221,
+ "mass_source": "the section of Framing Tech's 40x40-08.STEP (measured); 648.495 mm2 x 2.7 g/cm3 (aluminium, materials.py) = 1750.9 g/m, x 0.77 m = 1348.2 g",
+ "library_params": {
+  "length": 770.0,
+  "axis": "x"
+ },
+ "sha256": "3a74400f8a537ff6f1c46d015befcd36ce717b1be86ea3aca15e2e3aaa5208f5"
+}

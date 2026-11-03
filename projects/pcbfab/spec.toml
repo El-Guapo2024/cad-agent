@@ -1,60 +1,42 @@
-# What the fab must do, as the kernel can measure it.
+# What the fab must do, as the kernel can measure it. The fixture's own rules (the platen's heat, the flip, the
+# stage's travel) are in fab_stage/spec.toml, the bridge's sag and focus travel in laser_bridge/spec.toml.
 
-[envelope]                   # LumenPnP 300 mm longer in its enclosure: a bench machine
-max_mm = [900, 1100, 690]
+[envelope]                   # the cabinet, the enclosure, and the extractor on the bench beside it
+max_mm = [1200, 1070, 890]
 
-[[heat]]                     # reflow and via cure: the plate is capped at 240 C (Juan, 2026-11-01; tin-bismuth solder for the
-source = "hot_plate"         # demo, ~180 C), under the Selco cut-out's 249-271 C trip
-temp_c = 240
-radius_mm = 15
-
-[[clearance]]                # the lens over the laser board: its working distance, nothing in the beam
-a = "ftheta_lens"
-b = "pcb_blank"
+[[clearance]]                # the lens over the board: its working distance (Jenoptik: 235.8)
+a = "laser_bridge/ftheta_lens"
+b = "fab_stage/pcb_blank"
 min_mm = 235.5
 max_mm = 236.1
 
-[[clearance]]                # the gantry passes under the lens to reach the laser bed
+[[clearance]]                # the gantry passes under the lens to reach the board's far end
 a = "lumenpnp_long/x_gantry"
-b = "ftheta_lens"
+b = "laser_bridge/ftheta_lens"
 min_mm = 10.0
-pose = "pick_laser"
+pose = "under_lens"
 
-[[clearance]]                # ... and over the laser bed's pins
-a = "lumenpnp_long/x_gantry"
-b = "reg_pin_1"
-min_mm = 5.0
-pose = "pick_laser"
+[[clearance]]                # ... and so do the head's tools
+a = "head_tools/eco_pen_1"
+b = "laser_bridge/ftheta_lens"
+min_mm = 3.0
+pose = "under_lens"
 
-[[clearance]]                # the middle uv lamp over the laser board: close enough to cure, clear of it
+[[clearance]]                # the tools, raised, over the flip frame
+a = "head_tools/pico_jet"
+b = "fab_stage/frame_ring_upper"
+min_mm = 3.0
+pose = "under_lens"
+
+[[clearance]]                # the middle UV lamp over the board: close enough to cure, clear of it
 a = "uv_lamp_3"
-b = "pcb_blank"
+b = "fab_stage/pcb_blank"
 min_mm = 10.0
 max_mm = 30.0
 pose = "uv_cure"
 
-[[clearance]]                # ... and the front row over the pins
+[[clearance]]                # ... and the lamps over the fixture's posts
 a = "uv_lamp_1"
-b = "reg_pin_1"
-min_mm = 5.0
+b = "fab_stage/post_1"
+min_mm = 3.0
 pose = "uv_cure"
-
-[[holes]]                    # the vacuum bed's grid for the via paste
-body = "vacuum_bed"
-count = 81
-min_dia_mm = 0.9
-max_dia_mm = 1.1
-axis = "z"
-
-[[shaft_fit]]                # the board's tooling holes over the laser bed's pins: a slip fit
-shaft = "reg_pin_1"
-bore = "pcb_blank"
-min_mm = 0.05
-max_mm = 0.2
-
-[[deflection]]               # the bridge under the laser plate: UV source 6.5 kg, galvo 2.2 (heaviest listing), plate 1.9, spacer 0.5, lens 1.85 (Jenoptik), all at mid-span, shared by the two beams
-body = "bridge_beam_1"
-support = "simple"
-span_mm = 780
-load_g = 6475
-max_um = 100

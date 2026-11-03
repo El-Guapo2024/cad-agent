@@ -70,7 +70,7 @@
       },
       "material": "aluminium",
       "process": "laser_cut",
-      "build_s": 0.001,
+      "build_s": 0.007,
       "bbox_mm": [
         6.0,
         60.0,
@@ -90,7 +90,7 @@
       },
       "material": "aluminium",
       "process": "cnc",
-      "build_s": 0.001,
+      "build_s": 0.007,
       "bbox_mm": [
         18.0,
         30.0,
@@ -4143,7 +4143,7 @@
       "subject": "assembly",
       "rule": "footprint",
       "state": "PASS",
-      "measured": "850.0 \u00d7 40.0 mm across 2 bodies at z = -101.00 (bridge_post_1, bridge_post_2)",
+      "measured": "850.0 \u00d7 40.0 mm across 2 bodies at z = -100.01 (bridge_post_1, bridge_post_2)",
       "limit": "at least 5 mm in both axes",
       "source": "union of the contact patches at the lowest plane; a span near zero in either axis is a line or point contact and will tip. Does not test the centre of mass.",
       "check": "stance",
@@ -4163,7 +4163,7 @@
       "subject": "assembly",
       "rule": "centre of mass",
       "state": "UNCHECKED",
-      "measured": "no mass for 9 of 27 bodies: ftheta_lens (bought part 'ftheta_lens' declares no mass_g with a mass_source); galvo (bought part 'galvo' declares no mass_g with a mass_source); t8_nut_1 (bought part 't8_nut' declares no mass_g with a mass_source); t8_nut_2 (bought part 't8_nut' declares no mass_g with a mass_source); uv_source (bought part 'uv_source' declares no mass_g with a mass_source); z_coupling_1 (bought part 'coupling' declares no mass_g with a mass_source); z_coupling_2 (bought part 'coupling' declares no mass_g with a mass_source); z_screw_1 (bought part 't8_screw' declares no mass_g with a mass_source); z_screw_2 (bought part 't8_screw' declares no mass_g with a mass_source)",
+      "measured": "no mass for 6 of 27 bodies: t8_nut_1 (bought part 't8_nut' declares no mass_g with a mass_source); t8_nut_2 (bought part 't8_nut' declares no mass_g with a mass_source); z_coupling_1 (bought part 'coupling' declares no mass_g with a mass_source); z_coupling_2 (bought part 'coupling' declares no mass_g with a mass_source); z_screw_1 (bought part 't8_screw' declares no mass_g with a mass_source); z_screw_2 (bought part 't8_screw' declares no mass_g with a mass_source)",
       "limit": "every body's mass known",
       "source": "made: volume x density of its MATERIAL; bought: declared mass_g with a mass_source; a stock body has none",
       "check": "com",
@@ -4173,7 +4173,7 @@
       "subject": "assembly",
       "rule": "spec/envelope",
       "state": "PASS",
-      "measured": "850.0 x 185.0 x 661.0 mm",
+      "measured": "850.0 x 185.0 x 660.0 mm",
       "limit": "<= 855 x 200 x 665 mm",
       "source": "spec.toml",
       "check": "spec",
@@ -4233,7 +4233,7 @@
       "subject": "bridge_post",
       "rule": "sha256",
       "state": "PASS",
-      "measured": "bridge_post.py hashes to 8feabb52d4d82e12..., the pin",
+      "measured": "bridge_post.py hashes to f41ba7af6c3b7f3c..., the pin",
       "limit": "the sha256 the part pins",
       "source": "the file is the one that was pinned",
       "check": "provenance",
@@ -4410,5 +4410,5 @@
     },
     "ok": false
   },
-  "written_utc": "2026-11-02T23:35:34Z"
+  "written_utc": "2026-11-03T00:11:28Z"
 }

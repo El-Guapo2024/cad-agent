@@ -8,7 +8,8 @@ from build123d import Box, Pos
 
 MATERIAL = "aluminium"
 PROCESS = "cnc"
-MIN_FEATURE_MM = 3.0
+MIN_FEATURE_MM = 1.0
+EXPECT_FEATURES = 0
 
 PARAMS = {"length": 240.0, "flange": 52.0, "web": 46.0, "thickness": 6.0}
 

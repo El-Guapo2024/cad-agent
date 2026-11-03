@@ -20,7 +20,7 @@
       },
       "material": "stainless",
       "process": "laser_cut",
-      "build_s": 0.151,
+      "build_s": 0.145,
       "bbox_mm": [
         215.0,
         389.4,
@@ -83,7 +83,7 @@
       },
       "material": "stainless",
       "process": "laser_cut",
-      "build_s": 0.007,
+      "build_s": 0.009,
       "bbox_mm": [
         257.4,
         333.4,
@@ -145,7 +145,7 @@
       },
       "material": "stainless",
       "process": "cnc",
-      "build_s": 0.013,
+      "build_s": 0.015,
       "bbox_mm": [
         30.0,
         25.0,
@@ -166,7 +166,7 @@
       },
       "material": "aluminium",
       "process": "cnc",
-      "build_s": 0.008,
+      "build_s": 0.007,
       "bbox_mm": [
         20.0,
         50.0,
@@ -232,7 +232,7 @@
       },
       "material": "aluminium",
       "process": "laser_cut",
-      "build_s": 6.65,
+      "build_s": 6.868,
       "bbox_mm": [
         215.0,
         295.0,
@@ -276,7 +276,7 @@
       },
       "material": "aluminium",
       "process": "cnc",
-      "build_s": 0.013,
+      "build_s": 0.014,
       "bbox_mm": [
         24.957,
         24.957,
@@ -298,7 +298,7 @@
       },
       "material": "aluminium",
       "process": "laser_cut",
-      "build_s": 0.038,
+      "build_s": 0.04,
       "bbox_mm": [
         320.0,
         20.0,
@@ -335,7 +335,7 @@
       },
       "material": "stainless",
       "process": "cnc",
-      "build_s": 0.006,
+      "build_s": 0.007,
       "bbox_mm": [
         8.0,
         8.0,
@@ -356,7 +356,7 @@
       },
       "material": "aluminium",
       "process": "laser_cut",
-      "build_s": 0.012,
+      "build_s": 0.014,
       "bbox_mm": [
         70.0,
         50.0,
@@ -377,7 +377,7 @@
       },
       "material": "stainless",
       "process": "cnc",
-      "build_s": 0.005,
+      "build_s": 0.006,
       "bbox_mm": [
         24.0,
         10.0,
@@ -408,7 +408,7 @@
       },
       "material": "aluminium",
       "process": "laser_cut",
-      "build_s": 0.012,
+      "build_s": 0.013,
       "bbox_mm": [
         150.0,
         415.4,
@@ -31327,16 +31327,6 @@
       "artifacts": []
     },
     {
-      "subject": "vacuum_valve",
-      "rule": "source",
-      "state": "PASS",
-      "measured": "SMC VT307 catalogue pp 1433-1436, VT307V-5G1-01: body 33.2 L x 29.5 W x 54.5 H, coil 37 wide, 0.15 kg, -101.2 kPa to 0.1 MPa: https://cdn.snway.cn//pic/20240816/67435ff5110320898bf22871f43962a9.pdf",
-      "limit": "recorded and confirmed",
-      "source": "MEASURED route",
-      "check": "provenance",
-      "artifacts": []
-    },
-    {
       "subject": "x_rail",
       "rule": "source",
       "state": "PASS",
@@ -31401,9 +31391,9 @@
     "parts_built": 20,
     "parts_failed": 0,
     "checks_run": 70,
-    "rows": 3075,
+    "rows": 3074,
     "by_state": {
-      "PASS": 3022,
+      "PASS": 3021,
       "UNCHECKED": 25,
       "N/A": 28
     },
@@ -31442,11 +31432,11 @@
         "PASS": 19
       },
       "provenance": {
-        "PASS": 25,
+        "PASS": 24,
         "UNCHECKED": 3
       }
     },
     "ok": false
   },
-  "written_utc": "2026-11-02T23:26:22Z"
+  "written_utc": "2026-11-03T00:15:34Z"
 }
