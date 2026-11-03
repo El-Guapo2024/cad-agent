@@ -1,16 +1,16 @@
 {
   "project": "laser_bridge",
   "verdict": "UNCHECKED",
-  "written_utc": "2026-11-03T00:35:12Z",
-  "seconds": 49.3,
-  "source_hash": "c4ba1f7efa9565fa930627bb08b7b4acce2af80414af526f5c9961fc4ce69482",
+  "written_utc": "2026-11-03T02:04:25Z",
+  "seconds": 48.3,
+  "source_hash": "64a3a905e6f0d023d0dbdbcb97181e182d3b289735cf91136c69a97e0cb5b628",
   "design_files": 24,
   "engine_hash": "97bf083f5739faf0c4b9acb5f7b3e98ff82a14e5ecfa41d6b997df421bf82198",
   "git": {
     "repo": "/home/ubuntu/work/pcbfab-wt",
     "path": "projects/laser_bridge",
-    "commit": "9b494b10fe4ea267745033c994021f6562f9a563",
-    "tree": "e888fff29ede229409f7d4223f8aa13876f2c66f",
+    "commit": "91757e2c263f1d8e5bb60d72d9da151fb34cbbad",
+    "tree": "bcc3f920fa1927141869e43e8db3b88c1c4bc286",
     "dirty": false,
     "uncommitted": []
   },
@@ -27,9 +27,9 @@
     "checks_run": 25,
     "rows": 420,
     "by_state": {
-      "PASS": 401,
+      "PASS": 400,
       "N/A": 11,
-      "UNCHECKED": 8
+      "UNCHECKED": 9
     },
     "by_check": {
       "geometry": {
@@ -65,8 +65,8 @@
         "PASS": 3
       },
       "provenance": {
-        "PASS": 14,
-        "UNCHECKED": 2
+        "PASS": 13,
+        "UNCHECKED": 3
       }
     },
     "ok": false
@@ -4206,10 +4206,10 @@
     {
       "subject": "t8_nut",
       "rule": "source",
-      "state": "PASS",
-      "measured": "Handsontec T8 copper nut data sheet: flange 22, body 10.2, length 15, flange 3.5, bolt circle 16, 4 x 3.5: https://handsontec.com/dataspecs/linear%20motion/T8-Copper-Nut.pdf",
-      "limit": "recorded and confirmed",
-      "source": "MEASURED route",
+      "state": "UNCHECKED",
+      "measured": "declared unconfirmed: Handsontec T8 copper nut data sheet: flange 22, body 10.2, length 15, flange 3.5, bolt circle 16, 4 x 3.5: https://handsontec.com/dataspecs/linear%20motion/T8-Copper-Nut.pdf",
+      "limit": "measured on the real part",
+      "source": "confirm with callipers on arrival, then set VERIFIED",
       "check": "provenance",
       "artifacts": []
     },

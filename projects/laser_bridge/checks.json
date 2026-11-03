@@ -70,7 +70,7 @@
       },
       "material": "aluminium",
       "process": "laser_cut",
-      "build_s": 0.006,
+      "build_s": 0.007,
       "bbox_mm": [
         6.0,
         60.0,
@@ -90,7 +90,7 @@
       },
       "material": "aluminium",
       "process": "cnc",
-      "build_s": 0.006,
+      "build_s": 0.007,
       "bbox_mm": [
         18.0,
         30.0,
@@ -4272,10 +4272,10 @@
     {
       "subject": "t8_nut",
       "rule": "source",
-      "state": "PASS",
-      "measured": "Handsontec T8 copper nut data sheet: flange 22, body 10.2, length 15, flange 3.5, bolt circle 16, 4 x 3.5: https://handsontec.com/dataspecs/linear%20motion/T8-Copper-Nut.pdf",
-      "limit": "recorded and confirmed",
-      "source": "MEASURED route",
+      "state": "UNCHECKED",
+      "measured": "declared unconfirmed: Handsontec T8 copper nut data sheet: flange 22, body 10.2, length 15, flange 3.5, bolt circle 16, 4 x 3.5: https://handsontec.com/dataspecs/linear%20motion/T8-Copper-Nut.pdf",
+      "limit": "measured on the real part",
+      "source": "confirm with callipers on arrival, then set VERIFIED",
       "check": "provenance",
       "artifacts": []
     },
@@ -4366,9 +4366,9 @@
     "checks_run": 25,
     "rows": 420,
     "by_state": {
-      "PASS": 401,
+      "PASS": 400,
       "N/A": 11,
-      "UNCHECKED": 8
+      "UNCHECKED": 9
     },
     "by_check": {
       "geometry": {
@@ -4404,11 +4404,11 @@
         "PASS": 3
       },
       "provenance": {
-        "PASS": 14,
-        "UNCHECKED": 2
+        "PASS": 13,
+        "UNCHECKED": 3
       }
     },
     "ok": false
   },
-  "written_utc": "2026-11-03T00:35:12Z"
+  "written_utc": "2026-11-03T02:04:25Z"
 }

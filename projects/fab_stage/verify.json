@@ -1,16 +1,16 @@
 {
   "project": "fab_stage",
   "verdict": "UNCHECKED",
-  "written_utc": "2026-11-03T01:42:22Z",
-  "seconds": 244.3,
-  "source_hash": "08d26fa13e0bd8ea1130fff1c06b02dfcf3c082b68136a3e4e618f495fc74617",
+  "written_utc": "2026-11-03T02:08:32Z",
+  "seconds": 245.5,
+  "source_hash": "64dfe19ea69e375dfc628d05cd83b85b1d4332498ce7b65ba9599864752d7f01",
   "design_files": 49,
   "engine_hash": "97bf083f5739faf0c4b9acb5f7b3e98ff82a14e5ecfa41d6b997df421bf82198",
   "git": {
     "repo": "/home/ubuntu/work/pcbfab-wt",
     "path": "projects/fab_stage",
-    "commit": "3e3990d9a800418d8934decfb7b02d8b31fb9760",
-    "tree": "bfa6d78277210a96823a90053ad28bf51381b2b4",
+    "commit": "91757e2c263f1d8e5bb60d72d9da151fb34cbbad",
+    "tree": "321b216a44f7617cd9c7830f162cd5a009ecf86e",
     "dirty": false,
     "uncommitted": []
   },
@@ -27,8 +27,8 @@
     "checks_run": 70,
     "rows": 3074,
     "by_state": {
-      "PASS": 3021,
-      "UNCHECKED": 25,
+      "PASS": 3020,
+      "UNCHECKED": 26,
       "N/A": 28
     },
     "by_check": {
@@ -66,8 +66,8 @@
         "PASS": 19
       },
       "provenance": {
-        "PASS": 24,
-        "UNCHECKED": 3
+        "PASS": 23,
+        "UNCHECKED": 4
       }
     },
     "ok": false
@@ -30817,10 +30817,10 @@
     {
       "subject": "t8_nut",
       "rule": "source",
-      "state": "PASS",
-      "measured": "Handsontec T8 copper nut data sheet: flange 22, body 10.2, length 15, flange 3.5, bolt circle 16, 4 x 3.5: https://handsontec.com/dataspecs/linear%20motion/T8-Copper-Nut.pdf",
-      "limit": "recorded and confirmed",
-      "source": "MEASURED route",
+      "state": "UNCHECKED",
+      "measured": "declared unconfirmed: Handsontec T8 copper nut data sheet: flange 22, body 10.2, length 15, flange 3.5, bolt circle 16, 4 x 3.5: https://handsontec.com/dataspecs/linear%20motion/T8-Copper-Nut.pdf",
+      "limit": "measured on the real part",
+      "source": "confirm with callipers on arrival, then set VERIFIED",
       "check": "provenance",
       "artifacts": []
     },

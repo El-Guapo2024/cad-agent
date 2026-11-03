@@ -1,16 +1,16 @@
 {
   "project": "head_tools",
-  "verdict": "UNCHECKED",
-  "written_utc": "2026-11-03T00:35:19Z",
-  "seconds": 5.4,
-  "source_hash": "41746634da738ada6cdbe89ae7587098d406346381ba47be1650d2a00836359f",
-  "design_files": 19,
+  "verdict": "FAIL",
+  "written_utc": "2026-11-03T02:03:35Z",
+  "seconds": 2.0,
+  "source_hash": "bf36054213ba24950d75c562e143e7ec7a13a1bc465ca830679196c170bb5ed1",
+  "design_files": 8,
   "engine_hash": "97bf083f5739faf0c4b9acb5f7b3e98ff82a14e5ecfa41d6b997df421bf82198",
   "git": {
     "repo": "/home/ubuntu/work/pcbfab-wt",
     "path": "projects/head_tools",
-    "commit": "9b494b10fe4ea267745033c994021f6562f9a563",
-    "tree": "5beb697816cf525a6e0bfd0a46f42e6a6e475ce4",
+    "commit": "91757e2c263f1d8e5bb60d72d9da151fb34cbbad",
+    "tree": "4ad0c4f2668c6284eaa5d3940a2bdfdba74a80c5",
     "dirty": false,
     "uncommitted": []
   },
@@ -22,152 +22,59 @@
     "iso"
   ],
   "summary": {
-    "parts_built": 5,
+    "parts_built": 2,
     "parts_failed": 0,
-    "checks_run": 25,
-    "rows": 200,
+    "checks_run": 16,
+    "rows": 111,
     "by_state": {
-      "PASS": 182,
-      "N/A": 9,
-      "UNCHECKED": 9
+      "PASS": 97,
+      "UNCHECKED": 7,
+      "N/A": 4,
+      "FAIL": 3
     },
     "by_check": {
       "geometry": {
-        "PASS": 24,
-        "N/A": 8
+        "PASS": 10,
+        "N/A": 3
       },
       "visual": {
-        "PASS": 5,
-        "UNCHECKED": 5
+        "PASS": 2,
+        "UNCHECKED": 2
       },
       "placements": {
         "N/A": 1
       },
       "fit": {
-        "PASS": 136
+        "PASS": 66
       },
       "sweep": {
-        "PASS": 1
+        "PASS": 4
       },
       "reach": {
-        "PASS": 1
+        "PASS": 4
       },
       "poses": {
-        "PASS": 1
+        "PASS": 4
       },
       "stance": {
         "PASS": 2
       },
       "com": {
-        "UNCHECKED": 1
+        "FAIL": 3,
+        "UNCHECKED": 2
       },
       "spec": {
-        "PASS": 2,
-        "UNCHECKED": 1
+        "PASS": 4
       },
       "provenance": {
-        "PASS": 10,
-        "UNCHECKED": 2
+        "PASS": 1,
+        "UNCHECKED": 3
       }
     },
     "ok": false
   },
   "notes": [],
   "rows": [
-    {
-      "subject": "motor_mount",
-      "rule": "envelope",
-      "state": "PASS",
-      "measured": "6.0 x 60.0 x 40.0 mm",
-      "limit": "600 x 400 x 25 mm",
-      "source": "CO2 on 3 mm acrylic, typical kerf",
-      "check": "geometry",
-      "artifacts": []
-    },
-    {
-      "subject": "motor_mount",
-      "rule": "min wall",
-      "state": "PASS",
-      "measured": "5.9999 mm at the 1st percentile (min 5.9999, median 5.9999, 3000 rays)",
-      "limit": "1.5 mm",
-      "source": "ray cast through the solid; p01 gates, since a grazing ray at an edge can return near zero",
-      "check": "geometry",
-      "artifacts": []
-    },
-    {
-      "subject": "motor_mount",
-      "rule": "web",
-      "state": "PASS",
-      "measured": "9.0 mm between outer edge and cutout at (0.0, 11.0), at (-0.0, -15.5)",
-      "limit": "1.5 mm",
-      "source": "closest approach over 1 boundary pairs",
-      "check": "geometry",
-      "artifacts": []
-    },
-    {
-      "subject": "motor_mount",
-      "rule": "feature count",
-      "state": "PASS",
-      "measured": "1 cutouts",
-      "limit": "1 expected",
-      "source": "a count that drops means one cutout has swallowed another or broken out through an edge",
-      "check": "geometry",
-      "artifacts": []
-    },
-    {
-      "subject": "motor_mount",
-      "rule": "min hole",
-      "state": "PASS",
-      "measured": "22 mm at (0, 0, 0), the smallest of 1 round hole",
-      "limit": "1.0 mm",
-      "source": "the narrowest bore of each hole, read from its cylinders: a teardrop, a D or a slit bore counts at its diameter",
-      "check": "geometry",
-      "artifacts": []
-    },
-    {
-      "subject": "motor_mount",
-      "rule": "kerf",
-      "state": "N/A",
-      "measured": "no slot or gap",
-      "limit": "0.15 mm",
-      "source": "no slot, and no flat walls face each other across air; a round hole is judged as a hole",
-      "check": "geometry",
-      "artifacts": []
-    },
-    {
-      "subject": "motor_mount",
-      "rule": "volume",
-      "state": "PASS",
-      "measured": "12.12 cm^3",
-      "limit": "n/a",
-      "source": "computed",
-      "check": "geometry",
-      "artifacts": []
-    },
-    {
-      "subject": "motor_mount",
-      "rule": "silhouette/iso",
-      "state": "PASS",
-      "measured": "31.89% of the frame",
-      "limit": "at least 0.5%",
-      "source": "non-background pixels; near zero means nothing was drawn",
-      "check": "visual",
-      "artifacts": [
-        "out/_check_motor_mount_iso.png"
-      ]
-    },
-    {
-      "subject": "motor_mount",
-      "rule": "drift/iso",
-      "state": "UNCHECKED",
-      "measured": "no approved image",
-      "limit": "drift under 0.2% of the frame",
-      "source": "look at the render, then `cad approve` makes it the baseline this view is gated on",
-      "check": "visual",
-      "artifacts": [
-        "out/_check_motor_mount_iso.png"
-      ]
-    },
     {
       "subject": "pen_clamp",
       "rule": "envelope",
@@ -250,174 +157,6 @@
       "check": "visual",
       "artifacts": [
         "out/_check_pen_clamp_iso.png"
-      ]
-    },
-    {
-      "subject": "tool_carrier",
-      "rule": "envelope",
-      "state": "PASS",
-      "measured": "190.0 x 6.0 x 80.0 mm",
-      "limit": "600 x 400 x 25 mm",
-      "source": "CO2 on 3 mm acrylic, typical kerf",
-      "check": "geometry",
-      "artifacts": []
-    },
-    {
-      "subject": "tool_carrier",
-      "rule": "min wall",
-      "state": "PASS",
-      "measured": "5.9998 mm at the 1st percentile (min 5.9998, median 5.9998, 3000 rays)",
-      "limit": "1.5 mm",
-      "source": "ray cast through the solid; p01 gates, since a grazing ray at an edge can return near zero",
-      "check": "geometry",
-      "artifacts": []
-    },
-    {
-      "subject": "tool_carrier",
-      "rule": "web",
-      "state": "N/A",
-      "measured": "no cutout reaches the mid-plane",
-      "limit": "1.5 mm",
-      "source": "a plain plate has no web between a cutout and the edge; its cutout count is still gated below",
-      "check": "geometry",
-      "artifacts": []
-    },
-    {
-      "subject": "tool_carrier",
-      "rule": "feature count",
-      "state": "PASS",
-      "measured": "0 cutouts",
-      "limit": "0 expected",
-      "source": "a count that drops means one cutout has swallowed another or broken out through an edge",
-      "check": "geometry",
-      "artifacts": []
-    },
-    {
-      "subject": "tool_carrier",
-      "rule": "min hole",
-      "state": "N/A",
-      "measured": "no round hole",
-      "limit": "1.0 mm",
-      "source": "nothing to size; a slot is judged against the kerf",
-      "check": "geometry",
-      "artifacts": []
-    },
-    {
-      "subject": "tool_carrier",
-      "rule": "kerf",
-      "state": "N/A",
-      "measured": "no slot or gap",
-      "limit": "0.15 mm",
-      "source": "no slot, and no flat walls face each other across air; a round hole is judged as a hole",
-      "check": "geometry",
-      "artifacts": []
-    },
-    {
-      "subject": "tool_carrier",
-      "rule": "volume",
-      "state": "PASS",
-      "measured": "91.20 cm^3",
-      "limit": "n/a",
-      "source": "computed",
-      "check": "geometry",
-      "artifacts": []
-    },
-    {
-      "subject": "tool_carrier",
-      "rule": "silhouette/iso",
-      "state": "PASS",
-      "measured": "34.05% of the frame",
-      "limit": "at least 0.5%",
-      "source": "non-background pixels; near zero means nothing was drawn",
-      "check": "visual",
-      "artifacts": [
-        "out/_check_tool_carrier_iso.png"
-      ]
-    },
-    {
-      "subject": "tool_carrier",
-      "rule": "drift/iso",
-      "state": "UNCHECKED",
-      "measured": "no approved image",
-      "limit": "drift under 0.2% of the frame",
-      "source": "look at the render, then `cad approve` makes it the baseline this view is gated on",
-      "check": "visual",
-      "artifacts": [
-        "out/_check_tool_carrier_iso.png"
-      ]
-    },
-    {
-      "subject": "tool_ear",
-      "rule": "envelope",
-      "state": "PASS",
-      "measured": "22.0 x 32.0 x 12.0 mm",
-      "limit": "300 x 200 x 100 mm",
-      "source": "3 mm end mill, small router assumption",
-      "check": "geometry",
-      "artifacts": []
-    },
-    {
-      "subject": "tool_ear",
-      "rule": "min wall",
-      "state": "PASS",
-      "measured": "5.5141 mm at the 1st percentile (min 5.5008, median 12.0, 3000 rays)",
-      "limit": "1.0 mm",
-      "source": "ray cast through the solid; p01 gates, since a grazing ray at an edge can return near zero",
-      "check": "geometry",
-      "artifacts": []
-    },
-    {
-      "subject": "tool_ear",
-      "rule": "web",
-      "state": "N/A",
-      "measured": "not a flat part (thinnest/longest = 0.38)",
-      "limit": "2.0 mm",
-      "source": "the in-plane rule applies below a ratio of 0.25",
-      "check": "geometry",
-      "artifacts": []
-    },
-    {
-      "subject": "tool_ear",
-      "rule": "min hole",
-      "state": "PASS",
-      "measured": "11 mm at (0, -5, 0), the smallest of 1 hole or slot",
-      "limit": "1.0 mm",
-      "source": "the narrowest bore of each hole, read from its cylinders: a teardrop, a D or a slit bore counts at its diameter",
-      "check": "geometry",
-      "artifacts": []
-    },
-    {
-      "subject": "tool_ear",
-      "rule": "volume",
-      "state": "PASS",
-      "measured": "7.31 cm^3",
-      "limit": "n/a",
-      "source": "computed",
-      "check": "geometry",
-      "artifacts": []
-    },
-    {
-      "subject": "tool_ear",
-      "rule": "silhouette/iso",
-      "state": "PASS",
-      "measured": "55.41% of the frame",
-      "limit": "at least 0.5%",
-      "source": "non-background pixels; near zero means nothing was drawn",
-      "check": "visual",
-      "artifacts": [
-        "out/_check_tool_ear_iso.png"
-      ]
-    },
-    {
-      "subject": "tool_ear",
-      "rule": "drift/iso",
-      "state": "UNCHECKED",
-      "measured": "no approved image",
-      "limit": "drift under 0.2% of the frame",
-      "source": "look at the render, then `cad approve` makes it the baseline this view is gated on",
-      "check": "visual",
-      "artifacts": [
-        "out/_check_tool_ear_iso.png"
       ]
     },
     {
@@ -538,17 +277,7 @@
       "subject": "eco_pen_1 vs height_sensor",
       "rule": "clearance",
       "state": "PASS",
-      "measured": "gap 67.500 mm",
-      "limit": "no overlap",
-      "source": "measured overlap volume, or closest approach",
-      "check": "fit",
-      "artifacts": []
-    },
-    {
-      "subject": "eco_pen_1 vs motor_mount",
-      "rule": "clearance",
-      "state": "PASS",
-      "measured": "gap 86.731 mm",
+      "measured": "gap 72.367 mm",
       "limit": "no overlap",
       "source": "measured overlap volume, or closest approach",
       "check": "fit",
@@ -595,60 +324,40 @@
       "artifacts": []
     },
     {
-      "subject": "eco_pen_1 vs t8_nut",
+      "subject": "eco_pen_1 vs slide_1",
       "rule": "clearance",
       "state": "PASS",
-      "measured": "gap 97.122 mm",
+      "measured": "gap 0.484 mm",
       "limit": "no overlap",
       "source": "measured overlap volume, or closest approach",
       "check": "fit",
       "artifacts": []
     },
     {
-      "subject": "eco_pen_1 vs tool_block",
+      "subject": "eco_pen_1 vs slide_2",
       "rule": "clearance",
       "state": "PASS",
-      "measured": "gap 9.399 mm",
+      "measured": "gap 17.614 mm",
       "limit": "no overlap",
       "source": "measured overlap volume, or closest approach",
       "check": "fit",
       "artifacts": []
     },
     {
-      "subject": "eco_pen_1 vs tool_carrier",
+      "subject": "eco_pen_1 vs slide_3",
       "rule": "clearance",
       "state": "PASS",
-      "measured": "gap 2.584 mm",
+      "measured": "gap 20.277 mm",
       "limit": "no overlap",
       "source": "measured overlap volume, or closest approach",
       "check": "fit",
       "artifacts": []
     },
     {
-      "subject": "eco_pen_1 vs tool_coupling",
+      "subject": "eco_pen_1 vs slide_4",
       "rule": "clearance",
       "state": "PASS",
-      "measured": "gap 101.756 mm",
-      "limit": "no overlap",
-      "source": "measured overlap volume, or closest approach",
-      "check": "fit",
-      "artifacts": []
-    },
-    {
-      "subject": "eco_pen_1 vs tool_ear",
-      "rule": "clearance",
-      "state": "PASS",
-      "measured": "gap 93.089 mm",
-      "limit": "no overlap",
-      "source": "measured overlap volume, or closest approach",
-      "check": "fit",
-      "artifacts": []
-    },
-    {
-      "subject": "eco_pen_1 vs tool_motor",
-      "rule": "clearance",
-      "state": "PASS",
-      "measured": "gap 94.527 mm",
+      "measured": "gap 44.787 mm",
       "limit": "no overlap",
       "source": "measured overlap volume, or closest approach",
       "check": "fit",
@@ -658,27 +367,7 @@
       "subject": "eco_pen_1 vs tool_plate",
       "rule": "clearance",
       "state": "PASS",
-      "measured": "gap 21.584 mm",
-      "limit": "no overlap",
-      "source": "measured overlap volume, or closest approach",
-      "check": "fit",
-      "artifacts": []
-    },
-    {
-      "subject": "eco_pen_1 vs tool_rail",
-      "rule": "clearance",
-      "state": "PASS",
-      "measured": "gap 13.643 mm",
-      "limit": "no overlap",
-      "source": "measured overlap volume, or closest approach",
-      "check": "fit",
-      "artifacts": []
-    },
-    {
-      "subject": "eco_pen_1 vs tool_screw",
-      "rule": "clearance",
-      "state": "PASS",
-      "measured": "gap 99.609 mm",
+      "measured": "gap 23.484 mm",
       "limit": "no overlap",
       "source": "measured overlap volume, or closest approach",
       "check": "fit",
@@ -688,17 +377,7 @@
       "subject": "eco_pen_2 vs height_sensor",
       "rule": "clearance",
       "state": "PASS",
-      "measured": "gap 107.500 mm",
-      "limit": "no overlap",
-      "source": "measured overlap volume, or closest approach",
-      "check": "fit",
-      "artifacts": []
-    },
-    {
-      "subject": "eco_pen_2 vs motor_mount",
-      "rule": "clearance",
-      "state": "PASS",
-      "measured": "gap 124.980 mm",
+      "measured": "gap 112.086 mm",
       "limit": "no overlap",
       "source": "measured overlap volume, or closest approach",
       "check": "fit",
@@ -745,60 +424,40 @@
       "artifacts": []
     },
     {
-      "subject": "eco_pen_2 vs t8_nut",
+      "subject": "eco_pen_2 vs slide_1",
       "rule": "clearance",
       "state": "PASS",
-      "measured": "gap 135.470 mm",
+      "measured": "gap 17.614 mm",
       "limit": "no overlap",
       "source": "measured overlap volume, or closest approach",
       "check": "fit",
       "artifacts": []
     },
     {
-      "subject": "eco_pen_2 vs tool_block",
+      "subject": "eco_pen_2 vs slide_2",
       "rule": "clearance",
       "state": "PASS",
-      "measured": "gap 26.597 mm",
+      "measured": "gap 0.484 mm",
       "limit": "no overlap",
       "source": "measured overlap volume, or closest approach",
       "check": "fit",
       "artifacts": []
     },
     {
-      "subject": "eco_pen_2 vs tool_carrier",
+      "subject": "eco_pen_2 vs slide_3",
       "rule": "clearance",
       "state": "PASS",
-      "measured": "gap 2.584 mm",
+      "measured": "gap 58.435 mm",
       "limit": "no overlap",
       "source": "measured overlap volume, or closest approach",
       "check": "fit",
       "artifacts": []
     },
     {
-      "subject": "eco_pen_2 vs tool_coupling",
+      "subject": "eco_pen_2 vs slide_4",
       "rule": "clearance",
       "state": "PASS",
-      "measured": "gap 139.254 mm",
-      "limit": "no overlap",
-      "source": "measured overlap volume, or closest approach",
-      "check": "fit",
-      "artifacts": []
-    },
-    {
-      "subject": "eco_pen_2 vs tool_ear",
-      "rule": "clearance",
-      "state": "PASS",
-      "measured": "gap 132.395 mm",
-      "limit": "no overlap",
-      "source": "measured overlap volume, or closest approach",
-      "check": "fit",
-      "artifacts": []
-    },
-    {
-      "subject": "eco_pen_2 vs tool_motor",
-      "rule": "clearance",
-      "state": "PASS",
-      "measured": "gap 130.725 mm",
+      "measured": "gap 84.050 mm",
       "limit": "no overlap",
       "source": "measured overlap volume, or closest approach",
       "check": "fit",
@@ -808,37 +467,7 @@
       "subject": "eco_pen_2 vs tool_plate",
       "rule": "clearance",
       "state": "PASS",
-      "measured": "gap 21.584 mm",
-      "limit": "no overlap",
-      "source": "measured overlap volume, or closest approach",
-      "check": "fit",
-      "artifacts": []
-    },
-    {
-      "subject": "eco_pen_2 vs tool_rail",
-      "rule": "clearance",
-      "state": "PASS",
-      "measured": "gap 34.374 mm",
-      "limit": "no overlap",
-      "source": "measured overlap volume, or closest approach",
-      "check": "fit",
-      "artifacts": []
-    },
-    {
-      "subject": "eco_pen_2 vs tool_screw",
-      "rule": "clearance",
-      "state": "PASS",
-      "measured": "gap 139.077 mm",
-      "limit": "no overlap",
-      "source": "measured overlap volume, or closest approach",
-      "check": "fit",
-      "artifacts": []
-    },
-    {
-      "subject": "height_sensor vs motor_mount",
-      "rule": "clearance",
-      "state": "PASS",
-      "measured": "gap 73.000 mm",
+      "measured": "gap 23.484 mm",
       "limit": "no overlap",
       "source": "measured overlap volume, or closest approach",
       "check": "fit",
@@ -848,7 +477,7 @@
       "subject": "height_sensor vs pen_clamp_1",
       "rule": "clearance",
       "state": "PASS",
-      "measured": "gap 64.000 mm",
+      "measured": "gap 68.000 mm",
       "limit": "no overlap",
       "source": "measured overlap volume, or closest approach",
       "check": "fit",
@@ -858,7 +487,7 @@
       "subject": "height_sensor vs pen_clamp_2",
       "rule": "clearance",
       "state": "PASS",
-      "measured": "gap 104.000 mm",
+      "measured": "gap 108.000 mm",
       "limit": "no overlap",
       "source": "measured overlap volume, or closest approach",
       "check": "fit",
@@ -868,7 +497,7 @@
       "subject": "height_sensor vs pico_jet_1",
       "rule": "clearance",
       "state": "PASS",
-      "measured": "gap 30.000 mm",
+      "measured": "gap 34.000 mm",
       "limit": "no overlap",
       "source": "measured overlap volume, or closest approach",
       "check": "fit",
@@ -878,67 +507,47 @@
       "subject": "height_sensor vs pico_jet_2",
       "rule": "clearance",
       "state": "PASS",
-      "measured": "gap 4.000 mm",
+      "measured": "gap 8.000 mm",
       "limit": "no overlap",
       "source": "measured overlap volume, or closest approach",
       "check": "fit",
       "artifacts": []
     },
     {
-      "subject": "height_sensor vs t8_nut",
+      "subject": "height_sensor vs slide_1",
       "rule": "clearance",
       "state": "PASS",
-      "measured": "gap 23.195 mm",
+      "measured": "gap 78.500 mm",
       "limit": "no overlap",
       "source": "measured overlap volume, or closest approach",
       "check": "fit",
       "artifacts": []
     },
     {
-      "subject": "height_sensor vs tool_block",
+      "subject": "height_sensor vs slide_2",
       "rule": "clearance",
       "state": "PASS",
-      "measured": "gap 62.787 mm",
+      "measured": "gap 118.500 mm",
       "limit": "no overlap",
       "source": "measured overlap volume, or closest approach",
       "check": "fit",
       "artifacts": []
     },
     {
-      "subject": "height_sensor vs tool_carrier",
+      "subject": "height_sensor vs slide_3",
       "rule": "clearance",
       "state": "PASS",
-      "measured": "in contact (allowed)",
+      "measured": "gap 35.500 mm",
       "limit": "no overlap",
       "source": "measured overlap volume, or closest approach",
       "check": "fit",
       "artifacts": []
     },
     {
-      "subject": "height_sensor vs tool_coupling",
+      "subject": "height_sensor vs slide_4",
       "rule": "clearance",
       "state": "PASS",
-      "measured": "gap 40.816 mm",
-      "limit": "no overlap",
-      "source": "measured overlap volume, or closest approach",
-      "check": "fit",
-      "artifacts": []
-    },
-    {
-      "subject": "height_sensor vs tool_ear",
-      "rule": "clearance",
-      "state": "PASS",
-      "measured": "gap 11.402 mm",
-      "limit": "no overlap",
-      "source": "measured overlap volume, or closest approach",
-      "check": "fit",
-      "artifacts": []
-    },
-    {
-      "subject": "height_sensor vs tool_motor",
-      "rule": "clearance",
-      "state": "PASS",
-      "measured": "gap 56.307 mm",
+      "measured": "gap 9.500 mm",
       "limit": "no overlap",
       "source": "measured overlap volume, or closest approach",
       "check": "fit",
@@ -948,157 +557,7 @@
       "subject": "height_sensor vs tool_plate",
       "rule": "clearance",
       "state": "PASS",
-      "measured": "gap 19.000 mm",
-      "limit": "no overlap",
-      "source": "measured overlap volume, or closest approach",
-      "check": "fit",
-      "artifacts": []
-    },
-    {
-      "subject": "height_sensor vs tool_rail",
-      "rule": "clearance",
-      "state": "PASS",
-      "measured": "gap 70.859 mm",
-      "limit": "no overlap",
-      "source": "measured overlap volume, or closest approach",
-      "check": "fit",
-      "artifacts": []
-    },
-    {
-      "subject": "height_sensor vs tool_screw",
-      "rule": "clearance",
-      "state": "PASS",
-      "measured": "gap 10.000 mm",
-      "limit": "no overlap",
-      "source": "measured overlap volume, or closest approach",
-      "check": "fit",
-      "artifacts": []
-    },
-    {
-      "subject": "motor_mount vs pen_clamp_1",
-      "rule": "clearance",
-      "state": "PASS",
-      "measured": "gap 113.383 mm",
-      "limit": "no overlap",
-      "source": "measured overlap volume, or closest approach",
-      "check": "fit",
-      "artifacts": []
-    },
-    {
-      "subject": "motor_mount vs pen_clamp_2",
-      "rule": "clearance",
-      "state": "PASS",
-      "measured": "gap 143.582 mm",
-      "limit": "no overlap",
-      "source": "measured overlap volume, or closest approach",
-      "check": "fit",
-      "artifacts": []
-    },
-    {
-      "subject": "motor_mount vs pico_jet_1",
-      "rule": "clearance",
-      "state": "PASS",
-      "measured": "gap 49.992 mm",
-      "limit": "no overlap",
-      "source": "measured overlap volume, or closest approach",
-      "check": "fit",
-      "artifacts": []
-    },
-    {
-      "subject": "motor_mount vs pico_jet_2",
-      "rule": "clearance",
-      "state": "PASS",
-      "measured": "gap 30.647 mm",
-      "limit": "no overlap",
-      "source": "measured overlap volume, or closest approach",
-      "check": "fit",
-      "artifacts": []
-    },
-    {
-      "subject": "motor_mount vs t8_nut",
-      "rule": "clearance",
-      "state": "PASS",
-      "measured": "gap 35.499 mm",
-      "limit": "no overlap",
-      "source": "measured overlap volume, or closest approach",
-      "check": "fit",
-      "artifacts": []
-    },
-    {
-      "subject": "motor_mount vs tool_block",
-      "rule": "clearance",
-      "state": "PASS",
-      "measured": "gap 101.141 mm",
-      "limit": "no overlap",
-      "source": "measured overlap volume, or closest approach",
-      "check": "fit",
-      "artifacts": []
-    },
-    {
-      "subject": "motor_mount vs tool_carrier",
-      "rule": "clearance",
-      "state": "PASS",
-      "measured": "gap 50.000 mm",
-      "limit": "no overlap",
-      "source": "measured overlap volume, or closest approach",
-      "check": "fit",
-      "artifacts": []
-    },
-    {
-      "subject": "motor_mount vs tool_coupling",
-      "rule": "clearance",
-      "state": "PASS",
-      "measured": "gap 3.525 mm",
-      "limit": "no overlap",
-      "source": "measured overlap volume, or closest approach",
-      "check": "fit",
-      "artifacts": []
-    },
-    {
-      "subject": "motor_mount vs tool_ear",
-      "rule": "clearance",
-      "state": "PASS",
-      "measured": "gap 50.000 mm",
-      "limit": "no overlap",
-      "source": "measured overlap volume, or closest approach",
-      "check": "fit",
-      "artifacts": []
-    },
-    {
-      "subject": "motor_mount vs tool_motor",
-      "rule": "clearance",
-      "state": "PASS",
       "measured": "in contact (allowed)",
-      "limit": "no overlap",
-      "source": "measured overlap volume, or closest approach",
-      "check": "fit",
-      "artifacts": []
-    },
-    {
-      "subject": "motor_mount vs tool_plate",
-      "rule": "clearance",
-      "state": "PASS",
-      "measured": "in contact (allowed)",
-      "limit": "no overlap",
-      "source": "measured overlap volume, or closest approach",
-      "check": "fit",
-      "artifacts": []
-    },
-    {
-      "subject": "motor_mount vs tool_rail",
-      "rule": "clearance",
-      "state": "PASS",
-      "measured": "gap 83.600 mm",
-      "limit": "no overlap",
-      "source": "measured overlap volume, or closest approach",
-      "check": "fit",
-      "artifacts": []
-    },
-    {
-      "subject": "motor_mount vs tool_screw",
-      "rule": "clearance",
-      "state": "PASS",
-      "measured": "gap 19.201 mm",
       "limit": "no overlap",
       "source": "measured overlap volume, or closest approach",
       "check": "fit",
@@ -1135,27 +594,7 @@
       "artifacts": []
     },
     {
-      "subject": "pen_clamp_1 vs t8_nut",
-      "rule": "clearance",
-      "state": "PASS",
-      "measured": "gap 93.129 mm",
-      "limit": "no overlap",
-      "source": "measured overlap volume, or closest approach",
-      "check": "fit",
-      "artifacts": []
-    },
-    {
-      "subject": "pen_clamp_1 vs tool_block",
-      "rule": "clearance",
-      "state": "PASS",
-      "measured": "gap 6.000 mm",
-      "limit": "no overlap",
-      "source": "measured overlap volume, or closest approach",
-      "check": "fit",
-      "artifacts": []
-    },
-    {
-      "subject": "pen_clamp_1 vs tool_carrier",
+      "subject": "pen_clamp_1 vs slide_1",
       "rule": "clearance",
       "state": "PASS",
       "measured": "in contact (allowed)",
@@ -1165,30 +604,30 @@
       "artifacts": []
     },
     {
-      "subject": "pen_clamp_1 vs tool_coupling",
+      "subject": "pen_clamp_1 vs slide_2",
       "rule": "clearance",
       "state": "PASS",
-      "measured": "gap 101.634 mm",
+      "measured": "gap 10.500 mm",
       "limit": "no overlap",
       "source": "measured overlap volume, or closest approach",
       "check": "fit",
       "artifacts": []
     },
     {
-      "subject": "pen_clamp_1 vs tool_ear",
+      "subject": "pen_clamp_1 vs slide_3",
       "rule": "clearance",
       "state": "PASS",
-      "measured": "gap 89.552 mm",
+      "measured": "gap 13.500 mm",
       "limit": "no overlap",
       "source": "measured overlap volume, or closest approach",
       "check": "fit",
       "artifacts": []
     },
     {
-      "subject": "pen_clamp_1 vs tool_motor",
+      "subject": "pen_clamp_1 vs slide_4",
       "rule": "clearance",
       "state": "PASS",
-      "measured": "gap 115.718 mm",
+      "measured": "gap 39.500 mm",
       "limit": "no overlap",
       "source": "measured overlap volume, or closest approach",
       "check": "fit",
@@ -1198,27 +637,7 @@
       "subject": "pen_clamp_1 vs tool_plate",
       "rule": "clearance",
       "state": "PASS",
-      "measured": "gap 19.000 mm",
-      "limit": "no overlap",
-      "source": "measured overlap volume, or closest approach",
-      "check": "fit",
-      "artifacts": []
-    },
-    {
-      "subject": "pen_clamp_1 vs tool_rail",
-      "rule": "clearance",
-      "state": "PASS",
-      "measured": "gap 11.000 mm",
-      "limit": "no overlap",
-      "source": "measured overlap volume, or closest approach",
-      "check": "fit",
-      "artifacts": []
-    },
-    {
-      "subject": "pen_clamp_1 vs tool_screw",
-      "rule": "clearance",
-      "state": "PASS",
-      "measured": "gap 94.055 mm",
+      "measured": "gap 23.000 mm",
       "limit": "no overlap",
       "source": "measured overlap volume, or closest approach",
       "check": "fit",
@@ -1245,27 +664,17 @@
       "artifacts": []
     },
     {
-      "subject": "pen_clamp_2 vs t8_nut",
+      "subject": "pen_clamp_2 vs slide_1",
       "rule": "clearance",
       "state": "PASS",
-      "measured": "gap 131.275 mm",
+      "measured": "gap 10.500 mm",
       "limit": "no overlap",
       "source": "measured overlap volume, or closest approach",
       "check": "fit",
       "artifacts": []
     },
     {
-      "subject": "pen_clamp_2 vs tool_block",
-      "rule": "clearance",
-      "state": "PASS",
-      "measured": "gap 15.692 mm",
-      "limit": "no overlap",
-      "source": "measured overlap volume, or closest approach",
-      "check": "fit",
-      "artifacts": []
-    },
-    {
-      "subject": "pen_clamp_2 vs tool_carrier",
+      "subject": "pen_clamp_2 vs slide_2",
       "rule": "clearance",
       "state": "PASS",
       "measured": "in contact (allowed)",
@@ -1275,30 +684,20 @@
       "artifacts": []
     },
     {
-      "subject": "pen_clamp_2 vs tool_coupling",
+      "subject": "pen_clamp_2 vs slide_3",
       "rule": "clearance",
       "state": "PASS",
-      "measured": "gap 137.730 mm",
+      "measured": "gap 53.500 mm",
       "limit": "no overlap",
       "source": "measured overlap volume, or closest approach",
       "check": "fit",
       "artifacts": []
     },
     {
-      "subject": "pen_clamp_2 vs tool_ear",
+      "subject": "pen_clamp_2 vs slide_4",
       "rule": "clearance",
       "state": "PASS",
-      "measured": "gap 128.762 mm",
-      "limit": "no overlap",
-      "source": "measured overlap volume, or closest approach",
-      "check": "fit",
-      "artifacts": []
-    },
-    {
-      "subject": "pen_clamp_2 vs tool_motor",
-      "rule": "clearance",
-      "state": "PASS",
-      "measured": "gap 147.022 mm",
+      "measured": "gap 79.500 mm",
       "limit": "no overlap",
       "source": "measured overlap volume, or closest approach",
       "check": "fit",
@@ -1308,27 +707,7 @@
       "subject": "pen_clamp_2 vs tool_plate",
       "rule": "clearance",
       "state": "PASS",
-      "measured": "gap 19.000 mm",
-      "limit": "no overlap",
-      "source": "measured overlap volume, or closest approach",
-      "check": "fit",
-      "artifacts": []
-    },
-    {
-      "subject": "pen_clamp_2 vs tool_rail",
-      "rule": "clearance",
-      "state": "PASS",
-      "measured": "gap 24.597 mm",
-      "limit": "no overlap",
-      "source": "measured overlap volume, or closest approach",
-      "check": "fit",
-      "artifacts": []
-    },
-    {
-      "subject": "pen_clamp_2 vs tool_screw",
-      "rule": "clearance",
-      "state": "PASS",
-      "measured": "gap 134.039 mm",
+      "measured": "gap 23.000 mm",
       "limit": "no overlap",
       "source": "measured overlap volume, or closest approach",
       "check": "fit",
@@ -1345,27 +724,27 @@
       "artifacts": []
     },
     {
-      "subject": "pico_jet_1 vs t8_nut",
+      "subject": "pico_jet_1 vs slide_1",
       "rule": "clearance",
       "state": "PASS",
-      "measured": "gap 53.000 mm",
+      "measured": "gap 22.500 mm",
       "limit": "no overlap",
       "source": "measured overlap volume, or closest approach",
       "check": "fit",
       "artifacts": []
     },
     {
-      "subject": "pico_jet_1 vs tool_block",
+      "subject": "pico_jet_1 vs slide_2",
       "rule": "clearance",
       "state": "PASS",
-      "measured": "gap 12.093 mm",
+      "measured": "gap 62.500 mm",
       "limit": "no overlap",
       "source": "measured overlap volume, or closest approach",
       "check": "fit",
       "artifacts": []
     },
     {
-      "subject": "pico_jet_1 vs tool_carrier",
+      "subject": "pico_jet_1 vs slide_3",
       "rule": "clearance",
       "state": "PASS",
       "measured": "in contact (allowed)",
@@ -1375,30 +754,10 @@
       "artifacts": []
     },
     {
-      "subject": "pico_jet_1 vs tool_coupling",
+      "subject": "pico_jet_1 vs slide_4",
       "rule": "clearance",
       "state": "PASS",
-      "measured": "gap 54.000 mm",
-      "limit": "no overlap",
-      "source": "measured overlap volume, or closest approach",
-      "check": "fit",
-      "artifacts": []
-    },
-    {
-      "subject": "pico_jet_1 vs tool_ear",
-      "rule": "clearance",
-      "state": "PASS",
-      "measured": "gap 53.000 mm",
-      "limit": "no overlap",
-      "source": "measured overlap volume, or closest approach",
-      "check": "fit",
-      "artifacts": []
-    },
-    {
-      "subject": "pico_jet_1 vs tool_motor",
-      "rule": "clearance",
-      "state": "PASS",
-      "measured": "gap 53.182 mm",
+      "measured": "gap 5.500 mm",
       "limit": "no overlap",
       "source": "measured overlap volume, or closest approach",
       "check": "fit",
@@ -1408,87 +767,47 @@
       "subject": "pico_jet_1 vs tool_plate",
       "rule": "clearance",
       "state": "PASS",
-      "measured": "gap 19.000 mm",
+      "measured": "gap 23.000 mm",
       "limit": "no overlap",
       "source": "measured overlap volume, or closest approach",
       "check": "fit",
       "artifacts": []
     },
     {
-      "subject": "pico_jet_1 vs tool_rail",
+      "subject": "pico_jet_2 vs slide_1",
       "rule": "clearance",
       "state": "PASS",
-      "measured": "gap 21.095 mm",
+      "measured": "gap 48.500 mm",
       "limit": "no overlap",
       "source": "measured overlap volume, or closest approach",
       "check": "fit",
       "artifacts": []
     },
     {
-      "subject": "pico_jet_1 vs tool_screw",
+      "subject": "pico_jet_2 vs slide_2",
       "rule": "clearance",
       "state": "PASS",
-      "measured": "gap 60.000 mm",
+      "measured": "gap 88.500 mm",
       "limit": "no overlap",
       "source": "measured overlap volume, or closest approach",
       "check": "fit",
       "artifacts": []
     },
     {
-      "subject": "pico_jet_2 vs t8_nut",
+      "subject": "pico_jet_2 vs slide_3",
       "rule": "clearance",
       "state": "PASS",
-      "measured": "gap 27.000 mm",
+      "measured": "gap 5.500 mm",
       "limit": "no overlap",
       "source": "measured overlap volume, or closest approach",
       "check": "fit",
       "artifacts": []
     },
     {
-      "subject": "pico_jet_2 vs tool_block",
-      "rule": "clearance",
-      "state": "PASS",
-      "measured": "gap 36.990 mm",
-      "limit": "no overlap",
-      "source": "measured overlap volume, or closest approach",
-      "check": "fit",
-      "artifacts": []
-    },
-    {
-      "subject": "pico_jet_2 vs tool_carrier",
+      "subject": "pico_jet_2 vs slide_4",
       "rule": "clearance",
       "state": "PASS",
       "measured": "in contact (allowed)",
-      "limit": "no overlap",
-      "source": "measured overlap volume, or closest approach",
-      "check": "fit",
-      "artifacts": []
-    },
-    {
-      "subject": "pico_jet_2 vs tool_coupling",
-      "rule": "clearance",
-      "state": "PASS",
-      "measured": "gap 28.000 mm",
-      "limit": "no overlap",
-      "source": "measured overlap volume, or closest approach",
-      "check": "fit",
-      "artifacts": []
-    },
-    {
-      "subject": "pico_jet_2 vs tool_ear",
-      "rule": "clearance",
-      "state": "PASS",
-      "measured": "gap 27.000 mm",
-      "limit": "no overlap",
-      "source": "measured overlap volume, or closest approach",
-      "check": "fit",
-      "artifacts": []
-    },
-    {
-      "subject": "pico_jet_2 vs tool_motor",
-      "rule": "clearance",
-      "state": "PASS",
-      "measured": "gap 35.724 mm",
       "limit": "no overlap",
       "source": "measured overlap volume, or closest approach",
       "check": "fit",
@@ -1498,64 +817,44 @@
       "subject": "pico_jet_2 vs tool_plate",
       "rule": "clearance",
       "state": "PASS",
-      "measured": "gap 19.000 mm",
+      "measured": "gap 23.000 mm",
       "limit": "no overlap",
       "source": "measured overlap volume, or closest approach",
       "check": "fit",
       "artifacts": []
     },
     {
-      "subject": "pico_jet_2 vs tool_rail",
+      "subject": "slide_1 vs slide_2",
       "rule": "clearance",
       "state": "PASS",
-      "measured": "gap 45.354 mm",
+      "measured": "gap 21.000 mm",
       "limit": "no overlap",
       "source": "measured overlap volume, or closest approach",
       "check": "fit",
       "artifacts": []
     },
     {
-      "subject": "pico_jet_2 vs tool_screw",
+      "subject": "slide_1 vs slide_3",
       "rule": "clearance",
       "state": "PASS",
-      "measured": "gap 34.000 mm",
+      "measured": "gap 24.000 mm",
       "limit": "no overlap",
       "source": "measured overlap volume, or closest approach",
       "check": "fit",
       "artifacts": []
     },
     {
-      "subject": "t8_nut vs tool_block",
+      "subject": "slide_1 vs slide_4",
       "rule": "clearance",
       "state": "PASS",
-      "measured": "gap 90.895 mm",
+      "measured": "gap 50.000 mm",
       "limit": "no overlap",
       "source": "measured overlap volume, or closest approach",
       "check": "fit",
       "artifacts": []
     },
     {
-      "subject": "t8_nut vs tool_carrier",
-      "rule": "clearance",
-      "state": "PASS",
-      "measured": "gap 10.100 mm",
-      "limit": "no overlap",
-      "source": "measured overlap volume, or closest approach",
-      "check": "fit",
-      "artifacts": []
-    },
-    {
-      "subject": "t8_nut vs tool_coupling",
-      "rule": "clearance",
-      "state": "PASS",
-      "measured": "gap 2.625 mm",
-      "limit": "no overlap",
-      "source": "measured overlap volume, or closest approach",
-      "check": "fit",
-      "artifacts": []
-    },
-    {
-      "subject": "t8_nut vs tool_ear",
+      "subject": "slide_1 vs tool_plate",
       "rule": "clearance",
       "state": "PASS",
       "measured": "in contact (allowed)",
@@ -1565,47 +864,27 @@
       "artifacts": []
     },
     {
-      "subject": "t8_nut vs tool_motor",
+      "subject": "slide_2 vs slide_3",
       "rule": "clearance",
       "state": "PASS",
-      "measured": "gap 17.200 mm",
+      "measured": "gap 64.000 mm",
       "limit": "no overlap",
       "source": "measured overlap volume, or closest approach",
       "check": "fit",
       "artifacts": []
     },
     {
-      "subject": "t8_nut vs tool_plate",
+      "subject": "slide_2 vs slide_4",
       "rule": "clearance",
       "state": "PASS",
-      "measured": "gap 29.100 mm",
+      "measured": "gap 90.000 mm",
       "limit": "no overlap",
       "source": "measured overlap volume, or closest approach",
       "check": "fit",
       "artifacts": []
     },
     {
-      "subject": "t8_nut vs tool_rail",
-      "rule": "clearance",
-      "state": "PASS",
-      "measured": "gap 97.841 mm",
-      "limit": "no overlap",
-      "source": "measured overlap volume, or closest approach",
-      "check": "fit",
-      "artifacts": []
-    },
-    {
-      "subject": "t8_nut vs tool_screw",
-      "rule": "clearance",
-      "state": "PASS",
-      "measured": "gap 0.100 mm",
-      "limit": "no overlap",
-      "source": "measured overlap volume, or closest approach",
-      "check": "fit",
-      "artifacts": []
-    },
-    {
-      "subject": "tool_block vs tool_carrier",
+      "subject": "slide_2 vs tool_plate",
       "rule": "clearance",
       "state": "PASS",
       "measured": "in contact (allowed)",
@@ -1615,77 +894,17 @@
       "artifacts": []
     },
     {
-      "subject": "tool_block vs tool_coupling",
+      "subject": "slide_3 vs slide_4",
       "rule": "clearance",
       "state": "PASS",
-      "measured": "gap 96.754 mm",
+      "measured": "gap 7.000 mm",
       "limit": "no overlap",
       "source": "measured overlap volume, or closest approach",
       "check": "fit",
       "artifacts": []
     },
     {
-      "subject": "tool_block vs tool_ear",
-      "rule": "clearance",
-      "state": "PASS",
-      "measured": "gap 85.874 mm",
-      "limit": "no overlap",
-      "source": "measured overlap volume, or closest approach",
-      "check": "fit",
-      "artifacts": []
-    },
-    {
-      "subject": "tool_block vs tool_motor",
-      "rule": "clearance",
-      "state": "PASS",
-      "measured": "gap 105.290 mm",
-      "limit": "no overlap",
-      "source": "measured overlap volume, or closest approach",
-      "check": "fit",
-      "artifacts": []
-    },
-    {
-      "subject": "tool_block vs tool_plate",
-      "rule": "clearance",
-      "state": "PASS",
-      "measured": "gap 3.000 mm",
-      "limit": "no overlap",
-      "source": "measured overlap volume, or closest approach",
-      "check": "fit",
-      "artifacts": []
-    },
-    {
-      "subject": "tool_block vs tool_rail",
-      "rule": "clearance",
-      "state": "PASS",
-      "measured": "gap 0.200 mm",
-      "limit": "no overlap",
-      "source": "measured overlap volume, or closest approach",
-      "check": "fit",
-      "artifacts": []
-    },
-    {
-      "subject": "tool_block vs tool_screw",
-      "rule": "clearance",
-      "state": "PASS",
-      "measured": "gap 96.233 mm",
-      "limit": "no overlap",
-      "source": "measured overlap volume, or closest approach",
-      "check": "fit",
-      "artifacts": []
-    },
-    {
-      "subject": "tool_carrier vs tool_coupling",
-      "rule": "clearance",
-      "state": "PASS",
-      "measured": "gap 20.825 mm",
-      "limit": "no overlap",
-      "source": "measured overlap volume, or closest approach",
-      "check": "fit",
-      "artifacts": []
-    },
-    {
-      "subject": "tool_carrier vs tool_ear",
+      "subject": "slide_3 vs tool_plate",
       "rule": "clearance",
       "state": "PASS",
       "measured": "in contact (allowed)",
@@ -1695,190 +914,10 @@
       "artifacts": []
     },
     {
-      "subject": "tool_carrier vs tool_motor",
-      "rule": "clearance",
-      "state": "PASS",
-      "measured": "gap 37.117 mm",
-      "limit": "no overlap",
-      "source": "measured overlap volume, or closest approach",
-      "check": "fit",
-      "artifacts": []
-    },
-    {
-      "subject": "tool_carrier vs tool_plate",
-      "rule": "clearance",
-      "state": "PASS",
-      "measured": "gap 13.000 mm",
-      "limit": "no overlap",
-      "source": "measured overlap volume, or closest approach",
-      "check": "fit",
-      "artifacts": []
-    },
-    {
-      "subject": "tool_carrier vs tool_rail",
-      "rule": "clearance",
-      "state": "PASS",
-      "measured": "gap 5.000 mm",
-      "limit": "no overlap",
-      "source": "measured overlap volume, or closest approach",
-      "check": "fit",
-      "artifacts": []
-    },
-    {
-      "subject": "tool_carrier vs tool_screw",
-      "rule": "clearance",
-      "state": "PASS",
-      "measured": "gap 17.100 mm",
-      "limit": "no overlap",
-      "source": "measured overlap volume, or closest approach",
-      "check": "fit",
-      "artifacts": []
-    },
-    {
-      "subject": "tool_coupling vs tool_ear",
-      "rule": "clearance",
-      "state": "PASS",
-      "measured": "gap 17.620 mm",
-      "limit": "no overlap",
-      "source": "measured overlap volume, or closest approach",
-      "check": "fit",
-      "artifacts": []
-    },
-    {
-      "subject": "tool_coupling vs tool_motor",
+      "subject": "slide_4 vs tool_plate",
       "rule": "clearance",
       "state": "PASS",
       "measured": "in contact (allowed)",
-      "limit": "no overlap",
-      "source": "measured overlap volume, or closest approach",
-      "check": "fit",
-      "artifacts": []
-    },
-    {
-      "subject": "tool_coupling vs tool_plate",
-      "rule": "clearance",
-      "state": "PASS",
-      "measured": "gap 30.100 mm",
-      "limit": "no overlap",
-      "source": "measured overlap volume, or closest approach",
-      "check": "fit",
-      "artifacts": []
-    },
-    {
-      "subject": "tool_coupling vs tool_rail",
-      "rule": "clearance",
-      "state": "PASS",
-      "measured": "gap 98.841 mm",
-      "limit": "no overlap",
-      "source": "measured overlap volume, or closest approach",
-      "check": "fit",
-      "artifacts": []
-    },
-    {
-      "subject": "tool_coupling vs tool_screw",
-      "rule": "clearance",
-      "state": "PASS",
-      "measured": "in contact (allowed)",
-      "limit": "no overlap",
-      "source": "measured overlap volume, or closest approach",
-      "check": "fit",
-      "artifacts": []
-    },
-    {
-      "subject": "tool_ear vs tool_motor",
-      "rule": "clearance",
-      "state": "PASS",
-      "measured": "gap 32.260 mm",
-      "limit": "no overlap",
-      "source": "measured overlap volume, or closest approach",
-      "check": "fit",
-      "artifacts": []
-    },
-    {
-      "subject": "tool_ear vs tool_plate",
-      "rule": "clearance",
-      "state": "PASS",
-      "measured": "gap 19.000 mm",
-      "limit": "no overlap",
-      "source": "measured overlap volume, or closest approach",
-      "check": "fit",
-      "artifacts": []
-    },
-    {
-      "subject": "tool_ear vs tool_rail",
-      "rule": "clearance",
-      "state": "PASS",
-      "measured": "gap 93.648 mm",
-      "limit": "no overlap",
-      "source": "measured overlap volume, or closest approach",
-      "check": "fit",
-      "artifacts": []
-    },
-    {
-      "subject": "tool_ear vs tool_screw",
-      "rule": "clearance",
-      "state": "PASS",
-      "measured": "gap 1.500 mm",
-      "limit": "no overlap",
-      "source": "measured overlap volume, or closest approach",
-      "check": "fit",
-      "artifacts": []
-    },
-    {
-      "subject": "tool_motor vs tool_plate",
-      "rule": "clearance",
-      "state": "PASS",
-      "measured": "gap 19.877 mm",
-      "limit": "no overlap",
-      "source": "measured overlap volume, or closest approach",
-      "check": "fit",
-      "artifacts": []
-    },
-    {
-      "subject": "tool_motor vs tool_rail",
-      "rule": "clearance",
-      "state": "PASS",
-      "measured": "gap 85.088 mm",
-      "limit": "no overlap",
-      "source": "measured overlap volume, or closest approach",
-      "check": "fit",
-      "artifacts": []
-    },
-    {
-      "subject": "tool_motor vs tool_screw",
-      "rule": "clearance",
-      "state": "PASS",
-      "measured": "in contact",
-      "limit": "no overlap",
-      "source": "measured overlap volume, or closest approach",
-      "check": "fit",
-      "artifacts": []
-    },
-    {
-      "subject": "tool_plate vs tool_rail",
-      "rule": "clearance",
-      "state": "PASS",
-      "measured": "in contact (allowed)",
-      "limit": "no overlap",
-      "source": "measured overlap volume, or closest approach",
-      "check": "fit",
-      "artifacts": []
-    },
-    {
-      "subject": "tool_plate vs tool_screw",
-      "rule": "clearance",
-      "state": "PASS",
-      "measured": "gap 36.100 mm",
-      "limit": "no overlap",
-      "source": "measured overlap volume, or closest approach",
-      "check": "fit",
-      "artifacts": []
-    },
-    {
-      "subject": "tool_rail vs tool_screw",
-      "rule": "clearance",
-      "state": "PASS",
-      "measured": "gap 104.841 mm",
       "limit": "no overlap",
       "source": "measured overlap volume, or closest approach",
       "check": "fit",
@@ -1886,16 +925,46 @@
     },
     {
       "subject": "assembly",
-      "rule": "sweep/tool_z",
+      "rule": "sweep/eco_pen_1_z",
       "state": "PASS",
-      "measured": "tightest 0.000 mm between pen_clamp_1 and pen_clamp_2 at tool_z = -16.0 mm (121 moving pairs)",
+      "measured": "tightest 0.000 mm between pen_clamp_1 and pen_clamp_2 at eco_pen_1_z = -16.0 mm (21 moving pairs)",
       "limit": "no overlap, and every declared clearance held",
       "source": "7 poses across -16.0 to +0.0 mm. Axes are swept one at a time from home, so a crash needing two axes off-home is not covered.",
       "check": "sweep",
       "artifacts": []
     },
     {
-      "subject": "axis tool_z",
+      "subject": "assembly",
+      "rule": "sweep/eco_pen_2_z",
+      "state": "PASS",
+      "measured": "tightest 0.000 mm between pen_clamp_1 and pen_clamp_2 at eco_pen_2_z = -16.0 mm (21 moving pairs)",
+      "limit": "no overlap, and every declared clearance held",
+      "source": "7 poses across -16.0 to +0.0 mm. Axes are swept one at a time from home, so a crash needing two axes off-home is not covered.",
+      "check": "sweep",
+      "artifacts": []
+    },
+    {
+      "subject": "assembly",
+      "rule": "sweep/pico_jet_1_z",
+      "state": "PASS",
+      "measured": "tightest 4.000 mm between pico_jet_1 and pico_jet_2 at pico_jet_1_z = -16.0 mm (11 moving pairs)",
+      "limit": "no overlap, and every declared clearance held",
+      "source": "7 poses across -16.0 to +0.0 mm. Axes are swept one at a time from home, so a crash needing two axes off-home is not covered.",
+      "check": "sweep",
+      "artifacts": []
+    },
+    {
+      "subject": "assembly",
+      "rule": "sweep/pico_jet_2_z",
+      "state": "PASS",
+      "measured": "tightest 4.000 mm between pico_jet_1 and pico_jet_2 at pico_jet_2_z = -16.0 mm (11 moving pairs)",
+      "limit": "no overlap, and every declared clearance held",
+      "source": "7 poses across -16.0 to +0.0 mm. Axes are swept one at a time from home, so a crash needing two axes off-home is not covered.",
+      "check": "sweep",
+      "artifacts": []
+    },
+    {
+      "subject": "axis eco_pen_1_z",
       "rule": "reach",
       "state": "PASS",
       "measured": "tool reaches -16.0 to +0.0 mm, work area -16.0 to +0.0 mm (+0.0 mm margin)",
@@ -1905,10 +974,70 @@
       "artifacts": []
     },
     {
-      "subject": "pose dispense",
+      "subject": "axis eco_pen_2_z",
+      "rule": "reach",
+      "state": "PASS",
+      "measured": "tool reaches -16.0 to +0.0 mm, work area -16.0 to +0.0 mm (+0.0 mm margin)",
+      "limit": "work area inside travel",
+      "source": "tool point swept along the axis over declared travel; this is kinematic reach, not whether the head can physically get there without hitting something \u2014 that is the sweep rule",
+      "check": "reach",
+      "artifacts": []
+    },
+    {
+      "subject": "axis pico_jet_1_z",
+      "rule": "reach",
+      "state": "PASS",
+      "measured": "tool reaches -16.0 to +0.0 mm, work area -16.0 to +0.0 mm (+0.0 mm margin)",
+      "limit": "work area inside travel",
+      "source": "tool point swept along the axis over declared travel; this is kinematic reach, not whether the head can physically get there without hitting something \u2014 that is the sweep rule",
+      "check": "reach",
+      "artifacts": []
+    },
+    {
+      "subject": "axis pico_jet_2_z",
+      "rule": "reach",
+      "state": "PASS",
+      "measured": "tool reaches -16.0 to +0.0 mm, work area -16.0 to +0.0 mm (+0.0 mm margin)",
+      "limit": "work area inside travel",
+      "source": "tool point swept along the axis over declared travel; this is kinematic reach, not whether the head can physically get there without hitting something \u2014 that is the sweep rule",
+      "check": "reach",
+      "artifacts": []
+    },
+    {
+      "subject": "pose eco_pen_1_down",
       "rule": "pose",
       "state": "PASS",
-      "measured": "tool_z = -16 mm; inside travel",
+      "measured": "eco_pen_1_z = -16 mm; inside travel",
+      "limit": "every axis declared in AXES, each position inside its travel",
+      "source": "POSES and AXES in assembly.py",
+      "check": "poses",
+      "artifacts": []
+    },
+    {
+      "subject": "pose eco_pen_2_down",
+      "rule": "pose",
+      "state": "PASS",
+      "measured": "eco_pen_2_z = -16 mm; inside travel",
+      "limit": "every axis declared in AXES, each position inside its travel",
+      "source": "POSES and AXES in assembly.py",
+      "check": "poses",
+      "artifacts": []
+    },
+    {
+      "subject": "pose pico_jet_1_down",
+      "rule": "pose",
+      "state": "PASS",
+      "measured": "pico_jet_1_z = -16 mm; inside travel",
+      "limit": "every axis declared in AXES, each position inside its travel",
+      "source": "POSES and AXES in assembly.py",
+      "check": "poses",
+      "artifacts": []
+    },
+    {
+      "subject": "pose pico_jet_2_down",
+      "rule": "pose",
+      "state": "PASS",
+      "measured": "pico_jet_2_z = -16 mm; inside travel",
       "limit": "every axis declared in AXES, each position inside its travel",
       "source": "POSES and AXES in assembly.py",
       "check": "poses",
@@ -1928,7 +1057,7 @@
       "subject": "assembly",
       "rule": "ground plane",
       "state": "PASS",
-      "measured": "2 bodies on the plane, 15 above it, none below",
+      "measured": "2 bodies on the plane, 10 above it, none below",
       "limit": "nothing below the lowest contact",
       "source": "the lowest plane is taken as the ground, so nothing can be below it by construction; this row records the split",
       "check": "stance",
@@ -1937,10 +1066,50 @@
     {
       "subject": "assembly",
       "rule": "centre of mass",
+      "state": "FAIL",
+      "measured": "centre of mass (317.8, 127.0) mm, 71.1 mm above the ground, 11.8 mm outside the footprint of pico_jet_1, pico_jet_2; 2602.4 g in all",
+      "limit": "inside the footprint",
+      "source": "mass-weighted centroids of the bodies (made: volume x density; bought: declared mass_g); footprint: the convex hull of what is within 0.05 mm of the lowest plane; static, one axis at a time",
+      "check": "com",
+      "artifacts": []
+    },
+    {
+      "subject": "axis eco_pen_1_z",
+      "rule": "centre of mass/eco_pen_1_z",
+      "state": "FAIL",
+      "measured": "at eco_pen_1_z = -16.0 mm the centre of mass (317.8, 127.0) mm is 11.8 mm outside the footprint (15% of the mass moves)",
+      "limit": "inside the footprint at both ends of travel",
+      "source": "mass-weighted centroids of the bodies (made: volume x density; bought: declared mass_g); footprint: the convex hull of what is within 0.05 mm of the lowest plane; static, one axis at a time",
+      "check": "com",
+      "artifacts": []
+    },
+    {
+      "subject": "axis eco_pen_2_z",
+      "rule": "centre of mass/eco_pen_2_z",
+      "state": "FAIL",
+      "measured": "at eco_pen_2_z = -16.0 mm the centre of mass (317.8, 127.0) mm is 11.8 mm outside the footprint (15% of the mass moves)",
+      "limit": "inside the footprint at both ends of travel",
+      "source": "mass-weighted centroids of the bodies (made: volume x density; bought: declared mass_g); footprint: the convex hull of what is within 0.05 mm of the lowest plane; static, one axis at a time",
+      "check": "com",
+      "artifacts": []
+    },
+    {
+      "subject": "axis pico_jet_1_z",
+      "rule": "centre of mass/pico_jet_1_z",
       "state": "UNCHECKED",
-      "measured": "no mass for 3 of 17 bodies: t8_nut (bought part 't8_nut' declares no mass_g with a mass_source); tool_coupling (bought part 'coupling' declares no mass_g with a mass_source); tool_screw (bought part 't8_screw' declares no mass_g with a mass_source)",
-      "limit": "every body's mass known",
-      "source": "made: volume x density of its MATERIAL; bought: declared mass_g with a mass_source; a stock body has none",
+      "measured": "axis pico_jet_1_z moves pico_jet_1, which stands on the ground, so the footprint changes along its travel",
+      "limit": "a footprint that does not move",
+      "source": "mass-weighted centroids of the bodies (made: volume x density; bought: declared mass_g); footprint: the convex hull of what is within 0.05 mm of the lowest plane; static, one axis at a time",
+      "check": "com",
+      "artifacts": []
+    },
+    {
+      "subject": "axis pico_jet_2_z",
+      "rule": "centre of mass/pico_jet_2_z",
+      "state": "UNCHECKED",
+      "measured": "axis pico_jet_2_z moves pico_jet_2, which stands on the ground, so the footprint changes along its travel",
+      "limit": "a footprint that does not move",
+      "source": "mass-weighted centroids of the bodies (made: volume x density; bought: declared mass_g); footprint: the convex hull of what is within 0.05 mm of the lowest plane; static, one axis at a time",
       "check": "com",
       "artifacts": []
     },
@@ -1948,40 +1117,40 @@
       "subject": "assembly",
       "rule": "spec/envelope",
       "state": "PASS",
-      "measured": "211.15 x 178.51 x 205.91 mm",
+      "measured": "205.0 x 180.41 x 205.91 mm",
       "limit": "<= 230 x 190 x 240 mm",
       "source": "spec.toml",
       "check": "spec",
       "artifacts": []
     },
     {
-      "subject": "axis tool_z",
+      "subject": "tool_plate, slide_1, slide_2, slide_3, slide_4, pen_clamp_1, pen_clamp_2, eco_pen_1, eco_pen_2, pico_jet_1, pico_jet_2, height_sensor",
       "rule": "spec/mass",
-      "state": "UNCHECKED",
-      "measured": "no mass for t8_nut (bought part 't8_nut' declares no mass_g with a mass_source); the others weigh 1861.4 g (tool_block 50.0 g (HIWIN MG series catalog GW-11-5-EN-2207-K, table 3.79: weight 0.050 kg); tool_carrier 246.2 g; pen_clamp_1 115.7 g; pen_clamp_2 115.7 g; eco_pen_1 280.0 g (ViscoTec eco-PEN300 data: 280 g); eco_pen_2 280.0 g (ViscoTec eco-PEN300 data: 280 g); pico_jet_1 362.0 g (Nordson EFD PICO Pulse data sheet: 362 g without cable); pico_jet_2 362.0 g (Nordson EFD PICO Pulse data sheet: 362 g without cable); height_sensor 30.0 g (Panasonic HG-C1000 series page: 30 g without cable); tool_ear 19.7 g)",
-      "limit": "<= 1900 g",
+      "state": "PASS",
+      "measured": "2602.4 g (tool_plate 464.9 g; slide_1 148.0 g (SMC MXH catalogue, mass table: MXH10, 20 mm stroke, 148 g); slide_2 148.0 g (SMC MXH catalogue, mass table: MXH10, 20 mm stroke, 148 g); slide_3 148.0 g (SMC MXH catalogue, mass table: MXH10, 20 mm stroke, 148 g); slide_4 148.0 g (SMC MXH catalogue, mass table: MXH10, 20 mm stroke, 148 g); pen_clamp_1 115.7 g; pen_clamp_2 115.7 g; eco_pen_1 280.0 g (ViscoTec eco-PEN300 data: 280 g); eco_pen_2 280.0 g (ViscoTec eco-PEN300 data: 280 g); pico_jet_1 362.0 g (Nordson EFD PICO Pulse data sheet: 362 g without cable); pico_jet_2 362.0 g (Nordson EFD PICO Pulse data sheet: 362 g without cable); height_sensor 30.0 g (Panasonic HG-C1000 series page: 30 g without cable))",
+      "limit": "<= 2700 g",
       "source": "spec.toml [[mass]] #1",
       "check": "spec",
       "artifacts": []
     },
     {
-      "subject": "axis tool_z",
+      "subject": "axis eco_pen_1_z",
       "rule": "spec/axis",
       "state": "PASS",
-      "measured": "moves tool_block, tool_carrier, pen_clamp_1, pen_clamp_2, eco_pen_1, eco_pen_2, pico_jet_1, pico_jet_2, height_sensor, tool_ear, t8_nut; along (0.000, 0.000, 1.000); travel -16 to 0 mm (16 mm)",
+      "measured": "moves eco_pen_1, pen_clamp_1; along (0.000, 0.000, 1.000); travel -16 to 0 mm (16 mm)",
       "limit": "declared in AXES; along (0.000, 0.000, 1.000) within 1 deg; travel >= 16 mm",
       "source": "spec.toml [[axis]] #1",
       "check": "spec",
       "artifacts": []
     },
     {
-      "subject": "coupling",
-      "rule": "source",
+      "subject": "axis pico_jet_1_z",
+      "rule": "spec/axis",
       "state": "PASS",
-      "measured": "Oriental Motor MCL200508: OD 20, length 29, 5 Nm: https://catalog.orientalmotor.com/item/all-categories-accessories-peripherals/flexible-couplings/mcl200508",
-      "limit": "recorded and confirmed",
-      "source": "MEASURED route",
-      "check": "provenance",
+      "measured": "moves pico_jet_1; along (0.000, 0.000, 1.000); travel -16 to 0 mm (16 mm)",
+      "limit": "declared in AXES; along (0.000, 0.000, 1.000) within 1 deg; travel >= 16 mm",
+      "source": "spec.toml [[axis]] #2",
+      "check": "spec",
       "artifacts": []
     },
     {
@@ -2015,82 +1184,12 @@
       "artifacts": []
     },
     {
-      "subject": "t8_nut",
+      "subject": "slide",
       "rule": "source",
-      "state": "PASS",
-      "measured": "Handsontec T8 copper nut data sheet: flange 22, body 10.2, length 15, flange 3.5, bolt circle 16, 4 x 3.5: https://handsontec.com/dataspecs/linear%20motion/T8-Copper-Nut.pdf",
-      "limit": "recorded and confirmed",
-      "source": "MEASURED route",
-      "check": "provenance",
-      "artifacts": []
-    },
-    {
-      "subject": "t8_screw",
-      "rule": "source",
-      "state": "PASS",
-      "measured": "Tr8x8 lead screw for the Handsontec T8 copper nut (8 mm, 4-start, 2 mm pitch, 8 mm lead): https://handsontec.com/dataspecs/linear%20motion/T8-Copper-Nut.pdf",
-      "limit": "recorded and confirmed",
-      "source": "MEASURED route",
-      "check": "provenance",
-      "artifacts": []
-    },
-    {
-      "subject": "tool_block",
-      "rule": "source",
-      "state": "PASS",
-      "measured": "HIWIN MG series catalog GW-11-5-EN-2207-K, table 3.79 (page 97): MGN12H, 45.4 x 27, H 13 above the rail's base and H1 3.0 clear of it, four M3 x 3.5 holes 20 x 20 apart, weight 0.050 kg; it runs on the 12 wide rail of table 3.81. An envelope: no balls, end caps, seals or grease nipple.",
-      "limit": "recorded and confirmed",
-      "source": "MEASURED route",
-      "check": "provenance",
-      "artifacts": []
-    },
-    {
-      "subject": "tool_block",
-      "rule": "sha256",
-      "state": "PASS",
-      "measured": "tool_block.py hashes to fae0ce4addf63186..., the pin",
-      "limit": "the sha256 the part pins",
-      "source": "the file is the one that was pinned",
-      "check": "provenance",
-      "artifacts": []
-    },
-    {
-      "subject": "tool_motor",
-      "rule": "source",
-      "state": "PASS",
-      "measured": "Novanta IMS (Schneider Electric Motion) NEMA 17 stepper motors datasheet, M-1713-1.5, M-1715-1.5 and M-1719-1.5: the dimensions drawing (page 4), the weights and ambient range (page 3). A 42.3 mm square flange, pilot 22.0 x 2.03, shaft 5.0 out 23.88 from the face, four M3 holes 4.5 deep on a 31.0 square.",
-      "limit": "recorded and confirmed",
-      "source": "MEASURED route",
-      "check": "provenance",
-      "artifacts": []
-    },
-    {
-      "subject": "tool_motor",
-      "rule": "sha256",
-      "state": "PASS",
-      "measured": "tool_motor.py hashes to 41032a939d2658ec..., the pin",
-      "limit": "the sha256 the part pins",
-      "source": "the file is the one that was pinned",
-      "check": "provenance",
-      "artifacts": []
-    },
-    {
-      "subject": "tool_rail",
-      "rule": "source",
-      "state": "PASS",
-      "measured": "HIWIN MG series catalog GW-11-5-EN-2207-K, table 3.81 (page 99): MGNR12R, 12 wide and 8.0 high, holes every 25 mm, counterbore D 6.0 x 4.5 deep, through hole d 3.5, cut to length with the most holes that leave E at least 5 (F 3.16, note 2). An envelope: no ball grooves.",
-      "limit": "recorded and confirmed",
-      "source": "MEASURED route",
-      "check": "provenance",
-      "artifacts": []
-    },
-    {
-      "subject": "tool_rail",
-      "rule": "sha256",
-      "state": "PASS",
-      "measured": "tool_rail.py hashes to 065f6c6b54e0bba7..., the pin",
-      "limit": "the sha256 the part pins",
-      "source": "the file is the one that was pinned",
+      "state": "UNCHECKED",
+      "measured": "declared unconfirmed: SMC MXH series catalogue (MXH10: mass 148 g at 20 mm stroke; theoretical output 39.3 N OUT / 33.0 N IN at 0.5 MPa; phi 10 dimensions W 19, L 46.5 + stroke): https://automationdistribution.com/content/files/pdf/mxh.pdf ; product page https://elasticsearch.smcpneumatics.com/25A-MXH10-25Z.html",
+      "limit": "measured on the real part",
+      "source": "confirm with callipers on arrival, then set VERIFIED",
       "check": "provenance",
       "artifacts": []
     }

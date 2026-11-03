@@ -6,9 +6,11 @@
                  lamps; the laser opens the pads after
     pico_jet_2   the second fluid: the gold finish over the opened pads, as CircuitJet's ENIG ink: PV Nano Cell's
                  gold ink for inkjet and aerosol printing, which it lists for PCBs and soldered joints
-                 (pvnanocell.com, 2020 launch), sintered on the platen, or by the laser if it needs more than the
-                 platen's 240 C (its sintering temperature is not published); or white legend ink (Agfa DiPaMat
-                 Wh04, 395 nm) when the laser does not mark the legend
+                 (Sicrys IAu20W, water based; pvnanocell.com, 2020 launch). Commercial gold inks cure above about
+                 190 C (Juelich's 2017 paper; Sigma-Aldrich's 4 nm gold nanoink: 200 to 400 C), so it cures on the
+                 platen in the 200 to 240 C window (under its cap, and the board's 260 C rating) if its profile fits,
+                 else the UV laser sinters it pad by pad; or white legend ink (Agfa DiPaMat Wh04, 395 nm) when the
+                 laser does not mark the legend
     height_sensor  board height and flatness for the laser's focus (Panasonic HG-C1030, 30 mm, 10 um), fixed
 
 Each dispenser and jet rides its own SMC MXH10 air slide (16 of its 20 mm), the way LumenPnP gives each nozzle its own

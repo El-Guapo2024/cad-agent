@@ -116,5 +116,6 @@ A person approves loading the board and the parts. The agent can never override 
 6. Compressed air: the slides, the jets and the pens' feeds all need it. A small oil-free compressor with a tank
    in the cabinet, or shop air with a regulator and filter.
 4. The height sensor's output (analogue or IO-Link) and where it is read.
-5. The gold finish ink (PV Nano Cell): its sintering temperature is not published. If it is over the platen's
-   240 C cap, the laser sinters it, and the laser job needs that step.
+5. The gold finish ink (PV Nano Cell Sicrys IAu20W): its sintering profile is not published (commercial gold inks
+   cure above about 190 C). It cures on the platen at 200 to 240 C if the profile fits; otherwise the laser
+   sinters it, and the laser job needs that step.
