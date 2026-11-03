@@ -7,11 +7,11 @@
  "geometry": "exact",
  "pn": "40x40-08",
  "material": "aluminium",
- "mass_g": 1733.427,
- "mass_source": "the section of Framing Tech's 40x40-08.STEP (measured); 648.495 mm2 x 2.7 g/cm3 (aluminium, materials.py) = 1750.9 g/m, x 0.99 m = 1733.4 g",
+ "mass_g": 1768.446,
+ "mass_source": "the section of Framing Tech's 40x40-08.STEP (measured); 648.495 mm2 x 2.7 g/cm3 (aluminium, materials.py) = 1750.9 g/m, x 1.01 m = 1768.4 g",
  "library_params": {
-  "length": 990.0,
+  "length": 1010.0,
   "axis": "y"
  },
- "sha256": "55f24fe862da6d614bc1f58d231fbc435e5a6c30f4c6b9966ddccb6b844900e2"
+ "sha256": "8f1b587d6cd9430ff0e1e7f598851daf0c2716f7352cb75746f06292183d866d"
 }

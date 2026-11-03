@@ -1,8 +1,8 @@
-"""enc_rail_top: 20 x 20 T-slot aluminium extrusion, 6 mm slots, the real section, length 1010 mm, axis y.
+"""enc_rail_top: 20 x 20 T-slot aluminium extrusion, 6 mm slots, the real section, length 1030 mm, axis y.
 
 Copied from the library entry extrusion-2020 by `cad lib use`; where each number came from is in enc_rail_top.json
 and in `cad lib info extrusion-2020`.
-It is meant to be left alone: `cad lib use <project> extrusion-2020 length=1010 axis=y --as enc_rail_top --replace`
+It is meant to be left alone: `cad lib use <project> extrusion-2020 length=1030 axis=y --as enc_rail_top --replace`
 writes it again, and `cad lib check <project>` fails when this file no longer hashes to the pin in the sidecar.
 """
 
@@ -25,7 +25,7 @@ ARGS = {
     'core_r': 2.8,
     'ear_root': [1.285, 2.488],
     'ear_tip': [1.887, 2.948],
-    'length': 1010.0,
+    'length': 1030.0,
     'axis': 'y',
 }
 

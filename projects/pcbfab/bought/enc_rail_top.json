@@ -7,11 +7,11 @@
  "geometry": "exact",
  "pn": "20x20",
  "material": "aluminium",
- "mass_g": 457.574,
- "mass_source": "the section of Framing Tech's 20x20.STEP (measured); 167.794 mm2 x 2.7 g/cm3 (aluminium, materials.py) = 453.0 g/m, x 1.01 m = 457.6 g",
+ "mass_g": 466.635,
+ "mass_source": "the section of Framing Tech's 20x20.STEP (measured); 167.794 mm2 x 2.7 g/cm3 (aluminium, materials.py) = 453.0 g/m, x 1.03 m = 466.6 g",
  "library_params": {
-  "length": 1010.0,
+  "length": 1030.0,
   "axis": "y"
  },
- "sha256": "71e714cbe6939879e0819b29de36a007df53ff0b9ae1048c6d412e6b31b94c33"
+ "sha256": "ba4076242e32189c9ce7bb269a5138f1edbb14caacedd526887d40d1b4af127e"
 }
