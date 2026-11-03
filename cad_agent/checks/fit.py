@@ -10,6 +10,9 @@ from ..registry import TOL_MM
 
 # OCCT boolean noise on coincident faces. Below this an "overlap" is contact.
 VOLUME_NOISE_MM3 = 1e-6
+# Boxes at least this far apart (and farther than the pair's required clearance) report their own gap as a lower
+# bound instead of an exact distance.
+FAR_MM = 25.0
 
 
 def check_fit(parts: dict, required_clearance: dict | None = None,
@@ -41,6 +44,16 @@ def check_fit(parts: dict, required_clearance: dict | None = None,
                 "check": "interference",
                 "detail": f"overlap {overlap:.3f} mm^3",
                 "measured_mm": 0.0, "required_mm": need,
+            })
+            continue
+        lower = boxes[na].Distance(boxes[nb]) if not (boxes[na].IsVoid() or boxes[nb].IsVoid()) else 0.0
+        if lower >= FAR_MM and lower > need + TOL_MM:
+            # The true gap is at least the boxes' and the verdict cannot change: a large assembly has thousands of
+            # such pairs, each an OCCT distance search over every face of both, for a number no one reads.
+            rows.append({
+                "pair": f"{na} vs {nb}", "state": "PASS",
+                "check": "clearance", "detail": f"gap over {lower:.1f} mm (bounding boxes)",
+                "measured_mm": round(lower, 4), "required_mm": need,
             })
             continue
         dist = min_distance(a, b)

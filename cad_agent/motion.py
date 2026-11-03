@@ -127,7 +127,12 @@ def _bbox_gap(a, b) -> float:
     expensive call, and for most pairs at most poses the boxes are nowhere
     near each other, which this settles in microseconds without OCCT.
     """
-    (alo, ahi), (blo, bhi) = bbox(a), bbox(b)
+    return _box_gap(bbox(a), bbox(b))
+
+
+def _box_gap(box_a, box_b) -> float:
+    """_bbox_gap for boxes already taken with bbox()."""
+    (alo, ahi), (blo, bhi) = box_a, box_b
     gaps = [max(blo[i] - ahi[i], alo[i] - bhi[i]) for i in range(3)]
     sep = [g for g in gaps if g > 0.0]
     if not sep:
@@ -157,18 +162,24 @@ def sweep_axis(parts: dict, axis: Axis, required: dict, allow_contact: set,
     pairs = [tuple(sorted(p)) for p in combinations(sorted(parts), 2)
              if moving & set(p)]
     hits = {p: SweepHit(pair=p) for p in pairs}
+    # Of a pair that holds its clearance the rule reports only the axis's tightest approach (rules.py), joints in
+    # allowed contact left out. So a pair is not measured at a pose where its boxes are farther apart than its
+    # requirement and than the tightest approach seen on the axis so far: nothing an exact call could return there
+    # would be reported. Pairs go nearest first, so that figure is small early.
+    tightest = float("inf")
 
     for t in sample_travel(axis, samples):
         posed = pose(parts, axis, t)
-        for key in pairs:
+        boxes = {n: bbox(s) for n, s in posed.items()}
+        order = sorted(((_box_gap(boxes[k[0]], boxes[k[1]]), k) for k in pairs), key=lambda x: x[0])
+        for lower, key in order:
             a, b = posed[key[0]], posed[key[1]]
             need = required.get(key, default_clearance)
             hit = hits[key]
             # Cheap lower bound first. If the boxes are already further apart
             # than the requirement and than anything seen so far, nothing an
             # exact call could return would change the verdict.
-            lower = _bbox_gap(a, b)
-            if lower > need and lower >= hit.distance:
+            if lower > need and lower >= min(hit.distance, tightest):
                 continue
             overlap = 0.0 if lower > BOX_MARGIN_MM else intersection_volume(a, b)
             if overlap > VOLUME_NOISE_MM3:
@@ -181,6 +192,8 @@ def sweep_axis(parts: dict, axis: Axis, required: dict, allow_contact: set,
             hit.poses_exact += 1
             if d < hit.distance:
                 hit.distance, hit.at, hit.exact = d, t, True
+            if not (d <= 1e-7 and key in allow_contact):
+                tightest = min(tightest, d)
     return hits
 
 

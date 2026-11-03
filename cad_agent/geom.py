@@ -35,13 +35,88 @@ def _w(shape):
 # number. The helpers below ask once; closest_points and intersection_volume ask again only if a
 # build of OCCT left the constructor idle.
 
+# A body imported from a vendor's assembly is often one compound of hundreds of solids (a whole frame, a gantry
+# with its motors and bolts). One query of it against a part inside its bounding box makes OCCT weigh every face
+# of the compound, though most of its solids are nowhere near. So a compound made only of solids is taken solid
+# by solid, each behind its own box: the distance is the least over its solids, which is what OCCT returns for the
+# compound, and the overlap their sum, which is zero exactly when the compound's is. A compound with a face or
+# shell outside its solids is left whole.
+_PARTS: dict = {}
+_PARTS_MAX = 4096
+
+
+def _parts(shape):
+    """[(sub-shape, its box)] for a compound of several solids and nothing else; else [(shape, None)]."""
+    from OCP.TopAbs import TopAbs_COMPOUND, TopAbs_FACE, TopAbs_SOLID
+    from OCP.TopExp import TopExp_Explorer
+    w = _w(shape)
+    if w.ShapeType() != TopAbs_COMPOUND:
+        return [(shape, None)]
+    hit = _PARTS.get(id(w))
+    if hit is not None and hit[0] is w:
+        return hit[1]
+    solids = []
+    ex = TopExp_Explorer(w, TopAbs_SOLID)
+    while ex.More():
+        solids.append(ex.Current())
+        ex.Next()
+
+    def faces(s):
+        n, e = 0, TopExp_Explorer(s, TopAbs_FACE)
+        while e.More():
+            n += 1
+            e.Next()
+        return n
+
+    out = [(shape, None)]
+    if len(solids) > 1 and faces(w) == sum(faces(s) for s in solids):
+        out = [(s, box(s)) for s in solids]
+    if len(_PARTS) >= _PARTS_MAX:
+        _PARTS.clear()
+    _PARTS[id(w)] = (w, out)                 # the shape is kept with its entry, so its id is not reused meanwhile
+    return out
+
+
+def _pairs(a, b):
+    """(part of a, part of b, the distance between their boxes) for every pair; one pair (a, b, 0) if neither splits."""
+    pa, pb = _parts(a), _parts(b)
+    if len(pa) == 1 and len(pb) == 1:
+        return [(a, b, 0.0)]
+    ba = box(a) if len(pa) == 1 else None
+    bb = box(b) if len(pb) == 1 else None
+    out = []
+    for sa, xa in pa:
+        xa = xa if xa is not None else ba
+        for sb, xb in pb:
+            xb = xb if xb is not None else bb
+            gap = 0.0 if xa.IsVoid() or xb.IsVoid() else xa.Distance(xb)
+            out.append((sa, sb, gap))
+    return out
+
+
 def min_distance(a, b) -> float:
     """Minimum distance between two solids in mm. 0.0 means touching or overlapping.
 
     The search runs on every core. OCCT cuts the face pairs into the same tasks whether one thread
     runs them or many, each task keeps its own result, and the results are merged in task order,
-    so the number is the single-thread one to the last bit.
+    so the number is the single-thread one to the last bit. A compound of solids is searched solid by
+    solid, nearest box first, stopping once a box is farther than the best distance found.
     """
+    pairs = _pairs(a, b)
+    if len(pairs) == 1 and pairs[0][0] is a:
+        return _min_distance(a, b)
+    best = None
+    for sa, sb, lower in sorted(pairs, key=lambda t: t[2]):
+        if best is not None and lower > best:
+            break
+        d = _min_distance(sa, sb)
+        best = d if best is None else min(best, d)
+        if best == 0.0:
+            break
+    return best
+
+
+def _min_distance(a, b) -> float:
     d = BRepExtrema_DistShapeShape()
     d.SetMultiThread(True)
     d.LoadS1(_w(a))
@@ -70,7 +145,15 @@ def closest_points(a, b):
 
 
 def intersection_volume(a, b) -> float:
-    """Volume of overlap in mm^3. > 0 means the parts interfere."""
+    """Volume of overlap in mm^3. > 0 means the parts interfere. A compound of solids is taken solid by
+    solid, a pair whose boxes are apart skipped (see _parts)."""
+    pairs = _pairs(a, b)
+    if len(pairs) == 1 and pairs[0][0] is a:
+        return _intersection_volume(a, b)
+    return sum(_intersection_volume(sa, sb) for sa, sb, gap in pairs if gap <= BOX_MARGIN_MM)
+
+
+def _intersection_volume(a, b) -> float:
     common = BRepAlgoAPI_Common(_w(a), _w(b))
     if not common.IsDone():
         common.Build()
