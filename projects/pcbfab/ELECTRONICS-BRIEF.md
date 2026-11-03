@@ -26,7 +26,8 @@ Process (CircuitJet's order):
 3. Etch, with the laser.
 4. Jet the solder mask, then UV-cure it with the gantry's lamps. The laser opens the pads and marks the legend
    (or the second jet prints a white legend).
-5. Optionally jet a finish ink onto the pads.
+5. Jet the gold finish (PV Nano Cell's inkjet gold ink) onto the opened pads and sinter it, on the platen or by
+   the laser.
 6. Flip. Dispense solder paste, place the parts, reflow on the platen.
 
 The camera finds the board's fiducials after every flip. The height sensor sets the focus.
@@ -68,7 +69,7 @@ Each new axis needs an endstop: 6 axes (lift x2 and Z x2 can share as pairs). Th
 | Vacuum (via fill, hold-down) | SainSmart 24 V pump (42 W) + **SMC VT307V-5G1-01** 3-port valve (24 V DC, 4 W) | Pump switched; the valve vents the platen to let the board go |
 | UV mask cure | 3 x LedWV 100 W 395 nm on the gantry | 48 V 3 A each. Supply: Mean Well LRS-600-48. Enable/PWM, lamp fans, cable along the X chain. Off unless the doors are shut |
 | **Paste dispensers** | 2 x ViscoTec eco-PEN300 (solder paste; via paste) | Each needs ViscoTec's controller (stepper-driven progressive cavity) plus a pressure feed (0-6 bar) to the cartridge |
-| **Jets** | 2 x Nordson EFD PICO Pulse (mask ink; legend or finish ink) | Each needs a PICO Touch controller and air/fluid pressure. Trigger from the MCU |
+| **Jets** | 2 x Nordson EFD PICO Pulse (mask ink; gold finish ink or white legend ink) | Each needs a PICO Touch controller and air/fluid pressure. Trigger from the MCU |
 | **Height sensor** | Panasonic HG-C1030 (30 +/- 5 mm, 10 um) | 24 V DC, 40 mA; analogue or IO-Link output to the MCU or Jetson |
 | Pick-and-place | LumenPnP's nozzles, vacuum, cameras | As Opulo's design |
 | Cameras / AOI | LumenPnP's top and bottom cameras | USB to the Jetson |
@@ -101,7 +102,7 @@ The cabinet's plates hold all of these in 109 mm of height (`projects/pcbfab/ass
 
 An MCP server on the Jetson wraps Moonraker and the laser job, with these tools:
 - `machine_status`, `home`, `camera_snapshot`, `pause`, `abort`;
-- `run_step`, for each step: drill, via fill, cure, flip, etch, mask, mask cure, mask open, legend, finish, paste,
+- `run_step`, for each step: drill, via fill, cure, flip, etch, mask, mask cure, mask open, legend, gold finish, paste,
   place, reflow, inspect.
 
 A person approves loading the board and the parts. The agent can never override the interlocks.
@@ -113,4 +114,5 @@ A person approves loading the board and the parts. The agent can never override 
    cabinet, or shop air).
 3. One motion board or two, for about 7 new steppers plus LumenPnP's.
 4. The height sensor's output (analogue or IO-Link) and where it is read.
-5. The finish ink, for the second jet. CircuitJet uses its own ENIG ink; we have not chosen one.
+5. The gold finish ink (PV Nano Cell): its sintering temperature is not published. If it is over the platen's
+   240 C cap, the laser sinters it, and the laser job needs that step.

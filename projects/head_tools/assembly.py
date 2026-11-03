@@ -4,8 +4,11 @@
     eco_pen_2    via paste (silver), dotted onto each drilled hole while the platen's vacuum pulls it through
     pico_jet_1   UV solder mask (Agfa DiPaMAT SM G01 cures at 395 nm), jetted as dots, then cured by the gantry's
                  lamps; the laser opens the pads after
-    pico_jet_2   the second fluid: white legend ink (Agfa DiPaMat Wh04, 395 nm), or a finish ink over the opened
-                 pads (CircuitJet jets its own ENIG ink; ours is still to choose), cured on the platen
+    pico_jet_2   the second fluid: the gold finish over the opened pads, as CircuitJet's ENIG ink: PV Nano Cell's
+                 gold ink for inkjet and aerosol printing, which it lists for PCBs and soldered joints
+                 (pvnanocell.com, 2020 launch), sintered on the platen, or by the laser if it needs more than the
+                 platen's 240 C (its sintering temperature is not published); or white legend ink (Agfa DiPaMat
+                 Wh04, 395 nm) when the laser does not mark the legend
     height_sensor  board height and flatness for the laser's focus (Panasonic HG-C1030, 30 mm, 10 um)
 
 They ride an 16 mm lift (MGN12, Tr8x8, NEMA 17) on a plate bolted to the head plate's front face (LumenPnP's
