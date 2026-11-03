@@ -2,8 +2,10 @@
 
     eco_pen_1    solder paste (ViscoTec eco-PEN300, volumetric, 1 ul): no stencil, as CircuitJet's syringe
     eco_pen_2    via paste (silver), dotted onto each drilled hole while the platen's vacuum pulls it through
-    pico_jet     UV solder mask (Agfa DiPaMAT SM G01 cures at 395 nm) and legend ink, jetted as dots, then cured by
-                 the gantry's lamps; the laser opens the pads after
+    pico_jet_1   UV solder mask (Agfa DiPaMAT SM G01 cures at 395 nm), jetted as dots, then cured by the gantry's
+                 lamps; the laser opens the pads after
+    pico_jet_2   the second fluid: white legend ink (Agfa DiPaMat Wh04, 395 nm), or a finish ink over the opened
+                 pads (CircuitJet jets its own ENIG ink; ours is still to choose), cured on the platen
     height_sensor  board height and flatness for the laser's focus (Panasonic HG-C1030, 30 mm, 10 um)
 
 They ride an 16 mm lift (MGN12, Tr8x8, NEMA 17) on a plate bolted to the head plate's front face (LumenPnP's
@@ -25,22 +27,22 @@ SLUG = "head_tools"
 B_TOP = 37.0                             # the board's top
 LIFT = 16.0                              # raised, the tips clear the stage's posts (51) by 2
 PLATE_Y = 179.1                          # the head plate's front face
-PLATE_X = (232.0, 410.0)                 # the tool plate: to 11 over the head plate (398.8)
+PLATE_X = (205.0, 410.0)                 # the tool plate: to 11 over the head plate (398.8)
 PLATE_Z = (60.0, 200.0)
 CARRIER_Y = PLATE_Y - 6.0 - 13.0         # 160.1: the MGN12 block's top face (H 13 over the rail's base)
-CARRIER_X, CARRIER_Z = (234.0, 397.0), (70.0, 150.0)
+CARRIER_X, CARRIER_Z = (207.0, 397.0), (70.0, 150.0)
 RAIL_X = 330.0
 PEN_X, PEN_Y = (338.0, 378.0), 138.0     # the clamps 40 wide right of the jet; PEN_Y: the pen's bottom centre
 PEN_TILT = 35.0                          # forward (toward -y): the tops 12 under the lens
 NEEDLE = 25.4                            # a 1 in Luer needle on the pen's outlet, along its axis
-JET_X, JET_GAP = 295.0, 1.5
-SENSOR_X, SENSOR_RANGE = 271.0, 30.0
-SCREW_X, SCREW_Y = 247.0, 133.0
+JET_X, JET_GAP = (295.0, 269.0), 1.5     # the mask jet; the finish / legend jet
+SENSOR_X, SENSOR_RANGE = 244.0, 30.0
+SCREW_X, SCREW_Y = 220.0, 133.0
 
 CLEARANCE = {}
 ALLOW_CONTACT = {"tool_rail|tool_plate", "tool_block|tool_rail", "tool_carrier|tool_block",
                  "pen_clamp_1|tool_carrier", "pen_clamp_2|tool_carrier", "eco_pen_1|pen_clamp_1",
-                 "eco_pen_2|pen_clamp_2", "pico_jet|tool_carrier", "height_sensor|tool_carrier",
+                 "eco_pen_2|pen_clamp_2", "pico_jet_1|tool_carrier", "pico_jet_2|tool_carrier", "height_sensor|tool_carrier",
                  "tool_ear|tool_carrier", "t8_nut|tool_ear", "t8_nut|tool_screw", "tool_coupling|tool_screw",
                  "tool_coupling|tool_motor", "tool_motor|motor_mount", "motor_mount|tool_plate"}
 
@@ -64,7 +66,8 @@ def parts():
         cy, cz = PEN_Y - t * s_, pen_bot + t * c
         yc = front - 40.0                                            # the clamp: 80 deep from the carrier's face
         out[f"pen_clamp_{i}"] = Pos(x, yc, cz) * p("pen_clamp", bore_y=cy - yc)
-    out["pico_jet"] = Pos(JET_X, front, B_TOP + JET_GAP + LIFT) * b("pico_jet")
+    for i, x in enumerate(JET_X, 1):
+        out[f"pico_jet_{i}"] = Pos(x, front, B_TOP + JET_GAP + LIFT) * b("pico_jet")
     out["height_sensor"] = Pos(SENSOR_X, front - 12.5, B_TOP + SENSOR_RANGE + LIFT) * b("height_sensor")
     ear_z = CARRIER_Z[1] - 6.0
     out["tool_ear"] = Pos(SCREW_X, front - 16.0, ear_z) * p("tool_ear", bore_y=SCREW_Y - (front - 16.0))
@@ -84,6 +87,6 @@ def parts():
 
 
 AXES = {"tool_z": {"moves": ("tool_block", "tool_carrier", "pen_clamp_1", "pen_clamp_2", "eco_pen_1", "eco_pen_2",
-                             "pico_jet", "height_sensor", "tool_ear", "t8_nut"),
+                             "pico_jet_1", "pico_jet_2", "height_sensor", "tool_ear", "t8_nut"),
                    "direction": (0, 0, 1), "travel": (-LIFT, 0.0), "work": (-LIFT, 0.0)}}
 POSES = {"dispense": {"tool_z": -LIFT}}

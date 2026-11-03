@@ -1,79 +1,116 @@
-# Desktop PCB fab: electronics brief (for the EE design), 2026-11-01, UV laser
+# Desktop PCB fab: electronics brief (for the EE design), 2026-11-03
 
-This replaces the 2026-10-28 brief (CoreXY machine with a tool changer, drill spindle): that machine was dropped.
-It also replaces the first 2026-11-01 version: the 20 W fiber laser is now a 5 W 355 nm UV laser, as CircuitJet IV
-and LPKF's ProtoLaser U4 use (UV ablates copper cleanly; copper reflects most 1064 nm light).
+This replaces the 2026-11-01 brief. The machine was redesigned to do everything CircuitJet IV does: the board now
+lives in one fixture for the whole job (a flip frame on an XY stage), the laser bridge focuses, and the head carries
+dispensers and jets. New and changed loads are marked **new**.
 
 ## The machine now
 
-One machine: Opulo's LumenPnP v4.2.0 with its Y axis 300 mm longer (`projects/lumenpnp_long`), and
-`projects/pcbfab` adds:
+One bench machine (about 1190 x 1070 x 880 mm with the extractor beside it), on Opulo's LumenPnP v4.2.0 with its
+Y axis 300 mm longer. The CAD is on branch `pcbfab-demo` of El-Guapo2024/cad-agent:
 
-- **pnp zone (front):** a 150 x 150 hot plate under the head for reflow (tin-bismuth solder, plate capped at 240 C)
-  and the via-paste cure (160 C, 30 min). Mains is 120 V (US).
-- **laser zone (back):** a JPT Lark 355 nm UV laser in line with an SG7110 galvo (UV mirrors) and a 355 nm F160 lens,
-  hanging from a bridge over a vacuum laser bed. The laser drills, etches, opens the solder mask over the pads, and
-  marks the legend.
-- **head:** LumenPnP's own head (nozzles, cameras), plus a solder-paste dispenser. Three 395 nm UV lamps on the back of
-  the gantry sweep the board (as Y moves) to cure the solder mask.
-- **enclosure** around the whole machine: aluminium panels, a door with a 355 nm laser-safe window, and a fume port
-  to a HEPA + carbon extractor.
+- `projects/pcbfab`: the cabinet (4040 base; the electronics stand on four plates in it), the enclosure, the UV
+  lamps, the extractor.
+- `projects/fab_stage`: the fixture. The 229 x 305 board sits in a stainless flip frame. Under it is a heated vacuum
+  platen (Tempco mica heater) that drops 135 mm so the frame can turn over. All of it rides an XY ball-screw stage
+  that stitches the laser's 100 mm field and brings each part of the board under the head.
+- `projects/laser_bridge`: the JPT Lark UV laser, SG7110 galvo and Jenoptik lens on a bridge. The bridge rides
+  20 mm up and down on its posts to focus.
+- `projects/head_tools`: on LumenPnP's head, beside its nozzles: two paste dispensers, two jets and a height
+  sensor, on a 16 mm lift.
 
-Process (CircuitJet's order): drill (laser); via paste squeegeed and pulled through by the vacuum bed, cured on the hot
-plate; then etch (laser, which also clears paste smear off the copper). Then mask coated (by hand), UV-cured by the
-gantry's lamps, and opened over the pads and marked by the laser. Then paste, place and reflow. The flip is by hand
-onto two registration pins; the camera finds the board's fiducials after every move.
+Process (CircuitJet's order):
+1. Drill, with the laser.
+2. Fill the vias: the via-paste pen dots each hole while the platen's vacuum pulls the paste through. Cure on the
+   platen (160 C), flip automatically, repeat on the other side.
+3. Etch, with the laser.
+4. Jet the solder mask, then UV-cure it with the gantry's lamps. The laser opens the pads and marks the legend
+   (or the second jet prints a white legend).
+5. Optionally jet a finish ink onto the pads.
+6. Flip. Dispense solder paste, place the parts, reflow on the platen.
+
+The camera finds the board's fiducials after every flip. The height sensor sets the focus.
 
 ## Architecture
 
-- **Host:** NVIDIA Jetson Orin Nano runs Klipper + Moonraker (motion, heaters, I/O), the cameras and AOI, the laser
-  job (EZCAD-class software or MeerK40t driving the galvo controller over USB), and the MCP server the agent uses.
-- **Motion MCU:** a Klipper board for LumenPnP's steppers and I/O, replacing Opulo's control box. LumenPnP's own
-  motors, nozzles and cameras stay as Opulo specifies; take the counts from Opulo's BOM.
-- **Galvo and laser controller:** JCZ LMCV4 (or equivalent EZCAD-class board) on USB to the Jetson. It drives the
-  SG7110 galvo (XY2-100) and the UV laser's control port (pinout from the Lark manual).
+- **Host:** NVIDIA Jetson Orin Nano Developer Kit (100 x 79 x 21). It runs:
+  - Klipper + Moonraker;
+  - the cameras and AOI (board inspection; a JEPA-style model trained on good boards is the plan, after the
+    hardware runs);
+  - the laser job;
+  - the MCP server the agent uses.
+- **Motion MCU:** BIGTREETECH Octopus Pro (160 x 100, 8 driver slots). One may not be enough, see the stepper
+  count below: add a second Klipper MCU (another Octopus, or an EBB-style CAN board on the head).
+- **Galvo and laser controller:** JCZ LMCV4-Digit-M (5 V), USB to the Jetson. It drives the SG7110 (XY2-100) and
+  the Lark's control port.
 
-## Loads and sensors (new or changed)
+## Steppers (all NEMA 17 unless noted)
+
+| Axis | Count | Where | Notes |
+|---|---|---|---|
+| LumenPnP X, Y, nozzle Z/rotation | Opulo's BOM | gantry | as Opulo specifies |
+| **Stage X** | 1 | fab_stage | SFU1204 ball screw, 130 mm |
+| **Stage Y** | 1 | fab_stage | SFU1204 ball screw, 205 mm |
+| **Platen lift** | 2 (34 mm body) | fab_stage, one per post | Tr8x8, 135 mm. The two run together |
+| **Flip** | 1 (34 mm) | fab_stage | GT2 belt 20T to 40T, half a turn. Needs a home (index) sensor |
+| **Bridge focus Z** | 2 (34 mm) | laser_bridge, one per post | Tr8x8, 20 mm. Klipper's z_tilt-style pair |
+| **Tool lift** | 1 (34 mm) | head_tools | Tr8x8, 16 mm |
+
+Each new axis needs an endstop: 6 axes (lift x2 and Z x2 can share as pairs). The flip needs an index at 0 and 180.
+
+## Loads and sensors
 
 | Subsystem | Part | Electrical |
 |---|---|---|
-| UV laser | JPT Lark-355-5A, 5 W 355 nm, air cooled, built-in PSU | Mains (a complete 5 W machine built on it is listed at under 500 W total); enable / gate / frequency and alarm from the JCZ board; its fans need free air |
-| Galvo | SG7110, 10 mm aperture, UV mirrors | Its driver's supply (commonly +/-15 V; check the unit), XY2-100 from the JCZ board |
-| Hot plate | Misumi MPHK-150-150 500 W mica heater wound for **120 V**, capped at **240 C** (tin-bismuth solder for the demo) | Omron G3NA-210B SSR on its Y92B-N50 heatsink; RS PRO PT1000 3 x 100 mm (400 C) in a bore in the plate's edge + Adafruit MAX31865 (#3648); Selco ORA-500-QC cut-out (opens 249-271 C) on the plate's other edge, in series with the heater |
-| Via vacuum bed | SainSmart 24 V vacuum pump, 42 W, -85 kPa | 24 V switched (relay or MOSFET), plus a valve to release the board |
-| UV mask cure | 3 x LedWV 100 W 395 nm LED lamps, on the gantry (moving with Y) | 48 V 3 A each (9 A total), enable/PWM from the MCU, lamp fans; off unless the door is shut; cable along the X chain |
-| Height sensing | Laser distance sensor on the head (to pick) | Focus and board flatness, as CircuitJet does |
-| Solder paste | Dispenser on the head (auger stepper or pneumatic valve) | One stepper, or a valve + regulator |
+| UV laser | JPT Lark-355-5A, 5 W 355 nm | **12 V DC, under 200 W** (JPT's table; the old brief said mains, which was wrong). Supply: Mean Well LRS-350-12. Enable, gate, frequency and alarm from the JCZ card |
+| Galvo | SG7110, UV mirrors | Driver supply per the unit (commonly +/-15 V; check) |
+| **Platen heater** | Tempco MSH00072 mica heater, 177.8 x 292.1, **625 W at 120 V** (was a 500 W Misumi). Cap 240 C | Omron G3NA-210B SSR on a Y92B-N50 heatsink. RS PRO PT1000 in the platen's slot, read by an Adafruit MAX31865 (3648). Selco ORA-500-QC cut-out (opens 249-271 C, rated 260 C max) on the platen's side, in series with the heater |
+| Vacuum (via fill, hold-down) | SainSmart 24 V pump (42 W) + **SMC VT307V-5G1-01** 3-port valve (24 V DC, 4 W) | Pump switched; the valve vents the platen to let the board go |
+| UV mask cure | 3 x LedWV 100 W 395 nm on the gantry | 48 V 3 A each. Supply: Mean Well LRS-600-48. Enable/PWM, lamp fans, cable along the X chain. Off unless the doors are shut |
+| **Paste dispensers** | 2 x ViscoTec eco-PEN300 (solder paste; via paste) | Each needs ViscoTec's controller (stepper-driven progressive cavity) plus a pressure feed (0-6 bar) to the cartridge |
+| **Jets** | 2 x Nordson EFD PICO Pulse (mask ink; legend or finish ink) | Each needs a PICO Touch controller and air/fluid pressure. Trigger from the MCU |
+| **Height sensor** | Panasonic HG-C1030 (30 +/- 5 mm, 10 um) | 24 V DC, 40 mA; analogue or IO-Link output to the MCU or Jetson |
 | Pick-and-place | LumenPnP's nozzles, vacuum, cameras | As Opulo's design |
 | Cameras / AOI | LumenPnP's top and bottom cameras | USB to the Jetson |
-| Fume extraction | HEPA + carbon extractor | Relay; on whenever the laser, UV lamps or reflow run |
-| Enclosure | Door switches (two, redundant), key switch, e-stop | Part of the laser and UV interlock |
+| **Fume extraction** | BOFA V250 (HEPA 99.997 % at 0.3 um + 2 kg carbon, 180 m3/h) | **115 V, 135 W**, beside the machine, 50 mm hose to the back. Run it whenever the laser, the lamps, the jets or the reflow run (BOFA has a remote start input; check) |
+| Enclosure | 2 x Omron D4NS door switches, key switch (Schneider XB5AG21), e-stop (XB5AS8442) | Part of the laser and UV interlock |
+| Mains entry | Schurter KM00.1105.11 (C14, fused, 2-pole switch) | In the back's lower-right panel |
 
 ## Safety (hardware, not software)
 
-- The 5 W UV laser is Class 4: an invisible beam that can blind instantly. Wire the two door switches in series with
-  the key switch and e-stop to the laser's hardware interlock / enable (through a safety relay), not only to the MCU.
-  The UV lamps go on the same chain.
-- The window is OptoSigma YL-510C-Y2(5): OD 8 at 355 nm.
-- The hot plate's Selco ORA-500-QC cut-out is independent of the controller.
-- Mains (UV laser, hot plate, PSUs) is fused, earthed and separated from low voltage.
+- The 5 W UV laser is Class 4. The two door switches, the key switch and the e-stop run through an Omron G9SE-201
+  safety relay, which cuts the laser's enable and the UV lamps' supply. The MCU only reads the state.
+- The window is OptoSigma YL-510C-Y2(5), OD 8 at 355 nm, in the upper-left front panel.
+- The heater's cut-out is independent of the controller.
+- Mains (heater, PSUs, extractor) is fused, earthed and kept apart from low voltage.
 
-## Power (estimate, to size by the EE)
+## Power (estimate, for the EE to size)
 
-- Mains: UV laser (its own PSU), hot plate (500 W via SSR), extractor.
-- 24 V: motion, vacuum pump, fans, paste dispenser.
-- 48 V 9 A: the three UV lamps (their own supply or drivers).
-- Galvo supply as its driver needs.
-- 5 V / Jetson supply.
+| Rail | Loads | Supply |
+|---|---|---|
+| Mains 120 V | heater 625 W via SSR; PSUs; extractor 135 W | |
+| 24 V | all steppers, pump 42 W, valve, fans, dispenser controllers, height sensor | Mean Well LRS-350-24 (14.6 A). Check the stepper count against it; an LRS-600-24 may be needed |
+| 48 V | UV lamps, 9 A | Mean Well LRS-600-48 |
+| 12 V | Lark source, under 200 W | Mean Well LRS-350-12 |
+| 5 V | JCZ card | |
+| Jetson | its own supply | |
+
+The cabinet's plates hold all of these in 109 mm of height (`projects/pcbfab/assembly.py` has the layout).
 
 ## Agent interface
 
-An MCP server on the Jetson wraps Moonraker and the laser job: `machine_status`, `home`, `run_step` (drill, via fill,
-cure, etch, mask cure, mask open, legend, paste, place, reflow), `camera_snapshot`, `pause`, `abort`. A person approves
-the steps that need hands (the flip, the mask coat, loading parts). The agent can never override the interlocks.
+An MCP server on the Jetson wraps Moonraker and the laser job, with these tools:
+- `machine_status`, `home`, `camera_snapshot`, `pause`, `abort`;
+- `run_step`, for each step: drill, via fill, cure, flip, etch, mask, mask cure, mask open, legend, finish, paste,
+  place, reflow, inspect.
+
+A person approves loading the board and the parts. The agent can never override the interlocks.
 
 ## Open questions for the EE
 
-1. The galvo driver's supply voltage; the UV laser's control pinout and mains draw (from the units' manuals).
-2. Solder-paste dispenser: auger or pneumatic.
-3. Which laser distance sensor.
+1. The galvo driver's supply voltage, and the Lark's control pinout (from the units' manuals).
+2. ViscoTec and PICO controllers: their interfaces to Klipper, and the air supply (a small compressor in the
+   cabinet, or shop air).
+3. One motion board or two, for about 7 new steppers plus LumenPnP's.
+4. The height sensor's output (analogue or IO-Link) and where it is read.
+5. The finish ink, for the second jet. CircuitJet uses its own ENIG ink; we have not chosen one.

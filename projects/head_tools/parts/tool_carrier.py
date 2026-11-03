@@ -8,7 +8,7 @@ PROCESS = "laser_cut"
 MIN_FEATURE_MM = 1.0
 EXPECT_FEATURES = 0
 
-PARAMS = {"size_x": 163.0, "thick": 6.0, "size_z": 80.0}
+PARAMS = {"size_x": 190.0, "thick": 6.0, "size_z": 80.0}
 
 
 def build(size_x, thick, size_z):

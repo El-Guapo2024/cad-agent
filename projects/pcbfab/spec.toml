@@ -23,7 +23,7 @@ min_mm = 3.0
 pose = "under_lens"
 
 [[clearance]]                # the tools, raised, over the flip frame
-a = "head_tools/pico_jet"
+a = "head_tools/pico_jet_1"
 b = "fab_stage/frame_ring_upper"
 min_mm = 3.0
 pose = "under_lens"
