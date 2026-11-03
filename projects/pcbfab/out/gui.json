@@ -35,35 +35,43 @@
   "view_props": {
     "lumenpnp_long/y_gantry_left": {
       "deviation": 1.0,
-      "angularDeflection": 45
+      "angularDeflection": 45,
+      "shapeColor": 11514552
     },
     "lumenpnp_long/y_gantry_right": {
       "deviation": 1.0,
-      "angularDeflection": 45
+      "angularDeflection": 45,
+      "shapeColor": 11514552
     },
     "lumenpnp_long/x_gantry": {
       "deviation": 1.0,
-      "angularDeflection": 45
+      "angularDeflection": 45,
+      "shapeColor": 11514552
     },
     "lumenpnp_long/front_feeder_rail": {
       "deviation": 1.0,
-      "angularDeflection": 45
+      "angularDeflection": 45,
+      "shapeColor": 11514552
     },
     "lumenpnp_long/rear_feeder_rail": {
       "deviation": 1.0,
-      "angularDeflection": 45
+      "angularDeflection": 45,
+      "shapeColor": 11514552
     },
     "lumenpnp_long/y_limit_striker": {
       "deviation": 1.0,
-      "angularDeflection": 45
+      "angularDeflection": 45,
+      "shapeColor": 11514552
     },
     "lumenpnp_long/x_drag_chain_asm": {
       "deviation": 1.0,
-      "angularDeflection": 45
+      "angularDeflection": 45,
+      "shapeColor": 11514552
     },
     "lumenpnp_long/y_drag_chain_asm": {
       "deviation": 1.0,
-      "angularDeflection": 45
+      "angularDeflection": 45,
+      "shapeColor": 11514552
     },
     "lumenpnp_long/primary_staging_plate": {
       "deviation": 1.0,
@@ -75,7 +83,8 @@
     },
     "lumenpnp_long/components_installed_by_user": {
       "deviation": 1.0,
-      "angularDeflection": 45
+      "angularDeflection": 45,
+      "shapeColor": 11514552
     },
     "front_panel": {
       "transparency": 80
@@ -96,7 +105,692 @@
       "transparency": 80
     },
     "laser_window": {
-      "transparency": 80
+      "transparency": 80,
+      "shapeColor": 14456360
+    },
+    "cab_top_x_1": {
+      "shapeColor": 2960692
+    },
+    "cab_bot_x_1": {
+      "shapeColor": 2960692
+    },
+    "cab_top_x_2": {
+      "shapeColor": 2960692
+    },
+    "cab_bot_x_2": {
+      "shapeColor": 2960692
+    },
+    "cab_top_y_1": {
+      "shapeColor": 2960692
+    },
+    "cab_top_y_2": {
+      "shapeColor": 2960692
+    },
+    "cab_top_y_3": {
+      "shapeColor": 2960692
+    },
+    "cab_top_y_4": {
+      "shapeColor": 2960692
+    },
+    "cab_bot_y_1": {
+      "shapeColor": 2960692
+    },
+    "cab_bot_y_2": {
+      "shapeColor": 2960692
+    },
+    "cross_rail_1": {
+      "shapeColor": 2960692
+    },
+    "cross_rail_2": {
+      "shapeColor": 2960692
+    },
+    "cross_rail_3": {
+      "shapeColor": 2960692
+    },
+    "cross_rail_4": {
+      "shapeColor": 2960692
+    },
+    "cab_leg_1": {
+      "shapeColor": 2960692
+    },
+    "cab_leg_2": {
+      "shapeColor": 2960692
+    },
+    "cab_leg_3": {
+      "shapeColor": 2960692
+    },
+    "cab_leg_4": {
+      "shapeColor": 2960692
+    },
+    "cab_leg_5": {
+      "shapeColor": 2960692
+    },
+    "cab_leg_6": {
+      "shapeColor": 2960692
+    },
+    "elec_plate_1": {
+      "shapeColor": 9868955
+    },
+    "elec_plate_2": {
+      "shapeColor": 9868955
+    },
+    "elec_plate_3": {
+      "shapeColor": 9868955
+    },
+    "elec_plate_4": {
+      "shapeColor": 9868955
+    },
+    "psu_24v": {
+      "shapeColor": 9868955
+    },
+    "psu_48v": {
+      "shapeColor": 9868955
+    },
+    "psu_12v": {
+      "shapeColor": 9868955
+    },
+    "jetson": {
+      "shapeColor": 1995595
+    },
+    "motion_board": {
+      "shapeColor": 1995595
+    },
+    "galvo_card": {
+      "shapeColor": 1995595
+    },
+    "heatsink": {
+      "shapeColor": 9868955
+    },
+    "ssr": {
+      "shapeColor": 9868955
+    },
+    "rtd_amp": {
+      "shapeColor": 1995595
+    },
+    "safety_relay": {
+      "shapeColor": 9868955
+    },
+    "vacuum_pump": {
+      "shapeColor": 9868955
+    },
+    "vacuum_valve": {
+      "shapeColor": 9868955
+    },
+    "extractor": {
+      "shapeColor": 14145490
+    },
+    "lamp_plate": {
+      "shapeColor": 8537785
+    },
+    "uv_lamp_1": {
+      "shapeColor": 8537785
+    },
+    "uv_lamp_2": {
+      "shapeColor": 8537785
+    },
+    "uv_lamp_3": {
+      "shapeColor": 8537785
+    },
+    "enc_post_1": {
+      "shapeColor": 4605518
+    },
+    "enc_post_2": {
+      "shapeColor": 4605518
+    },
+    "enc_post_3": {
+      "shapeColor": 4605518
+    },
+    "enc_post_4": {
+      "shapeColor": 4605518
+    },
+    "enc_post_5": {
+      "shapeColor": 4605518
+    },
+    "enc_post_6": {
+      "shapeColor": 4605518
+    },
+    "enc_post_7": {
+      "shapeColor": 4605518
+    },
+    "enc_post_8": {
+      "shapeColor": 4605518
+    },
+    "enc_rail_x_1": {
+      "shapeColor": 4605518
+    },
+    "enc_rail_x_2": {
+      "shapeColor": 4605518
+    },
+    "enc_rail_x_3": {
+      "shapeColor": 4605518
+    },
+    "enc_rail_x_4": {
+      "shapeColor": 4605518
+    },
+    "enc_rail_x_5": {
+      "shapeColor": 4605518
+    },
+    "enc_rail_x_6": {
+      "shapeColor": 4605518
+    },
+    "enc_rail_x_7": {
+      "shapeColor": 4605518
+    },
+    "enc_rail_x_8": {
+      "shapeColor": 4605518
+    },
+    "enc_rail_x_9": {
+      "shapeColor": 4605518
+    },
+    "enc_rail_x_10": {
+      "shapeColor": 4605518
+    },
+    "enc_rail_x_11": {
+      "shapeColor": 4605518
+    },
+    "enc_rail_x_12": {
+      "shapeColor": 4605518
+    },
+    "enc_rail_x_13": {
+      "shapeColor": 4605518
+    },
+    "enc_rail_x_14": {
+      "shapeColor": 4605518
+    },
+    "enc_rail_x_15": {
+      "shapeColor": 4605518
+    },
+    "enc_rail_x_16": {
+      "shapeColor": 4605518
+    },
+    "enc_rail_y_1": {
+      "shapeColor": 4605518
+    },
+    "enc_rail_y_2": {
+      "shapeColor": 4605518
+    },
+    "enc_rail_y_3": {
+      "shapeColor": 4605518
+    },
+    "enc_rail_y_4": {
+      "shapeColor": 4605518
+    },
+    "enc_rail_y_5": {
+      "shapeColor": 4605518
+    },
+    "enc_rail_y_6": {
+      "shapeColor": 4605518
+    },
+    "enc_rail_y_7": {
+      "shapeColor": 4605518
+    },
+    "enc_rail_y_8": {
+      "shapeColor": 4605518
+    },
+    "enc_rail_y_9": {
+      "shapeColor": 4605518
+    },
+    "enc_rail_y_10": {
+      "shapeColor": 4605518
+    },
+    "enc_rail_y_11": {
+      "shapeColor": 4605518
+    },
+    "enc_rail_y_12": {
+      "shapeColor": 4605518
+    },
+    "enc_rail_top": {
+      "shapeColor": 4605518
+    },
+    "door_1": {
+      "shapeColor": 10856620
+    },
+    "panel_1": {
+      "shapeColor": 10856620
+    },
+    "window_panel": {
+      "shapeColor": 10856620
+    },
+    "panel_2": {
+      "shapeColor": 10856620
+    },
+    "door_2": {
+      "shapeColor": 10856620
+    },
+    "port_panel": {
+      "shapeColor": 10856620
+    },
+    "panel_3": {
+      "shapeColor": 10856620
+    },
+    "panel_4": {
+      "shapeColor": 10856620
+    },
+    "panel_5": {
+      "shapeColor": 10856620
+    },
+    "panel_6": {
+      "shapeColor": 10856620
+    },
+    "panel_7": {
+      "shapeColor": 10856620
+    },
+    "panel_8": {
+      "shapeColor": 10856620
+    },
+    "panel_9": {
+      "shapeColor": 10856620
+    },
+    "panel_10": {
+      "shapeColor": 10856620
+    },
+    "panel_11": {
+      "shapeColor": 10856620
+    },
+    "panel_12": {
+      "shapeColor": 10856620
+    },
+    "panel_13": {
+      "shapeColor": 10856620
+    },
+    "panel_14": {
+      "shapeColor": 10856620
+    },
+    "panel_15": {
+      "shapeColor": 10856620
+    },
+    "panel_16": {
+      "shapeColor": 10856620
+    },
+    "panel_17": {
+      "shapeColor": 10856620
+    },
+    "panel_18": {
+      "shapeColor": 10856620
+    },
+    "panel_19": {
+      "shapeColor": 10856620
+    },
+    "panel_20": {
+      "shapeColor": 10856620
+    },
+    "panel_21": {
+      "shapeColor": 10856620
+    },
+    "panel_22": {
+      "shapeColor": 10856620
+    },
+    "panel_23": {
+      "shapeColor": 10856620
+    },
+    "panel_24": {
+      "shapeColor": 10856620
+    },
+    "panel_25": {
+      "shapeColor": 10856620
+    },
+    "panel_26": {
+      "shapeColor": 10856620
+    },
+    "fab_stage/pcb_blank": {
+      "shapeColor": 2657350
+    },
+    "fab_stage/frame_ring_lower": {
+      "shapeColor": 9871532
+    },
+    "fab_stage/frame_shim": {
+      "shapeColor": 9871532
+    },
+    "fab_stage/frame_ring_upper": {
+      "shapeColor": 9871532
+    },
+    "fab_stage/trunnion_1": {
+      "shapeColor": 9871532
+    },
+    "fab_stage/shaft_1": {
+      "shapeColor": 6256790
+    },
+    "fab_stage/trunnion_2": {
+      "shapeColor": 9871532
+    },
+    "fab_stage/shaft_2": {
+      "shapeColor": 6256790
+    },
+    "fab_stage/platen": {
+      "shapeColor": 13454135
+    },
+    "fab_stage/heater": {
+      "shapeColor": 13454135
+    },
+    "fab_stage/clamp_plate": {
+      "shapeColor": 13454135
+    },
+    "fab_stage/standoff_1": {
+      "shapeColor": 6256790
+    },
+    "fab_stage/standoff_2": {
+      "shapeColor": 6256790
+    },
+    "fab_stage/standoff_3": {
+      "shapeColor": 6256790
+    },
+    "fab_stage/standoff_4": {
+      "shapeColor": 6256790
+    },
+    "fab_stage/carrier": {
+      "shapeColor": 6256790
+    },
+    "fab_stage/pt1000_probe": {
+      "shapeColor": 6256790
+    },
+    "fab_stage/cutout": {
+      "shapeColor": 6256790
+    },
+    "fab_stage/post_1": {
+      "shapeColor": 6256790
+    },
+    "fab_stage/lift_rail_1": {
+      "shapeColor": 6256790
+    },
+    "fab_stage/lift_block_1": {
+      "shapeColor": 6256790
+    },
+    "fab_stage/lift_arm_1": {
+      "shapeColor": 6256790
+    },
+    "fab_stage/nut_block_1": {
+      "shapeColor": 6256790
+    },
+    "fab_stage/t8_nut_1": {
+      "shapeColor": 6256790
+    },
+    "fab_stage/lift_coupling_1": {
+      "shapeColor": 6256790
+    },
+    "fab_stage/lift_screw_1": {
+      "shapeColor": 6256790
+    },
+    "fab_stage/lift_motor_1": {
+      "shapeColor": 6256790
+    },
+    "fab_stage/post_2": {
+      "shapeColor": 6256790
+    },
+    "fab_stage/lift_rail_2": {
+      "shapeColor": 6256790
+    },
+    "fab_stage/lift_block_2": {
+      "shapeColor": 6256790
+    },
+    "fab_stage/lift_arm_2": {
+      "shapeColor": 6256790
+    },
+    "fab_stage/nut_block_2": {
+      "shapeColor": 6256790
+    },
+    "fab_stage/t8_nut_2": {
+      "shapeColor": 6256790
+    },
+    "fab_stage/lift_coupling_2": {
+      "shapeColor": 6256790
+    },
+    "fab_stage/lift_screw_2": {
+      "shapeColor": 6256790
+    },
+    "fab_stage/lift_motor_2": {
+      "shapeColor": 6256790
+    },
+    "fab_stage/pulley_40": {
+      "shapeColor": 6256790
+    },
+    "fab_stage/flip_motor": {
+      "shapeColor": 6256790
+    },
+    "fab_stage/pulley_20": {
+      "shapeColor": 6256790
+    },
+    "fab_stage/motor_mount_3": {
+      "shapeColor": 6256790
+    },
+    "fab_stage/x_plate": {
+      "shapeColor": 6256790
+    },
+    "fab_stage/x_block_11": {
+      "shapeColor": 6256790
+    },
+    "fab_stage/x_block_12": {
+      "shapeColor": 6256790
+    },
+    "fab_stage/x_rail_1": {
+      "shapeColor": 6256790
+    },
+    "fab_stage/riser_1": {
+      "shapeColor": 6256790
+    },
+    "fab_stage/x_block_21": {
+      "shapeColor": 6256790
+    },
+    "fab_stage/x_block_22": {
+      "shapeColor": 6256790
+    },
+    "fab_stage/x_rail_2": {
+      "shapeColor": 6256790
+    },
+    "fab_stage/riser_2": {
+      "shapeColor": 6256790
+    },
+    "fab_stage/x_bk10": {
+      "shapeColor": 6256790
+    },
+    "fab_stage/x_bf10": {
+      "shapeColor": 6256790
+    },
+    "fab_stage/x_screw": {
+      "shapeColor": 6256790
+    },
+    "fab_stage/x_coupling": {
+      "shapeColor": 6256790
+    },
+    "fab_stage/motor_mount_1": {
+      "shapeColor": 6256790
+    },
+    "fab_stage/x_motor": {
+      "shapeColor": 6256790
+    },
+    "fab_stage/x_nut": {
+      "shapeColor": 6256790
+    },
+    "fab_stage/nut_bracket_1": {
+      "shapeColor": 6256790
+    },
+    "fab_stage/y_plate": {
+      "shapeColor": 6256790
+    },
+    "fab_stage/y_block_11": {
+      "shapeColor": 6256790
+    },
+    "fab_stage/y_block_12": {
+      "shapeColor": 6256790
+    },
+    "fab_stage/y_rail_1": {
+      "shapeColor": 6256790
+    },
+    "fab_stage/y_beam_1": {
+      "shapeColor": 6256790
+    },
+    "fab_stage/y_block_21": {
+      "shapeColor": 6256790
+    },
+    "fab_stage/y_block_22": {
+      "shapeColor": 6256790
+    },
+    "fab_stage/y_rail_2": {
+      "shapeColor": 6256790
+    },
+    "fab_stage/y_beam_2": {
+      "shapeColor": 6256790
+    },
+    "fab_stage/y_bk10": {
+      "shapeColor": 6256790
+    },
+    "fab_stage/y_bf10": {
+      "shapeColor": 6256790
+    },
+    "fab_stage/y_screw": {
+      "shapeColor": 6256790
+    },
+    "fab_stage/y_coupling": {
+      "shapeColor": 6256790
+    },
+    "fab_stage/motor_mount_2": {
+      "shapeColor": 6256790
+    },
+    "fab_stage/y_motor": {
+      "shapeColor": 6256790
+    },
+    "fab_stage/y_nut": {
+      "shapeColor": 6256790
+    },
+    "fab_stage/nut_bracket_2": {
+      "shapeColor": 6256790
+    },
+    "fab_stage/support_block_1": {
+      "shapeColor": 6256790
+    },
+    "fab_stage/support_block_2": {
+      "shapeColor": 6256790
+    },
+    "laser_bridge/laser_plate": {
+      "shapeColor": 5593700
+    },
+    "laser_bridge/galvo_spacer": {
+      "shapeColor": 5593700
+    },
+    "laser_bridge/galvo": {
+      "shapeColor": 2313120
+    },
+    "laser_bridge/uv_source": {
+      "shapeColor": 2313120
+    },
+    "laser_bridge/ftheta_lens": {
+      "shapeColor": 1973800
+    },
+    "laser_bridge/bridge_post_1": {
+      "shapeColor": 5593700
+    },
+    "laser_bridge/z_rail_1": {
+      "shapeColor": 5593700
+    },
+    "laser_bridge/z_block_1": {
+      "shapeColor": 5593700
+    },
+    "laser_bridge/end_plate_1": {
+      "shapeColor": 5593700
+    },
+    "laser_bridge/z_ear_1": {
+      "shapeColor": 5593700
+    },
+    "laser_bridge/t8_nut_1": {
+      "shapeColor": 5593700
+    },
+    "laser_bridge/z_coupling_1": {
+      "shapeColor": 5593700
+    },
+    "laser_bridge/z_screw_1": {
+      "shapeColor": 5593700
+    },
+    "laser_bridge/motor_mount_1": {
+      "shapeColor": 5593700
+    },
+    "laser_bridge/z_motor_1": {
+      "shapeColor": 5593700
+    },
+    "laser_bridge/bridge_post_2": {
+      "shapeColor": 5593700
+    },
+    "laser_bridge/z_rail_2": {
+      "shapeColor": 5593700
+    },
+    "laser_bridge/z_block_2": {
+      "shapeColor": 5593700
+    },
+    "laser_bridge/end_plate_2": {
+      "shapeColor": 5593700
+    },
+    "laser_bridge/z_ear_2": {
+      "shapeColor": 5593700
+    },
+    "laser_bridge/t8_nut_2": {
+      "shapeColor": 5593700
+    },
+    "laser_bridge/z_coupling_2": {
+      "shapeColor": 5593700
+    },
+    "laser_bridge/z_screw_2": {
+      "shapeColor": 5593700
+    },
+    "laser_bridge/motor_mount_2": {
+      "shapeColor": 5593700
+    },
+    "laser_bridge/z_motor_2": {
+      "shapeColor": 5593700
+    },
+    "laser_bridge/bridge_beam_1": {
+      "shapeColor": 5593700
+    },
+    "laser_bridge/bridge_beam_2": {
+      "shapeColor": 5593700
+    },
+    "head_tools/tool_plate": {
+      "shapeColor": 13137970
+    },
+    "head_tools/tool_rail": {
+      "shapeColor": 13137970
+    },
+    "head_tools/tool_block": {
+      "shapeColor": 13137970
+    },
+    "head_tools/tool_carrier": {
+      "shapeColor": 13137970
+    },
+    "head_tools/eco_pen_1": {
+      "shapeColor": 15436835
+    },
+    "head_tools/pen_clamp_1": {
+      "shapeColor": 15436835
+    },
+    "head_tools/eco_pen_2": {
+      "shapeColor": 15436835
+    },
+    "head_tools/pen_clamp_2": {
+      "shapeColor": 15436835
+    },
+    "head_tools/pico_jet_1": {
+      "shapeColor": 15436835
+    },
+    "head_tools/pico_jet_2": {
+      "shapeColor": 15436835
+    },
+    "head_tools/height_sensor": {
+      "shapeColor": 15436835
+    },
+    "head_tools/tool_ear": {
+      "shapeColor": 13137970
+    },
+    "head_tools/t8_nut": {
+      "shapeColor": 13137970
+    },
+    "head_tools/motor_mount": {
+      "shapeColor": 13137970
+    },
+    "head_tools/tool_motor": {
+      "shapeColor": 13137970
+    },
+    "head_tools/tool_coupling": {
+      "shapeColor": 13137970
+    },
+    "head_tools/tool_screw": {
+      "shapeColor": 13137970
     }
   },
   "unselectable": []
