@@ -143,17 +143,18 @@ Step 5, round 3 (six branches) is all in main (7526c0c, CI green, 6977 passed, 2
   -- -L 8733:localhost:8733`, then http://localhost:8733/next/. Add `--project braneboard-sims`. Juan's Mac runs its
   own workbench on 8733 (from ~/ws/cad-agent, restarted by the Claude app's launch.json), so tunnel to 8744 there.
 - The demo machine (rebuilt 2026-11-03; Juan's spec in memory pcb-fab-demo): branch pcbfab-demo, projects/ in this
-  repo (worktree ~/work/pcbfab-wt on the AWS box). Made to do what CircuitJet IV does. pcbfab links four projects:
-  lumenpnp_long (Opulo's STEPs, Y stretched 300 mm, its staging plate and strip feeders out of the fixture's way),
-  fab_stage (the board in a stainless flip frame over a heated vacuum platen that drops 135 mm for the flip, on an
-  XY ball-screw stage), laser_bridge (JPT Lark UV, SG7110, Jenoptik lens on a bridge that is its own 20 mm Z),
-  head_tools (2 eco-PEN dispensers, 2 PICO jets, a height sensor on a 16 mm lift). pcbfab itself: a 4040 cabinet
-  (legs under the bridge posts, cross rails under the stage), electronics on 4 plates, UV lamps, a 2020 enclosure of
-  sub-600 x 400 tiles (dfm's laser_cut bed), the BOFA extractor. The children's `cad check` has no FAIL. The full
-  `cad check pcbfab` still does not finish (LumenPnP's compounds); scratch scripts in the session's scratchpad do the
-  machine level: spec_only.py (spec, poses, stance), fab_fit.py (every pair, children's solids), gantry_sweep.py
-  (the gantry's Y travel), flip_sweep.py (the frame's half turn), color_render.py (renders by subsystem). The
-  electronics brief is projects/pcbfab/ELECTRONICS-BRIEF.md. No renders approved; bought masses partly unknown.
+  repo (worktree ~/work/pcbfab-wt on the AWS box), made to do what CircuitJet IV does. pcbfab links three projects:
+  lumenpnp_long (Opulo's STEPs, Y stretched 300 mm, regrouped into two bodies by motion, `frame` and `gantry`, with
+  rail/belt channels cut in the moving parts and the Y chain's rolling part left out; staging plate and strip feeders
+  out of the fixture's way), fab_stage (the board in a flip frame over a heated vacuum platen that drops 135 mm for
+  the flip, on an XY ball-screw stage), laser_bridge (JPT Lark UV, SG7110, Jenoptik lens on a bridge that is its own
+  20 mm Z, Tr8x2 screws). pcbfab itself: the head's tools (2 eco-PENs, 2 PICO jets on SMC air slides, a height
+  sensor: bodies of the machine, since they hang from the head), a 4040 cabinet, electronics on 4 plates, UV lamps, a
+  2020 enclosure of sub-600 x 400 tiles, the BOFA extractor. `cad verify pcbfab` now finishes (about 20 min) since
+  geom/fit/sweep skip far pairs and split compounds (commit 562967e). Machine-level scratch scripts in the session's
+  scratchpad: combo_sweep.py (axes together), flip_sweep.py, color_render.py. projects/pcbfab/MOTION.md has the
+  motion and motor checks, ELECTRONICS-BRIEF.md the EE brief. No renders approved; some bought masses and sizes
+  unconfirmed (they keep every verdict UNCHECKED).
 - Left after the demo: FEM (Gmsh and CalculiX as separate programs), Draft, Part's cut commands, PARITY's known
   differences. Temporary branches on GitHub (ds-merge, ds-fix, asm-merge, st-merge, r5-merge, r6-merge, r7-merge,
   r7b-merge, cam-merge, ci-diag) are all in main; delete them when Juan says so.
