@@ -20,7 +20,7 @@ GROUPS = ("y_gantry_left", "y_gantry_right", "x_gantry", "front_feeder_rail", "r
 # Opulo's staging plate and optional strip feeders are left out: the fab's fixture (fab_stage) holds the board, and
 # it travels where they stood. So does what the user installs inside FAB_CLEAR (the strip feeders' parts and a parts
 # tray in the middle of the bed): the fixture's swept box, x and y in this frame, z from below the bed up.
-FAB_CLEAR = ((66.0, 55.0, -150.0), (454.0, 675.0, 42.5))      # z to the frame's top: the nozzle rack (43 up) stays
+FAB_CLEAR = ((80.0, 55.0, -150.0), (454.0, 675.0, 60.0))      # from x 80: the nozzle rack (x 51 to 75) stays
 MOVED = {"rear_feeder_rail"}           # wholly behind the cut
 KEPT = {"x_gantry", "x_drag_chain_asm", "front_feeder_rail", "y_limit_striker"}
 

@@ -1,5 +1,5 @@
 """Tool plate: the 6 mm aluminium plate bolted to the front face of LumenPnP's head plate, left of the head's own
-nozzle motors, that the process tools' lift rides on. Its right end overlaps the head plate by 11 mm for the bolts.
+nozzle motors, that the process tools' air slides and the height sensor bolt to. Its right end overlaps the head plate by 11 mm for the bolts.
 Waterjet cut.
 """
 from build123d import Box

@@ -4,10 +4,15 @@
 max_mm = [230, 190, 240]
 
 [[axis]]
-name = "tool_z"
+name = "eco_pen_1_z"
 direction = [0, 0, 1]
 travel_min_mm = 16
 
-[[mass]]                     # what the tools add to LumenPnP's X carriage (belt driven): keep it near under two kilograms
-moving = "tool_z"
-max_g = 1900
+[[axis]]
+name = "pico_jet_1_z"
+direction = [0, 0, 1]
+travel_min_mm = 16
+
+[[mass]]                     # what the tools add to LumenPnP's X carriage (belt driven): heavy, see pcbfab/MOTION.md
+bodies = ["tool_plate", "slide_1", "slide_2", "slide_3", "slide_4", "pen_clamp_1", "pen_clamp_2", "eco_pen_1", "eco_pen_2", "pico_jet_1", "pico_jet_2", "height_sensor"]
+max_g = 2700

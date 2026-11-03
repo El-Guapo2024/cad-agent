@@ -5,7 +5,7 @@ to focus (Jenoptik JENar 170-355-140, its input end screwed up into the galvo); 
 the galvo's input on the source's beam axis; the laser plate, the source hanging from it in line with the galvo;
 two 4040 beams on it. The beams end in two plates on MGN15 carriages riding rails on two 4040 posts, outside
 LumenPnP's frame (its gantry runs x -65 to 642 under the bridge), so the whole stack moves 20 mm in z: focus for 0.2
-to 3 mm boards and the flip's mid-plane hold. Each post has a Tr8x8 screw on a NEMA 17 under its nut (Klipper's two
+to 3 mm boards and the flip's mid-plane hold. Each post has a Tr8x2 screw on a NEMA 17 under its nut (Klipper's two
 z steppers, levelled together).
 
 The frame: x, y from the optical axis, z the machine's. The posts stand on the cabinet's top rails (z -100).

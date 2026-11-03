@@ -10,7 +10,7 @@ telecentric field over a 229 x 305 board by moving the board under a fixed galvo
                  in the posts, about the board's mid-plane: a GT2 belt (20T to 40T) from a NEMA 17 under the X plate.
     the platen   heated (Tempco 625 W mica heater) vacuum table (via fill, hold-down); on a stainless carrier the
                  lift moves 135 mm: up, it meets the board through the frame's window; down, it is clear of the
-                 frame's 128.8 mm swing so the frame can turn over. Two MGN12 rails and two Tr8x8 screws, one of
+                 frame's 128.8 mm swing so the frame can turn over. Two MGN12 rails and two Tr8x2 screws, one of
                  each per post, each screw on its own NEMA 17 (34 mm) under the X plate.
 
 The frame: x, y from the optical axis with both axes at 0, z the machine's (the board's top at 37.0, LumenPnP's
@@ -41,7 +41,7 @@ CARRIER_TOP = STANDOFF_TOP - STANDOFF_H  # 2.9
 POST_IN, POST_T = 195.7, 12.0            # the post's inner face (y), its thickness
 XP_TOP, PLATE_T = -139.0, 10.0           # the X plate: 3 mm under the dropped carrier (-136.1)
 POST_BOT, POST_TOP = XP_TOP, 51.0        # its top 6 under the gantry's UV lamps' bottoms (57)
-RAIL_X, SCREW_X = 35.0, -35.0            # the lift's MGN12 rail and Tr8x8 screw, either side of the shaft
+RAIL_X, SCREW_X = 35.0, -35.0            # the lift's MGN12 rail and Tr8x2 screw, either side of the shaft
 LIFT_RAIL_H, LIFT_BLOCK_H = 8.0, 13.0    # MGN12: rail height, H (base to the block's top)
 LIFT_BLOCK_Z = 24.0                      # the lift block's centre at work (45.4 long: 1.3 to 46.7)
 SCREW_Y = 181.2                          # the nut block (26 deep) between the frame's swing and the post

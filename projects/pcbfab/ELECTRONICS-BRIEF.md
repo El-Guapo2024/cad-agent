@@ -16,8 +16,8 @@ Y axis 300 mm longer. The CAD is on branch `pcbfab-demo` of El-Guapo2024/cad-age
   that stitches the laser's 100 mm field and brings each part of the board under the head.
 - `projects/laser_bridge`: the JPT Lark UV laser, SG7110 galvo and Jenoptik lens on a bridge. The bridge rides
   20 mm up and down on its posts to focus.
-- `projects/head_tools`: on LumenPnP's head, beside its nozzles: two paste dispensers, two jets and a height
-  sensor, on a 16 mm lift.
+- `projects/head_tools`: on LumenPnP's head, beside its nozzles: two paste dispensers and two jets, each on its own
+  SMC MXH10 air slide (16 mm), and a fixed height sensor.
 
 Process (CircuitJet's order):
 1. Drill, with the laser.
@@ -52,10 +52,9 @@ The camera finds the board's fiducials after every flip. The height sensor sets 
 | LumenPnP X, Y, nozzle Z/rotation | Opulo's BOM | gantry | as Opulo specifies |
 | **Stage X** | 1 | fab_stage | SFU1204 ball screw, 130 mm |
 | **Stage Y** | 1 | fab_stage | SFU1204 ball screw, 205 mm |
-| **Platen lift** | 2 (34 mm body) | fab_stage, one per post | Tr8x8, 135 mm. The two run together |
+| **Platen lift** | 2 (34 mm body) | fab_stage, one per post | Tr8x2 (self-locking), 135 mm. The two run together |
 | **Flip** | 1 (34 mm) | fab_stage | GT2 belt 20T to 40T, half a turn. Needs a home (index) sensor |
-| **Bridge focus Z** | 2 (34 mm) | laser_bridge, one per post | Tr8x8, 20 mm. Klipper's z_tilt-style pair |
-| **Tool lift** | 1 (34 mm) | head_tools | Tr8x8, 16 mm |
+| **Bridge focus Z** | 2 (34 mm) | laser_bridge, one per post | Tr8x2 (self-locking: the bridge must not run down unpowered), 20 mm. Klipper's z_tilt-style pair |
 
 Each new axis needs an endstop: 6 axes (lift x2 and Z x2 can share as pairs). The flip needs an index at 0 and 180.
 
@@ -69,6 +68,7 @@ Each new axis needs an endstop: 6 axes (lift x2 and Z x2 can share as pairs). Th
 | Vacuum (via fill, hold-down) | SainSmart 24 V pump (42 W) + **SMC VT307V-5G1-01** 3-port valve (24 V DC, 4 W) | Pump switched; the valve vents the platen to let the board go |
 | UV mask cure | 3 x LedWV 100 W 395 nm on the gantry | 48 V 3 A each. Supply: Mean Well LRS-600-48. Enable/PWM, lamp fans, cable along the X chain. Off unless the doors are shut |
 | **Paste dispensers** | 2 x ViscoTec eco-PEN300 (solder paste; via paste) | Each needs ViscoTec's controller (stepper-driven progressive cavity) plus a pressure feed (0-6 bar) to the cartridge |
+| **Tool slides** | 4 x SMC MXH10-20 air slides, one per dispenser and jet | Each needs a 24 V 5/2 solenoid valve (4 in all) and a reed switch for down/up; air at 0.3-0.7 MPa |
 | **Jets** | 2 x Nordson EFD PICO Pulse (mask ink; gold finish ink or white legend ink) | Each needs a PICO Touch controller and air/fluid pressure. Trigger from the MCU |
 | **Height sensor** | Panasonic HG-C1030 (30 +/- 5 mm, 10 um) | 24 V DC, 40 mA; analogue or IO-Link output to the MCU or Jetson |
 | Pick-and-place | LumenPnP's nozzles, vacuum, cameras | As Opulo's design |
@@ -112,7 +112,9 @@ A person approves loading the board and the parts. The agent can never override 
 1. The galvo driver's supply voltage, and the Lark's control pinout (from the units' manuals).
 2. ViscoTec and PICO controllers: their interfaces to Klipper, and the air supply (a small compressor in the
    cabinet, or shop air).
-3. One motion board or two, for about 7 new steppers plus LumenPnP's.
+3. One motion board or two, for 7 new steppers plus LumenPnP's, and 4 slide valves.
+6. Compressed air: the slides, the jets and the pens' feeds all need it. A small oil-free compressor with a tank
+   in the cabinet, or shop air with a regulator and filter.
 4. The height sensor's output (analogue or IO-Link) and where it is read.
 5. The gold finish ink (PV Nano Cell): its sintering temperature is not published. If it is over the platen's
    240 C cap, the laser sinters it, and the laser job needs that step.

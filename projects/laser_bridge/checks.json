@@ -70,7 +70,7 @@
       },
       "material": "aluminium",
       "process": "laser_cut",
-      "build_s": 0.007,
+      "build_s": 0.006,
       "bbox_mm": [
         6.0,
         60.0,
@@ -90,7 +90,7 @@
       },
       "material": "aluminium",
       "process": "cnc",
-      "build_s": 0.007,
+      "build_s": 0.006,
       "bbox_mm": [
         18.0,
         30.0,
@@ -4410,5 +4410,5 @@
     },
     "ok": false
   },
-  "written_utc": "2026-11-03T00:11:28Z"
+  "written_utc": "2026-11-03T00:35:12Z"
 }

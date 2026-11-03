@@ -2,7 +2,7 @@
 
 ## Brief
 
-The process tools on LumenPnP's head: two ViscoTec eco-PEN300 dispensers (solder paste, via paste), two Nordson PICO Pulse jets (UV solder mask; legend or finish ink) and a Panasonic HG-C1030 laser height sensor, on a 16 mm lift beside the head's nozzles.
+The process tools on LumenPnP's head: two ViscoTec eco-PEN300 dispensers (solder paste, via paste), two Nordson PICO Pulse jets (UV solder mask; legend or finish ink) and a Panasonic HG-C1030 laser height sensor, each on its own 16 mm air slide beside the head's nozzles.
 
 ## Assumptions
 

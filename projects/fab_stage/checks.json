@@ -20,7 +20,7 @@
       },
       "material": "stainless",
       "process": "laser_cut",
-      "build_s": 0.145,
+      "build_s": 0.143,
       "bbox_mm": [
         215.0,
         389.4,
@@ -41,7 +41,7 @@
       },
       "material": "stainless",
       "process": "laser_cut",
-      "build_s": 0.028,
+      "build_s": 0.029,
       "bbox_mm": [
         215.0,
         295.0,
@@ -123,7 +123,7 @@
       },
       "material": "aluminium",
       "process": "laser_cut",
-      "build_s": 0.007,
+      "build_s": 0.008,
       "bbox_mm": [
         6.0,
         60.0,
@@ -145,7 +145,7 @@
       },
       "material": "stainless",
       "process": "cnc",
-      "build_s": 0.015,
+      "build_s": 0.014,
       "bbox_mm": [
         30.0,
         25.0,
@@ -232,7 +232,7 @@
       },
       "material": "aluminium",
       "process": "laser_cut",
-      "build_s": 6.868,
+      "build_s": 6.857,
       "bbox_mm": [
         215.0,
         295.0,
@@ -255,7 +255,7 @@
       },
       "material": "aluminium",
       "process": "cnc",
-      "build_s": 0.008,
+      "build_s": 0.007,
       "bbox_mm": [
         110.0,
         12.0,
@@ -298,7 +298,7 @@
       },
       "material": "aluminium",
       "process": "laser_cut",
-      "build_s": 0.04,
+      "build_s": 0.044,
       "bbox_mm": [
         320.0,
         20.0,
@@ -335,7 +335,7 @@
       },
       "material": "stainless",
       "process": "cnc",
-      "build_s": 0.007,
+      "build_s": 0.006,
       "bbox_mm": [
         8.0,
         8.0,
@@ -377,7 +377,7 @@
       },
       "material": "stainless",
       "process": "cnc",
-      "build_s": 0.006,
+      "build_s": 0.005,
       "bbox_mm": [
         24.0,
         10.0,
@@ -408,7 +408,7 @@
       },
       "material": "aluminium",
       "process": "laser_cut",
-      "build_s": 0.013,
+      "build_s": 0.015,
       "bbox_mm": [
         150.0,
         415.4,
@@ -31438,5 +31438,5 @@
     },
     "ok": false
   },
-  "written_utc": "2026-11-03T00:15:34Z"
+  "written_utc": "2026-11-03T01:42:22Z"
 }

@@ -1,8 +1,8 @@
 # What the fab must do, as the kernel can measure it. The fixture's own rules (the platen's heat, the flip, the
 # stage's travel) are in fab_stage/spec.toml, the bridge's sag and focus travel in laser_bridge/spec.toml.
 
-[envelope]                   # the cabinet, the enclosure, and the extractor on the bench beside it
-max_mm = [1200, 1070, 890]
+[envelope]                   # the cabinet and its tiles, the enclosure, and the extractor on the bench beside it
+max_mm = [1200, 1080, 890]
 
 [[clearance]]                # the lens over the board: its working distance (Jenoptik: 235.8)
 a = "laser_bridge/ftheta_lens"

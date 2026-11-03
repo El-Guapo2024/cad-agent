@@ -1,5 +1,5 @@
-"""t8_screw: Tr8x8 lead screw (4-start, 2 mm pitch) for the Handsontec MCH1178 nut, drawn at its 8 mm outside
-diameter (no thread), along z centred.
+"""t8_screw: a Tr8x2 single-start lead screw (self-locking; see t8_nut.py), drawn at its 8 mm outside diameter
+(no thread), along z centred.
 """
 from build123d import Cylinder
 
