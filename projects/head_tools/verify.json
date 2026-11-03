@@ -1,16 +1,16 @@
 {
   "project": "head_tools",
   "verdict": "FAIL",
-  "written_utc": "2026-11-03T02:03:35Z",
-  "seconds": 2.0,
-  "source_hash": "bf36054213ba24950d75c562e143e7ec7a13a1bc465ca830679196c170bb5ed1",
+  "written_utc": "2026-11-03T02:11:15Z",
+  "seconds": 2.1,
+  "source_hash": "f9a778939cda1ee1e77bcb747d631d4599a0876f45cd215057fa6a9251a253fd",
   "design_files": 8,
   "engine_hash": "97bf083f5739faf0c4b9acb5f7b3e98ff82a14e5ecfa41d6b997df421bf82198",
   "git": {
     "repo": "/home/ubuntu/work/pcbfab-wt",
     "path": "projects/head_tools",
-    "commit": "91757e2c263f1d8e5bb60d72d9da151fb34cbbad",
-    "tree": "4ad0c4f2668c6284eaa5d3940a2bdfdba74a80c5",
+    "commit": "4d55b761c0d84aa519316c003d7f9b491bde380b",
+    "tree": "502efe257bbef414968ae023617d53371fa17968",
     "dirty": false,
     "uncommitted": []
   },

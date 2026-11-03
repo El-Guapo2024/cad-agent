@@ -57,8 +57,8 @@ TRAY = (240.0, 292.0, 134.758)          # lamp_plate.py's corner: 0.01 under the
 UV_X = (-55.0, 55.0, 0.0)
 EXTRACTOR = (905.0, 735.0)              # beside the cabinet on the bench, its hose to the back's fume port
 
-GANTRY = ("lumenpnp_long/x_gantry", "lumenpnp_long/x_drag_chain_asm", "lamp_plate", "uv_lamp_1", "uv_lamp_2",
-          "uv_lamp_3", "head_tools/*")  # what LumenPnP's Y moves
+GANTRY = ("lumenpnp_long/gantry", "lamp_plate", "uv_lamp_1", "uv_lamp_2", "uv_lamp_3",
+          "head_tools/*")               # what LumenPnP's Y moves
 GANTRY_Y = 190.0                        # the head's y in Opulo's model, about
 AXES = {"y": {"moves": GANTRY, "direction": (0, 1, 0), "travel": (-100.0, 240.0), "work": (-100.0, 240.0)}}
 POSES = {"park": {"y": -100.0}, "under_lens": {"y": LC[1] - GANTRY_Y},
@@ -117,7 +117,7 @@ def _contact():
     c |= {"laser_window|window_panel"}
     c |= {f"elec_plate_{i}|{r}" for i in range(1, 5) for r in CAB}
     c |= {f"{e}|elec_plate_{i}" for e in ELEC for i in range(1, 5)} | {"ssr|heatsink"}
-    c |= {"lumenpnp_long/y_gantry_left|cab_top_y_2", "lumenpnp_long/y_gantry_right|cab_top_y_3",
+    c |= {"lumenpnp_long/frame|cab_top_y_2", "lumenpnp_long/frame|cab_top_y_3",
           "laser_bridge/bridge_post_1|cab_top_y_1", "laser_bridge/bridge_post_2|cab_top_y_4"}
     c |= {f"laser_bridge/bridge_post_{i}|{e}" for i in (1, 2) for e in ENC}   # the side rails bolt to the posts
     c |= {f"fab_stage/y_beam_{i}|cross_rail_{k}" for i in (1, 2) for k in range(1, 5)}
@@ -125,7 +125,7 @@ def _contact():
           "fab_stage/motor_mount_2|cross_rail_1"}
     c |= {"uv_lamp_1|lamp_plate", "uv_lamp_2|lamp_plate",
           "uv_lamp_1|uv_lamp_2", "uv_lamp_1|uv_lamp_3", "uv_lamp_2|uv_lamp_3",
-          "head_tools/tool_plate|lumenpnp_long/x_gantry"}
+          "head_tools/tool_plate|lumenpnp_long/gantry"}
     return c
 
 

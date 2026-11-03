@@ -1,0 +1,8 @@
+# LumenPnP 300 mm longer, as the fab uses it: two bodies by what moves (assembly.py), Opulo's own geometry.
+
+[envelope]
+max_mm = [720, 980, 345]
+
+[bodies]
+count = 2
+names = ["frame", "gantry"]

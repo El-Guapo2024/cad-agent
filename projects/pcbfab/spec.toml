@@ -11,7 +11,7 @@ min_mm = 235.5
 max_mm = 236.1
 
 [[clearance]]                # the gantry passes under the lens to reach the board's far end
-a = "lumenpnp_long/x_gantry"
+a = "lumenpnp_long/gantry"
 b = "laser_bridge/ftheta_lens"
 min_mm = 10.0
 pose = "under_lens"
