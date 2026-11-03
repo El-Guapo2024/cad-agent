@@ -16,7 +16,7 @@ Y axis 300 mm longer. The CAD is on branch `pcbfab-demo` of El-Guapo2024/cad-age
   that stitches the laser's 100 mm field and brings each part of the board under the head.
 - `projects/laser_bridge`: the JPT Lark UV laser, SG7110 galvo and Jenoptik lens on a bridge. The bridge rides
   20 mm up and down on its posts to focus.
-- `projects/head_tools`: on LumenPnP's head, beside its nozzles: two paste dispensers and two jets, each on its own
+- On LumenPnP's head, beside its nozzles (bodies of `projects/pcbfab`): two paste dispensers and two jets, each on its own
   SMC MXH10 air slide (16 mm), and a fixed height sensor.
 
 Process (CircuitJet's order):

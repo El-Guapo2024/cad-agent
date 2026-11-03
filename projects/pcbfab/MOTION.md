@@ -7,7 +7,7 @@ or a hand calculation from datasheet numbers. None of it replaces building and r
 
 | Check | How | Result |
 |---|---|---|
-| Each axis alone, over its whole travel | `cad check` in each child (fab_stage x, y, lift; laser_bridge z; head_tools' four slides) | no overlap |
+| Each axis alone, over its whole travel | `cad check` in each child (fab_stage x, y, lift; laser_bridge z; the head tools' four slides, in pcbfab) | no overlap |
 | The flip's half turn, platen down | scratch `flip_sweep.py`, 10 degree steps | 7.1 mm closest (frame to platen at 90 degrees) |
 | LumenPnP's gantry over its Y travel, against the whole machine | scratch `gantry_sweep.py`, 35 positions | no overlap; 3.5 mm closest (a jet over a stage post) |
 | Axes together | scratch `combo_sweep.py`: the stage at corners and middle x lift up/down, against the rest; the gantry (12 positions) x each tool down in turn x the stage grid; the bridge's focus low/high x the gantry | see section 4 |

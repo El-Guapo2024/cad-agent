@@ -7,8 +7,9 @@ board, as CircuitJet IV does, built on Opulo's LumenPnP (v4.2.0, its Y axis 300 
                    and brings each part of it under the head; under the gantry, in the middle of LumenPnP's bed
     laser_bridge   the 5 W 355 nm UV laser (JPT Lark), SG7110 galvo and Jenoptik telecentric lens on a bridge
                    over the bed that is its own 20 mm focus axis; its posts outside LumenPnP's frame
-    head_tools     solder-paste and via-paste dispensers, a mask/legend jet and a laser height sensor on the head
-    here           the cabinet (a 4040 base everything stands on: legs straight under the bridge's posts, cross
+    here           the process tools on LumenPnP's head (_tools below: two paste dispensers, a mask jet, a gold
+                   finish / legend jet, each on its own air slide, and a height sensor; bodies of this machine, not a
+                   project of their own, because they hang from the head and stand on nothing), the cabinet (a 4040 base everything stands on: legs straight under the bridge's posts, cross
                    rails under the stage, so laser and board share one structure), the electronics on four plates
                    in it, the three 395 nm UV lamps on the gantry for the mask cure, the enclosure (a 2020 frame,
                    3 mm tiles, two interlocked doors, an OD 8 window) and the HEPA + carbon extractor beside it
@@ -20,17 +21,19 @@ cap, tin-bismuth). The camera finds the fiducials after every flip; the height s
 
 The frame is LumenPnP's (x along its front feeder rail, its feet at z -100). The board's top is at z 37.
 """
+import math
+
 from build123d import Pos, Rot
 from cad_agent.state import build_part, bought_solid
 
 SLUG = "pcbfab"
 
 LC = (260.0, 365.0)                     # the optical axis: the stage's home and the lens's centre
+B_TOP = 37.0                            # the board's top (fab_stage)
 SUBASSEMBLIES = {
     "lumenpnp_long": {"project": "lumenpnp_long", "at": [0, 0, 0], "turn": [0, 0, 0]},
     "fab_stage": {"project": "fab_stage", "at": [260.0, 365.0, 0], "turn": [0, 0, 0]},
     "laser_bridge": {"project": "laser_bridge", "at": [260.0, 365.0, 0], "turn": [0, 0, 0]},
-    "head_tools": {"project": "head_tools", "at": [0, 0, 0], "turn": [0, 0, 0]},
 }
 
 # the cabinet: 4040, a top ring LumenPnP and the bridge stand on, a bottom ring with cross rails the stage stands on
@@ -57,12 +60,30 @@ TRAY = (240.0, 292.0, 134.758)          # lamp_plate.py's corner: 0.01 under the
 UV_X = (-55.0, 55.0, 0.0)
 EXTRACTOR = (905.0, 735.0)              # beside the cabinet on the bench, its hose to the back's fume port
 
+# the process tools on LumenPnP's head (what CircuitJet IV's print heads do, as dispensers)
+TOOL_LIFT = 16.0                         # each slide's working stroke: raised, the tips clear the stage's posts (51)
+HEAD_PLATE_Y = 179.1                     # LumenPnP's head plate's front face (Opulo's model: x 398.8 to 488.8)
+TOOL_PLATE_X, TOOL_PLATE_Z = (205.0, 410.0), (60.0, 200.0)   # to 11 over the head plate, left of its nozzle motors
+SLIDE_H, SLIDE_Z = 23.0, 110.0           # slide.py: the body's depth; the slides' middles
+PEN_X, PEN_TILT, NEEDLE = (338.0, 378.0), 35.0, 25.4   # the clamps 40 wide; 35 degrees forward; a 1 in Luer needle
+JET_X, JET_GAP = (295.0, 269.0), 1.5     # the mask jet; the finish / legend jet
+SENSOR_X, SENSOR_RANGE = 240.0, 30.0
+TOOLS = ("eco_pen_1", "eco_pen_2", "pico_jet_1", "pico_jet_2")
+TOOL_CONTACT = {"height_sensor|tool_plate", "eco_pen_1|pen_clamp_1", "eco_pen_2|pen_clamp_2",
+                "pen_clamp_1|slide_1", "pen_clamp_2|slide_2", "pico_jet_1|slide_3", "pico_jet_2|slide_4"} | {
+    f"slide_{i}|tool_plate" for i in range(1, 5)}
+
 GANTRY = ("lumenpnp_long/gantry", "lamp_plate", "uv_lamp_1", "uv_lamp_2", "uv_lamp_3",
-          "head_tools/*")               # what LumenPnP's Y moves
+          "tool_plate", "height_sensor") + tuple(f"slide_{i}" for i in range(1, 5)) + (
+          "eco_pen_1", "eco_pen_2", "pen_clamp_1", "pen_clamp_2", "pico_jet_1", "pico_jet_2")  # what LumenPnP's Y moves
 GANTRY_Y = 190.0                        # the head's y in Opulo's model, about
 AXES = {"y": {"moves": GANTRY, "direction": (0, 1, 0), "travel": (-100.0, 240.0), "work": (-100.0, 240.0)}}
+AXES.update({f"{t}_z": {"moves": (t,) + ((f"pen_clamp_{t[-1]}",) if t.startswith("eco") else ()),
+                        "direction": (0, 0, 1), "travel": (-TOOL_LIFT, 0.0), "work": (-TOOL_LIFT, 0.0)}
+             for t in TOOLS})
 POSES = {"park": {"y": -100.0}, "under_lens": {"y": LC[1] - GANTRY_Y},
          "uv_cure": {"y": LC[1] - sum(UV_Y) / 2.0}}               # the lamps over the board
+POSES.update({f"{t}_down": {f"{t}_z": -TOOL_LIFT} for t in TOOLS})
 
 CLEARANCE = {}
 
@@ -125,7 +146,7 @@ def _contact():
           "fab_stage/motor_mount_2|cross_rail_1"}
     c |= {"uv_lamp_1|lamp_plate", "uv_lamp_2|lamp_plate",
           "uv_lamp_1|uv_lamp_2", "uv_lamp_1|uv_lamp_3", "uv_lamp_2|uv_lamp_3",
-          "head_tools/tool_plate|lumenpnp_long/gantry"}
+          "tool_plate|lumenpnp_long/gantry"} | TOOL_CONTACT
     return c
 
 
@@ -225,7 +246,54 @@ def parts():
         for x in (CAB_X[0] - 1.5, CAB_X[1] + 1.5):
             k += 1
             tile(f"panel_{k}", "panel", (y0, y1), cz, (x, (y0 + y1) / 2.0, sum(cz) / 2.0), face_x)
+    _tools(out, p, b)
     wp = out["window_panel"].bounding_box()
     out["laser_window"] = Pos((wp.min.X + wp.max.X) / 2.0 - 40.0, ENC_Y[0] - P20 / 2.0 + 2.5,
                               (wp.min.Z + wp.max.Z) / 2.0) * p("laser_window")
     return out
+
+
+def _tools(out, p, b):
+    """The process tools on LumenPnP's head, beside its two nozzles: what CircuitJet IV's print heads do, as dispensers.
+
+    eco_pen_1    solder paste (ViscoTec eco-PEN300, volumetric, 1 ul): no stencil, as CircuitJet's syringe
+    eco_pen_2    via paste (silver), dotted onto each drilled hole while the platen's vacuum pulls it through
+    pico_jet_1   UV solder mask (Agfa DiPaMAT SM G01 cures at 395 nm), jetted as dots, then cured by the gantry's
+                 lamps; the laser opens the pads after
+    pico_jet_2   the second fluid: the gold finish over the opened pads, as CircuitJet's ENIG ink: PV Nano Cell's
+                 gold ink for inkjet and aerosol printing, which it lists for PCBs and soldered joints
+                 (Sicrys IAu20W, water based; pvnanocell.com, 2020 launch). Commercial gold inks cure above about
+                 190 C (Juelich's 2017 paper; Sigma-Aldrich's 4 nm gold nanoink: 200 to 400 C), so it cures on the
+                 platen in the 200 to 240 C window (under its cap, and the board's 260 C rating) if its profile fits,
+                 else the UV laser sinters it pad by pad; or white legend ink (Agfa DiPaMat Wh04, 395 nm) when the
+                 laser does not mark the legend
+    height_sensor  board height and flatness for the laser's focus (Panasonic HG-C1030, 30 mm, 10 um), fixed
+
+Each dispenser and jet rides its own SMC MXH10 air slide (16 of its 20 mm), the way LumenPnP gives each nozzle its own
+Z: only the working tool comes down, so its neighbours stay clear of the flip frame's edge bars and the stage's posts
+wherever it works. The slides are on a plate bolted to the head plate's front face (LumenPnP's model:
+the head plate x 398.8 to 488.8, its face y 179.1; its nozzle motors fill x 398 up, y 131 to 173, so the tools hang
+left of them). The model has no X axis, so this is placed with the head where Opulo's model has it.
+Heights are the lens's: the pens lean 35 degrees forward so their tops stay under the lens (z 272.7), because the
+head passes under the laser when it reaches the board's far end. Raised (the model's state): the tips 16 over their
+work, clear of the stage's posts when the head works the board's ends.
+
+In the machine's frame (LumenPnP's).
+    """
+    out["tool_plate"] = Pos(sum(TOOL_PLATE_X) / 2.0, HEAD_PLATE_Y - 3.0, sum(TOOL_PLATE_Z) / 2.0) * p("tool_plate")
+    front = HEAD_PLATE_Y - 6.0                                       # 173.1: the tool plate's front, the slides' backs
+    table = front - SLIDE_H                                          # 150.1: the slides' tables, the tools' backs
+    for i, x in enumerate(PEN_X + JET_X, 1):
+        out[f"slide_{i}"] = Pos(x, front, SLIDE_Z) * b("slide")
+    c, s_ = math.cos(math.radians(PEN_TILT)), math.sin(math.radians(PEN_TILT))
+    pen_bot = B_TOP + 0.2 + NEEDLE * c + TOOL_LIFT
+    yc = table - 40.0                                                # the clamp: 80 deep from the slide's table
+    pen_y = yc + 26.0                                                # the pen's bottom centre: its back 1 off the table
+    for i, x in enumerate(PEN_X, 1):
+        out[f"eco_pen_{i}"] = Pos(x, pen_y, pen_bot) * Rot(PEN_TILT, 0, 0) * b("eco_pen")
+        t = 40.0                                                     # the clamp's middle, up the pen's axis
+        cy, cz = pen_y - t * s_, pen_bot + t * c
+        out[f"pen_clamp_{i}"] = Pos(x, yc, cz) * p("pen_clamp", bore_y=cy - yc)
+    for i, x in enumerate(JET_X, 1):
+        out[f"pico_jet_{i}"] = Pos(x, table, B_TOP + JET_GAP + TOOL_LIFT) * b("pico_jet")
+    out["height_sensor"] = Pos(SENSOR_X, front - 12.5, B_TOP + SENSOR_RANGE) * b("height_sensor")
