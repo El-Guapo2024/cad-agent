@@ -71,7 +71,7 @@ CAB = [f"cab_top_x_{i}" for i in (1, 2)] + [f"cab_top_y_{i}" for i in range(1, 5
       [f"cross_rail_{i}" for i in range(1, 5)] + [f"cab_leg_{i}" for i in range(1, 7)]
 ELEC = ("psu_24v", "psu_48v", "psu_12v", "jetson", "motion_board", "galvo_card", "heatsink", "ssr", "rtd_amp",
         "safety_relay", "vacuum_pump", "vacuum_valve")
-SKIN = ("door_1", "door_2", "window_panel", "port_panel") + tuple(f"panel_{i}" for i in range(1, 19))
+SKIN = ("door_1", "door_2", "window_panel", "port_panel") + tuple(f"panel_{i}" for i in range(1, 27))
 
 
 def _enc_frame():
@@ -214,6 +214,17 @@ def parts():
             k += 1
             tile(f"panel_{k}", "panel", (x0, x1), (y0, y1), ((x0 + x1) / 2.0, (y0 + y1) / 2.0, ENC_TOP + 1.5),
                  Rot(0, 0, 0))
+    # the cabinet's skin: the same tiles round the base, under the enclosure's (the bench to the top ring)
+    cz = (FLOOR - P40, CAB_TOP)
+    cab_xs, cab_ys = xs, ((CAB_Y[0], ENC_MID_Y), (ENC_MID_Y, CAB_Y[1]))
+    for x0, x1 in cab_xs:
+        for y in (CAB_Y[0] - 1.5, CAB_Y[1] + 1.5):
+            k += 1
+            tile(f"panel_{k}", "panel", (x0, x1), cz, ((x0 + x1) / 2.0, y, sum(cz) / 2.0), face_y)
+    for y0, y1 in cab_ys:
+        for x in (CAB_X[0] - 1.5, CAB_X[1] + 1.5):
+            k += 1
+            tile(f"panel_{k}", "panel", (y0, y1), cz, (x, (y0 + y1) / 2.0, sum(cz) / 2.0), face_x)
     wp = out["window_panel"].bounding_box()
     out["laser_window"] = Pos((wp.min.X + wp.max.X) / 2.0 - 40.0, ENC_Y[0] - P20 / 2.0 + 2.5,
                               (wp.min.Z + wp.max.Z) / 2.0) * p("laser_window")
