@@ -1,7 +1,7 @@
 # What the fab's fixture must do, as the kernel can measure it.
 
-[envelope]                   # the stage under LumenPnP: inside its 537 mm between the side frames, and the posts and
-max_mm = [480, 700, 310]     # frame inside the 690 between its feeder rails with the Y travel
+[envelope]                   # the stage inside the board machine's cabinet (its top rails 810 apart)
+max_mm = [480, 1000, 310]
 
 [[clearance]]                # the platen, dropped, under the frame (the swing itself: scratch flip_sweep.py)
 a = "platen"
@@ -9,7 +9,7 @@ b = "frame_ring_lower"
 min_mm = 5.0
 pose = "flip"
 
-[[clearance]]                # the board on the platen at work: they touch (vacuum hold-down, heat)
+[[clearance]]                # the board on the platen at work: they touch (vacuum hold-down)
 a = "platen"
 b = "pcb_blank"
 max_mm = 0.05
@@ -21,15 +21,10 @@ min_dia_mm = 0.9
 max_dia_mm = 1.1
 axis = "z"
 
-[[heat]]                     # reflow and via cure: the platen capped at 240 C (Juan, 2026-11-01)
-source = "platen"
-temp_c = 240
-radius_mm = 15
-
 [[axis]]
 name = "y"
 direction = [0, 1, 0]
-travel_min_mm = 205
+travel_min_mm = 460          # the tools' reach (305 board + their 175 in front of the lens) to the flip
 
 [[axis]]
 name = "x"

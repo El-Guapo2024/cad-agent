@@ -1,8 +1,8 @@
-"""y_beam: 40 x 40 T-slot aluminium extrusion, 8 mm slots, the real section, length 670 mm, axis y.
+"""y_beam: 40 x 40 T-slot aluminium extrusion, 8 mm slots, the real section, length 760 mm, axis y.
 
 Copied from the library entry extrusion-4040 by `cad lib use`; where each number came from is in y_beam.json
 and in `cad lib info extrusion-4040`.
-It is meant to be left alone: `cad lib use <project> extrusion-4040 length=670 axis=y --as y_beam --replace`
+It is meant to be left alone: `cad lib use <project> extrusion-4040 length=760 axis=y --as y_beam --replace`
 writes it again, and `cad lib check <project>` fails when this file no longer hashes to the pin in the sidecar.
 """
 
@@ -28,7 +28,7 @@ ARGS = {
     'chamber_hi': 18.2,
     'chamber_r': 2.2,
     'bore_r': 3.35,
-    'length': 670.0,
+    'length': 760.0,
     'axis': 'y',
 }
 

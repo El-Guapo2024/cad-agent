@@ -1,20 +1,23 @@
-"""The fab's one fixture: the board in a flip frame over a heated vacuum platen, on an XY stage.
+"""The board machine's one fixture: the board in a flip frame over a vacuum platen, on an XY stage.
 
 CircuitJet IV keeps the board in one fixture for every step and flips it there; LPKF's ProtoLaser U4 stitches a small
 telecentric field over a 229 x 305 board by moving the board under a fixed galvo. This does both:
 
-    the stage    Y (205 mm, the stitching and the reach under the pick-and-place head) on MGN15 rails and an
-                 SFU1204 ball screw, X (130 mm) on top of it the same way: 100 x 100 field (Jenoptik's lens) over
-                 229 x 305 in 3 x 4 tiles. Each a NEMA 17 through a 5 to 8 mm coupling.
+    the stage    Y (460 mm: the stitching under the lens, and the board carried under the process tools in front of
+                 it) on MGN15 rails and an SFU1204 ball screw, X (130 mm) on top of it the same way: 100 x 100 field
+                 (Jenoptik's lens) over 229 x 305 in 3 x 4 tiles. Each a NEMA 17 through a 5 to 8 mm coupling.
     the frame    a stainless ring (flip_frame.py) holds the board by its edges and turns on two 8 mm trunnion shafts
                  in the posts, about the board's mid-plane: a GT2 belt (20T to 40T) from a NEMA 17 under the X plate.
-    the platen   heated (Tempco 625 W mica heater) vacuum table (via fill, hold-down); on a stainless carrier the
+    the platen   a vacuum table (via fill, hold-down), not heated: the via paste cures on a bought hot plate off the
+                 machine (Juan, 2026-11-03), the board back in the frame after, found again by its fiducials; on a
+                 stainless carrier the
                  lift moves 135 mm: up, it meets the board through the frame's window; down, it is clear of the
                  frame's 128.8 mm swing so the frame can turn over. Two MGN12 rails and two Tr8x2 screws, one of
                  each per post, each screw on its own NEMA 17 (34 mm) under the X plate.
 
-The frame: x, y from the optical axis with both axes at 0, z the machine's (the board's top at 37.0, LumenPnP's
-staging-plate height, so its nozzles reach it). The parent places this at the laser's optical axis.
+The frame: x, y from the stage's middle with both axes at 0, z the machine's (the board's top at 37.0). The parent
+places this 115 in front of the lens: y = +115 puts the board under it, +230 (the far end) is where it flips, clear
+of the process tools in front.
 """
 from build123d import Pos, Rot
 from cad_agent.state import build_part, bought_solid
@@ -27,15 +30,13 @@ PIV = B_TOP - BOARD[2] / 2.0             # the flip axis: the board's mid-plane,
 RING_T, SHIM_T = 5.2, BOARD[2]           # frame_ring.py: two rings and the shim between, 12 in all
 FRAME_END = BOARD[1] / 2.0 + 0.2 + 14.0  # 166.7: the frame's end face
 DROP = 135.0                             # the lift's travel: the platen top from 35.4 to -99.6, under the swing (-92.6)
-TRAVEL_X, TRAVEL_Y = 65.0, 102.5         # (229 - 100) / 2, (305 - 100) / 2
+TRAVEL_X, TRAVEL_Y = 65.0, 230.0         # (229 - 100) / 2; Y from the tools' reach (-345) to the flip (+115)
 
 # the platen stack, work position, top down
 PLATEN_TOP = B_TOP - BOARD[2]            # 35.4: the board's underside
 SKIN_T, RING_PT, BASE_T = 5.0, 6.0, 4.0  # platen_skin, platen_ring, platen_base
-HEATER_T, CLAMP_T, STANDOFF_H, CARRIER_T = 4.5, 3.0, 10.0, 4.0
-HEATER_TOP = PLATEN_TOP - SKIN_T - RING_PT - BASE_T
-CLAMP_TOP = HEATER_TOP - HEATER_T
-STANDOFF_TOP = CLAMP_TOP - CLAMP_T
+STANDOFF_H, CARRIER_T = 17.5, 4.0
+STANDOFF_TOP = PLATEN_TOP - SKIN_T - RING_PT - BASE_T
 CARRIER_TOP = STANDOFF_TOP - STANDOFF_H  # 2.9
 # the posts and the lift
 POST_IN, POST_T = 195.7, 12.0            # the post's inner face (y), its thickness
@@ -80,11 +81,11 @@ def _contact():
             c |= {f"y_block_{s}{k}|y_rail_{s}", f"y_block_{s}{k}|y_plate", f"x_block_{s}{k}|x_rail_{s}",
                   f"x_block_{s}{k}|x_plate"}
     for i in range(1, 5):
-        c |= {f"standoff_{i}|carrier", f"standoff_{i}|clamp_plate"}
-    c |= {"heater|platen", "heater|clamp_plate", "clamp_plate|platen", "frame_ring_lower|frame_shim",
+        c |= {f"standoff_{i}|carrier", f"standoff_{i}|platen"}
+    c |= {"frame_ring_lower|frame_shim",
           "frame_shim|frame_ring_upper", "pcb_blank|frame_shim", "pcb_blank|frame_ring_lower",
           "pcb_blank|frame_ring_upper",
-          "pcb_blank|platen", "pt1000_probe|platen", "cutout|platen", "pulley_40|shaft_2", "pulley_20|flip_motor",
+          "pcb_blank|platen", "pulley_40|shaft_2", "pulley_20|flip_motor",
           "flip_motor|motor_mount_3", "motor_mount_3|x_plate",
           "x_nut|nut_bracket_1", "nut_bracket_1|x_plate", "x_nut|x_screw", "x_screw|x_bk10", "x_screw|x_bf10",
           "x_bk10|y_plate", "x_bf10|y_plate", "x_coupling|x_screw", "x_coupling|x_motor", "x_motor|motor_mount_1",
@@ -113,20 +114,14 @@ def parts():
         outer = POST_IN + POST_T + (15.3 if s == 2 else 0.0)            # the +y one carries the 40T pulley
         out[f"shaft_{s}"] = Pos(0, sy * (inner + outer) / 2.0, PIV) * Rot(90, 0, 0) * p("shaft", dia=8.0,
                                                                                     length=outer - inner)
-    # the platen (three layers bonded into one body) and what hangs under it
+    # the platen (three layers bonded into one body) on four standoffs
     out["platen"] = (Pos(0, 0, PLATEN_TOP - SKIN_T / 2.0) * p("platen_skin")
                      + Pos(0, 0, PLATEN_TOP - SKIN_T - RING_PT / 2.0) * p("platen_ring")
-                     + Pos(0, 0, HEATER_TOP + BASE_T / 2.0) * p("platen_base"))
-    out["heater"] = Pos(0, 0, HEATER_TOP - HEATER_T / 2.0) * b("heater")
-    out["clamp_plate"] = Pos(0, 0, CLAMP_TOP - CLAMP_T / 2.0) * p("clamp_plate")
+                     + Pos(0, 0, STANDOFF_TOP + BASE_T / 2.0) * p("platen_base"))
     for i, (sx, sy) in enumerate(((-1, -1), (1, -1), (-1, 1), (1, 1)), 1):
         out[f"standoff_{i}"] = Pos(sx * (215.0 / 2.0 - 15.0), sy * (295.0 / 2.0 - 15.0),
-                                   STANDOFF_TOP - STANDOFF_H / 2.0) * p("standoff")
+                                   STANDOFF_TOP - STANDOFF_H / 2.0) * p("standoff", height=STANDOFF_H)
     out["carrier"] = Pos(0, 0, CARRIER_TOP - CARRIER_T / 2.0) * p("carrier")
-    ring_z = PLATEN_TOP - SKIN_T - RING_PT / 2.0
-    out["pt1000_probe"] = (Pos(215.0 / 2.0 - 7.5, -295.0 / 2.0 - 25.0 + 50.0, ring_z) * Rot(90, 0, 0)
-                           * b("pt1000_probe"))                 # 75 in the ring's slot, 25 out of the -y end
-    out["cutout"] = Pos(-215.0 / 2.0 - 5.0, -60.0, 20.0) * Rot(0, 90, 0) * Rot(0, 0, 90) * b("cutout")
     # the posts, the lift
     for s, sy in ((1, -1), (2, 1)):
         out[f"post_{s}"] = Pos(0, sy * (POST_IN + POST_T / 2.0), (POST_BOT + POST_TOP) / 2.0) * p(
@@ -172,7 +167,7 @@ def parts():
         for k, sy in ((1, -1), (2, 1)):
             out[f"y_block_{s}{k}"] = Pos(sx * Y_RAIL_X, sy * Y_BLOCK_Y, rail_top) * Rot(0, 0, 90) * b("rail_block")
         out[f"y_rail_{s}"] = Pos(sx * Y_RAIL_X, 0, rail_top - MGN15_H / 2.0) * Rot(0, 0, 90) * b("y_rail")
-        out[f"y_beam_{s}"] = Pos(sx * Y_RAIL_X, -45.0, FLOOR + 20.0) * b("y_beam")
+        out[f"y_beam_{s}"] = Pos(sx * Y_RAIL_X, 0, FLOOR + 20.0) * b("y_beam")
     _screw(out, b, p, "y", (0, -1, 0), YP_Y + TRAVEL_Y + 5.0, Y_SCREW_Z - BK_H, Y_SCREW_Z)
     out["y_nut"] = Pos(0, -8.0, Y_SCREW_Z) * Rot(90, 0, 0) * b("ballnut")
     out["nut_bracket_2"] = Pos(0, 10.0, YP_TOP - PLATE_T - 15.0) * Rot(0, 0, 90) * p("nut_bracket")
@@ -210,7 +205,7 @@ def _screw(out, b, p, ax, toward, clear, base_z, axis_z):
 
 
 def _axes():
-    lift = ["platen", "heater", "clamp_plate", "carrier", "pt1000_probe", "cutout"] + [f"standoff_{i}" for i in
+    lift = ["platen", "carrier"] + [f"standoff_{i}" for i in
                                                                                         range(1, 5)]
     lift += [f"{n}_{s}" for n in ("lift_arm", "lift_block", "nut_block", "t8_nut") for s in (1, 2)]
     x = lift + ["pcb_blank", "frame_ring_lower", "frame_shim", "frame_ring_upper", "trunnion_1", "trunnion_2", "shaft_1",
@@ -227,5 +222,5 @@ def _axes():
 
 
 AXES = _axes()
-POSES = {"flip": {"lift": -DROP}, "corner_far": {"x": TRAVEL_X, "y": TRAVEL_Y},
+POSES = {"flip": {"lift": -DROP, "y": TRAVEL_Y}, "corner_far": {"x": TRAVEL_X, "y": TRAVEL_Y},
          "corner_near": {"x": -TRAVEL_X, "y": -TRAVEL_Y}}

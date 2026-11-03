@@ -1,9 +1,8 @@
-"""Platen skin: the top layer of the heated vacuum platen, the 1 mm hole grid the board lies on.
+"""Platen skin: the top layer of the vacuum platen, the 1 mm hole grid the board lies on.
 
 The platen is three 6061 layers screwed and sealed together (a laminated vacuum table): this 5 mm skin, a 6 mm ring
-whose window is the plenum, and a 4 mm base the mica heater is clamped under. It does what the old vacuum bed and hot
-plate did apart: LPKF ProConduct's vacuum table for the via paste, the hold-down for the laser and the parts, and the
-reflow plate. 215 x 295: it rises through the flip frame's window with 3 mm to spare each side.
+whose window is the plenum, and a 4 mm base. LPKF ProConduct's vacuum table for the via paste, and the hold-down for the
+laser and the dispensers (the paste cures on a bought hot plate off the machine). 215 x 295: it rises through the flip frame's window with 3 mm to spare each side.
 """
 from build123d import Box, Cylinder, Pos
 

@@ -1,8 +1,8 @@
-"""y_rail: HIWIN MGNR15R miniature linear guide rail, length 480 mm.
+"""y_rail: HIWIN MGNR15R miniature linear guide rail, length 720 mm.
 
 Copied from the library entry mgn15-rail by `cad lib use`; where each number came from is in y_rail.json
 and in `cad lib info mgn15-rail`.
-It is meant to be left alone: `cad lib use <project> mgn15-rail length=480 --as y_rail --replace`
+It is meant to be left alone: `cad lib use <project> mgn15-rail length=720 --as y_rail --replace`
 writes it again, and `cad lib check <project>` fails when this file no longer hashes to the pin in the sidecar.
 """
 
@@ -16,7 +16,7 @@ ARGS = {
     'counterbore_depth': 4.5,
     'hole_dia': 3.5,
     'end_min': 6.0,
-    'length': 480.0,
+    'length': 720.0,
 }
 
 

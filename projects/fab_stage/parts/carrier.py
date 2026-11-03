@@ -1,6 +1,6 @@
 """Carrier: the stainless plate the platen stands on, with the four tabs the lift lifts it by.
 
-The platen sits on four stainless standoffs over it (an air gap under the heater). Two tabs at each end reach out
+The platen sits on four stainless standoffs over it . Two tabs at each end reach out
 under the flip frame's end bars to the lift: one under the arm on the MGN12 carriage (+x), one under the T8 nut block
 (-x), notched 22 there so the screw's coupling passes when the platen is down. 4 mm stainless, laser cut.
 """

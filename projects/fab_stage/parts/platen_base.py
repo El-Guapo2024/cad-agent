@@ -1,5 +1,5 @@
-"""Platen base: the bottom layer of the platen, closing the plenum; the mica heater is clamped flat under it by the
-clamp plate. The Selco cut-out is clamped to its -x side. 4 mm 6061, laser cut.
+"""Platen base: the bottom layer of the platen, closing the plenum; it stands on the four standoffs. 4 mm 6061, laser
+cut.
 """
 from build123d import Box
 

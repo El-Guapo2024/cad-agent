@@ -1,4 +1,4 @@
-"""Standoff: a stainless spacer between the carrier and the heater's clamp plate, an air gap under the heater.
+"""Standoff: a stainless spacer between the carrier and the platen's base.
 
 8 mm round, M3 through.
 """
@@ -8,7 +8,7 @@ MATERIAL = "stainless"
 PROCESS = "cnc"
 MIN_FEATURE_MM = 1.0
 
-PARAMS = {"dia": 8.0, "height": 10.0, "hole": 3.4}
+PARAMS = {"dia": 8.0, "height": 17.5, "hole": 3.4}
 
 
 def build(dia, height, hole):

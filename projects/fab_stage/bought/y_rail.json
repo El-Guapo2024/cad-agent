@@ -6,10 +6,10 @@
  "licence": "MIT",
  "geometry": "envelope",
  "pn": "MGNR15R",
- "mass_g": 508.8,
- "mass_source": "HIWIN MG series catalog GW-11-5-EN-2207-K, table 3.81: weight 1.06 kg/m; 1060 g/m x 0.48 m = 508.8 g",
+ "mass_g": 763.2,
+ "mass_source": "HIWIN MG series catalog GW-11-5-EN-2207-K, table 3.81: weight 1.06 kg/m; 1060 g/m x 0.72 m = 763.2 g",
  "library_params": {
-  "length": 480.0
+  "length": 720.0
  },
- "sha256": "8bf215be4de1038668eb96e465da8c7f4bf08ce317b87f81d1ea9fad11b1dac4"
+ "sha256": "274e93e82933c4780d80ab93672b2915a16f7b28c322b9b798553703edbdb621"
 }
