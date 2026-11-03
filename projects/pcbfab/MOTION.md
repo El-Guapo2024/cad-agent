@@ -69,11 +69,15 @@ move relative to each other.
 
 ## 5. Not checked yet
 
-- **LumenPnP's X axis with 2.6 kg of tools on its head.** Opulo publishes no head mass in the model. The extra mass
-  divides the X acceleration by (head + 2.6) / head at the same belt force. This is the biggest motion risk.
-  Lighter options:
+- **LumenPnP's X axis with 2.6 kg of tools on its head.** Opulo publishes no head mass. Its head in the model is
+  451 cm³ (144 solids, x 395 to 495): 0.57 kg if all PETG, 1.2 kg if all aluminium, about 1.8 kg with steel motors.
+  With the tools, X moves 2.5 to 5 times its own mass. Torque is not the limit: 4.4 kg at 2 m/s² is 8.8 N on the
+  belt, 0.056 N·m on a 20T GT2 pulley, against a 40 mm NEMA 17's 0.42 N·m holding. The cost is speed: at the same
+  belt force, X's acceleration falls by (head + 2.6) / head, so Klipper runs X at a lower acceleration (2 m/s²)
+  whenever the tools are on. The belt's allowable working tension (GT2, 6 mm) and Opulo's own X settings are not
+  checked here. Lighter options:
   - one jet instead of two;
-  - the dispensers on a second carriage on the X beam.
+  - the dispensers on their own X carriage and motor.
 - **Repeatability of the flip.** Does the frame land within a few hundredths of a millimetre of where it was? Only a
   built frame and lift can show it. The camera finds the fiducials after each flip, which corrects what is left.
 - **Klipper.** The config and the job's G-code run on a simulated MCU would catch travel limits and homing order.
