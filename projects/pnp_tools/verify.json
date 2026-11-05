@@ -1,0 +1,2847 @@
+{
+  "project": "pnp_tools",
+  "verdict": "UNCHECKED",
+  "written_utc": "2026-11-05T00:55:59Z",
+  "seconds": 771.5,
+  "source_hash": "56feb57a4c65c3d97f8d8d4f51f41250307a2f4d6c1485ef308f4e9968376efa",
+  "design_files": 14,
+  "engine_hash": "caa514715a653f3caf32a8c6b32e22bb21195eb3e17bf3dde1a53c44429b718b",
+  "git": {
+    "repo": "/home/ubuntu/work/pcbfab-wt",
+    "path": "projects/pnp_tools",
+    "commit": "f2aa08a8ec25f1178fe730958af23ab8a5baa709",
+    "tree": "7d2588ea17e0e756b65bbd43bd164520dc521005",
+    "dirty": false,
+    "uncommitted": [],
+    "children": {
+      "lumenpnp_stock": {
+        "repo": "/home/ubuntu/work/pcbfab-wt",
+        "path": "projects/lumenpnp_stock",
+        "commit": "f2aa08a8ec25f1178fe730958af23ab8a5baa709",
+        "tree": "13a3a90f943f8691396664bf62b8af61c0524bf4",
+        "dirty": false,
+        "uncommitted": []
+      }
+    }
+  },
+  "process": {
+    "fresh": true,
+    "mode": "cold"
+  },
+  "views": [
+    "iso"
+  ],
+  "summary": {
+    "parts_built": 4,
+    "parts_failed": 0,
+    "checks_run": 22,
+    "rows": 269,
+    "by_state": {
+      "PASS": 249,
+      "N/A": 11,
+      "UNCHECKED": 9
+    },
+    "by_check": {
+      "geometry": {
+        "PASS": 20,
+        "N/A": 6
+      },
+      "visual": {
+        "PASS": 4,
+        "UNCHECKED": 4
+      },
+      "subassembly": {
+        "PASS": 1
+      },
+      "placements": {
+        "N/A": 1
+      },
+      "fit": {
+        "PASS": 190
+      },
+      "sweep": {
+        "PASS": 5
+      },
+      "reach": {
+        "PASS": 5
+      },
+      "poses": {
+        "PASS": 7
+      },
+      "stance": {
+        "PASS": 2
+      },
+      "com": {
+        "UNCHECKED": 1
+      },
+      "spec": {
+        "PASS": 8
+      },
+      "provenance": {
+        "PASS": 2,
+        "UNCHECKED": 4
+      },
+      "lumenpnp_stock:placements": {
+        "N/A": 1
+      },
+      "lumenpnp_stock:fit": {
+        "PASS": 1
+      },
+      "lumenpnp_stock:sweep": {
+        "N/A": 1
+      },
+      "lumenpnp_stock:stance": {
+        "PASS": 2
+      },
+      "lumenpnp_stock:com": {
+        "N/A": 1
+      },
+      "lumenpnp_stock:spec": {
+        "PASS": 2
+      },
+      "lumenpnp_stock:provenance": {
+        "N/A": 1
+      }
+    },
+    "ok": false
+  },
+  "notes": [],
+  "rows": [
+    {
+      "subject": "board_fixture",
+      "rule": "envelope",
+      "state": "PASS",
+      "measured": "260.0 x 440.0 x 15.4 mm",
+      "limit": "600 x 400 x 25 mm",
+      "source": "CO2 on 3 mm acrylic, typical kerf",
+      "check": "geometry",
+      "artifacts": []
+    },
+    {
+      "subject": "board_fixture",
+      "rule": "min wall",
+      "state": "PASS",
+      "measured": "15.3995 mm at the 1st percentile (min 13.4659, median 15.3995, 3000 rays)",
+      "limit": "1.5 mm",
+      "source": "ray cast through the solid; p01 gates, since a grazing ray at an edge can return near zero",
+      "check": "geometry",
+      "artifacts": []
+    },
+    {
+      "subject": "board_fixture",
+      "rule": "web",
+      "state": "PASS",
+      "measured": "12.5 mm between outer edge and cutout at (-117.5, -137.5), at (-123.75, -137.5)",
+      "limit": "1.5 mm",
+      "source": "closest approach over 6 boundary pairs",
+      "check": "geometry",
+      "artifacts": []
+    },
+    {
+      "subject": "board_fixture",
+      "rule": "feature count",
+      "state": "PASS",
+      "measured": "3 cutouts",
+      "limit": "3 expected",
+      "source": "a count that drops means one cutout has swallowed another or broken out through an edge",
+      "check": "geometry",
+      "artifacts": []
+    },
+    {
+      "subject": "board_fixture",
+      "rule": "min hole",
+      "state": "PASS",
+      "measured": "3 mm at (-116, -137.5, 0), the smallest of 3 round holes",
+      "limit": "1.0 mm",
+      "source": "the narrowest bore of each hole, read from its cylinders: a teardrop, a D or a slit bore counts at its diameter",
+      "check": "geometry",
+      "artifacts": []
+    },
+    {
+      "subject": "board_fixture",
+      "rule": "kerf",
+      "state": "N/A",
+      "measured": "no slot or gap",
+      "limit": "0.15 mm",
+      "source": "no slot, and no flat walls face each other across air; a round hole is judged as a hole",
+      "check": "geometry",
+      "artifacts": []
+    },
+    {
+      "subject": "board_fixture",
+      "rule": "volume",
+      "state": "PASS",
+      "measured": "1761.43 cm^3",
+      "limit": "n/a",
+      "source": "computed",
+      "check": "geometry",
+      "artifacts": []
+    },
+    {
+      "subject": "board_fixture",
+      "rule": "silhouette/iso",
+      "state": "PASS",
+      "measured": "29.72% of the frame",
+      "limit": "at least 0.5%",
+      "source": "non-background pixels; near zero means nothing was drawn",
+      "check": "visual",
+      "artifacts": [
+        "out/_check_board_fixture_iso.png"
+      ]
+    },
+    {
+      "subject": "board_fixture",
+      "rule": "drift/iso",
+      "state": "UNCHECKED",
+      "measured": "no approved image",
+      "limit": "drift under 0.2% of the frame",
+      "source": "look at the render, then `cad approve` makes it the baseline this view is gated on",
+      "check": "visual",
+      "artifacts": [
+        "out/_check_board_fixture_iso.png"
+      ]
+    },
+    {
+      "subject": "lamp_plate",
+      "rule": "envelope",
+      "state": "PASS",
+      "measured": "240.0 x 52.0 x 46.0 mm",
+      "limit": "300 x 200 x 100 mm",
+      "source": "3 mm end mill, small router assumption",
+      "check": "geometry",
+      "artifacts": []
+    },
+    {
+      "subject": "lamp_plate",
+      "rule": "min wall",
+      "state": "PASS",
+      "measured": "5.9998 mm at the 1st percentile (min 5.9998, median 5.9998, 3000 rays)",
+      "limit": "1.0 mm",
+      "source": "ray cast through the solid; p01 gates, since a grazing ray at an edge can return near zero",
+      "check": "geometry",
+      "artifacts": []
+    },
+    {
+      "subject": "lamp_plate",
+      "rule": "web",
+      "state": "N/A",
+      "measured": "no cutout reaches the mid-plane",
+      "limit": "2.0 mm",
+      "source": "a plain plate has no web between a cutout and the edge; its cutout count is still gated below",
+      "check": "geometry",
+      "artifacts": []
+    },
+    {
+      "subject": "lamp_plate",
+      "rule": "feature count",
+      "state": "PASS",
+      "measured": "0 cutouts",
+      "limit": "0 expected",
+      "source": "a count that drops means one cutout has swallowed another or broken out through an edge",
+      "check": "geometry",
+      "artifacts": []
+    },
+    {
+      "subject": "lamp_plate",
+      "rule": "min hole",
+      "state": "N/A",
+      "measured": "no hole or slot",
+      "limit": "1.0 mm",
+      "source": "nothing to size",
+      "check": "geometry",
+      "artifacts": []
+    },
+    {
+      "subject": "lamp_plate",
+      "rule": "volume",
+      "state": "PASS",
+      "measured": "132.48 cm^3",
+      "limit": "n/a",
+      "source": "computed",
+      "check": "geometry",
+      "artifacts": []
+    },
+    {
+      "subject": "lamp_plate",
+      "rule": "silhouette/iso",
+      "state": "PASS",
+      "measured": "35.78% of the frame",
+      "limit": "at least 0.5%",
+      "source": "non-background pixels; near zero means nothing was drawn",
+      "check": "visual",
+      "artifacts": [
+        "out/_check_lamp_plate_iso.png"
+      ]
+    },
+    {
+      "subject": "lamp_plate",
+      "rule": "drift/iso",
+      "state": "UNCHECKED",
+      "measured": "no approved image",
+      "limit": "drift under 0.2% of the frame",
+      "source": "look at the render, then `cad approve` makes it the baseline this view is gated on",
+      "check": "visual",
+      "artifacts": [
+        "out/_check_lamp_plate_iso.png"
+      ]
+    },
+    {
+      "subject": "pen_clamp",
+      "rule": "envelope",
+      "state": "PASS",
+      "measured": "40.0 x 80.0 x 20.0 mm",
+      "limit": "300 x 200 x 100 mm",
+      "source": "3 mm end mill, small router assumption",
+      "check": "geometry",
+      "artifacts": []
+    },
+    {
+      "subject": "pen_clamp",
+      "rule": "min wall",
+      "state": "PASS",
+      "measured": "1.1288 mm at the 1st percentile (min 0.0052, median 19.9999, 3000 rays)",
+      "limit": "1.0 mm",
+      "source": "ray cast through the solid; p01 gates, since a grazing ray at an edge can return near zero",
+      "check": "geometry",
+      "artifacts": []
+    },
+    {
+      "subject": "pen_clamp",
+      "rule": "web",
+      "state": "PASS",
+      "measured": "3.4 mm between outer edge and cutout at (-16.6, -12.0), at (18.3, -12.0)",
+      "limit": "2.0 mm",
+      "source": "closest approach over 1 boundary pairs",
+      "check": "geometry",
+      "artifacts": []
+    },
+    {
+      "subject": "pen_clamp",
+      "rule": "feature count",
+      "state": "PASS",
+      "measured": "1 cutouts",
+      "limit": "1 expected",
+      "source": "a count that drops means one cutout has swallowed another or broken out through an edge",
+      "check": "geometry",
+      "artifacts": []
+    },
+    {
+      "subject": "pen_clamp",
+      "rule": "min hole",
+      "state": "PASS",
+      "measured": "33.2 mm at (0, -12.07, 0.1), the smallest of 1 hole or slot",
+      "limit": "1.0 mm",
+      "source": "the narrowest bore of each hole, read from its cylinders: a teardrop, a D or a slit bore counts at its diameter",
+      "check": "geometry",
+      "artifacts": []
+    },
+    {
+      "subject": "pen_clamp",
+      "rule": "volume",
+      "state": "PASS",
+      "measured": "42.86 cm^3",
+      "limit": "n/a",
+      "source": "computed",
+      "check": "geometry",
+      "artifacts": []
+    },
+    {
+      "subject": "pen_clamp",
+      "rule": "silhouette/iso",
+      "state": "PASS",
+      "measured": "48.65% of the frame",
+      "limit": "at least 0.5%",
+      "source": "non-background pixels; near zero means nothing was drawn",
+      "check": "visual",
+      "artifacts": [
+        "out/_check_pen_clamp_iso.png"
+      ]
+    },
+    {
+      "subject": "pen_clamp",
+      "rule": "drift/iso",
+      "state": "UNCHECKED",
+      "measured": "no approved image",
+      "limit": "drift under 0.2% of the frame",
+      "source": "look at the render, then `cad approve` makes it the baseline this view is gated on",
+      "check": "visual",
+      "artifacts": [
+        "out/_check_pen_clamp_iso.png"
+      ]
+    },
+    {
+      "subject": "tool_plate",
+      "rule": "envelope",
+      "state": "PASS",
+      "measured": "205.0 x 6.0 x 140.0 mm",
+      "limit": "600 x 400 x 25 mm",
+      "source": "CO2 on 3 mm acrylic, typical kerf",
+      "check": "geometry",
+      "artifacts": []
+    },
+    {
+      "subject": "tool_plate",
+      "rule": "min wall",
+      "state": "PASS",
+      "measured": "5.9998 mm at the 1st percentile (min 5.9998, median 5.9998, 3000 rays)",
+      "limit": "1.5 mm",
+      "source": "ray cast through the solid; p01 gates, since a grazing ray at an edge can return near zero",
+      "check": "geometry",
+      "artifacts": []
+    },
+    {
+      "subject": "tool_plate",
+      "rule": "web",
+      "state": "N/A",
+      "measured": "no cutout reaches the mid-plane",
+      "limit": "1.5 mm",
+      "source": "a plain plate has no web between a cutout and the edge; its cutout count is still gated below",
+      "check": "geometry",
+      "artifacts": []
+    },
+    {
+      "subject": "tool_plate",
+      "rule": "feature count",
+      "state": "PASS",
+      "measured": "0 cutouts",
+      "limit": "0 expected",
+      "source": "a count that drops means one cutout has swallowed another or broken out through an edge",
+      "check": "geometry",
+      "artifacts": []
+    },
+    {
+      "subject": "tool_plate",
+      "rule": "min hole",
+      "state": "N/A",
+      "measured": "no round hole",
+      "limit": "1.0 mm",
+      "source": "nothing to size; a slot is judged against the kerf",
+      "check": "geometry",
+      "artifacts": []
+    },
+    {
+      "subject": "tool_plate",
+      "rule": "kerf",
+      "state": "N/A",
+      "measured": "no slot or gap",
+      "limit": "0.15 mm",
+      "source": "no slot, and no flat walls face each other across air; a round hole is judged as a hole",
+      "check": "geometry",
+      "artifacts": []
+    },
+    {
+      "subject": "tool_plate",
+      "rule": "volume",
+      "state": "PASS",
+      "measured": "172.20 cm^3",
+      "limit": "n/a",
+      "source": "computed",
+      "check": "geometry",
+      "artifacts": []
+    },
+    {
+      "subject": "tool_plate",
+      "rule": "silhouette/iso",
+      "state": "PASS",
+      "measured": "31.33% of the frame",
+      "limit": "at least 0.5%",
+      "source": "non-background pixels; near zero means nothing was drawn",
+      "check": "visual",
+      "artifacts": [
+        "out/_check_tool_plate_iso.png"
+      ]
+    },
+    {
+      "subject": "tool_plate",
+      "rule": "drift/iso",
+      "state": "UNCHECKED",
+      "measured": "no approved image",
+      "limit": "drift under 0.2% of the frame",
+      "source": "look at the render, then `cad approve` makes it the baseline this view is gated on",
+      "check": "visual",
+      "artifacts": [
+        "out/_check_tool_plate_iso.png"
+      ]
+    },
+    {
+      "subject": "lumenpnp_stock",
+      "rule": "linked",
+      "state": "PASS",
+      "measured": "project lumenpnp_stock at (0, 0, 0) mm, turned (0, 0, 0) deg: 2 bodies, 0 axes",
+      "limit": "a project next to this one that builds, no cycle, at most 8 levels",
+      "source": "SUBASSEMBLIES in assembly.py; the project's own gates follow as <project>:<check>/<rule>",
+      "check": "subassembly",
+      "artifacts": []
+    },
+    {
+      "subject": "pnp_tools",
+      "rule": "moved",
+      "state": "N/A",
+      "measured": "nothing moved by hand",
+      "limit": "n/a",
+      "source": "placements.toml",
+      "check": "placements",
+      "artifacts": []
+    },
+    {
+      "subject": "board_fixture vs eco_pen_1",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap over 29.1 mm (bounding boxes)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "board_fixture vs eco_pen_2",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap over 29.1 mm (bounding boxes)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "board_fixture vs height_sensor",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap over 31.6 mm (bounding boxes)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "board_fixture vs lamp_plate",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap over 53.4 mm (bounding boxes)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "board_fixture vs lumenpnp_stock/frame",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "in contact (allowed)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "board_fixture vs lumenpnp_stock/gantry",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap over 49.0 mm (bounding boxes)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "board_fixture vs pcb_blank",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "in contact (allowed)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "board_fixture vs pen_clamp_1",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap over 61.4 mm (bounding boxes)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "board_fixture vs pen_clamp_2",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap over 61.4 mm (bounding boxes)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "board_fixture vs pico_jet_1",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 19.100 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "board_fixture vs pico_jet_2",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 19.100 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "board_fixture vs slide_1",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap over 41.4 mm (bounding boxes)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "board_fixture vs slide_2",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap over 41.4 mm (bounding boxes)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "board_fixture vs slide_3",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap over 41.4 mm (bounding boxes)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "board_fixture vs slide_4",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap over 41.4 mm (bounding boxes)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "board_fixture vs tool_plate",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 24.600 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "board_fixture vs uv_lamp_1",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 21.600 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "board_fixture vs uv_lamp_2",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 21.600 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "board_fixture vs uv_lamp_3",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 21.600 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "eco_pen_1 vs eco_pen_2",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 7.000 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "eco_pen_1 vs height_sensor",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap over 71.5 mm (bounding boxes)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "eco_pen_1 vs lamp_plate",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap over 90.4 mm (bounding boxes)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "eco_pen_1 vs lumenpnp_stock/frame",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "in contact",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "eco_pen_1 vs lumenpnp_stock/gantry",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 50.360 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "eco_pen_1 vs pcb_blank",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap over 27.5 mm (bounding boxes)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "eco_pen_1 vs pen_clamp_1",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 0.100 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "eco_pen_1 vs pen_clamp_2",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 3.500 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "eco_pen_1 vs pico_jet_1",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 15.500 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "eco_pen_1 vs pico_jet_2",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap over 41.5 mm (bounding boxes)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "eco_pen_1 vs slide_1",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 0.484 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "eco_pen_1 vs slide_2",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 17.614 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "eco_pen_1 vs slide_3",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 20.277 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "eco_pen_1 vs slide_4",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap over 43.0 mm (bounding boxes)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "eco_pen_1 vs tool_plate",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 23.484 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "eco_pen_1 vs uv_lamp_1",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap over 149.8 mm (bounding boxes)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "eco_pen_1 vs uv_lamp_2",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap over 142.4 mm (bounding boxes)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "eco_pen_1 vs uv_lamp_3",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap over 162.4 mm (bounding boxes)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "eco_pen_2 vs height_sensor",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap over 111.5 mm (bounding boxes)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "eco_pen_2 vs lamp_plate",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap over 90.4 mm (bounding boxes)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "eco_pen_2 vs lumenpnp_stock/frame",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "in contact",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "eco_pen_2 vs lumenpnp_stock/gantry",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 16.071 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "eco_pen_2 vs pcb_blank",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap over 27.5 mm (bounding boxes)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "eco_pen_2 vs pen_clamp_1",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 3.500 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "eco_pen_2 vs pen_clamp_2",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 0.100 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "eco_pen_2 vs pico_jet_1",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap over 55.5 mm (bounding boxes)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "eco_pen_2 vs pico_jet_2",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap over 81.5 mm (bounding boxes)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "eco_pen_2 vs slide_1",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 17.614 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "eco_pen_2 vs slide_2",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 0.484 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "eco_pen_2 vs slide_3",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap over 57.0 mm (bounding boxes)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "eco_pen_2 vs slide_4",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap over 83.0 mm (bounding boxes)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "eco_pen_2 vs tool_plate",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 23.484 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "eco_pen_2 vs uv_lamp_1",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap over 166.6 mm (bounding boxes)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "eco_pen_2 vs uv_lamp_2",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap over 142.4 mm (bounding boxes)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "eco_pen_2 vs uv_lamp_3",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap over 165.4 mm (bounding boxes)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "height_sensor vs lamp_plate",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap over 66.9 mm (bounding boxes)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "height_sensor vs lumenpnp_stock/frame",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 105.835 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "height_sensor vs lumenpnp_stock/gantry",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 35.485 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "height_sensor vs pcb_blank",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap over 30.0 mm (bounding boxes)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "height_sensor vs pen_clamp_1",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap over 68.0 mm (bounding boxes)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "height_sensor vs pen_clamp_2",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap over 108.0 mm (bounding boxes)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "height_sensor vs pico_jet_1",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap over 34.0 mm (bounding boxes)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "height_sensor vs pico_jet_2",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 8.000 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "height_sensor vs slide_1",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap over 78.5 mm (bounding boxes)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "height_sensor vs slide_2",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap over 118.5 mm (bounding boxes)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "height_sensor vs slide_3",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap over 35.5 mm (bounding boxes)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "height_sensor vs slide_4",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 9.500 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "height_sensor vs tool_plate",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "in contact (allowed)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "height_sensor vs uv_lamp_1",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap over 118.9 mm (bounding boxes)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "height_sensor vs uv_lamp_2",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap over 121.5 mm (bounding boxes)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "height_sensor vs uv_lamp_3",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap over 138.9 mm (bounding boxes)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "lamp_plate vs lumenpnp_stock/frame",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 108.740 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "lamp_plate vs lumenpnp_stock/gantry",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 0.010 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "lamp_plate vs pcb_blank",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap over 51.8 mm (bounding boxes)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "lamp_plate vs pen_clamp_1",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap over 89.9 mm (bounding boxes)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "lamp_plate vs pen_clamp_2",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap over 89.9 mm (bounding boxes)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "lamp_plate vs pico_jet_1",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap over 89.9 mm (bounding boxes)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "lamp_plate vs pico_jet_2",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap over 89.9 mm (bounding boxes)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "lamp_plate vs slide_1",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap over 66.9 mm (bounding boxes)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "lamp_plate vs slide_2",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap over 66.9 mm (bounding boxes)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "lamp_plate vs slide_3",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap over 66.9 mm (bounding boxes)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "lamp_plate vs slide_4",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap over 66.9 mm (bounding boxes)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "lamp_plate vs tool_plate",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap over 60.9 mm (bounding boxes)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "lamp_plate vs uv_lamp_1",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "in contact (allowed)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "lamp_plate vs uv_lamp_2",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "in contact (allowed)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "lamp_plate vs uv_lamp_3",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 20.000 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "lumenpnp_stock/frame vs lumenpnp_stock/gantry",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "in contact (allowed)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "lumenpnp_stock/frame vs pcb_blank",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 31.322 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "lumenpnp_stock/frame vs pen_clamp_1",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 103.466 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "lumenpnp_stock/frame vs pen_clamp_2",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 103.466 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "lumenpnp_stock/frame vs pico_jet_1",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 80.591 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "lumenpnp_stock/frame vs pico_jet_2",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 80.591 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "lumenpnp_stock/frame vs slide_1",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 157.946 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "lumenpnp_stock/frame vs slide_2",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 157.946 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "lumenpnp_stock/frame vs slide_3",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 157.946 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "lumenpnp_stock/frame vs slide_4",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 136.298 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "lumenpnp_stock/frame vs tool_plate",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 82.374 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "lumenpnp_stock/frame vs uv_lamp_1",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 120.813 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "lumenpnp_stock/frame vs uv_lamp_2",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 120.813 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "lumenpnp_stock/frame vs uv_lamp_3",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 102.253 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "lumenpnp_stock/gantry vs pcb_blank",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap over 47.4 mm (bounding boxes)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "lumenpnp_stock/gantry vs pen_clamp_1",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 40.467 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "lumenpnp_stock/gantry vs pen_clamp_2",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 0.512 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "lumenpnp_stock/gantry vs pico_jet_1",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 49.025 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "lumenpnp_stock/gantry vs pico_jet_2",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 49.025 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "lumenpnp_stock/gantry vs slide_1",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 26.025 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "lumenpnp_stock/gantry vs slide_2",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 10.943 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "lumenpnp_stock/gantry vs slide_3",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 26.025 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "lumenpnp_stock/gantry vs slide_4",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 26.025 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "lumenpnp_stock/gantry vs tool_plate",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 1.775 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "lumenpnp_stock/gantry vs uv_lamp_1",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 7.415 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "lumenpnp_stock/gantry vs uv_lamp_2",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 7.415 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "lumenpnp_stock/gantry vs uv_lamp_3",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 27.415 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "pcb_blank vs pen_clamp_1",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap over 59.8 mm (bounding boxes)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "pcb_blank vs pen_clamp_2",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap over 59.8 mm (bounding boxes)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "pcb_blank vs pico_jet_1",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 17.500 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "pcb_blank vs pico_jet_2",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 17.500 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "pcb_blank vs slide_1",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap over 39.7 mm (bounding boxes)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "pcb_blank vs slide_2",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap over 39.7 mm (bounding boxes)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "pcb_blank vs slide_3",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap over 39.7 mm (bounding boxes)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "pcb_blank vs slide_4",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap over 39.7 mm (bounding boxes)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "pcb_blank vs tool_plate",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 23.000 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "pcb_blank vs uv_lamp_1",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 20.000 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "pcb_blank vs uv_lamp_2",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 20.000 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "pcb_blank vs uv_lamp_3",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 20.000 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "pen_clamp_1 vs pen_clamp_2",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "in contact",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "pen_clamp_1 vs pico_jet_1",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 12.000 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "pen_clamp_1 vs pico_jet_2",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap over 38.0 mm (bounding boxes)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "pen_clamp_1 vs slide_1",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "in contact (allowed)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "pen_clamp_1 vs slide_2",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 10.500 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "pen_clamp_1 vs slide_3",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 13.500 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "pen_clamp_1 vs slide_4",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap over 39.5 mm (bounding boxes)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "pen_clamp_1 vs tool_plate",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 23.000 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "pen_clamp_1 vs uv_lamp_1",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap over 148.3 mm (bounding boxes)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "pen_clamp_1 vs uv_lamp_2",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap over 141.9 mm (bounding boxes)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "pen_clamp_1 vs uv_lamp_3",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap over 161.9 mm (bounding boxes)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "pen_clamp_2 vs pico_jet_1",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap over 52.0 mm (bounding boxes)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "pen_clamp_2 vs pico_jet_2",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap over 78.0 mm (bounding boxes)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "pen_clamp_2 vs slide_1",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 10.500 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "pen_clamp_2 vs slide_2",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "in contact (allowed)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "pen_clamp_2 vs slide_3",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap over 53.5 mm (bounding boxes)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "pen_clamp_2 vs slide_4",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap over 79.5 mm (bounding boxes)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "pen_clamp_2 vs tool_plate",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 23.000 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "pen_clamp_2 vs uv_lamp_1",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap over 164.4 mm (bounding boxes)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "pen_clamp_2 vs uv_lamp_2",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap over 141.9 mm (bounding boxes)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "pen_clamp_2 vs uv_lamp_3",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap over 164.3 mm (bounding boxes)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "pico_jet_1 vs pico_jet_2",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 4.000 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "pico_jet_1 vs slide_1",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 22.500 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "pico_jet_1 vs slide_2",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap over 62.5 mm (bounding boxes)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "pico_jet_1 vs slide_3",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "in contact (allowed)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "pico_jet_1 vs slide_4",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 5.500 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "pico_jet_1 vs tool_plate",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 23.000 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "pico_jet_1 vs uv_lamp_1",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap over 142.2 mm (bounding boxes)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "pico_jet_1 vs uv_lamp_2",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap over 141.9 mm (bounding boxes)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "pico_jet_1 vs uv_lamp_3",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap over 161.9 mm (bounding boxes)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "pico_jet_2 vs slide_1",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap over 48.5 mm (bounding boxes)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "pico_jet_2 vs slide_2",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap over 88.5 mm (bounding boxes)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "pico_jet_2 vs slide_3",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 5.500 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "pico_jet_2 vs slide_4",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "in contact (allowed)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "pico_jet_2 vs tool_plate",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 23.000 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "pico_jet_2 vs uv_lamp_1",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap over 141.9 mm (bounding boxes)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "pico_jet_2 vs uv_lamp_2",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap over 141.9 mm (bounding boxes)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "pico_jet_2 vs uv_lamp_3",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap over 161.9 mm (bounding boxes)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "slide_1 vs slide_2",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 21.000 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "slide_1 vs slide_3",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 24.000 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "slide_1 vs slide_4",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap over 50.0 mm (bounding boxes)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "slide_1 vs tool_plate",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "in contact (allowed)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "slide_1 vs uv_lamp_1",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap over 130.4 mm (bounding boxes)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "slide_1 vs uv_lamp_2",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap over 118.9 mm (bounding boxes)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "slide_1 vs uv_lamp_3",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap over 138.9 mm (bounding boxes)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "slide_2 vs slide_3",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap over 64.0 mm (bounding boxes)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "slide_2 vs slide_4",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap over 90.0 mm (bounding boxes)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "slide_2 vs tool_plate",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "in contact (allowed)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "slide_2 vs uv_lamp_1",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap over 151.3 mm (bounding boxes)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "slide_2 vs uv_lamp_2",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap over 118.9 mm (bounding boxes)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "slide_2 vs uv_lamp_3",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap over 144.1 mm (bounding boxes)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "slide_3 vs slide_4",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap 7.000 mm",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "slide_3 vs tool_plate",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "in contact (allowed)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "slide_3 vs uv_lamp_1",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap over 119.4 mm (bounding boxes)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "slide_3 vs uv_lamp_2",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap over 118.9 mm (bounding boxes)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "slide_3 vs uv_lamp_3",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap over 138.9 mm (bounding boxes)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "slide_4 vs tool_plate",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "in contact (allowed)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "slide_4 vs uv_lamp_1",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap over 118.9 mm (bounding boxes)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "slide_4 vs uv_lamp_2",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap over 118.9 mm (bounding boxes)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "slide_4 vs uv_lamp_3",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap over 138.9 mm (bounding boxes)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "tool_plate vs uv_lamp_1",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap over 112.9 mm (bounding boxes)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "tool_plate vs uv_lamp_2",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap over 112.9 mm (bounding boxes)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "tool_plate vs uv_lamp_3",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "gap over 132.9 mm (bounding boxes)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "uv_lamp_1 vs uv_lamp_2",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "in contact (allowed)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "uv_lamp_1 vs uv_lamp_3",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "in contact (allowed)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "uv_lamp_2 vs uv_lamp_3",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "in contact (allowed)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "assembly",
+      "rule": "sweep/eco_pen_1_z",
+      "state": "PASS",
+      "measured": "tightest 0.000 mm between eco_pen_1 and lumenpnp_stock/frame at eco_pen_1_z = -16.0 mm (37 moving pairs)",
+      "limit": "no overlap, and every declared clearance held",
+      "source": "7 poses across -16.0 to +0.0 mm. Axes are swept one at a time from home, so a crash needing two axes off-home is not covered.",
+      "check": "sweep",
+      "artifacts": []
+    },
+    {
+      "subject": "assembly",
+      "rule": "sweep/eco_pen_2_z",
+      "state": "PASS",
+      "measured": "tightest 0.000 mm between eco_pen_2 and lumenpnp_stock/frame at eco_pen_2_z = -16.0 mm (37 moving pairs)",
+      "limit": "no overlap, and every declared clearance held",
+      "source": "7 poses across -16.0 to +0.0 mm. Axes are swept one at a time from home, so a crash needing two axes off-home is not covered.",
+      "check": "sweep",
+      "artifacts": []
+    },
+    {
+      "subject": "assembly",
+      "rule": "sweep/pico_jet_1_z",
+      "state": "PASS",
+      "measured": "tightest 1.500 mm between pcb_blank and pico_jet_1 at pico_jet_1_z = -16.0 mm (19 moving pairs)",
+      "limit": "no overlap, and every declared clearance held",
+      "source": "7 poses across -16.0 to +0.0 mm. Axes are swept one at a time from home, so a crash needing two axes off-home is not covered.",
+      "check": "sweep",
+      "artifacts": []
+    },
+    {
+      "subject": "assembly",
+      "rule": "sweep/pico_jet_2_z",
+      "state": "PASS",
+      "measured": "tightest 1.500 mm between pcb_blank and pico_jet_2 at pico_jet_2_z = -16.0 mm (19 moving pairs)",
+      "limit": "no overlap, and every declared clearance held",
+      "source": "7 poses across -16.0 to +0.0 mm. Axes are swept one at a time from home, so a crash needing two axes off-home is not covered.",
+      "check": "sweep",
+      "artifacts": []
+    },
+    {
+      "subject": "assembly",
+      "rule": "sweep/y",
+      "state": "PASS",
+      "measured": "tightest 0.000 mm between eco_pen_1 and lumenpnp_stock/frame at y = -36.7 mm (187 moving pairs)",
+      "limit": "no overlap, and every declared clearance held",
+      "source": "7 poses across -170.0 to +230.0 mm. Axes are swept one at a time from home, so a crash needing two axes off-home is not covered.",
+      "check": "sweep",
+      "artifacts": []
+    },
+    {
+      "subject": "axis eco_pen_1_z",
+      "rule": "reach",
+      "state": "PASS",
+      "measured": "tool reaches -16.0 to +0.0 mm, work area -16.0 to +0.0 mm (+0.0 mm margin)",
+      "limit": "work area inside travel",
+      "source": "tool point swept along the axis over declared travel; this is kinematic reach, not whether the head can physically get there without hitting something \u2014 that is the sweep rule",
+      "check": "reach",
+      "artifacts": []
+    },
+    {
+      "subject": "axis eco_pen_2_z",
+      "rule": "reach",
+      "state": "PASS",
+      "measured": "tool reaches -16.0 to +0.0 mm, work area -16.0 to +0.0 mm (+0.0 mm margin)",
+      "limit": "work area inside travel",
+      "source": "tool point swept along the axis over declared travel; this is kinematic reach, not whether the head can physically get there without hitting something \u2014 that is the sweep rule",
+      "check": "reach",
+      "artifacts": []
+    },
+    {
+      "subject": "axis pico_jet_1_z",
+      "rule": "reach",
+      "state": "PASS",
+      "measured": "tool reaches -16.0 to +0.0 mm, work area -16.0 to +0.0 mm (+0.0 mm margin)",
+      "limit": "work area inside travel",
+      "source": "tool point swept along the axis over declared travel; this is kinematic reach, not whether the head can physically get there without hitting something \u2014 that is the sweep rule",
+      "check": "reach",
+      "artifacts": []
+    },
+    {
+      "subject": "axis pico_jet_2_z",
+      "rule": "reach",
+      "state": "PASS",
+      "measured": "tool reaches -16.0 to +0.0 mm, work area -16.0 to +0.0 mm (+0.0 mm margin)",
+      "limit": "work area inside travel",
+      "source": "tool point swept along the axis over declared travel; this is kinematic reach, not whether the head can physically get there without hitting something \u2014 that is the sweep rule",
+      "check": "reach",
+      "artifacts": []
+    },
+    {
+      "subject": "axis y",
+      "rule": "reach",
+      "state": "PASS",
+      "measured": "tool reaches -170.0 to +230.0 mm, work area -170.0 to +230.0 mm (+0.0 mm margin)",
+      "limit": "work area inside travel",
+      "source": "tool point swept along the axis over declared travel; this is kinematic reach, not whether the head can physically get there without hitting something \u2014 that is the sweep rule",
+      "check": "reach",
+      "artifacts": []
+    },
+    {
+      "subject": "pose back",
+      "rule": "pose",
+      "state": "PASS",
+      "measured": "y = 230 mm; inside travel",
+      "limit": "every axis declared in AXES, each position inside its travel",
+      "source": "POSES and AXES in assembly.py",
+      "check": "poses",
+      "artifacts": []
+    },
+    {
+      "subject": "pose eco_pen_1_down",
+      "rule": "pose",
+      "state": "PASS",
+      "measured": "eco_pen_1_z = -16 mm; inside travel",
+      "limit": "every axis declared in AXES, each position inside its travel",
+      "source": "POSES and AXES in assembly.py",
+      "check": "poses",
+      "artifacts": []
+    },
+    {
+      "subject": "pose eco_pen_2_down",
+      "rule": "pose",
+      "state": "PASS",
+      "measured": "eco_pen_2_z = -16 mm; inside travel",
+      "limit": "every axis declared in AXES, each position inside its travel",
+      "source": "POSES and AXES in assembly.py",
+      "check": "poses",
+      "artifacts": []
+    },
+    {
+      "subject": "pose front",
+      "rule": "pose",
+      "state": "PASS",
+      "measured": "y = -170 mm; inside travel",
+      "limit": "every axis declared in AXES, each position inside its travel",
+      "source": "POSES and AXES in assembly.py",
+      "check": "poses",
+      "artifacts": []
+    },
+    {
+      "subject": "pose pico_jet_1_down",
+      "rule": "pose",
+      "state": "PASS",
+      "measured": "pico_jet_1_z = -16 mm; inside travel",
+      "limit": "every axis declared in AXES, each position inside its travel",
+      "source": "POSES and AXES in assembly.py",
+      "check": "poses",
+      "artifacts": []
+    },
+    {
+      "subject": "pose pico_jet_2_down",
+      "rule": "pose",
+      "state": "PASS",
+      "measured": "pico_jet_2_z = -16 mm; inside travel",
+      "limit": "every axis declared in AXES, each position inside its travel",
+      "source": "POSES and AXES in assembly.py",
+      "check": "poses",
+      "artifacts": []
+    },
+    {
+      "subject": "pose uv_cure",
+      "rule": "pose",
+      "state": "PASS",
+      "measured": "y = -129.5 mm; inside travel",
+      "limit": "every axis declared in AXES, each position inside its travel",
+      "source": "POSES and AXES in assembly.py",
+      "check": "poses",
+      "artifacts": []
+    },
+    {
+      "subject": "assembly",
+      "rule": "footprint",
+      "state": "PASS",
+      "measured": "669.4 \u00d7 673.3 mm across 1 bodies at z = -100.01 (lumenpnp_stock/frame)",
+      "limit": "at least 5 mm in both axes",
+      "source": "union of the contact patches at the lowest plane; a span near zero in either axis is a line or point contact and will tip. Does not test the centre of mass.",
+      "check": "stance",
+      "artifacts": []
+    },
+    {
+      "subject": "assembly",
+      "rule": "ground plane",
+      "state": "PASS",
+      "measured": "1 bodies on the plane, 19 above it, none below",
+      "limit": "nothing below the lowest contact",
+      "source": "the lowest plane is taken as the ground, so nothing can be below it by construction; this row records the split",
+      "check": "stance",
+      "artifacts": []
+    },
+    {
+      "subject": "assembly",
+      "rule": "centre of mass",
+      "state": "UNCHECKED",
+      "measured": "no mass for 5 of 20 bodies: lumenpnp_stock/frame (stock: assembly.py builds it itself; make it a part module with a MATERIAL or a bought part with a mass); lumenpnp_stock/gantry (stock: assembly.py builds it itself; make it a part module with a MATERIAL or a bought part with a mass); uv_lamp_1 (bought part 'uv_lamp' declares no mass_g with a mass_source); uv_lamp_2 (bought part 'uv_lamp' declares no mass_g with a mass_source); uv_lamp_3 (bought part 'uv_lamp' declares no mass_g with a mass_source)",
+      "limit": "every body's mass known",
+      "source": "made: volume x density of its MATERIAL; bought: declared mass_g with a mass_source; a stock body has none",
+      "check": "com",
+      "artifacts": []
+    },
+    {
+      "subject": "assembly",
+      "rule": "spec/envelope",
+      "state": "PASS",
+      "measured": "706.74 x 673.29 x 360.42 mm",
+      "limit": "<= 720 x 680 x 365 mm",
+      "source": "spec.toml",
+      "check": "spec",
+      "artifacts": []
+    },
+    {
+      "subject": "pico_jet_1|pcb_blank",
+      "rule": "spec/clearance",
+      "state": "PASS",
+      "measured": "17.500 mm",
+      "limit": ">= 3 mm",
+      "source": "spec.toml [[clearance]] #1",
+      "check": "spec",
+      "artifacts": []
+    },
+    {
+      "subject": "pico_jet_1|pcb_blank",
+      "rule": "spec/clearance",
+      "state": "PASS",
+      "measured": "1.500 mm at pose pico_jet_1_down",
+      "limit": ">= 1 mm, <= 2 mm",
+      "source": "spec.toml [[clearance]] #2",
+      "check": "spec",
+      "artifacts": []
+    },
+    {
+      "subject": "uv_lamp_3|pcb_blank",
+      "rule": "spec/clearance",
+      "state": "PASS",
+      "measured": "20.000 mm at pose uv_cure",
+      "limit": ">= 10 mm, <= 30 mm",
+      "source": "spec.toml [[clearance]] #3",
+      "check": "spec",
+      "artifacts": []
+    },
+    {
+      "subject": "tool_plate, slide_1, slide_2, slide_3, slide_4, pen_clamp_1, pen_clamp_2, eco_pen_1, eco_pen_2, pico_jet_1, pico_jet_2, height_sensor",
+      "rule": "spec/mass",
+      "state": "PASS",
+      "measured": "2602.4 g (tool_plate 464.9 g; slide_1 148.0 g (SMC MXH catalogue, mass table: MXH10, 20 mm stroke, 148 g); slide_2 148.0 g (SMC MXH catalogue, mass table: MXH10, 20 mm stroke, 148 g); slide_3 148.0 g (SMC MXH catalogue, mass table: MXH10, 20 mm stroke, 148 g); slide_4 148.0 g (SMC MXH catalogue, mass table: MXH10, 20 mm stroke, 148 g); pen_clamp_1 115.7 g; pen_clamp_2 115.7 g; eco_pen_1 280.0 g (ViscoTec eco-PEN300 data: 280 g); eco_pen_2 280.0 g (ViscoTec eco-PEN300 data: 280 g); pico_jet_1 362.0 g (Nordson EFD PICO Pulse data sheet: 362 g without cable); pico_jet_2 362.0 g (Nordson EFD PICO Pulse data sheet: 362 g without cable); height_sensor 30.0 g (Panasonic HG-C1000 series page: 30 g without cable))",
+      "limit": "<= 2700 g",
+      "source": "spec.toml [[mass]] #1",
+      "check": "spec",
+      "artifacts": []
+    },
+    {
+      "subject": "board_fixture",
+      "rule": "spec/holes",
+      "state": "PASS",
+      "measured": "3 holes dia 2.9 to 3.1 along z, through: hole dia 3.00, through at (159.0, 82.5, 27.7); hole dia 3.00, through at (200.5, 28.5, 27.7); hole dia 3.00, through at (159.0, 282.5, 27.7)",
+      "limit": "exactly 3 holes dia 2.9 to 3.1 along z, through",
+      "source": "spec.toml [[holes]] #1",
+      "check": "spec",
+      "artifacts": []
+    },
+    {
+      "subject": "axis eco_pen_1_z",
+      "rule": "spec/axis",
+      "state": "PASS",
+      "measured": "moves eco_pen_1, pen_clamp_1; along (0.000, 0.000, 1.000); travel -16 to 0 mm (16 mm)",
+      "limit": "declared in AXES; along (0.000, 0.000, 1.000) within 1 deg; travel >= 16 mm",
+      "source": "spec.toml [[axis]] #1",
+      "check": "spec",
+      "artifacts": []
+    },
+    {
+      "subject": "axis y",
+      "rule": "spec/axis",
+      "state": "PASS",
+      "measured": "moves lumenpnp_stock/gantry, lamp_plate, uv_lamp_1, uv_lamp_2, uv_lamp_3, tool_plate, height_sensor, slide_1, slide_2, slide_3, slide_4, eco_pen_1, eco_pen_2, pen_clamp_1, pen_clamp_2, pico_jet_1, pico_jet_2; along (0.000, 1.000, 0.000); travel -170 to 230 mm (400 mm)",
+      "limit": "declared in AXES; along (0.000, 1.000, 0.000) within 1 deg; travel >= 380 mm",
+      "source": "spec.toml [[axis]] #2",
+      "check": "spec",
+      "artifacts": []
+    },
+    {
+      "subject": "eco_pen",
+      "rule": "source",
+      "state": "PASS",
+      "measured": "ViscoTec preeflow eco-PEN300 (art. 20505): L 216, dia 33, 280 g, 0-6 bar operating, 0.12-1.48 ml/min, 1 ul: https://unchainedrobotics.de/en/products/end-of-arm-effectors/end-of-arm-tools/dispensers/vieweg-volume-valve-preeflow-eco-pen450 (eco-PEN range page) and ViscoTec's product page",
+      "limit": "recorded and confirmed",
+      "source": "MEASURED route",
+      "check": "provenance",
+      "artifacts": []
+    },
+    {
+      "subject": "height_sensor",
+      "rule": "source",
+      "state": "UNCHECKED",
+      "measured": "declared unconfirmed: Panasonic HG-C1030: 30 +/- 5 mm, 10 um, 30 g without cable, 24 V DC, Class 2 655 nm: https://industry.panasonic.com/global/en/products/fasys/sensor/photoelectric/hg-c1000l ; W20 x H44 x D25 from a search excerpt (drawing not read)",
+      "limit": "measured on the real part",
+      "source": "confirm with callipers on arrival, then set VERIFIED",
+      "check": "provenance",
+      "artifacts": []
+    },
+    {
+      "subject": "pcb_blank",
+      "rule": "source",
+      "state": "PASS",
+      "measured": "Isola 370HR data sheet: Tg 180 C (DSC), Td 340 C, T260 60 min, T288 30 min: https://www.isola-group.com/wp-content/uploads/data-sheets/370hr.pdf ; the 229 x 305 panel is CircuitJet IV's board size",
+      "limit": "recorded and confirmed",
+      "source": "MEASURED route",
+      "check": "provenance",
+      "artifacts": []
+    },
+    {
+      "subject": "pico_jet",
+      "rule": "source",
+      "state": "UNCHECKED",
+      "measured": "declared unconfirmed: Nordson EFD PICO Pulse data sheet: 22 W x 120 H x 75 L mm, 362 g without cable, 35 bar, M4x0.7 mounting, 0.5 nl, 1000 Hz: https://assets.testequity.com/te1/Documents/pdf/nordson/Nordson-EFD_Pico-Pulse-Contact-Dispense-Valve_DataSheet_0624.pdf (the contact-valve sheet; the jet's own sheet gives the same body per a search excerpt)",
+      "limit": "measured on the real part",
+      "source": "confirm with callipers on arrival, then set VERIFIED",
+      "check": "provenance",
+      "artifacts": []
+    },
+    {
+      "subject": "slide",
+      "rule": "source",
+      "state": "UNCHECKED",
+      "measured": "declared unconfirmed: SMC MXH series catalogue (MXH10: mass 148 g at 20 mm stroke; theoretical output 39.3 N OUT / 33.0 N IN at 0.5 MPa; phi 10 dimensions W 19, L 46.5 + stroke): https://automationdistribution.com/content/files/pdf/mxh.pdf ; product page https://elasticsearch.smcpneumatics.com/25A-MXH10-25Z.html",
+      "limit": "measured on the real part",
+      "source": "confirm with callipers on arrival, then set VERIFIED",
+      "check": "provenance",
+      "artifacts": []
+    },
+    {
+      "subject": "uv_lamp",
+      "rule": "source",
+      "state": "UNCHECKED",
+      "measured": "declared unconfirmed: UV LED curing lamp 395 nm 100 W: product 110 x 20 x 118 mm, emitting area 72 x 8 mm, 12-16 W/cm2, 48 V 3 A, air-cooled https://www.ledwv.com/uv/uv-led-curing-lamp-source-395nm-100w-p-1199.html",
+      "limit": "measured on the real part",
+      "source": "confirm with callipers on arrival, then set VERIFIED",
+      "check": "provenance",
+      "artifacts": []
+    },
+    {
+      "subject": "lumenpnp_stock",
+      "rule": "moved",
+      "state": "N/A",
+      "measured": "nothing moved by hand",
+      "limit": "n/a",
+      "source": "placements.toml",
+      "check": "lumenpnp_stock:placements",
+      "artifacts": []
+    },
+    {
+      "subject": "frame vs gantry",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "in contact (allowed)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "lumenpnp_stock:fit",
+      "artifacts": []
+    },
+    {
+      "subject": "assembly",
+      "rule": "travel",
+      "state": "N/A",
+      "measured": "no AXES declared, so nothing moves",
+      "limit": "n/a",
+      "source": "a static assembly is fully judged by the fit rule; declare AXES in assembly.py for a machine",
+      "check": "lumenpnp_stock:sweep",
+      "artifacts": []
+    },
+    {
+      "subject": "assembly",
+      "rule": "footprint",
+      "state": "PASS",
+      "measured": "669.4 \u00d7 673.3 mm across 1 bodies at z = -100.01 (frame)",
+      "limit": "at least 5 mm in both axes",
+      "source": "union of the contact patches at the lowest plane; a span near zero in either axis is a line or point contact and will tip. Does not test the centre of mass.",
+      "check": "lumenpnp_stock:stance",
+      "artifacts": []
+    },
+    {
+      "subject": "assembly",
+      "rule": "ground plane",
+      "state": "PASS",
+      "measured": "1 bodies on the plane, 1 above it, none below",
+      "limit": "nothing below the lowest contact",
+      "source": "the lowest plane is taken as the ground, so nothing can be below it by construction; this row records the split",
+      "check": "lumenpnp_stock:stance",
+      "artifacts": []
+    },
+    {
+      "subject": "assembly",
+      "rule": "centre of mass",
+      "state": "N/A",
+      "measured": "no bought part declares a mass_g with a mass_source, so nothing says what the assembly weighs (2 of 2 bodies have no mass)",
+      "limit": "n/a",
+      "source": "judged once a bought part declares a mass (bought.py has the contract); `stance` says the footprint has area, not that the weight is over it",
+      "check": "lumenpnp_stock:com",
+      "artifacts": []
+    },
+    {
+      "subject": "assembly",
+      "rule": "spec/envelope",
+      "state": "PASS",
+      "measured": "706.74 x 673.29 x 340.42 mm",
+      "limit": "<= 720 x 680 x 365 mm",
+      "source": "spec.toml",
+      "check": "lumenpnp_stock:spec",
+      "artifacts": []
+    },
+    {
+      "subject": "assembly",
+      "rule": "spec/bodies",
+      "state": "PASS",
+      "measured": "2 bodies: frame, gantry",
+      "limit": "exactly 2 bodies; exactly the bodies frame, gantry",
+      "source": "spec.toml",
+      "check": "lumenpnp_stock:spec",
+      "artifacts": []
+    },
+    {
+      "subject": "lumenpnp_stock",
+      "rule": "bought parts",
+      "state": "N/A",
+      "measured": "none in this project",
+      "limit": "n/a",
+      "source": "nothing bought, so nothing to source",
+      "check": "lumenpnp_stock:provenance",
+      "artifacts": []
+    }
+  ],
+  "tree": {
+    "subassemblies": [
+      {
+        "name": "lumenpnp_stock",
+        "project": "lumenpnp_stock",
+        "at": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "turn": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "depth": 1,
+        "bodies": 2,
+        "axes": [],
+        "projects": [
+          "lumenpnp_stock"
+        ]
+      }
+    ],
+    "projects": {
+      "lumenpnp_stock": {
+        "source_hash": "ffe13025e50fb3d4dc1443c1bac74093da2688efa60b24222b7255cbb69ce3dc",
+        "design_files": 2
+      }
+    }
+  }
+}

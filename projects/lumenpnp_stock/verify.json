@@ -1,0 +1,151 @@
+{
+  "project": "lumenpnp_stock",
+  "verdict": "PASS",
+  "written_utc": "2026-11-05T00:43:05Z",
+  "seconds": 196.1,
+  "source_hash": "ffe13025e50fb3d4dc1443c1bac74093da2688efa60b24222b7255cbb69ce3dc",
+  "design_files": 2,
+  "engine_hash": "caa514715a653f3caf32a8c6b32e22bb21195eb3e17bf3dde1a53c44429b718b",
+  "git": {
+    "repo": "/home/ubuntu/work/pcbfab-wt",
+    "path": "projects/lumenpnp_stock",
+    "commit": "f2aa08a8ec25f1178fe730958af23ab8a5baa709",
+    "tree": "13a3a90f943f8691396664bf62b8af61c0524bf4",
+    "dirty": false,
+    "uncommitted": []
+  },
+  "process": {
+    "fresh": true,
+    "mode": "cold"
+  },
+  "views": [
+    "iso"
+  ],
+  "summary": {
+    "parts_built": 0,
+    "parts_failed": 0,
+    "checks_run": 10,
+    "rows": 9,
+    "by_state": {
+      "N/A": 4,
+      "PASS": 5
+    },
+    "by_check": {
+      "placements": {
+        "N/A": 1
+      },
+      "fit": {
+        "PASS": 1
+      },
+      "sweep": {
+        "N/A": 1
+      },
+      "stance": {
+        "PASS": 2
+      },
+      "com": {
+        "N/A": 1
+      },
+      "spec": {
+        "PASS": 2
+      },
+      "provenance": {
+        "N/A": 1
+      }
+    },
+    "ok": true
+  },
+  "notes": [],
+  "rows": [
+    {
+      "subject": "lumenpnp_stock",
+      "rule": "moved",
+      "state": "N/A",
+      "measured": "nothing moved by hand",
+      "limit": "n/a",
+      "source": "placements.toml",
+      "check": "placements",
+      "artifacts": []
+    },
+    {
+      "subject": "frame vs gantry",
+      "rule": "clearance",
+      "state": "PASS",
+      "measured": "in contact (allowed)",
+      "limit": "no overlap",
+      "source": "measured overlap volume, or closest approach",
+      "check": "fit",
+      "artifacts": []
+    },
+    {
+      "subject": "assembly",
+      "rule": "travel",
+      "state": "N/A",
+      "measured": "no AXES declared, so nothing moves",
+      "limit": "n/a",
+      "source": "a static assembly is fully judged by the fit rule; declare AXES in assembly.py for a machine",
+      "check": "sweep",
+      "artifacts": []
+    },
+    {
+      "subject": "assembly",
+      "rule": "footprint",
+      "state": "PASS",
+      "measured": "669.4 \u00d7 673.3 mm across 1 bodies at z = -100.01 (frame)",
+      "limit": "at least 5 mm in both axes",
+      "source": "union of the contact patches at the lowest plane; a span near zero in either axis is a line or point contact and will tip. Does not test the centre of mass.",
+      "check": "stance",
+      "artifacts": []
+    },
+    {
+      "subject": "assembly",
+      "rule": "ground plane",
+      "state": "PASS",
+      "measured": "1 bodies on the plane, 1 above it, none below",
+      "limit": "nothing below the lowest contact",
+      "source": "the lowest plane is taken as the ground, so nothing can be below it by construction; this row records the split",
+      "check": "stance",
+      "artifacts": []
+    },
+    {
+      "subject": "assembly",
+      "rule": "centre of mass",
+      "state": "N/A",
+      "measured": "no bought part declares a mass_g with a mass_source, so nothing says what the assembly weighs (2 of 2 bodies have no mass)",
+      "limit": "n/a",
+      "source": "judged once a bought part declares a mass (bought.py has the contract); `stance` says the footprint has area, not that the weight is over it",
+      "check": "com",
+      "artifacts": []
+    },
+    {
+      "subject": "assembly",
+      "rule": "spec/envelope",
+      "state": "PASS",
+      "measured": "706.74 x 673.29 x 340.42 mm",
+      "limit": "<= 720 x 680 x 365 mm",
+      "source": "spec.toml",
+      "check": "spec",
+      "artifacts": []
+    },
+    {
+      "subject": "assembly",
+      "rule": "spec/bodies",
+      "state": "PASS",
+      "measured": "2 bodies: frame, gantry",
+      "limit": "exactly 2 bodies; exactly the bodies frame, gantry",
+      "source": "spec.toml",
+      "check": "spec",
+      "artifacts": []
+    },
+    {
+      "subject": "lumenpnp_stock",
+      "rule": "bought parts",
+      "state": "N/A",
+      "measured": "none in this project",
+      "limit": "n/a",
+      "source": "nothing bought, so nothing to source",
+      "check": "provenance",
+      "artifacts": []
+    }
+  ]
+}
