@@ -1,20 +1,19 @@
-"""pcb_blank: double-sided copper-clad laminate, Isola 370HR, 229 x 305 x 1.6 (the quarter panel CircuitJet IV takes)
+"""pcb_blank: double-sided copper-clad FR4, 150 x 150 x 1.6, 1 oz (35 um) a side (Juan, 2026-11-05)
 
-Bought part. A lead-free-reflow laminate: Tg 180 C, Td 340 C, and 60 minutes at 260 C (T260, TMA) before it
-delaminates, which is what lets it sit on the 240 C platen for the via cure (160 C, 30 min) and the reflow. The
-copper (35 um a side) is part of the 1.6.
+Bought part. Juan chose 150 x 150 boards so the UV marker's 150 mm lens covers a whole board with no stage. Cut four
+from one 12 x 12 in MG Chemicals 555 sheet (305 x 305: two 150 boards a side, 5 mm left for the cuts). MG does not
+list its Tg, so no temperature rating is claimed here; the copper is part of the 1.6.
 """
 from build123d import Box
 
-SOURCE = "Isola 370HR data sheet: Tg 180 C (DSC), Td 340 C, T260 60 min, T288 30 min: https://www.isola-group.com/wp-content/uploads/data-sheets/370hr.pdf ; the 229 x 305 panel is CircuitJet IV's board size"
-VENDOR = "Isola"
+SOURCE = "MG Chemicals 555, 12 x 12 in, 0.062 in, 1 oz double-sided FR4 (DigiKey 473-1007-ND): https://www.digikey.com/en/products/detail/mg-chemicals/555/559707 ; 150 x 150 is Juan's board size"
+VENDOR = "MG Chemicals"
+PART_NUMBER = "555"
 VERIFIED = True
-MAX_TEMP_C = 260.0
-MAX_TEMP_SOURCE = "Isola 370HR data sheet: T260 (time to delamination at 260 C, TMA) 60 minutes: https://www.isola-group.com/wp-content/uploads/data-sheets/370hr.pdf"
-MASS_G = 207.0
-MASS_SOURCE = "229 x 305 x 1.6 mm = 111.8 cm3 x 1.85 g/cm3 (fr4, cad tables materials); the copper is not counted apart"
+MASS_G = 66.6
+MASS_SOURCE = "150 x 150 x 1.6 mm = 36.0 cm3 x 1.85 g/cm3 (fr4, cad tables materials); the copper is not counted apart"
 
-PARAMS = {"size_x": 229.0, "size_y": 305.0, "thick": 1.6}
+PARAMS = {"size_x": 150.0, "size_y": 150.0, "thick": 1.6}
 
 
 def build(size_x, size_y, thick):
