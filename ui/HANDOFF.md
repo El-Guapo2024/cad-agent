@@ -162,6 +162,12 @@ Step 5, round 3 (six branches) is all in main (7526c0c, CI green, 6977 passed, 2
   oven's open firmware over serial). pcbfab (the one machine) is superseded and FAILs against the changed fab_stage;
   the half-built two-machine variant is on branch pcbfab-custom-wip. Open with Juan: how the marker covers a 229 x 305
   board (150 lens + fab_stage stitching, a 300 lens, or 150 x 150 boards), which decides the laser fixture next.
+  Order list (2026-11-05): projects/pnp_tools/LINE-ORDER.csv, the whole line at the cheapest options found (~$6.1k
+  priced; many marketplace prices are search snippets, marked partial). Juan's picks: Omai 5 W UV ($2,571 + freight,
+  ask board/lens/DDP), Opulo control box + custom kits and generic commodity parts for the LumenPnP (he prints the
+  plastic), 983A pneumatic dispensers on clone MXH10 slides instead of ViscoTec/Nordson, a toaster-oven reflow (Pico +
+  MAX31855 + SSR) that also cures the vias, a stencil kit. Corrected JLC BOM for Opulo's mobo (if ever built):
+  projects/lumenpnp_stock/mobo_bom_jlc_fixed.csv. The rails/extrusion/fastener lines still carry Opulo's prices.
 - Left after the demo: FEM (Gmsh and CalculiX as separate programs), Draft, Part's cut commands, PARITY's known
   differences. Temporary branches on GitHub (ds-merge, ds-fix, asm-merge, st-merge, r5-merge, r6-merge, r7-merge,
   r7b-merge, cam-merge, ci-diag) are all in main; delete them when Juan says so.
