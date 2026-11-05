@@ -1,0 +1,45 @@
+# What the retrofitted pick-and-place must do, as the kernel can measure it.
+
+[envelope]                   # LumenPnP and what it carries
+max_mm = [720, 680, 365]
+
+[[clearance]]                # the tools, raised, over the board
+a = "pico_jet_1"
+b = "pcb_blank"
+min_mm = 3.0
+
+[[clearance]]                # a jet, lowered, at its working gap
+a = "pico_jet_1"
+b = "pcb_blank"
+min_mm = 1.0
+max_mm = 2.0
+pose = "pico_jet_1_down"
+
+[[clearance]]                # the middle UV lamp over the board: close enough to cure, clear of it
+a = "uv_lamp_3"
+b = "pcb_blank"
+min_mm = 10.0
+max_mm = 30.0
+pose = "uv_cure"
+
+[[holes]]                    # the fixture's three locating pins, 3-2-1
+body = "board_fixture"
+count = 3
+min_dia_mm = 2.9
+max_dia_mm = 3.1
+axis = "z"
+through = true
+
+[[axis]]                     # each tool on its own air slide
+name = "eco_pen_1_z"
+direction = [0, 0, 1]
+travel_min_mm = 16
+
+[[axis]]                     # the gantry carries the tools over the whole board
+name = "y"
+direction = [0, 1, 0]
+travel_min_mm = 380
+
+[[mass]]                     # what the tools add to LumenPnP's X carriage (belt driven): see pcbfab/MOTION.md
+bodies = ["tool_plate", "slide_1", "slide_2", "slide_3", "slide_4", "pen_clamp_1", "pen_clamp_2", "eco_pen_1", "eco_pen_2", "pico_jet_1", "pico_jet_2", "height_sensor"]
+max_g = 2700

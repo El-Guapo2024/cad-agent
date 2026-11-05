@@ -1,0 +1,8 @@
+# Stock LumenPnP v4.2.0 as the line's pick-and-place uses it: two bodies by what moves (assembly.py), Opulo's geometry.
+
+[envelope]
+max_mm = [720, 680, 365]
+
+[bodies]
+count = 2
+names = ["frame", "gantry"]
