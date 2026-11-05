@@ -168,6 +168,8 @@ Step 5, round 3 (six branches) is all in main (7526c0c, CI green, 6977 passed, 2
   plastic), 983A pneumatic dispensers on clone MXH10 slides instead of ViscoTec/Nordson, a toaster-oven reflow (Pico +
   MAX31855 + SSR) that also cures the vias, a stencil kit. Corrected JLC BOM for Opulo's mobo (if ever built):
   projects/lumenpnp_stock/mobo_bom_jlc_fixed.csv. The rails/extrusion/fastener lines still carry Opulo's prices.
+  Later the same day Juan chose 150 x 150 boards (no laser stage), a self-built LumenPnP, a DIY reflow oven and a
+  US-stock 5 W UV marker; the full handoff for the agent that finishes it: projects/pnp_tools/HANDOFF-PCB-LINE.md.
 - Left after the demo: FEM (Gmsh and CalculiX as separate programs), Draft, Part's cut commands, PARITY's known
   differences. Temporary branches on GitHub (ds-merge, ds-fix, asm-merge, st-merge, r5-merge, r6-merge, r7-merge,
   r7b-merge, cam-merge, ci-diag) are all in main; delete them when Juan says so.
