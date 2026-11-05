@@ -155,6 +155,13 @@ Step 5, round 3 (six branches) is all in main (7526c0c, CI green, 6977 passed, 2
   scratchpad: combo_sweep.py (axes together), flip_sweep.py, color_render.py. projects/pcbfab/MOTION.md has the
   motion and motor checks, ELECTRONICS-BRIEF.md the EE brief. No renders approved; some bought masses and sizes
   unconfirmed (they keep every verdict UNCHECKED).
+  Changed 2026-11-05 (Juan): no single machine. The line is bought and retrofitted: a 5 W UV galvo marker (Haotian,
+  Lark-355-5A + SG7110, the same parts as laser_bridge), a stock LumenPnP with the process tools (projects/pnp_tools
+  on projects/lumenpnp_stock: verify 0 FAIL, UNCHECKED on renders, masses and four datasheet sizes), and a T-962A
+  oven for the via cure and reflow; each run by an LLM through an MCP server (MeerK40t/balor, OpenPnP or G-code, the
+  oven's open firmware over serial). pcbfab (the one machine) is superseded and FAILs against the changed fab_stage;
+  the half-built two-machine variant is on branch pcbfab-custom-wip. Open with Juan: how the marker covers a 229 x 305
+  board (150 lens + fab_stage stitching, a 300 lens, or 150 x 150 boards), which decides the laser fixture next.
 - Left after the demo: FEM (Gmsh and CalculiX as separate programs), Draft, Part's cut commands, PARITY's known
   differences. Temporary branches on GitHub (ds-merge, ds-fix, asm-merge, st-merge, r5-merge, r6-merge, r7-merge,
   r7b-merge, cam-merge, ci-diag) are all in main; delete them when Juan says so.
