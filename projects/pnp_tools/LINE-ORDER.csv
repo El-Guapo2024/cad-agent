@@ -1,51 +1,51 @@
 group,item,buy,vendor,part_number,qty,unit_usd,total_usd,price_checked,url,notes
-Laser,5 W 355 nm UV galvo marker (JPT source; JCZ EZCad),yes,Jinan Omai (made-in-china),OM-U5,1,2571,2571,yes,https://www.madeinchina.com/mall/show-UV-Laser-Marking-Machine-3-Watt-5-Watt-10-Watt-Ultraviolet-Laser-Marker-Uiv-Laser-Engraving-Machine_550464.html,"ask for 150 mm lens + freight/duty quote + board model; alt Haotian $5400 DDP"
-Laser,Fume extractor 150 W HEPA+carbon,yes,Fumeclear,FC-150,1,389.99,389.99,yes,https://fumeclear.com/products/fumeclear%c2%aefc-150-fume-extractor,"switch it with a 24 V relay"
-Laser,355 nm safety glasses OD5+,yes,Laser Safety Industries,100-10-105,2,79,158,yes,https://www.lasersafetyindustries.com/products/uv-laser-safety-glasses,""
-PnP (Opulo custom),Control box (mobo + pumps + valves + sensors),yes,Opulo,lumenpnp-control-box,1,249.99,249.99,yes,https://www.opulo.io/products/lumenpnp-control-box,"cheaper than JLC (min 2 boards = $288)"
-PnP (Opulo custom),Toolhead kit (nozzle holder + NEMA11 + adapter),yes,Opulo,lumenpnp-toolhead-kit,2,59.99,119.98,yes,https://www.opulo.io/products/lumenpnp-toolhead-kit,""
-PnP (Opulo custom),Drag chain kit (x + head harness + camera cable),yes,Opulo,lumenpnp-drag-chain-assembly-kit,1,159.99,159.99,yes,https://opulo.io/products/lumenpnp-drag-chain-assembly-kit,"the two hard custom harnesses"
-PnP (Opulo custom),Frame cable harness set,yes,Opulo,lumenpnp-frame-cable-harness-set,1,29.99,29.99,yes,https://opulo.io/products/lumenpnp-frame-cable-harness-set,""
-PnP (Opulo custom),Ring light set,yes,Opulo,lumenpnp-ring-light-set,1,19.99,19.99,yes,https://opulo.io/products/lumenpnp-ring-light-set,""
-PnP (Opulo custom),Endstop set,yes,Opulo,lumenpnp-endstop-set,1,19.99,19.99,yes,https://opulo.io/products/lumenpnp-endstop-set,""
-PnP (generic),NEMA17 stepper 5-pack,yes,StepperOnline,17HS15-1504S,1,29.22,29.22,partial,https://www.omc-stepperonline.com/,"Opulo uses LDO 1.7 A; this is 1.5 A"
-PnP (generic),24 V 6.5 A PSU,yes,Jameco,Mean Well LRS-150-24,1,18.80,18.80,partial,https://www.jameco.com/,""
-PnP (generic),Top + bottom USB cameras 1080p (12 mm / 4 mm lens),yes,ELP (Amazon/AliExpress),ELP-USBFHD01M-L12 + -L4,2,,,no,,"or Opulo camera set $140"
-PnP (generic),PVC tube 6x4 + PU tube 4x2.5,yes,Zoro / eBay,,1,24.03,24.03,partial,,""
-PnP (mech - Opulo price until cheaper found),Frame kit (2020 extrusions + brackets + feet),yes,Opulo,lumenpnp-frame-kit,1,120,120,yes,https://opulo.io/products/lumenpnp-frame-kit,"pending cheaper AliExpress"
-PnP (mech - Opulo price until cheaper found),MGN12H rail kit (525 + 2x550 + T-nut bars),yes,Opulo,mgn12h-linear-rail-kit,1,249.99,249.99,yes,https://www.opulo.io/products/mgn12h-linear-rail-kit,"pending cheaper AliExpress"
-PnP (mech - Opulo price until cheaper found),Z rail set MGN9C 100 mm x2,yes,Opulo,lumenpnp-z-axis-linear-rail-set,1,39.99,39.99,yes,https://opulo.io/products/lumenpnp-z-axis-linear-rail-set,""
-PnP (mech - Opulo price until cheaper found),GT2 belt + pulley kit,yes,Opulo,lumenpnp-gt2-belt-and-pulley-kit,1,39.99,39.99,yes,https://opulo.io/products/lumenpnp-gt2-belt-and-pulley-kit,""
-PnP (mech - Opulo price until cheaper found),DIY fastener kit,yes,Opulo,,1,45,45,yes,https://www.opulo.io/products,""
-PnP (mech - Opulo price until cheaper found),CP40 nozzle set 6 pc,yes,Opulo,cp40-pnp-nozzle,1,75,75,yes,https://opulo.io/products/cp40-pnp-nozzle,""
-PnP (mech),Staging plate (steel laser cut),yes,SendCutSend / JLCCNC,from Opulo DXF,1,,,no,https://sendcutsend.com/,"or Opulo build plate $70"
-PnP (print),PLA filament 1 kg x2 (all printed parts),yes,Inland / Amazon,,2,,,no,,"you print"
-Head tools,983A pneumatic dispenser (paste + via + mask + legend),yes,AliExpress,983A 110 V,4,57.39,229.56,partial,https://www.aliexpress.us/item/3256802693580007.html,"trigger via 24 V relay"
-Head tools,MXH10-20 air slide (clone),yes,AliExpress,MXH10-20,4,43.49,173.96,partial,https://www.aliexpress.us/item/3256812851057417.html,""
-Head tools,4V110-M5 24 V solenoid valve,yes,AliExpress,4V110-M5 DC24V,4,12.82,51.28,partial,https://www.aliexpress.us/item/3256813334294645.html,""
-Head tools,Valve manifold 4-station,yes,AliExpress,4V110 base,1,15.79,15.79,partial,https://www.aliexpress.us/item/3256812174867587.html,""
-Head tools,Push-in fittings kit,yes,AliExpress,,1,8.77,8.77,partial,https://www.aliexpress.us/item/3256812311642394.html,""
-Head tools,Quiet oil-free compressor 1 gal,yes,Woodcraft,California Air Tools 1P1060S,1,149,149,yes,https://www.woodcraft.com/,"add a filter-regulator"
-Head tools,Height probe,yes,West3D / Amazon,BLTouch v3.1,1,33.99,33.99,yes (sold out there),,"alt laser sensor ZHICAN E3CX $131.99"
-Head tools,395 nm 100 W UV LED kit with driver,yes,AliExpress,,3,23.51,70.53,partial,https://www.aliexpress.us/item/2251832655913420.html,"AC driver; switch with SSR"
-Oven,Convection toaster oven 1500 W (fits 9x13),yes,Walmart / Amazon,Black+Decker TO3250XSB,1,86.99,86.99,partial,https://www.walmart.com/ip/34516916,"Amazon B00LU2I428; also does the 160 C via cure"
-Oven,Raspberry Pi Pico,yes,Adafruit,4864,1,4,4,yes,https://www.adafruit.com/product/4864,""
-Oven,MAX31855 thermocouple board,yes,Adafruit,269,1,14.95,14.95,yes,https://www.adafruit.com/product/269,""
-Oven,K-type glass-braid thermocouple,yes,Adafruit,,1,9.95,9.95,yes,https://www.adafruit.com/product/269,""
-Oven,SSR 40 A,yes,Inkbird / Amazon,SSR-40DA,1,15.99,15.99,partial,,"+ heatsink"
-Oven,Ceramic fibre blanket,yes,Walmart,,1,26.99,26.99,partial,,""
-Oven,Gold Kapton tape 50 mm,yes,Amazon,,1,9,9,partial,,""
-Stencil,Manual stencil printer 300x240,yes,eBay,VEVOR S size,1,64.98,64.98,partial,https://www.ebay.com/itm/184288110896,"fits boards up to 240x300"
-Stencil,Stainless squeegee,yes,eBay,,1,26.36,26.36,partial,https://www.ebay.com/itm/226947596627,""
-Stencil,Mylar 4 mil 5-pack (laser cut stencils),yes,My Crafty Stencils,,1,5.94,5.94,yes,https://www.mycraftystencils.com/products/4-mil-blank-mylar-stencil-sheets,"Kapton cuts surely at 355 nm"
-Stencil,Stencil wipes,yes,DigiKey,STENCIL-WIPES,1,15.39,15.39,yes,https://www.digikey.com/en/products/detail/chip-quik-inc/STENCIL-WIPES/18869664,""
-Consumables,FR4 double-sided 1 oz 12x12 (10),yes,DigiKey,MG Chemicals 555,10,33.40,334.02,yes,https://www.digikey.com/en/products/detail/mg-chemicals/555/559707,""
-Consumables,Silver via paste 14 g,yes,Vetco,MG Chemicals 8331D-14G,1,102.95,102.95,partial,https://www.digikey.com/en/products/detail/mg-chemicals/8331D-14G/13170710,""
-Consumables,Solder paste SnBi 10 cc syringe,yes,DigiKey,Chip Quik TS391LT10,2,28.95,57.90,yes,https://www.digikey.com/en/products/detail/chip-quik-inc/TS391LT10/7802221,""
-Consumables,Solder paste SnBi 50 g jar (stencil),yes,DigiKey,Chip Quik TS391LT50,1,21.95,21.95,yes,https://www.digikey.com/en/products/detail/chip-quik-inc/TS391LT50/7802224,""
-Consumables,UV solder mask green 10 cc,yes,Amazon / AliExpress,Mechanic UV-H900,5,,,no,,""
-Consumables,White UV legend ink 2x10 cc,yes,VXB,,1,49.98,49.98,partial,https://vxb.com/products/high-performance-uv-curing-solder-mask-ink-for-pcb,""
-Consumables,Immersion tin 125 ml,yes,Vetco,MG Chemicals 421A-125ML,1,34.95,34.95,yes,https://vetco.net/products/421a-125ml_mg_liquid_tin_pc_board_tin_plating_solution_-_4-2_floz_125ml,""
-Consumables,Needles 25 ga 1 in 50 pk,yes,Ellsworth,Fisnar 8001102,1,22,22,yes,https://ellsworth.com/products/dispensing-equipment-supplies/tips-needles-nozzles-static-mixers/tips-needles/fisnar-5601143-straight-blunt-end-needle-red-1-in-x-25-ga,""
-Consumables,30 cc barrels 50 pk,yes,TestEquity,Nordson EFD 7366060,1,52.34,52.34,partial,https://www.testequity.com/,""
-Consumables,IPA 99.9% 1 gal,yes,Hisco,MG Chemicals 824-1G,1,37.68,37.68,partial,https://www.hisco.com/,""
+Laser,"5 W 355 nm UV galvo marker, water cooled (Sino-Galvo; EzCad lite = JCZ; LightBurn)",yes,"Oabduz (ships from ACHI-Official, Amazon)",200x200 lens,1,2438,2438,yes (Juan read the page),https://www.amazon.com/dp/B0DFCLQZ5H,"US stock, no import duty, returnable to 2027-01-31; ask the UV source brand (JPT/Huaray/Inno) and a 150 mm lens; was Omai OM-U5 $2571 + freight/duty"
+Laser,Fume extractor 150 W HEPA+carbon,yes,Fumeclear,FC-150,1,389.99,389.99,yes,https://fumeclear.com/products/fumeclear%c2%aefc-150-fume-extractor,switch it with a 24 V relay
+Laser,355 nm safety glasses OD5+,yes,Laser Safety Industries,100-10-105,2,79,158,yes,https://www.lasersafetyindustries.com/products/uv-laser-safety-glasses,
+PnP (Opulo custom),Control box (mobo + pumps + valves + sensors),yes,Opulo,lumenpnp-control-box,1,249.99,249.99,yes,https://www.opulo.io/products/lumenpnp-control-box,cheaper than JLC (min 2 boards = $288)
+PnP (Opulo custom),Toolhead kit (nozzle holder + NEMA11 + adapter),yes,Opulo,lumenpnp-toolhead-kit,2,59.99,119.98,yes,https://www.opulo.io/products/lumenpnp-toolhead-kit,
+PnP (Opulo custom),Drag chain kit (x + head harness + camera cable),yes,Opulo,lumenpnp-drag-chain-assembly-kit,1,159.99,159.99,yes,https://opulo.io/products/lumenpnp-drag-chain-assembly-kit,the two hard custom harnesses
+PnP (Opulo custom),Frame cable harness set,yes,Opulo,lumenpnp-frame-cable-harness-set,1,29.99,29.99,yes,https://opulo.io/products/lumenpnp-frame-cable-harness-set,
+PnP (Opulo custom),Ring light set,yes,Opulo,lumenpnp-ring-light-set,1,19.99,19.99,yes,https://opulo.io/products/lumenpnp-ring-light-set,
+PnP (Opulo custom),Endstop set,yes,Opulo,lumenpnp-endstop-set,1,19.99,19.99,yes,https://opulo.io/products/lumenpnp-endstop-set,
+PnP (generic),NEMA17 stepper 5-pack,yes,StepperOnline,17HS15-1504S,1,29.22,29.22,partial,https://www.omc-stepperonline.com/,Opulo uses LDO 1.7 A; this is 1.5 A
+PnP (generic),24 V 6.5 A PSU,yes,Jameco,Mean Well LRS-150-24,1,18.80,18.80,partial,https://www.jameco.com/,
+PnP (generic),Top + bottom USB cameras 1080p (12 mm / 4 mm lens),yes,ELP (Amazon/AliExpress),ELP-USBFHD01M-L12 + -L4,2,,,no,,or Opulo camera set $140
+PnP (generic),PVC tube 6x4 + PU tube 4x2.5,yes,Zoro / eBay,,1,24.03,24.03,partial,,
+PnP (mech - Opulo price until cheaper found),Frame kit (2020 extrusions + brackets + feet),yes,Opulo,lumenpnp-frame-kit,1,120,120,yes,https://opulo.io/products/lumenpnp-frame-kit,pending cheaper AliExpress
+PnP (mech - Opulo price until cheaper found),MGN12H rail kit (525 + 2x550 + T-nut bars),yes,Opulo,mgn12h-linear-rail-kit,1,249.99,249.99,yes,https://www.opulo.io/products/mgn12h-linear-rail-kit,pending cheaper AliExpress
+PnP (mech - Opulo price until cheaper found),Z rail set MGN9C 100 mm x2,yes,Opulo,lumenpnp-z-axis-linear-rail-set,1,39.99,39.99,yes,https://opulo.io/products/lumenpnp-z-axis-linear-rail-set,
+PnP (mech - Opulo price until cheaper found),GT2 belt + pulley kit,yes,Opulo,lumenpnp-gt2-belt-and-pulley-kit,1,39.99,39.99,yes,https://opulo.io/products/lumenpnp-gt2-belt-and-pulley-kit,
+PnP (mech - Opulo price until cheaper found),DIY fastener kit,yes,Opulo,,1,45,45,yes,https://www.opulo.io/products,
+PnP (mech - Opulo price until cheaper found),CP40 nozzle set 6 pc,yes,Opulo,cp40-pnp-nozzle,1,75,75,yes,https://opulo.io/products/cp40-pnp-nozzle,
+PnP (mech),Staging plate (steel laser cut),yes,SendCutSend / JLCCNC,from Opulo DXF,1,,,no,https://sendcutsend.com/,or Opulo build plate $70
+PnP (print),PLA filament 1 kg x2 (all printed parts),yes,Inland / Amazon,,2,,,no,,you print
+Head tools,983A pneumatic dispenser (paste + via + mask + legend),yes,AliExpress,983A 110 V,4,57.39,229.56,partial,https://www.aliexpress.us/item/3256802693580007.html,trigger via 24 V relay
+Head tools,MXH10-20 air slide (clone),yes,AliExpress,MXH10-20,4,43.49,173.96,partial,https://www.aliexpress.us/item/3256812851057417.html,
+Head tools,4V110-M5 24 V solenoid valve,yes,AliExpress,4V110-M5 DC24V,4,12.82,51.28,partial,https://www.aliexpress.us/item/3256813334294645.html,
+Head tools,Valve manifold 4-station,yes,AliExpress,4V110 base,1,15.79,15.79,partial,https://www.aliexpress.us/item/3256812174867587.html,
+Head tools,Push-in fittings kit,yes,AliExpress,,1,8.77,8.77,partial,https://www.aliexpress.us/item/3256812311642394.html,
+Head tools,Quiet oil-free compressor 1 gal,yes,Woodcraft,California Air Tools 1P1060S,1,149,149,yes,https://www.woodcraft.com/,add a filter-regulator
+Head tools,Height probe,yes,West3D / Amazon,BLTouch v3.1,1,33.99,33.99,yes (sold out there),,alt laser sensor ZHICAN E3CX $131.99
+Head tools,395 nm 100 W UV LED kit with driver,yes,AliExpress,,3,23.51,70.53,partial,https://www.aliexpress.us/item/2251832655913420.html,AC driver; switch with SSR
+Oven,Convection toaster oven 1500 W (fits 9x13),yes,Walmart / Amazon,Black+Decker TO3250XSB,1,86.99,86.99,partial,https://www.walmart.com/ip/34516916,Amazon B00LU2I428; also does the 160 C via cure
+Oven,Raspberry Pi Pico,yes,Adafruit,4864,1,4,4,yes,https://www.adafruit.com/product/4864,
+Oven,MAX31855 thermocouple board,yes,Adafruit,269,1,14.95,14.95,yes,https://www.adafruit.com/product/269,
+Oven,K-type glass-braid thermocouple,yes,Adafruit,,1,9.95,9.95,yes,https://www.adafruit.com/product/269,
+Oven,SSR 40 A,yes,Inkbird / Amazon,SSR-40DA,1,15.99,15.99,partial,,+ heatsink
+Oven,Ceramic fibre blanket,yes,Walmart,,1,26.99,26.99,partial,,
+Oven,Gold Kapton tape 50 mm,yes,Amazon,,1,9,9,partial,,
+Stencil,Manual stencil printer 300x240,yes,eBay,VEVOR S size,1,64.98,64.98,partial,https://www.ebay.com/itm/184288110896,fits boards up to 240x300
+Stencil,Stainless squeegee,yes,eBay,,1,26.36,26.36,partial,https://www.ebay.com/itm/226947596627,
+Stencil,Mylar 4 mil 5-pack (laser cut stencils),yes,My Crafty Stencils,,1,5.94,5.94,yes,https://www.mycraftystencils.com/products/4-mil-blank-mylar-stencil-sheets,Kapton cuts surely at 355 nm
+Stencil,Stencil wipes,yes,DigiKey,STENCIL-WIPES,1,15.39,15.39,yes,https://www.digikey.com/en/products/detail/chip-quik-inc/STENCIL-WIPES/18869664,
+Consumables,FR4 double-sided 1 oz 12x12 (10),yes,DigiKey,MG Chemicals 555,10,33.40,334.02,yes,https://www.digikey.com/en/products/detail/mg-chemicals/555/559707,
+Consumables,Silver via paste 14 g,yes,Vetco,MG Chemicals 8331D-14G,1,102.95,102.95,partial,https://www.digikey.com/en/products/detail/mg-chemicals/8331D-14G/13170710,
+Consumables,Solder paste SnBi 10 cc syringe,yes,DigiKey,Chip Quik TS391LT10,2,28.95,57.90,yes,https://www.digikey.com/en/products/detail/chip-quik-inc/TS391LT10/7802221,
+Consumables,Solder paste SnBi 50 g jar (stencil),yes,DigiKey,Chip Quik TS391LT50,1,21.95,21.95,yes,https://www.digikey.com/en/products/detail/chip-quik-inc/TS391LT50/7802224,
+Consumables,UV solder mask green 10 cc,yes,Amazon / AliExpress,Mechanic UV-H900,5,,,no,,
+Consumables,White UV legend ink 2x10 cc,yes,VXB,,1,49.98,49.98,partial,https://vxb.com/products/high-performance-uv-curing-solder-mask-ink-for-pcb,
+Consumables,Immersion tin 125 ml,yes,Vetco,MG Chemicals 421A-125ML,1,34.95,34.95,yes,https://vetco.net/products/421a-125ml_mg_liquid_tin_pc_board_tin_plating_solution_-_4-2_floz_125ml,
+Consumables,Needles 25 ga 1 in 50 pk,yes,Ellsworth,Fisnar 8001102,1,22,22,yes,https://ellsworth.com/products/dispensing-equipment-supplies/tips-needles-nozzles-static-mixers/tips-needles/fisnar-5601143-straight-blunt-end-needle-red-1-in-x-25-ga,
+Consumables,30 cc barrels 50 pk,yes,TestEquity,Nordson EFD 7366060,1,52.34,52.34,partial,https://www.testequity.com/,
+Consumables,IPA 99.9% 1 gal,yes,Hisco,MG Chemicals 824-1G,1,37.68,37.68,partial,https://www.hisco.com/,
