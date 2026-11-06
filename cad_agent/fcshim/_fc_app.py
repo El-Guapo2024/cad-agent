@@ -184,6 +184,8 @@ def _coerce(p: _Prop, v, obj=None):
         return [int(x) for x in v]
     if t == "App::PropertyBoolList":
         return [bool(x) for x in v]
+    if t == "App::PropertyPlacementList":
+        return [B.Placement(x) for x in v]
     if t == "App::PropertyVectorList":
         return [B.Vector(x) for x in v]
     if t == "App::PropertyMap":
@@ -289,6 +291,8 @@ def _get(p: _Prop):
         return list(v)
     if t == "App::PropertyVectorList":
         return [B.Vector(x) for x in v]
+    if t == "App::PropertyPlacementList":
+        return [B.Placement(x) for x in v]
     if t == "App::PropertyMap":
         return dict(v)
     if t in ("App::PropertyVector", "App::PropertyVectorDistance", "App::PropertyPosition", "App::PropertyDirection"):
@@ -421,7 +425,7 @@ def _attach(obj, engine: str):
 
 # ─── document objects ───────────────────────────────────────────────────────────────────────────────────────────────
 
-_OWN = {"_props", "_doc", "Name", "TypeId", "_touched", "_exprs", "_ext", "_removed", "ViewObject", "_status",
+_OWN = {"_props", "_doc", "Name", "TypeId", "_touched", "_exprs", "_ext", "_removed", "ViewObject", "_status", "_link_map",
         "__dict__", "_in_change"}
 
 
@@ -454,7 +458,11 @@ class DocumentObject:
     def __getattr__(self, name):
         props = object.__getattribute__(self, "_props")
         if name in props:
-            return _get(props[name])
+            p = props[name]
+            if p.type == "App::PropertyPlacement":       # PlacementPy bound to its property, as FreeCAD's
+                return B.BoundPlacement(p.value if p.value is not None else B.Placement(),
+                                        lambda v, _n=name: setattr(self, _n, v))
+            return _get(p)
         proxy = props.get("Proxy")
         raise AttributeError(f"'{self.TypeId}' object has no attribute '{name}'")
 
@@ -658,11 +666,47 @@ class DocumentObject:
 
     def addExtension(self, name, proxy=None):
         self._ext.append(name)
-        if "AttachExtension" in name:
-            _attach(self, "Engine 3D")
         if "GroupExtension" in name and "Group" not in self._props:
             self._props["Group"] = _Prop("App::PropertyLinkList", "Group", "Base", "List of referenced objects")
             self._props["_GroupTouched"] = _Prop("App::PropertyBool", "_GroupTouched", "Base", "", ("Hidden",))
+        if "AttachExtension" in name:
+            _attach(self, "Engine 3D")
+        if "LinkExtension" in name:
+            # App::LinkExtension's LINK_PARAMS_EXT and its bookkeeping, in the " Link" group, as freecadcmd 26.3 lists
+            # them on a Draft link array; the links themselves are not followed (Draft builds the shape itself)
+            for t, n, modes, v in (("App::PropertyFloat", "Scale", (), 1.0),
+                                   ("App::PropertyVector", "ScaleVector", ("Hidden",), B.Vector(1, 1, 1)),
+                                   ("App::PropertyVectorList", "ScaleList", (), []),
+                                   ("App::PropertyBoolList", "VisibilityList", ("Hidden",), []),
+                                   ("App::PropertyPlacementList", "PlacementList", (), []),
+                                   ("App::PropertyLinkList", "ElementList", ("Hidden",), []),
+                                   ("App::PropertyLinkList", "_ChildCache", ("ReadOnly", "Hidden"), []),
+                                   ("App::PropertyInteger", "_LinkOwner", ("Hidden",), 0),
+                                   ("App::PropertyBool", "_LinkTouched", ("Hidden",), False)):
+                if n not in self._props:
+                    self._props[n] = _Prop(t, n, " Link", "", modes)
+                    self._props[n].value = v
+            self.__dict__["_link_map"] = {}
+
+    def positionBySupport(self):
+        """AttachExtensionPy::positionBySupport: with MapMode Deactivated (or no support) nothing moves and it returns
+        False; an attached object is not placed here yet."""
+        if "MapMode" not in self._props:
+            raise AttributeError(f"'{self.TypeId}' object has no attribute 'positionBySupport'")
+        if self._props["MapMode"].value == "Deactivated" or not self._props["AttachmentSupport"].value:
+            return False
+        raise NotImplementedError(f"{self.Name}: attachment (MapMode {self._props['MapMode'].value}) is not ported here")
+
+    def configLinkProperty(self, *names, **mapping):
+        """LinkBaseExtension::configLinkProperty: which property plays each link role (ElementCount="Count", ...);
+        recorded, as nothing here follows the links."""
+        m = self.__dict__.setdefault("_link_map", {})
+        for n in names:
+            m[n] = n
+            if n == "LinkCopyOnChange" and n in self._props and not self._props[n].enums:
+                self._props[n].enums = ["Disabled", "Enabled", "Owned", "Tracking"]
+                self._props[n].value = "Disabled"
+        m.update(mapping)
 
     def hasExtension(self, name, derived=True):
         if name in self._ext:
@@ -843,7 +887,20 @@ class Document:
     def Partial(self):
         return False
 
-    def addObject(self, type_, name=None, *args, **kw):
+    def addObject(self, type_, name=None, objProxy=None, viewProxy=None, attach=False, viewType=None, **kw):
+        """DocumentPy::addObject: the object, its Proxy set when one is given and, with attach, the proxy's attach(obj)
+        called once the object is in the document."""
+        if objProxy is not None:
+            o = self._add(type_, name)
+            if hasattr(objProxy, "__object__"):
+                objProxy.__object__ = o
+            o.Proxy = objProxy
+            if attach and getattr(objProxy, "attach", None) is not None:
+                objProxy.attach(o)
+            return o
+        return self._add(type_, name)
+
+    def _add(self, type_, name=None):
         if isinstance(type_, str) and type_.startswith("Part::") and type_ not in BASES and type_ != "Part::Feature":
             pass
         base = sanitize_name(name or type_.split("::")[-1])

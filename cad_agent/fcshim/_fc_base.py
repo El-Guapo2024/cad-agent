@@ -353,11 +353,96 @@ class Matrix:
         self.m[1][3] += v.y
         self.m[2][3] += v.z
 
+    def determinant(self):
+        """Matrix4D::determinant."""
+        d = self.m
+        a0 = d[0][0] * d[1][1] - d[0][1] * d[1][0]
+        a1 = d[0][0] * d[1][2] - d[0][2] * d[1][0]
+        a2 = d[0][0] * d[1][3] - d[0][3] * d[1][0]
+        a3 = d[0][1] * d[1][2] - d[0][2] * d[1][1]
+        a4 = d[0][1] * d[1][3] - d[0][3] * d[1][1]
+        a5 = d[0][2] * d[1][3] - d[0][3] * d[1][2]
+        b0 = d[2][0] * d[3][1] - d[2][1] * d[3][0]
+        b1 = d[2][0] * d[3][2] - d[2][2] * d[3][0]
+        b2 = d[2][0] * d[3][3] - d[2][3] * d[3][0]
+        b3 = d[2][1] * d[3][2] - d[2][2] * d[3][1]
+        b4 = d[2][1] * d[3][3] - d[2][3] * d[3][1]
+        b5 = d[2][2] * d[3][3] - d[2][3] * d[3][2]
+        return a0 * b5 - a1 * b4 + a2 * b3 + a3 * b2 - a4 * b1 + a5 * b0
+
+    def inverse(self):
+        """MatrixPy::inverse: Matrix4D::inverseGauss (Matrix_gauss on the GL layout), unless singular."""
+        import sys
+        if not abs(self.determinant()) > sys.float_info.epsilon:
+            raise RuntimeError("Cannot invert singular matrix")
+        a = [self.m[i][j] for j in range(4) for i in range(4)]        # getGLMatrix: a[i + 4j] = m[i][j]
+        b = [1.0 if i == j else 0.0 for i in range(4) for j in range(4)]
+        _matrix_gauss(a, b)
+        r = Matrix()
+        r.m = [[b[i + 4 * j] for j in range(4)] for i in range(4)]     # setGLMatrix
+        return r
+
+    def scale(self, *args):
+        """MatrixPy::scale: (x, y, z), a Vector, or one factor for all three."""
+        if len(args) == 1 and isinstance(args[0], Vector):
+            f = (args[0].x, args[0].y, args[0].z)
+        elif len(args) == 1:
+            f = (float(args[0]),) * 3
+        else:
+            f = tuple(float(a) for a in args)
+        for i in range(3):                    # Matrix4D::scale: each row times its factor
+            for j in range(4):
+                self.m[i][j] *= f[i]
+
     def isUnity(self, tol=0.0):
         return all(abs(self.m[i][j] - (1.0 if i == j else 0.0)) <= tol for i in range(4) for j in range(4))
 
     def __repr__(self):
         return "Matrix (" + ",".join(repr(x) for r in self.m for x in r) + ")"
+
+
+def _matrix_gauss(a, b):
+    """Matrix.cpp's Matrix_gauss: Gauss-Jordan with full pivoting on a, the same row operations on b."""
+    ipiv, indxr, indxc = [0] * 4, [0] * 4, [0] * 4
+    irow = icol = 0
+    for i in range(4):
+        big = 0.0
+        for j in range(4):
+            if ipiv[j] != 1:
+                for k in range(4):
+                    if ipiv[k] == 0:
+                        if abs(a[4 * j + k]) >= big:
+                            big = abs(a[4 * j + k])
+                            irow, icol = j, k
+                    elif ipiv[k] > 1:
+                        return
+        ipiv[icol] += 1
+        if irow != icol:
+            for ll in range(4):
+                a[4 * irow + ll], a[4 * icol + ll] = a[4 * icol + ll], a[4 * irow + ll]
+            for ll in range(4):
+                b[4 * irow + ll], b[4 * icol + ll] = b[4 * icol + ll], b[4 * irow + ll]
+        indxr[i], indxc[i] = irow, icol
+        if a[4 * icol + icol] == 0.0:
+            return
+        pivinv = 1.0 / a[4 * icol + icol]
+        a[4 * icol + icol] = 1.0
+        for ll in range(4):
+            a[4 * icol + ll] *= pivinv
+        for ll in range(4):
+            b[4 * icol + ll] *= pivinv
+        for r in range(4):
+            if r != icol:
+                dum = a[4 * r + icol]
+                a[4 * r + icol] = 0.0
+                for ll in range(4):
+                    a[4 * r + ll] -= a[4 * icol + ll] * dum
+                for ll in range(4):
+                    b[4 * r + ll] -= b[4 * icol + ll] * dum
+    for ll in range(3, -1, -1):
+        if indxr[ll] != indxc[ll]:
+            for k in range(4):
+                a[4 * k + indxr[ll]], a[4 * k + indxc[ll]] = a[4 * k + indxc[ll]], a[4 * k + indxr[ll]]
 
 
 # ─── Rotation ───────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -390,6 +475,13 @@ class Rotation:
             axis, angle = args
             self._axis = Vector(0.0, 0.0, 1.0)
             self._set_axis_angle(vec(axis), math.radians(_num(angle)))
+            return
+        if len(args) in (3, 4) and all(isinstance(a, Vector) for a in args[:3]) \
+                and (len(args) == 3 or isinstance(args[3], str)):
+            # RotationPy::PyInit(Vector, Vector, Vector, [str]): Rotation::makeRotationByAxes (attacher.py's port)
+            from cad_agent.attacher import Rotation as _R
+            r = _R.by_axes(tuple(args[0]), tuple(args[1]), tuple(args[2]), args[3] if len(args) == 4 else "ZXY")
+            self._set_q(*r.q)
             return
         if len(args) == 3 and all(isinstance(a, (int, float)) for a in args):
             self._set_ypr(*[float(a) for a in args])
@@ -718,10 +810,12 @@ class Placement:
         self.move(v)
 
     def rotate(self, center, axis, angle, comp=False):
+        """PlacementPy::rotate: Placement((0,0,0), Rotation(axis, angle), center) multiplied on the right (multRight),
+        or with comp on the left (multLeft, as TopoShape.rotate does)."""
         rot = Rotation(vec(axis), angle)
         c = vec(center)
         p = Placement(c - rot.multVec(c), rot)
-        res = p.multiply(self) if not comp else self.multiply(p)
+        res = self.multiply(p) if not comp else p.multiply(self)
         self._pos, self._rot = res._pos, res._rot
 
     def __eq__(self, o):
@@ -898,3 +992,64 @@ class Precision:
     @staticmethod
     def isInfinite(v):
         return abs(v) >= 1e100
+
+
+# ─── values bound to a property (PropertyPlacement's PlacementPy keeps its owner) ─────────────────────────────────────
+
+class BoundVector(Vector):
+    """A Vector that writes itself back when a coordinate is set (a placement's Base: obj.Placement.Base.x = 7)."""
+    __slots__ = ("_write",)
+
+    def __init__(self, v, write):
+        object.__setattr__(self, "_write", None)          # quiet while the coordinates are first set
+        Vector.__init__(self, v)
+        object.__setattr__(self, "_write", write)
+
+    def __setattr__(self, name, value):
+        object.__setattr__(self, name, float(value) if name in ("x", "y", "z") else value)
+        if name in ("x", "y", "z") and self._write is not None:
+            self._write(Vector(self))
+
+
+class BoundPlacement(Placement):
+    """The Placement an object's PropertyPlacement gives: setting its Base or Rotation (or a coordinate of its Base)
+    sets the property, as FreeCAD's PlacementPy does for the property it came from."""
+    __slots__ = ("_write",)
+
+    def __init__(self, p, write):
+        Placement.__init__(self, p)
+        self._write = write
+
+    @property
+    def Base(self):
+        return BoundVector(self._pos, self._set_base)
+
+    @Base.setter
+    def Base(self, v):
+        self._set_base(v)
+
+    def _set_base(self, v):
+        self._pos = Vector(vec(v))
+        self._write(Placement(self))
+
+    @property
+    def Rotation(self):
+        return Rotation(self._rot)
+
+    @Rotation.setter
+    def Rotation(self, r):
+        self._rot = Rotation(r) if isinstance(r, Rotation) else Rotation(*r)
+        self._write(Placement(self))
+
+    # the in-place methods write back too (obj.Placement.move(v) moves the object)
+    def move(self, v):
+        Placement.move(self, v)
+        self._write(Placement(self))
+
+    def translate(self, v):
+        Placement.translate(self, v)
+        self._write(Placement(self))
+
+    def rotate(self, *a, **k):
+        Placement.rotate(self, *a, **k)
+        self._write(Placement(self))

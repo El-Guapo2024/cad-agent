@@ -76,6 +76,12 @@ that commit.
                            unmodified at FreeCAD 3160daf1e2b6 (src/Mod/CAM), only the modules the CAM ops,
                            dress-ups and post-processors the app runs import. See section 3.
 
+  LGPL-2.1-or-later        cad_agent/fcdraft/Mod/Draft/: FreeCAD's Draft workbench Python (Draft.py,
+                           DraftGeomUtils.py, WorkingPlane.py, draftobjects/, draftmake/, draftgeoutils/,
+                           draftfunctions/, draftutils/, draftviewproviders/) and its preference .ui files
+                           (Resources/ui, with BIM's that draftutils.params reads), copied unmodified at FreeCAD
+                           3160daf1e2b6 (src/Mod/Draft, src/Mod/BIM/Resources/ui). See section 3.
+
   LGPL-2.1-or-later        cad_agent/fcshim/ (stand-ins for FreeCAD's C++ that the CAM Python calls:
                            Base, App, Part, PathApp with Path::Area ported from Area.cpp), cad_agent/cam.py,
                            cam_replay.py, cam_doc.py, cam_edit.py, cam_runtime.py and camcmd.py. See section 2.

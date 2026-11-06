@@ -26,6 +26,15 @@ from OCP.GeomAPI import GeomAPI_ProjectPointOnCurve
 from OCP.GeomConvert import GeomConvert
 from OCP.gp import gp_Ax1, gp_Ax2, gp_Circ, gp_Dir, gp_Lin, gp_Pnt, gp_Vec
 from OCP.Precision import Precision
+try:                                    # OCCT's collections, before and after OCP 8 moved them
+    from OCP.TColgp import TColgp_Array1OfPnt as _Array1OfPnt, TColgp_HArray1OfPnt as _HArray1OfPnt, \
+        TColgp_Array1OfVec as _Array1OfVec
+    from OCP.TColStd import TColStd_Array1OfReal as _Array1OfReal, TColStd_Array1OfInteger as _Array1OfInteger, \
+        TColStd_HArray1OfReal as _HArray1OfReal, TColStd_HArray1OfBoolean as _HArray1OfBoolean
+except ImportError:
+    from OCP.collections import Array1_gp_Pnt as _Array1OfPnt, HArray1_gp_Pnt as _HArray1OfPnt, \
+        Array1_gp_Vec as _Array1OfVec, Array1_double as _Array1OfReal, Array1_int as _Array1OfInteger, \
+        HArray1_double as _HArray1OfReal, HArray1_bool as _HArray1OfBoolean
 
 from ._fc_base import Vector, vec
 
@@ -352,10 +361,28 @@ class Circle(Conic):
 
 class Ellipse(Conic):
     def __init__(self, *args):
+        """EllipsePy::PyInit: (), an Ellipse, (S1, S2, Center) or (Center, MajorRadius, MinorRadius)."""
+        from OCP.GC import GC_MakeEllipse
+        from OCP.gp import gp_Elips
         if len(args) == 1 and isinstance(args[0], Geom_Ellipse):
             super().__init__(args[0])
             return
-        raise NotImplementedError("Part.Ellipse(...)")
+        if not args:                    # GeomEllipse() then SetMajorRadius(2), SetMinorRadius(1)
+            super().__init__(Geom_Ellipse(gp_Elips(gp_Ax2(gp_Pnt(0, 0, 0), gp_Dir(0, 0, 1)), 2.0, 1.0)))
+            return
+        if len(args) == 1 and isinstance(args[0], Ellipse):
+            super().__init__(Geom_Ellipse(args[0].h.Elips()))
+            return
+        if len(args) == 3 and all(isinstance(a, Vector) for a in args):
+            me = GC_MakeEllipse(P(args[0]), P(args[1]), P(args[2]))
+        elif len(args) == 3 and isinstance(args[0], Vector):
+            me = GC_MakeEllipse(gp_Ax2(P(args[0]), gp_Dir(0.0, 0.0, 1.0)), float(args[1]), float(args[2]))
+        else:
+            raise TypeError("Ellipse constructor accepts:\n-- empty parameter list\n-- Ellipse\n"
+                            "-- Point, double, double\n-- Point, Point, Point")
+        if not me.IsDone():
+            raise OCC_ERROR("Ellipse: gce error")
+        super().__init__(Geom_Ellipse(me.Value().Elips()))
 
     @property
     def MajorRadius(self):
@@ -424,16 +451,14 @@ class BSplineCurve(Curve):
         if len(args) == 1 and isinstance(args[0], Geom_BSplineCurve):
             super().__init__(args[0])
             return
-        if not args:
-            from OCP.TColgp import TColgp_Array1OfPnt
-            from OCP.TColStd import TColStd_Array1OfInteger, TColStd_Array1OfReal
-            poles = TColgp_Array1OfPnt(1, 2)
+        if not args:                    # GeomBSplineCurve(): degree 1 from (0, 0, 0) to (1, 0, 0)
+            poles = _Array1OfPnt(1, 2)
             poles.SetValue(1, gp_Pnt(0, 0, 0))
             poles.SetValue(2, gp_Pnt(1, 0, 0))
-            knots = TColStd_Array1OfReal(1, 2)
+            knots = _Array1OfReal(1, 2)
             knots.SetValue(1, 0.0)
             knots.SetValue(2, 1.0)
-            mults = TColStd_Array1OfInteger(1, 2)
+            mults = _Array1OfInteger(1, 2)
             mults.SetValue(1, 2)
             mults.SetValue(2, 2)
             super().__init__(Geom_BSplineCurve(poles, knots, mults, 1))
@@ -471,12 +496,91 @@ class BSplineCurve(Curve):
     def isRational(self):
         return self.h.IsRational()
 
+    def interpolate(self, Points, PeriodicFlag=False, Tolerance=1e-6, InitialTangent=None, FinalTangent=None,
+                    Tangents=None, TangentFlags=None, Parameters=None, Scale=True):
+        """BSplineCurvePy::interpolate: GeomAPI_Interpolate through the points (with the parameters, the end
+        tangents or a tangent at each point), the curve replaced by its result."""
+        from OCP.GeomAPI import GeomAPI_Interpolate
+        pts = list(Points)
+        if len(pts) < 2:
+            raise OCC_ERROR("not enough points given")
+        arr = _HArray1OfPnt(1, len(pts))
+        for i, q in enumerate(pts, 1):
+            arr.SetValue(i, P(q))
+        if Parameters is not None:
+            par = _HArray1OfReal(1, len(Parameters))
+            for i, t in enumerate(Parameters, 1):
+                par.SetValue(i, float(t))
+            it = GeomAPI_Interpolate(arr, par, bool(PeriodicFlag), float(Tolerance))
+        else:
+            it = GeomAPI_Interpolate(arr, bool(PeriodicFlag), float(Tolerance))
+        if InitialTangent is not None and FinalTangent is not None:
+            a, b = vec(InitialTangent), vec(FinalTangent)
+            it.Load(gp_Vec(a.x, a.y, a.z), gp_Vec(b.x, b.y, b.z), bool(Scale))
+        elif Tangents is not None and TangentFlags is not None:
+            tv = _Array1OfVec(1, len(Tangents))
+            for i, t in enumerate(Tangents, 1):
+                t = vec(t)
+                tv.SetValue(i, gp_Vec(t.x, t.y, t.z))
+            fl = _HArray1OfBoolean(1, len(TangentFlags))
+            for i, f in enumerate(TangentFlags, 1):
+                fl.SetValue(i, bool(f))
+            it.Load(tv, fl, bool(Scale))
+        it.Perform()
+        if not it.IsDone():
+            raise OCC_ERROR("failed to interpolate points")
+        self.h = it.Curve()
+
     def toBiArcs(self, tolerance):
         from . import _fc_biarcs
         return _fc_biarcs.to_biarcs(self, tolerance)
 
 
 class BezierCurve(Curve):
+    def __init__(self, *args):
+        if len(args) == 1 and isinstance(args[0], Geom_BezierCurve):
+            super().__init__(args[0])
+            return
+        if args:
+            raise TypeError("Part.BezierCurve() takes no arguments")
+        poles = _Array1OfPnt(1, 2)              # GeomBezierCurve(): (0, 0, 0) to (0, 0, 1)
+        poles.SetValue(1, gp_Pnt(0, 0, 0))
+        poles.SetValue(2, gp_Pnt(0, 0, 1))
+        super().__init__(Geom_BezierCurve(poles))
+
+    @property
+    def MaxDegree(self):
+        """Geom_BezierCurve::MaxDegree() (25)."""
+        return Geom_BezierCurve.MaxDegree_s()
+
+    def increase(self, degree):
+        self.h.Increase(int(degree))
+
+    def setPoles(self, points):
+        """BezierCurvePy::setPoles: a new curve on the poles."""
+        pts = list(points)
+        poles = _Array1OfPnt(1, len(pts))
+        for i, q in enumerate(pts, 1):
+            poles.SetValue(i, P(q))
+        self.h = Geom_BezierCurve(poles)
+
+    def setPole(self, index, point, weight=-1.0):
+        if weight < 0.0:
+            self.h.SetPole(int(index), P(point))
+        else:
+            self.h.SetPole(int(index), P(point), float(weight))
+
+    def getPoles(self):
+        return [V(self.h.Pole(i)) for i in range(1, self.h.NbPoles() + 1)]
+
+    @property
+    def Degree(self):
+        return self.h.Degree()
+
+    @property
+    def NbPoles(self):
+        return self.h.NbPoles()
+
     @property
     def StartPoint(self):
         return V(self.h.StartPoint())

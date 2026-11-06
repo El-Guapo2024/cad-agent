@@ -131,6 +131,11 @@ def getDocument(name):
     return _documents[name]
 
 
+def activeDocument():
+    """App.activeDocument(): the active document, or None."""
+    return ActiveDocument
+
+
 def setActiveDocument(name):
     _set_active(_documents.get(name))
 
