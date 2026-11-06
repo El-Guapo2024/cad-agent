@@ -1350,3 +1350,18 @@ Known differences:
 - Spreadsheet: Bind…, Configuration Table, zoom, printing, the line edits' completer, xlsx import and charts are cut ("Spreadsheet workbench, 2026-10-27").
 - CAM: Surface and Waterline, the Operation pages' own logic and the panels of the ten dress-ups added 2026-11-06, the simulators, work planes, templates and the tool bit library are cut ("CAM workbench").
 - The other workbenches: the selector offers only Assembly, CAD Agent, CAM, Inspection, Part Design, Part, Sketcher, Spreadsheet and TechDraw, so Draft, FEM, Mesh and the rest are not offered ("Toolbars").
+
+## Draft workbench objects, 2026-11-06
+
+FreeCAD's Draft Python (Draft.py, draftobjects, draftmake, draftgeoutils, draftfunctions, draftutils, WorkingPlane) runs
+unchanged over cad_agent/fcshim (`draft_runtime.activate()`). tests/golden/draft holds 26 freecadcmd 26.3 documents:
+wires, lines, rectangles, circles, arcs, ellipses, polygons, B-splines, Bezier curves, points, ortho, polar, circular,
+path and point arrays (link and non-link), and clones (moved and scaled). Each object's shape (type, length, area,
+volume, box, vertices) is equal to FreeCAD's.
+
+| Item | State |
+|---|---|
+| Draft objects in Python | done for the 26 cases above |
+| Link arrays (App::LinkExtension) | the properties and configLinkProperty are there; the shape is Draft's compound, links are not followed |
+| Attachment of a Draft object (positionBySupport) | only MapMode Deactivated; an attached one raises |
+| Draft in a part file, the page, the CLI | not yet |

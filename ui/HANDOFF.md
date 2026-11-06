@@ -180,7 +180,10 @@ Step 5, round 3 (six branches) is all in main (7526c0c, CI green, 6977 passed, 2
   fit and the gantry at pose pick_laser: 0 problems). Old layouts in ~/cad-demo/archive. Not drawn yet: the whole-
   machine enclosure (window, door interlock, fume port), printed brackets, paste dispensers on the head, our
   electronics box. ~/cad-demo is not a git repo, so `cad verify` can't run there yet.
-- Left after the demo: FEM (Gmsh and CalculiX as separate programs), Draft, Part's cut commands, PARITY's known
+- draft-port (2026-11-06): FreeCAD's Draft workbench Python copied unchanged into cad_agent/fcdraft/Mod/Draft and run
+  over the fcshim stand-ins (cad_agent/draft_runtime.activate(), as cam_runtime does for CAM). tests/golden/draft: 26
+  freecadcmd documents (`make.py`, `record.py`), all equal. Not yet in a part file, the page or the CLI.
+- Left after the demo: FEM (Gmsh and CalculiX as separate programs), Draft's part-file objects and page, Part's cut commands, PARITY's known
   differences. Temporary branches on GitHub (ds-merge, ds-fix, asm-merge, st-merge, r5-merge, r6-merge, r7-merge,
   r7b-merge, cam-merge, ci-diag) are all in main; delete them when Juan says so.
 - pd-last (2026-10-27): PartDesign's last commands, each a KwFeature: Involute Gear and Sprocket (cad_agent/feature_gear.py,
