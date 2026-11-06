@@ -141,11 +141,13 @@ def modify(objects, params, names, op, vector=None, angle=None, center=None, axi
             changed = {"placement": _plain(pl)} if not _same(pl, pls[n]) else {}
         if changed:
             ops.append({"op": "set", "name": n, "props": changed})
-    kinds = {c.PROXY[1]: c for c in D.OBJECTS.values()}
+    # a proxy's class and whether it is a link array (DraftLink.use_link) name the kind: Array or LinkArray, ...
+    kinds = {(c.PROXY[1], c.LINK): c for c in D.OBJECTS.values()}
     taken = {o.name for o in objects}
     for new in [o for o in doc.Objects if o.Name not in before]:
-        ptype = getattr(getattr(new, "Proxy", None), "Type", None)
-        cls = kinds.get(ptype)
+        proxy = getattr(new, "Proxy", None)
+        ptype = getattr(proxy, "Type", None)
+        cls = kinds.get((ptype, bool(getattr(proxy, "use_link", False))))
         if cls is None:     # Draft.scale's non-parametric copy (a polygon, a circle scaled unevenly, a Part object)
             raise F.FeatureError(f"Draft's {op} turns {', '.join(names)} into a plain {new.TypeId} with no Draft "
                                  "properties, which a part file does not hold")

@@ -1462,6 +1462,504 @@
      ]
     ]
    }
+  },
+  "draft_link_arrays": {
+   "Rectangle": {
+    "type": "Face",
+    "valid": true,
+    "volume": 0.0,
+    "area": 8.0,
+    "length": 12.0,
+    "bbox": [
+     0.0,
+     0.0,
+     0.0,
+     4.0,
+     2.0,
+     0.0
+    ],
+    "center_of_mass": [
+     2.0,
+     1.0,
+     0.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 1,
+    "wires": 1,
+    "edges": 4,
+    "vertices": 4,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
+   },
+   "Ortho": {
+    "type": "Compound",
+    "valid": true,
+    "volume": 0.0,
+    "area": 48.0,
+    "length": 72.0,
+    "bbox": [
+     0.0,
+     0.0,
+     0.0,
+     16.0,
+     6.0,
+     0.0
+    ],
+    "center_of_mass": [
+     8.0,
+     3.0,
+     0.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 6,
+    "wires": 6,
+    "edges": 24,
+    "vertices": 24,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
+   },
+   "Path": {
+    "type": "Wire",
+    "valid": true,
+    "volume": 0.0,
+    "area": 0.0,
+    "length": 50.0,
+    "bbox": [
+     0.0,
+     20.0,
+     0.0,
+     30.0,
+     40.0,
+     0.0
+    ],
+    "center_of_mass": [
+     21.0,
+     24.0,
+     0.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 0,
+    "wires": 1,
+    "edges": 2,
+    "vertices": 3,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
+   },
+   "Dot": {
+    "type": "Face",
+    "valid": true,
+    "volume": 0.0,
+    "area": 3.141592654,
+    "length": 6.283185307,
+    "bbox": [
+     -1.0,
+     -1.0,
+     0.0,
+     1.0,
+     1.0,
+     0.0
+    ],
+    "center_of_mass": [
+     -0.0,
+     -0.0,
+     0.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 1,
+    "wires": 1,
+    "edges": 1,
+    "vertices": 1,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
+   },
+   "PathLinkArray": {
+    "type": "Compound",
+    "valid": true,
+    "volume": 0.0,
+    "area": 15.707963268,
+    "length": 31.415926536,
+    "bbox": [
+     -1.0,
+     19.0,
+     0.0,
+     31.0,
+     41.0,
+     0.0
+    ],
+    "center_of_mass": [
+     19.5,
+     25.5,
+     0.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 5,
+    "wires": 5,
+    "edges": 5,
+    "vertices": 5,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
+   },
+   "Points": {
+    "type": "Wire",
+    "valid": true,
+    "volume": 0.0,
+    "area": 0.0,
+    "length": 22.360679775,
+    "bbox": [
+     0.0,
+     60.0,
+     0.0,
+     20.0,
+     65.0,
+     0.0
+    ],
+    "center_of_mass": [
+     10.0,
+     62.5,
+     0.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 0,
+    "wires": 1,
+    "edges": 2,
+    "vertices": 3,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
+   },
+   "PointLinkArray": {
+    "type": "Compound",
+    "valid": true,
+    "volume": 0.0,
+    "area": 9.424777961,
+    "length": 18.849555922,
+    "bbox": [
+     -1.0,
+     59.0,
+     0.0,
+     21.0,
+     66.0,
+     0.0
+    ],
+    "center_of_mass": [
+     10.0,
+     61.666666667,
+     0.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 3,
+    "wires": 3,
+    "edges": 3,
+    "vertices": 3,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
+   }
+  },
+  "draft_twisted": {
+   "Rectangle": {
+    "type": "Face",
+    "valid": true,
+    "volume": 0.0,
+    "area": 8.0,
+    "length": 12.0,
+    "bbox": [
+     0.0,
+     0.0,
+     0.0,
+     4.0,
+     0.0,
+     2.0
+    ],
+    "center_of_mass": [
+     2.0,
+     0.0,
+     1.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 1,
+    "wires": 1,
+    "edges": 4,
+    "vertices": 4,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      89.99999999999999
+     ]
+    ]
+   },
+   "Path": {
+    "type": "Wire",
+    "valid": true,
+    "volume": 0.0,
+    "area": 0.0,
+    "length": 52.675847135,
+    "bbox": [
+     0.0,
+     0.0,
+     0.0,
+     10.0,
+     10.0,
+     40.0
+    ],
+    "center_of_mass": [
+     3.993219635,
+     4.664406545,
+     18.355934549
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 0,
+    "wires": 1,
+    "edges": 3,
+    "vertices": 4,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
+   },
+   "Twisted": {
+    "type": "Compound",
+    "valid": true,
+    "volume": -7.46738844,
+    "area": 64.0,
+    "length": 96.0,
+    "bbox": [
+     0.0,
+     -4.0,
+     0.0,
+     10.0,
+     4.21747974,
+     12.0
+    ],
+    "center_of_mass": [
+     6.274509308,
+     0.387254654,
+     4.725490692
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 8,
+    "wires": 8,
+    "edges": 32,
+    "vertices": 32,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
+   },
+   "Ring": {
+    "type": "Face",
+    "valid": true,
+    "volume": 0.0,
+    "area": 12.566370614,
+    "length": 12.566370614,
+    "bbox": [
+     18.0,
+     -0.0,
+     -2.0,
+     22.0,
+     0.0,
+     2.0
+    ],
+    "center_of_mass": [
+     20.0,
+     -0.0,
+     -0.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 1,
+    "wires": 1,
+    "edges": 1,
+    "vertices": 1,
+    "placement": [
+     [
+      20.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      89.99999999999999
+     ]
+    ]
+   },
+   "Path2": {
+    "type": "Wire",
+    "valid": true,
+    "volume": 0.0,
+    "area": 0.0,
+    "length": 31.622776602,
+    "bbox": [
+     20.0,
+     0.0,
+     0.0,
+     20.0,
+     30.0,
+     10.0
+    ],
+    "center_of_mass": [
+     20.0,
+     15.0,
+     5.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 0,
+    "wires": 1,
+    "edges": 1,
+    "vertices": 2,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
+   },
+   "TwistedLink": {
+    "type": "Compound",
+    "valid": true,
+    "volume": 0.0,
+    "area": 75.398223686,
+    "length": 75.398223686,
+    "bbox": [
+     18.0,
+     -2.0,
+     0.0,
+     22.0,
+     31.907878403,
+     11.989974874
+    ],
+    "center_of_mass": [
+     20.0,
+     15.0,
+     5.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 6,
+    "wires": 6,
+    "edges": 6,
+    "vertices": 6,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
+   }
   }
  },
  "draft_defaults": {
@@ -1733,6 +2231,85 @@
    "_ElementMapVersion": "",
    "_TypeId": "Part::Part2DObjectPython"
   },
+  "Draft::LinkArray": {
+   "AlwaysSyncPlacement": false,
+   "Angle": 360.0,
+   "ArrayType": "ortho",
+   "Axis": [
+    0.0,
+    0.0,
+    1.0
+   ],
+   "AxisReference": null,
+   "Base": null,
+   "Center": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "ColoredElements": null,
+   "Count": 0,
+   "ElementList": [],
+   "ExpandArray": false,
+   "Fuse": false,
+   "IntervalAxis": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "IntervalX": [
+    50.0,
+    0.0,
+    0.0
+   ],
+   "IntervalY": [
+    0.0,
+    50.0,
+    0.0
+   ],
+   "IntervalZ": [
+    0.0,
+    0.0,
+    50.0
+   ],
+   "Label": "LinkArray",
+   "LinkCopyOnChange": "Disabled",
+   "LinkTransform": false,
+   "NumberCircles": 3,
+   "NumberPolar": 5,
+   "NumberX": 2,
+   "NumberY": 2,
+   "NumberZ": 1,
+   "Placement": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ],
+   "PlacementList": [],
+   "RadialDistance": 50.0,
+   "Scale": 1.0,
+   "ScaleList": [],
+   "ScaleVector": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "Symmetry": 1,
+   "TangentialDistance": 25.0,
+   "VisibilityList": [],
+   "_ChildCache": [],
+   "_ElementMapVersion": "",
+   "_LinkOwner": 0,
+   "_LinkTouched": false,
+   "_TypeId": "Part::FeaturePython"
+  },
   "Draft::PathArray": {
    "Align": false,
    "AlignMode": "Original",
@@ -1782,6 +2359,137 @@
     1.0
    ],
    "_ElementMapVersion": "",
+   "_TypeId": "Part::FeaturePython"
+  },
+  "Draft::PathLinkArray": {
+   "Align": false,
+   "AlignMode": "Original",
+   "AlwaysSyncPlacement": false,
+   "Base": null,
+   "ColoredElements": null,
+   "Count": 4,
+   "ElementList": [],
+   "EndOffset": 0.0,
+   "ExpandArray": false,
+   "ExtraTranslation": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "ForceVertical": false,
+   "Fuse": false,
+   "Label": "PathLinkArray",
+   "LinkCopyOnChange": "Disabled",
+   "LinkTransform": false,
+   "PathObject": null,
+   "PathSubelements": [],
+   "Placement": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ],
+   "PlacementList": [],
+   "ReversePath": false,
+   "Scale": 1.0,
+   "ScaleList": [],
+   "ScaleVector": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "SpacingMode": "Fixed count",
+   "SpacingPattern": [
+    1.0,
+    2.0
+   ],
+   "SpacingUnit": 20.0,
+   "StartOffset": 0.0,
+   "TangentVector": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "UseSpacingPattern": false,
+   "VerticalVector": [
+    0.0,
+    0.0,
+    1.0
+   ],
+   "VisibilityList": [],
+   "_ChildCache": [],
+   "_ElementMapVersion": "",
+   "_LinkOwner": 0,
+   "_LinkTouched": false,
+   "_TypeId": "Part::FeaturePython"
+  },
+  "Draft::PathTwistedArray": {
+   "Base": null,
+   "Count": 15,
+   "Fuse": false,
+   "Label": "PathTwistedArray",
+   "PathObject": null,
+   "Placement": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ],
+   "PlacementList": [],
+   "RotationFactor": 0.25,
+   "_ElementMapVersion": "",
+   "_TypeId": "Part::FeaturePython"
+  },
+  "Draft::PathTwistedLinkArray": {
+   "AlwaysSyncPlacement": false,
+   "Base": null,
+   "ColoredElements": null,
+   "Count": 15,
+   "ElementList": [],
+   "ExpandArray": false,
+   "Fuse": false,
+   "Label": "PathTwistedLinkArray",
+   "LinkCopyOnChange": "Disabled",
+   "LinkTransform": false,
+   "PathObject": null,
+   "Placement": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ],
+   "PlacementList": [],
+   "RotationFactor": 0.25,
+   "Scale": 1.0,
+   "ScaleList": [],
+   "ScaleVector": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "VisibilityList": [],
+   "_ChildCache": [],
+   "_ElementMapVersion": "",
+   "_LinkOwner": 0,
+   "_LinkTouched": false,
    "_TypeId": "Part::FeaturePython"
   },
   "Draft::Point": {
@@ -1836,6 +2544,57 @@
    "PlacementList": [],
    "PointObject": null,
    "_ElementMapVersion": "",
+   "_TypeId": "Part::FeaturePython"
+  },
+  "Draft::PointLinkArray": {
+   "AlwaysSyncPlacement": false,
+   "Base": null,
+   "ColoredElements": null,
+   "Count": 0,
+   "ElementList": [],
+   "ExpandArray": false,
+   "ExtraPlacement": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ],
+   "Fuse": false,
+   "Label": "PointLinkArray",
+   "LinkCopyOnChange": "Disabled",
+   "LinkTransform": false,
+   "Placement": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ],
+   "PlacementList": [],
+   "PointObject": null,
+   "Scale": 1.0,
+   "ScaleList": [],
+   "ScaleVector": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "VisibilityList": [],
+   "_ChildCache": [],
+   "_ElementMapVersion": "",
+   "_LinkOwner": 0,
+   "_LinkTouched": false,
    "_TypeId": "Part::FeaturePython"
   },
   "Draft::Polygon": {

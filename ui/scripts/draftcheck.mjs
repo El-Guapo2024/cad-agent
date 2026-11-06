@@ -152,7 +152,8 @@ try {
   await clickButton('OK')
   await objectsAt(5, 'the array')
   const a = await obj('Array')
-  check(a?.type === 'Draft::Array' && a.base === 'Rectangle' && a.number_x === 3 && a.interval_x?.[0] === 40, 'Array: of Rectangle, 3 along X at 40', JSON.stringify(a))
+  check(a?.type === 'Draft::LinkArray' && a.base === 'Rectangle' && a.number_x === 3 && a.interval_x?.[0] === 40,
+    'Array: a link array (Draft_array_Link) of Rectangle, 3 along X at 40', JSON.stringify(a))
   check(!(await tree())?.shown?.includes('Rectangle'), 'the array hides its base', JSON.stringify(await tree()))
   await selectRows(['Circle'])
   await runCmd('Draft_Clone')
@@ -163,6 +164,11 @@ try {
   await objectsAt(7, 'the path array')
   const pa = await obj('PathArray')
   check(pa?.base === 'Point' && pa.path_object === 'Wire', 'Path Array: Point along Wire', JSON.stringify(pa))
+  await selectRows(['Circle', 'Wire'])
+  await runCmd('Draft_PathLinkArray')
+  await objectsAt(8, 'the path link array')
+  const pl = await obj('PathArray001')
+  check(pl?.type === 'Draft::PathLinkArray' && pl.base === 'Circle' && pl.path_object === 'Wire', 'Path Link Array: Circle along Wire, named PathArray001', JSON.stringify(pl))
   await until(`!cadui.getState().busy.length`, 'the document to build')
   check(await noErrors() === '{}', 'the document builds with no error', await noErrors())
 

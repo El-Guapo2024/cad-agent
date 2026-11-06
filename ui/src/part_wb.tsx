@@ -75,6 +75,9 @@ const TYPES: Record<string, [IconName, string]> = {
   'Draft::Ellipse': ['df-Draft_Ellipse', 'Ellipse'], 'Draft::Polygon': ['df-Draft_Polygon', 'Polygon'], 'Draft::BSpline': ['df-Draft_BSpline', 'BSpline'],
   'Draft::BezCurve': ['df-Draft_BezCurve', 'BezCurve'], 'Draft::Point': ['df-Draft_Point', 'Point'], 'Draft::Array': ['df-Draft_Array', 'Array'],
   'Draft::PathArray': ['df-Draft_PathArray', 'PathArray'], 'Draft::PointArray': ['df-Draft_PointArray', 'PointArray'], 'Draft::Clone': ['df-Draft_Clone', 'Clone'],
+  'Draft::LinkArray': ['df-Draft_LinkArray', 'Array'], 'Draft::PathLinkArray': ['df-Draft_PathLinkArray', 'PathArray'],
+  'Draft::PointLinkArray': ['df-Draft_PointLinkArray', 'PointArray'], 'Draft::PathTwistedArray': ['df-Draft_PathTwistedArray', 'PathTwistedArray'],
+  'Draft::PathTwistedLinkArray': ['df-Draft_PathTwistedLinkArray', 'PathTwistedArray'],
   [SKETCH]: ['pd-sketch', 'Sketch'],
 }
 export const partIcon = (type: string): IconName => TYPES[type]?.[0] ?? 'pt-feature'

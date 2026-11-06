@@ -41,6 +41,7 @@ class DraftObject(PartObject):
     VECTORS: tuple = ()             # keys that are a Vector ((x, y, z))
     VECTOR_LISTS: tuple = ()        # keys that are a list of Vectors
     ATTACH_EXT = False              # its maker adds Part::AttachExtensionPython to a Part::FeaturePython
+    LINK = False                    # a link array: made as addObject(type, name, Proxy(None), None, True) makes it
     TYPE_ID = ""                    # "Draft::" and the proxy's type (FreeCAD's utils.get_type), one per kind
     INPUTS: tuple = ()
     HIDES: tuple = ()
@@ -96,7 +97,15 @@ class DraftObject(PartObject):
         import importlib
         if self.ATTACH_EXT and obj.TypeId == _PY:       # make_wire, make_bspline, make_bezcurve, make_clone
             obj.addExtension("Part::AttachExtensionPython")
-        getattr(importlib.import_module("draftobjects." + self.PROXY[0]), self.PROXY[1])(obj)
+        cls = getattr(importlib.import_module("draftobjects." + self.PROXY[0]), self.PROXY[1])
+        if self.LINK:
+            # DocumentPy::addObject with a proxy and attach: Proxy set on the object in the document, then the proxy's
+            # attach (DraftLink.attach: App::LinkExtensionPython and its properties)
+            proxy = cls(None)
+            obj.Proxy = proxy
+            proxy.attach(obj)
+        else:
+            cls(obj)
 
     def fc_props(self):
         for k in self.DEFAULTS:
@@ -249,9 +258,29 @@ Array.HIDES = PathArray.HIDES = PointArray.HIDES = ("base",)
 Array.INPUTS = PathArray.INPUTS = PointArray.INPUTS = ("base",)
 Clone.INPUTS, Clone.HIDES = ("objects",), ()      # ViewProviderDraft.claimChildren: Base and Objects
 Wire.ATTACH_EXT = BSpline.ATTACH_EXT = BezCurve.ATTACH_EXT = Clone.ATTACH_EXT = True
+PathTwistedArray = _kind("PathTwistedArray", ("pathtwistedarray", "PathTwistedArray"), _PY, {
+    "base": None, "path_object": None, "count": 15, "rotation_factor": 0.25, "fuse": False},
+    refs=("base", "path_object"), pos=("base", "path_object"))
+
+
+def _link(name, plain):
+    """The link variant of an array kind (Draft_PathLinkArray, ...): the same proxy and properties, made as a link."""
+    cls = type(name, (plain,), {"__doc__": f"Draft's {name}: {plain.__name__} made as a link array (use_link=True).",
+                                "kind": f"Draft.{name}", "TYPE_ID": f"Draft::{name}", "LINK": True,
+                                "TRANSACTION": f"Create {name}"})
+    return cls
+
+
+LinkArray = _link("LinkArray", Array)
+PathLinkArray = _link("PathLinkArray", PathArray)
+PointLinkArray = _link("PointLinkArray", PointArray)
+PathTwistedLinkArray = _link("PathTwistedLinkArray", PathTwistedArray)
 # a PathArray's Count is a property the user sets (the number of copies), not the read-only result an Array's is
 PathArray.PROPS = {"count": "Count"}
-register(Rectangle, Wire, Circle, Ellipse, Polygon, BSpline, BezCurve, Point, Array, PathArray, PointArray, Clone)
+PathTwistedArray.PROPS = {"count": "Count"}
+PathTwistedArray.HIDES = PathTwistedArray.INPUTS = ("base",)
+register(Rectangle, Wire, Circle, Ellipse, Polygon, BSpline, BezCurve, Point, Array, PathArray, PointArray, Clone,
+         PathTwistedArray, LinkArray, PathLinkArray, PointLinkArray, PathTwistedLinkArray)
 
 assert all(snake(c.prop_name(k)) == k for c in OBJECTS.values() for k in c.DEFAULTS
            if k not in PartObject.COMMON), "a Draft keyword that is not its property's snake_case"

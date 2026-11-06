@@ -49,7 +49,14 @@ const MAKES: Record<string, Make> = {
   Draft_PathArray: { type: 'Draft::PathArray', base: 'PathArray', start: {}, keys: [], panel: false, sel: 'two' },
   Draft_PointArray: { type: 'Draft::PointArray', base: 'PointArray', start: {}, keys: [], panel: false, sel: 'two' },
   Draft_Clone: { type: 'Draft::Clone', base: 'Clone', start: {}, keys: [], panel: false, sel: 'many' },
+  // the link variants (gui_patharray.PathLinkArray, ...: use_link=True) and the twisted array (make_path_twisted_array)
+  Draft_PathLinkArray: { type: 'Draft::PathLinkArray', base: 'PathArray', start: {}, keys: [], panel: false, sel: 'two' },
+  Draft_PointLinkArray: { type: 'Draft::PointLinkArray', base: 'PointArray', start: {}, keys: [], panel: false, sel: 'two' },
+  Draft_PathTwistedArray: { type: 'Draft::PathTwistedArray', base: 'PathTwistedArray', start: {}, keys: [], panel: false, sel: 'two' },
+  Draft_PathTwistedLinkArray: { type: 'Draft::PathTwistedLinkArray', base: 'PathTwistedArray', start: {}, keys: [], panel: false, sel: 'two' },
 }
+/** The array panels' "Link array" box (TaskPanel_OrthoArray's checkbox_link): Draft_array_Link, True by default */
+const LINKABLE = new Set(['Draft_OrthoArray', 'Draft_PolarArray', 'Draft_CircularArray'])
 /** The modifications: Draft's own move / rotate / scale / offset run on the server (`cad feature draft`, draft_modify.py),
  *  with the panel's values as the GUI command's Draft.move(...) line takes them. */
 type Mod = { op: 'move' | 'rotate' | 'scale' | 'offset'; one?: boolean }
@@ -110,15 +117,16 @@ async function run(c: string) {
   if (!part || !sel.length) { void messageBox('warning', 'Wrong selection', 'Select an object first.'); return }
   if (mk.panel) { openTask('draftwb', part, c); return }
   const doc = getState().features[part]
-  const links = mk.type === 'Draft::Clone' ? { objects: sel } : mk.type === 'Draft::PathArray' ? { base: sel[0], path_object: sel[1] }
-    : { base: sel[0], point_object: sel[1] }
+  const links = mk.type === 'Draft::Clone' ? { objects: sel } : /Point/.test(mk.type) ? { base: sel[0], point_object: sel[1] }
+    : { base: sel[0], path_object: sel[1] }
   await addObject(part, { name: uniqueName(doc, mk.base), type: mk.type, ...links } as Feature, cmdOf(c).menu ?? c)
 }
 /** Std_Edit on a Draft object: the panel of the command that makes it, its values loaded. */
 export function editDraft(part: string, name: string): boolean {
   const o = objectOf(getState().features[part], name)
   if (!o || !String(o.type).startsWith('Draft::')) return false
-  const c = Object.keys(MAKES).find((k) => MAKES[k].type === o.type && MAKES[k].panel
+  const type = o.type === 'Draft::LinkArray' ? 'Draft::Array' : o.type
+  const c = Object.keys(MAKES).find((k) => MAKES[k].type === type && MAKES[k].panel
     && (o.type !== 'Draft::Array' || MAKES[k].start.array_type === (o.array_type ?? 'ortho'))
     && (o.type !== 'Draft::Circle' || (k === 'Draft_Arc') === (Number(o.first_angle ?? 0) !== Number(o.last_angle ?? 0))))
   if (!c) return false
@@ -150,6 +158,7 @@ function MakeTask({ part, other }: { part: string; other: string }) {
   const mk = MAKES[c]
   const existing = edit ? objectOf(doc, edit) : undefined
   const rows = DRAFT_PROPS[mk?.type ?? ''] ?? []
+  const [link, setLink] = useState(() => (existing ? existing.type === 'Draft::LinkArray' : LINKABLE.has(c)))
   const [sel] = useState(() => (existing ? [] : selectedObjects(part)))
   const [vals, setVals] = useState<Record<string, unknown>>(() => {
     const out: Record<string, unknown> = {}
@@ -199,7 +208,8 @@ function MakeTask({ part, other }: { part: string; other: string }) {
     closeTask()
     if (existing) { await applyOps(part, [{ op: 'set', name: existing.name, props }], { name: `Edit ${existing.name}` }); return }
     if (mk.sel) props.base = sel[0]
-    await addObject(part, { name: uniqueName(getState().features[part], mk.base), type: mk.type, ...props } as Feature, cmdOf(c).menu ?? c)
+    const type = LINKABLE.has(c) && link ? 'Draft::LinkArray' : mk.type
+    await addObject(part, { name: uniqueName(getState().features[part], mk.base), type, ...props } as Feature, cmdOf(c).menu ?? c)
   }
   return (
     <div className="tasks pt-task" data-task={`draft-${c}`}>
@@ -207,6 +217,7 @@ function MakeTask({ part, other }: { part: string; other: string }) {
       <TaskBox title={cmdOf(c).menu ?? c} icon={iconOf(c) ?? 'df-DraftWorkbench'}>
         {mk.sel && <Field label="Base">{existing ? String(existing.base ?? '') : sel[0] ?? ''}</Field>}
         {mk.keys.map(field)}
+        {LINKABLE.has(c) && <Check label="Link array" name="checkbox_link" checked={link} disabled={!!existing} onChange={setLink} />}
         {mk.type !== 'Draft::Point' && <Legend title="Placement">{(['X', 'Y', 'Z'] as const).map((a, i) =>
           <Q key={a} label={a} name={`pos${a}`} value={pos[i] ?? 0} onChange={(x) => { const w = [...pos]; w[i] = x; setPos(w); setDirty(new Set([...dirty, 'placement'])) }} />)}</Legend>}
       </TaskBox>

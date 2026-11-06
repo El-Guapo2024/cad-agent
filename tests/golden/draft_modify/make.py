@@ -21,7 +21,7 @@ from cad_agent import feature_part as Part  # noqa: E402
 from cases import CASES  # noqa: E402
 
 V = lambda s: App.Vector(*[float(c) for c in s.split(",")])     # noqa: E731
-kinds = {c.PROXY[1]: c for c in D.OBJECTS.values()}
+kinds = {(c.PROXY[1], c.LINK): c for c in D.OBJECTS.values()}
 out = {}
 for name, case in CASES.items():
     doc = App.newDocument(name)
@@ -40,7 +40,8 @@ for name, case in CASES.items():
         doc.recompute()
     res = {}
     for o in doc.Objects:
-        cls = kinds.get(getattr(getattr(o, "Proxy", None), "Type", None))
+        px = getattr(o, "Proxy", None)
+        cls = kinds.get((getattr(px, "Type", None), bool(getattr(px, "use_link", False))))
         res[o.Name] = ({k: M._plain(v) for k, v in M._props(cls, o).items()} if cls is not None
                        else {"placement": M._plain(M._placement(o.Placement))})
     out[name] = res

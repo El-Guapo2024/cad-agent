@@ -187,6 +187,7 @@ Step 5, round 3 (six branches) is all in main (7526c0c, CI green, 6977 passed, 2
   `from cad_agent import feature_draft as Draft` beside Part; goldens in tests/golden/part/cases_draft.py, `make.py
   draft`). On the page since draft-ui: src/draft_wb.tsx (menus, toolbars, the number panel; ui/scripts/draftcheck.mjs).
   Move, Rotate, Scale, Offset since draft-modify (cad_agent/draft_modify.py, `cad feature draft`, Draft's own functions).
+  The link arrays and the twisted path array since draft-links.
   Next for Draft: Trimex/Join/Upgrade, annotations, point picking in the 3D view.
 - Left after the demo: FEM (Gmsh and CalculiX as separate programs), Draft's modifications and annotations, Part's cut commands, PARITY's known
   differences. Temporary branches on GitHub (ds-merge, ds-fix, asm-merge, st-merge, r5-merge, r6-merge, r7-merge,

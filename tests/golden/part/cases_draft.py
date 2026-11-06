@@ -62,3 +62,19 @@ CASES["draft_clone"] = {"objects": [
 CASES["draft_params"] = {"params": {"w": 12.0, "n": 4}, "objects": [
     Draft.Rectangle("Rectangle", length="w", height="w / 2"),
     Draft.Array("Array", "Rectangle", number_x="n", interval_x=(15, 0, 0), number_y=1)]}
+# the link arrays (use_link=True, as the Draft_*LinkArray commands make them) and the twisted path array
+CASES["draft_link_arrays"] = {"objects": [
+    Draft.Rectangle("Rectangle", length=4, height=2),
+    Draft.LinkArray("Ortho", "Rectangle", number_x=3, number_y=2, interval_x=(6, 0, 0), interval_y=(0, 4, 0)),
+    Draft.Wire("Path", points=[(0, 20, 0), (30, 20, 0), (30, 40, 0)]),
+    Draft.Circle("Dot", radius=1),
+    Draft.PathLinkArray("PathLinkArray", "Dot", "Path", count=5),
+    Draft.Wire("Points", points=[(0, 60, 0), (10, 65, 0), (20, 60, 0)]),
+    Draft.PointLinkArray("PointLinkArray", "Dot", "Points")]}
+CASES["draft_twisted"] = {"objects": [
+    Draft.Rectangle("Rectangle", length=4, height=2, placement=((0, 0, 0), (0, 0, 90))),
+    Draft.Wire("Path", points=[(0, 0, 0), (10, 0, 10), (0, 10, 20), (5, 5, 40)]),
+    Draft.PathTwistedArray("Twisted", "Rectangle", "Path", count=8, rotation_factor=0.5),
+    Draft.Circle("Ring", radius=2, placement=((20, 0, 0), (0, 0, 90))),
+    Draft.Wire("Path2", points=[(20, 0, 0), (20, 30, 10)]),
+    Draft.PathTwistedLinkArray("TwistedLink", "Ring", "Path2", count=6)]}
