@@ -488,11 +488,11 @@ def template_svg(name: str, texts: dict) -> str:
     """DrawSVGTemplate::processTemplate: the template with each editable text's tspan holding its value; the root
     <svg>'s children, for a group of their own."""
     from .techdraw import FREECAD_NS, SVG_NS, template_path
-    ET.register_namespace("", SVG_NS)
     ET.register_namespace("freecad", FREECAD_NS)
     for p, u in (("rdf", "http://www.w3.org/1999/02/22-rdf-syntax-ns#"), ("cc", "http://creativecommons.org/ns#"),
-                 ("dc", "http://purl.org/dc/elements/1.1/"), ("svg", SVG_NS)):
+                 ("dc", "http://purl.org/dc/elements/1.1/")):
         ET.register_namespace(p, u)
+    ET.register_namespace("", SVG_NS)         # last: an "svg:" prefix (the ISO templates' own) breaks the page's innerHTML
     root = ET.parse(template_path(name)).getroot()
     edit = f"{{{FREECAD_NS}}}editable"
     for t in root.iter(f"{{{SVG_NS}}}text"):

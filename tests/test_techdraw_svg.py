@@ -233,3 +233,13 @@ def test_the_recorded_dimensions_are_ours():
         m = doc.dims[fo["Name"]]
         assert abs(m["value"] - fo["getRawValue"]) <= 1e-9 and m["unaltered"] == fo["getText"], (key, m["value"], m["unaltered"])
         assert REC[key]["undo"]["head"] == ["Create dimension"]
+
+
+@pytest.mark.parametrize("name", ["ISO/A4_Landscape_TD.svg", "ISO/A3_Landscape_TD.svg"])
+def test_a_template_is_drawn_without_namespace_prefixes(name):
+    """The page window sets the page's SVG as innerHTML, where the HTML parser makes an "svg:path" an unknown
+    element that draws nothing: the ISO templates' frame and title block were missing from the page."""
+    from cad_agent.techdraw_export import template_svg
+    s = template_svg(name, {})
+    assert "<path" in s and "<text" in s
+    assert not re.search(r"<\w+:\w+", s)
