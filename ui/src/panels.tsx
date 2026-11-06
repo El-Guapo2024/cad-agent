@@ -34,6 +34,7 @@ import { TechDrawTask } from './techdraw_tasks'
 import { CamProps, CamRows, useCam } from './cam'
 import { CamTask } from './cam_tasks'
 import { PartTask } from './part_tasks'
+import { DraftTask } from './draft_wb'
 import { CrossSectionsTask, ShapeBuilderTask } from './part_static'
 import { HoleTask, RevolveTask } from './pd_revolve'
 import { SweepTask } from './pd_sweep'
@@ -948,6 +949,7 @@ function TaskContent() {
   if (task?.kind === 'part' && task.other === 'crosssections') return <CrossSectionsTask key={task.body} part={task.body} />   // part_static.tsx
   if (task?.kind === 'part' && task.other === 'builder') return <ShapeBuilderTask key={task.body} part={task.body} />
   if (task?.kind === 'part') return <PartTask part={task.body} other={task.other ?? ''} />   // the Part workbench's (part_tasks.tsx)
+  if (task?.kind === 'draftwb') return <DraftTask part={task.body} other={task.other ?? ''} />   // the Draft workbench's (draft_wb.tsx)
   if (task?.kind === 'cam') return <CamTask job={task.body} other={task.other ?? ''} />   // the CAM workbench's (cam_tasks.tsx)
   if (task?.kind === 'techdraw') return <TechDrawTask page={task.body} other={task.other ?? ''} />   // TechDraw's panels (techdraw_tasks.tsx)
   if (task?.kind === 'assembly') return <AssemblyTask body={task.body} other={task.other ?? ''} />   // the Assembly workbench's (assembly_wb.tsx)

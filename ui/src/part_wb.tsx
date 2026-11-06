@@ -35,6 +35,7 @@ import type { Entry } from './chrome'
 import { applyOps, bodyOfPart, numberOf, refOf, sketchObject, splitRef, SKETCH, type TreeCtx } from './partdesign'
 import { attachedOf, ROLES } from './attached'
 import { PART_PROPS, type PartProp } from './part_props'
+import { DRAFT_PROPS } from './draft_props'
 import { convertToSolid, copyShapes, openCrossSections, setTolerance } from './part_static'
 
 // ── the model ────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -69,6 +70,11 @@ const TYPES: Record<string, [IconName, string]> = {
   // icon); the ToleranceSet is a FeaturePython whose provider gives preferences-part_design (part_static.tsx)
   'Part::Feature': ['pt-feature', 'Feature'], 'Part::MakeSolid': ['pt-feature', 'Feature'], 'Part::CrossSections': ['pt-feature', 'Feature'],
   'Part::ShapeBuilder': ['pt-feature', 'Feature'], 'Part::ToleranceSet': ['pt-tolerance', 'ToleranceSet'],
+  // Draft's objects (draft_wb.tsx): each view provider's icon, Draft_<proxy> (view_base.getIcon, view_array's per ArrayType)
+  'Draft::Rectangle': ['df-Draft_Rectangle', 'Rectangle'], 'Draft::Wire': ['df-Draft_Wire', 'Wire'], 'Draft::Circle': ['df-Draft_Circle', 'Circle'],
+  'Draft::Ellipse': ['df-Draft_Ellipse', 'Ellipse'], 'Draft::Polygon': ['df-Draft_Polygon', 'Polygon'], 'Draft::BSpline': ['df-Draft_BSpline', 'BSpline'],
+  'Draft::BezCurve': ['df-Draft_BezCurve', 'BezCurve'], 'Draft::Point': ['df-Draft_Point', 'Point'], 'Draft::Array': ['df-Draft_Array', 'Array'],
+  'Draft::PathArray': ['df-Draft_PathArray', 'PathArray'], 'Draft::PointArray': ['df-Draft_PointArray', 'PointArray'], 'Draft::Clone': ['df-Draft_Clone', 'Clone'],
   [SKETCH]: ['pd-sketch', 'Sketch'],
 }
 export const partIcon = (type: string): IconName => TYPES[type]?.[0] ?? 'pt-feature'
@@ -435,11 +441,15 @@ const EDIT: Record<string, string> = {
 }
 const PRIMITIVE_TYPES = ['Part::Plane', 'Part::Box', 'Part::Cylinder', 'Part::Cone', 'Part::Sphere', 'Part::Ellipsoid', 'Part::Torus', 'Part::Prism',
   'Part::Wedge', 'Part::Helix', 'Part::Spiral', 'Part::Circle', 'Part::Ellipse', 'Part::Vertex', 'Part::Line', 'Part::RegularPolygon']
+/** draft_wb.tsx's editDraft, set there (it imports this module) */
+let editDraftHook: ((part: string, name: string) => boolean) | null = null
+export const setEditDraft = (f: (part: string, name: string) => boolean) => { editDraftHook = f }
 export function editObject(part: string, name: string) {
   const o = objectOf(getState().features[part], name)
   if (!o) return
   if (o.type === SKETCH) return editSketch(part, name)
   lastDoc = part
+  if (o.type.startsWith('Draft::')) { if (!editDraftHook?.(part, name)) report('msg', `${labelOf(o)}: edit it in the property view`); return }
   if (PRIMITIVE_TYPES.includes(o.type)) return openTask('part', part, `primitives:${name}`)
   if (EDIT[o.type]) return openTask('part', part, `${EDIT[o.type]}:${name}`)
   report('msg', `${labelOf(o)}: a ${partKind(o.type)} has no task panel; edit it in the property view`)
@@ -663,7 +673,7 @@ export function PartObjectProps({ refKey }: { refKey: string }) {
   const o = objectOf(doc, name)
   if (!doc || !o) return null
   if (o.type === SKETCH) return <Group title="Base"><Row k="Label" v={o.name} /><Row k="Geometry" v={`[${(o.geometry ?? []).length} elements]`} /><Row k="Constraints" v={`[${(o.constraints ?? []).length} constraints]`} /></Group>
-  const rows: PartProp[] = PART_PROPS[o.type] ?? []
+  const rows: PartProp[] = PART_PROPS[o.type] ?? DRAFT_PROPS[o.type] ?? []
   const vars = Object.fromEntries(Object.entries(doc.params).filter(([, v]) => typeof v === 'number').map(([k, v]) => [k, { value: v as number, dims: [0, 0, 0, 0, 0, 0, 0, 0] as quantity.Quantity['dims'] }]))
   const set = (props: Record<string, unknown>) => {
     const k = Object.keys(props)[0]

@@ -123,6 +123,13 @@ def render(
     az, el = VIEWS[view]
     right, up, fwd = _basis(az, el)
 
+    W, H = size
+    if not len(mesh.tris):                 # a shape with no faces (wires, points): an empty frame
+        out = Path(out_path)
+        out.parent.mkdir(parents=True, exist_ok=True)
+        _write_png(np.full((H, W, 3), np.array(bg, dtype=np.uint8), dtype=np.uint8), out)
+        return out
+
     lo, hi = mesh.bbox
     centre = (lo + hi) / 2.0
     v = mesh.verts - centre

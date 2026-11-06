@@ -111,3 +111,8 @@ at the top of freecad-icons/ where the forms name them: `arrow-ccw.svg`, `arrow-
 `arrow-left-x.svg`, `arrow-right-x.svg`, `arrow-up-y.svg`, `arrow-up-z.svg` (`FreeCAD LGPL2+`), `center-in-stock.svg`, `model.svg`,
 `move-to-origin.svg`, `origin-x.svg`, `origin-y.svg`, `origin-z.svg`, `set-origin.svg`, `stock.svg`, `xy-in-stock.svg` (no licence
 metadata: FreeCAD's LGPL-2.1).
+
+The Draft workbench's icons are in `draft/`: the pixmap of each command of `src/Mod/Draft/draftguitools` (ui/src/draft_cmds.ts)
+and the workbench's own, from `src/Mod/Draft/Resources/icons` at 3160daf1e2b6, unmodified. They say `FreeCAD LGPL2+` or
+`LGPL` in their metadata, but for `Draft_Clone.svg`, which carries no licence and comes under FreeCAD's LGPL-2.1.
+`Draft_Label.svg` (CC-BY-SA 4.0) is not copied: the Label command is not offered.

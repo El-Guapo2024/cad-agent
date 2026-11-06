@@ -60,6 +60,7 @@ import { SCHEMAS, userString } from './quantity'
 import { approveRenders } from './agentwb'
 import { deleteFeatures, partDesignMenu, pdToolbars, sketchMenu } from './partdesign'
 import { partMenu, partToolbars } from './part_wb'
+import { draftMenus, draftToolbars } from './draft_wb'
 import { assemblyMenu, assemblyToolbars } from './assembly_wb'
 import { deleteTd, tdState, TECHDRAW_TOOLBARS, techdrawMenu, techdrawToolbars } from './techdraw'
 import { ColorPickers, deleteSelectedSheets, sheetActive, sheetMsg, spreadsheetMenu, spreadsheetToolbar, ssState } from './spreadsheet'
@@ -100,6 +101,7 @@ const WORKBENCHES: Record<Workbench, { label: string; icon: IconName; name: stri
   techdraw: { label: 'TechDraw', icon: 'td-preferences-techdraw', name: 'TechDrawWorkbench' },   // TechDraw's InitGui.py
   spreadsheet: { label: 'Spreadsheet', icon: 'ss-SpreadsheetWorkbench', name: 'SpreadsheetWorkbench' },   // Spreadsheet's InitGui.py
   cam: { label: 'CAM', icon: 'cam-CAMWorkbench', name: 'CAMWorkbench' },   // CAM's InitGui.py
+  draft: { label: 'Draft', icon: 'df-DraftWorkbench', name: 'DraftWorkbench' },   // Draft's InitGui.py
 }
 /** WorkbenchGroup::refreshWorkbenchList: the workbenches in the order of their internal names
  *  (Gui.listWorkbenches()), the first nine on W, 1 … W, 9. */
@@ -614,6 +616,8 @@ export function MenuBar() {
       {wb === 'design' && <><Menu label="Sketch" entries={sketchMenu()} /><Menu label="Part Design" entries={partDesignMenu()} /></>}
       {/* PartGui::Workbench::setupMenuBar: "&Part", inserted before Windows (part_wb.tsx) */}
       {wb === 'part' && <Menu label="Part" entries={partMenu()} />}
+      {/* DraftWorkbench.Initialize: &Drafting, &Annotation, &Modification, &Utilities (draft_wb.tsx) */}
+      {wb === 'draft' && draftMenus().map(([l, es]) => <Menu key={l} label={l} entries={es} />)}
       {wb === 'assembly' && <Menu label="Assembly" entries={assemblyMenu()} />}
       {/* TechDrawGui::Workbench::setupMenuBar: "Tech&Draw", inserted before Windows (techdraw.tsx) */}
       {wb === 'techdraw' && <Menu label="TechDraw" entries={techdrawMenu()} />}
@@ -837,11 +841,13 @@ function UndoRedoButton({ kind }: { kind: 'undo' | 'redo' }) {
 export const TOOLBARS = ['File', 'Edit', 'Clipboard', 'Workbench', 'Macro', 'View', 'Individual Views', 'Structure', 'Help', 'CAD Agent', 'Part Tools',
   'Solids', 'Boolean Tools', 'Assembly', 'Assembly Joints', 'Part Design Helper Features', 'Part Design Modeling Features', 'Part Design Dress-Up Features', 'Part Design Transformation Features',
   'TechDraw Pages', 'TechDraw Views', 'TechDraw Stacking', 'TechDraw Dimensions', 'TechDraw Attributes', 'TechDraw Centerlines', 'TechDraw Extend Dimensions',
-  'TechDraw File Access', 'TechDraw Decoration', 'TechDraw Annotation', 'Spreadsheet', 'Project Setup', 'Tool Commands', 'New Operations', 'Path Modification'] as const
+  'TechDraw File Access', 'TechDraw Decoration', 'TechDraw Annotation', 'Spreadsheet', 'Project Setup', 'Tool Commands', 'New Operations', 'Path Modification',
+  'Draft Creation', 'Draft Annotation', 'Draft Modification', 'Draft Utility'] as const
 /** A workbench's own toolbars, listed in View > Toolbars only while it is active. */
 const WB_TOOLBARS: Record<string, string> = { 'CAD Agent': 'agent', Solids: 'part', 'Boolean Tools': 'part', Assembly: 'assembly', 'Assembly Joints': 'assembly', 'Part Design Helper Features': 'design', 'Part Design Modeling Features': 'design',
   'Part Design Dress-Up Features': 'design', 'Part Design Transformation Features': 'design',
-  ...Object.fromEntries(TECHDRAW_TOOLBARS.map((t) => [t, 'techdraw'])), Spreadsheet: 'spreadsheet', ...Object.fromEntries(CAM_TOOLBARS.map((t) => [t, 'cam'])) }
+  ...Object.fromEntries(TECHDRAW_TOOLBARS.map((t) => [t, 'techdraw'])), Spreadsheet: 'spreadsheet', ...Object.fromEntries(CAM_TOOLBARS.map((t) => [t, 'cam'])),
+  'Draft Creation': 'draft', 'Draft Annotation': 'draft', 'Draft Modification': 'draft', 'Draft Utility': 'draft' }
 const HIDDEN_TOOLBARS: readonly string[] = ['Clipboard', 'Macro', 'Individual Views']
 const toolbarOn = (shown: Record<string, boolean>, name: string) => shown[name] ?? !HIDDEN_TOOLBARS.includes(name)
 /** QToolBar::handle: the 8px grip each toolbar starts with (FreeCAD.qss), gone when locked. */
@@ -948,7 +954,10 @@ export function ToolBar() {
       {/* CAMWorkbench.Initialize: Project Setup, Tool Commands, New Operations, Path Modification (cam.tsx) */}
       {wb === 'cam' && camToolbars().filter(([t]) => on(t as (typeof TOOLBARS)[number])).map(([t, es]) => (
         <span key={t} className="tb-group" title={t}><TGrip />{es.map((e, i) => <EntryBtn key={i} e={e} />)}</span>))}
-      {wb !== 'part' && wb !== 'assembly' && wb !== 'techdraw' && wb !== 'spreadsheet' && wb !== 'cam' && on('Part Tools') && <><TGrip />
+      {/* DraftWorkbench.Initialize: Draft Creation, Annotation, Modification and Utility (draft_wb.tsx; Draft Snap is the 3D view's tracker) */}
+      {wb === 'draft' && draftToolbars().filter(([t]) => on(t as (typeof TOOLBARS)[number])).map(([t, es]) => (
+        <span key={t} className="tb-group" title={t}><TGrip />{es.map((e, i) => <EntryBtn key={i} e={e} />)}</span>))}
+      {wb !== 'part' && wb !== 'assembly' && wb !== 'techdraw' && wb !== 'spreadsheet' && wb !== 'cam' && wb !== 'draft' && on('Part Tools') && <><TGrip />
         <Btn icon="visibility" cmd="Std_ToggleVisibility" disabled={!selected.length} onClick={() => toggleVisibility()} />
         {wb === 'design' && <Btn icon="body" cmd="Std_Edit" disabled={!one} onClick={() => one && editDefault(one)} />}
         {wb !== 'inspection' && <Btn icon="transform" cmd="Std_TransformManip" disabled={!one} onClick={() => one && openTask('transform', one)} />}

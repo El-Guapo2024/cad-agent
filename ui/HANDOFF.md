@@ -184,8 +184,9 @@ Step 5, round 3 (six branches) is all in main (7526c0c, CI green, 6977 passed, 2
   over the fcshim stand-ins (cad_agent/draft_runtime.activate(), as cam_runtime does for CAM). tests/golden/draft: 26
   freecadcmd documents (`make.py`, `record.py`), all equal. In part files since draft-part (cad_agent/feature_draft.py,
   `from cad_agent import feature_draft as Draft` beside Part; goldens in tests/golden/part/cases_draft.py, `make.py
-  draft`). Not yet on the page.
-- Left after the demo: FEM (Gmsh and CalculiX as separate programs), Draft's part-file objects and page, Part's cut commands, PARITY's known
+  draft`). On the page since draft-ui: src/draft_wb.tsx (menus, toolbars, the number panel; ui/scripts/draftcheck.mjs).
+  Next for Draft: modifications (Move, Rotate, Scale, Offset), annotations, point picking in the 3D view.
+- Left after the demo: FEM (Gmsh and CalculiX as separate programs), Draft's modifications and annotations, Part's cut commands, PARITY's known
   differences. Temporary branches on GitHub (ds-merge, ds-fix, asm-merge, st-merge, r5-merge, r6-merge, r7-merge,
   r7b-merge, cam-merge, ci-diag) are all in main; delete them when Juan says so.
 - pd-last (2026-10-27): PartDesign's last commands, each a KwFeature: Involute Gear and Sprocket (cad_agent/feature_gear.py,

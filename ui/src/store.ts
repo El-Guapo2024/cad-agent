@@ -83,7 +83,7 @@ export const NOTIFY_DEFAULTS: NotifyPrefs = {
   maxWidgetMessages: 1000, autoRemoveUserNotifications: true, notificationWidth: 800,
   hideWhenDeactivated: true, preventWhenInactive: true, developerErrors: false, developerWarnings: false,
 }
-export type Task = { kind: 'params' | 'placement' | 'transform' | 'measure' | 'mass' | 'clip' | 'info' | 'prefs' | 'units' | 'turntable' | 'shot' | 'align'
+export type Task = { kind: 'params' | 'draftwb' | 'placement' | 'transform' | 'measure' | 'mass' | 'clip' | 'info' | 'prefs' | 'units' | 'turntable' | 'shot' | 'align'
   // CAD Agent workbench tasks (agentwb.tsx): the cad CLI commands that had no UI yet.
   | 'check' | 'verify' | 'done' | 'rules' | 'cutlist' | 'tables' | 'tool' | 'bought' | 'render'
   // and the shop's (shopwb.tsx, librarywb.tsx): cad bom, cad shop, cad drawing, cad lib
@@ -125,7 +125,7 @@ export type Task = { kind: 'params' | 'placement' | 'transform' | 'measure' | 'm
 /** GET /api/history: one entry of the backend's Document undo/redo journal, shared with an
  *  agent in a terminal — replaces a UI-local undo stack (actions.ts no longer replays changes). */
 export type HistoryEntry = { id: string; name: string; by: 'ui' | 'agent'; t: number }
-export type Workbench = 'design' | 'assembly' | 'inspection' | 'agent' | 'sketcher' | 'part' | 'techdraw' | 'spreadsheet' | 'cam'
+export type Workbench = 'design' | 'assembly' | 'inspection' | 'agent' | 'sketcher' | 'part' | 'techdraw' | 'spreadsheet' | 'cam' | 'draft'
 /** FreeCAD's draw styles that the viewer can show faithfully. */
 export type DrawStyle = 'asis' | 'points' | 'wireframe' | 'hiddenline' | 'noshading' | 'shaded' | 'flatlines'
 export type ClipAxis = { on: boolean; offset: number; flip: boolean }

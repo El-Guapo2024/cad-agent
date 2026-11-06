@@ -361,7 +361,8 @@ that commit.
 
   FreeCAD icons                 ui/public/freecad-icons/, copied unmodified into
                                 cad_agent/workbench/next/freecad-icons/: 202 SVG files from
-                                FreeCAD's src/Gui/Icons and src/Mod/*/Gui/Resources/icons, 16 style
+                                FreeCAD's src/Gui/Icons and src/Mod/*/Gui/Resources/icons (Draft's:
+                                src/Mod/Draft/Resources/icons), 16 style
                                 sheet indicators (qss-*.svg, from src/Gui/Stylesheets/
                                 images_classic/) and 9 overlay buttons (overlay-*.svg, from
                                 src/Gui/Stylesheets/overlay/icons/) among them. Each has the

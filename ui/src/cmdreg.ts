@@ -57,6 +57,7 @@ import { shapeBinder } from './pd_binder'
 import { makeGear, subShapeBinder } from './pd_last'
 import { booleanCommand, cloneCommand, cloneEnabled } from './pd_boolean'
 import { partCommands, partEnabled, partRun } from './part_wb'
+import { draftCommands, draftEnabled, draftRun } from './draft_wb'
 import { deleteTd, tdState, techdrawCommands, techdrawEnabled, techdrawRun } from './techdraw'
 import { deleteSelectedSheets, sheetActive, sheetMsg, spreadsheetCommands, spreadsheetEnabled, spreadsheetRun, ssState } from './spreadsheet'
 import { camCommands, camEnabled, camRun, camState, deleteSelectedCam } from './cam'
@@ -249,6 +250,7 @@ const COMMANDS: Record<string, RegCommand> = {
   ...Object.fromEntries(dressUpEntries(true).flatMap((e) => (e === 'sep' || !e.cmd ? [] : [[e.cmd, reg(e.label, () => e.onSelect?.(), () => !!getState().slug)]]))),  // pd_dressup.tsx
   // part_wb.tsx: the Part workbench's commands (Command.cpp, CommandParametric.cpp, BOPTools, CompoundTools)
   ...Object.fromEntries(partCommands().map(([c, e]) => [c, reg(e.label, () => partRun(c), () => partEnabled(c))])),
+  ...Object.fromEntries(draftCommands().map(([c, e]) => [c, reg(e.label, () => draftRun(c), () => draftEnabled(c))])),
   // techdraw.tsx: the TechDraw workbench's commands (Command.cpp, CommandCreateDims.cpp, CommandAnnotate.cpp)
   ...Object.fromEntries(techdrawCommands().map(([c, e]) => [c, reg(e.label, () => techdrawRun(c), () => techdrawEnabled(c))])),
   ...Object.fromEntries(assemblyCommands().map(([c, e]) => [c, reg(e.label, () => assemblyRun(c), () => assemblyEnabled(c))])),
