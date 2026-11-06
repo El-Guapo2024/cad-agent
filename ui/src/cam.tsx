@@ -80,6 +80,8 @@ export const numOf = (o: CamObj | undefined, name: string): number => {
 }
 const OPS = ['Profile', 'PocketShape', 'MillFace', 'Drilling', 'Helix', 'Engrave', 'Slot', 'Deburr', 'ThreadMilling', 'Tapping', 'Pocket3D',
   'MillFacing', 'Adaptive', 'Custom', 'Probe', 'Comment', 'Stop']
+// the dress-ups whose command opens a panel (cam_tasks.tsx DRESSUP_FORMS; the others are edited in the property view)
+const DRESSUP_PANEL = ['DressupLeadInOut', 'DressupAxisMap', 'DressupDragknife', 'DressupZCorrect', 'DressupBoundary']
 const DRESSUPS = ['DressupTag', 'DressupDogbone', 'DressupLeadInOut', 'DressupRampEntry', 'DressupBoundary', 'DressupBoundary2',
   'DressupArray', 'DressupDragknife', 'DressupMirror', 'DressupPlungeMilling', 'DressupZCorrect', 'DressupAxisMap']
 export const isOp = (o: CamObj | undefined) => !!o && (OPS.includes(o.kind ?? '') || DRESSUPS.includes(o.kind ?? ''))
@@ -199,6 +201,7 @@ async function newDressup(kind: string, transaction: string) {
   setCam({ sel: [camRef(job, made.name)] })
   // Tags.Create opens the HoldingTags panel (its own "Edit HoldingTags Dress-up" step); DogboneII.Create opens none
   if (kind === 'DressupTag') openTask('cam', job, `tag:${made.name}:create`)
+  else if (DRESSUP_PANEL.includes(kind)) openTask('cam', job, `dressup:${made.name}:create`)
 }
 const TIP = (t: string) => t
 export const CAM_CMDS: Record<string, Cmd> = {
@@ -320,6 +323,7 @@ export function editCam(job: string, name: string) {
   if (o.kind === 'Job' || o.kind === 'Stock') openTask('cam', job, 'job')
   else if (o.kind === 'ToolController') openTask('cam', job, `tc:${name}`)
   else if (o.kind === 'DressupTag') openTask('cam', job, `tag:${name}`)
+  else if (o.kind && DRESSUP_PANEL.includes(o.kind)) openTask('cam', job, `dressup:${name}`)
   else if (o.kind && OPS.includes(o.kind)) openTask('cam', job, `op:${name}`)
 }
 export function camSelect(ref: string, add = false) {

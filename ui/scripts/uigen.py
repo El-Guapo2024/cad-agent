@@ -57,6 +57,9 @@ CAM_PAGES = {
     "deburr": _CAM + "PageOpDeburrEdit.ui", "threadmilling": _CAM + "PageOpThreadMillingEdit.ui",
     "tapping": _CAM + "PageOpTappingEdit.ui", "millfacing": _CAM + "PageOpMillFacingEdit.ui",
     "adaptive": _CAM + "PageOpAdaptiveEdit.ui", "custom": _CAM + "PageOpCustomEdit.ui", "probe": _CAM + "PageOpProbeEdit.ui",
+    # the dress-up panels added 2026-11-06 (Path/Dressup/Gui/<Name>.py)
+    "leadinout": _CAM + "DressUpLeadInOutEdit.ui", "axismap": _CAM + "AxisMapEdit.ui", "dragknife": _CAM + "DragKnifeEdit.ui",
+    "zcorrect": _CAM + "ZCorrectEdit.ui", "boundary": _CAM + "DressupPathBoundary.ui",
 }
 TECHDRAW_PAGES = {
     "projgroup": "src/Mod/TechDraw/Gui/TaskProjGroup.ui", "section": "src/Mod/TechDraw/Gui/TaskSectionView.ui",

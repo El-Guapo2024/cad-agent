@@ -59,6 +59,7 @@ export function CamTask({ job, other }: { job: string; other: string }) {
   if (kind === 'job') return <JobPanel key={job} job={job} create={create} />
   if (kind === 'op') return <OpPanel key={`${job}/${name}`} job={job} name={name} create={create} />
   if (kind === 'tag') return <TagPanel key={`${job}/${name}`} job={job} name={name} create={create} />
+  if (kind === 'dressup') return <DressupPanel key={`${job}/${name}`} job={job} name={name} create={create} />
   if (kind === 'tc') return <TcPanel key={`${job}/${name}`} job={job} name={name} />
   if (kind === 'post') return <PostDialog job={job} />
   return null
@@ -628,3 +629,29 @@ function PostDialog({ job }: { job: string }) {
     </div>, document.body)
 }
 export { Icon }
+
+// ── the dress-ups' panels that have a .ui (Path/Dressup/Gui/<Name>.py's TaskPanel or SimpleEditPanel) ─────────────
+export const DRESSUP_FORMS: Record<string, [string, string, string, Record<string, string>]> = {   // form, title, transaction, widgets
+  DressupLeadInOut: ['leadinout', 'LeadInOut Dress-up', 'Edit LeadInOut Dress-up', { groupBoxIn: 'LeadIn', groupBoxOut: 'LeadOut',
+    cboStyleIn: 'StyleIn', cboStyleOut: 'StyleOut', chkInvertDirectionIn: 'InvertIn', chkInvertDirectionOut: 'InvertOut',
+    dspRadiusIn: 'RadiusIn', dspRadiusOut: 'RadiusOut', dspAngleIn: 'AngleIn', dspAngleOut: 'AngleOut', dspExtendIn: 'ExtendIn',
+    dspExtendOut: 'ExtendOut', dspOffsetIn: 'OffsetIn', dspOffsetOut: 'OffsetOut', dspThreshold: 'RetractThreshold', chkRapidPlunge: 'RapidPlunge' }],
+  DressupAxisMap: ['axismap', 'Axis Map Dress-up', 'Edit DressupAxisMap', { axisMap: 'AxisMap', radius: 'Radius', reverse: 'Reverse' }],
+  DressupDragknife: ['dragknife', 'Drag Knife Dress-up', 'Edit Dragknife Dress-up', { filterAngle: 'filterAngle', offsetDistance: 'offset', pivotHeight: 'pivotheight' }],
+  DressupZCorrect: ['zcorrect', 'Z Depth Correction Dress-up', 'Edit Z Correction Dress-up', { ProbePointFileName: 'probefile' }],
+  DressupBoundary: ['boundary', 'Boundary Dress-up', 'Edit Boundary Dress-up', { stockInside: 'Inside' }],
+}
+function DressupPanel({ job, name, create }: { job: string; name: string; create: boolean }) {
+  const p = usePending(job)
+  const o = p.obj(name)
+  if (!o || !o.kind || !DRESSUP_FORMS[o.kind]) return null
+  const [form, title, transaction, map] = DRESSUP_FORMS[o.kind]
+  const bind: Bindings = Object.fromEntries(Object.entries(map).map(([w, prop]) => [w, propBind(p, name, prop)]))
+  const ok = async () => { if (await p.send(transaction)) closeTask() }
+  return (
+    <div className="tasks" data-cam-panel={name}>
+      <Buttons ok={() => void ok()} cancel={() => void p.cancel(create)} />
+      <TaskBox title={title} icon="cam-CAM_Dressup"><QtForm form={CAM_FORMS[form]} bind={bind} /></TaskBox>
+    </div>)
+}
+

@@ -725,7 +725,19 @@ src/Mod/Assembly/JointObject.py   [licence: LGPL-2.1-or-later]
 src/Mod/Assembly/UtilsAssembly.py   [licence: LGPL-2.1-or-later]
     copyright 2023 Ondsel
     followed by src/assembly_wb.tsx, src/assembly_tasks.tsx
+src/Mod/CAM/Gui/Resources/panels/AxisMapEdit.ui   [licence: none]
+    copyright: no line in the file
+    followed by src/cam_tasks.tsx, src/uiforms-cam.ts
 src/Mod/CAM/Gui/Resources/panels/DlgJobCreate.ui   [licence: none]
+    copyright: no line in the file
+    followed by src/cam_tasks.tsx, src/uiforms-cam.ts
+src/Mod/CAM/Gui/Resources/panels/DragKnifeEdit.ui   [licence: none]
+    copyright: no line in the file
+    followed by src/cam_tasks.tsx, src/uiforms-cam.ts
+src/Mod/CAM/Gui/Resources/panels/DressUpLeadInOutEdit.ui   [licence: none]
+    copyright: no line in the file
+    followed by src/cam_tasks.tsx, src/uiforms-cam.ts
+src/Mod/CAM/Gui/Resources/panels/DressupPathBoundary.ui   [licence: none]
     copyright: no line in the file
     followed by src/cam_tasks.tsx, src/uiforms-cam.ts
 src/Mod/CAM/Gui/Resources/panels/HoldingTagsEdit.ui   [licence: none]
@@ -792,6 +804,9 @@ src/Mod/CAM/Gui/Resources/panels/PathEdit.ui   [licence: none]
     copyright: no line in the file
     followed by src/cam_tasks.tsx, src/uiforms-cam.ts
 src/Mod/CAM/Gui/Resources/panels/ToolControllerEdit.ui   [licence: none]
+    copyright: no line in the file
+    followed by src/cam_tasks.tsx, src/uiforms-cam.ts
+src/Mod/CAM/Gui/Resources/panels/ZCorrectEdit.ui   [licence: none]
     copyright: no line in the file
     followed by src/cam_tasks.tsx, src/uiforms-cam.ts
 src/Mod/CAM/Gui/ViewProviderPath.cpp   [licence: LGPL-2.0-or-later]
