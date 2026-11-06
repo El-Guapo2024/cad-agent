@@ -58,6 +58,7 @@ import { makeGear, subShapeBinder } from './pd_last'
 import { booleanCommand, cloneCommand, cloneEnabled } from './pd_boolean'
 import { partCommands, partEnabled, partRun } from './part_wb'
 import { draftCommands, draftEnabled, draftRun } from './draft_wb'
+import { femCommands, femEnabled, femRun } from './fem_wb'
 import { deleteTd, tdState, techdrawCommands, techdrawEnabled, techdrawRun } from './techdraw'
 import { deleteSelectedSheets, sheetActive, sheetMsg, spreadsheetCommands, spreadsheetEnabled, spreadsheetRun, ssState } from './spreadsheet'
 import { camCommands, camEnabled, camRun, camState, deleteSelectedCam } from './cam'
@@ -251,6 +252,7 @@ const COMMANDS: Record<string, RegCommand> = {
   // part_wb.tsx: the Part workbench's commands (Command.cpp, CommandParametric.cpp, BOPTools, CompoundTools)
   ...Object.fromEntries(partCommands().map(([c, e]) => [c, reg(e.label, () => partRun(c), () => partEnabled(c))])),
   ...Object.fromEntries(draftCommands().map(([c, e]) => [c, reg(e.label, () => draftRun(c), () => draftEnabled(c))])),
+  ...Object.fromEntries(femCommands().map(([c, e]) => [c, reg(e.label, () => femRun(c), () => femEnabled(c))])),
   // techdraw.tsx: the TechDraw workbench's commands (Command.cpp, CommandCreateDims.cpp, CommandAnnotate.cpp)
   ...Object.fromEntries(techdrawCommands().map(([c, e]) => [c, reg(e.label, () => techdrawRun(c), () => techdrawEnabled(c))])),
   ...Object.fromEntries(assemblyCommands().map(([c, e]) => [c, reg(e.label, () => assemblyRun(c), () => assemblyEnabled(c))])),

@@ -10,8 +10,11 @@ def cmd_run(a) -> Result:
     from . import feature_fem as FF
     path = part(a.slug, a.part)
     work = project(a.slug) / "out" / "fem" / a.part
+    import os
+    threads = a.threads if a.threads is not None else (int(os.environ["CAD_FEM_THREADS"])
+                                                       if os.environ.get("CAD_FEM_THREADS") else None)
     try:
-        r = FF.run(path, workdir=work, threads=a.threads)
+        r = FF.run(path, workdir=work, threads=threads)
     except FF.FemError as e:
         raise UsageError(str(e)) from None
     text = (f"{a.slug}/{a.part}: {r['nodes']} nodes, {r['volumes']} volume elements\n"
@@ -30,4 +33,5 @@ def add_parsers(add, sub) -> None:
     sp.add_argument("slug")
     sp.add_argument("part")
     sp.add_argument("--threads", type=int, default=None,
-                    help="Gmsh's threads (FEM's NumOfThreads; 1 gives the same mesh each run)")
+                    help="Gmsh's threads (FEM's NumOfThreads; 1 gives the same mesh each run; default CAD_FEM_THREADS, "
+                    "else FreeCAD's, every core)")

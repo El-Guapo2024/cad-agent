@@ -116,3 +116,9 @@ The Draft workbench's icons are in `draft/`: the pixmap of each command of `src/
 and the workbench's own, from `src/Mod/Draft/Resources/icons` at 3160daf1e2b6, unmodified. They say `FreeCAD LGPL2+` or
 `LGPL` in their metadata, but for `Draft_Clone.svg`, which carries no licence and comes under FreeCAD's LGPL-2.1.
 `Draft_Label.svg` (CC-BY-SA 4.0) is not copied: the Label command is not offered.
+
+The FEM workbench's icons are in `fem/`: the pixmap of each command of FEM's menus and toolbars (ui/src/fem_cmds.ts) and
+the workbench's own, from `src/Mod/Fem/Gui/Resources/icons` at 3160daf1e2b6, unmodified. They say `FreeCAD LGPL2+` in their
+metadata, but for `FEM_PostFilterCalculator.svg` (CC0 1.0, public domain) and `FEM_ConstraintSpring.svg`,
+`FEM_PostFilterDataAtPoint.svg`, `FEM_SolverMystran.svg` and `FEM_SolverZ88.svg`, which carry no licence and come under
+FreeCAD's LGPL-2.1.

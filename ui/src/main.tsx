@@ -15,6 +15,7 @@ import { initSliders } from './qslider'
 import { newSketch, pdMenus } from './partdesign'
 import { partMenus } from './part_wb'
 import { draftData } from './draft_wb'
+import { femData } from './fem_wb'
 import { assemblyMenus, assemblyTreeEntries, loadAssembly } from './assembly_wb'
 import { applyTd, loadTechDraw, tdInflight, tdSelect, tdState, techdrawMenus } from './techdraw'
 import { applySs, loadSheets, setSs, spreadsheetMenus, ssState } from './spreadsheet'
@@ -42,4 +43,4 @@ Object.assign((window as unknown as { cadui: object }).cadui, { part: partMenus,
   techdraw: techdrawMenus, td: { inflight: tdInflight, state: tdState, apply: applyTd, load: loadTechDraw, select: tdSelect }, asmTree: assemblyTreeEntries })   // partcheck.mjs, assemblycheck.mjs
 Object.assign((window as unknown as { cadui: object }).cadui, { spreadsheet: spreadsheetMenus, ss: { state: ssState, set: setSs, apply: applySs, load: loadSheets } })   // spreadsheetcheck.mjs
 Object.assign((window as unknown as { cadui: object }).cadui, { cam: camMenus, camApi: { state: camState, set: setCam, apply: applyCam, load: loadCam, run: camRun, select: camSelect, props: camPropText } })   // camcheck.mjs
-Object.assign((window as unknown as { cadui: object }).cadui, { draft: draftData })   // draftcheck.mjs
+Object.assign((window as unknown as { cadui: object }).cadui, { draft: draftData, fem: femData })   // draftcheck.mjs, femcheck
