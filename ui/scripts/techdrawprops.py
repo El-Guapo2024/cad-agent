@@ -27,7 +27,8 @@ TYPE_OF = {"DrawPage": "TechDraw::DrawPage", "DrawSVGTemplate": "TechDraw::DrawS
            "DrawProjGroup": "TechDraw::DrawProjGroup", "DrawViewSection": "TechDraw::DrawViewSection",
            "DrawViewDimension": "TechDraw::DrawViewDimension", "DrawViewBalloon": "TechDraw::DrawViewBalloon",
            "DrawViewAnnotation": "TechDraw::DrawViewAnnotation", "DrawHatch": "TechDraw::DrawHatch",
-           "DrawGeomHatch": "TechDraw::DrawGeomHatch", "DrawBrokenView": "TechDraw::DrawBrokenView"}
+           "DrawGeomHatch": "TechDraw::DrawGeomHatch", "DrawBrokenView": "TechDraw::DrawBrokenView",
+           "DrawComplexSection": "TechDraw::DrawComplexSection"}
 # the hatches' rows are in fctechdraw_hatch.json (ui/scripts/fctechdraw_hatch.py)
 HATCH_REC = {"DrawHatch": "props_DrawHatch_Hatch", "DrawGeomHatch": "props_DrawGeomHatch_GeomHatch"}
 # the view providers' properties (the View tab), which the page file holds beside the object's

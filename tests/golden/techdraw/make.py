@@ -121,6 +121,24 @@ def build(doc, case):
                     continue
                 set_props(s, o, [key])
             made[n] = s
+        elif k == "DrawComplexSection":
+            # TaskComplexSection: the profile is a wire of the 3D document (here a Part::Feature polygon)
+            prof = doc.addObject("Part::Feature", "Profile")
+            prof.Shape = Part.makePolygon([V(*p) for p in o["cutting_tool_wire_object"]])
+            s = doc.addObject("TechDraw::DrawComplexSection", n)
+            page.addView(s)
+            s.BaseView = made[o["base_view"]]
+            s.Source = [doc.getObject(p) for p in o["source"]]
+            s.CuttingToolWireObject = prof
+            s.ProjectionStrategy = o["projection_strategy"]
+            for key in ("section_symbol", "label", "caption", "section_origin", "scale", "scale_type",
+                        "section_direction", "section_normal", "direction", "x_direction", "rotation", "x", "y",
+                        "hard_hidden", "smooth_visible"):
+                if key == "label":
+                    s.Label = o["label"]
+                    continue
+                set_props(s, o, [key])
+            made[n] = s
         elif k == "DrawBrokenView":
             # CmdTechDrawBrokenView: a break object is a straight edge of the 3D document (here a Part::Feature line)
             breaks = []

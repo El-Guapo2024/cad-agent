@@ -3,10 +3,11 @@
 // LGPL-2.0-or-later or LGPL-2.1-or-later as it states; ui/NOTICE has them all):
 //   src/Mod/TechDraw/Gui/TaskProjGroup.cpp: 2014 Joe Dowsett; 2014 Luke Parry
 //   src/Mod/TechDraw/Gui/TaskSectionView.cpp: 2016 WandererFan
+//   src/Mod/TechDraw/Gui/TaskComplexSection.cpp: 2022 WandererFan
 //   src/Mod/TechDraw/Gui/TaskDimension.cpp: 2021 Uwe Stöhr
 //   src/Mod/TechDraw/Gui/TaskBalloon.cpp: 2016 WandererFan; 2019 Franck Jullien
 //   No copyright line in the file: src/Mod/TechDraw/Gui/TaskProjGroup.ui, src/Mod/TechDraw/Gui/TaskSectionView.ui,
-//       src/Mod/TechDraw/Gui/TaskDimension.ui, src/Mod/TechDraw/Gui/TaskBalloon.ui
+//       src/Mod/TechDraw/Gui/TaskDimension.ui, src/Mod/TechDraw/Gui/TaskBalloon.ui, src/Mod/TechDraw/Gui/TaskComplexSection.ui
 // TechDraw's task panels, drawn from their Qt Designer files (uiforms-techdraw.ts) and filled as their code fills them:
 // TaskProjGroup ("New View" / "Projection Group": scale, the primary direction's rotate buttons, the projections'
 // check boxes, projection type, auto distribute and spacing), TaskSectionView (base view, symbol, scale, the four
@@ -21,6 +22,7 @@ import { TECHDRAW_FORMS } from './uiforms-techdraw'
 import { TaskBox } from './panels'
 import { applyTd, clearPreview, objOf, tdState, useTd, type TdObj } from './techdraw'
 import type { IconName } from './icons'
+import { getState } from './store'
 import { AnnotTask } from './techdraw_annot'
 import { MoreTask, MORE_KINDS } from './techdraw_more'
 import { LineAttrsTask, CustomizeTask, OffsetVertexTask } from './techdraw_ext'
@@ -46,6 +48,7 @@ export function TechDrawTask({ page, other }: { page: string; other: string }) {
   useEffect(() => () => clearPreview(page), [page])
   if (kind === 'projgroup') return <ProjGroupTask key={other} page={page} name={name} create={create} />
   if (kind === 'section') return <SectionTask key={other} page={page} name={name} create={create} />
+  if (kind === 'complex') return <ComplexSectionTask key={other} page={page} name={name} create={create} />
   if (kind === 'dimension') return <DimensionTask key={other} page={page} name={name} />
   if (kind === 'balloon') return <BalloonTask key={other} page={page} name={name} />
   return null
@@ -190,6 +193,62 @@ function SectionTask({ page, name, create }: { page: string; name: string; creat
       <Buttons ok={() => void ok()} cancel={() => { clearPreview(page); closeTask() }} />
       <TaskBox title={create ? 'Create Section View' : 'Edit Section View'} icon={'td-TechDraw_SectionView' as IconName}>
         <QtForm form={TECHDRAW_FORMS.section} bind={bind} /></TaskBox>
+    </div>)
+}
+
+// ── TaskComplexSection ───────────────────────────────────────────────────────────────────────────────────────────
+/** The 3D view's picked edges as a profile ([part, "EdgeN"], joined end to end on the server). */
+function pickedProfile(): string[][] {
+  const s = getState()
+  const part = (b: string) => s.scene?.bodies.find((x) => x.name === b)?.part ?? b
+  return s.subSel.filter((r) => /\.Edge\d+$/.test(r)).map((r) => { const i = r.lastIndexOf('.'); return [part(r.slice(0, i)), r.slice(i + 1)] })
+}
+/** TaskComplexSection: the base view and its objects, the profile (Use Selection: the edges picked in the 3D view), the
+ *  identifier, scale and projection strategy, a view direction arrow; createComplexSection on OK ("Create Complex
+ *  Section"), updateComplexSection on an existing one ("Edit Section View": identifier, scale, strategy). */
+function ComplexSectionTask({ page, name, create }: { page: string; name: string; create: boolean }) {
+  const section = !create ? objOf(page, name) : undefined
+  const base = create ? objOf(page, name) : objOf(page, String(section?.base_view))
+  const [symbol, setSymbol] = useState(String(section?.section_symbol ?? ''))
+  const [profile, setProfile] = useState<string[][]>(() => (create ? pickedProfile() : []))
+  const [strategy, setStrategy] = useState(['Offset', 'Aligned', 'NoParallel'].indexOf(String(section?.projection_strategy ?? 'Offset')))
+  const [arrow, setArrow] = useState<string | null>(null)
+  const scaleType = String(section?.scale_type ?? base?.scale_type ?? 'Page')
+  const [scale, setScale] = useState(Number(section?.scale ?? base?.scale ?? 1))
+  const strat = ['Offset', 'Aligned', 'NoParallel'][strategy]
+  const ops = useMemo(() => {
+    if (create) return arrow && profile.length ? [{ op: 'complex_section', base_view: name, direction: arrow, profile, symbol, strategy: strat }] : []
+    return [{ op: 'set', name, props: { section_symbol: symbol, scale, projection_strategy: strat } }]
+  }, [arrow, profile, symbol, scale, strat, create, name])
+  useEffect(() => { if (ops.length && create) void applyTd(page, ops, undefined, true) }, [ops, page, create])
+  const pts = (section?.cutting_tool_wire_object as number[][] | undefined) ?? []
+  const bind: Bindings = {
+    leBaseView: { value: base?.name ?? '' }, leSymbol: { value: symbol, set: (v: string) => setSymbol(v) },
+    leSectionObjects: { value: ((base?.source as string[] | undefined) ?? []).join(', ') },
+    pbSectionObjects: { off: true, why: 'the base view\'s objects are sectioned' },
+    leProfileObject: { value: create ? profile.map((e) => e.join('.')).join(', ') : `${pts.length} points` },
+    pbProfileObject: { off: !create, click: () => setProfile(pickedProfile()) },
+    cmbStrategy: { value: strategy, opts: [[0, 'Offset'], [1, 'Aligned'], [2, 'No parallel']], set: (v: number) => setStrategy(v) },
+    cmbScaleType: { value: ['Page', 'Automatic', 'Custom'].indexOf(scaleType), opts: [[0, 'Page'], [1, 'Automatic'], [2, 'Custom']], off: true, why: 'the base view\'s' },
+    sbScale: { value: scale, set: (v: number) => setScale(v), off: scaleType !== 'Custom', max: 1000, dec: 2 },
+    pbUpdateNow: { off: !(create && arrow), click: () => { if (ops.length) void applyTd(page, ops, undefined, true) } },
+    cbLiveUpdate: { value: true, off: true, why: 'the page shows every change at once' },
+    lPendingUpdates: { text: create && !arrow ? 'No direction set' : create && !profile.length ? 'No profile object' : '' },
+  }
+  for (const [w, dir, file] of [['pbUp', 'Up', 'section-up'], ['pbDown', 'Down', 'section-down'], ['pbLeft', 'Left', 'section-left'], ['pbRight', 'Right', 'section-right']] as const)
+    bind[w] = create ? { node: icon(file, 48), click: () => setArrow(dir), cls: arrow === dir ? 'on' : undefined }
+      : { node: icon(file, 48), off: true, why: 'the direction of a complex section is set when it is made here' }
+  const ok = async () => {
+    clearPreview(page)
+    closeTask()
+    if (!ops.length) return
+    await applyTd(page, ops, create ? 'Create Complex Section' : 'Edit Section View')
+  }
+  return (
+    <div className="tasks">
+      <Buttons ok={() => void ok()} cancel={() => { clearPreview(page); closeTask() }} />
+      <TaskBox title="Complex Section" icon={'td-TechDraw_ComplexSection' as IconName}>
+        <QtForm form={TECHDRAW_FORMS.complex} bind={bind} /></TaskBox>
     </div>)
 }
 

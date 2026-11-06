@@ -63,6 +63,7 @@ CAM_PAGES = {
 }
 TECHDRAW_PAGES = {
     "projgroup": "src/Mod/TechDraw/Gui/TaskProjGroup.ui", "section": "src/Mod/TechDraw/Gui/TaskSectionView.ui",
+    "complex": "src/Mod/TechDraw/Gui/TaskComplexSection.ui",
     "dimension": "src/Mod/TechDraw/Gui/TaskDimension.ui", "balloon": "src/Mod/TechDraw/Gui/TaskBalloon.ui",
     "cosvertex": "src/Mod/TechDraw/Gui/TaskCosVertex.ui", "cosline": "src/Mod/TechDraw/Gui/TaskCosmeticLine.ui",
     "coscircle": "src/Mod/TechDraw/Gui/TaskCosmeticCircle.ui", "centerline": "src/Mod/TechDraw/Gui/TaskCenterLine.ui",

@@ -994,6 +994,31 @@ Deliberate or known differences:
   then the next ones' faces), not FreeCAD's "Array.0.Face1".
 - The BOM counts an array as one line of its part, as FreeCAD's BomObject does (it follows the link).
 
+## TechDraw Complex Section, 2026-11-06
+
+TechDraw_ComplexSection opens TaskComplexSection (TaskComplexSection.ui: the base view and its objects, the profile,
+identifier, scale and projection strategy, the four arrows) and makes a TechDraw::DrawComplexSection
+(createComplexSection: SectionOrigin (0, 0, 0), SectionDirection Aligned, the CS from the base view and the arrow, Label
+"Section<suffix>"). Its profile is FreeCAD's CuttingToolWireObject, a sketch or wire of the 3D document; here the
+profile's points, or the edges picked in the 3D view (Use Selection), joined nose to tail. cad_agent/
+techdraw_complex.py ports DrawComplexSection.cpp's Offset strategy: makeCuttingTool (closeProfileForCut's extended
+ends and closing arc, closeSingleEdgeProfile, profileToSolid, a closed profile's own prism), the cut, and
+singleToolIntersections (the cut's faces in common with the profile extruded as a sheet) as the section faces; the
+section line on the base view is the profile (makeSectionLineWire).
+
+Checked against the real FreeCAD:
+- tests/golden/techdraw: plate_complex_section (a stepped profile through the plate's hole, from above) and
+  bracket_complex_section (three segments through the bracket's two holes, from the front): every edge and the
+  placement equal (12 tests). The section faces (the hatch) are not in the recording.
+- ui/scripts/techdrawcheck.mjs menus and toolbars: Complex Section active with a page, as FreeCAD's (needPage).
+
+Deliberate or known differences:
+- Aligned and No parallel (makeAlignedPieces: the pieces cut, turned and laid out along the profile) are not ported: the
+  view says so. A complex section needs a base view here (FreeCAD's can be made from selected objects alone).
+- Editing an existing one changes its identifier, scale and strategy; its direction is set when it is made.
+- The section line's arrows point along the section normal at both ends (FreeCAD's sectionLineArrowDirs turns each to
+  its end segment's view direction). No GUI check drives the panel yet.
+
 ## TechDraw Broken View, 2026-11-06
 
 TechDraw_BrokenView makes a TechDraw::DrawBrokenView (a PAGE entry, `TechDraw.DrawBrokenView(..., breaks=[[[x, y, z],
@@ -1162,7 +1187,7 @@ bold, italic, underline, colour and size (not MRichTextEdit's whole set) and the
 frame's size and the weld tiles' texts are near FreeCAD's, not equal); SymbolChooser lists each symbol once (FreeCAD loads the folder twice); the file
 dialogs are lists of FreeCAD's symbols and the project's files with Browse for a file of one's own; an uploaded image is kept in
 techdraw/images/ and stays when the step is undone; PDF and DXF leave out symbols, images and rich text; a weld's tile symbol is drawn at the
-symbol factor 1.25 without Qt's font metrics; Complex Section is not ported (Broken View came 2026-11-06).
+symbol factor 1.25 without Qt's font metrics; Broken View and Complex Section came 2026-11-06.
 
 The extension commands are checked by tests/test_techdraw_ext.py (every command of ui/scripts/fctechdraw_ext.json replayed in the recording's order on
 the plate, a flange and a shaft: the view's edges and vertices in FreeCAD's numbering, the cosmetic edges and vertices, dimensions, balloons, the
@@ -1171,7 +1196,7 @@ dialogs and the undo steps; the recording is ui/scripts/fctechdraw_ext.py, drivi
 same selections).
 
 Known differences, each marked `known` by techdrawcheck:
-- Commands not ported are greyed (Complex Section, Project Shape, Active/Draft/BIM/Spreadsheet views, Print All, ...);
+- Commands not ported are greyed ( Project Shape, Active/Draft/BIM/Spreadsheet views, Print All, ...);
   FreeCAD enables some of these where we grey them.
 - Extension commands: Change Line Attributes, Extend and Shorten Line on a centre line, Toggle Edge Visibility and Position Section View make no
   undo step in FreeCAD (they change an object or a view provider, not a property; the Python command sets X and Y outside a transaction); each is a
@@ -1315,7 +1340,7 @@ Known differences:
 - Part: Shape from mesh, Points from shape, Box selection, Persistent section cut, Check geometry, Appearance per face and Defeaturing are greyed or not ported ("Part workbench, 2026-10-25").
 - Assembly: Snapshot and the Path and Point link arrays are cut; datums inside parts, nested sub-assemblies, Exploded View's Align to..., Save Animation and the Std_TransformManip dragger are not ported ("Assembly's later commands, 2026-10-27").
 - Loft, Pipe and Helix: a Pipe whose end sections are not planar is refused, and a solid's face as a Pipe's or Helix's Profile is not offered ("PartDesign Loft, Pipe and Helix, 2026-10-24").
-- TechDraw: Complex Section (it needs a profile object, a sketch or wire of the page's document, which a project's page does not have; DrawComplexSection.cpp and TaskComplexSection.cpp are about 2800 lines), Broken View's sketch breaks, Project Shape and the views from other workbenches are greyed ("TechDraw workbench, 2026-10-27").
+- TechDraw: Complex Section's Aligned and No parallel strategies, Broken View's sketch breaks, Project Shape and the views from other workbenches are greyed ("TechDraw workbench, 2026-10-27").
 - Spreadsheet: Bind…, Configuration Table, zoom, printing, the line edits' completer, xlsx import and charts are cut ("Spreadsheet workbench, 2026-10-27").
 - CAM: Surface and Waterline, the Operation pages' own logic and the panels of the ten dress-ups added 2026-11-06, the simulators, work planes, templates and the tool bit library are cut ("CAM workbench").
 - The other workbenches: the selector offers only Assembly, CAD Agent, CAM, Inspection, Part Design, Part, Sketcher, Spreadsheet and TechDraw, so Draft, FEM, Mesh and the rest are not offered ("Toolbars").

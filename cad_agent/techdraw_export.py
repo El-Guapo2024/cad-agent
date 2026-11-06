@@ -382,7 +382,12 @@ def _section_line(name: str, line: dict, res: dict) -> list:
     e0 = (ox + line["ends"][0][0], oy + line["ends"][0][1])
     e1 = (ox + line["ends"][1][0], oy + line["ends"][1][1])
     attrs = {"data-name": name}
-    out = [Prim("path", [("M", *e0), ("L", *e1)], width=GRAPHIC, dash=CENTER_DASH, attrs=attrs)]
+    if line.get("points"):              # a complex section's line: the profile (DrawComplexSection::makeSectionLineGeometry)
+        segs = [("M", ox + line["points"][0][0], oy + line["points"][0][1])]
+        segs += [("L", ox + p[0], oy + p[1]) for p in line["points"][1:]]
+        out = [Prim("path", segs, width=GRAPHIC, dash=CENTER_DASH, attrs=attrs)]
+    else:
+        out = [Prim("path", [("M", *e0), ("L", *e1)], width=GRAPHIC, dash=CENTER_DASH, attrs=attrs)]
     n = line["normal"]
     for e in (e0, e1):
         tail = (e[0] + n[0] * 8.0, e[1] + n[1] * 8.0)

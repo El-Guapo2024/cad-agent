@@ -138,6 +138,18 @@ CASES = {
         {"op": "section", "base_view": "View", "direction": "Right", "origin": [10.0, 8.0, 5.0], "symbol": "A"},
         {"op": "section", "base_view": "View", "direction": "Up", "origin": [10.0, 8.0, 5.0], "symbol": "B"},
     ]},
+    # complex sections (TechDraw_ComplexSection, Offset): a stepped profile through the plate's hole from above, and a
+    # three-segment one through the bracket's two holes from the front
+    "plate_complex_section": {"ops": [
+        {"op": "view", "source": ["plate"], "direction": [0, 0, 1]},
+        {"op": "complex_section", "base_view": "View", "direction": "Up", "symbol": "A",
+         "profile": [[-25, -5, 5], [0, -5, 5], [0, 8, 5], [25, 8, 5]]},
+    ]},
+    "bracket_complex_section": {"ops": [
+        {"op": "view", "source": ["bracket"]},
+        {"op": "complex_section", "base_view": "View", "direction": "Right", "symbol": "B",
+         "profile": [[-22, -20, 50], [-22, -20, 30], [10, -20, 30], [10, -20, -5]]},
+    ]},
     # broken views (TechDraw_BrokenView): a break along the rod's length, two of them, and one across the shaft's
     # axis, each break a straight edge given by its ends
     "rod_broken": {"ops": [

@@ -34,7 +34,7 @@ const warn = (title: string, text: string) => void messageBox('warning', title, 
 const icon = (f: string) => f as IconName
 const PX = 10
 export const MORE_KINDS = ['leader', 'richanno', 'weld', 'surface']
-const VIEW_LIKE = new Set(['DrawViewPart', 'DrawProjGroupItem', 'DrawViewSection', 'DrawBrokenView', 'DrawProjGroup', 'DrawViewDimension', 'DrawViewBalloon', 'DrawViewAnnotation',
+const VIEW_LIKE = new Set(['DrawViewPart', 'DrawProjGroupItem', 'DrawViewSection', 'DrawComplexSection', 'DrawBrokenView', 'DrawProjGroup', 'DrawViewDimension', 'DrawViewBalloon', 'DrawViewAnnotation',
   'DrawLeaderLine', 'DrawRichAnno', 'DrawViewSymbol', 'DrawWeldSymbol', 'DrawViewImage', 'DrawViewClip'])
 const isDrawView = (o: TdObj | undefined) => !!o && VIEW_LIKE.has(o.kind)
 const needPage = () => { const p = activePage(); if (!p) warn('No page found', 'No Drawing Pages in document.'); return p }

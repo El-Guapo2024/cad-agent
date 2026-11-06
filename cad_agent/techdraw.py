@@ -327,6 +327,32 @@ class DrawViewSection(DrawViewPart):
     TRANSACTION = "Create Section View"
 
 
+class DrawComplexSection(DrawViewSection):
+    """TechDraw::DrawComplexSection (TechDraw_ComplexSection, TaskComplexSection): a section cut by a profile, FreeCAD's
+    CuttingToolWireObject (a sketch or wire of the 3D document), here the profile's points in model space; SectionOrigin
+    (0, 0, 0) as the panel sets it. ProjectionStrategy Offset (techdraw_complex.py); Aligned is not ported."""
+    kind = "DrawComplexSection"
+    TYPE_ID = "TechDraw::DrawComplexSection"
+    DEFAULTS = {**DrawViewSection.DEFAULTS, "cutting_tool_wire_object": (), "projection_strategy": "Offset"}
+    ENUMS = {**DrawViewSection.ENUMS, "projection_strategy": ("Offset", "Aligned", "NoParallel")}
+    TRANSACTION = "Create Complex Section"
+
+    def normalize(self, key, v):
+        if key == "cutting_tool_wire_object":
+            pts = []
+            for p in v or ():
+                if not (isinstance(p, (list, tuple)) and len(p) == 3):
+                    raise TechDrawError(f"{self.name}.CuttingToolWireObject: {p!r} is not a point (x, y, z)")
+                pts.append(tuple(float(c) for c in p))
+            return tuple(pts)
+        return super().normalize(key, v)
+
+    def source_value(self, key, v=None):
+        if key == "cutting_tool_wire_object":
+            return [list(p) for p in (getattr(self, key) if v is None else v)]
+        return super().source_value(key, v)
+
+
 class DrawBrokenView(DrawViewPart):
     """TechDraw::DrawBrokenView (TechDraw_BrokenView): a view of its source with the stretches between each break's two
     points taken out and the rest pushed together, Gap apart (techdraw_broken.py). A break is FreeCAD's Breaks link to
@@ -484,9 +510,9 @@ class DrawGeomHatch(_Hatch):
 
 
 CLASSES = {c.kind: c for c in (DrawPage, DrawSVGTemplate, DrawViewPart, DrawProjGroupItem, DrawProjGroup,
-                               DrawViewSection, DrawBrokenView, DrawViewDimension, DrawViewBalloon, DrawViewAnnotation,
+                               DrawViewSection, DrawComplexSection, DrawBrokenView, DrawViewDimension, DrawViewBalloon, DrawViewAnnotation,
                                DrawHatch, DrawGeomHatch)}
-VIEW_KINDS = ("DrawViewPart", "DrawProjGroupItem", "DrawViewSection", "DrawBrokenView")
+VIEW_KINDS = ("DrawViewPart", "DrawProjGroupItem", "DrawViewSection", "DrawComplexSection", "DrawBrokenView")
 
 
 def as_dict(o: TDObject) -> dict:
@@ -663,7 +689,9 @@ class PageDocument:
         if isinstance(o, DrawBrokenView):
             from .techdraw_broken import broken_shape
             shape = broken_shape(shape, o.breaks, o.gap, o.direction, o.x_direction)
-        if isinstance(o, DrawViewSection):
+        if isinstance(o, DrawComplexSection):
+            geo = self._complex(o, shape, scale)
+        elif isinstance(o, DrawViewSection):
             geo = V.project_section(shape, o.section_normal, o.x_direction, o.section_origin, o.direction,
                                     o.x_direction, scale, o.rotation, o.flags())
         else:
@@ -674,7 +702,9 @@ class PageDocument:
             if bw > w or bh > h:            # postHlrTasks: !checkFit -> autoScale, again
                 new = sensible_scale(min(w / (bw / scale), h / (bh / scale)))
                 self.scales[o.name] = new
-                if isinstance(o, DrawViewSection):
+                if isinstance(o, DrawComplexSection):
+                    geo = self._complex(o, shape, new)
+                elif isinstance(o, DrawViewSection):
                     geo = V.project_section(shape, o.section_normal, o.x_direction, o.section_origin,
                                             o.direction, o.x_direction, new, o.rotation, o.flags())
                 else:
@@ -682,6 +712,20 @@ class PageDocument:
         from . import techdraw_cosmetic as C
         C.apply(geo, o, geo.scale, o.rotation)
         self.geo[o.name] = geo
+
+    def _complex(self, o, shape, scale):
+        """DrawComplexSection's geometry: Offset only; the base view gives the reference axis."""
+        from . import techdraw_complex as CX
+        if o.projection_strategy != "Offset":
+            raise TechDrawError(f"{o.name}: the {o.projection_strategy} projection strategy is not ported (Offset is)")
+        if len(o.cutting_tool_wire_object) < 2:
+            raise TechDrawError(f"{o.name}: Can not make wire from cutting tool (1)")
+        base = self.get(o.base_view)
+        if base is None:
+            raise TechDrawError("BaseView object not found")
+        return CX.project_complex_section(shape, o.cutting_tool_wire_object, base.direction, o.section_normal,
+                                          o.x_direction, o.section_origin, o.direction, o.x_direction, scale,
+                                          o.rotation, o.flags())
 
     def _group(self, g, w, h):
         """DrawProjGroup::execute: Automatic scale when it does not fit, then autoPositionChildren."""
@@ -794,8 +838,18 @@ class PageDocument:
                 ((po[0] - pd[0] * size) * sc, -(po[1] - pd[1] * size) * sc)]
         arrow = V.project_point(base.direction, base.x_direction, s.section_normal)
         an = math.hypot(*arrow) or 1.0
-        return {"view": base.name, "ends": [list(p) for p in ends], "normal": [arrow[0] / an, -arrow[1] / an],
-                "symbol": s.section_symbol}
+        out = {"view": base.name, "ends": [list(p) for p in ends], "normal": [arrow[0] / an, -arrow[1] / an],
+               "symbol": s.section_symbol}
+        if isinstance(s, DrawComplexSection) and len(s.cutting_tool_wire_object) >= 2:
+            # makeSectionLineWire: the profile moved by the base view's centroid and scaled, projected on the base view
+            # (y down); sectionLineEnds: its first and last point
+            pts = []
+            for p in s.cutting_tool_wire_object:
+                q = V.project_point(base.direction, base.x_direction,
+                                    tuple(p[i] - bgeo.centroid[i] for i in range(3)))
+                pts.append([q[0] * sc, -q[1] * sc])
+            out["points"], out["ends"] = pts, [pts[0], pts[-1]]
+        return out
 
     @staticmethod
     def _size_along(geo, d) -> float:

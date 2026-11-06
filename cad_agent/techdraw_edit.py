@@ -42,6 +42,8 @@ The ops (each is what the FreeCAD command named does):
     {"op": "projection", "group": g, "type": "Top", "on": bool}   TaskProjGroup: a projection checked or unchecked
     {"op": "section", "base_view": v, "direction": "Right"|"Left"|"Up"|"Down", "origin"?, "symbol"?}
                                                       TechDraw_SectionView, TaskSectionView's arrow and OK
+    {"op": "complex_section", "base_view": v, "profile": [[x, y, z], ...], "direction": "Right"|..., "symbol"?,
+     "strategy"?: "Offset"}                         TechDraw_ComplexSection, TaskComplexSection's arrow and OK
     {"op": "broken_view", "breaks": [[p0, p1], ...], "source"?: [part], "base_view"?: v, "direction"?, "x_direction"?,
      "gap"?}                                          TechDraw_BrokenView: the shapes (or a base view's), the break
                                                       edges (each its two ends in model space)
@@ -560,6 +562,8 @@ def run_ops(s: Session, ops) -> list:
             done.append(_section(s, op))
         elif kind == "section_edit":
             done.append(_section_edit(s, op))
+        elif kind == "complex_section":
+            done.append(_complex_section(s, op))
         elif kind == "broken_view":
             done.append(_broken_view(s, op))
         elif kind == "dimension":
@@ -793,6 +797,69 @@ def _section(s: Session, op) -> str:
                             section_direction="Aligned", scale=scale, scale_type=stype,
                             rotation=required_rotation(angle), x=cx, y=cy, label=label,
                             caption="SECTION <REF> - <REF>"))
+    return f"made {n} of {base.name}"
+
+
+def _profile_points(s: Session, profile) -> list:
+    """The profile: its points, or a part's edges [[part, "EdgeN"], ...] picked in the 3D view, joined nose to tail
+    (makeNoseToTailWire, DrawUtil::sort_Edges within EWTOLERANCE), their vertices in order."""
+    from .techdraw_view import EWTOLERANCE
+    items = list(profile)
+    if not items or not all(isinstance(x, (list, tuple)) and len(x) == 2 and all(isinstance(y, str) for y in x)
+                            for x in items):
+        return [_vec(p, "profile", (0.0, 0.0, 0.0)) for p in items]
+    segs = [tuple(tuple(c) for c in _break_points(s, x)) for x in items]
+    chain = [list(segs[0])]
+    rest = segs[1:]
+    close = lambda a, b: sum((a[i] - b[i]) ** 2 for i in range(3)) <= EWTOLERANCE ** 2  # noqa: E731
+    while rest:
+        for k, (a, b) in enumerate(rest):
+            if close(a, chain[-1][-1]):
+                chain[-1].append(b)
+            elif close(b, chain[0][0]):
+                chain[0].insert(0, a)
+            elif close(b, chain[-1][-1]):        # an edge picked the other way round
+                chain[-1].append(a)
+            elif close(a, chain[0][0]):
+                chain[0].insert(0, b)
+            else:
+                continue
+            rest.pop(k)
+            break
+        else:
+            raise TechDrawEditError("the profile's edges do not join end to end")
+    return [list(p) for p in chain[0]]
+
+
+def _complex_section(s: Session, op) -> str:
+    """TaskComplexSection::createComplexSection: "ComplexSection" with SectionSymbol, Label "Section<suffix>", the
+    caption, Scale and ScaleType from the base view, ProjectionStrategy, SectionOrigin (0, 0, 0), SectionDirection
+    Aligned, the CS from the base view and the arrow (setCSFromBase(localUnit * -1)), the base view's Source, the
+    profile (CuttingToolWireObject), the Rotation that turns it upright."""
+    base = s.get(op.get("base_view"), T.DrawViewPart, "view")
+    arrow = op.get("direction", "Right")
+    if arrow not in SECTION_ARROWS:
+        raise TechDrawEditError(f"{arrow!r} is not a section direction (Up, Down, Left, Right)")
+    profile = _profile_points(s, op.get("profile") or ())
+    if len(profile) < 2:
+        raise TechDrawEditError("Select a profile: a wire of at least two points (CuttingToolWireObject)")
+    strategy = op.get("strategy", "Offset")
+    if strategy not in ("Offset", "Aligned", "NoParallel"):
+        raise TechDrawEditError(f"{strategy!r} is not a projection strategy (Offset, Aligned, NoParallel)")
+    local, angle = SECTION_ARROWS[arrow]
+    doc = s.doc()
+    n = s.name("ComplexSection", op.get("name"))
+    label = "Section" + n[len("ComplexSection"):]
+    normal, xdir = local_vector_to_cs(base.direction, base.x_direction, tuple(-c for c in local))
+    cx, cy = s.center()
+    scale = doc.view_scale(base)
+    stype = base.scale_type if doc.group_of(base.name) is None else doc.group_of(base.name).scale_type
+    s.add(T.DrawComplexSection(n, base_view=base.name, source=doc.source_of(base), section_symbol=op.get("symbol", ""),
+                               section_normal=normal, direction=normal, x_direction=xdir,
+                               section_origin=(0.0, 0.0, 0.0), section_direction="Aligned", scale=scale,
+                               scale_type=stype, rotation=required_rotation(angle), x=cx, y=cy, label=label,
+                               caption="SECTION <REF> - <REF>", cutting_tool_wire_object=profile,
+                               projection_strategy=strategy))
     return f"made {n} of {base.name}"
 
 

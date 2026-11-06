@@ -87,7 +87,7 @@ export function splitRef(ref: string): [string, string, string | null] {
   const dot = rest.indexOf('.')
   return dot < 0 ? [page, rest, null] : [page, rest.slice(0, dot), rest.slice(dot + 1)]
 }
-const VIEW_KINDS = new Set(['DrawViewPart', 'DrawProjGroupItem', 'DrawViewSection', 'DrawBrokenView'])
+const VIEW_KINDS = new Set(['DrawViewPart', 'DrawProjGroupItem', 'DrawViewSection', 'DrawComplexSection', 'DrawBrokenView'])
 export const isView = (o: TdObj | undefined) => !!o && VIEW_KINDS.has(o.kind)
 
 // ── loading and editing ─────────────────────────────────────────────────────────────────────────────────────────
@@ -246,6 +246,15 @@ async function newBrokenView() {
   await applyTd(page, [{ op: 'broken_view', breaks, ...(v ? { base_view: v[1] } : {}), ...(shapes.length ? { source: shapes } : {}) }],
     'Create broken view')
 }
+/** TechDraw_ComplexSection (CmdTechDrawComplexSection): TaskComplexSection on the selected view, the profile from the
+ *  edges picked in the 3D view. */
+function newComplexSection() {
+  const page = needPage()
+  if (!page) return
+  const v = st.sel.map(splitRef).find(([p, n, sub]) => p === page && !sub && isView(objOf(p, n)))
+  if (!v) { warn('Wrong selection', 'Select at least 1 DrawViewPart object as Base.'); return }
+  openTask('techdraw', page, `complex:${v[1]}:create`)
+}
 /** TechDraw_SectionView: TaskSectionView for the selected view (it makes the section when a direction is picked). */
 function newSection() {
   const page = needPage()
@@ -401,6 +410,7 @@ function actions(): Record<string, [() => void, boolean]> {
     TechDraw_View: [() => void newView(false), c.havePage], TechDraw_ProjectionGroup: [() => void newView(true), c.havePage && !getState().task],
     TechDraw_BrokenView: [() => void newBrokenView(), c.havePage],    // CmdTechDrawBrokenView::isActive: needPage
     TechDraw_SectionView: [() => newSection(), c.havePage && c.haveView], TechDraw_SectionGroup: [() => newSection(), c.havePage && c.haveView],
+    TechDraw_ComplexSection: [() => newComplexSection(), c.havePage],    // CmdTechDrawComplexSection::isActive: needPage
     TechDraw_Dimension: [() => void smartDimension(), c.dim], TechDraw_CompDimensionTools: [() => void smartDimension(), c.dim],
     TechDraw_LengthDimension: dim('Distance'), TechDraw_HorizontalDimension: dim('DistanceX'), TechDraw_VerticalDimension: dim('DistanceY'),
     TechDraw_RadiusDimension: dim('Radius'), TechDraw_DiameterDimension: dim('Diameter'), TechDraw_AngleDimension: dim('Angle'),
@@ -720,6 +730,7 @@ export function editObject(page: string, name: string) {
   if (!o) return
   if (o.kind === 'DrawPage') { openPage(page); return }
   if (o.kind === 'DrawViewSection') { openTask('techdraw', page, `section:${name}:edit`); return }
+  if (o.kind === 'DrawComplexSection') { openTask('techdraw', page, `complex:${name}:edit`); return }
   if (o.kind === 'DrawProjGroupItem') { const g = groupOf(page, name); openTask('techdraw', page, `projgroup:${g ?? name}:edit`); return }
   if (o.kind === 'DrawProjGroup' || o.kind === 'DrawViewPart') { openTask('techdraw', page, `projgroup:${name}:edit`); return }
   if (o.kind === 'DrawViewDimension') { openTask('techdraw', page, `dimension:${name}:edit`); return }

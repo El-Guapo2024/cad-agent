@@ -15806,6 +15806,1039 @@
     "EditableTexts": {}
    },
    "dxf": "999\nFreeCAD v26.3 20260929 (Git shallow)\n  0\nSECTION\n  2\nHEADER\n  9\n$ACADVER\n  1\nAC1014\n  9\n$ACADMAINTVER\n 70\n     9\n  9\n$DWGCODEPAGE\n  3\nANSI_1252\n  9\n$TEXTSTYLE\n  7\nSTANDARD\n  9\n$DIMSTYLE\n  2\nSTANDARD\n  9\n$DIMTXSTY\n  7\nSTANDARD\n  9\n$LUNITS\n 70\n2\n  9\n$INSUNITS\n 70\n4\n  9\n$PEXTMAX\n 10\n50\n 20\n50\n 30\n50\n  9\n$PEXTMIN\n 10\n0\n 20\n0\n 30\n0\n  9\n$HANDSEED\n  5\nFFFF\n  0\nENDSEC\n  0\nSECTION\n  2\nCLASSES\n  0\nCLASS\n  1\nACDBDICTIONARYWDFLT\n  2\nAcDbDictionaryWithDefault\n  3\nObjectDBX Classes\n 90\n        0\n280\n     0\n281\n     0\n  0\nCLASS\n  1\nXRECORD\n  2\nAcDbXrecord\n  3\nObjectDBX Classes\n 90\n        0\n280\n     0\n281\n     0\n  0\nCLASS\n  1\nLWPOLYLINE\n  2\nAcDbPolyline\n  3\nObjectDBX Classes\n 90\n        0\n280\n     0\n281\n     1\n  0\nENDSEC\n  0\nSECTION\n  2\nTABLES\n  0\nTABLE\n  2\nVPORT\n  5\n20\n330\n0\n100\nAcDbSymbolTable\n 70\n     1\n  0\nVPORT\n  5\n21\n330\n20\n100\nAcDbSymbolTableRecord\n100\nAcDbViewportTableRecord\n  2\n*ACTIVE\n 70\n     0\n  0\nENDTAB\n  0\nTABLE\n  2\nLTYPE\n  5\n22\n330\n0\n100\nAcDbSymbolTable\n 70\n     1\n  0\nLTYPE\n  5\n23\n330\n21\n100\nAcDbSymbolTableRecord\n100\nAcDbLinetypeTableRecord\n  2\nBYBLOCK\n 70\n     0\n  3\n\n 72\n    65\n 73\n     0\n 40\n0.0\n  0\nLTYPE\n  5\n24\n330\n21\n100\nAcDbSymbolTableRecord\n100\nAcDbLinetypeTableRecord\n  2\nBYLAYER\n 70\n     0\n  3\n\n 72\n    65\n 73\n     0\n 40\n0.0\n  0\nLTYPE\n  5\n25\n330\n21\n100\nAcDbSymbolTableRecord\n100\nAcDbLinetypeTableRecord\n  2\nCONTINUOUS\n 70\n     0\n  3\nSolid line\n 72\n    65\n 73\n     0\n 40\n0.0\n  0\nENDTAB\n  0\nTABLE\n  2\nLAYER\n  5\nA16\n330\n0\n100\nAcDbSymbolTable\n 70\n2\n  0\nLAYER\n  5\nA17\n330\nA16\n100\nAcDbSymbolTableRecord\n100\nAcDbLayerTableRecord\n  2\n0\n 70\n   0\n 62\n   7\n  6\nCONTINUOUS\n  0\nLAYER\n  5\nA18\n330\nA16\n100\nAcDbSymbolTableRecord\n100\nAcDbLayerTableRecord\n  2\nBrokenView\n 70\n    0\n 62\n    7\n  6\nCONTINUOUS\n  0\nENDTAB\n  0\nTABLE\n  2\nSTYLE\n  5\n70\n330\n0\n100\nAcDbSymbolTable\n 70\n     2\n  0\nSTYLE\n  5\n71\n330\n70\n100\nAcDbSymbolTableRecord\n100\nAcDbTextStyleTableRecord\n  2\nSTANDARD\n 70\n     0\n 40\n0.0\n 41\n1.0\n 50\n0.0\n 71\n     0\n 42\n2.5\n  3\narial.ttf\n  4\n\n  0\nSTYLE\n  5\n72\n330\n70\n100\nAcDbSymbolTableRecord\n100\nAcDbTextStyleTableRecord\n  2\nANNOTATIVE\n 70\n     0\n 40\n0.0\n 41\n1.0\n 50\n0.0\n 71\n     0\n 42\n2.5\n  3\narial.ttf\n  4\n\n  0\nENDTAB\n  0\nTABLE\n  2\nVIEW\n  5\n73\n330\n0\n100\nAcDbSymbolTable\n 70\n     0\n  0\nENDTAB\n  0\nTABLE\n  2\nUCS\n  5\n74\n330\n0\n100\nAcDbSymbolTable\n 70\n     0\n  0\nENDTAB\n  0\nTABLE\n  2\nAPPID\n  5\n75\n330\n0\n100\nAcDbSymbolTable\n 70\n     2\n  0\nAPPID\n  5\n76\n330\n75\n100\nAcDbSymbolTableRecord\n100\nAcDbRegAppTableRecord\n  2\nACAD\n 70\n     0\n  0\nAPPID\n  5\n77\n330\n75\n100\nAcDbSymbolTableRecord\n100\nAcDbRegAppTableRecord\n  2\nACADANNOTATIVE\n 70\n     0\n  0\nENDTAB\n  0\nTABLE\n  2\nDIMSTYLE\n  5\n78\n330\n0\n100\nAcDbSymbolTable\n 70\n     2\n  0\nDIMSTYLE\n105\n79\n330\n78\n100\nAcDbSymbolTableRecord\n100\nAcDbDimStyleTableRecord\n  2\nSTANDARD\n 70\n     0\n  3\n\n  4\n\n  5\n\n  6\n\n  7\n\n 40\n0.0\n 41\n2.5\n 42\n0.625\n 43\n3.75\n 44\n1.25\n 45\n0.0\n 46\n0.0\n 47\n0.0\n 48\n0.0\n140\n2.5\n141\n2.5\n142\n0.0\n143\n0.03937007874016\n144\n1.0\n145\n0.0\n146\n1.0\n147\n0.625\n 71\n     0\n 72\n     0\n 73\n     0\n 74\n     0\n 75\n     0\n 76\n     0\n 77\n     1\n 78\n     8\n170\n     0\n171\n     3\n172\n     1\n173\n     0\n174\n     0\n175\n     0\n176\n     0\n177\n     0\n178\n     0\n270\n     2\n271\n     2\n272\n     2\n273\n     2\n274\n     3\n340\n71\n275\n     0\n280\n     0\n281\n     0\n282\n     0\n283\n     0\n284\n     8\n285\n     0\n286\n     0\n287\n     3\n288\n     0\n  0\nENDTAB\n  0\nTABLE\n  2\nBLOCK_RECORD\n  5\nA01\n330\n0\n100\nAcDbSymbolTable\n  70\n5\n  0\nBLOCK_RECORD\n  5\nA02\n330\nA01\n100\nAcDbSymbolTableRecord\n100\nAcDbBlockTableRecord\n  2\n*MODEL_SPACE\n  0\nBLOCK_RECORD\n  5\nA03\n330\nA01\n100\nAcDbSymbolTableRecord\n100\nAcDbBlockTableRecord\n  2\n*PAPER_SPACE\n  0\nENDTAB\n  0\nENDSEC\n  0\nSECTION\n  2\nBLOCKS\n  0\nBLOCK\n  5\nA04\n330\nA02\n100\nAcDbEntity\n  8\n0\n100\nAcDbBlockBegin\n  2\n*MODEL_SPACE\n 70\n   0\n 10\n0\n 20\n0\n 30\n0\n  3\n*MODEL_SPACE\n  1\n \n  0\nENDBLK\n  5\nA05\n330\nA02\n100\nAcDbEntity\n  8\n0\n100\nAcDbBlockEnd\n  0\nBLOCK\n  5\nA06\n330\nA03\n100\nAcDbEntity\n 67\n1\n  8\n0\n100\nAcDbBlockBegin\n  2\n*PAPER_SPACE\n 70\n   0\n 10\n0\n 20\n0\n 30\n0\n  3\n*PAPER_SPACE\n  1\n \n  0\nENDBLK\n  5\nA07\n330\nA03\n100\nAcDbEntity\n 67\n    1\n  8\n0\n100\nAcDbBlockEnd\n  0\nENDSEC\n  0\nSECTION\n  2\nENTITIES\n  0\nSPLINE\n  5\nA08\n330\nA02\n100\nAcDbEntity\n  8\nBrokenView\n100\nAcDbSpline\n210\n0\n220\n0\n230\n1\n 70\n8\n 71\n1\n 72\n17\n 73\n15\n 74\n0\n 40\n3.141592654\n 40\n3.141592654\n 40\n3.365992129\n 40\n3.590391604\n 40\n3.814791079\n 40\n4.039190555\n 40\n4.263590030\n 40\n4.487989505\n 40\n4.712388980\n 40\n4.936788456\n 40\n5.161187931\n 40\n5.385587406\n 40\n5.609986881\n 40\n5.834386357\n 40\n6.058785832\n 40\n6.283185307\n 40\n6.283185307\n 10\n138.500000000\n 20\n89.000000000\n 30\n0.000000000\n 10\n138.750720878\n 20\n89.000000000\n 30\n0.000000000\n 10\n139.490311321\n 20\n89.000000000\n 30\n0.000000000\n 10\n140.681685175\n 20\n89.000000000\n 30\n0.000000000\n 10\n142.265101981\n 20\n89.000000000\n 30\n0.000000000\n 10\n144.161162609\n 20\n89.000000000\n 30\n0.000000000\n 10\n146.274790660\n 20\n89.000000000\n 30\n0.000000000\n 10\n148.500000000\n 20\n89.000000000\n 30\n0.000000000\n 10\n150.725209340\n 20\n89.000000000\n 30\n0.000000000\n 10\n152.838837391\n 20\n89.000000000\n 30\n0.000000000\n 10\n154.734898019\n 20\n89.000000000\n 30\n0.000000000\n 10\n156.318314825\n 20\n89.000000000\n 30\n0.000000000\n 10\n157.509688679\n 20\n89.000000000\n 30\n0.000000000\n 10\n158.249279122\n 20\n89.000000000\n 30\n0.000000000\n 10\n158.500000000\n 20\n89.000000000\n 30\n0.000000000\n  0\nLINE\n  5\nA09\n330\nA02\n100\nAcDbEntity\n  8\nBrokenView\n100\nAcDbLine\n 10\n158.500000000\n 20\n85.000000000\n 30\n0.000000000\n 11\n158.500000000\n 21\n89.000000000\n 31\n0.000000000\n  0\nSPLINE\n  5\nA0A\n330\nA02\n100\nAcDbEntity\n  8\nBrokenView\n100\nAcDbSpline\n210\n0\n220\n0\n230\n1\n 70\n8\n 71\n1\n 72\n17\n 73\n15\n 74\n0\n 40\n3.141592654\n 40\n3.141592654\n 40\n3.365992129\n 40\n3.590391604\n 40\n3.814791079\n 40\n4.039190555\n 40\n4.263590030\n 40\n4.487989505\n 40\n4.712388980\n 40\n4.936788456\n 40\n5.161187931\n 40\n5.385587406\n 40\n5.609986881\n 40\n5.834386357\n 40\n6.058785832\n 40\n6.283185307\n 40\n6.283185307\n 10\n138.500000000\n 20\n85.000000000\n 30\n0.000000000\n 10\n138.750720878\n 20\n85.000000000\n 30\n0.000000000\n 10\n139.490311321\n 20\n85.000000000\n 30\n0.000000000\n 10\n140.681685175\n 20\n85.000000000\n 30\n0.000000000\n 10\n142.265101981\n 20\n85.000000000\n 30\n0.000000000\n 10\n144.161162609\n 20\n85.000000000\n 30\n0.000000000\n 10\n146.274790660\n 20\n85.000000000\n 30\n0.000000000\n 10\n148.500000000\n 20\n85.000000000\n 30\n0.000000000\n 10\n150.725209340\n 20\n85.000000000\n 30\n0.000000000\n 10\n152.838837391\n 20\n85.000000000\n 30\n0.000000000\n 10\n154.734898019\n 20\n85.000000000\n 30\n0.000000000\n 10\n156.318314825\n 20\n85.000000000\n 30\n0.000000000\n 10\n157.509688679\n 20\n85.000000000\n 30\n0.000000000\n 10\n158.249279122\n 20\n85.000000000\n 30\n0.000000000\n 10\n158.500000000\n 20\n85.000000000\n 30\n0.000000000\n  0\nLINE\n  5\nA0B\n330\nA02\n100\nAcDbEntity\n  8\nBrokenView\n100\nAcDbLine\n 10\n154.500000000\n 20\n105.000000000\n 30\n0.000000000\n 11\n154.500000000\n 21\n123.000000000\n 31\n0.000000000\n  0\nSPLINE\n  5\nA0C\n330\nA02\n100\nAcDbEntity\n  8\nBrokenView\n100\nAcDbSpline\n210\n0\n220\n0\n230\n1\n 70\n8\n 71\n1\n 72\n17\n 73\n15\n 74\n0\n 40\n3.141592654\n 40\n3.141592654\n 40\n3.365992129\n 40\n3.590391604\n 40\n3.814791079\n 40\n4.039190555\n 40\n4.263590030\n 40\n4.487989505\n 40\n4.712388980\n 40\n4.936788456\n 40\n5.161187931\n 40\n5.385587406\n 40\n5.609986881\n 40\n5.834386357\n 40\n6.058785832\n 40\n6.283185307\n 40\n6.283185307\n 10\n142.500000000\n 20\n123.000000000\n 30\n0.000000000\n 10\n142.650432527\n 20\n123.000000000\n 30\n0.000000000\n 10\n143.094186793\n 20\n123.000000000\n 30\n0.000000000\n 10\n143.809011105\n 20\n123.000000000\n 30\n0.000000000\n 10\n144.759061189\n 20\n123.000000000\n 30\n0.000000000\n 10\n145.896697565\n 20\n123.000000000\n 30\n0.000000000\n 10\n147.164874396\n 20\n123.000000000\n 30\n0.000000000\n 10\n148.500000000\n 20\n123.000000000\n 30\n0.000000000\n 10\n149.835125604\n 20\n123.000000000\n 30\n0.000000000\n 10\n151.103302435\n 20\n123.000000000\n 30\n0.000000000\n 10\n152.240938811\n 20\n123.000000000\n 30\n0.000000000\n 10\n153.190988895\n 20\n123.000000000\n 30\n0.000000000\n 10\n153.905813207\n 20\n123.000000000\n 30\n0.000000000\n 10\n154.349567473\n 20\n123.000000000\n 30\n0.000000000\n 10\n154.500000000\n 20\n123.000000000\n 30\n0.000000000\n  0\nLINE\n  5\nA0D\n330\nA02\n100\nAcDbEntity\n  8\nBrokenView\n100\nAcDbLine\n 10\n154.500000000\n 20\n123.000000000\n 30\n0.000000000\n 11\n152.500000000\n 21\n125.000000000\n 31\n0.000000000\n  0\nSPLINE\n  5\nA0E\n330\nA02\n100\nAcDbEntity\n  8\nBrokenView\n100\nAcDbSpline\n210\n0\n220\n0\n230\n1\n 70\n8\n 71\n1\n 72\n17\n 73\n15\n 74\n0\n 40\n3.141592654\n 40\n3.141592654\n 40\n3.365992129\n 40\n3.590391604\n 40\n3.814791079\n 40\n4.039190555\n 40\n4.263590030\n 40\n4.487989505\n 40\n4.712388980\n 40\n4.936788456\n 40\n5.161187931\n 40\n5.385587406\n 40\n5.609986881\n 40\n5.834386357\n 40\n6.058785832\n 40\n6.283185307\n 40\n6.283185307\n 10\n144.500000000\n 20\n125.000000000\n 30\n0.000000000\n 10\n144.600288351\n 20\n125.000000000\n 30\n0.000000000\n 10\n144.896124528\n 20\n125.000000000\n 30\n0.000000000\n 10\n145.372674070\n 20\n125.000000000\n 30\n0.000000000\n 10\n146.006040793\n 20\n125.000000000\n 30\n0.000000000\n 10\n146.764465044\n 20\n125.000000000\n 30\n0.000000000\n 10\n147.609916264\n 20\n125.000000000\n 30\n0.000000000\n 10\n148.500000000\n 20\n125.000000000\n 30\n0.000000000\n 10\n149.390083736\n 20\n125.000000000\n 30\n0.000000000\n 10\n150.235534956\n 20\n125.000000000\n 30\n0.000000000\n 10\n150.993959207\n 20\n125.000000000\n 30\n0.000000000\n 10\n151.627325930\n 20\n125.000000000\n 30\n0.000000000\n 10\n152.103875472\n 20\n125.000000000\n 30\n0.000000000\n 10\n152.399711649\n 20\n125.000000000\n 30\n0.000000000\n 10\n152.500000000\n 20\n125.000000000\n 30\n0.000000000\n  0\nSPLINE\n  5\nA0F\n330\nA02\n100\nAcDbEntity\n  8\nBrokenView\n100\nAcDbSpline\n210\n0\n220\n0\n230\n1\n 70\n8\n 71\n1\n 72\n17\n 73\n15\n 74\n0\n 40\n3.141592654\n 40\n3.141592654\n 40\n3.365992129\n 40\n3.590391604\n 40\n3.814791079\n 40\n4.039190555\n 40\n4.263590030\n 40\n4.487989505\n 40\n4.712388980\n 40\n4.936788456\n 40\n5.161187931\n 40\n5.385587406\n 40\n5.609986881\n 40\n5.834386357\n 40\n6.058785832\n 40\n6.283185307\n 40\n6.283185307\n 10\n138.500000000\n 20\n105.000000000\n 30\n0.000000000\n 10\n138.750720878\n 20\n105.000000000\n 30\n0.000000000\n 10\n139.490311321\n 20\n105.000000000\n 30\n0.000000000\n 10\n140.681685175\n 20\n105.000000000\n 30\n0.000000000\n 10\n142.265101981\n 20\n105.000000000\n 30\n0.000000000\n 10\n144.161162609\n 20\n105.000000000\n 30\n0.000000000\n 10\n146.274790660\n 20\n105.000000000\n 30\n0.000000000\n 10\n148.500000000\n 20\n105.000000000\n 30\n0.000000000\n 10\n150.725209340\n 20\n105.000000000\n 30\n0.000000000\n 10\n152.838837391\n 20\n105.000000000\n 30\n0.000000000\n 10\n154.734898019\n 20\n105.000000000\n 30\n0.000000000\n 10\n156.318314825\n 20\n105.000000000\n 30\n0.000000000\n 10\n157.509688679\n 20\n105.000000000\n 30\n0.000000000\n 10\n158.249279122\n 20\n105.000000000\n 30\n0.000000000\n 10\n158.500000000\n 20\n105.000000000\n 30\n0.000000000\n  0\nLINE\n  5\nA10\n330\nA02\n100\nAcDbEntity\n  8\nBrokenView\n100\nAcDbLine\n 10\n158.500000000\n 20\n99.000000000\n 30\n0.000000000\n 11\n158.500000000\n 21\n105.000000000\n 31\n0.000000000\n  0\nSPLINE\n  5\nA11\n330\nA02\n100\nAcDbEntity\n  8\nBrokenView\n100\nAcDbSpline\n210\n0\n220\n0\n230\n1\n 70\n8\n 71\n1\n 72\n17\n 73\n15\n 74\n0\n 40\n3.141592654\n 40\n3.141592654\n 40\n3.365992129\n 40\n3.590391604\n 40\n3.814791079\n 40\n4.039190555\n 40\n4.263590030\n 40\n4.487989505\n 40\n4.712388980\n 40\n4.936788456\n 40\n5.161187931\n 40\n5.385587406\n 40\n5.609986881\n 40\n5.834386357\n 40\n6.058785832\n 40\n6.283185307\n 40\n6.283185307\n 10\n138.500000000\n 20\n99.000000000\n 30\n0.000000000\n 10\n138.750720878\n 20\n99.000000000\n 30\n0.000000000\n 10\n139.490311321\n 20\n99.000000000\n 30\n0.000000000\n 10\n140.681685175\n 20\n99.000000000\n 30\n0.000000000\n 10\n142.265101981\n 20\n99.000000000\n 30\n0.000000000\n 10\n144.161162609\n 20\n99.000000000\n 30\n0.000000000\n 10\n146.274790660\n 20\n99.000000000\n 30\n0.000000000\n 10\n148.500000000\n 20\n99.000000000\n 30\n0.000000000\n 10\n150.725209340\n 20\n99.000000000\n 30\n0.000000000\n 10\n152.838837391\n 20\n99.000000000\n 30\n0.000000000\n 10\n154.734898019\n 20\n99.000000000\n 30\n0.000000000\n 10\n156.318314825\n 20\n99.000000000\n 30\n0.000000000\n 10\n157.509688679\n 20\n99.000000000\n 30\n0.000000000\n 10\n158.249279122\n 20\n99.000000000\n 30\n0.000000000\n 10\n158.500000000\n 20\n99.000000000\n 30\n0.000000000\n  0\nLINE\n  5\nA12\n330\nA02\n100\nAcDbEntity\n  8\nBrokenView\n100\nAcDbLine\n 10\n138.500000000\n 20\n85.000000000\n 30\n0.000000000\n 11\n138.500000000\n 21\n89.000000000\n 31\n0.000000000\n  0\nLINE\n  5\nA13\n330\nA02\n100\nAcDbEntity\n  8\nBrokenView\n100\nAcDbLine\n 10\n142.500000000\n 20\n105.000000000\n 30\n0.000000000\n 11\n142.500000000\n 21\n123.000000000\n 31\n0.000000000\n  0\nLINE\n  5\nA14\n330\nA02\n100\nAcDbEntity\n  8\nBrokenView\n100\nAcDbLine\n 10\n144.500000000\n 20\n125.000000000\n 30\n0.000000000\n 11\n142.500000000\n 21\n123.000000000\n 31\n0.000000000\n  0\nLINE\n  5\nA15\n330\nA02\n100\nAcDbEntity\n  8\nBrokenView\n100\nAcDbLine\n 10\n138.500000000\n 20\n99.000000000\n 30\n0.000000000\n 11\n138.500000000\n 21\n105.000000000\n 31\n0.000000000\n  0\nENDSEC\n  0\nSECTION\n  2\nOBJECTS\n  0\nDICTIONARY\n  5\nF000\n330\n0\n100\nAcDbDictionary\n  3\nACAD_GROUP\n350\nF001\n  0\nDICTIONARY\n  5\nF001\n330\nF000\n100\nAcDbDictionary\n  0\nENDSEC\n  0\nEOF"
+  },
+  "plate_complex_section": {
+   "views": {
+    "View": {
+     "X": 148.5,
+     "Y": 105.0,
+     "Scale": 1.0,
+     "ScaleType": "Page",
+     "Direction": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "XDirection": [
+      1.0,
+      0.0,
+      0.0
+     ],
+     "Rotation": 0.0,
+     "nvis": 6,
+     "nhid": 0,
+     "edges": [
+      {
+       "curve": "Line",
+       "start": [
+        -20.0,
+        -12.0,
+        0.0
+       ],
+       "end": [
+        -20.0,
+        15.0,
+        0.0
+       ],
+       "length": 27.0
+      },
+      {
+       "curve": "Circle",
+       "start": [
+        -20.0,
+        -12.0,
+        0.0
+       ],
+       "end": [
+        -16.99999999999999,
+        -15.0,
+        0.0
+       ],
+       "length": 4.7123889803847,
+       "radius": 3.0,
+       "center": [
+        -17.0,
+        -12.0,
+        0.0
+       ]
+      },
+      {
+       "curve": "Line",
+       "start": [
+        -20.0,
+        15.0,
+        0.0
+       ],
+       "end": [
+        20.0,
+        15.0,
+        0.0
+       ],
+       "length": 40.0
+      },
+      {
+       "curve": "Line",
+       "start": [
+        -17.0,
+        -15.0,
+        0.0
+       ],
+       "end": [
+        20.0,
+        -15.0,
+        0.0
+       ],
+       "length": 37.0
+      },
+      {
+       "curve": "Line",
+       "start": [
+        20.0,
+        -15.0,
+        0.0
+       ],
+       "end": [
+        20.0,
+        15.0,
+        0.0
+       ],
+       "length": 30.0
+      },
+      {
+       "curve": "Circle",
+       "start": [
+        14.0,
+        8.0,
+        0.0
+       ],
+       "end": [
+        14.0,
+        8.0,
+        0.0
+       ],
+       "length": 25.13274122871836,
+       "radius": 4.0,
+       "center": [
+        10.0,
+        8.0,
+        0.0
+       ]
+      }
+     ],
+     "vertices": [
+      [
+       -20.0,
+       -12.0,
+       0.0
+      ],
+      [
+       -20.0,
+       15.0,
+       0.0
+      ],
+      [
+       -16.99999999999999,
+       -15.0,
+       0.0
+      ],
+      [
+       -17.0,
+       -12.0,
+       0.0
+      ],
+      [
+       20.0,
+       15.0,
+       0.0
+      ],
+      [
+       20.0,
+       -15.0,
+       0.0
+      ],
+      [
+       14.0,
+       8.0,
+       0.0
+      ],
+      [
+       14.0,
+       8.0,
+       0.0
+      ],
+      [
+       10.0,
+       8.0,
+       0.0
+      ]
+     ]
+    },
+    "ComplexSection": {
+     "X": 148.5,
+     "Y": 105.0,
+     "Scale": 1.0,
+     "ScaleType": "Page",
+     "Direction": [
+      1.1102230246251565e-16,
+      -1.0,
+      0.0
+     ],
+     "XDirection": [
+      1.0,
+      0.0,
+      -0.0
+     ],
+     "Rotation": 0.0,
+     "nvis": 13,
+     "nhid": 0,
+     "edges": [
+      {
+       "curve": "Line",
+       "start": [
+        -20.0,
+        5.0,
+        0.0
+       ],
+       "end": [
+        -20.0,
+        -5.0,
+        0.0
+       ],
+       "length": 10.0
+      },
+      {
+       "curve": "Line",
+       "start": [
+        20.0,
+        5.0,
+        0.0
+       ],
+       "end": [
+        14.0,
+        5.0,
+        0.0
+       ],
+       "length": 6.0
+      },
+      {
+       "curve": "BSplineCurve",
+       "start": [
+        14.0,
+        5.0,
+        0.0
+       ],
+       "end": [
+        6.000000000000001,
+        5.0,
+        0.0
+       ],
+       "length": 8.0
+      },
+      {
+       "curve": "Line",
+       "start": [
+        6.0,
+        5.0,
+        0.0
+       ],
+       "end": [
+        0.0,
+        5.0,
+        0.0
+       ],
+       "length": 6.0
+      },
+      {
+       "curve": "Line",
+       "start": [
+        -20.0,
+        5.0,
+        0.0
+       ],
+       "end": [
+        0.0,
+        5.0,
+        0.0
+       ],
+       "length": 20.0
+      },
+      {
+       "curve": "Line",
+       "start": [
+        20.0,
+        -5.0,
+        0.0
+       ],
+       "end": [
+        14.0,
+        -5.0,
+        0.0
+       ],
+       "length": 6.0
+      },
+      {
+       "curve": "BSplineCurve",
+       "start": [
+        14.0,
+        -5.0,
+        0.0
+       ],
+       "end": [
+        6.000000000000001,
+        -5.0,
+        0.0
+       ],
+       "length": 8.0
+      },
+      {
+       "curve": "Line",
+       "start": [
+        6.0,
+        -5.0,
+        0.0
+       ],
+       "end": [
+        0.0,
+        -5.0,
+        0.0
+       ],
+       "length": 6.0
+      },
+      {
+       "curve": "Line",
+       "start": [
+        -20.0,
+        -5.0,
+        0.0
+       ],
+       "end": [
+        0.0,
+        -5.0,
+        0.0
+       ],
+       "length": 20.0
+      },
+      {
+       "curve": "Line",
+       "start": [
+        -5.551115123125783e-16,
+        -5.0,
+        0.0
+       ],
+       "end": [
+        -5.551115123125783e-16,
+        5.0,
+        0.0
+       ],
+       "length": 10.0
+      },
+      {
+       "curve": "Line",
+       "start": [
+        20.0,
+        -5.0,
+        0.0
+       ],
+       "end": [
+        20.0,
+        5.0,
+        0.0
+       ],
+       "length": 10.0
+      },
+      {
+       "curve": "Line",
+       "start": [
+        14.0,
+        -5.0,
+        0.0
+       ],
+       "end": [
+        14.0,
+        5.0,
+        0.0
+       ],
+       "length": 10.0
+      },
+      {
+       "curve": "Line",
+       "start": [
+        6.000000000000001,
+        -5.0,
+        0.0
+       ],
+       "end": [
+        6.000000000000001,
+        5.0,
+        0.0
+       ],
+       "length": 10.0
+      }
+     ],
+     "vertices": [
+      [
+       -20.0,
+       5.0,
+       0.0
+      ],
+      [
+       -20.0,
+       -5.0,
+       0.0
+      ],
+      [
+       20.0,
+       5.0,
+       0.0
+      ],
+      [
+       14.0,
+       5.0,
+       0.0
+      ],
+      [
+       6.000000000000001,
+       5.0,
+       0.0
+      ],
+      [
+       0.0,
+       5.0,
+       0.0
+      ],
+      [
+       20.0,
+       -5.0,
+       0.0
+      ],
+      [
+       14.0,
+       -5.0,
+       0.0
+      ],
+      [
+       6.000000000000001,
+       -5.0,
+       0.0
+      ],
+      [
+       0.0,
+       -5.0,
+       0.0
+      ]
+     ]
+    }
+   },
+   "dims": {},
+   "page": {
+    "Scale": 1.0,
+    "ProjectionType": "First angle",
+    "Views": [
+     "View",
+     "ComplexSection"
+    ]
+   },
+   "template": {
+    "Width": 297.0,
+    "Height": 210.0,
+    "Orientation": "Landscape",
+    "EditableTexts": {}
+   },
+   "dxf": "999\nFreeCAD v26.3 20260929 (Git shallow)\n  0\nSECTION\n  2\nHEADER\n  9\n$ACADVER\n  1\nAC1014\n  9\n$ACADMAINTVER\n 70\n     9\n  9\n$DWGCODEPAGE\n  3\nANSI_1252\n  9\n$TEXTSTYLE\n  7\nSTANDARD\n  9\n$DIMSTYLE\n  2\nSTANDARD\n  9\n$DIMTXSTY\n  7\nSTANDARD\n  9\n$LUNITS\n 70\n2\n  9\n$INSUNITS\n 70\n4\n  9\n$PEXTMAX\n 10\n50\n 20\n50\n 30\n50\n  9\n$PEXTMIN\n 10\n0\n 20\n0\n 30\n0\n  9\n$HANDSEED\n  5\nFFFF\n  0\nENDSEC\n  0\nSECTION\n  2\nCLASSES\n  0\nCLASS\n  1\nACDBDICTIONARYWDFLT\n  2\nAcDbDictionaryWithDefault\n  3\nObjectDBX Classes\n 90\n        0\n280\n     0\n281\n     0\n  0\nCLASS\n  1\nXRECORD\n  2\nAcDbXrecord\n  3\nObjectDBX Classes\n 90\n        0\n280\n     0\n281\n     0\n  0\nCLASS\n  1\nLWPOLYLINE\n  2\nAcDbPolyline\n  3\nObjectDBX Classes\n 90\n        0\n280\n     0\n281\n     1\n  0\nENDSEC\n  0\nSECTION\n  2\nTABLES\n  0\nTABLE\n  2\nVPORT\n  5\n20\n330\n0\n100\nAcDbSymbolTable\n 70\n     1\n  0\nVPORT\n  5\n21\n330\n20\n100\nAcDbSymbolTableRecord\n100\nAcDbViewportTableRecord\n  2\n*ACTIVE\n 70\n     0\n  0\nENDTAB\n  0\nTABLE\n  2\nLTYPE\n  5\n22\n330\n0\n100\nAcDbSymbolTable\n 70\n     1\n  0\nLTYPE\n  5\n23\n330\n21\n100\nAcDbSymbolTableRecord\n100\nAcDbLinetypeTableRecord\n  2\nBYBLOCK\n 70\n     0\n  3\n\n 72\n    65\n 73\n     0\n 40\n0.0\n  0\nLTYPE\n  5\n24\n330\n21\n100\nAcDbSymbolTableRecord\n100\nAcDbLinetypeTableRecord\n  2\nBYLAYER\n 70\n     0\n  3\n\n 72\n    65\n 73\n     0\n 40\n0.0\n  0\nLTYPE\n  5\n25\n330\n21\n100\nAcDbSymbolTableRecord\n100\nAcDbLinetypeTableRecord\n  2\nCONTINUOUS\n 70\n     0\n  3\nSolid line\n 72\n    65\n 73\n     0\n 40\n0.0\n  0\nENDTAB\n  0\nTABLE\n  2\nLAYER\n  5\nA28\n330\n0\n100\nAcDbSymbolTable\n 70\n3\n  0\nLAYER\n  5\nA29\n330\nA28\n100\nAcDbSymbolTableRecord\n100\nAcDbLayerTableRecord\n  2\n0\n 70\n   0\n 62\n   7\n  6\nCONTINUOUS\n  0\nLAYER\n  5\nA2A\n330\nA28\n100\nAcDbSymbolTableRecord\n100\nAcDbLayerTableRecord\n  2\nView\n 70\n    0\n 62\n    7\n  6\nCONTINUOUS\n  0\nLAYER\n  5\nA2B\n330\nA28\n100\nAcDbSymbolTableRecord\n100\nAcDbLayerTableRecord\n  2\nComplexSection\n 70\n    0\n 62\n    7\n  6\nCONTINUOUS\n  0\nENDTAB\n  0\nTABLE\n  2\nSTYLE\n  5\n70\n330\n0\n100\nAcDbSymbolTable\n 70\n     2\n  0\nSTYLE\n  5\n71\n330\n70\n100\nAcDbSymbolTableRecord\n100\nAcDbTextStyleTableRecord\n  2\nSTANDARD\n 70\n     0\n 40\n0.0\n 41\n1.0\n 50\n0.0\n 71\n     0\n 42\n2.5\n  3\narial.ttf\n  4\n\n  0\nSTYLE\n  5\n72\n330\n70\n100\nAcDbSymbolTableRecord\n100\nAcDbTextStyleTableRecord\n  2\nANNOTATIVE\n 70\n     0\n 40\n0.0\n 41\n1.0\n 50\n0.0\n 71\n     0\n 42\n2.5\n  3\narial.ttf\n  4\n\n  0\nENDTAB\n  0\nTABLE\n  2\nVIEW\n  5\n73\n330\n0\n100\nAcDbSymbolTable\n 70\n     0\n  0\nENDTAB\n  0\nTABLE\n  2\nUCS\n  5\n74\n330\n0\n100\nAcDbSymbolTable\n 70\n     0\n  0\nENDTAB\n  0\nTABLE\n  2\nAPPID\n  5\n75\n330\n0\n100\nAcDbSymbolTable\n 70\n     2\n  0\nAPPID\n  5\n76\n330\n75\n100\nAcDbSymbolTableRecord\n100\nAcDbRegAppTableRecord\n  2\nACAD\n 70\n     0\n  0\nAPPID\n  5\n77\n330\n75\n100\nAcDbSymbolTableRecord\n100\nAcDbRegAppTableRecord\n  2\nACADANNOTATIVE\n 70\n     0\n  0\nENDTAB\n  0\nTABLE\n  2\nDIMSTYLE\n  5\n78\n330\n0\n100\nAcDbSymbolTable\n 70\n     2\n  0\nDIMSTYLE\n105\n79\n330\n78\n100\nAcDbSymbolTableRecord\n100\nAcDbDimStyleTableRecord\n  2\nSTANDARD\n 70\n     0\n  3\n\n  4\n\n  5\n\n  6\n\n  7\n\n 40\n0.0\n 41\n2.5\n 42\n0.625\n 43\n3.75\n 44\n1.25\n 45\n0.0\n 46\n0.0\n 47\n0.0\n 48\n0.0\n140\n2.5\n141\n2.5\n142\n0.0\n143\n0.03937007874016\n144\n1.0\n145\n0.0\n146\n1.0\n147\n0.625\n 71\n     0\n 72\n     0\n 73\n     0\n 74\n     0\n 75\n     0\n 76\n     0\n 77\n     1\n 78\n     8\n170\n     0\n171\n     3\n172\n     1\n173\n     0\n174\n     0\n175\n     0\n176\n     0\n177\n     0\n178\n     0\n270\n     2\n271\n     2\n272\n     2\n273\n     2\n274\n     3\n340\n71\n275\n     0\n280\n     0\n281\n     0\n282\n     0\n283\n     0\n284\n     8\n285\n     0\n286\n     0\n287\n     3\n288\n     0\n  0\nENDTAB\n  0\nTABLE\n  2\nBLOCK_RECORD\n  5\nA01\n330\n0\n100\nAcDbSymbolTable\n  70\n5\n  0\nBLOCK_RECORD\n  5\nA02\n330\nA01\n100\nAcDbSymbolTableRecord\n100\nAcDbBlockTableRecord\n  2\n*MODEL_SPACE\n  0\nBLOCK_RECORD\n  5\nA03\n330\nA01\n100\nAcDbSymbolTableRecord\n100\nAcDbBlockTableRecord\n  2\n*PAPER_SPACE\n  0\nENDTAB\n  0\nENDSEC\n  0\nSECTION\n  2\nBLOCKS\n  0\nBLOCK\n  5\nA04\n330\nA02\n100\nAcDbEntity\n  8\n0\n100\nAcDbBlockBegin\n  2\n*MODEL_SPACE\n 70\n   0\n 10\n0\n 20\n0\n 30\n0\n  3\n*MODEL_SPACE\n  1\n \n  0\nENDBLK\n  5\nA05\n330\nA02\n100\nAcDbEntity\n  8\n0\n100\nAcDbBlockEnd\n  0\nBLOCK\n  5\nA06\n330\nA03\n100\nAcDbEntity\n 67\n1\n  8\n0\n100\nAcDbBlockBegin\n  2\n*PAPER_SPACE\n 70\n   0\n 10\n0\n 20\n0\n 30\n0\n  3\n*PAPER_SPACE\n  1\n \n  0\nENDBLK\n  5\nA07\n330\nA03\n100\nAcDbEntity\n 67\n    1\n  8\n0\n100\nAcDbBlockEnd\n  0\nENDSEC\n  0\nSECTION\n  2\nENTITIES\n  0\nLINE\n  5\nA08\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbLine\n 10\n128.500000000\n 20\n93.000000000\n 30\n0.000000000\n 11\n128.500000000\n 21\n120.000000000\n 31\n0.000000000\n  0\nARC\n  5\nA09\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbCircle\n 10\n131.500000000\n 20\n93.000000000\n 30\n0.000000000\n 40\n3.000000000\n100\nAcDbArc\n 50\n180.000000000\n 51\n-90.000000000\n  0\nLINE\n  5\nA0A\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbLine\n 10\n128.500000000\n 20\n120.000000000\n 30\n0.000000000\n 11\n168.500000000\n 21\n120.000000000\n 31\n0.000000000\n  0\nLINE\n  5\nA0B\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbLine\n 10\n131.500000000\n 20\n90.000000000\n 30\n0.000000000\n 11\n168.500000000\n 21\n90.000000000\n 31\n0.000000000\n  0\nLINE\n  5\nA0C\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbLine\n 10\n168.500000000\n 20\n90.000000000\n 30\n0.000000000\n 11\n168.500000000\n 21\n120.000000000\n 31\n0.000000000\n  0\nCIRCLE\n  5\nA0D\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbCircle\n 10\n158.500000000\n 20\n113.000000000\n 30\n0.000000000\n 40\n4.000000000\n  0\nLINE\n  5\nA0E\n330\nA02\n100\nAcDbEntity\n  8\nComplexSection\n100\nAcDbLine\n 10\n128.500000000\n 20\n110.000000000\n 30\n0.000000000\n 11\n128.500000000\n 21\n100.000000000\n 31\n0.000000000\n  0\nLINE\n  5\nA0F\n330\nA02\n100\nAcDbEntity\n  8\nComplexSection\n100\nAcDbLine\n 10\n168.500000000\n 20\n110.000000000\n 30\n0.000000000\n 11\n162.500000000\n 21\n110.000000000\n 31\n0.000000000\n  0\nSPLINE\n  5\nA10\n330\nA02\n100\nAcDbEntity\n  8\nComplexSection\n100\nAcDbSpline\n210\n0\n220\n0\n230\n1\n 70\n8\n 71\n1\n 72\n17\n 73\n15\n 74\n0\n 40\n0.000000000\n 40\n0.000000000\n 40\n0.224399475\n 40\n0.448798951\n 40\n0.673198426\n 40\n0.897597901\n 40\n1.121997376\n 40\n1.346396852\n 40\n1.570796327\n 40\n1.795195802\n 40\n2.019595277\n 40\n2.243994753\n 40\n2.468394228\n 40\n2.692793703\n 40\n2.917193178\n 40\n3.141592654\n 40\n3.141592654\n 10\n162.500000000\n 20\n110.000000000\n 30\n0.000000000\n 10\n162.399711649\n 20\n110.000000000\n 30\n0.000000000\n 10\n162.103875472\n 20\n110.000000000\n 30\n0.000000000\n 10\n161.627325930\n 20\n110.000000000\n 30\n0.000000000\n 10\n160.993959207\n 20\n110.000000000\n 30\n0.000000000\n 10\n160.235534956\n 20\n110.000000000\n 30\n0.000000000\n 10\n159.390083736\n 20\n110.000000000\n 30\n0.000000000\n 10\n158.500000000\n 20\n110.000000000\n 30\n0.000000000\n 10\n157.609916264\n 20\n110.000000000\n 30\n0.000000000\n 10\n156.764465044\n 20\n110.000000000\n 30\n0.000000000\n 10\n156.006040793\n 20\n110.000000000\n 30\n0.000000000\n 10\n155.372674070\n 20\n110.000000000\n 30\n0.000000000\n 10\n154.896124528\n 20\n110.000000000\n 30\n0.000000000\n 10\n154.600288351\n 20\n110.000000000\n 30\n0.000000000\n 10\n154.500000000\n 20\n110.000000000\n 30\n0.000000000\n  0\nLINE\n  5\nA11\n330\nA02\n100\nAcDbEntity\n  8\nComplexSection\n100\nAcDbLine\n 10\n154.500000000\n 20\n110.000000000\n 30\n0.000000000\n 11\n148.500000000\n 21\n110.000000000\n 31\n0.000000000\n  0\nLINE\n  5\nA12\n330\nA02\n100\nAcDbEntity\n  8\nComplexSection\n100\nAcDbLine\n 10\n128.500000000\n 20\n110.000000000\n 30\n0.000000000\n 11\n148.500000000\n 21\n110.000000000\n 31\n0.000000000\n  0\nLINE\n  5\nA13\n330\nA02\n100\nAcDbEntity\n  8\nComplexSection\n100\nAcDbLine\n 10\n168.500000000\n 20\n100.000000000\n 30\n0.000000000\n 11\n162.500000000\n 21\n100.000000000\n 31\n0.000000000\n  0\nSPLINE\n  5\nA14\n330\nA02\n100\nAcDbEntity\n  8\nComplexSection\n100\nAcDbSpline\n210\n0\n220\n0\n230\n1\n 70\n8\n 71\n1\n 72\n17\n 73\n15\n 74\n0\n 40\n0.000000000\n 40\n0.000000000\n 40\n0.224399475\n 40\n0.448798951\n 40\n0.673198426\n 40\n0.897597901\n 40\n1.121997376\n 40\n1.346396852\n 40\n1.570796327\n 40\n1.795195802\n 40\n2.019595277\n 40\n2.243994753\n 40\n2.468394228\n 40\n2.692793703\n 40\n2.917193178\n 40\n3.141592654\n 40\n3.141592654\n 10\n162.500000000\n 20\n100.000000000\n 30\n0.000000000\n 10\n162.399711649\n 20\n100.000000000\n 30\n0.000000000\n 10\n162.103875472\n 20\n100.000000000\n 30\n0.000000000\n 10\n161.627325930\n 20\n100.000000000\n 30\n0.000000000\n 10\n160.993959207\n 20\n100.000000000\n 30\n0.000000000\n 10\n160.235534956\n 20\n100.000000000\n 30\n0.000000000\n 10\n159.390083736\n 20\n100.000000000\n 30\n0.000000000\n 10\n158.500000000\n 20\n100.000000000\n 30\n0.000000000\n 10\n157.609916264\n 20\n100.000000000\n 30\n0.000000000\n 10\n156.764465044\n 20\n100.000000000\n 30\n0.000000000\n 10\n156.006040793\n 20\n100.000000000\n 30\n0.000000000\n 10\n155.372674070\n 20\n100.000000000\n 30\n0.000000000\n 10\n154.896124528\n 20\n100.000000000\n 30\n0.000000000\n 10\n154.600288351\n 20\n100.000000000\n 30\n0.000000000\n 10\n154.500000000\n 20\n100.000000000\n 30\n0.000000000\n  0\nLINE\n  5\nA15\n330\nA02\n100\nAcDbEntity\n  8\nComplexSection\n100\nAcDbLine\n 10\n154.500000000\n 20\n100.000000000\n 30\n0.000000000\n 11\n148.500000000\n 21\n100.000000000\n 31\n0.000000000\n  0\nLINE\n  5\nA16\n330\nA02\n100\nAcDbEntity\n  8\nComplexSection\n100\nAcDbLine\n 10\n128.500000000\n 20\n100.000000000\n 30\n0.000000000\n 11\n148.500000000\n 21\n100.000000000\n 31\n0.000000000\n  0\nLINE\n  5\nA17\n330\nA02\n100\nAcDbEntity\n  8\nComplexSection\n100\nAcDbLine\n 10\n148.500000000\n 20\n100.000000000\n 30\n0.000000000\n 11\n148.500000000\n 21\n110.000000000\n 31\n0.000000000\n  0\nLINE\n  5\nA18\n330\nA02\n100\nAcDbEntity\n  8\nComplexSection\n100\nAcDbLine\n 10\n168.500000000\n 20\n100.000000000\n 30\n0.000000000\n 11\n168.500000000\n 21\n110.000000000\n 31\n0.000000000\n  0\nLINE\n  5\nA19\n330\nA02\n100\nAcDbEntity\n  8\nComplexSection\n100\nAcDbLine\n 10\n162.500000000\n 20\n100.000000000\n 30\n0.000000000\n 11\n162.500000000\n 21\n110.000000000\n 31\n0.000000000\n  0\nLINE\n  5\nA1A\n330\nA02\n100\nAcDbEntity\n  8\nComplexSection\n100\nAcDbLine\n 10\n154.500000000\n 20\n100.000000000\n 30\n0.000000000\n 11\n154.500000000\n 21\n110.000000000\n 31\n0.000000000\n  0\nLINE\n  5\nA1B\n330\nA02\n100\nAcDbEntity\n  8\nComplexSection\n100\nAcDbLine\n 10\n128.500000000\n 20\n110.000000000\n 30\n0.000000000\n 11\n128.500000000\n 21\n100.000000000\n 31\n0.000000000\n  0\nLINE\n  5\nA1C\n330\nA02\n100\nAcDbEntity\n  8\nComplexSection\n100\nAcDbLine\n 10\n168.500000000\n 20\n110.000000000\n 30\n0.000000000\n 11\n162.500000000\n 21\n110.000000000\n 31\n0.000000000\n  0\nSPLINE\n  5\nA1D\n330\nA02\n100\nAcDbEntity\n  8\nComplexSection\n100\nAcDbSpline\n210\n0\n220\n0\n230\n1\n 70\n8\n 71\n1\n 72\n17\n 73\n15\n 74\n0\n 40\n0.000000000\n 40\n0.000000000\n 40\n0.224399475\n 40\n0.448798951\n 40\n0.673198426\n 40\n0.897597901\n 40\n1.121997376\n 40\n1.346396852\n 40\n1.570796327\n 40\n1.795195802\n 40\n2.019595277\n 40\n2.243994753\n 40\n2.468394228\n 40\n2.692793703\n 40\n2.917193178\n 40\n3.141592654\n 40\n3.141592654\n 10\n162.500000000\n 20\n110.000000000\n 30\n0.000000000\n 10\n162.399711649\n 20\n110.000000000\n 30\n0.000000000\n 10\n162.103875472\n 20\n110.000000000\n 30\n0.000000000\n 10\n161.627325930\n 20\n110.000000000\n 30\n0.000000000\n 10\n160.993959207\n 20\n110.000000000\n 30\n0.000000000\n 10\n160.235534956\n 20\n110.000000000\n 30\n0.000000000\n 10\n159.390083736\n 20\n110.000000000\n 30\n0.000000000\n 10\n158.500000000\n 20\n110.000000000\n 30\n0.000000000\n 10\n157.609916264\n 20\n110.000000000\n 30\n0.000000000\n 10\n156.764465044\n 20\n110.000000000\n 30\n0.000000000\n 10\n156.006040793\n 20\n110.000000000\n 30\n0.000000000\n 10\n155.372674070\n 20\n110.000000000\n 30\n0.000000000\n 10\n154.896124528\n 20\n110.000000000\n 30\n0.000000000\n 10\n154.600288351\n 20\n110.000000000\n 30\n0.000000000\n 10\n154.500000000\n 20\n110.000000000\n 30\n0.000000000\n  0\nLINE\n  5\nA1E\n330\nA02\n100\nAcDbEntity\n  8\nComplexSection\n100\nAcDbLine\n 10\n154.500000000\n 20\n110.000000000\n 30\n0.000000000\n 11\n148.500000000\n 21\n110.000000000\n 31\n0.000000000\n  0\nLINE\n  5\nA1F\n330\nA02\n100\nAcDbEntity\n  8\nComplexSection\n100\nAcDbLine\n 10\n128.500000000\n 20\n110.000000000\n 30\n0.000000000\n 11\n148.500000000\n 21\n110.000000000\n 31\n0.000000000\n  0\nLINE\n  5\nA20\n330\nA02\n100\nAcDbEntity\n  8\nComplexSection\n100\nAcDbLine\n 10\n168.500000000\n 20\n100.000000000\n 30\n0.000000000\n 11\n162.500000000\n 21\n100.000000000\n 31\n0.000000000\n  0\nSPLINE\n  5\nA21\n330\nA02\n100\nAcDbEntity\n  8\nComplexSection\n100\nAcDbSpline\n210\n0\n220\n0\n230\n1\n 70\n8\n 71\n1\n 72\n17\n 73\n15\n 74\n0\n 40\n0.000000000\n 40\n0.000000000\n 40\n0.224399475\n 40\n0.448798951\n 40\n0.673198426\n 40\n0.897597901\n 40\n1.121997376\n 40\n1.346396852\n 40\n1.570796327\n 40\n1.795195802\n 40\n2.019595277\n 40\n2.243994753\n 40\n2.468394228\n 40\n2.692793703\n 40\n2.917193178\n 40\n3.141592654\n 40\n3.141592654\n 10\n162.500000000\n 20\n100.000000000\n 30\n0.000000000\n 10\n162.399711649\n 20\n100.000000000\n 30\n0.000000000\n 10\n162.103875472\n 20\n100.000000000\n 30\n0.000000000\n 10\n161.627325930\n 20\n100.000000000\n 30\n0.000000000\n 10\n160.993959207\n 20\n100.000000000\n 30\n0.000000000\n 10\n160.235534956\n 20\n100.000000000\n 30\n0.000000000\n 10\n159.390083736\n 20\n100.000000000\n 30\n0.000000000\n 10\n158.500000000\n 20\n100.000000000\n 30\n0.000000000\n 10\n157.609916264\n 20\n100.000000000\n 30\n0.000000000\n 10\n156.764465044\n 20\n100.000000000\n 30\n0.000000000\n 10\n156.006040793\n 20\n100.000000000\n 30\n0.000000000\n 10\n155.372674070\n 20\n100.000000000\n 30\n0.000000000\n 10\n154.896124528\n 20\n100.000000000\n 30\n0.000000000\n 10\n154.600288351\n 20\n100.000000000\n 30\n0.000000000\n 10\n154.500000000\n 20\n100.000000000\n 30\n0.000000000\n  0\nLINE\n  5\nA22\n330\nA02\n100\nAcDbEntity\n  8\nComplexSection\n100\nAcDbLine\n 10\n154.500000000\n 20\n100.000000000\n 30\n0.000000000\n 11\n148.500000000\n 21\n100.000000000\n 31\n0.000000000\n  0\nLINE\n  5\nA23\n330\nA02\n100\nAcDbEntity\n  8\nComplexSection\n100\nAcDbLine\n 10\n128.500000000\n 20\n100.000000000\n 30\n0.000000000\n 11\n148.500000000\n 21\n100.000000000\n 31\n0.000000000\n  0\nLINE\n  5\nA24\n330\nA02\n100\nAcDbEntity\n  8\nComplexSection\n100\nAcDbLine\n 10\n148.500000000\n 20\n100.000000000\n 30\n0.000000000\n 11\n148.500000000\n 21\n110.000000000\n 31\n0.000000000\n  0\nLINE\n  5\nA25\n330\nA02\n100\nAcDbEntity\n  8\nComplexSection\n100\nAcDbLine\n 10\n168.500000000\n 20\n100.000000000\n 30\n0.000000000\n 11\n168.500000000\n 21\n110.000000000\n 31\n0.000000000\n  0\nLINE\n  5\nA26\n330\nA02\n100\nAcDbEntity\n  8\nComplexSection\n100\nAcDbLine\n 10\n162.500000000\n 20\n100.000000000\n 30\n0.000000000\n 11\n162.500000000\n 21\n110.000000000\n 31\n0.000000000\n  0\nLINE\n  5\nA27\n330\nA02\n100\nAcDbEntity\n  8\nComplexSection\n100\nAcDbLine\n 10\n154.500000000\n 20\n100.000000000\n 30\n0.000000000\n 11\n154.500000000\n 21\n110.000000000\n 31\n0.000000000\n  0\nENDSEC\n  0\nSECTION\n  2\nOBJECTS\n  0\nDICTIONARY\n  5\nF000\n330\n0\n100\nAcDbDictionary\n  3\nACAD_GROUP\n350\nF001\n  0\nDICTIONARY\n  5\nF001\n330\nF000\n100\nAcDbDictionary\n  0\nENDSEC\n  0\nEOF"
+  },
+  "bracket_complex_section": {
+   "views": {
+    "View": {
+     "X": 148.5,
+     "Y": 105.0,
+     "Scale": 1.0,
+     "ScaleType": "Page",
+     "Direction": [
+      0.0,
+      -1.0,
+      0.0
+     ],
+     "XDirection": [
+      1.0,
+      0.0,
+      0.0
+     ],
+     "Rotation": 0.0,
+     "nvis": 15,
+     "nhid": 0,
+     "edges": [
+      {
+       "curve": "Line",
+       "start": [
+        2.5,
+        -19.999999999999986,
+        0.0
+       ],
+       "end": [
+        32.5,
+        -19.999999999999986,
+        0.0
+       ],
+       "length": 30.0
+      },
+      {
+       "curve": "Line",
+       "start": [
+        -12.5,
+        -19.999999999999986,
+        0.0
+       ],
+       "end": [
+        -7.5,
+        -19.999999999999986,
+        0.0
+       ],
+       "length": 5.0
+      },
+      {
+       "curve": "BSplineCurve",
+       "start": [
+        2.5,
+        -19.999999999999986,
+        0.0
+       ],
+       "end": [
+        -7.5,
+        -19.999999999999986,
+        0.0
+       ],
+       "length": 10.0
+      },
+      {
+       "curve": "Line",
+       "start": [
+        32.499999999999964,
+        -20.000000000000018,
+        0.0
+       ],
+       "end": [
+        37.499999999999986,
+        -14.999999999999998,
+        0.0
+       ],
+       "length": 7.071067811865502
+      },
+      {
+       "curve": "Line",
+       "start": [
+        -12.5,
+        -19.999999999999986,
+        0.0
+       ],
+       "end": [
+        -12.5,
+        -13.999999999999986,
+        0.0
+       ],
+       "length": 6.0
+      },
+      {
+       "curve": "Line",
+       "start": [
+        37.5,
+        -14.999999999999986,
+        0.0
+       ],
+       "end": [
+        37.5,
+        -13.999999999999986,
+        0.0
+       ],
+       "length": 1.0
+      },
+      {
+       "curve": "Line",
+       "start": [
+        2.5,
+        -13.999999999999986,
+        0.0
+       ],
+       "end": [
+        37.5,
+        -13.999999999999986,
+        0.0
+       ],
+       "length": 35.0
+      },
+      {
+       "curve": "BSplineCurve",
+       "start": [
+        2.5,
+        -13.999999999999986,
+        0.0
+       ],
+       "end": [
+        -7.5,
+        -13.999999999999986,
+        0.0
+       ],
+       "length": 10.0
+      },
+      {
+       "curve": "Line",
+       "start": [
+        -12.5,
+        -13.999999999999986,
+        0.0
+       ],
+       "end": [
+        -7.5,
+        -13.999999999999986,
+        0.0
+       ],
+       "length": 5.0
+      },
+      {
+       "curve": "Line",
+       "start": [
+        2.5,
+        -19.999999999999986,
+        0.0
+       ],
+       "end": [
+        2.5,
+        -13.999999999999986,
+        0.0
+       ],
+       "length": 6.0
+      },
+      {
+       "curve": "Line",
+       "start": [
+        -7.5,
+        -19.999999999999986,
+        0.0
+       ],
+       "end": [
+        -7.5,
+        -13.999999999999986,
+        0.0
+       ],
+       "length": 6.0
+      },
+      {
+       "curve": "Line",
+       "start": [
+        -37.5,
+        -19.999999999999986,
+        0.0
+       ],
+       "end": [
+        -37.5,
+        20.000000000000014,
+        0.0
+       ],
+       "length": 40.0
+      },
+      {
+       "curve": "Line",
+       "start": [
+        -37.5,
+        -19.999999999999986,
+        0.0
+       ],
+       "end": [
+        -31.5,
+        -19.999999999999986,
+        0.0
+       ],
+       "length": 6.0
+      },
+      {
+       "curve": "Line",
+       "start": [
+        -31.5,
+        -19.999999999999986,
+        0.0
+       ],
+       "end": [
+        -31.5,
+        20.000000000000014,
+        0.0
+       ],
+       "length": 40.0
+      },
+      {
+       "curve": "Line",
+       "start": [
+        -37.5,
+        20.000000000000014,
+        0.0
+       ],
+       "end": [
+        -31.5,
+        20.000000000000014,
+        0.0
+       ],
+       "length": 6.0
+      }
+     ],
+     "vertices": [
+      [
+       2.5,
+       -19.999999999999986,
+       0.0
+      ],
+      [
+       32.5,
+       -19.999999999999986,
+       0.0
+      ],
+      [
+       -12.5,
+       -19.999999999999986,
+       0.0
+      ],
+      [
+       -7.5,
+       -19.999999999999986,
+       0.0
+      ],
+      [
+       37.499999999999986,
+       -14.999999999999998,
+       0.0
+      ],
+      [
+       -12.5,
+       -13.999999999999986,
+       0.0
+      ],
+      [
+       37.5,
+       -13.999999999999986,
+       0.0
+      ],
+      [
+       2.5,
+       -13.999999999999986,
+       0.0
+      ],
+      [
+       -7.5,
+       -13.999999999999986,
+       0.0
+      ],
+      [
+       -37.5,
+       -19.999999999999986,
+       0.0
+      ],
+      [
+       -37.5,
+       20.000000000000014,
+       0.0
+      ],
+      [
+       -31.5,
+       -19.999999999999986,
+       0.0
+      ],
+      [
+       -31.5,
+       20.000000000000014,
+       0.0
+      ]
+     ]
+    },
+    "ComplexSection": {
+     "X": 148.5,
+     "Y": 105.0,
+     "Scale": 1.0,
+     "ScaleType": "Page",
+     "Direction": [
+      -1.0,
+      0.0,
+      -1.2246467991473532e-16
+     ],
+     "XDirection": [
+      1.2246467991473532e-16,
+      -0.0,
+      -1.0
+     ],
+     "Rotation": -90.0,
+     "nvis": 13,
+     "nhid": 0,
+     "edges": [
+      {
+       "curve": "Line",
+       "start": [
+        -30.000000000000004,
+        8.999999999999996,
+        0.0
+       ],
+       "end": [
+        -30.000000000000004,
+        2.9999999999999645,
+        0.0
+       ],
+       "length": 6.000000000000032
+      },
+      {
+       "curve": "BSplineCurve",
+       "start": [
+        -3.3306690738754657e-16,
+        2.9999999999999982,
+        0.0
+       ],
+       "end": [
+        -5.0,
+        2.9999999999999982,
+        0.0
+       ],
+       "length": 5.0
+      },
+      {
+       "curve": "Line",
+       "start": [
+        -5.0,
+        2.9999999999999982,
+        0.0
+       ],
+       "end": [
+        -30.0,
+        2.9999999999999956,
+        0.0
+       ],
+       "length": 25.0
+      },
+      {
+       "curve": "BSplineCurve",
+       "start": [
+        -9.992007221626405e-16,
+        8.999999999999998,
+        0.0
+       ],
+       "end": [
+        -5.000000000000001,
+        8.999999999999998,
+        0.0
+       ],
+       "length": 5.0
+      },
+      {
+       "curve": "Line",
+       "start": [
+        -5.0,
+        8.999999999999998,
+        0.0
+       ],
+       "end": [
+        -30.0,
+        8.999999999999995,
+        0.0
+       ],
+       "length": 25.0
+      },
+      {
+       "curve": "Line",
+       "start": [
+        -5.0,
+        2.9999999999999982,
+        0.0
+       ],
+       "end": [
+        -5.000000000000001,
+        8.999999999999998,
+        0.0
+       ],
+       "length": 6.0
+      },
+      {
+       "curve": "Line",
+       "start": [
+        8.915798917598065e-16,
+        2.9999999999999982,
+        0.0
+       ],
+       "end": [
+        2.2544607698471257e-16,
+        8.999999999999998,
+        0.0
+       ],
+       "length": 6.0
+      },
+      {
+       "curve": "Line",
+       "start": [
+        14.999999999999996,
+        30.000000000000004,
+        0.0
+       ],
+       "end": [
+        14.999999999999995,
+        43.0,
+        0.0
+       ],
+       "length": 13.0
+      },
+      {
+       "curve": "Line",
+       "start": [
+        -15.000000000000007,
+        43.0,
+        0.0
+       ],
+       "end": [
+        14.999999999999993,
+        43.00000000000001,
+        0.0
+       ],
+       "length": 30.0
+      },
+      {
+       "curve": "Line",
+       "start": [
+        -15.000000000000004,
+        30.0,
+        0.0
+       ],
+       "end": [
+        -15.000000000000005,
+        43.0,
+        0.0
+       ],
+       "length": 13.0
+      },
+      {
+       "curve": "Line",
+       "start": [
+        4.0,
+        30.000000000000004,
+        0.0
+       ],
+       "end": [
+        15.0,
+        30.000000000000004,
+        0.0
+       ],
+       "length": 11.0
+      },
+      {
+       "curve": "Circle",
+       "start": [
+        -4.0000000000000036,
+        30.000000000000004,
+        0.0
+       ],
+       "end": [
+        3.9999999999999964,
+        30.000000000000004,
+        0.0
+       ],
+       "length": 12.566370614359172,
+       "radius": 4.0,
+       "center": [
+        -3.33066907387547e-15,
+        30.000000000000004,
+        0.0
+       ]
+      },
+      {
+       "curve": "Line",
+       "start": [
+        -15.0,
+        30.000000000000004,
+        0.0
+       ],
+       "end": [
+        -4.000000000000014,
+        30.000000000000004,
+        0.0
+       ],
+       "length": 10.999999999999986
+      }
+     ],
+     "vertices": [
+      [
+       -30.000000000000004,
+       8.999999999999996,
+       0.0
+      ],
+      [
+       -30.000000000000004,
+       2.9999999999999645,
+       0.0
+      ],
+      [
+       -3.3306690738754657e-16,
+       2.9999999999999982,
+       0.0
+      ],
+      [
+       -5.0,
+       2.9999999999999982,
+       0.0
+      ],
+      [
+       -9.992007221626405e-16,
+       8.999999999999998,
+       0.0
+      ],
+      [
+       -5.000000000000001,
+       8.999999999999998,
+       0.0
+      ],
+      [
+       14.999999999999996,
+       30.000000000000004,
+       0.0
+      ],
+      [
+       14.999999999999995,
+       43.0,
+       0.0
+      ],
+      [
+       -15.000000000000007,
+       43.0,
+       0.0
+      ],
+      [
+       -15.000000000000004,
+       30.0,
+       0.0
+      ],
+      [
+       4.0,
+       30.000000000000004,
+       0.0
+      ],
+      [
+       -4.0000000000000036,
+       30.000000000000004,
+       0.0
+      ],
+      [
+       -3.33066907387547e-15,
+       30.000000000000004,
+       0.0
+      ]
+     ]
+    }
+   },
+   "dims": {},
+   "page": {
+    "Scale": 1.0,
+    "ProjectionType": "First angle",
+    "Views": [
+     "View",
+     "ComplexSection"
+    ]
+   },
+   "template": {
+    "Width": 297.0,
+    "Height": 210.0,
+    "Orientation": "Landscape",
+    "EditableTexts": {}
+   },
+   "dxf": "999\nFreeCAD v26.3 20260929 (Git shallow)\n  0\nSECTION\n  2\nHEADER\n  9\n$ACADVER\n  1\nAC1014\n  9\n$ACADMAINTVER\n 70\n     9\n  9\n$DWGCODEPAGE\n  3\nANSI_1252\n  9\n$TEXTSTYLE\n  7\nSTANDARD\n  9\n$DIMSTYLE\n  2\nSTANDARD\n  9\n$DIMTXSTY\n  7\nSTANDARD\n  9\n$LUNITS\n 70\n2\n  9\n$INSUNITS\n 70\n4\n  9\n$PEXTMAX\n 10\n50\n 20\n50\n 30\n50\n  9\n$PEXTMIN\n 10\n0\n 20\n0\n 30\n0\n  9\n$HANDSEED\n  5\nFFFF\n  0\nENDSEC\n  0\nSECTION\n  2\nCLASSES\n  0\nCLASS\n  1\nACDBDICTIONARYWDFLT\n  2\nAcDbDictionaryWithDefault\n  3\nObjectDBX Classes\n 90\n        0\n280\n     0\n281\n     0\n  0\nCLASS\n  1\nXRECORD\n  2\nAcDbXrecord\n  3\nObjectDBX Classes\n 90\n        0\n280\n     0\n281\n     0\n  0\nCLASS\n  1\nLWPOLYLINE\n  2\nAcDbPolyline\n  3\nObjectDBX Classes\n 90\n        0\n280\n     0\n281\n     1\n  0\nENDSEC\n  0\nSECTION\n  2\nTABLES\n  0\nTABLE\n  2\nVPORT\n  5\n20\n330\n0\n100\nAcDbSymbolTable\n 70\n     1\n  0\nVPORT\n  5\n21\n330\n20\n100\nAcDbSymbolTableRecord\n100\nAcDbViewportTableRecord\n  2\n*ACTIVE\n 70\n     0\n  0\nENDTAB\n  0\nTABLE\n  2\nLTYPE\n  5\n22\n330\n0\n100\nAcDbSymbolTable\n 70\n     1\n  0\nLTYPE\n  5\n23\n330\n21\n100\nAcDbSymbolTableRecord\n100\nAcDbLinetypeTableRecord\n  2\nBYBLOCK\n 70\n     0\n  3\n\n 72\n    65\n 73\n     0\n 40\n0.0\n  0\nLTYPE\n  5\n24\n330\n21\n100\nAcDbSymbolTableRecord\n100\nAcDbLinetypeTableRecord\n  2\nBYLAYER\n 70\n     0\n  3\n\n 72\n    65\n 73\n     0\n 40\n0.0\n  0\nLTYPE\n  5\n25\n330\n21\n100\nAcDbSymbolTableRecord\n100\nAcDbLinetypeTableRecord\n  2\nCONTINUOUS\n 70\n     0\n  3\nSolid line\n 72\n    65\n 73\n     0\n 40\n0.0\n  0\nENDTAB\n  0\nTABLE\n  2\nLAYER\n  5\nA30\n330\n0\n100\nAcDbSymbolTable\n 70\n3\n  0\nLAYER\n  5\nA31\n330\nA30\n100\nAcDbSymbolTableRecord\n100\nAcDbLayerTableRecord\n  2\n0\n 70\n   0\n 62\n   7\n  6\nCONTINUOUS\n  0\nLAYER\n  5\nA32\n330\nA30\n100\nAcDbSymbolTableRecord\n100\nAcDbLayerTableRecord\n  2\nView\n 70\n    0\n 62\n    7\n  6\nCONTINUOUS\n  0\nLAYER\n  5\nA33\n330\nA30\n100\nAcDbSymbolTableRecord\n100\nAcDbLayerTableRecord\n  2\nComplexSection\n 70\n    0\n 62\n    7\n  6\nCONTINUOUS\n  0\nENDTAB\n  0\nTABLE\n  2\nSTYLE\n  5\n70\n330\n0\n100\nAcDbSymbolTable\n 70\n     2\n  0\nSTYLE\n  5\n71\n330\n70\n100\nAcDbSymbolTableRecord\n100\nAcDbTextStyleTableRecord\n  2\nSTANDARD\n 70\n     0\n 40\n0.0\n 41\n1.0\n 50\n0.0\n 71\n     0\n 42\n2.5\n  3\narial.ttf\n  4\n\n  0\nSTYLE\n  5\n72\n330\n70\n100\nAcDbSymbolTableRecord\n100\nAcDbTextStyleTableRecord\n  2\nANNOTATIVE\n 70\n     0\n 40\n0.0\n 41\n1.0\n 50\n0.0\n 71\n     0\n 42\n2.5\n  3\narial.ttf\n  4\n\n  0\nENDTAB\n  0\nTABLE\n  2\nVIEW\n  5\n73\n330\n0\n100\nAcDbSymbolTable\n 70\n     0\n  0\nENDTAB\n  0\nTABLE\n  2\nUCS\n  5\n74\n330\n0\n100\nAcDbSymbolTable\n 70\n     0\n  0\nENDTAB\n  0\nTABLE\n  2\nAPPID\n  5\n75\n330\n0\n100\nAcDbSymbolTable\n 70\n     2\n  0\nAPPID\n  5\n76\n330\n75\n100\nAcDbSymbolTableRecord\n100\nAcDbRegAppTableRecord\n  2\nACAD\n 70\n     0\n  0\nAPPID\n  5\n77\n330\n75\n100\nAcDbSymbolTableRecord\n100\nAcDbRegAppTableRecord\n  2\nACADANNOTATIVE\n 70\n     0\n  0\nENDTAB\n  0\nTABLE\n  2\nDIMSTYLE\n  5\n78\n330\n0\n100\nAcDbSymbolTable\n 70\n     2\n  0\nDIMSTYLE\n105\n79\n330\n78\n100\nAcDbSymbolTableRecord\n100\nAcDbDimStyleTableRecord\n  2\nSTANDARD\n 70\n     0\n  3\n\n  4\n\n  5\n\n  6\n\n  7\n\n 40\n0.0\n 41\n2.5\n 42\n0.625\n 43\n3.75\n 44\n1.25\n 45\n0.0\n 46\n0.0\n 47\n0.0\n 48\n0.0\n140\n2.5\n141\n2.5\n142\n0.0\n143\n0.03937007874016\n144\n1.0\n145\n0.0\n146\n1.0\n147\n0.625\n 71\n     0\n 72\n     0\n 73\n     0\n 74\n     0\n 75\n     0\n 76\n     0\n 77\n     1\n 78\n     8\n170\n     0\n171\n     3\n172\n     1\n173\n     0\n174\n     0\n175\n     0\n176\n     0\n177\n     0\n178\n     0\n270\n     2\n271\n     2\n272\n     2\n273\n     2\n274\n     3\n340\n71\n275\n     0\n280\n     0\n281\n     0\n282\n     0\n283\n     0\n284\n     8\n285\n     0\n286\n     0\n287\n     3\n288\n     0\n  0\nENDTAB\n  0\nTABLE\n  2\nBLOCK_RECORD\n  5\nA01\n330\n0\n100\nAcDbSymbolTable\n  70\n5\n  0\nBLOCK_RECORD\n  5\nA02\n330\nA01\n100\nAcDbSymbolTableRecord\n100\nAcDbBlockTableRecord\n  2\n*MODEL_SPACE\n  0\nBLOCK_RECORD\n  5\nA03\n330\nA01\n100\nAcDbSymbolTableRecord\n100\nAcDbBlockTableRecord\n  2\n*PAPER_SPACE\n  0\nENDTAB\n  0\nENDSEC\n  0\nSECTION\n  2\nBLOCKS\n  0\nBLOCK\n  5\nA04\n330\nA02\n100\nAcDbEntity\n  8\n0\n100\nAcDbBlockBegin\n  2\n*MODEL_SPACE\n 70\n   0\n 10\n0\n 20\n0\n 30\n0\n  3\n*MODEL_SPACE\n  1\n \n  0\nENDBLK\n  5\nA05\n330\nA02\n100\nAcDbEntity\n  8\n0\n100\nAcDbBlockEnd\n  0\nBLOCK\n  5\nA06\n330\nA03\n100\nAcDbEntity\n 67\n1\n  8\n0\n100\nAcDbBlockBegin\n  2\n*PAPER_SPACE\n 70\n   0\n 10\n0\n 20\n0\n 30\n0\n  3\n*PAPER_SPACE\n  1\n \n  0\nENDBLK\n  5\nA07\n330\nA03\n100\nAcDbEntity\n 67\n    1\n  8\n0\n100\nAcDbBlockEnd\n  0\nENDSEC\n  0\nSECTION\n  2\nENTITIES\n  0\nLINE\n  5\nA08\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbLine\n 10\n151.000000000\n 20\n85.000000000\n 30\n0.000000000\n 11\n181.000000000\n 21\n85.000000000\n 31\n0.000000000\n  0\nLINE\n  5\nA09\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbLine\n 10\n136.000000000\n 20\n85.000000000\n 30\n0.000000000\n 11\n141.000000000\n 21\n85.000000000\n 31\n0.000000000\n  0\nSPLINE\n  5\nA0A\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbSpline\n210\n0\n220\n0\n230\n1\n 70\n8\n 71\n1\n 72\n17\n 73\n15\n 74\n0\n 40\n0.000000000\n 40\n0.000000000\n 40\n0.224399475\n 40\n0.448798951\n 40\n0.673198426\n 40\n0.897597901\n 40\n1.121997376\n 40\n1.346396852\n 40\n1.570796327\n 40\n1.795195802\n 40\n2.019595277\n 40\n2.243994753\n 40\n2.468394228\n 40\n2.692793703\n 40\n2.917193178\n 40\n3.141592654\n 40\n3.141592654\n 10\n151.000000000\n 20\n85.000000000\n 30\n0.000000000\n 10\n150.874639561\n 20\n85.000000000\n 30\n0.000000000\n 10\n150.504844340\n 20\n85.000000000\n 30\n0.000000000\n 10\n149.909157412\n 20\n85.000000000\n 30\n0.000000000\n 10\n149.117449009\n 20\n85.000000000\n 30\n0.000000000\n 10\n148.169418696\n 20\n85.000000000\n 30\n0.000000000\n 10\n147.112604670\n 20\n85.000000000\n 30\n0.000000000\n 10\n146.000000000\n 20\n85.000000000\n 30\n0.000000000\n 10\n144.887395330\n 20\n85.000000000\n 30\n0.000000000\n 10\n143.830581304\n 20\n85.000000000\n 30\n0.000000000\n 10\n142.882550991\n 20\n85.000000000\n 30\n0.000000000\n 10\n142.090842588\n 20\n85.000000000\n 30\n0.000000000\n 10\n141.495155660\n 20\n85.000000000\n 30\n0.000000000\n 10\n141.125360439\n 20\n85.000000000\n 30\n0.000000000\n 10\n141.000000000\n 20\n85.000000000\n 30\n0.000000000\n  0\nLINE\n  5\nA0B\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbLine\n 10\n181.000000000\n 20\n85.000000000\n 30\n0.000000000\n 11\n186.000000000\n 21\n90.000000000\n 31\n0.000000000\n  0\nLINE\n  5\nA0C\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbLine\n 10\n136.000000000\n 20\n85.000000000\n 30\n0.000000000\n 11\n136.000000000\n 21\n91.000000000\n 31\n0.000000000\n  0\nLINE\n  5\nA0D\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbLine\n 10\n186.000000000\n 20\n90.000000000\n 30\n0.000000000\n 11\n186.000000000\n 21\n91.000000000\n 31\n0.000000000\n  0\nLINE\n  5\nA0E\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbLine\n 10\n151.000000000\n 20\n91.000000000\n 30\n0.000000000\n 11\n186.000000000\n 21\n91.000000000\n 31\n0.000000000\n  0\nSPLINE\n  5\nA0F\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbSpline\n210\n0\n220\n0\n230\n1\n 70\n8\n 71\n1\n 72\n17\n 73\n15\n 74\n0\n 40\n0.000000000\n 40\n0.000000000\n 40\n0.224399475\n 40\n0.448798951\n 40\n0.673198426\n 40\n0.897597901\n 40\n1.121997376\n 40\n1.346396852\n 40\n1.570796327\n 40\n1.795195802\n 40\n2.019595277\n 40\n2.243994753\n 40\n2.468394228\n 40\n2.692793703\n 40\n2.917193178\n 40\n3.141592654\n 40\n3.141592654\n 10\n151.000000000\n 20\n91.000000000\n 30\n0.000000000\n 10\n150.874639561\n 20\n91.000000000\n 30\n0.000000000\n 10\n150.504844340\n 20\n91.000000000\n 30\n0.000000000\n 10\n149.909157412\n 20\n91.000000000\n 30\n0.000000000\n 10\n149.117449009\n 20\n91.000000000\n 30\n0.000000000\n 10\n148.169418696\n 20\n91.000000000\n 30\n0.000000000\n 10\n147.112604670\n 20\n91.000000000\n 30\n0.000000000\n 10\n146.000000000\n 20\n91.000000000\n 30\n0.000000000\n 10\n144.887395330\n 20\n91.000000000\n 30\n0.000000000\n 10\n143.830581304\n 20\n91.000000000\n 30\n0.000000000\n 10\n142.882550991\n 20\n91.000000000\n 30\n0.000000000\n 10\n142.090842588\n 20\n91.000000000\n 30\n0.000000000\n 10\n141.495155660\n 20\n91.000000000\n 30\n0.000000000\n 10\n141.125360439\n 20\n91.000000000\n 30\n0.000000000\n 10\n141.000000000\n 20\n91.000000000\n 30\n0.000000000\n  0\nLINE\n  5\nA10\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbLine\n 10\n136.000000000\n 20\n91.000000000\n 30\n0.000000000\n 11\n141.000000000\n 21\n91.000000000\n 31\n0.000000000\n  0\nLINE\n  5\nA11\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbLine\n 10\n151.000000000\n 20\n85.000000000\n 30\n0.000000000\n 11\n151.000000000\n 21\n91.000000000\n 31\n0.000000000\n  0\nLINE\n  5\nA12\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbLine\n 10\n141.000000000\n 20\n85.000000000\n 30\n0.000000000\n 11\n141.000000000\n 21\n91.000000000\n 31\n0.000000000\n  0\nLINE\n  5\nA13\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbLine\n 10\n111.000000000\n 20\n85.000000000\n 30\n0.000000000\n 11\n111.000000000\n 21\n125.000000000\n 31\n0.000000000\n  0\nLINE\n  5\nA14\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbLine\n 10\n111.000000000\n 20\n85.000000000\n 30\n0.000000000\n 11\n117.000000000\n 21\n85.000000000\n 31\n0.000000000\n  0\nLINE\n  5\nA15\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbLine\n 10\n117.000000000\n 20\n85.000000000\n 30\n0.000000000\n 11\n117.000000000\n 21\n125.000000000\n 31\n0.000000000\n  0\nLINE\n  5\nA16\n330\nA02\n100\nAcDbEntity\n  8\nView\n100\nAcDbLine\n 10\n111.000000000\n 20\n125.000000000\n 30\n0.000000000\n 11\n117.000000000\n 21\n125.000000000\n 31\n0.000000000\n  0\nLINE\n  5\nA17\n330\nA02\n100\nAcDbEntity\n  8\nComplexSection\n100\nAcDbLine\n 10\n118.500000000\n 20\n114.000000000\n 30\n0.000000000\n 11\n118.500000000\n 21\n108.000000000\n 31\n0.000000000\n  0\nSPLINE\n  5\nA18\n330\nA02\n100\nAcDbEntity\n  8\nComplexSection\n100\nAcDbSpline\n210\n0\n220\n0\n230\n1\n 70\n8\n 71\n1\n 72\n17\n 73\n15\n 74\n0\n 40\n0.000000000\n 40\n0.000000000\n 40\n0.112199738\n 40\n0.224399475\n 40\n0.336599213\n 40\n0.448798951\n 40\n0.560998688\n 40\n0.673198426\n 40\n0.785398163\n 40\n0.897597901\n 40\n1.009797639\n 40\n1.121997376\n 40\n1.234197114\n 40\n1.346396852\n 40\n1.458596589\n 40\n1.570796327\n 40\n1.570796327\n 10\n148.500000000\n 20\n108.000000000\n 30\n0.000000000\n 10\n147.940177619\n 20\n108.000000000\n 30\n0.000000000\n 10\n147.387395330\n 20\n108.000000000\n 30\n0.000000000\n 10\n146.848604690\n 20\n108.000000000\n 30\n0.000000000\n 10\n146.330581304\n 20\n108.000000000\n 30\n0.000000000\n 10\n145.839839617\n 20\n108.000000000\n 30\n0.000000000\n 10\n145.382550991\n 20\n108.000000000\n 30\n0.000000000\n 10\n144.964466094\n 20\n108.000000000\n 30\n0.000000000\n 10\n144.590842588\n 20\n108.000000000\n 30\n0.000000000\n 10\n144.266379004\n 20\n108.000000000\n 30\n0.000000000\n 10\n143.995155660\n 20\n108.000000000\n 30\n0.000000000\n 10\n143.780583348\n 20\n108.000000000\n 30\n0.000000000\n 10\n143.625360439\n 20\n108.000000000\n 30\n0.000000000\n 10\n143.531438951\n 20\n108.000000000\n 30\n0.000000000\n 10\n143.500000000\n 20\n108.000000000\n 30\n0.000000000\n  0\nLINE\n  5\nA19\n330\nA02\n100\nAcDbEntity\n  8\nComplexSection\n100\nAcDbLine\n 10\n143.500000000\n 20\n108.000000000\n 30\n0.000000000\n 11\n118.500000000\n 21\n108.000000000\n 31\n0.000000000\n  0\nSPLINE\n  5\nA1A\n330\nA02\n100\nAcDbEntity\n  8\nComplexSection\n100\nAcDbSpline\n210\n0\n220\n0\n230\n1\n 70\n8\n 71\n1\n 72\n17\n 73\n15\n 74\n0\n 40\n0.000000000\n 40\n0.000000000\n 40\n0.112199738\n 40\n0.224399475\n 40\n0.336599213\n 40\n0.448798951\n 40\n0.560998688\n 40\n0.673198426\n 40\n0.785398163\n 40\n0.897597901\n 40\n1.009797639\n 40\n1.121997376\n 40\n1.234197114\n 40\n1.346396852\n 40\n1.458596589\n 40\n1.570796327\n 40\n1.570796327\n 10\n148.500000000\n 20\n114.000000000\n 30\n0.000000000\n 10\n147.940177619\n 20\n114.000000000\n 30\n0.000000000\n 10\n147.387395330\n 20\n114.000000000\n 30\n0.000000000\n 10\n146.848604690\n 20\n114.000000000\n 30\n0.000000000\n 10\n146.330581304\n 20\n114.000000000\n 30\n0.000000000\n 10\n145.839839617\n 20\n114.000000000\n 30\n0.000000000\n 10\n145.382550991\n 20\n114.000000000\n 30\n0.000000000\n 10\n144.964466094\n 20\n114.000000000\n 30\n0.000000000\n 10\n144.590842588\n 20\n114.000000000\n 30\n0.000000000\n 10\n144.266379004\n 20\n114.000000000\n 30\n0.000000000\n 10\n143.995155660\n 20\n114.000000000\n 30\n0.000000000\n 10\n143.780583348\n 20\n114.000000000\n 30\n0.000000000\n 10\n143.625360439\n 20\n114.000000000\n 30\n0.000000000\n 10\n143.531438951\n 20\n114.000000000\n 30\n0.000000000\n 10\n143.500000000\n 20\n114.000000000\n 30\n0.000000000\n  0\nLINE\n  5\nA1B\n330\nA02\n100\nAcDbEntity\n  8\nComplexSection\n100\nAcDbLine\n 10\n143.500000000\n 20\n114.000000000\n 30\n0.000000000\n 11\n118.500000000\n 21\n114.000000000\n 31\n0.000000000\n  0\nLINE\n  5\nA1C\n330\nA02\n100\nAcDbEntity\n  8\nComplexSection\n100\nAcDbLine\n 10\n143.500000000\n 20\n108.000000000\n 30\n0.000000000\n 11\n143.500000000\n 21\n114.000000000\n 31\n0.000000000\n  0\nLINE\n  5\nA1D\n330\nA02\n100\nAcDbEntity\n  8\nComplexSection\n100\nAcDbLine\n 10\n148.500000000\n 20\n108.000000000\n 30\n0.000000000\n 11\n148.500000000\n 21\n114.000000000\n 31\n0.000000000\n  0\nLINE\n  5\nA1E\n330\nA02\n100\nAcDbEntity\n  8\nComplexSection\n100\nAcDbLine\n 10\n163.500000000\n 20\n135.000000000\n 30\n0.000000000\n 11\n163.500000000\n 21\n148.000000000\n 31\n0.000000000\n  0\nLINE\n  5\nA1F\n330\nA02\n100\nAcDbEntity\n  8\nComplexSection\n100\nAcDbLine\n 10\n133.500000000\n 20\n148.000000000\n 30\n0.000000000\n 11\n163.500000000\n 21\n148.000000000\n 31\n0.000000000\n  0\nLINE\n  5\nA20\n330\nA02\n100\nAcDbEntity\n  8\nComplexSection\n100\nAcDbLine\n 10\n133.500000000\n 20\n135.000000000\n 30\n0.000000000\n 11\n133.500000000\n 21\n148.000000000\n 31\n0.000000000\n  0\nLINE\n  5\nA21\n330\nA02\n100\nAcDbEntity\n  8\nComplexSection\n100\nAcDbLine\n 10\n152.500000000\n 20\n135.000000000\n 30\n0.000000000\n 11\n163.500000000\n 21\n135.000000000\n 31\n0.000000000\n  0\nARC\n  5\nA22\n330\nA02\n100\nAcDbEntity\n  8\nComplexSection\n100\nAcDbCircle\n 10\n148.500000000\n 20\n135.000000000\n 30\n0.000000000\n 40\n4.000000000\n100\nAcDbArc\n 50\n0.000000000\n 51\n180.000000000\n  0\nLINE\n  5\nA23\n330\nA02\n100\nAcDbEntity\n  8\nComplexSection\n100\nAcDbLine\n 10\n133.500000000\n 20\n135.000000000\n 30\n0.000000000\n 11\n144.500000000\n 21\n135.000000000\n 31\n0.000000000\n  0\nLINE\n  5\nA24\n330\nA02\n100\nAcDbEntity\n  8\nComplexSection\n100\nAcDbLine\n 10\n118.500000000\n 20\n114.000000000\n 30\n0.000000000\n 11\n118.500000000\n 21\n108.000000000\n 31\n0.000000000\n  0\nSPLINE\n  5\nA25\n330\nA02\n100\nAcDbEntity\n  8\nComplexSection\n100\nAcDbSpline\n210\n0\n220\n0\n230\n1\n 70\n8\n 71\n1\n 72\n17\n 73\n15\n 74\n0\n 40\n0.000000000\n 40\n0.000000000\n 40\n0.112199738\n 40\n0.224399475\n 40\n0.336599213\n 40\n0.448798951\n 40\n0.560998688\n 40\n0.673198426\n 40\n0.785398163\n 40\n0.897597901\n 40\n1.009797639\n 40\n1.121997376\n 40\n1.234197114\n 40\n1.346396852\n 40\n1.458596589\n 40\n1.570796327\n 40\n1.570796327\n 10\n148.500000000\n 20\n108.000000000\n 30\n0.000000000\n 10\n147.940177619\n 20\n108.000000000\n 30\n0.000000000\n 10\n147.387395330\n 20\n108.000000000\n 30\n0.000000000\n 10\n146.848604690\n 20\n108.000000000\n 30\n0.000000000\n 10\n146.330581304\n 20\n108.000000000\n 30\n0.000000000\n 10\n145.839839617\n 20\n108.000000000\n 30\n0.000000000\n 10\n145.382550991\n 20\n108.000000000\n 30\n0.000000000\n 10\n144.964466094\n 20\n108.000000000\n 30\n0.000000000\n 10\n144.590842588\n 20\n108.000000000\n 30\n0.000000000\n 10\n144.266379004\n 20\n108.000000000\n 30\n0.000000000\n 10\n143.995155660\n 20\n108.000000000\n 30\n0.000000000\n 10\n143.780583348\n 20\n108.000000000\n 30\n0.000000000\n 10\n143.625360439\n 20\n108.000000000\n 30\n0.000000000\n 10\n143.531438951\n 20\n108.000000000\n 30\n0.000000000\n 10\n143.500000000\n 20\n108.000000000\n 30\n0.000000000\n  0\nLINE\n  5\nA26\n330\nA02\n100\nAcDbEntity\n  8\nComplexSection\n100\nAcDbLine\n 10\n143.500000000\n 20\n108.000000000\n 30\n0.000000000\n 11\n118.500000000\n 21\n108.000000000\n 31\n0.000000000\n  0\nSPLINE\n  5\nA27\n330\nA02\n100\nAcDbEntity\n  8\nComplexSection\n100\nAcDbSpline\n210\n0\n220\n0\n230\n1\n 70\n8\n 71\n1\n 72\n17\n 73\n15\n 74\n0\n 40\n0.000000000\n 40\n0.000000000\n 40\n0.112199738\n 40\n0.224399475\n 40\n0.336599213\n 40\n0.448798951\n 40\n0.560998688\n 40\n0.673198426\n 40\n0.785398163\n 40\n0.897597901\n 40\n1.009797639\n 40\n1.121997376\n 40\n1.234197114\n 40\n1.346396852\n 40\n1.458596589\n 40\n1.570796327\n 40\n1.570796327\n 10\n148.500000000\n 20\n114.000000000\n 30\n0.000000000\n 10\n147.940177619\n 20\n114.000000000\n 30\n0.000000000\n 10\n147.387395330\n 20\n114.000000000\n 30\n0.000000000\n 10\n146.848604690\n 20\n114.000000000\n 30\n0.000000000\n 10\n146.330581304\n 20\n114.000000000\n 30\n0.000000000\n 10\n145.839839617\n 20\n114.000000000\n 30\n0.000000000\n 10\n145.382550991\n 20\n114.000000000\n 30\n0.000000000\n 10\n144.964466094\n 20\n114.000000000\n 30\n0.000000000\n 10\n144.590842588\n 20\n114.000000000\n 30\n0.000000000\n 10\n144.266379004\n 20\n114.000000000\n 30\n0.000000000\n 10\n143.995155660\n 20\n114.000000000\n 30\n0.000000000\n 10\n143.780583348\n 20\n114.000000000\n 30\n0.000000000\n 10\n143.625360439\n 20\n114.000000000\n 30\n0.000000000\n 10\n143.531438951\n 20\n114.000000000\n 30\n0.000000000\n 10\n143.500000000\n 20\n114.000000000\n 30\n0.000000000\n  0\nLINE\n  5\nA28\n330\nA02\n100\nAcDbEntity\n  8\nComplexSection\n100\nAcDbLine\n 10\n143.500000000\n 20\n114.000000000\n 30\n0.000000000\n 11\n118.500000000\n 21\n114.000000000\n 31\n0.000000000\n  0\nLINE\n  5\nA29\n330\nA02\n100\nAcDbEntity\n  8\nComplexSection\n100\nAcDbLine\n 10\n143.500000000\n 20\n108.000000000\n 30\n0.000000000\n 11\n143.500000000\n 21\n114.000000000\n 31\n0.000000000\n  0\nLINE\n  5\nA2A\n330\nA02\n100\nAcDbEntity\n  8\nComplexSection\n100\nAcDbLine\n 10\n163.500000000\n 20\n135.000000000\n 30\n0.000000000\n 11\n163.500000000\n 21\n148.000000000\n 31\n0.000000000\n  0\nLINE\n  5\nA2B\n330\nA02\n100\nAcDbEntity\n  8\nComplexSection\n100\nAcDbLine\n 10\n133.500000000\n 20\n148.000000000\n 30\n0.000000000\n 11\n163.500000000\n 21\n148.000000000\n 31\n0.000000000\n  0\nLINE\n  5\nA2C\n330\nA02\n100\nAcDbEntity\n  8\nComplexSection\n100\nAcDbLine\n 10\n133.500000000\n 20\n135.000000000\n 30\n0.000000000\n 11\n133.500000000\n 21\n148.000000000\n 31\n0.000000000\n  0\nLINE\n  5\nA2D\n330\nA02\n100\nAcDbEntity\n  8\nComplexSection\n100\nAcDbLine\n 10\n152.500000000\n 20\n135.000000000\n 30\n0.000000000\n 11\n163.500000000\n 21\n135.000000000\n 31\n0.000000000\n  0\nARC\n  5\nA2E\n330\nA02\n100\nAcDbEntity\n  8\nComplexSection\n100\nAcDbCircle\n 10\n148.500000000\n 20\n135.000000000\n 30\n0.000000000\n 40\n4.000000000\n100\nAcDbArc\n 50\n0.000000000\n 51\n180.000000000\n  0\nLINE\n  5\nA2F\n330\nA02\n100\nAcDbEntity\n  8\nComplexSection\n100\nAcDbLine\n 10\n133.500000000\n 20\n135.000000000\n 30\n0.000000000\n 11\n144.500000000\n 21\n135.000000000\n 31\n0.000000000\n  0\nENDSEC\n  0\nSECTION\n  2\nOBJECTS\n  0\nDICTIONARY\n  5\nF000\n330\n0\n100\nAcDbDictionary\n  3\nACAD_GROUP\n350\nF001\n  0\nDICTIONARY\n  5\nF001\n330\nF000\n100\nAcDbDictionary\n  0\nENDSEC\n  0\nEOF"
   }
  }
 }

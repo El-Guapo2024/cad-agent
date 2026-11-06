@@ -2230,6 +2230,314 @@
   ],
   "template": null
  },
+ "plate_complex_section": {
+  "objects": [
+   {
+    "name": "Page",
+    "kind": "DrawPage",
+    "type_id": "TechDraw::DrawPage",
+    "template": "Template",
+    "projection_type": "First angle",
+    "scale": 1.0,
+    "keep_updated": true,
+    "next_balloon_index": 1,
+    "label": null
+   },
+   {
+    "name": "Template",
+    "kind": "DrawSVGTemplate",
+    "type_id": "TechDraw::DrawSVGTemplate",
+    "template": "Default_Template_A4_Landscape.svg",
+    "editable_texts": {},
+    "label": null
+   },
+   {
+    "name": "View",
+    "kind": "DrawProjGroupItem",
+    "type_id": "TechDraw::DrawProjGroupItem",
+    "x": 148.5,
+    "y": 105.0,
+    "lock_position": false,
+    "rotation": 0.0,
+    "scale_type": "Page",
+    "scale": 1.0,
+    "caption": "",
+    "label": null,
+    "source": [
+     "plate"
+    ],
+    "direction": [
+     0.0,
+     0.0,
+     1.0
+    ],
+    "x_direction": [
+     1.0,
+     0.0,
+     0.0
+    ],
+    "perspective": false,
+    "focus": 100.0,
+    "coarse_view": false,
+    "smooth_visible": true,
+    "seam_visible": false,
+    "iso_visible": false,
+    "hard_hidden": false,
+    "smooth_hidden": false,
+    "seam_hidden": false,
+    "iso_hidden": false,
+    "iso_count": 0,
+    "scrub_count": 1,
+    "cosmetic_edges": [],
+    "center_lines": [],
+    "cosmetic_vertexes": [],
+    "geom_formats": [],
+    "show_all_edges": false,
+    "item_type": "Front"
+   },
+   {
+    "name": "ComplexSection",
+    "kind": "DrawComplexSection",
+    "type_id": "TechDraw::DrawComplexSection",
+    "x": 148.5,
+    "y": 105.0,
+    "lock_position": false,
+    "rotation": 0.0,
+    "scale_type": "Page",
+    "scale": 1.0,
+    "caption": "SECTION <REF> - <REF>",
+    "label": "Section",
+    "source": [
+     "plate"
+    ],
+    "direction": [
+     1.1102230246251565e-16,
+     -1.0,
+     0.0
+    ],
+    "x_direction": [
+     1.0,
+     0.0,
+     -0.0
+    ],
+    "perspective": false,
+    "focus": 100.0,
+    "coarse_view": false,
+    "smooth_visible": true,
+    "seam_visible": false,
+    "iso_visible": false,
+    "hard_hidden": false,
+    "smooth_hidden": false,
+    "seam_hidden": false,
+    "iso_hidden": false,
+    "iso_count": 0,
+    "scrub_count": 1,
+    "cosmetic_edges": [],
+    "center_lines": [],
+    "cosmetic_vertexes": [],
+    "geom_formats": [],
+    "show_all_edges": false,
+    "base_view": "View",
+    "section_symbol": "A",
+    "section_normal": [
+     1.1102230246251565e-16,
+     -1.0,
+     0.0
+    ],
+    "section_origin": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "section_direction": "Aligned",
+    "fuse_before_cut": false,
+    "trim_after_cut": false,
+    "use_previous_cut": false,
+    "cut_surface_display": "SvgHatch",
+    "hatch_scale": 1.0,
+    "hatch_rotation": 0.0,
+    "section_line_stretch": 1.0,
+    "cutting_tool_wire_object": [
+     [
+      -25.0,
+      -5.0,
+      5.0
+     ],
+     [
+      0.0,
+      -5.0,
+      5.0
+     ],
+     [
+      0.0,
+      8.0,
+      5.0
+     ],
+     [
+      25.0,
+      8.0,
+      5.0
+     ]
+    ],
+    "projection_strategy": "Offset"
+   }
+  ],
+  "template": null
+ },
+ "bracket_complex_section": {
+  "objects": [
+   {
+    "name": "Page",
+    "kind": "DrawPage",
+    "type_id": "TechDraw::DrawPage",
+    "template": "Template",
+    "projection_type": "First angle",
+    "scale": 1.0,
+    "keep_updated": true,
+    "next_balloon_index": 1,
+    "label": null
+   },
+   {
+    "name": "Template",
+    "kind": "DrawSVGTemplate",
+    "type_id": "TechDraw::DrawSVGTemplate",
+    "template": "Default_Template_A4_Landscape.svg",
+    "editable_texts": {},
+    "label": null
+   },
+   {
+    "name": "View",
+    "kind": "DrawProjGroupItem",
+    "type_id": "TechDraw::DrawProjGroupItem",
+    "x": 148.5,
+    "y": 105.0,
+    "lock_position": false,
+    "rotation": 0.0,
+    "scale_type": "Page",
+    "scale": 1.0,
+    "caption": "",
+    "label": null,
+    "source": [
+     "bracket"
+    ],
+    "direction": [
+     0.0,
+     -1.0,
+     0.0
+    ],
+    "x_direction": [
+     1.0,
+     0.0,
+     0.0
+    ],
+    "perspective": false,
+    "focus": 100.0,
+    "coarse_view": false,
+    "smooth_visible": true,
+    "seam_visible": false,
+    "iso_visible": false,
+    "hard_hidden": false,
+    "smooth_hidden": false,
+    "seam_hidden": false,
+    "iso_hidden": false,
+    "iso_count": 0,
+    "scrub_count": 1,
+    "cosmetic_edges": [],
+    "center_lines": [],
+    "cosmetic_vertexes": [],
+    "geom_formats": [],
+    "show_all_edges": false,
+    "item_type": "Front"
+   },
+   {
+    "name": "ComplexSection",
+    "kind": "DrawComplexSection",
+    "type_id": "TechDraw::DrawComplexSection",
+    "x": 148.5,
+    "y": 105.0,
+    "lock_position": false,
+    "rotation": -90.0,
+    "scale_type": "Page",
+    "scale": 1.0,
+    "caption": "SECTION <REF> - <REF>",
+    "label": "Section",
+    "source": [
+     "bracket"
+    ],
+    "direction": [
+     -1.0,
+     0.0,
+     -1.2246467991473532e-16
+    ],
+    "x_direction": [
+     1.2246467991473532e-16,
+     -0.0,
+     -1.0
+    ],
+    "perspective": false,
+    "focus": 100.0,
+    "coarse_view": false,
+    "smooth_visible": true,
+    "seam_visible": false,
+    "iso_visible": false,
+    "hard_hidden": false,
+    "smooth_hidden": false,
+    "seam_hidden": false,
+    "iso_hidden": false,
+    "iso_count": 0,
+    "scrub_count": 1,
+    "cosmetic_edges": [],
+    "center_lines": [],
+    "cosmetic_vertexes": [],
+    "geom_formats": [],
+    "show_all_edges": false,
+    "base_view": "View",
+    "section_symbol": "B",
+    "section_normal": [
+     -1.0,
+     0.0,
+     -1.2246467991473532e-16
+    ],
+    "section_origin": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "section_direction": "Aligned",
+    "fuse_before_cut": false,
+    "trim_after_cut": false,
+    "use_previous_cut": false,
+    "cut_surface_display": "SvgHatch",
+    "hatch_scale": 1.0,
+    "hatch_rotation": 0.0,
+    "section_line_stretch": 1.0,
+    "cutting_tool_wire_object": [
+     [
+      -22.0,
+      -20.0,
+      50.0
+     ],
+     [
+      -22.0,
+      -20.0,
+      30.0
+     ],
+     [
+      10.0,
+      -20.0,
+      30.0
+     ],
+     [
+      10.0,
+      -20.0,
+      -5.0
+     ]
+    ],
+    "projection_strategy": "Offset"
+   }
+  ],
+  "template": null
+ },
  "rod_broken": {
   "objects": [
    {

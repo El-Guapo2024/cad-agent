@@ -1687,6 +1687,12 @@ src/Mod/TechDraw/Gui/TaskCenterLine.cpp   [licence: LGPL-2.1-or-later]
 src/Mod/TechDraw/Gui/TaskCenterLine.ui   [licence: none]
     copyright: no line in the file
     followed by src/techdraw_annot.tsx, src/uiforms-techdraw.ts
+src/Mod/TechDraw/Gui/TaskComplexSection.cpp   [licence: LGPL-2.1-or-later]
+    copyright 2022 WandererFan
+    followed by src/techdraw_tasks.tsx
+src/Mod/TechDraw/Gui/TaskComplexSection.ui   [licence: none]
+    copyright: no line in the file
+    followed by src/techdraw_tasks.tsx, src/uiforms-techdraw.ts
 src/Mod/TechDraw/Gui/TaskCosVertex.cpp   [licence: LGPL-2.1-or-later]
     copyright 2019 WandererFan
     followed by src/techdraw_annot.tsx
