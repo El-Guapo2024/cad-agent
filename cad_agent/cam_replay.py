@@ -121,7 +121,13 @@ class Replayer:
         else:
             kind = C.KINDS[e.kind]
             mod = importlib.import_module(kind.module)
-            if kind.op:
+            if kind.recipe == "snippet":
+                # Op/Gui/Comment.py, Stop.py: addObject, the proxy class, PathUtils.addToJob (the job the file names)
+                import PathScripts.PathUtils as PathUtils
+                obj = doc.addObject("Path::FeaturePython", C.DEFAULT_NAMES[e.kind])
+                getattr(mod, e.kind)(obj)
+                PathUtils.addToJob(obj, job.Name)
+            elif kind.op:
                 # Op/Gui/Base.py Create: res.objFactory(res.name, obj=None, parentJob=res.job)
                 obj = mod.Create(C.DEFAULT_NAMES[e.kind], obj=None, parentJob=job)
             else:

@@ -1206,8 +1206,8 @@ the real GUI by fccam.py: 640 ok, 35 known, 0 FAIL).
 Known differences:
 - Commands not run here are greyed with the reason: Work Plane, Sanity Check, Post Process Selected, Export Template, both
   simulators (simulation is cut), Inspect, Finish Selecting Loop, the tool bit library and dock (`cad cam tool` adds a
-  bit), Vcarve (FreeCAD's C++ Voronoi), Surface and Waterline (opencamlib), Comment, Stop, the copy and array commands and
-  the property bag. CAM_MillFace (Face), on no menu in 3160daf1e2b6, runs from the console as in FreeCAD.
+  bit), Vcarve (FreeCAD's C++ Voronoi), Surface and Waterline (opencamlib), the copy and array commands and the property bag;
+  Comment and Stop are made (2026-11-06) and edited in the property view. CAM_MillFace (Face), on no menu in 3160daf1e2b6, runs from the console as in FreeCAD.
 - FreeCAD's Path::Area joins wires in the order of its edges' memory addresses (WireJoiner's std::set<EdgeInfo*>), so the
   same job comes out of FreeCAD one of two ways from run to run in three of the four golden cases (a profile starting at
   another corner or going the other way round). make.py keeps each outcome FreeCAD gave (12 runs each); the app's paths and

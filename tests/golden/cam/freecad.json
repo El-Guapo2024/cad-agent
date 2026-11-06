@@ -6776,6 +6776,857 @@
    }
   ]
  },
+ "comment_stop": {
+  "errors": [],
+  "objects": [
+   [
+    "plate",
+    "Part::Feature",
+    "plate"
+   ],
+   [
+    "Job",
+    "Path::FeaturePython",
+    "Job"
+   ],
+   [
+    "Operations",
+    "App::DocumentObjectGroup",
+    "Operations"
+   ],
+   [
+    "Workplanes",
+    "App::DocumentObjectGroup",
+    "Workplanes"
+   ],
+   [
+    "SetupSheet",
+    "App::FeaturePython",
+    "SetupSheet"
+   ],
+   [
+    "Model",
+    "App::DocumentObjectGroup",
+    "Model"
+   ],
+   [
+    "Clone",
+    "Part::FeaturePython",
+    "Model-plate"
+   ],
+   [
+    "Tools",
+    "App::DocumentObjectGroup",
+    "Tools"
+   ],
+   [
+    "TC__5mm_Endmill",
+    "Path::FeaturePython",
+    "TC: 5mm Endmill"
+   ],
+   [
+    "Endmill",
+    "Part::FeaturePython",
+    "Endmill"
+   ],
+   [
+    "XZ_Plane",
+    "App::Plane",
+    "XZ_Plane"
+   ],
+   [
+    "PropertyBag",
+    "App::FeaturePython",
+    "Attributes"
+   ],
+   [
+    "Sketch",
+    "Sketcher::SketchObject",
+    "Sketch"
+   ],
+   [
+    "Revolution",
+    "PartDesign::Revolution",
+    "Revolution"
+   ],
+   [
+    "X_Axis",
+    "App::Line",
+    "X_Axis"
+   ],
+   [
+    "Y_Axis",
+    "App::Line",
+    "Y_Axis"
+   ],
+   [
+    "Z_Axis",
+    "App::Line",
+    "Z_Axis"
+   ],
+   [
+    "XY_Plane",
+    "App::Plane",
+    "XY_Plane"
+   ],
+   [
+    "YZ_Plane",
+    "App::Plane",
+    "YZ_Plane"
+   ],
+   [
+    "Origin001",
+    "App::Point",
+    "Origin"
+   ],
+   [
+    "Origin",
+    "App::Origin",
+    "Origin001"
+   ],
+   [
+    "Body",
+    "PartDesign::Body",
+    "Endmill001"
+   ],
+   [
+    "Stock",
+    "Part::FeaturePython",
+    "Stock"
+   ],
+   [
+    "Profile",
+    "Path::FeaturePython",
+    "Profile"
+   ],
+   [
+    "Comment",
+    "Path::FeaturePython",
+    "Comment"
+   ],
+   [
+    "Stop",
+    "Path::FeaturePython",
+    "Stop"
+   ]
+  ],
+  "outcomes": [
+   {
+    "paths": {
+     "Comment": [
+      [
+       "(change the tool)",
+       {}
+      ]
+     ],
+     "Job": [],
+     "Profile": [
+      [
+       "(Profile)",
+       {}
+      ],
+      [
+       "(Compensated Tool Path. Diameter: 5.0)",
+       {}
+      ],
+      [
+       "G0",
+       {
+        "Z": 16.0
+       }
+      ],
+      [
+       "G0",
+       {
+        "X": 0.0,
+        "Y": -22.5
+       }
+      ],
+      [
+       "G0",
+       {
+        "Z": 14.0
+       }
+      ],
+      [
+       "G1",
+       {
+        "F": 0.0,
+        "X": 0.0,
+        "Y": -22.5,
+        "Z": 6.0
+       }
+      ],
+      [
+       "G1",
+       {
+        "X": -30.0,
+        "Y": -22.5,
+        "Z": 6.0
+       }
+      ],
+      [
+       "G2",
+       {
+        "I": 0.0,
+        "J": 2.5,
+        "K": 0.0,
+        "X": -32.5,
+        "Y": -20.0,
+        "Z": 6.0
+       }
+      ],
+      [
+       "G1",
+       {
+        "X": -32.5,
+        "Y": 20.0,
+        "Z": 6.0
+       }
+      ],
+      [
+       "G2",
+       {
+        "I": 2.5,
+        "J": 0.0,
+        "K": 0.0,
+        "X": -30.0,
+        "Y": 22.5,
+        "Z": 6.0
+       }
+      ],
+      [
+       "G1",
+       {
+        "X": 30.0,
+        "Y": 22.5,
+        "Z": 6.0
+       }
+      ],
+      [
+       "G2",
+       {
+        "I": 0.0,
+        "J": -2.5,
+        "K": 0.0,
+        "X": 32.5,
+        "Y": 20.0,
+        "Z": 6.0
+       }
+      ],
+      [
+       "G1",
+       {
+        "X": 32.5,
+        "Y": -20.0,
+        "Z": 6.0
+       }
+      ],
+      [
+       "G2",
+       {
+        "I": -2.5,
+        "J": 0.0,
+        "K": 0.0,
+        "X": 30.0,
+        "Y": -22.5,
+        "Z": 6.0
+       }
+      ],
+      [
+       "G1",
+       {
+        "X": 0.0,
+        "Y": -22.5,
+        "Z": 6.0
+       }
+      ],
+      [
+       "G1",
+       {
+        "F": 0.0,
+        "X": 0.0,
+        "Y": -22.5,
+        "Z": 1.0
+       }
+      ],
+      [
+       "G1",
+       {
+        "X": -30.0,
+        "Y": -22.5,
+        "Z": 1.0
+       }
+      ],
+      [
+       "G2",
+       {
+        "I": 0.0,
+        "J": 2.5,
+        "K": 0.0,
+        "X": -32.5,
+        "Y": -20.0,
+        "Z": 1.0
+       }
+      ],
+      [
+       "G1",
+       {
+        "X": -32.5,
+        "Y": 20.0,
+        "Z": 1.0
+       }
+      ],
+      [
+       "G2",
+       {
+        "I": 2.5,
+        "J": 0.0,
+        "K": 0.0,
+        "X": -30.0,
+        "Y": 22.5,
+        "Z": 1.0
+       }
+      ],
+      [
+       "G1",
+       {
+        "X": 30.0,
+        "Y": 22.5,
+        "Z": 1.0
+       }
+      ],
+      [
+       "G2",
+       {
+        "I": 0.0,
+        "J": -2.5,
+        "K": 0.0,
+        "X": 32.5,
+        "Y": 20.0,
+        "Z": 1.0
+       }
+      ],
+      [
+       "G1",
+       {
+        "X": 32.5,
+        "Y": -20.0,
+        "Z": 1.0
+       }
+      ],
+      [
+       "G2",
+       {
+        "I": -2.5,
+        "J": 0.0,
+        "K": 0.0,
+        "X": 30.0,
+        "Y": -22.5,
+        "Z": 1.0
+       }
+      ],
+      [
+       "G1",
+       {
+        "X": 0.0,
+        "Y": -22.5,
+        "Z": 1.0
+       }
+      ],
+      [
+       "G1",
+       {
+        "F": 0.0,
+        "X": 0.0,
+        "Y": -22.5,
+        "Z": -0.9999990000000007
+       }
+      ],
+      [
+       "G1",
+       {
+        "X": -30.0,
+        "Y": -22.5,
+        "Z": -0.999999
+       }
+      ],
+      [
+       "G2",
+       {
+        "I": 0.0,
+        "J": 2.5,
+        "K": 0.0,
+        "X": -32.5,
+        "Y": -20.0,
+        "Z": -0.999999
+       }
+      ],
+      [
+       "G1",
+       {
+        "X": -32.5,
+        "Y": 20.0,
+        "Z": -0.999999
+       }
+      ],
+      [
+       "G2",
+       {
+        "I": 2.5,
+        "J": 0.0,
+        "K": 0.0,
+        "X": -30.0,
+        "Y": 22.5,
+        "Z": -0.999999
+       }
+      ],
+      [
+       "G1",
+       {
+        "X": 30.0,
+        "Y": 22.5,
+        "Z": -0.999999
+       }
+      ],
+      [
+       "G2",
+       {
+        "I": 0.0,
+        "J": -2.5,
+        "K": 0.0,
+        "X": 32.5,
+        "Y": 20.0,
+        "Z": -0.999999
+       }
+      ],
+      [
+       "G1",
+       {
+        "X": 32.5,
+        "Y": -20.0,
+        "Z": -0.999999
+       }
+      ],
+      [
+       "G2",
+       {
+        "I": -2.5,
+        "J": 0.0,
+        "K": 0.0,
+        "X": 30.0,
+        "Y": -22.5,
+        "Z": -0.999999
+       }
+      ],
+      [
+       "G1",
+       {
+        "X": 0.0,
+        "Y": -22.5,
+        "Z": -0.999999
+       }
+      ],
+      [
+       "G0",
+       {
+        "Z": 16.0
+       }
+      ]
+     ],
+     "Stop": [
+      [
+       "M0",
+       {}
+      ]
+     ],
+     "TC__5mm_Endmill": [
+      [
+       "(TC: 5mm Endmill)",
+       {}
+      ],
+      [
+       "M6",
+       {
+        "T": 1.0
+       }
+      ]
+     ]
+    },
+    "posts": {
+     "Job/grbl": [
+      [
+       "allitems",
+       "(Exported by FreeCAD)\n(Post Processor: grbl_post)\n(Cam File: )\n(Output Time: 2026-11-06 01:20:50.621311)\n(Begin preamble)\nG17 G90\nG21\n(Begin operation: Fixture)\n(Path: Fixture)\nG54\n(Finish operation: Fixture)\n(Begin operation: TC: 5mm Endmill)\n(Path: TC: 5mm Endmill)\n(TC: 5mm Endmill)\n(Begin toolchange)\n(M6 T1)\n(Finish operation: TC: 5mm Endmill)\n(Begin operation: Profile)\n(Path: Profile)\n(Profile)\n(Compensated Tool Path. Diameter: 5.0)\nG0 Z16.000\nG0 X0.000 Y-22.500\nG0 Z14.000\nG1 X0.000 Y-22.500 Z6.000\nG1 X-30.000 Y-22.500 Z6.000\nG2 X-32.500 Y-20.000 Z6.000 I0.000 J2.500\nG1 X-32.500 Y20.000 Z6.000\nG2 X-30.000 Y22.500 Z6.000 I2.500 J0.000\nG1 X30.000 Y22.500 Z6.000\nG2 X32.500 Y20.000 Z6.000 I0.000 J-2.500\nG1 X32.500 Y-20.000 Z6.000\nG2 X30.000 Y-22.500 Z6.000 I-2.500 J0.000\nG1 X0.000 Y-22.500 Z6.000\nG1 X0.000 Y-22.500 Z1.000\nG1 X-30.000 Y-22.500 Z1.000\nG2 X-32.500 Y-20.000 Z1.000 I0.000 J2.500\nG1 X-32.500 Y20.000 Z1.000\nG2 X-30.000 Y22.500 Z1.000 I2.500 J0.000\nG1 X30.000 Y22.500 Z1.000\nG2 X32.500 Y20.000 Z1.000 I0.000 J-2.500\nG1 X32.500 Y-20.000 Z1.000\nG2 X30.000 Y-22.500 Z1.000 I-2.500 J0.000\nG1 X0.000 Y-22.500 Z1.000\nG1 X0.000 Y-22.500 Z-1.000\nG1 X-30.000 Y-22.500 Z-1.000\nG2 X-32.500 Y-20.000 Z-1.000 I0.000 J2.500\nG1 X-32.500 Y20.000 Z-1.000\nG2 X-30.000 Y22.500 Z-1.000 I2.500 J0.000\nG1 X30.000 Y22.500 Z-1.000\nG2 X32.500 Y20.000 Z-1.000 I0.000 J-2.500\nG1 X32.500 Y-20.000 Z-1.000\nG2 X30.000 Y-22.500 Z-1.000 I-2.500 J0.000\nG1 X0.000 Y-22.500 Z-1.000\nG0 Z16.000\n(Finish operation: Profile)\n(Begin operation: Comment)\n(Path: Comment)\n(change the tool)\n(Finish operation: Comment)\n(Begin operation: Stop)\n(Path: Stop)\nM0\n(Finish operation: Stop)\n(Begin postamble)\nM5\nG17 G90\nM2\n"
+      ]
+     ],
+     "Job/linuxcnc": [
+      [
+       "allitems",
+       "(Exported by FreeCAD)\n(Post Processor: linuxcnc_post)\n(Cam File: )\n(Output Time: 2026-11-06 01:20:50.619370)\n(Begin preamble)\nG90\nG21\n(Begin operation: Fixture)\n(Machine units: mm/min)\nG54\n(Finish operation: Fixture)\n(Begin operation: TC: 5mm Endmill)\n(Machine units: mm/min)\n(TC: 5mm Endmill)\n(Begin toolchange)\nM5\nM6 T1\nG43 H1\n(Finish operation: TC: 5mm Endmill)\n(Begin operation: Profile)\n(Machine units: mm/min)\n(Profile)\n(Compensated Tool Path. Diameter: 5.0)\nG0 Z16.000\nG0 X0.000 Y-22.500\nG0 Z14.000\nG1 X0.000 Y-22.500 Z6.000\nG1 X-30.000 Y-22.500 Z6.000\nG2 X-32.500 Y-20.000 Z6.000 I0.000 J2.500\nG1 X-32.500 Y20.000 Z6.000\nG2 X-30.000 Y22.500 Z6.000 I2.500 J0.000\nG1 X30.000 Y22.500 Z6.000\nG2 X32.500 Y20.000 Z6.000 I0.000 J-2.500\nG1 X32.500 Y-20.000 Z6.000\nG2 X30.000 Y-22.500 Z6.000 I-2.500 J0.000\nG1 X0.000 Y-22.500 Z6.000\nG1 X0.000 Y-22.500 Z1.000\nG1 X-30.000 Y-22.500 Z1.000\nG2 X-32.500 Y-20.000 Z1.000 I0.000 J2.500\nG1 X-32.500 Y20.000 Z1.000\nG2 X-30.000 Y22.500 Z1.000 I2.500 J0.000\nG1 X30.000 Y22.500 Z1.000\nG2 X32.500 Y20.000 Z1.000 I0.000 J-2.500\nG1 X32.500 Y-20.000 Z1.000\nG2 X30.000 Y-22.500 Z1.000 I-2.500 J0.000\nG1 X0.000 Y-22.500 Z1.000\nG1 X0.000 Y-22.500 Z-1.000\nG1 X-30.000 Y-22.500 Z-1.000\nG2 X-32.500 Y-20.000 Z-1.000 I0.000 J2.500\nG1 X-32.500 Y20.000 Z-1.000\nG2 X-30.000 Y22.500 Z-1.000 I2.500 J0.000\nG1 X30.000 Y22.500 Z-1.000\nG2 X32.500 Y20.000 Z-1.000 I0.000 J-2.500\nG1 X32.500 Y-20.000 Z-1.000\nG2 X30.000 Y-22.500 Z-1.000 I-2.500 J0.000\nG1 X0.000 Y-22.500 Z-1.000\nG0 Z16.000\n(Finish operation: Profile)\n(Begin operation: Comment)\n(Machine units: mm/min)\n(change the tool)\n(Finish operation: Comment)\n(Begin operation: Stop)\n(Machine units: mm/min)\nM0\n(Finish operation: Stop)\n(Begin postamble)\n"
+      ]
+     ]
+    }
+   },
+   {
+    "paths": {
+     "Comment": [
+      [
+       "(change the tool)",
+       {}
+      ]
+     ],
+     "Job": [],
+     "Profile": [
+      [
+       "(Profile)",
+       {}
+      ],
+      [
+       "(Compensated Tool Path. Diameter: 5.0)",
+       {}
+      ],
+      [
+       "G0",
+       {
+        "Z": 16.0
+       }
+      ],
+      [
+       "G0",
+       {
+        "X": 0.0,
+        "Y": 22.5
+       }
+      ],
+      [
+       "G0",
+       {
+        "Z": 14.0
+       }
+      ],
+      [
+       "G1",
+       {
+        "F": 0.0,
+        "X": 0.0,
+        "Y": 22.5,
+        "Z": 6.0
+       }
+      ],
+      [
+       "G1",
+       {
+        "X": 30.0,
+        "Y": 22.5,
+        "Z": 6.0
+       }
+      ],
+      [
+       "G2",
+       {
+        "I": 0.0,
+        "J": -2.5,
+        "K": 0.0,
+        "X": 32.5,
+        "Y": 20.0,
+        "Z": 6.0
+       }
+      ],
+      [
+       "G1",
+       {
+        "X": 32.5,
+        "Y": -20.0,
+        "Z": 6.0
+       }
+      ],
+      [
+       "G2",
+       {
+        "I": -2.5,
+        "J": 0.0,
+        "K": 0.0,
+        "X": 30.0,
+        "Y": -22.5,
+        "Z": 6.0
+       }
+      ],
+      [
+       "G1",
+       {
+        "X": -30.0,
+        "Y": -22.5,
+        "Z": 6.0
+       }
+      ],
+      [
+       "G2",
+       {
+        "I": 0.0,
+        "J": 2.5,
+        "K": 0.0,
+        "X": -32.5,
+        "Y": -20.0,
+        "Z": 6.0
+       }
+      ],
+      [
+       "G1",
+       {
+        "X": -32.5,
+        "Y": 20.0,
+        "Z": 6.0
+       }
+      ],
+      [
+       "G2",
+       {
+        "I": 2.5,
+        "J": 0.0,
+        "K": 0.0,
+        "X": -30.0,
+        "Y": 22.5,
+        "Z": 6.0
+       }
+      ],
+      [
+       "G1",
+       {
+        "X": 0.0,
+        "Y": 22.5,
+        "Z": 6.0
+       }
+      ],
+      [
+       "G1",
+       {
+        "F": 0.0,
+        "X": 0.0,
+        "Y": 22.5,
+        "Z": 1.0
+       }
+      ],
+      [
+       "G1",
+       {
+        "X": 30.0,
+        "Y": 22.5,
+        "Z": 1.0
+       }
+      ],
+      [
+       "G2",
+       {
+        "I": 0.0,
+        "J": -2.5,
+        "K": 0.0,
+        "X": 32.5,
+        "Y": 20.0,
+        "Z": 1.0
+       }
+      ],
+      [
+       "G1",
+       {
+        "X": 32.5,
+        "Y": -20.0,
+        "Z": 1.0
+       }
+      ],
+      [
+       "G2",
+       {
+        "I": -2.5,
+        "J": 0.0,
+        "K": 0.0,
+        "X": 30.0,
+        "Y": -22.5,
+        "Z": 1.0
+       }
+      ],
+      [
+       "G1",
+       {
+        "X": -30.0,
+        "Y": -22.5,
+        "Z": 1.0
+       }
+      ],
+      [
+       "G2",
+       {
+        "I": 0.0,
+        "J": 2.5,
+        "K": 0.0,
+        "X": -32.5,
+        "Y": -20.0,
+        "Z": 1.0
+       }
+      ],
+      [
+       "G1",
+       {
+        "X": -32.5,
+        "Y": 20.0,
+        "Z": 1.0
+       }
+      ],
+      [
+       "G2",
+       {
+        "I": 2.5,
+        "J": 0.0,
+        "K": 0.0,
+        "X": -30.0,
+        "Y": 22.5,
+        "Z": 1.0
+       }
+      ],
+      [
+       "G1",
+       {
+        "X": 0.0,
+        "Y": 22.5,
+        "Z": 1.0
+       }
+      ],
+      [
+       "G1",
+       {
+        "F": 0.0,
+        "X": 0.0,
+        "Y": 22.5,
+        "Z": -0.9999990000000007
+       }
+      ],
+      [
+       "G1",
+       {
+        "X": 30.0,
+        "Y": 22.5,
+        "Z": -0.999999
+       }
+      ],
+      [
+       "G2",
+       {
+        "I": 0.0,
+        "J": -2.5,
+        "K": 0.0,
+        "X": 32.5,
+        "Y": 20.0,
+        "Z": -0.999999
+       }
+      ],
+      [
+       "G1",
+       {
+        "X": 32.5,
+        "Y": -20.0,
+        "Z": -0.999999
+       }
+      ],
+      [
+       "G2",
+       {
+        "I": -2.5,
+        "J": 0.0,
+        "K": 0.0,
+        "X": 30.0,
+        "Y": -22.5,
+        "Z": -0.999999
+       }
+      ],
+      [
+       "G1",
+       {
+        "X": -30.0,
+        "Y": -22.5,
+        "Z": -0.999999
+       }
+      ],
+      [
+       "G2",
+       {
+        "I": 0.0,
+        "J": 2.5,
+        "K": 0.0,
+        "X": -32.5,
+        "Y": -20.0,
+        "Z": -0.999999
+       }
+      ],
+      [
+       "G1",
+       {
+        "X": -32.5,
+        "Y": 20.0,
+        "Z": -0.999999
+       }
+      ],
+      [
+       "G2",
+       {
+        "I": 2.5,
+        "J": 0.0,
+        "K": 0.0,
+        "X": -30.0,
+        "Y": 22.5,
+        "Z": -0.999999
+       }
+      ],
+      [
+       "G1",
+       {
+        "X": 0.0,
+        "Y": 22.5,
+        "Z": -0.999999
+       }
+      ],
+      [
+       "G0",
+       {
+        "Z": 16.0
+       }
+      ]
+     ],
+     "Stop": [
+      [
+       "M0",
+       {}
+      ]
+     ],
+     "TC__5mm_Endmill": [
+      [
+       "(TC: 5mm Endmill)",
+       {}
+      ],
+      [
+       "M6",
+       {
+        "T": 1.0
+       }
+      ]
+     ]
+    },
+    "posts": {
+     "Job/grbl": [
+      [
+       "allitems",
+       "(Exported by FreeCAD)\n(Post Processor: grbl_post)\n(Cam File: )\n(Output Time: 2026-11-06 01:21:06.267439)\n(Begin preamble)\nG17 G90\nG21\n(Begin operation: Fixture)\n(Path: Fixture)\nG54\n(Finish operation: Fixture)\n(Begin operation: TC: 5mm Endmill)\n(Path: TC: 5mm Endmill)\n(TC: 5mm Endmill)\n(Begin toolchange)\n(M6 T1)\n(Finish operation: TC: 5mm Endmill)\n(Begin operation: Profile)\n(Path: Profile)\n(Profile)\n(Compensated Tool Path. Diameter: 5.0)\nG0 Z16.000\nG0 X0.000 Y22.500\nG0 Z14.000\nG1 X0.000 Y22.500 Z6.000\nG1 X30.000 Y22.500 Z6.000\nG2 X32.500 Y20.000 Z6.000 I0.000 J-2.500\nG1 X32.500 Y-20.000 Z6.000\nG2 X30.000 Y-22.500 Z6.000 I-2.500 J0.000\nG1 X-30.000 Y-22.500 Z6.000\nG2 X-32.500 Y-20.000 Z6.000 I0.000 J2.500\nG1 X-32.500 Y20.000 Z6.000\nG2 X-30.000 Y22.500 Z6.000 I2.500 J0.000\nG1 X0.000 Y22.500 Z6.000\nG1 X0.000 Y22.500 Z1.000\nG1 X30.000 Y22.500 Z1.000\nG2 X32.500 Y20.000 Z1.000 I0.000 J-2.500\nG1 X32.500 Y-20.000 Z1.000\nG2 X30.000 Y-22.500 Z1.000 I-2.500 J0.000\nG1 X-30.000 Y-22.500 Z1.000\nG2 X-32.500 Y-20.000 Z1.000 I0.000 J2.500\nG1 X-32.500 Y20.000 Z1.000\nG2 X-30.000 Y22.500 Z1.000 I2.500 J0.000\nG1 X0.000 Y22.500 Z1.000\nG1 X0.000 Y22.500 Z-1.000\nG1 X30.000 Y22.500 Z-1.000\nG2 X32.500 Y20.000 Z-1.000 I0.000 J-2.500\nG1 X32.500 Y-20.000 Z-1.000\nG2 X30.000 Y-22.500 Z-1.000 I-2.500 J0.000\nG1 X-30.000 Y-22.500 Z-1.000\nG2 X-32.500 Y-20.000 Z-1.000 I0.000 J2.500\nG1 X-32.500 Y20.000 Z-1.000\nG2 X-30.000 Y22.500 Z-1.000 I2.500 J0.000\nG1 X0.000 Y22.500 Z-1.000\nG0 Z16.000\n(Finish operation: Profile)\n(Begin operation: Comment)\n(Path: Comment)\n(change the tool)\n(Finish operation: Comment)\n(Begin operation: Stop)\n(Path: Stop)\nM0\n(Finish operation: Stop)\n(Begin postamble)\nM5\nG17 G90\nM2\n"
+      ]
+     ],
+     "Job/linuxcnc": [
+      [
+       "allitems",
+       "(Exported by FreeCAD)\n(Post Processor: linuxcnc_post)\n(Cam File: )\n(Output Time: 2026-11-06 01:21:06.265575)\n(Begin preamble)\nG90\nG21\n(Begin operation: Fixture)\n(Machine units: mm/min)\nG54\n(Finish operation: Fixture)\n(Begin operation: TC: 5mm Endmill)\n(Machine units: mm/min)\n(TC: 5mm Endmill)\n(Begin toolchange)\nM5\nM6 T1\nG43 H1\n(Finish operation: TC: 5mm Endmill)\n(Begin operation: Profile)\n(Machine units: mm/min)\n(Profile)\n(Compensated Tool Path. Diameter: 5.0)\nG0 Z16.000\nG0 X0.000 Y22.500\nG0 Z14.000\nG1 X0.000 Y22.500 Z6.000\nG1 X30.000 Y22.500 Z6.000\nG2 X32.500 Y20.000 Z6.000 I0.000 J-2.500\nG1 X32.500 Y-20.000 Z6.000\nG2 X30.000 Y-22.500 Z6.000 I-2.500 J0.000\nG1 X-30.000 Y-22.500 Z6.000\nG2 X-32.500 Y-20.000 Z6.000 I0.000 J2.500\nG1 X-32.500 Y20.000 Z6.000\nG2 X-30.000 Y22.500 Z6.000 I2.500 J0.000\nG1 X0.000 Y22.500 Z6.000\nG1 X0.000 Y22.500 Z1.000\nG1 X30.000 Y22.500 Z1.000\nG2 X32.500 Y20.000 Z1.000 I0.000 J-2.500\nG1 X32.500 Y-20.000 Z1.000\nG2 X30.000 Y-22.500 Z1.000 I-2.500 J0.000\nG1 X-30.000 Y-22.500 Z1.000\nG2 X-32.500 Y-20.000 Z1.000 I0.000 J2.500\nG1 X-32.500 Y20.000 Z1.000\nG2 X-30.000 Y22.500 Z1.000 I2.500 J0.000\nG1 X0.000 Y22.500 Z1.000\nG1 X0.000 Y22.500 Z-1.000\nG1 X30.000 Y22.500 Z-1.000\nG2 X32.500 Y20.000 Z-1.000 I0.000 J-2.500\nG1 X32.500 Y-20.000 Z-1.000\nG2 X30.000 Y-22.500 Z-1.000 I-2.500 J0.000\nG1 X-30.000 Y-22.500 Z-1.000\nG2 X-32.500 Y-20.000 Z-1.000 I0.000 J2.500\nG1 X-32.500 Y20.000 Z-1.000\nG2 X-30.000 Y22.500 Z-1.000 I2.500 J0.000\nG1 X0.000 Y22.500 Z-1.000\nG0 Z16.000\n(Finish operation: Profile)\n(Begin operation: Comment)\n(Machine units: mm/min)\n(change the tool)\n(Finish operation: Comment)\n(Begin operation: Stop)\n(Machine units: mm/min)\nM0\n(Finish operation: Stop)\n(Begin postamble)\n"
+      ]
+     ]
+    }
+   }
+  ]
+ },
  "custom_probe": {
   "errors": [],
   "objects": [

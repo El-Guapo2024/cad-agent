@@ -743,7 +743,25 @@ src/Mod/CAM/Gui/Resources/panels/PageBaseLocationEdit.ui   [licence: none]
 src/Mod/CAM/Gui/Resources/panels/PageHeightsEdit.ui   [licence: none]
     copyright: no line in the file
     followed by src/cam_tasks.tsx, src/uiforms-cam.ts
+src/Mod/CAM/Gui/Resources/panels/PageOpAdaptiveEdit.ui   [licence: none]
+    copyright: no line in the file
+    followed by src/cam_tasks.tsx, src/uiforms-cam.ts
+src/Mod/CAM/Gui/Resources/panels/PageOpCustomEdit.ui   [licence: none]
+    copyright: no line in the file
+    followed by src/cam_tasks.tsx, src/uiforms-cam.ts
+src/Mod/CAM/Gui/Resources/panels/PageOpDeburrEdit.ui   [licence: none]
+    copyright: no line in the file
+    followed by src/cam_tasks.tsx, src/uiforms-cam.ts
 src/Mod/CAM/Gui/Resources/panels/PageOpDrillingEdit.ui   [licence: none]
+    copyright: no line in the file
+    followed by src/cam_tasks.tsx, src/uiforms-cam.ts
+src/Mod/CAM/Gui/Resources/panels/PageOpEngraveEdit.ui   [licence: none]
+    copyright: no line in the file
+    followed by src/cam_tasks.tsx, src/uiforms-cam.ts
+src/Mod/CAM/Gui/Resources/panels/PageOpHelixEdit.ui   [licence: none]
+    copyright: no line in the file
+    followed by src/cam_tasks.tsx, src/uiforms-cam.ts
+src/Mod/CAM/Gui/Resources/panels/PageOpMillFacingEdit.ui   [licence: none]
     copyright: no line in the file
     followed by src/cam_tasks.tsx, src/uiforms-cam.ts
 src/Mod/CAM/Gui/Resources/panels/PageOpPocketExtEdit.ui   [licence: none]
@@ -752,7 +770,19 @@ src/Mod/CAM/Gui/Resources/panels/PageOpPocketExtEdit.ui   [licence: none]
 src/Mod/CAM/Gui/Resources/panels/PageOpPocketFullEdit.ui   [licence: none]
     copyright: no line in the file
     followed by src/cam_tasks.tsx, src/uiforms-cam.ts
+src/Mod/CAM/Gui/Resources/panels/PageOpProbeEdit.ui   [licence: none]
+    copyright: no line in the file
+    followed by src/cam_tasks.tsx, src/uiforms-cam.ts
 src/Mod/CAM/Gui/Resources/panels/PageOpProfileFullEdit.ui   [licence: none]
+    copyright: no line in the file
+    followed by src/cam_tasks.tsx, src/uiforms-cam.ts
+src/Mod/CAM/Gui/Resources/panels/PageOpSlotEdit.ui   [licence: none]
+    copyright: no line in the file
+    followed by src/cam_tasks.tsx, src/uiforms-cam.ts
+src/Mod/CAM/Gui/Resources/panels/PageOpTappingEdit.ui   [licence: none]
+    copyright: no line in the file
+    followed by src/cam_tasks.tsx, src/uiforms-cam.ts
+src/Mod/CAM/Gui/Resources/panels/PageOpThreadMillingEdit.ui   [licence: none]
     copyright: no line in the file
     followed by src/cam_tasks.tsx, src/uiforms-cam.ts
 src/Mod/CAM/Gui/Resources/panels/PageToolControllerEdit.ui   [licence: none]

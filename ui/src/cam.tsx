@@ -79,7 +79,7 @@ export const numOf = (o: CamObj | undefined, name: string): number => {
   return typeof v === 'number' ? v : Number(v?.value ?? 0)
 }
 const OPS = ['Profile', 'PocketShape', 'MillFace', 'Drilling', 'Helix', 'Engrave', 'Slot', 'Deburr', 'ThreadMilling', 'Tapping', 'Pocket3D',
-  'MillFacing', 'Adaptive', 'Custom', 'Probe']
+  'MillFacing', 'Adaptive', 'Custom', 'Probe', 'Comment', 'Stop']
 const DRESSUPS = ['DressupTag', 'DressupDogbone', 'DressupLeadInOut', 'DressupRampEntry', 'DressupBoundary', 'DressupBoundary2',
   'DressupArray', 'DressupDragknife', 'DressupMirror', 'DressupPlungeMilling', 'DressupZCorrect', 'DressupAxisMap']
 export const isOp = (o: CamObj | undefined) => !!o && (OPS.includes(o.kind ?? '') || DRESSUPS.includes(o.kind ?? ''))
@@ -179,10 +179,10 @@ export function targetJob(): string | null {
   for (const r of st.sel) return jobOfRef(r)
   return st.jobs.length === 1 ? st.jobs[0] : st.jobs[0] ?? null
 }
-async function newOp(kind: string, transaction: string) {
+async function newOp(kind: string, transaction: string, takesBase = true) {
   const job = targetJob()
   if (!job) return
-  const base = kind === 'Profile' && !partSelection().some(([, s]) => s.length) ? null : partSelection().filter(([, s]) => s.length)
+  const base = !takesBase || (kind === 'Profile' && !partSelection().some(([, s]) => s.length)) ? null : partSelection().filter(([, s]) => s.length)
   const before = new Set(st.docs[job]?.result?.objects.map((o) => o.name) ?? [])
   const doc = await applyCam(job, [{ op: 'op', type: kind, ...(base && base.length ? { base } : {}) }], transaction)
   const made = doc?.result?.objects.find((o) => o.kind === kind && !before.has(o.name))
@@ -243,8 +243,8 @@ export const CAM_CMDS: Record<string, Cmd> = {
   CAM_DressupRampEntry: { text: 'Ramp Entry', tip: 'Creates a ramp entry dress-up object from a selected toolpath', icon: 'cam-CAM_Dressup', active: () => !!dressupBase(), run: () => newDressup('DressupRampEntry', 'Create RampEntry Dressup') },
   CAM_DressupTag: { text: 'Tag', tip: 'Creates a tag dress-up object from a selected toolpath', icon: 'cam-CAM_Dressup', active: () => !!dressupBase(), run: () => newDressup('DressupTag', 'Create a Tag dressup') },
   CAM_DressupZCorrect: { text: 'Z Depth Correction', tip: 'Corrects Z depth using a probe map', icon: 'cam-CAM_Dressup', active: () => !!dressupBase(), run: () => newDressup('DressupZCorrect', 'Create Dress-up') },
-  CAM_Comment: na('Comment', 'Adds a Comment to the CNC program', 'cam-CAM_Comment', NOT_HERE('Comment')),
-  CAM_Stop: na('Stop', 'Adds an optional or mandatory stop to the program', 'cam-CAM_Stop', NOT_HERE('Stop')),
+  CAM_Comment: { text: 'Comment', tip: 'Adds a Comment to the CNC program', icon: 'cam-CAM_Comment', active: haveJob, run: () => newOp('Comment', 'Create a Comment in the CNC program', false) },
+  CAM_Stop: { text: 'Stop', tip: 'Adds an optional or mandatory stop to the program', icon: 'cam-CAM_Stop', active: haveJob, run: () => newOp('Stop', 'Add Optional or Mandatory Stop to the program', false) },
   CAM_Custom: { text: 'Custom', tip: 'Create custom G-code snippet', icon: 'cam-CAM_Custom', active: haveJob, run: () => newOp('Custom', 'Create Custom') },
   CAM_Probe: { text: 'Probe', tip: 'Create a Probing Grid from a job stock', icon: 'cam-CAM_Probe', active: haveJob, run: () => newOp('Probe', 'Create Probe') },
   CAM_OperationCopy: na('Copy Operation', 'Copies the operation in the job', 'cam-CAM_OpCopy', NOT_HERE('Copy Operation')),

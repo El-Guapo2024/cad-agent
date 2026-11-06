@@ -107,7 +107,7 @@ class CamDocument:
                "file": self.job_of.get(o.Name), "props": props, "valid": o.isValid(),
                "status": o.getStatusString() if not o.isValid() else None}
         proxy = getattr(o, "Proxy", None)
-        if k in C.OPS:
+        if k in C.OPS and hasattr(proxy, "opFeatures"):          # Comment and Stop are no PathOp
             # what the op's task panel shows (Path/Op/Gui/Base.py TaskPanel: a page per feature) and the combo boxes'
             # texts (PathGuiUtil.populateCombobox over the op's property enumerations, "raw": (text, value))
             out["features"] = int(proxy.opFeatures(o))

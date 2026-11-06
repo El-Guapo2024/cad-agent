@@ -78,6 +78,11 @@ KINDS = {
                        "Create a Tag dressup", "CAM_Dressup", dressup=True),
     "DressupDogbone": Kind("DressupDogbone", "Path::FeaturePython", "Path.Dressup.DogboneII", "CAM_DressupDogbone",
                            "Dogbone", "Create Dogbone Dress-up", "CAM_Dressup", dressup=True),
+    # Path/Op/Gui/Comment.py and Stop.py: the command's snippet makes the object and adds it to the job
+    "Comment": Kind("Comment", "Path::FeaturePython", "Path.Op.Gui.Comment", "CAM_Comment", "Comment",
+                    "Create a Comment in the CNC program", "CAM_Comment", op=True, recipe="snippet"),
+    "Stop": Kind("Stop", "Path::FeaturePython", "Path.Op.Gui.Stop", "CAM_Stop", "Stop",
+                 "Add Optional or Mandatory Stop to the program", "CAM_Stop", op=True, recipe="snippet"),
     # the dress-ups added 2026-11-06: Path/Dressup/Gui/<Name>.py's command (its id, MenuText, transaction, object name)
     "DressupLeadInOut": Kind("DressupLeadInOut", "Path::FeaturePython", "Path.Dressup.Gui.LeadInOut",
                               "CAM_DressupLeadInOut", "Lead In/Out", "Create LeadInOut Dressup",
@@ -119,6 +124,7 @@ DEFAULT_NAMES = {"Job": "Job", "Profile": "Profile", "PocketShape": "Pocket_Shap
                  "Helix": "Helix", "Engrave": "Engrave", "Slot": "Slot", "Deburr": "Deburr",
                  "ThreadMilling": "ThreadMilling", "Tapping": "Tapping", "Pocket3D": "Pocket3D",
                  "MillFacing": "MillFacing", "Adaptive": "Adaptive", "Custom": "Custom", "Probe": "Probe",
+                 "Comment": "Comment", "Stop": "Stop",
                  "DressupLeadInOut": "DressupLeadInOut", "DressupRampEntry": "DressupRampEntry",
                  "DressupBoundary": "DressupPathBoundary", "DressupBoundary2": "DressupPathBoundary2",
                  "DressupArray": "DressupPathArray", "DressupDragknife": "DragknifeDressup",
@@ -208,6 +214,8 @@ DressupMirror = _maker("DressupMirror")
 DressupPlungeMilling = _maker("DressupPlungeMilling")
 DressupZCorrect = _maker("DressupZCorrect")
 DressupAxisMap = _maker("DressupAxisMap")
+Comment = _maker("Comment")
+Stop = _maker("Stop")
 DressupTag = _maker("DressupTag")
 DressupDogbone = _maker("DressupDogbone")
 

@@ -177,4 +177,8 @@ CASES = {
         ("Job", "Job", {"Model": ["plate"]}), *DEFAULT_TC, ("Profile", "Profile", {}),
         ("DressupAxisMap", "AxisMapDressup", {"Base": "Profile"}),
     ]}, "posts": [("linuxcnc", "")]},
+    "comment_stop": {"parts": ["plate"], "jobs": {"Job": [
+        ("Job", "Job", {"Model": ["plate"]}), *DEFAULT_TC, ("Profile", "Profile", {}),
+        ("Comment", "Comment", {"Comment": "change the tool"}), ("Stop", "Stop", {"Stop": "Mandatory"}),
+    ]}, "posts": [("linuxcnc", ""), ("grbl", "")]},
 }
