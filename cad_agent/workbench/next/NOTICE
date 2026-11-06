@@ -1092,6 +1092,18 @@ src/Mod/Part/Gui/ViewProviderGridExtension.cpp   [licence: LGPL-2.1-or-later]
 src/Mod/Part/Gui/ViewProviderMirror.cpp   [licence: LGPL-2.1-or-later]
     copyright 2010 Werner Mayer
     followed by src/part_wb.tsx
+src/Mod/Draft/InitGui.py   [licence: LGPL-2.1-or-later]
+    copyright 2009 Yorik van Havre
+    followed by src/draft_wb.tsx
+
+src/Mod/Draft/draftutils/init_tools.py   [licence: LGPL-2.1-or-later]
+    copyright 2020 Eliud Cabrera Castillo, 2021 FreeCAD Developers
+    followed by src/draft_wb.tsx, src/draft_cmds.ts
+
+src/Mod/Draft/draftguitools/gui_*.py   [licence: LGPL-2.1-or-later]
+    copyright 2009-2025 Yorik van Havre, Ken Cline, Eliud Cabrera Castillo, Carlo Pavan, the FreeCAD Project Association and others
+    followed by src/draft_wb.tsx, src/draft_cmds.ts
+
 src/Mod/Part/Gui/Workbench.cpp   [licence: LGPL-2.1-or-later]
     copyright 2005 Werner Mayer
     followed by src/part_wb.tsx
