@@ -1016,7 +1016,12 @@ class Document:
             if not names:
                 raise X.ExprError("Invalid property", "ExpressionError")
             v = getattr(o, names[0])
-            return to_x(v), names[1:]
+            names = names[1:]
+            # a link's value is the object: the path goes on through its properties (Profile.ToolController.Tool.Diameter)
+            while names and hasattr(v, "_props") and names[0] in v._props:
+                v = getattr(v, names[0])
+                names = names[1:]
+            return to_x(v), names
 
         env = X.Env(vars_, owner=owner.Name, doc=self.Name, resolve=resolve)
         r = X.evaluate(X.parse(text, frozenset(vars_), owner.Name), env)

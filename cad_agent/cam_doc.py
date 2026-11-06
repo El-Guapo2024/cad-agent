@@ -23,8 +23,8 @@ ICONS = {"Job": "CAM_Job", "Stock": "CAM_Stock", "SetupSheet": "CAM_SetupSheet",
          "ToolController": "CAM_ToolController", "Profile": "CAM_Profile", "PocketShape": "CAM_Pocket",
          "MillFace": "CAM_Face", "Drilling": "CAM_Drilling", "DressupTag": "CAM_Dressup",
          "DressupDogbone": "CAM_Dressup",
-         **{k: C.KINDS[k].icon for k in C.OPS
-            if k not in ("Profile", "PocketShape", "MillFace", "Drilling")}}
+         **{k: C.KINDS[k].icon for k in C.OPS + C.DRESSUPS
+            if k not in ("Profile", "PocketShape", "MillFace", "Drilling", "DressupTag", "DressupDogbone")}}
 GROUP_ICONS = {"Operations": "CAM_OpActive", "Model": "CAM_BaseGeometry", "Tools": "CAM_ToolTable"}
 
 CamBuildError = ReplayError

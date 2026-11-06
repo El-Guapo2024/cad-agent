@@ -30,10 +30,11 @@ class Kind:
     """What an entry is: FreeCAD's TypeId, the module whose Create() makes it, the GUI command and transaction."""
 
     def __init__(self, name, type_id, module=None, command=None, menu=None, transaction=None, icon=None, op=False,
-                 dressup=False):
+                 dressup=False, recipe=None):
         self.name, self.type_id, self.module = name, type_id, module
         self.command, self.menu, self.transaction, self.icon = command, menu, transaction, icon
         self.op, self.dressup = op, dressup
+        self.recipe = recipe          # how a dress-up's command makes it (cam_replay.py), for the Gui-module ones
 
 
 KINDS = {
@@ -77,6 +78,37 @@ KINDS = {
                        "Create a Tag dressup", "CAM_Dressup", dressup=True),
     "DressupDogbone": Kind("DressupDogbone", "Path::FeaturePython", "Path.Dressup.DogboneII", "CAM_DressupDogbone",
                            "Dogbone", "Create Dogbone Dress-up", "CAM_Dressup", dressup=True),
+    # the dress-ups added 2026-11-06: Path/Dressup/Gui/<Name>.py's command (its id, MenuText, transaction, object name)
+    "DressupLeadInOut": Kind("DressupLeadInOut", "Path::FeaturePython", "Path.Dressup.Gui.LeadInOut",
+                              "CAM_DressupLeadInOut", "Lead In/Out", "Create LeadInOut Dressup",
+                              "CAM_Dressup", dressup=True, recipe="gui_setup"),
+    "DressupRampEntry": Kind("DressupRampEntry", "Path::FeaturePython", "Path.Dressup.Gui.RampEntry",
+                              "CAM_DressupRampEntry", "Ramp Entry", "Create RampEntry Dressup",
+                              "CAM_Dressup", dressup=True, recipe="gui_setup"),
+    "DressupBoundary": Kind("DressupBoundary", "Path::FeaturePython", "Path.Dressup.Boundary",
+                             "CAM_DressupPathBoundary", "Boundary", "Create Path Boundary Dress-up",
+                             "CAM_Dressup", dressup=True, recipe="app"),
+    "DressupBoundary2": Kind("DressupBoundary2", "Path::FeaturePython", "Path.Dressup.Gui.Boundary2",
+                              "CAM_DressupPathBoundary2", "Boundary2", "Create Path Boundary Dress-up",
+                              "CAM_Dressup", dressup=True, recipe="gui"),
+    "DressupArray": Kind("DressupArray", "Path::FeaturePython", "Path.Dressup.Array",
+                          "CAM_DressupArray", "Array", "Create Path Array Dress-up",
+                          "CAM_Dressup", dressup=True, recipe="app"),
+    "DressupDragknife": Kind("DressupDragknife", "Path::FeaturePython", "Path.Dressup.Gui.Dragknife",
+                              "CAM_DressupDragKnife", "Drag Knife", "Create Dress-up",
+                              "CAM_Dressup", dressup=True, recipe="dragknife"),
+    "DressupMirror": Kind("DressupMirror", "Path::FeaturePython", "Path.Dressup.Gui.Mirror",
+                           "CAM_DressupMirror", "Mirror", "Create Dress-up",
+                           "CAM_Dressup", dressup=True, recipe="gui"),
+    "DressupPlungeMilling": Kind("DressupPlungeMilling", "Path::FeaturePython", "Path.Dressup.Gui.PlungeMilling",
+                                  "CAM_DressupPlungeMilling", "Plunge Milling", "Create PlungeMilling Dressup",
+                                  "CAM_Dressup", dressup=True, recipe="gui"),
+    "DressupZCorrect": Kind("DressupZCorrect", "Path::FeaturePython", "Path.Dressup.Gui.ZCorrect",
+                             "CAM_DressupZCorrect", "Z Depth Correction", "Create Dress-up",
+                             "CAM_Dressup", dressup=True, recipe="zcorrect"),
+    "DressupAxisMap": Kind("DressupAxisMap", "Path::FeaturePython", "Path.Dressup.Gui.AxisMap",
+                            "CAM_DressupAxisMap", "Axis Map", "Create Dress-up",
+                            "CAM_Dressup", dressup=True, recipe="axismap"),
 }
 OPS = tuple(k for k, v in KINDS.items() if v.op)
 DRESSUPS = tuple(k for k, v in KINDS.items() if v.dressup)
@@ -86,7 +118,12 @@ DEFAULT_NAMES = {"Job": "Job", "Profile": "Profile", "PocketShape": "Pocket_Shap
                  "DressupDogbone": "DressupDogbone",
                  "Helix": "Helix", "Engrave": "Engrave", "Slot": "Slot", "Deburr": "Deburr",
                  "ThreadMilling": "ThreadMilling", "Tapping": "Tapping", "Pocket3D": "Pocket3D",
-                 "MillFacing": "MillFacing", "Adaptive": "Adaptive", "Custom": "Custom", "Probe": "Probe"}
+                 "MillFacing": "MillFacing", "Adaptive": "Adaptive", "Custom": "Custom", "Probe": "Probe",
+                 "DressupLeadInOut": "DressupLeadInOut", "DressupRampEntry": "DressupRampEntry",
+                 "DressupBoundary": "DressupPathBoundary", "DressupBoundary2": "DressupPathBoundary2",
+                 "DressupArray": "DressupPathArray", "DressupDragknife": "DragknifeDressup",
+                 "DressupMirror": "DressupMirror", "DressupPlungeMilling": "DressupPlungeMilling",
+                 "DressupZCorrect": "ZCorrectDressup", "DressupAxisMap": "AxisMapDressup"}
 
 
 class Entry:
@@ -161,6 +198,16 @@ MillFacing = _maker("MillFacing")
 Adaptive = _maker("Adaptive")
 Custom = _maker("Custom")
 Probe = _maker("Probe")
+DressupLeadInOut = _maker("DressupLeadInOut")
+DressupRampEntry = _maker("DressupRampEntry")
+DressupBoundary = _maker("DressupBoundary")
+DressupBoundary2 = _maker("DressupBoundary2")
+DressupArray = _maker("DressupArray")
+DressupDragknife = _maker("DressupDragknife")
+DressupMirror = _maker("DressupMirror")
+DressupPlungeMilling = _maker("DressupPlungeMilling")
+DressupZCorrect = _maker("DressupZCorrect")
+DressupAxisMap = _maker("DressupAxisMap")
 DressupTag = _maker("DressupTag")
 DressupDogbone = _maker("DressupDogbone")
 

@@ -323,7 +323,7 @@ def add_parsers(add, sub) -> None:
     sp.add_argument("--base", action="append", metavar="PART:Face3,Face4", help="base geometry (repeatable)")
     sp.add_argument("props", nargs="*", metavar="KEY=VALUE")
     sp = one("dressup", cmd_dressup, "CAM_DressupTag / CAM_DressupDogbone on an op")
-    sp.add_argument("type", choices=["DressupTag", "DressupDogbone"])
+    sp.add_argument("type", choices=list(C.DRESSUPS))
     sp.add_argument("op")
     sp.add_argument("props", nargs="*", metavar="KEY=VALUE")
     sp = one("set", cmd_set, "the property view: FreeCAD's property names (KEY=expr:EXPR binds an expression, "

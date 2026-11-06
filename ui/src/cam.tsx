@@ -80,7 +80,8 @@ export const numOf = (o: CamObj | undefined, name: string): number => {
 }
 const OPS = ['Profile', 'PocketShape', 'MillFace', 'Drilling', 'Helix', 'Engrave', 'Slot', 'Deburr', 'ThreadMilling', 'Tapping', 'Pocket3D',
   'MillFacing', 'Adaptive', 'Custom', 'Probe']
-const DRESSUPS = ['DressupTag', 'DressupDogbone']
+const DRESSUPS = ['DressupTag', 'DressupDogbone', 'DressupLeadInOut', 'DressupRampEntry', 'DressupBoundary', 'DressupBoundary2',
+  'DressupArray', 'DressupDragknife', 'DressupMirror', 'DressupPlungeMilling', 'DressupZCorrect', 'DressupAxisMap']
 export const isOp = (o: CamObj | undefined) => !!o && (OPS.includes(o.kind ?? '') || DRESSUPS.includes(o.kind ?? ''))
 
 // ── loading and editing ─────────────────────────────────────────────────────────────────────────────────────────
@@ -230,18 +231,18 @@ export const CAM_CMDS: Record<string, Cmd> = {
   CAM_Deburr: { text: 'Deburr', tip: 'Creates a Deburr toolpath along Edges or around Faces', icon: 'cam-CAM_Deburr', active: haveJob, run: () => newOp('Deburr', 'Create Deburr') },
   CAM_Vcarve: na('Vcarve', 'Creates a medial line engraving toolpath', undefined, NOT_HERE('Vcarve')),
   CAM_Pocket3D: { text: '3D Pocket', tip: 'Creates a 3D Pocket toolpath from a face or faces', icon: 'cam-CAM_3DPocket', active: haveJob, run: () => newOp('Pocket3D', 'Create Pocket3D') },
-  CAM_DressupArray: na('Array', 'Creates an array from a selected toolpath', 'cam-CAM_Dressup', NOT_HERE('the Array dress-up')),
-  CAM_DressupAxisMap: na('Axis Map', 'Remaps one axis to another', 'cam-CAM_Dressup', NOT_HERE('the Axis Map dress-up')),
-  CAM_DressupPathBoundary: na('Boundary', 'Creates a boundary dress-up from a selected toolpath', 'cam-CAM_Dressup', NOT_HERE('the Boundary dress-up')),
-  CAM_DressupPathBoundary2: na('Boundary2', 'Creates a boundary dress-up from a selected toolpath', 'cam-CAM_Dressup', NOT_HERE('the Boundary2 dress-up')),
+  CAM_DressupArray: { text: 'Array', tip: 'Creates an array from a selected toolpath', icon: 'cam-CAM_Dressup', active: () => !!dressupBase(), run: () => newDressup('DressupArray', 'Create Path Array Dress-up') },
+  CAM_DressupAxisMap: { text: 'Axis Map', tip: 'Remaps one axis to another', icon: 'cam-CAM_Dressup', active: () => !!dressupBase(), run: () => newDressup('DressupAxisMap', 'Create Dress-up') },
+  CAM_DressupPathBoundary: { text: 'Boundary', tip: 'Creates a boundary dress-up from a selected toolpath', icon: 'cam-CAM_Dressup', active: () => !!dressupBase(), run: () => newDressup('DressupBoundary', 'Create Path Boundary Dress-up') },
+  CAM_DressupPathBoundary2: { text: 'Boundary2', tip: 'Creates a boundary dress-up from a selected toolpath', icon: 'cam-CAM_Dressup', active: () => !!dressupBase(), run: () => newDressup('DressupBoundary2', 'Create Path Boundary Dress-up') },
   CAM_DressupDogbone: { text: 'Dogbone', tip: 'Creates a dogbone dress-up object from a selected toolpath', icon: 'cam-CAM_Dressup', active: () => !!dressupBase(), run: () => newDressup('DressupDogbone', 'Create Dogbone Dress-up') },
-  CAM_DressupDragKnife: na('Drag Knife', 'Modifies a toolpath to add dragknife corner actions', 'cam-CAM_Dressup', NOT_HERE('the Drag Knife dress-up')),
-  CAM_DressupLeadInOut: na('Lead In/Out', 'Creates entry and exit motions for a selected path', 'cam-CAM_Dressup', NOT_HERE('the Lead In/Out dress-up')),
-  CAM_DressupMirror: na('Mirror', 'Creates mirror of a selected path', 'cam-CAM_Dressup', NOT_HERE('the Mirror dress-up')),
-  CAM_DressupPlungeMilling: na('Plunge Milling', 'Creates plunge milling for a selected path', 'cam-CAM_Dressup', NOT_HERE('the Plunge Milling dress-up')),
-  CAM_DressupRampEntry: na('Ramp Entry', 'Creates a ramp entry dress-up object from a selected toolpath', 'cam-CAM_Dressup', NOT_HERE('the Ramp Entry dress-up')),
+  CAM_DressupDragKnife: { text: 'Drag Knife', tip: 'Modifies a toolpath to add dragknife corner actions', icon: 'cam-CAM_Dressup', active: () => !!dressupBase(), run: () => newDressup('DressupDragknife', 'Create Dress-up') },
+  CAM_DressupLeadInOut: { text: 'Lead In/Out', tip: 'Creates entry and exit motions for a selected path', icon: 'cam-CAM_Dressup', active: () => !!dressupBase(), run: () => newDressup('DressupLeadInOut', 'Create LeadInOut Dressup') },
+  CAM_DressupMirror: { text: 'Mirror', tip: 'Creates mirror of a selected path', icon: 'cam-CAM_Dressup', active: () => !!dressupBase(), run: () => newDressup('DressupMirror', 'Create Dress-up') },
+  CAM_DressupPlungeMilling: { text: 'Plunge Milling', tip: 'Creates plunge milling for a selected path', icon: 'cam-CAM_Dressup', active: () => !!dressupBase(), run: () => newDressup('DressupPlungeMilling', 'Create PlungeMilling Dressup') },
+  CAM_DressupRampEntry: { text: 'Ramp Entry', tip: 'Creates a ramp entry dress-up object from a selected toolpath', icon: 'cam-CAM_Dressup', active: () => !!dressupBase(), run: () => newDressup('DressupRampEntry', 'Create RampEntry Dressup') },
   CAM_DressupTag: { text: 'Tag', tip: 'Creates a tag dress-up object from a selected toolpath', icon: 'cam-CAM_Dressup', active: () => !!dressupBase(), run: () => newDressup('DressupTag', 'Create a Tag dressup') },
-  CAM_DressupZCorrect: na('Z Depth Correction', 'Corrects Z depth using a probe map', 'cam-CAM_Dressup', NOT_HERE('the Z Depth Correction dress-up')),
+  CAM_DressupZCorrect: { text: 'Z Depth Correction', tip: 'Corrects Z depth using a probe map', icon: 'cam-CAM_Dressup', active: () => !!dressupBase(), run: () => newDressup('DressupZCorrect', 'Create Dress-up') },
   CAM_Comment: na('Comment', 'Adds a Comment to the CNC program', 'cam-CAM_Comment', NOT_HERE('Comment')),
   CAM_Stop: na('Stop', 'Adds an optional or mandatory stop to the program', 'cam-CAM_Stop', NOT_HERE('Stop')),
   CAM_Custom: { text: 'Custom', tip: 'Create custom G-code snippet', icon: 'cam-CAM_Custom', active: haveJob, run: () => newOp('Custom', 'Create Custom') },

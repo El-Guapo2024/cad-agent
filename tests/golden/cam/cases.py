@@ -134,4 +134,47 @@ CASES = {
         ("ToolController", "TC__Probe", {"Tool": "Probe"}),
         ("Probe", "Probe001", {"ToolController": "TC__Probe"}),
     ]}, "posts": [("linuxcnc", "")]},
+    # the dress-ups added on 2026-11-06, each on the plate's outline
+    "leadinout": {"parts": ["plate"], "jobs": {"Job": [
+        ("Job", "Job", {"Model": ["plate"]}), *DEFAULT_TC, ("Profile", "Profile", {}),
+        ("DressupLeadInOut", "DressupLeadInOut", {"Base": "Profile"}),
+    ]}, "posts": [("linuxcnc", "")]},
+    "rampentry": {"parts": ["plate"], "jobs": {"Job": [
+        ("Job", "Job", {"Model": ["plate"]}), DEFAULT_TC[0],
+        ("ToolController", "TC__5mm_Endmill", {"Tool": "Endmill", "HorizFeed": "600 mm/min", "VertFeed": "200 mm/min"}),
+        ("Profile", "Profile", {}),
+        ("DressupRampEntry", "DressupRampEntry", {"Base": "Profile"}),
+    ]}, "posts": [("linuxcnc", "")]},
+    "boundary": {"parts": ["plate"], "jobs": {"Job": [
+        ("Job", "Job", {"Model": ["plate"]}), *DEFAULT_TC, ("Profile", "Profile", {}),
+        ("DressupBoundary", "DressupPathBoundary", {"Base": "Profile"}),
+    ]}, "posts": [("linuxcnc", "")]},
+    "boundary2": {"parts": ["plate"], "jobs": {"Job": [
+        ("Job", "Job", {"Model": ["plate"]}), *DEFAULT_TC, ("Profile", "Profile", {}),
+        ("DressupBoundary2", "DressupPathBoundary2", {"Base": "Profile"}),
+    ]}, "posts": [("linuxcnc", "")]},
+    "array": {"parts": ["plate"], "jobs": {"Job": [
+        ("Job", "Job", {"Model": ["plate"]}), *DEFAULT_TC, ("Profile", "Profile", {}),
+        ("DressupArray", "DressupPathArray", {"Base": "Profile"}),
+    ]}, "posts": [("linuxcnc", "")]},
+    "dragknife": {"parts": ["plate"], "jobs": {"Job": [
+        ("Job", "Job", {"Model": ["plate"]}), *DEFAULT_TC, ("Profile", "Profile", {}),
+        ("DressupDragknife", "DragknifeDressup", {"Base": "Profile"}),
+    ]}, "posts": [("linuxcnc", "")]},
+    "mirror": {"parts": ["plate"], "jobs": {"Job": [
+        ("Job", "Job", {"Model": ["plate"]}), *DEFAULT_TC, ("Profile", "Profile", {}),
+        ("DressupMirror", "DressupMirror", {"Base": "Profile"}),
+    ]}, "posts": [("linuxcnc", "")]},
+    "plungemilling": {"parts": ["plate"], "jobs": {"Job": [
+        ("Job", "Job", {"Model": ["plate"]}), *DEFAULT_TC, ("Profile", "Profile", {}),
+        ("DressupPlungeMilling", "DressupPlungeMilling", {"Base": "Profile"}),
+    ]}, "posts": [("linuxcnc", "")]},
+    "zcorrect": {"parts": ["plate"], "jobs": {"Job": [
+        ("Job", "Job", {"Model": ["plate"]}), *DEFAULT_TC, ("Profile", "Profile", {}),
+        ("DressupZCorrect", "ZCorrectDressup", {"Base": "Profile"}),
+    ]}, "posts": [("linuxcnc", "")]},
+    "axismap": {"parts": ["plate"], "jobs": {"Job": [
+        ("Job", "Job", {"Model": ["plate"]}), *DEFAULT_TC, ("Profile", "Profile", {}),
+        ("DressupAxisMap", "AxisMapDressup", {"Base": "Profile"}),
+    ]}, "posts": [("linuxcnc", "")]},
 }

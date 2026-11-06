@@ -135,17 +135,57 @@ class Replayer:
                     obj = mod.Create(base, C.DEFAULT_NAMES[e.kind])
                     import PathScripts.PathUtils as PathUtils
                     PathUtils.findParentJob(base).Proxy.addOperation(obj, base)
+                elif kind.recipe:
+                    obj = self._dressup(kind, mod, base, C.DEFAULT_NAMES[e.kind])
                 else:
                     obj = mod.Create(base, C.DEFAULT_NAMES[e.kind])
                 # the dress-up's view provider, attached as the GUI makes it (DogboneII.py ViewProviderDressup.attach,
                 # Tags.py PathDressupTagViewProvider.attach): the base op leaves every group it is in, so the job posts
-                # the dress-up and not its base as well
-                for parent in base.InList:
-                    if hasattr(parent, "Group") and base.Name in [o.Name for o in parent.Group]:
-                        parent.Group = [o for o in parent.Group if o.Name != base.Name]
+                # the dress-up and not its base as well. Boundary's and Array's view providers leave it be.
+                if kind.recipe != "app":
+                    for parent in base.InList:
+                        if hasattr(parent, "Group") and base.Name in [o.Name for o in parent.Group]:
+                            parent.Group = [o for o in parent.Group if o.Name != base.Name]
         if obj is None:
             raise ReplayError(f"{e.name}: FreeCAD did not make the {e.kind}")
         self._check(obj, e)
+        return obj
+
+    def _dressup(self, kind, mod, base, name):
+        """A dress-up as its Path/Dressup/Gui command makes it, without the view provider and the task panel."""
+        import PathScripts.PathUtils as PathUtils
+        doc = self.doc
+        job = PathUtils.findParentJob(base)
+        if kind.recipe == "app":
+            # Gui/Boundary.py and Gui/Array.py Create: the App module's Create (it adds the op to the job)
+            return mod.Create(base, name)
+        if kind.recipe in ("gui", "gui_setup"):
+            # Gui/<Name>.py Create: addObject, ObjectDressup(obj, base), the job's addOperation, then setup()
+            obj = doc.addObject("Path::FeaturePython", name)
+            dbo = mod.ObjectDressup(obj, base)
+            job.Proxy.addOperation(obj, base)
+            if kind.recipe == "gui_setup":
+                dbo.setup(obj)
+            return obj
+        obj = doc.addObject("Path::FeaturePython", name)
+        if kind.recipe == "dragknife":
+            # Gui/Dragknife.py CommandDressupDragknife.Activated's doCommand lines
+            mod.ObjectDressup(obj)
+            obj.Base = base
+            job.Proxy.addOperation(obj, base)
+            obj.filterAngle = 20
+            obj.offset = 2
+            obj.pivotheight = 4
+        elif kind.recipe == "axismap":
+            # Gui/AxisMap.py CommandPathDressup.Activated
+            job.Proxy.addOperation(obj, base)
+            mod.ObjectDressup(obj)
+            obj.Base = base
+        elif kind.recipe == "zcorrect":
+            # Gui/ZCorrect.py CommandPathDressup.Activated
+            mod.ObjectDressup(obj)
+            obj.Base = base
+            PathUtils.addToJob(obj)
         return obj
 
     def _toolbit(self, e):
