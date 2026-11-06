@@ -667,7 +667,7 @@ src/Mod/Assembly/CommandCreateAssembly.py   [licence: LGPL-2.1-or-later]
     followed by src/assembly_wb.tsx, src/fctips.ts
 src/Mod/Assembly/CommandCreateBom.py   [licence: LGPL-2.1-or-later]
     copyright 2023 Ondsel
-    followed by src/shopwb.tsx, src/fctips.ts
+    followed by src/shopwb.tsx, src/fctips.ts, src/assembly_bom.tsx
 src/Mod/Assembly/CommandCreateJoint.py   [licence: LGPL-2.1-or-later]
     copyright 2023 Ondsel
     followed by src/assembly_wb.tsx, src/fctips.ts
@@ -695,6 +695,9 @@ src/Mod/Assembly/CommandSolveAssembly.py   [licence: LGPL-2.1-or-later]
 src/Mod/Assembly/Gui/Commands.cpp   [licence: LGPL-2.1-or-later]
     copyright 2025 Pierre-Louis Boyer
     followed by src/fctips.ts, src/assembly_wb.tsx
+src/Mod/Assembly/Gui/Resources/panels/TaskAssemblyCreateBom.ui   [licence: none]
+    copyright: no line in the file
+    followed by src/assembly_bom.tsx
 src/Mod/Assembly/Gui/Resources/panels/TaskAssemblyCreateJoint.ui   [licence: none]
     copyright: no line in the file
     followed by src/assembly_wb.tsx

@@ -928,8 +928,37 @@ Deliberate or known differences:
 - Simulation: Save Animation (a GIF or video) is greyed; a Motion's double-click opens its simulation's panel (FreeCAD opens
   MotionEditDialog on its own); the help labels' tooltips are short. The animation timer runs in the page at
   jFramesPerSecond as FreeCAD's QTimer does.
-- Snapshot, Link Arrays and the BOM object stay cut (greyed with the reason).
+- Snapshot and Link Arrays stay cut (greyed with the reason); the BOM object came 2026-11-06 ("Assembly's Bill of Materials").
 
+
+## Assembly's Bill of Materials, 2026-11-06
+
+Assembly_CreateBom's Assembly::BomObject is a sheet of the project, spreadsheet/Bill_of_Materials.py, whose head is a
+`Spreadsheet.Bom` (columns_names, detail_sub_assemblies, detail_parts, only_parts) instead of a `Spreadsheet.Sheet`:
+FreeCAD's BomObject is a Spreadsheet::Sheet, so the sheet view, its cells and Export are the Spreadsheet workbench's.
+cad_agent/assembly_bom.py ports BomObject.cpp's generateBOM (saveCustomColumnData, addObjectChildrenToBom,
+addObjectToBom, getBomPropertyValue): on every recompute the Index, Name, File Name, Quantity and ".Prop" columns are
+written again from the project's Assembly, and what was typed in Description or a custom column stays with the Name of
+its row. `cad sheet bom SLUG` is the panel's OK (a new BOM, or `--sheet NAME` edits one); the page's panel (src/
+assembly_bom.tsx, TaskAssemblyCreateBom.ui) has the options, the column list (auto columns bold, custom ones renamed
+by a double click or F2, Delete, drag to reorder, Add Column's menu), Export and the help; a double click on the BOM in
+the tree opens it again.
+
+Checked against the real FreeCAD:
+- tests/golden/assembly_bom: 4 freecadcmd cases (the defaults; Description and a custom column typed, then
+  components added; a sub-assembly detailed, not, and with Only parts; no Quantity column, a property column and one
+  that is not there), the cells after each recompute equal (FreeCAD's sibling search also scans the rows a
+  sub-assembly added, so a component that a sub-assembly holds too is counted on the sub-assembly's row, as here).
+- ui/scripts/assemblycheck.mjs `bom`: the command enabled as in FreeCAD's menu and toolbar, the panel's widgets and
+  columns, Add Column with every default in (a custom "Default" at once), OK's sheet and its undo step.
+
+Deliberate or known differences:
+- File Name is the file that defines the row (parts/<part>.py, <project>/assembly.py); FreeCAD's is the object's
+  document file. A sub-assembly's row has the linked project's name (FreeCAD: the linked Assembly's Label).
+- FreeCAD fills the BOM when it is recomputed (the panel's OK, a touch); here every recompute of the project's sheets
+  fills it, so it follows the Assembly. The BOM is a sheet of the project, listed with the sheets, not inside the
+  Assembly's "Bills of Materials" group. Export in the panel is offered once the BOM exists (FreeCAD makes the object
+  when the panel opens). A property column reads Label only (".Label"); others say N/A.
 
 ## Sketcher text and the commands on sketch objects, 2026-10-26
 
@@ -1226,7 +1255,7 @@ Known differences:
 
 - PartDesign: the Shaft Design Wizard is cut (a Python wizard with its own table, charts and calculation); a Sub-Shape Binder binds its own Body only, and only Synchronized; a Boolean's tools and a Clone's source are other part modules ("PartDesign's last commands, 2026-10-27"); Move Object To…, Set Face Colors, Toggle Suppressed and Toggle Freeze are greyed with FreeCAD's reasons ("PartDesign, 2026-10-24").
 - Part: Shape from mesh, Points from shape, Box selection, Persistent section cut, Check geometry, Appearance per face and Defeaturing are greyed or not ported ("Part workbench, 2026-10-25").
-- Assembly: Link Arrays, Snapshot and the BOM object are cut; datums inside parts, nested sub-assemblies, Exploded View's Align to..., Save Animation and the Std_TransformManip dragger are not ported ("Assembly's later commands, 2026-10-27").
+- Assembly: Link Arrays and Snapshot are cut; datums inside parts, nested sub-assemblies, Exploded View's Align to..., Save Animation and the Std_TransformManip dragger are not ported ("Assembly's later commands, 2026-10-27").
 - Loft, Pipe and Helix: a Pipe whose end sections are not planar is refused, and a solid's face as a Pipe's or Helix's Profile is not offered ("PartDesign Loft, Pipe and Helix, 2026-10-24").
 - TechDraw: Broken View and Complex Section (they need break and profile objects, sketches or wires of the page's document, which a project's page does not have; DrawBrokenView.cpp, DrawComplexSection.cpp and TaskComplexSection.cpp are about 4000 lines), Project Shape and the views from other workbenches are greyed ("TechDraw workbench, 2026-10-27").
 - Spreadsheet: Bind…, Configuration Table, zoom, printing, the line edits' completer, xlsx import and charts are cut ("Spreadsheet workbench, 2026-10-27").

@@ -1,0 +1,150 @@
+{
+ "custom": [
+  {
+   "A1": "'Index",
+   "A2": "'1",
+   "A3": "'2",
+   "B1": "'Name",
+   "B2": "'Plate",
+   "B3": "'Pin",
+   "C1": "'Description",
+   "D1": "'Notes",
+   "E1": "'Quantity",
+   "E2": "1",
+   "E3": "1"
+  },
+  {
+   "A1": "'Index",
+   "A2": "'1",
+   "A3": "'2",
+   "B1": "'Name",
+   "B2": "'Plate",
+   "B3": "'Pin",
+   "C1": "'Description",
+   "C2": "'the base",
+   "D1": "'Notes",
+   "D3": "'steel",
+   "E1": "'Quantity",
+   "E2": "1",
+   "E3": "1"
+  },
+  {
+   "A1": "'Index",
+   "A2": "'1",
+   "A3": "'2",
+   "B1": "'Name",
+   "B2": "'Plate",
+   "B3": "'Pin",
+   "C1": "'Description",
+   "C2": "'the base",
+   "D1": "'Notes",
+   "D3": "'steel",
+   "E1": "'Quantity",
+   "E2": "1",
+   "E3": "2"
+  },
+  {
+   "A1": "'Index",
+   "A2": "'1",
+   "A3": "'2",
+   "A4": "'3",
+   "B1": "'Name",
+   "B2": "'Plate",
+   "B3": "'Pin",
+   "B4": "'Bracket",
+   "C1": "'Description",
+   "C2": "'the base",
+   "D1": "'Notes",
+   "D3": "'steel",
+   "E1": "'Quantity",
+   "E2": "1",
+   "E3": "2",
+   "E4": "1"
+  }
+ ],
+ "flat": [
+  {
+   "A1": "'Index",
+   "A2": "'1",
+   "A3": "'2",
+   "A4": "'3",
+   "B1": "'Name",
+   "B2": "'Plate",
+   "B3": "'Pin",
+   "B4": "'Bracket",
+   "C1": "'Description",
+   "D1": "'File Name",
+   "E1": "'Quantity",
+   "E2": "1",
+   "E3": "2",
+   "E4": "1"
+  }
+ ],
+ "props": [
+  {
+   "A1": "'Name",
+   "A2": "'Plate",
+   "A3": "'Pin",
+   "A4": "'Pin",
+   "B1": "'.Label",
+   "B2": "'Plate",
+   "B3": "'Pin",
+   "B4": "'Pin",
+   "C1": "'.Nothing",
+   "C2": "'N/A",
+   "C3": "'N/A",
+   "C4": "'N/A",
+   "D1": "'Index",
+   "D2": "'1",
+   "D3": "'2",
+   "D4": "'3"
+  }
+ ],
+ "sub": [
+  {
+   "A1": "'Index",
+   "A2": "'1",
+   "A3": "'2",
+   "A4": "'2.1",
+   "A5": "'2.2",
+   "B1": "'Name",
+   "B2": "'Plate",
+   "B3": "'Gantry",
+   "B4": "'Bracket",
+   "B5": "'Pin",
+   "C1": "'Description",
+   "D1": "'File Name",
+   "E1": "'Quantity",
+   "E2": "1",
+   "E3": "2",
+   "E4": "1",
+   "E5": "3"
+  },
+  {
+   "A1": "'Index",
+   "A2": "'1",
+   "A3": "'2",
+   "A4": "'3",
+   "B1": "'Name",
+   "B2": "'Plate",
+   "B3": "'Gantry",
+   "B4": "'Pin",
+   "C1": "'Description",
+   "D1": "'File Name",
+   "E1": "'Quantity",
+   "E2": "1",
+   "E3": "2",
+   "E4": "1"
+  },
+  {
+   "A1": "'Index",
+   "A2": "'1",
+   "B1": "'Name",
+   "B2": "'Gantry",
+   "C1": "'Description",
+   "D1": "'File Name",
+   "E1": "'Quantity",
+   "E2": "2"
+  }
+ ]
+}

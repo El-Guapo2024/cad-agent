@@ -413,4 +413,29 @@ class Sheet:
         return f"Sheet({self.name!r}, label={self.label!r})"
 
 
-CLASSES = {"Sheet": Sheet, "Cell": Cell}
+class Bom(Sheet):
+    """Assembly::BomObject (Assembly_CreateBom), a Sheet the project's assembly fills on recompute
+    (cad_agent/assembly_bom.py): its columnsNames, detailSubAssemblies, detailParts and onlyParts."""
+    kind = "Bom"
+    TYPE_ID = "Assembly::BomObject"
+    FLAGS = ("detail_sub_assemblies", "detail_parts", "only_parts")
+
+    def __init__(self, name: str, *, columns_names=None, detail_sub_assemblies: bool = True, detail_parts: bool = True,
+                 only_parts: bool = False, **kw):
+        super().__init__(name, **kw)
+        cols = ["Index"] if columns_names is None else list(columns_names)     # BomObject's columnsNames default
+        if not all(isinstance(c, str) and c for c in cols):
+            raise SpreadsheetError(f"{name}: columns_names is a list of column names")
+        self.columns_names = cols
+        self.detail_sub_assemblies, self.detail_parts, self.only_parts = (bool(detail_sub_assemblies),
+                                                                         bool(detail_parts), bool(only_parts))
+
+    def as_dict(self) -> dict:
+        return {**super().as_dict(), "columns_names": list(self.columns_names),
+                **{k: getattr(self, k) for k in self.FLAGS}}
+
+    def __repr__(self):
+        return f"Bom({self.name!r}, columns_names={self.columns_names!r})"
+
+
+CLASSES = {"Sheet": Sheet, "Bom": Bom, "Cell": Cell}

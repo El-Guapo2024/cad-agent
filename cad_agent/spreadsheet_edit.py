@@ -38,7 +38,8 @@ An op is a Sheet method of FreeCAD's Python API, as the GUI's commands call it (
     {"op": "clear", "args": ["A1:B2"]}, {"op": "recomputeCells", "args": ["A1", "B2"]}
     {"op": "paste", "clip": [...], "to": "C3:D4", "cut": [ranges]?}   SheetTableView::pasteClipboard
     {"op": "import", "text": csv}                           Spreadsheet_Import (Sheet::importFromFile)
-    {"op": "new", "label"?}                                 Spreadsheet_CreateSheet
+    {"op": "new", "label"?, "bom"?: {...}}                   Spreadsheet_CreateSheet; with bom, Assembly_CreateBom
+    {"op": "bom", "columns_names"?, "detail_sub_assemblies"?, "detail_parts"?, "only_parts"?}   the BOM panel's OK
     {"op": "label", "to": text}                             a rename in the tree
     {"op": "delete"}                                        Std_Delete of the sheet
     {"op": "bind", "part": p, "param": k, "expression": e|null}   a part's PARAMS entry bound (or unbound) to an expression
@@ -61,7 +62,7 @@ SHEET_METHODS = {"set", "setAlias", "setStyle", "setAlignment", "setForeground",
                  "touchCells"}
 
 # FreeCAD's transaction names (QT_TRANSLATE_NOOP("Command", ...)) for the undo journal
-STEP_NAMES = {"new": "Create Spreadsheet", "set": "Edit cell", "setAlias": "Set alias", "mergeCells": "Merge cells",
+STEP_NAMES = {"new": "Create Spreadsheet", "bom": "Edit Bill Of Materials", "set": "Edit cell", "setAlias": "Set alias", "mergeCells": "Merge cells",
               "splitCell": "Split cell", "insertRows": "Insert Rows", "removeRows": "Remove Rows",
               "insertColumns": "Insert Columns", "removeColumns": "Remove Columns", "clear": "Clear Cells",
               "paste": "Paste Cell", "import": "Import Spreadsheet", "delete": "Delete",
@@ -81,6 +82,8 @@ def step_name(ops: list) -> str:
     if len(kinds) > 1 and kinds <= {"setAlignment", "setStyle", "setForeground", "setBackground", "clearForeground",
                                      "clearBackground", "setDisplayUnit", "setAlias"}:
         return "Set cell properties"                 # PropertiesDialog::apply
+    if any(o.get("op") == "new" and o.get("bom") is not None for o in ops):
+        return "Create Bill Of Materials"
     op = ops[-1]
     k = op.get("op")
     args = op.get("args") or []
@@ -137,16 +140,22 @@ def lit(v) -> str:
         return json.dumps(v, ensure_ascii=False)
     if isinstance(v, dict):
         return "{" + ", ".join(f"{lit(k)}: {lit(x)}" for k, x in v.items()) + "}"
+    if isinstance(v, list):
+        return "[" + ", ".join(lit(x) for x in v) + "]"
     raise SpreadsheetEditError(f"{v!r} cannot be written in a sheet file")
 
 
 def model_entries(sheet) -> list:
     """The SHEET list a sheet is saved as: the Sheet, then each cell Cell::save writes, in CellAddress order."""
     from .spreadsheet import column_name
-    head = SS.Sheet(sheet.name, label=sheet.label if sheet.label != sheet.name else None,
-                    column_widths={column_name(c): w for c, w in sorted(sheet.column_widths.items())
-                                   if w != SS.DEFAULT_WIDTH},
-                    row_heights={str(r + 1): h for r, h in sorted(sheet.row_heights.items()) if h != SS.DEFAULT_HEIGHT})
+    bom = getattr(sheet, "bom", None)
+    cls, extra = (SS.Bom, {"columns_names": bom.columns_names, **{k: getattr(bom, k) for k in SS.Bom.FLAGS}}) \
+        if bom is not None else (SS.Sheet, {})
+    head = cls(sheet.name, label=sheet.label if sheet.label != sheet.name else None,
+               column_widths={column_name(c): w for c, w in sorted(sheet.column_widths.items())
+                              if w != SS.DEFAULT_WIDTH},
+               row_heights={str(r + 1): h for r, h in sorted(sheet.row_heights.items()) if h != SS.DEFAULT_HEIGHT},
+               **extra)
     out = [head]
     for k in sorted(sheet.cells.data):
         cell = sheet.cells.data[k]
@@ -169,7 +178,12 @@ def entry_src(e) -> str:
             parts.append(f"column_widths={lit(e.column_widths)}")
         if e.row_heights:
             parts.append(f"row_heights={lit(e.row_heights)}")
-        return f"{PREFIX}Sheet({', '.join(parts)})"
+        if isinstance(e, SS.Bom):
+            parts.append(f"columns_names={lit(list(e.columns_names))}")
+            for k in SS.Bom.FLAGS:
+                if getattr(e, k) != (k != "only_parts"):
+                    parts.append(f"{k}={lit(getattr(e, k))}")
+        return f"{PREFIX}{e.kind}({', '.join(parts)})"
     parts = [json.dumps(e.address)]
     if e.content is not None:
         parts.append(lit(e.content))
@@ -265,7 +279,10 @@ def sheet_json(doc, sheet, prefs=None) -> dict:
             c = sheet.cells.data.get(anchor)
             if c is not None:
                 merged[c.address.to_string()] = [c.row_span, c.col_span]
-    return {"name": sheet.name, "label": sheet.label, "type": "Spreadsheet::Sheet", "cells": cells, "merged": merged,
+    bom = getattr(sheet, "bom", None)
+    return {"name": sheet.name, "label": sheet.label, "type": "Assembly::BomObject" if bom else "Spreadsheet::Sheet",
+            **({"bom": {k: v for k, v in bom.as_dict().items() if k in ("columns_names",) + SS.Bom.FLAGS}} if bom else {}),
+            "cells": cells, "merged": merged,
             "column_widths": {column_name(c): w for c, w in sorted(sheet.column_widths.items())},
             "row_heights": {str(r + 1): h for r, h in sorted(sheet.row_heights.items())},
             "errors": sorted(sheet.cells.data[k].address.to_string() for k in sheet.cell_errors if k in sheet.cells.data),
@@ -339,6 +356,23 @@ def run_op(doc, sheet, op: dict) -> str:
     raise SpreadsheetEditError(f"unknown op {k!r}")
 
 
+def bom_settings(d: dict) -> dict:
+    """TaskAssemblyCreateBom's settings: the columns (names, in order; a ".Prop" column is a property) and the three
+    checkboxes."""
+    keys = ("columns_names",) + SS.Bom.FLAGS
+    bad = [k for k in d if k not in keys and k != "op"]
+    if bad:
+        raise SpreadsheetEditError(f"{', '.join(bad)}: not a setting of a Bill of Materials ({', '.join(keys)})")
+    out = {k: d[k] for k in keys if k in d}
+    cols = out.get("columns_names")
+    if cols is not None:
+        if not isinstance(cols, list) or not all(isinstance(c, str) and c.strip() for c in cols):
+            raise SpreadsheetEditError("columns_names is a list of column names")
+        if len(set(cols)) != len(cols):
+            raise SpreadsheetEditError("a column name is there twice")    # TaskAssemblyCreateBom.isNameDuplicate
+    return out
+
+
 def apply(pdir, name: str, ops, write: bool = True, prefs=None) -> dict:
     """The ops on spreadsheet/<name>.py (and the parts they bind), all or nothing; returns read() of the result."""
     from . import state
@@ -355,7 +389,8 @@ def apply(pdir, name: str, ops, write: bool = True, prefs=None) -> dict:
             raise SpreadsheetEditError(f"there is already an object {name!r} in the project")
         label = ops[0].get("label")
         src = TEMPLATE.format(name=name, slug=pdir.name)
-        head = SS.Sheet(name, label=label)
+        bom = ops[0].get("bom")
+        head = SS.Sheet(name, label=label) if bom is None else SS.Bom(name, label=label, **bom_settings(bom))
         src = write_src(src, [head])
         extra[name] = src
         created = True
@@ -375,6 +410,13 @@ def apply(pdir, name: str, ops, write: bool = True, prefs=None) -> dict:
             if write:
                 path.unlink(missing_ok=True)
             return {"deleted": name, "done": done + ["delete"]}
+        if op.get("op") == "bom":
+            if getattr(sheet, "bom", None) is None:
+                raise SpreadsheetEditError(f"{name} is not a Bill of Materials")
+            for k, v in bom_settings(op).items():
+                setattr(sheet.bom, k, list(v) if k == "columns_names" else bool(v))
+            done.append("bom")
+            continue
         if op.get("op") == "bind":
             part = doc.objects.get(op.get("part"))
             if part is None or getattr(part, "kind", "") != "part":

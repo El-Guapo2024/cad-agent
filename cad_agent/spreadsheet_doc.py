@@ -202,6 +202,7 @@ class Document:
                 raise SpreadsheetError(f"spreadsheet/{sname}.py: {LIST} needs one Spreadsheet.Sheet, first")
             h = head[0]
             sh = Sheet(h.name, self, h.label)
+            sh.bom = h if isinstance(h, SS.Bom) else None       # an Assembly::BomObject (assembly_bom.py)
             self.objects[h.name] = sh
             self.sheet_entries[h.name] = (h, [e for e in es if isinstance(e, SS.Cell)])
         for sname, (h, cells) in self.sheet_entries.items():
@@ -222,7 +223,9 @@ class Document:
         sheets = {n: p.read_text() for n, p in sheet_files(pdir).items()}
         sheets.update(extra_sheets or {})
         parts = {n: p.read_text() for n, p in part_files(pdir).items()}
-        return cls(pdir.name, sheets, parts)
+        doc = cls(pdir.name, sheets, parts)
+        doc.pdir = pdir
+        return doc
 
     def _restore(self, sheet, head, cells):
         """PropertySheet::Restore: each cell's content (kept raw while restoring) and attributes, merged cells; then
@@ -498,6 +501,8 @@ class Document:
         for _ in range(3 if cycle else 1):
             changed = False
             for o in objs:
+                if isinstance(o, Sheet) and getattr(o, "bom", None) is not None:
+                    self._generate_bom(o)
                 if isinstance(o, Sheet):
                     dirty = bool(o.cells.dirty) or bool(o.cell_errors)
                     msg = o.execute()
@@ -518,6 +523,16 @@ class Document:
             if not changed:
                 break
         return failed
+
+    def _generate_bom(self, sheet):
+        """BomObject::execute: generateBOM from the project's Assembly, then the sheet's own execute. FreeCAD runs it
+        when the BOM is recomputed (the panel's OK, a touch); here every recompute of the project's sheets does."""
+        from . import assembly_bom as AB
+        b = sheet.bom
+        pdir = getattr(self, "pdir", None)
+        roots = AB.project_roots(pdir) if pdir is not None else []
+        AB.generate(sheet, roots, b.columns_names, b.detail_sub_assemblies, b.detail_parts, b.only_parts,
+                    warn=None)
 
     def _bind_part(self, part: PartObject):
         """PropertyExpressionEngine::execute for a part: each bound parameter set from its expression's value."""

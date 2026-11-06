@@ -22,7 +22,7 @@ import { createPortal } from 'react-dom'
 import type { IDockviewPanelProps } from 'dockview'
 import { resultText, type CadResult } from './api'
 import { consoleLog, getState, report, setState, subscribe } from './store'
-import { loadHistory, openSheetWindow, sheetWindows } from './actions'
+import { loadHistory, openSheetWindow, openTask, sheetWindows } from './actions'
 import { Icon, type IconName } from './icons'
 import { cls, EditRow, Group, Row } from './panels'
 import { ContextMenu, type Entry } from './chrome'
@@ -118,6 +118,10 @@ export function uniqueName(base: string): string {
   for (let i = 1; ; i++) { const n = `${base}${String(i).padStart(3, '0')}`; if (!taken.has(n)) return n }
 }
 /** ViewProviderSheet::doubleClicked: the Spreadsheet workbench (SwitchToWB), then the sheet's view. */
+/** ViewProviderBom::doubleClicked: the Bill of Materials panel on the BOM. */
+export function openBom(name: string) {
+  openTask('assembly', 'bom', name)
+}
 export function openSheet(name: string, switchWb = true) {
   if (switchWb) setState({ workbench: 'spreadsheet' })
   openSheetWindow(name, st.sheets[name]?.label ?? name)
@@ -172,7 +176,11 @@ function importSheet() {
 }
 function exportSheet() {
   const sh = activeSheet()
-  const d = sh ? st.sheets[sh] : null
+  if (sh) exportSheetCsv(sh)
+}
+/** Sheet::exportToFile of one sheet (ViewProviderSheet::exportAsFile, the BOM panel's Export too). */
+export function exportSheetCsv(sh: string) {
+  const d = st.sheets[sh]
   if (!d) return
   const blob = new Blob([d.csv], { type: 'text/csv' })   // Sheet::exportToFile, as the server wrote it (sheet_json)
   const a = document.createElement('a')
@@ -730,15 +738,16 @@ export function SpreadsheetRows({ iconSize = 16 }: { iconSize?: number }) {
     {names.map((n) => (
       <div key={n} className={cls('trow', sel.includes(n) && 'sel')} data-ss={n}
         onClick={(ev) => { setSs((s) => ({ sel: ev.ctrlKey || ev.metaKey ? (s.sel.includes(n) ? s.sel.filter((x) => x !== n) : [...s.sel, n]) : [n] })); setState({ selected: [], featSel: [] }) }}
-        onDoubleClick={() => openSheet(n)}
+        onDoubleClick={() => (sheets[n]?.bom ? openBom(n) : openSheet(n))}
         onContextMenu={(ev) => { ev.preventDefault(); ev.stopPropagation(); setSs({ sel: [n] }); setMenu({ x: ev.clientX, y: ev.clientY, name: n }) }}>
         <span className="tlab"><span className="pdindent" style={{ width: 6 + 16 }} /><span className="tindent" />
-          <span className="ticon"><Icon name="ss-Spreadsheet" size={iconSize} /></span>
+          <span className="ticon"><Icon name={sheets[n]?.bom ? 'as-bom' : 'ss-Spreadsheet'} size={iconSize} /></span>
           <span className="tname">{sheets[n]?.label ?? n}</span></span>
       </div>))}
     {menu && <ContextMenu at={menu} onClose={() => setMenu(null)} entries={[
       // ViewProviderSheet::setupContextMenu
-      { label: 'Show Spreadsheet', bold: true, onSelect: () => openSheet(menu.name, false) }, 'sep',
+      ...(sheets[menu.name]?.bom ? [{ label: 'Edit', bold: true, onSelect: () => openBom(menu.name) } as Entry] : []),
+      { label: 'Show Spreadsheet', bold: !sheets[menu.name]?.bom, onSelect: () => openSheet(menu.name, false) }, 'sep',
       { label: 'Delete', icon: 'edit-delete', onSelect: () => void deleteSheet(menu.name) },
     ]} />}
   </>

@@ -7,6 +7,7 @@ transaction:
     cad sheet ls      SLUG                                  the project's sheets
     cad sheet show    SLUG SHEET                            every used cell: content, value, error, what the view shows
     cad sheet new     SLUG [--sheet NAME] [--label L]       Spreadsheet_CreateSheet
+    cad sheet bom     SLUG [--sheet NAME] [--columns A,B] [--[no-]only-parts] ...   Assembly_CreateBom
     cad sheet set     SLUG SHEET CELL CONTENT               a cell edited ("=B1*2", "'text", "12.5", "3 mm"); CELL may be a range
     cad sheet alias   SLUG SHEET CELL [ALIAS]               Set Alias (no ALIAS: removed)
     cad sheet style   SLUG SHEET RANGE bold|italic|underline [--mode add|remove|replace|invert]
@@ -24,6 +25,7 @@ transaction:
 """
 from __future__ import annotations
 
+import argparse
 import json
 import shlex
 from pathlib import Path
@@ -125,6 +127,30 @@ def cmd_new(a) -> Result:
         op["label"] = a.label
     return apply_ops(a, name, [op], _cmd(a, *(["--sheet", name] + (["--label", a.label] if a.label else []))),
                      "Create Spreadsheet")
+
+
+def cmd_bom(a) -> Result:
+    """Assembly_CreateBom: a Bill of Materials of the project's Assembly made (its panel's OK: the columns, the three
+    options, then the recompute that fills it), or the one named edited (a double click on it, then OK)."""
+    from . import assembly_bom as AB
+    from . import spreadsheet_edit as E
+    from .spreadsheet_doc import part_files, sheet_files
+    pdir = project(a.slug)
+    settings = {}
+    if a.columns is not None:
+        settings["columns_names"] = [c.strip() for c in a.columns.split(",") if c.strip()]
+    for k in ("detail_sub_assemblies", "detail_parts", "only_parts"):
+        if getattr(a, k) is not None:
+            settings[k] = getattr(a, k)
+    words = (["--sheet", a.name] if a.name else []) + (["--columns", a.columns] if a.columns is not None else []) + \
+        [("--" if v else "--no-") + k.replace("_", "-") for k, v in settings.items() if k != "columns_names"]
+    if a.name and a.name in sheet_files(pdir):
+        return apply_ops(a, a.name, [{"op": "bom", **settings}], _cmd(a, *words))
+    # createBomObject: newObject("Assembly::BomObject", "Bill of Materials"); the panel lists ColumnNames, and its
+    # checkboxes start from the preferences (BOMOnlyParts false, BOMDetailParts and BOMDetailSubAssemblies true)
+    name = a.name or E.unique_name("Bill_of_Materials", set(sheet_files(pdir)) | set(part_files(pdir)))
+    bom = {"columns_names": list(AB.COLUMN_NAMES), **settings}
+    return apply_ops(a, name, [{"op": "new", "label": "Bill of Materials", "bom": bom}], _cmd(a, *words))
 
 
 def _one(a, sheet, op, *words):
@@ -279,6 +305,14 @@ def add_parsers(add, sub) -> None:
     sp = one("new", cmd_new, "Spreadsheet_CreateSheet: a new sheet", sheet=False)
     sp.add_argument("--sheet", dest="name", help="the sheet's Name (default Spreadsheet, Spreadsheet001, ...)")
     sp.add_argument("--label")
+    sp = one("bom", cmd_bom, "Assembly_CreateBom: a Bill of Materials of the assembly (or --sheet NAME's edited)",
+             sheet=False)
+    sp.add_argument("--sheet", dest="name", help="the BOM to edit, or the Name of a new one (default Bill_of_Materials)")
+    sp.add_argument("--columns", help="the columns in order, comma separated (default Index,Name,Description,"
+                    "File Name,Quantity; a .Prop column is the property Prop)")
+    sp.add_argument("--detail-sub-assemblies", action=argparse.BooleanOptionalAction, default=None)
+    sp.add_argument("--detail-parts", action=argparse.BooleanOptionalAction, default=None)
+    sp.add_argument("--only-parts", action=argparse.BooleanOptionalAction, default=None)
     sp = one("set", cmd_set, "a cell's content, as typed in the sheet ('=B1*2', \"'text\", '12.5', '3 mm'; '' clears)")
     sp.add_argument("cell")
     sp.add_argument("content")

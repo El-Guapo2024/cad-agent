@@ -152,6 +152,9 @@ Step 5, round 3 (six branches) is all in main (7526c0c, CI green, 6977 passed, 2
   DRESSUP_FORMS); their own show/hide logic is not ported. Vcarve since: FreeCAD's Voronoi
   classes in ui/libarea (cam_voronoi, needs Boost's headers). Still cut in CAM: Surface and Waterline (opencamlib, no
   cp312 wheel; building OpenCamLib 2023.01.11 with Boost.Python was blocked by the auto-mode classifier, waiting on Juan), the copy and array commands, simulation, work planes, templates, the tool bit library.
+  Assembly's Bill of Materials object (2026-11-06): a sheet of the project with a Spreadsheet.Bom head, filled by
+  cad_agent/assembly_bom.py (BomObject.cpp's generateBOM, tests/golden/assembly_bom); `cad sheet bom`, the page's
+  panel (src/assembly_bom.tsx), assemblycheck's bom section. Still cut in Assembly: Link Arrays, Snapshot.
   Branches made before 22944df (pcbfab-demo among them) still run CI on ubuntu-latest: merge main into them.
   CI: ubuntu-latest moved to Ubuntu 26 and its compiler broke the native solvers' bit-for-bit goldens on every branch
   since 2026-11-03; ci.yml now pins ubuntu-24.04 (GCC 13, as this box, where they pass).

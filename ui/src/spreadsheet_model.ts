@@ -18,7 +18,8 @@ export type SsRaw = { alignment: number; style: string[]; fg: number[] | null; b
 export type SsCell = { content: string | null; value: SsValue | null; exception?: string; raw: SsRaw; view?: CellView
   alignment?: string; style?: string; foreground_color?: string; background_color?: string; display_unit?: string; alias?: string
   row_span?: number; col_span?: number }
-export type SsSheet = { name: string; label: string; type: string; cells: Record<string, SsCell>; merged: Record<string, [number, number]>
+export type SsBom = { columns_names: string[]; detail_sub_assemblies: boolean; detail_parts: boolean; only_parts: boolean }
+export type SsSheet = { name: string; label: string; type: string; bom?: SsBom; cells: Record<string, SsCell>; merged: Record<string, [number, number]>
   column_widths: Record<string, number>; row_heights: Record<string, number>; errors: string[]; used_range: [string, string] | null; csv: string }
 
 export const MAX_ROWS = 16384

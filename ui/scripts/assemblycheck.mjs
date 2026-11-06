@@ -53,7 +53,7 @@ const want = (section) => !ONLY.length || ONLY.includes(section)
 const clean = (t) => String(t ?? '').replace(/&(.)/g, '$1').replace(/…$/, '').trim()
 
 // What is deliberately different (PARITY.md, "Assembly workbench"), by the FreeCAD command
-const NOT_PORTED = new Set(['Part_LinkArrays', 'Assembly_CreateSnapshot', 'Assembly_CreateBom', 'Assembly_SelectJointsOfComponent'])
+const NOT_PORTED = new Set(['Part_LinkArrays', 'Assembly_CreateSnapshot', 'Assembly_SelectJointsOfComponent'])
 
 // ── a scratch workbench with three parts ─────────────────────────────────────────────────────────────────────────────
 const freePort = (from) => new Promise((res, rej) => {
@@ -312,7 +312,7 @@ try {
   }
   // ── the second round (fcassembly_more.json, fcassembly.py --more): a fresh project ac2 with Plate, Pin and Bar, and
   // acsub, whose Assembly (Plate grounded, Pin on a Revolute) is the sub-assembly ───────────────────────────────────────
-  const MORE = ['menus2', 'rigid', 'isolate', 'offsets', 'origin', 'explode', 'newpart', 'subasm', 'sim']
+  const MORE = ['menus2', 'bom', 'rigid', 'isolate', 'offsets', 'origin', 'explode', 'newpart', 'subasm', 'sim']
   if (FC2 && MORE.some(want)) {
     const S2 = 'ac2', SUB = 'acsub'
     const cad = (...a) => spawnSync(python, ['-m', 'cad_agent', '--projects', ROOT, ...a], { env, cwd: REPO })
@@ -364,6 +364,32 @@ try {
     if (want('menus2')) {
       console.log('menus2')
       compareEntries(FC2.menus, (await st('cadui.assembly()')).assembly, 'Assembly menu (second round)')
+    }
+    if (want('bom')) {
+      // Assembly_CreateBom (CommandCreateBom.py, TaskAssemblyCreateBom.ui; no GUI recording: the panel's widgets and
+      // texts are the .ui's, the sheet OK makes is tests/golden/assembly_bom's generateBOM, held to freecadcmd there)
+      console.log('bom')
+      await runCmd('Assembly_CreateBom')
+      await until(`!!document.querySelector('.taskview .as-task[data-task="bom"]')`, 'the Bill of Materials panel', 20000)
+      same(await ourPanel(), ['CheckBox_detailSubAssemblies', 'CheckBox_detailParts', 'CheckBox_onlyParts', 'columnList', 'btnAddColumn',
+        'btnExport', 'helpButton'], 'bom: the panel (TaskAssemblyCreateBom.ui)')
+      same(await st(`[...document.querySelectorAll('.taskview [data-qf="columnList"] .as-item')].map((e) => e.textContent)`),
+        ['Index (auto)', 'Name (auto)', 'Description', 'File Name (auto)', 'Quantity (auto)'], 'bom: the columns (TranslatedColumnNames)')
+      same(await st(`[...document.querySelectorAll('.taskview [data-qf^="CheckBox_"]')].map((e) => e.checked)`), [true, true, false],
+        'bom: the options (the preferences\' defaults)')
+      // showAddColumnMenu with every default column in: no menu, addColumn at once ("Default", being edited)
+      await page.click('.taskview [data-qf="btnAddColumn"]')
+      same(await st(`document.querySelector('.taskview [data-qf="columnList"] input')?.value`), 'Default', 'bom: Add Column, every default column in: a custom "Default", edited at once')
+      await page.keyboard.press('Enter')
+      await page.click('.taskview .as-task .tbuttons button')
+      await until(`!document.querySelector('.taskview .as-task[data-task="bom"]')`, 'bom: the BOM made, the panel closed', 120000)
+      await idle()
+      same(await undoName(), 'Create Bill Of Materials', 'bom: its undo step')
+      const names = await st(`fetch('/api/${S2}/spreadsheet/Bill_of_Materials', { headers: { 'X-CAD': '1' } }).then((r) => r.json()).then((d) => {
+        const c = d.data.sheet.cells; return [1, 2, 3, 4].map((r) => [c['A' + r]?.content, c['B' + r]?.content, c['E' + r]?.content, c['F' + r]?.content]) })`)
+      same(names, [["'Index", "'Name", "'Quantity", "'Default"], ["'1", "'plate", '1', null], ["'2", "'pin", '1', null], ["'3", "'bar", '1', null]],
+        'bom: the sheet (Index, Name, Quantity; the custom column after Quantity)')
+      check(await st(`!!document.querySelector('.taskview .as-task[data-task="bom"]')`) === false, 'bom: OK closes the panel')
     }
     if (want('rigid')) {
       console.log('rigid')

@@ -47,6 +47,7 @@ import { loadAssemblySolver, type AsmDoc, type AsmResult, type Plc } from './ond
 import type { NavEvent, V2 } from './nav'
 import { ExplodedViewTask, InsertTask } from './assembly_tasks'
 import { SimulationTask } from './assembly_sim'
+import { BomTask } from './assembly_bom'
 
 // ── the model (cad_agent/assembly_edit.py's read/solved) ──────────────────────────────────────────────────────────
 export interface AsmObj { name: string; kind: 'Link' | 'GroundedJoint' | 'Joint' | 'RigidGroupJoint' | 'AssemblyLink' | 'ViewGroup' | 'ExplodedView' | 'ExplodedViewStep'
@@ -355,7 +356,8 @@ function cmdList(): Entry[] {
     // CommandCreateSimulation.IsActive: isAssemblyCommandActive and a Revolute, Slider or Cylindrical joint
     { label: 'Simulation', icon: 'as-simulation', cmd: 'Assembly_CreateSimulation', kbd: 'V', disabled: !active || !hasMotionJoint(),
       title: active && !hasMotionJoint() ? 'needs a Revolute, Slider or Cylindrical joint to drive' : undefined, onSelect: () => openTask('assembly', 'simulation', '') },
-    NA('Bill of Materials', 'as-bom', 'Assembly_CreateBom', 'the bill of materials is `cad bom` (CAD Agent > Bill of Materials)'),
+    // CommandCreateBom.IsActive: always
+    { label: 'Bill of Materials', icon: 'as-bom', cmd: 'Assembly_CreateBom', kbd: 'O', onSelect: () => openTask('assembly', 'bom', '') },
   ]
 }
 function jointsToolbar(): Entry[] {
@@ -615,8 +617,7 @@ export function AssemblyWatchers() {
   </>
 }
 /** The watchers' commands that are greyed here (assemblyMenu's NA entries have no onSelect). */
-const NOT_HERE: Record<string, string> = { Assembly_InsertNewPart: 'New Part', Assembly_CreateView: 'Exploded View',
-  Assembly_CreateBom: 'Bill of Materials' }
+const NOT_HERE: Record<string, string> = { Assembly_InsertNewPart: 'New Part', Assembly_CreateView: 'Exploded View' }
 // each task opened is a panel of its own (FreeCAD makes a new TaskAssemblyCreateJoint every time): its key
 const taskIds = new WeakMap<object, number>()
 let lastTaskId = 0
@@ -628,6 +629,7 @@ export function AssemblyTask({ body, other }: { body: string; other: string }) {
   if (body === 'newpart') return <NewPartTask key={id} />
   if (body === 'explode') return <ExplodedViewTask key={id} edit={other || undefined} />
   if (body === 'simulation') return <SimulationTask key={id} edit={other || undefined} />
+  if (body === 'bom') return <BomTask key={id} edit={other || undefined} />
   const [type, edit] = other.split(':')
   return <JointTask key={id} type0={type as JointType} edit={edit} />
 }
