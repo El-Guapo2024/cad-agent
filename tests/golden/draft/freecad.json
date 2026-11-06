@@ -1,0 +1,1769 @@
+{
+ "arc": [
+  {
+   "label": "Arc",
+   "name": "Arc",
+   "shape": {
+    "area": 0.0,
+    "box": [
+     -8.0,
+     -2.736161,
+     0.0,
+     6.928203,
+     8.0,
+     0.0
+    ],
+    "edges": 1,
+    "faces": 0,
+    "length": 23.736478,
+    "points": [
+     [
+      -7.517541,
+      -2.736161,
+      0.0
+     ],
+     [
+      6.928203,
+      4.0,
+      0.0
+     ]
+    ],
+    "type": "Edge",
+    "vertices": 2,
+    "volume": 0.0
+   },
+   "type": "Part::Part2DObjectPython"
+  }
+ ],
+ "arc_3points": [
+  {
+   "label": "Arc",
+   "name": "Arc",
+   "shape": {
+    "area": 0.0,
+    "box": [
+     0.0,
+     0.0,
+     0.0,
+     10.0,
+     5.0,
+     0.0
+    ],
+    "edges": 1,
+    "faces": 0,
+    "length": 15.707963,
+    "points": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      10.0,
+      0.0,
+      0.0
+     ]
+    ],
+    "type": "Edge",
+    "vertices": 2,
+    "volume": 0.0
+   },
+   "type": "Part::Part2DObjectPython"
+  }
+ ],
+ "array_circular": [
+  {
+   "label": "Circle",
+   "name": "Circle",
+   "shape": {
+    "area": 3.141593,
+    "box": [
+     -1.0,
+     -1.0,
+     0.0,
+     1.0,
+     1.0,
+     0.0
+    ],
+    "edges": 1,
+    "faces": 1,
+    "length": 6.283185,
+    "points": [
+     [
+      1.0,
+      0.0,
+      0.0
+     ]
+    ],
+    "type": "Face",
+    "vertices": 1,
+    "volume": 0.0
+   },
+   "type": "Part::Part2DObjectPython"
+  },
+  {
+   "label": "Array",
+   "name": "Array",
+   "shape": {
+    "area": 72.256631,
+    "box": [
+     -11.0,
+     -10.945219,
+     0.0,
+     10.781476,
+     10.945219,
+     0.0
+    ],
+    "edges": 23,
+    "faces": 23,
+    "length": 144.513262,
+    "points": [
+     [
+      -9.0,
+      0.0,
+      0.0
+     ],
+     [
+      -8.221909,
+      -3.66063,
+      0.0
+     ],
+     [
+      -8.221909,
+      3.66063,
+      0.0
+     ],
+     [
+      -6.022175,
+      -6.688303,
+      0.0
+     ],
+     [
+      -6.022175,
+      6.688303,
+      0.0
+     ],
+     [
+      -4.0,
+      0.0,
+      0.0
+     ],
+     [
+      -2.781153,
+      -8.559509,
+      0.0
+     ],
+     [
+      -2.781153,
+      8.559509,
+      0.0
+     ],
+     [
+      -2.493959,
+      -3.127326,
+      0.0
+     ],
+     [
+      -2.493959,
+      3.127326,
+      0.0
+     ],
+     [
+      0.890084,
+      -3.899712,
+      0.0
+     ],
+     [
+      0.890084,
+      3.899712,
+      0.0
+     ],
+     [
+      0.940756,
+      -8.950697,
+      0.0
+     ],
+     [
+      0.940756,
+      8.950697,
+      0.0
+     ],
+     [
+      1.0,
+      0.0,
+      0.0
+     ],
+     [
+      3.603875,
+      -1.735535,
+      0.0
+     ],
+     [
+      3.603875,
+      1.735535,
+      0.0
+     ],
+     [
+      4.5,
+      -7.794229,
+      0.0
+     ],
+     [
+      4.5,
+      7.794229,
+      0.0
+     ],
+     [
+      7.281153,
+      -5.290067,
+      0.0
+     ],
+     [
+      7.281153,
+      5.290067,
+      0.0
+     ],
+     [
+      8.803328,
+      -1.871205,
+      0.0
+     ],
+     [
+      8.803328,
+      1.871205,
+      0.0
+     ]
+    ],
+    "type": "Compound",
+    "vertices": 23,
+    "volume": 0.0
+   },
+   "type": "Part::FeaturePython"
+  }
+ ],
+ "array_ortho": [
+  {
+   "label": "Rectangle",
+   "name": "Rectangle",
+   "shape": {
+    "area": 8.0,
+    "box": [
+     0.0,
+     0.0,
+     0.0,
+     4.0,
+     2.0,
+     0.0
+    ],
+    "edges": 4,
+    "faces": 1,
+    "length": 12.0,
+    "points": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      2.0,
+      0.0
+     ],
+     [
+      4.0,
+      0.0,
+      0.0
+     ],
+     [
+      4.0,
+      2.0,
+      0.0
+     ]
+    ],
+    "type": "Face",
+    "vertices": 4,
+    "volume": 0.0
+   },
+   "type": "Part::Part2DObjectPython"
+  },
+  {
+   "label": "Array",
+   "name": "Array",
+   "shape": {
+    "area": 48.0,
+    "box": [
+     0.0,
+     0.0,
+     0.0,
+     16.0,
+     6.0,
+     0.0
+    ],
+    "edges": 24,
+    "faces": 6,
+    "length": 72.0,
+    "points": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      2.0,
+      0.0
+     ],
+     [
+      0.0,
+      4.0,
+      0.0
+     ],
+     [
+      0.0,
+      6.0,
+      0.0
+     ],
+     [
+      4.0,
+      0.0,
+      0.0
+     ],
+     [
+      4.0,
+      2.0,
+      0.0
+     ],
+     [
+      4.0,
+      4.0,
+      0.0
+     ],
+     [
+      4.0,
+      6.0,
+      0.0
+     ],
+     [
+      6.0,
+      0.0,
+      0.0
+     ],
+     [
+      6.0,
+      2.0,
+      0.0
+     ],
+     [
+      6.0,
+      4.0,
+      0.0
+     ],
+     [
+      6.0,
+      6.0,
+      0.0
+     ],
+     [
+      10.0,
+      0.0,
+      0.0
+     ],
+     [
+      10.0,
+      2.0,
+      0.0
+     ],
+     [
+      10.0,
+      4.0,
+      0.0
+     ],
+     [
+      10.0,
+      6.0,
+      0.0
+     ],
+     [
+      12.0,
+      0.0,
+      0.0
+     ],
+     [
+      12.0,
+      2.0,
+      0.0
+     ],
+     [
+      12.0,
+      4.0,
+      0.0
+     ],
+     [
+      12.0,
+      6.0,
+      0.0
+     ],
+     [
+      16.0,
+      0.0,
+      0.0
+     ],
+     [
+      16.0,
+      2.0,
+      0.0
+     ],
+     [
+      16.0,
+      4.0,
+      0.0
+     ],
+     [
+      16.0,
+      6.0,
+      0.0
+     ]
+    ],
+    "type": "Compound",
+    "vertices": 24,
+    "volume": 0.0
+   },
+   "type": "Part::FeaturePython"
+  }
+ ],
+ "array_path": [
+  {
+   "label": "Circle",
+   "name": "Circle",
+   "shape": {
+    "area": 0.785398,
+    "box": [
+     -0.5,
+     -0.5,
+     0.0,
+     0.5,
+     0.5,
+     0.0
+    ],
+    "edges": 1,
+    "faces": 1,
+    "length": 3.141593,
+    "points": [
+     [
+      0.5,
+      0.0,
+      0.0
+     ]
+    ],
+    "type": "Face",
+    "vertices": 1,
+    "volume": 0.0
+   },
+   "type": "Part::Part2DObjectPython"
+  },
+  {
+   "label": "Wire",
+   "name": "Wire",
+   "shape": {
+    "area": 0.0,
+    "box": [
+     0.0,
+     0.0,
+     0.0,
+     20.0,
+     10.0,
+     0.0
+    ],
+    "edges": 2,
+    "faces": 0,
+    "length": 30.0,
+    "points": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      20.0,
+      0.0,
+      0.0
+     ],
+     [
+      20.0,
+      10.0,
+      0.0
+     ]
+    ],
+    "type": "Wire",
+    "vertices": 3,
+    "volume": 0.0
+   },
+   "type": "Part::FeaturePython"
+  },
+  {
+   "label": "PathArray",
+   "name": "PathArray",
+   "shape": {
+    "area": 3.926991,
+    "box": [
+     -0.5,
+     -0.5,
+     0.0,
+     20.5,
+     10.5,
+     0.0
+    ],
+    "edges": 5,
+    "faces": 5,
+    "length": 15.707963,
+    "points": [
+     [
+      0.5,
+      0.0,
+      0.0
+     ],
+     [
+      8.0,
+      0.0,
+      0.0
+     ],
+     [
+      15.5,
+      0.0,
+      0.0
+     ],
+     [
+      20.5,
+      2.5,
+      0.0
+     ],
+     [
+      20.5,
+      10.0,
+      0.0
+     ]
+    ],
+    "type": "Compound",
+    "vertices": 5,
+    "volume": 0.0
+   },
+   "type": "Part::FeaturePython"
+  }
+ ],
+ "array_point": [
+  {
+   "label": "Circle",
+   "name": "Circle",
+   "shape": {
+    "area": 0.785398,
+    "box": [
+     -0.5,
+     -0.5,
+     0.0,
+     0.5,
+     0.5,
+     0.0
+    ],
+    "edges": 1,
+    "faces": 1,
+    "length": 3.141593,
+    "points": [
+     [
+      0.5,
+      0.0,
+      0.0
+     ]
+    ],
+    "type": "Face",
+    "vertices": 1,
+    "volume": 0.0
+   },
+   "type": "Part::Part2DObjectPython"
+  },
+  {
+   "label": "Wire",
+   "name": "Wire",
+   "shape": {
+    "area": 0.0,
+    "box": [
+     0.0,
+     -1.0,
+     0.0,
+     9.0,
+     3.0,
+     0.0
+    ],
+    "edges": 2,
+    "faces": 0,
+    "length": 11.487806,
+    "points": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      5.0,
+      3.0,
+      0.0
+     ],
+     [
+      9.0,
+      -1.0,
+      0.0
+     ]
+    ],
+    "type": "Wire",
+    "vertices": 3,
+    "volume": 0.0
+   },
+   "type": "Part::FeaturePython"
+  },
+  {
+   "label": "PointArray",
+   "name": "PointArray",
+   "shape": {
+    "area": 2.356194,
+    "box": [
+     -0.5,
+     -1.5,
+     0.0,
+     9.5,
+     3.5,
+     0.0
+    ],
+    "edges": 3,
+    "faces": 3,
+    "length": 9.424778,
+    "points": [
+     [
+      0.5,
+      0.0,
+      0.0
+     ],
+     [
+      5.5,
+      3.0,
+      0.0
+     ],
+     [
+      9.5,
+      -1.0,
+      0.0
+     ]
+    ],
+    "type": "Compound",
+    "vertices": 3,
+    "volume": 0.0
+   },
+   "type": "Part::FeaturePython"
+  }
+ ],
+ "array_polar": [
+  {
+   "label": "Circle",
+   "name": "Circle",
+   "shape": {
+    "area": 3.141593,
+    "box": [
+     9.0,
+     -1.0,
+     0.0,
+     11.0,
+     1.0,
+     0.0
+    ],
+    "edges": 1,
+    "faces": 1,
+    "length": 6.283185,
+    "points": [
+     [
+      11.0,
+      0.0,
+      0.0
+     ]
+    ],
+    "type": "Face",
+    "vertices": 1,
+    "volume": 0.0
+   },
+   "type": "Part::Part2DObjectPython"
+  },
+  {
+   "label": "Array",
+   "name": "Array",
+   "shape": {
+    "area": 18.849556,
+    "box": [
+     -11.0,
+     -9.660254,
+     0.0,
+     11.0,
+     9.660254,
+     0.0
+    ],
+    "edges": 6,
+    "faces": 6,
+    "length": 37.699112,
+    "points": [
+     [
+      -11.0,
+      0.0,
+      0.0
+     ],
+     [
+      -5.5,
+      -9.526279,
+      0.0
+     ],
+     [
+      -5.5,
+      9.526279,
+      0.0
+     ],
+     [
+      5.5,
+      -9.526279,
+      0.0
+     ],
+     [
+      5.5,
+      9.526279,
+      0.0
+     ],
+     [
+      11.0,
+      0.0,
+      0.0
+     ]
+    ],
+    "type": "Compound",
+    "vertices": 6,
+    "volume": 0.0
+   },
+   "type": "Part::FeaturePython"
+  }
+ ],
+ "bezcurve": [
+  {
+   "label": "BezCurve",
+   "name": "BezCurve",
+   "shape": {
+    "area": 0.0,
+    "box": [
+     0.0,
+     0.0,
+     0.0,
+     11.0,
+     6.140732,
+     0.0
+    ],
+    "edges": 1,
+    "faces": 0,
+    "length": 16.052801,
+    "points": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      11.0,
+      0.0,
+      0.0
+     ]
+    ],
+    "type": "Wire",
+    "vertices": 2,
+    "volume": 0.0
+   },
+   "type": "Part::FeaturePython"
+  }
+ ],
+ "bspline": [
+  {
+   "label": "BSpline",
+   "name": "BSpline",
+   "shape": {
+    "area": 0.0,
+    "box": [
+     0.0,
+     -3.038586,
+     0.0,
+     14.0,
+     6.941359,
+     0.0
+    ],
+    "edges": 1,
+    "faces": 0,
+    "length": 26.137655,
+    "points": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      14.0,
+      3.0,
+      0.0
+     ]
+    ],
+    "type": "Edge",
+    "vertices": 2,
+    "volume": 0.0
+   },
+   "type": "Part::FeaturePython"
+  }
+ ],
+ "bspline_closed": [
+  {
+   "label": "BSpline",
+   "name": "BSpline",
+   "shape": {
+    "area": 43.647985,
+    "box": [
+     -2.993475,
+     -7.550407,
+     0.0,
+     17.066942,
+     9.547152,
+     0.0
+    ],
+    "edges": 1,
+    "faces": 1,
+    "length": 46.454125,
+    "points": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ],
+    "type": "Face",
+    "vertices": 1,
+    "volume": 0.0
+   },
+   "type": "Part::FeaturePython"
+  }
+ ],
+ "circle": [
+  {
+   "label": "Circle",
+   "name": "Circle",
+   "shape": {
+    "area": 78.539816,
+    "box": [
+     -5.0,
+     -5.0,
+     0.0,
+     5.0,
+     5.0,
+     0.0
+    ],
+    "edges": 1,
+    "faces": 1,
+    "length": 31.415927,
+    "points": [
+     [
+      5.0,
+      0.0,
+      0.0
+     ]
+    ],
+    "type": "Face",
+    "vertices": 1,
+    "volume": 0.0
+   },
+   "type": "Part::Part2DObjectPython"
+  }
+ ],
+ "clone": [
+  {
+   "label": "Rectangle",
+   "name": "Rectangle",
+   "shape": {
+    "area": 18.0,
+    "box": [
+     0.0,
+     0.0,
+     0.0,
+     6.0,
+     3.0,
+     0.0
+    ],
+    "edges": 4,
+    "faces": 1,
+    "length": 18.0,
+    "points": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      3.0,
+      0.0
+     ],
+     [
+      6.0,
+      0.0,
+      0.0
+     ],
+     [
+      6.0,
+      3.0,
+      0.0
+     ]
+    ],
+    "type": "Face",
+    "vertices": 4,
+    "volume": 0.0
+   },
+   "type": "Part::Part2DObjectPython"
+  },
+  {
+   "label": "Rectangle (2D)",
+   "name": "Clone2D",
+   "shape": {
+    "area": 18.0,
+    "box": [
+     10.0,
+     0.0,
+     0.0,
+     16.0,
+     3.0,
+     0.0
+    ],
+    "edges": 4,
+    "faces": 1,
+    "length": 18.0,
+    "points": [
+     [
+      10.0,
+      0.0,
+      0.0
+     ],
+     [
+      10.0,
+      3.0,
+      0.0
+     ],
+     [
+      16.0,
+      0.0,
+      0.0
+     ],
+     [
+      16.0,
+      3.0,
+      0.0
+     ]
+    ],
+    "type": "Face",
+    "vertices": 4,
+    "volume": 0.0
+   },
+   "type": "Part::Part2DObjectPython"
+  }
+ ],
+ "clone_scaled": [
+  {
+   "label": "Rectangle",
+   "name": "Rectangle",
+   "shape": {
+    "area": 18.0,
+    "box": [
+     0.0,
+     0.0,
+     0.0,
+     6.0,
+     3.0,
+     0.0
+    ],
+    "edges": 4,
+    "faces": 1,
+    "length": 18.0,
+    "points": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      3.0,
+      0.0
+     ],
+     [
+      6.0,
+      0.0,
+      0.0
+     ],
+     [
+      6.0,
+      3.0,
+      0.0
+     ]
+    ],
+    "type": "Face",
+    "vertices": 4,
+    "volume": 0.0
+   },
+   "type": "Part::Part2DObjectPython"
+  },
+  {
+   "label": "Rectangle (2D)",
+   "name": "Clone2D",
+   "shape": {
+    "area": 36.0,
+    "box": [
+     0.0,
+     0.0,
+     0.0,
+     12.0,
+     3.0,
+     0.0
+    ],
+    "edges": 4,
+    "faces": 1,
+    "length": 30.0,
+    "points": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      3.0,
+      0.0
+     ],
+     [
+      12.0,
+      0.0,
+      0.0
+     ],
+     [
+      12.0,
+      3.0,
+      0.0
+     ]
+    ],
+    "type": "Face",
+    "vertices": 4,
+    "volume": 0.0
+   },
+   "type": "Part::Part2DObjectPython"
+  }
+ ],
+ "ellipse": [
+  {
+   "label": "Ellipse",
+   "name": "Ellipse",
+   "shape": {
+    "area": 125.663706,
+    "box": [
+     -10.0,
+     -4.0,
+     0.0,
+     10.0,
+     4.0,
+     0.0
+    ],
+    "edges": 1,
+    "faces": 1,
+    "length": 46.156396,
+    "points": [
+     [
+      10.0,
+      0.0,
+      0.0
+     ]
+    ],
+    "type": "Face",
+    "vertices": 1,
+    "volume": 0.0
+   },
+   "type": "Part::Part2DObjectPython"
+  }
+ ],
+ "line": [
+  {
+   "label": "Line",
+   "name": "Line",
+   "shape": {
+    "area": 0.0,
+    "box": [
+     0.0,
+     0.0,
+     0.0,
+     7.0,
+     3.0,
+     2.0
+    ],
+    "edges": 1,
+    "faces": 0,
+    "length": 7.874008,
+    "points": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      7.0,
+      3.0,
+      2.0
+     ]
+    ],
+    "type": "Wire",
+    "vertices": 2,
+    "volume": 0.0
+   },
+   "type": "Part::FeaturePython"
+  }
+ ],
+ "point": [
+  {
+   "label": "Point",
+   "name": "Point",
+   "shape": {
+    "area": 0.0,
+    "box": [
+     1.0,
+     2.0,
+     3.0,
+     1.0,
+     2.0,
+     3.0
+    ],
+    "edges": 0,
+    "faces": 0,
+    "length": 0.0,
+    "points": [
+     [
+      1.0,
+      2.0,
+      3.0
+     ]
+    ],
+    "type": "Vertex",
+    "vertices": 1,
+    "volume": 0.0
+   },
+   "type": "Part::FeaturePython"
+  }
+ ],
+ "polygon": [
+  {
+   "label": "Polygon",
+   "name": "Polygon",
+   "shape": {
+    "area": 41.569219,
+    "box": [
+     -4.0,
+     -3.464102,
+     0.0,
+     4.0,
+     3.464102,
+     0.0
+    ],
+    "edges": 6,
+    "faces": 1,
+    "length": 24.0,
+    "points": [
+     [
+      -4.0,
+      0.0,
+      0.0
+     ],
+     [
+      -2.0,
+      -3.464102,
+      0.0
+     ],
+     [
+      -2.0,
+      3.464102,
+      0.0
+     ],
+     [
+      2.0,
+      -3.464102,
+      0.0
+     ],
+     [
+      2.0,
+      3.464102,
+      0.0
+     ],
+     [
+      4.0,
+      0.0,
+      0.0
+     ]
+    ],
+    "type": "Face",
+    "vertices": 6,
+    "volume": 0.0
+   },
+   "type": "Part::Part2DObjectPython"
+  }
+ ],
+ "polygon_circumscribed": [
+  {
+   "label": "Polygon",
+   "name": "Polygon",
+   "shape": {
+    "area": 58.123402,
+    "box": [
+     -4.0,
+     -4.702282,
+     0.0,
+     4.944272,
+     4.702282,
+     0.0
+    ],
+    "edges": 5,
+    "faces": 1,
+    "length": 29.061701,
+    "points": [
+     [
+      -4.0,
+      -2.90617,
+      0.0
+     ],
+     [
+      -4.0,
+      2.90617,
+      0.0
+     ],
+     [
+      1.527864,
+      -4.702282,
+      0.0
+     ],
+     [
+      1.527864,
+      4.702282,
+      0.0
+     ],
+     [
+      4.944272,
+      0.0,
+      0.0
+     ]
+    ],
+    "type": "Face",
+    "vertices": 5,
+    "volume": 0.0
+   },
+   "type": "Part::Part2DObjectPython"
+  }
+ ],
+ "rectangle": [
+  {
+   "label": "Rectangle",
+   "name": "Rectangle",
+   "shape": {
+    "area": 200.0,
+    "box": [
+     0.0,
+     0.0,
+     0.0,
+     20.0,
+     10.0,
+     0.0
+    ],
+    "edges": 4,
+    "faces": 1,
+    "length": 60.0,
+    "points": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      10.0,
+      0.0
+     ],
+     [
+      20.0,
+      0.0,
+      0.0
+     ],
+     [
+      20.0,
+      10.0,
+      0.0
+     ]
+    ],
+    "type": "Face",
+    "vertices": 4,
+    "volume": 0.0
+   },
+   "type": "Part::Part2DObjectPython"
+  }
+ ],
+ "rectangle_fillet": [
+  {
+   "label": "Rectangle",
+   "name": "Rectangle",
+   "shape": {
+    "area": 586.265482,
+    "box": [
+     0.0,
+     0.0,
+     0.0,
+     30.0,
+     20.0,
+     0.0
+    ],
+    "edges": 8,
+    "faces": 1,
+    "length": 93.132741,
+    "points": [
+     [
+      0.0,
+      4.0,
+      0.0
+     ],
+     [
+      0.0,
+      16.0,
+      0.0
+     ],
+     [
+      4.0,
+      0.0,
+      0.0
+     ],
+     [
+      4.0,
+      20.0,
+      0.0
+     ],
+     [
+      26.0,
+      0.0,
+      0.0
+     ],
+     [
+      26.0,
+      20.0,
+      0.0
+     ],
+     [
+      30.0,
+      4.0,
+      0.0
+     ],
+     [
+      30.0,
+      16.0,
+      0.0
+     ]
+    ],
+    "type": "Face",
+    "vertices": 8,
+    "volume": 0.0
+   },
+   "type": "Part::Part2DObjectPython"
+  }
+ ],
+ "rectangle_placed": [
+  {
+   "label": "Rectangle",
+   "name": "Rectangle",
+   "shape": {
+    "area": 0.0,
+    "box": [
+     0.0,
+     5.0,
+     2.0,
+     22.320508,
+     23.660254,
+     2.0
+    ],
+    "edges": 4,
+    "faces": 0,
+    "length": 60.0,
+    "points": [
+     [
+      0.0,
+      13.660254,
+      2.0
+     ],
+     [
+      5.0,
+      5.0,
+      2.0
+     ],
+     [
+      17.320508,
+      23.660254,
+      2.0
+     ],
+     [
+      22.320508,
+      15.0,
+      2.0
+     ]
+    ],
+    "type": "Wire",
+    "vertices": 4,
+    "volume": 0.0
+   },
+   "type": "Part::Part2DObjectPython"
+  }
+ ],
+ "rectangle_rows": [
+  {
+   "label": "Rectangle",
+   "name": "Rectangle",
+   "shape": {
+    "area": 600.0,
+    "box": [
+     0.0,
+     0.0,
+     0.0,
+     30.0,
+     20.0,
+     0.0
+    ],
+    "edges": 24,
+    "faces": 6,
+    "length": 240.0,
+    "points": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      10.0,
+      0.0
+     ],
+     [
+      0.0,
+      10.0,
+      0.0
+     ],
+     [
+      0.0,
+      20.0,
+      0.0
+     ],
+     [
+      10.0,
+      0.0,
+      0.0
+     ],
+     [
+      10.0,
+      0.0,
+      0.0
+     ],
+     [
+      10.0,
+      10.0,
+      0.0
+     ],
+     [
+      10.0,
+      10.0,
+      0.0
+     ],
+     [
+      10.0,
+      10.0,
+      0.0
+     ],
+     [
+      10.0,
+      10.0,
+      0.0
+     ],
+     [
+      10.0,
+      20.0,
+      0.0
+     ],
+     [
+      10.0,
+      20.0,
+      0.0
+     ],
+     [
+      20.0,
+      0.0,
+      0.0
+     ],
+     [
+      20.0,
+      0.0,
+      0.0
+     ],
+     [
+      20.0,
+      10.0,
+      0.0
+     ],
+     [
+      20.0,
+      10.0,
+      0.0
+     ],
+     [
+      20.0,
+      10.0,
+      0.0
+     ],
+     [
+      20.0,
+      10.0,
+      0.0
+     ],
+     [
+      20.0,
+      20.0,
+      0.0
+     ],
+     [
+      20.0,
+      20.0,
+      0.0
+     ],
+     [
+      30.0,
+      0.0,
+      0.0
+     ],
+     [
+      30.0,
+      10.0,
+      0.0
+     ],
+     [
+      30.0,
+      10.0,
+      0.0
+     ],
+     [
+      30.0,
+      20.0,
+      0.0
+     ]
+    ],
+    "type": "Compound",
+    "vertices": 24,
+    "volume": 0.0
+   },
+   "type": "Part::Part2DObjectPython"
+  }
+ ],
+ "wire": [
+  {
+   "label": "Wire",
+   "name": "Wire",
+   "shape": {
+    "area": 0.0,
+    "box": [
+     0.0,
+     0.0,
+     0.0,
+     10.0,
+     8.0,
+     0.0
+    ],
+    "edges": 3,
+    "faces": 0,
+    "length": 22.615773,
+    "points": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      3.0,
+      8.0,
+      0.0
+     ],
+     [
+      10.0,
+      0.0,
+      0.0
+     ],
+     [
+      10.0,
+      5.0,
+      0.0
+     ]
+    ],
+    "type": "Wire",
+    "vertices": 4,
+    "volume": 0.0
+   },
+   "type": "Part::FeaturePython"
+  }
+ ],
+ "wire_chamfer": [
+  {
+   "label": "Wire",
+   "name": "Wire",
+   "shape": {
+    "area": 0.0,
+    "box": [
+     0.0,
+     0.0,
+     0.0,
+     10.0,
+     8.0,
+     0.0
+    ],
+    "edges": 3,
+    "faces": 0,
+    "length": 17.12132,
+    "points": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      8.5,
+      0.0,
+      0.0
+     ],
+     [
+      10.0,
+      1.5,
+      0.0
+     ],
+     [
+      10.0,
+      8.0,
+      0.0
+     ]
+    ],
+    "type": "Wire",
+    "vertices": 4,
+    "volume": 0.0
+   },
+   "type": "Part::FeaturePython"
+  }
+ ],
+ "wire_closed_face": [
+  {
+   "label": "Wire",
+   "name": "Wire",
+   "shape": {
+    "area": 25.0,
+    "box": [
+     -0.0,
+     -0.0,
+     0.0,
+     10.0,
+     5.0,
+     0.0
+    ],
+    "edges": 3,
+    "faces": 1,
+    "length": 26.18034,
+    "points": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      10.0,
+      0.0,
+      0.0
+     ],
+     [
+      10.0,
+      5.0,
+      0.0
+     ]
+    ],
+    "type": "Face",
+    "vertices": 3,
+    "volume": 0.0
+   },
+   "type": "Part::FeaturePython"
+  }
+ ],
+ "wire_fillet": [
+  {
+   "label": "Wire",
+   "name": "Wire",
+   "shape": {
+    "area": 76.566371,
+    "box": [
+     0.0,
+     0.0,
+     0.0,
+     10.0,
+     8.0,
+     0.0
+    ],
+    "edges": 8,
+    "faces": 1,
+    "length": 32.566371,
+    "points": [
+     [
+      0.0,
+      2.0,
+      0.0
+     ],
+     [
+      0.0,
+      6.0,
+      0.0
+     ],
+     [
+      2.0,
+      0.0,
+      0.0
+     ],
+     [
+      2.0,
+      8.0,
+      0.0
+     ],
+     [
+      8.0,
+      0.0,
+      0.0
+     ],
+     [
+      8.0,
+      8.0,
+      0.0
+     ],
+     [
+      10.0,
+      2.0,
+      0.0
+     ],
+     [
+      10.0,
+      6.0,
+      0.0
+     ]
+    ],
+    "type": "Face",
+    "vertices": 8,
+    "volume": 0.0
+   },
+   "type": "Part::FeaturePython"
+  }
+ ]
+}

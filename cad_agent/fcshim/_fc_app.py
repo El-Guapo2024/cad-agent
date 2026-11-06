@@ -348,6 +348,8 @@ BASES = {
     "Part::Cone": ["Part::Primitive"],
     "Part::Sphere": ["Part::Primitive"],
     "Part::LocalCoordinateSystem": ["App::GeoFeature"],
+    "Part::Part2DObject": ["Part::Feature"],
+    "Part::Part2DObjectPython": ["Part::Part2DObject"],
     "Path::Feature": ["App::GeoFeature"],
     "Path::FeaturePython": ["Path::Feature"],
     "Path::FeatureCompound": ["Path::Feature"],
@@ -393,6 +395,29 @@ _PRIMITIVE_PROPS = {
     "Part::Sphere": [("App::PropertyLength", "Radius", "Sphere", 5.0)],
 }
 
+def _attach(obj, engine: str):
+    """Part::AttachExtension's properties (an attachable object's, or added by addExtension("Part::AttachExtension
+    Python")), as freecadcmd 26.3 lists them: AttacherEngine "Engine 3D" or "Engine Plane" (a Part2DObject's)."""
+    from .attach_modes import PLANE_MODES
+    rows = [("App::PropertyEnumeration", "AttacherEngine", "Attacher engine", ()),
+            ("App::PropertyString", "AttacherType", "Class name of attach engine", ("ReadOnly", "Hidden")),
+            ("App::PropertyPlacement", "AttachmentOffset", "Extra placement to apply in addition to attachment",
+             ("Hidden",)),
+            ("App::PropertyLinkSubList", "AttachmentSupport", "Support of the 2D geometry", ()),
+            ("App::PropertyEnumeration", "MapMode", "Mode of attachment to other object", ()),
+            ("App::PropertyFloat", "MapPathParameter", "Sets point of curve to map the sketch to", ("Hidden",)),
+            ("App::PropertyBool", "MapReversed", "Reverse Z direction", ("Hidden",))]
+    for t, n, d, modes in rows:
+        if n not in obj._props:
+            obj._props[n] = _Prop(t, n, "Attachment", d, modes)
+    pr = obj._props
+    pr["MapMode"].enums, pr["MapMode"].value = list(PLANE_MODES), "Deactivated"
+    pr["AttacherEngine"].enums = ["Engine 3D", "Engine Plane", "Engine Line", "Engine Point"]
+    pr["AttacherEngine"].value = engine
+    pr["AttacherType"].value = "Attacher::AttachEngine3D" if engine == "Engine 3D" else "Attacher::AttachEnginePlane"
+    pr["MapReversed"].value = False
+    pr["MapPathParameter"].value = 0.0
+
 
 # ─── document objects ───────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -422,6 +447,8 @@ class DocumentObject:
             self._props[n] = p
         self._props["Label"].value = name
         self._props["Visibility"].value = True
+        if derived_from(type_id, "Part::Part2DObject"):
+            _attach(self, "Engine Plane")
 
     # ── attribute access: properties first ──
     def __getattr__(self, name):
@@ -631,6 +658,8 @@ class DocumentObject:
 
     def addExtension(self, name, proxy=None):
         self._ext.append(name)
+        if "AttachExtension" in name:
+            _attach(self, "Engine 3D")
         if "GroupExtension" in name and "Group" not in self._props:
             self._props["Group"] = _Prop("App::PropertyLinkList", "Group", "Base", "List of referenced objects")
             self._props["_GroupTouched"] = _Prop("App::PropertyBool", "_GroupTouched", "Base", "", ("Hidden",))
