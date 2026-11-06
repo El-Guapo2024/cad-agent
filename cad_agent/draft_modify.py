@@ -17,12 +17,11 @@ object Draft made, with its maker's name (Rectangle001). One `cad feature apply`
 """
 from __future__ import annotations
 
-from . import feature as F
-
 STEPS = {"move": "Move", "rotate": "Rotate", "scale": "Scale", "offset": "Offset"}
 
 
 def _vec(App, v, what):
+    from . import feature as F
     try:
         x = [float(c) for c in (v.split(",") if isinstance(v, str) else v)]
     except (TypeError, ValueError):
@@ -77,6 +76,7 @@ def _plain(v):
 def modify(objects, params, names, op, vector=None, angle=None, center=None, axis=None, radius=None,
            copy=False, features=None, base=None, tip=None) -> list[dict]:
     """The feature ops that Draft's op makes of the named objects."""
+    from . import feature as F
     from . import feature_draft as D
     from . import feature_part as P
     if op not in STEPS:
@@ -169,6 +169,7 @@ def modify(objects, params, names, op, vector=None, angle=None, center=None, axi
 
 
 def cmd_feature_draft(a):
+    from . import feature as F
     from .featurecmd import UsageError, apply_ops, _cmd, part
     from .feature_attach import _load
     try:
