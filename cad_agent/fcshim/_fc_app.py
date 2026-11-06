@@ -38,6 +38,22 @@ QUANTITY_TYPES = {
     "App::PropertyFrequency": (U.Frequency, None),
     "App::PropertyTime": (U.TIME, None),
     "App::PropertyQuantity": (U.Unit(), None),
+    # FEM's quantities (PropertyUnits.cpp: each a PropertyQuantity of its unit, none clamped), as Unit(mm, kg, s, A,
+    # K, mol, cd)
+    "App::PropertyForce": (U.Unit(1, 1, -2), None), "App::PropertyPressure": (U.Unit(-1, 1, -2), None),
+    "App::PropertyTemperature": (U.Unit(0, 0, 0, 0, 1), None), "App::PropertyHeatFlux": (U.Unit(0, 1, -3), None),
+    "App::PropertyMoment": (U.Unit(2, 1, -2), None), "App::PropertyPower": (U.Unit(2, 1, -3), None),
+    "App::PropertyStiffness": (U.Unit(0, 1, -2), None), "App::PropertyStiffnessDensity": (U.Unit(-2, 1, -2), None),
+    "App::PropertyThermalTransferCoefficient": (U.Unit(0, 1, -3, 0, -1), None),
+    "App::PropertyVelocity": (U.Unit(1, 0, -1), None), "App::PropertyCurrentDensity": (U.Unit(-2, 0, 0, 1), None),
+    "App::PropertyMagnetization": (U.Unit(-1, 0, 0, 1), None),
+    "App::PropertyMagneticFluxDensity": (U.Unit(0, 1, -2, -1), None),
+    "App::PropertyElectromagneticPotential": (U.Unit(1, 1, -2, -1), None),
+    "App::PropertyElectricPotential": (U.Unit(2, 1, -3, -1), None),
+    "App::PropertySurfaceChargeDensity": (U.Unit(-2, 0, 1, 1), None),
+    "App::PropertyVolumeChargeDensity": (U.Unit(-3, 0, 1, 1), None),
+    "App::PropertyVacuumPermittivity": (U.Unit(-3, -1, 4, 2), None),
+    "App::PropertyElectricCharge": (U.Unit(0, 0, 1, 1), None), "App::PropertyDissipationRate": (U.Unit(2, 0, -3), None),
 }
 LINK_TYPES = ("App::PropertyLink", "App::PropertyLinkGlobal", "App::PropertyLinkHidden", "App::PropertyLinkChild")
 LINKLIST_TYPES = ("App::PropertyLinkList", "App::PropertyLinkListGlobal", "App::PropertyLinkListHidden",
@@ -133,9 +149,11 @@ def _coerce(p: _Prop, v, obj=None):
             raise ValueError("Out of range")
         return int(v)
     if t == "App::PropertyIntegerConstraint":
+        if isinstance(v, dict):         # PropertyIntegerConstraint::setPyObject: {"value", "min", "max", "step"}
+            v = (v["value"], v.get("min", -2 ** 31), v.get("max", 2 ** 31 - 1), v.get("step", 1))
         if isinstance(v, (tuple, list)):
             val, lo, hi, step = (list(v) + [None, None, None])[:4]
-            p.constraint = (int(lo), int(hi), int(step) if step is not None else 1)
+            p.constraint = (int(lo), int(hi), max(1, int(step)) if step is not None else 1)
             v = val
         v = int(v)
         if p.constraint:
@@ -143,6 +161,9 @@ def _coerce(p: _Prop, v, obj=None):
             v = hi if v > hi else (lo if v < lo else v)
         return v
     if t == "App::PropertyFloatConstraint":
+        if isinstance(v, dict):         # PropertyFloatConstraint::setPyObject: {"value", "min", "max", "step"}
+            v = (v["value"], v.get("min", -1.7976931348623157e308), v.get("max", 1.7976931348623157e308),
+                 v.get("step", 1.0))
         if isinstance(v, (tuple, list)):
             val, lo, hi, step = (list(v) + [None, None, None])[:4]
             p.constraint = (float(lo), float(hi), float(step) if step is not None else 1.0)
@@ -360,10 +381,46 @@ BASES = {
     "Path::FeatureCompoundPython": ["Path::FeatureCompound"],
     "PartDesign::Body": ["Part::Feature"],
     "Spreadsheet::Sheet": ["App::DocumentObject"],
+    "Fem::FemPostObject": ["App::GeoFeature"],
+    "Fem::FemPostPipeline": ["Fem::FemPostObject"],
+    "App::TextDocument": ["App::DocumentObject"],
 }
 
 
+def _fem_types():
+    """fem_types.json (gen/fem_types.py, from FreeCAD 26.3): each FEM C++ type's fresh properties and bases."""
+    global _FEM
+    if _FEM is None:
+        import json
+        from pathlib import Path
+        _FEM = json.loads((Path(__file__).with_name("fem_types.json")).read_text())
+        for t, v in _FEM.items():
+            if "derived" in v:
+                BASES.setdefault(t, [b for b in v["derived"] if b != t])
+    return _FEM
+
+
+_FEM = None
+
+
+def _fem_value(v):
+    """A fem_types.json default as the stand-ins hold it."""
+    if isinstance(v, dict):
+        if "q" in v:
+            return v["q"]
+        if "v" in v:
+            return B.Vector(*v["v"])
+        if "p" in v:
+            return B.Placement(B.Vector(*v["p"][0]), B.Rotation(*v["p"][1]))
+        return {k: _fem_value(x) for k, x in v.items()}
+    if isinstance(v, list):
+        return [_fem_value(x) for x in v]
+    return v
+
+
 def derived_from(type_id, base):
+    if (type_id.startswith("Fem::") or type_id.startswith("App::MaterialObject")) and _FEM is None:
+        _fem_types()
     if type_id == base:
         return True
     return any(derived_from(b, base) for b in BASES.get(type_id, []))
@@ -397,6 +454,7 @@ _PRIMITIVE_PROPS = {
     "Part::Cone": [("App::PropertyLength", "Radius1", "Cone", 2.0), ("App::PropertyLength", "Radius2", "Cone", 4.0),
                    ("App::PropertyLength", "Height", "Cone", 10.0), ("App::PropertyAngle", "Angle", "Cone", 360.0)],
     "Part::Sphere": [("App::PropertyLength", "Radius", "Sphere", 5.0)],
+    "App::TextDocument": [("App::PropertyString", "Text", "", "")],      # TextDocument.cpp: Text, no group
 }
 
 def _attach(obj, engine: str):
@@ -426,6 +484,7 @@ def _attach(obj, engine: str):
 # ─── document objects ───────────────────────────────────────────────────────────────────────────────────────────────
 
 _OWN = {"_props", "_doc", "Name", "TypeId", "_touched", "_exprs", "_ext", "_removed", "ViewObject", "_status", "_link_map",
+        "_natural", "_results",
         "__dict__", "_in_change"}
 
 
@@ -445,6 +504,21 @@ class DocumentObject:
         o(self, "_in_change", False)
         for t, n, g, d, modes, status in _base_props(type_id):
             self._props[n] = _Prop(t, n, g, d, modes, status)
+        fem = _fem_types().get(type_id) if (type_id.startswith("Fem::") or type_id.startswith("App::Material")) \
+            else None
+        for n, t, g, d, modes, dflt, enums in (fem or {}).get("props", []):
+            if n in self._props:
+                continue
+            p = _Prop(t, n, g, d, tuple(modes))
+            if enums:
+                p.enums = list(enums)
+            if dflt is not None:
+                p.value = _fem_value(dflt)
+            self._props[n] = p
+        if fem and "App::GroupExtension" in fem.get("ext", []):
+            self._ext.append("App::GroupExtensionPython")
+        if fem and "App::SuppressibleExtension" in fem.get("ext", []):
+            self._ext.append("App::SuppressibleExtension")
         for t, n, g, dflt in _PRIMITIVE_PROPS.get(type_id, []):
             p = _Prop(t, n, g, "")
             p.value = dflt
@@ -492,6 +566,9 @@ class DocumentObject:
             self._doc._unique_label(self)
         if derived_from(self.TypeId, "Part::Feature") and name in ("Placement", "Shape"):
             self._part_feature_changed(name)
+        if self.TypeId.startswith("Fem::Constraint"):          # Fem::Constraint's C++ onChanged (_fc_femcpp.py)
+            from . import _fc_femcpp
+            _fc_femcpp.on_changed(self, name)
         proxy = self._props.get("Proxy")
         px = proxy.value if proxy is not None else None
         if px is not None and hasattr(px, "onChanged") and not self._doc._restoring:
@@ -527,8 +604,13 @@ class DocumentObject:
         return id(self)
 
     # ── PropertyContainerPy ──
-    def addProperty(self, type_, name, group="", doc="", attr=0, read_only=False, hidden=False, locked=False,
-                    enum_vals=None):
+    def addProperty(self, type_=None, name=None, group="", doc="", attr=0, read_only=False, hidden=False, locked=False,
+                    enum_vals=None, **kw):
+        # DocumentObjectPy::addProperty's keywords are type, name, group, doc, attr, read_only, hidden, locked, enum_vals
+        if "type" in kw:
+            type_ = kw.pop("type")
+        if kw:
+            raise TypeError(f"addProperty() got an unexpected keyword argument {next(iter(kw))!r}")
         if name in self._props:
             raise PropertyError(f"Object already has a property {name}")
         if not re.match(r"^[A-Za-z_][A-Za-z0-9_]*$", name):
@@ -671,6 +753,16 @@ class DocumentObject:
             self._props["_GroupTouched"] = _Prop("App::PropertyBool", "_GroupTouched", "Base", "", ("Hidden",))
         if "AttachExtension" in name:
             _attach(self, "Engine 3D")
+        if name == "Fem::WorkerExtensionPython":
+            # Fem::WorkerExtension (FreeCAD 26.3): the worker's Tool and its working directory
+            for t, n, d, modes in (("App::PropertyPythonObject", "Tool", "Tool for run the worker", ("ReadOnly", "Hidden")),
+                                   ("App::PropertyPath", "WorkingDirectory", "Solver working directory", ("Hidden",))):
+                if n not in self._props:
+                    self._props[n] = _Prop(t, n, "Worker", d, modes)
+                    self._props[n].value = None if n == "Tool" else ""
+        if "SuppressibleExtension" in name and "Suppressed" not in self._props:
+            self._props["Suppressed"] = _Prop("App::PropertyBool", "Suppressed", "Base", "Is object suppressed")
+            self._props["Suppressed"].value = False
         if "LinkExtension" in name:
             # App::LinkExtension's LINK_PARAMS_EXT and its bookkeeping, in the " Link" group, as freecadcmd 26.3 lists
             # them on a Draft link array; the links themselves are not followed (Draft builds the shape itself)
@@ -687,6 +779,42 @@ class DocumentObject:
                     self._props[n] = _Prop(t, n, " Link", "", modes)
                     self._props[n].value = v
             self.__dict__["_link_map"] = {}
+
+    # ── GroupExtensionPy's lookups, on a group ──
+    def getObjectsOfType(self, type_id):
+        """GroupExtensionPy::getObjectsOfType: the group's members of a type (or derived)."""
+        if "Group" not in self._props:
+            raise AttributeError(f"'{self.TypeId}' object has no attribute 'getObjectsOfType'")
+        return [o for o in (self._props["Group"].value or []) if o.isDerivedFrom(type_id)]
+
+    def getObject(self, name):
+        """GroupExtensionPy::getObject: the member of that Name, else None."""
+        if "Group" not in self._props:
+            raise AttributeError(f"'{self.TypeId}' object has no attribute 'getObject'")
+        return next((o for o in (self._props["Group"].value or []) if o.Name == name), None)
+
+    # ── Fem::FemPostPipeline (VTK post-processing for the 3D view): only the results it was given are kept ──
+    def load(self, *result_data):
+        if self.TypeId != "Fem::FemPostPipeline":
+            raise AttributeError(f"'{self.TypeId}' object has no attribute 'load'")
+        self.__dict__["_results"] = list(result_data)
+
+    def recomputeChildren(self):
+        if self.TypeId != "Fem::FemPostPipeline":
+            raise AttributeError(f"'{self.TypeId}' object has no attribute 'recomputeChildren'")
+
+    def getGlobalPlacement(self):
+        """GeoFeature::getGlobalPlacement: its Placement times every containing group's (a Part/Body container); the
+        stand-ins' documents have no such containers, so its own."""
+        if "Placement" not in self._props:
+            raise AttributeError(f"'{self.TypeId}' object has no attribute 'getGlobalPlacement'")
+        return B.Placement(self._props["Placement"].value or B.Placement())
+
+    def getPropertyOfGeometry(self):
+        """GeoFeaturePy::getPropertyOfGeometry: the geometry property's value, a Part feature's Shape (None if none)."""
+        if not derived_from(self.TypeId, "App::GeoFeature"):
+            raise AttributeError(f"'{self.TypeId}' object has no attribute 'getPropertyOfGeometry'")
+        return getattr(self, "Shape") if "Shape" in self._props else None
 
     def positionBySupport(self):
         """AttachExtensionPy::positionBySupport: with MapMode Deactivated (or no support) nothing moves and it returns
@@ -1144,10 +1272,18 @@ def _from_expr(v, p):
 def _execute_primitive(o):
     import Part
     t = o.TypeId
-    if t == "Part::Box":
-        s = Part.makeBox(o.Length.Value, o.Width.Value, o.Height.Value)
-    elif t == "Part::Cylinder":
-        s = Part.makeCylinder(o.Radius.Value, o.Height.Value, B.Vector(), B.Vector(0, 0, 1), o.Angle.Value)
+    if t in ("Part::Box", "Part::Cylinder"):
+        # PrimitiveFeature.cpp's Box::execute and Cylinder::execute (a prism of BRepPrim_Cylinder's bottom face), as
+        # cad_agent/feature_primitive.py ports them
+        import math
+        from OCP.BRepPrimAPI import BRepPrimAPI_MakeBox, BRepPrimAPI_MakeCylinder
+        from cad_agent import feature  # noqa: F401  (feature_primitive is loaded through it)
+        from cad_agent import feature_primitive as PD
+        if t == "Part::Box":
+            s = Part.Shape(BRepPrimAPI_MakeBox(o.Length.Value, o.Width.Value, o.Height.Value).Shape())
+        else:
+            mk = BRepPrimAPI_MakeCylinder(o.Radius.Value, o.Height.Value, math.radians(o.Angle.Value))
+            s = Part.Shape(PD._prism(o.Height.Value, mk.Cylinder().BottomFace(), 0.0, 0.0))
     elif t == "Part::Cone":
         s = Part.makeCone(o.Radius1.Value, o.Radius2.Value, o.Height.Value, B.Vector(), B.Vector(0, 0, 1), o.Angle.Value)
     else:

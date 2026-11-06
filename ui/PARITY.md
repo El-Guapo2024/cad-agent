@@ -1377,3 +1377,21 @@ volume, box, vertices) is equal to FreeCAD's.
 | Join, Wire to B-spline | done: `cad feature draft ... join` (Draft.join_wires, as gui_join calls it) and `wire2spline` (gui_wire2spline's make_bspline / make_wire of the points), 4 more freecadcmd cases equal; on the page they act on the selection (draftcheck 44 ok) |
 | Draft.scale of a polygon, an uneven circle or a Part object | refused: FreeCAD makes a plain Part::FeaturePython shape of it, which a part file cannot hold |
 | Annotation, Trimex, Stretch, Split, Upgrade, Downgrade, layers, styles, the working plane and Draft Snap | not ported: greyed in their menus (the 3D view has no Draft tracker) |
+
+## FEM, 2026-11-06
+
+FreeCAD's FEM Python (femtools, femsolver, femmesh, femobjects, femresult, feminout, ObjectsFem; cad_agent/fcfem,
+unchanged) runs over the stand-ins (`fem_runtime.activate()`), with Gmsh and CalculiX as separate programs on the PATH,
+as FreeCAD runs them. The stand-ins give it FemMesh (FemMesh.cpp's lookups by shape and writeABAQUS, FemVTKTools'
+mesh import, SMESH's UNV reader), the FEM C++ types' properties as FreeCAD lists them (fcshim/fem_types.json), the
+constraints' C++ onChanged (normals, a force's direction), QProcess, QDir/QFileInfo and FEM's units.
+
+| Item | State |
+|---|---|
+| Static analysis with CalculiX (ccxtools): solid material, fixed, force and pressure constraints, a Gmsh mesh of 1st or 2nd order | done: tests/golden/fem (3 freecadcmd cases, make.py). From FreeCAD's own mesh the CalculiX input is FreeCAD's line for line; with Gmsh and CalculiX on the PATH the whole run gives FreeCAD's mesh and its largest displacement and von Mises stress to 1e-9 (cantilever, pressure plate) |
+| A mesh of a boolean's result | known difference: the same geometry as FreeCAD's, but OCCT's locations nest differently in the .brep Gmsh reads, so the mesh differs slightly (plate_hole: results within 1e-3) |
+| Gmsh's threads | the goldens set FEM's NumOfThreads to 1: with several, Gmsh's mesh (and FreeCAD's results) differ run to run |
+| A material's UUID | empty: FreeCAD's material library is not here (Materials.MaterialManager lists none) |
+| Results' VTK pipeline (Fem::FemPostPipeline) | the 3D view's post-processing: the pipeline object keeps its results, nothing is drawn |
+| FEM in a part file, the CLI and the page | not yet |
+

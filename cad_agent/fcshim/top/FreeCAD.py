@@ -33,6 +33,22 @@ ParamGet = _params.ParamGet
 GuiUp = False
 
 Base = types.ModuleType("FreeCAD.Base")
+
+
+class _ProgressIndicator:
+    """Base::ProgressIndicatorPy: a progress bar in the GUI's status bar; without the GUI, nothing to show."""
+
+    def start(self, text, steps):
+        pass
+
+    def next(self, *a):
+        pass
+
+    def stop(self):
+        pass
+
+
+Base.ProgressIndicator = _ProgressIndicator
 Base.Vector = Vector
 Base.Rotation = Rotation
 Base.Placement = Placement
@@ -192,6 +208,15 @@ def getUserCachePath():
 
 def getTempPath():
     return tempfile.gettempdir() + os.sep
+
+
+# FreeCAD.__cmake__, the build's options (FreeCAD 26.3's own list): FEM reads Gmsh's meshes as VTK when BUILD_FEM_VTK
+__cmake__ = ['BUILD_ADDONMGR', 'BUILD_ASSEMBLY', 'BUILD_BIM', 'BUILD_CAM', 'BUILD_DRAFT', 'BUILD_FEM', 'BUILD_FEM_NETGEN',
+             'BUILD_FEM_VTK', 'BUILD_FEM_VTK_PYTHON', 'BUILD_FLAT_MESH', 'BUILD_GUI', 'BUILD_HELP', 'BUILD_IMPORT',
+             'BUILD_INSPECTION', 'BUILD_MATERIAL', 'BUILD_MEASURE', 'BUILD_MESH', 'BUILD_MESH_PART', 'BUILD_OPENSCAD',
+             'BUILD_PART', 'BUILD_PART_DESIGN', 'BUILD_PLOT', 'BUILD_POINTS', 'BUILD_REVERSEENGINEERING', 'BUILD_ROBOT',
+             'BUILD_SHOW', 'BUILD_SKETCHER', 'BUILD_SPREADSHEET', 'BUILD_START', 'BUILD_SURFACE', 'BUILD_TECHDRAW',
+             'BUILD_TEST', 'BUILD_TUX', 'BUILD_WEB', 'BUILD_WITH_CONDA']
 
 
 def Version():

@@ -561,7 +561,10 @@ class Shape:
         return test
 
     def exportBrep(self, path):
-        BRepTools.Write_s(self._s, str(path))
+        """TopoShape::exportBrep: BRepTools::Write without triangles or normals, in format version 1."""
+        from OCP.TopTools import TopTools_FormatVersion
+        if not BRepTools.Write_s(self._s, str(path), False, False, TopTools_FormatVersion.TopTools_FormatVersion_VERSION_1):
+            raise OSError(f"Cannot write {path}")
 
     def exportBrepToString(self):
         import io

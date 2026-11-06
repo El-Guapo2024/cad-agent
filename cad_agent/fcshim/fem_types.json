@@ -1,0 +1,3804 @@
+{
+"App::MaterialObject": {
+"derived": [
+"App::MaterialObject",
+"App::DocumentObject"
+],
+"ext": [],
+"props": [
+[
+"ExpressionEngine",
+"App::PropertyExpressionEngine",
+"Base",
+"Property expressions",
+[
+"Hidden"
+],
+null,
+null
+],
+[
+"Label",
+"App::PropertyString",
+"Base",
+"User name of the object (UTF8)",
+[],
+"MaterialObject",
+null
+],
+[
+"Label2",
+"App::PropertyString",
+"Base",
+"User description of the object (UTF8)",
+[
+"Hidden"
+],
+"",
+null
+],
+[
+"Material",
+"App::PropertyMap",
+"Material",
+"Material key/value map",
+[],
+{},
+null
+],
+[
+"Visibility",
+"App::PropertyBool",
+"",
+"",
+[
+"Hidden"
+],
+true,
+null
+]
+],
+"type": "App::MaterialObject"
+},
+"App::MaterialObjectPython": {
+"derived": [
+"App::MaterialObjectPython",
+"App::MaterialObject",
+"App::DocumentObject"
+],
+"ext": [],
+"props": [
+[
+"ExpressionEngine",
+"App::PropertyExpressionEngine",
+"Base",
+"Property expressions",
+[
+"Hidden"
+],
+null,
+null
+],
+[
+"Label",
+"App::PropertyString",
+"Base",
+"User name of the object (UTF8)",
+[],
+"MaterialObjectPython",
+null
+],
+[
+"Label2",
+"App::PropertyString",
+"Base",
+"User description of the object (UTF8)",
+[
+"Hidden"
+],
+"",
+null
+],
+[
+"Material",
+"App::PropertyMap",
+"Material",
+"Material key/value map",
+[],
+{},
+null
+],
+[
+"Proxy",
+"App::PropertyPythonObject",
+"",
+"",
+[],
+null,
+null
+],
+[
+"Visibility",
+"App::PropertyBool",
+"",
+"",
+[
+"Hidden"
+],
+true,
+null
+]
+],
+"type": "App::MaterialObjectPython"
+},
+"Fem::Constraint": {
+"derived": [
+"Fem::Constraint",
+"App::DocumentObject"
+],
+"ext": [
+"App::SuppressibleExtension"
+],
+"props": [
+[
+"ExpressionEngine",
+"App::PropertyExpressionEngine",
+"Base",
+"Property expressions",
+[
+"Hidden"
+],
+null,
+null
+],
+[
+"Label",
+"App::PropertyString",
+"Base",
+"User name of the object (UTF8)",
+[],
+"Constraint",
+null
+],
+[
+"Label2",
+"App::PropertyString",
+"Base",
+"User description of the object (UTF8)",
+[
+"Hidden"
+],
+"",
+null
+],
+[
+"NormalDirection",
+"App::PropertyVector",
+"Constraint",
+"Normal direction pointing outside of solid",
+[
+"ReadOnly"
+],
+{
+"v": [
+0.0,
+0.0,
+1.0
+]
+},
+null
+],
+[
+"Normals",
+"App::PropertyVectorList",
+"Constraint",
+"Normals where symbols are drawn",
+[
+"ReadOnly",
+"Hidden"
+],
+[],
+null
+],
+[
+"Points",
+"App::PropertyVectorList",
+"Constraint",
+"Points where symbols are drawn",
+[
+"ReadOnly",
+"Hidden"
+],
+[],
+null
+],
+[
+"References",
+"App::PropertyLinkSubList",
+"Constraint",
+"Elements where the constraint is applied",
+[],
+[],
+null
+],
+[
+"Scale",
+"App::PropertyFloatConstraint",
+"Constraint",
+"Scale used for drawing constraints",
+[],
+1.0,
+null
+],
+[
+"Suppressed",
+"App::PropertyBool",
+"Base",
+"Is object suppressed",
+[],
+false,
+null
+],
+[
+"Visibility",
+"App::PropertyBool",
+"",
+"",
+[
+"Hidden"
+],
+true,
+null
+]
+],
+"type": "Fem::Constraint"
+},
+"Fem::ConstraintContact": {
+"derived": [
+"Fem::ConstraintContact",
+"Fem::Constraint",
+"App::DocumentObject"
+],
+"ext": [
+"App::SuppressibleExtension"
+],
+"props": [
+[
+"Adjust",
+"App::PropertyLength",
+"ConstraintContact",
+"Node clearance adjustment limit",
+[],
+{
+"q": 0.0,
+"u": "Unit: mm (1,0,0,0,0,0,0,0) [Length]"
+},
+null
+],
+[
+"EnableThermalContact",
+"App::PropertyBool",
+"ConstraintContact",
+"Enable thermal contact",
+[],
+false,
+null
+],
+[
+"ExpressionEngine",
+"App::PropertyExpressionEngine",
+"Base",
+"Property expressions",
+[
+"Hidden"
+],
+null,
+null
+],
+[
+"Friction",
+"App::PropertyBool",
+"ConstraintContact",
+"Enable friction interaction",
+[],
+false,
+null
+],
+[
+"FrictionCoefficient",
+"App::PropertyFloat",
+"ConstraintContact",
+"Friction coefficient",
+[],
+0.0,
+null
+],
+[
+"Label",
+"App::PropertyString",
+"Base",
+"User name of the object (UTF8)",
+[],
+"ConstraintContact",
+null
+],
+[
+"Label2",
+"App::PropertyString",
+"Base",
+"User description of the object (UTF8)",
+[
+"Hidden"
+],
+"",
+null
+],
+[
+"NormalDirection",
+"App::PropertyVector",
+"Constraint",
+"Normal direction pointing outside of solid",
+[
+"ReadOnly"
+],
+{
+"v": [
+0.0,
+0.0,
+1.0
+]
+},
+null
+],
+[
+"Normals",
+"App::PropertyVectorList",
+"Constraint",
+"Normals where symbols are drawn",
+[
+"ReadOnly",
+"Hidden"
+],
+[],
+null
+],
+[
+"Points",
+"App::PropertyVectorList",
+"Constraint",
+"Points where symbols are drawn",
+[
+"ReadOnly",
+"Hidden"
+],
+[],
+null
+],
+[
+"References",
+"App::PropertyLinkSubList",
+"Constraint",
+"Elements where the constraint is applied",
+[],
+[],
+null
+],
+[
+"ReversedMaster",
+"App::PropertyBoolList",
+"ConstraintContact",
+"Use reversed normal direction for master references",
+[],
+[
+false
+],
+null
+],
+[
+"ReversedSlave",
+"App::PropertyBoolList",
+"ConstraintContact",
+"Use reversed normal direction for slave references",
+[],
+[
+false
+],
+null
+],
+[
+"Scale",
+"App::PropertyFloatConstraint",
+"Constraint",
+"Scale used for drawing constraints",
+[],
+1.0,
+null
+],
+[
+"Slope",
+"App::PropertyStiffnessDensity",
+"ConstraintContact",
+"Contact stiffness",
+[],
+{
+"q": 0.0,
+"u": "Unit: kg/(mm^2*s^2) (-2,1,-2,0,0,0,0,0) [StiffnessDensity]"
+},
+null
+],
+[
+"StickSlope",
+"App::PropertyStiffnessDensity",
+"ConstraintContact",
+"Stick slope",
+[],
+{
+"q": 0.0,
+"u": "Unit: kg/(mm^2*s^2) (-2,1,-2,0,0,0,0,0) [StiffnessDensity]"
+},
+null
+],
+[
+"Suppressed",
+"App::PropertyBool",
+"Base",
+"Is object suppressed",
+[],
+false,
+null
+],
+[
+"SurfaceBehavior",
+"App::PropertyEnumeration",
+"ConstraintContact",
+"Surface behavior type",
+[],
+"Linear",
+[
+"Hard",
+"Linear",
+"Tied"
+]
+],
+[
+"ThermalContactConductance",
+"App::PropertyStringList",
+"ConstraintContact",
+"Thermal contact conductance",
+[],
+[],
+null
+],
+[
+"Visibility",
+"App::PropertyBool",
+"",
+"",
+[
+"Hidden"
+],
+true,
+null
+]
+],
+"type": "Fem::ConstraintContact"
+},
+"Fem::ConstraintDisplacement": {
+"derived": [
+"Fem::ConstraintDisplacement",
+"Fem::Constraint",
+"App::DocumentObject"
+],
+"ext": [
+"App::SuppressibleExtension"
+],
+"props": [
+[
+"AmplitudeValues",
+"App::PropertyStringList",
+"ConstraintDisplacement",
+"Amplitude values",
+[],
+[
+"0, 0",
+"1, 1"
+],
+null
+],
+[
+"EnableAmplitude",
+"App::PropertyBool",
+"ConstraintDisplacement",
+"Amplitude of the displacement boundary condition",
+[],
+false,
+null
+],
+[
+"ExpressionEngine",
+"App::PropertyExpressionEngine",
+"Base",
+"Property expressions",
+[
+"Hidden"
+],
+null,
+null
+],
+[
+"Label",
+"App::PropertyString",
+"Base",
+"User name of the object (UTF8)",
+[],
+"ConstraintDisplacement",
+null
+],
+[
+"Label2",
+"App::PropertyString",
+"Base",
+"User description of the object (UTF8)",
+[
+"Hidden"
+],
+"",
+null
+],
+[
+"NormalDirection",
+"App::PropertyVector",
+"Constraint",
+"Normal direction pointing outside of solid",
+[
+"ReadOnly"
+],
+{
+"v": [
+0.0,
+0.0,
+1.0
+]
+},
+null
+],
+[
+"Normals",
+"App::PropertyVectorList",
+"Constraint",
+"Normals where symbols are drawn",
+[
+"ReadOnly",
+"Hidden"
+],
+[],
+null
+],
+[
+"Points",
+"App::PropertyVectorList",
+"Constraint",
+"Points where symbols are drawn",
+[
+"ReadOnly",
+"Hidden"
+],
+[],
+null
+],
+[
+"References",
+"App::PropertyLinkSubList",
+"Constraint",
+"Elements where the constraint is applied",
+[],
+[],
+null
+],
+[
+"Scale",
+"App::PropertyFloatConstraint",
+"Constraint",
+"Scale used for drawing constraints",
+[],
+1.0,
+null
+],
+[
+"Suppressed",
+"App::PropertyBool",
+"Base",
+"Is object suppressed",
+[],
+false,
+null
+],
+[
+"Visibility",
+"App::PropertyBool",
+"",
+"",
+[
+"Hidden"
+],
+true,
+null
+],
+[
+"hasXFormula",
+"App::PropertyBool",
+"ConstraintDisplacement",
+"Define translation in X-direction as a formula",
+[],
+false,
+null
+],
+[
+"hasYFormula",
+"App::PropertyBool",
+"ConstraintDisplacement",
+"Define translation in Y-direction as a formula",
+[],
+false,
+null
+],
+[
+"hasZFormula",
+"App::PropertyBool",
+"ConstraintDisplacement",
+"Define translation in Z-direction as a formula",
+[],
+false,
+null
+],
+[
+"rotxFree",
+"App::PropertyBool",
+"ConstraintDisplacement",
+"Use free rotation in X-direction",
+[],
+true,
+null
+],
+[
+"rotyFree",
+"App::PropertyBool",
+"ConstraintDisplacement",
+"Use free rotation in Y-direction",
+[],
+true,
+null
+],
+[
+"rotzFree",
+"App::PropertyBool",
+"ConstraintDisplacement",
+"Use free rotation in Z-direction",
+[],
+true,
+null
+],
+[
+"useFlowSurfaceForce",
+"App::PropertyBool",
+"ConstraintDisplacement",
+"Use flow surface force",
+[],
+false,
+null
+],
+[
+"xDisplacement",
+"App::PropertyDistance",
+"ConstraintDisplacement",
+"Translation in local X-direction",
+[],
+{
+"q": 0.0,
+"u": "Unit: mm (1,0,0,0,0,0,0,0) [Length]"
+},
+null
+],
+[
+"xDisplacementFormula",
+"App::PropertyString",
+"ConstraintDisplacement",
+"Formula for translation in X-direction",
+[],
+"",
+null
+],
+[
+"xFree",
+"App::PropertyBool",
+"ConstraintDisplacement",
+"Use free translation in X-direction",
+[],
+true,
+null
+],
+[
+"xRotation",
+"App::PropertyAngle",
+"ConstraintDisplacement",
+"Rotation in local X-direction",
+[],
+{
+"q": 0.0,
+"u": "Unit: deg (0,0,0,0,0,0,0,1) [Angle]"
+},
+null
+],
+[
+"yDisplacement",
+"App::PropertyDistance",
+"ConstraintDisplacement",
+"Translation in local Y-direction",
+[],
+{
+"q": 0.0,
+"u": "Unit: mm (1,0,0,0,0,0,0,0) [Length]"
+},
+null
+],
+[
+"yDisplacementFormula",
+"App::PropertyString",
+"ConstraintDisplacement",
+"Formula for translation in Y-direction",
+[],
+"",
+null
+],
+[
+"yFree",
+"App::PropertyBool",
+"ConstraintDisplacement",
+"Use free translation in Y-direction",
+[],
+true,
+null
+],
+[
+"yRotation",
+"App::PropertyAngle",
+"ConstraintDisplacement",
+"Rotation in local Y-direction",
+[],
+{
+"q": 0.0,
+"u": "Unit: deg (0,0,0,0,0,0,0,1) [Angle]"
+},
+null
+],
+[
+"zDisplacement",
+"App::PropertyDistance",
+"ConstraintDisplacement",
+"Translation in local Z-direction",
+[],
+{
+"q": 0.0,
+"u": "Unit: mm (1,0,0,0,0,0,0,0) [Length]"
+},
+null
+],
+[
+"zDisplacementFormula",
+"App::PropertyString",
+"ConstraintDisplacement",
+"Formula for translation in Z-direction",
+[],
+"",
+null
+],
+[
+"zFree",
+"App::PropertyBool",
+"ConstraintDisplacement",
+"Use free translation in Z-direction",
+[],
+true,
+null
+],
+[
+"zRotation",
+"App::PropertyAngle",
+"ConstraintDisplacement",
+"Rotation in local Z-direction",
+[],
+{
+"q": 0.0,
+"u": "Unit: deg (0,0,0,0,0,0,0,1) [Angle]"
+},
+null
+]
+],
+"type": "Fem::ConstraintDisplacement"
+},
+"Fem::ConstraintFixed": {
+"derived": [
+"Fem::ConstraintFixed",
+"Fem::Constraint",
+"App::DocumentObject"
+],
+"ext": [
+"App::SuppressibleExtension"
+],
+"props": [
+[
+"ExpressionEngine",
+"App::PropertyExpressionEngine",
+"Base",
+"Property expressions",
+[
+"Hidden"
+],
+null,
+null
+],
+[
+"Label",
+"App::PropertyString",
+"Base",
+"User name of the object (UTF8)",
+[],
+"ConstraintFixed",
+null
+],
+[
+"Label2",
+"App::PropertyString",
+"Base",
+"User description of the object (UTF8)",
+[
+"Hidden"
+],
+"",
+null
+],
+[
+"NormalDirection",
+"App::PropertyVector",
+"Constraint",
+"Normal direction pointing outside of solid",
+[
+"ReadOnly"
+],
+{
+"v": [
+0.0,
+0.0,
+1.0
+]
+},
+null
+],
+[
+"Normals",
+"App::PropertyVectorList",
+"Constraint",
+"Normals where symbols are drawn",
+[
+"ReadOnly",
+"Hidden"
+],
+[],
+null
+],
+[
+"Points",
+"App::PropertyVectorList",
+"Constraint",
+"Points where symbols are drawn",
+[
+"ReadOnly",
+"Hidden"
+],
+[],
+null
+],
+[
+"References",
+"App::PropertyLinkSubList",
+"Constraint",
+"Elements where the constraint is applied",
+[],
+[],
+null
+],
+[
+"Scale",
+"App::PropertyFloatConstraint",
+"Constraint",
+"Scale used for drawing constraints",
+[],
+1.0,
+null
+],
+[
+"Suppressed",
+"App::PropertyBool",
+"Base",
+"Is object suppressed",
+[],
+false,
+null
+],
+[
+"Visibility",
+"App::PropertyBool",
+"",
+"",
+[
+"Hidden"
+],
+true,
+null
+]
+],
+"type": "Fem::ConstraintFixed"
+},
+"Fem::ConstraintForce": {
+"derived": [
+"Fem::ConstraintForce",
+"Fem::Constraint",
+"App::DocumentObject"
+],
+"ext": [
+"App::SuppressibleExtension"
+],
+"props": [
+[
+"AmplitudeValues",
+"App::PropertyStringList",
+"ConstraintForce",
+"Amplitude values",
+[],
+[
+"0, 0",
+"1, 1"
+],
+null
+],
+[
+"Direction",
+"App::PropertyLinkSub",
+"ConstraintForce",
+"Element giving direction of constraint",
+[],
+null,
+null
+],
+[
+"DirectionVector",
+"App::PropertyVector",
+"ConstraintForce",
+"Direction of arrows",
+[
+"ReadOnly"
+],
+{
+"v": [
+0.0,
+0.0,
+1.0
+]
+},
+null
+],
+[
+"EnableAmplitude",
+"App::PropertyBool",
+"ConstraintForce",
+"Amplitude of the force load",
+[],
+false,
+null
+],
+[
+"ExpressionEngine",
+"App::PropertyExpressionEngine",
+"Base",
+"Property expressions",
+[
+"Hidden"
+],
+null,
+null
+],
+[
+"Force",
+"App::PropertyForce",
+"",
+"",
+[],
+{
+"q": 0.0,
+"u": "Unit: mm*kg/s^2 (1,1,-2,0,0,0,0,0) [Force]"
+},
+null
+],
+[
+"Label",
+"App::PropertyString",
+"Base",
+"User name of the object (UTF8)",
+[],
+"ConstraintForce",
+null
+],
+[
+"Label2",
+"App::PropertyString",
+"Base",
+"User description of the object (UTF8)",
+[
+"Hidden"
+],
+"",
+null
+],
+[
+"NormalDirection",
+"App::PropertyVector",
+"Constraint",
+"Normal direction pointing outside of solid",
+[
+"ReadOnly"
+],
+{
+"v": [
+0.0,
+0.0,
+1.0
+]
+},
+null
+],
+[
+"Normals",
+"App::PropertyVectorList",
+"Constraint",
+"Normals where symbols are drawn",
+[
+"ReadOnly",
+"Hidden"
+],
+[],
+null
+],
+[
+"Points",
+"App::PropertyVectorList",
+"Constraint",
+"Points where symbols are drawn",
+[
+"ReadOnly",
+"Hidden"
+],
+[],
+null
+],
+[
+"References",
+"App::PropertyLinkSubList",
+"Constraint",
+"Elements where the constraint is applied",
+[],
+[],
+null
+],
+[
+"Reversed",
+"App::PropertyBool",
+"",
+"",
+[],
+false,
+null
+],
+[
+"Scale",
+"App::PropertyFloatConstraint",
+"Constraint",
+"Scale used for drawing constraints",
+[],
+1.0,
+null
+],
+[
+"Suppressed",
+"App::PropertyBool",
+"Base",
+"Is object suppressed",
+[],
+false,
+null
+],
+[
+"Visibility",
+"App::PropertyBool",
+"",
+"",
+[
+"Hidden"
+],
+true,
+null
+]
+],
+"type": "Fem::ConstraintForce"
+},
+"Fem::ConstraintHeatflux": {
+"derived": [
+"Fem::ConstraintHeatflux",
+"Fem::Constraint",
+"App::DocumentObject"
+],
+"ext": [
+"App::SuppressibleExtension"
+],
+"props": [
+[
+"AmbientTemp",
+"App::PropertyTemperature",
+"ConstraintHeatflux",
+"Ambient temperature",
+[],
+{
+"q": 0.0,
+"u": "Unit: K (0,0,0,0,1,0,0,0) [Temperature]"
+},
+null
+],
+[
+"AmplitudeValues",
+"App::PropertyStringList",
+"ConstraintHeatflux",
+"Amplitude values",
+[],
+[
+"0, 0",
+"1, 1"
+],
+null
+],
+[
+"CavityName",
+"App::PropertyString",
+"ConstraintHeatflux",
+"Cavity name",
+[],
+"cav",
+null
+],
+[
+"CavityRadiation",
+"App::PropertyBool",
+"ConstraintHeatflux",
+"Cavity radiation",
+[],
+false,
+null
+],
+[
+"ClosedCavity",
+"App::PropertyBool",
+"ConstraintHeatflux",
+"Use closed cavity radiation",
+[],
+false,
+null
+],
+[
+"ConstraintType",
+"App::PropertyEnumeration",
+"ConstraintHeatflux",
+"Type of constraint, surface convection, radiation or surface heat flux",
+[],
+"Convection",
+[
+"Flux",
+"Convection",
+"Radiation"
+]
+],
+[
+"DistributedHeatFlux",
+"App::PropertyHeatFlux",
+"ConstraintHeatflux",
+"Distributed heat flux",
+[],
+{
+"q": 0.0,
+"u": "Unit: kg/s^3 (0,1,-3,0,0,0,0,0) [HeatFlux]"
+},
+null
+],
+[
+"Emissivity",
+"App::PropertyFloat",
+"ConstraintHeatflux",
+"Emissivity",
+[],
+0.0,
+null
+],
+[
+"EnableAmplitude",
+"App::PropertyBool",
+"ConstraintHeatflux",
+"Amplitude of the heat flux load",
+[],
+false,
+null
+],
+[
+"ExpressionEngine",
+"App::PropertyExpressionEngine",
+"Base",
+"Property expressions",
+[
+"Hidden"
+],
+null,
+null
+],
+[
+"FilmCoef",
+"App::PropertyThermalTransferCoefficient",
+"ConstraintHeatflux",
+"Film coefficient",
+[],
+{
+"q": 0.0,
+"u": "Unit: kg/(s^3*K) (0,1,-3,0,-1,0,0,0) [ThermalTransferCoefficient]"
+},
+null
+],
+[
+"Label",
+"App::PropertyString",
+"Base",
+"User name of the object (UTF8)",
+[],
+"ConstraintHeatflux",
+null
+],
+[
+"Label2",
+"App::PropertyString",
+"Base",
+"User description of the object (UTF8)",
+[
+"Hidden"
+],
+"",
+null
+],
+[
+"NormalDirection",
+"App::PropertyVector",
+"Constraint",
+"Normal direction pointing outside of solid",
+[
+"ReadOnly"
+],
+{
+"v": [
+0.0,
+0.0,
+1.0
+]
+},
+null
+],
+[
+"Normals",
+"App::PropertyVectorList",
+"Constraint",
+"Normals where symbols are drawn",
+[
+"ReadOnly",
+"Hidden"
+],
+[],
+null
+],
+[
+"Points",
+"App::PropertyVectorList",
+"Constraint",
+"Points where symbols are drawn",
+[
+"ReadOnly",
+"Hidden"
+],
+[],
+null
+],
+[
+"References",
+"App::PropertyLinkSubList",
+"Constraint",
+"Elements where the constraint is applied",
+[],
+[],
+null
+],
+[
+"Scale",
+"App::PropertyFloatConstraint",
+"Constraint",
+"Scale used for drawing constraints",
+[],
+1.0,
+null
+],
+[
+"Suppressed",
+"App::PropertyBool",
+"Base",
+"Is object suppressed",
+[],
+false,
+null
+],
+[
+"Visibility",
+"App::PropertyBool",
+"",
+"",
+[
+"Hidden"
+],
+true,
+null
+]
+],
+"type": "Fem::ConstraintHeatflux"
+},
+"Fem::ConstraintInitialTemperature": {
+"derived": [
+"Fem::ConstraintInitialTemperature",
+"Fem::Constraint",
+"App::DocumentObject"
+],
+"ext": [
+"App::SuppressibleExtension"
+],
+"props": [
+[
+"AmplitudeValues",
+"App::PropertyStringList",
+"",
+"Amplitude values",
+[],
+[
+"0, 0",
+"1, 1"
+],
+null
+],
+[
+"EnableAmplitude",
+"App::PropertyBool",
+"",
+"Amplitude of the final temperature field",
+[],
+false,
+null
+],
+[
+"EnableFinalTemperature",
+"App::PropertyBool",
+"",
+"",
+[],
+false,
+null
+],
+[
+"ExpressionEngine",
+"App::PropertyExpressionEngine",
+"Base",
+"Property expressions",
+[
+"Hidden"
+],
+null,
+null
+],
+[
+"FinalTemperature",
+"App::PropertyTemperature",
+"",
+"",
+[],
+{
+"q": 300.0,
+"u": "Unit: K (0,0,0,0,1,0,0,0) [Temperature]"
+},
+null
+],
+[
+"InitialTemperature",
+"App::PropertyTemperature",
+"",
+"",
+[],
+{
+"q": 300.0,
+"u": "Unit: K (0,0,0,0,1,0,0,0) [Temperature]"
+},
+null
+],
+[
+"Label",
+"App::PropertyString",
+"Base",
+"User name of the object (UTF8)",
+[],
+"ConstraintInitialTemperature",
+null
+],
+[
+"Label2",
+"App::PropertyString",
+"Base",
+"User description of the object (UTF8)",
+[
+"Hidden"
+],
+"",
+null
+],
+[
+"NormalDirection",
+"App::PropertyVector",
+"Constraint",
+"Normal direction pointing outside of solid",
+[
+"ReadOnly"
+],
+{
+"v": [
+0.0,
+0.0,
+1.0
+]
+},
+null
+],
+[
+"Normals",
+"App::PropertyVectorList",
+"Constraint",
+"Normals where symbols are drawn",
+[
+"ReadOnly",
+"Hidden"
+],
+[],
+null
+],
+[
+"Points",
+"App::PropertyVectorList",
+"Constraint",
+"Points where symbols are drawn",
+[
+"ReadOnly",
+"Hidden"
+],
+[],
+null
+],
+[
+"References",
+"App::PropertyLinkSubList",
+"Constraint",
+"Elements where the constraint is applied",
+[],
+[],
+null
+],
+[
+"Scale",
+"App::PropertyFloatConstraint",
+"Constraint",
+"Scale used for drawing constraints",
+[],
+1.0,
+null
+],
+[
+"Suppressed",
+"App::PropertyBool",
+"Base",
+"Is object suppressed",
+[],
+false,
+null
+],
+[
+"Visibility",
+"App::PropertyBool",
+"",
+"",
+[
+"Hidden"
+],
+true,
+null
+]
+],
+"type": "Fem::ConstraintInitialTemperature"
+},
+"Fem::ConstraintPlaneRotation": {
+"derived": [
+"Fem::ConstraintPlaneRotation",
+"Fem::Constraint",
+"App::DocumentObject"
+],
+"ext": [
+"App::SuppressibleExtension"
+],
+"props": [
+[
+"ExpressionEngine",
+"App::PropertyExpressionEngine",
+"Base",
+"Property expressions",
+[
+"Hidden"
+],
+null,
+null
+],
+[
+"Label",
+"App::PropertyString",
+"Base",
+"User name of the object (UTF8)",
+[],
+"ConstraintPlaneRotation",
+null
+],
+[
+"Label2",
+"App::PropertyString",
+"Base",
+"User description of the object (UTF8)",
+[
+"Hidden"
+],
+"",
+null
+],
+[
+"NormalDirection",
+"App::PropertyVector",
+"Constraint",
+"Normal direction pointing outside of solid",
+[
+"ReadOnly"
+],
+{
+"v": [
+0.0,
+0.0,
+1.0
+]
+},
+null
+],
+[
+"Normals",
+"App::PropertyVectorList",
+"Constraint",
+"Normals where symbols are drawn",
+[
+"ReadOnly",
+"Hidden"
+],
+[],
+null
+],
+[
+"Points",
+"App::PropertyVectorList",
+"Constraint",
+"Points where symbols are drawn",
+[
+"ReadOnly",
+"Hidden"
+],
+[],
+null
+],
+[
+"References",
+"App::PropertyLinkSubList",
+"Constraint",
+"Elements where the constraint is applied",
+[],
+[],
+null
+],
+[
+"Scale",
+"App::PropertyFloatConstraint",
+"Constraint",
+"Scale used for drawing constraints",
+[],
+1.0,
+null
+],
+[
+"Suppressed",
+"App::PropertyBool",
+"Base",
+"Is object suppressed",
+[],
+false,
+null
+],
+[
+"Visibility",
+"App::PropertyBool",
+"",
+"",
+[
+"Hidden"
+],
+true,
+null
+]
+],
+"type": "Fem::ConstraintPlaneRotation"
+},
+"Fem::ConstraintPressure": {
+"derived": [
+"Fem::ConstraintPressure",
+"Fem::Constraint",
+"App::DocumentObject"
+],
+"ext": [
+"App::SuppressibleExtension"
+],
+"props": [
+[
+"AmplitudeValues",
+"App::PropertyStringList",
+"ConstraintPressure",
+"Amplitude values",
+[],
+[
+"0, 0",
+"1, 1"
+],
+null
+],
+[
+"EnableAmplitude",
+"App::PropertyBool",
+"ConstraintPressure",
+"Amplitude of the pressure load",
+[],
+false,
+null
+],
+[
+"ExpressionEngine",
+"App::PropertyExpressionEngine",
+"Base",
+"Property expressions",
+[
+"Hidden"
+],
+null,
+null
+],
+[
+"Label",
+"App::PropertyString",
+"Base",
+"User name of the object (UTF8)",
+[],
+"ConstraintPressure",
+null
+],
+[
+"Label2",
+"App::PropertyString",
+"Base",
+"User description of the object (UTF8)",
+[
+"Hidden"
+],
+"",
+null
+],
+[
+"NormalDirection",
+"App::PropertyVector",
+"Constraint",
+"Normal direction pointing outside of solid",
+[
+"ReadOnly"
+],
+{
+"v": [
+0.0,
+0.0,
+1.0
+]
+},
+null
+],
+[
+"Normals",
+"App::PropertyVectorList",
+"Constraint",
+"Normals where symbols are drawn",
+[
+"ReadOnly",
+"Hidden"
+],
+[],
+null
+],
+[
+"Points",
+"App::PropertyVectorList",
+"Constraint",
+"Points where symbols are drawn",
+[
+"ReadOnly",
+"Hidden"
+],
+[],
+null
+],
+[
+"Pressure",
+"App::PropertyPressure",
+"",
+"",
+[],
+{
+"q": 0.0,
+"u": "Unit: kg/(mm*s^2) (-1,1,-2,0,0,0,0,0) [Pressure]"
+},
+null
+],
+[
+"References",
+"App::PropertyLinkSubList",
+"Constraint",
+"Elements where the constraint is applied",
+[],
+[],
+null
+],
+[
+"Reversed",
+"App::PropertyBool",
+"",
+"",
+[],
+false,
+null
+],
+[
+"Scale",
+"App::PropertyFloatConstraint",
+"Constraint",
+"Scale used for drawing constraints",
+[],
+1.0,
+null
+],
+[
+"Suppressed",
+"App::PropertyBool",
+"Base",
+"Is object suppressed",
+[],
+false,
+null
+],
+[
+"Visibility",
+"App::PropertyBool",
+"",
+"",
+[
+"Hidden"
+],
+true,
+null
+]
+],
+"type": "Fem::ConstraintPressure"
+},
+"Fem::ConstraintPython": {
+"derived": [
+"Fem::ConstraintPython",
+"Fem::Constraint",
+"App::DocumentObject"
+],
+"ext": [
+"App::SuppressibleExtension"
+],
+"props": [
+[
+"ExpressionEngine",
+"App::PropertyExpressionEngine",
+"Base",
+"Property expressions",
+[
+"Hidden"
+],
+null,
+null
+],
+[
+"Label",
+"App::PropertyString",
+"Base",
+"User name of the object (UTF8)",
+[],
+"ConstraintPython",
+null
+],
+[
+"Label2",
+"App::PropertyString",
+"Base",
+"User description of the object (UTF8)",
+[
+"Hidden"
+],
+"",
+null
+],
+[
+"NormalDirection",
+"App::PropertyVector",
+"Constraint",
+"Normal direction pointing outside of solid",
+[
+"ReadOnly"
+],
+{
+"v": [
+0.0,
+0.0,
+1.0
+]
+},
+null
+],
+[
+"Normals",
+"App::PropertyVectorList",
+"Constraint",
+"Normals where symbols are drawn",
+[
+"ReadOnly",
+"Hidden"
+],
+[],
+null
+],
+[
+"Points",
+"App::PropertyVectorList",
+"Constraint",
+"Points where symbols are drawn",
+[
+"ReadOnly",
+"Hidden"
+],
+[],
+null
+],
+[
+"Proxy",
+"App::PropertyPythonObject",
+"",
+"",
+[],
+null,
+null
+],
+[
+"References",
+"App::PropertyLinkSubList",
+"Constraint",
+"Elements where the constraint is applied",
+[],
+[],
+null
+],
+[
+"Scale",
+"App::PropertyFloatConstraint",
+"Constraint",
+"Scale used for drawing constraints",
+[],
+1.0,
+null
+],
+[
+"Suppressed",
+"App::PropertyBool",
+"Base",
+"Is object suppressed",
+[],
+false,
+null
+],
+[
+"Visibility",
+"App::PropertyBool",
+"",
+"",
+[
+"Hidden"
+],
+true,
+null
+]
+],
+"type": "Fem::ConstraintPython"
+},
+"Fem::ConstraintRigidBody": {
+"derived": [
+"Fem::ConstraintRigidBody",
+"Fem::Constraint",
+"App::DocumentObject"
+],
+"ext": [
+"App::SuppressibleExtension"
+],
+"props": [
+[
+"AmplitudeValues",
+"App::PropertyStringList",
+"ConstraintRigidBody",
+"Amplitude values",
+[],
+[
+"0, 0",
+"1, 1"
+],
+null
+],
+[
+"Displacement",
+"App::PropertyPosition",
+"ConstraintRigidBody",
+"Reference node displacement",
+[],
+{
+"v": [
+0.0,
+0.0,
+0.0
+]
+},
+null
+],
+[
+"EnableAmplitude",
+"App::PropertyBool",
+"ConstraintRigidBody",
+"Amplitude of the rigid body boundary condition or load",
+[],
+false,
+null
+],
+[
+"ExpressionEngine",
+"App::PropertyExpressionEngine",
+"Base",
+"Property expressions",
+[
+"Hidden"
+],
+null,
+null
+],
+[
+"ForceX",
+"App::PropertyForce",
+"ConstraintRigidBody",
+"Applied force in X-direction",
+[],
+{
+"q": 0.0,
+"u": "Unit: mm*kg/s^2 (1,1,-2,0,0,0,0,0) [Force]"
+},
+null
+],
+[
+"ForceY",
+"App::PropertyForce",
+"ConstraintRigidBody",
+"Applied force in Y-direction",
+[],
+{
+"q": 0.0,
+"u": "Unit: mm*kg/s^2 (1,1,-2,0,0,0,0,0) [Force]"
+},
+null
+],
+[
+"ForceZ",
+"App::PropertyForce",
+"ConstraintRigidBody",
+"Applied force in Z-direction",
+[],
+{
+"q": 0.0,
+"u": "Unit: mm*kg/s^2 (1,1,-2,0,0,0,0,0) [Force]"
+},
+null
+],
+[
+"Label",
+"App::PropertyString",
+"Base",
+"User name of the object (UTF8)",
+[],
+"ConstraintRigidBody",
+null
+],
+[
+"Label2",
+"App::PropertyString",
+"Base",
+"User description of the object (UTF8)",
+[
+"Hidden"
+],
+"",
+null
+],
+[
+"MomentX",
+"App::PropertyMoment",
+"ConstraintRigidBody",
+"Applied moment in X-direction",
+[],
+{
+"q": 0.0,
+"u": "Unit: mm^2*kg/s^2 (2,1,-2,0,0,0,0,0) [Moment]"
+},
+null
+],
+[
+"MomentY",
+"App::PropertyMoment",
+"ConstraintRigidBody",
+"Applied moment in Y-direction",
+[],
+{
+"q": 0.0,
+"u": "Unit: mm^2*kg/s^2 (2,1,-2,0,0,0,0,0) [Moment]"
+},
+null
+],
+[
+"MomentZ",
+"App::PropertyMoment",
+"ConstraintRigidBody",
+"Applied moment in Z-direction",
+[],
+{
+"q": 0.0,
+"u": "Unit: mm^2*kg/s^2 (2,1,-2,0,0,0,0,0) [Moment]"
+},
+null
+],
+[
+"NormalDirection",
+"App::PropertyVector",
+"Constraint",
+"Normal direction pointing outside of solid",
+[
+"ReadOnly"
+],
+{
+"v": [
+0.0,
+0.0,
+1.0
+]
+},
+null
+],
+[
+"Normals",
+"App::PropertyVectorList",
+"Constraint",
+"Normals where symbols are drawn",
+[
+"ReadOnly",
+"Hidden"
+],
+[],
+null
+],
+[
+"Points",
+"App::PropertyVectorList",
+"Constraint",
+"Points where symbols are drawn",
+[
+"ReadOnly",
+"Hidden"
+],
+[],
+null
+],
+[
+"ReferenceNode",
+"App::PropertyPosition",
+"ConstraintRigidBody",
+"Reference node position",
+[],
+{
+"v": [
+0.0,
+0.0,
+0.0
+]
+},
+null
+],
+[
+"References",
+"App::PropertyLinkSubList",
+"Constraint",
+"Elements where the constraint is applied",
+[],
+[],
+null
+],
+[
+"Rotation",
+"App::PropertyRotation",
+"ConstraintRigidBody",
+"Reference node rotation",
+[],
+null,
+null
+],
+[
+"RotationalModeX",
+"App::PropertyEnumeration",
+"ConstraintRigidBody",
+"X-direction rotation/moment mode",
+[],
+"Free",
+[
+"Free",
+"Constraint",
+"Load"
+]
+],
+[
+"RotationalModeY",
+"App::PropertyEnumeration",
+"ConstraintRigidBody",
+"Y-direction rotation/moment mode",
+[],
+"Free",
+[
+"Free",
+"Constraint",
+"Load"
+]
+],
+[
+"RotationalModeZ",
+"App::PropertyEnumeration",
+"ConstraintRigidBody",
+"Z-direction rotation/moment mode",
+[],
+"Free",
+[
+"Free",
+"Constraint",
+"Load"
+]
+],
+[
+"Scale",
+"App::PropertyFloatConstraint",
+"Constraint",
+"Scale used for drawing constraints",
+[],
+1.0,
+null
+],
+[
+"Suppressed",
+"App::PropertyBool",
+"Base",
+"Is object suppressed",
+[],
+false,
+null
+],
+[
+"TranslationalModeX",
+"App::PropertyEnumeration",
+"ConstraintRigidBody",
+"X-direction displacement/force  mode",
+[],
+"Free",
+[
+"Free",
+"Constraint",
+"Load"
+]
+],
+[
+"TranslationalModeY",
+"App::PropertyEnumeration",
+"ConstraintRigidBody",
+"Y-direction displacement/force  mode",
+[],
+"Free",
+[
+"Free",
+"Constraint",
+"Load"
+]
+],
+[
+"TranslationalModeZ",
+"App::PropertyEnumeration",
+"ConstraintRigidBody",
+"Z-direction displacement/force  mode",
+[],
+"Free",
+[
+"Free",
+"Constraint",
+"Load"
+]
+],
+[
+"Visibility",
+"App::PropertyBool",
+"",
+"",
+[
+"Hidden"
+],
+true,
+null
+]
+],
+"type": "Fem::ConstraintRigidBody"
+},
+"Fem::ConstraintSpring": {
+"derived": [
+"Fem::ConstraintSpring",
+"Fem::Constraint",
+"App::DocumentObject"
+],
+"ext": [
+"App::SuppressibleExtension"
+],
+"props": [
+[
+"ElmerStiffness",
+"App::PropertyEnumeration",
+"",
+"",
+[],
+"Tangential Stiffness",
+[
+"Normal Stiffness",
+"Tangential Stiffness"
+]
+],
+[
+"ExpressionEngine",
+"App::PropertyExpressionEngine",
+"Base",
+"Property expressions",
+[
+"Hidden"
+],
+null,
+null
+],
+[
+"Label",
+"App::PropertyString",
+"Base",
+"User name of the object (UTF8)",
+[],
+"ConstraintSpring",
+null
+],
+[
+"Label2",
+"App::PropertyString",
+"Base",
+"User description of the object (UTF8)",
+[
+"Hidden"
+],
+"",
+null
+],
+[
+"NormalDirection",
+"App::PropertyVector",
+"Constraint",
+"Normal direction pointing outside of solid",
+[
+"ReadOnly"
+],
+{
+"v": [
+0.0,
+0.0,
+1.0
+]
+},
+null
+],
+[
+"NormalStiffness",
+"App::PropertyStiffness",
+"",
+"",
+[],
+{
+"q": 0.0,
+"u": "Unit: kg/s^2 (0,1,-2,0,0,0,0,0) [Stiffness]"
+},
+null
+],
+[
+"Normals",
+"App::PropertyVectorList",
+"Constraint",
+"Normals where symbols are drawn",
+[
+"ReadOnly",
+"Hidden"
+],
+[],
+null
+],
+[
+"Points",
+"App::PropertyVectorList",
+"Constraint",
+"Points where symbols are drawn",
+[
+"ReadOnly",
+"Hidden"
+],
+[],
+null
+],
+[
+"References",
+"App::PropertyLinkSubList",
+"Constraint",
+"Elements where the constraint is applied",
+[],
+[],
+null
+],
+[
+"Scale",
+"App::PropertyFloatConstraint",
+"Constraint",
+"Scale used for drawing constraints",
+[],
+1.0,
+null
+],
+[
+"Suppressed",
+"App::PropertyBool",
+"Base",
+"Is object suppressed",
+[],
+false,
+null
+],
+[
+"TangentialStiffness",
+"App::PropertyStiffness",
+"",
+"",
+[],
+{
+"q": 0.0,
+"u": "Unit: kg/s^2 (0,1,-2,0,0,0,0,0) [Stiffness]"
+},
+null
+],
+[
+"Visibility",
+"App::PropertyBool",
+"",
+"",
+[
+"Hidden"
+],
+true,
+null
+]
+],
+"type": "Fem::ConstraintSpring"
+},
+"Fem::ConstraintTemperature": {
+"derived": [
+"Fem::ConstraintTemperature",
+"Fem::Constraint",
+"App::DocumentObject"
+],
+"ext": [
+"App::SuppressibleExtension"
+],
+"props": [
+[
+"AmplitudeValues",
+"App::PropertyStringList",
+"ConstraintTemperature",
+"Amplitude values",
+[],
+[
+"0, 0",
+"1, 1"
+],
+null
+],
+[
+"ConcentratedHeatFlux",
+"App::PropertyPower",
+"ConstraintTemperature",
+"Concentrated heat flux",
+[],
+{
+"q": 0.0,
+"u": "Unit: mm^2*kg/s^3 (2,1,-3,0,0,0,0,0) [Power]"
+},
+null
+],
+[
+"ConstraintType",
+"App::PropertyEnumeration",
+"ConstraintTemperature",
+"Type of constraint, temperature or concentrated heat flux",
+[],
+"Temperature",
+[
+"Flux",
+"Temperature"
+]
+],
+[
+"EnableAmplitude",
+"App::PropertyBool",
+"ConstraintTemperature",
+"Amplitude of the temperature boundary condition",
+[],
+false,
+null
+],
+[
+"ExpressionEngine",
+"App::PropertyExpressionEngine",
+"Base",
+"Property expressions",
+[
+"Hidden"
+],
+null,
+null
+],
+[
+"Label",
+"App::PropertyString",
+"Base",
+"User name of the object (UTF8)",
+[],
+"ConstraintTemperature",
+null
+],
+[
+"Label2",
+"App::PropertyString",
+"Base",
+"User description of the object (UTF8)",
+[
+"Hidden"
+],
+"",
+null
+],
+[
+"NormalDirection",
+"App::PropertyVector",
+"Constraint",
+"Normal direction pointing outside of solid",
+[
+"ReadOnly"
+],
+{
+"v": [
+0.0,
+0.0,
+1.0
+]
+},
+null
+],
+[
+"Normals",
+"App::PropertyVectorList",
+"Constraint",
+"Normals where symbols are drawn",
+[
+"ReadOnly",
+"Hidden"
+],
+[],
+null
+],
+[
+"Points",
+"App::PropertyVectorList",
+"Constraint",
+"Points where symbols are drawn",
+[
+"ReadOnly",
+"Hidden"
+],
+[],
+null
+],
+[
+"References",
+"App::PropertyLinkSubList",
+"Constraint",
+"Elements where the constraint is applied",
+[],
+[],
+null
+],
+[
+"Scale",
+"App::PropertyFloatConstraint",
+"Constraint",
+"Scale used for drawing constraints",
+[],
+1.0,
+null
+],
+[
+"Suppressed",
+"App::PropertyBool",
+"Base",
+"Is object suppressed",
+[],
+false,
+null
+],
+[
+"Temperature",
+"App::PropertyTemperature",
+"ConstraintTemperature",
+"Temperature",
+[],
+{
+"q": 300.0,
+"u": "Unit: K (0,0,0,0,1,0,0,0) [Temperature]"
+},
+null
+],
+[
+"Visibility",
+"App::PropertyBool",
+"",
+"",
+[
+"Hidden"
+],
+true,
+null
+]
+],
+"type": "Fem::ConstraintTemperature"
+},
+"Fem::ConstraintTransform": {
+"derived": [
+"Fem::ConstraintTransform",
+"Fem::Constraint",
+"App::DocumentObject"
+],
+"ext": [
+"App::SuppressibleExtension"
+],
+"props": [
+[
+"Axis",
+"App::PropertyVector",
+"ConstraintTransform",
+"Axis of cylindrical surface",
+[
+"ReadOnly"
+],
+{
+"v": [
+0.0,
+1.0,
+0.0
+]
+},
+null
+],
+[
+"BasePoint",
+"App::PropertyVector",
+"ConstraintTransform",
+"Base point of cylindrical surface",
+[
+"ReadOnly"
+],
+{
+"v": [
+0.0,
+0.0,
+0.0
+]
+},
+null
+],
+[
+"ExpressionEngine",
+"App::PropertyExpressionEngine",
+"Base",
+"Property expressions",
+[
+"Hidden"
+],
+null,
+null
+],
+[
+"Label",
+"App::PropertyString",
+"Base",
+"User name of the object (UTF8)",
+[],
+"ConstraintTransform",
+null
+],
+[
+"Label2",
+"App::PropertyString",
+"Base",
+"User description of the object (UTF8)",
+[
+"Hidden"
+],
+"",
+null
+],
+[
+"NameDispl",
+"App::PropertyLinkList",
+"ConstraintTransform",
+"Elements where the constraint is applied",
+[],
+[],
+null
+],
+[
+"NormalDirection",
+"App::PropertyVector",
+"Constraint",
+"Normal direction pointing outside of solid",
+[
+"ReadOnly"
+],
+{
+"v": [
+0.0,
+0.0,
+1.0
+]
+},
+null
+],
+[
+"Normals",
+"App::PropertyVectorList",
+"Constraint",
+"Normals where symbols are drawn",
+[
+"ReadOnly",
+"Hidden"
+],
+[],
+null
+],
+[
+"Points",
+"App::PropertyVectorList",
+"Constraint",
+"Points where symbols are drawn",
+[
+"ReadOnly",
+"Hidden"
+],
+[],
+null
+],
+[
+"RefDispl",
+"App::PropertyLinkSubList",
+"ConstraintTransform",
+"Elements where the constraint is applied",
+[],
+[],
+null
+],
+[
+"References",
+"App::PropertyLinkSubList",
+"Constraint",
+"Elements where the constraint is applied",
+[],
+[],
+null
+],
+[
+"Rotation",
+"App::PropertyRotation",
+"ConstraintTransform",
+"Rectangular system transform",
+[],
+null,
+null
+],
+[
+"Scale",
+"App::PropertyFloatConstraint",
+"Constraint",
+"Scale used for drawing constraints",
+[],
+1.0,
+null
+],
+[
+"Suppressed",
+"App::PropertyBool",
+"Base",
+"Is object suppressed",
+[],
+false,
+null
+],
+[
+"TransformType",
+"App::PropertyEnumeration",
+"ConstraintTransform",
+"Type of transform, rectangular or cylindrical",
+[],
+"Rectangular",
+[
+"Cylindrical",
+"Rectangular"
+]
+],
+[
+"Visibility",
+"App::PropertyBool",
+"",
+"",
+[
+"Hidden"
+],
+true,
+null
+]
+],
+"type": "Fem::ConstraintTransform"
+},
+"Fem::FeaturePython": {
+"derived": [
+"Fem::FeaturePython",
+"App::DocumentObject"
+],
+"ext": [],
+"props": [
+[
+"ExpressionEngine",
+"App::PropertyExpressionEngine",
+"Base",
+"Property expressions",
+[
+"Hidden"
+],
+null,
+null
+],
+[
+"Label",
+"App::PropertyString",
+"Base",
+"User name of the object (UTF8)",
+[],
+"FeaturePython",
+null
+],
+[
+"Label2",
+"App::PropertyString",
+"Base",
+"User description of the object (UTF8)",
+[
+"Hidden"
+],
+"",
+null
+],
+[
+"Proxy",
+"App::PropertyPythonObject",
+"",
+"",
+[],
+null,
+null
+],
+[
+"Visibility",
+"App::PropertyBool",
+"",
+"",
+[
+"Hidden"
+],
+true,
+null
+]
+],
+"type": "Fem::FeaturePython"
+},
+"Fem::FemAnalysis": {
+"derived": [
+"Fem::FemAnalysis",
+"App::DocumentObjectGroup",
+"App::DocumentObject"
+],
+"ext": [
+"App::GroupExtension"
+],
+"props": [
+[
+"ExpressionEngine",
+"App::PropertyExpressionEngine",
+"Base",
+"Property expressions",
+[
+"Hidden"
+],
+null,
+null
+],
+[
+"Group",
+"App::PropertyLinkList",
+"Base",
+"List of referenced objects",
+[],
+[],
+null
+],
+[
+"Label",
+"App::PropertyString",
+"Base",
+"User name of the object (UTF8)",
+[],
+"FemAnalysis",
+null
+],
+[
+"Label2",
+"App::PropertyString",
+"Base",
+"User description of the object (UTF8)",
+[
+"Hidden"
+],
+"",
+null
+],
+[
+"Uid",
+"App::PropertyUUID",
+"",
+"UUID of the Analysis",
+[],
+"5e6089fc-f59c-4c29-9365-eecb4970570a",
+null
+],
+[
+"Visibility",
+"App::PropertyBool",
+"",
+"",
+[
+"Hidden"
+],
+true,
+null
+],
+[
+"_GroupTouched",
+"App::PropertyBool",
+"Base",
+"",
+[
+"Hidden"
+],
+false,
+null
+]
+],
+"type": "Fem::FemAnalysis"
+},
+"Fem::FemAnalysisPython": {
+"derived": [
+"Fem::FemAnalysis",
+"Fem::FemAnalysisPython",
+"App::DocumentObjectGroup",
+"App::DocumentObject"
+],
+"ext": [
+"App::GroupExtension"
+],
+"props": [
+[
+"ExpressionEngine",
+"App::PropertyExpressionEngine",
+"Base",
+"Property expressions",
+[
+"Hidden"
+],
+null,
+null
+],
+[
+"Group",
+"App::PropertyLinkList",
+"Base",
+"List of referenced objects",
+[],
+[],
+null
+],
+[
+"Label",
+"App::PropertyString",
+"Base",
+"User name of the object (UTF8)",
+[],
+"FemAnalysisPython",
+null
+],
+[
+"Label2",
+"App::PropertyString",
+"Base",
+"User description of the object (UTF8)",
+[
+"Hidden"
+],
+"",
+null
+],
+[
+"Proxy",
+"App::PropertyPythonObject",
+"",
+"",
+[],
+null,
+null
+],
+[
+"Uid",
+"App::PropertyUUID",
+"",
+"UUID of the Analysis",
+[],
+"68cdc3bf-d8ea-4a7b-90b3-63f89888a16d",
+null
+],
+[
+"Visibility",
+"App::PropertyBool",
+"",
+"",
+[
+"Hidden"
+],
+true,
+null
+],
+[
+"_GroupTouched",
+"App::PropertyBool",
+"Base",
+"",
+[
+"Hidden"
+],
+false,
+null
+]
+],
+"type": "Fem::FemAnalysisPython"
+},
+"Fem::FemMeshObject": {
+"derived": [
+"Fem::FemMeshObject",
+"App::GeoFeature",
+"App::DocumentObject"
+],
+"ext": [
+"App::SuppressibleExtension"
+],
+"props": [
+[
+"ExpressionEngine",
+"App::PropertyExpressionEngine",
+"Base",
+"Property expressions",
+[
+"Hidden"
+],
+null,
+null
+],
+[
+"FemMesh",
+"Fem::PropertyFemMesh",
+"FEM Mesh",
+"FEM Mesh object",
+[],
+null,
+null
+],
+[
+"Label",
+"App::PropertyString",
+"Base",
+"User name of the object (UTF8)",
+[],
+"FemMeshObject",
+null
+],
+[
+"Label2",
+"App::PropertyString",
+"Base",
+"User description of the object (UTF8)",
+[
+"Hidden"
+],
+"",
+null
+],
+[
+"Placement",
+"App::PropertyPlacement",
+"",
+"",
+[],
+{
+"p": [
+[
+0.0,
+0.0,
+0.0
+],
+[
+0.0,
+0.0,
+0.0,
+1.0
+]
+]
+},
+null
+],
+[
+"Suppressed",
+"App::PropertyBool",
+"Base",
+"Is object suppressed",
+[],
+false,
+null
+],
+[
+"Visibility",
+"App::PropertyBool",
+"",
+"",
+[
+"Hidden"
+],
+true,
+null
+],
+[
+"_ElementMapVersion",
+"App::PropertyString",
+"Base",
+"",
+[
+"Hidden"
+],
+"",
+null
+]
+],
+"type": "Fem::FemMeshObject"
+},
+"Fem::FemMeshObjectPython": {
+"derived": [
+"Fem::FemMeshObjectPython",
+"Fem::FemMeshObject",
+"App::GeoFeature",
+"App::DocumentObject"
+],
+"ext": [
+"App::SuppressibleExtension"
+],
+"props": [
+[
+"ExpressionEngine",
+"App::PropertyExpressionEngine",
+"Base",
+"Property expressions",
+[
+"Hidden"
+],
+null,
+null
+],
+[
+"FemMesh",
+"Fem::PropertyFemMesh",
+"FEM Mesh",
+"FEM Mesh object",
+[],
+null,
+null
+],
+[
+"Label",
+"App::PropertyString",
+"Base",
+"User name of the object (UTF8)",
+[],
+"FemMeshObjectPython",
+null
+],
+[
+"Label2",
+"App::PropertyString",
+"Base",
+"User description of the object (UTF8)",
+[
+"Hidden"
+],
+"",
+null
+],
+[
+"Placement",
+"App::PropertyPlacement",
+"",
+"",
+[],
+{
+"p": [
+[
+0.0,
+0.0,
+0.0
+],
+[
+0.0,
+0.0,
+0.0,
+1.0
+]
+]
+},
+null
+],
+[
+"Proxy",
+"App::PropertyPythonObject",
+"",
+"",
+[],
+null,
+null
+],
+[
+"Suppressed",
+"App::PropertyBool",
+"Base",
+"Is object suppressed",
+[],
+false,
+null
+],
+[
+"Visibility",
+"App::PropertyBool",
+"",
+"",
+[
+"Hidden"
+],
+true,
+null
+],
+[
+"_ElementMapVersion",
+"App::PropertyString",
+"Base",
+"",
+[
+"Hidden"
+],
+"",
+null
+]
+],
+"type": "Fem::FemMeshObjectPython"
+},
+"Fem::FemMeshShapeBaseObjectPython": {
+"derived": [
+"Fem::FemMeshShapeBaseObjectPython",
+"Fem::FemMeshObject",
+"App::GeoFeature",
+"App::DocumentObject"
+],
+"ext": [
+"App::SuppressibleExtension"
+],
+"props": [
+[
+"ExpressionEngine",
+"App::PropertyExpressionEngine",
+"Base",
+"Property expressions",
+[
+"Hidden"
+],
+null,
+null
+],
+[
+"FemMesh",
+"Fem::PropertyFemMesh",
+"FEM Mesh",
+"FEM Mesh object",
+[],
+null,
+null
+],
+[
+"Label",
+"App::PropertyString",
+"Base",
+"User name of the object (UTF8)",
+[],
+"FemMeshShapeBaseObjectPython",
+null
+],
+[
+"Label2",
+"App::PropertyString",
+"Base",
+"User description of the object (UTF8)",
+[
+"Hidden"
+],
+"",
+null
+],
+[
+"Placement",
+"App::PropertyPlacement",
+"",
+"",
+[],
+{
+"p": [
+[
+0.0,
+0.0,
+0.0
+],
+[
+0.0,
+0.0,
+0.0,
+1.0
+]
+]
+},
+null
+],
+[
+"Proxy",
+"App::PropertyPythonObject",
+"",
+"",
+[],
+null,
+null
+],
+[
+"Shape",
+"App::PropertyLink",
+"FEM Mesh",
+"Geometry object, the mesh is made from. The geometry object has to have a Shape.",
+[],
+null,
+null
+],
+[
+"Suppressed",
+"App::PropertyBool",
+"Base",
+"Is object suppressed",
+[],
+false,
+null
+],
+[
+"Visibility",
+"App::PropertyBool",
+"",
+"",
+[
+"Hidden"
+],
+true,
+null
+],
+[
+"_ElementMapVersion",
+"App::PropertyString",
+"Base",
+"",
+[
+"Hidden"
+],
+"",
+null
+]
+],
+"type": "Fem::FemMeshShapeBaseObjectPython"
+},
+"Fem::FemResultObject": {
+"derived": [
+"Fem::FemResultObject",
+"App::DocumentObject"
+],
+"ext": [],
+"props": [
+[
+"ExpressionEngine",
+"App::PropertyExpressionEngine",
+"Base",
+"Property expressions",
+[
+"Hidden"
+],
+null,
+null
+],
+[
+"Label",
+"App::PropertyString",
+"Base",
+"User name of the object (UTF8)",
+[],
+"FemResultObject",
+null
+],
+[
+"Label2",
+"App::PropertyString",
+"Base",
+"User description of the object (UTF8)",
+[
+"Hidden"
+],
+"",
+null
+],
+[
+"Mesh",
+"App::PropertyLink",
+"General",
+"Link to the corresponding mesh",
+[],
+null,
+null
+],
+[
+"NodeNumbers",
+"App::PropertyIntegerList",
+"NodeData",
+"Numbers of the result nodes",
+[
+"ReadOnly"
+],
+[
+0
+],
+null
+],
+[
+"Stats",
+"App::PropertyFloatList",
+"Data",
+"Statistics of the results",
+[
+"ReadOnly"
+],
+[
+0.0
+],
+null
+],
+[
+"Time",
+"App::PropertyFloat",
+"Data",
+"Time of analysis increment",
+[
+"ReadOnly"
+],
+0.0,
+null
+],
+[
+"Visibility",
+"App::PropertyBool",
+"",
+"",
+[
+"Hidden"
+],
+true,
+null
+]
+],
+"type": "Fem::FemResultObject"
+},
+"Fem::FemResultObjectPython": {
+"derived": [
+"Fem::FemResultObjectPython",
+"Fem::FemResultObject",
+"App::DocumentObject"
+],
+"ext": [],
+"props": [
+[
+"ExpressionEngine",
+"App::PropertyExpressionEngine",
+"Base",
+"Property expressions",
+[
+"Hidden"
+],
+null,
+null
+],
+[
+"Label",
+"App::PropertyString",
+"Base",
+"User name of the object (UTF8)",
+[],
+"FemResultObjectPython",
+null
+],
+[
+"Label2",
+"App::PropertyString",
+"Base",
+"User description of the object (UTF8)",
+[
+"Hidden"
+],
+"",
+null
+],
+[
+"Mesh",
+"App::PropertyLink",
+"General",
+"Link to the corresponding mesh",
+[],
+null,
+null
+],
+[
+"NodeNumbers",
+"App::PropertyIntegerList",
+"NodeData",
+"Numbers of the result nodes",
+[
+"ReadOnly"
+],
+[
+0
+],
+null
+],
+[
+"Proxy",
+"App::PropertyPythonObject",
+"",
+"",
+[],
+null,
+null
+],
+[
+"Stats",
+"App::PropertyFloatList",
+"Data",
+"Statistics of the results",
+[
+"ReadOnly"
+],
+[
+0.0
+],
+null
+],
+[
+"Time",
+"App::PropertyFloat",
+"Data",
+"Time of analysis increment",
+[
+"ReadOnly"
+],
+0.0,
+null
+],
+[
+"Visibility",
+"App::PropertyBool",
+"",
+"",
+[
+"Hidden"
+],
+true,
+null
+]
+],
+"type": "Fem::FemResultObjectPython"
+},
+"Fem::FemSolverObject": {
+"derived": [
+"Fem::FemSolverObject",
+"App::DocumentObject"
+],
+"ext": [],
+"props": [
+[
+"ExpressionEngine",
+"App::PropertyExpressionEngine",
+"Base",
+"Property expressions",
+[
+"Hidden"
+],
+null,
+null
+],
+[
+"Label",
+"App::PropertyString",
+"Base",
+"User name of the object (UTF8)",
+[],
+"FemSolverObject",
+null
+],
+[
+"Label2",
+"App::PropertyString",
+"Base",
+"User description of the object (UTF8)",
+[
+"Hidden"
+],
+"",
+null
+],
+[
+"Results",
+"App::PropertyLinkList",
+"Base",
+"Solver results list",
+[
+"ReadOnly"
+],
+[],
+null
+],
+[
+"Tool",
+"App::PropertyPythonObject",
+"Worker",
+"Tool for run the worker",
+[
+"ReadOnly",
+"Hidden"
+],
+null,
+null
+],
+[
+"Visibility",
+"App::PropertyBool",
+"",
+"",
+[
+"Hidden"
+],
+true,
+null
+],
+[
+"WorkingDirectory",
+"App::PropertyPath",
+"Worker",
+"Solver working directory",
+[
+"Hidden"
+],
+"",
+null
+]
+],
+"type": "Fem::FemSolverObject"
+},
+"Fem::FemSolverObjectPython": {
+"derived": [
+"Fem::FemSolverObjectPython",
+"Fem::FemSolverObject",
+"App::DocumentObject"
+],
+"ext": [],
+"props": [
+[
+"ExpressionEngine",
+"App::PropertyExpressionEngine",
+"Base",
+"Property expressions",
+[
+"Hidden"
+],
+null,
+null
+],
+[
+"Label",
+"App::PropertyString",
+"Base",
+"User name of the object (UTF8)",
+[],
+"FemSolverObjectPython",
+null
+],
+[
+"Label2",
+"App::PropertyString",
+"Base",
+"User description of the object (UTF8)",
+[
+"Hidden"
+],
+"",
+null
+],
+[
+"Proxy",
+"App::PropertyPythonObject",
+"",
+"",
+[],
+null,
+null
+],
+[
+"Results",
+"App::PropertyLinkList",
+"Base",
+"Solver results list",
+[
+"ReadOnly"
+],
+[],
+null
+],
+[
+"Tool",
+"App::PropertyPythonObject",
+"Worker",
+"Tool for run the worker",
+[
+"ReadOnly",
+"Hidden"
+],
+null,
+null
+],
+[
+"Visibility",
+"App::PropertyBool",
+"",
+"",
+[
+"Hidden"
+],
+true,
+null
+],
+[
+"WorkingDirectory",
+"App::PropertyPath",
+"Worker",
+"Solver working directory",
+[
+"Hidden"
+],
+"",
+null
+]
+],
+"type": "Fem::FemSolverObjectPython"
+}
+}
