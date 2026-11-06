@@ -24,7 +24,8 @@
 // command's step, as FreeCAD's abortTransaction and "Uncreate" do.
 import { useEffect, useState, type ReactNode } from 'react'
 import { createPortal } from 'react-dom'
-import { QtForm, type Bindings } from './qtform'
+import { QtForm, type Binding, type Bindings } from './qtform'
+import type { UiForm } from './uiforms'
 import { CAM_FORMS } from './uiforms-cam'
 import { closeTask, doUndo, openTask } from './actions'
 import { getState, report, setState } from './store'
@@ -221,7 +222,8 @@ const fmt0 = (n: number) => String(Math.round(n * 1000) / 1000)
 
 // ── an operation's panel (Path/Op/Gui/Base.py TaskPanel) ────────────────────────────────────────────────────────
 type Page = { title: string; icon: string; node: ReactNode }
-const OWN_PAGE = ['Profile', 'PocketShape', 'MillFace', 'Drilling']
+const OWN_PAGE = ['Profile', 'PocketShape', 'MillFace', 'Drilling', 'Pocket3D', 'Helix', 'Engrave', 'Slot', 'Deburr', 'ThreadMilling',
+  'Tapping', 'MillFacing', 'Adaptive', 'Custom', 'Probe']
 // CircularHoleBase's ops, whose Base Geometry page is TaskPanelHoleGeometryPage
 const HOLE_OPS = ['Drilling', 'Helix', 'ThreadMilling', 'Tapping']
 function OpPanel({ job, name, create }: { job: string; name: string; create: boolean }) {
@@ -241,7 +243,7 @@ function OpPanel({ job, name, create }: { job: string; name: string; create: boo
     addRemoveEdit: {}, addLocation: { off: true, why: 'locations are picked in the 3D view in FreeCAD' }, removeLocation: { off: true }, editLocation: { off: true } }} /> })
   if (feat & F.Heights) pages.push({ title: 'Heights', icon: 'CAM_Heights', node: <Heights p={p} o={o} feat={feat} /> })
   if (feat & (F.Tool | F.Coolant)) pages.push({ title: 'Tool Controller', icon: 'CAM_ToolController', node: <ToolControllerPage p={p} job={job} o={o} feat={feat} /> })
-  // the op's own page (PageOp*Edit.ui) is ported for these four; the others' settings are in the property view
+  // the op's own page (PageOp*Edit.ui)
   if (OWN_PAGE.includes(kind)) pages.push({ title: 'Operation', icon: '', node: <OpPage p={p} o={o} /> })
   const at = cur ?? pages.length - 1
   const title = { Profile: 'Profile', PocketShape: 'Pocket Shape', MillFace: 'MillFace', Drilling: 'Drilling', ThreadMilling: 'Thread Milling',
@@ -401,10 +403,78 @@ function ToolControllerPage({ p, job, o, feat }: { p: P; job: string; o: CamObj;
     {tc && camObj(job, tc) && <QtForm form={CAM_FORMS.tcedit} bind={tcBind(p, tc, others)} />}
   </>
 }
-/** The op's own page: Profile.py, PocketBase.py (PocketShape, MillFace), Drilling.py. */
+/** The ops added 2026-11-06: each Path/Op/Gui/<Op>.py page's widgets and the properties its getFields sets them to
+ *  (PathGuiUtil.QuantitySpinBox's too); the form is its PageOp<Op>Edit.ui. */
+const OP_FORMS: Record<string, [string, Record<string, string>]> = {
+  Helix: ['helix', { side: 'Side', startAt: 'StartAt', cutMode: 'CutMode', stepOver: 'StepOver', helixMaxPitch: 'HelixMaxPitch',
+    helixMaxRampAngle: 'HelixMaxRampAngle', radialStockToLeaveOuter: 'RadialStockToLeaveOuter', radialStockToLeaveInner: 'RadialStockToLeaveInner',
+    coneAngle: 'HelixConeAngle', rotationAngle: 'RotationAngle', spiralMill: 'SpiralMill', singleHelix: 'SingleHelix',
+    startBottom: 'StartConeFromBottom', retractFromWall: 'RetractFromWall', overrideArcFeed: 'OverrideArcFeedRate' }],
+  Engrave: ['engrave', { cutPattern: 'CutPattern', sorting: 'SortingMode', startVertex: 'StartVertex', chkReverse: 'Reverse', chkApproximation: 'Approximation' }],
+  Slot: ['slot', { geo1Reference: 'Reference1', geo1Extension: 'ExtendPathStart', geo2Reference: 'Reference2', geo2Extension: 'ExtendPathEnd',
+    cutPattern: 'CutPattern', pathOrientation: 'PathOrientation', reverseDirection: 'ReverseDirection' }],
+  Deburr: ['deburr', { value_W: 'Width', value_h: 'ExtraDepth', direction: 'Direction' }],
+  ThreadMilling: ['threadmilling', { threadOrientation: 'ThreadOrientation', threadType: 'ThreadType', threadName: 'ThreadName',
+    threadFit: 'ThreadFit', threadMajor: 'MajorDiameter', threadMinor: 'MinorDiameter', threadPitch: 'Pitch', threadTPI: 'TPI',
+    opDirection: 'Direction', opPasses: 'Passes', leadInOut: 'LeadInOut' }],
+  Tapping: ['tapping', { dwellEnabled: 'DwellEnabled', dwellTime: 'DwellTime', ExtraOffset: 'ExtraOffset' }],
+  MillFacing: ['millfacing', { cutMode: 'CutMode', clearingPattern: 'ClearingPattern', angle: 'Angle', reverse: 'Reverse',
+    axialStockToLeave: 'AxialStockToLeave', passExtension: 'PassExtension', stockExtension: 'StockExtension' }],
+  Adaptive: ['adaptive', { Side: 'Side', OperationType: 'OperationType', stepOver: 'StepOverPercent', Tolerance: 'Tolerance',
+    HelixMaxDiameterPercent: 'HelixMaxDiameterPercent', HelixMinDiameterPercent: 'HelixMinDiameterPercent', HelixConeAngle: 'HelixConeAngle',
+    HelixMaxPitch: 'HelixMaxPitch', HelixMaxRampAngle: 'HelixMaxRampAngle', LiftDistance: 'LiftDistance', StockToLeave: 'StockToLeave',
+    ForceInsideOut: 'ForceInsideOut', useOutline: 'UseOutline', useRestMachining: 'UseRestMachining', StopButton: 'Stopped' }],
+  Custom: ['custom', { source: 'Source', fileName: 'GcodeFile', chkAsIs: 'PostProcessOutput' }],
+  Probe: ['probe', { Xoffset: 'Xoffset', Yoffset: 'Yoffset', PointCountX: 'PointCountX', PointCountY: 'PointCountY', OutputFileName: 'OutputFileName' }],
+}
+/** The names of a form's widgets of one class. */
+function widgetsOf(form: UiForm, cls: string): Set<string> {
+  const out = new Set<string>()
+  const walk = (x: unknown) => {
+    if (!x || typeof x !== 'object') return
+    const w = x as { c?: string; n?: string }
+    if (w.c === cls && w.n) out.add(w.n)
+    for (const v of Object.values(x)) walk(v)
+  }
+  walk(form.root)
+  return out
+}
+const QUANTITY = /^App::Property(Length|Distance|Angle|Speed|Quantity|Area|Volume|Acceleration|Force|Pressure|Time)/
+/** A widget bound to a property by the property's type: an enumeration's combo, a quantity's spin box, a check box,
+ *  a number, a text. */
+function propBind(p: P, n: string, prop: string): Binding {
+  const pr = propOf(p.obj(n), prop)
+  if (!pr) return { hide: true }
+  if (pr.type === 'App::PropertyEnumeration') return ebind(p, n, prop)
+  if (pr.type === 'App::PropertyBool') return cbind(p, n, prop)
+  if (QUANTITY.test(pr.type)) return qbind(p, n, prop)
+  if (/Integer|Percent|Float/.test(pr.type)) return { value: Number(p.get(n, prop) ?? 0), min: -1e9, max: 1e9, dec: /Float/.test(pr.type) ? 4 : 0,
+    set: (v: number) => p.put(n, prop, v) }
+  return { value: String(p.get(n, prop) ?? ''), set: (v: string) => p.put(n, prop, v) }
+}
+
+/** The op's own page: Profile.py, PocketBase.py (PocketShape, MillFace, Pocket3D), Drilling.py, and OP_FORMS'. */
 function OpPage({ p, o }: { p: P; o: CamObj }) {
   const n = o.name
   const k = o.kind
+  if (k && OP_FORMS[k]) {
+    const [form, map] = OP_FORMS[k]
+    const lineEdits = widgetsOf(CAM_FORMS[form], 'Gui::InputField')
+    const bind: Bindings = Object.fromEntries(Object.entries(map).map(([w, prop]) => {
+      const b = propBind(p, n, prop)
+      // a Gui::InputField is a line edit holding the quantity's text (PathGuiUtil.updateInputField reads it back)
+      if (lineEdits.has(w) && typeof b.value === 'number') return [w, { value: `${Math.round(b.value * 100) / 100}${b.suffix ?? ''}`, tip: b.tip,
+        set: (t: string) => p.put(n, prop, t.replace('°', 'deg')) }]
+      return [w, b]
+    }))
+    if (k === 'Adaptive') {
+      // Adaptive.py: the Tolerance slider is Tolerance * 100 (0 to 100, accuracy against speed)
+      const tol = Math.round(Number(p.get(n, 'Tolerance') ?? 0.1) * 100)
+      bind.Tolerance = { node: <input type="range" min={0} max={100} value={tol} data-cam="Tolerance"
+        onChange={(e) => p.put(n, 'Tolerance', Number(e.target.value) / 100)} /> }
+    }
+    return <QtForm form={CAM_FORMS[form]} bind={bind} />
+  }
   if (k === 'Profile') {
     const base = (p.get(n, 'Base') as [string, string[]][]) ?? []
     const hasFace = base.some(([, s]) => s.some((x) => x.startsWith('Face')))
@@ -422,7 +492,7 @@ function OpPage({ p, o }: { p: P; o: CamObj }) {
     }
     return <QtForm form={CAM_FORMS.profile} bind={bind} />
   }
-  if (k === 'PocketShape' || k === 'MillFace') {
+  if (k === 'PocketShape' || k === 'MillFace' || k === 'Pocket3D') {
     const facing = k === 'MillFace'
     const pattern = String(p.get(n, 'ClearingPattern'))
     const thr = numOf(o, 'RetractThreshold')

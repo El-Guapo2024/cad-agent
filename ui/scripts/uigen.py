@@ -52,6 +52,11 @@ CAM_PAGES = {
     "tcedit": _CAM + "ToolControllerEdit.ui", "profile": _CAM + "PageOpProfileFullEdit.ui",
     "pocket": _CAM + "PageOpPocketFullEdit.ui", "drilling": _CAM + "PageOpDrillingEdit.ui",
     "tags": _CAM + "HoldingTagsEdit.ui", "pocketext": _CAM + "PageOpPocketExtEdit.ui",
+    # the ops added 2026-11-06 (Path/Op/Gui/<Op>.py getForm)
+    "helix": _CAM + "PageOpHelixEdit.ui", "engrave": _CAM + "PageOpEngraveEdit.ui", "slot": _CAM + "PageOpSlotEdit.ui",
+    "deburr": _CAM + "PageOpDeburrEdit.ui", "threadmilling": _CAM + "PageOpThreadMillingEdit.ui",
+    "tapping": _CAM + "PageOpTappingEdit.ui", "millfacing": _CAM + "PageOpMillFacingEdit.ui",
+    "adaptive": _CAM + "PageOpAdaptiveEdit.ui", "custom": _CAM + "PageOpCustomEdit.ui", "probe": _CAM + "PageOpProbeEdit.ui",
 }
 TECHDRAW_PAGES = {
     "projgroup": "src/Mod/TechDraw/Gui/TaskProjGroup.ui", "section": "src/Mod/TechDraw/Gui/TaskSectionView.ui",
