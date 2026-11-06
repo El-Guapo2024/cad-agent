@@ -27,7 +27,7 @@ TYPE_OF = {"DrawPage": "TechDraw::DrawPage", "DrawSVGTemplate": "TechDraw::DrawS
            "DrawProjGroup": "TechDraw::DrawProjGroup", "DrawViewSection": "TechDraw::DrawViewSection",
            "DrawViewDimension": "TechDraw::DrawViewDimension", "DrawViewBalloon": "TechDraw::DrawViewBalloon",
            "DrawViewAnnotation": "TechDraw::DrawViewAnnotation", "DrawHatch": "TechDraw::DrawHatch",
-           "DrawGeomHatch": "TechDraw::DrawGeomHatch"}
+           "DrawGeomHatch": "TechDraw::DrawGeomHatch", "DrawBrokenView": "TechDraw::DrawBrokenView"}
 # the hatches' rows are in fctechdraw_hatch.json (ui/scripts/fctechdraw_hatch.py)
 HATCH_REC = {"DrawHatch": "props_DrawHatch_Hatch", "DrawGeomHatch": "props_DrawGeomHatch_GeomHatch"}
 # the view providers' properties (the View tab), which the page file holds beside the object's
@@ -48,6 +48,8 @@ def main():
     rec_h = json.loads((HERE / "fctechdraw_hatch.json").read_text())
     out, out_view = {}, {}
     for kind, cls in T.CLASSES.items():
+        if kind not in TYPE_OF:             # techdraw_objs' kinds: ui/scripts/techdrawprops_more.py
+            continue
         props = types[TYPE_OF[kind]]
         by_shown = {shown(p): p for p in props}
         keys = {cls.prop_name(k): k for k in cls.DEFAULTS}

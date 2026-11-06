@@ -17,13 +17,15 @@ s = doc.addObject("TechDraw::DrawViewSection", "Section"); page.addView(s); s.Ba
 d = doc.addObject("TechDraw::DrawViewDimension", "Dimension"); page.addView(d)
 b = doc.addObject("TechDraw::DrawViewBalloon", "Balloon"); page.addView(b)
 a = doc.addObject("TechDraw::DrawViewAnnotation", "Annotation"); page.addView(a)
+brk = doc.addObject("Part::Feature", "Break"); brk.Shape = Part.makeLine(App.Vector(0, 0, 0), App.Vector(5, 0, 0))
+bv = doc.addObject("TechDraw::DrawBrokenView", "BrokenView"); page.addView(bv); bv.Source = [box]; bv.Breaks = [brk]
 doc.recompute()
 h = doc.addObject("TechDraw::DrawHatch", "Hatch")
 h.Source = (v, ["Face0"])
 gh = doc.addObject("TechDraw::DrawGeomHatch", "GeomHatch")
 gh.Source = (v, ["Face0"])
 out = {}
-for o in [page, tpl, v, g, doc.getObject("ProjItem"), s, d, b, a, h, gh]:
+for o in [page, tpl, v, g, doc.getObject("ProjItem"), s, d, b, a, h, gh, bv]:
     props = {}
     for p in o.PropertiesList:
         try:

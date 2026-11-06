@@ -157,6 +157,8 @@ Step 5, round 3 (six branches) is all in main (7526c0c, CI green, 6977 passed, 2
   panel (src/assembly_bom.tsx), assemblycheck's bom section. Linear, Polar and Circular link arrays too (cad_agent/
   assembly_array.py over feature_transform's pattern code, tests/golden/link_array, src/assembly_array.tsx). Still cut
   in Assembly: Snapshot, the Path and Point link arrays.
+  TechDraw Broken View (2026-11-06): cad_agent/techdraw_broken.py, the `broken_view` op, goldens rod_broken,
+  rod_broken_two, shaft_broken; Complex Section is still cut.
   Branches made before 22944df (pcbfab-demo among them) still run CI on ubuntu-latest: merge main into them.
   CI: ubuntu-latest moved to Ubuntu 26 and its compiler broke the native solvers' bit-for-bit goldens on every branch
   since 2026-11-03; ci.yml now pins ubuntu-24.04 (GCC 13, as this box, where they pass).

@@ -994,6 +994,30 @@ Deliberate or known differences:
   then the next ones' faces), not FreeCAD's "Array.0.Face1".
 - The BOM counts an array as one line of its part, as FreeCAD's BomObject does (it follows the link).
 
+## TechDraw Broken View, 2026-11-06
+
+TechDraw_BrokenView makes a TechDraw::DrawBrokenView (a PAGE entry, `TechDraw.DrawBrokenView(..., breaks=[[[x, y, z],
+[x, y, z]], ...], gap=10)`): its source, or a selected view's, cut at each break and pushed together. cad_agent/
+techdraw_broken.py ports DrawBrokenView.cpp's execute (apply1Break's two half spaces, compressHorizontal and
+compressVertical with getPieces, getPieceLimits, makeSortedBreakList and moveThisPiece, DrawUtil's closestBasis and
+closestBasisOriented) before the view's usual projection, and QGIViewPart::drawBreakLines / QGIBreakLine for edge breaks
+with the defaults (BreakLineType Simple, a continuous black line). A break is FreeCAD's link to a straight edge of the 3D
+document; here its two ends, or, from the page and `cad techdraw apply`'s `broken_view` op, a part's edge picked in the
+3D view ([part, "Edge7"]: its first and last vertex, breakPointsFromEdge's).
+
+Checked against the real FreeCAD:
+- tests/golden/techdraw: rod_broken (a break along a 200 mm bar, from a base view), rod_broken_two (two breaks, Gap 6,
+  from the front) and shaft_broken (a break across the stepped shaft's axis): every edge, the placement and the DXF
+  equal (14 tests); the property view's rows are fctechdraw_types.py's dump of a DrawBrokenView.
+- ui/scripts/techdrawcheck.mjs menus and toolbars: Broken View active with a page, as FreeCAD's (needPage).
+
+Deliberate or known differences:
+- Sketch breaks (breakPointsFromSketch, a sketch of two parallel lines) are not offered: a project's page has no
+  sketches of the 3D document. The Breaks are points held by the view, not links, so moving the part does not move them.
+- The break lines are where breakBoundsFromEdge puts them, FreeCAD's code read as written (the break edge projected onto
+  the paper plane through the model origin, neither centred nor compressed with the view, and flat in a view along Y);
+  they are not compared with FreeCAD's GUI. ZigZag and None (ViewProviderViewPart::BreakLineType) are not offered.
+
 ## Sketcher text and the commands on sketch objects, 2026-10-26
 
 Sketcher_CreateText (DrawSketchHandlerText.h, EditTextDialog, FontProvider, SketchObject::setTextAndFont, Part::makeTextWires and
@@ -1138,7 +1162,7 @@ bold, italic, underline, colour and size (not MRichTextEdit's whole set) and the
 frame's size and the weld tiles' texts are near FreeCAD's, not equal); SymbolChooser lists each symbol once (FreeCAD loads the folder twice); the file
 dialogs are lists of FreeCAD's symbols and the project's files with Browse for a file of one's own; an uploaded image is kept in
 techdraw/images/ and stays when the step is undone; PDF and DXF leave out symbols, images and rich text; a weld's tile symbol is drawn at the
-symbol factor 1.25 without Qt's font metrics; Broken View and Complex Section are not ported.
+symbol factor 1.25 without Qt's font metrics; Complex Section is not ported (Broken View came 2026-11-06).
 
 The extension commands are checked by tests/test_techdraw_ext.py (every command of ui/scripts/fctechdraw_ext.json replayed in the recording's order on
 the plate, a flange and a shaft: the view's edges and vertices in FreeCAD's numbering, the cosmetic edges and vertices, dimensions, balloons, the
@@ -1147,7 +1171,7 @@ dialogs and the undo steps; the recording is ui/scripts/fctechdraw_ext.py, drivi
 same selections).
 
 Known differences, each marked `known` by techdrawcheck:
-- Commands not ported are greyed (Broken View, Complex Section, Project Shape, Active/Draft/BIM/Spreadsheet views, Print All, ...);
+- Commands not ported are greyed (Complex Section, Project Shape, Active/Draft/BIM/Spreadsheet views, Print All, ...);
   FreeCAD enables some of these where we grey them.
 - Extension commands: Change Line Attributes, Extend and Shorten Line on a centre line, Toggle Edge Visibility and Position Section View make no
   undo step in FreeCAD (they change an object or a view provider, not a property; the Python command sets X and Y outside a transaction); each is a
@@ -1291,7 +1315,7 @@ Known differences:
 - Part: Shape from mesh, Points from shape, Box selection, Persistent section cut, Check geometry, Appearance per face and Defeaturing are greyed or not ported ("Part workbench, 2026-10-25").
 - Assembly: Snapshot and the Path and Point link arrays are cut; datums inside parts, nested sub-assemblies, Exploded View's Align to..., Save Animation and the Std_TransformManip dragger are not ported ("Assembly's later commands, 2026-10-27").
 - Loft, Pipe and Helix: a Pipe whose end sections are not planar is refused, and a solid's face as a Pipe's or Helix's Profile is not offered ("PartDesign Loft, Pipe and Helix, 2026-10-24").
-- TechDraw: Broken View and Complex Section (they need break and profile objects, sketches or wires of the page's document, which a project's page does not have; DrawBrokenView.cpp, DrawComplexSection.cpp and TaskComplexSection.cpp are about 4000 lines), Project Shape and the views from other workbenches are greyed ("TechDraw workbench, 2026-10-27").
+- TechDraw: Complex Section (it needs a profile object, a sketch or wire of the page's document, which a project's page does not have; DrawComplexSection.cpp and TaskComplexSection.cpp are about 2800 lines), Broken View's sketch breaks, Project Shape and the views from other workbenches are greyed ("TechDraw workbench, 2026-10-27").
 - Spreadsheet: Bind…, Configuration Table, zoom, printing, the line edits' completer, xlsx import and charts are cut ("Spreadsheet workbench, 2026-10-27").
 - CAM: Surface and Waterline, the Operation pages' own logic and the panels of the ten dress-ups added 2026-11-06, the simulators, work planes, templates and the tool bit library are cut ("CAM workbench").
 - The other workbenches: the selector offers only Assembly, CAD Agent, CAM, Inspection, Part Design, Part, Sketcher, Spreadsheet and TechDraw, so Draft, FEM, Mesh and the rest are not offered ("Toolbars").

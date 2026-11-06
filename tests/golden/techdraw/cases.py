@@ -138,6 +138,20 @@ CASES = {
         {"op": "section", "base_view": "View", "direction": "Right", "origin": [10.0, 8.0, 5.0], "symbol": "A"},
         {"op": "section", "base_view": "View", "direction": "Up", "origin": [10.0, 8.0, 5.0], "symbol": "B"},
     ]},
+    # broken views (TechDraw_BrokenView): a break along the rod's length, two of them, and one across the shaft's
+    # axis, each break a straight edge given by its ends
+    "rod_broken": {"ops": [
+        {"op": "view", "source": ["rod"], "direction": [0, 0, 1]},
+        {"op": "broken_view", "base_view": "View", "breaks": [[[-60, 0, 6], [50, 0, 6]]]},
+        {"op": "move", "name": "BrokenView", "x": 150.0, "y": 60.0},
+    ]},
+    "rod_broken_two": {"ops": [
+        {"op": "broken_view", "source": ["rod"], "direction": [0, -1, 0], "gap": 6,
+         "breaks": [[[-70, -10, 0], [-20, -10, 0]], [[60, -10, 0], [10, -10, 0]]]},
+    ]},
+    "shaft_broken": {"ops": [
+        {"op": "broken_view", "source": ["shaft"], "breaks": [[[0, -10, 4], [0, -10, 24]]]},
+    ]},
     "shaft_section": {"ops": [
         {"op": "view", "source": ["shaft"]},
         {"op": "section", "base_view": "View", "direction": "Left", "symbol": "A"},

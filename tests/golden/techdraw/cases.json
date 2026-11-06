@@ -2230,6 +2230,308 @@
   ],
   "template": null
  },
+ "rod_broken": {
+  "objects": [
+   {
+    "name": "Page",
+    "kind": "DrawPage",
+    "type_id": "TechDraw::DrawPage",
+    "template": "Template",
+    "projection_type": "First angle",
+    "scale": 1.0,
+    "keep_updated": true,
+    "next_balloon_index": 1,
+    "label": null
+   },
+   {
+    "name": "Template",
+    "kind": "DrawSVGTemplate",
+    "type_id": "TechDraw::DrawSVGTemplate",
+    "template": "Default_Template_A4_Landscape.svg",
+    "editable_texts": {},
+    "label": null
+   },
+   {
+    "name": "View",
+    "kind": "DrawProjGroupItem",
+    "type_id": "TechDraw::DrawProjGroupItem",
+    "x": 148.5,
+    "y": 105.0,
+    "lock_position": false,
+    "rotation": 0.0,
+    "scale_type": "Page",
+    "scale": 1.0,
+    "caption": "",
+    "label": null,
+    "source": [
+     "rod"
+    ],
+    "direction": [
+     0.0,
+     0.0,
+     1.0
+    ],
+    "x_direction": [
+     1.0,
+     0.0,
+     0.0
+    ],
+    "perspective": false,
+    "focus": 100.0,
+    "coarse_view": false,
+    "smooth_visible": true,
+    "seam_visible": false,
+    "iso_visible": false,
+    "hard_hidden": false,
+    "smooth_hidden": false,
+    "seam_hidden": false,
+    "iso_hidden": false,
+    "iso_count": 0,
+    "scrub_count": 1,
+    "cosmetic_edges": [],
+    "center_lines": [],
+    "cosmetic_vertexes": [],
+    "geom_formats": [],
+    "show_all_edges": false,
+    "item_type": "Front"
+   },
+   {
+    "name": "BrokenView",
+    "kind": "DrawBrokenView",
+    "type_id": "TechDraw::DrawBrokenView",
+    "x": 150.0,
+    "y": 60.0,
+    "lock_position": false,
+    "rotation": 0.0,
+    "scale_type": "Page",
+    "scale": 1.0,
+    "caption": "",
+    "label": null,
+    "source": [
+     "rod"
+    ],
+    "direction": [
+     0.0,
+     0.0,
+     1.0
+    ],
+    "x_direction": [
+     1.0,
+     0.0,
+     0.0
+    ],
+    "perspective": false,
+    "focus": 100.0,
+    "coarse_view": false,
+    "smooth_visible": true,
+    "seam_visible": false,
+    "iso_visible": false,
+    "hard_hidden": false,
+    "smooth_hidden": false,
+    "seam_hidden": false,
+    "iso_hidden": false,
+    "iso_count": 0,
+    "scrub_count": 1,
+    "cosmetic_edges": [],
+    "center_lines": [],
+    "cosmetic_vertexes": [],
+    "geom_formats": [],
+    "show_all_edges": false,
+    "breaks": [
+     [
+      [
+       -60.0,
+       0.0,
+       6.0
+      ],
+      [
+       50.0,
+       0.0,
+       6.0
+      ]
+     ]
+    ],
+    "gap": 10.0
+   }
+  ],
+  "template": null
+ },
+ "rod_broken_two": {
+  "objects": [
+   {
+    "name": "Page",
+    "kind": "DrawPage",
+    "type_id": "TechDraw::DrawPage",
+    "template": "Template",
+    "projection_type": "First angle",
+    "scale": 1.0,
+    "keep_updated": true,
+    "next_balloon_index": 1,
+    "label": null
+   },
+   {
+    "name": "Template",
+    "kind": "DrawSVGTemplate",
+    "type_id": "TechDraw::DrawSVGTemplate",
+    "template": "Default_Template_A4_Landscape.svg",
+    "editable_texts": {},
+    "label": null
+   },
+   {
+    "name": "BrokenView",
+    "kind": "DrawBrokenView",
+    "type_id": "TechDraw::DrawBrokenView",
+    "x": 148.5,
+    "y": 105.0,
+    "lock_position": false,
+    "rotation": 0.0,
+    "scale_type": "Page",
+    "scale": 1.0,
+    "caption": "",
+    "label": null,
+    "source": [
+     "rod"
+    ],
+    "direction": [
+     0.0,
+     -1.0,
+     0.0
+    ],
+    "x_direction": [
+     1.0,
+     0.0,
+     0.0
+    ],
+    "perspective": false,
+    "focus": 100.0,
+    "coarse_view": false,
+    "smooth_visible": true,
+    "seam_visible": false,
+    "iso_visible": false,
+    "hard_hidden": false,
+    "smooth_hidden": false,
+    "seam_hidden": false,
+    "iso_hidden": false,
+    "iso_count": 0,
+    "scrub_count": 1,
+    "cosmetic_edges": [],
+    "center_lines": [],
+    "cosmetic_vertexes": [],
+    "geom_formats": [],
+    "show_all_edges": false,
+    "breaks": [
+     [
+      [
+       -70.0,
+       -10.0,
+       0.0
+      ],
+      [
+       -20.0,
+       -10.0,
+       0.0
+      ]
+     ],
+     [
+      [
+       60.0,
+       -10.0,
+       0.0
+      ],
+      [
+       10.0,
+       -10.0,
+       0.0
+      ]
+     ]
+    ],
+    "gap": 6.0
+   }
+  ],
+  "template": null
+ },
+ "shaft_broken": {
+  "objects": [
+   {
+    "name": "Page",
+    "kind": "DrawPage",
+    "type_id": "TechDraw::DrawPage",
+    "template": "Template",
+    "projection_type": "First angle",
+    "scale": 1.0,
+    "keep_updated": true,
+    "next_balloon_index": 1,
+    "label": null
+   },
+   {
+    "name": "Template",
+    "kind": "DrawSVGTemplate",
+    "type_id": "TechDraw::DrawSVGTemplate",
+    "template": "Default_Template_A4_Landscape.svg",
+    "editable_texts": {},
+    "label": null
+   },
+   {
+    "name": "BrokenView",
+    "kind": "DrawBrokenView",
+    "type_id": "TechDraw::DrawBrokenView",
+    "x": 148.5,
+    "y": 105.0,
+    "lock_position": false,
+    "rotation": 0.0,
+    "scale_type": "Page",
+    "scale": 1.0,
+    "caption": "",
+    "label": null,
+    "source": [
+     "shaft"
+    ],
+    "direction": [
+     0.0,
+     -1.0,
+     0.0
+    ],
+    "x_direction": [
+     1.0,
+     0.0,
+     0.0
+    ],
+    "perspective": false,
+    "focus": 100.0,
+    "coarse_view": false,
+    "smooth_visible": true,
+    "seam_visible": false,
+    "iso_visible": false,
+    "hard_hidden": false,
+    "smooth_hidden": false,
+    "seam_hidden": false,
+    "iso_hidden": false,
+    "iso_count": 0,
+    "scrub_count": 1,
+    "cosmetic_edges": [],
+    "center_lines": [],
+    "cosmetic_vertexes": [],
+    "geom_formats": [],
+    "show_all_edges": false,
+    "breaks": [
+     [
+      [
+       0.0,
+       -10.0,
+       4.0
+      ],
+      [
+       0.0,
+       -10.0,
+       24.0
+      ]
+     ]
+    ],
+    "gap": 10.0
+   }
+  ],
+  "template": null
+ },
  "shaft_section": {
   "objects": [
    {

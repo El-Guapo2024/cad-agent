@@ -327,6 +327,32 @@ class DrawViewSection(DrawViewPart):
     TRANSACTION = "Create Section View"
 
 
+class DrawBrokenView(DrawViewPart):
+    """TechDraw::DrawBrokenView (TechDraw_BrokenView): a view of its source with the stretches between each break's two
+    points taken out and the rest pushed together, Gap apart (techdraw_broken.py). A break is FreeCAD's Breaks link to
+    a straight edge of the 3D document; here its two ends in model space, ((x, y, z), (x, y, z))."""
+    kind = "DrawBrokenView"
+    TYPE_ID = "TechDraw::DrawBrokenView"
+    DEFAULTS = {**VIEW_DEFAULTS, "breaks": (), "gap": 10.0}
+    TRANSACTION = "Create broken view"
+
+    def normalize(self, key, v):
+        if key == "breaks":
+            out = []
+            for b in v or ():
+                if not (isinstance(b, (list, tuple)) and len(b) == 2
+                        and all(isinstance(p, (list, tuple)) and len(p) == 3 for p in b)):
+                    raise TechDrawError(f"{self.name}.Breaks: {b!r} is not a break, two points ((x, y, z), (x, y, z))")
+                out.append(tuple(tuple(float(c) for c in p) for p in b))
+            return tuple(out)
+        return super().normalize(key, v)
+
+    def source_value(self, key, v=None):
+        if key == "breaks":
+            return [[list(p) for p in b] for b in (getattr(self, key) if v is None else v)]
+        return super().source_value(key, v)
+
+
 class DrawViewDimension(TDObject):
     kind = "DrawViewDimension"
     TYPE_ID = "TechDraw::DrawViewDimension"
@@ -458,9 +484,9 @@ class DrawGeomHatch(_Hatch):
 
 
 CLASSES = {c.kind: c for c in (DrawPage, DrawSVGTemplate, DrawViewPart, DrawProjGroupItem, DrawProjGroup,
-                               DrawViewSection, DrawViewDimension, DrawViewBalloon, DrawViewAnnotation, DrawHatch,
-                               DrawGeomHatch)}
-VIEW_KINDS = ("DrawViewPart", "DrawProjGroupItem", "DrawViewSection")
+                               DrawViewSection, DrawBrokenView, DrawViewDimension, DrawViewBalloon, DrawViewAnnotation,
+                               DrawHatch, DrawGeomHatch)}
+VIEW_KINDS = ("DrawViewPart", "DrawProjGroupItem", "DrawViewSection", "DrawBrokenView")
 
 
 def as_dict(o: TDObject) -> dict:
@@ -634,6 +660,9 @@ class PageDocument:
             return
         shape = self.shape(parts)
         scale = self.view_scale(o)
+        if isinstance(o, DrawBrokenView):
+            from .techdraw_broken import broken_shape
+            shape = broken_shape(shape, o.breaks, o.gap, o.direction, o.x_direction)
         if isinstance(o, DrawViewSection):
             geo = V.project_section(shape, o.section_normal, o.x_direction, o.section_origin, o.direction,
                                     o.x_direction, scale, o.rotation, o.flags())
@@ -723,6 +752,9 @@ class PageDocument:
         for name, m in self.dims.items():
             d = self.get(name)
             dims[name] = {**m, "x": d.x, "y": d.y, "view": d.view(), "type": d.type}
+        for o in (o for o in self.objects if isinstance(o, DrawBrokenView) and o.name in views):
+            from .techdraw_broken import break_lines
+            views[o.name]["break_lines"] = break_lines(o, self.geo[o.name].scale)
         sections = {}
         for s in (o for o in self.objects if isinstance(o, DrawViewSection)):
             line = self.section_line(s)

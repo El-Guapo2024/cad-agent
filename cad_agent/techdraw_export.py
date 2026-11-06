@@ -361,6 +361,21 @@ def _annotation(a, res: dict) -> list:
     return out
 
 
+def _break_lines(name: str, b: dict, res: dict) -> list:
+    """QGIBreakLine (Simple): its two lines, turned with the view (setRotation(-Rotation), y down), in the hidden
+    line width, black."""
+    ox, oy = view_origin(res, name)
+    t = math.radians(b.get("rotation", 0.0))
+    c, s = math.cos(t), math.sin(t)
+    out = []
+    for p0, p1 in b["lines"]:
+        q0 = (ox + p0[0] * c - p0[1] * s, oy + p0[0] * s + p0[1] * c)
+        q1 = (ox + p1[0] * c - p1[1] * s, oy + p1[0] * s + p1[1] * c)
+        out.append(Prim("path", [("M", *q0), ("L", *q1)], width=THIN, stroke="#000000",
+                        attrs={"data-view": name, "class": "td-break"}))
+    return out
+
+
 def _section_line(name: str, line: dict, res: dict) -> list:
     """QGISectionLine: a chain line across the base view with the arrows and SectionSymbol at its ends."""
     ox, oy = view_origin(res, line["view"])
@@ -433,6 +448,9 @@ def display(doc, frames: bool = False) -> list:
             out += _vertex_targets(v, name, ox, oy)
     for name, line in res.get("sections", {}).items():
         out += _section_line(name, line, res)
+    for name, v in res["views"].items():
+        for b in v.get("break_lines", ()):
+            out += _break_lines(name, b, res)
     for name, d in res["dimensions"].items():
         if d["view"] not in res["views"]:
             continue

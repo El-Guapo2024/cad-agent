@@ -87,7 +87,7 @@ export function splitRef(ref: string): [string, string, string | null] {
   const dot = rest.indexOf('.')
   return dot < 0 ? [page, rest, null] : [page, rest.slice(0, dot), rest.slice(dot + 1)]
 }
-const VIEW_KINDS = new Set(['DrawViewPart', 'DrawProjGroupItem', 'DrawViewSection'])
+const VIEW_KINDS = new Set(['DrawViewPart', 'DrawProjGroupItem', 'DrawViewSection', 'DrawBrokenView'])
 export const isView = (o: TdObj | undefined) => !!o && VIEW_KINDS.has(o.kind)
 
 // ── loading and editing ─────────────────────────────────────────────────────────────────────────────────────────
@@ -229,6 +229,22 @@ function cameraDirs(): [number[], number[]] | null {
   const right = new THREE.Vector3().crossVectors(up, dir)
   const snap = (v: THREE.Vector3) => v.toArray().map((c) => { const f = Math.fround(c); return Math.abs(f) < 1e-6 ? 0 : Math.abs(Math.abs(f) - 1) < 1e-6 ? Math.sign(f) : f })
   return [snap(dir), snap(right)]
+}
+/** TechDraw_BrokenView (CmdTechDrawBrokenView): the selected shapes and a selected view's Source, the break objects
+ *  among the selection (here a part's edges picked in the 3D view, each a break from its first vertex to its last),
+ *  "BrokenView" made at once with the 3D view's direction. */
+async function newBrokenView() {
+  const page = needPage()
+  if (!page) return
+  const v = st.sel.map(splitRef).find(([p, n, sub]) => p === page && !sub && isView(objOf(p, n)))
+  const s = getState()
+  const bodyPart = (b: string) => s.scene?.bodies.find((x) => x.name === b)?.part ?? b
+  const breaks = s.subSel.filter((r) => /\.Edge\d+$/.test(r)).map((r) => { const i = r.lastIndexOf('.'); return [bodyPart(r.slice(0, i)), r.slice(i + 1)] })
+  const shapes = parts()
+  if (!v && !shapes.length) { warn('Empty Selection', 'Select objects to break or a base view and break definition objects'); return }
+  if (!breaks.length) { warn('Wrong selection', 'No break objects found in this selection'); return }
+  await applyTd(page, [{ op: 'broken_view', breaks, ...(v ? { base_view: v[1] } : {}), ...(shapes.length ? { source: shapes } : {}) }],
+    'Create broken view')
 }
 /** TechDraw_SectionView: TaskSectionView for the selected view (it makes the section when a direction is picked). */
 function newSection() {
@@ -383,6 +399,7 @@ function actions(): Record<string, [() => void, boolean]> {
     TechDraw_ExportPageSVG: [() => void exportPage('svg'), c.havePage], TechDraw_ExportPageDXF: [() => void exportPage('dxf'), c.havePage],
     TechDraw_ExportPagePDF: [() => void exportPage('pdf'), c.havePage],
     TechDraw_View: [() => void newView(false), c.havePage], TechDraw_ProjectionGroup: [() => void newView(true), c.havePage && !getState().task],
+    TechDraw_BrokenView: [() => void newBrokenView(), c.havePage],    // CmdTechDrawBrokenView::isActive: needPage
     TechDraw_SectionView: [() => newSection(), c.havePage && c.haveView], TechDraw_SectionGroup: [() => newSection(), c.havePage && c.haveView],
     TechDraw_Dimension: [() => void smartDimension(), c.dim], TechDraw_CompDimensionTools: [() => void smartDimension(), c.dim],
     TechDraw_LengthDimension: dim('Distance'), TechDraw_HorizontalDimension: dim('DistanceX'), TechDraw_VerticalDimension: dim('DistanceY'),

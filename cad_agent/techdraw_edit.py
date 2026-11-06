@@ -42,6 +42,9 @@ The ops (each is what the FreeCAD command named does):
     {"op": "projection", "group": g, "type": "Top", "on": bool}   TaskProjGroup: a projection checked or unchecked
     {"op": "section", "base_view": v, "direction": "Right"|"Left"|"Up"|"Down", "origin"?, "symbol"?}
                                                       TechDraw_SectionView, TaskSectionView's arrow and OK
+    {"op": "broken_view", "breaks": [[p0, p1], ...], "source"?: [part], "base_view"?: v, "direction"?, "x_direction"?,
+     "gap"?}                                          TechDraw_BrokenView: the shapes (or a base view's), the break
+                                                      edges (each its two ends in model space)
     {"op": "dimension", "type": "Distance"|"DistanceX"|"DistanceY"|"Radius"|"Diameter"|"Angle"|"Angle3Pt",
      "references": [[view, "Edge3"], ...]}            TechDraw_*Dimension on a selection (dimMaker, positionDimText)
     {"op": "balloon", "view": v, "origin": [x, y], "at"?: [x, y]}  TechDraw_Balloon, clicked at origin (view coords)
@@ -557,6 +560,8 @@ def run_ops(s: Session, ops) -> list:
             done.append(_section(s, op))
         elif kind == "section_edit":
             done.append(_section_edit(s, op))
+        elif kind == "broken_view":
+            done.append(_broken_view(s, op))
         elif kind == "dimension":
             done.append(_dimension(s, op))
         elif kind == "balloon":
@@ -789,6 +794,54 @@ def _section(s: Session, op) -> str:
                             rotation=required_rotation(angle), x=cx, y=cy, label=label,
                             caption="SECTION <REF> - <REF>"))
     return f"made {n} of {base.name}"
+
+
+def _break_points(s: Session, b):
+    """A break: its two ends, or a part's edge [part, "EdgeN"] whose first and last vertex they are
+    (breakPointsFromEdge's TopExp::FirstVertex and LastVertex)."""
+    if isinstance(b, (list, tuple)) and len(b) == 2 and isinstance(b[0], str) and isinstance(b[1], str):
+        from OCP.BRep import BRep_Tool
+        from OCP.TopAbs import TopAbs_EDGE
+        from OCP.TopExp import TopExp
+        from OCP.TopoDS import TopoDS
+        from .feature import _subs
+        part, sub = s.check_parts([b[0]])[0], b[1]
+        if not sub.startswith("Edge") or not sub[4:].isdigit():
+            raise TechDrawEditError(f"{sub!r} is not an edge of {part}")
+        edges = _subs(s.shape_of(part), TopAbs_EDGE)
+        k = int(sub[4:])
+        if not 1 <= k <= len(edges):
+            raise TechDrawEditError(f"{part} has no {sub}")
+        e = TopoDS.Edge(edges[k - 1])
+        p0, p1 = BRep_Tool.Pnt_s(TopExp.FirstVertex_s(e)), BRep_Tool.Pnt_s(TopExp.LastVertex_s(e))
+        return [[p0.X(), p0.Y(), p0.Z()], [p1.X(), p1.Y(), p1.Z()]]
+    return b
+
+
+def _broken_view(s: Session, op) -> str:
+    """CmdTechDrawBrokenView::activated: the selected shapes and a base view's Source, the break objects picked out
+    (a break is a straight edge: its two ends here), "BrokenView" with Direction (checkDirectionVsBasis) and
+    XDirection, at the page's centre as TechDraw_View puts a view."""
+    parts = list(op.get("source") or ())
+    base = None
+    if op.get("base_view"):
+        base = s.get(op.get("base_view"), T.DrawViewPart, "view")
+        parts += [p for p in s.doc().source_of(base) if p not in parts]
+    if not parts:
+        raise TechDrawEditError("Select objects to break or a base view and break definition objects")
+    parts = s.check_parts(parts)
+    breaks = [_break_points(s, b) for b in (op.get("breaks") or ())]
+    if not breaks:
+        raise TechDrawEditError("No break objects found in this selection")
+    s.page_obj()
+    n = s.name("BrokenView", op.get("name"))
+    d = check_direction_vs_basis(_vec(op.get("direction"), "direction", base.direction if base else (0.0, -1.0, 0.0)))
+    x = _vec(op.get("x_direction"), "x_direction", base.x_direction if base else (1.0, 0.0, 0.0))
+    cx, cy = s.center()
+    v = T.DrawBrokenView(n, source=parts, breaks=breaks, direction=d, x_direction=x, x=cx, y=cy,
+                         **({"gap": float(op["gap"])} if op.get("gap") is not None else {}))
+    s.add(v)
+    return f"made {n} of {', '.join(parts)} with {len(v.breaks)} break(s)"
 
 
 def _section_edit(s: Session, op) -> str:

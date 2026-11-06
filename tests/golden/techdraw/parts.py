@@ -43,4 +43,12 @@ def flange():
     return b
 
 
-PARTS = {"plate": plate, "bracket": bracket, "shaft": shaft, "big": big, "flange": flange}
+def rod():
+    """A 200 x 20 x 12 bar along x with a r 4 hole 15 mm from each end: long, for the broken views."""
+    b = Box(200, 20, 12)
+    for x in (-85, 85):
+        b = b - Pos(x, 0, 0) * Cylinder(4, 30)
+    return b
+
+
+PARTS = {"plate": plate, "bracket": bracket, "shaft": shaft, "big": big, "flange": flange, "rod": rod}

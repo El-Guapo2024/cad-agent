@@ -121,6 +121,21 @@ def build(doc, case):
                     continue
                 set_props(s, o, [key])
             made[n] = s
+        elif k == "DrawBrokenView":
+            # CmdTechDrawBrokenView: a break object is a straight edge of the 3D document (here a Part::Feature line)
+            breaks = []
+            for i, (p0, p1) in enumerate(o["breaks"]):
+                f = doc.addObject("Part::Feature", "Break" if i == 0 else f"Break{i:03d}")
+                f.Shape = Part.makeLine(V(*p0), V(*p1))
+                breaks.append(f)
+            bv = doc.addObject("TechDraw::DrawBrokenView", n)
+            page.addView(bv)
+            bv.Source = [doc.getObject(p) for p in o["source"]]
+            bv.Breaks = breaks
+            bv.Direction = V(*o["direction"])
+            bv.XDirection = V(*o["x_direction"])
+            set_props(bv, o, [x for x in o if x not in ("direction", "x_direction", "breaks", "dim_type")])
+            made[n] = bv
         elif k == "DrawViewDimension":
             d = doc.addObject("TechDraw::DrawViewDimension", n)
             d.Type = o["dim_type"]
