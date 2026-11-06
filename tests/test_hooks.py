@@ -340,3 +340,21 @@ def test_the_hooks_run_the_python_bin_cad_picks_in_a_worktree(tmp_path):
     out = hook(wt / ".claude" / "hooks" / "cad_on_edit.py", edit(part), env)
     assert f"ran:{main / '.venv' / 'bin' / 'python'}" in out["reason"]
     assert f"pythonpath:{wt}" in out["reason"]
+
+
+def test_the_native_solvers_are_built_once_per_version_in_the_background(tmp_path):
+    """install.sh starts plugin/natives.sh (PlaneGCS, OndselSolver, libarea) without waiting for it, and marks the
+    version built only when it succeeds; a later start with that mark leaves it be."""
+    (tmp_path / "root" / "plugin").mkdir(parents=True)
+    (tmp_path / "root" / "plugin" / "natives.sh").write_text('echo "natives $*" >> "$FAKE_LOG"\n')
+    s = _install(tmp_path)
+    assert s.first.returncode == 0 and "in the background" in s.first.stderr
+    for _ in range(100):
+        if (s.data / "natives").exists() and not (s.data / "natives.lock").exists():
+            break
+        time.sleep(0.05)
+    assert (s.data / "natives").read_text().strip() == f"9.9.9 {s.root}"
+    assert [c for c in s.calls() if c.startswith("natives ")] == [f"natives {s.root} {s.data} {s.data / 'venv' / 'bin' / 'python'}"]
+    again = s.run()
+    assert "in the background" not in again.stderr
+    assert len([c for c in s.calls() if c.startswith("natives ")]) == 1
