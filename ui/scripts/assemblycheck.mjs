@@ -53,7 +53,7 @@ const want = (section) => !ONLY.length || ONLY.includes(section)
 const clean = (t) => String(t ?? '').replace(/&(.)/g, '$1').replace(/…$/, '').trim()
 
 // What is deliberately different (PARITY.md, "Assembly workbench"), by the FreeCAD command
-const NOT_PORTED = new Set(['Part_LinkArrayPath', 'Part_LinkArrayPoint', 'Assembly_CreateSnapshot', 'Assembly_SelectJointsOfComponent'])
+const NOT_PORTED = new Set(['Part_LinkArrayPath', 'Part_LinkArrayPoint', 'Assembly_SelectJointsOfComponent'])
 
 // ── a scratch workbench with three parts ─────────────────────────────────────────────────────────────────────────────
 const freePort = (from) => new Promise((res, rej) => {
@@ -312,7 +312,7 @@ try {
   }
   // ── the second round (fcassembly_more.json, fcassembly.py --more): a fresh project ac2 with Plate, Pin and Bar, and
   // acsub, whose Assembly (Plate grounded, Pin on a Revolute) is the sub-assembly ───────────────────────────────────────
-  const MORE = ['menus2', 'bom', 'array', 'rigid', 'isolate', 'offsets', 'origin', 'explode', 'newpart', 'subasm', 'sim']
+  const MORE = ['menus2', 'bom', 'array', 'snapshot', 'rigid', 'isolate', 'offsets', 'origin', 'explode', 'newpart', 'subasm', 'sim']
   if (FC2 && MORE.some(want)) {
     const S2 = 'ac2', SUB = 'acsub'
     const cad = (...a) => spawnSync(python, ['-m', 'cad_agent', '--projects', ROOT, ...a], { env, cwd: REPO })
@@ -414,6 +414,25 @@ try {
       await runCmd('Std_Undo')
       await until(`!(cadui.getState().assembly?.objects ?? []).some((o) => o.kind === 'LinkArrayLinear')`, 'array: undone', 120000)
       await st('cadui.setState({ asmSel: [] })')
+    }
+    if (want('snapshot')) {
+      // Assembly_CreateSnapshot (CommandCreateSnapshot.py; no GUI recording: captureState and restoreState are its code's)
+      console.log('snapshot')
+      const before = (await plcs()).Pin
+      await runCmd('Assembly_CreateSnapshot')
+      await until(`(cadui.getState().assembly?.objects ?? []).some((o) => o.kind === 'Snapshot')`, 'snapshot: made', 120000)
+      await idle()
+      same(await undoName(), 'Create Snapshot', 'snapshot: its undo step')
+      const t = await ourTree()
+      check(t.includes('0:Snapshots') && t.includes('1:Snapshot'), 'snapshot: Snapshots and Snapshot in the tree', JSON.stringify(t))
+      await st(`fetch('/api/${S2}/assembly', { method: 'POST', headers: { 'X-CAD': '1', 'Content-Type': 'application/json' }, body: JSON.stringify({ ops: [
+        { op: 'move', name: 'Pin', placement: [[80, 0, 0], [0, 0, 0, 1]] }], name: 'Move part' }) })`)
+      await until('(cadui.getState().assembly?.placements?.Pin?.base?.[0] ?? 0) > 79', 'snapshot: Pin moved', 120000)
+      await page.dblclick('[data-ref="assembly/Snapshot"]')
+      await until(`Math.abs((cadui.getState().assembly?.placements?.Pin?.base?.[0] ?? 0) - ${before[0]}) < 1e-6`, 'snapshot: restored', 120000)
+      await idle()
+      same(await undoName(), "Restore Snapshot 'Snapshot'", 'snapshot: the double click restores it, one undo step')
+      for (let k = 0; k < 3; k++) { await runCmd('Std_Undo'); await idle() }
     }
     if (want('rigid')) {
       console.log('rigid')

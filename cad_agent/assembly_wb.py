@@ -1088,3 +1088,4 @@ from . import assembly_link  # noqa: E402,F401
 from . import assembly_view  # noqa: E402,F401
 from . import assembly_sim  # noqa: E402,F401
 from . import assembly_array  # noqa: E402,F401
+from . import assembly_snapshot  # noqa: E402,F401

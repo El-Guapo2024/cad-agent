@@ -928,7 +928,7 @@ Deliberate or known differences:
 - Simulation: Save Animation (a GIF or video) is greyed; a Motion's double-click opens its simulation's panel (FreeCAD opens
   MotionEditDialog on its own); the help labels' tooltips are short. The animation timer runs in the page at
   jFramesPerSecond as FreeCAD's QTimer does.
-- Snapshot stays cut (greyed with the reason); the BOM object and the Linear and Polar link arrays came 2026-11-06 ("Assembly's Bill of Materials", "Link arrays in the Assembly"), the Circular one too.
+- Snapshot came 2026-11-06 too (cad_agent/assembly_snapshot.py: CommandCreateSnapshot's captureState and restoreState, a double click restores; assemblycheck's snapshot section); the BOM object and the Linear and Polar link arrays came 2026-11-06 ("Assembly's Bill of Materials", "Link arrays in the Assembly"), the Circular one too.
 
 
 ## Assembly's Bill of Materials, 2026-11-06
@@ -1338,7 +1338,7 @@ Known differences:
 
 - PartDesign: the Shaft Design Wizard is cut (a Python wizard with its own table, charts and calculation); a Sub-Shape Binder binds its own Body only, and only Synchronized; a Boolean's tools and a Clone's source are other part modules ("PartDesign's last commands, 2026-10-27"); Move Object To…, Set Face Colors, Toggle Suppressed and Toggle Freeze are greyed with FreeCAD's reasons ("PartDesign, 2026-10-24").
 - Part: Shape from mesh, Points from shape, Box selection, Persistent section cut, Check geometry, Appearance per face and Defeaturing are greyed or not ported ("Part workbench, 2026-10-25").
-- Assembly: Snapshot and the Path and Point link arrays are cut; datums inside parts, nested sub-assemblies, Exploded View's Align to..., Save Animation and the Std_TransformManip dragger are not ported ("Assembly's later commands, 2026-10-27").
+- Assembly: the Path and Point link arrays are cut; datums inside parts, nested sub-assemblies, Exploded View's Align to..., Save Animation and the Std_TransformManip dragger are not ported ("Assembly's later commands, 2026-10-27").
 - Loft, Pipe and Helix: a Pipe whose end sections are not planar is refused, and a solid's face as a Pipe's or Helix's Profile is not offered ("PartDesign Loft, Pipe and Helix, 2026-10-24").
 - TechDraw: Complex Section's Aligned and No parallel strategies, Broken View's sketch breaks, Project Shape and the views from other workbenches are greyed ("TechDraw workbench, 2026-10-27").
 - Spreadsheet: Bind…, Configuration Table, zoom, printing, the line edits' completer, xlsx import and charts are cut ("Spreadsheet workbench, 2026-10-27").

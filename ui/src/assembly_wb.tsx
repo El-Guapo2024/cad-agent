@@ -368,7 +368,9 @@ function cmdList(): Entry[] {
     { label: 'Solve Assembly', icon: 'as-solve', cmd: 'Assembly_SolveAssembly', kbd: 'Z', disabled: !has || !active, onSelect: () => void solveAssembly() },
     // CommandCreateView.IsActive: isAssemblyCommandActive and assembly_has_at_least_n_parts(2)
     { label: 'Exploded View', icon: 'as-exploded', cmd: 'Assembly_CreateView', kbd: 'E', disabled: !asmState().two, onSelect: () => openTask('assembly', 'explode', '') },
-    NA('Snapshot', 'shot', 'Assembly_CreateSnapshot', 'snapshots are not ported'),
+    // CommandCreateSnapshot.IsActive: activeAssembly and assembly_has_at_least_n_parts(1)
+    { label: 'Snapshot', icon: 'shot', cmd: 'Assembly_CreateSnapshot', disabled: !active || !asmState().parts,
+      onSelect: () => void applyAssembly([{ op: 'snapshot' }], 'Create Snapshot') },
     // CommandCreateSimulation.IsActive: isAssemblyCommandActive and a Revolute, Slider or Cylindrical joint
     { label: 'Simulation', icon: 'as-simulation', cmd: 'Assembly_CreateSimulation', kbd: 'V', disabled: !active || !hasMotionJoint(),
       title: active && !hasMotionJoint() ? 'needs a Revolute, Slider or Cylindrical joint to drive' : undefined, onSelect: () => openTask('assembly', 'simulation', '') },
@@ -434,6 +436,8 @@ function rowIcon(r: AsmRow): IconName {
   if (r.type === 'Assembly::AssemblyLink') return r.rigid ? 'as-link-rigid' : 'as-link-flexible'
   if (r.type === 'Assembly::ViewGroup') return 'as-exploded-group'
   if (r.type === 'ExplodedView' || r.type === 'ExplodedViewStep') return 'as-exploded'
+  if (r.type === 'Assembly::SnapshotGroup') return 'as-snapshot-group'
+  if (r.type === 'Snapshot') return 'shot'                               // ViewProviderSnapshot.getIcon
   if (r.type === 'Assembly::SimulationGroup') return 'as-simulation-group'
   if (r.type === 'Simulation') return 'as-simulation'
   // ViewProviderMotion.getIcon: button_rotate.svg for an Angular motion, button_right.svg for a Linear one
@@ -520,6 +524,7 @@ export function AssemblyRows({ ctx, onMenu }: { ctx: TreeCtx; onMenu(at: { x: nu
           else if (r.type === 'Simulation') openSimulation(r.name)              // ViewProviderSimulation.doubleClicked
           else if (r.type === 'Motion' && r.parent) openSimulation(r.parent)    // its simulation's panel, the motion in it
           else if (r.type.startsWith('Part::LinkArray')) openTask('assembly', 'array', r.name)   // ViewProviderLinkArray::setEdit
+          else if (r.type === 'Snapshot') void restoreSnapshot(r.name, r.label)  // ViewProviderSnapshot.doubleClicked
         }}
         onContextMenu={(e) => { e.preventDefault(); if (!sel) pickRow(r, e); onMenu({ x: e.clientX, y: e.clientY }) }}>
         <span className="tlab"><span className="pdindent" style={{ width: 6 + 12 * r.depth }} />
@@ -531,6 +536,11 @@ export function AssemblyRows({ ctx, onMenu }: { ctx: TreeCtx; onMenu(at: { x: nu
       </div>)
   }
   return <>{rows}</>
+}
+/** ViewProviderSnapshot.doubleClicked: refused while a task is open, else restoreState as "Restore Snapshot '<Label>'". */
+async function restoreSnapshot(name: string, label: string) {
+  if (getState().task) { report('err', 'Cannot restore snapshot while a task is active.'); return }
+  await applyAssembly([{ op: 'restore_snapshot', name }], `Restore Snapshot '${label}'`)
 }
 /** Assembly_CreateView's panel on an existing view (a double-click on it). */
 export function openExplodedView(name: string) {

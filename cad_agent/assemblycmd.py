@@ -102,6 +102,15 @@ def step_name(ops: list, before: dict) -> str:
                          op["name"])
             return f"Edit {label} Simulation"
         return "Create Simulation"
+    if kind == "snapshot":
+        return "Create Snapshot"
+    if kind == "restore_snapshot":              # ViewProviderSnapshot.doubleClicked's openCommand
+        label = next((o.get("label") or o["name"] for o in before.get("objects", []) if o["name"] == op.get("name")),
+                     op.get("name"))
+        return f"Restore Snapshot '{label}'"
+    if kind == "array":                         # activateLinkArrayCommand's transaction
+        return {"LinkArrayPolar": "Polar Link Array", "LinkArrayCircular": "Circular Link Array"}.get(
+            op.get("kind"), "Linear Link Array")
     if kind in ("move", "drag"):
         return "Move part"
     if kind == "solve":

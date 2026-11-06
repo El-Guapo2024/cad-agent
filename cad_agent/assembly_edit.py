@@ -9,6 +9,8 @@ The ops:
 
     {"op": "new"}                                           Assembly_CreateAssembly: the ASSEMBLY list (the file too)
     {"op": "insert", "part": "base", "name"?, "placement"?} Assembly_InsertLink (the first one grounded)
+    {"op": "snapshot", "name"?}                             Assembly_CreateSnapshot: the movable parts' Placements
+    {"op": "restore_snapshot", "name": s}                   a double click on the Snapshot (restoreState)
     {"op": "array", "kind": "LinkArrayLinear"|"LinkArrayPolar", "part": p, "name"?, "props"?}   Part_LinkArray<Kind>
     {"op": "joint", "type": "Revolute", "ref1": [comp, [elt, vtx]], "ref2": ..., "props"?: {...}, "name"?}
                                                             Assembly_CreateJoint<type>, picks and panel values
@@ -190,6 +192,15 @@ def tree(objs) -> list:
                             rows.append({"name": m, "label": step.label or m, "type": "ExplodedViewStep", "depth": 3,
                                          "icon": "Assembly_ExplodedView", "parent": v.name,
                                          "move_type": step.move_type})
+    # the SnapshotGroup ("Snapshots") with its snapshots (ViewProviderSnapshot.getIcon: Std_ViewScreenShot)
+    for o in objs:
+        if isinstance(o, W.SnapshotGroup):
+            rows.append({"name": o.name, "label": o.label or o.name, "type": "Assembly::SnapshotGroup", "depth": 1,
+                         "icon": "Assembly_SnapshotGroup"})
+            for sn in objs:
+                if isinstance(sn, W.Snapshot):
+                    rows.append({"name": sn.name, "label": sn.label or sn.name, "type": "Snapshot", "depth": 2,
+                                 "icon": "Std_ViewScreenShot", "parent": o.name})
     # the SimulationGroup ("Simulations") with its simulations, each with its motions (ViewProviderSimulation.claimChildren)
     for o in objs:
         if isinstance(o, W.SimulationGroup):
@@ -514,6 +525,21 @@ def run_ops(doc: W.AssemblyDocument, ops, slug: str, part_names=None, hand_parts
                                  ground_first=op.get("ground_first", True))
             doc.recompute()                         # createGroundedJoint: the document recomputed
             done.append(f"inserted {link.name} (App::Link to {part})")
+        elif kind == "snapshot":
+            from . import assembly_snapshot as SN
+            name = op.get("name")
+            if name is not None:
+                _check_name(doc, name, "object")
+            try:
+                snap = SN.create_snapshot(doc, name)
+            except W.AssemblyError as e:
+                raise AssemblyEditError(str(e)) from None
+            done.append(f"made {snap.name} ({len(snap.components)} parts)")
+        elif kind == "restore_snapshot":
+            from . import assembly_snapshot as SN
+            snap = _get(doc, op.get("name"), SN.Snapshot, "snapshot")
+            SN.restore_snapshot(doc, snap)
+            done.append(f"restored {snap.name}")
         elif kind == "array":
             # Part_LinkArrayLinear / Part_LinkArrayPolar with a part selected, the Assembly active (assembly_array.py)
             from . import assembly_array as AA
