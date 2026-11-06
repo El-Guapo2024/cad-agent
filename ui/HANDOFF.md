@@ -136,7 +136,9 @@ Step 5, round 3 (six branches) is all in main (7526c0c, CI green, 6977 passed, 2
   (2) plugin/install.sh never builds the native solvers (ui/planegcs, ui/ondsel, ui/libarea), so on a fresh install
   every sketch fails ("the sketch solver library is not built"): build them in install.sh or ship them as wheels;
   (3) open the demo project straight to the 3D view, not the Start page; (4) a scripted demo flow, run until smooth,
-  and a backup recording. The basic flow (Body sketch/Pad/Pocket/Fillet, a PARAMS edit, a TechDraw page to PDF, a
+  and a backup recording: done 2026-11-06, ui/scripts/demo.mjs (body, sketch, Pad, Pocket, Fillet, a parameter edit, a
+  TechDraw page from the ISO A4 template to PDF, a CAM Job, Profile and grbl G-code; --runs=3 passed three times in a
+  row, about 43 s each; --record=DIR keeps a .webm per run, the PDF, the G-code and a still per step). The basic flow (Body sketch/Pad/Pocket/Fillet, a PARAMS edit, a TechDraw page to PDF, a
   CAM Profile to grbl G-code) was checked end to end in the page on 2026-10-28.
 - Done 2026-11-06, in main as 22944df (CI green; branch port-next, from wb-vendor-scene, so Follow and the gzip'd scene came with it):
   (1) the template: FreeCAD's default template is blank too (519 bytes, no frame), but the ISO ones drew nothing in
