@@ -131,6 +131,18 @@ if AREA == "attach":
 if AREA == "static":                              # the new types' fresh objects, which the base file does not hold
     _kinds = {o.kind for c in CASES.values() for o in c["objects"] if hasattr(o, "kind")}
     out["defaults"], out["extension"] = defaults(_kinds), extension_defaults(_kinds)
+if AREA == "draft":                               # each Draft proxy's fresh object, made as its draftmake maker makes it
+    from cad_agent import feature_draft as Draft
+    out["draft_defaults"] = {}
+    _doc = App.newDocument("draft_defaults")
+    for _kind, _cls in sorted(Draft.OBJECTS.items()):
+        _obj = _doc.addObject(_cls.FC_TYPE, _kind.split(".")[1])
+        _cls.fc_setup(Part.KwFeature.__new__(_cls), _obj, None)
+        out["draft_defaults"][_cls.TYPE_ID] = {p: plain(_obj.getPropertyByName(p)) for p in _obj.PropertiesList
+                                               if p not in ("Shape", "Label2", "ExpressionEngine", "Visibility",
+                                                            "History", "Proxy", "ShapeMaterial")}
+        out["draft_defaults"][_cls.TYPE_ID]["_TypeId"] = _obj.TypeId
+    App.closeDocument(_doc.Name)
 for name, case in CASES.items():
     if only and name != only:
         continue

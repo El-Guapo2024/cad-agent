@@ -455,6 +455,8 @@ class Shape:
     def fuse(self, tools, tol=0.0):
         return self._bool("fuse", tools, tol)
 
+    multiFuse = fuse                    # TopoShapePy::multiFuse: makeShape(OpCodes::Fuse, ...), as fuse
+
     def common(self, tools, tol=0.0):
         return self._bool("common", tools, tol)
 

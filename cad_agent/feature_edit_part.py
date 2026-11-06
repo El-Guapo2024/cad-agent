@@ -59,7 +59,7 @@ def names(src) -> list[str]:
 
 def is_part_type(t) -> bool:
     kind = E.KINDS.get(t, t)
-    return isinstance(kind, str) and kind.startswith("Part.")
+    return isinstance(kind, str) and kind.startswith(("Part.", "Draft."))
 
 
 def goes_to_objects(op) -> bool:
@@ -67,24 +67,25 @@ def goes_to_objects(op) -> bool:
     return is_part_type(feat.get("type")) or op.get("list") == "OBJECTS"
 
 
-def ensure_import(src: str) -> str:
-    """src with `from cad_agent import feature_part as Part`, after the module's docstring and imports."""
+def ensure_import(src: str, module: str = "feature_part", alias: str = "Part") -> str:
+    """src with `from cad_agent import feature_part as Part` (or feature_draft as Draft), after the module's docstring
+    and imports."""
     tree = ast.parse(src)
     for n in tree.body:
         if isinstance(n, ast.ImportFrom) and n.module == "cad_agent" and any(
-                a.name == "feature_part" and a.asname == "Part" for a in n.names):
+                a.name == module and a.asname == alias for a in n.names):
             return src
-        if isinstance(n, ast.Import) and any(a.name == "cad_agent.feature_part" and a.asname == "Part"
+        if isinstance(n, ast.Import) and any(a.name == f"cad_agent.{module}" and a.asname == alias
                                              for a in n.names):
             return src
     binds = {t.id for n in ast.walk(tree) if isinstance(n, (ast.Assign, ast.AnnAssign))
              for t in (n.targets if isinstance(n, ast.Assign) else [n.target]) if isinstance(t, ast.Name)}
     binds |= {a.asname or a.name.split(".")[0] for n in tree.body if isinstance(n, (ast.Import, ast.ImportFrom))
               for a in n.names}
-    if "Part" in binds or any(isinstance(n, ast.ImportFrom) and any(a.name == "*" for a in n.names)
-                              for n in tree.body):
-        raise E.FeatureEditError("the part file binds the name Part (or imports *), which its Part workbench objects "
-                                 "need: rename it before adding Part objects")
+    if alias in binds or any(isinstance(n, ast.ImportFrom) and any(a.name == "*" for a in n.names)
+                             for n in tree.body):
+        raise E.FeatureEditError(f"the part file binds the name {alias} (or imports *), which its {alias} workbench "
+                                 f"objects need: rename it before adding {alias} objects")
     t = E._Text(src)
     pos = 0
     for n in tree.body:
@@ -93,7 +94,7 @@ def ensure_import(src: str) -> str:
             pos = t.line_end(t.b(n))
         else:
             break
-    return t.edit([(pos, pos, IMPORT)])
+    return t.edit([(pos, pos, f"from cad_agent import {module} as {alias}\n")])
 
 
 def _document_call(src):
@@ -149,6 +150,8 @@ def add(src: str, op: dict) -> str:
         raise E.FeatureEditError(f"there is already an object {feat.get('name')!r}")
     src = E._insert(src, E.feature_src(feat, 0), op.get("after"), "after" not in op, "OBJECTS")
     kinds = E._kinds_of(feat)
+    if any(k.startswith("Draft.") for k in kinds):
+        src = ensure_import(src, "feature_draft", "Draft")
     return E.ensure_import(src, {k for k in kinds if "." not in k})
 
 

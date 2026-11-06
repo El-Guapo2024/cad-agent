@@ -1364,4 +1364,6 @@ volume, box, vertices) is equal to FreeCAD's.
 | Draft objects in Python | done for the 26 cases above |
 | Link arrays (App::LinkExtension) | the properties and configLinkProperty are there; the shape is Draft's compound, links are not followed |
 | Attachment of a Draft object (positionBySupport) | only MapMode Deactivated; an attached one raises |
-| Draft in a part file, the page, the CLI | not yet |
+| Draft in a part file | done: `Draft.Rectangle`, `Wire`, `Circle` (and arcs), `Ellipse`, `Polygon`, `BSpline`, `BezCurve`, `Point`, `Array` (ortho, polar, circular), `PathArray`, `PointArray` and `Clone` in OBJECTS beside Part objects (cad_agent/feature_draft.py), linking Part objects, sketches and each other; 38 objects in 9 freecadcmd documents (tests/golden/part/cases_draft.py) have FreeCAD's shape and Placement, the defaults are the draftmake makers' fresh objects, and `cad feature` adds and edits them (TypeId `Draft::<proxy>`) |
+| A Wire's Base and Tool, a PathArray's PathSubelements, a PointArray's ExtraPlacement, an Array's AxisReference | not keywords yet |
+| Draft's GUI commands and panels on the page | not yet |

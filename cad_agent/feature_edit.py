@@ -68,6 +68,7 @@ from . import feature_binder as _binder
 from . import feature_edit_attach as _attach
 from . import feature_kw as KW
 from . import feature_part as _part_objects  # noqa: F401  the Part workbench's objects in OBJECTS (feature_edit_part.py)
+from . import feature_draft as _draft_objects  # noqa: F401  Draft's objects in OBJECTS too (feature_draft.py)
 from . import params as P
 
 TYPE_IDS = {"Sketch": "Sketcher::SketchObject", "Pad": "PartDesign::Pad", "Pocket": "PartDesign::Pocket"}
@@ -129,8 +130,8 @@ def _body_call(tree):
 
 def _fname(call):
     f = call.func
-    if isinstance(f, ast.Attribute) and isinstance(f.value, ast.Name) and f.value.id == "Part":
-        return "Part." + f.attr                     # a Part workbench object, Part.Box(...) (feature_part.py)
+    if isinstance(f, ast.Attribute) and isinstance(f.value, ast.Name) and f.value.id in ("Part", "Draft"):
+        return f.value.id + "." + f.attr            # Part.Box(...) (feature_part.py), Draft.Rectangle(...) (feature_draft.py)
     return f.id if isinstance(f, ast.Name) else f.attr if isinstance(f, ast.Attribute) else None
 
 
@@ -210,7 +211,7 @@ def _entries(tree, which="FEATURES"):
     out = []
     for e in node.value.elts:
         if not (isinstance(e, ast.Call) and _fname(e) in TYPE_IDS) or (
-                _fname(e).startswith("Part.") != (which == "OBJECTS") and _fname(e) != "Sketch"):
+                _fname(e).startswith(("Part.", "Draft.")) != (which == "OBJECTS") and _fname(e) != "Sketch"):
             raise FeatureEditError(f"{which} holds {ast.unparse(e)[:60]!r}, not " +
                                    ("a Part object or a Sketch call" if which == "OBJECTS" else
                                     "a Sketch, Pad or Pocket call"))

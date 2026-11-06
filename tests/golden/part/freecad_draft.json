@@ -1,0 +1,1982 @@
+{
+ "freecad": "26.3.0 20260929 (Git shallow)",
+ "cases": {
+  "draft_rectangle": {
+   "Rectangle": {
+    "type": "Face",
+    "valid": true,
+    "volume": 0.0,
+    "area": 800.0,
+    "length": 120.0,
+    "bbox": [
+     0.0,
+     0.0,
+     0.0,
+     40.0,
+     20.0,
+     0.0
+    ],
+    "center_of_mass": [
+     20.0,
+     10.0,
+     0.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 1,
+    "wires": 1,
+    "edges": 4,
+    "vertices": 4,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
+   },
+   "Rounded": {
+    "type": "Face",
+    "valid": true,
+    "volume": 0.0,
+    "area": 296.566370614,
+    "length": 76.566370614,
+    "bbox": [
+     0.0,
+     30.0,
+     0.0,
+     30.0,
+     40.0,
+     0.0
+    ],
+    "center_of_mass": [
+     15.0,
+     35.0,
+     0.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 1,
+    "wires": 1,
+    "edges": 8,
+    "vertices": 8,
+    "placement": [
+     [
+      0.0,
+      30.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
+   },
+   "Chamfered": {
+    "type": "Wire",
+    "valid": true,
+    "volume": 0.0,
+    "area": 0.0,
+    "length": 72.970562748,
+    "bbox": [
+     -3.5,
+     51.5,
+     5.0,
+     24.480762114,
+     72.160254038,
+     5.0
+    ],
+    "center_of_mass": [
+     10.490381057,
+     61.830127019,
+     5.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 0,
+    "wires": 1,
+    "edges": 8,
+    "vertices": 8,
+    "placement": [
+     [
+      0.0,
+      50.0,
+      5.0
+     ],
+     [
+      29.999999999999996,
+      0.0,
+      0.0
+     ]
+    ]
+   },
+   "Grid": {
+    "type": "Compound",
+    "valid": true,
+    "volume": 0.0,
+    "area": 600.0,
+    "length": 240.0,
+    "bbox": [
+     50.0,
+     0.0,
+     0.0,
+     80.0,
+     20.0,
+     0.0
+    ],
+    "center_of_mass": [
+     65.0,
+     10.0,
+     0.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 6,
+    "wires": 6,
+    "edges": 24,
+    "vertices": 24,
+    "placement": [
+     [
+      50.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
+   }
+  },
+  "draft_wire": {
+   "Open": {
+    "type": "Wire",
+    "valid": true,
+    "volume": 0.0,
+    "area": 0.0,
+    "length": 26.0,
+    "bbox": [
+     0.0,
+     0.0,
+     0.0,
+     10.0,
+     6.0,
+     0.0
+    ],
+    "center_of_mass": [
+     6.153846154,
+     3.0,
+     0.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 0,
+    "wires": 1,
+    "edges": 3,
+    "vertices": 4,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
+   },
+   "Closed": {
+    "type": "Face",
+    "valid": true,
+    "volume": 0.0,
+    "area": 60.0,
+    "length": 32.0,
+    "bbox": [
+     0.0,
+     10.0,
+     0.0,
+     10.0,
+     16.0,
+     0.0
+    ],
+    "center_of_mass": [
+     5.0,
+     13.0,
+     0.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 1,
+    "wires": 1,
+    "edges": 4,
+    "vertices": 4,
+    "placement": [
+     [
+      0.0,
+      10.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
+   },
+   "Filleted": {
+    "type": "Face",
+    "valid": true,
+    "volume": 0.0,
+    "area": 58.068583471,
+    "length": 29.424777961,
+    "bbox": [
+     20.0,
+     -0.0,
+     0.0,
+     30.0,
+     6.0,
+     0.0
+    ],
+    "center_of_mass": [
+     25.0,
+     3.0,
+     0.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 1,
+    "wires": 1,
+    "edges": 8,
+    "vertices": 8,
+    "placement": [
+     [
+      20.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
+   },
+   "Subdivided": {
+    "type": "Wire",
+    "valid": true,
+    "volume": 0.0,
+    "area": 0.0,
+    "length": 21.180339887,
+    "bbox": [
+     0.0,
+     0.0,
+     0.0,
+     10.0,
+     10.0,
+     5.0
+    ],
+    "center_of_mass": [
+     7.639320225,
+     2.639320225,
+     1.319660113
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 0,
+    "wires": 1,
+    "edges": 6,
+    "vertices": 7,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
+   }
+  },
+  "draft_circle": {
+   "Circle": {
+    "type": "Face",
+    "valid": true,
+    "volume": 0.0,
+    "area": 78.53981634,
+    "length": 31.415926536,
+    "bbox": [
+     -5.0,
+     -5.0,
+     0.0,
+     5.0,
+     5.0,
+     0.0
+    ],
+    "center_of_mass": [
+     0.0,
+     -0.0,
+     0.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 1,
+    "wires": 1,
+    "edges": 1,
+    "vertices": 1,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
+   },
+   "Arc": {
+    "type": "Edge",
+    "valid": true,
+    "volume": 0.0,
+    "area": 0.0,
+    "length": 23.736477827,
+    "bbox": [
+     12.0,
+     -2.736161147,
+     0.0,
+     26.92820323,
+     8.0,
+     0.0
+    ],
+    "center_of_mass": [
+     17.729684683,
+     4.868706908,
+     0.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 0,
+    "wires": 0,
+    "edges": 1,
+    "vertices": 2,
+    "placement": [
+     [
+      20.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
+   },
+   "Ellipse": {
+    "type": "Face",
+    "valid": true,
+    "volume": 0.0,
+    "area": 125.663706144,
+    "length": 46.156395652,
+    "bbox": [
+     -10.0,
+     16.0,
+     0.0,
+     10.0,
+     24.0,
+     0.0
+    ],
+    "center_of_mass": [
+     0.0,
+     20.0,
+     0.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 1,
+    "wires": 1,
+    "edges": 1,
+    "vertices": 1,
+    "placement": [
+     [
+      0.0,
+      20.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
+   },
+   "Hexagon": {
+    "type": "Face",
+    "valid": true,
+    "volume": 0.0,
+    "area": 64.951905284,
+    "length": 30.0,
+    "bbox": [
+     35.0,
+     -4.330127019,
+     0.0,
+     45.0,
+     4.330127019,
+     0.0
+    ],
+    "center_of_mass": [
+     40.0,
+     -0.0,
+     0.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 1,
+    "wires": 1,
+    "edges": 6,
+    "vertices": 6,
+    "placement": [
+     [
+      40.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
+   },
+   "Square": {
+    "type": "Face",
+    "valid": true,
+    "volume": 0.0,
+    "area": 99.141592654,
+    "length": 38.283185307,
+    "bbox": [
+     40.0,
+     13.343145751,
+     -6.656854249,
+     40.0,
+     26.656854249,
+     6.656854249
+    ],
+    "center_of_mass": [
+     40.0,
+     20.0,
+     0.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 1,
+    "wires": 1,
+    "edges": 8,
+    "vertices": 8,
+    "placement": [
+     [
+      40.0,
+      20.0,
+      0.0
+     ],
+     [
+      0.0,
+      90.0,
+      0.0
+     ]
+    ]
+   }
+  },
+  "draft_curves": {
+   "BSpline": {
+    "type": "Edge",
+    "valid": true,
+    "volume": 0.0,
+    "area": 0.0,
+    "length": 20.880748917,
+    "bbox": [
+     -1e-07,
+     -0.451472356,
+     -0.137508549,
+     15.0000001,
+     4.353601967,
+     2.0000001
+    ],
+    "center_of_mass": [
+     7.386808181,
+     1.851192981,
+     0.317236107
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 0,
+    "wires": 0,
+    "edges": 1,
+    "vertices": 2,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
+   },
+   "ClosedBSpline": {
+    "type": "Face",
+    "valid": true,
+    "volume": 0.0,
+    "area": 159.995633914,
+    "length": 45.207415046,
+    "bbox": [
+     16.884066361,
+     -2.558098389,
+     -1e-07,
+     31.476245755,
+     11.652622858,
+     1e-07
+    ],
+    "center_of_mass": [
+     24.581124767,
+     4.778630398,
+     0.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 1,
+    "wires": 1,
+    "edges": 1,
+    "vertices": 1,
+    "placement": [
+     [
+      20.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
+   },
+   "Bezier": {
+    "type": "Wire",
+    "valid": true,
+    "volume": 0.0,
+    "area": 0.0,
+    "length": 14.121617299,
+    "bbox": [
+     -1e-07,
+     -1e-07,
+     -1e-07,
+     10.0000001,
+     4.5000001,
+     1e-07
+    ],
+    "center_of_mass": [
+     5.0,
+     2.719437192,
+     0.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 0,
+    "wires": 1,
+    "edges": 1,
+    "vertices": 2,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
+   },
+   "Point": {
+    "type": "Vertex",
+    "valid": true,
+    "volume": 0.0,
+    "area": 0.0,
+    "length": 0.0,
+    "bbox": [
+     3.0,
+     4.0,
+     5.0,
+     3.0,
+     4.0,
+     5.0
+    ],
+    "center_of_mass": [
+     3.0,
+     4.0,
+     5.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 0,
+    "wires": 0,
+    "edges": 0,
+    "vertices": 1,
+    "placement": [
+     [
+      3.0,
+      4.0,
+      5.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
+   }
+  },
+  "draft_arrays": {
+   "Rectangle": {
+    "type": "Face",
+    "valid": true,
+    "volume": 0.0,
+    "area": 8.0,
+    "length": 12.0,
+    "bbox": [
+     0.0,
+     0.0,
+     0.0,
+     4.0,
+     2.0,
+     0.0
+    ],
+    "center_of_mass": [
+     2.0,
+     1.0,
+     0.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 1,
+    "wires": 1,
+    "edges": 4,
+    "vertices": 4,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
+   },
+   "Ortho": {
+    "type": "Compound",
+    "valid": true,
+    "volume": 0.0,
+    "area": 48.0,
+    "length": 72.0,
+    "bbox": [
+     0.0,
+     0.0,
+     0.0,
+     16.0,
+     6.0,
+     0.0
+    ],
+    "center_of_mass": [
+     8.0,
+     3.0,
+     0.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 6,
+    "wires": 6,
+    "edges": 24,
+    "vertices": 24,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
+   },
+   "Circle": {
+    "type": "Face",
+    "valid": true,
+    "volume": 0.0,
+    "area": 3.141592654,
+    "length": 6.283185307,
+    "bbox": [
+     9.0,
+     -1.0,
+     0.0,
+     11.0,
+     1.0,
+     0.0
+    ],
+    "center_of_mass": [
+     10.0,
+     -0.0,
+     0.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 1,
+    "wires": 1,
+    "edges": 1,
+    "vertices": 1,
+    "placement": [
+     [
+      10.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
+   },
+   "Polar": {
+    "type": "Compound",
+    "valid": true,
+    "volume": 0.0,
+    "area": 18.849555922,
+    "length": 37.699111843,
+    "bbox": [
+     -11.0,
+     -9.660254038,
+     0.0,
+     11.0,
+     9.660254038,
+     0.0
+    ],
+    "center_of_mass": [
+     -0.0,
+     0.0,
+     0.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 6,
+    "wires": 6,
+    "edges": 6,
+    "vertices": 6,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
+   },
+   "Circular": {
+    "type": "Compound",
+    "valid": true,
+    "volume": 0.0,
+    "area": 28.274333882,
+    "length": 56.548667765,
+    "bbox": [
+     -7.0,
+     -7.0,
+     0.0,
+     11.0,
+     7.0,
+     0.0
+    ],
+    "center_of_mass": [
+     1.111111111,
+     0.0,
+     0.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 9,
+    "wires": 9,
+    "edges": 9,
+    "vertices": 9,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
+   }
+  },
+  "draft_array_of_part": {
+   "Box": {
+    "type": "Solid",
+    "valid": true,
+    "volume": 24.0,
+    "area": 52.0,
+    "length": 72.0,
+    "bbox": [
+     0.0,
+     0.0,
+     0.0,
+     4.0,
+     3.0,
+     2.0
+    ],
+    "center_of_mass": [
+     2.0,
+     1.5,
+     1.0
+    ],
+    "solids": 1,
+    "shells": 1,
+    "faces": 6,
+    "wires": 6,
+    "edges": 12,
+    "vertices": 8,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
+   },
+   "Array": {
+    "type": "Compound",
+    "valid": true,
+    "volume": 288.0,
+    "area": 624.0,
+    "length": 864.0,
+    "bbox": [
+     0.0,
+     0.0,
+     0.0,
+     14.0,
+     19.0,
+     7.0
+    ],
+    "center_of_mass": [
+     7.0,
+     9.5,
+     3.5
+    ],
+    "solids": 12,
+    "shells": 12,
+    "faces": 72,
+    "wires": 72,
+    "edges": 144,
+    "vertices": 96,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
+   },
+   "Cylinder": {
+    "type": "Solid",
+    "valid": true,
+    "volume": 9.424777961,
+    "area": 25.132741229,
+    "length": 31.132741229,
+    "bbox": [
+     19.0,
+     -1.0,
+     0.0,
+     21.0,
+     1.0,
+     3.0
+    ],
+    "center_of_mass": [
+     20.0,
+     0.0,
+     1.5
+    ],
+    "solids": 1,
+    "shells": 1,
+    "faces": 3,
+    "wires": 3,
+    "edges": 3,
+    "vertices": 2,
+    "placement": [
+     [
+      20.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
+   },
+   "PolarFused": {
+    "type": "Compound",
+    "valid": true,
+    "volume": 37.699111843,
+    "area": 100.530964915,
+    "length": 124.530964915,
+    "bbox": [
+     -21.0,
+     -1.0,
+     0.0,
+     21.0,
+     18.320508076,
+     3.0
+    ],
+    "center_of_mass": [
+     0.0,
+     8.660254038,
+     1.5
+    ],
+    "solids": 4,
+    "shells": 4,
+    "faces": 12,
+    "wires": 12,
+    "edges": 12,
+    "vertices": 8,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
+   }
+  },
+  "draft_path_point_arrays": {
+   "Path": {
+    "type": "Wire",
+    "valid": true,
+    "volume": 0.0,
+    "area": 0.0,
+    "length": 50.0,
+    "bbox": [
+     0.0,
+     0.0,
+     0.0,
+     30.0,
+     20.0,
+     0.0
+    ],
+    "center_of_mass": [
+     21.0,
+     4.0,
+     0.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 0,
+    "wires": 1,
+    "edges": 2,
+    "vertices": 3,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
+   },
+   "Dot": {
+    "type": "Face",
+    "valid": true,
+    "volume": 0.0,
+    "area": 3.141592654,
+    "length": 6.283185307,
+    "bbox": [
+     -1.0,
+     -1.0,
+     0.0,
+     1.0,
+     1.0,
+     0.0
+    ],
+    "center_of_mass": [
+     -0.0,
+     -0.0,
+     0.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 1,
+    "wires": 1,
+    "edges": 1,
+    "vertices": 1,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
+   },
+   "PathArray": {
+    "type": "Compound",
+    "valid": true,
+    "volume": 0.0,
+    "area": 15.707963268,
+    "length": 31.415926536,
+    "bbox": [
+     -1.0,
+     -1.0,
+     0.0,
+     31.0,
+     21.0,
+     0.0
+    ],
+    "center_of_mass": [
+     19.5,
+     5.5,
+     0.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 5,
+    "wires": 5,
+    "edges": 5,
+    "vertices": 5,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
+   },
+   "Points": {
+    "type": "Wire",
+    "valid": true,
+    "volume": 0.0,
+    "area": 0.0,
+    "length": 22.360679775,
+    "bbox": [
+     0.0,
+     40.0,
+     0.0,
+     20.0,
+     45.0,
+     0.0
+    ],
+    "center_of_mass": [
+     10.0,
+     42.5,
+     0.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 0,
+    "wires": 1,
+    "edges": 2,
+    "vertices": 3,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
+   },
+   "PointArray": {
+    "type": "Compound",
+    "valid": true,
+    "volume": 0.0,
+    "area": 9.424777961,
+    "length": 18.849555922,
+    "bbox": [
+     -1.0,
+     39.0,
+     0.0,
+     21.0,
+     46.0,
+     0.0
+    ],
+    "center_of_mass": [
+     10.0,
+     41.666666667,
+     0.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 3,
+    "wires": 3,
+    "edges": 3,
+    "vertices": 3,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
+   }
+  },
+  "draft_clone": {
+   "Rectangle": {
+    "type": "Face",
+    "valid": true,
+    "volume": 0.0,
+    "area": 18.0,
+    "length": 18.0,
+    "bbox": [
+     0.0,
+     0.0,
+     0.0,
+     6.0,
+     3.0,
+     0.0
+    ],
+    "center_of_mass": [
+     3.0,
+     1.5,
+     0.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 1,
+    "wires": 1,
+    "edges": 4,
+    "vertices": 4,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
+   },
+   "Clone": {
+    "type": "Face",
+    "valid": true,
+    "volume": 0.0,
+    "area": 18.0,
+    "length": 18.0,
+    "bbox": [
+     10.0,
+     0.0,
+     0.0,
+     16.0,
+     3.0,
+     0.0
+    ],
+    "center_of_mass": [
+     13.0,
+     1.5,
+     0.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 1,
+    "wires": 1,
+    "edges": 4,
+    "vertices": 4,
+    "placement": [
+     [
+      10.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
+   },
+   "Scaled": {
+    "type": "Face",
+    "valid": true,
+    "volume": 0.0,
+    "area": 36.0,
+    "length": 30.0,
+    "bbox": [
+     -1e-07,
+     -1e-07,
+     -1e-07,
+     12.0000001,
+     3.0000001,
+     1e-07
+    ],
+    "center_of_mass": [
+     6.0,
+     1.5,
+     0.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 1,
+    "wires": 1,
+    "edges": 4,
+    "vertices": 4,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
+   },
+   "Box": {
+    "type": "Solid",
+    "valid": true,
+    "volume": 8.0,
+    "area": 24.0,
+    "length": 48.0,
+    "bbox": [
+     0.0,
+     0.0,
+     0.0,
+     2.0,
+     2.0,
+     2.0
+    ],
+    "center_of_mass": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "solids": 1,
+    "shells": 1,
+    "faces": 6,
+    "wires": 6,
+    "edges": 12,
+    "vertices": 8,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
+   },
+   "BoxClone": {
+    "type": "Solid",
+    "valid": true,
+    "volume": 48.0,
+    "area": 88.0,
+    "length": 96.0,
+    "bbox": [
+     -1e-07,
+     9.9999999,
+     -1e-07,
+     2.0000001,
+     14.0000001,
+     6.0000001
+    ],
+    "center_of_mass": [
+     1.0,
+     12.0,
+     3.0
+    ],
+    "solids": 1,
+    "shells": 1,
+    "faces": 6,
+    "wires": 6,
+    "edges": 12,
+    "vertices": 8,
+    "placement": [
+     [
+      0.0,
+      10.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
+   }
+  },
+  "draft_params": {
+   "Rectangle": {
+    "type": "Face",
+    "valid": true,
+    "volume": 0.0,
+    "area": 72.0,
+    "length": 36.0,
+    "bbox": [
+     0.0,
+     0.0,
+     0.0,
+     12.0,
+     6.0,
+     0.0
+    ],
+    "center_of_mass": [
+     6.0,
+     3.0,
+     0.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 1,
+    "wires": 1,
+    "edges": 4,
+    "vertices": 4,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
+   },
+   "Array": {
+    "type": "Compound",
+    "valid": true,
+    "volume": 0.0,
+    "area": 288.0,
+    "length": 144.0,
+    "bbox": [
+     0.0,
+     0.0,
+     0.0,
+     57.0,
+     6.0,
+     0.0
+    ],
+    "center_of_mass": [
+     28.5,
+     3.0,
+     0.0
+    ],
+    "solids": 0,
+    "shells": 0,
+    "faces": 4,
+    "wires": 4,
+    "edges": 16,
+    "vertices": 16,
+    "placement": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ]
+   }
+  }
+ },
+ "draft_defaults": {
+  "Draft::Array": {
+   "Angle": 360.0,
+   "ArrayType": "ortho",
+   "Axis": [
+    0.0,
+    0.0,
+    1.0
+   ],
+   "AxisReference": null,
+   "Base": null,
+   "Center": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "Count": 0,
+   "Fuse": false,
+   "IntervalAxis": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "IntervalX": [
+    50.0,
+    0.0,
+    0.0
+   ],
+   "IntervalY": [
+    0.0,
+    50.0,
+    0.0
+   ],
+   "IntervalZ": [
+    0.0,
+    0.0,
+    50.0
+   ],
+   "Label": "Array",
+   "NumberCircles": 3,
+   "NumberPolar": 5,
+   "NumberX": 2,
+   "NumberY": 2,
+   "NumberZ": 1,
+   "Placement": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ],
+   "PlacementList": [],
+   "RadialDistance": 50.0,
+   "Symmetry": 1,
+   "TangentialDistance": 25.0,
+   "_ElementMapVersion": "",
+   "_TypeId": "Part::FeaturePython"
+  },
+  "Draft::BSpline": {
+   "Area": 0.0,
+   "AttacherEngine": "Engine 3D",
+   "AttacherType": "Attacher::AttachEngine3D",
+   "AttachmentOffset": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ],
+   "AttachmentSupport": [],
+   "Closed": false,
+   "Label": "BSpline",
+   "MakeFace": true,
+   "MapMode": "Deactivated",
+   "MapPathParameter": 0.0,
+   "MapReversed": false,
+   "Parameterization": 1.0,
+   "Placement": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ],
+   "Points": [],
+   "_ElementMapVersion": "",
+   "_TypeId": "Part::FeaturePython"
+  },
+  "Draft::BezCurve": {
+   "Area": 0.0,
+   "AttacherEngine": "Engine 3D",
+   "AttacherType": "Attacher::AttachEngine3D",
+   "AttachmentOffset": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ],
+   "AttachmentSupport": [],
+   "Closed": false,
+   "Continuity": [],
+   "Degree": 3,
+   "Label": "BezCurve",
+   "Length": 0.0,
+   "MakeFace": true,
+   "MapMode": "Deactivated",
+   "MapPathParameter": 0.0,
+   "MapReversed": false,
+   "Placement": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ],
+   "Points": [],
+   "_ElementMapVersion": "",
+   "_TypeId": "Part::FeaturePython"
+  },
+  "Draft::Circle": {
+   "Area": 0.0,
+   "AttacherEngine": "Engine Plane",
+   "AttacherType": "Attacher::AttachEnginePlane",
+   "AttachmentOffset": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ],
+   "AttachmentSupport": [],
+   "FirstAngle": 0.0,
+   "Label": "Circle",
+   "LastAngle": 0.0,
+   "MakeFace": true,
+   "MapMode": "Deactivated",
+   "MapPathParameter": 0.0,
+   "MapReversed": false,
+   "Placement": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ],
+   "Radius": 0.0,
+   "_ElementMapVersion": "",
+   "_TypeId": "Part::Part2DObjectPython"
+  },
+  "Draft::Clone": {
+   "AttacherEngine": "Engine Plane",
+   "AttacherType": "Attacher::AttachEnginePlane",
+   "AttachmentOffset": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ],
+   "AttachmentSupport": [],
+   "ForceCompound": false,
+   "Fuse": false,
+   "Label": "Clone",
+   "MapMode": "Deactivated",
+   "MapPathParameter": 0.0,
+   "MapReversed": false,
+   "Objects": [],
+   "Placement": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ],
+   "Scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "_ElementMapVersion": "",
+   "_TypeId": "Part::Part2DObjectPython"
+  },
+  "Draft::Ellipse": {
+   "Area": 0.0,
+   "AttacherEngine": "Engine Plane",
+   "AttacherType": "Attacher::AttachEnginePlane",
+   "AttachmentOffset": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ],
+   "AttachmentSupport": [],
+   "FirstAngle": 0.0,
+   "Label": "Ellipse",
+   "LastAngle": 0.0,
+   "MajorRadius": 0.0,
+   "MakeFace": true,
+   "MapMode": "Deactivated",
+   "MapPathParameter": 0.0,
+   "MapReversed": false,
+   "MinorRadius": 0.0,
+   "Placement": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ],
+   "_ElementMapVersion": "",
+   "_TypeId": "Part::Part2DObjectPython"
+  },
+  "Draft::PathArray": {
+   "Align": false,
+   "AlignMode": "Original",
+   "Base": null,
+   "Count": 4,
+   "EndOffset": 0.0,
+   "ExtraTranslation": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "ForceVertical": false,
+   "Fuse": false,
+   "Label": "PathArray",
+   "PathObject": null,
+   "PathSubelements": [],
+   "Placement": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ],
+   "PlacementList": [],
+   "ReversePath": false,
+   "SpacingMode": "Fixed count",
+   "SpacingPattern": [
+    1.0,
+    2.0
+   ],
+   "SpacingUnit": 20.0,
+   "StartOffset": 0.0,
+   "TangentVector": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "UseSpacingPattern": false,
+   "VerticalVector": [
+    0.0,
+    0.0,
+    1.0
+   ],
+   "_ElementMapVersion": "",
+   "_TypeId": "Part::FeaturePython"
+  },
+  "Draft::Point": {
+   "Label": "Point",
+   "Placement": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ],
+   "X": 0.0,
+   "Y": 0.0,
+   "Z": 0.0,
+   "_ElementMapVersion": "",
+   "_TypeId": "Part::FeaturePython"
+  },
+  "Draft::PointArray": {
+   "Base": null,
+   "Count": 0,
+   "ExtraPlacement": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ],
+   "Fuse": false,
+   "Label": "PointArray",
+   "Placement": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ],
+   "PlacementList": [],
+   "PointObject": null,
+   "_ElementMapVersion": "",
+   "_TypeId": "Part::FeaturePython"
+  },
+  "Draft::Polygon": {
+   "Area": 0.0,
+   "AttacherEngine": "Engine Plane",
+   "AttacherType": "Attacher::AttachEnginePlane",
+   "AttachmentOffset": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ],
+   "AttachmentSupport": [],
+   "ChamferSize": 0.0,
+   "DrawMode": "inscribed",
+   "FacesNumber": 0,
+   "FilletRadius": 0.0,
+   "Label": "Polygon",
+   "MakeFace": true,
+   "MapMode": "Deactivated",
+   "MapPathParameter": 0.0,
+   "MapReversed": false,
+   "Placement": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ],
+   "Radius": 1.0,
+   "_ElementMapVersion": "",
+   "_TypeId": "Part::Part2DObjectPython"
+  },
+  "Draft::Rectangle": {
+   "Area": 0.0,
+   "AttacherEngine": "Engine Plane",
+   "AttacherType": "Attacher::AttachEnginePlane",
+   "AttachmentOffset": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ],
+   "AttachmentSupport": [],
+   "ChamferSize": 0.0,
+   "Columns": 1,
+   "FilletRadius": 0.0,
+   "Height": 1.0,
+   "Label": "Rectangle",
+   "Length": 1.0,
+   "MakeFace": true,
+   "MapMode": "Deactivated",
+   "MapPathParameter": 0.0,
+   "MapReversed": false,
+   "Placement": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ],
+   "Rows": 1,
+   "_ElementMapVersion": "",
+   "_TypeId": "Part::Part2DObjectPython"
+  },
+  "Draft::Wire": {
+   "Area": 0.0,
+   "AttacherEngine": "Engine 3D",
+   "AttacherType": "Attacher::AttachEngine3D",
+   "AttachmentOffset": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ],
+   "AttachmentSupport": [],
+   "Base": null,
+   "ChamferSize": 0.0,
+   "Closed": false,
+   "End": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "FilletRadius": 0.0,
+   "Label": "Wire",
+   "Length": 0.0,
+   "MakeFace": true,
+   "MapMode": "Deactivated",
+   "MapPathParameter": 0.0,
+   "MapReversed": false,
+   "Placement": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ],
+   "Points": [],
+   "Start": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "Subdivisions": 0,
+   "Tool": null,
+   "_ElementMapVersion": "",
+   "_TypeId": "Part::FeaturePython"
+  }
+ }
+}
