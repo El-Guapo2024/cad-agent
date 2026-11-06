@@ -996,6 +996,8 @@ Deliberate or known differences:
 
 ## TechDraw Complex Section, 2026-11-06
 
+(Aligned and No parallel came the same day, below.)
+
 TechDraw_ComplexSection opens TaskComplexSection (TaskComplexSection.ui: the base view and its objects, the profile,
 identifier, scale and projection strategy, the four arrows) and makes a TechDraw::DrawComplexSection
 (createComplexSection: SectionOrigin (0, 0, 0), SectionDirection Aligned, the CS from the base view and the arrow, Label
@@ -1013,8 +1015,12 @@ Checked against the real FreeCAD:
 - ui/scripts/techdrawcheck.mjs menus and toolbars: Complex Section active with a page, as FreeCAD's (needPage).
 
 Deliberate or known differences:
-- Aligned and No parallel (makeAlignedPieces: the pieces cut, turned and laid out along the profile) are not ported: the
-  view says so. A complex section needs a base view here (FreeCAD's can be made from selected objects alone).
+- Aligned and No parallel are ported from makeAlignedPieces (each segment's piece cut with the tool face pushed along
+  its view direction, centred, turned to the section direction, laid on the paper plane and placed along the profile;
+  NoParallel leaves out a segment along the section normal; the section faces where the pieces meet the paper plane)
+  but are not compared with FreeCAD: 26.3 computes them on a QtConcurrent thread that freecadcmd never finishes (and
+  that crashes it when the document closes), and its GUI under xvfb crashed while making one. tests/test_techdraw_complex.py
+  holds the layout (the pieces' widths along the profile) instead. A complex section needs a base view here (FreeCAD's can be made from selected objects alone).
 - Editing an existing one changes its identifier, scale and strategy; its direction is set when it is made.
 - The section line's arrows point along the section normal at both ends (FreeCAD's sectionLineArrowDirs turns each to
   its end segment's view direction). No GUI check drives the panel yet.
@@ -1340,7 +1346,7 @@ Known differences:
 - Part: Shape from mesh, Points from shape, Box selection, Persistent section cut, Check geometry, Appearance per face and Defeaturing are greyed or not ported ("Part workbench, 2026-10-25").
 - Assembly: the Path and Point link arrays are cut; datums inside parts, nested sub-assemblies, Exploded View's Align to..., Save Animation and the Std_TransformManip dragger are not ported ("Assembly's later commands, 2026-10-27").
 - Loft, Pipe and Helix: a Pipe whose end sections are not planar is refused, and a solid's face as a Pipe's or Helix's Profile is not offered ("PartDesign Loft, Pipe and Helix, 2026-10-24").
-- TechDraw: Complex Section's Aligned and No parallel strategies, Broken View's sketch breaks, Project Shape and the views from other workbenches are greyed ("TechDraw workbench, 2026-10-27").
+- TechDraw: Complex Section's Aligned and No parallel strategies are not checked against FreeCAD (it crashes making them), Broken View's sketch breaks, Project Shape and the views from other workbenches are greyed ("TechDraw workbench, 2026-10-27").
 - Spreadsheet: Bind…, Configuration Table, zoom, printing, the line edits' completer, xlsx import and charts are cut ("Spreadsheet workbench, 2026-10-27").
 - CAM: Surface and Waterline, the Operation pages' own logic and the panels of the ten dress-ups added 2026-11-06, the simulators, work planes, templates and the tool bit library are cut ("CAM workbench").
 - The other workbenches: the selector offers only Assembly, CAD Agent, CAM, Inspection, Part Design, Part, Sketcher, Spreadsheet and TechDraw, so Draft, FEM, Mesh and the rest are not offered ("Toolbars").

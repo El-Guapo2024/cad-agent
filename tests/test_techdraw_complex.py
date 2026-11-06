@@ -66,3 +66,32 @@ def test_the_section_line_follows_the_profile():
     res = T.PageDocument(s.objs, _prep.shape_of, "golden").recompute().result()
     line = res["sections"]["ComplexSection"]
     assert len(line["points"]) == 4 and line["ends"] == [line["points"][0], line["points"][-1]]
+
+
+# Aligned and NoParallel are not in the goldens: FreeCAD 26.3 computes them on a QtConcurrent thread that freecadcmd
+# never finishes, and its GUI under xvfb crashed while making one (2026-11-06). These hold what makeAlignedPieces lays
+# out: one piece per profile segment, each as wide as the stretch of the plate that segment cuts, side by side.
+
+def _aligned(strategy, profile):
+    s = _page([{"op": "view", "source": ["plate"], "direction": [0, 0, 1]},
+               {"op": "complex_section", "base_view": "View", "direction": "Up", "strategy": strategy,
+                "profile": profile}])
+    doc = T.PageDocument(s.objs, _prep.shape_of, "golden").recompute()
+    assert not doc.errors
+    return doc.geo["ComplexSection"]
+
+
+def test_aligned_lays_the_pieces_side_by_side():
+    import math
+    g = _aligned("Aligned", [[-25, -5, 5], [0, -5, 5], [10, 8, 5], [25, 8, 5]])
+    # the plate spans x -20..20: 20 mm of the first segment, all of the slanted one, 10 mm of the last
+    width = 20.0 + math.hypot(10, 13) + 10.0
+    assert abs((g.box[2] - g.box[0]) - width) < 1e-6
+    assert abs((g.box[3] - g.box[1]) - 10.0) < 1e-6          # the plate's thickness, seen from the section direction
+    assert len(g.faces) == 3          # a face for each segment (the slanted one ends at the hole's centre)
+
+
+def test_noparallel_leaves_out_the_segment_along_the_section_normal():
+    g = _aligned("NoParallel", [[-25, -5, 5], [0, -5, 5], [0, 8, 5], [25, 8, 5]])
+    assert abs((g.box[2] - g.box[0]) - 40.0) < 1e-6           # 20 + 20: the segment along y is not shown
+    assert len(g.faces) == 3          # the first piece's face, and the last's in two: its segment runs through the hole

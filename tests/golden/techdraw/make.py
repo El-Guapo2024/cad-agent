@@ -113,6 +113,8 @@ def build(doc, case):
             page.addView(s)
             s.BaseView = made[o["base_view"]]
             s.Source = [doc.getObject(p) for p in o["source"]]
+            # the profile first: with the GUI up every change recomputes the section, which needs its profile
+            s.CuttingToolWireObject = prof
             for key in ("section_symbol", "label", "caption", "section_origin", "scale", "scale_type",
                         "section_direction", "section_normal", "direction", "x_direction", "rotation", "x", "y",
                         "hard_hidden", "smooth_visible"):
@@ -122,22 +124,25 @@ def build(doc, case):
                 set_props(s, o, [key])
             made[n] = s
         elif k == "DrawComplexSection":
-            # TaskComplexSection: the profile is a wire of the 3D document (here a Part::Feature polygon)
+            # TaskComplexSection::createComplexSection's order: the identifier, Label, caption, addView, scale and its
+            # type, strategy, origin and direction, then BaseView, the CS and Source, then the profile (with the GUI up a
+            # section drawn before its base view and profile are set takes FreeCAD down); the profile is a wire of the 3D
+            # document (here a Part::Feature polygon)
             prof = doc.addObject("Part::Feature", "Profile")
             prof.Shape = Part.makePolygon([V(*p) for p in o["cutting_tool_wire_object"]])
             s = doc.addObject("TechDraw::DrawComplexSection", n)
+            set_props(s, o, ["section_symbol"])
+            s.Label = o["label"]
+            set_props(s, o, ["caption"])
             page.addView(s)
+            set_props(s, o, ["scale", "scale_type"])
+            s.ProjectionStrategy = o["projection_strategy"]
+            set_props(s, o, ["section_origin", "section_direction"])
             s.BaseView = made[o["base_view"]]
+            set_props(s, o, ["section_normal", "direction", "x_direction"])
             s.Source = [doc.getObject(p) for p in o["source"]]
             s.CuttingToolWireObject = prof
-            s.ProjectionStrategy = o["projection_strategy"]
-            for key in ("section_symbol", "label", "caption", "section_origin", "scale", "scale_type",
-                        "section_direction", "section_normal", "direction", "x_direction", "rotation", "x", "y",
-                        "hard_hidden", "smooth_visible"):
-                if key == "label":
-                    s.Label = o["label"]
-                    continue
-                set_props(s, o, [key])
+            set_props(s, o, ["rotation", "x", "y", "hard_hidden", "smooth_visible"])
             made[n] = s
         elif k == "DrawBrokenView":
             # CmdTechDrawBrokenView: a break object is a straight edge of the 3D document (here a Part::Feature line)

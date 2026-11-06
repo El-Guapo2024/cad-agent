@@ -714,15 +714,17 @@ class PageDocument:
         self.geo[o.name] = geo
 
     def _complex(self, o, shape, scale):
-        """DrawComplexSection's geometry: Offset only; the base view gives the reference axis."""
+        """DrawComplexSection's geometry (Offset, or Aligned / NoParallel); the base view gives the reference axis."""
         from . import techdraw_complex as CX
-        if o.projection_strategy != "Offset":
-            raise TechDrawError(f"{o.name}: the {o.projection_strategy} projection strategy is not ported (Offset is)")
         if len(o.cutting_tool_wire_object) < 2:
             raise TechDrawError(f"{o.name}: Can not make wire from cutting tool (1)")
         base = self.get(o.base_view)
         if base is None:
             raise TechDrawError("BaseView object not found")
+        if o.projection_strategy != "Offset":
+            return CX.project_aligned_section(shape, o.cutting_tool_wire_object, base.direction, o.section_normal,
+                                              o.x_direction, o.section_origin, o.direction, o.x_direction, scale,
+                                              o.rotation, o.flags(), o.projection_strategy)
         return CX.project_complex_section(shape, o.cutting_tool_wire_object, base.direction, o.section_normal,
                                           o.x_direction, o.section_origin, o.direction, o.x_direction, scale,
                                           o.rotation, o.flags())
