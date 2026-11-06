@@ -10,6 +10,7 @@
 //              the object, its name and type, its undo step, and the document building with it
 //   edit       Std_Edit on the rectangle opens its panel with its values; OK writes the change
 //   props      the rectangle's property view has FreeCAD's rows
+//   modify     Move, Rotate, Offset and Scale (with Copy) from their panels: what Draft's own functions make of them
 import { createRequire } from 'module'
 import { spawn, spawnSync } from 'child_process'
 import { mkdirSync, mkdtempSync, readFileSync, rmSync } from 'fs'
@@ -192,6 +193,38 @@ try {
   if (args.includes('--debug')) console.log('   props', JSON.stringify(await st('cadui.getState().task')), JSON.stringify(await st('cadui.getState().featSel')), await st('!!document.querySelector(".props")'), await st('document.querySelector(".props")?.innerHTML.slice(0, 400)'), JSON.stringify(await st('cadui.getState().selected')))
   for (const k of ['Length', 'Height', 'Fillet Radius', 'Chamfer Size', 'Make Face', 'Rows', 'Columns', 'Placement', 'Label'])
     check(rows.includes(k), `props: ${k}`, JSON.stringify(rows))
+
+  console.log('modify')
+  const modify = async (cmd, names, fill) => {
+    await selectRows(names)
+    await runCmd(cmd)
+    if (!await until(`!!document.querySelector('.taskview [data-task="draft-${cmd}"]')`, `the ${cmd} panel`)) return
+    for (const [qf, v] of fill) await setQ(qf, v)
+    const n = await st('cadui.getState().undo.length')
+    await clickButton('OK')
+    await until(`cadui.getState().undo.length > ${n} && !cadui.getState().busy.length`, `${cmd} to be written`, 90000)
+    await sleep(500)
+  }
+  await modify('Draft_Move', ['Circle'], [['vectorX', 10]])
+  check(JSON.stringify((await obj('Circle'))?.placement?.[0]) === '[60,0,0]', 'Move: the circle 10 along X', JSON.stringify(await obj('Circle')))
+  check(await undoName() === 'Move', 'its undo step is "Move"', await undoName())
+  await modify('Draft_Rotate', ['Wire'], [['angle', 90]])
+  const wr = await obj('Wire')
+  check(Math.abs((wr?.placement?.[1]?.[0] ?? 0) - 90) < 1e-6, 'Rotate: the wire 90 degrees about Z', JSON.stringify(wr))
+  await modify('Draft_Offset', ['Circle'], [['radius', 6]])
+  check((await obj('Circle'))?.radius === 6, 'Offset: the circle\'s radius 6', JSON.stringify(await obj('Circle')))
+  await selectRows(['Wire'])
+  await runCmd('Draft_Scale')
+  await until('!!document.querySelector(\'.taskview [data-task="draft-Draft_Scale"]\')', 'the Scale panel')
+  await setQ('vectorX', 2); await setQ('vectorY', 2)
+  await page.click('.taskview .tcheck:has-text("Copy") input')
+  const before = await count()
+  await clickButton('OK')
+  await objectsAt(before + 1, 'the scaled copy')
+  check(!!(await obj('Wire001')), 'Scale with Copy: Wire001, as Draft names the copy', JSON.stringify((await objects()).map((o) => o.name)))
+  const errs2 = await st('cadui.getState().messages.filter((l) => l.level === "err").map((l) => l.text).filter((t) => !/OBJECTS is empty/.test(t))')
+  check(!errs2.length, 'no error in the Report view', JSON.stringify(errs2))
+
   if (flag('shot', '')) { await st('cadui.getCommand("Std_ViewFitAll")?.run([])'); await sleep(1500); await page.screenshot({ path: flag('shot', '') }); console.log(`screenshot: ${flag('shot', '')}`) }
 } catch (e) {
   bad('draftcheck stopped', e.stack ?? String(e))

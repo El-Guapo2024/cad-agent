@@ -354,6 +354,13 @@ class Shape:
         k = TopAbs_SHAPE if kind is None else (kind if not isinstance(kind, str) else NAME_TYPES.get(kind, TopAbs_SHAPE))
         return ShapeAnalysis_ShapeTolerance().Tolerance(self._s, int(mode), k)
 
+    def globalTolerance(self, mode):
+        """TopoShapePy::globalTolerance: ShapeAnalysis_ShapeTolerance's Tolerance(shape, mode), then GlobalTolerance."""
+        from OCP.ShapeAnalysis import ShapeAnalysis_ShapeTolerance
+        a = ShapeAnalysis_ShapeTolerance()
+        a.Tolerance(self._s, int(mode))
+        return a.GlobalTolerance(int(mode))
+
     def isClosed(self):
         """TopoShape::isClosed."""
         s = self._s

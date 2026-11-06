@@ -11,8 +11,9 @@
 // the panel here asks for them as numbers. The tree, the property view (draft_props.ts), Space, Delete and F2 are
 // part_wb.tsx's, as for any object of the document.
 import { useState, type ReactNode } from 'react'
-import { getState, useStore, type Feature } from './store'
-import { closeTask, openTask } from './actions'
+import { consoleLog, getState, report, useStore, type Feature } from './store'
+import { closeTask, loadFeatures, loadHistory, openTask } from './actions'
+import { api, resultText } from './api'
 import { TaskBox } from './panels'
 import { QComboBox } from './combo'
 import { LENGTH, ANGLE, NUMBER } from './qsb'
@@ -49,6 +50,12 @@ const MAKES: Record<string, Make> = {
   Draft_PointArray: { type: 'Draft::PointArray', base: 'PointArray', start: {}, keys: [], panel: false, sel: 'two' },
   Draft_Clone: { type: 'Draft::Clone', base: 'Clone', start: {}, keys: [], panel: false, sel: 'many' },
 }
+/** The modifications: Draft's own move / rotate / scale / offset run on the server (`cad feature draft`, draft_modify.py),
+ *  with the panel's values as the GUI command's Draft.move(...) line takes them. */
+type Mod = { op: 'move' | 'rotate' | 'scale' | 'offset'; one?: boolean }
+const MODS: Record<string, Mod> = {
+  Draft_Move: { op: 'move' }, Draft_Rotate: { op: 'rotate' }, Draft_Scale: { op: 'scale' }, Draft_Offset: { op: 'offset', one: true },
+}
 /** Why a command of the workbench is not offered (it stays in its menu, greyed, as the port's other n/a commands do). */
 const WHY: Record<string, string> = {
   Draft_Fillet: 'a Draft fillet joins two selected wires in the 3D view, which needs edge picking on Draft wires',
@@ -56,15 +63,18 @@ const WHY: Record<string, string> = {
   Draft_Facebinder: 'faces picked on other objects', Draft_ShapeString: 'text needs a font file, which the page does not read',
   Draft_Hatch: 'a hatch needs a PAT file',
 }
-const NOT_YET = 'not ported yet: annotations, modifications, layers and the working plane need the 3D view\'s Draft tracker'
+const NOT_YET = 'not ported yet: annotations, Trimex, Stretch, Upgrade, layers and the working plane need the 3D view\'s Draft tracker'
 
 const cmdOf = (c: string) => DRAFT_CMDS[c] ?? { pixmap: null, menu: c, tip: null, accel: null }
 const iconOf = (c: string) => (cmdOf(c).pixmap ? `df-${cmdOf(c).pixmap}` : undefined) as IconName | undefined
 function entry(c: string): Entry {
   const r = cmdOf(c), mk = MAKES[c], label = r.menu ?? c
   if (r.group) return { label, icon: iconOf(c), cmd: c, title: r.tip ?? undefined, sub: r.group.map(entry) }
-  if (!mk) return { label, icon: iconOf(c), cmd: c, disabled: true, title: `n/a: ${WHY[c] ?? NOT_YET}` }
   const part = activeDoc(), n = part ? selectedObjects(part).length : 0
+  const mod = MODS[c]
+  if (mod) return { label, icon: iconOf(c), cmd: c, disabled: mod.one ? n !== 1 : n < 1, title: r.tip ?? undefined,
+    onSelect: () => { if (part) openTask('draftwb', part, c) } }
+  if (!mk) return { label, icon: iconOf(c), cmd: c, disabled: true, title: `n/a: ${WHY[c] ?? NOT_YET}` }
   const disabled = mk.sel === 'one' ? n !== 1 : mk.sel === 'two' ? n !== 2 : mk.sel === 'many' ? n < 1 : false
   return { label, icon: iconOf(c), cmd: c, disabled, title: r.tip ?? undefined, onSelect: () => void run(c) }
 }
@@ -130,6 +140,11 @@ function dimsOf(r: PartProp) {
 const human = (p: string) => p.replace(/([a-z])([A-Z])/g, '$1 $2')
 /** The command's values as numbers, and the object's placement position: OK adds the object (or sets an edited one's). */
 export function DraftTask({ part, other }: { part: string; other: string }) {
+  const c0 = other.includes(':') ? other.slice(0, other.indexOf(':')) : other
+  if (MODS[c0]) return <ModifyTask key={other} part={part} c={c0} />
+  return <MakeTask key={other} part={part} other={other} />
+}
+function MakeTask({ part, other }: { part: string; other: string }) {
   const [c, edit] = other.includes(':') ? [other.slice(0, other.indexOf(':')), other.slice(other.indexOf(':') + 1)] : [other, undefined]
   const doc = useStore((s) => s.features[part])
   const mk = MAKES[c]
@@ -194,6 +209,58 @@ export function DraftTask({ part, other }: { part: string; other: string }) {
         {mk.keys.map(field)}
         {mk.type !== 'Draft::Point' && <Legend title="Placement">{(['X', 'Y', 'Z'] as const).map((a, i) =>
           <Q key={a} label={a} name={`pos${a}`} value={pos[i] ?? 0} onChange={(x) => { const w = [...pos]; w[i] = x; setPos(w); setDirty(new Set([...dirty, 'placement'])) }} />)}</Legend>}
+      </TaskBox>
+    </div>
+  )
+}
+
+/** Move, Rotate, Scale, Offset: the values the command's Draft.<op>(...) line takes, then `cad feature draft`. */
+function ModifyTask({ part, c }: { part: string; c: string }) {
+  const doc = useStore((s) => s.features[part])
+  const mod = MODS[c]
+  const [sel] = useState(() => selectedObjects(part))
+  const circle = mod.op === 'offset' && objectOf(doc, sel[0] ?? '')?.type === 'Draft::Circle'
+  const [vec, setVec] = useState<number[]>(mod.op === 'scale' ? [1, 1, 1] : [0, 0, 0])
+  const [center, setCenter] = useState<number[]>([0, 0, 0])
+  const [axis, setAxis] = useState<number[]>([0, 0, 1])
+  const [angle, setAngle] = useState(0)
+  const [radius, setRadius] = useState(() => Number(objectOf(doc, sel[0] ?? '')?.radius ?? 1))
+  const [copy, setCopy] = useState(false)
+  if (!doc) return null
+  const xyz = (title: string, name: string, v: number[], set: (v: number[]) => void, dims = LENGTH) =>
+    <Legend title={title}>{(['X', 'Y', 'Z'] as const).map((a, i) =>
+      <Q key={a} label={a} name={`${name}${a}`} value={v[i]} dims={dims} onChange={(x) => { const w = [...v]; w[i] = x; set(w) }} />)}</Legend>
+  const ok = async () => {
+    const s = getState()
+    if (!s.slug) return
+    const f = (v: number[]) => v.map((x) => String(x)).join(',')
+    const flags = mod.op === 'move' ? [`--vector=${f(vec)}`]
+      : mod.op === 'rotate' ? [`--angle=${angle}`, `--center=${f(center)}`, `--axis=${f(axis)}`]
+      : mod.op === 'scale' ? [`--vector=${f(vec)}`, `--center=${f(center)}`]
+      : circle ? [`--radius=${radius}`] : [`--vector=${f(vec)}`]
+    const argv = ['feature', 'draft', s.slug, part, mod.op, ...sel, ...flags, ...(copy ? ['--copy'] : [])]
+    closeTask()
+    if (s.scriptToPyConsole) consoleLog('in', `cad ${argv.join(' ')}`)
+    try {
+      const r = await api.cad(s.slug, argv)
+      if (r.exit > 2) { report('err', `${cmdOf(c).menu}: ${resultText(r)}`); return }
+      report('msg', `${part}: ${cmdOf(c).menu}`)
+      loadHistory()
+      await loadFeatures()
+    } catch (e) { report('err', `${cmdOf(c).menu}: ${e instanceof Error ? e.message : String(e)}`) }
+  }
+  return (
+    <div className="tasks pt-task" data-task={`draft-${c}`}>
+      <Buttons items={[['OK', () => void ok(), true], ['Cancel', closeTask]]} />
+      <TaskBox title={cmdOf(c).menu ?? c} icon={iconOf(c) ?? 'df-DraftWorkbench'}>
+        <Field label="Objects">{sel.join(', ')}</Field>
+        {mod.op === 'move' && xyz('Displacement', 'vector', vec, setVec)}
+        {mod.op === 'rotate' && <><Q label="Angle" name="angle" value={angle} dims={ANGLE} onChange={setAngle} />
+          {xyz('Center', 'center', center, setCenter)}{xyz('Axis', 'axis', axis, setAxis, NUMBER)}</>}
+        {mod.op === 'scale' && <>{xyz('Scale factors', 'vector', vec, setVec, NUMBER)}{xyz('Center', 'center', center, setCenter)}</>}
+        {mod.op === 'offset' && (circle ? <Q label="Radius" name="radius" value={radius} onChange={setRadius} />
+          : xyz('Offset of the first vertex', 'vector', vec, setVec))}
+        <Check label="Copy" name="copy" checked={copy} onChange={setCopy} />
       </TaskBox>
     </div>
   )

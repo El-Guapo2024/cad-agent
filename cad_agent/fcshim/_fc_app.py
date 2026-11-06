@@ -929,6 +929,13 @@ class Document:
     def getObjectsByLabel(self, label):
         return [o for o in self._objects if o.Label == label]
 
+    def findObjects(self, Type="App::DocumentObject", Name=None, Label=None):
+        """Document::findObjects: the objects of a type (or derived) whose Name and Label each regex_search their
+        pattern."""
+        import re
+        return [o for o in self._objects if o.isDerivedFrom(Type)
+                and (Name is None or re.search(Name, o.Name)) and (Label is None or re.search(Label, o.Label))]
+
     def removeObject(self, name):
         o = self.getObject(name) if isinstance(name, str) else name
         if o is None:
