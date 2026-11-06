@@ -18,7 +18,9 @@ on:
 
 jobs:
   harness:
-    runs-on: ubuntu-latest
+    # pinned: from ubuntu-latest's move to Ubuntu 26 (Oct 2026) its compiler rounds the native solvers' last bits
+    # otherwise, and the bit-for-bit goldens of PlaneGCS and OndselSolver (FreeCAD 26.3's own builds) no longer hold
+    runs-on: ubuntu-24.04
     timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
