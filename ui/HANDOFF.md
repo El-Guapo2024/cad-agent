@@ -154,9 +154,9 @@ Step 5, round 3 (six branches) is all in main (7526c0c, CI green, 6977 passed, 2
   cp312 wheel; building OpenCamLib 2023.01.11 with Boost.Python was blocked by the auto-mode classifier, waiting on Juan), the copy and array commands, simulation, work planes, templates, the tool bit library.
   Assembly's Bill of Materials object (2026-11-06): a sheet of the project with a Spreadsheet.Bom head, filled by
   cad_agent/assembly_bom.py (BomObject.cpp's generateBOM, tests/golden/assembly_bom); `cad sheet bom`, the page's
-  panel (src/assembly_bom.tsx), assemblycheck's bom section. Linear and Polar link arrays too (cad_agent/
+  panel (src/assembly_bom.tsx), assemblycheck's bom section. Linear, Polar and Circular link arrays too (cad_agent/
   assembly_array.py over feature_transform's pattern code, tests/golden/link_array, src/assembly_array.tsx). Still cut
-  in Assembly: Snapshot, the Circular, Path and Point link arrays.
+  in Assembly: Snapshot, the Path and Point link arrays.
   Branches made before 22944df (pcbfab-demo among them) still run CI on ubuntu-latest: merge main into them.
   CI: ubuntu-latest moved to Ubuntu 26 and its compiler broke the native solvers' bit-for-bit goldens on every branch
   since 2026-11-03; ci.yml now pins ubuntu-24.04 (GCC 13, as this box, where they pass).

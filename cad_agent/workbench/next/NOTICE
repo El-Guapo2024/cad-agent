@@ -1034,6 +1034,9 @@ src/Mod/Part/Gui/Mirroring.ui   [licence: LGPL-2.1-or-later]
 src/Mod/Part/Gui/PatternParametersWidget.cpp   [licence: LGPL-2.1-or-later]
     copyright 2025 AstoCAD
     followed by src/pd_transform.tsx
+src/Mod/Part/Gui/PatternCircularParametersWidget.ui   [licence: none]
+    copyright: no line in the file
+    followed by src/assembly_array.tsx
 src/Mod/Part/Gui/PatternParametersWidget.ui   [licence: none]
     copyright: no line in the file
     followed by src/pd_transform.tsx

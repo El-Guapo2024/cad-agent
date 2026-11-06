@@ -17,4 +17,9 @@ CASES = {
     "polar_half": ("Part::LinkArrayPolar", {"Angle": 180, "Occurrences": 4}),
     "polar_spacing_x": ("Part::LinkArrayPolar", {"Axis": "X_Axis", "Mode": "Spacing", "Offset": 30, "Occurrences": 5}),
     "polar_reversed_y": ("Part::LinkArrayPolar", {"Axis": "Y_Axis", "Reversed": True, "Occurrences": 6}),
+    "circular_default": ("Part::LinkArrayCircular", {}),
+    "circular_symmetry": ("Part::LinkArrayCircular", {"NumberCircles": 4, "RadialDistance": 12, "TangentialDistance": 7,
+                                                      "Symmetry": 6}),
+    "circular_x": ("Part::LinkArrayCircular", {"Axis": "X_Axis", "NumberCircles": 2, "RadialDistance": 30}),
+    "circular_y": ("Part::LinkArrayCircular", {"Axis": "Y_Axis", "NumberCircles": 3, "TangentialDistance": 40}),
 }

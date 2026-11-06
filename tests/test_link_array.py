@@ -18,7 +18,10 @@ FC = json.loads((HERE / "freecad.json").read_text())
 KEYS = {"Direction": "direction", "Direction2": "direction2", "Axis": "axis", "Reversed": "reversed",
         "Reversed2": "reversed2", "Mode": "mode", "Mode2": "mode2", "Length": "length", "Length2": "length2",
         "Offset": "offset", "Offset2": "offset2", "Occurrences": "occurrences", "Occurrences2": "occurrences2",
-        "Spacings": "spacings", "Angle": "angle"}
+        "Spacings": "spacings", "Angle": "angle", "NumberCircles": "number_circles", "RadialDistance": "radial_distance",
+        "TangentialDistance": "tangential_distance", "Symmetry": "symmetry"}
+CLASSES = {"Part::LinkArrayLinear": "LinkArrayLinear", "Part::LinkArrayPolar": "LinkArrayPolar",
+           "Part::LinkArrayCircular": "LinkArrayCircular"}
 
 
 def same(a, b):
@@ -30,7 +33,7 @@ def same(a, b):
 @pytest.mark.parametrize("name", sorted(CASES))
 def test_element_placements(name):
     type_id, props = CASES[name]
-    cls = W.LinkArrayLinear if type_id == "Part::LinkArrayLinear" else W.LinkArrayPolar
+    cls = W.CLASSES[CLASSES[type_id]]
     a = cls("A", "pin", **{KEYS[k]: v for k, v in props.items()})
     ours = [[*p.pos, *p.rot.q] for p in a.element_placements()]
     want = FC[name]

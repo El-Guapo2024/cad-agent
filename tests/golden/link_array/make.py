@@ -19,7 +19,8 @@ import Part  # noqa: E402
 
 from cases import CASES  # noqa: E402
 
-NAMES = {"Part::LinkArrayLinear": "LinearLinkArray", "Part::LinkArrayPolar": "PolarLinkArray"}
+NAMES = {"Part::LinkArrayLinear": "LinearLinkArray", "Part::LinkArrayPolar": "PolarLinkArray",
+         "Part::LinkArrayCircular": "CircularLinkArray"}
 
 
 def run(type_id, props):
@@ -31,7 +32,10 @@ def run(type_id, props):
     a.LinkedObject = box
     for k, v in props.items():
         if k in ("Direction", "Direction2", "Axis"):
-            v = (origin, [v])
+            # the circular pattern takes a datum line (CircularPatternExtension::getRotation), the others a role of
+            # the Origin as well
+            line = next(f for f in origin.OriginFeatures if f.Role == v)
+            v = (line, [""]) if type_id == "Part::LinkArrayCircular" else (origin, [v])
         setattr(a, k, v)
     doc.recompute()
     out = [[*e.Placement.Base, *e.Placement.Rotation.Q] for e in a.ElementList]

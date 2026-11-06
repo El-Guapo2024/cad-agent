@@ -347,7 +347,7 @@ function linkArrayEntries(): Entry[] {
   const { doc } = asmState()
   const off = !doc || !!getState().task
   return [
-    NA('Circular Link Array', 'link', 'Part_LinkArrayCircular', 'the circular link array is not ported'),
+    { label: 'Circular Link Array', icon: 'link', cmd: 'Part_LinkArrayCircular', disabled: off, onSelect: () => openTask('assembly', 'array', 'LinkArrayCircular') },
     { label: 'Linear Link Array', icon: 'link', cmd: 'Part_LinkArrayLinear', disabled: off, onSelect: () => openTask('assembly', 'array', 'LinkArrayLinear') },
     NA('Path Link Array', 'link', 'Part_LinkArrayPath', 'the path link array is not ported (it needs a path object)'),
     NA('Point Link Array', 'link', 'Part_LinkArrayPoint', 'the point link array is not ported (it needs a points object)'),

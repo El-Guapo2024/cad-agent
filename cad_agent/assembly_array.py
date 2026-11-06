@@ -1,7 +1,8 @@
 # SPDX-License-Identifier: LGPL-2.1-or-later
 # Port of FreeCAD 3160daf1e2b6's link arrays (src/Mod/Part/App/LinkArray.cpp and LinkArrayLinear.cpp, Copyright (c)
 # 2026 Boyer Pierre-Louis; LinkArrayPolar.cpp, Copyright (c) 2026 FreeCAD Project Association; their pattern arithmetic
-# is LinearPatternExtension and PolarPatternExtension's, ported in cad_agent/feature_transform.py) and
+# is LinearPatternExtension and PolarPatternExtension's, ported in cad_agent/feature_transform.py; the circular one,
+# CircularPatternExtension.cpp, no copyright line, is ported here) and
 # Part_LinkArrayLinear / Part_LinkArrayPolar's activateLinkArrayCommand (src/Mod/Part/Gui/Command.cpp, Copyright (c)
 # 2002 Jürgen Riegel).
 """Link arrays of an Assembly: Part_LinkArrays' Linear and Polar Link Array in a project's ASSEMBLY.
@@ -104,8 +105,65 @@ class LinkArrayPolar(LinkArray):
                                spacings=tuple(self.spacings), spacing_pattern=tuple(self.spacing_pattern))
 
 
+class LinkArrayCircular(LinkArray):
+    """Part::LinkArrayCircular (Part_LinkArrayCircular, "Circular Link Array"): concentric circles about an axis,
+    CircularPatternExtension::calculateTransformations."""
+    kind = "LinkArrayCircular"
+    TYPE_ID = "Part::LinkArrayCircular"
+    REF_KEYS = ("axis",)
+    DEFAULTS = {**W.Link.DEFAULTS, "axis": None, "radial_distance": 50.0, "tangential_distance": 25.0,
+                "number_circles": 3, "symmetry": 1}
+    TRANSACTION = "Circular Link Array"
+    MAXIMUM_OCCURRENCES = 10000          # PatternConstants::MaximumOccurrences
+
+    def element_placements(self) -> list:
+        import math
+        from OCP.gp import gp_Ax1, gp_Dir, gp_Pnt, gp_Trsf, gp_Vec
+        from .attacher import Placement
+        radial, tangential = float(self.radial_distance), float(self.tangential_distance)
+        circles, symmetry = int(self.number_circles), max(1, int(self.symmetry))
+        conf = 1e-7
+        if not math.isfinite(radial) or radial <= conf:
+            raise W.AssemblyError(f"{self.name}: Radial distance must be greater than zero")
+        if not math.isfinite(tangential) or tangential <= conf:
+            raise W.AssemblyError(f"{self.name}: Tangential distance must be greater than zero")
+        if circles < 2:
+            raise W.AssemblyError(f"{self.name}: At least two concentric circles are required")
+        if circles > self.MAXIMUM_OCCURRENCES:
+            raise W.AssemblyError(f"{self.name}: Circular pattern would create more than "
+                                  f"{self.MAXIMUM_OCCURRENCES} circles")
+        # getRotation: no reference, the role's axis through the origin (Z for none or Z_Axis: gp_Ax2())
+        d = {"X_Axis": (1.0, 0.0, 0.0), "Y_Axis": (0.0, 1.0, 0.0)}.get(self.axis, (0.0, 0.0, 1.0))
+        direction, center = gp_Dir(*d), gp_Pnt()
+        lead = gp_Dir(1.0, 0.0, 0.0) if abs(direction.X()) <= conf and abs(direction.Z()) <= conf \
+            else gp_Dir(0.0, 1.0, 0.0)
+        radial_dir = gp_Vec(direction).Crossed(gp_Vec(lead))
+        radial_dir.Normalize()
+        out = [gp_Trsf()]
+        full = 2.0 * math.acos(-1.0)
+        for circle in range(1, circles):
+            radius = circle * radial
+            requested = math.floor(full * radius / tangential)
+            if not math.isfinite(requested) or requested > self.MAXIMUM_OCCURRENCES \
+                    or len(out) + requested > self.MAXIMUM_OCCURRENCES:
+                raise W.AssemblyError(f"{self.name}: Circular pattern would create more than "
+                                      f"{self.MAXIMUM_OCCURRENCES} occurrences")
+            count = int(requested) // symmetry * symmetry
+            if count == 0:
+                continue
+            translation = gp_Trsf()
+            translation.SetTranslation(radial_dir.Multiplied(radius))
+            step = full / count
+            for k in range(count):
+                rotation = gp_Trsf()
+                rotation.SetRotation(gp_Ax1(center, direction), k * step)
+                rotation.Multiply(translation)
+                out.append(rotation)
+        return [Placement.from_trsf(t) for t in out]
+
+
 # activateLinkArrayCommand's object names
-NAMES = {"LinkArrayLinear": "LinearLinkArray", "LinkArrayPolar": "PolarLinkArray"}
+NAMES = {"LinkArrayLinear": "LinearLinkArray", "LinkArrayPolar": "PolarLinkArray", "LinkArrayCircular": "CircularLinkArray"}
 
 
 def insert_array(doc, kind: str, part: str | None, shape, props: dict | None = None, name: str | None = None):
@@ -128,4 +186,6 @@ def insert_array(doc, kind: str, part: str | None, shape, props: dict | None = N
 
 W.CLASSES[LinkArrayLinear.kind] = LinkArrayLinear
 W.CLASSES[LinkArrayPolar.kind] = LinkArrayPolar
+W.CLASSES[LinkArrayCircular.kind] = LinkArrayCircular
 W.LinkArray, W.LinkArrayLinear, W.LinkArrayPolar = LinkArray, LinkArrayLinear, LinkArrayPolar
+W.LinkArrayCircular = LinkArrayCircular

@@ -53,7 +53,7 @@ const want = (section) => !ONLY.length || ONLY.includes(section)
 const clean = (t) => String(t ?? '').replace(/&(.)/g, '$1').replace(/…$/, '').trim()
 
 // What is deliberately different (PARITY.md, "Assembly workbench"), by the FreeCAD command
-const NOT_PORTED = new Set(['Part_LinkArrayCircular', 'Part_LinkArrayPath', 'Part_LinkArrayPoint', 'Assembly_CreateSnapshot', 'Assembly_SelectJointsOfComponent'])
+const NOT_PORTED = new Set(['Part_LinkArrayPath', 'Part_LinkArrayPoint', 'Assembly_CreateSnapshot', 'Assembly_SelectJointsOfComponent'])
 
 // ── a scratch workbench with three parts ─────────────────────────────────────────────────────────────────────────────
 const freePort = (from) => new Promise((res, rej) => {
