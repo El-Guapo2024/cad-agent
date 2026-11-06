@@ -138,7 +138,7 @@ Step 5, round 3 (six branches) is all in main (7526c0c, CI green, 6977 passed, 2
   (3) open the demo project straight to the 3D view, not the Start page; (4) a scripted demo flow, run until smooth,
   and a backup recording. The basic flow (Body sketch/Pad/Pocket/Fillet, a PARAMS edit, a TechDraw page to PDF, a
   CAM Profile to grbl G-code) was checked end to end in the page on 2026-10-28.
-- Done 2026-11-06 (branch port-next, from wb-vendor-scene, so Follow and the gzip'd scene come with it):
+- Done 2026-11-06, in main as 22944df (CI green; branch port-next, from wb-vendor-scene, so Follow and the gzip'd scene came with it):
   (1) the template: FreeCAD's default template is blank too (519 bytes, no frame), but the ISO ones drew nothing in
   the page: template_svg wrote `svg:` prefixes, which the page's innerHTML makes unknown elements; for a demo, make
   the page with `cad techdraw new SLUG --template ISO/A4_Landscape_TD.svg`. (2) install.sh starts plugin/natives.sh
@@ -147,8 +147,11 @@ Step 5, round 3 (six branches) is all in main (7526c0c, CI green, 6977 passed, 2
   bash 3.2. (3) a `#project` link opens on its 3D view (AppStartGui.cpp). CAM: eleven more ops (Helix, Engrave,
   Slot, Deburr, Thread Milling, Tapping, 3D Pocket, Mill Facing, Adaptive, Custom, Probe) and the ten other
   dress-ups, FreeCAD's Python vendored unchanged, each equal to freecadcmd (tests/golden/cam, 72 tests); Adaptive's
-  TechDraw.findShapeOutline is ported (cad_agent/techdraw_outline.py). Left for them: the ops' Operation pages and
-  the dress-ups' panels (record them with fccam.py, add the .ui files to uigen.py's CAM list, bind in cam_tasks.tsx).
+  TechDraw.findShapeOutline is ported (cad_agent/techdraw_outline.py); Comment and Stop too. The ops' Operation pages
+  and the five dress-up panels with a .ui are drawn from FreeCAD's .ui and bound by property (cam_tasks.tsx OP_FORMS,
+  DRESSUP_FORMS); their own show/hide logic is not ported. Still cut in CAM: Vcarve (C++ Voronoi), Surface and
+  Waterline (opencamlib), the copy and array commands, simulation, work planes, templates, the tool bit library.
+  Branches made before 22944df (pcbfab-demo among them) still run CI on ubuntu-latest: merge main into them.
   CI: ubuntu-latest moved to Ubuntu 26 and its compiler broke the native solvers' bit-for-bit goldens on every branch
   since 2026-11-03; ci.yml now pins ubuntu-24.04 (GCC 13, as this box, where they pass).
 - Demo server: ~/cad-demo (outside the repo) holds the bracket demo; `CAD_PROJECTS=~/cad-demo bin/cad serve --port
