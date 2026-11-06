@@ -928,7 +928,7 @@ Deliberate or known differences:
 - Simulation: Save Animation (a GIF or video) is greyed; a Motion's double-click opens its simulation's panel (FreeCAD opens
   MotionEditDialog on its own); the help labels' tooltips are short. The animation timer runs in the page at
   jFramesPerSecond as FreeCAD's QTimer does.
-- Snapshot and Link Arrays stay cut (greyed with the reason); the BOM object came 2026-11-06 ("Assembly's Bill of Materials").
+- Snapshot stays cut (greyed with the reason); the BOM object and the Linear and Polar link arrays came 2026-11-06 ("Assembly's Bill of Materials", "Link arrays in the Assembly").
 
 
 ## Assembly's Bill of Materials, 2026-11-06
@@ -959,6 +959,38 @@ Deliberate or known differences:
   fills it, so it follows the Assembly. The BOM is a sheet of the project, listed with the sheets, not inside the
   Assembly's "Bills of Materials" group. Export in the panel is offered once the BOM exists (FreeCAD makes the object
   when the panel opens). A property column reads Label only (".Label"); others say N/A.
+
+## Link arrays in the Assembly, 2026-11-06
+
+Part_LinkArrays' Linear and Polar Link Array (Part::LinkArrayLinear, Part::LinkArrayPolar) are ASSEMBLY entries,
+`Assembly.LinkArrayLinear("LinearLinkArray", "pin", occurrences=3, length=40)`: a component the solver moves as one
+body (UtilsAssembly.isLinkArray), its part at every element's placement. cad_agent/assembly_array.py ports LinkArray.cpp,
+LinkArrayLinear.cpp and LinkArrayPolar.cpp over the pattern arithmetic PartDesign's patterns already use
+(LinearPatternExtension, PolarPatternExtension in cad_agent/feature_transform.py), with the link arrays' own defaults
+(no direction is X, the second Y; no axis is Z). `cad assembly apply` takes `{"op": "array", "kind", "part", "props"}`
+(activateLinkArrayCommand: the selected component's part linked, the array added to the Assembly, not grounded) and
+`set` changes its pattern; the page's Link Arrays group (Assembly menu and toolbar) opens TaskLinkArrayParameters
+(Linked object, then PatternParametersWidget's fields as the PartDesign pattern panels draw them), and a double click on
+an array opens it again.
+
+Checked against the real FreeCAD:
+- tests/golden/link_array: 10 freecadcmd cases (Linear: the defaults, a grid, Spacing with and without per-step
+  spacings, reversed along Z, two directions with the second in Spacing; Polar: the defaults, 180 degrees, Spacing about
+  X, reversed about Y), each element's Placement equal.
+- ui/scripts/assemblycheck.mjs: the Link Arrays group in the menu and the toolbar as FreeCAD has it (Circular, Path and
+  Point greyed), the `array` section (the selected part linked, OK, the undo step, the tree row, one body in the 3D view,
+  undo).
+
+Deliberate or known differences:
+- Circular, Path and Point Link Array are greyed: the circular pattern is not ported, and the other two need a path
+  or a points object, which a project's Assembly does not hold.
+- A direction or axis is one of the Assembly Origin's axes; an edge, a datum line or an LCS as the reference is not
+  offered (the combo's Select reference… does nothing). The Linked object is chosen from the project's parts in a
+  combo (FreeCAD's button waits for a pick in the 3D view).
+- The elements are not separate objects (ShowElement's LinkElements): no per-element suppression (SuppressedPositions,
+  the instance toggles), and a joint on an array names the array's compound's elements (Face1 of the first element,
+  then the next ones' faces), not FreeCAD's "Array.0.Face1".
+- The BOM counts an array as one line of its part, as FreeCAD's BomObject does (it follows the link).
 
 ## Sketcher text and the commands on sketch objects, 2026-10-26
 
@@ -1255,7 +1287,7 @@ Known differences:
 
 - PartDesign: the Shaft Design Wizard is cut (a Python wizard with its own table, charts and calculation); a Sub-Shape Binder binds its own Body only, and only Synchronized; a Boolean's tools and a Clone's source are other part modules ("PartDesign's last commands, 2026-10-27"); Move Object To…, Set Face Colors, Toggle Suppressed and Toggle Freeze are greyed with FreeCAD's reasons ("PartDesign, 2026-10-24").
 - Part: Shape from mesh, Points from shape, Box selection, Persistent section cut, Check geometry, Appearance per face and Defeaturing are greyed or not ported ("Part workbench, 2026-10-25").
-- Assembly: Link Arrays and Snapshot are cut; datums inside parts, nested sub-assemblies, Exploded View's Align to..., Save Animation and the Std_TransformManip dragger are not ported ("Assembly's later commands, 2026-10-27").
+- Assembly: Snapshot and the Circular, Path and Point link arrays are cut; datums inside parts, nested sub-assemblies, Exploded View's Align to..., Save Animation and the Std_TransformManip dragger are not ported ("Assembly's later commands, 2026-10-27").
 - Loft, Pipe and Helix: a Pipe whose end sections are not planar is refused, and a solid's face as a Pipe's or Helix's Profile is not offered ("PartDesign Loft, Pipe and Helix, 2026-10-24").
 - TechDraw: Broken View and Complex Section (they need break and profile objects, sketches or wires of the page's document, which a project's page does not have; DrawBrokenView.cpp, DrawComplexSection.cpp and TaskComplexSection.cpp are about 4000 lines), Project Shape and the views from other workbenches are greyed ("TechDraw workbench, 2026-10-27").
 - Spreadsheet: Bind…, Configuration Table, zoom, printing, the line edits' completer, xlsx import and charts are cut ("Spreadsheet workbench, 2026-10-27").

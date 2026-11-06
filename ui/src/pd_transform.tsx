@@ -654,7 +654,7 @@ function experimental(): boolean {
 type Picking = { key: string; what: 'plane' | 'axis' | 'direction' } | null
 /** The fields of one transformation: Mirror's Plane, a pattern's Direction(s) or Axis with Mode, Length/Spacing or Angle,
  *  Occurrences (TaskMirroredParameters.ui, PatternParametersWidget.ui as TaskPatternParameters lays it out). */
-function TransformFields({ doc, f, sketch, set: setRaw, picking, setPicking, picked = {} }: { doc: FeatureDoc; f: Feature; sketch: Feature | undefined; set(p: Partial<Feature>): void
+export function TransformFields({ doc, f, sketch, set: setRaw, picking, setPicking, picked = {} }: { doc: FeatureDoc; f: Feature; sketch: Feature | undefined; set(p: Partial<Feature>): void
   picking: Picking; setPicking(p: Picking): void; picked?: Record<string, Ref[]> }) {
   if (f.type === SCALED) {
     // TaskScaledParameters.ui: Factor (spinFactor, a plain number), Occurrences (spinOccurrences)

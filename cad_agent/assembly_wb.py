@@ -416,9 +416,11 @@ class AssemblyDocument:
         if not isinstance(link, Link):
             raise AssemblyError(f"there is no component {comp!r}")
         try:
-            return self.shapes[link.linked_object]
+            base = self.shapes[link.linked_object]
         except KeyError:
             raise AssemblyError(f"{comp}: its part {link.linked_object!r} is not built") from None
+        # a link array (assembly_array.py): its part at every element's placement, one body for the solver
+        return link.shape(base) if hasattr(link, "element_placements") else base
 
     def leaves(self) -> list:
         """[(name, shape at the origin, global placement)] of every body the Assembly shows: its Links, and each
@@ -1047,6 +1049,9 @@ def parts(slug: str, objects, solve: bool = True) -> dict:
         if empty_body(project, part):            # a Body before its first Pad (New Part): no solid to show
             continue
         solid, _ = build_part(project, part)
+        link = doc.get(name)
+        if hasattr(link, "element_placements"):          # a link array: one compound of its elements
+            solid = Compound(link.shape(solid.wrapped))
         loc = Location(p.trsf())
         out[name] = solid.moved(loc) if hasattr(solid, "moved") else Compound(solid.wrapped).moved(loc)
         if project != slug:
@@ -1082,3 +1087,4 @@ def angle_of(p: Placement) -> float:
 from . import assembly_link  # noqa: E402,F401
 from . import assembly_view  # noqa: E402,F401
 from . import assembly_sim  # noqa: E402,F401
+from . import assembly_array  # noqa: E402,F401

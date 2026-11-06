@@ -53,7 +53,7 @@ const want = (section) => !ONLY.length || ONLY.includes(section)
 const clean = (t) => String(t ?? '').replace(/&(.)/g, '$1').replace(/…$/, '').trim()
 
 // What is deliberately different (PARITY.md, "Assembly workbench"), by the FreeCAD command
-const NOT_PORTED = new Set(['Part_LinkArrays', 'Assembly_CreateSnapshot', 'Assembly_SelectJointsOfComponent'])
+const NOT_PORTED = new Set(['Part_LinkArrayCircular', 'Part_LinkArrayPath', 'Part_LinkArrayPoint', 'Assembly_CreateSnapshot', 'Assembly_SelectJointsOfComponent'])
 
 // ── a scratch workbench with three parts ─────────────────────────────────────────────────────────────────────────────
 const freePort = (from) => new Promise((res, rej) => {
@@ -312,7 +312,7 @@ try {
   }
   // ── the second round (fcassembly_more.json, fcassembly.py --more): a fresh project ac2 with Plate, Pin and Bar, and
   // acsub, whose Assembly (Plate grounded, Pin on a Revolute) is the sub-assembly ───────────────────────────────────────
-  const MORE = ['menus2', 'bom', 'rigid', 'isolate', 'offsets', 'origin', 'explode', 'newpart', 'subasm', 'sim']
+  const MORE = ['menus2', 'bom', 'array', 'rigid', 'isolate', 'offsets', 'origin', 'explode', 'newpart', 'subasm', 'sim']
   if (FC2 && MORE.some(want)) {
     const S2 = 'ac2', SUB = 'acsub'
     const cad = (...a) => spawnSync(python, ['-m', 'cad_agent', '--projects', ROOT, ...a], { env, cwd: REPO })
@@ -390,6 +390,30 @@ try {
       same(names, [["'Index", "'Name", "'Quantity", "'Default"], ["'1", "'plate", '1', null], ["'2", "'pin", '1', null], ["'3", "'bar", '1', null]],
         'bom: the sheet (Index, Name, Quantity; the custom column after Quantity)')
       check(await st(`!!document.querySelector('.taskview .as-task[data-task="bom"]')`) === false, 'bom: OK closes the panel')
+    }
+    if (want('array')) {
+      // Part_LinkArrayLinear on the selected Pin (activateLinkArrayCommand, TaskLinkArrayParameters; no GUI recording:
+      // the placements are tests/golden/link_array's, held to freecadcmd there)
+      console.log('array')
+      await st('cadui.setState({ asmSel: ["Pin"] })')
+      await st(`cadui.getCommand('Part_LinkArrayLinear')?.run([])`)
+      await until(`!!document.querySelector('.taskview .as-task[data-task="array"]')`, 'the Linear Link Array panel', 20000)
+      same(await st(`document.querySelector('.taskview [data-qf="linkedObjectButton"]')?.querySelector('.combo-label')?.textContent ?? null`), 'pin', 'array: the selected component\'s part linked')
+      same(await st(`[...document.querySelectorAll('.taskview .as-task legend')].map((e) => e.textContent.trim())`), ['Direction'],
+        'array: the pattern fields (PatternParametersWidget, one direction)')
+      await page.click('.taskview .as-task .tbuttons .qbtn.default')
+      await until(`(cadui.getState().assembly?.objects ?? []).some((o) => o.kind === 'LinkArrayLinear')`, 'array: made', 120000)
+      await idle()
+      same(await undoName(), 'Linear Link Array', 'array: its undo step (the command\'s transaction)')
+      const a = (await objs()).find((o) => o.kind === 'LinkArrayLinear')
+      same([a.name, a.linked_object, a.occurrences ?? 2], ['LinearLinkArray', 'pin', 2], 'array: LinearLinkArray of pin, two elements')
+      const t = await ourTree()
+      check(t.includes('0:LinearLinkArray'), 'array: in the tree', JSON.stringify(t))
+      check(await until('cadui.getState().scene?.bodies.some((b) => b.name === "LinearLinkArray")', 'array: its body in the 3D view', 120000),
+        'array: one body in the 3D view')
+      await runCmd('Std_Undo')
+      await until(`!(cadui.getState().assembly?.objects ?? []).some((o) => o.kind === 'LinkArrayLinear')`, 'array: undone', 120000)
+      await st('cadui.setState({ asmSel: [] })')
     }
     if (want('rigid')) {
       console.log('rigid')

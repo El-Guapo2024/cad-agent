@@ -9,6 +9,7 @@ The ops:
 
     {"op": "new"}                                           Assembly_CreateAssembly: the ASSEMBLY list (the file too)
     {"op": "insert", "part": "base", "name"?, "placement"?} Assembly_InsertLink (the first one grounded)
+    {"op": "array", "kind": "LinkArrayLinear"|"LinkArrayPolar", "part": p, "name"?, "props"?}   Part_LinkArray<Kind>
     {"op": "joint", "type": "Revolute", "ref1": [comp, [elt, vtx]], "ref2": ..., "props"?: {...}, "name"?}
                                                             Assembly_CreateJoint<type>, picks and panel values
     {"op": "set", "name": joint, "props": {...}}            properties set (onChanged), then a recompute
@@ -137,7 +138,12 @@ def tree(objs) -> list:
                          "members": list(o.objects_to_rigid_group)})
     grounded = {o.object_to_ground for o in objs if isinstance(o, W.GroundedJoint)}
     for o in objs:
-        if isinstance(o, W.Link):
+        if isinstance(o, W.LinkArray):
+            # ViewProviderLinkArray: the array's icon, its elements under it (ElementList, "0", "1", ...)
+            rows.append({"name": o.name, "label": o.label or o.name, "type": o.TYPE_ID, "depth": 1,
+                         "linked_object": o.linked_object, "grounded": o.name in grounded, "icon": "LinkArray",
+                         "elements": len(o.element_placements())})
+        elif isinstance(o, W.Link):
             rows.append({"name": o.name, "label": o.label or o.name, "type": "App::Link", "depth": 1,
                          "linked_object": o.linked_object, "grounded": o.name in grounded,
                          "icon": "Assembly_AssemblyLink"})
@@ -508,6 +514,27 @@ def run_ops(doc: W.AssemblyDocument, ops, slug: str, part_names=None, hand_parts
                                  ground_first=op.get("ground_first", True))
             doc.recompute()                         # createGroundedJoint: the document recomputed
             done.append(f"inserted {link.name} (App::Link to {part})")
+        elif kind == "array":
+            # Part_LinkArrayLinear / Part_LinkArrayPolar with a part selected, the Assembly active (assembly_array.py)
+            from . import assembly_array as AA
+            part = op.get("part")
+            if part_names is not None and part not in part_names:
+                raise AssemblyEditError(f"there is no part {part!r} in the project (parts: {', '.join(part_names)})")
+            name = op.get("name")
+            if name is not None:
+                _check_name(doc, name, "object")
+            shape = doc.shapes.get(part)
+            if shape is None:
+                solid, _ = build_part(slug, part)
+                shape = solid.wrapped
+            try:
+                a = AA.insert_array(doc, op.get("kind", "LinkArrayLinear"), part, shape, op.get("props"), name=name)
+                a.validate()
+                a.element_placements()
+            except (W.AssemblyError, TypeError, ValueError) as e:
+                raise AssemblyEditError(str(e)) from None
+            doc.recompute()
+            done.append(f"inserted {a.name} ({a.TYPE_ID} of {part}, {len(a.element_placements())} elements)")
         elif kind == "joint":
             r1, r2 = _ref(op.get("ref1"), "ref1"), _ref(op.get("ref2"), "ref2")
             for r in (r1, r2):
@@ -534,11 +561,21 @@ def run_ops(doc: W.AssemblyDocument, ops, slug: str, part_names=None, hand_parts
             o = _get(doc, op.get("name"))
             props = dict(op.get("props") or {})
             if isinstance(o, W.Link):
+                pattern = set(o.DEFAULTS) - set(W.Link.DEFAULTS) if isinstance(o, W.LinkArray) else set()
                 for key, v in props.items():
                     if key == "placement":
                         doc.plc[o.name] = W.to_placement(v)
                     elif key in ("label", "visibility"):
                         setattr(o, key, v)
+                    elif key in pattern:                      # a link array's panel (TaskLinkArrayParameters)
+                        old = getattr(o, key)
+                        setattr(o, key, o.normalize(key, v))
+                        try:
+                            o.validate()
+                            o.element_placements()
+                        except W.AssemblyError as e:
+                            setattr(o, key, old)
+                            raise AssemblyEditError(str(e)) from None
                     else:
                         raise AssemblyEditError(f"{key} is not a property the app sets on an App::Link")
                 doc.recompute()

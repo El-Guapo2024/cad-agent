@@ -1,7 +1,7 @@
 """cad_agent/assembly_bom.py held to FreeCAD 26.3's Bill of Materials (tests/golden/assembly_bom, make.py): the cells
 after each recompute, every case. File Name is left out: FreeCAD's is the unsaved document's file, ""."""
+import importlib.util
 import json
-import sys
 from pathlib import Path
 
 import pytest
@@ -11,8 +11,10 @@ from cad_agent.spreadsheet import CellAddress, string_to_address
 from cad_agent.spreadsheet_doc import Document
 
 HERE = Path(__file__).parent / "golden" / "assembly_bom"
-sys.path.insert(0, str(HERE))
-from cases import CASES, PARTS  # noqa: E402
+_spec = importlib.util.spec_from_file_location("bom_cases", HERE / "cases.py")   # each golden folder has its cases.py
+_cases = importlib.util.module_from_spec(_spec)
+_spec.loader.exec_module(_cases)
+CASES, PARTS = _cases.CASES, _cases.PARTS
 
 FC = json.loads((HERE / "freecad.json").read_text())
 

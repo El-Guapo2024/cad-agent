@@ -48,6 +48,7 @@ import type { NavEvent, V2 } from './nav'
 import { ExplodedViewTask, InsertTask } from './assembly_tasks'
 import { SimulationTask } from './assembly_sim'
 import { BomTask } from './assembly_bom'
+import { ArrayTask, type ArrayKind } from './assembly_array'
 
 // ── the model (cad_agent/assembly_edit.py's read/solved) ──────────────────────────────────────────────────────────
 export interface AsmObj { name: string; kind: 'Link' | 'GroundedJoint' | 'Joint' | 'RigidGroupJoint' | 'AssemblyLink' | 'ViewGroup' | 'ExplodedView' | 'ExplodedViewStep'
@@ -98,7 +99,9 @@ function Combo({ value, items, onChange, name }: { value: number; items: readonl
     {items.map((t, i) => <option key={t} value={i}>{t}</option>)}</QComboBox>
 }
 export const asmObject = (v: AsmView | null | undefined, name: string) => v?.objects.find((o) => o.name === name) ?? v?.copies?.find((o) => o.name === name)
-export const components = (v: AsmView | null | undefined) => (v?.objects ?? []).filter((o) => o.kind === 'Link')
+/** An App::Link component, or a link array (Part::LinkArray, an App::Link too: one component, UtilsAssembly.isLinkArray). */
+const isLinkKind = (kind: unknown) => kind === 'Link' || String(kind).startsWith('LinkArray')
+export const components = (v: AsmView | null | undefined) => (v?.objects ?? []).filter((o) => isLinkKind(o.kind))
 /** Every body the Assembly shows (its Links and its sub-assemblies' children). */
 export const leaves = (v: AsmView | null | undefined): AsmLeaf[] => v?.leaves ?? components(v).map((o) => ({ name: o.name, label: labelOf(o),
   moving: o.name, link: null, part: String(o.linked_object), project: v?.project ?? '' }))
@@ -339,6 +342,18 @@ function insertEntries(): Entry[] {
     { label: 'New Part', icon: 'std-part', cmd: 'Assembly_InsertNewPart', kbd: 'P', disabled: !active, onSelect: () => openTask('assembly', 'newpart', 'Fixed') },
   ]
 }
+/** Part_LinkArrays' commands, in CmdPartLinkArrays' order: Linear and Polar here, the other three greyed. */
+function linkArrayEntries(): Entry[] {
+  const { doc } = asmState()
+  const off = !doc || !!getState().task
+  return [
+    NA('Circular Link Array', 'link', 'Part_LinkArrayCircular', 'the circular link array is not ported'),
+    { label: 'Linear Link Array', icon: 'link', cmd: 'Part_LinkArrayLinear', disabled: off, onSelect: () => openTask('assembly', 'array', 'LinkArrayLinear') },
+    NA('Path Link Array', 'link', 'Part_LinkArrayPath', 'the path link array is not ported (it needs a path object)'),
+    NA('Point Link Array', 'link', 'Part_LinkArrayPoint', 'the point link array is not ported (it needs a points object)'),
+    { label: 'Polar Link Array', icon: 'link', cmd: 'Part_LinkArrayPolar', disabled: off, onSelect: () => openTask('assembly', 'array', 'LinkArrayPolar') },
+  ]
+}
 const hasMotionJoint = () => (getState().assembly?.objects ?? []).some((o) => o.kind === 'Joint' && ['Revolute', 'Slider', 'Cylindrical'].includes(String(o.joint_type)))
 /** The Assembly toolbar's and menu's commands (cmdList of InitGui.py), the menu-only ones and the joints'. */
 function cmdList(): Entry[] {
@@ -348,7 +363,8 @@ function cmdList(): Entry[] {
     // EnforceOneAssemblyRule: with an assembly that is not active, no second root one; with one in edit, a sub-assembly
     { label: 'New Assembly', icon: 'as-assembly', cmd: 'Assembly_CreateAssembly', kbd: 'A', disabled: !doc || (has && !getState().asmActive), onSelect: () => void createAssembly() },
     { label: 'Insert Component', icon: 'as-insert', cmd: 'Assembly_Insert', sub: ins },
-    NA('Link Arrays', 'link', 'Part_LinkArrays', 'link arrays are not ported: insert the part several times'),
+    // Part_LinkArrays (CmdPartLinkArrays): the group, active with a document and no task dialog
+    { label: 'Link Arrays', icon: 'link', cmd: 'Part_LinkArrays', disabled: !doc || !!getState().task, sub: linkArrayEntries() },
     { label: 'Solve Assembly', icon: 'as-solve', cmd: 'Assembly_SolveAssembly', kbd: 'Z', disabled: !has || !active, onSelect: () => void solveAssembly() },
     // CommandCreateView.IsActive: isAssemblyCommandActive and assembly_has_at_least_n_parts(2)
     { label: 'Exploded View', icon: 'as-exploded', cmd: 'Assembly_CreateView', kbd: 'E', disabled: !asmState().two, onSelect: () => openTask('assembly', 'explode', '') },
@@ -488,7 +504,7 @@ export function AssemblyRows({ ctx, onMenu }: { ctx: TreeCtx; onMenu(at: { x: nu
   const rows: ReactNode[] = []
   for (const r of v.tree) {
     if (!shown(r)) continue
-    const isComp = r.type === 'App::Link' && isComponent(r.name)
+    const isComp = (r.type === 'App::Link' || r.type.startsWith('Part::LinkArray')) && isComponent(r.name)
     const sel = isComp ? selected.includes(r.name) : asmSel.includes(r.name)
     const off = isComp && hidden.includes(r.name)
     const twisty = parents.has(r.name)
@@ -503,6 +519,7 @@ export function AssemblyRows({ ctx, onMenu }: { ctx: TreeCtx; onMenu(at: { x: nu
           else if (r.type === 'ExplodedView') openExplodedView(r.name)          // ViewProviderExplodedView.doubleClicked
           else if (r.type === 'Simulation') openSimulation(r.name)              // ViewProviderSimulation.doubleClicked
           else if (r.type === 'Motion' && r.parent) openSimulation(r.parent)    // its simulation's panel, the motion in it
+          else if (r.type.startsWith('Part::LinkArray')) openTask('assembly', 'array', r.name)   // ViewProviderLinkArray::setEdit
         }}
         onContextMenu={(e) => { e.preventDefault(); if (!sel) pickRow(r, e); onMenu({ x: e.clientX, y: e.clientY }) }}>
         <span className="tlab"><span className="pdindent" style={{ width: 6 + 12 * r.depth }} />
@@ -630,6 +647,7 @@ export function AssemblyTask({ body, other }: { body: string; other: string }) {
   if (body === 'explode') return <ExplodedViewTask key={id} edit={other || undefined} />
   if (body === 'simulation') return <SimulationTask key={id} edit={other || undefined} />
   if (body === 'bom') return <BomTask key={id} edit={other || undefined} />
+  if (body === 'array') return other.startsWith('LinkArray') ? <ArrayTask key={id} kind={other as ArrayKind} /> : <ArrayTask key={id} edit={other} />
   const [type, edit] = other.split(':')
   return <JointTask key={id} type0={type as JointType} edit={edit} />
 }
@@ -1058,7 +1076,7 @@ export function AssemblyProps({ name }: { name: string }) {
         onChange={(e) => commit('suppressed', 'Suppressed', e.target.checked)} /></span></div></Group>
       <Group title="Rigid Group"><Row k="Objects To Rigid Group" v={`[${members.map(lab).join(', ')}]`} /></Group></>
   }
-  if (o.kind === 'Link') return <><Group title="Base"><Row k="Placement" v={plcText(v?.placements?.[name] ?? null)} /><Row k="Label" v={labelOf(o)} /></Group>
+  if (isLinkKind(o.kind)) return <><Group title="Base"><Row k="Placement" v={plcText(v?.placements?.[name] ?? null)} /><Row k="Label" v={labelOf(o)} /></Group>
     <Group title="Link"><Row k="Linked Object" v={String(o.linked_object)} /></Group></>
   const groups = [...new Set(PROP_ROWS.map((r) => r[0]))]
   const text = (r: (typeof PROP_ROWS)[number]) => {
