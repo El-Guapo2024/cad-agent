@@ -29,6 +29,7 @@ import json
 import shlex
 from pathlib import Path
 
+from . import cam as C
 from . import state as st
 from .cmdbase import OK, Result, UsageError, actor, project
 
@@ -317,8 +318,8 @@ def add_parsers(add, sub) -> None:
     sp.add_argument("--number", type=int, help="ToolNumber (default the next free)")
     sp.add_argument("props", nargs="*", metavar="KEY=VALUE", help="the bit's (Diameter=6mm) and the controller's "
                     "(HorizFeed='600 mm/min', SpindleSpeed=12000) properties")
-    sp = one("op", cmd_op, "CAM_Profile / CAM_Pocket_Shape / CAM_MillFace / CAM_Drilling")
-    sp.add_argument("type", choices=["Profile", "PocketShape", "MillFace", "Drilling"])
+    sp = one("op", cmd_op, "CAM_<op>: one of the operations the app makes")
+    sp.add_argument("type", choices=list(C.OPS))
     sp.add_argument("--base", action="append", metavar="PART:Face3,Face4", help="base geometry (repeatable)")
     sp.add_argument("props", nargs="*", metavar="KEY=VALUE")
     sp = one("dressup", cmd_dressup, "CAM_DressupTag / CAM_DressupDogbone on an op")

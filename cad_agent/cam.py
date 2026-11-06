@@ -51,6 +51,28 @@ KINDS = {
                      "Create MillFace", "CAM_Face", op=True),
     "Drilling": Kind("Drilling", "Path::FeaturePython", "Path.Op.Drilling", "CAM_Drilling", "Drilling",
                      "Create Drilling", "CAM_Drilling", op=True),
+    # Op/Gui/<Op>.py SetupOperation(name, ..., pixmap, menuText): command CAM_<name>, transaction "Create <name>"
+    "Helix": Kind("Helix", "Path::FeaturePython", "Path.Op.Helix", "CAM_Helix", "Helix",
+                   "Create Helix", "CAM_Helix", op=True),
+    "Engrave": Kind("Engrave", "Path::FeaturePython", "Path.Op.Engrave", "CAM_Engrave", "Engrave",
+                     "Create Engrave", "CAM_Engrave", op=True),
+    "Slot": Kind("Slot", "Path::FeaturePython", "Path.Op.Slot", "CAM_Slot", "Slot", "Create Slot", "CAM_Slot", op=True),
+    "Deburr": Kind("Deburr", "Path::FeaturePython", "Path.Op.Deburr", "CAM_Deburr", "Deburr",
+                    "Create Deburr", "CAM_Deburr", op=True),
+    "ThreadMilling": Kind("ThreadMilling", "Path::FeaturePython", "Path.Op.ThreadMilling", "CAM_ThreadMilling",
+                          "Thread Milling", "Create ThreadMilling", "CAM_ThreadMilling", op=True),
+    "Tapping": Kind("Tapping", "Path::FeaturePython", "Path.Op.Tapping", "CAM_Tapping", "Tapping",
+                     "Create Tapping", "CAM_Tapping", op=True),
+    "Pocket3D": Kind("Pocket3D", "Path::FeaturePython", "Path.Op.Pocket", "CAM_Pocket3D", "3D Pocket",
+                      "Create Pocket3D", "CAM_3DPocket", op=True),
+    "MillFacing": Kind("MillFacing", "Path::FeaturePython", "Path.Op.MillFacing", "CAM_MillFacing", "Mill Facing",
+                        "Create MillFacing", "CAM_Face", op=True),
+    "Adaptive": Kind("Adaptive", "Path::FeaturePython", "Path.Op.Adaptive", "CAM_Adaptive", "Adaptive",
+                      "Create Adaptive", "CAM_Adaptive", op=True),
+    "Custom": Kind("Custom", "Path::FeaturePython", "Path.Op.Custom", "CAM_Custom", "Custom",
+                    "Create Custom", "CAM_Custom", op=True),
+    "Probe": Kind("Probe", "Path::FeaturePython", "Path.Op.Probe", "CAM_Probe", "Probe",
+                   "Create Probe", "CAM_Probe", op=True),
     "DressupTag": Kind("DressupTag", "Path::FeaturePython", "Path.Dressup.Tags", "CAM_DressupTag", "Tag",
                        "Create a Tag dressup", "CAM_Dressup", dressup=True),
     "DressupDogbone": Kind("DressupDogbone", "Path::FeaturePython", "Path.Dressup.DogboneII", "CAM_DressupDogbone",
@@ -61,7 +83,10 @@ DRESSUPS = tuple(k for k, v in KINDS.items() if v.dressup)
 # the Create() name each kind's FreeCAD command gives the object
 DEFAULT_NAMES = {"Job": "Job", "Profile": "Profile", "PocketShape": "Pocket_Shape", "MillFace": "MillFace",
                  "Drilling": "Drilling", "DressupTag": "DressupTag",
-                 "DressupDogbone": "DressupDogbone"}
+                 "DressupDogbone": "DressupDogbone",
+                 "Helix": "Helix", "Engrave": "Engrave", "Slot": "Slot", "Deburr": "Deburr",
+                 "ThreadMilling": "ThreadMilling", "Tapping": "Tapping", "Pocket3D": "Pocket3D",
+                 "MillFacing": "MillFacing", "Adaptive": "Adaptive", "Custom": "Custom", "Probe": "Probe"}
 
 
 class Entry:
@@ -125,6 +150,17 @@ Profile = _maker("Profile")
 PocketShape = _maker("PocketShape")
 MillFace = _maker("MillFace")
 Drilling = _maker("Drilling")
+Helix = _maker("Helix")
+Engrave = _maker("Engrave")
+Slot = _maker("Slot")
+Deburr = _maker("Deburr")
+ThreadMilling = _maker("ThreadMilling")
+Tapping = _maker("Tapping")
+Pocket3D = _maker("Pocket3D")
+MillFacing = _maker("MillFacing")
+Adaptive = _maker("Adaptive")
+Custom = _maker("Custom")
+Probe = _maker("Probe")
 DressupTag = _maker("DressupTag")
 DressupDogbone = _maker("DressupDogbone")
 

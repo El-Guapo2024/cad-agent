@@ -64,6 +64,23 @@ class Geometry:
     def translate(self, v):
         self.h.Translate(gp_Vec(*vec(v)))
 
+    def rotate(self, plm):
+        """Geometry::rotate: about the placement's position, by its rotation."""
+        rot = plm.Rotation
+        self.h.Rotate(gp_Ax1(P(plm.Base), D(rot.Axis)), rot.Angle)
+
+    def mirror(self, point, direction=None):
+        """Geometry::mirror: in a point, or in the line through point along direction."""
+        if direction is None:
+            self.h.Mirror(P(point))
+        else:
+            self.h.Mirror(gp_Ax1(P(point), D(direction)))
+
+    @property
+    def TypeId(self):
+        """The TYPESYSTEM name: Part::Geom<class>, as GeometryPy's classes give it."""
+        return _TYPE_IDS.get(type(self).__name__, "Part::Geom" + type(self).__name__)
+
     def isSame(self, o, tol, atol):
         return False
 
@@ -622,3 +639,7 @@ def wrap_surface(h):
     o = object.__new__(GeometrySurface)
     Geometry.__init__(o, h)
     return o
+
+
+_TYPE_IDS = {"Geometry": "Part::Geometry", "GeometrySurface": "Part::GeomSurface",
+             "_Elementary": "Part::GeomElementarySurface"}

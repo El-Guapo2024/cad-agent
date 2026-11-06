@@ -22,7 +22,9 @@ from .cam_replay import Replayer, ReplayError, kind_of
 ICONS = {"Job": "CAM_Job", "Stock": "CAM_Stock", "SetupSheet": "CAM_SetupSheet", "ToolBit": "CAM_ToolBit",
          "ToolController": "CAM_ToolController", "Profile": "CAM_Profile", "PocketShape": "CAM_Pocket",
          "MillFace": "CAM_Face", "Drilling": "CAM_Drilling", "DressupTag": "CAM_Dressup",
-         "DressupDogbone": "CAM_Dressup"}
+         "DressupDogbone": "CAM_Dressup",
+         **{k: C.KINDS[k].icon for k in C.OPS
+            if k not in ("Profile", "PocketShape", "MillFace", "Drilling")}}
 GROUP_ICONS = {"Operations": "CAM_OpActive", "Model": "CAM_BaseGeometry", "Tools": "CAM_ToolTable"}
 
 CamBuildError = ReplayError

@@ -73,11 +73,11 @@ class _Console:
     def PrintError(self, msg):
         self._put("Err", msg)
 
-    def PrintUserWarning(self, notifier, msg):
-        self._put("Wrn", msg)
+    def PrintUserWarning(self, *args):          # (msg) or (notifier, msg), as ConsoleSingleton's Python takes it
+        self._put("Wrn", args[-1])
 
-    def PrintUserError(self, notifier, msg):
-        self._put("Err", msg)
+    def PrintUserError(self, *args):          # (msg) or (notifier, msg), as ConsoleSingleton's Python takes it
+        self._put("Err", args[-1])
 
     def PrintCritical(self, msg):
         self._put("Critical", msg)
@@ -85,8 +85,8 @@ class _Console:
     def PrintNotification(self, msg):
         self._put("Notification", msg)
 
-    def PrintDeveloperWarning(self, notifier, msg):
-        self._put("Wrn", msg)
+    def PrintDeveloperWarning(self, *args):          # (msg) or (notifier, msg), as ConsoleSingleton's Python takes it
+        self._put("Wrn", args[-1])
 
 
 Console = _Console()

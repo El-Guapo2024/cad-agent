@@ -221,6 +221,9 @@ const fmt0 = (n: number) => String(Math.round(n * 1000) / 1000)
 
 // ── an operation's panel (Path/Op/Gui/Base.py TaskPanel) ────────────────────────────────────────────────────────
 type Page = { title: string; icon: string; node: ReactNode }
+const OWN_PAGE = ['Profile', 'PocketShape', 'MillFace', 'Drilling']
+// CircularHoleBase's ops, whose Base Geometry page is TaskPanelHoleGeometryPage
+const HOLE_OPS = ['Drilling', 'Helix', 'ThreadMilling', 'Tapping']
 function OpPanel({ job, name, create }: { job: string; name: string; create: boolean }) {
   const p = usePending(job)
   const o = p.obj(name)
@@ -230,7 +233,7 @@ function OpPanel({ job, name, create }: { job: string; name: string; create: boo
   const feat = o.features ?? 0
   const kind = o.kind ?? ''
   const pages: Page[] = []
-  if (feat & BASE_GEOMETRY) pages.push({ title: 'Base Geometry', icon: 'CAM_BaseGeometry', node: kind === 'Drilling' ? <HoleGeometry p={p} job={job} o={o} /> : <BaseGeometry p={p} job={job} o={o} /> })
+  if (feat & BASE_GEOMETRY) pages.push({ title: 'Base Geometry', icon: 'CAM_BaseGeometry', node: HOLE_OPS.includes(kind) ? <HoleGeometry p={p} job={job} o={o} /> : <BaseGeometry p={p} job={job} o={o} /> })
   // PocketShape's taskPanelBaseLocationPage is its Extensions page (Path/Op/Gui/FeatureExtension.py)
   if (feat & F.Locations && kind === 'PocketShape') pages.push({ title: 'Extensions', icon: '', node: <Extensions p={p} o={o} /> })
   else if (feat & F.Locations) pages.push({ title: 'Base Location', icon: '', node: <QtForm form={CAM_FORMS.baseloc} bind={{ baseList: { node: <div className="qf-list" data-cam="locations"><table><thead><tr><th>X</th><th>Y</th></tr></thead><tbody>
@@ -238,9 +241,11 @@ function OpPanel({ job, name, create }: { job: string; name: string; create: boo
     addRemoveEdit: {}, addLocation: { off: true, why: 'locations are picked in the 3D view in FreeCAD' }, removeLocation: { off: true }, editLocation: { off: true } }} /> })
   if (feat & F.Heights) pages.push({ title: 'Heights', icon: 'CAM_Heights', node: <Heights p={p} o={o} feat={feat} /> })
   if (feat & (F.Tool | F.Coolant)) pages.push({ title: 'Tool Controller', icon: 'CAM_ToolController', node: <ToolControllerPage p={p} job={job} o={o} feat={feat} /> })
-  pages.push({ title: 'Operation', icon: '', node: <OpPage p={p} o={o} /> })
+  // the op's own page (PageOp*Edit.ui) is ported for these four; the others' settings are in the property view
+  if (OWN_PAGE.includes(kind)) pages.push({ title: 'Operation', icon: '', node: <OpPage p={p} o={o} /> })
   const at = cur ?? pages.length - 1
-  const title = { Profile: 'Profile', PocketShape: 'Pocket Shape', MillFace: 'MillFace', Drilling: 'Drilling' }[kind] ?? o.label
+  const title = { Profile: 'Profile', PocketShape: 'Pocket Shape', MillFace: 'MillFace', Drilling: 'Drilling', ThreadMilling: 'Thread Milling',
+    Pocket3D: '3D Pocket', MillFacing: 'Mill Facing' }[kind] ?? (kind || o.label)
   const ok = async () => { if (await p.send('AreaOp Operation')) closeTask() }
   void doc
   return (

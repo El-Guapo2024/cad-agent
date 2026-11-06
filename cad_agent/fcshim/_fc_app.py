@@ -672,6 +672,9 @@ class DocumentObject:
         return None
 
     def getSubObject(self, sub, retType=0, matrix=None, transform=True, depth=0):
+        # DocumentObjectPy::getSubObject: a sequence of subnames gives a tuple, one result each
+        if not isinstance(sub, str):
+            return tuple(self.getSubObject(s, retType, matrix, transform, depth) for s in sub)
         shape = self.Shape
         if not sub:
             return shape

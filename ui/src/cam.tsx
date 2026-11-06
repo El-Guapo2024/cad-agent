@@ -78,7 +78,8 @@ export const numOf = (o: CamObj | undefined, name: string): number => {
   const v = valueOf(o, name) as { value?: number } | number | undefined
   return typeof v === 'number' ? v : Number(v?.value ?? 0)
 }
-const OPS = ['Profile', 'PocketShape', 'MillFace', 'Drilling']
+const OPS = ['Profile', 'PocketShape', 'MillFace', 'Drilling', 'Helix', 'Engrave', 'Slot', 'Deburr', 'ThreadMilling', 'Tapping', 'Pocket3D',
+  'MillFacing', 'Adaptive', 'Custom', 'Probe']
 const DRESSUPS = ['DressupTag', 'DressupDogbone']
 export const isOp = (o: CamObj | undefined) => !!o && (OPS.includes(o.kind ?? '') || DRESSUPS.includes(o.kind ?? ''))
 
@@ -217,18 +218,18 @@ export const CAM_CMDS: Record<string, Cmd> = {
   CAM_ToolBitDock: na('Add Toolbit…', 'Opens the toolbit selection dialog', 'cam-CAM_ToolBit', NOT_HERE('add a library bit with `cad cam tool SLUG JOB --bit 5mm_Endmill`'), 'P, T'),
   CAM_Profile: { text: 'Profile', tip: 'Profile entire model, selected face(s) or selected edge(s)', icon: 'cam-CAM_Profile', active: haveJob, run: () => newOp('Profile', 'Create Profile') },
   CAM_Pocket_Shape: { text: 'Pocket Shape', tip: 'Creates a pocket toolpath from a face or faces', icon: 'cam-CAM_Pocket', active: haveJob, run: () => newOp('PocketShape', 'Create Pocket Shape') },
-  CAM_MillFacing: na('Mill Facing', 'Create a Mill Facing Operation to machine the top surface of stock', 'cam-CAM_Face', NOT_HERE('Mill Facing; the Face op (MillFace) is `cad cam op SLUG JOB MillFace`')),
-  CAM_Helix: na('Helix', 'Creates a Helical toolpath from the features of a base object', 'cam-CAM_Helix', NOT_HERE('Helix')),
-  CAM_Adaptive: na('Adaptive', 'Adaptive clearing and profiling', 'cam-CAM_Adaptive', NOT_HERE('Adaptive (its TechDraw outline is not ported)')),
-  CAM_Slot: na('Slot', 'Create a single horizontal slot between two points.', 'cam-CAM_Slot', NOT_HERE('Slot')),
+  CAM_MillFacing: { text: 'Mill Facing', tip: 'Create a Mill Facing Operation to machine the top surface of stock', icon: 'cam-CAM_Face', active: haveJob, run: () => newOp('MillFacing', 'Create MillFacing') },
+  CAM_Helix: { text: 'Helix', tip: 'Creates a Helical toolpath from the features of a base object', icon: 'cam-CAM_Helix', active: haveJob, run: () => newOp('Helix', 'Create Helix') },
+  CAM_Adaptive: { text: 'Adaptive', tip: 'Adaptive clearing and profiling', icon: 'cam-CAM_Adaptive', active: haveJob, run: () => newOp('Adaptive', 'Create Adaptive') },
+  CAM_Slot: { text: 'Slot', tip: 'Create a single horizontal slot between two points.', icon: 'cam-CAM_Slot', active: haveJob, run: () => newOp('Slot', 'Create Slot') },
   // registered by Path/Op/Gui/MillFace.py but on no menu or toolbar in 3160daf1e2b6 (Mill Facing is): run from the console
   CAM_MillFace: { text: 'Face', tip: 'Create a Facing Operation from a model or face', icon: 'cam-CAM_Face', active: haveJob, run: () => newOp('MillFace', 'Create MillFace') },
   CAM_Drilling: { text: 'Drilling', tip: 'Creates a Drilling toolpath from the features of a base object', icon: 'cam-CAM_Drilling', active: haveJob, run: () => newOp('Drilling', 'Create Drilling') },
-  CAM_ThreadMilling: na('Thread Milling', 'Creates a Thread Milling toolpath from features of a base object', 'cam-CAM_ThreadMilling', NOT_HERE('Thread Milling')),
-  CAM_Engrave: na('Engrave', 'Creates an Engraving toolpath around a Draft ShapeString', 'cam-CAM_Engrave', NOT_HERE('Engrave')),
-  CAM_Deburr: na('Deburr', 'Creates a Deburr toolpath along Edges or around Faces', 'cam-CAM_Deburr', NOT_HERE('Deburr')),
+  CAM_ThreadMilling: { text: 'Thread Milling', tip: 'Creates a Thread Milling toolpath from features of a base object', icon: 'cam-CAM_ThreadMilling', active: haveJob, run: () => newOp('ThreadMilling', 'Create ThreadMilling') },
+  CAM_Engrave: { text: 'Engrave', tip: 'Creates an Engraving toolpath around a Draft ShapeString', icon: 'cam-CAM_Engrave', active: haveJob, run: () => newOp('Engrave', 'Create Engrave') },
+  CAM_Deburr: { text: 'Deburr', tip: 'Creates a Deburr toolpath along Edges or around Faces', icon: 'cam-CAM_Deburr', active: haveJob, run: () => newOp('Deburr', 'Create Deburr') },
   CAM_Vcarve: na('Vcarve', 'Creates a medial line engraving toolpath', undefined, NOT_HERE('Vcarve')),
-  CAM_Pocket3D: na('3D Pocket', 'Creates a 3D Pocket toolpath from a face or faces', 'cam-CAM_3DPocket', NOT_HERE('3D Pocket')),
+  CAM_Pocket3D: { text: '3D Pocket', tip: 'Creates a 3D Pocket toolpath from a face or faces', icon: 'cam-CAM_3DPocket', active: haveJob, run: () => newOp('Pocket3D', 'Create Pocket3D') },
   CAM_DressupArray: na('Array', 'Creates an array from a selected toolpath', 'cam-CAM_Dressup', NOT_HERE('the Array dress-up')),
   CAM_DressupAxisMap: na('Axis Map', 'Remaps one axis to another', 'cam-CAM_Dressup', NOT_HERE('the Axis Map dress-up')),
   CAM_DressupPathBoundary: na('Boundary', 'Creates a boundary dress-up from a selected toolpath', 'cam-CAM_Dressup', NOT_HERE('the Boundary dress-up')),
@@ -243,8 +244,8 @@ export const CAM_CMDS: Record<string, Cmd> = {
   CAM_DressupZCorrect: na('Z Depth Correction', 'Corrects Z depth using a probe map', 'cam-CAM_Dressup', NOT_HERE('the Z Depth Correction dress-up')),
   CAM_Comment: na('Comment', 'Adds a Comment to the CNC program', 'cam-CAM_Comment', NOT_HERE('Comment')),
   CAM_Stop: na('Stop', 'Adds an optional or mandatory stop to the program', 'cam-CAM_Stop', NOT_HERE('Stop')),
-  CAM_Custom: na('Custom', 'Create custom G-code snippet', 'cam-CAM_Custom', NOT_HERE('Custom')),
-  CAM_Probe: na('Probe', 'Create a Probing Grid from a job stock', 'cam-CAM_Probe', NOT_HERE('Probe')),
+  CAM_Custom: { text: 'Custom', tip: 'Create custom G-code snippet', icon: 'cam-CAM_Custom', active: haveJob, run: () => newOp('Custom', 'Create Custom') },
+  CAM_Probe: { text: 'Probe', tip: 'Create a Probing Grid from a job stock', icon: 'cam-CAM_Probe', active: haveJob, run: () => newOp('Probe', 'Create Probe') },
   CAM_OperationCopy: na('Copy Operation', 'Copies the operation in the job', 'cam-CAM_OpCopy', NOT_HERE('Copy Operation')),
   CAM_Array: na('Array', 'Creates an array from selected toolpaths', 'cam-CAM_Array', NOT_HERE('Array')),
   CAM_SimpleCopy: na('Simple Copy', 'Creates a non-parametric copy of another toolpath', 'cam-CAM_SimpleCopy', NOT_HERE('Simple Copy')),

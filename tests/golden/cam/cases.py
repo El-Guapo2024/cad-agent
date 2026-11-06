@@ -77,4 +77,61 @@ CASES = {
         ]},
         "posts": [("linuxcnc", "")],
     },
+
+    # the ops added on 2026-11-06, one case each so that one op's failure leaves the others' answers
+    "helix": {"parts": ["plate"], "jobs": {"Job": [
+        ("Job", "Job", {"Model": ["plate"]}), *DEFAULT_TC,
+        ("ToolBit", "_3_175mm_Endmill", {"Bit": "3.175mm_Endmill"}),
+        ("ToolController", "TC__3_175mm_Endmill", {"Tool": "_3_175mm_Endmill"}),
+        ("Helix", "Helix", {"ToolController": "TC__3_175mm_Endmill", "Base": [("plate", ["Face18"])]}),
+    ]}, "posts": [("linuxcnc", "")]},
+    "engrave": {"parts": ["plate"], "jobs": {"Job": [
+        ("Job", "Job", {"Model": ["plate"]}), *DEFAULT_TC,
+        ("ToolBit", "_60_Deg__V_Bit", {"Bit": "60degree_Vbit"}),
+        ("ToolController", "TC__60_Deg__V_Bit", {"Tool": "_60_Deg__V_Bit"}),
+        ("Engrave", "Engrave", {"ToolController": "TC__60_Deg__V_Bit", "Base": [("plate", ["Face5"])]}),
+    ]}, "posts": [("linuxcnc", "")]},
+    "slot": {"parts": ["plate"], "jobs": {"Job": [
+        ("Job", "Job", {"Model": ["plate"]}), *DEFAULT_TC,
+        ("ToolBit", "_3_175mm_Endmill", {"Bit": "3.175mm_Endmill"}),
+        ("ToolController", "TC__3_175mm_Endmill", {"Tool": "_3_175mm_Endmill"}),
+        ("Slot", "Slot", {"ToolController": "TC__3_175mm_Endmill", "Base": [("plate", ["Face17"])]}),
+    ]}, "posts": [("linuxcnc", "")]},
+    "deburr": {"parts": ["plate"], "jobs": {"Job": [
+        ("Job", "Job", {"Model": ["plate"]}), *DEFAULT_TC,
+        ("ToolBit", "_45_Deg__Chamfer", {"Bit": "45degree_chamfer"}),
+        ("ToolController", "TC__45_Deg__Chamfer", {"Tool": "_45_Deg__Chamfer"}),
+        ("Deburr", "Deburr", {"ToolController": "TC__45_Deg__Chamfer", "Base": [("plate", ["Face5"])]}),
+    ]}, "posts": [("linuxcnc", "")]},
+    "threadmilling": {"parts": ["plate"], "jobs": {"Job": [
+        ("Job", "Job", {"Model": ["plate"]}), *DEFAULT_TC,
+        ("ToolBit", "_5mm_thread_cutter", {"Bit": "5mm-thread-cutter"}),
+        ("ToolController", "TC__5mm_thread_cutter", {"Tool": "_5mm_thread_cutter"}),
+        ("ThreadMilling", "ThreadMilling", {"ToolController": "TC__5mm_thread_cutter", "Base": [("plate", ["Face18"])]}),
+    ]}, "posts": [("linuxcnc", "")]},
+    "tapping": {"parts": ["plate"], "jobs": {"Job": [
+        ("Job", "Job", {"Model": ["plate"]}), *DEFAULT_TC,
+        ("ToolBit", "M8x1_25_Tap", {"Bit": "M8x1.25_Tap"}),
+        ("ToolController", "TC__M8x1_25_Tap", {"Tool": "M8x1_25_Tap"}),
+        ("Tapping", "Tapping", {"ToolController": "TC__M8x1_25_Tap", "Base": [("plate", ["Face7", "Face8"])]}),
+    ]}, "posts": [("linuxcnc", "")]},
+    "pocket3d": {"parts": ["plate"], "jobs": {"Job": [
+        ("Job", "Job", {"Model": ["plate"]}), *DEFAULT_TC,
+        ("Pocket3D", "Pocket3D", {"Base": [("plate", ["Face19"])]}),
+    ]}, "posts": [("linuxcnc", "")]},
+    "millfacing": {"parts": ["plate"], "jobs": {"Job": [
+        ("Job", "Job", {"Model": ["plate"]}), *DEFAULT_TC,
+        ("MillFacing", "MillFacing", {}),
+    ]}, "posts": [("linuxcnc", "")]},
+    "adaptive": {"parts": ["plate"], "jobs": {"Job": [
+        ("Job", "Job", {"Model": ["plate"]}), *DEFAULT_TC,
+        ("Adaptive", "Adaptive", {"Base": [("plate", ["Face19"])]}),
+    ]}, "posts": [("linuxcnc", "")]},
+    "custom_probe": {"parts": ["plate"], "jobs": {"Job": [
+        ("Job", "Job", {"Model": ["plate"]}), *DEFAULT_TC,
+        ("Custom", "Custom", {"Gcode": ["(start)", "G0 X0 Y0", "M0"]}),
+        ("ToolBit", "Probe", {"Bit": "probe"}),
+        ("ToolController", "TC__Probe", {"Tool": "Probe"}),
+        ("Probe", "Probe001", {"ToolController": "TC__Probe"}),
+    ]}, "posts": [("linuxcnc", "")]},
 }

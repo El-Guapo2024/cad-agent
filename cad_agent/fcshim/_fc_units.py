@@ -349,7 +349,9 @@ class Quantity:
     __str__ = __repr__
 
     def __format__(self, spec):
-        return format(self._value, spec)
+        # QuantityPy has no __format__: object's gives str() for f"{q}" (FreeCAD raises TypeError for any spec,
+        # kept here as the number's, for this app's own callers)
+        return str(self) if not spec else format(self._value, spec)
 
     def __reduce__(self):
         return (_restore, (self._value, self._unit.sig))
