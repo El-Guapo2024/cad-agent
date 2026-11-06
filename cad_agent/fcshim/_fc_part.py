@@ -1105,10 +1105,13 @@ class Face(Shape):
         return wrap(BRepTools.OuterWire_s(TopoDS.Face(self._s)))
 
     def isPartOfDomain(self, u, v):
-        from OCP.BRepTopAdaptor import BRepTopAdaptor_FClass2d
+        """TopoShapeFacePy::isPartOfDomain. OCP does not bind BRepTopAdaptor_FClass2d; IntTools_FClass2d is OCCT's
+        copy of it (the same constructor, Perform and sampling)."""
+        from OCP.IntTools import IntTools_FClass2d
         from OCP.gp import gp_Pnt2d
         from OCP.TopAbs import TopAbs_ON
-        cl = BRepTopAdaptor_FClass2d(TopoDS.Face(self._s), 1e-7)
+        from OCP.Precision import Precision
+        cl = IntTools_FClass2d(TopoDS.Face(self._s), Precision.Confusion_s())
         st = cl.Perform(gp_Pnt2d(u, v))
         return st in (TopAbs_IN, TopAbs_ON)
 

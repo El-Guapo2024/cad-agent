@@ -768,6 +768,7 @@ src/Mod/CAM/Gui/Resources/panels/PageOpDrillingEdit.ui   [licence: none]
     copyright: no line in the file
     followed by src/cam_tasks.tsx, src/uiforms-cam.ts
 src/Mod/CAM/Gui/Resources/panels/PageOpEngraveEdit.ui   [licence: none]
+src/Mod/CAM/Gui/Resources/panels/PageOpVcarveEdit.ui   [licence: none]
     copyright: no line in the file
     followed by src/cam_tasks.tsx, src/uiforms-cam.ts
 src/Mod/CAM/Gui/Resources/panels/PageOpHelixEdit.ui   [licence: none]

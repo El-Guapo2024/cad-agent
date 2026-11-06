@@ -91,6 +91,12 @@ CASES = {
         ("ToolController", "TC__60_Deg__V_Bit", {"Tool": "_60_Deg__V_Bit"}),
         ("Engrave", "Engrave", {"ToolController": "TC__60_Deg__V_Bit", "Base": [("plate", ["Face5"])]}),
     ]}, "posts": [("linuxcnc", "")]},
+    "vcarve": {"parts": ["plate"], "jobs": {"Job": [
+        ("Job", "Job", {"Model": ["plate"]}), *DEFAULT_TC,
+        ("ToolBit", "_60_Deg__V_Bit", {"Bit": "60degree_Vbit"}),
+        ("ToolController", "TC__60_Deg__V_Bit", {"Tool": "_60_Deg__V_Bit"}),
+        ("Vcarve", "Vcarve", {"ToolController": "TC__60_Deg__V_Bit", "Base": [("plate", ["Face5"])]}),
+    ]}, "posts": [("linuxcnc", "")]},
     "slot": {"parts": ["plate"], "jobs": {"Job": [
         ("Job", "Job", {"Model": ["plate"]}), *DEFAULT_TC,
         ("ToolBit", "_3_175mm_Endmill", {"Bit": "3.175mm_Endmill"}),

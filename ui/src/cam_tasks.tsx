@@ -223,7 +223,7 @@ const fmt0 = (n: number) => String(Math.round(n * 1000) / 1000)
 
 // ── an operation's panel (Path/Op/Gui/Base.py TaskPanel) ────────────────────────────────────────────────────────
 type Page = { title: string; icon: string; node: ReactNode }
-const OWN_PAGE = ['Profile', 'PocketShape', 'MillFace', 'Drilling', 'Pocket3D', 'Helix', 'Engrave', 'Slot', 'Deburr', 'ThreadMilling',
+const OWN_PAGE = ['Profile', 'PocketShape', 'MillFace', 'Drilling', 'Pocket3D', 'Helix', 'Engrave', 'Vcarve', 'Slot', 'Deburr', 'ThreadMilling',
   'Tapping', 'MillFacing', 'Adaptive', 'Custom', 'Probe']
 // CircularHoleBase's ops, whose Base Geometry page is TaskPanelHoleGeometryPage
 const HOLE_OPS = ['Drilling', 'Helix', 'ThreadMilling', 'Tapping']
@@ -412,6 +412,8 @@ const OP_FORMS: Record<string, [string, Record<string, string>]> = {
     coneAngle: 'HelixConeAngle', rotationAngle: 'RotationAngle', spiralMill: 'SpiralMill', singleHelix: 'SingleHelix',
     startBottom: 'StartConeFromBottom', retractFromWall: 'RetractFromWall', overrideArcFeed: 'OverrideArcFeedRate' }],
   Engrave: ['engrave', { cutPattern: 'CutPattern', sorting: 'SortingMode', startVertex: 'StartVertex', chkReverse: 'Reverse', chkApproximation: 'Approximation' }],
+  Vcarve: ['vcarve', { discretize: 'Discretize', colinearFilter: 'Colinear', finishingPassEnabled: 'FinishingPass',
+    finishingPassZOffset: 'FinishingPassZOffset', optimizeMovementsEnabled: 'OptimizeMovements' }],
   Slot: ['slot', { geo1Reference: 'Reference1', geo1Extension: 'ExtendPathStart', geo2Reference: 'Reference2', geo2Extension: 'ExtendPathEnd',
     cutPattern: 'CutPattern', pathOrientation: 'PathOrientation', reverseDirection: 'ReverseDirection' }],
   Deburr: ['deburr', { value_W: 'Width', value_h: 'ExtraDepth', direction: 'Direction' }],

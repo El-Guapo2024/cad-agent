@@ -78,7 +78,7 @@ export const numOf = (o: CamObj | undefined, name: string): number => {
   const v = valueOf(o, name) as { value?: number } | number | undefined
   return typeof v === 'number' ? v : Number(v?.value ?? 0)
 }
-const OPS = ['Profile', 'PocketShape', 'MillFace', 'Drilling', 'Helix', 'Engrave', 'Slot', 'Deburr', 'ThreadMilling', 'Tapping', 'Pocket3D',
+const OPS = ['Profile', 'PocketShape', 'MillFace', 'Drilling', 'Helix', 'Engrave', 'Vcarve', 'Slot', 'Deburr', 'ThreadMilling', 'Tapping', 'Pocket3D',
   'MillFacing', 'Adaptive', 'Custom', 'Probe', 'Comment', 'Stop']
 // the dress-ups whose command opens a panel (cam_tasks.tsx DRESSUP_FORMS; the others are edited in the property view)
 const DRESSUP_PANEL = ['DressupLeadInOut', 'DressupAxisMap', 'DressupDragknife', 'DressupZCorrect', 'DressupBoundary']
@@ -232,7 +232,7 @@ export const CAM_CMDS: Record<string, Cmd> = {
   CAM_ThreadMilling: { text: 'Thread Milling', tip: 'Creates a Thread Milling toolpath from features of a base object', icon: 'cam-CAM_ThreadMilling', active: haveJob, run: () => newOp('ThreadMilling', 'Create ThreadMilling') },
   CAM_Engrave: { text: 'Engrave', tip: 'Creates an Engraving toolpath around a Draft ShapeString', icon: 'cam-CAM_Engrave', active: haveJob, run: () => newOp('Engrave', 'Create Engrave') },
   CAM_Deburr: { text: 'Deburr', tip: 'Creates a Deburr toolpath along Edges or around Faces', icon: 'cam-CAM_Deburr', active: haveJob, run: () => newOp('Deburr', 'Create Deburr') },
-  CAM_Vcarve: na('Vcarve', 'Creates a medial line engraving toolpath', undefined, NOT_HERE('Vcarve')),
+  CAM_Vcarve: { text: 'Vcarve', tip: 'Creates a medial line engraving toolpath', active: haveJob, run: () => newOp('Vcarve', 'Create Vcarve') },
   CAM_Pocket3D: { text: '3D Pocket', tip: 'Creates a 3D Pocket toolpath from a face or faces', icon: 'cam-CAM_3DPocket', active: haveJob, run: () => newOp('Pocket3D', 'Create Pocket3D') },
   CAM_DressupArray: { text: 'Array', tip: 'Creates an array from a selected toolpath', icon: 'cam-CAM_Dressup', active: () => !!dressupBase(), run: () => newDressup('DressupArray', 'Create Path Array Dress-up') },
   CAM_DressupAxisMap: { text: 'Axis Map', tip: 'Remaps one axis to another', icon: 'cam-CAM_Dressup', active: () => !!dressupBase(), run: () => newDressup('DressupAxisMap', 'Create Dress-up') },

@@ -57,6 +57,9 @@ KINDS = {
                    "Create Helix", "CAM_Helix", op=True),
     "Engrave": Kind("Engrave", "Path::FeaturePython", "Path.Op.Engrave", "CAM_Engrave", "Engrave",
                      "Create Engrave", "CAM_Engrave", op=True),
+    # no icon: FreeCAD's CAM_Vcarve.svg says CC-BY 4.0 and is not copied (ui/public/freecad-icons/README.md)
+    "Vcarve": Kind("Vcarve", "Path::FeaturePython", "Path.Op.Vcarve", "CAM_Vcarve", "Vcarve",
+                    "Create Vcarve", None, op=True),
     "Slot": Kind("Slot", "Path::FeaturePython", "Path.Op.Slot", "CAM_Slot", "Slot", "Create Slot", "CAM_Slot", op=True),
     "Deburr": Kind("Deburr", "Path::FeaturePython", "Path.Op.Deburr", "CAM_Deburr", "Deburr",
                     "Create Deburr", "CAM_Deburr", op=True),
@@ -121,7 +124,7 @@ DRESSUPS = tuple(k for k, v in KINDS.items() if v.dressup)
 DEFAULT_NAMES = {"Job": "Job", "Profile": "Profile", "PocketShape": "Pocket_Shape", "MillFace": "MillFace",
                  "Drilling": "Drilling", "DressupTag": "DressupTag",
                  "DressupDogbone": "DressupDogbone",
-                 "Helix": "Helix", "Engrave": "Engrave", "Slot": "Slot", "Deburr": "Deburr",
+                 "Helix": "Helix", "Engrave": "Engrave", "Vcarve": "Vcarve", "Slot": "Slot", "Deburr": "Deburr",
                  "ThreadMilling": "ThreadMilling", "Tapping": "Tapping", "Pocket3D": "Pocket3D",
                  "MillFacing": "MillFacing", "Adaptive": "Adaptive", "Custom": "Custom", "Probe": "Probe",
                  "Comment": "Comment", "Stop": "Stop",
@@ -195,6 +198,7 @@ MillFace = _maker("MillFace")
 Drilling = _maker("Drilling")
 Helix = _maker("Helix")
 Engrave = _maker("Engrave")
+Vcarve = _maker("Vcarve")
 Slot = _maker("Slot")
 Deburr = _maker("Deburr")
 ThreadMilling = _maker("ThreadMilling")

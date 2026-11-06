@@ -5,9 +5,27 @@
 # any later version; the text is in ../../../ui/LICENSE. FreeCAD (https://github.com/FreeCAD/FreeCAD), commit
 # 3160daf1e2b6. See ../../../NOTICE.
 """PathApp, the C++ half of FreeCAD's `Path` package (Path/__init__.py does `from PathApp import *`): Command, Path,
-Area, fromShapes and sortWires (cad_agent/fcshim/_fc_path.py, _fc_area.py)."""
+Area, fromShapes and sortWires (cad_agent/fcshim/_fc_path.py, _fc_area.py) and Voronoi (_fc_voronoi.py, read when first
+used: its native module needs Boost's headers to build)."""
+import importlib
+import types
 from cad_agent.fcshim._fc_area import Area, fromShapes, sortWires  # noqa: F401
 from cad_agent.fcshim._fc_path import Command, Path  # noqa: F401
+
+
+class _Voronoi(types.ModuleType):
+    def __getattr__(self, name):
+        if name.startswith("__"):
+            raise AttributeError(name)
+        try:
+            mod = importlib.import_module("cad_agent.fcshim._fc_voronoi")
+        except ImportError as e:
+            raise ImportError(f"Path.Voronoi: cam_voronoi is not built ({e}); run ui/libarea/build.sh native with "
+                              "Boost's headers (BOOST_DIR)") from e
+        return getattr(mod, name)
+
+
+Voronoi = _Voronoi("Path.Voronoi")
 
 
 def write(obj, filename):

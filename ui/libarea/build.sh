@@ -79,6 +79,15 @@ native_sources=(
 area_sources=("$up/libarea/pyarea.cpp")
 ext_sources=("$here/areaext.cpp")
 tsp_sources=("$up/tsp_solver/tsp_solver.cpp" "$up/tsp_solver/tsp_solver_pybind.cpp")
+vor_sources=(
+    "$up/voronoi/Voronoi.cpp" "$up/voronoi/VoronoiCell.cpp" "$up/voronoi/VoronoiEdge.cpp" "$up/voronoi/VoronoiVertex.cpp"
+    "$up/Base/Vector3D.cpp" "$up/Base/Handle.cpp" "$here/voronoi_py.cpp"
+)
+# Path.Voronoi (Vcarve) needs Boost.Polygon's headers: BOOST_DIR, else the system's
+boost="${BOOST_DIR:-}"
+for d in /usr/include /opt/homebrew/include /usr/local/include; do
+    if [[ -z "$boost" && -d "$d/boost/polygon" ]]; then boost="$d"; fi
+done
 
 compile() {   # compile <tag> <sources...>: objects in $obj/<tag>-<name>.o, rebuilt when the source is newer
     local tag="$1"; shift
@@ -86,7 +95,8 @@ compile() {   # compile <tag> <sources...>: objects in $obj/<tag>-<name>.o, rebu
         src="$1"; shift; o="$1"; shift; tag="$1"; shift
         f="$o/$tag-$(basename "${src%.cpp}").o"
         if [ ! -f "$f" ] || [ "$src" -nt "$f" ]; then "$@" -c "$src" -o "$f"; fi
-    ' _ {} "$obj" "$tag" "$cxx" "${common[@]}" "${clip[@]}" -I "$up/libarea" -I "$up" -I "$here/shim" -I "$up/tsp_solver" "${incs[@]}"
+    ' _ {} "$obj" "$tag" "$cxx" "${common[@]}" "${clip[@]}" -I "$up/libarea" -I "$here/shim" -I "$up" -I "$up/tsp_solver" \
+        -I "$up/voronoi" -I "$here/shim/Base" -DBaseExport= ${boost:+-I "$boost"} "${incs[@]}"   # shim/Base: Vector3D.cpp's "Tools.h"; BaseExport: FreeCAD's precompiled header
 }
 
 objects() {   # objects <tag> <sources...>
@@ -117,7 +127,16 @@ build_native() {
     compile tsp "${tsp_sources[@]}"
     objs=(); while IFS= read -r l; do objs+=("$l"); done < <(objects tsp "${tsp_sources[@]}")   # not mapfile: macOS has bash 3.2
     "$cxx" "${link[@]}" -o "$out/tsp_solver$ext" "${objs[@]}"
-    echo "built $out/$lib $out/area$ext $out/cam_areaext$ext $out/tsp_solver$ext"
+    built="$out/$lib $out/area$ext $out/cam_areaext$ext $out/tsp_solver$ext"
+    if [[ -n "$boost" && -d "$boost/boost/polygon" ]]; then
+        compile vor "${vor_sources[@]}"
+        objs=(); while IFS= read -r l; do objs+=("$l"); done < <(objects vor "${vor_sources[@]}")   # not mapfile: macOS has bash 3.2
+        "$cxx" "${link[@]}" -o "$out/cam_voronoi$ext" "${objs[@]}"
+        built="$built $out/cam_voronoi$ext"
+    else
+        echo "build.sh: no Boost headers (BOOST_DIR, or apt install libboost-dev): Path.Voronoi, which Vcarve needs, is not built" >&2
+    fi
+    echo "built $built"
 }
 
 case "$target" in

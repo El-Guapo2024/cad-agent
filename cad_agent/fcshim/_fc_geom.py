@@ -496,6 +496,12 @@ class GeometrySurface(Geometry):
     def value(self, u, v):
         return V(self.h.Value(u, v))
 
+    def parameter(self, pt, prec=None):
+        """GeometrySurfacePy::parameter: ShapeAnalysis_Surface's ValueOfUV."""
+        from OCP.ShapeAnalysis import ShapeAnalysis_Surface
+        uv = ShapeAnalysis_Surface(self.h).ValueOfUV(P(pt), Precision.Confusion_s() if prec is None else float(prec))
+        return (uv.X(), uv.Y())
+
     def normal(self, u, v):
         from OCP.GeomLProp import GeomLProp_SLProps
         prop = GeomLProp_SLProps(self.h, u, v, 1, Precision.Confusion_s())
