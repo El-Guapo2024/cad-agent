@@ -342,15 +342,15 @@ function insertEntries(): Entry[] {
     { label: 'New Part', icon: 'std-part', cmd: 'Assembly_InsertNewPart', kbd: 'P', disabled: !active, onSelect: () => openTask('assembly', 'newpart', 'Fixed') },
   ]
 }
-/** Part_LinkArrays' commands, in CmdPartLinkArrays' order: Linear and Polar here, the other three greyed. */
+/** Part_LinkArrays' commands, in CmdPartLinkArrays' order. */
 function linkArrayEntries(): Entry[] {
   const { doc } = asmState()
   const off = !doc || !!getState().task
   return [
     { label: 'Circular Link Array', icon: 'link', cmd: 'Part_LinkArrayCircular', disabled: off, onSelect: () => openTask('assembly', 'array', 'LinkArrayCircular') },
     { label: 'Linear Link Array', icon: 'link', cmd: 'Part_LinkArrayLinear', disabled: off, onSelect: () => openTask('assembly', 'array', 'LinkArrayLinear') },
-    NA('Path Link Array', 'link', 'Part_LinkArrayPath', 'the path link array is not ported (it needs a path object)'),
-    NA('Point Link Array', 'link', 'Part_LinkArrayPoint', 'the point link array is not ported (it needs a points object)'),
+    { label: 'Path Link Array', icon: 'link', cmd: 'Part_LinkArrayPath', disabled: off, onSelect: () => openTask('assembly', 'array', 'LinkArrayPath') },
+    { label: 'Point Link Array', icon: 'link', cmd: 'Part_LinkArrayPoint', disabled: off, onSelect: () => openTask('assembly', 'array', 'LinkArrayPoint') },
     { label: 'Polar Link Array', icon: 'link', cmd: 'Part_LinkArrayPolar', disabled: off, onSelect: () => openTask('assembly', 'array', 'LinkArrayPolar') },
   ]
 }

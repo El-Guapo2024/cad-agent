@@ -53,7 +53,7 @@ const want = (section) => !ONLY.length || ONLY.includes(section)
 const clean = (t) => String(t ?? '').replace(/&(.)/g, '$1').replace(/…$/, '').trim()
 
 // What is deliberately different (PARITY.md, "Assembly workbench"), by the FreeCAD command
-const NOT_PORTED = new Set(['Part_LinkArrayPath', 'Part_LinkArrayPoint', 'Assembly_SelectJointsOfComponent'])
+const NOT_PORTED = new Set(['Assembly_SelectJointsOfComponent'])
 
 // ── a scratch workbench with three parts ─────────────────────────────────────────────────────────────────────────────
 const freePort = (from) => new Promise((res, rej) => {
@@ -413,6 +413,29 @@ try {
         'array: one body in the 3D view')
       await runCmd('Std_Undo')
       await until(`!(cadui.getState().assembly?.objects ?? []).some((o) => o.kind === 'LinkArrayLinear')`, 'array: undone', 120000)
+      // Path and Point Link Array: the path or points object a part of the project (its shape where its file builds it)
+      for (const [cmd, kind, qf, title, legend] of [['Part_LinkArrayPath', 'LinkArrayPath', 'pathButton', 'Path Link Array', 'Path Pattern'],
+        ['Part_LinkArrayPoint', 'LinkArrayPoint', 'pointObjectButton', 'Point Link Array', 'Point Pattern']]) {
+        await st('cadui.setState({ asmSel: ["Pin"] })')
+        await st(`cadui.getCommand('${cmd}')?.run([])`)
+        await until(`!!document.querySelector('.taskview .as-task[data-task="array"]')`, `the ${title} panel`, 20000)
+        same(await st(`[...document.querySelectorAll('.taskview .as-task legend')].map((e) => e.textContent.trim())`), [legend], `${title}: its fields`)
+        await page.dispatchEvent(`.taskview [data-qf="${qf}"]`, "mousedown")
+        await sleep(150)
+        await page.click('.combo-popup [role=option]:text-is("plate")')
+        await sleep(200)
+        await page.click('.taskview .as-task .tbuttons .qbtn.default')
+        await until(`(cadui.getState().assembly?.objects ?? []).some((o) => o.kind === '${kind}')`, `${title}: made`, 120000)
+        await idle()
+        same(await undoName(), title, `${title}: its undo step`)
+        const t2 = await ourTree()
+        const row = (await st('cadui.getState().assembly?.tree ?? []')).find?.((r) => r.type === `Part::${kind}`)
+        check(t2.some((x) => x.includes(kind === 'LinkArrayPath' ? 'PathLinkArray' : 'PointLinkArray')), `${title}: in the tree`, JSON.stringify(t2))
+        if (row) check(row.elements === (kind === 'LinkArrayPath' ? 4 : 8), `${title}: ${kind === 'LinkArrayPath' ? 4 : 8} elements`, JSON.stringify(row))
+        await runCmd('Std_Undo')
+        await until(`!(cadui.getState().assembly?.objects ?? []).some((o) => o.kind === '${kind}')`, `${title}: undone`, 120000)
+        await idle()
+      }
       await st('cadui.setState({ asmSel: [] })')
     }
     if (want('snapshot')) {

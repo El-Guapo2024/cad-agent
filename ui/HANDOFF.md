@@ -157,8 +157,9 @@ Step 5, round 3 (six branches) is all in main (7526c0c, CI green, 6977 passed, 2
   Assembly's Bill of Materials object (2026-11-06): a sheet of the project with a Spreadsheet.Bom head, filled by
   cad_agent/assembly_bom.py (BomObject.cpp's generateBOM, tests/golden/assembly_bom); `cad sheet bom`, the page's
   panel (src/assembly_bom.tsx), assemblycheck's bom section. Linear, Polar and Circular link arrays too (cad_agent/
-  assembly_array.py over feature_transform's pattern code, tests/golden/link_array, src/assembly_array.tsx). Still cut
-  in Assembly: the Path and Point link arrays (Snapshot came 2026-11-06: assembly_snapshot.py).
+  assembly_array.py over feature_transform's pattern code, tests/golden/link_array, src/assembly_array.tsx). The Path and
+  Point link arrays came 2026-11-06 too (a part of the project as the path or points; tests/golden/link_array/
+  cases_path.py); Snapshot came that day as well (assembly_snapshot.py).
   TechDraw Broken View (2026-11-06): cad_agent/techdraw_broken.py, the `broken_view` op, goldens rod_broken,
   rod_broken_two, shaft_broken; Complex Section's Offset strategy too (techdraw_complex.py, the complex_section op,
   goldens plate_complex_section, bracket_complex_section); Aligned and NoParallel ported but not compared with

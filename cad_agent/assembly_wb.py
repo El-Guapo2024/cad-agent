@@ -304,6 +304,9 @@ class AssemblyDocument:
         self.objects = list(objects)
         self.shapes = dict(shapes)
         self.document = document
+        for o in self.objects:
+            if hasattr(o, "needs"):          # a link array reads its path's or points' shape from the document
+                o._doc = self
         self.origin = origin
         self.plc = {o.name: to_placement(o.placement) for o in self.components()}
         self.jcs = {}
@@ -1015,6 +1018,9 @@ def load(slug: str, objects) -> AssemblyDocument:
     from .state import build_part
     shapes, subs = {}, {}
     for o in objects:
+        for extra in (o.needs() if hasattr(o, "needs") else ()):      # a Path / Point Link Array's path or points
+            if extra not in shapes:
+                shapes[extra] = build_part(slug, extra)[0].wrapped
         if isinstance(o, Link) and o.linked_object not in shapes:
             if empty_body(slug, o.linked_object):
                 from .assembly_newpart import empty_shape

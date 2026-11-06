@@ -109,6 +109,9 @@ def read_src(src: str, slug: str = "") -> dict:
     objs = objects_of(src)
     if objs is None:
         return {"project": slug, "assembly": False, "objects": [], "tree": []}
+    for o in objs:
+        if hasattr(o, "needs"):                  # a Path / Point Link Array builds its path's part to count its elements
+            o._slug = slug
     return {"project": slug, "assembly": True, "objects": [W.as_dict(o) for o in objs], "tree": tree(objs)}
 
 

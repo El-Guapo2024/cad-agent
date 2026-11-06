@@ -979,13 +979,17 @@ Checked against the real FreeCAD:
   spacings, reversed along Z, two directions with the second in Spacing; Polar: the defaults, 180 degrees, Spacing about
   X, reversed about Y; Circular, CircularPatternExtension::calculateTransformations ported in assembly_array.py: the
   defaults, four circles with a symmetry of 6, about the X and the Y axis), each element's Placement equal.
-- ui/scripts/assemblycheck.mjs: the Link Arrays group in the menu and the toolbar as FreeCAD has it (Circular, Path and
-  Point greyed), the `array` section (the selected part linked, OK, the undo step, the tree row, one body in the 3D view,
+- ui/scripts/assemblycheck.mjs: the Link Arrays group in the menu and the toolbar as FreeCAD has it (all five), the `array` section (the selected part linked, OK, the undo step, the tree row, one body in the 3D view,
   undo).
 
 Deliberate or known differences:
-- Path and Point Link Array are greyed: they need a path or a points object, which a project's Assembly does not hold.
-  The Circular panel's fields are PatternCircularParametersWidget.ui's.
+- Path and Point Link Array (2026-11-06): their Path / PointObject is a part of the project, its shape where its part
+  file builds it (FreeCAD takes an object with a shape, the Body itself, and refuses a Link), the path's edges typed by
+  name (none: its first wire). PathPatternExtension and PointPatternExtension ported in assembly_array.py; 15 freecadcmd
+  cases (tests/golden/link_array/cases_path.py, make_path.py: counts, spacing modes, offsets, reversed, aligned along
+  lines, a circle, an arc with a vertical vector, a B-spline; a polygon's and a box's vertices) give FreeCAD's element
+  placements. The panels are PatternPathParametersWidget.ui's and PatternPointParametersWidget.ui's, with a combo of the
+  parts for the Select button's pick. The Circular panel's fields are PatternCircularParametersWidget.ui's.
 - A direction or axis is one of the Assembly Origin's axes; an edge, a datum line or an LCS as the reference is not
   offered (the combo's Select reference… does nothing). The Linked object is chosen from the project's parts in a
   combo (FreeCAD's button waits for a pick in the 3D view).
