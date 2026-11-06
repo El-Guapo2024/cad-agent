@@ -1393,5 +1393,6 @@ constraints' C++ onChanged (normals, a force's direction), QProcess, QDir/QFileI
 | Gmsh's threads | the goldens set FEM's NumOfThreads to 1: with several, Gmsh's mesh (and FreeCAD's results) differ run to run |
 | A material's UUID | empty: FreeCAD's material library is not here (Materials.MaterialManager lists none) |
 | Results' VTK pipeline (Fem::FemPostPipeline) | the 3D view's post-processing: the pipeline object keeps its results, nothing is drawn |
-| FEM in a part file, the CLI and the page | not yet |
+| FEM in a part file and the CLI | done: a part's `FEM = [Fem.SolverCalculiX(...), Fem.MaterialSolid(...), Fem.ConstraintFixed(...), Fem.ConstraintForce(...), Fem.ConstraintPressure(...), Fem.MeshGmsh(...)]` (cad_agent/feature_fem.py), made by ObjectsFem's makers over the part's shapes; `cad fem run SLUG PART [--threads 1]` meshes and solves it (files in out/fem/PART/). tests/test_feature_fem.py: the cantilever as a part file gives FreeCAD's CalculiX input and results |
+| FEM on the page | not yet |
 

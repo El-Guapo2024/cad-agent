@@ -1582,6 +1582,8 @@ def build_parser() -> argparse.ArgumentParser:
     sheet_parsers(add, sub)
     from .camcmd import add_parsers as cam_parsers               # cad cam new|tool|op|dressup|set|post|...
     cam_parsers(add, sub)
+    from .femcmd import add_parsers as fem_parsers               # cad fem run
+    fem_parsers(add, sub)
 
     bp = add("bought", None, "bought parts: vendor STEP or measured, always with a source")
     bsub = bp.add_subparsers(dest="bought_cmd", metavar="<action>", parser_class=_Parser)

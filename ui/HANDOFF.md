@@ -193,8 +193,8 @@ Step 5, round 3 (six branches) is all in main (7526c0c, CI green, 6977 passed, 2
 - fem-port (2026-11-06): FreeCAD's FEM Python copied unchanged into cad_agent/fcfem and run over the stand-ins
   (cad_agent/fem_runtime.activate()), Gmsh and CalculiX as separate programs on the PATH (the FreeCAD AppImage's usr/bin
   has both: FREECAD_BIN=~/freecad/squashfs-root/usr/bin for tests/test_fem_golden.py's whole runs). tests/golden/fem:
-  3 cases, the CalculiX input from FreeCAD's mesh exact, the whole run's results FreeCAD's. Not yet in part files, the
-  CLI or the page.
+  3 cases, the CalculiX input from FreeCAD's mesh exact, the whole run's results FreeCAD's. In part files and the CLI
+  since fem-cli (`FEM = [...]`, cad_agent/feature_fem.py; `cad fem run SLUG PART`). Not yet on the page.
 - Left after the demo: FEM's part-file objects, CLI and page, Draft's Trimex/Split/Upgrade and annotations, Part's cut commands, PARITY's known
   differences. Temporary branches on GitHub (ds-merge, ds-fix, asm-merge, st-merge, r5-merge, r6-merge, r7-merge,
   r7b-merge, cam-merge, ci-diag) are all in main; delete them when Juan says so.
