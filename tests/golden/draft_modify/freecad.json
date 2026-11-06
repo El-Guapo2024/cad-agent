@@ -1543,5 +1543,559 @@
     ]
    ]
   }
+ },
+ "join": {
+  "Wire": {
+   "points": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     10.0,
+     0.0,
+     0.0
+    ],
+    [
+     10.0,
+     10.0,
+     0.0
+    ],
+    [
+     0.0,
+     10.0,
+     0.0
+    ]
+   ],
+   "closed": false,
+   "make_face": true,
+   "fillet_radius": 0.0,
+   "chamfer_size": 0.0,
+   "subdivisions": 0,
+   "placement": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ]
+  },
+  "Wire002": {
+   "points": [
+    [
+     20.0,
+     0.0,
+     0.0
+    ],
+    [
+     30.0,
+     0.0,
+     0.0
+    ]
+   ],
+   "closed": false,
+   "make_face": true,
+   "fillet_radius": 0.0,
+   "chamfer_size": 0.0,
+   "subdivisions": 0,
+   "placement": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ]
+  },
+  "BSpline": {
+   "points": [
+    [
+     0.0,
+     20.0,
+     0.0
+    ],
+    [
+     5.0,
+     25.0,
+     0.0
+    ],
+    [
+     10.0,
+     20.0,
+     0.0
+    ]
+   ],
+   "closed": false,
+   "make_face": true,
+   "parameterization": 1.0,
+   "placement": [
+    [
+     1.0,
+     2.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ]
+  }
+ },
+ "join_reversed": {
+  "Wire001": {
+   "points": [
+    [
+     0.0,
+     10.0,
+     0.0
+    ],
+    [
+     10.0,
+     10.0,
+     0.0
+    ],
+    [
+     10.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ],
+   "closed": false,
+   "make_face": true,
+   "fillet_radius": 0.0,
+   "chamfer_size": 0.0,
+   "subdivisions": 0,
+   "placement": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ]
+  },
+  "Wire002": {
+   "points": [
+    [
+     20.0,
+     0.0,
+     0.0
+    ],
+    [
+     30.0,
+     0.0,
+     0.0
+    ]
+   ],
+   "closed": false,
+   "make_face": true,
+   "fillet_radius": 0.0,
+   "chamfer_size": 0.0,
+   "subdivisions": 0,
+   "placement": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ]
+  },
+  "BSpline": {
+   "points": [
+    [
+     0.0,
+     20.0,
+     0.0
+    ],
+    [
+     5.0,
+     25.0,
+     0.0
+    ],
+    [
+     10.0,
+     20.0,
+     0.0
+    ]
+   ],
+   "closed": false,
+   "make_face": true,
+   "parameterization": 1.0,
+   "placement": [
+    [
+     1.0,
+     2.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ]
+  }
+ },
+ "wire2spline": {
+  "Wire": {
+   "points": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     10.0,
+     0.0,
+     0.0
+    ]
+   ],
+   "closed": false,
+   "make_face": true,
+   "fillet_radius": 0.0,
+   "chamfer_size": 0.0,
+   "subdivisions": 0,
+   "placement": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ]
+  },
+  "Wire001": {
+   "points": [
+    [
+     10.0,
+     0.0,
+     0.0
+    ],
+    [
+     10.0,
+     10.0,
+     0.0
+    ],
+    [
+     0.0,
+     10.0,
+     0.0
+    ]
+   ],
+   "closed": false,
+   "make_face": true,
+   "fillet_radius": 0.0,
+   "chamfer_size": 0.0,
+   "subdivisions": 0,
+   "placement": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ]
+  },
+  "Wire002": {
+   "points": [
+    [
+     20.0,
+     0.0,
+     0.0
+    ],
+    [
+     30.0,
+     0.0,
+     0.0
+    ]
+   ],
+   "closed": false,
+   "make_face": true,
+   "fillet_radius": 0.0,
+   "chamfer_size": 0.0,
+   "subdivisions": 0,
+   "placement": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ]
+  },
+  "BSpline": {
+   "points": [
+    [
+     0.0,
+     20.0,
+     0.0
+    ],
+    [
+     5.0,
+     25.0,
+     0.0
+    ],
+    [
+     10.0,
+     20.0,
+     0.0
+    ]
+   ],
+   "closed": false,
+   "make_face": true,
+   "parameterization": 1.0,
+   "placement": [
+    [
+     1.0,
+     2.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ]
+  },
+  "BSpline001": {
+   "points": [
+    [
+     10.0,
+     0.0,
+     0.0
+    ],
+    [
+     10.0,
+     10.0,
+     0.0
+    ],
+    [
+     0.0,
+     10.0,
+     0.0
+    ]
+   ],
+   "closed": false,
+   "make_face": true,
+   "parameterization": 1.0,
+   "placement": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ]
+  }
+ },
+ "spline2wire": {
+  "Wire": {
+   "points": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     10.0,
+     0.0,
+     0.0
+    ]
+   ],
+   "closed": false,
+   "make_face": true,
+   "fillet_radius": 0.0,
+   "chamfer_size": 0.0,
+   "subdivisions": 0,
+   "placement": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ]
+  },
+  "Wire001": {
+   "points": [
+    [
+     10.0,
+     0.0,
+     0.0
+    ],
+    [
+     10.0,
+     10.0,
+     0.0
+    ],
+    [
+     0.0,
+     10.0,
+     0.0
+    ]
+   ],
+   "closed": false,
+   "make_face": true,
+   "fillet_radius": 0.0,
+   "chamfer_size": 0.0,
+   "subdivisions": 0,
+   "placement": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ]
+  },
+  "Wire002": {
+   "points": [
+    [
+     20.0,
+     0.0,
+     0.0
+    ],
+    [
+     30.0,
+     0.0,
+     0.0
+    ]
+   ],
+   "closed": false,
+   "make_face": true,
+   "fillet_radius": 0.0,
+   "chamfer_size": 0.0,
+   "subdivisions": 0,
+   "placement": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ]
+  },
+  "BSpline": {
+   "points": [
+    [
+     0.0,
+     20.0,
+     0.0
+    ],
+    [
+     5.0,
+     25.0,
+     0.0
+    ],
+    [
+     10.0,
+     20.0,
+     0.0
+    ]
+   ],
+   "closed": false,
+   "make_face": true,
+   "parameterization": 1.0,
+   "placement": [
+    [
+     1.0,
+     2.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ]
+  },
+  "Wire003": {
+   "points": [
+    [
+     0.0,
+     20.0,
+     0.0
+    ],
+    [
+     5.0,
+     25.0,
+     0.0
+    ],
+    [
+     10.0,
+     20.0,
+     0.0
+    ]
+   ],
+   "closed": false,
+   "make_face": true,
+   "fillet_radius": 0.0,
+   "chamfer_size": 0.0,
+   "subdivisions": 0,
+   "placement": [
+    [
+     1.0,
+     2.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ]
+  }
  }
 }

@@ -228,6 +228,23 @@ try {
   await clickButton('OK')
   await objectsAt(before + 1, 'the scaled copy')
   check(!!(await obj('Wire001')), 'Scale with Copy: Wire001, as Draft names the copy', JSON.stringify((await objects()).map((o) => o.name)))
+  // Draft_WireToBSpline: a B-spline of the wire's points beside it; Draft_Join: the two wires one
+  const nb = await count()
+  await selectRows(['Wire'])
+  await runCmd('Draft_WireToBSpline')
+  await objectsAt(nb + 1, 'the B-spline of the wire')
+  const bs = (await objects()).find((o) => o.type === 'Draft::BSpline')
+  check(!!bs && JSON.stringify(bs.points) === JSON.stringify((await obj('Wire')).points), 'Wire to B-spline: a BSpline of the wire\'s points', JSON.stringify(bs))
+  await runCmd('Draft_Line')
+  await until('!!document.querySelector(\'.taskview [data-task="draft-Draft_Line"]\')', 'the Line panel')
+  await page.fill('.taskview [data-qf="points"]', '-30, 10, 5\n-40, 10, 5')   // from the rotated wire's end
+  await clickButton('OK')
+  await objectsAt(nb + 2, 'the line')
+  await selectRows(['Wire', 'Line'])
+  await runCmd('Draft_Join')
+  await until(`!(cadui.getState().features[${JSON.stringify(DOC)}]?.objects ?? []).some((o) => o.name === 'Line')`, 'Join: the line joined', 90000)
+  check((await obj('Wire'))?.points?.length === 4, 'Join: the wire takes the line\'s point', JSON.stringify(await obj('Wire')))
+  check(await undoName() === 'Join Lines', 'its undo step is "Join Lines"', await undoName())
   const errs2 = await st('cadui.getState().messages.filter((l) => l.level === "err").map((l) => l.text).filter((t) => !/OBJECTS is empty/.test(t))')
   check(!errs2.length, 'no error in the Report view', JSON.stringify(errs2))
 

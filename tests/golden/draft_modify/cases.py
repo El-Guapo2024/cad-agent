@@ -28,3 +28,11 @@ CASES["offset_circle"] = {"objects": BASE, "steps": [("offset", ["Circle"], {"ra
 CASES["chain"] = {"objects": BASE, "steps": [
     ("move", ["Rectangle"], {"vector": "0,10,0"}), ("rotate", ["Rectangle"], {"angle": 90}),
     ("scale", ["Rectangle"], {"vector": "2,2,1"})]}
+# Draft_Join and Draft_WireToBSpline
+JOIN = [Draft.Wire("Wire", points=[(0, 0, 0), (10, 0, 0)]), Draft.Wire("Wire001", points=[(10, 0, 0), (10, 10, 0), (0, 10, 0)]),
+        Draft.Wire("Wire002", points=[(20, 0, 0), (30, 0, 0)], closed=False),
+        Draft.BSpline("BSpline", points=[(0, 20, 0), (5, 25, 0), (10, 20, 0)], placement=((1, 2, 0), (0, 0, 0)))]
+CASES["join"] = {"objects": JOIN, "steps": [("join", ["Wire", "Wire001"], {})]}
+CASES["join_reversed"] = {"objects": JOIN, "steps": [("join", ["Wire001", "Wire"], {})]}
+CASES["wire2spline"] = {"objects": JOIN, "steps": [("wire2spline", ["Wire001"], {})]}
+CASES["spline2wire"] = {"objects": JOIN, "steps": [("wire2spline", ["BSpline"], {})]}

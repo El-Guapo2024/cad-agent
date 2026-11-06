@@ -8,6 +8,9 @@
     cad feature draft plate Unnamed rotate Rectangle --angle 90 --center 0,0,0 [--axis 0,0,1] [--copy]
     cad feature draft plate Unnamed scale Rectangle --vector 2,2,1 --center 0,0,0 [--copy]
     cad feature draft plate Unnamed offset Wire --vector 0,-1,0 [--copy]      (a circle: --radius 6)
+    cad feature draft plate Unnamed join Wire Wire001                         (Draft_Join: Draft.join_wires)
+    cad feature draft plate Unnamed wire2spline Wire                         (Draft_WireToBSpline: a B-spline of a wire's
+                                                                              points, or a wire of a B-spline's)
 
 The document's Draft objects are built in one stand-in document (feature_draft._run), a Part object or sketch named
 among them as a Part::Feature with its shape and Placement; Draft.move / rotate / scale / offset run on them as the
@@ -17,7 +20,8 @@ object Draft made, with its maker's name (Rectangle001). One `cad feature apply`
 """
 from __future__ import annotations
 
-STEPS = {"move": "Move", "rotate": "Rotate", "scale": "Scale", "offset": "Offset"}
+STEPS = {"move": "Move", "rotate": "Rotate", "scale": "Scale", "offset": "Offset", "join": "Join Lines",
+         "wire2spline": "Convert polyline/B-spline"}
 
 
 def _vec(App, v, what):
@@ -119,6 +123,23 @@ def modify(objects, params, names, op, vector=None, angle=None, center=None, axi
                      _vec(App, axis or "0,0,1", "--axis"), copy=copy)
     elif op == "scale":
         Draft.scale(targets, _vec(App, vector, "--vector"), _vec(App, center or "0,0,0", "--center"), copy=copy)
+    elif op == "join":
+        # gui_join.Join.proceed: every selected object a Draft Wire, then Draft.join_wires(selection)
+        if not all(isinstance(by[n], D.Wire) for n in names):
+            raise F.FeatureError("Only Draft lines and wires can be joined")
+        from draftfunctions import join
+        join.join_wires(targets)
+    elif op == "wire2spline":
+        # gui_wire2spline.WireToBSpline.Activated: make_bspline of a Wire's Points, Closed and Placement (make_wire of a
+        # BSpline's, bs2wire), the original kept
+        o = targets[0]
+        if len(targets) != 1 or not isinstance(by[names[0]], (D.Wire, D.BSpline)):
+            raise F.FeatureError("wire2spline takes one Draft Wire or BSpline")
+        from draftmake import make_bspline, make_wire
+        if isinstance(by[names[0]], D.Wire):
+            make_bspline.make_bspline(o.Points, closed=o.Closed, placement=o.Placement)
+        else:
+            make_wire.make_wire(o.Points, closed=o.Closed, placement=o.Placement, face=None, support=None, bs2wire=True)
     else:
         if len(targets) != 1:
             raise F.FeatureError("offset takes one object")

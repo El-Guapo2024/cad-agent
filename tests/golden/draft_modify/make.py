@@ -35,6 +35,14 @@ for name, case in CASES.items():
             Draft.rotate(objs, kw["angle"], V(kw.get("center", "0,0,0")), V(kw.get("axis", "0,0,1")), copy=kw.get("copy", False))
         elif op == "scale":
             Draft.scale(objs, V(kw["vector"]), V(kw.get("center", "0,0,0")), copy=kw.get("copy", False))
+        elif op == "join":
+            Draft.join_wires(objs)
+        elif op == "wire2spline":           # gui_wire2spline.WireToBSpline.Activated's calls
+            o = objs[0]
+            if o.Proxy.Type == "Wire":
+                Draft.make_bspline(o.Points, closed=o.Closed, placement=o.Placement)
+            else:
+                Draft.make_wire(o.Points, closed=o.Closed, placement=o.Placement, face=None, support=None, bs2wire=True)
         else:
             Draft.offset(objs[0], float(kw["radius"]) if "radius" in kw else V(kw["vector"]), copy=kw.get("copy", False))
         doc.recompute()

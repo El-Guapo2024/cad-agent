@@ -59,9 +59,11 @@ const MAKES: Record<string, Make> = {
 const LINKABLE = new Set(['Draft_OrthoArray', 'Draft_PolarArray', 'Draft_CircularArray'])
 /** The modifications: Draft's own move / rotate / scale / offset run on the server (`cad feature draft`, draft_modify.py),
  *  with the panel's values as the GUI command's Draft.move(...) line takes them. */
-type Mod = { op: 'move' | 'rotate' | 'scale' | 'offset'; one?: boolean }
+type Mod = { op: 'move' | 'rotate' | 'scale' | 'offset' | 'join' | 'wire2spline'; one?: boolean; two?: boolean; now?: boolean }
 const MODS: Record<string, Mod> = {
   Draft_Move: { op: 'move' }, Draft_Rotate: { op: 'rotate' }, Draft_Scale: { op: 'scale' }, Draft_Offset: { op: 'offset', one: true },
+  // gui_join (Draft.join_wires of the selection) and gui_wire2spline act at once, with no panel
+  Draft_Join: { op: 'join', two: true, now: true }, Draft_WireToBSpline: { op: 'wire2spline', one: true, now: true },
 }
 /** Why a command of the workbench is not offered (it stays in its menu, greyed, as the port's other n/a commands do). */
 const WHY: Record<string, string> = {
@@ -79,8 +81,8 @@ function entry(c: string): Entry {
   if (r.group) return { label, icon: iconOf(c), cmd: c, title: r.tip ?? undefined, sub: r.group.map(entry) }
   const part = activeDoc(), n = part ? selectedObjects(part).length : 0
   const mod = MODS[c]
-  if (mod) return { label, icon: iconOf(c), cmd: c, disabled: mod.one ? n !== 1 : n < 1, title: r.tip ?? undefined,
-    onSelect: () => { if (part) openTask('draftwb', part, c) } }
+  if (mod) return { label, icon: iconOf(c), cmd: c, disabled: mod.one ? n !== 1 : mod.two ? n < 2 : n < 1, title: r.tip ?? undefined,
+    onSelect: () => { if (part) { if (mod.now) void runModify(c, part, selectedObjects(part), []); else openTask('draftwb', part, c) } } }
   if (!mk) return { label, icon: iconOf(c), cmd: c, disabled: true, title: `n/a: ${WHY[c] ?? NOT_YET}` }
   const disabled = mk.sel === 'one' ? n !== 1 : mk.sel === 'two' ? n !== 2 : mk.sel === 'many' ? n < 1 : false
   return { label, icon: iconOf(c), cmd: c, disabled, title: r.tip ?? undefined, onSelect: () => void run(c) }
@@ -225,6 +227,20 @@ function MakeTask({ part, other }: { part: string; other: string }) {
   )
 }
 
+/** `cad feature draft` with the command's op, its objects and values: Draft's own function on the server, one step. */
+async function runModify(c: string, part: string, sel: string[], flags: string[]) {
+  const s = getState()
+  if (!s.slug) return
+  const argv = ['feature', 'draft', s.slug, part, MODS[c].op, ...sel, ...flags]
+  if (s.scriptToPyConsole) consoleLog('in', `cad ${argv.join(' ')}`)
+  try {
+    const r = await api.cad(s.slug, argv)
+    if (r.exit > 2) { report('err', `${cmdOf(c).menu}: ${resultText(r)}`); return }
+    report('msg', `${part}: ${cmdOf(c).menu}`)
+    loadHistory()
+    await loadFeatures()
+  } catch (e) { report('err', `${cmdOf(c).menu}: ${e instanceof Error ? e.message : String(e)}`) }
+}
 /** Move, Rotate, Scale, Offset: the values the command's Draft.<op>(...) line takes, then `cad feature draft`. */
 function ModifyTask({ part, c }: { part: string; c: string }) {
   const doc = useStore((s) => s.features[part])
@@ -249,16 +265,8 @@ function ModifyTask({ part, c }: { part: string; c: string }) {
       : mod.op === 'rotate' ? [`--angle=${angle}`, `--center=${f(center)}`, `--axis=${f(axis)}`]
       : mod.op === 'scale' ? [`--vector=${f(vec)}`, `--center=${f(center)}`]
       : circle ? [`--radius=${radius}`] : [`--vector=${f(vec)}`]
-    const argv = ['feature', 'draft', s.slug, part, mod.op, ...sel, ...flags, ...(copy ? ['--copy'] : [])]
     closeTask()
-    if (s.scriptToPyConsole) consoleLog('in', `cad ${argv.join(' ')}`)
-    try {
-      const r = await api.cad(s.slug, argv)
-      if (r.exit > 2) { report('err', `${cmdOf(c).menu}: ${resultText(r)}`); return }
-      report('msg', `${part}: ${cmdOf(c).menu}`)
-      loadHistory()
-      await loadFeatures()
-    } catch (e) { report('err', `${cmdOf(c).menu}: ${e instanceof Error ? e.message : String(e)}`) }
+    await runModify(c, part, sel, [...flags, ...(copy ? ['--copy'] : [])])
   }
   return (
     <div className="tasks pt-task" data-task={`draft-${c}`}>
