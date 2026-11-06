@@ -54,6 +54,15 @@ if [ ! -x "$venv/bin/python" ] || [ "$(cat "$data/installed" 2>/dev/null)" != "$
   fresh=1
 fi
 ln -sf "$root/bin/cad" "$data/bin/cad"
+# The native solvers (Sketcher, Assembly, CAM) are compiled from the plugin's sources, in the background: a few
+# minutes the session need not wait for, and a sketch made before they are done says its solver is not built.
+# Once per plugin version; the lock keeps two sessions from building at once.
+find "$data/natives.lock" -maxdepth 0 -mmin +60 -exec rmdir {} \; 2>/dev/null || true   # a build killed mid-way
+if [ "$(cat "$data/natives" 2>/dev/null)" != "$want" ] && mkdir "$data/natives.lock" 2>/dev/null; then
+  echo "cad-agent: building the sketch, assembly and CAM solvers in the background (log: $data/natives.log)" >&2
+  nohup sh -c 'bash "$1/plugin/natives.sh" "$1" "$2" "$3" > "$2/natives.log" 2>&1 && echo "$4" > "$2/natives"; rmdir "$2/natives.lock"' \
+    natives "$root" "$data" "$venv/bin/python" "$want" >/dev/null 2>&1 &
+fi
 if [ -n "${CLAUDE_ENV_FILE:-}" ]; then
   {
     echo "export CAD_PYTHON=\"$venv/bin/python\""

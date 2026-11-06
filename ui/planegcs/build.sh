@@ -38,7 +38,9 @@ tc="${PLANEGCS_TOOLCHAIN:-}"
 eigen="${EIGEN_DIR:-${tc:+$tc/eigen-5.0.0}}"
 boost="${BOOST_DIR:-${tc:+$tc/boost_1_86_0}}"
 emsdk="${EMSDK:-${tc:+$tc/emsdk}}"
-if [[ -z "$boost" && -d /usr/include/boost/graph ]]; then boost=/usr/include; fi
+for d in /usr/include /opt/homebrew/include /usr/local/include; do    # apt's libboost-dev, Homebrew's boost
+    if [[ -z "$boost" && -d "$d/boost/graph" ]]; then boost="$d"; fi
+done
 if [[ -z "$eigen" || ! -d "$eigen/Eigen" ]]; then
     echo "build.sh: Eigen not found: set EIGEN_DIR (or PLANEGCS_TOOLCHAIN) to eigen-5.0.0" >&2
     exit 2

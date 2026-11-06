@@ -106,16 +106,16 @@ build_native() {
         lib=libarea-native.so
     fi
     compile native "${native_sources[@]}"
-    mapfile -t objs < <(objects native "${native_sources[@]}")
+    objs=(); while IFS= read -r l; do objs+=("$l"); done < <(objects native "${native_sources[@]}")   # not mapfile: macOS has bash 3.2
     "$cxx" -shared -o "$out/$lib" "${objs[@]}" "${libflags[@]}"
     compile area "${area_sources[@]}"
-    mapfile -t objs < <(objects area "${area_sources[@]}")
+    objs=(); while IFS= read -r l; do objs+=("$l"); done < <(objects area "${area_sources[@]}")   # not mapfile: macOS has bash 3.2
     "$cxx" "${link[@]}" -o "$out/area$ext" "${objs[@]}" -L "$out" -larea-native "${rpath[@]}"
     compile ext "${ext_sources[@]}"
-    mapfile -t objs < <(objects ext "${ext_sources[@]}")
+    objs=(); while IFS= read -r l; do objs+=("$l"); done < <(objects ext "${ext_sources[@]}")   # not mapfile: macOS has bash 3.2
     "$cxx" "${link[@]}" -o "$out/cam_areaext$ext" "${objs[@]}" -L "$out" -larea-native "${rpath[@]}"
     compile tsp "${tsp_sources[@]}"
-    mapfile -t objs < <(objects tsp "${tsp_sources[@]}")
+    objs=(); while IFS= read -r l; do objs+=("$l"); done < <(objects tsp "${tsp_sources[@]}")   # not mapfile: macOS has bash 3.2
     "$cxx" "${link[@]}" -o "$out/tsp_solver$ext" "${objs[@]}"
     echo "built $out/$lib $out/area$ext $out/cam_areaext$ext $out/tsp_solver$ext"
 }

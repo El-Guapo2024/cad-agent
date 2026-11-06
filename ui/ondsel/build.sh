@@ -27,7 +27,7 @@ tc="${PLANEGCS_TOOLCHAIN:-}"
 emsdk="${EMSDK:-${tc:+$tc/emsdk}}"
 jobs="${JOBS:-4}"
 
-mapfile -t upstream_sources < <(grep -oE '\b[A-Za-z0-9_]+\.cpp\b' "$up/OndselSolver/CMakeLists.txt" | sort -u)
+upstream_sources=(); while IFS= read -r l; do upstream_sources+=("$l"); done < <(grep -oE '\b[A-Za-z0-9_]+\.cpp\b' "$up/OndselSolver/CMakeLists.txt" | sort -u)   # not mapfile: macOS has bash 3.2
 sources=()
 for s in "${upstream_sources[@]}"; do sources+=("$up/OndselSolver/$s"); done
 sources+=("$here/assembly.cpp" "$here/api.cpp")
@@ -59,7 +59,7 @@ build_native() {
         *) lib=libondsel.so ;;
     esac
     compile_all "$cxx" "$out/obj" "${common[@]}" -fPIC "${includes[@]}"
-    mapfile -t objs < <(objects "$out/obj")
+    objs=(); while IFS= read -r l; do objs+=("$l"); done < <(objects "$out/obj")   # not mapfile: macOS has bash 3.2
     "$cxx" -shared -o "$out/$lib" "${objs[@]}"
     echo "built $out/$lib"
 }
@@ -78,7 +78,7 @@ build_wasm() {
     local out="$here/dist" objdir="$here/build/wasm-obj"
     mkdir -p "$out"
     compile_all emcc "$objdir" "${common[@]}" -fwasm-exceptions "${includes[@]}"
-    mapfile -t objs < <(objects "$objdir")
+    objs=(); while IFS= read -r l; do objs+=("$l"); done < <(objects "$objdir")   # not mapfile: macOS has bash 3.2
     emcc -O2 -fwasm-exceptions "${objs[@]}" -o "$out/ondsel.mjs" \
         -sMODULARIZE=1 -sEXPORT_ES6=1 -sEXPORT_NAME=createOndsel \
         -sENVIRONMENT=web,worker,node \
