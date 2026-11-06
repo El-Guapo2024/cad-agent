@@ -70,7 +70,9 @@ function onReady(e: DockviewReadyEvent) {
   a.addPanel({ id: 'report', component: 'report', title: 'Report View', position: { referencePanel: 'view3d', direction: 'below' }, initialHeight: 170 })
   a.addPanel({ id: 'checks', component: 'checks', title: 'Checks', position: { referencePanel: 'report', direction: 'within' }, inactive: true })
   a.addPanel({ id: 'console', component: 'console', title: 'Console', position: { referencePanel: 'report', direction: 'within' }, inactive: true })
-  if (start) a.getPanel('start')?.api.setActive()
+  // AppStartGui.cpp: Start_Start runs, then a document an initialization script already opened keeps its view
+  // active. A #project link is that document: its 3D view stays in front, the Start tab beside it.
+  if (start && !location.hash.slice(1)) a.getPanel('start')?.api.setActive()
   // MainWindow's MDI area in tabbed mode puts the document tabs (Start, "name : 1") under the views.
   const mdi = a.getPanel('view3d')?.group
   mdi?.api.setHeaderPosition('bottom')
