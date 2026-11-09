@@ -14,6 +14,7 @@
 //   src/Gui/PythonConsole.cpp: 2004 Werner Mayer
 //   No copyright line in the file: src/Mod/Material/Gui/DlgDisplayProperties.ui, src/Gui/Clipping.ui
 import { AssemblyProps, AssemblyRows, AssemblyTask, AssemblyWatchers, assemblyTreeEntries, assemblyViewHook, isComponent } from './assembly_wb'
+import { FemTask } from './fem_tasks'
 import { Fragment, createContext, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { axisAngleOf, eulerOf as eulerOfSeq, quatOfEuler as quatOfEulerSeq, quatOfYpr, yprOfQuat, type EulerSeq } from './rotation'
 import type { Body, CheckRow, LogEntry, Placement, Vec3 } from './api'
@@ -952,6 +953,7 @@ function TaskContent() {
   if (task?.kind === 'draftwb') return <DraftTask part={task.body} other={task.other ?? ''} />   // the Draft workbench's (draft_wb.tsx)
   if (task?.kind === 'cam') return <CamTask job={task.body} other={task.other ?? ''} />   // the CAM workbench's (cam_tasks.tsx)
   if (task?.kind === 'techdraw') return <TechDrawTask page={task.body} other={task.other ?? ''} />   // TechDraw's panels (techdraw_tasks.tsx)
+  if (task?.kind === 'fem') return <FemTask body={task.body} other={task.other ?? ''} />
   if (task?.kind === 'assembly') return <AssemblyTask body={task.body} other={task.other ?? ''} />   // the Assembly workbench's (assembly_wb.tsx)
   if (task?.kind === 'pdSweep') return <SweepTask key={`sweep:${task.body}:${task.other}`} part={task.body} other={task.other ?? ''} edit={!!task.edit} />
   if (task?.kind === 'hole') return <HoleTask key={`hole:${task.body}:${task.other}`} part={task.body} name={task.other ?? ''} edit={!!task.edit} />

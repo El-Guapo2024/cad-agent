@@ -28,6 +28,9 @@ import os
 from pathlib import Path
 
 
+RESULTS = "results.json"                # in the working directory: the mesh's outside and the result's values on it
+
+
 class FemError(ValueError):
     pass
 
@@ -234,8 +237,15 @@ def _run(path, workdir=None, threads=None) -> dict:
             raise FemError("CalculiX gave no results: " + (getattr(fea, "ccx_stderr", "") or "").strip()[-400:])
         r = res[0]
         m = meshes[0].FemMesh
-        return {"nodes": m.NodeCount, "volumes": m.VolumeCount, "max_displacement_mm": max(r.DisplacementLengths),
-                "max_von_mises_mpa": max(r.vonMises), "inp": fea.inp_file_name,
-                "workdir": os.path.dirname(fea.inp_file_name)}
+        out = {"nodes": m.NodeCount, "volumes": m.VolumeCount, "max_displacement_mm": max(r.DisplacementLengths),
+               "max_von_mises_mpa": max(r.vonMises), "inp": fea.inp_file_name,
+               "workdir": os.path.dirname(fea.inp_file_name)}
+        if workdir is not None:         # what Results > Show Result draws (cad fem result)
+            import json
+            from .fem_edit import surface
+            s = surface(m, r)
+            if s is not None:
+                (Path(workdir) / RESULTS).write_text(json.dumps({**s, "nodes": out["nodes"], "volumes": out["volumes"]}))
+        return out
     finally:
         App.closeDocument(doc.Name)

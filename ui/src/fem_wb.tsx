@@ -6,9 +6,11 @@
 // The FEM workbench: its Model, Mesh, Solve, Results and Utilities menus and its toolbars, every command by FreeCAD's
 // name, menu text, tooltip and icon (fem_cmds.ts). A part's analysis is its part file's FEM list (cad_agent/
 // feature_fem.py); Run Solver meshes it with Gmsh and solves it with CalculiX on the server (`cad fem run`) and the
-// Report view gets the results. The commands that add objects to an analysis have no panels here yet: they are greyed
-// with the reason, and the part file's FEM list is edited instead.
+// Report view gets the results. Analysis, the material, the fixed, force and pressure boundary conditions, the Gmsh mesh,
+// the solver and Show Result have their panels (fem_tasks.tsx); the rest are greyed with the reason.
 import { consoleLog, getState, report } from './store'
+import { openTask } from './actions'
+import { addSolver } from './fem_tasks'
 import { api, resultText } from './api'
 import type { Entry } from './chrome'
 import type { IconName } from './icons'
@@ -16,11 +18,12 @@ import { FEM_CMDS, FEM_MENUS, FEM_TOOLBARS, type FemItem } from './fem_cmds'
 
 const cmdOf = (c: string) => FEM_CMDS[c] ?? { menu: c, tip: null, pixmap: null, accel: null }
 const iconOf = (c: string) => (cmdOf(c).pixmap ? `fem-${cmdOf(c).pixmap}` : undefined) as IconName | undefined
-const NOT_YET = 'n/a: not ported yet: write the analysis in the part file\'s FEM list (cad_agent/feature_fem.py: Fem.MaterialSolid, Fem.ConstraintFixed, Fem.ConstraintForce, Fem.ConstraintPressure, Fem.MeshGmsh, Fem.SolverCalculiX), then Run Solver'
+const NOT_YET = 'n/a: not ported yet: only the solid material, the fixed, force and pressure boundary conditions, the Gmsh mesh and CalculiX are'
 
-/** The part Run Solver works on: the part of what is selected (a tree row or the 3D view's body), else the only one. */
-function activePart(): string | null {
+/** The part the FEM commands work on: the open panel's, else the part of what is selected (a tree row or the 3D view's body), else the only one. */
+export function activePart(): string | null {
   const s = getState()
+  if (s.task?.kind === 'fem') return s.task.body       // the analysis being worked on: an edit's reload clears the selection
   const fromSel = s.featSel[0]?.split('/')[0]
   if (fromSel) return fromSel
   const fromScene = s.selected.map((n) => s.scene?.bodies.find((b) => b.name === n)?.part).find((p): p is string => !!p)
@@ -30,7 +33,7 @@ function activePart(): string | null {
 }
 
 /** FEM_SolverRun: `cad fem run` on the part, the results in the Report view. */
-async function runSolver() {
+export async function runSolver() {
   const s = getState(), part = activePart()
   if (!s.slug || !part) { report('warn', 'Run Solver: select the part whose FEM analysis to run'); return }
   const argv = ['fem', 'run', s.slug, part]
@@ -45,12 +48,22 @@ async function runSolver() {
   } catch (e) { report('err', `Run Solver: ${e instanceof Error ? e.message : String(e)}`) }
 }
 
+const PANELS: Record<string, string> = { FEM_Analysis: 'analysis', FEM_MaterialSolid: 'add:MaterialSolid', FEM_ConstraintFixed: 'add:ConstraintFixed', FEM_ConstraintForce: 'add:ConstraintForce',
+  FEM_ConstraintPressure: 'add:ConstraintPressure', FEM_MeshGmshFromShape: 'add:MeshGmsh', FEM_ResultShow: 'result' }
+function inPart(cmd: string, go: (part: string) => void) {
+  const part = activePart()
+  if (part) go(part); else report('warn', `${cmdOf(cmd).menu ?? cmd}: select the part the analysis belongs to`)
+}
+
 function entry(it: FemItem): Entry {
   if (it === 'Separator') return 'sep'
   if (typeof it !== 'string') return { label: it.menu.replace(/&/g, ''), sub: it.items.map(entry) }
   const r = cmdOf(it), label = r.menu ?? it
   if (r.group) return { label, icon: iconOf(it), cmd: it, title: r.tip ?? undefined, sub: r.group.map(entry) }
   if (it === 'FEM_SolverRun') return { label, icon: iconOf(it), cmd: it, title: r.tip ?? undefined, disabled: !getState().slug, onSelect: () => void runSolver() }
+  const task = PANELS[it]
+  if (task) return { label, icon: iconOf(it), cmd: it, title: r.tip ?? undefined, disabled: !getState().slug, onSelect: () => inPart(it, (p) => openTask('fem', p, task)) }
+  if (it === 'FEM_SolverCalculiX' || it === 'FEM_SolverCalculiXCcxTools') return { label, icon: iconOf(it), cmd: it, title: r.tip ?? undefined, disabled: !getState().slug, onSelect: () => inPart(it, (p) => void addSolver(p)) }
   return { label, icon: iconOf(it), cmd: it, disabled: true, title: NOT_YET }
 }
 export const femMenus = (): [string, Entry[]][] => FEM_MENUS.map((m) => [m.title.replace(/&/g, ''), m.items.map(entry)])

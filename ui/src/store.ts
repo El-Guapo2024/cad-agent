@@ -104,6 +104,7 @@ export type Task = { kind: 'params' | 'draftwb' | 'placement' | 'transform' | 'm
   | 'attach'
   | 'revolution' | 'groove' | 'hole'     // pd_revolve.tsx
   | 'part'                               // the Part workbench's task panels (part_tasks.tsx): other says which
+  | 'fem'                                // the FEM workbench's panels (fem_tasks.tsx): body is the part, other says which
   | 'assembly'                           // the Assembly workbench's panels (assembly_wb.tsx): other says which
   | 'techdraw'                           // TechDraw's panels (techdraw_tasks.tsx): body is the page, other "<panel>:<object>:create|edit"
   | 'cam'   // the CAM workbench's dialogs and panels (cam_tasks.tsx): body is the job, other the panel

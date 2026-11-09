@@ -1100,6 +1100,30 @@ src/Mod/Fem/Gui/Command.cpp   [licence: LGPL-2.1-or-later]
     copyright 2008 Jürgen Riegel, 2022 Peter McB
     followed by src/fem_cmds.ts
 
+src/Mod/Fem/Gui/TaskFemConstraintFixed.ui   [licence: LGPL-2.1-or-later]
+    no copyright line in the file
+    followed by src/fem_tasks.tsx
+
+src/Mod/Fem/Gui/TaskFemConstraintForce.ui   [licence: LGPL-2.1-or-later]
+    no copyright line in the file
+    followed by src/fem_tasks.tsx
+
+src/Mod/Fem/Gui/TaskFemConstraintPressure.ui   [licence: LGPL-2.1-or-later]
+    no copyright line in the file
+    followed by src/fem_tasks.tsx
+
+src/Mod/Fem/Gui/Resources/ui/Material.ui   [licence: LGPL-2.1-or-later]
+    no copyright line in the file
+    followed by src/fem_tasks.tsx
+
+src/Mod/Fem/Gui/Resources/ui/MeshGmsh.ui   [licence: LGPL-2.1-or-later]
+    no copyright line in the file
+    followed by src/fem_tasks.tsx
+
+src/Mod/Fem/Gui/Resources/ui/ResultShow.ui   [licence: LGPL-2.1-or-later]
+    no copyright line in the file
+    followed by src/fem_tasks.tsx
+
 src/Mod/Fem/femcommands/commands.py   [licence: LGPL-2.1-or-later]
     copyright 2016 Bernd Hahnebach and the FEM authors each file's header names
     followed by src/fem_cmds.ts

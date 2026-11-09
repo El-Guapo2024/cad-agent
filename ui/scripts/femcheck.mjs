@@ -6,6 +6,8 @@
 //
 //   workbench  the switcher has FEM; Model, Mesh, Solve, Results and Utilities come before Windows; FreeCAD's toolbars
 //   solve      Run Solver on the cantilever: the Report view has FreeCAD's results (tests/golden/fem/freecad.json)
+//   panels     the same cantilever made in the task panels from a part with no FEM list, then solved: FreeCAD's results
+//   results    Show Result: the values, the colours, the part hidden meanwhile, the displacement scaled
 import { createRequire } from 'module'
 import { spawn, spawnSync } from 'child_process'
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'fs'
@@ -59,6 +61,16 @@ FEM = [
     Fem.ConstraintForce("Force", [("Box", "Face2")], force="100 N", direction=("Box", "Edge5"), reversed=True),
     Fem.MeshGmsh("Mesh", "Box", characteristic_length_max="5 mm"),
 ]
+
+
+def build(**p):
+    return Part.Document(OBJECTS, p)
+`)
+writeFileSync(join(ROOT, 'pc', 'parts', 'blank.py'), `"""blank: the same box, no analysis yet."""
+from cad_agent import feature_part as Part
+
+PARAMS = {}
+OBJECTS = [Part.Box("Box", length=100, width=10, height=10)]
 
 
 def build(**p):
@@ -126,6 +138,89 @@ try {
   const want = FCJ.cantilever
   check(line.includes(`${want.nodes} nodes`) && line.includes(want.max_displacement.toPrecision(6)) && line.includes(want.max_von_mises.toPrecision(6)),
     'Run Solver: FreeCAD\'s nodes, displacement and stress', JSON.stringify(msgs))
+
+  console.log('panels')
+  // the same cantilever, this time from a part with no FEM list, every object made in the panels
+  await st(`cadui.setState({ featSel: ['blank/Box'], selected: [], task: null })`)
+  await until(`!!cadui.getState().features.blank`, 'the blank part to load', 30000)
+  const qf = (name) => `[data-qf="${name}"]`
+  const open = async (cmd, task) => { await runCmd(cmd); await page.waitForSelector(`[data-task="${task}"]`, { timeout: 15000 }) }
+  const pick = async (name) => {
+    await until(`!!cadui.getView().helperPicker && [...cadui.getView().helpers.values()].some((g) => { let f = false; g.traverse((o) => { if (o.userData.pickName === ${JSON.stringify(name)}) f = true }); return f })`, `${name} to be pickable`, 30000)
+    await st(`cadui.getView().helperPicker(${JSON.stringify(name)})`); await sleep(120)
+  }
+  const accept = async () => { await page.click(`[data-task="fem-object"] ${qf('ok')}`); await page.waitForSelector('[data-task="fem-analysis"]', { timeout: 15000 }); await page.waitForSelector(qf('run'), { timeout: 15000 }) }
+  const srcNow = () => readFileSync(join(ROOT, 'pc', 'parts', 'blank.py'), 'utf8')
+  await open('FEM_Analysis', 'fem-analysis')
+  await page.waitForSelector(qf('empty'), { timeout: 15000 })
+  ok('the new analysis is empty')
+  await runCmd('FEM_SolverCalculiX')
+  await page.waitForSelector('[data-name="CalculiXccxTools"]', { timeout: 30000 })
+  await open('FEM_MaterialSolid', 'fem-object'); await accept()
+  await open('FEM_ConstraintFixed', 'fem-object'); await pick('@Box.Face1')
+  check(await page.$('[data-ref="Box:Face1"]') !== null, 'a face picked is listed'); await accept()
+  await open('FEM_ConstraintForce', 'fem-object'); await pick('@Box.Face2')
+  await page.fill(qf('spinForce'), '100 N')
+  await page.click(qf('buttonDirection')); await pick('@Box.Edge5')
+  same(await page.inputValue(qf('lineDirection')), 'Box:Edge5', 'Direction takes the next pick')
+  check(await page.$('[data-ref="Box:Edge5"]') === null, 'the direction pick is not a reference')
+  await page.click(`${qf('checkReverse')}, label:has-text("Reverse direction") input`); await accept()
+  await open('FEM_MeshGmshFromShape', 'fem-object')
+  await page.fill(qf('qsb_max_size'), 'five'); await page.click(`[data-task="fem-object"] ${qf('ok')}`); await sleep(400)
+  check(await page.$('[data-task="fem-object"]') !== null, 'a size with no unit is refused')
+  await page.fill(qf('qsb_max_size'), '5 mm'); await accept()
+  const made = srcNow()
+  check(/Fem\.ConstraintForce\("ConstraintForce", \[\("Box", "Face2"\)\], force="100 N", direction=\("Box", "Edge5"\), reversed=True\)/.test(made), 'the part file has the force as written by hand', made)
+  // a pressure added and deleted leaves the file as it was; undo takes back a step
+  await open('FEM_ConstraintPressure', 'fem-object'); await pick('@Box.Face6'); await page.fill(qf('if_pressure'), '2 MPa'); await accept()
+  check(srcNow().includes('Fem.ConstraintPressure("ConstraintPressure", [("Box", "Face6")], pressure="2 MPa")'), 'Pressure Load is in the part file')
+  await page.click(`[data-name="ConstraintPressure"] ${qf('delete')}`)
+  await until(`!document.querySelector('[data-name="ConstraintPressure"]') || true`, 'delete', 2000); await sleep(1500)
+  same(srcNow(), made, 'deleting the object puts the file back')
+  // editing keeps what the panel did not touch
+  await page.click(`[data-name="ConstraintForce"] ${qf('edit')}`)
+  await page.waitForSelector(qf('spinForce'), { timeout: 15000 })
+  same(await page.inputValue(qf('spinForce')), '100 N', 'Edit shows the object\'s values')
+  same(await page.inputValue(qf('lineDirection')), 'Box:Edge5', 'Edit shows the direction')
+  await page.fill(qf('spinForce'), '200 N'); await accept()
+  check(srcNow() === made.replace('force="100 N"', 'force="200 N"'), 'Edit changes only that property', srcNow())
+  await page.click(`[data-name="ConstraintForce"] ${qf('edit')}`)
+  await page.waitForSelector(qf('spinForce'), { timeout: 15000 }); await page.fill(qf('spinForce'), '100 N'); await accept()
+  same(srcNow(), made, 'and back')
+  const n2 = await st('cadui.getState().messages.length')
+  await st(`cadui.setState({ featSel: ['blank/Box'] })`)
+  await runCmd('FEM_SolverRun')
+  await until(`cadui.getState().messages.slice(${n2}).some((m) => /max von Mises/.test(m.text) || m.level === 'err')`, 'the panels\' solver to finish', 300000)
+  const msgs2 = await st(`cadui.getState().messages.slice(${n2}).map((m) => m.level + ': ' + m.text)`)
+  const line2 = msgs2.find((m) => /max von Mises/.test(m)) ?? ''
+  check(line2.includes(`${want.nodes} nodes`) && line2.includes(want.max_displacement.toPrecision(6)) && line2.includes(want.max_von_mises.toPrecision(6)),
+    'the analysis made in the panels gives FreeCAD\'s nodes, displacement and stress', JSON.stringify(msgs2))
+
+  console.log('results')
+  await open('FEM_ResultShow', 'fem-result')
+  await page.waitForSelector(qf('le_max'), { timeout: 30000 })
+  check((await page.inputValue(qf('le_max'))).startsWith(want.max_von_mises.toPrecision(6)), 'the panel\'s maximum is FreeCAD\'s von Mises', await page.inputValue(qf('le_max')))
+  const helper = `cadui.getView().helpers.get('fem-result').children[0]`
+  await until(`!!cadui.getView().helpers.get('fem-result')`, 'the result to be drawn', 15000)
+  const colours = () => st(`new Set(Array.from(${helper}.geometry.attributes.color.array).map((x) => x.toFixed(2))).size`)
+  check(await colours() > 10, 'the mesh is coloured by the values', String(await colours()))
+  const lo = () => st(`Math.min(...Array.from(${helper}.geometry.attributes.position.array).filter((_, i) => i % 3 === 2))`)
+  const z0 = await lo()
+  const hiddenNow = await st(`cadui.getState().hidden.slice()`)
+  const blankBody = await st(`cadui.getState().scene.bodies.filter((b) => b.part === 'blank').map((b) => b.name)`)
+  check(blankBody.length > 0 && blankBody.every((b) => hiddenNow.includes(b)), 'the part is hidden while its result shows', JSON.stringify(hiddenNow))
+  await page.click(`${qf('rb_abs_displacement')}, label:has-text("Displacement magnitude") input`); await sleep(200)
+  check((await page.inputValue(qf('le_max'))).startsWith(want.max_displacement.toPrecision(6)), 'Displacement magnitude: FreeCAD\'s maximum', await page.inputValue(qf('le_max')))
+  await page.click(`${qf('cb_show_displacement')}, label:has-text("Show") input`); await page.fill(qf('sb_displacement_factor'), '10'); await sleep(200)
+  const z1 = await lo()
+  await page.click(`${qf('rb_z_displacement')} input`); await sleep(200)
+  const dz = Math.abs(parseFloat(await page.inputValue(qf('le_min'))))
+  check(dz > 0 && Math.abs(Math.abs(z1 - z0) - 10 * dz) < 1e-3, 'Show at factor 10 moves the lowest point by ten times its Z displacement', `${z0} -> ${z1}, Displacement Z ${dz}`)
+  await page.click('[data-task="fem-result"] .tbuttons .qbtn')
+  await page.waitForSelector('[data-task="fem-analysis"]', { timeout: 15000 })
+  check(!await st(`!!cadui.getView().helpers.get('fem-result')`), 'Close takes the result away')
+  const back = await st(`cadui.getState().hidden.slice()`)
+  check(blankBody.every((b) => !back.includes(b)), 'and shows the part again', JSON.stringify(back))
 } catch (e) {
   bad('femcheck stopped', e.stack ?? String(e))
 } finally {
