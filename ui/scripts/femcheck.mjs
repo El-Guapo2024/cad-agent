@@ -9,6 +9,7 @@
 //   panels     the same cantilever made in the task panels from a part with no FEM list, then solved: FreeCAD's results
 //   results    Show Result: the values, the colours, the part hidden meanwhile, the displacement scaled
 //   thermal    tests/golden/fem's thermomech made in the panels: FreeCAD's displacement, stress and temperatures
+//   modes      tests/golden/fem's frequency made in the panels: FreeCAD's frequencies and mode shapes; Histogram, Animation
 import { createRequire } from 'module'
 import { spawn, spawnSync } from 'child_process'
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'fs'
@@ -62,6 +63,16 @@ FEM = [
     Fem.ConstraintForce("Force", [("Box", "Face2")], force="100 N", direction=("Box", "Edge5"), reversed=True),
     Fem.MeshGmsh("Mesh", "Box", characteristic_length_max="5 mm"),
 ]
+
+
+def build(**p):
+    return Part.Document(OBJECTS, p)
+`)
+writeFileSync(join(ROOT, 'pc', 'parts', 'modal.py'), `"""modal: a box for the frequency analysis."""
+from cad_agent import feature_part as Part
+
+PARAMS = {}
+OBJECTS = [Part.Box("Box", length=100, width=10, height=10)]
 
 
 def build(**p):
@@ -272,6 +283,40 @@ try {
   // Gravity is added without a panel, as FreeCAD's command does; its Edit has the acceleration and direction
   await runCmd('FEM_ConstraintSelfWeight'); await page.waitForSelector('[data-name="ConstraintSelfWeight"]', { timeout: 30000 })
   check(readFileSync(join(ROOT, 'pc', 'parts', 'warm.py'), 'utf8').includes('Fem.ConstraintSelfWeight("ConstraintSelfWeight")'), 'Gravity Load adds a self weight')
+
+  console.log('modes')
+  // tests/golden/fem's frequency made in the panels: the solver's frequency type and six modes; Show Result's modes,
+  // Histogram and Animation
+  await st(`cadui.setState({ featSel: ['modal/Box'], selected: [], task: null })`)
+  await until(`!!cadui.getState().features.modal`, 'the modal part to load', 30000)
+  await open('FEM_Analysis', 'fem-analysis')
+  await runCmd('FEM_SolverCalculiX'); await page.waitForSelector('[data-name="CalculiXccxTools"]', { timeout: 30000 })
+  await page.click(`[data-name="CalculiXccxTools"] ${qf('edit')}`); await page.waitForSelector(qf('AnalysisType'), { timeout: 15000 })
+  await pickCombo('AnalysisType', 'frequency'); await page.fill(qf('EigenmodesCount'), '6'); await accept()
+  await open('FEM_MaterialSolid', 'fem-object'); await accept()
+  await open('FEM_ConstraintFixed', 'fem-object'); await pick('@Box.Face1'); await accept()
+  await open('FEM_MeshGmshFromShape', 'fem-object'); await page.fill(qf('qsb_max_size'), '5 mm'); await accept()
+  check(readFileSync(join(ROOT, 'pc', 'parts', 'modal.py'), 'utf8').includes('Fem.SolverCalculiX("CalculiXccxTools", analysis_type="frequency", eigenmodes_count=6)'), 'the part file has the frequency analysis')
+  const fq = FCJ.frequency, n4 = await st('cadui.getState().messages.length')
+  await runCmd('FEM_SolverRun')
+  await until(`cadui.getState().messages.slice(${n4}).some((m) => /max von Mises/.test(m.text) || m.level === 'err')`, 'the frequency solve', 300000)
+  const line4 = (await st(`cadui.getState().messages.slice(${n4}).map((m) => m.level + ': ' + m.text)`)).find((m) => /max von Mises/.test(m)) ?? ''
+  check(line4.includes(`frequencies ${fq.frequencies.map((f) => f.toPrecision(6)).join(', ')} Hz`), 'Run Solver: FreeCAD\'s six frequencies', line4)
+  await open('FEM_ResultShow', 'fem-result'); await page.waitForSelector(qf('result_mode'), { timeout: 30000 })
+  await pickCombo('result_mode', 'Mode 3'); await page.click(`${qf('rb_abs_displacement')} input`); await sleep(200)
+  check((await page.inputValue(qf('le_max'))).startsWith(fq.mode_max_displacements[2].toPrecision(6)), 'Mode 3: FreeCAD\'s mode shape maximum', await page.inputValue(qf('le_max')))
+  await page.click(qf('show_histogram')); await sleep(200)
+  const bars = await st(`document.querySelectorAll('[data-qf="histogram"] rect').length`)
+  same(bars, 50, 'Histogram: 50 bins, as FreeCAD\'s')
+  await page.fill(qf('steps'), '4'); await page.fill(qf('loops'), '1'); await page.fill(qf('framerate'), '20')
+  const zs = async () => st(`Array.from(cadui.getView().helpers.get('fem-result').children[0].geometry.attributes.position.array).slice(0, 30).join(',')`)
+  const before = await zs()
+  await page.click(qf('startButton')); await sleep(120)
+  check((await page.textContent(qf('startButton'))).includes('Stop Animation'), 'Start Animation runs (the button says Stop Animation)')
+  const seen = new Set([before]); for (let i = 0; i < 6; i++) { seen.add(await zs()); await sleep(40) }
+  check(seen.size > 2, 'the animation moves the mesh', String(seen.size))
+  await until(`document.querySelector('[data-qf="startButton"]').textContent.includes('Start Animation')`, 'the animation to end (one cycle of four steps)', 5000)
+  await page.click('[data-task="fem-result"] .tbuttons .qbtn'); await page.waitForSelector('[data-task="fem-analysis"]', { timeout: 15000 })
 } catch (e) {
   bad('femcheck stopped', e.stack ?? String(e))
 } finally {

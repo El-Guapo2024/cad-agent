@@ -18,7 +18,7 @@ import { FEM_CMDS, FEM_MENUS, FEM_TOOLBARS, type FemItem } from './fem_cmds'
 
 const cmdOf = (c: string) => FEM_CMDS[c] ?? { menu: c, tip: null, pixmap: null, accel: null }
 const iconOf = (c: string) => (cmdOf(c).pixmap ? `fem-${cmdOf(c).pixmap}` : undefined) as IconName | undefined
-const NOT_YET = 'n/a: not ported yet: only the solid material, the fixed, force, pressure, displacement, gravity, temperature, initial temperature and heat flux conditions, the Gmsh mesh and CalculiX (static, thermomech) are'
+const NOT_YET = 'n/a: not ported yet: only the solid material, the fixed, force, pressure, displacement, gravity, temperature, initial temperature and heat flux conditions, the Gmsh mesh and CalculiX (static, frequency, thermomech) are'
 
 /** The part the FEM commands work on: the open panel's, else the part of what is selected (a tree row or the 3D view's body), else the only one. */
 export function activePart(): string | null {
@@ -45,6 +45,7 @@ export async function runSolver() {
     const d = r.data ?? {}
     report('msg', `${part}: ${d.nodes} nodes, ${d.volumes} volume elements; max displacement ${Number(d.max_displacement_mm).toPrecision(6)} mm, `
       + `max von Mises stress ${Number(d.max_von_mises_mpa).toPrecision(6)} MPa`
+      + (Array.isArray(d.frequencies_hz) ? `; frequencies ${(d.frequencies_hz as number[]).map((f) => f.toPrecision(6)).join(', ')} Hz` : '')
       + (d.max_temperature_k !== undefined ? `; temperature ${Number(d.min_temperature_k).toPrecision(6)} to ${Number(d.max_temperature_k).toPrecision(6)} K` : '') + ` (${d.workdir})`)
   } catch (e) { report('err', `Run Solver: ${e instanceof Error ? e.message : String(e)}`) }
 }

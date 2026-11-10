@@ -95,7 +95,7 @@ class FemObject:
 class SolverCalculiX(FemObject):
     """ObjectsFem.makeSolverCalculiXCcxTools: CalculiX with FreeCAD's ccxtools, a static analysis by default."""
     MAKER = "makeSolverCalculiXCcxTools"
-    DEFAULTS = {"analysis_type": None}
+    DEFAULTS = {"analysis_type": None, "eigenmodes_count": None}
 
 
 class MaterialSolid(FemObject):
@@ -294,12 +294,19 @@ def _run(path, workdir=None, threads=None) -> dict:
         out = {"nodes": m.NodeCount, "volumes": m.VolumeCount, "max_displacement_mm": max(r.DisplacementLengths),
                "max_von_mises_mpa": max(r.vonMises), "inp": fea.inp_file_name,
                "workdir": os.path.dirname(fea.inp_file_name)}
+        modes = [x for x in res if getattr(x, "EigenmodeFrequency", 0)]
+        if modes:                        # a frequency analysis: one result per mode, the first one's values above
+            out["frequencies_hz"] = [x.EigenmodeFrequency for x in modes]
         if list(r.Temperature):          # a thermo-mechanical analysis
             out["max_temperature_k"], out["min_temperature_k"] = max(r.Temperature), min(r.Temperature)
         if workdir is not None:         # what Results > Show Result draws (cad fem result)
             import json
             from .fem_edit import surface
             s = surface(m, r)
+            if s is not None and modes:  # each mode's shape and values on the same outside
+                s["modes"] = [{"frequency": x.EigenmodeFrequency, **{k: v for k, v in surface(m, x).items()
+                                                                      if k in ("displacement", "fields", "range", "histogram")}}
+                              for x in modes]
             if s is not None:
                 (Path(workdir) / RESULTS).write_text(json.dumps({**s, "nodes": out["nodes"], "volumes": out["volumes"]}))
         return out

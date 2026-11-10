@@ -193,3 +193,21 @@ def test_the_new_objects_round_trip_through_the_panels_edits():
     assert objs["Air"]["film_coef"] == "10 W/m^2/K" and objs["Hold"]["y_free"] is False
     assert objs["Gravity"]["gravity_direction"] == (0.0, -1.0, 0.0)
     assert FE.apply_src(new, [{"op": "delete", "name": n} for n in ("Air", "Hold", "Gravity")]) == src
+
+
+@pytest.mark.skipif(not (shutil.which("gmsh", path=_path()) and shutil.which("ccx", path=_path())),
+                    reason="Gmsh and CalculiX are not on the PATH (or FREECAD_BIN)")
+def test_a_frequency_analysis_as_a_part_file_gives_freecads_modes(tmp_path, monkeypatch):
+    monkeypatch.setenv("PATH", _path())
+    p = tmp_path / "bar.py"
+    p.write_text(_BAR % "\n".join(['    Fem.SolverCalculiX("CalculiXccxTools", analysis_type="frequency", eigenmodes_count=6),',
+                                   _STEEL % "", _FIX, _MESH]))
+    work = tmp_path / "work"
+    r = Fem.run(p, workdir=work, threads=1)
+    want = FC["frequency"]
+    assert r["frequencies_hz"] == pytest.approx(want["frequencies"], rel=1e-9)
+    inp = "".join(line for line in open(r["inp"]) if "written on" not in line)
+    assert inp.splitlines() == want["inp"].splitlines()
+    d = json.loads((work / Fem.RESULTS).read_text())
+    assert [m["frequency"] for m in d["modes"]] == pytest.approx(want["frequencies"], rel=1e-9)
+    assert [m["range"]["displacement"][1] for m in d["modes"]] == pytest.approx(want["mode_max_displacements"], rel=1e-9)

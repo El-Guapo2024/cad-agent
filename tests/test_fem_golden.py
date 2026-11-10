@@ -96,6 +96,10 @@ def test_the_whole_analysis_is_freecads(name, monkeypatch):
         assert mesh.FemMesh.VolumeCount == FC[name]["volumes"]
     assert max(res.DisplacementLengths) == pytest.approx(FC[name]["max_displacement"], rel=rel)
     assert max(res.vonMises) == pytest.approx(FC[name]["max_von_mises"], rel=rel)
+    if "frequencies" in FC[name]:                       # a frequency analysis: each mode's frequency and shape
+        modes = [o for o in doc.Objects if o.isDerivedFrom("Fem::FemResultObject")]
+        assert [o.EigenmodeFrequency for o in modes] == pytest.approx(FC[name]["frequencies"], rel=rel)
+        assert [max(o.DisplacementLengths) for o in modes] == pytest.approx(FC[name]["mode_max_displacements"], rel=rel)
     if "max_temperature" in FC[name]:                   # a thermo-mechanical analysis: its temperature field too
         assert max(res.Temperature) == pytest.approx(FC[name]["max_temperature"], rel=rel)
         assert min(res.Temperature) == pytest.approx(FC[name]["min_temperature"], rel=rel)

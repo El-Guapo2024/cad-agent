@@ -201,7 +201,9 @@ Step 5, round 3 (six branches) is all in main (7526c0c, CI green, 6977 passed, 2
   the Material, Fixed, Force, Pressure and mesh panels (src/fem_tasks.tsx; `cad fem list/apply`, cad_agent/fem_edit.py) and Show Result in
   the 3D view (`cad fem result`; `cad fem run` writes out/fem/PART/results.json). Since fem-thermal: displacement, gravity, temperature,
   initial temperature and heat flux (part files, panels, goldens displacement_bar, self_weight, thermomech) and the
-  temperature result. femcheck: 34 ok. Next for FEM: frequency and buckling, contact, springs, Histogram and Animation. A new CAD_* variable that a command
+  temperature result. Since fem-modes: the frequency analysis (golden frequency) and
+  Show Result's modes, Histogram and Animation. femcheck: 40 ok. Next for FEM: buckling, contact, springs, the analysis
+  in the tree; Elmer, Z88 and Mystran need their programs, which neither this box nor FreeCAD's AppImage has. A new CAD_* variable that a command
   reads has to go in warm.py's ENV_PASS as well (CAD_FEM_THREADS failed test_warm.py on fem-ui until it did).
 - Left after the demo: FEM's part-file objects, CLI and page, Draft's Trimex/Split/Upgrade and annotations, Part's cut commands, PARITY's known
   differences. Temporary branches on GitHub (ds-merge, ds-fix, asm-merge, st-merge, r5-merge, r6-merge, r7-merge,

@@ -51,7 +51,7 @@ const DEFAULTS: Record<Kind, Record<string, unknown>> = {
   ConstraintInitialTemperature: { initial_temperature: '300 K' },
   ConstraintHeatflux: { references: [], constraint_type: 'Convection', film_coef: '0 W/m^2/K', ambient_temp: '0 K', distributed_heat_flux: '0 W/m^2' },
   MeshGmsh: { shape: null, characteristic_length_max: null, characteristic_length_min: null, element_order: null, element_dimension: null },
-  SolverCalculiX: { analysis_type: null },
+  SolverCalculiX: { analysis_type: null, eigenmodes_count: null },
 }
 // the kinds of element each panel's lbl_info names
 const ELEMENTS: Partial<Record<Kind, string[]>> = { ConstraintFixed: ['Vertex', 'Edge', 'Face'], ConstraintForce: ['Vertex', 'Edge', 'Face'], ConstraintPressure: ['Edge', 'Face'],
@@ -294,7 +294,9 @@ function ObjectTask({ part, kind: kind0, edit }: { part: string; kind?: Kind; ed
           onChange={(v) => set({ gravity_direction: v.split(',').map((x) => Number(x.trim())) })} />
       </>}
       {kind === 'SolverCalculiX' && <label className="tfield"><span>Analysis type</span><QComboBox data-qf="AnalysisType" value={str('analysis_type') || 'static'}
-        onChange={(e) => set({ analysis_type: e.target.value === 'static' ? null : e.target.value })}><option value="static">static</option><option value="thermomech">thermomech</option></QComboBox></label>}
+        onChange={(e) => set({ analysis_type: e.target.value === 'static' ? null : e.target.value })}><option value="static">static</option><option value="frequency">frequency</option><option value="thermomech">thermomech</option></QComboBox></label>}
+      {kind === 'SolverCalculiX' && props.analysis_type === 'frequency' && <label className="tfield"><span>Eigenmodes</span><input data-qf="EigenmodesCount" type="number" min={1} value={Number(props.eigenmodes_count ?? 10)}
+        onChange={(e) => { const n = Math.round(Number(e.target.value)); if (n >= 1) set({ eigenmodes_count: n === 10 ? null : n }) }} /></label>}
       {kind === 'MeshGmsh' && <fieldset className="tgroup"><legend>Mesh Parameters</legend>
         <label className="tfield"><span>Shape</span><QComboBox data-qf="shape" value={str('shape') || shapes[0] || ''} onChange={(e) => set({ shape: e.target.value })}>{shapes.map((n) => <option key={n} value={n}>{n}</option>)}</QComboBox></label>
         <label className="tfield"><span>Element dimension</span><QComboBox data-qf="cb_dimension" value={str('element_dimension') || 'From Shape'} onChange={(e) => set({ element_dimension: e.target.value })}>{['From Shape', '1D', '2D', '3D'].map((n) => <option key={n}>{n}</option>)}</QComboBox></label>
@@ -306,7 +308,9 @@ function ObjectTask({ part, kind: kind0, edit }: { part: string; kind?: Kind; ed
   </div>
 }
 
-type ResultData = { points: number[]; triangles: number[]; displacement: number[]; fields: Record<string, number[]>; range: Record<string, [number, number]>; nodes: number; volumes: number }
+type Hist = { low: number; high: number; counts: number[] }
+type Fields = { displacement: number[]; fields: Record<string, number[]>; range: Record<string, [number, number]>; histogram?: Record<string, Hist> }
+type ResultData = Fields & { points: number[]; triangles: number[]; nodes: number; volumes: number; modes?: (Fields & { frequency: number })[] }
 const RESULT_FIELDS: [string, string, string, string][] = [['displacement', 'Displacement magnitude', 'rb_abs_displacement', 'mm'], ['von_mises', 'von Mises stress', 'rb_vm_stress', 'MPa'],
   ['displacement_x', 'Displacement X', 'rb_x_displacement', 'mm'], ['max_principal', 'Maximum principal stress', 'rb_maxprin', 'MPa'],
   ['displacement_y', 'Displacement Y', 'rb_y_displacement', 'mm'], ['min_principal', 'Minimum principal stress', 'rb_minprin', 'MPa'],
@@ -318,14 +322,34 @@ export function rainbow(t: number): [number, number, number] {
   return ([[0, f, 1], [0, 1, 1 - f], [f, 1, 0], [1, 1 - f, 0]] as [number, number, number][])[s]
 }
 
-/** Results > Show Result (ResultShow.ui): the field, its range, and the displacement scaled; the part hidden meanwhile. */
+/** The Histogram button's plot (task_result_mechanical.py: a histogram of every node's value, 50 bins). */
+function Histogram({ h, title, unit }: { h: Hist; title: string; unit: string }) {
+  const W = 260, H = 110, top = Math.max(1, ...h.counts), bw = W / h.counts.length
+  return <figure data-qf="histogram" style={{ margin: '6px 0' }}>
+    <figcaption style={{ fontSize: '90%' }}>Histogram of {title}</figcaption>
+    <svg viewBox={`0 0 ${W} ${H + 14}`} width="100%" role="img" aria-label={`Histogram of ${title}`}>
+      {h.counts.map((c, i) => <rect key={i} x={i * bw} y={H - (c / top) * H} width={Math.max(0.5, bw - 0.5)} height={(c / top) * H} fill="#4d7fd6" opacity="0.7" />)}
+      <line x1="0" y1={H} x2={W} y2={H} stroke="currentColor" strokeWidth="0.5" />
+      <text x="0" y={H + 11} fontSize="9" fill="currentColor">{h.low.toPrecision(4)}</text>
+      <text x={W} y={H + 11} fontSize="9" fill="currentColor" textAnchor="end">{h.high.toPrecision(4)} {unit}</text>
+    </svg>
+  </figure>
+}
+
+/** Results > Show Result (ResultShow.ui): the result (a frequency analysis's mode), the field, its range and histogram,
+ *  the displacement scaled and animated; the part hidden meanwhile. */
 function ResultTask({ part }: { part: string }) {
   const [data, setData] = useState<ResultData | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [mode, setMode] = useState(0)
   const [field, setField] = useState<string | null>('von_mises')
   const [show, setShow] = useState(false)
-  const [factor, setFactor] = useState(1)
-  const [factorMax, setFactorMax] = useState(100)
+  const [factor, setFactor] = useState(5)             // ResultShow.ui's sb_displacement_factor and its slider maximum
+  const [factorMax, setFactorMax] = useState(10)
+  const [histogram, setHistogram] = useState(false)
+  const [anim, setAnim] = useState({ steps: 24, loops: 4, rate: 24, half: false })
+  const [phase, setPhase] = useState<number | null>(null)      // the animation's sin(st * inc), null when stopped
+  const timer = useRef<ReturnType<typeof setInterval> | null>(null)
   useEffect(() => {
     const slug = getState().slug
     if (!slug) return
@@ -340,14 +364,15 @@ function ResultTask({ part }: { part: string }) {
     setState((s) => ({ hidden: [...s.hidden, ...mine] }))
     return () => setState((s) => ({ hidden: s.hidden.filter((n) => !mine.includes(n)) }))
   }, [data, part])
+  const cur: Fields | null = data ? (data.modes?.[mode] ?? data) : null
   useEffect(() => {
     const v = getView()
-    if (!v || !data) return
+    if (!v || !data || !cur) return
     const n = data.points.length / 3, pos = new Float32Array(n * 3), col = new Float32Array(n * 3)
-    const values = field ? data.fields[field] : null, [lo, hi] = field ? data.range[field] : [0, 0]
-    const k = show ? factor : 0
+    const values = field ? cur.fields[field] : null, [lo, hi] = field && cur.range[field] ? cur.range[field] : [0, 0]
+    const k = phase !== null ? phase * factor : show ? factor : 0
     for (let i = 0; i < n; i++) {
-      for (let a = 0; a < 3; a++) pos[3 * i + a] = data.points[3 * i + a] + k * data.displacement[3 * i + a]
+      for (let a = 0; a < 3; a++) pos[3 * i + a] = data.points[3 * i + a] + k * cur.displacement[3 * i + a]
       col.set(values ? rainbow(hi > lo ? (values[i] - lo) / (hi - lo) : 0) : [0.8, 0.8, 0.8], 3 * i)
     }
     const geo = new THREE.BufferGeometry()
@@ -356,17 +381,38 @@ function ResultTask({ part }: { part: string }) {
     g.add(new THREE.Mesh(geo, new THREE.MeshBasicMaterial({ vertexColors: true, side: THREE.DoubleSide })))
     g.applyMatrix4(partMatrix(getState().scene?.bodies.find((b) => b.part === part)))
     v.setHelper('fem-result', g)
-  }, [data, field, show, factor, part])
-  useEffect(() => () => getView()?.setHelper('fem-result', null), [])
+  }, [data, cur, field, show, factor, phase, part])
+  const stop = () => { if (timer.current) clearInterval(timer.current); timer.current = null; setPhase(null) }
+  useEffect(() => () => { stop(); getView()?.setHelper('fem-result', null) }, [])
+  /** animate_displacement: (cycles * steps + 1) frames at the frame rate, sin(st * inc) times the factor (full cycle) or
+   *  its absolute value (half cycle; inc halved, or quartered for 0 cycles). */
+  function start() {
+    if (timer.current) { stop(); return }
+    setShow(true)
+    const steps = Math.max(1, Math.round(anim.steps)), loops = Math.max(1, Math.round(anim.loops)) * steps + 1
+    const sinc = (Math.PI / steps) * 2, inc = anim.half ? (anim.loops > 0 ? sinc / 2 : sinc / 4) : sinc
+    let st = 0
+    timer.current = setInterval(() => {
+      if (st >= loops) { stop(); return }
+      const x = Math.sin(st * inc)
+      setPhase(anim.half ? Math.abs(x) : x)
+      st++
+    }, 1000 / Math.max(1, anim.rate))
+  }
   const close = () => openTask('fem', part, 'analysis')
   if (error) return <div className="tasks" data-task="fem-result"><div className="tbuttons"><button className="qbtn" onClick={close}>Close</button></div><div data-qf="error">{error}</div></div>
-  if (!data) return <div className="tasks">Loading ...</div>
-  const shown = RESULT_FIELDS.filter(([k]) => data.fields[k])
-  const unit = RESULT_FIELDS.find(([k]) => k === field)?.[3] ?? ''
-  const range = field ? data.range[field] : null
+  if (!data || !cur) return <div className="tasks">Loading ...</div>
+  const shown = RESULT_FIELDS.filter(([k]) => cur.fields[k])
+  const fdef = RESULT_FIELDS.find(([k]) => k === field)
+  const unit = fdef?.[3] ?? ''
+  const range = field ? cur.range[field] : null
+  const num = (k: 'steps' | 'loops' | 'rate', name: string, label: string) => <label className="tfield"><span>{label}</span>
+    <input data-qf={name} type="number" min={k === 'loops' ? 0 : 1} value={anim[k]} onChange={(e) => { const x = Number(e.target.value); if (Number.isFinite(x) && x >= 0) setAnim((a) => ({ ...a, [k]: x })) }} /></label>
   return <div className="tasks pt-task" data-task="fem-result">
     <div className="tbuttons"><button className="qbtn" onClick={close}>Close</button></div>
     <TaskBox title="Show Result" icon={'fem-FEM_ResultShow' as IconName}>
+      {data.modes && <label className="tfield"><span>Result</span><QComboBox data-qf="result_mode" value={String(mode)} onChange={(e) => setMode(Number(e.target.value))}>
+        {data.modes.map((m, i) => <option key={i} value={String(i)}>{`Mode ${i + 1}: ${m.frequency.toPrecision(6)} Hz`}</option>)}</QComboBox></label>}
       <fieldset className="tgroup"><legend>Result Type</legend>
         <Radio label="None" name="rb_none" checked={field === null} onChange={() => setField(null)} />
         {shown.map(([k, label, name]) => <Radio key={k} label={label} name={name} checked={field === k} onChange={() => setField(k)} />)}
@@ -375,12 +421,22 @@ function ResultTask({ part }: { part: string }) {
           <label className="tfield"><span>Minimum</span><input data-qf="le_min" readOnly value={`${range[0].toPrecision(6)} ${unit}`} /></label>
           <label className="tfield"><span>Maximum</span><input data-qf="le_max" readOnly value={`${range[1].toPrecision(6)} ${unit}`} /></label>
         </>}
+        <button className="qbtn" data-qf="show_histogram" disabled={!field || !cur.histogram?.[field]} onClick={() => setHistogram((h) => !h)}>Histogram</button>
+        {histogram && field && cur.histogram?.[field] && <Histogram h={cur.histogram[field]} title={fdef?.[1] ?? field} unit={unit} />}
       </fieldset>
       <fieldset className="tgroup"><legend>Displacement Scaling</legend>
         <Check label="Show" name="cb_show_displacement" checked={show} onChange={setShow} />
         <input data-qf="hsb_displacement_factor" type="range" style={{ width: '100%' }} min={0} max={factorMax} step={factorMax / 100} value={factor} onChange={(e) => setFactor(Number(e.target.value))} />
         <label className="tfield"><span>Factor</span><input data-qf="sb_displacement_factor" type="number" min={0} value={factor} onChange={(e) => { const x = Number(e.target.value); if (Number.isFinite(x) && x >= 0) setFactor(x) }} /></label>
         <label className="tfield"><span>Slider maximum</span><input data-qf="sb_displacement_factor_max" type="number" min={1} value={factorMax} onChange={(e) => { const x = Number(e.target.value); if (Number.isFinite(x) && x >= 1) setFactorMax(x) }} /></label>
+      </fieldset>
+      <fieldset className="tgroup"><legend>Animation Control</legend>
+        {num('steps', 'steps', 'Number of steps per cycle')}
+        {num('loops', 'loops', 'Number of cycles')}
+        {num('rate', 'framerate', 'Frame rate')}
+        <Radio label="Full cycle" name="rb_full_cycle" checked={!anim.half} onChange={() => setAnim((a) => ({ ...a, half: false }))} />
+        <Radio label="Half cycle" name="rb_half_cycle" checked={anim.half} onChange={() => setAnim((a) => ({ ...a, half: true }))} />
+        <button className="qbtn" data-qf="startButton" onClick={start}>{phase !== null ? 'Stop Animation' : 'Start Animation'}</button>
       </fieldset>
     </TaskBox>
   </div>

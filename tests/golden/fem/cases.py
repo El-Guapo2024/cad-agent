@@ -171,5 +171,26 @@ def thermomech(doc, App, ObjectsFem):
     return an, mesh
 
 
+def frequency(doc, App, ObjectsFem):
+    """The cantilever's bar fixed at x = 0: its first six natural frequencies and mode shapes."""
+    box = _box(doc, 100, 10, 10)
+    doc.recompute()
+    an = ObjectsFem.makeAnalysis(doc, "Analysis")
+    sol = ObjectsFem.makeSolverCalculiXCcxTools(doc, "CalculiXccxTools")
+    sol.AnalysisType = "frequency"
+    sol.EigenmodesCount = 6
+    an.addObject(sol)
+    an.addObject(_steel(ObjectsFem, doc))
+    fix = ObjectsFem.makeConstraintFixed(doc, "Fixed")
+    fix.References = [(box, "Face1")]
+    an.addObject(fix)
+    mesh = ObjectsFem.makeMeshGmsh(doc, "Mesh")
+    mesh.Shape = box
+    mesh.CharacteristicLengthMax = "5 mm"
+    an.addObject(mesh)
+    return an, mesh
+
+
 CASES = {"cantilever": cantilever, "pressure_plate": pressure_plate, "plate_hole": plate_hole,
-         "displacement_bar": displacement_bar, "self_weight": self_weight, "thermomech": thermomech}
+         "displacement_bar": displacement_bar, "self_weight": self_weight, "thermomech": thermomech,
+         "frequency": frequency}

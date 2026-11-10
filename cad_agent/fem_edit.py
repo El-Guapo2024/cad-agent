@@ -227,7 +227,7 @@ def surface(mesh, result) -> dict | None:
     for n, i in index.items():
         d = disp[pos[n]]
         vec[3 * i:3 * i + 3] = [d.x, d.y, d.z]
-    fields, ranges = {}, {}
+    fields, ranges, hist = {}, {}, {}
     order = sorted(index, key=index.get)
     for key, prop in _FIELDS.items():
         if prop is None:
@@ -239,5 +239,19 @@ def surface(mesh, result) -> dict | None:
             continue
         fields[key] = [float(f"{full[pos[n]]:.6g}") for n in order]
         ranges[key] = [min(full), max(full)]
+        hist[key] = _histogram(full)
     return {"points": points, "triangles": [index[n] for f in outer for n in f], "displacement": vec,
-            "fields": fields, "range": ranges}
+            "fields": fields, "range": ranges, "histogram": hist}
+
+
+def _histogram(values, bins=50):
+    """The counts the result panel's Histogram plots (task_result_mechanical.py: hist with 50 bins): equal bins from the
+    smallest value to the largest, the last one closed."""
+    lo, hi = min(values), max(values)
+    if hi == lo:
+        lo, hi = lo - 0.5, hi + 0.5
+    counts = [0] * bins
+    w = (hi - lo) / bins
+    for v in values:
+        counts[min(bins - 1, int((v - lo) / w))] += 1
+    return {"low": lo, "high": hi, "counts": counts}
