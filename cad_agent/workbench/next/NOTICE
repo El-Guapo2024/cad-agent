@@ -1102,6 +1102,22 @@ src/Mod/Fem/Gui/Command.cpp   [licence: LGPL-2.1-or-later]
     copyright 2008 Jürgen Riegel, 2022 Peter McB
     followed by src/fem_cmds.ts
 
+src/Mod/Fem/Gui/TaskFemConstraintDisplacement.ui   [licence: LGPL-2.1-or-later]
+    no copyright line in the file
+    followed by src/fem_tasks.tsx
+
+src/Mod/Fem/Gui/TaskFemConstraintTemperature.ui   [licence: LGPL-2.1-or-later]
+    no copyright line in the file
+    followed by src/fem_tasks.tsx
+
+src/Mod/Fem/Gui/TaskFemConstraintInitialTemperature.ui   [licence: LGPL-2.1-or-later]
+    no copyright line in the file
+    followed by src/fem_tasks.tsx
+
+src/Mod/Fem/Gui/TaskFemConstraintHeatflux.ui   [licence: LGPL-2.1-or-later]
+    no copyright line in the file
+    followed by src/fem_tasks.tsx
+
 src/Mod/Fem/Gui/TaskFemConstraintFixed.ui   [licence: LGPL-2.1-or-later]
     no copyright line in the file
     followed by src/fem_tasks.tsx

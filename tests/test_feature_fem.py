@@ -125,3 +125,71 @@ def test_the_results_file_holds_the_runs_values(tmp_path, monkeypatch):
     t = d["triangles"]
     edges = Counter(tuple(sorted(e)) for i in range(0, len(t), 3) for e in ((t[i], t[i + 1]), (t[i + 1], t[i + 2]), (t[i + 2], t[i])))
     assert set(edges.values()) == {2}
+
+
+# tests/golden/fem's displacement_bar, self_weight and thermomech written as part files: FreeCAD's input and results
+_BAR = '''"""bar: a steel bar."""
+from cad_agent import feature_fem as Fem
+from cad_agent import feature_part as Part
+
+PARAMS = {}
+OBJECTS = [Part.Box("Box", length=100, width=10, height=10)]
+
+FEM = [
+%s
+]
+
+
+def build(**p):
+    return Part.Document(OBJECTS, p)
+'''
+_STEEL = '    Fem.MaterialSolid("Material", youngs_modulus="210000 MPa", poisson_ratio=0.30, density="7900 kg/m^3"%s),'
+_MESH = '    Fem.MeshGmsh("Mesh", "Box", characteristic_length_max="5 mm"),'
+_FIX = '    Fem.ConstraintFixed("Fixed", [("Box", "Face1")]),'
+MORE = {
+    "displacement_bar": "\n".join(['    Fem.SolverCalculiX("CalculiXccxTools"),', _STEEL % "", _FIX,
+                                   '    Fem.ConstraintDisplacement("Displacement", [("Box", "Face2")], z_free=False, z_displacement="-0.5 mm"),',
+                                   _MESH]),
+    "self_weight": "\n".join(['    Fem.SolverCalculiX("CalculiXccxTools"),', _STEEL % "", _FIX,
+                              '    Fem.ConstraintSelfWeight("SelfWeight"),', _MESH]),
+    "thermomech": "\n".join(['    Fem.SolverCalculiX("CalculiXccxTools", analysis_type="thermomech"),',
+                             _STEEL % ', thermal_conductivity="50 W/m/K", thermal_expansion_coefficient="12 um/m/K", specific_heat="500 J/kg/K"',
+                             _FIX, '    Fem.ConstraintTemperature("Hot", [("Box", "Face1")], temperature="373 K"),',
+                             '    Fem.ConstraintTemperature("Cold", [("Box", "Face2")], temperature="293 K"),',
+                             '    Fem.ConstraintInitialTemperature("InitialTemperature", initial_temperature="293 K"),', _MESH]),
+}
+
+
+@pytest.mark.skipif(not (shutil.which("gmsh", path=_path()) and shutil.which("ccx", path=_path())),
+                    reason="Gmsh and CalculiX are not on the PATH (or FREECAD_BIN)")
+@pytest.mark.parametrize("name", sorted(MORE))
+def test_more_analyses_as_part_files_give_freecads(name, tmp_path, monkeypatch):
+    monkeypatch.setenv("PATH", _path())
+    p = tmp_path / "bar.py"
+    p.write_text(_BAR % MORE[name])
+    work = tmp_path / "work"
+    r = Fem.run(p, workdir=work, threads=1)
+    want = FC[name]
+    assert (r["nodes"], r["volumes"]) == (want["nodes"], want["volumes"])
+    assert r["max_displacement_mm"] == pytest.approx(want["max_displacement"], rel=1e-9)
+    assert r["max_von_mises_mpa"] == pytest.approx(want["max_von_mises"], rel=1e-9)
+    inp = "".join(line for line in open(r["inp"]) if "written on" not in line)
+    assert inp.splitlines() == want["inp"].splitlines()
+    if "max_temperature" in want:
+        assert (r["min_temperature_k"], r["max_temperature_k"]) == pytest.approx((want["min_temperature"], want["max_temperature"]))
+        d = json.loads((work / Fem.RESULTS).read_text())
+        assert d["range"]["temperature"] == pytest.approx([want["min_temperature"], want["max_temperature"]])
+
+
+def test_the_new_objects_round_trip_through_the_panels_edits():
+    from cad_agent import fem_edit as FE
+    src = _BAR % MORE["thermomech"]
+    new = FE.apply_src(src, [
+        {"op": "add", "kind": "ConstraintHeatflux", "name": "Air", "props": {"references": [["Box", "Face3"]], "film_coef": "10 W/m^2/K", "ambient_temp": "293 K"}},
+        {"op": "add", "kind": "ConstraintDisplacement", "name": "Hold", "props": {"references": [["Box", "Face5"]], "y_free": False}},
+        {"op": "add", "kind": "ConstraintSelfWeight", "name": "Gravity", "props": {"gravity_direction": [0, -1, 0]}},
+    ])
+    objs = {o["name"]: o for o in FE.read_src(new)}
+    assert objs["Air"]["film_coef"] == "10 W/m^2/K" and objs["Hold"]["y_free"] is False
+    assert objs["Gravity"]["gravity_direction"] == (0.0, -1.0, 0.0)
+    assert FE.apply_src(new, [{"op": "delete", "name": n} for n in ("Air", "Hold", "Gravity")]) == src

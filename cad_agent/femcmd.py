@@ -27,8 +27,9 @@ def cmd_run(a) -> Result:
         raise UsageError(str(e)) from None
     text = (f"{a.slug}/{a.part}: {r['nodes']} nodes, {r['volumes']} volume elements\n"
             f"  max displacement {r['max_displacement_mm']:.6g} mm\n"
-            f"  max von Mises stress {r['max_von_mises_mpa']:.6g} MPa\n"
-            f"  files in {r['workdir']}")
+            f"  max von Mises stress {r['max_von_mises_mpa']:.6g} MPa"
+            + (f"\n  temperature {r['min_temperature_k']:.6g} to {r['max_temperature_k']:.6g} K" if "max_temperature_k" in r else "")
+            + f"\n  files in {r['workdir']}")
     return Result(OK, {"project": a.slug, "part": a.part, **r}, text, f"FEM of {a.part}")
 
 

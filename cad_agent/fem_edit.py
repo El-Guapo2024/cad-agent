@@ -80,6 +80,8 @@ def _normal(cls, props):
         out["references"] = _pairs(out["references"])
     if out.get("direction"):
         out["direction"] = tuple(out["direction"])
+    if out.get("gravity_direction"):
+        out["gravity_direction"] = tuple(float(x) for x in out["gravity_direction"])
     return out
 
 
@@ -192,7 +194,7 @@ def apply_src(src: str, ops: list) -> str:
 
 _FIELDS = {"displacement_x": None, "displacement_y": None, "displacement_z": None, "displacement": "DisplacementLengths",
            "von_mises": "vonMises", "max_principal": "PrincipalMax", "min_principal": "PrincipalMin",
-           "max_shear": "MaxShear"}
+           "max_shear": "MaxShear", "temperature": "Temperature"}
 
 
 def surface(mesh, result) -> dict | None:

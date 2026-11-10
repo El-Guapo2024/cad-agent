@@ -94,4 +94,82 @@ def plate_hole(doc, App, ObjectsFem):
     return an, mesh
 
 
-CASES = {"cantilever": cantilever, "pressure_plate": pressure_plate, "plate_hole": plate_hole}
+def displacement_bar(doc, App, ObjectsFem):
+    """The cantilever's bar fixed at x = 0, its far end moved 0.5 mm down (a prescribed displacement)."""
+    box = _box(doc, 100, 10, 10)
+    doc.recompute()
+    an = ObjectsFem.makeAnalysis(doc, "Analysis")
+    an.addObject(ObjectsFem.makeSolverCalculiXCcxTools(doc, "CalculiXccxTools"))
+    an.addObject(_steel(ObjectsFem, doc))
+    fix = ObjectsFem.makeConstraintFixed(doc, "Fixed")
+    fix.References = [(box, "Face1")]
+    an.addObject(fix)
+    d = ObjectsFem.makeConstraintDisplacement(doc, "Displacement")
+    d.References = [(box, "Face2")]
+    d.zFree = False
+    d.zDisplacement = "-0.5 mm"
+    an.addObject(d)
+    mesh = ObjectsFem.makeMeshGmsh(doc, "Mesh")
+    mesh.Shape = box
+    mesh.CharacteristicLengthMax = "5 mm"
+    an.addObject(mesh)
+    return an, mesh
+
+
+def self_weight(doc, App, ObjectsFem):
+    """The cantilever's bar under its own weight only (gravity, 9806.65 mm/s^2 down)."""
+    box = _box(doc, 100, 10, 10)
+    doc.recompute()
+    an = ObjectsFem.makeAnalysis(doc, "Analysis")
+    an.addObject(ObjectsFem.makeSolverCalculiXCcxTools(doc, "CalculiXccxTools"))
+    an.addObject(_steel(ObjectsFem, doc))
+    fix = ObjectsFem.makeConstraintFixed(doc, "Fixed")
+    fix.References = [(box, "Face1")]
+    an.addObject(fix)
+    an.addObject(ObjectsFem.makeConstraintSelfWeight(doc, "SelfWeight"))
+    mesh = ObjectsFem.makeMeshGmsh(doc, "Mesh")
+    mesh.Shape = box
+    mesh.CharacteristicLengthMax = "5 mm"
+    an.addObject(mesh)
+    return an, mesh
+
+
+def thermomech(doc, App, ObjectsFem):
+    """A steel bar fixed at x = 0, held at 373 K there and 293 K at its far end, from 293 K: steady-state
+    thermo-mechanical (its thermal expansion)."""
+    box = _box(doc, 100, 10, 10)
+    doc.recompute()
+    an = ObjectsFem.makeAnalysis(doc, "Analysis")
+    sol = ObjectsFem.makeSolverCalculiXCcxTools(doc, "CalculiXccxTools")
+    sol.AnalysisType = "thermomech"
+    an.addObject(sol)
+    mat = _steel(ObjectsFem, doc)
+    m = mat.Material
+    m["ThermalConductivity"] = "50 W/m/K"
+    m["ThermalExpansionCoefficient"] = "12 um/m/K"
+    m["SpecificHeat"] = "500 J/kg/K"
+    mat.Material = m
+    an.addObject(mat)
+    fix = ObjectsFem.makeConstraintFixed(doc, "Fixed")
+    fix.References = [(box, "Face1")]
+    an.addObject(fix)
+    hot = ObjectsFem.makeConstraintTemperature(doc, "Hot")
+    hot.References = [(box, "Face1")]
+    hot.Temperature = "373 K"
+    an.addObject(hot)
+    cold = ObjectsFem.makeConstraintTemperature(doc, "Cold")
+    cold.References = [(box, "Face2")]
+    cold.Temperature = "293 K"
+    an.addObject(cold)
+    t0 = ObjectsFem.makeConstraintInitialTemperature(doc, "InitialTemperature")
+    t0.InitialTemperature = "293 K"
+    an.addObject(t0)
+    mesh = ObjectsFem.makeMeshGmsh(doc, "Mesh")
+    mesh.Shape = box
+    mesh.CharacteristicLengthMax = "5 mm"
+    an.addObject(mesh)
+    return an, mesh
+
+
+CASES = {"cantilever": cantilever, "pressure_plate": pressure_plate, "plate_hole": plate_hole,
+         "displacement_bar": displacement_bar, "self_weight": self_weight, "thermomech": thermomech}

@@ -52,6 +52,8 @@ def run(name):
     res = [o for o in doc.Objects if o.isDerivedFrom("Fem::FemResultObject")][0]
     out = {"nodes": mesh.FemMesh.NodeCount, "volumes": mesh.FemMesh.VolumeCount, "inp": inp,
            "max_displacement": max(res.DisplacementLengths), "max_von_mises": max(res.vonMises)}
+    if list(res.Temperature):
+        out["max_temperature"], out["min_temperature"] = max(res.Temperature), min(res.Temperature)
     App.closeDocument(doc.Name)
     return out
 

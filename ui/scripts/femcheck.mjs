@@ -8,6 +8,7 @@
 //   solve      Run Solver on the cantilever: the Report view has FreeCAD's results (tests/golden/fem/freecad.json)
 //   panels     the same cantilever made in the task panels from a part with no FEM list, then solved: FreeCAD's results
 //   results    Show Result: the values, the colours, the part hidden meanwhile, the displacement scaled
+//   thermal    tests/golden/fem's thermomech made in the panels: FreeCAD's displacement, stress and temperatures
 import { createRequire } from 'module'
 import { spawn, spawnSync } from 'child_process'
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'fs'
@@ -66,6 +67,16 @@ FEM = [
 def build(**p):
     return Part.Document(OBJECTS, p)
 `)
+writeFileSync(join(ROOT, 'pc', 'parts', 'warm.py'), `"""warm: a box for the thermal analysis."""
+from cad_agent import feature_part as Part
+
+PARAMS = {}
+OBJECTS = [Part.Box("Box", length=100, width=10, height=10)]
+
+
+def build(**p):
+    return Part.Document(OBJECTS, p)
+`)
 writeFileSync(join(ROOT, 'pc', 'parts', 'blank.py'), `"""blank: the same box, no analysis yet."""
 from cad_agent import feature_part as Part
 
@@ -109,6 +120,12 @@ async function selectRows(names) {
   await until(`JSON.stringify(cadui.getState().featSel) === ${JSON.stringify(want)}`, `${names.join(', ')} selected`, 5000)
 }
 const runCmd = (cmd) => st(`cadui.getCommand(${JSON.stringify(cmd)})?.run([])`)
+// a QComboBox (combo.tsx) chosen by its item's text (pdlastcheck.mjs's)
+const pickCombo = async (qf, text) => {
+  await page.click(`.qselect[data-qf="${qf}"]`); await sleep(150)
+  await page.locator('.combo-popup .combo-item', { hasText: text }).first().click()
+  await sleep(400)
+}
 const FCJ = JSON.parse(readFileSync(join(REPO, 'tests', 'golden', 'fem', 'freecad.json'), 'utf8'))
 
 try {
@@ -221,6 +238,40 @@ try {
   check(!await st(`!!cadui.getView().helpers.get('fem-result')`), 'Close takes the result away')
   const back = await st(`cadui.getState().hidden.slice()`)
   check(blankBody.every((b) => !back.includes(b)), 'and shows the part again', JSON.stringify(back))
+
+  console.log('thermal')
+  // tests/golden/fem's thermomech, made in the panels on a fresh box: the solver switched to thermomech, the material's
+  // thermal properties, two temperatures and the initial temperature
+  await st(`cadui.setState({ featSel: ['warm/Box'], selected: [], task: null })`)
+  await until(`!!cadui.getState().features.warm`, 'the warm part to load', 30000)
+  await open('FEM_Analysis', 'fem-analysis')
+  await runCmd('FEM_SolverCalculiX'); await page.waitForSelector('[data-name="CalculiXccxTools"]', { timeout: 30000 })
+  await page.click(`[data-name="CalculiXccxTools"] ${qf('edit')}`); await page.waitForSelector(qf('AnalysisType'), { timeout: 15000 })
+  await pickCombo('AnalysisType', 'thermomech'); await accept()
+  await open('FEM_MaterialSolid', 'fem-object')
+  await page.fill(qf('qsb_thermal_conductivity'), '50 W/m/K'); await page.fill(qf('qsb_expansion_coefficient'), '12 um/m/K'); await page.fill(qf('qsb_specific_heat'), '500 J/kg/K')
+  await accept()
+  await open('FEM_ConstraintFixed', 'fem-object'); await pick('@Box.Face1'); await accept()
+  await open('FEM_ConstraintTemperature', 'fem-object'); await pick('@Box.Face1'); await page.fill(qf('qsb_temperature'), '373 K'); await accept()
+  await open('FEM_ConstraintTemperature', 'fem-object'); await pick('@Box.Face2'); await page.fill(qf('qsb_temperature'), '293 K'); await accept()
+  await open('FEM_ConstraintInitialTemperature', 'fem-object'); await page.fill(qf('if_temperature'), '293 K'); await accept()
+  await open('FEM_MeshGmshFromShape', 'fem-object'); await page.fill(qf('qsb_max_size'), '5 mm'); await accept()
+  const warm = readFileSync(join(ROOT, 'pc', 'parts', 'warm.py'), 'utf8')
+  check(warm.includes('Fem.SolverCalculiX("CalculiXccxTools", analysis_type="thermomech")') && warm.includes('Fem.ConstraintTemperature("ConstraintTemperature001", [("Box", "Face2")], temperature="293 K")'),
+    'the part file has the thermal analysis', warm)
+  const tm = FCJ.thermomech, n3 = await st('cadui.getState().messages.length')
+  await runCmd('FEM_SolverRun')
+  await until(`cadui.getState().messages.slice(${n3}).some((m) => /max von Mises/.test(m.text) || m.level === 'err')`, 'the thermal solve', 300000)
+  const line3 = (await st(`cadui.getState().messages.slice(${n3}).map((m) => m.level + ': ' + m.text)`)).find((m) => /max von Mises/.test(m)) ?? ''
+  check(line3.includes(`${tm.nodes} nodes`) && line3.includes(tm.max_displacement.toPrecision(6)) && line3.includes(tm.max_von_mises.toPrecision(6))
+    && line3.includes(`temperature ${tm.min_temperature.toPrecision(6)} to ${tm.max_temperature.toPrecision(6)} K`), 'the thermal analysis made in the panels gives FreeCAD\'s results', line3)
+  await open('FEM_ResultShow', 'fem-result'); await page.waitForSelector(qf('rb_temperature'), { timeout: 30000 })
+  await page.click(`${qf('rb_temperature')} input`); await sleep(200)
+  check((await page.inputValue(qf('le_max'))).startsWith(tm.max_temperature.toPrecision(6)), 'Show Result: Temperature, FreeCAD\'s maximum', await page.inputValue(qf('le_max')))
+  await page.click('[data-task="fem-result"] .tbuttons .qbtn'); await page.waitForSelector('[data-task="fem-analysis"]', { timeout: 15000 })
+  // Gravity is added without a panel, as FreeCAD's command does; its Edit has the acceleration and direction
+  await runCmd('FEM_ConstraintSelfWeight'); await page.waitForSelector('[data-name="ConstraintSelfWeight"]', { timeout: 30000 })
+  check(readFileSync(join(ROOT, 'pc', 'parts', 'warm.py'), 'utf8').includes('Fem.ConstraintSelfWeight("ConstraintSelfWeight")'), 'Gravity Load adds a self weight')
 } catch (e) {
   bad('femcheck stopped', e.stack ?? String(e))
 } finally {

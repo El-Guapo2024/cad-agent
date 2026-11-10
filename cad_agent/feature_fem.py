@@ -103,7 +103,11 @@ class MaterialSolid(FemObject):
     Density, ...)."""
     MAKER = "makeMaterialSolid"
     DEFAULTS = {"material_name": "Steel", "youngs_modulus": "210000 MPa", "poisson_ratio": 0.30,
-                "density": "7900 kg/m^3", "references": ()}
+                "density": "7900 kg/m^3", "references": (), "thermal_conductivity": None,
+                "thermal_expansion_coefficient": None, "specific_heat": None}
+    # the Material map's keys for the thermal properties a thermo-mechanical analysis reads (None: left out)
+    THERMAL = {"thermal_conductivity": "ThermalConductivity", "thermal_expansion_coefficient": "ThermalExpansionCoefficient",
+               "specific_heat": "SpecificHeat"}
 
     def setup(self, o, obj_of):
         m = o.Material
@@ -111,6 +115,9 @@ class MaterialSolid(FemObject):
         m["YoungsModulus"] = str(self.youngs_modulus)
         m["PoissonRatio"] = str(self.poisson_ratio)
         m["Density"] = str(self.density)
+        for k, key in self.THERMAL.items():
+            if getattr(self, k) is not None:
+                m[key] = str(getattr(self, k))
         o.Material = m
         if self.references:
             o.References = [(obj_of(r[0]), r[1]) for r in self.references]
@@ -134,6 +141,52 @@ class ConstraintPressure(FemObject):
     DEFAULTS = {"references": (), "pressure": "0 MPa", "reversed": False}
 
 
+class ConstraintDisplacement(FemObject):
+    """ObjectsFem.makeConstraintDisplacement: each axis free, or held at a displacement (and each rotation)."""
+    MAKER = "makeConstraintDisplacement"
+    POS = ("references",)
+    DEFAULTS = {"references": (), "x_free": True, "x_displacement": "0 mm", "y_free": True, "y_displacement": "0 mm",
+                "z_free": True, "z_displacement": "0 mm", "rotx_free": True, "x_rotation": "0 deg", "roty_free": True,
+                "y_rotation": "0 deg", "rotz_free": True, "z_rotation": "0 deg"}
+    PROPS = {"x_free": "xFree", "x_displacement": "xDisplacement", "y_free": "yFree", "y_displacement": "yDisplacement",
+             "z_free": "zFree", "z_displacement": "zDisplacement", "rotx_free": "rotxFree", "x_rotation": "xRotation",
+             "roty_free": "rotyFree", "y_rotation": "yRotation", "rotz_free": "rotzFree", "z_rotation": "zRotation"}
+
+
+class ConstraintSelfWeight(FemObject):
+    """ObjectsFem.makeConstraintSelfWeight: gravity on the whole part (no references)."""
+    MAKER = "makeConstraintSelfWeight"
+    DEFAULTS = {"gravity_acceleration": "9806.65 mm/s^2", "gravity_direction": (0.0, 0.0, -1.0)}
+
+    def setup(self, o, obj_of):
+        import FreeCAD as App
+        o.GravityAcceleration = self.gravity_acceleration
+        o.GravityDirection = App.Vector(*self.gravity_direction)
+
+
+class ConstraintTemperature(FemObject):
+    """ObjectsFem.makeConstraintTemperature: a temperature held on the references (or a concentrated heat flux)."""
+    MAKER = "makeConstraintTemperature"
+    POS = ("references",)
+    DEFAULTS = {"references": (), "temperature": "300 K", "constraint_type": "Temperature",
+                "concentrated_heat_flux": "0 W"}
+
+
+class ConstraintInitialTemperature(FemObject):
+    """ObjectsFem.makeConstraintInitialTemperature: the whole part's temperature at the start (no references)."""
+    MAKER = "makeConstraintInitialTemperature"
+    DEFAULTS = {"initial_temperature": "300 K"}
+
+
+class ConstraintHeatflux(FemObject):
+    """ObjectsFem.makeConstraintHeatflux: convection to an ambient temperature, or a distributed heat flux (DFlux)."""
+    MAKER = "makeConstraintHeatflux"
+    POS = ("references",)
+    DEFAULTS = {"references": (), "constraint_type": "Convection", "film_coef": "0 W/m^2/K", "ambient_temp": "0 K",
+                "distributed_heat_flux": "0 W/m^2"}
+    PROPS = {"ambient_temp": "AmbientTemp", "film_coef": "FilmCoef", "distributed_heat_flux": "DistributedHeatFlux"}
+
+
 class MeshGmsh(FemObject):
     """ObjectsFem.makeMeshGmsh: the shape to mesh and Gmsh's parameters."""
     MAKER = "makeMeshGmsh"
@@ -143,7 +196,8 @@ class MeshGmsh(FemObject):
 
 
 KINDS = {c.__name__: c for c in (SolverCalculiX, MaterialSolid, ConstraintFixed, ConstraintForce, ConstraintPressure,
-                                 MeshGmsh)}
+                                 ConstraintDisplacement, ConstraintSelfWeight, ConstraintTemperature,
+                                 ConstraintInitialTemperature, ConstraintHeatflux, MeshGmsh)}
 
 
 def load(path):
@@ -240,6 +294,8 @@ def _run(path, workdir=None, threads=None) -> dict:
         out = {"nodes": m.NodeCount, "volumes": m.VolumeCount, "max_displacement_mm": max(r.DisplacementLengths),
                "max_von_mises_mpa": max(r.vonMises), "inp": fea.inp_file_name,
                "workdir": os.path.dirname(fea.inp_file_name)}
+        if list(r.Temperature):          # a thermo-mechanical analysis
+            out["max_temperature_k"], out["min_temperature_k"] = max(r.Temperature), min(r.Temperature)
         if workdir is not None:         # what Results > Show Result draws (cad fem result)
             import json
             from .fem_edit import surface

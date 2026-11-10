@@ -10,7 +10,7 @@
 // the solver and Show Result have their panels (fem_tasks.tsx); the rest are greyed with the reason.
 import { consoleLog, getState, report } from './store'
 import { openTask } from './actions'
-import { addSolver } from './fem_tasks'
+import { addDirect, addSolver } from './fem_tasks'
 import { api, resultText } from './api'
 import type { Entry } from './chrome'
 import type { IconName } from './icons'
@@ -18,7 +18,7 @@ import { FEM_CMDS, FEM_MENUS, FEM_TOOLBARS, type FemItem } from './fem_cmds'
 
 const cmdOf = (c: string) => FEM_CMDS[c] ?? { menu: c, tip: null, pixmap: null, accel: null }
 const iconOf = (c: string) => (cmdOf(c).pixmap ? `fem-${cmdOf(c).pixmap}` : undefined) as IconName | undefined
-const NOT_YET = 'n/a: not ported yet: only the solid material, the fixed, force and pressure boundary conditions, the Gmsh mesh and CalculiX are'
+const NOT_YET = 'n/a: not ported yet: only the solid material, the fixed, force, pressure, displacement, gravity, temperature, initial temperature and heat flux conditions, the Gmsh mesh and CalculiX (static, thermomech) are'
 
 /** The part the FEM commands work on: the open panel's, else the part of what is selected (a tree row or the 3D view's body), else the only one. */
 export function activePart(): string | null {
@@ -44,12 +44,15 @@ export async function runSolver() {
     if (r.exit !== 0) { report('err', `Run Solver: ${resultText(r)}`); return }
     const d = r.data ?? {}
     report('msg', `${part}: ${d.nodes} nodes, ${d.volumes} volume elements; max displacement ${Number(d.max_displacement_mm).toPrecision(6)} mm, `
-      + `max von Mises stress ${Number(d.max_von_mises_mpa).toPrecision(6)} MPa (${d.workdir})`)
+      + `max von Mises stress ${Number(d.max_von_mises_mpa).toPrecision(6)} MPa`
+      + (d.max_temperature_k !== undefined ? `; temperature ${Number(d.min_temperature_k).toPrecision(6)} to ${Number(d.max_temperature_k).toPrecision(6)} K` : '') + ` (${d.workdir})`)
   } catch (e) { report('err', `Run Solver: ${e instanceof Error ? e.message : String(e)}`) }
 }
 
 const PANELS: Record<string, string> = { FEM_Analysis: 'analysis', FEM_MaterialSolid: 'add:MaterialSolid', FEM_ConstraintFixed: 'add:ConstraintFixed', FEM_ConstraintForce: 'add:ConstraintForce',
-  FEM_ConstraintPressure: 'add:ConstraintPressure', FEM_MeshGmshFromShape: 'add:MeshGmsh', FEM_ResultShow: 'result' }
+  FEM_ConstraintPressure: 'add:ConstraintPressure', FEM_MeshGmshFromShape: 'add:MeshGmsh', FEM_ResultShow: 'result',
+  FEM_ConstraintDisplacement: 'add:ConstraintDisplacement', FEM_ConstraintTemperature: 'add:ConstraintTemperature',
+  FEM_ConstraintInitialTemperature: 'add:ConstraintInitialTemperature', FEM_ConstraintHeatflux: 'add:ConstraintHeatflux' }
 function inPart(cmd: string, go: (part: string) => void) {
   const part = activePart()
   if (part) go(part); else report('warn', `${cmdOf(cmd).menu ?? cmd}: select the part the analysis belongs to`)
@@ -63,6 +66,7 @@ function entry(it: FemItem): Entry {
   if (it === 'FEM_SolverRun') return { label, icon: iconOf(it), cmd: it, title: r.tip ?? undefined, disabled: !getState().slug, onSelect: () => void runSolver() }
   const task = PANELS[it]
   if (task) return { label, icon: iconOf(it), cmd: it, title: r.tip ?? undefined, disabled: !getState().slug, onSelect: () => inPart(it, (p) => openTask('fem', p, task)) }
+  if (it === 'FEM_ConstraintSelfWeight') return { label, icon: iconOf(it), cmd: it, title: r.tip ?? undefined, disabled: !getState().slug, onSelect: () => inPart(it, (p) => void addDirect(p, 'ConstraintSelfWeight')) }
   if (it === 'FEM_SolverCalculiX' || it === 'FEM_SolverCalculiXCcxTools') return { label, icon: iconOf(it), cmd: it, title: r.tip ?? undefined, disabled: !getState().slug, onSelect: () => inPart(it, (p) => void addSolver(p)) }
   return { label, icon: iconOf(it), cmd: it, disabled: true, title: NOT_YET }
 }

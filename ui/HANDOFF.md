@@ -199,8 +199,9 @@ Step 5, round 3 (six branches) is all in main (7526c0c, CI green, 6977 passed, 2
   since fem-cli (`FEM = [...]`, cad_agent/feature_fem.py; `cad fem run SLUG PART`). On the page since fem-ui: the
   workbench, its menus and toolbars, Run Solver (src/fem_wb.tsx; ui/scripts/femcheck.mjs needs FREECAD_BIN). Since fem-panels:
   the Material, Fixed, Force, Pressure and mesh panels (src/fem_tasks.tsx; `cad fem list/apply`, cad_agent/fem_edit.py) and Show Result in
-  the 3D view (`cad fem result`; `cad fem run` writes out/fem/PART/results.json). femcheck: 30 ok. Next for FEM: the
-  other boundary conditions and solvers, thermal analyses, Histogram and Animation. A new CAD_* variable that a command
+  the 3D view (`cad fem result`; `cad fem run` writes out/fem/PART/results.json). Since fem-thermal: displacement, gravity, temperature,
+  initial temperature and heat flux (part files, panels, goldens displacement_bar, self_weight, thermomech) and the
+  temperature result. femcheck: 34 ok. Next for FEM: frequency and buckling, contact, springs, Histogram and Animation. A new CAD_* variable that a command
   reads has to go in warm.py's ENV_PASS as well (CAD_FEM_THREADS failed test_warm.py on fem-ui until it did).
 - Left after the demo: FEM's part-file objects, CLI and page, Draft's Trimex/Split/Upgrade and annotations, Part's cut commands, PARITY's known
   differences. Temporary branches on GitHub (ds-merge, ds-fix, asm-merge, st-merge, r5-merge, r6-merge, r7-merge,
