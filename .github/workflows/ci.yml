@@ -63,6 +63,13 @@ jobs:
           .venv/bin/pip install pybind11
           JOBS=4 PYTHON=.venv/bin/python bash ui/libarea/build.sh native
 
+      # OpenCamLib 2022.12.18 (ui/opencamlib/build.sh: fetched and built, as FreeCAD's AppImage ships it), which CAM's
+      # Surface and Waterline import as ocl, with Boost.Python built in (Boost's headers: the Sketch solver step's
+      # libboost-dev); tests/test_cam_golden.py holds them to freecadcmd's answers.
+      - name: CAM OpenCamLib
+        run: |
+          JOBS=4 PYTHON=.venv/bin/python bash ui/opencamlib/build.sh
+
       - name: Tests
         env:
           CAD_RENDER_BACKEND: numpy

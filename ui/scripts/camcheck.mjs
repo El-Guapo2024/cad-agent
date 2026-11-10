@@ -36,6 +36,22 @@ const REPO = resolve(HERE, '..', '..')
 const args = process.argv.slice(2)
 const flag = (name, d) => { const a = args.find((x) => x.startsWith(`--${name}=`)); return a ? a.slice(name.length + 3) : d }
 const FC = JSON.parse(readFileSync(flag('fc', join(HERE, 'fccam.json')), 'utf8'))
+// The recording ran with FreeCAD's default preferences, where InitGui.py offers Surface and Waterline only when
+// EnableAdvancedOCLFeatures is set; this app always offers them (OpenCamLib is built: ui/opencamlib/build.sh). The
+// reference becomes what that preference makes of it: both after 3D Pocket in the CAM menu, and the toolbar's 3D button
+// the CAM_3dTools group.
+let oclLayout = 0
+for (const [k, v] of Object.entries(FC)) {
+  if (k.startsWith('menus_') && Array.isArray(v?.['&CAM'])) {
+    const m = v['&CAM'], i = m.findIndex((e) => e.name === 'CAM_Pocket3D')
+    if (i >= 0) { m.splice(i + 1, 0, { text: '3D Surface', name: 'CAM_Surface', shortcut: '', enabled: m[i].enabled },
+      { text: 'Waterline', name: 'CAM_Waterline', shortcut: '', enabled: m[i].enabled }); oclLayout++ }
+  }
+  if (k.startsWith('toolbars_') && Array.isArray(v)) for (const t of v) {
+    const i = (t.buttons ?? []).findIndex((b) => b.name === 'CAM_Pocket3D')
+    if (i >= 0) { t.buttons[i] = { name: 'CAM_3dTools', text: '3D Operations', enabled: t.buttons[i].enabled }; oclLayout++ }
+  }
+}
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms))
 let pass = 0, fail = 0, known = 0
 const ok = (what) => { pass++; if (args.includes('--verbose')) console.log(`  ok    ${what}`) }
@@ -93,6 +109,7 @@ const settle = async (before) => {
 const body = async () => st(`cadui.getState().scene?.bodies.find((b) => b.part === 'plate')?.name ?? null`)
 const selectFaces = async (faces) => { const b = await body(); await st(`(() => { cadui.camApi.set({ sel: [] }); cadui.setState({ selected: ${J(faces.length ? [] : [b])}, subSel: ${J(faces.map((f) => `${b}.${f}`))} }) })()`); await sleep(200) }
 
+if (oclLayout) note(`the reference's 3D operations as FreeCAD lays them out with EnableAdvancedOCLFeatures (${oclLayout} menus and toolbars)`)
 // ── the menu and toolbars ──
 function compareMenu(fc, ours, what) {
   const f = fc.filter((e) => !e.sep), o = ours.filter((e) => !e.sep)

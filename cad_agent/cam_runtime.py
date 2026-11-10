@@ -43,6 +43,9 @@ def activate():
     else:
         tried = ", ".join(str(d) for d in native_dirs())
         raise CamUnavailable(f"libarea is not built (looked in {tried}): run ui/libarea/build.sh native")
+    ocl = Path(os.environ.get("OCL_DIR") or HERE.parent / "ui" / "opencamlib" / "build")   # Surface, Waterline
+    if (any(ocl.glob("ocl*.so")) or any(ocl.glob("ocl*.pyd"))) and str(ocl) not in sys.path:
+        sys.path.insert(0, str(ocl))
     os.environ.setdefault("CAD_CAM_USER_DIR", tempfile.mkdtemp(prefix="cad-cam-"))
     _stub_yaml()
     _active = True

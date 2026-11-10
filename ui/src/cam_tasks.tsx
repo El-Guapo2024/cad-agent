@@ -223,7 +223,7 @@ const fmt0 = (n: number) => String(Math.round(n * 1000) / 1000)
 
 // ── an operation's panel (Path/Op/Gui/Base.py TaskPanel) ────────────────────────────────────────────────────────
 type Page = { title: string; icon: string; node: ReactNode }
-const OWN_PAGE = ['Profile', 'PocketShape', 'MillFace', 'Drilling', 'Pocket3D', 'Helix', 'Engrave', 'Vcarve', 'Slot', 'Deburr', 'ThreadMilling',
+const OWN_PAGE = ['Profile', 'PocketShape', 'MillFace', 'Drilling', 'Pocket3D', 'Helix', 'Engrave', 'Vcarve', 'Surface', 'Waterline', 'Slot', 'Deburr', 'ThreadMilling',
   'Tapping', 'MillFacing', 'Adaptive', 'Custom', 'Probe']
 // CircularHoleBase's ops, whose Base Geometry page is TaskPanelHoleGeometryPage
 const HOLE_OPS = ['Drilling', 'Helix', 'ThreadMilling', 'Tapping']
@@ -414,6 +414,12 @@ const OP_FORMS: Record<string, [string, Record<string, string>]> = {
   Engrave: ['engrave', { cutPattern: 'CutPattern', sorting: 'SortingMode', startVertex: 'StartVertex', chkReverse: 'Reverse', chkApproximation: 'Approximation' }],
   Vcarve: ['vcarve', { discretize: 'Discretize', colinearFilter: 'Colinear', finishingPassEnabled: 'FinishingPass',
     finishingPassZOffset: 'FinishingPassZOffset', optimizeMovementsEnabled: 'OptimizeMovements' }],
+  // Path/Op/Gui/Surface.py and Waterline.py (DropCutterExtraOffset's x and y fields are not bound: a vector's parts)
+  Surface: ['surface', { boundBoxSelect: 'BoundBox', scanType: 'ScanType', layerMode: 'LayerMode', cutPattern: 'CutPattern', profileEdges: 'ProfileEdges',
+    avoidLastX_Faces: 'AvoidLastX_Faces', dropCutterDirSelect: 'DropCutterDir', depthOffset: 'DepthOffset', stepOver: 'StepOver', sampleInterval: 'SampleInterval',
+    useStartPoint: 'UseStartPoint', boundaryEnforcement: 'BoundaryEnforcement', optimizeEnabled: 'OptimizeLinearPaths', optimizeStepOverTransitions: 'OptimizeStepOverTransitions' }],
+  Waterline: ['waterline', { algorithmSelect: 'Algorithm', boundBoxSelect: 'BoundBox', layerMode: 'LayerMode', cutPattern: 'CutPattern', boundaryAdjustment: 'BoundaryAdjustment',
+    stepOver: 'StepOver', minSampleInterval: 'MinSampleInterval', sampleInterval: 'SampleInterval', optimizeEnabled: 'OptimizeLinearPaths' }],
   Slot: ['slot', { geo1Reference: 'Reference1', geo1Extension: 'ExtendPathStart', geo2Reference: 'Reference2', geo2Extension: 'ExtendPathEnd',
     cutPattern: 'CutPattern', pathOrientation: 'PathOrientation', reverseDirection: 'ReverseDirection' }],
   Deburr: ['deburr', { value_W: 'Width', value_h: 'ExtraDepth', direction: 'Direction' }],

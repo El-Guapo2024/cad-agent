@@ -78,7 +78,7 @@ export const numOf = (o: CamObj | undefined, name: string): number => {
   const v = valueOf(o, name) as { value?: number } | number | undefined
   return typeof v === 'number' ? v : Number(v?.value ?? 0)
 }
-const OPS = ['Profile', 'PocketShape', 'MillFace', 'Drilling', 'Helix', 'Engrave', 'Vcarve', 'Slot', 'Deburr', 'ThreadMilling', 'Tapping', 'Pocket3D',
+const OPS = ['Profile', 'PocketShape', 'MillFace', 'Drilling', 'Helix', 'Engrave', 'Vcarve', 'Surface', 'Waterline', 'Slot', 'Deburr', 'ThreadMilling', 'Tapping', 'Pocket3D',
   'MillFacing', 'Adaptive', 'Custom', 'Probe', 'Comment', 'Stop']
 // the dress-ups whose command opens a panel (cam_tasks.tsx DRESSUP_FORMS; the others are edited in the property view)
 const DRESSUP_PANEL = ['DressupLeadInOut', 'DressupAxisMap', 'DressupDragknife', 'DressupZCorrect', 'DressupBoundary']
@@ -233,6 +233,9 @@ export const CAM_CMDS: Record<string, Cmd> = {
   CAM_Engrave: { text: 'Engrave', tip: 'Creates an Engraving toolpath around a Draft ShapeString', icon: 'cam-CAM_Engrave', active: haveJob, run: () => newOp('Engrave', 'Create Engrave') },
   CAM_Deburr: { text: 'Deburr', tip: 'Creates a Deburr toolpath along Edges or around Faces', icon: 'cam-CAM_Deburr', active: haveJob, run: () => newOp('Deburr', 'Create Deburr') },
   CAM_Vcarve: { text: 'Vcarve', tip: 'Creates a medial line engraving toolpath', active: haveJob, run: () => newOp('Vcarve', 'Create Vcarve') },
+  // OpenCamLib's (ui/opencamlib/build.sh); no icons: CAM_3DSurface.svg and CAM_Waterline.svg are not among the copied icons
+  CAM_Surface: { text: '3D Surface', tip: 'Create a 3D Surface Operation from a model', active: haveJob, run: () => newOp('Surface', 'Create Surface') },
+  CAM_Waterline: { text: 'Waterline', tip: 'Create a Waterline toolpath from a model', active: haveJob, run: () => newOp('Waterline', 'Create Waterline') },
   CAM_Pocket3D: { text: '3D Pocket', tip: 'Creates a 3D Pocket toolpath from a face or faces', icon: 'cam-CAM_3DPocket', active: haveJob, run: () => newOp('Pocket3D', 'Create Pocket3D') },
   CAM_DressupArray: { text: 'Array', tip: 'Creates an array from a selected toolpath', icon: 'cam-CAM_Dressup', active: () => !!dressupBase(), run: () => newDressup('DressupArray', 'Create Path Array Dress-up') },
   CAM_DressupAxisMap: { text: 'Axis Map', tip: 'Remaps one axis to another', icon: 'cam-CAM_Dressup', active: () => !!dressupBase(), run: () => newDressup('DressupAxisMap', 'Create Dress-up') },
@@ -270,7 +273,9 @@ const SIM_TOOLS = ['CAM_SimulatorGL', 'CAM_Simulator']
 const TWO_D_OPS = ['CAM_Profile', 'CAM_Pocket_Shape', 'CAM_MillFacing', 'CAM_Helix', 'CAM_Adaptive', 'CAM_Slot']
 const DRILLING = ['CAM_Drilling', 'CAM_ThreadMilling']
 const ENGRAVE = ['CAM_Engrave', 'CAM_Deburr', 'CAM_Vcarve']
-const THREE_D_OPS = ['CAM_Pocket3D']
+// as InitGui.py lays them out with Path.Preferences.advancedOCLFeaturesEnabled(): OpenCamLib is always built here, so
+// Surface and Waterline are always offered, and the toolbar's 3D button is the CAM_3dTools group (PARITY.md)
+const THREE_D_OPS = ['CAM_Pocket3D', 'CAM_Surface', 'CAM_Waterline']
 const DRESSUP_CMDS = ['CAM_DressupArray', 'CAM_DressupAxisMap', 'CAM_DressupPathBoundary', 'CAM_DressupPathBoundary2', 'CAM_DressupDogbone', 'CAM_DressupDragKnife',
   'CAM_DressupLeadInOut', 'CAM_DressupMirror', 'CAM_DressupPlungeMilling', 'CAM_DressupRampEntry', 'CAM_DressupTag', 'CAM_DressupZCorrect']
 const EXTRA = ['CAM_Comment', 'CAM_Stop', 'CAM_Custom', 'CAM_Probe']
@@ -292,7 +297,7 @@ export function camToolbars(): [string, Entry[]][] {
   return [
     ['Project Setup', [...PROJECT_SETUP.map(e), split('CAM_PostTools', 'Post process Operations', POST_TOOLS)]],
     ['Tool Commands', [split('CAM_SimTools', 'Simulators', SIM_TOOLS), ...TOOL_CMDS.map(e), e('CAM_ToolBitDock')]],
-    ['New Operations', [...TWO_D_OPS.map(e), split('CAM_DrillingTools', 'Drilling Operations', DRILLING), split('CAM_EngraveTools', 'Engraving Operations', ENGRAVE), ...THREE_D_OPS.map(e)]],
+    ['New Operations', [...TWO_D_OPS.map(e), split('CAM_DrillingTools', 'Drilling Operations', DRILLING), split('CAM_EngraveTools', 'Engraving Operations', ENGRAVE), split('CAM_3dTools', '3D Operations', THREE_D_OPS)]],
     ['Path Modification', [...MODIFICATION.map(e), split('CAM_DressupTools', 'Dressup Operations', DRESSUP_CMDS)]],
   ]
 }

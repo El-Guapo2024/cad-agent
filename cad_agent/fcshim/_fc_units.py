@@ -459,3 +459,19 @@ def listSchemas(n=None):
 def schemaTranslate(q, schema=0):
     s, f, name = q.getUserPreferred()
     return (s, f, name)
+
+
+class BoundQuantity(Quantity):
+    """A quantity property's value as FreeCAD's QuantityPy gives it: setting its Value writes the property back
+    (CAM's Surface and Waterline set their defaults as `getattr(obj, n).Value = v`)."""
+    __slots__ = ("_write",)
+
+    def __init__(self, value, unit, write):
+        Quantity.__init__(self, value, unit)
+        object.__setattr__(self, "_write", write)
+
+    @Quantity.Value.setter
+    def Value(self, v):
+        Quantity.Value.fset(self, v)
+        self._write(Quantity(self.Value, self.Unit))
+

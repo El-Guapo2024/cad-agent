@@ -76,6 +76,14 @@ that commit.
                            unmodified at FreeCAD 3160daf1e2b6 (src/Mod/CAM), only the modules the CAM ops,
                            dress-ups and post-processors the app runs import. See section 3.
 
+  LGPL-2.1-or-later        cad_agent/fcshim/top/MeshPart.py ports FreeCAD's standard mesher at 3160daf1e2b6
+                           (src/Mod/MeshPart/App/Mesher.cpp and AppMeshPartPy.cpp; src/Mod/Part/App/BRepMesh.cpp,
+                           TopoShape.cpp's getDomains and Tools.cpp's getTriangulation), which CAM's Surface and
+                           Waterline tessellate with. ui/opencamlib/build.sh fetches OpenCamLib 2022.12.18
+                           (https://github.com/aewallin/opencamlib, LGPL-2.1-or-later, Copyright Anders Wallin and
+                           its contributors) and builds it where it runs; no OpenCamLib file is in this repository
+                           or its wheel.
+
   LGPL-2.1-or-later        cad_agent/fcdraft/Mod/Draft/: FreeCAD's Draft workbench Python (Draft.py,
                            DraftGeomUtils.py, WorkingPlane.py, draftobjects/, draftmake/, draftgeoutils/,
                            draftfunctions/, draftutils/, draftviewproviders/) and its preference .ui files

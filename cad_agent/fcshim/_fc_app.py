@@ -536,6 +536,8 @@ class DocumentObject:
             if p.type == "App::PropertyPlacement":       # PlacementPy bound to its property, as FreeCAD's
                 return B.BoundPlacement(p.value if p.value is not None else B.Placement(),
                                         lambda v, _n=name: setattr(self, _n, v))
+            if p.type in QUANTITY_TYPES:                 # QuantityPy bound to its property, as FreeCAD's
+                return U.BoundQuantity(p.value, p.unit, lambda v, _n=name: setattr(self, _n, v))
             return _get(p)
         proxy = props.get("Proxy")
         raise AttributeError(f"'{self.TypeId}' object has no attribute '{name}'")

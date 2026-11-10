@@ -60,6 +60,12 @@ KINDS = {
     # no icon: FreeCAD's CAM_Vcarve.svg says CC-BY 4.0 and is not copied (ui/public/freecad-icons/README.md)
     "Vcarve": Kind("Vcarve", "Path::FeaturePython", "Path.Op.Vcarve", "CAM_Vcarve", "Vcarve",
                     "Create Vcarve", None, op=True),
+    # Surface and Waterline need OpenCamLib (ui/opencamlib/build.sh); no icons: CAM_3DSurface.svg and CAM_Waterline.svg
+    # are not among the copied icons
+    "Surface": Kind("Surface", "Path::FeaturePython", "Path.Op.Surface", "CAM_Surface", "3D Surface",
+                    "Create Surface", None, op=True),
+    "Waterline": Kind("Waterline", "Path::FeaturePython", "Path.Op.Waterline", "CAM_Waterline", "Waterline",
+                      "Create Waterline", None, op=True),
     "Slot": Kind("Slot", "Path::FeaturePython", "Path.Op.Slot", "CAM_Slot", "Slot", "Create Slot", "CAM_Slot", op=True),
     "Deburr": Kind("Deburr", "Path::FeaturePython", "Path.Op.Deburr", "CAM_Deburr", "Deburr",
                     "Create Deburr", "CAM_Deburr", op=True),
@@ -124,7 +130,7 @@ DRESSUPS = tuple(k for k, v in KINDS.items() if v.dressup)
 DEFAULT_NAMES = {"Job": "Job", "Profile": "Profile", "PocketShape": "Pocket_Shape", "MillFace": "MillFace",
                  "Drilling": "Drilling", "DressupTag": "DressupTag",
                  "DressupDogbone": "DressupDogbone",
-                 "Helix": "Helix", "Engrave": "Engrave", "Vcarve": "Vcarve", "Slot": "Slot", "Deburr": "Deburr",
+                 "Helix": "Helix", "Engrave": "Engrave", "Vcarve": "Vcarve", "Surface": "Surface", "Waterline": "Waterline", "Slot": "Slot", "Deburr": "Deburr",
                  "ThreadMilling": "ThreadMilling", "Tapping": "Tapping", "Pocket3D": "Pocket3D",
                  "MillFacing": "MillFacing", "Adaptive": "Adaptive", "Custom": "Custom", "Probe": "Probe",
                  "Comment": "Comment", "Stop": "Stop",
@@ -199,6 +205,8 @@ Drilling = _maker("Drilling")
 Helix = _maker("Helix")
 Engrave = _maker("Engrave")
 Vcarve = _maker("Vcarve")
+Surface = _maker("Surface")
+Waterline = _maker("Waterline")
 Slot = _maker("Slot")
 Deburr = _maker("Deburr")
 ThreadMilling = _maker("ThreadMilling")

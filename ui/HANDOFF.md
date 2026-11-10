@@ -152,8 +152,10 @@ Step 5, round 3 (six branches) is all in main (7526c0c, CI green, 6977 passed, 2
   TechDraw.findShapeOutline is ported (cad_agent/techdraw_outline.py); Comment and Stop too. The ops' Operation pages
   and the five dress-up panels with a .ui are drawn from FreeCAD's .ui and bound by property (cam_tasks.tsx OP_FORMS,
   DRESSUP_FORMS); their own show/hide logic is not ported. Vcarve since: FreeCAD's Voronoi
-  classes in ui/libarea (cam_voronoi, needs Boost's headers). Still cut in CAM: Surface and Waterline (opencamlib, no
-  cp312 wheel; building OpenCamLib 2023.01.11 with Boost.Python was blocked by the auto-mode classifier, waiting on Juan), the copy and array commands, simulation, work planes, templates, the tool bit library.
+  classes in ui/libarea (cam_voronoi, needs Boost's headers). Surface and Waterline since cam-ocl: FreeCAD's Python unchanged over
+  OpenCamLib 2022.12.18 (ui/opencamlib/build.sh, Boost.Python built in; FreeCAD's AppImage ships the same version) and
+  a port of MeshPart.meshFromShape (cad_agent/fcshim/top/MeshPart.py); tests/golden/cam surface and waterline equal
+  freecadcmd's. Still cut in CAM: the copy and array commands, simulation, work planes, templates, the tool bit library.
   Assembly's Bill of Materials object (2026-11-06): a sheet of the project with a Spreadsheet.Bom head, filled by
   cad_agent/assembly_bom.py (BomObject.cpp's generateBOM, tests/golden/assembly_bom); `cad sheet bom`, the page's
   panel (src/assembly_bom.tsx), assemblycheck's bom section. Linear, Polar and Circular link arrays too (cad_agent/

@@ -97,6 +97,21 @@ CASES = {
         ("ToolController", "TC__60_Deg__V_Bit", {"Tool": "_60_Deg__V_Bit"}),
         ("Vcarve", "Vcarve", {"ToolController": "TC__60_Deg__V_Bit", "Base": [("plate", ["Face5"])]}),
     ]}, "posts": [("linuxcnc", "")]},
+    # OpenCamLib's ops (ui/opencamlib/build.sh: the 2022.12.18 FreeCAD's AppImage ships), over the model as
+    # MeshPart.meshFromShape tessellates it: a ball end over the plate, then the waterline of its outline
+    "surface": {"parts": ["plate"], "jobs": {"Job": [
+        ("Job", "Job", {"Model": ["plate"]}), *DEFAULT_TC,
+        ("ToolBit", "_6mm_Ball_End", {"Bit": "6mm_Ball_End"}),
+        ("ToolController", "TC__6mm_Ball_End", {"Tool": "_6mm_Ball_End"}),
+        ("Surface", "Surface", {"ToolController": "TC__6mm_Ball_End", "SampleInterval": "2 mm", "StepOver": 50}),
+    ]}, "posts": [("linuxcnc", "")]},
+    "waterline": {"parts": ["plate"], "jobs": {"Job": [
+        ("Job", "Job", {"Model": ["plate"]}), *DEFAULT_TC,
+        ("ToolBit", "_6mm_Ball_End", {"Bit": "6mm_Ball_End"}),
+        ("ToolController", "TC__6mm_Ball_End", {"Tool": "_6mm_Ball_End"}),
+        ("Waterline", "Waterline", {"ToolController": "TC__6mm_Ball_End", "SampleInterval": "1 mm", "StepDown": "2 mm",
+                                    "LayerMode": "Multi-pass"}),
+    ]}, "posts": [("linuxcnc", "")]},
     "slot": {"parts": ["plate"], "jobs": {"Job": [
         ("Job", "Job", {"Model": ["plate"]}), *DEFAULT_TC,
         ("ToolBit", "_3_175mm_Endmill", {"Bit": "3.175mm_Endmill"}),

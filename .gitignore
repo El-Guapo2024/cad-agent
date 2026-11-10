@@ -53,3 +53,5 @@ ui/planegcs/build/
 ui/ondsel/build/
 # The native build of the CAM workbench's libarea and tsp_solver modules (ui/libarea/build.sh native)
 ui/libarea/build/
+# The native build of OpenCamLib for CAM Surface and Waterline (ui/opencamlib/build.sh)
+ui/opencamlib/build/

@@ -1328,7 +1328,7 @@ the real GUI by fccam.py: 640 ok, 35 known, 0 FAIL).
 Known differences:
 - Commands not run here are greyed with the reason: Work Plane, Sanity Check, Post Process Selected, Export Template, both
   simulators (simulation is cut), Inspect, Finish Selecting Loop, the tool bit library and dock (`cad cam tool` adds a
-  bit), Surface and Waterline (opencamlib: no wheel for Python 3.12), the copy and array commands and the property bag;
+  bit), the copy and array commands and the property bag;
   Comment and Stop are made (2026-11-06) and edited in the property view. Vcarve's command has no icon: FreeCAD's CAM_Vcarve.svg says CC-BY 4.0 and is not copied; its Operation page's finishing-pass offset is always shown (FreeCAD hides it while Finishing Pass is off). CAM_MillFace (Face), on no menu in 3160daf1e2b6, runs from the console as in FreeCAD.
 - FreeCAD's Path::Area joins wires in the order of its edges' memory addresses (WireJoiner's std::set<EdgeInfo*>), so the
   same job comes out of FreeCAD one of two ways from run to run in three of the four golden cases (a profile starting at
@@ -1344,6 +1344,19 @@ Known differences:
 - The op panels: work planes, the start point and depth picks from the 3D view, Reset to defaults, choosing pocket
   extensions and a tag's position picked on the path are greyed; locations are listed, not added.
 
+### Surface and Waterline (cam-ocl)
+
+FreeCAD's Path/Op/Surface.py, Waterline.py and SurfaceSupport.py, unchanged, over OpenCamLib 2022.12.18 (the version
+FreeCAD's AppImage ships; ui/opencamlib/build.sh) and a port of MeshPart.meshFromShape's standard mesher
+(cad_agent/fcshim/top/MeshPart.py). tests/golden/cam `surface` (a 6 mm ball end over the plate, 2 mm samples) and
+`waterline` (the same bit, multi-pass, 2 mm steps): every command and the linuxcnc G-code equal freecadcmd's. Known
+differences: FreeCAD offers both only with the CAM preference EnableAdvancedOCLFeatures (InitGui.py), and then puts the
+toolbar's 3D operations in the CAM_3dTools group; this app always offers them, laid out that way (camcheck turns its
+recording into that layout and says so). Their Operation pages are drawn from PageOpSurfaceEdit.ui and
+PageOpWaterlineEdit.ui and bound by property; Surface's DropCutterExtraOffset X and Y fields are not bound. No icons:
+CAM_3DSurface.svg and CAM_Waterline.svg are not among the copied icons. Planar Surface and Rotary Surface (behind
+FreeCAD's experimental flag) are not ported.
+
 ## Still missing
 
 - PartDesign: the Shaft Design Wizard is cut (a Python wizard with its own table, charts and calculation); a Sub-Shape Binder binds its own Body only, and only Synchronized; a Boolean's tools and a Clone's source are other part modules ("PartDesign's last commands, 2026-10-27"); Move Object To…, Set Face Colors, Toggle Suppressed and Toggle Freeze are greyed with FreeCAD's reasons ("PartDesign, 2026-10-24").
@@ -1352,7 +1365,7 @@ Known differences:
 - Loft, Pipe and Helix: a Pipe whose end sections are not planar is refused, and a solid's face as a Pipe's or Helix's Profile is not offered ("PartDesign Loft, Pipe and Helix, 2026-10-24").
 - TechDraw: Complex Section's Aligned and No parallel strategies are not checked against FreeCAD (it crashes making them), Broken View's sketch breaks, Project Shape and the views from other workbenches are greyed ("TechDraw workbench, 2026-10-27").
 - Spreadsheet: Bind…, Configuration Table, zoom, printing, the line edits' completer, xlsx import and charts are cut ("Spreadsheet workbench, 2026-10-27").
-- CAM: Surface and Waterline, the Operation pages' own logic and the panels of the ten dress-ups added 2026-11-06, the simulators, work planes, templates and the tool bit library are cut ("CAM workbench").
+- CAM: the Operation pages' own logic and the panels of the ten dress-ups added 2026-11-06, the simulators, work planes, templates and the tool bit library are cut ("CAM workbench").
 - The other workbenches: the selector offers only Assembly, CAD Agent, CAM, Inspection, Part Design, Part, Sketcher, Spreadsheet and TechDraw, so Draft, FEM, Mesh and the rest are not offered ("Toolbars").
 
 ## Draft workbench objects, 2026-11-06
