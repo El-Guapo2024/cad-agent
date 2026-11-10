@@ -211,3 +211,52 @@ def test_a_frequency_analysis_as_a_part_file_gives_freecads_modes(tmp_path, monk
     d = json.loads((work / Fem.RESULTS).read_text())
     assert [m["frequency"] for m in d["modes"]] == pytest.approx(want["frequencies"], rel=1e-9)
     assert [m["range"]["displacement"][1] for m in d["modes"]] == pytest.approx(want["mode_max_displacements"], rel=1e-9)
+
+
+# tests/golden/fem_elmer's cantilever and heat written as part files, with Elmer as their solver
+FC_ELMER = json.loads((Path(__file__).parent / "golden" / "fem_elmer" / "freecad.json").read_text())
+ELMER = {
+    "cantilever": "\n".join(['    Fem.SolverElmer("SolverElmer"),',
+                             '    Fem.EquationElasticity("Elasticity", "SolverElmer", calculate_stresses=True),',
+                             _STEEL % "", _FIX,
+                             '    Fem.ConstraintForce("Force", [("Box", "Face2")], force="100 N", direction=("Box", "Edge5"), reversed=True),',
+                             _MESH]),
+    "heat": "\n".join(['    Fem.SolverElmer("SolverElmer"),', '    Fem.EquationHeat("Heat", "SolverElmer"),',
+                       _STEEL % ', thermal_conductivity="50 W/m/K", thermal_expansion_coefficient="12 um/m/K", specific_heat="500 J/kg/K"',
+                       '    Fem.ConstraintTemperature("Hot", [("Box", "Face1")], temperature="373 K"),',
+                       '    Fem.ConstraintTemperature("Cold", [("Box", "Face2")], temperature="293 K"),', _MESH]),
+}
+
+
+def _elmer():
+    return all(shutil.which(b, path=_path()) for b in ("gmsh", "ElmerGrid", "ElmerSolver"))
+
+
+@pytest.mark.skipif(not _elmer(), reason="Gmsh, ElmerGrid and ElmerSolver are not on the PATH")
+@pytest.mark.parametrize("name", sorted(ELMER))
+def test_an_elmer_analysis_as_a_part_file_gives_freecads(name, tmp_path, monkeypatch):
+    pytest.importorskip("vtkmodules")
+    monkeypatch.setenv("PATH", _path())
+    p = tmp_path / "bar.py"
+    p.write_text(_BAR % ELMER[name])
+    work = tmp_path / "work"
+    r = Fem.run(p, workdir=work, threads=1)
+    want = FC_ELMER[name]
+    assert (r["nodes"], r["volumes"], r["solver"]) == (want["nodes"], want["volumes"], "Elmer")
+    assert Path(r["sif"]).read_text() == want["sif"]
+    d = json.loads((work / Fem.RESULTS).read_text())
+    if "displacement" in want["arrays"]:          # Elmer's SI: metres and pascals; FreeCAD's mm and MPa
+        assert r["max_displacement_mm"] == pytest.approx(want["arrays"]["displacement"][1] * 1e3, rel=1e-9)
+        assert d["range"]["displacement"][1] == pytest.approx(r["max_displacement_mm"], rel=1e-9)
+    if "vonmises" in want["arrays"]:
+        assert r["max_von_mises_mpa"] == pytest.approx(want["arrays"]["vonmises"][1] * 1e-6, rel=1e-9)
+    if "temperature" in want["arrays"]:
+        assert (r["min_temperature_k"], r["max_temperature_k"]) == pytest.approx(tuple(want["arrays"]["temperature"]))
+        assert d["range"]["temperature"] == pytest.approx(want["arrays"]["temperature"])
+
+
+def test_an_equation_needs_its_elmer_solver_first(tmp_path):
+    p = tmp_path / "bar.py"
+    p.write_text(_BAR % "\n".join(['    Fem.EquationHeat("Heat", "SolverElmer"),', _STEEL % "", _MESH]))
+    with pytest.raises(Fem.FemError, match="no SolverElmer"):
+        Fem.run(p, workdir=tmp_path / "work")

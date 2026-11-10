@@ -10,9 +10,11 @@
 //   results    Show Result: the values, the colours, the part hidden meanwhile, the displacement scaled
 //   thermal    tests/golden/fem's thermomech made in the panels: FreeCAD's displacement, stress and temperatures
 //   modes      tests/golden/fem's frequency made in the panels: FreeCAD's frequencies and mode shapes; Histogram, Animation
+//   elmer      tests/golden/fem_elmer's cantilever made in the panels (Solver Elmer, its Elasticity equation): FreeCAD's
+//              Elmer results (ElmerGrid and ElmerSolver on the PATH)
 import { createRequire } from 'module'
 import { spawn, spawnSync } from 'child_process'
-import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'fs'
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'fs'
 import { createServer } from 'net'
 import { tmpdir } from 'os'
 import { dirname, join, resolve } from 'path'
@@ -88,6 +90,16 @@ OBJECTS = [Part.Box("Box", length=100, width=10, height=10)]
 def build(**p):
     return Part.Document(OBJECTS, p)
 `)
+writeFileSync(join(ROOT, 'pc', 'parts', 'elmer.py'), `"""elmer: a box for the Elmer analysis."""
+from cad_agent import feature_part as Part
+
+PARAMS = {}
+OBJECTS = [Part.Box("Box", length=100, width=10, height=10)]
+
+
+def build(**p):
+    return Part.Document(OBJECTS, p)
+`)
 writeFileSync(join(ROOT, 'pc', 'parts', 'blank.py'), `"""blank: the same box, no analysis yet."""
 from cad_agent import feature_part as Part
 
@@ -138,6 +150,8 @@ const pickCombo = async (qf, text) => {
   await sleep(400)
 }
 const FCJ = JSON.parse(readFileSync(join(REPO, 'tests', 'golden', 'fem', 'freecad.json'), 'utf8'))
+const FCE = JSON.parse(readFileSync(join(REPO, 'tests', 'golden', 'fem_elmer', 'freecad.json'), 'utf8'))
+const which = (b) => (process.env.PATH + ':' + (process.env.FREECAD_BIN ?? '')).split(':').some((d) => d && existsSync(join(d, b)))
 
 try {
   console.log('workbench')
@@ -317,6 +331,42 @@ try {
   check(seen.size > 2, 'the animation moves the mesh', String(seen.size))
   await until(`document.querySelector('[data-qf="startButton"]').textContent.includes('Start Animation')`, 'the animation to end (one cycle of four steps)', 5000)
   await page.click('[data-task="fem-result"] .tbuttons .qbtn'); await page.waitForSelector('[data-task="fem-analysis"]', { timeout: 15000 })
+
+  console.log('elmer')
+  // tests/golden/fem_elmer's cantilever made in the panels: Solver Elmer, its Elasticity equation with Calculate
+  // Stresses, then the same material, conditions and mesh as the CalculiX one
+  await st(`cadui.setState({ featSel: ['elmer/Box'], selected: [], task: null })`)
+  await until(`!!cadui.getState().features.elmer`, 'the elmer part to load', 30000)
+  await open('FEM_Analysis', 'fem-analysis')
+  const nw = await st('cadui.getState().messages.length')
+  await runCmd('FEM_EquationElasticity'); await sleep(1500)
+  check(await st(`cadui.getState().messages.slice(${nw}).some((m) => m.level === 'warn' && /no Elmer solver/.test(m.text))`), 'an equation without an Elmer solver says so')
+  await runCmd('FEM_SolverElmer'); await page.waitForSelector('[data-name="SolverElmer"]', { timeout: 30000 })
+  await runCmd('FEM_EquationElasticity'); await page.waitForSelector('[data-name="Elasticity"]', { timeout: 30000 })
+  await page.click(`[data-name="Elasticity"] ${qf('edit')}`); await page.waitForSelector(qf('CalculateStresses'), { timeout: 15000 })
+  check(!await page.isChecked(`${qf('CalculateStresses')} input, input${qf('CalculateStresses')}`) && await page.isChecked(`${qf('CalculatePrincipal')} input, input${qf('CalculatePrincipal')}`),
+    'the equation shows FreeCAD\'s defaults (no stresses, principal on)')
+  await page.click(`${qf('CalculateStresses')} input, input${qf('CalculateStresses')}`); await accept()
+  await open('FEM_MaterialSolid', 'fem-object'); await accept()
+  await open('FEM_ConstraintFixed', 'fem-object'); await pick('@Box.Face1'); await accept()
+  await open('FEM_ConstraintForce', 'fem-object'); await pick('@Box.Face2'); await page.fill(qf('spinForce'), '100 N')
+  await page.click(qf('buttonDirection')); await pick('@Box.Edge5')
+  await page.click(`${qf('checkReverse')}, label:has-text("Reverse direction") input`); await accept()
+  await open('FEM_MeshGmshFromShape', 'fem-object'); await page.fill(qf('qsb_max_size'), '5 mm'); await accept()
+  const el = readFileSync(join(ROOT, 'pc', 'parts', 'elmer.py'), 'utf8')
+  check(el.includes('Fem.SolverElmer("SolverElmer")') && el.includes('Fem.EquationElasticity("Elasticity", "SolverElmer", calculate_stresses=True)'), 'the part file has the Elmer solver and its equation', el)
+  if (!which('ElmerSolver') || !which('ElmerGrid')) note('Elmer is not on the PATH: its run is not checked')
+  else {
+    const ec = FCE.cantilever, n5 = await st('cadui.getState().messages.length')
+    await runCmd('FEM_SolverRun')
+    await until(`cadui.getState().messages.slice(${n5}).some((m) => /max von Mises/.test(m.text) || m.level === 'err')`, 'the Elmer solve', 300000)
+    const line5 = (await st(`cadui.getState().messages.slice(${n5}).map((m) => m.level + ': ' + m.text)`)).find((m) => /max von Mises/.test(m)) ?? ''
+    const d5 = (ec.arrays.displacement[1] * 1e3).toPrecision(6), s5 = (ec.arrays.vonmises[1] * 1e-6).toPrecision(6)
+    check(line5.includes(`${ec.nodes} nodes`) && line5.includes(`max displacement ${d5} mm`) && line5.includes(`max von Mises stress ${s5} MPa`), 'the Elmer analysis made in the panels gives FreeCAD\'s Elmer results', line5)
+    await open('FEM_ResultShow', 'fem-result'); await page.waitForSelector(qf('le_max'), { timeout: 30000 })
+    check((await page.inputValue(qf('le_max'))).startsWith(s5), 'Show Result: Elmer\'s von Mises maximum', await page.inputValue(qf('le_max')))
+    await page.click('[data-task="fem-result"] .tbuttons .qbtn'); await page.waitForSelector('[data-task="fem-analysis"]', { timeout: 15000 })
+  }
 } catch (e) {
   bad('femcheck stopped', e.stack ?? String(e))
 } finally {

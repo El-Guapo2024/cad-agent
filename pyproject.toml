@@ -40,6 +40,8 @@ metal = ["pyobjc-framework-Metal>=10.0"]
 # finds the same hits, so the numbers do not move. It has wheels for macOS 13 and up, Linux x86_64
 # and Windows x86_64; elsewhere the Python caster does the same job slower.
 embree = ['embreex>=4.4; platform_machine != "aarch64" and platform_machine != "ARM64"']
+# VTK's Python (BSD-3-Clause), which FreeCAD's FEM reads Elmer's results with (`cad fem run` of a SolverElmer).
+fem = ["vtk>=9.3"]
 # ISO fasteners for the part library (`cad lib`), Apache-2.0.
 fasteners = ["bd_warehouse>=0.3"]
 dev = ["pytest"]

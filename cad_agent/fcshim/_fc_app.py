@@ -805,6 +805,26 @@ class DocumentObject:
         if self.TypeId != "Fem::FemPostPipeline":
             raise AttributeError(f"'{self.TypeId}' object has no attribute 'recomputeChildren'")
 
+    def read(self, *args):
+        """FemPostPipelinePy::read: one result file into Data, or (files, frame values, unit, frame type) as a
+        vtkMultiBlockDataSet of frames (cad_agent/fcshim/_fc_fempost.py)."""
+        if self.TypeId != "Fem::FemPostPipeline":
+            raise AttributeError(f"'{self.TypeId}' object has no attribute 'read'")
+        from . import _fc_fempost
+        self._props["Data"].value = _fc_fempost.read(*args)
+
+    def setTimeInfo(self, frame_type, unit):
+        if self.TypeId != "Fem::FemPostPipeline":
+            raise AttributeError(f"'{self.TypeId}' object has no attribute 'setTimeInfo'")
+        from . import _fc_fempost
+        _fc_fempost.set_time_info(self._props["Data"].value, frame_type, unit)
+
+    def getFrameValues(self):
+        if self.TypeId != "Fem::FemPostPipeline":
+            raise AttributeError(f"'{self.TypeId}' object has no attribute 'getFrameValues'")
+        from . import _fc_fempost
+        return _fc_fempost.frame_values(self._props["Data"].value)
+
     def getGlobalPlacement(self):
         """GeoFeature::getGlobalPlacement: its Placement times every containing group's (a Part/Body container); the
         stand-ins' documents have no such containers, so its own."""

@@ -8,7 +8,7 @@ TYPES = ["Fem::FemAnalysis", "Fem::FemAnalysisPython", "Fem::FeaturePython", "Fe
  "Fem::ConstraintFixed", "Fem::ConstraintForce", "Fem::ConstraintPressure", "Fem::ConstraintDisplacement", "Fem::ConstraintTemperature",
  "Fem::ConstraintInitialTemperature", "Fem::ConstraintHeatflux", "Fem::ConstraintPlaneRotation", "Fem::ConstraintContact",
  "Fem::ConstraintSpring", "Fem::ConstraintTransform", "Fem::ConstraintRigidBody", "Fem::FemMeshObject", "Fem::FemSolverObject",
- "Fem::FemResultObject", "Fem::Constraint", "App::MaterialObject"]
+ "Fem::FemResultObject", "Fem::Constraint", "App::MaterialObject", "Fem::FemPostPipeline"]
 def plain(v):
     if isinstance(v, (bool, int, float, str)) or v is None: return v
     if hasattr(v, "Value") and hasattr(v, "Unit"): return {"q": v.Value, "u": str(v.Unit)}

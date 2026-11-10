@@ -1145,7 +1145,7 @@ def test_drawings_have_no_extra_and_no_message_sends_a_user_to_one():
     in the package may still say `pip install "cad-agent[drawings]"` or import a plotting package."""
     import tomllib
     extras = tomllib.loads((REPO / "pyproject.toml").read_text())["project"]["optional-dependencies"]
-    assert set(extras) == {"metal", "embree", "fasteners", "dev"}
+    assert set(extras) == {"metal", "embree", "fasteners", "dev", "fem"}
     assert not any("matplotlib" in requirement for requirements in extras.values() for requirement in requirements)
     for path in sorted((REPO / "cad_agent").rglob("*.py")):
         text = path.read_text()

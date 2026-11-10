@@ -1,11 +1,13 @@
 # SPDX-License-Identifier: LGPL-2.1-or-later
 # Port of FreeCAD 3160daf1e2b6's FEM mesh (src/Mod/Fem/App/FemMesh.cpp, FemMeshPyImp.cpp; Copyright (c) 2008 Jürgen
-# Riegel) and of the SMESH UNV reader it reads Gmsh's meshes with (src/3rdParty/salomesmesh/src/DriverUNV/
-# DriverUNV_R_SMDS_Mesh.cpp, UNV2411_Structure.cpp, UNV2412_Structure.cpp; Copyright (C) 2007-2015 CEA/DEN, EDF R&D,
-# OPEN CASCADE, LGPL-2.1-or-later).
+# Riegel) and of the SMESH UNV reader it reads Gmsh's meshes with and the writer it exports .unv with (src/3rdParty/
+# salomesmesh/src/DriverUNV/DriverUNV_R_SMDS_Mesh.cpp, DriverUNV_W_SMDS_Mesh.cpp, UNV164/2411/2412/2417/2420_Structure.cpp;
+# src/SMDS/SMDS_MeshCell.cpp, SMDS_VtkCellIterator.cpp; Copyright (C) 2007-2015 CEA/DEN, EDF R&D, OPEN CASCADE,
+# LGPL-2.1-or-later).
 """Fem.FemMesh for FreeCAD's FEM Python: the nodes and elements of a mesh as SMESH holds them (by ID, iterated in ID
 order), read from Gmsh's .unv as SMESH's UNV driver reads it, the lookups by shape that the CalculiX writer uses
-(getNodesByFace, getccxVolumesByFace, ...: BRepExtrema_DistShapeShape within the shape's tolerance) and writeABAQUS."""
+(getNodesByFace, getccxVolumesByFace, ...: BRepExtrema_DistShapeShape within the shape's tolerance), writeABAQUS, and
+write, the .unv SMESH exports (Elmer's ElmerGrid reads it)."""
 from __future__ import annotations
 
 import math
@@ -23,10 +25,12 @@ class FemMesh:
         self._nodes: dict[int, tuple] = {}
         self._elems: dict[int, tuple] = {}        # id -> (kind, (node ids, SMDS order))
         self._groups: dict[int, tuple] = {}       # id -> (name, element type, element ids)
+        self._next_gid = 0                        # SMESH_Mesh::_groupId: groups are numbered 0, 1, ... as made
         self.Placement = B.Placement()
         if isinstance(other, FemMesh):
             self._nodes, self._elems = dict(other._nodes), dict(other._elems)
-            self._groups = dict(other._groups)
+            self._groups = {g: (n, k, list(ids)) for g, (n, k, ids) in other._groups.items()}
+            self._next_gid = other._next_gid
             self.Placement = B.Placement(other.Placement)
 
     def copy(self):
@@ -159,7 +163,9 @@ class FemMesh:
         return tuple(self._groups[gid][2])
 
     def addGroup(self, name, typestr, gid=-1):
-        gid = gid if gid >= 0 else (max(self._groups) + 1 if self._groups else 1)
+        """FemMesh::addGroup: SMESH_Mesh::AddGroup takes the next of its own numbers, whatever id is asked for."""
+        gid = self._next_gid
+        self._next_gid += 1
         self._groups[gid] = (name, typestr, [])
         return gid
 
@@ -309,6 +315,15 @@ class FemMesh:
     def writeABAQUS(self, fileName, elemParam, groupParam, volVariant="standard", faceVariant="shell",
                     edgeVariant="beam"):
         _write_abaqus(self, fileName, int(elemParam), bool(groupParam), volVariant, faceVariant, edgeVariant)
+
+    # ── write (FemMesh::write) ──
+    def write(self, filename):
+        """FemMesh::write: a .unv as SMESH_Mesh::ExportUNV writes it (DriverUNV_W_SMDS_Mesh), with every group."""
+        name = str(filename)
+        if not name.lower().endswith(".unv"):
+            raise RuntimeError(f"Unknown extension: {filename}")
+        with open(name, "w") as f:
+            f.write(_unv(self))
 
 
 def _topods(s):
@@ -594,7 +609,89 @@ def _vtk_groups(mesh, toks, name, dims, ncells):
             groups.setdefault(v, []).append(c + 1)
     kinds = {0: "0DElement", 1: "Edge", 2: "Face", 3: "Volume"}
     for v, els in sorted(groups.items()):
-        mesh._groups[v] = (str(v), kinds[dims.get(els[0], 3)], sorted(set(els)))
+        gid = mesh.addGroup(str(v), kinds[dims.get(els[0], 3)], v)
+        mesh.addGroupElements(gid, sorted(set(els)))
+
+
+# SMESH's UNV writer (DriverUNV_W_SMDS_Mesh::Perform): each element kind by (SMDS kind, node count) -> (its UNV
+# fe_descriptor_id, the order of its nodes as written). The order is SMDS -> VTK (SMDS_MeshCell::toVtkOrder, which
+# the cell is stored in) and then SMDS_VtkCellIteratorToUNV's ids over the VTK cell; a 27 node hexahedron writes 20
+# and a 9 node quadrangle 8. Pyramids and polyhedra are not written.
+def _unv_order(to_vtk, to_unv, n):
+    vtk = list(to_vtk) if to_vtk else list(range(n))
+    return tuple(vtk[i] for i in to_unv) if to_unv else tuple(vtk[:n])
+
+
+_UNV_KIND = {
+    (_EDGE, 2): (11, (0, 1)), (_EDGE, 3): (22, (0, 2, 1)),
+    (_FACE, 3): (41, (0, 1, 2)), (_FACE, 4): (44, (0, 1, 2, 3)),
+    (_FACE, 6): (42, (0, 3, 1, 4, 2, 5)), (_FACE, 7): (42, (0, 3, 1, 4, 2, 5)),
+    (_FACE, 8): (45, (0, 4, 1, 5, 2, 6, 3, 7)), (_FACE, 9): (45, (0, 4, 1, 5, 2, 6, 3, 7)),
+    (_VOL, 4): (111, _unv_order((0, 2, 1, 3), None, 4)),
+    (_VOL, 10): (118, _unv_order((0, 2, 1, 3, 6, 5, 4, 7, 9, 8), (0, 4, 1, 5, 2, 6, 7, 8, 9, 3), 10)),
+    (_VOL, 6): (112, _unv_order(None, (0, 2, 1, 3, 5, 4), 6)),
+    (_VOL, 15): (113, _unv_order(None, (0, 8, 2, 7, 1, 6, 12, 14, 13, 3, 11, 5, 10, 4, 9), 15)),
+    (_VOL, 8): (115, _unv_order((0, 3, 2, 1, 4, 7, 6, 5), None, 8)),
+    (_VOL, 20): (116, _unv_order((0, 3, 2, 1, 4, 7, 6, 5, 11, 10, 9, 8, 15, 14, 13, 12, 16, 19, 18, 17),
+                                 (0, 8, 1, 9, 2, 10, 3, 11, 16, 17, 18, 19, 4, 12, 5, 13, 6, 14, 7, 15), 20)),
+    (_VOL, 27): (116, _unv_order((0, 3, 2, 1, 4, 7, 6, 5, 11, 10, 9, 8, 15, 14, 13, 12, 16, 19, 18, 17,
+                                  21, 23, 24, 22, 20, 25, 26),
+                                 (0, 8, 1, 9, 2, 10, 3, 11, 16, 17, 18, 19, 4, 12, 5, 13, 6, 14, 7, 15), 27)),
+}
+
+
+def _unv(mesh):
+    """The text of SMESH's UNV export: datasets 164 (units), 2420 (coordinate system), 2411 (nodes), 2412 (edges,
+    faces, then volumes, each in ID order) and 2467 (the groups, labelled by their id + 1). The elements are
+    labelled as SMESH's VTK cells number them: their ids without the 0D elements, which a group names as 0."""
+    out = ["    -1", "   164", "         1  SI: Meter (newton)         2",
+           "    1.0000000000000000E+0    1.0000000000000000E+0    1.0000000000000000E+0",
+           "    2.7314999999999998E+2", "    -1",
+           "    -1", "  2420", "         1", "SMESH_Mesh", "         1         0         0",
+           "Global Cartesian Coordinate System",
+           "    1.0000000000000000E+0    0.0000000000000000E+0    0.0000000000000000E+0",
+           "    0.0000000000000000E+0    1.0000000000000000E+0    0.0000000000000000E+0",
+           "    0.0000000000000000E+0    0.0000000000000000E+0    1.0000000000000000E+0",
+           "    0.0000000000000000E+0    0.0000000000000000E+0    0.0000000000000000E+0", "    -1",
+           "    -1", "  2411"]
+    for nid, (x, y, z) in sorted(mesh._nodes.items()):
+        out.append("%10d%10d%10d%10d" % (nid, 1, 1, 11))
+        out.append("%25.16E%25.16E%25.16E" % (x, y, z))
+    out += ["    -1", "    -1", "  2412"]
+    label, zero_d = {}, 0
+    for eid in sorted(mesh._elems):
+        if mesh._elems[eid][0] == "0DElement":
+            zero_d += 1
+            label[eid] = 0
+        else:
+            label[eid] = eid - zero_d
+    for kind in (_EDGE, _FACE, _VOL):
+        for eid in sorted(mesh._elems):
+            k, nodes = mesh._elems[eid]
+            if k != kind or (k, len(nodes)) not in _UNV_KIND:
+                continue
+            fe, order = _UNV_KIND[(k, len(nodes))]
+            labels = [nodes[i] for i in order[:20]]
+            out.append("%10d%10d%10d%10d%10d%10d" % (label[eid], fe, 2, 1, 7, len(labels)))
+            if fe in (11, 21, 22, 23, 24, 25):                       # UNV2412::IsBeam
+                out.append("%10d%10d%10d" % (0, 1, 1))
+            for i in range(0, len(labels), 8):
+                out.append("".join("%10d" % n for n in labels[i:i + 8]))
+    out.append("    -1")
+    if mesh._groups:
+        out += ["    -1", "  2467"]
+        for gid in sorted(mesh._groups):
+            name, kind, ids = mesh._groups[gid]
+            ids = sorted(set(ids))
+            recs = [(7, i) for i in ids] if kind == "Node" else [(8, label.get(i, i)) for i in ids]
+            out.append("%10d%10d%10d%10d%10d%10d%10d%10d" % (gid + 1, 0, 0, 0, 0, 0, 0, len(recs)))
+            out.append(name)
+            for i in range(0, len(recs), 2):
+                out.append("".join("%10d%10d%10d%10d" % (t, n, 0, 0) for t, n in recs[i:i + 2]))
+            if not recs:
+                out.append("")
+        out.append("    -1")
+    return "\n".join(out) + "\n"
 
 
 def read(filename):

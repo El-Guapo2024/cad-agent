@@ -1,0 +1,158 @@
+{
+ "cantilever": {
+  "arrays": {
+   "displacement": [
+    0.0,
+    0.00011733555384624537
+   ],
+   "principal stress": [
+    714401.6689561195,
+    106568298.79662408
+   ],
+   "stress_xx": [
+    -85290135.0,
+    77071238.0
+   ],
+   "stress_xy": [
+    -5122458.7,
+    5920973.3
+   ],
+   "stress_xz": [
+    -18469097.0,
+    5583496.2
+   ],
+   "stress_yy": [
+    -39564890.0,
+    36158066.0
+   ],
+   "stress_yz": [
+    -5757407.2,
+    7247020.8
+   ],
+   "stress_zz": [
+    -42570302.0,
+    38949707.0
+   ],
+   "tresca": [
+    473799.05,
+    30454783.0
+   ],
+   "vonmises": [
+    824171.32,
+    55353160.0
+   ]
+  },
+  "files": {
+   "mesh.boundary": "c5928ee5e3d35965c2741f1040168fcee3e78b990d3133df0e694730e3feb9a8",
+   "mesh.elements": "b9c83cb8a569cb873a7e101edb479a8ce64298f8edaea9c366840137ba1ae120",
+   "mesh.header": "81025219dfa9d5aea4646785873d9bcec0fa3e0efd89cea42b43ee4050dffa55",
+   "mesh.names": "0966ac4448d3ef306b45494a2c11e259b6f61f15acc5a1a21036fa38d6dc4796",
+   "mesh.nodes": "ac77e0e46e5753c3e1c30fa52b8e49d189ef30b7e9cad04cbeded05ae212cfd4",
+   "mesh.unv": "ea64861831f8fe797d04eb102dd3ef16b9009d54fb83438e0bfadbe9ff0ebfe6"
+  },
+  "nodes": 199,
+  "points": 199,
+  "sif": "Check Keywords \"Warn\"\n\nHeader\n  Mesh DB \".\"\nEnd\n\nSolver 1\n  Calculate Principal = Logical True\n  Calculate Stresses = Logical True\n  Displace mesh = Logical True\n  Eigen Analysis = Logical False\n  Equation = String \"Stress Solver\"\n  Geometric Stiffness = Logical False\n  Linear System Abort Not Converged = Logical False\n  Linear System Direct Method = String \"Umfpack\"\n  Linear System Precondition Recompute = Integer 1\n  Linear System Residual Output = Integer 1\n  Linear System Solver = String \"Direct\"\n  Optimize Bandwidth = Logical True\n  Procedure = File \"StressSolve\" \"StressSolver\"\n  Stabilize = Logical True\n  Steady State Convergence Tolerance = Real 1e-05\n  Variable = String \"Displacement\"\n  Variable DOFs = Integer 3\nEnd\n\nSimulation\n  Coordinate Mapping(3) = Integer 1 2 3\n  Coordinate Scaling = Real 0.001\n  Coordinate System = String \"Cartesian\"\n  Max Output Level = Integer 10\n  Simulation Type = String \"Steady State\"\n  Steady State Max Iterations = Integer 1\n  Steady State Min Iterations = Integer 0\n  Use Mesh Names = Logical True\nEnd\n\nConstants\nEnd\n\nBody 1\n  Equation = Integer 1\n  Material = Integer 1\n  Name = String \"Solid1\"\nEnd\n\nMaterial 1\n  Density = Real 7900.0\n  Name = String \"Steel\"\n  Poisson ratio = Real 0.3\n  Youngs Modulus = Real 210000000000.0\nEnd\n\nEquation 1\n  Active Solvers(2) = Integer 1 2\nEnd\n\nSolver 2\n  Binary Output = Logical False\n  Coordinate Scaling Revert = Logical True\n  Equation = String \"ResultOutput\"\n  Exec Solver = String \"After simulation\"\n  Output Directory = File \"Result\"\n  Output File Name = File \"FreeCAD\"\n  Procedure = File \"ResultOutputSolve\" \"ResultOutputSolver\"\n  Save Geometry Ids = Logical False\n  Vtu Format = Logical True\n  Vtu Time Collection = Logical True\nEnd\n\nBoundary Condition 1\n  Displacement 1 = Real 0.0\n  Displacement 2 = Real 0.0\n  Displacement 3 = Real 0.0\n  Name = String \"Face1\"\nEnd\n\nBoundary Condition 2\n  Force 1 = Real -0.0\n  Force 1 Normalize by Area = Logical True\n  Force 2 = Real -0.0\n  Force 2 Normalize by Area = Logical True\n  Force 3 = Real -100.0\n  Force 3 Normalize by Area = Logical True\n  Name = String \"Face2\"\nEnd\n",
+  "startinfo": "case.sif\n",
+  "volumes": 506
+ },
+ "heat": {
+  "arrays": {
+   "temperature": [
+    293.0,
+    373.0
+   ]
+  },
+  "files": {
+   "mesh.boundary": "c5928ee5e3d35965c2741f1040168fcee3e78b990d3133df0e694730e3feb9a8",
+   "mesh.elements": "b9c83cb8a569cb873a7e101edb479a8ce64298f8edaea9c366840137ba1ae120",
+   "mesh.header": "81025219dfa9d5aea4646785873d9bcec0fa3e0efd89cea42b43ee4050dffa55",
+   "mesh.names": "0966ac4448d3ef306b45494a2c11e259b6f61f15acc5a1a21036fa38d6dc4796",
+   "mesh.nodes": "ac77e0e46e5753c3e1c30fa52b8e49d189ef30b7e9cad04cbeded05ae212cfd4",
+   "mesh.unv": "ea64861831f8fe797d04eb102dd3ef16b9009d54fb83438e0bfadbe9ff0ebfe6"
+  },
+  "nodes": 199,
+  "points": 199,
+  "sif": "Check Keywords \"Warn\"\n\nHeader\n  Mesh DB \".\"\nEnd\n\nSolver 1\n  Bubbles = Logical True\n  Equation = String \"Heat\"\n  Exec Solver = String \"Always\"\n  Linear System Abort Not Converged = Logical False\n  Linear System Convergence Tolerance = Real 1e-10\n  Linear System Iterative Method = String \"BiCGStab\"\n  Linear System Max Iterations = Integer 500\n  Linear System Precondition Recompute = Integer 1\n  Linear System Preconditioning = String \"ILU0\"\n  Linear System Residual Output = Integer 1\n  Linear System Solver = String \"Iterative\"\n  Nonlinear System Convergence Tolerance = Real 1e-07\n  Nonlinear System Max Iterations = Integer 20\n  Nonlinear System Newton After Iterations = Integer 3\n  Nonlinear System Newton After Tolerance = Real 0.001\n  Nonlinear System Relaxation Factor = Real 1.0\n  Optimize Bandwidth = Logical True\n  Procedure = File \"HeatSolve\" \"HeatSolver\"\n  Stabilize = Logical False\n  Steady State Convergence Tolerance = Real 1e-05\n  Variable = String \"Temperature\"\nEnd\n\nSimulation\n  Coordinate Mapping(3) = Integer 1 2 3\n  Coordinate Scaling = Real 0.001\n  Coordinate System = String \"Cartesian\"\n  Max Output Level = Integer 10\n  Simulation Type = String \"Steady State\"\n  Steady State Max Iterations = Integer 1\n  Steady State Min Iterations = Integer 0\n  Use Mesh Names = Logical True\nEnd\n\nConstants\n  Stefan Boltzmann = Real 5.67037e-08\nEnd\n\nBody 1\n  Equation = Integer 1\n  Material = Integer 1\n  Name = String \"Solid1\"\nEnd\n\nMaterial 1\n  Density = Real 7900.0\n  Heat Capacity = Real 500.0\n  Heat Conductivity = Real 50.0\n  Name = String \"Steel\"\nEnd\n\nEquation 1\n  Active Solvers(2) = Integer 1 2\nEnd\n\nSolver 2\n  Binary Output = Logical False\n  Coordinate Scaling Revert = Logical True\n  Equation = String \"ResultOutput\"\n  Exec Solver = String \"After simulation\"\n  Output Directory = File \"Result\"\n  Output File Name = File \"FreeCAD\"\n  Procedure = File \"ResultOutputSolve\" \"ResultOutputSolver\"\n  Save Geometry Ids = Logical False\n  Vtu Format = Logical True\n  Vtu Time Collection = Logical True\nEnd\n\nBoundary Condition 1\n  Name = String \"Face1\"\n  Temperature = Real 373.0\nEnd\n\nBoundary Condition 2\n  Name = String \"Face2\"\n  Temperature = Real 293.0\nEnd\n",
+  "startinfo": "case.sif\n",
+  "volumes": 506
+ },
+ "plate_hole": {
+  "arrays": {
+   "displacement": [
+    0.0,
+    6.286372402722355e-05
+   ],
+   "principal stress": [
+    110831.98658304622,
+    258286961.67584848
+   ],
+   "stress_xx": [
+    -188430740.0,
+    195349960.0
+   ],
+   "stress_xy": [
+    -321216.39,
+    54595688.0
+   ],
+   "stress_xz": [
+    -13971858.0,
+    14413051.0
+   ],
+   "stress_yy": [
+    -105310390.0,
+    110155840.0
+   ],
+   "stress_yz": [
+    -8447693.0,
+    8415604.9
+   ],
+   "stress_zz": [
+    -100581920.0,
+    102248800.0
+   ],
+   "tresca": [
+    74096.051,
+    69247646.0
+   ],
+   "vonmises": [
+    134674.51,
+    130139630.0
+   ]
+  },
+  "files": {
+   "mesh.boundary": "864d29b11df16bf2c3ff3e2627bc6c5139c06847b32c60af3459a4490f8ce593",
+   "mesh.elements": "ee0739213e1efe6ec5e6b7222b06eab4efab81378e97ffdf529abcec3c71d343",
+   "mesh.header": "74f6776cd7b54fabd75dd3f10bcd32c1db7aaf4c40825a6449f0ab11ba14accd",
+   "mesh.names": "ea2b48970531daa2e089b868ba689ead903436e4d0cec4c0af74373eb0e8a670",
+   "mesh.nodes": "0c89c68f499c1ee32a7f4dd527dba3cc2f262e8a4444eb2ef0d98b5a6af26698",
+   "mesh.unv": "f9bd07591bb2597d0d1b6817bd4a7b35c62cb375f026a2002e13111f1c7834b3"
+  },
+  "nodes": 597,
+  "points": 597,
+  "sif": "Check Keywords \"Warn\"\n\nHeader\n  Mesh DB \".\"\nEnd\n\nSolver 1\n  Calculate Principal = Logical True\n  Calculate Stresses = Logical True\n  Displace mesh = Logical True\n  Eigen Analysis = Logical False\n  Equation = String \"Stress Solver\"\n  Geometric Stiffness = Logical False\n  Linear System Abort Not Converged = Logical False\n  Linear System Direct Method = String \"Umfpack\"\n  Linear System Precondition Recompute = Integer 1\n  Linear System Residual Output = Integer 1\n  Linear System Solver = String \"Direct\"\n  Optimize Bandwidth = Logical True\n  Procedure = File \"StressSolve\" \"StressSolver\"\n  Stabilize = Logical True\n  Steady State Convergence Tolerance = Real 1e-05\n  Variable = String \"Displacement\"\n  Variable DOFs = Integer 3\nEnd\n\nSimulation\n  Coordinate Mapping(3) = Integer 1 2 3\n  Coordinate Scaling = Real 0.001\n  Coordinate System = String \"Cartesian\"\n  Max Output Level = Integer 10\n  Simulation Type = String \"Steady State\"\n  Steady State Max Iterations = Integer 1\n  Steady State Min Iterations = Integer 0\n  Use Mesh Names = Logical True\nEnd\n\nConstants\nEnd\n\nBody 1\n  Equation = Integer 1\n  Material = Integer 1\n  Name = String \"Solid1\"\nEnd\n\nMaterial 1\n  Density = Real 7900.0\n  Name = String \"Steel\"\n  Poisson ratio = Real 0.3\n  Youngs Modulus = Real 210000000000.0\nEnd\n\nEquation 1\n  Active Solvers(2) = Integer 1 2\nEnd\n\nSolver 2\n  Binary Output = Logical False\n  Coordinate Scaling Revert = Logical True\n  Equation = String \"ResultOutput\"\n  Exec Solver = String \"After simulation\"\n  Output Directory = File \"Result\"\n  Output File Name = File \"FreeCAD\"\n  Procedure = File \"ResultOutputSolve\" \"ResultOutputSolver\"\n  Save Geometry Ids = Logical False\n  Vtu Format = Logical True\n  Vtu Time Collection = Logical True\nEnd\n\nBoundary Condition 1\n  Displacement 1 = Real 0.0\n  Displacement 2 = Real 0.0\n  Displacement 3 = Real 0.0\n  Name = String \"Face1\"\nEnd\n\nBoundary Condition 2\n  Force 1 = Real 0.0\n  Force 1 Normalize by Area = Logical True\n  Force 2 = Real 2000.0\n  Force 2 Normalize by Area = Logical True\n  Force 3 = Real 0.0\n  Force 3 Normalize by Area = Logical True\n  Name = String \"Face2\"\nEnd\n",
+  "startinfo": "case.sif\n",
+  "volumes": 1614
+ },
+ "pressure_plate": {
+  "arrays": {
+   "displacement": [
+    0.0,
+    1.5237604015044507e-05
+   ]
+  },
+  "files": {
+   "mesh.boundary": "3d521dc842cb9e518474f6300c856fd7c0b9f7522a305a05361a88afaed09c2e",
+   "mesh.elements": "6f8e88b379984ea2492760eac1d7da28163feecdeaca9b6c59960a94f9f0e75b",
+   "mesh.header": "7f483ac34810b3b6c8b0253acfc0b9140a102ea027669d277b751ce8a4f7c721",
+   "mesh.names": "0966ac4448d3ef306b45494a2c11e259b6f61f15acc5a1a21036fa38d6dc4796",
+   "mesh.nodes": "a2e4ea477430d4e6a5a94a153f1ff71de727b3b4d077cd8f7d76a70eb2372616",
+   "mesh.unv": "6ae84a3f6cf1ebf9f380c4ef70f47087ac15b5e197662983226b423924edfa5b"
+  },
+  "nodes": 906,
+  "points": 906,
+  "sif": "Check Keywords \"Warn\"\n\nHeader\n  Mesh DB \".\"\nEnd\n\nSolver 1\n  Calculate Principal = Logical True\n  Displace mesh = Logical True\n  Eigen Analysis = Logical False\n  Equation = String \"Stress Solver\"\n  Geometric Stiffness = Logical False\n  Linear System Abort Not Converged = Logical False\n  Linear System Direct Method = String \"Umfpack\"\n  Linear System Precondition Recompute = Integer 1\n  Linear System Residual Output = Integer 1\n  Linear System Solver = String \"Direct\"\n  Optimize Bandwidth = Logical True\n  Procedure = File \"StressSolve\" \"StressSolver\"\n  Stabilize = Logical True\n  Steady State Convergence Tolerance = Real 1e-05\n  Variable = String \"Displacement\"\n  Variable DOFs = Integer 3\nEnd\n\nSimulation\n  Coordinate Mapping(3) = Integer 1 2 3\n  Coordinate Scaling = Real 0.001\n  Coordinate System = String \"Cartesian\"\n  Max Output Level = Integer 10\n  Simulation Type = String \"Steady State\"\n  Steady State Max Iterations = Integer 1\n  Steady State Min Iterations = Integer 0\n  Use Mesh Names = Logical True\nEnd\n\nConstants\nEnd\n\nBody 1\n  Equation = Integer 1\n  Material = Integer 1\n  Name = String \"Solid1\"\nEnd\n\nMaterial 1\n  Density = Real 7900.0\n  Name = String \"Steel\"\n  Poisson ratio = Real 0.3\n  Youngs Modulus = Real 210000000000.0\nEnd\n\nEquation 1\n  Active Solvers(2) = Integer 1 2\nEnd\n\nSolver 2\n  Binary Output = Logical False\n  Coordinate Scaling Revert = Logical True\n  Equation = String \"ResultOutput\"\n  Exec Solver = String \"After simulation\"\n  Output Directory = File \"Result\"\n  Output File Name = File \"FreeCAD\"\n  Procedure = File \"ResultOutputSolve\" \"ResultOutputSolver\"\n  Save Geometry Ids = Logical False\n  Vtu Format = Logical True\n  Vtu Time Collection = Logical True\nEnd\n\nBoundary Condition 1\n  Name = String \"Face6\"\n  Normal Force = Real -500000.0\nEnd\n\nBoundary Condition 2\n  Displacement 1 = Real 0.0\n  Displacement 2 = Real 0.0\n  Displacement 3 = Real 0.0\n  Name = String \"Face1\"\nEnd\n\nBoundary Condition 3\n  Displacement 1 = Real 0.0\n  Displacement 2 = Real 0.0\n  Displacement 3 = Real 0.0\n  Name = String \"Face2\"\nEnd\n",
+  "startinfo": "case.sif\n",
+  "volumes": 417
+ }
+}

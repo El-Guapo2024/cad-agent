@@ -5,8 +5,8 @@
 //       src/Mod/Fem/Gui/Resources/ui/MeshGmsh.ui, src/Mod/Fem/Gui/Resources/ui/ResultShow.ui,
 //       src/Mod/Fem/Gui/TaskFemConstraintDisplacement.ui, src/Mod/Fem/Gui/TaskFemConstraintTemperature.ui,
 //       src/Mod/Fem/Gui/TaskFemConstraintInitialTemperature.ui, src/Mod/Fem/Gui/TaskFemConstraintHeatflux.ui
-// The FEM workbench's task panels: the analysis's objects, adding or changing a constraint, a material, a mesh or a
-// solver, each written to the part file's FEM list (`cad fem apply`, cad_agent/fem_edit.py), and Results > Show Result,
+// The FEM workbench's task panels: the analysis's objects, adding or changing a constraint, a material, a mesh, a
+// solver or an Elmer equation, each written to the part file's FEM list (`cad fem apply`, cad_agent/fem_edit.py), and Results > Show Result,
 // the last run's values on the mesh's outside as a helper in the 3D view (`cad fem result`).
 import { useEffect, useRef, useState } from 'react'
 import * as THREE from 'three'
@@ -24,20 +24,21 @@ export type FemObject = { name: string; kind: string; [k: string]: unknown }
 type Ref = [string, string]
 type Kind = 'ConstraintFixed' | 'ConstraintForce' | 'ConstraintPressure' | 'MaterialSolid' | 'MeshGmsh' | 'SolverCalculiX'
   | 'ConstraintDisplacement' | 'ConstraintSelfWeight' | 'ConstraintTemperature' | 'ConstraintInitialTemperature' | 'ConstraintHeatflux'
+  | 'SolverElmer' | 'EquationElasticity' | 'EquationHeat'
 
 const TITLE: Record<Kind, string> = { ConstraintFixed: 'Fixed Boundary Condition', ConstraintForce: 'Force Load', ConstraintPressure: 'Pressure Load',
   MaterialSolid: 'Material', MeshGmsh: 'Mesh', SolverCalculiX: 'Solver CalculiX Standard', ConstraintDisplacement: 'Displacement Boundary Condition',
   ConstraintSelfWeight: 'Gravity Load', ConstraintTemperature: 'Temperature Boundary Condition', ConstraintInitialTemperature: 'Initial Temperature',
-  ConstraintHeatflux: 'Heat Flux Load' }
+  ConstraintHeatflux: 'Heat Flux Load', SolverElmer: 'Solver Elmer', EquationElasticity: 'Elasticity Equation', EquationHeat: 'Heat Equation' }
 // FreeCAD's names for new objects (ObjectsFem's defaults; the commands' labels)
 export const BASE_NAME: Record<Kind, string> = { ConstraintFixed: 'ConstraintFixed', ConstraintForce: 'ConstraintForce', ConstraintPressure: 'ConstraintPressure',
   MaterialSolid: 'MaterialSolid', MeshGmsh: 'FEMMeshGmsh', SolverCalculiX: 'CalculiXccxTools', ConstraintDisplacement: 'ConstraintDisplacement',
   ConstraintSelfWeight: 'ConstraintSelfWeight', ConstraintTemperature: 'ConstraintTemperature', ConstraintInitialTemperature: 'ConstraintInitialTemperature',
-  ConstraintHeatflux: 'ConstraintHeatflux' }
+  ConstraintHeatflux: 'ConstraintHeatflux', SolverElmer: 'SolverElmer', EquationElasticity: 'Elasticity', EquationHeat: 'Heat' }
 const ICON: Record<Kind, string> = { ConstraintFixed: 'FEM_ConstraintFixed', ConstraintForce: 'FEM_ConstraintForce', ConstraintPressure: 'FEM_ConstraintPressure',
   MaterialSolid: 'FEM_MaterialSolid', MeshGmsh: 'FEM_MeshGmshFromShape', SolverCalculiX: 'FEM_SolverStandard', ConstraintDisplacement: 'FEM_ConstraintDisplacement',
   ConstraintSelfWeight: 'FEM_ConstraintSelfWeight', ConstraintTemperature: 'FEM_ConstraintTemperature', ConstraintInitialTemperature: 'FEM_ConstraintInitialTemperature',
-  ConstraintHeatflux: 'FEM_ConstraintHeatflux' }
+  ConstraintHeatflux: 'FEM_ConstraintHeatflux', SolverElmer: 'FEM_SolverElmer', EquationElasticity: 'FEM_EquationElasticity', EquationHeat: 'FEM_EquationHeat' }
 const icon = (k: Kind) => `fem-${ICON[k]}` as IconName
 const DEFAULTS: Record<Kind, Record<string, unknown>> = {
   ConstraintFixed: { references: [] },
@@ -52,7 +53,13 @@ const DEFAULTS: Record<Kind, Record<string, unknown>> = {
   ConstraintHeatflux: { references: [], constraint_type: 'Convection', film_coef: '0 W/m^2/K', ambient_temp: '0 K', distributed_heat_flux: '0 W/m^2' },
   MeshGmsh: { shape: null, characteristic_length_max: null, characteristic_length_min: null, element_order: null, element_dimension: null },
   SolverCalculiX: { analysis_type: null, eigenmodes_count: null },
+  SolverElmer: {},
+  EquationElasticity: { solver: null, calculate_stresses: null, calculate_principal: null, calculate_strains: null },
+  EquationHeat: { solver: null },
 }
+// what the Elasticity equation's flags are when left as made (equations/elasticity.py)
+const ELASTICITY_FLAGS: [string, string, boolean][] = [['calculate_stresses', 'CalculateStresses', false], ['calculate_principal', 'CalculatePrincipal', true],
+  ['calculate_strains', 'CalculateStrains', false]]
 // the kinds of element each panel's lbl_info names
 const ELEMENTS: Partial<Record<Kind, string[]>> = { ConstraintFixed: ['Vertex', 'Edge', 'Face'], ConstraintForce: ['Vertex', 'Edge', 'Face'], ConstraintPressure: ['Edge', 'Face'],
   ConstraintDisplacement: ['Vertex', 'Edge', 'Face'], ConstraintTemperature: ['Vertex', 'Edge', 'Face'], ConstraintHeatflux: ['Edge', 'Face'] }
@@ -90,12 +97,22 @@ export async function freshName(part: string, kind: Kind): Promise<string | null
   for (let i = 1; ; i++) { const n = `${base}${String(i).padStart(3, '0')}`; if (!used.has(n)) return n }
 }
 
-/** The solver and Gravity have no panel when made: the command adds them, as FreeCAD's does (Edit changes them). */
-export async function addDirect(part: string, kind: 'SolverCalculiX' | 'ConstraintSelfWeight') {
+/** The solvers and Gravity have no panel when made: the command adds them, as FreeCAD's does (Edit changes them). */
+export async function addDirect(part: string, kind: 'SolverCalculiX' | 'SolverElmer' | 'ConstraintSelfWeight') {
   const name = await freshName(part, kind)
   if (name && await applyFem(part, [{ op: 'add', kind, name }], TITLE[kind])) openTask('fem', part, 'analysis')
 }
 export const addSolver = (part: string) => addDirect(part, 'SolverCalculiX')
+
+/** An Elmer equation, made for the analysis's Elmer solver (FreeCAD's equation commands want one selected). */
+export async function addEquation(part: string, kind: 'EquationElasticity' | 'EquationHeat') {
+  const have = await listObjects(part)
+  if (!have) return
+  const solver = have.find((o) => o.kind === 'SolverElmer')
+  if (!solver) { report('warn', `${TITLE[kind]}: the analysis has no Elmer solver; add Solve > Solvers > Solver Elmer first`); return }
+  const name = await freshName(part, kind)
+  if (name && await applyFem(part, [{ op: 'add', kind, name, props: { solver: solver.name } }], TITLE[kind])) openTask('fem', part, 'analysis')
+}
 
 /** The analysis's objects, each to change or delete; Run Solver and Show Result. FreeCAD has these in the tree. */
 function AnalysisTask({ part }: { part: string }) {
@@ -297,6 +314,11 @@ function ObjectTask({ part, kind: kind0, edit }: { part: string; kind?: Kind; ed
         onChange={(e) => set({ analysis_type: e.target.value === 'static' ? null : e.target.value })}><option value="static">static</option><option value="frequency">frequency</option><option value="thermomech">thermomech</option></QComboBox></label>}
       {kind === 'SolverCalculiX' && props.analysis_type === 'frequency' && <label className="tfield"><span>Eigenmodes</span><input data-qf="EigenmodesCount" type="number" min={1} value={Number(props.eigenmodes_count ?? 10)}
         onChange={(e) => { const n = Math.round(Number(e.target.value)); if (n >= 1) set({ eigenmodes_count: n === 10 ? null : n }) }} /></label>}
+      {kind === 'EquationElasticity' && <fieldset className="tgroup"><legend>Elasticity</legend>
+        {ELASTICITY_FLAGS.map(([k, prop, d]) => <Check key={k} label={prop.replace(/([a-z])([A-Z])/g, '$1 $2')} name={prop}
+          checked={props[k] === null || props[k] === undefined ? d : !!props[k]} onChange={(v) => set({ [k]: v === d ? null : v })} />)}
+      </fieldset>}
+      {(kind === 'EquationElasticity' || kind === 'EquationHeat') && <div data-qf="solver">Solver: {str('solver')}</div>}
       {kind === 'MeshGmsh' && <fieldset className="tgroup"><legend>Mesh Parameters</legend>
         <label className="tfield"><span>Shape</span><QComboBox data-qf="shape" value={str('shape') || shapes[0] || ''} onChange={(e) => set({ shape: e.target.value })}>{shapes.map((n) => <option key={n} value={n}>{n}</option>)}</QComboBox></label>
         <label className="tfield"><span>Element dimension</span><QComboBox data-qf="cb_dimension" value={str('element_dimension') || 'From Shape'} onChange={(e) => set({ element_dimension: e.target.value })}>{['From Shape', '1D', '2D', '3D'].map((n) => <option key={n}>{n}</option>)}</QComboBox></label>

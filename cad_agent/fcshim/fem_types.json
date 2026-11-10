@@ -3413,6 +3413,154 @@ null
 ],
 "type": "Fem::FemMeshShapeBaseObjectPython"
 },
+"Fem::FemPostPipeline": {
+"derived": [
+"Fem::FemPostPipeline",
+"App::GeoFeature",
+"App::DocumentObject"
+],
+"ext": [
+"App::GroupExtension"
+],
+"props": [
+[
+"Data",
+"Fem::PropertyPostDataObject",
+"",
+"",
+[],
+null,
+null
+],
+[
+"ExpressionEngine",
+"App::PropertyExpressionEngine",
+"Base",
+"Property expressions",
+[
+"Hidden"
+],
+null,
+null
+],
+[
+"Frame",
+"App::PropertyEnumeration",
+"Pipeline",
+"The frame used to calculate the data in the pipeline processing (read only, set via pipeline object).",
+[],
+null,
+[]
+],
+[
+"Group",
+"App::PropertyLinkList",
+"Base",
+"List of referenced objects",
+[],
+[],
+null
+],
+[
+"Label",
+"App::PropertyString",
+"Base",
+"User name of the object (UTF8)",
+[],
+"FemPostPipeline",
+null
+],
+[
+"Label2",
+"App::PropertyString",
+"Base",
+"User description of the object (UTF8)",
+[
+"Hidden"
+],
+"",
+null
+],
+[
+"MergeDuplicate",
+"App::PropertyBool",
+"Pipeline",
+"Remove coindent elements.",
+[],
+false,
+null
+],
+[
+"Mode",
+"App::PropertyEnumeration",
+"Pipeline",
+"Selects the pipeline data transition mode.\nIn serial, every filter gets the output of the previous one as input.\nIn parallel, every filter gets the pipeline source as input.\n",
+[],
+"Serial",
+[
+"Serial",
+"Parallel"
+]
+],
+[
+"Placement",
+"App::PropertyPlacement",
+"",
+"",
+[],
+{
+"p": [
+[
+0.0,
+0.0,
+0.0
+],
+[
+0.0,
+0.0,
+0.0,
+1.0
+]
+]
+},
+null
+],
+[
+"Visibility",
+"App::PropertyBool",
+"",
+"",
+[
+"Hidden"
+],
+true,
+null
+],
+[
+"_ElementMapVersion",
+"App::PropertyString",
+"Base",
+"",
+[
+"Hidden"
+],
+"",
+null
+],
+[
+"_GroupTouched",
+"App::PropertyBool",
+"Base",
+"",
+[
+"Hidden"
+],
+false,
+null
+]
+],
+"type": "Fem::FemPostPipeline"
+},
 "Fem::FemResultObject": {
 "derived": [
 "Fem::FemResultObject",

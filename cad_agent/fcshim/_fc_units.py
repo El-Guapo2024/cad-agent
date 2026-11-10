@@ -32,8 +32,8 @@ class Unit:
             self.sig = args[0].sig
         elif len(args) == 1 and isinstance(args[0], Quantity):
             self.sig = args[0].Unit.sig
-        elif len(args) == 1 and isinstance(args[0], str):
-            self.sig = Quantity.parse(args[0]).Unit.sig
+        elif len(args) == 1 and isinstance(args[0], str):    # "" is dimensionless, as UnitPy::PyInit takes it
+            self.sig = Quantity.parse(args[0]).Unit.sig if args[0].strip() else (0,) * 8
         else:
             vals = [int(a) for a in args] + [0] * (8 - len(args))
             self.sig = tuple(vals[:8])
@@ -445,6 +445,15 @@ def parseQuantity(text):
 def toNumber(q, fmt="g", decimals=-1):
     v = q.Value if isinstance(q, Quantity) else float(q)
     return f"{v:.{decimals}{fmt}}" if decimals >= 0 else f"{v:{fmt}}"
+
+
+import enum as _enum
+
+# Units.Scheme, the schemas' numbers (UnitsSchemasData.h's order; FEM's solver writers compare the UserSchema
+# preference with them)
+Scheme = _enum.IntEnum("Scheme", [("Internal", 0), ("MKS", 1), ("Imperial", 2), ("ImperialDecimal", 3),
+                                  ("Centimeter", 4), ("ImperialBuilding", 5), ("MmMin", 6), ("ImperialCivil", 7),
+                                  ("FEM", 8), ("MeterDecimal", 9)])
 
 
 def getSchema():
