@@ -27,7 +27,8 @@ def cmd_run(a) -> Result:
         raise UsageError(str(e)) from None
     text = (f"{a.slug}/{a.part}: {r['nodes']} nodes, {r['volumes']} volume elements\n"
             f"  max displacement {r['max_displacement_mm']:.6g} mm\n"
-            f"  max von Mises stress {r['max_von_mises_mpa']:.6g} MPa"
+            + (f"  max von Mises stress {r['max_von_mises_mpa']:.6g} MPa" if r.get("max_von_mises_mpa") is not None
+               else f"  max nodal force {r['max_nodal_force_n']:.6g} N (Z88 gives no stresses to FreeCAD's result)")
             + (f"\n  frequencies {', '.join(f'{f:.6g}' for f in r['frequencies_hz'])} Hz" if "frequencies_hz" in r else "")
             + (f"\n  temperature {r['min_temperature_k']:.6g} to {r['max_temperature_k']:.6g} K" if "max_temperature_k" in r else "")
             + f"\n  files in {r['workdir']}")

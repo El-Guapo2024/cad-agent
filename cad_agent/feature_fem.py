@@ -112,6 +112,14 @@ class SolverMystran(FemObject):
     DEFAULTS: dict = {}
 
 
+class SolverZ88(FemObject):
+    """ObjectsFem.makeSolverZ88: Z88 (Z88OS's z88r, a separate program, https://github.com/LSCAD/Z88OS), a static
+    analysis of the Fixed, Displacement, Force and Pressure constraints, run as the FEM workbench's Run runs it
+    (femsolver/z88/z88tools.py): its displacements and nodal forces (FreeCAD reads no Z88 stresses into its result)."""
+    MAKER = "makeSolverZ88"
+    DEFAULTS = {"solver_type": None}
+
+
 class _Equation(FemObject):
     """An Elmer equation (ObjectsFem.makeEquation*(doc, solver)): one of the solver's, not the analysis's."""
     POS = ("solver",)
@@ -241,7 +249,7 @@ class MeshGmsh(FemObject):
                 "element_order": None, "element_dimension": None}
 
 
-KINDS = {c.__name__: c for c in (SolverCalculiX, SolverElmer, SolverMystran, EquationElasticity, EquationHeat, MaterialSolid,
+KINDS = {c.__name__: c for c in (SolverCalculiX, SolverElmer, SolverMystran, SolverZ88, EquationElasticity, EquationHeat, MaterialSolid,
                                  ConstraintFixed, ConstraintForce, ConstraintPressure, ConstraintDisplacement,
                                  ConstraintSelfWeight, ConstraintTemperature, ConstraintInitialTemperature,
                                  ConstraintHeatflux, MeshGmsh)}
@@ -325,7 +333,7 @@ def _run(path, workdir=None, threads=None) -> dict:
                   or x.isDerivedFrom("Fem::FemMeshShapeBaseObjectPython")]
         solvers = [x for x in objs if x.isDerivedFrom("Fem::FemSolverObjectPython")]
         if not meshes or not solvers:
-            raise FemError("the analysis needs a MeshGmsh and a solver (SolverCalculiX, SolverElmer or SolverMystran)")
+            raise FemError("the analysis needs a MeshGmsh and a solver (SolverCalculiX, SolverElmer, SolverMystran or SolverZ88)")
         err = GmshTools(meshes[0]).create_mesh()
         if err:
             raise FemError(f"Gmsh: {err}")
@@ -333,6 +341,8 @@ def _run(path, workdir=None, threads=None) -> dict:
             return _run_elmer(an, solvers[0], meshes[0], workdir)
         if getattr(solvers[0].Proxy, "Type", "") == "Fem::SolverMystran":
             return _run_mystran(an, solvers[0], meshes[0], workdir)
+        if getattr(solvers[0].Proxy, "Type", "") == "Fem::SolverZ88":
+            return _run_z88(an, solvers[0], meshes[0], workdir)
         fea = ccxtools.FemToolsCcx(an, solvers[0])
         fea.update_objects()
         fea.setup_working_dir()
@@ -467,6 +477,78 @@ def _run_mystran(an, solver, mesh, workdir):
         if s is not None:
             (Path(workdir) / RESULTS).write_text(json.dumps({**s, "nodes": out["nodes"], "volumes": out["volumes"]}))
     return out
+
+
+def _run_z88(an, solver, mesh, workdir):
+    """Z88 as the FEM workbench's Run runs it (femsolver.run.run_fem_solver: z88tools.Z88Tools writes z88i1.txt and
+    the rest, runs `z88r -t` then `z88r -c`, and reads z88o0/o2/o4.txt into the solver's FemPostPipeline)."""
+    import shutil
+    import tempfile
+    import FreeCAD as App
+    from femsolver.run import run_fem_solver
+    from femsolver import settings
+    if not shutil.which(settings.get_binary("Z88", silent=True) or "z88r"):
+        raise FemError("z88r is not on the PATH (Z88OS, https://github.com/LSCAD/Z88OS, runs the SolverZ88)")
+    from femtools import membertools
+    for c in membertools.get_member(an, "Fem::Constraint"):
+        t = getattr(getattr(c, "Proxy", None), "Type", None) or c.TypeId
+        if t not in ("Fem::ConstraintFixed", "Fem::ConstraintForce", "Fem::ConstraintPressure",
+                     "Fem::ConstraintDisplacement"):
+            raise FemError(f"{c.Name}: FEM's Z88 writer takes Fixed, Displacement, Force and Pressure constraints "
+                           f"only, not {t}")
+    wd = str(workdir) if workdir is not None else tempfile.mkdtemp(prefix="fem_")
+    Path(wd).mkdir(parents=True, exist_ok=True)
+    start = len(App.Console.log)
+    run_fem_solver(solver, wd, blocking=True)
+    errors = [m for k, m in App.Console.log[start:] if k == "Err" and "DisplayMode" not in m]
+    pipes = [r for r in solver.Results if r.isDerivedFrom("Fem::FemPostPipeline")]
+    data = pipes[0].Data if pipes else None
+    arrays = data.GetPointData() if data is not None else None
+    if arrays is None or not arrays.HasArray("Displacement"):
+        log = Path(wd, "z88r.log")
+        tail = "".join(errors) or (log.read_text(errors="replace") if log.exists() else "")
+        raise FemError("Z88 gave no results: " + (tail.strip()[-400:] or f"see {wd}"))
+    r = _Z88Result(data, mesh.FemMesh)
+    m = mesh.FemMesh
+    out = {"nodes": m.NodeCount, "volumes": m.VolumeCount, "solver": "Z88",
+           "max_displacement_mm": max(r.DisplacementLengths), "max_von_mises_mpa": None,
+           "max_nodal_force_n": max(r.NodalForces) if r.NodalForces else 0.0,
+           "z88i1": os.path.join(wd, "z88i1.txt"), "workdir": wd}
+    if workdir is not None:
+        import json
+        from .fem_edit import surface
+        s = surface(m, r)
+        if s is not None:
+            (Path(workdir) / RESULTS).write_text(json.dumps({**s, "nodes": out["nodes"], "volumes": out["volumes"]}))
+    return out
+
+
+class _Z88Result:
+    """Z88's result (the pipeline's Data: z88o0.txt's points, z88o2.txt's displacements, z88o4.txt's nodal forces) as
+    a FemResultObject's values at the mesh's nodes. FEM's Z88 writer numbers the nodes of the mesh's elements 1, 2, ...
+    in the order of their numbers (writer.py's write_z88_mesh), the pipeline's points in that order."""
+
+    def __init__(self, grid, femmesh):
+        from vtkmodules.util import numpy_support as ns
+        import FreeCAD as App
+        used = set()
+        for e in femmesh.Volumes or femmesh.Faces or femmesh.Edges:
+            used.update(femmesh.getElementNodes(e))
+        self.NodeNumbers = sorted(used)
+        if len(self.NodeNumbers) != grid.GetNumberOfPoints():
+            raise FemError("Z88's results are not on the mesh's nodes (z88o0.txt)")
+        pd = grid.GetPointData()
+
+        def arr(name):
+            a = pd.GetArray(name)
+            return None if a is None else ns.vtk_to_numpy(a).reshape(a.GetNumberOfTuples(), -1)
+        d = arr("Displacement")
+        self.DisplacementVectors = [App.Vector(*(float(x) for x in v[:3])) for v in d]
+        self.DisplacementLengths = [v.Length for v in self.DisplacementVectors]
+        f = arr("Nodal Force")
+        self.NodalForces = [float(sum(float(x) ** 2 for x in v) ** 0.5) for v in f] if f is not None else []
+        self.vonMises = self.PrincipalMax = self.PrincipalMin = self.Temperature = []
+        self.EigenmodeFrequency = 0.0
 
 
 class _MystranResult:

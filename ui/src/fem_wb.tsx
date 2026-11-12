@@ -5,7 +5,7 @@
 //   src/Mod/Fem/Gui/Command.cpp: 2008 Jürgen Riegel, 2022 Peter McB; src/Mod/Fem/femcommands/commands.py: 2016 Bernd Hahnebach
 // The FEM workbench: its Model, Mesh, Solve, Results and Utilities menus and its toolbars, every command by FreeCAD's
 // name, menu text, tooltip and icon (fem_cmds.ts). A part's analysis is its part file's FEM list (cad_agent/
-// feature_fem.py); Run Solver meshes it with Gmsh and solves it with CalculiX, Elmer or Mystran on the server (`cad fem run`) and
+// feature_fem.py); Run Solver meshes it with Gmsh and solves it with CalculiX, Elmer, Mystran or Z88 on the server (`cad fem run`) and
 // the Report view gets the results. Analysis, the material, the fixed, force and pressure boundary conditions, the Gmsh mesh,
 // the solver and Show Result have their panels (fem_tasks.tsx); the rest are greyed with the reason.
 import { consoleLog, getState, report } from './store'
@@ -18,7 +18,7 @@ import { FEM_CMDS, FEM_MENUS, FEM_TOOLBARS, type FemItem } from './fem_cmds'
 
 const cmdOf = (c: string) => FEM_CMDS[c] ?? { menu: c, tip: null, pixmap: null, accel: null }
 const iconOf = (c: string) => (cmdOf(c).pixmap ? `fem-${cmdOf(c).pixmap}` : undefined) as IconName | undefined
-const NOT_YET = 'n/a: not ported yet: only the solid material, the fixed, force, pressure, displacement, gravity, temperature, initial temperature and heat flux conditions, the Gmsh mesh, CalculiX (static, frequency, thermomech), Elmer (its elasticity and heat equations) and Mystran (static, fixed and force) are'
+const NOT_YET = 'n/a: not ported yet: only the solid material, the fixed, force, pressure, displacement, gravity, temperature, initial temperature and heat flux conditions, the Gmsh mesh, CalculiX (static, frequency, thermomech), Elmer (its elasticity and heat equations) Mystran (static, fixed and force) and Z88 (static: fixed, displacement, force and pressure) are'
 
 /** The part the FEM commands work on: the open panel's, else the part of what is selected (a tree row or the 3D view's body), else the only one. */
 export function activePart(): string | null {
@@ -44,7 +44,8 @@ export async function runSolver() {
     if (r.exit !== 0) { report('err', `Run Solver: ${resultText(r)}`); return }
     const d = r.data ?? {}
     report('msg', `${part}: ${d.nodes} nodes, ${d.volumes} volume elements; max displacement ${Number(d.max_displacement_mm).toPrecision(6)} mm, `
-      + `max von Mises stress ${Number(d.max_von_mises_mpa).toPrecision(6)} MPa`
+      + (d.max_von_mises_mpa != null ? `max von Mises stress ${Number(d.max_von_mises_mpa).toPrecision(6)} MPa`
+        : `max nodal force ${Number(d.max_nodal_force_n).toPrecision(6)} N (Z88 gives no stresses to FreeCAD's result)`)
       + (Array.isArray(d.frequencies_hz) ? `; frequencies ${(d.frequencies_hz as number[]).map((f) => f.toPrecision(6)).join(', ')} Hz` : '')
       + (d.max_temperature_k !== undefined ? `; temperature ${Number(d.min_temperature_k).toPrecision(6)} to ${Number(d.max_temperature_k).toPrecision(6)} K` : '') + ` (${d.workdir})`)
   } catch (e) { report('err', `Run Solver: ${e instanceof Error ? e.message : String(e)}`) }
@@ -71,6 +72,7 @@ function entry(it: FemItem): Entry {
   if (it === 'FEM_SolverCalculiX' || it === 'FEM_SolverCalculiXCcxTools') return { label, icon: iconOf(it), cmd: it, title: r.tip ?? undefined, disabled: !getState().slug, onSelect: () => inPart(it, (p) => void addSolver(p)) }
   if (it === 'FEM_SolverElmer') return { label, icon: iconOf(it), cmd: it, title: r.tip ?? undefined, disabled: !getState().slug, onSelect: () => inPart(it, (p) => void addDirect(p, 'SolverElmer')) }
   if (it === 'FEM_SolverMystran') return { label, icon: iconOf(it), cmd: it, title: r.tip ?? undefined, disabled: !getState().slug, onSelect: () => inPart(it, (p) => void addDirect(p, 'SolverMystran')) }
+  if (it === 'FEM_SolverZ88') return { label, icon: iconOf(it), cmd: it, title: r.tip ?? undefined, disabled: !getState().slug, onSelect: () => inPart(it, (p) => void addDirect(p, 'SolverZ88')) }
   if (it === 'FEM_EquationElasticity' || it === 'FEM_EquationHeat') {
     const kind = it === 'FEM_EquationHeat' ? 'EquationHeat' : 'EquationElasticity'
     return { label, icon: iconOf(it), cmd: it, title: r.tip ?? undefined, disabled: !getState().slug, onSelect: () => inPart(it, (p) => void addEquation(p, kind)) }

@@ -211,9 +211,12 @@ Step 5, round 3 (six branches) is all in main (7526c0c, CI green, 6977 passed, 2
   FreeCAD reads none without the hfcMystranNeuIn add-on; pyNastran installed separately, as FreeCAD wants it: not an extra, it pulls in matplotlib). Mystran 19.0 is built from
   github.com/MystranSolver/MYSTRAN in ~/solvers/mystran-src (cmake without CMAKE_BUILD_TYPE=Release: its -DNDEBUG breaks a
   Fortran name) and installed as /usr/local/bin/mystran; FreeCAD's Python gets pyNastran 1.4.1 from ~/solvers/fc-pylib
-  (PYNASTRAN_PATH for make.py; numpy.in1d is numpy.isin there, FreeCAD's numpy 2.5 lacks it). Z88 (FreeCAD wants Z88OS v15's
-  z88r; Ubuntu's z88 package is v13, z88.de's download page is gone) is not on the box. femcheck: 48 ok. Next for FEM:
-  buckling, contact, springs, the analysis in the tree; Elmer's other equations; Z88 once its program is here. A new CAD_* variable that a command
+  (PYNASTRAN_PATH for make.py; numpy.in1d is numpy.isin there, FreeCAD's numpy 2.5 lacks it). Since fem-z88: Solver Z88
+  (FreeCAD's femsolver/z88 unchanged, run by femsolver.run.run_fem_solver through Z88Tools and the QProcess stand-in;
+  displacements and nodal forces read back, no stresses, as in FreeCAD). z88r (Z88OS v15) is built from github.com/LSCAD/Z88OS
+  (~/solvers/z88os-src, make/make_unix_64/z88r.mk.gcc64 with -fcommon, output in ~/solvers/z88-build) and installed as
+  /usr/local/bin/z88r. femcheck: 51 ok. Next for FEM: buckling, contact, springs, the analysis in the tree; Elmer's other
+  equations; Z88's plane stress, axisymmetric and plate models and its beams and shells. A new CAD_* variable that a command
   reads has to go in warm.py's ENV_PASS as well (CAD_FEM_THREADS failed test_warm.py on fem-ui until it did).
 - Left after the demo: FEM's part-file objects, CLI and page, Draft's Trimex/Split/Upgrade and annotations, Part's cut commands, PARITY's known
   differences. Temporary branches on GitHub (ds-merge, ds-fix, asm-merge, st-merge, r5-merge, r6-merge, r7-merge,

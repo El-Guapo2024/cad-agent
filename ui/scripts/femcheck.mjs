@@ -14,6 +14,7 @@
 //              Elmer results (ElmerGrid and ElmerSolver on the PATH)
 //   mystran    tests/golden/fem_mystran's cantilever made in the panels (Solver Mystran): the results Mystran gave
 //              FreeCAD's input (Mystran on the PATH, pyNastran in the server's Python)
+//   z88        tests/golden/fem_z88's cantilever made in the panels (Solver Z88): FreeCAD's Z88 results (z88r on the PATH)
 import { createRequire } from 'module'
 import { spawn, spawnSync } from 'child_process'
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'fs'
@@ -112,6 +113,16 @@ OBJECTS = [Part.Box("Box", length=100, width=10, height=10)]
 def build(**p):
     return Part.Document(OBJECTS, p)
 `)
+writeFileSync(join(ROOT, 'pc', 'parts', 'z88.py'), `"""z88: a box for the Z88 analysis."""
+from cad_agent import feature_part as Part
+
+PARAMS = {}
+OBJECTS = [Part.Box("Box", length=100, width=10, height=10)]
+
+
+def build(**p):
+    return Part.Document(OBJECTS, p)
+`)
 writeFileSync(join(ROOT, 'pc', 'parts', 'blank.py'), `"""blank: the same box, no analysis yet."""
 from cad_agent import feature_part as Part
 
@@ -164,6 +175,7 @@ const pickCombo = async (qf, text) => {
 const FCJ = JSON.parse(readFileSync(join(REPO, 'tests', 'golden', 'fem', 'freecad.json'), 'utf8'))
 const FCE = JSON.parse(readFileSync(join(REPO, 'tests', 'golden', 'fem_elmer', 'freecad.json'), 'utf8'))
 const FCM = JSON.parse(readFileSync(join(REPO, 'tests', 'golden', 'fem_mystran', 'freecad.json'), 'utf8'))
+const FCZ = JSON.parse(readFileSync(join(REPO, 'tests', 'golden', 'fem_z88', 'freecad.json'), 'utf8'))
 const which = (b) => (process.env.PATH + ':' + (process.env.FREECAD_BIN ?? '')).split(':').some((d) => d && existsSync(join(d, b)))
 
 try {
@@ -406,6 +418,33 @@ try {
     check(line6.includes(`${mc.nodes} nodes`) && line6.includes(`max displacement ${d6} mm`) && line6.includes(`max von Mises stress ${s6} MPa`), 'the Mystran analysis made in the panels gives the results Mystran gave FreeCAD\'s input', line6)
     await open('FEM_ResultShow', 'fem-result'); await page.waitForSelector(qf('le_max'), { timeout: 30000 })
     check(parseFloat(await page.inputValue(qf('le_max'))) > 0, 'Show Result: Mystran\'s results drawn', await page.inputValue(qf('le_max')))
+    await page.click('[data-task="fem-result"] .tbuttons .qbtn'); await page.waitForSelector('[data-task="fem-analysis"]', { timeout: 15000 })
+  }
+
+  console.log('z88')
+  // tests/golden/fem_z88's cantilever made in the panels: Solver Z88, the CalculiX one's material, conditions and mesh
+  await st(`cadui.setState({ featSel: ['z88/Box'], selected: [], task: null })`)
+  await until(`!!cadui.getState().features.z88`, 'the z88 part to load', 30000)
+  await open('FEM_Analysis', 'fem-analysis')
+  await runCmd('FEM_SolverZ88'); await page.waitForSelector('[data-name="SolverZ88"]', { timeout: 30000 })
+  await open('FEM_MaterialSolid', 'fem-object'); await accept()
+  await open('FEM_ConstraintFixed', 'fem-object'); await pick('@Box.Face1'); await accept()
+  await open('FEM_ConstraintForce', 'fem-object'); await pick('@Box.Face2'); await page.fill(qf('spinForce'), '100 N')
+  await page.click(qf('buttonDirection')); await pick('@Box.Edge5')
+  await page.click(`${qf('checkReverse')}, label:has-text("Reverse direction") input`); await accept()
+  await open('FEM_MeshGmshFromShape', 'fem-object'); await page.fill(qf('qsb_max_size'), '5 mm'); await accept()
+  const zp = readFileSync(join(ROOT, 'pc', 'parts', 'z88.py'), 'utf8')
+  check(zp.includes('Fem.SolverZ88("SolverZ88")'), 'the part file has the Z88 solver', zp)
+  if (!which('z88r')) note('z88r is not on the PATH: its run is not checked')
+  else {
+    const zc = FCZ.cantilever, n7 = await st('cadui.getState().messages.length')
+    await runCmd('FEM_SolverRun')
+    await until(`cadui.getState().messages.slice(${n7}).some((m) => /max nodal force/.test(m.text) || m.level === 'err')`, 'the Z88 solve', 300000)
+    const line7 = (await st(`cadui.getState().messages.slice(${n7}).map((m) => m.level + ': ' + m.text)`)).find((m) => /max nodal force/.test(m)) ?? ''
+    const d7 = zc.displacement[1].toPrecision(6), f7 = zc.nodal_force[1].toPrecision(6)
+    check(line7.includes(`${zc.nodes} nodes`) && line7.includes(`max displacement ${d7} mm`) && line7.includes(`max nodal force ${f7} N`), 'the Z88 analysis made in the panels gives FreeCAD\'s Z88 results', line7)
+    await open('FEM_ResultShow', 'fem-result'); await page.waitForSelector(qf('le_max'), { timeout: 30000 })
+    check(parseFloat(await page.inputValue(qf('le_max'))) > 0, 'Show Result: Z88\'s results drawn', await page.inputValue(qf('le_max')))
     await page.click('[data-task="fem-result"] .tbuttons .qbtn'); await page.waitForSelector('[data-task="fem-analysis"]', { timeout: 15000 })
   }
 } catch (e) {

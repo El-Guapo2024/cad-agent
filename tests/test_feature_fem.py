@@ -299,3 +299,40 @@ def test_mystran_takes_only_fixed_and_force(tmp_path, monkeypatch):
                                    _MESH]))
     with pytest.raises(Fem.FemError, match="Fixed and Force constraints only"):
         Fem.run(p, workdir=tmp_path / "work", threads=1)
+
+
+# tests/golden/fem_z88's cantilever written as a part file, with Z88 as its solver
+FC_Z88 = json.loads((Path(__file__).parent / "golden" / "fem_z88" / "freecad.json").read_text())
+Z88 = "\n".join(['    Fem.SolverZ88("SolverZ88"),', _STEEL % "", _FIX,
+                 '    Fem.ConstraintForce("Force", [("Box", "Face2")], force="100 N", direction=("Box", "Edge5"), reversed=True),',
+                 _MESH])
+
+
+@pytest.mark.skipif(not all(shutil.which(b, path=_path()) for b in ("gmsh", "z88r")),
+                    reason="Gmsh and z88r are not on the PATH")
+def test_a_z88_analysis_as_a_part_file_gives_freecads(tmp_path, monkeypatch):
+    monkeypatch.setenv("PATH", _path())
+    p = tmp_path / "bar.py"
+    p.write_text(_BAR % Z88)
+    work = tmp_path / "work"
+    r = Fem.run(p, workdir=work, threads=1)
+    want = FC_Z88["cantilever"]
+    assert (r["nodes"], r["volumes"], r["solver"]) == (want["nodes"], want["volumes"], "Z88")
+    assert Path(r["z88i1"]).read_text() == want["inputs"]["z88i1.txt"]
+    assert r["max_displacement_mm"] == pytest.approx(want["displacement"][1], rel=1e-9)
+    assert r["max_nodal_force_n"] == pytest.approx(want["nodal_force"][1], rel=1e-9)
+    assert r["max_von_mises_mpa"] is None
+    d = json.loads((work / Fem.RESULTS).read_text())
+    assert d["range"]["displacement"][1] == pytest.approx(r["max_displacement_mm"], rel=1e-9)
+    assert "von_mises" not in d["fields"]
+
+
+def test_z88_refuses_what_its_writer_does_not_take(tmp_path, monkeypatch):
+    if not all(shutil.which(b, path=_path()) for b in ("gmsh", "z88r")):
+        pytest.skip("Gmsh and z88r are not on the PATH")
+    monkeypatch.setenv("PATH", _path())
+    p = tmp_path / "bar.py"
+    p.write_text(_BAR % "\n".join(['    Fem.SolverZ88("SolverZ88"),', _STEEL % "", _FIX,
+                                   '    Fem.ConstraintSelfWeight("SelfWeight"),', _MESH]))
+    with pytest.raises(Fem.FemError, match="Fixed, Displacement, Force and Pressure constraints only"):
+        Fem.run(p, workdir=tmp_path / "work", threads=1)
