@@ -12,6 +12,8 @@
 //   modes      tests/golden/fem's frequency made in the panels: FreeCAD's frequencies and mode shapes; Histogram, Animation
 //   elmer      tests/golden/fem_elmer's cantilever made in the panels (Solver Elmer, its Elasticity equation): FreeCAD's
 //              Elmer results (ElmerGrid and ElmerSolver on the PATH)
+//   mystran    tests/golden/fem_mystran's cantilever made in the panels (Solver Mystran): the results Mystran gave
+//              FreeCAD's input (Mystran on the PATH, pyNastran in the server's Python)
 import { createRequire } from 'module'
 import { spawn, spawnSync } from 'child_process'
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'fs'
@@ -100,6 +102,16 @@ OBJECTS = [Part.Box("Box", length=100, width=10, height=10)]
 def build(**p):
     return Part.Document(OBJECTS, p)
 `)
+writeFileSync(join(ROOT, 'pc', 'parts', 'mystran.py'), `"""mystran: a box for the Mystran analysis."""
+from cad_agent import feature_part as Part
+
+PARAMS = {}
+OBJECTS = [Part.Box("Box", length=100, width=10, height=10)]
+
+
+def build(**p):
+    return Part.Document(OBJECTS, p)
+`)
 writeFileSync(join(ROOT, 'pc', 'parts', 'blank.py'), `"""blank: the same box, no analysis yet."""
 from cad_agent import feature_part as Part
 
@@ -151,6 +163,7 @@ const pickCombo = async (qf, text) => {
 }
 const FCJ = JSON.parse(readFileSync(join(REPO, 'tests', 'golden', 'fem', 'freecad.json'), 'utf8'))
 const FCE = JSON.parse(readFileSync(join(REPO, 'tests', 'golden', 'fem_elmer', 'freecad.json'), 'utf8'))
+const FCM = JSON.parse(readFileSync(join(REPO, 'tests', 'golden', 'fem_mystran', 'freecad.json'), 'utf8'))
 const which = (b) => (process.env.PATH + ':' + (process.env.FREECAD_BIN ?? '')).split(':').some((d) => d && existsSync(join(d, b)))
 
 try {
@@ -365,6 +378,34 @@ try {
     check(line5.includes(`${ec.nodes} nodes`) && line5.includes(`max displacement ${d5} mm`) && line5.includes(`max von Mises stress ${s5} MPa`), 'the Elmer analysis made in the panels gives FreeCAD\'s Elmer results', line5)
     await open('FEM_ResultShow', 'fem-result'); await page.waitForSelector(qf('le_max'), { timeout: 30000 })
     check((await page.inputValue(qf('le_max'))).startsWith(s5), 'Show Result: Elmer\'s von Mises maximum', await page.inputValue(qf('le_max')))
+    await page.click('[data-task="fem-result"] .tbuttons .qbtn'); await page.waitForSelector('[data-task="fem-analysis"]', { timeout: 15000 })
+  }
+
+  console.log('mystran')
+  // tests/golden/fem_mystran's cantilever made in the panels: Solver Mystran, the CalculiX one's material, conditions
+  // and mesh
+  await st(`cadui.setState({ featSel: ['mystran/Box'], selected: [], task: null })`)
+  await until(`!!cadui.getState().features.mystran`, 'the mystran part to load', 30000)
+  await open('FEM_Analysis', 'fem-analysis')
+  await runCmd('FEM_SolverMystran'); await page.waitForSelector('[data-name="SolverMystran"]', { timeout: 30000 })
+  await open('FEM_MaterialSolid', 'fem-object'); await accept()
+  await open('FEM_ConstraintFixed', 'fem-object'); await pick('@Box.Face1'); await accept()
+  await open('FEM_ConstraintForce', 'fem-object'); await pick('@Box.Face2'); await page.fill(qf('spinForce'), '100 N')
+  await page.click(qf('buttonDirection')); await pick('@Box.Edge5')
+  await page.click(`${qf('checkReverse')}, label:has-text("Reverse direction") input`); await accept()
+  await open('FEM_MeshGmshFromShape', 'fem-object'); await page.fill(qf('qsb_max_size'), '5 mm'); await accept()
+  const my = readFileSync(join(ROOT, 'pc', 'parts', 'mystran.py'), 'utf8')
+  check(my.includes('Fem.SolverMystran("SolverMystran")'), 'the part file has the Mystran solver', my)
+  if (!which('mystran')) note('Mystran is not on the PATH: its run is not checked')
+  else {
+    const mc = FCM.cantilever, n6 = await st('cadui.getState().messages.length')
+    await runCmd('FEM_SolverRun')
+    await until(`cadui.getState().messages.slice(${n6}).some((m) => /max von Mises/.test(m.text) || m.level === 'err')`, 'the Mystran solve', 300000)
+    const line6 = (await st(`cadui.getState().messages.slice(${n6}).map((m) => m.level + ': ' + m.text)`)).find((m) => /max von Mises/.test(m)) ?? ''
+    const d6 = mc.displacement[1].toPrecision(6), s6 = mc.von_mises[1].toPrecision(6)
+    check(line6.includes(`${mc.nodes} nodes`) && line6.includes(`max displacement ${d6} mm`) && line6.includes(`max von Mises stress ${s6} MPa`), 'the Mystran analysis made in the panels gives the results Mystran gave FreeCAD\'s input', line6)
+    await open('FEM_ResultShow', 'fem-result'); await page.waitForSelector(qf('le_max'), { timeout: 30000 })
+    check(parseFloat(await page.inputValue(qf('le_max'))) > 0, 'Show Result: Mystran\'s results drawn', await page.inputValue(qf('le_max')))
     await page.click('[data-task="fem-result"] .tbuttons .qbtn'); await page.waitForSelector('[data-task="fem-analysis"]', { timeout: 15000 })
   }
 } catch (e) {

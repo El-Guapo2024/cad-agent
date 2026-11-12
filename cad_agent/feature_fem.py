@@ -105,6 +105,13 @@ class SolverElmer(FemObject):
     DEFAULTS: dict = {}
 
 
+class SolverMystran(FemObject):
+    """ObjectsFem.makeSolverMystran: Mystran (a separate program, https://github.com/MystranSolver/MYSTRAN), a static
+    analysis of the Fixed and Force constraints, its input written with pyNastran as FEM's Mystran writer writes it."""
+    MAKER = "makeSolverMystran"
+    DEFAULTS: dict = {}
+
+
 class _Equation(FemObject):
     """An Elmer equation (ObjectsFem.makeEquation*(doc, solver)): one of the solver's, not the analysis's."""
     POS = ("solver",)
@@ -234,7 +241,7 @@ class MeshGmsh(FemObject):
                 "element_order": None, "element_dimension": None}
 
 
-KINDS = {c.__name__: c for c in (SolverCalculiX, SolverElmer, EquationElasticity, EquationHeat, MaterialSolid,
+KINDS = {c.__name__: c for c in (SolverCalculiX, SolverElmer, SolverMystran, EquationElasticity, EquationHeat, MaterialSolid,
                                  ConstraintFixed, ConstraintForce, ConstraintPressure, ConstraintDisplacement,
                                  ConstraintSelfWeight, ConstraintTemperature, ConstraintInitialTemperature,
                                  ConstraintHeatflux, MeshGmsh)}
@@ -318,12 +325,14 @@ def _run(path, workdir=None, threads=None) -> dict:
                   or x.isDerivedFrom("Fem::FemMeshShapeBaseObjectPython")]
         solvers = [x for x in objs if x.isDerivedFrom("Fem::FemSolverObjectPython")]
         if not meshes or not solvers:
-            raise FemError("the analysis needs a MeshGmsh and a solver (SolverCalculiX or SolverElmer)")
+            raise FemError("the analysis needs a MeshGmsh and a solver (SolverCalculiX, SolverElmer or SolverMystran)")
         err = GmshTools(meshes[0]).create_mesh()
         if err:
             raise FemError(f"Gmsh: {err}")
         if getattr(solvers[0].Proxy, "Type", "") == "Fem::SolverElmer":
             return _run_elmer(an, solvers[0], meshes[0], workdir)
+        if getattr(solvers[0].Proxy, "Type", "") == "Fem::SolverMystran":
+            return _run_mystran(an, solvers[0], meshes[0], workdir)
         fea = ccxtools.FemToolsCcx(an, solvers[0])
         fea.update_objects()
         fea.setup_working_dir()
@@ -399,6 +408,91 @@ def _run_elmer(an, solver, mesh, workdir):
         if s is not None:
             (Path(workdir) / RESULTS).write_text(json.dumps({**s, "nodes": out["nodes"], "volumes": out["volumes"]}))
     return out
+
+
+def _run_mystran(an, solver, mesh, workdir):
+    """Mystran as femsolver/mystran/tasks.py's Prepare and Solve run it: the writer's .bdf (pyNastran's), `mystran
+    Mesh.bdf` in the folder. FreeCAD 26.3's own run stops in Prepare (its `get_mesh_to_solve(...)[0]`: the function
+    returns the mesh itself now), so these are its lines without the [0] (tests/golden/fem_mystran/make.py's). FreeCAD
+    reads no Mystran results without the hfcMystranNeuIn add-on; they are read from the .F06 here (mystran_f06)."""
+    import shutil
+    import subprocess
+    import tempfile
+    from femsolver import settings
+    binary = shutil.which(settings.get_binary("Mystran", silent=True) or "mystran")
+    if not binary:
+        raise FemError("mystran is not on the PATH (Mystran, https://github.com/MystranSolver/MYSTRAN, runs the "
+                       "SolverMystran)")
+    try:
+        import numpy
+        if not hasattr(numpy, "in1d"):          # numpy 2.4 dropped it; pyNastran 1.4 still calls it
+            numpy.in1d = numpy.isin
+        import pyNastran.bdf.bdf  # noqa: F401
+    except ImportError:
+        raise FemError("pyNastran is not installed (pip install pyNastran: FEM's Mystran writer writes with it)")
+    import importlib
+    from femmesh import meshsetsgetter
+    from femsolver.mystran import writer
+    from femtools import membertools
+    if not hasattr(writer, "BDF"):              # imported before pyNastran was there
+        importlib.reload(writer)
+    for c in membertools.get_member(an, "Fem::Constraint"):
+        t = getattr(getattr(c, "Proxy", None), "Type", None) or c.TypeId
+        if t not in ("Fem::ConstraintFixed", "Fem::ConstraintForce"):
+            raise FemError(f"{c.Name}: FEM's Mystran writer takes Fixed and Force constraints only, not {t}")
+    wd = str(workdir) if workdir is not None else tempfile.mkdtemp(prefix="fem_")
+    Path(wd).mkdir(parents=True, exist_ok=True)
+    g = meshsetsgetter.MeshSetsGetter(an, solver, mesh, membertools.AnalysisMember(an))
+    g.get_mesh_sets()
+    bdf = writer.FemInputWriterMystran(an, solver, mesh, g.member, wd).write_solver_input()
+    p = subprocess.run([binary, os.path.basename(bdf)], cwd=wd, capture_output=True, text=True)
+    f06 = Path(wd, os.path.splitext(os.path.basename(bdf))[0] + ".F06")
+    from .mystran_f06 import read_f06
+    try:
+        res = read_f06(f06.read_text(errors="replace"))
+    except (OSError, ValueError):
+        err = Path(wd, f06.stem + ".ERR")
+        tail = err.read_text(errors="replace") if err.exists() else (p.stdout + p.stderr)
+        raise FemError("Mystran gave no results: " + (tail.strip()[-400:] or f"see {wd}"))
+    r = _MystranResult(res, mesh.FemMesh)
+    m = mesh.FemMesh
+    out = {"nodes": m.NodeCount, "volumes": m.VolumeCount, "solver": "Mystran",
+           "max_displacement_mm": max(r.DisplacementLengths),
+           "max_von_mises_mpa": max(res["von_mises"].values()) if res["von_mises"] else 0.0,
+           "bdf": bdf, "workdir": wd}
+    if workdir is not None:
+        import json
+        from .fem_edit import surface
+        s = surface(m, r)
+        if s is not None:
+            (Path(workdir) / RESULTS).write_text(json.dumps({**s, "nodes": out["nodes"], "volumes": out["volumes"]}))
+    return out
+
+
+class _MystranResult:
+    """Mystran's results (mystran_f06.read_f06) as a FemResultObject's values at the mesh's nodes (Mystran's grids are
+    the mesh's nodes, by number: exportNastranMesh's GRID cards), in the mesh's units (mm, N, MPa). Mystran gives each
+    solid's stress at its centre; a node's von Mises is the mean of those of the solids it is a corner of."""
+
+    def __init__(self, res, femmesh):
+        import FreeCAD as App
+        self.NodeNumbers = sorted(femmesh.Nodes)
+        d = res["displacement"]
+        self.DisplacementVectors = [App.Vector(*d.get(n, (0.0, 0.0, 0.0))) for n in self.NodeNumbers]
+        self.DisplacementLengths = [v.Length for v in self.DisplacementVectors]
+        acc = {}
+        for eid, vm in res["von_mises"].items():
+            try:
+                nodes = femmesh.getElementNodes(eid)
+            except Exception:
+                continue
+            for n in nodes:
+                a = acc.setdefault(n, [0.0, 0])
+                a[0] += vm
+                a[1] += 1
+        self.vonMises = [acc[n][0] / acc[n][1] if n in acc else 0.0 for n in self.NodeNumbers] if acc else []
+        self.PrincipalMax = self.PrincipalMin = self.Temperature = []
+        self.EigenmodeFrequency = 0.0
 
 
 class _ElmerResult:

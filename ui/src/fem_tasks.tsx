@@ -24,21 +24,21 @@ export type FemObject = { name: string; kind: string; [k: string]: unknown }
 type Ref = [string, string]
 type Kind = 'ConstraintFixed' | 'ConstraintForce' | 'ConstraintPressure' | 'MaterialSolid' | 'MeshGmsh' | 'SolverCalculiX'
   | 'ConstraintDisplacement' | 'ConstraintSelfWeight' | 'ConstraintTemperature' | 'ConstraintInitialTemperature' | 'ConstraintHeatflux'
-  | 'SolverElmer' | 'EquationElasticity' | 'EquationHeat'
+  | 'SolverElmer' | 'SolverMystran' | 'EquationElasticity' | 'EquationHeat'
 
 const TITLE: Record<Kind, string> = { ConstraintFixed: 'Fixed Boundary Condition', ConstraintForce: 'Force Load', ConstraintPressure: 'Pressure Load',
   MaterialSolid: 'Material', MeshGmsh: 'Mesh', SolverCalculiX: 'Solver CalculiX Standard', ConstraintDisplacement: 'Displacement Boundary Condition',
   ConstraintSelfWeight: 'Gravity Load', ConstraintTemperature: 'Temperature Boundary Condition', ConstraintInitialTemperature: 'Initial Temperature',
-  ConstraintHeatflux: 'Heat Flux Load', SolverElmer: 'Solver Elmer', EquationElasticity: 'Elasticity Equation', EquationHeat: 'Heat Equation' }
+  ConstraintHeatflux: 'Heat Flux Load', SolverElmer: 'Solver Elmer', SolverMystran: 'Solver Mystran', EquationElasticity: 'Elasticity Equation', EquationHeat: 'Heat Equation' }
 // FreeCAD's names for new objects (ObjectsFem's defaults; the commands' labels)
 export const BASE_NAME: Record<Kind, string> = { ConstraintFixed: 'ConstraintFixed', ConstraintForce: 'ConstraintForce', ConstraintPressure: 'ConstraintPressure',
   MaterialSolid: 'MaterialSolid', MeshGmsh: 'FEMMeshGmsh', SolverCalculiX: 'CalculiXccxTools', ConstraintDisplacement: 'ConstraintDisplacement',
   ConstraintSelfWeight: 'ConstraintSelfWeight', ConstraintTemperature: 'ConstraintTemperature', ConstraintInitialTemperature: 'ConstraintInitialTemperature',
-  ConstraintHeatflux: 'ConstraintHeatflux', SolverElmer: 'SolverElmer', EquationElasticity: 'Elasticity', EquationHeat: 'Heat' }
+  ConstraintHeatflux: 'ConstraintHeatflux', SolverElmer: 'SolverElmer', SolverMystran: 'SolverMystran', EquationElasticity: 'Elasticity', EquationHeat: 'Heat' }
 const ICON: Record<Kind, string> = { ConstraintFixed: 'FEM_ConstraintFixed', ConstraintForce: 'FEM_ConstraintForce', ConstraintPressure: 'FEM_ConstraintPressure',
   MaterialSolid: 'FEM_MaterialSolid', MeshGmsh: 'FEM_MeshGmshFromShape', SolverCalculiX: 'FEM_SolverStandard', ConstraintDisplacement: 'FEM_ConstraintDisplacement',
   ConstraintSelfWeight: 'FEM_ConstraintSelfWeight', ConstraintTemperature: 'FEM_ConstraintTemperature', ConstraintInitialTemperature: 'FEM_ConstraintInitialTemperature',
-  ConstraintHeatflux: 'FEM_ConstraintHeatflux', SolverElmer: 'FEM_SolverElmer', EquationElasticity: 'FEM_EquationElasticity', EquationHeat: 'FEM_EquationHeat' }
+  ConstraintHeatflux: 'FEM_ConstraintHeatflux', SolverElmer: 'FEM_SolverElmer', SolverMystran: 'FEM_SolverMystran', EquationElasticity: 'FEM_EquationElasticity', EquationHeat: 'FEM_EquationHeat' }
 const icon = (k: Kind) => `fem-${ICON[k]}` as IconName
 const DEFAULTS: Record<Kind, Record<string, unknown>> = {
   ConstraintFixed: { references: [] },
@@ -54,6 +54,7 @@ const DEFAULTS: Record<Kind, Record<string, unknown>> = {
   MeshGmsh: { shape: null, characteristic_length_max: null, characteristic_length_min: null, element_order: null, element_dimension: null },
   SolverCalculiX: { analysis_type: null, eigenmodes_count: null },
   SolverElmer: {},
+  SolverMystran: {},
   EquationElasticity: { solver: null, calculate_stresses: null, calculate_principal: null, calculate_strains: null },
   EquationHeat: { solver: null },
 }
@@ -98,7 +99,7 @@ export async function freshName(part: string, kind: Kind): Promise<string | null
 }
 
 /** The solvers and Gravity have no panel when made: the command adds them, as FreeCAD's does (Edit changes them). */
-export async function addDirect(part: string, kind: 'SolverCalculiX' | 'SolverElmer' | 'ConstraintSelfWeight') {
+export async function addDirect(part: string, kind: 'SolverCalculiX' | 'SolverElmer' | 'SolverMystran' | 'ConstraintSelfWeight') {
   const name = await freshName(part, kind)
   if (name && await applyFem(part, [{ op: 'add', kind, name }], TITLE[kind])) openTask('fem', part, 'analysis')
 }

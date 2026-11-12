@@ -260,3 +260,42 @@ def test_an_equation_needs_its_elmer_solver_first(tmp_path):
     p.write_text(_BAR % "\n".join(['    Fem.EquationHeat("Heat", "SolverElmer"),', _STEEL % "", _MESH]))
     with pytest.raises(Fem.FemError, match="no SolverElmer"):
         Fem.run(p, workdir=tmp_path / "work")
+
+
+# tests/golden/fem_mystran's cantilever written as a part file, with Mystran as its solver
+FC_MYSTRAN = json.loads((Path(__file__).parent / "golden" / "fem_mystran" / "freecad.json").read_text())
+MYSTRAN = "\n".join(['    Fem.SolverMystran("SolverMystran"),', _STEEL % "", _FIX,
+                     '    Fem.ConstraintForce("Force", [("Box", "Face2")], force="100 N", direction=("Box", "Edge5"), reversed=True),',
+                     _MESH])
+
+
+@pytest.mark.skipif(not all(shutil.which(b, path=_path()) for b in ("gmsh", "mystran")),
+                    reason="Gmsh and Mystran are not on the PATH")
+def test_a_mystran_analysis_as_a_part_file_gives_freecads(tmp_path, monkeypatch):
+    pytest.importorskip("pyNastran")
+    monkeypatch.setenv("PATH", _path())
+    p = tmp_path / "bar.py"
+    p.write_text(_BAR % MYSTRAN)
+    work = tmp_path / "work"
+    r = Fem.run(p, workdir=work, threads=1)
+    want = FC_MYSTRAN["cantilever"]
+    assert (r["nodes"], r["volumes"], r["solver"]) == (want["nodes"], want["volumes"], "Mystran")
+    assert Path(r["bdf"]).read_text() == want["bdf"]
+    assert r["max_displacement_mm"] == pytest.approx(want["displacement"][1], rel=1e-9)
+    assert r["max_von_mises_mpa"] == pytest.approx(want["von_mises"][1], rel=1e-9)
+    d = json.loads((work / Fem.RESULTS).read_text())
+    assert d["range"]["displacement"][1] == pytest.approx(r["max_displacement_mm"], rel=1e-9)
+    assert 0 < d["range"]["von_mises"][1] <= r["max_von_mises_mpa"]       # each node's mean of its solids'
+
+
+def test_mystran_takes_only_fixed_and_force(tmp_path, monkeypatch):
+    pytest.importorskip("pyNastran")
+    if not all(shutil.which(b, path=_path()) for b in ("gmsh", "mystran")):
+        pytest.skip("Gmsh and Mystran are not on the PATH")
+    monkeypatch.setenv("PATH", _path())
+    p = tmp_path / "bar.py"
+    p.write_text(_BAR % "\n".join(['    Fem.SolverMystran("SolverMystran"),', _STEEL % "", _FIX,
+                                   '    Fem.ConstraintPressure("Pressure", [("Box", "Face2")], pressure="1 MPa"),',
+                                   _MESH]))
+    with pytest.raises(Fem.FemError, match="Fixed and Force constraints only"):
+        Fem.run(p, workdir=tmp_path / "work", threads=1)

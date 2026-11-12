@@ -205,9 +205,15 @@ Step 5, round 3 (six branches) is all in main (7526c0c, CI green, 6977 passed, 2
   Show Result's modes, Histogram and Animation. Since fem-elmer: Solver Elmer with its Elasticity and Heat equations
   (FreeCAD's femsolver/elmer unchanged; FemMesh.write's .unv, FemPostPipeline.read over VTK's Python, the optional `fem`
   extra: vtk). tests/golden/fem_elmer needs Elmer (ElmerGrid, ElmerSolver; on this box from ppa:elmer-csc-ubuntu/elmer-csc-ppa,
-  26.2) for its whole runs; without it the sif and .unv are still checked. Z88 (FreeCAD wants Z88OS v15's z88r; Ubuntu's z88
-  package is v13) and Mystran (a source build) are not on the box yet. femcheck: 45 ok. Next for FEM: buckling, contact, springs, the analysis
-  in the tree; Elmer's other equations; Z88 and Mystran once their programs are here. A new CAD_* variable that a command
+  26.2) for its whole runs; without it the sif and .unv are still checked. Since fem-mystran: Solver Mystran (FreeCAD's
+  femsolver/mystran unchanged; its Prepare's `get_mesh_to_solve(...)[0]` fails in 26.3, so feature_fem and the golden run
+  its writer and `mystran` with the same lines without the [0]; results read from the .F06 by cad_agent/mystran_f06.py, since
+  FreeCAD reads none without the hfcMystranNeuIn add-on; pyNastran installed separately, as FreeCAD wants it: not an extra, it pulls in matplotlib). Mystran 19.0 is built from
+  github.com/MystranSolver/MYSTRAN in ~/solvers/mystran-src (cmake without CMAKE_BUILD_TYPE=Release: its -DNDEBUG breaks a
+  Fortran name) and installed as /usr/local/bin/mystran; FreeCAD's Python gets pyNastran 1.4.1 from ~/solvers/fc-pylib
+  (PYNASTRAN_PATH for make.py; numpy.in1d is numpy.isin there, FreeCAD's numpy 2.5 lacks it). Z88 (FreeCAD wants Z88OS v15's
+  z88r; Ubuntu's z88 package is v13, z88.de's download page is gone) is not on the box. femcheck: 48 ok. Next for FEM:
+  buckling, contact, springs, the analysis in the tree; Elmer's other equations; Z88 once its program is here. A new CAD_* variable that a command
   reads has to go in warm.py's ENV_PASS as well (CAD_FEM_THREADS failed test_warm.py on fem-ui until it did).
 - Left after the demo: FEM's part-file objects, CLI and page, Draft's Trimex/Split/Upgrade and annotations, Part's cut commands, PARITY's known
   differences. Temporary branches on GitHub (ds-merge, ds-fix, asm-merge, st-merge, r5-merge, r6-merge, r7-merge,
