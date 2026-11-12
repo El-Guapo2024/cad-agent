@@ -15,6 +15,8 @@ from pathlib import Path
 import numpy as np
 import pytest
 
+pytest.importorskip("vtkmodules", reason="FEM's Z88 tools read its results with VTK's Python (the fem extra)")
+
 HERE = Path(__file__).parent / "golden" / "fem_z88"
 _spec = importlib.util.spec_from_file_location("fem_z88_cases", HERE / "cases.py")
 _cases = importlib.util.module_from_spec(_spec)

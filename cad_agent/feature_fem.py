@@ -489,6 +489,11 @@ def _run_z88(an, solver, mesh, workdir):
     from femsolver import settings
     if not shutil.which(settings.get_binary("Z88", silent=True) or "z88r"):
         raise FemError("z88r is not on the PATH (Z88OS, https://github.com/LSCAD/Z88OS, runs the SolverZ88)")
+    try:
+        import vtkmodules  # noqa: F401
+    except ImportError:
+        raise FemError("VTK's Python is not installed (pip install \"cad-agent[fem]\": FEM's Z88 tools read its results "
+                       "with it)")
     from femtools import membertools
     for c in membertools.get_member(an, "Fem::Constraint"):
         t = getattr(getattr(c, "Proxy", None), "Type", None) or c.TypeId
